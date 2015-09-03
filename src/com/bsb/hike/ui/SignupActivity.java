@@ -768,7 +768,12 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 							Editor editor = accountPrefs.edit();
 							editor.putString(HikeMessengerApp.TEMP_COUNTRY_CODE, code);
 							editor.commit();
-
+							
+							Utils.setSSLAllowed(code);
+							Utils.setupServerURL(getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, MODE_PRIVATE).getBoolean(HikeMessengerApp.PRODUCTION, true),
+									Utils.switchSSLOn(getApplicationContext()));
+							HttpRequestConstants.setUpBase();
+							
 							mTask.addUserInput(number);
 
 							startLoading();
