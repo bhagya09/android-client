@@ -105,7 +105,7 @@ public class UpgradeIntentService extends IntentService
 			{
 				Logger.v(TAG, "Upgrade Sorting Id Field was successful");
 				Editor editor = prefs.edit();
-				editor.putInt(HikeMessengerApp.UPGRADE_FOR_SERVER_ID_FIELD, 2);
+				editor.putInt(HikeMessengerApp.UPGRADE_SORTING_ID_FIELD, 2);
 				editor.putBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false);
 				editor.commit();
 			}
