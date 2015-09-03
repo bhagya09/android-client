@@ -32,6 +32,11 @@ public class NetworkAgModule
 		}
 		else
 		{
+			if(!HikeMessengerApp.isIndianUser())
+			{
+				Logger.d(TAG, "AG network logging is not enabled.. since this is not an indian user");
+				return;
+			}
 			Logger.d(TAG, "starting AG network logging");
 		}
 		

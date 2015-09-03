@@ -20,6 +20,7 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.MailTo;
+import android.net.ParseException;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -27,6 +28,7 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.view.ViewStub;
@@ -36,6 +38,7 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
@@ -84,7 +87,7 @@ import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.TagEditText.Tag;
 
 public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements OnInflateListener, TagOnClickListener, OverflowItemClickListener,
-		OnDismissListener, OverflowViewListener, HikePubSub.Listener, IBridgeCallback
+		OnDismissListener, OverflowViewListener, HikePubSub.Listener, IBridgeCallback, OnClickListener
 {
 	
 	private static final String tag = "WebViewActivity";
@@ -130,6 +133,10 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	private String[] pubsub = new String[]{HikePubSub.NOTIF_DATA_RECEIVED};
 
 	private boolean allowLoc;
+	
+	private View inflatedErrorView;
+	
+	private boolean webViewLoadFailed = false;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -298,23 +305,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	private void handleURLBotMode()
 	{
 		webView.loadUrl(botMetaData.getUrl());
-		webView.setWebViewClient(new HikeWebViewClient()
-		{
-			@Override
-			public void onPageFinished(WebView view, String url)
-			{
-				super.onPageFinished(view, url);
-				bar.setVisibility(View.INVISIBLE);
-			}
-
-			@Override
-			public void onPageStarted(WebView view, String url, Bitmap favicon)
-			{
-				bar.setProgress(0);
-				bar.setVisibility(View.VISIBLE);
-				super.onPageStarted(view, url, favicon);
-			}
-		});
+		webView.setWebViewClient(new HikeWebViewClient());
 		webView.setWebChromeClient(new HikeWebChromeClient(allowLoc));
 	}
 
@@ -335,13 +326,6 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		{
 
 			@Override
-			public void onPageStarted(WebView view, String url, Bitmap favicon)
-			{
-				bar.setProgress(0);
-				bar.setVisibility(View.VISIBLE);
-				super.onPageStarted(view, url, favicon);
-			}
-			@Override
 			public void onPageFinished(WebView view, String url)
 			{
 				if (view != null && !TextUtils.isEmpty(js))
@@ -349,7 +333,6 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 					Logger.i(tag, "loading js injection");
 					view.loadUrl("javascript:" + js);
 				}
-				bar.setVisibility(View.INVISIBLE);
 				super.onPageFinished(view, url);
 			}
 		};
@@ -423,21 +406,6 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 
 		WebViewClient client = new HikeWebViewClient()
 		{
-
-			@Override
-			public void onPageFinished(WebView view, String url)
-			{
-				super.onPageFinished(view, url);
-				bar.setVisibility(View.INVISIBLE);
-			}
-
-			@Override
-			public void onPageStarted(WebView view, String url, Bitmap favicon)
-			{
-				bar.setProgress(0);
-				bar.setVisibility(View.VISIBLE);
-				super.onPageStarted(view, url, favicon);
-			}
 
 			@Override
 			public WebResourceResponse shouldInterceptRequest(WebView view, String url)
@@ -703,6 +671,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		setMicroAppStatusBarColor();
 		
 		setAvatar();
+		
 	}
 	
 	private void setupWebURLWithBridgeActionBar(String title, int color, int statusBarColor)
@@ -989,7 +958,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	{
 		super.onResume();
 		//Logging MicroApp Screen opening for bot case
-		if (mode == MICRO_APP_MODE)
+		if (mode == MICRO_APP_MODE || mode == WEB_URL_BOT_MODE)
 		{
 			HAManager.getInstance().startChatSession(msisdn);
 		}
@@ -1059,6 +1028,16 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 
 	private class HikeWebViewClient extends HikeWebClient
 	{
+		@Override
+		public void onPageFinished(WebView view, String url)
+		{
+			super.onPageFinished(view, url);
+			if (mode != MICRO_APP_MODE)
+			{
+				bar.setVisibility(View.INVISIBLE);
+				showErrorViewIfLoadError(view);
+			}
+		}
 
 		@Override
 		public boolean shouldOverrideUrlLoading(WebView view, String url)
@@ -1116,6 +1095,26 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 			}
 			return true;
 
+		}
+		
+		@Override
+		public void onPageStarted(WebView view, String url, Bitmap favicon)
+		{
+			if (mode != MICRO_APP_MODE)
+			{
+				bar.setProgress(0);
+				bar.setVisibility(View.VISIBLE);
+			}
+			super.onPageStarted(view, url, favicon);
+		}
+
+		@Override
+		public void onReceivedError(WebView view, int errorCode, String description, String failingUrl)
+		{
+			// TODO Auto-generated method stub
+			super.onReceivedError(view, errorCode, description, failingUrl);
+			
+			setupAndShowErrorView(view);
 		}
 	}
 
@@ -1241,6 +1240,73 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 				PlatformUtils.sendPlatformCrashAnalytics("PackageManager.NameNotFoundException", msisdn);
 				this.finish();
 			}
+		}
+	}
+
+	private void setupAndShowErrorView(final WebView view)
+	{
+		webViewLoadFailed = true;
+
+		ViewStub stub = (ViewStub) findViewById(R.id.http_error_viewstub);
+		if (stub == null)
+		{
+			inflatedErrorView = findViewById(R.id.http_error_viewstub_inflated);
+			inflatedErrorView.setVisibility(View.VISIBLE);
+		}
+		else
+		{
+			inflatedErrorView = stub.inflate();
+		}
+
+		view.setVisibility(View.GONE);
+		final Button retryButton = (Button) inflatedErrorView.findViewById(R.id.retry_button);
+		
+		retryButton.setOnClickListener(this);
+	}
+
+	private void showErrorViewIfLoadError(WebView view)
+	{
+		// webView loaded
+		if (!webViewLoadFailed)
+		{
+			if (inflatedErrorView != null)
+			{
+				inflatedErrorView.setVisibility(View.GONE);
+				view.setVisibility(View.VISIBLE);
+			}
+		}
+		// webView load failed
+		else
+		{
+			inflatedErrorView.findViewById(R.id.http_error_ll).setVisibility(View.VISIBLE);
+			webViewLoadFailed = false;
+		}
+	}
+
+	@Override
+	public void changeActionBarColor(String color)
+	{
+		try
+		{
+			int abColor = Color.parseColor(color);
+			updateActionBarColor(new ColorDrawable(abColor));
+		}
+
+		catch (IllegalArgumentException e)
+		{
+			Logger.e(tag, "Seems like you passed the wrong color");
+		}
+	}
+
+	@Override
+	public void onClick(View v)
+	{
+		switch(v.getId())
+		{
+			case R.id.retry_button:
+				initAppsBasedOnMode();
+				inflatedErrorView.findViewById(R.id.http_error_ll).setVisibility(View.GONE);
+				break;
 		}
 	}
 

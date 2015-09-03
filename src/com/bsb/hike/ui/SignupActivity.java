@@ -71,6 +71,7 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
+import com.bsb.hike.ag.NetworkAgModule;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.bots.BotUtils;
@@ -504,6 +505,9 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 				JSONObject sessionDataObject = HAManager.getInstance().recordAndReturnSessionStart();
 				Utils.sendSessionMQTTPacket(SignupActivity.this, HikeConstants.FOREGROUND, sessionDataObject);
 				Utils.appStateChanged(getApplicationContext(), false, false, false, true, false);
+				
+				//need to start agoop logging when signup is complete
+				NetworkAgModule.startLogging();
 			}
 			else if (mCurrentState != null && mCurrentState.value != null && mCurrentState.value.equals(HikeConstants.CHANGE_NUMBER))
 			{

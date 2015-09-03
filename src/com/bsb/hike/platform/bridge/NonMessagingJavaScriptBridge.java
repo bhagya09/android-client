@@ -23,6 +23,7 @@ import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.platform.CustomWebView;
 import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.platform.PlatformHelper;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.ui.GalleryActivity;
 import com.bsb.hike.ui.WebViewActivity;
@@ -51,6 +52,8 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	
 	private static final int CHANGE_STATUS_BAR_COLOR = 116;
 	
+	private static final int CHANGE_ACTION_BAR_COLOR = 117;
+	
 	private BotInfo mBotInfo;
 	
 	private static final String TAG  = "NonMessagingJavaScriptBridge";
@@ -75,29 +78,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	@JavascriptInterface
 	public void logAnalytics(String isUI, String subType, String json)
 	{
-
-		try
-		{
-			JSONObject jsonObject = new JSONObject(json);
-			jsonObject.put(AnalyticsConstants.BOT_MSISDN, mBotInfo.getMsisdn());
-			jsonObject.put(AnalyticsConstants.BOT_NAME, mBotInfo.getConversationName());
-			if (Boolean.valueOf(isUI))
-			{
-				HikeAnalyticsEvent.analyticsForNonMessagingBots(AnalyticsConstants.MICROAPP_UI_EVENT, subType, jsonObject);
-			}
-			else
-			{
-				HikeAnalyticsEvent.analyticsForNonMessagingBots(AnalyticsConstants.MICROAPP_NON_UI_EVENT, subType, jsonObject);
-			}
-		}
-		catch (JSONException e)
-		{
-			e.printStackTrace();
-		}
-		catch (NullPointerException e)
-		{
-			e.printStackTrace();
-		}
+		PlatformHelper.logAnalytics(isUI, subType, json,mBotInfo);
 	}
 
 	@Override
@@ -162,40 +143,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	@JavascriptInterface
 	public void forwardToChat(String json, String hikeMessage)
 	{
-		Logger.i(TAG, "Received this json in forward to chat : " + json + "\n Received this hm : " + hikeMessage);
-		
-		if (TextUtils.isEmpty(json) || TextUtils.isEmpty(hikeMessage))
-		{
-			Logger.e(TAG, "Received a null or empty json/hikeMessage in forward to chat");
-			return;
-		}
-		
-		try
-		{
-			NonMessagingBotMetadata metadata = new NonMessagingBotMetadata(mBotInfo.getMetadata());
-			JSONObject cardObj = new JSONObject(json);
-
-			/**
-			 * Blindly inserting the appName in the cardObj JSON.
-			 */
-			cardObj.put(HikePlatformConstants.APP_NAME, metadata.getAppName());
-			cardObj.put(HikePlatformConstants.APP_PACKAGE, metadata.getAppPackage());
-
-			JSONObject webMetadata = new JSONObject();
-			webMetadata.put(HikePlatformConstants.TARGET_PLATFORM, metadata.getTargetPlatform());
-			webMetadata.put(HikePlatformConstants.CARD_OBJECT, cardObj);
-			ConvMessage message = PlatformUtils.getConvMessageFromJSON(webMetadata, hikeMessage, mBotInfo.getMsisdn());
-			message.setNameSpace(mBotInfo.getNamespace());
-			if (message != null)
-			{
-				startComPoseChatActivity(message);
-			}
-		}
-		catch (JSONException e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		PlatformHelper.forwardToChat(json, hikeMessage,mBotInfo,weakActivity.get());
 	}
 
 	/**
@@ -373,7 +321,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	@JavascriptInterface
 	public void putInCache(String key, String value)
 	{
-		HikeContentDatabase.getInstance().putInContentCache(key, mBotInfo.getNamespace(), value);
+		PlatformHelper.putInCache(key, value,mBotInfo.getNamespace());
 	}
 
 	/**
@@ -397,7 +345,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	@JavascriptInterface
 	public void getFromCache(String id, String key)
 	{
-	 	String value = HikeContentDatabase.getInstance().getFromContentCache(key, mBotInfo.getNamespace());
+		String value = PlatformHelper.getFromCache(key,mBotInfo.getNamespace());
 		callbackToJS(id, value);
 	}
 
@@ -538,6 +486,17 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 				String sbColor = (String) msg.obj;
 				mCallback.changeStatusBarColor(sbColor);
 			}
+			
+			break;
+			
+		case CHANGE_ACTION_BAR_COLOR :
+			if (mCallback != null)
+			{
+				String abColor = (String) msg.obj;
+				mCallback.changeActionBarColor(abColor);
+			}
+			
+			break;
 			
 		default:
 			super.handleUiMessage(msg);
@@ -718,6 +677,23 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	{
 		mBotInfo.setIsUpPressAllowed(Boolean.valueOf(allowUp));
 	}
+	
+	/**
+	 * Platform Bridge Version 5
+	 * Call this function to change action bar color at runtime. <br>
+	 * This method will work regardless of the Android Version. <br> 
+	 * Call it prudently, since it can alter the beauty of the micro app
+	 * 
+	 * @param abColor
+	 */
+	@JavascriptInterface
+	public void setActionBarColor(String abColor)
+	{
+		if (!TextUtils.isEmpty(abColor))
+		{
+			sendMessageToUiThread(CHANGE_ACTION_BAR_COLOR, abColor);
+		}
+	}
 
 	/**
 	 * Platform Version 5
@@ -797,7 +773,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	@JavascriptInterface
 	public void getSharedEventsData(String functionId)
 	{
-		String messageData = HikeConversationsDatabase.getInstance().getMessageEventsForMicroapps(mBotInfo.getNamespace(), false);
+		String messageData = PlatformHelper.getSharedEventsData(mBotInfo.getNamespace());
 		callbackToJS(functionId, messageData);
 	}
 
@@ -871,7 +847,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	@JavascriptInterface
 	public void getAllEventsData(String functionId)
 	{
-		String messageData = HikeConversationsDatabase.getInstance().getMessageEventsForMicroapps(mBotInfo.getNamespace(), true);
+		String messageData = PlatformHelper.getAllEventsData(mBotInfo.getNamespace());
 		callbackToJS(functionId, messageData);
 	}
 
@@ -891,12 +867,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	@JavascriptInterface
 	public void getAllEventsForMessageHash(String functionId, String messageHash)
 	{
-		if (TextUtils.isEmpty(messageHash))
-		{
-			Logger.e(TAG, "can't return all events as the message hash is " + messageHash);
-			return;
-		}
-		String eventData = HikeConversationsDatabase.getInstance().getEventsForMessageHash(messageHash, mBotInfo.getNamespace());
+		String eventData =PlatformHelper.getAllEventsForMessageHash(messageHash,mBotInfo.getNamespace());
 		callbackToJS(functionId, eventData);
 	}
 
@@ -916,41 +887,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	@JavascriptInterface
 	public void sendSharedMessage(String cardObject, String hikeMessage, String sharedData)
 	{
-		if (TextUtils.isEmpty(cardObject) || TextUtils.isEmpty(hikeMessage))
-		{
-			Logger.e(TAG, "Received a null or empty json/hikeMessage in forward to chat");
-			return;
-		}
-
-		try
-		{
-			NonMessagingBotMetadata metadata = new NonMessagingBotMetadata(mBotInfo.getMetadata());
-			JSONObject cardObj = new JSONObject(cardObject);
-
-			/**
-			 * Blindly inserting the appName in the cardObject JSON.
-			 */
-			cardObj.put(HikePlatformConstants.APP_NAME, metadata.getAppName());
-			cardObj.put(HikePlatformConstants.APP_PACKAGE, metadata.getAppPackage());
-
-			JSONObject webMetadata = new JSONObject();
-			webMetadata.put(HikePlatformConstants.TARGET_PLATFORM, metadata.getTargetPlatform());
-			webMetadata.put(HikePlatformConstants.CARD_OBJECT, cardObj);
-			ConvMessage message = PlatformUtils.getConvMessageFromJSON(webMetadata, hikeMessage, mBotInfo.getMsisdn());
-
-			message.setParticipantInfoState(ConvMessage.ParticipantInfoState.NO_INFO);
-			JSONObject sharedDataJson = new JSONObject(sharedData);
-			sharedDataJson.put(HikePlatformConstants.EVENT_TYPE, HikePlatformConstants.SHARED_EVENT);
-			message.setPlatformData(sharedDataJson);
-			message.setNameSpace(mBotInfo.getNamespace());
-			pickContactAndSend(message);
-
-		}
-		catch (JSONException e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		PlatformHelper.sendSharedMessage(cardObject, hikeMessage, sharedData, mBotInfo, weakActivity.get());
 	}
 
 	/**
@@ -964,7 +901,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	@JavascriptInterface
 	public void sendNormalEvent(String messageHash, String eventData)
 	{
-		PlatformUtils.sendPlatformMessageEvent(eventData, messageHash, mBotInfo.getNamespace());
+		PlatformHelper.sendNormalEvent(messageHash, eventData, mBotInfo.getNamespace());
 	}
 	
 	/**
