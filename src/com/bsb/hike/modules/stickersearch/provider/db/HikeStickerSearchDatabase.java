@@ -60,6 +60,8 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 
 	private static long sIntertionTimePerSession = 0;
 
+	private static long sPTInsertionTimePerSession = 0;
+
 	private HikeStickerSearchDatabase(Context context)
 	{
 		super(context, HikeStickerSearchBaseConstants.DATABASE_HIKE_STICKER_SEARCH, null, HikeStickerSearchBaseConstants.STICKERS_SEARCH_DATABASE_VERSION);
@@ -602,6 +604,9 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 
 		Logger.v(TAG, "insertStickerTagData(), Existing tags count = " + existingTagsCount + ", New tags count = " + newTagsCount);
 		Logger.v(TAG, "insertStickerTagData(), Newly inserted tags count = " + newTagsInsertionSucceeded + ", Newly abandoned tags count = " + newTagsInsertionFailed);
+
+		sPTInsertionTimePerSession += (operationOverTime - requestStartTime);
+		Logger.d(TAG_INSERTION, "Time taken in insertion for current session (into primary table) = " + Utils.getExecutionTimeLog(0, sPTInsertionTimePerSession, Utils.PRECISION_UNIT_NANO_SECOND));
 
 		if (newTagsInsertionSucceeded > 0)
 		{
