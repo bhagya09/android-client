@@ -204,13 +204,17 @@ public class VoipCallFragment extends Fragment implements CallActions
 				showMessage(getString(R.string.voip_conference_not_supported, name));
 				break;
 			case VoIPConstants.MSG_PARTNER_BUSY:
-				if (voipService != null && !voipService.hostingConference())
+				if (voipService != null)
 				{
 					Bundle bundle2 = msg.getData();
 					String msisdn = bundle2.getString(VoIPConstants.MSISDN);
-					showCallFailedFragment(VoIPConstants.CallFailedCodes.PARTNER_BUSY, msisdn);
-					voipService.setCallStatus(VoIPConstants.CallStatus.PARTNER_BUSY);
-					updateCallStatus();
+					if (voipService.hostingConference()) {
+						showMessage(getString(R.string.voip_callee_busy, msisdn));
+					} else {
+						showCallFailedFragment(VoIPConstants.CallFailedCodes.PARTNER_BUSY, msisdn);
+						voipService.setCallStatus(VoIPConstants.CallStatus.PARTNER_BUSY);
+						updateCallStatus();
+					}
 				}
 				break;
 			case VoIPConstants.MSG_UPDATE_CALL_BUTTONS:
