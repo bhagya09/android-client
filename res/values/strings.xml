@@ -1547,7 +1547,6 @@
     <string name="cont_desc_photos_tab_doodle">TabDoodle</string>
 	<string name="now">Now</string>
 	<string name="sticker_recommend_tip">Tap on blue words</string>
-	<string name="group_participant_info">You can add upto 500 members to a group</string>
 	<string name="make_admin">Make Admin</string>
 	<string name="admin_updating">Making %1$s an Admin</string>
 	<string name="admin_task_error">Connection error: Please check your network and try again.</string>
@@ -1664,4 +1663,6 @@
     <string name="email_body">I just downloaded the new hike messenger. What a big change from WhatsApp!\n\nIt\'s got amazing stickers, the ability to hide my chats and some really cool chat themes. \n\nDownload it now from http://get.hike.in/$invite_token</string>
     <string name="watsapp_invitation">Hey, join me on hike, the only messaging app made in India! It lets you hide your chats, send messages to friends when they\'re offline and send awesome stickers. \n\nAlso share all types of files - docs, songs, movies etc, up to 100MB each - Download: http://get.hike.in/</string>
     <string name="invite_share_message">Hey, check out hike messenger. It has awesome stickers in our language! Join the only made in India messaging app- Download at http://hike.in/$invite_token</string>
+    <string name="group_selected">%1$s/1000 selected</string>		
+	<string name="group_participant_info"><![CDATA[<font color=\"#000000\">Now you can add upto </font><font color=\"#1090e0\"><b>1000</b> </font><font color=\"#000000\">members</font>]]></string>
 </resources>
