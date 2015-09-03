@@ -151,7 +151,7 @@ public class ToastListener implements Listener
 				Utils.resetUnseenStatusCount(activity);
 				HikeMessengerApp.getPubSub().publish(HikePubSub.INCREMENTED_UNSEEN_STATUS_COUNT, null);
 				
-				if (((TimelineActivity) activity).isTimelineScreenOnTop())
+				if (((TimelineActivity) activity).isUpdatesFrgamentOnTop())
 				{
 					return;
 				}

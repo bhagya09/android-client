@@ -161,17 +161,27 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 	{
 		super.onNewIntent(intent);
 		ActivityFeedFragment activityFeedFragment = (ActivityFeedFragment) getSupportFragmentManager().findFragmentByTag(FRAGMENT_ACTIVITY_FEED_TAG);
-		if (intent.getBooleanExtra(HikeConstants.Extras.OPEN_ACTIVITY_FEED, false))
+		if (intent.getBooleanExtra(HikeConstants.Extras.OPEN_ACTIVITY_FEED, false)) // We have to open ActivityFeedFragment
 		{
-			if(activityFeedFragment != null && (!activityFeedFragment.isAdded() || !activityFeedFragment.isVisible()))
+			if(activityFeedFragment != null)
 			{
-				getSupportFragmentManager().beginTransaction().remove(activityFeedFragment).commit();
+				if(!activityFeedFragment.isAdded() || !activityFeedFragment.isVisible())
+				{
+					getSupportFragmentManager()
+					.beginTransaction()
+					.add(R.id.parent_layout, activityFeedFragment, FRAGMENT_ACTIVITY_FEED_TAG)
+					.addToBackStack(FRAGMENT_ACTIVITY_FEED_TAG)
+					.commit();
+				}
+			}
+			else
+			{
 				loadActivityFeedFragment();
 			}
 		}
-		else
+		else //We have to open UpdatesFragment
 		{
-			if(activityFeedFragment != null && (activityFeedFragment.isAdded() || activityFeedFragment.isVisible()))
+			if(!isUpdatesFrgamentOnTop())
 			{
 				getSupportFragmentManager().popBackStack();
 			}
@@ -696,7 +706,7 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 		}
 	}
 	
-	public boolean isTimelineScreenOnTop()
+	public boolean isUpdatesFrgamentOnTop()
 	{
 		int count = getSupportFragmentManager().getBackStackEntryCount();
 		return count <= 1 ? true : false;
