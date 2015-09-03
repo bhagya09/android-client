@@ -550,7 +550,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 			initActionBar();
 		}
 		
-		if (mode == MICRO_APP_MODE && mActionBar != null)
+		if ((mode == MICRO_APP_MODE || mode == WEB_URL_BOT_MODE) && mActionBar != null)
 		{
 			List<OverFlowMenuItem> menuItemsList = getOverflowMenuItems();
 			mActionBar.onCreateOptionsMenu(menu, R.menu.simple_overflow_menu, menuItemsList, this, this);
@@ -932,7 +932,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	{
 		super.onPause();
 		//Logging MicroApp Screen closing for bot case
-		if (mode == MICRO_APP_MODE)
+		if (mode == MICRO_APP_MODE || mode == WEB_URL_BOT_MODE)
 		{
 			HAManager.getInstance().endChatSession(msisdn);
 		}
