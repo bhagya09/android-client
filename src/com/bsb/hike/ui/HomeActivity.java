@@ -887,7 +887,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 		if (image != null)
 		{
-			image.setImageResource(!showingRewardsPopup ? R.drawable.ic_free_sms_default : R.drawable.ic_free_sms_rewards);
+			image.setImageResource(!showingRewardsPopup ? R.drawable.ic_free_sms_default : R.drawable.ftue_card_invite_img_small);
 		}
 
 		okBtn.setOnClickListener(new OnClickListener()
