@@ -2,27 +2,12 @@ package com.bsb.hike.platform.bridge;
 
 import java.util.List;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import android.content.Intent;
-import android.os.Handler;
-import android.os.Message;
-import android.text.TextUtils;
 import android.widget.Toast;
 
-import com.bsb.hike.HikeMessengerApp;
-import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.bots.BotInfo;
-import com.bsb.hike.bots.BotUtils;
-import com.bsb.hike.bots.NonMessagingBotMetadata;
-import com.bsb.hike.models.ConvMessage;
+import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.platform.CocosGamingActivity;
-import com.bsb.hike.platform.HikePlatformConstants;
-import com.bsb.hike.platform.PlatformUtils;
-import com.bsb.hike.platform.content.PlatformContent;
-import com.bsb.hike.utils.HikeAnalyticsEvent;
-import com.bsb.hike.utils.IntentFactory;
+import com.bsb.hike.platform.PlatformHelper;
 import com.bsb.hike.utils.Logger;
 
 public class NativeGameBridge {
@@ -30,17 +15,17 @@ public class NativeGameBridge {
 	private CocosGamingActivity activity;
 	private String TAG = getClass().getSimpleName();
 	private BotInfo mBotInfo;
-	private Handler handler;
-
+	HikeHandlerUtil mThread;
+	PlatformHelper helper;
+	
+    public native void platformCallback(String id, String response);
+    
 	public NativeGameBridge(CocosGamingActivity activity, BotInfo mBotInfo) {
 		super();
 		this.activity = activity;
 		this.mBotInfo = mBotInfo;
-		this.handler = new Handler(HikeMessengerApp.getInstance().getMainLooper()) {
-			public void handleMessage(Message msg) {
-				// TODO handle message
-			};
-		};
+		mThread = HikeHandlerUtil.getInstance();
+		helper = new PlatformHelper(this.mBotInfo, this.activity);
 	}
 
 	/**
@@ -62,7 +47,8 @@ public class NativeGameBridge {
 
 	/**
 	 * 
-	 * @param requestId whose requestData is being queried for
+	 * @param requestId
+	 *            whose requestData is being queried for
 	 * @return RequestData associated with the requestId
 	 */
 	public String getRequestData(String requestId) {
@@ -72,7 +58,8 @@ public class NativeGameBridge {
 
 	/**
 	 * 
-	 * @param List of requestIds whose requestData is being queried for
+	 * @param List
+	 *            of requestIds whose requestData is being queried for
 	 * @return RequestData associated with the list of requestIds
 	 */
 	public String getRequestData(List<String> requestIds) {
@@ -82,7 +69,8 @@ public class NativeGameBridge {
 
 	/**
 	 * 
-	 * @param requestId whose requestData is to be deleted
+	 * @param requestId
+	 *            whose requestData is to be deleted
 	 * @return
 	 */
 	public boolean deleteRequest(String requestId) {
@@ -90,48 +78,15 @@ public class NativeGameBridge {
 		return false;
 	}
 
-	public void forwardToChat(String json, String hikeMessage) {
-		Logger.i(TAG, "Received this json in forward to chat : " + json + "\n Received this hm : " + hikeMessage);
+	public void forwardToChat(final String json,final String hikeMessage) {
+		mThread.startHandlerThread();
+		mThread.postRunnable(new Runnable() {
 
-		if (TextUtils.isEmpty(json) || TextUtils.isEmpty(hikeMessage)) {
-			Logger.e(TAG, "Received a null or empty json/hikeMessage in forward to chat");
-			return;
-		}
-
-		try {
-			BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(mBotInfo.getMsisdn());
-			NonMessagingBotMetadata metadata = new NonMessagingBotMetadata(botInfo.getMetadata());
-			JSONObject cardObj = new JSONObject(json);
-
-			/**
-			 * Blindly inserting the appName in the cardObj JSON.
-			 */
-			cardObj.put(HikePlatformConstants.APP_NAME, metadata.getAppName());
-			cardObj.put(HikePlatformConstants.APP_PACKAGE, metadata.getAppPackage());
-
-			JSONObject webMetadata = new JSONObject();
-			webMetadata.put(HikePlatformConstants.CARD_OBJECT, cardObj);
-			ConvMessage message = PlatformUtils.getConvMessageFromJSON(webMetadata, hikeMessage, mBotInfo.getMsisdn());
-
-			if (message != null) {
-				startComPoseChatActivity(message);
-			}
-		} catch (JSONException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-
-	private void startComPoseChatActivity(final ConvMessage message) {
-		handler.post(new Runnable() {
 			@Override
 			public void run() {
-				if (activity != null) {
-					final Intent intent = IntentFactory.getForwardIntentForConvMessage(activity, message,
-							PlatformContent.getForwardCardData(message.webMetadata.JSONtoString()));
-					activity.startActivity(intent);
-				}
+				helper.forwardToChat(json, hikeMessage);
 			}
+			
 		});
 	}
 
@@ -148,40 +103,68 @@ public class NativeGameBridge {
 			}
 		});
 	}
-	
-	/**
-	 * Platform Bridge Version 0.
-	 * Call this function to log analytics events.
-	 *
-	 * @param isUI    : whether the event is a UI event or not. This is a string. Send "true" or "false".
-	 * @param subType : the subtype of the event to be logged, eg. send "click", to determine whether it is a click event.
-	 * @param json    : any extra info for logging events, including the event key that is pretty crucial for analytics.
-	 */
-	public void logAnalytics(String isUI, String subType, String json)
-	{
 
-		try
-		{
-			JSONObject jsonObject = new JSONObject(json);
-			jsonObject.put(AnalyticsConstants.BOT_MSISDN, mBotInfo.getMsisdn());
-			jsonObject.put(AnalyticsConstants.BOT_NAME, mBotInfo.getConversationName());
-			if (Boolean.valueOf(isUI))
-			{
-				HikeAnalyticsEvent.analyticsForNonMessagingBots(AnalyticsConstants.MICROAPP_UI_EVENT, subType, jsonObject);
+	public void putInCache(final String key, final String value) {
+		mThread.startHandlerThread();
+		mThread.postRunnable(new Runnable() {
+
+			@Override
+			public void run() {
+				if (mBotInfo == null)
+					Logger.d(TAG, "mbotinfoisnull");
+				helper.putInCache(key, value);
+				Logger.d(TAG, "put in cache");
 			}
-			else
-			{
-				HikeAnalyticsEvent.analyticsForNonMessagingBots(AnalyticsConstants.MICROAPP_NON_UI_EVENT, subType, jsonObject);
+
+		});
+
+	}
+
+	public void getFromCache(final String id, final String key) {
+		mThread.startHandlerThread();
+		mThread.postRunnable(new Runnable() {
+
+			@Override
+			public void run() {
+				Logger.d(TAG, "Getting data: " + key);
+				final String  cache = helper.getFromCache(id, key);
+				Logger.d(TAG, "data from cache" + cache);
+				// callBack function to be called here.
+				activity.runOnGLThread(new Runnable() {
+					@Override
+					public void run() {
+						// gameCallback(id,cache);
+						activity.PlatformCallback(id, cache);
+					}
+				});
 			}
-		}
-		catch (JSONException e)
-		{
-			e.printStackTrace();
-		}
-		catch (NullPointerException e)
-		{
-			e.printStackTrace();
-		}
+
+		});
+	}
+
+	/**
+	 * Platform Bridge Version 0. Call this function to log analytics events.
+	 * 
+	 * @param isUI
+	 *            : whether the event is a UI event or not. This is a string.
+	 *            Send "true" or "false".
+	 * @param subType
+	 *            : the subtype of the event to be logged, eg. send "click", to
+	 *            determine whether it is a click event.
+	 * @param json
+	 *            : any extra info for logging events, including the event key
+	 *            that is pretty crucial for analytics.
+	 */
+	public void logAnalytics(final String isUI,final String subType,final String json) {
+		mThread.startHandlerThread();
+		mThread.postRunnable(new Runnable() {
+
+			@Override
+			public void run() {
+				helper.logAnalytics(isUI, subType, json);
+			}
+			
+		});
 	}
 
 }

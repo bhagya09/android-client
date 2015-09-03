@@ -46,6 +46,7 @@ import android.view.WindowManager;
 import android.widget.Toast;
 
 import com.bsb.hike.bots.BotInfo;
+import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.platform.bridge.NativeGameBridge;
 import com.bsb.hike.utils.Logger;
 import com.chukong.cocosplay.client.CocosPlayClient;
@@ -61,7 +62,7 @@ public class CocosGamingActivity extends Cocos2dxActivity {
 	private static Context context;
 	private String TAG = getClass().getCanonicalName();
 	private boolean isInit = false;
-	Cocos2dxActivity cocos2dActivity;
+	public static Cocos2dxActivity cocos2dActivity;
 	private String downloadPathUrl;
 	private boolean isPortrait;
 	private String version;
@@ -175,12 +176,33 @@ public class CocosGamingActivity extends Cocos2dxActivity {
 			}
 		}, 250);
 
+		cocos2dActivity = this;
 	}
 
-	public static NativeGameBridge getNativeBrigde() {
-		return nativeBridge;
+	public static Object getNativeBridge() {
+//		return nativeBridge;
+		return cocos2dActivity;
 	}
+	
+	public  void getFromCache(String id, String key){
+		nativeBridge.getFromCache(id, key);
+	}
+	
+	public void putInCache(final String key, final String value) {
+		nativeBridge.putInCache(key, value);
+	}
+	
+	public void logAnalytics(final String isUI,final String subType,final String json) {
+		nativeBridge.logAnalytics(isUI, subType, json);
+	}
+	
+	public void fwdToChat(){
+		nativeBridge.forwardToChat("{\"ld\":{\"id\":224653,\"title\":\"PCB seek clarity on India series\",\"snippet\":\"Pakistan&#39;s cricket chief Shaharyar Khan on Wednesday, wrote a letter to the BCCI secretary Anurag Thakur pressing him for an update on the proposed Indo-Pak series in Dec this year. &#39;&#39;I am positive that the BCCI shall be able to convince the Indian govt that it ought to honour its MoU with the PCB,&quot; said Khan.\",\"score\":259.71464438341155,\"cardtype\":1,\"published_ts\":1441282226984,\"thumbnailurl\":\"http://hike-temp-dev.s3.amazonaws.com/1/19/tmp7673627884837675432-200x150.jpeg\",\"imageurl\":\"http://hike-temp-dev.s3.amazonaws.com/1/19/tmp7673627884837675432.jpeg\",\"url\":\"http://readability.hike.in:80/endpoint?url=http://www.cricbuzz.com/cricket-news/74529/pcb-seek-clarity-on-india-series&ts=1441245765000&i=http://hike-temp-dev.s3.amazonaws.com/1/19/tmp7673627884837675432.jpeg\",\"shorturl\":\"http://goo.gl/IDgXhg\",\"source\":\"CricBuzz\",\"ts\":\"18 minutes ago\",\"idx\":2,\"count\":1,\"away\":false,\"active\":true,\"imagedata\":\"\",\"killAnim\":false,\"topicname\":\"topStories\"},\"hd\":{},\"layoutId\":\"newscard.html\",\"push\":\"silent\",\"notifText\":\"PCB seek clarity on India series\",\"h\":200}", "HelloWorld");
+	}
+	
+	public static native void PlatformCallback(String callID, String response);
 
+	
 	@Override
 	protected void onResume() {
 		Logger.d(TAG, "onResume()");
@@ -316,14 +338,15 @@ public class CocosGamingActivity extends Cocos2dxActivity {
 						Logger.d(TAG, "Unpacking Zip file failed");
 						return false;
 					}
-					if (!decryptSoFile(getFileBasePath(CocosGamingActivity.this) + appName + "/libcocos2dcpp.so.aes")) {
-						Logger.d(TAG, "Decrypting file failed");
-						return false;
-					}
+//					if (!decryptSoFile(getFileBasePath(CocosGamingActivity.this) + appName + "/libcocos2dcpp.so.aes")) {
+//						Logger.d(TAG, "Decrypting file failed");
+//						return false;
+//					}
 					File zipFile = new File(getFileBasePath(context) + appName + ".zip");
 					zipFile.delete();
-					File encryptedFile = new File(getFileBasePath(context) + appName + "/libcocos2dcpp.so.aes");
-					encryptedFile.delete();
+					
+//					File encryptedFile = new File(getFileBasePath(context) + appName + "/libcocos2dcpp.so.aes");
+//					encryptedFile.delete();
 				}
 				return true;
 			} catch (Exception e) {
@@ -377,7 +400,8 @@ public class CocosGamingActivity extends Cocos2dxActivity {
 				listOfAppsMap.put(appId, jsonObject.toString());
 				sharedPrefEditor.putString(LIST_OF_APPS, gson.toJson(listOfAppsMap)).commit();
 				
-				nativeBridge = new NativeGameBridge(CocosGamingActivity.this, new BotInfo.HikeBotBuilder("+"+appName+"+").build());
+//				nativeBridge = new NativeGameBridge(CocosGamingActivity.this, new BotInfo.HikeBotBuilder("+"+appName+"+").build());
+				nativeBridge = new NativeGameBridge(CocosGamingActivity.this, BotUtils.getBotInfoForBotMsisdn("+hikenews+"));
 				if (requestId != null && !requestId.equals("")) {
 					nativeBridge.initParams(nativeBridge.getRequestData(requestId));
 				}
