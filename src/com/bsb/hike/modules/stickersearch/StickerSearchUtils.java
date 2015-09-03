@@ -78,7 +78,7 @@ public class StickerSearchUtils
 	public static Pair<Boolean, List<Sticker>> shouldShowStickerFtue(List<Sticker> stickerList)
 	{
 		Sticker sticker = stickerList.get(0);
-		if (!sticker.isStickerAvailable() && !sticker.getStickerCurrentAvailability())
+		if (!sticker.getStickerCurrentAvailability())
 		{
 			return new Pair<Boolean, List<Sticker>>(false, stickerList);
 		}
