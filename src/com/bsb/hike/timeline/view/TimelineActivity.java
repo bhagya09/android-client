@@ -156,6 +156,38 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 		}
 	}
 
+	@Override
+	protected void onNewIntent(Intent intent)
+	{
+		super.onNewIntent(intent);
+		if (intent.getBooleanExtra(HikeConstants.Extras.OPEN_ACTIVITY_FEED, false)) // We have to open ActivityFeedFragment
+		{
+			ActivityFeedFragment activityFeedFragment = (ActivityFeedFragment) getSupportFragmentManager().findFragmentByTag(FRAGMENT_ACTIVITY_FEED_TAG);
+			if(activityFeedFragment != null)
+			{
+				if(!activityFeedFragment.isAdded() || !activityFeedFragment.isVisible())
+				{
+					getSupportFragmentManager()
+					.beginTransaction()
+					.add(R.id.parent_layout, activityFeedFragment, FRAGMENT_ACTIVITY_FEED_TAG)
+					.addToBackStack(FRAGMENT_ACTIVITY_FEED_TAG)
+					.commit();
+				}
+			}
+			else
+			{
+				loadActivityFeedFragment();
+			}
+		}
+		else //We have to open UpdatesFragment
+		{
+			if(!isUpdatesFrgamentOnTop())
+			{
+				getSupportFragmentManager().popBackStack();
+			}
+		}
+	}
+	
 	private void initialiseTimelineScreen(Bundle savedInstanceState)
 	{
 		setContentView(R.layout.timeline);
@@ -672,5 +704,11 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 		{
 			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
 		}
+	}
+	
+	public boolean isUpdatesFrgamentOnTop()
+	{
+		int count = getSupportFragmentManager().getBackStackEntryCount();
+		return count <= 1 ? true : false;
 	}
 }

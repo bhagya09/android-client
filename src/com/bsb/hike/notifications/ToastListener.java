@@ -150,7 +150,11 @@ public class ToastListener implements Listener
 			{
 				Utils.resetUnseenStatusCount(activity);
 				HikeMessengerApp.getPubSub().publish(HikePubSub.INCREMENTED_UNSEEN_STATUS_COUNT, null);
-				return;
+				
+				if (((TimelineActivity) activity).isUpdatesFrgamentOnTop())
+				{
+					return;
+				}
 			}
 			StatusMessage statusMessage = (StatusMessage) object;
 			String msisdn = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).getString(HikeMessengerApp.MSISDN_SETTING, "");
