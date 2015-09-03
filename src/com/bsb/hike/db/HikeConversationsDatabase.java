@@ -1,14 +1,12 @@
 package com.bsb.hike.db;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -59,7 +57,6 @@ import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.HikeSharedFile;
 import com.bsb.hike.models.MessageMetadata;
-import com.bsb.hike.models.ProfileItem.ProfileContactItem.contactType;
 import com.bsb.hike.models.Protip;
 import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.models.Conversation.BotConversation;
@@ -80,11 +77,13 @@ import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformMessageMetadata;
 import com.bsb.hike.platform.WebMetadata;
 import com.bsb.hike.timeline.model.ActionsDataModel;
+import com.bsb.hike.timeline.model.ActionsDataModel.ActionTypes;
 import com.bsb.hike.timeline.model.ActionsDataModel.ActivityObjectTypes;
 import com.bsb.hike.timeline.model.FeedDataModel;
 import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
 import com.bsb.hike.timeline.model.TimelineActions;
+import com.bsb.hike.timeline.view.TimelineActivity;
 import com.bsb.hike.utils.ChatTheme;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
@@ -93,8 +92,6 @@ import com.bsb.hike.utils.PairModified;
 import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
-import com.bsb.hike.timeline.model.ActionsDataModel.ActionTypes;
-import com.bsb.hike.timeline.view.TimelineActivity;
 
 public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBConstants, HIKE_CONV_DB
 {
@@ -163,7 +160,8 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				+ DBConstants.SERVER_ID + " INTEGER, "
 				+ DBConstants.MESSAGE_ORIGIN_TYPE + " INTEGER DEFAULT 0, " //normal/broadcast/multi-forward
 				//This column would contain actual sending time of message in milliseconds. IN CASE OF receiving messages as well, we would have actual SENDING TIME of OTHER CLIENT here.
-				+ DBConstants.SEND_TIMESTAMP + " INTEGER" 
+				+ DBConstants.SEND_TIMESTAMP + " INTEGER, "
+				+ DBConstants.SORTING_ID + " INTEGER DEFAULT -1"
 				+ " ) ";
 
 		db.execSQL(sql);
@@ -842,6 +840,15 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			
 			String alterST = "ALTER TABLE " + DBConstants.STATUS_TABLE + " ADD COLUMN " + DBConstants.FILE_KEY + " TEXT";
 			db.execSQL(alterST);
+		}
+		
+		if (oldVersion < 44)
+		{
+			if (!Utils.ifColumnExistsInTable(db, DBConstants.MESSAGES_TABLE, DBConstants.SORTING_ID))
+			{
+				String alterMessageTable = "ALTER TABLE " + DBConstants.MESSAGES_TABLE + " ADD COLUMN " + DBConstants.SORTING_ID + " INTEGER DEFAULT -1";
+				db.execSQL(alterMessageTable);
+			}
 		}
 	}
 
