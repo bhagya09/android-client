@@ -160,9 +160,9 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 	protected void onNewIntent(Intent intent)
 	{
 		super.onNewIntent(intent);
-		ActivityFeedFragment activityFeedFragment = (ActivityFeedFragment) getSupportFragmentManager().findFragmentByTag(FRAGMENT_ACTIVITY_FEED_TAG);
 		if (intent.getBooleanExtra(HikeConstants.Extras.OPEN_ACTIVITY_FEED, false)) // We have to open ActivityFeedFragment
 		{
+			ActivityFeedFragment activityFeedFragment = (ActivityFeedFragment) getSupportFragmentManager().findFragmentByTag(FRAGMENT_ACTIVITY_FEED_TAG);
 			if(activityFeedFragment != null)
 			{
 				if(!activityFeedFragment.isAdded() || !activityFeedFragment.isVisible())
