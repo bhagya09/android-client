@@ -34,7 +34,7 @@
        android:layout_marginBottom="10dp"
        android:layout_marginTop="10dp"
        android:layout_toRightOf="@+id/apk_image"
-       android:layout_toStartOf = "@+id/apk_selection_box"
+       android:layout_toLeftOf = "@+id/apk_selection_box"
        android:orientation="vertical" >
 
        <com.bsb.hike.view.CustomFontTextView
