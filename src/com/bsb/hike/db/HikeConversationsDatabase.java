@@ -76,6 +76,7 @@ import com.bsb.hike.platform.ContentLove;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformMessageMetadata;
 import com.bsb.hike.platform.WebMetadata;
+import com.bsb.hike.service.UpgradeIntentService;
 import com.bsb.hike.timeline.model.ActionsDataModel;
 import com.bsb.hike.timeline.model.ActionsDataModel.ActionTypes;
 import com.bsb.hike.timeline.model.ActionsDataModel.ActivityObjectTypes;
@@ -848,6 +849,9 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			{
 				String alterMessageTable = "ALTER TABLE " + DBConstants.MESSAGES_TABLE + " ADD COLUMN " + DBConstants.SORTING_ID + " INTEGER DEFAULT -1";
 				db.execSQL(alterMessageTable);
+				
+				// This indicates that an update happened here. This field will be used by UpgradeIntentService
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.UPGRADE_SORTING_ID_FIELD, 1);
 			}
 		}
 	}
@@ -8075,5 +8079,43 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			mDb.endTransaction();
 		}
 
+	}
+	
+	/**
+	 * This method will be called only once to handle the upgrade case where the sorting ids will have to initialized to message ids for existing users. This method will be called
+	 * from {@link UpgradeIntentService}
+	 */
+	public boolean upgradeForSortingIdField()
+	{
+		boolean result = false;
+		try
+		{
+			mDb.beginTransaction();
+
+			long startTime = System.currentTimeMillis();
+
+			String updateStatement = "UPDATE " + DBConstants.MESSAGES_TABLE + " SET " + DBConstants.SORTING_ID + " = " + DBConstants.MESSAGE_ID;
+			mDb.execSQL(updateStatement);
+
+			long endTime = System.currentTimeMillis();
+
+			Logger.d("HikeConversationsDatabase", " ServerId db upgrade time : " + (endTime - startTime));
+
+			mDb.setTransactionSuccessful();
+			result = true;
+		}
+
+		catch (Exception e)
+		{
+			Logger.e("HikeConversationsDatabase", "Got an exception while upgrading for sorting id field : ", e);
+			e.printStackTrace();
+			result = false;
+		}
+		finally
+		{
+			mDb.endTransaction();
+		}
+
+		return result;
 	}
 }
