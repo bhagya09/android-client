@@ -6,6 +6,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.NonMessagingBotMetadata;
@@ -23,6 +24,7 @@ import com.bsb.hike.utils.Logger;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Handler;
+import android.os.Message;
 import android.text.TextUtils;
 
 public class PlatformHelper
@@ -43,11 +45,19 @@ public class PlatformHelper
 
 	Activity activity;
 
-	public PlatformHelper(BotInfo mBotInfo, Activity activty)
+	public PlatformHelper(BotInfo mBotInfo, Activity activity)
 	{
 		this.mBotInfo = mBotInfo;
 		this.activity = activity;
 		weakActivity = new WeakReference<Activity>(activity);
+		this.mHandler = new Handler(HikeMessengerApp.getInstance().getMainLooper())
+        {
+            public void handleMessage(Message msg)
+            {
+//                handleUiMessage(msg);
+            };
+        };
+
 	}
 
 	public void putInCache(String key, String value)
@@ -128,6 +138,7 @@ public class PlatformHelper
 
 	protected void startComPoseChatActivity(final ConvMessage message)
 	{
+		Logger.d(tag, "startComPoseChatActivity");
 		if (null == mHandler)
 		{
 			return;
@@ -138,9 +149,11 @@ public class PlatformHelper
 			@Override
 			public void run()
 			{
+				Logger.d(tag, "Handler not null");
 				Activity mContext = weakActivity.get();
 				if (mContext != null)
 				{
+					Logger.d(tag, "Context not null");
 					final Intent intent = IntentFactory.getForwardIntentForConvMessage(mContext, message, PlatformContent.getForwardCardData(message.webMetadata.JSONtoString()));
 					mContext.startActivity(intent);
 				}
