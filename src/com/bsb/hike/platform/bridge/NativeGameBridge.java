@@ -10,17 +10,23 @@ import com.bsb.hike.platform.CocosGamingActivity;
 import com.bsb.hike.platform.PlatformHelper;
 import com.bsb.hike.utils.Logger;
 
-public class NativeGameBridge {
+public class NativeGameBridge
+{
 
 	private CocosGamingActivity activity;
+
 	private String TAG = getClass().getSimpleName();
+
 	private BotInfo mBotInfo;
+
 	HikeHandlerUtil mThread;
+
 	PlatformHelper helper;
-	
-    public native void platformCallback(String id, String response);
-    
-	public NativeGameBridge(CocosGamingActivity activity, BotInfo mBotInfo) {
+
+	public native void platformCallback(String id, String response);
+
+	public NativeGameBridge(CocosGamingActivity activity, BotInfo mBotInfo)
+	{
 		super();
 		this.activity = activity;
 		this.mBotInfo = mBotInfo;
@@ -29,8 +35,7 @@ public class NativeGameBridge {
 	}
 
 	/**
-	 * This function calls the native game with the initialization parameters.
-	 * The params can be the challenge data
+	 * This function calls the native game with the initialization parameters. The params can be the challenge data
 	 * 
 	 * @param jsonData
 	 */
@@ -40,7 +45,8 @@ public class NativeGameBridge {
 	 * 
 	 * @return List of request ids associated with the game
 	 */
-	public String getRequestIds() {
+	public String getRequestIds()
+	{
 		// TODO fetch all challenges associated with this game
 		return null;
 	}
@@ -51,7 +57,8 @@ public class NativeGameBridge {
 	 *            whose requestData is being queried for
 	 * @return RequestData associated with the requestId
 	 */
-	public String getRequestData(String requestId) {
+	public String getRequestData(String requestId)
+	{
 		// TODO fetch challenge data associated with a particular challengeId
 		return null;
 	}
@@ -62,7 +69,8 @@ public class NativeGameBridge {
 	 *            of requestIds whose requestData is being queried for
 	 * @return RequestData associated with the list of requestIds
 	 */
-	public String getRequestData(List<String> requestIds) {
+	public String getRequestData(List<String> requestIds)
+	{
 		// TODO fetch all challenges associated with this game
 		return null;
 	}
@@ -73,43 +81,54 @@ public class NativeGameBridge {
 	 *            whose requestData is to be deleted
 	 * @return
 	 */
-	public boolean deleteRequest(String requestId) {
+	public boolean deleteRequest(String requestId)
+	{
 		// TODO delete the specific request and return the appropriate status
 		return false;
 	}
 
-	public void forwardToChat(final String json,final String hikeMessage) {
+	public void forwardToChat(final String json, final String hikeMessage)
+	{
 		mThread.startHandlerThread();
-		mThread.postRunnable(new Runnable() {
+		mThread.postRunnable(new Runnable()
+		{
 
 			@Override
-			public void run() {
+			public void run()
+			{
 				helper.forwardToChat(json, hikeMessage);
 			}
-			
+
 		});
 	}
 
-	public void logMessage(String tag, String message) {
+	public void logMessage(String tag, String message)
+	{
 		Logger.d(tag, message);
 	}
 
-	public void showToastMessage(final String message) {
-		activity.runOnUiThread(new Runnable() {
+	public void showToastMessage(final String message)
+	{
+		activity.runOnUiThread(new Runnable()
+		{
 
 			@Override
-			public void run() {
+			public void run()
+			{
 				Toast.makeText(activity, message, Toast.LENGTH_SHORT);
 			}
 		});
 	}
 
-	public void putInCache(final String key, final String value) {
+	public void putInCache(final String key, final String value)
+	{
 		mThread.startHandlerThread();
-		mThread.postRunnable(new Runnable() {
+		mThread.postRunnable(new Runnable()
+		{
 
 			@Override
-			public void run() {
+			public void run()
+			{
 				if (mBotInfo == null)
 					Logger.d(TAG, "mbotinfoisnull");
 				helper.putInCache(key, value);
@@ -120,19 +139,24 @@ public class NativeGameBridge {
 
 	}
 
-	public void getFromCache(final String id, final String key) {
+	public void getFromCache(final String id, final String key)
+	{
 		mThread.startHandlerThread();
-		mThread.postRunnable(new Runnable() {
+		mThread.postRunnable(new Runnable()
+		{
 
 			@Override
-			public void run() {
+			public void run()
+			{
 				Logger.d(TAG, "Getting data: " + key);
-				final String  cache = helper.getFromCache(id, key);
+				final String cache = helper.getFromCache(id, key);
 				Logger.d(TAG, "data from cache" + cache);
 				// callBack function to be called here.
-				activity.runOnGLThread(new Runnable() {
+				activity.runOnGLThread(new Runnable()
+				{
 					@Override
-					public void run() {
+					public void run()
+					{
 						// gameCallback(id,cache);
 						activity.PlatformCallback(id, cache);
 					}
@@ -146,24 +170,24 @@ public class NativeGameBridge {
 	 * Platform Bridge Version 0. Call this function to log analytics events.
 	 * 
 	 * @param isUI
-	 *            : whether the event is a UI event or not. This is a string.
-	 *            Send "true" or "false".
+	 *            : whether the event is a UI event or not. This is a string. Send "true" or "false".
 	 * @param subType
-	 *            : the subtype of the event to be logged, eg. send "click", to
-	 *            determine whether it is a click event.
+	 *            : the subtype of the event to be logged, eg. send "click", to determine whether it is a click event.
 	 * @param json
-	 *            : any extra info for logging events, including the event key
-	 *            that is pretty crucial for analytics.
+	 *            : any extra info for logging events, including the event key that is pretty crucial for analytics.
 	 */
-	public void logAnalytics(final String isUI,final String subType,final String json) {
+	public void logAnalytics(final String isUI, final String subType, final String json)
+	{
 		mThread.startHandlerThread();
-		mThread.postRunnable(new Runnable() {
+		mThread.postRunnable(new Runnable()
+		{
 
 			@Override
-			public void run() {
+			public void run()
+			{
 				helper.logAnalytics(isUI, subType, json);
 			}
-			
+
 		});
 	}
 

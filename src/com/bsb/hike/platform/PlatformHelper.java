@@ -51,12 +51,12 @@ public class PlatformHelper
 		this.activity = activity;
 		weakActivity = new WeakReference<Activity>(activity);
 		this.mHandler = new Handler(HikeMessengerApp.getInstance().getMainLooper())
-        {
-            public void handleMessage(Message msg)
-            {
-//                handleUiMessage(msg);
-            };
-        };
+		{
+			public void handleMessage(Message msg)
+			{
+				// handleUiMessage(msg);
+			};
+		};
 
 	}
 
@@ -204,7 +204,7 @@ public class PlatformHelper
 			e.printStackTrace();
 		}
 	}
-	
+
 	public String getAllEventsForMessageHash(String functionId, String messageHash)
 	{
 		if (TextUtils.isEmpty(messageHash))
@@ -228,12 +228,13 @@ public class PlatformHelper
 			activity.startActivityForResult(intent, HikeConstants.PLATFORM_REQUEST);
 		}
 	}
+
 	public String getAllEventsData(String functionId)
 	{
 		String messageData = HikeConversationsDatabase.getInstance().getMessageEventsForMicroapps(mBotInfo.getNamespace(), true);
 		return messageData;
 	}
-	
+
 	public String getSharedEventsData(String functionId)
 	{
 		String messageData = HikeConversationsDatabase.getInstance().getMessageEventsForMicroapps(mBotInfo.getNamespace(), false);

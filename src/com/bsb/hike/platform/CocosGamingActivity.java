@@ -58,60 +58,86 @@ import com.google.gson.Gson;
  * @author sk
  * 
  */
-public class CocosGamingActivity extends Cocos2dxActivity {
+public class CocosGamingActivity extends Cocos2dxActivity
+{
 	private static Context context;
+
 	private String TAG = getClass().getCanonicalName();
+
 	private boolean isInit = false;
+
 	public static Cocos2dxActivity cocos2dActivity;
+
 	private String downloadPathUrl;
+
 	private boolean isPortrait;
+
 	private String version;
+
 	private static String appId;
+
 	private static String appName;
+
 	private String cocosEngineVersion;
 
 	private Handler mHandler = new Handler();
 
 	public static final String SHARED_PREF = "native_games_sharedpref";
+
 	public static final String LIST_OF_APPS = "list_of_games_map";
+
 	public static final String COCOS_ENGINE_VERSION = "cocos_engine_version";
 
 	private SharedPreferences sharedPreferences;
+
 	private SharedPreferences.Editor sharedPrefEditor;
+
 	private Map<String, String> listOfAppsMap;
+
 	private Gson gson = new Gson();
+
 	private JSONObject gameDataJsonObject;
+
 	private String requestId;
 
 	private static NativeGameBridge nativeBridge;
 
 	@Override
-	public void onPostCreate(Bundle savedInstanceState, PersistableBundle persistentState) {
+	public void onPostCreate(Bundle savedInstanceState, PersistableBundle persistentState)
+	{
 		super.onPostCreate(savedInstanceState, persistentState);
 		Logger.d(TAG, "onPostCreate()");
 	}
 
-	private String getAppSignature() {
-		try {
+	private String getAppSignature()
+	{
+		try
+		{
 			Logger.d(TAG, "Getting keyHash");
 			PackageInfo info = getPackageManager().getPackageInfo("com.bsb.hike", PackageManager.GET_SIGNATURES);
-			for (Signature signature : info.signatures) {
+			for (Signature signature : info.signatures)
+			{
 				MessageDigest md = MessageDigest.getInstance("SHA");
 				md.update(signature.toByteArray());
 				// Logger.d(TAG, "KeyHash : " +
 				// Base64.encodeToString(md.digest(), Base64.DEFAULT));
 				return Base64.encodeToString(md.digest(), Base64.DEFAULT);
 			}
-		} catch (NameNotFoundException e) {
+		}
+		catch (NameNotFoundException e)
+		{
 			e.printStackTrace();
-		} catch (NoSuchAlgorithmException e) {
+		}
+		catch (NoSuchAlgorithmException e)
+		{
 			e.printStackTrace();
 		}
 		return null;
 	}
 
 	@Override
-	protected void onCreate(final Bundle savedInstanceState) {
+	protected void onCreate(final Bundle savedInstanceState)
+	{
 		super.onCreateDuplicate(savedInstanceState);
 		context = CocosGamingActivity.this;
 		sContext = CocosGamingActivity.this;
@@ -134,28 +160,33 @@ public class CocosGamingActivity extends Cocos2dxActivity {
 		sharedPreferences = getSharedPreferences(SHARED_PREF, Context.MODE_PRIVATE);
 		sharedPrefEditor = getSharedPreferences(SHARED_PREF, Context.MODE_PRIVATE).edit();
 		String listOfAppsString = sharedPreferences.getString(LIST_OF_APPS, null);
-		if (listOfAppsString != null) {
+		if (listOfAppsString != null)
+		{
 			Logger.d(TAG, "listOfApps : " + listOfAppsString);
 			listOfAppsMap = new HashMap<String, String>();
 			listOfAppsMap = (Map<String, String>) gson.fromJson(listOfAppsString, listOfAppsMap.getClass());
-			try {
+			try
+			{
 				String jsonObjString = listOfAppsMap.get(appId);
-				if (jsonObjString != null) {
+				if (jsonObjString != null)
+				{
 					gameDataJsonObject = new JSONObject(jsonObjString);
-					Logger.d(
-							TAG,
-							"Version of launch param : " + version + " :: savedVersion : "
-									+ Integer.parseInt(gameDataJsonObject.getString("version")));
+					Logger.d(TAG, "Version of launch param : " + version + " :: savedVersion : " + Integer.parseInt(gameDataJsonObject.getString("version")));
 				}
-			} catch (JSONException e) {
+			}
+			catch (JSONException e)
+			{
 				e.printStackTrace();
 			}
 		}
 
-		if (isPortrait && getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+		if (isPortrait && getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT)
+		{
 			Logger.d(TAG, "Downloading in portrait mode");
 			new DownloadGameTask().execute("");
-		} else if (!isPortrait && getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+		}
+		else if (!isPortrait && getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE)
+		{
 			Logger.d(TAG, "Downloading in landscape mode");
 			new DownloadGameTask().execute("");
 		}
@@ -164,13 +195,18 @@ public class CocosGamingActivity extends Cocos2dxActivity {
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 
-		mHandler.postDelayed(new Runnable() {
+		mHandler.postDelayed(new Runnable()
+		{
 
 			@Override
-			public void run() {
-				if (isPortrait) {
+			public void run()
+			{
+				if (isPortrait)
+				{
 					setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-				} else {
+				}
+				else
+				{
 					setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
 				}
 			}
@@ -179,62 +215,78 @@ public class CocosGamingActivity extends Cocos2dxActivity {
 		cocos2dActivity = this;
 	}
 
-	public static Object getNativeBridge() {
-//		return nativeBridge;
+	public static Object getNativeBridge()
+	{
+		// return nativeBridge;
 		return cocos2dActivity;
 	}
-	
-	public  void getFromCache(String id, String key){
+
+	public void getFromCache(String id, String key)
+	{
 		nativeBridge.getFromCache(id, key);
 	}
-	
-	public void putInCache(final String key, final String value) {
+
+	public void putInCache(final String key, final String value)
+	{
 		nativeBridge.putInCache(key, value);
 	}
-	
-	public void logAnalytics(final String isUI,final String subType,final String json) {
+
+	public void logAnalytics(final String isUI, final String subType, final String json)
+	{
 		nativeBridge.logAnalytics(isUI, subType, json);
 	}
-	
-	public void fwdToChat(){
-		nativeBridge.forwardToChat("{\"ld\":{\"id\":224653,\"title\":\"PCB seek clarity on India series\",\"snippet\":\"Pakistan&#39;s cricket chief Shaharyar Khan on Wednesday, wrote a letter to the BCCI secretary Anurag Thakur pressing him for an update on the proposed Indo-Pak series in Dec this year. &#39;&#39;I am positive that the BCCI shall be able to convince the Indian govt that it ought to honour its MoU with the PCB,&quot; said Khan.\",\"score\":259.71464438341155,\"cardtype\":1,\"published_ts\":1441282226984,\"thumbnailurl\":\"http://hike-temp-dev.s3.amazonaws.com/1/19/tmp7673627884837675432-200x150.jpeg\",\"imageurl\":\"http://hike-temp-dev.s3.amazonaws.com/1/19/tmp7673627884837675432.jpeg\",\"url\":\"http://readability.hike.in:80/endpoint?url=http://www.cricbuzz.com/cricket-news/74529/pcb-seek-clarity-on-india-series&ts=1441245765000&i=http://hike-temp-dev.s3.amazonaws.com/1/19/tmp7673627884837675432.jpeg\",\"shorturl\":\"http://goo.gl/IDgXhg\",\"source\":\"CricBuzz\",\"ts\":\"18 minutes ago\",\"idx\":2,\"count\":1,\"away\":false,\"active\":true,\"imagedata\":\"\",\"killAnim\":false,\"topicname\":\"topStories\"},\"hd\":{},\"layoutId\":\"newscard.html\",\"push\":\"silent\",\"notifText\":\"PCB seek clarity on India series\",\"h\":200}", "HelloWorld");
+
+	public void fwdToChat()
+	{
+		nativeBridge
+				.forwardToChat(
+						"{\"ld\":{\"id\":224653,\"title\":\"PCB seek clarity on India series\",\"snippet\":\"Pakistan&#39;s cricket chief Shaharyar Khan on Wednesday, wrote a letter to the BCCI secretary Anurag Thakur pressing him for an update on the proposed Indo-Pak series in Dec this year. &#39;&#39;I am positive that the BCCI shall be able to convince the Indian govt that it ought to honour its MoU with the PCB,&quot; said Khan.\",\"score\":259.71464438341155,\"cardtype\":1,\"published_ts\":1441282226984,\"thumbnailurl\":\"http://hike-temp-dev.s3.amazonaws.com/1/19/tmp7673627884837675432-200x150.jpeg\",\"imageurl\":\"http://hike-temp-dev.s3.amazonaws.com/1/19/tmp7673627884837675432.jpeg\",\"url\":\"http://readability.hike.in:80/endpoint?url=http://www.cricbuzz.com/cricket-news/74529/pcb-seek-clarity-on-india-series&ts=1441245765000&i=http://hike-temp-dev.s3.amazonaws.com/1/19/tmp7673627884837675432.jpeg\",\"shorturl\":\"http://goo.gl/IDgXhg\",\"source\":\"CricBuzz\",\"ts\":\"18 minutes ago\",\"idx\":2,\"count\":1,\"away\":false,\"active\":true,\"imagedata\":\"\",\"killAnim\":false,\"topicname\":\"topStories\"},\"hd\":{},\"layoutId\":\"newscard.html\",\"push\":\"silent\",\"notifText\":\"PCB seek clarity on India series\",\"h\":200}",
+						"HelloWorld");
 	}
-	
+
 	public static native void PlatformCallback(String callID, String response);
 
-	
 	@Override
-	protected void onResume() {
+	protected void onResume()
+	{
 		Logger.d(TAG, "onResume()");
-		if (isInit) {
+		if (isInit)
+		{
 			super.onResume();
-		} else {
+		}
+		else
+		{
 			super.onResumeDuplicate();
 		}
 	}
 
 	@Override
-	protected void onPause() {
+	protected void onPause()
+	{
 		Logger.d(TAG, "onPause()");
-		if (isInit) {
+		if (isInit)
+		{
 			super.onPause();
-		} else {
+		}
+		else
+		{
 			super.onPauseDuplicate();
 		}
 	}
 
 	/**
-	 * This method returns the basePath for the assets folder to be used by
-	 * native games
+	 * This method returns the basePath for the assets folder to be used by native games
 	 * 
 	 * @return basePath for assets
 	 */
-	public static String getExternalPath() {
+	public static String getExternalPath()
+	{
 		Logger.d("CocosGamingActivity", "getExternalPath() : " + getFileBasePath(context) + appName + "/assets/");
 		return getFileBasePath(context) + appName + "/assets/";
 	}
 
-	public static String getFileBasePath(Context context) {
+	public static String getFileBasePath(Context context)
+	{
 		File folder = context.getFilesDir();
 		// File folder = context.getObbDir();
 		if (folder == null)
@@ -249,17 +301,22 @@ public class CocosGamingActivity extends Cocos2dxActivity {
 	 * @author sk
 	 * 
 	 */
-	class DownloadGameTask extends AsyncTask<String, Integer, Boolean> {
+	class DownloadGameTask extends AsyncTask<String, Integer, Boolean>
+	{
 
 		private ProgressDialog pdia;
+
 		private boolean isDownload = false;
+
 		private boolean isEngineDownload = false;
 
 		@Override
-		protected void onPreExecute() {
+		protected void onPreExecute()
+		{
 			super.onPreExecute();
 			pdia = new ProgressDialog(CocosGamingActivity.this);
-			if (!new File(getFileBasePath(context) + "cocosEngine-" + cocosEngineVersion + "/libcocos2d.so").exists()) {
+			if (!new File(getFileBasePath(context) + "cocosEngine-" + cocosEngineVersion + "/libcocos2d.so").exists())
+			{
 				isEngineDownload = true;
 				pdia.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
 				pdia.setMessage("Downloading");
@@ -268,7 +325,8 @@ public class CocosGamingActivity extends Cocos2dxActivity {
 				pdia.setCancelable(false);
 				pdia.show();
 			}
-			if (Integer.parseInt(cocosEngineVersion) > sharedPreferences.getInt(COCOS_ENGINE_VERSION, 0)) {
+			if (Integer.parseInt(cocosEngineVersion) > sharedPreferences.getInt(COCOS_ENGINE_VERSION, 0))
+			{
 				isEngineDownload = true;
 				pdia.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
 				pdia.setMessage("Downloading");
@@ -277,7 +335,8 @@ public class CocosGamingActivity extends Cocos2dxActivity {
 				pdia.setCancelable(false);
 				pdia.show();
 			}
-			if (!new File(getFileBasePath(context) + appName + "/libcocos2dcpp.so").exists()) {
+			if (!new File(getFileBasePath(context) + appName + "/libcocos2dcpp.so").exists())
+			{
 				isDownload = true;
 				pdia.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
 				pdia.setMessage("Downloading");
@@ -285,9 +344,13 @@ public class CocosGamingActivity extends Cocos2dxActivity {
 				pdia.setProgress(0);
 				pdia.setCancelable(false);
 				pdia.show();
-			} else {
-				try {
-					if (gameDataJsonObject != null && Integer.parseInt(version) > Integer.parseInt(gameDataJsonObject.getString("version"))) {
+			}
+			else
+			{
+				try
+				{
+					if (gameDataJsonObject != null && Integer.parseInt(version) > Integer.parseInt(gameDataJsonObject.getString("version")))
+					{
 						isDownload = true;
 						pdia.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
 						pdia.setMessage("Loading");
@@ -296,32 +359,42 @@ public class CocosGamingActivity extends Cocos2dxActivity {
 						pdia.setCancelable(false);
 						pdia.show();
 					}
-				} catch (NumberFormatException e) {
+				}
+				catch (NumberFormatException e)
+				{
 					e.printStackTrace();
-				} catch (JSONException e) {
+				}
+				catch (JSONException e)
+				{
 					e.printStackTrace();
 				}
 			}
 		}
 
 		@Override
-		protected void onProgressUpdate(Integer... values) {
+		protected void onProgressUpdate(Integer... values)
+		{
 			super.onProgressUpdate(values);
 			pdia.setProgress(values[0]);
 		}
 
 		@Override
-		protected Boolean doInBackground(String... params) {
-			try {
+		protected Boolean doInBackground(String... params)
+		{
+			try
+			{
 				Logger.d(TAG, "DownloadGameTask::doInBackground()");
 				// Check if app is stored locally or not
-				if (isEngineDownload) {
-					if (!downloadFromUrl("https://s3-ap-southeast-1.amazonaws.com/games-assets/MicroApps/cocosHike/cocosEngine-" + cocosEngineVersion
-							+ ".zip", getFileBasePath(CocosGamingActivity.this) + "libcocosengine" + ".zip")) {
+				if (isEngineDownload)
+				{
+					if (!downloadFromUrl("https://s3-ap-southeast-1.amazonaws.com/games-assets/MicroApps/cocosHike/cocosEngine-" + cocosEngineVersion + ".zip",
+							getFileBasePath(CocosGamingActivity.this) + "libcocosengine" + ".zip"))
+					{
 						Logger.d(TAG, "Download failed");
 						return false;
 					}
-					if (!unpackZip(getFileBasePath(CocosGamingActivity.this), "libcocosengine" + ".zip")) {
+					if (!unpackZip(getFileBasePath(CocosGamingActivity.this), "libcocosengine" + ".zip"))
+					{
 						Logger.d(TAG, "Unpacking Zip file failed");
 						return false;
 					}
@@ -329,45 +402,54 @@ public class CocosGamingActivity extends Cocos2dxActivity {
 					zipFile.delete();
 					sharedPrefEditor.putInt(COCOS_ENGINE_VERSION, Integer.valueOf(cocosEngineVersion)).commit();
 				}
-				if (isDownload) {
-					if (!downloadFromUrl(downloadPathUrl, getFileBasePath(CocosGamingActivity.this) + appName + ".zip")) {
+				if (isDownload)
+				{
+					if (!downloadFromUrl(downloadPathUrl, getFileBasePath(CocosGamingActivity.this) + appName + ".zip"))
+					{
 						Logger.d(TAG, "Download failed");
 						return false;
 					}
-					if (!unpackZip(getFileBasePath(CocosGamingActivity.this), appName + ".zip")) {
+					if (!unpackZip(getFileBasePath(CocosGamingActivity.this), appName + ".zip"))
+					{
 						Logger.d(TAG, "Unpacking Zip file failed");
 						return false;
 					}
-//					if (!decryptSoFile(getFileBasePath(CocosGamingActivity.this) + appName + "/libcocos2dcpp.so.aes")) {
-//						Logger.d(TAG, "Decrypting file failed");
-//						return false;
-//					}
+					// if (!decryptSoFile(getFileBasePath(CocosGamingActivity.this) + appName + "/libcocos2dcpp.so.aes")) {
+					// Logger.d(TAG, "Decrypting file failed");
+					// return false;
+					// }
 					File zipFile = new File(getFileBasePath(context) + appName + ".zip");
 					zipFile.delete();
-					
-//					File encryptedFile = new File(getFileBasePath(context) + appName + "/libcocos2dcpp.so.aes");
-//					encryptedFile.delete();
+
+					// File encryptedFile = new File(getFileBasePath(context) + appName + "/libcocos2dcpp.so.aes");
+					// encryptedFile.delete();
 				}
 				return true;
-			} catch (Exception e) {
+			}
+			catch (Exception e)
+			{
 				e.printStackTrace();
 				return false;
 			}
 		}
 
 		@Override
-		protected void onPostExecute(Boolean result) {
+		protected void onPostExecute(Boolean result)
+		{
 			super.onPostExecute(result);
-			if (!result) {
+			if (!result)
+			{
 				Toast.makeText(context, "Can't load game. This could be cause of bad connectivity or low storage.", Toast.LENGTH_SHORT).show();
 				finish();
 				return;
 			}
-			if (pdia != null && pdia.isShowing()) {
+			if (pdia != null && pdia.isShowing())
+			{
 				pdia.dismiss();
 			}
 
-			try {
+			try
+			{
 				CocosPlayClient.init(CocosGamingActivity.this, false);
 				Logger.d(TAG, "onPostExecute() 1");
 				// loading cocos engine
@@ -377,19 +459,21 @@ public class CocosGamingActivity extends Cocos2dxActivity {
 
 				CocosGamingActivity.this.mHandler = new Cocos2dxHandler(CocosGamingActivity.this);
 				Logger.d(TAG, "onPostExecute() 2");
-				Cocos2dxHelper.initDuplicate(CocosGamingActivity.this,appId);
-//				Cocos2dxHelper.init(CocosGamingActivity.this);
+				Cocos2dxHelper.initDuplicate(CocosGamingActivity.this, appId);
+				// Cocos2dxHelper.init(CocosGamingActivity.this);
 				Logger.d(TAG, "onPostExecute() 3");
 				appInit();
 				Logger.d(TAG, "onPostExecute() 4");
 				CocosGamingActivity.this.mGLContextAttrs = getGLContextAttrs();
 				CocosGamingActivity.this.init();
 				Logger.d(TAG, "onPostExecute() 5");
-				if (mVideoHelper == null) {
+				if (mVideoHelper == null)
+				{
 					mVideoHelper = new Cocos2dxVideoHelper(CocosGamingActivity.this, mFrameLayout);
 				}
 				Logger.d(TAG, "onPostExecute() 6");
-				if (listOfAppsMap == null) {
+				if (listOfAppsMap == null)
+				{
 					listOfAppsMap = new HashMap<String, String>();
 				}
 				JSONObject jsonObject = new JSONObject();
@@ -399,13 +483,16 @@ public class CocosGamingActivity extends Cocos2dxActivity {
 				jsonObject.put("appName", appName);
 				listOfAppsMap.put(appId, jsonObject.toString());
 				sharedPrefEditor.putString(LIST_OF_APPS, gson.toJson(listOfAppsMap)).commit();
-				
-//				nativeBridge = new NativeGameBridge(CocosGamingActivity.this, new BotInfo.HikeBotBuilder("+"+appName+"+").build());
+
+				// nativeBridge = new NativeGameBridge(CocosGamingActivity.this, new BotInfo.HikeBotBuilder("+"+appName+"+").build());
 				nativeBridge = new NativeGameBridge(CocosGamingActivity.this, BotUtils.getBotInfoForBotMsisdn("+hikenews+"));
-				if (requestId != null && !requestId.equals("")) {
+				if (requestId != null && !requestId.equals(""))
+				{
 					nativeBridge.initParams(nativeBridge.getRequestData(requestId));
 				}
-			} catch (Exception e) {
+			}
+			catch (Exception e)
+			{
 				e.printStackTrace();
 				Toast.makeText(context, "Can't load game", Toast.LENGTH_SHORT).show();
 				finish();
@@ -416,9 +503,11 @@ public class CocosGamingActivity extends Cocos2dxActivity {
 			onResume(); // to ensure that we call Cocos2dxActivity::onResume()
 		}
 
-		public boolean downloadFromUrl(String downloadUrl, String fileName) {
+		public boolean downloadFromUrl(String downloadUrl, String fileName)
+		{
 
-			try {
+			try
+			{
 				int count;
 				URL url = new URL(downloadUrl); // you can write here any link
 				URLConnection conection = url.openConnection();
@@ -436,7 +525,8 @@ public class CocosGamingActivity extends Cocos2dxActivity {
 				Logger.d(TAG, "downloaded file size:" + lengthOfFile + " bytes");
 				Logger.d(TAG, "Available internal storage:" + getAvailableInternalStorage() + " bytes");
 				// download the file
-				if (lengthOfFile > getAvailableInternalStorage() && lengthOfFile != -1) {
+				if (lengthOfFile > getAvailableInternalStorage() && lengthOfFile != -1)
+				{
 					Logger.d(TAG, "No free space to download game");
 					return false;
 				}
@@ -449,7 +539,8 @@ public class CocosGamingActivity extends Cocos2dxActivity {
 
 				long total = 0;
 
-				while ((count = input.read(data)) != -1) {
+				while ((count = input.read(data)) != -1)
+				{
 					total += count;
 					// publishing the progress....
 					// After this onProgressUpdate will be called
@@ -467,36 +558,48 @@ public class CocosGamingActivity extends Cocos2dxActivity {
 				input.close();
 				Logger.d(TAG, "Time to decrypt file : " + ((System.currentTimeMillis() - startTime) / 1000) + " sec");
 				return true;
-			} catch (IOException e) {
+			}
+			catch (IOException e)
+			{
 				Logger.d(TAG, "Error: " + e);
 			}
 			return false;
 		}
 
-		public long getAvailableInternalStorage() {
+		public long getAvailableInternalStorage()
+		{
 			return new File(context.getFilesDir().getAbsolutePath()).getFreeSpace();
 		}
 
-		public byte[] readFile(File file) {
+		public byte[] readFile(File file)
+		{
 			byte[] contents = null;
 			int size = (int) file.length();
 			contents = new byte[size];
-			try {
+			try
+			{
 				BufferedInputStream buf = new BufferedInputStream(new FileInputStream(file));
-				try {
+				try
+				{
 					buf.read(contents);
 					buf.close();
-				} catch (IOException e) {
+				}
+				catch (IOException e)
+				{
 					e.printStackTrace();
 				}
-			} catch (FileNotFoundException e) {
+			}
+			catch (FileNotFoundException e)
+			{
 				e.printStackTrace();
 			}
 			return contents;
 		}
 
-		private boolean decryptSoFile(String path) {
-			try {
+		private boolean decryptSoFile(String path)
+		{
+			try
+			{
 				long startTime = System.currentTimeMillis();
 				Cipher cipher = Cipher.getInstance("AES");
 				Logger.d(TAG, "appSignature : " + getAppSignature().substring(0, 16));
@@ -511,41 +614,50 @@ public class CocosGamingActivity extends Cocos2dxActivity {
 				fos.close();
 				Logger.d(TAG, "Time to decrypt file : " + ((System.currentTimeMillis() - startTime) / 1000) + " sec");
 				return true;
-			} catch (Exception e) {
+			}
+			catch (Exception e)
+			{
 				e.printStackTrace();
 			}
 			return false;
 		}
 
-		private boolean unpackZip(String path, String zipname) {
+		private boolean unpackZip(String path, String zipname)
+		{
 			InputStream is;
 			ZipInputStream zis;
 			long startTime = System.currentTimeMillis();
-			try {
+			try
+			{
 				String filename;
 				is = new FileInputStream(path + zipname);
 				zis = new ZipInputStream(new BufferedInputStream(is));
 				ZipEntry ze;
 				byte[] buffer = new byte[1024];
 				int count;
-				while ((ze = zis.getNextEntry()) != null) {
+				while ((ze = zis.getNextEntry()) != null)
+				{
 					filename = ze.getName();
 					// Need to create directories if not exists, or it will
 					// generate an Exception...
-					if (ze.isDirectory()) {
+					if (ze.isDirectory())
+					{
 						File fmd = new File(path + "/" + filename);
 						fmd.mkdirs();
 						continue;
 					}
 					FileOutputStream fout = new FileOutputStream(path + "/" + filename);
-					while ((count = zis.read(buffer)) != -1) {
+					while ((count = zis.read(buffer)) != -1)
+					{
 						fout.write(buffer, 0, count);
 					}
 					fout.close();
 					zis.closeEntry();
 				}
 				zis.close();
-			} catch (IOException e) {
+			}
+			catch (IOException e)
+			{
 				e.printStackTrace();
 				return false;
 			}
