@@ -319,6 +319,9 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 		sql = "CREATE UNIQUE INDEX IF NOT EXISTS " + DBConstants.EVENT_HASH_INDEX + " ON " + DBConstants.MESSAGE_EVENT_TABLE + " ( " + DBConstants.EVENT_HASH + " )";
 		db.execSQL(sql);
+		
+		String msgIdIndex = "CREATE UNIQUE INDEX IF NOT EXISTS " + DBConstants.MESSAGE_ID_INDEX + " ON " + DBConstants.MESSAGES_TABLE + " ( " + DBConstants.MESSAGE_ID + " )";
+		db.execSQL(msgIdIndex);
 	}
 
 	private void createIndexOverServerIdField(SQLiteDatabase db)
@@ -873,6 +876,9 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			String sqlIndex = "CREATE UNIQUE INDEX IF NOT EXISTS " + DBConstants.EVENT_HASH_INDEX + " ON " + DBConstants.MESSAGE_EVENT_TABLE + " ( " + DBConstants.EVENT_HASH
 					+ " )";
 			db.execSQL(sqlIndex);
+			
+			String msgIdIndex = "CREATE UNIQUE INDEX IF NOT EXISTS " + DBConstants.MESSAGE_ID_INDEX + " ON " + DBConstants.MESSAGES_TABLE + " ( " + DBConstants.MESSAGE_ID + " )";
+			db.execSQL(msgIdIndex);
 		}
 	}
 
