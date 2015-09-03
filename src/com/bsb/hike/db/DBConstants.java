@@ -34,8 +34,6 @@ public interface DBConstants
 
 	public static final String MESSAGE_ID = "msgid";
 	
-	public static final String MESSAGE_ID_INDEX = "msgId_Idx";
-	
 	public static final String GROUP_CREATOR = "grpCreator";
 	
 	public static final String MAPPED_MSG_ID = "mappedMsgId";
