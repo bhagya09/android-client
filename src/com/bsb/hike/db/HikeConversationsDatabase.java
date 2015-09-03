@@ -13,8 +13,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import com.bsb.hike.models.MessageEvent;
-import com.bsb.hike.platform.PlatformUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -58,6 +56,7 @@ import com.bsb.hike.models.GroupParticipant;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.HikeSharedFile;
+import com.bsb.hike.models.MessageEvent;
 import com.bsb.hike.models.MessageMetadata;
 import com.bsb.hike.models.Protip;
 import com.bsb.hike.models.StickerCategory;
@@ -77,6 +76,7 @@ import com.bsb.hike.modules.contactmgr.GroupDetails;
 import com.bsb.hike.platform.ContentLove;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformMessageMetadata;
+import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.WebMetadata;
 import com.bsb.hike.service.UpgradeIntentService;
 import com.bsb.hike.timeline.model.ActionsDataModel;
@@ -8418,18 +8418,11 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 	
 	public void updateSortingIdForAMessage(int msgId)
 	{
-		int maxMsgId = getMaxMsgIdFromMessagesTable();
-
-		if (maxMsgId < 0)
-		{
-			Logger.e("HikeConversationsDatabase", "Got maxMsgId as < 0 : " + maxMsgId + " Returning from update method");
-			return;
-		}
-
 		try
 		{
-			String updateStatement = "UPDATE " + DBConstants.MESSAGES_TABLE + " SET " + DBConstants.SORTING_ID + " = " + (maxMsgId + 1) + " WHERE " + DBConstants.MESSAGE_ID
-					+ " = " + "'" + msgId + "'";
+			String updateStatement = "UPDATE " + DBConstants.MESSAGES_TABLE + " SET " + DBConstants.SORTING_ID + " = "
+					+ " ( ( " + "SELECT" + " MAX( " + DBConstants.MESSAGE_ID + " ) " + " FROM " + DBConstants.MESSAGES_TABLE + " )" + " + 1 ) " + " WHERE " + DBConstants.MESSAGE_ID + " = " + "'"
+					+ msgId + "'";
 			mDb.execSQL(updateStatement);
 		}
 
@@ -8439,34 +8432,4 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		}
 	}
 
-	public int getMaxMsgIdFromMessagesTable()
-	{
-		Cursor c = null;
-
-		try
-		{
-			c = mDb.query(DBConstants.MESSAGES_TABLE, new String[] { "MAX(" + DBConstants.MESSAGE_ID + ")" + "AS " + DBConstants.MESSAGE_ID }, null, null, null, null, null, null);
-
-			if (c != null && c.moveToFirst())
-			{
-				return c.getInt(c.getColumnIndex(DBConstants.MESSAGE_ID));
-			}
-			else
-			{
-				return -1;
-			}
-		}
-
-		catch (Exception e)
-		{
-			return -1;
-		}
-
-		finally
-		{
-			if (c != null)
-				c.close();
-		}
-	}
-	
 }
