@@ -35,13 +35,11 @@
             android:background="@drawable/chat_head_bg_bottom" />
 
         <LinearLayout
-            android:layout_width="wrap_content"
+            android:layout_width="96.5dp"
             android:layout_height="match_parent"
             android:layout_gravity="bottom"
             android:background="@drawable/chat_head_bg_light"
             android:orientation="horizontal" >
-<!-- This code is being commented to prevent user from opening sticker shop
-	being done to prevent last seen mishandling
 
             <com.bsb.hike.ui.utils.RecyclingImageView
                 android:id="@+id/shop_icon_external"
@@ -59,7 +57,7 @@
                 android:layout_marginBottom="16dp"
                 android:layout_marginTop="16dp"
                 android:background="#444444" />
--->
+
             <com.bsb.hike.ui.utils.RecyclingImageView
                 android:id="@+id/info_icon"
                 android:layout_width="48dp"

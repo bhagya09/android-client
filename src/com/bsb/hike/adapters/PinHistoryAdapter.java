@@ -304,7 +304,7 @@ public class PinHistoryAdapter extends BaseAdapter implements OnLongClickListene
 			
 			if (cFirst.get(Calendar.DAY_OF_YEAR) != cSecond.get(Calendar.DAY_OF_YEAR))
 			{
-				listData.add(0,((ConvMessage)listData.get(0)).getMessageDate(context));
+				listData.add(0,((ConvMessage)textPins.get(0)).getMessageDate(context));
 			}
 			listData.add(1, convMsg);
 		}

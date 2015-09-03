@@ -12,8 +12,15 @@ import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
+import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.chatHead.StickerShareSettings.ListViewItem;
+import com.bsb.hike.models.HikeAlarmManager;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.Utils;
 
 public class ChatHeadSettingsArrayAdapter extends ArrayAdapter<ListViewItem>
 {
@@ -41,7 +48,15 @@ public class ChatHeadSettingsArrayAdapter extends ArrayAdapter<ListViewItem>
 		ImageView imgView = (ImageView) convertView.findViewById(R.id.app_icon);
 		TextView txtView = (TextView) convertView.findViewById(R.id.app_name);
 		mListViewItems.get(position).mCheckBox = (CheckBox) convertView.findViewById(R.id.checkbox_item);
-		imgView.setBackground(listItem.appIcon);
+		if (Utils.isJellybeanOrHigher())
+		{
+			imgView.setBackground(listItem.appIcon);
+		}
+		else
+		{
+			imgView.setBackgroundDrawable(listItem.appIcon);
+		}
+		
 		txtView.setText(listItem.appName);
 		if (listItem.appChoice)
 		{
@@ -60,7 +75,8 @@ public class ChatHeadSettingsArrayAdapter extends ArrayAdapter<ListViewItem>
 			@Override
 			public void onClick(View v)
 			{
-				StickerShareSettings.onItemClickEvent((int) v.getTag());
+				onItemClickEvent((int) v.getTag());
+				
 			}
 		});
 
@@ -69,11 +85,36 @@ public class ChatHeadSettingsArrayAdapter extends ArrayAdapter<ListViewItem>
 			@Override
 			public void onClick(View v)
 			{
-				StickerShareSettings.onItemClickEvent((int) v.getTag());
+				onItemClickEvent((int) v.getTag());
 			}
 		});
 
 		return convertView;
 	}
 
+	public void onItemClickEvent(int tag)
+	{
+
+		if (mListViewItems.get(tag).appChoice)
+		{
+			mListViewItems.get(tag).appChoice = false;
+			mListViewItems.get(tag).mCheckBox.setChecked(false);
+			HAManager.getInstance().chatHeadshareAnalytics(AnalyticsConstants.ChatHeadEvents.APP_CLICK, mListViewItems.get(tag).appName,
+					AnalyticsConstants.ChatHeadEvents.APP_UNCHECKED);
+		}
+		else
+		{
+
+			mListViewItems.get(tag).appChoice = true;
+			mListViewItems.get(tag).mCheckBox.setChecked(true);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.SNOOZE, false);
+			HikeAlarmManager.cancelAlarm(HikeMessengerApp.getInstance(), HikeAlarmManager.REQUESTCODE_START_STICKER_SHARE_SERVICE);
+			HAManager.getInstance().chatHeadshareAnalytics(AnalyticsConstants.ChatHeadEvents.APP_CLICK, mListViewItems.get(tag).appName,
+					AnalyticsConstants.ChatHeadEvents.APP_CHECKED);
+		}
+		if(mContext instanceof StickerShareSettings)
+		{
+			((StickerShareSettings) mContext).stickerSettingsChangedEvent(true);
+		}
+	}
 }

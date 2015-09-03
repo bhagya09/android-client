@@ -17,11 +17,9 @@ import com.bsb.hike.tasks.ShareBitmapTask;
 
 public class ShareUtils
 {
-	static Intent intent;
-
 	static Context mContext = HikeMessengerApp.getInstance().getApplicationContext();
 
-	public static Intent shareContent(int type, String path, String pkgName)
+	public static void shareContent(int type, String path, String pkgName, boolean isFromChatHead)
 	{
 
 		switch (type)
@@ -30,31 +28,22 @@ public class ShareUtils
 		case HikeConstants.Extras.ShareTypes.STICKER_SHARE:
 			String stiDesc = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.Extras.STICKER_DESCRIPTION, mContext.getString(R.string.sticker_share_description));
 			String stiCap = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.Extras.STICKER_CAPTION, mContext.getString(R.string.sticker_share_caption));
-			intent = imageShare(path, null, stiDesc, stiCap, pkgName, true);
+			imageShare(path, null, stiDesc, stiCap, pkgName, true, isFromChatHead);
 			break;
 
 		case HikeConstants.Extras.ShareTypes.IMAGE_SHARE:
 			String imgHead = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.Extras.IMAGE_HEADING, mContext.getString(R.string.image_share_heading));
 			String imgDesc = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.Extras.IMAGE_DESCRIPTION, mContext.getString(R.string.image_share_description));
 			String imgCap = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.Extras.IMAGE_CAPTION, mContext.getString(R.string.image_share_caption));
-			intent = imageShare(path, imgHead, imgDesc, imgCap, pkgName, false);
+			imageShare(path, imgHead, imgDesc, imgCap, pkgName, false, isFromChatHead);
 			break;
 
 		case HikeConstants.Extras.ShareTypes.TEXT_SHARE:
-			intent = textShare(path, pkgName);
+			textShare(path, pkgName, isFromChatHead);
 			break;
 		}
 
-		return intent;
-
-	}
-
-	private static void deleteFile(File toDelete)
-	{
-		if (toDelete != null && toDelete.exists())
-		{
-			toDelete.deleteOnExit();
-		}
+		return;
 
 	}
 
@@ -147,14 +136,8 @@ public class ShareUtils
 		}
 	}
 
-	private static Intent imageShare(String imagePath, String imgHead, String imgDesc, String imgCap, String pkgName, boolean isSticker)
+	private static void imageShare(String imagePath, String imgHead, String imgDesc, String imgCap, String pkgName, boolean isSticker, boolean isFromChatHead)
 	{
-		File shareImageFile = null;
-
-		try
-		{
-			Intent imageIntent;
-			shareImageFile = new File(mContext.getExternalCacheDir(), System.currentTimeMillis() + ".jpg");
 			View share;
 			if (isSticker)
 			{
@@ -166,30 +149,18 @@ public class ShareUtils
 			}
 			if (share != null)
 			{
-				ShareBitmapTask task = new ShareBitmapTask(share, mContext, shareImageFile);
+				ShareBitmapTask task = new ShareBitmapTask(share, mContext, imgCap, pkgName, isFromChatHead);
 				task.execute();
-				imageIntent = IntentFactory.shareIntent("image/jpeg", "file://" + shareImageFile.getAbsolutePath(), imgCap, HikeConstants.Extras.ShareTypes.IMAGE_SHARE, pkgName);
-				return imageIntent;
 			}
-			else
-			{
-				return null;
-			}
-		}
-		finally
-		{
-			deleteFile(shareImageFile);
-		}
 	}
 
-	private static Intent textShare(String text, String pkgName)
+	private static void textShare(String text, String pkgName, boolean isFromChatHead)
 	{
 		String textHead = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.Extras.TEXT_HEADING, mContext.getString(R.string.text_share_heading));
 		String textCap = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.Extras.TEXT_CAPTION, mContext.getString(R.string.text_share_caption));
 		text = text + "\n\n" + textHead + "\n" + textCap;
-		Intent textIntent = IntentFactory.shareIntent("text/plain", null, text, HikeConstants.Extras.ShareTypes.TEXT_SHARE, pkgName);
-		return textIntent;
-
+		Intent textIntent = IntentFactory.shareIntent("text/plain", null, text, HikeConstants.Extras.ShareTypes.TEXT_SHARE, pkgName, isFromChatHead);
+        mContext.startActivity(textIntent);
 	}
 
 }

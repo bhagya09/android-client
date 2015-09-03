@@ -12,19 +12,39 @@ public class GroupParticipant implements Comparable<GroupParticipant>
 	private boolean hasLeft;
 
 	private boolean onDnd;
+	
+	private boolean isAdmin;
+	
+	private String grpID;
+	
+	private int type;
 
 	private ContactInfo contactInfo;
-
-	public GroupParticipant(ContactInfo contactInfo)
+	
+	public static final class Participant_Type
 	{
-		this(contactInfo, false, false);
+		public static final int MEMBER = 0;
+
+		public static final int ADMIN = 1;
+
 	}
 
-	public GroupParticipant(ContactInfo contactInfo, boolean hasLeft, boolean onDnd)
+	public GroupParticipant(ContactInfo contactInfo, String grpID)
+	{
+		this(contactInfo, false, false, 0,grpID);
+	}
+	public GroupParticipant(ContactInfo contactInfo,int type)
+	{
+		this(contactInfo, false, false, type, null);
+	}
+
+	public GroupParticipant(ContactInfo contactInfo, boolean hasLeft, boolean onDnd, int type, String grpId)
 	{
 		this.contactInfo = contactInfo;
 		this.hasLeft = hasLeft;
 		this.onDnd = onDnd;
+		this.type = type;
+		this.grpID = grpId;
 	}
 
 	public void setOnDnd(boolean onDnd)
@@ -35,6 +55,13 @@ public class GroupParticipant implements Comparable<GroupParticipant>
 	public boolean onDnd()
 	{
 		return onDnd;
+	}
+	
+	public String getGrpID() {
+		return grpID;
+	}
+	public void setGrpID(String grpID) {
+		this.grpID = grpID;
 	}
 
 	public boolean hasLeft()
@@ -57,6 +84,23 @@ public class GroupParticipant implements Comparable<GroupParticipant>
 		contactInfo = info;
 	}
 
+	public int getType() {
+		return type;
+	}
+	public void setType(int type) {
+		this.type = type;
+	}
+
+	public boolean isAdmin() {
+		if(type==Participant_Type.ADMIN){
+			return true;
+		}
+		return false;
+	}
+
+	public void setAdmin(boolean isAdmin) {
+		this.isAdmin = isAdmin;
+	}
 	@Override
 	public int compareTo(GroupParticipant another)
 	{

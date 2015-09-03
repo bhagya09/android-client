@@ -45,7 +45,7 @@
         <item>:D</item> <!-- 26 lol -->
         <item>:o</item> <!-- 27 woo -->
         <item>:-O</item> <!-- 28 surprise -->
-        <item>:-&lt;</item> <!-- 29 frown -->
+        <item>:-\u003C</item> <!-- 29 frown -->
         <item>X(</item> <!-- 30 angry -->
         <item>(wornout)</item> <!-- 31 wornout -->
         <item>(stop)</item> <!-- 32 stop -->
@@ -83,7 +83,7 @@
         <item>(music)</item> <!-- 64 music -->
         <item>:-B</item> <!-- 65 nerd -->
         <item>(ninja)</item> <!-- 66 ninja -->
-        <item>&lt;:--)</item> <!-- 67 party -->
+        <item>\u003C:--)</item> <!-- 67 party -->
         <item>P-(</item> <!-- 68 pirate -->
         <item>:-@</item> <!-- 69 rage -->
         <item>(@>---)</item> <!-- 70 rose -->
@@ -1236,8 +1236,9 @@
         <item>@null</item>
     </array>
     <array name="photos_actions_titles">
-        <item>Set as Profile Picture</item>
-        <item>Send</item>
+        <item>Set as profile picture</item>
+        <item>Send to friends</item>
+        <item>Post to timeline</item>
     </array>
     <array name="photos_actions_description">
         <item>Make the edited photo your Profile Photo</item>

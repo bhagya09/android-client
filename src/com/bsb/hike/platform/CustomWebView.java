@@ -6,10 +6,15 @@ import android.content.Context;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.view.View;
+import android.webkit.WebSettings;
 import android.webkit.WebView;
 
+import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.platform.content.HikeWebClient;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
+
+import java.io.File;
 
 /**
  * Created by shobhitmandloi on 27/01/15.
@@ -122,14 +127,11 @@ public class CustomWebView extends WebView
 		if (!isDestroyed)
 		{
 			stopLoading();
-			setWebChromeClient(null);
-			setWebViewClient(null);
 			removeAllViews();
 			if (Utils.isHoneycombOrHigher())
 			{
 				removeJavascriptInterface(javaScriptInterface);
 			}
-			destroy();
 			isDestroyed = true;
 		}
 	}
@@ -139,6 +141,12 @@ public class CustomWebView extends WebView
 	{
 		if (!isDestroyed)
 		{
+			if (Utils.isLollipopOrHigher() && !Utils.appInstalledOrNot(HikeMessengerApp.getInstance().getApplicationContext(), "com.google.android.webview"))
+			{
+				PlatformUtils.sendPlatformCrashAnalytics("PackageManager.NameNotFoundException");
+				return;
+			}
+			
 			super.loadDataWithBaseURL(baseUrl, data, mimeType, encoding, failUrl);
 		}
 	}
@@ -148,6 +156,12 @@ public class CustomWebView extends WebView
 	{
 		if(!isDestroyed)
 		{
+			if (Utils.isLollipopOrHigher() && !Utils.appInstalledOrNot(HikeMessengerApp.getInstance().getApplicationContext(), "com.google.android.webview"))
+			{
+				PlatformUtils.sendPlatformCrashAnalytics("PackageManager.NameNotFoundException");
+				return;
+			}
+			
 			super.loadData(data, mimeType, encoding);
 		}
 	}
@@ -157,6 +171,18 @@ public class CustomWebView extends WebView
 		setVerticalScrollBarEnabled(false);
 		setHorizontalScrollBarEnabled(false);
 		getSettings().setJavaScriptEnabled(true);
+		enableAppCache();
+	}
+
+	private void enableAppCache()
+	{
+		File cacheDirectoryPath = getContext().getCacheDir();
+		if (cacheDirectoryPath != null && cacheDirectoryPath.exists())
+		{
+			getSettings().setAppCachePath(cacheDirectoryPath.getAbsolutePath());
+			getSettings().setAppCacheEnabled(true);
+			getSettings().setCacheMode(WebSettings.LOAD_DEFAULT);
+		}
 	}
 
 	public void loadMicroAppData(String data)
@@ -175,5 +201,11 @@ public class CustomWebView extends WebView
 	{
 		return this.isShowing;
 	}
-
+	
+	public boolean isWebViewDestroyed()
+	{
+		return this.isDestroyed;
+	}
 }
+
+

@@ -31,8 +31,8 @@ import android.widget.BaseAdapter;
 import android.widget.Filter;
 import android.widget.Filter.FilterListener;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.bsb.hike.HikeConstants;
@@ -48,9 +48,9 @@ import com.bsb.hike.bots.MessagingBotMetadata;
 import com.bsb.hike.bots.NonMessagingBotConfiguration;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
-import com.bsb.hike.models.GroupTypingNotification;
 import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
 import com.bsb.hike.models.ConvMessage.State;
+import com.bsb.hike.models.GroupTypingNotification;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.MessageMetadata;
 import com.bsb.hike.models.TypingNotification;
@@ -215,15 +215,8 @@ public class ConversationsAdapter extends BaseAdapter
 		{
 			if (!isSearchModeOn)
 			{
-				if (BotUtils.getBotAnimaionType(convInfo) == BotUtils.BOT_READ_SLIDE_OUT_ANIMATION)
-				{
-					animation = getSlideOutAnimation(convInfo);
-					startSlideOutAnimation(animation, v);
-				}
-				else
-				{
-					removeConversation(convInfo);
-				}
+				animation = getSlideOutAnimation(convInfo);
+				startSlideOutAnimation(animation, v);
 				removeBotMsisdn = null;
 			}
 			else
@@ -457,10 +450,9 @@ public class ConversationsAdapter extends BaseAdapter
 		refinedSearchText = "";
 		/*
 		 * Purposely returning conversation list on the UI thread on collapse to avoid showing ftue empty state. 
+		 * search with empty text only restores the conversation list
 		 */
-		completeList.clear();
-		completeList.addAll(conversationList);
-		notifyDataSetChanged();
+		onQueryChanged(null, null);
 	}
 
 	/**
@@ -571,7 +563,7 @@ public class ConversationsAdapter extends BaseAdapter
 			else
 			{
 				List<List<ConvInfo>> resultList = new ArrayList<List<ConvInfo>>();
-				resultList.add(getOriginalList());
+				resultList.add(conversationList);
 				results.values = resultList;
 			}
 			results.count = 1;
@@ -651,25 +643,28 @@ public class ConversationsAdapter extends BaseAdapter
 		{
 			List<List<ConvInfo>> resultList = (List<List<ConvInfo>>) results.values;
 
-			List<ConvInfo> filteredSearchList = new ArrayList<ConvInfo>();
-			filteredSearchList.addAll(resultList.get(0));
-
-			if(phoneBookContacts!=null && !phoneBookContacts.isEmpty() && resultList.size() > 1)
+			if (resultList != null)
 			{
-				filteredSearchList.addAll(resultList.get(1));
-			}
-
-			completeList.clear();
-			completeList.addAll(filteredSearchList);
-			notifyDataSetChanged();
-			if (completeList.isEmpty() && !noResultRecorded)
-			{
-				recordNoResultsSearch();
-				noResultRecorded = true;
-			}
-			else if (!completeList.isEmpty())
-			{
-				noResultRecorded = false;
+				List<ConvInfo> filteredSearchList = new ArrayList<ConvInfo>();
+				filteredSearchList.addAll(resultList.get(0));
+	
+				if(phoneBookContacts!=null && !phoneBookContacts.isEmpty() && resultList.size() > 1)
+				{
+					filteredSearchList.addAll(resultList.get(1));
+				}
+	
+				completeList.clear();
+				completeList.addAll(filteredSearchList);
+				notifyDataSetChanged();
+				if (completeList.isEmpty() && !noResultRecorded)
+				{
+					recordNoResultsSearch();
+					noResultRecorded = true;
+				}
+				else if (!completeList.isEmpty())
+				{
+					noResultRecorded = false;
+				}
 			}
 		}
 	}
@@ -692,11 +687,6 @@ public class ConversationsAdapter extends BaseAdapter
 		{
 			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
 		}
-	}
-
-	protected List<ConvInfo> getOriginalList()
-	{
-		return conversationList;
 	}
 
 	public void updateViewsRelatedToName(View parentView, ConvInfo convInfo)
@@ -743,10 +733,12 @@ public class ConversationsAdapter extends BaseAdapter
 		else if (OneToNConversationUtils.isGroupConversation(convInfo.getMsisdn()))
 		{
 				contactView.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_group, 0, 0, 0);
+				contactView.setCompoundDrawablePadding(context.getResources().getDimensionPixelOffset(R.dimen.home_list_header_drawable_padding));
 		}
 		else
 		{
 			contactView.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
+			contactView.setCompoundDrawablePadding(0);
 		}
 	}
 
@@ -942,39 +934,37 @@ public class ConversationsAdapter extends BaseAdapter
 			if (message.getState() == ConvMessage.State.RECEIVED_UNREAD && (message.getTypingNotification() == null) && convInfo.getUnreadCount() > 0 && !message.isSent())
 			{
 					unreadIndicator.setVisibility(View.VISIBLE);
-					unreadIndicator.setBackgroundResource(convInfo.isStealth() ? R.drawable.bg_unread_counter_stealth : R.drawable.bg_unread_counter);
-					unreadIndicator.setText(convInfo.getUnreadCountString());
+					unreadIndicator.setBackgroundResource(R.drawable.ic_messagecounter);
+					String unreadCountString = convInfo.getUnreadCountString();
+					unreadIndicator.setText(unreadCountString);
 			}
 
 			imgStatus.setImageResource(imageId);
 			imgStatus.setVisibility(View.VISIBLE);
-			
-			RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams) messageView.getLayoutParams();
-			lp.setMargins((int) (5 * Utils.densityMultiplier), lp.topMargin, lp.rightMargin, lp.bottomMargin);
-			messageView.setLayoutParams(lp);
+		
 		}
 		/*
 		 * If the message is a status message, we only show an indicator if the status of the message is unread.
 		 */
-		else if (message.getParticipantInfoState() != ParticipantInfoState.STATUS_MESSAGE || message.getState() == State.RECEIVED_UNREAD)
+		else if (isNuxLocked || message.getParticipantInfoState() != ParticipantInfoState.STATUS_MESSAGE || message.getState() == State.RECEIVED_UNREAD)
 		{
 
 			if (message.isSent())
 			{
-				imgStatus.setImageResource(message.getImageState());
+				int drawableResId = message.getImageState();
+				imgStatus.setImageResource(drawableResId);
 				imgStatus.setVisibility(View.VISIBLE);
+				setImgStatusPadding(imgStatus, drawableResId);
 			}
 
 			if (message.getState() == ConvMessage.State.RECEIVED_UNREAD && (message.getTypingNotification() == null) && convInfo.getUnreadCount() > 0 && !message.isSent())
 			{
-				
 					unreadIndicator.setVisibility(View.VISIBLE);
-
-					unreadIndicator.setBackgroundResource(convInfo.isStealth() ? R.drawable.bg_unread_counter_stealth : R.drawable.bg_unread_counter);
-
-					unreadIndicator.setText(convInfo.getUnreadCountString());
-				
+					unreadIndicator.setBackgroundResource(R.drawable.ic_messagecounter);
+					String unreadCountString = convInfo.getUnreadCountString();
+					unreadIndicator.setText(unreadCountString);
 			}
+			
 			if(isNuxLocked)
 			{ 
 				imgStatus.setVisibility(View.VISIBLE);
@@ -982,7 +972,7 @@ public class ConversationsAdapter extends BaseAdapter
 				messageView.setText(NUXManager.getInstance().getNuxChatRewardPojo().getChatWaitingText());	
 			}
 			
-			RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams) messageView.getLayoutParams();
+			LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) messageView.getLayoutParams();
 			lp.setMargins(0, lp.topMargin, lp.rightMargin, lp.bottomMargin);
 			messageView.setLayoutParams(lp);
 		}
@@ -994,8 +984,14 @@ public class ConversationsAdapter extends BaseAdapter
 		}
 		else
 		{
-			messageView.setTextColor(context.getResources().getColor(R.color.list_item_header));
+			messageView.setTextColor(context.getResources().getColor(R.color.conv_item_last_msg_color));
 		}
+	}
+
+	private void setImgStatusPadding(ImageView imgStatus, int drawableResId)
+	{
+		// we have separate padding from bottom for clock and other assets
+		imgStatus.setPadding(0, 0, 0, drawableResId == R.drawable.ic_retry_sending ? context.getResources().getDimensionPixelSize(R.dimen.clock_padding_bottom) : context.getResources().getDimensionPixelSize(R.dimen.tick_padding_bottom));
 	}
 
 	private CharSequence getConversationText(ConvInfo convInfo, ConvMessage message)
@@ -1018,6 +1014,15 @@ public class ConversationsAdapter extends BaseAdapter
 			
 			String highlight = Utils.getConversationJoinHighlightText(participantInfoArray, (OneToNConvInfo)convInfo, metadata.isNewGroup()&&metadata.getGroupAdder()!=null, context);
 			markedUp = OneToNConversationUtils.getParticipantAddedMessage(message, context, highlight);
+		}
+		else if (message.getParticipantInfoState() == ParticipantInfoState.CHANGE_ADMIN)
+		{
+			markedUp = OneToNConversationUtils.getAdminUpdatedMessage(message,context);
+		}
+		else if (message.getParticipantInfoState() == ParticipantInfoState.GC_SETTING_CHANGE)
+		{
+			
+			markedUp = OneToNConversationUtils.getSettingUpdatedMessage(message,context);
 		}
 		
 		else if (message.getParticipantInfoState() == ParticipantInfoState.DND_USER)
@@ -1296,7 +1301,7 @@ public class ConversationsAdapter extends BaseAdapter
 			{
 				conversationsMsisdns.remove(conv.getMsisdn());
 			}
-			if (phoneBookContacts != null && conv.isOnHike())
+			if (phoneBookContacts != null && conv.isOnHike() && !conv.isStealth())
 			{
 				phoneBookContacts.add(getPhoneContactFakeConv(conv));
 			}

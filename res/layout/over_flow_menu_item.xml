@@ -1,38 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:minHeight="48dp"
-    android:gravity="center"
-    android:paddingLeft="18dp"
-    android:paddingRight="11dp" >
+    android:layout_height="48dp" >
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
+        android:layout_height="match_parent"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="12dp" >
 
-        <RelativeLayout
-            android:id="@+id/item_image_view"
-            android:layout_width="@dimen/small_avatar"
-            android:layout_height="@dimen/small_avatar"
-            android:layout_alignParentRight="true" >
+         <ImageView
+             android:id="@+id/item_icon"
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:scaleType="centerInside"
+             android:layout_centerVertical="true"
+             android:layout_alignParentRight="true"/>
 
-           <com.bsb.hike.ui.utils.RecyclingImageView
-               android:id="@+id/item_icon"
-               style="@style/AvatarStyle.Padding" />
-
-           <ImageView
-               android:id="@+id/avatar_frame"
-               style="@style/AvatarStyle" />
-       </RelativeLayout>
-       
         <com.bsb.hike.view.CustomFontTextView
             android:id="@+id/item_title"
-            android:layout_width="fill_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
-            android:textColor="#f3f3f3"
-            android:textSize="18sp"
+            android:textColor="@color/menu_text_color"
+            android:textStyle="normal"
+            android:textSize="16sp"
+            android:ellipsize="end"
+            android:layout_marginRight="4dp"
+            style="@style/BaseStyleTextView"
             android:layout_centerVertical="true" />
         
         <com.bsb.hike.view.CustomFontTextView
@@ -44,9 +39,10 @@
             android:background="@drawable/ic_games_indicator"
             android:gravity="center"
             android:text="0"
+            style="@style/BaseStyleTextView"
             android:textColor="@color/white"
-            android:textSize="13sp"
-            android:textStyle="bold"
+            android:textSize="12sp"
+            android:textStyle="normal"
             android:visibility="gone" />
         
         <com.bsb.hike.view.CustomFontTextView
@@ -57,9 +53,10 @@
             android:layout_centerVertical="true"
             android:gravity="center"
             android:text="0"
+            style="@style/BaseStyleTextView"
             android:textColor="#a59b94"
             android:textSize="12sp"
-            android:textStyle="bold"
+            android:textStyle="normal"
             android:visibility="gone" />
        
         <com.bsb.hike.view.CustomFontTextView
@@ -68,12 +65,13 @@
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
             android:layout_centerVertical="true"
+            style="@style/BaseStyleTextView"
             android:background="@drawable/ic_games_indicator"
             android:gravity="center"
             android:text="0"
             android:textColor="@color/white"
-            android:textSize="13sp"
-            android:textStyle="bold"
+            android:textSize="12sp"
+            android:textStyle="normal"
             android:visibility="gone" />
     </RelativeLayout>
 

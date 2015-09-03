@@ -26,7 +26,7 @@
                 android:layout_marginBottom="14dp"
                 android:src="@drawable/shocked" />
 
-            <TextView
+            <com.bsb.hike.view.CustomFontTextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"                
@@ -35,7 +35,7 @@
                 android:textColor="@color/rec_progress"
                 android:textSize="16sp" />
 
-            <TextView
+            <com.bsb.hike.view.CustomFontTextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
@@ -45,7 +45,7 @@
                 android:textSize="15sp" />
         </LinearLayout>
 
-        <TextView
+        <com.bsb.hike.view.CustomFontTextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="36dp"
@@ -58,15 +58,16 @@
             android:layout_centerHorizontal="true"
             layout="@layout/country_phone" />
 
-        <Button
+        <com.bsb.hike.view.CustomFontButton
             android:layout_width="289dp"
             android:layout_height="wrap_content"
             android:layout_below="@+id/country_phone_layout"
             android:layout_gravity="center_horizontal"
             android:layout_marginBottom="32dp"
             android:layout_marginTop="30dp"
-            android:background="@drawable/red_button_selector"
+            android:background="@drawable/delete_account_button"
             android:onClick="deleteAccountClicked"
+            android:stateListAnimator="@null" 
             android:text="@string/delete_my_account"
             android:textColor="@color/white"
             android:textSize="14sp" />

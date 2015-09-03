@@ -6,43 +6,31 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="48dp"
+       	android:layout_height="@dimen/compose_item_height"
         android:background="@drawable/list_item"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:paddingLeft="14dp"
-        android:paddingRight="14dp" >
-
-        <RelativeLayout
-            android:layout_width="@dimen/medium_avatar"
-            android:layout_height="@dimen/medium_avatar" >
-
-            <ImageView
-                android:id="@+id/icon"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
-                android:src="@drawable/ic_invite_to_hike" />
-        </RelativeLayout>
-
-        <LinearLayout
+        android:paddingLeft="@dimen/conv_item_padding"
+        android:paddingRight="@dimen/conv_item_padding" >
+        
+        
+        <ImageView
+            android:id="@+id/icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_invite_to_hike" />
+        
+        
+		<LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="12dp"
+           	style="@style/compose_name_container_margins"
             android:orientation="vertical" >
 
             <com.bsb.hike.view.CustomFontTextView
                 android:id="@+id/contact"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentLeft="true"
-                android:layout_centerVertical="true"
-                android:ellipsize="end"
-                android:singleLine="true"
                 android:text="Kavin Mittal kja skldlkas daskd asdjlasj dlasdl asdj las das d"
-                android:textColor="@color/list_item_header"
-                android:textSize="16sp"
-                android:textStyle="bold|italic" />
+                style="@style/ListItemHeaderTextView"  />
         </LinearLayout>
     </LinearLayout>
 

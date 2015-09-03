@@ -72,10 +72,21 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 	private Context context;
 
 	private static String[] pubSubListeners = { HikePubSub.APP_BACKGROUNDED };
+	
+	private String selfMsisdn;
+
+	public static final byte SYNC_CONTACTS_CHANGED = 0;
+
+	public static final byte SYNC_CONTACTS_NO_CONTACTS_FOUND_IN_ANDROID_ADDRESSBOOK = 1;
+
+	public static final byte SYNC_CONTACTS_DB_IN_SYNC = 2;
+
+	public static final byte SYNC_CONTACTS_ERROR = 3;
 
 	private ContactManager()
 	{
 		context = HikeMessengerApp.getInstance().getApplicationContext();
+		setSelfMsisdn(HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.MSISDN_SETTING, null));
 		hDb = HikeUserDatabase.getInstance();
 		persistenceCache = new PersistenceCache(hDb);
 		transientCache = new TransientCache(hDb);
@@ -772,7 +783,19 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 		{
 			return contact;
 		}
-		return transientCache.getContactInfoFromPhoneNoOrMsisdn(number);
+		contact = transientCache.getContactInfoFromPhoneNoOrMsisdn(number);
+		if (null != contact)
+		{
+			return contact;
+		}
+		
+		ContactInfo selfContactInfo = Utils.getUserContactInfo(true);
+		if (number.equals(selfContactInfo.getMsisdn()))
+		{
+			contact = selfContactInfo;
+		}
+		
+		return contact;
 	}
 
 	@Override
@@ -917,6 +940,7 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 	 */
 	public void block(String msisdn)
 	{
+		persistenceCache.block(msisdn);
 		hDb.block(msisdn);
 	}
 
@@ -945,6 +969,7 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 	 */
 	public void unblock(String msisdn)
 	{
+		persistenceCache.unblock(msisdn);
 		hDb.unblock(msisdn);
 	}
 
@@ -1044,7 +1069,7 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 	 */
 	public boolean isBlocked(String msisdn)
 	{
-		return hDb.isBlocked(msisdn);
+		return persistenceCache.isBlocked(msisdn);
 	}
 
 	/**
@@ -1134,7 +1159,7 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 	 */
 	public Set<String> getBlockedMsisdnSet()
 	{
-		return hDb.getBlockedMsisdnSet();
+		return persistenceCache.getBlockedMsisdnSet();
 	}
 
 	/**
@@ -1147,6 +1172,7 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 	 */
 	public void setAddressBookAndBlockList(List<ContactInfo> contacts, List<String> blockedMsisdns) throws DbException
 	{
+		persistenceCache.block(blockedMsisdns);
 		hDb.setAddressBookAndBlockList(contacts, blockedMsisdns);
 	}
 
@@ -1397,13 +1423,13 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 	 * 
 	 * @param ctx
 	 */
-	public boolean syncUpdates(Context ctx)
+	public byte syncUpdates(Context ctx)
 	{
 		// Moving check if User is online to the calling class (HikeService.ContactsChanged) 
 		List<ContactInfo> newContacts = getContacts(ctx);
 		if (newContacts == null)
 		{
-			return false;
+			return SYNC_CONTACTS_NO_CONTACTS_FOUND_IN_ANDROID_ADDRESSBOOK;
 		}
 
 		Map<String, List<ContactInfo>> new_contacts_by_id = convertToMap(newContacts);
@@ -1527,7 +1553,7 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 		if ((new_contacts_by_id.isEmpty()) && (hike_contacts_by_id.isEmpty()))
 		{
 			Logger.d("ContactUtils", "DB in sync");
-			return false;
+			return SYNC_CONTACTS_DB_IN_SYNC;
 		}
 
 		try
@@ -1554,7 +1580,7 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 			if (updatedContacts == null)
 			{
 				Logger.e("ContactUtils", " updated contacts is null some error occurred during request execution");
-				return false;
+				return SYNC_CONTACTS_ERROR;
 			}
 
 			List<ContactInfo> contactsToDelete = new ArrayList<ContactInfo>();
@@ -1609,8 +1635,9 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 		catch (Exception e)
 		{
 			Logger.e("ContactUtils", "error updating addressbook", e);
+			return SYNC_CONTACTS_ERROR;
 		}
-		return true;
+		return SYNC_CONTACTS_CHANGED;
 	}
 
 	private boolean areListsEqual(List<ContactInfo> list1, List<ContactInfo> list2)
@@ -1775,34 +1802,35 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 		{
 			Uri simUri = Uri.parse("content://icc/adn");
 			cursorSim = ctx.getContentResolver().query(simUri, null, null, null, null);
-
-			while (cursorSim.moveToNext())
-			{
-				try
+			if(cursorSim != null){
+				while (cursorSim.moveToNext())
 				{
-					String id = cursorSim.getString(cursorSim.getColumnIndex("_id"));
-					String name = cursorSim.getString(cursorSim.getColumnIndex("name"));
-					String number = cursorSim.getString(cursorSim.getColumnIndex("number"));
-					if ((name != null) && (number != null))
+					try
 					{
-						if (contactsToStore.add("_" + name + "_" + number)) // if
-																			// this
-																			// element
-																			// is
-																			// added
-																			// successfully
-																			// ,
-																			// it
-																			// returns
-																			// true
+						String id = cursorSim.getString(cursorSim.getColumnIndex("_id"));
+						String name = cursorSim.getString(cursorSim.getColumnIndex("name"));
+						String number = cursorSim.getString(cursorSim.getColumnIndex("number"));
+						if ((name != null) && (number != null))
 						{
-							contactinfos.add(new ContactInfo(id, null, name, number));
+							if (contactsToStore.add("_" + name + "_" + number)) // if
+																				// this
+																				// element
+																				// is
+																				// added
+																				// successfully
+																				// ,
+																				// it
+																				// returns
+																				// true
+							{
+								contactinfos.add(new ContactInfo(id, null, name, number));
+							}
 						}
 					}
-				}
-				catch (Exception e)
-				{
-					Logger.w("ContactUtils", "Expection while adding sim contacts", e);
+					catch (Exception e)
+					{
+						Logger.w("ContactUtils", "Expection while adding sim contacts", e);
+					}
 				}
 			}
 		}
@@ -1921,25 +1949,26 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 
 			String selection = ContactsContract.RawContacts.ACCOUNT_TYPE + "= 'com.whatsapp'";
 			greenblueContactsCursor = context.getContentResolver().query(ContactsContract.RawContacts.CONTENT_URI, projection, selection, null, null);
-
-			int id = greenblueContactsCursor.getColumnIndex(ContactsContract.RawContacts.CONTACT_ID);
-
+			
 			StringBuilder greenblueContactIds = null;
-
-			if (greenblueContactsCursor.getCount() > 0)
+			if(greenblueContactsCursor != null)
 			{
-				greenblueContactIds = new StringBuilder("(");
-
-				while (greenblueContactsCursor.moveToNext())
+				int id = greenblueContactsCursor.getColumnIndex(ContactsContract.RawContacts.CONTACT_ID);
+				if (greenblueContactsCursor.getCount() > 0)
 				{
-					greenblueContactIds.append(greenblueContactsCursor.getInt(id) + ",");
-					String msisdn = greenblueContactsCursor.getInt(id) + "";
-					if (isIndianMobileNumber(msisdn))
+					greenblueContactIds = new StringBuilder("(");
+	
+					while (greenblueContactsCursor.moveToNext())
 					{
-						greenblueContactIds.append(msisdn + ",");
+						greenblueContactIds.append(greenblueContactsCursor.getInt(id) + ",");
+						String msisdn = greenblueContactsCursor.getInt(id) + "";
+						if (isIndianMobileNumber(msisdn))
+						{
+							greenblueContactIds.append(msisdn + ",");
+						}
 					}
+					greenblueContactIds.replace(greenblueContactIds.lastIndexOf(","), greenblueContactIds.length(), ")");
 				}
-				greenblueContactIds.replace(greenblueContactIds.lastIndexOf(","), greenblueContactIds.length(), ")");
 			}
 
 			String[] newProjection = new String[] { Phone.NUMBER, Phone.TIMES_CONTACTED };
@@ -1950,7 +1979,7 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 			Map<String, Integer> mostContactedNumbers = new HashMap<String, Integer>();
 			StringBuilder sb = null;
 
-			if (phoneContactsCursor.getCount() > 0)
+			if ((phoneContactsCursor != null) && (phoneContactsCursor.getCount() > 0))
 			{
 				sb = new StringBuilder("(");
 
@@ -1976,7 +2005,7 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 				otherContactsCursor = context.getContentResolver().query(Phone.CONTENT_URI, newProjection, newSelection, null,
 						Phone.TIMES_CONTACTED + " DESC LIMIT " + otherContactsRequired);
 
-				if (otherContactsCursor.getCount() > 0)
+				if ((otherContactsCursor != null) && (otherContactsCursor.getCount() > 0))
 				{
 					if (sb == null)
 					{
@@ -2178,7 +2207,7 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 
 				phoneContactsCursor = context.getContentResolver().query(Phone.CONTENT_URI, newProjection, newSelection, null, Phone.NUMBER + " DESC");
 
-				if (phoneContactsCursor.getCount() > 0)
+				if ((phoneContactsCursor != null) && (phoneContactsCursor.getCount() > 0))
 				{
 					setGreenBlueContacs(phoneContactsCursor, contactinfos);
 				}
@@ -2297,5 +2326,25 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 	public ArrayList<String> getMsisdnForMissingPlatformUID()
 	{
 		return hDb.getMsisdnsForMissingPlatformUID();
+	}
+
+	
+	public String getSelfMsisdn()
+	{
+		return selfMsisdn;
+	}
+
+	public void setSelfMsisdn(String msisdn)
+	{
+		this.selfMsisdn = msisdn;
+	}
+
+
+	public void setParticipantAdmin(String groupId, String msisdn) {
+		transientCache.updateGroupParticipantDetail(groupId,msisdn);
+	}
+	
+	public void updateAdminState(String msisdn) {
+		transientCache.updateContactDetailInAllGroups( msisdn);
 	}
 }

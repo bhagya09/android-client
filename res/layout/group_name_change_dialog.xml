@@ -34,7 +34,7 @@
         android:layout_marginRight="10dp"
         android:layout_marginTop="16dp"
         android:inputType="textCapSentences"
-        android:background="@drawable/bg_group_name"
+        android:background="@drawable/bg_country_picker_selector"
         android:maxLength="@integer/max_length_group_name"
         android:paddingBottom="8dp"
         android:paddingLeft="10dp"
@@ -58,7 +58,7 @@
         <com.bsb.hike.view.CustomFontButton
             android:id="@+id/btn_cancel"
             style="@style/SmsPopupButton"
-            android:text="@string/cancel" />
+            android:text="@string/CANCEL" />
 
         <View
             android:layout_width="2dp"

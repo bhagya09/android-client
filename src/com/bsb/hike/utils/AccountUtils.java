@@ -70,6 +70,7 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.filetransfer.FTAnalyticEvents;
 import com.bsb.hike.http.CustomSSLSocketFactory;
 import com.bsb.hike.http.GzipByteArrayEntity;
 import com.bsb.hike.http.HikeHttpRequest;
@@ -454,14 +455,15 @@ public class AccountUtils
 		}
 	}
 
-	public static int getBytesUploaded(String sessionId) throws ClientProtocolException, IOException
+	public static int getBytesUploaded(String sessionId, String mUrl, Scheme scheme) throws ClientProtocolException, IOException
 	{
 		int val = 0;
-		HttpRequestBase req = new HttpGet(AccountUtils.fileTransferBase + "/user/pft/");
+		HttpRequestBase req = new HttpGet(mUrl);
 		addToken(req);
 		req.addHeader("X-SESSION-ID", sessionId);
 		AccountUtils.setNoTransform(req);
 		HttpClient httpclient = getClient(req);
+		httpclient.getConnectionManager().getSchemeRegistry().register(scheme);
 		HttpResponse response = httpclient.execute(req);
 		StatusLine statusLine = response.getStatusLine();
 		if (statusLine.getStatusCode() == HttpStatus.SC_OK)
@@ -470,7 +472,17 @@ public class AccountUtils
 			response.getEntity().writeTo(out);
 			out.close();
 			String responseString = out.toString();
-			return Integer.parseInt(responseString) + 1;
+			int resumeLen = 0;
+			try
+			{
+				resumeLen = Integer.parseInt(responseString) + 1;
+			}
+			catch(NumberFormatException e)
+			{
+				e.printStackTrace();
+				FTAnalyticEvents.logDevException(FTAnalyticEvents.BAD_RESUME_LENGTH, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "Getting resume length", "Response = " + responseString, e);
+			}
+			return resumeLen;
 		}
 		else
 		{

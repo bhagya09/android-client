@@ -24,11 +24,9 @@ JNIEXPORT jlong JNICALL Java_com_bsb_hike_voip_OpusWrapper_opus_1encoder_1create
 	  jlong enc = (intptr_t)opus_encoder_create((opus_int32)samplingRate, (int)channels, (int)OPUS_APPLICATION_VOIP, (int *)&errors);
 	  opus_encoder_ctl((OpusEncoder *)(intptr_t)enc, OPUS_SET_APPLICATION(OPUS_APPLICATION_VOIP));
 	  opus_encoder_ctl((OpusEncoder *)(intptr_t)enc, OPUS_SET_FORCE_CHANNELS(1));
-	  // opus_encoder_ctl((OpusEncoder *)enc, OPUS_SET_BITRATE(32000));
 	  opus_encoder_ctl((OpusEncoder *)(intptr_t)enc, OPUS_SET_SIGNAL(OPUS_SIGNAL_VOICE));
-	  // opus_encoder_ctl((OpusEncoder *)(intptr_t)enc, OPUS_SET_COMPLEXITY(1));
-	  // opus_encoder_ctl((OpusEncoder *)enc, OPUS_SET_PACKET_LOSS_PERC(5));
-	  // opus_encoder_ctl((OpusEncoder *)enc, OPUS_SET_INBAND_FEC(1));
+	  opus_encoder_ctl((OpusEncoder *)enc, OPUS_SET_PACKET_LOSS_PERC(10));
+	  opus_encoder_ctl((OpusEncoder *)enc, OPUS_SET_INBAND_FEC(1));
 	  return enc;
 
   }

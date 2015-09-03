@@ -44,6 +44,7 @@ import com.bsb.hike.filetransfer.FileTransferManager;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
 import com.bsb.hike.models.HikeFile.HikeFileType;
+import com.bsb.hike.models.MovingList;
 import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.models.Conversation.OneToNConversationMetadata;
 import com.bsb.hike.service.HikeMqttManagerNew;
@@ -405,7 +406,7 @@ public class ChatThreadUtils
 		HikeMessengerApp.getPubSub().publish(HikePubSub.MSG_READ, msisdn);
 	}
 	
-	protected static boolean isLastMessageReceivedAndUnread(List<ConvMessage> messages)
+	protected static boolean isLastMessageReceivedAndUnread(MovingList<ConvMessage> messages)
 	{
 		ConvMessage lastMsg = null;
 
@@ -419,7 +420,7 @@ public class ChatThreadUtils
 			/**
 			 * Do nothing if it's a typing notification
 			 */
-			if (msg.getTypingNotification() != null)
+			if (msg.getTypingNotification() != null || msg.isSent())
 			{
 				continue;
 			}
@@ -486,7 +487,7 @@ public class ChatThreadUtils
 	 * @param drawable
 	 * @param imageView
 	 */
-	protected static void applyMatrixTransformationToImageView(Drawable drawable, ImageView imageView)
+	public static void applyMatrixTransformationToImageView(Drawable drawable, ImageView imageView)
 	{
 		/**
 		 * Drawable width and height
@@ -552,10 +553,19 @@ public class ChatThreadUtils
 	 * Sends nmr/mr as per pd is present in convmessage or not
 	 * @param msisdn
 	 */
-	public static void sendMR(String msisdn)
+	public static void sendMR(String msisdn, List<ConvMessage> unreadConvMessages, boolean readMessageExists)
 	{
-
-		List<Pair<Long, JSONObject>> pairList = HikeConversationsDatabase.getInstance().updateStatusAndSendDeliveryReport(msisdn);
+		List<Pair<Long, JSONObject>> pairList = null;
+		if (readMessageExists)
+		{
+			// here we know which msg ids should be marked as read, therefore passing unread conv messages to db method
+			pairList = HikeConversationsDatabase.getInstance().updateStatusAndSendDeliveryReport(unreadConvMessages);
+		}
+		else
+		{
+			// mark all msgs of this chat thread as read
+			pairList = HikeConversationsDatabase.getInstance().updateStatusAndSendDeliveryReport(msisdn);
+		}
 
 		if (pairList == null)
 		{

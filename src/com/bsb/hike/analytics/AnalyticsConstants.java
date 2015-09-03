@@ -53,6 +53,8 @@ public class AnalyticsConstants
 	public static String METADATA = "md";
 
 	public static String UI_EVENT = "uiEvent";
+	
+	public static String MICRO_APP_INFO = "mappInfo";
 
 	public static String NON_UI_EVENT = "nonUiEvent";
 
@@ -113,6 +115,16 @@ public class AnalyticsConstants
 	public static final String SEND_WHEN_CONNECTED = "issendwhenconnected";
 
 	public static final String ANALYTICS_BACKUP = "backup";
+
+	public static final String REMOVE_SUCCESS = "remsucss";
+
+	public static final String REPLACE_SUCCESS = "replsucss";
+	
+	public static final String REPLACE_FAILURE = "replfail";
+	
+	public static final String REMOVE_MICRO_APP = "dmapp";
+	
+	public static final String NOTIFY_MICRO_APP_STATUS = "nmapp";
 
 	public static final String ANALYTICS_HOME_SEARCH = "search";
 
@@ -184,6 +196,8 @@ public class AnalyticsConstants
 	public static final String NETWORK_TYPE = "networkType";
 
 	public static final String APP_VERSION = "app_version";
+
+	public static final String HELP_CLICKED = "help_click";
 	
 	public static String ERROR_TRACE = "error";
 		
@@ -294,10 +308,16 @@ public class AnalyticsConstants
 	
 	public static final String APP_VERSION_NAME = "app_ver";
 
+	public static final String MICRO_APP_REPLACED = "repl";
+	
+	public static final String MICRO_APP_ID = "rep_id";
+	
 	public static final String REASON_CODE = "rs";
 
 	public static final String MESSAGE_DATA = "msgData";
-	
+
+	public static final String SERVICE_STATS = "srvStat";
+
 	public static final class MsgRelEventType
 	{
 		public static final String SEND_BUTTON_CLICKED = "1";
@@ -429,4 +449,24 @@ public class AnalyticsConstants
 		public static final String DISABLE_TEXT = "dsblTxt";
 
 	}
+	
+	public static String EVENT_SOURCE = "sr";
+	
+	public static final String WITH_RED_DOT = "wr";
+	
+	public static final String DISPLAY_PIC = "dp";
+	
+	public static final String PICTURE_UPDATE = "pu";
+	
+	public static final String PICTURE_TEXT = "pt";
+	
+	public static final String STATUS_UPDATE = "su";
+	
+	public static final String UPDATE_TYPE = "ut";
+	
+	public static final String TIMELINE_U_ID = "tid";
+	
+	public static final String TIMELINE_OPTION_TYPE = "ot";
+	
+	public static final String APP_CRASH_EVENT = "appCrash";
 }

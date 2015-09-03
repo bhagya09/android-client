@@ -11,7 +11,7 @@ import android.os.Message;
 import android.view.MotionEvent;
 import android.widget.TextView;
 
-import com.actionbarsherlock.view.Menu;
+import android.view.Menu;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
@@ -21,6 +21,7 @@ import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.ConvMessage.OriginType;
 import com.bsb.hike.models.Conversation.BroadcastConversation;
 import com.bsb.hike.models.Conversation.Conversation;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
@@ -77,6 +78,8 @@ public class BroadcastChatThread extends OneToNChatThread
 
 		List<OverFlowMenuItem> list = new ArrayList<OverFlowMenuItem>();
 		list.add(new OverFlowMenuItem(getString(R.string.broadcast_profile), 0, 0, R.string.broadcast_profile));
+		if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CHAT_SEARCH_ENABLED, true))
+			list.add(new OverFlowMenuItem(getString(R.string.search), 0, 0, R.string.search));
 		for (OverFlowMenuItem item : super.getOverFlowMenuItems())
 		{
 			list.add(item);
@@ -167,6 +170,7 @@ public class BroadcastChatThread extends OneToNChatThread
 		if (numActivePeople > 0)
 		{
 			memberCountTextView.setText(activity.getResources().getString(R.string.num_people, (numActivePeople)));
+			memberCountTextView.setSelected(true);
 		}
 	}
 	

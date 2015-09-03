@@ -1,3 +1,5 @@
+// To compile: protoc --java_out=/tmp/ DataPacket.proto 
+
 option java_package = "com.bsb.hike.voip.protobuf";
 option java_outer_classname = "DataPacketProtoBuf";
 option optimize_for = LITE_RUNTIME;
@@ -15,5 +17,14 @@ message DataPacket {
 	optional int64 timestamp = 9;	
 	
 	optional bool isVoice = 10 [default = true];
-	repeated string broadcastList = 11;
+	
+	message BroadcastHost {
+		required string ip = 1;
+		required int32 port = 2;
+	}
+	
+	repeated BroadcastHost broadcastList = 11;
+	
+	// Added in v3
+	repeated bytes dataList = 12;
 }

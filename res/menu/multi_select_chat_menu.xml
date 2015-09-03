@@ -1,32 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto" >
 
     <item
         android:id="@+id/delete_msgs"
         android:icon="@drawable/actionbar_ic_delete"
-        android:showAsAction="always"
+        app:showAsAction="always"
         android:title="@string/delete"/>
     <item
         android:id="@+id/share_msgs"
         android:icon="@drawable/share_icon"
-        android:showAsAction="always"
+        app:showAsAction="always"
         android:title="@string/share"
         android:visible="false"/>
     <item
         android:id="@+id/copy_msgs"
         android:icon="@drawable/actionbar_ic_copy"
-        android:showAsAction="always"
+        app:showAsAction="always"
         android:title="@string/copy"
         android:visible="false"/>
     <item
         android:id="@+id/forward_msgs"
         android:icon="@drawable/actionbar_ic_forward"
-        android:showAsAction="always"
+        app:showAsAction="always"
         android:title="@string/forward"/>
     <item
         android:id="@+id/action_mode_overflow_menu"
-        android:icon="@drawable/ic_overflow"
-        android:showAsAction="always"
+        android:icon="@drawable/ic_overflow_home"
+        app:showAsAction="always"
         android:title="@string/other"
         android:visible="false"/>
 

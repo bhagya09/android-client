@@ -16,4 +16,11 @@ public interface IBridgeCallback
 	public void openFullPage(String url);
 	
 	public void openFullPageWithTitle(String url, String title);
+
+	public void changeActionBarTitle(String title);
+	
+	public void changeStatusBarColor(String color);
+	
+	public void changeActionBarColor(String color);
+	
 }

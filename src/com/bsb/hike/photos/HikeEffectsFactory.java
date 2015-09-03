@@ -78,14 +78,7 @@ public final class HikeEffectsFactory
 				mScriptBlur = ScriptIntrinsicBlur.create(mRS, Element.U8_4(mRS));
 			}
 		}
-		catch (RSRuntimeException rre)
-		{
-			rre.printStackTrace();
-			fallback(rre);
-			finish();
-			return false;
-		}
-		catch (android.renderscript.RSRuntimeException e)
+		catch (Exception e)
 		{
 			e.printStackTrace();
 			fallback(e);
@@ -190,7 +183,18 @@ public final class HikeEffectsFactory
 			{
 				HikePhotosUtils.manageBitmaps(instance.vignetteBitmap);
 			}
-
+			
+			if(instance.mRS != null)
+			{
+				try{
+					instance.mRS.destroy();
+				}
+				catch(Exception e)
+				{
+					e.printStackTrace();
+				}
+			}
+			
 			instance = null;
 		}
 	}
@@ -354,7 +358,6 @@ public final class HikeEffectsFactory
 				filterColorMatrix = getInvertColorsColorMatrix();
 			}
 			break;
-
 		default:
 			filterColorMatrix = null;
 
@@ -495,7 +498,7 @@ public final class HikeEffectsFactory
 		return sepiaMatrix;
 	}
 
-	// UI thread Handler object to make changes to the UI from a seperate threat
+	// UI thread Handler object to make changes to the UI from a seperate thread
 	private static Handler uiHandler = new Handler(Looper.getMainLooper());
 
 	/**
@@ -571,9 +574,15 @@ public final class HikeEffectsFactory
 			catch (RSRuntimeException e)
 			{
 				e.printStackTrace();
-				Logger.e("Dimension Mismatch", "occured while applying : " + effect.toString());
+				error = true;
+				Logger.e("RS Exception", "occured while applying : " + effect.toString());
 			}
-
+			catch (Exception e)
+			{
+				e.printStackTrace();
+				error = true;
+				Logger.e("Editor Exception", "occured while applying : " + effect.toString());
+			}
 			if (!error)
 			{
 				uiHandler.post(new Runnable()
@@ -593,18 +602,27 @@ public final class HikeEffectsFactory
 			int[] ro, ri, go, gi, bo, bi, ci, co;
 			Splines red, green, blue, composite;
 			Bitmap temp = null;
+			
+			if(mInAllocation == null || mOutAllocations == null)
+			{
+				error = true;
+				return;
+			}
+			
 			if (!blurImage)
 			{
 				mScript.set_input1(mBlendAllocation);
 				mScript.set_isThumbnail(0);
+				mScript.set_imageHeight(currentOut.getHeight());
 				mScript.set_imageWidth(currentOut.getWidth());
 			}
 			else
 			{
 				mScript.set_isThumbnail(1);
+				mScript.set_imageHeight(inBitmapOut.getHeight());
 				mScript.set_imageWidth(inBitmapOut.getWidth());
 			}
-
+			
 			switch (effect)
 			{
 			case CLASSIC:
@@ -912,7 +930,14 @@ public final class HikeEffectsFactory
 				mScript.set_bSpline(blue.getInterpolationMatrix());
 				mScript.forEach_filter_sunlitt(mInAllocation, mOutAllocations);
 				break;
-
+		
+			case TIRANGAA:
+				mScript.set_r(new int[] { 0xFF, 0xFF, 0x14 });
+				mScript.set_g(new int[] { 0x78, 0xFF, 0xC6 });
+				mScript.set_b(new int[] { 0x00, 0xFF, 0x3F });
+				mScript.forEach_filter_tirangaa(mInAllocation, mOutAllocations);
+				break;
+				
 			default:
 				mScript.forEach_filter_colorMatrix(mInAllocation, mOutAllocations);
 				break;

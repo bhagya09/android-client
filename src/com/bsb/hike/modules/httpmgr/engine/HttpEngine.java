@@ -49,10 +49,10 @@ public class HttpEngine
 		LogFull.i("starting http engine");
 
 		// executer used for serving short requests
-		shortRequestExecuter = new HttpExecuter(this, SHORT_EXECUTER, CORE_POOL_SIZE, HttpUtils.threadFactory("short-thread", false), HttpUtils.rejectedExecutionHandler());
+		shortRequestExecuter = new HttpExecuter(this, SHORT_EXECUTER, CORE_POOL_SIZE, com.bsb.hike.utils.Utils.threadFactory("short-thread", false), com.bsb.hike.utils.Utils.rejectedExecutionHandler());
 
 		// executer used for serving long requests
-		longRequestExecuter = new HttpExecuter(this, LONG_EXECUTER, CORE_POOL_SIZE, HttpUtils.threadFactory("long-thread", false), HttpUtils.rejectedExecutionHandler());
+		longRequestExecuter = new HttpExecuter(this, LONG_EXECUTER, CORE_POOL_SIZE, com.bsb.hike.utils.Utils.threadFactory("long-thread", false), com.bsb.hike.utils.Utils.rejectedExecutionHandler());
 
 		// executer used for serving response
 		responseExecuter = new ThreadPoolExecutor(0, 2 * CORE_POOL_SIZE + 1, 60, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(), Util.threadFactory("http-response", false));

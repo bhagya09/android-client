@@ -4,8 +4,7 @@ import com.bsb.hike.models.ContactInfo.FavoriteType;
 
 public interface DBConstants
 {
-
-	public static final int CONVERSATIONS_DATABASE_VERSION = 40;
+	public static final int CONVERSATIONS_DATABASE_VERSION = 43;
 
 	public static final int USERS_DATABASE_VERSION = 17;
 
@@ -34,7 +33,9 @@ public interface DBConstants
 	public static final String TIMESTAMP = "timestamp";
 
 	public static final String MESSAGE_ID = "msgid";
-
+	
+	public static final String GROUP_CREATOR = "grpCreator";
+	
 	public static final String MAPPED_MSG_ID = "mappedMsgId";
 	
 	public static final String MESSAGE_HASH = "msgHash";
@@ -84,6 +85,8 @@ public interface DBConstants
 	public static final String GROUP_ALIVE = "groupAlive";
 
 	public static final String HAS_LEFT = "hasLeft";
+	
+	public static final String TYPE = "type";
 
 	public static final String LAST_MESSAGED = "lastMessaged";
 
@@ -125,7 +128,7 @@ public interface DBConstants
 	public static final String STATUS_MAPPED_ID = "statusMappedId";
 
 	public static final String STATUS_TEXT = "statusText";
-
+	
 	public static final String STATUS_TYPE = "statusType";
 
 	public static final String HIKE_JOIN_TIME = "hikeJoinTime";
@@ -181,6 +184,8 @@ public interface DBConstants
 	public static final String FILE_THUMBNAIL_TABLE = "fileThumbnailTable";
 
 	public static final String READ_BY = "readBy";
+	
+	public static final String READ = "read";
 
 	public static final String ROUNDED_THUMBNAIL_TABLE = "roundedThumbnailTable";
 
@@ -220,7 +225,40 @@ public interface DBConstants
 
 	public static final String IS_BOT_ENABLE = "bot_enabled";
 
-	public static interface HIKE_CONV_DB{
+	// ActionsTable
+	public static final String ACTIONS_TABLE = "actions";
+
+	public static final String ACTION_OBJECT_TYPE = "obj_type";
+
+	public static final String ACTION_OBJECT_ID = "obj_id";
+
+	public static final String ACTION_ID = "action_id";
+
+	public static final String ACTION_COUNT = "action_count";
+
+	public static final String ACTORS = "actors";
+
+	public static final String ACTION_METADATA = "md";
+
+	public static final String ACTION_LAST_UPDATE = "last_update";
+
+	// FeedTable
+	public static final String FEED_TABLE = "feed";
+
+	public static final String FEED_OBJECT_TYPE = "feed_type";
+
+	public static final String FEED_OBJECT_ID = "obj_id";
+
+	public static final String FEED_ACTION_ID = "feed_id";
+
+	public static final String FEED_ACTOR = "actor";
+
+	public static final String FEED_METADATA = "md";
+
+	public static final String FEED_TS = "ts";
+
+	public static interface HIKE_CONV_DB
+	{
 		// CHANNEL TABLE -> _id,channel_id,name,visibility,index 
 		public static final String CHANNEL_TABLE = "channel";
 		public static final String CHANNEL_ID = "channel_id";
@@ -229,6 +267,7 @@ public interface DBConstants
 		public static final String INDEX_ORDER = "index";
 		// CHANNEL TABLE ENDS HERE
 		// LOVE TABLE -> _id,love_id,count,user_status,ref_count,timestamp
+		//DEPRECATED
 		public static final String LOVE_TABLE = "love";
 		public static final String LOVE_ID = "love_id";
 		public static final String COUNT = "count";
@@ -339,4 +378,6 @@ public interface DBConstants
 	public static final String PRIVATE_DATA = "pd";
 
 	public static final String MESSAGE_TABLE_NAMESPACE_INDEX = "messageNamespaceIndex";
+
+	public static final String SEND_TIMESTAMP = "sendTimestamp";
 }

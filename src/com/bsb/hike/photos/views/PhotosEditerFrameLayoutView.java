@@ -34,6 +34,7 @@ import com.bsb.hike.photos.HikePhotosUtils;
 import com.bsb.hike.photos.HikePhotosUtils.FilterTools.FilterType;
 import com.bsb.hike.photos.views.CanvasImageView.OnDoodleStateChangeListener;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
@@ -195,10 +196,11 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 
 		effectLayer.handleImage(imageScaled, true);
 
-		if (HikePhotosUtils.getBitmapArea(imageOriginal) > HikeConstants.HikePhotos.MAXIMUM_ALLOWED_IMAGE_AREA)
+		int dimen = compressOutput?HikePhotosUtils.getServerConfigDimenForDP():HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.NORMAL_IMG_SIZE, HikeConstants.SMO_MAX_DIMENSION_MEDIUM_FULL_SIZE_PX);;
+		int maxAllowedArea = dimen * dimen;
+		if (HikePhotosUtils.getBitmapArea(imageOriginal) > maxAllowedArea)
 		{
-			Logger.d(TAG, "handleImage() imageScaled == null");
-			imageOriginal = HikePhotosUtils.compressBitamp(imageOriginal, HikeConstants.SMO_MAX_DIMENSION_MEDIUM_FULL_SIZE_PX, HikeConstants.SMO_MAX_DIMENSION_MEDIUM_FULL_SIZE_PX, true,Config.ARGB_8888);
+			imageOriginal = HikePhotosUtils.compressBitamp(imageOriginal, dimen, dimen, true,Config.ARGB_8888);
 		}
 		else if(imageOriginal.getConfig() == null)
 		{
@@ -369,7 +371,7 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 			//Todo prevent deleting of .nomedia on app start
 			Utils.makeNoMediaFile(dir, true);
 
-			String fileName = Utils.getTempProfileImageFileName(mOriginalName);
+			String fileName = Utils.getTempProfileImageFileName(mOriginalName,true);
 			final String destFilePath = directory + File.separator + fileName;
 			file = new File(destFilePath);
 		}
@@ -455,7 +457,7 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 		@Override
 		public void run()
 		{
-			Utils.copyImage(srcPath, destPath, Bitmap.Config.ARGB_8888, getOutputQuality());
+			Utils.copyFile(srcPath, destPath);
 		}
 
 	}

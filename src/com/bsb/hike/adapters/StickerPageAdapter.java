@@ -1,5 +1,6 @@
 package com.bsb.hike.adapters;
 
+import java.io.Serializable;
 import java.util.List;
 
 import android.content.Context;
@@ -228,7 +229,7 @@ public class StickerPageAdapter extends BaseAdapter implements OnClickListener
 			viewHolder.image.setVisibility(View.VISIBLE);
 			viewHolder.text.setVisibility(View.VISIBLE);
 			viewHolder.progress.setVisibility(View.GONE);
-			viewHolder.text.setText(mContext.getResources().getString(R.string.retry_sticker));
+			viewHolder.text.setText(mContext.getResources().getString(R.string.RETRY));
 			viewHolder.tickImage.setVisibility(View.GONE);
 			convertView.setOnClickListener(this);
 			
@@ -300,8 +301,7 @@ public class StickerPageAdapter extends BaseAdapter implements OnClickListener
 			/* In case sticker is clicked on the recents screen, don't update the UI or recents list. Also if this sticker is disabled don't update the recents UI */
 			if (!category.isCustom())
 			{
-				StickerManager.getInstance().addRecentSticker(sticker);
-				LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent(StickerManager.RECENTS_UPDATED).putExtra(StickerManager.RECENT_STICKER_SENT, sticker));
+				StickerManager.getInstance().addRecentStickerToPallete(sticker);	
 			}
 			break;
 		case StickerPageAdapterItem.UPDATE:

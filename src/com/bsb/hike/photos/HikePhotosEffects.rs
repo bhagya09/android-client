@@ -45,8 +45,8 @@ float static d(float x)
 		return x * (4 + x*(16*x - 12));
 	}
 	else {
-
 		return sqrt(x);
+		
 	}
 }
 
@@ -77,7 +77,7 @@ int rSpline[256];
 int gSpline[256];
 int bSpline[256];
 int compositeSpline[256];
-int isThumbnail,imageWidth;
+int isThumbnail,imageHeight,imageWidth;
 int r[3],g[3],b[3];
 
 float preMatrix[20],postMatrix[20];
@@ -85,8 +85,39 @@ float preMatrix[20],postMatrix[20];
 rs_allocation input1;
 rs_allocation input2;
 
+uchar4 static validateColor(uchar4 in)
+{
+	if(in.r <0)
+	{
+		in.r =0;
+	}
+	if(in.r>255)
+	{
+		in.r = 255;
+	}
+	if(in.g <0)
+	{
+		in.g =0;
+	}
+	if(in.g>255)
+	{
+		in.g = 255;
+	}
+	if(in.b <0)
+	{
+		in.b =0;
+	}
+	if(in.b>255)
+	{
+		in.b = 255;
+	}
+	return in;
+}
+
 uchar4 static applyCurves(uchar4 in,int applyComposite,int applyRed,int applyGreen,int applyBlue)
 {
+	in = validateColor(in);
+	
 	if(applyComposite<0)
 	{
 		in.r=compositeSpline[in.r];
@@ -529,9 +560,43 @@ uchar4 __attribute__((kernel)) filter_sunlitt(uchar4 in,uint32_t x,uint32_t y)
 
 }
 
+uchar4 __attribute__((kernel)) filter_tirangaa(uchar4 in,uint32_t x,uint32_t y) {
+
+	int minDimen = (imageWidth<imageHeight)?imageWidth:imageHeight;
+	int maxDimen = (imageWidth>imageHeight)?imageWidth:imageHeight;
+	int offset = (imageWidth==imageHeight)?(minDimen/4):10;
+	
+	if(in.r == in.b && in.b == in.g && in.r>245)
+	{
+		in.r-= 10;
+		in.g-= 10;
+		in.b-= 10;
+	}
+	
+	if(isThumbnail)
+	{
+		if(x+y<minDimen-offset)
+		{
+			in = applyBlendToRGB(in , getPixelForColor(255,r[0],g[0],b[0]),Normal,0.6);
+		}
+		else if(x+y<maxDimen+offset)
+		{
+			in = applyBlendToRGB(in , getPixelForColor(255,r[1],g[1],b[1]),Normal,0.6);
+		}
+		else
+		{
+			in = applyBlendToRGB(in , getPixelForColor(255,r[2],g[2],b[2]),Normal,0.6);
+		}
+	}
+	else
+	{
+		uchar4 v = rsGetElementAt_uchar4(input1, x, y);
+		in = applyBlendToRGB(in , v ,Overlay,1);
+	}
+	return in;
+}
 
 uchar4 __attribute__((kernel)) filter_original(uchar4 in,uint32_t x,uint32_t y) {
 
 	return in;
 }
-

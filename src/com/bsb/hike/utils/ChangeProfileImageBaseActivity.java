@@ -1,7 +1,6 @@
 package com.bsb.hike.utils;
 
 import java.io.File;
-import java.net.URI;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -19,7 +18,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.text.TextUtils;
-import android.view.View;
 import android.widget.Toast;
 
 import com.bsb.hike.HikeConstants;
@@ -28,39 +26,44 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.BitmapModule.BitmapUtils;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
-import com.bsb.hike.HikeConstants.ImageQuality;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.AnalyticsConstants.ProfileImageActions;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.dialog.CustomAlertDialog;
+import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
+import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.http.HikeHttpRequest;
 import com.bsb.hike.http.HikeHttpRequest.HikeHttpCallback;
 import com.bsb.hike.http.HikeHttpRequest.RequestType;
+import com.bsb.hike.imageHttp.HikeImageUploader;
+import com.bsb.hike.imageHttp.HikeImageWorker;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.HikeFile.HikeFileType;
-import com.bsb.hike.models.StatusMessage;
-import com.bsb.hike.models.StatusMessage.StatusMessageType;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.RequestToken;
+import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.tasks.DownloadImageTask;
 import com.bsb.hike.tasks.DownloadImageTask.ImageDownloadResult;
 import com.bsb.hike.tasks.FinishableEvent;
 import com.bsb.hike.tasks.HikeHTTPTask;
+import com.bsb.hike.timeline.model.StatusMessage;
+import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
 import com.bsb.hike.ui.GalleryActivity;
-import com.bsb.hike.ui.SettingsActivity;
 import com.bsb.hike.ui.fragments.ImageViewerFragment;
 import com.bsb.hike.ui.fragments.ImageViewerFragment.DisplayPictureEditListener;
 import com.bsb.hike.utils.Utils.ExternalStorageState;
 
-public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActivity implements OnClickListener, FinishableEvent, DisplayPictureEditListener
+public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActivity implements OnClickListener, 
+						FinishableEvent, DisplayPictureEditListener, HikeImageWorker.TaskCallbacks
 {
 	private HikeSharedPreferenceUtil prefs;
 
 	private String mLocalMSISDN;
-
 	private Dialog mDialog;
+	
+	private static final String TAG = "dp_upload";
 
 	public class ActivityState
 	{
@@ -87,6 +90,8 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 		public String statusId;
 		
 		public StatusMessageType statusMsgType;
+		
+		public HikeImageUploader mImageWorkerFragment;
 	}
 
 	private ActivityState mActivityState;
@@ -112,21 +117,27 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 				mActivityState.task.setActivity(this);
 				mDialog = ProgressDialog.show(this, null, getResources().getString(R.string.updating_profile));
 			}
+			
+			if(mActivityState.mImageWorkerFragment != null &&  (mActivityState.mImageWorkerFragment.isTaskRunning()))
+			{
+				mActivityState.mImageWorkerFragment.setTaskCallbacks(this);
+				mDialog = ProgressDialog.show(this, null, getResources().getString(R.string.updating_profile));
+			}
 		}
 		else
 		{
 			mActivityState = new ActivityState();
 		}
 	}
-
+	
 	@Override
 	public Object onRetainCustomNonConfigurationInstance()
 	{
-		Logger.d("ChangeProfileImageBaseActivity", "onRetainNonConfigurationinstance");
+		Logger.d(TAG, "onRetainNonConfigurationinstance");
 		return mActivityState;
 	}
 
-	public void selectNewProfilePicture(Context context, boolean isPersonal)
+	public void selectNewProfilePicture(Context context, boolean isPersonal, boolean useTimestamp)
 	{
 		if (Utils.getExternalStorageState() == ExternalStorageState.NONE || Utils.getExternalStorageState() != ExternalStorageState.WRITEABLE)
 		{
@@ -150,7 +161,8 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 			galleryFlags = galleryFlags | GalleryActivity.GALLERY_EDIT_SELECTED_IMAGE|GalleryActivity.GALLERY_COMPRESS_EDITED_IMAGE;
 			if (!isPersonal)
 			{
-				galleryPickerIntent = IntentFactory.getHikeGalleryPickerIntent(ChangeProfileImageBaseActivity.this,galleryFlags,getNewProfileImagePath());
+				galleryFlags = galleryFlags | GalleryActivity.GALLERY_CROP_IMAGE;
+				galleryPickerIntent = IntentFactory.getHikeGalleryPickerIntent(ChangeProfileImageBaseActivity.this,galleryFlags,getNewProfileImagePath(useTimestamp));
 				startActivityForResult(galleryPickerIntent, HikeConstants.ResultCodes.PHOTOS_REQUEST_CODE);
 			}
 			else
@@ -162,14 +174,15 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 		}
 		else
 		{
-			galleryPickerIntent = IntentFactory.getHikeGalleryPickerIntent(ChangeProfileImageBaseActivity.this, galleryFlags,getNewProfileImagePath());
+			galleryFlags = galleryFlags | GalleryActivity.GALLERY_CROP_IMAGE;
+			galleryPickerIntent = IntentFactory.getHikeGalleryPickerIntent(ChangeProfileImageBaseActivity.this, galleryFlags,getNewProfileImagePath(useTimestamp));
 			galleryPickerIntent.putExtra(GalleryActivity.START_FOR_RESULT, true);
 			startActivityForResult(galleryPickerIntent, HikeConstants.ResultCodes.PHOTOS_REQUEST_CODE);
 		}
 
 	}
 	
-	protected String getNewProfileImagePath()
+	protected String getNewProfileImagePath(boolean useTimestamp)
 	{
 		String directory = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT;
 		/*
@@ -182,7 +195,7 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 			dir.mkdirs();
 		}
 
-		String fileName = Utils.getTempProfileImageFileName(mLocalMSISDN);
+		String fileName = Utils.getTempProfileImageFileName(mLocalMSISDN, useTimestamp);
 		String destFilePath = directory + File.separator + fileName;
 		return destFilePath;
 
@@ -221,20 +234,7 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 			}
 			else
 			{
-				String fileUriStart = "file://";
-				String fileUriString = selectedFileUri.toString();
-				if (fileUriString.startsWith(fileUriStart))
-				{
-					 selectedFileIcon = new File(URI.create(Utils.replaceUrlSpaces(fileUriString)));
-					/*
-					 * Done to fix the issue in a few Sony devices.
-					 */
-					path = selectedFileIcon.getAbsolutePath();
-				}
-				else
-				{
-					path = Utils.getRealPathFromUri(selectedFileUri, this);
-				}
+				path = Utils.getAbsolutePathFromUri(selectedFileUri, this,false);
 			}
 			if (TextUtils.isEmpty(path))
 			{
@@ -245,12 +245,12 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 			{
 				if(Utils.isPhotosEditEnabled())
 				{
-					startActivity(IntentFactory.getPictureEditorActivityIntent(ChangeProfileImageBaseActivity.this, path, true, getNewProfileImagePath(), true));
+					startActivity(IntentFactory.getPictureEditorActivityIntent(ChangeProfileImageBaseActivity.this, path, true, getNewProfileImagePath(true), true));
 					finish();
 				}
 				else
 				{
-					Utils.startCropActivity(this, path, getNewProfileImagePath());
+					Utils.startCropActivity(this, path, getNewProfileImagePath(true));
 				}
 			}
 			else
@@ -277,12 +277,12 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 						{
 							if(Utils.isPhotosEditEnabled())
 							{
-								startActivity(IntentFactory.getPictureEditorActivityIntent(ChangeProfileImageBaseActivity.this, destFile.getAbsolutePath(), true, getNewProfileImagePath(), true));
+								startActivity(IntentFactory.getPictureEditorActivityIntent(ChangeProfileImageBaseActivity.this, destFile.getAbsolutePath(), true, getNewProfileImagePath(true), true));
 								finish();
 							}
 							else
 							{
-								Utils.startCropActivity(ChangeProfileImageBaseActivity.this, destFile.getAbsolutePath(), getNewProfileImagePath());
+								Utils.startCropActivity(ChangeProfileImageBaseActivity.this, destFile.getAbsolutePath(), getNewProfileImagePath(true));
 							}
 						}
 					}
@@ -313,30 +313,24 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 				return;
 			}
 			
-			applyCompression();
-			
 			profileImageCropped();
 			break;
 		
 		}
 	}
 
-	protected void applyCompression()
-	{
-		if(!Utils.isPhotosEditEnabled())
-		{
-			int imageCompressQuality = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SERVER_CONFIG_DEFAULT_IMAGE_SAVE_QUALITY, HikeConstants.HikePhotos.DEFAULT_IMAGE_SAVE_QUALITY);
-			Utils.compressAndCopyImage(mActivityState.destFilePath, mActivityState.destFilePath, ChangeProfileImageBaseActivity.this, Bitmap.Config.RGB_565, imageCompressQuality, ImageQuality.QUALITY_MEDIUM, false);
-		}
-	}
-
 	@Override
 	public void onClick(DialogInterface dialog, int item)
 	{
+		if(dialog!=null)
+		{
+			dialog.dismiss();
+		}
+		
 		switch (item)
 		{
 		case HikeConstants.NEW_PROFILE_PICTURE:
-			selectNewProfilePicture(ChangeProfileImageBaseActivity.this, !OneToNConversationUtils.isOneToNConversation(mLocalMSISDN));
+			selectNewProfilePicture(ChangeProfileImageBaseActivity.this, !OneToNConversationUtils.isOneToNConversation(mLocalMSISDN), true);
 			break;
 
 		case HikeConstants.REMOVE_PROFILE_PICTURE:
@@ -392,28 +386,26 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "json exception");
 		}
 
-		final CustomAlertDialog deleteConfirmDialog = new CustomAlertDialog(this, HikeDialogFactory.REMOVE_DP_CONFIRM_DIALOG);
-		deleteConfirmDialog.setHeader(R.string.remove_photo);
-		deleteConfirmDialog.setBody(R.string.confirm_remove_photo);
-		deleteConfirmDialog.setCheckBox(R.string.check_delete_from_timeline, false);
+		CustomAlertDialog deleteConfirmDialog = new CustomAlertDialog(this, HikeDialogFactory.REMOVE_DP_CONFIRM_DIALOG);
+		deleteConfirmDialog.setTitle(R.string.remove_photo);
+		deleteConfirmDialog.setMessage(R.string.confirm_remove_photo);
 
 		// if checkbox is selected, delete the profile status update from own and favorites timeline
 		String dpStatusId = prefs.getPref().getString(HikeMessengerApp.DP_CHANGE_STATUS_ID, "");
 
-		if (dpStatusId.isEmpty())
+		if (!dpStatusId.isEmpty())
 		{
-			deleteConfirmDialog.setCheckboxVisibility(View.GONE);
+			deleteConfirmDialog.setCheckBox(R.string.check_delete_from_timeline, null, false);
 		}
 
-		View.OnClickListener dialogOkClickListener = new View.OnClickListener()
+		HikeDialogListener dialogListener = new HikeDialogListener()
 		{
-			JSONObject md = new JSONObject();
-
 			@Override
-			public void onClick(View v)
+			public void positiveClicked(HikeDialog hikeDialog)
 			{
-				// if checkbox is selected, delete the profile status update from own and favorites timelines
-				if (deleteConfirmDialog.isChecked())
+				JSONObject md = new JSONObject();
+				CustomAlertDialog deleteDialog = (CustomAlertDialog) hikeDialog;
+				if (deleteDialog.isChecked())
 				{
 					ContactInfo contactInfo = Utils.getUserContactInfo(prefs.getPref());
 					StatusMessageType[] smType = { StatusMessageType.PROFILE_PIC };
@@ -454,11 +446,23 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 						Logger.d(AnalyticsConstants.ANALYTICS_TAG, "json error");
 					}
 				}
-				deleteConfirmDialog.dismiss();
+				deleteDialog.dismiss();
+			}
+			
+			@Override
+			public void neutralClicked(HikeDialog hikeDialog)
+			{
+				
+			}
+			
+			@Override
+			public void negativeClicked(HikeDialog hikeDialog)
+			{
+				hikeDialog.dismiss();
 			}
 		};
-		deleteConfirmDialog.setOkButton(R.string.yes, dialogOkClickListener);
-		deleteConfirmDialog.setCancelButton(R.string.no);
+		deleteConfirmDialog.setPositiveButton(R.string.YES, dialogListener);
+		deleteConfirmDialog.setNegativeButton(R.string.NO,dialogListener);
 		deleteConfirmDialog.show();
 	}
 
@@ -510,7 +514,7 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 		mDialog = ProgressDialog.show(this, null, getString(R.string.removing_dp));
 	}
 
-	public void beginProfilePicChange(android.content.DialogInterface.OnClickListener listener, Context context, String removeImagePath)
+	public void beginProfilePicChange(android.content.DialogInterface.OnClickListener listener, Context context, String removeImagePath, boolean useTimestamp)
 	{
 		ContactInfo contactInfo = Utils.getUserContactInfo(prefs.getPref());
 
@@ -523,7 +527,7 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 		else
 		{
 			// directly open gallery to allow user to select new image
-			selectNewProfilePicture(context, !OneToNConversationUtils.isOneToNConversation(mLocalMSISDN));
+			selectNewProfilePicture(context, !OneToNConversationUtils.isOneToNConversation(mLocalMSISDN), useTimestamp);
 		}
 	}
 
@@ -538,7 +542,6 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 		mRemoveImagePath = removeImagePath;
 
 		AlertDialog.Builder builder = new AlertDialog.Builder(ctx);
-		builder.setTitle(R.string.profile_photo);
 
 		// We have a single element array so that if new options are added to the dialog we just have to add strings to this array.
 		final CharSequence[] items = ctx.getResources().getStringArray(R.array.profile_pic_dialog);
@@ -590,11 +593,9 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 
 	/**
 	 * Used to upload profile picture to the server, compose related timeline post
-	 * 
-	 * @param httpApi
-	 *            TODO
+	 * @param msisdn 
 	 */
-	public void uploadProfilePicture(String httpApi)
+	public void uploadProfilePicture(String msisdn)
 	{
 		if (mActivityState.destFilePath != null)
 		{
@@ -603,52 +604,54 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 			if (bytes == null)
 				return;
 
-			HikeHttpRequest request = new HikeHttpRequest(httpApi, RequestType.PROFILE_PIC, new HikeHttpRequest.HikeHttpCallback()
-			{
-				public void onFailure()
-				{
-					Logger.d("ProfileActivity", "resetting image");
-					failureWhileSettingProfilePic();
-				}
-
-				public void onSuccess(JSONObject response)
-				{
-					mActivityState.destFilePath = null;
-					ContactManager.getInstance().setIcon(mLocalMSISDN, bytes, false);
-					Utils.renameTempProfileImage(mLocalMSISDN);
-					StatusMessage statusMessage = Utils.createTimelinePostForDPChange(response);
-
-					if (statusMessage != null)
-					{
-						ContactManager.getInstance().setIcon(statusMessage.getMappedId(), bytes, true);
-
-						int unseenUserStatusCount = prefs.getData(HikeMessengerApp.UNSEEN_USER_STATUS_COUNT, 0);
-						Editor editor = prefs.getPref().edit();
-						editor.putInt(HikeMessengerApp.UNSEEN_USER_STATUS_COUNT, ++unseenUserStatusCount);
-						editor.putBoolean(HikeConstants.IS_HOME_OVERFLOW_CLICKED, false);
-						editor.commit();
-
-						/*
-						 * This would happen in the case where the user has added a self contact and received an mqtt message before saving this to the db.
-						 */
-						if (statusMessage.getId() != -1)
-						{
-							HikeMessengerApp.getPubSub().publish(HikePubSub.STATUS_MESSAGE_RECEIVED, statusMessage);
-							HikeMessengerApp.getPubSub().publish(HikePubSub.TIMELINE_UPDATE_RECIEVED, statusMessage);
-						}
-					}
-					
-					HikeMessengerApp.getLruCache().clearIconForMSISDN(mLocalMSISDN);
-					HikeMessengerApp.getPubSub().publish(HikePubSub.ICON_CHANGED, mLocalMSISDN);
-
-					profilePictureUploaded();
-				}
-			});
-			request.setFilePath(mActivityState.destFilePath);
-			mDialog = ProgressDialog.show(this, null, getResources().getString(R.string.updating_profile));
-			mActivityState.task = new HikeHTTPTask(this, R.string.update_profile_failed);
-			Utils.executeHttpTask(mActivityState.task, request);
+		    // If the Fragment is non-null, then it is currently being
+		    // retained across a configuration change.
+	    	Logger.d(TAG, "starting new mImageLoaderFragment");
+	    	mDialog = ProgressDialog.show(this, null, getResources().getString(R.string.updating_profile));
+	    	mActivityState.mImageWorkerFragment = HikeImageUploader.newInstance(bytes, mActivityState.destFilePath, msisdn, true, true);
+	    	mActivityState.mImageWorkerFragment.setTaskCallbacks(this);
+	    	mActivityState.mImageWorkerFragment.startUpLoadingTask();
 		}
+	}
+	
+	@Override
+	public void onSuccess(Response result)
+	{
+		Logger.d(TAG, "inside onSuccess of request");
+		dismissDialog();
+		
+		mActivityState.task = null;
+		
+		mActivityState.destFilePath = null;
+		
+		JSONObject response = (JSONObject) result.getBody().getContent();
+		StatusMessage statusMessage = Utils.createTimelinePostForDPChange(response);
+		
+		if (statusMessage != null)
+		{
+			mActivityState.mImageWorkerFragment.doContactManagerIconChange(statusMessage.getMappedId(), scaleDownBitmap(), true);
+			
+			int unseenUserStatusCount = prefs.getData(HikeMessengerApp.UNSEEN_USER_STATUS_COUNT, 0);
+			Editor editor = prefs.getPref().edit();
+			editor.putInt(HikeMessengerApp.UNSEEN_USER_STATUS_COUNT, ++unseenUserStatusCount);
+			editor.putBoolean(HikeConstants.IS_HOME_OVERFLOW_CLICKED, false);
+			editor.commit();
+
+			/*
+			 * This would happen in the case where the user has added a self contact and received an mqtt message before saving this to the db.
+			 */
+			if (statusMessage.getId() != -1)
+			{
+				HikeMessengerApp.getPubSub().publish(HikePubSub.STATUS_MESSAGE_RECEIVED, statusMessage);
+				HikeMessengerApp.getPubSub().publish(HikePubSub.TIMELINE_UPDATE_RECIEVED, statusMessage);
+			}
+		}
+		
+		HikeMessengerApp.getLruCache().clearIconForMSISDN(mLocalMSISDN);
+		HikeMessengerApp.getPubSub().publish(HikePubSub.ICON_CHANGED, mLocalMSISDN);
+
+		profilePictureUploaded();
+
 	}
 
 	/**
@@ -664,8 +667,21 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 	 */
 	private void failureWhileSettingProfilePic()
 	{
-		Utils.removeTempProfileImage(mLocalMSISDN);
+		
+		dismissDialog();
+		
 		mActivityState.destFilePath = null;
+		
+		mActivityState.task = null;
+	}
+
+	private void dismissDialog()
+	{
+		if (mDialog != null)
+		{
+			mDialog.dismiss();
+			mDialog = null;
+		}
 	}
 
 	/**
@@ -682,11 +698,7 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 	@Override
 	public void onFinish(boolean success)
 	{
-		if (mDialog != null)
-		{
-			mDialog.dismiss();
-			mDialog = null;
-		}
+		dismissDialog();
 		mActivityState.task = null;
 	}
 
@@ -716,7 +728,7 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 		{
 			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "json exception");
 		}
-		beginProfilePicChange(ChangeProfileImageBaseActivity.this, ChangeProfileImageBaseActivity.this, imageRemovePath);
+		beginProfilePicChange(ChangeProfileImageBaseActivity.this, ChangeProfileImageBaseActivity.this, imageRemovePath, true);
 	}
 
 	/**
@@ -745,11 +757,47 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 	@Override
 	protected void onDestroy()
 	{
-		if (mDialog != null)
-		{
-			mDialog.dismiss();
-			mDialog = null;
-		}
+		dismissDialog();
 		super.onDestroy();
 	}
+	
+	public void onProgressUpdate(float percent)
+	{
+		
+	}
+
+	@Override
+	public void onCancelled()
+	{
+		onFailed();
+	}
+	
+	@Override
+	public void onFailed()
+	{
+		Logger.d(TAG, "req failed");
+		failureWhileSettingProfilePic();
+		runOnUiThread(new Runnable() {
+			
+			@Override
+			public void run() {
+				Toast.makeText(getApplicationContext(), getString(R.string.update_profile_failed), Toast.LENGTH_LONG).show();
+				dismissDialog();
+			}
+		});
+		
+	}
+
+	@Override
+	public void onTaskAlreadyRunning() {
+	runOnUiThread(new Runnable() {
+				
+				@Override
+				public void run() {
+					Toast.makeText(getApplicationContext(), getString(R.string.task_already_running), Toast.LENGTH_LONG).show();
+					dismissDialog();
+				}
+			});
+	}
+	
 }

@@ -12,6 +12,7 @@ import static com.bsb.hike.modules.httpmgr.analytics.HttpAnalyticsConstants.REQU
 import static com.bsb.hike.modules.httpmgr.analytics.HttpAnalyticsConstants.RESPONSE_CODE;
 import static com.bsb.hike.modules.httpmgr.analytics.HttpAnalyticsConstants.RESPONSE_LOG_EVENT;
 
+import java.net.URL;
 import java.util.Random;
 
 import org.json.JSONException;
@@ -58,7 +59,7 @@ public class HttpAnalyticsLogger
 	 * @param trackId
 	 * @param requestUrl
 	 */
-	public static void logHttpRequest(String trackId, String requestUrl, String methodType, String analyticsParam)
+	public static void logHttpRequest(String trackId, URL requestUrl, String methodType, String analyticsParam)
 	{
 		if (TextUtils.isEmpty(trackId))
 		{
@@ -86,7 +87,7 @@ public class HttpAnalyticsLogger
 	 * @param methodType
 	 * @param analyticsParam
 	 */
-	public static void logSuccessfullResponseReceived(String trackId, String requestUrl, int responseCode, String methodType, String analyticsParam)
+	public static void logSuccessfullResponseReceived(String trackId, URL requestUrl, int responseCode, String methodType, String analyticsParam)
 	{
 		if (TextUtils.isEmpty(trackId))
 		{
@@ -113,7 +114,7 @@ public class HttpAnalyticsLogger
 	 * @param requestUrl
 	 * @param responseCode
 	 */
-	public static void logResponseReceived(String trackId, String requestUrl, int responseCode, String methodType, String analyticsParam)
+	public static void logResponseReceived(String trackId, URL requestUrl, int responseCode, String methodType, String analyticsParam)
 	{
 		logResponseReceived(trackId, requestUrl, responseCode, methodType, analyticsParam, null);
 	}
@@ -128,7 +129,7 @@ public class HttpAnalyticsLogger
 	 * @param analyticsParam
 	 * @param exception
 	 */
-	public static void logResponseReceived(String trackId, String requestUrl, int responseCode, String methodType, String analyticsParam, String exception)
+	public static void logResponseReceived(String trackId, URL requestUrl, int responseCode, String methodType, String analyticsParam, String exception)
 	{
 		if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.HTTP_EXCEPTION_LOGGING, false))
 		{
@@ -166,7 +167,7 @@ public class HttpAnalyticsLogger
 	 * @param analyticsParam
 	 * @param exception
 	 */
-	private static void logDevException(String requestUrl, int responseCode, String methodType, String analyticsParam, String exception)
+	private static void logDevException(URL requestUrl, int responseCode, String methodType, String analyticsParam, String exception)
 	{
 		JSONObject info = null;
 		try
@@ -186,7 +187,7 @@ public class HttpAnalyticsLogger
 				info.put(HTTP_EXCEPTION_ANALYTICS, exception);
 			}
 
-			String devArea = processRequestUrl(requestUrl) + "_" + methodType + "_" + responseCode;
+			String devArea = processRequestUrl(requestUrl.toString()) + "_" + methodType + "_" + responseCode;
 			HAManager.getInstance().logDevEvent(HTTP_PRODUCT_AREA, devArea, info);
 		}
 		catch (JSONException e)
@@ -204,7 +205,7 @@ public class HttpAnalyticsLogger
 	 * @return
 	 * @throws JSONException
 	 */
-	private static JSONObject getHttpLogBasicJson(String trackId, String requestUrl, int logEventStage, String methodType, String analyticsParam) throws JSONException
+	private static JSONObject getHttpLogBasicJson(String trackId, URL requestUrl, int logEventStage, String methodType, String analyticsParam) throws JSONException
 	{
 		JSONObject json = new JSONObject();
 		json.put(AnalyticsConstants.TRACK_ID, trackId);
@@ -213,7 +214,7 @@ public class HttpAnalyticsLogger
 		{
 			json.put(HTTP_REQUEST_ANALYTICS_PARAM, analyticsParam);
 		}
-		json.put(AnalyticsConstants.EVENT_KEY, processRequestUrl(requestUrl));
+		json.put(AnalyticsConstants.EVENT_KEY, processRequestUrl(requestUrl.toString()));
 		json.put(AnalyticsConstants.REL_EVENT_STAGE, logEventStage);
 		json.put(AnalyticsConstants.CONNECTION_TYPE, Utils.getNetworkType(HikeMessengerApp.getInstance().getApplicationContext()));
 		return json;

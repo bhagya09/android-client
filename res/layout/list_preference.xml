@@ -3,47 +3,20 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@drawable/list_item"
-    android:gravity="center"
-    android:minHeight="?android:attr/listPreferredItemHeight"
-    android:paddingLeft="15dp"
-    android:paddingRight="15dp" >
+    android:minHeight="?android:attr/listPreferredItemHeight" >
 
-    <RelativeLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:paddingRight="5dp" >
-
-        <ImageView
-            android:id="@+id/icon"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:layout_centerVertical="true"
-            android:layout_marginRight="12dp"
-            android:src="@drawable/ic_credits" />
+    <LinearLayout style="@style/SettingsItemStyle" >
 
         <com.bsb.hike.view.CustomFontTextView
             android:id="@+android:id/title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_toRightOf="@id/icon"
-            android:text="Title"
-            android:textColor="@color/list_item_header"
-            android:textSize="16sp"
-            android:textStyle="bold|italic" />
+            style="@style/SettingsHeaderItemTextView"
+            android:text="Title" />
 
         <com.bsb.hike.view.CustomFontTextView
             android:id="@+android:id/summary"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignLeft="@android:id/title"
-            android:layout_below="@android:id/title"
+            style="@style/SettingsHeaderSubItemTextView"
             android:maxLines="4"
-            android:text="Summary"
-            android:textColor="@color/description_lightgrey"
-            android:textSize="12sp"
-            android:textStyle="bold|italic" />
-    </RelativeLayout>
+            android:text="Summary" />
+    </LinearLayout>
 
 </LinearLayout>

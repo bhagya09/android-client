@@ -2,7 +2,6 @@
 <resources>
 
     <style name="AppTheme.Home">
-        <item name="android:homeAsUpIndicator">@drawable/home_screen_top_bar_up</item>
         <item name="vpiTabPageIndicatorStyle">@style/CustomTabPageIndicator</item>
         <item name="vpiTabTextIndicatorStyle">@style/TabText</item>
     </style>
@@ -12,5 +11,12 @@
          <item name="actionBarStyle">@style/Widget.Styled.PhotosActionBar</item>
         <item name="android:actionBarStyle">@style/Widget.Styled.PhotosActionBar</item>
     </style>
-    
+    <style name="AppTheme.Home.PhotoEditor">
+        <item name="vpiTabPageIndicatorStyle">@style/PhotosTabPageIndicator</item>
+         <item name="actionBarStyle">@style/Widget.Styled.PhotosActionBar</item>
+        <item name="android:actionBarStyle">@style/Widget.Styled.PhotosActionBar</item>
+        <item name="windowActionBarOverlay">true</item>
+        <item name="android:windowActionBarOverlay">true</item>
+    </style>
+   
 </resources>

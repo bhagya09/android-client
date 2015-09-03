@@ -15,6 +15,7 @@ import java.util.Set;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.animation.ObjectAnimator;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -25,12 +26,15 @@ import android.os.Bundle;
 import android.os.Message;
 import android.provider.ContactsContract;
 import android.provider.ContactsContract.Intents.Insert;
+import android.support.v4.app.ListFragment;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.style.ForegroundColorSpan;
 import android.util.Pair;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -53,10 +57,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.actionbarsherlock.app.SherlockListFragment;
-import com.actionbarsherlock.internal.nineoldandroids.animation.ObjectAnimator;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
@@ -97,7 +97,6 @@ import com.bsb.hike.models.Conversation.ConversationTip.ConversationTipClickedLi
 import com.bsb.hike.models.Conversation.OneToNConvInfo;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.platform.HikePlatformConstants;
-import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.tasks.EmailConversationsAsyncTask;
 import com.bsb.hike.ui.HikeFragmentable;
@@ -114,7 +113,7 @@ import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.HoloCircularProgress;
 
-public class ConversationFragment extends SherlockListFragment implements OnItemLongClickListener, Listener, OnScrollListener, HikeFragmentable, OnClickListener, ConversationTipClickedListener, FilterListener
+public class ConversationFragment extends ListFragment implements OnItemLongClickListener, Listener, OnScrollListener, HikeFragmentable, OnClickListener, ConversationTipClickedListener, FilterListener
 {
 	private String[] pubSubListeners = { HikePubSub.MESSAGE_RECEIVED, HikePubSub.SERVER_RECEIVED_MSG, HikePubSub.MESSAGE_DELIVERED_READ, HikePubSub.MESSAGE_DELIVERED,
 			HikePubSub.NEW_CONVERSATION, HikePubSub.MESSAGE_SENT, HikePubSub.MSG_READ, HikePubSub.ICON_CHANGED, HikePubSub.ONETONCONV_NAME_CHANGED, HikePubSub.CONTACT_ADDED,
@@ -398,7 +397,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 		if (mmSelectFriends.isModuleToggle())
 		{
 			llChatReward.setOnClickListener(null);
-		
+			chatProgress.setText(NUXManager.getInstance().getNuxChatRewardPojo().getDetailsText());
 			setFooterHalfOpen();
 		}
 
@@ -435,9 +434,14 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 		
 			if(footerState.getEnum()==footerState.HALFOPEN)
 			{
-				
-			
-			chatProgress.setText(String.format(mmReward.getStatusText(), mmNuxManager.getCountUnlockedContacts(), mmDetails.getMin()));
+				if (mmSelectFriends.isModuleToggle())
+				{
+					chatProgress.setText(mmReward.getDetailsText());
+				}
+				else
+				{
+					chatProgress.setText(String.format(mmReward.getStatusText(), mmNuxManager.getCountUnlockedContacts(), mmDetails.getMin()));
+				}
 			}
 			else
 			{
@@ -601,7 +605,14 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 				
 				if(mmNuxManager.getCurrentState() == NUXConstants.NUX_SKIPPED || mmNuxManager.getCurrentState() == NUXConstants.NUX_IS_ACTIVE)
 				{
-					chatProgress.setText(String.format(mmReward.getStatusText(), mmNuxManager.getCountUnlockedContacts(), mmDetails.getMin()));
+					if(NUXManager.getInstance().getNuxSelectFriendsPojo().isModuleToggle())
+					{
+						chatProgress.setText(mmReward.getDetailsText());
+					}
+					else
+					{
+						chatProgress.setText(String.format(mmReward.getStatusText(), mmNuxManager.getCountUnlockedContacts(), mmDetails.getMin()));
+					}
 					progressNux.setProgress(NUXManager.getInstance().getCountUnlockedContacts() / mmDetails.getMin());
 				}
 				if (Utils.isHoneycombOrHigher())
@@ -714,7 +725,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 				}
 			}
 
-			else if (footerState.getEnum() == footerState.OPEN)
+			else if (footerState.getEnum() == footerState.OPEN || (footerState.getEnum() == footerState.HALFOPEN && NUXManager.getInstance().getNuxSelectFriendsPojo().isModuleToggle()))
 			{
 				if ((!TextUtils.isEmpty(mmReward.getDetailsLink())))
 				{
@@ -941,15 +952,6 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater)
 	{
 		super.onCreateOptionsMenu(menu, inflater);
-		resetSearchIcon();
-	}
-
-	private void resetSearchIcon()
-	{
-		if (!searchMode)
-		{
-			HomeActivity.setSearchOptionAccess(!isConversationsEmpty());
-		}
 	}
 
 	private boolean isConversationsEmpty()
@@ -1018,20 +1020,23 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 			BotInfo botInfo = (BotInfo) convInfo;
 			if (botInfo.isMessagingBot())
 			{
-				Intent intent = IntentFactory.createChatThreadIntentFromConversation(getSherlockActivity(), convInfo);
+				Intent intent = IntentFactory.createChatThreadIntentFromConversation(getActivity(), convInfo);
 				startActivity(intent);
 			}
 			else
 			{
-				Intent web = IntentFactory.getNonMessagingBotIntent(convInfo.getMsisdn(), "", "", getActivity());
-				startActivity(web);
+				Intent web = IntentFactory.getNonMessagingBotIntent(convInfo.getMsisdn(), getActivity());
+				if(web != null)
+				{
+					startActivity(web);
+				}
 				
 				resetNotificationCounter(convInfo);
 			}
 		}
 		else
 		{
-			Intent intent = IntentFactory.createChatThreadIntentFromConversation(getSherlockActivity(), convInfo);
+			Intent intent = IntentFactory.createChatThreadIntentFromConversation(getActivity(), convInfo);
 			startActivity(intent);
 		}
 
@@ -1140,8 +1145,8 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 			Object[] dialogStrings = new Object[4];
 			dialogStrings[0] = getString(R.string.reset_complete_stealth_header);
 			dialogStrings[1] = getString(R.string.reset_stealth_confirmation);
-			dialogStrings[2] = getString(R.string.confirm);
-			dialogStrings[3] = getString(R.string.cancel);
+			dialogStrings[2] = getString(R.string.CONFIRM);
+			dialogStrings[3] = getString(R.string.CANCEL);
 		
 			HikeDialogFactory.showDialog(getActivity(), HikeDialogFactory.RESET_STEALTH_DIALOG, new HikeDialogListener()
 			{
@@ -1400,7 +1405,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
                         BotConversation.analyticsForBots(conv, HikePlatformConstants.BOT_ADD_SHORTCUT, AnalyticsConstants.CLICK_EVENT);
                     }
 					Utils.logEvent(getActivity(), HikeConstants.LogEvent.ADD_SHORTCUT);
-					Utils.createShortcut(getSherlockActivity(), conv);
+					Utils.createShortcut(getActivity(), conv);
 				}
 				else if (getString(R.string.delete_chat).equals(option))
 				{
@@ -1494,7 +1499,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 				}
 				else if (getString(R.string.email_conversations).equals(option))
 				{
-					EmailConversationsAsyncTask task = new EmailConversationsAsyncTask(getSherlockActivity(), ConversationFragment.this);
+					EmailConversationsAsyncTask task = new EmailConversationsAsyncTask(getActivity(), ConversationFragment.this);
 					Utils.executeConvAsyncTask(task, conv);
 					
 					if (BotUtils.isBot(conv.getMsisdn()))
@@ -1541,7 +1546,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 				}
 				else if (getString(R.string.group_info).equals(option) || getString(R.string.broadcast_info).equals(option))
 				{
-					if (!((OneToNConvInfo) conv).isConversationAlive())
+					if(!ContactManager.getInstance().isGroupAlive(((OneToNConvInfo) conv).getMsisdn()))
 					{
 						return;
 					}
@@ -1578,7 +1583,8 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 		});	
 
 		alertDialog = builder.show();
-		alertDialog.getListView().setDivider(getResources().getDrawable(R.drawable.ic_thread_divider_profile));
+		alertDialog.getListView().setDivider(null);
+		alertDialog.getListView().setPadding(0, getResources().getDimensionPixelSize(R.dimen.menu_list_padding_top), 0, getResources().getDimensionPixelSize(R.dimen.menu_list_padding_bottom));
 		return true;
 	}
 
@@ -1590,7 +1596,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 			BotConversation.analyticsForBots(conv, HikePlatformConstants.BOT_ADD_SHORTCUT, AnalyticsConstants.CLICK_EVENT);
 		}
 		Utils.logEvent(getActivity(), HikeConstants.LogEvent.ADD_SHORTCUT);
-		Utils.createShortcut(getSherlockActivity(), conv);
+		Utils.createShortcut(getActivity(), conv);
 	}
 
 	protected void onDeleteBotClicked(final ConvInfo conv, final boolean shouldBlock)
@@ -1670,7 +1676,6 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 		mConversationsAdded = new HashSet<String>();
 
 		setupConversationLists();
-		resetSearchIcon();
 
 		if (mAdapter != null)
 		{
@@ -1824,7 +1829,6 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 			mAdapter.addToLists(stealthConversations);
 		}
 		
-		resetSearchIcon();
 		mAdapter.sortLists(mConversationsComparator);
 		notifyDataSetChanged();
 	}
@@ -2021,7 +2025,6 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 					{
 						clearConversation(msisdn);
 						notifyDataSetChanged();
-						resetSearchIcon();
 					}
 					else
 					{
@@ -2075,7 +2078,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 						 */
 						movedFromEmptyToNonEmpty();
 					}
-					else if(displayedConversations.size() == 2)
+					else if(displayedConversations.size() == 4)
 					{
 						StealthModeManager.getInstance().setTipVisibility(true, ConversationTip.STEALTH_INFO_TIP);
 					}
@@ -2083,7 +2086,6 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 					mAdapter.sortLists(mConversationsComparator);
 					
 					notifyDataSetChanged();
-					resetSearchIcon();
 				}
 			});
 		}
@@ -2820,7 +2822,6 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 					mAdapter.remove(delConv);
 					mConversationsByMSISDN.remove(msisdn);
 					mConversationsAdded.remove(msisdn);
-					resetSearchIcon();
 
 					StealthModeManager.getInstance().markStealthMsisdn(msisdn, false, false);
 					stealthConversations.remove(delConv);
@@ -3213,7 +3214,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 			{
 				movedFromEmptyToNonEmpty();
 			}
-			else if (displayedConversations.size() == 3)
+			else if (displayedConversations.size() == 5)
 			{
 				StealthModeManager.getInstance().setTipVisibility(true, ConversationTip.STEALTH_INFO_TIP);
 			}

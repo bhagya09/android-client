@@ -7,6 +7,8 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AnimationUtils;
+import android.view.animation.LayoutAnimationController;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
@@ -46,7 +48,11 @@ public class OverFlowMenuLayout implements OnItemClickListener
 
 	private OverflowViewListener viewListener;
 	
+	private ListView overFlowListView;
+	
 	private boolean shouldAvoidDismissOnClick = false;
+	
+	private LayoutAnimationController lac;
 
 	/**
 	 * This class is made to show overflow menu items, by default it populates listview of items you want o display, if some other view is required, extend this class and override
@@ -78,7 +84,7 @@ public class OverFlowMenuLayout implements OnItemClickListener
 			return;
 		}
 		viewToShow = LayoutInflater.from(context).inflate(R.layout.overflow_menu, null);
-		ListView overFlowListView = (ListView) viewToShow.findViewById(R.id.overflow_menu_list);
+		overFlowListView = (ListView) viewToShow.findViewById(R.id.overflow_menu_list);
 		overFlowListView.setAdapter(new ArrayAdapter<OverFlowMenuItem>(context, 0, 0, overflowItems)
 		{
 			@Override
@@ -113,16 +119,15 @@ public class OverFlowMenuLayout implements OnItemClickListener
 
 		if (item.drawableId != 0)
 		{
-			convertView.findViewById(R.id.item_image_view).setVisibility(View.VISIBLE);
-			convertView.findViewById(R.id.avatar_frame).setVisibility(View.GONE);
 			ImageView itemIcon = (ImageView) convertView.findViewById(R.id.item_icon);
+			itemIcon.setVisibility(View.VISIBLE);
 			itemIcon.setBackgroundResource(item.drawableId);
 			itemIcon.setImageResource(0);
 		}
 		
 		else
 		{
-			convertView.findViewById(R.id.item_image_view).setVisibility(View.GONE);
+			convertView.findViewById(R.id.item_icon).setVisibility(View.GONE);
 		}
 
 		TextView freeSmsCount = (TextView) convertView.findViewById(R.id.free_sms_count);
@@ -463,5 +468,21 @@ public class OverFlowMenuLayout implements OnItemClickListener
 				}
 			}
 		}
+	}
+	
+	/**
+	 * Commenting it out for now based on perf issues
+	 */
+	public void setAnimation()
+	{
+//		if (overFlowListView != null)
+//		{
+//			if (lac == null)
+//			{
+//				lac = new LayoutAnimationController(AnimationUtils.loadAnimation(context, R.anim.translate_from_top), 0.15f);
+//			}
+//			
+//			overFlowListView.setLayoutAnimation(lac);
+//		}
 	}
 }

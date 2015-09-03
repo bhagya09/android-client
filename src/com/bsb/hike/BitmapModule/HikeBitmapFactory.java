@@ -59,13 +59,13 @@ public class HikeBitmapFactory
 		
 	private static final int THRESHHOLD_LIMIT = 0; 
 		
-	public enum AlgoState {
+	public enum BitmapResolutionState {
 		
 		INIT_STATE(1), STATE_2(2), STATE_3(3), STATE_EXIT(4);
 		
         private int value;
 
-        private AlgoState(int value) {
+        private BitmapResolutionState(int value) {
                 this.value = value;
         }
         
@@ -119,7 +119,7 @@ public class HikeBitmapFactory
 		canvas.translate(-textView.getScrollX(), -textView.getScrollY());
 		textView.draw(canvas);
 		textView.setDrawingCacheEnabled(true);
-		Bitmap cacheBmp = textView.getDrawingCache();
+		Bitmap cacheBmp = Bitmap.createBitmap(textView.getDrawingCache());
 		Bitmap viewBmp = null;
 		if (cacheBmp != null)
 		{
@@ -234,6 +234,12 @@ public class HikeBitmapFactory
 			public void run()
 			{
 				Bitmap bmp = HikeBitmapFactory.decodeSampledBitmapFromFile(srcFilePath, HikeConstants.HikePhotos.MAX_IMAGE_DIMEN, HikeConstants.HikePhotos.MAX_IMAGE_DIMEN, Config.ARGB_8888);
+				
+				if(bmp==null)
+				{
+					bmp = HikeBitmapFactory.decodeSampledBitmapFromFile(srcFilePath, HikeConstants.MAX_DIMENSION_MEDIUM_FULL_SIZE_PX, HikeConstants.MAX_DIMENSION_MEDIUM_FULL_SIZE_PX, Config.ARGB_8888);
+				}
+				
 				if(bmp==null)
 				{
 					mListener.onFailure();
@@ -1329,9 +1335,9 @@ public class HikeBitmapFactory
 	 *            :
 	 * @return
 	 */
-	public static Bitmap getImageThumbnailAsPerAlgo(Context context, String filename, int imageSize, AlgoState state)
+	public static Bitmap getBestResolutionBitmap(Context context, String filename, Dimension defaultSize, BitmapResolutionState state)
 	{
-		MemmoryScreenShot screenShot = new MemmoryScreenShot(filename, imageSize);
+		MemmoryScreenShot screenShot = new MemmoryScreenShot(filename, defaultSize);
 		Logger.d("image_config", screenShot.toString());
 
 		/**
@@ -1343,22 +1349,22 @@ public class HikeBitmapFactory
 		 */
 		if(screenShot.options.outWidth == -1 || screenShot.options.outHeight == -1)
 		{
-			state = AlgoState.STATE_3;
+			state = BitmapResolutionState.STATE_3;
 		}
 		
-		AlgoDimensionResult bestDimen = getBestDimensions(state, screenShot);
+		Dimension bestDimen = getBestDimensions(state, screenShot);
 
 		Bitmap thumbnail = null;
 		Logger.d("image_config", "Going to try load image with case:- " + bestDimen.toString());
 		thumbnail = HikeBitmapFactory.scaleDownBitmap(filename, bestDimen.getWidth(), bestDimen.getHeight(), Bitmap.Config.RGB_565, true, false);
 		if (thumbnail == null)
 		{
-			Logger.d("image_config", "degrading loading image qulity from case " + bestDimen.getAlgoState() + " to next case");
-			bestDimen.incrementToNextAlgoState();
-			if (bestDimen.getAlgoState() != AlgoState.STATE_EXIT)
+			Logger.d("image_config", "degrading loading image qulity from case " + bestDimen.getState() + " to next case");
+			bestDimen.nextState();
+			if (bestDimen.getState() != BitmapResolutionState.STATE_EXIT)
 			{
 				showSCToastForImageDegrade(context.getResources().getString(R.string.show_degraded_image_quality));
-				return getImageThumbnailAsPerAlgo(context, filename, imageSize, bestDimen.getAlgoState());
+				return getBestResolutionBitmap(context, filename, defaultSize, bestDimen.getState());
 			}
 			else
 			{
@@ -1371,11 +1377,11 @@ public class HikeBitmapFactory
 		return thumbnail;
 	}
 
-	private static AlgoDimensionResult getBestDimensions(AlgoState state, MemmoryScreenShot screenShot)
+	private static Dimension getBestDimensions(BitmapResolutionState state, MemmoryScreenShot screenShot)
 	{
-		AlgoDimensionResult imageDimen = null;
+		Dimension imageDimen = null;
 
-		if (state == AlgoState.INIT_STATE)
+		if (state == BitmapResolutionState.INIT_STATE)
 		{
 			// Going for 1st case
 			imageDimen = getDimensionsAsPerCase1(screenShot);
@@ -1384,15 +1390,15 @@ public class HikeBitmapFactory
 			{
 				// Best match found, returning
 				Logger.d("image_config", "API getBestDimensions, best case " + state + ", \n size is " + imageDimen.toString());
-				imageDimen.setAlgoState(state);
+				imageDimen.setState(state);
 				return imageDimen;
 			}
 
 			//First case not successful, Moving on to 2nd case
-			state = AlgoState.STATE_2;
+			state = BitmapResolutionState.STATE_2;
 		}
 
-		if (state == AlgoState.STATE_2)
+		if (state == BitmapResolutionState.STATE_2)
 		{
 			// Going for 2nd case
 			imageDimen = getDimensionsAsPerCase2(screenShot);
@@ -1401,20 +1407,20 @@ public class HikeBitmapFactory
 			{
 				// Best match found, returning
 				Logger.d("image_config", "API getBestDimensions, best case " + state + ", \n size is " + imageDimen.toString());
-				imageDimen.setAlgoState(state);
+				imageDimen.setState(state);
 				return imageDimen;
 			}
 
 			//Second case not successful, Moving on to 3rd case
-			state = AlgoState.STATE_3;
+			state = BitmapResolutionState.STATE_3;
 		}
 
 		// Going for 3rd case
-		if (state == AlgoState.STATE_3)
+		if (state == BitmapResolutionState.STATE_3)
 		{
-			Logger.d("image_config", "API getBestDimensions, best case " + state + ", \n size is " + screenShot.getScreenDimen().toString());
-			imageDimen = screenShot.getScreenDimen();
-			imageDimen.setAlgoState(state);
+			Logger.d("image_config", "API getBestDimensions, best case " + state + ", \n size is " + screenShot.getDefaultDimen().toString());
+			imageDimen = screenShot.getDefaultDimen();
+			imageDimen.setState(state);
 			return imageDimen;
 		}
 
@@ -1446,7 +1452,7 @@ public class HikeBitmapFactory
 	}
 
 	// Case2: checking with RGB+ Max 1240/Screen*1.5
-	private static AlgoDimensionResult getDimensionsAsPerCase2(MemmoryScreenShot screenShot)
+	private static Dimension getDimensionsAsPerCase2(MemmoryScreenShot screenShot)
 	{
 		int height;
 
@@ -1500,13 +1506,13 @@ public class HikeBitmapFactory
 
 		if (screenShot.getAvailableRAM() > (MEMORY_MULTIPLIIER * (RGB_565_BYTE_SIZE * max)))
 		{
-			return new AlgoDimensionResult(width, height);
+			return new Dimension(width, height);
 		}
 		return null;
 	}
 
 	// Case1: checking with RGB+ original/Screen*2
-	private static AlgoDimensionResult getDimensionsAsPerCase1(MemmoryScreenShot screenShot)
+	private static Dimension getDimensionsAsPerCase1(MemmoryScreenShot screenShot)
 	{
 		int height;
 
@@ -1530,7 +1536,7 @@ public class HikeBitmapFactory
 
 		if (screenShot.getAvailableRAM() > (MEMORY_MULTIPLIIER * (RGB_565_BYTE_SIZE * min)))
 		{
-			return new AlgoDimensionResult(height, width);
+			return new Dimension(height, width);
 		}
 		return null;
 	}
@@ -1545,21 +1551,21 @@ public class HikeBitmapFactory
 
 		private int deviceScreenArea;
 
-		private AlgoDimensionResult screenDimen;
+		private Dimension defaultDimen;
 
 		public double getAvailableRAM()
 		{
 			return availableRAM;
 		}
 
-		public MemmoryScreenShot(String filename, int imageSize)
+		public MemmoryScreenShot(String filename, Dimension imageSize)
 		{
 			availableRAM = Utils.getTotalRAMForHike();
 			options = getImageOriginalSizeBitmap(filename);
 			Logger.d("image_config", "Image original dimens are :- " + options.outWidth + ", " + options.outHeight);
 			imageOriginalArea = options.outHeight * options.outWidth;
 			deviceScreenArea = (Utils.getDeviceScreenArea());
-			screenDimen = new AlgoDimensionResult(imageSize, imageSize);
+			defaultDimen = imageSize;
 		}
 
 		public BitmapFactory.Options getOptions()
@@ -1587,14 +1593,14 @@ public class HikeBitmapFactory
 			this.deviceScreenArea = deviceScreenArea;
 		}
 
-		public AlgoDimensionResult getScreenDimen()
+		public Dimension getDefaultDimen()
 		{
-			return screenDimen;
+			return defaultDimen;
 		}
 
-		public void setScreenDimen(AlgoDimensionResult screenDimen)
+		public void setDefaultDimen(Dimension screenDimen)
 		{
-			this.screenDimen = screenDimen;
+			this.defaultDimen = screenDimen;
 		}
 
 		@Override
@@ -1608,39 +1614,39 @@ public class HikeBitmapFactory
 	/**
 	 * 
 	 */
-	public static class AlgoDimensionResult
+	public static class Dimension
 	{
 
 		int width;
 
 		int height;
 
-		AlgoState algoState;
+		BitmapResolutionState algoState;
 
-		public AlgoDimensionResult(int w, int h)
+		public Dimension(int w, int h)
 		{
 			width = w;
 			height = h;
 		}
 
-		public void incrementToNextAlgoState()
+		public void nextState()
 		{
 			switch (this.algoState)
 			{
 			case INIT_STATE:
-				this.algoState = AlgoState.STATE_2;
+				this.algoState = BitmapResolutionState.STATE_2;
 				break;
 
 			case STATE_2:
-				this.algoState = AlgoState.STATE_3;
+				this.algoState = BitmapResolutionState.STATE_3;
 				break;
 
 			case STATE_3:
-				this.algoState = AlgoState.STATE_EXIT;
+				this.algoState = BitmapResolutionState.STATE_EXIT;
 				break;
 
 			default:
-				this.algoState = AlgoState.STATE_EXIT;
+				this.algoState = BitmapResolutionState.STATE_EXIT;
 				break;
 			}
 		}
@@ -1655,12 +1661,12 @@ public class HikeBitmapFactory
 			return height;
 		}
 
-		public AlgoState getAlgoState()
+		public BitmapResolutionState getState()
 		{
 			return algoState;
 		}
 
-		public void setAlgoState(AlgoState algoState)
+		public void setState(BitmapResolutionState algoState)
 		{
 			this.algoState = algoState;
 		}

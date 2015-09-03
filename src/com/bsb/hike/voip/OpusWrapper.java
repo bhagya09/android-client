@@ -14,6 +14,7 @@ public class OpusWrapper {
 	
 	private long encoder = 0;
 	private long decoder = 0;
+	private int currentBitrate = 0;
 	
 	/**
 	 * The frame size of samples expected by the Opus codec. 
@@ -22,7 +23,7 @@ public class OpusWrapper {
 	 */
 	public static final int OPUS_FRAME_SIZE = 2880;
 	
-	public static final int OPUS_LOWEST_SUPPORTED_BITRATE = 3000; 
+	public static final int OPUS_LOWEST_SUPPORTED_BITRATE = 4000; 
 	
 	private native long opus_encoder_create(int samplingRate, int channels, int errors);
 	private native int opus_encode(long encoder, byte[] input, int frameSize, byte[] output, int outputSize);
@@ -74,13 +75,20 @@ public class OpusWrapper {
 		int errors = 0;
 		encoder = opus_encoder_create(samplingRate, channels, errors);
 		setEncoderBitrate(bitrate);
+		setEncoderComplexity(0);
 		return errors;
 	}
 	
 	public void setEncoderBitrate(int bitrate) {
 		if (encoder == 0)
 			return;
+		
+		if (bitrate == currentBitrate)
+			return;
+		
+		Logger.d(VoIPConstants.TAG, "Encoder bitrate: " + bitrate);
 		opus_set_bitrate(encoder, bitrate);
+		currentBitrate = bitrate;
 	}
 	
 	public void setEncoderComplexity(int complexity) {
@@ -135,6 +143,18 @@ public class OpusWrapper {
 				return 0;
 
 			return opus_decode(decoder, input, input.length, output, output.length / 2, 0);
+		}
+	}
+	
+	public int fec(byte[] input, byte[] output) throws Exception {
+		synchronized (decoderLock) {
+			if (decoder == 0)
+				throw new Exception("No decoder created.");
+			
+			if (input == null || output == null)
+				return 0;
+
+			return opus_decode(decoder, input, input.length, output, output.length / 2, 1);
 		}
 	}
 	

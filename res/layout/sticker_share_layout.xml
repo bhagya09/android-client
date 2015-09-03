@@ -32,7 +32,7 @@
         android:layout_marginRight="8dp"
         android:layout_gravity="right"
         android:text="@string/sticker_share_description"
-        android:textColor="@color/welcome_blue"
+        android:textColor="@color/nux_invite_button"
         android:textSize="9sp" />
 
 </LinearLayout>

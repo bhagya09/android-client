@@ -11,7 +11,6 @@ import com.bsb.hike.R;
 import com.bsb.hike.adapters.EmoticonAdapter;
 import com.bsb.hike.adapters.StickerAdapter;
 import com.bsb.hike.analytics.HAManager;
-import com.bsb.hike.chatHead.ChatHeadActivity;
 import com.bsb.hike.chatHead.TabClickListener;
 import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.smartImageLoader.StickerOtherIconLoader;
@@ -168,6 +167,7 @@ public class StickerEmoticonIconPageIndicator extends IconPageIndicator
 		{
 			String errorMsg = "Inside method : Select Child.  View is null. Index value specified : " + index ;
 			HAManager.sendStickerCrashDevEvent(errorMsg);
+			return ;
 		}
 		ImageView icon = (ImageView) child.findViewById(R.id.category_btn);
 		child.setSelected(isSelected);

@@ -11,6 +11,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.Activity;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -32,6 +33,7 @@ import com.bsb.hike.models.MessageMetadata;
 import com.bsb.hike.models.Conversation.BroadcastConversation;
 import com.bsb.hike.models.Conversation.GroupConversation;
 import com.bsb.hike.models.Conversation.OneToNConversation;
+import com.bsb.hike.models.Conversation.OneToNConversationMetadata;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.service.HikeMqttManagerNew;
 
@@ -111,7 +113,97 @@ public class OneToNConversationUtils
 		}
 		return participantAddedMessage;
 	}
+	
+	public static String getAdminUpdatedMessage(ConvMessage convMessage,
+			Context context) {
+		String participantAddedMessage = null;
+		if (!convMessage.isBroadcastMessage()) {
+			String groupAdder = convMessage.getGroupParticipantMsisdn();
+			String highlight = convMessage.getMetadata().getMsisdn();
+			SharedPreferences preferences = context.getSharedPreferences(
+					HikeMessengerApp.ACCOUNT_SETTINGS, context.MODE_PRIVATE);
 
+			if (highlight != null) {
+				if (highlight.equalsIgnoreCase(preferences.getString(
+						HikeMessengerApp.MSISDN_SETTING, ""))) {
+					highlight = context.getString(R.string.you).toLowerCase();
+				}else{
+				ContactInfo contact = ContactManager.getInstance().getContact(
+						highlight, true, false);
+				if (contact != null) {
+					highlight = contact.getFirstNameAndSurname();
+				}
+				}
+			}
+		
+			String adder = "";
+			if (groupAdder.equalsIgnoreCase(preferences.getString(
+					HikeMessengerApp.MSISDN_SETTING, ""))) {
+				adder = context.getString(R.string.you);
+			} else {
+				if (groupAdder != null && groupAdder.trim().length() > 0) {
+					ContactInfo contact = ContactManager.getInstance()
+							.getContact(groupAdder, true, false);
+					if (contact != null) {
+						adder = contact.getFirstNameAndSurname();
+					}
+				}
+			}
+			participantAddedMessage = adder
+					+ " "
+					+ context
+							.getString(R.string.group_admin_updated, highlight);
+		}
+
+		return participantAddedMessage;
+	}
+
+	public static String getSettingUpdatedMessage(ConvMessage convMessage,
+			Context context) {
+		String participantAddedMessage = null;
+		if (!convMessage.isBroadcastMessage()) {
+			String groupAdder = convMessage.getGroupParticipantMsisdn();
+			String highlight = convMessage.getMetadata().getMsisdn();
+			SharedPreferences preferences = context.getSharedPreferences(
+					HikeMessengerApp.ACCOUNT_SETTINGS, context.MODE_PRIVATE);
+
+			if (highlight != null) {
+				if (highlight.equalsIgnoreCase(preferences.getString(
+						HikeMessengerApp.MSISDN_SETTING, ""))) {
+					highlight = context.getString(R.string.you).toLowerCase();
+				}else{
+				ContactInfo contact = ContactManager.getInstance().getContact(
+						highlight, true, false);
+				if (contact != null) {
+					highlight = contact.getFirstNameAndSurname();
+				}
+				}
+			}
+		
+			String adder = "";
+			if (groupAdder.equalsIgnoreCase(preferences.getString(
+					HikeMessengerApp.MSISDN_SETTING, ""))) {
+				adder = context.getString(R.string.you);
+				participantAddedMessage =  context
+								.getString(R.string.you_group_settings_updated, highlight);
+			} else {
+				if (groupAdder != null && groupAdder.trim().length() > 0) {
+					ContactInfo contact = ContactManager.getInstance()
+							.getContact(groupAdder, true, false);
+					if (contact != null) {
+						adder = contact.getFirstNameAndSurname();
+						participantAddedMessage = adder
+								+ " "
+								+ context
+										.getString(R.string.group_settings_updated);
+					}
+				}
+			}
+			
+		}
+
+		return participantAddedMessage;
+	}
 	public static String getParticipantRemovedMessage(String msisdn, Context context, String participantName)
 	{
 		String participantRemovedMessage = String.format(context.getString(isBroadcastConversation(msisdn) ? R.string.removed_from_broadcast : R.string.left_conversation),
@@ -137,7 +229,7 @@ public class OneToNConversationUtils
 		return isGroupConversation(msisdn) || isBroadcastConversation(msisdn);
 	}
 
-	public static void createGroupOrBroadcast(Activity activity, ArrayList<ContactInfo> selectedContactList, String convName, String convId)
+	public static void createGroupOrBroadcast(Activity activity, ArrayList<ContactInfo> selectedContactList, String convName, String convId, int setting)
 	{
 		String oneToNConvId;
 		if (activity.getIntent().hasExtra(HikeConstants.Extras.BROADCAST_LIST))
@@ -169,7 +261,7 @@ public class OneToNConversationUtils
 
 		for (ContactInfo particpant : selectedContactList)
 		{
-			GroupParticipant convParticipant = new GroupParticipant(particpant);
+			GroupParticipant convParticipant = new GroupParticipant(particpant, convId);
 			participantList.put(particpant.getMsisdn(), new PairModified<GroupParticipant, String>(convParticipant, convParticipant.getContactInfo().getNameOrMsisdn()));
 		}
 		ContactInfo userContactInfo = Utils.getUserContactInfo(activity.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, Context.MODE_PRIVATE));
@@ -182,7 +274,7 @@ public class OneToNConversationUtils
 		}
 		else
 		{
-			oneToNConversation = new GroupConversation.ConversationBuilder(oneToNConvId).setConversationOwner(userContactInfo.getMsisdn()).setIsAlive(true).setCreationTime(System.currentTimeMillis()).build();
+			oneToNConversation = new GroupConversation.ConversationBuilder(oneToNConvId).setConversationOwner(userContactInfo.getMsisdn()).setIsAlive(true).setCreationTime(System.currentTimeMillis()).setConversationCreator(userContactInfo.getMsisdn()).build();
 		}
 
 		oneToNConversation.setConversationParticipantList(participantList);
@@ -192,8 +284,12 @@ public class OneToNConversationUtils
 		mConversationDb.addRemoveGroupParticipants(oneToNConvId, oneToNConversation.getConversationParticipantList(), false);
 		if (newOneToNConv)
 		{
-			mConversationDb.addConversation(oneToNConversation.getMsisdn(), false, convName, oneToNConversation.getConversationOwner(), null, oneToNConversation.getCreationDate());
+			mConversationDb.addConversation(oneToNConversation.getMsisdn(), false, convName, oneToNConversation.getConversationOwner(), null, oneToNConversation.getCreationDate(), oneToNConversation.getConversationCreator());
 			ContactManager.getInstance().insertGroup(oneToNConversation.getMsisdn(), convName);
+			if (oneToNConversation instanceof GroupConversation)
+			{
+		    	mConversationDb.changeGroupSettings(oneToNConvId, setting,1, new ContentValues());
+			}
 		}
 
 		try
@@ -218,6 +314,8 @@ public class OneToNConversationUtils
 				JSONObject metadata = new JSONObject();
 				if (oneToNConversation instanceof GroupConversation){
 				metadata.put(HikeConstants.FROM, oneToNConversation.getConversationOwner());
+				metadata.put(HikeConstants.GROUP_TYPE, HikeConstants.GROUPS_TYPE.MULTI_ADMIN);
+				metadata.put(HikeConstants.GROUP_SETTING,setting);
 				}
 				metadata.put(HikeConstants.NAME, convName);
 
@@ -231,15 +329,18 @@ public class OneToNConversationUtils
 				}
 				
 				gcjPacket.put(HikeConstants.METADATA, metadata);
+			
 			} else if (oneToNConversation instanceof GroupConversation) {
 				JSONObject metadata = new JSONObject();
 
 				metadata.put(HikeConstants.FROM,
 						oneToNConversation.getConversationOwner());
+				metadata.put(HikeConstants.GROUP_TYPE, HikeConstants.GROUPS_TYPE.MULTI_ADMIN);
+				metadata.put(HikeConstants.GROUP_SETTING,setting);
 				
 				gcjPacket.put(HikeConstants.METADATA, metadata);
 			}
-
+	
 			ConvMessage msg = new ConvMessage(gcjPacket, oneToNConversation, activity, true);
 			ContactManager.getInstance().updateGroupRecency(oneToNConvId, msg.getTimestamp());
 			HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_SENT, msg);
@@ -256,7 +357,7 @@ public class OneToNConversationUtils
 			}
 
 			ContactInfo conversationContactInfo = new ContactInfo(oneToNConvId, oneToNConvId, oneToNConvId, oneToNConvId);
-			Intent intent = IntentFactory.createChatThreadIntentFromContactInfo(activity, conversationContactInfo, true);
+			Intent intent = IntentFactory.createChatThreadIntentFromContactInfo(activity, conversationContactInfo, true, newOneToNConv);
 			activity.startActivity(intent);
 			activity.finish();
 

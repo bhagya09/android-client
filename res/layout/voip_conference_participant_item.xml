@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/voip_conference_participant_item"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/list_item"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:paddingLeft="7dp" >
+
+    <com.bsb.hike.view.RoundedImageView
+        android:id="@+id/avatar"
+        style="@style/AvatarStyle.MorePadding"
+        android:layout_width="@dimen/medium_avatar"
+        android:layout_height="@dimen/medium_avatar"
+        android:layout_margin="7dp"
+        android:src="@drawable/emo_tab_4_selected" />
+
+    <LinearLayout 
+	    android:layout_width="match_parent"
+	    android:layout_height="wrap_content"
+	    android:gravity="left|center_vertical"
+        android:layout_weight="1"
+	    android:orientation="vertical" >
+	    
+	    <com.bsb.hike.view.CustomFontTextView
+	        android:id="@+id/contact"
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:layout_gravity="left|center_vertical"
+	        android:layout_marginLeft="5dp"
+	        android:drawablePadding="3dp"
+	        android:ellipsize="end"
+	        android:gravity="left"
+	        android:singleLine="true"
+	        android:text="Conference participant"
+	        android:textColor="@color/white"
+	        android:textSize="16sp"
+	        android:textStyle="italic|bold" />
+        
+	    <com.bsb.hike.view.CustomFontTextView
+	        android:id="@+id/contact_subtext"
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:layout_gravity="left|center_vertical"
+	        android:layout_marginLeft="5dp"
+	        android:drawablePadding="3dp"
+	        android:ellipsize="end"
+	        android:gravity="left"
+	        android:singleLine="true"
+	        android:text="@string/voip_conference_host"
+	        android:textColor="#7affffff"
+	        android:textSize="12sp"
+	        android:visibility="gone"
+	        android:textStyle="italic|bold" />
+        
+    </LinearLayout>
+
+    <com.bsb.hike.ui.utils.RecyclingImageView
+        android:id="@+id/is_speaking_view"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:layout_gravity="right|center_vertical"
+        android:alpha="0.65"
+        android:gravity="right"
+        android:scaleType="fitCenter"
+        android:src="@drawable/ic_speaker"
+        android:visibility="gone" />
+
+    <com.bsb.hike.ui.utils.RecyclingImageView
+        android:id="@+id/is_mute_view"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:layout_gravity="right|center_vertical"
+        android:alpha="0.65"
+        android:gravity="right"
+        android:scaleType="fitCenter"
+        android:src="@drawable/ic_voip_mute"
+        android:visibility="gone" />
+
+    <com.bsb.hike.ui.utils.RecyclingImageView
+        android:id="@+id/is_ringing_view"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:layout_gravity="right|center_vertical"
+        android:alpha="0.65"
+        android:gravity="right"
+        android:scaleType="fitCenter"
+        android:src="@drawable/ic_group_conference_ringing"
+        android:visibility="gone" />
+
+    <com.bsb.hike.ui.utils.RecyclingImageView
+        android:id="@+id/remove_participant_btn"
+        android:layout_width="55dp"
+        android:layout_height="55dp"
+        android:alpha="0.85"
+        android:gravity="left"
+        android:padding="20dp"
+        android:scaleType="fitCenter"
+        android:src="@drawable/ic_tip_cross"
+        android:visibility="visible" />
+
+    <ProgressBar
+        android:id="@+id/connecting_progress"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_margin="10dp"
+        android:visibility="gone" />
+
+</LinearLayout>

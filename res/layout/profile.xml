@@ -7,12 +7,13 @@
 
     <ListView
         android:id="@+id/profile_content"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:cacheColorHint="#00000000"
-        android:listSelector="#00000000"
-        android:divider="@null"
         android:paddingTop="@dimen/st__action_bar_default_height"
-        android:fadingEdge="none" />
-
+        style="@style/HomeList" />
+    
+     <FrameLayout
+        android:id="@+id/fragment_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" >
+    </FrameLayout>
+    
 </FrameLayout>

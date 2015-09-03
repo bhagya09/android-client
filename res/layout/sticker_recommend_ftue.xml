@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fadingEdge="none"
+    android:fillViewport="true"
+    android:paddingBottom="@dimen/sticker_recommend_padding"
+    android:paddingTop="@dimen/sticker_recommend_padding"
+    android:scrollbars="none" >
+
+    <LinearLayout
+        android:id="@+id/sticker_recommend_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="horizontal" >
+
+        <FrameLayout
+            android:id="@+id/ftueView"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:layout_weight="5.8" >
+
+            <LinearLayout
+                android:id="@+id/ftueView1"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:visibility="gone" >
+
+                <FrameLayout
+                    android:id="@+id/sticker_image_container"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="12dp"
+                    android:layout_marginRight="12dp" >
+
+                    <com.bsb.hike.ui.utils.RecyclingImageView
+                        android:id="@+id/sticker_image"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:visibility="gone" />
+
+                    <ProgressBar
+                        android:id="@+id/download_progress"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_gravity="center"
+                        android:contentDescription="Progress Bar"
+                        android:indeterminateDrawable="@drawable/loader_dots"
+                        android:visibility="visible" />
+                </FrameLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:paddingTop="5dp"
+                    android:orientation="vertical" >
+
+                    <com.bsb.hike.view.CustomFontTextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/sticker_recommend_ftue_heading"
+                        android:textColor="@color/white"
+                        android:textSize="16sp" />
+
+                    <com.bsb.hike.view.CustomFontTextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="@string/tap_on_sticker_to_send"
+                        android:textColor="@color/white"
+                        android:textSize="13sp"
+                        android:textStyle="italic" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <RelativeLayout
+                android:id="@+id/ftueView2"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:paddingTop="5dp"
+                android:layout_marginLeft="16dp"
+                android:visibility="visible" >
+
+                <com.bsb.hike.view.CustomFontTextView
+                    android:id="@+id/tvHeadingFtueView2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/sticker_recommend_ftue_heading"
+                    android:textColor="@color/white"
+                    android:paddingRight="32dp"
+                    android:textSize="16sp" />
+
+                <com.bsb.hike.view.CustomFontTextView
+                    android:id="@+id/tvSubHeadingFtueView2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:layout_below="@id/tvHeadingFtueView2"
+                    android:layout_alignRight="@id/tvHeadingFtueView2"
+                    android:text="@string/download_from_shop"
+                    android:textColor="@color/white"
+                    android:textSize="13sp"
+                    android:textStyle="italic" />
+
+                <FrameLayout
+                    android:id="@+id/shop_icon"
+                    android:layout_width="48dp"
+                    android:layout_height="wrap_content"
+                    android:layout_alignTop="@id/tvSubHeadingFtueView2"
+                    android:paddingTop="4dp"
+                    android:layout_toRightOf="@id/tvSubHeadingFtueView2"
+                    android:layout_marginLeft="@dimen/sticker_recommend_padding" >
+
+                    <View
+                        android:id="@+id/animated_backgroud"
+                        android:layout_width="1dp"
+                        android:layout_height="1dp"
+                        android:layout_gravity="center"
+                        android:background="@drawable/sticker_shop_icon_bg"
+                        android:visibility="gone" />
+
+                    <ImageView
+                        android:id="@+id/shop_icon_image"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:scaleType="centerInside"
+                        android:src="@drawable/ic_sticker_shop" />
+
+                    <ImageView
+                        android:id="@+id/shop_icon_badge"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="right"
+                        android:layout_marginRight="4dp"
+                        android:layout_marginTop="4dp"
+                        android:scaleType="centerInside"
+                        android:src="@drawable/ic_red_sticker_shop_badge"
+                        android:visibility="gone" />
+                </FrameLayout>
+            </RelativeLayout>
+        </FrameLayout>
+
+        <com.bsb.hike.ui.utils.RecyclingImageView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:src="@drawable/ic_sticker_recommend_seperator" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1.2"
+            android:orientation="vertical" >
+
+            <FrameLayout
+                android:id="@+id/sticker_recommend_popup_close"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:contentDescription="sticker recommend popup close" >
+
+                <com.bsb.hike.ui.utils.RecyclingImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:src="@drawable/ic_sticker_recommend_popup_close" />
+            </FrameLayout>
+
+            <FrameLayout
+                android:id="@+id/sticker_recommend_popup_settings"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:contentDescription="sticker recommend popup settings" >
+
+                <com.bsb.hike.ui.utils.RecyclingImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:src="@drawable/ic_sticker_recommend_settings" />
+            </FrameLayout>
+        </LinearLayout>
+    </LinearLayout>
+
+</ScrollView>

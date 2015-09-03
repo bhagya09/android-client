@@ -7,6 +7,7 @@ import android.content.res.Configuration;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -15,6 +16,7 @@ import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -24,12 +26,11 @@ import com.bsb.hike.R;
 import com.bsb.hike.adapters.StickerAdapter;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
-import com.bsb.hike.chatHead.ChatHeadActivity;
+import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.chatHead.ChatHeadConstants;
 import com.bsb.hike.chatHead.ChatHeadService;
 import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.chatHead.TabClickListener;
-import com.bsb.hike.models.ProfileItem.ProfileContactItem.contactType;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.modules.animationModule.HikeAnimationFactory;
@@ -44,8 +45,6 @@ import com.bsb.hike.view.StickerEmoticonIconPageIndicator;
 public class StickerPicker implements OnClickListener, ShareablePopup, StickerPickerListener,TabClickListener
 {
 	private StickerPickerListener listener;
-
-	private Activity mActivity;
 
 	private KeyboardPopupLayout popUpLayout;
 
@@ -69,7 +68,7 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 	
 	private Context mContext;
 	
-	private TextView  chatHeadDisableButton, chatHeadgetMoreStickersButton, chatHeadSideText, chatHeadMainText;
+	private TextView  chatHeadDisableButton, chatHeadgetMoreStickersButton, chatHeadDisableSideText, chatHeadTotalStickersText, chatHeadMainText;
 	
 	private LinearLayout chatHeadMainLayout, chatHeadInfoIconLayout, chatHeadDisableLayout;
 	
@@ -83,10 +82,11 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 	 * @param activity
 	 * @param listener
 	 */
-	public StickerPicker(Activity activity, StickerPickerListener listener)
+	public StickerPicker(Context context, StickerPickerListener listener)
 	{
-		this.mActivity = activity;
+		this.mContext = context;
 		this.listener = listener;
+		this.currentConfig = context.getResources().getConfiguration().orientation;
 	}
 
 	/**
@@ -96,9 +96,9 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 	 * @param listener
 	 * @param popUpLayout
 	 */
-	public StickerPicker(int layoutResId, Activity activity, StickerPickerListener listener, KeyboardPopupLayout popUpLayout)
+	public StickerPicker(int layoutResId, Context context, StickerPickerListener listener, KeyboardPopupLayout popUpLayout)
 	{
-		this(activity, listener);
+		this(context, listener);
 		this.mLayoutResId = layoutResId;
 		this.popUpLayout = popUpLayout;
 	}
@@ -111,9 +111,9 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 	 * @param listener
 	 * @param popUpLayout
 	 */
-	public StickerPicker(View view, Activity activity, StickerPickerListener listener, KeyboardPopupLayout popUpLayout)
+	public StickerPicker(View view, Context context, StickerPickerListener listener, KeyboardPopupLayout popUpLayout)
 	{
-		this(activity, listener);
+		this(context, listener);
 		this.viewToDisplay = view;
 		this.popUpLayout = popUpLayout;
 		initViewComponents(viewToDisplay);
@@ -130,10 +130,10 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 	 * @param eatTouchEventViewIds
 	 */
 
-	public StickerPicker(Activity activity, StickerPickerListener listener, View mainView, int firstTimeHeight, int[] eatTouchEventViewIds)
+	public StickerPicker(Context context, StickerPickerListener listener, View mainView, int firstTimeHeight, int[] eatTouchEventViewIds)
 	{
-		this(activity, listener);
-		popUpLayout = new KeyboardPopupLayout(mainView, firstTimeHeight, activity.getApplicationContext(), eatTouchEventViewIds, null);
+		this(context, listener);
+		popUpLayout = new KeyboardPopupLayout(mainView, firstTimeHeight, context.getApplicationContext(), eatTouchEventViewIds, null);
 	}
 
 	/**
@@ -144,9 +144,9 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 	 *            this is your activity Or fragment root view which gets resized when keyboard toggles
 	 * @param firstTimeHeight
 	 */
-	public StickerPicker(Activity activity, StickerPickerListener listener, View mainView, int firstTimeHeight)
+	public StickerPicker(Context context, StickerPickerListener listener, View mainView, int firstTimeHeight)
 	{
-		this(activity, listener, mainView, firstTimeHeight, null);
+		this(context, listener, mainView, firstTimeHeight, null);
 	}
 
 	public void showStickerPicker(int screenOrietentation)
@@ -190,7 +190,7 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 
 		mLayoutResId = (mLayoutResId == -1) ? R.layout.sticker_layout : mLayoutResId;
 
-		viewToDisplay = (ViewGroup) LayoutInflater.from(mActivity.getApplicationContext()).inflate(mLayoutResId, null);
+		viewToDisplay = (ViewGroup) LayoutInflater.from(mContext.getApplicationContext()).inflate(mLayoutResId, null);
 
 		initViewComponents(viewToDisplay);
 	}
@@ -209,7 +209,7 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 			throw new IllegalArgumentException("View Pager was not found in the view passed.");
 		}
 
-		stickerAdapter = new StickerAdapter(mActivity, this);
+		stickerAdapter = new StickerAdapter(mContext, this);
 
 		mIconPageIndicator = (StickerEmoticonIconPageIndicator) view.findViewById(R.id.sticker_icon_indicator);
 		
@@ -234,7 +234,7 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 		 */
 		if ((Utils.getExternalStorageState() == ExternalStorageState.NONE))
 		{
-			Toast.makeText(mActivity.getApplicationContext(), R.string.no_external_storage, Toast.LENGTH_SHORT).show();
+			Toast.makeText(mContext.getApplicationContext(), R.string.no_external_storage, Toast.LENGTH_SHORT).show();
 			return null;
 		}
 		
@@ -250,7 +250,7 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 			/**
 			 * Defensive null check
 			 */
-			if (mActivity == null)
+			if (mContext == null)
 			{
 				String errorMsg = "Inside method : getView of StickerPicker. Context is null";
 				HAManager.sendStickerEmoticonStrangeBehaviourReport(errorMsg);
@@ -309,11 +309,11 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 					AnalyticsConstants.ChatHeadEvents.DISABLE_SETTING);
 			onDisableClick();
 			break;
-//		case R.id.get_more_stickers:
-//			HAManager.getInstance().chatHeadshareAnalytics(AnalyticsConstants.ChatHeadEvents.MAIN_LAYOUT_CLICKS, ChatHeadService.foregroundAppName,
-//					AnalyticsConstants.ChatHeadEvents.MORE_STICKERS);
-//			ChatHeadService.getInstance().resetPosition(ChatHeadConstants.GET_MORE_STICKERS_ANIMATION, null);
-//			break;
+		case R.id.get_more_stickers:
+			HAManager.getInstance().chatHeadshareAnalytics(AnalyticsConstants.ChatHeadEvents.MAIN_LAYOUT_CLICKS, ChatHeadService.foregroundAppName,
+					AnalyticsConstants.ChatHeadEvents.MORE_STICKERS);
+			ChatHeadService.getInstance().resetPosition(ChatHeadConstants.GET_MORE_STICKERS_ANIMATION, null);
+			break;
 		case R.id.open_hike:
 			HAManager.getInstance().chatHeadshareAnalytics(AnalyticsConstants.ChatHeadEvents.MAIN_LAYOUT_CLICKS, ChatHeadService.foregroundAppName,
 					AnalyticsConstants.ChatHeadEvents.OPEN_HIKE);
@@ -338,12 +338,11 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 			HAManager.getInstance().chatHeadshareAnalytics(AnalyticsConstants.ChatHeadEvents.BACK, ChatHeadService.foregroundAppName);
 			onBackMainLayoutClick();
 			break;
-//		disabling sticker shop here 
-//		case R.id.shop_icon_external:
-//			HAManager.getInstance().chatHeadshareAnalytics(AnalyticsConstants.ChatHeadEvents.STICKER_SHOP, ChatHeadService.foregroundAppName);
-//			ChatHeadService.getInstance().resetPosition(ChatHeadConstants.STICKER_SHOP_ANIMATION, null);
-//			break;
-		case R.id.side_text:
+		case R.id.shop_icon_external:
+			HAManager.getInstance().chatHeadshareAnalytics(AnalyticsConstants.ChatHeadEvents.STICKER_SHOP, ChatHeadService.foregroundAppName);
+			ChatHeadService.getInstance().resetPosition(ChatHeadConstants.STICKER_SHOP_ANIMATION, null);
+			break;
+		case R.id.disable_side_text:
 			HAManager.getInstance().chatHeadshareAnalytics(AnalyticsConstants.ChatHeadEvents.DISABLE_TEXT, ChatHeadService.foregroundAppName);
 			ChatHeadService.getInstance().resetPosition(ChatHeadConstants.OPEN_SETTINGS_ANIMATION, null);
 			break;
@@ -353,9 +352,10 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 	private void shopIconClicked()
 	{
 		setStickerIntroPrefs();
-		HAManager.getInstance().record(HikeConstants.LogEvent.STKR_SHOP_BTN_CLICKED, AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT);
-		Intent i = IntentFactory.getStickerShopIntent(mActivity);
-		mActivity.startActivity(i);
+		HAManager.getInstance().record(HikeConstants.LogEvent.STKR_SHOP_BTN_CLICKED, AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, EventPriority.HIGH);
+		Intent i = IntentFactory.getStickerShopIntent(mContext);
+		i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		mContext.getApplicationContext().startActivity(i);
 	}
 
 	public void updateDimension(int width, int height)
@@ -410,7 +410,7 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 	 */
 	public void releaseResources()
 	{
-		this.mActivity = null;
+		this.mContext = null;
 		this.listener = null;
 		if (stickerAdapter != null)
 		{
@@ -419,10 +419,10 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 
 	}
 	
-	public void updateListener(StickerPickerListener mListener, Activity activity)
+	public void updateListener(StickerPickerListener mListener, Context context)
 	{
 		this.listener = mListener;
-		this.mActivity = activity;
+		this.mContext = context;
 		if (stickerAdapter != null)
 		{
 			stickerAdapter.registerListener();
@@ -496,10 +496,10 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 			View animatedBackground = view.findViewById(R.id.animated_backgroud);
 			
 			animatedBackground.setVisibility(View.VISIBLE);
-			Animation anim = AnimationUtils.loadAnimation(mActivity, R.anim.scale_out_from_mid);
+			Animation anim = AnimationUtils.loadAnimation(mContext, R.anim.scale_out_from_mid);
 			animatedBackground.startAnimation(anim);
 
-			view.findViewById(R.id.shop_icon_image).setAnimation(HikeAnimationFactory.getStickerShopIconAnimation(mActivity));
+			view.findViewById(R.id.shop_icon_image).setAnimation(HikeAnimationFactory.getStickerShopIconAnimation(mContext));
 		}
 	}
 	
@@ -560,7 +560,7 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 		chatHeadInfoIconLayout.setVisibility(View.VISIBLE);
 		mIconPageIndicator.unselectCurrent();
 		chatHeadDisableLayout.setVisibility(View.GONE);
-		if (ChatHeadService.dismissed > ChatHeadActivity.maxDismissLimit)
+		if (ChatHeadService.dismissed > HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.DISMISS_COUNT, ChatHeadConstants.DISMISS_CONST))
 		{
 			HAManager.getInstance().chatHeadshareAnalytics(AnalyticsConstants.ChatHeadEvents.INFOICON_WITHOUT_CLICK, ChatHeadService.foregroundAppName,
 					AnalyticsConstants.ChatHeadEvents.DISMISS_LIMIT);
@@ -568,26 +568,37 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 			ChatHeadService.dismissed = 0;
 
 		}
-		else if (ChatHeadActivity.shareCount >= ChatHeadActivity.shareLimit)
+		else if (HikeSharedPreferenceUtil.getInstance().getData(ChatHeadConstants.DAILY_STICKER_SHARE_COUNT, 0) >= ChatHeadUtils.shareLimit)
 		{
 			HAManager.getInstance().chatHeadshareAnalytics(AnalyticsConstants.ChatHeadEvents.INFOICON_WITHOUT_CLICK, ChatHeadService.foregroundAppName,
 					AnalyticsConstants.ChatHeadEvents.SHARE_LIMIT);
-			//chatHeadgetMoreStickersButton.setTextColor(mContext.getResources().getColor(R.color.external_pallete_text_highlight_color));
+			chatHeadgetMoreStickersButton.setTextColor(mContext.getResources().getColor(R.color.external_pallete_text_highlight_color));
 		}
 		initLayoutComponentsView();
-		chatHeadSideText.setText(String.format(mContext.getString(R.string.total_sticker_sent), ChatHeadActivity.totalShareCount, ChatHeadActivity.noOfDays));
-		chatHeadSideText.setEnabled(false);
-	    chatHeadSideText.setBackgroundColor(mContext.getResources().getColor(R.color.external_sticker_pallete_background));
+		chatHeadDisableSideText.setVisibility(View.GONE);
+		chatHeadTotalStickersText.setVisibility(View.VISIBLE);
+		chatHeadTotalStickersText.setText(String.format(mContext.getString(R.string.total_sticker_sent), HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.TOTAL_STICKER_SHARE_COUNT, 0), ChatHeadUtils.noOfDays));
+		// we are doing this because we need to consume this touch event here and don't want to pass further
+	    chatHeadInfoIconLayout.setOnTouchListener(new View.OnTouchListener()
+		{	
+			@Override
+			public boolean onTouch(View v, MotionEvent event)
+			{
+				Logger.d(TAG, "accepting user touch");
+				return true;
+			}
+		});
+	    
 	}
 
 	private void initLayoutComponentsView()
 	{
 		chatHeadMainLayout.setVisibility(View.VISIBLE);
-		chatHeadMainText.setText(String.format(mContext.getString(R.string.stickers_sent_today), ChatHeadActivity.shareCount, ChatHeadActivity.shareLimit));
+		chatHeadMainText.setText(String.format(mContext.getString(R.string.stickers_sent_today), HikeSharedPreferenceUtil.getInstance().getData(ChatHeadConstants.DAILY_STICKER_SHARE_COUNT, 0), ChatHeadUtils.shareLimit));
 		int progress;
-		if (ChatHeadActivity.shareLimit != 0)
+		if (ChatHeadUtils.shareLimit != 0)
 		{
-			progress = (int) ((ChatHeadActivity.shareCount * 100) / ChatHeadActivity.shareLimit);
+			progress = (int) ((HikeSharedPreferenceUtil.getInstance().getData(ChatHeadConstants.DAILY_STICKER_SHARE_COUNT, 0) * 100) / ChatHeadUtils.shareLimit);
 		}
 		else
 		{
@@ -600,33 +611,31 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 	{
 		chatHeadMainLayout.setVisibility(View.GONE);
 		chatHeadDisableLayout.setVisibility(View.VISIBLE);
-		chatHeadSideText.setText(mContext.getString(R.string.disable_from_hike_settings));
-	    chatHeadSideText.setEnabled(true);
-	    chatHeadSideText.setBackgroundColor(mContext.getResources().getColor(R.color.standard_black));
-	            
+		chatHeadTotalStickersText.setVisibility(View.GONE);         
+		chatHeadDisableSideText.setVisibility(View.VISIBLE);
 	}
 
 	private void onBackMainLayoutClick()
 	{
 		chatHeadMainLayout.setVisibility(View.VISIBLE);
 		chatHeadDisableLayout.setVisibility(View.GONE);
-		chatHeadSideText.setText(String.format(mContext.getString(R.string.total_sticker_sent), ChatHeadActivity.totalShareCount, ChatHeadActivity.noOfDays));
-		chatHeadSideText.setEnabled(false);
-		chatHeadSideText.setBackgroundColor(mContext.getResources().getColor(R.color.external_sticker_pallete_background));
+		chatHeadDisableSideText.setVisibility(View.GONE);
+		chatHeadTotalStickersText.setVisibility(View.VISIBLE);
+		chatHeadTotalStickersText.setText(String.format(mContext.getString(R.string.total_sticker_sent), HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.TOTAL_STICKER_SHARE_COUNT, 0), ChatHeadUtils.noOfDays));
 	}
 
 	public void setOnClick()
 	{
 		chatHeadInfoIconButton.setOnClickListener(this);
-		//chatHeadgetMoreStickersButton.setOnClickListener(this);
+		chatHeadgetMoreStickersButton.setOnClickListener(this);
 		chatHeadDisableButton.setOnClickListener(this);
-		chatHeadSideText.setOnClickListener(this);
+		chatHeadDisableSideText.setOnClickListener(this);
 		chatHeadstickerPickerView.findViewById(R.id.open_hike).setOnClickListener(this);
 		chatHeadstickerPickerView.findViewById(R.id.back_main_layout).setOnClickListener(this);
 		chatHeadstickerPickerView.findViewById(R.id.one_day).setOnClickListener(this);
 		chatHeadstickerPickerView.findViewById(R.id.one_hour).setOnClickListener(this);
 		chatHeadstickerPickerView.findViewById(R.id.eight_hours).setOnClickListener(this);
-		//chatHeadstickerPickerView.findViewById(R.id.shop_icon_external).setOnClickListener(this);
+		chatHeadstickerPickerView.findViewById(R.id.shop_icon_external).setOnClickListener(this);
 		
 	}
 
@@ -636,24 +645,38 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 		chatHeadstickerPickerView = getView(context.getResources().getConfiguration().orientation);
 		findindViewById();
 		layout.addView(chatHeadstickerPickerView);
-		if (ChatHeadService.dismissed > ChatHeadActivity.maxDismissLimit || ChatHeadActivity.shareCount >= ChatHeadActivity.shareLimit)
+		if (ChatHeadService.dismissed > HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.DISMISS_COUNT, ChatHeadConstants.DISMISS_CONST) || HikeSharedPreferenceUtil.getInstance().getData(ChatHeadConstants.DAILY_STICKER_SHARE_COUNT, 0) >= ChatHeadUtils.shareLimit)
 		{
 			infoIconClick();
 		}
 		setOnClick();
 		StickerEmoticonIconPageIndicator.registerChatHeadTabClickListener(this);
 	}
+	
+	public void createExternalStickerPicker(LinearLayout layout)
+	{
+//		chatHeadstickerPickerView = getView(context.getResources().getConfiguration().orientation);
+//		findindViewById();
+//		layout.addView(chatHeadstickerPickerView);
+//		if (ChatHeadService.dismissed > ChatHeadUtils.maxDismissLimit || ChatHeadUtils.shareCount >= ChatHeadUtils.shareLimit)
+//		{
+//			infoIconClick();
+//		}
+//		setOnClick();
+//		StickerEmoticonIconPageIndicator.registerChatHeadTabClickListener(this);	
+	}
 
 	private void findindViewById()
 	{
 		chatHeadDisableButton = (TextView)chatHeadstickerPickerView.findViewById(R.id.disable);
-		//chatHeadgetMoreStickersButton = (TextView)chatHeadstickerPickerView.findViewById(R.id.get_more_stickers);
+		chatHeadgetMoreStickersButton = (TextView)chatHeadstickerPickerView.findViewById(R.id.get_more_stickers);
 		chatHeadInfoIconButton = (ImageView) chatHeadstickerPickerView.findViewById(R.id.info_icon);
 		chatHeadInfoIconLayout = (LinearLayout)chatHeadstickerPickerView.findViewById(R.id.info_icon_layout);
 		mViewPager = (ViewPager) chatHeadstickerPickerView.findViewById(R.id.sticker_pager);
 		chatHeadMainLayout = (LinearLayout)chatHeadstickerPickerView.findViewById(R.id.main_layout);
 		chatHeadDisableLayout = (LinearLayout)chatHeadstickerPickerView.findViewById(R.id.disable_layout);
-		chatHeadSideText = (TextView)chatHeadstickerPickerView.findViewById(R.id.side_text);
+		chatHeadDisableSideText = (TextView)chatHeadstickerPickerView.findViewById(R.id.disable_side_text);
+		chatHeadTotalStickersText = (TextView)chatHeadstickerPickerView.findViewById(R.id.sticker_sent_side_text);
 		chatHeadMainText  = (TextView)chatHeadstickerPickerView.findViewById(R.id.main_text);
 		chatHeadProgressBar = (ProgressBar)chatHeadstickerPickerView.findViewById(R.id.progress_bar);
 		mIconPageIndicator = (StickerEmoticonIconPageIndicator) chatHeadstickerPickerView.findViewById(R.id.sticker_icon_indicator);

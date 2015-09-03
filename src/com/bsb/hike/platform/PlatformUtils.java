@@ -1,44 +1,70 @@
 package com.bsb.hike.platform;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ByteArrayEntity;
+import org.apache.http.params.CoreConnectionPNames;
+import org.apache.http.params.CoreProtocolPNames;
+import org.apache.http.util.EntityUtils;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.text.TextUtils;
+import android.webkit.MimeTypeMap;
 import android.widget.Toast;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
+import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ConvMessage;
+import com.bsb.hike.models.HikeHandlerUtil;
+import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.modules.httpmgr.Header;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpHeaderConstants;
+import com.bsb.hike.modules.stickerdownloadmgr.StickerPalleteImageDownloadTask;
+import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadSource;
+import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadType;
 import com.bsb.hike.platform.content.PlatformContent;
+import com.bsb.hike.platform.content.PlatformContentConstants;
 import com.bsb.hike.platform.content.PlatformContentListener;
 import com.bsb.hike.platform.content.PlatformContentModel;
 import com.bsb.hike.platform.content.PlatformContentRequest;
 import com.bsb.hike.platform.content.PlatformZipDownloader;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.productpopup.ProductPopupsConstants.HIKESCREEN;
+import com.bsb.hike.timeline.view.StatusUpdate;
 import com.bsb.hike.ui.CreateNewGroupOrBroadcastActivity;
 import com.bsb.hike.ui.HikeListActivity;
 import com.bsb.hike.ui.HomeActivity;
-import com.bsb.hike.ui.StatusUpdate;
 import com.bsb.hike.ui.TellAFriend;
+import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 
 /**
@@ -49,7 +75,9 @@ import com.bsb.hike.utils.Utils;
 public class PlatformUtils
 {
 	private static final String TAG = "PlatformUtils";
-
+	
+	private static final String BOUNDARY = "----------V2ymHFg03ehbqgZCaKO6jy";
+	
 	/**
 	 * 
 	 * metadata:{'layout_id':'','file_id':'','card_data':{},'helper_data':{}}
@@ -265,11 +293,25 @@ public class PlatformUtils
 			}
 			if (activityName.equals(HIKESCREEN.BROADCAST.toString()))
 			{
-				IntentFactory.createBroadcastDefault(context);
+				IntentFactory.createBroadcastIntent(context);
 			}
 			if (activityName.equals(HIKESCREEN.CHAT_HEAD.toString()))
+			{   
+				if (ChatHeadUtils.areWhitelistedPackagesSharable(context))
+				{
+					boolean show_popup = mmObject.optBoolean(ProductPopupsConstants.NATIVE_POPUP, false);
+					Intent intent = IntentFactory.getStickerShareSettingsIntent(context);
+					intent.putExtra(ProductPopupsConstants.NATIVE_POPUP, show_popup);
+					context.startActivity(intent);
+				}
+				else
+				{
+					Toast.makeText(context, context.getString(R.string.sticker_share_popup_not_activate_toast), Toast.LENGTH_LONG).show();
+				}
+			}
+			if(activityName.equals(HIKESCREEN.ACCESS.toString()))
 			{
-				IntentFactory.openSettingStickerOnOtherApp(context);
+				IntentFactory.openAccessibilitySettings(context);
 			}
 		}
 		catch (JSONException e)
@@ -317,12 +359,13 @@ public class PlatformUtils
 						}
 						else
 						{
-							Logger.wtf(TAG, "microapp download packet failed.");
+							Logger.wtf(TAG, "microapp download packet failed." + event.toString());
 							JSONObject json = new JSONObject();
 							try
 							{
 								json.put(HikePlatformConstants.ERROR_CODE, event.toString());
-								createBotAnalytics(HikePlatformConstants.BOT_CREATION_FAILED, botInfo);
+								createBotAnalytics(HikePlatformConstants.BOT_CREATION_FAILED, botInfo, json);
+								createBotMqttAnalytics(HikePlatformConstants.BOT_CREATION_FAILED_MQTT, botInfo, json);
 							}
 							catch (JSONException e)
 							{
@@ -337,11 +380,43 @@ public class PlatformUtils
 
 	}
 
-	private static void botCreationSuccessHandling(BotInfo botInfo, boolean enableBot, String botChatTheme, String notifType)
+	public static void botCreationSuccessHandling(BotInfo botInfo, boolean enableBot, String botChatTheme, String notifType)
 	{
 		enableBot(botInfo, enableBot);
 		BotUtils.updateBotParamsInDb(botChatTheme, botInfo, enableBot, notifType);
 		createBotAnalytics(HikePlatformConstants.BOT_CREATED, botInfo);
+		createBotMqttAnalytics(HikePlatformConstants.BOT_CREATED_MQTT, botInfo);
+	}
+
+	private static void createBotMqttAnalytics(String key, BotInfo botInfo)
+	{
+		createBotMqttAnalytics(key, botInfo, null);
+	}
+
+	private static void createBotMqttAnalytics(String key, BotInfo botInfo, JSONObject json)
+	{
+
+		try
+		{
+			JSONObject metadata = json == null ? new JSONObject() : new JSONObject(json.toString());
+			JSONObject data = new JSONObject();
+			data.put(HikeConstants.EVENT_TYPE, AnalyticsConstants.NON_UI_EVENT);
+
+			metadata.put(HikeConstants.EVENT_KEY, key);
+			metadata.put(AnalyticsConstants.BOT_NAME, botInfo.getConversationName());
+			metadata.put(AnalyticsConstants.BOT_MSISDN, botInfo.getMsisdn());
+			metadata.put(HikePlatformConstants.PLATFORM_USER_ID, HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PLATFORM_UID_SETTING, null));
+			metadata.put(AnalyticsConstants.NETWORK_TYPE, Integer.toString(Utils.getNetworkType(HikeMessengerApp.getInstance().getApplicationContext())));
+			metadata.put(AnalyticsConstants.APP_VERSION, AccountUtils.getAppVersion());
+
+			data.put(HikeConstants.METADATA, metadata);
+
+			Utils.sendLogEvent(data, AnalyticsConstants.DOWNLOAD_EVENT, null);
+		}
+		catch (JSONException e)
+		{
+			Logger.w("LE", "Invalid json");
+		}
 	}
 
 	private static void createBotAnalytics(String key, BotInfo botInfo)
@@ -371,7 +446,7 @@ public class PlatformUtils
 
 	private static void enableBot(BotInfo botInfo, boolean enableBot)
 	{
-		if (enableBot)
+		if (enableBot && botInfo.isNonMessagingBot())
 		{
 			HikeConversationsDatabase.getInstance().addNonMessagingBotconversation(botInfo);
 		}
@@ -432,8 +507,8 @@ public class PlatformUtils
 						}
 					}
 				});
-
-				downloadAndUnzip(rqst, false);
+				boolean doReplace = downloadData.optBoolean(PlatformContentConstants.REPLACE_MICROAPP_VERSION);
+				downloadAndUnzip(rqst, false,doReplace);
 
 	}
 
@@ -461,11 +536,12 @@ public class PlatformUtils
 			e.printStackTrace();
 		}
 	}
-
-	public static void downloadAndUnzip(PlatformContentRequest request, boolean isTemplatingEnabled)
+	
+	public static void downloadAndUnzip(PlatformContentRequest request, boolean isTemplatingEnabled , boolean doReplace)
 	{
-		PlatformZipDownloader downloader = new PlatformZipDownloader(request, isTemplatingEnabled);
-		if (!downloader.isMicroAppExist())
+
+		PlatformZipDownloader downloader =  new PlatformZipDownloader(request, isTemplatingEnabled, doReplace);
+		if (!downloader.isMicroAppExist() || doReplace)
 		{
 			downloader.downloadAndUnzip();
 		}
@@ -473,6 +549,11 @@ public class PlatformUtils
 		{
 			request.getListener().onEventOccured(request.getContentData()!=null ? request.getContentData().getUniqueId() : 0,PlatformContent.EventCode.ALREADY_DOWNLOADED);
 		}
+		
+	}
+	public static void downloadAndUnzip(PlatformContentRequest request, boolean isTemplatingEnabled)
+	{
+		downloadAndUnzip(request, isTemplatingEnabled, false);
 	}
 
 	/**
@@ -493,6 +574,156 @@ public class PlatformUtils
 		return convMessage;
 
 	}
+	
+	public static byte[] prepareFileBody(String filePath)
+	{
+		String boundary = "\r\n--" + BOUNDARY + "--\r\n";
+		File file = new File(filePath);
+		if(file.exists() && !file.isDirectory()){
+		int chunkSize = (int) file.length();
+		String boundaryMessage = getBoundaryMessage(filePath);
+		byte[] fileContent = new byte[(int) file.length()];
+		FileInputStream fileInputStream = null;
+	    try
+		{
+	    	fileInputStream = new FileInputStream(file);
+			fileInputStream.read(fileContent);
+		}
+		catch (IOException | NullPointerException e)
+		{
+			Logger.e("fileUplaod","file body not present");
+			return null;
+		}
+	    finally
+	    {
+		    try
+			{
+	    		if(fileInputStream != null)
+	    		{
+					fileInputStream.close();
+	    		}
+			}
+			catch (IOException e)
+			{
+				Logger.e("fileUpload","Couldn't Read File");
+			}
+	    }
+	    return setupFileBytes(boundaryMessage, boundary, chunkSize,fileContent);
+		}
+		else
+		{
+			Logger.e("fileUpload","Invalid file Path");
+			return null;
+		}
+	}
+	
+	public static void uploadFile(final String filePath,final String url,final IFileUploadListener fileListener)
+	{
+		if(filePath == null)
+		{
+			Logger.d("FileUpload", "File Path specified as null");
+			fileListener.onRequestFailure("File Path null");
+		}
+		HikeHandlerUtil mThread = HikeHandlerUtil.getInstance();
+		mThread.startHandlerThread();
+		mThread.postRunnable(new Runnable()
+		{
+			
+			@Override
+			public void run()
+			{
+			    byte[] fileBytes = prepareFileBody(filePath);
+			    if(fileBytes!=null)
+			    {
+				String response = send(fileBytes,filePath,url,fileListener);
+				Logger.d("FileUpload", response);
+			    }
+			    else
+			    {
+			    	Logger.e("fileUpload","Empty File Body");
+			    	return ;
+			    }
+			}
+		});
+
+	}
+	
+	private static String send(byte[] fileBytes,final String filePath,final String url,IFileUploadListener filelistener)
+	{
+		HttpClient client =  AccountUtils.getClient(null);
+		client.getParams().setParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, HikeConstants.CONNECT_TIMEOUT);
+		long so_timeout = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.Extras.FT_UPLOAD_SO_TIMEOUT, 180 * 1000l);
+		Logger.d("UploadFileTask", "Socket timeout = " + so_timeout);
+		client.getParams().setParameter(CoreConnectionPNames.SO_TIMEOUT, (int) so_timeout);
+		client.getParams().setParameter(CoreConnectionPNames.TCP_NODELAY, true);
+		client.getParams().setParameter(CoreProtocolPNames.USER_AGENT, "android-" + AccountUtils.getAppVersion());
+		
+		HttpPost post = new HttpPost(url);
+		String res = null;
+		int resCode = 0;
+		try
+		{
+			post.setHeader("Content-Type", "multipart/form-data; boundary=" + BOUNDARY);
+			post.setEntity(new ByteArrayEntity(fileBytes));
+			HttpResponse response = client.execute(post);
+			Logger.d("FileUpload", response.toString());
+			resCode = response.getStatusLine().getStatusCode();
+			
+			res = EntityUtils.toString(response.getEntity());
+			Logger.d("FileUpload",""+resCode);
+		}
+		catch (IOException | NullPointerException ex)
+		{
+			Logger.e("FileUpload", ex.toString());
+			filelistener.onRequestFailure(ex.toString());
+			return ex.toString();
+		}
+		Logger.d("FileUpload", res);
+		if(resCode == 200)
+		{
+			filelistener.onRequestSuccess(res);
+		}
+		else
+		{
+			filelistener.onRequestFailure(res);
+		}
+		return res;
+	}
+	/*
+	 * gets the boundary message for the file path
+	 */
+	private static String getBoundaryMessage(String filePath)
+	{
+		String sendingFileType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(MimeTypeMap.getFileExtensionFromUrl(filePath));
+		File selectedFile = new File(filePath);
+		StringBuffer res = new StringBuffer("--").append(BOUNDARY).append("\r\n");
+		String name = selectedFile.getName();
+		res.append("Content-Disposition: form-data; name=\"").append("file").append("\"; filename=\"").append(name).append("\"\r\n").append("Content-Type: ")
+				.append(sendingFileType).append("\r\n\r\n");
+		return res.toString();
+	}
+	
+	/*
+	 * Sets up the file byte array with boundary message File Content and boundary
+	 * returns the completed setup file byte array
+	 */
+	private static byte[] setupFileBytes(String boundaryMesssage, String boundary, int chunkSize,byte[] fileContent)
+	{
+		byte[] fileBytes = new byte[boundaryMesssage.length() + fileContent.length + boundary.length()];
+		try
+		{
+			System.arraycopy(boundaryMesssage.getBytes(), 0, fileBytes, 0, boundaryMesssage.length());
+			System.arraycopy(fileContent, 0, fileBytes, boundaryMesssage.length(), fileContent.length);
+			System.arraycopy(boundary.getBytes(), 0, fileBytes, boundaryMesssage.length() + fileContent.length, boundary.length());
+		}
+		catch(NullPointerException | ArrayStoreException | IndexOutOfBoundsException e)
+		{
+			
+			Logger.d("FileUpload", e.toString());
+			return null;
+		}
+		return fileBytes;
+	}
 
 	public static List<Header> getHeaders()
 	{
@@ -509,6 +740,287 @@ public class PlatformUtils
 			return headers;
 		}
 		return new ArrayList<Header>();
+	}
+	
+	/*
+	 * This function is called to read the list of files from the System from a folder
+	 * 
+	 * @param filePath : The complete file path that is about to be read returns the JSON Array of the file paths of the all the files in a folder
+	 * @param doDeepLevelAccess : To specify if we want to read all the internal files and folders recursively
+	 */
+	public static JSONArray readFileList(String filePath,boolean doDeepLevelAccess)
+	{	
+		File directory = new File(filePath);
+		if (directory.exists() && !directory.isDirectory())
+		{
+			Logger.d("FileSystemAccess", "Cannot read a single file");
+			return null;
+		}
+		else if(!directory.exists())
+		{
+			Logger.d("FileSystemAccess", "Invalid file path!");
+			return null;
+		}
+		ArrayList<File> list = filesReader(directory,doDeepLevelAccess);
+		JSONArray mArray = new JSONArray();
+		for (int i = 0; i < list.size(); i++)
+		{
+			String path = HikePlatformConstants.FILE_DESCRIPTOR + list.get(i).getAbsolutePath();// adding the file descriptor
+			mArray.put(path);
+		}
+		return mArray;
+	}
+	
+	public static JSONArray trimFilePath(JSONArray mArray)
+	{
+		JSONArray trimmedArray = new JSONArray();
+		for (int i = 0; i < mArray.length(); i++)
+		{
+			String path;
+			try
+			{
+				path = mArray.get(i).toString();
+				path = path.replaceAll(PlatformContentConstants.PLATFORM_CONTENT_DIR, "");
+				path = path.replaceAll(HikePlatformConstants.FILE_DESCRIPTOR, "");
+				trimmedArray.put(path);
+			}
+			catch (JSONException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		return trimmedArray;
+	}
+
+	// Method that returns the reads the list of files
+	public static ArrayList<File> filesReader(File root,boolean doDeepLevelAccess)
+	{
+		ArrayList<File> a = new ArrayList<>();
+
+		File[] files = root.listFiles();
+		for (int i = 0; i < files.length; i++)
+		{
+			if (doDeepLevelAccess)
+			{
+				if(files[i].isDirectory())
+				{
+					a.addAll(filesReader(files[i],doDeepLevelAccess));	
+				}
+				else
+				{
+					a.add(files[i]);
+				}
+
+			}
+			else
+			{
+				a.add(files[i]);
+			}
+		}
+		return a;
+	}
+
+	/*
+	 * This function is called to copy a directory from one location to another location 
+	 * @param sourceLocation : The folder which is about to be copied
+	 * @param targetLocation : The folder where the directory is about to be copied
+	 */
+	public static boolean copyDirectoryTo(File sourceLocation, File targetLocation) throws IOException
+	{
+		if (sourceLocation.isDirectory())
+		{
+			if (!targetLocation.exists())
+			{
+				targetLocation.mkdir();
+			}
+			String[] children = sourceLocation.list();
+			for (int i = 0; i < sourceLocation.listFiles().length; i++)
+			{
+				copyDirectoryTo(new File(sourceLocation, children[i]), new File(targetLocation, children[i]));
+			}
+		}
+		else
+		{
+			
+			  InputStream in = new FileInputStream(sourceLocation);
+			  OutputStream out = new FileOutputStream(targetLocation);
+			  byte[] buf = new byte[1024]; int len;
+			  while ((len = in.read(buf)) > 0) 
+			  { 
+				  out.write(buf, 0, len); 
+			  }
+			  in.close();
+			  out.close();
+		}
+		return true;
+	}
+
+	/*
+	 * This function is called to delete a particular file from the System
+	 * 
+	 * @param filePath : The complete file path of the file that is about to be deleted returns whether the file is deleted or not
+	 * Does not return a guaranteed call for a full delete
+	 */
+	public static boolean deleteDirectory(String filePath)
+	{
+		File deletedDir = new File(filePath);
+		if (deletedDir.exists())
+		{
+			boolean isDeleted = deleteOp(deletedDir);
+			Logger.d("FileSystemAccess", "Directory exists!");
+			Logger.d("FileSystemAccess", (isDeleted) ? "File is deleted" : " File not deleted");
+			return isDeleted;
+		}
+		else
+		{
+			Logger.d("FileSystemAccess", "Invalid file path!");
+			return false;
+		}
+	}
+
+	// This method performs the actual deletion of the file
+	public static boolean deleteOp(File dir)
+	{
+		Logger.d("FileSystemAccess", "In delete");
+		if (dir.exists())
+		{// This checks if the file/folder exits or not
+			if (dir.isDirectory())// This checks if the call is made to delete a particular file (eg. "index.html") or an entire sub-folder
+			{
+				String[] children = dir.list();
+				for (int i = 0; i < children.length; i++)
+				{
+					File temp = new File(dir, children[i]);
+					if (temp.isDirectory())
+					{
+						Logger.d("DeleteRecursive", "Recursive Call" + temp.getPath());
+						deleteOp(temp);
+					}
+					else
+					{
+						Logger.d("DeleteRecursive", "Delete File" + temp.getPath());
+						boolean b = temp.delete();
+						if (!b)
+						{
+							Logger.d("DeleteRecursive", "DELETE FAIL");
+							return false;
+						}
+					}
+				}
+				dir.delete();
+			}
+			else
+			{
+				dir.delete();
+			}
+			Logger.d("FileSystemAccess", "Delete done!");
+			return true;
+		}
+		return false;
+	}
+	
+	public static void multiFwdStickers(Context context, String stickerId, String categoryId, boolean selectAll)
+	{
+		if (context == null)
+		{
+			return;
+		}
+
+		Intent intent = IntentFactory.getForwardStickerIntent(context, stickerId, categoryId);
+		intent.putExtra(HikeConstants.Extras.SELECT_ALL_INITIALLY, selectAll);
+		context.startActivity(intent);
+	}
+	
+	public static void downloadStkPk(String metaData)
+	{
+		try
+		{
+			JSONObject object = new JSONObject(metaData);
+			String categoryId = object.optString(StickerManager.CATEGORY_ID);
+			String categoryName = object.optString(StickerManager.CATEGORY_NAME);
+			int totalStickers = object.optInt(StickerManager.TOTAL_STICKERS);
+			int categorySize = object.optInt(StickerManager.CATEGORY_SIZE);
+
+			if (!TextUtils.isEmpty(categoryId) && !TextUtils.isEmpty(categoryName))
+			{
+				StickerCategory category = new StickerCategory(categoryId, categoryName, totalStickers, categorySize);
+				downloadStkPk(category);
+			}
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+	}
+
+	public static  void downloadStkPk(StickerCategory category)
+	{
+		StickerPalleteImageDownloadTask stickerPalleteImageDownloadTask = new StickerPalleteImageDownloadTask(category.getCategoryId());
+		stickerPalleteImageDownloadTask.execute();
+		StickerManager.getInstance().initialiseDownloadStickerTask(category, DownloadSource.POPUP, DownloadType.NEW_CATEGORY, HikeMessengerApp.getInstance().getApplicationContext());
+
+	}
+	
+	public static  void OnChatHeadPopupActivateClick()
+	{
+		Context context = HikeMessengerApp.getInstance();
+		if (ChatHeadUtils.areWhitelistedPackagesSharable(context))
+		{
+			Toast.makeText(context, context.getString(R.string.sticker_share_popup_activate_toast), Toast.LENGTH_LONG).show();
+			if (ChatHeadUtils.checkDeviceFunctionality())
+			{
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.CHAT_HEAD_SERVICE, true);
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.CHAT_HEAD_USR_CONTROL, true);
+				JSONArray packagesJSONArray;
+				try
+				{
+					packagesJSONArray = new JSONArray(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.PACKAGE_LIST, null));
+					if (packagesJSONArray != null)
+					{
+						ChatHeadUtils.setAllApps(packagesJSONArray, true);
+					}
+				}
+				catch (JSONException e)
+				{
+					e.printStackTrace();
+				}
+			}
+		}
+		else
+		{
+			Toast.makeText(context, context.getString(R.string.sticker_share_popup_not_activate_toast), Toast.LENGTH_LONG).show();
+		}
+	}
+	
+	public static void sendPlatformCrashAnalytics(String crashType, String msisdn)
+	{
+		JSONObject json = new JSONObject();
+		try
+		{
+			json.put(AnalyticsConstants.EVENT_KEY,AnalyticsConstants.APP_CRASH_EVENT);
+			json.put(HikeConstants.MSISDN, msisdn);
+			json.put(AnalyticsConstants.DATA, crashType);
+			HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.APP_CRASH_EVENT, json);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+	}
+
+	public static void sendPlatformCrashAnalytics(String crashType)
+	{
+		JSONObject json = new JSONObject();
+		try
+		{
+			json.put(AnalyticsConstants.EVENT_KEY, AnalyticsConstants.APP_CRASH_EVENT);
+			json.put(AnalyticsConstants.DATA, crashType);
+			HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.APP_CRASH_EVENT, json);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
 	}
 
 }

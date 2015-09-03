@@ -10,6 +10,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -17,6 +18,7 @@ import android.os.Bundle;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.Window;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
@@ -25,9 +27,11 @@ import android.view.animation.AnimationUtils;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuItem;
+import android.support.v4.view.WindowCompat;
+import android.support.v7.app.ActionBar;
+import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuItem;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
@@ -46,6 +50,7 @@ import com.bsb.hike.models.HikeSharedFile;
 import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.models.Conversation.GroupConversation;
 import com.bsb.hike.ui.fragments.PhotoViewerFragment;
+import com.bsb.hike.ui.utils.StatusBarColorChanger;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
@@ -60,6 +65,8 @@ public class HikeSharedFilesActivity extends HikeAppStateBaseFragmentActivity im
 {
 	static String MULTISELECT_MODE = "multi_mode";
 	static String MULTISELECT_KEYS = "multi_keys";
+	private String SHARED_FILE_LIST = "s_f_l";
+	
 	private List<HikeSharedFile> sharedFilesList;
 
 	private HikeSharedFileAdapter adapter;
@@ -67,7 +74,7 @@ public class HikeSharedFilesActivity extends HikeAppStateBaseFragmentActivity im
 	private String msisdn;
 
 	private boolean multiSelectMode;
-
+	
 	private HashSet<Long> selectedSharedFileItems;
 
 	private TextView multiSelectTitle;
@@ -107,23 +114,25 @@ public class HikeSharedFilesActivity extends HikeAppStateBaseFragmentActivity im
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
+		requestWindowFeature(WindowCompat.FEATURE_ACTION_BAR_OVERLAY);
 		super.onCreate(savedInstanceState);
-		requestWindowFeature(com.actionbarsherlock.view.Window.FEATURE_ACTION_BAR_OVERLAY);
 		setContentView(R.layout.gallery);
-
+		statusBarColorID=R.color.black;
 		selectedSharedFileItems = new HashSet<Long>();
-		sharedFilesList = new ArrayList<HikeSharedFile>();
+		sharedFilesList = null;
 
 		Bundle data;
 		if (savedInstanceState != null)
 		{
 			data = savedInstanceState;
+			
+			sharedFilesList = data.getParcelableArrayList(SHARED_FILE_LIST);
 		}
 		else
 		{
 			data = getIntent().getExtras();
 		}
-
+		
 		msisdn = data.getString(HikeConstants.Extras.MSISDN);
 		isGroup = data.getBoolean(HikeConstants.Extras.IS_GROUP_CONVERSATION, false);
 		conversationName = data.getString(HikeConstants.Extras.CONVERSATION_NAME);
@@ -142,7 +151,11 @@ public class HikeSharedFilesActivity extends HikeAppStateBaseFragmentActivity im
 
 		HikeMessengerApp.getPubSub().addListeners(this, pubSubListeners);
 		
-		sharedFilesList = (List<HikeSharedFile>) HikeConversationsDatabase.getInstance().getSharedMedia(msisdn, HikeConstants.MAX_MEDIA_ITEMS_TO_LOAD_INITIALLY, -1, true);
+		if(sharedFilesList == null)
+		{
+			sharedFilesList = (List<HikeSharedFile>) HikeConversationsDatabase.getInstance().getSharedMedia(msisdn, HikeConstants.MAX_MEDIA_ITEMS_TO_LOAD_INITIALLY, -1, true);
+		}
+		
 		adapter = new HikeSharedFileAdapter(this, sharedFilesList, actualSize, selectedSharedFileItems, false);
 
 		gridView.setNumColumns(numColumns);
@@ -164,6 +177,8 @@ public class HikeSharedFilesActivity extends HikeAppStateBaseFragmentActivity im
 			}
 		}
 		HikeMessengerApp.getPubSub().publish(HikePubSub.ClOSE_PHOTO_VIEWER_FRAGMENT, null);
+		
+		
 	}
 
 	@Override
@@ -187,6 +202,7 @@ public class HikeSharedFilesActivity extends HikeAppStateBaseFragmentActivity im
 	{
 		ActionBar actionBar = getSupportActionBar();
 		actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
+		actionBar.setDisplayHomeAsUpEnabled(true);
 
 		View actionBarView = LayoutInflater.from(this).inflate(R.layout.photos_action_bar, null);
 		actionBarView.setBackgroundResource(android.R.color.transparent);
@@ -212,6 +228,8 @@ public class HikeSharedFilesActivity extends HikeAppStateBaseFragmentActivity im
 
 		actionBarView.findViewById(R.id.done_container).setVisibility(View.INVISIBLE);
 		actionBar.setCustomView(actionBarView);
+		Toolbar parent=(Toolbar)actionBarView.getParent();
+		parent.setContentInsetsAbsolute(0,0);
 	}
 
 	private void setupMultiSelectActionBar()
@@ -235,6 +253,8 @@ public class HikeSharedFilesActivity extends HikeAppStateBaseFragmentActivity im
 			}
 		});
 		actionBar.setCustomView(actionBarView);
+		Toolbar parent=(Toolbar)actionBarView.getParent();
+		parent.setContentInsetsAbsolute(0,0);
 
 		Animation slideIn = AnimationUtils.loadAnimation(this, R.anim.slide_in_left_noalpha);
 		slideIn.setInterpolator(new AccelerateDecelerateInterpolator());
@@ -276,7 +296,7 @@ public class HikeSharedFilesActivity extends HikeAppStateBaseFragmentActivity im
 	{
 		if (multiSelectMode)
 		{
-			getSupportMenuInflater().inflate(R.menu.multi_select_chat_menu, menu);
+			getMenuInflater().inflate(R.menu.multi_select_chat_menu, menu);
 		}
 		return true;
 	}
@@ -620,10 +640,10 @@ public class HikeSharedFilesActivity extends HikeAppStateBaseFragmentActivity im
 	{
 		// TODO Auto-generated method stub
 		super.onResume();
+		
 		if(adapter != null)
 		{
 			adapter.getSharedFileImageLoader().setExitTasksEarly(false);
-			adapter.notifyDataSetChanged();
 		}
 	}
 	
@@ -667,6 +687,9 @@ public class HikeSharedFilesActivity extends HikeAppStateBaseFragmentActivity im
 	protected void onSaveInstanceState(Bundle outState)
 	{
 		outState.putAll(getIntent().getExtras());
+		
+		outState.putParcelableArrayList(SHARED_FILE_LIST, (ArrayList<HikeSharedFile>) sharedFilesList);
+		
 		if(multiSelectMode){
 			long[] selectedValues = new long[selectedSharedFileItems.size()];
 			int i=0;
@@ -687,5 +710,11 @@ public class HikeSharedFilesActivity extends HikeAppStateBaseFragmentActivity im
 			setupActionBar();
 		}
 		return isRemoved;
+	}
+	@Override
+	protected void setStatusBarColor(Window window, String color)
+	{
+		// TODO Auto-generated method stub
+		return;
 	}
 }

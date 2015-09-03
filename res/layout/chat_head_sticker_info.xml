@@ -26,16 +26,30 @@
         android:progressDrawable="@drawable/chat_head_progress_bar" />
 
     <com.bsb.hike.view.CustomFontTextView
-        android:id="@+id/side_text"
+        android:id="@+id/sticker_sent_side_text"
         android:layout_width="wrap_content"
         android:layout_height="24dp"
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="14.5dp"
         android:gravity="center"
-        android:text="@string/disable_from_hike_settings"
+        android:text="@string/total_sticker_sent"
         android:textColor="@color/mid_gray"
         android:textSize="12sp" />
 
+    <com.bsb.hike.view.CustomFontTextView
+        android:id="@+id/disable_side_text"
+        android:layout_width="wrap_content"
+        android:layout_height="24dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="14.5dp"
+        android:gravity="center"
+        android:paddingLeft="8dp"
+        android:paddingRight="8dp"
+        android:background="@color/standard_black"
+        android:text="@string/disable_from_hike_settings"
+        android:textColor="@color/mid_gray"
+        android:textSize="12sp" />
+    
     <LinearLayout
         android:id="@+id/main_layout"
         android:layout_width="match_parent"
@@ -62,7 +76,7 @@
             android:layout_gravity="center_vertical"
             android:background="@color/chat_head_settings_separator" >
         </View>
-<!--
+
         <com.bsb.hike.view.CustomFontTextView
             android:id="@+id/get_more_stickers"
             android:layout_width="wrap_content"
@@ -79,7 +93,7 @@
             android:layout_gravity="center_vertical"
             android:background="@color/chat_head_settings_separator" >
         </View>
--->
+
         <com.bsb.hike.view.CustomFontTextView
             android:id="@+id/open_hike"
             android:layout_width="wrap_content"

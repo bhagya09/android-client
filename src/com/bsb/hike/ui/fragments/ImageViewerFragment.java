@@ -3,29 +3,38 @@ package com.bsb.hike.ui.fragments;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.os.Bundle;
+import android.os.Message;
+import android.support.v4.app.Fragment;
 import android.support.v4.content.Loader;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.Toast;
 
-import com.actionbarsherlock.app.SherlockFragment;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
-import com.actionbarsherlock.view.MenuItem;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
+import com.bsb.hike.imageHttp.HikeImageDownloader;
+import com.bsb.hike.imageHttp.HikeImageWorker;
 import com.bsb.hike.models.ContactInfo;
+import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.ui.ProfileActivity;
 import com.bsb.hike.ui.SettingsActivity;
+import com.bsb.hike.utils.HikeUiHandler;
+import com.bsb.hike.utils.HikeUiHandler.IHandlerCallback;
+import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.ProfileImageLoader;
 import com.bsb.hike.utils.Utils;
 
-public class ImageViewerFragment extends SherlockFragment implements OnClickListener, Listener
+public class ImageViewerFragment extends Fragment implements OnClickListener, Listener, IHandlerCallback, HikeImageWorker.TaskCallbacks
 {
 	ImageView imageView;
 
@@ -50,6 +59,61 @@ public class ImageViewerFragment extends SherlockFragment implements OnClickList
 	private String[] profilePicPubSubListeners = { HikePubSub.ICON_CHANGED};
 	
 	private boolean isViewEditable = false;
+	
+	private ProfileImageLoader profileImageLoader;
+	
+	private HikeImageDownloader mImageWorkerFragment;
+	
+	private boolean hasCustomImage;
+	
+	private HikeUiHandler hikeUiHandler;
+	
+	private static final String TAG = "dp_download";
+	
+	private Runnable failedRunnable = new Runnable()
+	{
+		
+		@Override
+		public void run()
+		{
+			if(isAdded() && isVisible())
+			{
+				Logger.d(TAG, "inside ImageViewerFragment, onFailed Recv");
+				dismissProgressDialog();
+				Toast.makeText(HikeMessengerApp.getInstance().getApplicationContext(), getString(R.string.download_failed), Toast.LENGTH_SHORT).show();
+			}
+		}
+	};
+	
+	private Runnable cancelledRunnable = new Runnable()
+	{
+		
+		@Override
+		public void run()
+		{
+			if(isAdded() && isVisible())
+			{
+				Logger.d(TAG, "inside ImageViewerFragment, onCancelled Recv");
+				dismissProgressDialog();
+				Toast.makeText(HikeMessengerApp.getInstance().getApplicationContext(), getString(R.string.download_failed), Toast.LENGTH_SHORT).show();
+			}
+		}
+	};
+	
+	private Runnable successRunnable = new Runnable()
+	{
+		
+		@Override
+		public void run()
+		{
+			if(isAdded() && isVisible())
+			{
+				Logger.d(TAG, "inside ImageViewerFragment, onSucecess Recv");
+				dismissProgressDialog();
+				profileImageLoader.loadFromFile();
+			}
+		}
+	};
 
 	/**
 	 * Default constructor
@@ -85,6 +149,8 @@ public class ImageViewerFragment extends SherlockFragment implements OnClickList
 		isStatusImage = getArguments().getBoolean(HikeConstants.Extras.IS_STATUS_IMAGE);
 
 		imageSize = this.getActivity().getResources().getDimensionPixelSize(R.dimen.timeine_big_picture_size);
+		
+		hikeUiHandler = new HikeUiHandler(this);
 						
 		showImage();
 	}
@@ -102,7 +168,10 @@ public class ImageViewerFragment extends SherlockFragment implements OnClickList
 				key = new String(key.substring(0, idx));
 			}
 		}
-		ProfileImageLoader profileImageLoader = new ProfileImageLoader(getActivity(), key, imageView, imageSize, isStatusImage);
+		
+		hasCustomImage = isStatusImage || ContactManager.getInstance().hasIcon(key);
+		
+		profileImageLoader = new ProfileImageLoader(getActivity(), key, imageView, imageSize, isStatusImage, true);
 		profileImageLoader.setLoaderListener(new ProfileImageLoader.LoaderListener() {
 
 			@Override
@@ -121,9 +190,15 @@ public class ImageViewerFragment extends SherlockFragment implements OnClickList
 
 			@Override
 			public Loader<Boolean> onCreateLoader(int arg0, Bundle arg1) {
-				mDialog = ProgressDialog.show(getActivity(), null, getResources().getString(R.string.downloading_image));
-				mDialog.setCancelable(true);
+				showProgressDialog();
 				return null;
+			}
+
+			@Override
+			public void startDownloading()
+			{
+				showProgressDialog();
+				beginImageDownload();
 			}
 		});
 		profileImageLoader.loadProfileImage(getLoaderManager());
@@ -202,6 +277,12 @@ public class ImageViewerFragment extends SherlockFragment implements OnClickList
 		}
 	}
 
+	private void showProgressDialog()
+	{
+		mDialog = ProgressDialog.show(getActivity(), null, getResources().getString(R.string.downloading_image));
+		mDialog.setCancelable(true);
+	}
+	
 	@Override
 	public void onClick(View v)
 	{
@@ -249,4 +330,45 @@ public class ImageViewerFragment extends SherlockFragment implements OnClickList
 			}
 		}		
 	}	
+	
+	public void onProgressUpdate(float percent)
+	{
+		
+	}
+
+	public void onCancelled()
+	{
+		hikeUiHandler.post(cancelledRunnable);
+	}
+
+	public void onSuccess(Response result)
+	{
+		hikeUiHandler.post(successRunnable);
+	}
+
+	public void onFailed()
+	{
+		HikeMessengerApp.getPubSub().publish(HikePubSub.PROFILE_IMAGE_NOT_DOWNLOADED, key);
+		hikeUiHandler.post(failedRunnable);
+	}
+
+	private void beginImageDownload()
+	{
+    	Logger.d(TAG, "starting new mImageLoaderFragment");
+    	String fileName = Utils.getProfileImageFileName(key);
+    	mImageWorkerFragment = HikeImageDownloader.newInstance(key, fileName, hasCustomImage, isStatusImage, null, null, null, true,false);
+    	mImageWorkerFragment.setTaskCallbacks(this);
+    	mImageWorkerFragment.startLoadingTask();
+	}
+	
+	@Override
+	public void handleUIMessage(Message msg)
+	{
+		
+	}
+
+	@Override
+	public void onTaskAlreadyRunning() {
+		
+	}
 }

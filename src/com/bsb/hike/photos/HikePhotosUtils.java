@@ -12,10 +12,12 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.util.DisplayMetrics;
 
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.photos.views.DoodleEffectItemLinearLayout;
 import com.bsb.hike.photos.views.FilterEffectItemLinearLayout;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 
 //public static int[] BasicMenuIcons={R.drawable.effects_effect,R.drawable.effects_color,R.drawable.effects_frame,R.drawable.effects_text,R.drawable.effects_options};
 
@@ -108,11 +110,16 @@ public class HikePhotosUtils
 
 	public static Bitmap compressBitamp(Bitmap bitmap, int maxWidth, int maxHeight, boolean centerIN,Config configType)
 	{
+		if(bitmap == null)
+		{
+			return null;
+		}
+		
 		Bitmap temp = bitmap;
 		int width = 0, height = 0;
 		float aspectRatio = bitmap.getWidth() * 1.0f / bitmap.getHeight();
 
-		if (bitmap != null && centerIN)
+		if (centerIN)
 		{
 			if (bitmap.getWidth() >= bitmap.getHeight())
 			{
@@ -126,8 +133,7 @@ public class HikePhotosUtils
 				width = (int) (maxHeight * aspectRatio);
 			}
 		}
-
-		if (bitmap != null && !centerIN)
+		else
 		{
 			if (bitmap.getWidth() < bitmap.getHeight())
 			{
@@ -264,7 +270,7 @@ public class HikePhotosUtils
 
 		public enum FilterType
 		{
-			BRIGHTNESS, CONTRAST, SATURATION, HUE, SEPIA, GRAYSCALE, POLAROID, FADED, BGR, INVERSION, X_PRO_2, RANGEELA, WILLOW, WALDEN, VALENCIA, TOASTER, SUTRO, SIERRA, RISE, NASHVILLE, MAYFAIR, LO_FI, KELVIN, INKWELL, HUDSON, HEFE, EARLYBIRD, BRANNAN, AMARO, E1977, SOLOMON, CLASSIC, RETRO, APOLLO, ORIGINAL, JALEBI, GHOSTLY, GULAAL, AUTO, JUNGLEE, CHILLUM, HDR, SOFTINK, SUNLITT
+			BRIGHTNESS, CONTRAST, SATURATION, HUE, SEPIA, GRAYSCALE, POLAROID, FADED, BGR, INVERSION, X_PRO_2, RANGEELA, WILLOW, WALDEN, VALENCIA, TOASTER, SUTRO, SIERRA, RISE, NASHVILLE, MAYFAIR, LO_FI, KELVIN, INKWELL, HUDSON, HEFE, EARLYBIRD, BRANNAN, AMARO, E1977, SOLOMON, CLASSIC, RETRO, APOLLO, ORIGINAL, JALEBI, GHOSTLY, GULAAL, AUTO, JUNGLEE, CHILLUM, HDR, SOFTINK, SUNLITT, TIRANGAA
 		}
 
 		public static class FilterList
@@ -290,6 +296,11 @@ public class HikePhotosUtils
 				{
 					effectfilters = new FilterList();
 					effectfilters.addFilter("ORIGINAL", FilterType.ORIGINAL);
+					
+					if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SPECIAL_DAY_TRIGGER, false))
+					{
+						effectfilters.addFilter("TIRANGAA", FilterType.TIRANGAA);
+					}
 					effectfilters.addFilter("MELLOW", FilterType.SOLOMON);
 					effectfilters.addFilter("CHUSKI", FilterType.CLASSIC);
 					effectfilters.addFilter("AZURE", FilterType.NASHVILLE);
@@ -311,6 +322,7 @@ public class HikePhotosUtils
 					effectfilters.addFilter("SEPIA", FilterType.SEPIA);
 					effectfilters.addFilter("GRAYSCALE", FilterType.GRAYSCALE);
 				}
+				
 				return effectfilters;
 
 			}
@@ -389,6 +401,11 @@ public class HikePhotosUtils
 			}
 		}
 
+	}
+	
+	public static int getServerConfigDimenForDP()
+	{
+		return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.DP_IMAGE_SIZE, HikeConstants.HikePhotos.MAX_IMAGE_DIMEN);
 	}
 
 }

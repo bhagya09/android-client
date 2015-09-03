@@ -18,6 +18,8 @@ public class PlatformContentConstants
 	public static String PLATFORM_CONTENT_DIR = Environment.getExternalStorageDirectory() + File.separator + HIKE_DIR_NAME + File.separator + CONTENT_DIR_NAME + File.separator;
 
 	public static final String KEY_TEMPLATE_PATH = "basePath";
+	
+	public static final String REPLACE_MICROAPP_VERSION = "replace";
 
 	public static final String PLATFORM_CONFIG_FILE_NAME = "config.json";
 

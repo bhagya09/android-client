@@ -34,10 +34,11 @@
     <dimen name="welcome_with_love_top">15dp</dimen>
     <dimen name="photos_filter_preview_font_size">12sp</dimen>
     <dimen name="photos_filter_selector_size">1dp</dimen>
-	<dimen name="photos_doodle_preview_width">70dp</dimen>
-	<dimen name="photos_doodle_preview_padding">7dp</dimen>
+	<dimen name="photos_doodle_preview_width">50dp</dimen>
+	<dimen name="photos_doodle_preview_padding">4dp</dimen>
 	<dimen name="photos_filters_preview_padding">7dp</dimen>
 	<dimen name="broadcast_ftue_text_bottom_padding">10dp</dimen>
 	<dimen name="broadcast_ftue_text_right_padding">10dp</dimen>
-	
+	<dimen name="photos_selector_top_padding">0dp</dimen>	
+	<dimen name="preview_brush_width">30dp</dimen>
 </resources>

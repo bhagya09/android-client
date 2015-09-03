@@ -15,4 +15,9 @@ public final class MainThreadExecutor implements Executor
 	{
 		handler.post(r);
 	}
+	
+	public void executeDelayed(Runnable r, long delayMillis)
+	{
+		handler.postDelayed(r, delayMillis);
+	}
 }

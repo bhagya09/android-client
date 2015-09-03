@@ -10,6 +10,8 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
+import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.Html;
 import android.text.TextUtils;
@@ -18,11 +20,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.WindowManager;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
-import com.actionbarsherlock.app.ActionBar;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
@@ -78,6 +81,8 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 	private String myMsisdn;
 	
 	private ImageView editImageIcon;
+
+	private CheckBox gsSettings;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -188,6 +193,10 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 			groupNote = (TextView) findViewById(R.id.group_info);		
 			groupNote.setText(Html.fromHtml(getString(R.string.group_participant_info)));
 			editImageIcon = (ImageView) findViewById(R.id.change_image);
+			gsSettings = (CheckBox) findViewById(R.id.checkBox);
+			if((HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SERVER_CONFIGURABLE_GROUP_SETTING,0))==1){
+				gsSettings.setChecked(true);
+			}
 			convName.addTextChangedListener(new TextWatcher()
 			{
 
@@ -218,7 +227,7 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 					@Override
 					public void onClick(View v)
 					{												
-						beginProfilePicChange(CreateNewGroupOrBroadcastActivity.this,CreateNewGroupOrBroadcastActivity.this, null);
+						beginProfilePicChange(CreateNewGroupOrBroadcastActivity.this,CreateNewGroupOrBroadcastActivity.this, null, false);
 					}
 				});
 			}
@@ -264,7 +273,6 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 
 		View actionBarView = LayoutInflater.from(this).inflate(R.layout.compose_action_bar, null);
 
-		View backContainer = actionBarView.findViewById(R.id.back);
 
 		TextView title = (TextView) actionBarView.findViewById(R.id.title);
 		doneBtn = actionBarView.findViewById(R.id.done_container);
@@ -301,17 +309,11 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 				onNextPressed();
 			}
 		});
-		
-		backContainer.setOnClickListener(new OnClickListener()
-		{
-			@Override
-			public void onClick(View v)
-			{
-				onBackPressed();
-			}
-		});
+
 
 		actionBar.setCustomView(actionBarView);
+		Toolbar parent=(Toolbar)actionBarView.getParent();
+		parent.setContentInsetsAbsolute(0,0);
 	}
 
 	private void onNextPressed()
@@ -325,12 +327,22 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 				break;
 				
 			case GROUP:
-				Intent intentGroup = IntentFactory.openComposeChatIntentForGroup(this, convId, convName.getText().toString().trim());
+				int settings = 0;
+				if(gsSettings.isChecked()){
+					settings = 1;
+				}
+				Intent intentGroup = IntentFactory.openComposeChatIntentForGroup(this, convId, convName.getText().toString().trim(),settings);
 				startActivity(intentGroup);
 				break;
 		}
 	}
 	
+	public void onGSCheckboxClicked(final View view) {
+		final boolean checked =( (CheckBox) view.findViewById(R.id.checkBox)).isChecked();
+		final CheckBox checkBox = ( (CheckBox) view.findViewById(R.id.checkBox));
+		checkBox.setChecked(!checked);
+
+	}
 	@Override
 	public String profileImageCropped()
 	{
@@ -346,25 +358,33 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 	 * @param path of the bitmap
 	 */
 	private void setGroupPreivewBitmap(String path)
-	{
-		Bitmap tempBitmap = HikeBitmapFactory.scaleDownBitmap(path, HikeConstants.SIGNUP_PROFILE_IMAGE_DIMENSIONS, HikeConstants.SIGNUP_PROFILE_IMAGE_DIMENSIONS,
-				Bitmap.Config.RGB_565, true, false);
+    {
+        Bitmap tempBitmap = HikeBitmapFactory.scaleDownBitmap(path, HikeConstants.SIGNUP_PROFILE_IMAGE_DIMENSIONS, HikeConstants.SIGNUP_PROFILE_IMAGE_DIMENSIONS,
+                Bitmap.Config.RGB_565, true, false);
+        
+        if(tempBitmap == null)
+        {
+            Toast.makeText(getApplicationContext(), R.string.photos_oom_upload, Toast.LENGTH_LONG).show();
+            return;
+        }
 
-		groupBitmap = HikeBitmapFactory.getCircularBitmap(tempBitmap);
-		convImage.setImageBitmap(HikeBitmapFactory.getCircularBitmap(tempBitmap));
-		if (editImageIcon != null) {
-			editImageIcon.setImageResource(R.drawable.ic_edit_group);
-		}
+        groupBitmap = HikeBitmapFactory.getCircularBitmap(tempBitmap);
+        convImage.setImageBitmap(HikeBitmapFactory.getCircularBitmap(tempBitmap));
+        if (editImageIcon != null) {
+            editImageIcon.setImageResource(R.drawable.ic_edit_group);
+        }
 
-		/*
-		 * Saving the icon in the DB.
-		 */
-		byte[] bytes = BitmapUtils.bitmapToBytes(tempBitmap, CompressFormat.JPEG, 100);
+        /*
+         * Saving the icon in the DB.
+         */
+        byte[] bytes = BitmapUtils.bitmapToBytes(tempBitmap, CompressFormat.JPEG, 100);
 
-		tempBitmap.recycle();
-		ContactManager.getInstance().setIcon(convId, bytes, false);
-	}
-
+        if(!tempBitmap.isRecycled())
+        {
+            tempBitmap.recycle();
+        }
+        ContactManager.getInstance().setIcon(convId, bytes, false);
+    }
 	private void sendBroadCastAnalytics()
 	{
 		try

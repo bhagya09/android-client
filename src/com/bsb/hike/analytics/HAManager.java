@@ -495,6 +495,8 @@ public class HAManager
 			
 			json.put(AnalyticsConstants.TYPE, AnalyticsConstants.ANALYTICS_EVENT);
 			json.put(AnalyticsConstants.DATA, data);
+			
+			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "analytics json : " + json.toString());
 		}
 		catch (JSONException e) 
 		{
@@ -671,6 +673,24 @@ public class HAManager
 
 	}
 	
+	public void serviceEventAnalytics(String eventType, String serviceName)
+	{		
+		JSONObject metadata = new JSONObject();
+		try
+		{
+			metadata.put(HikeConstants.EVENT_KEY, HikeConstants.SERVICE);
+			metadata.put(HikeConstants.EVENT_TYPE, eventType);
+			metadata.put(HikeConstants.SERVICE, serviceName);
+			metadata.put(HikeConstants.TIMESTAMP, System.currentTimeMillis());
+			record(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.SERVICE_STATS, EventPriority.HIGH, metadata);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+
+	}
+
 	
 	public void shareWhatsappAnalytics(String shrType, String catId, String stkrId, String path)
 	{
@@ -801,8 +821,9 @@ public class HAManager
 					metadata.put(AnalyticsConstants.NETWORK_TYPE, Integer.toString(Utils.getNetworkType(HikeMessengerApp.getInstance().getApplicationContext())));
 					metadata.put(AnalyticsConstants.APP_VERSION, AccountUtils.getAppVersion());
 
-					HAManager.getInstance().record(AnalyticsConstants.CHAT_ANALYTICS, AnalyticsConstants.NON_UI_EVENT, EventPriority.HIGH, metadata, AnalyticsConstants.EVENT_TAG_BOTS);
-						
+					record(AnalyticsConstants.CHAT_ANALYTICS, AnalyticsConstants.NON_UI_EVENT, EventPriority.HIGH, metadata, AnalyticsConstants.EVENT_TAG_BOTS);
+					botOpenMqttAnalytics(metadata);
+
 					Logger.d(AnalyticsConstants.ANALYTICS_TAG, "--session-id :" + fgSessionInstance.getSessionId() + "--to_user :" + chatSession.getMsisdn() + "--session-time :" + chatSession.getChatSessionTotalTime());
 				}
 			}
@@ -813,7 +834,27 @@ public class HAManager
 		}
 		
 	}
-	
+
+	private void botOpenMqttAnalytics(JSONObject metadata)
+	{
+
+		try
+		{
+			JSONObject mqttMetadata = new JSONObject(metadata.toString());
+			mqttMetadata.put(AnalyticsConstants.EVENT_KEY, HikePlatformConstants.BOT_OPEN_MQTT);
+			JSONObject data = new JSONObject();
+			data.put(HikeConstants.EVENT_TYPE, AnalyticsConstants.CHAT_ANALYTICS);
+			data.put(HikeConstants.METADATA, mqttMetadata);
+
+			Utils.sendLogEvent(data, AnalyticsConstants.NON_UI_EVENT, null);
+		}
+		catch (JSONException e)
+		{
+			Logger.w("LE", "Invalid json");
+		}
+
+	}
+
 	/**
 	 * Sets StartingTime for Bot Chat Session to CurrentTime
 	 */

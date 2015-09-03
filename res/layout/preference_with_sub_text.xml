@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+Layout for a Preference in a PreferenceActivity. The Preference is able 
+to place a specific widget for its particular type in the "widget_frame" 
+layout.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/list_item"
+    android:minHeight="?android:attr/listPreferredItemHeight"
+    android:orientation="horizontal" >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:layout_marginBottom="13dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="13dp"
+        android:layout_weight="1"
+        android:gravity="center_vertical"
+        android:orientation="vertical"
+        android:paddingRight="5dp" >
+
+        <com.bsb.hike.view.CustomFontTextView
+            android:id="@+android:id/title"
+            style="@style/SettingsHeaderItemTextView"
+            android:text="Title" />
+
+        <com.bsb.hike.view.CustomFontTextView
+            android:id="@+android:id/summary"
+            style="@style/SettingsHeaderSubItemTextView"
+            android:maxLines="4"
+            android:text="Summary" />
+    </LinearLayout>
+
+    <com.bsb.hike.view.CustomFontTextView
+        android:id="@+id/sub_text"
+        style="@style/SettingsHeaderItemTextView"
+        android:layout_gravity="right|center_vertical"
+        android:layout_marginBottom="13dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginTop="13dp"
+        android:text="Title"
+        android:textColor="@color/blue_hike" />
+
+    <!-- Preference should place its actual preference widget here. -->
+
+    <LinearLayout
+        android:id="@+android:id/widget_frame"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:layout_marginRight="16dp"
+        android:gravity="center_vertical" />
+
+</LinearLayout>

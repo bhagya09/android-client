@@ -1,19 +1,21 @@
 package com.bsb.hike.modules.httpmgr.engine;
 
-import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_AUTH_FAILURE;
 import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_CONNECTION_TIMEOUT;
+import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_INTERRUPTED_EXCEPTION;
 import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_MALFORMED_URL;
 import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_NO_NETWORK;
 import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_RESPONSE_PARSING_ERROR;
-import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_SERVER_ERROR;
 import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_SOCKET_TIMEOUT;
 import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_UNEXPECTED_ERROR;
+import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_UNKNOWN_HOST_EXCEPTION;
 import static java.net.HttpURLConnection.HTTP_FORBIDDEN;
+import static java.net.HttpURLConnection.HTTP_LENGTH_REQUIRED;
 import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.SocketTimeoutException;
+import java.net.UnknownHostException;
 import java.util.Iterator;
 import java.util.UUID;
 
@@ -33,7 +35,7 @@ import com.bsb.hike.modules.httpmgr.request.RequestCall;
 import com.bsb.hike.modules.httpmgr.request.facade.RequestFacade;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.modules.httpmgr.response.ResponseBody;
-import com.bsb.hike.modules.httpmgr.retry.IRetryPolicy;
+import com.bsb.hike.modules.httpmgr.retry.BasicRetryPolicy;
 import com.bsb.hike.utils.Utils;
 
 /**
@@ -70,7 +72,7 @@ public class RequestExecuter
 
 	private void checkAndInitializeAnalyticsFields()
 	{
-		if (HttpAnalyticsLogger.shouldSendLog(request.getUrl()))
+		if (HttpAnalyticsLogger.shouldSendLog(request.getUrl().toString()))
 		{
 			this.trackId = UUID.randomUUID().toString();
 			this.request.addHeader(HttpAnalyticsConstants.TRACK_ID_HEADER_KEY, trackId);
@@ -149,8 +151,7 @@ public class RequestExecuter
 			}
 			catch (InterruptedException e)
 			{
-				LogFull.e(e, "excetion : ");
-				e.printStackTrace();
+				handleException(e, REASON_CODE_INTERRUPTED_EXCEPTION);
 			}
 		}
 	}
@@ -181,8 +182,8 @@ public class RequestExecuter
 				}
 				finally
 				{
+					LogFull.d("Process Async : request call execute method finally called");
 					finish(this);
-					request.setRequestCancellationListener(null);
 				}
 			}
 		};
@@ -255,29 +256,35 @@ public class RequestExecuter
 			HttpAnalyticsLogger.logResponseReceived(trackId, request.getUrl(), REASON_CODE_MALFORMED_URL, request.getMethod(), request.getAnalyticsParam());
 			handleException(ex, REASON_CODE_MALFORMED_URL);
 		}
+		catch (UnknownHostException ex)
+		{
+			HttpAnalyticsLogger.logResponseReceived(trackId, request.getUrl(), REASON_CODE_UNKNOWN_HOST_EXCEPTION, request.getMethod(), request.getAnalyticsParam());
+			handleRetry(ex, REASON_CODE_UNKNOWN_HOST_EXCEPTION);
+		}
 		catch (IOException ex)
 		{
 			int statusCode = 0;
-			if (response != null)
+			if (response == null)
 			{
-				HttpAnalyticsLogger.logResponseReceived(trackId, request.getUrl(), response.getStatusCode(), request.getMethod(), request.getAnalyticsParam());
-				statusCode = response.getStatusCode();
-			}
-			else
-			{
-				HttpAnalyticsLogger.logResponseReceived(trackId, request.getUrl(), REASON_CODE_NO_NETWORK, request.getMethod(), request.getAnalyticsParam(), Utils.getStackTrace(ex));
+				HttpAnalyticsLogger.logResponseReceived(trackId, request.getUrl(), REASON_CODE_NO_NETWORK, request.getMethod(), request.getAnalyticsParam(),
+						Utils.getStackTrace(ex));
 				handleRetry(ex, REASON_CODE_NO_NETWORK);
 				return;
 			}
 
-			if (statusCode == HTTP_UNAUTHORIZED || statusCode == HTTP_FORBIDDEN)
+			HttpAnalyticsLogger.logResponseReceived(trackId, request.getUrl(), response.getStatusCode(), request.getMethod(), request.getAnalyticsParam());
+			statusCode = response.getStatusCode();
+
+			if (statusCode == HTTP_LENGTH_REQUIRED)
 			{
-				handleException(ex, REASON_CODE_AUTH_FAILURE);
+				/*
+				 * in case of response code == 411 we make a retry without gzip
+				 */
+				handleRetry(ex, statusCode);
 			}
 			else
 			{
-				handleException(ex, REASON_CODE_SERVER_ERROR);
-				return;
+				handleException(ex, statusCode);
 			}
 		}
 		catch (Throwable ex)
@@ -292,11 +299,13 @@ public class RequestExecuter
 		ResponseBody<?> body = response.getBody();
 		if (null == body || null == body.getContent())
 		{
+			LogFull.d("null response for  " + request.getUrl());
 			HttpAnalyticsLogger.logResponseReceived(trackId, request.getUrl(), REASON_CODE_RESPONSE_PARSING_ERROR, request.getMethod(), request.getAnalyticsParam());
 			listener.onResponse(null, new HttpException(REASON_CODE_RESPONSE_PARSING_ERROR, "response parsing error"));
 		}
 		else
 		{
+			LogFull.d("positive response for : " + request.getUrl());
 			// positive response
 			HttpAnalyticsLogger.logSuccessfullResponseReceived(trackId, request.getUrl(), response.getStatusCode(), request.getMethod(), request.getAnalyticsParam());
 			listener.onResponse(response, null);
@@ -321,11 +330,12 @@ public class RequestExecuter
 	 */
 	private void handleRetry(Exception ex, int responseCode)
 	{
+		LogFull.e("Exception occurred for request " + request.toString() + " \n" + ex);
 		HttpException httpException = new HttpException(responseCode, ex);
 		if (null != request.getRetryPolicy())
 		{
-			IRetryPolicy retryPolicy = request.getRetryPolicy();
-			retryPolicy.retry(httpException);
+			BasicRetryPolicy retryPolicy = request.getRetryPolicy();
+			retryPolicy.retry(new RequestFacade(request), httpException);
 			if (retryPolicy.getRetryCount() >= 0)
 			{
 				LogFull.i("retring " + request.toString());

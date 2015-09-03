@@ -346,8 +346,7 @@ public class UploadContactOrLocationTask extends FileTransferBase
 		if (userContext != null)
 		{
 			// HikeMessengerApp.getPubSub().publish(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED, null);
-			Intent intent = new Intent(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED);
-			LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
+			HikeMessengerApp.getPubSub().publish(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED, null);
 		}
 
 		if (result != FTResult.SUCCESS)

@@ -80,4 +80,9 @@ public class GzipRequestBody implements IRequestBody
 			}
 		};
 	}
+	
+	public IRequestBody getOriginalBody()
+	{
+		return this.originalBody;
+	}
 }

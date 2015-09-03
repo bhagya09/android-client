@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:background="@drawable/ic_sticker_recommend_background_black"
+    android:paddingLeft="16dp"
+    android:paddingRight="16dp" >
+    
+    <com.bsb.hike.view.CustomFontTextView 
+        android:id="@+id/sticker_recommend_ftue_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="17sp"
+        android:text="@string/sticker_recommend_tip"
+        android:textColor="@color/white"
+        android:layout_weight="1"/>
+    
+    <com.bsb.hike.ui.utils.RecyclingImageView 
+        android:id="@+id/sticker_recommend_ftue_close"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_sticker_recommend_popup_close"
+        android:scaleType="centerInside"
+        android:padding="12dp"/>
+    
+
+</LinearLayout>

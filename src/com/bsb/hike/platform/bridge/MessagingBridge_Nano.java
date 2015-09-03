@@ -87,11 +87,11 @@ public class MessagingBridge_Nano extends JavascriptBridge
 			jsonObject.put(AnalyticsConstants.CONTENT_ID, message.getContentId());
 			if (Boolean.valueOf(isUI))
 			{
-				HikeAnalyticsEvent.analyticsForCards(AnalyticsConstants.MICROAPP_UI_EVENT, subType, jsonObject);
+				HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.MICROAPP_UI_EVENT, subType, jsonObject);
 			}
 			else
 			{
-				HikeAnalyticsEvent.analyticsForCards(AnalyticsConstants.MICROAPP_NON_UI_EVENT, subType, jsonObject);
+				HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.MICROAPP_NON_UI_EVENT, subType, jsonObject);
 			}
 		}
 		catch (JSONException e)
@@ -106,6 +106,7 @@ public class MessagingBridge_Nano extends JavascriptBridge
 
 	protected void updateMetadata(WebMetadata metadata, String notifyScreen)
 	{
+		message.webMetadata = metadata;
 		if (metadata!=null && notifyScreen != null && Boolean.valueOf(notifyScreen))
 		{
 			if (null == mHandler)
@@ -266,6 +267,8 @@ public class MessagingBridge_Nano extends JavascriptBridge
 			jsonObject.put(HikePlatformConstants.HELPER_DATA, message.webMetadata.getHelperData());
 			jsonObject.put(HikePlatformConstants.IS_SENT, message.isSent());
 			jsonObject.put(HikePlatformConstants.PROFILING_TIME, profilingTime);
+			jsonObject.put(HikePlatformConstants.NAMESPACE, message.getNameSpace());
+			Logger.d(tag, "init called with:" + jsonObject.toString());
 			mWebView.loadUrl("javascript:init('" + jsonObject.toString() + "')");
 		}
 		catch (JSONException e)
@@ -329,7 +332,7 @@ public class MessagingBridge_Nano extends JavascriptBridge
 	@JavascriptInterface
 	public void updateHelperData(String json)
 	{
-		Logger.i(tag, "update metadata called " + json + " , message id=" + message.getMsgID());
+		Logger.i(tag, "update helper data called " + json + " , message id=" + message.getMsgID());
 		WebMetadata metadata = MessagingBotBridgeHelper.updateHelperData(message.getMsgID(), json);
 		if(metadata!=null)
 		{

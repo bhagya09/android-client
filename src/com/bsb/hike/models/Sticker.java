@@ -7,25 +7,35 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
 import android.content.Context;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.text.TextUtils;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.utils.StickerManager;
+import com.bsb.hike.utils.Utils;
 
-public class Sticker implements Serializable, Comparable<Sticker>
+public class Sticker implements Serializable, Comparable<Sticker>, Parcelable
 {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
 	private String stickerId;
 
 	private StickerCategory category;
-	
+
 	private String categoryId;
+
+	private boolean isAvailable;
 
 	public Sticker(StickerCategory category, String stickerId)
 	{
 		this.category = category;
 		this.stickerId = stickerId;
 		this.categoryId = category.getCategoryId();
+		this.isAvailable = true; /* Default value */
 	}
 
 	public Sticker(String categoryId, String stickerId)
@@ -33,16 +43,20 @@ public class Sticker implements Serializable, Comparable<Sticker>
 		this.stickerId = stickerId;
 		this.category = StickerManager.getInstance().getCategoryForId(categoryId);
 		this.categoryId = categoryId;
+		this.isAvailable = true; /* Default value */
+	}
+
+	public Sticker(String categoryId, String stickerId, boolean isAvailable)
+	{
+		this.stickerId = stickerId;
+		this.category = StickerManager.getInstance().getCategoryForId(categoryId);
+		this.categoryId = categoryId;
+		this.isAvailable = isAvailable;
 	}
 
 	public Sticker()
 	{
 
-	}
-
-	public String getCategoryId()
-	{
-		return categoryId;
 	}
 
 	public void setCategoryId(String categoryId)
@@ -60,9 +74,45 @@ public class Sticker implements Serializable, Comparable<Sticker>
 		this.category = category;
 	}
 
+	public void setStickerAvailability()
+	{
+		boolean result;
+		String path = getStickerPath();
+
+		if (!Utils.isBlank(path))
+		{
+			File file = new File(path);
+			result = file.isFile() && file.exists();
+		}
+		else
+		{
+			result = false;
+		}
+
+		this.isAvailable = result;
+	}
+
+	public String getCategoryId()
+	{
+		return categoryId;
+	}
+
 	public boolean isUnknownSticker()
 	{
-		return category == null;
+		return this.category == null;
+	}
+
+	public boolean isStickerAvailable()
+	{
+		return this.isAvailable;
+	}
+
+	 /* Call this method, only if one needs current download-status of sticker */
+	public boolean getStickerCurrentAvailability()
+	{
+		setStickerAvailability();
+
+		return this.isAvailable;
 	}
 
 	/**
@@ -87,14 +137,11 @@ public class Sticker implements Serializable, Comparable<Sticker>
 		return category;
 	}
 
-	public String getStickerPath(Context context)
+	public String getStickerPath()
 	{
 		String rootPath = StickerManager.getInstance().getStickerCategoryDirPath(categoryId);
-		if (rootPath == null)
-		{
-			return null;
-		}
-		return rootPath + HikeConstants.LARGE_STICKER_ROOT + "/" + stickerId;
+
+		return (rootPath == null) ? null : (rootPath + HikeConstants.LARGE_STICKER_ROOT + File.separator + stickerId);
 	}
 
 	public String getSmallStickerPath()
@@ -160,7 +207,7 @@ public class Sticker implements Serializable, Comparable<Sticker>
 		out.writeInt(0);
 		out.writeUTF(stickerId);
 		StickerCategory cat = category;
-		if(cat == null)
+		if (cat == null)
 		{
 			cat = new StickerCategory(this.categoryId);
 		}
@@ -169,17 +216,80 @@ public class Sticker implements Serializable, Comparable<Sticker>
 
 	public void deSerializeObj(ObjectInputStream in) throws IOException, ClassNotFoundException
 	{
-		//ignoring this varialbe after reading just to ensure backward compatibility
+		// ignoring this varialbe after reading just to ensure backward compatibility
 		in.readInt();
 		stickerId = in.readUTF();
 		StickerCategory tempcategory = new StickerCategory();
 		tempcategory.deSerializeObj(in);
 		categoryId = tempcategory.getCategoryId();
-		this.category = StickerManager.getInstance().getCategoryForId(categoryId);
+		category = StickerManager.getInstance().getCategoryForId(categoryId);
 	}
 
-	public void setStickerData(int stickerIndex,String stickerId,StickerCategory category){
+	public void setStickerData(int stickerIndex, String stickerId, StickerCategory category)
+	{
 		this.stickerId = stickerId;
 		this.category = category;
+	}
+
+	public void setStickerData(String stickerId, String categoryId)
+	{
+		this.stickerId = stickerId;
+		this.categoryId = categoryId;
+	}
+
+	public boolean isValidStickerData()
+	{
+		return (TextUtils.isEmpty(categoryId) && TextUtils.isEmpty(stickerId));
+	}
+
+	public void clear()
+	{
+		this.stickerId = null;
+		this.category = null;
+		this.categoryId = null;
+		this.isAvailable = false;
+	}
+
+	public Sticker(Parcel in)
+	{
+		this.stickerId = in.readString();
+		this.categoryId = in.readString();
+		this.category = (StickerCategory) in.readSerializable();
+		this.isAvailable = true; /* Default value */
+	}
+
+	public static final Parcelable.Creator<Sticker> CREATOR = new Parcelable.Creator<Sticker>()
+	{
+
+		@Override
+		public Sticker createFromParcel(Parcel source)
+		{
+			return new Sticker(source);
+		}
+
+		@Override
+		public Sticker[] newArray(int size)
+		{
+			return new Sticker[size];
+		}
+	};
+
+	@Override
+	public int describeContents()
+	{
+		return 0;
+	}
+
+	@Override
+	public void writeToParcel(Parcel dest, int flags)
+	{
+		dest.writeString(stickerId);
+		dest.writeString(categoryId);
+		dest.writeSerializable(category);
+	}
+
+	@Override
+	public String toString() {
+		return categoryId + ":" + stickerId;
 	}
 }

@@ -1,7 +1,6 @@
 package com.bsb.hike.adapters;
 
 import java.util.List;
-import java.util.Map;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -10,7 +9,6 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
-import android.widget.RelativeLayout;
 import android.widget.RelativeLayout.LayoutParams;
 import android.widget.TextView;
 
@@ -35,13 +33,13 @@ public class GalleryAdapter extends BaseAdapter
 
 	private int sizeOfImage;
 
-	private Map<Long, GalleryItem> selectedGalleryItems;
+	private List<GalleryItem> selectedGalleryItems;
 
 	private int selectedItemPostion = -1;
 
 	private boolean selectedScreen = false;
 
-	public GalleryAdapter(Context context, List<GalleryItem> galleryItems, boolean isInsideAlbum, int sizeOfImage, Map<Long, GalleryItem> selectedItems, boolean selectedScreen)
+	public GalleryAdapter(Context context, List<GalleryItem> galleryItems, boolean isInsideAlbum, int sizeOfImage, List<GalleryItem> selectedItems, boolean selectedScreen)
 	{
 		this.layoutInflater = LayoutInflater.from(context);
 		this.galleryItemList = galleryItems;
@@ -153,7 +151,7 @@ public class GalleryAdapter extends BaseAdapter
 			holder.galleryThumb.setImageResource(R.drawable.ic_add_more);
 		}
 
-		if ((selectedGalleryItems != null && selectedGalleryItems.containsKey(galleryItem.getId())) || selectedItemPostion == position)
+		if ((selectedGalleryItems != null && selectedGalleryItems.contains(galleryItem)) || selectedItemPostion == position)
 		{
 			holder.selected.setSelected(true);
 		}

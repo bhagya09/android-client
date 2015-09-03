@@ -71,6 +71,7 @@ public class OkClient implements IClient
 		client.setWriteTimeout(clientOptions.getWriteTimeout(), TimeUnit.MILLISECONDS);
 		client.setSocketFactory(client.getSocketFactory());
 		client.setSslSocketFactory(clientOptions.getSslSocketFactory());
+		client.setHostnameVerifier(clientOptions.getHostnameVerifier());
 
 		if (clientOptions.getProxy() != null)
 		{

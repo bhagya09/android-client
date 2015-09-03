@@ -3,7 +3,6 @@ package com.bsb.hike.utils;
 import android.app.Activity;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.text.Html;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageButton;
@@ -81,9 +80,6 @@ public class HikeTip
 			break;
 		case MOOD:
 			editor.putBoolean(HikeMessengerApp.SHOWN_MOODS_TIP, true);
-			break;
-		case PIN:
-			editor.putBoolean(HikeMessengerApp.SHOWN_PIN_TIP, true);
 			break;
 		}
 

@@ -96,6 +96,10 @@ public class MultipleConvMessage
 		{
 			object.put(HikeConstants.TYPE, HikeConstants.MqttMessageTypes.MESSAGE);
 			object.put(HikeConstants.SUB_TYPE, HikeConstants.MqttMessageTypes.MULTIPLE_FORWARD);
+			if(!messageList.isEmpty())
+			{
+				object.put(HikeConstants.SEND_TIMESTAMP, messageList.get(0).getSendTimestamp());
+			}
 
 			if(source!=null)
 			{

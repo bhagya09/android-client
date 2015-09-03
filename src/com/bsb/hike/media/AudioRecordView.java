@@ -108,7 +108,7 @@ public class AudioRecordView
 	private void initView()
 	{
 
-		dialog = new HikeDialog(activity, R.style.Theme_CustomDialog, AUDIO_RECORD_VIEW_ID);
+		dialog = new HikeDialog(activity, AUDIO_RECORD_VIEW_ID);
 
 		dialog.setContentView(R.layout.record_audio_dialog);
 
@@ -153,33 +153,48 @@ public class AudioRecordView
 						if(selectedFile == null)
 						{
 							selectedFile = Utils.getOutputMediaFile(HikeFileType.AUDIO_RECORDING, null, true);
-							recorder.setOutputFile(selectedFile.getPath());
 						}
 					}
-					try
+					
+					if((recorder != null) && (selectedFile != null))
 					{
-						recorder.prepare();
-						recorder.start();
-						recordStartTime = System.currentTimeMillis();
-						setupRecordingView(recordInfo, recordImage, recordStartTime);
-						recorderState = RECORDING;
+						try
+						{
+							recorder.setOutputFile(selectedFile.getPath());
+							recorder.prepare();
+							recorder.start();
+							recordStartTime = System.currentTimeMillis();
+							setupRecordingView(recordInfo, recordImage, recordStartTime);
+							recorderState = RECORDING;
+						}
+						catch (IOException e)
+						{
+							stopRecorder();
+							recordingError(true);
+							dialog.dismiss();
+							Logger.e(getClass().getSimpleName(), "Failed to start recording", e);
+							return false;
+						}
+						catch (IllegalStateException e)
+						{
+							stopRecorder();
+							recordingError(true);
+							dialog.dismiss();
+							Logger.e(getClass().getSimpleName(), "Failed to start recording", e);
+							return false;
+						}
+	
+						Utils.blockOrientationChange(activity);
+						activity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 					}
-					catch (IOException e)
-					{
-						stopRecorder();
-						recordingError(true);
-						Logger.e(getClass().getSimpleName(), "Failed to start recording", e);
-					}
-					catch (IllegalStateException e)
+					else
 					{
 						stopRecorder();
 						recordingError(true);
 						dialog.dismiss();
-						Logger.e(getClass().getSimpleName(), "Failed to start recording", e);
+						Logger.e(getClass().getSimpleName(), "Failed to start recording empty selectedFile");
+						return false;
 					}
-
-					Utils.blockOrientationChange(activity);
-					activity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 					return true;
 				case MotionEvent.ACTION_UP:
 					if (recorderState != RECORDING)
@@ -279,7 +294,12 @@ public class AudioRecordView
 
 		if (showError)
 		{
-			Toast.makeText(activity, R.string.error_recording, Toast.LENGTH_SHORT).show();
+			activity.runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+					Toast.makeText(activity, R.string.error_recording, Toast.LENGTH_SHORT).show();
+				}
+			});
 		}
 		if (selectedFile == null)
 		{
@@ -338,6 +358,7 @@ public class AudioRecordView
 			recorder.setMaxDuration(HikeConstants.MAX_DURATION_RECORDING_SEC * 1000);
 			recorder.setMaxFileSize(HikeConstants.MAX_FILE_SIZE);
 		}
+		
 		recorder.setOnErrorListener(new OnErrorListener()
 		{
 			@Override

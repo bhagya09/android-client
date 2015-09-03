@@ -1,12 +1,13 @@
 package com.bsb.hike.bots;
 
-import com.bsb.hike.models.OverFlowMenuItem;
-import com.bsb.hike.platform.HikePlatformConstants;
+import java.util.List;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.List;
+import com.bsb.hike.media.OverFlowMenuItem;
+import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.utils.Logger;
 
 
 /**
@@ -20,8 +21,11 @@ public class NonMessagingBotMetadata
 	JSONObject cardObj;
 	String appPackage;
     private String unReadCountShowType;
+	private int targetPlatform;
 
 	private static final String DEFAULT_UNREAD_COUNT = "1+";
+	private String nonMessagingBotType;
+	private String url;
 
 	public NonMessagingBotMetadata(String jsonString)
 	{
@@ -57,6 +61,10 @@ public class NonMessagingBotMetadata
 
 	private void init(JSONObject metadata)
 	{
+
+		setNonMessagingBotType(json.optString(HikePlatformConstants.NON_MESSAGING_BOT_TYPE, HikePlatformConstants.MICROAPP_MODE));
+		setTargetPlatform(json.optInt(HikePlatformConstants.TARGET_PLATFORM));
+
 		if (json.has(HikePlatformConstants.CARD_OBJECT))
 		{
 			cardObj = metadata.optJSONObject(HikePlatformConstants.CARD_OBJECT);
@@ -69,6 +77,11 @@ public class NonMessagingBotMetadata
 			if (cardObj.has(HikePlatformConstants.APP_PACKAGE))
 			{
 				setAppPackage(cardObj.optString(HikePlatformConstants.APP_PACKAGE));
+			}
+
+			if (cardObj.has(HikePlatformConstants.URL))
+			{
+				setUrl(cardObj.optString(HikePlatformConstants.URL));
 			}
 		}
 
@@ -93,7 +106,7 @@ public class NonMessagingBotMetadata
 		catch (NumberFormatException e)
 		{
 			this.unReadCountShowType = this.unReadCountShowType.substring(0, (this.unReadCountShowType.length() < 4) ? this.unReadCountShowType.length() : 4);
-			e.printStackTrace();
+			Logger.d("Non Messaging Bot Metadata", "handled number format exception");
 		}
 	}
 
@@ -128,9 +141,49 @@ public class NonMessagingBotMetadata
 		this.cardObj = cardObj;
 	}
 
+	public int getTargetPlatform()
+	{
+		return targetPlatform;
+	}
+
+	public void setTargetPlatform(int targetPlatform)
+	{
+		this.targetPlatform = targetPlatform < 0 || targetPlatform > HikePlatformConstants.CURRENT_VERSION ? HikePlatformConstants.CURRENT_VERSION : targetPlatform;
+	}
+
 	public JSONObject getJson()
 	{
 		return json;
+	}
+
+	public String getNonMessagingBotType()
+	{
+		return nonMessagingBotType;
+	}
+
+	public void setNonMessagingBotType(String nonMessagingBotType)
+	{
+		this.nonMessagingBotType = nonMessagingBotType;
+	}
+
+	public String getUrl()
+	{
+		return url;
+	}
+
+	public void setUrl(String url)
+	{
+		this.url = url;
+	}
+
+	public boolean isMicroAppMode()
+	{
+		return nonMessagingBotType.equals(HikePlatformConstants.MICROAPP_MODE);
+	}
+
+	public boolean isWebUrlMode()
+	{
+		return nonMessagingBotType.equals(HikePlatformConstants.URL_MODE);
 	}
 
 	@Override

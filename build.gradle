@@ -4,18 +4,19 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:1.0.0+'
+    	// updating class path due to http://stackoverflow.com/questions/29962735/android-studio-gradle-error
+        classpath 'com.android.tools.build:gradle:1.1.2+'
     }
 }
 apply plugin: 'com.android.application'
 android {
-    compileSdkVersion "Google Inc.:Google APIs:21"
-    buildToolsVersion "21.0.2"
+    compileSdkVersion "Google Inc.:Google APIs:22"
+    buildToolsVersion "22.0.1"
     aaptOptions {
         useNewCruncher true
     }
     defaultConfig {
-        minSdkVersion 9
+        minSdkVersion 14
         renderscriptTargetApi 18
         renderscriptSupportModeEnabled true
         targetSdkVersion 17
@@ -30,16 +31,19 @@ android {
         jumboMode = true
     }
     dependencies {
-        compile(project(':actionbar-sherlock')) {
+        compile(project(':appcompatv7')) {
             exclude module: 'support-v4'
         }
         compile(project(':google-play')) {
             exclude module: 'support-v4'
         }
-        compile(project(':facebook')) {
+        compile(project(':viewpager-indicator-library')) {
             exclude module: 'support-v4'
         }
-        compile(project(':viewpager-indicator-library')) {
+        compile(project(':cardview')) {
+            exclude module: 'support-v4'
+        }
+        compile(project(':recyclerview')) {
             exclude module: 'support-v4'
         }
         compile fileTree(dir: 'libs', include: ['*.jar'])

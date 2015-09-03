@@ -61,6 +61,10 @@ public interface HikePlatformConstants
 	public static final String ERROR_MESSAGE = "error_message";
 	public static final String SUCCESS = "success";
 	public static final String FAILURE = "failure";
+	public static final String NON_MESSAGING_BOT_TYPE = "nm_type";
+	public static final String MICROAPP_MODE = "nm_app";
+	public static final String URL_MODE = "url_app";
+	public static final String CUSTOMER_SUPPORT_BOT_MSISDN = "+hikecs+";
 
 	public static final class PlatformUIDFetchType
 	{
@@ -76,6 +80,7 @@ public interface HikePlatformConstants
      * Analytics for Platform
      */
 	public static final String BOT_OPEN = "bot_open";
+	public static final String BOT_OPEN_MQTT = "bot_open_m";
     public static final String BOT_LONG_PRESS = "bot_lp";
     public static final String BOT_VIEW_PROFILE = "bot_vp";
     public static final String BOT_ADD_SHORTCUT = "bot_as";
@@ -104,7 +109,9 @@ public interface HikePlatformConstants
 	public static final String APP_VERSION = "appVersion";
 	public static final String OVERFLOW_MENU_CLICKED = "om_click";
 	public static final String BOT_CREATED = "cbot";
+	public static final String BOT_CREATED_MQTT = "cbot_m";
 	public static final String BOT_CREATION_FAILED = "cbot_err";
+	public static final String BOT_CREATION_FAILED_MQTT = "cbot_err_m";
 	public static final String MICROAPP_DOWNLOADED = "mapp";
 	public static final String MICROAPP_DOWNLOAD_FAILED = "mapp_err";
 
@@ -132,6 +139,8 @@ public interface HikePlatformConstants
 	public static final String SILENT_PUSH = "silent";
 
 	public static final String LOUD_PUSH = "loud";
+	
+	public static final String FILE_DESCRIPTOR = "file:///";
 
 	public static final String  NO_PUSH = "none";
 	
@@ -172,12 +181,12 @@ public interface HikePlatformConstants
 	 * Overflow menu item constants end
 	 */
 	
-	public static final int VERSION_0 = 0;
+	public static final int VERSION_NANO = 0;
 	
-	public static final int VERSION_1 = 1;
-	
-	public static final int CURRENT_VERSION = VERSION_1;
-	
+	public static final int VERSION_ALTO = 1;
+
+	public static final int CURRENT_VERSION = 5;
+
 	public static final String AB_COLOR = "color";
 	
 	final String BLOCK = "block";
@@ -194,4 +203,6 @@ public interface HikePlatformConstants
 	final String FULL_SCREEN_CONFIG = "full_screen_config";
 	
 	final String SECONDARY_TITLE = "secondary_title";
+	
+	final String STATUS_BAR_COLOR = "sb_color";
 }

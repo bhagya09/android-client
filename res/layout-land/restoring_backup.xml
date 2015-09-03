@@ -109,6 +109,7 @@
                 android:background="@drawable/signup_button"
                 android:text="@string/retry"
                 android:textColor="@drawable/signup_btn_text"
+                android:stateListAnimator="@null" 
                 android:textSize="15sp"
                 android:textStyle="bold|italic"
                 android:visibility="gone" />

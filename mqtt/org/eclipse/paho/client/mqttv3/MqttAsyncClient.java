@@ -37,6 +37,9 @@ import org.eclipse.paho.client.mqttv3.internal.wire.MqttUnsubscribe;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.eclipse.paho.client.mqttv3.persist.MqttDefaultFilePersistence;
 
+import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.MqttConstants;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 
 /**
@@ -161,12 +164,26 @@ public class MqttAsyncClient implements IMqttAsyncClient
 
 	public MqttAsyncClient(String serverURI, String clientId, MqttClientPersistence persistence) throws MqttException
 	{
-		this(serverURI, clientId, persistence, new TimerPingSender(), 100);
+		this(serverURI, clientId, persistence, getMqttPingSender(), 100);
 	}
 
 	public MqttAsyncClient(String serverURI, String clientId, MqttClientPersistence persistence, int maxInflightMsgs) throws MqttException
 	{
-		this(serverURI, clientId, persistence, new TimerPingSender(), maxInflightMsgs);
+		this(serverURI, clientId, persistence, getMqttPingSender(), maxInflightMsgs);
+	}
+	
+	private static MqttPingSender getMqttPingSender()
+	{
+		MqttPingSender mqttPingSender;
+		if (HikeSharedPreferenceUtil.getInstance().getData(MqttConstants.MQTT_PING_SENDER, MqttConstants.ALARM_PING_SENDER_CONSTANT) ==  MqttConstants.TIMER_PING_SENDER_CONSTANT )
+		{
+			mqttPingSender = new TimerPingSender();
+		}
+		else
+		{
+			mqttPingSender = new AlarmPingSender(HikeMessengerApp.getInstance());
+		}
+		return mqttPingSender;
 	}
 
 	/**

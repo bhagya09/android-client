@@ -33,6 +33,8 @@ public abstract class OneToNConversation extends Conversation
 {
 
 	protected String conversationOwner;
+	
+	protected String conversationCreator;
 
 	protected Map<String, PairModified<GroupParticipant, String>> conversationParticipantList;
 
@@ -47,7 +49,7 @@ public abstract class OneToNConversation extends Conversation
 
 	protected int unreadPinnedMessageCount;
 	protected long creationTime =-1;
-
+	
 	/**
 	 * @param builder
 	 */
@@ -59,6 +61,8 @@ public abstract class OneToNConversation extends Conversation
 		
 		this.creationTime = builder.creationTime;
 
+		this.conversationCreator = builder.conversationCreator;
+		
 		this.conversationParticipantList = builder.conversationParticipantList;
 
 		this.readByParticipantsList = builder.readByParticipantList;
@@ -98,6 +102,13 @@ public abstract class OneToNConversation extends Conversation
 	{
 		this.conversationOwner = conversationOwner;
 	}
+	public String getConversationCreator() {
+		return conversationCreator;
+	}
+
+	public void setConversationCreator(String conversationCreator) {
+		this.conversationCreator = conversationCreator;
+	}
 
 	/**
 	 * @return the groupParticipantList
@@ -135,7 +146,7 @@ public abstract class OneToNConversation extends Conversation
 		else
 		{
 			ContactInfo contactInfo = ContactManager.getInstance().getContact(msisdn, true, false);
-			return new PairModified<GroupParticipant, String>(new GroupParticipant(contactInfo), contactInfo.getNameOrMsisdn());
+			return new PairModified<GroupParticipant, String>(new GroupParticipant(contactInfo, ((OneToNConvInfo) convInfo).getMsisdn()), contactInfo.getNameOrMsisdn());
 		}
 	}
 
@@ -367,6 +378,10 @@ public abstract class OneToNConversation extends Conversation
 		
 		private long creationTime;
 
+		private String conversationCreator;
+		
+		private String conversationMetadata;
+
 		private Map<String, PairModified<GroupParticipant, String>> conversationParticipantList;
 
 		private ArrayList<String> readByParticipantList;
@@ -387,6 +402,18 @@ public abstract class OneToNConversation extends Conversation
 		public P setConversationOwner(String conversationOwner)
 		{
 			this.conversationOwner = conversationOwner;
+			return getSelfObject();
+		}
+		
+		public P setConversationCreator(String conversationCreator)
+		{
+			this.conversationCreator = conversationCreator;
+			return getSelfObject();
+		}
+		
+		public P setConversationMetadata(String conversationMetadata)
+		{
+			this.conversationMetadata = conversationMetadata;
 			return getSelfObject();
 		}
 
@@ -550,6 +577,12 @@ public abstract class OneToNConversation extends Conversation
 		Map<String, PairModified<GroupParticipant, String>> participants = new HashMap<String, PairModified<GroupParticipant, String>>();
 
 		JSONArray array = jsonObj.getJSONArray(HikeConstants.DATA);
+		JSONObject metadata = null;
+		if(jsonObj.has(HikeConstants.METADATA))
+		{
+			metadata= jsonObj.getJSONObject(HikeConstants.METADATA);
+
+		}
 		List<String> msisdns = new ArrayList<String>();
 		for (int i = 0; i < array.length(); i++)
 		{
@@ -559,7 +592,9 @@ public abstract class OneToNConversation extends Conversation
 			String contactName = nameMsisdn.getString(HikeConstants.NAME);
 			boolean onHike = nameMsisdn.optBoolean(HikeConstants.ON_HIKE);
 			boolean onDnd = nameMsisdn.optBoolean(HikeConstants.DND);
-			GroupParticipant groupParticipant = new GroupParticipant(new ContactInfo(contactNum, contactNum, contactName, contactNum, onHike), false, onDnd);
+			int type = nameMsisdn.optInt(HikeConstants.ROLE);
+			
+			GroupParticipant groupParticipant = new GroupParticipant(new ContactInfo(contactNum, contactNum, contactName, contactNum, onHike), false, onDnd, type, msisdn);
 			Logger.d("OneToNConversation", "Parsing JSON and adding contact to conversation: " + contactNum);
 			participants.put(contactNum, new PairModified<GroupParticipant, String>(groupParticipant, contactName));
 		}
@@ -591,7 +626,9 @@ public abstract class OneToNConversation extends Conversation
 		{
 			conversation = new GroupConversation.ConversationBuilder(msisdn).setConversationOwner(jsonObj.getString(HikeConstants.FROM))
 					.setConversationParticipantsList(participants).setConvName(convName).setCreationTime(jsonObj.optLong(HikeConstants.GROUP_CHAT_TIMESTAMP,-1)).build();
-
+			if(metadata!= null && metadata.has(HikeConstants.GROUP_CREATOR)&&(metadata.getString(HikeConstants.GROUP_CREATOR)!=null)){
+				conversation.setConversationCreator(metadata.getString(HikeConstants.GROUP_CREATOR));
+			}
 		}
 
 		return conversation;

@@ -23,7 +23,8 @@
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:background="@color/black"
-        android:orientation="horizontal" >
+        android:orientation="horizontal"
+        android:layout_marginTop="@dimen/st__action_bar_default_height" >
 
         <RelativeLayout
             android:id="@+id/crop_navigation"

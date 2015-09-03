@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ThreadFactory;
@@ -21,36 +22,6 @@ import com.squareup.okhttp.Response;
 public class HttpUtils
 {
 	private static final int BUFFER_SIZE = 4096;
-	
-	public static ThreadFactory threadFactory(final String name, final boolean daemon)
-	{
-		return new ThreadFactory()
-		{
-			private AtomicInteger i = new AtomicInteger(1);
-
-			@Override
-			public Thread newThread(Runnable runnable)
-			{
-				int threadCount = i.getAndIncrement();
-				Thread result = new Thread(runnable);
-				result.setName(name + "-" + threadCount);
-				result.setDaemon(daemon);
-				return result;
-			}
-		};
-	}
-
-	public static RejectedExecutionHandler rejectedExecutionHandler()
-	{
-		return new RejectedExecutionHandler()
-		{
-			@Override
-			public void rejectedExecution(Runnable r, ThreadPoolExecutor executor)
-			{
-				
-			}
-		};
-	}
 	
 	public static byte[] streamToBytes(InputStream stream) throws IOException
 	{
@@ -160,5 +131,23 @@ public class HttpUtils
 			e.printStackTrace();
 		}
 		return output;
+	}
+	
+	public static boolean removeHeader(List<Header> headers, String name, String value)
+	{
+		if(headers == null)
+		{
+			return false;
+		}
+		
+		for (Iterator<Header> iterator = headers.iterator(); iterator.hasNext();) {
+		    Header header = iterator.next();
+		    if (header.getName().equals(name) && header.getValue().equals(value)) {
+		        // Remove the current element from the iterator and the list.
+		        iterator.remove();
+		        return true;
+		    }
+		}
+		return false;
 	}
 }

@@ -19,6 +19,12 @@ public class OneToNConversationMetadata extends ConversationMetadata {
 	 * @throws JSONException 
 	 * 
 	 */
+	public static class ADD_MEMBERS_RIGHTS
+	{
+		public static final int  ALL_CAN_ADD = 0;
+
+		public static final int ADMIN_CAN_ADD = 1;
+	}
 	public OneToNConversationMetadata(String jsonString) throws JSONException {
 		super(jsonString);
 		if (jsonString == null)
@@ -26,6 +32,7 @@ public class OneToNConversationMetadata extends ConversationMetadata {
 			setLastPinId(HikeConstants.MESSAGE_TYPE.TEXT_PIN, -1);
 			setUnreadPinCount(HikeConstants.MESSAGE_TYPE.TEXT_PIN, 0);
 			setShowLastPin(HikeConstants.MESSAGE_TYPE.TEXT_PIN, true);
+			setAddMembersRights(ADD_MEMBERS_RIGHTS.ALL_CAN_ADD);
 		}
 	}
 
@@ -47,6 +54,16 @@ public class OneToNConversationMetadata extends ConversationMetadata {
 		return json;
 	}
 	
+	private JSONObject getRightsJson() throws JSONException
+	{
+
+		JSONObject json = jsonObject.optJSONObject(HikeConstants.RIGHTS);
+		if (json == null)
+		{
+			jsonObject.put(HikeConstants.RIGHTS, json = new JSONObject());
+		}
+		return json;
+	}
 	public long getLastPinId(int pinType) throws JSONException
 	{
 		JSONObject pinJSON = getPinJson(pinType);
@@ -121,6 +138,35 @@ public class OneToNConversationMetadata extends ConversationMetadata {
 	{
 		JSONObject pinJson = getPinJson(pinType);
 		pinJson.put(HikeConstants.TO_SHOW, isShow);
+	}
+	
+	public void setAddMembersRights(int canAdd) throws JSONException
+	{
+		JSONObject rightsJson = getRightsJson();
+		rightsJson.put(HikeConstants.ADD_MEMBERS, canAdd);
+	}
+	
+	public boolean amIAdmin() throws JSONException
+	{
+		if(jsonObject.has(HikeConstants.ADMIN)){
+			if(jsonObject.getInt(HikeConstants.ADMIN)==1){
+				return true;
+			}
+			return false;
+		}
+		return false;
+	}
+	
+	public void setMyselfAsAdmin(int admin) throws JSONException
+	{
+		
+		jsonObject.put(HikeConstants.ADMIN, admin);
+	}
+	
+	public int getAddMembersRight() throws JSONException
+	{
+		JSONObject rightsJSON = getRightsJson();
+		return rightsJSON.getInt(HikeConstants.ADD_MEMBERS);
 	}
 
 	public void setPinDisplayed(int pinType, boolean isShow) throws JSONException

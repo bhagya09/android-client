@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
+import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Pair;
@@ -29,10 +30,11 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuItem;
-import com.actionbarsherlock.view.Window;
+import android.support.v7.app.ActionBar;
+import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.Window;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
@@ -45,6 +47,7 @@ import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.Conversation.OneToNConversation;
+import com.bsb.hike.ui.utils.StatusBarColorChanger;
 import com.bsb.hike.utils.ChatTheme;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.Utils;
@@ -120,6 +123,7 @@ public class PinHistoryActivity extends HikeAppStateBaseFragmentActivity impleme
 		mPinListView.setOnItemLongClickListener(this);
 		
 		mPinListView.setAdapter(pinAdapter);
+		StatusBarColorChanger.setStatusBarColor(this, chatTheme.statusBarColor());
 		
 		if (chatTheme != ChatTheme.DEFAULT)
 		{
@@ -129,7 +133,9 @@ public class PinHistoryActivity extends HikeAppStateBaseFragmentActivity impleme
 		}
 		else
 		{
-			backgroundImage.setImageResource(chatTheme.bgResId());
+			View stickylayout=findViewById(R.id.sticky_parent_list);
+			stickylayout.setBackgroundResource(R.color.chat_thread_default_bg);
+			
 		}
 		
 		Utils.resetPinUnreadCount(mConversation);
@@ -158,8 +164,10 @@ public class PinHistoryActivity extends HikeAppStateBaseFragmentActivity impleme
 		
 		HikeConversationsDatabase db = HikeConversationsDatabase.getInstance();
 		chatTheme = db.getChatThemeForMsisdn(msisdn);
-
+		if(chatTheme!=ChatTheme.DEFAULT)
 		actionBar.setBackgroundDrawable(getResources().getDrawable(chatTheme.headerBgResId()));
+		else
+		actionBar.setBackgroundDrawable(getResources().getDrawable(R.color.blue_hike));
 		actionBar.setDisplayShowTitleEnabled(true);
 
 		actionBar.setIcon(R.drawable.hike_logo_top_bar);
@@ -167,22 +175,14 @@ public class PinHistoryActivity extends HikeAppStateBaseFragmentActivity impleme
 
 		View actionBarView = LayoutInflater.from(this).inflate(R.layout.compose_action_bar, null);
 
-		View backContainer = actionBarView.findViewById(R.id.back);
 		actionBarView.findViewById(R.id.seprator).setVisibility(View.GONE);
 
 		TextView title = (TextView) actionBarView.findViewById(R.id.title);
 		title.setText(R.string.pin_history);
 
-		backContainer.setOnClickListener(new View.OnClickListener()
-		{
-			@Override
-			public void onClick(View v)
-			{
-				onBackPressed();
-			}
-		});
-
 		actionBar.setCustomView(actionBarView);
+		Toolbar parent=(Toolbar)actionBarView.getParent();
+		parent.setContentInsetsAbsolute(0,0);
 	}
 
 	@Override
@@ -190,13 +190,14 @@ public class PinHistoryActivity extends HikeAppStateBaseFragmentActivity impleme
 	{
 		if(isActionModeOn)
 		{
-			getSupportMenuInflater().inflate(R.menu.multi_select_chat_menu, menu);
+			getMenuInflater().inflate(R.menu.multi_select_chat_menu, menu);
 			
 			menu.findItem(R.id.forward_msgs).setVisible(false);
 			
 			menu.findItem(R.id.copy_msgs).setVisible(true);
-		}
-		return super.onCreateOptionsMenu(menu);
+		}else
+			getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+		return true;
 	}
 
 	@Override
@@ -211,6 +212,11 @@ public class PinHistoryActivity extends HikeAppStateBaseFragmentActivity impleme
 		if(isActionModeOn)
 		{
 			return onActionModeItemClicked(item);
+		}
+		if(item.getItemId()==android.R.id.home)
+		{
+			onBackPressed();
+			
 		}
 		return true;
 	}
@@ -327,7 +333,7 @@ public class PinHistoryActivity extends HikeAppStateBaseFragmentActivity impleme
 	{
 		try
 		{
-			TextView tv = (TextView) LayoutInflater.from(this).inflate(chatTheme.systemMessageLayoutId(), null, false);
+			TextView tv = (TextView) LayoutInflater.from(this).inflate(chatTheme.systemMessageTextViewLayoutId(), null, false);
 			tv.setText(R.string.pinHistoryTutorialText);
 			if (chatTheme == ChatTheme.DEFAULT)
 			{
@@ -362,7 +368,7 @@ public class PinHistoryActivity extends HikeAppStateBaseFragmentActivity impleme
 	{
 		ActionBar actionBar = getSupportActionBar();
 		actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
-
+		actionBar.setDisplayHomeAsUpEnabled(false);
 		View actionBarView = LayoutInflater.from(this).inflate(R.layout.action_mode_action_bar, null);
 
 		View closeBtn = actionBarView.findViewById(R.id.close_action_mode);
@@ -378,6 +384,8 @@ public class PinHistoryActivity extends HikeAppStateBaseFragmentActivity impleme
 			}
 		});
 		actionBar.setCustomView(actionBarView);
+		Toolbar parent=(Toolbar)actionBarView.getParent();
+		parent.setContentInsetsAbsolute(0,0);
 
 		Animation slideIn = AnimationUtils.loadAnimation(this, R.anim.slide_in_left_noalpha);
 		slideIn.setInterpolator(new AccelerateDecelerateInterpolator());
@@ -505,7 +513,6 @@ public class PinHistoryActivity extends HikeAppStateBaseFragmentActivity impleme
 			Toast.makeText(PinHistoryActivity.this, R.string.copied, Toast.LENGTH_SHORT).show();
 			destroyActionMode();
 			return true;
-
 		default:
 			destroyActionMode();
 		return false;
@@ -580,5 +587,11 @@ public class PinHistoryActivity extends HikeAppStateBaseFragmentActivity impleme
 			});
 			Utils.resetPinUnreadCount(mConversation);
 		}
+	}
+	@Override
+	protected void setStatusBarColor(Window window, String color)
+	{
+		// TODO Auto-generated method stub
+		return;
 	}
 }

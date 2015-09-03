@@ -16,10 +16,8 @@ import com.bsb.hike.HikeConstants.MESSAGE_TYPE;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
-import com.bsb.hike.db.DBConstants;
 import com.bsb.hike.models.ContactInfoData.DataType;
 import com.bsb.hike.models.HikeFile.HikeFileType;
-import com.bsb.hike.models.StatusMessage.StatusMessageType;
 import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.models.Conversation.GroupConversation;
 import com.bsb.hike.models.Conversation.OneToNConversation;
@@ -28,13 +26,16 @@ import com.bsb.hike.platform.ContentLove;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformMessageMetadata;
 import com.bsb.hike.platform.WebMetadata;
+import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.SearchManager.Searchable;
 import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.Utils;
+import com.bsb.hike.view.CustomMessageTextView.DimentionMatrixHolder;
+import com.bsb.hike.view.CustomMessageTextView.ViewDimentions;
 
-public class ConvMessage implements Searchable
+public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique
 
 {
 	private boolean isBlockAddHeader;
@@ -79,7 +80,10 @@ public class ConvMessage implements Searchable
 	private int  hashMessage= HikeConstants.HASH_MESSAGE_TYPE.DEFAULT_MESSAGE;
 	
 	private int contentId;
+	
 	private String nameSpace;
+	
+	private ViewDimentions viewDimentions;
 	
 	private int notificationType;
 
@@ -109,6 +113,8 @@ public class ConvMessage implements Searchable
 	
 	private long serverId = -1;
 
+	private long sendTimestamp = -1;
+	
 	private MessagePrivateData privateData;
 	
 	public int getHashMessage()
@@ -214,7 +220,7 @@ public class ConvMessage implements Searchable
 		PARTICIPANT_JOINED, // The participant has joined
 		GROUP_END, // Group chat has ended
 		USER_OPT_IN, DND_USER, USER_JOIN, CHANGED_GROUP_NAME, CHANGED_GROUP_IMAGE, BLOCK_INTERNATIONAL_SMS, INTRO_MESSAGE, STATUS_MESSAGE, CHAT_BACKGROUND,
-		VOIP_CALL_SUMMARY, VOIP_MISSED_CALL_OUTGOING, VOIP_MISSED_CALL_INCOMING;
+		VOIP_CALL_SUMMARY, VOIP_MISSED_CALL_OUTGOING, VOIP_MISSED_CALL_INCOMING,CHANGE_ADMIN, GC_SETTING_CHANGE;
 
 		public static ParticipantInfoState fromJSON(JSONObject obj)
 		{
@@ -226,6 +232,14 @@ public class ConvMessage implements Searchable
 			else if (HikeConstants.MqttMessageTypes.GROUP_CHAT_LEAVE.equals(type))
 			{
 				return ParticipantInfoState.PARTICIPANT_LEFT;
+			}
+			else if (HikeConstants.MqttMessageTypes.GROUP_ADMIN_UPDATE.equals(type))
+			{
+				return ParticipantInfoState.CHANGE_ADMIN;
+			}
+			else if (HikeConstants.MqttMessageTypes.GROUP_SETTINGS_CHANGE.equals(type))
+			{
+				return ParticipantInfoState.GC_SETTING_CHANGE;
 			}
 			else if (HikeConstants.MqttMessageTypes.GROUP_CHAT_END.equals(type))
 			{
@@ -393,6 +407,12 @@ public class ConvMessage implements Searchable
 																										 * represents msg is coming from another client
 																										 */
 		this.groupParticipantMsisdn = obj.has(HikeConstants.TO) && obj.has(HikeConstants.FROM) ? obj.getString(HikeConstants.FROM) : null;
+		
+		if (obj.has(HikeConstants.SEND_TIMESTAMP))
+		{
+			this.sendTimestamp = obj.getLong(HikeConstants.SEND_TIMESTAMP);
+		}
+		
 		JSONObject data = obj.getJSONObject(HikeConstants.DATA);
 		if (data.has(HikeConstants.SMS_MESSAGE))
 		{
@@ -488,6 +508,11 @@ public class ConvMessage implements Searchable
 		{
 			this.mMsisdn = obj.getJSONObject(HikeConstants.DATA).getString(HikeConstants.MSISDN);
 		}
+		
+		if (obj.has(HikeConstants.SEND_TIMESTAMP))
+		{
+			this.sendTimestamp = obj.getLong(HikeConstants.SEND_TIMESTAMP);
+		}
 
 		this.mMessage = "";
 		this.mTimestamp = System.currentTimeMillis() / 1000;
@@ -505,6 +530,20 @@ public class ConvMessage implements Searchable
 			break;
 		case PARTICIPANT_LEFT:
 			this.mMessage = OneToNConversationUtils.getParticipantRemovedMessage(conversation.getMsisdn(), context, ((OneToNConversation) conversation).getConvParticipantFirstNameAndSurname(metadata.getMsisdn()));
+			break;
+		case CHANGE_ADMIN:
+			String myMsidn = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).getString(HikeMessengerApp.MSISDN_SETTING, "");
+
+			JSONObject dataO = obj.optJSONObject(HikeConstants.DATA);
+			String msisdns = dataO.optString(HikeConstants.ADMIN_MSISDN);
+			if (!msisdns.equalsIgnoreCase(myMsidn))
+			{
+				this.shouldShowPush = false;
+			}
+			this.mMessage = OneToNConversationUtils.getAdminUpdatedMessage(this, context);
+			break;
+		case GC_SETTING_CHANGE:
+			this.mMessage = OneToNConversationUtils.getAdminUpdatedMessage(this, context);
 			break;
 		case GROUP_END:
 			this.mMessage = OneToNConversationUtils.getConversationEndedMessage(conversation.getMsisdn(), context);
@@ -571,6 +610,10 @@ public class ConvMessage implements Searchable
 			if (metadata.getStatusMessage().getStatusMessageType() == StatusMessageType.PROFILE_PIC)
 			{
 				msg = context.getString(R.string.changed_profile);
+			}
+			else if (metadata.getStatusMessage().getStatusMessageType() == StatusMessageType.IMAGE || metadata.getStatusMessage().getStatusMessageType() == StatusMessageType.TEXT_IMAGE)
+			{
+				msg = context.getString(R.string.posted_photo);
 			}
 			else
 			{
@@ -692,6 +735,26 @@ public class ConvMessage implements Searchable
 	public String getMsisdn()
 	{
 		return mMsisdn;
+	}
+	
+	/*
+	 * Return actual sender of the message. In case of one-to-one mMsisdn is sender
+	 * But in case of group, msisdn of perticular participant would be returned. 
+	 */
+	public String getSenderMsisdn()
+	{
+		if(isSent())
+		{
+			return ContactManager.getInstance().getSelfMsisdn();
+		}
+		else if(!TextUtils.isEmpty(groupParticipantMsisdn))
+		{
+			return groupParticipantMsisdn;
+		}
+		else
+		{
+			return mMsisdn;
+		}
 	}
 
 	public String getGroupParticipantMsisdn()
@@ -861,6 +924,7 @@ public class ConvMessage implements Searchable
 				}
 				
 				object.put(HikeConstants.TYPE, mInvite ? HikeConstants.MqttMessageTypes.INVITE : HikeConstants.MqttMessageTypes.MESSAGE);
+				object.put(HikeConstants.SEND_TIMESTAMP, getSendTimestamp());
 			}
 		}
 		catch (JSONException e)
@@ -1184,7 +1248,7 @@ public class ConvMessage implements Searchable
 		// Search on status messages.
 		else if (getParticipantInfoState() == ParticipantInfoState.STATUS_MESSAGE)
 		{
-			if (getMetadata().getStatusMessage().getText().toLowerCase().contains(s))
+			if (getMetadata().getStatusMessage().getText()!=null && getMetadata().getStatusMessage().getText().toLowerCase().contains(s))
 			{
 				return true;
 			}
@@ -1298,5 +1362,53 @@ public class ConvMessage implements Searchable
 		{
 			this.privateData = messagePrivateData;
 		}
+	}
+
+	@Override
+	public ViewDimentions getDimentionMatrix()
+	{
+		return this.viewDimentions;
+	}
+
+	@Override
+	public void setDimentionMatrix(ViewDimentions vD)
+	{
+		this.viewDimentions = vD;
+	}
+
+	@Override
+	public Long getUniqueId()
+	{
+		return getMsgID();
+	}
+
+	public long getSendTimestamp()
+	{
+		return sendTimestamp;
+	}
+
+	public void setSendTimestamp(long sendTimestamp)
+	{
+		this.sendTimestamp = sendTimestamp;
+	}
+	
+	public String createMessageHash()
+	{
+		/*
+		 * ParticipantInfoState == ParticipantInfoState.NO_INFO
+		 * implies, type "m" messages. We can't currently create
+		 * and keep message hash for other message types because
+		 * many of of them don't have certain info. for eg. SU,GCJ etc,  
+		 * don't have msgID. 
+		 */
+		if(getParticipantInfoState() == ParticipantInfoState.NO_INFO)
+		{
+			String messageHash = getSenderMsisdn() + "_" + getSendTimestamp() + "_";
+			messageHash += isSent() ? getMsgID() : getMappedMsgID();
+
+			Logger.d(getClass().getSimpleName(), "Message hash: " + messageHash);
+			return messageHash;
+		}
+		return null;
 	}
 }

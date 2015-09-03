@@ -1,25 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent" >
 
-    <LinearLayout
+ 	<LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/conversation_item"
         android:layout_width="match_parent"
-        android:layout_height="70dp"
-        android:background="@drawable/list_item"
+        android:layout_height="@dimen/conv_item_height"
+        android:background="@drawable/conversation_list_item"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:paddingLeft="14dp"
-        android:paddingRight="14dp" >
+        android:paddingLeft="@dimen/conv_item_padding"
+        android:paddingRight="@dimen/conv_item_padding" >
 
         <FrameLayout
-            android:layout_width="@dimen/larger_avatar"
-            android:layout_height="@dimen/larger_avatar" >
+            android:layout_width="@dimen/conv_item_avatar"
+            android:layout_height="@dimen/conv_item_avatar">
 
             <com.bsb.hike.view.RoundedImageView
                 android:id="@+id/avatar"
                 style="@style/AvatarStyle.MorePadding" />
+                 
             <com.bsb.hike.ui.utils.RecyclingImageView
                 android:id="@+id/stealth_badge"
                 android:src="@drawable/stealth_badge"
@@ -33,7 +32,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="12dp"
-            android:orientation="vertical" >
+            android:orientation="vertical"
+            android:paddingBottom="1dp" >
 
             <RelativeLayout
                 android:layout_width="match_parent"
@@ -41,100 +41,69 @@
 
                 <com.bsb.hike.view.CustomFontTextView
                     android:id="@+id/last_message_timestamp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    style="@style/ListItemRightSubText"
                     android:layout_alignParentRight="true"
-                    android:layout_centerVertical="true"
-                    android:text="9:35AM"
-                    android:textColor="@color/timestamp"
-                    android:textSize="12sp" />
+                    android:text="9:35AM"/>
 
                 <com.bsb.hike.view.CustomFontTextView
                     android:id="@+id/contact"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
                     android:layout_alignParentLeft="true"
-                    android:layout_centerVertical="true"
                     android:layout_marginRight="5dp"
                     android:layout_toLeftOf="@id/last_message_timestamp"
-                    android:drawablePadding="3dp"
-                    android:ellipsize="end"
-                    android:singleLine="true"
                     android:text="Kavin Mittal kja skldlkas daskd asdjlasj dlasdl asdj las das d"
-                    android:textColor="@color/list_item_header"
-                    android:textSize="18sp"
-                    android:textStyle="bold|italic" />
+                    style="@style/ListItemHeaderTextView" />
+                
             </RelativeLayout>
 
-            <RelativeLayout
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="1dp" >
+                android:orientation="horizontal"
+                android:weightSum="1.0"
+                android:layout_marginTop="3dp">
 
                 <ImageView
                     android:id="@+id/msg_status_indicator"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_alignParentLeft="true"
-                    android:layout_centerVertical="true"
-                    android:layout_marginRight="3dp"
-                    android:paddingTop="1dp"
+                    android:paddingBottom="3.5dp"
+                    android:scaleType="centerInside"
+                    android:layout_gravity="bottom"
                     android:visibility="gone" />
-
-                <FrameLayout
-                    android:id="@+id/indicator_container"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentRight="true"
-                    android:layout_centerVertical="true"
-                    android:layout_marginLeft="2dp" >
-
-                    <com.bsb.hike.view.CustomFontTextView
-                        android:id="@+id/unread_indicator"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:background="@drawable/bg_unread_counter"
-                        android:gravity="center"
-                        android:paddingLeft="2dp"
-                        android:paddingRight="2dp"
-                        android:text="99"
-                        android:textColor="@color/white"
-                        android:textSize="12dp"
-                        android:textStyle="bold"
-                        android:visibility="gone" />
-                </FrameLayout>
-
+                
+                 <com.bsb.hike.view.CustomFontTextView
+                    android:id="@+id/last_message"
+                    android:layout_marginRight="16dp"
+                    android:text="what&apos;s up dude? I really like cookies. They taste so good and fresh. I like pie as well. I&apos;m so fat"
+                    style="@style/ListItemSubHeaderTextView"
+                    android:layout_width="0dp"
+                    android:layout_weight="1.0"
+                    android:visibility="invisible" />
+                 
+                 
                 <ImageView
                     android:id="@+id/mute_indicator"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_centerVertical="true"
-                    android:layout_toLeftOf="@+id/indicator_container"
                     android:src="@drawable/ic_mute"
+                    android:layout_gravity="center_vertical"
                     android:visibility="gone" />
 
-                <com.bsb.hike.view.CustomFontTextView
-                    android:id="@+id/last_message"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignWithParentIfMissing="true"
-                    android:layout_centerVertical="true"
-                    android:layout_marginTop="1dp"
-                    android:layout_toLeftOf="@+id/mute_indicator"
-                    android:layout_toRightOf="@id/msg_status_indicator"
-                    android:ellipsize="end"
-                    android:singleLine="true"
-                    android:text="what&apos;s up dude? I really like cookies. They taste so good and fresh. I like pie as well. I&apos;m so fat"
-                    android:textColor="@color/list_item_header"
-                    android:textSize="14sp"
-                    android:textStyle="italic"
-                    android:visibility="invisible" />
-            </RelativeLayout>
+              
+                    <com.bsb.hike.view.CustomFontTextView
+                        android:id="@+id/unread_indicator"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/ic_messagecounter"
+                        android:layout_marginLeft="4dp"
+                        android:text="99"
+                        android:gravity="center"
+                        android:layout_gravity="center_vertical"
+                        android:textColor="@color/white"
+                        android:textSize="11sp"
+                        android:textStyle="normal"
+                        style="@style/BaseStyleTextView" />
+               
+            </LinearLayout>
         </LinearLayout>
-    </LinearLayout>
-
-    <View
-        style="@style/Divider"
-        android:layout_alignParentBottom="true" />
-
-</RelativeLayout>
+ </LinearLayout>

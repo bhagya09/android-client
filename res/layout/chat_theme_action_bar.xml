@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="48dp" >
+    android:layout_height="56dp" >
 
     <LinearLayout
         android:id="@+id/close_container"
@@ -13,17 +13,14 @@
 
         <ImageView
             android:id="@+id/close_action_mode"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
             android:scaleType="centerInside"
-            android:src="@drawable/ic_close_chat_bg_palette" />
+            android:src="@drawable/ic_close_action_mode" />
 
     </LinearLayout>
     
-    <View
-        style="@style/ActionBarDivider"
-        android:background="@color/transparent_white_ab"
-        android:layout_toRightOf="@id/close_container" />
+   
 
     <com.bsb.hike.view.CustomFontTextView
         android:id="@+id/title"
@@ -36,6 +33,7 @@
         android:layout_marginRight="5dp"
         android:layout_toRightOf="@id/close_container"
         android:layout_toLeftOf="@+id/done_container"
+        android:clickable="false"
         android:ellipsize="end"
         android:text="@string/chat_theme" />
 
@@ -68,18 +66,13 @@
             android:textSize="16sp" />
     </LinearLayout>
 
-    <View
-        android:id="@+id/done_container_divider"
-        style="@style/ActionBarDivider"
-        android:background="@color/transparent_white_ab"
-        android:layout_toLeftOf="@id/done_container" />
-    
+
     <ProgressBar
         android:id="@+id/loading_progress"
         android:layout_width="36dp"
         android:layout_height="36dp"
         android:layout_centerVertical="true"
-        android:layout_toLeftOf="@id/done_container_divider"
+        android:layout_toLeftOf="@id/done_container"
         android:visibility="gone" />
     
 </RelativeLayout>

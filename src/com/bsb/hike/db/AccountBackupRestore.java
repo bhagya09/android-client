@@ -35,13 +35,13 @@ import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.Utils;
 
+/**
+ * AccountBackupRestore is a singleton class that performs are the backup/restore related
+ * operations
+ * @author gauravmittal
+ */
 public class AccountBackupRestore
 {
-	/**
-	 * @author gauravmittal
-	 * 	AccountBackupRestore is a singleton class that performs are the backup/restore related
-	 * 	operations
-	 */
 	
 	private class PreferenceBackup
 	{
@@ -515,7 +515,28 @@ public class AccountBackupRestore
 		time = System.currentTimeMillis() - time;
 		Logger.d(getClass().getSimpleName(), "Restore " + result + " in " + time / 1000 + "." + time % 1000 + "s");
 		recordLog(RESTORE_EVENT_KEY,result,time);
+		logRestoreDetails(userBackupData);
 		return result;
+	}
+
+	/**
+	 * Logging the backup and current app details.
+	 * Only for the purpose of debugging.
+	 * @param userBackupData
+	 */
+	private void logRestoreDetails(UserBackupData userBackupData)
+	{
+		if (userBackupData != null)
+			Logger.d(getClass().getSimpleName(),"Backup Details: " + userBackupData.serialize());
+		
+		try
+		{
+			Logger.d(getClass().getSimpleName(),"Current App Deatils: " + (new UserBackupData()).takeBackup().serialize());
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
 	}
 
 	private void restoreDB(String backupToken) throws Exception

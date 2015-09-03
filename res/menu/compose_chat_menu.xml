@@ -1,20 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto" >
+    
+     <item
+		android:id="@+id/search"
+		android:icon="@drawable/ic_top_bar_search"
+		app:showAsAction="always|collapseActionView"
+		android:visible="false"
+		android:title="@string/search"
+		app:actionLayout="@layout/search_layout" >
+    </item>
+   
+    
+    
    <item
         android:id="@+id/whatsapp_share"
         android:icon="@drawable/ic_logo_wa"
-        android:showAsAction="always"
+        app:showAsAction="always"
         android:title="@string/share"
         android:visible="false"/>
     <item
         android:id="@+id/overflow_menu"
-        android:icon="@drawable/ic_overflow"
-        android:showAsAction="always"
+        android:icon="@drawable/ic_overflow_home"
+        app:showAsAction="always"
         android:title="@string/other">
         <menu>
             <item
                 android:id="@+id/refresh_contacts"
-                android:showAsAction="never"
+                app:showAsAction="never"
                 android:title="@string/refresh"
                 android:visible="true"/>
         </menu>

@@ -120,6 +120,7 @@ public class RequestProcessor
 			LogFull.i(request.toString() + " already exists");
 			Request<?> req = requestMap.get(newRequestId);
 			req.addRequestListeners(request.getRequestListeners());
+			requestMap.remove(reqId);
 			return true;
 		}
 		else

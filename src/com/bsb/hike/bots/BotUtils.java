@@ -3,32 +3,37 @@ package com.bsb.hike.bots;
 import java.util.HashMap;
 import java.util.Map;
 
+import android.util.Base64;
+
+import com.bsb.hike.HikePubSub;
+import com.bsb.hike.models.ContactInfo;
+import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.platform.PlatformUtils;
+import com.bsb.hike.utils.Utils;
+
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Context;
 import android.text.TextUtils;
-import android.util.Base64;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeConstants.NotificationType;
 import com.bsb.hike.HikeMessengerApp.CurrentState;
 import com.bsb.hike.HikeMessengerApp;
-import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
+import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.db.HikeConversationsDatabase;
-import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.Conversation.ConvInfo;
-import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.platform.HikePlatformConstants;
-import com.bsb.hike.platform.PlatformUtils;
-import com.bsb.hike.ui.HomeActivity;
+import com.bsb.hike.platform.content.PlatformContentConstants;
+import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
-import com.bsb.hike.utils.Utils;
 
 /**
  * This class is for utility methods of bots
@@ -220,6 +225,7 @@ public class BotUtils
 			HikeMessengerApp.hikeBotInfoMap.remove(msisdn);
 			HikeConversationsDatabase.getInstance().deleteBot(msisdn);
 		}
+		botInfo.setUnreadCount(0);
 		HikeMessengerApp.getPubSub().publish(HikePubSub.DELETE_THIS_CONVERSATION, botInfo);
 	}
 
@@ -230,6 +236,36 @@ public class BotUtils
 			return;
 		}
 		deleteBotConversation(msisdn , true);
+	}
+	/*
+	 * Uility method to delete the bot files from the file system
+	 * 
+	 * @param jsonObj	:	The bot Json object containing the properties of the bot files to be deleted
+	 */
+	public static void removeMicroApp(JSONObject jsonObj){
+		try
+		{
+			JSONArray appsToBeRemoved = jsonObj.getJSONArray(HikePlatformConstants.APP_NAME);
+			for (int i = 0; i< appsToBeRemoved.length(); i++){
+				String appName =  appsToBeRemoved.get(i).toString();
+				String makePath = PlatformContentConstants.PLATFORM_CONTENT_DIR +  appName;
+				Logger.d("FileSystemAccess", "To delete the path : " + makePath);
+				if(PlatformUtils.deleteDirectory(makePath)){
+					String sentData = AnalyticsConstants.REMOVE_SUCCESS;
+					JSONObject json = new JSONObject();
+					json.putOpt(AnalyticsConstants.EVENT_KEY,AnalyticsConstants.REMOVE_MICRO_APP);
+					json.putOpt(AnalyticsConstants.REMOVE_MICRO_APP, sentData);
+					json.putOpt(AnalyticsConstants.MICRO_APP_ID, appName);
+					HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.REMOVE_MICRO_APP, json);
+				}
+			}
+		}
+		catch (JSONException e1)
+		{
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		
 	}
 
 	/**
@@ -276,13 +312,22 @@ public class BotUtils
 		if (type.equals(HikeConstants.MESSAGING_BOT))
 		{
 			botInfo = getBotInfoFormessagingBots(jsonObj, msisdn);
-			updateBotParamsInDb(botChatTheme, botInfo, false, notifType);
+			PlatformUtils.botCreationSuccessHandling(botInfo, false, botChatTheme, notifType);
 		}
 		else if (type.equals(HikeConstants.NON_MESSAGING_BOT))
 		{
 			botInfo = getBotInfoForNonMessagingBots(jsonObj, msisdn);
 			boolean enableBot = jsonObj.optBoolean(HikePlatformConstants.ENABLE_BOT);
-			PlatformUtils.downloadZipForNonMessagingBot(botInfo, enableBot, botChatTheme, notifType);
+			NonMessagingBotMetadata botMetadata = new NonMessagingBotMetadata(botInfo.getMetadata());
+			if (botMetadata.isMicroAppMode())
+			{
+				PlatformUtils.downloadZipForNonMessagingBot(botInfo, enableBot, botChatTheme, notifType);
+			}
+			else if (botMetadata.isWebUrlMode())
+			{
+				PlatformUtils.botCreationSuccessHandling(botInfo, enableBot, botChatTheme, notifType);
+			}
+
 		}
 
 		Logger.d("create bot", "It takes " + String.valueOf(System.currentTimeMillis() - startTime) + "msecs");
@@ -329,9 +374,8 @@ public class BotUtils
 
 		if (jsonObj.has(HikeConstants.METADATA))
 		{
-			JSONObject metadata = jsonObj.optJSONObject(HikeConstants.METADATA);
-			NonMessagingBotMetadata botMetadata = new NonMessagingBotMetadata(metadata);
-			botInfo.setMetadata(botMetadata.toString());
+			String metadata = jsonObj.optString(HikeConstants.METADATA);
+			botInfo.setMetadata(metadata);
 		}
 
 		if (jsonObj.has(HikePlatformConstants.HELPER_DATA))
