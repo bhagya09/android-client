@@ -1762,20 +1762,33 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	 * Overrides {@link ChatThread#showNetworkError(boolean)}
 	 */
 	@Override
-	protected void showNetworkError(boolean isNetworkError) 
+	protected void showNetworkError(boolean isNetworkError)
 	{
-		if(noNetworkCardView==null)
+		if (offlineParameters == null)
 		{
-			noNetworkCardView = activity.findViewById(R.id.network_error_card);
+			offlineParameters = new Gson().fromJson(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.OFFLINE, "{}"), OfflineParameters.class);
 		}
-		if(isNetworkError && ( !OfflineUtils.isConnectedToSameMsisdn(msisdn) && !OfflineUtils.isConnectingToSameMsisdn(msisdn)))
+		
+		if (offlineParameters.isOfflineEnabled())
 		{
-			animateNetworkCard();
+			if (noNetworkCardView == null)
+			{
+				noNetworkCardView = activity.findViewById(R.id.network_error_card);
+			}
+			if (isNetworkError && (!OfflineUtils.isConnectedToSameMsisdn(msisdn) && !OfflineUtils.isConnectingToSameMsisdn(msisdn)))
+			{
+				animateNetworkCard();
+			}
+			else
+			{
+				noNetworkCardView.setVisibility(View.GONE);
+			}
 		}
 		else
 		{
-			noNetworkCardView.setVisibility(View.GONE);
+			super.showNetworkError(isNetworkError);
 		}
+
 	};
 
 	private void animateNetworkCard()
