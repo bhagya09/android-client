@@ -59,8 +59,10 @@ public class DisplayContactsAdapter extends BaseAdapter
 			ContactInfo contactInfo = ContactManager.getInstance().getContact(argMsisdnList.get(j), true, false);
 			if (contactInfo != null)
 			{
-				// Contact is unsaved.............. OR .... Contact is non fav
-				if (contactInfo.isUnknownContact() && !ContactInfo.FavoriteType.FRIEND.equals(contactInfo.getFavoriteType()))
+				// Contact is unsaved.............. AND .... Contact is non fav .... AND Contact is not a self user
+				if (contactInfo.isUnknownContact() 
+						&& !ContactInfo.FavoriteType.FRIEND.equals(contactInfo.getFavoriteType())
+						&& !Utils.isSelfMsisdn(contactInfo.getMsisdn()))
 				{
 					argMsisdnList.remove(j);
 				}
