@@ -308,10 +308,14 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 
 	private void notifyActivityUI()
 	{
-		msisdns = actionsData.getAllMsisdn();
-		
-		isLikedByMe = actionsData.isLikedBySelf();
-		
+
+		if (actionsData != null)
+		{
+			msisdns = actionsData.getAllMsisdn();
+
+			isLikedByMe = actionsData.isLikedBySelf();
+		}
+
 		checkBoxLove.setOnCheckedChangeListener(null);
 
 		if (isLikedByMe)

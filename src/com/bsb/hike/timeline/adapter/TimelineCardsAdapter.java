@@ -240,13 +240,9 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 
 	private SoftReference<Activity> mActivity;
 
-	private int mLastPosition = 3;
-
 	private List<ContactInfo> mFtueFriendList;
 
 	private LoaderManager loaderManager;
-
-	private FragmentManager fragmentManager;
 
 	private HikeUiHandler mHikeUiHandler;
 
@@ -255,15 +251,15 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 	private boolean mShowUserProfile;
 
 	private ArrayList<String> mFilteredMsisdns;
-	
+
 	private HikeImageDownloader mImageDownloader;
 
 	private ContactInfo profileContactInfo;
-	
+
 	private boolean isDestroyed = false;
 
 	public TimelineCardsAdapter(Activity activity, List<StatusMessage> statusMessages, String userMsisdn, List<ContactInfo> ftueFriendList, LoaderManager loadManager,
-			FragmentManager fragManager, boolean showUserProfile, ArrayList<String> filterMsisdns)
+			boolean showUserProfile, ArrayList<String> filterMsisdns)
 	{
 		mContext = HikeMessengerApp.getInstance().getApplicationContext();
 		mStatusMessages = statusMessages;
@@ -277,14 +273,13 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 		mActivity = new SoftReference<Activity>(activity);
 		mFtueFriendList = ftueFriendList;
 		loaderManager = loadManager;
-		fragmentManager = fragManager;
 		mHikeUiHandler = new HikeUiHandler(this);
 		isShowCountEnabled = Utils.isTimelineShowCountEnabled();
 		mFilteredMsisdns = filterMsisdns;
 
 		if (mShowUserProfile)
 		{
-			profileContactInfo = ContactManager.getInstance().getContact(filterMsisdns.get(0),true,true);
+			profileContactInfo = ContactManager.getInstance().getContact(filterMsisdns.get(0), true, true);
 		}
 
 		HikeMessengerApp.getPubSub().addListener(HikePubSub.FAVORITE_TOGGLED, this);
