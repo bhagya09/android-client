@@ -48,6 +48,7 @@ import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ShapeDrawable;
@@ -2493,6 +2494,14 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 	{
 		// TODO Auto-generated method stub
 		
+	}
+	
+	@Override
+	public void onConfigurationChanged(Configuration newConfig)
+	{
+		mCustomKeyboard.onConfigurationChanged(newConfig);
+
+		super.onConfigurationChanged(newConfig);
 	}
 	
 }

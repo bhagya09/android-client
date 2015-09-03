@@ -88,6 +88,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.content.res.Configuration;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -3614,5 +3615,12 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 	{
 		// TODO Auto-generated method stub
 		
+	}
+	
+	@Override
+	public void onConfigurationChanged(Configuration newConfig)
+	{
+		mCustomKeyboard.onConfigurationChanged(newConfig);
+		super.onConfigurationChanged(newConfig);
 	}
 }
