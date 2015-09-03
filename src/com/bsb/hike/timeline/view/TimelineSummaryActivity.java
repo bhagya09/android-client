@@ -323,7 +323,7 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 			checkBoxLove.setChecked(false);
 		}
 
-		if (!msisdns.isEmpty())
+		if (msisdns != null && !msisdns.isEmpty())
 		{
 
 			if (isShowCountEnabled || mStatusMessage.isMyStatusUpdate())
