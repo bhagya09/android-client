@@ -195,7 +195,7 @@ public class PlatformHelper
 		return messageData;
 	}
 
-	protected static void pickContactAndSend(ConvMessage message, final Activity activity)
+	private static void pickContactAndSend(ConvMessage message, final Activity activity)
 	{
 		final String REQUEST_CODE = "request_code";
 
@@ -212,7 +212,7 @@ public class PlatformHelper
 		}
 	}
 
-	protected static void startComPoseChatActivity(final ConvMessage message, final Activity mContext)
+	private static void startComPoseChatActivity(final ConvMessage message, final Activity mContext)
 	{
 		if (null == mHandler)
 		{

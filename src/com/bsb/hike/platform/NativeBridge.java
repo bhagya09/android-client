@@ -2,15 +2,18 @@ package com.bsb.hike.platform;
 
 import java.lang.ref.WeakReference;
 
-import com.bsb.hike.DummyGameActivity;
 import com.bsb.hike.bots.BotInfo;
+import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.models.HikeHandlerUtil;
 
 import android.app.Activity;
+import android.util.Log;
 
-public class GameBridge
+public class NativeBridge
 {
 	public BotInfo mBotInfo;
+
+	public String msisdn;
 
 	HikeHandlerUtil mThread;
 
@@ -20,16 +23,29 @@ public class GameBridge
 
 	protected WeakReference<Activity> weakActivity;
 
-	public GameBridge(BotInfo mBotInfo, Activity activity)
+	public NativeBridge(String msisdn, Activity activity)
 	{
-		this.mBotInfo = mBotInfo;
+		this.msisdn = msisdn;
 		weakActivity = new WeakReference<Activity>(activity);
+		init();
+
+	}
+
+	private void init()
+	{
 		mThread = HikeHandlerUtil.getInstance();
 		mThread.startHandlerThread();
+		if (BotUtils.isBot(msisdn) == false)
+		{
+			Log.e(TAG, "Bot doesn't exist for this msisdn");
+		}
+		mBotInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
+		
 
 	}
 
 	/**
+	 * Platform Version 5
 	 * Call this method to put data in cache. This will be a key-value pair. A game can have different key-value pairs in the native's cache.
 	 * 
 	 * @param key:
@@ -48,16 +64,16 @@ public class GameBridge
 			@Override
 			public void run()
 			{
-				if (mBotInfo != null)
-				{
+				
 					helper.putInCache(key, value, mBotInfo.getNamespace());
-				}
+				
 			}
 		});
 
 	}
 
 	/**
+	 * Platform Version 5
 	 * @param id:
 	 *            the id of the function that native will call to call the game .
 	 * @param key:
@@ -73,24 +89,21 @@ public class GameBridge
 			@Override
 			public void run()
 			{
-				if (mBotInfo != null)
-				{
 					String cache = helper.getFromCache(key, mBotInfo.getNamespace());
-				}
-				DummyGameActivity.gameActivity.runOnGLThread(new Runnable()
-				{
-					@Override
-					public void run()
-					{
-						// gameCallback(id,cache);
-					}
-				});
+				/**
+				 * TODO
+				 * 
+				 * DummyGameActivity.gameActivity.runOnGLThread(new Runnable() {
+				 * 
+				 * @Override public void run() { // gameCallback(id,cache); } });
+				 */
 
 			}
 		});
 	}
 
 	/**
+	 * Platform Version 5
 	 * Call this function to log analytics events.
 	 * 
 	 * @param isUI
@@ -110,15 +123,13 @@ public class GameBridge
 			@Override
 			public void run()
 			{
-				if (mBotInfo != null)
-				{
 					helper.logAnalytics(isUI, subType, json, mBotInfo);
-				}
 			}
 		});
 	}
 
 	/**
+	 * Platform Version 5
 	 * Calling this function will initiate forward of the message to a friend or group.
 	 * 
 	 * @param json
@@ -129,7 +140,7 @@ public class GameBridge
 	 */
 	public void forwardToChat(final String json, final String hikeMessage)
 	{
-		if (mThread == null)
+		if (mThread == null||weakActivity.get() == null)
 			return;
 		mThread.postRunnable(new Runnable()
 		{
@@ -137,15 +148,13 @@ public class GameBridge
 			@Override
 			public void run()
 			{
-				if (mBotInfo != null && weakActivity.get() != null)
-				{
 					helper.forwardToChat(json, hikeMessage, mBotInfo, weakActivity.get());
-				}
 			}
 		});
 	}
 
 	/**
+	 * Platform Version 5
 	 * Call this method to send a normal event.
 	 * 
 	 * @param messageHash
@@ -164,15 +173,13 @@ public class GameBridge
 			@Override
 			public void run()
 			{
-				if (mBotInfo != null)
-				{
 					helper.sendNormalEvent(messageHash, eventData, mBotInfo.getNamespace());
-				}
 			}
 		});
 	}
 
 	/**
+	 * Platform Version 5
 	 * Call this function to send a shared message to the contacts of the user. This function when forwards the data, returns with the contact details of the users it has sent the
 	 * message to. It will call JavaScript function "onContactChooserResult(int resultCode,JsonArray array)" This JSOnArray contains list of JSONObject where each JSONObject
 	 * reflects one user. As of now each JSON will have name and platform_id, e.g : [{'name':'Paul','platform_id':'dvgd78as'}] resultCode will be 0 for fail and 1 for success NOTE
@@ -187,7 +194,7 @@ public class GameBridge
 	 */
 	public void sendSharedMessage(final String cardObject, final String hikeMessage, final String sharedData)
 	{
-		if (mThread == null)
+		if (mThread == null||weakActivity.get() == null)
 			return;
 		mThread.postRunnable(new Runnable()
 		{
@@ -195,15 +202,13 @@ public class GameBridge
 			@Override
 			public void run()
 			{
-				if (mBotInfo != null && weakActivity.get() != null)
-				{
 					helper.sendSharedMessage(cardObject, hikeMessage, sharedData, mBotInfo, weakActivity.get());
-				}
 			}
 		});
 	}
 
 	/**
+	 * Platform Version 5
 	 * Call this function to get all the event messages data. The data is a stringified list that contains: "name": name of the user interacting with. This gives name, and if the
 	 * name isn't present , then the msisdn. "platformUid": the platform user id of the user interacting with. "eventId" : the event id of the event. "d" : the data that has been
 	 * sent/received for the card message "et": the type of message. 0 if shared event, and 1 if normal event. "eventStatus" : the status of the event. 0 if sent, 1 if received.
@@ -223,24 +228,21 @@ public class GameBridge
 			@Override
 			public void run()
 			{
-				if (mBotInfo != null)
-				{
 					String returnedData = helper.getAllEventsForMessageHash(messageHash, mBotInfo.getNamespace());
-					DummyGameActivity.gameActivity.runOnGLThread(new Runnable()
-					{
-						@Override
-						public void run()
-						{
-							// gameCallback(functionId,returnedData);
-						}
-					});
+					/**
+					 * TODO
+					 * 
+					 * DummyGameActivity.gameActivity.runOnGLThread(new Runnable() {
+					 * 
+					 * @Override public void run() { // gameCallback(functionId,returnedData); } });
+					 */
 
-				}
 			}
 		});
 	}
 
 	/**
+	 * Platform Version 5
 	 * Call this function to get all the event messages data. The data is a stringified list that contains event id, message hash and the data.
 	 * <p/>
 	 * "name": name of the user interacting with. This gives name, and if the name isn't present , then the msisdn. "platformUid": the platform user id of the user interacting
@@ -260,23 +262,20 @@ public class GameBridge
 			@Override
 			public void run()
 			{
-				if (mBotInfo != null)
-				{
 					String returnedData = helper.getAllEventsData(mBotInfo.getNamespace());
-					DummyGameActivity.gameActivity.runOnGLThread(new Runnable()
-					{
-						@Override
-						public void run()
-						{
-							// gameCallback(functionId,returnedData);
-						}
-					});
-				}
+					/**
+					 * TODO
+					 * 
+					 * DummyGameActivity.gameActivity.runOnGLThread(new Runnable() {
+					 * 
+					 * @Override public void run() { // gameCallback(functionId,returnedData); } });
+					 */
 			}
 		});
 	}
 
 	/**
+	 * Platform Version 5
 	 * Call this function to get all the shared messages data. The data is a stringified list that contains event id, message hash and the data.
 	 * <p/>
 	 * "name": name of the user interacting with. This gives name, and if the name isn't present , then the msisdn. "platformUid": the platform user id of the user interacting
@@ -284,7 +283,7 @@ public class GameBridge
 	 * for the card message "eventStatus" : the status of the event. 0 if sent, 1 if received.
 	 *
 	 * @param functionId:
-	 *            function id to call back to the js.
+	 *            function id to call back to the game.
 	 */
 	public void getSharedEventsData(String functionId)
 	{
@@ -296,18 +295,14 @@ public class GameBridge
 			@Override
 			public void run()
 			{
-				if (mBotInfo != null)
-				{
 					String returnedData = helper.getSharedEventsData(mBotInfo.getNamespace());
-					DummyGameActivity.gameActivity.runOnGLThread(new Runnable()
-					{
-						@Override
-						public void run()
-						{
-							// gameCallback(functionId,returnedData);
-						}
-					});
-				}
+					/**
+					 * TODO
+					 * 
+					 * DummyGameActivity.gameActivity.runOnGLThread(new Runnable() {
+					 * 
+					 * @Override public void run() { // gameCallback(functionId,returnedData); } });
+					 */
 			}
 		});
 	}
