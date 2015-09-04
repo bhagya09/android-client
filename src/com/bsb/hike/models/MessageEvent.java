@@ -192,6 +192,6 @@ public class MessageEvent
 	{
      	return isEventSent(eventStatus) ? ContactManager.getInstance().getSelfMsisdn() : msisdn;
 	}
-
+	
 }
 
