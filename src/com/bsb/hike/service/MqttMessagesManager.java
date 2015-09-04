@@ -390,7 +390,7 @@ public class MqttMessagesManager
 			ContactInfo contact = ContactManager.getInstance().getContact(msisdn, true, false);
 			boolean showRecentlyJoined = contact.getHikeJoinTime() > 0 && !contact.isUnknownContact();
 			
-			if (appPrefs.getBoolean(HikeConstants.NUJ_NOTIF_BOOLEAN_PREF, true) && !ContactManager.getInstance().isBlocked(msisdn))
+			if (appPrefs.getBoolean(HikeConstants.NUJ_NOTIF_BOOLEAN_PREF, true) && !ContactManager.getInstance().isBlocked(msisdn) && jsonObj.getJSONObject(HikeConstants.DATA).optBoolean(HikeConstants.SHOW , true))
 			{
 				if(jsonObj.getJSONObject(HikeConstants.DATA).optBoolean(HikeConstants.UserJoinMsg.PERSIST_CHAT, HikeConstants.UserJoinMsg.defaultPersistChat))
 				{
