@@ -713,8 +713,6 @@ public class HikeConstants
 	/* the max amount of time we wait for the PIN */
 	public static final int PIN_CAPTURE_TIME = 10 * 1000;
 
-	public static final int CALL_ME_WAIT_TIME = 150 * 1000;
-
 	public static final int NETWORK_ERROR_POP_UP_TIME = 120 * 1000;
 
 	public static final int BACKUP_RESTORE_UI_DELAY = 3 * 1000;
