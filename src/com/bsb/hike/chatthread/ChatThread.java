@@ -122,7 +122,6 @@ import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -4092,6 +4091,10 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			{
 				mCustomKeyboard.showCustomKeyboard(mComposeView, true);
 			}
+		}
+		else
+		{
+			updatePadding(0);
 		}
 	}
 	
