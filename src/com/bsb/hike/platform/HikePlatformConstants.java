@@ -76,6 +76,7 @@ public interface HikePlatformConstants
 	public static final String MAPPED_EVENT_ID = "i";
 	public static final String EVENT_CARDDATA = "cd";
 	public static final String CLIENT_TIMESTAMP = "c";
+	public static final String MICROAPP_DATA = "mmData";
 
 	public static final class PlatformUIDFetchType
 	{
@@ -208,7 +209,7 @@ public interface HikePlatformConstants
 	
 	public static final int VERSION_ALTO = 1;
 
-	public static final int CURRENT_VERSION = 5;
+	public static final int CURRENT_VERSION = 6;
 
 	public static final String AB_COLOR = "color";
 	

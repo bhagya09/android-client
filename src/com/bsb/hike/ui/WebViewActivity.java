@@ -137,7 +137,9 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	private View inflatedErrorView;
 	
 	private boolean webViewLoadFailed = false;
-	
+
+	private String microappData;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
@@ -152,6 +154,8 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		}
 
 		allowLoc = getIntent().getBooleanExtra(HikeConstants.Extras.WEBVIEW_ALLOW_LOCATION, false);
+
+		microappData = getIntent().getStringExtra(HikePlatformConstants.MICROAPP_DATA);
 		
 		setMode(getIntent().getIntExtra(WEBVIEW_MODE, WEB_URL_MODE));
 
@@ -760,7 +764,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 			}
 		}
 
-		if (type.equals(HikePubSub.MESSAGE_EVENT_RECEIVED))
+		else if (type.equals(HikePubSub.MESSAGE_EVENT_RECEIVED))
 		{
 
 			if (object instanceof MessageEvent)
@@ -780,7 +784,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 						jsonObject.put(HikePlatformConstants.EVENT_TYPE, messageEvent.getEventType());
 						if (null != mmBridge)
 						{
-							mmBridge.notifDataReceived(jsonObject.toString());
+							mmBridge.eventReceived(jsonObject.toString());
 						}
 
 					}
@@ -1036,6 +1040,10 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 			{
 				bar.setVisibility(View.INVISIBLE);
 				showErrorViewIfLoadError(view);
+			}
+			if (!TextUtils.isEmpty(microappData) && null != mmBridge)
+			{
+				mmBridge.sendMicroappIntentData(microappData);
 			}
 		}
 
