@@ -26,6 +26,7 @@ import com.bsb.hike.R;
 import com.bsb.hike.adapters.ApkExplorerListAdapter;
 import com.bsb.hike.offline.OfflineConstants;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
+import com.google.android.gms.maps.internal.p;
 public class ApkSelectionActivity extends HikeAppStateBaseFragmentActivity implements OnItemClickListener  {
 	ArrayList<ApplicationSelectionStatus>  apkInfo ;
 	Map<ApplicationInfo,Boolean> selectedApplications;
@@ -50,22 +51,32 @@ public class ApkSelectionActivity extends HikeAppStateBaseFragmentActivity imple
 		selectedApplications = new HashMap<ApplicationInfo,Boolean>();
 		List<PackageInfo> packageInfos =  getPackageManager().getInstalledPackages(0);
   		
-		for(int i=0;i<packageInfos.size();i++)
+		if (packageInfos != null && !packageInfos.isEmpty())
 		{
-			   PackageInfo packageInfo =  packageInfos.get(i);
-			   if(isUserApp(packageInfo.applicationInfo))
-			   {
-			   		apkInfo.add(new ApplicationSelectionStatus(packageInfo.applicationInfo,false));      
-			   }
+			for (int i = 0; i < packageInfos.size(); i++)
+			{
+				PackageInfo packageInfo = packageInfos.get(i);
+				if (isUserApp(packageInfo.applicationInfo))
+				{
+					apkInfo.add(new ApplicationSelectionStatus(packageInfo.applicationInfo, false));
+				}
+			}
 		}
-		Collections.sort(apkInfo, new Comparator<ApplicationSelectionStatus>() { 
-	  	       @Override 
-	  	       public int compare(ApplicationSelectionStatus applicationSelectionStatus1, ApplicationSelectionStatus applicationSelectionStatus2) {
-	  	           String applicationLabel1  = (String)getPackageManager().getApplicationLabel(applicationSelectionStatus1.getApplicationInfo());
-	  	           String applicationLabel2  = (String)getPackageManager().getApplicationLabel(applicationSelectionStatus2.getApplicationInfo());
-	  	           return applicationLabel1.compareToIgnoreCase(applicationLabel2);
-	  	       }
-		});
+
+		if (apkInfo.size() > 0)
+		{
+			Collections.sort(apkInfo, new Comparator<ApplicationSelectionStatus>()
+			{
+				@Override
+				public int compare(ApplicationSelectionStatus applicationSelectionStatus1, ApplicationSelectionStatus applicationSelectionStatus2)
+				{
+					String applicationLabel1 = (String) getPackageManager().getApplicationLabel(applicationSelectionStatus1.getApplicationInfo());
+					String applicationLabel2 = (String) getPackageManager().getApplicationLabel(applicationSelectionStatus2.getApplicationInfo());
+					return applicationLabel1.compareToIgnoreCase(applicationLabel2);
+				}
+			});
+		}
+
   		list = (ListView)findViewById(R.id.apk_list);	
   		apkAdapter = new ApkExplorerListAdapter(this,apkInfo);
   		list.setAdapter(apkAdapter);
@@ -111,8 +122,10 @@ public class ApkSelectionActivity extends HikeAppStateBaseFragmentActivity imple
 		showingMultiSelectActionBar = false;
 		removeSelection();
 	}
-	private void removeSelection() {
-		for(int i=0;i<apkInfo.size();i++)
+
+	private void removeSelection()
+	{
+		for (int i = 0; i < apkInfo.size(); i++)
 		{
 			apkInfo.get(i).status = false;
 		}
@@ -146,13 +159,14 @@ public class ApkSelectionActivity extends HikeAppStateBaseFragmentActivity imple
 			public void onClick(View v)
 			{
 				ArrayList<ApplicationInfo> apkList = new ArrayList<ApplicationInfo>();
-				for(Map.Entry<ApplicationInfo,Boolean> map : selectedApplications.entrySet()){
-				     apkList.add(map.getKey());
-				} 
-				Intent intent =  getIntent();
-				intent.putParcelableArrayListExtra(OfflineConstants.APK_SELECTION_RESULTS,apkList);
+				for (Map.Entry<ApplicationInfo, Boolean> map : selectedApplications.entrySet())
+				{
+					apkList.add(map.getKey());
+				}
+				Intent intent = getIntent();
+				intent.putParcelableArrayListExtra(OfflineConstants.APK_SELECTION_RESULTS, apkList);
 				setResult(RESULT_OK, intent);
-			    finish();
+				finish();
 			}
 		});
 
@@ -187,20 +201,22 @@ public class ApkSelectionActivity extends HikeAppStateBaseFragmentActivity imple
     	else
     		setupMultiSelectActionBar();
     }
-    public void toggleSelection(int position) {
-    	
-    	ApplicationSelectionStatus applicationStatus = apkInfo.get(position);
-		if(applicationStatus.getApplicationSelectionStatus())
+
+	public void toggleSelection(int position)
+	{
+
+		ApplicationSelectionStatus applicationStatus = apkInfo.get(position);
+		if (applicationStatus.getApplicationSelectionStatus())
 		{
 			applicationStatus.setApplicationSelectionStatus(false);
 			selectedApplications.remove(applicationStatus.appInfo);
-     		decrementSelectedItems();
+			decrementSelectedItems();
 		}
 		else
 		{
 			applicationStatus.setApplicationSelectionStatus(true);
-			selectedApplications.put(applicationStatus.appInfo,true);
-    		incrementSelectedItems();
+			selectedApplications.put(applicationStatus.appInfo, true);
+			incrementSelectedItems();
 		}
 		apkAdapter.notifyDataSetChanged();
 	}
@@ -211,45 +227,41 @@ public class ApkSelectionActivity extends HikeAppStateBaseFragmentActivity imple
 		   return (applicationInfo.flags & mask) == 0;
     }
 	
-	public  class ApplicationSelectionStatus{
+	public class ApplicationSelectionStatus
+	{
 		ApplicationInfo appInfo;
+
 		Boolean status; /* false - checkbox disable, true - checkbox enable */
 
-		ApplicationSelectionStatus(ApplicationInfo appInfo,Boolean status )
+		ApplicationSelectionStatus(ApplicationInfo appInfo, Boolean status)
 		{
-			this.appInfo =  appInfo;
-			this.status =  status;
+			this.appInfo = appInfo;
+			this.status = status;
 		}
-		public ApplicationInfo getApplicationInfo(){
+
+		public ApplicationInfo getApplicationInfo()
+		{
 			return this.appInfo;
 		}
-		public Boolean getApplicationSelectionStatus(){
+
+		public Boolean getApplicationSelectionStatus()
+		{
 			return this.status;
 		}
-		
-		public void setApplicationSelectionStatus(Boolean status){
-			this.status =  status;
+
+		public void setApplicationSelectionStatus(Boolean status)
+		{
+			this.status = status;
 		}
 	}
 
 	@Override
-	public void onItemClick(AdapterView<?> parent, View view, int position,
-			long id) {
+	public void onItemClick(AdapterView<?> parent, View view, int position, long id)
+	{
 		toggleSelection(position);
-		
+
 	}
-//	private void setupMultiSelectActionBar()
-//	{
-//		ActionBar actionBar = getSupportActionBar();
-//		actionBar.setDisplayOptions(ActionBar.);
-//		if (multiSelectActionBar == null)
-//		{
-//			multiSelectActionBar = LayoutInflater.from(this).inflate(R.layout., null);
-//		}
-//		View sendBtn = multiSelectActionBar.findViewById(R.id.done_container);
-//		TextView save = (TextView) multiSelectActionBar.findViewById(R.id.save);
-//
-//	}
+	
 }
 
 
