@@ -629,7 +629,8 @@ public class ConnectionManager implements ChannelListener
 	private void forgetWifiNetwork()
 	{
 		boolean success = wifiManager.removeNetwork(connectedNetworkId);
-		wifiManager.disconnect();
+		wifiManager.saveConfiguration();
+		wifiManager.disconnect();	
 		Logger.d(TAG, "Forget Netwrork was " + success);
 		connectedNetworkId = -1;
 	}

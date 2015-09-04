@@ -204,8 +204,8 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 	{
 		scanResultsAvailable = true;
 		Map<String, ScanResult> results = connectionManager.getWifiNetworksForMyMsisdn();
-
-		if (startedForChatThread)
+		Logger.d(TAG, "On scan results available .  Connected device is "+ connectedDevice +  " started for chat thread is " + startedForChatThread);
+		if (startedForChatThread && connectedDevice==null)
 		{
 			String ssid = OfflineUtils.getSsidForMsisdn(OfflineUtils.getMyMsisdn(), connectinMsisdn);
 			if (results.containsKey(ssid))

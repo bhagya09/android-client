@@ -1530,7 +1530,7 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
 	<string name= "free_hike_connection">Hike Direct Connected</string>
 	<string name= "free_hike_disconnect">Disconnect with %1$s ?</string>
 	<string name= "free_hike_disconnect_message">Your connection will end</string>
-	<string name= "scan_free_hike_connection">Tap here to connect to <![CDATA[<b>%1$s</b>]]> by hike direct</string>
+	<string name= "scan_free_hike_connection">Tap here to connect to <![CDATA[<b>%1$s</b>]]> by Hike Direct</string>
 	<string name="user_disconnect">Disconnected</string>
 	<string name="scan_process_started">Started the Scan Process</string>
 	<string name="connection_failed">Connection Failed</string>
