@@ -503,7 +503,7 @@ public class OfflineController
 
 	public synchronized void shutdownProcess(TException exception)
 	{
-		if (getOfflineState() != OFFLINE_STATE.DISCONNECTING)
+		if (getOfflineState() != OFFLINE_STATE.DISCONNECTING && getOfflineState() != OFFLINE_STATE.DISCONNECTED)
 		{
 			OfflineAnalytics.recordDisconnectionAnalytics(exception.getReasonCode());
 			// this function uses offline state == connected.

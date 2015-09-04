@@ -62,7 +62,7 @@ public class OfflineFileManager
 
 	public void deleteFiles(ArrayList<Long> rMsgIds,String msisdn)
 	{
-		if(rMsgIds==null|| rMsgIds.isEmpty())
+		if(rMsgIds==null|| rMsgIds.isEmpty() || TextUtils.isEmpty(msisdn))
 			return;
 		ChatThreadUtils.deleteMessagesFromDb(rMsgIds, false, rMsgIds.get(rMsgIds.size() - 1), msisdn);
 
