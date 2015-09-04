@@ -2070,6 +2070,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 			break;
 		case PIN:
 			viewFlipper.setDisplayedChild(PIN);
+			mCustomKeyboard.updateCore();
 
 			// Wrong Pin
 			if (value != null && value.equals(HikeConstants.PIN_ERROR))
