@@ -852,6 +852,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 
 	private void onOfflineConnection(String message)
 	{
+		mActionBar.updateOverflowMenuItemString(R.string.scan_free_hike,getString(R.string.disconnect_offline));
 		activity.updateActionBarColor(new ColorDrawable(Color.BLACK));
 		setStatusBarColor(R.color.black);
 		setLastSeen(message);
@@ -864,6 +865,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	{
 		prevLastSeen=null;
 		hideLastSeenText();
+		mActionBar.updateOverflowMenuItemString(R.string.scan_free_hike,getString(R.string.scan_free_hike));
 		fetchLastSeen();
 		showNetworkError(ChatThreadUtils.checkNetworkError());
 		activity.updateActionBarColor(getCurrentlTheme().headerBgResId());
