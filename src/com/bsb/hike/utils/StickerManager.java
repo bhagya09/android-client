@@ -474,7 +474,7 @@ public class StickerManager
 			}
 		}
 		
-		return new Pair<Boolean, List<StickerCategory>>(false, allCategoryList);
+		return new Pair<Boolean, List<StickerCategory>>(true, allCategoryList);
 	}
 
 	public void addRecentSticker(Sticker st)
