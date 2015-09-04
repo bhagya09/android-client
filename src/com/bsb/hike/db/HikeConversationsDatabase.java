@@ -8416,13 +8416,13 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 	}
 	
 	
-	public void updateSortingIdForAMessage(int msgId)
+	public void updateSortingIdForAMessage(String msgHash)
 	{
 		try
 		{
 			String updateStatement = "UPDATE " + DBConstants.MESSAGES_TABLE + " SET " + DBConstants.SORTING_ID + " = "
-					+ " ( ( " + "SELECT" + " MAX( " + DBConstants.SORTING_ID + " ) " + " FROM " + DBConstants.MESSAGES_TABLE + " )" + " + 1 ) " + " WHERE " + DBConstants.MESSAGE_ID + " = " + "'"
-					+ msgId + "'";
+					+ " ( ( " + "SELECT" + " MAX( " + DBConstants.SORTING_ID + " ) " + " FROM " + DBConstants.MESSAGES_TABLE + " )" + " + 1 ) " + " WHERE " + DBConstants.MESSAGE_HASH + " = " + "'"
+					+ msgHash + "'";
 			mDb.execSQL(updateStatement);
 		}
 
