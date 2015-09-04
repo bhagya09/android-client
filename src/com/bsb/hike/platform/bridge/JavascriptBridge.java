@@ -745,22 +745,11 @@ public abstract class JavascriptBridge
 				{
 					weakActivity.get().startActivity(intent);
 					callbackToJS(id, "Success");
-				}
-				else
-				{
-					callbackToJS(id, "Failure");
+					return;
 				}
 			}
-			else
-			{
-				callbackToJS(id, "Failure");
-			}
 		}
-		else
-		{
-			callbackToJS(id, "Failure");
-		}
-
+		callbackToJS(id, "Failure");
 	}
 
 	/**
@@ -1013,22 +1002,11 @@ public abstract class JavascriptBridge
 					intent.putExtra(HikePlatformConstants.MICROAPP_DATA, data);
 					weakActivity.get().startActivity(intent);
 					callbackToJS(id, "Success");
-				}
-				else
-				{
-					callbackToJS(id, "Failure");
+					return;
 				}
 			}
-			else
-			{
-				callbackToJS(id, "Failure");
-			}
 		}
-		else
-		{
-			callbackToJS(id, "Failure");
-		}
-
+		callbackToJS(id, "Failure");
 	}
 
 	public void sendMicroappIntentData(String data)
