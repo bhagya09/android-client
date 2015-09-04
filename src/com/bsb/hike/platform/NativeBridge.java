@@ -11,6 +11,8 @@ import android.util.Log;
 
 public class NativeBridge
 {
+	private CocosGamingActivity activity;
+	
 	public BotInfo mBotInfo;
 
 	public String msisdn;
@@ -23,8 +25,9 @@ public class NativeBridge
 
 	protected WeakReference<Activity> weakActivity;
 
-	public NativeBridge(String msisdn, Activity activity)
+	public NativeBridge(String msisdn, CocosGamingActivity activity)
 	{
+		this.activity=activity;
 		this.msisdn = msisdn;
 		weakActivity = new WeakReference<Activity>(activity);
 		init();
@@ -79,7 +82,7 @@ public class NativeBridge
 	 * @param key:
 	 *            key of the data demanded. Game needs to make sure about the uniqueness of the key.
 	 */
-	public void getFromCache(String id, final String key)
+	public void getFromCache(final String id, final String key)
 	{
 		if (mThread == null)
 			return;
@@ -89,14 +92,18 @@ public class NativeBridge
 			@Override
 			public void run()
 			{
-					String cache = helper.getFromCache(key, mBotInfo.getNamespace());
-				/**
-				 * TODO
-				 * 
-				 * DummyGameActivity.gameActivity.runOnGLThread(new Runnable() {
-				 * 
-				 * @Override public void run() { // gameCallback(id,cache); } });
-				 */
+				final String cache = helper.getFromCache(key, mBotInfo.getNamespace());
+
+				activity.runOnGLThread(new Runnable()
+				{
+
+					@Override
+					public void run()
+					{
+						// gameCallback(id,cache);
+						activity.PlatformCallback(id, cache);
+					}
+				});
 
 			}
 		});
