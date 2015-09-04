@@ -745,22 +745,11 @@ public abstract class JavascriptBridge
 				{
 					weakActivity.get().startActivity(intent);
 					callbackToJS(id, "Success");
-				}
-				else
-				{
-					callbackToJS(id, "Failure");
+					return;
 				}
 			}
-			else
-			{
-				callbackToJS(id, "Failure");
-			}
 		}
-		else
-		{
-			callbackToJS(id, "Failure");
-		}
-
+		callbackToJS(id, "Failure");
 	}
 
 	/**
@@ -984,6 +973,45 @@ public abstract class JavascriptBridge
 		Context context = weakActivity.get();
 		Intent intent = IntentFactory.getEmailOpenIntent(context, subject, body, sendTo);
 		context.startActivity(intent);
+	}
+
+	/**
+	 * Platform Bridge Version 6
+	 * call this function to call the non-messaging bot`
+	 * @param id : : the id of the function that native will call to call the js .
+	 * @param msisdn: the msisdn of the non-messaging bot to be opened.
+	 * @param data : the data to be sent to the bot.
+	 * returns Success if success and failure if failure.
+	 */
+	@JavascriptInterface
+	public void openNonMessagingBot(String id, String msisdn, String data)
+	{
+
+		if (BotUtils.isBot(msisdn))
+		{
+			BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
+			if (botInfo.isNonMessagingBot())
+			{
+				Intent intent = null;
+				if (weakActivity.get() != null)
+				{
+					intent = IntentFactory.getNonMessagingBotIntent(msisdn, weakActivity.get());
+				}
+				if (null != intent)
+				{
+					intent.putExtra(HikePlatformConstants.MICROAPP_DATA, data);
+					weakActivity.get().startActivity(intent);
+					callbackToJS(id, "Success");
+					return;
+				}
+			}
+		}
+		callbackToJS(id, "Failure");
+	}
+
+	public void sendMicroappIntentData(String data)
+	{
+		mWebView.loadUrl("javascript:intentData(" + "'" + getEncodedDataForJS(data) + "')");
 	}
 
 	private class PlatformMicroAppRequestListener implements IRequestListener

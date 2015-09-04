@@ -3183,7 +3183,7 @@ public class MqttMessagesManager
 						{
 							convDb.updateNotifDataForMicroApps(destination, notifData);
 
-							HikeMessengerApp.getPubSub().publish(HikePubSub.NOTIF_DATA_RECEIVED, botInfo.getNotifData());
+							HikeMessengerApp.getPubSub().publish(HikePubSub.NOTIF_DATA_RECEIVED, botInfo);
 						}
 					}
 					else

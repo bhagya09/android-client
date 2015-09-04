@@ -3,6 +3,10 @@ package com.bsb.hike.ui;
 import java.util.ArrayList;
 import java.util.List;
 
+import android.net.ParseException;
+import com.bsb.hike.models.ContactInfo;
+import com.bsb.hike.models.MessageEvent;
+import com.bsb.hike.modules.contactmgr.ContactManager;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -133,7 +137,9 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	private View inflatedErrorView;
 	
 	private boolean webViewLoadFailed = false;
-	
+
+	private String microappData;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
@@ -148,6 +154,8 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		}
 
 		allowLoc = getIntent().getBooleanExtra(HikeConstants.Extras.WEBVIEW_ALLOW_LOCATION, false);
+
+		microappData = getIntent().getStringExtra(HikePlatformConstants.MICROAPP_DATA);
 		
 		setMode(getIntent().getIntExtra(WEBVIEW_MODE, WEB_URL_MODE));
 
@@ -739,12 +747,52 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	@Override
 	public void onEventReceived(String type, Object object)
 	{
-		final String notifData = (String ) object;
+
 		if (type.equals(HikePubSub.NOTIF_DATA_RECEIVED))
 		{
-			if (null != mmBridge && !TextUtils.isEmpty(notifData))
+			if (object instanceof BotInfo)
 			{
-				mmBridge.notifDataReceived(notifData);
+				BotInfo botInfo = (BotInfo) object;
+				if (msisdn.equals(botInfo.getMsisdn()))
+				{
+					String notifData = botInfo.getNotifData();
+					if (null != mmBridge && !TextUtils.isEmpty(botInfo.getNotifData()))
+					{
+						mmBridge.notifDataReceived(notifData);
+					}
+				}
+			}
+		}
+
+		else if (type.equals(HikePubSub.MESSAGE_EVENT_RECEIVED))
+		{
+
+			if (object instanceof MessageEvent)
+			{
+				MessageEvent messageEvent = (MessageEvent) object;
+				if (msisdn.equals(messageEvent.getMsisdn()))
+				{
+					ContactInfo info = ContactManager.getInstance().getContact(messageEvent.getMsisdn());
+
+					try
+					{
+						JSONObject jsonObject = null != info ? info.getPlatformInfo() : new JSONObject();
+						jsonObject.put(HikePlatformConstants.EVENT_DATA, messageEvent.getEventMetadata());
+						jsonObject.put(HikePlatformConstants.EVENT_ID, messageEvent.getEventId());
+						jsonObject.put(HikePlatformConstants.EVENT_STATUS, messageEvent.getEventStatus());
+
+						jsonObject.put(HikePlatformConstants.EVENT_TYPE, messageEvent.getEventType());
+						if (null != mmBridge)
+						{
+							mmBridge.eventReceived(jsonObject.toString());
+						}
+
+					}
+					catch (JSONException e)
+					{
+						Logger.e(tag, "JSON Exception in message event received");
+					}
+				}
 			}
 		}
 
@@ -992,6 +1040,10 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 			{
 				bar.setVisibility(View.INVISIBLE);
 				showErrorViewIfLoadError(view);
+			}
+			if (!TextUtils.isEmpty(microappData) && null != mmBridge)
+			{
+				mmBridge.sendMicroappIntentData(microappData);
 			}
 		}
 

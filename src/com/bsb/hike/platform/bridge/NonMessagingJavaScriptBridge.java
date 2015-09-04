@@ -385,7 +385,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 
 	public void notifDataReceived(final String notifData)
 	{
-		if (mHandler == null)
+		if (mHandler == null || TextUtils.isEmpty(notifData))
 		{
 			return;
 		}
@@ -395,6 +395,22 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 			public void run()
 			{
 				mWebView.loadUrl("javascript:notifDataReceived" + "('" + getEncodedDataForJS(notifData) + "')");
+			}
+		});
+	}
+
+	public void eventReceived(final String event)
+	{
+		if (mHandler == null || TextUtils.isEmpty(event))
+		{
+			return;
+		}
+		mHandler.post(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				mWebView.loadUrl("javascript:eventReceived" + "('" + getEncodedDataForJS(event) + "')");
 			}
 		});
 	}

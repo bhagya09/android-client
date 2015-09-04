@@ -60,7 +60,7 @@ public class GeneralEventMessagesManager
 				String eventMetadata = data.getString(HikePlatformConstants.EVENT_CARDDATA);
 				String namespace = data.getString(HikePlatformConstants.NAMESPACE);
 				MessageEvent messageEvent = new MessageEvent(HikePlatformConstants.NORMAL_EVENT, from, namespace, eventMetadata, messageHash,
-						HikePlatformConstants.EventStatus.EVENT_RECEIVED, clientTimestamp, mappedId);
+						HikePlatformConstants.EventStatus.EVENT_RECEIVED, clientTimestamp, mappedId, messageId);
 				long eventId = HikeConversationsDatabase.getInstance().insertMessageEvent(messageEvent);
 				if (eventId < 0)
 				{
@@ -69,7 +69,7 @@ public class GeneralEventMessagesManager
 				}
 				messageEvent.setEventId(eventId);
 
-				messageReceivedPubsubHandling((int) messageId, messageEvent);
+				HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_EVENT_RECEIVED, messageEvent);
 				boolean increaseUnreadCount = data.optBoolean(HikePlatformConstants.INCREASE_UNREAD);
 				if (increaseUnreadCount)
 				{
@@ -80,22 +80,6 @@ public class GeneralEventMessagesManager
 			}
 
 		}
-	}
-
-	private void messageReceivedPubsubHandling(int messageId, MessageEvent messageEvent) throws JSONException
-	{
-		ContactInfo info = ContactManager.getInstance().getContact(messageEvent.getMsisdn());
-		JSONObject jsonObject = info.getPlatformInfo();
-		jsonObject.put(HikePlatformConstants.EVENT_DATA, messageEvent.getEventMetadata());
-		jsonObject.put(HikePlatformConstants.EVENT_ID , messageEvent.getEventId());
-		jsonObject.put(HikePlatformConstants.EVENT_STATUS, messageEvent.getEventStatus());
-
-		jsonObject.put(HikePlatformConstants.EVENT_TYPE, messageEvent.getEventType());
-
-		Message m = Message.obtain();
-		m.arg1 = (int) messageId;
-		m.obj = jsonObject.toString();
-		HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_EVENT_RECEIVED, m);
 	}
 
 	private static void increaseUnreadCount(String msisdn)
