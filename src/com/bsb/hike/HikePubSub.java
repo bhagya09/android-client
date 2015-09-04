@@ -426,6 +426,8 @@ public class HikePubSub implements Runnable
 	
 	public static final String TIMELINE_FTUE_LIST_UPDATE = "timeline_ftue_list_update";
 	
+	public static final String PLATFORM_CARD_EVENT_SENT = "platformCardEventSent";
+	
 	private final Thread mThread;
 
 	private final BlockingQueue<Operation> mQueue;
