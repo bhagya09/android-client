@@ -4,7 +4,7 @@ import org.cocos2dx.lib.Cocos2dxActivity;
 
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
-import com.bsb.hike.platform.GameUtils;
+import com.bsb.hike.platform.NativeBridge;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -22,11 +22,11 @@ public class DummyGameActivity extends Cocos2dxActivity
 		setContentView(R.layout.activity_dummy_game);
 		gameActivity = this;
 		BotInfo bot=BotUtils.getBotInfoForBotMsisdn("+hikenews+");
-		GameUtils utilities=new GameUtils(bot,this);
+		NativeBridge utilities=new NativeBridge(bot,this);
 		String data="data";
 		String key="key1";
-		utilities.callNative("id",utilities.PUT_IN_CACHE,key,data);
-		utilities.callNative("id",utilities.GET_FROM_CACHE,key);
+		utilities.putInCache(key, data);
+		utilities.getFromCache("id",key);
 	}
 
 	@Override

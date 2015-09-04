@@ -12,9 +12,7 @@ import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.NonMessagingBotMetadata;
 import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.db.HikeConversationsDatabase;
-import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
-import com.bsb.hike.platform.bridge.JavascriptBridge;
 import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.ui.ComposeChatActivity;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
@@ -29,49 +27,42 @@ import android.text.TextUtils;
 
 public class PlatformHelper
 {
-	public BotInfo mBotInfo;
 
-	protected Handler mHandler;
+	protected static Handler mHandler;
 
-	protected WeakReference<Activity> weakActivity;
+	public static final String TAG = "PlatformHelper";
 
-	public static final String tag = "PlatformHelper";
-
-	protected static final String REQUEST_CODE = "request_code";
-
-	private static final int PICK_CONTACT_REQUEST = 1;
-
-	protected static final int PICK_CONTACT_AND_SEND_REQUEST = 2;
-
-	Activity activity;
-
-	public PlatformHelper(BotInfo mBotInfo, Activity activity)
+	public PlatformHelper()
 	{
-		this.mBotInfo = mBotInfo;
-		this.activity = activity;
-		weakActivity = new WeakReference<Activity>(activity);
 		this.mHandler = new Handler(HikeMessengerApp.getInstance().getMainLooper())
 		{
 			public void handleMessage(Message msg)
 			{
-				// handleUiMessage(msg);
+				handleUiMessage(msg);
 			};
 		};
-
 	}
 
-	public void putInCache(String key, String value)
+	protected void handleUiMessage(Message msg)
 	{
-		HikeContentDatabase.getInstance().putInContentCache(key, mBotInfo.getNamespace(), value);
+
 	}
 
-	public String getFromCache(String id, String key)
+	// Call this method to put data in cache. This will be a key-value pair.
+	public static void putInCache(String key, String value, String namespace)
 	{
-		return HikeContentDatabase.getInstance().getFromContentCache(key, mBotInfo.getNamespace());
+		HikeContentDatabase.getInstance().putInContentCache(key, namespace, value);
+	}
+
+	// Call this function to get data from cache corresponding to a key
+	public static String getFromCache(String key, String namespace)
+	{
+		return HikeContentDatabase.getInstance().getFromContentCache(key, namespace);
 
 	}
 
-	public void logAnalytics(String isUI, String subType, String json)
+	// Function to log Analytics
+	public static void logAnalytics(String isUI, String subType, String json, BotInfo mBotInfo)
 	{
 
 		try
@@ -98,13 +89,14 @@ public class PlatformHelper
 		}
 	}
 
-	public void forwardToChat(String json, String hikeMessage)
+	// Function to forward to chat
+	public static void forwardToChat(String json, String hikeMessage, BotInfo mBotInfo, Activity activity)
 	{
-		Logger.i(tag, "Received this json in forward to chat : " + json + "\n Received this hm : " + hikeMessage);
+		Logger.i(TAG, "Received this json in forward to chat : " + json + "\n Received this hm : " + hikeMessage);
 
 		if (TextUtils.isEmpty(json) || TextUtils.isEmpty(hikeMessage))
 		{
-			Logger.e(tag, "Received a null or empty json/hikeMessage in forward to chat");
+			Logger.e(TAG, "Received a null or empty json/hikeMessage in forward to chat");
 			return;
 		}
 
@@ -126,7 +118,7 @@ public class PlatformHelper
 			message.setNameSpace(mBotInfo.getNamespace());
 			if (message != null)
 			{
-				startComPoseChatActivity(message);
+				startComPoseChatActivity(message, activity);
 			}
 		}
 		catch (JSONException e)
@@ -136,41 +128,16 @@ public class PlatformHelper
 		}
 	}
 
-	protected void startComPoseChatActivity(final ConvMessage message)
+	public static void sendNormalEvent(String messageHash, String eventData,String namespace)
 	{
-		Logger.d(tag, "startComPoseChatActivity");
-		if (null == mHandler)
-		{
-			return;
-		}
-
-		mHandler.post(new Runnable()
-		{
-			@Override
-			public void run()
-			{
-				Logger.d(tag, "Handler not null");
-				Activity mContext = weakActivity.get();
-				if (mContext != null)
-				{
-					Logger.d(tag, "Context not null");
-					final Intent intent = IntentFactory.getForwardIntentForConvMessage(mContext, message, PlatformContent.getForwardCardData(message.webMetadata.JSONtoString()));
-					mContext.startActivity(intent);
-				}
-			}
-		});
+		PlatformUtils.sendPlatformMessageEvent(eventData, messageHash, namespace);
 	}
 
-	public void sendNormalEvent(String messageHash, String eventData)
-	{
-		PlatformUtils.sendPlatformMessageEvent(eventData, messageHash, mBotInfo.getNamespace());
-	}
-
-	public void sendSharedMessage(String cardObject, String hikeMessage, String sharedData)
+	public static void sendSharedMessage(String cardObject, String hikeMessage, String sharedData, BotInfo mBotInfo, final Activity activity)
 	{
 		if (TextUtils.isEmpty(cardObject) || TextUtils.isEmpty(hikeMessage))
 		{
-			Logger.e(tag, "Received a null or empty json/hikeMessage in forward to chat");
+			Logger.e(TAG, "Received a null or empty json/hikeMessage in forward to chat");
 			return;
 		}
 
@@ -195,7 +162,7 @@ public class PlatformHelper
 			sharedDataJson.put(HikePlatformConstants.EVENT_TYPE, HikePlatformConstants.SHARED_EVENT);
 			message.setPlatformData(sharedDataJson);
 			message.setNameSpace(mBotInfo.getNamespace());
-			pickContactAndSend(message);
+			pickContactAndSend(message, activity);
 
 		}
 		catch (JSONException e)
@@ -205,40 +172,65 @@ public class PlatformHelper
 		}
 	}
 
-	public String getAllEventsForMessageHash(String functionId, String messageHash)
+	public static String getAllEventsForMessageHash(String messageHash,String namespace)
 	{
 		if (TextUtils.isEmpty(messageHash))
 		{
-			Logger.e(tag, "can't return all events as the message hash is " + messageHash);
+			Logger.e(TAG, "can't return all events as the message hash is " + messageHash);
 			return null;
 		}
-		String eventData = HikeConversationsDatabase.getInstance().getEventsForMessageHash(messageHash, mBotInfo.getNamespace());
+		String eventData = HikeConversationsDatabase.getInstance().getEventsForMessageHash(messageHash, namespace);
 		return eventData;
 	}
 
-	protected void pickContactAndSend(ConvMessage message)
+	public static String getAllEventsData(String namespace)
 	{
-		Activity activity = weakActivity.get();
+		String messageData = HikeConversationsDatabase.getInstance().getMessageEventsForMicroapps(namespace, true);
+		return messageData;
+	}
+
+	public static String getSharedEventsData(String namespace)
+	{
+		String messageData = HikeConversationsDatabase.getInstance().getMessageEventsForMicroapps(namespace, false);
+		return messageData;
+	}
+
+	private static void pickContactAndSend(ConvMessage message, final Activity activity)
+	{
+		final String REQUEST_CODE = "request_code";
+
+		final int PICK_CONTACT_REQUEST = 1;
+
+		final int PICK_CONTACT_AND_SEND_REQUEST = 2;
 		if (activity != null)
 		{
 			final Intent intent = IntentFactory.getForwardIntentForConvMessage(activity, message, PlatformContent.getForwardCardData(message.webMetadata.JSONtoString()));
 			intent.putExtra(HikeConstants.Extras.COMPOSE_MODE, ComposeChatActivity.PICK_CONTACT_AND_SEND_MODE);
-			intent.putExtra(tag, activity.hashCode());
+			intent.putExtra(TAG, activity.hashCode());
 			intent.putExtra(REQUEST_CODE, PICK_CONTACT_AND_SEND_REQUEST);
 			activity.startActivityForResult(intent, HikeConstants.PLATFORM_REQUEST);
 		}
 	}
 
-	public String getAllEventsData(String functionId)
+	private static void startComPoseChatActivity(final ConvMessage message, final Activity mContext)
 	{
-		String messageData = HikeConversationsDatabase.getInstance().getMessageEventsForMicroapps(mBotInfo.getNamespace(), true);
-		return messageData;
-	}
+		if (null == mHandler)
+		{
+			return;
+		}
 
-	public String getSharedEventsData(String functionId)
-	{
-		String messageData = HikeConversationsDatabase.getInstance().getMessageEventsForMicroapps(mBotInfo.getNamespace(), false);
-		return messageData;
+		mHandler.post(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				if (mContext != null)
+				{
+					final Intent intent = IntentFactory.getForwardIntentForConvMessage(mContext, message, PlatformContent.getForwardCardData(message.webMetadata.JSONtoString()));
+					mContext.startActivity(intent);
+				}
+			}
+		});
 	}
 
 }
