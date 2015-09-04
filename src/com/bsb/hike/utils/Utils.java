@@ -6981,14 +6981,31 @@ public class Utils
 	*/
 	public static void postStatusUpdate(String status, int moodId)
 	{
-		if(TextUtils.isEmpty(status) && moodId < 0)
+		postStatusUpdate(status, moodId, null);
+	}
+	
+	/**
+	 * Call this method to post a status update to timeline.
+	 * @param status
+	 * @param moodId : Pass -1 if no mood
+	 * @param imageFilePath : Path of the image on the client. Image should only be of jpeg format and compressed.
+	 * 
+	 * Status = null, moodId < 0 & imageFilePath = null should not hold together
+	 * 
+	 * List of moods:
+	 * {@link com.bsb.hike.utils.EmoticonConstants#moodMapping}
+	 * 
+	 */
+	public static void postStatusUpdate(String status, int moodId, String imageFilePath)
+	{
+		if(TextUtils.isEmpty(status) && moodId < 0 && TextUtils.isEmpty(imageFilePath) )
 		{
-			Logger.e("Utils", "postStatusUpdate : both status == null/empty and moodId < 0 conditions hold together. Returning.");
+			Logger.e("Utils", "postStatusUpdate : status = null/empty, moodId < 0 & imageFilePath = null conditions hold together. Returning.");
 			return;
 		}
 		try
 		{
-			StatusUpdateTask task = new StatusUpdateTask(status, moodId, null);
+			StatusUpdateTask task = new StatusUpdateTask(status, moodId, imageFilePath);
 			task.execute();
 		}
 		catch (IOException e)

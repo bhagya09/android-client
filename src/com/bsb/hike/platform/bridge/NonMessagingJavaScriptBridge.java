@@ -667,6 +667,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	 * Call this function to change action bar color at runtime. <br>
 	 * This method will work regardless of the Android Version. <br> 
 	 * Call it prudently, since it can alter the beauty of the micro app
+	 *
 	 * 
 	 * @param abColor
 	 */
@@ -934,13 +935,57 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	@JavascriptInterface
 	public void postStatusUpdate(String status, String moodId)
 	{
+		postStatusUpdate(status, moodId, null);
+	}
+	
+	/**
+	 * Platform Bridge Version 6
+	 * Call this method to post a status update to timeline.
+	 * 
+	 * @param status
+	 * @param moodId : Pass -1 if no mood
+	 * @param imageFilePath : Path of the image on the client. Image should only be of jpeg format and compressed.
+	 * 
+	 * Status = null, moodId = -1 & imageFilePath = null should not hold together
+	 * 
+	 * 0, happy
+	 * 1, sad
+	 * 2, in_love
+	 * 3, surprised
+	 * 4, confused
+	 * 5, angry
+	 * 6, sleepy
+	 * 7, hungover
+	 * 8, chilling
+	 * 9, studying
+	 * 10, busy
+	 * 11, love
+	 * 12, middle_finger
+	 * 13, boozing
+	 * 14, movie
+	 * 15, caffeinated
+	 * 16, insomniac
+	 * 17, driving
+	 * 18, traffic
+	 * 19, late
+	 * 20, shopping
+	 * 21, gaming
+	 * 22, coding
+	 * 23, television
+	 * 33, music
+	 * 34, partying_hard
+	 * 35, singing
+	 * 36, eating
+	 * 37, working_out
+	 * 38, cooking
+	 * 39, beauty_saloon
+	 * 40, sick
+	 * 
+	 */
+	@JavascriptInterface
+	public void postStatusUpdate(String status, String moodId, String imageFilePath)
+	{
 		int mood;
-		
-		if (TextUtils.isEmpty(status) && TextUtils.isEmpty(moodId))
-		{
-			Logger.e(tag, "In postStatusUpdate both status & moodId are null. Returning.");
-			return;
-		}
 		
 		try
 		{
@@ -952,6 +997,6 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 			mood = -1;
 		}
 		
-		Utils.postStatusUpdate(status, mood);
+		Utils.postStatusUpdate(status, mood, imageFilePath);
 	}
 }
