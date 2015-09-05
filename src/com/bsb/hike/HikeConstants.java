@@ -956,7 +956,10 @@ public class HikeConstants
 	
 	public static final String UAE_COUNTRY_CODE = "+971";
 	
-	public static final String[] SSL_NOT_ALLOWED_COUNTRIES = {SAUDI_ARABIA_COUNTRY_CODE, UAE_COUNTRY_CODE};
+	// Soudi Arabia, United Arab Emirates, Egypt, Iran, Turkey, Iraq, Yemen, Syria, Israel, Jordan, Palestine, Lebanon, 
+	// Oman, Kuwait, Qatar,	Bahrain, Cyprus
+	public static final String[] SSL_NOT_ALLOWED_COUNTRIES = {SAUDI_ARABIA_COUNTRY_CODE, UAE_COUNTRY_CODE, "+20", "+98", "+90", "+964", "+967", 
+		"+963", "+972", "+962", "+970", "+961", "+968", "+965", "+974", "+973", "+357"};
 
 	public static final int MDPI_TIMES_10 = 11;
 
