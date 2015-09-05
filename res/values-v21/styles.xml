@@ -114,7 +114,7 @@
        	  <item name="android:actionBarStyle">@style/Widget.Styled.ActionBar.ShadowLess</item>
 	</style>
 	
-	  <style name="WebView.Theme.ActionBar.Overlay.NoShadow" parent = "WebView.Theme">
+	  <style name="WebView.Theme.ActionBar.Overlay.NoShadow" parent = "WebView.Theme.ActionBar.Overlay">
 	     <item name="actionBarStyle">@style/Widget.Styled.ActionBar.ShadowLess</item>
        	  <item name="android:actionBarStyle">@style/Widget.Styled.ActionBar.ShadowLess</item>
 	 </style>

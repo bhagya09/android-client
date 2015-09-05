@@ -239,7 +239,14 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		}
 
 		Logger.d(TAG, "Starting population first time...");
-		createVirtualTable(tables);
+		try {
+			mDb.beginTransaction();
+			createVirtualTable(tables);
+			mDb.setTransactionSuccessful();
+		}
+		finally {
+			mDb.endTransaction();
+		}
 	}
 
 	/* Mark for first time setup to know the status of setup/ update/ elimination/ insertion/ re-balancing */

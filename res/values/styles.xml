@@ -1037,7 +1037,7 @@
         <item name="android:windowActionBarOverlay">true</item>
 	 </style>
 	 
-	 <style name="WebView.Theme.ActionBar.Overlay.NoShadow" parent = "WebView.Theme">
+	 <style name="WebView.Theme.ActionBar.Overlay.NoShadow" parent = "WebView.Theme.ActionBar.Overlay">
 	     <item name="android:windowContentOverlay">@null</item>
 	 </style>
 	 
