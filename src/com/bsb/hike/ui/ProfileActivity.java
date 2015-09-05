@@ -114,7 +114,6 @@ import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
 import android.view.animation.AnimationUtils;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView;
@@ -459,11 +458,6 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		
 		systemKeyboard = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CURRENT_KEYBOARD, false);
 		
-		if (mActivityState.groupEditDialogShowing)
-		{
-			onEditGroupNameClick(null);
-		}
-		
 		setupActionBar();
 		
 		if (getIntent().getBooleanExtra(ProductPopupsConstants.SHOW_CAMERA, false))
@@ -478,6 +472,22 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		
 	}
 
+	private void changeKeyboard()
+	{
+		mCustomKeyboard.showCustomKeyboard(mNameEdit, false);
+		mCustomKeyboard.swtichToDefaultKeyboard(mNameEdit);
+		mCustomKeyboard.unregister(R.id.name_edit);
+		mNameEdit.setOnClickListener(new OnClickListener()
+		{
+
+			@Override
+			public void onClick(View v)
+			{
+				showKeyboard();
+			}
+		});
+	}
+	
 	private void initCustomKeyboard(View parent)
 	{
 		ViewGroup parentView = (ViewGroup) parent.getParent();
@@ -497,6 +507,10 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		mNameEdit.requestFocus();
 		mNameEdit.setText(oneToNConversation.getLabel());
 		mNameEdit.setSelection(mNameEdit.getText().toString().length());
+		if (systemKeyboard)
+		{
+			changeKeyboard();
+		}
 		showKeyboard();
 		setupGroupNameEditActionBar();
 	}
@@ -620,7 +634,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		}
 		else
 		{
-			mCustomKeyboard.hideCustomKeyboard(mNameEdit);
+			mCustomKeyboard.showCustomKeyboard(mNameEdit, false);
 		}
 	}
 	
@@ -1364,6 +1378,10 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		mCustomKeyboard.registerEditText(R.id.email_input,KPTConstants.MULTILINE_LINE_EDITOR,ProfileActivity.this,ProfileActivity.this);
 		mCustomKeyboard.init(mNameEdit);
 		
+		if (systemKeyboard)
+		{
+			changeKeyboard();
+		}
 		showKeyboard();
 		
 		((TextView) name.findViewById(R.id.name_edit_field)).setText(R.string.name);
@@ -2017,67 +2035,6 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		HikeMessengerApp.getPubSub().publish(HikePubSub.FAVORITE_TOGGLED, favoriteToggle);
 	}
 
-	public void onEditGroupNameClick(View v)
-	{
-		InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
-		imm.showSoftInput(mNameEdit, InputMethodManager.SHOW_IMPLICIT);
-
-		mActivityState.groupEditDialogShowing = true;
-
-		groupEditDialog = new Dialog(this, R.style.Theme_CustomDialog_Keyboard);
-		groupEditDialog.setContentView(R.layout.group_name_change_dialog);
-
-		TextView header = (TextView) groupEditDialog.findViewById(R.id.header);
-
-		if (this.profileType == ProfileType.BROADCAST_INFO)
-		{
-			header.setText(R.string.edit_broadcast_name);
-		}
-		else
-		{
-			header.setText(R.string.edit_group_name);
-		}
-		mNameEdit = (CustomFontEditText) groupEditDialog.findViewById(R.id.group_name_edit);
-		mNameEdit.setText(TextUtils.isEmpty(mActivityState.edittedGroupName) ? oneToNConversation.getLabel() : mActivityState.edittedGroupName);
-		mNameEdit.setSelection(mNameEdit.length());
-
-		Button okBtn = (Button) groupEditDialog.findViewById(R.id.btn_ok);
-		Button cancelBtn = (Button) groupEditDialog.findViewById(R.id.btn_cancel);
-
-		cancelBtn.setOnClickListener(new View.OnClickListener()
-		{
-
-			@Override
-			public void onClick(View v)
-			{
-				groupEditDialog.dismiss();
-				mActivityState.groupEditDialogShowing = false;
-				mActivityState.edittedGroupName = null;
-			}
-		});
-
-		okBtn.setOnClickListener(new View.OnClickListener()
-		{
-
-			@Override
-			public void onClick(View v)
-			{
-				String groupName = mNameEdit.getText().toString();
-				if (TextUtils.isEmpty(groupName.trim()))
-				{
-					showNameCanNotBeEmptyToast();
-				}
-				Utils.hideSoftKeyboard(ProfileActivity.this, mNameEdit);
-				saveChanges();
-				mActivityState.groupEditDialogShowing = false;
-				groupEditDialog.cancel();
-				groupEditDialog.dismiss();
-			}
-		});
-
-		groupEditDialog.show();
-	}
-	
 	private void showNameCanNotBeEmptyToast()
 	{
 		int toastStringResId = R.string.enter_valid_group_name; 
