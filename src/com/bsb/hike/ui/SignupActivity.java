@@ -28,7 +28,6 @@ import com.bsb.hike.tasks.SignupTask;
 import com.bsb.hike.tasks.SignupTask.State;
 import com.bsb.hike.tasks.SignupTask.StateValue;
 import com.bsb.hike.utils.ChangeProfileImageBaseActivity;
-import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
@@ -268,7 +267,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 		mHandler = new Handler();
 
 		accountPrefs = getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, MODE_PRIVATE);
-		systemKeyboard = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CURRENT_KEYBOARD, false);
+		systemKeyboard = HikeMessengerApp.isSystemKeyboard(getApplicationContext());
 		setupCustomKeyboard();
 
 		viewFlipper = (ViewFlipper) findViewById(R.id.signup_viewflipper);

@@ -591,7 +591,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 		this.savedState = savedState;
 		init();
-		systemKeyboard = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CURRENT_KEYBOARD, false);
+		systemKeyboard = HikeMessengerApp.isSystemKeyboard(activity.getApplicationContext());
 		setContentView();
 		fetchConversation(false);
 		uiHandler.sendEmptyMessage(SET_WINDOW_BG);

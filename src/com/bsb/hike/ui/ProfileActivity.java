@@ -65,7 +65,6 @@ import com.bsb.hike.ui.fragments.PhotoViewerFragment;
 import com.bsb.hike.ui.utils.StatusBarColorChanger;
 import com.bsb.hike.utils.ChangeProfileImageBaseActivity;
 import com.bsb.hike.utils.EmoticonConstants;
-import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.OneToNConversationUtils;
@@ -447,7 +446,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			}
 		}
 		
-		systemKeyboard = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CURRENT_KEYBOARD, false);
+		systemKeyboard = HikeMessengerApp.isSystemKeyboard(getApplicationContext());
 		
 		setupActionBar();
 		

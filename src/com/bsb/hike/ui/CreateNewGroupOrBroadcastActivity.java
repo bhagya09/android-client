@@ -99,7 +99,7 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 		setupActionBar();
 
 		preferences = getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, MODE_PRIVATE);
-		systemKeyboard = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CURRENT_KEYBOARD, false);
+		systemKeyboard = HikeMessengerApp.isSystemKeyboard(getApplicationContext());
 
 		if (savedInstanceState != null)
 		{

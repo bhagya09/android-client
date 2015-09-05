@@ -288,7 +288,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 	
 	private void initCustomKeyboard()
 	{
-		systemKeyboard = HikeMessengerApp.currentKeyboard(this);
+		systemKeyboard = HikeMessengerApp.isSystemKeyboard(this);
 		LinearLayout viewHolder = (LinearLayout) findViewById(R.id.keyboardView_holder);
 		mCustomKeyboard = new CustomKeyboard(StatusUpdate.this, viewHolder);
 		mCustomKeyboard.registerEditText(R.id.status_txt, KPTConstants.MULTILINE_LINE_EDITOR, this, this);
