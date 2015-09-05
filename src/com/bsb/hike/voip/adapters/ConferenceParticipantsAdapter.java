@@ -61,6 +61,7 @@ public class ConferenceParticipantsAdapter extends ArrayAdapter<VoIPClient> {
 		public TextView contactNameHolder;
 		public TextView subTextHolder;
 		public ImageView isSpeakingHolder;
+		public ImageView isMuteHolder;
 		public ImageView crossBtnHolder;
 		public ImageView isRingingHolder;
 		public ProgressBar connectingHolder;
@@ -94,6 +95,7 @@ public class ConferenceParticipantsAdapter extends ArrayAdapter<VoIPClient> {
 			conferenceParticipantHolder.contactNameHolder = (TextView) convertView.findViewById(R.id.contact);
 			conferenceParticipantHolder.subTextHolder = (TextView) convertView.findViewById(R.id.contact_subtext);
 			conferenceParticipantHolder.isSpeakingHolder = (RecyclingImageView) convertView.findViewById(R.id.is_speaking_view);
+			conferenceParticipantHolder.isMuteHolder = (RecyclingImageView) convertView.findViewById(R.id.is_mute_view);
 			conferenceParticipantHolder.isRingingHolder = (RecyclingImageView) convertView.findViewById(R.id.is_ringing_view);
 			conferenceParticipantHolder.crossBtnHolder = (RecyclingImageView) convertView.findViewById(R.id.remove_participant_btn);
 			conferenceParticipantHolder.connectingHolder = (ProgressBar) convertView.findViewById(R.id.connecting_progress);
@@ -115,6 +117,7 @@ public class ConferenceParticipantsAdapter extends ArrayAdapter<VoIPClient> {
 		convertView.setOnClickListener(null);
 		
 		conferenceParticipantHolder.isSpeakingHolder.setVisibility(clients.get(position).isSpeaking()?View.VISIBLE:View.GONE);
+		conferenceParticipantHolder.isMuteHolder.setVisibility(clients.get(position).isRemoteMute()?View.VISIBLE:View.GONE);
 		
 		if (clients.get(position).isRinging()) {
 			Animation animation = AnimationUtils.loadAnimation(context, R.anim.jiggle);

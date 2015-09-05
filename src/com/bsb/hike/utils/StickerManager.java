@@ -464,7 +464,10 @@ public class StickerManager
 
 	public void addRecentSticker(Sticker st)
 	{
-		((CustomStickerCategory) stickerCategoriesMap.get(StickerManager.RECENT)).addSticker(st);
+		if(stickerCategoriesMap.containsKey(StickerManager.RECENT))
+		{
+			((CustomStickerCategory) stickerCategoriesMap.get(StickerManager.RECENT)).addSticker(st);
+		}
 	}
 
 	public void removeSticker(String categoryId, String stickerId)
@@ -1811,7 +1814,6 @@ public class StickerManager
 			{
 				return ;
 			}
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.TAG_FIRST_TIME_DOWNLOAD, false);
 			StickerSearchManager.getInstance().downloadStickerTags(true);
 		}
 		else 
