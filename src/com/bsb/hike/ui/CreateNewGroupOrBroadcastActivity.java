@@ -244,15 +244,9 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 	{
 		LinearLayout viewHolder = (LinearLayout) findViewById(R.id.keyboardView_holder);
 		mCustomKeyboard = new CustomKeyboard(this, viewHolder);
-		if (convType == ConvType.GROUP)
-		{
-			mCustomKeyboard.registerEditText(R.id.group_name,KPTConstants.MULTILINE_LINE_EDITOR,CreateNewGroupOrBroadcastActivity.this,CreateNewGroupOrBroadcastActivity.this);
-		}
-		else
-		{
-			mCustomKeyboard.registerEditText(R.id.broadcast_name,KPTConstants.MULTILINE_LINE_EDITOR,CreateNewGroupOrBroadcastActivity.this,CreateNewGroupOrBroadcastActivity.this);
-		}
-		
+		mCustomKeyboard.registerEditText((convType == ConvType.GROUP) ? R.id.group_name : R.id.broadcast_name,
+				KPTConstants.MULTILINE_LINE_EDITOR,CreateNewGroupOrBroadcastActivity.this,CreateNewGroupOrBroadcastActivity.this);
+
 		mCustomKeyboard.init(convName);
 		Logger.d("syskbd", "SystemKeyboard : " + systemKeyboard);
 		if (systemKeyboard)
