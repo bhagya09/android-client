@@ -390,9 +390,6 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		{
 			setContentView(R.layout.profile);
 
-			LinearLayout viewHolder = (LinearLayout) findViewById(R.id.keyboardView_holder);
-			mCustomKeyboard= new CustomKeyboard(this, viewHolder);
-			
 			this.profileType = ProfileType.CONTACT_INFO;
 			setupContactProfileScreen();
 			HikeMessengerApp.getPubSub().addListeners(this, contactInfoPubSubListeners);
@@ -401,9 +398,6 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		{
 			setContentView(R.layout.profile);
 
-			LinearLayout viewHolder = (LinearLayout) findViewById(R.id.keyboardView_holder);
-			mCustomKeyboard= new CustomKeyboard(this, viewHolder);
-			
 			View parent = findViewById(R.id.parent_layout);
 			getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 			parent.setBackgroundColor(getResources().getColor(R.color.standerd_background));
@@ -440,9 +434,6 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			{
 				setContentView(R.layout.profile);
 
-				LinearLayout viewHolder = (LinearLayout) findViewById(R.id.keyboardView_holder);
-				mCustomKeyboard= new CustomKeyboard(this, viewHolder);
-				
 				View parent = findViewById(R.id.parent_layout);
 				getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 				parent.setBackgroundColor(getResources().getColor(R.color.standerd_background)); //Changing background color form white for self profile
