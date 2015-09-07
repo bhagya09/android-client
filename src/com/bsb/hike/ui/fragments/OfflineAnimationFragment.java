@@ -163,14 +163,14 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 		case UPDATE_ANIMATION_MESSAGE:
 			if (!isOfflineConnected())
 			{
-				updateAnimationText(connectionInfo, (String) (msg.obj), false);
+				updateAnimationText(connectionInfo, (String) (msg.obj), false,false);
 			}
 			break;
 		case UPDATE_ANIMATION_SECOND_MESSAGE:
 			if (timerDuration > 0)
 			{
 				if (!isOfflineConnected())
-					updateAnimationText(secondMessage, (String) msg.obj, false);
+					updateAnimationText(secondMessage, (String) msg.obj, false,true);
 			}
 			break;
 		case START_TIMER:
@@ -178,11 +178,11 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 			{
 				if (timerDuration > 0)
 				{
-					updateAnimationText(connectionInfo, "" + timerDuration / 1000, true);
+					updateAnimationText(connectionInfo, "" + timerDuration / 1000, true,false);
 				}
 				else
 				{
-					updateAnimationText(connectionInfo, getString(R.string.disconnecting_offline), false);
+					updateAnimationText(connectionInfo, getString(R.string.disconnecting_offline), false,false);
 				}
 
 			}
@@ -222,8 +222,14 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 				
 	}
 
-
-	private void updateAnimationText(final TextView source,final String message,final boolean startTimer)
+	/**
+	 * 
+	 * @param source This is the textview to set text to 
+	 * @param message This is the text message to put in textview
+	 * @param startTimer This boolean indicates whether to start timer after updating text
+	 * @param checkAndDontShowIfConnected This boolean indicates if we dont want to change text if connected 
+	 */
+	private void updateAnimationText(final TextView source,final String message,final boolean startTimer,final boolean checkAndDontShowIfConnected)
 	{
 		
 		AlphaAnimation  disappearAnimation = new AlphaAnimation(1.0f, 0.0f);
@@ -267,7 +273,18 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 			{
 				if(isAdded())
 				{
-					source.setText(message);
+					if(checkAndDontShowIfConnected)
+					{
+						if(!OfflineUtils.isConnectedToSameMsisdn(msisdn))
+						{
+							source.setText(message);
+						}
+					}
+					else
+					{
+						source.setText(message);
+					}
+						
 				}
 			}
 			
@@ -749,7 +766,7 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 					 timer.cancel();
 				 }
 				 
-				 updateAnimationText(connectionInfo,getResources().getString(R.string.connection_established),false);
+				 updateAnimationText(connectionInfo,getResources().getString(R.string.connection_established),false,false);
 				
 				 //Scale up 
 				 ObjectAnimator scaleXUp = ObjectAnimator.ofFloat(imageViewLayout, "scaleX", 3.5f);
