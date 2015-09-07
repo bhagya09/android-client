@@ -1,5 +1,6 @@
 package com.bsb.hike.platform.bridge;
 
+import com.bsb.hike.bots.BotUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -755,6 +756,12 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 			Logger.e(TAG, "the events corresponding to the namespace can't be deleted as the namespace is " + namespace);
 			return;
 		}
+		NonMessagingBotMetadata metadata = new NonMessagingBotMetadata(mBotInfo.getMetadata());
+		if (!metadata.isSpecialBot())
+		{
+			Logger.e(TAG, "the bot is not a special bot and only special bot has the authority to call this function.");
+			return;
+		}
 		HikeConversationsDatabase.getInstance().deleteAllEventsForNamespace(namespace);
 	}
 
@@ -800,6 +807,12 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 			Logger.e(TAG, "can't return shared events as the namespace is " + namespace);
 			return;
 		}
+		NonMessagingBotMetadata metadata = new NonMessagingBotMetadata(mBotInfo.getMetadata());
+		if (!metadata.isSpecialBot())
+		{
+			Logger.e(TAG, "the bot is not a special bot and only special bot has the authority to call this function.");
+			return;
+		}
 		String messageData = HikeConversationsDatabase.getInstance().getMessageEventsForMicroapps(namespace, false);
 		callbackToJS(functionId, messageData);
 	}
@@ -825,6 +838,12 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 		if (TextUtils.isEmpty(namespace))
 		{
 			Logger.e(TAG, "can't return all events as the namespace is " + namespace);
+			return;
+		}
+		NonMessagingBotMetadata metadata = new NonMessagingBotMetadata(mBotInfo.getMetadata());
+		if (!metadata.isSpecialBot())
+		{
+			Logger.e(TAG, "the bot is not a special bot and only special bot has the authority to call this function.");
 			return;
 		}
 		String messageData = HikeConversationsDatabase.getInstance().getMessageEventsForMicroapps(namespace, true);
