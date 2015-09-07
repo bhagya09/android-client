@@ -2478,6 +2478,11 @@ public class MqttMessagesManager
 		{
 			editor.putString(HikeConstants.REFERRAL_OTHER_TEXT, data.getString(HikeConstants.REFERRAL_OTHER_TEXT));
 		}
+		if (data.has(HikeConstants.FT_LATENCY_LOGGING))
+		{
+			boolean httpExceptionLogging = data.getBoolean(HikeConstants.FT_LATENCY_LOGGING);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.FT_LATENCY_LOGGING, httpExceptionLogging);
+		}
 		editor.commit();
 		this.pubSub.publish(HikePubSub.UPDATE_OF_MENU_NOTIFICATION, null);
 		

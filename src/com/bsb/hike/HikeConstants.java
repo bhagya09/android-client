@@ -3235,4 +3235,6 @@ public class HikeConstants
 	
 	public static final String REFERRAL_OTHER_TEXT = "ref_oth_txt";
 
+	public static final String FT_LATENCY_LOGGING = "ft_latency";
+
 }
