@@ -617,7 +617,8 @@ public class VoIPService extends Service {
 			if (myMsisdn != null && myMsisdn.equals(msisdn)) 
 			{
 				Logger.wtf(tag, "Don't be ridiculous!");
-				stop();
+				if (clients.size() == 0)
+					stop();
 				return returnInt;
 			}
 			
