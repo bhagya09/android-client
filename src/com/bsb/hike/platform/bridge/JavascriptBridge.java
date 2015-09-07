@@ -1144,7 +1144,7 @@ public abstract class JavascriptBridge
 	
 	
 	/**
-	 * Platform Version 5 Call this function to close the current activity. This function closes the current activity and takes the user back to the previous activity.
+	 * Platform Version 6 Call this function to close the current activity. This function closes the current activity and takes the user back to the previous activity.
 	 */
 	@JavascriptInterface
 	public void closeWebView()

@@ -697,7 +697,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	}
 
 	/**
-	 * Platform Version 5
+	 * Platform Version 6
 	 * Call this function to delete an event from the list of events that are shared with the microapp.
 	 *
 	 * @param eventId: the event that will be deleted from the shared messages table.
@@ -714,7 +714,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	}
 
 	/**
-	 * Platform Version 5
+	 * Platform Version 6
 	 * Call this function to delete all the events, be it shared data or normal event pertaining to a single message.
 	 *
 	 * @param messageHash
@@ -731,7 +731,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	}
 
 	/**
-	 * Platform version 5
+	 * Platform version 6
 	 * Call this function to delete all the events for a particular microapp, be it shared data or normal event.
 	 */
 	@JavascriptInterface
@@ -741,7 +741,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	}
 
 	/**
-	 * Platform Version 5
+	 * Platform Version 6
 	 * This function is made for the special Shared bot that has the information about some other bots as well, and acts as a channel for them.
 	 * Call this function to delete all the events for a particular microapp, be it shared data or normal event.
 	 *
@@ -759,7 +759,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	}
 
 	/**
-	 * Platform Version 5
+	 * Platform Version 6
 	 * Call this function to get all the shared messages data. The data is a stringified list that contains event id, message hash and the data.
 	 * <p/>
 	 * "name": name of the user interacting with. This gives name, and if the name isn't present , then the msisdn.
@@ -779,7 +779,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	}
 
 	/**
-	 * Platform Version 5
+	 * Platform Version 6
 	 * This function is made for the special Shared bot that has the information about some other bots as well, and acts as a channel for them.
 	 * Call this function to get all the shared events data. The data is a stringified list that contains :
 	 * "name": name of the user interacting with. This gives name, and if the name isn't present , then the msisdn.
@@ -805,7 +805,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	}
 
 	/**
-	 * Platform Version 5
+	 * Platform Version 6
 	 * This function is made for the special Shared bot that has the information about some other bots as well, and acts as a channel for them.
 	 * Call this function to get all the event messages data. The data is a stringified list that contains:
 	 * "name": name of the user interacting with. This gives name, and if the name isn't present , then the msisdn.
@@ -832,7 +832,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	}
 
 	/**
-	 * Platform Version 5
+	 * Platform Version 6
 	 * Call this function to get all the event messages data. The data is a stringified list that contains event id, message hash and the data.
 	 * <p/>
 	 * "name": name of the user interacting with. This gives name, and if the name isn't present , then the msisdn.
@@ -853,7 +853,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	}
 
 	/**
-	 * Platform Version 5
+	 * Platform Version 6
 	 * Call this function to get all the event messages data. The data is a stringified list that contains:
 	 * "name": name of the user interacting with. This gives name, and if the name isn't present , then the msisdn.
 	 * "platformUid": the platform user id of the user interacting with.
@@ -873,7 +873,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	}
 
 	/**
-	 * Platform Version 5
+	 * Platform Version 6
 	 * Call this function to send a shared message to the contacts of the user. This function when forwards the data, returns with the contact details of
 	 * the users it has sent the message to.
 	 * It will call JavaScript function "onContactChooserResult(int resultCode,JsonArray array)" This JSOnArray contains list of JSONObject where each JSONObject reflects one user. As of now
@@ -892,7 +892,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	}
 
 	/**
-	 * Platform version 5
+	 * Platform version 6
 	 * Call this method to send a normal event.
 	 *
 	 * @param messageHash : the message hash that determines the uniqueness of the card message, to which the data is being sent.
@@ -906,7 +906,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	}
 	
 	/**
-	* Platform Bridge Version 5
+	* Platform Bridge Version 6
 	* Call this method to post a status update without an image to timeline.
 	*
 	* @param status
