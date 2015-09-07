@@ -58,7 +58,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 
 	private static final Object sDatabaseLock = new Object();
 
-	private static long sIntertionTimePerSession = 0;
+	private static long sInsertionTimePerSession = 0;
 
 	private static long sPTInsertionTimePerSession = 0;
 
@@ -264,7 +264,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 	}
 
 	/* Create virtual table used for searching tags */
-	public void createVirtualTable(String[] tablesNames)
+	private void createVirtualTable(String[] tablesNames)
 	{
 		Logger.i(TAG, "createVirtualTable(" + Arrays.toString(tablesNames) + ")");
 
@@ -605,7 +605,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		Logger.v(TAG, "insertStickerTagData(), Existing tags count = " + existingTagsCount + ", New tags count = " + newTagsCount);
 		Logger.v(TAG, "insertStickerTagData(), Newly inserted tags count = " + newTagsInsertionSucceeded + ", Newly abandoned tags count = " + newTagsInsertionFailed);
 
-		sPTInsertionTimePerSession += (operationOverTime - requestStartTime);
+		updatePTWriteTime(operationOverTime - requestStartTime);
 		Logger.d(TAG_INSERTION, "Time taken in insertion for current session (into primary table) = " + Utils.getExecutionTimeLog(0, sPTInsertionTimePerSession, Utils.PRECISION_UNIT_NANO_SECOND));
 
 		if (newTagsInsertionSucceeded > 0)
@@ -624,9 +624,18 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		Logger.i(TAG_INSERTION,
 				"Time taken in overall insertion for current request = " + Utils.getExecutionTimeLog(requestStartTime, operationOverTime, Utils.PRECISION_UNIT_NANO_SECOND));
 
-		sIntertionTimePerSession += (operationOverTime - requestStartTime);
+		updateOverallWriteTime(operationOverTime - requestStartTime);
+		Logger.d(TAG_INSERTION, "Time taken in overall insertion for current session = " + Utils.getExecutionTimeLog(0, sInsertionTimePerSession, Utils.PRECISION_UNIT_NANO_SECOND));
+	}
 
-		Logger.d(TAG_INSERTION, "Time taken in overall insertion for current session = " + Utils.getExecutionTimeLog(0, sIntertionTimePerSession, Utils.PRECISION_UNIT_NANO_SECOND));
+	private void updatePTWriteTime(long timeInNanoSeconds)
+	{
+		sPTInsertionTimePerSession += timeInNanoSeconds;
+	}
+
+	private void updateOverallWriteTime(long timeInNanoSeconds)
+	{
+		sInsertionTimePerSession += timeInNanoSeconds;
 	}
 
 	private boolean isValidTagData(TagToStcikerDataContainer stickersTagData)
