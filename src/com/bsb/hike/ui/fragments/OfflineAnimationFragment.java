@@ -222,7 +222,13 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 				
 	}
 
-
+	/**
+	 * 
+	 * @param source This is the textview to set text to 
+	 * @param message This is the text message to put in textview
+	 * @param startTimer This boolean indicates whether to start timer after updating text
+	 * @param checkAndDontShowIfConnected This boolean indicates if we dont want to change text if connected 
+	 */
 	private void updateAnimationText(final TextView source,final String message,final boolean startTimer,final boolean checkAndDontShowIfConnected)
 	{
 		
