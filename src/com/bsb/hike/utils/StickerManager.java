@@ -49,6 +49,7 @@ import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.db.HikeConversationsDatabase;
+import com.bsb.hike.media.ShareablePopupLayout;
 import com.bsb.hike.models.CustomStickerCategory;
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.models.Sticker;
@@ -427,26 +428,40 @@ public class StickerManager
 		}
 	}
 	
-	public List<StickerCategory> getAllStickerCategories()
+	/**
+	 * 
+	 * @return
+	 * pair in which first parameter is boolean -- delete tags if true else not
+	 * pair in which first parameter is list -- list of sticker categories currently user has
+	 */
+	public Pair<Boolean , List<StickerCategory>> getAllStickerCategories()
 	{
+		if(StickerSearchUtility.isTestModeForSRModule())
+		{
+			return new Pair<Boolean, List<StickerCategory>>(false, null); 
+		}
+		
 		List<StickerCategory> allCategoryList = null;
 		File dir = context.getExternalFilesDir(null);
 		if (dir == null)
 		{
-			return null;
+			sendStickerFolderLockedError("uanable to access android folder");
+			return new Pair<Boolean, List<StickerCategory>>(false, null);
 		}
 		String rootPath = dir.getPath() + HikeConstants.STICKERS_ROOT;
 		File root = new File(rootPath);
 		if (!root.exists() || !root.isDirectory())
 		{
-			return null;
+			sendStickerFolderLockedError("uanable to access sticker root folder");
+			return new Pair<Boolean, List<StickerCategory>>(false, null);
 		}
 		
 		File[] files = root.listFiles();
 		
 		if(files == null || files.length == 0)
 		{
-			return null;
+			sendStickerFolderLockedError("sticker root folder is empty");
+			return new Pair<Boolean, List<StickerCategory>>(true, null);
 		}
 		
 		allCategoryList = new ArrayList<>(files.length);
@@ -459,7 +474,7 @@ public class StickerManager
 			}
 		}
 		
-		return allCategoryList;
+		return new Pair<Boolean, List<StickerCategory>>(true, allCategoryList);
 	}
 
 	public void addRecentSticker(Sticker st)
@@ -1814,7 +1829,6 @@ public class StickerManager
 			{
 				return ;
 			}
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.TAG_FIRST_TIME_DOWNLOAD, false);
 			StickerSearchManager.getInstance().downloadStickerTags(true);
 		}
 		else 
@@ -2209,6 +2223,25 @@ public class StickerManager
 		catch(JSONException e)
 		{
 			Logger.e(AnalyticsConstants.ANALYTICS_TAG, "invalid json", e);
+		}
+	}
+	
+	/**
+	 * Used for logging sticker/emoticon weird behaviours
+	 * 
+	 * @param errorMsg
+	 */
+	public void sendStickerFolderLockedError(String errorMsg)
+	{
+		JSONObject error = new JSONObject();
+		try
+		{
+			error.put(ShareablePopupLayout.TAG, errorMsg);
+			HAManager.getInstance().record(AnalyticsConstants.DEV_EVENT, AnalyticsConstants.STICKER_SEARCH, EventPriority.HIGH, error);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
 		}
 	}
 }

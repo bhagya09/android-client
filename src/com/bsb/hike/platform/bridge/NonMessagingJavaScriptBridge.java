@@ -52,6 +52,8 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	
 	private static final int CHANGE_STATUS_BAR_COLOR = 116;
 	
+	private static final int CHANGE_ACTION_BAR_COLOR = 117;
+	
 	private BotInfo mBotInfo;
 	
 	private static final String TAG  = "NonMessagingJavaScriptBridge";
@@ -525,6 +527,17 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 				mCallback.changeStatusBarColor(sbColor);
 			}
 			
+			break;
+			
+		case CHANGE_ACTION_BAR_COLOR :
+			if (mCallback != null)
+			{
+				String abColor = (String) msg.obj;
+				mCallback.changeActionBarColor(abColor);
+			}
+			
+			break;
+			
 		default:
 			super.handleUiMessage(msg);
 		}
@@ -703,6 +716,23 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	public void allowUpPress(String allowUp)
 	{
 		mBotInfo.setIsUpPressAllowed(Boolean.valueOf(allowUp));
+	}
+	
+	/**
+	 * Platform Bridge Version 5
+	 * Call this function to change action bar color at runtime. <br>
+	 * This method will work regardless of the Android Version. <br> 
+	 * Call it prudently, since it can alter the beauty of the micro app
+	 * 
+	 * @param abColor
+	 */
+	@JavascriptInterface
+	public void setActionBarColor(String abColor)
+	{
+		if (!TextUtils.isEmpty(abColor))
+		{
+			sendMessageToUiThread(CHANGE_ACTION_BAR_COLOR, abColor);
+		}
 	}
 
 }
