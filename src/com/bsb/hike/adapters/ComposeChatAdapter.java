@@ -232,7 +232,7 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 			else
 			{
 				Integer startIndex = contactSpanStartIndexes.get(msisdn);
-				if(startIndex!=null)
+				if(startIndex!=null && viewType != ViewType.NEW_CONTACT)
 				{
 					holder.name.setText(getSpanText(name, startIndex), TextView.BufferType.SPANNABLE);
 				}
