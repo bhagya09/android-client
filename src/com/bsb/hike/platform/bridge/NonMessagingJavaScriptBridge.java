@@ -1034,4 +1034,41 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 		
 		Utils.postStatusUpdate(status, mood, imageFilePath);
 	}
+
+	/**
+	 * Platform Version 6
+	 * This function is made for the special Shared bot that has the information about some other bots as well, and acts as a channel for them.
+	 * calling this method will forcefully block the full screen bot. The user won't see any messages in the bot after calling this.
+	 *
+	 * @param isBlocked : true to block the microapp false to unblock it.
+	 * @param msisdn : the msisdn of the bot to be blocked/unblocked
+	 */
+	@JavascriptInterface
+	public void blockBot(String isBlocked, String msisdn)
+	{
+		if (!BotUtils.isBot(msisdn))
+		{
+			return;
+		}
+		BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
+		NonMessagingBotMetadata metadata = new NonMessagingBotMetadata(botInfo.getMetadata());
+		if (!metadata.isSpecialBot())
+		{
+			Logger.e(TAG, "the bot is not a special bot and only special bot has the authority to call this function.");
+			return;
+		}
+		if (Boolean.valueOf(isBlocked))
+		{
+			botInfo.setBlocked(true);
+			HikeMessengerApp.getPubSub().publish(HikePubSub.BLOCK_USER, msisdn);
+		}
+
+		else
+		{
+			botInfo.setBlocked(false);
+			HikeMessengerApp.getPubSub().publish(HikePubSub.UNBLOCK_USER, msisdn);
+		}
+	}
+
+
 }
