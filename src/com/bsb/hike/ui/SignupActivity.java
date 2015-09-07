@@ -163,6 +163,8 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 	public static final int PIN = 2;
 
 	public static final int NUMBER = 1;
+	
+	public static int callMeWaitTime;
 
 	private String countryCode;
 
@@ -768,7 +770,12 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 							Editor editor = accountPrefs.edit();
 							editor.putString(HikeMessengerApp.TEMP_COUNTRY_CODE, code);
 							editor.commit();
-
+							
+							Utils.setSSLAllowed(code);
+							Utils.setupServerURL(getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, MODE_PRIVATE).getBoolean(HikeMessengerApp.PRODUCTION, true),
+									Utils.switchSSLOn(getApplicationContext()));
+							HttpRequestConstants.setUpBase();
+							
 							mTask.addUserInput(number);
 
 							startLoading();
@@ -2016,7 +2023,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 			// Manual entry for pin
 			else
 			{
-				prepareLayoutForGettingPin(HikeConstants.CALL_ME_WAIT_TIME);
+				prepareLayoutForGettingPin(callMeWaitTime);
 				setAnimation();
 			}
 			break;

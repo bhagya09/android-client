@@ -2507,6 +2507,12 @@ public class Utils
 		{
 			return false;
 		}
+		
+		//this will ensure that no ssl(both https and mssaging) call is made for non ssl allowed countries
+		if(!isSSLAllowed())
+		{
+			return false;
+		}
 
 		NetworkInfo netInfo = getActiveNetInfo();
 
@@ -6073,10 +6079,16 @@ public class Utils
 
 	public static void setSSLAllowed(String countryCode)
 	{
-		if (countryCode.equalsIgnoreCase(HikeConstants.SAUDI_ARABIA_COUNTRY_CODE))
+		for (String code : HikeConstants.SSL_NOT_ALLOWED_COUNTRIES)
 		{
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.SSL_ALLOWED, false);
+			if(countryCode.equalsIgnoreCase(code))
+			{
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.SSL_ALLOWED, false);
+				return;
+			}
 		}
+		
+		HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.SSL_ALLOWED, true);
 	}
 
 	public static boolean isSSLAllowed()
