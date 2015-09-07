@@ -31,7 +31,7 @@ public class InitiateStickerTagDownloadTask implements Runnable
 		
 		if (firstTime)
 		{
-			List<StickerCategory> stickerCategoryList = StickerManager.getInstance().getAllStickerCategories();
+			List<StickerCategory> stickerCategoryList = StickerManager.getInstance().getAllStickerCategories().second;
 			stickerSet = HikeSharedPreferenceUtil.getInstance().getDataSet(HikeMessengerApp.STICKER_SET, new HashSet<String>());;
 
 			if (Utils.isEmpty(stickerCategoryList))
