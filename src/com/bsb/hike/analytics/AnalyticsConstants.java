@@ -226,6 +226,8 @@ public class AnalyticsConstants
 	}
 	
 	public static final String STICKER_PALLETE = "stkp";
+	
+	public static final String STICKER_SEARCH = "stks";
 
 	public static final class MessageType
 	{
@@ -467,4 +469,6 @@ public class AnalyticsConstants
 	public static final String TIMELINE_U_ID = "tid";
 	
 	public static final String TIMELINE_OPTION_TYPE = "ot";
+	
+	public static final String APP_CRASH_EVENT = "appCrash";
 }

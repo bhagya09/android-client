@@ -1911,8 +1911,6 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				SmileyParser smileyParser = SmileyParser.getInstance();
 				markedUp = smileyParser.addSmileySpans(markedUp, false);
 				textHolder.text.setText(markedUp);
-				Linkify.addLinks(textHolder.text, Linkify.ALL);
-				Linkify.addLinks(textHolder.text, Utils.shortCodeRegex, "tel:");
 				msgText = textHolder.text.getText();
 				if (convMessage.getMsgID() > 0)
 					messageTextMap.put(convMessage.getMsgID(), msgText);
@@ -1922,6 +1920,8 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				msgText = getSpannableSearchString(messageTextMap.get(convMessage.getMsgID()));
 				textHolder.text.setText(msgText);
 			}
+			Linkify.addLinks(textHolder.text, Linkify.ALL);
+			Linkify.addLinks(textHolder.text, Utils.shortCodeRegex, "tel:");
 
 			displayBroadcastIndicator(convMessage, textHolder.broadcastIndicator, true);
 			setTimeNStatus(position, textHolder, false, textHolder.messageContainer);
@@ -2994,7 +2994,9 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				optionsList.add(context.getString(R.string.add_to_contacts));
 			}
 			optionsList.add(context.getString(R.string.send_message));
-			optionsList.add(context.getString(R.string.call));
+			if (Utils.isVoipActivated(context))
+				optionsList.add(context.getString(R.string.call));
+			
 			final String[] options = new String[optionsList.size()];
 			optionsList.toArray(options);
 
@@ -4029,7 +4031,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 
 		statusHolder.messageInfo.setText(statusMessage.getTimestampFormatted(true, context));
 
-		if (statusMessage.getStatusMessageType() == StatusMessageType.TEXT || statusMessage.getStatusMessageType() == StatusMessageType.TEXT_IMAGE)
+		if (statusMessage.getStatusMessageType() == StatusMessageType.TEXT)
 		{
 			SmileyParser smileyParser = SmileyParser.getInstance();
 			statusHolder.messageTextView.setText(smileyParser.addSmileySpans(statusMessage.getText(), true));
@@ -4040,7 +4042,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		{
 			statusHolder.messageTextView.setText(R.string.changed_profile);
 		}
-		else if (statusMessage.getStatusMessageType() == StatusMessageType.IMAGE)
+		else if (statusMessage.getStatusMessageType() == StatusMessageType.IMAGE || statusMessage.getStatusMessageType() == StatusMessageType.TEXT_IMAGE)
 		{
 			statusHolder.messageTextView.setText(R.string.posted_photo);
 		}

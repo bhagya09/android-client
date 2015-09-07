@@ -9,6 +9,7 @@ import android.view.View;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 
+import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.platform.content.HikeWebClient;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
@@ -126,8 +127,6 @@ public class CustomWebView extends WebView
 		if (!isDestroyed)
 		{
 			stopLoading();
-			setWebChromeClient(null);
-			setWebViewClient(null);
 			removeAllViews();
 			if (Utils.isHoneycombOrHigher())
 			{
@@ -142,6 +141,12 @@ public class CustomWebView extends WebView
 	{
 		if (!isDestroyed)
 		{
+			if (Utils.isLollipopOrHigher() && !Utils.appInstalledOrNot(HikeMessengerApp.getInstance().getApplicationContext(), "com.google.android.webview"))
+			{
+				PlatformUtils.sendPlatformCrashAnalytics("PackageManager.NameNotFoundException");
+				return;
+			}
+			
 			super.loadDataWithBaseURL(baseUrl, data, mimeType, encoding, failUrl);
 		}
 	}
@@ -151,6 +156,12 @@ public class CustomWebView extends WebView
 	{
 		if(!isDestroyed)
 		{
+			if (Utils.isLollipopOrHigher() && !Utils.appInstalledOrNot(HikeMessengerApp.getInstance().getApplicationContext(), "com.google.android.webview"))
+			{
+				PlatformUtils.sendPlatformCrashAnalytics("PackageManager.NameNotFoundException");
+				return;
+			}
+			
 			super.loadData(data, mimeType, encoding);
 		}
 	}
@@ -177,7 +188,6 @@ public class CustomWebView extends WebView
 	public void loadMicroAppData(String data)
 	{
 		this.loadDataWithBaseURL("", data, "text/html", "UTF-8", "");
-		setWebViewClient(new HikeWebClient());
 	}
 
 	@Override

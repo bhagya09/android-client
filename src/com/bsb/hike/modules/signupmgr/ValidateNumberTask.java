@@ -5,10 +5,12 @@ import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests.validateNumberR
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
+import com.bsb.hike.ui.SignupActivity;
 import com.bsb.hike.utils.Logger;
 
 public class ValidateNumberTask
@@ -40,6 +42,8 @@ public class ValidateNumberTask
 				JSONObject obj = (JSONObject) result.getBody().getContent();
 
 				resultMsisdn = obj.optString("msisdn");
+				int defaultCallMeTimer = resultMsisdn.startsWith(HikeConstants.INDIA_COUNTRY_CODE)? 10 : 150; 
+				SignupActivity.callMeWaitTime = (obj.optInt("callMeTimer", defaultCallMeTimer)) * 1000;
 				Logger.d("HTTP", "Successfully validated phone number.");
 			}
 
