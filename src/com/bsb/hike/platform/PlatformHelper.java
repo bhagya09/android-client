@@ -1,7 +1,5 @@
 package com.bsb.hike.platform;
 
-import java.lang.ref.WeakReference;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -22,31 +20,15 @@ import com.bsb.hike.utils.Logger;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Handler;
-import android.os.Message;
 import android.text.TextUtils;
+import android.util.Log;
 
 public class PlatformHelper
 {
 
-	protected static Handler mHandler;
+	public static Handler mHandler;
 
 	public static final String TAG = "PlatformHelper";
-
-	public PlatformHelper()
-	{
-		this.mHandler = new Handler(HikeMessengerApp.getInstance().getMainLooper())
-		{
-			public void handleMessage(Message msg)
-			{
-				handleUiMessage(msg);
-			};
-		};
-	}
-
-	protected void handleUiMessage(Message msg)
-	{
-
-	}
 
 	// Call this method to put data in cache. This will be a key-value pair.
 	public static void putInCache(String key, String value, String namespace)
@@ -128,7 +110,7 @@ public class PlatformHelper
 		}
 	}
 
-	public static void sendNormalEvent(String messageHash, String eventData,String namespace)
+	public static void sendNormalEvent(String messageHash, String eventData, String namespace)
 	{
 		PlatformUtils.sendPlatformMessageEvent(eventData, messageHash, namespace);
 	}
@@ -172,7 +154,7 @@ public class PlatformHelper
 		}
 	}
 
-	public static String getAllEventsForMessageHash(String messageHash,String namespace)
+	public static String getAllEventsForMessageHash(String messageHash, String namespace)
 	{
 		if (TextUtils.isEmpty(messageHash))
 		{
@@ -214,8 +196,10 @@ public class PlatformHelper
 
 	private static void startComPoseChatActivity(final ConvMessage message, final Activity mContext)
 	{
+		PlatformHelper.mHandler = new Handler(HikeMessengerApp.getInstance().getMainLooper());
 		if (null == mHandler)
 		{
+			Log.e(TAG, "handler is null");
 			return;
 		}
 
@@ -228,6 +212,10 @@ public class PlatformHelper
 				{
 					final Intent intent = IntentFactory.getForwardIntentForConvMessage(mContext, message, PlatformContent.getForwardCardData(message.webMetadata.JSONtoString()));
 					mContext.startActivity(intent);
+				}
+				else
+				{
+					Log.d(TAG, "context is null");
 				}
 			}
 		});
