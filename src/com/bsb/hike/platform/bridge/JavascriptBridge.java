@@ -1154,4 +1154,5 @@ public abstract class JavascriptBridge
 			mHandler.sendEmptyMessage(CLOSE_WEB_VIEW);
 		}
 	}
+
 }

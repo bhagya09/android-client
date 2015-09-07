@@ -8,7 +8,11 @@ import android.text.TextUtils;
 import android.webkit.JavascriptInterface;
 import android.widget.BaseAdapter;
 
+import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.HikePubSub;
 import com.bsb.hike.adapters.ConversationsAdapter;
+import com.bsb.hike.bots.BotInfo;
+import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ConvMessage;
@@ -718,6 +722,33 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 	public void sendNormalEvent(String messageHash, String namespace, String eventData)
 	{
 		PlatformUtils.sendPlatformMessageEvent(eventData, messageHash, namespace);
+	}
+
+	/**
+	 * Platform version 6
+	 * Call this function to block/unblock the parent bot.
+	 * @param block : Stringified boolean whether to block or unblock the parent bot.
+	 */
+	@JavascriptInterface
+	public void blockParentBot(String block)
+	{
+		if (!BotUtils.isBot(message.webMetadata.getParentMsisdn()))
+		{
+			return;
+		}
+		BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(message.webMetadata.getParentMsisdn());
+		if (Boolean.valueOf(block))
+		{
+			botInfo.setBlocked(true);
+			HikeMessengerApp.getPubSub().publish(HikePubSub.BLOCK_USER, botInfo.getMsisdn());
+		}
+
+		else
+		{
+			botInfo.setBlocked(false);
+			HikeMessengerApp.getPubSub().publish(HikePubSub.UNBLOCK_USER, botInfo.getMsisdn());
+		}
+
 	}
 
 }
