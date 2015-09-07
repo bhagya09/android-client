@@ -467,6 +467,7 @@ public class UploadFileTask extends FileTransferBase
 						{
 							if(info.isCompRequired)
 							{
+								long time = System.currentTimeMillis();
 								/*
 								 * Changes done to avoid the creation of multiple compressed file. Here I'm using message id as unique id of file.
 								 */
@@ -477,6 +478,7 @@ public class UploadFileTask extends FileTransferBase
 								hikeFile.setVideoEditedInfo(info);
 								HikeVideoCompressor instance = new HikeVideoCompressor();
 								compFile = instance.compressVideo(hikeFile);
+								Logger.d(getClass().getSimpleName(), "Video compression time = " + (System.currentTimeMillis() - time));
 							}
 						}
 					}
