@@ -1,12 +1,15 @@
 package com.bsb.hike.notifications;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import android.app.Activity;
 import android.content.Context;
@@ -32,6 +35,7 @@ import com.bsb.hike.ui.HomeActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.Utils;
 import com.google.gson.Gson;
 
 /**
@@ -298,7 +302,6 @@ public class HikeNotificationMsgStack implements Listener
 	 */
 	private void updateNotificationIntent()
 	{
-
 		// If new messages belong to different users/groups, redirect the user
 		// to conversations list
 		if (!isFromSingleMsisdn() || containsStealthMessage())
@@ -316,27 +319,53 @@ public class HikeNotificationMsgStack implements Listener
 				mNotificationIntent = new Intent(mContext, HomeActivity.class);
 				mNotificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 			}
+			else if (BotUtils.isBot(lastAddedMsisdn))
+			{
+				mNotificationIntent = getIntentForBots(mContext, lastAddedMsisdn);
+			}
 			else
 			{
+				// Iterate all the notification types in current notification stack
+				ListIterator<Entry<String, LinkedList<NotificationPreview>>> mapIterator = new ArrayList<Map.Entry<String, LinkedList<NotificationPreview>>>(
+						mMessagesMap.entrySet()).listIterator();
 
-				if (BotUtils.isBot(lastAddedMsisdn))
+				while (mapIterator.hasNext())
 				{
-					mNotificationIntent = getIntentForBots(mContext, lastAddedMsisdn);
-				}
-				
-				else
-				{
-					mNotificationIntent = IntentFactory.createChatThreadIntentFromMsisdn(mContext, lastAddedMsisdn, false, false);
+					Entry<String, LinkedList<NotificationPreview>> entry = mapIterator.next();
+					LinkedList<NotificationPreview> notifListSingleMsisdn = entry.getValue();
+
+					// To add notification types
+					ExtendedHashSet uniqueNotifTypes = new ExtendedHashSet();
+
+					for (NotificationPreview preview : notifListSingleMsisdn)
+					{
+						uniqueNotifTypes.add(preview.getNotificationType());
+					}
+
+					if (uniqueNotifTypes.equals(NotificationType.ACTIVITYUPDATE))
+					{
+						mNotificationIntent = Utils.getTimelineActivityIntent(mContext, true);
+					}
+					else if (uniqueNotifTypes.containsOnly(new int[] { NotificationType.STATUSUPDATE, NotificationType.IMAGE_POST, NotificationType.DPUPDATE, NotificationType.ACTIVITYUPDATE }))
+					{
+						mNotificationIntent = Utils.getTimelineActivityIntent(mContext, false);
+					}
+					else
+					{
+						mNotificationIntent = IntentFactory.createChatThreadIntentFromMsisdn(mContext, lastAddedMsisdn, false, false);
+					}
+
 				}
 
-				/*
-				 * notifications appear to be cached, and their .equals doesn't check 'Extra's. In order to prevent the wrong intent being fired, set a data field that's unique to
-				 * the conversation we want to open. http://groups .google.com/group/android-developers/browse_thread/thread /e61ec1e8d88ea94d/1fe953564bd11609?#1fe953564bd11609
-				 */
-				if(mNotificationIntent != null)
-				{
-					mNotificationIntent.setData((Uri.parse("custom://" + getNotificationId())));
-				}
+			}
+
+			/*
+			 * notifications appear to be cached, and their .equals doesn't check 'Extra's. In order to prevent the wrong intent being fired, set a data field that's unique to the
+			 * conversation we want to open. http://groups .google.com/group/android-developers/browse_thread/thread /e61ec1e8d88ea94d/1fe953564bd11609?#1fe953564bd11609
+			 */
+			if (mNotificationIntent != null)
+			{
+				mNotificationIntent.setData((Uri.parse("custom://" + getNotificationId())));
 			}
 		}
 	}
@@ -785,5 +814,99 @@ public class HikeNotificationMsgStack implements Listener
 			}
 		}
 
+	}
+	
+	@SuppressWarnings("serial")
+	private class ExtendedHashSet extends HashSet<Integer>
+	{
+		public boolean containsOnly(Object object) //Checks if set has no other values than the input array
+		{
+			if (object instanceof int[])
+			{
+				int[] intArray = (int[]) object;
+				for (int i : this)
+				{
+					boolean found = false;
+					for (int j : intArray)
+					{
+						if (i == j)
+						{
+							found = true;
+							break;
+						}
+					}
+
+					if (!found)
+					{
+						return false;
+					}
+				}
+				return true;
+			}
+			else
+			{
+				return super.contains(object);
+			}
+		}
+		
+		@Override
+		public boolean equals(Object object) // Checks if set has EXACTLY ONLY the input 1. Integer 2. Integer Array 3. Set
+		{
+			if (object == this)
+			{
+				return true;
+			}
+
+			if (object instanceof Set)
+			{
+				@SuppressWarnings("rawtypes")
+				Collection c = (Collection) object;
+				if (c.size() != size())
+				{
+					return false;
+				}
+				try
+				{
+					return containsAll(c);
+				}
+				catch (ClassCastException unused)
+				{
+					return false;
+				}
+				catch (NullPointerException unused)
+				{
+					return false;
+				}
+			}
+			else if (object instanceof Integer)
+			{
+				if(size() != 1)
+				{
+					return false;
+				}
+				
+				return contains(object);
+			}
+			else if (object instanceof int[])
+			{
+				int[] intArray = (int[]) object;
+
+				if (intArray.length != size())
+				{
+					return false;
+				}
+				
+				for (int i : intArray)
+				{
+					if (!contains(i))
+					{
+						return false;
+					}
+				}
+				return true;
+			}
+
+			return false;
+		}
 	}
 }
