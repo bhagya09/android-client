@@ -8,7 +8,11 @@ import android.text.TextUtils;
 import android.webkit.JavascriptInterface;
 import android.widget.BaseAdapter;
 
+import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.HikePubSub;
 import com.bsb.hike.adapters.ConversationsAdapter;
+import com.bsb.hike.bots.BotInfo;
+import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ConvMessage;
@@ -529,7 +533,7 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 	}
 
 	/**
-	 * Platform Version 5
+	 * Platform Version 6
 	 * Call this function to delete an event from the list of events that are shared with the microapp.
 	 *
 	 * @param eventId: the event that will be deleted from the shared messages table.
@@ -546,7 +550,7 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 	}
 
 	/**
-	 * Platform Version 5
+	 * Platform Version 6
 	 * Call this function to delete all the events, be it shared data or normal event pertaining to a single message.
 	 *
 	 * @param messageHash : the hash of the corresponding message.
@@ -564,7 +568,7 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 	}
 
 	/**
-	 * Platform Version 5
+	 * Platform Version 6
 	 * Call this function to delete all the events for a particular microapp, be it shared data or normal event.
 	 *
 	 * @param namespace: the namespace whose shared events are being asked
@@ -581,7 +585,7 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 	}
 
 	/**
-	 * Platform Version 5
+	 * Platform Version 6
 	 * Call this function to get all the shared messages data. The data is a stringified list that contains event id, message hash and the data.
 	 * <p/>
 	 * "name": name of the user interacting with. This gives name, and if the name isn't present , then the msisdn.
@@ -607,7 +611,7 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 	}
 
 	/**
-	 * Platform Version 5
+	 * Platform Version 6
 	 * Call this function to get all the event messages data. The data is a stringified list that contains event id, message hash and the data.
 	 * <p/>
 	 * "name": name of the user interacting with. This gives name, and if the name isn't present , then the msisdn.
@@ -634,7 +638,7 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 	}
 
 	/**
-	 * Platform Version 5
+	 * Platform Version 6
 	 * Call this function to get all the event messages data. The data is a stringified list that contains:
 	 * "name": name of the user interacting with. This gives name, and if the name isn't present , then the msisdn.
 	 * "platformUid": the platform user id of the user interacting with.
@@ -658,7 +662,7 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 	}
 
 	/**
-	 * Platform Version 5
+	 * Platform Version 6
 	 * Call this function to send a shared message to the contacts of the user. This function when forwards the data, returns with the contact details of
 	 * the users it has sent the message to.
 	 * It will call JavaScript function "onContactChooserResult(int resultCode,JsonArray array)" This JSOnArray contains list of JSONObject where each JSONObject reflects one user. As of now
@@ -706,7 +710,7 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 	}
 
 	/**
-	 * Platform version 5
+	 * Platform version 6
 	 * Call this method to send a normal event.
 	 *
 	 * @param messageHash : the message hash that determines the uniqueness of the card message, to which the data is being sent.
@@ -718,6 +722,33 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 	public void sendNormalEvent(String messageHash, String namespace, String eventData)
 	{
 		PlatformUtils.sendPlatformMessageEvent(eventData, messageHash, namespace);
+	}
+
+	/**
+	 * Platform version 6
+	 * Call this function to block/unblock the parent bot.
+	 * @param block : Stringified boolean whether to block or unblock the parent bot.
+	 */
+	@JavascriptInterface
+	public void blockParentBot(String block)
+	{
+		if (!BotUtils.isBot(message.webMetadata.getParentMsisdn()))
+		{
+			return;
+		}
+		BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(message.webMetadata.getParentMsisdn());
+		if (Boolean.valueOf(block))
+		{
+			botInfo.setBlocked(true);
+			HikeMessengerApp.getPubSub().publish(HikePubSub.BLOCK_USER, botInfo.getMsisdn());
+		}
+
+		else
+		{
+			botInfo.setBlocked(false);
+			HikeMessengerApp.getPubSub().publish(HikePubSub.UNBLOCK_USER, botInfo.getMsisdn());
+		}
+
 	}
 
 }
