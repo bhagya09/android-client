@@ -559,6 +559,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 								}
 							}
 							Logger.d("tl_ftue", "inside pubub, final list after check is " + mFtueFriendList);
+							//SU List is Empty or NO FTUE card was present
 							if(statusMessages.isEmpty() 
 									|| !(statusMessages.get(0).getId() == TimelineCardsAdapter.FTUE_CARD_EXIT
 									|| statusMessages.get(0).getId() == TimelineCardsAdapter.FTUE_CARD_INIT
@@ -568,9 +569,11 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 								addFTUEItem();
 								notifyVisibleItems();
 							}
-							else
+							else //SU List is not empty and FTUE card is present
 							{
-								updateFTUEMsisdnsList(mFtueFriendList, true);
+								//We have to rearrange only When FTUE of Type FTUE_CARD_FAV is present
+								boolean rearrange = statusMessages.get(0).getId() == TimelineCardsAdapter.FTUE_CARD_FAV ? true : false;
+								updateFTUEMsisdnsList(mFtueFriendList, rearrange);
 							}
 						}
 					}
