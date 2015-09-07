@@ -1358,7 +1358,7 @@ public class UploadFileTask extends FileTransferBase
 		}
 		time = System.currentTimeMillis() - time;
 		boolean isCompleted = resCode == RESPONSE_OK ? true : false;
-		String netType = FileTransferManager.getInstance(context).getNetworkTypeString();
+		int netType = Utils.getNetworkType(context);
 		if (resCode == RESPONSE_OK || resCode == RESPONSE_ACCEPTED)
 		{
 			String fileExtension = Utils.getFileExtension(selectedFile.getPath());

@@ -33,7 +33,7 @@ public class FTAnalyticEvents
 
 	public static final String FT_PAUSE_COUNT = "pc";
 
-	public static final String FT_NETWORK_TYPE = "nw";
+	public static final String FT_NETWORK_TYPE = "con";
 
 	public static final String FT_ATTACHEMENT_TYPE = "at";
 
@@ -184,7 +184,7 @@ public class FTAnalyticEvents
 
 	public static final String FT_STATE_READ_FAIL = "ft_state_read_fail";
 
-	public static final String FT_BENCH_MARK = "ft_benchmarking";
+	public static final String FT_BENCH_MARK = "rel_ft";
 
 	public static final String FT_PROCESSING_TIME = "ft_pt";
 
@@ -427,23 +427,22 @@ public class FTAnalyticEvents
 	* @param networkType
 	* @param fileType
 	*/
-	public static void logFTProcessingTime(String taskType, String sessionId, boolean isCompleted, long chunkSize, long timeTaken, String contentRange, String networkType, String fileType) 
+	public static void logFTProcessingTime(String taskType, String sessionId, boolean isCompleted, long chunkSize, long timeTaken, String contentRange, int networkType, String fileType) 
 	{
-		if(!HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.OTHER_EXCEPTION_LOGGING, false))
+		if(!HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.FT_LATENCY_LOGGING, false))
 			return;
 
-		JSONObject info = new JSONObject();
+		JSONObject metadata = new JSONObject();
 		try {
-			info.put(FT_FILE_ID, sessionId);
-			info.put(FTR_TASK_TYPE, taskType);
-			info.put(FT_CHUNK_SIZE, chunkSize);
-			info.put(FT_PROCESSING_TIME, timeTaken);
-			info.put(FT_COMPLETED, isCompleted);
-			info.put(FT_CONTENT_RANGE, contentRange);
-			info.put(FT_NETWORK_TYPE, networkType);
-			info.put(FT_FILE_TYPE, fileType);
-			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "FTR : Processing Time log : "+ info.toString());
-			HAManager.getInstance().logDevEvent(FTR_PRODUCT_AREA, FT_BENCH_MARK, info);
+			metadata.put(FT_FILE_ID, sessionId);
+			metadata.put(FTR_TASK_TYPE, taskType);
+			metadata.put(FT_CHUNK_SIZE, chunkSize);
+			metadata.put(FT_PROCESSING_TIME, timeTaken);
+			metadata.put(FT_COMPLETED, isCompleted);
+			metadata.put(FT_CONTENT_RANGE, contentRange);
+			metadata.put(FT_NETWORK_TYPE, networkType);
+			metadata.put(FT_FILE_TYPE, fileType);
+			HAManager.getInstance().record(FT_BENCH_MARK, AnalyticsConstants.NON_UI_EVENT, EventPriority.HIGH, metadata, FT_BENCH_MARK);
 		} catch (JSONException e) {
 			Logger.e(AnalyticsConstants.ANALYTICS_TAG, "FTR : Exception occurred while logging processing time : "+ e);
 		}
