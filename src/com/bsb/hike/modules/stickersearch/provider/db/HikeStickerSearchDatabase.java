@@ -239,7 +239,14 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		}
 
 		Logger.d(TAG, "Starting population first time...");
-		createVirtualTable(tables);
+		try {
+			mDb.beginTransaction();
+			createVirtualTable(tables);
+			mDb.setTransactionSuccessful();
+		}
+		finally {
+			mDb.endTransaction();
+		}
 	}
 
 	/* Mark for first time setup to know the status of setup/ update/ elimination/ insertion/ re-balancing */
@@ -931,29 +938,6 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 	{
 		if (stickerInfoSet == null)
 		{
-			return;
-		}
-
-		if (stickerInfoSet.isEmpty())
-		{
-			try
-			{
-				mDb.beginTransaction();
-
-				mDb.delete(HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING, null, null);
-				deleteSearchData();
-
-				mDb.setTransactionSuccessful();
-			}
-			catch (SQLException e)
-			{
-				Logger.e(TAG, "Error in executing sql delete queries: ", e);
-			}
-			finally
-			{
-				mDb.endTransaction();
-			}
-
 			return;
 		}
 

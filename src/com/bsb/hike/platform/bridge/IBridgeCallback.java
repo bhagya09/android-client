@@ -21,4 +21,6 @@ public interface IBridgeCallback
 	
 	public void changeStatusBarColor(String color);
 	
+	public void changeActionBarColor(String color);
+	
 }

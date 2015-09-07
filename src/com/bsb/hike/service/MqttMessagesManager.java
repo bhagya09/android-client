@@ -2483,6 +2483,17 @@ public class MqttMessagesManager
 			boolean httpExceptionLogging = data.getBoolean(HikeConstants.FT_LATENCY_LOGGING);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.FT_LATENCY_LOGGING, httpExceptionLogging);
 		}
+		if(data.has(HikeConstants.ALL_STICKER_TAG_DOWNLOAD))
+		{
+			boolean shouldDownload = data.getBoolean(HikeConstants.ALL_STICKER_TAG_DOWNLOAD);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.TAG_FIRST_TIME_DOWNLOAD, shouldDownload);
+			
+			if(shouldDownload)
+			{
+				StickerManager.getInstance().downloadStickerTagData();
+			}
+		}
+		
 		editor.commit();
 		this.pubSub.publish(HikePubSub.UPDATE_OF_MENU_NOTIFICATION, null);
 		
