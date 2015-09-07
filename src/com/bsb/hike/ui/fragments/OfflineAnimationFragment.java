@@ -267,7 +267,11 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 			{
 				if(isAdded())
 				{
-					source.setText(message);
+					// Added check to ensure that second message is not shown when connected to offline 
+					if(	!(source==secondMessage && OfflineUtils.isConnectedToSameMsisdn(msisdn)) )
+					{
+						source.setText(message);
+					}
 				}
 			}
 			
