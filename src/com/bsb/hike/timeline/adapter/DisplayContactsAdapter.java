@@ -254,4 +254,15 @@ public class DisplayContactsAdapter extends BaseAdapter
 		}
 		return false;
 	}
+
+	/**
+	 * We are changing DataSet(msisdns) inside constructor in DisplayContactsAdapter,
+	 * gives msisdn for item clicked for position 
+	 * @param position
+	 * @return
+	 */
+	public String getMsisdnAsPerPostion(int position)
+	{
+		return msisdnList.get(position);
+	}
 }

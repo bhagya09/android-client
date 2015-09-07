@@ -671,7 +671,10 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 				@Override
 				public void onItemClick(AdapterView<?> arg0, View arg1, int position, long arg3)
 				{
-					if (Utils.isSelfMsisdn(msisdns.get(position)))
+					//We are changing DataSet(msisdns) sent to Adapter inside DisplayContactsAdapter,
+					//So we are fetching msisdn for item clicked from Adapter only
+					String currentMsisdn = contactsAdapter.getMsisdnAsPerPostion(position);
+					if (Utils.isSelfMsisdn(currentMsisdn))
 					{
 						Intent intent2 = new Intent(TimelineSummaryActivity.this, ProfileActivity.class);
 						intent2.putExtra(HikeConstants.Extras.FROM_CENTRAL_TIMELINE, true);
@@ -681,7 +684,7 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 					{
 
 						Intent intent = IntentFactory.createChatThreadIntentFromContactInfo(TimelineSummaryActivity.this, ContactManager.getInstance()
-								.getContact(msisdns.get(position),true,true), false, false);
+								.getContact(currentMsisdn,true,true), false, false);
 						// Add anything else to the intent
 						intent.putExtra(HikeConstants.Extras.FROM_CENTRAL_TIMELINE, true);
 						intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
