@@ -274,9 +274,12 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			}
 		}
 		
-		mCustomKeyboard.closeAnyDialogIfShowing();
-		
-		mCustomKeyboard.onPause();
+		if (mCustomKeyboard != null)
+		{
+			mCustomKeyboard.closeAnyDialogIfShowing();
+			
+			mCustomKeyboard.onPause();			
+		}
 	}
 	
 	@Override
@@ -322,7 +325,10 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			HikeMessengerApp.getPubSub().removeListeners(this, profilEditPubSubListeners);
 		}
 		
-		destroyKeyboardResources();
+		if (mCustomKeyboard != null)
+		{
+			destroyKeyboardResources();
+		}
 	}
 
 	private void destroyKeyboardResources()
