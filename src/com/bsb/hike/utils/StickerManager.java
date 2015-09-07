@@ -1814,7 +1814,6 @@ public class StickerManager
 			{
 				return ;
 			}
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.TAG_FIRST_TIME_DOWNLOAD, false);
 			StickerSearchManager.getInstance().downloadStickerTags(true);
 		}
 		else 

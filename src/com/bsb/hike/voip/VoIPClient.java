@@ -934,6 +934,8 @@ public class VoIPClient  {
 		if (codecDecompressionThread != null)
 			codecDecompressionThread.interrupt();
 		
+		sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CALL_END);
+		
 		synchronized (VoIPClient.this) {
 			if (chronometer != null) {
 				chronometer.stop();
@@ -946,8 +948,6 @@ public class VoIPClient  {
 			}
 		}
 		
-		sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CALL_END);
-
 		if(reconnecting) {
 			sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CALL_DROP);
 		}

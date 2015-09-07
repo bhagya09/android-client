@@ -1,7 +1,6 @@
 package com.bsb.hike.voip.view;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -78,6 +77,8 @@ public class VoipCallFragment extends Fragment implements CallActions
 	private LinearLayout forceMuteContainer = null;
 	private LinearLayout signalContainer = null;
 	private boolean isCallActive;
+	private ArrayList<VoIPClient> conferenceClients = null;
+	private ConferenceParticipantsAdapter confClientsAdapter = null;
 
 	private CallFragmentListener activity;
 
@@ -204,13 +205,17 @@ public class VoipCallFragment extends Fragment implements CallActions
 				showMessage(getString(R.string.voip_conference_not_supported, name));
 				break;
 			case VoIPConstants.MSG_PARTNER_BUSY:
-				if (voipService != null && !voipService.hostingConference())
+				if (voipService != null)
 				{
 					Bundle bundle2 = msg.getData();
 					String msisdn = bundle2.getString(VoIPConstants.MSISDN);
-					showCallFailedFragment(VoIPConstants.CallFailedCodes.PARTNER_BUSY, msisdn);
-					voipService.setCallStatus(VoIPConstants.CallStatus.PARTNER_BUSY);
-					updateCallStatus();
+					if (voipService.hostingConference()) {
+						showMessage(getString(R.string.voip_callee_busy, msisdn));
+					} else {
+						showCallFailedFragment(VoIPConstants.CallFailedCodes.PARTNER_BUSY, msisdn);
+						voipService.setCallStatus(VoIPConstants.CallStatus.PARTNER_BUSY);
+						updateCallStatus();
+					}
 				}
 				break;
 			case VoIPConstants.MSG_UPDATE_CALL_BUTTONS:
@@ -961,17 +966,30 @@ public class VoipCallFragment extends Fragment implements CallActions
 	private void updateConferenceList() {
 	
 		ListView conferenceList = (ListView) getView().findViewById(R.id.conference_list);
-		List<VoIPClient> clients = new ArrayList<>(voipService.getConferenceClients());
-		ConferenceParticipantsAdapter adapter = new ConferenceParticipantsAdapter(getActivity(), 0, 0, clients);
-		conferenceList.setAdapter(adapter);
-		conferenceList.setVisibility(View.VISIBLE);
-		conferenceList.setFocusable(false);
-		conferenceList.setClickable(false);
 		
-		// Remove profile image
-		ImageView profileView = (ImageView) getView().findViewById(R.id.profile_image);
-		profileView.setVisibility(View.INVISIBLE);
-
+		// FYI, when hosting a conference, we do not have an ArrayList object
+		// to use directly in our listview adapter, since client objects are 
+		// kept in a HashMap for quick lookup. Hence, we create an ArrayList from
+		// the HashMap values in getConferenceClients(). However, this effectively
+		// means that we cannot use notifyDataSetChanged() on updates, since the 
+		// ArrayList object itself will change. 
+		
+		if (conferenceClients == null || voipService.hostingConference())
+			conferenceClients = voipService.getConferenceClients();
+			
+		if (confClientsAdapter == null || voipService.hostingConference()) {
+			confClientsAdapter = new ConferenceParticipantsAdapter(getActivity(), 0, 0, conferenceClients);
+			conferenceList.setAdapter(confClientsAdapter);
+			conferenceList.setVisibility(View.VISIBLE);
+			conferenceList.setFocusable(false);
+			conferenceList.setClickable(false);
+			
+			// Remove profile image
+			ImageView profileView = (ImageView) getView().findViewById(R.id.profile_image);
+			profileView.setVisibility(View.INVISIBLE);
+		} else
+			confClientsAdapter.notifyDataSetChanged();
+		
 		if (voipService.hostingConference()) {
 			
 			// remove quality indicator

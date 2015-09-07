@@ -955,6 +955,10 @@ public class HikeConstants
 	public static final String INDIA_COUNTRY_CODE = "+91";
 
 	public static final String SAUDI_ARABIA_COUNTRY_CODE = "+966";
+	
+	public static final String UAE_COUNTRY_CODE = "+971";
+	
+	public static final String[] SSL_NOT_ALLOWED_COUNTRIES = {SAUDI_ARABIA_COUNTRY_CODE, UAE_COUNTRY_CODE};
 
 	public static final int MDPI_TIMES_10 = 11;
 
@@ -3231,5 +3235,7 @@ public class HikeConstants
 	public static final String REFERRAL_EMAIL_TEXT = "ref_mail_txt";
 	
 	public static final String REFERRAL_OTHER_TEXT = "ref_oth_txt";
+	
+	public static final String ALL_STICKER_TAG_DOWNLOAD = "alstktd";
 
 }
