@@ -284,6 +284,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 
 		HikeMessengerApp.getPubSub().addListener(HikePubSub.FAVORITE_TOGGLED, this);
 		HikeMessengerApp.getPubSub().addListener(HikePubSub.DELETE_STATUS, this);
+		HikeMessengerApp.getPubSub().addListener(HikePubSub.ACTIVITY_UPDATE, this);
 	}
 
 	@Override
@@ -532,7 +533,11 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 
 					if (isShowCountEnabled || statusMessage.isMyStatusUpdate())
 					{
-						if (likesData.getTotalCount() == 1)
+						if (likesData.getTotalCount() == 0)
+						{
+							viewHolder.textBtnLove.setText(R.string.like_this);
+						}
+						else if (likesData.getTotalCount() == 1)
 						{
 							viewHolder.textBtnLove.setText(String.format(mContext.getString(R.string.num_like), likesData.getTotalCount()));
 						}
@@ -683,7 +688,6 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 			{
 				if (statusMessage.getStatusMessageType() == StatusMessageType.IMAGE || statusMessage.getStatusMessageType() == StatusMessageType.TEXT_IMAGE)
 				{
-//					viewHolder.mainInfo.setText(R.string.posted_photo);
 					viewHolder.mainInfo.setVisibility(View.GONE);
 				}
 				else if (statusMessage.getStatusMessageType() == StatusMessageType.PROFILE_PIC)
@@ -719,7 +723,11 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 
 				if (isShowCountEnabled || statusMessage.isMyStatusUpdate())
 				{
-					if (likesData.getTotalCount() == 1)
+					if (likesData.getTotalCount() == 0)
+					{
+						viewHolder.textBtnLove.setText(R.string.like_this);
+					}
+					else if (likesData.getTotalCount() == 1)
 					{
 						viewHolder.textBtnLove.setText(String.format(mContext.getString(R.string.num_like), likesData.getTotalCount()));
 					}
@@ -1432,15 +1440,6 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 			
 			super.onCheckedChanged(buttonView, isChecked);
 		}
-		
-		@Override
-		public void notifyUI()
-		{
-			if (!isDestroyed)
-			{
-				notifyDataSetChanged();
-			}
-		}
 	};
 
 	private void toggleCompButtonState(CompoundButton argButton,OnCheckedChangeListener argListener)
@@ -1619,12 +1618,27 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 				handleUIMessage(emptyMessage);
 			}
 		}
+		else if (HikePubSub.ACTIVITY_UPDATE.equals(type))
+		{
+			if (!isDestroyed && mActivity.get() != null)
+			{
+				mActivity.get().runOnUiThread(new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						notifyDataSetChanged();
+					}
+				});
+			}
+		}
 	}
 
 	public void onDestroy()
 	{
 		HikeMessengerApp.getPubSub().removeListeners(this, HikePubSub.FAVORITE_TOGGLED);
 		HikeMessengerApp.getPubSub().removeListeners(this, HikePubSub.DELETE_STATUS);
+		HikeMessengerApp.getPubSub().removeListeners(this, HikePubSub.ACTIVITY_UPDATE);
 		
 		// For any async tasks which completes after user goes away from this adapter
 		isDestroyed = true;
