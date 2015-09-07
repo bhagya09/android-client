@@ -129,9 +129,9 @@ public class StickerShopFragment extends Fragment implements OnScrollListener, L
 			{
 				return null;
 			}
+			Bitmap bmp = HikeBitmapFactory.decodeResource(HikeMessengerApp.getInstance().getResources(), R.drawable.art_banner);
+			Drawable dr = HikeBitmapFactory.getBitmapDrawable(HikeMessengerApp.getInstance().getResources(), bmp);
 			Cursor cursor = HikeConversationsDatabase.getInstance().getCursorForStickerShop();
-			Bitmap bmp = HikeBitmapFactory.decodeResource(getResources(), R.drawable.art_banner);
-			Drawable dr = HikeBitmapFactory.getBitmapDrawable(getResources(), bmp);
 			return new Pair(cursor, dr);
 		}
 

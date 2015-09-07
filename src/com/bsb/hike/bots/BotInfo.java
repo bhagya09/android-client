@@ -1,24 +1,12 @@
 package com.bsb.hike.bots;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.R.integer;
-import android.content.Context;
-import android.text.TextUtils;
-
-import com.bsb.hike.HikeConstants;
-import com.bsb.hike.HikeMessengerApp;
-import com.bsb.hike.R;
-import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.models.Conversation.ConvInfo;
 import com.bsb.hike.platform.HikePlatformConstants;
-import com.bsb.hike.service.MqttMessagesManager;
-import com.bsb.hike.utils.Logger;
 
 /**
  * Created by shobhit on 22/04/15.
@@ -45,6 +33,8 @@ public class BotInfo extends ConvInfo
 	private AtomicBoolean configDataRefreshed = new AtomicBoolean(false);
 	
 	private AtomicBoolean isBackPressAllowed = new AtomicBoolean(false);
+
+	private AtomicBoolean isUpPressAllowed = new AtomicBoolean(false);
 
 	private String helperData;
 	
@@ -284,6 +274,22 @@ public class BotInfo extends ConvInfo
 	public void setIsBackPressAllowed(boolean isBackPressAllowed)
 	{
 		this.isBackPressAllowed.set(isBackPressAllowed);
+	}
+
+	/**
+	 * @return the isUpPressAllowed
+	 */
+	public boolean getIsUpPressAllowed()
+	{
+		return isUpPressAllowed.get();
+	}
+
+	/**
+	 * @param isUpPressAllowed the isUpPressAllowed to set
+	 */
+	public void setIsUpPressAllowed(boolean isUpPressAllowed)
+	{
+		this.isUpPressAllowed.set(isUpPressAllowed);
 	}
 	
 	/**
