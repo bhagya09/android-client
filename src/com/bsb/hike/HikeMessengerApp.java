@@ -33,6 +33,7 @@ import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Pair;
 
+import com.bsb.hike.ag.NetworkAgModule;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.chatHead.ChatHeadUtils;
@@ -464,11 +465,7 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 
 	public static final String SHOW_VOIP_FTUE_POPUP = "showVoipFtuePopup";
 
-	public static final String SHOW_VOIP_CALL_RATE_POPUP = "showVoipCallRatePopup";
-
 	public static final String VOIP_CALL_RATE_POPUP_FREQUENCY = "voipCallRatePopupFrequency";
-
-	public static final String VOIP_ACTIVE_CALLS_COUNT = "voipCallsCount";
 
 	public static final String DETAILED_HTTP_LOGGING_ENABLED = "detailedHttpLoggingEnabled";
 
@@ -856,7 +853,8 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 		// String twitterTokenSecret = settings.getString(HikeMessengerApp.TWITTER_TOKEN_SECRET, "");
 		// makeTwitterInstance(twitterToken, twitterTokenSecret);
 
-		setIndianUser(settings.getString(COUNTRY_CODE, "").equals(HikeConstants.INDIA_COUNTRY_CODE));
+		String countryCode = settings.getString(COUNTRY_CODE, "");
+		setIndianUser(countryCode.equals(HikeConstants.INDIA_COUNTRY_CODE));
 
 		SharedPreferences preferenceManager = PreferenceManager.getDefaultSharedPreferences(this);
 
@@ -864,7 +862,7 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 		// update case
 		// in case of an update the SSL pref would not be null
 
-		boolean isSAUser = settings.getString(COUNTRY_CODE, "").equals(HikeConstants.SAUDI_ARABIA_COUNTRY_CODE);
+		boolean isSAUser = countryCode.equals(HikeConstants.SAUDI_ARABIA_COUNTRY_CODE);
 
 		// Setting SSL_PREF as false for existing SA users with SSL_PREF = true
 		if (!preferenceManager.contains(HikeConstants.SSL_PREF) || (isSAUser && settings.getBoolean(HikeConstants.SSL_PREF, false)))
@@ -872,6 +870,13 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 			Editor editor = preferenceManager.edit();
 			editor.putBoolean(HikeConstants.SSL_PREF, !(isIndianUser || isSAUser));
 			editor.commit();
+		}
+		
+		//if ssl_allowed preference is not set then set it
+		// this will be usefull for upgrading users.
+		if(!HikeSharedPreferenceUtil.getInstance().contains(HikeMessengerApp.SSL_ALLOWED))
+		{
+			Utils.setSSLAllowed(countryCode);
 		}
 
 		if (!preferenceManager.contains(HikeConstants.RECEIVE_SMS_PREF))
@@ -940,6 +945,8 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 		
 		bottomNavBarHeightPortrait = Utils.getBottomNavBarHeight(getApplicationContext());
 		bottomNavBarWidthLandscape = Utils.getBottomNavBarWidth(getApplicationContext());
+		
+		NetworkAgModule.startLogging();
 	}
 
 	private void initImportantAppComponents(SharedPreferences prefs)

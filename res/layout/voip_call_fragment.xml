@@ -72,8 +72,37 @@
 	        android:layout_height="match_parent"
 	        android:layout_below="@id/voip_header"
 	        android:layout_centerHorizontal="true"
+	        android:clickable="true"
 	        android:scaleType="centerCrop" />
 
+	    <LinearLayout
+	        android:id="@+id/force_mute_layout"
+		    android:layout_width="match_parent"
+		    android:layout_height="wrap_content"
+	        android:layout_below="@id/voip_header"
+		    android:gravity="center"
+	        android:visibility="gone"
+		    android:orientation="horizontal">
+
+		    <com.bsb.hike.ui.utils.RecyclingImageView
+		        android:id="@+id/force_mute_icon"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:layout_marginRight="10dp"
+		        android:src="@drawable/ic_force_mute" />
+	        	        
+		    <com.bsb.hike.view.CustomFontTextView 
+	            android:id="@+id/mute_all_textview"
+		        android:text="@string/voip_conf_mute_all_off"
+		        android:gravity="center"
+		        android:layout_width="wrap_content"
+		        android:layout_height="55dp"
+		        android:textSize="16dp"
+		        android:textColor="@color/white"
+		        />
+	        	        				
+		</LinearLayout>
+	    	    
 		<ListView
             android:id="@+id/conference_list"
             style="@style/HomeList"
@@ -81,7 +110,7 @@
             android:layout_marginBottom="20dp"
             android:dividerHeight="1px"
             android:divider="@drawable/voip_conference_list_divider"
-	        android:layout_below="@id/voip_header"
+	        android:layout_below="@id/force_mute_layout"
 	        android:layout_above="@+id/hang_up_btn"
             android:visibility="visible" />
 	    	    	    
@@ -158,19 +187,7 @@
 			        android:layout_weight="1"
 			        android:src="@drawable/ic_mute_disabled">
 			    </ImageButton>
-			    
-			     <ImageButton
-			        android:id="@+id/hold_btn"
-			        android:layout_width="wrap_content"
-			        android:layout_height="wrap_content"
-			        android:scaleType="centerInside"
-			        android:padding="7dp"
-			        android:background="@null"
-			        android:layout_weight="1"
-			        android:visibility="gone"
-			        android:src="@drawable/ic_hold_disabled">
-			    </ImageButton>
-			    
+
 			    <ImageButton
 			        android:id="@+id/speaker_btn"
 			        android:layout_width="wrap_content"
