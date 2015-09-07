@@ -1122,7 +1122,18 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 			@Override
 			public void positiveClicked(final HikeDialog hikeDialog)
 			{
-				HttpRequests.deleteStatusRequest(statusMessage.getMappedId(), new IRequestListener()
+				JSONObject json = null;
+				try
+				{
+					json = new JSONObject();
+					json.put(HikeConstants.STATUS_ID, statusMessage.getMappedId());
+				}
+				catch (JSONException e)
+				{
+					Logger.e("", "exception while deleting status : " + e);
+				}
+				
+				HttpRequests.deleteStatusRequest(json, new IRequestListener()
 				{
 					@Override
 					public void onRequestSuccess(Response result)

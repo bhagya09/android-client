@@ -1629,6 +1629,8 @@
     <string name="goto_timeline">Go to Timeline.</string>
     <string name="contacts_sync_error">Contact sync failed. Please try again</string>
     <string name="contacts_sync_no_contacts_found">No contacts to sync</string>
+    <string name="cloud_file_error">This file is not present on your phone. Please download it externally before sharing</string>
+    <string name="unknown_file_error">We could not locate the file on disk. Please try again</string>
     <string name="add_to_fav_confirmation">You can like status posts by your favorites. Do you want to add %1$s as a favourite?</string>
     <string name="invite_free_sms">Free SMS Invite</string>
     <string name="sticker_recommend_settings_toast">You can enable Sticker suggestions from Settings > Chat settings anytime</string>

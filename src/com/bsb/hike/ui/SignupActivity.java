@@ -2380,7 +2380,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 			Logger.d(getClass().getSimpleName(), "Downloading profileImage");
 			try
 			{
-				Utils.downloadAndSaveFile(context, destFile, imageUri);
+				Utils.downloadAndSaveFile(context.getContentResolver(), destFile, imageUri);
 				imageDownloadResult.downloadFinished(true);
 			}
 			catch (Exception e)
