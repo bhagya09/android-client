@@ -1511,6 +1511,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	private void startFreeHikeAnimation()
 	{
 		Utils.blockOrientationChange(activity);
+		activity.removeFragment(OfflineConstants.OFFLINE_ANIMATION_FRAGMENT);
 		offlineAnimationFragment = OfflineAnimationFragment.newInstance(msisdn);
 		offlineAnimationFragment.setConnectionListner(this);
 		offlineAnimationFragment.show(activity.getSupportFragmentManager(), OfflineConstants.OFFLINE_ANIMATION_FRAGMENT);
