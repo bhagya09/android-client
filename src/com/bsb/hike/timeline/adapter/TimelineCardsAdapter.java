@@ -17,10 +17,10 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Message;
-import android.support.v4.app.FragmentManager;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v7.widget.RecyclerView;
@@ -49,7 +49,6 @@ import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
-import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
@@ -60,7 +59,6 @@ import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.models.ImageViewerInfo;
 import com.bsb.hike.models.Protip;
 import com.bsb.hike.modules.contactmgr.ContactManager;
-import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
@@ -73,14 +71,12 @@ import com.bsb.hike.timeline.TimelineActionsManager;
 import com.bsb.hike.timeline.model.ActionsDataModel;
 import com.bsb.hike.timeline.model.ActionsDataModel.ActionTypes;
 import com.bsb.hike.timeline.model.ActionsDataModel.ActivityObjectTypes;
-import com.bsb.hike.timeline.model.FeedDataModel;
 import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
 import com.bsb.hike.timeline.view.StatusUpdate;
 import com.bsb.hike.timeline.view.TimelineSummaryActivity;
 import com.bsb.hike.timeline.view.UpdatesFragment;
 import com.bsb.hike.ui.ProfileActivity;
-import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.EmoticonConstants;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.HikeUiHandler;
@@ -907,10 +903,11 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 		{
 			if (mActivity.get() != null)
 			{
+				ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(mActivity.get(), v, mContext.getString(R.string.timeline_transition_anim));
 				StatusMessage statusMessage = (StatusMessage) v.getTag();
 				Intent intent = new Intent(mActivity.get(), TimelineSummaryActivity.class);
 				intent.putExtra(HikeConstants.Extras.MAPPED_ID, statusMessage.getMappedId());
-				startActivity(intent);
+				ActivityCompat.startActivity(mActivity.get(), intent, options.toBundle());
 			}
 		}
 	};
