@@ -19,7 +19,6 @@ import android.support.v7.app.ActionBar;
 import android.text.TextUtils;
 import android.text.method.ScrollingMovementMethod;
 import android.text.util.Linkify;
-import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -90,7 +89,7 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 
 	private int imageSize;
 
-	private String[] timelineSummaryPubSubListeners = { HikePubSub.ICON_CHANGED };
+	private String[] timelineSummaryPubSubListeners = { HikePubSub.ICON_CHANGED, HikePubSub.ACTIVITY_UPDATE };
 
 	private View fadeScreen;
 
@@ -146,8 +145,6 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 	private HikeImageDownloader mImageDownloader;
 
 	private ContactInfo profileContactInfo;
-	
-	private boolean isStopped = false;
 	
 	DisplayContactsAdapter contactsAdapter;
 
@@ -212,19 +209,7 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 				return;
 			}
 			
-			actionsData = TimelineActionsManager.getInstance().getActionsData()
-					.getActions(mStatusMessage.getMappedId(), ActionTypes.LIKE, ActivityObjectTypes.STATUS_UPDATE);
-
-			if(actionsData == null)
-			{
-				// Try to get actions data from database
-				ArrayList<String> suIDs = new ArrayList<String>();
-				suIDs.add(mappedId);
-				
-				HikeConversationsDatabase.getInstance().getActionsData(ActionsDataModel.ActivityObjectTypes.STATUS_UPDATE.getTypeString(), suIDs,
-						TimelineActionsManager.getInstance().getActionsData());
-				actionsData = TimelineActionsManager.getInstance().getActionsData().getActions(mStatusMessage.getMappedId(), ActionTypes.LIKE, ActivityObjectTypes.STATUS_UPDATE);
-			}
+			fetchActionsData();
 			
 			if (actionsData != null)
 			{
@@ -305,9 +290,31 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 			showLikesContactsDialog();
 		}
 	}
+	
+	private void fetchActionsData()
+	{
+		actionsData = TimelineActionsManager.getInstance().getActionsData()
+				.getActions(mStatusMessage.getMappedId(), ActionTypes.LIKE, ActivityObjectTypes.STATUS_UPDATE);
+
+		if(actionsData == null)
+		{
+			// Try to get actions data from database
+			ArrayList<String> suIDs = new ArrayList<String>();
+			suIDs.add(mappedId);
+			
+			HikeConversationsDatabase.getInstance().getActionsData(ActionsDataModel.ActivityObjectTypes.STATUS_UPDATE.getTypeString(), suIDs,
+					TimelineActionsManager.getInstance().getActionsData());
+			actionsData = TimelineActionsManager.getInstance().getActionsData().getActions(mStatusMessage.getMappedId(), ActionTypes.LIKE, ActivityObjectTypes.STATUS_UPDATE);
+		}
+	}
 
 	private void notifyActivityUI()
 	{
+		// Safety check - Check if activity has a view
+		if (textViewCounts == null)
+		{
+			return;
+		}
 
 		if (actionsData != null)
 		{
@@ -360,8 +367,8 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 		}
 
 		checkBoxLove.setOnCheckedChangeListener(onLoveToggleListener);
-		
-		if(contactsAdapter != null)
+
+		if (contactsAdapter != null)
 		{
 			contactsAdapter.notifyDataSetChanged();
 		}
@@ -598,26 +605,18 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 				});
 			}
 		}
-		else if ((HikePubSub.FAVORITE_TOGGLED.equals(type) || HikePubSub.FRIEND_REQUEST_ACCEPTED.equals(type) || HikePubSub.REJECT_FRIEND_REQUEST.equals(type)))
+		else if (HikePubSub.ACTIVITY_UPDATE.equals(type))
 		{
-			final Pair<ContactInfo, FavoriteType> favoriteToggle = (Pair<ContactInfo, FavoriteType>) object;
-
-			ContactInfo contactInfo = favoriteToggle.first;
-			FavoriteType favoriteType = favoriteToggle.second;
-
-			if (profileContactInfo != null)
+			runOnUiThread(new Runnable()
 			{
-				if (!profileContactInfo.getMsisdn().equals(contactInfo.getMsisdn()))
+				@Override
+				public void run()
 				{
-					return;
+					fetchActionsData();
+					notifyActivityUI();
 				}
-				else
-				{
-					this.profileContactInfo.setFavoriteType(favoriteType);
-				}
-			}
+			});
 		}
-		
 	}
 
 	public void onCancelled()
@@ -690,6 +689,7 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 						intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 						startActivity(intent);
 					}
+					dialog.dismiss();
 					mActivityState.dialogShown = false;
 				}
 			});
@@ -857,16 +857,6 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 
 			super.onCheckedChanged(buttonView, isChecked);
 		}
-
-		@Override
-		public void notifyUI()
-		{
-			if (!isStopped)
-			{
-				notifyActivityUI();
-				HikeMessengerApp.getPubSub().publish(HikePubSub.ACTIVITY_UPDATE, null);
-			}
-		}
 	};
 	
 	private void toggleCompButtonState(CompoundButton argButton,OnCheckedChangeListener argListener)
@@ -877,13 +867,6 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 		argButton.setOnCheckedChangeListener(argListener);
 	}
 
-	@Override
-	protected void onStop()
-	{
-		isStopped  = true;
-		super.onStop();
-	}
-	
 	@Override
 	public Object onRetainCustomNonConfigurationInstance()
 	{

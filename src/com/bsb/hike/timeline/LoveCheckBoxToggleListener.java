@@ -7,6 +7,7 @@ import org.json.JSONObject;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.modules.httpmgr.RequestToken;
@@ -100,7 +101,7 @@ public abstract class LoveCheckBoxToggleListener implements OnCheckedChangeListe
 					TimelineActionsManager.getInstance().addMyAction(statusMessage.getMappedId(), ActionTypes.UNLIKE, ActivityObjectTypes.STATUS_UPDATE);
 
 					// UI actions
-					notifyUI();
+					onActionsDataChanged();
 					buttonView.setEnabled(true);
 					buttonView.setClickable(true);
 					toggleCompButtonState(buttonView, LoveCheckBoxToggleListener.this);
@@ -110,13 +111,13 @@ public abstract class LoveCheckBoxToggleListener implements OnCheckedChangeListe
 
 			// Add action to actions heap, even before making server call. This will ensure a more responsive UX.
 			TimelineActionsManager.getInstance().addMyAction(statusMessage.getMappedId(), ActionTypes.LIKE, ActivityObjectTypes.STATUS_UPDATE);
-			
+
 			ObjectAnimator loveScaleX = ObjectAnimator.ofFloat(buttonView, "scaleX", 1f, 0.7f, 1.2f, 1f);
 			ObjectAnimator loveScaleY = ObjectAnimator.ofFloat(buttonView, "scaleY", 1f, 0.7f, 1.2f, 1f);
 			loveScaleX.start();
 			loveScaleY.start();
 
-			notifyUI();
+			onActionsDataChanged();
 		}
 		else
 		{
@@ -160,7 +161,7 @@ public abstract class LoveCheckBoxToggleListener implements OnCheckedChangeListe
 					// Reverse action in actions heap
 					TimelineActionsManager.getInstance().addMyAction(statusMessage.getMappedId(), ActionTypes.LIKE, ActivityObjectTypes.STATUS_UPDATE);
 
-					notifyUI();
+					onActionsDataChanged();
 					buttonView.setEnabled(true);
 					buttonView.setClickable(true);
 					toggleCompButtonState(buttonView, LoveCheckBoxToggleListener.this);
@@ -170,7 +171,7 @@ public abstract class LoveCheckBoxToggleListener implements OnCheckedChangeListe
 			// Add action to actions heap, even before making server call. This will ensure a more responsive UX.
 			TimelineActionsManager.getInstance().addMyAction(statusMessage.getMappedId(), ActionTypes.UNLIKE, ActivityObjectTypes.STATUS_UPDATE);
 			// UI actions
-			notifyUI();
+			onActionsDataChanged();
 		}
 
 	}
@@ -183,6 +184,10 @@ public abstract class LoveCheckBoxToggleListener implements OnCheckedChangeListe
 		argButton.setOnCheckedChangeListener(argListener);
 	}
 
-	public abstract void notifyUI();
+	//Override if required
+	private void onActionsDataChanged()
+	{
+		HikeMessengerApp.getPubSub().publish(HikePubSub.ACTIVITY_UPDATE, null);
+	};
 
 }
