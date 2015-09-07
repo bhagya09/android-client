@@ -941,29 +941,6 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 			return;
 		}
 
-		if (stickerInfoSet.isEmpty())
-		{
-			try
-			{
-				mDb.beginTransaction();
-
-				mDb.delete(HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING, null, null);
-				deleteSearchData();
-
-				mDb.setTransactionSuccessful();
-			}
-			catch (SQLException e)
-			{
-				Logger.e(TAG, "Error in executing sql delete queries: ", e);
-			}
-			finally
-			{
-				mDb.endTransaction();
-			}
-
-			return;
-		}
-
 		HashSet<String> removingStickerSetInDatabase = new HashSet<String>();
 		Cursor c = null;
 		try
