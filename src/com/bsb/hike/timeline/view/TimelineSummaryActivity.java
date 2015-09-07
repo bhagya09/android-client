@@ -687,6 +687,7 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 						intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 						startActivity(intent);
 					}
+					dialog.dismiss();
 					mActivityState.dialogShown = false;
 				}
 			});
