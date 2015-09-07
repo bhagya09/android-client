@@ -4392,6 +4392,10 @@ public class MqttMessagesManager
 				{
 					saveMessage(json);
 				}
+				else if (HikeConstants.MqttMessageTypes.ACCOUNT_CONFIG.equals(type))
+				{
+					saveAccountConfig(json);
+				}
 				else if (HikeConstants.MqttMessageTypes.POPUP.equals(type))
 				{
 					savePopup(json);
