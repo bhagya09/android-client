@@ -313,5 +313,18 @@ public class NativeBridge
 			}
 		});
 	}
+	public void onActivityResult(int requestCode, int resultCode, Intent data)
+	{
+		
+		/**
+		 * TODO
+		 * 
+		 * DummyGameActivity.gameActivity.runOnGLThread(new Runnable() {
+		 * 
+		 * @Override public void run() { // gameCallback(functionId,data); } });
+		 */
+					
+		
+	}
 
 }
