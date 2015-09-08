@@ -221,7 +221,7 @@ public class StickerShareSettings extends HikeAppStateBaseFragmentActivity
 	
 	public void stickerSettingsChangedEvent(boolean showDialog)
 	{
-		if (showDialog && ChatHeadUtils.canAccessibilityBeUsed(false))
+		if (showDialog && ChatHeadUtils.canAccessibilityBeUsed(false) && (accessibilityDialog == null || !accessibilityDialog.isShowing()))
 		{
 			accessibilityDialog = HikeDialogFactory.showDialog(StickerShareSettings.this, HikeDialogFactory.ACCESSIBILITY_DIALOG, new HikeDialogListener()
 			{
