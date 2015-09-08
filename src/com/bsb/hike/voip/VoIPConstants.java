@@ -293,8 +293,7 @@ public class VoIPConstants {
 		ON_HOLD, 
 		ACTIVE, 
 		ENDED, 
-		UNINITIALIZED,
-		HOSTING_CONFERENCE
+		UNINITIALIZED
 	}
 
 	/**
