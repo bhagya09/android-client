@@ -37,7 +37,6 @@ import android.media.RingtoneManager;
 import android.media.SoundPool;
 import android.net.Uri;
 import android.os.Binder;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -1169,8 +1168,6 @@ public class VoIPService extends Service {
 		Bundle bundle = new Bundle();
 		bundle.putInt(VoIPConstants.CALL_ID, getCallId());
 		bundle.putInt(VoIPConstants.CALL_NETWORK_TYPE, VoIPUtils.getConnectionClass(getApplicationContext()).ordinal());
-		bundle.putString(VoIPConstants.APP_VERSION_NAME, VoIPUtils.getAppVersionName(getApplicationContext()));
-		bundle.putInt(VoIPConstants.OS_VERSION, Build.VERSION.SDK_INT);
 		bundle.putInt(VoIPConstants.CALL_DURATION, getCallDuration());
 		if (clientPartner != null) {
 			bundle.putInt(VoIPConstants.IS_CALL_INITIATOR, clientPartner.isInitiator() ? 0 : 1);

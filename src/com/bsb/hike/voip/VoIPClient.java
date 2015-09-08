@@ -23,7 +23,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Context;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -1488,8 +1487,6 @@ public class VoIPClient  {
 			metadata.put(HikeConstants.EVENT_KEY, ek);
 			metadata.put(VoIPConstants.Analytics.IS_CALLER, isInitiator() ? 0 : 1);
 			metadata.put(VoIPConstants.Analytics.CALL_ID, VoIPService.getCallId());
-			metadata.put(VoIPConstants.Analytics.APP_VERSION_NAME, VoIPUtils.getAppVersionName(context));
-			metadata.put(VoIPConstants.Analytics.OS_VERSION, Build.VERSION.SDK_INT);
 			metadata.put(VoIPConstants.Analytics.IS_CONFERENCE, isHostingConference || isInAHostedConference == true ? 1 : 0);
 			metadata.put(VoIPConstants.Analytics.NETWORK_TYPE, VoIPUtils.getConnectionClass(context).ordinal());
 			
