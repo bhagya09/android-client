@@ -29,6 +29,7 @@ import org.json.JSONObject;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageInfo;
@@ -45,9 +46,6 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Toast;
 
-import com.bsb.hike.bots.BotInfo;
-import com.bsb.hike.bots.BotUtils;
-import com.bsb.hike.platform.bridge.NativeGameBridge;
 import com.bsb.hike.utils.Logger;
 import com.chukong.cocosplay.client.CocosPlayClient;
 import com.google.gson.Gson;
@@ -100,7 +98,7 @@ public class CocosGamingActivity extends Cocos2dxActivity
 
 	private String requestId;
 
-	private static NativeGameBridge nativeBridge;
+	private static NativeBridge nativeBridge;
 
 	@Override
 	public void onPostCreate(Bundle savedInstanceState, PersistableBundle persistentState)
@@ -157,8 +155,8 @@ public class CocosGamingActivity extends Cocos2dxActivity
 		Logger.d(TAG, "Integer size : " + Integer.SIZE);
 		Logger.d(TAG, "System architecture : " + System.getProperty("os.arch"));
 
-		sharedPreferences = getSharedPreferences(SHARED_PREF, Context.MODE_PRIVATE);
-		sharedPrefEditor = getSharedPreferences(SHARED_PREF, Context.MODE_PRIVATE).edit();
+		sharedPreferences = getSharedPreferences(SHARED_PREF, Context.MODE_MULTI_PROCESS);
+		sharedPrefEditor = getSharedPreferences(SHARED_PREF, Context.MODE_MULTI_PROCESS).edit();
 		String listOfAppsString = sharedPreferences.getString(LIST_OF_APPS, null);
 		if (listOfAppsString != null)
 		{
@@ -217,34 +215,44 @@ public class CocosGamingActivity extends Cocos2dxActivity
 
 	public static Object getNativeBridge()
 	{
-		// return nativeBridge;
-		return cocos2dActivity;
-	}
-
-	public void getFromCache(String id, String key)
-	{
-		nativeBridge.getFromCache(id, key);
-	}
-
-	public void putInCache(final String key, final String value)
-	{
-		nativeBridge.putInCache(key, value);
-	}
-
-	public void logAnalytics(final String isUI, final String subType, final String json)
-	{
-		nativeBridge.logAnalytics(isUI, subType, json);
-	}
-
-	public void fwdToChat()
-	{
-		nativeBridge
-				.forwardToChat(
-						"{\"ld\":{\"id\":224653,\"title\":\"PCB seek clarity on India series\",\"snippet\":\"Pakistan&#39;s cricket chief Shaharyar Khan on Wednesday, wrote a letter to the BCCI secretary Anurag Thakur pressing him for an update on the proposed Indo-Pak series in Dec this year. &#39;&#39;I am positive that the BCCI shall be able to convince the Indian govt that it ought to honour its MoU with the PCB,&quot; said Khan.\",\"score\":259.71464438341155,\"cardtype\":1,\"published_ts\":1441282226984,\"thumbnailurl\":\"http://hike-temp-dev.s3.amazonaws.com/1/19/tmp7673627884837675432-200x150.jpeg\",\"imageurl\":\"http://hike-temp-dev.s3.amazonaws.com/1/19/tmp7673627884837675432.jpeg\",\"url\":\"http://readability.hike.in:80/endpoint?url=http://www.cricbuzz.com/cricket-news/74529/pcb-seek-clarity-on-india-series&ts=1441245765000&i=http://hike-temp-dev.s3.amazonaws.com/1/19/tmp7673627884837675432.jpeg\",\"shorturl\":\"http://goo.gl/IDgXhg\",\"source\":\"CricBuzz\",\"ts\":\"18 minutes ago\",\"idx\":2,\"count\":1,\"away\":false,\"active\":true,\"imagedata\":\"\",\"killAnim\":false,\"topicname\":\"topStories\"},\"hd\":{},\"layoutId\":\"newscard.html\",\"push\":\"silent\",\"notifText\":\"PCB seek clarity on India series\",\"h\":200}",
-						"HelloWorld");
+		return nativeBridge;
+		// return cocos2dActivity;
 	}
 
 	public static native void PlatformCallback(String callID, String response);
+
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, final Intent data)
+	{
+		super.onActivityResult(requestCode, resultCode, data);
+		Logger.d(TAG, "-onActivityResult");
+		JSONObject response = new JSONObject();
+		for (String key : data.getExtras().keySet())
+		{
+			Object value = data.getExtras().get(key);
+			try
+			{
+				response.put(key, value);
+			}
+			catch (JSONException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+
+		final String res = response.toString();
+		this.runOnGLThread(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				PlatformCallback("SEND_SHARED_MESSAGE", res);
+			}
+		});
+
+		Logger.d(TAG, "+onActivityResult");
+	}
 
 	@Override
 	protected void onResume()
@@ -462,7 +470,7 @@ public class CocosGamingActivity extends Cocos2dxActivity
 				Cocos2dxHelper.initDuplicate(CocosGamingActivity.this, appId);
 				// Cocos2dxHelper.init(CocosGamingActivity.this);
 				Logger.d(TAG, "onPostExecute() 3");
-				appInit();
+				appInit(getExternalPath());
 				Logger.d(TAG, "onPostExecute() 4");
 				CocosGamingActivity.this.mGLContextAttrs = getGLContextAttrs();
 				CocosGamingActivity.this.init();
@@ -485,11 +493,11 @@ public class CocosGamingActivity extends Cocos2dxActivity
 				sharedPrefEditor.putString(LIST_OF_APPS, gson.toJson(listOfAppsMap)).commit();
 
 				// nativeBridge = new NativeGameBridge(CocosGamingActivity.this, new BotInfo.HikeBotBuilder("+"+appName+"+").build());
-				nativeBridge = new NativeGameBridge(CocosGamingActivity.this, BotUtils.getBotInfoForBotMsisdn("+hikenews+"));
-				if (requestId != null && !requestId.equals(""))
-				{
-					nativeBridge.initParams(nativeBridge.getRequestData(requestId));
-				}
+				nativeBridge = new NativeBridge("+hikenews+", CocosGamingActivity.this);
+				// if (requestId != null && !requestId.equals(""))
+				// {
+				// nativeBridge.initParams(nativeBridge.getRequestData(requestId));
+				// }
 			}
 			catch (Exception e)
 			{

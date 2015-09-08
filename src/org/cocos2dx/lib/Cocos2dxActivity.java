@@ -249,10 +249,10 @@ public abstract class Cocos2dxActivity extends Activity implements Cocos2dxHelpe
     public static native int[] getGLContextAttrs();
     
     //native method, call Init of game .so
-    private static native void appInitFromJava();
+    private static native void appInitFromJava(String searchPath);
     
-    protected void appInit() {
-    	appInitFromJava();
+    protected void appInit(String searchPath) {
+    	appInitFromJava(searchPath);
     }
     
     // ===========================================================

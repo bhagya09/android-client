@@ -1127,7 +1127,7 @@ public abstract class JavascriptBridge
 	public String getListOfDownloadedNativeGames()
 	{
 		Gson gson = new Gson();
-		SharedPreferences sharedPref = weakActivity.get().getSharedPreferences(CocosGamingActivity.SHARED_PREF, Context.MODE_PRIVATE);
+		SharedPreferences sharedPref = weakActivity.get().getSharedPreferences(CocosGamingActivity.SHARED_PREF, Context.MODE_MULTI_PROCESS);
 		String listOfAppsString = sharedPref.getString(CocosGamingActivity.LIST_OF_APPS, null);
 		if (listOfAppsString != null)
 		{
@@ -1146,8 +1146,8 @@ public abstract class JavascriptBridge
 		{
 			String gameName = null;
 			Gson gson = new Gson();
-			SharedPreferences sharedPref = weakActivity.get().getSharedPreferences(CocosGamingActivity.SHARED_PREF, Context.MODE_PRIVATE);
-			SharedPreferences.Editor sharedPrefEditor = weakActivity.get().getSharedPreferences(CocosGamingActivity.SHARED_PREF, Context.MODE_PRIVATE).edit();
+			SharedPreferences sharedPref = weakActivity.get().getSharedPreferences(CocosGamingActivity.SHARED_PREF, Context.MODE_MULTI_PROCESS);
+			SharedPreferences.Editor sharedPrefEditor = weakActivity.get().getSharedPreferences(CocosGamingActivity.SHARED_PREF, Context.MODE_MULTI_PROCESS).edit();
 			String listOfAppsString = sharedPref.getString(CocosGamingActivity.LIST_OF_APPS, null);
 			if (listOfAppsString != null)
 			{

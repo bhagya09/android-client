@@ -117,7 +117,7 @@ public class PlatformHelper
 		}
 	}
 
-	public static void sendNormalEvent(String messageHash, String eventData,String namespace)
+	public static void sendNormalEvent(String messageHash, String eventData, String namespace)
 	{
 		PlatformUtils.sendPlatformMessageEvent(eventData, messageHash, namespace);
 	}
@@ -161,7 +161,7 @@ public class PlatformHelper
 		}
 	}
 
-	public static String getAllEventsForMessageHash(String messageHash,String namespace)
+	public static String getAllEventsForMessageHash(String messageHash, String namespace)
 	{
 		if (TextUtils.isEmpty(messageHash))
 		{
