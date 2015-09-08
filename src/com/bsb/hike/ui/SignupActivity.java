@@ -2495,13 +2495,4 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 		// TODO Auto-generated method stub
 		
 	}
-	
-	@Override
-	public void onConfigurationChanged(Configuration newConfig)
-	{
-		mCustomKeyboard.onConfigurationChanged(newConfig);
-
-		super.onConfigurationChanged(newConfig);
-	}
-	
 }

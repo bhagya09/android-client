@@ -3569,11 +3569,4 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		// TODO Auto-generated method stub
 		
 	}
-	
-	@Override
-	public void onConfigurationChanged(Configuration newConfig)
-	{
-		mCustomKeyboard.onConfigurationChanged(newConfig);
-		super.onConfigurationChanged(newConfig);
-	}
 }
