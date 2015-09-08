@@ -138,7 +138,6 @@ public class VoIPService extends Service {
 	// Echo cancellation
 	private boolean aecEnabled = true;
 	private SolicallWrapper solicallAec = null;
-	private boolean useVADToReduceData = true;
 	private boolean aecSpeakerSignal = false, aecMicSignal = false;
 	
 	// Buffer queues
@@ -1561,12 +1560,15 @@ public class VoIPService extends Service {
 					// AEC
 					if (solicallAec != null && aecEnabled && aecMicSignal && aecSpeakerSignal) {
 						int ret = solicallAec.processMic(dpRaw.getData());
-
-						if (useVADToReduceData) {
-							if (ret == 0) 
-								speechDetected = false;
-							else 
-								speechDetected = true;
+						if (ret == 0) {
+							if (speechDetected == true)
+								client.updateLocalSpeech(false);
+							speechDetected = false;
+						}
+						else {
+							if (speechDetected == false)
+								client.updateLocalSpeech(true);
+							speechDetected = true;
 						}
 					} else
 						aecMicSignal = true;
