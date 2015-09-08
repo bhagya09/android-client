@@ -1,3 +1,4 @@
+
 package com.bsb.hike.chatthread;
 
 import java.util.ArrayList;
@@ -586,7 +587,8 @@ public class GroupChatThread extends OneToNChatThread
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item)
 	{
-		toastForGroupEnd();
+		if (item.getItemId() != android.R.id.home)
+			toastForGroupEnd();
 		if (!checkForDeadOrBlocked())
 		{
 			switch (item.getItemId())

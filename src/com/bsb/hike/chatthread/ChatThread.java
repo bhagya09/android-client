@@ -248,6 +248,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	
 	protected static final int UPDATE_MESSAGE_LIST = 37;
 	
+	protected static final int SCROLL_LISTENER_ATTACH = 38;
+	
 	protected static final int REMOVE_CHAT_BACKGROUND = 0;
     
     private int NUDGE_TOAST_OCCURENCE = 2;
@@ -492,6 +494,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		case SEARCH_RESULT:
 			updateUIforSearchResult((int) msg.obj);
 			break;
+		case SCROLL_LISTENER_ATTACH:
+			mConversationsView.setOnScrollListener(this);
 		default:
 			Logger.d(TAG, "Did not find any matching event for msg.what : " + msg.what);
 			break;
@@ -1690,6 +1694,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	private void searchMessage(boolean searchNext, boolean loop)
 	{
 		mConversationsView.setOnScrollListener(null);
+		
 		Utils.hideSoftKeyboard(activity.getApplicationContext(), mComposeView);
 		if (!TextUtils.isEmpty(searchText) &&
 				// For some devices like micromax A120, one can get multiple calls from one user-input.
@@ -1730,7 +1735,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		}
 		setMessagesRead();
 		loadingMoreMessages = false;
-		mConversationsView.setOnScrollListener(this);
+		sendUIMessage(SCROLL_LISTENER_ATTACH, 128, 0);
 	}
 
 	protected void destroySearchMode()
