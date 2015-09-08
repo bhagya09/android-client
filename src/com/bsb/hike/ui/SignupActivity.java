@@ -163,6 +163,8 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 	public static final int PIN = 2;
 
 	public static final int NUMBER = 1;
+	
+	public static int callMeWaitTime;
 
 	private String countryCode;
 
@@ -2021,7 +2023,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 			// Manual entry for pin
 			else
 			{
-				prepareLayoutForGettingPin(HikeConstants.CALL_ME_WAIT_TIME);
+				prepareLayoutForGettingPin(callMeWaitTime);
 				setAnimation();
 			}
 			break;

@@ -817,7 +817,12 @@ public class ConversationsAdapter extends BaseAdapter
 						if (contact != null && contact.getFirstName() != null) {
 							msg = contact.getFirstName()+" "+HikeConstants.IS_TYPING;
 						}
-					} else if (participants.size() > 1) {
+						else
+						{
+							msg = participants.get(0) + " " + HikeConstants.IS_TYPING; // Contact can be returned null. In that case we were simply returning is typing... This will return <msisdn>  is typing...
+						}
+					} 
+					else if (participants.size() > 1) {
 					    	msg = context.getString(R.string.num_members, (participants.size()))+" "+HikeConstants.ARE_TYPING;
 					}
 				}
