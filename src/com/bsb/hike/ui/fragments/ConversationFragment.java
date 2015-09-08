@@ -1115,10 +1115,9 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 		if (mAdapter != null)
 		{
 			searchText = null;
-			searchMode = false;
 			mAdapter.removeSearch();
 			ShowTipIfNeeded(displayedConversations.isEmpty());
-			setEmptyState(displayedConversations.isEmpty());
+			searchMode = false;
 		}
 	}
 
