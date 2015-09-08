@@ -302,71 +302,90 @@ public class HikeNotificationMsgStack implements Listener
 	 */
 	private void updateNotificationIntent()
 	{
-		// If new messages belong to different users/groups, redirect the user
-		// to conversations list
-		if (!isFromSingleMsisdn() || containsStealthMessage())
+		// TODO Maintain notification type globally.
+		// To add notification types
+		ExtendedHashSet uniqueNotifTypes = new ExtendedHashSet();
+
+		// Iterate all the notification types in current notification stack
+		ListIterator<Entry<String, LinkedList<NotificationPreview>>> mapIterator = new ArrayList<Map.Entry<String, LinkedList<NotificationPreview>>>(mMessagesMap.entrySet())
+				.listIterator();
+
+		while (mapIterator.hasNext())
+		{
+			Entry<String, LinkedList<NotificationPreview>> entry = mapIterator.next();
+			LinkedList<NotificationPreview> notifListSingleMsisdn = entry.getValue();
+
+			for (NotificationPreview preview : notifListSingleMsisdn)
+			{
+				uniqueNotifTypes.add(preview.getNotificationType());
+			}
+		}
+
+		if (uniqueNotifTypes.equals(NotificationType.ACTIVITYUPDATE))
+		{
+			mNotificationIntent = Utils.getTimelineActivityIntent(mContext, true);
+		}
+		else if (containsStealthMessage())
 		{
 			mNotificationIntent = new Intent(mContext, HomeActivity.class);
 			mNotificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		}
-		// if all the new messages belong to a single user/group
-		// we've got to invoke the chat thread from here with the respective
-		// users
 		else
 		{
-			if (lastAddedMsisdn.equals(mContext.getString(R.string.app_name)))
+			// If new messages belong to different users/groups
+			if (!isFromSingleMsisdn())
 			{
-				mNotificationIntent = new Intent(mContext, HomeActivity.class);
-				mNotificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+				// Multiple msisdn, but only of type su,imagepost,activity,dp
+				if (uniqueNotifTypes.containsOnly(new int[] { NotificationType.STATUSUPDATE, NotificationType.IMAGE_POST, NotificationType.DPUPDATE,
+						NotificationType.ACTIVITYUPDATE }))
+				{
+					// General timeline
+					mNotificationIntent = Utils.getTimelineActivityIntent(mContext, false);
+				}
+				else
+				{
+					// Multiple msisdn, mixed types
+					// Home activity
+					mNotificationIntent = new Intent(mContext, HomeActivity.class);
+					mNotificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+				}
 			}
-			else if (BotUtils.isBot(lastAddedMsisdn))
-			{
-				mNotificationIntent = getIntentForBots(mContext, lastAddedMsisdn);
-			}
+			// if all the new messages belong to a single user/group
 			else
 			{
-				// Iterate all the notification types in current notification stack
-				ListIterator<Entry<String, LinkedList<NotificationPreview>>> mapIterator = new ArrayList<Map.Entry<String, LinkedList<NotificationPreview>>>(
-						mMessagesMap.entrySet()).listIterator();
-
-				while (mapIterator.hasNext())
+				// Single msisdn, but only of type su,image post,activity,dp
+				if (uniqueNotifTypes.containsOnly(new int[] { NotificationType.STATUSUPDATE, NotificationType.IMAGE_POST, NotificationType.DPUPDATE,
+						NotificationType.ACTIVITYUPDATE }))
 				{
-					Entry<String, LinkedList<NotificationPreview>> entry = mapIterator.next();
-					LinkedList<NotificationPreview> notifListSingleMsisdn = entry.getValue();
-
-					// To add notification types
-					ExtendedHashSet uniqueNotifTypes = new ExtendedHashSet();
-
-					for (NotificationPreview preview : notifListSingleMsisdn)
-					{
-						uniqueNotifTypes.add(preview.getNotificationType());
-					}
-
-					if (uniqueNotifTypes.equals(NotificationType.ACTIVITYUPDATE))
-					{
-						mNotificationIntent = Utils.getTimelineActivityIntent(mContext, true);
-					}
-					else if (uniqueNotifTypes.containsOnly(new int[] { NotificationType.STATUSUPDATE, NotificationType.IMAGE_POST, NotificationType.DPUPDATE, NotificationType.ACTIVITYUPDATE }))
-					{
-						mNotificationIntent = Utils.getTimelineActivityIntent(mContext, false);
-					}
-					else
-					{
-						mNotificationIntent = IntentFactory.createChatThreadIntentFromMsisdn(mContext, lastAddedMsisdn, false, false);
-					}
-
+					mNotificationIntent = Utils.getTimelineActivityIntent(mContext, false);
 				}
-
+				else if (lastAddedMsisdn.equals(mContext.getString(R.string.app_name)))
+				{
+					// Single msisdn, from hike team
+					mNotificationIntent = new Intent(mContext, HomeActivity.class);
+					mNotificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+				}
+				else if (BotUtils.isBot(lastAddedMsisdn))
+				{
+					// Single msisdn, bot
+					mNotificationIntent = getIntentForBots(mContext, lastAddedMsisdn);
+				}
+				else
+				{
+					// Single msisdn, mixed notification types
+					mNotificationIntent = IntentFactory.createChatThreadIntentFromMsisdn(mContext, lastAddedMsisdn, false, false);
+				}
 			}
 
-			/*
-			 * notifications appear to be cached, and their .equals doesn't check 'Extra's. In order to prevent the wrong intent being fired, set a data field that's unique to the
-			 * conversation we want to open. http://groups .google.com/group/android-developers/browse_thread/thread /e61ec1e8d88ea94d/1fe953564bd11609?#1fe953564bd11609
-			 */
-			if (mNotificationIntent != null)
-			{
-				mNotificationIntent.setData((Uri.parse("custom://" + getNotificationId())));
-			}
+		}
+
+		/*
+		 * notifications appear to be cached, and their .equals doesn't check 'Extra's. In order to prevent the wrong intent being fired, set a data field that's unique to the
+		 * conversation we want to open. http://groups .google.com/group/android-developers/browse_thread/thread /e61ec1e8d88ea94d/1fe953564bd11609?#1fe953564bd11609
+		 */
+		if (mNotificationIntent != null)
+		{
+			mNotificationIntent.setData((Uri.parse("custom://" + getNotificationId())));
 		}
 	}
 
