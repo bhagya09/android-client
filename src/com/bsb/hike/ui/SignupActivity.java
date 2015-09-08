@@ -8,6 +8,36 @@ import java.util.HashMap;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.HikePubSub;
+import com.bsb.hike.HikePubSub.Listener;
+import com.bsb.hike.R;
+import com.bsb.hike.BitmapModule.HikeBitmapFactory;
+import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.bots.BotUtils;
+import com.bsb.hike.models.Birthday;
+import com.bsb.hike.modules.httpmgr.RequestToken;
+import com.bsb.hike.modules.httpmgr.exception.HttpException;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
+import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
+import com.bsb.hike.modules.httpmgr.response.Response;
+import com.bsb.hike.tasks.SignupTask;
+import com.bsb.hike.tasks.SignupTask.State;
+import com.bsb.hike.tasks.SignupTask.StateValue;
+import com.bsb.hike.utils.ChangeProfileImageBaseActivity;
+import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.StickerManager;
+import com.bsb.hike.utils.Utils;
+import com.bsb.hike.utils.Utils.ExternalStorageState;
+import com.bsb.hike.view.CustomFontEditText;
+import com.kpt.adaptxt.beta.CustomKeyboard;
+import com.kpt.adaptxt.beta.util.KPTConstants;
+import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtEditTextEventListner;
+import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtKeyboordVisibilityStatusListner;
+
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
@@ -17,16 +47,18 @@ import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.OvalShape;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
+import android.support.v7.app.ActionBar;
+import android.support.v7.widget.Toolbar;
 import android.telephony.TelephonyManager;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
@@ -36,6 +68,7 @@ import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnFocusChangeListener;
@@ -56,44 +89,18 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
 
-import android.support.v7.app.ActionBar;
-import android.support.v7.widget.Toolbar;
-
-import com.bsb.hike.HikeConstants;
-import com.bsb.hike.HikeConstants.ImageQuality;
-import com.bsb.hike.HikeMessengerApp;
-import com.bsb.hike.HikePubSub;
-import com.bsb.hike.HikePubSub.Listener;
-import com.bsb.hike.R;
-import com.bsb.hike.BitmapModule.HikeBitmapFactory;
-import com.bsb.hike.analytics.AnalyticsConstants;
-import com.bsb.hike.analytics.HAManager;
-import com.bsb.hike.bots.BotUtils;
-import com.bsb.hike.models.Birthday;
-import com.bsb.hike.modules.httpmgr.RequestToken;
-import com.bsb.hike.modules.httpmgr.exception.HttpException;
-import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
-import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
-import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
-import com.bsb.hike.modules.httpmgr.response.Response;
-import com.bsb.hike.tasks.SignupTask;
-import com.bsb.hike.tasks.SignupTask.State;
-import com.bsb.hike.tasks.SignupTask.StateValue;
-import com.bsb.hike.utils.ChangeProfileImageBaseActivity;
-import com.bsb.hike.utils.HikeSharedPreferenceUtil;
-import com.bsb.hike.utils.Logger;
-import com.bsb.hike.utils.StickerManager;
-import com.bsb.hike.utils.Utils;
-import com.bsb.hike.utils.Utils.ExternalStorageState;
-
-public class SignupActivity extends ChangeProfileImageBaseActivity implements SignupTask.OnSignupTaskProgressUpdate, OnEditorActionListener, OnClickListener,
-		OnCancelListener, Listener
+public class SignupActivity extends ChangeProfileImageBaseActivity implements SignupTask.OnSignupTaskProgressUpdate, OnEditorActionListener,
+				OnClickListener, AdaptxtEditTextEventListner, AdaptxtKeyboordVisibilityStatusListner, OnCancelListener, Listener
 {
+	private CustomKeyboard mCustomKeyboard;
+	
+	private boolean systemKeyboard;
 
 	private SignupTask mTask;
 
@@ -121,7 +128,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 
 	private ViewGroup loadingLayout;
 
-	private EditText enterEditText;
+	private CustomFontEditText enterEditText;
 
 	private TextView invalidNum;
 
@@ -133,7 +140,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 
 	private ImageView mIconView;
 
-	private TextView birthdayText;
+	private CustomFontEditText birthdayText;
 
 	private TextView maleText;
 
@@ -260,6 +267,8 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 		mHandler = new Handler();
 
 		accountPrefs = getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, MODE_PRIVATE);
+		systemKeyboard = HikeMessengerApp.isSystemKeyboard(getApplicationContext());
+		setupCustomKeyboard();
 
 		viewFlipper = (ViewFlipper) findViewById(R.id.signup_viewflipper);
 		numLayout = (ViewGroup) findViewById(R.id.num_layout);
@@ -578,9 +587,32 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 		return mActivityState;
 	}
 
+	private void destroyKeyboardResources()
+	{
+		mCustomKeyboard.unregister(enterEditText);
+		mCustomKeyboard.unregister(birthdayText);
+
+		mCustomKeyboard.closeAnyDialogIfShowing();
+
+		mCustomKeyboard.destroyCustomKeyboard();
+	}
+	
+	@Override
+	protected void onPause()
+	{
+		mCustomKeyboard.closeAnyDialogIfShowing();
+		
+		mCustomKeyboard.onPause();
+		
+		super.onPause();
+	}
+	
 	protected void onDestroy()
 	{
 		super.onDestroy();
+		
+		destroyKeyboardResources();
+		
 		HikeMessengerApp.getPubSub().removeListener(HikePubSub.FACEBOOK_IMAGE_DOWNLOADED, this);
 		if (dialog != null)
 		{
@@ -654,6 +686,11 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 
 	private void submitClicked()
 	{
+		if (!systemKeyboard)
+		{
+			mCustomKeyboard.showCustomKeyboard(enterEditText, false);
+		}
+		
 		if (viewFlipper.getDisplayedChild() == BACKUP_FOUND || viewFlipper.getDisplayedChild() == RESTORING_BACKUP)
 		{
 			try
@@ -833,8 +870,8 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 		switch (layout.getId())
 		{
 		case R.id.name_layout:
-			enterEditText = (EditText) layout.findViewById(R.id.et_enter_name);
-			birthdayText = (TextView) layout.findViewById(R.id.birthday);
+			enterEditText = (CustomFontEditText) layout.findViewById(R.id.et_enter_name);
+			birthdayText = (CustomFontEditText) layout.findViewById(R.id.birthday);
 			profilePicCamIcon = (ImageView) layout.findViewById(R.id.profile_cam);
 			
 			if(profilePicCamIcon != null)
@@ -850,13 +887,13 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 			}
 			break;
 		case R.id.num_layout:
-			enterEditText = (EditText) layout.findViewById(R.id.et_enter_num);
+			enterEditText = (CustomFontEditText) layout.findViewById(R.id.et_enter_num);
 			infoTxt = (TextView) layout.findViewById(R.id.txt_img1);
 			infoTxt.setVisibility(View.VISIBLE);
 			verifiedPin = layout.findViewById(R.id.verified_pin);
 			break;
 		case R.id.pin_layout:
-			enterEditText = (EditText) layout.findViewById(R.id.et_enter_pin);
+			enterEditText = (CustomFontEditText) layout.findViewById(R.id.et_enter_pin);
 			infoTxt = (TextView) layout.findViewById(R.id.txt_img1);
 			invalidPin = (TextView) layout.findViewById(R.id.invalid_pin);
 			verifiedPin = layout.findViewById(R.id.verified_pin);
@@ -896,10 +933,50 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 		setupActionBarTitle();
 	}
 
+	private void setupCustomKeyboard()
+	{
+		LinearLayout viewHolder = (LinearLayout) findViewById(R.id.keyboardView_holder);
+		mCustomKeyboard = new CustomKeyboard(this, viewHolder);
+		mCustomKeyboard.registerEditText(R.id.et_enter_num, KPTConstants.SINGLE_LINE_EDITOR, SignupActivity.this, SignupActivity.this);
+		mCustomKeyboard.registerEditText(R.id.et_enter_pin, KPTConstants.SINGLE_LINE_EDITOR, SignupActivity.this, SignupActivity.this);
+		mCustomKeyboard.registerEditText(R.id.et_enter_name, KPTConstants.MULTILINE_LINE_EDITOR, SignupActivity.this, SignupActivity.this);
+		mCustomKeyboard.registerEditText(R.id.birthday, KPTConstants.SINGLE_LINE_EDITOR, SignupActivity.this, SignupActivity.this);
+	}
+	
+	private void showKeyboard(CustomFontEditText editText)
+	{
+		mCustomKeyboard.init(editText);
+		if (systemKeyboard)
+		{
+			Utils.showSoftKeyboard(this, editText);
+		}
+		else
+		{
+			mCustomKeyboard.showCustomKeyboard(editText, true);
+		}
+	}
+	
 	private void prepareLayoutForFetchingNumber()
 	{
 		initializeViews(numLayout);
 
+		showKeyboard(enterEditText);
+		
+		enterEditText.setOnClickListener(
+				new OnClickListener()
+				{
+					
+					@Override
+					public void onClick(View v)
+					{
+						if (mCustomKeyboard.isCustomKeyboardVisible())
+						{
+							mCustomKeyboard.showCustomKeyboard(enterEditText, false);
+						}
+						showKeyboard(enterEditText);
+					}
+				});
+		
 		countryPicker.setOnFocusChangeListener(new OnFocusChangeListener()
 		{
 			@Override
@@ -958,6 +1035,17 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 	{
 		initializeViews(pinLayout);
 
+		enterEditText.setOnClickListener(
+				new OnClickListener()
+				{
+					
+					@Override
+					public void onClick(View v)
+					{
+						showKeyboard(enterEditText);
+					}
+				});
+		
 		callmeBtn.setVisibility(View.VISIBLE);
 		nextBtnContainer.setVisibility(View.VISIBLE);
 
@@ -1036,24 +1124,23 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 			}
 		}
 
-		/*Session session = Session.getActiveSession();
-		if (session == null)
-		{
-			if (savedInstanceState != null)
-			{
-				session = Session.restoreSession(this, null, statusCallback, savedInstanceState);
-			}
-			if (session == null)
-			{
-				session = new Session(this);
-			}
-			Session.setActiveSession(session);
-			if (session.getState().equals(SessionState.CREATED_TOKEN_LOADED))
-			{
-				session.openForRead(new Session.OpenRequest(this).setCallback(statusCallback));
-			}
-		}*/
-
+		showKeyboard(enterEditText);
+		
+		enterEditText.setOnClickListener(
+				new OnClickListener()
+				{
+					
+					@Override
+					public void onClick(View v)
+					{
+						if (mCustomKeyboard.isCustomKeyboardVisible())
+						{
+							mCustomKeyboard.showCustomKeyboard(enterEditText, false);
+						}
+						showKeyboard(enterEditText);
+					}
+				});
+		
 		if (!addressBookScanningDone)
 		{
 			Utils.hideSoftKeyboard(this, enterEditText);
@@ -1077,20 +1164,12 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 				bd = HikeMessengerApp.getLruCache().getDefaultAvatar(msisdn, false);
 			}
 			mIconView.setImageDrawable(bd);
-			// mIconView.setImageDrawable(IconCacheManager.getInstance()
-			// .getIconForMSISDN(msisdn, true));
 		}
 		else
 		{
 			mIconView.setImageBitmap(mActivityState.profileBitmap);
 		}
 
-		/*if (mActivityState.fbConnected)
-		{
-			Button fbBtn = (Button) findViewById(R.id.connect_fb);
-			fbBtn.setEnabled(false);
-			fbBtn.setText(R.string.connected);
-		}*/
 		nextBtnContainer.setVisibility(View.VISIBLE);
 		setupActionBarTitle();
 	}
@@ -1883,9 +1962,6 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 	@Override
 	protected void onSaveInstanceState(Bundle outState)
 	{
-		/*Session session = Session.getActiveSession();
-		Session.saveSession(session, outState);*/
-
 		int displayedChild = viewFlipper.getDisplayedChild();
 		if (restoreInitialized)
 		{
@@ -1993,6 +2069,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 			break;
 		case PIN:
 			viewFlipper.setDisplayedChild(PIN);
+			mCustomKeyboard.updateCore();
 
 			// Wrong Pin
 			if (value != null && value.equals(HikeConstants.PIN_ERROR))
@@ -2173,170 +2250,19 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 	public void onStart()
 	{
 		super.onStart();
-		/*Session session = Session.getActiveSession();
-		if (session != null)
-		{
-			session.addCallback(statusCallback);
-		}*/
 	}
 
 	@Override
 	public void onStop()
 	{
 		super.onStop();
-		/*Session session = Session.getActiveSession();
-		if (session != null)
-		{
-			session.removeCallback(statusCallback);
-		}*/
 	}
-
-	/*boolean fbClicked = false;
-
-	boolean fbAuthing = false;*/
-
-	/*public void onFacebookConnectClick(View v)
-	{
-		fbClicked = true;
-		Session session = Session.getActiveSession();
-		if (session == null)
-		{
-			fbClicked = false;
-			return;
-		}
-
-		Logger.d(getClass().getSimpleName(), "FB CLICKED");
-		if (!session.isOpened() && !session.isClosed())
-		{
-			session.openForRead(new Session.OpenRequest(this).setCallback(statusCallback).setPermissions(Arrays.asList("basic_info", "user_birthday")));
-			Logger.d(getClass().getSimpleName(), "Opening for read");
-			fbAuthing = true;
-		}
-		else
-		{
-			Session.openActiveSession(this, true, statusCallback);
-			Logger.d(getClass().getSimpleName(), "Opening active session");
-		}
-	}*/
-
-	/*private class SessionStatusCallback implements Session.StatusCallback
-	{
-		@Override
-		public void call(Session session, SessionState state, Exception exception)
-		{
-			if (fbClicked && session.isOpened())
-			{
-				updateView();
-				fbClicked = false;
-			}
-		}
-	}*/
 
 	@Override
 	protected void onResume()
 	{
 		super.onResume();
 		Logger.d("Signup", "SingupActivity onresume");
-		/*if (fbAuthing)
-		{
-			Session session = Session.getActiveSession();
-			if (session != null)
-			{
-				Logger.d(getClass().getSimpleName(), "Clearing token");
-				session.closeAndClearTokenInformation();
-			}
-		}*/
-	}
-
-	/*public void updateView()
-	{
-		Session session = Session.getActiveSession();
-		if (session != null && session.isOpened())
-		{
-			Request.executeMeRequestAsync(session, new GraphUserCallback()
-			{
-				@Override
-				public void onCompleted(final GraphUser user, Response response)
-				{
-					if (user != null)
-					{
-						final String fbProfileUrl = String.format(HikeConstants.FACEBOOK_PROFILEPIC_URL_FORMAT, user.getId(), HikeConstants.MAX_DIMENSION_FULL_SIZE_PROFILE_PX);
-
-						String directory = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT;
-						String fileName = Utils.getTempProfileImageFileName(accountPrefs.getString(HikeMessengerApp.MSISDN_SETTING, ""));
-
-						try
-						{
-							String gender = (String) user.getProperty("gender");
-
-							mActivityState.isFemale = "female".equalsIgnoreCase(gender);
-						}
-						catch (Exception e)
-						{
-							Logger.w(getClass().getSimpleName(), "Exception while fetching gender", e);
-						}
-						try
-						{
-							String birthdayString = user.getBirthday();
-							if (!TextUtils.isEmpty(birthdayString))
-							{
-								Date date = new SimpleDateFormat("MM/dd/yyyy", Locale.ENGLISH).parse(user.getBirthday());
-								if (date.compareTo(Calendar.getInstance().getTime()) <= 0)
-								{
-									Calendar calendar = Calendar.getInstance();
-									calendar.setTime(date);
-									mActivityState.birthday = new Birthday(calendar.get(Calendar.DAY_OF_MONTH), calendar.get(Calendar.MONTH), calendar.get(Calendar.YEAR));
-									mTask.addBirthdate(mActivityState.birthday);
-									birthdayText.setText(String.valueOf(Calendar.getInstance().get(Calendar.YEAR) - mActivityState.birthday.year));
-								}
-							}
-
-						}
-						catch (Exception e)
-						{
-							Logger.w(getClass().getSimpleName(), "Exception while fetching birthday", e);
-						}
-
-						final File destFile = new File(directory, fileName);
-						downloadImage(destFile, Uri.parse(fbProfileUrl), new ImageDownloadResult()
-						{
-
-							@Override
-							public void downloadFinished(boolean result)
-							{
-								mActivityState = new ActivityState();
-								if (!result)
-								{
-									runOnUiThread(new Runnable()
-									{
-
-										@Override
-										public void run()
-										{
-											Toast.makeText(getApplicationContext(), R.string.fb_fetch_image_error, Toast.LENGTH_SHORT).show();
-										}
-									});
-								}
-								else
-								{
-									mActivityState.destFilePath = destFile.getPath();
-									mActivityState.userName = user.getName();
-								}
-								HikeMessengerApp.getPubSub().publish(HikePubSub.FACEBOOK_IMAGE_DOWNLOADED, result);
-							}
-						});
-						dialog = ProgressDialog.show(SignupActivity.this, null, getResources().getString(R.string.fetching_info));
-					}
-				}
-			});
-		}
-	}
-*/
-	private void downloadImage(final File destFile, Uri picasaUri, ImageDownloadResult imageDownloadResult)
-	{
-		mActivityState.downloadImageTask = new Thread(new DownloadImageTask(getApplicationContext(), destFile, picasaUri, imageDownloadResult));
-
-		mActivityState.downloadImageTask.start();
 	}
 
 	public interface ImageDownloadResult
@@ -2344,43 +2270,6 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 		public void downloadFinished(boolean result);
 	}
 
-	private class DownloadImageTask implements Runnable
-	{
-
-		private File destFile;
-
-		private Uri imageUri;
-
-		private Context context;
-
-		private ImageDownloadResult imageDownloadResult;
-
-		public DownloadImageTask(Context context, File destFile, Uri picasaUri, ImageDownloadResult imageDownloadResult)
-		{
-			this.destFile = destFile;
-			this.imageUri = picasaUri;
-			this.context = context;
-			this.imageDownloadResult = imageDownloadResult;
-		}
-
-		@Override
-		public void run()
-		{
-			Logger.d(getClass().getSimpleName(), "Downloading profileImage");
-			try
-			{
-				Utils.downloadAndSaveFile(context, destFile, imageUri);
-				imageDownloadResult.downloadFinished(true);
-			}
-			catch (Exception e)
-			{
-				Logger.e(getClass().getSimpleName(), "Error while fetching image", e);
-				imageDownloadResult.downloadFinished(false);
-			}
-		}
-
-	}
-	
 	@Override
 	protected String getNewProfileImagePath(boolean toUseTimestamp)
 	{
@@ -2498,13 +2387,6 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 						Logger.w(getClass().getSimpleName(), "IOOB thrown while setting the name's textbox selection");
 					}
 
-					/*Button fbBtn = (Button) findViewById(R.id.connect_fb);
-					if (fbBtn != null)
-					{
-						fbBtn.setEnabled(false);
-						fbBtn.setText(R.string.connected);
-						mActivityState.fbConnected = true;
-					}*/
 				}
 			});
 		}
@@ -2549,5 +2431,68 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 	{
 		// TODO Auto-generated method stub
 		return true;
+	}
+
+	@Override
+	public void analyticalData(String arg0)
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onInputViewCreated()
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onInputviewVisbility(boolean arg0, int arg1)
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void showGlobeKeyView()
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void showQuickSettingView()
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onAdaptxtFocusChange(View arg0, boolean arg1)
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onAdaptxtTouch(View arg0, MotionEvent arg1)
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onAdaptxtclick(View arg0)
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onReturnAction(int arg0)
+	{
+		// TODO Auto-generated method stub
+		
 	}
 }

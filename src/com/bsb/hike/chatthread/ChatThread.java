@@ -102,7 +102,6 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 import com.kpt.adaptxt.beta.CustomKeyboard;
 import com.kpt.adaptxt.beta.GlobeKeyData;
 import com.kpt.adaptxt.beta.util.KPTConstants;
-import com.kpt.adaptxt.beta.view.AdaptxtEditText;
 import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtEditTextEventListner;
 import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtKeyboordVisibilityStatusListner;
 
@@ -122,7 +121,6 @@ import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -593,14 +591,13 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 		this.savedState = savedState;
 		init();
-		systemKeyboard = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CURRENT_KEYBOARD, false);
+		systemKeyboard = HikeMessengerApp.isSystemKeyboard(activity.getApplicationContext());
 		setContentView();
 		fetchConversation(false);
 		uiHandler.sendEmptyMessage(SET_WINDOW_BG);
 		StickerManager.getInstance().checkAndDownLoadStickerData();
 		mShareablePopupLayout.setCustomKeyBoardHeight(mCustomKeyboard.getKeyBoardAndCVHeight());
 		mShareablePopupLayout.setCustomKeyBoard(!systemKeyboard);
-		Logger.d("kbdht", "height : " + mCustomKeyboard.getKeyBoardAndCVHeight());
 		if (systemKeyboard)
 		{
 			changeKeyboard(systemKeyboard);
@@ -645,8 +642,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		mComposeView = (CustomFontEditText) activity.findViewById(R.id.msg_compose);
 
 		initCustomKeyboard();
-		
-//		mCustomKeyboard.showCustomKeyboard(mComposeView, true);
 		
 		audioRecordView = new AudioRecordView(activity, this);
 
@@ -938,12 +933,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		switch (item.id)
 		{
 		case R.string.change_keyboard:
-			Boolean systemKeyboard = !isSystemKeyborad();
-			
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CURRENT_KEYBOARD, systemKeyboard);
-			changeKeyboard(systemKeyboard);
+			changeKeyboard(!isSystemKeyboard());
 			mShareablePopupLayout.setCustomKeyBoard(!systemKeyboard);
-			
 			break;
 		case R.string.clear_chat:
 			showClearConversationDialog();
@@ -1502,7 +1493,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		
 		if (mCustomKeyboard.isCustomKeyboardVisible())
 		{
-			mCustomKeyboard.hideCustomKeyboard((AdaptxtEditText) mComposeView); 
+			mCustomKeyboard.showCustomKeyboard(mComposeView, false); 
 			updatePadding(0);
 			return true;
 		}
@@ -3400,7 +3391,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		switch (v.getId())
 		{
 		case R.id.msg_compose:
-			if (!isSystemKeyborad())
+			if (!isSystemKeyboard())
 			{
 				mCustomKeyboard.showCustomKeyboard(mComposeView, true);
 			}
@@ -4081,10 +4072,11 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 	protected void showKeyboard()
 	{
+		
 		if (shouldShowKeyboard())
 		{
 			tryToDismissAnyOpenPanels();
-			if (isSystemKeyborad())
+			if (isSystemKeyboard())
 			{
 				Utils.showSoftKeyboard(activity, mComposeView);
 			}
@@ -4092,6 +4084,10 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			{
 				mCustomKeyboard.showCustomKeyboard(mComposeView, true);
 			}
+		}
+		else
+		{
+			updatePadding(0);
 		}
 	}
 	
@@ -5364,6 +5360,11 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			mShareablePopupLayout.onConfigurationChanged();
 		}
 		
+		if (!isSystemKeyboard() && !mCustomKeyboard.isCustomKeyboardVisible())
+		{
+			updatePadding(0);
+		}
+		
 		if (stickerTagWatcher != null)
 		{
 			stickerTagWatcher.dismissStickerSearchPopup();
@@ -5903,12 +5904,14 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 	private void changeKeyboard(boolean systemKeyboard)
 	{
-		Logger.d("changeKeyboard", "ChageKeyboard called!");
-		AdaptxtEditText editText = (AdaptxtEditText) mComposeView;
+		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CURRENT_KEYBOARD, systemKeyboard);
+		systemKeyboard = isSystemKeyboard();
+		
 		if (systemKeyboard)
 		{
-			mCustomKeyboard.swtichToDefaultKeyboard(editText);
-			mCustomKeyboard.unregister(editText);
+			updatePadding(0);
+			mCustomKeyboard.showCustomKeyboard(mComposeView, false);
+			mCustomKeyboard.swtichToDefaultKeyboard(mComposeView);
 			mCustomKeyboard.unregister(R.id.msg_compose);
 			mComposeView.setOnClickListener(new OnClickListener()
 			{
@@ -5928,7 +5931,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		}
 		else
 		{
-			mCustomKeyboard.swtichToKPTKeyboard(editText, KPTConstants.MULTILINE_LINE_EDITOR, ChatThread.this, ChatThread.this);
+			mCustomKeyboard.swtichToKPTKeyboard(mComposeView, KPTConstants.MULTILINE_LINE_EDITOR, ChatThread.this, ChatThread.this);
 			mCustomKeyboard.registerEditText(R.id.msg_compose, KPTConstants.MULTILINE_LINE_EDITOR, this, this);
 			mCustomKeyboard.init(mComposeView);
 			mCustomKeyboard.showCustomKeyboard(mComposeView, true);
@@ -5937,9 +5940,9 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 	}
 
-	public boolean isSystemKeyborad()
+	public boolean isSystemKeyboard()
 	{
-		return systemKeyboard;
+		return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CURRENT_KEYBOARD, false);
 	}
 	
 	private void updatePadding(int bottomPadding)
@@ -5982,12 +5985,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	@Override
 	public void onInputviewVisbility(boolean kptVisible, int height)
 	{
-		Logger.d("edittextClick", "kptVisible : " + kptVisible);
 		if (kptVisible)
 		{
-			Logger.d("calllag", "height : " + height);
-			Logger.d("kbdht", "height : " + mCustomKeyboard.getKeyBoardAndCVHeight());
-//			updatePadding(mCustomKeyboard.getKeyBoardAndCVHeight());
 			updatePadding(height);
 		}
 		else
