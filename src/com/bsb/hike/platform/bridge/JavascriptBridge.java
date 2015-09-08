@@ -492,7 +492,20 @@ public abstract class JavascriptBridge
 	public void onDestroy()
 	{
 		mWebView.removeCallbacks(heightRunnable);
-		mWebView.onActivityDestroyed();
+		if (mHandler == null)
+		{
+			return;
+		}
+
+		mHandler.post(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				mWebView.onActivityDestroyed();
+			}
+		});
+
 	}
 	
 	@JavascriptInterface
