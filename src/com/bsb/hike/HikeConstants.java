@@ -3238,5 +3238,7 @@ public class HikeConstants
 	public static final String REFERRAL_OTHER_TEXT = "ref_oth_txt";
 	
 	public static final String ALL_STICKER_TAG_DOWNLOAD = "alstktd";
+	
+	public static final String SHOW = "show";
 
 }
