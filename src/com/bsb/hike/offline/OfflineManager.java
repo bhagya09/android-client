@@ -527,8 +527,7 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 		removeAllMessages();
 		startedForChatThread = false;
 		HikeSharedPreferenceUtil.getInstance().saveData(OfflineConstants.OFFLINE_MSISDN, "");
-		Logger.d(TAG,"All variables cleared");
-		updateListeners(ERRORCODE.SHUTDOWN);
+		Logger.d(TAG, "All variables cleared");
 	}
 
 	public void setConnectedDevice(String connectedDevice)
