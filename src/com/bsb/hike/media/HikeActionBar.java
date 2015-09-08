@@ -140,6 +140,7 @@ public class HikeActionBar implements OverflowItemClickListener
 		
 		sherlockActionBar.setCustomView(actionBarView);
 		sherlockActionBar.setDisplayHomeAsUpEnabled(true);
+		sherlockActionBar.show(); //The action bar could be hidden due to other fragments using it. Hence calling a show here
 		//http://stackoverflow.com/questions/27354812/android-remove-left-margin-from-actionbars-custom-layout
 		//removing space on the left of action bar
 		Toolbar parent=(Toolbar)actionBarView.getParent();
@@ -199,7 +200,6 @@ public class HikeActionBar implements OverflowItemClickListener
 		if (overFlowMenuLayoutPrimary != null)
 		{	
 			overFlowMenuLayoutPrimary.initView();
-			overFlowMenuLayoutPrimary.setAnimation();
 			overFlowMenuLayoutPrimary.show(width, height, xOffset, yOffset, anchor, PopupWindow.INPUT_METHOD_NOT_NEEDED);
 		}
 		
@@ -223,7 +223,6 @@ public class HikeActionBar implements OverflowItemClickListener
 		if (overFlowMenuLayoutSecondary != null)
 		{	
 			overFlowMenuLayoutSecondary.initView();
-			overFlowMenuLayoutSecondary.setAnimation();
 			overFlowMenuLayoutSecondary.show(width, height, xOffset, yOffset, anchor, PopupWindow.INPUT_METHOD_NOT_NEEDED);
 		}
 	}

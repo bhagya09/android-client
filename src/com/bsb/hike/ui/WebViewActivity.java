@@ -16,14 +16,15 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.MailTo;
+import android.net.ParseException;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.view.WindowCompat;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.view.ViewStub;
 import android.view.ViewStub.OnInflateListener;
@@ -51,6 +52,7 @@ import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.bots.NonMessagingBotConfiguration;
 import com.bsb.hike.bots.NonMessagingBotMetadata;
+import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.media.HikeActionBar;
 import com.bsb.hike.media.OverFlowMenuItem;
@@ -60,6 +62,7 @@ import com.bsb.hike.media.TagPicker.TagOnClickListener;
 import com.bsb.hike.models.WhitelistDomain;
 import com.bsb.hike.platform.CustomWebView;
 import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.bridge.IBridgeCallback;
 import com.bsb.hike.platform.bridge.NonMessagingJavaScriptBridge;
 import com.bsb.hike.platform.content.HikeWebClient;
@@ -134,6 +137,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		 */
 		if (getIntent().getIntExtra(WEBVIEW_MODE, WEB_URL_MODE) == MICRO_APP_MODE && Utils.requireAuth(this))
 		{
+			super.onCreate(savedInstanceState);
 			return;
 		}
 
@@ -147,26 +151,27 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 			if (filterNonMessagingBot(msisdn))
 			{
 				initBot();
-				if (botConfig.shouldOverlayActionBar())
-				{
-					getWindow().requestFeature(WindowCompat.FEATURE_ACTION_BAR_OVERLAY);
-				}
+				setMicroAppTheme();
 			}
 			
 			else
 			{
+				super.onCreate(savedInstanceState);
 				closeWebViewActivity();
 				return;
 			}
 		}
 		
 		super.onCreate(savedInstanceState);
+		checkForWebViewPackageInstalled();
+		
 		setContentView(R.layout.webview_activity);
 		initView();	
 		initActionBar();
 		initAppsBasedOnMode();
 		HikeMessengerApp.getPubSub().addListeners(this, pubsub);
-
+		
+		alignAnchorForOverflowMenu();
 	}
 
 	private void closeWebViewActivity()
@@ -290,7 +295,23 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	private void handleURLBotMode()
 	{
 		webView.loadUrl(botMetaData.getUrl());
-		webView.setWebViewClient(new HikeWebViewClient());
+		webView.setWebViewClient(new HikeWebViewClient()
+		{
+			@Override
+			public void onPageFinished(WebView view, String url)
+			{
+				super.onPageFinished(view, url);
+				bar.setVisibility(View.INVISIBLE);
+			}
+
+			@Override
+			public void onPageStarted(WebView view, String url, Bitmap favicon)
+			{
+				bar.setProgress(0);
+				bar.setVisibility(View.VISIBLE);
+				super.onPageStarted(view, url, favicon);
+			}
+		});
 		webView.setWebChromeClient(new HikeWebChromeClient(allowLoc));
 	}
 
@@ -309,6 +330,14 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		
 		WebViewClient mClient = new HikeWebViewClient()
 		{
+
+			@Override
+			public void onPageStarted(WebView view, String url, Bitmap favicon)
+			{
+				bar.setProgress(0);
+				bar.setVisibility(View.VISIBLE);
+				super.onPageStarted(view, url, favicon);
+			}
 			@Override
 			public void onPageFinished(WebView view, String url)
 			{
@@ -317,7 +346,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 					Logger.i(tag, "loading js injection");
 					view.loadUrl("javascript:" + js);
 				}
-
+				bar.setVisibility(View.INVISIBLE);
 				super.onPageFinished(view, url);
 			}
 		};
@@ -369,6 +398,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		loadMicroApp();
 		checkAndBlockOrientation();
 		resetNotificationCounter();
+		webView.setWebViewClient(new HikeWebViewClient());
 	}
 
 	private void initMsisdn()
@@ -392,48 +422,25 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		{
 
 			@Override
+			public void onPageFinished(WebView view, String url)
+			{
+				super.onPageFinished(view, url);
+				bar.setVisibility(View.INVISIBLE);
+			}
+
+			@Override
+			public void onPageStarted(WebView view, String url, Bitmap favicon)
+			{
+				bar.setProgress(0);
+				bar.setVisibility(View.VISIBLE);
+				super.onPageStarted(view, url, favicon);
+			}
+
+			@Override
 			public WebResourceResponse shouldInterceptRequest(WebView view, String url)
 			{
 				// TODO Auto-generated method stub
 				return super.shouldInterceptRequest(view, url);
-			}
-
-			@Override
-			public boolean shouldOverrideUrlLoading(WebView view, String url)
-			{
-				if (url == null)
-				{
-					return false;
-				}
-				if (url.startsWith("mailto:"))
-				{
-					MailTo mt = MailTo.parse(url);
-					Intent i = newEmailIntent(WebViewActivity.this, mt.getTo(), mt.getSubject(), mt.getBody(), mt.getCc());
-					startActivity(i);
-					view.reload();
-				}
-				else if (url.toLowerCase().endsWith("hike.in/rewards/invite"))
-				{
-					Intent i = new Intent(WebViewActivity.this, HikeListActivity.class);
-					startActivity(i);
-				}
-				else if (url.startsWith("market://") || url.contains("play.google.com/store/apps/details?id"))
-				{
-					try
-					{
-						view.getContext().startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
-					}
-					catch (ActivityNotFoundException e)
-					{
-						Logger.w(getClass().getSimpleName(), e);
-						view.loadUrl(url);
-					}
-				}
-				else
-				{
-					handleURLLoadInWebView(view, url);
-				}
-				return true;
 			}
 		};
 		
@@ -533,7 +540,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		intent.putExtra(Intent.EXTRA_EMAIL, new String[] { address });
 		intent.putExtra(Intent.EXTRA_TEXT, body);
 		intent.putExtra(Intent.EXTRA_SUBJECT, subject);
-		intent.putExtra(Intent.EXTRA_CC, cc);
+		intent.putExtra(Intent.EXTRA_CC, new String[] {cc});
 		intent.setType("message/rfc822");
 		return intent;
 	}
@@ -546,7 +553,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 			initActionBar();
 		}
 		
-		if (mode == MICRO_APP_MODE && mActionBar != null)
+		if ((mode == MICRO_APP_MODE || mode == WEB_URL_BOT_MODE) && mActionBar != null)
 		{
 			List<OverFlowMenuItem> menuItemsList = getOverflowMenuItems();
 			mActionBar.onCreateOptionsMenu(menu, R.menu.simple_overflow_menu, menuItemsList, this, this);
@@ -582,6 +589,14 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		
 		else if (item.getItemId() == android.R.id.home)
 		{
+			if (mode == MICRO_APP_MODE || mode == WEB_URL_BOT_MODE)
+			{
+				if (botInfo.getIsUpPressAllowed())
+				{
+					mmBridge.onUpPressed();
+					return true;
+				}
+			}
 			this.finish();
 			return true;
 		}
@@ -593,8 +608,8 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		overflowMenuClickedAnalytics();
 		int width = getResources().getDimensionPixelSize(R.dimen.overflow_menu_width);
 		int rightMargin = width + getResources().getDimensionPixelSize(R.dimen.overflow_menu_right_margin);
-		mActionBar.showOverflowMenu(width, LayoutParams.WRAP_CONTENT, -rightMargin, -(int) (0.5 * Utils.scaledDensityMultiplier), findViewById(R.id.overflow_anchor));
 		
+		mActionBar.showOverflowMenu(width, LayoutParams.WRAP_CONTENT, -rightMargin, -(int) (0.5 * Utils.scaledDensityMultiplier), findViewById(R.id.overflow_anchor));
 	}
 
 	private void overflowMenuClickedAnalytics()
@@ -644,6 +659,8 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		actionBarView = mActionBar.setCustomActionBarView(R.layout.chat_thread_action_bar);
 		TextView title = (TextView) actionBarView.findViewById(R.id.contact_name);
 		title.setText(titleString);
+		
+		actionBarView.findViewById(R.id.contactinfocontainer).setClickable(false);
 
 		actionBarView.findViewById(R.id.contact_status).setVisibility(View.GONE);
 
@@ -673,18 +690,17 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		/**
 		 * If we don't have actionBar overlay, then we shouldn't show transparent color
 		 */
-		if (!botConfig.shouldOverlayActionBar() && color == R.color.transparent)
+		if (!botConfig.shouldShowTransparentActionBar() && color == R.color.transparent)
 		{
 			color = R.color.blue_hike;
 		}
 		
 		updateActionBarColor(color !=-1 ? new ColorDrawable(color) : getResources().getDrawable(R.drawable.repeating_action_bar_bg));
 		
-		int sbColor = botConfig.getStatusBarColor();
-		sbColor = (sbColor == -1 ) ? Color.parseColor(StatusBarColorChanger.DEFAULT_STATUS_BAR_COLOR) : sbColor;
-		StatusBarColorChanger.setStatusBarColor(getWindow(), sbColor);
+		setMicroAppStatusBarColor();
 		
 		setAvatar();
+		
 	}
 	
 	private void setupWebURLWithBridgeActionBar(String title, int color, int statusBarColor)
@@ -920,7 +936,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	{
 		super.onPause();
 		//Logging MicroApp Screen closing for bot case
-		if (mode == MICRO_APP_MODE)
+		if (mode == MICRO_APP_MODE || mode == WEB_URL_BOT_MODE)
 		{
 			HAManager.getInstance().endChatSession(msisdn);
 		}
@@ -931,7 +947,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	{
 		super.onResume();
 		//Logging MicroApp Screen opening for bot case
-		if (mode == MICRO_APP_MODE)
+		if (mode == MICRO_APP_MODE || mode == WEB_URL_BOT_MODE)
 		{
 			HAManager.getInstance().startChatSession(msisdn);
 		}
@@ -1001,31 +1017,63 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 
 	private class HikeWebViewClient extends HikeWebClient
 	{
-		@Override
-		public void onPageFinished(WebView view, String url)
-		{
-			super.onPageFinished(view, url);
-			bar.setVisibility(View.INVISIBLE);
-		}
-
-		@Override
-		public void onPageStarted(WebView view, String url, Bitmap favicon)
-		{
-			bar.setProgress(0);
-			bar.setVisibility(View.VISIBLE);
-			super.onPageStarted(view, url, favicon);
-		}
 
 		@Override
 		public boolean shouldOverrideUrlLoading(WebView view, String url)
 		{
 			Logger.i(tag, "url about to load " + url);
-			if (url == null)
+			if (TextUtils.isEmpty(url))
 			{
 				return false;
 			}
-			view.loadUrl(url);
+			if (url.startsWith("mailto:"))
+			{
+				try
+				{
+					MailTo mt = MailTo.parse(url);
+					Intent i = newEmailIntent(WebViewActivity.this, mt.getTo(), mt.getSubject(), mt.getBody(), mt.getCc());
+					startActivity(i);
+				}
+				catch (ParseException e)
+				{
+					e.printStackTrace();
+				}
+
+			}
+			else if (url.toLowerCase().endsWith("hike.in/rewards/invite"))
+			{
+				Intent i = new Intent(WebViewActivity.this, HikeListActivity.class);
+				startActivity(i);
+			}
+			else if (url.startsWith("market://") || url.contains("play.google.com/store/apps/details?id"))
+			{
+				try
+				{
+					view.getContext().startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
+				}
+				catch (ActivityNotFoundException e)
+				{
+					Logger.w(getClass().getSimpleName(), e);
+					view.loadUrl(url);
+				}
+			}
+			else if (url.startsWith("tel:"))
+			{
+				startActivity(new Intent(Intent.ACTION_DIAL, Uri.parse(url)));
+			}
+			else
+			{
+				if (mode == WEB_URL_MODE)
+				{
+					handleURLLoadInWebView(view, url);
+				}
+				else
+				{
+					view.loadUrl(url);
+				}
+			}
 			return true;
+
 		}
 	}
 
@@ -1041,6 +1089,126 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		{
 			int sbColor = Color.parseColor(color);
 			StatusBarColorChanger.setStatusBarColor(getWindow(), sbColor);
+		}
+
+		catch (IllegalArgumentException e)
+		{
+			Logger.e(tag, "Seems like you passed the wrong color");
+		}
+	}
+	
+	/**
+	 * If the microapp has overlay action bar then we set the top margin as 4dp, else we set it as -52dp
+	 * This is done in order to show the menu over the action bar based on material guidelines
+	 */
+	private void alignAnchorForOverflowMenu()
+	{
+		View anchor = findViewById(R.id.overflow_anchor);
+
+		ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) anchor.getLayoutParams();
+
+		if (params == null)
+		{
+			params = new ViewGroup.MarginLayoutParams(getResources().getDimensionPixelSize(R.dimen.one_dp), 0);
+		}
+
+		if ((mode == MICRO_APP_MODE || mode == WEB_URL_BOT_MODE) && botConfig != null)
+		{
+			if (botConfig.shouldOverlayStatusBar())
+				params.topMargin = ChatThreadUtils.getStatusBarHeight(getApplicationContext()) + getResources().getDimensionPixelSize(R.dimen.overflow_menu_top_margin_overlay);
+			
+			else if (botConfig.shouldOverlayActionBar())
+				params.topMargin = getResources().getDimensionPixelSize(R.dimen.overflow_menu_top_margin_overlay);
+			
+			else
+				params.topMargin = getResources().getDimensionPixelSize(R.dimen.overflow_menu_top_margin_non_overlay);
+		}
+
+		else
+		{
+			params.topMargin = getResources().getDimensionPixelSize(R.dimen.overflow_menu_top_margin_non_overlay);
+		}
+
+		anchor.setLayoutParams(params);
+	}
+	
+	/**
+	 * Should overlay status bar flag is given highest priority. If that is true, we do not respect the other flags like ShouldOverlayActionBar and DisableActionBarShadow
+	 */
+	private void setMicroAppTheme()
+	{
+
+		if (botConfig.shouldOverlayStatusBar())
+		{
+			setTheme(R.style.WebView_Theme_TranslucentStatusBar);
+		}
+
+		else
+		{
+			if (botConfig.shouldOverlayActionBar())
+			{
+				if (botConfig.disableActionBarShadow())
+				{
+					setTheme(R.style.WebView_Theme_ActionBar_Overlay_NoShadow);
+				}
+
+				else
+				{
+					setTheme(R.style.WebView_Theme_ActionBar_Overlay);
+				}
+			}
+
+			else if (botConfig.disableActionBarShadow())
+			{
+				setTheme(R.style.WebView_Theme_NoShadow);
+			}
+		}
+	}
+	
+	/**
+	 * Utility method to set the status bar color of the micro-app
+	 */
+	private void setMicroAppStatusBarColor()
+	{
+		//We have translucent status bar by default in this case
+		if (botConfig.shouldOverlayStatusBar())
+		{
+			return;
+		}
+		
+		int sbColor = botConfig.getStatusBarColor();
+		sbColor = (sbColor == -1 ) ? Color.parseColor(StatusBarColorChanger.DEFAULT_STATUS_BAR_COLOR) : sbColor;
+		StatusBarColorChanger.setStatusBarColor(getWindow(), sbColor);
+	}
+
+
+	/**
+	 * To prevent package name not found exception we check whether webview package is installed or not in Android L+.
+	 * Check this for more info : 
+	 * 
+	 * https://code.google.com/p/chromium/issues/detail?id=506369
+	 * 
+	 */
+	private void checkForWebViewPackageInstalled()
+	{
+		if (Utils.isLollipopOrHigher())
+		{
+			if (!Utils.appInstalledOrNot(getApplicationContext(), "com.google.android.webview"))
+			{
+				Toast.makeText(getApplicationContext(), R.string.some_error, Toast.LENGTH_LONG).show();
+				PlatformUtils.sendPlatformCrashAnalytics("PackageManager.NameNotFoundException", msisdn);
+				this.finish();
+			}
+		}
+	}
+
+	@Override
+	public void changeActionBarColor(String color)
+	{
+		try
+		{
+			int abColor = Color.parseColor(color);
+			updateActionBarColor(new ColorDrawable(abColor));
 		}
 
 		catch (IllegalArgumentException e)

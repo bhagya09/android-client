@@ -258,7 +258,7 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 			{
 				try
 				{
-					String searchString = ((EditText) findViewById(R.id.search)).getText().toString();
+					String searchString = ((EditText) findViewById(R.id.search)).getText().toString().trim();
 					if (!searchString.equals(""))
 					{
 						searchString = URLEncoder.encode(searchString, "UTF-8");
@@ -312,8 +312,6 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 
 		View actionBarView = LayoutInflater.from(this).inflate(R.layout.compose_action_bar, null);
 
-		View backContainer = actionBarView.findViewById(R.id.back);
-
 		title = (TextView) actionBarView.findViewById(R.id.title);
 		title.setText(R.string.share_location);
 
@@ -323,15 +321,6 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 		TextView postText = (TextView) actionBarView.findViewById(R.id.post_btn);
 		postText.setText(R.string.send);
 
-		backContainer.setOnClickListener(new OnClickListener()
-		{
-
-			@Override
-			public void onClick(View v)
-			{
-				finish();
-			}
-		});
 
 		doneBtn.setOnClickListener(new OnClickListener()
 		{
@@ -657,6 +646,8 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 					adapter.notifyDataSetChanged();
 				}
 			}
+			if(totalPlaces == 0)
+				Toast.makeText(ShareLocation.this, getString(R.string.no_places_found), Toast.LENGTH_SHORT).show();
 			findViewById(R.id.progress_dialog).setVisibility(View.GONE);
 		}
 	}
@@ -933,5 +924,10 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 		}
 		return address;
 	}
-
+	@Override
+	public void onBackPressed()
+	{
+		// TODO Auto-generated method stub
+		finish();
+	}
 }

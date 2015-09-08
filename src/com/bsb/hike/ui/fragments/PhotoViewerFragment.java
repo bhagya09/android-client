@@ -361,7 +361,6 @@ public class PhotoViewerFragment extends Fragment implements OnPageChangeListene
 		View actionBarView = getActivity().getLayoutInflater().inflate(R.layout.compose_action_bar, null);
 		actionBar.setBackgroundDrawable(getResources().getDrawable(R.drawable.bg_header_photo_viewer));
 
-		View backContainer = actionBarView.findViewById(R.id.back);
 
 		TextView title = (TextView) actionBarView.findViewById(R.id.title);
 		title.setText(isGroup ? conversationName : Utils.getFirstName(conversationName));
@@ -371,15 +370,6 @@ public class PhotoViewerFragment extends Fragment implements OnPageChangeListene
 
 		actionBarView.findViewById(R.id.seprator).setVisibility(View.GONE);
 
-		backContainer.setOnClickListener(new OnClickListener()
-		{
-
-			@Override
-			public void onClick(View v)
-			{
-				finish();
-			}
-		});
 
 		actionBar.setCustomView(actionBarView);
 		Toolbar parent=(Toolbar)actionBarView.getParent();

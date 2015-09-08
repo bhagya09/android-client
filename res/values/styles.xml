@@ -2,6 +2,13 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     	   xmlns:app="http://schemas.android.com/apk/res/com.bsb.hike" >
 
+    <style name="Transparent" parent="Theme.AppCompat">
+        <item name="actionBarStyle">@style/Widget.Styled.ActionBar</item>
+        <item name="android:actionBarStyle">@style/Widget.Styled.ActionBar</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+    </style>
+    
     <style name="ChatLabelStyle" parent="@android:style/TextAppearance.Medium.Inverse">
         <item name="android:textColor">#ffffff</item>
         <item name="android:gravity">center_vertical</item>
@@ -125,6 +132,7 @@
     <style name="Base.Theme.CustomDialog" parent="Theme.AppCompat.Light.Dialog.Alert">
         <item name="android:windowIsFloating">true</item>
         <item name="android:windowNoTitle">true</item>
+        <item name="android:windowCloseOnTouchOutside">false</item>
     </style>
 
     <style name="Theme.CustomDialog" parent="Base.Theme.CustomDialog" />
@@ -332,8 +340,17 @@
         <item name="android:textColor">@android:color/primary_text_dark</item>
         <item name="android:textSize">10sp</item>
     </style>
+    
+    <style name="AppThemeParent" parent = "Theme.AppCompat.Light.DarkActionBar">
+        <!-- Inactive thumb color -->
+        <item name="colorSwitchThumbNormal">#f1f1f1</item>
+        <!-- Active thumb color & Active track color(30% transparency) -->
+        <item name="colorControlActivated">#1da8e8</item>
+        <!-- Inactive track color(30% transparency) -->
+        <item name="android:colorForeground">#000000</item>
+    </style>
 
- <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+ <style name="AppTheme" parent="AppThemeParent">
         <item name="actionBarStyle">@style/Widget.Styled.ActionBar</item>
         <item name="android:actionBarStyle">@style/Widget.Styled.ActionBar</item>
         <item name="actionOverflowButtonStyle">@style/OverflowMenu</item>
@@ -343,14 +360,13 @@
         <item name="actionModeBackground">@color/transparent</item>
         <item name="android:actionModeBackground">@color/transparent</item>
         <item name="actionModeCloseButtonStyle">@style/NoCloseButton</item>
-        <item name="actionModeCloseDrawable">@drawable/ic_close_chat_bg_palette</item>
-        <item name="android:actionModeCloseButtonStyle">@style/NoCloseButton</item>
-        <item name="android:actionModeCloseDrawable">@drawable/ic_close_chat_bg_palette</item>
+        <item name="actionModeCloseDrawable">@drawable/ic_close_action_mode</item>
         <item name="android:textAllCaps">false</item>
         <item name="colorAccent">@color/blue_hike</item>
        <item name="android:actionButtonStyle">@style/HikeActionButtonStyle</item>
        <item name="actionButtonStyle">@style/HikeActionButtonStyle</item>
-        
+        <item name="actionBarItemBackground">@drawable/actionbarselectable</item>
+    <item name="selectableItemBackground">@drawable/actionbarselectable</item>
 
         
     </style>
@@ -416,10 +432,15 @@
         <item name="android:colorAccent">@color/blue_hike</item>
     </style>
 
-<style name="SearchViewStyleMyApp" parent="Widget.AppCompat.SearchView">
+    <style name="SearchViewStyleMyApp" parent="Widget.AppCompat.SearchView">
+        <item name="android:colorControlActivated">@color/white</item>
+        <item name="colorControlActivated">@color/white</item>
+    </style>
 
-    <item name="android:colorControlActivated">@color/white</item>
-</style>
+    <style name="EditextStyleChatSearch" parent="Base.Widget.AppCompat.EditText">
+        <item name="android:colorControlActivated">@color/white</item>
+        <item name="colorControlActivated">@color/white</item>
+    </style>
 
     <style name="Widget.Styled.PhotosActionBar" parent="Widget.AppCompat.Light.ActionBar.Solid.Inverse">
         <item name="background">@color/photos_action_bar_transcluscent_background</item>
@@ -465,12 +486,12 @@
         <item name="android:paddingBottom">1dp</item>
     </style>
 
-    <style name="ActionBarText">
+    <style name="ActionBarText" parent = "BaseStyleTextView">
         <item name="android:ellipsize">end</item>
         <item name="android:scrollHorizontally">true</item>
         <item name="android:singleLine">true</item>
         <item name="android:textColor">@color/actionbar_text</item>
-        <item name="android:textSize">18dp</item>
+        <item name="android:textSize">18sp</item>
         <item name="android:textStyle">bold|italic</item>
     </style>
 
@@ -942,8 +963,8 @@
      <style name="ButtonCustomDialogBase" parent="@style/Widget.AppCompat.Button.Borderless.Colored">
         <item name="android:paddingBottom">10dp</item>
         <item name="android:paddingTop">10dp</item>
-        <item name="android:paddingLeft">8dp</item>
-        <item name="android:paddingRight">8dp</item>
+        <item name="android:paddingLeft">12dp</item>
+        <item name="android:paddingRight">12dp</item>
         <item name="android:textStyle">bold|italic</item>
         <item name="android:textSize">14sp</item>
         <item name="android:minWidth">64dp</item>
@@ -954,7 +975,7 @@
     </style>
 	
 	<style name="ProfileHeaderText" parent="BaseStyleTextView">
-	    <item name="android:layout_width">wrap_content</item>
+	    <item name="android:layout_width">match_parent</item>
 	    <item name="android:layout_height">wrap_content</item>
 	    <item name="android:textSize">18sp</item>
 	    <item name="android:textColor">#CC000000</item>
@@ -995,5 +1016,29 @@
     </style>
     
 	 <style name="ComposeList" parent="ComposeListParent" />
-    
+	 
+	 <style name="WebView.Theme" parent="AppTheme">
+	    <item name="vpiTabPageIndicatorStyle">@style/CustomTabPageIndicator</item>
+        <item name="vpiTabTextIndicatorStyle">@style/TabText</item>
+        <item name="actionOverflowButtonStyle">@style/OverflowMenu</item>
+        <item name="android:actionOverflowButtonStyle">@style/OverflowMenu</item>
+	  </style>
+	 
+	 <style name="WebView.Theme.NoShadow" parent="WebView.Theme" >
+	     <item name="android:windowContentOverlay">@null</item>
+	</style>
+	
+	 <style name="WebView.Theme.TranslucentStatusBar" parent = "WebView.Theme">
+	     <item name="android:windowTranslucentStatus">true</item>
+	 </style>
+	 
+	 <style name="WebView.Theme.ActionBar.Overlay" parent = "WebView.Theme">
+	    <item name="windowActionBarOverlay">true</item>
+        <item name="android:windowActionBarOverlay">true</item>
+	 </style>
+	 
+	 <style name="WebView.Theme.ActionBar.Overlay.NoShadow" parent = "WebView.Theme.ActionBar.Overlay">
+	     <item name="android:windowContentOverlay">@null</item>
+	 </style>
+	 
 </resources>

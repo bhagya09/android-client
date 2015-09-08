@@ -240,6 +240,7 @@
     <color name="selected_country">#566167</color>
     <color name="red_no_network">#ffee5953</color>
     <color name="blue_hike">#1DA8E8 </color>
+    <color name="blue_hike_disabled">#401DA8E8 </color>
     <color name="blue_hike_m">#2196F3</color>
     <color name="blue_hike_status_bar_m">#1993CB</color>
     <color name="white_hike_m">#F5F5F5</color>
@@ -268,7 +269,7 @@
     <color name="bubble_beach_2">#b2e5ff</color>
     <color name="bubble_white">#ffffff</color>
 	<color name="green_connected">#87d156</color>
-    <color name="action_bar_btn_disable">#38b1fe</color>
+    <color name="action_bar_btn_disable">#7Affffff</color>
     <color name="compose_view_btn_selected">#1A566167</color>
     <color name="file_size">#787878</color>
     <color name="light_blue_transparent">#3e33ccff</color>
@@ -480,5 +481,12 @@
     <color name="avatar_color_carnation">#ff7687</color>
     <color name="avatar_color_light_gold">#ffd663</color>
     <color name="avatar_color_sky_blue">#78a9ff</color>
+    <color name="delete_account_button">#ff3636</color>
+    <color name="delete_account_button_pressed">#eb1d1d</color>
+    <color name="fav_accept_btn_pressed">#18BE78</color>
+    <color name="fav_accept_btn_normal">#1ECE84</color>
+    <color name="fav_reject_btn_pressed">#EB1D1D</color>
+    <color name="fav_reject_btn_normal">#FF3636</color>
+    
 </resources>
 	

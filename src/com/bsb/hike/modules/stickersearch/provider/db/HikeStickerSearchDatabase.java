@@ -38,6 +38,8 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 {
 	public static final String TAG = HikeStickerSearchDatabase.class.getSimpleName();
+	
+	public static final String INSERT_TIME_TAG = "insertTime";
 
 	public static final String TAG_REBALANCING = "HSSDB$Rebalancing";
 
@@ -54,6 +56,10 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 	private static volatile HikeStickerSearchDatabase sHikeStickerSearchDatabase;
 
 	private static final Object sDatabaseLock = new Object();
+	
+	private static long primaryInsertTime = 0;
+	
+	private static long virtualInsertTime = 0;
 
 	private HikeStickerSearchDatabase(Context context)
 	{
@@ -135,6 +141,13 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion)
 	{
 		Logger.i(TAG, "onUpgrade(" + db + ", " + oldVersion + ", " + newVersion + ")");
+		
+		if(oldVersion < 2)
+		{
+			String sql = "CREATE INDEX IF NOT EXISTS " + HikeStickerSearchBaseConstants.STICKER_TAG_MAPPING_INDEX + " ON " + HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING + " ( " + HikeStickerSearchBaseConstants.STICKER_TAG_PHRASE + " , " + HikeStickerSearchBaseConstants.STICKER_RECOGNIZER_CODE
+					+ " )";
+			db.execSQL(sql);
+		}
 	}
 
 	/* Add tables which are either fixed or default (virtual table) */
@@ -205,6 +218,10 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 				+ HikeStickerSearchBaseConstants.STICKER_TAG_POPULARITY + HikeStickerSearchBaseConstants.SYNTAX_INTEGER_NEXT + HikeStickerSearchBaseConstants.STICKER_AVAILABILITY
 				+ HikeStickerSearchBaseConstants.SYNTAX_INTEGER_LAST + HikeStickerSearchBaseConstants.SYNTAX_END;
 		db.execSQL(sql);
+		
+		sql = "CREATE INDEX IF NOT EXISTS " + HikeStickerSearchBaseConstants.STICKER_TAG_MAPPING_INDEX + " ON " + HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING + " ( " + HikeStickerSearchBaseConstants.STICKER_TAG_PHRASE + " , " + HikeStickerSearchBaseConstants.STICKER_RECOGNIZER_CODE
+				+ " )";
+		db.execSQL(sql);
 	}
 
 	/* Prepare search engine database */
@@ -222,7 +239,14 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		}
 
 		Logger.d(TAG, "Starting population first time...");
-		createVirtualTable(tables);
+		try {
+			mDb.beginTransaction();
+			createVirtualTable(tables);
+			mDb.setTransactionSuccessful();
+		}
+		finally {
+			mDb.endTransaction();
+		}
 	}
 
 	/* Mark for first time setup to know the status of setup/ update/ elimination/ insertion/ re-balancing */
@@ -350,6 +374,8 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 	{
 		Logger.i(TAG, "insertStickerTagData()");
 
+		long startTime = System.currentTimeMillis();
+		
 		ArrayList<String> newTags = new ArrayList<String>();
 		ArrayList<Long> rows = new ArrayList<Long>();
 
@@ -458,7 +484,12 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		{
 			mDb.endTransaction();
 		}
-
+		
+		long endTime = System.currentTimeMillis();
+		
+		primaryInsertTime += (endTime - startTime);
+		Logger.d(INSERT_TIME_TAG, "primary insert time : " + primaryInsertTime);
+		
 		Logger.v(TAG, "Existing tags count = " + existingTagsCount);
 		Logger.v(TAG, "Newly added tags count = " + newTagsCount);
 
@@ -466,7 +497,14 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		{
 			Logger.v(TAG, "Newly added tags: " + newTags);
 
+			startTime = System.currentTimeMillis();
+			
 			insertIntoVirtualTable(newTags, rows);
+			
+			endTime = System.currentTimeMillis();
+			
+			virtualInsertTime += (endTime - startTime);
+			Logger.d(INSERT_TIME_TAG, "virtual insert time : " + virtualInsertTime);
 		}
 	}
 
@@ -900,29 +938,6 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 	{
 		if (stickerInfoSet == null)
 		{
-			return;
-		}
-
-		if (stickerInfoSet.isEmpty())
-		{
-			try
-			{
-				mDb.beginTransaction();
-
-				mDb.delete(HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING, null, null);
-				deleteSearchData();
-
-				mDb.setTransactionSuccessful();
-			}
-			catch (SQLException e)
-			{
-				Logger.e(TAG, "Error in executing sql delete queries: ", e);
-			}
-			finally
-			{
-				mDb.endTransaction();
-			}
-
 			return;
 		}
 

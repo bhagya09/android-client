@@ -37,8 +37,6 @@ import com.bsb.hike.models.ConvMessage.State;
 import com.bsb.hike.models.FtueContactInfo;
 import com.bsb.hike.models.MultipleConvMessage;
 import com.bsb.hike.models.Protip;
-import com.bsb.hike.models.StatusMessage;
-import com.bsb.hike.models.StatusMessage.StatusMessageType;
 import com.bsb.hike.models.Conversation.ConvInfo;
 import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.modules.contactmgr.ContactManager;
@@ -46,6 +44,8 @@ import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.HikeSDKMessageFilter;
 import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.service.SmsMessageStatusReceiver;
+import com.bsb.hike.timeline.model.StatusMessage;
+import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.Utils;
@@ -270,6 +270,7 @@ public class DbConversationListener implements Listener
 						StatusMessage statusMessage = new StatusMessage(0, null, contactInfo.getMsisdn(), contactInfo.getName(),
 								context.getString(R.string.accepted_friend_request), StatusMessageType.USER_ACCEPTED_FRIEND_REQUEST, System.currentTimeMillis() / 1000);
 						mConversationDb.addStatusMessage(statusMessage, true);
+						mConversationDb.updateHistoricalStatusMessages(statusMessage.getMsisdn());
 						mPubSub.publish(HikePubSub.STATUS_MESSAGE_RECEIVED, statusMessage);
 						mPubSub.publish(HikePubSub.TIMELINE_UPDATE_RECIEVED, statusMessage);
 					}
@@ -310,6 +311,7 @@ public class DbConversationListener implements Listener
 		{
 			String statusId = (String) object;
 			mConversationDb.deleteStatus(statusId);
+			mConversationDb.deleteActivityFeedForStatus(statusId);
 			/*
 			 * If the status also has an icon, we delete that as well.
 			 */

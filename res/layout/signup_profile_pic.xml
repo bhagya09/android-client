@@ -9,7 +9,6 @@
         android:layout_height="@dimen/signup_profile_pic_dimen"
         android:layout_centerInParent="true"
         style="@style/RoundedStyle"
-        android:src="@drawable/ic_signup_nouser" 
         android:onClick="onChangeImageClicked" />
 
     <ImageView

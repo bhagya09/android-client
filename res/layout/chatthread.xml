@@ -28,7 +28,7 @@
         android:id="@+id/background"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:src="@color/blue_hike" />
+        android:src="@color/chat_thread_default_bg" />
 
     <com.bsb.hike.view.CustomLinearLayout
         android:id="@+id/chat_layout"
@@ -226,6 +226,15 @@
                 android:id="@+id/sticker_recommendation_tip"
                 android:layout_width="match_parent"
                 android:layout_height="48dp"
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp"
+                android:layout_alignParentBottom="true"
+                android:layout="@layout/sticker_recommend_tip_view" />
+           	
+           	<ViewStub 
+                android:id="@+id/sticker_recommendation_auto_off_tip"
+                android:layout_width="match_parent"
+                android:layout_height="80dp"
                 android:layout_marginLeft="8dp"
                 android:layout_marginRight="8dp"
                 android:layout_alignParentBottom="true"

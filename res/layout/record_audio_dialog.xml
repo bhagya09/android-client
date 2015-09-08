@@ -85,7 +85,7 @@
             android:layout_weight="1"
             android:background="@drawable/bg_record_button"
             android:enabled="false"
-            android:text="@string/send"
+            android:text="@string/send_uppercase"
             android:textColor="@drawable/record_btn_txt"
             android:textSize="14sp" />
     </LinearLayout>

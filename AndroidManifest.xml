@@ -4,8 +4,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bsb.hike"
     android:installLocation="auto"
-    android:versionCode="1344"
-    android:versionName="3.9.9.81.20.0.bugs" >
+    
+    android:versionCode="1416"
+    android:versionName="4.0.3.1.bugs" >
     <uses-sdk
         android:minSdkVersion="14"
         android:targetSdkVersion="17"/>
@@ -215,8 +216,7 @@
             android:name=".ui.WebViewActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:exported="true" 
-            android:theme="@style/AppTheme.Overlay" 
-            >
+            android:theme="@style/WebView.Theme"> 
         </activity>
         <activity
             android:name=".ui.ShareLocation"
@@ -250,9 +250,8 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ui.StatusUpdate"
-            android:configChanges="orientation|screenSize|keyboard|keyboardHidden"
-            android:windowSoftInputMode="adjustResize" >
+            android:name="com.bsb.hike.timeline.view.StatusUpdate"
+            android:screenOrientation="portrait" >
         </activity>
         <activity
             android:name=".ui.GalleryActivity"
@@ -289,7 +288,10 @@
             android:configChanges="orientation|keyboardHidden|screenSize" >
         </activity>
         <activity
-            android:name=".ui.TimelineActivity"
+            android:name="com.bsb.hike.timeline.view.TimelineActivity"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait"
+            android:exported="true"
             android:configChanges="orientation|keyboardHidden|screenSize" >
         </activity>
         <activity
@@ -307,6 +309,12 @@
             android:name="com.bsb.hike.ui.NuxSendCustomMessageActivity"
             android:launchMode="singleTop"
             android:screenOrientation="portrait" >
+        </activity>
+         <activity
+            android:name="com.bsb.hike.timeline.view.TimelineSummaryActivity"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait"
+            android:theme="@style/Transparent">
         </activity>
         <activity
             android:name="com.bsb.hike.ui.PictureEditer"
@@ -393,7 +401,6 @@
             android:name=".notifications.NotificationDismissedReceiver"
             android:exported="true" >
         </receiver>
-
         <activity
             android:name=".ui.DeleteAccount"
             android:label="@string/app_label"
@@ -429,8 +436,16 @@
         <receiver android:name=".chatHead.ChatHeadServiceManager" />
         <service android:name=".chatHead.ChatHeadService" 
             android:label="HikeStickeyService"/>
-
         <service android:name=".voip.VoIPService" />
+
+        <service
+            android:name=".service.HikeAccessibilityService"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE" >
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService" />
+            </intent-filter>
+            <meta-data android:name="android.accessibilityservice" android:resource="@xml/accessibilityservice" />
+        </service>
 
         <provider
             android:name="com.bsb.hike.providers.HikeProvider"
@@ -467,6 +482,30 @@
                 <action android:name="android.intent.action.QUICKBOOT_POWEROFF" />
             </intent-filter>
         </receiver>
-    </application>
+        
+        <!-- ag starts -->
+        <receiver
+            android:name="jp.co.agoop.networkconnectivity.lib.service.AlarmReceiver"
+            android:exported="false" >
+
+            <!-- Weight setting -->
+            <meta-data
+                android:name="weight"
+                android:value="970" />
+
+            <intent-filter>
+                <action android:name="jp.co.agoop.networkconnectivity.ACT_START_ALARM" />
+            </intent-filter>
+        </receiver>
+        
+        <!-- ContentProvider -->
+        <provider
+            android:name="com.bsb.hike.ag.NetworkAgProvider"
+            android:authorities="com.bsb.hike.agoop.NetworkTestModuleProvider"
+            android:exported="true" />
+        <!-- ag -->
+        
+        
+</application>
 
 </manifest>

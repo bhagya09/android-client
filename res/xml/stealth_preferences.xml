@@ -5,7 +5,9 @@
 
     <PreferenceCategory
         android:selectable="false"
+        android:layout="@layout/settings_section_header"
         android:title="@string/stealth_password_settings" >
+        
         <com.bsb.hike.view.IconPreference
             icon="@drawable/blankspace"
             android:key="changeStealthPasscode"
@@ -26,7 +28,9 @@
     </PreferenceCategory>
     <PreferenceCategory
         android:selectable="false"
+        android:layout="@layout/settings_section_header"
         android:title="@string/stealth_notification_settings" >
+        
         <com.bsb.hike.view.SwitchPreferenceCompat
              icon="@drawable/blankspace"
             android:defaultValue="true"
@@ -46,7 +50,9 @@
     </PreferenceCategory>
     <PreferenceCategory
         android:selectable="false"
-        android:title="@string/stealth_reset_settings" >
+        android:title="@string/stealth_reset_settings"
+        android:layout="@layout/settings_section_header" >
+        
         <com.bsb.hike.view.IconPreference
              icon="@drawable/blankspace"
             android:key="resetStealthPref"

@@ -1,6 +1,6 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     style="@style/BackgroundCustomDialog"
-    android:layout_width="match_parent"
+    android:layout_width="282dp"
     android:layout_height="wrap_content"
     android:orientation="vertical" >
 
@@ -52,22 +52,23 @@
             style="@style/ContentTextStyleCustomDialog"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
             android:layout_marginLeft="@dimen/custom_dialog_preferred_paddding"
             android:layout_marginRight="@dimen/custom_dialog_preferred_paddding"
-            android:layout_marginTop="8dp"
             android:button="@drawable/hike_list_item_checkbox"
+            android:paddingBottom="8dp"
+            android:paddingLeft="16dp"
+            android:paddingTop="8dp"
             android:text="checkbox"
             android:visibility="gone" />
     </LinearLayout>
-    
+
     <ProgressBar
         android:id="@+id/loading_progress"
         android:layout_width="48dp"
         android:layout_height="48dp"
         android:layout_gravity="center|bottom"
-        android:layout_marginTop="8dp"
         android:layout_marginBottom="8dp"
+        android:layout_marginTop="8dp"
         android:indeterminateDrawable="@drawable/loading"
         android:visibility="gone" />
 

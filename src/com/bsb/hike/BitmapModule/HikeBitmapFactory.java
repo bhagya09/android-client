@@ -234,6 +234,12 @@ public class HikeBitmapFactory
 			public void run()
 			{
 				Bitmap bmp = HikeBitmapFactory.decodeSampledBitmapFromFile(srcFilePath, HikeConstants.HikePhotos.MAX_IMAGE_DIMEN, HikeConstants.HikePhotos.MAX_IMAGE_DIMEN, Config.ARGB_8888);
+				
+				if(bmp==null)
+				{
+					bmp = HikeBitmapFactory.decodeSampledBitmapFromFile(srcFilePath, HikeConstants.MAX_DIMENSION_MEDIUM_FULL_SIZE_PX, HikeConstants.MAX_DIMENSION_MEDIUM_FULL_SIZE_PX, Config.ARGB_8888);
+				}
+				
 				if(bmp==null)
 				{
 					mListener.onFailure();

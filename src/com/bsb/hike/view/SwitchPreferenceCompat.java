@@ -9,11 +9,13 @@ import android.preference.Preference;
 import android.preference.SwitchPreference;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.SwitchCompat;
+import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.Checkable;
 import android.widget.CompoundButton;
 import android.widget.Switch;
+import android.widget.TextView;
 
 import com.bsb.hike.R;
 import com.bsb.hike.ui.HikePreferences;
@@ -43,6 +45,8 @@ public class SwitchPreferenceCompat extends com.bsb.hike.view.TwoStatePreference
 	private CharSequence mSwitchOn;
 
 	private CharSequence mSwitchOff;
+	
+	private CharSequence disabledSubText;
 	
 	private final Listener mListener = new Listener();
 
@@ -116,6 +120,22 @@ public class SwitchPreferenceCompat extends com.bsb.hike.view.TwoStatePreference
 		super.onBindView(view);
 		
 		ViewCompat.setAlpha(view, isEnabled() ? HikePreferences.PREF_ENABLED_ALPHA : HikePreferences.PREF_DISABLED_ALPHA);
+		
+		TextView subText = (TextView) view.findViewById(android.R.id.summary);
+		
+		if (subText != null)
+		{
+			if (isEnabled())
+			{
+				subText.setText(getSummary());
+			}
+
+			else
+			{
+				subText.setText(TextUtils.isEmpty(getDisabledSummaryText()) ? getSummary() : getDisabledSummaryText());
+			}
+		}
+		
 
 		View checkableView = view.findViewById(R.id.switchWidget);
 		if (checkableView != null && checkableView instanceof Checkable)
@@ -197,5 +217,16 @@ public class SwitchPreferenceCompat extends com.bsb.hike.view.TwoStatePreference
 	{
 		return mSwitchOff;
 	}
+	
+	private CharSequence getDisabledSummaryText()
+	{
+		return this.disabledSubText;
+	}
+
+	public void setDisabledSummaryText(String disabledText)
+	{
+		this.disabledSubText = disabledText;
+	}
+	
 
 }

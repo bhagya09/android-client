@@ -1,8 +1,17 @@
 package com.bsb.hike.utils;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Calendar;
+
+import android.os.Environment;
 import android.util.Log;
 
 import com.bsb.hike.AppConfig;
+import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
 
 public class Logger
 {
@@ -48,10 +57,43 @@ public class Logger
 	 * @param msg
 	 *            The message you would like logged.
 	 */
-	public static void d(String tag, String msg)
+	public static void d(String tag, final String msg)
 	{
 		if (AppConfig.SHOW_LOGS)
 		{
+			/*if (HikeConstants.TIMELINE_LOGS.equals(tag) || HikeConstants.TIMELINE_COUNT_LOGS.equals(tag))
+			{
+				// THIS IS TEMPORARY. REMOVE BEFORE MARKET LAUNCH TODO TODO TODO
+				String dest = Environment.getExternalStorageDirectory().getAbsolutePath() + "/"+ tag + Calendar.getInstance().get(Calendar.DAY_OF_MONTH) + ".txt";
+				String message = (Utils.getFormattedDateTimeFromTimestamp(System.currentTimeMillis(), HikeMessengerApp.getInstance().getResources().getConfiguration().locale) + msg);
+				BufferedWriter output = null;
+				try
+				{
+					output = new BufferedWriter(new FileWriter(dest, true));
+					output.newLine();
+					output.append(message);
+				}
+				catch (IOException e)
+				{
+					e.printStackTrace();
+				}
+				finally
+				{
+					if (output != null)
+					{
+						try
+						{
+							output.flush();
+							output.close();
+						}
+						catch (IOException e)
+						{
+							e.printStackTrace();
+						}
+
+					}
+				}
+			}*/
 			Log.d(tag, msg);
 		}
 	}

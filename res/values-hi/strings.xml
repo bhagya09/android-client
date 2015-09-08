@@ -845,10 +845,9 @@
     <string name="last_seen_proper_casing">अंतिम बार दिखे</string>
     <string name="status_updates_proper_casing">स्थिति अपडेट</string>
     <string name="bigger_better_attachments">बड़े, बेहतर संलग्नक</string>
-    <string name="alp_42447968_cmd_confirm">पुष्टि करे</string>
-    <string name="alp_42447968_cmd_continue">जारी रखें</string>
+    <string name="CONFIRM">पुष्टि करे</string>
+    <string name="CONTINUE">जारी रखें</string>
     <string name="alp_42447968_cmd_forgot_pattern">पैटर्न भूल गए?</string>
-    <string name="alp_42447968_cmd_retry">फिर से कोशिश करें</string>
     <string name="alp_42447968_loading">लोड हो रहा है…</string>
     <string name="alp_42447968_lockscreen_access_pattern_cell_added">सेल जोड़ा गया</string>
     <string name="alp_42447968_lockscreen_access_pattern_cleared">पैटर्न साफ़ किया गया</string>
@@ -898,7 +897,6 @@
     <string name="vib_default_key">डिफ़ॉल्ट</string>
     <string name="vib_short_key">Short</string>
     <string name="vib_long_key">लंबा</string>
-    <string name="delete_account_heading">DELETING YOUR ACCOUNT WILL</string>
     <string name="chat_unmarked_stealth_first">आपने चैट को दृश्य चिह्नित किया है। अब जो भी hike खोलेगा, यह उसे दिखाई देगी।</string>
     <string name="tickSoundTitle">वार्तालाप की टोन</string>
     <string name="tickSoundSummary">आवक और जावक संदेशों के लिए ध्वनि चलाएँ</string>
@@ -921,7 +919,6 @@
     <string name="delete_account_msg">Delete your Hike account.</string>
     <string name="unlink_confirmation">Are you sure you want to reset your account?</string>
     <string name="unlinking_account">Resetting...</string>
-    <string name="delete_confirm_msg_1">This will delete all your messages, SMS balance and any hike rewards.</string>
     <string name="shortcut">Add conversation shortcut</string>
     <string name="add_to_contacts">Add to contacts</string>
     <string name="delete_leave">Delete and exit group</string>
@@ -1194,12 +1191,11 @@
     <string name="sticker_shop">स्टिकर की दुकान</string>
     <string name="my_stickers">मेरे स्टिकर</string>
     <string name="update_all">सभी अद्यतन करें</string>
-    <string name="retry_sticker">पुनः प्रयास करें</string>
+    <string name="RETRY">पुनः प्रयास करें</string>
     <string name="see_them">संपन्न</string>
     <string name="drag_tip_text">अपने स्टिकर पैक को पुनः व्यवस्थित करने के लिए पैक पर टैप करके होल्ड करें</string>
     <string name="drag_tip_subtext">अपने स्टिकर पुनः व्यवस्थित करने के लिए टैप करें और खींचें</string>
     <string name="CANCEL">रद्द करें</string>
-    <string name="CONFIRM">पुष्टि करें</string>
     <string name="n_more">%1$d अधिक</string>
     <string name="n_stickers">%1$d स्टिकर</string>
     <string name="last_backup">पिछला बैकअप</string>
@@ -1247,7 +1243,6 @@
     <string name="action_settings">सेटिंग</string>
     <string name="creating_backup_message">आपके खाते का बैकअप किया जा रहा है। दैनिक बैकअप सुबह 3:00 बजे होते हैं।</string>
     <string name="restore">बहाल करें</string>
-    <string name="delete_account_description">अपने सभी संदेश, बैकअप, मुफ्त एसएमएस और hike पुरस्कार हटाएँ</string>
     <string name="auth_connected_to_hike">%1$s hike से कनेक्टेड है!</string>
     <string name="auth_state_connecting">कनेक्ट हो रहा है...</string>
     <string name="auth_please_wait_connect">जब तक हम आपको कनेक्ट करें, कृपया प्रतीक्षा करें...</string>

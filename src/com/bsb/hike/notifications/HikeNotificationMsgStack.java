@@ -726,6 +726,10 @@ public class HikeNotificationMsgStack implements Listener
 			case NotificationType.HIDDEN:
 				retryCount = mmCountModel.getHidden();
 				break;
+				
+			case NotificationType.ACTIVITYUPDATE:
+				retryCount = mmCountModel.getAcUp();
+				break;
 			}
 		
 		return retryCount;

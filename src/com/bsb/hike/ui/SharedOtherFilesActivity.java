@@ -101,22 +101,11 @@ public class SharedOtherFilesActivity extends HikeAppStateBaseFragmentActivity i
 
 		View actionBarView = LayoutInflater.from(this).inflate(R.layout.compose_action_bar, null);
 
-		View backContainer = actionBarView.findViewById(R.id.back);
 
 		title = (TextView) actionBarView.findViewById(R.id.title);
 		subText = (TextView) actionBarView.findViewById(R.id.subtext);
 
 		setTitle(getString(R.string.shared_files));
-
-		backContainer.setOnClickListener(new OnClickListener()
-		{
-
-			@Override
-			public void onClick(View v)
-			{
-				onBackPressed();
-			}
-		});
 
 		actionBar.setCustomView(actionBarView);
 		Toolbar parent=(Toolbar)actionBarView.getParent();

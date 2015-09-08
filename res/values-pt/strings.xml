@@ -845,10 +845,9 @@
     <string name="last_seen_proper_casing">Visto últ. vez</string>
     <string name="status_updates_proper_casing">Atualiz. de status</string>
     <string name="bigger_better_attachments">Anexos maiores e melhores</string>
-    <string name="alp_42447968_cmd_confirm">Confirmar</string>
-    <string name="alp_42447968_cmd_continue">Continuar</string>
+    <string name="CONFIRM">CONFIRMAR</string>
+    <string name="CONTINUE">CONTINUAR</string>
     <string name="alp_42447968_cmd_forgot_pattern">Esqueceu o padrão?</string>
-    <string name="alp_42447968_cmd_retry">Tentar novamente</string>
     <string name="alp_42447968_loading">Carregando...</string>
     <string name="alp_42447968_lockscreen_access_pattern_cell_added">Celular adicionado</string>
     <string name="alp_42447968_lockscreen_access_pattern_cleared">Padrão removido</string>
@@ -898,7 +897,6 @@
     <string name="vib_default_key">Padrão</string>
     <string name="vib_short_key">Curto</string>
     <string name="vib_long_key">Longo</string>
-    <string name="delete_account_heading">AO EXCLUIR SUA CONTA, VOCÊ</string>
     <string name="chat_unmarked_stealth_first">Você marcou uma conversa como visível. Agora ela estará visível a todos que abrirem o hike.</string>
     <string name="tickSoundTitle">Tons de conversa</string>
     <string name="tickSoundSummary">Reproduzir som ao receber e enviar mensagens</string>
@@ -921,7 +919,6 @@
     <string name="delete_account_msg">Delete your Hike account.</string>
     <string name="unlink_confirmation">Are you sure you want to reset your account?</string>
     <string name="unlinking_account">Resetting...</string>
-    <string name="delete_confirm_msg_1">This will delete all your messages, SMS balance and any hike rewards.</string>
     <string name="shortcut">Add conversation shortcut</string>
     <string name="add_to_contacts">Add to contacts</string>
     <string name="delete_leave">Excluir e sair do grupo</string>
@@ -1194,12 +1191,11 @@
     <string name="sticker_shop">Loja de adesivos</string>
     <string name="my_stickers">Meus adesivos</string>
     <string name="update_all">ATUALIZAR TUDO</string>
-    <string name="retry_sticker">REPETIR</string>
+    <string name="RETRY">REPETIR</string>
     <string name="see_them">PRONTO</string>
     <string name="drag_tip_text">Toque e segure um pacote para reordenar os pacotes de adesivos</string>
     <string name="drag_tip_subtext">Toque e arraste para reorganizar os adesivos</string>
     <string name="CANCEL">CANCELAR</string>
-    <string name="CONFIRM">CONFIRMAR</string>
     <string name="n_more">MAIS %1$d</string>
     <string name="n_stickers">%1$d adesivos</string>
     <string name="last_backup">Último backup</string>
@@ -1247,7 +1243,6 @@
     <string name="action_settings">Configs.</string>
     <string name="creating_backup_message">Criando um backup da sua conta. Backups diários ocorrem às 3:00.</string>
     <string name="restore">Restaurar</string>
-    <string name="delete_account_description">exclui todas as suas mensagens, backup, SMS gratuito e recompensas do hike</string>
     <string name="auth_connected_to_hike">%1$s contectou-se ao hike!</string>
     <string name="auth_state_connecting">Conectando...</string>
     <string name="auth_please_wait_connect">Aguarde enquanto conectamos você...</string>

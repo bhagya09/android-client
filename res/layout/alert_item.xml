@@ -17,6 +17,7 @@
         android:text="Send a message"
         android:textColor="@color/menu_text_color"
         android:ellipsize="end"
+        android:maxLines="1"
         style="@style/BaseStyleTextView"
         android:textStyle="normal"
         android:layout_marginRight="4dp"

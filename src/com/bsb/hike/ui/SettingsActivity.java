@@ -33,12 +33,11 @@ import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ImageViewerInfo;
-import com.bsb.hike.models.StatusMessage;
-import com.bsb.hike.models.StatusMessage.StatusMessageType;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
+import com.bsb.hike.timeline.model.StatusMessage;
+import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
 import com.bsb.hike.ui.fragments.ImageViewerFragment;
-import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.ChangeProfileImageBaseActivity;
 import com.bsb.hike.utils.EmoticonConstants;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
@@ -131,7 +130,7 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 		}
 		items.add(new SettingsDisplayPojo(getString(R.string.manage_account), R.string.manage_account, R.drawable.ic_account_settings));
 		items.add(new SettingsDisplayPojo(getString(R.string.privacy), R.string.privacy, R.drawable.ic_privacy_settings));
-    	if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.CHAT_HEAD_SERVICE, false) && ChatHeadUtils.areWhitelistedPackagesSharable(this))
+    	if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.CHAT_HEAD_SERVICE, false) && ChatHeadUtils.areWhitelistedPackagesSharable(this) && ChatHeadUtils.checkDeviceFunctionality())
 		{
 			items.add(new SettingsDisplayPojo(getString(R.string.settings_share_stickers), R.string.settings_share_stickers, R.drawable.settings_icon_sticker_widget));
 		}
@@ -240,6 +239,17 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 				}
 				return convertView;
 			}
+			
+			@Override
+			public boolean isEnabled(int position)
+			{
+				if (getItemViewType(position) == ViewType.VERSION.ordinal())
+				{
+					return false;
+				}
+				
+				return super.isEnabled(position);
+			}
 
 		};
 
@@ -307,20 +317,9 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 
 		View actionBarView = LayoutInflater.from(this).inflate(R.layout.compose_action_bar, null);
 
-		View backContainer = actionBarView.findViewById(R.id.back);
 		
 		TextView title = (TextView) actionBarView.findViewById(R.id.title);
 		title.setText(R.string.settings);
-		backContainer.setOnClickListener(new OnClickListener()
-		{
-
-			@Override
-			public void onClick(View v)
-			{
-				onBackPressed();
-			}
-		});
-
 		actionBar.setCustomView(actionBarView);
 		Toolbar parent=(Toolbar)actionBarView.getParent();
 		parent.setContentInsetsAbsolute(0,0);
@@ -548,7 +547,7 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 	}	
 	
 	@Override
-	protected void openImageViewerFragment(Object object)
+	protected void openImageViewer(Object object)
 	{
 		/*
 		 * Making sure we don't add the fragment if the activity is finishing.

@@ -22,7 +22,7 @@
 	        android:id="@+id/back"
 	        android:layout_width="wrap_content"
 	        android:layout_height="?attr/actionBarSize"
-	        android:background="@drawable/bg_overflow_menu_selector"
+	        android:background="@drawable/back_container_selector"
 	        android:gravity="center_vertical"
 	        android:orientation="horizontal"
 	        android:paddingRight="5dp" >
@@ -34,17 +34,18 @@
 	            android:paddingRight="8dp"
 	            android:src="@drawable/ic_back_arrow" />
 	
-	            <com.bsb.hike.view.CustomFontTextView
+	            
+	          
+		</LinearLayout>
+	<com.bsb.hike.view.CustomFontTextView
 	                android:id="@+id/title"
 	                style="@style/ActionBarText"
 	                android:layout_marginLeft="17dp"
 	                android:layout_width="wrap_content"
 	                android:layout_height="wrap_content"
 	                android:layout_marginBottom="1dp"
-	                android:ellipsize="end" />
-	          
-		</LinearLayout>
-
+	                android:ellipsize="end"
+	                android:clickable="false" />
         </android.support.v7.widget.Toolbar>
          <FrameLayout 
         android:layout_width="match_parent"

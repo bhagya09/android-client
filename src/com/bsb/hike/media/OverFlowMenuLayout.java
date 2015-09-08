@@ -470,16 +470,19 @@ public class OverFlowMenuLayout implements OnItemClickListener
 		}
 	}
 	
+	/**
+	 * Commenting it out for now based on perf issues
+	 */
 	public void setAnimation()
 	{
-		if (overFlowListView != null)
-		{
-			if (lac == null)
-			{
-				lac = new LayoutAnimationController(AnimationUtils.loadAnimation(context, R.anim.translate_from_top), 0.15f);
-			}
-			
-			overFlowListView.setLayoutAnimation(lac);
-		}
+//		if (overFlowListView != null)
+//		{
+//			if (lac == null)
+//			{
+//				lac = new LayoutAnimationController(AnimationUtils.loadAnimation(context, R.anim.translate_from_top), 0.15f);
+//			}
+//			
+//			overFlowListView.setLayoutAnimation(lac);
+//		}
 	}
 }

@@ -634,8 +634,13 @@ public abstract class Request<T> implements IRequestFacade
 
 		public S delete()
 		{
+			return delete(null);
+		}
+		
+		public S delete(IRequestBody body)
+		{
 			this.method = RequestConstants.DELETE;
-			this.body = null;
+			this.body = body;
 			return self();
 		}
 

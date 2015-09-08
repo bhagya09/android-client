@@ -325,8 +325,9 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			{
 				if(HikeFileType.fromString(getIntent().getType()).compareTo(HikeFileType.IMAGE)==0 && Utils.isPhotosEditEnabled()) 
 				{ 
-					String fileName = Utils.getAbsolutePathFromUri((Uri) getIntent().getParcelableExtra(Intent.EXTRA_STREAM), getApplicationContext(),true);
-					startActivityForResult(IntentFactory.getPictureEditorActivityIntent(getApplicationContext(), fileName, true, null, false),HikeConstants.ResultCodes.PHOTOS_REQUEST_CODE);
+					String filePath = Utils.getAbsolutePathFromUri((Uri) getIntent().getParcelableExtra(Intent.EXTRA_STREAM), getApplicationContext(),true);
+					if(filePath != null)
+						startActivityForResult(IntentFactory.getPictureEditorActivityIntent(getApplicationContext(), filePath, true, null, false),HikeConstants.ResultCodes.PHOTOS_REQUEST_CODE);
 				}
 			} 
 			
@@ -1162,22 +1163,10 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			return;
 		}
 
-		View backContainer = groupChatActionBar.findViewById(R.id.back);
 
 		title = (TextView) groupChatActionBar.findViewById(R.id.title);
 		groupChatActionBar.findViewById(R.id.seprator).setVisibility(View.GONE);
-		
-		backContainer.setOnClickListener(new OnClickListener()
-		{
-
-			@Override
-			public void onClick(View v)
-			{
-
-				onBackPressed();
-			}
-		});
-		
+	
 		if(!nuxIncentiveMode)
 			setTitle();
 		
@@ -1856,7 +1845,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 								startActivity(intent);
 					      		finish();
 							}
-						}, contact, getString(R.string.send), false);
+						}, contact, getString(R.string.send_uppercase), false);
 					}
 
 				}
@@ -2491,8 +2480,10 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		@Override
 		public boolean onQueryTextChange(String newText)
 		{
+			if (newText != null)
+				newText = newText.trim();
 			adapter.onQueryChanged(newText);
-			
+
 			return true;
 		}
 	};

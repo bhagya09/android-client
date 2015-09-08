@@ -52,6 +52,10 @@ import com.bsb.hike.platform.IFileUploadListener;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.platform.content.PlatformContentConstants;
+import com.bsb.hike.productpopup.ProductInfoManager;
+import com.bsb.hike.productpopup.ProductPopupsConstants;
+import com.bsb.hike.productpopup.ProductPopupsConstants.HIKESCREEN;
+import com.bsb.hike.productpopup.ProductPopupsConstants.PopUpAction;
 import com.bsb.hike.ui.ComposeChatActivity;
 import com.bsb.hike.ui.GalleryActivity;
 import com.bsb.hike.ui.WebViewActivity;
@@ -126,7 +130,6 @@ public abstract class JavascriptBridge
 	{
 		
 	}
-	
 	
 	protected void sendMessageToUiThread(int what,Object data)
 	{
@@ -489,7 +492,20 @@ public abstract class JavascriptBridge
 	public void onDestroy()
 	{
 		mWebView.removeCallbacks(heightRunnable);
-		mWebView.onActivityDestroyed();
+		if (mHandler == null)
+		{
+			return;
+		}
+
+		mHandler.post(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				mWebView.onActivityDestroyed();
+			}
+		});
+
 	}
 	
 	@JavascriptInterface
@@ -1016,4 +1032,71 @@ public abstract class JavascriptBridge
 
 		}
 	}
+
+	/**
+	 * Added in Platform Version:5
+	 * @param stickerData
+	 * 
+	 * This function is used to share multifwd sticker.
+	 * Sample JSON:{'catId':'expressions','stkId':'002_lol.png','selectAll':false}
+	 */
+	@JavascriptInterface
+	public void sendMultiFwdSticker(String stickerData)
+	{
+		Logger.d(tag,"sendmultiFwdSticker");
+		if (mHandler == null || weakActivity == null)
+		{
+			return;
+		}
+		
+		try
+		{
+			JSONObject mmObject = new JSONObject(stickerData);
+			final String stickerId = mmObject.optString(ProductPopupsConstants.STKID);
+			final String categoryId = mmObject.optString(ProductPopupsConstants.CATID);
+			final boolean selectAll = mmObject.optBoolean(ProductPopupsConstants.SELECTALL, false);
+			if (!TextUtils.isEmpty(stickerId) && !TextUtils.isEmpty(categoryId))
+			{
+				mHandler.post(new Runnable()
+				{
+					
+					@Override
+					public void run()
+					{
+						PlatformUtils.multiFwdStickers(weakActivity.get(), stickerId, categoryId, selectAll);
+					}
+				});
+				}
+
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+	}
+	
+	/**
+	 * Added in Platform Version:5
+	 * This function is used to activate Stickey on the client
+	 */
+	@JavascriptInterface
+	public void activiteStickey()
+	{
+		Logger.d(tag,"onChatHeadPopupActivateClick");
+		PlatformUtils.OnChatHeadPopupActivateClick();
+	}
+
+	/**
+	 * Added in Platform Version:5
+	 * @param stickerData
+	 * This function is used to download a sticker pack on the client.
+	 * Sample JSON:{'catId':'doggy','categoryName':'Adorable Snuggles','totalStickers':30,'categorySize':100}
+	 */
+	@JavascriptInterface
+	public void downloadStkPack(String stickerData)
+	{
+		Logger.d(tag,"downaloadStkPack");
+		PlatformUtils.downloadStkPk(stickerData);
+	}
+	
 }

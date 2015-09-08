@@ -12,7 +12,7 @@
         android:layout_gravity="center_vertical"
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
-        android:background="@drawable/bg_country_search_bar"
+        android:background="@drawable/bg_country_picker_selector"
         android:gravity="center_vertical"
         android:hint="@string/search"
         android:paddingLeft="10dp"

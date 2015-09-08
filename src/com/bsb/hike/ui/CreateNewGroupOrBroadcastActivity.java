@@ -267,7 +267,6 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 
 		View actionBarView = LayoutInflater.from(this).inflate(R.layout.compose_action_bar, null);
 
-		View backContainer = actionBarView.findViewById(R.id.back);
 
 		TextView title = (TextView) actionBarView.findViewById(R.id.title);
 		doneBtn = actionBarView.findViewById(R.id.done_container);
@@ -304,15 +303,7 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 				onNextPressed();
 			}
 		});
-		
-		backContainer.setOnClickListener(new OnClickListener()
-		{
-			@Override
-			public void onClick(View v)
-			{
-				onBackPressed();
-			}
-		});
+
 
 		actionBar.setCustomView(actionBarView);
 		Toolbar parent=(Toolbar)actionBarView.getParent();

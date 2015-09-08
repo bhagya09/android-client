@@ -18,7 +18,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.text.TextUtils;
-import android.view.View;
 import android.widget.Toast;
 
 import com.bsb.hike.HikeConstants;
@@ -42,8 +41,6 @@ import com.bsb.hike.imageHttp.HikeImageUploader;
 import com.bsb.hike.imageHttp.HikeImageWorker;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.HikeFile.HikeFileType;
-import com.bsb.hike.models.StatusMessage;
-import com.bsb.hike.models.StatusMessage.StatusMessageType;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.response.Response;
@@ -51,6 +48,8 @@ import com.bsb.hike.tasks.DownloadImageTask;
 import com.bsb.hike.tasks.DownloadImageTask.ImageDownloadResult;
 import com.bsb.hike.tasks.FinishableEvent;
 import com.bsb.hike.tasks.HikeHTTPTask;
+import com.bsb.hike.timeline.model.StatusMessage;
+import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
 import com.bsb.hike.ui.GalleryActivity;
 import com.bsb.hike.ui.fragments.ImageViewerFragment;
 import com.bsb.hike.ui.fragments.ImageViewerFragment.DisplayPictureEditListener;
@@ -162,6 +161,7 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 			galleryFlags = galleryFlags | GalleryActivity.GALLERY_EDIT_SELECTED_IMAGE|GalleryActivity.GALLERY_COMPRESS_EDITED_IMAGE;
 			if (!isPersonal)
 			{
+				galleryFlags = galleryFlags | GalleryActivity.GALLERY_CROP_IMAGE;
 				galleryPickerIntent = IntentFactory.getHikeGalleryPickerIntent(ChangeProfileImageBaseActivity.this,galleryFlags,getNewProfileImagePath(useTimestamp));
 				startActivityForResult(galleryPickerIntent, HikeConstants.ResultCodes.PHOTOS_REQUEST_CODE);
 			}
@@ -174,6 +174,7 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 		}
 		else
 		{
+			galleryFlags = galleryFlags | GalleryActivity.GALLERY_CROP_IMAGE;
 			galleryPickerIntent = IntentFactory.getHikeGalleryPickerIntent(ChangeProfileImageBaseActivity.this, galleryFlags,getNewProfileImagePath(useTimestamp));
 			galleryPickerIntent.putExtra(GalleryActivity.START_FOR_RESULT, true);
 			startActivityForResult(galleryPickerIntent, HikeConstants.ResultCodes.PHOTOS_REQUEST_CODE);
@@ -541,7 +542,6 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 		mRemoveImagePath = removeImagePath;
 
 		AlertDialog.Builder builder = new AlertDialog.Builder(ctx);
-		builder.setTitle(R.string.profile_photo);
 
 		// We have a single element array so that if new options are added to the dialog we just have to add strings to this array.
 		final CharSequence[] items = ctx.getResources().getStringArray(R.array.profile_pic_dialog);

@@ -1,4 +1,4 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.bsb.hike.view.MDRootLayout xmlns:android="http://schemas.android.com/apk/res/android"
     style="@style/BackgroundCustomDialog"
     android:layout_width="280dp"
     android:layout_height="wrap_content"
@@ -84,4 +84,4 @@
             android:visibility="gone" />
     </LinearLayout>
 
-</LinearLayout>
+</com.bsb.hike.view.MDRootLayout>

@@ -24,7 +24,6 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
 
@@ -68,6 +67,8 @@ public class TellAFriend extends HikeAppStateBaseFragmentActivity implements Lis
 	private static final int WATSAPP = 6;
 
 	private static final int INVITE_EXTRA = 7;
+	
+	private final String replaceInviteToken = "$invite_token";
 
 	private SharedPreferences settings;
 
@@ -117,7 +118,7 @@ public class TellAFriend extends HikeAppStateBaseFragmentActivity implements Lis
 		}
 		//itemIcons.add(R.drawable.ic_invite_fb);
 		//itemIcons.add(R.drawable.ic_invite_twitter);
-		itemIcons.add(R.drawable.ic_invite_email);
+		itemIcons.add(R.drawable.ic_email);
 		itemIcons.add(R.drawable.ic_invite_other);
 
 		// we could do with objects as well , that would be best but big change
@@ -455,21 +456,9 @@ public class TellAFriend extends HikeAppStateBaseFragmentActivity implements Lis
 
 		View actionBarView = LayoutInflater.from(this).inflate(R.layout.compose_action_bar, null);
 
-		View backContainer = actionBarView.findViewById(R.id.back);
 
 		TextView title = (TextView) actionBarView.findViewById(R.id.title);
 		title.setText(R.string.invite_friends);
-		backContainer.setOnClickListener(new OnClickListener()
-		{
-
-			@Override
-			public void onClick(View v)
-			{
-				Intent intent = new Intent(TellAFriend.this, HomeActivity.class);
-				intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-				startActivity(intent);
-			}
-		});
 
 		actionBar.setCustomView(actionBarView);
 		Toolbar parent=(Toolbar)actionBarView.getParent();
@@ -518,13 +507,13 @@ public class TellAFriend extends HikeAppStateBaseFragmentActivity implements Lis
 	
 				mailIntent.setData(Uri.parse("mailto:"));
 				mailIntent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.email_subject));
-				mailIntent.putExtra(Intent.EXTRA_TEXT, String.format(getString(R.string.email_body), HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.INVITE_TOKEN, "")));
+				mailIntent.putExtra(Intent.EXTRA_TEXT, getReferralText(getString(R.string.email_body), HikeConstants.REFERRAL_EMAIL_TEXT));
 				startActivity(mailIntent);
 				break;
 	
 			case OTHER:
 				Utils.logEvent(this, HikeConstants.LogEvent.DRAWER_INVITE);
-				Utils.startShareIntent(this, String.format(getString(R.string.invite_share_message), HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.INVITE_TOKEN, "")));
+				Utils.startShareIntent(this, getReferralText(getString(R.string.invite_share_message), HikeConstants.REFERRAL_OTHER_TEXT));
 				break;
 			}
 		}
@@ -534,8 +523,26 @@ public class TellAFriend extends HikeAppStateBaseFragmentActivity implements Lis
 		}
 	}
 
+	private String getReferralText(String defaultText, String replaceKey)
+	{
+		String newText = HikeSharedPreferenceUtil.getInstance().getData(replaceKey, "");
+		if (newText.isEmpty())
+		{
+			newText = defaultText;
+		}
+		return newText.replace(replaceInviteToken, HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.INVITE_TOKEN, ""));
+	}
+
 	private void sendInviteViaWatsApp()
 	{
 		IntentFactory.openInviteWatsApp(this);
+	}
+	@Override
+	public void onBackPressed()
+	{
+		// TODO Auto-generated method stub
+		Intent intent = new Intent(TellAFriend.this, HomeActivity.class);
+		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		startActivity(intent);
 	}
 }

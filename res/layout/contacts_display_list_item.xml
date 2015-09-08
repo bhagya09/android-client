@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:orientation="vertical"
+    android:padding="15dp" >
+
+    <RelativeLayout
+        android:id="@+id/avatar_container"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginRight="4dp" >
+
+        <com.bsb.hike.view.RoundedImageView
+            android:id="@+id/avatar"
+            style="@style/AvatarStyle.Padding"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/misc_timeline_ftue" />
+
+        <ImageView
+            android:id="@+id/avatar_frame"
+            style="@style/AvatarStyle"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginBottom="4dp" />
+    </RelativeLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_toRightOf="@+id/avatar_container"
+        android:orientation="vertical"
+        android:paddingLeft="20dp" >
+
+        <com.bsb.hike.view.CustomFontTextView
+            android:id="@+id/contact_name"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="Your contact"
+            android:textColor="@android:color/black"
+            android:textSize="16dp"
+            android:textStyle="bold|italic" />
+
+        <com.bsb.hike.view.CustomFontTextView
+            android:id="@+id/contact_status"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="Liked this photo"
+            android:textColor="@color/dark_grey_drop_shadow"
+            android:textSize="14dp"
+            android:textStyle="normal" />
+    </LinearLayout>
+
+</RelativeLayout>

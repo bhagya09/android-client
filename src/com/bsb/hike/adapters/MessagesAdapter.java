@@ -90,8 +90,6 @@ import com.bsb.hike.models.MessageMetadata;
 import com.bsb.hike.models.MessageMetadata.NudgeAnimationType;
 import com.bsb.hike.models.MovingList;
 import com.bsb.hike.models.PhonebookContact;
-import com.bsb.hike.models.StatusMessage;
-import com.bsb.hike.models.StatusMessage.StatusMessageType;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.models.Conversation.BotConversation;
 import com.bsb.hike.models.Conversation.Conversation;
@@ -102,6 +100,8 @@ import com.bsb.hike.platform.CardRenderer;
 import com.bsb.hike.platform.WebViewCardRenderer;
 import com.bsb.hike.smartImageLoader.HighQualityThumbLoader;
 import com.bsb.hike.smartImageLoader.IconLoader;
+import com.bsb.hike.timeline.model.StatusMessage;
+import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
 import com.bsb.hike.ui.ProfileActivity;
 import com.bsb.hike.ui.fragments.PhotoViewerFragment;
 import com.bsb.hike.utils.ChatTheme;
@@ -692,7 +692,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			v = mChatThreadCardRenderer.getView(v, convMessage, parent);
 			DetailViewHolder holder = (DetailViewHolder) v.getTag();
 			dayHolder = holder;
-			setSenderDetails(convMessage, position, holder, false);
+			setSenderDetails(convMessage, position, holder, true);
 			setTimeNStatus(position, holder, true, holder.messageContainer);
 			setSelection(convMessage, holder.selectedStateOverlay);
 		}
@@ -709,7 +709,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			WebViewCardRenderer.WebViewHolder holder = (WebViewCardRenderer.WebViewHolder) v.getTag();
 			dayHolder = holder;
 			setSelection(convMessage, holder.selectedStateOverlay);
-			setSenderDetails(convMessage, position, holder, false);
+			setSenderDetails(convMessage, position, holder, true);
 			setTimeNStatus(position, holder, true, holder.messageContainer);
 		}
 		else
@@ -1188,7 +1188,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 					}
 				}
 				dayHolder = videoHolder;
-				setSenderDetails(convMessage, position, videoHolder, false);
+				setSenderDetails(convMessage, position, videoHolder, true);
 
 				videoHolder.fileThumb.setBackgroundResource(0);
 				videoHolder.fileThumb.setImageResource(0);
@@ -1355,7 +1355,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 					}
 				}
 				dayHolder = imageHolder;
-				setSenderDetails(convMessage, position, imageHolder, false);
+				setSenderDetails(convMessage, position, imageHolder, true);
 
 				imageHolder.fileThumb.setBackgroundResource(0);
 				imageHolder.fileThumb.setImageResource(0);
@@ -1508,7 +1508,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 					}
 				}
 				dayHolder = imageHolder;
-				setSenderDetails(convMessage, position, imageHolder, false);
+				setSenderDetails(convMessage, position, imageHolder, true);
 				imageHolder.fileThumb.setBackgroundResource(0);
 				imageHolder.fileThumb.setImageResource(0);
 
@@ -1911,8 +1911,6 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				SmileyParser smileyParser = SmileyParser.getInstance();
 				markedUp = smileyParser.addSmileySpans(markedUp, false);
 				textHolder.text.setText(markedUp);
-				Linkify.addLinks(textHolder.text, Linkify.ALL);
-				Linkify.addLinks(textHolder.text, Utils.shortCodeRegex, "tel:");
 				msgText = textHolder.text.getText();
 				if (convMessage.getMsgID() > 0)
 					messageTextMap.put(convMessage.getMsgID(), msgText);
@@ -1922,6 +1920,8 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				msgText = getSpannableSearchString(messageTextMap.get(convMessage.getMsgID()));
 				textHolder.text.setText(msgText);
 			}
+			Linkify.addLinks(textHolder.text, Linkify.ALL);
+			Linkify.addLinks(textHolder.text, Utils.shortCodeRegex, "tel:");
 
 			displayBroadcastIndicator(convMessage, textHolder.broadcastIndicator, true);
 			setTimeNStatus(position, textHolder, false, textHolder.messageContainer);
@@ -1977,15 +1977,13 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			{
 				infoHolder.text.setTextColor(context.getResources().getColor(R.color.list_item_subtext));
 				infoHolder.messageInfo.setTextColor(context.getResources().getColor(R.color.timestampcolor));
-				((View) v.findViewById(R.id.voip_details)).setBackgroundResource(R.drawable.participant_info_bg);
 			}
 			else
 			{
 				infoHolder.text.setTextColor(context.getResources().getColor(R.color.white));
 				infoHolder.messageInfo.setTextColor(context.getResources().getColor(R.color.white));
-				((View) v.findViewById(R.id.voip_details)).setBackgroundResource(R.drawable.participant_info_custom_bg);
 			}
-			
+			((View) v.findViewById(R.id.voip_details)).setBackgroundResource(chatTheme.systemMessageBackgroundId());
 			int duration = metadata.getDuration();
 			boolean initiator = metadata.isVoipInitiator();
 
@@ -2094,7 +2092,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			int right = 0;
 			int bottom = positiveMargin;
 
-			int layoutRes = chatTheme.systemMessageLayoutId();
+			int layoutRes = chatTheme.systemMessageTextViewLayoutId();
 			
 			if (infoState == ParticipantInfoState.PARTICIPANT_JOINED)
 			{
@@ -2400,7 +2398,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				participantInfoHolder = (ParticipantInfoHolder) v.getTag();
 			}
 			dayHolder = participantInfoHolder;
-			int layoutRes = chatTheme.systemMessageLayoutId();
+			int layoutRes = chatTheme.systemMessageTextViewLayoutId();
 			TextView participantInfo = (TextView) inflater.inflate(layoutRes, null);
 			if (convMessage.getUnreadCount() == 1)
 			{
@@ -2633,13 +2631,13 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		}
 	}
 
-	private void setSenderDetails(ConvMessage convMessage, int position, DetailViewHolder detailHolder, boolean ext)
+	private void setSenderDetails(ConvMessage convMessage, int position, DetailViewHolder detailHolder, boolean isNameExternal)
 	{
 		boolean firstMessageFromParticipant = ifFirstMessageFromRecepient(convMessage, position);
 		if (firstMessageFromParticipant)
 		{
 			setGroupParticipantName(convMessage, detailHolder.senderDetails, detailHolder.senderName, detailHolder.senderNameUnsaved, firstMessageFromParticipant);
-			if (ext)
+			if (isNameExternal)
 			{
 				if (detailHolder.senderName != null)
 				{
@@ -2996,7 +2994,9 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				optionsList.add(context.getString(R.string.add_to_contacts));
 			}
 			optionsList.add(context.getString(R.string.send_message));
-			optionsList.add(context.getString(R.string.call));
+			if (Utils.isVoipActivated(context))
+				optionsList.add(context.getString(R.string.call));
+			
 			final String[] options = new String[optionsList.size()];
 			optionsList.toArray(options);
 
@@ -3573,7 +3573,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			{
 				hikeDialog.dismiss();
 			}
-		}, contact, context.getString(R.string.save), true);
+		}, contact, context.getString(R.string.SAVE), true);
 	}
 
 	/*
@@ -4028,7 +4028,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 	private void fillStatusMessageData(StatusViewHolder statusHolder, ConvMessage convMessage, View v)
 	{
 		StatusMessage statusMessage = convMessage.getMetadata().getStatusMessage();
-
+		
 		statusHolder.dayTextView.setText(context.getString(R.string.xyz_posted_update, Utils.getFirstName(conversation.getLabel())));
 
 		statusHolder.messageInfo.setText(statusMessage.getTimestampFormatted(true, context));
@@ -4036,15 +4036,17 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		if (statusMessage.getStatusMessageType() == StatusMessageType.TEXT)
 		{
 			SmileyParser smileyParser = SmileyParser.getInstance();
-			
 			statusHolder.messageTextView.setText(smileyParser.addSmileySpans(statusMessage.getText(), true));
 			checkIfContainsSearchText(statusHolder.messageTextView);
 			Linkify.addLinks(statusHolder.messageTextView, Linkify.ALL);
-
 		}
 		else if (statusMessage.getStatusMessageType() == StatusMessageType.PROFILE_PIC)
 		{
 			statusHolder.messageTextView.setText(R.string.changed_profile);
+		}
+		else if (statusMessage.getStatusMessageType() == StatusMessageType.IMAGE || statusMessage.getStatusMessageType() == StatusMessageType.TEXT_IMAGE)
+		{
+			statusHolder.messageTextView.setText(R.string.posted_photo);
 		}
 
 		if (statusMessage.hasMood())

@@ -2,6 +2,12 @@ package com.bsb.hike.ui.fragments;
 
 import org.json.JSONObject;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.FloatEvaluator;
+import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
+import android.animation.ValueAnimator.AnimatorUpdateListener;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -32,10 +38,10 @@ import com.bsb.hike.imageHttp.HikeImageUploader;
 import com.bsb.hike.imageHttp.HikeImageWorker;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.HikeHandlerUtil;
-import com.bsb.hike.models.StatusMessage;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.tasks.FinishableEvent;
-import com.bsb.hike.ui.TimelineActivity;
+import com.bsb.hike.timeline.model.StatusMessage;
+import com.bsb.hike.timeline.view.TimelineActivity;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.HikeUiHandler;
 import com.bsb.hike.utils.HikeUiHandler.IHandlerCallback;
@@ -43,12 +49,6 @@ import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.HoloCircularProgress;
 import com.bsb.hike.view.RoundedImageView;
-import com.nineoldandroids.animation.Animator;
-import com.nineoldandroids.animation.AnimatorListenerAdapter;
-import com.nineoldandroids.animation.FloatEvaluator;
-import com.nineoldandroids.animation.ObjectAnimator;
-import com.nineoldandroids.animation.ValueAnimator;
-import com.nineoldandroids.animation.ValueAnimator.AnimatorUpdateListener;
 
 public class ProfilePicFragment extends Fragment implements FinishableEvent, IHandlerCallback, HikeImageWorker.TaskCallbacks
 {
@@ -65,13 +65,13 @@ public class ProfilePicFragment extends Fragment implements FinishableEvent, IHa
 	private Interpolator animInterpolator = new LinearInterpolator();
 
 	private String imagePath;
-	
+
 	private byte mUploadStatus = -1;
-	
+
 	private final byte UPLOAD_COMPLETE = 1;
-	
+
 	private final byte UPLOAD_FAILED = 2;
-	
+
 	private final byte UPLOAD_INPROGRESS = 3;
 	
 	private final byte UPLOAD_STALE = 4;
@@ -83,7 +83,7 @@ public class ProfilePicFragment extends Fragment implements FinishableEvent, IHa
 	private Bitmap smallerBitmap;
 
 	private String origImagePath;
-	
+
 	private HikeUiHandler hikeUiHandler;
 	
 	private HikeImageUploader mImageWorkerFragment;
@@ -94,38 +94,38 @@ public class ProfilePicFragment extends Fragment implements FinishableEvent, IHa
 	
 	private Runnable failedRunnable = new Runnable()
 	{
-		
+
 		@Override
 		public void run()
 		{
-			if(isAdded() && isVisible())
+			if (isAdded() && isVisible())
 			{
 				Logger.d(TAG, "inside ImageViewerFragment, onFailed Recv");
 				showErrorState(getString(R.string.photo_dp_save_error));
 			}
 		}
 	};
-	
+
 	private Runnable successRunnable = new Runnable()
 	{
-		
+
 		@Override
 		public void run()
 		{
-			if(isAdded() && isVisible())
+			if (isAdded() && isVisible())
 			{
 				Logger.d(TAG, "inside ImageViewerFragment, onSucecess Recv");
 				updateProgress(90f - mCurrentProgress);
 			}
 		}
 	};
-	
-	public void onActivityCreated(Bundle savedInstanceState) 
+
+	public void onActivityCreated(Bundle savedInstanceState)
 	{
 		super.onActivityCreated(savedInstanceState);
 		hikeUiHandler = new HikeUiHandler(this);
 	};
-	
+
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
 	{
@@ -142,7 +142,7 @@ public class ProfilePicFragment extends Fragment implements FinishableEvent, IHa
 		Bundle bundle = getArguments();
 
 		imagePath = bundle.getString(HikeConstants.HikePhotos.FILENAME);
-		
+
 		origImagePath = bundle.getString(HikeConstants.HikePhotos.ORIG_FILE);
 		
 		if(savedInstanceState != null)
@@ -221,7 +221,7 @@ public class ProfilePicFragment extends Fragment implements FinishableEvent, IHa
 		}
 		
 		mUploadStatus = UPLOAD_INPROGRESS;
-		
+
 		changeTextWithAnimation(text1, getString(R.string.photo_dp_saving));
 
 		changeTextWithAnimation(text2, "");
@@ -252,8 +252,7 @@ public class ProfilePicFragment extends Fragment implements FinishableEvent, IHa
 			final byte[] bytes = BitmapUtils.bitmapToBytes(smallerBitmap, Bitmap.CompressFormat.JPEG, 100);
 
 			// User info is saved in shared preferences
-			SharedPreferences preferences = HikeMessengerApp.getInstance().getApplicationContext()
-					.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, Context.MODE_PRIVATE);
+			SharedPreferences preferences = HikeMessengerApp.getInstance().getApplicationContext().getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, Context.MODE_PRIVATE);
 
 			ContactInfo userInfo = Utils.getUserContactInfo(preferences);
 
@@ -272,7 +271,7 @@ public class ProfilePicFragment extends Fragment implements FinishableEvent, IHa
     	mImageWorkerFragment.setTaskCallbacks(this);
         mImageWorkerFragment.startUpLoadingTask();
 	}
-	
+
 	private void updateProgressUniformly(final float total, final float interval)
 	{
 		if (total <= 0.0f || mUploadStatus == UPLOAD_FAILED || mCurrentProgress >= 100)
@@ -348,7 +347,7 @@ public class ProfilePicFragment extends Fragment implements FinishableEvent, IHa
 		}
 
 	}
-	
+
 	private Runnable timelineLauncherRunnable = new Runnable()
 	{
 		@Override
@@ -366,7 +365,7 @@ public class ProfilePicFragment extends Fragment implements FinishableEvent, IHa
 					if (isAdded() && mUploadStatus == UPLOAD_COMPLETE && isResumed())
 					{
 						Intent in = new Intent(getActivity(), TimelineActivity.class);
-						in.putExtra(HikeConstants.HikePhotos.FROM_DP_UPLOAD, true);
+						in.putExtra(HikeConstants.HikePhotos.HOME_ON_BACK_PRESS, true);
 						getActivity().startActivity(in);
 						getActivity().finish();
 					}
@@ -477,7 +476,7 @@ public class ProfilePicFragment extends Fragment implements FinishableEvent, IHa
 
 		}
 	}
-	
+
 	@Override
 	public void onResume()
 	{
@@ -496,24 +495,6 @@ public class ProfilePicFragment extends Fragment implements FinishableEvent, IHa
 	}
 
 	@Override
-	public void onProgressUpdate(float percent)
-	{
-		
-	}
-
-	@Override
-	public void onCancelled()
-	{
-		
-	}
-
-	@Override
-	public void onFailed()
-	{
-		hikeUiHandler.post(failedRunnable);
-	}
-
-	@Override
 	public void onSaveInstanceState(Bundle outState)
 	{
 		outState.putByte(UPLOAD_STATUS_KEY, mUploadStatus);
@@ -524,15 +505,14 @@ public class ProfilePicFragment extends Fragment implements FinishableEvent, IHa
 	public void onSuccess(Response result)
 	{
 		// User info is saved in shared preferences
-		SharedPreferences preferences = HikeMessengerApp.getInstance().getApplicationContext()
-				.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, Context.MODE_PRIVATE);
+		SharedPreferences preferences = HikeMessengerApp.getInstance().getApplicationContext().getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, Context.MODE_PRIVATE);
 
 		ContactInfo userInfo = Utils.getUserContactInfo(preferences);
 
 		String mLocalMSISDN = userInfo.getMsisdn();
 
 		JSONObject response = (JSONObject) result.getBody().getContent();
-		
+
 		StatusMessage statusMessage = Utils.createTimelinePostForDPChange(response, true);
 
 		Utils.incrementUnseenStatusCount();
@@ -548,9 +528,9 @@ public class ProfilePicFragment extends Fragment implements FinishableEvent, IHa
 		}
 
 		HikeMessengerApp.getLruCache().clearIconForMSISDN(mLocalMSISDN);
-		
+
 		HikeMessengerApp.getPubSub().publish(HikePubSub.ICON_CHANGED, mLocalMSISDN);
-		
+
 		hikeUiHandler.post(successRunnable);
 	}
 
@@ -558,7 +538,7 @@ public class ProfilePicFragment extends Fragment implements FinishableEvent, IHa
 	public void handleUIMessage(Message msg)
 	{
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
@@ -573,5 +553,25 @@ public class ProfilePicFragment extends Fragment implements FinishableEvent, IHa
 				showStaleState(getString(R.string.task_already_running));
 			}
 		});
+	}
+
+	@Override
+	public void onProgressUpdate(float percent)
+	{
+		// Do nothing
+		
+	}
+
+	@Override
+	public void onCancelled()
+	{
+		// Do nothing
+		
+	}
+
+	@Override
+	public void onFailed()
+	{
+		hikeUiHandler.post(failedRunnable);		
 	}
 }

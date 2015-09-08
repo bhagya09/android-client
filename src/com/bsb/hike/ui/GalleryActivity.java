@@ -64,6 +64,8 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 
 	public static final int GALLERY_ACTIVITY_RESULT_CODE = 97;
 	
+	public static final int GALLERY_CROP_IMAGE = 64;
+	
 	public static final int GALLERY_ALLOW_MULTISELECT = 32;
 	
 	public static final int GALLERY_CATEGORIZE_BY_FOLDERS = 16;
@@ -130,6 +132,8 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 	private boolean editEnabled;
 	
 	private ArrayList<String> editedImages;
+	
+	public static final String GALLERY_RESULT_ACTION = "gal_res_act";
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -366,20 +370,7 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 			Logger.d(GalleryActivity.class.getSimpleName(), "onCreate() filePath: empty " + filePath);
 			return false;
 		}
-		
-		File mediafile = new File(filePath);
-		if (!mediafile.exists())
-		{
-			Logger.d(GalleryActivity.class.getSimpleName(), "onCreate() filePath: does not exist " + filePath);
-			return false;
-		}
-		
-		String dirPath = mediafile.getParent();
-		if(dirPath == null)
-		{
-			return false;
-		}
-		
+
 		if(editEnabled && isImageEdited(filePath))
 		{
 			//Skipping this file since this is a temp file created by multi-edit 
@@ -549,15 +540,7 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 		actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
 		actionBarView = LayoutInflater.from(this).inflate(R.layout.photos_action_bar, null);
 		actionBarView.setBackgroundResource(android.R.color.transparent);
-		actionBarView.findViewById(R.id.back).setOnClickListener(new OnClickListener()
-		{
-			@Override
-			public void onClick(View v)
-			{
-				onBackPressed();
-			}
-		});
-
+	
 		TextView titleView = (TextView) actionBarView.findViewById(R.id.title);
 
 		titleView.setText(getString(R.string.photo_gallery_choose_pic));
@@ -617,7 +600,7 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 				{
 					//since sendResult is active when we need to send result to selection viewer
 					intent.putParcelableArrayListExtra(HikeConstants.Extras.GALLERY_SELECTIONS, selectedGalleryItems);
-					setResult(RESULT_OK, intent);
+					setGalleryResult(RESULT_OK, intent);
 					finish();
 				}
 				else
@@ -683,7 +666,7 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 			previousEventTime = currTime;
 		}
 	}
-
+	
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data)
 	{
@@ -693,7 +676,7 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 			switch(requestCode)
 			{
 			case GALLERY_ACTIVITY_RESULT_CODE:
-				setResult(RESULT_OK, data.putExtras(getIntent().getExtras()));
+				setGalleryResult(RESULT_OK, data.putExtras(getIntent().getExtras()));
 				finish();
 				break;
 			case HikeConstants.CAMERA_RESULT:
@@ -726,7 +709,7 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 				else if(isStartedForResult())
 				{
 					intent.putParcelableArrayListExtra(HikeConstants.Extras.GALLERY_SELECTIONS, item);
-					setResult(RESULT_OK, intent);
+					setGalleryResult(RESULT_OK, intent);
 					finish();
 				}
 				else
@@ -745,6 +728,16 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 		adapter.setIsListFlinging(velocity > HikeConstants.MAX_VELOCITY_FOR_LOADING_IMAGES && scrollState == OnScrollListener.SCROLL_STATE_FLING);
 	}
 
+	public void setGalleryResult(int resultCode,Intent data)
+	{
+		//setting gallery result action if action is not already set for the data
+		if(data.getAction() == null)
+		{
+			data.setAction(GALLERY_RESULT_ACTION);
+		}
+		setResult(resultCode,data);
+	}
+	
 	@Override
 	public void onItemClick(TwoWayAdapterView<?> adapterView, View view, int position, long id)
 	{
@@ -863,7 +856,7 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 				else if (isStartedForResult())
 				{
 					intent.putParcelableArrayListExtra(HikeConstants.Extras.GALLERY_SELECTIONS, item);
-					setResult(RESULT_OK, intent);
+					setGalleryResult(RESULT_OK, intent);
 					finish();
 				}
 				else

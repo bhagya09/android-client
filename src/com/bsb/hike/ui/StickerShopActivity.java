@@ -84,20 +84,10 @@ public class StickerShopActivity extends HikeAppStateBaseFragmentActivity
 
 		View actionBarView = getLayoutInflater().inflate(R.layout.sticker_shop_action_bar, null);
 
-		View backContainer = actionBarView.findViewById(R.id.back);
 		View stickerSettingsBtn = actionBarView.findViewById(R.id.sticker_settings_btn);
 
 		TextView title = (TextView) actionBarView.findViewById(R.id.title);
 		title.setText(R.string.sticker_shop);
-
-		backContainer.setOnClickListener(new OnClickListener()
-		{
-			@Override
-			public void onClick(View v)
-			{
-				finish();
-			}
-		});
 
 		stickerSettingsBtn.setOnClickListener(new OnClickListener()
 		{
@@ -123,6 +113,13 @@ public class StickerShopActivity extends HikeAppStateBaseFragmentActivity
 		actionBar.setCustomView(actionBarView);
 		Toolbar parent=(Toolbar)actionBarView.getParent();
 		parent.setContentInsetsAbsolute(0,0);
+	}
+
+	@Override
+	public void onBackPressed()
+	{
+		// TODO Auto-generated method stub
+		finish();
 	}
 
 }

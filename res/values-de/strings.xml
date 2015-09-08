@@ -845,10 +845,9 @@
     <string name="last_seen_proper_casing">Zuletzt online</string>
     <string name="status_updates_proper_casing">Statusmeldungen</string>
     <string name="bigger_better_attachments">Größere Anhänge, mehr Dateiformate</string>
-    <string name="alp_42447968_cmd_confirm">Bestätigen</string>
-    <string name="alp_42447968_cmd_continue">Weiter</string>
+    <string name="CONFIRM">BESTÄTIGEN</string>
+    <string name="CONTINUE">WEITER</string>
     <string name="alp_42447968_cmd_forgot_pattern">Muster vergessen?</string>
-    <string name="alp_42447968_cmd_retry">Erneut versuchen</string>
     <string name="alp_42447968_loading">Lädt...</string>
     <string name="alp_42447968_lockscreen_access_pattern_cell_added">Handy hinzugefügt</string>
     <string name="alp_42447968_lockscreen_access_pattern_cleared">Muster gelöscht</string>
@@ -898,7 +897,6 @@
     <string name="vib_default_key">Standard</string>
     <string name="vib_short_key">Kurz</string>
     <string name="vib_long_key">Lang</string>
-    <string name="delete_account_heading">DURCH LÖSCHEN DEINES KONTOS WERDEN</string>
     <string name="chat_unmarked_stealth_first">Du hast einen Chat als sichtbar markiert. Jetzt kann ihn jeder sehen, der hike öffnet.</string>
     <string name="tickSoundTitle">Unterhaltungstöne</string>
     <string name="tickSoundSummary">Klang für eingehende und ausgehende Nachrichten abspielen</string>
@@ -921,7 +919,6 @@
     <string name="delete_account_msg">hike Konto löschen</string>
     <string name="unlink_confirmation">Willst du dein Konto wirklich zurücksetzen?</string>
     <string name="unlinking_account">Konto wird zurückgesetzt...</string>
-    <string name="delete_confirm_msg_1">Damit werden all deine Nachrichten, Frei-SMS und jegliche hike-Belohnungen gelöscht.</string>
     <string name="shortcut">Shortcut für Unterhaltung hinzufügen</string>
     <string name="add_to_contacts">Zu Kontakten hinzufügen.</string>
     <string name="delete_leave">Gruppe löschen und verlassen</string>
@@ -1194,12 +1191,11 @@
     <string name="sticker_shop">Sticker Shop</string>
     <string name="my_stickers">Meine Sticker</string>
     <string name="update_all">ALLE AKTUALISIEREN</string>
-    <string name="retry_sticker">ERNEUT VERSUCHEN</string>
+    <string name="RETRY">ERNEUT VERSUCHEN</string>
     <string name="see_them">FERTIG</string>
     <string name="drag_tip_text">Tippe ein Paket an und halte es gedrückt, um deine Stickerpakete neu zu sortieren</string>
     <string name="drag_tip_subtext">Tippe und ziehe, um deine Sticker umzusortieren</string>
     <string name="CANCEL">ABBRECHEN</string>
-    <string name="CONFIRM">BESTÄTIGEN</string>
     <string name="n_more">%1$d MEHR</string>
     <string name="n_stickers">%1$d Sticker</string>
     <string name="last_backup">Letzte Datensicherung</string>
@@ -1247,7 +1243,6 @@
     <string name="action_settings">Einstellungen</string>
     <string name="creating_backup_message">Es wird eine Datensicherung deines Kontos erstellt. Die tägliche Datensicherung erfolgt um 3 Uhr. </string>
     <string name="restore">Wiederherstellen</string>
-    <string name="delete_account_description">Lösche alle Nachrichten, sichere deine Daten, sende Gratis-SMS und erhalte Belohnungen.</string>
     <string name="auth_connected_to_hike">%1$s ist jetzt mit hike verbunden!</string>
     <string name="auth_state_connecting">Verbinden...</string>
     <string name="auth_please_wait_connect">Bitte warten. Wir verbinden dich...</string>

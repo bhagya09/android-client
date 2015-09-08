@@ -15,6 +15,7 @@ import java.util.Set;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.animation.ObjectAnimator;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -111,7 +112,6 @@ import com.bsb.hike.utils.PairModified;
 import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.HoloCircularProgress;
-import com.nineoldandroids.animation.ObjectAnimator;
 
 public class ConversationFragment extends ListFragment implements OnItemLongClickListener, Listener, OnScrollListener, HikeFragmentable, OnClickListener, ConversationTipClickedListener, FilterListener
 {
@@ -397,7 +397,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 		if (mmSelectFriends.isModuleToggle())
 		{
 			llChatReward.setOnClickListener(null);
-		
+			chatProgress.setText(NUXManager.getInstance().getNuxChatRewardPojo().getDetailsText());
 			setFooterHalfOpen();
 		}
 
@@ -434,9 +434,14 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 		
 			if(footerState.getEnum()==footerState.HALFOPEN)
 			{
-				
-			
-			chatProgress.setText(String.format(mmReward.getStatusText(), mmNuxManager.getCountUnlockedContacts(), mmDetails.getMin()));
+				if (mmSelectFriends.isModuleToggle())
+				{
+					chatProgress.setText(mmReward.getDetailsText());
+				}
+				else
+				{
+					chatProgress.setText(String.format(mmReward.getStatusText(), mmNuxManager.getCountUnlockedContacts(), mmDetails.getMin()));
+				}
 			}
 			else
 			{
@@ -600,7 +605,14 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 				
 				if(mmNuxManager.getCurrentState() == NUXConstants.NUX_SKIPPED || mmNuxManager.getCurrentState() == NUXConstants.NUX_IS_ACTIVE)
 				{
-					chatProgress.setText(String.format(mmReward.getStatusText(), mmNuxManager.getCountUnlockedContacts(), mmDetails.getMin()));
+					if(NUXManager.getInstance().getNuxSelectFriendsPojo().isModuleToggle())
+					{
+						chatProgress.setText(mmReward.getDetailsText());
+					}
+					else
+					{
+						chatProgress.setText(String.format(mmReward.getStatusText(), mmNuxManager.getCountUnlockedContacts(), mmDetails.getMin()));
+					}
 					progressNux.setProgress(NUXManager.getInstance().getCountUnlockedContacts() / mmDetails.getMin());
 				}
 				if (Utils.isHoneycombOrHigher())
@@ -713,7 +725,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 				}
 			}
 
-			else if (footerState.getEnum() == footerState.OPEN)
+			else if (footerState.getEnum() == footerState.OPEN || (footerState.getEnum() == footerState.HALFOPEN && NUXManager.getInstance().getNuxSelectFriendsPojo().isModuleToggle()))
 			{
 				if ((!TextUtils.isEmpty(mmReward.getDetailsLink())))
 				{
@@ -1267,7 +1279,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 						optionsList.add(getString(R.string.delete_block));
 
 					if (botConfig.isDeleteEnabled())
-						optionsList.add(getString(R.string.DELETE));
+						optionsList.add(getString(R.string.delete));
         		}
         		
         	}
@@ -1563,7 +1575,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 					onAddShortcutClicked(conv);
 				}
 				
-				else if (getString(R.string.DELETE).equals(option))
+				else if (getString(R.string.delete).equals(option))
 				{
 					onDeleteBotClicked(conv, false);
 				}
@@ -2066,7 +2078,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 						 */
 						movedFromEmptyToNonEmpty();
 					}
-					else if(displayedConversations.size() == 2)
+					else if(displayedConversations.size() == 4)
 					{
 						StealthModeManager.getInstance().setTipVisibility(true, ConversationTip.STEALTH_INFO_TIP);
 					}
@@ -3202,7 +3214,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 			{
 				movedFromEmptyToNonEmpty();
 			}
-			else if (displayedConversations.size() == 3)
+			else if (displayedConversations.size() == 5)
 			{
 				StealthModeManager.getInstance().setTipVisibility(true, ConversationTip.STEALTH_INFO_TIP);
 			}

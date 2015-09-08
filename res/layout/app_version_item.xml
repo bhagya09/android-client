@@ -5,8 +5,6 @@
     android:gravity="center_horizontal"
     android:orientation="vertical" >
 
-    
-    
     <LinearLayout
         android:id="@+id/ll_commitId_branch_version"
         android:layout_width="match_parent"
@@ -63,17 +61,19 @@
         android:id="@+id/app_version"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/version_item_marginTop"
+        android:layout_marginTop="36dp"
         android:text="@string/app_version"
-        android:textColor="@color/standard_black"
+        style="@style/BaseStyleTextView"
+        android:textStyle="normal"
+        android:textColor="#3d475b"
         android:textSize="12sp" />
 
     <ImageView
         android:id="@+id/with_love"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/version_item_marginBottom"
-        android:layout_marginTop="3dp"
+        android:layout_marginBottom="36dp"
+        android:layout_marginTop="8dp"
         android:src="@drawable/with_love" />
 
 </LinearLayout>

@@ -7,7 +7,7 @@
         android:orderingFromXml="true"
         android:selectable="false"
         android:layout="@layout/settings_section_header"
-        android:title="@string/hidden_mode" >
+        android:title="@string/HIDDEN_MODE" >
         
         <com.bsb.hike.view.IconPreference
             android:key="stealthModeSettings"
