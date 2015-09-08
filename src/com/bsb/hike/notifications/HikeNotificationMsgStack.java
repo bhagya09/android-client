@@ -325,29 +325,27 @@ public class HikeNotificationMsgStack implements Listener
 		{
 			mNotificationIntent = Utils.getTimelineActivityIntent(mContext, true);
 		}
+		else if (containsStealthMessage())
+		{
+			mNotificationIntent = new Intent(mContext, HomeActivity.class);
+			mNotificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		}
 		else
 		{
-			// If new messages belong to different users/groups, redirect the user
-			// to conversations list
-			if (!isFromSingleMsisdn() || containsStealthMessage())
+			// If new messages belong to different users/groups
+			if (!isFromSingleMsisdn())
 			{
-				//Contains any stealth message
-				if (containsStealthMessage())
-				{
-					mNotificationIntent = new Intent(mContext, HomeActivity.class);
-					mNotificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-				}
-				//Multiple msisdn, but only of type su,imagepost,activity,dp
-				else if (uniqueNotifTypes.containsOnly(new int[] { NotificationType.STATUSUPDATE, NotificationType.IMAGE_POST, NotificationType.DPUPDATE,
+				// Multiple msisdn, but only of type su,imagepost,activity,dp
+				if (uniqueNotifTypes.containsOnly(new int[] { NotificationType.STATUSUPDATE, NotificationType.IMAGE_POST, NotificationType.DPUPDATE,
 						NotificationType.ACTIVITYUPDATE }))
 				{
-					//General timeline
+					// General timeline
 					mNotificationIntent = Utils.getTimelineActivityIntent(mContext, false);
 				}
 				else
 				{
-					//Multiple msisdn, mixed types
-					//Home activity
+					// Multiple msisdn, mixed types
+					// Home activity
 					mNotificationIntent = new Intent(mContext, HomeActivity.class);
 					mNotificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 				}
@@ -355,7 +353,7 @@ public class HikeNotificationMsgStack implements Listener
 			// if all the new messages belong to a single user/group
 			else
 			{
-				//Single msisdn, but only of type su,image post,activity,dp
+				// Single msisdn, but only of type su,image post,activity,dp
 				if (uniqueNotifTypes.containsOnly(new int[] { NotificationType.STATUSUPDATE, NotificationType.IMAGE_POST, NotificationType.DPUPDATE,
 						NotificationType.ACTIVITYUPDATE }))
 				{
@@ -363,18 +361,18 @@ public class HikeNotificationMsgStack implements Listener
 				}
 				else if (lastAddedMsisdn.equals(mContext.getString(R.string.app_name)))
 				{
-					//Single msisdn, from hike team
+					// Single msisdn, from hike team
 					mNotificationIntent = new Intent(mContext, HomeActivity.class);
 					mNotificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 				}
 				else if (BotUtils.isBot(lastAddedMsisdn))
 				{
-					//Single msisdn, bot
+					// Single msisdn, bot
 					mNotificationIntent = getIntentForBots(mContext, lastAddedMsisdn);
 				}
 				else
 				{
-					//Single msisdn, mixed notification types
+					// Single msisdn, mixed notification types
 					mNotificationIntent = IntentFactory.createChatThreadIntentFromMsisdn(mContext, lastAddedMsisdn, false, false);
 				}
 			}
