@@ -4793,6 +4793,107 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 	{
 		return getStatusMessages(timelineUpdatesOnly, -1, -1, msisdnList);
 	}
+	
+	public List<StatusMessage> getStatusMessages(boolean timelineUpdatesOnly, int limit, int[] types)
+	{
+		if (types == null || types.length == 0)
+		{
+			return null;
+		}
+
+		String[] columns = new String[] { DBConstants.STATUS_ID, DBConstants.STATUS_MAPPED_ID, DBConstants.MSISDN, DBConstants.STATUS_TEXT, DBConstants.STATUS_TYPE,
+				DBConstants.TIMESTAMP, DBConstants.MOOD_ID, DBConstants.TIME_OF_DAY, DBConstants.FILE_KEY };
+
+		StringBuilder selection = new StringBuilder();
+
+		StringBuilder typeSelection = new StringBuilder("(");
+		for (int type : types)
+		{
+			typeSelection.append(DatabaseUtils.sqlEscapeString(Integer.toString(type)) + ",");
+		}
+		typeSelection.replace(typeSelection.lastIndexOf(","), typeSelection.length(), ")");
+
+		if (!TextUtils.isEmpty(typeSelection))
+		{
+			selection.append(DBConstants.STATUS_TYPE + " IN " + typeSelection.toString() + (timelineUpdatesOnly ? " AND " : ""));
+		}
+
+		if (timelineUpdatesOnly)
+		{
+			selection.append(DBConstants.SHOW_IN_TIMELINE + " =1 ");
+		}
+
+		String orderBy = DBConstants.STATUS_ID + " DESC ";
+
+		if (limit != -1)
+		{
+			orderBy += "LIMIT " + limit;
+		}
+
+		Cursor c = null;
+		try
+		{
+			c = mDb.query(DBConstants.STATUS_TABLE, columns, selection.toString(), null, null, null, orderBy);
+
+			List<StatusMessage> statusMessages = new ArrayList<StatusMessage>(c.getCount());
+			Map<String, List<StatusMessage>> statusMessagesMap = new HashMap<String, List<StatusMessage>>();
+
+			int idIdx = c.getColumnIndex(DBConstants.STATUS_ID);
+			int mappedIdIdx = c.getColumnIndex(DBConstants.STATUS_MAPPED_ID);
+			int msisdnIdx = c.getColumnIndex(DBConstants.MSISDN);
+			int textIdx = c.getColumnIndex(DBConstants.STATUS_TEXT);
+			int typeIdx = c.getColumnIndex(DBConstants.STATUS_TYPE);
+			int tsIdx = c.getColumnIndex(DBConstants.TIMESTAMP);
+			int moodIdIdx = c.getColumnIndex(DBConstants.MOOD_ID);
+			int timeOfDayIdx = c.getColumnIndex(DBConstants.TIME_OF_DAY);
+			int fileKeyIdx = c.getColumnIndex(DBConstants.FILE_KEY);
+
+			List<String> msisdns = new ArrayList<String>();
+
+			while (c.moveToNext())
+			{
+				String msisdn = c.getString(msisdnIdx);
+
+				StatusMessage statusMessage = new StatusMessage(c.getLong(idIdx), c.getString(mappedIdIdx), msisdn, null, c.getString(textIdx),
+						StatusMessageType.values()[c.getInt(typeIdx)], c.getLong(tsIdx), c.getInt(moodIdIdx), c.getInt(timeOfDayIdx), c.getString(fileKeyIdx));
+				statusMessages.add(statusMessage);
+
+				List<StatusMessage> msisdnMessages = statusMessagesMap.get(msisdn);
+				if (msisdnMessages == null)
+				{
+					msisdns.add(msisdn);
+					msisdnMessages = new ArrayList<StatusMessage>();
+					statusMessagesMap.put(msisdn, msisdnMessages);
+				}
+				msisdnMessages.add(statusMessage);
+			}
+			if (msisdns.size() > 0)
+			{
+				List<ContactInfo> contactList = ContactManager.getInstance().getContact(msisdns, true, true);
+
+				for (ContactInfo contactInfo : contactList)
+				{
+					List<StatusMessage> msisdnMessages = statusMessagesMap.get(contactInfo.getMsisdn());
+					if (msisdnMessages != null)
+					{
+						for (StatusMessage statusMessage : msisdnMessages)
+						{
+							statusMessage.setName(contactInfo.getName());
+						}
+					}
+				}
+			}
+
+			return statusMessages;
+		}
+		finally
+		{
+			if (c != null)
+			{
+				c.close();
+			}
+		}
+	}
 
 	public List<StatusMessage> getStatusMessages(boolean timelineUpdatesOnly, int limit, int lastStatusId, String... msisdnList)
 	{

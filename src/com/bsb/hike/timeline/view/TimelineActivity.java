@@ -48,6 +48,7 @@ import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.media.OverFlowMenuItem;
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
+import com.bsb.hike.timeline.TimelineResourceCleaner;
 import com.bsb.hike.timeline.adapter.ActivityFeedCursorAdapter;
 import com.bsb.hike.ui.PeopleActivity;
 import com.bsb.hike.ui.ProfileActivity;
@@ -539,6 +540,7 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 	protected void onDestroy()
 	{
 		HikeMessengerApp.getPubSub().removeListeners(this, homePubSubListeners);
+		HikeHandlerUtil.getInstance().postRunnable(TimelineResourceCleaner.getInstance());
 		super.onDestroy();
 	}
 
