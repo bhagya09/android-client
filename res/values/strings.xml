@@ -1667,4 +1667,5 @@
     <string name="invite_share_message">Hey, check out hike messenger. It has awesome stickers in our language! Join the only made in India messaging app- Download at http://hike.in/$invite_token</string>
     <string name="action_no_network">Please check network</string>
     <string name="timeline_transition_anim">timeline_image_transit</string>
+    <string name="home_overflow_new_photo">New Photo</string>
 </resources>
