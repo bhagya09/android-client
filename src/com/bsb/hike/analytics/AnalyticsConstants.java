@@ -226,6 +226,8 @@ public class AnalyticsConstants
 	}
 	
 	public static final String STICKER_PALLETE = "stkp";
+	
+	public static final String STICKER_SEARCH = "stks";
 
 	public static final class MessageType
 	{

@@ -79,6 +79,7 @@ int bSpline[256];
 int compositeSpline[256];
 int isThumbnail,imageHeight,imageWidth;
 int r[3],g[3],b[3];
+uchar4 ret ={ 0 , 0 , 0 , 0 }; 
 
 float preMatrix[20],postMatrix[20];
 
@@ -187,7 +188,6 @@ uchar4 static applyColorMatrix(uchar4 in, float matrix[])
 
 uchar4 static getPixelForColor(int a, int r, int g, int b)
 {
-	uchar4 ret ={ 0 , 0 , 0 , 0 };
 	ret.a = a;
 	ret.r = r;
 	ret.g = g;
