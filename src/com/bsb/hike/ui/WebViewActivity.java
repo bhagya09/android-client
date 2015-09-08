@@ -3,7 +3,6 @@ package com.bsb.hike.ui;
 import java.util.ArrayList;
 import java.util.List;
 
-import android.net.ParseException;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -17,6 +16,7 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.MailTo;
+import android.net.ParseException;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -62,6 +62,7 @@ import com.bsb.hike.media.TagPicker.TagOnClickListener;
 import com.bsb.hike.models.WhitelistDomain;
 import com.bsb.hike.platform.CustomWebView;
 import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.bridge.IBridgeCallback;
 import com.bsb.hike.platform.bridge.NonMessagingJavaScriptBridge;
 import com.bsb.hike.platform.content.HikeWebClient;
@@ -162,6 +163,8 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		}
 		
 		super.onCreate(savedInstanceState);
+		checkForWebViewPackageInstalled();
+		
 		setContentView(R.layout.webview_activity);
 		initView();	
 		initActionBar();
@@ -537,7 +540,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		intent.putExtra(Intent.EXTRA_EMAIL, new String[] { address });
 		intent.putExtra(Intent.EXTRA_TEXT, body);
 		intent.putExtra(Intent.EXTRA_SUBJECT, subject);
-		intent.putExtra(Intent.EXTRA_CC, cc);
+		intent.putExtra(Intent.EXTRA_CC, new String[] {cc});
 		intent.setType("message/rfc822");
 		return intent;
 	}
@@ -550,7 +553,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 			initActionBar();
 		}
 		
-		if (mode == MICRO_APP_MODE && mActionBar != null)
+		if ((mode == MICRO_APP_MODE || mode == WEB_URL_BOT_MODE) && mActionBar != null)
 		{
 			List<OverFlowMenuItem> menuItemsList = getOverflowMenuItems();
 			mActionBar.onCreateOptionsMenu(menu, R.menu.simple_overflow_menu, menuItemsList, this, this);
@@ -697,6 +700,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		setMicroAppStatusBarColor();
 		
 		setAvatar();
+		
 	}
 	
 	private void setupWebURLWithBridgeActionBar(String title, int color, int statusBarColor)
@@ -932,7 +936,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	{
 		super.onPause();
 		//Logging MicroApp Screen closing for bot case
-		if (mode == MICRO_APP_MODE)
+		if (mode == MICRO_APP_MODE || mode == WEB_URL_BOT_MODE)
 		{
 			HAManager.getInstance().endChatSession(msisdn);
 		}
@@ -943,7 +947,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	{
 		super.onResume();
 		//Logging MicroApp Screen opening for bot case
-		if (mode == MICRO_APP_MODE)
+		if (mode == MICRO_APP_MODE || mode == WEB_URL_BOT_MODE)
 		{
 			HAManager.getInstance().startChatSession(msisdn);
 		}
@@ -1177,5 +1181,40 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		StatusBarColorChanger.setStatusBarColor(getWindow(), sbColor);
 	}
 
+
+	/**
+	 * To prevent package name not found exception we check whether webview package is installed or not in Android L+.
+	 * Check this for more info : 
+	 * 
+	 * https://code.google.com/p/chromium/issues/detail?id=506369
+	 * 
+	 */
+	private void checkForWebViewPackageInstalled()
+	{
+		if (Utils.isLollipopOrHigher())
+		{
+			if (!Utils.appInstalledOrNot(getApplicationContext(), "com.google.android.webview"))
+			{
+				Toast.makeText(getApplicationContext(), R.string.some_error, Toast.LENGTH_LONG).show();
+				PlatformUtils.sendPlatformCrashAnalytics("PackageManager.NameNotFoundException", msisdn);
+				this.finish();
+			}
+		}
+	}
+
+	@Override
+	public void changeActionBarColor(String color)
+	{
+		try
+		{
+			int abColor = Color.parseColor(color);
+			updateActionBarColor(new ColorDrawable(abColor));
+		}
+
+		catch (IllegalArgumentException e)
+		{
+			Logger.e(tag, "Seems like you passed the wrong color");
+		}
+	}
 
 }

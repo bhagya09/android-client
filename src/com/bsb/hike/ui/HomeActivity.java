@@ -412,18 +412,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			showAppropriateDialog();
 		}
 
-		if (dialogShowing == null)
-		{
-			if (!accountPrefs.getBoolean(HikeMessengerApp.SHOWN_SMS_CLIENT_POPUP, true))
-			{
-				showSMSClientDialog();
-			}
-			else if (accountPrefs.getBoolean(HikeMessengerApp.SHOW_FREE_INVITE_POPUP, false))
-			{
-				showFreeInviteDialog();
-			}
-		}
-
 		HikeMessengerApp.getPubSub().addListeners(this, homePubSubListeners);
 
 		GetFTUEContactsTask getFTUEContactsTask = new GetFTUEContactsTask();
@@ -548,7 +536,23 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			MenuItemCompat.getActionView(searchMenuItem).clearFocus();
 			MenuItemCompat.collapseActionView(searchMenuItem);
 		}
+			
 		showProductPopup(ProductPopupsConstants.PopupTriggerPoints.HOME_SCREEN.ordinal());
+	}
+
+	private void showSmsOrFreeInvitePopup()
+	{
+		if (dialogShowing == null)
+		{
+			if (!accountPrefs.getBoolean(HikeMessengerApp.SHOWN_SMS_CLIENT_POPUP, true))
+			{
+				showSMSClientDialog();
+			}
+			else if (accountPrefs.getBoolean(HikeMessengerApp.SHOW_FREE_INVITE_POPUP, false))
+			{
+				showFreeInviteDialog();
+			}
+		}
 	}
 
 	@Override
@@ -883,7 +887,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 		if (image != null)
 		{
-			image.setImageResource(!showingRewardsPopup ? R.drawable.ic_free_sms_default : R.drawable.ic_free_sms_rewards);
+			image.setImageResource(!showingRewardsPopup ? R.drawable.ic_free_sms_default : R.drawable.ftue_card_invite_img_small);
 		}
 
 		okBtn.setOnClickListener(new OnClickListener()
@@ -973,6 +977,9 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_INDICATOR, null);
 		}
 		checkNShowNetworkError();
+		
+		showSmsOrFreeInvitePopup();
+	
 		HikeMessengerApp.getPubSub().publish(HikePubSub.CANCEL_ALL_NOTIFICATIONS, null);
 	}
 

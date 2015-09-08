@@ -398,7 +398,6 @@ public class VoIPService extends Service {
 		});
 
 		startConnectionTimeoutThread();
-		startBluetooth();
 		registerBroadcastReceivers();
 	}
 	
@@ -411,6 +410,7 @@ public class VoIPService extends Service {
 		
 		if (bluetoothHelper != null) {
 			bluetoothHelper.stop();
+			bluetoothHelper = null;
 		}
 		
 		if (tts != null) {
@@ -697,6 +697,7 @@ public class VoIPService extends Service {
 			// Show activity
 			restoreActivity();
 			sendHandlerMessage(VoIPConstants.MSG_UPDATE_CONTACT_DETAILS);
+			startBluetooth();
 			
 			if (clients.size() > 1)
 				sendHandlerMessage(VoIPConstants.MSG_UPDATE_FORCE_MUTE_LAYOUT);
@@ -953,6 +954,7 @@ public class VoIPService extends Service {
 		.setContentTitle(title)
 		.setContentText(text)
 		.setSmallIcon(HikeNotification.getInstance().returnSmallIcon())
+		.setColor(getResources().getColor(R.color.blue_hike_m))
 		.setContentIntent(pendingIntent)
 		.setOngoing(true)
 		.setAutoCancel(true)
@@ -1351,6 +1353,7 @@ public class VoIPService extends Service {
 
 		startRecordingAndPlayback(client.getPhoneNumber());
 		client.sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CALL_ACCEPT);
+		startBluetooth();
 	}
 	
 	private synchronized void startRecordingAndPlayback(String msisdn) {
@@ -1385,14 +1388,13 @@ public class VoIPService extends Service {
 			startRecording();
 			startPlayBack();
 			startChrono();
-			
-			// When a conference participant accepts a call, change their UI
-			// to display all the conference participants
-			if (client.isHostingConference)
-				sendHandlerMessage(VoIPConstants.MSG_UPDATE_SPEAKING);
-
 		} else {
 			Logger.d(tag, "Skipping startRecording() and startPlayBack()");
+		}
+		
+		if (hostingConference()) {
+			sendHandlerMessage(VoIPConstants.MSG_UPDATE_SPEAKING);
+			sendClientsListToAllClients();
 		}
 	}
 	
@@ -2377,7 +2379,7 @@ public class VoIPService extends Service {
 	
 	private void startBluetooth() {
 		isBluetoothEnabled = VoIPUtils.isBluetoothEnabled(getApplicationContext());
-		if (isBluetoothEnabled) {
+		if (isBluetoothEnabled && bluetoothHelper == null) {
 			bluetoothHelper = new BluetoothHelper(getApplicationContext());
 			bluetoothHelper.start();
 		}
