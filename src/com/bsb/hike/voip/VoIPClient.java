@@ -1974,7 +1974,7 @@ public class VoIPClient  {
 		if (speech)
 			dp = new VoIPDataPacket(PacketType.SPEECH_ON);
 		else
-			dp = new VoIPDataPacket(PacketType.SPEECH_ON);
+			dp = new VoIPDataPacket(PacketType.SPEECH_OFF);
 
 		sendPacket(dp, true);
 	}
