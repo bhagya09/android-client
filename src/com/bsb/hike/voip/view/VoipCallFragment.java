@@ -859,17 +859,17 @@ public class VoipCallFragment extends Fragment implements CallActions
 				}
 				break;
 				
-			case HOSTING_CONFERENCE:
-				callDuration.setText("");
-				if (voipService.recordingAndPlaybackRunning) 
-					startCallDuration();
-				break;
-				
 		default:
 			// Logger.w(tag, "Unhandled status: " + status);
 			callDuration.startAnimation(anim);
 			callDuration.setText("");
 			break;
+		}
+		
+		if (voipService.hostingConference()) {
+			callDuration.setText("");
+			if (voipService.recordingAndPlaybackRunning) 
+				startCallDuration();
 		}
 	}
 	

@@ -943,8 +943,6 @@ public class VoIPService extends Service {
 
 			case UNINITIALIZED:
 				return;
-		case HOSTING_CONFERENCE:
-			break;
 		default:
 			break;
 		}
@@ -2161,9 +2159,6 @@ public class VoIPService extends Service {
 	{
 		VoIPClient client = getClient();
 		
-		if (hostingConference())
-			return CallStatus.HOSTING_CONFERENCE;
-		
 		if (client != null)
 			return client.getCallStatus();
 		else
@@ -2288,7 +2283,7 @@ public class VoIPService extends Service {
 								// Add our own client
 								JSONObject clientJson = new JSONObject();
 								clientJson.put(VoIPConstants.Extras.MSISDN, Utils.getUserContactInfo(getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, MODE_PRIVATE)).getMsisdn());
-								clientJson.put(VoIPConstants.Extras.STATUS, CallStatus.HOSTING_CONFERENCE.ordinal());
+								clientJson.put(VoIPConstants.Extras.STATUS, CallStatus.ACTIVE.ordinal());
 								clientJson.put(VoIPConstants.Extras.SPEAKING, speechDetected && !mute);
 								clientsJson.put(clientJson);
 
