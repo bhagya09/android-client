@@ -745,8 +745,6 @@ public class HikeConstants
 	/* the max amount of time we wait for the PIN */
 	public static final int PIN_CAPTURE_TIME = 10 * 1000;
 
-	public static final int CALL_ME_WAIT_TIME = 150 * 1000;
-
 	public static final int NETWORK_ERROR_POP_UP_TIME = 120 * 1000;
 
 	public static final int BACKUP_RESTORE_UI_DELAY = 3 * 1000;
@@ -987,6 +985,13 @@ public class HikeConstants
 	public static final String INDIA_COUNTRY_CODE = "+91";
 
 	public static final String SAUDI_ARABIA_COUNTRY_CODE = "+966";
+	
+	public static final String UAE_COUNTRY_CODE = "+971";
+	
+	// Soudi Arabia, United Arab Emirates, Egypt, Iran, Turkey, Iraq, Yemen, Syria, Israel, Jordan, Palestine, Lebanon, 
+	// Oman, Kuwait, Qatar,	Bahrain, Cyprus
+	public static final String[] SSL_NOT_ALLOWED_COUNTRIES = {SAUDI_ARABIA_COUNTRY_CODE, UAE_COUNTRY_CODE, "+20", "+98", "+90", "+964", "+967", 
+		"+963", "+972", "+962", "+970", "+961", "+968", "+965", "+974", "+973", "+357"};
 
 	public static final int MDPI_TIMES_10 = 11;
 
@@ -3265,5 +3270,7 @@ public class HikeConstants
 	public static final String REFERRAL_EMAIL_TEXT = "ref_mail_txt";
 	
 	public static final String REFERRAL_OTHER_TEXT = "ref_oth_txt";
+	
+	public static final String ALL_STICKER_TAG_DOWNLOAD = "alstktd";
 
 }

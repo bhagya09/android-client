@@ -371,12 +371,20 @@ public class VoIPUtils {
 	
 	public static boolean isConferencingEnabled(Context context) 
 	{
-		boolean conferenceEnabled = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.VOIP_CONFERENCING_ENABLED, true);
+		boolean voipEnabled = Utils.isVoipActivated(context);
+		if (voipEnabled == false)
+			return false;
+		
+		boolean conferenceEnabled = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.VOIP_CONFERENCING_ENABLED, false);
 		return conferenceEnabled;
 	}
 	
 	public static boolean isGroupCallEnabled(Context context) 
 	{
+		boolean voipEnabled = Utils.isVoipActivated(context);
+		if (voipEnabled == false)
+			return false;
+		
 		boolean enabled = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.VOIP_GROUP_CALL_ENABLED, false);
 		return enabled;
 	}
@@ -495,6 +503,9 @@ public class VoIPUtils {
 					subType.equals(HikeConstants.MqttMessageTypes.VOIP_CALL_REQUEST) ||
 					subType.equals(HikeConstants.MqttMessageTypes.VOIP_CALL_REQUEST_RESPONSE) ||
 					subType.equals(HikeConstants.MqttMessageTypes.VOIP_CALL_RESPONSE_RESPONSE)) {
+				
+				if (!Utils.isVoipActivated(context))
+					return;
 				
 				JSONObject metadataJSON = jsonObj.getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA);
 				

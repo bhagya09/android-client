@@ -1628,7 +1628,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	private void setupStickerSearch()
 	{
 		if (!(sharedPreference.getData(HikeConstants.STICKER_RECOMMENDATION_ENABLED, false) && sharedPreference.getData(HikeConstants.STICKER_RECOMMEND_PREF, true))
-				|| (Utils.getExternalStorageState() == ExternalStorageState.NONE))
+				|| (Utils.getExternalStorageState() == ExternalStorageState.NONE) || (HikeMessengerApp.getInstance().getExternalFilesDir(null) == null))
 		{
 			return;
 		}
