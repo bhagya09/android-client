@@ -1056,8 +1056,10 @@ public class VoipCallFragment extends Fragment implements CallActions
 	   		signalStrengthView.setText(getString(R.string.voip_signal_good));
 			break;
 		}
-		signalContainer.startAnimation(anim);
-		signalContainer.setVisibility(View.VISIBLE);
+		
+		// TODO: Signal container will remain invisible. 
+//		signalContainer.startAnimation(anim);
+//		signalContainer.setVisibility(View.VISIBLE);
 	}
 
 	private void startCallRateActivity(Bundle bundle)
