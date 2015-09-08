@@ -32,17 +32,6 @@ public class PlatformHelper
 
 	public static final String TAG = "PlatformHelper";
 
-	public PlatformHelper()
-	{
-		this.mHandler = new Handler(HikeMessengerApp.getInstance().getMainLooper())
-		{
-			public void handleMessage(Message msg)
-			{
-				handleUiMessage(msg);
-			};
-		};
-	}
-
 	protected void handleUiMessage(Message msg)
 	{
 
@@ -214,6 +203,7 @@ public class PlatformHelper
 
 	private static void startComPoseChatActivity(final ConvMessage message, final Activity mContext)
 	{
+		PlatformHelper.mHandler = new Handler(HikeMessengerApp.getInstance().getMainLooper());
 		if (null == mHandler)
 		{
 			return;
