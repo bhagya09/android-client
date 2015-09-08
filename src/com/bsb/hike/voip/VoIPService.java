@@ -37,7 +37,6 @@ import android.media.RingtoneManager;
 import android.media.SoundPool;
 import android.net.Uri;
 import android.os.Binder;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -138,7 +137,6 @@ public class VoIPService extends Service {
 	// Echo cancellation
 	private boolean aecEnabled = true;
 	private SolicallWrapper solicallAec = null;
-	private boolean useVADToReduceData = true;
 	private boolean aecSpeakerSignal = false, aecMicSignal = false;
 	
 	// Buffer queues
@@ -1170,8 +1168,6 @@ public class VoIPService extends Service {
 		Bundle bundle = new Bundle();
 		bundle.putInt(VoIPConstants.CALL_ID, getCallId());
 		bundle.putInt(VoIPConstants.CALL_NETWORK_TYPE, VoIPUtils.getConnectionClass(getApplicationContext()).ordinal());
-		bundle.putString(VoIPConstants.APP_VERSION_NAME, VoIPUtils.getAppVersionName(getApplicationContext()));
-		bundle.putInt(VoIPConstants.OS_VERSION, Build.VERSION.SDK_INT);
 		bundle.putInt(VoIPConstants.CALL_DURATION, getCallDuration());
 		if (clientPartner != null) {
 			bundle.putInt(VoIPConstants.IS_CALL_INITIATOR, clientPartner.isInitiator() ? 0 : 1);
@@ -1561,12 +1557,15 @@ public class VoIPService extends Service {
 					// AEC
 					if (solicallAec != null && aecEnabled && aecMicSignal && aecSpeakerSignal) {
 						int ret = solicallAec.processMic(dpRaw.getData());
-
-						if (useVADToReduceData) {
-							if (ret == 0) 
-								speechDetected = false;
-							else 
-								speechDetected = true;
+						if (ret == 0) {
+							if (speechDetected == true)
+								client.updateLocalSpeech(false);
+							speechDetected = false;
+						}
+						else {
+							if (speechDetected == false)
+								client.updateLocalSpeech(true);
+							speechDetected = true;
 						}
 					} else
 						aecMicSignal = true;
