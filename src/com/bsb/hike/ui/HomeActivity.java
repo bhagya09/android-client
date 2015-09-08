@@ -1695,8 +1695,8 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		optionsList.add(new OverFlowMenuItem(getString(R.string.timeline), 0, 0, R.string.timeline));
 
 		optionsList.add(new OverFlowMenuItem(getString(R.string.invite_friends), 0, 0, R.string.invite_friends));
-
-		if (accountPrefs.getBoolean(HikeMessengerApp.SHOW_GAMES, false))
+	
+		if (accountPrefs.getBoolean(HikeMessengerApp.SHOW_GAMES, false) && !TextUtils.isEmpty((HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.REWARDS_TOKEN, ""))))
 		{
 			String hikeExtrasName = accountPrefs.getString(HikeConstants.HIKE_EXTRAS_NAME, getApplicationContext().getString(R.string.hike_extras));
 					                       
@@ -1706,7 +1706,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			}
 		}
 		
-		if (accountPrefs.getBoolean(HikeMessengerApp.SHOW_REWARDS, false))
+		if (accountPrefs.getBoolean(HikeMessengerApp.SHOW_REWARDS, false) && !TextUtils.isEmpty(HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.REWARDS_TOKEN, "")))
 		{
 			String rewards_name = accountPrefs.getString(HikeConstants.REWARDS_NAME, getApplicationContext().getString(R.string.rewards));
 												
