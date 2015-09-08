@@ -1682,6 +1682,9 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	public void showOverFlowMenu()
 	{
 
+		if (overFlowWindow != null)
+			overFlowWindow.dismiss();
+
 		ArrayList<OverFlowMenuItem> optionsList = new ArrayList<OverFlowMenuItem>();
 
 		final String msisdn = accountPrefs.getString(HikeMessengerApp.MSISDN_SETTING, null);
