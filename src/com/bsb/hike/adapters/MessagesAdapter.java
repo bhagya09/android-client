@@ -1188,7 +1188,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 					}
 				}
 				dayHolder = videoHolder;
-				setSenderDetails(convMessage, position, videoHolder, true);
+				setSenderDetails(convMessage, position, videoHolder, false);
 
 				videoHolder.fileThumb.setBackgroundResource(0);
 				videoHolder.fileThumb.setImageResource(0);
