@@ -508,14 +508,19 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 		}
 	}
 	
-	@Override
-	protected void onPause()
+	protected void pauseKeyboardResources()
 	{
 		if (mCustomKeyboard != null)
 		{
 			mCustomKeyboard.closeAnyDialogIfShowing();
 			mCustomKeyboard.onPause();
 		}
+	}
+	
+	@Override
+	protected void onPause()
+	{
+		pauseKeyboardResources();
 		
 		super.onPause();
 	}

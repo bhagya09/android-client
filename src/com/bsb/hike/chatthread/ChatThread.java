@@ -3897,13 +3897,16 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 	protected abstract String[] getPubSubListeners();
 
-	private void destroyKeyboardResources()
+	protected void destroyKeyboardResources()
 	{
-		mCustomKeyboard.unregister(mComposeView);
+		if (mCustomKeyboard != null)
+		{
+			mCustomKeyboard.unregister(mComposeView);
 
-		mCustomKeyboard.closeAnyDialogIfShowing();
+			mCustomKeyboard.closeAnyDialogIfShowing();
 
-		mCustomKeyboard.destroyCustomKeyboard();
+			mCustomKeyboard.destroyCustomKeyboard();
+		}
 	}
 	
 	/**
@@ -4002,18 +4005,28 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		}
 	}
 
+	protected void pauseKeyboardResources()
+	{
+		if (mCustomKeyboard != null)
+		{
+			mCustomKeyboard.showCustomKeyboard(mComposeView, false);
+			
+			mCustomKeyboard.closeAnyDialogIfShowing();
+			
+			mCustomKeyboard.onPause();
+		}
+	}
+	
 	/**
 	 * Mimics the onPause method of an Activity.
 	 */
 
 	public void onPause()
 	{
+		pauseKeyboardResources();
+		
 		Utils.hideSoftKeyboard(activity, mComposeView);
 
-		mCustomKeyboard.closeAnyDialogIfShowing();
-		
-		mCustomKeyboard.onPause();
-		
 		isActivityVisible = false;
 		
 		resumeImageLoaders(true);

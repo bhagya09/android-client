@@ -594,20 +594,31 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 
 	private void destroyKeyboardResources()
 	{
-		mCustomKeyboard.unregister(enterEditText);
-		mCustomKeyboard.unregister(birthdayText);
+		if (mCustomKeyboard != null)
+		{
+			mCustomKeyboard.unregister(enterEditText);
+			mCustomKeyboard.unregister(birthdayText);
 
-		mCustomKeyboard.closeAnyDialogIfShowing();
+			mCustomKeyboard.closeAnyDialogIfShowing();
 
-		mCustomKeyboard.destroyCustomKeyboard();
+			mCustomKeyboard.destroyCustomKeyboard();
+		}
+	}
+	
+	protected void pauseKeyboardResources()
+	{
+		if (mCustomKeyboard != null)
+		{
+			mCustomKeyboard.closeAnyDialogIfShowing();
+			
+			mCustomKeyboard.onPause();
+		}
 	}
 	
 	@Override
 	protected void onPause()
 	{
-		mCustomKeyboard.closeAnyDialogIfShowing();
-		
-		mCustomKeyboard.onPause();
+		pauseKeyboardResources();
 		
 		super.onPause();
 	}
