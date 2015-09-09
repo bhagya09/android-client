@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.bsb.hike.R;
+import com.bsb.hike.platform.bridge.NonMessagingJavaScriptBridge;
 
 public class EmoticonConstants {
 	public static final String[] mEmojiUnicodes = {
@@ -1066,7 +1067,14 @@ public class EmoticonConstants {
 			R.drawable.symbols207, R.drawable.symbols208, R.drawable.symbols209
 
 	};
-
+	
+	/**
+	 * The method postStatusUpdate uses this mapping in its java doc.
+	 * Please update it there if there are any changes made to this mapping.
+	 * Link below.
+	 * 
+	 * {@link NonMessagingJavaScriptBridge#postStatusUpdate(String, String)}
+	 */
 	public static final Map<Integer, Integer> moodMapping = new HashMap<Integer, Integer>();
 
 	static {

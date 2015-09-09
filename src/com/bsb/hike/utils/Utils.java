@@ -220,6 +220,7 @@ import com.bsb.hike.service.ConnectionChangeReceiver;
 import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.tasks.CheckForUpdateTask;
 import com.bsb.hike.tasks.SignupTask;
+import com.bsb.hike.tasks.StatusUpdateTask;
 import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
 import com.bsb.hike.timeline.view.TimelineActivity;
@@ -6977,6 +6978,53 @@ public class Utils
 		}
 		
 		return app_installed;
+	}
+	
+	/**
+	* Call this method to post a status update without an image to timeline.
+	* @param status
+	* @param moodId : Pass -1 if no mood
+	*
+	* Both status = null and moodId = -1 should not hold together
+	*
+	* List of moods:
+	* {@link com.bsb.hike.utils.EmoticonConstants#moodMapping}
+	*
+	*/
+	public static void postStatusUpdate(String status, int moodId)
+	{
+		postStatusUpdate(status, moodId, null);
+	}
+	
+	/**
+	 * Call this method to post a status update to timeline.
+	 * @param status
+	 * @param moodId : Pass -1 if no mood
+	 * @param imageFilePath : Path of the image on the client. Image should only be of jpeg format and compressed.
+	 * 
+	 * Status = null, moodId < 0 & imageFilePath = null should not hold together
+	 * 
+	 * List of moods:
+	 * {@link com.bsb.hike.utils.EmoticonConstants#moodMapping}
+	 * 
+	 */
+	public static void postStatusUpdate(String status, int moodId, String imageFilePath)
+	{
+		if(TextUtils.isEmpty(status) && moodId < 0 && TextUtils.isEmpty(imageFilePath) )
+		{
+			Logger.e("Utils", "postStatusUpdate : status = null/empty, moodId < 0 & imageFilePath = null conditions hold together. Returning.");
+			return;
+		}
+		try
+		{
+			StatusUpdateTask task = new StatusUpdateTask(status, moodId, imageFilePath);
+			task.execute();
+		}
+		catch (IOException e)
+		{
+			Logger.e("Utils", "IOException thrown in postStatusUpdate");
+			return;
+		}
 	}
 
 }

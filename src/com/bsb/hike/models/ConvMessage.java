@@ -72,6 +72,8 @@ public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique
 	private TypingNotification typingNotification;
 
 	private JSONArray readByArray;
+	
+	private JSONObject platformData;
 
 	private boolean shouldShowPush = true;
 
@@ -95,6 +97,11 @@ public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique
 	public void setNameSpace(String nameSpace)
 	{
 		this.nameSpace = (null == nameSpace ? "": nameSpace);
+	}
+	
+	public void setPlatformData(JSONObject platformData)
+	{
+		this.platformData = platformData;
 	}
 
 	public int getContentId()
@@ -343,6 +350,12 @@ public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique
 	public ConvMessage(String message, String msisdn, long timestamp, State msgState, long msgid, long mappedMsgId, String groupParticipantMsisdn, boolean isSMS,
 			ParticipantInfoState participantInfoState, int type,int contentId, String nameSpace)
 	{
+		this(message, msisdn, timestamp, msgState, msgid, mappedMsgId, groupParticipantMsisdn, isSMS, ParticipantInfoState.NO_INFO, type, contentId, nameSpace, null);
+	}
+	
+	public ConvMessage(String message, String msisdn, long timestamp, State msgState, long msgid, long mappedMsgId, String groupParticipantMsisdn, boolean isSMS,
+			ParticipantInfoState participantInfoState, int type,int contentId, String nameSpace, JSONObject platformData)
+	{
 		assert (msisdn != null);
 		this.mMsisdn = msisdn;
 		this.mMessage = message;
@@ -361,6 +374,7 @@ public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique
 		this.participantInfoState = participantInfoState;
 		setContentId(contentId);
 		setNameSpace(nameSpace);
+		setPlatformData(platformData);
 	}
 	
 	public ConvMessage(ConvMessage other) {
@@ -387,6 +401,7 @@ public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique
 		this.webMetadata = other.webMetadata;
 		this.contentLove = other.contentLove;
 		this.messageOriginType  = other.messageOriginType;
+		this.platformData = other.platformData;
 		if (other.isBroadcastConversation())
 		{
 			this.messageBroadcastId = other.getMsisdn();
@@ -454,6 +469,7 @@ public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique
 		if (data.has(HikeConstants.METADATA))
 		{
 			JSONObject mdata = data.getJSONObject(HikeConstants.METADATA);
+
 			if (mdata.has(HikeConstants.PIN_MESSAGE))
 			{
 				this.messageType = mdata.getInt(HikeConstants.PIN_MESSAGE);
@@ -484,6 +500,14 @@ public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique
 				setMetadata(data.getJSONObject(HikeConstants.METADATA));
 			}
 		}
+		
+		if(data.has(HikeConstants.PLATFORM_PACKET))
+		{
+			Logger.i("ConvMessage", "Data has Platform Packet");
+			
+			platformData = data.optJSONObject(HikeConstants.PLATFORM_PACKET);
+		}
+		
 		this.isStickerMessage = HikeConstants.STICKER.equals(obj.optString(HikeConstants.SUB_TYPE));
 		/**
 		 * This is to specifically handle the hike bot cases for now but can be generically used to control which messages have push enabled
@@ -904,6 +928,7 @@ public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique
 					data.put(HikeConstants.LIST, msisdnArray);
 					object.put(HikeConstants.DATA, data);
 				}
+				JSONObject metadata;
 				// TODO : we should add all sub types here and set metadata accordingly
 				switch(messageType){
 				case MESSAGE_TYPE.CONTENT:
@@ -913,16 +938,22 @@ public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique
 
 				case MESSAGE_TYPE.WEB_CONTENT:
 					object.put(HikeConstants.SUB_TYPE, ConvMessagePacketKeys.WEB_CONTENT_TYPE);
-					data.put(HikeConstants.METADATA, webMetadata.getJSON());
+					data.put(HikeConstants.PLATFORM_PACKET, getPlatformData());
+					metadata = webMetadata.getJSON();
+					metadata.put(HikePlatformConstants.NAMESPACE, nameSpace);
+					data.put(HikeConstants.METADATA, metadata);
 					break;
 
 				case MESSAGE_TYPE.FORWARD_WEB_CONTENT:
 					object.put(HikeConstants.SUB_TYPE, ConvMessagePacketKeys.FORWARD_WEB_CONTENT_TYPE);
-					data.put(HikeConstants.METADATA, webMetadata.getJSON());
+					data.put(HikeConstants.PLATFORM_PACKET, getPlatformData());
+					metadata = webMetadata.getJSON();
+					metadata.put(HikePlatformConstants.NAMESPACE, nameSpace);
+					data.put(HikeConstants.METADATA, metadata);
 					break;
 
 				}
-				
+
 				object.put(HikeConstants.TYPE, mInvite ? HikeConstants.MqttMessageTypes.INVITE : HikeConstants.MqttMessageTypes.MESSAGE);
 				object.put(HikeConstants.SEND_TIMESTAMP, getSendTimestamp());
 			}
@@ -1401,7 +1432,7 @@ public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique
 		 * many of of them don't have certain info. for eg. SU,GCJ etc,  
 		 * don't have msgID. 
 		 */
-		if(getParticipantInfoState() == ParticipantInfoState.NO_INFO)
+		if (getParticipantInfoState() == ParticipantInfoState.NO_INFO)
 		{
 			String messageHash = getSenderMsisdn() + "_" + getSendTimestamp() + "_";
 			messageHash += isSent() ? getMsgID() : getMappedMsgID();
@@ -1410,5 +1441,10 @@ public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique
 			return messageHash;
 		}
 		return null;
+	}
+
+	public JSONObject getPlatformData()
+	{
+		return this.platformData;
 	}
 }

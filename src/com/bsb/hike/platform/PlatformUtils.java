@@ -10,6 +10,10 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import com.bsb.hike.MqttConstants;
+import com.bsb.hike.models.MessageEvent;
+import com.bsb.hike.service.HikeMqttManagerNew;
+
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
@@ -32,6 +36,7 @@ import android.widget.Toast;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.bots.BotInfo;
@@ -1021,6 +1026,75 @@ public class PlatformUtils
 		{
 			e.printStackTrace();
 		}
+	}
+
+	public static void sharedDataHandlingForMessages(ConvMessage conv)
+	{
+		try
+		{
+			if(conv.getPlatformData() != null)
+			{
+				JSONObject sharedData = conv.getPlatformData();
+				String namespaces = sharedData.getString(HikePlatformConstants.RECIPIENT_NAMESPACES);
+				if (TextUtils.isEmpty(namespaces))
+				{
+					Logger.e(HikePlatformConstants.TAG, "no namespaces defined.");
+					return;
+				}
+				String [] namespaceList = namespaces.split(",");
+				for (String namespace : namespaceList)
+				{
+					String eventType = sharedData.optString(HikePlatformConstants.EVENT_TYPE, HikePlatformConstants.SHARED_EVENT);
+					long mappedEventId = -1;
+					if (!conv.isSent())
+					{
+						mappedEventId = sharedData.getLong(HikePlatformConstants.MAPPED_EVENT_ID);
+					}
+					String metadata = sharedData.getString(HikePlatformConstants.EVENT_CARDDATA);
+					int state = conv.isSent() ? HikePlatformConstants.EventStatus.EVENT_SENT : HikePlatformConstants.EventStatus.EVENT_RECEIVED;
+					MessageEvent messageEvent = new MessageEvent(eventType, conv.getMsisdn(), namespace, metadata, conv.createMessageHash(), state, conv.getSendTimestamp(), mappedEventId);
+					long eventId = HikeConversationsDatabase.getInstance().insertMessageEvent(messageEvent);
+					if (eventId < 0)
+					{
+						Logger.e(HikePlatformConstants.TAG, "Duplicate Message Event");
+					}
+					else
+					{
+						sharedData.put(HikePlatformConstants.MAPPED_EVENT_ID, eventId);
+						conv.setPlatformData(sharedData);
+					}
+				}
+
+			}
+		}
+		catch (JSONException e)
+		{
+			//TODO catch block
+			e.printStackTrace();
+		}
+
+	}
+
+	/**
+	 * Call this method to send platform message event. This method sends an event to the msisdn that it determines when it queries the messages table based on the message hash.
+	 * @param eventMetadata
+	 * @param messageHash
+	 * @param nameSpace
+	 */
+	public static void sendPlatformMessageEvent(String eventMetadata, String messageHash, String nameSpace)
+	{
+		String msisdn = HikeConversationsDatabase.getInstance().getMsisdnFromMessageHash(messageHash);
+		if (TextUtils.isEmpty(msisdn))
+		{
+			Logger.e(HikePlatformConstants.TAG, "Message Hash is incorrect");
+			return;
+		}
+
+		MessageEvent messageEvent = new MessageEvent(HikePlatformConstants.NORMAL_EVENT, msisdn, nameSpace, eventMetadata, messageHash,
+				HikePlatformConstants.EventStatus.EVENT_SENT, System.currentTimeMillis());
+
+		HikeMessengerApp.getPubSub().publish(HikePubSub.PLATFORM_CARD_EVENT_SENT, messageEvent);
+
 	}
 
 }

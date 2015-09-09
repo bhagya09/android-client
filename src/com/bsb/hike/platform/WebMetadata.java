@@ -24,6 +24,8 @@ public class WebMetadata
 	
 	private int targetPlatform;
 
+	private String parentMsisdn;
+
 	public String getLayoutId()
 	{
 		return layoutId;
@@ -133,6 +135,11 @@ public class WebMetadata
 			{
 				setPush(cardobj.optString(HikePlatformConstants.WC_PUSH_KEY));
 			}
+
+			if (cardobj.has(HikePlatformConstants.PARENT_MSISDN))
+			{
+				setParentMsisdn(cardobj.optString(HikePlatformConstants.PARENT_MSISDN));
+			}
 		}
 		else
 		{
@@ -215,5 +222,15 @@ public class WebMetadata
 	public int getTargetPlatform()
 	{
 		return targetPlatform;
+	}
+
+	public String getParentMsisdn()
+	{
+		return parentMsisdn;
+	}
+
+	public void setParentMsisdn(String parentMsisdn)
+	{
+		this.parentMsisdn = parentMsisdn;
 	}
 }
