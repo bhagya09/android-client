@@ -8,6 +8,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.IHikeHTTPTask;
@@ -18,6 +19,7 @@ import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.StickerRequestTy
 import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
 import com.bsb.hike.modules.stickersearch.ui.StickerTagWatcher;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
@@ -168,6 +170,7 @@ public class StickerTagDownloadTask implements IHikeHTTPTask, IHikeHttpTaskResul
 	{
 		JSONObject response = (JSONObject) result;
 		StickerSearchManager.getInstance().insertStickerTags(response, StickerSearchConstants.TRIAL_STICKER_DATA_UPDATE_REFRESH);
+		HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.TAG_FIRST_TIME_DOWNLOAD, false);
 	}
 
 	@Override

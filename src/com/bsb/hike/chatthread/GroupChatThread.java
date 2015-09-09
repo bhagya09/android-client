@@ -1,3 +1,4 @@
+
 package com.bsb.hike.chatthread;
 
 import java.util.ArrayList;
@@ -586,7 +587,8 @@ public class GroupChatThread extends OneToNChatThread
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item)
 	{
-		toastForGroupEnd();
+		if (item.getItemId() != android.R.id.home)
+			toastForGroupEnd();
 		if (!checkForDeadOrBlocked())
 		{
 			switch (item.getItemId())
@@ -1052,7 +1054,7 @@ public class GroupChatThread extends OneToNChatThread
 			case R.string.voip_call_chat:
 			case R.string.group_profile:
 			case R.string.chat_theme:
-				overFlowMenuItem.enabled = !checkForDead();
+				overFlowMenuItem.enabled = !checkForDeadOrBlocked();
 				break;
 			case R.string.mute_group:
 				overFlowMenuItem.enabled = oneToNConversation.isConversationAlive();
