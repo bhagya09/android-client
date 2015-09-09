@@ -498,19 +498,24 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 	
 	private void destroyKeyboardResources()
 	{
-		mCustomKeyboard.unregister(convName);
+		if (mCustomKeyboard != null)
+		{
+			mCustomKeyboard.unregister(convName);
 
-		mCustomKeyboard.closeAnyDialogIfShowing();
+			mCustomKeyboard.closeAnyDialogIfShowing();
 
-		mCustomKeyboard.destroyCustomKeyboard();
+			mCustomKeyboard.destroyCustomKeyboard();
+		}
 	}
 	
 	@Override
 	protected void onPause()
 	{
-		mCustomKeyboard.closeAnyDialogIfShowing();
-		
-		mCustomKeyboard.onPause();
+		if (mCustomKeyboard != null)
+		{
+			mCustomKeyboard.closeAnyDialogIfShowing();
+			mCustomKeyboard.onPause();
+		}
 		
 		super.onPause();
 	}
