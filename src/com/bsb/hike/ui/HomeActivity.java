@@ -1736,8 +1736,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			optionsList.add(new OverFlowMenuItem(getString(R.string.home_overflow_new_photo), 0, 0, R.string.home_overflow_new_photo));
 		}
 		
-		optionsList.add(new OverFlowMenuItem(getString(R.string.status), 0, 0, R.string.status));
-
 		optionsList.add(new OverFlowMenuItem(getString(R.string.invite_friends), 0, 0, R.string.invite_friends));
 
 		if (accountPrefs.getBoolean(HikeMessengerApp.SHOW_GAMES, false))
@@ -1761,6 +1759,8 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		}
 
 		optionsList.add(new OverFlowMenuItem(getString(R.string.settings), 0, 0, R.string.settings));
+		
+		optionsList.add(new OverFlowMenuItem(getString(R.string.status), 0, 0, R.string.status));
 
 		addEmailLogItem(optionsList);
 
