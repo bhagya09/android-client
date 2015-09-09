@@ -37,6 +37,9 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
+import com.bsb.hike.dialog.HikeDialog;
+import com.bsb.hike.dialog.HikeDialogFactory;
+import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
@@ -1152,6 +1155,52 @@ public abstract class JavascriptBridge
 		if (mHandler != null)
 		{
 			mHandler.sendEmptyMessage(CLOSE_WEB_VIEW);
+		}
+	}
+	@JavascriptInterface
+	/**
+	 * Added in Platform Version:6
+	 * 
+	 * @param id
+	 *            : : the id of the function that native will call to call the js . Show a native dialog and know the button clicked by the user
+	 *            returns positive/negative. Title,Message and positiveBtn are compulsory.
+	 */
+	public void showDialog(final String id, String title, String message, String positiveBtn, String negativeBtn)
+	{
+		if(TextUtils.isEmpty(title)||TextUtils.isEmpty(message)||TextUtils.isEmpty(positiveBtn))
+			return;
+		Activity mContext = weakActivity.get();
+		if (mContext != null)
+		{
+			HikeDialogListener nativeDialogListener = new HikeDialogListener()
+			{
+
+				@Override
+				public void negativeClicked(HikeDialog hikeDialog)
+				{
+					callbackToJS(id, "positive");
+					hikeDialog.dismiss();
+
+				}
+
+				@Override
+				public void positiveClicked(HikeDialog hikeDialog)
+				{
+					callbackToJS(id, "negative");
+					hikeDialog.dismiss();
+
+				}
+
+				@Override
+				public void neutralClicked(HikeDialog hikeDialog)
+				{
+					// TODO Auto-generated method stub
+
+				}
+
+			};
+
+			HikeDialogFactory.showDialog(mContext, HikeDialogFactory.MICROAPP_DIALOG, nativeDialogListener, title, message, positiveBtn, negativeBtn);
 		}
 	}
 
