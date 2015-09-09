@@ -446,7 +446,7 @@ public class PlatformUtils
 		}
 	}
 
-	private static void enableBot(BotInfo botInfo, boolean enableBot)
+	public static void enableBot(BotInfo botInfo, boolean enableBot)
 	{
 		if (enableBot && botInfo.isNonMessagingBot())
 		{

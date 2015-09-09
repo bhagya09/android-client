@@ -751,4 +751,64 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 
 	}
 
+	/**
+	 * Platform Version 6
+	 * This function is made for the special Shared bot that has the information about some other bots as well, and acts as a channel for them.
+	 * Call this method to know whether the bot pertaining to the msisdn is blocked or not.
+	 * @param id : the id of the function that native will call to call the js .
+	 */
+	@JavascriptInterface
+	public void isBotBlocked(String id)
+	{
+		if (!BotUtils.isBot(message.webMetadata.getParentMsisdn()))
+		{
+			return;
+		}
+		BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(message.webMetadata.getParentMsisdn());
+		callbackToJS(id, String.valueOf(botInfo.isBlocked()));
+	}
+
+	/**
+	 * Platform Version 6
+	 * This function is made for the special Shared bot that has the information about some other bots as well, and acts as a channel for them.
+	 * Call this method to know whether the bot pertaining to the msisdn is enabled or not.
+	 * @param id : the id of the function that native will call to call the js .
+	 */
+	@JavascriptInterface
+	public void isBotEnabled(String id)
+	{
+		if (!BotUtils.isBot(message.webMetadata.getParentMsisdn()))
+		{
+			return;
+		}
+		String value = String.valueOf(HikeConversationsDatabase.getInstance().isConversationExist(message.webMetadata.getParentMsisdn()));
+		callbackToJS(id, value);
+	}
+
+	/**
+	 * Platform Version 6
+	 * This function is made for the special Shared bot that has the information about some other bots as well, and acts as a channel for them.
+	 * Call this method to enable/disable bot. Enable means to show the bot in the conv list and disable is vice versa.
+	 * @param enable : the id of the function that native will call to call the js .
+	 */
+	@JavascriptInterface
+	public void enableBot(String enable)
+	{
+
+		if (!BotUtils.isBot(message.webMetadata.getParentMsisdn()))
+		{
+			return;
+		}
+		BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(message.webMetadata.getParentMsisdn());
+		boolean enableBot = Boolean.valueOf(enable);
+		if (enableBot)
+		{
+			PlatformUtils.enableBot(botInfo, true);
+		}
+		else
+		{
+			BotUtils.deleteBotConversation(botInfo.getMsisdn(), false);
+		}
+	}
+
 }

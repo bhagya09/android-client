@@ -8432,4 +8432,27 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		}
 	}
 
+	public boolean isConversationExist(String msisdn)
+	{
+		Cursor c = null;
+		try
+		{
+
+			c = mDb.query(DBConstants.CONVERSATIONS_TABLE, null, DBConstants.MSISDN + "=?", new String[] { msisdn }, null, null, null);
+			if (c.moveToFirst())
+			{
+				return true;
+			}
+			return false;
+		}
+
+		finally
+		{
+			if (c != null)
+			{
+				c.close();
+			}
+		}
+	}
+
 }
