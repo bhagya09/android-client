@@ -234,7 +234,7 @@ public class OfflineDisconnectFragment extends Fragment
 						listener.onDisconnectionRequest();
 
 						// If connected user wants to disconnect and start another connection
-						if (type == DisconnectFragmentType.CONNECTED || type == DisconnectFragmentType.REQUESTING)
+						if (type == DisconnectFragmentType.CONNECTED)
 						{
 							listener.onConnectionRequest(true);
 						}
@@ -251,6 +251,10 @@ public class OfflineDisconnectFragment extends Fragment
 					@Override
 					public void onAnimationEnd(Animation animation)
 					{
+						if(type == DisconnectFragmentType.REQUESTING)
+						{
+							listener.onConnectionRequest(true);
+						}
 						listener.removeDisconnectFragment(true);
 					}
 				});
