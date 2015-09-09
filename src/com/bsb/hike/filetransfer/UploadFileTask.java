@@ -53,6 +53,7 @@ import android.provider.MediaStore.MediaColumns;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.util.Base64;
+import android.webkit.MimeTypeMap;
 import android.widget.Toast;
 
 import com.bsb.hike.HikeConstants;
@@ -466,6 +467,7 @@ public class UploadFileTask extends FileTransferBase
 						{
 							if(info.isCompRequired)
 							{
+								long time = System.currentTimeMillis();
 								/*
 								 * Changes done to avoid the creation of multiple compressed file. Here I'm using message id as unique id of file.
 								 */
@@ -476,6 +478,7 @@ public class UploadFileTask extends FileTransferBase
 								hikeFile.setVideoEditedInfo(info);
 								HikeVideoCompressor instance = new HikeVideoCompressor();
 								compFile = instance.compressVideo(hikeFile);
+								Logger.d(getClass().getSimpleName(), "Video compression time = " + (System.currentTimeMillis() - time));
 							}
 						}
 					}
@@ -483,6 +486,7 @@ public class UploadFileTask extends FileTransferBase
 						FTAnalyticEvents.sendVideoCompressionEvent(info.originalWidth + "x" + info.originalHeight, info.resultWidth + "x" + info.resultHeight,
 								(int) mFile.length(), (int) compFile.length(), 1);
 						selectedFile = compFile;
+						Utils.deleteFileFromHikeDir(context, mFile, hikeFileType);
 					}else{
 						if(info != null)
 						{
@@ -512,7 +516,7 @@ public class UploadFileTask extends FileTransferBase
 		{
 			try
 			{
-				Utils.downloadAndSaveFile(context, selectedFile, picasaUri);
+				Utils.downloadAndSaveFile(context.getContentResolver(), selectedFile, picasaUri);
 			}
 			catch (Exception e)
 			{
@@ -1355,6 +1359,14 @@ public class UploadFileTask extends FileTransferBase
 			}
 		}
 		time = System.currentTimeMillis() - time;
+		boolean isCompleted = resCode == RESPONSE_OK ? true : false;
+		int netType = Utils.getNetworkType(context);
+		if (resCode == RESPONSE_OK || resCode == RESPONSE_ACCEPTED)
+		{
+			String fileExtension = Utils.getFileExtension(selectedFile.getPath());
+			String fileType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(fileExtension);
+			FTAnalyticEvents.logFTProcessingTime(FTAnalyticEvents.UPLOAD_FILE_TASK, X_SESSION_ID, isCompleted, fileBytes.length, time, contentRange, netType, fileType);
+		}
 		Logger.d(getClass().getSimpleName(), "Upload time: " + time / 1000 + "." + time % 1000 + "s.  Response: " + resCode);
 		return res;
 	}
