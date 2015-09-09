@@ -153,7 +153,7 @@ public class NotificationThread implements Runnable
 			return false;
 		}
 		Notification myNotification = builder.setContentTitle(title).setContentText(text).setSmallIcon(HikeNotification.getInstance().returnSmallIcon())
-				.setContentIntent(pendingIntent).setOngoing(true).setLargeIcon(bitmap).build();
+				.setContentIntent(pendingIntent).setOngoing(true).setLargeIcon(bitmap).setColor(context.getResources().getColor(R.color.blue_hike)).build();
 
 		notificationManager.notify(null, OfflineConstants.NOTIFICATION_IDENTIFIER, myNotification);
 		Logger.d("NotificationThread",(System.currentTimeMillis()-startTime) + "");
