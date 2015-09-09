@@ -866,11 +866,6 @@ public class VoipCallFragment extends Fragment implements CallActions
 			break;
 		}
 		
-		if (voipService.hostingConference()) {
-			callDuration.setText("");
-			if (voipService.recordingAndPlaybackRunning) 
-				startCallDuration();
-		}
 	}
 	
 	private void startCallDuration()

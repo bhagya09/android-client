@@ -658,6 +658,13 @@ public class VoIPService extends Service {
 				return returnInt;
 			}
 
+			// Error case: We are currently receiving a call which we haven't 
+			// answered yet
+			if (getCallStatus() == CallStatus.INCOMING_CALL) {
+				restoreActivity();
+				return returnInt;
+			}
+			
 			// All good. Initiate the call
 			int callSource = intent.getIntExtra(VoIPConstants.Extras.CALL_SOURCE, -1);
 			if (intent.getExtras().containsKey(VoIPConstants.Extras.MSISDNS)) {
@@ -2158,6 +2165,9 @@ public class VoIPService extends Service {
 	public VoIPConstants.CallStatus getCallStatus()
 	{
 		VoIPClient client = getClient();
+		
+		if (hostingConference() && recordingAndPlaybackRunning)
+			return CallStatus.ACTIVE;
 		
 		if (client != null)
 			return client.getCallStatus();
