@@ -740,6 +740,10 @@ public class OfflineUtils
 		
 		String myMsisdn=getMyMsisdn();
 		
+		if (TextUtils.isEmpty(myMsisdn))
+		{
+			return false;
+		}
 		return (myMsisdn.compareTo(connectedMsisdn) > 0);
 		
 	}

@@ -255,7 +255,7 @@ public class ConnectionManager implements ChannelListener
 			}
 			
 			scanResult.SSID = OfflineUtils.decodeSsid(scanResult.SSID);
-			if (scanResult.SSID.contains(OfflineUtils.getMyMsisdn()))
+			if (!TextUtils.isEmpty(OfflineUtils.getMyMsisdn()) && scanResult.SSID.contains(OfflineUtils.getMyMsisdn()))
 			{
 				if (!distinctNetworks.containsKey(scanResult))
 				{
