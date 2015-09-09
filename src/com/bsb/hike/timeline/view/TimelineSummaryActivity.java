@@ -399,11 +399,14 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 		{
 			ANIM_DURATION = 0;
 		}
-		contentContainer.setScaleX(0.8f);
-		contentContainer.setScaleY(0.8f);
-		contentContainer.setAlpha(0f);
 
-		contentContainer.animate().setDuration(ANIM_DURATION).scaleX(1).scaleY(1).alpha(1f);
+		if (!Utils.isLollipopOrHigher())
+		{
+			contentContainer.setScaleX(0.8f);
+			contentContainer.setScaleY(0.8f);
+			contentContainer.setAlpha(0f);
+			contentContainer.animate().setDuration(ANIM_DURATION).scaleX(1).scaleY(1).alpha(1f);
+		}
 
 		float alphaFinal = isTextStatusMessage ? 1f : 1f;
 
@@ -422,7 +425,10 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 		}
 		else
 		{
+			foregroundScreen.setAlpha(0.25f);
 			foregroundScreen.setVisibility(View.VISIBLE);
+			foregroundScreen.animate().setDuration(1000).alpha(0.8f);
+			
 			if (mStatusMessage.getStatusMessageType() == StatusMessageType.IMAGE)
 			{
 				textViewCaption.setVisibility(View.GONE);
