@@ -1715,4 +1715,6 @@
     <string name="invite_share_message">Hey, check out hike messenger. It has awesome stickers in our language! Join the only made in India messaging app- Download at http://hike.in/$invite_token</string>
     <string name ="offline_request_cancelled"><![CDATA[%1$s]]> cancelled connection.\nPlease try later.</string>
     <string name ="offline_connection_problem">Oops! Facing some problem?\nPlease try later.</string>
+    <string name= "incoming_hike_direct_request">Incoming Hike Direct Request</string>
+    <string name = "hike_direct_request">Hike Direct Request</string>
 </resources>
