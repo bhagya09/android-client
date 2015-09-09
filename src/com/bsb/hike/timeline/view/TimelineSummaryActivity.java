@@ -368,7 +368,7 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 
 		checkBoxLove.setOnCheckedChangeListener(onLoveToggleListener);
 
-		if (contactsAdapter != null)
+		if (contactsAdapter != null && !Utils.isEmpty(msisdns) && mStatusMessage != null)
 		{
 			contactsAdapter.processInput(msisdns, mStatusMessage.getMsisdn());
 			contactsAdapter.notifyDataSetChanged();
