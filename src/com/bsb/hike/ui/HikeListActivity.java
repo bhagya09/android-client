@@ -56,6 +56,8 @@ import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.offline.OfflineController;
+import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
@@ -590,7 +592,11 @@ public class HikeListActivity extends HikeAppStateBaseFragmentActivity implement
 					BotInfo mBotInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
 					mBotInfo.setBlocked(blocked);
 				}
-				
+				if(OfflineUtils.isConnectedToSameMsisdn(msisdn) && blocked)
+				{
+					Logger.d("HikeListActivity", "Disconnecting OfflineConnection " + msisdn);
+					OfflineController.getInstance().shutDown();
+				}
 				HikeMessengerApp.getPubSub().publish(blocked ? HikePubSub.BLOCK_USER : HikePubSub.UNBLOCK_USER, msisdn);
 			}
 			finish();
@@ -705,17 +711,21 @@ public class HikeListActivity extends HikeAppStateBaseFragmentActivity implement
 		else
 		{
 			String msisdn = ((ContactInfo) tag).getMsisdn();
+			msisdn = Utils.normalizeNumber(msisdn,
+					getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, MODE_PRIVATE).getString(HikeMessengerApp.COUNTRY_CODE, HikeConstants.INDIA_COUNTRY_CODE));
 			if (type == Type.BLOCK)
 			{
+			
+				if(OfflineUtils.isConnectedToSameMsisdn(msisdn))
+				{
+					Logger.d("HikeListActivity","Disconnecting Offline Msg");
+					OfflineController.getInstance().shutDown();
+				}
 				HikeMessengerApp.getPubSub().publish(
-						HikePubSub.BLOCK_USER,
-						Utils.normalizeNumber(msisdn,
-								getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, MODE_PRIVATE).getString(HikeMessengerApp.COUNTRY_CODE, HikeConstants.INDIA_COUNTRY_CODE)));
+						HikePubSub.BLOCK_USER,msisdn);
 			}
 			else
 			{
-				msisdn = Utils.normalizeNumber(msisdn,
-						getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, MODE_PRIVATE).getString(HikeMessengerApp.COUNTRY_CODE, HikeConstants.INDIA_COUNTRY_CODE));
 				Logger.d(getClass().getSimpleName(), "Inviting " + msisdn);
 				Utils.sendInvite(msisdn, this);
 				Toast.makeText(this, R.string.invite_sent, Toast.LENGTH_SHORT).show();
