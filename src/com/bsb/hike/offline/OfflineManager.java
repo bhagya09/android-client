@@ -160,7 +160,6 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 		connectionManager = new ConnectionManager(context, HikeHandlerUtil.getInstance().getLooper());
 		transporter = Transporter.getInstance();
 		listeners = new ArrayList<IOfflineCallbacks>();
-		receiver = new OfflineBroadCastReceiver(this);
 		Logger.d(TAG, "Contructor called");
 	}
 
@@ -235,17 +234,19 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 
 		if (listeners.size() == 1)
 		{
-			IntentFilter intentFilter = new IntentFilter();
-			addIntentFilters(intentFilter);
-			context.registerReceiver(receiver, intentFilter);
+			addBroadReceiver();
 		}
 	}
 
 	public void addBroadReceiver()
 	{
-		IntentFilter intentFilter = new IntentFilter();
-		addIntentFilters(intentFilter);
-		context.registerReceiver(receiver, intentFilter);
+		if (receiver == null)
+		{
+			receiver = new OfflineBroadCastReceiver(this);
+			IntentFilter intentFilter = new IntentFilter();
+			addIntentFilters(intentFilter);
+			context.registerReceiver(receiver, intentFilter);
+		}
 	}
 	private void addIntentFilters(IntentFilter intentFilter)
 	{
@@ -377,7 +378,7 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 
 	public void connectAsPerMsisdn(final String msisdn)
 	{
-
+		addBroadReceiver();
 		timeTakenToEstablishConnection=System.currentTimeMillis();
 		connectinMsisdn = msisdn;
 		OfflineController.getInstance().setOfflineState(OFFLINE_STATE.CONNECTING);
@@ -527,9 +528,28 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 		removeAllMessages();
 		startedForChatThread = false;
 		HikeSharedPreferenceUtil.getInstance().saveData(OfflineConstants.OFFLINE_MSISDN, "");
-		Logger.d(TAG,"All variables cleared");
-		updateListeners(ERRORCODE.SHUTDOWN);
+		Logger.d(TAG, "All variables cleared");
+		unRegisterReceiver();
 	}
+
+	private void unRegisterReceiver()
+	{
+		if (receiver == null)
+		{
+			return;
+		}
+
+		try
+		{
+			context.unregisterReceiver(receiver);
+		}
+		catch (IllegalArgumentException e)
+		{
+			Logger.e(TAG, "Illegal Argument Exception in unregistering receiver");
+		}
+		receiver = null;
+	}
+
 
 	public void setConnectedDevice(String connectedDevice)
 	{

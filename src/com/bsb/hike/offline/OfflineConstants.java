@@ -1,5 +1,7 @@
 package com.bsb.hike.offline;
 
+import com.hike.transporter.TException;
+
 /**
  * 
  * @author himanshu
@@ -101,7 +103,20 @@ public class OfflineConstants
 	
 	public static enum ERRORCODE
 	{
-		TIMEOUT,DISCONNECTING,OUT_OF_RANGE,COULD_NOT_CONNECT,REQUEST_CANCEL,SHUTDOWN
+		TIMEOUT, DISCONNECTING, OUT_OF_RANGE, COULD_NOT_CONNECT, REQUEST_CANCEL, SHUTDOWN;
+
+		private TException exception = new OfflineException(OfflineException.REASON_UNKNOWN);
+
+		public void setErrorCode(TException exception2)
+		{
+			this.exception = exception2;
+		}
+
+		public TException getErrorCode()
+		{
+			return exception;
+		}
+		
 	}
 	
 	public static enum OFFLINE_STATE
