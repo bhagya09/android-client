@@ -10,10 +10,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import com.bsb.hike.MqttConstants;
-import com.bsb.hike.models.MessageEvent;
-import com.bsb.hike.service.HikeMqttManagerNew;
-
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
@@ -45,12 +41,13 @@ import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.HikeHandlerUtil;
+import com.bsb.hike.models.MessageEvent;
 import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.modules.httpmgr.Header;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpHeaderConstants;
-import com.bsb.hike.modules.stickerdownloadmgr.StickerPalleteImageDownloadTask;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadSource;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadType;
+import com.bsb.hike.modules.stickerdownloadmgr.StickerPalleteImageDownloadTask;
 import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.platform.content.PlatformContentConstants;
 import com.bsb.hike.platform.content.PlatformContentListener;
@@ -1095,6 +1092,26 @@ public class PlatformUtils
 
 		HikeMessengerApp.getPubSub().publish(HikePubSub.PLATFORM_CARD_EVENT_SENT, messageEvent);
 
+	}
+	
+	/**
+	 * Used to record analytics for bot opens via push notifications
+	 * Sample JSON : {"ek":"bno","bot_msisdn":"+hikecricketnew+"}
+	 */
+	public static void recordBotOpenViaNotification(String msisdn)
+	{
+		JSONObject json = new JSONObject();
+		try
+		{
+			json.put(AnalyticsConstants.EVENT_KEY, AnalyticsConstants.BOT_NOTIF_TRACKER);
+			json.put(AnalyticsConstants.BOT_MSISDN, msisdn);
+			HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, json);
+		}
+
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
 	}
 
 }

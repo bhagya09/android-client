@@ -8,9 +8,9 @@ import org.json.JSONObject;
 
 import android.support.v4.view.MenuItemCompat;
 import android.util.Pair;
+import android.view.Menu;
 import android.view.View;
 
-import android.view.Menu;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
@@ -26,6 +26,7 @@ import com.bsb.hike.media.OverFlowMenuItem;
 import com.bsb.hike.models.Conversation.BotConversation;
 import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.view.CustomFontButton;
@@ -120,6 +121,7 @@ public class BotChatThread extends OneToOneChatThread
 	{
 		super.fetchConversationFinished(conversation);
 		toggleConversationMuteViewVisibility(mConversation.isMuted());
+		checkAndRecordNotificationAnalytics();
 	}
 
 	@Override
@@ -421,6 +423,17 @@ public class BotChatThread extends OneToOneChatThread
 		}
 
 		super.onClick(v);
+	}
+	
+	/**
+	 * Used to record analytics for bot opens via push notifications
+	 */
+	private void checkAndRecordNotificationAnalytics()
+	{
+		if (activity.getIntent() != null && activity.getIntent().hasExtra(AnalyticsConstants.BOT_NOTIF_TRACKER))
+		{
+			PlatformUtils.recordBotOpenViaNotification(msisdn);
+		}
 	}
 	
 }

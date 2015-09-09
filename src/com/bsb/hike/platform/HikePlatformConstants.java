@@ -231,4 +231,5 @@ public interface HikePlatformConstants
 	final String SECONDARY_TITLE = "secondary_title";
 	
 	final String STATUS_BAR_COLOR = "sb_color";
+	
 }
