@@ -184,6 +184,7 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 			if(!isUpdatesFrgamentOnTop())
 			{
 				getSupportFragmentManager().popBackStack();
+				setupActionBar();
 			}
 		}
 	}
