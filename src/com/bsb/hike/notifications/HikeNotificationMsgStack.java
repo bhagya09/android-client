@@ -320,10 +320,14 @@ public class HikeNotificationMsgStack implements Listener
 				uniqueNotifTypes.add(preview.getNotificationType());
 			}
 		}
-
+		
 		if (uniqueNotifTypes.equals(NotificationType.ACTIVITYUPDATE))
 		{
 			mNotificationIntent = Utils.getTimelineActivityIntent(mContext, true);
+		}
+		else if (uniqueNotifTypes.equals(NotificationType.FAVADD))
+		{
+			mNotificationIntent = Utils.getPeopleActivityIntent(mContext);
 		}
 		else if (containsStealthMessage())
 		{
@@ -337,7 +341,7 @@ public class HikeNotificationMsgStack implements Listener
 			{
 				// Multiple msisdn, but only of type su,imagepost,activity,dp
 				if (uniqueNotifTypes.containsOnly(new int[] { NotificationType.STATUSUPDATE, NotificationType.IMAGE_POST, NotificationType.DPUPDATE,
-						NotificationType.ACTIVITYUPDATE }))
+						NotificationType.ACTIVITYUPDATE, NotificationType.FAVADD }))
 				{
 					// General timeline
 					mNotificationIntent = Utils.getTimelineActivityIntent(mContext, false);
@@ -355,7 +359,7 @@ public class HikeNotificationMsgStack implements Listener
 			{
 				// Single msisdn, but only of type su,image post,activity,dp
 				if (uniqueNotifTypes.containsOnly(new int[] { NotificationType.STATUSUPDATE, NotificationType.IMAGE_POST, NotificationType.DPUPDATE,
-						NotificationType.ACTIVITYUPDATE }))
+						NotificationType.ACTIVITYUPDATE, NotificationType.FAVADD }))
 				{
 					mNotificationIntent = Utils.getTimelineActivityIntent(mContext, false);
 				}
