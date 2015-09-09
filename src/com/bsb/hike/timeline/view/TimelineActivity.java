@@ -184,7 +184,11 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 			if(!isUpdatesFrgamentOnTop())
 			{
 				getSupportFragmentManager().popBackStack();
-				setupActionBar();
+				
+				ActionBar actionBar = getSupportActionBar();
+				View actionBarView = actionBar.getCustomView();
+				TextView title = (TextView) actionBarView.findViewById(R.id.title);
+				title.setText(R.string.timeline);
 			}
 		}
 	}

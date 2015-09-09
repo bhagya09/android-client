@@ -1565,7 +1565,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 						
 						for (String msisdn : actors)
 						{
-							for (int i = existingArray.length(); i >= 0; i--)
+							for (int i = existingArray.length() - 1; i >= 0; i--)
 							{
 								try
 								{
