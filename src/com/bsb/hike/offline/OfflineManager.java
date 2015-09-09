@@ -20,6 +20,7 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.db.HikeOfflinePersistence;
 import com.bsb.hike.models.HikeHandlerUtil;
+import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.offline.OfflineConstants.ERRORCODE;
 import com.bsb.hike.offline.OfflineConstants.HandlerConstants;
 import com.bsb.hike.offline.OfflineConstants.OFFLINE_STATE;
@@ -70,7 +71,9 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 	private List<Topic> topics;
 	
 	private long timeTakenToEstablishConnection = 0l;
-
+	
+	private boolean isClientInitialized=false;
+	
 	Handler handler = new Handler(HikeHandlerUtil.getInstance().getLooper())
 	{
 		public void handleMessage(android.os.Message msg)
@@ -264,11 +267,10 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 		String offlineNetworkMsisdn = connectionManager.getConnectedHikeNetworkMsisdn();
 		Logger.d(TAG, "CheckConnectedNetwork");
 
-		if (offlineNetworkMsisdn != null && connectedDevice == null && 
+		if (offlineNetworkMsisdn != null &&  !isClientInitialized && 
 				OfflineController.getInstance().getOfflineState() == OFFLINE_STATE.CONNECTING)
 		{
-			connectedDevice = offlineNetworkMsisdn;
-			
+			isClientInitialized=true;
 			// now transporter initAsClient is on Handler Thread/ backend thread
 			final IConnectionListener listener = this;
 			handler.post(new Runnable()
@@ -276,7 +278,7 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 				@Override
 				public void run()
 				{
-					if (initClientConfig(connectedDevice))
+					if (initClientConfig(connectinMsisdn))
 					{
 						Logger.d(TAG, "Starting as Client");
 						if (OfflineController.getInstance().getOfflineState() ==  OFFLINE_STATE.CONNECTING)
@@ -529,6 +531,7 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 		startedForChatThread = false;
 		HikeSharedPreferenceUtil.getInstance().saveData(OfflineConstants.OFFLINE_MSISDN, "");
 		Logger.d(TAG, "All variables cleared");
+		isClientInitialized = false;
 		unRegisterReceiver();
 	}
 
