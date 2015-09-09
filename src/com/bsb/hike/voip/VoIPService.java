@@ -2166,6 +2166,9 @@ public class VoIPService extends Service {
 	{
 		VoIPClient client = getClient();
 		
+		if (hostingConference() && recordingAndPlaybackRunning)
+			return CallStatus.ACTIVE;
+		
 		if (client != null)
 			return client.getCallStatus();
 		else
