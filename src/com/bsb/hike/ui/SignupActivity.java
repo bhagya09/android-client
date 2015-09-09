@@ -2502,7 +2502,6 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 	@Override
 	public void onReturnAction(int arg0)
 	{
-		// TODO Auto-generated method stub
-		
+		submitClicked();		
 	}
 }
