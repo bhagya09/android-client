@@ -61,7 +61,6 @@ public class SharedMediaAdapter extends PagerAdapter implements OnClickListener,
 	@Override
 	public boolean isViewFromObject(View view, Object object)
 	{
-		// TODO Auto-generated method stub
 		return view == object;
 	}
 
@@ -219,7 +218,7 @@ public class SharedMediaAdapter extends PagerAdapter implements OnClickListener,
 				return;
 			}
 			
-			View parent = imageView.getRootView();
+			View parent = (View) imageView.getParent();
 			
 			if(parent != null && parent.findViewById(R.id.progress_bar) != null)
 			{
