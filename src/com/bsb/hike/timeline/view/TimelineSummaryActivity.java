@@ -306,11 +306,6 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 			// Empty list
 			msisdns = new ArrayList<String>();
 		}
-		
-		if(contactsAdapter!=null)
-		{
-			contactsAdapter.processInput(msisdns, mStatusMessage.getMsisdn());
-		}
 	}
 
 	private void notifyActivityUI()
@@ -375,6 +370,7 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 
 		if (contactsAdapter != null)
 		{
+			contactsAdapter.processInput(msisdns, mStatusMessage.getMsisdn());
 			contactsAdapter.notifyDataSetChanged();
 		}
 	}
