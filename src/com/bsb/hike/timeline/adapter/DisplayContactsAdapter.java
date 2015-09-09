@@ -43,19 +43,28 @@ public class DisplayContactsAdapter extends BaseAdapter
 
 	public DisplayContactsAdapter(List<String> argList, String suMsisdn)
 	{
+		mContext = HikeMessengerApp.getInstance().getApplicationContext();
+		mAvatarLoader = new IconLoader(mContext, mContext.getResources().getDimensionPixelSize(R.dimen.icon_picture_size));
+		mAvatarLoader.setDefaultAvatarIfNoCustomIcon(true);
+		layoutInflater = LayoutInflater.from(mContext);
+		processInput(argList, suMsisdn);
+	}
+	
+	public void processInput(List<String> argList, String suMsisdn)
+	{
 		List<String> argMsisdnList = new ArrayList<String>(argList);
-		
+
 		if (argMsisdnList == null || argMsisdnList.isEmpty())
 		{
 			throw new IllegalArgumentException("DisplayContactsAdapter(): input cannot be null or empty");
 		}
 
 		this.suMsisdn = suMsisdn;
-		
+
 		totalCount = argMsisdnList.size();
 
-		//If it is Not a self Post
-		if(!Utils.isSelfMsisdn(suMsisdn))
+		// If it is Not a self Post
+		if (!Utils.isSelfMsisdn(suMsisdn))
 		{
 			// Iterate and remove all msisdns which are
 			// 1) Not saved in Addressbook
@@ -66,9 +75,7 @@ public class DisplayContactsAdapter extends BaseAdapter
 				if (contactInfo != null)
 				{
 					// Contact is unsaved.............. AND .... Contact is non fav .... AND Contact is not a self user
-					if (contactInfo.isUnknownContact() 
-							&& !ContactInfo.FavoriteType.FRIEND.equals(contactInfo.getFavoriteType())
-							&& !Utils.isSelfMsisdn(contactInfo.getMsisdn()))
+					if (contactInfo.isUnknownContact() && !ContactInfo.FavoriteType.FRIEND.equals(contactInfo.getFavoriteType()) && !Utils.isSelfMsisdn(contactInfo.getMsisdn()))
 					{
 						argMsisdnList.remove(j);
 					}
@@ -80,14 +87,7 @@ public class DisplayContactsAdapter extends BaseAdapter
 			}
 		}
 
-		mContext = HikeMessengerApp.getInstance().getApplicationContext();
-
-		layoutInflater = LayoutInflater.from(mContext);
-
 		msisdnList = argMsisdnList;
-
-		mAvatarLoader = new IconLoader(mContext, mContext.getResources().getDimensionPixelSize(R.dimen.icon_picture_size));
-		mAvatarLoader.setDefaultAvatarIfNoCustomIcon(true);
 	}
 
 	@Override

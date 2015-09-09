@@ -210,20 +210,6 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 			}
 			
 			fetchActionsData();
-			
-			if (actionsData != null)
-			{
-				msisdns = actionsData.getAllMsisdn();
-
-				isLikedByMe = actionsData.isLikedBySelf();
-			}
-
-			// No likes
-			if (msisdns == null)
-			{
-				// Empty list
-				msisdns = new ArrayList<String>();
-			}
 
 			mActivityState.mappedId = mappedId;
 			mActivityState.statusMessage = mStatusMessage;
@@ -305,6 +291,25 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 			HikeConversationsDatabase.getInstance().getActionsData(ActionsDataModel.ActivityObjectTypes.STATUS_UPDATE.getTypeString(), suIDs,
 					TimelineActionsManager.getInstance().getActionsData());
 			actionsData = TimelineActionsManager.getInstance().getActionsData().getActions(mStatusMessage.getMappedId(), ActionTypes.LIKE, ActivityObjectTypes.STATUS_UPDATE);
+		}
+		
+		if (actionsData != null)
+		{
+			msisdns = actionsData.getAllMsisdn();
+
+			isLikedByMe = actionsData.isLikedBySelf();
+		}
+
+		// No likes
+		if (msisdns == null)
+		{
+			// Empty list
+			msisdns = new ArrayList<String>();
+		}
+		
+		if(contactsAdapter!=null)
+		{
+			contactsAdapter.processInput(msisdns, mStatusMessage.getMsisdn());
 		}
 	}
 
@@ -602,7 +607,6 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 			{
 				TimelineSummaryActivity.this.runOnUiThread(new Runnable()
 				{
-
 					@Override
 					public void run()
 					{
@@ -619,6 +623,7 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 				public void run()
 				{
 					fetchActionsData();
+					
 					notifyActivityUI();
 				}
 			});
