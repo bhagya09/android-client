@@ -48,6 +48,7 @@ import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.offline.IOfflineCallbacks;
 import com.bsb.hike.offline.OfflineAnalytics;
 import com.bsb.hike.offline.OfflineConstants;
+import com.bsb.hike.offline.OfflineException;
 import com.bsb.hike.offline.OfflineConstants.DisconnectFragmentType;
 import com.bsb.hike.offline.OfflineParameters;
 import com.bsb.hike.offline.OfflineConstants.OFFLINE_STATE;
@@ -128,6 +129,8 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 	private Boolean connectionCancelled =false;
 	
 	private Context context;
+	
+	private int disconnectReasonCode;
 	
 	private  Handler uiHandler = new Handler()
 	{
@@ -667,7 +670,7 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 		
 	}
 	@Override
-	public void onDisconnect(ERRORCODE errorCode)
+	public void onDisconnect(final ERRORCODE errorCode)
 	{
 
 		switch (errorCode)
@@ -685,6 +688,7 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 				@Override
 				public void run()
 				{
+					disconnectReasonCode = errorCode.getErrorCode().getReasonCode();
 					if(!connectionCancelled)
 					{
 						updateUIOnDisconnect();
@@ -705,7 +709,7 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 		removePostedMessages();
 		hideAndStopTimer();
 		showRetryIcon(R.drawable.cross_retry);
-		connectionInfo.setText(getResources().getString(R.string.retry_connection));
+		setDisconnectErrorMessage();
 		connectionInfo.setVisibility(View.VISIBLE);
 		frame.setVisibility(View.INVISIBLE);
 		secondMessage.setVisibility(View.INVISIBLE);	
@@ -730,6 +734,24 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 	}
 
 	
+
+	private void setDisconnectErrorMessage()
+	{
+		if(disconnectReasonCode == OfflineException.CANCEL_NOTIFICATION_REQUEST)
+		{
+			connectionInfo.setText(getResources().getString(R.string.offline_request_cancelled,contactFirstName));
+		}
+		else if(disconnectReasonCode == OfflineException.CONNECTION_TIME_OUT)
+		{
+			connectionInfo.setText(getResources().getString(R.string.retry_connection));
+		}
+		else
+		{
+			connectionInfo.setText(getResources().getString(R.string.offline_connection_problem));
+		}
+		
+	}
+
 
 	@Override
 	public void connectedToMsisdn(String connectedDevice)
