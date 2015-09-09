@@ -538,6 +538,10 @@ public class Utils
 				break;
 			case OTHER:
 				orgFileName.append("FILE_" + timeStamp);
+				break;
+			case APK:
+				orgFileName.append("APK_" + timeStamp + ".apk");
+				break;
 			}
 		}
 		else
@@ -1987,8 +1991,10 @@ public class Utils
 
 	public static boolean shouldChangeMessageState(ConvMessage convMessage, int stateOrdinal)
 	{
+	
 		if (convMessage == null || convMessage.getTypingNotification() != null || convMessage.getUnreadCount() != -1)
 		{
+			Logger.d("BufRef","ConvMessage is null" + convMessage);
 			return false;
 		}
 		int minStatusOrdinal;
@@ -2004,8 +2010,10 @@ public class Utils
 			maxStatusOrdinal = stateOrdinal;
 		}
 
+		
 		int convMessageStateOrdinal = convMessage.getState().ordinal();
 
+		Logger.d("BugRef","Ordinal state of our ConvMessage is "+convMessageStateOrdinal);
 		if (convMessageStateOrdinal <= maxStatusOrdinal && convMessageStateOrdinal >= minStatusOrdinal)
 		{
 			return true;
@@ -3987,7 +3995,6 @@ public class Utils
 		long time = (long) System.currentTimeMillis() / 1000;
 		ConvMessage convMessage = new ConvMessage(message, msisdn, time, state);
 		convMessage.setSMS(!isOnhike);
-
 		return convMessage;
 	}
 
@@ -6433,6 +6440,7 @@ public class Utils
 	private static String getPathFromDocumentedUri(Uri uri, Context context)
 	{
 		String result = null;
+
 		if (isExternalStorageDocument(uri))
 		{
 			final String docId = DocumentsContract.getDocumentId(uri);
@@ -6934,6 +6942,21 @@ public class Utils
 
 		return cloneJson;
 	}
+	
+	public static String getAppVersion()
+	{
+		String appVersion = "";
+		try
+		{
+			appVersion = HikeMessengerApp.getInstance().getApplicationContext().getPackageManager()
+					.getPackageInfo(HikeMessengerApp.getInstance().getApplicationContext().getPackageName(), 0).versionName;
+		}
+		catch (NameNotFoundException e)
+		{
+			e.printStackTrace();
+		}
+		return appVersion;
+		}
 	
 	public static boolean showContactsUpdates(ContactInfo contactInfo)
 	{
