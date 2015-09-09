@@ -64,38 +64,26 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 	
 	private static final String TAG = "dp_upload";
 
-	public class ActivityState
+	public class ChangeProfileImageActivityState
 	{
-		public HikeHTTPTask task; /* the task to update the global profile */
+		public String deleteAvatarStatusId;
 
-		public RequestToken deleteStatusToken;
+		/*
+		 * the bitmap before the user saves it
+		 */
+		public String destFilePath = null;
 
 		public RequestToken deleteAvatarToken;
 
-		public DownloadImageTask downloadPicasaImageTask; /*
-														 * the task to download the picasa image
-														 */
+		/*
+		 * the task to download the picasa image
+		 */
+		public DownloadImageTask downloadPicasaImageTask;
 
-		public HikeHTTPTask getHikeJoinTimeTask;
-
-		public String destFilePath = null; /*
-											 * the bitmap before the user saves it
-											 */
-
-		public int genderType;
-
-		public boolean groupEditDialogShowing = false;
-
-		public String edittedGroupName = null;
-		
-		public String statusId;
-		
-		public StatusMessageType statusMsgType;
-		
 		public HikeImageUploader mImageWorkerFragment;
 	}
 
-	private ActivityState mActivityState;
+	private ChangeProfileImageActivityState mActivityState;
 
 	private String mRemoveImagePath;
 
@@ -110,16 +98,10 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 
 		Object obj = getLastCustomNonConfigurationInstance();
 
-		if (obj instanceof ActivityState)
+		if (obj instanceof ChangeProfileImageActivityState)
 		{
-			mActivityState = (ActivityState) obj;
-
-			if (mActivityState.task != null)
-			{
-				/* we're currently executing a task, so show the progress dialog */
-				mActivityState.task.setActivity(this);
-				mDialog = ProgressDialog.show(this, null, getResources().getString(R.string.updating_profile));
-			}
+			mActivityState = (ChangeProfileImageActivityState) obj;
+			
 			if (mActivityState.deleteAvatarToken != null)
 			{
 				/* we're currently executing a task, so show the progress dialog */
@@ -137,7 +119,7 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 		}
 		else
 		{
-			mActivityState = new ActivityState();
+			mActivityState = new ChangeProfileImageActivityState();
 		}
 	}
 	
@@ -486,14 +468,14 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 	 */
 	public void deleteDisplayPicture(final String id)
 	{
-		mActivityState.statusId = id;
+		mActivityState.deleteAvatarStatusId = id;
 		JSONObject json = null;
-		if (mActivityState.statusId != null)
+		if (mActivityState.deleteAvatarStatusId != null)
 		{
 			try
 			{
 				json = new JSONObject();
-				json.put(HikeConstants.STATUS_ID, mActivityState.statusId);
+				json.put(HikeConstants.STATUS_ID, mActivityState.deleteAvatarStatusId);
 			}
 			catch (JSONException e)
 			{
@@ -517,16 +499,16 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 				// clear the profile thumbnail from lru cache and db
 				HikeMessengerApp.getLruCache().deleteIconForMSISDN(mLocalMSISDN);
 
-				if (mActivityState.statusId != null)
+				if (mActivityState.deleteAvatarStatusId != null)
 				{
-					HikeMessengerApp.getPubSub().publish(HikePubSub.DELETE_STATUS, mActivityState.statusId);
+					HikeMessengerApp.getPubSub().publish(HikePubSub.DELETE_STATUS, mActivityState.deleteAvatarStatusId);
 					ContactInfo contactInfo = Utils.getUserContactInfo(prefs.getPref());
 					StatusMessageType[] smType = { StatusMessageType.PROFILE_PIC };
 					StatusMessage lastsm = HikeConversationsDatabase.getInstance().getLastStatusMessage(smType, contactInfo);
 
-					if (lastsm != null && mActivityState.statusId.equals(lastsm.getMappedId()))
+					if (lastsm != null && mActivityState.deleteAvatarStatusId.equals(lastsm.getMappedId()))
 					{
-						displayPictureRemoved(mActivityState.statusId);
+						displayPictureRemoved(mActivityState.deleteAvatarStatusId);
 					}
 				}
 				clearDpUpdatePref();
@@ -658,8 +640,6 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 		Logger.d(TAG, "inside onSuccess of request");
 		dismissDialog();
 		
-		mActivityState.task = null;
-		
 		mActivityState.destFilePath = null;
 		
 		JSONObject response = (JSONObject) result.getBody().getContent();
@@ -705,12 +685,8 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 	 */
 	private void failureWhileSettingProfilePic()
 	{
-		
 		dismissDialog();
-		
 		mActivityState.destFilePath = null;
-		
-		mActivityState.task = null;
 	}
 
 	private void dismissDialog()
@@ -764,9 +740,6 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 
 	/**
 	 * Used to clear the pref used to save status id of the dp change status update
-	 * 
-	 * @param statusId
-	 *            of the status update
 	 */
 	public void clearDpUpdatePref()
 	{
