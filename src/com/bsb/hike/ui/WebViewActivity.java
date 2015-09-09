@@ -1287,7 +1287,6 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		else
 		{
 			inflatedErrorView.findViewById(R.id.http_error_ll).setVisibility(View.VISIBLE);
-			webViewLoadFailed = false;
 		}
 	}
 
@@ -1312,6 +1311,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		switch(v.getId())
 		{
 			case R.id.retry_button:
+				webViewLoadFailed = false;
 				initAppsBasedOnMode();
 				inflatedErrorView.findViewById(R.id.http_error_ll).setVisibility(View.GONE);
 				break;
