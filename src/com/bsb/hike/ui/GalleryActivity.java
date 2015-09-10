@@ -371,7 +371,6 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 
 		titleView.setVisibility(View.VISIBLE);
 
-		actionBarView.findViewById(R.id.done_container).setVisibility(View.INVISIBLE);
 		actionBar.setCustomView(actionBarView);
 		actionBar.setDisplayHomeAsUpEnabled(true);
 		Toolbar parent=(Toolbar)actionBarView.getParent();

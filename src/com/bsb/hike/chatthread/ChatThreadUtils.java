@@ -47,6 +47,8 @@ import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.MovingList;
 import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.models.Conversation.OneToNConversationMetadata;
+import com.bsb.hike.offline.OfflineController;
+import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
@@ -278,7 +280,7 @@ public class ChatThreadUtils
 
 	protected static boolean shouldShowLastSeen(String msisdn, Context context, boolean convOnHike, boolean isBlocked)
 	{
-		if (convOnHike && !isBlocked && !BotUtils.isBot(msisdn))
+		if (convOnHike && !isBlocked && !BotUtils.isBot(msisdn) && !OfflineUtils.isConnectedToSameMsisdn(msisdn))
 		{
 			return PreferenceManager.getDefaultSharedPreferences(context).getBoolean(HikeConstants.LAST_SEEN_PREF, true);
 		}
@@ -306,7 +308,7 @@ public class ChatThreadUtils
 		return isMsgSelected ? var + 1 : var - 1;
 	}
 
-	protected static void deleteMessagesFromDb(ArrayList<Long> msgIds, boolean deleteMediaFromPhone, long lastMsgId, String msisdn)
+	public static void deleteMessagesFromDb(ArrayList<Long> msgIds, boolean deleteMediaFromPhone, long lastMsgId, String msisdn)
 	{
 		boolean isLastMessage = (msgIds.contains(lastMsgId));
 		Bundle bundle = new Bundle();
@@ -387,19 +389,37 @@ public class ChatThreadUtils
 	{
 		if (message.isSent() && message.isFileTransferMessage())
 		{
+			if (message.isOfflineMessage())
+			{
+				ConvMessage msg = OfflineController.getInstance().getMessage(message.getMsgID());
+				return msg;
+			}
 			ConvMessage msg = FileTransferManager.getInstance(context).getMessage(message.getMsgID());
 			return msg;
 		}
 		return null;
 	}
 	
-	protected static void publishReadByForMessage(ConvMessage message, HikeConversationsDatabase mConversationDb, String msisdn)
+	//Adding Channel Seletor to take decision based on Online or Offline message
+	protected static void publishReadByForMessage(ConvMessage message, HikeConversationsDatabase mConversationDb, String msisdn,IChannelSelector channelSelector)
 	{
 		message.setState(ConvMessage.State.RECEIVED_READ);
 		mConversationDb.updateMsgStatus(message.getMsgID(), ConvMessage.State.RECEIVED_READ.ordinal(), msisdn);
+		
+		
 		if (message.getParticipantInfoState() == ParticipantInfoState.NO_INFO)
 		{
-			HikeMqttManagerNew.getInstance().sendMessage(message.serializeDeliveryReportRead(), MqttConstants.MQTT_QOS_ONE);
+			// For Offline Messaging
+			// We are sending MR for text messages and contact transfer here and not for other file transfer 
+			if((channelSelector instanceof OfflineChannel) && 
+					(OfflineUtils.isContactTransferMessage(message.serialize()) ||  !message.isFileTransferMessage()))
+			{
+				OfflineController.getInstance().sendMR(message.serializeDeliveryReportRead());
+			}
+			else if(channelSelector instanceof OnlineChannel)
+			{
+				HikeMqttManagerNew.getInstance().sendMessage(message.serializeDeliveryReportRead(), MqttConstants.MQTT_QOS_ONE);
+			}
 		}
 
 		HikeMessengerApp.getPubSub().publish(HikePubSub.MSG_READ, msisdn);
@@ -544,15 +564,15 @@ public class ChatThreadUtils
 		{
 			return HikeConstants.Extras.BOT_CHAT_THREAD;
 		}
-
+		
 		return HikeConstants.Extras.ONE_TO_ONE_CHAT_THREAD;
 	}
 
 	/**
-	 * Sends nmr/mr as per pd is present in convmessage or not
+	 * Sends nmr/mr as per pd is present in convmessage or not.Not sending MR for Offline conversation
 	 * @param msisdn
 	 */
-	public static void sendMR(String msisdn, List<ConvMessage> unreadConvMessages, boolean readMessageExists)
+	public static void sendMR(String msisdn, List<ConvMessage> unreadConvMessages, boolean readMessageExists,IChannelSelector  channelSelector)
 	{
 		List<Pair<Long, JSONObject>> pairList = null;
 		if (readMessageExists)
@@ -570,7 +590,7 @@ public class ChatThreadUtils
 		{
 			return;
 		}
-
+		
 		try
 		{
 
@@ -619,7 +639,7 @@ public class ChatThreadUtils
 				object.put(HikeConstants.TO, msisdn);
 				object.put(HikeConstants.DATA, ids);
 
-				HikeMqttManagerNew.getInstance().sendMessage(object, MqttConstants.MQTT_QOS_ONE);
+				channelSelector.postMR(object);
 			}
 
 			if (dataMR != null && dataMR.length() > 0)
@@ -629,7 +649,7 @@ public class ChatThreadUtils
 				object.put(HikeConstants.TO, msisdn);
 				object.put(HikeConstants.DATA, dataMR);
 
-				HikeMqttManagerNew.getInstance().sendMessage(object, MqttConstants.MQTT_QOS_ONE);
+				channelSelector.postMR(object);
 			}
 			Logger.d(TAG, "Unread Count event triggered");
 
@@ -641,6 +661,7 @@ public class ChatThreadUtils
 		}
 
 	}
+	
 	
 	/**
 	 * Utility method for returning msisdn from action:SendTo intent which is invoked from outside the application

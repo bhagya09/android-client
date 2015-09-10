@@ -77,6 +77,7 @@ import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.MessageMetadata;
 import com.bsb.hike.models.MultipleConvMessage;
 import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.FileTransferCancelledException;
 import com.bsb.hike.utils.HikeApacheHostNameVerifier;
@@ -137,7 +138,7 @@ public class UploadFileTask extends FileTransferBase
 		this.fileKey = fileKey;
 		_state = FTState.INITIALIZED;
 		this.mAttachementType = attachement;
-		createConvMessage();
+		createConvMessage(false);
 	}
 	
 	protected UploadFileTask(Handler handler, ConcurrentHashMap<Long, FutureTask<FTResult>> fileTaskMap, Context ctx, String token, String uId, ArrayList<ContactInfo> contactList, File sourceFile,
@@ -153,7 +154,7 @@ public class UploadFileTask extends FileTransferBase
 		this.fileKey = fileKey;
 		_state = FTState.INITIALIZED;
 		this.mAttachementType = attachement;
-		createConvMessage();
+		createConvMessage(false);
 	}
 
 	protected UploadFileTask(Handler handler, ConcurrentHashMap<Long, FutureTask<FTResult>> fileTaskMap, Context ctx, String token, String uId, Object convMessage,
@@ -179,7 +180,7 @@ public class UploadFileTask extends FileTransferBase
 		this.isRecipientOnhike = isRecipientOnHike;
 		userContext = convMessage;
 		_state = FTState.INITIALIZED;
-		createConvMessage();
+		createConvMessage(false);
 	}
 
 	protected UploadFileTask(Handler handler, ConcurrentHashMap<Long, FutureTask<FTResult>> fileTaskMap, Context ctx, String token, String uId, Uri picasaUri,
@@ -192,7 +193,7 @@ public class UploadFileTask extends FileTransferBase
 		this.isRecipientOnhike = isRecipientOnHike;
 		_state = FTState.INITIALIZED;
 		this.mAttachementType = attachement;
-		createConvMessage();
+		createConvMessage(false);
 	}
 	
 	protected UploadFileTask(Handler handler, ConcurrentHashMap<Long, FutureTask<FTResult>> fileTaskMap, Context ctx, String token, String uId, Uri picasaUri,
@@ -206,9 +207,53 @@ public class UploadFileTask extends FileTransferBase
 		this.isRecipientOnhike = isRecipientOnHike;
 		_state = FTState.INITIALIZED;
 		this.mAttachementType = attachement;
-		createConvMessage();
+		createConvMessage(false);
 	}
 	
+	protected UploadFileTask(Handler handler, ConcurrentHashMap<Long, FutureTask<FTResult>> fileTaskMap, Context ctx, String token, String uId, String msisdn, File sourceFile,
+			String fileKey, String fileType, HikeFileType hikeFileType, boolean isRecording, long recordingDuration, int attachement,String fileName)
+	{
+		super(handler, fileTaskMap, ctx, sourceFile, -1, hikeFileType, token, uId);
+		this.msisdn = msisdn;
+		this.fileType = fileType;
+		this.isRecipientOnhike = true;
+		this.recordingDuration = recordingDuration;
+		this.fileKey = fileKey;
+		_state = FTState.IN_PROGRESS;
+		this.mAttachementType = attachement;
+		createConvMessage(true);
+		stateFile = getStateFile(((ConvMessage) userContext));
+		JSONObject metadata = ((ConvMessage) userContext).getMetadata().getJSON();
+		JSONArray filesArray = new JSONArray();
+
+		HikeFile hikeFile = ((ConvMessage)userContext).getMetadata().getHikeFiles().get(0);
+		hikeFile.setFileSize((int)sourceFile.length());
+		hikeFile.setHikeFileType(hikeFileType);
+		hikeFile.setRecordingDuration(recordingDuration);
+		hikeFile.setSent(true);
+		hikeFile.setFileName(fileName);
+		hikeFile.setFile(sourceFile);
+		JSONObject fileJSON =  hikeFile.serialize();
+		
+		try 
+		{
+			filesArray.put(fileJSON);
+			metadata.put(HikeConstants.FILES, filesArray);
+			MessageMetadata messageMetadata = new MessageMetadata(metadata, true);
+			messageMetadata.getHikeFiles().get(0).setFileName(fileName);
+			messageMetadata.getJSON().putOpt(HikeConstants.FILE_NAME, fileName);
+			((ConvMessage) userContext).setMetadata(messageMetadata);
+		}
+		catch (JSONException e) 
+		{
+			e.printStackTrace();
+		}
+		((ConvMessage) userContext).setTimestamp(System.currentTimeMillis() / 1000);
+		Logger.d("OfflineManager","Message Metadata is "+((ConvMessage) userContext).getMetadata().getJSON());
+		((ConvMessage) userContext).setMessageOriginType(OriginType.OFFLINE);
+		HikeConversationsDatabase.getInstance().addConversationMessages((ConvMessage) userContext, true);
+		HikeMessengerApp.getPubSub().publish(HikePubSub.OFFLINE_MESSAGE_SENT, (ConvMessage) userContext);
+	}
 
 	protected void setFutureTask(FutureTask<FTResult> fuTask)
 	{
@@ -228,7 +273,9 @@ public class UploadFileTask extends FileTransferBase
 
 	// private ConvMessage createConvMessage(Uri picasaUri, File mFile, HikeFileType hikeFileType, String msisdn, boolean isRecipientOnhike, String fileType, long
 	// recordingDuration) throws FileTransferCancelledException, Exception
-	private void createConvMessage()
+	
+	
+	private void createConvMessage(boolean isOfflineMessage)
 	{
 		try
 		{
@@ -291,6 +338,7 @@ public class UploadFileTask extends FileTransferBase
 					// thumbnail.recycle();
 					Logger.d(getClass().getSimpleName(), "Sent Thumbnail Size : " + tBytes.length);
 				}
+			
 				metadata = getFileTransferMetadata(fileName, fileType, hikeFileType, thumbnailString, thumbnail, recordingDuration, mFile.getPath(), (int) mFile.length(), quality);
 			}
 			else
@@ -341,21 +389,25 @@ public class UploadFileTask extends FileTransferBase
 			else
 			{
 				userContext = createConvMessage(fileName, metadata, msisdn, isRecipientOnhike);
+				
 				ConvMessage convMessageObject = (ConvMessage)userContext;
 				if(convMessageObject.isBroadcastConversation())
 				{
 					convMessageObject.setMessageOriginType(OriginType.BROADCAST);
 				}
 
-				HikeConversationsDatabase.getInstance().addConversationMessages(convMessageObject,true);
+				if(!isOfflineMessage)
+					HikeConversationsDatabase.getInstance().addConversationMessages(convMessageObject,true);
 				
 				// 1) user clicked Media file and sending it
 				MsgRelLogManager.startMessageRelLogging((ConvMessage) userContext, MessageType.MULTIMEDIA);
 				msgId = ((ConvMessage) userContext).getMsgID();
 				
 				//Message sent from here will only do an entry in conversation db it is not actually being sent to server.
-				HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_SENT, convMessageObject);
-				HikeMessengerApp.getPubSub().publish(HikePubSub.FILE_MESSAGE_CREATED, convMessageObject);
+				if(!isOfflineMessage)
+					HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_SENT, convMessageObject);
+
+					HikeMessengerApp.getPubSub().publish(HikePubSub.FILE_MESSAGE_CREATED, convMessageObject);
 			}
 		}
 		catch (Exception e)
@@ -645,6 +697,12 @@ public class UploadFileTask extends FileTransferBase
 				FTAnalyticEvents.logDevError(FTAnalyticEvents.UPLOAD_CALLBACK_AREA_1_1, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "file", "No Internet error");
 				return FTResult.UPLOAD_FAILED;
 			}
+			
+			if(((ConvMessage) userContext).getMetadata().getHikeFiles().get(0).getFileSize()>HikeConstants.MAX_FILE_SIZE)
+			{
+				return FTResult.FILE_SIZE_EXCEEDING;
+			}
+			
 		}
 		catch (FileTransferCancelledException e)
 		{
@@ -1423,8 +1481,8 @@ public class UploadFileTask extends FileTransferBase
 		if (result != FTResult.PAUSED && result != FTResult.SUCCESS)
 		{
 			final int errorStringId = result == FTResult.READ_FAIL ? R.string.unable_to_read : result == FTResult.CANCELLED ? R.string.upload_cancelled
-					: result == FTResult.FAILED_UNRECOVERABLE ? R.string.upload_failed : result == FTResult.CARD_UNMOUNT ? R.string.card_unmount
-							: result == FTResult.DOWNLOAD_FAILED ? R.string.download_failed : R.string.upload_failed;
+					: result == FTResult.FAILED_UNRECOVERABLE ? R.string.upload_failed : result == FTResult.FILE_SIZE_EXCEEDING ? R.string.max_file_size
+							: result == FTResult.CARD_UNMOUNT ? R.string.card_unmount : result == FTResult.DOWNLOAD_FAILED ? R.string.download_failed : R.string.upload_failed;
 
 			handler.post(new Runnable()
 			{

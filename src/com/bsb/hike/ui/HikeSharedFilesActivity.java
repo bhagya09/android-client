@@ -258,7 +258,6 @@ public class HikeSharedFilesActivity extends HikeAppStateBaseFragmentActivity
 			}
 		});
 
-		actionBarView.findViewById(R.id.done_container).setVisibility(View.INVISIBLE);
 		actionBar.setCustomView(actionBarView);
 		Toolbar parent=(Toolbar)actionBarView.getParent();
 		parent.setContentInsetsAbsolute(0,0);

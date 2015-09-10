@@ -540,6 +540,10 @@ public class Utils
 				break;
 			case OTHER:
 				orgFileName.append("FILE_" + timeStamp);
+				break;
+			case APK:
+				orgFileName.append("APK_" + timeStamp + ".apk");
+				break;
 			}
 		}
 		else
@@ -1995,8 +1999,10 @@ public class Utils
 
 	public static boolean shouldChangeMessageState(ConvMessage convMessage, int stateOrdinal)
 	{
+	
 		if (convMessage == null || convMessage.getTypingNotification() != null || convMessage.getUnreadCount() != -1)
 		{
+			Logger.d("BufRef","ConvMessage is null" + convMessage);
 			return false;
 		}
 		int minStatusOrdinal;
@@ -2012,8 +2018,10 @@ public class Utils
 			maxStatusOrdinal = stateOrdinal;
 		}
 
+		
 		int convMessageStateOrdinal = convMessage.getState().ordinal();
 
+		Logger.d("BugRef","Ordinal state of our ConvMessage is "+convMessageStateOrdinal);
 		if (convMessageStateOrdinal <= maxStatusOrdinal && convMessageStateOrdinal >= minStatusOrdinal)
 		{
 			return true;
@@ -4049,7 +4057,6 @@ public class Utils
 		long time = (long) System.currentTimeMillis() / 1000;
 		ConvMessage convMessage = new ConvMessage(message, msisdn, time, state);
 		convMessage.setSMS(!isOnhike);
-
 		return convMessage;
 	}
 
@@ -4348,6 +4355,7 @@ public class Utils
 		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		String whichChatThread = ChatThreadUtils.getChatThreadType(contactInfo.getMsisdn());
 		intent.putExtra(HikeConstants.Extras.WHICH_CHAT_THREAD, whichChatThread);
+		intent.putExtra(HikeConstants.Extras.CHAT_INTENT_TIMESTAMP, System.currentTimeMillis());
 		context.startActivity(intent);
 	}
 
@@ -6382,7 +6390,7 @@ public class Utils
 		
 		if (prefs != null)
 		{
-			return prefs.getData(HikeConstants.Extras.STATUS_UPDATE_SHOW_COUNTS, false);
+			return prefs.getData(HikeConstants.Extras.STATUS_UPDATE_SHOW_COUNTS, true);
 		}
 		
 		return false;
@@ -6394,7 +6402,7 @@ public class Utils
 		
 		if (prefs != null)
 		{
-			return prefs.getData(HikeConstants.Extras.STATUS_UPDATE_SHOW_LIKES, false);
+			return prefs.getData(HikeConstants.Extras.STATUS_UPDATE_SHOW_LIKES, true);
 		}
 		
 		return false;
@@ -6495,6 +6503,7 @@ public class Utils
 	private static String getPathFromDocumentedUri(Uri uri, Context context)
 	{
 		String result = null;
+
 		if (isExternalStorageDocument(uri))
 		{
 			final String docId = DocumentsContract.getDocumentId(uri);
@@ -7011,6 +7020,21 @@ public class Utils
 			if(file.exists())
 				file.delete();
 		}
+	}
+	
+	public static String getAppVersion()
+	{
+		String appVersion = "";
+		try
+		{
+			appVersion = HikeMessengerApp.getInstance().getApplicationContext().getPackageManager()
+					.getPackageInfo(HikeMessengerApp.getInstance().getApplicationContext().getPackageName(), 0).versionName;
+		}
+		catch (NameNotFoundException e)
+		{
+			e.printStackTrace();
+		}
+		return appVersion;
 	}
 	
 	public static boolean showContactsUpdates(ContactInfo contactInfo)

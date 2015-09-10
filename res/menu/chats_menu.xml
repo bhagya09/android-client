@@ -11,10 +11,10 @@
 		 >
     </item>
      <item
-		android:id="@+id/take_pic"
+		android:id="@+id/timeline"
 		app:actionLayout="@layout/overflow_icon_view"
 		app:showAsAction="always"
-		android:title="@string/edit_photos" >
+		android:title="@string/timeline" >
     </item>
     <item
         android:id="@+id/new_conversation"
