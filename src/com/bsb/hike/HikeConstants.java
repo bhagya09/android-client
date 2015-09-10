@@ -1721,6 +1721,8 @@ public class HikeConstants
 		public static final String DEL_SCR_FILE_ON_CALL_FAIL = "del_tmp_file_call_fail";
 		
 		public static final String DEL_PREV_MSISDN_PIC = "del_prev_msisdn_pic";
+
+		public static final String CHAT_INTENT_TIMESTAMP = "chat_ts";
 	}
 
 	public static final class LogEvent
@@ -2539,11 +2541,19 @@ public class HikeConstants
 		
 		public static final String SESSION = "sess";
 		
+		public static final String GENERAL_EVENT_PACKET_ZERO = "ge0";
+	}
+
+	public static final class GeneralEventMessagesTypes
+	{
+		public static final String OFFLINE = "offline";
+	
 		public static final String ACTIVITY_UPDATE = "ac_up";
 		
 		public static final String TIMELINE_PREFFERED_CONTACTS = "tlpc";
 	}
 
+	
 	public static final class SMSNative
 	{
 		/*
@@ -2578,7 +2588,7 @@ public class HikeConstants
 
 	public static enum FTResult
 	{
-		SUCCESS, UPLOAD_FAILED, FILE_TOO_LARGE, READ_FAIL, DOWNLOAD_FAILED, CANCELLED, FILE_EXPIRED, PAUSED, SERVER_ERROR, FAILED_UNRECOVERABLE, CARD_UNMOUNT, NO_SD_CARD, UNKNOWN_SERVER_ERROR
+		SUCCESS, UPLOAD_FAILED, FILE_TOO_LARGE, READ_FAIL, DOWNLOAD_FAILED, CANCELLED, FILE_EXPIRED, PAUSED, SERVER_ERROR, FAILED_UNRECOVERABLE, CARD_UNMOUNT, NO_SD_CARD, UNKNOWN_SERVER_ERROR,FILE_SIZE_EXCEEDING
 	}
 
 	public static enum SMSSyncState
@@ -2795,6 +2805,8 @@ public class HikeConstants
 	
 	public static final int BROADCAST_MESSAGE_TYPE = 3;
 	
+	public static final int OFFLINE_MESSAGE_TYPE = 4;
+	
 	public static final String SHOWN_MULTI_FORWARD_TIP = "shownMultiForwardTip";
 
 	public static final String VISIBLITY = "visibility";
@@ -2962,7 +2974,9 @@ public class HikeConstants
 	public static final String TIMESTAMP_MILLIS = "msec";
 	
 	public static final String EVENT_TAG_SESSION = "sess";
-
+	
+	public static final String CAM_IMG_PREFIX = "CAM_";
+	
 	public static final String MESSAGE_PROCESS_TIME = "mpt";
 	
 	public static TypedArray DEFAULT_AVATAR_BG_COLOR_ARRAY = null;
@@ -2972,7 +2986,6 @@ public class HikeConstants
 	public static String DEFAULT_AVATAR_KEYS[] = {"avatar_buggle_gum","avatar_apricot", "avatar_carnation", "avatar_light_gold", "avatar_sky_blue"};
 	
 	public static String IS_GROUP = "isGroup";
-	public static final String CAM_IMG_PREFIX = "CAM_";
 	
 	public static final String URL_WHITELIST = "uwl";
 	
@@ -3073,6 +3086,8 @@ public class HikeConstants
 	public static final int KEYBOARD_CONFIGURATION_NEW = 2;
 	
 	public static final String GET="get";
+	
+	public static final String HIKE_FILE_TYPE = "hft";
 
 	public static final String FTUE_HIKEBOT_MSISDN = "+hike1+";
 
@@ -3105,7 +3120,7 @@ public class HikeConstants
 	public static final String IMAGE = "img";
 
 	public static final String OTHER_EXCEPTION_LOGGING = "otherExLoging";
-	
+
 	public static final String HTTP_EXCEPTION_LOGGING = "httpExc";
 
 	public static final String CONN_PROD_AREA_LOGGING = "connProdAreaLogs";
@@ -3122,9 +3137,11 @@ public class HikeConstants
 	
 	public static final String TAG_HEADLESS_IMAGE_UPLOAD_FRAGMENT = "headlessimage_up_fragment";
 
-	public static final String SERVER_CONFIG_DEFAULT_IMAGE_SAVE_QUALITY = "def_img_q";
-	
 	public static final String IMAGE_PATHS = "image-paths";
+
+	public static final String  SERVER_CONFIG_DEFAULT_IMAGE_SAVE_QUALITY = "def_img_q";
+
+	public static final String OFFLINE_MESSAGE_REQUEST = "omr";
 
 	public static final String ENABLE_TIMELINE_FTUE = "tl_ftue";
 	
@@ -3179,6 +3196,8 @@ public class HikeConstants
 
 	public static final String SPECIAL_DAY_TRIGGER = "s_d_t";
 
+	public static final Object OFFLINE_MESSAGE_REQUEST_CANCEL = "offreqcan";
+
 	public static final String DP_IMAGE_SIZE = "dp_img_s";
 	
 	public static class IntentAction
@@ -3230,6 +3249,8 @@ public class HikeConstants
 	public static final String TIMELINE_COUNT_LOGS = "tlc_logs";
 	
 	public static final String STICKER_SETTINGS = "stickerSettings";
+
+	public static final String TAG = "Tag";
 
 	public static final String AG_ENABLED = "agLogs";
 

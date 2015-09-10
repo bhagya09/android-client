@@ -74,6 +74,9 @@ import com.bsb.hike.models.FtueContactsData;
 import com.bsb.hike.models.Conversation.ConversationTip;
 import com.bsb.hike.modules.animationModule.HikeAnimationFactory;
 import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.offline.OfflineConstants;
+import com.bsb.hike.offline.OfflineConstants.OFFLINE_STATE;
+import com.bsb.hike.offline.OfflineController;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.snowfall.SnowFallView;
 import com.bsb.hike.tasks.DownloadAndInstallUpdateAsyncTask;
@@ -1580,7 +1583,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			return;
 		Logger.d(getClass().getSimpleName(), "visiblity for: " + HikeMessengerApp.networkError);
 		// networkErrorPopUp.clearAnimation();
-		if (HikeMessengerApp.networkError)
+		if (HikeMessengerApp.networkError && OfflineController.getInstance().getOfflineState() != OFFLINE_STATE.CONNECTED)
 		{
 			networkErrorPopUp.setText(R.string.no_internet_connection);
 			networkErrorPopUp.setBackgroundColor(getResources().getColor(R.color.red_no_network));
@@ -1597,7 +1600,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		if (networkErrorPopUp == null)
 			return;
 		Logger.d(getClass().getSimpleName(), "animation for: " + HikeMessengerApp.networkError);
-		if (HikeMessengerApp.networkError)
+		if (HikeMessengerApp.networkError && OfflineController.getInstance().getOfflineState() != OFFLINE_STATE.CONNECTED)
 		{
 			Animation alphaIn = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.slide_up_noalpha);
 			alphaIn.setDuration(400);
