@@ -219,7 +219,8 @@ public class SharedMediaAdapter extends PagerAdapter implements OnClickListener,
 				return;
 			}
 			
-			View parent = imageView.getRootView();
+			//Using parent of parent as loader is their
+			View parent = (View) ((View) imageView.getParent()).getParent();
 			
 			if(parent != null && parent.findViewById(R.id.progress_bar) != null)
 			{
