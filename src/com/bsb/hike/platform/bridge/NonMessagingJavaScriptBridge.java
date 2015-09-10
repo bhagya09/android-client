@@ -1051,7 +1051,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 			return;
 		}
 		BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
-		NonMessagingBotMetadata metadata = new NonMessagingBotMetadata(botInfo.getMetadata());
+		NonMessagingBotMetadata metadata = new NonMessagingBotMetadata(mBotInfo.getMetadata());
 		if (!metadata.isSpecialBot())
 		{
 			Logger.e(TAG, "the bot is not a special bot and only special bot has the authority to call this function.");
@@ -1085,7 +1085,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 			return;
 		}
 		BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
-		NonMessagingBotMetadata metadata = new NonMessagingBotMetadata(botInfo.getMetadata());
+		NonMessagingBotMetadata metadata = new NonMessagingBotMetadata(mBotInfo.getMetadata());
 		if (!metadata.isSpecialBot())
 		{
 			Logger.e(TAG, "the bot is not a special bot and only special bot has the authority to call this function.");
@@ -1110,7 +1110,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 			return;
 		}
 		BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
-		NonMessagingBotMetadata metadata = new NonMessagingBotMetadata(botInfo.getMetadata());
+		NonMessagingBotMetadata metadata = new NonMessagingBotMetadata(mBotInfo.getMetadata());
 		if (!metadata.isSpecialBot())
 		{
 			Logger.e(TAG, "the bot is not a special bot and only special bot has the authority to call this function.");
@@ -1135,7 +1135,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 			return;
 		}
 		BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
-		NonMessagingBotMetadata metadata = new NonMessagingBotMetadata(botInfo.getMetadata());
+		NonMessagingBotMetadata metadata = new NonMessagingBotMetadata(mBotInfo.getMetadata());
 		if (!metadata.isSpecialBot())
 		{
 			Logger.e(TAG, "the bot is not a special bot and only special bot has the authority to call this function.");
