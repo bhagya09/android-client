@@ -46,6 +46,7 @@ import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.platform.CustomWebView;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.IFileUploadListener;
+import com.bsb.hike.platform.PlatformHelper;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.platform.content.PlatformContentConstants;
@@ -74,17 +75,17 @@ public abstract class JavascriptBridge
 	protected WeakReference<Activity> weakActivity;;
 
 	public static final String tag = "JavascriptBridge";
-
+	
 	protected Handler mHandler;
 	
 	protected static final String REQUEST_CODE = "request_code";
 	
 	private static final int PICK_CONTACT_REQUEST = 1;
 
-	protected static final int PICK_CONTACT_AND_SEND_REQUEST = 2;
+	public static final int PICK_CONTACT_AND_SEND_REQUEST = 2;
 	
 	protected static final int CLOSE_WEB_VIEW = 3;
-
+	
 	public JavascriptBridge(Activity activity, CustomWebView mWebView)
 	{
 		this.mWebView = mWebView;
@@ -1117,6 +1118,16 @@ public abstract class JavascriptBridge
 		{
 			mHandler.sendEmptyMessage(CLOSE_WEB_VIEW);
 		}
+	}
+	
+	public void pickContactAndSend(ConvMessage message, final Activity activity)
+	{
+		PlatformHelper.pickContactAndSend(message, activity,JavascriptBridge.this.hashCode());
+	}
+	
+	public void sendSharedMessage(String cardObject, String hikeMessage, String sharedData, BotInfo mBotInfo, final Activity activity)
+	{
+		PlatformHelper.sendSharedMessage(cardObject, hikeMessage, sharedData, mBotInfo, weakActivity.get(),JavascriptBridge.this.hashCode());
 	}
 
 }
