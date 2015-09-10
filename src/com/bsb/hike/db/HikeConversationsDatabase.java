@@ -1,5 +1,6 @@
 package com.bsb.hike.db;
 
+import java.nio.channels.SelectableChannel;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -34,6 +35,7 @@ import android.graphics.drawable.Drawable;
 import android.provider.BaseColumns;
 import android.text.TextUtils;
 import android.util.Base64;
+import android.util.Log;
 import android.util.Pair;
 import android.util.SparseArray;
 
@@ -75,6 +77,7 @@ import com.bsb.hike.models.Conversation.OneToOneConversation;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.contactmgr.ConversationMsisdns;
 import com.bsb.hike.modules.contactmgr.GroupDetails;
+import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.platform.ContentLove;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformMessageMetadata;
@@ -1017,6 +1020,14 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		return executeUpdateMessageStatusStatement(query, val, msisdn);
 	}
 
+	/**
+	 * 
+	 * @param msisdn
+	 * @param maxMsgId
+	 * @return
+	 * 
+	 * 	Get a list of MsgId that are going to be marked as R.
+	 */
 	public ArrayList<Long> getCurrentUnreadMessageIdsForMsisdn(String msisdn, long maxMsgId)
 	{
 		ArrayList<Long> ids = new ArrayList<Long>();
@@ -1027,6 +1038,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			c = mDb.query(DBConstants.MESSAGES_TABLE, new String[] { DBConstants.MESSAGE_ID,  DBConstants.MSG_STATUS, DBConstants.MESSAGE_ORIGIN_TYPE }, DBConstants.MSISDN + "=? AND "+ DBConstants.MESSAGE_ID + "<=? AND " + DBConstants.MSG_STATUS + "<"
 					+ State.SENT_DELIVERED_READ.ordinal(), new String[] { msisdn, String.valueOf(maxMsgId) }, null, null, null);
 
+			//c=getCursor( msisdn,maxMsgId);
 			while (c.moveToNext())
 			{
 				long id = c.getLong(c.getColumnIndex(DBConstants.MESSAGE_ID));
@@ -1037,11 +1049,15 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				 * force R.
 				 * 2. if message is broadcast then only if its status is Delivered we chhose this as a candidate for
 				 * force R.
+				 * 3.If we are connected in OfflineMode then we allow only those message for R that are delivered.As our single tick msg
+				 * we getting R due to this check.This check is only application for offline mode and it should not hamper online mode.
+				 * 
 				 */
 				if (ConvMessage.originTypeValue(msgOriginType) != OriginType.BROADCAST
 						|| ConvMessage.stateValue(msgStatus) == State.SENT_DELIVERED)
 				{
-					ids.add(id);
+					if(!(OfflineUtils.isConnectedToSameMsisdn(msisdn)&&(ConvMessage.stateValue(msgStatus).ordinal() < State.SENT_DELIVERED.ordinal())))
+							ids.add(id);
 				}
 			}
 		}
@@ -1053,6 +1069,28 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			}
 		}
 		return ids;
+	}
+
+	private Cursor getCursor(String msisdn, long maxMsgId)
+	{
+		Cursor c = null;
+
+		boolean isOfflineMode = OfflineUtils.isConnectedToSameMsisdn(msisdn);
+		String equality = null;
+		String[] selecArgs = new String[] { msisdn, String.valueOf(maxMsgId), Integer.toString(State.SENT_DELIVERED_READ.ordinal()) };
+		String selecParams = DBConstants.MSISDN + "=? AND " + DBConstants.MESSAGE_ID + "<=? AND " + DBConstants.MSG_STATUS + "<? ";
+//		if (isOfflineMode)
+//		{
+//			equality = " =? ";
+//			selecParams = selecParams + " AND " + DBConstants.MESSAGE_ORIGIN_TYPE + equality;
+//			selecArgs=Arrays.copyOf(selecArgs, selecArgs.length+1);
+//			selecArgs[3] = Integer.toString(ConvMessage.OriginType.OFFLINE.ordinal());
+//		}
+		c = mDb.query(DBConstants.MESSAGES_TABLE, new String[] { DBConstants.MESSAGE_ID, DBConstants.MSG_STATUS, DBConstants.MESSAGE_ORIGIN_TYPE }, selecParams, selecArgs, null,
+				null, null);
+
+		return c;
+
 	}
 
 	public ArrayList<Long>  setAllDeliveredMessagesReadForMsisdn(String msisdn, ArrayList<Long> msgIds)
@@ -2901,6 +2939,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		}
 		return muteInt == 0 ? false : true;
 	}
+	
 
 	public List<ConvMessage> getConversationThread(String msisdn, int limit, Conversation conversation, long maxMsgId, long minMsgId)
 	{
@@ -2937,6 +2976,32 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		}
 	}
 
+	
+	public List<ConvMessage> getUnDeliveredMessages(String msisdn)
+	{
+		String selection = DBConstants.MSISDN + " = ?" + " AND " + DBConstants.MSG_STATUS + " < " + State.SENT_DELIVERED.ordinal();
+		Cursor c = null;
+		try
+		{
+			/* TODO this should be ORDER BY timestamp */
+			c = mDb.query(DBConstants.MESSAGES_TABLE, new String[] { DBConstants.MESSAGE, DBConstants.MSG_STATUS, DBConstants.TIMESTAMP, DBConstants.MESSAGE_ID,
+					DBConstants.MAPPED_MSG_ID, DBConstants.MESSAGE_METADATA, DBConstants.GROUP_PARTICIPANT, DBConstants.IS_HIKE_MESSAGE, DBConstants.READ_BY,
+					DBConstants.MESSAGE_TYPE,DBConstants.HIKE_CONTENT.CONTENT_ID, HIKE_CONTENT.NAMESPACE,DBConstants.MESSAGE_ORIGIN_TYPE}, selection, new String[] { msisdn }, null, null, DBConstants.MESSAGE_ID + " DESC");
+
+
+			List<ConvMessage> elements = getMessagesFromDB(c,true,msisdn);
+			Collections.reverse(elements);
+
+			return elements;
+		}
+		finally
+		{
+			if (c != null)
+			{
+				c.close();
+			}
+		}
+	}
 	public Conversation getConversation(String msisdn, int limit, boolean getMetadata)
 	{
 
@@ -3581,19 +3646,19 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				}
 				else
 				{
-
+					ContactInfo contact=null;
 					if (BotUtils.isBot(msisdn))
 					{
 						convInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
+						contact = ContactManager.getInstance().getContact(convInfo.getMsisdn());
 					}
 
 					else
 					{
 						convInfo = new ConvInfo.ConvInfoBuilder(msisdn).setSortingTimeStamp(sortingTimestamp).setOnHike(onhike).build();
+						contact = ContactManager.getInstance().getContact(convInfo.getMsisdn());
 					}
-
-					ContactInfo contact = ContactManager.getInstance().getContact(convInfo.getMsisdn());
-
+					
 					ContactManager.getInstance().updateContactRecency(msisdn, sortingTimestamp, false);
 
 					if (null == contact)
@@ -6374,6 +6439,11 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 	 */
 	private List<ConvMessage> getMessagesFromDB(Cursor c, Conversation conversation)
 	{
+		 return getMessagesFromDB(c,conversation.isOnHike(),conversation.getMsisdn());
+	}
+	
+	private List<ConvMessage> getMessagesFromDB(Cursor c,boolean isOnHike,String msisdn)
+	{
 		final int msgColumn = c.getColumnIndex(DBConstants.MESSAGE);
 		final int msgStatusColumn = c.getColumnIndex(DBConstants.MSG_STATUS);
 		final int tsColumn = c.getColumnIndex(DBConstants.TIMESTAMP);
@@ -6394,9 +6464,9 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		while (c.moveToNext())
 		{
 			int hikeMessage = c.getInt(isHikeMessageColumn);
-			boolean isHikeMessage = hikeMessage == -1 ? conversation.isOnHike() : (hikeMessage == 0 ? false : true);
+			boolean isHikeMessage = hikeMessage == -1 ?isOnHike : (hikeMessage == 0 ? false : true);
 
-			ConvMessage message = new ConvMessage(c.getString(msgColumn), conversation.getMsisdn(), c.getInt(tsColumn), ConvMessage.stateValue(c.getInt(msgStatusColumn)),
+			ConvMessage message = new ConvMessage(c.getString(msgColumn),msisdn, c.getInt(tsColumn), ConvMessage.stateValue(c.getInt(msgStatusColumn)),
 					c.getLong(msgIdColumn), c.getLong(mappedMsgIdColumn), c.getString(groupParticipantColumn), !isHikeMessage, c.getInt(typeColumn),c.getInt(contentIdColumn), c.getString(nameSpaceColumn));
 			//if(message.getMessageType() == HikeConstants.MESSAGE_TYPE.CONTENT){
 //				int loveId = c.getInt(loveIdColumn);
@@ -7910,7 +7980,12 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 		return null;
 	}
-
+	public int updateMessageOriginType(long msgID,int originTypeOrdinal)
+	{
+		ContentValues contentValues = new ContentValues();
+		contentValues.put(DBConstants.MESSAGE_ORIGIN_TYPE , originTypeOrdinal);
+		return mDb.update(DBConstants.MESSAGES_TABLE, contentValues, DBConstants.MESSAGE_ID + "=?", new String[] { Long.toString(msgID) });
+	}
 	/**
 	 * Get actions (likes/comments/views) for corresponding UUIDs
 	 * 

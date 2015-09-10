@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bsb.hike"
     android:installLocation="auto"
-    android:versionCode="1416"
-    android:versionName="4.0.3.1.core_messaging" >
+    android:versionCode="1418"
+    android:versionName="4.0.4.20" >
+    
     <uses-sdk
         android:minSdkVersion="14"
         android:targetSdkVersion="17"/>
@@ -347,7 +347,19 @@
             android:configChanges="orientation|keyboardHidden|screenSize" 
             android:label="@string/app_label"
             />
+         <activity
+            android:name=".ui.ApkSelectionActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:label="@string/app_label"
+            android:windowSoftInputMode="adjustResize" >
+        </activity>
 
+         <activity
+            android:name=".ui.HikeDirectHelpPageActivity"
+            android:label="@string/app_label"
+         >
+        </activity>
+         
         <receiver
             android:name=".service.BootService"
             android:enabled="true" >
@@ -479,6 +491,14 @@
             <intent-filter android:priority="999" >
                 <action android:name="android.intent.action.ACTION_SHUTDOWN" />
                 <action android:name="android.intent.action.QUICKBOOT_POWEROFF" />
+            </intent-filter>
+        
+        </receiver>
+        
+        <receiver
+             android:name="com.bsb.hike.offline.NotificationCancelReceiver" >
+            <intent-filter android:priority="999" >
+                <action android:name="com.bsb.cancel" />
             </intent-filter>
         </receiver>
         
