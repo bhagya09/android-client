@@ -191,9 +191,8 @@ public class DisplayContactsAdapter extends BaseAdapter
 
 			// TODO Make this generic
 			holder.contactStatus.setText(R.string.liked_this_post);
-
 			holder.avatar.setOval(true);
-			mAvatarLoader.loadImage(contactInfo.getMsisdn(), holder.avatar);
+			mAvatarLoader.loadImage(contactInfo.getMsisdn(), holder.avatar, false, false, true);
 			break;
 
 		case UNKNOWN_CONTACT_VIEW_TYPE:
