@@ -305,7 +305,7 @@ public class HikeConverter implements IMessageReceived, IMessageSent {
 				}
 				else if (OfflineUtils.isDisconnectPkt(messageJSON))
 				{
-					throw new OfflineException(OfflineException.USER_DISCONNECTED);
+					throw new OfflineException(OfflineException.PEER_DISCONNECTED);
 				}
 				ConvMessage convMessage = new ConvMessage(messageJSON, context);
 				if (OfflineUtils.isStickerMessage(messageJSON))

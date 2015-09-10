@@ -520,6 +520,9 @@ public class OfflineController
 			hikeConverter.releaseResources();
 
 			offlineManager.releaseResources();
+			ERRORCODE errorCode = ERRORCODE.SHUTDOWN;
+			errorCode.setErrorCode(exception);
+			offlineManager.updateListeners(errorCode);
 			// if a sending file didn't go change from spinner to retry button
 			HikeMessengerApp.getPubSub().publish(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED, null);
 			setOfflineState(OFFLINE_STATE.DISCONNECTED);

@@ -1000,13 +1000,25 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 			@Override
 			public void onConnectionRequest(Boolean startAnimation)
 			{
-
-				Intent in = IntentFactory.createChatThreadIntentFromMsisdn(getActivity(),
-						OfflineUtils.fetchMsisdnFromRequestPkt(HikeSharedPreferenceUtil.getInstance().getData(OfflineConstants.DIRECT_REQUEST_DATA, "")), false, false);
-				in.putExtra(OfflineConstants.START_CONNECT_FUNCTION, true);
-				getActivity().startActivity(in);		
-				// start chatTHread
-
+				String msisdn  = OfflineUtils.fetchMsisdnFromRequestPkt(HikeSharedPreferenceUtil.getInstance().getData(OfflineConstants.DIRECT_REQUEST_DATA, ""));
+				if(TextUtils.isEmpty(msisdn))
+				{
+					return;
+				}
+				
+				if(StealthModeManager.getInstance().isStealthMsisdn(msisdn) && !StealthModeManager.getInstance().isActive())
+				{
+					OfflineController.getInstance().connectAsPerMsisdn(msisdn);
+				}
+				else
+				{
+					//Starting Chathread
+					Intent in = IntentFactory.createChatThreadIntentFromMsisdn(getActivity(),
+							OfflineUtils.fetchMsisdnFromRequestPkt(HikeSharedPreferenceUtil.getInstance().getData(OfflineConstants.DIRECT_REQUEST_DATA, "")), false, false);
+					in.putExtra(OfflineConstants.START_CONNECT_FUNCTION, true);
+					getActivity().startActivity(in);							
+				}
+				
 			}
 		});
 	}
@@ -2979,6 +2991,10 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 	 */
 	private void checkAndAddListViewHeader(View headerView)
 	{
+		if (!isAdded())
+		{
+			return;
+		}
 		ListAdapter adapter = getListAdapter();
 
 		if (adapter != null)
