@@ -252,7 +252,7 @@ public class HikeAppStateBaseFragmentActivity extends HikeBaseActivity implement
 		actionBar.setDisplayShowTitleEnabled(false);
 	}
 	
-	protected void updateActionBarColor(Drawable colorDrawable)
+	public void updateActionBarColor(Drawable colorDrawable)
 	{
 		ActionBar actionBar = getSupportActionBar();
 		actionBar.setBackgroundDrawable((colorDrawable));

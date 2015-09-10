@@ -97,6 +97,7 @@ public class HikeNotification
 
 	public static final int TICKER_TEXT_MAX_LENGHT = 100;
 	
+	public static final int OFFLINE_REQUEST_ID = -91;
 	// We need a key to pair notification id. This will be used to retrieve notification id on notification dismiss/action.
 	public static final String HIKE_NOTIFICATION_ID_KEY = "hike.notification";
 
