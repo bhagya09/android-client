@@ -150,7 +150,11 @@ public class ToastListener implements Listener
 			{
 				Utils.resetUnseenStatusCount(activity);
 				HikeMessengerApp.getPubSub().publish(HikePubSub.INCREMENTED_UNSEEN_STATUS_COUNT, null);
-				return;
+				
+				if (((TimelineActivity) activity).isUpdatesFrgamentOnTop())
+				{
+					return;
+				}
 			}
 			StatusMessage statusMessage = (StatusMessage) object;
 			String msisdn = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).getString(HikeMessengerApp.MSISDN_SETTING, "");
@@ -545,7 +549,7 @@ public class ToastListener implements Listener
 					}
 					if (participantInfoState == ParticipantInfoState.NO_INFO || participantInfoState == ParticipantInfoState.PARTICIPANT_JOINED
 						|| participantInfoState == ParticipantInfoState.USER_JOIN || participantInfoState == ParticipantInfoState.CHAT_BACKGROUND 
-						|| message.isVoipMissedCallMsg()||participantInfoState == ParticipantInfoState.CHANGE_ADMIN)
+						|| message.isVoipMissedCallMsg() || participantInfoState == ParticipantInfoState.OFFLINE_INLINE_MESSAGE ||participantInfoState == ParticipantInfoState.CHANGE_ADMIN)
 					{
 						if (participantInfoState == ParticipantInfoState.CHAT_BACKGROUND)
 						{

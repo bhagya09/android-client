@@ -21,6 +21,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.content.pm.ActivityInfo;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -101,6 +102,7 @@ import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
+import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.smartImageLoader.IconLoader;
@@ -400,6 +402,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		}
 		else if(getIntent().hasExtra(HikeConstants.Extras.CONTACT_INFO_TIMELINE))
 		{
+			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 			setContentView(R.layout.profile);
 			View parent = findViewById(R.id.parent_layout);
 			getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
@@ -431,6 +434,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			}
 			else
 			{
+				setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 				setContentView(R.layout.profile);
 				View parent = findViewById(R.id.parent_layout);
 				getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
@@ -681,7 +685,9 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 
 			if (friendItem != null)
 			{
-					if (contactInfo.getFavoriteType() != FavoriteType.NOT_FRIEND && contactInfo.getFavoriteType() != FavoriteType.REQUEST_RECEIVED && contactInfo.getFavoriteType() != FavoriteType.REQUEST_RECEIVED_REJECTED )
+					if (contactInfo.getFavoriteType() != FavoriteType.NOT_FRIEND && contactInfo.getFavoriteType() != FavoriteType.REQUEST_RECEIVED 
+							&& contactInfo.getFavoriteType() != FavoriteType.REQUEST_RECEIVED_REJECTED 
+							&& !OfflineUtils.isConnectedToSameMsisdn(contactInfo.getMsisdn()))
 					{
 						friendItem.setVisible(true);
 						friendItem.setTitle(R.string.remove_from_favorites);
@@ -862,7 +868,9 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			dual_layout.setVisibility(View.GONE);
 			statusMood.setVisibility(View.GONE);
 			fav_layout.setTag(null);  //Resetting the tag, incase we need to add to favorites again.
-			if(!HikeMessengerApp.hikeBotInfoMap.containsKey(contactInfo.getMsisdn()))  //The HikeBot's numbers wont be shown
+			// not showing favorites and invite to hike if connected in offline mode
+			if(!HikeMessengerApp.hikeBotInfoMap.containsKey(contactInfo.getMsisdn()) &&
+					!OfflineUtils.isConnectedToSameMsisdn(msisdn))  //The HikeBot's numbers wont be shown
 			{
 			if (showContactsUpdates(contactInfo)) // Favourite case
 			
@@ -936,7 +944,8 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 						}
 					}
 			}
-
+			
+			// do we need to remove the invite to hike in Hike Direct mode
 			else if (!contactInfo.isOnhike())
 			{  	subText.setText(getResources().getString(R.string.on_sms));
 				// UNKNOWN and on SMS

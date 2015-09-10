@@ -97,6 +97,7 @@ public class HikeNotification
 
 	public static final int TICKER_TEXT_MAX_LENGHT = 100;
 	
+	public static final int OFFLINE_REQUEST_ID = -91;
 	// We need a key to pair notification id. This will be used to retrieve notification id on notification dismiss/action.
 	public static final String HIKE_NOTIFICATION_ID_KEY = "hike.notification";
 
@@ -370,6 +371,7 @@ public class HikeNotification
 		}
 		notificationIntent.putExtra(HikeConstants.Extras.MSISDN, contactInfo.getMsisdn());
 		notificationIntent.putExtra(HikeConstants.Extras.WHICH_CHAT_THREAD, ChatThreadUtils.getChatThreadType(contactInfo.getMsisdn()));
+		notificationIntent.putExtra(HikeConstants.Extras.CHAT_INTENT_TIMESTAMP, System.currentTimeMillis());
 		notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
 		/*
@@ -697,6 +699,7 @@ public class HikeNotification
 		notificationIntent.putExtra(HikeConstants.Extras.MSISDN, (firstMsisdn));
 		notificationIntent.putExtra(HikeConstants.Extras.NAME, (nameMap.get(firstMsisdn)));
 		notificationIntent.putExtra(HikeConstants.Extras.WHICH_CHAT_THREAD, ChatThreadUtils.getChatThreadType(firstMsisdn));
+		notificationIntent.putExtra(HikeConstants.Extras.CHAT_INTENT_TIMESTAMP, System.currentTimeMillis());
 		notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
 		notificationIntent.setData((Uri.parse("custom://" + notificationId)));
