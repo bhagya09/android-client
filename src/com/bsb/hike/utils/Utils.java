@@ -4293,6 +4293,7 @@ public class Utils
 		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		String whichChatThread = ChatThreadUtils.getChatThreadType(contactInfo.getMsisdn());
 		intent.putExtra(HikeConstants.Extras.WHICH_CHAT_THREAD, whichChatThread);
+		intent.putExtra(HikeConstants.Extras.CHAT_INTENT_TIMESTAMP, System.currentTimeMillis());
 		context.startActivity(intent);
 	}
 
