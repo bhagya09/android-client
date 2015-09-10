@@ -112,8 +112,8 @@ public abstract class LoveCheckBoxToggleListener implements OnCheckedChangeListe
 			// Add action to actions heap, even before making server call. This will ensure a more responsive UX.
 			TimelineActionsManager.getInstance().addMyAction(statusMessage.getMappedId(), ActionTypes.LIKE, ActivityObjectTypes.STATUS_UPDATE);
 
-			ObjectAnimator loveScaleX = ObjectAnimator.ofFloat(buttonView, "scaleX", 1f, 0.7f, 1.2f, 1f);
-			ObjectAnimator loveScaleY = ObjectAnimator.ofFloat(buttonView, "scaleY", 1f, 0.7f, 1.2f, 1f);
+			ObjectAnimator loveScaleX = ObjectAnimator.ofFloat(buttonView, "scaleX", 0.7f, 1.2f, 1f);
+			ObjectAnimator loveScaleY = ObjectAnimator.ofFloat(buttonView, "scaleY", 0.7f, 1.2f, 1f);
 			loveScaleX.start();
 			loveScaleY.start();
 
