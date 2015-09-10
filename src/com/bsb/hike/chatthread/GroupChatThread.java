@@ -60,6 +60,7 @@ import com.bsb.hike.utils.PairModified;
 import com.bsb.hike.utils.SmileyParser;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.CustomFontEditText;
+import com.bsb.hike.voip.VoIPConstants;
 import com.bsb.hike.voip.VoIPUtils;
 
 /**
@@ -162,6 +163,13 @@ public class GroupChatThread extends OneToNChatThread
 		{
 			mActionBar.onCreateOptionsMenu(menu, R.menu.group_chat_thread_menu, getOverFlowItems(), this, this);
 			updateUnreadPinCount();
+			
+			if (shouldShowCallIcon()) {
+				Logger.w(VoIPConstants.TAG, "Showing icon.");
+				menu.findItem(R.id.voip_call).setVisible(true);
+			} else
+				Logger.w(VoIPConstants.TAG, "NOT showing icon.");
+
 			return super.onCreateOptionsMenu(menu);
 		}
 		
@@ -201,9 +209,7 @@ public class GroupChatThread extends OneToNChatThread
 			unreadPinCount = oneToNConversation.getUnreadPinnedMessageCount();
 		}
 		
-		if (shouldShowCallIcon())
-			list.add(new OverFlowMenuItem(getString(R.string.voip_call_chat), 0, 0, R.string.voip_call_chat));
-		
+		list.add(new OverFlowMenuItem(getString(R.string.create_pin), 0, 0, R.string.create_pin));
 		list.add(new OverFlowMenuItem(getString(R.string.group_profile), unreadPinCount, 0, R.string.group_profile));
 		list.add(new OverFlowMenuItem(getString(R.string.chat_theme), 0, 0, R.string.chat_theme));
 		if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CHAT_SEARCH_ENABLED, true))
@@ -341,23 +347,6 @@ public class GroupChatThread extends OneToNChatThread
 		super.itemClicked(item);
 		switch (item.id)
 		{
-		case R.string.voip_call_chat:
-			
-			Map<String, PairModified<GroupParticipant, String>> groupParticipants = oneToNConversation.getConversationParticipantList();
-			ArrayList<String> msisdns = new ArrayList<String>();
-			
-			for (PairModified<GroupParticipant, String> groupParticipant : groupParticipants.values())
-			{
-				String msisdn = groupParticipant.getFirst().getContactInfo().getMsisdn();
-				msisdns.add(msisdn);
-			}
-			
-			// Launch VoIP service
-			Intent intent = IntentFactory.getVoipCallIntent(activity.getApplicationContext(), 
-					msisdns, msisdn, VoIPUtils.CallSource.CHAT_THREAD);
-			if (intent != null)
-				activity.getApplicationContext().startService(intent);
-			break;
 		case R.string.mute_group:
 			toggleMuteGroup();
 			break;
@@ -366,6 +355,9 @@ public class GroupChatThread extends OneToNChatThread
 			break;
 		case R.string.chat_theme:
 			showThemePicker(R.string.chat_theme_tip_group);
+			break;
+		case R.string.create_pin:
+			showPinCreateView(null);
 			break;
 		default:
 		}
@@ -591,8 +583,21 @@ public class GroupChatThread extends OneToNChatThread
 		{
 			switch (item.getItemId())
 			{
-			case R.id.pin_imp:
-				showPinCreateView(null);
+			case R.id.voip_call:
+				Map<String, PairModified<GroupParticipant, String>> groupParticipants = oneToNConversation.getConversationParticipantList();
+				ArrayList<String> msisdns = new ArrayList<String>();
+				
+				for (PairModified<GroupParticipant, String> groupParticipant : groupParticipants.values())
+				{
+					String msisdn = groupParticipant.getFirst().getContactInfo().getMsisdn();
+					msisdns.add(msisdn);
+				}
+				
+				// Launch VoIP service
+				Intent intent = IntentFactory.getVoipCallIntent(activity.getApplicationContext(), 
+						msisdns, msisdn, VoIPUtils.CallSource.CHAT_THREAD);
+				if (intent != null)
+					activity.getApplicationContext().startService(intent);
 				break;
 			}
 			return super.onOptionsItemSelected(item);
@@ -1049,7 +1054,7 @@ public class GroupChatThread extends OneToNChatThread
 
 			switch (overFlowMenuItem.id)
 			{
-			case R.string.voip_call_chat:
+			case R.string.create_pin:
 			case R.string.group_profile:
 			case R.string.chat_theme:
 				overFlowMenuItem.enabled = !checkForDead();
