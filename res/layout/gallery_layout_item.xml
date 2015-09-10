@@ -1,55 +1,60 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent" >
 
     <ProgressBar
         android:id="@+id/progress_bar"
         style="?android:attr/progressBarStyleLarge"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:visibility="gone" />
+        android:visibility="gone"
+        android:layout_gravity="center" />
 
-    <com.bsb.hike.view.TouchImageView
-        android:id="@+id/album_image"
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent" >
 
-    <LinearLayout
-        android:id="@+id/file_missing_layout"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:gravity="center_horizontal"
-        android:orientation="vertical"
-        android:visibility="gone" >
+        <com.bsb.hike.view.TouchImageView
+            android:id="@+id/album_image"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <LinearLayout
+            android:id="@+id/file_missing_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:visibility="gone" >
+
+            <ImageView
+                android:id="@+id/file_missing_image"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_file_missing" />
+
+            <com.bsb.hike.view.CustomFontTextView
+                android:id="@+id/file_missing_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:gravity="center_horizontal"
+                android:text="@string/file_missing_caps"
+                android:textColor="#c6cacc"
+                android:textSize="12sp" />
+        </LinearLayout>
 
         <ImageView
-            android:id="@+id/file_missing_image"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_file_missing" />
+            android:id="@+id/play_media"
+            android:layout_width="73dp"
+            android:layout_height="73dp"
+            android:layout_centerInParent="true"
+            android:background="@drawable/play_icon_background_circle"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_play_video"
+            android:visibility="gone" />
+    </RelativeLayout>
 
-        <com.bsb.hike.view.CustomFontTextView
-            android:id="@+id/file_missing_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:gravity="center_horizontal"
-            android:text="@string/file_missing_caps"
-            android:textColor="#c6cacc"
-            android:textSize="12sp" />
-    </LinearLayout>
-
-    <ImageView
-        android:id="@+id/play_media"
-        android:layout_width="73dp"
-        android:layout_height="73dp"
-        android:layout_centerInParent="true"
-        android:background="@drawable/play_icon_background_circle"
-        android:scaleType="centerInside"
-        android:src="@drawable/ic_play_video"
-        android:visibility="gone" />
-
-</RelativeLayout>
+</FrameLayout>
