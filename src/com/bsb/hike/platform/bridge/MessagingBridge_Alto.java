@@ -758,7 +758,7 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 	 * @param id : the id of the function that native will call to call the js .
 	 */
 	@JavascriptInterface
-	public void isBotBlocked(String id)
+	public void isParentBotBlocked(String id)
 	{
 		if (!BotUtils.isBot(message.webMetadata.getParentMsisdn()))
 		{
@@ -775,7 +775,7 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 	 * @param id : the id of the function that native will call to call the js .
 	 */
 	@JavascriptInterface
-	public void isBotEnabled(String id)
+	public void isParentBotEnabled(String id)
 	{
 		if (!BotUtils.isBot(message.webMetadata.getParentMsisdn()))
 		{
@@ -792,7 +792,7 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 	 * @param enable : the id of the function that native will call to call the js .
 	 */
 	@JavascriptInterface
-	public void enableBot(String enable)
+	public void enableParentBot(String enable)
 	{
 
 		if (!BotUtils.isBot(message.webMetadata.getParentMsisdn()))
