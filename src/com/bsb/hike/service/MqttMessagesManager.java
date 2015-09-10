@@ -2436,16 +2436,13 @@ public class MqttMessagesManager
 				StickerManager.getInstance().downloadStickerTagData();
 			}
 		}
-<<<<<<< HEAD
+
 		if (data.has(HikeConstants.NUDGE_SEND_COOLOFF_TIME))
 		{
 			int nudgeCoolOffTime = data.getInt(HikeConstants.NUDGE_SEND_COOLOFF_TIME);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.NUDGE_SEND_COOLOFF_TIME, nudgeCoolOffTime);
 		}
 		
-=======
-
->>>>>>> 4f3b430c6bba35913294b127756df19c96d0682e
 		editor.commit();
 		this.pubSub.publish(HikePubSub.UPDATE_OF_MENU_NOTIFICATION, null);
 
