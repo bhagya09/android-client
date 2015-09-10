@@ -770,7 +770,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 			if (object instanceof MessageEvent)
 			{
 				MessageEvent messageEvent = (MessageEvent) object;
-				if (msisdn.equals(messageEvent.getMsisdn()))
+				if (msisdn.equals(messageEvent.getParent_msisdn()))
 				{
 					try
 					{
