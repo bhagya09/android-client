@@ -772,11 +772,9 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 				MessageEvent messageEvent = (MessageEvent) object;
 				if (msisdn.equals(messageEvent.getMsisdn()))
 				{
-					ContactInfo info = ContactManager.getInstance().getContact(messageEvent.getMsisdn());
-
 					try
 					{
-						JSONObject jsonObject = null != info ? info.getPlatformInfo() : new JSONObject();
+						JSONObject jsonObject = PlatformUtils.getPlatformContactInfo(msisdn);
 						jsonObject.put(HikePlatformConstants.EVENT_DATA, messageEvent.getEventMetadata());
 						jsonObject.put(HikePlatformConstants.EVENT_ID, messageEvent.getEventId());
 						jsonObject.put(HikePlatformConstants.EVENT_STATUS, messageEvent.getEventStatus());
