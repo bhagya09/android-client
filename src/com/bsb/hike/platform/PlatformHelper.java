@@ -177,7 +177,7 @@ public class PlatformHelper
 		return messageData;
 	}
 
-	private static void pickContactAndSend(ConvMessage message, final Activity activity)
+	public static void pickContactAndSend(ConvMessage message, final Activity activity)
 	{
 		final String REQUEST_CODE = "request_code";
 
@@ -194,7 +194,7 @@ public class PlatformHelper
 		}
 	}
 
-	private static void startComPoseChatActivity(final ConvMessage message, final Activity mContext)
+	public static void startComPoseChatActivity(final ConvMessage message, final Activity mContext)
 	{
 		PlatformHelper.mHandler = new Handler(HikeMessengerApp.getInstance().getMainLooper());
 		if (null == mHandler)

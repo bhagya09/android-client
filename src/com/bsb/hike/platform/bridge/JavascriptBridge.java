@@ -556,20 +556,6 @@ public abstract class JavascriptBridge
 		}
 	}
 
-
-	protected void pickContactAndSend(ConvMessage message)
-	{
-		Activity activity = weakActivity.get();
-		if (activity != null)
-		{
-			final Intent intent = IntentFactory.getForwardIntentForConvMessage(activity, message, PlatformContent.getForwardCardData(message.webMetadata.JSONtoString()));
-			intent.putExtra(HikeConstants.Extras.COMPOSE_MODE, ComposeChatActivity.PICK_CONTACT_AND_SEND_MODE);
-			intent.putExtra(tag, JavascriptBridge.this.hashCode());
-			intent.putExtra(REQUEST_CODE, PICK_CONTACT_AND_SEND_REQUEST);
-			activity.startActivityForResult(intent, HikeConstants.PLATFORM_REQUEST);
-		}
-	}
-
 	public void onActivityResult(int requestCode, int resultCode, Intent data)
 	{
 		Logger.d(tag, "onactivity result of javascript");
@@ -641,28 +627,6 @@ public abstract class JavascriptBridge
 		{
 			mWebView.loadUrl("javascript:onContactChooserResult('0','[]')");
 		}
-	}
-	
-	protected void startComPoseChatActivity(final ConvMessage message)
-	{
-		if (null == mHandler)
-		{
-			return;
-		}
-
-		mHandler.post(new Runnable()
-		{
-			@Override
-			public void run()
-			{
-				Activity mContext = weakActivity.get();
-				if (mContext != null)
-				{
-					final Intent intent = IntentFactory.getForwardIntentForConvMessage(mContext, message, PlatformContent.getForwardCardData(message.webMetadata.JSONtoString()));
-					mContext.startActivity(intent);
-				}
-			}
-		});
 	}
 
 	/**
