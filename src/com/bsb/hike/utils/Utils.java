@@ -6328,7 +6328,7 @@ public class Utils
 		
 		if (prefs != null)
 		{
-			return prefs.getData(HikeConstants.Extras.STATUS_UPDATE_SHOW_COUNTS, false);
+			return prefs.getData(HikeConstants.Extras.STATUS_UPDATE_SHOW_COUNTS, true);
 		}
 		
 		return false;
@@ -6340,7 +6340,7 @@ public class Utils
 		
 		if (prefs != null)
 		{
-			return prefs.getData(HikeConstants.Extras.STATUS_UPDATE_SHOW_LIKES, false);
+			return prefs.getData(HikeConstants.Extras.STATUS_UPDATE_SHOW_LIKES, true);
 		}
 		
 		return false;
