@@ -2991,6 +2991,10 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 	 */
 	private void checkAndAddListViewHeader(View headerView)
 	{
+		if (!isAdded())
+		{
+			return;
+		}
 		ListAdapter adapter = getListAdapter();
 
 		if (adapter != null)
