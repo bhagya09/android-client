@@ -605,9 +605,11 @@ public class OfflineController
 		offlineManager.sendConnectedCallback();
 		long connectionId = System.currentTimeMillis();
 		OfflineSessionTracking.getInstance().setConnectionId(connectionId);
-		;
+		
 		offlineManager.sendInfoPacket(connectionId);
-
+		OfflineUtils.showToastForBatteryLevel();
+		
+		
 	}
 
 	public SenderConsignment getSenderConsignment(ConvMessage convMessage, boolean persistence)

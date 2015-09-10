@@ -907,4 +907,15 @@ public class OfflineUtils
 		HikeConversationsDatabase.getInstance().addConversationMessages(convMessage, true);
 		HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_RECEIVED, convMessage);
 	}
+	
+	public static void showToastForBatteryLevel()
+	{
+		float batteryLevel = Utils.currentBatteryLevel();
+		if (batteryLevel <= 0 || batteryLevel > OfflineConstants.MIN_BATTERY_LEVEL)
+		{
+			return;
+		}
+
+		HikeMessengerApp.getInstance().showToast(R.string.low_battery_msg);
+	}
 }

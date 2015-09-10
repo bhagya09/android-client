@@ -1717,4 +1717,6 @@
     <string name ="offline_connection_problem">Oops! Facing some problem?\nPlease try later.</string>
     <string name= "incoming_hike_direct_request">Incoming Hike Direct Request</string>
     <string name = "hike_direct_request">Hike Direct Request</string>
+    <string name="low_battery_msg">Your device is running low on battery. Messaging and sending or receiving files may become slow.</string>
+
 </resources>
