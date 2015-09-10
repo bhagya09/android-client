@@ -570,9 +570,7 @@ public class MqttMessagesManager
 			changeGroupSettings(oneToNConversation, metadata);
 		}
 
-		if ( gcjAdd == HikeConstants.NEW_PARTICIPANT){
 		saveStatusMsg(jsonObj, jsonObj.getString(HikeConstants.TO));
-		}
 	}
 
 	private void changeGroupSettings(OneToNConversation oneToNConversation,
