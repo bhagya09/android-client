@@ -87,9 +87,9 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 	
 	private int originalPos[] =  new int[2];
 	
-	private TextView connectionInfo;
+	private TextView connectionInfoTextView;
 
-	private TextView connectionHint;
+	private TextView connectionHintTextView;
 	
 	private String contactFirstName;
 	
@@ -167,14 +167,14 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 		case UPDATE_ANIMATION_MESSAGE:
 			if (!isOfflineConnected())
 			{
-				updateAnimationText(connectionInfo, (String) (msg.obj), false,false);
+				updateAnimationText(connectionInfoTextView, (String) (msg.obj), false,false);
 			}
 			break;
 		case UPDATE_ANIMATION_SECOND_MESSAGE:
 			if (timerDuration > 0)
 			{
 				if (!isOfflineConnected())
-					updateAnimationText(connectionHint, (String) msg.obj, false,true);
+					updateAnimationText(connectionHintTextView, (String) msg.obj, false,true);
 			}
 			break;
 		case START_TIMER:
@@ -182,11 +182,11 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 			{
 				if (timerDuration > 0)
 				{
-					updateAnimationText(connectionInfo, "" + timerDuration / 1000, true,false);
+					updateAnimationText(connectionInfoTextView, "" + timerDuration / 1000, true,false);
 				}
 				else
 				{
-					updateAnimationText(connectionInfo, getString(R.string.disconnecting_offline), false,false);
+					updateAnimationText(connectionInfoTextView, getString(R.string.disconnecting_offline), false,false);
 				}
 
 			}
@@ -209,7 +209,7 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 			@Override
 			public void onTick(long millisUntilFinished)
 			{
-				connectionInfo.setText("" +millisUntilFinished/1000);
+				connectionInfoTextView.setText("" +millisUntilFinished/1000);
 			}
 			
 			@Override
@@ -217,8 +217,8 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 			{
 					if(isAdded())
 					{
-						connectionInfo.setText(getString(R.string.disconnecting_offline));
-						connectionHint.setVisibility(View.GONE);
+						connectionInfoTextView.setText(getString(R.string.disconnecting_offline));
+						connectionHintTextView.setVisibility(View.GONE);
 					}
 			}
 		};
@@ -486,11 +486,11 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 	{
 		imageViewLayout = (FrameLayout)fragmentView.findViewById(R.id.animation_avator_frame);
 		avatarImageView = (ImageView)fragmentView.findViewById(R.id.animation_avatar);
-		connectionInfo = (TextView)fragmentView.findViewById(R.id.connectionInfo);
-		connectionInfo.setMovementMethod(new ScrollingMovementMethod());
+		connectionInfoTextView = (TextView)fragmentView.findViewById(R.id.connectionInfo);
+		connectionInfoTextView.setMovementMethod(new ScrollingMovementMethod());
 		divider = (View)fragmentView.findViewById(R.id.divider);
-		connectionHint =(TextView)fragmentView.findViewById(R.id.second_message);
-		connectionHint.setMovementMethod(new ScrollingMovementMethod());
+		connectionHintTextView =(TextView)fragmentView.findViewById(R.id.second_message);
+		connectionHintTextView.setMovementMethod(new ScrollingMovementMethod());
 		logo =(ImageView)fragmentView.findViewById(R.id.offline_icon);
 		retryButton = (Button)fragmentView.findViewById(R.id.retry_button);
 		frame = (FrameLayout)fragmentView.findViewById(R.id.animation_circular_progress_holder);
@@ -646,9 +646,9 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 	protected void sendUiMessages()
 	{
 
-		connectionInfo.setText(getResources().getString(R.string.connecting_to, contactFirstName));
-		connectionInfo.setVisibility(View.VISIBLE);
-		connectionHint.setText("");
+		connectionInfoTextView.setText(getResources().getString(R.string.connecting_to, contactFirstName));
+		connectionInfoTextView.setVisibility(View.VISIBLE);
+		connectionHintTextView.setText("");
 		if (!shouldResumeFragment)
 		{
 			sendUIMessage(UPDATE_ANIMATION_MESSAGE, OfflineConstants.FIRST_MESSAGE_TIME, getResources().getString(R.string.offline_animation_second_message));
@@ -713,9 +713,9 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 		hideAndStopTimer();
 		showRetryIcon(R.drawable.cross_retry);
 		setDisconnectErrorMessage();
-		connectionInfo.setVisibility(View.VISIBLE);
+		connectionInfoTextView.setVisibility(View.VISIBLE);
 		frame.setVisibility(View.INVISIBLE);
-		connectionHint.setVisibility(View.INVISIBLE);	
+		connectionHintTextView.setVisibility(View.INVISIBLE);	
 		cancelRotationAnimation();		
 		showConnectionFailurePanel();
 		retryButton.setOnClickListener(new OnClickListener()
@@ -742,15 +742,15 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 	{
 		if(disconnectReasonCode == OfflineException.CANCEL_NOTIFICATION_REQUEST)
 		{
-			connectionInfo.setText(getResources().getString(R.string.offline_request_cancelled,contactFirstName));
+			connectionInfoTextView.setText(getResources().getString(R.string.offline_request_cancelled,contactFirstName));
 		}
 		else if(disconnectReasonCode == OfflineException.CONNECTION_TIME_OUT)
 		{
-			connectionInfo.setText(getResources().getString(R.string.retry_connection));
+			connectionInfoTextView.setText(getResources().getString(R.string.retry_connection));
 		}
 		else
 		{
-			connectionInfo.setText(getResources().getString(R.string.offline_connection_problem));
+			connectionInfoTextView.setText(getResources().getString(R.string.offline_connection_problem));
 		}
 		
 	}
@@ -774,7 +774,7 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 				}
 				
 				frame.setVisibility(View.INVISIBLE);
-				connectionHint.setVisibility(View.INVISIBLE);
+				connectionHintTextView.setVisibility(View.INVISIBLE);
 				if(rotateAnimation!=null)
 				 {
 					 rotateAnimation.cancel();
@@ -790,7 +790,7 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 					 timer.cancel();
 				 }
 				 
-				 updateAnimationText(connectionInfo,getResources().getString(R.string.connection_established),false,false);
+				 updateAnimationText(connectionInfoTextView,getResources().getString(R.string.connection_established),false,false);
 				
 				 //Scale up 
 				 ObjectAnimator scaleXUp = ObjectAnimator.ofFloat(imageViewLayout, "scaleX", 3.5f);
@@ -968,7 +968,7 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 	
 	private void hideAndStopTimer()
 	{
-		connectionInfo.setVisibility(View.INVISIBLE);
+		connectionInfoTextView.setVisibility(View.INVISIBLE);
 		if(timer!=null)
 			timer.cancel();
 	}
@@ -977,7 +977,7 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 	{
 		if(isAdded())
 		{
-			connectionInfo.setVisibility(View.INVISIBLE);
+			connectionInfoTextView.setVisibility(View.INVISIBLE);
 		}
 	}
 	
