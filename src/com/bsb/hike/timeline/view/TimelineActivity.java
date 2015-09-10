@@ -23,6 +23,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.view.WindowManager.BadTokenException;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -133,6 +134,7 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
+		getWindow().requestFeature(Window.FEATURE_CONTENT_TRANSITIONS);
 		super.onCreate(savedInstanceState);
 		getWindow().setBackgroundDrawable(new ColorDrawable(0xFFF4F4F7));
 		initialiseTimelineScreen(savedInstanceState);
@@ -156,6 +158,43 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 		}
 	}
 
+	@Override
+	protected void onNewIntent(Intent intent)
+	{
+		super.onNewIntent(intent);
+		if (intent.getBooleanExtra(HikeConstants.Extras.OPEN_ACTIVITY_FEED, false)) // We have to open ActivityFeedFragment
+		{
+			ActivityFeedFragment activityFeedFragment = (ActivityFeedFragment) getSupportFragmentManager().findFragmentByTag(FRAGMENT_ACTIVITY_FEED_TAG);
+			if(activityFeedFragment != null)
+			{
+				if(!activityFeedFragment.isAdded() || !activityFeedFragment.isVisible())
+				{
+					getSupportFragmentManager()
+					.beginTransaction()
+					.add(R.id.parent_layout, activityFeedFragment, FRAGMENT_ACTIVITY_FEED_TAG)
+					.addToBackStack(FRAGMENT_ACTIVITY_FEED_TAG)
+					.commit();
+				}
+			}
+			else
+			{
+				loadActivityFeedFragment();
+			}
+		}
+		else //We have to open UpdatesFragment
+		{
+			if(!isUpdatesFrgamentOnTop())
+			{
+				getSupportFragmentManager().popBackStack();
+				
+				ActionBar actionBar = getSupportActionBar();
+				View actionBarView = actionBar.getCustomView();
+				TextView title = (TextView) actionBarView.findViewById(R.id.title);
+				title.setText(R.string.timeline);
+			}
+		}
+	}
+	
 	private void initialiseTimelineScreen(Bundle savedInstanceState)
 	{
 		setContentView(R.layout.timeline);
@@ -188,7 +227,7 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 		if(mainFragment == null)
 		{
 			mainFragment = new UpdatesFragment();
-			getSupportFragmentManager().beginTransaction().add(R.id.parent_layout, mainFragment,MAIN_ACTIVITY_FEED_TAG).addToBackStack(MAIN_ACTIVITY_FEED_TAG).commit();
+			getSupportFragmentManager().beginTransaction().add(R.id.parent_layout, mainFragment,MAIN_ACTIVITY_FEED_TAG).commit();
 		}
 	}
 
@@ -672,5 +711,11 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 		{
 			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
 		}
+	}
+	
+	public boolean isUpdatesFrgamentOnTop()
+	{
+		int count = getSupportFragmentManager().getBackStackEntryCount();
+		return count <= 1 ? true : false;
 	}
 }

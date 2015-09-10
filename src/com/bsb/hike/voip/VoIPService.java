@@ -37,7 +37,6 @@ import android.media.RingtoneManager;
 import android.media.SoundPool;
 import android.net.Uri;
 import android.os.Binder;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -138,7 +137,6 @@ public class VoIPService extends Service {
 	// Echo cancellation
 	private boolean aecEnabled = true;
 	private SolicallWrapper solicallAec = null;
-	private boolean useVADToReduceData = true;
 	private boolean aecSpeakerSignal = false, aecMicSignal = false;
 	
 	// Buffer queues
@@ -617,7 +615,8 @@ public class VoIPService extends Service {
 			if (myMsisdn != null && myMsisdn.equals(msisdn)) 
 			{
 				Logger.wtf(tag, "Don't be ridiculous!");
-				stop();
+				if (clients.size() == 0)
+					stop();
 				return returnInt;
 			}
 			
@@ -659,6 +658,13 @@ public class VoIPService extends Service {
 				return returnInt;
 			}
 
+			// Error case: We are currently receiving a call which we haven't 
+			// answered yet
+			if (getCallStatus() == CallStatus.INCOMING_CALL) {
+				restoreActivity();
+				return returnInt;
+			}
+			
 			// All good. Initiate the call
 			int callSource = intent.getIntExtra(VoIPConstants.Extras.CALL_SOURCE, -1);
 			if (intent.getExtras().containsKey(VoIPConstants.Extras.MSISDNS)) {
@@ -944,8 +950,6 @@ public class VoIPService extends Service {
 
 			case UNINITIALIZED:
 				return;
-		case HOSTING_CONFERENCE:
-			break;
 		default:
 			break;
 		}
@@ -1169,8 +1173,6 @@ public class VoIPService extends Service {
 		Bundle bundle = new Bundle();
 		bundle.putInt(VoIPConstants.CALL_ID, getCallId());
 		bundle.putInt(VoIPConstants.CALL_NETWORK_TYPE, VoIPUtils.getConnectionClass(getApplicationContext()).ordinal());
-		bundle.putString(VoIPConstants.APP_VERSION_NAME, VoIPUtils.getAppVersionName(getApplicationContext()));
-		bundle.putInt(VoIPConstants.OS_VERSION, Build.VERSION.SDK_INT);
 		bundle.putInt(VoIPConstants.CALL_DURATION, getCallDuration());
 		if (clientPartner != null) {
 			bundle.putInt(VoIPConstants.IS_CALL_INITIATOR, clientPartner.isInitiator() ? 0 : 1);
@@ -1560,12 +1562,15 @@ public class VoIPService extends Service {
 					// AEC
 					if (solicallAec != null && aecEnabled && aecMicSignal && aecSpeakerSignal) {
 						int ret = solicallAec.processMic(dpRaw.getData());
-
-						if (useVADToReduceData) {
-							if (ret == 0) 
-								speechDetected = false;
-							else 
-								speechDetected = true;
+						if (ret == 0) {
+							if (speechDetected == true)
+								client.updateLocalSpeech(false);
+							speechDetected = false;
+						}
+						else {
+							if (speechDetected == false)
+								client.updateLocalSpeech(true);
+							speechDetected = true;
 						}
 					} else
 						aecMicSignal = true;
@@ -2161,8 +2166,8 @@ public class VoIPService extends Service {
 	{
 		VoIPClient client = getClient();
 		
-		if (hostingConference())
-			return CallStatus.HOSTING_CONFERENCE;
+		if (hostingConference() && recordingAndPlaybackRunning)
+			return CallStatus.ACTIVE;
 		
 		if (client != null)
 			return client.getCallStatus();
@@ -2288,7 +2293,7 @@ public class VoIPService extends Service {
 								// Add our own client
 								JSONObject clientJson = new JSONObject();
 								clientJson.put(VoIPConstants.Extras.MSISDN, Utils.getUserContactInfo(getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, MODE_PRIVATE)).getMsisdn());
-								clientJson.put(VoIPConstants.Extras.STATUS, CallStatus.HOSTING_CONFERENCE.ordinal());
+								clientJson.put(VoIPConstants.Extras.STATUS, CallStatus.ACTIVE.ordinal());
 								clientJson.put(VoIPConstants.Extras.SPEAKING, speechDetected && !mute);
 								clientsJson.put(clientJson);
 

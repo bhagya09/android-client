@@ -121,8 +121,6 @@ public class VoIPConstants {
 	public static final String CALL_FAILED_REASON = "callfailreason";
 	public static final String PARTNER_NAME = "pname";
 	public static final String CALL_RATE_BUNDLE = "callRateBundle";
-	public static final String APP_VERSION_NAME = "appVersionName";
-	public static final String OS_VERSION = "OsVersion";
 	public static final String IS_CONFERENCE = "isConf";
 	public static final String CALL_DURATION = "duration";
 
@@ -184,10 +182,6 @@ public class VoIPConstants {
 		public static final String DURATION = "dur";
 
 		public static final String CALL_CONNECT_FAIL_REASON = "reason";
-
-		public static final String APP_VERSION_NAME = "appv";
-
-		public static final String OS_VERSION = "osv";
 
 		public static final String IS_CONFERENCE = "isconf";
 	}
@@ -300,7 +294,7 @@ public class VoIPConstants {
 		ACTIVE, 
 		ENDED, 
 		UNINITIALIZED,
-		HOSTING_CONFERENCE
+		UNUSED_PLACEHOLDER_FOR_BACKWARD_COMPATIBILITY
 	}
 
 	/**
