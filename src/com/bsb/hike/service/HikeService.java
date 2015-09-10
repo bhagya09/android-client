@@ -23,6 +23,7 @@ import android.os.Messenger;
 import android.os.RemoteException;
 import android.provider.ContactsContract;
 import android.support.v4.content.LocalBroadcastManager;
+import android.text.TextUtils;
 import android.util.Pair;
 import android.widget.Toast;
 
@@ -45,6 +46,8 @@ import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
+import com.bsb.hike.offline.CleanFileRunnable;
+import com.bsb.hike.offline.OfflineConstants;
 import com.bsb.hike.platform.HikeSDKRequestHandler;
 import com.bsb.hike.tasks.CheckForUpdateTask;
 import com.bsb.hike.tasks.SyncContactExtraInfo;
@@ -300,10 +303,20 @@ public class HikeService extends Service
 			Utils.executeAsyncTask(syncContactExtraInfo);
 		}
 		
+		/*  If user swiped his app while receiving files in OfflineMode we need to remove those files from the user's ui 
+		 *  and add an inline message for the same.
+		 */
+		if(!TextUtils.isEmpty(HikeSharedPreferenceUtil.getInstance().getData(OfflineConstants.OFFLINE_MSISDN, "")))
+		{
+			HikeHandlerUtil.getInstance().postRunnableWithDelay(new CleanFileRunnable(),0);
+			
+		}
+		
 		setInitialized(true);
 
 	}
 
+	
 	private void assignUtilityThread()
 	{
 		/**
