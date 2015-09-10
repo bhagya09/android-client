@@ -254,13 +254,13 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			{
 				activity.updateActionBarColor(new ColorDrawable(Color.BLACK));
 				setStatusBarColor(R.color.black);
-				sendUIMessage(UPDATE_LAST_SEEN,getString(R.string.connection_established));
+				setLastSeen(getString(R.string.connection_established),true);
 			}
 			break;
 		case CONNECTING:
 			if (OfflineUtils.isConnectingToSameMsisdn(msisdn))
 			{
-				sendUIMessage(UPDATE_LAST_SEEN,getString(R.string.awaiting_response));
+				setLastSeen(getString(R.string.awaiting_response),true);
 			}
 			break;
 		case NOT_CONNECTED:
@@ -855,7 +855,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		mActionBar.updateOverflowMenuItemString(R.string.scan_free_hike,getString(R.string.disconnect_offline));
 		activity.updateActionBarColor(new ColorDrawable(Color.BLACK));
 		setStatusBarColor(R.color.black);
-		setLastSeen(message);
+		setLastSeen(message,true);
 		activity.invalidateOptionsMenu();
 		showNetworkError(ChatThreadUtils.checkNetworkError());
 		
@@ -953,7 +953,13 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	 * 
 	 * @param lastSeenString
 	 */
+	
 	private void setLastSeen(String lastSeenString)
+	{
+		setLastSeen(lastSeenString, false);
+	}
+	
+	private void setLastSeen(String lastSeenString,boolean shouldByPassOfflineConStatCheck)
 	{
 		if (mContactInfo.getOffline() == 0) //User online ?
 		{
@@ -970,7 +976,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		}
 		else
 		{
-			setLastSeenText(lastSeenString);
+			setLastSeenText(lastSeenString,shouldByPassOfflineConStatCheck);
 		}
 	}
 
@@ -1304,10 +1310,15 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		}
 	}
 
+	private void setLastSeenText(String text)
+	{
+		setLastSeenText(text, false);
+	}
+	
 	/**
 	 * Utility method to set the last seen text
 	 */
-	private void setLastSeenText(String text)
+	private void setLastSeenText(String text,boolean byPassCheck)
 	{
 		final TextView mLastSeenView = (TextView) mActionBarView.findViewById(R.id.contact_status);
 
@@ -1321,6 +1332,12 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			mLastSeenView.setVisibility(View.GONE);
 			return;
 		}
+		
+		if(!byPassCheck &&( OfflineUtils.isConnectedToSameMsisdn(msisdn)|| OfflineUtils.isConnectingToSameMsisdn(msisdn)))
+		{
+			return;
+		}
+			
 
 		/**
 		 * Setting text on lastSeenView
@@ -1559,8 +1576,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 
 	private void setupOfflineUI()
 	{	
-		sendUIMessage(UPDATE_LAST_SEEN,getString(R.string.awaiting_response));
-		//TODO  -  Will Start Of Animation 
+		setLastSeen(getString(R.string.awaiting_response),true);
 	}
 
 	@Override
@@ -3357,7 +3373,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	{
 		if(OfflineUtils.isConnectedToSameMsisdn(msisdn) ||  OfflineUtils.isConnectingToSameMsisdn(msisdn))
 		{
-			sendUIMessage(UPDATE_LAST_SEEN,getResources().getString(R.string.disconnecting_offline));
+			setLastSeen(getResources().getString(R.string.disconnecting_offline),true);
 		}
 		OfflineUtils.stopFreeHikeConnection(activity, msisdn);
 		
