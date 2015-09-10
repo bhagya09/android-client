@@ -4293,6 +4293,7 @@ public class Utils
 		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		String whichChatThread = ChatThreadUtils.getChatThreadType(contactInfo.getMsisdn());
 		intent.putExtra(HikeConstants.Extras.WHICH_CHAT_THREAD, whichChatThread);
+		intent.putExtra(HikeConstants.Extras.CHAT_INTENT_TIMESTAMP, System.currentTimeMillis());
 		context.startActivity(intent);
 	}
 
@@ -6327,7 +6328,7 @@ public class Utils
 		
 		if (prefs != null)
 		{
-			return prefs.getData(HikeConstants.Extras.STATUS_UPDATE_SHOW_COUNTS, false);
+			return prefs.getData(HikeConstants.Extras.STATUS_UPDATE_SHOW_COUNTS, true);
 		}
 		
 		return false;
@@ -6339,7 +6340,7 @@ public class Utils
 		
 		if (prefs != null)
 		{
-			return prefs.getData(HikeConstants.Extras.STATUS_UPDATE_SHOW_LIKES, false);
+			return prefs.getData(HikeConstants.Extras.STATUS_UPDATE_SHOW_LIKES, true);
 		}
 		
 		return false;

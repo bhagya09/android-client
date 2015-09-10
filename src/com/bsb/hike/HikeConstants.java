@@ -1721,6 +1721,8 @@ public class HikeConstants
 		public static final String DEL_SCR_FILE_ON_CALL_FAIL = "del_tmp_file_call_fail";
 		
 		public static final String DEL_PREV_MSISDN_PIC = "del_prev_msisdn_pic";
+
+		public static final String CHAT_INTENT_TIMESTAMP = "chat_ts";
 	}
 
 	public static final class LogEvent

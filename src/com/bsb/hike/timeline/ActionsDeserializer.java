@@ -89,7 +89,7 @@ public class ActionsDeserializer implements JsonDeserializer<TimelineActions>
 							count = msgObj.get("lc").getAsInt();
 						}
 
-						timelineActions.addActionDetails(uuid, contactInfoList, actionType, count, objType);
+						timelineActions.addActionDetails(uuid, contactInfoList, actionType, count, objType,true);
 					}
 				}
 
