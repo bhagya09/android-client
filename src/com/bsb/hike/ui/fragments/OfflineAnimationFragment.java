@@ -4,6 +4,7 @@ import java.util.Map;
 
 import android.support.v4.app.DialogFragment;
 import android.text.TextUtils;
+import android.text.method.ScrollingMovementMethod;
 import android.animation.Animator;
 import android.animation.Animator.AnimatorListener;
 import android.animation.AnimatorSet;
@@ -486,8 +487,10 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 		imageViewLayout = (FrameLayout)fragmentView.findViewById(R.id.animation_avator_frame);
 		avatarImageView = (ImageView)fragmentView.findViewById(R.id.animation_avatar);
 		connectionInfo = (TextView)fragmentView.findViewById(R.id.connectionInfo);
+		connectionInfo.setMovementMethod(new ScrollingMovementMethod());
 		divider = (View)fragmentView.findViewById(R.id.divider);
 		connectionHint =(TextView)fragmentView.findViewById(R.id.second_message);
+		connectionHint.setMovementMethod(new ScrollingMovementMethod());
 		logo =(ImageView)fragmentView.findViewById(R.id.offline_icon);
 		retryButton = (Button)fragmentView.findViewById(R.id.retry_button);
 		frame = (FrameLayout)fragmentView.findViewById(R.id.animation_circular_progress_holder);
