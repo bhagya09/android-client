@@ -467,7 +467,7 @@ public class CocosGamingActivity extends Cocos2dxActivity
 
 				CocosGamingActivity.this.mHandler = new Cocos2dxHandler(CocosGamingActivity.this);
 				Logger.d(TAG, "onPostExecute() 2");
-				Cocos2dxHelper.initDuplicate(CocosGamingActivity.this, appId);
+				Cocos2dxHelper.initDuplicate(CocosGamingActivity.this, appName);
 				// Cocos2dxHelper.init(CocosGamingActivity.this);
 				Logger.d(TAG, "onPostExecute() 3");
 				appInit(getExternalPath());
