@@ -5,6 +5,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.lang.ref.WeakReference;
+import java.net.URISyntaxException;
 import java.net.URLEncoder;
 
 import org.json.JSONException;
@@ -19,6 +20,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
+import android.provider.Settings;
 import android.text.Html;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -1152,6 +1154,33 @@ public abstract class JavascriptBridge
 		if (mHandler != null)
 		{
 			mHandler.sendEmptyMessage(CLOSE_WEB_VIEW);
+		}
+	}
+
+	/**
+	 * Platform Version 6 Call this function to open a given Intent.
+	 * 
+	 * @param IntentName
+	 *            JS has to ensure the intent is a valid name, and has to provide the intent URI(e.g. android.settings.LOCATION_SOURCE_SETTINGS)
+	 */
+	@JavascriptInterface
+	public void openIntent(String intentURI)
+	{
+
+		Activity currActivity = weakActivity.get();
+		if (currActivity != null)
+		{
+			Intent intent;
+			try
+			{
+				intent = new Intent(Intent.parseUri(intentURI,0));
+			currActivity.startActivity(intent);
+			}
+			catch (URISyntaxException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 	}
 
