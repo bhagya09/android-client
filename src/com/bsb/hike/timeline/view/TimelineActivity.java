@@ -227,7 +227,7 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 		if(mainFragment == null)
 		{
 			mainFragment = new UpdatesFragment();
-			getSupportFragmentManager().beginTransaction().add(R.id.parent_layout, mainFragment,MAIN_ACTIVITY_FEED_TAG).addToBackStack(MAIN_ACTIVITY_FEED_TAG).commit();
+			getSupportFragmentManager().beginTransaction().add(R.id.parent_layout, mainFragment,MAIN_ACTIVITY_FEED_TAG).commit();
 		}
 	}
 
