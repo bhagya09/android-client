@@ -341,7 +341,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 	private static final String NEW_LINE_DELIMETER = "\n";
 	
-	private boolean consumedForwardedData;
+	private int intentDataHash;
 	
 	protected HikeDialog dialog;
 	
@@ -2416,12 +2416,12 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	protected void takeActionBasedOnIntent()
 	{
 		Logger.i(TAG, "take action based on intent");
-		if(savedState!=null && savedState.getBoolean(HikeConstants.CONSUMED_FORWARDED_DATA)) {
+		Intent intent = activity.getIntent();
+		if(savedState!=null && (savedState.getInt(HikeConstants.CONSUMED_FORWARDED_DATA) == intent.getExtras().toString().hashCode())) {
 			Logger.i(TAG, "consumed forwarded data");
 			return;
 		}
-		Intent intent = activity.getIntent();
-
+		intentDataHash = intent.getExtras().toString().hashCode();
 		/**
 		 * 1. Has an existing message in intent
 		 */
@@ -2653,7 +2653,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			mComposeView.setSelection(mComposeView.length());
 			SmileyParser.getInstance().addSmileyToEditable(mComposeView.getText(), false);
 		}
-		consumedForwardedData = true;
 	}
 
 	/*
@@ -5842,12 +5841,12 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	protected void onSaveInstanceState(Bundle outState)
 	{	
 		shouldKeyboardPopupShow=HikeMessengerApp.keyboardApproach(activity);
-		outState.putBoolean(HikeConstants.CONSUMED_FORWARDED_DATA, consumedForwardedData);
+		outState.putInt(HikeConstants.CONSUMED_FORWARDED_DATA, intentDataHash);
 	}
 	
 	protected void onRestoreInstanceState(Bundle savedInstanceState) 
 	{
-		consumedForwardedData = savedInstanceState.getBoolean(HikeConstants.CONSUMED_FORWARDED_DATA, false);
+		intentDataHash = savedInstanceState.getInt(HikeConstants.CONSUMED_FORWARDED_DATA, 0);
 	}
 	
 	public void connectedToMsisdn(String connectedDevice)

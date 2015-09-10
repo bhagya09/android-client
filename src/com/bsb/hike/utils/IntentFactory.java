@@ -570,6 +570,7 @@ public class IntentFactory
 		intent.putExtra(HikeConstants.Extras.WHICH_CHAT_THREAD, ChatThreadUtils.getChatThreadType(msisdnOrGroupId));
 		intent.putExtra(HikeConstants.Extras.SHOW_KEYBOARD, openKeyBoard);
 		intent.putExtra(HikeConstants.Extras.NEW_GROUP, newGroup);
+		intent.putExtra(HikeConstants.Extras.CHAT_INTENT_TIMESTAMP, System.currentTimeMillis());
 		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
 		return intent;
@@ -597,6 +598,7 @@ public class IntentFactory
 		intent.putExtra(HikeConstants.Extras.MSISDN, conversation.getMsisdn());
 		String whichChatThread = ChatThreadUtils.getChatThreadType(conversation.getMsisdn());
 		intent.putExtra(HikeConstants.Extras.WHICH_CHAT_THREAD, whichChatThread);
+		intent.putExtra(HikeConstants.Extras.CHAT_INTENT_TIMESTAMP, System.currentTimeMillis());
 		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		return intent;
 	}
