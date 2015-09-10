@@ -1318,7 +1318,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	/**
 	 * Utility method to set the last seen text
 	 */
-	private void setLastSeenText(String text,boolean byPassCheck)
+	private void setLastSeenText(String text,boolean shouldByPassOfflineConStatCheck)
 	{
 		final TextView mLastSeenView = (TextView) mActionBarView.findViewById(R.id.contact_status);
 
@@ -1333,7 +1333,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			return;
 		}
 		
-		if(!byPassCheck &&( OfflineUtils.isConnectedToSameMsisdn(msisdn)|| OfflineUtils.isConnectingToSameMsisdn(msisdn)))
+		if(!shouldByPassOfflineConStatCheck &&( OfflineUtils.isConnectedToSameMsisdn(msisdn)|| OfflineUtils.isConnectingToSameMsisdn(msisdn)))
 		{
 			return;
 		}
