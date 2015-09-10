@@ -1694,6 +1694,7 @@
     <string name="UNLINK_ACCOUNT">RESET ACCOUNT</string>
     <string name="UNLINK">UNLINK</string>
     <string name="UPDATE_APP">UPDATE</string>
+    <string name="like_count_by_unknow_contacts">+%1$d Friends of %2$s</string>
     <string name ="connection_established_inline_msg">Connection Established</string>
     <string name ="connection_deestablished_inline_msg">Connection Disconnected</string>
     <string name = "connection_request_inline_msg">Hike Direct Request Missed</string>
@@ -1713,4 +1714,7 @@
     <string name="email_body">I just downloaded the new hike messenger. What a big change from WhatsApp!\n\nIt\'s got amazing stickers, the ability to hide my chats and some really cool chat themes. \n\nDownload it now from http://get.hike.in/$invite_token</string>
     <string name="watsapp_invitation">Hey, join me on hike, the only messaging app made in India! It lets you hide your chats, send messages to friends when they\'re offline and send awesome stickers. \n\nAlso share all types of files - docs, songs, movies etc, up to 100MB each - Download: http://get.hike.in/</string>
     <string name="invite_share_message">Hey, check out hike messenger. It has awesome stickers in our language! Join the only made in India messaging app- Download at http://hike.in/$invite_token</string>
+    <string name="action_no_network">Please check network</string>
+    <string name="timeline_transition_anim">timeline_image_transit</string>
+    <string name="home_overflow_new_photo">New Photo</string>
 </resources>
