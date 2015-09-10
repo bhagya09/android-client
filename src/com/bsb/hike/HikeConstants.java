@@ -1533,6 +1533,8 @@ public class HikeConstants
 
 		public static final String GALLERY_SELECTIONS = "gallerySelections";
 
+		public static final String GALLERY_ITEMS = "galleryItems";
+
 		public static final String FILE_PATHS = "filePaths";
 
 		public static final String IS_ACTION_MODE_ON = "isActionModeOn";
