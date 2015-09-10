@@ -562,7 +562,7 @@ public abstract class JavascriptBridge
 		Activity activity = weakActivity.get();
 		if (activity != null)
 		{
-			final Intent intent = IntentFactory.getForwardIntentForConvMessage(activity, message, PlatformContent.getForwardCardData(message.webMetadata.JSONtoString()));
+			final Intent intent = IntentFactory.getForwardIntentForConvMessage(activity, message, PlatformContent.getForwardCardData(message.webMetadata.JSONtoString()), false);
 			intent.putExtra(HikeConstants.Extras.COMPOSE_MODE, ComposeChatActivity.PICK_CONTACT_AND_SEND_MODE);
 			intent.putExtra(tag, JavascriptBridge.this.hashCode());
 			intent.putExtra(REQUEST_CODE, PICK_CONTACT_AND_SEND_REQUEST);
@@ -658,7 +658,7 @@ public abstract class JavascriptBridge
 				Activity mContext = weakActivity.get();
 				if (mContext != null)
 				{
-					final Intent intent = IntentFactory.getForwardIntentForConvMessage(mContext, message, PlatformContent.getForwardCardData(message.webMetadata.JSONtoString()));
+					final Intent intent = IntentFactory.getForwardIntentForConvMessage(mContext, message, PlatformContent.getForwardCardData(message.webMetadata.JSONtoString()), true);
 					mContext.startActivity(intent);
 				}
 			}
