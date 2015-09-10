@@ -7,11 +7,10 @@ import java.util.Map;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.DialogInterface.OnDismissListener;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Message;
 import android.text.Spannable;
@@ -22,6 +21,8 @@ import android.text.style.ForegroundColorSpan;
 import android.text.util.Linkify;
 import android.util.Pair;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -32,8 +33,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import android.view.Menu;
-import android.view.MenuItem;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
@@ -60,7 +59,6 @@ import com.bsb.hike.utils.PairModified;
 import com.bsb.hike.utils.SmileyParser;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.CustomFontEditText;
-import com.bsb.hike.voip.VoIPConstants;
 import com.bsb.hike.voip.VoIPUtils;
 
 /**
@@ -164,11 +162,8 @@ public class GroupChatThread extends OneToNChatThread
 			mActionBar.onCreateOptionsMenu(menu, R.menu.group_chat_thread_menu, getOverFlowItems(), this, this);
 			updateUnreadPinCount();
 			
-			if (shouldShowCallIcon()) {
-				Logger.w(VoIPConstants.TAG, "Showing icon.");
+			if (shouldShowCallIcon()) 
 				menu.findItem(R.id.voip_call).setVisible(true);
-			} else
-				Logger.w(VoIPConstants.TAG, "NOT showing icon.");
 
 			return super.onCreateOptionsMenu(menu);
 		}
