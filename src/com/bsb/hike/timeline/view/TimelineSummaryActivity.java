@@ -169,6 +169,8 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 		overridePendingTransition(0, 0);
 
 		requestWindowFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
+		
+		getWindow().requestFeature(Window.FEATURE_CONTENT_TRANSITIONS);
 
 		super.onCreate(savedInstanceState);
 
@@ -508,7 +510,14 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 	@Override
 	public void onBackPressed()
 	{
-		finish();
+		if (mStatusMessage == null || mStatusMessage.getStatusMessageType() == StatusMessageType.TEXT)
+		{
+			finish();
+		}
+		else
+		{
+			supportFinishAfterTransition();
+		}
 	}
 
 	@Override
