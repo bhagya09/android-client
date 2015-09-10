@@ -1,5 +1,9 @@
 package com.bsb.hike.modules.contactmgr;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -2438,5 +2442,58 @@ class HikeUserDatabase extends SQLiteOpenHelper
 		}
 
 		return msisdns;
+	}
+	
+	/**
+	 * Will return the thumbnail path of the user DP. eg - file:///data/data/com.bsb.hike/cache/+91112233456.jpg
+	 *
+	 * @param msisdn
+	 * @return
+	 */
+	public String getImagePathForThumbnail(String msisdn)
+	{
+		Cursor c = null;
+		String thumbnailPath = null;
+		
+		File cacheDir = mContext.getCacheDir();
+		if(cacheDir == null || !cacheDir.exists())
+		{
+			return null;
+		}
+		
+		File imageFile = new File(cacheDir, msisdn + ".jpg");
+		
+		if(imageFile.exists())
+		{
+			thumbnailPath = imageFile.getAbsolutePath();
+		}
+		else
+		{
+			try
+			{
+				c = mReadDb.rawQuery("select " + DBConstants.IMAGE + " from " + DBConstants.THUMBNAILS_TABLE + " where " + DBConstants.MSISDN + "=?", new String[] { msisdn });
+				if (c.moveToFirst())
+				{
+					imageFile = new File(cacheDir, msisdn + ".jpg");
+					
+					Utils.saveByteArrayToFile(imageFile, c.getBlob(c.getColumnIndex(DBConstants.IMAGE)));
+					
+					thumbnailPath = "file://" + imageFile.getAbsolutePath();
+				}
+			}
+			catch (IOException e)
+			{
+				Logger.e("composeactivity", "IOException in getImagePathForThumbnail : ", e);
+			}
+			finally
+			{
+				if (c != null)
+				{
+					c.close();
+				}
+			}
+		}
+		
+		return thumbnailPath;
 	}
 }
