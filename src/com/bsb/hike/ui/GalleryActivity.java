@@ -139,6 +139,7 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 		if (savedInstanceState != null)
 		{
 			data = savedInstanceState;
+			galleryItemList =  data.getParcelableArrayList(HikeConstants.Extras.GALLERY_ITEMS);
 		}
 		else
 		{
@@ -255,18 +256,22 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 		{
 			setupActionBar(albumTitle);
 		}
-		galleryItemLoader = new GalleryItemLoaderTask(this, isInsideAlbum, enableCameraPick);
-		galleryItemLoader.buildQuery(uri, projection, selection, args, sortBy, editEnabled, editedImages);
-		Utils.executeAsyncTask(galleryItemLoader);
 
-		progressLoading = findViewById(R.id.progressLoading);
-		if(!isInsideAlbum)
+		if(galleryItemList.isEmpty())
 		{
-			progressLoading.setVisibility(View.VISIBLE);
-		}
-		else
-		{
-			progressLoading.setVisibility(View.GONE);
+			galleryItemLoader = new GalleryItemLoaderTask(this, isInsideAlbum, enableCameraPick);
+			galleryItemLoader.buildQuery(uri, projection, selection, args, sortBy, editEnabled, editedImages);
+			Utils.executeAsyncTask(galleryItemLoader);
+
+			progressLoading = findViewById(R.id.progressLoading);
+			if(!isInsideAlbum)
+			{
+				progressLoading.setVisibility(View.VISIBLE);
+			}
+			else
+			{
+				progressLoading.setVisibility(View.GONE);
+			}
 		}
 	}
 
@@ -298,6 +303,7 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 	{
 		outState.putAll(getIntent().getExtras());
 		outState.putParcelableArrayList(HikeConstants.Extras.GALLERY_SELECTIONS, (ArrayList<GalleryItem>)selectedGalleryItems);
+		outState.putParcelableArrayList(HikeConstants.Extras.GALLERY_ITEMS, (ArrayList<GalleryItem>)galleryItemList);
 		if(editEnabled && getIntent().hasExtra(GallerySelectionViewer.EDIT_IMAGES_LIST))
 		{
 			outState.putStringArrayList(GallerySelectionViewer.EDIT_IMAGES_LIST, editedImages);
