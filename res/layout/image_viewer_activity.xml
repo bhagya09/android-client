@@ -25,17 +25,9 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_centerInParent="true"
-            android:scaleType="fitCenter" />
+            android:scaleType="fitCenter"
+            android:transitionName="@string/timeline_transition_anim" />
     </RelativeLayout>
-
-    <View
-        android:id="@+id/fg_screen"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_centerInParent="true"
-        android:background="@drawable/image_viewer_fg"
-        android:visibility="gone" >
-    </View>
 
     <com.bsb.hike.view.CustomFontTextView
         android:id="@+id/text_view_full"
@@ -53,6 +45,16 @@
         android:textSize="16sp"
         android:textStyle="normal" />
 
+     <View
+        android:id="@+id/fg_screen"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentBottom="true"
+        android:layout_alignTop="@+id/image_info_container"
+        android:background="@drawable/image_viewer_fg"
+        android:visibility="gone" >
+    </View>
+    
     <LinearLayout
         android:id="@+id/image_info_container"
         android:layout_width="match_parent"
@@ -95,8 +97,8 @@
                 android:id="@+id/btn_love"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="10dp"
                 android:layout_marginBottom="5dp"
+                android:layout_marginLeft="10dp"
                 android:layout_marginRight="10dp"
                 android:layout_marginTop="5dp"
                 android:button="@drawable/btn_love_selector_dark"
@@ -107,13 +109,15 @@
                 android:id="@+id/text_view_count"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:gravity="center_vertical"
                 android:layout_gravity="center"
+                android:gravity="center_vertical"
                 android:text="0 people(s) like this photo"
-                android:textColor="#7AFFFFFF"
+                android:textColor="#B3FFFFFF"
                 android:textSize="14dp"
                 android:textStyle="normal" />
         </LinearLayout>
     </LinearLayout>
+
+   
 
 </RelativeLayout>

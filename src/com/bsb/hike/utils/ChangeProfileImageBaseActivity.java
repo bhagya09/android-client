@@ -347,6 +347,12 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 	 */
 	private void showRemovePhotoConfirmDialog()
 	{
+		
+		if(TextUtils.isEmpty(mRemoveImagePath))
+		{
+			return;
+		}
+		
 		JSONObject md = new JSONObject();
 
 		try
