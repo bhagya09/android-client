@@ -26,6 +26,8 @@ import android.widget.Toast;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
+import com.bsb.hike.chatthread.ChatThread;
+import com.bsb.hike.chatthread.IChannelSelector;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
@@ -52,6 +54,8 @@ public class AttachmentPicker extends OverFlowMenuLayout
 	public static final int LOCATION = 319;
 	
 	public static final int EDITOR = 320;
+
+	public static final int APPS = 321;
 
 	private boolean startRespectiveActivities;
 
@@ -113,17 +117,17 @@ public class AttachmentPicker extends OverFlowMenuLayout
 	@Override
 	public View getView()
 	{
-		return viewToShow;
+		return viewToShow != null ? viewToShow : initView();
 	}
 
 	@Override
-	public void initView()
+	public View initView()
 	{
 		// we lazily inflate and
 		if (viewToShow != null)
 		{
 			setOrientation(activity.getResources().getConfiguration().orientation);
-			return;
+			return viewToShow;
 		}
 
 		View parentView = viewToShow = LayoutInflater.from(context).inflate(R.layout.attachments, null);
@@ -152,6 +156,7 @@ public class AttachmentPicker extends OverFlowMenuLayout
 			}
 		});
 
+		
 		attachmentsGridView.setOnItemClickListener(new OnItemClickListener()
 		{
 
@@ -205,6 +210,10 @@ public class AttachmentPicker extends OverFlowMenuLayout
 				case GALLERY:
 					listener.itemClicked(item);
 					break;
+				case APPS:
+					requestCode  = APPS;
+					pickIntent = IntentFactory.getApkSelectionActivityIntent(context);
+					break;
 				}
 				if (pickIntent != null)
 				{
@@ -216,7 +225,7 @@ public class AttachmentPicker extends OverFlowMenuLayout
 				}
 			}
 		});
-
+		return viewToShow;
 	}
 	
 	/**

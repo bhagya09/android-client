@@ -184,6 +184,8 @@ public class FTAnalyticEvents
 
 	public static final String FT_STATE_READ_FAIL = "ft_state_read_fail";
 	
+	public static final int APK_ATTACHMENT = 7;
+	
 	public FTAnalyticEvents(JSONObject logMetaData)
 	{
 		if(logMetaData == null)

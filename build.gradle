@@ -46,6 +46,9 @@ android {
         compile(project(':recyclerview')) {
             exclude module: 'support-v4'
         }
+         compile(project(':transporter-library')) {
+            exclude module: 'support-v4'
+        }
         compile fileTree(dir: 'libs', include: ['*.jar'])
     }
 

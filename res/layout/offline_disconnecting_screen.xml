@@ -1,0 +1,92 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/offline_disconnect_pop_up"
+    android:layout_width="match_parent"
+    android:layout_height="150dp"
+    >
+
+    <RelativeLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/offline_disconnect_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:background="@drawable/offline_disconnect_card_background" >
+
+        <com.bsb.hike.view.RoundedImageView
+            android:id="@+id/connected_avatar"
+            style="@style/RoundedStyle"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginLeft="18dp"
+            android:layout_marginRight="18dp"
+            android:layout_marginTop="24dp"
+            android:layout_marginBottom="24dp"
+            android:contentDescription="@string/content_des_round_user_image_chatthread_actionbar" />
+
+        
+      
+        <com.bsb.hike.view.CustomFontTextView
+            android:id="@+id/connecting_request"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="30dp"
+            android:layout_marginRight="18dp"
+            android:layout_toRightOf="@+id/connected_avatar"
+            android:layout_alignBaseline="@+id/connected_avatar"
+            android:text="Connect with Sahil?"
+            android:textColor="@color/black_45"
+            android:textSize="14sp"
+           />
+
+        
+
+      
+        <ImageView
+            android:id="@+id/horizontal_separator"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/connected_avatar"
+            android:layout_marginBottom="3dp"
+            android:src="@drawable/disconnect_pop_up_seperator" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/horizontal_separator"
+            android:orientation="horizontal" >
+
+            <com.bsb.hike.view.CustomFontButton
+                android:id="@+id/reject_disconnect"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="0.4"
+                android:text="NO"
+                android:textSize="13sp"
+               
+                android:textStyle="bold|italic"
+                 android:textColor="@color/blue_hike"
+                style="?android:attr/borderlessButtonStyle" />
+
+            <ImageView
+                android:id="@+id/vertical_separator"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:layout_weight="0.05"
+                android:src="@drawable/vertical_seperator" />
+
+            <com.bsb.hike.view.CustomFontButton
+                android:id="@+id/accept_disconnect"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="0.4"
+                android:text="YES"
+                android:textColor="@color/black"
+                android:textSize="13sp"
+                android:textStyle="bold|italic"
+                style="?android:attr/borderlessButtonStyle" />
+        </LinearLayout>
+    </RelativeLayout>
+
+</RelativeLayout>
