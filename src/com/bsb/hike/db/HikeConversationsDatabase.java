@@ -1071,28 +1071,6 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		return ids;
 	}
 
-	private Cursor getCursor(String msisdn, long maxMsgId)
-	{
-		Cursor c = null;
-
-		boolean isOfflineMode = OfflineUtils.isConnectedToSameMsisdn(msisdn);
-		String equality = null;
-		String[] selecArgs = new String[] { msisdn, String.valueOf(maxMsgId), Integer.toString(State.SENT_DELIVERED_READ.ordinal()) };
-		String selecParams = DBConstants.MSISDN + "=? AND " + DBConstants.MESSAGE_ID + "<=? AND " + DBConstants.MSG_STATUS + "<? ";
-//		if (isOfflineMode)
-//		{
-//			equality = " =? ";
-//			selecParams = selecParams + " AND " + DBConstants.MESSAGE_ORIGIN_TYPE + equality;
-//			selecArgs=Arrays.copyOf(selecArgs, selecArgs.length+1);
-//			selecArgs[3] = Integer.toString(ConvMessage.OriginType.OFFLINE.ordinal());
-//		}
-		c = mDb.query(DBConstants.MESSAGES_TABLE, new String[] { DBConstants.MESSAGE_ID, DBConstants.MSG_STATUS, DBConstants.MESSAGE_ORIGIN_TYPE }, selecParams, selecArgs, null,
-				null, null);
-
-		return c;
-
-	}
-
 	public ArrayList<Long>  setAllDeliveredMessagesReadForMsisdn(String msisdn, ArrayList<Long> msgIds)
 	{
 		long maxMsgId = Utils.getMaxLongValue(msgIds);
