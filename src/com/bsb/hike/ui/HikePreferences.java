@@ -149,7 +149,8 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 
 		addClickPreferences();
 		addSwitchPreferences();
-
+		
+		saveKeyboardPref();
 		
 		Preference deletePreference = getPreferenceScreen().findPreference(HikeConstants.DELETE_PREF);
 		if (deletePreference != null)
@@ -172,6 +173,16 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		tryToSetupSMSPreferencesScreen();
 		setupToolBar(titleRes);
 
+	}
+	
+	private void saveKeyboardPref()
+	{
+		Preference kbdPref = findPreference(HikeConstants.KEYBOARD_PREF);
+		if (kbdPref != null && kbdPref instanceof SwitchPreferenceCompat)
+		{
+			boolean val = HikeMessengerApp.isSystemKeyboard(HikePreferences.this);
+			((SwitchPreferenceCompat) kbdPref).setChecked(!val);
+		}
 	}
 
 	private void addClickPreferences()
@@ -200,6 +211,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		addOnPreferenceChangeListeners(HikeConstants.DOUBLE_TAP_PREF);
 		addOnPreferenceChangeListeners(HikeConstants.H2O_NOTIF_BOOLEAN_PREF);
 		addOnPreferenceChangeListeners(HikeConstants.NUJ_NOTIF_BOOLEAN_PREF);
+		addOnPreferenceChangeListeners(HikeConstants.KEYBOARD_PREF);
 		addOnPreferenceChangeListeners(HikeConstants.GLIDE_PREF);
 		addOnPreferenceChangeListeners(HikeConstants.AUTO_CORRECT_PREF);
 		addOnPreferenceChangeListeners(HikeConstants.AUTO_CAPITALIZATION_PREF);
@@ -1242,6 +1254,10 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		{
 			stealthConfirmPasswordOnPreferenceChange(preference, newValue);
 			return false;
+		}
+		else if (HikeConstants.KEYBOARD_PREF.equals(preference.getKey()))
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CURRENT_KEYBOARD, !isChecked);
 		}
 		else if (HikeConstants.GLIDE_PREF.equals(preference.getKey()))
 		{
