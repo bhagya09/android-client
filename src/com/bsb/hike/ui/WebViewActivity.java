@@ -1195,9 +1195,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		{
 			if (!Utils.appInstalledOrNot(getApplicationContext(), "com.google.android.webview"))
 			{
-				Toast.makeText(getApplicationContext(), R.string.some_error, Toast.LENGTH_LONG).show();
 				PlatformUtils.sendPlatformCrashAnalytics("PackageManager.NameNotFoundException", msisdn);
-				this.finish();
 			}
 		}
 	}
