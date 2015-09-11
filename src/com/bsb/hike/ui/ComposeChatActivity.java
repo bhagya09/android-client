@@ -1994,7 +1994,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		convMessage.setParticipantInfoState(ConvMessage.ParticipantInfoState.NO_INFO);
 		convMessage.setMessageType(MESSAGE_TYPE.FORWARD_WEB_CONTENT);
 		convMessage.webMetadata = new WebMetadata(PlatformContent.getForwardCardData(metadata));
-		convMessage.setPlatformData(msgExtrasJson.getJSONObject(HikeConstants.PLATFORM_PACKET));
+		convMessage.setPlatformData(msgExtrasJson.optJSONObject(HikeConstants.PLATFORM_PACKET));
 		convMessage.setMessage(msgExtrasJson.getString(HikeConstants.HIKE_MESSAGE));
 		if (msgExtrasJson.has(HikePlatformConstants.NAMESPACE))
 		{
