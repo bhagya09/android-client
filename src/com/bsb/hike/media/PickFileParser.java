@@ -25,7 +25,7 @@ public class PickFileParser
 			}
 			else
 			{
-				String filePath = Utils.getAbsolutePathFromUri(data.getData(), activity,false);
+				String filePath = Utils.getAbsolutePathFromUri(data.getData(), activity, true);
 				listener.pickFileSuccess(requestCode, filePath);
 			}
 		}
