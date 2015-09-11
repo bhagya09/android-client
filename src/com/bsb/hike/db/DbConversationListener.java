@@ -35,7 +35,6 @@ import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
 import com.bsb.hike.models.ConvMessage.State;
 import com.bsb.hike.models.FtueContactInfo;
-import com.bsb.hike.models.MessageEvent;
 import com.bsb.hike.models.MultipleConvMessage;
 import com.bsb.hike.models.Protip;
 import com.bsb.hike.models.Conversation.ConvInfo;
@@ -103,7 +102,6 @@ public class DbConversationListener implements Listener
 		mPubSub.addListener(HikePubSub.UPDATE_LAST_MSG_STATE, this);
 		mPubSub.addListener(HikePubSub.STEALTH_DATABASE_MARKED, this);
 		mPubSub.addListener(HikePubSub.STEALTH_DATABASE_UNMARKED, this);
-		mPubSub.addListener(HikePubSub.PLATFORM_CARD_EVENT_SENT, this);
 	}
 
 	@Override
@@ -480,52 +478,6 @@ public class DbConversationListener implements Listener
 			if( HikeConversationsDatabase.getInstance().toggleStealth(msisdn, markStealth) )
 			{
 				HikeMessengerApp.getPubSub().publish(markStealth ? HikePubSub.STEALTH_CONVERSATION_MARKED : HikePubSub.STEALTH_CONVERSATION_UNMARKED, msisdn);
-			}
-		}
-		
-		else if (HikePubSub.PLATFORM_CARD_EVENT_SENT.equals(type))
-		{
-			MessageEvent messageEvent = (MessageEvent) object;
-
-			if (messageEvent == null)
-			{
-				Logger.e(HikePlatformConstants.TAG, "Got Message Event null");
-				return;
-			}
-
-			long eventId = HikeConversationsDatabase.getInstance().insertMessageEvent(messageEvent);
-			messageEvent.setEventId(eventId);
-			if (eventId < 0)
-			{
-				Logger.e(HikePlatformConstants.TAG, "Error inserting message event");
-			}
-			else
-			{
-
-				JSONObject jObj = new JSONObject();
-				JSONObject data;
-				try
-				{
-					data = new JSONObject(messageEvent.getEventMetadata());
-
-					jObj.put(HikeConstants.TYPE, HikeConstants.MqttMessageTypes.GENERAL_EVENT_QOS_ONE);
-					jObj.put(HikeConstants.SEND_TIMESTAMP, messageEvent.getSentTimeStamp());
-					jObj.put(HikeConstants.TIMESTAMP, messageEvent.getSentTimeStamp());
-					jObj.put(HikeConstants.TO, messageEvent.getMsisdn());
-
-					data.put(HikeConstants.TYPE, HikeConstants.GeneralEventMessagesTypes.MESSAGE_EVENT);
-					data.put(HikePlatformConstants.MESSAGE_HASH, messageEvent.getMessageHash());
-					data.put(HikePlatformConstants.NAMESPACE, messageEvent.getNameSpace());
-
-					data.put(HikeConstants.EVENT_ID, eventId);
-					jObj.put(HikeConstants.DATA, data);
-					HikeMqttManagerNew.getInstance().sendMessage(jObj, MqttConstants.MQTT_QOS_ONE);
-				}
-
-				catch (JSONException e)
-				{
-					Logger.e(HikePlatformConstants.TAG, "Got a JSON Exception while creating a message event : " + e);
-				}
 			}
 		}
 	}

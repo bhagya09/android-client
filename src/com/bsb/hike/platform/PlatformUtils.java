@@ -15,7 +15,6 @@ import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.MessageEvent;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.service.HikeMqttManagerNew;
-
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
@@ -38,7 +37,6 @@ import android.widget.Toast;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
-import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.bots.BotInfo;
@@ -1086,17 +1084,46 @@ public class PlatformUtils
 	public static void sendPlatformMessageEvent(String eventMetadata, String messageHash, String nameSpace)
 	{
 		String msisdn = HikeConversationsDatabase.getInstance().getMsisdnFromMessageHash(messageHash);
-		if (TextUtils.isEmpty(msisdn))
+		if (null == msisdn)
 		{
 			Logger.e(HikePlatformConstants.TAG, "Message Hash is incorrect");
 			return;
 		}
+		JSONObject object = new JSONObject();
 
-		MessageEvent messageEvent = new MessageEvent(HikePlatformConstants.NORMAL_EVENT, msisdn, nameSpace, eventMetadata, messageHash,
-				HikePlatformConstants.EventStatus.EVENT_SENT, System.currentTimeMillis());
+		try
+		{
+			JSONObject data = new JSONObject(eventMetadata);
+			long timestamp = System.currentTimeMillis();
+			object.put(HikeConstants.TYPE, HikeConstants.MqttMessageTypes.GENERAL_EVENT_QOS_ONE);
+			object.put(HikeConstants.SEND_TIMESTAMP, timestamp);
+			object.put(HikeConstants.TIMESTAMP, timestamp);
+			object.put(HikeConstants.TO, msisdn);
 
-		HikeMessengerApp.getPubSub().publish(HikePubSub.PLATFORM_CARD_EVENT_SENT, messageEvent);
+			data.put(HikeConstants.TYPE, HikeConstants.GeneralEventMessagesTypes.MESSAGE_EVENT);
+			data.put(HikePlatformConstants.MESSAGE_HASH, messageHash);
+			data.put(HikePlatformConstants.NAMESPACE, nameSpace);
 
+			MessageEvent messageEvent = new MessageEvent(HikePlatformConstants.NORMAL_EVENT, msisdn, nameSpace, eventMetadata, messageHash,
+					HikePlatformConstants.EventStatus.EVENT_SENT, timestamp);
+			long eventId = HikeConversationsDatabase.getInstance().insertMessageEvent(messageEvent);
+			messageEvent.setEventId(eventId);
+			if (eventId < 0)
+			{
+				Logger.e(HikePlatformConstants.TAG, "Error inserting message event");
+			}
+			else
+			{
+				data.put(HikeConstants.EVENT_ID, eventId);
+				object.put(HikeConstants.DATA, data);
+				HikeMqttManagerNew.getInstance().sendMessage(object, MqttConstants.MQTT_QOS_ONE);
+			}
+
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
 	}
 
 	public static JSONObject getPlatformContactInfo(String msisdn)
