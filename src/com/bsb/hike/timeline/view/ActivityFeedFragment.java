@@ -204,5 +204,5 @@ public class ActivityFeedFragment extends Fragment implements Listener
 	{
 		menu.clear();
 	}
-
+	
 }
