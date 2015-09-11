@@ -39,7 +39,6 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.MqttConstants;
 import com.bsb.hike.R;
-import com.bsb.hike.ag.NetworkAgModule;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.AnalyticsConstants.MsgRelEventType;
 import com.bsb.hike.analytics.HAManager;
@@ -1054,7 +1053,7 @@ public class MqttMessagesManager
 		
 	}
 
-	private void saveMessageRead(JSONObject jsonObj) throws JSONException
+	public synchronized void saveMessageRead(JSONObject jsonObj) throws JSONException
 	{
 		JSONArray serverIds = jsonObj.optJSONArray(HikeConstants.DATA);
 		
@@ -2465,20 +2464,6 @@ public class MqttMessagesManager
 		{
 			editor.putString(HikeConstants.EXTRAS_BOT_MSISDN, data.getString(HikeConstants.EXTRAS_BOT_MSISDN));
 		}
-		if (data.has(HikeConstants.AG_ENABLED))
-		{
-			boolean agoopLogs = data.getBoolean(HikeConstants.AG_ENABLED);
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.AG_ENABLED, agoopLogs);
-			if(agoopLogs)
-			{
-				NetworkAgModule.startLogging();
-			}
-			else
-			{
-				NetworkAgModule.stopLogging();
-			}
-		}
-		
 		if (data.has(HikeConstants.REFERRAL_EMAIL_TEXT))
 		{
 			editor.putString(HikeConstants.REFERRAL_EMAIL_TEXT, data.getString(HikeConstants.REFERRAL_EMAIL_TEXT));
@@ -2497,6 +2482,11 @@ public class MqttMessagesManager
 			{
 				StickerManager.getInstance().downloadStickerTagData();
 			}
+		}
+		if(data.has(HikeConstants.OFFLINE))
+		{
+			String offline = data.optString(HikeConstants.OFFLINE, "{}");
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.OFFLINE, offline);
 		}
 		
 		editor.commit();
@@ -2984,7 +2974,7 @@ public class MqttMessagesManager
 		}
 	}
 
-	private void saveChatBackground(JSONObject jsonObj) throws JSONException
+	public void saveChatBackground(JSONObject jsonObj) throws JSONException
 	{
 		String from = jsonObj.optString(HikeConstants.FROM);
 		String to = jsonObj.optString(HikeConstants.TO);
@@ -3757,6 +3747,10 @@ public class MqttMessagesManager
 		{
 			saveTimelineFTUEPrefferedContacts(jsonObj);
 		}
+		else if(HikeConstants.MqttMessageTypes.GENERAL_EVENT_PACKET_ZERO.equals(type))
+		{
+			GeneralEventMessagesManager.getInstance().handleGeneralMessage(jsonObj);
+		}
 	}
 
 	private void saveActivityUpdate(final JSONObject jsonObj)
@@ -3792,6 +3786,7 @@ public class MqttMessagesManager
 						HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.USER_TIMELINE_ACTIVITY_COUNT, count);
 						
 						//To update Overflow menu on Home Screen
+						HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.IS_HOME_OVERFLOW_CLICKED, false);
 						HikeMessengerApp.getPubSub().publish(HikePubSub.INCREMENTED_UNSEEN_STATUS_COUNT, null);
 					}
 
@@ -4509,6 +4504,6 @@ public class MqttMessagesManager
 		
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.TIMELINE_FTUE_CARD_TO_SHOW_COUNTER, counter);
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ENABLE_TIMELINE_FTUE, true);
-		HikeMessengerApp.getPubSub().publish(HikePubSub.TIMELINE_FTUE_LIST_UPDATE, new Pair<Set<String>, Integer>(msisdnSet, counter));
+		//HikeMessengerApp.getPubSub().publish(HikePubSub.TIMELINE_FTUE_LIST_UPDATE, new Pair<Set<String>, Integer>(msisdnSet, counter));
 	}
 }

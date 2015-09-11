@@ -33,7 +33,7 @@ public class HikeFile
 {
 	public static enum HikeFileType
 	{
-		PROFILE, IMAGE, VIDEO, AUDIO, LOCATION, CONTACT, AUDIO_RECORDING, OTHER;
+		PROFILE, IMAGE, VIDEO, AUDIO, LOCATION, CONTACT, AUDIO_RECORDING, APK, OTHER;
 
 		public static HikeFileType fromString(String fileTypeString)
 		{
@@ -63,6 +63,10 @@ public class HikeFile
 				else if (fileTypeString.startsWith(HikeConstants.CONTACT_CONTENT_TYPE))
 				{
 					return HikeFileType.CONTACT;
+				}
+				else if (fileTypeString.contains("package-archive"))	
+				{
+					return HikeFileType.APK;
 				}
 			}
 			return HikeFileType.OTHER;
@@ -96,6 +100,14 @@ public class HikeFile
 			else if (hikeFileType == CONTACT)
 			{
 				return HikeConstants.CONTACT_CONTENT_TYPE;
+			}
+			else if (hikeFileType == OTHER)
+			{
+				return "other";
+			}
+			else if (hikeFileType == APK)
+			{
+				return "apk";
 			}
 			return null;
 		}
@@ -193,7 +205,7 @@ public class HikeFile
 		this.longitude = fileJSON.optDouble(HikeConstants.LONGITUDE);
 		this.zoomLevel = fileJSON.optInt(HikeConstants.ZOOM_LEVEL, HikeConstants.DEFAULT_ZOOM_LEVEL);
 		this.address = fileJSON.optString(HikeConstants.ADDRESS);
-		if (this.file != null)
+		if (this.file != null && (TextUtils.isEmpty(this.fileName) || !isSent))
 		{
 			// Update the file name to prevent duplicacy
 			this.fileName = this.file.getName();

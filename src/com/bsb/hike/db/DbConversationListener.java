@@ -104,6 +104,7 @@ public class DbConversationListener implements Listener
 		mPubSub.addListener(HikePubSub.STEALTH_DATABASE_MARKED, this);
 		mPubSub.addListener(HikePubSub.STEALTH_DATABASE_UNMARKED, this);
 		mPubSub.addListener(HikePubSub.PLATFORM_CARD_EVENT_SENT, this);
+		mPubSub.addListener(HikePubSub.UPDATE_MESSAGE_ORIGIN_TYPE, this);
 	}
 
 	@Override
@@ -184,12 +185,12 @@ public class DbConversationListener implements Listener
 			ArrayList<Long> msgIds = deleteMessage.first;
 			Bundle bundle = deleteMessage.second;
 			Boolean containsLastMessage = null;
-			if(bundle.containsKey(HikeConstants.Extras.IS_LAST_MESSAGE))
+			if (bundle.containsKey(HikeConstants.Extras.IS_LAST_MESSAGE))
 			{
 				containsLastMessage = bundle.getBoolean(HikeConstants.Extras.IS_LAST_MESSAGE);
 			}
 			String msisdn = bundle.getString(HikeConstants.Extras.MSISDN);
-			
+
 			mConversationDb.deleteMessages(msgIds, msisdn, containsLastMessage);
 			persistence.removeMessages(msgIds);
 		}
@@ -527,6 +528,15 @@ public class DbConversationListener implements Listener
 					Logger.e(HikePlatformConstants.TAG, "Got a JSON Exception while creating a message event : " + e);
 				}
 			}
+		}
+		
+		else if(HikePubSub.UPDATE_MESSAGE_ORIGIN_TYPE.equals(type))
+		{
+			Pair<Long, Integer> pair = (Pair<Long, Integer>) object;
+
+			long msgId = pair.first;
+
+			HikeConversationsDatabase.getInstance().updateMessageOriginType(msgId, pair.second);
 		}
 	}
 
