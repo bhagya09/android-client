@@ -86,6 +86,12 @@ public final class HikeEffectsFactory
 			return false;
 		}
 
+		if(mRS == null || mBitmapIn == null)
+		{
+			finish();
+			return false;
+		}
+		
 		// Allocate buffer
 		mBitmapIn = image;
 		mInAllocation = Allocation.createFromBitmap(mRS, mBitmapIn);
