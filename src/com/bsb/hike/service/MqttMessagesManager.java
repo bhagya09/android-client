@@ -376,7 +376,7 @@ public class MqttMessagesManager
 			ContactInfo contact = ContactManager.getInstance().getContact(msisdn, true, false);
 			boolean showRecentlyJoined = contact.getHikeJoinTime() > 0 && !contact.isUnknownContact();
 			
-			if (appPrefs.getBoolean(HikeConstants.NUJ_NOTIF_BOOLEAN_PREF, true) && !ContactManager.getInstance().isBlocked(msisdn))
+			if (appPrefs.getBoolean(HikeConstants.NUJ_NOTIF_BOOLEAN_PREF, true) && !ContactManager.getInstance().isBlocked(msisdn) && jsonObj.getJSONObject(HikeConstants.DATA).optBoolean(HikeConstants.SHOW_NOTIFICATION , true))
 			{
 				if(jsonObj.getJSONObject(HikeConstants.DATA).optBoolean(HikeConstants.UserJoinMsg.PERSIST_CHAT, HikeConstants.UserJoinMsg.defaultPersistChat))
 				{
@@ -1398,20 +1398,27 @@ public class MqttMessagesManager
 				editor.putString(HikeMessengerApp.REWARDS_TOKEN, rewardsToken);
 				// TODO. Should this be games_token ?
 				editor.putString(HikeMessengerApp.GAMES_TOKEN, rewardsToken); 
+
+				editor.putBoolean(HikeMessengerApp.SHOW_REWARDS, account.optBoolean(HikeConstants.SHOW_REWARDS));
+				editor.putBoolean(HikeMessengerApp.SHOW_GAMES, account.optBoolean(HikeConstants.SHOW_GAMES));
+				if (account.optBoolean(HikeConstants.SHOW_REWARDS))
+				{
+					showNewRewards = true;
+				}
+
+				if (account.optBoolean(HikeConstants.SHOW_GAMES))
+				{
+					showNewGames = true;
+				}
+
 			}
-
-			editor.putBoolean(HikeMessengerApp.SHOW_REWARDS, account.optBoolean(HikeConstants.SHOW_REWARDS));
-			editor.putBoolean(HikeMessengerApp.SHOW_GAMES, account.optBoolean(HikeConstants.SHOW_GAMES));
-
-			if (account.optBoolean(HikeConstants.SHOW_REWARDS))
+			else
 			{
-				showNewRewards = true;
+				editor.putBoolean(HikeMessengerApp.SHOW_REWARDS, false);
+				editor.putBoolean(HikeMessengerApp.SHOW_GAMES, false);
 			}
 
-			if (account.optBoolean(HikeConstants.SHOW_GAMES))
-			{
-				showNewGames = true;
-			}
+
 			
 			if (account.has(HikeConstants.REWARDS))
 			{
@@ -1738,6 +1745,10 @@ public class MqttMessagesManager
 		if (data.has(HikeConstants.SHOW_REWARDS))
 		{
 			boolean showRewards = data.getBoolean(HikeConstants.SHOW_REWARDS);
+			if (TextUtils.isEmpty(HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.REWARDS_TOKEN, "")))
+			{
+				showRewards = false;
+			}
 			editor.putBoolean(HikeMessengerApp.SHOW_REWARDS, showRewards);
 			editor.putBoolean(HikeConstants.IS_REWARDS_ITEM_CLICKED, !showRewards);
 			if(showRewards)
@@ -1748,6 +1759,10 @@ public class MqttMessagesManager
 		if (data.has(HikeConstants.SHOW_GAMES))
 		{
 			boolean showGames = data.getBoolean(HikeConstants.SHOW_GAMES);
+			if (TextUtils.isEmpty(HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.REWARDS_TOKEN, "")))
+			{
+				showGames = false;
+			}
 			editor.putBoolean(HikeMessengerApp.SHOW_GAMES, showGames);
 			editor.putBoolean(HikeConstants.IS_GAMES_ITEM_CLICKED, !showGames);
 			if(showGames)
@@ -2472,8 +2487,12 @@ public class MqttMessagesManager
 		{
 			editor.putString(HikeConstants.REFERRAL_OTHER_TEXT, data.getString(HikeConstants.REFERRAL_OTHER_TEXT));
 		}
-		
-		if(data.has(HikeConstants.ALL_STICKER_TAG_DOWNLOAD))
+		if (data.has(HikeConstants.FT_LATENCY_LOGGING))
+		{
+			boolean httpExceptionLogging = data.getBoolean(HikeConstants.FT_LATENCY_LOGGING);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.FT_LATENCY_LOGGING, httpExceptionLogging);
+		}
+		if (data.has(HikeConstants.ALL_STICKER_TAG_DOWNLOAD))
 		{
 			boolean shouldDownload = data.getBoolean(HikeConstants.ALL_STICKER_TAG_DOWNLOAD);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.TAG_FIRST_TIME_DOWNLOAD, shouldDownload);
@@ -4395,6 +4414,10 @@ public class MqttMessagesManager
 				if (HikeConstants.MqttMessageTypes.MESSAGE.equals(type))
 				{
 					saveMessage(json);
+				}
+				else if (HikeConstants.MqttMessageTypes.ACCOUNT_CONFIG.equals(type))
+				{
+					saveAccountConfig(json);
 				}
 				else if (HikeConstants.MqttMessageTypes.POPUP.equals(type))
 				{

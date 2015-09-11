@@ -2464,7 +2464,6 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		clearTempData();
 		if (filePath == null)
 		{
-			Toast.makeText(getApplicationContext(), R.string.unknown_msg, Toast.LENGTH_SHORT).show();
 			FTAnalyticEvents.logDevError(FTAnalyticEvents.UPLOAD_INIT_2_4, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "init", "Compose - InitialiseFileTransfer - File path is null.");
 			return null;
 		}
