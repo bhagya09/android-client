@@ -38,7 +38,6 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.MqttConstants;
 import com.bsb.hike.R;
-import com.bsb.hike.ag.NetworkAgModule;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.AnalyticsConstants.MsgRelEventType;
 import com.bsb.hike.analytics.HAManager;
@@ -570,9 +569,7 @@ public class MqttMessagesManager
 			changeGroupSettings(oneToNConversation, metadata);
 		}
 
-		if ( gcjAdd == HikeConstants.NEW_PARTICIPANT){
 		saveStatusMsg(jsonObj, jsonObj.getString(HikeConstants.TO));
-		}
 	}
 
 	private void changeGroupSettings(OneToNConversation oneToNConversation,
@@ -2403,20 +2400,6 @@ public class MqttMessagesManager
 		{
 			editor.putString(HikeConstants.EXTRAS_BOT_MSISDN, data.getString(HikeConstants.EXTRAS_BOT_MSISDN));
 		}
-		if (data.has(HikeConstants.AG_ENABLED))
-		{
-			boolean agoopLogs = data.getBoolean(HikeConstants.AG_ENABLED);
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.AG_ENABLED, agoopLogs);
-			if (agoopLogs)
-			{
-				NetworkAgModule.startLogging();
-			}
-			else
-			{
-				NetworkAgModule.stopLogging();
-			}
-		}
-
 		if (data.has(HikeConstants.REFERRAL_EMAIL_TEXT))
 		{
 			editor.putString(HikeConstants.REFERRAL_EMAIL_TEXT, data.getString(HikeConstants.REFERRAL_EMAIL_TEXT));
@@ -3701,6 +3684,7 @@ public class MqttMessagesManager
 						HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.USER_TIMELINE_ACTIVITY_COUNT, count);
 						
 						//To update Overflow menu on Home Screen
+						HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.IS_HOME_OVERFLOW_CLICKED, false);
 						HikeMessengerApp.getPubSub().publish(HikePubSub.INCREMENTED_UNSEEN_STATUS_COUNT, null);
 					}
 
@@ -4418,6 +4402,6 @@ public class MqttMessagesManager
 		
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.TIMELINE_FTUE_CARD_TO_SHOW_COUNTER, counter);
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ENABLE_TIMELINE_FTUE, true);
-		HikeMessengerApp.getPubSub().publish(HikePubSub.TIMELINE_FTUE_LIST_UPDATE, new Pair<Set<String>, Integer>(msisdnSet, counter));
+		//HikeMessengerApp.getPubSub().publish(HikePubSub.TIMELINE_FTUE_LIST_UPDATE, new Pair<Set<String>, Integer>(msisdnSet, counter));
 	}
 }
