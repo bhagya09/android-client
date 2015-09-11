@@ -1,16 +1,6 @@
-package com.bsb.hike.adapters;
+package com.bsb.hike.gallery;
 
 import java.util.List;
-
-import android.content.Context;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.BaseAdapter;
-import android.widget.ImageView;
-import android.widget.ImageView.ScaleType;
-import android.widget.RelativeLayout.LayoutParams;
-import android.widget.TextView;
 
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
@@ -18,8 +8,15 @@ import com.bsb.hike.models.GalleryItem;
 import com.bsb.hike.smartImageLoader.GalleryImageLoader;
 import com.bsb.hike.utils.Utils;
 
-public class GalleryAdapter extends BaseAdapter
-{
+import android.content.Context;
+import android.support.v7.widget.RecyclerView.Adapter;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageView.ScaleType;
+import android.widget.RelativeLayout.LayoutParams;
+
+public class GalleryRecyclerAdapter extends Adapter<GalleryViewHolder> {
 
 	private List<GalleryItem> galleryItemList;
 
@@ -39,7 +36,8 @@ public class GalleryAdapter extends BaseAdapter
 
 	private boolean selectedScreen = false;
 
-	public GalleryAdapter(Context context, List<GalleryItem> galleryItems, boolean isInsideAlbum, int sizeOfImage, List<GalleryItem> selectedItems, boolean selectedScreen)
+	public GalleryRecyclerAdapter(Context context, List<GalleryItem> galleryItems, boolean isInsideAlbum, int sizeOfImage, List<GalleryItem> selectedItems, 
+			boolean selectedScreen)
 	{
 		this.layoutInflater = LayoutInflater.from(context);
 		this.galleryItemList = galleryItems;
@@ -54,64 +52,17 @@ public class GalleryAdapter extends BaseAdapter
 	}
 
 	@Override
-	public int getCount()
-	{
+	public int getItemCount() {
 		return galleryItemList.size();
 	}
 
 	@Override
-	public GalleryItem getItem(int position)
-	{
-		return galleryItemList.get(position);
-	}
-
-	@Override
-	public long getItemId(int position)
-	{
-		return position;
-	}
-
-	public void setSelectedItemPosition(int position)
-	{
-		this.selectedItemPostion = position;
-		notifyDataSetChanged();
-	}
-
-	@Override
-	public View getView(int position, View convertView, ViewGroup parent)
+	public void onBindViewHolder(GalleryViewHolder holder, int position) 
 	{
 		GalleryItem galleryItem = getItem(position);
-		ViewHolder holder;
-
-		if (convertView == null)
-		{
-			convertView = layoutInflater.inflate(R.layout.gallery_item, null);
-			holder = new ViewHolder();
-
-			holder.galleryName = (TextView) convertView.findViewById(R.id.album_title);
-			holder.galleryCount = (TextView) convertView.findViewById(R.id.album_count);
-			holder.galleryThumb = (ImageView) convertView.findViewById(R.id.album_image);
-			holder.contentLayout = (ViewGroup) convertView.findViewById(R.id.contentLayout);
-			holder.selected = convertView.findViewById(R.id.selected);
-
-
-			holder.selected.setBackgroundResource(selectedScreen ? R.drawable.gallery_item_selected_selector : R.drawable.gallery_item_selector);
-
-			LayoutParams layoutParams = new LayoutParams(sizeOfImage, sizeOfImage);
-			holder.galleryThumb.setLayoutParams(layoutParams);
-
-			convertView.setTag(holder);
-		}
-		else
-		{
-			holder = (ViewHolder) convertView.getTag();
-		}
-		
-
-
 		if (!isInsideAlbum && galleryItem.getType()!=GalleryItem.CUSTOM)
 		{
-			(convertView.findViewById(R.id.album_layout)).setVisibility(View.VISIBLE);
+			holder.albumLayout.setVisibility(View.VISIBLE);
 			holder.galleryName.setVisibility(View.VISIBLE);
 			holder.galleryName.setText(galleryItem.getName());
 
@@ -125,7 +76,7 @@ public class GalleryAdapter extends BaseAdapter
 		}
 		else
 		{
-			(convertView.findViewById(R.id.album_layout)).setVisibility(View.GONE);
+			holder.albumLayout.setVisibility(View.GONE);
 			holder.galleryName.setVisibility(View.GONE);
 			holder.galleryCount.setVisibility(View.GONE);
 		}
@@ -159,43 +110,34 @@ public class GalleryAdapter extends BaseAdapter
 		{
 			holder.selected.setSelected(false);
 		}
-
-		return convertView;
 	}
 
-	private class ViewHolder
+	@Override
+	public GalleryViewHolder onCreateViewHolder(ViewGroup parent, int viewType)
 	{
-		ImageView galleryThumb;
+		View view = layoutInflater.inflate(R.layout.gallery_item, null);
+		GalleryViewHolder holder = new GalleryViewHolder(view);
 
-		TextView galleryName;
+		holder.selected.setBackgroundResource(selectedScreen ? R.drawable.gallery_item_selected_selector : R.drawable.gallery_item_selector);
+		LayoutParams layoutParams = new LayoutParams(sizeOfImage, sizeOfImage);
+		holder.galleryThumb.setLayoutParams(layoutParams);
 
-		View selected;
-
-		TextView galleryCount;
-
-		ViewGroup contentLayout;
+		return holder;
 	}
 
-	public void setIsListFlinging(boolean b)
+	public GalleryItem getItem(int position)
 	{
-		boolean notify = b != isListFlinging;
-
-		isListFlinging = b;
-
-		if (notify && !isListFlinging)
-		{
-			notifyDataSetChanged();
-		}
-
+		return galleryItemList.get(position);
 	}
-	
+
+	public int addItem(GalleryItem galleryItem)
+	{
+		galleryItemList.add(galleryItem);
+		return (galleryItemList.size() - 1);
+	}
+
 	public GalleryImageLoader getGalleryImageLoader()
 	{
 		return galleryImageLoader;
-	}
-
-	public void updateGalleryItemList(List<GalleryItem> gItemList)
-	{
-		galleryItemList = gItemList;
 	}
 }

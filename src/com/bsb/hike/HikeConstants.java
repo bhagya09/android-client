@@ -880,7 +880,10 @@ public class HikeConstants
 	public static final String GOOGLE_PLUS_PREFIX = "content://com.google.android.apps.photos.content";
 	
 	// Google Inbox App URI prefix for all devices
-		public static final String GOOGLE_INBOX_PREFIX = "content://com.google.android.apps.bigtop";
+	public static final String GOOGLE_INBOX_PREFIX = "content://com.google.android.apps.bigtop";
+
+	// Google Drive App URI prefix for all devices
+	public static final String GOOGLE_DRIVE_PREFIX = "content://com.google.android.apps.docs.storage.legacy";
 
 	public static final int MAX_MESSAGES_TO_LOAD_INITIALLY = 40;
 
@@ -1529,6 +1532,8 @@ public class HikeConstants
 		public static final String GALLERY_SELECTION_SINGLE = "gallerySelection";
 
 		public static final String GALLERY_SELECTIONS = "gallerySelections";
+
+		public static final String GALLERY_ITEMS = "galleryItems";
 
 		public static final String FILE_PATHS = "filePaths";
 
@@ -3257,7 +3262,8 @@ public class HikeConstants
 	public static final String REFERRAL_OTHER_TEXT = "ref_oth_txt";
 	
 	public static final String ALL_STICKER_TAG_DOWNLOAD = "alstktd";
+
+	public static final String FT_LATENCY_LOGGING = "ft_latency";
 	
 	public static final String SHOW_NOTIFICATION = "sn";
-
 }

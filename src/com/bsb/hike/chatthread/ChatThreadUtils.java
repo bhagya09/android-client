@@ -230,7 +230,6 @@ public class ChatThreadUtils
 
 		if (filePath == null)
 		{
-			Toast.makeText(context, R.string.unknown_msg, Toast.LENGTH_SHORT).show();
 			FTAnalyticEvents.logDevError(FTAnalyticEvents.UPLOAD_INIT_2_3, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "init", "InitialiseFileTransfer - File Path is null");
 			return;
 		}
@@ -270,7 +269,7 @@ public class ChatThreadUtils
 
 		if (filePath == null)
 		{
-			Toast.makeText(context, R.string.unknown_msg, Toast.LENGTH_SHORT).show();
+			Toast.makeText(context, R.string.unknown_file_error, Toast.LENGTH_SHORT).show();
 			FTAnalyticEvents.logDevError(FTAnalyticEvents.UPLOAD_INIT_2_5, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "init", "OnShareFile - Unsupprted file");
 		}
 		else
