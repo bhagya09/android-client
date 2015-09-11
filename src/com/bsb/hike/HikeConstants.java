@@ -2551,10 +2551,6 @@ public class HikeConstants
 	public static final class GeneralEventMessagesTypes
 	{
 		public static final String OFFLINE = "offline";
-	
-		public static final String ACTIVITY_UPDATE = "ac_up";
-		
-		public static final String TIMELINE_PREFFERED_CONTACTS = "tlpc";
 	}
 
 	
