@@ -781,10 +781,10 @@ public class IntentFactory
 		return new Intent();
 	}
 
-	public static Intent getForwardIntentForConvMessage(Context context, ConvMessage convMessage, String metadata)
+	public static Intent getForwardIntentForConvMessage(Context context, ConvMessage convMessage, String metadata, boolean includeAllUsers )
 	{
 		Intent intent = new Intent(context, ComposeChatActivity.class);
-		intent.putExtra(HikeConstants.Extras.FORWARD_MESSAGE, true);
+		intent.putExtra(HikeConstants.Extras.FORWARD_MESSAGE, includeAllUsers);
 		JSONArray multipleMsgArray = new JSONArray();
 		JSONObject multiMsgFwdObject = new JSONObject();
 		try

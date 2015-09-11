@@ -8006,8 +8006,8 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 			while (c.moveToNext())
 			{
-				ContactInfo info = ContactManager.getInstance().getContact(c.getString(msisdnIndex));
-				JSONObject jsonObject = info.getPlatformInfo();
+				String msisdn = c.getString(msisdnIndex);
+				JSONObject jsonObject = PlatformUtils.getPlatformContactInfo(msisdn);
 				jsonObject.put(HikePlatformConstants.EVENT_DATA, c.getString(eventMetadataIdx));
 				jsonObject.put(HikePlatformConstants.MESSAGE_HASH, c.getString(messageHashIdx));
 				jsonObject.put(HikePlatformConstants.EVENT_ID , c.getString(eventIdx));
@@ -8054,8 +8054,8 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 			while (c.moveToNext())
 			{
-				ContactInfo info = ContactManager.getInstance().getContact(c.getString(msisdnIndex));
-				JSONObject jsonObject = info.getPlatformInfo();
+				String msisdn = c.getString(msisdnIndex);
+				JSONObject jsonObject = PlatformUtils.getPlatformContactInfo(msisdn);
 				jsonObject.put(HikePlatformConstants.EVENT_DATA, c.getString(eventMetadataIdx));
 				jsonObject.put(HikePlatformConstants.EVENT_ID , c.getString(eventIdx));
 				jsonObject.put(HikePlatformConstants.EVENT_STATUS, c.getInt(eventStatusIdx));
@@ -8429,6 +8429,29 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		catch (Exception e)
 		{
 			Logger.e("HikeConversationsDatabase", "Got an exception while updating sortingId for a Message");
+		}
+	}
+
+	public boolean isConversationExist(String msisdn)
+	{
+		Cursor c = null;
+		try
+		{
+
+			c = mDb.query(DBConstants.CONVERSATIONS_TABLE, null, DBConstants.MSISDN + "=?", new String[] { msisdn }, null, null, null);
+			if (c.moveToFirst())
+			{
+				return true;
+			}
+			return false;
+		}
+
+		finally
+		{
+			if (c != null)
+			{
+				c.close();
+			}
 		}
 	}
 

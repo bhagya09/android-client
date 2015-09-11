@@ -186,7 +186,7 @@ public class PlatformHelper
 		final int PICK_CONTACT_AND_SEND_REQUEST = 2;
 		if (activity != null)
 		{
-			final Intent intent = IntentFactory.getForwardIntentForConvMessage(activity, message, PlatformContent.getForwardCardData(message.webMetadata.JSONtoString()));
+			final Intent intent = IntentFactory.getForwardIntentForConvMessage(activity, message, PlatformContent.getForwardCardData(message.webMetadata.JSONtoString()), false);
 			intent.putExtra(HikeConstants.Extras.COMPOSE_MODE, ComposeChatActivity.PICK_CONTACT_AND_SEND_MODE);
 			intent.putExtra(TAG, activity.hashCode());
 			intent.putExtra(REQUEST_CODE, PICK_CONTACT_AND_SEND_REQUEST);
@@ -210,7 +210,7 @@ public class PlatformHelper
 			{
 				if (mContext != null)
 				{
-					final Intent intent = IntentFactory.getForwardIntentForConvMessage(mContext, message, PlatformContent.getForwardCardData(message.webMetadata.JSONtoString()));
+					final Intent intent = IntentFactory.getForwardIntentForConvMessage(mContext, message, PlatformContent.getForwardCardData(message.webMetadata.JSONtoString()), true);
 					mContext.startActivity(intent);
 				}
 				else
