@@ -190,6 +190,7 @@ public class PlatformHelper
 			intent.putExtra(HikeConstants.Extras.COMPOSE_MODE, ComposeChatActivity.PICK_CONTACT_AND_SEND_MODE);
 			intent.putExtra(TAG, activity.hashCode());
 			intent.putExtra(REQUEST_CODE, PICK_CONTACT_AND_SEND_REQUEST);
+			intent.putExtra(HikeConstants.Extras.THUMBNAILS_REQUIRED, true);
 			activity.startActivityForResult(intent, HikeConstants.PLATFORM_REQUEST);
 		}
 	}

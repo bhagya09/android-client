@@ -1531,6 +1531,12 @@ class HikeUserDatabase extends SQLiteOpenHelper
 		ContentValues customPhotoFlag = new ContentValues(1);
 		customPhotoFlag.put(DBConstants.HAS_CUSTOM_PHOTO, 1);
 		mDb.update(DBConstants.USERS_TABLE, customPhotoFlag, whereClause, new String[] { msisdn });
+		
+		File cacheDir = mContext.getCacheDir();
+		if(cacheDir != null && cacheDir.exists())
+		{
+			writeThumbnailToFile(new File(cacheDir, msisdn + ".jpg"), data);
+		}
 	}
 
 	Drawable getIcon(String msisdn)
@@ -2445,6 +2451,57 @@ class HikeUserDatabase extends SQLiteOpenHelper
 	}
 	
 	/**
+	 * Fetches the byte array of the image from the Thumbnails table and writes to the file specified.
+	 * @param imageFile
+	 * @param msisdn
+	 */
+	public void writeThumbnailToFileForMsisdn(File imageFile, String msisdn)
+	{
+		Cursor c = null;
+
+		try
+		{
+			c = mReadDb.rawQuery("select " + DBConstants.IMAGE + " from " + DBConstants.THUMBNAILS_TABLE + " where " + DBConstants.MSISDN + "=?", new String[] { msisdn });
+			if (c.moveToFirst())
+			{
+				Utils.saveByteArrayToFile(imageFile, getIconByteArray(msisdn));
+			}
+			else
+			{
+				Logger.e("HikeUserDatabase", "The " + msisdn + " does not exist in the thumbnails table");
+			}
+		}
+		catch (IOException e)
+		{
+			Logger.e("HikeUserDatabase", "IOException in getImagePathForThumbnail : ", e);
+		}
+		finally
+		{
+			if (c != null)
+			{
+				c.close();
+			}
+		}
+	}
+
+	/**
+	 * Writes the byte array of the thumbnail to the file specified.
+	 * @param imageFile
+	 * @param data
+	 */
+	public void writeThumbnailToFile(File imageFile, byte[] data)
+	{
+		try
+		{
+			Utils.saveByteArrayToFile(imageFile, data);
+		}
+		catch (IOException e)
+		{
+			Logger.e("HikeUserDatabase", "writeThumbnailToFile IOException : " + e);
+		}
+	}
+	
+	/**
 	 * Will return the thumbnail path of the user DP. eg - file:///data/data/com.bsb.hike/cache/+91112233456.jpg
 	 *
 	 * @param msisdn
@@ -2452,48 +2509,20 @@ class HikeUserDatabase extends SQLiteOpenHelper
 	 */
 	public String getImagePathForThumbnail(String msisdn)
 	{
-		Cursor c = null;
-		String thumbnailPath = null;
-		
 		File cacheDir = mContext.getCacheDir();
-		if(cacheDir == null || !cacheDir.exists())
+		if (cacheDir == null || !cacheDir.exists())
 		{
+			Logger.e("HikeUserDatabase", "writeThumbnailToFile : cache directory is null/doesn't exist.");
 			return null;
 		}
-		
+
 		File imageFile = new File(cacheDir, msisdn + ".jpg");
-		
-		if(imageFile.exists())
+
+		if (!imageFile.exists())
 		{
-			thumbnailPath = imageFile.getAbsolutePath();
+			writeThumbnailToFileForMsisdn(imageFile, msisdn);
 		}
-		else
-		{
-			try
-			{
-				c = mReadDb.rawQuery("select " + DBConstants.IMAGE + " from " + DBConstants.THUMBNAILS_TABLE + " where " + DBConstants.MSISDN + "=?", new String[] { msisdn });
-				if (c.moveToFirst())
-				{
-					imageFile = new File(cacheDir, msisdn + ".jpg");
-					
-					Utils.saveByteArrayToFile(imageFile, c.getBlob(c.getColumnIndex(DBConstants.IMAGE)));
-					
-					thumbnailPath = "file://" + imageFile.getAbsolutePath();
-				}
-			}
-			catch (IOException e)
-			{
-				Logger.e("composeactivity", "IOException in getImagePathForThumbnail : ", e);
-			}
-			finally
-			{
-				if (c != null)
-				{
-					c.close();
-				}
-			}
-		}
-		
-		return thumbnailPath;
+
+		return imageFile.getAbsolutePath();
 	}
 }

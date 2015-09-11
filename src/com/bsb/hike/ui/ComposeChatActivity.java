@@ -220,7 +220,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 
 	private int gcSettings = -1;
 	
-	public static final String THUMBNAILS_REQUIRED = "thumbnailsRequired";
+	private boolean thumbnailsRequired= false;
 	 
 	@Override
 	public void onCreate(Bundle savedInstanceState)
@@ -253,6 +253,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		isSharingFile = getIntent().getType() != null;
 		nuxIncentiveMode = getIntent().getBooleanExtra(HikeConstants.Extras.NUX_INCENTIVE_MODE, false);
 		createBroadcast = getIntent().getBooleanExtra(HikeConstants.Extras.CREATE_BROADCAST, false);
+		thumbnailsRequired = getIntent().getBooleanExtra(HikeConstants.Extras.THUMBNAILS_REQUIRED, false);
 
 		// Getting the group id. This will be a valid value if the intent
 		// was passed to add group participants.
@@ -1377,7 +1378,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		dialog.setCancelable(false);
 		dialog.setTitle(getResources().getString(R.string.please_wait));
 		dialog.setMessage(getResources().getString(R.string.loading_data));
-		ConvertToJSONArrayTask task = new ConvertToJSONArrayTask(adapter.getAllSelectedContacts(), dialog, getIntent().hasExtra(THUMBNAILS_REQUIRED));
+		ConvertToJSONArrayTask task = new ConvertToJSONArrayTask(adapter.getAllSelectedContacts(), dialog, thumbnailsRequired);
 		Utils.executeJSONArrayResultTask(task);
 	}
 	
