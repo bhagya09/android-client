@@ -116,7 +116,7 @@ public class PlatformHelper
 		PlatformUtils.sendPlatformMessageEvent(eventData, messageHash, namespace);
 	}
 
-	public static void sendSharedMessage(String cardObject, String hikeMessage, String sharedData, BotInfo mBotInfo, final Activity activity,int... hashcode)
+	public static void sendSharedMessage(String cardObject, String hikeMessage, String sharedData, BotInfo mBotInfo, final Activity activity,int hashcode)
 	{
 		if (TextUtils.isEmpty(cardObject) || TextUtils.isEmpty(hikeMessage))
 		{
@@ -145,10 +145,7 @@ public class PlatformHelper
 			sharedDataJson.put(HikePlatformConstants.EVENT_TYPE, HikePlatformConstants.SHARED_EVENT);
 			message.setPlatformData(sharedDataJson);
 			message.setNameSpace(mBotInfo.getNamespace());
-			if (hashcode.length == 0)
-				pickContactAndSend(message, activity);
-			else
-				pickContactAndSend(message, activity, hashcode[0]);
+			pickContactAndSend(message, activity, hashcode);
 				
 
 		}
@@ -157,6 +154,11 @@ public class PlatformHelper
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+	
+	public static void sendSharedMessage(String cardObject, String hikeMessage, String sharedData, BotInfo mBotInfo, final Activity activity)
+	{
+		sendSharedMessage(sharedData, sharedData, sharedData, mBotInfo, activity, -1);
 	}
 
 	public static String getAllEventsForMessageHash(String messageHash, String namespace)
@@ -182,14 +184,14 @@ public class PlatformHelper
 		return messageData;
 	}
 
-	public static void pickContactAndSend(ConvMessage message, final Activity activity,int... hashcode)
+	public static void pickContactAndSend(ConvMessage message, final Activity activity,int hashcode)
 	{
 		if (activity != null)
 		{
 			final Intent intent = IntentFactory.getForwardIntentForConvMessage(activity, message, PlatformContent.getForwardCardData(message.webMetadata.JSONtoString()), false);
 			intent.putExtra(HikeConstants.Extras.COMPOSE_MODE, ComposeChatActivity.PICK_CONTACT_AND_SEND_MODE);
-			if (hashcode.length != 0)
-				intent.putExtra(JavascriptBridge.tag, hashcode[0]);
+			if (hashcode<0)
+				intent.putExtra(JavascriptBridge.tag, hashcode);
 			intent.putExtra(HikePlatformConstants.REQUEST_CODE, JavascriptBridge.PICK_CONTACT_AND_SEND_REQUEST);
 			activity.startActivityForResult(intent, HikeConstants.PLATFORM_REQUEST);
 			

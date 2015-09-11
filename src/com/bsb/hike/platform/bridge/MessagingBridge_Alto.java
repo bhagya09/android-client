@@ -706,7 +706,7 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 		{
 			e.printStackTrace();
 		}
-		pickContactAndSend(message,weakActivity.get());
+		pickContactAndSend(message);
 
 	}
 

@@ -1121,12 +1121,12 @@ public abstract class JavascriptBridge
 		}
 	}
 	
-	public void pickContactAndSend(ConvMessage message, final Activity activity)
+	public void pickContactAndSend(ConvMessage message)
 	{
-		PlatformHelper.pickContactAndSend(message, activity,JavascriptBridge.this.hashCode());
+		PlatformHelper.pickContactAndSend(message, weakActivity.get(),JavascriptBridge.this.hashCode());
 	}
 	
-	public void sendSharedMessage(String cardObject, String hikeMessage, String sharedData, BotInfo mBotInfo, final Activity activity)
+	public void sendSharedMessage(String cardObject, String hikeMessage, String sharedData, BotInfo mBotInfo)
 	{
 		PlatformHelper.sendSharedMessage(cardObject, hikeMessage, sharedData, mBotInfo, weakActivity.get(),JavascriptBridge.this.hashCode());
 	}
