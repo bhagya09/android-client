@@ -974,15 +974,6 @@ public class ConversationsAdapter extends BaseAdapter
 					unreadIndicator.setText(unreadCountString);
 			}
 			// Using this to differentiate the normal chat and Offline Chat
-			//TODO:set Offline asset here
-			if(OfflineUtils.isConnectedToSameMsisdn(convInfo.getMsisdn()))
-			{
-				imgStatus.setVisibility(View.VISIBLE);
-				imgStatus.setImageResource(R.drawable.freehike_logo);
-				messageView.setText(context.getResources().getString(R.string.free_hike_connection));	
-				imgStatus.setPadding(0, 0,  context.getResources().getDimensionPixelSize(R.dimen.hike_direct_msg_padding), context.getResources().getDimensionPixelSize(R.dimen.tick_padding_bottom));
-
-			}
 			if(isNuxLocked)
 			{ 
 				imgStatus.setVisibility(View.VISIBLE);
@@ -1008,7 +999,12 @@ public class ConversationsAdapter extends BaseAdapter
 		
 		if(OfflineUtils.isConnectedToSameMsisdn(convInfo.getMsisdn()))
 		{
+			imgStatus.setVisibility(View.VISIBLE);
+			imgStatus.setImageResource(R.drawable.freehike_logo);
+			messageView.setText(context.getResources().getString(R.string.free_hike_connection));	
 			messageView.setTextColor(context.getResources().getColor(R.color.welcome_blue));
+			imgStatus.setPadding(0, 0,  context.getResources().getDimensionPixelSize(R.dimen.hike_direct_msg_padding), context.getResources().getDimensionPixelSize(R.dimen.tick_padding_bottom));
+
 		}
 	}
 
