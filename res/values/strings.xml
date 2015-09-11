@@ -1409,7 +1409,7 @@
     <string name="retry_platform_failure">RETRY</string>
     <string name="platform_error_text">SOMETHING WENT WRONG</string>
     <string name="platform_error_subtext">Please Check your Internet Connection</string>
-    <string name="added_in_group">You have already added this contact in group</string>
+    <string name="added_in_group">This contact is already a member</string>
     <string name="added_in_broadcast">You have already added this contact in broadcast list</string>
     <string name="enter_valid_group_name">Group name cannot be empty</string>
     <string name="enter_valid_broadcast_name">Broadcast name cannot be empty</string>
@@ -1566,7 +1566,7 @@
     <string name="cont_desc_photos_tab_doodle">TabDoodle</string>
 	<string name="now">Now</string>
 	<string name="sticker_recommend_tip">Tap on blue words</string>
-	<string name="group_participant_info">You can add upto 500 members to a group</string>
+	<string name="group_participant_info">Max 500 members can be added</string>
 	<string name="make_admin">Make Admin</string>
 	<string name="admin_updating">Making %1$s an Admin</string>
 	<string name="admin_task_error">Connection error: Please check your network and try again.</string>

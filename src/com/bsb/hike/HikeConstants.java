@@ -2542,15 +2542,15 @@ public class HikeConstants
 		public static final String SESSION = "sess";
 		
 		public static final String GENERAL_EVENT_PACKET_ZERO = "ge0";
+		
+		public static final String ACTIVITY_UPDATE = "ac_up";
+		
+		public static final String TIMELINE_PREFFERED_CONTACTS = "tlpc";
 	}
 
 	public static final class GeneralEventMessagesTypes
 	{
 		public static final String OFFLINE = "offline";
-	
-		public static final String ACTIVITY_UPDATE = "ac_up";
-		
-		public static final String TIMELINE_PREFFERED_CONTACTS = "tlpc";
 	}
 
 	
@@ -3251,8 +3251,6 @@ public class HikeConstants
 	public static final String STICKER_SETTINGS = "stickerSettings";
 
 	public static final String TAG = "Tag";
-
-	public static final String AG_ENABLED = "agLogs";
 
 	public static final String REFERRAL_EMAIL_TEXT = "ref_mail_txt";
 	
