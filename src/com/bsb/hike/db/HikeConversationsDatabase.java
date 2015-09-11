@@ -8006,8 +8006,8 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 			while (c.moveToNext())
 			{
-				ContactInfo info = ContactManager.getInstance().getContact(c.getString(msisdnIndex));
-				JSONObject jsonObject = info.getPlatformInfo();
+				String msisdn = c.getString(msisdnIndex);
+				JSONObject jsonObject = PlatformUtils.getPlatformContactInfo(msisdn);
 				jsonObject.put(HikePlatformConstants.EVENT_DATA, c.getString(eventMetadataIdx));
 				jsonObject.put(HikePlatformConstants.MESSAGE_HASH, c.getString(messageHashIdx));
 				jsonObject.put(HikePlatformConstants.EVENT_ID , c.getString(eventIdx));
@@ -8054,8 +8054,8 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 			while (c.moveToNext())
 			{
-				ContactInfo info = ContactManager.getInstance().getContact(c.getString(msisdnIndex));
-				JSONObject jsonObject = info.getPlatformInfo();
+				String msisdn = c.getString(msisdnIndex);
+				JSONObject jsonObject = PlatformUtils.getPlatformContactInfo(msisdn);
 				jsonObject.put(HikePlatformConstants.EVENT_DATA, c.getString(eventMetadataIdx));
 				jsonObject.put(HikePlatformConstants.EVENT_ID , c.getString(eventIdx));
 				jsonObject.put(HikePlatformConstants.EVENT_STATUS, c.getInt(eventStatusIdx));
