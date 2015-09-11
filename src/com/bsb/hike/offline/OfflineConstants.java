@@ -224,6 +224,6 @@ public class OfflineConstants
 	
 	public static final String DIRECT_REQUEST_DATA = "dir_req";
 	
-	public static final float MIN_BATTERY_LEVEL = 20.0f;
+	public static final float MIN_BATTERY_LEVEL = 10.0f;
 
 }
