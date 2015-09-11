@@ -753,7 +753,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 			if (object instanceof BotInfo)
 			{
 				BotInfo botInfo = (BotInfo) object;
-				if (msisdn.equals(botInfo.getMsisdn()))
+				if (botInfo.getMsisdn().equals(msisdn))
 				{
 					String notifData = botInfo.getNotifData();
 					if (null != mmBridge && !TextUtils.isEmpty(botInfo.getNotifData()))
@@ -770,7 +770,8 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 			if (object instanceof MessageEvent)
 			{
 				MessageEvent messageEvent = (MessageEvent) object;
-				if (msisdn.equals(messageEvent.getParent_msisdn()))
+				String parent_msisdn = messageEvent.getParent_msisdn();
+				if (!TextUtils.isEmpty(parent_msisdn) && messageEvent.getParent_msisdn().equals(msisdn))
 				{
 					try
 					{
