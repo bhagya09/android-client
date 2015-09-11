@@ -952,7 +952,8 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 	
 	public void bindDisconnectionFragment(String msisdn)
 	{
-		if (TextUtils.isEmpty(msisdn))
+		if (TextUtils.isEmpty(msisdn)|| NUXManager.getInstance().getCurrentState() == NUXConstants.NUX_IS_ACTIVE || (NUXManager.getInstance().getCurrentState() == NUXConstants.NUX_SKIPPED)
+				 || (NUXManager.getInstance().getCurrentState() == NUXConstants.COMPLETED))
 		{
 			return;
 		}

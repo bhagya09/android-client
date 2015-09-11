@@ -843,8 +843,11 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			sql = getFeedTableCreateQuery();
 			db.execSQL(sql);
 			
-			String alterST = "ALTER TABLE " + DBConstants.STATUS_TABLE + " ADD COLUMN " + DBConstants.FILE_KEY + " TEXT";
-			db.execSQL(alterST);
+			if (!Utils.ifColumnExistsInTable(db, DBConstants.STATUS_TABLE, DBConstants.FILE_KEY))
+			{
+				String alterST = "ALTER TABLE " + DBConstants.STATUS_TABLE + " ADD COLUMN " + DBConstants.FILE_KEY + " TEXT";
+				db.execSQL(alterST);
+			}
 		}
 	}
 
@@ -1581,7 +1584,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 						
 						for (String msisdn : actors)
 						{
-							for (int i = existingArray.length(); i >= 0; i--)
+							for (int i = existingArray.length() - 1; i >= 0; i--)
 							{
 								try
 								{
@@ -8067,7 +8070,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 						}
 					}
 					
-					actionsData.addActionDetails(objectId, cInfoList, ActionTypes.getType(actionIDKey), count,ActivityObjectTypes.getTypeFromString(objectType));
+					actionsData.addActionDetails(objectId, cInfoList, ActionTypes.getType(actionIDKey), count,ActivityObjectTypes.getTypeFromString(objectType),false);
 				}
 				while (c.moveToNext());
 			}
@@ -8107,7 +8110,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 					cv.put(ACTION_OBJECT_TYPE, activityType.getTypeString());
 					cv.put(ACTION_OBJECT_ID, uuidObjType.first);
 					cv.put(ACTION_ID, actionDM.getType().getKey());
-					cv.put(ACTION_COUNT, actionDM.getCount());
+					cv.put(ACTION_COUNT, actionDM.getTotalCount());
 					cv.put(ACTORS, actionDM.getContactsMsisdnJSON());
 					mDb.insertWithOnConflict(ACTIONS_TABLE, null, cv, SQLiteDatabase.CONFLICT_REPLACE);
 					Logger.d(HikeConstants.TIMELINE_LOGS, " inserting Action Data "+ actionDM);

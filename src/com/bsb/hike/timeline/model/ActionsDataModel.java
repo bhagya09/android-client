@@ -24,7 +24,7 @@ import com.bsb.hike.utils.Utils;
  */
 public class ActionsDataModel
 {
-	private int count;
+	private int totalCount;
 
 	private LinkedHashSet<ContactInfo> contactInfoList;
 
@@ -113,14 +113,14 @@ public class ActionsDataModel
 		type = argType;
 	}
 
-	public int getCount()
+	public void setTotalCount(int count)
 	{
-		if(contactInfoList == null)
-		{
-			return 0;
-		}
-		
-		return contactInfoList.size();
+		this.totalCount = count;
+	}
+	
+	public int getTotalCount()
+	{
+		return totalCount;
 	}
 
 	public ActionsDataModel.ActionTypes getType()
@@ -205,6 +205,12 @@ public class ActionsDataModel
 			Logger.d(HikeConstants.TIMELINE_COUNT_LOGS, "adding coninfo name: " + contactInfo.getName());
 			boolean isAdded = contactInfoList.add(contactInfo);
 			Logger.d(HikeConstants.TIMELINE_COUNT_LOGS, "adding " + (isAdded ? "issuccess" : "failed"));
+			
+			if(isAdded)
+			{
+				totalCount++;
+			}
+			
 			return isAdded;
 		}
 		return false;
@@ -234,6 +240,12 @@ public class ActionsDataModel
 			}
 		}
 		Logger.d(HikeConstants.TIMELINE_COUNT_LOGS, "isRemoved: " + isRemoved);
+		
+		if(isRemoved)
+		{
+			totalCount--;
+		}
+		
 		return isRemoved;
 	}
 
@@ -304,7 +316,7 @@ public class ActionsDataModel
 	@Override
 	public String toString()
 	{
-		return "ActionsDataModel [count=" + count + ", contactInfoList=" + contactInfoList + ", type=" + type + "]";
+		return "ActionsDataModel [count=" + totalCount + ", contactInfoList=" + contactInfoList + ", type=" + type + "]";
 	}
 	
 	

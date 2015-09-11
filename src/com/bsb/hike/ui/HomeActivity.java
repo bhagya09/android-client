@@ -85,7 +85,6 @@ import com.bsb.hike.timeline.view.StatusUpdate;
 import com.bsb.hike.timeline.view.TimelineActivity;
 import com.bsb.hike.ui.fragments.ConversationFragment;
 import com.bsb.hike.ui.utils.LockPattern;
-import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.FestivePopup;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
@@ -183,7 +182,11 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 	protected static final int SHOW_RECENTLY_JOINED_INDICATOR = -103;
 	
+	protected static final int SHOW_TIMELINE_UPDATES_INDICATOR = -104;
+	
 	private View hiButton;
+
+	private TextView timelineUpdatesIndicator;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -264,6 +267,9 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		case SHOW_RECENTLY_JOINED_INDICATOR:
 			showRecentlyJoinedDot();
 			break;
+		case SHOW_TIMELINE_UPDATES_INDICATOR:
+			showTimelineUpdatesIndicator();
+			break;
 		default:
 			super.handleUIMessage(msg);
 			break;
@@ -293,6 +299,33 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		{
 			newConversationIndicator.setVisibility(View.GONE);
 		}
+	}
+	
+	private void showTimelineUpdatesIndicator()
+	{
+		// Defensive check for case where newConversationIndicator was coming as null. Possible due to the various if..else conditions for newConversationIndicator initialisation.
+		if (timelineUpdatesIndicator == null)
+		{
+			return;
+		}
+
+		int count = 0;
+		count = Utils.getNotificationCount(accountPrefs, false);
+		if (count > 9)
+		{
+			timelineUpdatesIndicator.setVisibility(View.VISIBLE);
+			timelineUpdatesIndicator.setText("9+");
+		}
+		else if (count > 0)
+		{
+			timelineUpdatesIndicator.setVisibility(View.VISIBLE);
+			timelineUpdatesIndicator.setText(String.valueOf(count));
+		}
+		else
+		{
+			timelineUpdatesIndicator.setVisibility(View.GONE);
+		}
+
 	}
 	
 	private void showOverFlowIndicator(int count)
@@ -589,105 +622,118 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 	private boolean setupMenuOptions(final Menu menu)
 	{
-		//Adding defensive null pointer check (bug#44531)May be due to sherlock code, nullpointerexception occured.
-		try{
+		// Adding defensive null pointer check (bug#44531)May be due to sherlock code, nullpointerexception occured.
+		try
+		{
 			getMenuInflater().inflate(R.menu.chats_menu, menu);
 			topBarIndicator = (TextView) (MenuItemCompat.getActionView(menu.findItem(R.id.overflow_menu)).findViewById(R.id.top_bar_indicator_text));
-		updateOverFlowMenuNotification();
-		MenuItemCompat.getActionView(menu.findItem(R.id.overflow_menu)).setOnClickListener(new View.OnClickListener()
-		{
-			@Override
-			public void onClick(View v)
+			updateOverFlowMenuNotification();
+			MenuItemCompat.getActionView(menu.findItem(R.id.overflow_menu)).setOnClickListener(new View.OnClickListener()
 			{
-				showOverFlowMenu();
-				topBarIndicator.setVisibility(View.GONE);
-				Editor editor = accountPrefs.edit();
-				editor.putBoolean(HikeConstants.IS_HOME_OVERFLOW_CLICKED, true);
-				editor.commit();
-			}
-		});
-		searchMenuItem = menu.findItem(R.id.search);
-		SearchView searchView=(SearchView) MenuItemCompat.getActionView(searchMenuItem);
-		searchView.setOnQueryTextListener(onQueryTextListener);
-		searchView.clearFocus();
-		searchOptionID = searchMenuItem.getItemId();
-		MenuItemCompat.setShowAsAction(MenuItemCompat.setActionView(searchMenuItem, searchView), MenuItem.SHOW_AS_ACTION_ALWAYS | MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
-		MenuItemCompat.setOnActionExpandListener(searchMenuItem, new MenuItemCompat.OnActionExpandListener()
-		{
-			@Override
-			public boolean onMenuItemActionExpand(MenuItem item)
-			{
-				if(mainFragment!=null)
-		        {
-					mainFragment.setupSearch();
-		        }
-				toggleMenuItems(menu, false);
-				showProductPopup(ProductPopupsConstants.PopupTriggerPoints.SEARCH.ordinal());
-				showingSearchModeActionBar = true;
-				if (hiButton != null)
+				@Override
+				public void onClick(View v)
 				{
-					hiButton.clearAnimation();
+					showOverFlowMenu();
+					topBarIndicator.setVisibility(View.GONE);
+					Editor editor = accountPrefs.edit();
+					editor.putBoolean(HikeConstants.IS_HOME_OVERFLOW_CLICKED, true);
+					editor.commit();
 				}
-				
-				return true;
-			}
-
-			@Override
-			public boolean onMenuItemActionCollapse(MenuItem item)
+			});
+			searchMenuItem = menu.findItem(R.id.search);
+			SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchMenuItem);
+			searchView.setOnQueryTextListener(onQueryTextListener);
+			searchView.clearFocus();
+			searchOptionID = searchMenuItem.getItemId();
+			MenuItemCompat.setShowAsAction(MenuItemCompat.setActionView(searchMenuItem, searchView), MenuItem.SHOW_AS_ACTION_ALWAYS | MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
+			MenuItemCompat.setOnActionExpandListener(searchMenuItem, new MenuItemCompat.OnActionExpandListener()
 			{
-				if(mainFragment!=null)
-		        {
-					mainFragment.removeSearch();
-		        }
-				toggleMenuItems(menu, true);
-				setupActionBar();
-				return true;
-			}
-		});
-		
-
-        newConversationIndicator = (TextView) MenuItemCompat.getActionView(menu.findItem(R.id.new_conversation)).findViewById(R.id.top_bar_indicator_text);
-        MenuItemCompat.getActionView(menu.findItem(R.id.new_conversation)).findViewById(R.id.overflow_icon_image).setContentDescription("Start a new chat");
-         ((ImageView)    MenuItemCompat.getActionView(menu.findItem(R.id.new_conversation)).findViewById(R.id.overflow_icon_image)).setImageResource(R.drawable.ic_new_conversation);
-
-	
-			if (Utils.isPhotosEditEnabled())
-			{
-				
-				View takePhotoActionView = (View)MenuItemCompat.getActionView(menu.findItem(R.id.take_pic));
-				Logger.d("ph_en", "inside API setupMenuOptions, enabling photo inside actionbar");
-				((ImageView) takePhotoActionView.findViewById(R.id.overflow_icon_image)).setImageResource(R.drawable.btn_cam_nav);
-				takePhotoActionView.findViewById(R.id.overflow_icon_image).setContentDescription("New photo");
-				takePhotoActionView.setOnClickListener(new OnClickListener()
+				@Override
+				public boolean onMenuItemActionExpand(MenuItem item)
 				{
-
-					@Override
-					public void onClick(View v)
+					if (mainFragment != null)
 					{
-						// Open gallery
-						int galleryFlags = GalleryActivity.GALLERY_CATEGORIZE_BY_FOLDERS | GalleryActivity.GALLERY_EDIT_SELECTED_IMAGE
-								| GalleryActivity.GALLERY_COMPRESS_EDITED_IMAGE | GalleryActivity.GALLERY_DISPLAY_CAMERA_ITEM;
-						Intent galleryPickerIntent = IntentFactory.getHikeGalleryPickerIntent(HomeActivity.this, galleryFlags, null);
-
-						startActivity(galleryPickerIntent);
-
-						sendAnalyticsTakePicture();
+						mainFragment.setupSearch();
 					}
-				});
-			}
-			else
+					toggleMenuItems(menu, false);
+					showProductPopup(ProductPopupsConstants.PopupTriggerPoints.SEARCH.ordinal());
+					showingSearchModeActionBar = true;
+					if (hiButton != null)
+					{
+						hiButton.clearAnimation();
+					}
+
+					return true;
+				}
+
+				@Override
+				public boolean onMenuItemActionCollapse(MenuItem item)
+				{
+					if (mainFragment != null)
+					{
+						mainFragment.removeSearch();
+					}
+					toggleMenuItems(menu, true);
+					setupActionBar();
+					return true;
+				}
+			});
+
+			newConversationIndicator = (TextView) MenuItemCompat.getActionView(menu.findItem(R.id.new_conversation)).findViewById(R.id.top_bar_indicator_text);
+			MenuItemCompat.getActionView(menu.findItem(R.id.new_conversation)).findViewById(R.id.overflow_icon_image).setContentDescription("Start a new chat");
+			((ImageView) MenuItemCompat.getActionView(menu.findItem(R.id.new_conversation)).findViewById(R.id.overflow_icon_image))
+					.setImageResource(R.drawable.ic_new_conversation);
+
+			View timelineActionView = (View) MenuItemCompat.getActionView(menu.findItem(R.id.timeline));
+			((ImageView) timelineActionView.findViewById(R.id.overflow_icon_image)).setImageResource(R.drawable.ic_timeline);
+			timelineActionView.findViewById(R.id.overflow_icon_image).setContentDescription("Timeline");
+			timelineUpdatesIndicator = (TextView) timelineActionView.findViewById(R.id.top_bar_indicator_text);
+			showTimelineUpdatesDot(1000);
+			timelineActionView.setOnClickListener(new OnClickListener()
 			{
-				Logger.d("ph_en", "inside setupMenuOptions, disabling photo inside actionbar");
-				menu.removeItem(R.id.take_pic);
-			}
+				@Override
+				public void onClick(View v)
+				{
+					try
+					{
+						JSONObject md = new JSONObject();
+						md.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.SHOW_TIMELINE_TOP_BAR);
+						HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, md);
+					}
+					catch (JSONException e)
+					{
+						Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+					}
 
+					JSONObject metadataSU = new JSONObject();
+					try
+					{
+						metadataSU.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.TIMELINE_OPEN);
+						if (Utils.getNotificationCount(accountPrefs, false) > 0)
+						{
+							metadataSU.put(AnalyticsConstants.EVENT_SOURCE, HikeConstants.LogEvent.TIMELINE_WITH_RED_DOT);
+						}
 
-		showRecentlyJoinedDot(1000);
+						HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, HAManager.EventPriority.HIGH, metadataSU);
+					}
+					catch (JSONException e)
+					{
+						Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+					}
 
-		MenuItemCompat.getActionView(menu.findItem(R.id.new_conversation)).setOnClickListener(new OnClickListener()
-		{
-			@Override
-			public void onClick(View v)
+					HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOW_TIMELINE_RED_DOT, false);
+					Intent intent = new Intent(HomeActivity.this, TimelineActivity.class);
+					timelineUpdatesIndicator.setVisibility(View.GONE);
+					startActivity(intent);
+				}
+			});
+
+			showRecentlyJoinedDot(1000);
+
+			MenuItemCompat.getActionView(menu.findItem(R.id.new_conversation)).setOnClickListener(new OnClickListener()
+			{
+				@Override
+				public void onClick(View v)
 				{
 					try
 					{
@@ -706,11 +752,13 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 					newConversationIndicator.setVisibility(View.GONE);
 					startActivity(intent);
 				}
-		});
-		
-		return true;
-		}catch(NullPointerException e){
-			Logger.e("NulllpointerException :setupMenuOptions" ,e.toString());
+			});
+
+			return true;
+		}
+		catch (NullPointerException e)
+		{
+			Logger.e("NulllpointerException :setupMenuOptions", e.toString());
 			return false;
 		}
 	}
@@ -733,12 +781,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	{
 		menu.findItem(R.id.overflow_menu).setVisible(value);
 		menu.findItem(R.id.new_conversation).setVisible(value);
-
-		MenuItem takePicItem = menu.findItem(R.id.take_pic);
-		if (takePicItem != null) // This will happen if photos edit option is disabled
-		{
-			takePicItem.setVisible(value);
-		}
+		menu.findItem(R.id.timeline).setVisible(value);
 	}
 
 	private OnQueryTextListener onQueryTextListener = new OnQueryTextListener()
@@ -1187,12 +1230,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	 */
 	private int getHomeOverflowCount(SharedPreferences accountPrefs, boolean countUsersStatus, boolean defaultValue)
 	{
-		int timelineCount = Utils.getNotificationCount(accountPrefs, countUsersStatus);
-		if (timelineCount == 0 && accountPrefs.getBoolean(HikeConstants.SHOW_TIMELINE_RED_DOT, true))
-		{
-			timelineCount = 1;
-		}
-		return timelineCount + Utils.updateHomeOverflowToggleCount(accountPrefs, defaultValue);
+		return Utils.updateHomeOverflowToggleCount(accountPrefs, defaultValue);
 	}
 	
 	@Override
@@ -1685,6 +1723,9 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	public void showOverFlowMenu()
 	{
 
+		if (overFlowWindow != null)
+			overFlowWindow.dismiss();
+
 		ArrayList<OverFlowMenuItem> optionsList = new ArrayList<OverFlowMenuItem>();
 
 		final String msisdn = accountPrefs.getString(HikeMessengerApp.MSISDN_SETTING, null);
@@ -1695,8 +1736,12 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 		optionsList.add(new OverFlowMenuItem(getString(R.string.new_group), 0, 0, R.string.new_group));
 
-		optionsList.add(new OverFlowMenuItem(getString(R.string.timeline), 0, 0, R.string.timeline));
 
+		if (Utils.isPhotosEditEnabled())
+		{
+			optionsList.add(new OverFlowMenuItem(getString(R.string.home_overflow_new_photo), 0, 0, R.string.home_overflow_new_photo));
+		}
+		
 		optionsList.add(new OverFlowMenuItem(getString(R.string.invite_friends), 0, 0, R.string.invite_friends));
 
 		if (accountPrefs.getBoolean(HikeMessengerApp.SHOW_GAMES, false))
@@ -1720,8 +1765,8 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		}
 
 		optionsList.add(new OverFlowMenuItem(getString(R.string.settings), 0, 0, R.string.settings));
-
-		optionsList.add(new OverFlowMenuItem(getString(R.string.status),0, 0, R.string.status));
+		
+		optionsList.add(new OverFlowMenuItem(getString(R.string.status), 0, 0, R.string.status));
 
 		addEmailLogItem(optionsList);
 
@@ -1835,6 +1880,16 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 				case R.string.new_broadcast:
 					sendBroadCastAnalytics();
 					IntentFactory.createBroadcastIntent(HomeActivity.this);
+					break;
+				case R.string.home_overflow_new_photo:
+					// Open gallery
+					int galleryFlags = GalleryActivity.GALLERY_CATEGORIZE_BY_FOLDERS | GalleryActivity.GALLERY_EDIT_SELECTED_IMAGE
+							| GalleryActivity.GALLERY_COMPRESS_EDITED_IMAGE | GalleryActivity.GALLERY_DISPLAY_CAMERA_ITEM;
+					Intent galleryPickerIntent = IntentFactory.getHikeGalleryPickerIntent(HomeActivity.this, galleryFlags, null);
+
+					startActivity(galleryPickerIntent);
+
+					sendAnalyticsTakePicture();
 					break;
 					
 				}
@@ -2027,6 +2082,13 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	{
 		Message msg = Message.obtain();
 		msg.what = SHOW_RECENTLY_JOINED_INDICATOR;
+		uiHandler.sendMessageDelayed(msg, delayTime);
+	}
+	
+	public void showTimelineUpdatesDot(int delayTime)
+	{
+		Message msg = Message.obtain();
+		msg.what = SHOW_TIMELINE_UPDATES_INDICATOR;
 		uiHandler.sendMessageDelayed(msg, delayTime);
 	}
 
