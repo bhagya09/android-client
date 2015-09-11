@@ -50,6 +50,7 @@
         android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
         android:gravity="center_vertical"
+        android:visibility="invisible"
         android:orientation="horizontal" >
 		<View
             android:layout_width="0.5dp"

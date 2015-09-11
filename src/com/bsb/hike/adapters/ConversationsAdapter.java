@@ -453,9 +453,10 @@ public class ConversationsAdapter extends BaseAdapter
 		refinedSearchText = "";
 		/*
 		 * Purposely returning conversation list on the UI thread on collapse to avoid showing ftue empty state. 
-		 * search with empty text only restores the conversation list
 		 */
-		onQueryChanged(null, null);
+		completeList.clear();
+		completeList.addAll(conversationList);
+		notifyDataSetChanged();
 	}
 
 	/**

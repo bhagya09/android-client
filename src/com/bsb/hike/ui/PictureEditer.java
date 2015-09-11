@@ -325,7 +325,7 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 		View actionBarView = LayoutInflater.from(this).inflate(R.layout.photos_action_bar, null);
 
 		mActionBarDoneContainer = actionBarView.findViewById(R.id.done_container);
-
+		mActionBarDoneContainer.setVisibility(View.VISIBLE);
 		mActionBarDoneContainer.setOnClickListener(clickHandler);
 
 		actionBar.setCustomView(actionBarView);
