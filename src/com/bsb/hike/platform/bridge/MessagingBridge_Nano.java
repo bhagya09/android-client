@@ -371,7 +371,7 @@ public class MessagingBridge_Nano extends JavascriptBridge
 
 	public void eventReceived(String event)
 	{
-		mWebView.loadUrl("javascript:eventReceived(" + "'" + event + "')");
+		mWebView.loadUrl("javascript:eventReceived(" + "'" + getEncodedDataForJS(event) + "')");
 	}
 
 }

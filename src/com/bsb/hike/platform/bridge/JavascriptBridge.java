@@ -72,7 +72,7 @@ public abstract class JavascriptBridge
 {
 	protected CustomWebView mWebView;
 
-	protected WeakReference<Activity> weakActivity;;
+	protected WeakReference<Activity> weakActivity;
 
 	public static final String tag = "JavascriptBridge";
 	
@@ -556,6 +556,7 @@ public abstract class JavascriptBridge
 			activity.startActivityForResult(intent, HikeConstants.PLATFORM_REQUEST);
 		}
 	}
+
 
 	public void onActivityResult(int requestCode, int resultCode, Intent data)
 	{

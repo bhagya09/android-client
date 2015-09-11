@@ -1523,6 +1523,15 @@ public class MqttMessagesManager
 			if (mmobObject.has(HikeConstants.NUX))
 				NUXManager.getInstance().parseNuxPacket(mmobObject.getJSONObject(HikeConstants.NUX).toString());
 		}
+
+		/**
+		 * { "d" : { "plfsync" : { "platformUid" : "ABCDEFxxxxxx" , "platformToken" : "PQRSTUVxxxxxx" } } }
+		 */
+		if (data.has(HikePlatformConstants.PLATFORM_USER_ID_SYNC))
+		{
+			JSONObject plfSyncJson = data.getJSONObject(HikePlatformConstants.PLATFORM_USER_ID_SYNC);
+			PlatformUtils.savePlatformCredentials(plfSyncJson);
+		}
 		
 	}
 

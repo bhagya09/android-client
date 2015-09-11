@@ -186,7 +186,7 @@ public class PlatformHelper
 	{
 		if (activity != null)
 		{
-			final Intent intent = IntentFactory.getForwardIntentForConvMessage(activity, message, PlatformContent.getForwardCardData(message.webMetadata.JSONtoString()));
+			final Intent intent = IntentFactory.getForwardIntentForConvMessage(activity, message, PlatformContent.getForwardCardData(message.webMetadata.JSONtoString()), false);
 			intent.putExtra(HikeConstants.Extras.COMPOSE_MODE, ComposeChatActivity.PICK_CONTACT_AND_SEND_MODE);
 			if (hashcode.length != 0)
 				intent.putExtra(JavascriptBridge.tag, hashcode[0]);
@@ -212,7 +212,7 @@ public class PlatformHelper
 			{
 				if (mContext != null)
 				{
-					final Intent intent = IntentFactory.getForwardIntentForConvMessage(mContext, message, PlatformContent.getForwardCardData(message.webMetadata.JSONtoString()));
+					final Intent intent = IntentFactory.getForwardIntentForConvMessage(mContext, message, PlatformContent.getForwardCardData(message.webMetadata.JSONtoString()), true);
 					mContext.startActivity(intent);
 				}
 				else

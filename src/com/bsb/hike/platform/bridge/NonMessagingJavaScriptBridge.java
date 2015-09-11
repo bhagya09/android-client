@@ -916,7 +916,8 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	 *
 	 * @param messageHash : the message hash that determines the uniqueness of the card message, to which the data is being sent.
 	 * @param eventData   : the stringified json data to be sent. It should contain the following things :
-	 *                       "cd" : card data, "increase_unread" : true/false, "notification" : the string to be notified to the user, "notification_sound" : true/ false, play sound or not.
+	 *                       "cd" : card data, "increase_unread" : true/false, "notification" : the string to be notified to the user,
+	 *                       "notification_sound" : true/ false, play sound or not, "parent_msisdn" : "msisdn of the parent bot".
 	 */
 	@JavascriptInterface
 	public void sendNormalEvent(String messageHash, String eventData)
@@ -1040,24 +1041,24 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	 * This function is made for the special Shared bot that has the information about some other bots as well, and acts as a channel for them.
 	 * calling this method will forcefully block the full screen bot. The user won't see any messages in the bot after calling this.
 	 *
-	 * @param isBlocked : true to block the microapp false to unblock it.
+	 * @param block : true to block the microapp false to unblock it.
 	 * @param msisdn : the msisdn of the bot to be blocked/unblocked
 	 */
 	@JavascriptInterface
-	public void blockBot(String isBlocked, String msisdn)
+	public void blockBot(String block, String msisdn)
 	{
 		if (!BotUtils.isBot(msisdn))
 		{
 			return;
 		}
 		BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
-		NonMessagingBotMetadata metadata = new NonMessagingBotMetadata(botInfo.getMetadata());
+		NonMessagingBotMetadata metadata = new NonMessagingBotMetadata(mBotInfo.getMetadata());
 		if (!metadata.isSpecialBot())
 		{
 			Logger.e(TAG, "the bot is not a special bot and only special bot has the authority to call this function.");
 			return;
 		}
-		if (Boolean.valueOf(isBlocked))
+		if (Boolean.valueOf(block))
 		{
 			botInfo.setBlocked(true);
 			HikeMessengerApp.getPubSub().publish(HikePubSub.BLOCK_USER, msisdn);
@@ -1067,6 +1068,89 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 		{
 			botInfo.setBlocked(false);
 			HikeMessengerApp.getPubSub().publish(HikePubSub.UNBLOCK_USER, msisdn);
+		}
+	}
+
+	/**
+	 * Platform Version 6
+	 * This function is made for the special Shared bot that has the information about some other bots as well, and acts as a channel for them.
+	 * Call this method to know whether the bot pertaining to the msisdn is blocked or not.
+	 * @param msisdn : the msisdn of the bot.
+	 * @param id : the id of the function that native will call to call the js .
+	 */
+	@JavascriptInterface
+	public void isBotBlocked(String id, String msisdn)
+	{
+		if (!BotUtils.isBot(msisdn))
+		{
+			return;
+		}
+		BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
+		NonMessagingBotMetadata metadata = new NonMessagingBotMetadata(mBotInfo.getMetadata());
+		if (!metadata.isSpecialBot())
+		{
+			Logger.e(TAG, "the bot is not a special bot and only special bot has the authority to call this function.");
+			return;
+		}
+		callbackToJS(id, String.valueOf(botInfo.isBlocked()));
+	}
+
+	/**
+	 * Platform Version 6
+	 * This function is made for the special Shared bot that has the information about some other bots as well, and acts as a channel for them.
+	 * Call this method to know whether the bot pertaining to the msisdn is enabled or not.
+	 * @param msisdn : the msisdn of the bot.
+	 * @param id : the id of the function that native will call to call the js .
+	 */
+	@JavascriptInterface
+	public void isBotEnabled(String id, String msisdn)
+	{
+		if (!BotUtils.isBot(msisdn))
+		{
+			callbackToJS(id, "false");
+			return;
+		}
+		BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
+		NonMessagingBotMetadata metadata = new NonMessagingBotMetadata(mBotInfo.getMetadata());
+		if (!metadata.isSpecialBot())
+		{
+			Logger.e(TAG, "the bot is not a special bot and only special bot has the authority to call this function.");
+			return;
+		}
+		String value = String.valueOf(HikeConversationsDatabase.getInstance().isConversationExist(msisdn));
+		callbackToJS(id, value);
+	}
+
+	/**
+	 * Platform Version 6
+	 * This function is made for the special Shared bot that has the information about some other bots as well, and acts as a channel for them.
+	 * Call this method to enable/disable bot. Enable means to show the bot in the conv list and disable is vice versa.
+	 * @param msisdn :the msisdn of the bot.
+	 * @param enable : the id of the function that native will call to call the js .
+	 */
+	@JavascriptInterface
+	public void enableBot(String msisdn, String enable)
+	{
+		if (!BotUtils.isBot(msisdn))
+		{
+			return;
+		}
+		BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
+		NonMessagingBotMetadata metadata = new NonMessagingBotMetadata(mBotInfo.getMetadata());
+		if (!metadata.isSpecialBot())
+		{
+			Logger.e(TAG, "the bot is not a special bot and only special bot has the authority to call this function.");
+			return;
+		}
+
+		boolean enableBot = Boolean.valueOf(enable);
+		if (enableBot)
+		{
+			PlatformUtils.enableBot(botInfo, true);
+		}
+		else
+		{
+			BotUtils.deleteBotConversation(msisdn, false);
 		}
 	}
 

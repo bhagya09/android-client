@@ -770,13 +770,11 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 			if (object instanceof MessageEvent)
 			{
 				MessageEvent messageEvent = (MessageEvent) object;
-				if (msisdn.equals(messageEvent.getMsisdn()))
+				if (msisdn.equals(messageEvent.getParent_msisdn()))
 				{
-					ContactInfo info = ContactManager.getInstance().getContact(messageEvent.getMsisdn());
-
 					try
 					{
-						JSONObject jsonObject = null != info ? info.getPlatformInfo() : new JSONObject();
+						JSONObject jsonObject = PlatformUtils.getPlatformContactInfo(msisdn);
 						jsonObject.put(HikePlatformConstants.EVENT_DATA, messageEvent.getEventMetadata());
 						jsonObject.put(HikePlatformConstants.EVENT_ID, messageEvent.getEventId());
 						jsonObject.put(HikePlatformConstants.EVENT_STATUS, messageEvent.getEventStatus());
@@ -1244,9 +1242,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		{
 			if (!Utils.appInstalledOrNot(getApplicationContext(), "com.google.android.webview"))
 			{
-				Toast.makeText(getApplicationContext(), R.string.some_error, Toast.LENGTH_LONG).show();
 				PlatformUtils.sendPlatformCrashAnalytics("PackageManager.NameNotFoundException", msisdn);
-				this.finish();
 			}
 		}
 	}
@@ -1287,7 +1283,6 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		else
 		{
 			inflatedErrorView.findViewById(R.id.http_error_ll).setVisibility(View.VISIBLE);
-			webViewLoadFailed = false;
 		}
 	}
 
@@ -1312,6 +1307,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		switch(v.getId())
 		{
 			case R.id.retry_button:
+				webViewLoadFailed = false;
 				initAppsBasedOnMode();
 				inflatedErrorView.findViewById(R.id.http_error_ll).setVisibility(View.GONE);
 				break;
