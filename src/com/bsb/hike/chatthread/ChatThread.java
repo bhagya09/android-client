@@ -2252,6 +2252,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			if (!isSystemKeyboard())
 			{
 				mCustomKeyboard.showCustomKeyboard(mComposeView, true);
+				updatePadding(mCustomKeyboard.getKeyBoardAndCVHeight());
 			}
 			else
 			{
@@ -3412,6 +3413,11 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			if (!isSystemKeyboard())
 			{
 				mCustomKeyboard.showCustomKeyboard(mComposeView, true);
+				/*
+				 * This is an approximate height given by kpt until we get keyboard visibility call. The final height is set in onInputViewVisibility().
+				 * This calls is to avoid the seeming delay in appearance of edittext.
+				 */
+				updatePadding(mCustomKeyboard.getKeyBoardAndCVHeight());
 			}
 			if(stickerTagWatcher != null)
 			{
