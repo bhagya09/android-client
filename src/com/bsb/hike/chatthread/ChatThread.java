@@ -358,10 +358,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 	private boolean shouldKeyboardPopupShow;
 	
-	
-	protected boolean systemKeyboard;
-	
-	
 	private class ChatThreadBroadcasts extends BroadcastReceiver
 	{
 		@Override
@@ -591,16 +587,15 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 		this.savedState = savedState;
 		init();
-		systemKeyboard = HikeMessengerApp.isSystemKeyboard(activity.getApplicationContext());
 		setContentView();
 		fetchConversation(false);
 		uiHandler.sendEmptyMessage(SET_WINDOW_BG);
 		StickerManager.getInstance().checkAndDownLoadStickerData();
 		mShareablePopupLayout.setCustomKeyBoardHeight(mCustomKeyboard.getKeyBoardAndCVHeight());
-		mShareablePopupLayout.setCustomKeyBoard(!systemKeyboard);
-		if (systemKeyboard)
+		mShareablePopupLayout.setCustomKeyBoard(!isSystemKeyboard());
+		if (isSystemKeyboard())
 		{
-			changeKeyboard(systemKeyboard);
+			changeKeyboard(isSystemKeyboard());
 		}
 	}
 	
@@ -662,6 +657,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		LinearLayout parentView = (LinearLayout) activity.findViewById(R.id.keyboardView_holder);
 		mCustomKeyboard= new CustomKeyboard(activity, parentView);
 		mCustomKeyboard.registerEditText(R.id.msg_compose,KPTConstants.MULTILINE_LINE_EDITOR,ChatThread.this,ChatThread.this);
+		mCustomKeyboard.registerEditText(R.id.search_text,KPTConstants.MULTILINE_LINE_EDITOR,ChatThread.this,ChatThread.this);
 		mCustomKeyboard.init(mComposeView);
 	}	
 		
@@ -708,7 +704,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			initStickerPicker();
 			initEmoticonPicker();
 			
-			int firstTimeHeight = (systemKeyboard?((int) (activity.getResources().getDimension(R.dimen.emoticon_pallete))) : mCustomKeyboard.getKeyBoardAndCVHeight());
+			int firstTimeHeight = (isSystemKeyboard()?((int) (activity.getResources().getDimension(R.dimen.emoticon_pallete))) : mCustomKeyboard.getKeyBoardAndCVHeight());
 
 			mShareablePopupLayout = new ShareablePopupLayout(activity.getApplicationContext(), activity.findViewById(R.id.chatThreadParentLayout),
 					
@@ -934,7 +930,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		{
 		case R.string.change_keyboard:
 			changeKeyboard(!isSystemKeyboard());
-			mShareablePopupLayout.setCustomKeyBoard(!systemKeyboard);
+			mShareablePopupLayout.setCustomKeyBoard(isSystemKeyboard());
 			break;
 		case R.string.clear_chat:
 			showClearConversationDialog();
@@ -1127,6 +1123,10 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			break;
 		case R.id.search_clear_btn:
 			mComposeView.setText("");
+			mCustomKeyboard.updateCore();
+			break;
+		case R.id.search_text:
+			showKeyboard();
 			break;
 		default:
 			Logger.e(TAG, "onClick Registered but not added in onClick : " + v.toString());
@@ -1668,6 +1668,21 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		mActionMode.showActionMode(SEARCH_ACTION_MODE, R.layout.search_action_bar);
 		setUpSearchViews();
 
+		CustomFontEditText searchEt = (CustomFontEditText) activity.findViewById(R.id.search_text);
+
+		if (isSystemKeyboard())
+		{
+			searchEt.requestFocus();
+			activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+			Utils.showSoftKeyboard(searchEt, InputMethodManager.SHOW_FORCED);
+		}
+		else
+		{
+			mCustomKeyboard.showCustomKeyboard(searchEt, true);
+		}
+		
+		searchEt.setOnClickListener(this);
+		
 		// Creating new instance every time.
 		// No need to modify existing instance. It might still be in the process of exiting.
 		messageSearchManager = new SearchManager();
@@ -1697,14 +1712,17 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		activity.findViewById(R.id.search_clear_btn).setOnClickListener(this);
 		
 		View mBottomView = activity.findViewById(R.id.bottom_panel);
-		if (mShareablePopupLayout.isKeyboardOpen())
-		{ 
-			// ifkeyboard is not open, then keyboard will come which will make so much animation on screen
-			mBottomView.startAnimation(AnimationUtils.loadAnimation(activity.getApplicationContext(), R.anim.up_down_lower_part));
-		}
-		else
+		if (isSystemKeyboard())
 		{
-			Utils.toggleSoftKeyboard(activity.getApplicationContext());
+			if (mShareablePopupLayout.isKeyboardOpen())
+			{ 
+				// ifkeyboard is not open, then keyboard will come which will make so much animation on screen
+				mBottomView.startAnimation(AnimationUtils.loadAnimation(activity.getApplicationContext(), R.anim.up_down_lower_part));
+			}
+			else
+			{
+				Utils.toggleSoftKeyboard(activity.getApplicationContext());
+			}
 		}
 		if (mShareablePopupLayout.isShowing())
 		{
@@ -2231,7 +2249,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		 */
 		if (shouldShowKeyboard())
 		{
-			if (!systemKeyboard)
+			if (!isSystemKeyboard())
 			{
 				mCustomKeyboard.showCustomKeyboard(mComposeView, true);
 			}
@@ -3903,6 +3921,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		{
 			mCustomKeyboard.unregister(mComposeView);
 
+			mCustomKeyboard.unregister(R.id.search_text);
+			
 			mCustomKeyboard.closeAnyDialogIfShowing();
 
 			mCustomKeyboard.destroyCustomKeyboard();
@@ -4010,6 +4030,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		if (mCustomKeyboard != null)
 		{
 			mCustomKeyboard.showCustomKeyboard(mComposeView, false);
+			
+			updatePadding(0);
 			
 			mCustomKeyboard.closeAnyDialogIfShowing();
 			
@@ -5918,7 +5940,11 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	private void changeKeyboard(boolean systemKeyboard)
 	{
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CURRENT_KEYBOARD, systemKeyboard);
-		systemKeyboard = isSystemKeyboard();
+		
+		if (mShareablePopupLayout.isShowing())
+		{
+			mShareablePopupLayout.dismiss();
+		}
 		
 		if (systemKeyboard)
 		{
@@ -5932,10 +5958,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 				@Override
 				public void onClick(View v)
 				{
-					if (mShareablePopupLayout.isShowing())
-					{
-						mShareablePopupLayout.dismiss();
-					}
 					InputMethodManager imm = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
 					imm.showSoftInput(mComposeView, InputMethodManager.SHOW_IMPLICIT);
 
@@ -5955,7 +5977,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 	public boolean isSystemKeyboard()
 	{
-		return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CURRENT_KEYBOARD, false);
+		return HikeMessengerApp.isSystemKeyboard(activity);
 	}
 	
 	private void updatePadding(int bottomPadding)
