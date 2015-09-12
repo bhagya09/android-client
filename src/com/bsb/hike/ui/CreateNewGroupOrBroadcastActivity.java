@@ -158,6 +158,22 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 				KPTConstants.MULTILINE_LINE_EDITOR,CreateNewGroupOrBroadcastActivity.this,CreateNewGroupOrBroadcastActivity.this);
 
 		mCustomKeyboard.init(convName);
+		mCustomKeyboard.showCustomKeyboard(convName, true);
+		if (systemKeyboard)
+		{
+			mCustomKeyboard.showCustomKeyboard(convName, false);
+			mCustomKeyboard.swtichToDefaultKeyboard(convName);
+			mCustomKeyboard.unregister(convName);
+			convName.setOnClickListener(new OnClickListener()
+			{
+
+				@Override
+				public void onClick(View v)
+				{
+					Utils.showSoftKeyboard(CreateNewGroupOrBroadcastActivity.this, convName);
+				}
+			});
+		}
 	}
 
 	/**
@@ -263,6 +279,7 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 	{
 		if (systemKeyboard)
 		{
+			convName.requestFocus();
 			Utils.showSoftKeyboard(this, convName);
 		}
 		else
