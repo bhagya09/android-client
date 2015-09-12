@@ -1529,6 +1529,15 @@ public class MqttMessagesManager
 			if (mmobObject.has(HikeConstants.NUX))
 				NUXManager.getInstance().parseNuxPacket(mmobObject.getJSONObject(HikeConstants.NUX).toString());
 		}
+
+		/**
+		 * { "d" : { "plfsync" : { "platformUid" : "ABCDEFxxxxxx" , "platformToken" : "PQRSTUVxxxxxx" } } }
+		 */
+		if (data.has(HikePlatformConstants.PLATFORM_USER_ID_SYNC))
+		{
+			JSONObject plfSyncJson = data.getJSONObject(HikePlatformConstants.PLATFORM_USER_ID_SYNC);
+			PlatformUtils.savePlatformCredentials(plfSyncJson);
+		}
 		
 	}
 
@@ -3192,7 +3201,7 @@ public class MqttMessagesManager
 						{
 							convDb.updateNotifDataForMicroApps(destination, notifData);
 
-							HikeMessengerApp.getPubSub().publish(HikePubSub.NOTIF_DATA_RECEIVED, botInfo.getNotifData());
+							HikeMessengerApp.getPubSub().publish(HikePubSub.NOTIF_DATA_RECEIVED, botInfo);
 						}
 					}
 					else
@@ -3745,6 +3754,10 @@ public class MqttMessagesManager
 		{
 			saveNewMessageRead(jsonObj);
 		}
+		else if(HikeConstants.MqttMessageTypes.GENERAL_EVENT_QOS_ONE.equals(type) || HikeConstants.MqttMessageTypes.GENERAL_EVENT_QOS_ZERO.equals(type))
+		{
+			GeneralEventMessagesManager.getInstance().handleGeneralMessage(jsonObj);
+		}
 		else if (HikeConstants.MqttMessageTypes.ACTIVITY_UPDATE.equals(type))
 		{
 			saveActivityUpdate(jsonObj);
@@ -3755,7 +3768,7 @@ public class MqttMessagesManager
 		}
 		else if(HikeConstants.MqttMessageTypes.GENERAL_EVENT_PACKET_ZERO.equals(type))
 		{
-			GeneralEventMessagesManager.getInstance(context).handleGeneralMessage(jsonObj);
+			GeneralEventMessagesManager.getInstance().handleGeneralMessage(jsonObj);
 		}
 	}
 
@@ -4414,6 +4427,10 @@ public class MqttMessagesManager
 						HikeConstants.MqttMessageTypes.MESSAGE_VOIP_1.equals(type)) 
 				{
 					VoIPUtils.handleVOIPPacket(context, json);
+				}
+				else if(HikeConstants.MqttMessageTypes.GENERAL_EVENT_QOS_ONE.equals(type) || HikeConstants.MqttMessageTypes.GENERAL_EVENT_QOS_ZERO.equals(type))
+				{
+					GeneralEventMessagesManager.getInstance().handleGeneralMessage(json);
 				}
 				else
 				{

@@ -1,15 +1,12 @@
 package com.bsb.hike.db;
 
-import java.nio.channels.SelectableChannel;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -35,7 +32,6 @@ import android.graphics.drawable.Drawable;
 import android.provider.BaseColumns;
 import android.text.TextUtils;
 import android.util.Base64;
-import android.util.Log;
 import android.util.Pair;
 import android.util.SparseArray;
 
@@ -60,8 +56,8 @@ import com.bsb.hike.models.GroupParticipant;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.HikeSharedFile;
+import com.bsb.hike.models.MessageEvent;
 import com.bsb.hike.models.MessageMetadata;
-import com.bsb.hike.models.ProfileItem.ProfileContactItem.contactType;
 import com.bsb.hike.models.Protip;
 import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.models.Conversation.BotConversation;
@@ -81,13 +77,16 @@ import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.platform.ContentLove;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformMessageMetadata;
+import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.WebMetadata;
 import com.bsb.hike.timeline.model.ActionsDataModel;
+import com.bsb.hike.timeline.model.ActionsDataModel.ActionTypes;
 import com.bsb.hike.timeline.model.ActionsDataModel.ActivityObjectTypes;
 import com.bsb.hike.timeline.model.FeedDataModel;
 import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
 import com.bsb.hike.timeline.model.TimelineActions;
+import com.bsb.hike.timeline.view.TimelineActivity;
 import com.bsb.hike.utils.ChatTheme;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
@@ -96,8 +95,6 @@ import com.bsb.hike.utils.PairModified;
 import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
-import com.bsb.hike.timeline.model.ActionsDataModel.ActionTypes;
-import com.bsb.hike.timeline.view.TimelineActivity;
 
 public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBConstants, HIKE_CONV_DB
 {
@@ -308,13 +305,21 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				+ HIKE_CONTENT.HELPER_DATA + " TEXT DEFAULT '{}'"  //helper data
 				+ ")";
 		db.execSQL(sql);
-		
+
 		sql = getActionsTableCreateQuery();
 		db.execSQL(sql);
 		
 		sql = getFeedTableCreateQuery();
 		db.execSQL(sql);
+
+		// This table has the data related to the card to card messaging. This table has the data shared among the microapps
+		sql = getMessageEventTableCreateStatement();
+		db.execSQL(sql);
+
+		sql = "CREATE UNIQUE INDEX IF NOT EXISTS " + DBConstants.EVENT_HASH_INDEX + " ON " + DBConstants.MESSAGE_EVENT_TABLE + " ( " + DBConstants.EVENT_HASH + " )";
+		db.execSQL(sql);
 	}
+
 	private void createIndexOverServerIdField(SQLiteDatabase db)
 	{
 		//creating index over server Id field
@@ -339,6 +344,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		mDb.delete(DBConstants.BOT_TABLE, null, null);
 		mDb.delete(DBConstants.ACTIONS_TABLE, null, null);
 		mDb.delete(DBConstants.FEED_TABLE, null, null);
+		mDb.delete(DBConstants.MESSAGE_EVENT_TABLE, null, null);
 	}
 
 	@Override
@@ -831,7 +837,8 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				db.execSQL(alter);
 			}
 		}
-		
+
+
 		if(oldVersion < 43)
 		{
 			String dropLoveTable = "DROP TABLE IF EXISTS " + LOVE_TABLE;
@@ -848,6 +855,18 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				String alterST = "ALTER TABLE " + DBConstants.STATUS_TABLE + " ADD COLUMN " + DBConstants.FILE_KEY + " TEXT";
 				db.execSQL(alterST);
 			}
+		}
+
+		if (oldVersion < 44)
+		{
+			// This table has the data related to the card to card messaging. This table has the data shared among the microapps
+			String sql = getMessageEventTableCreateStatement();
+			db.execSQL(sql);
+
+			String sqlIndex =
+					"CREATE UNIQUE INDEX IF NOT EXISTS " + DBConstants.EVENT_HASH_INDEX + " ON " + DBConstants.MESSAGE_EVENT_TABLE + " ( " + DBConstants.EVENT_HASH +
+							" )";
+			db.execSQL(sqlIndex);
 		}
 	}
 
@@ -916,6 +935,23 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				c.close();
 			}
 		}
+	}
+
+	private String getMessageEventTableCreateStatement()
+	{
+		return CREATE_TABLE + DBConstants.MESSAGE_EVENT_TABLE
+				+ " ("
+				+ DBConstants.EVENT_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+				+ DBConstants.MESSAGE_HASH + " TEXT, "        //message hash of the message that is related to the event.
+				+ DBConstants.EVENT_METADATA + " TEXT, "      //the card to card messaging shared data
+				+ DBConstants.EVENT_STATUS + " INTEGER, "    //current status of the event... sent or received
+				+ DBConstants.EVENT_TYPE + " INTEGER, "      //whether shared message or an event
+				+ DBConstants.TIMESTAMP + " INTEGER, " // Event time stamp
+				+ DBConstants.MAPPED_EVENT_ID + " INTEGER, " // The message id of the message on the sender's side (Only applicable for received messages)
+				+ DBConstants.MSISDN + " TEXT, " // The conversation's msisdn. This will be the msisdn for one-to-one and the group id for groups
+				+ DBConstants.EVENT_HASH + " TEXT DEFAULT NULL, " // Used for duplication checks.
+				+ HIKE_CONTENT.NAMESPACE + " TEXT DEFAULT 'message'"  //namespace for uniqueness of content
+				+ ")";
 	}
 
 	private void dropAndRecreateStatusTable(SQLiteDatabase db)
@@ -2240,6 +2276,13 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 					}
 					map.put(conv.getMsisdn(), new Pair<List<String>, Long>(lastMsisdns, timestamp));
 				}
+					/*
+					 * Shared data for platform card messages
+					 */
+					if (conv.getMessageType() == HikeConstants.MESSAGE_TYPE.WEB_CONTENT || conv.getMessageType() == HikeConstants.MESSAGE_TYPE.FORWARD_WEB_CONTENT)
+					{
+						PlatformUtils.sharedDataHandlingForMessages(conv);
+					}
 				}
 
 				incrementUnreadCounter(contact.getMsisdn(), unreadMessageCount);
@@ -2342,6 +2385,14 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				if (conv.isFileTransferMessage() && msgId > 0)
 				{
 					addSharedMedia(conv);
+				}
+
+				/*
+				 * Shared data for platform card messages
+				 */
+				if ((conv.getMessageType() == HikeConstants.MESSAGE_TYPE.WEB_CONTENT || conv.getMessageType() == HikeConstants.MESSAGE_TYPE.FORWARD_WEB_CONTENT) && conv.getParticipantInfoState() == ParticipantInfoState.NO_INFO)
+				{
+					PlatformUtils.sharedDataHandlingForMessages(conv);
 				}
 				resultList.add(conv);
 			}
@@ -7983,12 +8034,257 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 		return null;
 	}
+
+	public String getMessageEventsForMicroapps(String nameSpace, boolean includeNormalEvent)
+	{
+		Cursor c = null;
+		try
+		{
+			if (!includeNormalEvent)
+			{
+				c = mDb.query(MESSAGE_EVENT_TABLE, new String[] { EVENT_ID, MESSAGE_HASH, EVENT_METADATA, MSISDN, EVENT_STATUS},
+						HIKE_CONTENT.NAMESPACE + "=? AND " + DBConstants.EVENT_TYPE + "=?", new String[] { nameSpace,
+								String.valueOf(HikePlatformConstants.EventType.SHARED_EVENT) }, null, null, null);
+			}
+			else
+			{
+				c = mDb.query(MESSAGE_EVENT_TABLE, new String[] { EVENT_ID, MESSAGE_HASH, EVENT_METADATA, MSISDN, EVENT_STATUS, EVENT_TYPE },
+						HIKE_CONTENT.NAMESPACE + "=?", new String[] { nameSpace }, null, null, null);
+			}
+
+			if (c.getCount() <=0)
+			{
+				return "{}";
+			}
+
+			ArrayList<JSONObject> dataList = new ArrayList<>();
+			int eventIdx = c.getColumnIndex(DBConstants.EVENT_ID);
+			int messageHashIdx = c.getColumnIndex(DBConstants.MESSAGE_HASH);
+			int eventMetadataIdx = c.getColumnIndex(DBConstants.EVENT_METADATA);
+			int msisdnIndex = c.getColumnIndex(MSISDN);
+			int eventStatusIdx = c.getColumnIndex(EVENT_STATUS);
+
+			while (c.moveToNext())
+			{
+				String msisdn = c.getString(msisdnIndex);
+				JSONObject jsonObject = PlatformUtils.getPlatformContactInfo(msisdn);
+				jsonObject.put(HikePlatformConstants.EVENT_DATA, c.getString(eventMetadataIdx));
+				jsonObject.put(HikePlatformConstants.MESSAGE_HASH, c.getString(messageHashIdx));
+				jsonObject.put(HikePlatformConstants.EVENT_ID , c.getString(eventIdx));
+				jsonObject.put(HikePlatformConstants.EVENT_STATUS, c.getInt(eventStatusIdx));
+				if (includeNormalEvent)
+				{
+					jsonObject.put(HikePlatformConstants.EVENT_TYPE, c.getInt(c.getColumnIndex(EVENT_TYPE)));
+				}
+				dataList.add(jsonObject);
+			}
+			return dataList.toString();
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+			return "{}";
+		}
+		finally
+		{
+			if (c != null)
+			{
+				c.close();
+			}
+		}
+	}
+
+	public String getEventsForMessageHash(String messageHash, String namespace)
+	{
+		Cursor c = null;
+
+		try
+		{
+			c = mDb.query(MESSAGE_EVENT_TABLE, new String[] { EVENT_ID, EVENT_METADATA, MSISDN, EVENT_STATUS, EVENT_TYPE}, MESSAGE_HASH + "=? AND " + HIKE_CONTENT.NAMESPACE + "=?", new String[] { messageHash, namespace}, null, null, null);
+			if (c.getCount() <=0)
+			{
+				return "{}";
+			}
+
+			ArrayList<JSONObject> dataList = new ArrayList<>();
+			int eventIdx = c.getColumnIndex(DBConstants.EVENT_ID);
+			int eventMetadataIdx = c.getColumnIndex(DBConstants.EVENT_METADATA);
+			int msisdnIndex = c.getColumnIndex(MSISDN);
+			int eventStatusIdx = c.getColumnIndex(EVENT_STATUS);
+
+			while (c.moveToNext())
+			{
+				String msisdn = c.getString(msisdnIndex);
+				JSONObject jsonObject = PlatformUtils.getPlatformContactInfo(msisdn);
+				jsonObject.put(HikePlatformConstants.EVENT_DATA, c.getString(eventMetadataIdx));
+				jsonObject.put(HikePlatformConstants.EVENT_ID , c.getString(eventIdx));
+				jsonObject.put(HikePlatformConstants.EVENT_STATUS, c.getInt(eventStatusIdx));
+
+				jsonObject.put(HikePlatformConstants.EVENT_TYPE, c.getInt(c.getColumnIndex(EVENT_TYPE)));
+				dataList.add(jsonObject);
+			}
+			return dataList.toString();
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+			return "{}";
+		}
+		finally
+		{
+			if (c != null)
+			{
+				c.close();
+			}
+		}
+	}
+
+	public void deleteEvent(String eventId)
+	{
+		mDb.delete(DBConstants.MESSAGE_EVENT_TABLE, DBConstants.EVENT_ID  + "=?", new String[]{eventId});
+	}
+
+	public void deleteAllEventsForMessage(String messageHash)
+	{
+		mDb.delete(DBConstants.MESSAGE_EVENT_TABLE, DBConstants.MESSAGE_HASH + "=?", new String[]{messageHash});
+	}
+
+	public void deleteAllEventsForNamespace(String namespace)
+	{
+		mDb.delete(DBConstants.MESSAGE_EVENT_TABLE, HIKE_CONTENT.NAMESPACE + "=?", new String[]{namespace});
+	}
+
+	public long insertMessageEvent(MessageEvent messageEvent)
+	{
+		ContentValues values = new ContentValues();
+		values.put(DBConstants.MESSAGE_HASH, messageEvent.getMessageHash());
+		values.put(DBConstants.EVENT_METADATA, messageEvent.getEventMetadata());
+		values.put(DBConstants.EVENT_STATUS, messageEvent.getEventStatus());
+		values.put(DBConstants.EVENT_TYPE, messageEvent.getEventType());
+		values.put(DBConstants.TIMESTAMP, messageEvent.getSentTimeStamp());
+		values.put(DBConstants.MAPPED_EVENT_ID, messageEvent.getMappedEventId());
+		values.put(DBConstants.MSISDN, messageEvent.getMsisdn());
+		values.put(HIKE_CONTENT.NAMESPACE, messageEvent.getNameSpace());
+		String eventHash = messageEvent.createEventHash();
+		if (!TextUtils.isEmpty(eventHash))
+		{
+			values.put(DBConstants.EVENT_HASH, eventHash);
+		}
+		return mDb.insert(DBConstants.MESSAGE_EVENT_TABLE, null, values);
+	}
+
+	/**
+	 * This method is used for the authentication of the message event
+	 * @param messageHash
+	 * @param from
+	 * @return
+	 */
+	public long getMessageIdFromMessageHash(String messageHash, String from)
+	{
+		Cursor c = null;
+
+		try
+		{
+
+			c = mDb.query(DBConstants.MESSAGES_TABLE, new String[] { DBConstants.MESSAGE_ID, DBConstants.MSISDN }, DBConstants.MESSAGE_HASH + " =?", new String[] { messageHash },
+					null, null, null, null);
+
+			int msgIdIdx = c.getColumnIndex(DBConstants.MESSAGE_ID);
+			int msisdnIdx = c.getColumnIndex(DBConstants.MSISDN);
+
+			if (c.moveToFirst())
+			{
+				long msgId = c.getLong(msgIdIdx);
+				String msisdn = c.getString(msisdnIdx);
+				if (msisdn.equals(from))
+				{
+					return msgId;
+				}
+			}
+			return -1;
+		}
+
+		finally
+		{
+			if (c != null)
+			{
+				c.close();
+			}
+		}
+
+	}
+
+	/**
+	 * This method is used for getting message hash from message id. Message Hash is a base for all Card to card messaging in Platform.
+	 * @param messageId
+	 * @return
+	 */
+	public String getMessageHashFromMessageId(long messageId)
+	{
+		Cursor c = null;
+
+		try
+		{
+
+			c = mDb.query(DBConstants.MESSAGES_TABLE, new String[] { DBConstants.MESSAGE_HASH }, DBConstants.MESSAGE_ID + " =?", new String[] { String.valueOf(messageId) },
+					null, null, null, null);
+
+
+
+			if (c.moveToFirst())
+			{
+				int msgHashIdx = c.getColumnIndex(DBConstants.MESSAGE_HASH);
+				return c.getString(msgHashIdx);
+			}
+			return "";
+		}
+
+		finally
+		{
+			if (c != null)
+			{
+				c.close();
+			}
+		}
+
+	}
+
+	public String getMsisdnFromMessageHash(String messageHash)
+	{
+		Cursor c = null;
+
+		try
+		{
+
+			c = mDb.query(DBConstants.MESSAGES_TABLE, new String[] { DBConstants.MSISDN }, DBConstants.MESSAGE_HASH + " =?", new String[] { messageHash },
+					null, null, null, null);
+
+			int msisdnIdx = c.getColumnIndex(DBConstants.MSISDN);
+
+			if (c.moveToFirst())
+			{
+				return c.getString(msisdnIdx);
+			}
+			return null;
+		}
+
+		finally
+		{
+			if (c != null)
+			{
+				c.close();
+			}
+		}
+	}
+
+
 	public int updateMessageOriginType(long msgID,int originTypeOrdinal)
 	{
 		ContentValues contentValues = new ContentValues();
 		contentValues.put(DBConstants.MESSAGE_ORIGIN_TYPE , originTypeOrdinal);
 		return mDb.update(DBConstants.MESSAGES_TABLE, contentValues, DBConstants.MESSAGE_ID + "=?", new String[] { Long.toString(msgID) });
 	}
+	
 	/**
 	 * Get actions (likes/comments/views) for corresponding UUIDs
 	 * 
@@ -8146,5 +8442,28 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			mDb.endTransaction();
 		}
 
+	}
+
+	public boolean isConversationExist(String msisdn)
+	{
+		Cursor c = null;
+		try
+		{
+
+			c = mDb.query(DBConstants.CONVERSATIONS_TABLE, null, DBConstants.MSISDN + "=?", new String[] { msisdn }, null, null, null);
+			if (c.moveToFirst())
+			{
+				return true;
+			}
+			return false;
+		}
+
+		finally
+		{
+			if (c != null)
+			{
+				c.close();
+			}
+		}
 	}
 }
