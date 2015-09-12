@@ -1715,14 +1715,10 @@
     <string name="watsapp_invitation">Hey, join me on hike, the only messaging app made in India! It lets you hide your chats, send messages to friends when they\'re offline and send awesome stickers. \n\nAlso share all types of files - docs, songs, movies etc, up to 100MB each - Download: http://get.hike.in/</string>
     <string name="invite_share_message">Hey, check out hike messenger. It has awesome stickers in our language! Join the only made in India messaging app- Download at http://hike.in/$invite_token</string>
     <string name ="offline_request_cancelled"> %1$s cancelled connection.\nPlease try later.</string>
-    <string name ="offline_connection_problem">Oops! Facing some problem?\nPlease try later.</string>
     <string name= "incoming_hike_direct_request">Incoming Hike Direct Request</string>
     <string name = "hike_direct_request">You have a Hike Direct request.Connect ?</string>
     <string name="low_battery_msg">Your device is running low on battery. Messaging and sending or receiving files may become slow.</string>
-    <string name ="offline_request_cancelled"><![CDATA[%1$s]]> cancelled connection.\nPlease try later.</string>
     <string name ="offline_connection_problem">Oops! Facing some problem?\nPlease try later.</string>
-    <string name= "incoming_hike_direct_request">Incoming Hike Direct Request</string>
-    <string name = "hike_direct_request">Hike Direct Request</string>
     <string name="action_no_network">Please check network</string>
     <string name="timeline_transition_anim">timeline_image_transit</string>
     <string name="home_overflow_new_photo">New Photo</string>
