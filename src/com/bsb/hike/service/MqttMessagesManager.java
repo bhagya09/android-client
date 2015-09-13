@@ -376,7 +376,7 @@ public class MqttMessagesManager
 			ContactInfo contact = ContactManager.getInstance().getContact(msisdn, true, false);
 			boolean showRecentlyJoined = contact.getHikeJoinTime() > 0 && !contact.isUnknownContact();
 			
-			if (appPrefs.getBoolean(HikeConstants.NUJ_NOTIF_BOOLEAN_PREF, true) && !ContactManager.getInstance().isBlocked(msisdn))
+			if (appPrefs.getBoolean(HikeConstants.NUJ_NOTIF_BOOLEAN_PREF, true) && !ContactManager.getInstance().isBlocked(msisdn) && jsonObj.getJSONObject(HikeConstants.DATA).optBoolean(HikeConstants.SHOW_NOTIFICATION , true))
 			{
 				if(jsonObj.getJSONObject(HikeConstants.DATA).optBoolean(HikeConstants.UserJoinMsg.PERSIST_CHAT, HikeConstants.UserJoinMsg.defaultPersistChat))
 				{
@@ -1398,20 +1398,27 @@ public class MqttMessagesManager
 				editor.putString(HikeMessengerApp.REWARDS_TOKEN, rewardsToken);
 				// TODO. Should this be games_token ?
 				editor.putString(HikeMessengerApp.GAMES_TOKEN, rewardsToken); 
+
+				editor.putBoolean(HikeMessengerApp.SHOW_REWARDS, account.optBoolean(HikeConstants.SHOW_REWARDS));
+				editor.putBoolean(HikeMessengerApp.SHOW_GAMES, account.optBoolean(HikeConstants.SHOW_GAMES));
+				if (account.optBoolean(HikeConstants.SHOW_REWARDS))
+				{
+					showNewRewards = true;
+				}
+
+				if (account.optBoolean(HikeConstants.SHOW_GAMES))
+				{
+					showNewGames = true;
+				}
+
 			}
-
-			editor.putBoolean(HikeMessengerApp.SHOW_REWARDS, account.optBoolean(HikeConstants.SHOW_REWARDS));
-			editor.putBoolean(HikeMessengerApp.SHOW_GAMES, account.optBoolean(HikeConstants.SHOW_GAMES));
-
-			if (account.optBoolean(HikeConstants.SHOW_REWARDS))
+			else
 			{
-				showNewRewards = true;
+				editor.putBoolean(HikeMessengerApp.SHOW_REWARDS, false);
+				editor.putBoolean(HikeMessengerApp.SHOW_GAMES, false);
 			}
 
-			if (account.optBoolean(HikeConstants.SHOW_GAMES))
-			{
-				showNewGames = true;
-			}
+
 			
 			if (account.has(HikeConstants.REWARDS))
 			{
@@ -1521,6 +1528,15 @@ public class MqttMessagesManager
 			JSONObject mmobObject = data.getJSONObject(HikeConstants.METADATA);
 			if (mmobObject.has(HikeConstants.NUX))
 				NUXManager.getInstance().parseNuxPacket(mmobObject.getJSONObject(HikeConstants.NUX).toString());
+		}
+
+		/**
+		 * { "d" : { "plfsync" : { "platformUid" : "ABCDEFxxxxxx" , "platformToken" : "PQRSTUVxxxxxx" } } }
+		 */
+		if (data.has(HikePlatformConstants.PLATFORM_USER_ID_SYNC))
+		{
+			JSONObject plfSyncJson = data.getJSONObject(HikePlatformConstants.PLATFORM_USER_ID_SYNC);
+			PlatformUtils.savePlatformCredentials(plfSyncJson);
 		}
 		
 	}
@@ -1729,6 +1745,10 @@ public class MqttMessagesManager
 		if (data.has(HikeConstants.SHOW_REWARDS))
 		{
 			boolean showRewards = data.getBoolean(HikeConstants.SHOW_REWARDS);
+			if (TextUtils.isEmpty(HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.REWARDS_TOKEN, "")))
+			{
+				showRewards = false;
+			}
 			editor.putBoolean(HikeMessengerApp.SHOW_REWARDS, showRewards);
 			editor.putBoolean(HikeConstants.IS_REWARDS_ITEM_CLICKED, !showRewards);
 			if(showRewards)
@@ -1739,6 +1759,10 @@ public class MqttMessagesManager
 		if (data.has(HikeConstants.SHOW_GAMES))
 		{
 			boolean showGames = data.getBoolean(HikeConstants.SHOW_GAMES);
+			if (TextUtils.isEmpty(HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.REWARDS_TOKEN, "")))
+			{
+				showGames = false;
+			}
 			editor.putBoolean(HikeMessengerApp.SHOW_GAMES, showGames);
 			editor.putBoolean(HikeConstants.IS_GAMES_ITEM_CLICKED, !showGames);
 			if(showGames)
@@ -2463,8 +2487,12 @@ public class MqttMessagesManager
 		{
 			editor.putString(HikeConstants.REFERRAL_OTHER_TEXT, data.getString(HikeConstants.REFERRAL_OTHER_TEXT));
 		}
-		
-		if(data.has(HikeConstants.ALL_STICKER_TAG_DOWNLOAD))
+		if (data.has(HikeConstants.FT_LATENCY_LOGGING))
+		{
+			boolean httpExceptionLogging = data.getBoolean(HikeConstants.FT_LATENCY_LOGGING);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.FT_LATENCY_LOGGING, httpExceptionLogging);
+		}
+		if (data.has(HikeConstants.ALL_STICKER_TAG_DOWNLOAD))
 		{
 			boolean shouldDownload = data.getBoolean(HikeConstants.ALL_STICKER_TAG_DOWNLOAD);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.TAG_FIRST_TIME_DOWNLOAD, shouldDownload);
@@ -3173,7 +3201,7 @@ public class MqttMessagesManager
 						{
 							convDb.updateNotifDataForMicroApps(destination, notifData);
 
-							HikeMessengerApp.getPubSub().publish(HikePubSub.NOTIF_DATA_RECEIVED, botInfo.getNotifData());
+							HikeMessengerApp.getPubSub().publish(HikePubSub.NOTIF_DATA_RECEIVED, botInfo);
 						}
 					}
 					else
@@ -3726,6 +3754,10 @@ public class MqttMessagesManager
 		{
 			saveNewMessageRead(jsonObj);
 		}
+		else if(HikeConstants.MqttMessageTypes.GENERAL_EVENT_QOS_ONE.equals(type) || HikeConstants.MqttMessageTypes.GENERAL_EVENT_QOS_ZERO.equals(type))
+		{
+			GeneralEventMessagesManager.getInstance().handleGeneralMessage(jsonObj);
+		}
 		else if (HikeConstants.MqttMessageTypes.ACTIVITY_UPDATE.equals(type))
 		{
 			saveActivityUpdate(jsonObj);
@@ -3736,7 +3768,7 @@ public class MqttMessagesManager
 		}
 		else if(HikeConstants.MqttMessageTypes.GENERAL_EVENT_PACKET_ZERO.equals(type))
 		{
-			GeneralEventMessagesManager.getInstance(context).handleGeneralMessage(jsonObj);
+			GeneralEventMessagesManager.getInstance().handleGeneralMessage(jsonObj);
 		}
 	}
 
@@ -4383,6 +4415,10 @@ public class MqttMessagesManager
 				{
 					saveMessage(json);
 				}
+				else if (HikeConstants.MqttMessageTypes.ACCOUNT_CONFIG.equals(type))
+				{
+					saveAccountConfig(json);
+				}
 				else if (HikeConstants.MqttMessageTypes.POPUP.equals(type))
 				{
 					savePopup(json);
@@ -4391,6 +4427,10 @@ public class MqttMessagesManager
 						HikeConstants.MqttMessageTypes.MESSAGE_VOIP_1.equals(type)) 
 				{
 					VoIPUtils.handleVOIPPacket(context, json);
+				}
+				else if(HikeConstants.MqttMessageTypes.GENERAL_EVENT_QOS_ONE.equals(type) || HikeConstants.MqttMessageTypes.GENERAL_EVENT_QOS_ZERO.equals(type))
+				{
+					GeneralEventMessagesManager.getInstance().handleGeneralMessage(json);
 				}
 				else
 				{

@@ -71,6 +71,7 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.ComponentName;
 import android.content.ContentProviderOperation;
+import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -155,6 +156,7 @@ import android.view.animation.AnimationSet;
 import android.view.animation.ScaleAnimation;
 import android.view.animation.TranslateAnimation;
 import android.view.inputmethod.InputMethodManager;
+import android.webkit.MimeTypeMap;
 import android.webkit.URLUtil;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -222,6 +224,7 @@ import com.bsb.hike.service.ConnectionChangeReceiver;
 import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.tasks.CheckForUpdateTask;
 import com.bsb.hike.tasks.SignupTask;
+import com.bsb.hike.tasks.StatusUpdateTask;
 import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
 import com.bsb.hike.timeline.view.TimelineActivity;
@@ -1558,7 +1561,7 @@ public class Utils
 	{
 		if(uri == null)
 		{
-			Toast.makeText(mContext, R.string.unknown_msg, Toast.LENGTH_SHORT).show();
+			Toast.makeText(mContext, R.string.unknown_file_error, Toast.LENGTH_SHORT).show();
 			return null;
 		}
 		String fileUriString = uri.toString();
@@ -1581,14 +1584,10 @@ public class Utils
 
 		if (returnFilePath == null && checkForPicassaUri && isPicasaUri(fileUriString))
 		{
-
-			String timeStamp = Utils.getUniqueFilename(HikeFileType.IMAGE);
 			File file = null;
 			try
 			{
-				file = File.createTempFile("IMG_" + timeStamp, ".jpg");
-				downloadAndSaveFile(mContext, file, uri);
-				returnFilePath = file.getAbsolutePath();
+				file = getCloudFile(mContext, uri);
 			}
 			catch (IOException e)
 			{
@@ -1598,9 +1597,19 @@ public class Utils
 			{
 				er.printStackTrace();
 			}
-
+			if(file != null)
+			{
+				return file.getAbsolutePath();
+			}
+			else
+			{
+				Toast.makeText(mContext, R.string.cloud_file_error, Toast.LENGTH_SHORT).show();
+				return null;
+			}
 		}
 
+		if(returnFilePath == null)
+			Toast.makeText(mContext, R.string.unknown_file_error, Toast.LENGTH_SHORT).show();
 		return returnFilePath;
 
 	}
@@ -2445,7 +2454,55 @@ public class Utils
 		}
 	}
 
-	public static void downloadAndSaveFile(Context context, File destFile, Uri uri) throws IOException, SecurityException
+	public static File getCloudFile(Context context, Uri uri) throws IOException, SecurityException
+	{
+		long timeStamp = System.currentTimeMillis();
+		ContentResolver cR = context.getContentResolver();
+		MimeTypeMap mime = MimeTypeMap.getSingleton();
+		String contentType = cR.getType(uri);
+		if(contentType == null)
+			return null;
+		HikeFileType hikeFileType = HikeFileType.fromString(contentType, false);
+		String extension = mime.getExtensionFromMimeType(contentType);
+		File destFile = null;
+		try {
+			String fileName = contentType.substring(0, contentType.indexOf("/")) + "_" + timeStamp;
+			switch (hikeFileType) {
+			case IMAGE:
+				destFile = File.createTempFile(fileName, "." + extension);
+				break;
+			case VIDEO:
+			case AUDIO:
+			case OTHER:
+				String dirPath = getFileParent(hikeFileType, true);
+				if (dirPath == null)
+				{
+					return null;
+				}
+				File dir = new File(dirPath);
+				if (!dir.exists())
+				{
+					if (!dir.mkdirs())
+					{
+						Logger.d("Hike", "failed to create directory");
+						return null;
+					}
+				}
+				destFile = new File(dir, fileName  + "." + extension);
+				break;
+			default:
+				break;
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		if(destFile != null)
+			downloadAndSaveFile(cR, destFile, uri);
+		return destFile;
+	}
+
+	public static void downloadAndSaveFile(ContentResolver cR, File destFile, Uri uri) throws IOException, SecurityException
 	{
 		InputStream is = null;
 		OutputStream os = null;
@@ -2454,7 +2511,7 @@ public class Utils
 
 			if (isPicasaUri(uri.toString()) && !uri.toString().startsWith("http"))
 			{
-				is = context.getContentResolver().openInputStream(uri);
+				is = cR.openInputStream(uri);
 			}
 			else
 			{
@@ -2487,7 +2544,8 @@ public class Utils
 	{
 		return (picasaUriString.toString().startsWith(HikeConstants.OTHER_PICASA_URI_START) || picasaUriString.toString().startsWith(HikeConstants.JB_PICASA_URI_START)
 				|| picasaUriString.toString().startsWith("http") || picasaUriString.toString().startsWith(HikeConstants.GMAIL_PREFIX)
-				|| picasaUriString.toString().startsWith(HikeConstants.GOOGLE_PLUS_PREFIX) || picasaUriString.toString().startsWith(HikeConstants.GOOGLE_INBOX_PREFIX));
+				|| picasaUriString.toString().startsWith(HikeConstants.GOOGLE_PLUS_PREFIX) || picasaUriString.toString().startsWith(HikeConstants.GOOGLE_INBOX_PREFIX)
+				|| picasaUriString.toString().startsWith(HikeConstants.GOOGLE_DRIVE_PREFIX));
 	}
 
 	public static Uri makePicasaUriIfRequired(Uri uri)
@@ -3502,6 +3560,11 @@ public class Utils
 	public static boolean isKitkatOrHigher()
 	{
 		return Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
+	}
+
+	public static boolean isBelowLollipop()
+	{
+		return Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP;
 	}
 
 	public static boolean isIceCreamOrHigher()
@@ -4640,11 +4703,11 @@ public class Utils
 	public static int updateHomeOverflowToggleCount(SharedPreferences accountPref, boolean defaultValue)
 	{
 		int overallCount = 0;
-		if (!(accountPref.getBoolean(HikeConstants.IS_GAMES_ITEM_CLICKED, defaultValue)) && accountPref.getBoolean(HikeMessengerApp.SHOW_GAMES, false))
+		if (!(accountPref.getBoolean(HikeConstants.IS_GAMES_ITEM_CLICKED, defaultValue)) && accountPref.getBoolean(HikeMessengerApp.SHOW_GAMES, false) && !TextUtils.isEmpty(accountPref.getString(HikeMessengerApp.REWARDS_TOKEN, "")))
 		{
 			overallCount++;
 		}
-		if (!(accountPref.getBoolean(HikeConstants.IS_REWARDS_ITEM_CLICKED, defaultValue)) && accountPref.getBoolean(HikeMessengerApp.SHOW_REWARDS, false))
+		if (!(accountPref.getBoolean(HikeConstants.IS_REWARDS_ITEM_CLICKED, defaultValue)) && accountPref.getBoolean(HikeMessengerApp.SHOW_REWARDS, false) && !TextUtils.isEmpty(accountPref.getString(HikeMessengerApp.REWARDS_TOKEN, "")))
 		{
 			overallCount++;
 		}
@@ -6946,6 +7009,22 @@ public class Utils
 		return cloneJson;
 	}
 	
+	public static void deleteFileFromHikeDir(Context context, File file, HikeFileType hikeFileType)
+	{
+		if(file.getPath().startsWith(getFileParent(hikeFileType, true)))
+		{
+			String [] retCol = new String[] { MediaStore.Video.Media._ID };
+			Uri uri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
+			int id = HikeFile.getMediaId(file.getPath(), retCol, uri, context);
+			if (id != -1)
+			{
+				context.getContentResolver().delete(ContentUris.withAppendedId(uri, id), null, null);
+			}
+			if(file.exists())
+				file.delete();
+		}
+	}
+	
 	public static String getAppVersion()
 	{
 		String appVersion = "";
@@ -6959,7 +7038,7 @@ public class Utils
 			e.printStackTrace();
 		}
 		return appVersion;
-		}
+	}
 	
 	public static boolean showContactsUpdates(ContactInfo contactInfo)
 	{
@@ -7003,6 +7082,53 @@ public class Utils
 		}
 		
 		return app_installed;
+	}
+	
+	/**
+	* Call this method to post a status update without an image to timeline.
+	* @param status
+	* @param moodId : Pass -1 if no mood
+	*
+	* Both status = null and moodId = -1 should not hold together
+	*
+	* List of moods:
+	* {@link com.bsb.hike.utils.EmoticonConstants#moodMapping}
+	*
+	*/
+	public static void postStatusUpdate(String status, int moodId)
+	{
+		postStatusUpdate(status, moodId, null);
+	}
+	
+	/**
+	 * Call this method to post a status update to timeline.
+	 * @param status
+	 * @param moodId : Pass -1 if no mood
+	 * @param imageFilePath : Path of the image on the client. Image should only be of jpeg format and compressed.
+	 * 
+	 * Status = null, moodId < 0 & imageFilePath = null should not hold together
+	 * 
+	 * List of moods:
+	 * {@link com.bsb.hike.utils.EmoticonConstants#moodMapping}
+	 * 
+	 */
+	public static void postStatusUpdate(String status, int moodId, String imageFilePath)
+	{
+		if(TextUtils.isEmpty(status) && moodId < 0 && TextUtils.isEmpty(imageFilePath) )
+		{
+			Logger.e("Utils", "postStatusUpdate : status = null/empty, moodId < 0 & imageFilePath = null conditions hold together. Returning.");
+			return;
+		}
+		try
+		{
+			StatusUpdateTask task = new StatusUpdateTask(status, moodId, imageFilePath);
+			task.execute();
+		}
+		catch (IOException e)
+		{
+			Logger.e("Utils", "IOException thrown in postStatusUpdate");
+			return;
+		}
 	}
 
 	public static float currentBatteryLevel()

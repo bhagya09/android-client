@@ -2591,6 +2591,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 						// as we will be changing msisdn and hike status while inserting in DB
 						ConvMessage convMessage = Utils.makeConvMessage(msisdn,msgExtrasJson.getString(HikeConstants.HIKE_MESSAGE), mConversation.isOnHike());
 						convMessage.setMessageType(HikeConstants.MESSAGE_TYPE.FORWARD_WEB_CONTENT);
+						convMessage.setPlatformData(msgExtrasJson.optJSONObject(HikeConstants.PLATFORM_PACKET));
 						convMessage.webMetadata = new WebMetadata(msgExtrasJson.optString(HikeConstants.METADATA));
 						JSONObject json = new JSONObject();
 						try
@@ -5221,6 +5222,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 					else if (message.getMessageType() == HikeConstants.MESSAGE_TYPE.WEB_CONTENT || message.getMessageType() == HikeConstants.MESSAGE_TYPE.FORWARD_WEB_CONTENT)
 					{
 						multiMsgFwdObject.put(HikeConstants.MESSAGE_TYPE.MESSAGE_TYPE, HikeConstants.MESSAGE_TYPE.FORWARD_WEB_CONTENT);
+						multiMsgFwdObject.put(HikeConstants.PLATFORM_PACKET, message.getPlatformData());
 						multiMsgFwdObject.put(HikeConstants.HIKE_MESSAGE, message.getMessage());
 						if (message.webMetadata != null)
 						{
