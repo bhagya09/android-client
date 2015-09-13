@@ -2507,6 +2507,11 @@ public class MqttMessagesManager
 			String offline = data.optString(HikeConstants.OFFLINE, "{}");
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.OFFLINE, offline);
 		}
+		if(data.has(HikeConstants.SHOW_HIGH_RES_IMAGE))
+		{
+			boolean activate = data.getBoolean(HikeConstants.SHOW_HIGH_RES_IMAGE);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOW_HIGH_RES_IMAGE, activate);
+		}
 		
 		editor.commit();
 		this.pubSub.publish(HikePubSub.UPDATE_OF_MENU_NOTIFICATION, null);
