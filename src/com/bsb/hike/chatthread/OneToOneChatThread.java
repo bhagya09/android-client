@@ -1289,7 +1289,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	private void setPrevLastSeenTextFromActionBar()
 	{
 		Logger.d(TAG, " Previous lastSeen value : " + prevLastSeen);
-		setLastSeen(prevLastSeen);
+		setLastSeen(prevLastSeen,OfflineUtils.isConnectedToSameMsisdn(msisdn));
 	}
 
 	/**
