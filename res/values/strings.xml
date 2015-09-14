@@ -1371,7 +1371,7 @@
     <string name="voip_not_reachable">%1$s is not reachable</string>
     <string name="voip_callee_busy">%1$s is busy</string>
     <string name="voip_callee_no_response">%1$s is not responding</string>
-    <string name="voip_incompat_platform">Free hike calls are currently \navailable only on Android.</string>
+    <string name="voip_incompat_platform">Hike calls are currently not\navailable on this contact\'s phone.</string>
     <string name="voip_older_app">%1$s is on an Older Version of hike</string>
     <string name="voip_caller_poor_network">You or %1$s is on a poor network</string>
     <string name="voip_unable_to_connect_call">Unable to connect your call</string>
