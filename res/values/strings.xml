@@ -1717,6 +1717,8 @@
     <string name="watsapp_invitation">Hey, join me on hike, the only messaging app made in India! It lets you hide your chats, send messages to friends when they\'re offline and send awesome stickers. \n\nAlso share all types of files - docs, songs, movies etc, up to 100MB each - Download: http://get.hike.in/</string>
     <string name="invite_share_message">Hey, check out hike messenger. It has awesome stickers in our language! Join the only made in India messaging app- Download at http://hike.in/$invite_token</string>
     <string name="turn_on_connection">Turn on Mobile Data or Wi-Fi</string>
+    <string name="please_wait">Please wait</string>
+    <string name="loading_data">Loading data...</string>
     <string name="action_no_network">Please check network</string>
     <string name="timeline_transition_anim">timeline_image_transit</string>
     <string name="home_overflow_new_photo">New Photo</string>
