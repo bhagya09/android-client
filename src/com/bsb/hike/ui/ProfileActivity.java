@@ -2351,12 +2351,12 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 					{
 						setupGroupProfileList();
 					}
-					else   
+					else if (profileType == ProfileType.CONTACT_INFO)
 					{
 						setupContactProfileList();
+						updateProfileHeaderView();
+						profileAdapter.notifyDataSetChanged();
 					}
-					updateProfileHeaderView();
-					profileAdapter.notifyDataSetChanged();
 				}
 			});
 		}
