@@ -5,7 +5,7 @@
     android:installLocation="auto"
 
     android:versionCode="1423"
-    android:versionName="4.0.4.24.1.sr_autopopup" >
+    android:versionName="4.0.4.25" >
     
     <uses-sdk
         android:minSdkVersion="14"
