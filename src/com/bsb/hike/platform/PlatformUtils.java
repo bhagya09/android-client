@@ -10,10 +10,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import com.bsb.hike.MqttConstants;
-import com.bsb.hike.models.MessageEvent;
-import com.bsb.hike.service.HikeMqttManagerNew;
-
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
@@ -29,6 +25,8 @@ import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
+import android.location.Location;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.text.TextUtils;
 import android.webkit.MimeTypeMap;
@@ -43,14 +41,17 @@ import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.db.HikeConversationsDatabase;
+import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.HikeHandlerUtil;
+import com.bsb.hike.models.MessageEvent;
 import com.bsb.hike.models.StickerCategory;
+import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.Header;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpHeaderConstants;
-import com.bsb.hike.modules.stickerdownloadmgr.StickerPalleteImageDownloadTask;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadSource;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadType;
+import com.bsb.hike.modules.stickerdownloadmgr.StickerPalleteImageDownloadTask;
 import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.platform.content.PlatformContentConstants;
 import com.bsb.hike.platform.content.PlatformContentListener;
@@ -449,7 +450,7 @@ public class PlatformUtils
 		}
 	}
 
-	private static void enableBot(BotInfo botInfo, boolean enableBot)
+	public static void enableBot(BotInfo botInfo, boolean enableBot)
 	{
 		if (enableBot && botInfo.isNonMessagingBot())
 		{
@@ -1095,6 +1096,110 @@ public class PlatformUtils
 
 		HikeMessengerApp.getPubSub().publish(HikePubSub.PLATFORM_CARD_EVENT_SENT, messageEvent);
 
+	}
+	
+	/**
+	 * Used to record analytics for bot opens via push notifications
+	 * Sample JSON : {"ek":"bno","bot_msisdn":"+hikecricketnew+"}
+	 */
+	public static void recordBotOpenViaNotification(String msisdn)
+	{
+		JSONObject json = new JSONObject();
+		try
+		{
+			json.put(AnalyticsConstants.EVENT_KEY, AnalyticsConstants.BOT_NOTIF_TRACKER);
+			json.put(AnalyticsConstants.BOT_MSISDN, msisdn);
+			HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, json);
+		}
+
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+	}
+
+	public static JSONObject getPlatformContactInfo(String msisdn)
+	{
+		JSONObject jsonObject;
+		ContactInfo info = ContactManager.getInstance().getContact(msisdn, true, false);
+		try
+		{
+			if (info == null)
+			{
+				jsonObject = new JSONObject();
+				jsonObject.put("name", msisdn);
+			}
+			else
+			{
+				jsonObject = info.getPlatformInfo();
+			}
+			return jsonObject;
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+			return new JSONObject();
+		}
+	}
+	/**
+	 * Called from MQTTManager, this method is used to resync PlatformUserId and PlatformTokens for clients which have become out of sync with server
+	 * 
+	 * sample packet :
+	 * 
+	 * { "plfsync" : { "platformUid" : "ABCDEFxxxxxx" , "platformToken" : "PQRSTUVxxxxxx" }
+	 * 
+	 * @param plfSyncJson
+	 */
+	public static void savePlatformCredentials(JSONObject plfSyncJson)
+	{
+		String newPlatformUserId = plfSyncJson.optString(HikePlatformConstants.PLATFORM_USER_ID, "");
+
+		String newPlatformToken = plfSyncJson.optString(HikePlatformConstants.PLATFORM_TOKEN, "");
+		
+		Logger.i(TAG, "New Platform UserID : " + newPlatformUserId + " , new platform token : " + newPlatformToken);
+
+		if (!TextUtils.isEmpty(newPlatformUserId))
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.PLATFORM_UID_SETTING, newPlatformUserId);
+		}
+
+		if (!TextUtils.isEmpty(newPlatformToken))
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.TOKEN_SETTING, newPlatformToken);
+		}
+	}
+	/**
+	 * Call this method to get the latitude and longitude and whether Gps is on/off
+	 * @param LocationManager
+	 * @param Location
+	 * 
+	 */
+	public static String getLatLongFromLocation(LocationManager locationManager, Location location)
+	{
+		JSONObject json = new JSONObject();
+		double longitude = 0;
+		double latitude = 0;
+
+		if (location != null)
+		{
+			longitude = location.getLongitude();
+			latitude = location.getLatitude();
+		}
+		// getting GPS status
+		try
+		{
+			JSONObject s_values = new JSONObject();
+			s_values.put("latitude", latitude);
+			s_values.put("longitude", longitude);
+			json.put("coords", s_values);
+			json.put("gpsAvailable", locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER));
+
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+		return json.toString();
 	}
 
 }

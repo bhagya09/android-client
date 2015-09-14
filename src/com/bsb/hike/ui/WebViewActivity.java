@@ -3,10 +3,6 @@ package com.bsb.hike.ui;
 import java.util.ArrayList;
 import java.util.List;
 
-import android.net.ParseException;
-import com.bsb.hike.models.ContactInfo;
-import com.bsb.hike.models.MessageEvent;
-import com.bsb.hike.modules.contactmgr.ContactManager;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -19,6 +15,8 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.location.Location;
+import android.location.LocationManager;
 import android.net.MailTo;
 import android.net.ParseException;
 import android.net.Uri;
@@ -65,7 +63,10 @@ import com.bsb.hike.media.OverFlowMenuItem;
 import com.bsb.hike.media.OverFlowMenuLayout.OverflowViewListener;
 import com.bsb.hike.media.OverflowItemClickListener;
 import com.bsb.hike.media.TagPicker.TagOnClickListener;
+import com.bsb.hike.models.ContactInfo;
+import com.bsb.hike.models.MessageEvent;
 import com.bsb.hike.models.WhitelistDomain;
+import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.platform.CustomWebView;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUtils;
@@ -130,7 +131,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	
 	private Menu mMenu;
 	
-	private String[] pubsub = new String[]{HikePubSub.NOTIF_DATA_RECEIVED};
+	private String[] pubsub = new String[]{HikePubSub.NOTIF_DATA_RECEIVED,HikePubSub.LOCATION_AVAILABLE};
 
 	private boolean allowLoc;
 	
@@ -186,6 +187,8 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		HikeMessengerApp.getPubSub().addListeners(this, pubsub);
 		
 		alignAnchorForOverflowMenu();
+		
+		checkAndRecordNotificationAnalytics();
 	}
 
 	private void closeWebViewActivity()
@@ -753,7 +756,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 			if (object instanceof BotInfo)
 			{
 				BotInfo botInfo = (BotInfo) object;
-				if (msisdn.equals(botInfo.getMsisdn()))
+				if (botInfo.getMsisdn().equals(msisdn))
 				{
 					String notifData = botInfo.getNotifData();
 					if (null != mmBridge && !TextUtils.isEmpty(botInfo.getNotifData()))
@@ -770,13 +773,12 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 			if (object instanceof MessageEvent)
 			{
 				MessageEvent messageEvent = (MessageEvent) object;
-				if (msisdn.equals(messageEvent.getMsisdn()))
+				String parent_msisdn = messageEvent.getParent_msisdn();
+				if (!TextUtils.isEmpty(parent_msisdn) && messageEvent.getParent_msisdn().equals(msisdn))
 				{
-					ContactInfo info = ContactManager.getInstance().getContact(messageEvent.getMsisdn());
-
 					try
 					{
-						JSONObject jsonObject = null != info ? info.getPlatformInfo() : new JSONObject();
+						JSONObject jsonObject = PlatformUtils.getPlatformContactInfo(msisdn);
 						jsonObject.put(HikePlatformConstants.EVENT_DATA, messageEvent.getEventMetadata());
 						jsonObject.put(HikePlatformConstants.EVENT_ID, messageEvent.getEventId());
 						jsonObject.put(HikePlatformConstants.EVENT_STATUS, messageEvent.getEventStatus());
@@ -795,6 +797,23 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 				}
 			}
 		}
+		else if (type.equals(HikePubSub.LOCATION_AVAILABLE))
+		{
+			LocationManager locationManager = (LocationManager) object;
+			Location location = null;
+			if (locationManager != null)
+			{
+
+				location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+
+			}
+			String latLong = PlatformUtils.getLatLongFromLocation(locationManager, location);
+			if (null != mmBridge)
+			{
+				mmBridge.locationReceived(latLong);
+			}
+		}
+
 
 	}
 
@@ -1244,9 +1263,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		{
 			if (!Utils.appInstalledOrNot(getApplicationContext(), "com.google.android.webview"))
 			{
-				Toast.makeText(getApplicationContext(), R.string.some_error, Toast.LENGTH_LONG).show();
 				PlatformUtils.sendPlatformCrashAnalytics("PackageManager.NameNotFoundException", msisdn);
-				this.finish();
 			}
 		}
 	}
@@ -1287,7 +1304,6 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		else
 		{
 			inflatedErrorView.findViewById(R.id.http_error_ll).setVisibility(View.VISIBLE);
-			webViewLoadFailed = false;
 		}
 	}
 
@@ -1312,9 +1328,21 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		switch(v.getId())
 		{
 			case R.id.retry_button:
+				webViewLoadFailed = false;
 				initAppsBasedOnMode();
 				inflatedErrorView.findViewById(R.id.http_error_ll).setVisibility(View.GONE);
 				break;
+		}
+	}
+	
+	/**
+	 * Used to record analytics for bot opens via push notifications
+	 */
+	private void checkAndRecordNotificationAnalytics()
+	{
+		if (getIntent() != null && getIntent().hasExtra(AnalyticsConstants.BOT_NOTIF_TRACKER))
+		{
+			PlatformUtils.recordBotOpenViaNotification(msisdn);
 		}
 	}
 

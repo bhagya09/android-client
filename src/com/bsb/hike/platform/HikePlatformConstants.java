@@ -79,6 +79,7 @@ public interface HikePlatformConstants
 	public static final String MICROAPP_DATA = "mmData";
 	public static final String PARENT_MSISDN = "parent_msisdn";
 	public static final String SPECIAL = "spl";
+	public static final String REQUEST_CODE = "request_code";
 
 	public static final class PlatformUIDFetchType
 	{
@@ -211,7 +212,7 @@ public interface HikePlatformConstants
 	
 	public static final int VERSION_ALTO = 1;
 
-	public static final int CURRENT_VERSION = 6;
+	public static final int CURRENT_VERSION = 7;
 
 	public static final String AB_COLOR = "color";
 	
@@ -231,4 +232,6 @@ public interface HikePlatformConstants
 	final String SECONDARY_TITLE = "secondary_title";
 	
 	final String STATUS_BAR_COLOR = "sb_color";
+	
+	public static final String PLATFORM_USER_ID_SYNC = "plfsync";
 }

@@ -18,6 +18,7 @@ import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.platform.CustomWebView;
 import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.platform.PlatformHelper;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.WebMetadata;
 import com.bsb.hike.utils.Logger;
@@ -749,6 +750,66 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 			HikeMessengerApp.getPubSub().publish(HikePubSub.UNBLOCK_USER, botInfo.getMsisdn());
 		}
 
+	}
+
+	/**
+	 * Platform Version 6
+	 * This function is made for the special Shared bot that has the information about some other bots as well, and acts as a channel for them.
+	 * Call this method to know whether the bot pertaining to the msisdn is blocked or not.
+	 * @param id : the id of the function that native will call to call the js .
+	 */
+	@JavascriptInterface
+	public void isParentBotBlocked(String id)
+	{
+		if (!BotUtils.isBot(message.webMetadata.getParentMsisdn()))
+		{
+			return;
+		}
+		BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(message.webMetadata.getParentMsisdn());
+		callbackToJS(id, String.valueOf(botInfo.isBlocked()));
+	}
+
+	/**
+	 * Platform Version 6
+	 * This function is made for the special Shared bot that has the information about some other bots as well, and acts as a channel for them.
+	 * Call this method to know whether the bot pertaining to the msisdn is enabled or not.
+	 * @param id : the id of the function that native will call to call the js .
+	 */
+	@JavascriptInterface
+	public void isParentBotEnabled(String id)
+	{
+		if (!BotUtils.isBot(message.webMetadata.getParentMsisdn()))
+		{
+			return;
+		}
+		String value = String.valueOf(HikeConversationsDatabase.getInstance().isConversationExist(message.webMetadata.getParentMsisdn()));
+		callbackToJS(id, value);
+	}
+
+	/**
+	 * Platform Version 6
+	 * This function is made for the special Shared bot that has the information about some other bots as well, and acts as a channel for them.
+	 * Call this method to enable/disable bot. Enable means to show the bot in the conv list and disable is vice versa.
+	 * @param enable : the id of the function that native will call to call the js .
+	 */
+	@JavascriptInterface
+	public void enableParentBot(String enable)
+	{
+
+		if (!BotUtils.isBot(message.webMetadata.getParentMsisdn()))
+		{
+			return;
+		}
+		BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(message.webMetadata.getParentMsisdn());
+		boolean enableBot = Boolean.valueOf(enable);
+		if (enableBot)
+		{
+			PlatformUtils.enableBot(botInfo, true);
+		}
+		else
+		{
+			BotUtils.deleteBotConversation(botInfo.getMsisdn(), false);
+		}
 	}
 
 }
