@@ -139,8 +139,8 @@ public class CallRateDialogFragment extends DialogFragment
 	private void submitRating()
 	{
 		Bundle bundle = getArguments();
-		int isCallInitiator = -1, callId = -1, network = -1, osVersion = -1;
-		String toMsisdn = "", appVersionName = "";
+		int isCallInitiator = -1, callId = -1, network = -1;
+		String toMsisdn = "";
 		int isConf = 0;
 		
 		if(bundle!=null)
@@ -149,8 +149,6 @@ public class CallRateDialogFragment extends DialogFragment
 			callId = bundle.getInt(VoIPConstants.CALL_ID);
 			network = bundle.getInt(VoIPConstants.CALL_NETWORK_TYPE);
 			toMsisdn = bundle.getString(VoIPConstants.PARTNER_MSISDN);
-			appVersionName = bundle.getString(VoIPConstants.APP_VERSION_NAME);
-			osVersion = bundle.getInt(VoIPConstants.OS_VERSION);
 			isConf = bundle.getBoolean(VoIPConstants.IS_CONFERENCE) == true ? 1 : 0;
 		}
 
@@ -163,8 +161,6 @@ public class CallRateDialogFragment extends DialogFragment
 			metadata.put(VoIPConstants.Analytics.CALL_ID, callId);
 			metadata.put(VoIPConstants.Analytics.IS_CALLER, isCallInitiator);
 			metadata.put(VoIPConstants.Analytics.NETWORK_TYPE, network);
-			metadata.put(VoIPConstants.Analytics.APP_VERSION_NAME, appVersionName);
-			metadata.put(VoIPConstants.Analytics.OS_VERSION, osVersion);
 			metadata.put(VoIPConstants.Analytics.IS_CONFERENCE, isConf);
 			metadata.put(AnalyticsConstants.TO, toMsisdn);
 			metadata.put(VoIPConstants.Analytics.NEW_LOG, -1);
