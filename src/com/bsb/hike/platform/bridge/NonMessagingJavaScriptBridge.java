@@ -1082,7 +1082,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	}
 	
 	/**
-	 * Platform Version 6 <br>
+	 * Platform Version 7 <br>
 	 * This function is used for providing an ability to add a shortcut for a given bot.
 	 * 
 	 * @param msisdn
@@ -1180,7 +1180,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 		}
 	}
 	/**
-	 * Added in Platform Version:6
+	 * Added in Platform Version:7
 	 * 
 	 *            Will call locationReceived function of JS . return a json {"gpsAvailable":true/false,"coords":{"longitude":,"latitude":}} MicroApp to Handle
 	 *            timeout in case GPS tracking takes time.
@@ -1197,7 +1197,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 
 	
 	/**
-	 * Added in Platform Version:6
+	 * Added in Platform Version:7
 	 * 
 	 * @param id
 	 *            : : the id of the function that native will call to call the js . Get last store location,in case GPS is on,but unable to get location. return a json
