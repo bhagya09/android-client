@@ -3278,4 +3278,6 @@ public class HikeConstants
 	public static final String FT_LATENCY_LOGGING = "ft_latency";
 	
 	public static final String SHOW_NOTIFICATION = "sn";
+	
+	public static final String SHOW_HIGH_RES_IMAGE = "s_h_r";
 }
