@@ -1081,9 +1081,6 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	/**
 	 * Platform Version 6 <br>
 	 * This function is used for providing an ability to add a shortcut for a given bot.
-	 * 
-	 * @param msisdn
-	 *            - The msisdn of the bot whose shortcut is to be created
 	 */
 	@JavascriptInterface
 	public void addShortCut()
