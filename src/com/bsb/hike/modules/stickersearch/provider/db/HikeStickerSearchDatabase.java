@@ -247,12 +247,14 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		}
 
 		Logger.d(TAG, "Starting population first time...");
-		try {
+		try
+		{
 			mDb.beginTransaction();
 			createVirtualTable(tables);
 			mDb.setTransactionSuccessful();
 		}
-		finally {
+		finally
+		{
 			mDb.endTransaction();
 		}
 	}
@@ -613,7 +615,8 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		Logger.v(TAG, "insertStickerTagData(), Newly inserted tags count = " + newTagsInsertionSucceeded + ", Newly abandoned tags count = " + newTagsInsertionFailed);
 
 		updatePTWriteTime(operationOverTime - requestStartTime);
-		Logger.d(TAG_INSERTION, "Time taken in insertion for current session (into primary table) = " + Utils.getExecutionTimeLog(0, sPTInsertionTimePerSession, Utils.PRECISION_UNIT_NANO_SECOND));
+		Logger.d(TAG_INSERTION,
+				"Time taken in insertion for current session (into primary table) = " + Utils.getExecutionTimeLog(0, sPTInsertionTimePerSession, Utils.PRECISION_UNIT_NANO_SECOND));
 
 		if (newTagsInsertionSucceeded > 0)
 		{
