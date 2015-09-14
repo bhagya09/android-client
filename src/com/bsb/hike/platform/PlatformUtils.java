@@ -10,6 +10,12 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import com.bsb.hike.MqttConstants;
+import com.bsb.hike.models.ContactInfo;
+import com.bsb.hike.models.MessageEvent;
+import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.service.HikeMqttManagerNew;
+
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
@@ -23,6 +29,7 @@ import org.json.JSONObject;
 
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.text.TextUtils;
@@ -31,6 +38,7 @@ import android.widget.Toast;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.bots.BotInfo;
@@ -39,8 +47,12 @@ import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.HikeHandlerUtil;
+import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.modules.httpmgr.Header;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpHeaderConstants;
+import com.bsb.hike.modules.stickerdownloadmgr.StickerPalleteImageDownloadTask;
+import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadSource;
+import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadType;
 import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.platform.content.PlatformContentConstants;
 import com.bsb.hike.platform.content.PlatformContentListener;
@@ -59,6 +71,7 @@ import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 
 /**
@@ -293,12 +306,19 @@ public class PlatformUtils
 			{   
 				if (ChatHeadUtils.areWhitelistedPackagesSharable(context))
 				{
-					IntentFactory.openStickerSettings(context);
+					boolean show_popup = mmObject.optBoolean(ProductPopupsConstants.NATIVE_POPUP, false);
+					Intent intent = IntentFactory.getStickerShareSettingsIntent(context);
+					intent.putExtra(ProductPopupsConstants.NATIVE_POPUP, show_popup);
+					context.startActivity(intent);
 				}
 				else
 				{
 					Toast.makeText(context, context.getString(R.string.sticker_share_popup_not_activate_toast), Toast.LENGTH_LONG).show();
 				}
+			}
+			if(activityName.equals(HIKESCREEN.ACCESS.toString()))
+			{
+				IntentFactory.openAccessibilitySettings(context);
 			}
 		}
 		catch (JSONException e)
@@ -431,7 +451,7 @@ public class PlatformUtils
 		}
 	}
 
-	private static void enableBot(BotInfo botInfo, boolean enableBot)
+	public static void enableBot(BotInfo botInfo, boolean enableBot)
 	{
 		if (enableBot && botInfo.isNonMessagingBot())
 		{
@@ -904,6 +924,230 @@ public class PlatformUtils
 			return true;
 		}
 		return false;
+	}
+	
+	public static void multiFwdStickers(Context context, String stickerId, String categoryId, boolean selectAll)
+	{
+		if (context == null)
+		{
+			return;
+		}
+
+		Intent intent = IntentFactory.getForwardStickerIntent(context, stickerId, categoryId);
+		intent.putExtra(HikeConstants.Extras.SELECT_ALL_INITIALLY, selectAll);
+		context.startActivity(intent);
+	}
+	
+	public static void downloadStkPk(String metaData)
+	{
+		try
+		{
+			JSONObject object = new JSONObject(metaData);
+			String categoryId = object.optString(StickerManager.CATEGORY_ID);
+			String categoryName = object.optString(StickerManager.CATEGORY_NAME);
+			int totalStickers = object.optInt(StickerManager.TOTAL_STICKERS);
+			int categorySize = object.optInt(StickerManager.CATEGORY_SIZE);
+
+			if (!TextUtils.isEmpty(categoryId) && !TextUtils.isEmpty(categoryName))
+			{
+				StickerCategory category = new StickerCategory(categoryId, categoryName, totalStickers, categorySize);
+				downloadStkPk(category);
+			}
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+	}
+
+	public static  void downloadStkPk(StickerCategory category)
+	{
+		StickerPalleteImageDownloadTask stickerPalleteImageDownloadTask = new StickerPalleteImageDownloadTask(category.getCategoryId());
+		stickerPalleteImageDownloadTask.execute();
+		StickerManager.getInstance().initialiseDownloadStickerTask(category, DownloadSource.POPUP, DownloadType.NEW_CATEGORY, HikeMessengerApp.getInstance().getApplicationContext());
+
+	}
+	
+	public static  void OnChatHeadPopupActivateClick()
+	{
+		Context context = HikeMessengerApp.getInstance();
+		if (ChatHeadUtils.areWhitelistedPackagesSharable(context))
+		{
+			Toast.makeText(context, context.getString(R.string.sticker_share_popup_activate_toast), Toast.LENGTH_LONG).show();
+			if (ChatHeadUtils.checkDeviceFunctionality())
+			{
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.CHAT_HEAD_SERVICE, true);
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.CHAT_HEAD_USR_CONTROL, true);
+				JSONArray packagesJSONArray;
+				try
+				{
+					packagesJSONArray = new JSONArray(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.PACKAGE_LIST, null));
+					if (packagesJSONArray != null)
+					{
+						ChatHeadUtils.setAllApps(packagesJSONArray, true);
+					}
+				}
+				catch (JSONException e)
+				{
+					e.printStackTrace();
+				}
+			}
+		}
+		else
+		{
+			Toast.makeText(context, context.getString(R.string.sticker_share_popup_not_activate_toast), Toast.LENGTH_LONG).show();
+		}
+	}
+	
+	public static void sendPlatformCrashAnalytics(String crashType, String msisdn)
+	{
+		JSONObject json = new JSONObject();
+		try
+		{
+			json.put(AnalyticsConstants.EVENT_KEY,AnalyticsConstants.APP_CRASH_EVENT);
+			json.put(HikeConstants.MSISDN, msisdn);
+			json.put(AnalyticsConstants.DATA, crashType);
+			HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.APP_CRASH_EVENT, json);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+	}
+
+	public static void sendPlatformCrashAnalytics(String crashType)
+	{
+		JSONObject json = new JSONObject();
+		try
+		{
+			json.put(AnalyticsConstants.EVENT_KEY, AnalyticsConstants.APP_CRASH_EVENT);
+			json.put(AnalyticsConstants.DATA, crashType);
+			HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.APP_CRASH_EVENT, json);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+	}
+
+	public static void sharedDataHandlingForMessages(ConvMessage conv)
+	{
+		try
+		{
+			if(conv.getPlatformData() != null)
+			{
+				JSONObject sharedData = conv.getPlatformData();
+				String namespaces = sharedData.getString(HikePlatformConstants.RECIPIENT_NAMESPACES);
+				if (TextUtils.isEmpty(namespaces))
+				{
+					Logger.e(HikePlatformConstants.TAG, "no namespaces defined.");
+					return;
+				}
+				String [] namespaceList = namespaces.split(",");
+				for (String namespace : namespaceList)
+				{
+					String eventType = sharedData.optString(HikePlatformConstants.EVENT_TYPE, HikePlatformConstants.SHARED_EVENT);
+					long mappedEventId = -1;
+					if (!conv.isSent())
+					{
+						mappedEventId = sharedData.getLong(HikePlatformConstants.MAPPED_EVENT_ID);
+					}
+					String metadata = sharedData.getString(HikePlatformConstants.EVENT_CARDDATA);
+					int state = conv.isSent() ? HikePlatformConstants.EventStatus.EVENT_SENT : HikePlatformConstants.EventStatus.EVENT_RECEIVED;
+					MessageEvent messageEvent = new MessageEvent(eventType, conv.getMsisdn(), namespace, metadata, conv.createMessageHash(), state, conv.getSendTimestamp(), mappedEventId);
+					long eventId = HikeConversationsDatabase.getInstance().insertMessageEvent(messageEvent);
+					if (eventId < 0)
+					{
+						Logger.e(HikePlatformConstants.TAG, "Duplicate Message Event");
+					}
+					else
+					{
+						sharedData.put(HikePlatformConstants.MAPPED_EVENT_ID, eventId);
+						conv.setPlatformData(sharedData);
+					}
+				}
+
+			}
+		}
+		catch (JSONException e)
+		{
+			//TODO catch block
+			e.printStackTrace();
+		}
+
+	}
+
+	/**
+	 * Call this method to send platform message event. This method sends an event to the msisdn that it determines when it queries the messages table based on the message hash.
+	 * @param eventMetadata
+	 * @param messageHash
+	 * @param nameSpace
+	 */
+	public static void sendPlatformMessageEvent(String eventMetadata, String messageHash, String nameSpace)
+	{
+		String msisdn = HikeConversationsDatabase.getInstance().getMsisdnFromMessageHash(messageHash);
+		if (TextUtils.isEmpty(msisdn))
+		{
+			Logger.e(HikePlatformConstants.TAG, "Message Hash is incorrect");
+			return;
+		}
+
+		MessageEvent messageEvent = new MessageEvent(HikePlatformConstants.NORMAL_EVENT, msisdn, nameSpace, eventMetadata, messageHash,
+				HikePlatformConstants.EventStatus.EVENT_SENT, System.currentTimeMillis());
+
+		HikeMessengerApp.getPubSub().publish(HikePubSub.PLATFORM_CARD_EVENT_SENT, messageEvent);
+
+	}
+
+	public static JSONObject getPlatformContactInfo(String msisdn)
+	{
+		JSONObject jsonObject;
+		ContactInfo info = ContactManager.getInstance().getContact(msisdn, true, false);
+		try
+		{
+			if (info == null)
+			{
+				jsonObject = new JSONObject();
+				jsonObject.put("name", msisdn);
+			}
+			else
+			{
+				jsonObject = info.getPlatformInfo();
+			}
+			return jsonObject;
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+			return new JSONObject();
+		}
+	}
+	/**
+	 * Called from MQTTManager, this method is used to resync PlatformUserId and PlatformTokens for clients which have become out of sync with server
+	 * 
+	 * sample packet :
+	 * 
+	 * { "plfsync" : { "platformUid" : "ABCDEFxxxxxx" , "platformToken" : "PQRSTUVxxxxxx" }
+	 * 
+	 * @param plfSyncJson
+	 */
+	public static void savePlatformCredentials(JSONObject plfSyncJson)
+	{
+		String newPlatformUserId = plfSyncJson.optString(HikePlatformConstants.PLATFORM_USER_ID, "");
+
+		String newPlatformToken = plfSyncJson.optString(HikePlatformConstants.PLATFORM_TOKEN, "");
+		
+		Logger.i(TAG, "New Platform UserID : " + newPlatformUserId + " , new platform token : " + newPlatformToken);
+
+		if (!TextUtils.isEmpty(newPlatformUserId))
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.PLATFORM_UID_SETTING, newPlatformUserId);
+		}
+
+		if (!TextUtils.isEmpty(newPlatformToken))
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.TOKEN_SETTING, newPlatformToken);
+		}
 	}
 
 }

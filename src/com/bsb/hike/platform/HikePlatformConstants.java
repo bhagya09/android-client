@@ -65,6 +65,21 @@ public interface HikePlatformConstants
 	public static final String MICROAPP_MODE = "nm_app";
 	public static final String URL_MODE = "url_app";
 	public static final String CUSTOMER_SUPPORT_BOT_MSISDN = "+hikecs+";
+	public static final String MESSAGE_HASH = "h";
+	public static final String EVENT_ID = "eventId";
+	public static final String EVENT_STATUS = "eventStatus";
+	public static final String EVENT_DATA = "d";
+	public static final String EVENT_TYPE = "et";
+	public static final String SHARED_EVENT = "se";
+	public static final String NORMAL_EVENT = "e";
+	public static final String RECIPIENT_NAMESPACES = "recipients";
+	public static final String MAPPED_EVENT_ID = "i";
+	public static final String EVENT_CARDDATA = "cd";
+	public static final String CLIENT_TIMESTAMP = "c";
+	public static final String MICROAPP_DATA = "mmData";
+	public static final String PARENT_MSISDN = "parent_msisdn";
+	public static final String SPECIAL = "spl";
+	public static final String REQUEST_CODE = "request_code";
 
 	public static final class PlatformUIDFetchType
 	{
@@ -74,6 +89,18 @@ public interface HikePlatformConstants
 
 		public static final int PARTIAL_ADDRESS_BOOK = 3;
 
+	}
+
+	public static class EventType
+	{
+		public static final int SHARED_EVENT = 0;
+		public static final int NORMAL_EVENT = 1;
+	}
+
+	public static class EventStatus
+	{
+		public static final int EVENT_SENT = 0;
+		public static final int EVENT_RECEIVED = 1;
 	}
 
     /**
@@ -184,9 +211,9 @@ public interface HikePlatformConstants
 	public static final int VERSION_NANO = 0;
 	
 	public static final int VERSION_ALTO = 1;
-	
-	public static final int CURRENT_VERSION = 4;
-	
+
+	public static final int CURRENT_VERSION = 6;
+
 	public static final String AB_COLOR = "color";
 	
 	final String BLOCK = "block";
@@ -205,4 +232,6 @@ public interface HikePlatformConstants
 	final String SECONDARY_TITLE = "secondary_title";
 	
 	final String STATUS_BAR_COLOR = "sb_color";
+	
+	public static final String PLATFORM_USER_ID_SYNC = "plfsync";
 }

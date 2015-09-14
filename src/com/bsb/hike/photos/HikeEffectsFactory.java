@@ -78,14 +78,7 @@ public final class HikeEffectsFactory
 				mScriptBlur = ScriptIntrinsicBlur.create(mRS, Element.U8_4(mRS));
 			}
 		}
-		catch (RSRuntimeException rre)
-		{
-			rre.printStackTrace();
-			fallback(rre);
-			finish();
-			return false;
-		}
-		catch (android.renderscript.RSRuntimeException e)
+		catch (Exception e)
 		{
 			e.printStackTrace();
 			fallback(e);
@@ -93,6 +86,12 @@ public final class HikeEffectsFactory
 			return false;
 		}
 
+		if(mRS == null || image == null)
+		{
+			finish();
+			return false;
+		}
+		
 		// Allocate buffer
 		mBitmapIn = image;
 		mInAllocation = Allocation.createFromBitmap(mRS, mBitmapIn);
@@ -190,7 +189,7 @@ public final class HikeEffectsFactory
 			{
 				HikePhotosUtils.manageBitmaps(instance.vignetteBitmap);
 			}
-
+			
 			instance = null;
 		}
 	}
@@ -571,9 +570,14 @@ public final class HikeEffectsFactory
 			{
 				e.printStackTrace();
 				error = true;
-				Logger.e("Dimension Mismatch", "occured while applying : " + effect.toString());
+				Logger.e("RS Exception", "occured while applying : " + effect.toString());
 			}
-
+			catch (Exception e)
+			{
+				e.printStackTrace();
+				error = true;
+				Logger.e("Editor Exception", "occured while applying : " + effect.toString());
+			}
 			if (!error)
 			{
 				uiHandler.post(new Runnable()

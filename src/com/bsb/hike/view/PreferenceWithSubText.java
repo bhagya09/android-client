@@ -92,15 +92,21 @@ public class PreferenceWithSubText extends Preference
 
 		ViewCompat.setAlpha(view, isEnabled() ? HikePreferences.PREF_ENABLED_ALPHA : HikePreferences.PREF_DISABLED_ALPHA);
 
-		final TextView subText = (TextView) view.findViewById(R.id.sub_text);
+		final TextView subTextView = (TextView) view.findViewById(R.id.sub_text);
+		
+		if (subTextView == null) //Getting an NPE here in playStore. Defensive check.
+		{
+			return;
+		}
+		
 		if (TextUtils.isEmpty(this.subText))
 		{
-			subText.setVisibility(View.GONE);
+			subTextView.setVisibility(View.GONE);
 		}
 		else
 		{
-			subText.setText(this.subText);
-			subText.setVisibility(View.VISIBLE);
+			subTextView.setText(this.subText);
+			subTextView.setVisibility(View.VISIBLE);
 		}
 	}
 

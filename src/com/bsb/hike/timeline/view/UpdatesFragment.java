@@ -54,9 +54,8 @@ import com.bsb.hike.timeline.TimelineActionsManager;
 import com.bsb.hike.timeline.adapter.TimelineCardsAdapter;
 import com.bsb.hike.timeline.model.ActionsDataModel;
 import com.bsb.hike.timeline.model.ActionsDataModel.ActivityObjectTypes;
-import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
-import com.bsb.hike.timeline.model.FeedDataModel;
 import com.bsb.hike.timeline.model.StatusMessage;
+import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
 import com.bsb.hike.timeline.model.TimelineActions;
 import com.bsb.hike.ui.GalleryActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
@@ -174,8 +173,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 			}
 		}
 		
-		timelineCardsAdapter = new TimelineCardsAdapter(getActivity(), statusMessages, userMsisdn, mFtueFriendList, getLoaderManager(), getActivity().getSupportFragmentManager(),
-				mShowProfileHeader, mMsisdnArray)
+		timelineCardsAdapter = new TimelineCardsAdapter(getActivity(), statusMessages, userMsisdn, mFtueFriendList, getLoaderManager(), mShowProfileHeader, mMsisdnArray)
 		{
 			@Override
 			public void handleUIMessage(Message msg)
@@ -188,7 +186,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 				}
 				else if (msg.arg1 == UpdatesFragment.MSG_DELETE)
 				{
-					if (actionsView != null && getActivity()!=null)
+					if (actionsView != null && getActivity() != null)
 					{
 						getActivity().runOnUiThread(new Runnable()
 						{
@@ -502,16 +500,10 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 				@Override
 				public void run()
 				{
-					if (object != null && object instanceof FeedDataModel)
-					{
-						FeedDataModel feedData = (FeedDataModel) object;
-						Logger.d(HikeConstants.TIMELINE_LOGS, "on pubsub ACTIVITY_UPDATE adding Feed " + feedData);
-						TimelineActionsManager.getInstance().getActionsData().updateByActivityFeed(feedData);
-						notifyVisibleItems();
-					}
+					notifyVisibleItems();
 				}
 			});
-			
+
 		}
 		else if (HikePubSub.TIMELINE_WIPE.equals(type))
 		{
@@ -678,7 +670,6 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 		{
 			mFtueFriendList.clear();
 		}
-		
 	}
 
 	private class FetchUpdates extends AsyncTask<String, Void, List<StatusMessage>>
@@ -903,6 +894,13 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 			{
 				String id = iterator.next();
 				ContactInfo c = ContactManager.getInstance().getContact(id, true, true);
+				
+				if(c == null || c.getFavoriteType() == null || c.getMsisdn() == null)
+				{
+					Logger.d("tl_ftue", "NPE: favourite null");
+					continue;
+				}
+				
 				if (c.getFavoriteType().equals(FavoriteType.NOT_FRIEND) 
 						&& !c.getMsisdn().equals(Utils.getUserContactInfo(false).getMsisdn()))
 				{
@@ -982,6 +980,11 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 			if (Utils.isResponseValid(response))
 			{
 				TimelineActions actionsData = gson.fromJson(response.toString(), TimelineActions.class);
+				
+				if(actionsData == null)
+				{
+					return;
+				}
 
 				notifyVisibleItems();
 

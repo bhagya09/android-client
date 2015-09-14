@@ -141,12 +141,15 @@ public class CallRateDialogFragment extends DialogFragment
 		Bundle bundle = getArguments();
 		int isCallInitiator = -1, callId = -1, network = -1;
 		String toMsisdn = "";
+		int isConf = 0;
+		
 		if(bundle!=null)
 		{
 			isCallInitiator = bundle.getInt(VoIPConstants.IS_CALL_INITIATOR);
 			callId = bundle.getInt(VoIPConstants.CALL_ID);
 			network = bundle.getInt(VoIPConstants.CALL_NETWORK_TYPE);
 			toMsisdn = bundle.getString(VoIPConstants.PARTNER_MSISDN);
+			isConf = bundle.getBoolean(VoIPConstants.IS_CONFERENCE) == true ? 1 : 0;
 		}
 
 		try
@@ -158,6 +161,7 @@ public class CallRateDialogFragment extends DialogFragment
 			metadata.put(VoIPConstants.Analytics.CALL_ID, callId);
 			metadata.put(VoIPConstants.Analytics.IS_CALLER, isCallInitiator);
 			metadata.put(VoIPConstants.Analytics.NETWORK_TYPE, network);
+			metadata.put(VoIPConstants.Analytics.IS_CONFERENCE, isConf);
 			metadata.put(AnalyticsConstants.TO, toMsisdn);
 			metadata.put(VoIPConstants.Analytics.NEW_LOG, -1);
 

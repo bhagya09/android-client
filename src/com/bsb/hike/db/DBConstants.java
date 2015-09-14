@@ -4,7 +4,7 @@ import com.bsb.hike.models.ContactInfo.FavoriteType;
 
 public interface DBConstants
 {
-	public static final int CONVERSATIONS_DATABASE_VERSION = 43;
+	public static final int CONVERSATIONS_DATABASE_VERSION = 44;
 
 	public static final int USERS_DATABASE_VERSION = 17;
 
@@ -225,6 +225,22 @@ public interface DBConstants
 
 	public static final String IS_BOT_ENABLE = "bot_enabled";
 
+	public static final String MESSAGE_EVENT_TABLE = "messageEventTable";
+
+	public static final String EVENT_ID = "eventId";
+
+	public static final String EVENT_HASH = "eventHash";
+
+	public static final String EVENT_STATUS = "eventStatus";
+
+	public static final String MAPPED_EVENT_ID = "mappedEventId";
+
+	public static final String EVENT_HASH_INDEX = "eventHashIndex";
+
+	public static final String EVENT_METADATA = "eventMetadata";
+
+	public static final String EVENT_TYPE = "eventType";
+
 	// ActionsTable
 	public static final String ACTIONS_TABLE = "actions";
 
@@ -259,7 +275,7 @@ public interface DBConstants
 
 	public static interface HIKE_CONV_DB
 	{
-		// CHANNEL TABLE -> _id,channel_id,name,visibility,index 
+		// CHANNEL TABLE -> _id,channel_id,name,visibility,index
 		public static final String CHANNEL_TABLE = "channel";
 		public static final String CHANNEL_ID = "channel_id";
 		public static final String CHANNEL_NAME = "name";
@@ -343,6 +359,54 @@ public interface DBConstants
 		public static final String CONTENT_CACHE_TABLE = "contentCache";
 		public static final String KEY = "key";
 		public static final String HELPER_DATA = "helper_data";
+	}
+	
+	public static interface HIKE_PERSISTENCE
+	{
+		public static final String DATABASE_NAME = "mqttpersistence";
+
+		public static final int DATABASE_VERSION = 3;
+
+		public static final String MQTT_DATABASE_TABLE = "messages";
+
+		public static final String MQTT_MESSAGE_ID = "msgId";
+
+		public static final String MQTT_PACKET_ID = "mqttId";
+		
+		public static final String MQTT_PACKET_TYPE = "mqttType";
+
+		public static final String MQTT_MESSAGE = "data";
+
+		public static final String MQTT_MSG_ID_INDEX = "mqttMsgIdIndex";
+
+		public static final String MQTT_TIME_STAMP = "mqttTimeStamp";
+
+		//Added for Instrumentation
+		public static final String MQTT_MSG_TRACK_ID = "mqttMsgTrackId";
+		
+		//Added for Instrumentation
+		public static final String MQTT_MSG_MSG_TYPE = "mqttMsgMsgType";
+		
+		public static final String MQTT_TIME_STAMP_INDEX = "mqttTimeStampIndex";
+
+		public static final String OFFLINE_DATABASE_TABLE = "offlineMessages";
+
+		public static final String OFFLINE_MESSAGE_ID = "msgId";
+		
+		public static final String OFFLINE_MESSAGE = "data";
+		
+		public static final String OFFLINE_TIME_STAMP = "offlineTimeStamp";
+
+		public static final String OFFLINE_MSISDN = "offlineMsisdn";
+		
+		public static final String OFFLINE_PACKET_ID = "offlineId";
+
+		//Added for Instrumentation
+		public static final String OFFLINE_MSG_TRACK_ID = "offlineMsgTrackId";
+		
+		public static final String OFFLINE_MSG_ID_INDEX = "offlineMsgIdIndex";
+		
+		public static final String OFFLINE_TIME_STAMP_INDEX = "offlineTimeStampIndex";
 	}
 
 	public static final String CATEGORY_NAME = "categoryName";

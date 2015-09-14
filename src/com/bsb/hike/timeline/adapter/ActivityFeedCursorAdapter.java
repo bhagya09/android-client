@@ -5,11 +5,11 @@ import java.lang.ref.WeakReference;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
-import android.os.Build;
 import android.support.v7.widget.RecyclerView;
 import android.text.util.Linkify;
 import android.view.LayoutInflater;
@@ -34,7 +34,6 @@ import com.bsb.hike.timeline.model.FeedDataModel;
 import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
 import com.bsb.hike.timeline.view.TimelineSummaryActivity;
-import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.SmileyParser;
 import com.bsb.hike.utils.StealthModeManager;
@@ -173,7 +172,16 @@ public class ActivityFeedCursorAdapter extends RecyclerViewCursorAdapter<Activit
 			}
 			else
 			{
-				viewHolder.loveStatus.setVisibility(View.VISIBLE);
+				if (mActivity.get() != null)
+				{
+					ObjectAnimator loveScaleX = ObjectAnimator.ofFloat(viewHolder.loveStatus, "scaleX", 1f, 0.7f, 1.2f, 1f);
+					ObjectAnimator loveScaleY = ObjectAnimator.ofFloat(viewHolder.loveStatus, "scaleY", 1f, 0.7f, 1.2f, 1f);
+					loveScaleX.setStartDelay(500);
+					loveScaleY.setStartDelay(500);
+					loveScaleX.start();
+					loveScaleY.start();
+					viewHolder.loveStatus.setVisibility(View.VISIBLE);
+				}
 			}
 
 			roundAvatar1.setOval(true);
@@ -182,7 +190,7 @@ public class ActivityFeedCursorAdapter extends RecyclerViewCursorAdapter<Activit
 			if (viewType == TEXT)
 			{
 				SmileyParser smileyParser = SmileyParser.getInstance();
-				viewHolder.mainInfo.setText(smileyParser.addSmileySpans(mContext.getString(R.string.liked_your_post) +", " +statusMessage.getText()+". "+ Utils.getFormattedTime(true, mContext, feedDataModel.getTimestamp()), true));
+				viewHolder.mainInfo.setText(smileyParser.addSmileySpans(mContext.getString(R.string.liked_your_post) +", " +statusMessage.getText().trim()+". "+ Utils.getFormattedTime(true, mContext, feedDataModel.getTimestamp()), true));
 				Linkify.addLinks(viewHolder.mainInfo, Linkify.ALL);
 				viewHolder.mainInfo.setMovementMethod(null);
 				viewHolder.largeProfilePic.setVisibility(View.GONE);

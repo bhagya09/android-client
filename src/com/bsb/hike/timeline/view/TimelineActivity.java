@@ -10,6 +10,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -22,6 +23,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.view.WindowManager.BadTokenException;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -47,10 +49,8 @@ import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.media.OverFlowMenuItem;
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
-import com.bsb.hike.timeline.adapter.ActivityFeedCursorAdapter;
 import com.bsb.hike.ui.PeopleActivity;
 import com.bsb.hike.ui.ProfileActivity;
-import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
@@ -132,7 +132,9 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
+		getWindow().requestFeature(Window.FEATURE_CONTENT_TRANSITIONS);
 		super.onCreate(savedInstanceState);
+		getWindow().setBackgroundDrawable(new ColorDrawable(0xFFF4F4F7));
 		initialiseTimelineScreen(savedInstanceState);
 		accountPrefs = getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
 		showProductPopup(ProductPopupsConstants.PopupTriggerPoints.TIMELINE.ordinal());
@@ -154,6 +156,43 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 		}
 	}
 
+	@Override
+	protected void onNewIntent(Intent intent)
+	{
+		super.onNewIntent(intent);
+		if (intent.getBooleanExtra(HikeConstants.Extras.OPEN_ACTIVITY_FEED, false)) // We have to open ActivityFeedFragment
+		{
+			ActivityFeedFragment activityFeedFragment = (ActivityFeedFragment) getSupportFragmentManager().findFragmentByTag(FRAGMENT_ACTIVITY_FEED_TAG);
+			if(activityFeedFragment != null)
+			{
+				if(!activityFeedFragment.isAdded() || !activityFeedFragment.isVisible())
+				{
+					getSupportFragmentManager()
+					.beginTransaction()
+					.add(R.id.parent_layout, activityFeedFragment, FRAGMENT_ACTIVITY_FEED_TAG)
+					.addToBackStack(FRAGMENT_ACTIVITY_FEED_TAG)
+					.commit();
+				}
+			}
+			else
+			{
+				loadActivityFeedFragment();
+			}
+		}
+		else //We have to open UpdatesFragment
+		{
+			if(!isUpdatesFrgamentOnTop())
+			{
+				getSupportFragmentManager().popBackStack();
+				
+				ActionBar actionBar = getSupportActionBar();
+				View actionBarView = actionBar.getCustomView();
+				TextView title = (TextView) actionBarView.findViewById(R.id.title);
+				title.setText(R.string.timeline);
+			}
+		}
+	}
+	
 	private void initialiseTimelineScreen(Bundle savedInstanceState)
 	{
 		setContentView(R.layout.timeline);
@@ -186,7 +225,7 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 		if(mainFragment == null)
 		{
 			mainFragment = new UpdatesFragment();
-			getSupportFragmentManager().beginTransaction().add(R.id.parent_layout, mainFragment,MAIN_ACTIVITY_FEED_TAG).addToBackStack(MAIN_ACTIVITY_FEED_TAG).commit();
+			getSupportFragmentManager().beginTransaction().add(R.id.parent_layout, mainFragment,MAIN_ACTIVITY_FEED_TAG).commit();
 		}
 	}
 
@@ -465,24 +504,25 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 	@Override
 	public void onBackPressed()
 	{
+		//Get the number of pending backstack records
 		int count = getSupportFragmentManager().getBackStackEntryCount();
-		if (count <= 1)
+		
+		//If none, open home activity
+		if (count == 0)
 		{
 			IntentFactory.openHomeActivity(TimelineActivity.this, true);
-			getSupportFragmentManager().popBackStack();
-			super.onBackPressed();
 		}
+		//Else, found a backstack record, fragmentactivity will pop it, do actionbar changes
 		else 
 		{
-			getSupportFragmentManager().popBackStack();
 			ActionBar actionBar = getSupportActionBar();
 			View actionBarView = actionBar.getCustomView();
-
 			TextView title = (TextView) actionBarView.findViewById(R.id.title);
 			title.setText(R.string.timeline);	
-			
 		}
-
+		
+		//Let fragmentactivity do its thing (i.e. either pop backstack[count>0] or finish activity[count=0])
+		super.onBackPressed();
 	}
 
 	@Override
@@ -670,5 +710,11 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 		{
 			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
 		}
+	}
+	
+	public boolean isUpdatesFrgamentOnTop()
+	{
+		int count = getSupportFragmentManager().getBackStackEntryCount();
+		return count <= 1 ? true : false;
 	}
 }
