@@ -5,6 +5,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.lang.ref.WeakReference;
+import java.net.URISyntaxException;
 import java.net.URLEncoder;
 
 import org.json.JSONException;
@@ -19,6 +20,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
+import android.provider.Settings;
 import android.text.Html;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -46,6 +48,7 @@ import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.platform.CustomWebView;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.IFileUploadListener;
+import com.bsb.hike.platform.PlatformHelper;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.platform.content.PlatformContentConstants;
@@ -74,17 +77,17 @@ public abstract class JavascriptBridge
 	protected WeakReference<Activity> weakActivity;
 
 	public static final String tag = "JavascriptBridge";
-
+	
 	protected Handler mHandler;
 	
 	protected static final String REQUEST_CODE = "request_code";
 	
 	private static final int PICK_CONTACT_REQUEST = 1;
 
-	protected static final int PICK_CONTACT_AND_SEND_REQUEST = 2;
+	public static final int PICK_CONTACT_AND_SEND_REQUEST = 2;
 	
 	protected static final int CLOSE_WEB_VIEW = 3;
-
+	
 	public JavascriptBridge(Activity activity, CustomWebView mWebView)
 	{
 		this.mWebView = mWebView;
@@ -552,23 +555,11 @@ public abstract class JavascriptBridge
 			intent.putExtra(HikeConstants.Extras.COMPOSE_MODE, ComposeChatActivity.PICK_CONTACT_MODE);
 			intent.putExtra(tag, JavascriptBridge.this.hashCode());
 			intent.putExtra(REQUEST_CODE, PICK_CONTACT_REQUEST);
+			intent.putExtra(HikeConstants.Extras.THUMBNAILS_REQUIRED, true);
 			activity.startActivityForResult(intent, HikeConstants.PLATFORM_REQUEST);
 		}
 	}
 
-
-	protected void pickContactAndSend(ConvMessage message)
-	{
-		Activity activity = weakActivity.get();
-		if (activity != null)
-		{
-			final Intent intent = IntentFactory.getForwardIntentForConvMessage(activity, message, PlatformContent.getForwardCardData(message.webMetadata.JSONtoString()), false);
-			intent.putExtra(HikeConstants.Extras.COMPOSE_MODE, ComposeChatActivity.PICK_CONTACT_AND_SEND_MODE);
-			intent.putExtra(tag, JavascriptBridge.this.hashCode());
-			intent.putExtra(REQUEST_CODE, PICK_CONTACT_AND_SEND_REQUEST);
-			activity.startActivityForResult(intent, HikeConstants.PLATFORM_REQUEST);
-		}
-	}
 
 	public void onActivityResult(int requestCode, int resultCode, Intent data)
 	{
@@ -641,28 +632,6 @@ public abstract class JavascriptBridge
 		{
 			mWebView.loadUrl("javascript:onContactChooserResult('0','[]')");
 		}
-	}
-	
-	protected void startComPoseChatActivity(final ConvMessage message)
-	{
-		if (null == mHandler)
-		{
-			return;
-		}
-
-		mHandler.post(new Runnable()
-		{
-			@Override
-			public void run()
-			{
-				Activity mContext = weakActivity.get();
-				if (mContext != null)
-				{
-					final Intent intent = IntentFactory.getForwardIntentForConvMessage(mContext, message, PlatformContent.getForwardCardData(message.webMetadata.JSONtoString()), true);
-					mContext.startActivity(intent);
-				}
-			}
-		});
 	}
 
 	/**
@@ -1152,6 +1121,43 @@ public abstract class JavascriptBridge
 		if (mHandler != null)
 		{
 			mHandler.sendEmptyMessage(CLOSE_WEB_VIEW);
+		}
+	}
+	
+	public void pickContactAndSend(ConvMessage message)
+	{
+		PlatformHelper.pickContactAndSend(message, weakActivity.get(),JavascriptBridge.this.hashCode());
+	}
+	
+	public void sendSharedMessage(String cardObject, String hikeMessage, String sharedData, BotInfo mBotInfo)
+	{
+		PlatformHelper.sendSharedMessage(cardObject, hikeMessage, sharedData, mBotInfo, weakActivity.get(),JavascriptBridge.this.hashCode());
+	}
+
+	/**
+	 * Platform Version 6 Call this function to open a given Intent.
+	 * 
+	 * @param IntentName
+	 *            JS has to ensure the intent is a valid name, and has to provide the intent URI(e.g. android.settings.LOCATION_SOURCE_SETTINGS)
+	 */
+	@JavascriptInterface
+	public void openIntent(String intentURI)
+	{
+
+		Activity currActivity = weakActivity.get();
+		if (currActivity != null)
+		{
+			Intent intent;
+			try
+			{
+				intent = new Intent(Intent.parseUri(intentURI,0));
+			currActivity.startActivity(intent);
+			}
+			catch (URISyntaxException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 	}
 

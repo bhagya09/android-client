@@ -1,6 +1,5 @@
 package com.bsb.hike.platform.bridge;
 
-import com.bsb.hike.bots.BotUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -15,20 +14,18 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.adapters.ConversationsAdapter;
-import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.bots.BotInfo;
+import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.bots.NonMessagingBotConfiguration;
 import com.bsb.hike.bots.NonMessagingBotMetadata;
 import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.db.HikeConversationsDatabase;
-import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.platform.CustomWebView;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformHelper;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.ui.GalleryActivity;
 import com.bsb.hike.ui.WebViewActivity;
-import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
@@ -907,7 +904,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	@JavascriptInterface
 	public void sendSharedMessage(String cardObject, String hikeMessage, String sharedData)
 	{
-		PlatformHelper.sendSharedMessage(cardObject, hikeMessage, sharedData, mBotInfo, weakActivity.get());
+		sendSharedMessage(cardObject, hikeMessage, sharedData, mBotInfo);
 	}
 
 	/**
@@ -917,12 +914,22 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	 * @param messageHash : the message hash that determines the uniqueness of the card message, to which the data is being sent.
 	 * @param eventData   : the stringified json data to be sent. It should contain the following things :
 	 *                       "cd" : card data, "increase_unread" : true/false, "notification" : the string to be notified to the user,
-	 *                       "notification_sound" : true/ false, play sound or not, "parent_msisdn" : "msisdn of the parent bot".
+	 *                       "notification_sound" : true/ false, play sound or not.
 	 */
 	@JavascriptInterface
 	public void sendNormalEvent(String messageHash, String eventData)
 	{
-		PlatformHelper.sendNormalEvent(messageHash, eventData, mBotInfo.getNamespace());
+		try
+		{
+			JSONObject eventJson = new JSONObject(eventData);
+			eventJson.put(HikePlatformConstants.PARENT_MSISDN, mBotInfo.getMsisdn());
+			PlatformHelper.sendNormalEvent(messageHash, eventJson.toString(), mBotInfo.getNamespace());
+		}
+		catch (JSONException e)
+		{	
+			e.printStackTrace();
+		}
+
 	}
 	
 	/**
@@ -1070,6 +1077,19 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 			HikeMessengerApp.getPubSub().publish(HikePubSub.UNBLOCK_USER, msisdn);
 		}
 	}
+	
+	/**
+	 * Platform Version 6 <br>
+	 * This function is used for providing an ability to add a shortcut for a given bot.
+	 */
+	@JavascriptInterface
+	public void addShortCut()
+	{
+		if (weakActivity.get() != null)
+		{
+			Utils.createShortcut(weakActivity.get(), mBotInfo);
+		}
+	}
 
 	/**
 	 * Platform Version 6
@@ -1153,6 +1173,5 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 			BotUtils.deleteBotConversation(msisdn, false);
 		}
 	}
-
 
 }

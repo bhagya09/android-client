@@ -22,6 +22,7 @@ import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
 import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.notifications.HikeNotificationMsgStack;
+import com.bsb.hike.offline.OfflineManager;
 import com.bsb.hike.platform.PlatformAlarmManager;
 import com.bsb.hike.productpopup.NotificationContentModel;
 import com.bsb.hike.productpopup.ProductInfoManager;
@@ -298,7 +299,6 @@ public class HikeAlarmManager
 			AccountBackupRestore.getInstance(context).scheduleNextAutoBackup();
 			break;
 		case HikeAlarmManager.REQUESTCODE_PRODUCT_POPUP:
-			
 			Logger.d("ProductPopup","Alarm recieved in process Tasks");
 			String title = intent.getStringExtra(ProductPopupsConstants.NOTIFICATION_TITLE);
 			String text = intent.getStringExtra(ProductPopupsConstants.USER);

@@ -11,6 +11,7 @@ import com.bsb.hike.bots.NonMessagingBotMetadata;
 import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ConvMessage;
+import com.bsb.hike.platform.bridge.JavascriptBridge;
 import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.ui.ComposeChatActivity;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
@@ -115,7 +116,7 @@ public class PlatformHelper
 		PlatformUtils.sendPlatformMessageEvent(eventData, messageHash, namespace);
 	}
 
-	public static void sendSharedMessage(String cardObject, String hikeMessage, String sharedData, BotInfo mBotInfo, final Activity activity)
+	public static void sendSharedMessage(String cardObject, String hikeMessage, String sharedData, BotInfo mBotInfo, final Activity activity,int hashcode)
 	{
 		if (TextUtils.isEmpty(cardObject) || TextUtils.isEmpty(hikeMessage))
 		{
@@ -144,7 +145,8 @@ public class PlatformHelper
 			sharedDataJson.put(HikePlatformConstants.EVENT_TYPE, HikePlatformConstants.SHARED_EVENT);
 			message.setPlatformData(sharedDataJson);
 			message.setNameSpace(mBotInfo.getNamespace());
-			pickContactAndSend(message, activity);
+			pickContactAndSend(message, activity, hashcode);
+				
 
 		}
 		catch (JSONException e)
@@ -152,6 +154,11 @@ public class PlatformHelper
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+	
+	public static void sendSharedMessage(String cardObject, String hikeMessage, String sharedData, BotInfo mBotInfo, final Activity activity)
+	{
+		sendSharedMessage(sharedData, sharedData, sharedData, mBotInfo, activity, -1);
 	}
 
 	public static String getAllEventsForMessageHash(String messageHash, String namespace)
@@ -177,24 +184,22 @@ public class PlatformHelper
 		return messageData;
 	}
 
-	private static void pickContactAndSend(ConvMessage message, final Activity activity)
+	public static void pickContactAndSend(ConvMessage message, final Activity activity,int hashcode)
 	{
-		final String REQUEST_CODE = "request_code";
-
-		final int PICK_CONTACT_REQUEST = 1;
-
-		final int PICK_CONTACT_AND_SEND_REQUEST = 2;
 		if (activity != null)
 		{
 			final Intent intent = IntentFactory.getForwardIntentForConvMessage(activity, message, PlatformContent.getForwardCardData(message.webMetadata.JSONtoString()), false);
 			intent.putExtra(HikeConstants.Extras.COMPOSE_MODE, ComposeChatActivity.PICK_CONTACT_AND_SEND_MODE);
-			intent.putExtra(TAG, activity.hashCode());
-			intent.putExtra(REQUEST_CODE, PICK_CONTACT_AND_SEND_REQUEST);
+			if (hashcode<0)
+				intent.putExtra(JavascriptBridge.tag, hashcode);
+			intent.putExtra(HikePlatformConstants.REQUEST_CODE, JavascriptBridge.PICK_CONTACT_AND_SEND_REQUEST);
+			intent.putExtra(HikeConstants.Extras.THUMBNAILS_REQUIRED, true);
 			activity.startActivityForResult(intent, HikeConstants.PLATFORM_REQUEST);
+			
 		}
 	}
 
-	private static void startComPoseChatActivity(final ConvMessage message, final Activity mContext)
+	public static void startComPoseChatActivity(final ConvMessage message, final Activity mContext)
 	{
 		PlatformHelper.mHandler = new Handler(HikeMessengerApp.getInstance().getMainLooper());
 		if (null == mHandler)

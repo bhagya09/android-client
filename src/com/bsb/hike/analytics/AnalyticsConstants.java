@@ -471,4 +471,6 @@ public class AnalyticsConstants
 	public static final String TIMELINE_OPTION_TYPE = "ot";
 	
 	public static final String APP_CRASH_EVENT = "appCrash";
+	
+	public static final String BOT_NOTIF_TRACKER = "bno";
 }

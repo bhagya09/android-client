@@ -134,7 +134,7 @@ public abstract class ImageWorker
 		{
 			return;
 		}
-
+		
 		BitmapDrawable value = null;
 
 		if (setDefaultAvatarInitially)
@@ -182,6 +182,11 @@ public abstract class ImageWorker
 			}
 			else if (b == null && setDefaultAvatarIfNoCustomIcon)
 			{
+				String data = key;
+				int idx = data.lastIndexOf(ProfileActivity.PROFILE_PIC_SUFFIX);
+				if (idx > 0)
+					key = new String(data.substring(0, idx));
+				
 				setDefaultAvatar(imageView, key);
 				sendImageCallback(imageView);
 			}

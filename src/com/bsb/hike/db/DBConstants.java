@@ -360,6 +360,54 @@ public interface DBConstants
 		public static final String KEY = "key";
 		public static final String HELPER_DATA = "helper_data";
 	}
+	
+	public static interface HIKE_PERSISTENCE
+	{
+		public static final String DATABASE_NAME = "mqttpersistence";
+
+		public static final int DATABASE_VERSION = 3;
+
+		public static final String MQTT_DATABASE_TABLE = "messages";
+
+		public static final String MQTT_MESSAGE_ID = "msgId";
+
+		public static final String MQTT_PACKET_ID = "mqttId";
+		
+		public static final String MQTT_PACKET_TYPE = "mqttType";
+
+		public static final String MQTT_MESSAGE = "data";
+
+		public static final String MQTT_MSG_ID_INDEX = "mqttMsgIdIndex";
+
+		public static final String MQTT_TIME_STAMP = "mqttTimeStamp";
+
+		//Added for Instrumentation
+		public static final String MQTT_MSG_TRACK_ID = "mqttMsgTrackId";
+		
+		//Added for Instrumentation
+		public static final String MQTT_MSG_MSG_TYPE = "mqttMsgMsgType";
+		
+		public static final String MQTT_TIME_STAMP_INDEX = "mqttTimeStampIndex";
+
+		public static final String OFFLINE_DATABASE_TABLE = "offlineMessages";
+
+		public static final String OFFLINE_MESSAGE_ID = "msgId";
+		
+		public static final String OFFLINE_MESSAGE = "data";
+		
+		public static final String OFFLINE_TIME_STAMP = "offlineTimeStamp";
+
+		public static final String OFFLINE_MSISDN = "offlineMsisdn";
+		
+		public static final String OFFLINE_PACKET_ID = "offlineId";
+
+		//Added for Instrumentation
+		public static final String OFFLINE_MSG_TRACK_ID = "offlineMsgTrackId";
+		
+		public static final String OFFLINE_MSG_ID_INDEX = "offlineMsgIdIndex";
+		
+		public static final String OFFLINE_TIME_STAMP_INDEX = "offlineTimeStampIndex";
+	}
 
 	public static final String CATEGORY_NAME = "categoryName";
 

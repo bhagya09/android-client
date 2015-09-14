@@ -3,37 +3,41 @@ package com.bsb.hike.bots;
 import java.util.HashMap;
 import java.util.Map;
 
-import android.util.Base64;
-
-import com.bsb.hike.HikePubSub;
-import com.bsb.hike.models.ContactInfo;
-import com.bsb.hike.modules.contactmgr.ContactManager;
-import com.bsb.hike.platform.PlatformUtils;
-import com.bsb.hike.utils.Utils;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Context;
 import android.text.TextUtils;
+import android.util.Base64;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeConstants.NotificationType;
-import com.bsb.hike.HikeMessengerApp.CurrentState;
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.HikeMessengerApp.CurrentState;
+import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.db.HikeConversationsDatabase;
+import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
+import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.models.Conversation.ConvInfo;
+import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.modules.httpmgr.RequestToken;
+import com.bsb.hike.modules.httpmgr.exception.HttpException;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
+import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
+import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.content.PlatformContentConstants;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.Utils;
 
 /**
  * This class is for utility methods of bots
@@ -55,6 +59,8 @@ public class BotUtils
 	public static final String SHOW_UNREAD_COUNT_ZERO = "0";
 
 	public static final String SHOW_UNREAD_COUNT_ACTUAL = "-1";
+	
+	private static final String TAG = "BotUtils";
 
 	/**
 	 * adding default bots to bot hashmap. The config is set using {@link com.bsb.hike.bots.MessagingBotConfiguration}, where every bit is set according to the requirement
@@ -175,6 +181,7 @@ public class BotUtils
 	{
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.UPGRADE_FOR_DEFAULT_BOT_ENTRY, true);
 		initBots();
+		fetchBotIcons();
 	}
 	
 	/**
@@ -529,6 +536,64 @@ public class BotUtils
 			}
 		}
 		return NO_ANIMATION;
+	}
+	
+	/**
+	 * This method makes a HTTP Post Call to fetch avatar of a bot if it is not present in the HikeUserDb
+	 */
+	public static void fetchBotIcons()
+	{
+		HikeHandlerUtil mThread = HikeHandlerUtil.getInstance();
+		mThread.startHandlerThread();
+		mThread.postRunnableWithDelay(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				Logger.i(TAG, "Checking for bot icons");
+				for (final BotInfo mBotInfo : HikeMessengerApp.hikeBotInfoMap.values())
+				{
+					if (mBotInfo.isConvPresent() && !ContactManager.getInstance().hasIcon(mBotInfo.getMsisdn()))
+					{
+						Logger.i(TAG, "Making icon request for " + mBotInfo.getMsisdn() + mBotInfo.getConversationName());
+						RequestToken botRequestToken = HttpRequests.getAvatarForBots(mBotInfo.getMsisdn(), new IRequestListener()
+						{
+							@Override
+							public void onRequestSuccess(Response result)
+							{
+								byte[] response = (byte[]) result.getBody().getContent();
+
+								Logger.i(TAG, "Bot icon request successful for " + mBotInfo.getMsisdn());
+								if (response != null && response.length > 0)
+								{
+									ContactManager.getInstance().setIcon(mBotInfo.getMsisdn(), response, false);
+									HikeMessengerApp.getLruCache().clearIconForMSISDN(mBotInfo.getMsisdn());
+									HikeMessengerApp.getPubSub().publish(HikePubSub.ICON_CHANGED, mBotInfo.getMsisdn());
+								}
+
+							}
+
+							@Override
+							public void onRequestProgressUpdate(float progress)
+							{
+							}
+
+							@Override
+							public void onRequestFailure(HttpException httpException)
+							{
+								Logger.i(
+										TAG,
+										"Bot icon request failed for " + mBotInfo + " Reason :  " + httpException.getMessage() + " Error Code "
+												+ httpException.getErrorCode());
+							}
+						});
+
+						botRequestToken.execute();
+					}
+
+				}
+			}
+		}, 0);
 	}
 
 }

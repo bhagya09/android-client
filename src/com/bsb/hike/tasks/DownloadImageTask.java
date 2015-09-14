@@ -38,7 +38,7 @@ public class DownloadImageTask extends AsyncTask<Void, Void, Boolean>
 	{
 		try
 		{
-			Utils.downloadAndSaveFile(context, destFile, imageUri);
+			Utils.downloadAndSaveFile(context.getContentResolver(), destFile, imageUri);
 			return Boolean.TRUE;
 		}
 		catch (Exception e)
