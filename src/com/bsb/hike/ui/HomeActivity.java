@@ -1241,15 +1241,10 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		{
 			runOnUiThread( new Runnable()
 			{
-
 				@Override
 				public void run()
 				{
-					updateHomeOverflowToggleCount(getHomeOverflowCount(accountPrefs, false, false), 0);
-					if (null != overflowAdapter)
-					{
-						overflowAdapter.notifyDataSetChanged();
-					}
+					showTimelineUpdatesDot(1000);
 				}
 			});
 		}
