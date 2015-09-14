@@ -1,6 +1,5 @@
 package com.bsb.hike.platform.bridge;
 
-import com.bsb.hike.bots.BotUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -15,20 +14,18 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.adapters.ConversationsAdapter;
-import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.bots.BotInfo;
+import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.bots.NonMessagingBotConfiguration;
 import com.bsb.hike.bots.NonMessagingBotMetadata;
 import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.db.HikeConversationsDatabase;
-import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.platform.CustomWebView;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformHelper;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.ui.GalleryActivity;
 import com.bsb.hike.ui.WebViewActivity;
-import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
@@ -1080,6 +1077,22 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 			HikeMessengerApp.getPubSub().publish(HikePubSub.UNBLOCK_USER, msisdn);
 		}
 	}
+	
+	/**
+	 * Platform Version 6 <br>
+	 * This function is used for providing an ability to add a shortcut for a given bot.
+	 * 
+	 * @param msisdn
+	 *            - The msisdn of the bot whose shortcut is to be created
+	 */
+	@JavascriptInterface
+	public void addShortCut()
+	{
+		if (weakActivity.get() != null)
+		{
+			Utils.createShortcut(weakActivity.get(), mBotInfo);
+		}
+	}
 
 	/**
 	 * Platform Version 6
@@ -1163,6 +1176,5 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 			BotUtils.deleteBotConversation(msisdn, false);
 		}
 	}
-
 
 }
