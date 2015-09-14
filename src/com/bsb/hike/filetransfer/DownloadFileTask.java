@@ -167,6 +167,7 @@ public class DownloadFileTask extends FileTransferBase
 					return FTResult.DOWNLOAD_FAILED;
 				}
 				
+				long time = System.currentTimeMillis();
 				mUrl = getUpdatedURL(mUrl, "Downloading File", FTAnalyticEvents.DOWNLOAD_FILE_TASK, getDownloadURL(hikeFile));
 
 				conn = initConn();
@@ -272,6 +273,11 @@ public class DownloadFileTask extends FileTransferBase
 							FTAnalyticEvents.logDevException(FTAnalyticEvents.DOWNLOAD_DATA_WRITE, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "file", "CARD_UNMOUNT : ", e);
 							return FTResult.CARD_UNMOUNT;
 						}
+						boolean isCompleted = numRead == -1 ? true : false;
+						String contentRange = "bytes " + mStart + "-" + (mStart + byteRead) + "/" + _totalSize;
+						int netType = Utils.getNetworkType(context);
+						FTAnalyticEvents.logFTProcessingTime(FTAnalyticEvents.DOWNLOAD_FILE_TASK, fileKey, isCompleted, byteRead, (System.currentTimeMillis() - time), contentRange, netType, hikeFile.getFileTypeString());
+						time = System.currentTimeMillis();
 						Logger.d(getClass().getSimpleName(), "ChunkSize : " + chunkSize + "Bytes");
 						data = new byte[chunkSize];
 						// increase the startByte for resume later

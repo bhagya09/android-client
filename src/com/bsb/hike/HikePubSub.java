@@ -384,6 +384,8 @@ public class HikePubSub implements Runnable
 	
 	public static final String PLATFORM_CARD_ALARM = "platformCardAlarm";
 
+	public static final String MESSAGE_EVENT_RECEIVED = "messageEventReceived";
+
 	public static final String CONVERSATION_TS_UPDATED = "conversationTSUpdated";
 	
 	public static final String CONVERSATION_DELETED = "conversationDeleted";
@@ -396,15 +398,23 @@ public class HikePubSub implements Runnable
 	
 	public static final String SHARED_WHATSAPP = "sharedWhatsApp";
 
+	public static final String OFFLINE_THEME_CHANGE_MESSAGE = "offlineThemeChangeMessage";
+	
 	public static final String NOTIF_DATA_RECEIVED = "notifDataReceived";
 	
 	public static final String UPDATE_LAST_MSG_STATE = "updateLastMsgState";
 	
+	public static final String OFFLINE_FILE_COMPLETED = "offlineFileCompleted";
+
 	public static final String STICKER_RECOMMEND_PREFERENCE_CHANGED = "stickerRecommendPreferenceChanged";
 
 	public static final String STICKER_SHOP_DOWNLOAD_SUCCESS = "stickerShopDownloadSucess";
 	
 	public static final String STICKER_SHOP_DOWNLOAD_FAILURE = "stickerShopDownloadFailure";
+
+	public static final String OFFLINE_MESSAGE_SENT = "offlineMessageSent";
+	
+	public static final String UPDATE_MESSAGE_ORIGIN_TYPE = "updateMsgOriTyp";
 
 	public static final String PORTS_CHANGED = "portsChanged";
 
@@ -423,6 +433,10 @@ public class HikePubSub implements Runnable
 	public static final String ACTIVITY_FEED_COUNT_CHANGED = "update_activity_feed_icon_notification";
 	
 	public static final String TIMELINE_FTUE_LIST_UPDATE = "timeline_ftue_list_update";
+
+	public static final String ON_OFFLINE_REQUEST = "on_offline_request";
+	
+	public static final String PLATFORM_CARD_EVENT_SENT = "platformCardEventSent";
 	
 	private final Thread mThread;
 
