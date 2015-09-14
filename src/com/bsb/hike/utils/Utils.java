@@ -6620,8 +6620,11 @@ public class Utils
 	/**
 	 * Determine whether supplied String is actually empty or not.
 	 * 
-	 * @param String
-	 *            to be checked
+	 * @param s
+	 * 			String to be checked
+	 * @return
+	 * 			True, if string contains only white spaces or it is empty.
+	 * 			False, if string containes at least one non-white space character.
 	 * @author Ved Prakash Singh [ved@hike.in]
 	 */
 	public static boolean isBlank(final CharSequence s)
@@ -6860,8 +6863,11 @@ public class Utils
 	/**
 	 * Determine whether supplied module is being tested.
 	 * 
-	 * @param String
-	 *            of module name
+	 * @param moduleName
+	 * 			String name of the module being analysed
+	 * @return
+	 * 			True, if test mode is enabled for given module.
+	 * 			False, otherwise.
 	 * @author Ved Prakash Singh [ved@hike.in]
 	 */
 	public static boolean isTestMode(String moduleName)
@@ -6951,6 +6957,18 @@ public class Utils
 		return false;
 	}
 
+	/**
+	 * Determine whether databse recognized by given instance contains given table or not.
+	 * 
+	 * @param db
+	 * 			Instance of SQLiteDatabase, which possibly contains given table.
+	 * @param tableName
+	 * 			String name of table to check whether such table exists in database or not.
+	 * @return
+	 * 			True, if given table exists in database recognized by given instance.
+	 * 			False, otheriwse.
+	 * @author Ved Prakash Singh [ved@hike.in]
+	 */
 	public static boolean isTableExists(SQLiteDatabase db, String tableName)
 	{
 		if ((tableName != null) && (db != null) && db.isOpen())
@@ -6961,7 +6979,7 @@ public class Utils
 				c = db.rawQuery("SELECT COUNT(*) FROM sqlite_master WHERE type=? AND name=?", new String[] { "table", tableName });
 				if ((c != null) && c.moveToFirst())
 				{
-					return c.getInt(0) > 0;
+					return (c.getInt(0) > 0);
 				}
 			}
 			catch (Exception e)
@@ -7138,17 +7156,19 @@ public class Utils
 	}
 
 	/**
-	 * Get differential time logging upto nano second
+	 * Get differential time logging upto nano second.
 	 * 
-	 * @param long
-	 *            start time
-	 * @param long
-	 *            end time
-	 * @param int
-	 *            precision points count in time unit
+	 * @param start
+	 * 			start time of operation as long value
+	 * @param end
+	 * 			end time of operation as long value
+	 * @param precisionOfTimeUnitInSecond
+	 * 			count of precision points in time unit per second
+	 * @return
+	 * 			Human-readable string of time logging.
 	 * @author Ved Prakash Singh [ved@hike.in]
 	 */
-	public static String getExecutionTimeLog(long start, long end, int precisionInTimeUnitSecond)
+	public static String getExecutionTimeLog(long start, long end, int precisionOfTimeUnitInSecond)
 	{
 		StringBuilder timeLogBuilder = new StringBuilder();
 		String second = " s";
@@ -7165,66 +7185,57 @@ public class Utils
 			diff = 0;
 		}
 
-		switch (precisionInTimeUnitSecond)
+		switch (precisionOfTimeUnitInSecond)
 		{
 		case PRECISION_UNIT_SECOND:
-			timeLogBuilder.append(diff);
-			timeLogBuilder.append(second);
+			timeLogBuilder.append(diff).append(second);
 			break;
 
 		case PRECISION_UNIT_MILLI_SECOND:
+		{
 			int unitInSecond = (int) Math.pow(10, PRECISION_UNIT_MILLI_SECOND);
 			long sec = diff / unitInSecond;
-			timeLogBuilder.append(sec);
-			timeLogBuilder.append(second);
-			timeLogBuilder.append(delimiter);
+			timeLogBuilder.append(sec).append(second).append(delimiter);
 			long milliSec = diff - (sec * unitInSecond);
-			timeLogBuilder.append(milliSec);
-			timeLogBuilder.append(milliSecond);
+			timeLogBuilder.append(milliSec).append(milliSecond);
 			break;
-
+		}
 		case PRECISION_UNIT_MICRO_SECOND:
-			unitInSecond = (int) Math.pow(10, PRECISION_UNIT_MICRO_SECOND);
-			sec = diff / unitInSecond;
-			timeLogBuilder.append(sec);
-			timeLogBuilder.append(second);
-			timeLogBuilder.append(delimiter);
+		{
+			int unitInSecond = (int) Math.pow(10, PRECISION_UNIT_MICRO_SECOND);
+			long sec = diff / unitInSecond;
+			timeLogBuilder.append(sec).append(second).append(delimiter);
 			diff = diff - (sec * unitInSecond);
 			int unitInMilliSecond = (int) Math.pow(10, (PRECISION_UNIT_MICRO_SECOND - PRECISION_UNIT_MILLI_SECOND));
-			milliSec = diff / unitInMilliSecond;
-			timeLogBuilder.append(milliSec);
-			timeLogBuilder.append(milliSecond);
-			timeLogBuilder.append(delimiter);
+			long milliSec = diff / unitInMilliSecond;
+			timeLogBuilder.append(milliSec).append(milliSecond).append(delimiter);
 			long microSec = diff - (milliSec * unitInMilliSecond);
-			timeLogBuilder.append(microSec);
-			timeLogBuilder.append(microSecond);
+			timeLogBuilder.append(microSec).append(microSecond);
 			break;
+		}
 
 		case PRECISION_UNIT_NANO_SECOND:
-			unitInSecond = (int) Math.pow(10, PRECISION_UNIT_NANO_SECOND);
-			sec = diff / unitInSecond;
-			timeLogBuilder.append(sec);
-			timeLogBuilder.append(second);
-			timeLogBuilder.append(delimiter);
+		{
+			int unitInSecond = (int) Math.pow(10, PRECISION_UNIT_NANO_SECOND);
+			long sec = diff / unitInSecond;
+			timeLogBuilder.append(sec).append(second).append(delimiter);
 			diff = diff - (sec * unitInSecond);
-			unitInMilliSecond = (int) Math.pow(10, (PRECISION_UNIT_NANO_SECOND - PRECISION_UNIT_MILLI_SECOND));
-			milliSec = diff / unitInMilliSecond;
-			timeLogBuilder.append(milliSec);
-			timeLogBuilder.append(milliSecond);
-			timeLogBuilder.append(delimiter);
+			int unitInMilliSecond = (int) Math.pow(10, (PRECISION_UNIT_NANO_SECOND - PRECISION_UNIT_MILLI_SECOND));
+			long milliSec = diff / unitInMilliSecond;
+			timeLogBuilder.append(milliSec).append(milliSecond).append(delimiter);
 			diff = diff - (milliSec * unitInMilliSecond);
 			int unitInMicroSecond = (int) Math.pow(10, (PRECISION_UNIT_NANO_SECOND - PRECISION_UNIT_MICRO_SECOND));
-			microSec = diff / unitInMicroSecond;
-			timeLogBuilder.append(microSec);
-			timeLogBuilder.append(microSecond);
-			timeLogBuilder.append(delimiter);
+			long microSec = diff / unitInMicroSecond;
+			timeLogBuilder.append(microSec).append(microSecond).append(delimiter);
 			long nanoSec = diff - (microSec * unitInMicroSecond);
-			timeLogBuilder.append(nanoSec);
-			timeLogBuilder.append(nanoSecond);
+			timeLogBuilder.append(nanoSec).append(nanoSecond);
 			break;
+		}
 
 		default:
+		{
 			Logger.w(tag, "Unable to determine time units.");
+		}
 		}
 
 		return timeLogBuilder.toString();
