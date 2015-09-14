@@ -11,6 +11,7 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 
 public class UpgradeIntentService extends IntentService
@@ -96,6 +97,19 @@ public class UpgradeIntentService extends IntentService
 				editor.commit();
 			}
 		}
+		
+		// This value is set as 1 in onUpgrade of HikeConversationsDatabase.
+		if (prefs.getInt(HikeMessengerApp.UPGRADE_SORTING_ID_FIELD, 0) == 1)
+		{
+			if (upgradeForSortingIdField())
+			{
+				Logger.v(TAG, "Upgrade Sorting Id Field was successful");
+				Editor editor = prefs.edit();
+				editor.putInt(HikeMessengerApp.UPGRADE_SORTING_ID_FIELD, 2);
+				editor.putBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false);
+				editor.commit();
+			}
+		}
 
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.UPGRADING, false);
 		HikeMessengerApp.getPubSub().publish(HikePubSub.FINISHED_UPGRADE_INTENT_SERVICE, null);
@@ -132,5 +146,10 @@ public class UpgradeIntentService extends IntentService
 	private boolean upgradeForServerIdField()
 	{
 		return HikeConversationsDatabase.getInstance().upgradeForServerIdField();
+	}
+	
+	private boolean upgradeForSortingIdField()
+	{
+		return HikeConversationsDatabase.getInstance().upgradeForSortingIdField();
 	}
 }
