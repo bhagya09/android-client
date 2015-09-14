@@ -21,6 +21,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.content.pm.ActivityInfo;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -81,6 +82,7 @@ import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.http.HikeHttpRequest;
 import com.bsb.hike.http.HikeHttpRequest.RequestType;
+import com.bsb.hike.imageHttp.HikeImageUploader;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.models.ConvMessage;
@@ -104,6 +106,7 @@ import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.smartImageLoader.IconLoader;
+import com.bsb.hike.tasks.DownloadImageTask;
 import com.bsb.hike.tasks.FinishableEvent;
 import com.bsb.hike.tasks.GetHikeJoinTimeTask;
 import com.bsb.hike.tasks.HikeHTTPTask;
@@ -129,6 +132,34 @@ import com.bsb.hike.voip.VoIPUtils;
 public class ProfileActivity extends ChangeProfileImageBaseActivity implements FinishableEvent, Listener, OnLongClickListener, OnItemLongClickListener, OnScrollListener,
 		View.OnClickListener
 {
+
+	class ProfileActivityState extends ChangeProfileImageActivityState
+	{
+		public String deleteStatusId;
+
+		public RequestToken deleteStatusToken;
+
+		public StatusMessageType statusMsgType;
+
+		public int genderType;
+
+		public boolean groupEditDialogShowing = false;
+
+		public String edittedGroupName = null;
+
+		/* the task to update the global profile */
+		public HikeHTTPTask task;
+		
+		public void setStateValues(ChangeProfileImageActivityState state)
+		{
+			this.deleteAvatarToken = state.deleteAvatarToken;
+			this.deleteAvatarStatusId = state.deleteAvatarStatusId;
+			this.destFilePath = state.destFilePath;
+			this.downloadPicasaImageTask = state.downloadPicasaImageTask;
+			this.mImageWorkerFragment = state.mImageWorkerFragment;
+		}
+	}
+
 	private TextView mName;
 	
 	private EditText mNameEdit;
@@ -139,7 +170,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 
 	private String mLocalMSISDN = null;
 
-	private ActivityState mActivityState; /* config state of this activity */
+	private ProfileActivityState mActivityState; /* config state of this activity */
 
 	private String nameTxt;
 
@@ -248,6 +279,11 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 	public Object onRetainCustomNonConfigurationInstance()
 	{
 		Logger.d("ProfileActivity", "onRetainNonConfigurationinstance");
+		Object obj = super.onRetainCustomNonConfigurationInstance();
+		if (obj instanceof ChangeProfileImageActivityState)
+		{
+			mActivityState.setStateValues((ChangeProfileImageActivityState) obj);
+		}
 		return mActivityState;
 	}
 	
@@ -326,9 +362,9 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		preferences = getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, MODE_PRIVATE);
 		smileyParser = SmileyParser.getInstance();
 		Object o = getLastCustomNonConfigurationInstance();
-		if (o instanceof ActivityState)
+		if (o instanceof ProfileActivityState)
 		{
-			mActivityState = (ActivityState) o;
+			mActivityState = (ProfileActivityState) o;
 			if (mActivityState.task != null)
 			{
 				/* we're currently executing a task, so show the progress dialog */
@@ -347,7 +383,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		}
 		else
 		{
-			mActivityState = new ActivityState();
+			mActivityState = new ProfileActivityState();
 		}
 
 		if (getIntent().hasExtra(HikeConstants.Extras.EXISTING_GROUP_CHAT) || getIntent().hasExtra(HikeConstants.Extras.EXISTING_BROADCAST_LIST))
@@ -366,6 +402,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		}
 		else if(getIntent().hasExtra(HikeConstants.Extras.CONTACT_INFO_TIMELINE))
 		{
+			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 			setContentView(R.layout.profile);
 			View parent = findViewById(R.id.parent_layout);
 			getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
@@ -397,6 +434,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			}
 			else
 			{
+				setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 				setContentView(R.layout.profile);
 				View parent = findViewById(R.id.parent_layout);
 				getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
@@ -1664,8 +1702,6 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 	@Override
 	public void onFinish(boolean success)
 	{
-		super.onFinish(success);
-		
 		if (mDialog != null)
 		{
 			mDialog.dismiss();
@@ -2852,7 +2888,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			@Override
 			public void onClick(DialogInterface dialog, int which)
 			{
-				mActivityState.statusId = statusMessage.getMappedId();
+				mActivityState.deleteStatusId = statusMessage.getMappedId();
 				mActivityState.statusMsgType = statusMessage.getStatusMessageType();
 				showDeleteStatusConfirmationDialog();
 			}
@@ -2899,18 +2935,18 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			public void onRequestSuccess(Response result)
 			{
 				dismissLoadingDialog();
-				HikeMessengerApp.getPubSub().publish(HikePubSub.DELETE_STATUS, mActivityState.statusId);
+				HikeMessengerApp.getPubSub().publish(HikePubSub.DELETE_STATUS, mActivityState.deleteStatusId);
 
-				iterateAndDeleteDPStatusFromOwnTimeline(mActivityState.statusId);
+				iterateAndDeleteDPStatusFromOwnTimeline(mActivityState.deleteStatusId);
 
 				// update the preference value used to store latest dp change status update id
-				if (preferences.getString(HikeMessengerApp.DP_CHANGE_STATUS_ID, "").equals(mActivityState.statusId)
+				if (preferences.getString(HikeMessengerApp.DP_CHANGE_STATUS_ID, "").equals(mActivityState.deleteStatusId)
 						&& mActivityState.statusMsgType.equals(StatusMessageType.PROFILE_PIC))
 				{
 					clearDpUpdatePref();
 				}
 				mActivityState.deleteStatusToken = null;
-				mActivityState.statusId = null;
+				mActivityState.deleteStatusId = null;
 				profileAdapter.notifyDataSetChanged();
 			}
 			
@@ -2924,7 +2960,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			public void onRequestFailure(HttpException httpException)
 			{
 				mActivityState.deleteStatusToken = null;
-				mActivityState.statusId = null;
+				mActivityState.deleteStatusId = null;
 				dismissLoadingDialog();
 				showErrorToast(R.string.delete_status_error, Toast.LENGTH_LONG);
 			}
@@ -2933,8 +2969,18 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 	}
 	
 	private void deleteStatus()
-	{ 
-		mActivityState.deleteStatusToken = HttpRequests.deleteStatusRequest(mActivityState.statusId, getDeleteStatusRequestListener());
+	{
+		JSONObject json = null;
+		try
+		{
+			json = new JSONObject();
+			json.put(HikeConstants.STATUS_ID, mActivityState.deleteStatusId);
+		}
+		catch (JSONException e)
+		{
+			Logger.e(TAG, "exception while deleting status : " + e);
+		}
+		mActivityState.deleteStatusToken = HttpRequests.deleteStatusRequest(json, getDeleteStatusRequestListener());
 		mActivityState.deleteStatusToken.execute();
 		mDialog = ProgressDialog.show(this, null, getString(R.string.deleting_status));
 	}

@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import com.bsb.hike.platform.content.PlatformContentConstants;
 import org.acra.ACRA;
 import org.acra.ErrorReporter;
 import org.acra.ReportField;
@@ -35,7 +36,6 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.util.Pair;
 import android.widget.Toast;
 
-import com.bsb.hike.ag.NetworkAgModule;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.chatHead.ChatHeadUtils;
@@ -954,8 +954,6 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 		
 		bottomNavBarHeightPortrait = Utils.getBottomNavBarHeight(getApplicationContext());
 		bottomNavBarWidthLandscape = Utils.getBottomNavBarWidth(getApplicationContext());
-		
-		NetworkAgModule.startLogging();
 	}
 
 	private void initImportantAppComponents(SharedPreferences prefs)
@@ -1108,6 +1106,10 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 
 		folder = new File(root + HikeConstants.OTHER_ROOT + HikeConstants.SENT_ROOT);
 		Utils.makeNoMediaFile(folder);
+
+		folder = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR);
+		Utils.makeNoMediaFile(folder, true);
+
 	}
 
 	public static HikePubSub getPubSub()

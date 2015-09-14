@@ -16,6 +16,7 @@ import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.platform.CustomWebView;
 import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.platform.PlatformHelper;
 import com.bsb.hike.platform.WebMetadata;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
@@ -208,7 +209,7 @@ public class MessagingBridge_Nano extends JavascriptBridge
 				}
 			}
 
-			startComPoseChatActivity(message);
+			PlatformHelper.startComPoseChatActivity(message,weakActivity.get());
 		}
 		catch (JSONException e)
 		{
@@ -268,6 +269,7 @@ public class MessagingBridge_Nano extends JavascriptBridge
 			jsonObject.put(HikePlatformConstants.IS_SENT, message.isSent());
 			jsonObject.put(HikePlatformConstants.PROFILING_TIME, profilingTime);
 			jsonObject.put(HikePlatformConstants.NAMESPACE, message.getNameSpace());
+			jsonObject.put(HikePlatformConstants.MESSAGE_HASH, HikeConversationsDatabase.getInstance().getMessageHashFromMessageId(message.getMsgID()));
 			Logger.d(tag, "init called with:" + jsonObject.toString());
 			mWebView.loadUrl("javascript:init('" + jsonObject.toString() + "')");
 		}
@@ -365,6 +367,11 @@ public class MessagingBridge_Nano extends JavascriptBridge
 	{
 		Logger.i(tag, "update metadata called " + json + " , message id=" + message.getMsgID() + " notifyScren is " + notifyScreen);
 		updateMetadata(MessagingBotBridgeHelper.updateMetadata((int)message.getMsgID(), json), notifyScreen);
+	}
+
+	public void eventReceived(String event)
+	{
+		mWebView.loadUrl("javascript:eventReceived(" + "'" + getEncodedDataForJS(event) + "')");
 	}
 
 }
