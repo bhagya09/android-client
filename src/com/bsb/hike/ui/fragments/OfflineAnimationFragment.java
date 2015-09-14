@@ -165,28 +165,28 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 		switch (msg.what)
 		{
 		case UPDATE_ANIMATION_MESSAGE:
-			if (!isOfflineConnected())
+			if (isConnetingOffline())
 			{
-				updateAnimationText(connectionInfoTextView, (String) (msg.obj), false,false);
+				updateAnimationText(connectionInfoTextView, (String) (msg.obj), false,true);
 			}
 			break;
 		case UPDATE_ANIMATION_SECOND_MESSAGE:
 			if (timerDuration > 0)
 			{
-				if (!isOfflineConnected())
+				if (isConnetingOffline())
 					updateAnimationText(connectionHintTextView, (String) msg.obj, false,true);
 			}
 			break;
 		case START_TIMER:
-			if (!isOfflineConnected())
+			if (isConnetingOffline())
 			{
 				if (timerDuration > 0)
 				{
-					updateAnimationText(connectionInfoTextView, "" + timerDuration / 1000, true,false);
+					updateAnimationText(connectionInfoTextView, "" + timerDuration / 1000, true,true);
 				}
 				else
 				{
-					updateAnimationText(connectionInfoTextView, getString(R.string.disconnecting_offline), false,false);
+					updateAnimationText(connectionInfoTextView, getString(R.string.disconnecting_offline), false,true);
 				}
 
 			}
@@ -195,9 +195,9 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 		
 	}
 	
-	public boolean isOfflineConnected()
+	public boolean isConnetingOffline()
 	{
-		return OfflineUtils.isConnectedToSameMsisdn(msisdn);
+		return OfflineUtils.isConnectingToSameMsisdn(msisdn);
 	}
 	
 	private void startTimer()
@@ -231,9 +231,9 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 	 * @param source This is the textview to set text to 
 	 * @param message This is the text message to put in textview
 	 * @param startTimer This boolean indicates whether to start timer after updating text
-	 * @param checkAndDontShowIfConnected This boolean indicates if we dont want to change text if connected 
+	 * @param checkAndDontShowIfNotInConnectingState This boolean indicates if we dont want to change text if connected or diconnected
 	 */
-	private void updateAnimationText(final TextView source,final String message,final boolean startTimer,final boolean checkAndDontShowIfConnected)
+	private void updateAnimationText(final TextView source,final String message,final boolean startTimer,final boolean checkAndDontShowIfNotInConnectingState)
 	{
 		
 		AlphaAnimation  disappearAnimation = new AlphaAnimation(1.0f, 0.0f);
@@ -277,9 +277,9 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 			{
 				if(isAdded())
 				{
-					if(checkAndDontShowIfConnected)
+					if(checkAndDontShowIfNotInConnectingState)
 					{
-						if(!OfflineUtils.isConnectedToSameMsisdn(msisdn))
+						if(isConnetingOffline())
 						{
 							source.setText(message);
 						}
