@@ -334,7 +334,7 @@ public class OfflineController
 
 	public boolean isConnected()
 	{
-		return false;
+		return ( offlineState == OFFLINE_STATE.CONNECTED);
 	}
 
 	public void shutDown()
