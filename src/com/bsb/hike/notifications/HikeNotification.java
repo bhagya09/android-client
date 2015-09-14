@@ -1059,24 +1059,15 @@ public class HikeNotification
 		// Moves the big view style object into the notification object.
 		mBuilder.setStyle(inBoxStyle);
 		
-		if (BotUtils.isBot(msisdn))
+		//Handling separately for NM Bots because for NM bots, on pressing back/up, the user must be brought to the conversation list. (AND-2692)
+		if (BotUtils.isBot(msisdn) && BotUtils.getBotInfoForBotMsisdn(msisdn).isNonMessagingBot())
 		{
-			BotInfo mInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
-			if (mInfo.isNonMessagingBot())
-			{
 				setNotificationIntentForBuilderWithBackStack(mBuilder, notificationIntent, notificationId, retryCount);
-			}
-			else
-			{
-				setNotificationIntentForBuilder(mBuilder, notificationIntent,notificationId,retryCount);
-			}
 		}
 		else
 		{
 			setNotificationIntentForBuilder(mBuilder, notificationIntent,notificationId,retryCount);
 		}
-
-		
 
 		if (!sharedPreferences.getBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false))
 		{
@@ -1124,23 +1115,16 @@ public class HikeNotification
 		// Moves the big view style object into the notification object.
 		mBuilder.setStyle(bigTextStyle);
 		
-		if (BotUtils.isBot(msisdn))
+		//Handling separately for NM Bots because for NM bots, on pressing back/up, the user must be brought to the conversation list. (AND-2692)
+		if (BotUtils.isBot(msisdn) && BotUtils.getBotInfoForBotMsisdn(msisdn).isNonMessagingBot())
 		{
-			BotInfo mInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
-			if (mInfo.isNonMessagingBot())
-			{
 				setNotificationIntentForBuilderWithBackStack(mBuilder, notificationIntent, notificationId, retryCount);
-			}
-			else
-			{
-				setNotificationIntentForBuilder(mBuilder, notificationIntent,notificationId,retryCount);
-			}
 		}
 		else
 		{
 			setNotificationIntentForBuilder(mBuilder, notificationIntent,notificationId,retryCount);
 		}
-
+		
 		if (!sharedPreferences.getBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false))
 		{
 			notifyNotification(notificationId, mBuilder);
@@ -1393,11 +1377,6 @@ public class HikeNotification
 		mBuilder.setContentIntent(contentIntent);
 		
 		setOnDeleteIntent(mBuilder, notificationId, retryCount);
-	}
-	
-	public void setNotificationIntentForBuilderWithBackStack(NotificationCompat.Builder mBuilder, Intent notificationIntent,int notificationId)
-	{
-		setNotificationIntentForBuilderWithBackStack(mBuilder, notificationIntent, notificationId,0);
 	}
 	
 	public void setNotificationIntentForBuilderWithBackStack(NotificationCompat.Builder mBuilder, Intent notificationIntent,int notificationId,int retryCount)
