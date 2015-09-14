@@ -815,7 +815,7 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 	 * @param mute : send true to mute the bot in Conversation Fragment and false to unmute.
 	 */
 	@JavascriptInterface
-	public void muteBot(String mute)
+	public void muteParentBot(String mute)
 	{
 
 		if (!BotUtils.isBot(message.webMetadata.getParentMsisdn()))
@@ -835,7 +835,7 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 	 * @param id : the id of the function that native will call to call the js .
 	 */
 	@JavascriptInterface
-	public void isBotMute(String id)
+	public void isParentBotMute(String id)
 	{
 		if (!BotUtils.isBot(message.webMetadata.getParentMsisdn()))
 		{
