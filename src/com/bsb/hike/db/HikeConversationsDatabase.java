@@ -7962,6 +7962,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		{
 			botInfo.setLastConversationMsg(convMessage);
 			botInfo.setUnreadCount(1);  // inOrder to show 1+ on conv screen, we need to have some unread counter
+			botInfo.setConvPresent(true); //In Order to indicate the presence of bot in the conv table
 			HikeMessengerApp.getPubSub().publish(HikePubSub.NEW_CONVERSATION, botInfo);
 		}
 
