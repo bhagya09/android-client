@@ -75,6 +75,7 @@ import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.Utils;
+import com.hike.transporter.utils.Logger;
 import com.squareup.okhttp.Headers;
 import com.squareup.okhttp.MediaType;
 import com.squareup.okhttp.MultipartBuilder;
@@ -760,6 +761,17 @@ public class HttpRequests
 				.post(body)
 				.setResponseOnUIThread(true)
 				.build();
+		return requestToken;
+	}
+	
+	public static RequestToken getAvatarForBots(String msisdn, IRequestListener listener)
+	{
+
+		String botAvatarUrl = getAvatarBaseUrl() + "/" + msisdn;
+		Logger.v("BotUtils", botAvatarUrl );  
+
+		RequestToken requestToken = new ByteArrayRequest.Builder().setUrl(botAvatarUrl).setRequestType(Request.REQUEST_TYPE_SHORT).setRequestListener(listener).get().build();
+
 		return requestToken;
 	}
 }
