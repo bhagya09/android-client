@@ -1730,7 +1730,11 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 		for (ConvInfo convInfo : conversationList)
 		{
 			convInfo.setBlocked(ContactManager.getInstance().isBlocked(convInfo.getMsisdn()));
-
+			
+			if (convInfo instanceof BotInfo)
+			{
+				((BotInfo) convInfo).setConvPresent(true);
+			}
 		}
 
 		stealthConversations = new HashSet<ConvInfo>();
@@ -1758,6 +1762,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 
 		HikeMessengerApp.getPubSub().addListeners(this, pubSubListeners);
 		setEmptyState(mAdapter.isEmpty());
+		BotUtils.fetchBotIcons();
 
 	}
 

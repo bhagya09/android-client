@@ -38,6 +38,8 @@ public class BotInfo extends ConvInfo
 
 	private String helperData;
 	
+	private boolean isConvPresent = false;
+	
 	public static abstract class InitBuilder<P extends InitBuilder<P>> extends ConvInfo.InitBuilder<P>
 	{
 		private int type, config;
@@ -388,4 +390,17 @@ public class BotInfo extends ConvInfo
 		return super.getUnreadCountString();
 	}
 	
+	public void setConvPresent(boolean convPresent)
+	{
+		this.isConvPresent = convPresent;
+	}
+	
+	/**
+	 * Indicates whether this bot is present in the conversation table or not
+	 * @return
+	 */
+	public boolean isConvPresent()
+	{
+		return this.isConvPresent;
+	}
 }
