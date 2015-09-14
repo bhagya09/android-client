@@ -555,6 +555,7 @@ public abstract class JavascriptBridge
 			intent.putExtra(HikeConstants.Extras.COMPOSE_MODE, ComposeChatActivity.PICK_CONTACT_MODE);
 			intent.putExtra(tag, JavascriptBridge.this.hashCode());
 			intent.putExtra(REQUEST_CODE, PICK_CONTACT_REQUEST);
+			intent.putExtra(HikeConstants.Extras.THUMBNAILS_REQUIRED, true);
 			activity.startActivityForResult(intent, HikeConstants.PLATFORM_REQUEST);
 		}
 	}
