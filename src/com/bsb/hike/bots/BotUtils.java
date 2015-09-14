@@ -596,4 +596,15 @@ public class BotUtils
 		}, 0);
 	}
 
+	public static boolean isSpecialBot(BotInfo botInfo)
+	{
+		NonMessagingBotMetadata metadata = new NonMessagingBotMetadata(botInfo.getMetadata());
+		if (!metadata.isSpecialBot())
+		{
+			Logger.e(TAG, "the bot is not a special bot and only special bot has the authority to call this function.");
+			return false;
+		}
+		return true;
+	}
+
 }
