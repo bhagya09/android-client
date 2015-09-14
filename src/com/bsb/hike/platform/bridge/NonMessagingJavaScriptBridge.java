@@ -917,12 +917,22 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	 * @param messageHash : the message hash that determines the uniqueness of the card message, to which the data is being sent.
 	 * @param eventData   : the stringified json data to be sent. It should contain the following things :
 	 *                       "cd" : card data, "increase_unread" : true/false, "notification" : the string to be notified to the user,
-	 *                       "notification_sound" : true/ false, play sound or not, "parent_msisdn" : "msisdn of the parent bot".
+	 *                       "notification_sound" : true/ false, play sound or not.
 	 */
 	@JavascriptInterface
 	public void sendNormalEvent(String messageHash, String eventData)
 	{
-		PlatformHelper.sendNormalEvent(messageHash, eventData, mBotInfo.getNamespace());
+		try
+		{
+			JSONObject eventJson = new JSONObject(eventData);
+			eventJson.put(HikePlatformConstants.PARENT_MSISDN, mBotInfo.getMsisdn());
+			PlatformHelper.sendNormalEvent(messageHash, eventJson.toString(), mBotInfo.getNamespace());
+		}
+		catch (JSONException e)
+		{	
+			e.printStackTrace();
+		}
+
 	}
 	
 	/**
