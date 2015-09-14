@@ -683,7 +683,7 @@ public class HikeFile
 	 * @return The index of the Media from the relevant table if present or -1 if not present/the params supplied are null.
 	 */
 	
-	private int getMediaId(String filePath, String[] retCol, Uri uri, Context context)
+	public static int getMediaId(String filePath, String[] retCol, Uri uri, Context context)
 	{
 		int id = -1;
 		if (retCol == null || uri == null || filePath == null)

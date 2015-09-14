@@ -260,6 +260,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	
 	protected static final int UPDATE_MESSAGE_LIST = 37;
 	
+	protected static final int SCROLL_LISTENER_ATTACH = 38;
+	
 	protected static final int REMOVE_CHAT_BACKGROUND = 0;
     
     private int NUDGE_TOAST_OCCURENCE = 2;
@@ -341,7 +343,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 	private static final String NEW_LINE_DELIMETER = "\n";
 	
-	private boolean consumedForwardedData;
+	private int intentDataHash;
 	
 	protected HikeDialog dialog;
 	
@@ -507,6 +509,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		case SEARCH_RESULT:
 			updateUIforSearchResult((int) msg.obj);
 			break;
+		case SCROLL_LISTENER_ATTACH:
+			mConversationsView.setOnScrollListener(this);
 		default:
 			Logger.d(TAG, "Did not find any matching event for msg.what : " + msg.what);
 			break;
@@ -1753,6 +1757,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	private void searchMessage(boolean searchNext, boolean loop)
 	{
 		mConversationsView.setOnScrollListener(null);
+		
 		Utils.hideSoftKeyboard(activity.getApplicationContext(), mComposeView);
 		if (!TextUtils.isEmpty(searchText) &&
 				// For some devices like micromax A120, one can get multiple calls from one user-input.
@@ -1793,7 +1798,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		}
 		setMessagesRead();
 		loadingMoreMessages = false;
-		mConversationsView.setOnScrollListener(this);
+		sendUIMessage(SCROLL_LISTENER_ATTACH, 128, 0);
 	}
 
 	protected void destroySearchMode()
@@ -2375,6 +2380,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	private void initListViewAndAdapter()
 	{
 		mConversationsView = (ListView) activity.findViewById(R.id.conversations_list);
+		releaseMessageAdapterResources();
 		mAdapter = new MessagesAdapter(activity, messages, mConversation, this, mConversationsView, activity);
 		mConversationsView.setAdapter(mAdapter);
 		if (mConversation.getUnreadCount() > 0 && !messages.isEmpty())
@@ -2416,12 +2422,12 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	protected void takeActionBasedOnIntent()
 	{
 		Logger.i(TAG, "take action based on intent");
-		if(savedState!=null && savedState.getBoolean(HikeConstants.CONSUMED_FORWARDED_DATA)) {
+		Intent intent = activity.getIntent();
+		if(savedState!=null && (savedState.getInt(HikeConstants.CONSUMED_FORWARDED_DATA) == intent.getExtras().toString().hashCode())) {
 			Logger.i(TAG, "consumed forwarded data");
 			return;
 		}
-		Intent intent = activity.getIntent();
-
+		intentDataHash = intent.getExtras().toString().hashCode();
 		/**
 		 * 1. Has an existing message in intent
 		 */
@@ -2585,6 +2591,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 						// as we will be changing msisdn and hike status while inserting in DB
 						ConvMessage convMessage = Utils.makeConvMessage(msisdn,msgExtrasJson.getString(HikeConstants.HIKE_MESSAGE), mConversation.isOnHike());
 						convMessage.setMessageType(HikeConstants.MESSAGE_TYPE.FORWARD_WEB_CONTENT);
+						convMessage.setPlatformData(msgExtrasJson.optJSONObject(HikeConstants.PLATFORM_PACKET));
 						convMessage.webMetadata = new WebMetadata(msgExtrasJson.optString(HikeConstants.METADATA));
 						JSONObject json = new JSONObject();
 						try
@@ -2653,7 +2660,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			mComposeView.setSelection(mComposeView.length());
 			SmileyParser.getInstance().addSmileyToEditable(mComposeView.getText(), false);
 		}
-		consumedForwardedData = true;
 	}
 
 	/*
@@ -5223,6 +5229,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 					else if (message.getMessageType() == HikeConstants.MESSAGE_TYPE.WEB_CONTENT || message.getMessageType() == HikeConstants.MESSAGE_TYPE.FORWARD_WEB_CONTENT)
 					{
 						multiMsgFwdObject.put(HikeConstants.MESSAGE_TYPE.MESSAGE_TYPE, HikeConstants.MESSAGE_TYPE.FORWARD_WEB_CONTENT);
+						multiMsgFwdObject.put(HikeConstants.PLATFORM_PACKET, message.getPlatformData());
 						multiMsgFwdObject.put(HikeConstants.HIKE_MESSAGE, message.getMessage());
 						if (message.webMetadata != null)
 						{
@@ -5842,12 +5849,12 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	protected void onSaveInstanceState(Bundle outState)
 	{	
 		shouldKeyboardPopupShow=HikeMessengerApp.keyboardApproach(activity);
-		outState.putBoolean(HikeConstants.CONSUMED_FORWARDED_DATA, consumedForwardedData);
+		outState.putInt(HikeConstants.CONSUMED_FORWARDED_DATA, intentDataHash);
 	}
 	
 	protected void onRestoreInstanceState(Bundle savedInstanceState) 
 	{
-		consumedForwardedData = savedInstanceState.getBoolean(HikeConstants.CONSUMED_FORWARDED_DATA, false);
+		intentDataHash = savedInstanceState.getInt(HikeConstants.CONSUMED_FORWARDED_DATA, 0);
 	}
 	
 	public void connectedToMsisdn(String connectedDevice)
