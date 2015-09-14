@@ -6,6 +6,8 @@ import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.deleteA
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.editProfileAvatarBase;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getActionsUpdateUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getAvatarBaseUrl;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getDeleteAvatarBaseUrl;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getDeleteStatusBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getGroupBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getHikeJoinTimeBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getPostImageSUUrl;
@@ -535,7 +537,7 @@ public class HttpRequests
 				.setUrl(deleteAccountBaseUrl())
 				.setRequestType(Request.REQUEST_TYPE_SHORT)
 				.setRequestListener(requestListener)
-				.delete()
+				.post(null)
 				.build();
 		return requestToken;
 	}
@@ -729,14 +731,34 @@ public class HttpRequests
 		return requestToken;
 	}
 
-	public static RequestToken deleteStatusRequest(String statusId, IRequestListener requestListener)
+	public static RequestToken deleteStatusRequest(JSONObject json, IRequestListener requestListener)
 	{
+		JsonBody body = new JsonBody(json);
+
 		RequestToken requestToken = new ByteArrayRequest.Builder()
-				.setUrl(getStatusBaseUrl() + "/" + statusId)
+				.setUrl(getDeleteStatusBaseUrl())
 				.setRequestType(Request.REQUEST_TYPE_SHORT)
 				.setRequestListener(requestListener)
 				.setResponseOnUIThread(true)
-				.delete()
+				.post(body)
+				.build();
+		return requestToken;
+	}
+
+	public static RequestToken deleteAvatarRequest(JSONObject json, IRequestListener requestListener)
+	{
+		JsonBody body = null;
+		if (json != null)
+		{
+			body = new JsonBody(json);
+		}
+
+		RequestToken requestToken = new JSONObjectRequest.Builder()
+				.setUrl(getDeleteAvatarBaseUrl())
+				.setRequestType(Request.REQUEST_TYPE_SHORT)
+				.setRequestListener(requestListener)
+				.post(body)
+				.setResponseOnUIThread(true)
 				.build();
 		return requestToken;
 	}

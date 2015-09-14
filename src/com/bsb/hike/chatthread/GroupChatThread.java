@@ -654,12 +654,16 @@ public class GroupChatThread extends OneToNChatThread
 			// ifkeyboard is not open, then keyboard will come which will make so much animation on screen
 			mBottomView.startAnimation(AnimationUtils.loadAnimation(activity.getApplicationContext(), R.anim.up_down_lower_part));
 		}
+		
+		else //Show keyboard
+		{
+			Utils.toggleSoftKeyboard(activity.getApplicationContext());
+		}
 
 		mBottomView.setVisibility(View.GONE);
 
 		playPinCreateViewAnim();
 
-		Utils.showSoftKeyboard(activity.getApplicationContext(), mComposeView);
 		if (mShareablePopupLayout.isShowing())
 		{
 			mShareablePopupLayout.dismiss();
