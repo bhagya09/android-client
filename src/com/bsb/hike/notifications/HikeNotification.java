@@ -26,6 +26,7 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationCompat.Action;
 import android.support.v4.app.NotificationCompat.Builder;
+import android.support.v4.app.TaskStackBuilder;
 import android.text.SpannableString;
 import android.text.TextUtils;
 
@@ -39,6 +40,7 @@ import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.AnalyticsConstants.AppOpenSource;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
+import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.chatthread.ChatThreadUtils;
@@ -1056,10 +1058,16 @@ public class HikeNotification
 
 		// Moves the big view style object into the notification object.
 		mBuilder.setStyle(inBoxStyle);
-
-		setNotificationIntentForBuilder(mBuilder, notificationIntent,notificationId,retryCount);
-
 		
+		//Handling separately for NM Bots because for NM bots, on pressing back/up, the user must be brought to the conversation list. (AND-2692)
+		if (BotUtils.isBot(msisdn) && BotUtils.getBotInfoForBotMsisdn(msisdn).isNonMessagingBot())
+		{
+				setNotificationIntentForBuilderWithBackStack(mBuilder, notificationIntent, notificationId, retryCount);
+		}
+		else
+		{
+			setNotificationIntentForBuilder(mBuilder, notificationIntent,notificationId,retryCount);
+		}
 
 		if (!sharedPreferences.getBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false))
 		{
@@ -1106,11 +1114,17 @@ public class HikeNotification
 
 		// Moves the big view style object into the notification object.
 		mBuilder.setStyle(bigTextStyle);
-
-		setNotificationIntentForBuilder(mBuilder, notificationIntent,notificationId,retryCount);
-
-	
-
+		
+		//Handling separately for NM Bots because for NM bots, on pressing back/up, the user must be brought to the conversation list. (AND-2692)
+		if (BotUtils.isBot(msisdn) && BotUtils.getBotInfoForBotMsisdn(msisdn).isNonMessagingBot())
+		{
+				setNotificationIntentForBuilderWithBackStack(mBuilder, notificationIntent, notificationId, retryCount);
+		}
+		else
+		{
+			setNotificationIntentForBuilder(mBuilder, notificationIntent,notificationId,retryCount);
+		}
+		
 		if (!sharedPreferences.getBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false))
 		{
 			notifyNotification(notificationId, mBuilder);
@@ -1358,13 +1372,29 @@ public class HikeNotification
 	{
 		//Adding Extra to check While receiving that user has come via clicking Notification
 		notificationIntent.putExtra(AnalyticsConstants.APP_OPEN_SOURCE_EXTRA, AppOpenSource.FROM_NOTIFICATION);
-		
+        
 		PendingIntent contentIntent = PendingIntent.getActivity(context, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 		mBuilder.setContentIntent(contentIntent);
 		
 		setOnDeleteIntent(mBuilder, notificationId, retryCount);
 	}
-
+	
+	public void setNotificationIntentForBuilderWithBackStack(NotificationCompat.Builder mBuilder, Intent notificationIntent,int notificationId,int retryCount)
+	{
+		//Adding Extra to check While receiving that user has come via clicking Notification
+		notificationIntent.putExtra(AnalyticsConstants.APP_OPEN_SOURCE_EXTRA, AppOpenSource.FROM_NOTIFICATION);
+		
+		TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
+        
+        stackBuilder.addNextIntent(Utils.getHomeActivityIntent(context));
+        stackBuilder.addNextIntent(notificationIntent);
+        
+        PendingIntent contentIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+        mBuilder.setContentIntent(contentIntent);
+		
+		setOnDeleteIntent(mBuilder, notificationId, retryCount);
+	}
+	
 	/**
 	 * Add action to a notification builder object. This will add action buttons to the built notification. More at <a
 	 * href="http://developer.android.com/guide/topics/ui/notifiers/notifications.html#Actions">Notification Actions</a>

@@ -193,6 +193,7 @@ public class PlatformHelper
 			if (hashcode<0)
 				intent.putExtra(JavascriptBridge.tag, hashcode);
 			intent.putExtra(HikePlatformConstants.REQUEST_CODE, JavascriptBridge.PICK_CONTACT_AND_SEND_REQUEST);
+			intent.putExtra(HikeConstants.Extras.THUMBNAILS_REQUIRED, true);
 			activity.startActivityForResult(intent, HikeConstants.PLATFORM_REQUEST);
 			
 		}

@@ -220,6 +220,8 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 	private MenuItem searchMenuItem;
 
 	private int gcSettings = -1;
+	
+	private boolean thumbnailsRequired= false;
 	 
 	@Override
 	public void onCreate(Bundle savedInstanceState)
@@ -252,6 +254,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		isSharingFile = getIntent().getType() != null;
 		nuxIncentiveMode = getIntent().getBooleanExtra(HikeConstants.Extras.NUX_INCENTIVE_MODE, false);
 		createBroadcast = getIntent().getBooleanExtra(HikeConstants.Extras.CREATE_BROADCAST, false);
+		thumbnailsRequired = getIntent().getBooleanExtra(HikeConstants.Extras.THUMBNAILS_REQUIRED, false);
 
 		// Getting the group id. This will be a valid value if the intent
 		// was passed to add group participants.
@@ -1371,22 +1374,29 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			Toast.makeText(this,R.string.pick_contact_zero,Toast.LENGTH_SHORT).show();
 			return;
 		}
-		JSONArray array = convertToJSONArray(adapter.getAllSelectedContacts());
-		Intent intent = getIntent();
-		intent.putExtra(HikeConstants.HIKE_CONTACT_PICKER_RESULT, array.toString());
-		setResult(RESULT_OK,intent);
-		Logger.i("composechat", "returning pick contact result "+intent.getExtras().toString());
-		this.finish();
+		
+		ProgressDialog dialog = new ProgressDialog(this);
+		dialog.setCancelable(false);
+		dialog.setTitle(getResources().getString(R.string.please_wait));
+		dialog.setMessage(getResources().getString(R.string.loading_data));
+		ConvertToJSONArrayTask task = new ConvertToJSONArrayTask(adapter.getAllSelectedContacts(), dialog, thumbnailsRequired);
+		Utils.executeJSONArrayResultTask(task);
 	}
 	
-	private JSONArray convertToJSONArray(List<ContactInfo> list)
+	private JSONArray convertToJSONArray(List<ContactInfo> list, boolean thumbnailsRequired)
 	{
 		JSONArray array = new JSONArray();
+		JSONObject platformInfo;
 		for(ContactInfo contactInfo : list)
 		{
 			try
 			{
-				array.put(contactInfo.getPlatformInfo());
+				platformInfo = contactInfo.getPlatformInfo();
+				if (thumbnailsRequired)
+				{
+					platformInfo.put(HikePlatformConstants.THUMBNAIL, ContactManager.getInstance().getImagePathForThumbnail(contactInfo.getMsisdn()));
+				}
+				array.put(platformInfo);
 			}
 			catch (JSONException e)
 			{
@@ -1396,6 +1406,44 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		return array;
 	}
 	
+	private class ConvertToJSONArrayTask extends AsyncTask<Void, Void, JSONArray>
+	{
+		ArrayList<ContactInfo> list;
+		ProgressDialog dialog;
+		boolean thumbnailsRequired;
+		
+		public ConvertToJSONArrayTask(ArrayList<ContactInfo> list, ProgressDialog dialog, boolean thumbnailsRequired)
+		{
+			this.list = list;
+			this.dialog = dialog;
+			this.thumbnailsRequired = thumbnailsRequired;
+		}
+		
+		@Override
+		protected void onPreExecute()
+		{
+			dialog.show();
+			super.onPreExecute();
+		}
+		
+		@Override
+		protected JSONArray doInBackground(Void... params)
+		{
+			return convertToJSONArray(this.list, thumbnailsRequired);
+		}
+
+		@Override
+		protected void onPostExecute(JSONArray array)
+		{
+			Intent intent = getIntent();
+			intent.putExtra(HikeConstants.HIKE_CONTACT_PICKER_RESULT, array == null ? "" : array.toString());
+			setResult(RESULT_OK,intent);
+			ComposeChatActivity.this.finish();
+			dialog.dismiss();
+			super.onPostExecute(array);
+		}
+		
+	}
 	
 	private void forwardConfirmation(final ArrayList<ContactInfo> arrayList)
 	{
