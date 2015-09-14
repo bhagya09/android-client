@@ -236,4 +236,5 @@
 	
 	<dimen name="overflow_menu_top_margin_non_overlay">-52dp</dimen>
 	<dimen name="overflow_menu_top_margin_overlay">4dp</dimen>
+	<dimen name="hike_direct_msg_padding">6dp</dimen>
 </resources>

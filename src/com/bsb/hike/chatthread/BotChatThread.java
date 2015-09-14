@@ -8,9 +8,9 @@ import org.json.JSONObject;
 
 import android.support.v4.view.MenuItemCompat;
 import android.util.Pair;
+import android.view.Menu;
 import android.view.View;
 
-import android.view.Menu;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
@@ -160,7 +160,14 @@ public class BotChatThread extends OneToOneChatThread
 		HikeConversationsDatabase.getInstance().toggleMuteBot(msisdn, isMuted);
 		HikeMessengerApp.getPubSub().publish(HikePubSub.MUTE_CONVERSATION_TOGGLED, new Pair<String, Boolean>(mConversation.getMsisdn(), isMuted));
 	}
-
+	
+	@Override
+	protected void showNetworkError(boolean isNetworkError) 
+	{
+		activity.findViewById(R.id.network_error_chat).setVisibility(isNetworkError ? View.VISIBLE : View.GONE);
+		activity.findViewById(R.id.network_error_card).setVisibility(View.GONE);
+	};
+	
 	@Override
 	protected void sendPoke()
 	{
