@@ -162,7 +162,14 @@ public class BotChatThread extends OneToOneChatThread
 		HikeConversationsDatabase.getInstance().toggleMuteBot(msisdn, isMuted);
 		HikeMessengerApp.getPubSub().publish(HikePubSub.MUTE_CONVERSATION_TOGGLED, new Pair<String, Boolean>(mConversation.getMsisdn(), isMuted));
 	}
-
+	
+	@Override
+	protected void showNetworkError(boolean isNetworkError) 
+	{
+		activity.findViewById(R.id.network_error_chat).setVisibility(isNetworkError ? View.VISIBLE : View.GONE);
+		activity.findViewById(R.id.network_error_card).setVisibility(View.GONE);
+	};
+	
 	@Override
 	protected void sendPoke()
 	{

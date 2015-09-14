@@ -904,7 +904,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	@JavascriptInterface
 	public void sendSharedMessage(String cardObject, String hikeMessage, String sharedData)
 	{
-		PlatformHelper.sendSharedMessage(cardObject, hikeMessage, sharedData, mBotInfo, weakActivity.get());
+		sendSharedMessage(cardObject, hikeMessage, sharedData, mBotInfo);
 	}
 
 	/**
@@ -913,12 +913,23 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	 *
 	 * @param messageHash : the message hash that determines the uniqueness of the card message, to which the data is being sent.
 	 * @param eventData   : the stringified json data to be sent. It should contain the following things :
-	 *                       "cd" : card data, "increase_unread" : true/false, "notification" : the string to be notified to the user, "notification_sound" : true/ false, play sound or not.
+	 *                       "cd" : card data, "increase_unread" : true/false, "notification" : the string to be notified to the user,
+	 *                       "notification_sound" : true/ false, play sound or not.
 	 */
 	@JavascriptInterface
 	public void sendNormalEvent(String messageHash, String eventData)
 	{
-		PlatformHelper.sendNormalEvent(messageHash, eventData, mBotInfo.getNamespace());
+		try
+		{
+			JSONObject eventJson = new JSONObject(eventData);
+			eventJson.put(HikePlatformConstants.PARENT_MSISDN, mBotInfo.getMsisdn());
+			PlatformHelper.sendNormalEvent(messageHash, eventJson.toString(), mBotInfo.getNamespace());
+		}
+		catch (JSONException e)
+		{	
+			e.printStackTrace();
+		}
+
 	}
 	
 	/**
@@ -1048,7 +1059,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 			return;
 		}
 		BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
-		NonMessagingBotMetadata metadata = new NonMessagingBotMetadata(botInfo.getMetadata());
+		NonMessagingBotMetadata metadata = new NonMessagingBotMetadata(mBotInfo.getMetadata());
 		if (!metadata.isSpecialBot())
 		{
 			Logger.e(TAG, "the bot is not a special bot and only special bot has the authority to call this function.");
@@ -1098,7 +1109,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 			return;
 		}
 		BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
-		NonMessagingBotMetadata metadata = new NonMessagingBotMetadata(botInfo.getMetadata());
+		NonMessagingBotMetadata metadata = new NonMessagingBotMetadata(mBotInfo.getMetadata());
 		if (!metadata.isSpecialBot())
 		{
 			Logger.e(TAG, "the bot is not a special bot and only special bot has the authority to call this function.");
@@ -1123,7 +1134,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 			return;
 		}
 		BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
-		NonMessagingBotMetadata metadata = new NonMessagingBotMetadata(botInfo.getMetadata());
+		NonMessagingBotMetadata metadata = new NonMessagingBotMetadata(mBotInfo.getMetadata());
 		if (!metadata.isSpecialBot())
 		{
 			Logger.e(TAG, "the bot is not a special bot and only special bot has the authority to call this function.");
@@ -1148,7 +1159,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 			return;
 		}
 		BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
-		NonMessagingBotMetadata metadata = new NonMessagingBotMetadata(botInfo.getMetadata());
+		NonMessagingBotMetadata metadata = new NonMessagingBotMetadata(mBotInfo.getMetadata());
 		if (!metadata.isSpecialBot())
 		{
 			Logger.e(TAG, "the bot is not a special bot and only special bot has the authority to call this function.");

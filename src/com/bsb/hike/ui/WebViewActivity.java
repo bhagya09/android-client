@@ -754,7 +754,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 			if (object instanceof BotInfo)
 			{
 				BotInfo botInfo = (BotInfo) object;
-				if (msisdn.equals(botInfo.getMsisdn()))
+				if (botInfo.getMsisdn().equals(msisdn))
 				{
 					String notifData = botInfo.getNotifData();
 					if (null != mmBridge && !TextUtils.isEmpty(botInfo.getNotifData()))
@@ -771,13 +771,12 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 			if (object instanceof MessageEvent)
 			{
 				MessageEvent messageEvent = (MessageEvent) object;
-				if (msisdn.equals(messageEvent.getMsisdn()))
+				String parent_msisdn = messageEvent.getParent_msisdn();
+				if (!TextUtils.isEmpty(parent_msisdn) && messageEvent.getParent_msisdn().equals(msisdn))
 				{
-					ContactInfo info = ContactManager.getInstance().getContact(messageEvent.getMsisdn());
-
 					try
 					{
-						JSONObject jsonObject = null != info ? info.getPlatformInfo() : new JSONObject();
+						JSONObject jsonObject = PlatformUtils.getPlatformContactInfo(msisdn);
 						jsonObject.put(HikePlatformConstants.EVENT_DATA, messageEvent.getEventMetadata());
 						jsonObject.put(HikePlatformConstants.EVENT_ID, messageEvent.getEventId());
 						jsonObject.put(HikePlatformConstants.EVENT_STATUS, messageEvent.getEventStatus());
@@ -1245,9 +1244,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		{
 			if (!Utils.appInstalledOrNot(getApplicationContext(), "com.google.android.webview"))
 			{
-				Toast.makeText(getApplicationContext(), R.string.some_error, Toast.LENGTH_LONG).show();
 				PlatformUtils.sendPlatformCrashAnalytics("PackageManager.NameNotFoundException", msisdn);
-				this.finish();
 			}
 		}
 	}

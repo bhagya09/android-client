@@ -39,10 +39,12 @@ import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.db.HikeConversationsDatabase;
+import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.models.MessageEvent;
 import com.bsb.hike.models.StickerCategory;
+import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.Header;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpHeaderConstants;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadSource;
@@ -1111,6 +1113,57 @@ public class PlatformUtils
 		catch (JSONException e)
 		{
 			e.printStackTrace();
+		}
+	}
+
+	public static JSONObject getPlatformContactInfo(String msisdn)
+	{
+		JSONObject jsonObject;
+		ContactInfo info = ContactManager.getInstance().getContact(msisdn, true, false);
+		try
+		{
+			if (info == null)
+			{
+				jsonObject = new JSONObject();
+				jsonObject.put("name", msisdn);
+			}
+			else
+			{
+				jsonObject = info.getPlatformInfo();
+			}
+			return jsonObject;
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+			return new JSONObject();
+		}
+	}
+	/**
+	 * Called from MQTTManager, this method is used to resync PlatformUserId and PlatformTokens for clients which have become out of sync with server
+	 * 
+	 * sample packet :
+	 * 
+	 * { "plfsync" : { "platformUid" : "ABCDEFxxxxxx" , "platformToken" : "PQRSTUVxxxxxx" }
+	 * 
+	 * @param plfSyncJson
+	 */
+	public static void savePlatformCredentials(JSONObject plfSyncJson)
+	{
+		String newPlatformUserId = plfSyncJson.optString(HikePlatformConstants.PLATFORM_USER_ID, "");
+
+		String newPlatformToken = plfSyncJson.optString(HikePlatformConstants.PLATFORM_TOKEN, "");
+		
+		Logger.i(TAG, "New Platform UserID : " + newPlatformUserId + " , new platform token : " + newPlatformToken);
+
+		if (!TextUtils.isEmpty(newPlatformUserId))
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.PLATFORM_UID_SETTING, newPlatformUserId);
+		}
+
+		if (!TextUtils.isEmpty(newPlatformToken))
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.TOKEN_SETTING, newPlatformToken);
 		}
 	}
 

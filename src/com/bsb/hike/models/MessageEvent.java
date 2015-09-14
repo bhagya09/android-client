@@ -32,6 +32,8 @@ public class MessageEvent
 
 	private long messageId;
 
+	private String parent_msisdn;
+
 	public MessageEvent(String eventType, String msisdn, String nameSpace, String eventMetadata, String messageHash, int eventStatus, long timeStamp)
 	{
 		this(eventType, msisdn, nameSpace, eventMetadata, messageHash, eventStatus, timeStamp, -1);
@@ -44,6 +46,11 @@ public class MessageEvent
 
 	public MessageEvent(String eventType, String msisdn, String nameSpace, String eventMetadata, String messageHash, int eventStatus, long timeStamp, long mappedEventId, long messageId)
 	{
+		this(eventType, msisdn, nameSpace, eventMetadata, messageHash, eventStatus, timeStamp, mappedEventId, messageId, null);
+	}
+
+	public MessageEvent(String eventType, String msisdn, String nameSpace, String eventMetadata, String messageHash, int eventStatus, long timeStamp, long mappedEventId, long messageId, String parent_msisdn)
+	{
 		setEventType(eventType);
 		this.msisdn = msisdn;
 		this.nameSpace = nameSpace;
@@ -53,6 +60,7 @@ public class MessageEvent
 		this.sentTimeStamp = timeStamp;
 		this.mappedEventId = mappedEventId;
 		this.messageId = messageId;
+		this.parent_msisdn = parent_msisdn;
 	}
 
 	public int getEventStatus()
@@ -135,6 +143,11 @@ public class MessageEvent
 	public void setEventMetadata(String eventMetadata)
 	{
 		this.eventMetadata = eventMetadata;
+	}
+
+	public String getParent_msisdn()
+	{
+		return parent_msisdn;
 	}
 
 	public String getMessageHash()
