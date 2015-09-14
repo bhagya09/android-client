@@ -27,6 +27,7 @@ public class NonMessagingBotMetadata
 	private String nonMessagingBotType;
 	private String url;
 	private boolean isSpecialBot;
+	private String intent;
 
 	public NonMessagingBotMetadata(String jsonString)
 	{
@@ -65,6 +66,7 @@ public class NonMessagingBotMetadata
 
 		setNonMessagingBotType(json.optString(HikePlatformConstants.NON_MESSAGING_BOT_TYPE, HikePlatformConstants.MICROAPP_MODE));
 		setTargetPlatform(json.optInt(HikePlatformConstants.TARGET_PLATFORM));
+		setIntent(json.optString(HikePlatformConstants.TARGET_ACTIVITY));
 
 		if (json.has(HikePlatformConstants.CARD_OBJECT))
 		{
@@ -192,6 +194,11 @@ public class NonMessagingBotMetadata
 	{
 		return nonMessagingBotType.equals(HikePlatformConstants.URL_MODE);
 	}
+	
+	public boolean isNativeMode()
+	{
+		return nonMessagingBotType.equals(HikePlatformConstants.NATIVE_MODE);
+	}
 
 	@Override
 	public String toString()
@@ -217,5 +224,15 @@ public class NonMessagingBotMetadata
 	public void setIsSpecialBot(boolean isSpecialBot)
 	{
 		this.isSpecialBot = isSpecialBot;
+	}
+	
+	public void setIntent(String intent)
+	{
+		this.intent=intent;
+	}
+	
+	public String getIntent()
+	{
+		return intent;
 	}
 }

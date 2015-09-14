@@ -406,6 +406,15 @@ public class ProductPopupsConstants
 				// TODO Auto-generated method stub
 				return "access";
 			}
+		},
+		NATIVE_ACTIVITY
+		{
+			@Override
+			public String toString()
+			{
+				// TODO Auto-generated method stub
+				return "nativeActivity";
+			}
 		};
 		
 		
