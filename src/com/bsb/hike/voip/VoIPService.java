@@ -465,6 +465,7 @@ public class VoIPService extends Service {
 			}
 		}
 
+		// Recipient is already in a call
 		if (action.equals(HikeConstants.MqttMessageTypes.VOIP_ERROR_ALREADY_IN_CALL)) {
 			Logger.w(tag, msisdn + " is currently busy.");
 			sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CONNECTION_FAILED, VoIPConstants.CallFailedCodes.PARTNER_BUSY);
@@ -478,9 +479,19 @@ public class VoIPService extends Service {
 				Bundle bundle = new Bundle();
 				bundle.putString(VoIPConstants.MSISDN, msisdn);
 				sendHandlerMessage(VoIPConstants.MSG_PARTNER_BUSY, bundle);
-				cl.hangUp();
+				removeFromClients(msisdn);
 			} else
 				Logger.w(tag, "Unable to find the client object who we were calling.");
+		}
+		
+		// Recipient is on an unsupported platform
+		if (action.equals(HikeConstants.MqttMessageTypes.VOIP_ERROR_CALLEE_INCOMPATIBLE_NOT_UPGRADABLE)) {
+			Logger.w(tag, msisdn + " is on an unsupported platform.");
+			sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CONNECTION_FAILED, VoIPConstants.CallFailedCodes.PARTNER_INCOMPAT);
+			removeFromClients(msisdn);
+			Bundle bundle = new Bundle();
+			bundle.putString(VoIPConstants.MSISDN, msisdn);
+			sendHandlerMessage(VoIPConstants.MSG_PARTNER_INCOMPATIBLE_PLATFORM, bundle);
 		}
 		
 		// Incoming call message
@@ -488,7 +499,7 @@ public class VoIPService extends Service {
 
 			int partnerCallId = intent.getIntExtra(VoIPConstants.Extras.CALL_ID, 0);
 			
-			if (VoIPUtils.checkForActiveCall(getApplicationContext(), msisdn, partnerCallId))
+			if (VoIPUtils.checkForActiveCall(getApplicationContext(), msisdn, partnerCallId, false))
 				return returnInt;
 			
 			setCallid(partnerCallId);
@@ -535,7 +546,7 @@ public class VoIPService extends Service {
 			
 			int partnerCallId = intent.getIntExtra(VoIPConstants.Extras.CALL_ID, 0);
 						
-			if (VoIPUtils.checkForActiveCall(getApplicationContext(), msisdn, partnerCallId))
+			if (VoIPUtils.checkForActiveCall(getApplicationContext(), msisdn, partnerCallId, true))
 				return returnInt;
 			
 			// Error case: partner is trying to reconnect to us, but we aren't
