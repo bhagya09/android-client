@@ -15,6 +15,8 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.location.Location;
+import android.location.LocationManager;
 import android.net.MailTo;
 import android.net.ParseException;
 import android.net.Uri;
@@ -129,7 +131,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	
 	private Menu mMenu;
 	
-	private String[] pubsub = new String[]{HikePubSub.NOTIF_DATA_RECEIVED};
+	private String[] pubsub = new String[]{HikePubSub.NOTIF_DATA_RECEIVED,HikePubSub.LOCATION_AVAILABLE};
 
 	private boolean allowLoc;
 	
@@ -795,6 +797,23 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 				}
 			}
 		}
+		else if (type.equals(HikePubSub.LOCATION_AVAILABLE))
+		{
+			LocationManager locationManager = (LocationManager) object;
+			Location location = null;
+			if (locationManager != null)
+			{
+
+				location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+
+			}
+			String latLong = PlatformUtils.getLatLongFromLocation(locationManager, location);
+			if (null != mmBridge)
+			{
+				mmBridge.locationReceived(latLong);
+			}
+		}
+
 
 	}
 

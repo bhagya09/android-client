@@ -25,6 +25,8 @@ import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
+import android.location.Location;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.text.TextUtils;
 import android.webkit.MimeTypeMap;
@@ -1165,6 +1167,39 @@ public class PlatformUtils
 		{
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.TOKEN_SETTING, newPlatformToken);
 		}
+	}
+	/**
+	 * Call this method to get the latitude and longitude and whether Gps is on/off
+	 * @param LocationManager
+	 * @param Location
+	 * 
+	 */
+	public static String getLatLongFromLocation(LocationManager locationManager, Location location)
+	{
+		JSONObject json = new JSONObject();
+		double longitude = 0;
+		double latitude = 0;
+
+		if (location != null)
+		{
+			longitude = location.getLongitude();
+			latitude = location.getLatitude();
+		}
+		// getting GPS status
+		try
+		{
+			JSONObject s_values = new JSONObject();
+			s_values.put("latitude", latitude);
+			s_values.put("longitude", longitude);
+			json.put("coords", s_values);
+			json.put("gpsAvailable", locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER));
+
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+		return json.toString();
 	}
 
 }
