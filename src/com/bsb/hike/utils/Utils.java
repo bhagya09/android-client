@@ -6961,7 +6961,7 @@ public class Utils
 	 * Determine whether databse recognized by given instance contains given table or not.
 	 * 
 	 * @param db
-	 * 			SQLiteDatabase instance, which possibly contains given table name.
+	 * 			Instance of SQLiteDatabase, which possibly contains given table.
 	 * @param tableName
 	 * 			String name of table to check whether such table exists in database or not.
 	 * @return
