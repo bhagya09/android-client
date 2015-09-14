@@ -1054,17 +1054,11 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	@JavascriptInterface
 	public void blockBot(String block, String msisdn)
 	{
-		if (!BotUtils.isBot(msisdn))
+		if (!BotUtils.isSpecialBot(mBotInfo) || !BotUtils.isBot(msisdn))
 		{
 			return;
 		}
 		BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
-		NonMessagingBotMetadata metadata = new NonMessagingBotMetadata(mBotInfo.getMetadata());
-		if (!metadata.isSpecialBot())
-		{
-			Logger.e(TAG, "the bot is not a special bot and only special bot has the authority to call this function.");
-			return;
-		}
 		if (Boolean.valueOf(block))
 		{
 			botInfo.setBlocked(true);
@@ -1101,17 +1095,11 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	@JavascriptInterface
 	public void isBotBlocked(String id, String msisdn)
 	{
-		if (!BotUtils.isBot(msisdn))
+		if (!BotUtils.isSpecialBot(mBotInfo) || !BotUtils.isBot(msisdn))
 		{
 			return;
 		}
 		BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
-		NonMessagingBotMetadata metadata = new NonMessagingBotMetadata(mBotInfo.getMetadata());
-		if (!metadata.isSpecialBot())
-		{
-			Logger.e(TAG, "the bot is not a special bot and only special bot has the authority to call this function.");
-			return;
-		}
 		callbackToJS(id, String.valueOf(botInfo.isBlocked()));
 	}
 
@@ -1125,16 +1113,8 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	@JavascriptInterface
 	public void isBotEnabled(String id, String msisdn)
 	{
-		if (!BotUtils.isBot(msisdn))
+		if (!BotUtils.isSpecialBot(mBotInfo) || !BotUtils.isBot(msisdn))
 		{
-			callbackToJS(id, "false");
-			return;
-		}
-		BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
-		NonMessagingBotMetadata metadata = new NonMessagingBotMetadata(mBotInfo.getMetadata());
-		if (!metadata.isSpecialBot())
-		{
-			Logger.e(TAG, "the bot is not a special bot and only special bot has the authority to call this function.");
 			return;
 		}
 		String value = String.valueOf(HikeConversationsDatabase.getInstance().isConversationExist(msisdn));
@@ -1146,22 +1126,18 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	 * This function is made for the special Shared bot that has the information about some other bots as well, and acts as a channel for them.
 	 * Call this method to enable/disable bot. Enable means to show the bot in the conv list and disable is vice versa.
 	 * @param msisdn :the msisdn of the bot.
-	 * @param enable : the id of the function that native will call to call the js .
+	 * @param enable : send true to enable the bot in Conversation Fragment and false to disable.
 	 */
 	@JavascriptInterface
 	public void enableBot(String msisdn, String enable)
 	{
-		if (!BotUtils.isBot(msisdn))
+
+		if (!BotUtils.isSpecialBot(mBotInfo) || !BotUtils.isBot(msisdn))
 		{
 			return;
 		}
+
 		BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
-		NonMessagingBotMetadata metadata = new NonMessagingBotMetadata(mBotInfo.getMetadata());
-		if (!metadata.isSpecialBot())
-		{
-			Logger.e(TAG, "the bot is not a special bot and only special bot has the authority to call this function.");
-			return;
-		}
 
 		boolean enableBot = Boolean.valueOf(enable);
 		if (enableBot)
@@ -1172,6 +1148,47 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 		{
 			BotUtils.deleteBotConversation(msisdn, false);
 		}
+	}
+
+	/**
+	 * Platform Version 7
+	 * This function is made for the special Shared bot that has the information about some other bots as well, and acts as a channel for them.
+	 * Call this method to mute/unmute bot.
+	 * @param msisdn :the msisdn of the bot.
+	 * @param mute : send true to mute the bot in Conversation Fragment and false to unmute.
+	 */
+	@JavascriptInterface
+	public void muteBot(String msisdn, String mute)
+	{
+
+		if (!BotUtils.isSpecialBot(mBotInfo) || !BotUtils.isBot(msisdn))
+		{
+			return;
+		}
+
+		Boolean muteBot = Boolean.valueOf(mute);
+		BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
+		botInfo.setMute(muteBot);
+		HikeConversationsDatabase.getInstance().toggleMuteBot(msisdn, muteBot);
+	}
+
+	/**
+	 * Platform Version 7
+	 * This function is made for the special Shared bot that has the information about some other bots as well, and acts as a channel for them.
+	 * Call this method to know whether the bot pertaining to the msisdn is muted or not.
+	 * @param msisdn : the msisdn of the bot.
+	 * @param id : the id of the function that native will call to call the js .
+	 */
+	@JavascriptInterface
+	public void isBotMute(String id, String msisdn)
+	{
+		if (!BotUtils.isSpecialBot(mBotInfo) || !BotUtils.isBot(msisdn))
+		{
+			return;
+		}
+
+		BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
+		callbackToJS(id, String.valueOf(botInfo.isMute()));
 	}
 
 }
