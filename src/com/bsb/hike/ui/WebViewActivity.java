@@ -3,10 +3,6 @@ package com.bsb.hike.ui;
 import java.util.ArrayList;
 import java.util.List;
 
-import android.net.ParseException;
-import com.bsb.hike.models.ContactInfo;
-import com.bsb.hike.models.MessageEvent;
-import com.bsb.hike.modules.contactmgr.ContactManager;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -65,7 +61,10 @@ import com.bsb.hike.media.OverFlowMenuItem;
 import com.bsb.hike.media.OverFlowMenuLayout.OverflowViewListener;
 import com.bsb.hike.media.OverflowItemClickListener;
 import com.bsb.hike.media.TagPicker.TagOnClickListener;
+import com.bsb.hike.models.ContactInfo;
+import com.bsb.hike.models.MessageEvent;
 import com.bsb.hike.models.WhitelistDomain;
+import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.platform.CustomWebView;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUtils;
@@ -186,6 +185,8 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		HikeMessengerApp.getPubSub().addListeners(this, pubsub);
 		
 		alignAnchorForOverflowMenu();
+		
+		checkAndRecordNotificationAnalytics();
 	}
 
 	private void closeWebViewActivity()
@@ -753,7 +754,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 			if (object instanceof BotInfo)
 			{
 				BotInfo botInfo = (BotInfo) object;
-				if (msisdn.equals(botInfo.getMsisdn()))
+				if (botInfo.getMsisdn().equals(msisdn))
 				{
 					String notifData = botInfo.getNotifData();
 					if (null != mmBridge && !TextUtils.isEmpty(botInfo.getNotifData()))
@@ -770,7 +771,8 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 			if (object instanceof MessageEvent)
 			{
 				MessageEvent messageEvent = (MessageEvent) object;
-				if (msisdn.equals(messageEvent.getParent_msisdn()))
+				String parent_msisdn = messageEvent.getParent_msisdn();
+				if (!TextUtils.isEmpty(parent_msisdn) && messageEvent.getParent_msisdn().equals(msisdn))
 				{
 					try
 					{
@@ -1311,6 +1313,17 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 				initAppsBasedOnMode();
 				inflatedErrorView.findViewById(R.id.http_error_ll).setVisibility(View.GONE);
 				break;
+		}
+	}
+	
+	/**
+	 * Used to record analytics for bot opens via push notifications
+	 */
+	private void checkAndRecordNotificationAnalytics()
+	{
+		if (getIntent() != null && getIntent().hasExtra(AnalyticsConstants.BOT_NOTIF_TRACKER))
+		{
+			PlatformUtils.recordBotOpenViaNotification(msisdn);
 		}
 	}
 

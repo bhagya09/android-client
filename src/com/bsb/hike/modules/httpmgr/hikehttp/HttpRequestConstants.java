@@ -197,6 +197,11 @@ public class HttpRequestConstants
 		return BASE_URL + BASE_V1 + BASE_USER + "/status";
 	}
 
+	public static String getDeleteStatusBaseUrl()
+	{
+		return BASE_URL + BASE_V1 + BASE_USER + "/status-delete";
+	}
+
 	public static String selfPlatformUidFetchUrl()
 	{
 		return BASE_PLATFORM_URL + BASE_USER + BASE_V1 + BASE_CREATE;
@@ -249,7 +254,7 @@ public class HttpRequestConstants
 
 	public static String deleteAccountBaseUrl()
 	{
-		return BASE_URL + BASE_V1 + BASE_ACCOUNT;
+		return BASE_URL + BASE_V1 + "/account-delete";
 	}
 
 	public static String unlinkAccountBaseUrl()
@@ -336,4 +341,10 @@ public class HttpRequestConstants
 	{
 		return BASE_URL+STICKER_SHARE_PATH ;
 	}
+
+	public static String getDeleteAvatarBaseUrl()
+	{
+		return BASE_URL + BASE_V1 + BASE_ACCOUNT + "/avatar-delete";
+	}
+	
 }
