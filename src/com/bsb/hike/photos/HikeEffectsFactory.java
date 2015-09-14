@@ -86,7 +86,7 @@ public final class HikeEffectsFactory
 			return false;
 		}
 
-		if(mRS == null || mBitmapIn == null)
+		if(mRS == null || image == null)
 		{
 			finish();
 			return false;
