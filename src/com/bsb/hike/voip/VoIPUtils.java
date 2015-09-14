@@ -808,17 +808,18 @@ public class VoIPUtils {
 	 * @param callId
 	 * @return
 	 */
-	public static boolean checkForActiveCall(Context context, String fromMsisdn, int callId) {
+	public static boolean checkForActiveCall(Context context, String fromMsisdn, int callId, boolean insertMissedCall) {
 		// Check for currently active call
 		if ((callId != VoIPService.getCallId() && VoIPService.getCallId() > 0) ||
 				VoIPUtils.isUserInCall(context)) {
 			Logger.w(tag, "We are already in a call. local: " + VoIPService.getCallId() +
 					", remote: " + callId);
 
-			VoIPUtils.sendVoIPMessageUsingHike(fromMsisdn, 
-					HikeConstants.MqttMessageTypes.VOIP_ERROR_ALREADY_IN_CALL, 
-					callId, 
-					false);
+			if (insertMissedCall)
+				VoIPUtils.sendVoIPMessageUsingHike(fromMsisdn, 
+						HikeConstants.MqttMessageTypes.VOIP_ERROR_ALREADY_IN_CALL, 
+						callId, 
+						false);
 			return true;
 		}
 		return false;
