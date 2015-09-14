@@ -6,6 +6,8 @@ import org.json.JSONObject;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.Message;
 import android.text.TextUtils;
 import android.webkit.JavascriptInterface;
@@ -21,6 +23,7 @@ import com.bsb.hike.bots.NonMessagingBotMetadata;
 import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.platform.CustomWebView;
+import com.bsb.hike.platform.GpsLocation;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformHelper;
 import com.bsb.hike.platform.PlatformUtils;
@@ -1176,5 +1179,62 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 			BotUtils.deleteBotConversation(msisdn, false);
 		}
 	}
+	/**
+	 * Added in Platform Version:6
+	 * 
+	 *            Will call locationReceived function of JS . return a json {"gpsAvailable":true/false,"coords":{"longitude":,"latitude":}} MicroApp to Handle
+	 *            timeout in case GPS tracking takes time.
+	 * 
+	 */
+
+	@JavascriptInterface
+	public void getLocation()
+	{
+		GpsLocation gps = GpsLocation.getInstance();
+		gps.getLocation();
+
+	}
+
+	
+	/**
+	 * Added in Platform Version:6
+	 * 
+	 * @param id
+	 *            : : the id of the function that native will call to call the js . Get last store location,in case GPS is on,but unable to get location. return a json
+	 *            {"gpsAvailable":true/false,"coords":{"longitude":,"latitude":}}
+	 */
+	@JavascriptInterface
+	public void getLastStoredLocation(final String id)
+	{
+		LocationManager locationManager;
+		Location location;
+		Activity mContext = weakActivity.get();
+		if (mContext != null)
+		{
+			locationManager = (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
+			location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+			String latLong = PlatformUtils.getLatLongFromLocation(locationManager, location);
+			callbackToJS(id, latLong);
+		}
+
+	}
+
+	public void locationReceived(final String latLong)
+	{
+		if (mHandler == null)
+		{
+			return;
+		}
+		mHandler.post(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				mWebView.loadUrl("javascript:locationReceived" + "('" + getEncodedDataForJS(latLong) + "')");
+			}
+		});
+		
+	}
+
 
 }
