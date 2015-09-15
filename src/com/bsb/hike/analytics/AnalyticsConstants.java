@@ -226,6 +226,8 @@ public class AnalyticsConstants
 	}
 	
 	public static final String STICKER_PALLETE = "stkp";
+	
+	public static final String STICKER_SEARCH = "stks";
 
 	public static final class MessageType
 	{
@@ -469,4 +471,6 @@ public class AnalyticsConstants
 	public static final String TIMELINE_OPTION_TYPE = "ot";
 	
 	public static final String APP_CRASH_EVENT = "appCrash";
+	
+	public static final String BOT_NOTIF_TRACKER = "bno";
 }

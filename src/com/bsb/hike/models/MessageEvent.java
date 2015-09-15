@@ -30,12 +30,26 @@ public class MessageEvent
 
 	private long eventId;
 
+	private long messageId;
+
+	private String parent_msisdn;
+
 	public MessageEvent(String eventType, String msisdn, String nameSpace, String eventMetadata, String messageHash, int eventStatus, long timeStamp)
 	{
 		this(eventType, msisdn, nameSpace, eventMetadata, messageHash, eventStatus, timeStamp, -1);
 	}
 
 	public MessageEvent(String eventType, String msisdn, String nameSpace, String eventMetadata, String messageHash, int eventStatus, long timeStamp, long mappedEventId)
+	{
+		this(eventType, msisdn, nameSpace, eventMetadata, messageHash, eventStatus, timeStamp, mappedEventId, -1);
+	}
+
+	public MessageEvent(String eventType, String msisdn, String nameSpace, String eventMetadata, String messageHash, int eventStatus, long timeStamp, long mappedEventId, long messageId)
+	{
+		this(eventType, msisdn, nameSpace, eventMetadata, messageHash, eventStatus, timeStamp, mappedEventId, messageId, null);
+	}
+
+	public MessageEvent(String eventType, String msisdn, String nameSpace, String eventMetadata, String messageHash, int eventStatus, long timeStamp, long mappedEventId, long messageId, String parent_msisdn)
 	{
 		setEventType(eventType);
 		this.msisdn = msisdn;
@@ -45,6 +59,8 @@ public class MessageEvent
 		this.eventStatus = eventStatus;
 		this.sentTimeStamp = timeStamp;
 		this.mappedEventId = mappedEventId;
+		this.messageId = messageId;
+		this.parent_msisdn = parent_msisdn;
 	}
 
 	public int getEventStatus()
@@ -129,6 +145,11 @@ public class MessageEvent
 		this.eventMetadata = eventMetadata;
 	}
 
+	public String getParent_msisdn()
+	{
+		return parent_msisdn;
+	}
+
 	public String getMessageHash()
 	{
 		return messageHash;
@@ -149,6 +170,11 @@ public class MessageEvent
 		this.eventId = eventId;
 	}
 
+	public long getMessageId()
+	{
+		return messageId;
+	}
+
 	public String createEventHash()
 	{
 		/*
@@ -166,6 +192,6 @@ public class MessageEvent
 	{
      	return isEventSent(eventStatus) ? ContactManager.getInstance().getSelfMsisdn() : msisdn;
 	}
-
+	
 }
 

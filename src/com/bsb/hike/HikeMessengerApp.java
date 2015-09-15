@@ -22,6 +22,7 @@ import org.acra.sender.ReportSenderException;
 import org.acra.util.HttpRequest;
 
 import android.app.Application;
+import android.app.NotificationManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -33,8 +34,8 @@ import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Pair;
+import android.widget.Toast;
 
-import com.bsb.hike.ag.NetworkAgModule;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.chatHead.ChatHeadUtils;
@@ -48,6 +49,7 @@ import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
 import com.bsb.hike.notifications.HikeNotificationUtils;
 import com.bsb.hike.notifications.ToastListener;
+import com.bsb.hike.offline.OfflineConstants;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUIDFetch;
 import com.bsb.hike.platform.content.PlatformContent;
@@ -489,6 +491,8 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 	public static final String UPGRADE_FOR_SERVER_ID_FIELD = "upgradeForServerIdField";
 
 	public static final String UPGRADE_FOR_DEFAULT_BOT_ENTRY = "upgradeForBotEntry";
+	
+	public static final String UPGRADE_SORTING_ID_FIELD = "upgradeForSortingIdField";
 
 	public static final String EXCEPTION_ANALYTIS_ENABLED = "exceptionAnalaticsEnabled";
 
@@ -836,7 +840,7 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 		// successfully.
 		if ((settings.getInt(HikeConstants.UPGRADE_AVATAR_CONV_DB, -1) == 1) || settings.getInt(HikeConstants.UPGRADE_MSG_HASH_GROUP_READBY, -1) == 1
 				|| settings.getInt(HikeConstants.UPGRADE_FOR_DATABASE_VERSION_28, -1) == 1 || settings.getInt(StickerManager.MOVED_HARDCODED_STICKERS_TO_SDCARD, 1) == 1
-				|| settings.getInt(StickerManager.UPGRADE_FOR_STICKER_SHOP_VERSION_1, 1) == 1 || settings.getInt(UPGRADE_FOR_SERVER_ID_FIELD, 0) == 1 || TEST)
+				|| settings.getInt(StickerManager.UPGRADE_FOR_STICKER_SHOP_VERSION_1, 1) == 1 || settings.getInt(UPGRADE_FOR_SERVER_ID_FIELD, 0) == 1 || settings.getInt(UPGRADE_SORTING_ID_FIELD, 0) == 1 || TEST)
 		{
 			startUpdgradeIntent();
 		}
@@ -854,7 +858,8 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 		// String twitterTokenSecret = settings.getString(HikeMessengerApp.TWITTER_TOKEN_SECRET, "");
 		// makeTwitterInstance(twitterToken, twitterTokenSecret);
 
-		setIndianUser(settings.getString(COUNTRY_CODE, "").equals(HikeConstants.INDIA_COUNTRY_CODE));
+		String countryCode = settings.getString(COUNTRY_CODE, "");
+		setIndianUser(countryCode.equals(HikeConstants.INDIA_COUNTRY_CODE));
 
 		SharedPreferences preferenceManager = PreferenceManager.getDefaultSharedPreferences(this);
 
@@ -862,7 +867,7 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 		// update case
 		// in case of an update the SSL pref would not be null
 
-		boolean isSAUser = settings.getString(COUNTRY_CODE, "").equals(HikeConstants.SAUDI_ARABIA_COUNTRY_CODE);
+		boolean isSAUser = countryCode.equals(HikeConstants.SAUDI_ARABIA_COUNTRY_CODE);
 
 		// Setting SSL_PREF as false for existing SA users with SSL_PREF = true
 		if (!preferenceManager.contains(HikeConstants.SSL_PREF) || (isSAUser && settings.getBoolean(HikeConstants.SSL_PREF, false)))
@@ -870,6 +875,13 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 			Editor editor = preferenceManager.edit();
 			editor.putBoolean(HikeConstants.SSL_PREF, !(isIndianUser || isSAUser));
 			editor.commit();
+		}
+		
+		//if ssl_allowed preference is not set then set it
+		// this will be usefull for upgrading users.
+		if(!HikeSharedPreferenceUtil.getInstance().contains(HikeMessengerApp.SSL_ALLOWED))
+		{
+			Utils.setSSLAllowed(countryCode);
 		}
 
 		if (!preferenceManager.contains(HikeConstants.RECEIVE_SMS_PREF))
@@ -932,6 +944,12 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 			fetchPlatformIDIfNotPresent();
 		}
 		
+		// Cancel any going OfflineNotification
+		NotificationManager notificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
+		notificationManager.cancel(OfflineConstants.NOTIFICATION_IDENTIFIER);
+
+		HikeSharedPreferenceUtil.getInstance().removeData(OfflineConstants.DIRECT_REQUEST_DATA);
+	
 		StickerManager.getInstance().sendStickerPackAndOrderListForAnalytics();
 		StickerManager.getInstance().refreshTagData();
 		StickerSearchManager.getInstance().removeDeletedStickerTags();
@@ -939,7 +957,6 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 		bottomNavBarHeightPortrait = Utils.getBottomNavBarHeight(getApplicationContext());
 		bottomNavBarWidthLandscape = Utils.getBottomNavBarWidth(getApplicationContext());
 		
-		NetworkAgModule.startLogging();
 	}
 
 	private void initImportantAppComponents(SharedPreferences prefs)
@@ -1143,6 +1160,32 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 		}
 	}
 
+	public void showToast(final String message)
+	{
+		appStateHandler.post(new Runnable()
+		{
+			
+			@Override
+			public void run()
+			{
+				Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
+			}
+		});
+	}
+	
+	public void showToast(final int stringId)
+	{
+		appStateHandler.post(new Runnable()
+		{
+			
+			@Override
+			public void run()
+			{
+				Toast.makeText(getApplicationContext(),getResources().getString(stringId), Toast.LENGTH_SHORT).show();
+			}
+		});
+	}
+	
 	private Runnable appStateChangedRunnable = new Runnable()
 	{
 

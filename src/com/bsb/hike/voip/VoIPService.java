@@ -37,7 +37,6 @@ import android.media.RingtoneManager;
 import android.media.SoundPool;
 import android.net.Uri;
 import android.os.Binder;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -138,7 +137,6 @@ public class VoIPService extends Service {
 	// Echo cancellation
 	private boolean aecEnabled = true;
 	private SolicallWrapper solicallAec = null;
-	private boolean useVADToReduceData = true;
 	private boolean aecSpeakerSignal = false, aecMicSignal = false;
 	
 	// Buffer queues
@@ -398,7 +396,6 @@ public class VoIPService extends Service {
 		});
 
 		startConnectionTimeoutThread();
-		startBluetooth();
 		registerBroadcastReceivers();
 	}
 	
@@ -411,6 +408,7 @@ public class VoIPService extends Service {
 		
 		if (bluetoothHelper != null) {
 			bluetoothHelper.stop();
+			bluetoothHelper = null;
 		}
 		
 		if (tts != null) {
@@ -467,6 +465,7 @@ public class VoIPService extends Service {
 			}
 		}
 
+		// Recipient is already in a call
 		if (action.equals(HikeConstants.MqttMessageTypes.VOIP_ERROR_ALREADY_IN_CALL)) {
 			Logger.w(tag, msisdn + " is currently busy.");
 			sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CONNECTION_FAILED, VoIPConstants.CallFailedCodes.PARTNER_BUSY);
@@ -480,9 +479,19 @@ public class VoIPService extends Service {
 				Bundle bundle = new Bundle();
 				bundle.putString(VoIPConstants.MSISDN, msisdn);
 				sendHandlerMessage(VoIPConstants.MSG_PARTNER_BUSY, bundle);
-				cl.hangUp();
+				removeFromClients(msisdn);
 			} else
 				Logger.w(tag, "Unable to find the client object who we were calling.");
+		}
+		
+		// Recipient is on an unsupported platform
+		if (action.equals(HikeConstants.MqttMessageTypes.VOIP_ERROR_CALLEE_INCOMPATIBLE_NOT_UPGRADABLE)) {
+			Logger.w(tag, msisdn + " is on an unsupported platform.");
+			sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CONNECTION_FAILED, VoIPConstants.CallFailedCodes.PARTNER_INCOMPAT);
+			removeFromClients(msisdn);
+			Bundle bundle = new Bundle();
+			bundle.putString(VoIPConstants.MSISDN, msisdn);
+			sendHandlerMessage(VoIPConstants.MSG_PARTNER_INCOMPATIBLE_PLATFORM, bundle);
 		}
 		
 		// Incoming call message
@@ -490,7 +499,7 @@ public class VoIPService extends Service {
 
 			int partnerCallId = intent.getIntExtra(VoIPConstants.Extras.CALL_ID, 0);
 			
-			if (VoIPUtils.checkForActiveCall(getApplicationContext(), msisdn, partnerCallId))
+			if (VoIPUtils.checkForActiveCall(getApplicationContext(), msisdn, partnerCallId, false))
 				return returnInt;
 			
 			setCallid(partnerCallId);
@@ -537,7 +546,7 @@ public class VoIPService extends Service {
 			
 			int partnerCallId = intent.getIntExtra(VoIPConstants.Extras.CALL_ID, 0);
 						
-			if (VoIPUtils.checkForActiveCall(getApplicationContext(), msisdn, partnerCallId))
+			if (VoIPUtils.checkForActiveCall(getApplicationContext(), msisdn, partnerCallId, true))
 				return returnInt;
 			
 			// Error case: partner is trying to reconnect to us, but we aren't
@@ -617,7 +626,8 @@ public class VoIPService extends Service {
 			if (myMsisdn != null && myMsisdn.equals(msisdn)) 
 			{
 				Logger.wtf(tag, "Don't be ridiculous!");
-				stop();
+				if (clients.size() == 0)
+					stop();
 				return returnInt;
 			}
 			
@@ -659,6 +669,13 @@ public class VoIPService extends Service {
 				return returnInt;
 			}
 
+			// Error case: We are currently receiving a call which we haven't 
+			// answered yet
+			if (getCallStatus() == CallStatus.INCOMING_CALL) {
+				restoreActivity();
+				return returnInt;
+			}
+			
 			// All good. Initiate the call
 			int callSource = intent.getIntExtra(VoIPConstants.Extras.CALL_SOURCE, -1);
 			if (intent.getExtras().containsKey(VoIPConstants.Extras.MSISDNS)) {
@@ -697,6 +714,7 @@ public class VoIPService extends Service {
 			// Show activity
 			restoreActivity();
 			sendHandlerMessage(VoIPConstants.MSG_UPDATE_CONTACT_DETAILS);
+			startBluetooth();
 			
 			if (clients.size() > 1)
 				sendHandlerMessage(VoIPConstants.MSG_UPDATE_FORCE_MUTE_LAYOUT);
@@ -943,8 +961,6 @@ public class VoIPService extends Service {
 
 			case UNINITIALIZED:
 				return;
-		case HOSTING_CONFERENCE:
-			break;
 		default:
 			break;
 		}
@@ -1168,8 +1184,6 @@ public class VoIPService extends Service {
 		Bundle bundle = new Bundle();
 		bundle.putInt(VoIPConstants.CALL_ID, getCallId());
 		bundle.putInt(VoIPConstants.CALL_NETWORK_TYPE, VoIPUtils.getConnectionClass(getApplicationContext()).ordinal());
-		bundle.putString(VoIPConstants.APP_VERSION_NAME, VoIPUtils.getAppVersionName(getApplicationContext()));
-		bundle.putInt(VoIPConstants.OS_VERSION, Build.VERSION.SDK_INT);
 		bundle.putInt(VoIPConstants.CALL_DURATION, getCallDuration());
 		if (clientPartner != null) {
 			bundle.putInt(VoIPConstants.IS_CALL_INITIATOR, clientPartner.isInitiator() ? 0 : 1);
@@ -1352,6 +1366,7 @@ public class VoIPService extends Service {
 
 		startRecordingAndPlayback(client.getPhoneNumber());
 		client.sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CALL_ACCEPT);
+		startBluetooth();
 	}
 	
 	private synchronized void startRecordingAndPlayback(String msisdn) {
@@ -1386,14 +1401,13 @@ public class VoIPService extends Service {
 			startRecording();
 			startPlayBack();
 			startChrono();
-			
-			// When a conference participant accepts a call, change their UI
-			// to display all the conference participants
-			if (client.isHostingConference)
-				sendHandlerMessage(VoIPConstants.MSG_UPDATE_SPEAKING);
-
 		} else {
 			Logger.d(tag, "Skipping startRecording() and startPlayBack()");
+		}
+		
+		if (hostingConference()) {
+			sendHandlerMessage(VoIPConstants.MSG_UPDATE_SPEAKING);
+			sendClientsListToAllClients();
 		}
 	}
 	
@@ -1559,12 +1573,15 @@ public class VoIPService extends Service {
 					// AEC
 					if (solicallAec != null && aecEnabled && aecMicSignal && aecSpeakerSignal) {
 						int ret = solicallAec.processMic(dpRaw.getData());
-
-						if (useVADToReduceData) {
-							if (ret == 0) 
-								speechDetected = false;
-							else 
-								speechDetected = true;
+						if (ret == 0) {
+							if (speechDetected == true)
+								client.updateLocalSpeech(false);
+							speechDetected = false;
+						}
+						else {
+							if (speechDetected == false)
+								client.updateLocalSpeech(true);
+							speechDetected = true;
 						}
 					} else
 						aecMicSignal = true;
@@ -2160,8 +2177,8 @@ public class VoIPService extends Service {
 	{
 		VoIPClient client = getClient();
 		
-		if (hostingConference())
-			return CallStatus.HOSTING_CONFERENCE;
+		if (hostingConference() && recordingAndPlaybackRunning)
+			return CallStatus.ACTIVE;
 		
 		if (client != null)
 			return client.getCallStatus();
@@ -2287,7 +2304,7 @@ public class VoIPService extends Service {
 								// Add our own client
 								JSONObject clientJson = new JSONObject();
 								clientJson.put(VoIPConstants.Extras.MSISDN, Utils.getUserContactInfo(getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, MODE_PRIVATE)).getMsisdn());
-								clientJson.put(VoIPConstants.Extras.STATUS, CallStatus.HOSTING_CONFERENCE.ordinal());
+								clientJson.put(VoIPConstants.Extras.STATUS, CallStatus.ACTIVE.ordinal());
 								clientJson.put(VoIPConstants.Extras.SPEAKING, speechDetected && !mute);
 								clientsJson.put(clientJson);
 
@@ -2378,7 +2395,7 @@ public class VoIPService extends Service {
 	
 	private void startBluetooth() {
 		isBluetoothEnabled = VoIPUtils.isBluetoothEnabled(getApplicationContext());
-		if (isBluetoothEnabled) {
+		if (isBluetoothEnabled && bluetoothHelper == null) {
 			bluetoothHelper = new BluetoothHelper(getApplicationContext());
 			bluetoothHelper.start();
 		}

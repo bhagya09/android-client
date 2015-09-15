@@ -367,7 +367,6 @@
        <item name="actionButtonStyle">@style/HikeActionButtonStyle</item>
         <item name="actionBarItemBackground">@drawable/actionbarselectable</item>
     <item name="selectableItemBackground">@drawable/actionbarselectable</item>
-
         
     </style>
     <style name="NoCloseButton" parent="@style/Widget.AppCompat.ActionButton.CloseMode">
@@ -1037,7 +1036,7 @@
         <item name="android:windowActionBarOverlay">true</item>
 	 </style>
 	 
-	 <style name="WebView.Theme.ActionBar.Overlay.NoShadow" parent = "WebView.Theme">
+	 <style name="WebView.Theme.ActionBar.Overlay.NoShadow" parent = "WebView.Theme.ActionBar.Overlay">
 	     <item name="android:windowContentOverlay">@null</item>
 	 </style>
 	 

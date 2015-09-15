@@ -16,6 +16,7 @@ import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.platform.CustomWebView;
 import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.platform.PlatformHelper;
 import com.bsb.hike.platform.WebMetadata;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
@@ -208,7 +209,7 @@ public class MessagingBridge_Nano extends JavascriptBridge
 				}
 			}
 
-			startComPoseChatActivity(message);
+			PlatformHelper.startComPoseChatActivity(message,weakActivity.get());
 		}
 		catch (JSONException e)
 		{
@@ -370,7 +371,7 @@ public class MessagingBridge_Nano extends JavascriptBridge
 
 	public void eventReceived(String event)
 	{
-		mWebView.loadUrl("javascript:eventReceived(" + "'" + event + "')");
+		mWebView.loadUrl("javascript:eventReceived(" + "'" + getEncodedDataForJS(event) + "')");
 	}
 
 }

@@ -8,12 +8,17 @@ import android.text.TextUtils;
 import android.webkit.JavascriptInterface;
 import android.widget.BaseAdapter;
 
+import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.HikePubSub;
 import com.bsb.hike.adapters.ConversationsAdapter;
+import com.bsb.hike.bots.BotInfo;
+import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.platform.CustomWebView;
 import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.platform.PlatformHelper;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.WebMetadata;
 import com.bsb.hike.utils.Logger;
@@ -529,7 +534,7 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 	}
 
 	/**
-	 * Platform Version 5
+	 * Platform Version 6
 	 * Call this function to delete an event from the list of events that are shared with the microapp.
 	 *
 	 * @param eventId: the event that will be deleted from the shared messages table.
@@ -546,7 +551,7 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 	}
 
 	/**
-	 * Platform Version 5
+	 * Platform Version 6
 	 * Call this function to delete all the events, be it shared data or normal event pertaining to a single message.
 	 *
 	 * @param messageHash : the hash of the corresponding message.
@@ -564,7 +569,7 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 	}
 
 	/**
-	 * Platform Version 5
+	 * Platform Version 6
 	 * Call this function to delete all the events for a particular microapp, be it shared data or normal event.
 	 *
 	 * @param namespace: the namespace whose shared events are being asked
@@ -581,7 +586,7 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 	}
 
 	/**
-	 * Platform Version 5
+	 * Platform Version 6
 	 * Call this function to get all the shared messages data. The data is a stringified list that contains event id, message hash and the data.
 	 * <p/>
 	 * "name": name of the user interacting with. This gives name, and if the name isn't present , then the msisdn.
@@ -607,7 +612,7 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 	}
 
 	/**
-	 * Platform Version 5
+	 * Platform Version 6
 	 * Call this function to get all the event messages data. The data is a stringified list that contains event id, message hash and the data.
 	 * <p/>
 	 * "name": name of the user interacting with. This gives name, and if the name isn't present , then the msisdn.
@@ -634,7 +639,7 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 	}
 
 	/**
-	 * Platform Version 5
+	 * Platform Version 6
 	 * Call this function to get all the event messages data. The data is a stringified list that contains:
 	 * "name": name of the user interacting with. This gives name, and if the name isn't present , then the msisdn.
 	 * "platformUid": the platform user id of the user interacting with.
@@ -658,7 +663,7 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 	}
 
 	/**
-	 * Platform Version 5
+	 * Platform Version 6
 	 * Call this function to send a shared message to the contacts of the user. This function when forwards the data, returns with the contact details of
 	 * the users it has sent the message to.
 	 * It will call JavaScript function "onContactChooserResult(int resultCode,JsonArray array)" This JSOnArray contains list of JSONObject where each JSONObject reflects one user. As of now
@@ -706,7 +711,7 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 	}
 
 	/**
-	 * Platform version 5
+	 * Platform version 6
 	 * Call this method to send a normal event.
 	 *
 	 * @param messageHash : the message hash that determines the uniqueness of the card message, to which the data is being sent.
@@ -718,6 +723,127 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 	public void sendNormalEvent(String messageHash, String namespace, String eventData)
 	{
 		PlatformUtils.sendPlatformMessageEvent(eventData, messageHash, namespace);
+	}
+
+	/**
+	 * Platform version 6
+	 * Call this function to block/unblock the parent bot.
+	 * @param block : Stringified boolean whether to block or unblock the parent bot.
+	 */
+	@JavascriptInterface
+	public void blockParentBot(String block)
+	{
+		if (!BotUtils.isBot(message.webMetadata.getParentMsisdn()))
+		{
+			return;
+		}
+		BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(message.webMetadata.getParentMsisdn());
+		if (Boolean.valueOf(block))
+		{
+			botInfo.setBlocked(true);
+			HikeMessengerApp.getPubSub().publish(HikePubSub.BLOCK_USER, botInfo.getMsisdn());
+		}
+
+		else
+		{
+			botInfo.setBlocked(false);
+			HikeMessengerApp.getPubSub().publish(HikePubSub.UNBLOCK_USER, botInfo.getMsisdn());
+		}
+
+	}
+
+	/**
+	 * Platform Version 6
+	 * Call this method to know whether the bot pertaining to the msisdn is blocked or not.
+	 * @param id : the id of the function that native will call to call the js .
+	 */
+	@JavascriptInterface
+	public void isParentBotBlocked(String id)
+	{
+		if (!BotUtils.isBot(message.webMetadata.getParentMsisdn()))
+		{
+			return;
+		}
+		BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(message.webMetadata.getParentMsisdn());
+		callbackToJS(id, String.valueOf(botInfo.isBlocked()));
+	}
+
+	/**
+	 * Platform Version 6
+	 * Call this method to know whether the bot pertaining to the msisdn is enabled or not.
+	 * @param id : the id of the function that native will call to call the js .
+	 */
+	@JavascriptInterface
+	public void isParentBotEnabled(String id)
+	{
+		if (!BotUtils.isBot(message.webMetadata.getParentMsisdn()))
+		{
+			return;
+		}
+		String value = String.valueOf(HikeConversationsDatabase.getInstance().isConversationExist(message.webMetadata.getParentMsisdn()));
+		callbackToJS(id, value);
+	}
+
+	/**
+	 * Platform Version 6
+	 * Call this method to enable/disable bot. Enable means to show the bot in the conv list and disable is vice versa.
+	 * @param enable : the id of the function that native will call to call the js .
+	 */
+	@JavascriptInterface
+	public void enableParentBot(String enable)
+	{
+
+		if (!BotUtils.isBot(message.webMetadata.getParentMsisdn()))
+		{
+			return;
+		}
+		BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(message.webMetadata.getParentMsisdn());
+		boolean enableBot = Boolean.valueOf(enable);
+		if (enableBot)
+		{
+			PlatformUtils.enableBot(botInfo, true);
+		}
+		else
+		{
+			BotUtils.deleteBotConversation(botInfo.getMsisdn(), false);
+		}
+	}
+
+	/**
+	 * Platform Version 7
+	 * Call this method to mute/unmute the parent bot.
+	 * @param mute : send true to mute the bot in Conversation Fragment and false to unmute.
+	 */
+	@JavascriptInterface
+	public void muteParentBot(String mute)
+	{
+
+		if (!BotUtils.isBot(message.webMetadata.getParentMsisdn()))
+		{
+			return;
+		}
+
+		Boolean muteBot = Boolean.valueOf(mute);
+		BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(message.webMetadata.getParentMsisdn());
+		botInfo.setMute(muteBot);
+		HikeConversationsDatabase.getInstance().toggleMuteBot(botInfo.getMsisdn(), muteBot);
+	}
+
+	/**
+	 * Platform Version 7
+	 * Call this method to know whether the bot pertaining to the parent msisdn is muted or not.
+	 * @param id : the id of the function that native will call to call the js .
+	 */
+	@JavascriptInterface
+	public void isParentBotMute(String id)
+	{
+		if (!BotUtils.isBot(message.webMetadata.getParentMsisdn()))
+		{
+			return;
+		}
+
+		BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(message.webMetadata.getParentMsisdn());
+		callbackToJS(id, String.valueOf(botInfo.isMute()));
 	}
 
 }

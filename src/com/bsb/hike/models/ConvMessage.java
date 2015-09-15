@@ -22,6 +22,7 @@ import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.models.Conversation.GroupConversation;
 import com.bsb.hike.models.Conversation.OneToNConversation;
 import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.offline.OfflineConstants;
 import com.bsb.hike.platform.ContentLove;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformMessageMetadata;
@@ -147,6 +148,7 @@ public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique
 	{
 		NORMAL, /* message sent to server */
 		BROADCAST, /* message originated from a broadcast */
+		OFFLINE, /* message originated when connected in Hike Offline */
 	};
 	
 	private OriginType messageOriginType = OriginType.NORMAL;
@@ -227,7 +229,7 @@ public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique
 		PARTICIPANT_JOINED, // The participant has joined
 		GROUP_END, // Group chat has ended
 		USER_OPT_IN, DND_USER, USER_JOIN, CHANGED_GROUP_NAME, CHANGED_GROUP_IMAGE, BLOCK_INTERNATIONAL_SMS, INTRO_MESSAGE, STATUS_MESSAGE, CHAT_BACKGROUND,
-		VOIP_CALL_SUMMARY, VOIP_MISSED_CALL_OUTGOING, VOIP_MISSED_CALL_INCOMING,CHANGE_ADMIN, GC_SETTING_CHANGE;
+		VOIP_CALL_SUMMARY, VOIP_MISSED_CALL_OUTGOING, VOIP_MISSED_CALL_INCOMING,CHANGE_ADMIN, GC_SETTING_CHANGE,OFFLINE_INLINE_MESSAGE , OFFLINE_FILE_NOT_RECEIVED;
 
 		public static ParticipantInfoState fromJSON(JSONObject obj)
 		{
@@ -300,6 +302,15 @@ public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique
 			{
 				return VOIP_MISSED_CALL_OUTGOING;
 			}
+			else if (OfflineConstants.OFFLINE_INLINE_MESSAGE.equals(type))
+			{
+				return OFFLINE_INLINE_MESSAGE;
+			}
+			else if(OfflineConstants.OFFLINE_FILES_NOT_RECEIVED_TYPE.equals(type))
+			{
+				return OFFLINE_FILE_NOT_RECEIVED;
+			}
+				
 			return NO_INFO;
 		}
 	}
@@ -953,7 +964,8 @@ public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique
 					break;
 
 				}
-
+				
+				//object.put(OfflineConstants.IS_OFFLINE_MESSAGE, IsOfflineMessage());
 				object.put(HikeConstants.TYPE, mInvite ? HikeConstants.MqttMessageTypes.INVITE : HikeConstants.MqttMessageTypes.MESSAGE);
 				object.put(HikeConstants.SEND_TIMESTAMP, getSendTimestamp());
 			}
@@ -1319,6 +1331,10 @@ public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique
 		return messageOriginType == OriginType.BROADCAST;
 	}
 	
+	public boolean isOfflineMessage(){
+		return messageOriginType == OriginType.OFFLINE;
+	}
+	
 	public ArrayList<String> getSentToMsisdnsList() {
 		return sentToMsisdnsList;
 	}
@@ -1394,7 +1410,7 @@ public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique
 			this.privateData = messagePrivateData;
 		}
 	}
-
+	
 	@Override
 	public ViewDimentions getDimentionMatrix()
 	{
