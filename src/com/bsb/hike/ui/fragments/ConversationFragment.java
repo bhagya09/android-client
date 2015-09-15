@@ -1096,14 +1096,14 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 					JSONObject data = new JSONObject();
 					try
 					{
-						data.put(HikeConstants.SCREEN, nonMessagingBotMetadata.getIntent());
+						data.put(HikeConstants.SCREEN, nonMessagingBotMetadata.getTargetActivity());
 					}
 					catch (JSONException e)
 					{
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
-					PlatformUtils.openActivity(getActivity(), data.toString());
+					PlatformUtils.openActivity(getActivity(),data.toString());
 
 				}
 				else

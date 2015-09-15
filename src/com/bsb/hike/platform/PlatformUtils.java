@@ -320,7 +320,7 @@ public class PlatformUtils
 			{
 				IntentFactory.openAccessibilitySettings(context);
 			}
-			if (activityName.equals(HIKESCREEN.NATIVE_ACTIVITY.toString()))
+			if (activityName.equals(HIKESCREEN.GAME_ACTIVITY.toString()))
 			{
 				IntentFactory.openIntentForGameActivity(context);
 			}

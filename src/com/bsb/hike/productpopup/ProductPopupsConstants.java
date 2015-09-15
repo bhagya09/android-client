@@ -407,7 +407,7 @@ public class ProductPopupsConstants
 				return "access";
 			}
 		},
-		NATIVE_ACTIVITY
+		GAME_ACTIVITY
 		{
 			@Override
 			public String toString()
