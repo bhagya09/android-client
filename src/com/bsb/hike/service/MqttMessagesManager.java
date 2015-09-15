@@ -3806,7 +3806,7 @@ public class MqttMessagesManager
 						
 						//To update Overflow menu on Home Screen
 						HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.IS_HOME_OVERFLOW_CLICKED, false);
-						HikeMessengerApp.getPubSub().publish(HikePubSub.INCREMENTED_UNSEEN_STATUS_COUNT, null);
+						HikeMessengerApp.getPubSub().publish(HikePubSub.UNSEEN_STATUS_COUNT_CHANGED, null);
 					}
 
 					if (isSuccess)
@@ -3974,7 +3974,7 @@ public class MqttMessagesManager
 		editor.putBoolean(HikeConstants.IS_HOME_OVERFLOW_CLICKED, false);
 		editor.commit();
 
-		pubSub.publish(HikePubSub.INCREMENTED_UNSEEN_STATUS_COUNT, null);
+		pubSub.publish(HikePubSub.UNSEEN_STATUS_COUNT_CHANGED, null);
 	}
 
 	private void updateDbBatch(long[] ids, ConvMessage.State status, String msisdn)
