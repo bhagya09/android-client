@@ -2988,6 +2988,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		values.put(DBConstants.CONFIG_DATA, botInfo.getConfigData());
 		values.put(HIKE_CONTENT.NAMESPACE, botInfo.getNamespace());
 		values.put(HIKE_CONTENT.HELPER_DATA, botInfo.getHelperData());
+		values.put(HIKE_CONTENT.BOT_VERSION, botInfo.getVersion());
 		mDb.insertWithOnConflict(DBConstants.BOT_TABLE, null, values, SQLiteDatabase.CONFLICT_REPLACE);
 	}
 
@@ -8027,6 +8028,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			int configDataidx = c.getColumnIndex(DBConstants.CONFIG_DATA);
 			int notifDataIdx = c.getColumnIndex(HIKE_CONTENT.NOTIF_DATA);
 			int helperDataIdx = c.getColumnIndex(HIKE_CONTENT.HELPER_DATA);
+			int versionIdx = c.getColumnIndex(HIKE_CONTENT.BOT_VERSION);
 
 			if (c.moveToFirst())
 			{
@@ -8039,9 +8041,9 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				String configData = c.getString(configDataidx);
 				String notifData = c.getString(notifDataIdx);
 				String helperData = c.getString(helperDataIdx);
-
+				int version = c.getInt(versionIdx);
 				BotInfo botInfo = new BotInfo.HikeBotBuilder(msisdn).setConvName(name).setConfig(config).setType(botType).setMetadata(metadata).setIsMute(mute == 1)
-						.setNamespace(namespace).setConfigData(configData).setHelperData(helperData).setNotifData(notifData).build();
+						.setNamespace(namespace).setConfigData(configData).setHelperData(helperData).setNotifData(notifData).setVersion(version).build();
 				
 				botInfo.setBlocked(ContactManager.getInstance().isBlocked(msisdn));
 				return botInfo;

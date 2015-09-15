@@ -80,6 +80,7 @@ public interface HikePlatformConstants
 	public static final String PARENT_MSISDN = "parent_msisdn";
 	public static final String SPECIAL = "spl";
 	public static final String REQUEST_CODE = "request_code";
+	public static final String BOT_VERSION = "version";
 
 	public static final class PlatformUIDFetchType
 	{

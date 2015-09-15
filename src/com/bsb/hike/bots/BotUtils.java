@@ -385,6 +385,12 @@ public class BotUtils
 			botInfo.setMetadata(metadata);
 		}
 
+		if (jsonObj.has(HikePlatformConstants.BOT_VERSION))
+		{
+			int version = jsonObj.optInt(HikePlatformConstants.BOT_VERSION);
+			botInfo.setVersion(version);
+		}
+
 		if (jsonObj.has(HikePlatformConstants.HELPER_DATA))
 		{
 
