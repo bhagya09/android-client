@@ -104,7 +104,7 @@
     <dimen name="timeine_big_picture_size">200dp</dimen>
     <dimen name="timeine_profile_picture_size">320dp</dimen>
     <dimen name="icon_picture_size">50dp</dimen>
-    <dimen name="gallery_grid_spacing">5dp</dimen>
+    <dimen name="gallery_grid_spacing">2dp</dimen>
     <dimen name="gallery_cover_item_size">179dp</dimen>
     <dimen name="gallery_album_item_size">134dp</dimen>
     <dimen name="gallery_selection_item_size">89dp</dimen>

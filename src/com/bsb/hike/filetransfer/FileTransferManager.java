@@ -382,18 +382,6 @@ public class FileTransferManager extends BroadcastReceiver
 	{
 		if(taskOverflowLimitAchieved())
 			return;
-		if(hikeFileType != HikeFileType.IMAGE)
-		{
-			handler.post(new Runnable()
-			{
-				@Override
-				public void run()
-				{
-					Toast.makeText(context, R.string.unknown_msg, Toast.LENGTH_SHORT).show();
-				}
-			});
-			return;
-		}
 		
 		settings = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
 		String token = settings.getString(HikeMessengerApp.TOKEN_SETTING, null);
@@ -408,18 +396,6 @@ public class FileTransferManager extends BroadcastReceiver
 	{
 		if(taskOverflowLimitAchieved())
 			return;
-		if(hikeFileType != HikeFileType.IMAGE)
-		{
-			handler.post(new Runnable()
-			{
-				@Override
-				public void run()
-				{
-					Toast.makeText(context, R.string.unknown_msg, Toast.LENGTH_SHORT).show();
-				}
-			});
-			return;
-		}
 		
 		settings = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
 		String token = settings.getString(HikeMessengerApp.TOKEN_SETTING, null);
