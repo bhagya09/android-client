@@ -40,7 +40,14 @@ public class NetworkAgModule extends BroadcastReceiver
 		NetworkConnectivity mConnectivity = NetworkConnectivity.getInstance(HikeMessengerApp.getInstance());
 		if(mConnectivity != null)
 		{
-			mConnectivity.stopLogging();
+			try
+			{
+				mConnectivity.stopLogging();
+			}
+			catch (Exception e)
+			{
+				Logger.e(TAG, "error while stoping AG", e);
+			}
 		}
 	}
 
@@ -63,14 +70,21 @@ public class NetworkAgModule extends BroadcastReceiver
 		
 		long startTime = System.currentTimeMillis();
 		
-		NetworkConnectivity mConnectivity = NetworkConnectivity.getInstance(HikeMessengerApp.getInstance());
-		mConnectivity.setAuthenticationKey("120a7b20-05e3-11e5-9971-023d7307ee72");// Your AuthenticationKey
-		mConnectivity.setServerUrl("https://ag.hike.in/mobile");
-		mConnectivity.setDownloadUrl("http://ag.hike.in/latency");
-		mConnectivity.setLogIntervalSec(28800);
-		mConnectivity.setHighLocationPrecise(false);
-		mConnectivity.setIsDebugMode(true);
-		mConnectivity.startLogging();
+		try
+		{
+			NetworkConnectivity mConnectivity = NetworkConnectivity.getInstance(HikeMessengerApp.getInstance());
+			mConnectivity.setAuthenticationKey("120a7b20-05e3-11e5-9971-023d7307ee72");// Your AuthenticationKey
+			mConnectivity.setServerUrl("https://ag.hike.in/mobile");
+			mConnectivity.setDownloadUrl("http://ag.hike.in/latency");
+			mConnectivity.setLogIntervalSec(28800);
+			mConnectivity.setHighLocationPrecise(false);
+			mConnectivity.setIsDebugMode(true);
+			mConnectivity.startLogging();
+		}
+		catch (Exception e)
+		{
+			Logger.e(TAG, "error while starting AG", e);
+		}
 		
 		Logger.d(TAG, "time taken in ag module starting : "+ (System.currentTimeMillis() - startTime));
 	}
