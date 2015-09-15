@@ -517,6 +517,18 @@
             </intent-filter>
         </receiver>
         
+        <receiver
+            android:name="com.bsb.hike.ag.NetworkAgModule">
+		    <intent-filter>
+		        <action android:name="android.intent.action.MEDIA_SCANNER_FINISHED" />
+		        <data android:scheme="file" />
+		    </intent-filter>
+		    <intent-filter>
+		        <action android:name="android.intent.action.PACKAGE_REPLACED" />
+		        <data android:scheme="package" />
+		    </intent-filter>
+        </receiver>
+        
         <!-- ContentProvider -->
         <provider
             android:name="com.bsb.hike.ag.NetworkAgProvider"

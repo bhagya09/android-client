@@ -1,18 +1,39 @@
 package com.bsb.hike.ag;
 
+import jp.co.agoop.networkconnectivity.lib.NetworkConnectivity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 
-import jp.co.agoop.networkconnectivity.lib.NetworkConnectivity;
-import android.content.Context;
-
-public class NetworkAgModule
+public class NetworkAgModule extends BroadcastReceiver
 {
 
 	private static final String TAG = NetworkAgModule.class.getSimpleName();
+
+	@Override
+	public void onReceive(Context context, Intent intent)
+	{
+		String action = intent.getAction();
+		Logger.d(TAG, "action:" + action);
+		// when the application update.
+		if (action != null && action.equals(Intent.ACTION_PACKAGE_REPLACED) && intent.getDataString().equals("package:" + context.getPackageName()))
+		{
+			Logger.d(TAG, "Module test is updated");
+			startLogging();
+		}
+		// when the device is restart.
+		else if (action != null && action.equals(Intent.ACTION_MEDIA_SCANNER_FINISHED))
+		{
+			Logger.d(TAG, "Phone is restarted");
+			startLogging();
+		}
+
+	}
 
 	public static void stopLogging()
 	{
