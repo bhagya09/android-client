@@ -322,7 +322,7 @@
                                     android:contentDescription="Textbox in chat thread"
                                     android:gravity="center_vertical"
                                     android:imeOptions="actionSend"
-                                    android:inputType="text|textAutoCorrect|textCapSentences"
+                                    android:inputType="text|textAutoCorrect|textCapSentences|textMultiLine"
                                     android:lineSpacingExtra="1dp"
                                     android:maxLength="@integer/max_length_message"
                                     android:maxLines="4"
