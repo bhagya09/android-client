@@ -304,7 +304,8 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				+ DBConstants.CONFIG_DATA + " TEXT, "            //config data for the bot.
 				+ HIKE_CONTENT.NAMESPACE + " TEXT, "         //namespace of a bot for caching purpose.
 				+ HIKE_CONTENT.NOTIF_DATA + " TEXT, "       //notif data used for notifications pertaining to the microapp
-				+ HIKE_CONTENT.HELPER_DATA + " TEXT DEFAULT '{}'"  //helper data
+				+ HIKE_CONTENT.HELPER_DATA + " TEXT DEFAULT '{}', "  //helper data
+				+ HIKE_CONTENT.BOT_VERSION + " INTEGER DEFAULT 0"   //bot version for bot upgrade scenario
 				+ ")";
 		db.execSQL(sql);
 
@@ -880,7 +881,14 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				// This indicates that an update happened here. This field will be used by UpgradeIntentService
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.UPGRADE_SORTING_ID_FIELD, 1);
 			}
+
+			if (!Utils.ifColumnExistsInTable(db, DBConstants.BOT_TABLE, HIKE_CONTENT.BOT_VERSION))
+			{
+				String alterTable = "ALTER TABLE " + DBConstants.BOT_TABLE + " ADD COLUMN " + HIKE_CONTENT.BOT_VERSION + " INTEGER DEFAULT 0";
+				db.execSQL(alterTable);
+			}
 		}
+
 	}
 
 	public void reinitializeDB()
