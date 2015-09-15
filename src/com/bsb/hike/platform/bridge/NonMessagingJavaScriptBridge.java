@@ -1251,4 +1251,34 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 		callbackToJS(id, String.valueOf(botInfo.isMute()));
 	}
 
+	/**
+	 * Platform Version 7
+	 * Call this function to get the bot version.
+	 * @param id: the id of the function that native will call to call the js .
+	 */
+	@JavascriptInterface
+	public void getBotVersion(String id)
+	{
+		callbackToJS(id, String.valueOf(mBotInfo.getVersion()));
+	}
+
+	/**
+	 * Platform Version 7
+	 * This function is made for the special Shared bot that has the information about some other bots as well, and acts as a channel for them.
+	 * Call this function to get the bot version.
+	 * @param id: the id of the function that native will call to call the js .
+	 */
+	@JavascriptInterface
+	public void getBotVersion(String id, String msisdn)
+	{
+		if (!BotUtils.isSpecialBot(mBotInfo) || !BotUtils.isBot(msisdn))
+		{
+			return;
+		}
+
+		BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
+		callbackToJS(id, String.valueOf(botInfo.getVersion()));
+	}
+
+
 }
