@@ -878,7 +878,7 @@
 <![CDATA[ <b> Tap here to reset Hidden Mode now! </b> 
 	    ]]>
     </string>
-    <string name="tap_to_reveal_stealth_contacts">to reveal chats</string>
+        <string name="tap_to_reveal_stealth_contacts">to reveal chats</string> 
     <string name="tap_to_hide_stealth_contacts">to hide chats</string>
     <string name="tap_text">Tap</string>
     <string name="reset_stealth_confirmation">Resetting Hidden Mode will delete all your hidden Chats.\nAre you sure?</string>
@@ -1338,7 +1338,7 @@
     <string name="voip_call_issues_submit_toast">Your feedback has been submitted</string>
     <string name="video_compress">VIDEO COMPRESSION</string>
     <string name="send_compress_video">Send Compressed Video</string>
-    <string name="valentine_day">Happy Valentine\'s Day</string>
+    <string name="valentine_day">Happy Valentine\'s Day</string>        
     <string name="remove_photo">Remove photo</string>
     <string name="profile_photo">Profile photo</string>
     <string name="confirm_remove_photo">Are you sure you want to remove the photo?</string>
@@ -1360,7 +1360,7 @@
     <string name="photo_gallery_choose_pic">Choose a photo</string>
     <string name="cropping_image">Cropping image..</string>
     <string name="compose_chat">New Chat</string>
-    <string name="home_search_empty_text">Your search for \'%1$s\' did not match any contacts.</string>
+	<string name="home_search_empty_text">Your search for \'%1$s\' did not match any contacts.</string>
     <string name="voip_mic_error">Unable to start mic. This call may not work.</string>
     <string name="voip_call_failed_frag_subheader">You can still contact %1$s with a</string>
     <string name="dismiss_upper_case">DISMISS</string>
@@ -1387,7 +1387,7 @@
     <string name="nux_expired">This activity has expired</string>
     <string name="nux_completed">You\'ve already completed this activity.</string>
     <string name="holi">Happy Holi</string>
-    <string name="privacy_settings">PRIVACY SETTINGS</string>
+	<string name="privacy_settings">PRIVACY SETTINGS</string>
     <string name="manage_list">MANAGE LISTS</string>
     <string name="privacy_everyone_key">Everyone</string>
     <string name="privacy_my_contacts_key">My Contacts</string>
@@ -1459,7 +1459,7 @@
     <string name="searching">Searching...</string>
     <string name="sticker_share_caption">Download: http://hike.in</string>
     <string name="text_share_heading">- Sent via hike</string>
-    <string name="text_share_caption">Download: http://hike.in</string>
+    <string name="text_share_caption">Download: http://hike.in</string> 
     <string name="image_share_heading">Shared via hike!</string>
     <string name="image_share_description"><![CDATA[Visit <font color="#57dcf9">http://get.hike.in</font>  to get hike messenger]]></string>
     <string name="image_share_caption">Download: http://hike.in</string>
@@ -1496,7 +1496,7 @@
     <string name="stealth_timeout_immediate_key">30 seconds</string>
     <string name="stealth_timeout_short_key">2 minutes</string>
     <string name="stealth_timeout_long_key">5 minutes</string>
-    <string name="content_des_send_message_button">Press button to send Message</string>
+	<string name="content_des_send_message_button">Press button to send Message</string>
     <string name="content_des_block_overlay_message">You\'ve blocked this user. Unblock and continue hiking.</string>
     <string name="content_des_user_profile_detail_user_phone_number">User\'s Phone Number</string>
     <string name="content_des_user_profile_detail_edit_profile_pic">Change Profile Pic</string>
@@ -1504,27 +1504,6 @@
     <string name="content_des_pause_file_download">Pause File Downloading</string>
     <string name="content_des_download_file">Download File</string>
     <string name="content_des_retry_file_download">Retry File Download</string>
-<<<<<<< HEAD
-    <string name="activity_not_found">No app found that can handle this action</string>
-    <string name="selectPreview">Select a preview</string>
-    <string name="not_enough_memory">Not Enough Memory</string>
-    <string name="edit_photos">New photo</string>
-    <string name="gif_not_working">Invalid GIF</string>
-    <string name="gif_sent">GIF</string>
-    <string name="gif_received">Sent you a GIF</string>
-    <string name="multi_contact_creation">Sending...</string>
-    <string name="only_photos_edit">Image Format Not Supported</string>
-    <string name="delete_block">Block and Delete</string>
-    <string name="confirm_delete_block_msg">Do you want to delete and block \"%1$s\"? </string>
-    <string name="confirm_delete_non_messaging">Do you want to delete \"%1$s\"? </string>
-    <string name="could_not_post_pic">Unable to post picture. Please try again</string>
-    <string name="sticker_recommendation_setting_info">Tap on blue words for suggestions</string>
-    <string name="sticker_recommendation_setting_header">Sticker Suggestions</string>
-    <string name="stickers_sent_today">%1$d/%2$d stickers sent today</string>
-    <string name="disable_from_hike_settings">Disable permanently from hike Settings</string>
-    <string name="total_sticker_sent">You sent %1$d stickers in the last %2$d days</string>
-    <string name="disable_button">DISABLE</string>
-=======
 	<string name="activity_not_found">No app found that can handle this action</string>
 	<string name="selectPreview">Select a preview</string>
 	<string name="not_enough_memory">Not Enough Memory</string>
@@ -1564,7 +1543,6 @@
 	<string name="disable_from_hike_settings">Disable permanently from hike Settings</string>
 	<string name="total_sticker_sent">You sent %1$d stickers in the last %2$d days</string>
 	<string name="disable_button">DISABLE</string>
->>>>>>> a3907a4b51df18d4aa9067e2ae1a856558fbb026
     <string name="get_more_stickers_button">GET MORE STICKERS</string>
     <string name="open_hike_button">OPEN HIKE</string>
     <string name="one_hour_button">1 HOUR</string>
@@ -1575,63 +1553,17 @@
     <string name="sticker_widget_show">Show the Stickey in all the apps listed</string>
     <string name="settings_select_all">Select all </string>
     <string name="more_stickers">More stickers</string>
-    <string name="add_members">Add Members</string>
-    <string name="add_members_to_conference">Add To Conference</string>
-    <string name="created_group_text">You created the group chat</string>
-    <string name="group_member_added">added %1$s</string>
-    <string name="num_members">%1$d members</string>
-    <string name="profile_pic_upload_in_background">Profile picture upload will continue..</string>
-    <string name="profile_pic_failed">Profile picture upload failed. Please try again</string>
-    <string name="show_degraded_image_quality">Going to load a low quality Image</string>
-    <string name="toast_for_showing_thumbnail">Going to show Thumbanil</string>
-    <string name="cont_desc_photos_tab_filter">TabFilter</string>
+	<string name="add_members">Add Members</string>
+	<string name="add_members_to_conference">Add To Conference</string>
+	<string name="created_group_text">You created the group chat</string>
+	<string name="group_member_added">added %1$s</string>
+	<string name="num_members">%1$d members</string>
+	<string name="profile_pic_upload_in_background">Profile picture upload will continue..</string>
+	<string name="profile_pic_failed">Profile picture upload failed. Please try again</string>
+	<string name="show_degraded_image_quality">Going to load a low quality Image</string>
+	<string name="toast_for_showing_thumbnail">Going to show Thumbanil</string>
+	<string name="cont_desc_photos_tab_filter">TabFilter</string>
     <string name="cont_desc_photos_tab_doodle">TabDoodle</string>
-<<<<<<< HEAD
-    <string name="now">Now</string>
-    <string name="sticker_recommend_tip">Tap on blue words</string>
-    <string name="group_participant_info">You can add upto 500 members to a group</string>
-    <string name="make_admin">Make Admin</string>
-    <string name="admin_updating">Making %1$s an Admin</string>
-    <string name="admin_task_error">Connection error: Please check your network and try again.</string>
-    <string name="group_admin_updated">made %1$s an Admin</string>
-    <string name="group_setting_option_only_admin">Only Admins can add members</string>
-    <string name="group_setting_updating">Changing group privacy settings</string>
-    <string name="group_setting_confirmation1">Allow everyone to add members?</string>
-    <string name="group_setting_confirmation2">Allow only Admins to add members?</string>
-    <string name="group_created_by">Created by </string>
-    <string name="group_rights_info">Only Admins can add members in this group</string>
-    <string name="group_rights_info_2">Everyone can add members</string>
-    <string name="sms_admin_toast">You cannot share your Admin rights with SMS users</string>
-    <string name="group_settings_updated">has changed the group settings</string>
-    <string name="you_group_settings_updated">You have changed the group settings</string>
-    <string name="ftue_multiadmin_header">Multiple Admins</string>
-    <string name="ftue_multiadmin_description">Now share your Admin rights with multiple members of this group</string>
-    <string name="unknown_server_error">Unable to download the file.</string>
-    <string name="sticker_share_description">www.hike.in</string>
-    <string name="num_notification_sub_text_for_multi_msisdn">%1$s messages from %2$s conversations</string>
-    <string name="actionbar_activity_feed_title">Activity</string>
-    <string name="photo_like_text">Liked your photo</string>
-    <string name="dp_like_text">Liked your profile photo</string>
-    <string name="liked_this_post">Liked this post</string>
-    <string name="liked_your_post">Liked your post</string>
-    <string name="activity_feed_actionbar_title">Activity Feed</string>
-    <string name="posted_photo">Posted a photo</string>
-    <string name="love_failed">No internet. Please try again later.</string>
-    <string name="delete_post">Delete post</string>
-    <string name="repost">Repost</string>
-    <string name="repost_problem">Couldn\'t repost. Please try again.</string>
-    <string name="message_person">Message %1$s</string>
-    <string name="delete_status_confirmation">Are you sure you want to delete this update?</string>
-    <string name="delete_status_timeline_confirmation">This will delete your post from your and your friends\' timeline</string>
-    <string name="clear_timeline">Clear Timeline</string>
-    <string name="favourites">Favorites</string>
-    <string name="clear_timeline_dialog">Are you sure you want to clear your timeline?</string>
-    <string name="like">Like</string>
-    <string name="liked_it">Liked</string>
-    <string name="status_hint">What are you upto?</string>
-    <string name="status_hint_image">Something about this photo</string>
-    <string name="add_mood">Add Mood</string>
-=======
 	<string name="now">Now</string>
 	<string name="sticker_recommend_tip">Tap on blue words</string>
 	<string name="group_participant_info">Max 500 members can be added</string>
@@ -1691,21 +1623,15 @@
 	<string name="status_hint">What are you upto?</string>
 	<string name="status_hint_image">Something about this photo</string>
 	<string name="add_mood">Add Mood</string>
->>>>>>> a3907a4b51df18d4aa9067e2ae1a856558fbb026
     <string name="sticker_reorder_setting_info">Rearrange/Hide packs from the sticker pallete</string>
     <string name="sticker_reorder_setting_header">Change sticker pack order</string>
     <string name="sticker_recommendation_autopopup_setting_info">Display sticker automatically as I type</string>
-    <string name="sticker_recommendation_autopopup_setting_header">Auto Suggest Stickers</string>
-    <string name="sticker_recommend_ftue_heading">Sticker Suggestions</string>
-    <string name="tap_on_sticker_to_send">Tap on sticker to send</string>
-    <string name="download_from_shop">For better suggestions download more stickers</string>
+	<string name="sticker_recommendation_autopopup_setting_header">Auto Suggest Stickers</string>
+	<string name="sticker_recommend_ftue_heading">Sticker Suggestions</string>
+	<string name="tap_on_sticker_to_send">Tap on sticker to send</string>
+	<string name="download_from_shop">For better suggestions download more stickers</string>
     <string name="more">More</string>
-<<<<<<< HEAD
-    <string name="task_already_running">Task already running</string>
-    <string name="sticker_share_popup_activate_toast">Stickey has now been activated!</string>
-=======
 	<string name="task_already_running">Task already running</string>
->>>>>>> a3907a4b51df18d4aa9067e2ae1a856558fbb026
     <string name="sticker_share_popup_not_activate_toast">You don\'t have any supported apps</string>
     <string name="send_logs">Send logs</string>
     <string name="like_this">Like</string>
@@ -1790,17 +1716,10 @@
     <string name="email_body">I just downloaded the new hike messenger. What a big change from WhatsApp!\n\nIt\'s got amazing stickers, the ability to hide my chats and some really cool chat themes. \n\nDownload it now from http://get.hike.in/$invite_token</string>
     <string name="watsapp_invitation">Hey, join me on hike, the only messaging app made in India! It lets you hide your chats, send messages to friends when they\'re offline and send awesome stickers. \n\nAlso share all types of files - docs, songs, movies etc, up to 100MB each - Download: http://get.hike.in/</string>
     <string name="invite_share_message">Hey, check out hike messenger. It has awesome stickers in our language! Join the only made in India messaging app- Download at http://hike.in/$invite_token</string>
-<<<<<<< HEAD
-    <string name="title_activity_dummy_game">DummyGameActivity</string>
-    <string name="hello_world">Hello world!</string>
-
-
-=======
     <string name="turn_on_connection">Turn on Mobile Data or Wi-Fi</string>
     <string name="please_wait">Please wait</string>
     <string name="loading_data">Loading data...</string>
     <string name="action_no_network">Please check network</string>
     <string name="timeline_transition_anim">timeline_image_transit</string>
     <string name="home_overflow_new_photo">New Photo</string>
->>>>>>> a3907a4b51df18d4aa9067e2ae1a856558fbb026
 </resources>
