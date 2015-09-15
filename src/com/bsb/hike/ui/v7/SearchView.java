@@ -123,7 +123,7 @@ public class SearchView extends LinearLayout implements CollapsibleActionView {
             InputMethodManager imm = (InputMethodManager)
                     getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
             if (imm != null) {
-               // HIDDEN_METHOD_INVOKER.showSoftInputUnchecked(imm, SearchView.this, 0);
+                HIDDEN_METHOD_INVOKER.showSoftInputUnchecked(imm, SearchView.this, 0);
             }
         }
     };
@@ -732,9 +732,9 @@ public class SearchView extends LinearLayout implements CollapsibleActionView {
         // field is not iconified by default and there is no text in it.
         final boolean showClose = hasText || (mIconifiedByDefault && !mExpandedInActionView);
         mCloseButton.setVisibility(showClose ? VISIBLE : GONE);
-//        if(mCloseButton.getDrawable()!=null){
-//            mCloseButton.getDrawable().setState(hasText ? ENABLED_STATE_SET : EMPTY_STATE_SET);
-//        }
+        if(mCloseButton.getDrawable()!=null){
+            mCloseButton.getDrawable().setState(hasText ? ENABLED_STATE_SET : EMPTY_STATE_SET);
+        }
     }
     private void postUpdateFocusedState() {
         post(mUpdateDrawableStateRunnable);
@@ -781,9 +781,9 @@ public class SearchView extends LinearLayout implements CollapsibleActionView {
             if (v == mSearchButton) {
                 onSearchClicked();
             } 
-//            else if (v == mCloseButton) {
-//                onCloseClicked();
-//            }
+            else if (v == mCloseButton) {
+                onCloseClicked();
+            }
             else if (v == mSubmitButton) {
                 onSubmitQuery();
             } else if (v == mVoiceButton) {
@@ -1031,7 +1031,7 @@ public class SearchView extends LinearLayout implements CollapsibleActionView {
                 }
             }
         } else {
-            mQueryTextView.setText("");
+            mQueryTextView.getEditableText().clear();
             mQueryTextView.requestFocus();
             setImeVisibility(true);
         }
