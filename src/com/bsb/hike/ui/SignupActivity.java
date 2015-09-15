@@ -2033,6 +2033,13 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 			mTask.cancelTask();
 		}
 		SignupTask.isAlreadyFetchingNumber = false;
+		
+		if (mCustomKeyboard != null && mCustomKeyboard.isCustomKeyboardVisible())
+		{
+			mCustomKeyboard.showCustomKeyboard(enterEditText, false);
+			mCustomKeyboard.showCustomKeyboard(birthdayText, false);
+			return;
+		}
 		super.onBackPressed();
 	}
 
