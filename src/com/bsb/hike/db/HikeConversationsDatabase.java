@@ -861,6 +861,17 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		
 		if (oldVersion < 44)
 		{
+			// This table has the data related to the card to card messaging. This table has the data shared among the microapps
+			String sql = getMessageEventTableCreateStatement();
+			db.execSQL(sql);
+
+			String sqlIndex = "CREATE UNIQUE INDEX IF NOT EXISTS " + DBConstants.EVENT_HASH_INDEX + " ON " + DBConstants.MESSAGE_EVENT_TABLE + " ( " + DBConstants.EVENT_HASH
+					+ " )";
+			db.execSQL(sqlIndex);
+		}
+		
+		if (oldVersion < 45)
+		{
 			if (!Utils.ifColumnExistsInTable(db, DBConstants.MESSAGES_TABLE, DBConstants.SORTING_ID))
 			{
 				String alterMessageTable = "ALTER TABLE " + DBConstants.MESSAGES_TABLE + " ADD COLUMN " + DBConstants.SORTING_ID + " INTEGER DEFAULT -1";
@@ -869,14 +880,6 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				// This indicates that an update happened here. This field will be used by UpgradeIntentService
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.UPGRADE_SORTING_ID_FIELD, 1);
 			}
-
-			// This table has the data related to the card to card messaging. This table has the data shared among the microapps
-			String sql = getMessageEventTableCreateStatement();
-			db.execSQL(sql);
-
-			String sqlIndex = "CREATE UNIQUE INDEX IF NOT EXISTS " + DBConstants.EVENT_HASH_INDEX + " ON " + DBConstants.MESSAGE_EVENT_TABLE + " ( " + DBConstants.EVENT_HASH
-					+ " )";
-			db.execSQL(sqlIndex);
 		}
 	}
 
@@ -7962,6 +7965,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		{
 			botInfo.setLastConversationMsg(convMessage);
 			botInfo.setUnreadCount(1);  // inOrder to show 1+ on conv screen, we need to have some unread counter
+			botInfo.setConvPresent(true); //In Order to indicate the presence of bot in the conv table
 			HikeMessengerApp.getPubSub().publish(HikePubSub.NEW_CONVERSATION, botInfo);
 		}
 

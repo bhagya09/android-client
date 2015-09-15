@@ -107,6 +107,7 @@ public class VoIPClient  {
 	private int voicePacketCount = 0;
 	public boolean isDummy = false, isHost = false;		
 	private String selfMsisdn;
+	public boolean incompatible = false;
 
 	// Conference related
 	public ArrayList<VoIPClient> clientMsisdns = new ArrayList<>();
@@ -955,9 +956,10 @@ public class VoIPClient  {
 		}
 		
 		// send a call rejected message through hike as well
-		VoIPUtils.sendVoIPMessageUsingHike(getPhoneNumber(), 
-				HikeConstants.MqttMessageTypes.VOIP_CALL_CANCELLED, 
-				VoIPService.getCallId(), false);
+		if (!incompatible)
+			VoIPUtils.sendVoIPMessageUsingHike(getPhoneNumber(), 
+					HikeConstants.MqttMessageTypes.VOIP_CALL_CANCELLED, 
+					VoIPService.getCallId(), false);
 		
 		keepRunning = false;
 		socketInfoReceived = false;

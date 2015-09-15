@@ -101,7 +101,6 @@ public class VoIPConstants {
 	
 	// Intent actions
 	public static final String PARTNER_REQUIRES_UPGRADE = "pru";
-	public static final String PARTNER_INCOMPATIBLE = "pi";
 	public static final String PARTNER_IN_CALL = "incall";
 	public static final String PARTNER_HAS_BLOCKED_YOU = "blocked";
 	
@@ -154,6 +153,7 @@ public class VoIPConstants {
 	public static final int MSG_PARTNER_BUSY = 30;
 	public static final int MSG_UPDATE_FORCE_MUTE_LAYOUT = 31;
 	public static final int MSG_UPDATE_CALL_BUTTONS = 32;
+	public static final int MSG_PARTNER_INCOMPATIBLE_PLATFORM = 33;
 
 	public static final class Analytics
 	{
@@ -212,8 +212,6 @@ public class VoIPConstants {
 	public static final class Extras
 	{
 		public static final String ACTION = "action";
-
-		public static final String MESSAGE = "message";
 
 		public static final String SET_PARTNER_INFO = "setpartnerinfo";
 

@@ -130,8 +130,8 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	private View actionBarView;
 	
 	private Menu mMenu;
-	
-	private String[] pubsub = new String[]{HikePubSub.NOTIF_DATA_RECEIVED,HikePubSub.LOCATION_AVAILABLE, HikePubSub.MESSAGE_EVENT_RECEIVED};
+
+	private String[] pubsub = new String[]{HikePubSub.NOTIF_DATA_RECEIVED, HikePubSub.LOCATION_AVAILABLE,  HikePubSub.MESSAGE_EVENT_RECEIVED};
 
 	private boolean allowLoc;
 	
