@@ -594,20 +594,31 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 
 	private void destroyKeyboardResources()
 	{
-		mCustomKeyboard.unregister(enterEditText);
-		mCustomKeyboard.unregister(birthdayText);
+		if (mCustomKeyboard != null)
+		{
+			mCustomKeyboard.unregister(enterEditText);
+			mCustomKeyboard.unregister(birthdayText);
 
-		mCustomKeyboard.closeAnyDialogIfShowing();
+			mCustomKeyboard.closeAnyDialogIfShowing();
 
-		mCustomKeyboard.destroyCustomKeyboard();
+			mCustomKeyboard.destroyCustomKeyboard();
+		}
+	}
+	
+	protected void pauseKeyboardResources()
+	{
+		if (mCustomKeyboard != null)
+		{
+			mCustomKeyboard.closeAnyDialogIfShowing();
+			
+			mCustomKeyboard.onPause();
+		}
 	}
 	
 	@Override
 	protected void onPause()
 	{
-		mCustomKeyboard.closeAnyDialogIfShowing();
-		
-		mCustomKeyboard.onPause();
+		pauseKeyboardResources();
 		
 		super.onPause();
 	}
@@ -2022,6 +2033,13 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 			mTask.cancelTask();
 		}
 		SignupTask.isAlreadyFetchingNumber = false;
+		
+		if (mCustomKeyboard != null && mCustomKeyboard.isCustomKeyboardVisible())
+		{
+			mCustomKeyboard.showCustomKeyboard(enterEditText, false);
+			mCustomKeyboard.showCustomKeyboard(birthdayText, false);
+			return;
+		}
 		super.onBackPressed();
 	}
 
@@ -2502,7 +2520,6 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 	@Override
 	public void onReturnAction(int arg0)
 	{
-		// TODO Auto-generated method stub
-		
+		submitClicked();		
 	}
 }

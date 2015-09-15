@@ -589,6 +589,10 @@ public class GroupChatThread extends OneToNChatThread
 		switch (v.getId())
 		{
 		case R.id.messageedittext:
+			if (!isSystemKeyboard())
+			{
+				mCustomKeyboard.showCustomKeyboard(mComposeView, true);
+			}
 			return mShareablePopupLayout.onEditTextTouch(v, event);
 		default:
 			return super.onTouch(v, event);

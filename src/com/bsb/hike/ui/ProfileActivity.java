@@ -87,7 +87,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.content.res.Configuration;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -274,6 +273,11 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			}
 		}
 		
+		pauseKeyboardResources();
+	}
+	
+	private void pauseKeyboardResources()
+	{
 		if (mCustomKeyboard != null)
 		{
 			mCustomKeyboard.closeAnyDialogIfShowing();
@@ -325,21 +329,21 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			HikeMessengerApp.getPubSub().removeListeners(this, profilEditPubSubListeners);
 		}
 		
-		if (mCustomKeyboard != null)
-		{
-			destroyKeyboardResources();
-		}
+		destroyKeyboardResources();
 	}
 
 	private void destroyKeyboardResources()
 	{
-		mCustomKeyboard.unregister(mNameEdit);
+		if (mCustomKeyboard != null)
+		{
+			mCustomKeyboard.unregister(mNameEdit);
 
-		mCustomKeyboard.unregister(mEmailEdit);
-		
-		mCustomKeyboard.closeAnyDialogIfShowing();
+			mCustomKeyboard.unregister(mEmailEdit);
+			
+			mCustomKeyboard.closeAnyDialogIfShowing();
 
-		mCustomKeyboard.destroyCustomKeyboard();
+			mCustomKeyboard.destroyCustomKeyboard();
+		}
 	}
 	
 	@Override
