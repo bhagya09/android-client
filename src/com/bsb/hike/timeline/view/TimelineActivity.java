@@ -715,6 +715,6 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 	public boolean isUpdatesFrgamentOnTop()
 	{
 		int count = getSupportFragmentManager().getBackStackEntryCount();
-		return count <= 1 ? true : false;
+		return count == 0 ? true : false;
 	}
 }
