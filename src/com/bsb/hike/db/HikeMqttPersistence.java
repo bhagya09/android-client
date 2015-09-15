@@ -11,36 +11,12 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 import com.bsb.hike.models.HikePacket;
 import com.bsb.hike.utils.Logger;
+import com.hike.transporter.interfaces.IPersistanceInterface;
+import com.hike.transporter.models.SenderConsignment;
+import com.hike.transporter.utils.TConstants.TDBConstants;
 
 public class HikeMqttPersistence extends SQLiteOpenHelper
 {
-
-	public static final String MQTT_DATABASE_NAME = "mqttpersistence";
-
-	public static final int MQTT_DATABASE_VERSION = 3;
-
-	public static final String MQTT_DATABASE_TABLE = "messages";
-
-	public static final String MQTT_MESSAGE_ID = "msgId";
-
-	public static final String MQTT_PACKET_ID = "mqttId";
-	
-	public static final String MQTT_PACKET_TYPE = "mqttType";
-
-	public static final String MQTT_MESSAGE = "data";
-
-	public static final String MQTT_MSG_ID_INDEX = "mqttMsgIdIndex";
-
-	public static final String MQTT_TIME_STAMP = "mqttTimeStamp";
-
-	//Added for Instrumentation
-	public static final String MQTT_MSG_TRACK_ID = "mqttMsgTrackId";
-	
-	//Added for Instrumentation
-	public static final String MQTT_MSG_MSG_TYPE = "mqttMsgMsgType";
-	
-	public static final String MQTT_TIME_STAMP_INDEX = "mqttTimeStampIndex";
-
 	private SQLiteDatabase mDb;
 
 	private static HikeMqttPersistence hikeMqttPersistence;
@@ -60,8 +36,13 @@ public class HikeMqttPersistence extends SQLiteOpenHelper
 
 	private HikeMqttPersistence(Context context)
 	{
-		super(context, MQTT_DATABASE_NAME, null, MQTT_DATABASE_VERSION);
+		super(context, DBConstants.HIKE_PERSISTENCE.DATABASE_NAME, null, DBConstants.HIKE_PERSISTENCE.DATABASE_VERSION);
 		mDb = getWritableDatabase();
+	}
+	
+	public SQLiteDatabase getDb()
+	{
+		return mDb;
 	}
 
 	public void addSentMessage(HikePacket packet) throws MqttPersistenceException
@@ -70,14 +51,14 @@ public class HikeMqttPersistence extends SQLiteOpenHelper
 		try
 		{
 			Logger.d("HikeMqttPersistence", "Persisting message data: " + new String(packet.getMessage()));
-			ih = new InsertHelper(mDb, MQTT_DATABASE_TABLE);
+			ih = new InsertHelper(mDb, DBConstants.HIKE_PERSISTENCE.MQTT_DATABASE_TABLE);
 			ih.prepareForReplace();
-			ih.bind(ih.getColumnIndex(MQTT_MESSAGE), packet.getMessage());
-			ih.bind(ih.getColumnIndex(MQTT_MESSAGE_ID), packet.getMsgId());
-			ih.bind(ih.getColumnIndex(MQTT_TIME_STAMP), packet.getTimeStamp());
-			ih.bind(ih.getColumnIndex(MQTT_PACKET_TYPE), packet.getPacketType());
-			ih.bind(ih.getColumnIndex(MQTT_MSG_TRACK_ID), packet.getTrackId());
-			ih.bind(ih.getColumnIndex(MQTT_MSG_MSG_TYPE), packet.getMsgType());
+			ih.bind(ih.getColumnIndex(DBConstants.HIKE_PERSISTENCE.MQTT_MESSAGE), packet.getMessage());
+			ih.bind(ih.getColumnIndex(DBConstants.HIKE_PERSISTENCE.MQTT_MESSAGE_ID), packet.getMsgId());
+			ih.bind(ih.getColumnIndex(DBConstants.HIKE_PERSISTENCE.MQTT_TIME_STAMP), packet.getTimeStamp());
+			ih.bind(ih.getColumnIndex(DBConstants.HIKE_PERSISTENCE.MQTT_PACKET_TYPE), packet.getPacketType());
+			ih.bind(ih.getColumnIndex(DBConstants.HIKE_PERSISTENCE.MQTT_MSG_TRACK_ID), packet.getTrackId());
+			ih.bind(ih.getColumnIndex(DBConstants.HIKE_PERSISTENCE.MQTT_MSG_MSG_TYPE), packet.getMsgType());
 			long rowid = ih.execute();
 			if (rowid < 0)
 			{
@@ -102,17 +83,18 @@ public class HikeMqttPersistence extends SQLiteOpenHelper
 
 	public List<HikePacket> getAllSentMessages()
 	{
-		Cursor c = mDb.query(MQTT_DATABASE_TABLE, new String[] { MQTT_MESSAGE, MQTT_MESSAGE_ID, MQTT_TIME_STAMP, MQTT_PACKET_ID, MQTT_PACKET_TYPE, MQTT_MSG_TRACK_ID, MQTT_MSG_MSG_TYPE }, null, null, null, null, MQTT_TIME_STAMP);
+		Cursor c = mDb.query(DBConstants.HIKE_PERSISTENCE.MQTT_DATABASE_TABLE, new String[] { DBConstants.HIKE_PERSISTENCE.MQTT_MESSAGE, DBConstants.HIKE_PERSISTENCE.MQTT_MESSAGE_ID, DBConstants.HIKE_PERSISTENCE.MQTT_TIME_STAMP, DBConstants.HIKE_PERSISTENCE.MQTT_PACKET_ID, 
+				DBConstants.HIKE_PERSISTENCE.MQTT_PACKET_TYPE, DBConstants.HIKE_PERSISTENCE.MQTT_MSG_TRACK_ID, DBConstants.HIKE_PERSISTENCE.MQTT_MSG_MSG_TYPE }, null, null, null, null, DBConstants.HIKE_PERSISTENCE.MQTT_TIME_STAMP);
 		try
 		{
 			List<HikePacket> vals = new ArrayList<HikePacket>(c.getCount());
-			int dataIdx = c.getColumnIndex(MQTT_MESSAGE);
-			int idIdx = c.getColumnIndex(MQTT_MESSAGE_ID);
-			int tsIdx = c.getColumnIndex(MQTT_TIME_STAMP);
-			int packetIdIdx = c.getColumnIndex(MQTT_PACKET_ID);
-			int packetTypeIdx = c.getColumnIndex(MQTT_PACKET_TYPE);
-			int msgTrackIDIdx = c.getColumnIndex(MQTT_MSG_TRACK_ID);
-			int msgTypeIdx = c.getColumnIndex(MQTT_MSG_MSG_TYPE);
+			int dataIdx = c.getColumnIndex(DBConstants.HIKE_PERSISTENCE.MQTT_MESSAGE);
+			int idIdx = c.getColumnIndex(DBConstants.HIKE_PERSISTENCE.MQTT_MESSAGE_ID);
+			int tsIdx = c.getColumnIndex(DBConstants.HIKE_PERSISTENCE.MQTT_TIME_STAMP);
+			int packetIdIdx = c.getColumnIndex(DBConstants.HIKE_PERSISTENCE.MQTT_PACKET_ID);
+			int packetTypeIdx = c.getColumnIndex(DBConstants.HIKE_PERSISTENCE.MQTT_PACKET_TYPE);
+			int msgTrackIDIdx = c.getColumnIndex(DBConstants.HIKE_PERSISTENCE.MQTT_MSG_TRACK_ID);
+			int msgTypeIdx = c.getColumnIndex(DBConstants.HIKE_PERSISTENCE.MQTT_MSG_MSG_TYPE);
 			
 			while (c.moveToNext())
 			{
@@ -128,10 +110,10 @@ public class HikeMqttPersistence extends SQLiteOpenHelper
 			c.close();
 		}
 	}
-	
+		
 	public boolean isMessageSent(long mqttMsgId)
 	{
-		Cursor c = mDb.query(MQTT_DATABASE_TABLE, new String[] { MQTT_MESSAGE_ID }, MQTT_MESSAGE_ID + "=?", new String[] { Long.toString(mqttMsgId) }, null, null, null);
+		Cursor c = mDb.query(DBConstants.HIKE_PERSISTENCE.MQTT_DATABASE_TABLE, new String[] { DBConstants.HIKE_PERSISTENCE.MQTT_MESSAGE_ID }, DBConstants.HIKE_PERSISTENCE.MQTT_MESSAGE_ID + "=?", new String[] { Long.toString(mqttMsgId) }, null, null, null);
 		try
 		{
 			int count = c.getCount();
@@ -151,15 +133,15 @@ public class HikeMqttPersistence extends SQLiteOpenHelper
 			db = mDb;
 		}
 
-		String sql = "CREATE TABLE IF NOT EXISTS " + MQTT_DATABASE_TABLE + " ( " + MQTT_PACKET_ID + " INTEGER PRIMARY KEY AUTOINCREMENT," + MQTT_MESSAGE_ID + " INTEGER,"
-				+ MQTT_MESSAGE + " BLOB," + MQTT_TIME_STAMP + " INTEGER," +  MQTT_PACKET_TYPE + " INTEGER," + 
-				MQTT_MSG_TRACK_ID + " TEXT," + MQTT_MSG_MSG_TYPE + " TEXT) ";
+		String sql = "CREATE TABLE IF NOT EXISTS " + DBConstants.HIKE_PERSISTENCE.MQTT_DATABASE_TABLE + " ( " + DBConstants.HIKE_PERSISTENCE.MQTT_PACKET_ID + " INTEGER PRIMARY KEY AUTOINCREMENT," + DBConstants.HIKE_PERSISTENCE.MQTT_MESSAGE_ID + " INTEGER,"
+				+ DBConstants.HIKE_PERSISTENCE.MQTT_MESSAGE + " BLOB," + DBConstants.HIKE_PERSISTENCE.MQTT_TIME_STAMP + " INTEGER," +  DBConstants.HIKE_PERSISTENCE.MQTT_PACKET_TYPE + " INTEGER," + 
+				DBConstants.HIKE_PERSISTENCE.MQTT_MSG_TRACK_ID + " TEXT," + DBConstants.HIKE_PERSISTENCE.MQTT_MSG_MSG_TYPE + " TEXT) ";
 		db.execSQL(sql);
 
-		sql = "CREATE INDEX IF NOT EXISTS " + MQTT_MSG_ID_INDEX + " ON " + MQTT_DATABASE_TABLE + "(" + MQTT_MESSAGE_ID + ")";
+		sql = "CREATE INDEX IF NOT EXISTS " + DBConstants.HIKE_PERSISTENCE.MQTT_MSG_ID_INDEX + " ON " + DBConstants.HIKE_PERSISTENCE.MQTT_DATABASE_TABLE + "(" + DBConstants.HIKE_PERSISTENCE.MQTT_MESSAGE_ID + ")";
 		db.execSQL(sql);
 
-		sql = "CREATE INDEX IF NOT EXISTS " + MQTT_TIME_STAMP_INDEX + " ON " + MQTT_DATABASE_TABLE + "(" + MQTT_TIME_STAMP + ")";
+		sql = "CREATE INDEX IF NOT EXISTS " + DBConstants.HIKE_PERSISTENCE.MQTT_TIME_STAMP_INDEX + " ON " + DBConstants.HIKE_PERSISTENCE.MQTT_DATABASE_TABLE + "(" + DBConstants.HIKE_PERSISTENCE.MQTT_TIME_STAMP + ")";
 	}
 
 	@Override
@@ -167,17 +149,17 @@ public class HikeMqttPersistence extends SQLiteOpenHelper
 	{
 		if(oldVersion < 2)
 		{
-			String alter = "ALTER TABLE " + MQTT_DATABASE_TABLE + " ADD COLUMN " + MQTT_PACKET_TYPE + " INTEGER";
+			String alter = "ALTER TABLE " + DBConstants.HIKE_PERSISTENCE.MQTT_DATABASE_TABLE + " ADD COLUMN " + DBConstants.HIKE_PERSISTENCE.MQTT_PACKET_TYPE + " INTEGER";
 			db.execSQL(alter);
 		}
 		
 		//Both column are added for Instrumentation 
 		if(oldVersion < 3)
 		{
-			String alter1 = "ALTER TABLE " + MQTT_DATABASE_TABLE + " ADD COLUMN " + MQTT_MSG_TRACK_ID + " TEXT";
+			String alter1 = "ALTER TABLE " + DBConstants.HIKE_PERSISTENCE.MQTT_DATABASE_TABLE + " ADD COLUMN " + DBConstants.HIKE_PERSISTENCE.MQTT_MSG_TRACK_ID + " TEXT";
 			db.execSQL(alter1);
 			
-			String alter2 = "ALTER TABLE " + MQTT_DATABASE_TABLE + " ADD COLUMN " + MQTT_MSG_MSG_TYPE + " TEXT";
+			String alter2 = "ALTER TABLE " + DBConstants.HIKE_PERSISTENCE.MQTT_DATABASE_TABLE + " ADD COLUMN " + DBConstants.HIKE_PERSISTENCE.MQTT_MSG_MSG_TYPE + " TEXT";
 			db.execSQL(alter2);
 		}
 	}
@@ -185,11 +167,18 @@ public class HikeMqttPersistence extends SQLiteOpenHelper
 	public void removeMessage(long msgId)
 	{
 		String[] bindArgs = new String[] { Long.toString(msgId) };
-		int numRows = mDb.delete(MQTT_DATABASE_TABLE, MQTT_MESSAGE_ID + "=?", bindArgs);
-		Logger.d("HikeMqttPersistence", "Removed " + numRows + " Rows from " + MQTT_DATABASE_TABLE + " with Msg ID: " + msgId);
+		int numRows = mDb.delete(DBConstants.HIKE_PERSISTENCE.MQTT_DATABASE_TABLE, DBConstants.HIKE_PERSISTENCE.MQTT_MESSAGE_ID + "=?", bindArgs);
+		Logger.d("HikeMqttPersistence", "Removed " + numRows + " Rows from " + DBConstants.HIKE_PERSISTENCE.MQTT_DATABASE_TABLE + " with Msg ID: " + msgId);
 	}
 	
-	public void removeMessages(ArrayList<Long> msgIds)
+	public void removeMessage(int type)
+	{
+		String[] bindArgs = new String[] { Integer.toString(type) };
+		int numRows = mDb.delete(DBConstants.HIKE_PERSISTENCE.MQTT_DATABASE_TABLE, DBConstants.HIKE_PERSISTENCE.MQTT_PACKET_TYPE + "=?", bindArgs);
+		Logger.d("HikeMqttPersistence", "Removed " + numRows + " Rows from " + DBConstants.HIKE_PERSISTENCE.MQTT_DATABASE_TABLE + " with type: " + type);
+	}
+	
+	public void removeMessages(List<Long> msgIds)
 	{
 		if(msgIds == null || msgIds.isEmpty())
 		{
@@ -204,14 +193,14 @@ public class HikeMqttPersistence extends SQLiteOpenHelper
 		}
 		inSelection.append(")");
 		
-		mDb.execSQL("DELETE FROM " + MQTT_DATABASE_TABLE + " WHERE " + MQTT_MESSAGE_ID + " IN "+ inSelection.toString());
-		Logger.d("HikeMqttPersistence", "Removed "+" Rows from " + MQTT_DATABASE_TABLE + " with Msgs ID: " + inSelection.toString());
+		mDb.execSQL("DELETE FROM " + DBConstants.HIKE_PERSISTENCE.MQTT_DATABASE_TABLE + " WHERE " + DBConstants.HIKE_PERSISTENCE.MQTT_MESSAGE_ID + " IN "+ inSelection.toString());
+		Logger.d("HikeMqttPersistence", "Removed "+" Rows from " + DBConstants.HIKE_PERSISTENCE.MQTT_DATABASE_TABLE + " with Msgs ID: " + inSelection.toString());
 	}
 
 	public void removeMessageForPacketId(long packetId)
 	{
 		String[] bindArgs = new String[] { Long.toString(packetId) };
-		int numRows = mDb.delete(MQTT_DATABASE_TABLE, MQTT_PACKET_ID + "=?", bindArgs);
-		Logger.d("HikeMqttPersistence", "Removed " + numRows + " Rows from " + MQTT_DATABASE_TABLE + " with Packet ID: " + packetId);
+		int numRows = mDb.delete(DBConstants.HIKE_PERSISTENCE.MQTT_DATABASE_TABLE, DBConstants.HIKE_PERSISTENCE.MQTT_PACKET_ID + "=?", bindArgs);
+		Logger.d("HikeMqttPersistence", "Removed " + numRows + " Rows from " + DBConstants.HIKE_PERSISTENCE.MQTT_DATABASE_TABLE + " with Packet ID: " + packetId);
 	}
 }

@@ -86,6 +86,12 @@ public final class HikeEffectsFactory
 			return false;
 		}
 
+		if(mRS == null || image == null)
+		{
+			finish();
+			return false;
+		}
+		
 		// Allocate buffer
 		mBitmapIn = image;
 		mInAllocation = Allocation.createFromBitmap(mRS, mBitmapIn);
@@ -182,17 +188,6 @@ public final class HikeEffectsFactory
 			if (instance.vignetteBitmap != null)
 			{
 				HikePhotosUtils.manageBitmaps(instance.vignetteBitmap);
-			}
-			
-			if(instance.mRS != null)
-			{
-				try{
-					instance.mRS.destroy();
-				}
-				catch(Exception e)
-				{
-					e.printStackTrace();
-				}
 			}
 			
 			instance = null;

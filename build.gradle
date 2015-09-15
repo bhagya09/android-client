@@ -50,6 +50,9 @@ android {
         compile(project(':kpt-host')) {
             exclude module: 'support-v4'
         }
+         compile(project(':transporter-library')) {
+            exclude module: 'support-v4'
+        }
         compile fileTree(dir: 'libs', include: ['*.jar'], exclude: ['android-support-multidex.jar'])
     }
 

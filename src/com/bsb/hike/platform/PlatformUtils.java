@@ -10,6 +10,12 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import com.bsb.hike.MqttConstants;
+import com.bsb.hike.models.ContactInfo;
+import com.bsb.hike.models.MessageEvent;
+import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.service.HikeMqttManagerNew;
+
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
@@ -32,6 +38,7 @@ import android.widget.Toast;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.bots.BotInfo;
@@ -444,7 +451,7 @@ public class PlatformUtils
 		}
 	}
 
-	private static void enableBot(BotInfo botInfo, boolean enableBot)
+	public static void enableBot(BotInfo botInfo, boolean enableBot)
 	{
 		if (enableBot && botInfo.isNonMessagingBot())
 		{
@@ -1020,6 +1027,126 @@ public class PlatformUtils
 		catch (JSONException e)
 		{
 			e.printStackTrace();
+		}
+	}
+
+	public static void sharedDataHandlingForMessages(ConvMessage conv)
+	{
+		try
+		{
+			if(conv.getPlatformData() != null)
+			{
+				JSONObject sharedData = conv.getPlatformData();
+				String namespaces = sharedData.getString(HikePlatformConstants.RECIPIENT_NAMESPACES);
+				if (TextUtils.isEmpty(namespaces))
+				{
+					Logger.e(HikePlatformConstants.TAG, "no namespaces defined.");
+					return;
+				}
+				String [] namespaceList = namespaces.split(",");
+				for (String namespace : namespaceList)
+				{
+					String eventType = sharedData.optString(HikePlatformConstants.EVENT_TYPE, HikePlatformConstants.SHARED_EVENT);
+					long mappedEventId = -1;
+					if (!conv.isSent())
+					{
+						mappedEventId = sharedData.getLong(HikePlatformConstants.MAPPED_EVENT_ID);
+					}
+					String metadata = sharedData.getString(HikePlatformConstants.EVENT_CARDDATA);
+					int state = conv.isSent() ? HikePlatformConstants.EventStatus.EVENT_SENT : HikePlatformConstants.EventStatus.EVENT_RECEIVED;
+					MessageEvent messageEvent = new MessageEvent(eventType, conv.getMsisdn(), namespace, metadata, conv.createMessageHash(), state, conv.getSendTimestamp(), mappedEventId);
+					long eventId = HikeConversationsDatabase.getInstance().insertMessageEvent(messageEvent);
+					if (eventId < 0)
+					{
+						Logger.e(HikePlatformConstants.TAG, "Duplicate Message Event");
+					}
+					else
+					{
+						sharedData.put(HikePlatformConstants.MAPPED_EVENT_ID, eventId);
+						conv.setPlatformData(sharedData);
+					}
+				}
+
+			}
+		}
+		catch (JSONException e)
+		{
+			//TODO catch block
+			e.printStackTrace();
+		}
+
+	}
+
+	/**
+	 * Call this method to send platform message event. This method sends an event to the msisdn that it determines when it queries the messages table based on the message hash.
+	 * @param eventMetadata
+	 * @param messageHash
+	 * @param nameSpace
+	 */
+	public static void sendPlatformMessageEvent(String eventMetadata, String messageHash, String nameSpace)
+	{
+		String msisdn = HikeConversationsDatabase.getInstance().getMsisdnFromMessageHash(messageHash);
+		if (TextUtils.isEmpty(msisdn))
+		{
+			Logger.e(HikePlatformConstants.TAG, "Message Hash is incorrect");
+			return;
+		}
+
+		MessageEvent messageEvent = new MessageEvent(HikePlatformConstants.NORMAL_EVENT, msisdn, nameSpace, eventMetadata, messageHash,
+				HikePlatformConstants.EventStatus.EVENT_SENT, System.currentTimeMillis());
+
+		HikeMessengerApp.getPubSub().publish(HikePubSub.PLATFORM_CARD_EVENT_SENT, messageEvent);
+
+	}
+
+	public static JSONObject getPlatformContactInfo(String msisdn)
+	{
+		JSONObject jsonObject;
+		ContactInfo info = ContactManager.getInstance().getContact(msisdn, true, false);
+		try
+		{
+			if (info == null)
+			{
+				jsonObject = new JSONObject();
+				jsonObject.put("name", msisdn);
+			}
+			else
+			{
+				jsonObject = info.getPlatformInfo();
+			}
+			return jsonObject;
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+			return new JSONObject();
+		}
+	}
+	/**
+	 * Called from MQTTManager, this method is used to resync PlatformUserId and PlatformTokens for clients which have become out of sync with server
+	 * 
+	 * sample packet :
+	 * 
+	 * { "plfsync" : { "platformUid" : "ABCDEFxxxxxx" , "platformToken" : "PQRSTUVxxxxxx" }
+	 * 
+	 * @param plfSyncJson
+	 */
+	public static void savePlatformCredentials(JSONObject plfSyncJson)
+	{
+		String newPlatformUserId = plfSyncJson.optString(HikePlatformConstants.PLATFORM_USER_ID, "");
+
+		String newPlatformToken = plfSyncJson.optString(HikePlatformConstants.PLATFORM_TOKEN, "");
+		
+		Logger.i(TAG, "New Platform UserID : " + newPlatformUserId + " , new platform token : " + newPlatformToken);
+
+		if (!TextUtils.isEmpty(newPlatformUserId))
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.PLATFORM_UID_SETTING, newPlatformUserId);
+		}
+
+		if (!TextUtils.isEmpty(newPlatformToken))
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.TOKEN_SETTING, newPlatformToken);
 		}
 	}
 
