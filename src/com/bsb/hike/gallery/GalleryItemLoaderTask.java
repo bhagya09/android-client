@@ -24,6 +24,7 @@ public class GalleryItemLoaderTask extends AsyncTask<Void, Void, Void>{
 	public static interface GalleryItemLoaderImp
 	{
 		public void onGalleryItemLoaded(GalleryItem galleryItem);
+		public void onNoGalleryItemFound();
 	}
 
 	private GalleryItemLoaderImp listener;
@@ -178,6 +179,13 @@ public class GalleryItemLoaderTask extends AsyncTask<Void, Void, Void>{
 							}
 						}while (mRunning && cursor.moveToNext());
 					}
+					else
+					{
+						if(listener != null)
+						{
+							listener.onNoGalleryItemFound();
+						}
+					}
 					mRunning = false;
 					if(!Utils.isEmpty(pendingItemList))
 					{
@@ -189,6 +197,14 @@ public class GalleryItemLoaderTask extends AsyncTask<Void, Void, Void>{
 				finally
 				{
 					cursor.close();
+				}
+			}
+			else
+			{
+				mRunning = false;
+				if(listener != null)
+				{
+					listener.onNoGalleryItemFound();
 				}
 			}
 		}
