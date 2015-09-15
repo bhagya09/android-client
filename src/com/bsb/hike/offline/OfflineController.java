@@ -479,7 +479,7 @@ public class OfflineController
 		}
 		else
 		{
-			HikeMessengerApp.getInstance().showToast(R.string.file_expire);
+			HikeMessengerApp.getInstance().showToast(R.string.file_expire,Toast.LENGTH_SHORT);
 		}
 	}
 

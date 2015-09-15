@@ -25,6 +25,7 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationCompat.Action;
 import android.text.TextUtils;
 import android.view.ViewDebug.FlagToString;
+import android.widget.Toast;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
@@ -916,6 +917,6 @@ public class OfflineUtils
 			return;
 		}
 
-		HikeMessengerApp.getInstance().showToast(R.string.low_battery_msg);
+		HikeMessengerApp.getInstance().showToast(R.string.low_battery_msg,Toast.LENGTH_LONG);
 	}
 }
