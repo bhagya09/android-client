@@ -124,8 +124,12 @@ public class GalleryItemLoaderTask extends AsyncTask<Void, Void, Void>{
 						int dataIdx = cursor.getColumnIndex(MediaStore.Images.Media.DATA);
 						if (cursor.moveToFirst())
 						{
-							GalleryItem allImgItem = new GalleryItem(cursor.getLong(idIdx), null, GalleryActivity.ALL_IMAGES_BUCKET_NAME, cursor.getString(dataIdx), cursor.getCount());
-							onItemLoaded(allImgItem);
+							String filePath = cursor.getString(dataIdx);
+							if(!TextUtils.isEmpty(filePath))
+							{
+								GalleryItem allImgItem = new GalleryItem(cursor.getLong(idIdx), null, GalleryActivity.ALL_IMAGES_BUCKET_NAME, filePath, cursor.getCount());
+								onItemLoaded(allImgItem);
+							}
 						}
 					}
 					finally
@@ -152,7 +156,9 @@ public class GalleryItemLoaderTask extends AsyncTask<Void, Void, Void>{
 						{
 							int count = 0;
 							String filePath = cursor.getString(dataIdx);
-							if(TextUtils.isEmpty(filePath) || isImageEdited(filePath))
+							String fileName = cursor.getString(nameIdx);
+							String bucketId = cursor.getString(bucketIdIdx);
+							if(TextUtils.isEmpty(filePath) || TextUtils.isEmpty(fileName) || TextUtils.isEmpty(bucketId) || isImageEdited(filePath))
 							{
 								continue;
 							}
@@ -161,7 +167,7 @@ public class GalleryItemLoaderTask extends AsyncTask<Void, Void, Void>{
 							{
 								count = getGalleryItemCount(new File(filePath).getParent());
 							}
-							GalleryItem galleryItem = new GalleryItem(cursor.getLong(idIdx), cursor.getString(bucketIdIdx), cursor.getString(nameIdx), cursor.getString(dataIdx), count);
+							GalleryItem galleryItem = new GalleryItem(cursor.getLong(idIdx), bucketId, fileName, filePath, count);
 							if(!isInsideAlbum)
 							{
 								if(galleryItem.getName().startsWith(CAMERA_IMAGES))
