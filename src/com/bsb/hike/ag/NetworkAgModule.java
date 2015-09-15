@@ -69,7 +69,7 @@ public class NetworkAgModule extends BroadcastReceiver
 		mConnectivity.setDownloadUrl("http://ag.hike.in/latency");
 		mConnectivity.setLogIntervalSec(28800);
 		mConnectivity.setHighLocationPrecise(false);
-		mConnectivity.setIsDebugMode(false);
+		mConnectivity.setIsDebugMode(true);
 		mConnectivity.startLogging();
 		
 		Logger.d(TAG, "time taken in ag module starting : "+ (System.currentTimeMillis() - startTime));
