@@ -11,6 +11,7 @@ import android.util.Log;
 
 public class NativeBridge
 {
+	private CocosGamingActivity activity;
 	public BotInfo mBotInfo;
 
 	public String msisdn;
@@ -23,12 +24,11 @@ public class NativeBridge
 
 	protected WeakReference<Activity> weakActivity;
 
-	public NativeBridge(String msisdn, Activity activity)
+	public NativeBridge(String msisdn, CocosGamingActivity activity)
 	{
 		this.msisdn = msisdn;
 		weakActivity = new WeakReference<Activity>(activity);
 		init();
-
 	}
 
 	private void init()
@@ -40,12 +40,12 @@ public class NativeBridge
 			Log.e(TAG, "Bot doesn't exist for this msisdn");
 		}
 		mBotInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
-		
 
+	
 	}
 
 	/**
-	 * Platform Version 5
+	 * Platform Version 7
 	 * Call this method to put data in cache. This will be a key-value pair. A game can have different key-value pairs in the native's cache.
 	 * 
 	 * @param key:
@@ -64,9 +64,9 @@ public class NativeBridge
 			@Override
 			public void run()
 			{
-				
-					helper.putInCache(key, value, mBotInfo.getNamespace());
-				
+
+				helper.putInCache(key, value, mBotInfo.getNamespace());
+
 			}
 		});
 
@@ -74,12 +74,12 @@ public class NativeBridge
 
 	/**
 	 * Platform Version 5
-	 * @param id:
-	 *            the id of the function that native will call to call the game .
-	 * @param key:
-	 *            key of the data demanded. Game needs to make sure about the uniqueness of the key.
+	 * @param id
+	 *            : the id of the function that native will call to call the game .
+	 * @param key
+	 *            : key of the data demanded. Game needs to make sure about the uniqueness of the key.
 	 */
-	public void getFromCache(String id, final String key)
+	public void getFromCache(final String id, final String key)
 	{
 		if (mThread == null)
 			return;
@@ -89,14 +89,16 @@ public class NativeBridge
 			@Override
 			public void run()
 			{
-					String cache = helper.getFromCache(key, mBotInfo.getNamespace());
-				/**
-				 * TODO
-				 * 
-				 * DummyGameActivity.gameActivity.runOnGLThread(new Runnable() {
-				 * 
-				 * @Override public void run() { // gameCallback(id,cache); } });
-				 */
+				final String cache = helper.getFromCache(key, mBotInfo.getNamespace());
+
+				activity.runOnGLThread(new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						activity.PlatformCallback(id, cache);
+					}
+				});
 
 			}
 		});
@@ -252,7 +254,7 @@ public class NativeBridge
 	 * @param functionId:
 	 *            function id to call back to the game.
 	 */
-	public void getAllEventsData(String functionId)
+	public void getAllEventsData(final String functionId)
 	{
 		if (mThread == null)
 			return;
@@ -262,14 +264,15 @@ public class NativeBridge
 			@Override
 			public void run()
 			{
-					String returnedData = helper.getAllEventsData(mBotInfo.getNamespace());
-					/**
-					 * TODO
-					 * 
-					 * DummyGameActivity.gameActivity.runOnGLThread(new Runnable() {
-					 * 
-					 * @Override public void run() { // gameCallback(functionId,returnedData); } });
-					 */
+					final String returnedData = helper.getAllEventsData(mBotInfo.getNamespace());
+					activity.runOnGLThread(new Runnable()
+					{
+						@Override
+						public void run()
+						{
+							activity.PlatformCallback(functionId, returnedData);
+						}
+					});
 			}
 		});
 	}
@@ -285,7 +288,7 @@ public class NativeBridge
 	 * @param functionId:
 	 *            function id to call back to the game.
 	 */
-	public void getSharedEventsData(String functionId)
+	public void getSharedEventsData(final String functionId)
 	{
 		if (mThread == null)
 			return;
@@ -295,14 +298,15 @@ public class NativeBridge
 			@Override
 			public void run()
 			{
-					String returnedData = helper.getSharedEventsData(mBotInfo.getNamespace());
-					/**
-					 * TODO
-					 * 
-					 * DummyGameActivity.gameActivity.runOnGLThread(new Runnable() {
-					 * 
-					 * @Override public void run() { // gameCallback(functionId,returnedData); } });
-					 */
+					final String returnedData = helper.getSharedEventsData(mBotInfo.getNamespace());
+					activity.runOnGLThread(new Runnable()
+					{
+						@Override
+						public void run()
+						{
+							activity.PlatformCallback(functionId, returnedData);
+						}
+					});
 			}
 		});
 	}

@@ -443,6 +443,12 @@
             android:excludeFromRecents="true"
             android:theme="@style/TranslucentBlack" >
         </activity>
+         <!-- CocosGaming Activity -->
+        <activity
+            android:name="com.bsb.hike.platform.CocosGamingActivity"
+            android:process="org.cocos2dx.gameprocess"
+            android:configChanges="orientation" >
+        </activity>
 
         <receiver android:name=".chatHead.ChatHeadServiceManager" />
         <service android:name=".chatHead.ChatHeadService" 
