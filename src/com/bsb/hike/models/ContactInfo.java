@@ -559,6 +559,14 @@ public class ContactInfo implements JSONSerializable, Comparable<ContactInfo>
 		return json;
 	}
 
+	public JSONObject getPlatformInfo() throws JSONException
+	{
+		JSONObject json = new JSONObject();
+		json.put("name", getNameOrMsisdn());
+		json.put(HikePlatformConstants.PLATFORM_USER_ID,this.platformId);
+		return json;
+	}
+
 	public static LastSeenComparator lastSeenTimeComparator = new LastSeenComparator(true);
 
 	public static LastSeenComparator lastSeenTimeComparatorWithoutFav = new LastSeenComparator(false);

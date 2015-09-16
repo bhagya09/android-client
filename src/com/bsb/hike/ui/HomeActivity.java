@@ -7,55 +7,6 @@ import java.util.List;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.annotation.SuppressLint;
-import android.app.Dialog;
-import android.content.ActivityNotFoundException;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.DialogInterface.OnCancelListener;
-import android.content.DialogInterface.OnDismissListener;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
-import android.content.res.Configuration;
-import android.net.Uri;
-import android.os.AsyncTask;
-import android.os.Build;
-import android.os.Bundle;
-import android.os.Message;
-import android.preference.PreferenceManager;
-import android.support.v4.app.Fragment;
-import android.support.v4.view.MenuItemCompat;
-import android.support.v7.app.ActionBar;
-
-import android.text.TextUtils;
-import android.util.Pair;
-import android.view.KeyEvent;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.MotionEvent;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.view.ViewConfiguration;
-import android.view.ViewGroup;
-import android.view.ViewStub;
-import android.view.WindowManager.BadTokenException;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.ArrayAdapter;
-import android.widget.AutoCompleteTextView;
-import android.widget.Button;
-import android.widget.FrameLayout;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.LinearLayout.LayoutParams;
-import android.widget.ListView;
-import android.widget.PopupWindow;
-import android.widget.TextView;
-import android.widget.Toast;
-
 import com.bsb.hike.AppConfig;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
@@ -76,6 +27,8 @@ import com.bsb.hike.models.FtueContactsData;
 import com.bsb.hike.models.Conversation.ConversationTip;
 import com.bsb.hike.modules.animationModule.HikeAnimationFactory;
 import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.offline.OfflineConstants.OFFLINE_STATE;
+import com.bsb.hike.offline.OfflineController;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.snowfall.SnowFallView;
 import com.bsb.hike.tasks.DownloadAndInstallUpdateAsyncTask;
@@ -86,7 +39,6 @@ import com.bsb.hike.ui.fragments.ConversationFragment;
 import com.bsb.hike.ui.utils.LockPattern;
 import com.bsb.hike.ui.v7.SearchView;
 import com.bsb.hike.ui.v7.SearchView.OnQueryTextListener;
-import com.bsb.hike.ui.v7.SearchView.SearchAutoComplete;
 import com.bsb.hike.utils.FestivePopup;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
@@ -103,6 +55,53 @@ import com.kpt.adaptxt.beta.util.KPTConstants;
 import com.kpt.adaptxt.beta.view.AdaptxtEditText;
 import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtEditTextEventListner;
 import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtKeyboordVisibilityStatusListner;
+
+import android.annotation.SuppressLint;
+import android.app.Dialog;
+import android.content.ActivityNotFoundException;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnCancelListener;
+import android.content.DialogInterface.OnDismissListener;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
+import android.content.res.Configuration;
+import android.net.Uri;
+import android.os.AsyncTask;
+import android.os.Build;
+import android.os.Bundle;
+import android.os.Message;
+import android.preference.PreferenceManager;
+import android.support.v4.app.Fragment;
+import android.support.v4.view.MenuItemCompat;
+import android.support.v7.app.ActionBar;
+import android.text.TextUtils;
+import android.util.Pair;
+import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.ViewConfiguration;
+import android.view.ViewGroup;
+import android.view.ViewStub;
+import android.view.WindowManager.BadTokenException;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.LinearLayout.LayoutParams;
+import android.widget.ListView;
+import android.widget.PopupWindow;
+import android.widget.TextView;
+import android.widget.Toast;
 
 public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Listener, AdaptxtEditTextEventListner, AdaptxtKeyboordVisibilityStatusListner
 {
@@ -170,7 +169,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	
 	private final long STEALTH_INDICATOR_DURATION = 3000;
 
-	private String[] homePubSubListeners = { HikePubSub.INCREMENTED_UNSEEN_STATUS_COUNT, HikePubSub.SMS_SYNC_COMPLETE, HikePubSub.SMS_SYNC_FAIL, HikePubSub.FAVORITE_TOGGLED,
+	private String[] homePubSubListeners = { HikePubSub.UNSEEN_STATUS_COUNT_CHANGED, HikePubSub.SMS_SYNC_COMPLETE, HikePubSub.SMS_SYNC_FAIL, HikePubSub.FAVORITE_TOGGLED,
 			HikePubSub.USER_JOINED, HikePubSub.USER_LEFT, HikePubSub.FRIEND_REQUEST_ACCEPTED, HikePubSub.REJECT_FRIEND_REQUEST, HikePubSub.UPDATE_OF_MENU_NOTIFICATION,
 			HikePubSub.SERVICE_STARTED, HikePubSub.UPDATE_PUSH, HikePubSub.REFRESH_FAVORITES, HikePubSub.UPDATE_NETWORK_STATE, HikePubSub.CONTACT_SYNCED, HikePubSub.FAVORITE_COUNT_CHANGED,
 			HikePubSub.STEALTH_UNREAD_TIP_CLICKED,HikePubSub.FTUE_LIST_FETCHED_OR_UPDATED, HikePubSub.STEALTH_INDICATOR, HikePubSub.USER_JOINED_NOTIFICATION, HikePubSub.UPDATE_OF_PHOTOS_ICON  };
@@ -191,7 +190,11 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 	protected static final int SHOW_RECENTLY_JOINED_INDICATOR = -103;
 	
+	protected static final int SHOW_TIMELINE_UPDATES_INDICATOR = -104;
+	
 	private View hiButton;
+
+	private TextView timelineUpdatesIndicator;
 
 	private AdaptxtEditText searchET;
 	
@@ -274,6 +277,9 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		case SHOW_RECENTLY_JOINED_INDICATOR:
 			showRecentlyJoinedDot();
 			break;
+		case SHOW_TIMELINE_UPDATES_INDICATOR:
+			showTimelineUpdatesIndicator();
+			break;
 		default:
 			super.handleUIMessage(msg);
 			break;
@@ -303,6 +309,33 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		{
 			newConversationIndicator.setVisibility(View.GONE);
 		}
+	}
+	
+	private void showTimelineUpdatesIndicator()
+	{
+		// Defensive check for case where newConversationIndicator was coming as null. Possible due to the various if..else conditions for newConversationIndicator initialisation.
+		if (timelineUpdatesIndicator == null)
+		{
+			return;
+		}
+
+		int count = 0;
+		count = Utils.getNotificationCount(accountPrefs, false);
+		if (count > 9)
+		{
+			timelineUpdatesIndicator.setVisibility(View.VISIBLE);
+			timelineUpdatesIndicator.setText("9+");
+		}
+		else if (count > 0)
+		{
+			timelineUpdatesIndicator.setVisibility(View.VISIBLE);
+			timelineUpdatesIndicator.setText(String.valueOf(count));
+		}
+		else
+		{
+			timelineUpdatesIndicator.setVisibility(View.GONE);
+		}
+
 	}
 	
 	private void showOverFlowIndicator(int count)
@@ -631,64 +664,65 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	
 	private boolean setupMenuOptions(final Menu menu)
 	{
-		//Adding defensive null pointer check (bug#44531)May be due to sherlock code, nullpointerexception occured.
-		try{
+		// Adding defensive null pointer check (bug#44531)May be due to sherlock code, nullpointerexception occured.
+		try
+		{
 			getMenuInflater().inflate(R.menu.chats_menu, menu);
 			topBarIndicator = (TextView) (MenuItemCompat.getActionView(menu.findItem(R.id.overflow_menu)).findViewById(R.id.top_bar_indicator_text));
-		updateOverFlowMenuNotification();
-		MenuItemCompat.getActionView(menu.findItem(R.id.overflow_menu)).setOnClickListener(new View.OnClickListener()
-		{
-			@Override
-			public void onClick(View v)
+			updateOverFlowMenuNotification();
+			MenuItemCompat.getActionView(menu.findItem(R.id.overflow_menu)).setOnClickListener(new View.OnClickListener()
 			{
-				showOverFlowMenu();
-				topBarIndicator.setVisibility(View.GONE);
-				Editor editor = accountPrefs.edit();
-				editor.putBoolean(HikeConstants.IS_HOME_OVERFLOW_CLICKED, true);
-				editor.commit();
-			}
-		});
-		searchMenuItem = menu.findItem(R.id.search);
-		SearchView searchView=(SearchView) MenuItemCompat.getActionView(searchMenuItem);
-		searchView.setOnQueryTextListener(onQueryTextListener);
-		searchView.clearFocus();
-
-		//Code for CustomKeyboard
-		 searchET = (AdaptxtEditText) searchView.findViewById(R.id.search_src_text);
-		mCustomKeyboard.registerEditText(searchET, KPTConstants.MULTILINE_LINE_EDITOR, HomeActivity.this, HomeActivity.this);
-		mCustomKeyboard.init(searchET);
-		searchET.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-			
-			@Override
-			public void onFocusChange(View v, boolean hasFocus) {
-				if(hasFocus){
-					//Utils.hideSoftKeyboard(getApplicationContext(), searchET);
-					mCustomKeyboard.showCustomKeyboard(searchET, true);
-				}
-			}
-		});
-		
-		//
-		searchOptionID = searchMenuItem.getItemId();
-		MenuItemCompat.setShowAsAction(MenuItemCompat.setActionView(searchMenuItem, searchView), MenuItem.SHOW_AS_ACTION_ALWAYS | MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
-		MenuItemCompat.setOnActionExpandListener(searchMenuItem, new MenuItemCompat.OnActionExpandListener()
-		{
-			@Override
-			public boolean onMenuItemActionExpand(MenuItem item)
-			{
-				if(mainFragment!=null)
-		        {
-					mainFragment.setupSearch();
-		        }
-				toggleMenuItems(menu, false);
-				showProductPopup(ProductPopupsConstants.PopupTriggerPoints.SEARCH.ordinal());
-				showingSearchModeActionBar = true;
-				if (hiButton != null)
+				@Override
+				public void onClick(View v)
 				{
-					hiButton.clearAnimation();
+					showOverFlowMenu();
+					topBarIndicator.setVisibility(View.GONE);
+					Editor editor = accountPrefs.edit();
+					editor.putBoolean(HikeConstants.IS_HOME_OVERFLOW_CLICKED, true);
+					editor.commit();
 				}
+			});
+			searchMenuItem = menu.findItem(R.id.search);
+			SearchView searchView=(SearchView) MenuItemCompat.getActionView(searchMenuItem);
+			searchView.setOnQueryTextListener(onQueryTextListener);
+			searchView.clearFocus();
+	
+			//Code for CustomKeyboard
+			 searchET = (AdaptxtEditText) searchView.findViewById(R.id.search_src_text);
+			mCustomKeyboard.registerEditText(searchET, KPTConstants.MULTILINE_LINE_EDITOR, HomeActivity.this, HomeActivity.this);
+			mCustomKeyboard.init(searchET);
+			searchET.setOnFocusChangeListener(new View.OnFocusChangeListener() {
 				
-				return true;
+				@Override
+				public void onFocusChange(View v, boolean hasFocus) {
+					if(hasFocus){
+						//Utils.hideSoftKeyboard(getApplicationContext(), searchET);
+						mCustomKeyboard.showCustomKeyboard(searchET, true);
+					}
+				}
+			});
+			
+			//
+			searchOptionID = searchMenuItem.getItemId();
+			MenuItemCompat.setShowAsAction(MenuItemCompat.setActionView(searchMenuItem, searchView), MenuItem.SHOW_AS_ACTION_ALWAYS | MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
+			MenuItemCompat.setOnActionExpandListener(searchMenuItem, new MenuItemCompat.OnActionExpandListener()
+			{
+				@Override
+				public boolean onMenuItemActionExpand(MenuItem item)
+				{
+					if(mainFragment!=null)
+			        {
+						mainFragment.setupSearch();
+			        }
+					toggleMenuItems(menu, false);
+					showProductPopup(ProductPopupsConstants.PopupTriggerPoints.SEARCH.ordinal());
+					showingSearchModeActionBar = true;
+					if (hiButton != null)
+					{
+						hiButton.clearAnimation();
+					}
+					
+					return true;
 			}
 
 			@Override
@@ -705,51 +739,63 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 				setupActionBar();
 				return true;
 			}
-		});
+			});
 		
+			newConversationIndicator = (TextView) MenuItemCompat.getActionView(menu.findItem(R.id.new_conversation)).findViewById(R.id.top_bar_indicator_text);
+			MenuItemCompat.getActionView(menu.findItem(R.id.new_conversation)).findViewById(R.id.overflow_icon_image).setContentDescription("Start a new chat");
+			((ImageView) MenuItemCompat.getActionView(menu.findItem(R.id.new_conversation)).findViewById(R.id.overflow_icon_image))
+					.setImageResource(R.drawable.ic_new_conversation);
 
-        newConversationIndicator = (TextView) MenuItemCompat.getActionView(menu.findItem(R.id.new_conversation)).findViewById(R.id.top_bar_indicator_text);
-        MenuItemCompat.getActionView(menu.findItem(R.id.new_conversation)).findViewById(R.id.overflow_icon_image).setContentDescription("Start a new chat");
-         ((ImageView)    MenuItemCompat.getActionView(menu.findItem(R.id.new_conversation)).findViewById(R.id.overflow_icon_image)).setImageResource(R.drawable.ic_new_conversation);
-
-	
-			if (Utils.isPhotosEditEnabled())
+			View timelineActionView = (View) MenuItemCompat.getActionView(menu.findItem(R.id.timeline));
+			((ImageView) timelineActionView.findViewById(R.id.overflow_icon_image)).setImageResource(R.drawable.ic_timeline);
+			timelineActionView.findViewById(R.id.overflow_icon_image).setContentDescription("Timeline");
+			timelineUpdatesIndicator = (TextView) timelineActionView.findViewById(R.id.top_bar_indicator_text);
+			showTimelineUpdatesDot(1000);
+			timelineActionView.setOnClickListener(new OnClickListener()
 			{
-				
-				View takePhotoActionView = (View)MenuItemCompat.getActionView(menu.findItem(R.id.take_pic));
-				Logger.d("ph_en", "inside API setupMenuOptions, enabling photo inside actionbar");
-				((ImageView) takePhotoActionView.findViewById(R.id.overflow_icon_image)).setImageResource(R.drawable.btn_cam_nav);
-				takePhotoActionView.findViewById(R.id.overflow_icon_image).setContentDescription("New photo");
-				takePhotoActionView.setOnClickListener(new OnClickListener()
+				@Override
+				public void onClick(View v)
 				{
-
-					@Override
-					public void onClick(View v)
+					try
 					{
-						// Open gallery
-						int galleryFlags = GalleryActivity.GALLERY_CATEGORIZE_BY_FOLDERS | GalleryActivity.GALLERY_EDIT_SELECTED_IMAGE
-								| GalleryActivity.GALLERY_COMPRESS_EDITED_IMAGE | GalleryActivity.GALLERY_DISPLAY_CAMERA_ITEM;
-						Intent galleryPickerIntent = IntentFactory.getHikeGalleryPickerIntent(HomeActivity.this, galleryFlags, null);
-
-						startActivity(galleryPickerIntent);
-
-						sendAnalyticsTakePicture();
+						JSONObject md = new JSONObject();
+						md.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.SHOW_TIMELINE_TOP_BAR);
+						HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, md);
 					}
-				});
-			}
-			else
+					catch (JSONException e)
+					{
+						Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+					}
+
+					JSONObject metadataSU = new JSONObject();
+					try
+					{
+						metadataSU.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.TIMELINE_OPEN);
+						if (Utils.getNotificationCount(accountPrefs, false) > 0)
+						{
+							metadataSU.put(AnalyticsConstants.EVENT_SOURCE, HikeConstants.LogEvent.TIMELINE_WITH_RED_DOT);
+						}
+
+						HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, HAManager.EventPriority.HIGH, metadataSU);
+					}
+					catch (JSONException e)
+					{
+						Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+					}
+
+					HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOW_TIMELINE_RED_DOT, false);
+					Intent intent = new Intent(HomeActivity.this, TimelineActivity.class);
+					timelineUpdatesIndicator.setVisibility(View.GONE);
+					startActivity(intent);
+				}
+			});
+
+			showRecentlyJoinedDot(1000);
+
+			MenuItemCompat.getActionView(menu.findItem(R.id.new_conversation)).setOnClickListener(new OnClickListener()
 			{
-				Logger.d("ph_en", "inside setupMenuOptions, disabling photo inside actionbar");
-				menu.removeItem(R.id.take_pic);
-			}
-
-
-		showRecentlyJoinedDot(1000);
-
-		MenuItemCompat.getActionView(menu.findItem(R.id.new_conversation)).setOnClickListener(new OnClickListener()
-		{
-			@Override
-			public void onClick(View v)
+				@Override
+				public void onClick(View v)
 				{
 					try
 					{
@@ -768,11 +814,13 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 					newConversationIndicator.setVisibility(View.GONE);
 					startActivity(intent);
 				}
-		});
-		
-		return true;
-		}catch(NullPointerException e){
-			Logger.e("NulllpointerException :setupMenuOptions" ,e.toString());
+			});
+
+			return true;
+		}
+		catch (NullPointerException e)
+		{
+			Logger.e("NulllpointerException :setupMenuOptions", e.toString());
 			return false;
 		}
 	}
@@ -795,12 +843,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	{
 		menu.findItem(R.id.overflow_menu).setVisible(value);
 		menu.findItem(R.id.new_conversation).setVisible(value);
-
-		MenuItem takePicItem = menu.findItem(R.id.take_pic);
-		if (takePicItem != null) // This will happen if photos edit option is disabled
-		{
-			takePicItem.setVisible(value);
-		}
+		menu.findItem(R.id.timeline).setVisible(value);
 	}
 
 	private OnQueryTextListener onQueryTextListener = new OnQueryTextListener()
@@ -1249,31 +1292,21 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	 */
 	private int getHomeOverflowCount(SharedPreferences accountPrefs, boolean countUsersStatus, boolean defaultValue)
 	{
-		int timelineCount = Utils.getNotificationCount(accountPrefs, countUsersStatus);
-		if (timelineCount == 0 && accountPrefs.getBoolean(HikeConstants.SHOW_TIMELINE_RED_DOT, true))
-		{
-			timelineCount = 1;
-		}
-		return timelineCount + Utils.updateHomeOverflowToggleCount(accountPrefs, defaultValue);
+		return Utils.updateHomeOverflowToggleCount(accountPrefs, defaultValue);
 	}
 	
 	@Override
 	public void onEventReceived(String type, Object object)
 	{
 		super.onEventReceived(type, object);
-		if (HikePubSub.INCREMENTED_UNSEEN_STATUS_COUNT.equals(type))
+		if (HikePubSub.UNSEEN_STATUS_COUNT_CHANGED.equals(type))
 		{
 			runOnUiThread( new Runnable()
 			{
-
 				@Override
 				public void run()
 				{
-					updateHomeOverflowToggleCount(getHomeOverflowCount(accountPrefs, false, false), 0);
-					if (null != overflowAdapter)
-					{
-						overflowAdapter.notifyDataSetChanged();
-					}
+					showTimelineUpdatesDot(1000);
 				}
 			});
 		}
@@ -1645,7 +1678,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			return;
 		Logger.d(getClass().getSimpleName(), "visiblity for: " + HikeMessengerApp.networkError);
 		// networkErrorPopUp.clearAnimation();
-		if (HikeMessengerApp.networkError)
+		if (HikeMessengerApp.networkError && OfflineController.getInstance().getOfflineState() != OFFLINE_STATE.CONNECTED)
 		{
 			networkErrorPopUp.setText(R.string.no_internet_connection);
 			networkErrorPopUp.setBackgroundColor(getResources().getColor(R.color.red_no_network));
@@ -1662,7 +1695,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		if (networkErrorPopUp == null)
 			return;
 		Logger.d(getClass().getSimpleName(), "animation for: " + HikeMessengerApp.networkError);
-		if (HikeMessengerApp.networkError)
+		if (HikeMessengerApp.networkError && OfflineController.getInstance().getOfflineState() != OFFLINE_STATE.CONNECTED)
 		{
 			Animation alphaIn = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.slide_up_noalpha);
 			alphaIn.setDuration(400);
@@ -1747,6 +1780,9 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	public void showOverFlowMenu()
 	{
 
+		if (overFlowWindow != null)
+			overFlowWindow.dismiss();
+
 		ArrayList<OverFlowMenuItem> optionsList = new ArrayList<OverFlowMenuItem>();
 
 		final String msisdn = accountPrefs.getString(HikeMessengerApp.MSISDN_SETTING, null);
@@ -1757,11 +1793,15 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 		optionsList.add(new OverFlowMenuItem(getString(R.string.new_group), 0, 0, R.string.new_group));
 
-		optionsList.add(new OverFlowMenuItem(getString(R.string.timeline), 0, 0, R.string.timeline));
 
+		if (Utils.isPhotosEditEnabled())
+		{
+			optionsList.add(new OverFlowMenuItem(getString(R.string.home_overflow_new_photo), 0, 0, R.string.home_overflow_new_photo));
+		}
+		
 		optionsList.add(new OverFlowMenuItem(getString(R.string.invite_friends), 0, 0, R.string.invite_friends));
-
-		if (accountPrefs.getBoolean(HikeMessengerApp.SHOW_GAMES, false))
+	
+		if (accountPrefs.getBoolean(HikeMessengerApp.SHOW_GAMES, false) && !TextUtils.isEmpty((HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.REWARDS_TOKEN, ""))))
 		{
 			String hikeExtrasName = accountPrefs.getString(HikeConstants.HIKE_EXTRAS_NAME, getApplicationContext().getString(R.string.hike_extras));
 					                       
@@ -1771,7 +1811,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			}
 		}
 		
-		if (accountPrefs.getBoolean(HikeMessengerApp.SHOW_REWARDS, false))
+		if (accountPrefs.getBoolean(HikeMessengerApp.SHOW_REWARDS, false) && !TextUtils.isEmpty(HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.REWARDS_TOKEN, "")))
 		{
 			String rewards_name = accountPrefs.getString(HikeConstants.REWARDS_NAME, getApplicationContext().getString(R.string.rewards));
 												
@@ -1782,8 +1822,8 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		}
 
 		optionsList.add(new OverFlowMenuItem(getString(R.string.settings), 0, 0, R.string.settings));
-
-		optionsList.add(new OverFlowMenuItem(getString(R.string.status),0, 0, R.string.status));
+		
+		optionsList.add(new OverFlowMenuItem(getString(R.string.status), 0, 0, R.string.status));
 
 		addEmailLogItem(optionsList);
 
@@ -1897,6 +1937,16 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 				case R.string.new_broadcast:
 					sendBroadCastAnalytics();
 					IntentFactory.createBroadcastIntent(HomeActivity.this);
+					break;
+				case R.string.home_overflow_new_photo:
+					// Open gallery
+					int galleryFlags = GalleryActivity.GALLERY_CATEGORIZE_BY_FOLDERS | GalleryActivity.GALLERY_EDIT_SELECTED_IMAGE
+							| GalleryActivity.GALLERY_COMPRESS_EDITED_IMAGE | GalleryActivity.GALLERY_DISPLAY_CAMERA_ITEM;
+					Intent galleryPickerIntent = IntentFactory.getHikeGalleryPickerIntent(HomeActivity.this, galleryFlags, null);
+
+					startActivity(galleryPickerIntent);
+
+					sendAnalyticsTakePicture();
 					break;
 					
 				}
@@ -2089,6 +2139,13 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	{
 		Message msg = Message.obtain();
 		msg.what = SHOW_RECENTLY_JOINED_INDICATOR;
+		uiHandler.sendMessageDelayed(msg, delayTime);
+	}
+	
+	public void showTimelineUpdatesDot(int delayTime)
+	{
+		Message msg = Message.obtain();
+		msg.what = SHOW_TIMELINE_UPDATES_INDICATOR;
 		uiHandler.sendMessageDelayed(msg, delayTime);
 	}
 

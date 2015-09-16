@@ -101,7 +101,6 @@ public class VoIPConstants {
 	
 	// Intent actions
 	public static final String PARTNER_REQUIRES_UPGRADE = "pru";
-	public static final String PARTNER_INCOMPATIBLE = "pi";
 	public static final String PARTNER_IN_CALL = "incall";
 	public static final String PARTNER_HAS_BLOCKED_YOU = "blocked";
 	
@@ -121,8 +120,6 @@ public class VoIPConstants {
 	public static final String CALL_FAILED_REASON = "callfailreason";
 	public static final String PARTNER_NAME = "pname";
 	public static final String CALL_RATE_BUNDLE = "callRateBundle";
-	public static final String APP_VERSION_NAME = "appVersionName";
-	public static final String OS_VERSION = "OsVersion";
 	public static final String IS_CONFERENCE = "isConf";
 	public static final String CALL_DURATION = "duration";
 
@@ -156,6 +153,7 @@ public class VoIPConstants {
 	public static final int MSG_PARTNER_BUSY = 30;
 	public static final int MSG_UPDATE_FORCE_MUTE_LAYOUT = 31;
 	public static final int MSG_UPDATE_CALL_BUTTONS = 32;
+	public static final int MSG_PARTNER_INCOMPATIBLE_PLATFORM = 33;
 
 	public static final class Analytics
 	{
@@ -184,10 +182,6 @@ public class VoIPConstants {
 		public static final String DURATION = "dur";
 
 		public static final String CALL_CONNECT_FAIL_REASON = "reason";
-
-		public static final String APP_VERSION_NAME = "appv";
-
-		public static final String OS_VERSION = "osv";
 
 		public static final String IS_CONFERENCE = "isconf";
 	}
@@ -218,8 +212,6 @@ public class VoIPConstants {
 	public static final class Extras
 	{
 		public static final String ACTION = "action";
-
-		public static final String MESSAGE = "message";
 
 		public static final String SET_PARTNER_INFO = "setpartnerinfo";
 
@@ -300,7 +292,7 @@ public class VoIPConstants {
 		ACTIVE, 
 		ENDED, 
 		UNINITIALIZED,
-		HOSTING_CONFERENCE
+		UNUSED_PLACEHOLDER_FOR_BACKWARD_COMPATIBILITY
 	}
 
 	/**

@@ -80,7 +80,9 @@ public class VoIPDataPacket implements Cloneable {
 		CLIENTS_LIST_JSON (38),
 		REQUEST_RECONNECT (39), 
 		FORCE_MUTE_ON (40), 
-		FORCE_MUTE_OFF (41)
+		FORCE_MUTE_OFF (41),
+		SPEECH_ON (42), 
+		SPEECH_OFF(43)
 		;
 		
 		private final int value;
@@ -179,6 +181,10 @@ public class VoIPDataPacket implements Cloneable {
 				return FORCE_MUTE_ON;
 			case 41:
 				return FORCE_MUTE_OFF;
+			case 42:
+				return SPEECH_ON;
+			case 43:
+				return SPEECH_OFF;
 			default:
 				return UPDATE;
 			}
