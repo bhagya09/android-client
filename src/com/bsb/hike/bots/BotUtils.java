@@ -328,7 +328,7 @@ public class BotUtils
 			NonMessagingBotMetadata botMetadata = new NonMessagingBotMetadata(botInfo.getMetadata());
 			if (botMetadata.isMicroAppMode())
 			{
-				PlatformUtils.downloadZipForNonMessagingBot(botInfo, enableBot, botChatTheme, notifType);
+				PlatformUtils.downloadZipForNonMessagingBot(botInfo, enableBot, botChatTheme, notifType, botMetadata.isReplace());
 			}
 			else if (botMetadata.isWebUrlMode())
 			{
@@ -383,6 +383,12 @@ public class BotUtils
 		{
 			String metadata = jsonObj.optString(HikeConstants.METADATA);
 			botInfo.setMetadata(metadata);
+		}
+
+		if (jsonObj.has(HikePlatformConstants.BOT_VERSION))
+		{
+			int version = jsonObj.optInt(HikePlatformConstants.BOT_VERSION);
+			botInfo.setVersion(version);
 		}
 
 		if (jsonObj.has(HikePlatformConstants.HELPER_DATA))

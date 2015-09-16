@@ -304,7 +304,8 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				+ DBConstants.CONFIG_DATA + " TEXT, "            //config data for the bot.
 				+ HIKE_CONTENT.NAMESPACE + " TEXT, "         //namespace of a bot for caching purpose.
 				+ HIKE_CONTENT.NOTIF_DATA + " TEXT, "       //notif data used for notifications pertaining to the microapp
-				+ HIKE_CONTENT.HELPER_DATA + " TEXT DEFAULT '{}'"  //helper data
+				+ HIKE_CONTENT.HELPER_DATA + " TEXT DEFAULT '{}', "  //helper data
+				+ HIKE_CONTENT.BOT_VERSION + " INTEGER DEFAULT 0"   //bot version for bot upgrade scenario
 				+ ")";
 		db.execSQL(sql);
 
@@ -880,7 +881,14 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				// This indicates that an update happened here. This field will be used by UpgradeIntentService
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.UPGRADE_SORTING_ID_FIELD, 1);
 			}
+
+			if (!Utils.ifColumnExistsInTable(db, DBConstants.BOT_TABLE, HIKE_CONTENT.BOT_VERSION))
+			{
+				String alterTable = "ALTER TABLE " + DBConstants.BOT_TABLE + " ADD COLUMN " + HIKE_CONTENT.BOT_VERSION + " INTEGER DEFAULT 0";
+				db.execSQL(alterTable);
+			}
 		}
+
 	}
 
 	public void reinitializeDB()
@@ -2980,6 +2988,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		values.put(DBConstants.CONFIG_DATA, botInfo.getConfigData());
 		values.put(HIKE_CONTENT.NAMESPACE, botInfo.getNamespace());
 		values.put(HIKE_CONTENT.HELPER_DATA, botInfo.getHelperData());
+		values.put(HIKE_CONTENT.BOT_VERSION, botInfo.getVersion());
 		mDb.insertWithOnConflict(DBConstants.BOT_TABLE, null, values, SQLiteDatabase.CONFLICT_REPLACE);
 	}
 
@@ -8019,6 +8028,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			int configDataidx = c.getColumnIndex(DBConstants.CONFIG_DATA);
 			int notifDataIdx = c.getColumnIndex(HIKE_CONTENT.NOTIF_DATA);
 			int helperDataIdx = c.getColumnIndex(HIKE_CONTENT.HELPER_DATA);
+			int versionIdx = c.getColumnIndex(HIKE_CONTENT.BOT_VERSION);
 
 			if (c.moveToFirst())
 			{
@@ -8031,9 +8041,9 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				String configData = c.getString(configDataidx);
 				String notifData = c.getString(notifDataIdx);
 				String helperData = c.getString(helperDataIdx);
-
+				int version = c.getInt(versionIdx);
 				BotInfo botInfo = new BotInfo.HikeBotBuilder(msisdn).setConvName(name).setConfig(config).setType(botType).setMetadata(metadata).setIsMute(mute == 1)
-						.setNamespace(namespace).setConfigData(configData).setHelperData(helperData).setNotifData(notifData).build();
+						.setNamespace(namespace).setConfigData(configData).setHelperData(helperData).setNotifData(notifData).setVersion(version).build();
 				
 				botInfo.setBlocked(ContactManager.getInstance().isBlocked(msisdn));
 				return botInfo;
