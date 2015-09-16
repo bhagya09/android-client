@@ -23,6 +23,8 @@ import android.provider.ContactsContract.PhoneLookup;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.models.HikeAlarmManager;
+import com.bsb.hike.modules.httpmgr.RequestToken;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.userlogs.PhoneSpecUtils;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
@@ -436,5 +438,36 @@ public class ChatHeadUtils
 		return false;
 	}
 	
-		
+	public static void postNumberRequest(Context context, String searchNumber)
+	{
+		final String number = Utils.normalizeNumber(searchNumber,
+				HikeMessengerApp.getInstance().getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0)
+						.getString(HikeMessengerApp.COUNTRY_CODE, HikeConstants.INDIA_COUNTRY_CODE));
+
+		if (contactExists(context, number))
+		{
+			return;
+		}
+		if (HikeSharedPreferenceUtil.getInstance(HikeConstants.CALLER_SHARED_PREF).getData(number, null) != null)
+		{
+			StickyCaller.showCallerView(number, HikeSharedPreferenceUtil.getInstance(HikeConstants.CALLER_SHARED_PREF).getData(number, null));
+		}
+		else
+		{
+			JSONObject json = new JSONObject();
+			try
+			{
+				json.put(HikeConstants.MSISDN, number);
+			}
+			catch (JSONException e)
+			{
+	           Logger.d(TAG, "jsonException");
+			}
+			CallListener callListener = new CallListener();
+			callListener.setNumber(number);
+			RequestToken requestToken = HttpRequests.postNumberAndGetCallerDetails("http://52.76.46.27:5000/hikeCaller", json, callListener, 1);
+			requestToken.execute();
+		}
+	}	
+	
 }
