@@ -318,7 +318,7 @@ public class ChatHeadUtils
 		{
 			return accessibilityDisabled;
 		}
-		boolean wantToUseAccessibility = !HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.DONT_USE_ACCESSIBILITY, true);
+		boolean wantToUseAccessibility = !HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.DONT_USE_ACCESSIBILITY, willPollingWork());
 		//dontUseAccessibility is an internal flag, to prevent user from using accessibility service for stickey,
 		//even if accessibility is enabled by forceAccessibility flag On
 		return  wantToUseAccessibility || accessibilityDisabled;
@@ -342,6 +342,7 @@ public class ChatHeadUtils
 		}
 		else
 		{
+			ChatHeadViewManager.getInstance(HikeMessengerApp.getInstance()).onCreate();
 			stopService();
 		}
 		
@@ -399,21 +400,15 @@ public class ChatHeadUtils
 		}
 	}
 
+	public static boolean willPollingWork()
+	{
+		Set<String> currentPoll = ChatHeadUtils.getRunningAppPackage(ChatHeadUtils.GET_ALL_RUNNING_PROCESSES);
+		return currentPoll != null && !currentPoll.isEmpty() && !(currentPoll.size() == 1 && currentPoll.contains(HikeMessengerApp.getInstance().getPackageName()));
+	}
+	
 	public static boolean checkDeviceFunctionality()
 	{
-		if (Utils.isIceCreamOrHigher() && !Utils.isLollipopMR1OrHigher())
-		{
-			return true;
-		}
-		else if(Utils.isLollipopMR1OrHigher())
-		{
-			Set<String> currentPoll = ChatHeadUtils.getRunningAppPackage(ChatHeadUtils.GET_ALL_RUNNING_PROCESSES);
-			return currentPoll != null && !currentPoll.isEmpty() && !(currentPoll.size() == 1 && currentPoll.contains(HikeMessengerApp.getInstance().getPackageName()));
-		}
-		else
-		{
-			return false; 
-		}
+		return Utils.isIceCreamOrHigher();
 	}
 	
 }

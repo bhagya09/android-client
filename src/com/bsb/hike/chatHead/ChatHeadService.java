@@ -57,7 +57,7 @@ public class ChatHeadService extends Service
 	public void onConfigurationChanged(Configuration newConfig)
 	{
 		super.onConfigurationChanged(newConfig);
-        ChatHeadViewManager.getInstance(this).onConfigCahnged();
+        ChatHeadViewManager.getInstance(this).onConfigChanged();
 	}
 
 	@Override

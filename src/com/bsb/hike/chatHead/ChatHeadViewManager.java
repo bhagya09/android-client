@@ -655,7 +655,7 @@ public class ChatHeadViewManager
 		overlayAnimation(chatHead, chatHeadParams.x, savedPosX <= halfWidthDiff ? 0 : halfWidthDiff * 2, chatHeadParams.y, savedPosY, flag, path);
 	}
 
-	public void onConfigCahnged()
+	public void onConfigChanged()
 	{
 		Log.d(TAG, "onConfigurationChanged");
 
