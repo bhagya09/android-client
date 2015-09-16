@@ -1622,7 +1622,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 					}
 
 					
-					if (showMaxFileToast && !fileTransferList.isEmpty())
+					if (showMaxFileToast && !arrayList.isEmpty() && !fileTransferList.isEmpty())
 					{
 						FTAnalyticEvents.logDevError(FTAnalyticEvents.UPLOAD_INIT_1_1, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "init", "Compose - 1forwardMessageAsPerType - Max limit is reached.");
 						Toast.makeText(ComposeChatActivity.this, R.string.max_file_size, Toast.LENGTH_SHORT).show();
@@ -2015,13 +2015,18 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 				
 				if (file.length() > HikeConstants.MAX_FILE_SIZE)  
 				{
-					FTAnalyticEvents.logDevError(FTAnalyticEvents.UPLOAD_INIT_1_2, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "init",
-							"Compose - forwardMessageAsPerType - Max size reached.");
-					Toast.makeText(ComposeChatActivity.this, R.string.max_file_size, Toast.LENGTH_SHORT).show();
-					if (offlineContact != null)
+					//Not showing toast if sharing to offline contact only
+					if (offlineContact != null && arrayList.size()==0)
 					{
 						offlineFileTransferList.add(initialiseFileTransfer(filePath, null, hikeFileType, type, false, -1, true, arrayList));
 					}
+					else
+					{
+						FTAnalyticEvents.logDevError(FTAnalyticEvents.UPLOAD_INIT_1_2, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "init",
+								"Compose - forwardMessageAsPerType - Max size reached.");
+						Toast.makeText(ComposeChatActivity.this, R.string.max_file_size, Toast.LENGTH_SHORT).show();
+					}
+							
 				}
 				else
 				{
@@ -2034,8 +2039,12 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 				}
 				if (offlineContact != null)
 				{
-					offlineFileTransferList.addAll(fileTransferList);
+					if(fileTransferList.size()>0)
+					{
+						offlineFileTransferList.addAll(fileTransferList);
+					}
 					controller.sendFile(offlineFileTransferList, offlineContact.getMsisdn());
+					
 				}
 				
 				// If the arrayList has 2 person 1 online and 1 offline contact then we need to initiate the preFileTransferTask
