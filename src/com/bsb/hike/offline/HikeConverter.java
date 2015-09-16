@@ -73,6 +73,13 @@ public class HikeConverter implements IMessageReceived, IMessageSent {
 	{
 		String filePath = OfflineUtils.getFilePathFromJSON(convMessage.serialize());
 		File file = new File(filePath);
+		
+		if(file.length()> Integer.MAX_VALUE)
+		{
+			HikeMessengerApp.getInstance().showToast(R.string.max_file_size_offline,Toast.LENGTH_LONG);
+			return null;
+		}
+		
 		SenderConsignment senderConsignment = new SenderConsignment.Builder(convMessage.serialize().toString(), OfflineConstants.FILE_TOPIC).file(file).persistance(persistence)
 				.ackRequired(true).build();
 		senderConsignment.setTag(convMessage);

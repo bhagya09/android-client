@@ -412,7 +412,7 @@ public class FileTransferManager extends BroadcastReceiver
 		
 		if(sourceFile.length()>Integer.MAX_VALUE)
 		{
-			HikeMessengerApp.getInstance().showToast(R.string.max_file_size_offline);
+			HikeMessengerApp.getInstance().showToast(R.string.max_file_size_offline,Toast.LENGTH_LONG);
 			return null;
 		}
 		settings = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
