@@ -41,11 +41,15 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.PersistableBundle;
+import android.text.TextUtils;
 import android.util.Base64;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Toast;
 
+import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.HikePubSub;
+import com.bsb.hike.models.MessageEvent;
 import com.bsb.hike.utils.Logger;
 import com.chukong.cocosplay.client.CocosPlayClient;
 import com.google.gson.Gson;
@@ -56,7 +60,7 @@ import com.google.gson.Gson;
  * @author sk
  * 
  */
-public class CocosGamingActivity extends Cocos2dxActivity
+public class CocosGamingActivity extends Cocos2dxActivity implements HikePubSub.Listener
 {
 	private static Context context;
 
@@ -99,6 +103,10 @@ public class CocosGamingActivity extends Cocos2dxActivity
 	private String requestId;
 
 	private static NativeBridge nativeBridge;
+	
+	private String[] pubsub = new String[]{HikePubSub.MESSAGE_EVENT_RECEIVED};
+	
+	private String msisdn;
 
 	@Override
 	public void onPostCreate(Bundle savedInstanceState, PersistableBundle persistentState)
@@ -211,6 +219,7 @@ public class CocosGamingActivity extends Cocos2dxActivity
 		}, 250);
 
 		cocos2dActivity = this;
+		HikeMessengerApp.getPubSub().addListeners(this, pubsub);
 	}
 
 	public static Object getNativeBridge()
@@ -673,5 +682,40 @@ public class CocosGamingActivity extends Cocos2dxActivity
 			return true;
 		}
 
+	}
+
+	@Override
+	public void onEventReceived(String type, Object object)
+	{
+		// TODO Auto-generated method stub
+
+		if (type.equals(HikePubSub.MESSAGE_EVENT_RECEIVED))
+		{
+
+			if (object instanceof MessageEvent)
+			{
+				MessageEvent messageEvent = (MessageEvent) object;
+				String parent_msisdn = messageEvent.getParent_msisdn();
+				if (!TextUtils.isEmpty(parent_msisdn) && messageEvent.getParent_msisdn().equals(msisdn))
+				{
+					try
+					{
+						JSONObject jsonObject = PlatformUtils.getPlatformContactInfo(msisdn);
+						jsonObject.put(HikePlatformConstants.EVENT_DATA, messageEvent.getEventMetadata());
+						jsonObject.put(HikePlatformConstants.EVENT_ID, messageEvent.getEventId());
+						jsonObject.put(HikePlatformConstants.EVENT_STATUS, messageEvent.getEventStatus());
+						jsonObject.put(HikePlatformConstants.EVENT_TYPE, messageEvent.getEventType());
+						//TODO: Call native function and send it jsonObject.
+						
+
+					}
+					catch (JSONException e)
+					{
+						Logger.e(TAG, "JSON Exception in message event received");
+					}
+				}
+			}
+		}
+		
 	}
 }
