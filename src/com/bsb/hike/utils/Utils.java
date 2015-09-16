@@ -16,6 +16,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
 import java.net.URL;
 import java.nio.CharBuffer;
@@ -63,13 +64,14 @@ import android.app.ActivityManager;
 import android.app.ActivityManager.RunningAppProcessInfo;
 import android.app.ActivityManager.RunningServiceInfo;
 import android.app.AlertDialog;
-import android.app.Dialog;
+import android.app.AppOpsManager;
 import android.app.PendingIntent;
 import android.content.ActivityNotFoundException;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.ComponentName;
 import android.content.ContentProviderOperation;
+import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -78,6 +80,7 @@ import android.content.OperationApplicationException;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.pm.ActivityInfo;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.pm.ResolveInfo;
@@ -91,6 +94,7 @@ import android.graphics.Bitmap.CompressFormat;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
+import android.graphics.Point;
 import android.graphics.Shader.TileMode;
 import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
@@ -137,35 +141,34 @@ import android.text.style.StyleSpan;
 import android.util.Base64;
 import android.util.DisplayMetrics;
 import android.util.Pair;
+import android.view.Display;
 import android.view.MotionEvent;
 import android.view.Surface;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
+import android.view.Window;
+import android.view.WindowManager;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.Animation;
 import android.view.animation.AnimationSet;
 import android.view.animation.ScaleAnimation;
 import android.view.animation.TranslateAnimation;
 import android.view.inputmethod.InputMethodManager;
+import android.webkit.MimeTypeMap;
 import android.webkit.URLUtil;
-import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
-import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bsb.hike.BuildConfig;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeConstants.FTResult;
 import com.bsb.hike.HikeConstants.ImageQuality;
 import com.bsb.hike.HikeConstants.SMSSyncState;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikeMessengerApp.CurrentState;
-import com.bsb.hike.BuildConfig;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.MqttConstants;
 import com.bsb.hike.R;
@@ -180,11 +183,13 @@ import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.cropimage.CropImage;
 import com.bsb.hike.db.HikeConversationsDatabase;
+import com.bsb.hike.dialog.CustomAlertDialog;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.filetransfer.FTAnalyticEvents;
 import com.bsb.hike.http.HikeHttpRequest;
+import com.bsb.hike.http.HikeHttpRequest.Method;
 import com.bsb.hike.models.AccountData;
 import com.bsb.hike.models.AccountInfo;
 import com.bsb.hike.models.ContactInfo;
@@ -199,8 +204,6 @@ import com.bsb.hike.models.GroupParticipant;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.HikeHandlerUtil;
-import com.bsb.hike.models.StatusMessage;
-import com.bsb.hike.models.StatusMessage.StatusMessageType;
 import com.bsb.hike.models.Conversation.ConvInfo;
 import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.models.Conversation.GroupConversation;
@@ -219,11 +222,14 @@ import com.bsb.hike.service.ConnectionChangeReceiver;
 import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.tasks.CheckForUpdateTask;
 import com.bsb.hike.tasks.SignupTask;
+import com.bsb.hike.tasks.StatusUpdateTask;
+import com.bsb.hike.timeline.model.StatusMessage;
+import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
+import com.bsb.hike.timeline.view.TimelineActivity;
 import com.bsb.hike.ui.HikePreferences;
 import com.bsb.hike.ui.HomeActivity;
 import com.bsb.hike.ui.PeopleActivity;
 import com.bsb.hike.ui.SignupActivity;
-import com.bsb.hike.ui.TimelineActivity;
 import com.bsb.hike.ui.WebViewActivity;
 import com.bsb.hike.ui.WelcomeActivity;
 import com.bsb.hike.voip.VoIPUtils;
@@ -535,6 +541,10 @@ public class Utils
 				break;
 			case OTHER:
 				orgFileName.append("FILE_" + timeStamp);
+				break;
+			case APK:
+				orgFileName.append("APK_" + timeStamp + ".apk");
+				break;
 			}
 		}
 		else
@@ -732,7 +742,61 @@ public class Utils
 		}
 		return true;
 	}
+	
+	public static boolean isNotificationEnabled(Context context)
+	{
+		if (isJellybeanOrHigher())
+		{
+			String CHECK_OP_NO_THROW = "checkOpNoThrow";
+			String OP_POST_NOTIFICATION = "OP_POST_NOTIFICATION";
 
+			AppOpsManager mAppOps = (AppOpsManager) context.getSystemService(Context.APP_OPS_SERVICE);
+
+			ApplicationInfo appInfo = context.getApplicationInfo();
+
+			String pkg = context.getApplicationContext().getPackageName();
+
+			int uid = appInfo.uid;
+
+			Class appOpsClass = null; /* Context.APP_OPS_MANAGER */
+
+			try
+			{
+
+				appOpsClass = Class.forName(AppOpsManager.class.getName());
+
+				java.lang.reflect.Method checkOpNoThrowMethod = appOpsClass.getMethod(CHECK_OP_NO_THROW, Integer.TYPE, Integer.TYPE, String.class);
+
+				Field opPostNotificationValue = appOpsClass.getDeclaredField(OP_POST_NOTIFICATION);
+				int value = (int) opPostNotificationValue.get(Integer.class);
+
+				return ((int) checkOpNoThrowMethod.invoke(mAppOps, value, uid, pkg) == AppOpsManager.MODE_ALLOWED);
+
+			}
+			catch (ClassNotFoundException e)
+			{
+				e.printStackTrace();
+			}
+			catch (NoSuchMethodException e)
+			{
+				e.printStackTrace();
+			}
+			catch (NoSuchFieldException e)
+			{
+				e.printStackTrace();
+			}
+			catch (InvocationTargetException e)
+			{
+				e.printStackTrace();
+			}
+			catch (IllegalAccessException e)
+			{
+				e.printStackTrace();
+			}
+		}
+		return true;
+	}		
+	
 	private static boolean isUserUpgrading(Context context)
 	{
 		SharedPreferences settings = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
@@ -1071,11 +1135,17 @@ public class Utils
 		}
 	}
 
+	/**
+	 *  DEPRECATED. Use {@link #getUserContactInfo(boolean) getUserContactInfo(showNameAsYou)}
+	 */
 	public static ContactInfo getUserContactInfo(SharedPreferences prefs)
 	{
 		return getUserContactInfo(prefs, false);
 	}
 
+	/**
+	 *  DEPRECATED. Use {@link #getUserContactInfo(boolean) getUserContactInfo(showNameAsYou)}
+	 */
 	public static ContactInfo getUserContactInfo(SharedPreferences prefs, boolean showNameAsYou)
 	{
 	
@@ -1091,6 +1161,28 @@ public class Utils
 		else
 		{
 			myName = prefs.getString(HikeMessengerApp.NAME_SETTING, null);
+		}
+
+		ContactInfo contactInfo = new ContactInfo(myName, myMsisdn, myName, myMsisdn, true);
+		contactInfo.setHikeJoinTime(userJoinTime);
+
+		return contactInfo;
+	}
+	
+	public static ContactInfo getUserContactInfo(boolean showNameAsYou)
+	{
+		HikeSharedPreferenceUtil prefs = HikeSharedPreferenceUtil.getInstance();
+		String myMsisdn = prefs.getData(HikeMessengerApp.MSISDN_SETTING, null);
+		long userJoinTime = prefs.getData(HikeMessengerApp.USER_JOIN_TIME, 0L);
+
+		String myName;
+		if (showNameAsYou)
+		{
+			myName = "You";
+		}
+		else
+		{
+			myName = prefs.getData(HikeMessengerApp.NAME_SETTING, null);
 		}
 
 		ContactInfo contactInfo = new ContactInfo(myName, myMsisdn, myName, myMsisdn, true);
@@ -1465,7 +1557,11 @@ public class Utils
 
 	public static String getAbsolutePathFromUri(Uri uri, Context mContext, boolean checkForPicassaUri)
 	{
-
+		if(uri == null)
+		{
+			Toast.makeText(mContext, R.string.unknown_file_error, Toast.LENGTH_SHORT).show();
+			return null;
+		}
 		String fileUriString = uri.toString();
 		String fileUriStart = "file:";
 
@@ -1486,14 +1582,10 @@ public class Utils
 
 		if (returnFilePath == null && checkForPicassaUri && isPicasaUri(fileUriString))
 		{
-
-			String timeStamp = Utils.getUniqueFilename(HikeFileType.IMAGE);
 			File file = null;
 			try
 			{
-				file = File.createTempFile("IMG_" + timeStamp, ".jpg");
-				downloadAndSaveFile(mContext, file, uri);
-				returnFilePath = file.getAbsolutePath();
+				file = getCloudFile(mContext, uri);
 			}
 			catch (IOException e)
 			{
@@ -1503,9 +1595,19 @@ public class Utils
 			{
 				er.printStackTrace();
 			}
-
+			if(file != null)
+			{
+				return file.getAbsolutePath();
+			}
+			else
+			{
+				Toast.makeText(mContext, R.string.cloud_file_error, Toast.LENGTH_SHORT).show();
+				return null;
+			}
 		}
 
+		if(returnFilePath == null)
+			Toast.makeText(mContext, R.string.unknown_file_error, Toast.LENGTH_SHORT).show();
 		return returnFilePath;
 
 	}
@@ -1553,18 +1655,27 @@ public class Utils
 
 	public static double getFreeSpace()
 	{
-		StatFs stat = new StatFs(Environment.getExternalStorageDirectory().getPath());
 		double sdAvailSize = 0.0;
-		if (isJELLY_BEAN_MR2OrHigher())
+		try
 		{
-			sdAvailSize = (double) stat.getAvailableBlocksLong() * (double) stat.getBlockSizeLong();
-		}
-		else
-		{
-			sdAvailSize = (double) stat.getAvailableBlocks() * (double) stat.getBlockSize();
-		}
-		Logger.d("StickerSize", "get available blocks : " + (double) stat.getAvailableBlocks() + "  get block size : " + (double) stat.getBlockSize());
+			StatFs stat = new StatFs(Environment.getExternalStorageDirectory().getPath());
+			if (isJELLY_BEAN_MR2OrHigher())
+			{
+				sdAvailSize = (double) stat.getAvailableBlocksLong() * (double) stat.getBlockSizeLong();
+			}
+			else
+			{
+				sdAvailSize = (double) stat.getAvailableBlocks() * (double) stat.getBlockSize();
+			}
+			Logger.d("StickerSize", "get available blocks : " + (double) stat.getAvailableBlocks() + "  get block size : " + (double) stat.getBlockSize());
 
+		}
+		catch(IllegalArgumentException e) // http://stackoverflow.com/questions/23516075/invalid-path-error-get-the-external-memory-size
+		{
+			//returning sufficient amount of size so that download is executed
+			sdAvailSize = 15 * 1024 * 1024;
+		}
+		
 		return sdAvailSize;
 	}
 
@@ -1889,8 +2000,10 @@ public class Utils
 
 	public static boolean shouldChangeMessageState(ConvMessage convMessage, int stateOrdinal)
 	{
+	
 		if (convMessage == null || convMessage.getTypingNotification() != null || convMessage.getUnreadCount() != -1)
 		{
+			Logger.d("BufRef","ConvMessage is null" + convMessage);
 			return false;
 		}
 		int minStatusOrdinal;
@@ -1906,8 +2019,10 @@ public class Utils
 			maxStatusOrdinal = stateOrdinal;
 		}
 
+		
 		int convMessageStateOrdinal = convMessage.getState().ordinal();
 
+		Logger.d("BugRef","Ordinal state of our ConvMessage is "+convMessageStateOrdinal);
 		if (convMessageStateOrdinal <= maxStatusOrdinal && convMessageStateOrdinal >= minStatusOrdinal)
 		{
 			return true;
@@ -2008,55 +2123,36 @@ public class Utils
 
 		if (!settings.getBoolean(checkPref, false) && (!HikeMessengerApp.isIndianUser() || settings.getBoolean(HikeMessengerApp.SEND_NATIVE_INVITE, false)))
 		{
-			final Dialog dialog = new Dialog(context, R.style.Theme_CustomDialog);
-			dialog.setContentView(R.layout.operator_alert_popup);
-			dialog.setCancelable(true);
-
-			TextView headerView = (TextView) dialog.findViewById(R.id.header);
-			TextView bodyView = (TextView) dialog.findViewById(R.id.body_text);
-			Button btnOk = (Button) dialog.findViewById(R.id.btn_ok);
-			Button btnCancel = (Button) dialog.findViewById(R.id.btn_cancel);
-
-			btnCancel.setText(R.string.cancel);
-			btnOk.setText(R.string.ok);
-
-			headerView.setText(header);
-			bodyView.setText(String.format(body, contactInfo.getFirstName()));
-
-			CheckBox checkBox = (CheckBox) dialog.findViewById(R.id.body_checkbox);
-			checkBox.setOnCheckedChangeListener(new OnCheckedChangeListener()
+			CustomAlertDialog dialog = new CustomAlertDialog(context, -1);
+			HikeDialogListener dialogListener = new HikeDialogListener()
 			{
-
 				@Override
-				public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
+				public void positiveClicked(HikeDialog hikeDialog)
 				{
 					Editor editor = settings.edit();
-					editor.putBoolean(checkPref, isChecked);
+					editor.putBoolean(checkPref, ((CustomAlertDialog)hikeDialog).isChecked());
 					editor.commit();
-				}
-			});
-			checkBox.setText(context.getResources().getString(R.string.not_show_call_alert_msg));
-
-			btnOk.setOnClickListener(new OnClickListener()
-			{
-
-				@Override
-				public void onClick(View v)
-				{
-					dialog.dismiss();
 					invite(context, contactInfo, whichScreen);
+					hikeDialog.dismiss();
 				}
-			});
-
-			btnCancel.setOnClickListener(new OnClickListener()
-			{
-
+				
 				@Override
-				public void onClick(View v)
+				public void neutralClicked(HikeDialog hikeDialog)
 				{
-					dialog.dismiss();
+					hikeDialog.dismiss();
 				}
-			});
+				
+				@Override
+				public void negativeClicked(HikeDialog hikeDialog)
+				{
+				}
+			};
+
+			dialog.setTitle(header);
+			dialog.setMessage(String.format(body, contactInfo.getFirstName()));
+			dialog.setCheckBox(R.string.not_show_call_alert_msg, null, false);
+			dialog.setPositiveButton(R.string.OK, dialogListener);
+			dialog.setNegativeButton(R.string.CANCEL, dialogListener);
 
 			dialog.show();
 		}
@@ -2356,7 +2452,55 @@ public class Utils
 		}
 	}
 
-	public static void downloadAndSaveFile(Context context, File destFile, Uri uri) throws IOException, SecurityException
+	public static File getCloudFile(Context context, Uri uri) throws IOException, SecurityException
+	{
+		long timeStamp = System.currentTimeMillis();
+		ContentResolver cR = context.getContentResolver();
+		MimeTypeMap mime = MimeTypeMap.getSingleton();
+		String contentType = cR.getType(uri);
+		if(contentType == null)
+			return null;
+		HikeFileType hikeFileType = HikeFileType.fromString(contentType, false);
+		String extension = mime.getExtensionFromMimeType(contentType);
+		File destFile = null;
+		try {
+			String fileName = contentType.substring(0, contentType.indexOf("/")) + "_" + timeStamp;
+			switch (hikeFileType) {
+			case IMAGE:
+				destFile = File.createTempFile(fileName, "." + extension);
+				break;
+			case VIDEO:
+			case AUDIO:
+			case OTHER:
+				String dirPath = getFileParent(hikeFileType, true);
+				if (dirPath == null)
+				{
+					return null;
+				}
+				File dir = new File(dirPath);
+				if (!dir.exists())
+				{
+					if (!dir.mkdirs())
+					{
+						Logger.d("Hike", "failed to create directory");
+						return null;
+					}
+				}
+				destFile = new File(dir, fileName  + "." + extension);
+				break;
+			default:
+				break;
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		if(destFile != null)
+			downloadAndSaveFile(cR, destFile, uri);
+		return destFile;
+	}
+
+	public static void downloadAndSaveFile(ContentResolver cR, File destFile, Uri uri) throws IOException, SecurityException
 	{
 		InputStream is = null;
 		OutputStream os = null;
@@ -2365,7 +2509,7 @@ public class Utils
 
 			if (isPicasaUri(uri.toString()) && !uri.toString().startsWith("http"))
 			{
-				is = context.getContentResolver().openInputStream(uri);
+				is = cR.openInputStream(uri);
 			}
 			else
 			{
@@ -2398,7 +2542,8 @@ public class Utils
 	{
 		return (picasaUriString.toString().startsWith(HikeConstants.OTHER_PICASA_URI_START) || picasaUriString.toString().startsWith(HikeConstants.JB_PICASA_URI_START)
 				|| picasaUriString.toString().startsWith("http") || picasaUriString.toString().startsWith(HikeConstants.GMAIL_PREFIX)
-				|| picasaUriString.toString().startsWith(HikeConstants.GOOGLE_PLUS_PREFIX) || picasaUriString.toString().startsWith(HikeConstants.GOOGLE_INBOX_PREFIX));
+				|| picasaUriString.toString().startsWith(HikeConstants.GOOGLE_PLUS_PREFIX) || picasaUriString.toString().startsWith(HikeConstants.GOOGLE_INBOX_PREFIX)
+				|| picasaUriString.toString().startsWith(HikeConstants.GOOGLE_DRIVE_PREFIX));
 	}
 
 	public static Uri makePicasaUriIfRequired(Uri uri)
@@ -2424,6 +2569,12 @@ public class Utils
 		 * If the preference itself is switched to off, we don't need to check if the wifi is on or off.
 		 */
 		if (!PreferenceManager.getDefaultSharedPreferences(context).getBoolean(HikeConstants.SSL_PREF, true))
+		{
+			return false;
+		}
+		
+		//this will ensure that no ssl(both https and mssaging) call is made for non ssl allowed countries
+		if(!isSSLAllowed())
 		{
 			return false;
 		}
@@ -2691,7 +2842,7 @@ public class Utils
 		int notificationCount = 0;
 
 		notificationCount += accountPrefs.getInt(HikeMessengerApp.UNSEEN_STATUS_COUNT, 0);
-
+		notificationCount += accountPrefs.getInt(HikeMessengerApp.USER_TIMELINE_ACTIVITY_COUNT, 0);
 		if (countUsersStatus)
 		{
 			notificationCount += accountPrefs.getInt(HikeMessengerApp.UNSEEN_USER_STATUS_COUNT, 0);
@@ -3379,8 +3530,18 @@ public class Utils
 				jObject = null;
 			}
 		};
-		RequestToken token = HttpRequests.getJSONfromUrl(url, requestListener);
-		token.execute();
+		
+		if (TextUtils.isEmpty(url))
+		{
+			jObject = null;
+			return jObject;
+		}
+		
+		else
+		{
+			RequestToken token = HttpRequests.getJSONfromUrl(url, requestListener);
+			token.execute();
+		}
 		return jObject;
 	}
 
@@ -3399,6 +3560,11 @@ public class Utils
 		return Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
 	}
 
+	public static boolean isBelowLollipop()
+	{
+		return Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP;
+	}
+
 	public static boolean isIceCreamOrHigher()
 	{
 		return Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH;
@@ -3412,6 +3578,11 @@ public class Utils
 	public static boolean isLollipopOrHigher()
 	{
 		return Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;
+	}
+	
+	public static boolean isLollipopMR1OrHigher()
+	{
+		return Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1;
 	}
 
 	public static boolean isJellybeanOrHigher()
@@ -3650,7 +3821,7 @@ public class Utils
 
 		int dimension = (int) (Utils.scaledDensityMultiplier * 48);
 
-		Bitmap scaled = HikeBitmapFactory.createScaledBitmap(bitmap, dimension, dimension, Bitmap.Config.RGB_565, false, true, true);
+		Bitmap scaled = HikeBitmapFactory.createScaledBitmap(bitmap, dimension, dimension, Bitmap.Config.ARGB_8888, false, true, true);
 		bitmap = null;
 		intent.putExtra(Intent.EXTRA_SHORTCUT_ICON, scaled);
 		intent.setAction("com.android.launcher.action.INSTALL_SHORTCUT");
@@ -3842,10 +4013,15 @@ public class Utils
 
 	public static Intent getTimelineActivityIntent(Context context)
 	{
+		return getTimelineActivityIntent(context, false);
+	}
+	
+	public static Intent getTimelineActivityIntent(Context context, boolean openActivityFeed)
+	{
 		final Intent intent = new Intent(context, TimelineActivity.class);
 		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		intent.putExtra(HikeConstants.Extras.FROM_NOTIFICATION, true);
-
+		intent.putExtra(HikeConstants.Extras.OPEN_ACTIVITY_FEED, openActivityFeed);
 		return intent;
 	}
 
@@ -3882,7 +4058,6 @@ public class Utils
 		long time = (long) System.currentTimeMillis() / 1000;
 		ConvMessage convMessage = new ConvMessage(message, msisdn, time, state);
 		convMessage.setSMS(!isOnhike);
-
 		return convMessage;
 	}
 
@@ -4181,6 +4356,7 @@ public class Utils
 		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		String whichChatThread = ChatThreadUtils.getChatThreadType(contactInfo.getMsisdn());
 		intent.putExtra(HikeConstants.Extras.WHICH_CHAT_THREAD, whichChatThread);
+		intent.putExtra(HikeConstants.Extras.CHAT_INTENT_TIMESTAMP, System.currentTimeMillis());
 		context.startActivity(intent);
 	}
 
@@ -4307,7 +4483,7 @@ public class Utils
 		}, contactInfo.getFirstName());
 	}
 
-	private static void toggleFavorite(Context context, ContactInfo contactInfo, boolean isFtueContact)
+	public static void toggleFavorite(Context context, ContactInfo contactInfo, boolean isFtueContact)
 	{
 		FavoriteType favoriteType;
 		if (contactInfo.getFavoriteType() == FavoriteType.REQUEST_RECEIVED)
@@ -4363,6 +4539,10 @@ public class Utils
 	{
 		ActivityManager mActivityManager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
 		List<RunningAppProcessInfo> l = mActivityManager.getRunningAppProcesses();
+		// TODO. need review if we should return true or false.crash#46.
+		if(isEmpty(l))
+			return false;
+		
 		Iterator<RunningAppProcessInfo> i = l.iterator();
 		while (i.hasNext())
 		{
@@ -4521,11 +4701,11 @@ public class Utils
 	public static int updateHomeOverflowToggleCount(SharedPreferences accountPref, boolean defaultValue)
 	{
 		int overallCount = 0;
-		if (!(accountPref.getBoolean(HikeConstants.IS_GAMES_ITEM_CLICKED, defaultValue)) && accountPref.getBoolean(HikeMessengerApp.SHOW_GAMES, false))
+		if (!(accountPref.getBoolean(HikeConstants.IS_GAMES_ITEM_CLICKED, defaultValue)) && accountPref.getBoolean(HikeMessengerApp.SHOW_GAMES, false) && !TextUtils.isEmpty(accountPref.getString(HikeMessengerApp.REWARDS_TOKEN, "")))
 		{
 			overallCount++;
 		}
-		if (!(accountPref.getBoolean(HikeConstants.IS_REWARDS_ITEM_CLICKED, defaultValue)) && accountPref.getBoolean(HikeMessengerApp.SHOW_REWARDS, false))
+		if (!(accountPref.getBoolean(HikeConstants.IS_REWARDS_ITEM_CLICKED, defaultValue)) && accountPref.getBoolean(HikeMessengerApp.SHOW_REWARDS, false) && !TextUtils.isEmpty(accountPref.getString(HikeMessengerApp.REWARDS_TOKEN, "")))
 		{
 			overallCount++;
 		}
@@ -5255,7 +5435,7 @@ public class Utils
 	{
 		final AlertDialog.Builder builder = new AlertDialog.Builder(context);
 		builder.setMessage(R.string.no_internet_try_again);
-		builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener()
+		builder.setPositiveButton(R.string.OK, new DialogInterface.OnClickListener()
 		{
 			public void onClick(DialogInterface dialog, int which)
 			{
@@ -5969,10 +6149,16 @@ public class Utils
 
 	public static void setSSLAllowed(String countryCode)
 	{
-		if (countryCode.equalsIgnoreCase(HikeConstants.SAUDI_ARABIA_COUNTRY_CODE))
+		for (String code : HikeConstants.SSL_NOT_ALLOWED_COUNTRIES)
 		{
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.SSL_ALLOWED, false);
+			if(countryCode.equalsIgnoreCase(code))
+			{
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.SSL_ALLOWED, false);
+				return;
+			}
 		}
+		
+		HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.SSL_ALLOWED, true);
 	}
 
 	public static boolean isSSLAllowed()
@@ -6198,7 +6384,31 @@ public class Utils
 
 		return false;
 	}
-
+	
+	public static boolean isTimelineShowCountEnabled()
+	{
+		HikeSharedPreferenceUtil prefs = HikeSharedPreferenceUtil.getInstance();
+		
+		if (prefs != null)
+		{
+			return prefs.getData(HikeConstants.Extras.STATUS_UPDATE_SHOW_COUNTS, true);
+		}
+		
+		return false;
+	}
+	
+	public static boolean isTimelineShowLikesEnabled()
+	{
+		HikeSharedPreferenceUtil prefs = HikeSharedPreferenceUtil.getInstance();
+		
+		if (prefs != null)
+		{
+			return prefs.getData(HikeConstants.Extras.STATUS_UPDATE_SHOW_LIKES, true);
+		}
+		
+		return false;
+	}
+	
 	public static boolean moveFile(File inputFile, File outputFile)
 	{
 		Logger.d("Utils", "Input file path - " + inputFile.getPath());
@@ -6294,6 +6504,7 @@ public class Utils
 	private static String getPathFromDocumentedUri(Uri uri, Context context)
 	{
 		String result = null;
+
 		if (isExternalStorageDocument(uri))
 		{
 			final String docId = DocumentsContract.getDocumentId(uri);
@@ -6540,11 +6751,91 @@ public class Utils
 				.appendPath(HikeConstants.ANDROID).appendPath(token).build();
 		return formedUri;
 	}
+	
+	public static int getOverflowMenuWidth(Context context)
+	{
+		Resources res = context.getResources();
+
+		return (res.getDimensionPixelSize(R.dimen.overflow_menu_width) + (2 * res.getDimensionPixelSize(R.dimen.overflow_menu_shadow_padding)));
+	}
+
+	/**
+	 * Utility method to verify the presence of bottom nav bar in Android phones
+	 * 
+	 * @param context
+	 * @return
+	 */
+	public static boolean hasBottomNavBar(Context context)
+	{
+		WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+		Point realPoint = new Point();
+		Display display = wm.getDefaultDisplay();
+		display.getRealSize(realPoint);
+		DisplayMetrics metrics = new DisplayMetrics();
+		wm.getDefaultDisplay().getMetrics(metrics);
+
+		return (metrics.heightPixels != realPoint.y) || (metrics.widthPixels != realPoint.x);
+	}
+
+	/**
+	 * Utility method to calculate the bottom navBar height
+	 * 
+	 * @param context
+	 * @return
+	 */
+	public static int getBottomNavBarHeight(Context context)
+	{
+		if (hasBottomNavBar(context))
+		{
+			WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+			Point realPoint = new Point();
+			Display display = wm.getDefaultDisplay();
+			display.getRealSize(realPoint);
+			DisplayMetrics metrics = new DisplayMetrics();
+			wm.getDefaultDisplay().getMetrics(metrics);
+
+			return Math.abs(metrics.heightPixels - realPoint.y);
+		}
+
+		return 0;
+	}
+
+	public static boolean isWindowFlagEnabled(int whichFlag, Window window)
+	{
+		if (window == null)
+			return false;
+
+		return (window.getAttributes().flags & whichFlag) != 0;
+	}
+
+	/**
+	 * Utility method to calculate the bottom navBar width in landscape mode
+	 * 
+	 * @param context
+	 * @return
+	 */
+	public static int getBottomNavBarWidth(Context context)
+	{
+		if (hasBottomNavBar(context))
+		{
+			WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+			Point realPoint = new Point();
+			Display display = wm.getDefaultDisplay();
+			display.getRealSize(realPoint);
+			DisplayMetrics metrics = new DisplayMetrics();
+			wm.getDefaultDisplay().getMetrics(metrics);
+
+			return Math.abs(metrics.widthPixels - realPoint.x);
+		}
+
+		return 0;
+
+	}
 
 	/**
 	 * Checks that an Iterable is both non-null and non-empty. This method does not check individual elements in the Iterable, it just checks that the Iterable has at least one
 	 * element.
-	 *
+	 * 
 	 * @param argument
 	 *            the argument to validate
 	 * @return true is argument is empty. false otherwise
@@ -6607,27 +6898,26 @@ public class Utils
 		return result;
 	}
 
-						
 	public static void preFillArrayList(List<?> list, int capacity)
 	{
-		for(int i = 0; i < capacity; i++)
+		for (int i = 0; i < capacity; i++)
 		{
 			list.add(null);
 		}
 	}
-	
-	public static void deleteFiles(Context context,ArrayList<String> fileNames,HikeFileType type)
+
+	public static void deleteFiles(Context context, ArrayList<String> fileNames, HikeFileType type)
 	{
-		if(fileNames == null || fileNames.isEmpty())
+		if (fileNames == null || fileNames.isEmpty())
 		{
 			return;
 		}
-		
-		for(String filepath : fileNames)
+
+		for (String filepath : fileNames)
 		{
 			deleteFile(context, filepath, type);
 		}
-		
+
 	}
 
 	public static boolean ifColumnExistsInTable(SQLiteDatabase db, String tableName, String givenColumnName)
@@ -6652,7 +6942,7 @@ public class Utils
 		Logger.w("Utils", "ifColumnExistsInTable : " + givenColumnName + " does not column exists in " + tableName + " table");
 		return false;
 	}
-	
+
 	public static boolean isTableExists(SQLiteDatabase db, String tableName)
 	{
 		if ((tableName != null) && (db != null) && db.isOpen())
@@ -6685,14 +6975,14 @@ public class Utils
 
 		return false;
 	}
-	
+
 	public static JSONObject cloneJsonObject(JSONObject jsonObject)
 	{
-		if(jsonObject == null)
+		if (jsonObject == null)
 		{
 			return null;
 		}
-		
+
 		String names[] = new String[jsonObject.length()];
 
 		// get mapping keys
@@ -6703,7 +6993,7 @@ public class Utils
 			names[i++] = (String) iterator.next();
 		}
 
-		//create a new copy
+		// create a new copy
 		JSONObject cloneJson = null;
 		try
 		{
@@ -6716,5 +7006,128 @@ public class Utils
 
 		return cloneJson;
 	}
+	
+	public static void deleteFileFromHikeDir(Context context, File file, HikeFileType hikeFileType)
+	{
+		if(file.getPath().startsWith(getFileParent(hikeFileType, true)))
+		{
+			String [] retCol = new String[] { MediaStore.Video.Media._ID };
+			Uri uri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
+			int id = HikeFile.getMediaId(file.getPath(), retCol, uri, context);
+			if (id != -1)
+			{
+				context.getContentResolver().delete(ContentUris.withAppendedId(uri, id), null, null);
+			}
+			if(file.exists())
+				file.delete();
+		}
+	}
+	
+	public static String getAppVersion()
+	{
+		String appVersion = "";
+		try
+		{
+			appVersion = HikeMessengerApp.getInstance().getApplicationContext().getPackageManager()
+					.getPackageInfo(HikeMessengerApp.getInstance().getApplicationContext().getPackageName(), 0).versionName;
+		}
+		catch (NameNotFoundException e)
+		{
+			e.printStackTrace();
+		}
+		return appVersion;
+	}
+	
+	public static boolean showContactsUpdates(ContactInfo contactInfo)
+	{
+		return ((contactInfo.getFavoriteType() == FavoriteType.FRIEND) || (contactInfo.getFavoriteType() == FavoriteType.REQUEST_RECEIVED) || (contactInfo.getFavoriteType() == FavoriteType.REQUEST_RECEIVED_REJECTED)) && (contactInfo.isOnhike());
+	}
+	
+	public static int getUnreadCounterBadgeWidth(Context context, String unreadCount)
+	{
+		switch (unreadCount.length())
+		{
+		case 1:
+			return context.getResources().getDimensionPixelSize(R.dimen.unread_badge_single_width);
+		case 2:
+			return context.getResources().getDimensionPixelSize(R.dimen.unread_badge_double_width);
+		case 3:
+			return context.getResources().getDimensionPixelSize(R.dimen.unread_badge_triple_width);
+		case 4:
+			return context.getResources().getDimensionPixelSize(R.dimen.unread_badge_quad_width);
+		default:
+			return context.getResources().getDimensionPixelSize(R.dimen.unread_badge_single_width);
+		}
+	}
+	
+	public static boolean isSelfMsisdn(String argMsisdn)
+	{
+		return getUserContactInfo(false).getMsisdn().equals(argMsisdn);
+	}
+	
+	public static boolean appInstalledOrNot(Context context, String uri)
+	{
+		PackageManager pm = context.getPackageManager();
+		boolean app_installed = false;
+		try
+		{
+			pm.getPackageInfo(uri, PackageManager.GET_ACTIVITIES);
+			app_installed = true;
+		}
+		catch (PackageManager.NameNotFoundException e)
+		{
+			app_installed = false;
+		}
+		
+		return app_installed;
+	}
+	
+	/**
+	* Call this method to post a status update without an image to timeline.
+	* @param status
+	* @param moodId : Pass -1 if no mood
+	*
+	* Both status = null and moodId = -1 should not hold together
+	*
+	* List of moods:
+	* {@link com.bsb.hike.utils.EmoticonConstants#moodMapping}
+	*
+	*/
+	public static void postStatusUpdate(String status, int moodId)
+	{
+		postStatusUpdate(status, moodId, null);
+	}
+	
+	/**
+	 * Call this method to post a status update to timeline.
+	 * @param status
+	 * @param moodId : Pass -1 if no mood
+	 * @param imageFilePath : Path of the image on the client. Image should only be of jpeg format and compressed.
+	 * 
+	 * Status = null, moodId < 0 & imageFilePath = null should not hold together
+	 * 
+	 * List of moods:
+	 * {@link com.bsb.hike.utils.EmoticonConstants#moodMapping}
+	 * 
+	 */
+	public static void postStatusUpdate(String status, int moodId, String imageFilePath)
+	{
+		if(TextUtils.isEmpty(status) && moodId < 0 && TextUtils.isEmpty(imageFilePath) )
+		{
+			Logger.e("Utils", "postStatusUpdate : status = null/empty, moodId < 0 & imageFilePath = null conditions hold together. Returning.");
+			return;
+		}
+		try
+		{
+			StatusUpdateTask task = new StatusUpdateTask(status, moodId, imageFilePath);
+			task.execute();
+		}
+		catch (IOException e)
+		{
+			Logger.e("Utils", "IOException thrown in postStatusUpdate");
+			return;
+		}
+	}
+
 }
 

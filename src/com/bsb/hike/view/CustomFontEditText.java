@@ -14,14 +14,13 @@ public class CustomFontEditText extends EditText
 	
 	private CustomTypeFace customTypeFace;
 	
-	private int style;
-
 	private BackKeyListener listener;
 
 	private void setFont(AttributeSet attrs)
 	{
 		fontName = attrs.getAttributeValue(HikeConstants.NAMESPACE, HikeConstants.FONT);
-		setTypeface(getTypeface(), style);
+		if (Utils.isLollipopOrHigher())
+    		setTypeface(getTypeface(), getTypeface().getStyle());
 	}
 
 	public CustomFontEditText(Context context, AttributeSet attrs, int defStyle)
@@ -46,7 +45,6 @@ public class CustomFontEditText extends EditText
 	{
 		if (!isInEditMode())
 		{
-			this.style = style;
 			/*
 			 * If we are dealing with LDPI phones, we use the default font, They have a rendering issue with the font that we're using
 			 */

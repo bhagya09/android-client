@@ -6,10 +6,11 @@ import java.util.List;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.support.v4.view.MenuItemCompat;
 import android.util.Pair;
+import android.view.Menu;
 import android.view.View;
 
-import com.actionbarsherlock.view.Menu;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
@@ -159,7 +160,14 @@ public class BotChatThread extends OneToOneChatThread
 		HikeConversationsDatabase.getInstance().toggleMuteBot(msisdn, isMuted);
 		HikeMessengerApp.getPubSub().publish(HikePubSub.MUTE_CONVERSATION_TOGGLED, new Pair<String, Boolean>(mConversation.getMsisdn(), isMuted));
 	}
-
+	
+	@Override
+	protected void showNetworkError(boolean isNetworkError) 
+	{
+		activity.findViewById(R.id.network_error_chat).setVisibility(isNetworkError ? View.VISIBLE : View.GONE);
+		activity.findViewById(R.id.network_error_card).setVisibility(View.GONE);
+	};
+	
 	@Override
 	protected void sendPoke()
 	{
@@ -194,7 +202,7 @@ public class BotChatThread extends OneToOneChatThread
 		if (configuration.isOverflowMenuEnabled() && !menuItemList.isEmpty())
 		{
 			menu.findItem(R.id.overflow_menu).setVisible(true);
-			menu.findItem(R.id.overflow_menu).getActionView().setOnClickListener(this);
+			MenuItemCompat.getActionView(menu.findItem(R.id.overflow_menu)).setOnClickListener(this);
 			mActionBar.setOverflowViewListener(this);
 		}
 		else
@@ -309,6 +317,17 @@ public class BotChatThread extends OneToOneChatThread
 				overFlowMenuItem.text = mConversation.isMuted() ? getString(R.string.unmute) : getString(R.string.mute);
 				break;
 			}
+		}
+	}
+	
+	@Override
+	protected void setupDefaultActionBar(boolean firstInflation)
+	{
+		super.setupDefaultActionBar(firstInflation);
+		if (!configuration.isViewProfileEnabled())
+		{
+			View contactInfoContainer = mActionBarView.findViewById(R.id.contactinfocontainer);
+			contactInfoContainer.setClickable(false);
 		}
 	}
 

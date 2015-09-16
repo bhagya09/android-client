@@ -8,17 +8,33 @@
         android:id="@+id/overlay"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="7287"
+        android:layout_weight="443"
         android:background="#00000000" >
     </View>
 
     <LinearLayout
         android:id="@+id/itemsLayout"
         android:layout_width="match_parent"
-        android:background="#000000" 
         android:layout_height="0dp"
-        android:layout_weight="2713"
+        android:layout_weight="196"
+        android:background="@color/white"
+        android:paddingTop="2dp"
+        android:paddingBottom="8dp"
         android:orientation="vertical" >
+
+        <com.bsb.hike.view.CustomFontTextView
+            android:id="@+id/title"
+            android:visibility="gone"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:layout_marginLeft="18dp"
+            android:layout_weight="1"
+            android:gravity="center_vertical"
+            android:text="@string/photo_actions_header"
+            android:textColor="@color/black_30"
+            android:textSize="14sp"
+            android:textStyle="normal" >
+        </com.bsb.hike.view.CustomFontTextView>
     </LinearLayout>
 
 </LinearLayout>

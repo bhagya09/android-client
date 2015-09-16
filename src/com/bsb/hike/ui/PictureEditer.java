@@ -24,8 +24,9 @@ import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.view.Window;
+import android.support.v7.app.ActionBar;
+import android.support.v7.widget.Toolbar;
+import android.view.Window;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
@@ -98,14 +99,11 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 	@Override
 	public void onCreate(Bundle savedInstanceState)
 	{
-		
 		Logger.d(TAG, "Picture Editer onCreate");
-		
+		getWindow().requestFeature((int) Window.FEATURE_ACTION_BAR_OVERLAY);
 		overridePendingTransition(R.anim.fade_in_animation, R.anim.fade_out_animation);
 
 		super.onCreate(savedInstanceState);
-
-		getWindow().requestFeature((int) Window.FEATURE_ACTION_BAR_OVERLAY);
 
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
@@ -325,21 +323,14 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 		actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
 
 		View actionBarView = LayoutInflater.from(this).inflate(R.layout.photos_action_bar, null);
-		mActionBarBackButton = actionBarView.findViewById(R.id.back);
-		mActionBarBackButton.setOnClickListener(new OnClickListener()
-		{
-			@Override
-			public void onClick(View v)
-			{
-				onBackPressed();
-			}
-		});
 
 		mActionBarDoneContainer = actionBarView.findViewById(R.id.done_container);
-
+		mActionBarDoneContainer.setVisibility(View.VISIBLE);
 		mActionBarDoneContainer.setOnClickListener(clickHandler);
 
 		actionBar.setCustomView(actionBarView);
+		Toolbar parent=(Toolbar)actionBarView.getParent();
+		parent.setContentInsetsAbsolute(0,0);
 	}
 
 	public class PhotoEditViewPagerAdapter extends FragmentPagerAdapter implements IconPagerAdapter
@@ -446,7 +437,6 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 				b.putString(HikeConstants.HikePhotos.ORIG_FILE, originalImageFile);
 				profilePicFragment.setArguments(b);
 				getSupportFragmentManager().beginTransaction()
-						.setCustomAnimations(R.anim.fade_in_animation, R.anim.fade_out_animation, R.anim.fade_in_animation, R.anim.fade_out_animation)
 						.replace(R.id.overlayFrame, profilePicFragment).addToBackStack(null).commit();
 	}
 
@@ -628,6 +618,42 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 						else if (actionCode == PhotoActionsFragment.ACTION_SET_DP)
 						{
 							setupProfilePicUpload();
+						}
+						else if (actionCode == PhotoActionsFragment.ACTION_POST)
+						{
+							beginProgress();
+
+							editView.saveImage(HikeFileType.IMAGE, filename, new HikePhotosListener()
+							{
+
+								@Override
+								public void onFailure()
+								{
+									finishProgress();
+								}
+
+								@Override
+								public void onComplete(Bitmap bmp)
+								{
+									// Do nothing
+								}
+
+								@Override
+								public void onComplete(File f)
+								{
+									finishProgress();
+
+									if (f.exists())
+									{
+										startActivity(IntentFactory.getPostStatusUpdateIntent(PictureEditer.this, f.getAbsolutePath()));
+									}
+									else
+									{
+										Toast.makeText(getApplicationContext(), R.string.photos_oom_save, Toast.LENGTH_SHORT).show();
+									}
+								}
+							});
+
 						}
 					}
 				});

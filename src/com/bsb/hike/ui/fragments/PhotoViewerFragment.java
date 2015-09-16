@@ -16,12 +16,19 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Pair;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -31,11 +38,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.app.SherlockFragment;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
-import com.actionbarsherlock.view.MenuItem;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
@@ -51,13 +53,15 @@ import com.bsb.hike.models.HikeSharedFile;
 import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.models.Conversation.GroupConversation;
 import com.bsb.hike.ui.ComposeChatActivity;
+import com.bsb.hike.ui.HikeBaseActivity;
 import com.bsb.hike.ui.HikeSharedFilesActivity;
 import com.bsb.hike.ui.utils.DepthPageTransformer;
+import com.bsb.hike.ui.utils.StatusBarColorChanger;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
-public class PhotoViewerFragment extends SherlockFragment implements OnPageChangeListener
+public class PhotoViewerFragment extends Fragment implements OnPageChangeListener
 {
 	private View mParent;
 	
@@ -92,8 +96,6 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 	private long minMsgId;
 	
 	private long maxMsgId;
-	
-	private boolean applyOffset = false;
 	
 	private TextView senderName;
 	
@@ -225,7 +227,7 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 		if (fromChatThread)
 		{
 			Logger.d(TAG, " MsgId : " + sharedMediaItems.get(0).getMsgId());
-			loadItems(false, sharedMediaItems.get(0).getMsgId(), HikeConstants.MAX_MEDIA_ITEMS_TO_LOAD_INITIALLY / 2, false, true, initialPosition); // Left
+			loadItems(false, sharedMediaItems.get(0).getMsgId(), HikeConstants.MAX_MEDIA_ITEMS_TO_LOAD_INITIALLY / 2, false); // Left
 			loadItems(false, sharedMediaItems.get(0).getMsgId(), HikeConstants.MAX_MEDIA_ITEMS_TO_LOAD_INITIALLY / 2, true); // Right
 			setSenderDetails(0);
 		}
@@ -240,7 +242,7 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 			@Override
 			public void onClick(View v)
 			{
-				startActivity(HikeSharedFilesActivity.getHikeSharedFilesActivityIntent(getSherlockActivity(), isGroup, conversationName, msisdnArray, nameArray, msisdn));
+				startActivity(HikeSharedFilesActivity.getHikeSharedFilesActivityIntent(getActivity(), isGroup, conversationName, msisdnArray, nameArray, msisdn));
 			}
 		});
 		
@@ -291,7 +293,7 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 		{
 			loadingMoreItems = true;
 			//Logger.d(TAG, "loading items from left : " + minMsgId);
-			loadItems(reachedEndLeft, minMsgId, HikeConstants.MAX_MEDIA_ITEMS_TO_LOAD_INITIALLY, false, true, position);
+			loadItems(reachedEndLeft, minMsgId, HikeConstants.MAX_MEDIA_ITEMS_TO_LOAD_INITIALLY, false);
 
 		}
 		
@@ -314,8 +316,8 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 	{
 		senderName.setText(getSenderName(position));
 		long timeStamp = sharedMediaItems.get(position).getTimeStamp();
-		String date = Utils.getFormattedDate(getSherlockActivity(), timeStamp);
-		String time = Utils.getFormattedTime(false, getSherlockActivity(), timeStamp);
+		String date = Utils.getFormattedDate(getActivity(), timeStamp);
+		String time = Utils.getFormattedTime(false, getActivity(), timeStamp);
 		itemTimeStamp.setText(date+", "+time);
 	}
 
@@ -343,20 +345,20 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 	
 	public void setupActionBar()
 	{
-		if (getSherlockActivity() == null)
+		if (getActivity() == null)
 		{
 			return;
 		}
 		/*
 		 * else part
 		 * */
-		ActionBar actionBar = getSherlockActivity().getSupportActionBar();
+		StatusBarColorChanger.setStatusBarColor(getActivity(), HikeConstants.STATUS_BAR_TRANSPARENT);
+		ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();//check if getSupportA
 		actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
-
-		View actionBarView = getSherlockActivity().getLayoutInflater().inflate(R.layout.compose_action_bar, null);
+		actionBar.setDisplayHomeAsUpEnabled(true);
+		View actionBarView = getActivity().getLayoutInflater().inflate(R.layout.compose_action_bar, null);
 		actionBar.setBackgroundDrawable(getResources().getDrawable(R.drawable.bg_header_photo_viewer));
 
-		View backContainer = actionBarView.findViewById(R.id.back);
 
 		TextView title = (TextView) actionBarView.findViewById(R.id.title);
 		title.setText(isGroup ? conversationName : Utils.getFirstName(conversationName));
@@ -366,22 +368,18 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 
 		actionBarView.findViewById(R.id.seprator).setVisibility(View.GONE);
 
-		backContainer.setOnClickListener(new OnClickListener()
-		{
-
-			@Override
-			public void onClick(View v)
-			{
-				finish();
-			}
-		});
 
 		actionBar.setCustomView(actionBarView);
+		Toolbar parent=(Toolbar)actionBarView.getParent();
+		parent.setContentInsetsAbsolute(0,0);
 	}
 	
 	private void finish()
 	{
-		getSherlockActivity().onBackPressed();
+		if (getActivity() != null)
+		{
+			getActivity().onBackPressed();
+		}
 	}
 
 	public static void openPhoto(int resId, Context context, ArrayList<HikeSharedFile> hikeSharedFiles, boolean fromChatThread, Conversation conversation)
@@ -425,18 +423,9 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 		openPhoto(resId, context, hikeSharedFiles, fromChatThread, mediaPosition, fromMsisdn, convName, false, null, null);
 	}
 	
-	public void loadItems(boolean reachedEnd, long maxMsgId, int limit, boolean itemsToRight)
-	{
-		loadItems(reachedEnd, maxMsgId, limit, itemsToRight, false, 0);
-	}
 	//function called to load items to the left of viewpager
-	public void loadItems(boolean reachedEnd, long msgId, int limit, boolean itemsToRight, boolean applyOffset, int prevPosition)
+	public void loadItems(boolean reachedEnd, long msgId, int limit, boolean itemsToRight)
 	{
-		if(applyOffset)
-		{
-			this.applyOffset = applyOffset;
-			this.prevPosition = prevPosition;
-		}
 		if (Utils.isHoneycombOrHigher())
 		{
 			new GetMoreItemsTask(reachedEnd, msgId, limit, itemsToRight).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
@@ -474,7 +463,7 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 		@Override
 		protected void onPostExecute(List<HikeSharedFile> result)
 		{
-			if(getSherlockActivity() == null)
+			if(getActivity() == null)
 			{
 				return ;
 			}
@@ -494,11 +483,6 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 				minMsgId = sharedMediaItems.get(0).getMsgId();
 				maxMsgId = sharedMediaItems.get(getCount()-1).getMsgId();
 
-				if(applyOffset && !itemsToRight)   //Offset needed to correctly display current item in viewpager, if more items are loaded to left
-				{
-					selectedPager.setCurrentItem(result.size() + prevPosition , false); 
-					applyOffset = false;
-				}
 			}
 			
 			else
@@ -560,7 +544,7 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 		{
 		//deletes current selected item from viewpager 
 		case R.id.delete_msgs:
-			HikeDialogFactory.showDialog(getSherlockActivity(), HikeDialogFactory.DELETE_FILES_DIALOG, new HikeDialogListener()
+			HikeDialogFactory.showDialog(getActivity(), HikeDialogFactory.DELETE_FILES_DIALOG, new HikeDialogListener()
 			{
 				
 				@Override
@@ -582,7 +566,7 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 					}
 					if (!fromChatThread)
 					{
-						HikeMessengerApp.getPubSub().publish(HikePubSub.HIKE_SHARED_FILE_DELETED, itemToDelete);
+						HikeMessengerApp.getPubSub().publish(HikePubSub.HIKE_SHARED_FILE_DELETED, selectedPager.getCurrentItem());
 					}
 					hikeDialog.dismiss();
 					removeCurrentSelectedItem();
@@ -603,13 +587,14 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 			
 			return true;
 		case R.id.forward_msgs:
+			
 			File selFile = getCurrentSelectedItem().getFile();
 			if(selFile == null || !selFile.exists())
 			{
 				Toast.makeText(HikeMessengerApp.getInstance().getApplicationContext(), R.string.file_expire, Toast.LENGTH_SHORT).show();
 				return false;
 			}
-			Intent intent = new Intent(getSherlockActivity(), ComposeChatActivity.class);
+			Intent intent = new Intent(getActivity(), ComposeChatActivity.class);
 			intent.putExtra(HikeConstants.Extras.FORWARD_MESSAGE, true);
 			JSONArray multipleMsgArray = new JSONArray();
 			try
@@ -628,7 +613,7 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 			return true;
 		case R.id.share_msgs:
 			
-			getCurrentSelectedItem().shareFile(getSherlockActivity());
+			getCurrentSelectedItem().shareFile(getActivity());
 			return true;
 		case R.id.edit_pic:
 			Intent editIntent = IntentFactory.getPictureEditorActivityIntent(getActivity(), getCurrentSelectedItem().getExactFilePath(), true, null,false);
@@ -650,33 +635,13 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 	@Override
 	public void onResume()
 	{
-		if(!getSherlockActivity().getSupportActionBar().isShowing())
+		if(!((AppCompatActivity) getActivity()).getSupportActionBar().isShowing())
 		{
 			toggleViewsVisibility();
 		}
 		if(smAdapter != null && smAdapter.getSharedFileImageLoader().getIsExitTasksEarly())
 		{
 			smAdapter.getSharedFileImageLoader().setExitTasksEarly(false);
-			
-			/**
-				In onActivityCreated ---> intializeViewPager ----> smAdapter is already created
-				Which in turns call getView of Adaptor which does following 3 tasks
-				1) loads current image
-				2) loads all images to the left of current image ---> gives to adaptor---> notify
-				3) loads all images to the right of current image ---> gives to adaptor---> notify
-				Now here in resume, when notifDataSetChanged is called, then it is again loaded
-			
-				Earlier caching was there so could not find it, now here no caching, so can see it
-				this gives double loading for images on some device eg Samsung DUOS3
-			
-				after removing this, problem was solved with that device
-			 */
-			smAdapter.notifyDataSetChanged();
-			
-			/**
-			 * Instead refresh current visible view only
-			 */
-//			smAdapter.bindView(mParent, selectedPager.getCurrentItem());
 		}
 		
 		super.onResume();
@@ -684,24 +649,25 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 
 	public void toggleViewsVisibility()
 	{
-		if (getSherlockActivity() != null)
+		if (getActivity() != null)
 		{
-			ActionBar actionbar = getSherlockActivity().getSupportActionBar();
+			ActionBar actionbar = ((AppCompatActivity) getActivity()).getSupportActionBar();
 			Animation animation;
 			if (!actionbar.isShowing())
 			{
 				actionbar.show();
-				animation = AnimationUtils.loadAnimation(getSherlockActivity(), R.anim.fade_in_animation);
+				animation = AnimationUtils.loadAnimation(getActivity(), R.anim.fade_in_animation);
 			}
 			else
 			{
 				actionbar.hide();
-				animation = AnimationUtils.loadAnimation(getSherlockActivity(), R.anim.fade_out_animation);
+				animation = AnimationUtils.loadAnimation(getActivity(), R.anim.fade_out_animation);
 			}
 			animation.setDuration(300);
 			animation.setFillAfter(true);
 			mParent.findViewById(R.id.info_group).startAnimation(animation);
 			mParent.findViewById(R.id.gradient).startAnimation(animation);
+			gallaryButton.setVisibility((gallaryButton.getVisibility() == View.VISIBLE)?View.GONE:View.VISIBLE);
 		}
 	}
 	
@@ -737,6 +703,7 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 			smAdapter.onDestroy();
 		}
 		
+		StatusBarColorChanger.setStatusBarColor(getActivity(),((HikeBaseActivity)getActivity()).statusBarColorID);
 		super.onDestroy();
 	}
 }

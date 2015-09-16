@@ -55,7 +55,9 @@ import android.view.WindowManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.actionbarsherlock.app.ActionBar;
+import android.support.v7.app.ActionBar;
+import android.support.v7.widget.Toolbar;
+
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
@@ -252,7 +254,7 @@ public class CropImage extends MonitoredActivity
 		actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
 
 		View actionBarView = LayoutInflater.from(this).inflate(R.layout.photos_action_bar, null);
-		actionBarView.setBackgroundResource(R.color.photos_action_bar_background);
+		actionBar.setBackgroundDrawable(getResources().getDrawable(R.color.photos_action_bar_background));
 		actionBarView.findViewById(R.id.back).setOnClickListener(new OnClickListener()
 		{
 			@Override
@@ -263,6 +265,8 @@ public class CropImage extends MonitoredActivity
 		});
 
 		((TextView) actionBarView.findViewById(R.id.done_text)).setText(R.string.done);
+		
+		actionBarView.findViewById(R.id.done_container).setVisibility(View.VISIBLE);
 		
 		actionBarView.findViewById(R.id.done_container).setOnClickListener(new View.OnClickListener()
 		{
@@ -275,6 +279,9 @@ public class CropImage extends MonitoredActivity
 		});
 
 		actionBar.setCustomView(actionBarView);
+		Toolbar parent=(Toolbar)actionBarView.getParent();
+		parent.setContentInsetsAbsolute(0,0);
+		
 	}
 	
 	@Override

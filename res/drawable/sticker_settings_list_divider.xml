@@ -1,12 +1,9 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<inset xmlns:android="http://schemas.android.com/apk/res/android"
-    android:insetLeft="43dp"
-    android:insetRight="8dp" >
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android" >
 
-    <shape android:shape="line" >
-        <stroke android:color="#E6E6E6" />
+    <item
+        android:drawable="@color/home_screen_list_divider"
+        android:left="110dp"
+        android:right="@dimen/home_sreen_divider_right_padding"/>
 
-        <size android:height="1dp" />
-    </shape>
-
-</inset>
+</layer-list>

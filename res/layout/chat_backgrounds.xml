@@ -1,28 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+    android:layout_height="match_parent"
+    android:gravity="center_horizontal" >
 
     <LinearLayout
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
-        android:background="@drawable/bg_attachments"
+        android:layout_marginLeft="@dimen/chat_theme_palette_margin"
+        android:layout_marginRight="@dimen/chat_theme_palette_margin"
+        android:background="@drawable/bg_attachment_theme"
         android:gravity="center"
-        android:orientation="vertical" >
+        android:orientation="vertical"
+        android:paddingBottom="22dp"
+        android:paddingLeft="@dimen/chat_theme_palette_padding"
+        android:paddingRight="@dimen/chat_theme_palette_padding"
+        android:paddingTop="8dp" >
 
         <GridView
             android:id="@+id/attachment_grid"
-            android:layout_width="match_parent"
-            android:layout_height="130dp"
+            android:layout_width="wrap_content"
+            android:layout_height="150dp"
             android:layout_marginBottom="12dp"
-            android:layout_marginLeft="20dp"
-            android:layout_marginRight="20dp"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="12dp"
+            android:columnWidth="@dimen/chat_bg_item_width"
             android:fadingEdge="none"
             android:gravity="center"
-            android:horizontalSpacing="4dp"
             android:numColumns="5"
             android:verticalSpacing="4dp" />
 
@@ -30,18 +33,12 @@
             android:id="@+id/chat_theme_tip"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="20dp"
-            android:layout_marginRight="20dp"
-            android:drawableLeft="@drawable/ic_chat_theme_info"
-            android:drawablePadding="8dp"
+            android:layout_marginBottom="8dp"
             android:gravity="left"
             android:text="@string/chat_theme_tip"
-            android:textColor="#bdbebe"
-            android:textSize="12sp" />
-
-        <View
-            android:layout_width="1dp"
-            android:layout_height="12dp" />
+            android:textColor="#5c000000"
+            android:textSize="12sp"
+            android:textStyle="bold|italic" />
     </LinearLayout>
 
 </LinearLayout>

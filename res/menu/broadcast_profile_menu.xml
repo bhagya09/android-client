@@ -1,20 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto" >
 
     <item
         android:id="@+id/add_recipients"
         android:icon="@drawable/ic_invitewhite"
-        android:showAsAction="always"
+        app:showAsAction="always"
         android:title="@string/add_recipients"/>
     <item
         android:id="@+id/overflow_menu"
-        android:icon="@drawable/ic_overflow"
-        android:showAsAction="always"
+        android:icon="@drawable/ic_overflow_home"
+        app:showAsAction="always"
         android:title="@string/other">
         <menu>
             <item
                 android:id="@+id/delete_broadcast"
-                android:showAsAction="never"
+                app:showAsAction="never"
                 android:title="@string/delete_broadcast"/>
         </menu>
     </item>

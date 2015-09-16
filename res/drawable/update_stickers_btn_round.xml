@@ -3,7 +3,7 @@
     android:shape="rectangle" >
 
     <!-- view background color -->
-    <solid android:color="@color/sticker_shop_update_color" >
+    <solid android:color="#1ECE84" >
     </solid>
 
     <!-- Here is the corner radius -->

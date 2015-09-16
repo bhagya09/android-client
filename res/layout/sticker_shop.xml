@@ -7,7 +7,7 @@
     <ListView 
         android:id="@id/android:list"
         style="@style/HomeList"
-        />
+        android:divider="@drawable/shop_list_divider" />
         
     <include
         layout="@layout/sticker_shop_loading"

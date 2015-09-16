@@ -6,11 +6,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
 
-import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuItem;
-import com.actionbarsherlock.widget.SearchView;
-import com.actionbarsherlock.widget.SearchView.OnQueryTextListener;
+import android.support.v4.view.MenuItemCompat;
+import android.support.v7.app.ActionBar;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.support.v7.widget.SearchView;
+import android.support.v7.widget.Toolbar;
+import android.support.v7.widget.SearchView.OnQueryTextListener;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
@@ -46,26 +48,18 @@ public class PeopleActivity extends HikeAppStateBaseFragmentActivity implements 
 		ActionBar actionBar = getSupportActionBar();
 		actionBar.setIcon(R.drawable.ic_top_bar_search);
 		actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
-
+		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+		
 		View actionBarView = LayoutInflater.from(this).inflate(R.layout.compose_action_bar, null);
 
-		View backContainer = actionBarView.findViewById(R.id.back);
 		actionBarView.findViewById(R.id.seprator).setVisibility(View.GONE);
 
 		TextView title = (TextView) actionBarView.findViewById(R.id.title);
 		title.setText(R.string.favorites);
 
-		backContainer.setOnClickListener(new View.OnClickListener()
-		{
-
-			@Override
-			public void onClick(View v)
-			{
-				onBackPressed();
-			}
-		});
-
 		actionBar.setCustomView(actionBarView);
+		Toolbar parent=(Toolbar)actionBarView.getParent();
+		parent.setContentInsetsAbsolute(0,0);
 	}
 
 
@@ -85,19 +79,14 @@ public class PeopleActivity extends HikeAppStateBaseFragmentActivity implements 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu)
 	{
-		
-		final SearchView searchView = new SearchView(getSupportActionBar().getThemedContext());
-		searchView.setIconifiedByDefault(false);
-		searchView.setIconified(false);
-		searchView.setOnQueryTextListener(onQueryTextListener);
+		getMenuInflater().inflate(R.menu.country_select_menu, menu);
+		MenuItem searchMenuItem = menu.findItem(R.id.search);
+		final SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchMenuItem);
 		searchView.clearFocus();
-
-		MenuItem searchItem = menu.add(Menu.NONE, Menu.NONE, 1, R.string.search);
-
-		searchItem.setIcon(R.drawable.ic_top_bar_search).setActionView(searchView)
-				.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS | MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
-
-		searchItem.setOnActionExpandListener(new MenuItem.OnActionExpandListener()
+		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+		searchView.setOnQueryTextListener(onQueryTextListener);
+		MenuItemCompat.setShowAsAction(MenuItemCompat.setActionView(searchMenuItem, searchView), MenuItem.SHOW_AS_ACTION_ALWAYS | MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
+		MenuItemCompat.setOnActionExpandListener(searchMenuItem, new MenuItemCompat.OnActionExpandListener()
 		{
 
 			@Override
@@ -114,10 +103,9 @@ public class PeopleActivity extends HikeAppStateBaseFragmentActivity implements 
 			}
 		});
 
-
 		return true;
 	}
-
+	
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu)
 	{

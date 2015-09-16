@@ -9,8 +9,9 @@ import android.os.Message;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.widget.Toast;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
 
-import com.actionbarsherlock.app.ActionBar;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikeMessengerApp.CurrentState;
@@ -37,7 +38,6 @@ public class HikeAppStateBaseFragmentActivity extends HikeBaseActivity implement
 	protected static final int PRODUCT_POPUP_SHOW_DIALOG=-100;
 	
 	protected HikeUiHandler uiHandler = new HikeUiHandler (this);
-	
 	
 	/**
 	 * 
@@ -198,13 +198,13 @@ public class HikeAppStateBaseFragmentActivity extends HikeBaseActivity implement
 				@Override
 				public void run()
 				{
-					openImageViewerFragment(object);
+					openImageViewer(object);
 				}
 			});
 		}
 	}
 	
-	protected void openImageViewerFragment(Object object)
+	protected void openImageViewer(Object object)
 	{
 		return;
 	}
@@ -252,7 +252,7 @@ public class HikeAppStateBaseFragmentActivity extends HikeBaseActivity implement
 		actionBar.setDisplayShowTitleEnabled(false);
 	}
 	
-	protected void updateActionBarColor(Drawable colorDrawable)
+	public void updateActionBarColor(Drawable colorDrawable)
 	{
 		ActionBar actionBar = getSupportActionBar();
 		actionBar.setBackgroundDrawable((colorDrawable));

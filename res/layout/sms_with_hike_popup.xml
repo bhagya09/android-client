@@ -62,7 +62,7 @@
         <com.bsb.hike.view.CustomFontButton
             android:id="@+id/btn_cancel"
             style="@style/SmsPopupButton"
-            android:text="@string/cancel" />
+            android:text="@string/CANCEL" />
 
         <View
             android:layout_width="2dp"

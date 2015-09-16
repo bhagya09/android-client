@@ -1236,8 +1236,9 @@
         <item>@null</item>
     </array>
     <array name="photos_actions_titles">
-        <item>Set as Profile Picture</item>
-        <item>Send</item>
+        <item>Set as profile picture</item>
+        <item>Send to friends</item>
+        <item>Post to timeline</item>
     </array>
     <array name="photos_actions_description">
         <item>Make the edited photo your Profile Photo</item>

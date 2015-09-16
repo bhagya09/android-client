@@ -20,6 +20,8 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
+import android.support.v7.widget.Toolbar;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -38,7 +40,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.actionbarsherlock.app.ActionBar;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
@@ -49,11 +50,14 @@ import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
+import com.bsb.hike.dialog.CustomAlertDialog;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.offline.OfflineController;
+import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
@@ -151,7 +155,7 @@ public class HikeListActivity extends HikeAppStateBaseFragmentActivity implement
 		{
 			postText.setText(getString(R.string.send_invite, selectedContacts.size()));
 		}
-		backIcon.setImageResource(R.drawable.ic_back);
+//		backIcon.setImageResource(R.drawable.ic_back);
 		setLabel();
 	}
 
@@ -164,7 +168,7 @@ public class HikeListActivity extends HikeAppStateBaseFragmentActivity implement
 
 		View backContainer = actionBarView.findViewById(R.id.back);
 
-		backIcon = (ImageView) actionBarView.findViewById(R.id.abs__up);
+		backIcon = (ImageView) actionBarView.findViewById(R.id.up);
 		title = (TextView) actionBarView.findViewById(R.id.title);
 
 		arrow = (ImageView) actionBarView.findViewById(R.id.arrow);
@@ -224,7 +228,9 @@ public class HikeListActivity extends HikeAppStateBaseFragmentActivity implement
 				{
 					if (getIntent().getBooleanExtra(HikeConstants.Extras.FROM_CREDITS_SCREEN, false))
 					{
-						intent = new Intent(HikeListActivity.this, CreditsActivity.class);
+						intent = new Intent(HikeListActivity.this, HikePreferences.class);
+						intent.putExtra(HikeConstants.Extras.PREF, R.xml.sms_preferences);
+						intent.putExtra(HikeConstants.Extras.TITLE, R.string.free_sms_txt);
 					}
 					else
 					{
@@ -241,6 +247,8 @@ public class HikeListActivity extends HikeAppStateBaseFragmentActivity implement
 		});
 
 		actionBar.setCustomView(actionBarView);
+		Toolbar parent=(Toolbar)actionBarView.getParent();
+		parent.setContentInsetsAbsolute(0,0);
 
 		init();
 	}
@@ -292,42 +300,35 @@ public class HikeListActivity extends HikeAppStateBaseFragmentActivity implement
 
 		if (sendNativeInvite && !settings.getBoolean(HikeConstants.OPERATOR_SMS_ALERT_CHECKED, false))
 		{
-			final Dialog dialog = new Dialog(this, R.style.Theme_CustomDialog);
-			dialog.setContentView(R.layout.operator_alert_popup);
-			dialog.setCancelable(true);
-
-			TextView header = (TextView) dialog.findViewById(R.id.header);
-			TextView body = (TextView) dialog.findViewById(R.id.body_text);
-			Button btnOk = (Button) dialog.findViewById(R.id.btn_ok);
-			Button btnCancel = (Button) dialog.findViewById(R.id.btn_cancel);
-
-			btnCancel.setVisibility(View.GONE);
-			header.setText(R.string.native_header);
-			body.setText(R.string.native_info);
-
-			CheckBox checkBox = (CheckBox) dialog.findViewById(R.id.body_checkbox);
-			checkBox.setOnCheckedChangeListener(new OnCheckedChangeListener()
+			CustomAlertDialog dialog = new CustomAlertDialog(this, -1);
+			
+			HikeDialogListener dialogListener = new HikeDialogListener()
 			{
-
+				
 				@Override
-				public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
+				public void positiveClicked(HikeDialog hikeDialog)
 				{
 					Editor editor = settings.edit();
-					editor.putBoolean(HikeConstants.OPERATOR_SMS_ALERT_CHECKED, isChecked);
+					editor.putBoolean(HikeConstants.OPERATOR_SMS_ALERT_CHECKED, ((CustomAlertDialog)hikeDialog).isChecked());
 					editor.commit();
-				}
-			});
-			checkBox.setText(getResources().getString(R.string.not_show_call_alert_msg));
-
-			btnOk.setOnClickListener(new OnClickListener()
-			{
-
-				@Override
-				public void onClick(View v)
-				{
 					onTitleIconClick(null);
 				}
-			});
+				
+				@Override
+				public void neutralClicked(HikeDialog hikeDialog)
+				{
+				}
+				
+				@Override
+				public void negativeClicked(HikeDialog hikeDialog)
+				{
+				}
+			};
+
+			dialog.setTitle(R.string.native_header);
+			dialog.setMessage(R.string.native_info);
+			dialog.setCheckBox(R.string.not_show_call_alert_msg, null, false);
+			dialog.setPositiveButton(R.string.CONTINUE, dialogListener);
 
 			dialog.show();
 		}
@@ -591,7 +592,11 @@ public class HikeListActivity extends HikeAppStateBaseFragmentActivity implement
 					BotInfo mBotInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
 					mBotInfo.setBlocked(blocked);
 				}
-				
+				if(OfflineUtils.isConnectedToSameMsisdn(msisdn) && blocked)
+				{
+					Logger.d("HikeListActivity", "Disconnecting OfflineConnection " + msisdn);
+					OfflineController.getInstance().shutDown();
+				}
 				HikeMessengerApp.getPubSub().publish(blocked ? HikePubSub.BLOCK_USER : HikePubSub.UNBLOCK_USER, msisdn);
 			}
 			finish();
@@ -706,17 +711,21 @@ public class HikeListActivity extends HikeAppStateBaseFragmentActivity implement
 		else
 		{
 			String msisdn = ((ContactInfo) tag).getMsisdn();
+			msisdn = Utils.normalizeNumber(msisdn,
+					getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, MODE_PRIVATE).getString(HikeMessengerApp.COUNTRY_CODE, HikeConstants.INDIA_COUNTRY_CODE));
 			if (type == Type.BLOCK)
 			{
+			
+				if(OfflineUtils.isConnectedToSameMsisdn(msisdn))
+				{
+					Logger.d("HikeListActivity","Disconnecting Offline Msg");
+					OfflineController.getInstance().shutDown();
+				}
 				HikeMessengerApp.getPubSub().publish(
-						HikePubSub.BLOCK_USER,
-						Utils.normalizeNumber(msisdn,
-								getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, MODE_PRIVATE).getString(HikeMessengerApp.COUNTRY_CODE, HikeConstants.INDIA_COUNTRY_CODE)));
+						HikePubSub.BLOCK_USER,msisdn);
 			}
 			else
 			{
-				msisdn = Utils.normalizeNumber(msisdn,
-						getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, MODE_PRIVATE).getString(HikeMessengerApp.COUNTRY_CODE, HikeConstants.INDIA_COUNTRY_CODE));
 				Logger.d(getClass().getSimpleName(), "Inviting " + msisdn);
 				Utils.sendInvite(msisdn, this);
 				Toast.makeText(this, R.string.invite_sent, Toast.LENGTH_SHORT).show();

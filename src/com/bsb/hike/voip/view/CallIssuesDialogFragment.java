@@ -14,7 +14,6 @@ import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.Toast;
 
-import com.actionbarsherlock.app.SherlockDialogFragment;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
@@ -23,7 +22,7 @@ import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.voip.VoIPConstants;
 
-public class CallIssuesDialogFragment extends SherlockDialogFragment
+public class CallIssuesDialogFragment extends DialogFragment
 {
 	public CallIssuesDialogFragment(){
 	}
@@ -72,8 +71,8 @@ public class CallIssuesDialogFragment extends SherlockDialogFragment
 				if(getSelectedIssues())
 				{
 					dismiss();
-					Toast.makeText(getSherlockActivity(), R.string.voip_call_issues_submit_toast, Toast.LENGTH_SHORT).show();
-					getSherlockActivity().finish();
+					Toast.makeText(getActivity(), R.string.voip_call_issues_submit_toast, Toast.LENGTH_SHORT).show();
+					getActivity().finish();
 				}
 			}
 		});
@@ -84,7 +83,7 @@ public class CallIssuesDialogFragment extends SherlockDialogFragment
 	@Override
 	public void onCancel(DialogInterface dialog)
 	{
-		getSherlockActivity().finish();
+		getActivity().finish();
 		super.onCancel(dialog);
 	}
 

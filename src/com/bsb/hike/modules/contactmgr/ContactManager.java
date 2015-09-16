@@ -783,7 +783,19 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 		{
 			return contact;
 		}
-		return transientCache.getContactInfoFromPhoneNoOrMsisdn(number);
+		contact = transientCache.getContactInfoFromPhoneNoOrMsisdn(number);
+		if (null != contact)
+		{
+			return contact;
+		}
+		
+		ContactInfo selfContactInfo = Utils.getUserContactInfo(true);
+		if (number.equals(selfContactInfo.getMsisdn()))
+		{
+			contact = selfContactInfo;
+		}
+		
+		return contact;
 	}
 
 	@Override

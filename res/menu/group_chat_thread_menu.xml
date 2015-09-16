@@ -1,21 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto" >
 
-    
     <item
-        android:id="@+id/pin_imp"
-        android:icon="@drawable/ic_pin_it"
-        android:showAsAction="always"
-        android:title="@string/create_pin"/>
+        android:id="@+id/voip_call"
+        android:icon="@drawable/ic_call_chatthread"
+        app:showAsAction="always"
+        android:title="@string/voip_call_chat"
+        android:visible="false" />
     <item
         android:id="@+id/attachment"
         android:icon="@drawable/ic_attachment"
-        android:showAsAction="always"
+        app:showAsAction="always"
         android:title="@string/attach"/>
     <item
         android:id="@+id/overflow_menu"
-        android:actionLayout="@layout/overflow_icon_view"
-        android:showAsAction="always"
+        app:actionLayout="@layout/overflow_icon_view"
+        app:showAsAction="always"
         android:title="@string/other"/>
 
 </menu>

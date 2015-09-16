@@ -6,86 +6,72 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="48dp"
+        android:layout_height="@dimen/compose_item_height"
         android:background="@drawable/list_item"
-        android:orientation="horizontal"
         android:paddingLeft="@dimen/contact_list_item_padding"
         android:paddingRight="@dimen/contact_list_item_padding" >
 
-        <RelativeLayout
-            android:id="@+id/avatar_container"
-            android:layout_width="@dimen/small_avatar"
-            android:layout_height="@dimen/small_avatar"
-            android:layout_alignParentLeft="true"
-            android:layout_centerVertical="true" >
-
             <com.bsb.hike.view.RoundedImageView
                 android:id="@+id/avatar"
-                style="@style/AvatarStyle.Padding" />
+                style="@style/RoundedStyle"
+                android:layout_width="@dimen/compose_avatar_dimen"
+                android:layout_height="@dimen/compose_avatar_dimen"
+                android:layout_alignParentLeft="true"
+                android:layout_centerVertical="true" />
+            
+            
+            <RelativeLayout
+            android:id="@+id/action_container"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/compose_item_height"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:gravity="right" >
+
+            <com.bsb.hike.view.CustomFontTextView
+                android:id="@+id/invite_btn"
+                android:layout_width="60dp"
+                android:layout_height="30dp"
+                android:layout_centerVertical="true"
+                android:background="@drawable/bg_green_btn_selector"
+                android:gravity="center"
+                android:text="@string/invite_1"
+                android:textColor="@color/white"
+                android:textSize="13sp"
+                android:textStyle="bold|italic"
+                android:visibility="gone" />
 
             <ImageView
-                android:id="@+id/avatar_frame"
-                style="@style/AvatarStyle" />
+                android:id="@+id/invite_icon"
+                android:layout_width="32dp"
+                android:layout_height="match_parent"
+                android:layout_centerVertical="true"
+                android:contentDescription="@string/content_des_user_invitation_on_hike"
+                android:scaleType="centerInside"
+                android:src="@drawable/ic_invite" />
+            
+            </RelativeLayout>
+
+            <LinearLayout
+                android:id="@+id/info_container"
+                style="@style/compose_name_container_margins"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_toLeftOf="@id/action_container"
+                android:layout_toRightOf="@id/avatar"
+                android:orientation="vertical" >
+
+                <com.bsb.hike.view.CustomFontTextView
+                    android:id="@+id/contact"
+                    style="@style/ListItemHeaderTextView"
+                    android:text="Kavin Mittal kja skldlkas daskd asdjlasj dlasdl asdj las das d" />
+
+                <com.bsb.hike.view.CustomFontTextView
+                    android:id="@+id/info"
+                    style="@style/ListItemSubHeaderTextView"
+                    android:text="what&apos;s up dude?  I really like cookies.  They taste so good and fresh.  I like pie as well.  I&apos;m so fat" />
+            </LinearLayout>
         </RelativeLayout>
-
-        <com.bsb.hike.view.CustomFontTextView
-            android:id="@+id/invite_btn"
-            android:layout_width="60dp"
-            android:layout_height="30dp"
-            android:layout_alignParentRight="true"
-            android:layout_centerVertical="true"
-            android:gravity="center"
-            android:background="@drawable/bg_green_btn_selector"
-            android:text="@string/invite_1"
-            android:textColor="@color/white"
-            android:textSize="13sp"
-            android:textStyle="bold|italic"
-            android:visibility="gone" />
-
-        <ImageView
-            android:id="@+id/invite_icon"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_alignParentRight="true"
-            android:paddingLeft="15dp"
-            android:layout_centerVertical="true"
-            android:gravity="center"
-            android:contentDescription="@string/content_des_user_invitation_on_hike"
-            android:src="@drawable/ic_invite" />
-        
-        <LinearLayout
-            android:id="@+id/info_container"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:layout_marginLeft="12dp"
-            android:layout_marginRight="5dp"
-            android:layout_toLeftOf="@id/invite_btn"
-            android:layout_toRightOf="@id/avatar_container"
-            android:orientation="vertical" >
-
-            <com.bsb.hike.view.CustomFontTextView
-                android:id="@+id/contact"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:ellipsize="end"
-                android:singleLine="true"
-                android:text="Kavin Mittal kja skldlkas daskd asdjlasj dlasdl asdj las das d"
-                android:textColor="@color/list_item_header"
-                android:textSize="14sp"
-                android:textStyle="bold|italic" />
-
-            <com.bsb.hike.view.CustomFontTextView
-                android:id="@+id/info"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:ellipsize="end"
-                android:singleLine="true"
-                android:text="what&apos;s up dude?  I really like cookies.  They taste so good and fresh.  I like pie as well.  I&apos;m so fat"
-                android:textColor="@color/conversation_timestamp"
-                android:textSize="12sp"
-                android:visibility="visible" />
-        </LinearLayout>
-    </RelativeLayout>
 
 </LinearLayout>

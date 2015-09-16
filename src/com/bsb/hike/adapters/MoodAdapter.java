@@ -17,7 +17,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bsb.hike.R;
-import com.bsb.hike.ui.StatusUpdate;
+import com.bsb.hike.timeline.view.StatusUpdate;
 import com.bsb.hike.utils.EmoticonConstants;
 
 public class MoodAdapter extends BaseAdapter implements OnItemClickListener

@@ -197,6 +197,11 @@ public class HttpRequestConstants
 		return BASE_URL + BASE_V1 + BASE_USER + "/status";
 	}
 
+	public static String getDeleteStatusBaseUrl()
+	{
+		return BASE_URL + BASE_V1 + BASE_USER + "/status-delete";
+	}
+
 	public static String selfPlatformUidFetchUrl()
 	{
 		return BASE_PLATFORM_URL + BASE_USER + BASE_V1 + BASE_CREATE;
@@ -249,7 +254,7 @@ public class HttpRequestConstants
 
 	public static String deleteAccountBaseUrl()
 	{
-		return BASE_URL + BASE_V1 + BASE_ACCOUNT;
+		return BASE_URL + BASE_V1 + "/account-delete";
 	}
 
 	public static String unlinkAccountBaseUrl()
@@ -307,12 +312,38 @@ public class HttpRequestConstants
 		return BASE_URL + BASE_V1 + BASE_ACCOUNT + "/profile";
 	}
 	
+	public static String updateUnLoveLinkUrl()
+	{
+		return BASE_URL + BASE_V1 + "/status/unlove";
+	}
+	
+	public static String updateLoveLinkUrl()
+	{
+		return BASE_URL + BASE_V1 + "/status/love";
+	}
+	
+	public static String getActionsUpdateUrl()
+	{
+		return BASE_URL + BASE_V1 + "/status/love/get_counts_with_msisdn";
+	}
+	
+	public static String getPostImageSUUrl()
+	{
+		return BASE_URL + BASE_V1 + "/user/status-timeline";
+	}
+	
 	public static String signUpPinCallBaseUrl()
 	{
 		return BASE_URL + BASE_V1 + "/pin-call";
 	}
+	
 	public static String getMorestickersUrl()
 	{
 		return BASE_URL+STICKER_SHARE_PATH ;
+	}
+
+	public static String getDeleteAvatarBaseUrl()
+	{
+		return BASE_URL + BASE_V1 + BASE_ACCOUNT + "/avatar-delete";
 	}
 }

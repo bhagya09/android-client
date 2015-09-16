@@ -79,7 +79,7 @@ public class TagEditText extends EditText
 	/**
 	 * Append new tag
 	 * 
-	 * @param text
+	 * @param headerText
 	 */
 	private void appendTag(Tag tag)
 	{
@@ -108,6 +108,7 @@ public class TagEditText extends EditText
 			{
      			listener.tagAdded(tag);
      			listener.charResetAfterSeperator();
+     			lastAfterSepCallback = null;
 			}
 		}
 	}

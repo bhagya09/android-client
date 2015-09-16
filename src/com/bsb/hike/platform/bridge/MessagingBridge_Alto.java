@@ -8,14 +8,23 @@ import android.text.TextUtils;
 import android.webkit.JavascriptInterface;
 import android.widget.BaseAdapter;
 
+import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.HikePubSub;
 import com.bsb.hike.adapters.ConversationsAdapter;
+import com.bsb.hike.bots.BotInfo;
+import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.db.HikeContentDatabase;
+import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.platform.CustomWebView;
 import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.platform.PlatformHelper;
+import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.WebMetadata;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 /**
  * This class was introduced to cater platform bridge Platform Bridge Version 1 onwards. We have introduced message id and platform Platform Bridge Version concept here.
@@ -138,7 +147,7 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 	/**
 	 * Platform Bridge Version 1
 	 * This function is called whenever the onLoadFinished of the html is called. This function calling is MUST.
-	 * @param messageId : : : : to validate whether you are calling the function for proper message
+	 * @param messageId :to validate whether you are calling the function for proper message
 	 * @param height : The height of the loaded content
 	 */
 	@JavascriptInterface
@@ -521,6 +530,285 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 					context.startActivity(intent);
 				}
 			});
+		}
+	}
+
+	/**
+	 * Platform Version 6
+	 * Call this function to delete an event from the list of events that are shared with the microapp.
+	 *
+	 * @param eventId: the event that will be deleted from the shared messages table.
+	 */
+	@JavascriptInterface
+	public void deleteEvent(String eventId)
+	{
+		if (TextUtils.isEmpty(eventId))
+		{
+			Logger.e(tag, "event can't be deleted as the event id is " + eventId);
+			return;
+		}
+		HikeConversationsDatabase.getInstance().deleteEvent(eventId);
+	}
+
+	/**
+	 * Platform Version 6
+	 * Call this function to delete all the events, be it shared data or normal event pertaining to a single message.
+	 *
+	 * @param messageHash : the hash of the corresponding message.
+	 */
+	@JavascriptInterface
+	public void deleteAllEventsForMessage(String messageHash)
+	{
+		if (TextUtils.isEmpty(messageHash))
+		{
+			Logger.e(tag, "the events corresponding to the message hash can't be deleted as the message hash is " + messageHash);
+			return;
+		}
+		HikeConversationsDatabase.getInstance().deleteAllEventsForMessage(messageHash);
+
+	}
+
+	/**
+	 * Platform Version 6
+	 * Call this function to delete all the events for a particular microapp, be it shared data or normal event.
+	 *
+	 * @param namespace: the namespace whose shared events are being asked
+	 */
+	@JavascriptInterface
+	public void deleteAllEventsForMicroapp(String namespace)
+	{
+		if (TextUtils.isEmpty(namespace) || !namespace.equals(message.getNameSpace()))
+		{
+			Logger.e(tag, "the events corresponding to the namespace can't be deleted as the namespace is " + namespace + " and message namespace is " + message.getNameSpace());
+			return;
+		}
+		HikeConversationsDatabase.getInstance().deleteAllEventsForNamespace(namespace);
+	}
+
+	/**
+	 * Platform Version 6
+	 * Call this function to get all the shared messages data. The data is a stringified list that contains event id, message hash and the data.
+	 * <p/>
+	 * "name": name of the user interacting with. This gives name, and if the name isn't present , then the msisdn.
+	 * "platformUid": the platform user id of the user interacting with.
+	 * "eventId" : the event id of the event.
+	 * "h" : the unique hash of the message. Helps in determining the uniqueness of a card.
+	 * "d" : the data that has been sent/received for the card message
+	 * "eventStatus" : the status of the event. 0 if sent, 1 if received.
+	 *
+	 * @param functionId: function id to call back to the js.
+	 * @param messageId : the message id to validate whether proper message.
+	 */
+	@JavascriptInterface
+	public void getSharedEventsData(String functionId, String messageId)
+	{
+
+		if(isCorrectMessage(messageId, "getSharedEventsData"))
+		{
+			String messageData = HikeConversationsDatabase.getInstance().getMessageEventsForMicroapps(message.getNameSpace(), false);
+			callbackToJS(functionId, messageData);
+		}
+
+	}
+
+	/**
+	 * Platform Version 6
+	 * Call this function to get all the event messages data. The data is a stringified list that contains event id, message hash and the data.
+	 * <p/>
+	 * "name": name of the user interacting with. This gives name, and if the name isn't present , then the msisdn.
+	 * "platformUid": the platform user id of the user interacting with.
+	 * "eventId" : the event id of the event.
+	 * "h" : the unique hash of the message. Helps in determining the uniqueness of a card.
+	 * "d" : the data that has been sent/received for the card message
+	 * "et": the type of message. 0 if shared event, and 1 if normal event.
+	 * "eventStatus" : the status of the event. 0 if sent, 1 if received.
+	 *
+	 * @param functionId: function id to call back to the js.
+	 * @param messageId : the message id to validate whether proper message.
+	 */
+	@JavascriptInterface
+	public void getAllEventsData(String functionId, String messageId)
+	{
+
+		if(isCorrectMessage(messageId, "getAllEventsData"))
+		{
+			String messageData = HikeConversationsDatabase.getInstance().getMessageEventsForMicroapps(message.getNameSpace(), true);
+			callbackToJS(functionId, messageData);
+		}
+
+	}
+
+	/**
+	 * Platform Version 6
+	 * Call this function to get all the event messages data. The data is a stringified list that contains:
+	 * "name": name of the user interacting with. This gives name, and if the name isn't present , then the msisdn.
+	 * "platformUid": the platform user id of the user interacting with.
+	 * "eventId" : the event id of the event.
+	 * "d" : the data that has been sent/received for the card message
+	 * "et": the type of message. 0 if shared event, and 1 if normal event.
+	 * "eventStatus" : the status of the event. 0 if sent, 1 if received.
+	 *
+	 * @param functionId:  function id to call back to the js.
+	 * @param messageId : the message id to validate whether proper message.
+	 */
+	@JavascriptInterface
+	public void getAllEventsForMessage(String functionId, String messageId ,String messageHash)
+	{
+		if(isCorrectMessage(messageId, "getAllEventsData"))
+		{
+			String eventData = HikeConversationsDatabase.getInstance().getEventsForMessageHash(messageHash, message.getNameSpace());
+			callbackToJS(functionId, eventData);
+		}
+
+	}
+
+	/**
+	 * Platform Version 6
+	 * Call this function to send a shared message to the contacts of the user. This function when forwards the data, returns with the contact details of
+	 * the users it has sent the message to.
+	 * It will call JavaScript function "onContactChooserResult(int resultCode,JsonArray array)" This JSOnArray contains list of JSONObject where each JSONObject reflects one user. As of now
+	 * each JSON will have name and platform_id, e.g : [{'name':'Paul','platform_id':'dvgd78as'}] resultCode will be 0 for fail and 1 for success NOTE : JSONArray could be null as
+	 * well, a micro app has to take care of this instance
+	 *
+	 * @param json: if the data has changed , then send the updated fields and it will update the metadata.
+	 *             If the key is already present, it will be replaced else it will be added to the existent metadata.
+	 *             If the json has JSONObject as key, there would be another round of iteration, and will replace the key-value pair if the key is already present
+	 *             and will add the key-value pair if the key is not present in the existent metadata.
+	 * @param sharedData: the stringified json data to be shared among different bots. A mandatory field "recipients" is a must. It specifies what all namespaces
+	 *                    to share the data with.
+	 */
+	@JavascriptInterface
+	public void sendSharedMessage(String json, String sharedData)
+	{
+		try
+		{
+			Logger.i(tag, "forward to chat called " + json + " , message id=" + message.getMsgID());
+
+			if (!TextUtils.isEmpty(json))
+			{
+				String updatedJSON = HikeConversationsDatabase.getInstance().updateJSONMetadata((int) (message.getMsgID()), json);
+				if (!TextUtils.isEmpty(updatedJSON))
+				{
+					message.webMetadata = new WebMetadata(updatedJSON);
+				}
+			}
+			JSONObject sharedDataJson = new JSONObject(sharedData);
+			sharedDataJson.put(HikePlatformConstants.EVENT_TYPE, HikePlatformConstants.SHARED_EVENT);
+			message.setPlatformData(sharedDataJson);
+
+			message.setParticipantInfoState(ConvMessage.ParticipantInfoState.NO_INFO);
+			if (null == mHandler)
+			{
+				return;
+			}
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+		pickContactAndSend(message);
+
+	}
+
+	/**
+	 * Platform version 6
+	 * Call this method to send a normal event.
+	 *
+	 * @param messageHash : the message hash that determines the uniqueness of the card message, to which the data is being sent.
+	 * @param namespace  : : the namespace of the message.
+	 * @param eventData   : the stringified json data to be sent. It should contain the following things :
+	 *                       "cd" : card data, "increase_unread" : true/false, "notification" : the string to be notified to the user, "notification_sound" : true/ false, play sound or not.
+	 */
+	@JavascriptInterface
+	public void sendNormalEvent(String messageHash, String namespace, String eventData)
+	{
+		PlatformUtils.sendPlatformMessageEvent(eventData, messageHash, namespace);
+	}
+
+	/**
+	 * Platform version 6
+	 * Call this function to block/unblock the parent bot.
+	 * @param block : Stringified boolean whether to block or unblock the parent bot.
+	 */
+	@JavascriptInterface
+	public void blockParentBot(String block)
+	{
+		if (!BotUtils.isBot(message.webMetadata.getParentMsisdn()))
+		{
+			return;
+		}
+		BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(message.webMetadata.getParentMsisdn());
+		if (Boolean.valueOf(block))
+		{
+			botInfo.setBlocked(true);
+			HikeMessengerApp.getPubSub().publish(HikePubSub.BLOCK_USER, botInfo.getMsisdn());
+		}
+
+		else
+		{
+			botInfo.setBlocked(false);
+			HikeMessengerApp.getPubSub().publish(HikePubSub.UNBLOCK_USER, botInfo.getMsisdn());
+		}
+
+	}
+
+	/**
+	 * Platform Version 6
+	 * This function is made for the special Shared bot that has the information about some other bots as well, and acts as a channel for them.
+	 * Call this method to know whether the bot pertaining to the msisdn is blocked or not.
+	 * @param id : the id of the function that native will call to call the js .
+	 */
+	@JavascriptInterface
+	public void isParentBotBlocked(String id)
+	{
+		if (!BotUtils.isBot(message.webMetadata.getParentMsisdn()))
+		{
+			return;
+		}
+		BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(message.webMetadata.getParentMsisdn());
+		callbackToJS(id, String.valueOf(botInfo.isBlocked()));
+	}
+
+	/**
+	 * Platform Version 6
+	 * This function is made for the special Shared bot that has the information about some other bots as well, and acts as a channel for them.
+	 * Call this method to know whether the bot pertaining to the msisdn is enabled or not.
+	 * @param id : the id of the function that native will call to call the js .
+	 */
+	@JavascriptInterface
+	public void isParentBotEnabled(String id)
+	{
+		if (!BotUtils.isBot(message.webMetadata.getParentMsisdn()))
+		{
+			return;
+		}
+		String value = String.valueOf(HikeConversationsDatabase.getInstance().isConversationExist(message.webMetadata.getParentMsisdn()));
+		callbackToJS(id, value);
+	}
+
+	/**
+	 * Platform Version 6
+	 * This function is made for the special Shared bot that has the information about some other bots as well, and acts as a channel for them.
+	 * Call this method to enable/disable bot. Enable means to show the bot in the conv list and disable is vice versa.
+	 * @param enable : the id of the function that native will call to call the js .
+	 */
+	@JavascriptInterface
+	public void enableParentBot(String enable)
+	{
+
+		if (!BotUtils.isBot(message.webMetadata.getParentMsisdn()))
+		{
+			return;
+		}
+		BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(message.webMetadata.getParentMsisdn());
+		boolean enableBot = Boolean.valueOf(enable);
+		if (enableBot)
+		{
+			PlatformUtils.enableBot(botInfo, true);
+		}
+		else
+		{
+			BotUtils.deleteBotConversation(botInfo.getMsisdn(), false);
 		}
 	}
 

@@ -229,7 +229,7 @@ public class StickerPageAdapter extends BaseAdapter implements OnClickListener
 			viewHolder.image.setVisibility(View.VISIBLE);
 			viewHolder.text.setVisibility(View.VISIBLE);
 			viewHolder.progress.setVisibility(View.GONE);
-			viewHolder.text.setText(mContext.getResources().getString(R.string.retry_sticker));
+			viewHolder.text.setText(mContext.getResources().getString(R.string.RETRY));
 			viewHolder.tickImage.setVisibility(View.GONE);
 			convertView.setOnClickListener(this);
 			

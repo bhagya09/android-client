@@ -5,6 +5,7 @@ import android.graphics.Typeface;
 import android.util.AttributeSet;
 import android.view.ViewTreeObserver;
 import android.widget.TextView;
+
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.utils.Utils;
 
@@ -14,14 +15,13 @@ public class CustomFontTextView extends TextView implements ViewTreeObserver.OnG
 	
 	private CustomTypeFace customTypeFace;
 	
-	private int style;
-
     private int maxLines;
     
     private void setFont(AttributeSet attrs)
     {
     	fontName = attrs.getAttributeValue(HikeConstants.NAMESPACE, HikeConstants.FONT);
-        setTypeface(getTypeface(), style);
+    	if (Utils.isLollipopOrHigher())
+    		setTypeface(getTypeface(), getTypeface().getStyle());
     }
 
     public CustomFontTextView(Context context, AttributeSet attrs, int defStyle)
@@ -48,7 +48,6 @@ public class CustomFontTextView extends TextView implements ViewTreeObserver.OnG
 	{
 		if (!isInEditMode())
 		{
-			this.style = style;
 			/*
 			 * If we are dealing with LDPI phones, we use the default font, They have a rendering issue with the font that we're using
 			 */

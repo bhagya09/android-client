@@ -18,13 +18,16 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.support.v7.app.ActionBar;
+import android.support.v7.widget.Toolbar;
 
-import com.actionbarsherlock.app.ActionBar;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.dialog.CustomAlertDialog;
+import com.bsb.hike.dialog.HikeDialog;
+import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.models.ConnectedApp;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
@@ -124,21 +127,11 @@ public class ConnectedAppsActivity extends HikeAppStateBaseFragmentActivity impl
 
 		View actionBarView = LayoutInflater.from(this).inflate(R.layout.compose_action_bar, null);
 
-		View backContainer = actionBarView.findViewById(R.id.back);
-
 		TextView title = (TextView) actionBarView.findViewById(R.id.title);
 		title.setText(getApplicationContext().getString(R.string.connected_apps));
-		backContainer.setOnClickListener(new View.OnClickListener()
-		{
-
-			@Override
-			public void onClick(View v)
-			{
-				onBackPressed();
-			}
-		});
-
 		actionBar.setCustomView(actionBarView);
+		Toolbar parent=(Toolbar)actionBarView.getParent();
+		parent.setContentInsetsAbsolute(0,0);
 	}
 
 	/**
@@ -247,26 +240,32 @@ public class ConnectedAppsActivity extends HikeAppStateBaseFragmentActivity impl
 		try
 		{
 			final int position = (Integer) v.getTag();
-			final CustomAlertDialog alertDialog = new CustomAlertDialog(ConnectedAppsActivity.this, 0);  //A dialogId is supplied as well to the constructor. Choosing 0 randomly here
-			alertDialog.setHeader(getString(R.string.are_you_sure));
-			alertDialog.setBody(getString(R.string.confirm_disconnect_app));
-			alertDialog.setOkButton(getString(R.string.yes), new OnClickListener()
+			CustomAlertDialog alertDialog = new CustomAlertDialog(ConnectedAppsActivity.this, 0);  //A dialogId is supplied as well to the constructor. Choosing 0 randomly here
+			HikeDialogListener dialogListener = new HikeDialogListener()
 			{
 				@Override
-				public void onClick(View v)
+				public void positiveClicked(HikeDialog hikeDialog)
 				{
 					disconnectApp(position);
-					alertDialog.dismiss();
+					hikeDialog.dismiss();
 				}
-			});
-			alertDialog.setCancelButton(getString(R.string.cancel), new OnClickListener()
-			{
+				
 				@Override
-				public void onClick(View v)
+				public void neutralClicked(HikeDialog hikeDialog)
 				{
-					alertDialog.dismiss();
+					
 				}
-			});
+				
+				@Override
+				public void negativeClicked(HikeDialog hikeDialog)
+				{
+					hikeDialog.dismiss();
+				}
+			};
+			alertDialog.setTitle(getString(R.string.are_you_sure));
+			alertDialog.setMessage(getString(R.string.confirm_disconnect_app));
+			alertDialog.setPositiveButton(getString(R.string.YES), dialogListener);
+			alertDialog.setNegativeButton(getString(R.string.CANCEL), dialogListener);
 			alertDialog.show();
 		}
 		catch (ClassCastException cce)

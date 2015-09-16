@@ -3,6 +3,7 @@ package com.bsb.hike.media;
 import android.app.Activity;
 import android.content.res.Configuration;
 import android.support.v4.view.ViewPager;
+import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -45,6 +46,27 @@ public class EmoticonPicker implements ShareablePopup, EmoticonPickerListener, O
 	
 	private EmoticonAdapter mEmoticonAdapter;
 
+	private int currentItem;
+	
+	private static int[] statusUpdateDefaultEmojisList = new int[] { R.drawable.emo_recent, R.drawable.emo_tab_5_selector, R.drawable.emo_tab_6_selector,
+			R.drawable.emo_tab_7_selector, R.drawable.emo_tab_8_selector, R.drawable.emo_tab_9_selector };
+
+	private static int[] defaultEmojisList = new int[] { R.drawable.emo_recent, R.drawable.emo_tab_1_selector, R.drawable.emo_tab_2_selector, R.drawable.emo_tab_3_selector,
+			R.drawable.emo_tab_4_selector, R.drawable.emo_tab_5_selector, R.drawable.emo_tab_6_selector, R.drawable.emo_tab_7_selector, R.drawable.emo_tab_8_selector,
+			R.drawable.emo_tab_9_selector };
+	
+	private boolean useStatusUpdateList = false;
+	
+	public int getCurrentItem()
+	{
+		return currentItem;
+	}
+
+	public void setCurrentItem(int currentItem)
+	{
+		this.currentItem = currentItem;
+	}
+
 	/**
 	 * Constructor
 	 * 
@@ -56,6 +78,7 @@ public class EmoticonPicker implements ShareablePopup, EmoticonPickerListener, O
 	{
 		this.mActivity = activity;
 		this.mEditText = editText;
+		this.currentConfig = activity.getResources().getConfiguration().orientation;
 	}
 
 	/**
@@ -125,12 +148,12 @@ public class EmoticonPicker implements ShareablePopup, EmoticonPickerListener, O
 		this.mLayoutResId = layoutResId;
 	}
 
-	public void showEmoticonPicker(int screenOrientation)
+	public boolean showEmoticonPicker(int screenOrientation)
 	{
-		showEmoticonPicker(0, 0, screenOrientation);
+		return showEmoticonPicker(0, 0, screenOrientation);
 	}
 
-	public void showEmoticonPicker(int xoffset, int yoffset, int screenOritentation)
+	public boolean showEmoticonPicker(int xoffset, int yoffset, int screenOritentation)
 	{
 		/**
 		 * Checking for configuration change
@@ -143,7 +166,7 @@ public class EmoticonPicker implements ShareablePopup, EmoticonPickerListener, O
 		
 		initView();
 
-		mPopUpLayout.showKeyboardPopup(mViewToDisplay);
+		return mPopUpLayout.showKeyboardPopup(mViewToDisplay);
 	}
 
 	/**
@@ -157,6 +180,16 @@ public class EmoticonPicker implements ShareablePopup, EmoticonPickerListener, O
 			return;
 		}
 
+		/**
+		 * Defensive null check
+		 */
+		if (mActivity == null)
+		{
+			String errorMsg = "Inside method : getView of EmoticonPicker. Context is null";
+			HAManager.sendStickerEmoticonStrangeBehaviourReport(errorMsg);
+			return;
+		}
+		
 		/**
 		 * Use default view. or the view passed in the constructor
 		 */
@@ -186,25 +219,56 @@ public class EmoticonPicker implements ShareablePopup, EmoticonPickerListener, O
 		
 		View eraseKey = view.findViewById(R.id.erase_key_image);
 		eraseKey.setOnClickListener(this);
+		
+		int [] tabDrawables;
 
-		int[] tabDrawables = new int[] { R.drawable.emo_recent, R.drawable.emo_tab_1_selector, R.drawable.emo_tab_2_selector, R.drawable.emo_tab_3_selector,
-				R.drawable.emo_tab_4_selector, R.drawable.emo_tab_5_selector, R.drawable.emo_tab_6_selector, R.drawable.emo_tab_7_selector, R.drawable.emo_tab_8_selector,
-				R.drawable.emo_tab_9_selector };
+		if (useStatusUpdateList) //SU List
+
+		{
+			tabDrawables = statusUpdateDefaultEmojisList; 
+		}
+		
+		else //Default list
+		{
+			tabDrawables = defaultEmojisList;
+		}
 
 		boolean isPortrait = mActivity.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT;
 
-		int emoticonsListSize = EmoticonConstants.DEFAULT_SMILEY_RES_IDS.length;
+		//EmoticonConstants.EMOJI_RES_ID is a list of emojis used only in STATUS UPDATE SCREEN and default is used elsewhere
+		int emoticonsListSize = useStatusUpdateList ? EmoticonConstants.EMOJI_RES_IDS.length : EmoticonConstants.DEFAULT_SMILEY_RES_IDS.length;
 
 		int recentEmoticonsSizeReq = isPortrait ? EmoticonAdapter.MAX_EMOTICONS_PER_ROW_PORTRAIT : EmoticonAdapter.MAX_EMOTICONS_PER_ROW_LANDSCAPE;
 
-		int[] mRecentEmoticons = HikeConversationsDatabase.getInstance().fetchEmoticonsOfType(0, emoticonsListSize, recentEmoticonsSizeReq);
+
+		int[] mRecentEmoticons;
+		
+		/**
+		 * For Status update screen, since normal hike emojis are not parsed in iOS, we use a truncated list for recents as well as overall emojis.
+		 */
+		if (useStatusUpdateList)
+		{
+			int startOffset = EmoticonConstants.DEFAULT_SMILEY_RES_IDS.length;
+			int endOffset = startOffset + emoticonsListSize;
+			mRecentEmoticons = HikeConversationsDatabase.getInstance().fetchEmoticonsOfType(startOffset, endOffset, recentEmoticonsSizeReq);
+		}
+
+		else
+		{
+			mRecentEmoticons = HikeConversationsDatabase.getInstance().fetchEmoticonsOfType(0, emoticonsListSize, recentEmoticonsSizeReq);
+		}
 
 		/**
 		 * If there aren't sufficient recent emoticons, we do not show the recent emoticons tab.
 		 */
-		int firstCategoryToShow = (mRecentEmoticons.length < recentEmoticonsSizeReq) ? 1 : 0;
+		if (currentItem == 0)
+		{
+			currentItem = (mRecentEmoticons.length < recentEmoticonsSizeReq) ? 1 : 0;
+		}
 
-		mEmoticonAdapter = new EmoticonAdapter(mActivity, this, isPortrait, tabDrawables);
+		mIconPageIndicator.setOnPageChangeListener(onPageChangeListener);
+
+		mEmoticonAdapter = new EmoticonAdapter(mActivity, this, isPortrait, tabDrawables, useStatusUpdateList);
 
 		mPager.setVisibility(View.VISIBLE);
 
@@ -212,7 +276,9 @@ public class EmoticonPicker implements ShareablePopup, EmoticonPickerListener, O
 
 		mIconPageIndicator.setViewPager(mPager);
 
-		mPager.setCurrentItem(firstCategoryToShow, false);
+		mPager.setCurrentItem(currentItem, false);
+		
+		mEmoticonAdapter.notifyDataSetChanged();
 
 	}
 
@@ -338,4 +404,59 @@ public class EmoticonPicker implements ShareablePopup, EmoticonPickerListener, O
 		return currentConfig != deviceOrientation;
 	}
 	
+	public void setOnDismissListener(PopupListener listener)
+	{
+		if (mPopUpLayout != null)
+		{
+			mPopUpLayout.setPopupDismissListener(listener);
+		}
+	}
+	
+	/**
+	 * This function should be called when orientation of screen is changed, it will update its view based on orientation
+	 * If picker is being shown, it will first dismiss current picker and then show it again using post on view
+	 * 
+	 * @param orientation
+	 */
+	public void onOrientationChange(int orientation)
+	{
+		showEmoticonPicker(orientation);
+	}
+
+	public void setDisableExtraPadding(boolean disabled)
+	{
+		if(mPopUpLayout != null)
+		{
+			mPopUpLayout.setPaddingDisabled(disabled);
+		}
+	}
+
+	OnPageChangeListener onPageChangeListener = new OnPageChangeListener()
+	{
+
+		@Override
+		public void onPageSelected(int pageNum)
+		{
+			currentItem = pageNum;
+		}
+
+		@Override
+		public void onPageScrolled(int arg0, float arg1, int arg2)
+		{
+		}
+
+		@Override
+		public void onPageScrollStateChanged(int arg0)
+		{
+		}
+	};
+	
+	/**
+	 * Setter for {@link #useStatusUpdateList}
+	 * @param emojiList
+	 */
+	public void useStatusUpdateEmojisList(boolean shouldUse)
+	{
+		this.useStatusUpdateList = shouldUse;
+	}
 }

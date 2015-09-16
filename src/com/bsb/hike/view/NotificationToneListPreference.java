@@ -7,7 +7,6 @@ import java.util.Map;
 import android.app.AlertDialog.Builder;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.media.RingtoneManager;
 import android.net.Uri;
@@ -15,20 +14,19 @@ import android.os.Bundle;
 import android.os.Parcelable;
 import android.preference.ListPreference;
 import android.preference.PreferenceManager;
+import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
 import android.view.View;
-import android.widget.ImageView;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
+import com.bsb.hike.ui.HikePreferences;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.SoundUtils;
 
 public class NotificationToneListPreference extends ListPreference implements DialogInterface.OnClickListener
 {
-	private Drawable mIcon;
-
 	private Context mContext;
 
 	private int mClickedDialogEntryIndex;
@@ -48,7 +46,6 @@ public class NotificationToneListPreference extends ListPreference implements Di
 		super(context, attrs);
 		this.mContext = context;
 		this.ringtonesNameURIMap = new LinkedHashMap<String, Uri>();
-		setIcon(context, attrs);
 		//this.setValueIndex(HIKE_JINNGLE_INDEX);
 		String defaultTone = mContext.getResources().getString(R.string.notif_sound_Hike);
 		String selectedRingtone = PreferenceManager.getDefaultSharedPreferences(mContext).getString(HikeConstants.NOTIF_SOUND_PREF, defaultTone);
@@ -56,25 +53,13 @@ public class NotificationToneListPreference extends ListPreference implements Di
 		setTitle(mContext.getString(R.string.notificationSoundTitle) + " - " + selectedRingtone);
 	}
 
-	private void setIcon(Context context, AttributeSet attrs)
-	{
-		String iconName = attrs.getAttributeValue(null, "icon");
-		iconName = iconName.split("/")[1];
-		int id = context.getResources().getIdentifier(iconName, "drawable", context.getPackageName());
-
-		this.mIcon = context.getResources().getDrawable(id);
-	}
 
 	@Override
 	protected void onBindView(View view)
 	{
+		ViewCompat.setAlpha(view, isEnabled() ? HikePreferences.PREF_ENABLED_ALPHA : HikePreferences.PREF_DISABLED_ALPHA);
+		
 		super.onBindView(view);
-		final ImageView imageView = (ImageView) view.findViewById(R.id.icon);
-		if ((imageView != null) && (this.mIcon != null))
-		{
-			imageView.setImageDrawable(this.mIcon);
-			imageView.setVisibility(View.VISIBLE);
-		}
 	}
 
 	private int getValueIndex()
@@ -90,13 +75,15 @@ public class NotificationToneListPreference extends ListPreference implements Di
 		{
 			public void onClick(DialogInterface dialog, int which)
 			{
+				// stop the previously playing ringtone first
+				SoundUtils.stopSound();
 				mClickedDialogEntryIndex = which;
 				playSoundAsPerToneClicked();
 			}
 		});
 
-		builder.setPositiveButton(R.string.ok, this);
-		builder.setNegativeButton(R.string.cancel, this);
+		builder.setPositiveButton(R.string.OK, this);
+		builder.setNegativeButton(R.string.CANCEL, this);
 	}
 
 	private void playSoundAsPerToneClicked()
@@ -127,6 +114,7 @@ public class NotificationToneListPreference extends ListPreference implements Di
 		switch (which)
 		{
 		case DialogInterface.BUTTON_POSITIVE:
+			SoundUtils.stopSound();
 			String selectedRingtoneValue = this.getEntryValues()[mClickedDialogEntryIndex].toString();
 			this.setValue(selectedRingtoneValue);
 			setTitle(mContext.getString(R.string.notificationSoundTitle) + " - " + selectedRingtoneValue);
@@ -138,6 +126,7 @@ public class NotificationToneListPreference extends ListPreference implements Di
 			break;
 
 		case DialogInterface.BUTTON_NEGATIVE:
+			SoundUtils.stopSound();
 			dialog.dismiss();
 			break;
 

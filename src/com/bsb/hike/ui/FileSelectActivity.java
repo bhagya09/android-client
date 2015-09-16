@@ -35,7 +35,9 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.actionbarsherlock.app.ActionBar;
+import android.support.v7.app.ActionBar;
+import android.support.v7.widget.Toolbar;
+
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
@@ -276,11 +278,11 @@ public class FileSelectActivity extends HikeAppStateBaseFragmentActivity impleme
 						}
 						if (sizeLimit != 0)
 						{
-							if (file.length() > sizeLimit)
+							/*if (file.length() > sizeLimit)
 							{
 								Toast.makeText(FileSelectActivity.this, getString(R.string.max_file_size, Utils.formatFileSize(sizeLimit)), Toast.LENGTH_SHORT).show();
 								return;
-							}
+							}*/
 						}
 						if (file.length() == 0)
 						{
@@ -373,25 +375,15 @@ public class FileSelectActivity extends HikeAppStateBaseFragmentActivity impleme
 
 		View actionBarView = LayoutInflater.from(this).inflate(R.layout.compose_action_bar, null);
 
-		View backContainer = actionBarView.findViewById(R.id.back);
-
 		title = (TextView) actionBarView.findViewById(R.id.title);
 		subText = (TextView) actionBarView.findViewById(R.id.subtext);
 
 		setTitle(titleString);
 		currentTitle = titleString;
 
-		backContainer.setOnClickListener(new OnClickListener()
-		{
-
-			@Override
-			public void onClick(View v)
-			{
-				onBackPressed();
-			}
-		});
-
 		actionBar.setCustomView(actionBarView);
+		Toolbar parent = (Toolbar) actionBarView.getParent();
+		parent.setContentInsetsAbsolute(0, 0);
 	}
 
 	private void setupMultiSelectActionBar()
@@ -429,8 +421,9 @@ public class FileSelectActivity extends HikeAppStateBaseFragmentActivity impleme
 					throw new IllegalArgumentException("You are not sending msisdn, and yet you expect to send files ?");
 				}
 				boolean onHike = getIntent().getBooleanExtra(HikeConstants.Extras.ON_HIKE, true);
-
-				fileTransferTask = new InitiateMultiFileTransferTask(getApplicationContext(), fileDetails, msisdn, onHike, FTAnalyticEvents.FILE_ATTACHEMENT);
+				
+				Intent intent = IntentFactory.createChatThreadIntentFromMsisdn(FileSelectActivity.this, msisdn, false,false);
+				fileTransferTask = new InitiateMultiFileTransferTask(getApplicationContext(), fileDetails, msisdn, onHike, FTAnalyticEvents.FILE_ATTACHEMENT, intent);
 				Utils.executeAsyncTask(fileTransferTask);
 
 				progressDialog = ProgressDialog.show(FileSelectActivity.this, null, getResources().getString(R.string.multi_file_creation));
@@ -448,6 +441,8 @@ public class FileSelectActivity extends HikeAppStateBaseFragmentActivity impleme
 		});
 
 		actionBar.setCustomView(actionBarView);
+		Toolbar parent=(Toolbar)actionBarView.getParent();
+		parent.setContentInsetsAbsolute(0,0);
 
 		Animation slideIn = AnimationUtils.loadAnimation(this, R.anim.slide_in_left_noalpha);
 		slideIn.setInterpolator(new AccelerateDecelerateInterpolator());
@@ -600,7 +595,7 @@ public class FileSelectActivity extends HikeAppStateBaseFragmentActivity impleme
 
 	private void showErrorBox(String error)
 	{
-		new AlertDialog.Builder(this).setTitle(R.string.app_name).setMessage(error).setPositiveButton(R.string.ok, null).show();
+		new AlertDialog.Builder(this).setTitle(R.string.app_name).setMessage(error).setPositiveButton(R.string.OK, null).show();
 	}
 
 	private void listRoots()
@@ -715,6 +710,8 @@ public class FileSelectActivity extends HikeAppStateBaseFragmentActivity impleme
 		if (HikePubSub.MULTI_FILE_TASK_FINISHED.equals(type))
 		{
 			fileTransferTask = null;
+			
+			final Intent intent = (Intent) object;
 
 			runOnUiThread(new Runnable()
 			{
@@ -722,9 +719,6 @@ public class FileSelectActivity extends HikeAppStateBaseFragmentActivity impleme
 				@Override
 				public void run()
 				{
-					String msisdn = getIntent().getStringExtra(HikeConstants.Extras.MSISDN);
-					Intent intent = IntentFactory.createChatThreadIntentFromMsisdn(FileSelectActivity.this, msisdn , false, false);
-					intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 					startActivity(intent);
 
 					if (progressDialog != null)

@@ -6,34 +6,26 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="60dp"
+        android:layout_height="@dimen/compose_item_height"
         android:background="@drawable/list_item"
-        android:orientation="horizontal"
-        android:paddingLeft="@dimen/contact_list_item_padding"
-        android:paddingRight="@dimen/contact_list_item_padding" >
-
-        <RelativeLayout
-            android:id="@+id/avatar_container"
-            android:layout_width="@dimen/hike_list_item_avtar"
-            android:layout_height="@dimen/hike_list_item_avtar"
+        android:paddingLeft="@dimen/conv_item_padding"
+        android:paddingRight="@dimen/conv_item_padding" >
+        
+        
+        <com.bsb.hike.view.RoundedImageView
+            android:id="@+id/avatar"
+            style="@style/RoundedStyle"
+            android:layout_width="@dimen/compose_avatar_dimen"
+            android:layout_height="@dimen/compose_avatar_dimen"
             android:layout_alignParentLeft="true"
-            android:layout_centerVertical="true" >
-
-            <com.bsb.hike.view.RoundedImageView
-                android:id="@+id/avatar"
-                style="@style/AvatarStyle.Padding" />
-
-            <ImageView
-                android:id="@+id/avatar_frame"
-                style="@style/AvatarStyle" />
-        </RelativeLayout>
-
-        <ImageView
+            android:layout_centerVertical="true" />
+        
+	    <ImageView
             android:id="@+id/add_friend"
-            android:layout_width="wrap_content"
+            android:layout_width="32dp"
             android:layout_height="match_parent"
-            android:paddingLeft="15dp"
             android:layout_alignParentRight="true"
+            android:scaleType="centerInside"
             android:layout_centerVertical="true"
             android:src="@drawable/ic_add_friend" />
 
@@ -41,33 +33,20 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
-            android:layout_marginLeft="12dp"
-            android:layout_marginRight="5dp"
             android:layout_toLeftOf="@id/add_friend"
-            android:layout_toRightOf="@id/avatar_container"
+            android:layout_toRightOf="@id/avatar"
+            style="@style/compose_name_container_margins"
             android:orientation="vertical" >
 
             <com.bsb.hike.view.CustomFontTextView
                 android:id="@+id/contact"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:ellipsize="end"
-                android:singleLine="true"
                 android:text="Kavin Mittal kja skldlkas daskd asdjlasj dlasdl asdj las das d"
-                android:textColor="@color/list_item_header"
-                android:textSize="15sp"
-                android:textStyle="bold|italic" />
+                style="@style/ListItemHeaderTextView" />
 
             <com.bsb.hike.view.CustomFontTextView
                 android:id="@+id/info"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:ellipsize="end"
-                android:singleLine="true"
                 android:text="what&apos;s up dude?  I really like cookies.  They taste so good and fresh.  I like pie as well.  I&apos;m so fat"
-                android:textColor="@color/conversation_timestamp"
-                android:textSize="12sp"
-                android:visibility="visible" />
+                style="@style/ListItemSubHeaderTextView" />
         </LinearLayout>
         
     </RelativeLayout>

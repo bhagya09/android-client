@@ -172,10 +172,14 @@ public class ProfileImageLoader implements LoaderCallbacks<Boolean>
 		BitmapDrawable drawable = null;
 		if (file.exists())
 		{
-			Logger.d(getClass().getSimpleName(),"setting final downloaded image...");
+			Logger.d(getClass().getSimpleName(), "setting final downloaded image...");
 			drawable = HikeBitmapFactory.getBitmapDrawable(context.getResources(),
-					HikeBitmapFactory.scaleDownBitmap(basePath + "/" + fileName, imageSize, imageSize, Bitmap.Config.RGB_565,true,false));
-			setImageDrawable(drawable);
+					HikeBitmapFactory.scaleDownBitmap(basePath + "/" + fileName, imageSize, imageSize, Bitmap.Config.RGB_565, true, false));
+
+			if (drawable != null)
+			{
+				setImageDrawable(drawable);
+			}
 		}
 
 		Logger.d(getClass().getSimpleName(), "Putting in cache mappedId : " + mappedId);

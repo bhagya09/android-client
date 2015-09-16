@@ -35,10 +35,9 @@ import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
 import com.bsb.hike.models.ConvMessage.State;
 import com.bsb.hike.models.FtueContactInfo;
+import com.bsb.hike.models.MessageEvent;
 import com.bsb.hike.models.MultipleConvMessage;
 import com.bsb.hike.models.Protip;
-import com.bsb.hike.models.StatusMessage;
-import com.bsb.hike.models.StatusMessage.StatusMessageType;
 import com.bsb.hike.models.Conversation.ConvInfo;
 import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.modules.contactmgr.ContactManager;
@@ -46,6 +45,8 @@ import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.HikeSDKMessageFilter;
 import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.service.SmsMessageStatusReceiver;
+import com.bsb.hike.timeline.model.StatusMessage;
+import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.Utils;
@@ -102,6 +103,8 @@ public class DbConversationListener implements Listener
 		mPubSub.addListener(HikePubSub.UPDATE_LAST_MSG_STATE, this);
 		mPubSub.addListener(HikePubSub.STEALTH_DATABASE_MARKED, this);
 		mPubSub.addListener(HikePubSub.STEALTH_DATABASE_UNMARKED, this);
+		mPubSub.addListener(HikePubSub.PLATFORM_CARD_EVENT_SENT, this);
+		mPubSub.addListener(HikePubSub.UPDATE_MESSAGE_ORIGIN_TYPE, this);
 	}
 
 	@Override
@@ -182,12 +185,12 @@ public class DbConversationListener implements Listener
 			ArrayList<Long> msgIds = deleteMessage.first;
 			Bundle bundle = deleteMessage.second;
 			Boolean containsLastMessage = null;
-			if(bundle.containsKey(HikeConstants.Extras.IS_LAST_MESSAGE))
+			if (bundle.containsKey(HikeConstants.Extras.IS_LAST_MESSAGE))
 			{
 				containsLastMessage = bundle.getBoolean(HikeConstants.Extras.IS_LAST_MESSAGE);
 			}
 			String msisdn = bundle.getString(HikeConstants.Extras.MSISDN);
-			
+
 			mConversationDb.deleteMessages(msgIds, msisdn, containsLastMessage);
 			persistence.removeMessages(msgIds);
 		}
@@ -270,6 +273,7 @@ public class DbConversationListener implements Listener
 						StatusMessage statusMessage = new StatusMessage(0, null, contactInfo.getMsisdn(), contactInfo.getName(),
 								context.getString(R.string.accepted_friend_request), StatusMessageType.USER_ACCEPTED_FRIEND_REQUEST, System.currentTimeMillis() / 1000);
 						mConversationDb.addStatusMessage(statusMessage, true);
+						mConversationDb.updateHistoricalStatusMessages(statusMessage.getMsisdn());
 						mPubSub.publish(HikePubSub.STATUS_MESSAGE_RECEIVED, statusMessage);
 						mPubSub.publish(HikePubSub.TIMELINE_UPDATE_RECIEVED, statusMessage);
 					}
@@ -310,6 +314,7 @@ public class DbConversationListener implements Listener
 		{
 			String statusId = (String) object;
 			mConversationDb.deleteStatus(statusId);
+			mConversationDb.deleteActivityFeedForStatus(statusId);
 			/*
 			 * If the status also has an icon, we delete that as well.
 			 */
@@ -477,6 +482,61 @@ public class DbConversationListener implements Listener
 			{
 				HikeMessengerApp.getPubSub().publish(markStealth ? HikePubSub.STEALTH_CONVERSATION_MARKED : HikePubSub.STEALTH_CONVERSATION_UNMARKED, msisdn);
 			}
+		}
+		
+		else if (HikePubSub.PLATFORM_CARD_EVENT_SENT.equals(type))
+		{
+			MessageEvent messageEvent = (MessageEvent) object;
+
+			if (messageEvent == null)
+			{
+				Logger.e(HikePlatformConstants.TAG, "Got Message Event null");
+				return;
+			}
+
+			long eventId = HikeConversationsDatabase.getInstance().insertMessageEvent(messageEvent);
+			messageEvent.setEventId(eventId);
+			if (eventId < 0)
+			{
+				Logger.e(HikePlatformConstants.TAG, "Error inserting message event");
+			}
+			else
+			{
+
+				JSONObject jObj = new JSONObject();
+				JSONObject data;
+				try
+				{
+					data = new JSONObject(messageEvent.getEventMetadata());
+
+					jObj.put(HikeConstants.TYPE, HikeConstants.MqttMessageTypes.GENERAL_EVENT_QOS_ONE);
+					jObj.put(HikeConstants.SEND_TIMESTAMP, messageEvent.getSentTimeStamp());
+					jObj.put(HikeConstants.TIMESTAMP, messageEvent.getSentTimeStamp());
+					jObj.put(HikeConstants.TO, messageEvent.getMsisdn());
+
+					data.put(HikeConstants.TYPE, HikeConstants.GeneralEventMessagesTypes.MESSAGE_EVENT);
+					data.put(HikePlatformConstants.MESSAGE_HASH, messageEvent.getMessageHash());
+					data.put(HikePlatformConstants.NAMESPACE, messageEvent.getNameSpace());
+
+					data.put(HikeConstants.EVENT_ID, eventId);
+					jObj.put(HikeConstants.DATA, data);
+					HikeMqttManagerNew.getInstance().sendMessage(jObj, MqttConstants.MQTT_QOS_ONE);
+				}
+
+				catch (JSONException e)
+				{
+					Logger.e(HikePlatformConstants.TAG, "Got a JSON Exception while creating a message event : " + e);
+				}
+			}
+		}
+		
+		else if(HikePubSub.UPDATE_MESSAGE_ORIGIN_TYPE.equals(type))
+		{
+			Pair<Long, Integer> pair = (Pair<Long, Integer>) object;
+
+			long msgId = pair.first;
+
+			HikeConversationsDatabase.getInstance().updateMessageOriginType(msgId, pair.second);
 		}
 	}
 

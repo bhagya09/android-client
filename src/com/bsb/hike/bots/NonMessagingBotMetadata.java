@@ -1,13 +1,13 @@
 package com.bsb.hike.bots;
 
-import com.bsb.hike.models.OverFlowMenuItem;
-import com.bsb.hike.platform.HikePlatformConstants;
-import com.bsb.hike.utils.Logger;
+import java.util.List;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.List;
+import com.bsb.hike.media.OverFlowMenuItem;
+import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.utils.Logger;
 
 
 /**
@@ -26,6 +26,7 @@ public class NonMessagingBotMetadata
 	private static final String DEFAULT_UNREAD_COUNT = "1+";
 	private String nonMessagingBotType;
 	private String url;
+	private boolean isSpecialBot;
 
 	public NonMessagingBotMetadata(String jsonString)
 	{
@@ -83,6 +84,12 @@ public class NonMessagingBotMetadata
 			{
 				setUrl(cardObj.optString(HikePlatformConstants.URL));
 			}
+
+			if (cardObj.has(HikePlatformConstants.SPECIAL))
+			{
+				setIsSpecialBot(cardObj.optBoolean(HikePlatformConstants.SPECIAL));
+			}
+
 		}
 
 		setUnreadCountShowType();
@@ -202,4 +209,13 @@ public class NonMessagingBotMetadata
 		return unReadCountShowType;
 	}
 
+	public boolean isSpecialBot()
+	{
+		return isSpecialBot;
+	}
+
+	public void setIsSpecialBot(boolean isSpecialBot)
+	{
+		this.isSpecialBot = isSpecialBot;
+	}
 }

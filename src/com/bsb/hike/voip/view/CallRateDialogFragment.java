@@ -13,7 +13,6 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
-import com.actionbarsherlock.app.SherlockDialogFragment;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
@@ -22,7 +21,7 @@ import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.voip.VoIPConstants;
 
-public class CallRateDialogFragment extends SherlockDialogFragment
+public class CallRateDialogFragment extends DialogFragment
 {
 	private int rating = -1;
 	
@@ -64,7 +63,7 @@ public class CallRateDialogFragment extends SherlockDialogFragment
 				
 				@Override
 				public void onClick(View v) {
-					getSherlockActivity().finish();
+					getActivity().finish();
 					dismiss();
 				}
 			});
@@ -77,7 +76,7 @@ public class CallRateDialogFragment extends SherlockDialogFragment
 				{
 					submitRating();
 					dismiss();
-					getSherlockActivity().finish();
+					getActivity().finish();
 				}
 				else if(rating >= 0)
 				{
@@ -133,7 +132,7 @@ public class CallRateDialogFragment extends SherlockDialogFragment
 	@Override
 	public void onCancel(DialogInterface dialog)
 	{
-		getSherlockActivity().finish();
+		getActivity().finish();
 		super.onCancel(dialog);
 	}
 
@@ -142,12 +141,15 @@ public class CallRateDialogFragment extends SherlockDialogFragment
 		Bundle bundle = getArguments();
 		int isCallInitiator = -1, callId = -1, network = -1;
 		String toMsisdn = "";
+		int isConf = 0;
+		
 		if(bundle!=null)
 		{
 			isCallInitiator = bundle.getInt(VoIPConstants.IS_CALL_INITIATOR);
 			callId = bundle.getInt(VoIPConstants.CALL_ID);
 			network = bundle.getInt(VoIPConstants.CALL_NETWORK_TYPE);
 			toMsisdn = bundle.getString(VoIPConstants.PARTNER_MSISDN);
+			isConf = bundle.getBoolean(VoIPConstants.IS_CONFERENCE) == true ? 1 : 0;
 		}
 
 		try
@@ -159,6 +161,7 @@ public class CallRateDialogFragment extends SherlockDialogFragment
 			metadata.put(VoIPConstants.Analytics.CALL_ID, callId);
 			metadata.put(VoIPConstants.Analytics.IS_CALLER, isCallInitiator);
 			metadata.put(VoIPConstants.Analytics.NETWORK_TYPE, network);
+			metadata.put(VoIPConstants.Analytics.IS_CONFERENCE, isConf);
 			metadata.put(AnalyticsConstants.TO, toMsisdn);
 			metadata.put(VoIPConstants.Analytics.NEW_LOG, -1);
 

@@ -9,24 +9,24 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.actionbarsherlock.app.SherlockFragment;
+import android.support.v4.app.Fragment;
 import com.bsb.hike.R;
 
-public class PhotoActionsFragment extends SherlockFragment
+public class PhotoActionsFragment extends Fragment
 {
 	private View mFragmentView;
 
 	private String[] mTitles;
 
-	private String[] mDescription;
-
-	private int itemIcons[] = { R.drawable.set_icon, R.drawable.send_icon };
+	private int itemIcons[] = { R.drawable.ic_profile_picture, R.drawable.ic_send_friend, R.drawable.ic_camera };
 
 	private ActionListener mListener;
 
 	public static final int ACTION_SET_DP = 1;
 
 	public static final int ACTION_SEND = 2;
+
+	public static final int ACTION_POST = 3;
 
 	public static interface ActionListener
 	{
@@ -55,28 +55,23 @@ public class PhotoActionsFragment extends SherlockFragment
 		PhotoActionsListAdapter mAdapter = new PhotoActionsListAdapter();
 
 		final View view1 = mAdapter.getView(0, null, null);
-
-		View divider = new View(getActivity());
-
-		final View view2 = mAdapter.getView(1, null, null);
-
 		view1.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f));
 
-		divider.setBackgroundColor(getResources().getColor(R.color.file_transfer_pop_up_button));
-
-		divider.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 1));
-
+		final View view2 = mAdapter.getView(1, null, null);
 		view2.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f));
+
+		final View view3 = mAdapter.getView(2, null, null);
+		view3.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f));
 
 		view1.setOnClickListener(new View.OnClickListener()
 		{
-
 			@Override
 			public void onClick(View v)
 			{
 				mListener.onAction(ACTION_SET_DP);
 				view1.setEnabled(false);
 				view2.setEnabled(false);
+				view3.setEnabled(false);
 			}
 		});
 		
@@ -89,14 +84,28 @@ public class PhotoActionsFragment extends SherlockFragment
 				mListener.onAction(ACTION_SEND);
 				view1.setEnabled(false);
 				view2.setEnabled(false);
+				view3.setEnabled(false);
+			}
+		});
+		
+		view3.setOnClickListener(new View.OnClickListener()
+		{
+
+			@Override
+			public void onClick(View v)
+			{
+				mListener.onAction(ACTION_POST);
+				view1.setEnabled(false);
+				view2.setEnabled(false);
+				view3.setEnabled(false);
 			}
 		});
 
 		LinearLayout itemsLayout = (LinearLayout) mFragmentView.findViewById(R.id.itemsLayout);
 
-		itemsLayout.addView(view1);
+		itemsLayout.addView(view3);
 
-		itemsLayout.addView(divider);
+		itemsLayout.addView(view1);
 
 		itemsLayout.addView(view2);
 
@@ -106,8 +115,6 @@ public class PhotoActionsFragment extends SherlockFragment
 	private void loadData()
 	{
 		mTitles = getActivity().getResources().getStringArray(R.array.photos_actions_titles);
-
-		mDescription = getActivity().getResources().getStringArray(R.array.photos_actions_description);
 	}
 
 	class PhotoActionsListAdapter extends BaseAdapter

@@ -179,7 +179,7 @@
                             android:layout_height="@dimen/auth_permission_icon"
                             android:layout_marginRight="12dp"
                             style="@style/RoundedStyle"
-                            android:src="@drawable/ic_signup_nouser" />
+                            />
                     </LinearLayout>
 
                     <LinearLayout
@@ -231,7 +231,7 @@
                             android:layout_marginRight="12dp"
                             style="@style/RoundedStyle"
                             android:scaleType="centerInside"
-                            android:src="@drawable/ic_signup_nouser" />
+                            />
                     </LinearLayout>
 
                     <LinearLayout

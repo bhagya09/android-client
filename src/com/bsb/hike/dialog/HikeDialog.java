@@ -1,5 +1,7 @@
 package com.bsb.hike.dialog;
 
+import com.bsb.hike.R;
+
 import android.app.Dialog;
 import android.content.Context;
 import android.view.WindowManager;
@@ -13,6 +15,11 @@ public class HikeDialog extends Dialog
 	public final int id;
 
 	public Object data;
+	
+	public HikeDialog(Context context,int id)
+	{
+		this(context, R.style.Theme_CustomDialog, id);
+	}
 
 	public HikeDialog(Context context, int theme, int id)
 	{

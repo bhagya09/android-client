@@ -6,49 +6,69 @@
     android:background="#ffffff" >
 
     <LinearLayout
+        android:layout_width="match_parent"
+        android:id="@+id/access_header"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:background="#EF574E" >
+
+        <TextView
+            android:id="@+id/show_accessibility"
+            style="@style/SettingsHeaderSubItemTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_margin="10dp"
+            android:clickable="true"
+            android:gravity="center"
+            android:paddingBottom="5dp"
+            android:paddingTop="5dp"
+            android:text="@string/show_accessibility_tip_text"
+            android:textColor="#ffffff"
+            android:textSize="14sp"/>
+
+    </LinearLayout>
+    <LinearLayout
         android:id="@+id/main_select_layout"
         android:layout_width="match_parent"
+        android:layout_marginTop="10dp"
         android:layout_height="wrap_content"
+        android:layout_below="@id/access_header"
+        android:background="@drawable/list_item"
+        android:minHeight="?android:attr/listPreferredItemHeight"
         android:orientation="horizontal" >
 
         <LinearLayout
             android:id="@+id/main_select_text_layout"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginBottom="13dp"
             android:layout_marginLeft="16dp"
+            android:layout_marginTop="13dp"
             android:layout_weight="1"
-            android:paddingRight="20dp"
-            android:orientation="vertical" >
+            android:gravity="center_vertical"
+            android:orientation="vertical"
+            android:paddingRight="5dp" >
 
             <com.bsb.hike.view.CustomFontTextView
                 android:id="@+id/main_text_select_all"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:gravity="center_vertical"
-                android:textColor="#333333"
-                android:text="@string/settings_select_all"
-                android:textSize="16sp"
-                android:textStyle="bold|italic" />
+                style="@style/SettingsHeaderItemTextView"
+                android:text="@string/settings_select_all"/>
 
             <com.bsb.hike.view.CustomFontTextView
                 android:id="@+id/side_text_select_all"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_marginBottom="20dp"
-                android:layout_marginTop="4dp"
+                style="@style/SettingsHeaderSubItemTextView"
                 android:gravity="center_vertical"
-                android:text="@string/sticker_widget_show"
-                android:textColor="@color/mid_gray"
-                android:textSize="12sp"
-                android:textStyle="bold|italic" />
+                android:maxLines="4"
+                android:text="@string/sticker_widget_show" />
+
         </LinearLayout>
 
-        <CheckBox
+        <android.support.v7.widget.SwitchCompat
             android:id="@+id/select_all_checkbox"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:button="@drawable/hike_list_item_checkbox"
             android:checked="false"
             android:gravity="center_vertical"
             android:paddingRight="20dp" />
@@ -61,6 +81,7 @@
         android:layout_below="@id/main_select_layout"
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
+        android:layout_marginBottom="10dp"
         android:background="#E6E6E6" >
     </View>
 

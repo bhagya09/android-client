@@ -1,28 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+<menu xmlns:android="http://schemas.android.com/apk/res/android" 
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
         android:id="@+id/add_people"
         android:icon="@drawable/ic_invitewhite"
-        android:showAsAction="always"
-        android:title="@string/add_people"/>
+        app:showAsAction="always"
+        android:title="@string/add_member_menu"/>
     <item
         android:id="@+id/overflow_menu"
-        android:icon="@drawable/ic_overflow"
-        android:showAsAction="always"
+        android:icon="@drawable/ic_overflow_home"
+        app:showAsAction="always"
         android:title="@string/other">
         <menu>
             <item
                 android:id="@+id/edit_group_picture"
-                android:showAsAction="never"
+                app:showAsAction="never"
                 android:title="@string/edit_picture"/>
             <item
                 android:id="@+id/leave_group"
-                android:showAsAction="never"
+                app:showAsAction="never"
                 android:title="@string/leave_group"/>
             <item
                 android:id="@+id/mute_group"
-                android:showAsAction="never"
+                app:showAsAction="never"
                 android:title="@string/mute_group"/>
         </menu>
     </item>

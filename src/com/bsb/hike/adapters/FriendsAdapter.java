@@ -38,17 +38,16 @@ import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
-import com.bsb.hike.models.StatusMessage;
-import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.smartImageLoader.IconLoader;
 import com.bsb.hike.tasks.FetchFriendsTask;
+import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.ui.HomeActivity;
 import com.bsb.hike.utils.EmoticonConstants;
-import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.LastSeenComparator;
 import com.bsb.hike.utils.Logger;
-import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.OneToNConversationUtils;
+import com.bsb.hike.utils.SmileyParser;
+import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.utils.Utils.WhichScreen;
 import com.bsb.hike.view.PinnedSectionListView.PinnedSectionListAdapter;
@@ -84,6 +83,8 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 	public static final String FRIEND_PHONE_NUM = "-125";
 
 	public static final String CONTACT_PHONE_NUM = "--126";
+	
+	public static final String CONTACT_SMS_NUM = "--127";
 
 	public static final String RECENT_PHONE_NUM = "-128";
 	
@@ -467,7 +468,7 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 		}
 		if (showSMSContacts)
 		{
-			smsContactsSection = new ContactInfo(SECTION_ID, Integer.toString(filteredSmsContactsList.size()), context.getString(R.string.sms_contacts), CONTACT_PHONE_NUM);
+			smsContactsSection = new ContactInfo(SECTION_ID, Integer.toString(filteredSmsContactsList.size()), context.getString(R.string.sms_contacts), CONTACT_SMS_NUM);
 			updateSMSContacts(smsContactsSection);
 		}
 
@@ -1146,6 +1147,28 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 							statusMood.setVisibility(View.GONE);
 							break;
 
+						case IMAGE:
+						case TEXT_IMAGE:
+							SmileyParser smileyParser = SmileyParser.getInstance();
+							if(TextUtils.isEmpty(lastStatusMessage.getText()))
+							{
+								lastSeen.setText(lastStatusMessage.getMsisdn());
+							}
+							else
+							{
+								lastSeen.setText(smileyParser.addSmileySpans(lastStatusMessage.getText(), true));
+							}
+							if (lastStatusMessage.hasMood())
+							{
+								statusMood.setVisibility(View.VISIBLE);
+								statusMood.setImageResource(EmoticonConstants.moodMapping.get(lastStatusMessage.getMoodId()));
+							}
+							else
+							{
+								statusMood.setVisibility(View.GONE);
+							}
+							break;
+							
 						default:
 							break;
 						}
@@ -1262,10 +1285,25 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 
 			headerName.setText(contactInfo.getName());
 			headerCount.setText(contactInfo.getMsisdn());
-			if(contactInfo.getPhoneNum()!=null && contactInfo.getPhoneNum().equals(FRIEND_PHONE_NUM))
+			if (!TextUtils.isEmpty(contactInfo.getPhoneNum()))
 			{
-				headerName.setCompoundDrawablesWithIntrinsicBounds(context.getResources().getDrawable(R.drawable.ic_favorites_star), null, null, null);
+				switch (contactInfo.getPhoneNum())
+				{
+				case FRIEND_PHONE_NUM:
+					headerName.setCompoundDrawablesWithIntrinsicBounds(context.getResources().getDrawable(R.drawable.ic_section_header_favorite), null, null, null);
+					break;
+
+				case CONTACT_PHONE_NUM:
+					headerName.setCompoundDrawablesWithIntrinsicBounds(context.getResources().getDrawable(R.drawable.ic_section_header_people_on_hike), null, null, null);
+					break;
+
+				case CONTACT_SMS_NUM:
+					headerName.setCompoundDrawablesWithIntrinsicBounds(context.getResources().getDrawable(R.drawable.ic_section_header_sms_contact), null, null, null);
+					break;
+				}
+
 				headerName.setCompoundDrawablePadding((int) context.getResources().getDimension(R.dimen.favorites_star_icon_drawable_padding));
+
 			}
 			else
 			{

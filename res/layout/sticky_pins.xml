@@ -10,23 +10,27 @@
         android:id="@+id/pin_history_background"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:src="@color/chat_thread_default_bg" />
+        android:src="@color/blue_hike" />
 
     <LinearLayout
         android:id="@+id/emptyViewHolder"
         android:layout_width="match_parent"
         android:layout_height="match_parent" >
     </LinearLayout>
-
+<RelativeLayout
+    android:id="@+id/sticky_parent_list"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_marginTop="@dimen/chat_thread_margin_top"
+    android:orientation="vertical" >
     <ListView
         android:id="@id/android:list"
         style="@style/HomeList"
-        android:layout_marginTop="@dimen/chat_thread_margin_top"
         android:divider="@null"
         android:dividerHeight="0dp" />
 
     <include
         android:id="@android:id/empty"
         layout="@layout/nudge_tutorial_pop_up" />
-
+</RelativeLayout>
 </RelativeLayout>

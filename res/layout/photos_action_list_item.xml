@@ -3,17 +3,17 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_gravity="center"
-    android:background="@drawable/photos_actions_list_selector" 
+    android:background="@drawable/photos_actions_list_selector"
     android:gravity="center"
     android:orientation="horizontal" >
 
     <ImageView
         android:id="@+id/icon"
         android:layout_width="wrap_content"
-        android:padding="10dp"
+        android:layout_height="wrap_content"
         android:layout_marginLeft="15dp"
         android:layout_marginRight="5dp"
-        android:layout_height="wrap_content"
+        android:padding="10dp"
         android:src="@drawable/send_icon" />
 
     <LinearLayout
@@ -30,21 +30,9 @@
             android:maxLines="1"
             android:text="Set as DP"
             android:textColor="#3d3d3d"
-            android:textSize="18sp"
+            android:textSize="16sp"
             android:textStyle="normal" >
         </com.bsb.hike.view.CustomFontTextView>
-
-        <!-- <com.bsb.hike.view.CustomFontTextView
-            android:id="@+id/description"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:maxLines="1"
-            android:text="Lorem Ipsum Dolor Lorem Ipsum"
-            android:textColor="@color/dark_grey_drop_shadow"
-            android:textSize="11sp"
-            android:textStyle="normal" >
-        </com.bsb.hike.view.CustomFontTextView> -->
     </LinearLayout>
 
 </LinearLayout>

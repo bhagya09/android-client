@@ -1,6 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources xmlns:android="http://schemas.android.com/apk/res/android">
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    	   xmlns:app="http://schemas.android.com/apk/res/com.bsb.hike" >
 
+    <style name="Transparent" parent="Theme.AppCompat">
+        <item name="actionBarStyle">@style/Widget.Styled.ActionBar</item>
+        <item name="android:actionBarStyle">@style/Widget.Styled.ActionBar</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+    </style>
+    
     <style name="ChatLabelStyle" parent="@android:style/TextAppearance.Medium.Inverse">
         <item name="android:textColor">#ffffff</item>
         <item name="android:gravity">center_vertical</item>
@@ -56,9 +64,12 @@
         <item name="android:activityCloseExitAnimation">@anim/slide_out_right_noalpha</item>
     </style>
 
-    <style name="NoTitleBar" parent="@style/Theme.Sherlock.Light.NoActionBar">
+    <style name="Base.NoTitleBar" parent="@style/Theme.AppCompat.Light.NoActionBar">
         <item name="android:windowNoTitle">true</item>
+        <item name="android:textAllCaps">false</item>
     </style>
+
+    <style name="NoTitleBar" parent="Base.NoTitleBar"></style>
 
     <style name="WelcomeHikeMessage">
         <item name="android:layout_marginTop">@dimen/hike_logo_margin</item>
@@ -118,10 +129,13 @@
 	    <item name="android:textColor">#51a8dd</item>
 	</style>
 	
-	<style name="Theme.CustomDialog" parent="@android:style/Theme.Translucent.NoTitleBar">
-	    <item name="android:windowIsFloating">true</item>
-	    <item name="android:windowNoTitle">true</item>
-	</style>
+    <style name="Base.Theme.CustomDialog" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowCloseOnTouchOutside">false</item>
+    </style>
+
+    <style name="Theme.CustomDialog" parent="Base.Theme.CustomDialog" />
 	
 	<style name="Theme.CustomDialog.Keyboard">
 	    <item name="android:windowSoftInputMode">adjustResize|stateVisible</item>
@@ -295,34 +309,48 @@
         <item name="android:shadowRadius">0.7</item>
     </style>
 
-    <style name="HomeList">
+    <style name="HomeListParent">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">match_parent</item>
         <item name="android:cacheColorHint">#00000000</item>
         <item name="android:divider">@drawable/home_list_divider</item>
         <item name="android:dividerHeight">0.5dp</item>
+        <item name="android:headerDividersEnabled">false</item>
+        <item name="android:footerDividersEnabled">false</item>
         <item name="android:drawSelectorOnTop">false</item>
-        <item name="android:listSelector">#00000000</item>
+        <item name="android:listSelector">@android:color/transparent</item>
+        <item name="android:overScrollFooter">@android:color/transparent</item>
     </style>
-
-    <style name="Hike.ActionBarTheme" parent="Theme.Sherlock">
+    
+    <style name="HomeList" parent = "HomeListParent"/>
+    
+    <style name="Hike.ActionBarTheme" parent="Theme.AppCompat">
         <item name="actionBarSize">@dimen/st__action_bar_default_height</item>
         <item name="actionBarTabStyle">@style/Hike.ActionBar.TabView</item>
         <item name="actionBarTabTextStyle">@style/Hike.ActionBar.Tab.Text</item>
     </style>
 
-    <style name="Hike.ActionBar.TabView" parent="Widget.Sherlock.ActionBar.TabView">
+    <style name="Hike.ActionBar.TabView" parent="Widget.AppCompat.ActionBar.TabView">
         <item name="android:paddingLeft">6dp</item>
         <item name="android:paddingRight">6dp</item>
     </style>
 
-    <style name="Hike.ActionBar.Tab.Text" parent="Widget.Sherlock.ActionBar.TabText">
+    <style name="Hike.ActionBar.Tab.Text" parent="Widget.AppCompat.ActionBar.TabText">
         <item name="android:textAppearance">@android:style/TextAppearance.Medium</item>
         <item name="android:textColor">@android:color/primary_text_dark</item>
         <item name="android:textSize">10sp</item>
     </style>
+    
+    <style name="AppThemeParent" parent = "Theme.AppCompat.Light.DarkActionBar">
+        <!-- Inactive thumb color -->
+        <item name="colorSwitchThumbNormal">#f1f1f1</item>
+        <!-- Active thumb color & Active track color(30% transparency) -->
+        <item name="colorControlActivated">#1da8e8</item>
+        <!-- Inactive track color(30% transparency) -->
+        <item name="android:colorForeground">#000000</item>
+    </style>
 
-    <style name="AppTheme" parent="Theme.Sherlock.Light.DarkActionBar">
+ <style name="AppTheme" parent="AppThemeParent">
         <item name="actionBarStyle">@style/Widget.Styled.ActionBar</item>
         <item name="android:actionBarStyle">@style/Widget.Styled.ActionBar</item>
         <item name="actionOverflowButtonStyle">@style/OverflowMenu</item>
@@ -332,21 +360,45 @@
         <item name="actionModeBackground">@color/transparent</item>
         <item name="android:actionModeBackground">@color/transparent</item>
         <item name="actionModeCloseButtonStyle">@style/NoCloseButton</item>
-        <item name="actionModeCloseDrawable">@drawable/ic_close_chat_bg_palette</item>
-        <item name="android:actionModeCloseButtonStyle">@style/NoCloseButton</item>
-        <item name="android:actionModeCloseDrawable">@drawable/ic_close_chat_bg_palette</item>
+        <item name="actionModeCloseDrawable">@drawable/ic_close_action_mode</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="colorAccent">@color/blue_hike</item>
+       <item name="android:actionButtonStyle">@style/HikeActionButtonStyle</item>
+       <item name="actionButtonStyle">@style/HikeActionButtonStyle</item>
+        <item name="actionBarItemBackground">@drawable/actionbarselectable</item>
+    <item name="selectableItemBackground">@drawable/actionbarselectable</item>
+        
     </style>
-    <style name="NoCloseButton" parent="@style/Widget.Sherlock.ActionButton.CloseMode">
+    <style name="NoCloseButton" parent="@style/Widget.AppCompat.ActionButton.CloseMode">
     <item name="android:visibility">visible</item>
 	</style>
-	
-    <style name="ActivityAnimation">
+	 <style name="HikeActionButtonStyle" parent="Widget.AppCompat.ActionButton">
+       <item name="android:minWidth">48dp</item>
+    <item name="android:maxWidth">48dp</item>
+</style>
+	<style name="AppTheme.Overlay" parent="AppTheme">
+        <item name="vpiTabPageIndicatorStyle">@style/CustomTabPageIndicator</item>
+        <item name="vpiTabTextIndicatorStyle">@style/TabText</item>
+        <item name="actionOverflowButtonStyle">@style/OverflowMenu</item>
+        <item name="android:actionOverflowButtonStyle">@style/OverflowMenu</item>
+        <item name="windowActionBarOverlay">true</item>
+        <item name="android:windowActionBarOverlay">true</item>
+    </style>
+    <style name="AppTheme.ChatThread" parent="AppTheme">
+	   
+	    <item name="vpiTabPageIndicatorStyle">@style/CustomTabPageIndicator</item>
+        <item name="vpiTabTextIndicatorStyle">@style/TabText</item>
+        <item name="actionOverflowButtonStyle">@style/OverflowMenu</item>
+        <item name="android:actionOverflowButtonStyle">@style/OverflowMenu</item>
+        <item name="windowActionBarOverlay">true</item>
+        <item name="android:actionButtonStyle">@style/HikeActionButtonStyle</item>
+	</style>
+	<style name="ActivityAnimation">
         <item name="android:windowExitAnimation">@anim/fade_out_animation</item>
     	<item name="android:windowEnterAnimation">@anim/fade_in_animation</item>
     </style>
     <!-- Make sure you change styles in v-11 as well -->
     <style name="AppTheme.Home">
-        <item name="homeAsUpIndicator">@drawable/home_screen_top_bar_up</item>
         <item name="vpiTabPageIndicatorStyle">@style/CustomTabPageIndicator</item>
         <item name="vpiTabTextIndicatorStyle">@style/TabText</item>
     </style>
@@ -357,17 +409,39 @@
         <item name="android:actionBarStyle">@style/Widget.Styled.PhotosActionBar</item>
        
     </style>
+    <style name="AppTheme.Home.PhotoEditor">
+        <item name="vpiTabPageIndicatorStyle">@style/PhotosTabPageIndicator</item>
+         <item name="actionBarStyle">@style/Widget.Styled.PhotosActionBar</item>
+        <item name="android:actionBarStyle">@style/Widget.Styled.PhotosActionBar</item>
+        <item name="windowActionBarOverlay">true</item>
+        <item name="android:windowActionBarOverlay">true</item>
+         <item name="android:actionButtonStyle">@style/HikeActionButtonStyle</item>
+       <item name="actionButtonStyle">@style/HikeActionButtonStyle</item>
+    </style>
     
-    <style name="Widget.Styled.ActionBar" parent="Widget.Sherlock.Light.ActionBar.Solid.Inverse">
-        <item name="background">@drawable/bg_header</item>
-        <item name="android:background">@drawable/bg_header</item>
+    <style name="Widget.Styled.ActionBar" parent="Widget.AppCompat.Light.ActionBar.Solid.Inverse">
+        <item name="background">@color/blue_hike</item>
+        <item name="android:background">@color/blue_hike</item>
         <item name="backgroundSplit">@color/credits_blue</item>
         <item name="android:backgroundSplit">@color/credits_blue</item>
         <item name="titleTextStyle">@style/NoTitleText</item>
         <item name="android:titleTextStyle">@style/NoTitleText</item>
+         <item name="android:colorPrimaryDark">@color/blue_hike</item>
+        <item name="android:colorPrimary">@color/blue_hike</item>
+        <item name="android:colorAccent">@color/blue_hike</item>
     </style>
 
-    <style name="Widget.Styled.PhotosActionBar" parent="Widget.Sherlock.Light.ActionBar.Solid.Inverse">
+    <style name="SearchViewStyleMyApp" parent="Widget.AppCompat.SearchView">
+        <item name="android:colorControlActivated">@color/white</item>
+        <item name="colorControlActivated">@color/white</item>
+    </style>
+
+    <style name="EditextStyleChatSearch" parent="Base.Widget.AppCompat.EditText">
+        <item name="android:colorControlActivated">@color/white</item>
+        <item name="colorControlActivated">@color/white</item>
+    </style>
+
+    <style name="Widget.Styled.PhotosActionBar" parent="Widget.AppCompat.Light.ActionBar.Solid.Inverse">
         <item name="background">@color/photos_action_bar_transcluscent_background</item>
         <item name="android:background">@color/photos_action_bar_transcluscent_background</item>
         <item name="backgroundSplit">@color/credits_blue</item>
@@ -411,12 +485,12 @@
         <item name="android:paddingBottom">1dp</item>
     </style>
 
-    <style name="ActionBarText">
+    <style name="ActionBarText" parent = "BaseStyleTextView">
         <item name="android:ellipsize">end</item>
         <item name="android:scrollHorizontally">true</item>
         <item name="android:singleLine">true</item>
         <item name="android:textColor">@color/actionbar_text</item>
-        <item name="android:textSize">18dp</item>
+        <item name="android:textSize">18sp</item>
         <item name="android:textStyle">bold|italic</item>
     </style>
 
@@ -594,7 +668,7 @@
 	    <item name="android:layout_height">wrap_content</item>
 	    <item name="android:background">@drawable/bg_country_picker_selector</item>
 	    <item name="android:drawablePadding">16dp</item>
-	    <item name="android:drawableLeft">@drawable/ic_name_common</item>
+	    <item name="android:drawableLeft">@drawable/ic_account_settings</item>
 	    <item name="android:hint">@string/name</item>
 	    <item name="android:imeOptions">actionDone</item>
 	    <item name="android:inputType">textCapWords</item>
@@ -632,11 +706,10 @@
 	    <item name="android:layout_marginTop">8dp</item>
 	</style>
 	
-	<style name="LockPatternTheme" parent="@style/Theme.Sherlock">
+	<style name="LockPatternTheme" parent="@style/Theme.AppCompat.NoActionBar">
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowContentOverlay">@null</item>
         <item name="android:windowIsFloating">true</item>
-        <item name="windowActionBar">true</item>
 	</style>
 	
 	<style name="BlockAddUnknownContact">
@@ -728,10 +801,243 @@
 	</style>
 	
 	<color name="transparent_black_color">#66ffffff</color>
-	<style name="TranslucentBlack" parent="@style/Theme.Sherlock.Light.NoActionBar">
+	<style name="TranslucentBlack" parent="@style/Theme.AppCompat.Light.NoActionBar">
         <item name="android:windowBackground">@color/transparent_black_color</item>
         <item name="android:windowIsTranslucent">true</item>
         <item name="android:windowIsFloating">false</item>
     </style>
-    	
+    
+	<style name="compose_name_container_margins">
+	     <item name="android:layout_marginLeft">16dp</item>
+	     <item name="android:layout_marginRight">5dp</item>
+	     <item name="android:layout_marginTop">11dp</item>
+	     <item name="android:layout_marginBottom">8dp</item>
+	</style>
+	
+    <style name="BaseStyleTextView">
+        <item name="android:includeFontPadding">false</item>
+    </style>
+    
+	<style name="ListItemHeaderTextView" parent="BaseStyleTextView">
+        <item name="android:textColor">@color/conv_item_contact_color</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textStyle">bold|italic</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:singleLine">true</item>
+    </style>
+    
+	<style name="ListItemSubHeaderTextView" parent="BaseStyleTextView">
+        <item name="android:textColor">@color/conv_item_last_msg_color</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:singleLine">true</item>
+    </style>
+    
+	<style name="ListSectionHeaderMargins">
+	    <item name="android:layout_marginLeft">16dp</item>
+	    <item name="android:layout_marginRight">16dp</item>
+	    <item name="android:layout_marginTop">30dp</item>
+	    <item name="android:layout_marginBottom">12dp</item>
+	</style>
+	
+	<style name="ListSectionTextView" parent="BaseStyleTextView">
+	    <item name="android:textColor">#1DA8E8</item>
+	    <item name="android:textSize">14sp</item>
+	    <item name="android:textStyle">bold|italic</item>
+	    <item name="android:layout_width">wrap_content</item>
+	    <item name="android:layout_height">wrap_content</item>
+	</style>
+	
+	<style name="ListItemRightSubText" parent="BaseStyleTextView">
+	    <item name="android:textColor">@color/conv_item_timestamp_color</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+	</style>
+	
+	<style name="SettingsItemHeader" parent="BaseStyleTextView">
+	    <item name="android:textColor">@color/settings_text_header_color</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+	</style>
+	
+	<style name="SettingsItemSubHeader" parent="BaseStyleTextView">
+	    <item name="android:textColor">@color/settings_text_subheader_color</item>
+        <item name="android:textSize">13sp</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+	</style>
+	
+	<style name="SettingList" parent = "HomeList">
+	    <item name="android:divider">@drawable/setting_list_divider</item>
+	</style>
+	
+	<style name="SettingsInteriorList" parent="HomeList">
+	    <item name="android:divider">@drawable/settings_list_interior_divider</item>
+	</style>
+	
+	<style name="SettingsItemStyle">
+	    <item name="android:layout_width">match_parent</item>
+	    <item name="android:layout_height">wrap_content</item>
+	    <item name="android:layout_marginLeft">16dp</item>
+	    <item name="android:layout_marginRight">16dp</item>
+	    <item name="android:gravity">center_vertical</item>
+	    <item name="android:orientation">vertical</item>
+	   <item name="android:layout_marginTop">13dp</item>
+	   <item name="android:layout_marginBottom">13dp</item>
+	</style>
+	
+	<style name="SettingsHeaderItemTextView" parent="BaseStyleTextView">
+	    <item name="android:layout_width">wrap_content</item>
+	    <item name="android:layout_height">wrap_content</item>
+	    <item name="android:textSize">16sp</item>
+	    <item name="android:textColor">@color/settings_text_header_color</item>
+	    <item name="android:textStyle">normal</item>
+	</style>
+	
+	<style name="SettingsHeaderSubItemTextView" parent="BaseStyleTextView">
+	    <item name="android:layout_width">wrap_content</item>
+	    <item name="android:layout_height">wrap_content</item>
+	    <item name="android:textSize">13sp</item>
+	    <item name="android:textColor">@color/settings_text_subheader_color</item>
+	    <item name="android:textStyle">normal</item>
+	    <item name="android:layout_marginTop">4dp</item>
+	</style>
+	
+	<style name="SettingsSectionHeaderText" parent="ListSectionTextView">
+	    <item name="android:layout_marginTop">30dp</item>
+	    <item name="android:layout_marginBottom">8dp</item>
+	    <item name="android:layout_marginLeft">16dp</item>
+	    <item name="android:layout_marginRight">16dp</item>
+	    <item name="android:ellipsize">end</item>
+	    <item name="android:gravity">center_vertical</item>
+	    
+	</style><style name="BackgroundCustomDialog">
+        <item name="android:background">@drawable/bg_custom_dialog</item>
+        <item name="android:paddingTop">8dp</item>
+        <item name="android:paddingBottom">8dp</item>
+    </style>
+
+    <style name="TitleCustomDialog" parent = "BaseStyleTextView">
+        <item name="android:paddingBottom">12dp</item>
+        <item name="android:paddingTop">16dp</item>
+        <item name="android:paddingLeft">@dimen/custom_dialog_preferred_paddding</item>
+        <item name="android:paddingRight">@dimen/custom_dialog_preferred_paddding</item>
+    </style>
+    
+    <style name="TitleTextStyleCustomDialog" parent = "BaseStyleTextView">
+        <item name="android:textStyle">bold|italic</item>
+        <item name="android:textColor">#de000000</item>
+        <item name="android:textSize">20sp</item>
+    </style>
+
+    <style name="MessageCustomDialog" parent="ContentTextStyleCustomDialog">
+        <item name="android:paddingBottom">6dp</item>
+        <item name="android:paddingTop">6dp</item>
+        <item name="android:paddingLeft">@dimen/custom_dialog_preferred_paddding</item>
+        <item name="android:paddingRight">@dimen/custom_dialog_preferred_paddding</item>
+    </style>
+    
+    <style name="ContentTextStyleCustomDialog" parent = "BaseStyleTextView">
+        <item name="android:textColor">#8a000000</item>
+        <item name="android:textSize">16sp</item>
+    </style>
+
+    <style name="ButtonBarCustomDialog">
+        <item name="android:paddingBottom">8dp</item>
+        <item name="android:paddingTop">8dp</item>
+        <item name="android:paddingLeft">16dp</item>
+        <item name="android:paddingRight">16dp</item>
+    </style>
+    
+     <style name="ButtonCustomDialogBase" parent="@style/Widget.AppCompat.Button.Borderless.Colored">
+        <item name="android:paddingBottom">10dp</item>
+        <item name="android:paddingTop">10dp</item>
+        <item name="android:paddingLeft">12dp</item>
+        <item name="android:paddingRight">12dp</item>
+        <item name="android:textStyle">bold|italic</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:minWidth">64dp</item>
+    </style>
+
+    <style name="ButtonCustomDialog" parent = "ButtonCustomDialogBase">
+        <item name="android:textColor">@color/unread_message</item>
+    </style>
+	
+	<style name="ProfileHeaderText" parent="BaseStyleTextView">
+	    <item name="android:layout_width">match_parent</item>
+	    <item name="android:layout_height">wrap_content</item>
+	    <item name="android:textSize">18sp</item>
+	    <item name="android:textColor">#CC000000</item>
+	    <item name="android:textStyle">normal</item>
+	    <item name="android:singleLine">true</item>
+	    <item name="android:gravity">center_vertical</item>
+	    <item name="android:ellipsize">end</item>
+	    <item name="android:maxLength">@integer/max_length_group_name</item>
+	</style>
+	
+	<style name="ProfileHeaderSubText" parent="BaseStyleTextView">
+	    <item name="android:layout_width">wrap_content</item>
+	    <item name="android:layout_height">wrap_content</item>
+	    <item name="android:textSize">12sp</item>
+	    <item name="android:textColor">#7A000000</item>
+	    <item name="android:textStyle">normal</item>
+	    <item name="android:gravity">center_vertical</item>
+	    <item name="android:ellipsize">end</item>
+	    <item name="android:maxLines">2</item>
+	</style>
+	
+	<style name="MaterialSwitch">
+	    <item name="sw_trackSize">14dp</item>
+        <item name="sw_trackCap">round</item>
+        <item name="sw_thumbRadius">10dp</item>
+        <item name="sw_thumbElevation">2dp</item>
+        <item name="sw_animDuration">@android:integer/config_shortAnimTime</item>
+        <item name="sw_interpolator">@android:anim/linear_interpolator</item>
+	</style>
+	
+	<style name="OverflowMenuContainerStyle">
+        <item name="android:layout_width">@dimen/overflow_menu_width</item>
+        <item name="android:layout_height">match_parent</item>
+    </style>
+    
+	 <style name="ComposeListParent" parent="HomeList">
+        <item name="android:divider">@drawable/compose_list_divider</item>
+    </style>
+    
+	 <style name="ComposeList" parent="ComposeListParent" />
+	 
+	 <style name="WebView.Theme" parent="AppTheme">
+	    <item name="vpiTabPageIndicatorStyle">@style/CustomTabPageIndicator</item>
+        <item name="vpiTabTextIndicatorStyle">@style/TabText</item>
+        <item name="actionOverflowButtonStyle">@style/OverflowMenu</item>
+        <item name="android:actionOverflowButtonStyle">@style/OverflowMenu</item>
+	  </style>
+	 
+	 <style name="WebView.Theme.NoShadow" parent="WebView.Theme" >
+	     <item name="android:windowContentOverlay">@null</item>
+	</style>
+	
+	 <style name="WebView.Theme.TranslucentStatusBar" parent = "WebView.Theme">
+	     <item name="android:windowTranslucentStatus">true</item>
+	 </style>
+	 
+	 <style name="WebView.Theme.ActionBar.Overlay" parent = "WebView.Theme">
+	    <item name="windowActionBarOverlay">true</item>
+        <item name="android:windowActionBarOverlay">true</item>
+	 </style>
+	 
+	 <style name="WebView.Theme.ActionBar.Overlay.NoShadow" parent = "WebView.Theme.ActionBar.Overlay">
+	     <item name="android:windowContentOverlay">@null</item>
+	 </style>
+	 
 </resources>

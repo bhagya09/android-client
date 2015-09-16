@@ -8,13 +8,13 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical" >
-        
-        <include 
+
+        <include
             android:id="@+id/emptyViewHolder"
-            layout="@layout/conversation_empty_view2"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:visibility="gone"/>
+            layout="@layout/conversation_empty_view2"
+            android:visibility="gone" />
 
         <include
             android:id="@+id/searchEmptyView"
@@ -23,9 +23,7 @@
 
         <ListView
             android:id="@id/android:list"
-            style="@style/HomeList"
-            android:divider="@drawable/home_list_divider"
-            android:dividerHeight="0.5dp" />
+            style="@style/HomeList" />
     </RelativeLayout>
 
     <ViewStub

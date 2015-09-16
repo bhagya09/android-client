@@ -42,14 +42,15 @@ import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.Protip;
-import com.bsb.hike.models.StatusMessage;
-import com.bsb.hike.models.StatusMessage.StatusMessageType;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.timeline.model.FeedDataModel;
+import com.bsb.hike.timeline.model.StatusMessage;
+import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
+import com.bsb.hike.timeline.view.TimelineActivity;
 import com.bsb.hike.ui.HomeActivity;
 import com.bsb.hike.ui.PeopleActivity;
-import com.bsb.hike.ui.TimelineActivity;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.StealthModeManager;
@@ -71,7 +72,7 @@ public class ToastListener implements Listener
 			HikePubSub.NEW_ACTIVITY, HikePubSub.CONNECTION_STATUS, HikePubSub.FAVORITE_TOGGLED, HikePubSub.TIMELINE_UPDATE_RECIEVED, HikePubSub.BATCH_STATUS_UPDATE_PUSH_RECEIVED,
 			HikePubSub.CANCEL_ALL_STATUS_NOTIFICATIONS, HikePubSub.CANCEL_ALL_NOTIFICATIONS, HikePubSub.PROTIP_ADDED, HikePubSub.UPDATE_PUSH, HikePubSub.APPLICATIONS_PUSH,
 			HikePubSub.SHOW_FREE_INVITE_SMS, HikePubSub.STEALTH_POPUP_WITH_PUSH, HikePubSub.HIKE_TO_OFFLINE_PUSH, HikePubSub.ATOMIC_POPUP_WITH_PUSH,
-			HikePubSub.BULK_MESSAGE_NOTIFICATION, HikePubSub.USER_JOINED_NOTIFICATION};
+			HikePubSub.BULK_MESSAGE_NOTIFICATION, HikePubSub.USER_JOINED_NOTIFICATION,HikePubSub.ACTIVITY_UPDATE_NOTIF};
 
 	/**
 	 * Used to check whether NUJ/RUJ message notifications are disabled
@@ -148,12 +149,16 @@ public class ToastListener implements Listener
 			if (activity instanceof TimelineActivity)
 			{
 				Utils.resetUnseenStatusCount(activity);
-				HikeMessengerApp.getPubSub().publish(HikePubSub.INCREMENTED_UNSEEN_STATUS_COUNT, null);
-				return;
+				HikeMessengerApp.getPubSub().publish(HikePubSub.UNSEEN_STATUS_COUNT_CHANGED, null);
+				
+				if (((TimelineActivity) activity).isUpdatesFrgamentOnTop())
+				{
+					return;
+				}
 			}
 			StatusMessage statusMessage = (StatusMessage) object;
 			String msisdn = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).getString(HikeMessengerApp.MSISDN_SETTING, "");
-			if (msisdn.equals(statusMessage.getMsisdn()))
+			if (msisdn.equals(statusMessage.getMsisdn()) || statusMessage.isHistoricalUpdate())
 			{
 				return;
 			}
@@ -162,6 +167,16 @@ public class ToastListener implements Listener
 				notificationType = NotificationType.DPUPDATE;
 			}
 			toaster.notifyStatusMessage(statusMessage, notificationType);
+		}
+		else if (HikePubSub.ACTIVITY_UPDATE_NOTIF.equals(type))
+		{
+			int notificationType = NotificationType.ACTIVITYUPDATE;
+			Activity activity = (currentActivity != null) ? currentActivity.get() : null;
+			if (!(activity instanceof TimelineActivity))
+			{
+				FeedDataModel activityFeed = (FeedDataModel) object;
+				toaster.notifyActivityMessage(activityFeed, notificationType);
+			}
 		}
 		else if (HikePubSub.BATCH_STATUS_UPDATE_PUSH_RECEIVED.equals(type))
 		{
@@ -182,13 +197,37 @@ public class ToastListener implements Listener
 			{
 				return;
 			}
+	
 			/*
 			 * this object contains a Bundle containing 3 strings among which one is imagepath of downloaded avtar. and other two are msisdn and name from which notification has
 			 * come.
 			 */
 			Bundle notifyBundle = (Bundle) object;
-			toaster.notifyBigPictureStatusNotification(notifyBundle.getString(HikeConstants.Extras.IMAGE_PATH), notifyBundle.getString(HikeConstants.Extras.MSISDN),
-					notifyBundle.getString(HikeConstants.Extras.NAME), NotificationType.DPUPDATE);
+			
+			String statusId = notifyBundle.getString(HikeConstants.STATUS_ID,null);
+			
+			if(!TextUtils.isEmpty(statusId))
+			{
+				StatusMessage statusMessage = HikeConversationsDatabase.getInstance().getStatusMessageFromMappedId(statusId);
+				
+				if(statusMessage == null)
+				{
+					return;
+				}
+				
+				if (statusMessage.getStatusMessageType() == StatusMessageType.IMAGE || statusMessage.getStatusMessageType() == StatusMessageType.TEXT_IMAGE)
+				{
+					toaster.notifyBigPictureStatusNotification(notifyBundle.getString(HikeConstants.Extras.PATH), notifyBundle.getString(HikeConstants.Extras.MSISDN),
+							notifyBundle.getString(HikeConstants.Extras.NAME), NotificationType.IMAGE_POST);
+				}
+				else if (statusMessage.getStatusMessageType() == StatusMessageType.PROFILE_PIC)
+				{
+					toaster.notifyBigPictureStatusNotification(notifyBundle.getString(HikeConstants.Extras.IMAGE_PATH), notifyBundle.getString(HikeConstants.Extras.MSISDN),
+							notifyBundle.getString(HikeConstants.Extras.NAME), NotificationType.DPUPDATE);
+				}
+			}
+			
+			
 		}
 		else if (HikePubSub.PUSH_FILE_DOWNLOADED.equals(type) || HikePubSub.PUSH_STICKER_DOWNLOADED.equals(type))
 		{
@@ -510,7 +549,7 @@ public class ToastListener implements Listener
 					}
 					if (participantInfoState == ParticipantInfoState.NO_INFO || participantInfoState == ParticipantInfoState.PARTICIPANT_JOINED
 						|| participantInfoState == ParticipantInfoState.USER_JOIN || participantInfoState == ParticipantInfoState.CHAT_BACKGROUND 
-						|| message.isVoipMissedCallMsg()||participantInfoState == ParticipantInfoState.CHANGE_ADMIN)
+						|| message.isVoipMissedCallMsg() || participantInfoState == ParticipantInfoState.OFFLINE_INLINE_MESSAGE ||participantInfoState == ParticipantInfoState.CHANGE_ADMIN)
 					{
 						if (participantInfoState == ParticipantInfoState.CHAT_BACKGROUND)
 						{

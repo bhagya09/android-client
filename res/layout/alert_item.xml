@@ -6,17 +6,21 @@
     android:background="@drawable/list_item"
     android:gravity="center_vertical"
     android:orientation="vertical"
-    android:paddingLeft="10dp"
-    android:paddingRight="10dp" >
+    android:paddingLeft="16dp"
+    android:paddingRight="12dp" >
 
     <com.bsb.hike.view.CustomFontTextView
         android:id="@+id/item"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:drawablePadding="12dp"
         android:gravity="center_vertical"
         android:text="Send a message"
-        android:textColor="@color/list_item_header"
+        android:textColor="@color/menu_text_color"
+        android:ellipsize="end"
+        android:maxLines="1"
+        style="@style/BaseStyleTextView"
+        android:textStyle="normal"
+        android:layout_marginRight="4dp"
         android:layout_centerVertical="true"
         android:textSize="16sp" />
 
