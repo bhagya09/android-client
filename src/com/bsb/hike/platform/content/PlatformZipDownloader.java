@@ -153,7 +153,10 @@ public class PlatformZipDownloader
 			@Override
 			public void onRequestProgressUpdate(float progress)
 			{
-				//do nothing
+				if (!TextUtils.isEmpty(callbackId))
+				{
+					HikeMessengerApp.getPubSub().publish(HikePubSub.DOWNLOAD_PROGRESS, new Pair<String, String>(callbackId, String.valueOf(progress)));
+				}
 			}
 		});
 
@@ -268,10 +271,12 @@ public class PlatformZipDownloader
 						{
 							PlatformRequestManager.setReadyState(mRequest);
 						}
+						HikeMessengerApp.getPubSub().publish(HikePubSub.DOWNLOAD_PROGRESS, new Pair<String, String>(callbackId, "unzipSuccess"));
 					}
 					else
 					{
 						mRequest.getListener().onEventOccured(0, EventCode.UNZIP_FAILED);
+						HikeMessengerApp.getPubSub().publish(HikePubSub.DOWNLOAD_PROGRESS, new Pair<String, String>(callbackId, "unzipFailed"));
 					}
 				}
 			});
