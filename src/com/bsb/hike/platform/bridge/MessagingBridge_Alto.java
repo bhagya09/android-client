@@ -846,4 +846,21 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 		callbackToJS(id, String.valueOf(botInfo.isMute()));
 	}
 
+	/**
+	 * Platform Version 7
+	 * Call this function to get the parent bot version.
+	 * @param id: the id of the function that native will call to call the js .
+	 */
+	@JavascriptInterface
+	public void getParentBotVersion(String id)
+	{
+		if (!BotUtils.isBot(message.webMetadata.getParentMsisdn()))
+		{
+			return;
+		}
+
+		BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(message.webMetadata.getParentMsisdn());
+		callbackToJS(id, String.valueOf(botInfo.getVersion()));
+	}
+
 }

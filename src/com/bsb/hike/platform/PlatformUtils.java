@@ -319,6 +319,10 @@ public class PlatformUtils
 			{
 				IntentFactory.openAccessibilitySettings(context);
 			}
+			if (activityName.equals(HIKESCREEN.GAME_ACTIVITY.toString()))
+			{
+				IntentFactory.openIntentForGameActivity(context);
+			}
 		}
 		catch (JSONException e)
 		{
@@ -337,7 +341,7 @@ public class PlatformUtils
 	 * @param botInfo
 	 * @param enableBot
 	 */
-	public static void downloadZipForNonMessagingBot(final BotInfo botInfo, final boolean enableBot, final String botChatTheme, final String notifType)
+	public static void downloadZipForNonMessagingBot(final BotInfo botInfo, final boolean enableBot, final String botChatTheme, final String notifType, boolean doReplace)
 	{
 		PlatformContentRequest rqst = PlatformContentRequest.make(
 				PlatformContentModel.make(botInfo.getMetadata()), new PlatformContentListener<PlatformContentModel>()
@@ -382,7 +386,7 @@ public class PlatformUtils
 					}
 				});
 
-		downloadAndUnzip(rqst, false);
+		downloadAndUnzip(rqst, false,doReplace);
 
 	}
 
@@ -513,7 +517,7 @@ public class PlatformUtils
 						}
 					}
 				});
-				boolean doReplace = downloadData.optBoolean(PlatformContentConstants.REPLACE_MICROAPP_VERSION);
+				boolean doReplace = downloadData.optBoolean(HikePlatformConstants.REPLACE_MICROAPP_VERSION);
 				downloadAndUnzip(rqst, false,doReplace);
 
 	}
