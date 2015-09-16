@@ -1,0 +1,85 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal" >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:background="@drawable/caller_main_layout"
+        android:orientation="horizontal" >
+
+        <com.bsb.hike.ui.utils.RecyclingImageView
+            android:id="@+id/hike_caller_logo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="20dp"
+            android:src="@drawable/hike_caller_logo"
+            android:visibility="gone" />
+
+        <LinearLayout
+            android:id="@+id/caller_detail_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="12dp"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:visibility="gone" >
+
+            <com.bsb.hike.view.CustomFontTextView
+                android:id="@+id/caller_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:layout_weight="1"
+                android:textColor="@color/conv_item_ts_color"
+                android:textSize="18sp" />
+
+            <com.bsb.hike.view.CustomFontTextView
+                android:id="@+id/caller_location"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:layout_weight="1"
+                android:textColor="@color/timestampcolor"
+                android:textSize="14sp" />
+
+            <com.bsb.hike.view.CustomFontTextView
+                android:id="@+id/caller_number"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:layout_marginTop="8dp"
+                android:layout_weight="1"
+                android:textColor="@color/timestampcolor"
+                android:textSize="14sp" />
+        </LinearLayout>
+
+        <com.bsb.hike.view.CustomFontTextView
+            android:id="@+id/net_not_connected"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_weight="1"
+            android:text="@string/net_not_connected"
+            android:textColor="@color/subtext"
+            android:textSize="12sp"
+            android:visibility="gone" />
+
+        <com.bsb.hike.ui.utils.RecyclingImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="16dp"
+            android:layout_marginTop="13dp"
+            android:src="@drawable/settings_icon" />
+
+        <com.bsb.hike.ui.utils.RecyclingImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="16dp"
+            android:layout_marginTop="16dp"
+            android:src="@drawable/close_icon" />
+    </LinearLayout>
+
+</LinearLayout>
