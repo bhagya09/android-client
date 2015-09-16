@@ -8,6 +8,7 @@ import com.bsb.hike.models.HikeHandlerUtil;
 
 import android.app.Activity;
 import android.util.Log;
+import android.webkit.JavascriptInterface;
 
 public class NativeBridge
 {
@@ -73,7 +74,7 @@ public class NativeBridge
 	}
 
 	/**
-	 * Platform Version 5
+	 * Platform Version 7
 	 * @param id
 	 *            : the id of the function that native will call to call the game .
 	 * @param key
@@ -105,7 +106,7 @@ public class NativeBridge
 	}
 
 	/**
-	 * Platform Version 5
+	 * Platform Version 7
 	 * Call this function to log analytics events.
 	 * 
 	 * @param isUI
@@ -131,7 +132,7 @@ public class NativeBridge
 	}
 
 	/**
-	 * Platform Version 5
+	 * Platform Version 7
 	 * Calling this function will initiate forward of the message to a friend or group.
 	 * 
 	 * @param json
@@ -156,7 +157,7 @@ public class NativeBridge
 	}
 
 	/**
-	 * Platform Version 5
+	 * Platform Version 7
 	 * Call this method to send a normal event.
 	 * 
 	 * @param messageHash
@@ -181,7 +182,7 @@ public class NativeBridge
 	}
 
 	/**
-	 * Platform Version 5
+	 * Platform Version 7
 	 * Call this function to send a shared message to the contacts of the user. This function when forwards the data, returns with the contact details of the users it has sent the
 	 * message to. It will call JavaScript function "onContactChooserResult(int resultCode,JsonArray array)" This JSOnArray contains list of JSONObject where each JSONObject
 	 * reflects one user. As of now each JSON will have name and platform_id, e.g : [{'name':'Paul','platform_id':'dvgd78as'}] resultCode will be 0 for fail and 1 for success NOTE
@@ -210,7 +211,7 @@ public class NativeBridge
 	}
 
 	/**
-	 * Platform Version 5
+	 * Platform Version 7
 	 * Call this function to get all the event messages data. The data is a stringified list that contains: "name": name of the user interacting with. This gives name, and if the
 	 * name isn't present , then the msisdn. "platformUid": the platform user id of the user interacting with. "eventId" : the event id of the event. "d" : the data that has been
 	 * sent/received for the card message "et": the type of message. 0 if shared event, and 1 if normal event. "eventStatus" : the status of the event. 0 if sent, 1 if received.
@@ -244,7 +245,7 @@ public class NativeBridge
 	}
 
 	/**
-	 * Platform Version 5
+	 * Platform Version 7
 	 * Call this function to get all the event messages data. The data is a stringified list that contains event id, message hash and the data.
 	 * <p/>
 	 * "name": name of the user interacting with. This gives name, and if the name isn't present , then the msisdn. "platformUid": the platform user id of the user interacting
@@ -278,7 +279,7 @@ public class NativeBridge
 	}
 
 	/**
-	 * Platform Version 5
+	 * Platform Version 7
 	 * Call this function to get all the shared messages data. The data is a stringified list that contains event id, message hash and the data.
 	 * <p/>
 	 * "name": name of the user interacting with. This gives name, and if the name isn't present , then the msisdn. "platformUid": the platform user id of the user interacting
@@ -307,6 +308,23 @@ public class NativeBridge
 							activity.PlatformCallback(functionId, returnedData);
 						}
 					});
+			}
+		});
+	}
+	/**
+	 * Platform Version 7
+	 * Call this function to get the bot version.
+	 * @param id: the id of the function that native will call to call the js .
+	 */
+	@JavascriptInterface
+	public void getBotVersion(final String id)
+	{
+		activity.runOnGLThread(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				activity.PlatformCallback(id, String.valueOf(mBotInfo.getVersion()));
 			}
 		});
 	}
