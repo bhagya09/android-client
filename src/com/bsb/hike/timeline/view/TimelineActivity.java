@@ -528,24 +528,24 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 	@Override
 	protected void onResume()
 	{
+		super.onResume();
 		Utils.resetUnseenStatusCount(this);
 		HikeMessengerApp.getPubSub().publish(HikePubSub.NEW_ACTIVITY, this);
 		HikeMessengerApp.getPubSub().publish(HikePubSub.CANCEL_ALL_NOTIFICATIONS, null);
-		super.onResume();
 	}
 
 	@Override
 	protected void onPause()
 	{
-		HikeMessengerApp.getPubSub().publish(HikePubSub.NEW_ACTIVITY, null);
 		super.onPause();
+		HikeMessengerApp.getPubSub().publish(HikePubSub.NEW_ACTIVITY, null);
 	}
 
 	@Override
 	protected void onDestroy()
 	{
-		HikeMessengerApp.getPubSub().removeListeners(this, homePubSubListeners);
 		super.onDestroy();
+		HikeMessengerApp.getPubSub().removeListeners(this, homePubSubListeners);
 	}
 
 	public void updateFriendsNotification(int count, int delayTime)
@@ -715,6 +715,6 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 	public boolean isUpdatesFrgamentOnTop()
 	{
 		int count = getSupportFragmentManager().getBackStackEntryCount();
-		return count <= 1 ? true : false;
+		return count == 0 ? true : false;
 	}
 }

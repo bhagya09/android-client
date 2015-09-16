@@ -161,7 +161,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	
 	private final long STEALTH_INDICATOR_DURATION = 3000;
 
-	private String[] homePubSubListeners = { HikePubSub.INCREMENTED_UNSEEN_STATUS_COUNT, HikePubSub.SMS_SYNC_COMPLETE, HikePubSub.SMS_SYNC_FAIL, HikePubSub.FAVORITE_TOGGLED,
+	private String[] homePubSubListeners = { HikePubSub.UNSEEN_STATUS_COUNT_CHANGED, HikePubSub.SMS_SYNC_COMPLETE, HikePubSub.SMS_SYNC_FAIL, HikePubSub.FAVORITE_TOGGLED,
 			HikePubSub.USER_JOINED, HikePubSub.USER_LEFT, HikePubSub.FRIEND_REQUEST_ACCEPTED, HikePubSub.REJECT_FRIEND_REQUEST, HikePubSub.UPDATE_OF_MENU_NOTIFICATION,
 			HikePubSub.SERVICE_STARTED, HikePubSub.UPDATE_PUSH, HikePubSub.REFRESH_FAVORITES, HikePubSub.UPDATE_NETWORK_STATE, HikePubSub.CONTACT_SYNCED, HikePubSub.FAVORITE_COUNT_CHANGED,
 			HikePubSub.STEALTH_UNREAD_TIP_CLICKED,HikePubSub.FTUE_LIST_FETCHED_OR_UPDATED, HikePubSub.STEALTH_INDICATOR, HikePubSub.USER_JOINED_NOTIFICATION, HikePubSub.UPDATE_OF_PHOTOS_ICON  };
@@ -1237,7 +1237,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	public void onEventReceived(String type, Object object)
 	{
 		super.onEventReceived(type, object);
-		if (HikePubSub.INCREMENTED_UNSEEN_STATUS_COUNT.equals(type))
+		if (HikePubSub.UNSEEN_STATUS_COUNT_CHANGED.equals(type))
 		{
 			runOnUiThread( new Runnable()
 			{
