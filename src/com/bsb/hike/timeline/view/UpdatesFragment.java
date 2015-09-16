@@ -141,7 +141,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 	{
 		super.onResume();
 		checkIfTimelineEmpty();
-		HikeMessengerApp.getPubSub().publish(HikePubSub.INCREMENTED_UNSEEN_STATUS_COUNT, null);
+		HikeMessengerApp.getPubSub().publish(HikePubSub.UNSEEN_STATUS_COUNT_CHANGED, null);
 	}
 
 	@Override
