@@ -1300,6 +1300,7 @@
     <string name="voip_conference_os_support">Your phone cannot host a conference.</string>
     <string name="voip_conference_host">Conference host</string>
     <string name="voip_conference_not_supported">%1$s does not support conference calls.</string>
+    <string name="voip_group_conference_confirmation">Do you want to start a conference call with everyone in this group?</string>
     <string name="led_color_none_key">None</string>
     <string name="led_color_blue_key">Blue</string>
     <string name="led_color_cyan_key">Cyan</string>
