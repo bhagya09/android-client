@@ -38,24 +38,26 @@ public class CallerContentModel
 
 	public String getLastName()
 	{
-		if (name != null)
+		if (name != null && name.has(LAST_NAME))
 		{
 			return name.get(LAST_NAME).getAsString();
 		}
 		else
 		{
-			return "";
+			return null;
 		}
 	}
 
 	public String getFirsttName()
 	{
-		if (name != null)
+		if (name != null && name.has(FIRST_NAME))
 		{
 			return name.get(FIRST_NAME).getAsString();
 		}
 		else
-			return "";
+		{
+			return null;
+		}
 	}
 
 	public String getLocation()
