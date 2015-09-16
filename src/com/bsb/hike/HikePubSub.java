@@ -274,7 +274,7 @@ public class HikePubSub implements Runnable
 
 	public static final String FRIENDS_TAB_QUERY = "friendsTabQuery";
 
-	public static final String INCREMENTED_UNSEEN_STATUS_COUNT = "incrementedUnseenStatusCount";
+	public static final String UNSEEN_STATUS_COUNT_CHANGED = "incrementedUnseenStatusCount";
 
 	public static final String SEND_SMS_PREF_TOGGLED = "sendSmsPrefToggled";
 
@@ -384,6 +384,8 @@ public class HikePubSub implements Runnable
 	
 	public static final String PLATFORM_CARD_ALARM = "platformCardAlarm";
 
+	public static final String MESSAGE_EVENT_RECEIVED = "messageEventReceived";
+
 	public static final String CONVERSATION_TS_UPDATED = "conversationTSUpdated";
 	
 	public static final String CONVERSATION_DELETED = "conversationDeleted";
@@ -433,6 +435,8 @@ public class HikePubSub implements Runnable
 	public static final String TIMELINE_FTUE_LIST_UPDATE = "timeline_ftue_list_update";
 
 	public static final String ON_OFFLINE_REQUEST = "on_offline_request";
+	
+	public static final String PLATFORM_CARD_EVENT_SENT = "platformCardEventSent";
 	
 	private final Thread mThread;
 

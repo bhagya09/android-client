@@ -1370,7 +1370,7 @@
     <string name="voip_not_reachable">%1$s is not reachable</string>
     <string name="voip_callee_busy">%1$s is busy</string>
     <string name="voip_callee_no_response">%1$s is not responding</string>
-    <string name="voip_incompat_platform">Free hike calls are currently \navailable only on Android.</string>
+    <string name="voip_incompat_platform">Hike calls are currently not\navailable on this contact\'s phone.</string>
     <string name="voip_older_app">%1$s is on an Older Version of hike</string>
     <string name="voip_caller_poor_network">You or %1$s is on a poor network</string>
     <string name="voip_unable_to_connect_call">Unable to connect your call</string>
@@ -1659,6 +1659,8 @@
     <string name="goto_timeline">Go to Timeline.</string>
     <string name="contacts_sync_error">Contact sync failed. Please try again</string>
     <string name="contacts_sync_no_contacts_found">No contacts to sync</string>
+    <string name="cloud_file_error">This file is not present on your phone. Please download it externally before sharing</string>
+    <string name="unknown_file_error">We could not locate the file on disk. Please try again</string>
     <string name="add_to_fav_confirmation">You can like status posts by your favorites. Do you want to add %1$s as a favourite?</string>
     <string name="invite_free_sms">Free SMS Invite</string>
     <string name="sticker_recommend_settings_toast">You can enable Sticker suggestions from Settings > Chat settings anytime</string>
@@ -1711,6 +1713,7 @@
     <string name="email_body">I just downloaded the new hike messenger. What a big change from WhatsApp!\n\nIt\'s got amazing stickers, the ability to hide my chats and some really cool chat themes. \n\nDownload it now from http://get.hike.in/$invite_token</string>
     <string name="watsapp_invitation">Hey, join me on hike, the only messaging app made in India! It lets you hide your chats, send messages to friends when they\'re offline and send awesome stickers. \n\nAlso share all types of files - docs, songs, movies etc, up to 100MB each - Download: http://get.hike.in/</string>
     <string name="invite_share_message">Hey, check out hike messenger. It has awesome stickers in our language! Join the only made in India messaging app- Download at http://hike.in/$invite_token</string>
+    <string name="turn_on_connection">Turn on Mobile Data or Wi-Fi</string>
     <string name="action_no_network">Please check network</string>
     <string name="timeline_transition_anim">timeline_image_transit</string>
     <string name="home_overflow_new_photo">New Photo</string>
