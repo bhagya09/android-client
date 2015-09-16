@@ -371,6 +371,7 @@ public class HikeNotification
 		}
 		notificationIntent.putExtra(HikeConstants.Extras.MSISDN, contactInfo.getMsisdn());
 		notificationIntent.putExtra(HikeConstants.Extras.WHICH_CHAT_THREAD, ChatThreadUtils.getChatThreadType(contactInfo.getMsisdn()));
+		notificationIntent.putExtra(HikeConstants.Extras.CHAT_INTENT_TIMESTAMP, System.currentTimeMillis());
 		notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
 		/*
@@ -698,6 +699,7 @@ public class HikeNotification
 		notificationIntent.putExtra(HikeConstants.Extras.MSISDN, (firstMsisdn));
 		notificationIntent.putExtra(HikeConstants.Extras.NAME, (nameMap.get(firstMsisdn)));
 		notificationIntent.putExtra(HikeConstants.Extras.WHICH_CHAT_THREAD, ChatThreadUtils.getChatThreadType(firstMsisdn));
+		notificationIntent.putExtra(HikeConstants.Extras.CHAT_INTENT_TIMESTAMP, System.currentTimeMillis());
 		notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
 		notificationIntent.setData((Uri.parse("custom://" + notificationId)));
@@ -1617,6 +1619,13 @@ public class HikeNotification
 		showNotification(notificationIntent, icon, timeStamp, notificationId, message, key, message, activityFeed.getActor(), null, false, false);
 		
 		addNotificationId(notificationId);
+	}
+	
+	public void showOfflineRequestStealthNotification(Intent intent ,String contentTitle,String contentText, String tickerText,int smallIconId)
+	{
+		NotificationCompat.Builder mBuilder = getNotificationBuilder(contentTitle,contentText,tickerText, null,smallIconId, false,false);
+		setNotificationIntentForBuilder(mBuilder, intent,HikeNotification.OFFLINE_REQUEST_ID);
+		notifyNotification(HikeNotification.OFFLINE_REQUEST_ID, mBuilder);
 	}
 
 }

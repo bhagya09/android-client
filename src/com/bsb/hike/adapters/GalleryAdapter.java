@@ -50,6 +50,7 @@ public class GalleryAdapter extends BaseAdapter
 
 		this.galleryImageLoader = new GalleryImageLoader(context , sizeOfImage);
 		this.galleryImageLoader.setDontSetBackground(true);
+		this.galleryImageLoader.setDefaultDrawableNull(false);
 	}
 
 	@Override
@@ -130,7 +131,6 @@ public class GalleryAdapter extends BaseAdapter
 		}
 		if (galleryItem != null)
 		{
-			holder.galleryThumb.setImageDrawable(null);
 			if (galleryItem.getType() == GalleryItem.CUSTOM)
 			{
 				holder.galleryThumb.setScaleType(ScaleType.CENTER_INSIDE);
@@ -192,5 +192,10 @@ public class GalleryAdapter extends BaseAdapter
 	public GalleryImageLoader getGalleryImageLoader()
 	{
 		return galleryImageLoader;
+	}
+
+	public void updateGalleryItemList(List<GalleryItem> gItemList)
+	{
+		galleryItemList = gItemList;
 	}
 }

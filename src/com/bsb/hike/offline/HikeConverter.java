@@ -305,7 +305,7 @@ public class HikeConverter implements IMessageReceived, IMessageSent {
 				}
 				else if (OfflineUtils.isDisconnectPkt(messageJSON))
 				{
-					throw new OfflineException(OfflineException.USER_DISCONNECTED);
+					throw new OfflineException(OfflineException.PEER_DISCONNECTED);
 				}
 				ConvMessage convMessage = new ConvMessage(messageJSON, context);
 				if (OfflineUtils.isStickerMessage(messageJSON))
@@ -446,7 +446,7 @@ public class HikeConverter implements IMessageReceived, IMessageSent {
 	@Override
 	public void onError(SenderConsignment senderConsignment, ERRORCODES errorCode) 
 	{
-		HikeMessengerApp.getInstance().showToast(OfflineUtils.getErrorStringId(errorCode));
+		HikeMessengerApp.getInstance().showToast(OfflineUtils.getErrorStringId(errorCode),Toast.LENGTH_SHORT);
 		
 		switch(errorCode)
 		{
