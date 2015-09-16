@@ -27,6 +27,7 @@ public class NonMessagingBotMetadata
 	private String nonMessagingBotType;
 	private String url;
 	private boolean isSpecialBot;
+	private String targetActivity;
 	private boolean replace;
 
 	public NonMessagingBotMetadata(String jsonString)
@@ -90,6 +91,11 @@ public class NonMessagingBotMetadata
 			if (cardObj.has(HikePlatformConstants.SPECIAL))
 			{
 				setIsSpecialBot(cardObj.optBoolean(HikePlatformConstants.SPECIAL));
+			}
+			
+			if (cardObj.has(HikePlatformConstants.TARGET_ACTIVITY))
+			{
+				setTargetActivity(cardObj.optString(HikePlatformConstants.TARGET_ACTIVITY));
 			}
 
 		}
@@ -194,6 +200,11 @@ public class NonMessagingBotMetadata
 	{
 		return nonMessagingBotType.equals(HikePlatformConstants.URL_MODE);
 	}
+	
+	public boolean isNativeMode()
+	{
+		return nonMessagingBotType.equals(HikePlatformConstants.NATIVE_MODE);
+	}
 
 	@Override
 	public String toString()
@@ -221,6 +232,18 @@ public class NonMessagingBotMetadata
 		this.isSpecialBot = isSpecialBot;
 	}
 
+	
+	public void setTargetActivity(String targetActivity)
+	{
+		this.targetActivity=targetActivity;
+	}
+	
+	public String getTargetActivity()
+	{
+		return targetActivity;
+	}
+
+
 	public boolean shouldReplace()
 	{
 		return replace;
@@ -229,5 +252,6 @@ public class NonMessagingBotMetadata
 	public void setReplace(boolean replace)
 	{
 		this.replace = replace;
+
 	}
 }

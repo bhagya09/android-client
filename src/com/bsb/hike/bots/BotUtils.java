@@ -284,7 +284,6 @@ public class BotUtils
 	public static void createBot(JSONObject jsonObj)
 	{
 		long startTime = System.currentTimeMillis();
-
 		String type = jsonObj.optString(HikePlatformConstants.BOT_TYPE);
 		if (TextUtils.isEmpty(type))
 		{
@@ -331,6 +330,10 @@ public class BotUtils
 				PlatformUtils.downloadZipForNonMessagingBot(botInfo, enableBot, botChatTheme, notifType, botMetadata.shouldReplace());
 			}
 			else if (botMetadata.isWebUrlMode())
+			{
+				PlatformUtils.botCreationSuccessHandling(botInfo, enableBot, botChatTheme, notifType);
+			}
+			else if (botMetadata.isNativeMode())
 			{
 				PlatformUtils.botCreationSuccessHandling(botInfo, enableBot, botChatTheme, notifType);
 			}

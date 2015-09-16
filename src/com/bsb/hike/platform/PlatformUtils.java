@@ -319,6 +319,10 @@ public class PlatformUtils
 			{
 				IntentFactory.openAccessibilitySettings(context);
 			}
+			if (activityName.equals(HIKESCREEN.GAME_ACTIVITY.toString()))
+			{
+				IntentFactory.openIntentForGameActivity(context);
+			}
 		}
 		catch (JSONException e)
 		{

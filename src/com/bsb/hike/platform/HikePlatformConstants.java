@@ -64,6 +64,7 @@ public interface HikePlatformConstants
 	public static final String NON_MESSAGING_BOT_TYPE = "nm_type";
 	public static final String MICROAPP_MODE = "nm_app";
 	public static final String URL_MODE = "url_app";
+	public static final String NATIVE_MODE = "native_mode";
 	public static final String CUSTOMER_SUPPORT_BOT_MSISDN = "+hikecs+";
 	public static final String MESSAGE_HASH = "h";
 	public static final String EVENT_ID = "eventId";
@@ -174,6 +175,8 @@ public interface HikePlatformConstants
 	public static final String  NO_PUSH = "none";
 	
 	public static final String TARGET_PLATFORM = "target_platform";
+	
+	public static final String TARGET_ACTIVITY = "target_activity";
 	
 	public static final String MIN_PLATFORM = "min_platform";
 
