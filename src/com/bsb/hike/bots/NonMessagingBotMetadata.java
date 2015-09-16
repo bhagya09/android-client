@@ -244,7 +244,7 @@ public class NonMessagingBotMetadata
 	}
 
 
-	public boolean isReplace()
+	public boolean shouldReplace()
 	{
 		return replace;
 	}
