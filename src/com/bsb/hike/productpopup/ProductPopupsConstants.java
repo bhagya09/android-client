@@ -413,7 +413,7 @@ public class ProductPopupsConstants
 			public String toString()
 			{
 				// TODO Auto-generated method stub
-				return "nativeActivity";
+				return "gameActivity";
 			}
 		};
 		

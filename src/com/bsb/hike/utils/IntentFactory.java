@@ -772,9 +772,10 @@ public class IntentFactory
 		if (BotUtils.isBot(msisdn))
 		{
 			BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
-			NonMessagingBotMetadata nonMessagingBotMetadata = new NonMessagingBotMetadata(botInfo.getMetadata());
+			
 			if (botInfo.isNonMessagingBot())
 			{
+				NonMessagingBotMetadata nonMessagingBotMetadata = new NonMessagingBotMetadata(botInfo.getMetadata());
 				Intent intent = getWebViewActivityIntent(context, "", "");
 				intent.putExtra(WebViewActivity.WEBVIEW_MODE, nonMessagingBotMetadata.isWebUrlMode() ? WebViewActivity.WEB_URL_BOT_MODE : WebViewActivity.MICRO_APP_MODE);
 				intent.putExtra(HikeConstants.MSISDN, msisdn);
@@ -1072,8 +1073,8 @@ public class IntentFactory
 	public static void openIntentForGameActivity(Context context)
 	{
 		//TODO:Pass Intent of game activity and any extras.
-//				Intent i = new Intent(context,CocosGamingActivity.class);
-		
-//				context.startActivity(i);
+//				Intent i = new Intent(context,SettingsActivity.class);
+//		
+//			context.startActivity(i);
 	}
 }
