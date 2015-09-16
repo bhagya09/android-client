@@ -81,6 +81,8 @@ public interface HikePlatformConstants
 	public static final String PARENT_MSISDN = "parent_msisdn";
 	public static final String SPECIAL = "spl";
 	public static final String REQUEST_CODE = "request_code";
+	public static final String REPLACE_MICROAPP_VERSION = "replace";
+	public static final String BOT_VERSION = "version";
 
 	public static final class PlatformUIDFetchType
 	{
@@ -215,7 +217,7 @@ public interface HikePlatformConstants
 	
 	public static final int VERSION_ALTO = 1;
 
-	public static final int CURRENT_VERSION = 6;
+	public static final int CURRENT_VERSION = 7;
 
 	public static final String AB_COLOR = "color";
 	

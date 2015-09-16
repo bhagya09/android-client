@@ -28,6 +28,7 @@ public class NonMessagingBotMetadata
 	private String url;
 	private boolean isSpecialBot;
 	private String targetActivity;
+	private boolean replace;
 
 	public NonMessagingBotMetadata(String jsonString)
 	{
@@ -66,6 +67,7 @@ public class NonMessagingBotMetadata
 
 		setNonMessagingBotType(json.optString(HikePlatformConstants.NON_MESSAGING_BOT_TYPE, HikePlatformConstants.MICROAPP_MODE));
 		setTargetPlatform(json.optInt(HikePlatformConstants.TARGET_PLATFORM));
+		setReplace(json.optBoolean(HikePlatformConstants.REPLACE_MICROAPP_VERSION));
 
 		if (json.has(HikePlatformConstants.CARD_OBJECT))
 		{
@@ -229,6 +231,7 @@ public class NonMessagingBotMetadata
 	{
 		this.isSpecialBot = isSpecialBot;
 	}
+
 	
 	public void setTargetActivity(String targetActivity)
 	{
@@ -238,5 +241,17 @@ public class NonMessagingBotMetadata
 	public String getTargetActivity()
 	{
 		return targetActivity;
+	}
+
+
+	public boolean isReplace()
+	{
+		return replace;
+	}
+
+	public void setReplace(boolean replace)
+	{
+		this.replace = replace;
+
 	}
 }

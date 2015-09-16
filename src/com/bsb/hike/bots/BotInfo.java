@@ -38,9 +38,13 @@ public class BotInfo extends ConvInfo
 
 	private String helperData;
 	
+	private boolean isConvPresent = false;
+
+	private int version;
+	
 	public static abstract class InitBuilder<P extends InitBuilder<P>> extends ConvInfo.InitBuilder<P>
 	{
-		private int type, config;
+		private int type, config, version;
 
 		private String namespace;
 
@@ -90,6 +94,12 @@ public class BotInfo extends ConvInfo
 		public P setNotifData(String notifData)
 		{
 			this.notifData = notifData;
+			return getSelfObject();
+		}
+
+		public P setVersion(int version)
+		{
+			this.version = version;
 			return getSelfObject();
 		}
 
@@ -226,6 +236,7 @@ public class BotInfo extends ConvInfo
 		this.notifData = builder.notifData;
 		this.helperData = builder.helperData;
 		this.setOnHike(true);
+		this.version = builder.version;
 	}
 
 	public boolean isMessagingBot()
@@ -388,4 +399,27 @@ public class BotInfo extends ConvInfo
 		return super.getUnreadCountString();
 	}
 	
+	public void setConvPresent(boolean convPresent)
+	{
+		this.isConvPresent = convPresent;
+	}
+	
+	/**
+	 * Indicates whether this bot is present in the conversation table or not
+	 * @return
+	 */
+	public boolean isConvPresent()
+	{
+		return this.isConvPresent;
+	}
+
+	public int getVersion()
+	{
+		return version;
+	}
+
+	public void setVersion(int version)
+	{
+		this.version = version;
+	}
 }

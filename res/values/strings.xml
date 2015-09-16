@@ -1371,7 +1371,7 @@
     <string name="voip_not_reachable">%1$s is not reachable</string>
     <string name="voip_callee_busy">%1$s is busy</string>
     <string name="voip_callee_no_response">%1$s is not responding</string>
-    <string name="voip_incompat_platform">Free hike calls are currently \navailable only on Android.</string>
+    <string name="voip_incompat_platform">Hike calls are currently not\navailable on this contact\'s phone.</string>
     <string name="voip_older_app">%1$s is on an Older Version of hike</string>
     <string name="voip_caller_poor_network">You or %1$s is on a poor network</string>
     <string name="voip_unable_to_connect_call">Unable to connect your call</string>
@@ -1717,6 +1717,8 @@
     <string name="watsapp_invitation">Hey, join me on hike, the only messaging app made in India! It lets you hide your chats, send messages to friends when they\'re offline and send awesome stickers. \n\nAlso share all types of files - docs, songs, movies etc, up to 100MB each - Download: http://get.hike.in/</string>
     <string name="invite_share_message">Hey, check out hike messenger. It has awesome stickers in our language! Join the only made in India messaging app- Download at http://hike.in/$invite_token</string>
     <string name="turn_on_connection">Turn on Mobile Data or Wi-Fi</string>
+    <string name="please_wait">Please wait</string>
+    <string name="loading_data">Loading data...</string>
     <string name="action_no_network">Please check network</string>
     <string name="timeline_transition_anim">timeline_image_transit</string>
     <string name="home_overflow_new_photo">New Photo</string>

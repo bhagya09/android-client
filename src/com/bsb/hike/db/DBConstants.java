@@ -4,7 +4,7 @@ import com.bsb.hike.models.ContactInfo.FavoriteType;
 
 public interface DBConstants
 {
-	public static final int CONVERSATIONS_DATABASE_VERSION = 44;
+	public static final int CONVERSATIONS_DATABASE_VERSION = 45;
 
 	public static final int USERS_DATABASE_VERSION = 17;
 
@@ -359,6 +359,7 @@ public interface DBConstants
 		public static final String CONTENT_CACHE_TABLE = "contentCache";
 		public static final String KEY = "key";
 		public static final String HELPER_DATA = "helper_data";
+		public static final String BOT_VERSION = "version";
 	}
 	
 	public static interface HIKE_PERSISTENCE
@@ -444,4 +445,10 @@ public interface DBConstants
 	public static final String MESSAGE_TABLE_NAMESPACE_INDEX = "messageNamespaceIndex";
 
 	public static final String SEND_TIMESTAMP = "sendTimestamp";
+	
+	/**
+	 * Introduced in ConvDb v44, this column will be used henceforth for sorting the messages pertaining to a single conversation
+	 */
+	public static final String SORTING_ID = "sortingId";
+	
 }
