@@ -6733,6 +6733,16 @@ public class Utils
 		Logger.d("image_config", "Screen dimens are :- " + screenWidth + ", " + screenHeight);
 		return screenHeight * screenHeight;
 	}
+	
+	public static int getDeviceWidth()
+	{
+		return HikeMessengerApp.getInstance().getApplicationContext().getResources().getDisplayMetrics().widthPixels;
+	}
+
+	public static int getDeviceHeight()
+	{
+		return HikeMessengerApp.getInstance().getApplicationContext().getResources().getDisplayMetrics().heightPixels;
+	}
 
 	public static String getStackTrace(Throwable ex)
 	{
