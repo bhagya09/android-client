@@ -24,6 +24,8 @@ import android.os.RemoteException;
 import android.provider.ContactsContract;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
+import android.telephony.PhoneStateListener;
+import android.telephony.TelephonyManager;
 import android.util.Pair;
 import android.widget.Toast;
 
@@ -33,6 +35,8 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.chatHead.IncomingCallReceiver;
+import com.bsb.hike.chatHead.OutgoingCallReceiver;
 import com.bsb.hike.db.AccountBackupRestore;
 import com.bsb.hike.imageHttp.HikeImageUploader;
 import com.bsb.hike.imageHttp.HikeImageWorker;
@@ -178,6 +182,9 @@ public class HikeService extends Service
 
 	private final String TAG_IMG_UPLOAD = "dp_upload";
 	
+	private IncomingCallReceiver incomingCallReceiver;
+	
+	private OutgoingCallReceiver outgoingCallReceiver;
 	/************************************************************************/
 	/* METHODS - core Service lifecycle methods */
 	/************************************************************************/
@@ -309,8 +316,22 @@ public class HikeService extends Service
 		if(!TextUtils.isEmpty(HikeSharedPreferenceUtil.getInstance().getData(OfflineConstants.OFFLINE_MSISDN, "")))
 		{
 			HikeHandlerUtil.getInstance().postRunnableWithDelay(new CleanFileRunnable(),0);
-			
 		}
+			
+		if (incomingCallReceiver == null)
+		{
+			incomingCallReceiver = new IncomingCallReceiver();
+			TelephonyManager telephonyManager = (TelephonyManager)getSystemService(Context.TELEPHONY_SERVICE);
+			telephonyManager.listen(incomingCallReceiver, PhoneStateListener.LISTEN_CALL_STATE);
+		}
+		
+		if (outgoingCallReceiver == null)
+		{
+		    outgoingCallReceiver = new OutgoingCallReceiver();
+			IntentFilter intentFilter = new IntentFilter(Intent.ACTION_NEW_OUTGOING_CALL);
+			registerReceiver(outgoingCallReceiver, intentFilter);
+		}
+		
 		
 		setInitialized(true);
 
@@ -427,6 +448,19 @@ public class HikeService extends Service
 		{
 			unregisterReceiver(postSignupProfilePic);
 			postSignupProfilePic = null;
+		}
+		
+		if (incomingCallReceiver != null)
+		{
+			TelephonyManager telephonyManager = (TelephonyManager)getSystemService(Context.TELEPHONY_SERVICE);
+			telephonyManager.listen(null, PhoneStateListener.LISTEN_NONE);
+			incomingCallReceiver = null;
+		}
+		
+		if (outgoingCallReceiver != null)
+		{
+			unregisterReceiver(outgoingCallReceiver);
+			outgoingCallReceiver = null;
 		}
 		
 	}
