@@ -6,11 +6,9 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import android.app.ActivityManager;
 import android.app.ActivityManager.RunningAppProcessInfo;
 import android.app.ActivityManager.RunningTaskInfo;
@@ -19,7 +17,9 @@ import android.content.Intent;
 import android.provider.Settings;
 import android.provider.Settings.SettingNotFoundException;
 import android.text.TextUtils;
-
+import android.database.Cursor;
+import android.net.Uri;
+import android.provider.ContactsContract.PhoneLookup;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.models.HikeAlarmManager;
@@ -43,11 +43,10 @@ public class ChatHeadUtils
 	public static final int GET_FOREGROUND_PROCESSES = 1; 
 
 	public static final int GET_ALL_RUNNING_PROCESSES = 2; 
-	
+		
 	// replica of hidden constant ActivityManager.PROCESS_STATE_TOP 
 	public static final int PROCESS_STATE_TOP =2;
 
-	
 	/**
 	 * returns the package names of the running processes can be single, all or in tasks packages as per argument
 	 */
@@ -416,4 +415,26 @@ public class ChatHeadUtils
 		}
 	}
 	
+	public static boolean contactExists(Context context, String number)
+	{
+		// / number is the phone number
+		Uri lookupUri = Uri.withAppendedPath(PhoneLookup.CONTENT_FILTER_URI, Uri.encode(number));
+		String[] mPhoneNumberProjection = { PhoneLookup._ID, PhoneLookup.NUMBER, PhoneLookup.DISPLAY_NAME };
+		Cursor cur = context.getContentResolver().query(lookupUri, mPhoneNumberProjection, null, null, null);
+		try
+		{
+			if (cur.moveToFirst())
+			{
+				return true;
+			}
+		}
+		finally
+		{
+			if (cur != null)
+				cur.close();
+		}
+		return false;
+	}
+	
+		
 }
