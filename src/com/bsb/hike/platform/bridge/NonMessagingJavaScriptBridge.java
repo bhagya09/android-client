@@ -176,6 +176,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 			jsonObject.put(HikePlatformConstants.BLOCK, Boolean.toString(mBotInfo.isBlocked()));
 			jsonObject.put(HikePlatformConstants.MUTE, Boolean.toString(mBotInfo.isMute()));
 			jsonObject.put(HikePlatformConstants.NETWORK_TYPE, Integer.toString(Utils.getNetworkType(HikeMessengerApp.getInstance().getApplicationContext())));
+			jsonObject.put(HikePlatformConstants.BOT_VERSION, mBotInfo.getVersion());
 
 			
 			mWebView.loadUrl("javascript:init('"+getEncodedDataForJS(jsonObject.toString())+"')");

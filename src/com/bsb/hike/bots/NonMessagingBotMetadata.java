@@ -221,7 +221,7 @@ public class NonMessagingBotMetadata
 		this.isSpecialBot = isSpecialBot;
 	}
 
-	public boolean isReplace()
+	public boolean shouldReplace()
 	{
 		return replace;
 	}

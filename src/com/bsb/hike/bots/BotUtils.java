@@ -328,7 +328,7 @@ public class BotUtils
 			NonMessagingBotMetadata botMetadata = new NonMessagingBotMetadata(botInfo.getMetadata());
 			if (botMetadata.isMicroAppMode())
 			{
-				PlatformUtils.downloadZipForNonMessagingBot(botInfo, enableBot, botChatTheme, notifType, botMetadata.isReplace());
+				PlatformUtils.downloadZipForNonMessagingBot(botInfo, enableBot, botChatTheme, notifType, botMetadata.shouldReplace());
 			}
 			else if (botMetadata.isWebUrlMode())
 			{
