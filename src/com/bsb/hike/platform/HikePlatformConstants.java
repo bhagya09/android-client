@@ -82,6 +82,7 @@ public interface HikePlatformConstants
 	public static final String REQUEST_CODE = "request_code";
 	public static final String REPLACE_MICROAPP_VERSION = "replace";
 	public static final String BOT_VERSION = "version";
+	public static final String CALLBACK_ID = "callback_id";
 
 	public static final class PlatformUIDFetchType
 	{
