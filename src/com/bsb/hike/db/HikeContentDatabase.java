@@ -3,7 +3,6 @@ package com.bsb.hike.db;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 
-import com.bsb.hike.platform.HikePlatformConstants;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -18,9 +17,11 @@ import android.util.SparseArray;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.db.DBConstants.HIKE_CONTENT;
 import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.models.WhitelistDomain;
+import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.productpopup.ProductContentModel;
 import com.bsb.hike.productpopup.ProductInfoManager;
 import com.bsb.hike.utils.Logger;
@@ -87,7 +88,7 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 
 	private String[] getCreateQueries()
 	{
-		String[] createAndIndexes = new String[7];
+		String[] createAndIndexes = new String[8];
 		int i = 0;
 		// CREATE TABLE
 		// CONTENT TABLE -> _id,content_id,love_id,channel_id,timestamp,metadata
@@ -144,6 +145,8 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 		String cacheDataTable = contentCacheTableCreateStatement();
 
 		createAndIndexes[i++] = cacheDataTable;
+		
+		createAndIndexes[i++] = getCreateBotDiscoveryTableQuery();
 		// INDEX ENDS HERE
 
 		return createAndIndexes;
@@ -202,6 +205,12 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 			queries.add(drop);
 			queries.add(cacheDataTable);
 
+		}
+		
+		if (oldVersion < 6)
+		{
+			String createBotDiscoveryQuery = getCreateBotDiscoveryTableQuery();
+			queries.add(createBotDiscoveryQuery);
 		}
 		
 		return queries.toArray(new String[]{});
@@ -613,5 +622,20 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 	public void deleteAllMicroAppCacheData(String nameSpace)
 	{
 		mDB.delete(HIKE_CONTENT.CONTENT_CACHE_TABLE, HIKE_CONTENT.NAMESPACE + "=?" , new String[]{nameSpace} );
+	}
+	
+	private String getCreateBotDiscoveryTableQuery()
+	{
+		String createBotDiscoveryTable = CREATE_TABLE + DBConstants.HIKE_CONTENT.BOT_DISCOVERY_TABLE + 
+				" ("
+				+ DBConstants._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+				+ DBConstants.MSISDN + " TEXT UNIQUE, " 
+				+ DBConstants.NAME + " TEXT, "
+				+ DBConstants.BOT_TYPE + " INTEGER DEFAULT " +  + BotInfo.MESSAGING_BOT + ", "  
+				+ DBConstants.HIKE_CONTENT.BOT_DESCRIPTION + " TEXT, "
+				+ DBConstants.HIKE_CONTENT.UPDATED_VERSION + " INTEGER DEFAULT 0" 
+				+")";
+
+		return createBotDiscoveryTable;
 	}
 }
