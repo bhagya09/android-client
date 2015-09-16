@@ -15,6 +15,7 @@ import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.ProgressBar;
 
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.models.HikeFile.HikeFileType;
@@ -22,6 +23,7 @@ import com.bsb.hike.models.HikeSharedFile;
 import com.bsb.hike.smartImageLoader.ImageWorker.SuccessfulImageLoadingListener;
 import com.bsb.hike.smartImageLoader.SharedFileImageLoader;
 import com.bsb.hike.ui.fragments.PhotoViewerFragment;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.view.TouchImageView;
 
 public class SharedMediaAdapter extends PagerAdapter implements OnClickListener, SuccessfulImageLoadingListener
@@ -44,7 +46,7 @@ public class SharedMediaAdapter extends PagerAdapter implements OnClickListener,
 		this.layoutInflater = LayoutInflater.from(this.context);
 		this.sharedMediaLoader = new SharedFileImageLoader(context, size_image,false);
 		sharedMediaLoader.setDefaultDrawable(context.getResources().getDrawable(R.drawable.ic_file_thumbnail_missing));
-		sharedMediaLoader.setCachingEnabled(false);
+		sharedMediaLoader.setCachingEnabled(!HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SHOW_HIGH_RES_IMAGE, false));
 		sharedMediaLoader.setSuccessfulImageLoadingListener(this);
 		this.sharedMediaItems = sharedMediaItems;
 		this.photoViewerFragment = photoViewerFragment;
@@ -219,7 +221,8 @@ public class SharedMediaAdapter extends PagerAdapter implements OnClickListener,
 				return;
 			}
 			
-			View parent = imageView.getRootView();
+			//Using parent of parent as loader is their
+			View parent = (View) ((View) imageView.getParent()).getParent();
 			
 			if(parent != null && parent.findViewById(R.id.progress_bar) != null)
 			{

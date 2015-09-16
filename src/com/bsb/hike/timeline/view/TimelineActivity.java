@@ -23,6 +23,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.view.WindowManager.BadTokenException;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -52,7 +53,6 @@ import com.bsb.hike.timeline.TimelineResourceCleaner;
 import com.bsb.hike.timeline.adapter.ActivityFeedCursorAdapter;
 import com.bsb.hike.ui.PeopleActivity;
 import com.bsb.hike.ui.ProfileActivity;
-import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
@@ -134,6 +134,7 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
+		getWindow().requestFeature(Window.FEATURE_CONTENT_TRANSITIONS);
 		super.onCreate(savedInstanceState);
 		getWindow().setBackgroundDrawable(new ColorDrawable(0xFFF4F4F7));
 		initialiseTimelineScreen(savedInstanceState);
@@ -185,7 +186,10 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 			if(!isUpdatesFrgamentOnTop())
 			{
 				getSupportFragmentManager().popBackStack();
-				setupActionBar();
+				ActionBar actionBar = getSupportActionBar();
+				View actionBarView = actionBar.getCustomView();
+				TextView title = (TextView) actionBarView.findViewById(R.id.title);
+				title.setText(R.string.timeline);
 			}
 		}
 	}
@@ -222,7 +226,7 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 		if(mainFragment == null)
 		{
 			mainFragment = new UpdatesFragment();
-			getSupportFragmentManager().beginTransaction().add(R.id.parent_layout, mainFragment,MAIN_ACTIVITY_FEED_TAG).addToBackStack(MAIN_ACTIVITY_FEED_TAG).commit();
+			getSupportFragmentManager().beginTransaction().add(R.id.parent_layout, mainFragment,MAIN_ACTIVITY_FEED_TAG).commit();
 		}
 	}
 
@@ -501,48 +505,50 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 	@Override
 	public void onBackPressed()
 	{
+		//Get the number of pending backstack records
 		int count = getSupportFragmentManager().getBackStackEntryCount();
-		if (count <= 1)
+		
+		//If none, open home activity
+		if (count == 0)
 		{
 			IntentFactory.openHomeActivity(TimelineActivity.this, true);
-			getSupportFragmentManager().popBackStack();
-			super.onBackPressed();
 		}
+		//Else, found a backstack record, fragmentactivity will pop it, do actionbar changes
 		else 
 		{
-			getSupportFragmentManager().popBackStack();
 			ActionBar actionBar = getSupportActionBar();
 			View actionBarView = actionBar.getCustomView();
-
 			TextView title = (TextView) actionBarView.findViewById(R.id.title);
 			title.setText(R.string.timeline);	
-			
 		}
-
+		
+		//Let fragmentactivity do its thing (i.e. either pop backstack[count>0] or finish activity[count=0])
+		super.onBackPressed();
 	}
 
 	@Override
 	protected void onResume()
 	{
+		super.onResume();
 		Utils.resetUnseenStatusCount(this);
 		HikeMessengerApp.getPubSub().publish(HikePubSub.NEW_ACTIVITY, this);
 		HikeMessengerApp.getPubSub().publish(HikePubSub.CANCEL_ALL_NOTIFICATIONS, null);
-		super.onResume();
 	}
 
 	@Override
 	protected void onPause()
 	{
-		HikeMessengerApp.getPubSub().publish(HikePubSub.NEW_ACTIVITY, null);
 		super.onPause();
+		HikeMessengerApp.getPubSub().publish(HikePubSub.NEW_ACTIVITY, null);
 	}
 
 	@Override
 	protected void onDestroy()
 	{
+		super.onDestroy();
 		HikeMessengerApp.getPubSub().removeListeners(this, homePubSubListeners);
 		HikeHandlerUtil.getInstance().postRunnable(TimelineResourceCleaner.getInstance());
-		super.onDestroy();
+		HikeMessengerApp.getPubSub().removeListeners(this, homePubSubListeners);
 	}
 
 	public void updateFriendsNotification(int count, int delayTime)
@@ -712,6 +718,6 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 	public boolean isUpdatesFrgamentOnTop()
 	{
 		int count = getSupportFragmentManager().getBackStackEntryCount();
-		return count <= 1 ? true : false;
+		return count == 0 ? true : false;
 	}
 }

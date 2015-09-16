@@ -169,6 +169,8 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 		overridePendingTransition(0, 0);
 
 		requestWindowFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
+		
+		getWindow().requestFeature(Window.FEATURE_CONTENT_TRANSITIONS);
 
 		super.onCreate(savedInstanceState);
 
@@ -210,20 +212,6 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 			}
 			
 			fetchActionsData();
-			
-			if (actionsData != null)
-			{
-				msisdns = actionsData.getAllMsisdn();
-
-				isLikedByMe = actionsData.isLikedBySelf();
-			}
-
-			// No likes
-			if (msisdns == null)
-			{
-				// Empty list
-				msisdns = new ArrayList<String>();
-			}
 
 			mActivityState.mappedId = mappedId;
 			mActivityState.statusMessage = mStatusMessage;
@@ -306,6 +294,20 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 					TimelineActionsManager.getInstance().getActionsData());
 			actionsData = TimelineActionsManager.getInstance().getActionsData().getActions(mStatusMessage.getMappedId(), ActionTypes.LIKE, ActivityObjectTypes.STATUS_UPDATE);
 		}
+		
+		if (actionsData != null)
+		{
+			msisdns = actionsData.getAllMsisdn();
+
+			isLikedByMe = actionsData.isLikedBySelf();
+		}
+
+		// No likes
+		if (msisdns == null)
+		{
+			// Empty list
+			msisdns = new ArrayList<String>();
+		}
 	}
 
 	private void notifyActivityUI()
@@ -368,8 +370,9 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 
 		checkBoxLove.setOnCheckedChangeListener(onLoveToggleListener);
 
-		if (contactsAdapter != null)
+		if (contactsAdapter != null && !Utils.isEmpty(msisdns) && mStatusMessage != null)
 		{
+			contactsAdapter.processInput(msisdns, mStatusMessage.getMsisdn());
 			contactsAdapter.notifyDataSetChanged();
 		}
 	}
@@ -507,7 +510,14 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 	@Override
 	public void onBackPressed()
 	{
-		finish();
+		if (mStatusMessage == null || mStatusMessage.getStatusMessageType() == StatusMessageType.TEXT)
+		{
+			finish();
+		}
+		else
+		{
+			supportFinishAfterTransition();
+		}
 	}
 
 	@Override
@@ -602,7 +612,6 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 			{
 				TimelineSummaryActivity.this.runOnUiThread(new Runnable()
 				{
-
 					@Override
 					public void run()
 					{
@@ -619,6 +628,7 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 				public void run()
 				{
 					fetchActionsData();
+					
 					notifyActivityUI();
 				}
 			});

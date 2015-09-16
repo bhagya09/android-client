@@ -43,47 +43,51 @@ public class DisplayContactsAdapter extends BaseAdapter
 
 	public DisplayContactsAdapter(List<String> argList, String suMsisdn)
 	{
+		mContext = HikeMessengerApp.getInstance().getApplicationContext();
+		mAvatarLoader = new IconLoader(mContext, mContext.getResources().getDimensionPixelSize(R.dimen.icon_picture_size));
+		mAvatarLoader.setDefaultAvatarIfNoCustomIcon(true);
+		layoutInflater = LayoutInflater.from(mContext);
+		processInput(argList, suMsisdn);
+	}
+	
+	public void processInput(List<String> argList, String suMsisdn)
+	{
 		List<String> argMsisdnList = new ArrayList<String>(argList);
-		
+
 		if (argMsisdnList == null || argMsisdnList.isEmpty())
 		{
 			throw new IllegalArgumentException("DisplayContactsAdapter(): input cannot be null or empty");
 		}
 
 		this.suMsisdn = suMsisdn;
-		
+
 		totalCount = argMsisdnList.size();
-		
-		// Iterate and remove all msisdns which are
-		// 1) Not saved in Addressbook
-		// 2) Non fav
-		for (int j = argMsisdnList.size() - 1; j >= 0; j--)
+
+		// If it is Not a self Post
+		if (!Utils.isSelfMsisdn(suMsisdn))
 		{
-			ContactInfo contactInfo = ContactManager.getInstance().getContact(argMsisdnList.get(j), true, false);
-			if (contactInfo != null)
+			// Iterate and remove all msisdns which are
+			// 1) Not saved in Addressbook
+			// 2) Non fav
+			for (int j = argMsisdnList.size() - 1; j >= 0; j--)
 			{
-				// Contact is unsaved.............. AND .... Contact is non fav .... AND Contact is not a self user
-				if (contactInfo.isUnknownContact() 
-						&& !ContactInfo.FavoriteType.FRIEND.equals(contactInfo.getFavoriteType())
-						&& !Utils.isSelfMsisdn(contactInfo.getMsisdn()))
+				ContactInfo contactInfo = ContactManager.getInstance().getContact(argMsisdnList.get(j), true, false);
+				if (contactInfo != null)
+				{
+					// Contact is unsaved.............. AND .... Contact is non fav .... AND Contact is not a self user
+					if (contactInfo.isUnknownContact() && !ContactInfo.FavoriteType.FRIEND.equals(contactInfo.getFavoriteType()) && !Utils.isSelfMsisdn(contactInfo.getMsisdn()))
+					{
+						argMsisdnList.remove(j);
+					}
+				}
+				else
 				{
 					argMsisdnList.remove(j);
 				}
 			}
-			else
-			{
-				argMsisdnList.remove(j);
-			}
 		}
 
-		mContext = HikeMessengerApp.getInstance().getApplicationContext();
-
-		layoutInflater = LayoutInflater.from(mContext);
-
 		msisdnList = argMsisdnList;
-
-		mAvatarLoader = new IconLoader(mContext, mContext.getResources().getDimensionPixelSize(R.dimen.icon_picture_size));
-		mAvatarLoader.setDefaultAvatarIfNoCustomIcon(true);
 	}
 
 	@Override
@@ -187,9 +191,8 @@ public class DisplayContactsAdapter extends BaseAdapter
 
 			// TODO Make this generic
 			holder.contactStatus.setText(R.string.liked_this_post);
-
 			holder.avatar.setOval(true);
-			mAvatarLoader.loadImage(contactInfo.getMsisdn(), holder.avatar);
+			mAvatarLoader.loadImage(contactInfo.getMsisdn(), holder.avatar, false, false, true);
 			break;
 
 		case UNKNOWN_CONTACT_VIEW_TYPE:
