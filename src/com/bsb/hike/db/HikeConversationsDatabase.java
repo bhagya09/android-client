@@ -4813,10 +4813,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		}
 		typeSelection.replace(typeSelection.lastIndexOf(","), typeSelection.length(), ")");
 
-		if (!TextUtils.isEmpty(typeSelection))
-		{
-			selection.append(DBConstants.STATUS_TYPE + " IN " + typeSelection.toString() + (timelineUpdatesOnly ? " AND " : ""));
-		}
+		selection.append(DBConstants.STATUS_TYPE + " IN " + typeSelection.toString() + (timelineUpdatesOnly ? " AND " : ""));
 
 		if (timelineUpdatesOnly)
 		{
