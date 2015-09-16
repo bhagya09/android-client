@@ -5,6 +5,9 @@ import java.io.IOException;
 import java.util.Observable;
 import java.util.Observer;
 
+import android.text.TextUtils;
+import android.util.Pair;
+import com.bsb.hike.HikePubSub;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -36,6 +39,8 @@ public class PlatformZipDownloader
 	private boolean isTemplatingEnabled;
 	
 	private boolean doReplace;
+
+	private String callbackId;
 	
 	/**
 	 * Instantiates a new platform template download task.
@@ -46,17 +51,21 @@ public class PlatformZipDownloader
 	
 	public PlatformZipDownloader(PlatformContentRequest argRequest, boolean isTemplatingEnabled)
 	{
-		// Get ID from content and call http
-		mRequest = argRequest;
-		this.isTemplatingEnabled = isTemplatingEnabled;
+		this(argRequest, isTemplatingEnabled, false);
 	}
 	
 	public PlatformZipDownloader(PlatformContentRequest argRequest, boolean isTemplatingEnabled,boolean doReplace)
+	{
+		this(argRequest, isTemplatingEnabled, doReplace, null);
+	}
+
+	public PlatformZipDownloader(PlatformContentRequest argRequest, boolean isTemplatingEnabled,boolean doReplace, String callbackId)
 	{
 		// Get ID from content and call http
 		mRequest = argRequest;
 		this.isTemplatingEnabled = isTemplatingEnabled;
 		this.doReplace = doReplace;
+		this.callbackId = callbackId;
 	}
 	
 	public  boolean isMicroAppExist()
