@@ -548,7 +548,6 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 		super.onDestroy();
 		HikeMessengerApp.getPubSub().removeListeners(this, homePubSubListeners);
 		HikeHandlerUtil.getInstance().postRunnable(TimelineResourceCleaner.getInstance());
-		HikeMessengerApp.getPubSub().removeListeners(this, homePubSubListeners);
 	}
 
 	public void updateFriendsNotification(int count, int delayTime)
