@@ -3280,4 +3280,7 @@ public class HikeConstants
 	public static final String SHOW_NOTIFICATION = "sn";
 	
 	public static final String SHOW_HIGH_RES_IMAGE = "s_h_r";
+
+	public static final String CALLER_SHARED_PREF = "caller_shared_pref";
+
 }
