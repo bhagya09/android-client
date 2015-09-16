@@ -297,6 +297,20 @@ public class HttpRequests
 
 		return requestToken;
 	}
+	
+	public static RequestToken postNumberAndGetCallerDetails(String url,JSONObject json, IRequestListener requestListener, int multiplier)
+	{		
+		JsonBody body = new JsonBody(json);
+		RequestToken requestToken = new JSONObjectRequest.Builder()
+				.setUrl(url)
+				.post(body)
+				.setRetryPolicy(new BasicRetryPolicy(HikePlatformConstants.NUMBER_OF_RETRIES, HikePlatformConstants.RETRY_DELAY, multiplier))
+				.setRequestListener(requestListener)
+				.setRequestType(REQUEST_TYPE_SHORT)
+				.build();
+
+		return requestToken;
+	}
 
 	public static RequestToken postPlatformUserIdFetchRequest(String url, IRequestListener requestListener)
 	{
