@@ -1725,4 +1725,5 @@
     <string name="action_no_network">Please check network</string>
     <string name="timeline_transition_anim">timeline_image_transit</string>
     <string name="home_overflow_new_photo">New Photo</string>
+    <string name = "max_file_size_offline">Max file size for hike direct is 2 GB</string>
 </resources>
