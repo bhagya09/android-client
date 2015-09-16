@@ -49,6 +49,8 @@ import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.media.OverFlowMenuItem;
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
+import com.bsb.hike.timeline.TimelineResourceCleaner;
+import com.bsb.hike.timeline.adapter.ActivityFeedCursorAdapter;
 import com.bsb.hike.ui.PeopleActivity;
 import com.bsb.hike.ui.ProfileActivity;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
@@ -184,7 +186,6 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 			if(!isUpdatesFrgamentOnTop())
 			{
 				getSupportFragmentManager().popBackStack();
-				
 				ActionBar actionBar = getSupportActionBar();
 				View actionBarView = actionBar.getCustomView();
 				TextView title = (TextView) actionBarView.findViewById(R.id.title);
@@ -546,6 +547,7 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 	{
 		super.onDestroy();
 		HikeMessengerApp.getPubSub().removeListeners(this, homePubSubListeners);
+		HikeHandlerUtil.getInstance().postRunnable(TimelineResourceCleaner.getInstance());
 	}
 
 	public void updateFriendsNotification(int count, int delayTime)
