@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="?android:attr/listPreferredItemHeight"
+    android:padding="6dip">
+
+
+    <CheckedTextView  
+        android:id="@+id/radioButton"
+        android:checkMark="?android:attr/listChoiceIndicatorSingle"
+        android:layout_width="fill_parent"
+        android:layout_height="50dip" 
+        android:layout_marginLeft="10dip" 
+        android:layout_alignParentRight="true"
+        android:gravity="center_vertical"
+        android:textSize="20dip" />
+</RelativeLayout><!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/layout/kpt_kbd_list_item.xml -->

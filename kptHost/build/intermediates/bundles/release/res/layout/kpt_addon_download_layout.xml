@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <EditText
+        android:id="@+id/addons_search"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/kpt_search_addon"
+        android:maxLines="1" />
+
+    <LinearLayout
+        android:id="@+id/addon_downlaod_title_bar"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/kpt_tab_unselected"
+        android:gravity="center_vertical" >
+
+        <TextView
+            android:id="@+id/download_title_left"
+            android:layout_width="0dip"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.33"
+            android:background="@drawable/kpt_tab_selected"
+            android:gravity="center"
+            android:padding="5dp"
+            android:textColor="@color/kpt_functional_keys_white_color"
+            android:textSize="15sp" />
+
+    <!--     <TextView
+            android:id="@+id/download_title_center"
+            android:layout_width="0dip"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.33"
+            android:gravity="center"
+            android:padding="5dp"
+            android:textColor="@color/functional_keys_white_color"
+            android:textSize="15sp" /> -->
+
+    </LinearLayout>
+
+    <HorizontalScrollView
+        android:id="@+id/hsv"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:scrollbars="none" >
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:orientation="horizontal" >
+
+            <ListView
+                android:id="@+id/SearchListView"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent" >
+            </ListView>
+
+            <ListView
+                android:id="@+id/download_left_list"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent" >
+            </ListView>
+
+           <!--  <ListView
+                android:id="@+id/download_right_list"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent" >
+            </ListView> -->
+        </LinearLayout>
+    </HorizontalScrollView>
+
+</LinearLayout><!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/layout/kpt_addon_download_layout.xml -->

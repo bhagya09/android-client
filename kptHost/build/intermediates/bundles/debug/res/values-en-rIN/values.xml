@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values-en-rIN/strings_popups.xml -->
+    <eat-comment/>
+    <string name="kpt_MEANING_LOOKUP_URL">http://en.wikipedia.org/wiki/</string>
+    <string name="kpt_alternates_for_12key_email">1\@.|-_,\?!\'\"()/:#+₹</string>
+    <string name="kpt_alternates_for_12key_normal">1.|,\?!\'\"-()\@/:_#+₹</string>
+    <string name="kpt_alternates_for_12key_url">1.|/-_,\?!\'\"()\@:#+₹</string>
+    <string name="kpt_alternates_for_a">#áàâæäã</string>
+    <string name="kpt_alternates_for_abc">2abcáàâæäãç</string>
+    <string name="kpt_alternates_for_apostrophe">g·</string>
+    <string name="kpt_alternates_for_asterisk">z†‡</string>
+    <string name="kpt_alternates_for_attherate">zª</string>
+    <string name="kpt_alternates_for_c">&amp;ç</string>
+    <string name="kpt_alternates_for_circumflex">y←↑→↓</string>
+    <string name="kpt_alternates_for_copyright">t™</string>
+    <string name="kpt_alternates_for_currency">m£€$¢¥₨</string>
+    <string name="kpt_alternates_for_def">3deféèêë</string>
+    <string name="kpt_alternates_for_e">3éèêë</string>
+    <string name="kpt_alternates_for_equalsign">g≠≈∞∑</string>
+    <string name="kpt_alternates_for_exclamation">v¡</string>
+    <string name="kpt_alternates_for_five">t⅝</string>
+    <string name="kpt_alternates_for_fraction">h⅓¼⅛</string>
+    <string name="kpt_alternates_for_ghi">4ghiìíîï</string>
+    <string name="kpt_alternates_for_hypen">b–—</string>
+    <string name="kpt_alternates_for_i">8íìîï</string>
+    <string name="kpt_alternates_for_jkl">5jkl</string>
+    <string name="kpt_alternates_for_leftcurlybracket">q([</string>
+    <string name="kpt_alternates_for_leftparenthesis">j&lt;«[{</string>
+    <string name="kpt_alternates_for_mno">6mnoñóòôöõœ</string>
+    <string name="kpt_alternates_for_n">/ñ</string>
+    <string name="kpt_alternates_for_o">9óòôöõœ</string>
+    <string name="kpt_alternates_for_one">q¹½</string>
+    <string name="kpt_alternates_for_percentage">x‰</string>
+    <string name="kpt_alternates_for_plus">m±÷×</string>
+    <string name="kpt_alternates_for_pqrs">7pqrsß</string>
+    <string name="kpt_alternates_for_questionmark">h¿</string>
+    <string name="kpt_alternates_for_quote">l‘’“”„</string>
+    <string name="kpt_alternates_for_rightcurlybracket">w)]</string>
+    <string name="kpt_alternates_for_rightparenthesis">k>»]}</string>
+    <string name="kpt_alternates_for_s">_ß</string>
+    <string name="kpt_alternates_for_seven">u⅞</string>
+    <string name="kpt_alternates_for_slash">n\\</string>
+    <string name="kpt_alternates_for_three">e³¾⅜</string>
+    <string name="kpt_alternates_for_tuv">8tuvúüùû</string>
+    <string name="kpt_alternates_for_two">w²⅔</string>
+    <string name="kpt_alternates_for_u">7úüùû</string>
+    <string name="kpt_alternates_for_wxyz">9wxyzÿ</string>
+    <string name="kpt_alternates_for_y">6ÿ</string>
+    <string name="kpt_alternates_for_zero">pº°</string>
+    <string name="kpt_popular_domain_6">".co.in"</string>
+    <string name="kpt_popular_domain_lang_0">".in"</string>
+</resources>

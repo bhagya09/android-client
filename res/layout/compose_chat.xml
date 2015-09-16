@@ -49,4 +49,5 @@
     </include>
 	
 <include layout="@layout/select_all_bottom_bar"/>
+<include layout="@layout/kpt_keyboard_viewholder" />
 </LinearLayout>

@@ -8,32 +8,6 @@ import java.util.Map;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.DialogInterface.OnDismissListener;
-import android.content.Intent;
-import android.os.Bundle;
-import android.os.Message;
-import android.text.Spannable;
-import android.text.SpannableString;
-import android.text.TextUtils;
-import android.text.method.LinkMovementMethod;
-import android.text.style.ForegroundColorSpan;
-import android.text.util.Linkify;
-import android.util.Pair;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.MotionEvent;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.view.animation.Animation;
-import android.view.animation.Animation.AnimationListener;
-import android.view.animation.AnimationUtils;
-import android.widget.LinearLayout;
-import android.widget.TextView;
-import android.widget.Toast;
-
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
@@ -61,6 +35,33 @@ import com.bsb.hike.utils.SmileyParser;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.CustomFontEditText;
 import com.bsb.hike.voip.VoIPUtils;
+import com.kpt.adaptxt.beta.util.KPTConstants;
+
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnDismissListener;
+import android.content.Intent;
+import android.os.Bundle;
+import android.os.Message;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.TextUtils;
+import android.text.method.LinkMovementMethod;
+import android.text.style.ForegroundColorSpan;
+import android.text.util.Linkify;
+import android.util.Pair;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.animation.Animation;
+import android.view.animation.Animation.AnimationListener;
+import android.view.animation.AnimationUtils;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+import android.widget.Toast;
 
 /**
  * @author piyush
@@ -572,6 +573,22 @@ public class GroupChatThread extends OneToNChatThread
 	}
 
 	@Override
+	public boolean onTouch(View v, MotionEvent event)
+	{
+		switch (v.getId())
+		{
+		case R.id.messageedittext:
+			if (!isSystemKeyboard())
+			{
+				mCustomKeyboard.showCustomKeyboard(mComposeView, true);
+			}
+			return mShareablePopupLayout.onEditTextTouch(v, event);
+		default:
+			return super.onTouch(v, event);
+		}
+	}
+	
+	@Override
 	public boolean onOptionsItemSelected(MenuItem item)
 	{
 		if (item.getItemId() != android.R.id.home)
@@ -642,7 +659,9 @@ public class GroupChatThread extends OneToNChatThread
 		View content = activity.findViewById(R.id.impMessageCreateView);
 		content.setVisibility(View.VISIBLE);
 		mComposeView = (CustomFontEditText) content.findViewById(R.id.messageedittext);
+		mCustomKeyboard.registerEditText(R.id.messageedittext, KPTConstants.MULTILINE_LINE_EDITOR, this, this);
 		mComposeView.requestFocus();
+		showKeyboard();
 		if (mEmoticonPicker != null)
 		{
 			mEmoticonPicker.updateET(mComposeView);
@@ -1110,5 +1129,4 @@ public class GroupChatThread extends OneToNChatThread
 		}
 		super.destroySearchMode();
 	}
-
 }

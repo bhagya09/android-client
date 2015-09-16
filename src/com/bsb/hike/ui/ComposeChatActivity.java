@@ -27,8 +27,6 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBar;
-import android.support.v7.widget.SearchView;
-import android.support.v7.widget.SearchView.OnQueryTextListener;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Pair;
@@ -36,6 +34,7 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -53,6 +52,7 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -98,6 +98,8 @@ import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.service.HikeService;
 import com.bsb.hike.tasks.InitiateMultiFileTransferTask;
+import com.bsb.hike.ui.v7.SearchView;
+import com.bsb.hike.ui.v7.SearchView.OnQueryTextListener;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
@@ -113,8 +115,13 @@ import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.TagEditText;
 import com.bsb.hike.view.TagEditText.Tag;
 import com.bsb.hike.view.TagEditText.TagEditorListener;
+import com.kpt.adaptxt.beta.CustomKeyboard;
+import com.kpt.adaptxt.beta.util.KPTConstants;
+import com.kpt.adaptxt.beta.view.AdaptxtEditText;
+import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtEditTextEventListner;
+import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtKeyboordVisibilityStatusListner;
 
-public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implements TagEditorListener, OnItemClickListener, HikePubSub.Listener, OnScrollListener
+public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implements TagEditorListener, OnItemClickListener, HikePubSub.Listener, OnScrollListener, AdaptxtEditTextEventListner, AdaptxtKeyboordVisibilityStatusListner
 {
 	private static final String SELECT_ALL_MSISDN="all";
 	
@@ -220,6 +227,8 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 	private MenuItem searchMenuItem;
 
 	private int gcSettings = -1;
+
+	private CustomKeyboard mCustomKeyboard;
 	 
 	@Override
 	public void onCreate(Bundle savedInstanceState)
@@ -288,6 +297,8 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		}
 
 		setContentView(R.layout.compose_chat);
+		LinearLayout viewHolder = (LinearLayout) findViewById(R.id.keyboardView_holder);
+		mCustomKeyboard = new CustomKeyboard(ComposeChatActivity.this, viewHolder);
 
 		if (nuxIncentiveMode)
 		{ 
@@ -437,7 +448,21 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		}
 	}
 
+	protected void showKeyboard() {
+		if (searchET != null) {
+			if (isSystemKeyboard()) {
+				Utils.showSoftKeyboard(getApplicationContext(), searchET);
+			} else {
+				mCustomKeyboard.showCustomKeyboard(searchET, true);
+			}
+		}
+	}
 
+	public boolean isSystemKeyboard() {
+		return HikeSharedPreferenceUtil.getInstance().getData(
+				HikeConstants.CURRENT_KEYBOARD, false);
+	}
+	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu)
 	{
@@ -2700,6 +2725,8 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			return true;
 		}
 	};
+
+	private AdaptxtEditText searchET;
 	
 	private void initSearchMenu(Menu menu)
 	{
@@ -2709,7 +2736,84 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			searchMenuItem.setVisible(true);
 			SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchMenuItem);
 			searchView.setOnQueryTextListener(onQueryTextListener);
+			searchView.clearFocus();
+			 searchET = (AdaptxtEditText) searchView.findViewById(R.id.search_src_text);
+			 	mCustomKeyboard.registerEditText(searchET, KPTConstants.MULTILINE_LINE_EDITOR, ComposeChatActivity.this, ComposeChatActivity.this);
+			 		mCustomKeyboard.init(searchET);
+			 		searchET.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+			 			
+			 			@Override
+			 			public void onFocusChange(View v, boolean hasFocus) {
+			 				if(hasFocus){
+			 					//Utils.hideSoftKeyboard(getApplicationContext(), searchET);
+			 					mCustomKeyboard.showCustomKeyboard(searchET, true);
+			 				}
+			 			}
+			 		});
 		}
+	}
+
+
+	@Override
+	public void analyticalData(String arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	public void onInputViewCreated() {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	public void onInputviewVisbility(boolean arg0, int arg1) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	public void showGlobeKeyView() {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	public void showQuickSettingView() {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	public void onAdaptxtFocusChange(View arg0, boolean arg1) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	public void onAdaptxtTouch(View arg0, MotionEvent arg1) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	public void onAdaptxtclick(View arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	public void onReturnAction(int arg0) {
+		// TODO Auto-generated method stub
+		
 	}
 	
 }

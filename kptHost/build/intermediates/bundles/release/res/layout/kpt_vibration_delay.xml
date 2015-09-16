@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:padding="6dip"
+    
+    >
+
+    
+    <SeekBar
+        android:id="@+id/vibration_seekBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="25dp" 
+         android:progress="3"
+         android:paddingLeft="20sp"
+         android:paddingRight="20sp"
+         android:paddingBottom="20sp"
+         android:max="99"     
+        />
+    
+    <LinearLayout
+    android:layout_width="fill_parent"
+    android:layout_height="70dip"
+    android:layout_below="@+id/vibration_seekBar"
+    android:orientation="horizontal"
+  >
+
+    <Button
+        android:id="@+id/vib_cancell"
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent" 
+        android:layout_weight="1"  
+        android:text="@string/kpt_alert_dialog_cancel" 
+      
+        />
+
+    <Button
+        android:id="@+id/vib_default"
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"  
+         android:layout_weight="1"  
+        android:text="@string/kpt_UI_STRING_KBCUSTOM_ITEM_14" />
+
+
+    <Button
+        android:id="@+id/vib_Ok"
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+         android:layout_weight="1"  
+        android:text="@string/kpt_alert_dialog_ok" />
+    </LinearLayout>
+
+     <TextView
+         android:id="@+id/vibration_value"
+         android:layout_width="wrap_content"
+         android:layout_height="wrap_content"
+         android:layout_alignParentTop="true"
+         android:layout_centerHorizontal="true" />
+
+</RelativeLayout><!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/layout/kpt_vibration_delay.xml -->

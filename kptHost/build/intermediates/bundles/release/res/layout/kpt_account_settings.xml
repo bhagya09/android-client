@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/kpt_social_selector_bg" 
+     android:paddingLeft="15dip">
+
+ <!--    <LinearLayout
+        android:id="@+id/dummy"
+        android:layout_width="48dip"
+        android:layout_height="48dip"
+        android:layout_alignParentRight="true" > -->
+
+        <ImageView
+            android:id="@+id/account_setting_account_status_icon"
+            android:layout_width="48dip"
+            android:layout_height="48dip"
+            android:layout_marginTop="8dip" 
+            android:layout_alignParentRight="true">
+        </ImageView>
+   <!--  </LinearLayout> -->
+
+    <TextView
+        android:id="@+id/account_settings_subTxt"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@id/account_settings_mainTxt"
+        android:layout_toLeftOf="@id/account_setting_account_status_icon"
+        android:paddingBottom="8dip"
+        android:textColor="@android:color/white" >
+    </TextView>
+
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="1dip"
+        android:layout_below="@id/account_settings_subTxt"
+        android:background="@android:drawable/divider_horizontal_dark" >
+    </TextView>
+
+    <CheckedTextView
+        android:layout_marginTop="5dip"
+        android:id="@+id/account_settings_mainTxt"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:checkMark="?android:attr/listChoiceIndicatorMultiple"
+        android:text="@string/kpt_UI_STRING_MENU_ITEM_10_300"
+        android:textColor="@android:color/white"
+        android:textSize="20sp" />
+
+</RelativeLayout><!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/layout/kpt_account_settings.xml -->

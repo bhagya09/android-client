@@ -20,6 +20,7 @@ android {
         renderscriptTargetApi 18
         renderscriptSupportModeEnabled true
         targetSdkVersion 17
+        multiDexEnabled = true
     }
     lintOptions {
         lintConfig file("lint.xml")
@@ -45,11 +46,14 @@ android {
         }
         compile(project(':recyclerview')) {
             exclude module: 'support-v4'
+        } 
+        compile(project(':kpt-host')) {
+            exclude module: 'support-v4'
         }
          compile(project(':transporter-library')) {
             exclude module: 'support-v4'
         }
-        compile fileTree(dir: 'libs', include: ['*.jar'])
+        compile fileTree(dir: 'libs', include: ['*.jar'], exclude: ['android-support-multidex.jar'])
     }
 
     sourceSets {

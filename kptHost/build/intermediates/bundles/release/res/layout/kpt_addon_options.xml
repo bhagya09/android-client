@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal" >
+
+    <Button
+        android:id="@+id/addon_option_uninstall"
+        android:layout_width="0dip"
+        android:layout_weight="0.25"
+        android:layout_height="wrap_content"
+        android:text="@string/kpt_UI_STRING_AMGR_11" />
+
+    <Button
+        android:id="@+id/addon_option_disable"
+        android:layout_width="0dip"
+        android:layout_weight="0.25"
+        android:layout_height="wrap_content"
+        android:text="@string/kpt_UI_STRING_AMGR_4_DISABLE" />
+
+    <Button
+        android:id="@+id/addon_option_update"
+        android:layout_width="0dip"
+        android:layout_weight="0.25"
+        android:layout_height="wrap_content"
+        android:text="@string/kpt_incompatible_dialog_title" />
+
+    <Button
+        android:id="@+id/addon_option_cancel"
+       android:layout_width="0dip"
+        android:layout_weight="0.25"
+        android:layout_height="wrap_content"
+        android:text="@string/kpt_cancel" />
+
+</LinearLayout><!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/layout/kpt_addon_options.xml -->

@@ -15,8 +15,12 @@
    limitations under the License.
 -->
 
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/parentView"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+    
+<RelativeLayout 
     android:background="@color/alp_42447968_pattern_red_background"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content" >
@@ -157,3 +161,5 @@
     </LinearLayout>
 
 </RelativeLayout>
+
+</LinearLayout>
