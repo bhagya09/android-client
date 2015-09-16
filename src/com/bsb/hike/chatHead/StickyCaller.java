@@ -34,6 +34,8 @@ public class StickyCaller
 
 	private static final short VERTICAL = 2;
 
+	private static final int ANIMATION_TIME = 500;
+
 	static LayoutParams callerParams = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, LayoutParams.TYPE_PHONE, LayoutParams.FLAG_NOT_FOCUSABLE
 			| LayoutParams.FLAG_LAYOUT_NO_LIMITS, PixelFormat.TRANSLUCENT);
 
@@ -81,18 +83,23 @@ public class StickyCaller
 			public void onAnimationUpdate(ValueAnimator valueAnimator)
 			{
 				callerParams.x = (Integer) valueAnimator.getAnimatedValue();
-				callerParams.alpha = 1.0f - ((float)Math.abs(callerParams.x) / Utils.getDeviceWidth());
-				windowManager.updateViewLayout(stickyCallerView, callerParams);
+				callerParams.alpha = 1.0f - ((float) Math.abs(callerParams.x) / Utils.getDeviceWidth());
+				try
+				{
+					windowManager.updateViewLayout(stickyCallerView, callerParams);
+				}
+				catch (Exception e)
+				{
+                   Logger.d("StickyCaller", "view not found");
+				}
 			}
 		});
-		translateX.setDuration(500);
+		translateX.setDuration(ANIMATION_TIME);
 		translateX.start();
 	}
 
 	public static void removeCallerView()
 	{
-		Context context = HikeMessengerApp.getInstance();
-		WindowManager windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
 		try
 		{
 			windowManager.removeView(stickyCallerView);
@@ -166,9 +173,30 @@ public class StickyCaller
 		CallerContentModel callerContentModel = new Gson().fromJson(callerDetails, CallerContentModel.class);
 		stickyCallerView = (LinearLayout) inflater.inflate(R.layout.caller_layout, null);
 		stickyCallerView.findViewById(R.id.caller_detail_view).setVisibility(View.VISIBLE);
-		((TextView) (stickyCallerView.findViewById(R.id.caller_number))).setText(number);
-		((TextView) (stickyCallerView.findViewById(R.id.caller_name))).setText(callerContentModel.getFirsttName() + " " + callerContentModel.getLastName());
-		((TextView) (stickyCallerView.findViewById(R.id.caller_location))).setText(callerContentModel.getLocation());
+		if (number != null)
+		{
+			((TextView) (stickyCallerView.findViewById(R.id.caller_number))).setText(number);
+		}
+		else
+		{
+			stickyCallerView.findViewById(R.id.caller_number).setVisibility(View.GONE);
+		}
+		if (callerContentModel.getFirsttName() != null || callerContentModel.getLastName() != null)
+		{
+			((TextView) (stickyCallerView.findViewById(R.id.caller_name))).setText(callerContentModel.getFirsttName() + " " + callerContentModel.getLastName());
+		}
+		else
+		{
+			stickyCallerView.findViewById(R.id.caller_name).setVisibility(View.GONE);
+		}
+		if (callerContentModel.getLocation() != null)
+		{
+			((TextView) (stickyCallerView.findViewById(R.id.caller_location))).setText(callerContentModel.getLocation());
+		}
+		else
+		{
+			stickyCallerView.findViewById(R.id.caller_location).setVisibility(View.GONE);
+		}
 		windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
 		callerParams.gravity = Gravity.TOP | Gravity.LEFT;
 		callerParams.x = 0;
@@ -176,6 +204,5 @@ public class StickyCaller
 		callerParams.alpha = 1.0f;
 		windowManager.addView(stickyCallerView, callerParams);
 		stickyCallerView.setOnTouchListener(onSwipeTouchListener);
-
 	}
 }
