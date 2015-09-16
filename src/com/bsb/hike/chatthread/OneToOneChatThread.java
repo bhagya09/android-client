@@ -233,7 +233,8 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	
 	private void handleOfflineIntent(Intent intent)
 	{
-		if (intent.getBooleanExtra(OfflineConstants.START_CONNECT_FUNCTION,false) && !ContactManager.getInstance().isBlocked(msisdn))
+		if (intent.getBooleanExtra(OfflineConstants.START_CONNECT_FUNCTION, false) && !ContactManager.getInstance().isBlocked(msisdn)
+				&& (savedState == null || (OfflineUtils.isConnectingToSameMsisdn(msisdn))))
 		{
 			OfflineAnalytics.pushNotificationClicked(1);
 			Message msg = Message.obtain();
@@ -1289,7 +1290,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	private void setPrevLastSeenTextFromActionBar()
 	{
 		Logger.d(TAG, " Previous lastSeen value : " + prevLastSeen);
-		setLastSeen(prevLastSeen);
+		setLastSeen(prevLastSeen,OfflineUtils.isConnectedToSameMsisdn(msisdn));
 	}
 
 	/**
@@ -1318,7 +1319,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	/**
 	 * Utility method to set the last seen text
 	 */
-	private void setLastSeenText(String text,boolean byPassCheck)
+	private void setLastSeenText(String text,boolean shouldByPassOfflineConStatCheck)
 	{
 		final TextView mLastSeenView = (TextView) mActionBarView.findViewById(R.id.contact_status);
 
@@ -1333,7 +1334,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			return;
 		}
 		
-		if(!byPassCheck &&( OfflineUtils.isConnectedToSameMsisdn(msisdn)|| OfflineUtils.isConnectingToSameMsisdn(msisdn)))
+		if(!shouldByPassOfflineConStatCheck &&( OfflineUtils.isConnectedToSameMsisdn(msisdn)|| OfflineUtils.isConnectingToSameMsisdn(msisdn)))
 		{
 			return;
 		}

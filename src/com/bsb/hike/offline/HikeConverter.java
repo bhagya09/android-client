@@ -446,7 +446,7 @@ public class HikeConverter implements IMessageReceived, IMessageSent {
 	@Override
 	public void onError(SenderConsignment senderConsignment, ERRORCODES errorCode) 
 	{
-		HikeMessengerApp.getInstance().showToast(OfflineUtils.getErrorStringId(errorCode));
+		HikeMessengerApp.getInstance().showToast(OfflineUtils.getErrorStringId(errorCode),Toast.LENGTH_SHORT);
 		
 		switch(errorCode)
 		{

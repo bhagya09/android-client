@@ -334,7 +334,7 @@ public class OfflineController
 
 	public boolean isConnected()
 	{
-		return false;
+		return ( offlineState == OFFLINE_STATE.CONNECTED);
 	}
 
 	public void shutDown()
@@ -479,7 +479,7 @@ public class OfflineController
 		}
 		else
 		{
-			HikeMessengerApp.getInstance().showToast(R.string.file_expire);
+			HikeMessengerApp.getInstance().showToast(R.string.file_expire,Toast.LENGTH_SHORT);
 		}
 	}
 
@@ -605,9 +605,11 @@ public class OfflineController
 		offlineManager.sendConnectedCallback();
 		long connectionId = System.currentTimeMillis();
 		OfflineSessionTracking.getInstance().setConnectionId(connectionId);
-		;
+		
 		offlineManager.sendInfoPacket(connectionId);
-
+		OfflineUtils.showToastForBatteryLevel();
+		
+		
 	}
 
 	public SenderConsignment getSenderConsignment(ConvMessage convMessage, boolean persistence)

@@ -23,6 +23,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Message;
 import android.provider.ContactsContract;
 import android.provider.ContactsContract.Intents.Insert;
@@ -182,6 +183,8 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 	private AlertDialog alertDialog;
 
 	private int tipType = ConversationTip.NO_TIP;
+	
+	protected static final int START_OFFLINE_CONNECTION = 1;
 
 	private enum hikeBotConvStat
 	{
@@ -952,7 +955,8 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 	
 	public void bindDisconnectionFragment(String msisdn)
 	{
-		if (TextUtils.isEmpty(msisdn))
+		if (TextUtils.isEmpty(msisdn)|| NUXManager.getInstance().getCurrentState() == NUXConstants.NUX_IS_ACTIVE || (NUXManager.getInstance().getCurrentState() == NUXConstants.NUX_SKIPPED)
+				 || (NUXManager.getInstance().getCurrentState() == NUXConstants.COMPLETED))
 		{
 			return;
 		}
@@ -984,9 +988,12 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 		{
 
 			@Override
-			public void removeDisconnectFragment(boolean removeParent)
+			public void removeDisconnectFragment(boolean isConnectionAccepted)
 			{
-				OfflineUtils.sendOfflineRequestCancelPacket(OfflineUtils.fetchMsisdnFromRequestPkt(HikeSharedPreferenceUtil.getInstance().getData(OfflineConstants.DIRECT_REQUEST_DATA,"")));
+				if(!isConnectionAccepted)
+				{
+					OfflineUtils.sendOfflineRequestCancelPacket(OfflineUtils.fetchMsisdnFromRequestPkt(HikeSharedPreferenceUtil.getInstance().getData(OfflineConstants.DIRECT_REQUEST_DATA,"")));
+				}
 				OfflineController.getInstance().removeConnectionRequest();
 				
 			}
@@ -994,7 +1001,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 			@Override
 			public void onDisconnectionRequest()
 			{
-
+				
 			}
 
 			@Override
@@ -1008,7 +1015,16 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 				
 				if(StealthModeManager.getInstance().isStealthMsisdn(msisdn) && !StealthModeManager.getInstance().isActive())
 				{
-					OfflineController.getInstance().connectAsPerMsisdn(msisdn);
+					if(OfflineController.getInstance().isConnected())
+					{
+						OfflineUtils.stopFreeHikeConnection(getActivity().getApplicationContext(), OfflineUtils.getConnectedMsisdn());
+						sendUIMessage(START_OFFLINE_CONNECTION, 1000, msisdn);
+					}
+					else
+					{
+						OfflineController.getInstance().connectAsPerMsisdn(msisdn);
+					}
+					
 				}
 				else
 				{
@@ -2003,7 +2019,20 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 			});
 		}
 	}
+	
+	private  Handler uiHandler = new Handler()
+	{
+		public void handleMessage(android.os.Message msg)
+		{
+			if (msg == null)
+			{
+				return;
+			}
+			handleUIMessage(msg);
+		}
 
+	};
+	
 	@SuppressWarnings("unchecked")
 	@Override
 	public void onEventReceived(String type, Object object)
@@ -2944,6 +2973,32 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 
 			}
 		}
+	}
+
+	protected void handleUIMessage(Message msg)
+	{
+		switch(msg.what)
+		{
+			case START_OFFLINE_CONNECTION:
+				OfflineController.getInstance().connectAsPerMsisdn((String)msg.obj);
+				break;
+		}
+	}
+	
+	private void sendUIMessage(int what, Object data)
+	{
+		Message message = Message.obtain();
+		message.what = what;
+		message.obj = data;
+		uiHandler.sendMessage(message);
+	}
+
+	private void sendUIMessage(int what, long delayTime, Object data)
+	{
+		Message message = Message.obtain();
+		message.what = what;
+		message.obj = data;
+		uiHandler.sendMessageDelayed(message, delayTime);
 	}
 
 	private void unreadCountModified(Message message)

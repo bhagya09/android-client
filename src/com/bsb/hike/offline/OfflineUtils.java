@@ -25,6 +25,7 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationCompat.Action;
 import android.text.TextUtils;
 import android.view.ViewDebug.FlagToString;
+import android.widget.Toast;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
@@ -906,5 +907,16 @@ public class OfflineUtils
 				.getString(R.string.connection_request_inline_msg),OfflineConstants.OFFLINE_INLINE_MESSAGE );
 		HikeConversationsDatabase.getInstance().addConversationMessages(convMessage, true);
 		HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_RECEIVED, convMessage);
+	}
+	
+	public static void showToastForBatteryLevel()
+	{
+		float batteryLevel = Utils.currentBatteryLevel();
+		if (batteryLevel <= 0 || batteryLevel > OfflineConstants.MIN_BATTERY_LEVEL)
+		{
+			return;
+		}
+
+		HikeMessengerApp.getInstance().showToast(R.string.low_battery_msg,Toast.LENGTH_LONG);
 	}
 }
