@@ -3,3 +3,4 @@ gen/
 .settings/
 facebook-android-sdk/facebook/TestApp/
 proguard/
+local.properties
