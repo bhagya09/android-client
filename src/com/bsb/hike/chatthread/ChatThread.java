@@ -721,17 +721,12 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 					activity.getApplicationContext()).getBoolean(
 					HikeConstants.SEND_ENTER_PREF, false))
 			{
-				mComposeView.setInputType(mComposeView.getInputType()
-						| InputType.TYPE_TEXT_FLAG_MULTI_LINE);
+				mComposeView.setImeOptions(EditorInfo.IME_ACTION_UNSPECIFIED);
 			}
 			else if ((mComposeView.getInputType() & InputType.TYPE_TEXT_FLAG_MULTI_LINE) == InputType.TYPE_TEXT_FLAG_MULTI_LINE)
 			{
-				mComposeView.setInputType(mComposeView.getInputType()
-						^ InputType.TYPE_TEXT_FLAG_MULTI_LINE);
+				mComposeView.setImeOptions(EditorInfo.IME_ACTION_SEND);
 			}
-			//Its a workaround to set the multiline editfield when android:imeOptions="actionSend".
-    		mComposeView.setHorizontallyScrolling(false);
-			mComposeView.setMaxLines(4);
 
 		}
 	}
@@ -6122,8 +6117,9 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	@Override
 	public void onReturnAction(int arg0)
 	{
-		
-		
+		if (!TextUtils.isEmpty(mComposeView.getText())) {
+			sendButtonClicked();
+		}
 	}
 	
 	@Override
