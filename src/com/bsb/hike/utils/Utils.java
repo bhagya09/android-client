@@ -4872,7 +4872,7 @@ public class Utils
 		{
 			int gb = bytes / (1024 * 1024 * 1024);
 			int gbPoint = bytes % (1024 * 1024 * 1024);
-			gbPoint /= (1024 * 1024 * 1024);
+			gbPoint /= (1024 * 1024 * 102);
 			return (Integer.toString(gb) + "." + Integer.toString(gbPoint) + " GB");
 		}
 		else if (bytes >= (1000 * 1024))
