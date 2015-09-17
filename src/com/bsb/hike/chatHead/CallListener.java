@@ -20,19 +20,18 @@ public class CallListener implements IRequestListener
 	public void onRequestSuccess(Response result)
 	{
 		HikeSharedPreferenceUtil.getInstance(HikeConstants.CALLER_SHARED_PREF).saveData(number, result.getBody().getContent().toString());
-		StickyCaller.showCallerView(number, result.getBody().getContent().toString());
+		StickyCaller.showCallerView(number, result.getBody().getContent().toString(), StickyCaller.SUCCESS);
 	}
 
 	@Override
 	public void onRequestProgressUpdate(float progress)
 	{
-		// TODO Auto-generated method stub
+		StickyCaller.showCallerView(null, null, StickyCaller.LOADING);
 	}
 
 	@Override
 	public void onRequestFailure(HttpException httpException)
 	{
-		Logger.d("ashish",httpException.toString());
-		// TODO Auto-generated method stub
+		StickyCaller.showCallerView(null, null, StickyCaller.FAILURE);
 	}
 }

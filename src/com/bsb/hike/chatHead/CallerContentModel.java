@@ -48,7 +48,7 @@ public class CallerContentModel
 		}
 	}
 
-	public String getFirsttName()
+	public String getFirstName()
 	{
 		if (name != null && name.has(FIRST_NAME))
 		{

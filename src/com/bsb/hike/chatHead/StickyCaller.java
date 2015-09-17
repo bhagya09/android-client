@@ -11,6 +11,7 @@ import android.view.WindowManager;
 import android.view.WindowManager.LayoutParams;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.utils.Logger;
@@ -35,6 +36,12 @@ public class StickyCaller
 	private static final short VERTICAL = 2;
 
 	private static final int ANIMATION_TIME = 500;
+
+	public static final short FAILURE = 0;
+
+	public static final short LOADING = 1;
+
+	public static final short SUCCESS = 2;
 
 	static LayoutParams callerParams = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, LayoutParams.TYPE_PHONE, LayoutParams.FLAG_NOT_FOCUSABLE
 			| LayoutParams.FLAG_LAYOUT_NO_LIMITS, PixelFormat.TRANSLUCENT);
@@ -164,27 +171,63 @@ public class StickyCaller
 		}
 	};
 
-	public static void showCallerView(String number, String result)
+	public static void showCallerView(String number, String result, short type)
 	{
 		final Context context = HikeMessengerApp.getInstance();
-		settingLayoutData(context, number, result);
 		windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
-		callerParams.gravity = Gravity.TOP | Gravity.LEFT;
-		callerParams.x = 0;
-		callerParams.y = 0;
-		callerParams.alpha = 1.0f;
 		try
 		{
-			windowManager.addView(stickyCallerView, callerParams);
+			windowManager.removeView(stickyCallerView);
 		}
 		catch (Exception e)
 		{
 			Logger.d("StickyCaller", "error in adding caller view");
 		}
+		switch (type)
+		{
+		case LOADING:
+			settingLayoutDataLoading(context, number, result);
+			break;
+
+		case SUCCESS:
+			settingLayoutDataSuccess(context, number, result);
+			break;
+
+		case FAILURE:
+			settingLayoutDataFailure(context, number, result);
+			break;
+
+		}
+		setCallerParams();
+		try
+		{
+			
+			windowManager.addView(stickyCallerView, callerParams);
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+			Logger.d("StickyCaller", "error in adding caller view");
+		}
 		stickyCallerView.setOnTouchListener(onSwipeTouchListener);
 	}
 
-	private static void settingLayoutData(Context context, String number, String result)
+	private static void setCallerParams()
+	{
+		callerParams.gravity = Gravity.TOP | Gravity.LEFT;
+		callerParams.x = 0;
+		callerParams.y = 0;
+		callerParams.alpha = 1.0f;
+	}
+
+	private static void settingLayoutDataLoading(Context context, String number, String result)
+	{
+		LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		stickyCallerView = (LinearLayout) inflater.inflate(R.layout.caller_layout, null);
+		stickyCallerView.findViewById(R.id.hike_caller_logo).setVisibility(View.VISIBLE);
+	}
+	
+	private static void settingLayoutDataSuccess(Context context, String number, String result)
 	{
 		LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		JsonParser parser = new JsonParser();
@@ -200,9 +243,9 @@ public class StickyCaller
 		{
 			stickyCallerView.findViewById(R.id.caller_number).setVisibility(View.GONE);
 		}
-		if (callerContentModel.getFirsttName() != null || callerContentModel.getLastName() != null)
+		if (callerContentModel.getFirstName() != null || callerContentModel.getLastName() != null)
 		{
-			((TextView) (stickyCallerView.findViewById(R.id.caller_name))).setText(callerContentModel.getFirsttName() + " " + callerContentModel.getLastName());
+			((TextView) (stickyCallerView.findViewById(R.id.caller_name))).setText(callerContentModel.getFirstName() + " " + callerContentModel.getLastName());
 		}
 		else
 		{
@@ -218,4 +261,15 @@ public class StickyCaller
 		}
 		
 	}
+	
+	private static void settingLayoutDataFailure(Context context, String number, String result)
+	{
+		LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		stickyCallerView = (LinearLayout) inflater.inflate(R.layout.caller_layout, null);
+		stickyCallerView.findViewById(R.id.net_not_connected).setVisibility(View.VISIBLE);
+		stickyCallerView.findViewById(R.id.hike_caller_logo).setVisibility(View.VISIBLE);
+
+	}
+	
+	
 }
