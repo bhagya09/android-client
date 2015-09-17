@@ -24,7 +24,7 @@ public class StickyCaller
 
 	private static LinearLayout stickyCallerView;
 
-	static WindowManager windowManager;
+	private static WindowManager windowManager;
 
 	private static short moveType;
 
@@ -116,7 +116,7 @@ public class StickyCaller
 		public void onSwipeRight()
 		{
 			stickyCallerView.clearAnimation();
-			slideAnimation(callerParams.x, (Utils.getDeviceWidth()));
+			slideAnimation(callerParams.x, Utils.getDeviceWidth());
 
 		}
 
@@ -167,6 +167,25 @@ public class StickyCaller
 	public static void showCallerView(String number, String result)
 	{
 		final Context context = HikeMessengerApp.getInstance();
+		settingLayoutData(context, number, result);
+		windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+		callerParams.gravity = Gravity.TOP | Gravity.LEFT;
+		callerParams.x = 0;
+		callerParams.y = 0;
+		callerParams.alpha = 1.0f;
+		try
+		{
+			windowManager.addView(stickyCallerView, callerParams);
+		}
+		catch (Exception e)
+		{
+			Logger.d("StickyCaller", "error in adding caller view");
+		}
+		stickyCallerView.setOnTouchListener(onSwipeTouchListener);
+	}
+
+	private static void settingLayoutData(Context context, String number, String result)
+	{
 		LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		JsonParser parser = new JsonParser();
 		JsonObject callerDetails = (JsonObject) parser.parse(result);
@@ -197,12 +216,6 @@ public class StickyCaller
 		{
 			stickyCallerView.findViewById(R.id.caller_location).setVisibility(View.GONE);
 		}
-		windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
-		callerParams.gravity = Gravity.TOP | Gravity.LEFT;
-		callerParams.x = 0;
-		callerParams.y = 0;
-		callerParams.alpha = 1.0f;
-		windowManager.addView(stickyCallerView, callerParams);
-		stickyCallerView.setOnTouchListener(onSwipeTouchListener);
+		
 	}
 }
