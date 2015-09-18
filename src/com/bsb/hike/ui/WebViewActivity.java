@@ -1331,14 +1331,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		{
 			case R.id.retry_button:
 				webViewLoadFailed = false;
-				if(mode == MICRO_APP_MODE)
-				{
-					setMicroAppMode();
-				}
-				else
-				{
-					webView.loadUrl(webView.getUrl());
-				}
+				initAppsBasedOnMode();
 				inflatedErrorView.findViewById(R.id.http_error_ll).setVisibility(View.GONE);
 				break;
 		}
