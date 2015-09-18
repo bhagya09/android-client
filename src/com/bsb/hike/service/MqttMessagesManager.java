@@ -2507,6 +2507,11 @@ public class MqttMessagesManager
 			String offline = data.optString(HikeConstants.OFFLINE, "{}");
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.OFFLINE, offline);
 		}
+		if(data.has(HikeConstants.SHOW_HIGH_RES_IMAGE))
+		{
+			boolean activate = data.getBoolean(HikeConstants.SHOW_HIGH_RES_IMAGE);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOW_HIGH_RES_IMAGE, activate);
+		}
 		
 		editor.commit();
 		this.pubSub.publish(HikePubSub.UPDATE_OF_MENU_NOTIFICATION, null);
@@ -3806,7 +3811,7 @@ public class MqttMessagesManager
 						
 						//To update Overflow menu on Home Screen
 						HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.IS_HOME_OVERFLOW_CLICKED, false);
-						HikeMessengerApp.getPubSub().publish(HikePubSub.INCREMENTED_UNSEEN_STATUS_COUNT, null);
+						HikeMessengerApp.getPubSub().publish(HikePubSub.UNSEEN_STATUS_COUNT_CHANGED, null);
 					}
 
 					if (isSuccess)
@@ -3974,7 +3979,7 @@ public class MqttMessagesManager
 		editor.putBoolean(HikeConstants.IS_HOME_OVERFLOW_CLICKED, false);
 		editor.commit();
 
-		pubSub.publish(HikePubSub.INCREMENTED_UNSEEN_STATUS_COUNT, null);
+		pubSub.publish(HikePubSub.UNSEEN_STATUS_COUNT_CHANGED, null);
 	}
 
 	private void updateDbBatch(long[] ids, ConvMessage.State status, String msisdn)
