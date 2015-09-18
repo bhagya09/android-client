@@ -2517,7 +2517,8 @@ public class MqttMessagesManager
 			boolean shouldrefreshBotTable = data.getBoolean(HikeConstants.BOT_TABLE_REFRESH);
 			if (shouldrefreshBotTable)
 			{
-				BotUtils.syncBotDiscoveryTable();
+				// TODO Handle the packet coming from server here.
+//				BotUtils.syncBotDiscoveryTable();
 			}
 		}
 		
