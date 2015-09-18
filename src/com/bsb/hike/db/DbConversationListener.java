@@ -105,6 +105,7 @@ public class DbConversationListener implements Listener
 		mPubSub.addListener(HikePubSub.STEALTH_DATABASE_UNMARKED, this);
 		mPubSub.addListener(HikePubSub.PLATFORM_CARD_EVENT_SENT, this);
 		mPubSub.addListener(HikePubSub.UPDATE_MESSAGE_ORIGIN_TYPE, this);
+		mPubSub.addListener(HikePubSub.BOT_DISCOVERY_DOWNLOAD_SUCCESS, this);
 	}
 
 	@Override
@@ -537,6 +538,13 @@ public class DbConversationListener implements Listener
 			long msgId = pair.first;
 
 			HikeConversationsDatabase.getInstance().updateMessageOriginType(msgId, pair.second);
+		}
+		
+		else if (HikePubSub.BOT_DISCOVERY_DOWNLOAD_SUCCESS.equals(type))
+		{
+			JSONArray jsonArray = (JSONArray) object;
+
+			HikeContentDatabase.getInstance().populateBotDiscoveryTable(jsonArray);
 		}
 	}
 

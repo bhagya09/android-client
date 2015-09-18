@@ -666,6 +666,7 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 	 */
 	public void flushBotDiscoveryTable()
 	{
+		Logger.v("HikeContentDatabase", "Fluhsing bot discovery table");
 		mDB.delete(DBConstants.HIKE_CONTENT.BOT_DISCOVERY_TABLE, null, null);
 	}
 
@@ -755,6 +756,7 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 	 */
 	public void populateBotDiscoveryTable(JSONArray botInfoArray)
 	{
+		Logger.v("HikeContentDatabase", "Populating bot discovery table");
 		flushBotDiscoveryTable();
 
 		ContentValues[] mContentValues = parseBotInfoArray(botInfoArray);
@@ -775,6 +777,7 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 				mDB.insert(DBConstants.HIKE_CONTENT.BOT_DISCOVERY_TABLE, null, contentValues);
 			}
 
+			Logger.v("HikeContentDatabase", "Bot discovery Table populated");
 			mDB.setTransactionSuccessful();
 
 		}
