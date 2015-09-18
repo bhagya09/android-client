@@ -248,4 +248,6 @@ public interface HikePlatformConstants
 	
 	public static final String BOT_NAME = "name";
 	
+	public static final String BOTS = "bots";
+	
 }
