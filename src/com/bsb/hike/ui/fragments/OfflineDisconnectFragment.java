@@ -25,6 +25,7 @@ import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.offline.OfflineAnalytics;
 import com.bsb.hike.offline.OfflineConstants.DisconnectFragmentType;
+import com.bsb.hike.utils.StealthModeManager;
 
 public class OfflineDisconnectFragment extends Fragment
 {
@@ -153,15 +154,24 @@ public class OfflineDisconnectFragment extends Fragment
 			connectionRequest = (TextView) fragmentView.findViewById(R.id.connecting_request);
 			connectingContactInfo = ContactManager.getInstance().getContact(connectingMsisdn);
 			connectingContactFirstName = connectingMsisdn;
-			if (connectingContactInfo != null && !TextUtils.isEmpty(connectingContactInfo.getFirstName()))
+			
+			if (StealthModeManager.getInstance().isStealthMsisdn(connectingMsisdn) && !StealthModeManager.getInstance().isActive())
 			{
-				connectingContactFirstName = connectingContactInfo.getFirstName();
+				firstMessage = getResources().getString(R.string.hike_direct_request);
+				drawable  = HikeMessengerApp.getLruCache().getDefaultAvatar(connectingMsisdn, false);
 			}
-			firstMessage = getResources().getString(R.string.disconnect_warning, connectingContactFirstName);
-			drawable = HikeMessengerApp.getLruCache().getIconFromCache(connectingMsisdn);
-			if (drawable == null)
+			else
 			{
-				drawable = HikeMessengerApp.getLruCache().getDefaultAvatar(connectingMsisdn, false);
+				if (connectingContactInfo != null && !TextUtils.isEmpty(connectingContactInfo.getFirstName()))
+				{
+					connectingContactFirstName = connectingContactInfo.getFirstName();
+				}
+				firstMessage = getResources().getString(R.string.disconnect_warning, connectingContactFirstName);
+				drawable = HikeMessengerApp.getLruCache().getIconFromCache(connectingMsisdn);
+				if (drawable == null)
+				{
+					drawable = HikeMessengerApp.getLruCache().getDefaultAvatar(connectingMsisdn, false);
+				}
 			}
 			avatar.setImageDrawable(drawable);
 			connectionRequest.setText(Html.fromHtml(firstMessage));
@@ -224,7 +234,7 @@ public class OfflineDisconnectFragment extends Fragment
 						listener.onDisconnectionRequest();
 
 						// If connected user wants to disconnect and start another connection
-						if (type == DisconnectFragmentType.CONNECTED || type == DisconnectFragmentType.REQUESTING)
+						if (type == DisconnectFragmentType.CONNECTED)
 						{
 							listener.onConnectionRequest(true);
 						}
@@ -241,6 +251,10 @@ public class OfflineDisconnectFragment extends Fragment
 					@Override
 					public void onAnimationEnd(Animation animation)
 					{
+						if(type == DisconnectFragmentType.REQUESTING)
+						{
+							listener.onConnectionRequest(true);
+						}
 						listener.removeDisconnectFragment(true);
 					}
 				});

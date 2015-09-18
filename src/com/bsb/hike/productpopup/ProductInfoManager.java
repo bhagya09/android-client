@@ -379,21 +379,11 @@ public class ProductInfoManager
 	 */
 	public String getFormedUrl(String metaData)
 	{
-		HikeSharedPreferenceUtil mmHikeSharedPreferenceUtil = HikeSharedPreferenceUtil.getInstance();
 		try
 		{
 			JSONObject mmObject = new JSONObject(metaData);
 			String url = mmObject.optString(ProductPopupsConstants.URL);
-			if (!TextUtils.isEmpty(url))
-			{
-				url = url.replace("$reward_token", mmHikeSharedPreferenceUtil.getData(HikeMessengerApp.REWARDS_TOKEN, ""));
-				url = url.replace("$msisdn", mmHikeSharedPreferenceUtil.getData(HikeMessengerApp.MSISDN_SETTING, ""));
-				url = url.replace("$uid", mmHikeSharedPreferenceUtil.getData(HikeMessengerApp.UID_SETTING, ""));
-				url = url.replace("$invite_token", mmHikeSharedPreferenceUtil.getData(HikeConstants.INVITE_TOKEN, ""));
-				url = url.replace("$resId", Utils.getResolutionId()+"");
-			}
-			return url;
-
+			return Utils.appendTokenInURL(url);
 		}
 		catch (JSONException e)
 		{

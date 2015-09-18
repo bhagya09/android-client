@@ -14,6 +14,7 @@ import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.modules.kpt.KptUtils;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.utils.ChangeProfileImageBaseActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
@@ -463,10 +464,9 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 	}
 
 	@Override
-	public void analyticalData(String arg0)
+	public void analyticalData(String currentLanguage)
 	{
-		// TODO Auto-generated method stub
-		
+		KptUtils.generateKeyboardAnalytics(currentLanguage);
 	}
 
 	@Override
@@ -486,8 +486,7 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 	@Override
 	public void showGlobeKeyView()
 	{
-		// TODO Auto-generated method stub
-		
+		KptUtils.onGlobeKeyPressed(CreateNewGroupOrBroadcastActivity.this, mCustomKeyboard);
 	}
 
 	@Override
@@ -525,31 +524,10 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 		
 	}
 	
-	private void destroyKeyboardResources()
-	{
-		if (mCustomKeyboard != null)
-		{
-			mCustomKeyboard.unregister(convName);
-
-			mCustomKeyboard.closeAnyDialogIfShowing();
-
-			mCustomKeyboard.destroyCustomKeyboard();
-		}
-	}
-	
-	protected void pauseKeyboardResources()
-	{
-		if (mCustomKeyboard != null)
-		{
-			mCustomKeyboard.closeAnyDialogIfShowing();
-			mCustomKeyboard.onPause();
-		}
-	}
-	
 	@Override
 	protected void onPause()
 	{
-		pauseKeyboardResources();
+		KptUtils.pauseKeyboardResources(mCustomKeyboard);
 		
 		super.onPause();
 	}
@@ -557,7 +535,7 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 	@Override
 	protected void onDestroy()
 	{
-		destroyKeyboardResources();
+		KptUtils.destroyKeyboardResources(mCustomKeyboard, R.id.group_name, R.id.broadcast_name);
 
 		super.onDestroy();
 	}

@@ -13,6 +13,7 @@ import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.media.EmoticonPicker;
 import com.bsb.hike.media.PopupListener;
+import com.bsb.hike.modules.kpt.KptUtils;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.smartImageLoader.IconLoader;
 import com.bsb.hike.tasks.StatusUpdateTask;
@@ -757,26 +758,9 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 	}
 
 	@Override
-	protected void onPause()
-	{
-		mCustomKeyboard.closeAnyDialogIfShowing();
-		mCustomKeyboard.onPause();
-		super.onPause();
-	}
-	
-	private void destroyKeyboardResources()
-	{
-		mCustomKeyboard.unregister(statusTxt);
-
-		mCustomKeyboard.closeAnyDialogIfShowing();
-
-		mCustomKeyboard.destroyCustomKeyboard();
-	}
-	
-	@Override
 	protected void onDestroy()
 	{
-		destroyKeyboardResources();
+		KptUtils.destroyKeyboardResources(mCustomKeyboard, R.id.status_txt);
 		
 		/*
 		 * We need to unregister all pubsublisteners whenever activity gets destroyed. Otherwise reference to this activity gets attached with our HikeMessengerApp which doesn't
@@ -789,8 +773,16 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 			progressDialog.dismiss();
 			progressDialog = null;
 		}
+		
 	}
 
+	@Override
+	protected void onPause()
+	{
+		KptUtils.pauseKeyboardResources(mCustomKeyboard);
+		super.onPause();
+	}
+	
 	@Override
 	public void onShown()
 	{

@@ -24,6 +24,7 @@ import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
+import com.bsb.hike.modules.kpt.KptUtils;
 import com.bsb.hike.tasks.SignupTask;
 import com.bsb.hike.tasks.SignupTask.State;
 import com.bsb.hike.tasks.SignupTask.StateValue;
@@ -588,33 +589,10 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 		return mActivityState;
 	}
 
-	private void destroyKeyboardResources()
-	{
-		if (mCustomKeyboard != null)
-		{
-			mCustomKeyboard.unregister(enterEditText);
-			mCustomKeyboard.unregister(birthdayText);
-
-			mCustomKeyboard.closeAnyDialogIfShowing();
-
-			mCustomKeyboard.destroyCustomKeyboard();
-		}
-	}
-	
-	protected void pauseKeyboardResources()
-	{
-		if (mCustomKeyboard != null)
-		{
-			mCustomKeyboard.closeAnyDialogIfShowing();
-			
-			mCustomKeyboard.onPause();
-		}
-	}
-	
 	@Override
 	protected void onPause()
 	{
-		pauseKeyboardResources();
+		KptUtils.pauseKeyboardResources(mCustomKeyboard);
 		
 		super.onPause();
 	}
@@ -623,7 +601,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 	{
 		super.onDestroy();
 		
-		destroyKeyboardResources();
+		KptUtils.destroyKeyboardResources(mCustomKeyboard, R.id.et_enter_name, R.id.et_enter_num, R.id.et_enter_pin, R.id.birthday);
 		
 		HikeMessengerApp.getPubSub().removeListener(HikePubSub.FACEBOOK_IMAGE_DOWNLOADED, this);
 		if (dialog != null)
@@ -2458,10 +2436,9 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 	}
 
 	@Override
-	public void analyticalData(String arg0)
+	public void analyticalData(String currentLanguage)
 	{
-		// TODO Auto-generated method stub
-		
+		KptUtils.generateKeyboardAnalytics(currentLanguage);
 	}
 
 	@Override
@@ -2481,8 +2458,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 	@Override
 	public void showGlobeKeyView()
 	{
-		// TODO Auto-generated method stub
-		
+		KptUtils.onGlobeKeyPressed(SignupActivity.this, mCustomKeyboard);
 	}
 
 	@Override
