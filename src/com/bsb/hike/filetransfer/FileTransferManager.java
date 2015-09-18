@@ -410,13 +410,14 @@ public class FileTransferManager extends BroadcastReceiver
 			long recordingDuration, int attachment, String fileName)
 	{
 		
-		if(taskOverflowLimitAchieved())
-			return  null;
-		
+		if(sourceFile.length()>Integer.MAX_VALUE)
+		{
+			HikeMessengerApp.getInstance().showToast(R.string.max_file_size_offline,Toast.LENGTH_LONG);
+			return null;
+		}
 		settings = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
 		String token = settings.getString(HikeMessengerApp.TOKEN_SETTING, null);
 		String uId = settings.getString(HikeMessengerApp.UID_SETTING, null);
-		//fileKey = "OfflineMessageFileKey"+System.currentTimeMillis();
 		UploadFileTask task = new UploadFileTask(handler, fileTaskMap, context, token, uId, msisdn, sourceFile, fileKey, fileType, hikeFileType, isRec,
 				recordingDuration, attachment,fileName);
 		ConvMessage convMessage = ((ConvMessage)task.getUserContext());

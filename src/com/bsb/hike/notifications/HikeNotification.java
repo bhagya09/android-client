@@ -1650,5 +1650,12 @@ public class HikeNotification
 		
 		addNotificationId(notificationId);
 	}
+	
+	public void showOfflineRequestStealthNotification(Intent intent ,String contentTitle,String contentText, String tickerText,int smallIconId)
+	{
+		NotificationCompat.Builder mBuilder = getNotificationBuilder(contentTitle,contentText,tickerText, null,smallIconId, false,false);
+		setNotificationIntentForBuilder(mBuilder, intent,HikeNotification.OFFLINE_REQUEST_ID);
+		notifyNotification(HikeNotification.OFFLINE_REQUEST_ID, mBuilder);
+	}
 
 }

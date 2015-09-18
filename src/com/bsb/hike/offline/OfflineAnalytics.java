@@ -66,7 +66,8 @@ public class OfflineAnalytics
 		{
 			object.put(HikeConstants.EVENT_TYPE, AnalyticsConstants.EVENT_TYPE_OFFLINE);
 			object.put(HikeConstants.EVENT_KEY, AnalyticsConstants.EVENT_KEY_PUSH);
-			object.put(AnalyticsConstants.EVENY_KEY_CONN_TIME, time);
+			object.put(HikeConstants.TAG,AnalyticsConstants.EVENY_KEY_CONN_TIME);
+			object.put("tym",time);
 			recordAnalytics(object);
 		}
 		catch (JSONException e)

@@ -284,14 +284,12 @@ public class PhotoViewerFragment extends Fragment implements OnPageChangeListene
 	{
 		if (!reachedEndRight && !loadingMoreItems && position == (getCount() - PAGER_LIMIT))
 		{
-			loadingMoreItems = true;
 			//Logger.d(TAG,"loading items from right : " + maxMsgId);
 			loadItems(reachedEndRight, maxMsgId, HikeConstants.MAX_MEDIA_ITEMS_TO_LOAD_INITIALLY, true);
 		}
 
 		if (!reachedEndLeft && !loadingMoreItems && position == PAGER_LIMIT)
 		{
-			loadingMoreItems = true;
 			//Logger.d(TAG, "loading items from left : " + minMsgId);
 			loadItems(reachedEndLeft, minMsgId, HikeConstants.MAX_MEDIA_ITEMS_TO_LOAD_INITIALLY, false);
 
@@ -453,6 +451,12 @@ public class PhotoViewerFragment extends Fragment implements OnPageChangeListene
 			this.msgId = msgId;
 			this.limit = limit;
 		}
+		
+		@Override
+		protected void onPreExecute() {
+			loadingMoreItems = true;
+			super.onPreExecute();
+		}
 
 		@Override
 		protected List<HikeSharedFile> doInBackground(Void... params)
@@ -463,22 +467,32 @@ public class PhotoViewerFragment extends Fragment implements OnPageChangeListene
 		@Override
 		protected void onPostExecute(List<HikeSharedFile> result)
 		{
+			int insertPos =-1;
+			
 			if(getActivity() == null)
 			{
 				return ;
 			}
 			if (!result.isEmpty())
 			{  
-				if (itemsToRight)    //Loading items to the right of the viewpager
+				//items will only be inserted if they are either before  the current minMsdId or after the current maxMsgId to prevent duplicates
+				if (itemsToRight && result.get(0).getMsgId()>maxMsgId)    //Loading items to the right of the viewpager
 				{
-					sharedMediaItems.addAll(getCount() , result);
+					insertPos = getCount();
 				}
-				else				//Loading them to the left
-				{	Collections.reverse(result);
-					sharedMediaItems.addAll(0, result);
-					
+				else if(!itemsToRight && result.get(result.size() -1).getMsgId()<minMsgId)			//Loading them to the left
+				{	
+					Collections.reverse(result);
+					insertPos = 0;
 				}
+				
+				if(insertPos == -1)	
+				{
+					return;
+				}
+				
 			   //Recalculating the min and Max msgIds, for further loading
+				sharedMediaItems.addAll(insertPos , result);
 				smAdapter.notifyDataSetChanged();
 				minMsgId = sharedMediaItems.get(0).getMsgId();
 				maxMsgId = sharedMediaItems.get(getCount()-1).getMsgId();

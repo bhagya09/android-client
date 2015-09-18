@@ -792,4 +792,17 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 		}
 		return newSizeOfImage;
 	}
+
+	@Override
+	public void onNoGalleryItemFound() {
+		GalleryActivity.this.runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				if (!isInsideAlbum)
+				{
+					progressLoading.setVisibility(View.GONE);
+				}
+			}
+		});
+	}
 }
