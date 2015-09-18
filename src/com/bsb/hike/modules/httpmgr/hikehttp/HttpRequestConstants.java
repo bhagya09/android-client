@@ -347,4 +347,10 @@ public class HttpRequestConstants
 		return BASE_URL + BASE_V1 + BASE_ACCOUNT + "/avatar-delete";
 	}
 	
+	public static String getBotdiscoveryTableUrl()
+	{
+		// TODO Add complete url here
+		return BASE_PLATFORM_URL;
+	}
+	
 }

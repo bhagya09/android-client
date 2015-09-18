@@ -4,6 +4,7 @@ import android.content.res.TypedArray;
 import android.net.Uri;
 import android.os.Environment;
 
+import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
 
 public class HikeConstants
@@ -3282,4 +3283,10 @@ public class HikeConstants
 	public static final String SHOW_NOTIFICATION = "sn";
 	
 	public static final String SHOW_HIGH_RES_IMAGE = "s_h_r";
+	
+	public static final String BOT_TABLE_REFRESH = "b_t_r";
+	
+	public static final String BOTS = HikePlatformConstants.BOTS;
+	
+	public static final String ADD_DISCOVERY_BOTS = "add_di_bot";
 }

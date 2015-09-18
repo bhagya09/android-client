@@ -616,4 +616,69 @@ public class BotUtils
 		return true;
 	}
 
+//	/**
+//	 * Utility method called to syncBotDiscoveryTable with the table present on server
+//	 */
+//	public static void syncBotDiscoveryTable()
+//	{
+//		makeBotDiscoveryDownloadRequest(true, false, 0);
+//	}
+//	
+//	/**
+//	 * This method makes the POST call to fetch the botInfo objects for bot discoverytable
+//	 * 
+//	 * @param allRequired
+//	 *            - All bots required from server. If true, we ignore the sendClientBots value 
+//	 * @param sendclientBots
+//	 *            - Whether client bots are required to be sent to the server for ordering
+//	 * @param offset
+//	 *            - The offset from where the data is to be fetched. if allRequired is true, offset is hardcoded as 0
+//	 */
+//	public static void makeBotDiscoveryDownloadRequest(boolean allRequired, boolean sendclientBots, int offset)
+//	{
+//		Logger.v(TAG, "Making bot discovery table download request");
+//		JSONObject body = new JSONObject();
+//		int mOffset = offset;
+//
+//		try
+//		{
+//			if (allRequired)
+//			{
+//				body.put(HikePlatformConstants.ALL_REQUIRED, true);
+//				mOffset = 0;
+//			}
+//
+//			if (!allRequired && sendclientBots)
+//			{
+//				body.put(HikePlatformConstants.BOTS, getClientBotJSONArray());
+//			}
+//
+//			BotDiscoveryDownloadTask task = new BotDiscoveryDownloadTask(mOffset, body);
+//
+//			task.execute();
+//
+//		}
+//		catch (JSONException e)
+//		{
+//			Logger.v(TAG, "Making bot discovery table download request : got an exception " + e);
+//		}
+//	}
+//
+//	/**
+//	 * Returns the bot msisdns present in the client in the form of an JSONArray eg : [“+hike1+”, “+hikenews+”,”+hikecricket+”, “hikegrowth+”]
+//	 * 
+//	 * @return {@link JSONArray}
+//	 */
+//	private static JSONArray getClientBotJSONArray()
+//	{
+//		JSONArray botArray = new JSONArray();
+//
+//		for (String msisdn : HikeMessengerApp.hikeBotInfoMap.keySet())
+//		{
+//			botArray.put(msisdn);
+//		}
+//
+//		return botArray;
+//	}
+
 }

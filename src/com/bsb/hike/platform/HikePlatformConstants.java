@@ -239,4 +239,17 @@ public interface HikePlatformConstants
 	final String STATUS_BAR_COLOR = "sb_color";
 	
 	public static final String PLATFORM_USER_ID_SYNC = "plfsync";
+	
+	public static final String BOT_DESCRIPTION = "desc";
+	
+	public static final String BOT_LATEST_VERSION = "latest_version";
+	
+	public static final String MSISDN = "msisdn";
+	
+	public static final String BOT_NAME = "name";
+	
+	public static final String BOTS = "bots";
+	
+	public static final String ALL_REQUIRED = "all_required";
+	
 }

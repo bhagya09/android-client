@@ -3,7 +3,6 @@ package com.bsb.hike.service;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -94,9 +93,9 @@ import com.bsb.hike.platform.content.PlatformZipDownloader;
 import com.bsb.hike.productpopup.ProductInfoManager;
 import com.bsb.hike.tasks.PostAddressBookTask;
 import com.bsb.hike.timeline.TimelineActionsManager;
+import com.bsb.hike.timeline.model.ActionsDataModel.ActivityObjectTypes;
 import com.bsb.hike.timeline.model.FeedDataModel;
 import com.bsb.hike.timeline.model.StatusMessage;
-import com.bsb.hike.timeline.model.ActionsDataModel.ActivityObjectTypes;
 import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
 import com.bsb.hike.ui.HomeActivity;
 import com.bsb.hike.userlogs.UserLogInfo;
@@ -2511,6 +2510,37 @@ public class MqttMessagesManager
 		{
 			boolean activate = data.getBoolean(HikeConstants.SHOW_HIGH_RES_IMAGE);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOW_HIGH_RES_IMAGE, activate);
+		}
+		
+		if (data.has(HikeConstants.BOT_TABLE_REFRESH))
+		{
+			boolean shouldrefreshBotTable = data.getBoolean(HikeConstants.BOT_TABLE_REFRESH);
+			if (shouldrefreshBotTable)
+			{
+				if (data.has(HikeConstants.BOTS)) //Expect a JSONArray here
+				{
+					// This pubSub is listened by DbconversationListener, which fills the db
+					HikeMessengerApp.getPubSub().publish(HikePubSub.BOT_DISCOVERY_DOWNLOAD_SUCCESS, data);
+				}
+				
+				else //Assuming this is simply a flush packet for the table
+				{
+					HikeMessengerApp.getPubSub().publish(HikePubSub.BOT_DISCOVERY_TABLE_FLUSH, null);
+				}
+			}
+		}
+		
+		if (data.has(HikeConstants.ADD_DISCOVERY_BOTS))
+		{
+			if (data.has(HikeConstants.BOTS))
+			{
+				HikeMessengerApp.getPubSub().publish(HikePubSub.BOT_DISCOVERY_DOWNLOAD_SUCCESS, data);
+			}
+			
+			else
+			{
+				Logger.e("BotDiscovery", "Did not find { bot : [] } Bot array to populate");
+			}
 		}
 		
 		editor.commit();
