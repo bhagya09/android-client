@@ -7156,7 +7156,7 @@ public class Utils
 	}
 
 	/**
-	 * Get differential time logging upto nano second.
+	 * Get differential time logging upto nano second considering maximum significant time unit reference as second.
 	 * 
 	 * @param start
 	 * 			start time of operation as long value
@@ -7188,8 +7188,10 @@ public class Utils
 		switch (precisionOfTimeUnitInSecond)
 		{
 		case PRECISION_UNIT_SECOND:
+		{
 			timeLogBuilder.append(diff).append(second);
 			break;
+		}
 
 		case PRECISION_UNIT_MILLI_SECOND:
 		{
@@ -7200,6 +7202,7 @@ public class Utils
 			timeLogBuilder.append(milliSec).append(milliSecond);
 			break;
 		}
+
 		case PRECISION_UNIT_MICRO_SECOND:
 		{
 			int unitInSecond = (int) Math.pow(10, PRECISION_UNIT_MICRO_SECOND);
