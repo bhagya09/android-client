@@ -1811,7 +1811,13 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 
 		HikeMessengerApp.getPubSub().addListeners(this, pubSubListeners);
 		setEmptyState(mAdapter.isEmpty());
-		BotUtils.fetchBotIcons();
+		
+		// Making the call to fetch thumbnails only once per app cycle to save data
+		if (BotUtils.fetchBotThumbnails)
+		{
+			BotUtils.fetchBotIcons();
+			BotUtils.fetchBotThumbnails = false;
+		}
 
 	}
 

@@ -61,6 +61,8 @@ public class BotUtils
 	public static final String SHOW_UNREAD_COUNT_ACTUAL = "-1";
 	
 	private static final String TAG = "BotUtils";
+	
+	public static boolean fetchBotThumbnails = true;
 
 	/**
 	 * adding default bots to bot hashmap. The config is set using {@link com.bsb.hike.bots.MessagingBotConfiguration}, where every bit is set according to the requirement
