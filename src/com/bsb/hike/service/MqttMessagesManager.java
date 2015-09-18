@@ -2543,6 +2543,13 @@ public class MqttMessagesManager
 			}
 		}
 		
+		if (data.has(HikeConstants.ENABLE_BOT_DISCOVERY))
+		{
+			boolean enableBotDiscovery = data.getBoolean(HikeConstants.ENABLE_BOT_DISCOVERY);
+
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ENABLE_BOT_DISCOVERY, enableBotDiscovery);
+		}
+		
 		editor.commit();
 		this.pubSub.publish(HikePubSub.UPDATE_OF_MENU_NOTIFICATION, null);
 		

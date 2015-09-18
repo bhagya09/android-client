@@ -615,6 +615,16 @@ public class BotUtils
 		}
 		return true;
 	}
+	
+	/**
+	 * Returns whether bot Discovery feature is enabled or not
+	 * 
+	 * @return
+	 */
+	public static boolean isBotDiscoveryEnabled()
+	{
+		return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ENABLE_BOT_DISCOVERY, false);
+	}
 
 //	/**
 //	 * Utility method called to syncBotDiscoveryTable with the table present on server

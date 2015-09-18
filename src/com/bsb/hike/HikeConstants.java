@@ -3289,4 +3289,6 @@ public class HikeConstants
 	public static final String BOTS = HikePlatformConstants.BOTS;
 	
 	public static final String ADD_DISCOVERY_BOTS = "add_di_bot";
+	
+	public static final String ENABLE_BOT_DISCOVERY = "en_bot_di";
 }
