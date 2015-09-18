@@ -35,7 +35,7 @@ public class StickyCaller
 
 	private static final short VERTICAL = 2;
 
-	private static final int ANIMATION_TIME = 500;
+	private static final int ANIMATION_TIME = 400;
 
 	public static final short FAILURE = 0;
 
@@ -50,13 +50,14 @@ public class StickyCaller
 	{
 		if (ChatHeadLayout.getOverlayView() == null || !ChatHeadLayout.getOverlayView().isShown())
 		{
-			if ((moveType == NONE || moveType == HORIZONTAL) && Math.abs(event.getRawX() - initialTouchX) > Math.abs(event.getRawY() - initialTouchY))
+			
+			if ((moveType == NONE || moveType == HORIZONTAL) && (Math.abs(event.getRawX() - initialTouchX) > Math.abs(event.getRawY() - initialTouchY)))
 			{
 				callerParams.x = initialX + (int) (event.getRawX() - initialTouchX);
 				callerParams.alpha =  1.0f - ((float)Math.abs(callerParams.x) / Utils.getDeviceWidth());
 				moveType = HORIZONTAL;
 			}
-			else
+			else if(Math.abs(event.getRawX() - initialTouchX) < Math.abs(event.getRawY() - initialTouchY))
 			{
 				callerParams.y = initialY + (int) (event.getRawY() - initialTouchY);
 				if (callerParams.y < 0)
@@ -122,16 +123,22 @@ public class StickyCaller
 	{
 		public void onSwipeRight()
 		{
+
+			if (moveType != VERTICAL)
+			{
+		
 			stickyCallerView.clearAnimation();
 			slideAnimation(callerParams.x, Utils.getDeviceWidth());
-
+			}
 		}
 
 		public void onSwipeLeft()
 		{
+			if (moveType != VERTICAL)
+			{
 			stickyCallerView.clearAnimation();
 			slideAnimation(callerParams.x, -(Utils.getDeviceWidth()));
-
+			}
 		}
 
 		int initialX, initialY;
@@ -150,11 +157,11 @@ public class StickyCaller
 				moveType = NONE;
 				break;
 			case MotionEvent.ACTION_UP:
-				if (callerParams.x < -(Utils.getDeviceWidth() / 2))
+				if (callerParams.x < -(3*Utils.getDeviceWidth() / 4))
 				{
 					slideAnimation(callerParams.x, -(Utils.getDeviceWidth()));
 				}
-				else if (callerParams.x > (Utils.getDeviceWidth() / 2))
+				else if (callerParams.x > (3*Utils.getDeviceWidth() / 4))
 				{
 					slideAnimation(callerParams.x, Utils.getDeviceWidth());
 				}
@@ -201,8 +208,8 @@ public class StickyCaller
 		setCallerParams();
 		try
 		{
-			
 			windowManager.addView(stickyCallerView, callerParams);
+			slideAnimation(callerParams.x, 0);
 		}
 		catch (Exception e)
 		{
@@ -215,7 +222,7 @@ public class StickyCaller
 	private static void setCallerParams()
 	{
 		callerParams.gravity = Gravity.TOP | Gravity.LEFT;
-		callerParams.x = 0;
+		callerParams.x = Utils.getDeviceWidth();
 		callerParams.y = 0;
 		callerParams.alpha = 1.0f;
 	}
@@ -236,30 +243,34 @@ public class StickyCaller
 		stickyCallerView = (LinearLayout) inflater.inflate(R.layout.caller_layout, null);
 		stickyCallerView.findViewById(R.id.caller_detail_view).setVisibility(View.VISIBLE);
 		if (number != null)
-		{
-			((TextView) (stickyCallerView.findViewById(R.id.caller_number))).setText(number);
+		{     
+			TextView callerNumber = (TextView) (stickyCallerView.findViewById(R.id.caller_number)); 
+			callerNumber.setVisibility(View.VISIBLE);
+			callerNumber.setText(number);
 		}
-		else
+		if (callerContentModel.getFirstName() != null)
 		{
-			stickyCallerView.findViewById(R.id.caller_number).setVisibility(View.GONE);
+			TextView callerName = (TextView) stickyCallerView.findViewById(R.id.caller_name);
+			callerName.setVisibility(View.VISIBLE);
+			String name = callerContentModel.getFirstName();
+			if(callerContentModel.getLastName() != null)
+			{
+				name = name+ " "+callerContentModel.getLastName();
+			}
+			callerName.setText(name);	
 		}
-		if (callerContentModel.getFirstName() != null || callerContentModel.getLastName() != null)
+		else if (callerContentModel.getLastName() != null)
 		{
-			((TextView) (stickyCallerView.findViewById(R.id.caller_name))).setText(callerContentModel.getFirstName() + " " + callerContentModel.getLastName());
-		}
-		else
-		{
-			stickyCallerView.findViewById(R.id.caller_name).setVisibility(View.GONE);
+			TextView callerName = (TextView) stickyCallerView.findViewById(R.id.caller_name);
+			callerName.setVisibility(View.VISIBLE);
+			callerName.setText(callerContentModel.getLastName());	
 		}
 		if (callerContentModel.getLocation() != null)
 		{
-			((TextView) (stickyCallerView.findViewById(R.id.caller_location))).setText(callerContentModel.getLocation());
+			TextView callerLocation = (TextView) (stickyCallerView.findViewById(R.id.caller_location)); 
+			callerLocation.setVisibility(View.VISIBLE);
+			callerLocation.setText(callerContentModel.getLocation());
 		}
-		else
-		{
-			stickyCallerView.findViewById(R.id.caller_location).setVisibility(View.GONE);
-		}
-		
 	}
 	
 	private static void settingLayoutDataFailure(Context context, String number, String result)
