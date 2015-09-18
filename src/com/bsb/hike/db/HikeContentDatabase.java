@@ -2,6 +2,7 @@ package com.bsb.hike.db;
 
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -797,6 +798,37 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 			mDB.endTransaction();
 		}
 
+	}
+	
+	public List<BotInfo> getShowcaseBotInfoList()
+	{
+		List<BotInfo> list = new ArrayList<>();
+		
+		Cursor c = getCursorForBotDiscoveryTable();
+		String msisdn;
+		String name;
+		int botType;
+		String botDesc;
+		int updateVersion;
+		
+		while (c.moveToNext())
+		{
+			msisdn = c.getString(c.getColumnIndex(DBConstants.MSISDN));
+			name = c.getString(c.getColumnIndex(DBConstants.NAME));
+			botType = c.getInt(c.getColumnIndex(DBConstants.BOT_TYPE));
+			botDesc = c.getString(c.getColumnIndex(DBConstants.HIKE_CONTENT.BOT_DESCRIPTION));
+			updateVersion = c.getInt(c.getColumnIndex(DBConstants.HIKE_CONTENT.UPDATED_VERSION));
+			
+			BotInfo botInfo = new BotInfo.HikeBotBuilder(msisdn).setConvName(name).setType(botType).description(botDesc).setUpdateVersion(updateVersion).build();
+			list.add(botInfo);
+		}
+		
+		if (c != null)
+		{
+			c.close();
+		}
+		
+		return list;
 	}
 
 }

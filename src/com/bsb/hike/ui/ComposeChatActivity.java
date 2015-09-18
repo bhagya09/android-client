@@ -604,6 +604,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		HikeSharedPreferenceUtil pref = HikeSharedPreferenceUtil.getInstance();
 		boolean fetchRecentlyJoined = pref.getData(HikeConstants.SHOW_RECENTLY_JOINED_DOT, false) || pref.getData(HikeConstants.SHOW_RECENTLY_JOINED, false);
 		fetchRecentlyJoined = fetchRecentlyJoined && !isForwardingMessage && showNujNotif;
+		boolean showMicroappShowcase = pref.getData(HikeConstants.ENABLE_BOT_DISCOVERY, false);
 		
 		switch (composeMode)
 		{
@@ -612,10 +613,10 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		case PICK_CONTACT_MODE:
 		case PICK_CONTACT_AND_SEND_MODE:
 			//We do not show sms contacts in broadcast mode
-			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage, (isForwardingMessage && !isSharingFile), fetchRecentlyJoined, existingGroupOrBroadcastId, sendingMsisdn, friendsListFetchedCallback, false);
+			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage, (isForwardingMessage && !isSharingFile), fetchRecentlyJoined, existingGroupOrBroadcastId, sendingMsisdn, friendsListFetchedCallback, false, showMicroappShowcase);
 			break;
 		default:
-			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage, (isForwardingMessage || isSharingFile), fetchRecentlyJoined, existingGroupOrBroadcastId, sendingMsisdn, friendsListFetchedCallback, true);
+			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage, (isForwardingMessage || isSharingFile), fetchRecentlyJoined, existingGroupOrBroadcastId, sendingMsisdn, friendsListFetchedCallback, true, showMicroappShowcase);
 			break;
 		}
 
