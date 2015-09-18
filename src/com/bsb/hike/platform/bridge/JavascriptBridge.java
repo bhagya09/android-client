@@ -13,6 +13,7 @@ import org.json.JSONObject;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -1153,10 +1154,10 @@ public abstract class JavascriptBridge
 			Intent intent;
 			try
 			{
-				intent = new Intent(Intent.parseUri(intentURI,0));
+				intent = new Intent(intentURI);
 			currActivity.startActivity(intent);
 			}
-			catch (URISyntaxException e)
+			catch (ActivityNotFoundException e)
 			{
 				// TODO Auto-generated catch block
 				e.printStackTrace();
