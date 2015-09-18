@@ -2517,8 +2517,29 @@ public class MqttMessagesManager
 			boolean shouldrefreshBotTable = data.getBoolean(HikeConstants.BOT_TABLE_REFRESH);
 			if (shouldrefreshBotTable)
 			{
-				// TODO Handle the packet coming from server here.
-//				BotUtils.syncBotDiscoveryTable();
+				if (data.has(HikeConstants.BOTS)) //Expect a JSONArray here
+				{
+					// This pubSub is listened by DbconversationListener, which fills the db
+					HikeMessengerApp.getPubSub().publish(HikePubSub.BOT_DISCOVERY_DOWNLOAD_SUCCESS, data);
+				}
+				
+				else //Assuming this is simply a flush packet for the table
+				{
+					HikeMessengerApp.getPubSub().publish(HikePubSub.BOT_DISCOVERY_TABLE_FLUSH, null);
+				}
+			}
+		}
+		
+		if (data.has(HikeConstants.ADD_DISCOVERY_BOTS))
+		{
+			if (data.has(HikeConstants.BOTS))
+			{
+				HikeMessengerApp.getPubSub().publish(HikePubSub.BOT_DISCOVERY_DOWNLOAD_SUCCESS, data);
+			}
+			
+			else
+			{
+				Logger.e("BotDiscovery", "Did not find { bot : [] } Bot array to populate");
 			}
 		}
 		

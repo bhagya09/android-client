@@ -753,11 +753,17 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 	 * Utility method used to populate bot discovery table
 	 * 
 	 * @param botInfoArray
+	 * @param flushOldData
+	 *            - If true, then we eliminate old entries in the bot discovery table
 	 */
-	public void populateBotDiscoveryTable(JSONArray botInfoArray)
+	public void populateBotDiscoveryTable(JSONArray botInfoArray, boolean flushOldData)
 	{
 		Logger.v("HikeContentDatabase", "Populating bot discovery table");
-		flushBotDiscoveryTable();
+		
+		if (flushOldData)
+		{
+			flushBotDiscoveryTable();
+		}
 
 		ContentValues[] mContentValues = parseBotInfoArray(botInfoArray);
 

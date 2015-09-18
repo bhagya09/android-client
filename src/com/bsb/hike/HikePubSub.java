@@ -444,6 +444,8 @@ public class HikePubSub implements Runnable
 	
 	public static final String BOT_DISCOVERY_DOWNLOAD_FAILURE = "botDiscoveryDownloadFail";
 	
+	public static final String BOT_DISCOVERY_TABLE_FLUSH = "botDiscoveryFlush";
+	
 	private final Thread mThread;
 
 	private final BlockingQueue<Operation> mQueue;
