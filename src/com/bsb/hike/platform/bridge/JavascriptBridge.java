@@ -1184,7 +1184,7 @@ public abstract class JavascriptBridge
 				@Override
 				public void negativeClicked(HikeDialog hikeDialog)
 				{
-					callbackToJS(id, "positive");
+					callbackToJS(id, "negative");
 					hikeDialog.dismiss();
 
 				}
@@ -1192,7 +1192,7 @@ public abstract class JavascriptBridge
 				@Override
 				public void positiveClicked(HikeDialog hikeDialog)
 				{
-					callbackToJS(id, "negative");
+					callbackToJS(id, "positive");
 					hikeDialog.dismiss();
 
 				}
