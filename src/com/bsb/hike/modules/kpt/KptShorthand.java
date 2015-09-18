@@ -10,25 +10,37 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.ui.HikePreferences;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.Utils;
+import com.bsb.hike.view.CustomFontEditText;
 import com.kpt.adaptxt.beta.AdaptxtSettings;
 import com.kpt.adaptxt.beta.AdaptxtSettingsRegisterListener;
+import com.kpt.adaptxt.beta.CustomKeyboard;
 import com.kpt.adaptxt.beta.KPTAdaptxtAddonSettings;
+import com.kpt.adaptxt.beta.util.KPTConstants;
+import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtEditTextEventListner;
+import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtKeyboordVisibilityStatusListner;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
-import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -37,8 +49,13 @@ import android.widget.Toast;
  * @author anubansal
  *
  */
-public class KptShorthand extends HikeAppStateBaseFragmentActivity implements AdaptxtSettingsRegisterListener, ATRDeleteListener
+public class KptShorthand extends HikeAppStateBaseFragmentActivity implements AdaptxtSettingsRegisterListener, ATRDeleteListener,
+		AdaptxtEditTextEventListner, AdaptxtKeyboordVisibilityStatusListner, OnClickListener
 {
+	private CustomKeyboard mCustomKeyboard;
+	
+	private boolean systemKeyboard;
+	
 	KPTAdaptxtAddonSettings kptSettings;
 
 	private ProgressDialog mProgressDialog;
@@ -55,9 +72,9 @@ public class KptShorthand extends HikeAppStateBaseFragmentActivity implements Ad
 	
 	Button addBtn;
 	
-	EditText shortcutEt;
+	CustomFontEditText shortcutEt;
 	
-	EditText expansionEt;
+	CustomFontEditText expansionEt;
 	
 	
 	@Override
@@ -88,30 +105,115 @@ public class KptShorthand extends HikeAppStateBaseFragmentActivity implements Ad
 			expansionList.add(value);
 		}
 		
-		shortcutEt = (EditText) findViewById(R.id.shortcut_et);
-		expansionEt = (EditText) findViewById(R.id.expansion_et);
+		shortcutEt = (CustomFontEditText) findViewById(R.id.shortcut_et);
+		shortcutEt.setFocusable(true);
+		expansionEt = (CustomFontEditText) findViewById(R.id.expansion_et);
+		expansionEt.setFocusable(true);
 		addBtn = (Button) findViewById(R.id.add_shorthand_btn);
 		mAdapter = new ShorthandAdapter(this, shortcutList, expansionList, mListView, this);
 		mListView = (ListView) findViewById(R.id.atr_list);
 		mListView.setAdapter(mAdapter);
 		
-		addBtn.setOnClickListener(new View.OnClickListener()
+		addOnClickListeners();
+		initCustomKeyboard();
+		
+	}
+	
+	private void addOnClickListeners()
+	{
+		findViewById(R.id.add_shorthand_btn).setOnClickListener(this);
+	}
+	
+	@Override
+	public void onClick(View v)
+	{
+		switch (v.getId())
 		{
+		case R.id.add_shorthand_btn:
+			String shortcut = shortcutEt.getText().toString();
+			String expansion = expansionEt.getText().toString();
+			int atrStatus = kptSettings.addATRShortcut(shortcut, expansion);
+			if (checkErrorStatus(atrStatus))
+			{
+				shortcutList.add(shortcut);
+				expansionList.add(expansion);
+				mAdapter.notifyDataSetChanged();
+				shortcutEt.setText("");
+				mCustomKeyboard.updateCore();
+				shortcutEt.requestFocus();
+			}
+			break;
+		
+		default:
+			break;
+		}
+	}
+	
+	private void showKeyboard(CustomFontEditText editText)
+	{
+		if (systemKeyboard)
+		{
+			Utils.showSoftKeyboard(KptShorthand.this, editText);
+		}
+		else
+		{
+			mCustomKeyboard.showCustomKeyboard(editText, true);
+		}
+	}
+	
+	private void hideKeyboard(CustomFontEditText editText)
+	{
+		if (systemKeyboard)
+		{
+			Utils.hideSoftKeyboard(KptShorthand.this, editText);
+		}
+		else
+		{
+			mCustomKeyboard.showCustomKeyboard(editText, false);
+		}
+	}
+	
+	private void initCustomKeyboard()
+	{
+		View keyboardHolder = (LinearLayout) findViewById(R.id.keyboardView_holder);
+		mCustomKeyboard = new CustomKeyboard(KptShorthand.this, keyboardHolder);
+		systemKeyboard = HikeMessengerApp.isSystemKeyboard(KptShorthand.this);
+		mCustomKeyboard.registerEditText(R.id.shortcut_et, KPTConstants.MULTILINE_LINE_EDITOR, this, this);
+		mCustomKeyboard.registerEditText(R.id.expansion_et, KPTConstants.MULTILINE_LINE_EDITOR, this, this);
+		mCustomKeyboard.init(shortcutEt);
+		mCustomKeyboard.showCustomKeyboard(shortcutEt, true);
+		
+		if (systemKeyboard)
+		{
+			mCustomKeyboard.showCustomKeyboard(shortcutEt, false);
+			mCustomKeyboard.swtichToDefaultKeyboard(shortcutEt);
+			mCustomKeyboard.unregister(R.id.shortcut_et);
+			mCustomKeyboard.showCustomKeyboard(expansionEt, false);
+			mCustomKeyboard.swtichToDefaultKeyboard(expansionEt);
+			mCustomKeyboard.unregister(R.id.expansion_et);
+			getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+			Utils.showSoftKeyboard(shortcutEt, InputMethodManager.SHOW_FORCED);
+		}
+		
+		shortcutEt.setOnClickListener(new OnClickListener()
+		{
+
 			@Override
 			public void onClick(View v)
 			{
-				String shortcut = shortcutEt.getText().toString();
-				String expansion = expansionEt.getText().toString();
-				int atrStatus = kptSettings.addATRShortcut(shortcut, expansion);
-				if (checkErrorStatus(atrStatus))
-				{
-					shortcutList.add(shortcut);
-					expansionList.add(expansion);
-					mAdapter.notifyDataSetChanged();
-				}
+				showKeyboard(shortcutEt);
 			}
 		});
 		
+		expansionEt.setOnClickListener(new OnClickListener()
+		{
+			
+			@Override
+			public void onClick(View v)
+			{
+				showKeyboard(expansionEt);
+			}
+		});
 	}
 	
 	private boolean checkErrorStatus(int atrStatus)
@@ -186,6 +288,12 @@ public class KptShorthand extends HikeAppStateBaseFragmentActivity implements Ad
 	@Override
 	public void onBackPressed()
 	{
+		if (mCustomKeyboard != null && mCustomKeyboard.isCustomKeyboardVisible())
+		{
+			mCustomKeyboard.showCustomKeyboard(shortcutEt, false);
+			mCustomKeyboard.showCustomKeyboard(expansionEt, false);
+			return;
+		}
 		super.onBackPressed();
 		
 		Intent shorthandIntent = new Intent(this, HikePreferences.class);
@@ -196,12 +304,27 @@ public class KptShorthand extends HikeAppStateBaseFragmentActivity implements Ad
 	@Override
 	protected void onDestroy()
 	{
+		destroyKeyboardResources();
 		kptSettings.saveUserContext();
 		kptSettings.destroySettings();
 		Intent shorthandIntent = new Intent(this, HikePreferences.class);
 		setResult(RESULT_OK, shorthandIntent);
 		finish();
 		super.onDestroy();
+	}
+	
+	private void destroyKeyboardResources()
+	{
+		if (mCustomKeyboard != null)
+		{
+			mCustomKeyboard.unregister(shortcutEt);
+
+			mCustomKeyboard.unregister(expansionEt);
+
+			mCustomKeyboard.closeAnyDialogIfShowing();
+
+			mCustomKeyboard.destroyCustomKeyboard();
+		}
 	}
 
 	@Override
@@ -269,6 +392,99 @@ public class KptShorthand extends HikeAppStateBaseFragmentActivity implements Ad
 		kptSettings.deleteATR(shortcut);
 	}
 
+	@Override
+	public void analyticalData(String arg0)
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onInputViewCreated()
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onInputviewVisbility(boolean arg0, int arg1)
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void showGlobeKeyView()
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void showQuickSettingView()
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onAdaptxtFocusChange(View arg0, boolean arg1)
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onAdaptxtTouch(View arg0, MotionEvent arg1)
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onAdaptxtclick(View arg0)
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onReturnAction(int arg0)
+	{
+		// TODO Auto-generated method stub
+		
+	}
+	
+	private void pauseKeyboardResources()
+	{
+		if (mCustomKeyboard != null)
+		{
+			mCustomKeyboard.showCustomKeyboard(shortcutEt, false);
+			mCustomKeyboard.showCustomKeyboard(expansionEt, false);
+//			hideKeyboard(shortcutEt);
+//			
+//			hideKeyboard(expansionEt);
+
+			mCustomKeyboard.closeAnyDialogIfShowing();
+			
+			mCustomKeyboard.onPause();
+		}
+	}
+	
+	@Override
+	protected void onPause()
+	{
+		pauseKeyboardResources();
+		super.onPause();
+	}
+
+	@Override
+	public void onConfigurationChanged(Configuration newConfig)
+	{
+		mCustomKeyboard.onConfigurationChanged(newConfig);
+		super.onConfigurationChanged(newConfig);
+	}
+	
 //	deleteatr (shortcut) 
 //	deleteallatr 
 

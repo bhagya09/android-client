@@ -110,6 +110,8 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 	private static final int SHOW_EMOJI_PALETTE = 1;
 	
 	private boolean wasEmojiPreviouslyVisible;
+	
+	private String IS_IMAGE_DELETED = "is_img_d";
 
 	protected Handler uiHandler = new Handler()
 	{
@@ -192,6 +194,12 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 			mActivityTask = new ActivityTask();
 		}
 
+		if(savedInstanceState != null)
+		{
+			mActivityTask.imageDeleted = savedInstanceState.getBoolean(IS_IMAGE_DELETED);
+		}
+		
+		initVarRef();
 
 		RoundedImageView roundAvatar = (RoundedImageView) avatar;
 		roundAvatar.setOval(true);
@@ -217,8 +225,17 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		if (!TextUtils.isEmpty(mImagePath) && !mActivityTask.imageDeleted)
 		{
 			Bitmap bmp = HikeBitmapFactory.decodeFile(mImagePath);
-			statusImage.setImageBitmap(bmp);
-			statusTxt.setHint(R.string.status_hint_image);
+			if(bmp == null)
+			{
+				removePhoto(null);
+				Toast.makeText(getApplicationContext(), R.string.photos_oom_load, Toast.LENGTH_SHORT).show();
+			}
+			else
+			{
+				statusImage.setImageBitmap(bmp);
+				statusTxt.setHint(R.string.status_hint_image);
+			}
+			
 		}
 		else
 		{
@@ -332,6 +349,12 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 			mCustomKeyboard.init(statusTxt);
 			mCustomKeyboard.showCustomKeyboard(statusTxt, true);
 		}
+	}
+	
+	@Override
+	protected void onSaveInstanceState(Bundle outState) {
+		outState.putBoolean(IS_IMAGE_DELETED, mActivityTask.imageDeleted);
+		super.onSaveInstanceState(outState);
 	}
 	
 	@Override

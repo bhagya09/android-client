@@ -36,6 +36,12 @@ public class ActivityFeedFragment extends Fragment implements Listener
 
 	private LinearLayoutManager mLayoutManager;
 
+	//Default Constructor as per android guidelines
+	public ActivityFeedFragment()
+	{
+		
+	}
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState)
 	{
@@ -52,6 +58,13 @@ public class ActivityFeedFragment extends Fragment implements Listener
 		mActivityFeedRecyclerView.setLayoutManager(mLayoutManager);
 		setupActionBar();
 		return parent;
+	}
+	
+	@Override
+	public void onResume()
+	{
+		super.onResume();
+		HikeMessengerApp.getPubSub().publish(HikePubSub.UNSEEN_STATUS_COUNT_CHANGED, null);
 	}
 
 	@Override
@@ -198,5 +211,5 @@ public class ActivityFeedFragment extends Fragment implements Listener
 	{
 		menu.clear();
 	}
-
+	
 }

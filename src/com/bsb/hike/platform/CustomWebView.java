@@ -127,8 +127,6 @@ public class CustomWebView extends WebView
 		if (!isDestroyed)
 		{
 			stopLoading();
-			setWebChromeClient(null);
-			setWebViewClient(null);
 			removeAllViews();
 			if (Utils.isHoneycombOrHigher())
 			{
@@ -146,7 +144,6 @@ public class CustomWebView extends WebView
 			if (Utils.isLollipopOrHigher() && !Utils.appInstalledOrNot(HikeMessengerApp.getInstance().getApplicationContext(), "com.google.android.webview"))
 			{
 				PlatformUtils.sendPlatformCrashAnalytics("PackageManager.NameNotFoundException");
-				return;
 			}
 			
 			super.loadDataWithBaseURL(baseUrl, data, mimeType, encoding, failUrl);
@@ -161,7 +158,6 @@ public class CustomWebView extends WebView
 			if (Utils.isLollipopOrHigher() && !Utils.appInstalledOrNot(HikeMessengerApp.getInstance().getApplicationContext(), "com.google.android.webview"))
 			{
 				PlatformUtils.sendPlatformCrashAnalytics("PackageManager.NameNotFoundException");
-				return;
 			}
 			
 			super.loadData(data, mimeType, encoding);

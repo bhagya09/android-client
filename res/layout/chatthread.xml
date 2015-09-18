@@ -1,391 +1,407 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+<LinearLayout android:id="@+id/chatThreadParentLayout"
+     
     android:layout_width="fill_parent"
     android:layout_height="fill_parent" >
+    
+<RelativeLayout
+    android:id="@+id/ct_parent_rl" 
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent" >
+    <View
+        android:id="@+id/overflow_anchor"
+        android:layout_width="1dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="8dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true" />
 
-    <LinearLayout
-        android:id="@+id/chatThreadParentLayout"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent" >
+    <View
+        android:id="@+id/attachment_anchor"
+        android:layout_width="1dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="@dimen/st__action_bar_default_height"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true" />
+
+    <com.bsb.hike.ui.utils.RecyclingImageView
+        android:id="@+id/background"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:src="@color/chat_thread_default_bg" />
+
+    <com.bsb.hike.view.CustomLinearLayout
+        android:id="@+id/chat_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical" >
+
+        <View
+            android:id="@+id/bottom_nav_bar_dropshadow"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:background="@drawable/dropshadow"
+            android:layout_marginTop="@dimen/st__action_bar_default_height"/>
 
         <RelativeLayout
-            android:id="@+id/ct_parent_rl"
             android:layout_width="fill_parent"
-            android:layout_height="fill_parent" >
+            android:layout_height="0dp"
+            android:layout_marginTop="0dp"
+            android:layout_weight="30" 
+            android:id="@+id/chatContentlayout">
 
-            <View
-                android:id="@+id/overflow_anchor"
-                android:layout_width="1dp"
-                android:layout_height="0dp"
-                android:layout_alignParentRight="true"
-                android:layout_alignParentTop="true"
-                android:layout_marginTop="8dp" />
-
-            <View
-                android:id="@+id/attachment_anchor"
-                android:layout_width="1dp"
-                android:layout_height="0dp"
-                android:layout_alignParentRight="true"
-                android:layout_alignParentTop="true"
-                android:layout_marginTop="@dimen/st__action_bar_default_height" />
-
-            <com.bsb.hike.ui.utils.RecyclingImageView
-                android:id="@+id/background"
+            <LinearLayout
+                android:id="@+id/tipContainerTop"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:src="@color/chat_thread_default_bg" />
-
-            <com.bsb.hike.view.CustomLinearLayout
-                android:id="@+id/chat_layout"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
                 android:orientation="vertical" >
 
-                <View
-                    android:id="@+id/bottom_nav_bar_dropshadow"
+                <ViewStub
+                    android:id="@+id/sms_toggle_view_stub" 
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inflatedId="@+id/sms_toggle_button"
+                    android:layout="@layout/sms_toggle_item" />
+                     
+            </LinearLayout>
+
+            <ListView
+                android:id="@+id/conversations_list"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:layout_above="@+id/tipContainerBottom"
+                android:layout_alignWithParentIfMissing="true"
+                android:layout_below="@+id/tipContainerTop"
+                android:layout_marginTop="-5dp"
+                android:cacheColorHint="#00000000"
+                android:divider="@null"
+                android:fadingEdge="none"
+                android:listSelector="@android:color/transparent" >
+            </ListView>
+
+            <LinearLayout
+                android:id="@+id/impMessageContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/conversation_mute"
+                android:orientation="vertical" >
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/conversation_mute" >
+
+                <include
+                    android:id="@+id/impMessageCreateView"
+                    layout="@layout/imp_message_pin_pop_up"
+                    android:visibility="gone" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/tipContainerBottom"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:orientation="vertical" >
+            </LinearLayout>
+
+            <include
+                android:id="@android:id/empty"
+                layout="@layout/nudge_tutorial_pop_up" />
+
+            <com.bsb.hike.view.CustomFontTextView
+                android:id="@+id/sms_counter"
+                android:layout_width="fill_parent"
+                android:layout_height="45dp"
+                android:layout_alignParentBottom="true"
+                android:background="@color/updates_text"
+                android:drawableLeft="@drawable/ic_sms_user"
+                android:drawablePadding="10dp"
+                android:gravity="center_vertical"
+                android:paddingLeft="13dp"
+                android:text="99 SMS left"
+                android:textColor="@color/actionbar_text"
+                android:textSize="14sp"
+                android:visibility="invisible" />
+
+            <com.bsb.hike.view.CustomFontTextView
+                android:id="@+id/network_error_chat"
+                android:layout_width="match_parent"
+                android:layout_height="35dp"
+                android:background="@color/updates_text"
+                android:gravity="center"
+                android:paddingLeft="18dp"
+                android:text="@string/no_internet_connection"
+                android:textColor="@color/actionbar_text"
+                android:textSize="15sp"
+                android:visibility="gone" />
+            
+            <include layout="@layout/no_internet_connection_tip"
+                android:id="@+id/network_error_card"
+                android:visibility="gone"
+                />
+
+            <com.bsb.hike.view.CustomFontTextView
+                android:id="@+id/conversation_mute"
+                android:layout_width="match_parent"
+                android:layout_height="35dp"
+                android:layout_below="@id/network_error_chat"
+                android:background="@color/updates_text"
+                android:gravity="center"
+                android:paddingLeft="18dp"
+                android:text="@string/group_mute"
+                android:textColor="@color/actionbar_text"
+                android:textSize="14sp"
+                android:visibility="gone" />
+
+            <LinearLayout
+                android:id="@+id/new_message_indicator"
+                android:layout_width="wrap_content"
+                android:minWidth="148dp"
+                android:layout_height="34dp"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentRight="true"
+                android:layout_marginBottom="12dp"
+                android:layout_marginRight="16dp"
+                android:gravity="center"
+                android:background="@drawable/bg_new_msg"
+                android:visibility="gone" >
+
+                <include layout="@layout/new_message_indicator" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/scroll_bottom_indicator"
+                android:layout_width="35dp"
+                android:layout_height="34dp"
+                android:layout_above="@+id/tipContainerBottom"
+                android:layout_alignWithParentIfMissing="true"
+                android:layout_alignParentRight="true"
+                android:background="@drawable/bg_new_msg"
+                android:layout_marginBottom="12dp"
+                android:layout_marginRight="16dp"
+                android:visibility="gone" >
+
+               <ImageView
+                   android:id="@+id/indicator_img"
+                   android:layout_width="wrap_content"
+                   android:layout_height="match_parent"
+                   android:layout_marginTop="1dp"
+                   android:contentDescription="Unread indicator Down Icon"
+                   android:paddingLeft="10dp"
+                   android:paddingRight="10dp"
+                   android:scaleType="centerInside"
+                   android:src="@drawable/ic_inverted_triangle" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/scroll_top_indicator"
+                android:layout_width="35dp"
+                android:layout_height="34dp"
+                android:layout_alignParentRight="true"
+                android:layout_alignTop="@id/conversations_list"
+                android:layout_marginRight="16dp"
+                android:layout_marginTop="12dp"
+                android:background="@drawable/bg_new_msg"
+                android:visibility="gone" >
+                
+                <ImageView
+                    android:id="@+id/indicator_img"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginTop="1dp"
+                    android:contentDescription="Unread indicator Up Icon"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp"
+                    android:scaleType="centerInside"
+                    android:src="@drawable/ic_inverted_up_triangle" />
+                
+			</LinearLayout>
+            
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#14292d2e"
+                android:layout_alignParentBottom="true" />
+            
+           	<ViewStub 
+                android:id="@+id/sticker_recommendation_tip"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp"
+                android:layout_alignParentBottom="true"
+                android:layout="@layout/sticker_recommend_tip_view" />
+           	
+           	<ViewStub 
+                android:id="@+id/sticker_recommendation_auto_off_tip"
+                android:layout_width="match_parent"
+                android:layout_height="80dp"
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp"
+                android:layout_alignParentBottom="true"
+                android:layout="@layout/sticker_recommend_tip_view" />
+            
+            <FrameLayout
+                    android:id="@+id/sticker_recommendation_parent"
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
-                    android:layout_marginTop="@dimen/st__action_bar_default_height"
-                    android:background="@drawable/dropshadow" />
+                    android:layout_marginLeft="8dp"
+                    android:layout_marginRight="8dp"
+                    android:background="@drawable/ic_sticker_recommend_background_black"
+                    android:layout_alignParentBottom="true"
+                    android:contentDescription="sticker recommendation popup"
+                    android:visibility="invisible" >
+            </FrameLayout>
 
-                <RelativeLayout
-                    android:id="@+id/chatContentlayout"
-                    android:layout_width="fill_parent"
-                    android:layout_height="0dp"
-                    android:layout_marginTop="0dp"
-                    android:layout_weight="30" >
-
-                    <LinearLayout
-                        android:id="@+id/tipContainerTop"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentTop="true"
-                        android:orientation="vertical" >
-
-                        <ViewStub
-                            android:id="@+id/sms_toggle_view_stub"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:inflatedId="@+id/sms_toggle_button"
-                            android:layout="@layout/sms_toggle_item" />
-                    </LinearLayout>
-
-                    <ListView
-                        android:id="@+id/conversations_list"
-                        android:layout_width="fill_parent"
-                        android:layout_height="fill_parent"
-                        android:layout_above="@+id/tipContainerBottom"
-                        android:layout_alignWithParentIfMissing="true"
-                        android:layout_below="@+id/tipContainerTop"
-                        android:layout_marginTop="-5dp"
-                        android:cacheColorHint="#00000000"
-                        android:divider="@null"
-                        android:fadingEdge="none"
-                        android:listSelector="@android:color/transparent" >
-                    </ListView>
-
-                    <LinearLayout
-                        android:id="@+id/impMessageContainer"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_below="@+id/conversation_mute"
-                        android:orientation="vertical" >
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_below="@+id/conversation_mute" >
-
-                        <include
-                            android:id="@+id/impMessageCreateView"
-                            layout="@layout/imp_message_pin_pop_up"
-                            android:visibility="gone" />
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:id="@+id/tipContainerBottom"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentBottom="true"
-                        android:orientation="vertical" >
-                    </LinearLayout>
-
-                    <include
-                        android:id="@android:id/empty"
-                        layout="@layout/nudge_tutorial_pop_up" />
-
-                    <com.bsb.hike.view.CustomFontTextView
-                        android:id="@+id/sms_counter"
-                        android:layout_width="fill_parent"
-                        android:layout_height="45dp"
-                        android:layout_alignParentBottom="true"
-                        android:background="@color/updates_text"
-                        android:drawableLeft="@drawable/ic_sms_user"
-                        android:drawablePadding="10dp"
-                        android:gravity="center_vertical"
-                        android:paddingLeft="13dp"
-                        android:text="99 SMS left"
-                        android:textColor="@color/actionbar_text"
-                        android:textSize="14sp"
-                        android:visibility="invisible" />
-
-                    <com.bsb.hike.view.CustomFontTextView
-                        android:id="@+id/network_error_chat"
-                        android:layout_width="match_parent"
-                        android:layout_height="35dp"
-                        android:background="@color/updates_text"
-                        android:gravity="center"
-                        android:paddingLeft="18dp"
-                        android:text="@string/no_internet_connection"
-                        android:textColor="@color/actionbar_text"
-                        android:textSize="15sp"
-                        android:visibility="gone" />
-
-                    <com.bsb.hike.view.CustomFontTextView
-                        android:id="@+id/conversation_mute"
-                        android:layout_width="match_parent"
-                        android:layout_height="35dp"
-                        android:layout_below="@id/network_error_chat"
-                        android:background="@color/updates_text"
-                        android:gravity="center"
-                        android:paddingLeft="18dp"
-                        android:text="@string/group_mute"
-                        android:textColor="@color/actionbar_text"
-                        android:textSize="14sp"
-                        android:visibility="gone" />
-
-                    <LinearLayout
-                        android:id="@+id/new_message_indicator"
-                        android:layout_width="wrap_content"
-                        android:layout_height="34dp"
-                        android:layout_alignParentBottom="true"
-                        android:layout_alignParentRight="true"
-                        android:layout_marginBottom="12dp"
-                        android:layout_marginRight="16dp"
-                        android:background="@drawable/bg_new_msg"
-                        android:gravity="center"
-                        android:minWidth="148dp"
-                        android:visibility="gone" >
-
-                        <include layout="@layout/new_message_indicator" />
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:id="@+id/scroll_bottom_indicator"
-                        android:layout_width="35dp"
-                        android:layout_height="34dp"
-                        android:layout_above="@+id/tipContainerBottom"
-                        android:layout_alignParentRight="true"
-                        android:layout_alignWithParentIfMissing="true"
-                        android:layout_marginBottom="12dp"
-                        android:layout_marginRight="16dp"
-                        android:background="@drawable/bg_new_msg"
-                        android:visibility="gone" >
-
-                        <ImageView
-                            android:id="@+id/indicator_img"
-                            android:layout_width="wrap_content"
-                            android:layout_height="match_parent"
-                            android:layout_marginTop="1dp"
-                            android:contentDescription="Unread indicator Down Icon"
-                            android:paddingLeft="10dp"
-                            android:paddingRight="10dp"
-                            android:scaleType="centerInside"
-                            android:src="@drawable/ic_inverted_triangle" />
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:id="@+id/scroll_top_indicator"
-                        android:layout_width="35dp"
-                        android:layout_height="34dp"
-                        android:layout_alignParentRight="true"
-                        android:layout_alignTop="@id/conversations_list"
-                        android:layout_marginRight="16dp"
-                        android:layout_marginTop="12dp"
-                        android:background="@drawable/bg_new_msg"
-                        android:visibility="gone" >
-
-                        <ImageView
-                            android:id="@+id/indicator_img"
-                            android:layout_width="wrap_content"
-                            android:layout_height="match_parent"
-                            android:layout_marginTop="1dp"
-                            android:contentDescription="Unread indicator Up Icon"
-                            android:paddingLeft="10dp"
-                            android:paddingRight="10dp"
-                            android:scaleType="centerInside"
-                            android:src="@drawable/ic_inverted_up_triangle" />
-                    </LinearLayout>
-
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="1dp"
-                        android:layout_alignParentBottom="true"
-                        android:background="#14292d2e" />
-
-                    <ViewStub
-                        android:id="@+id/sticker_recommendation_tip"
-                        android:layout_width="match_parent"
-                        android:layout_height="48dp"
-                        android:layout_alignParentBottom="true"
-                        android:layout_marginLeft="8dp"
-                        android:layout_marginRight="8dp"
-                        android:layout="@layout/sticker_recommend_tip_view" />
-
-                    <ViewStub
-                        android:id="@+id/sticker_recommendation_auto_off_tip"
-                        android:layout_width="match_parent"
-                        android:layout_height="80dp"
-                        android:layout_alignParentBottom="true"
-                        android:layout_marginLeft="8dp"
-                        android:layout_marginRight="8dp"
-                        android:layout="@layout/sticker_recommend_tip_view" />
-
-                    <FrameLayout
-                        android:id="@+id/sticker_recommendation_parent"
-                        android:layout_width="match_parent"
-                        android:layout_height="0dp"
-                        android:layout_alignParentBottom="true"
-                        android:layout_marginLeft="8dp"
-                        android:layout_marginRight="8dp"
-                        android:background="@drawable/ic_sticker_recommend_background_black"
-                        android:contentDescription="sticker recommendation popup"
-                        android:visibility="invisible" >
-                    </FrameLayout>
-                </RelativeLayout>
-
-                <RelativeLayout
-                    android:id="@+id/bottom_panel"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@color/white" >
-
-                    <RelativeLayout
-                        android:id="@+id/compose_container"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:minHeight="48dp" >
-
-                        <ImageButton
-                            android:id="@+id/send_message"
-                            android:layout_width="49dp"
-                            android:layout_height="49dp"
-                            android:layout_alignBottom="@+id/tb_layout"
-                            android:layout_alignParentRight="true"
-                            android:background="@null"
-                            android:contentDescription="@string/content_des_send_recorded_audio_text_chatting"
-                            android:src="@drawable/walkie_talkie_btn_selector"
-                            android:state_enabled="false" />
-
-                        <ImageButton
-                            android:id="@+id/sticker_btn"
-                            android:layout_width="49dp"
-                            android:layout_height="49dp"
-                            android:layout_alignBottom="@+id/tb_layout"
-                            android:layout_alignParentLeft="true"
-                            android:background="@null"
-                            android:contentDescription="@string/content_des_choose_sticker_while_chatting"
-                            android:scaleType="centerInside"
-                            android:src="@drawable/sticker_btn_selector" />
-
-                        <ViewStub
-                            android:id="@+id/pulsatingDotViewStub"
-                            android:layout_width="30dp"
-                            android:layout_height="30dp"
-                            android:layout_alignTop="@id/sticker_btn"
-                            android:layout_marginLeft="20dp"
-                            android:layout="@layout/pulsating_dot" />
-
-                        <LinearLayout
-                            android:id="@+id/tb_layout"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_centerVertical="true"
-                            android:layout_toLeftOf="@id/send_message"
-                            android:layout_toRightOf="@id/sticker_btn"
-                            android:gravity="bottom" >
-
-                            <LinearLayout
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_marginBottom="13dp"
-                                android:layout_marginTop="3dp"
-                                android:gravity="bottom" >
-
-                                <com.bsb.hike.view.CustomFontEditText
-                                    android:id="@+id/msg_compose"
-                                    android:layout_width="0dp"
-                                    android:layout_height="wrap_content"
-                                    android:layout_weight="0.9"
-                                    android:background="@null"
-                                    android:contentDescription="Textbox in chat thread"
-                                    android:gravity="center_vertical"
-                                    android:imeOptions="actionSend"
-                                    android:inputType="text|textAutoCorrect|textCapSentences|textMultiLine"
-                                    android:lineSpacingExtra="1dp"
-                                    android:maxLength="@integer/max_length_message"
-                                    android:maxLines="4"
-                                    android:minHeight="27dp"
-                                    android:paddingLeft="5dp"
-                                    android:paddingTop="3dp"
-                                    android:textColor="@color/chat_color"
-                                    android:textColorHint="#cdcdc8"
-                                    android:textSize="17sp" />
-
-                                <ImageButton
-                                    android:id="@+id/emoticon_btn"
-                                    android:layout_width="33dp"
-                                    android:layout_height="wrap_content"
-                                    android:background="@null"
-                                    android:contentDescription="@string/content_des_choose_smiley_while_chatting"
-                                    android:paddingBottom="2dp"
-                                    android:paddingTop="11dp"
-                                    android:src="@drawable/smiley_selector" />
-                            </LinearLayout>
-                        </LinearLayout>
-
-                        <LinearLayout
-                            android:id="@+id/info_layout"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_alignBottom="@+id/tb_layout"
-                            android:layout_alignLeft="@+id/tb_layout"
-                            android:layout_alignRight="@+id/tb_layout"
-                            android:layout_alignTop="@+id/tb_layout"
-                            android:gravity="right|center_vertical"
-                            android:visibility="gone" >
-
-                            <ImageView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginRight="5dp"
-                                android:src="@drawable/ic_info" />
-                        </LinearLayout>
-
-                        <com.bsb.hike.view.CustomFontTextView
-                            android:id="@+id/sms_chat_metadata_num_chars"
-                            android:layout_width="47dp"
-                            android:layout_height="wrap_content"
-                            android:layout_alignLeft="@id/send_message"
-                            android:layout_marginTop="3dp"
-                            android:gravity="center_horizontal"
-                            android:visibility="invisible" />
-                    </RelativeLayout>
-                </RelativeLayout>
-            </com.bsb.hike.view.CustomLinearLayout>
-
-            <include layout="@layout/dark_overlay" />
-
-            <View
-                android:id="@+id/white_overlay"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@color/white"
-                android:visibility="invisible" />
         </RelativeLayout>
-    </LinearLayout>
 
-    <include layout="@layout/kpt_keyboard_viewholder" />
+        <RelativeLayout
+            android:id="@+id/bottom_panel"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/white" >
 
+            <RelativeLayout
+                android:id="@+id/compose_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="48dp" >
+
+                <ImageButton
+                    android:id="@+id/send_message"
+                    android:contentDescription="@string/content_des_send_recorded_audio_text_chatting"
+                    android:layout_width="49dp"
+                    android:layout_height="49dp"
+                    android:layout_alignBottom="@+id/tb_layout"
+                    android:layout_alignParentRight="true"
+                    android:background="@null"
+                    android:src="@drawable/walkie_talkie_btn_selector"
+                    android:state_enabled="false" />
+
+                <ImageButton
+                    android:id="@+id/sticker_btn"
+                    android:contentDescription="@string/content_des_choose_sticker_while_chatting"
+                    android:layout_width="49dp"
+                    android:layout_height="49dp"
+                    android:layout_alignBottom="@+id/tb_layout"
+                    android:layout_alignParentLeft="true"
+                    android:background="@null"
+                    android:scaleType="centerInside"
+                    android:src="@drawable/sticker_btn_selector" />
+
+                <ViewStub
+                    android:id="@+id/pulsatingDotViewStub"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_alignTop="@id/sticker_btn"
+                    android:layout_marginLeft="20dp"
+                    android:layout="@layout/pulsating_dot" />
+
+                <LinearLayout
+                    android:id="@+id/tb_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_toLeftOf="@id/send_message"
+                    android:layout_toRightOf="@id/sticker_btn"
+                    android:gravity="bottom" >
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="13dp"
+                        android:layout_marginTop="3dp"
+                        android:gravity="bottom" >
+
+                        <com.bsb.hike.view.CustomFontEditText
+                            android:id="@+id/msg_compose"
+                            android:contentDescription="Textbox in chat thread"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="0.9"
+                            android:background="@null"
+                            android:gravity="center_vertical"
+                            android:imeOptions="actionSend"
+                            android:inputType="text|textAutoCorrect|textCapSentences"
+                            android:lineSpacingExtra="1dp"
+                            android:maxLength="@integer/max_length_message"
+                            android:maxLines="4"
+                            android:minHeight="27dp"
+                            android:paddingLeft="5dp"
+                            android:paddingTop="3dp"
+                            android:textColor="@color/chat_color"
+                            android:textColorHint="#cdcdc8"
+                            android:textSize="17sp" />
+
+                        <ImageButton
+                            android:id="@+id/emoticon_btn"
+                            android:contentDescription="@string/content_des_choose_smiley_while_chatting"
+                            android:layout_width="33dp"
+                            android:layout_height="wrap_content"
+                            android:background="@null"
+                            android:paddingBottom="2dp"
+                            android:paddingTop="11dp"
+                            android:src="@drawable/smiley_selector" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/info_layout"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignBottom="@+id/tb_layout"
+                    android:layout_alignLeft="@+id/tb_layout"
+                    android:layout_alignRight="@+id/tb_layout"
+                    android:layout_alignTop="@+id/tb_layout"
+                    android:gravity="right|center_vertical"
+                    android:visibility="gone" >
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginRight="5dp"
+                        android:src="@drawable/ic_info" />
+                </LinearLayout>
+
+                <com.bsb.hike.view.CustomFontTextView
+                    android:id="@+id/sms_chat_metadata_num_chars"
+                    android:layout_width="47dp"
+                    android:layout_height="wrap_content"
+                    android:layout_alignLeft="@id/send_message"
+                    android:layout_marginTop="3dp"
+                    android:gravity="center_horizontal"
+                    android:visibility="invisible" />
+            </RelativeLayout>
+        </RelativeLayout>
+    </com.bsb.hike.view.CustomLinearLayout>
+
+    <include layout="@layout/dark_overlay" />
+
+    <View
+        android:id="@+id/white_overlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/white"
+        android:visibility="invisible" />
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/animation_layout" >
+    </FrameLayout>
+  
+</RelativeLayout>
+ 
+</LinearLayout>
+
+	<include layout="@layout/kpt_keyboard_viewholder"/>
+	
 </RelativeLayout>

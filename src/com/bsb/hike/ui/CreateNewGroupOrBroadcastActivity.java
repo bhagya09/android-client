@@ -101,6 +101,8 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 		preferences = getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, MODE_PRIVATE);
 		systemKeyboard = HikeMessengerApp.isSystemKeyboard(getApplicationContext());
 
+		initCustomKeyboard();
+		
 		if (savedInstanceState != null)
 		{
 			setConversationId(savedInstanceState.getString(HikeConstants.Extras.CONVERSATION_ID));
@@ -148,6 +150,32 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 		}
 	}
 
+	private void initCustomKeyboard()
+	{
+		LinearLayout viewHolder = (LinearLayout) findViewById(R.id.keyboardView_holder);
+		mCustomKeyboard = new CustomKeyboard(this, viewHolder);
+		mCustomKeyboard.registerEditText((convType == ConvType.GROUP) ? R.id.group_name : R.id.broadcast_name,
+				KPTConstants.MULTILINE_LINE_EDITOR,CreateNewGroupOrBroadcastActivity.this,CreateNewGroupOrBroadcastActivity.this);
+
+		mCustomKeyboard.init(convName);
+		mCustomKeyboard.showCustomKeyboard(convName, true);
+		if (systemKeyboard)
+		{
+			mCustomKeyboard.showCustomKeyboard(convName, false);
+			mCustomKeyboard.swtichToDefaultKeyboard(convName);
+			mCustomKeyboard.unregister(convName);
+			convName.setOnClickListener(new OnClickListener()
+			{
+
+				@Override
+				public void onClick(View v)
+				{
+					Utils.showSoftKeyboard(CreateNewGroupOrBroadcastActivity.this, convName);
+				}
+			});
+		}
+	}
+
 	/**
 	 * This method sets the OneToNConversation type to be handled
 	 */
@@ -156,6 +184,13 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 		convType = getIntent().hasExtra(HikeConstants.Extras.CREATE_BROADCAST) ? ConvType.BROADCAST : ConvType.GROUP;
 	}
 
+	@Override
+	protected void onResume()
+	{
+		convName.setOnClickListener(this);
+		super.onResume();
+	}
+	
 	private void createView() {
 		
 		if (convType == ConvType.BROADCAST)
@@ -242,15 +277,9 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 
 	private void showKeyboard()
 	{
-		LinearLayout viewHolder = (LinearLayout) findViewById(R.id.keyboardView_holder);
-		mCustomKeyboard = new CustomKeyboard(this, viewHolder);
-		mCustomKeyboard.registerEditText((convType == ConvType.GROUP) ? R.id.group_name : R.id.broadcast_name,
-				KPTConstants.MULTILINE_LINE_EDITOR,CreateNewGroupOrBroadcastActivity.this,CreateNewGroupOrBroadcastActivity.this);
-
-		mCustomKeyboard.init(convName);
-		Logger.d("syskbd", "SystemKeyboard : " + systemKeyboard);
 		if (systemKeyboard)
 		{
+			convName.requestFocus();
 			Utils.showSoftKeyboard(this, convName);
 		}
 		else
@@ -498,19 +527,29 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 	
 	private void destroyKeyboardResources()
 	{
-		mCustomKeyboard.unregister(convName);
+		if (mCustomKeyboard != null)
+		{
+			mCustomKeyboard.unregister(convName);
 
-		mCustomKeyboard.closeAnyDialogIfShowing();
+			mCustomKeyboard.closeAnyDialogIfShowing();
 
-		mCustomKeyboard.destroyCustomKeyboard();
+			mCustomKeyboard.destroyCustomKeyboard();
+		}
+	}
+	
+	protected void pauseKeyboardResources()
+	{
+		if (mCustomKeyboard != null)
+		{
+			mCustomKeyboard.closeAnyDialogIfShowing();
+			mCustomKeyboard.onPause();
+		}
 	}
 	
 	@Override
 	protected void onPause()
 	{
-		mCustomKeyboard.closeAnyDialogIfShowing();
-		
-		mCustomKeyboard.onPause();
+		pauseKeyboardResources();
 		
 		super.onPause();
 	}

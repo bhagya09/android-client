@@ -47,7 +47,6 @@ import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ShapeDrawable;
@@ -95,8 +94,8 @@ import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
 
-public class SignupActivity extends ChangeProfileImageBaseActivity implements SignupTask.OnSignupTaskProgressUpdate, OnEditorActionListener,
-				OnClickListener, AdaptxtEditTextEventListner, AdaptxtKeyboordVisibilityStatusListner, OnCancelListener, Listener
+public class SignupActivity extends ChangeProfileImageBaseActivity implements SignupTask.OnSignupTaskProgressUpdate, OnEditorActionListener, OnClickListener,
+		OnCancelListener, Listener, AdaptxtEditTextEventListner, AdaptxtKeyboordVisibilityStatusListner
 {
 	private CustomKeyboard mCustomKeyboard;
 	
@@ -169,6 +168,8 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 	public static final int PIN = 2;
 
 	public static final int NUMBER = 1;
+	
+	public static int callMeWaitTime;
 
 	private String countryCode;
 
@@ -589,20 +590,31 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 
 	private void destroyKeyboardResources()
 	{
-		mCustomKeyboard.unregister(enterEditText);
-		mCustomKeyboard.unregister(birthdayText);
+		if (mCustomKeyboard != null)
+		{
+			mCustomKeyboard.unregister(enterEditText);
+			mCustomKeyboard.unregister(birthdayText);
 
-		mCustomKeyboard.closeAnyDialogIfShowing();
+			mCustomKeyboard.closeAnyDialogIfShowing();
 
-		mCustomKeyboard.destroyCustomKeyboard();
+			mCustomKeyboard.destroyCustomKeyboard();
+		}
+	}
+	
+	protected void pauseKeyboardResources()
+	{
+		if (mCustomKeyboard != null)
+		{
+			mCustomKeyboard.closeAnyDialogIfShowing();
+			
+			mCustomKeyboard.onPause();
+		}
 	}
 	
 	@Override
 	protected void onPause()
 	{
-		mCustomKeyboard.closeAnyDialogIfShowing();
-		
-		mCustomKeyboard.onPause();
+		pauseKeyboardResources();
 		
 		super.onPause();
 	}
@@ -801,7 +813,12 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 							Editor editor = accountPrefs.edit();
 							editor.putString(HikeMessengerApp.TEMP_COUNTRY_CODE, code);
 							editor.commit();
-
+							
+							Utils.setSSLAllowed(code);
+							Utils.setupServerURL(getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, MODE_PRIVATE).getBoolean(HikeMessengerApp.PRODUCTION, true),
+									Utils.switchSSLOn(getApplicationContext()));
+							HttpRequestConstants.setUpBase();
+							
 							mTask.addUserInput(number);
 
 							startLoading();
@@ -2012,6 +2029,13 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 			mTask.cancelTask();
 		}
 		SignupTask.isAlreadyFetchingNumber = false;
+		
+		if (mCustomKeyboard != null && mCustomKeyboard.isCustomKeyboardVisible())
+		{
+			mCustomKeyboard.showCustomKeyboard(enterEditText, false);
+			mCustomKeyboard.showCustomKeyboard(birthdayText, false);
+			return;
+		}
 		super.onBackPressed();
 	}
 
@@ -2089,7 +2113,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 			// Manual entry for pin
 			else
 			{
-				prepareLayoutForGettingPin(HikeConstants.CALL_ME_WAIT_TIME);
+				prepareLayoutForGettingPin(callMeWaitTime);
 				setAnimation();
 			}
 			break;
@@ -2492,7 +2516,6 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 	@Override
 	public void onReturnAction(int arg0)
 	{
-		// TODO Auto-generated method stub
-		
+		submitClicked();		
 	}
 }

@@ -13,6 +13,7 @@
         android:layout_width="56dp"
         android:layout_height="45dp"
         android:layout_alignParentLeft="true"
+        android:animateLayoutChanges="true"
         android:layout_alignParentTop="true"
         android:layout_marginRight="4dp" >
 
@@ -35,6 +36,7 @@
         <com.bsb.hike.ui.utils.RecyclingImageView
             android:id="@+id/love_status"
             android:layout_width="19dp"
+            android:visibility="gone"
             android:layout_height="18dp"
             android:layout_alignParentRight="true"
             android:layout_alignParentTop="true"

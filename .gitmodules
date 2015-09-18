@@ -1,0 +1,3 @@
+[submodule "transporter"]
+	path = transporter
+	url = https://github.com/hike/transporter.git
