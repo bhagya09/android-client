@@ -34,7 +34,7 @@ public class BotDiscoveryDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRes
 	private RequestToken mToken;
 
 	/**
-	 * The JSON Object to sent in the body of the HHTP Call. eg : { “bots_in_client” : [“+hike1+”, “+hikenews+”,”+hikecricket+”, “hikegrowth+”] , “all_required” : “false”}
+	 * The JSON Object to sent in the body of the HTTP Call. eg : { “bots_in_client” : [“+hike1+”, “+hikenews+”,”+hikecricket+”, “hikegrowth+”] , “all_required” : “false”}
 	 */
 	private JSONObject mJson;
 
@@ -109,15 +109,7 @@ public class BotDiscoveryDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRes
 						return;
 					}
 
-					JSONArray resultData = response.optJSONArray(HikePlatformConstants.BOTS);
-					if (null == resultData)
-					{
-						Logger.e(TAG, "Sticker download failed null data");
-						doOnFailure(null);
-						return;
-					}
-
-					doOnSuccess(resultData);
+					doOnSuccess(response);
 				}
 				catch (Exception e)
 				{

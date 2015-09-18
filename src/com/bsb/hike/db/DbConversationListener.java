@@ -542,9 +542,16 @@ public class DbConversationListener implements Listener
 		
 		else if (HikePubSub.BOT_DISCOVERY_DOWNLOAD_SUCCESS.equals(type))
 		{
-			JSONArray jsonArray = (JSONArray) object;
+			JSONObject result = (JSONObject) object;
 
-			HikeContentDatabase.getInstance().populateBotDiscoveryTable(jsonArray);
+			JSONArray botArray = result.optJSONArray(HikePlatformConstants.BOTS);
+			if (botArray == null || botArray.length() == 0)
+			{
+				Logger.e("BotDiscovery", "Got null botArray");
+				return;
+			}
+			
+			HikeContentDatabase.getInstance().populateBotDiscoveryTable(botArray);
 		}
 	}
 
