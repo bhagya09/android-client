@@ -7,9 +7,12 @@ import android.media.ThumbnailUtils;
 import android.provider.MediaStore;
 import android.util.Log;
 
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
+import com.bsb.hike.BitmapModule.HikeBitmapFactory.BitmapResolutionState;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory.Dimension;
 import com.bsb.hike.models.HikeFile.HikeFileType;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Utils;
 
 public class SharedFileImageLoader extends ImageWorker
@@ -103,7 +106,14 @@ public class SharedFileImageLoader extends ImageWorker
 		Bitmap thumbnail = null;
 		Log.d("image_config", "========================== \n Inside API  getSharedMediaThumbnailFromCache");
 		
-		thumbnail = HikeBitmapFactory.getBestResolutionBitmap(context, destFilePath, defaultSize,Utils.isHoneycombOrHigher()? HikeBitmapFactory.BitmapResolutionState.STATE_3:HikeBitmapFactory.BitmapResolutionState.STATE_3);
+		BitmapResolutionState initState = BitmapResolutionState.STATE_3;
+
+		if(Utils.isHoneycombOrHigher() && HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SHOW_HIGH_RES_IMAGE, false))
+		{
+			initState = BitmapResolutionState.INIT_STATE;
+		}
+		
+		thumbnail = HikeBitmapFactory.getBestResolutionBitmap(context, destFilePath, defaultSize,initState);
 		thumbnail = Utils.getRotatedBitmap(destFilePath, thumbnail);
 		
 		return thumbnail;

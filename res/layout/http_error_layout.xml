@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        android:id="@+id/http_error_ll"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="vertical" >
+
+        <ImageView
+            android:id="@+id/poofy_sad"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/poof_sad_xhdpi" />
+
+        <com.bsb.hike.view.CustomFontTextView
+            android:id="@+id/http_error_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="@string/no_internet_connection"
+            android:textColor="@color/black_80"
+            android:textSize="18sp"
+            android:textStyle="italic" />
+
+        <com.bsb.hike.view.CustomFontTextView
+            android:id="@+id/https_error_subtitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/turn_on_connection"
+            android:textColor="@color/black_45"
+            android:textSize="12sp" />
+
+        <com.bsb.hike.view.CustomFontButton
+            android:id="@+id/retry_button"
+            style="@style/Widget.AppCompat.Button.Borderless.Colored"
+            android:layout_width="162dp"
+        	android:layout_height="42dp"
+        	android:layout_marginTop="24dp"
+            android:background="@drawable/http_error_bordered_button_selector"
+            android:text="@string/RETRY"
+            android:textColor="@drawable/http_error_bordered_button_color_selector" />
+    </LinearLayout>
+
+</LinearLayout>

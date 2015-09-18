@@ -460,6 +460,12 @@ public class PlatformContentModel
 		@Expose
 		public String notifText;
 
+		@Expose
+		public String parent_msisdn;
+
+		@Expose
+		public boolean replace;
+
 	}
 
 }

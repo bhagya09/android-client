@@ -2,6 +2,8 @@ package com.bsb.hike.voip.protobuf;
 
 import android.util.Log;
 
+import com.bsb.hike.utils.Logger;
+import com.bsb.hike.voip.VoIPConstants;
 import com.bsb.hike.voip.VoIPDataPacket;
 import com.bsb.hike.voip.VoIPDataPacket.BroadcastListItem;
 import com.bsb.hike.voip.VoIPDataPacket.PacketType;
@@ -44,9 +46,13 @@ public class VoIPSerializer {
     	}
     	
     	// Multiple audio packets
-    	if (dp.getDataList() != null) {
-    		for (byte[] data : dp.getDataList())
-    			protoBufBuilder.addDataList(ByteString.copyFrom(data));
+    	try {
+        	if (dp.getDataList() != null) {
+        		for (byte[] data : dp.getDataList())
+        			protoBufBuilder.addDataList(ByteString.copyFrom(data));
+        	}
+    	} catch (NullPointerException e) {
+    		Logger.w(VoIPConstants.TAG, "VoIPSerializer NullPointerException: " + e.toString());
     	}
     	
     	DataPacket dataPacket = protoBufBuilder.build();

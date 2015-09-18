@@ -90,6 +90,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/info_container"
+                android:transitionName="@string/timeline_transition_anim"
                 android:background="@null"
                 android:onClick="onViewImageClicked"
                 android:scaleType="centerCrop"
