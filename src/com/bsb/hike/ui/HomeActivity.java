@@ -1209,6 +1209,11 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			return;
 		}
 
+		if (!Utils.isUpdateRequired(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.Extras.LATEST_VERSION, ""), this.getApplicationContext()))
+		{
+			return;
+		}
+
 		if (updateType == HikeConstants.NORMAL_UPDATE)
 		{
 			// Here we check if the user cancelled the update popup for this

@@ -99,12 +99,15 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/animation_circular_progress_holder"
-       
         android:text="Connecting to Sahil"
         android:textSize="18dp"
         android:gravity="center"
         android:visibility="invisible"
-        android:layout_marginTop="21dp" 
+        android:layout_marginTop="21dp"
+        android:maxLines = "3"
+		android:scrollbars = "vertical"
+		android:textColor="@color/white"
+		android:textColorHighlight="@color/white"
        >
     </com.bsb.hike.view.CustomFontTextView>
 
@@ -117,10 +120,13 @@
         android:text=""
         android:gravity="center"
         android:textSize="18dp"
-        
         android:layout_marginBottom="4dp"
         android:layout_marginTop="18dp"
         android:visibility="invisible"
+        android:maxLines = "3"
+		android:scrollbars = "vertical"
+		android:textColor="@color/white"
+		android:textColorHighlight="@color/white"
         >
     </com.bsb.hike.view.CustomFontTextView>
     
@@ -132,7 +138,7 @@
          android:layout_marginRight="47dp"
          android:background="@color/white_20"
          android:layout_below="@+id/connectionInfo"
-         android:layout_marginTop="35dp"
+         android:layout_marginTop="30dp"
   		 android:visibility="gone"
         
         />
