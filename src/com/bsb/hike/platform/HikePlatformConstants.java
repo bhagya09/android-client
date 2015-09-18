@@ -250,4 +250,6 @@ public interface HikePlatformConstants
 	
 	public static final String BOTS = "bots";
 	
+	public static final String ALL_REQUIRED = "all_required";
+	
 }

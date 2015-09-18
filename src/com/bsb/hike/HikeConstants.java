@@ -3282,4 +3282,6 @@ public class HikeConstants
 	public static final String SHOW_NOTIFICATION = "sn";
 	
 	public static final String SHOW_HIGH_RES_IMAGE = "s_h_r";
+	
+	public static final String BOT_TABLE_REFRESH = "b_t_r";
 }
