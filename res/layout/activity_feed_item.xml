@@ -13,7 +13,6 @@
         android:layout_width="56dp"
         android:layout_height="45dp"
         android:layout_alignParentLeft="true"
-        android:animateLayoutChanges="true"
         android:layout_alignParentTop="true"
         android:layout_marginRight="4dp" >
 
