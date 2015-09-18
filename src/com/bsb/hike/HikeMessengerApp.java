@@ -1170,7 +1170,7 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 		});
 	}
 	
-	public void showToast(final int stringId)
+	public void showToast(final int stringId,final int duration)
 	{
 		appStateHandler.post(new Runnable()
 		{
@@ -1178,7 +1178,7 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 			@Override
 			public void run()
 			{
-				Toast.makeText(getApplicationContext(),getResources().getString(stringId), Toast.LENGTH_SHORT).show();
+				Toast.makeText(getApplicationContext(),getResources().getString(stringId), duration).show();
 			}
 		});
 	}
