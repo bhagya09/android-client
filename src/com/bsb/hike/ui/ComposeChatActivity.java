@@ -11,6 +11,70 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeConstants.MESSAGE_TYPE;
+import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.HikePubSub;
+import com.bsb.hike.R;
+import com.bsb.hike.adapters.ComposeChatAdapter;
+import com.bsb.hike.adapters.FriendsAdapter;
+import com.bsb.hike.adapters.FriendsAdapter.FriendsListFetchedCallback;
+import com.bsb.hike.adapters.FriendsAdapter.ViewType;
+import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.analytics.HAManager.EventPriority;
+import com.bsb.hike.bots.BotInfo;
+import com.bsb.hike.bots.BotUtils;
+import com.bsb.hike.dialog.HikeDialog;
+import com.bsb.hike.dialog.HikeDialogFactory;
+import com.bsb.hike.dialog.HikeDialogListener;
+import com.bsb.hike.filetransfer.FTAnalyticEvents;
+import com.bsb.hike.filetransfer.FileTransferManager;
+import com.bsb.hike.media.PickContactParser;
+import com.bsb.hike.models.ContactInfo;
+import com.bsb.hike.models.ContactInfo.FavoriteType;
+import com.bsb.hike.models.ConvMessage;
+import com.bsb.hike.models.ConvMessage.OriginType;
+import com.bsb.hike.models.GalleryItem;
+import com.bsb.hike.models.HikeFile.HikeFileType;
+import com.bsb.hike.models.MultipleConvMessage;
+import com.bsb.hike.models.PhonebookContact;
+import com.bsb.hike.models.Sticker;
+import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.modules.kpt.KptUtils;
+import com.bsb.hike.offline.OfflineController;
+import com.bsb.hike.offline.OfflineUtils;
+import com.bsb.hike.platform.ContentLove;
+import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.platform.PlatformMessageMetadata;
+import com.bsb.hike.platform.WebMetadata;
+import com.bsb.hike.platform.content.PlatformContent;
+import com.bsb.hike.productpopup.ProductPopupsConstants;
+import com.bsb.hike.service.HikeService;
+import com.bsb.hike.tasks.InitiateMultiFileTransferTask;
+import com.bsb.hike.ui.v7.SearchView;
+import com.bsb.hike.ui.v7.SearchView.OnQueryTextListener;
+import com.bsb.hike.utils.HikeAnalyticsEvent;
+import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.IntentFactory;
+import com.bsb.hike.utils.LastSeenScheduler;
+import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.NUXManager;
+import com.bsb.hike.utils.OneToNConversationUtils;
+import com.bsb.hike.utils.ShareUtils;
+import com.bsb.hike.utils.StealthModeManager;
+import com.bsb.hike.utils.StickerManager;
+import com.bsb.hike.utils.Utils;
+import com.bsb.hike.view.TagEditText;
+import com.bsb.hike.view.TagEditText.Tag;
+import com.bsb.hike.view.TagEditText.TagEditorListener;
+import com.kpt.adaptxt.beta.CustomKeyboard;
+import com.kpt.adaptxt.beta.util.KPTConstants;
+import com.kpt.adaptxt.beta.view.AdaptxtEditText;
+import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtEditTextEventListner;
+import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtKeyboordVisibilityStatusListner;
+
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -58,71 +122,13 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.bsb.hike.HikeConstants;
-import com.bsb.hike.HikeConstants.MESSAGE_TYPE;
-import com.bsb.hike.HikeMessengerApp;
-import com.bsb.hike.HikePubSub;
-import com.bsb.hike.R;
-import com.bsb.hike.adapters.ComposeChatAdapter;
-import com.bsb.hike.adapters.FriendsAdapter;
-import com.bsb.hike.adapters.FriendsAdapter.FriendsListFetchedCallback;
-import com.bsb.hike.adapters.FriendsAdapter.ViewType;
-import com.bsb.hike.analytics.AnalyticsConstants;
-import com.bsb.hike.analytics.HAManager;
-import com.bsb.hike.analytics.HAManager.EventPriority;
-import com.bsb.hike.bots.BotInfo;
-import com.bsb.hike.bots.BotUtils;
-import com.bsb.hike.dialog.HikeDialog;
-import com.bsb.hike.dialog.HikeDialogFactory;
-import com.bsb.hike.dialog.HikeDialogListener;
-import com.bsb.hike.filetransfer.FTAnalyticEvents;
-import com.bsb.hike.filetransfer.FileTransferManager;
-import com.bsb.hike.media.PickContactParser;
-import com.bsb.hike.models.ContactInfo;
-import com.bsb.hike.models.ContactInfo.FavoriteType;
-import com.bsb.hike.models.ConvMessage;
-import com.bsb.hike.models.ConvMessage.OriginType;
-import com.bsb.hike.models.GalleryItem;
-import com.bsb.hike.models.HikeFile.HikeFileType;
-import com.bsb.hike.models.MultipleConvMessage;
-import com.bsb.hike.models.PhonebookContact;
-import com.bsb.hike.models.Sticker;
-import com.bsb.hike.modules.contactmgr.ContactManager;
-import com.bsb.hike.offline.OfflineController;
-import com.bsb.hike.offline.OfflineUtils;
-import com.bsb.hike.platform.ContentLove;
-import com.bsb.hike.platform.HikePlatformConstants;
-import com.bsb.hike.platform.PlatformMessageMetadata;
-import com.bsb.hike.platform.WebMetadata;
-import com.bsb.hike.platform.content.PlatformContent;
-import com.bsb.hike.productpopup.ProductPopupsConstants;
-import com.bsb.hike.service.HikeService;
-import com.bsb.hike.tasks.InitiateMultiFileTransferTask;
-import com.bsb.hike.ui.v7.SearchView;
-import com.bsb.hike.ui.v7.SearchView.OnQueryTextListener;
-import com.bsb.hike.utils.HikeAnalyticsEvent;
-import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
-import com.bsb.hike.utils.HikeSharedPreferenceUtil;
-import com.bsb.hike.utils.IntentFactory;
-import com.bsb.hike.utils.LastSeenScheduler;
-import com.bsb.hike.utils.Logger;
-import com.bsb.hike.utils.NUXManager;
-import com.bsb.hike.utils.OneToNConversationUtils;
-import com.bsb.hike.utils.ShareUtils;
-import com.bsb.hike.utils.StealthModeManager;
-import com.bsb.hike.utils.StickerManager;
-import com.bsb.hike.utils.Utils;
-import com.bsb.hike.view.TagEditText;
-import com.bsb.hike.view.TagEditText.Tag;
-import com.bsb.hike.view.TagEditText.TagEditorListener;
-import com.kpt.adaptxt.beta.CustomKeyboard;
-import com.kpt.adaptxt.beta.util.KPTConstants;
-import com.kpt.adaptxt.beta.view.AdaptxtEditText;
-import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtEditTextEventListner;
-import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtKeyboordVisibilityStatusListner;
-
-public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implements TagEditorListener, OnItemClickListener, HikePubSub.Listener, OnScrollListener, AdaptxtEditTextEventListner, AdaptxtKeyboordVisibilityStatusListner
+public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implements TagEditorListener, OnItemClickListener, HikePubSub.Listener, OnScrollListener,
+		AdaptxtEditTextEventListner, AdaptxtKeyboordVisibilityStatusListner
 {
+	private CustomKeyboard mCustomKeyboard;
+	
+	private boolean systemKeyboard;
+	
 	private static final String SELECT_ALL_MSISDN="all";
 	
 	private final String HORIZONTAL_FRIEND_FRAGMENT = "horizontalFriendFragment";
@@ -228,8 +234,6 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 
 	private int gcSettings = -1;
 
-	private CustomKeyboard mCustomKeyboard;
-	 
 	@Override
 	public void onCreate(Bundle savedInstanceState)
 	{
@@ -376,6 +380,44 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		mPubSub.addListeners(this, hikePubSubListeners);
 	}
 
+	private void initCustomKeyboard()
+	{	
+		LinearLayout parentView = (LinearLayout) findViewById(R.id.keyboardView_holder);
+		mCustomKeyboard= new CustomKeyboard(this, parentView);
+		mCustomKeyboard.registerEditText(R.id.composeChatNewGroupTagET, KPTConstants.MULTILINE_LINE_EDITOR, ComposeChatActivity.this, ComposeChatActivity.this);
+		mCustomKeyboard.init(tagEditText);
+		
+			if (systemKeyboard)
+			{
+				mCustomKeyboard.showCustomKeyboard(tagEditText, false);
+				mCustomKeyboard.swtichToDefaultKeyboard(tagEditText);
+				mCustomKeyboard.unregister(R.id.composeChatNewGroupTagET);
+				getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+				Utils.showSoftKeyboard(tagEditText, InputMethodManager.SHOW_FORCED);
+			}
+		
+		{
+			tagEditText.setOnClickListener(new OnClickListener()
+			{
+				
+				@Override
+				public void onClick(View v)
+				{
+					if (systemKeyboard)
+					{
+						getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+						Utils.showSoftKeyboard(tagEditText, InputMethodManager.SHOW_FORCED);
+//						Utils.showSoftKeyboard(getApplicationContext(), tagEditText);
+					}
+					else
+					{
+						mCustomKeyboard.showCustomKeyboard(tagEditText, true);						
+					}
+				}
+			});
+		}
+	}
+	
 	boolean isOpened = false;
 
 	private HikeDialog contactDialog;
@@ -662,6 +704,9 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			tagEditText = (TagEditText) findViewById(R.id.composeChatNewGroupTagET);
 			tagEditText.setVisibility(View.GONE);
 		}
+		
+		systemKeyboard = HikeMessengerApp.isSystemKeyboard(getApplicationContext());
+		initCustomKeyboard();
 
 		if (existingGroupOrBroadcastId != null)
 		{
@@ -698,7 +743,8 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 	@Override
 	protected void onPause()
 	{
-		// TODO Auto-generated method stub
+		KptUtils.pauseKeyboardResources(mCustomKeyboard);
+		
 		super.onPause();
 		if(adapter != null)
 		{
@@ -721,6 +767,8 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 	@Override
 	public void onDestroy()
 	{
+		KptUtils.destroyKeyboardResources(mCustomKeyboard, R.id.composeChatNewGroupTagET);
+		
 		if (progressDialog != null)
 		{
 			progressDialog.dismiss();
@@ -2364,6 +2412,12 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 	@Override
 	public void onBackPressed()
 	{
+		if (mCustomKeyboard != null && mCustomKeyboard.isCustomKeyboardVisible())
+		{
+			mCustomKeyboard.showCustomKeyboard(tagEditText, false);
+			return;
+		}
+		
 		if (composeMode == CREATE_GROUP_MODE || composeMode == CREATE_BROADCAST_MODE)
 		{
 			if (existingGroupOrBroadcastId != null || createGroup || createBroadcast || addToConference)
@@ -2755,63 +2809,69 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 
 
 	@Override
-	public void analyticalData(String arg0) {
+	public void analyticalData(String currentLanguage)
+	{
+		KptUtils.generateKeyboardAnalytics(currentLanguage);
+	}
+
+
+	@Override
+	public void onInputViewCreated()
+	{
 		// TODO Auto-generated method stub
 		
 	}
 
 
 	@Override
-	public void onInputViewCreated() {
+	public void onInputviewVisbility(boolean arg0, int arg1)
+	{
 		// TODO Auto-generated method stub
 		
 	}
 
 
 	@Override
-	public void onInputviewVisbility(boolean arg0, int arg1) {
+	public void showGlobeKeyView()
+	{
+		KptUtils.onGlobeKeyPressed(ComposeChatActivity.this, mCustomKeyboard);
+	}
+
+
+	@Override
+	public void showQuickSettingView()
+	{
 		// TODO Auto-generated method stub
 		
 	}
 
 
 	@Override
-	public void showGlobeKeyView() {
+	public void onAdaptxtFocusChange(View arg0, boolean arg1)
+	{
 		// TODO Auto-generated method stub
 		
 	}
 
 
 	@Override
-	public void showQuickSettingView() {
+	public void onAdaptxtTouch(View arg0, MotionEvent arg1)
+	{
 		// TODO Auto-generated method stub
 		
 	}
 
 
 	@Override
-	public void onAdaptxtFocusChange(View arg0, boolean arg1) {
+	public void onAdaptxtclick(View arg0)
+	{
 		// TODO Auto-generated method stub
 		
 	}
 
 
-	@Override
-	public void onAdaptxtTouch(View arg0, MotionEvent arg1) {
-		// TODO Auto-generated method stub
-		
-	}
-
-
-	@Override
-	public void onAdaptxtclick(View arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-
-	@Override
-	public void onReturnAction(int arg0) {
+	public void onReturnAction(int arg0)
+	{
 		// TODO Auto-generated method stub
 		
 	}
