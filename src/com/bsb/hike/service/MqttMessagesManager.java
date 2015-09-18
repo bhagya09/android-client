@@ -2532,7 +2532,7 @@ public class MqttMessagesManager
 		
 		if (data.has(HikeConstants.ADD_DISCOVERY_BOTS))
 		{
-			if (data.has(HikeConstants.BOTS))
+			if (data.getBoolean(HikeConstants.ADD_DISCOVERY_BOTS) && data.has(HikeConstants.BOTS))
 			{
 				HikeMessengerApp.getPubSub().publish(HikePubSub.BOT_DISCOVERY_DOWNLOAD_SUCCESS, data);
 			}
