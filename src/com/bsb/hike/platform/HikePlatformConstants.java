@@ -252,4 +252,6 @@ public interface HikePlatformConstants
 	
 	public static final String ALL_REQUIRED = "all_required";
 	
+	public static final String BOT_DP = "dp";
+	
 }
