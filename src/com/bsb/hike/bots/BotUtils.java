@@ -19,6 +19,7 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
@@ -467,6 +468,9 @@ public class BotUtils
 		contact.setFavoriteType(ContactInfo.FavoriteType.NOT_FRIEND);
 		ContactManager.getInstance().updateContacts(contact);
 		HikeMessengerApp.getPubSub().publish(HikePubSub.CONTACT_ADDED, contact);
+		
+		HikeContentDatabase contentDb = HikeContentDatabase.getInstance();
+		contentDb.insertIntoBotDiscoveryTable(botInfo);
 		
 		/**
 		 * Notification will be played only if enable bot is true and notifType is Silent/Loud

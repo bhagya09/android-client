@@ -800,6 +800,56 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 
 	}
 	
+	/**
+	 * Inserts bot at the last rank if not already in the Bot Discovery Table
+	 * @param mBotInfo
+	 */
+	public void insertIntoBotDiscoveryTable(BotInfo mBotInfo)
+	{
+		ContentValues contentValues = getBotDiscoveryTableContentValues(mBotInfo);
+		if (!botExistsInBotDiscoveryTable(mBotInfo.getMsisdn()))
+		{
+			mDB.insert(DBConstants.HIKE_CONTENT.BOT_DISCOVERY_TABLE, null, contentValues);
+			Logger.v("HikeContentDatabase", "Bot added to Bot discovery table : "+mBotInfo.getMsisdn());
+		}
+		else
+		{
+			Logger.v("HikeContentDatabase", "Bot already exists in Bot Discovery Table "+mBotInfo.getMsisdn());
+		}
+	}
+
+	/**
+	 * Returns if the bot exists in the Bot Discovery Table or not.
+	 * @param msisdn
+	 * @return
+	 */
+	public boolean botExistsInBotDiscoveryTable(String msisdn)
+	{
+		Cursor c = null;
+		try
+		{
+
+			c = mDB.query(DBConstants.HIKE_CONTENT.BOT_DISCOVERY_TABLE, null, DBConstants.MSISDN + "=?", new String[] { msisdn }, null, null, null);
+			if (c.moveToFirst())
+			{
+				return true;
+			}
+			return false;
+		}
+
+		finally
+		{
+			if (c != null)
+			{
+				c.close();
+			}
+		}
+	}
+	
+	/**
+	 * Returns the list of BotInfo for all bots in the BotDiscovery table
+	 * @return
+	 */
 	public List<BotInfo> getShowcaseBotInfoList()
 	{
 		List<BotInfo> list = new ArrayList<>();
