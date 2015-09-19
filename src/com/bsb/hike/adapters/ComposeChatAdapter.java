@@ -78,7 +78,7 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 	
 	private boolean nuxStateActive = false;
 	
-	private boolean showMicroappShowcase = true;
+	private boolean showMicroappShowcase = false;
 
 	public ComposeChatAdapter(Context context, ListView listView, boolean fetchGroups, boolean fetchRecents, boolean fetchRecentlyJoined, String existingGroupId, String sendingMsisdn, FriendsListFetchedCallback friendsListFetchedCallback, boolean showSMSContacts, boolean showMicroappShowcase)
 	{
@@ -521,7 +521,7 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 			return;
 		}
 		
-		if(showMicroappShowcase && this.microappShowcaseList != null && !microappShowcaseList.isEmpty())
+		if(showMicroappShowcase && microappShowcaseList != null && !microappShowcaseList.isEmpty())
 		{
 			ContactInfo microappSection = new ContactInfo(SECTION_ID, ""+microappShowcaseList.size(), "HIKE APPS", FRIEND_PHONE_NUM);
 			//TODO change params here.

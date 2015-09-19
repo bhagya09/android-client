@@ -395,9 +395,9 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 		
 		if(showMicroappShowcase && microappShowcaseList != null)
 		{
-			microappShowcaseList = HikeContentDatabase.getInstance().getShowcaseBotInfoList();
+			microappShowcaseList.addAll(HikeContentDatabase.getInstance().getShowcaseBotInfoList());
 		}
-
+		
 		Logger.d("TestQuery", "total time: " + (System.currentTimeMillis() - startTime));
 
 
