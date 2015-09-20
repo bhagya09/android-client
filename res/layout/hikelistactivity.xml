@@ -71,4 +71,5 @@
         layout="@layout/spinner_center_screen"
         android:visibility="gone" />
 
+    <include layout="@layout/kpt_keyboard_viewholder"/>
 </RelativeLayout>
