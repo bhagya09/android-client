@@ -50,6 +50,7 @@ import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
+import com.bsb.hike.modules.kpt.KptUtils;
 import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.service.HikeMqttManagerNew;
@@ -307,17 +308,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			}
 		}
 		
-		pauseKeyboardResources();
-	}
-	
-	private void pauseKeyboardResources()
-	{
-		if (mCustomKeyboard != null)
-		{
-			mCustomKeyboard.closeAnyDialogIfShowing();
-			
-			mCustomKeyboard.onPause();			
-		}
+		KptUtils.pauseKeyboardResources(mCustomKeyboard);
 	}
 	
 	@Override
@@ -363,23 +354,9 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			HikeMessengerApp.getPubSub().removeListeners(this, profilEditPubSubListeners);
 		}
 		
-		destroyKeyboardResources();
+		KptUtils.destroyKeyboardResources(mCustomKeyboard, R.id.name_edit, R.id.name_input, R.id.email_input);
 	}
 
-	private void destroyKeyboardResources()
-	{
-		if (mCustomKeyboard != null)
-		{
-			mCustomKeyboard.unregister(mNameEdit);
-
-			mCustomKeyboard.unregister(mEmailEdit);
-			
-			mCustomKeyboard.closeAnyDialogIfShowing();
-
-			mCustomKeyboard.destroyCustomKeyboard();
-		}
-	}
-	
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
@@ -418,12 +395,13 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			mActivityState = new ProfileActivityState();
 		}
 
+		systemKeyboard = HikeMessengerApp.isSystemKeyboard(getApplicationContext());
+
 		if (getIntent().hasExtra(HikeConstants.Extras.EXISTING_GROUP_CHAT) || getIntent().hasExtra(HikeConstants.Extras.EXISTING_BROADCAST_LIST))
 		{
 			setContentView(R.layout.profile);
 
-			LinearLayout viewHolder = (LinearLayout) findViewById(R.id.keyboardView_holder);
-			mCustomKeyboard= new CustomKeyboard(this, viewHolder);
+			addCustomKeyboard();
 			
 			this.profileType = getIntent().hasExtra(HikeConstants.Extras.EXISTING_GROUP_CHAT) ? ProfileType.GROUP_INFO : ProfileType.BROADCAST_INFO;
 			setupGroupAndBroadcastProfileScreen();
@@ -466,8 +444,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 				// set pubsub listeners
 				setContentView(R.layout.profile_edit);
 
-				LinearLayout viewHolder = (LinearLayout) findViewById(R.id.keyboardView_holder);
-				mCustomKeyboard= new CustomKeyboard(this, viewHolder);
+				addCustomKeyboard();
 				
 				this.profileType = ProfileType.USER_PROFILE_EDIT;
 				setupEditScreen();
@@ -492,8 +469,6 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			}
 		}
 		
-		systemKeyboard = HikeMessengerApp.isSystemKeyboard(getApplicationContext());
-		
 		setupActionBar();
 		
 		if (getIntent().getBooleanExtra(ProductPopupsConstants.SHOW_CAMERA, false))
@@ -508,28 +483,24 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		
 	}
 
-	private void changeKeyboard()
+	private void addCustomKeyboard()
 	{
-		mCustomKeyboard.showCustomKeyboard(mNameEdit, false);
-		mCustomKeyboard.swtichToDefaultKeyboard(mNameEdit);
-		mCustomKeyboard.unregister(R.id.name_edit);
-		mNameEdit.setOnClickListener(new OnClickListener()
+		if (!systemKeyboard)
 		{
-
-			@Override
-			public void onClick(View v)
-			{
-				showKeyboard();
-			}
-		});
+			LinearLayout viewHolder = (LinearLayout) findViewById(R.id.keyboardView_holder);
+			mCustomKeyboard= new CustomKeyboard(this, viewHolder);
+		}
 	}
 	
 	private void initCustomKeyboard(View parent)
 	{
-		ViewGroup parentView = (ViewGroup) parent.getParent();
-		mNameEdit = (CustomFontEditText) parentView.findViewById(R.id.name_edit);
-		mCustomKeyboard.registerEditText(R.id.name_edit,KPTConstants.MULTILINE_LINE_EDITOR,ProfileActivity.this,ProfileActivity.this);
-		mCustomKeyboard.init(mNameEdit);
+		if (!systemKeyboard)
+		{
+			ViewGroup parentView = (ViewGroup) parent.getParent();
+			mNameEdit = (CustomFontEditText) parentView.findViewById(R.id.name_edit);
+			mCustomKeyboard.registerEditText(R.id.name_edit,KPTConstants.MULTILINE_LINE_EDITOR,ProfileActivity.this,ProfileActivity.this);
+			mCustomKeyboard.init(mNameEdit);
+		}
 	}
 	
 	private void setGroupNameFields(View parent)
@@ -543,21 +514,13 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		mNameEdit.requestFocus();
 		mNameEdit.setText(oneToNConversation.getLabel());
 		mNameEdit.setSelection(mNameEdit.getText().toString().length());
-		if (systemKeyboard)
-		{
-			changeKeyboard();
-		}
 		showKeyboard();
 		setupGroupNameEditActionBar();
 	}
 
 	private void showKeyboard()
 	{
-		if (systemKeyboard)
-		{
-			Utils.showSoftKeyboard(getApplicationContext(), mNameEdit);
-		}
-		else
+		if (!systemKeyboard)
 		{
 			mCustomKeyboard.showCustomKeyboard(mNameEdit, true);
 		}
@@ -1415,15 +1378,13 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		mNameEdit = (CustomFontEditText) name.findViewById(R.id.name_input);
 		mEmailEdit = (CustomFontEditText) email.findViewById(R.id.email_input);
 
-		mCustomKeyboard.registerEditText(R.id.name_input,KPTConstants.MULTILINE_LINE_EDITOR,ProfileActivity.this,ProfileActivity.this);
-		mCustomKeyboard.registerEditText(R.id.email_input,KPTConstants.MULTILINE_LINE_EDITOR,ProfileActivity.this,ProfileActivity.this);
-		mCustomKeyboard.init(mNameEdit);
-		
-		if (systemKeyboard)
+		if (!systemKeyboard)
 		{
-			changeKeyboard();
+			mCustomKeyboard.registerEditText(R.id.name_input,KPTConstants.MULTILINE_LINE_EDITOR,ProfileActivity.this,ProfileActivity.this);
+			mCustomKeyboard.registerEditText(R.id.email_input,KPTConstants.MULTILINE_LINE_EDITOR,ProfileActivity.this,ProfileActivity.this);
+			mCustomKeyboard.init(mNameEdit);
+			showKeyboard();			
 		}
-		showKeyboard();
 		
 		((TextView) name.findViewById(R.id.name_edit_field)).setText(R.string.name);
 		((TextView) phone.findViewById(R.id.phone_edit_field)).setText(R.string.phone_num);
@@ -1632,6 +1593,12 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 
 	public void onBackPressed()
 	{
+		if (mCustomKeyboard != null && mCustomKeyboard.isCustomKeyboardVisible())
+		{
+			mCustomKeyboard.showCustomKeyboard(mNameEdit, false);
+			mCustomKeyboard.showCustomKeyboard(mEmailEdit, false);
+			return;
+		}
 		if(showingGroupEdit)
 		{
 			closeGroupNameEdit();
@@ -3561,10 +3528,9 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 	}
 
 	@Override
-	public void analyticalData(String arg0)
+	public void analyticalData(String currentLanguage)
 	{
-		// TODO Auto-generated method stub
-		
+		KptUtils.generateKeyboardAnalytics(currentLanguage);
 	}
 
 	@Override
@@ -3584,8 +3550,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 	@Override
 	public void showGlobeKeyView()
 	{
-		// TODO Auto-generated method stub
-		
+		KptUtils.onGlobeKeyPressed(ProfileActivity.this, mCustomKeyboard);
 	}
 
 	@Override

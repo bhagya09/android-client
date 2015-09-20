@@ -423,8 +423,11 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 		parentLayout = findViewById(R.id.parent_layout);
 
-		LinearLayout viewHolder = (LinearLayout) findViewById(R.id.keyboardView_holder);
-		mCustomKeyboard = new CustomKeyboard(HomeActivity.this, viewHolder);
+		if (!isSystemKeyboard())
+		{
+			LinearLayout viewHolder = (LinearLayout) findViewById(R.id.keyboardView_holder);
+			mCustomKeyboard = new CustomKeyboard(HomeActivity.this, viewHolder);			
+		}
 		
 		networkErrorPopUp = (TextView) findViewById(R.id.network_error);
 
@@ -643,23 +646,9 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		return super.onPrepareOptionsMenu(menu);
 	}
 	
-	protected void showKeyboard()
-	{
-		if(searchET!=null){
-			if (isSystemKeyboard())
-			{
-				Utils.showSoftKeyboard(getApplicationContext(), searchET);
-			}
-			else
-			{
-				mCustomKeyboard.showCustomKeyboard(searchET, true);
-			}
-		}
-	}
-
 	public boolean isSystemKeyboard()
 	{
-		return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CURRENT_KEYBOARD, false);
+		return HikeMessengerApp.isSystemKeyboard(HomeActivity.this);
 	}
 	
 	private boolean setupMenuOptions(final Menu menu)
@@ -688,19 +677,22 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			searchView.clearFocus();
 	
 			//Code for CustomKeyboard
-			 searchET = (AdaptxtEditText) searchView.findViewById(R.id.search_src_text);
-			mCustomKeyboard.registerEditText(searchET, KPTConstants.MULTILINE_LINE_EDITOR, HomeActivity.this, HomeActivity.this);
-			mCustomKeyboard.init(searchET);
-			searchET.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-				
-				@Override
-				public void onFocusChange(View v, boolean hasFocus) {
-					if(hasFocus){
-						//Utils.hideSoftKeyboard(getApplicationContext(), searchET);
-						mCustomKeyboard.showCustomKeyboard(searchET, true);
+			if (!isSystemKeyboard())
+			{
+				searchET = (AdaptxtEditText) searchView.findViewById(R.id.search_src_text);
+				mCustomKeyboard.registerEditText(searchET, KPTConstants.MULTILINE_LINE_EDITOR, HomeActivity.this, HomeActivity.this);
+				mCustomKeyboard.init(searchET);
+				searchET.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+					
+					@Override
+					public void onFocusChange(View v, boolean hasFocus) {
+						if(hasFocus){
+							//Utils.hideSoftKeyboard(getApplicationContext(), searchET);
+							mCustomKeyboard.showCustomKeyboard(searchET, true);
+						}
 					}
-				}
-			});
+				});
+			}
 			
 			//
 			searchOptionID = searchMenuItem.getItemId();
@@ -730,8 +722,9 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			{
 				if(mainFragment!=null)
 		        {
-					if(mCustomKeyboard!=null&& searchET!=null){
-					  mCustomKeyboard.showCustomKeyboard(searchET, false);
+					if(mCustomKeyboard!=null && searchET!=null)
+					{
+						mCustomKeyboard.showCustomKeyboard(searchET, false);
 					}
 					mainFragment.removeSearch();
 		        }
@@ -2050,6 +2043,10 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	@Override
 	public void onConfigurationChanged(Configuration newConfig)
 	{
+		if (!isSystemKeyboard())
+		{
+			mCustomKeyboard.onConfigurationChanged(newConfig);
+		}
 		super.onConfigurationChanged(newConfig);
 		// handle dialogs here
 		if(progDialog != null && progDialog.isShowing())

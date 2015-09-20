@@ -102,7 +102,10 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 		preferences = getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, MODE_PRIVATE);
 		systemKeyboard = HikeMessengerApp.isSystemKeyboard(getApplicationContext());
 
-		initCustomKeyboard();
+		if (!systemKeyboard)
+		{
+			initCustomKeyboard();
+		}
 		
 		if (savedInstanceState != null)
 		{
@@ -160,21 +163,7 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 
 		mCustomKeyboard.init(convName);
 		mCustomKeyboard.showCustomKeyboard(convName, true);
-		if (systemKeyboard)
-		{
-			mCustomKeyboard.showCustomKeyboard(convName, false);
-			mCustomKeyboard.swtichToDefaultKeyboard(convName);
-			mCustomKeyboard.unregister(convName);
-			convName.setOnClickListener(new OnClickListener()
-			{
-
-				@Override
-				public void onClick(View v)
-				{
-					Utils.showSoftKeyboard(CreateNewGroupOrBroadcastActivity.this, convName);
-				}
-			});
-		}
+		convName.setOnClickListener(this);
 	}
 
 	/**
@@ -188,7 +177,6 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 	@Override
 	protected void onResume()
 	{
-		convName.setOnClickListener(this);
 		super.onResume();
 	}
 	
@@ -200,7 +188,6 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 
 			convImage = (ImageView) findViewById(R.id.broadcast_profile_image);
 			convName = (CustomFontEditText) findViewById(R.id.broadcast_name);
-			convName.setOnClickListener(this);
 			myMsisdn = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.MSISDN_SETTING, "");
 			broadcastNote = (TextView) findViewById(R.id.broadcast_info);
 			broadcastNote.setText(Html.fromHtml(getString(R.string.broadcast_participant_info, myMsisdn)));
@@ -233,7 +220,6 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 
 			convImage = (ImageView) findViewById(R.id.group_profile_image);
 			convName = (CustomFontEditText) findViewById(R.id.group_name);
-			convName.setOnClickListener(this);
 			editImageIcon = (ImageView) findViewById(R.id.change_image);
 			gsSettings = (CheckBox) findViewById(R.id.checkBox);
 			if((HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SERVER_CONFIGURABLE_GROUP_SETTING,0))==1){
@@ -276,22 +262,15 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 		}
 	}
 
-	private void showKeyboard()
-	{
-		if (systemKeyboard)
-		{
-			convName.requestFocus();
-			Utils.showSoftKeyboard(this, convName);
-		}
-		else
-		{
-			mCustomKeyboard.showCustomKeyboard(convName, true);
-		}
-	}
-	
 	@Override
 	public void onBackPressed()
 	{
+		if (mCustomKeyboard != null && mCustomKeyboard.isCustomKeyboardVisible())
+		{
+			mCustomKeyboard.showCustomKeyboard(convName, false);
+			return;
+		}
+		
 		/**
 		 * Deleting the temporary file, if it exists.
 		 */
@@ -546,13 +525,9 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 		switch (v.getId())
 		{
 		case R.id.group_name:
-			showKeyboard();
-			break;
-
 		case R.id.broadcast_name:
-			showKeyboard();
+			mCustomKeyboard.showCustomKeyboard(convName, true);
 			break;
-			
 		default:
 			break;
 		}
