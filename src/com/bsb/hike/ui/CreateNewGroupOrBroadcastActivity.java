@@ -162,7 +162,6 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 				KPTConstants.MULTILINE_LINE_EDITOR,CreateNewGroupOrBroadcastActivity.this,CreateNewGroupOrBroadcastActivity.this);
 
 		mCustomKeyboard.init(convName);
-		mCustomKeyboard.showCustomKeyboard(convName, true);
 		convName.setOnClickListener(this);
 	}
 
