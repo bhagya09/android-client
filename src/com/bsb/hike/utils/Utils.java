@@ -1117,7 +1117,7 @@ public class Utils
 		messageWithName.setSpan(new StyleSpan(Typeface.BOLD), 0, firstName.length() + 2, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 		return messageWithName;
 	}
-
+	
 	/**
 	 * Used for setting the density multiplier, which is to be multiplied with any pixel value that is programmatically given
 	 * 
@@ -4585,6 +4585,14 @@ public class Utils
 		i.setType(ContactsContract.Contacts.CONTENT_ITEM_TYPE);
 		i.putExtra(Insert.PHONE, msisdn);
 		context.startActivity(i);
+	}
+	
+	public static void addToContacts(Context context, String msisdn, String name)
+	{
+		Intent intent = new Intent(Intent.ACTION_INSERT, ContactsContract.Contacts.CONTENT_URI);
+		intent.putExtra(Insert.PHONE, msisdn);
+		intent.putExtra(Insert.NAME, name);
+		context.startActivity(intent);
 	}
 
 	public static final void cancelScheduledStealthReset()
