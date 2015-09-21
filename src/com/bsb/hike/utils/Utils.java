@@ -338,6 +338,20 @@ public class Utils
 			Logger.d("Utils", "makeCall");
 		}
 	}
+	
+	public static void sendSMS(String number)
+	{
+		Intent intent = new Intent(Intent.ACTION_VIEW, Uri.fromParts("sms", number, null));
+		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		try
+		{
+			HikeMessengerApp.getInstance().startActivity(intent);
+		}
+		catch (Exception e)
+		{
+			Logger.d("Utils", "sms exception");
+		}
+	}
 
 	public static JSONObject jsonSerialize(Map<String, ? extends JSONSerializable> elements) throws JSONException
 	{
