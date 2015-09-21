@@ -2,9 +2,13 @@ package com.bsb.hike.platform.content;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Observable;
 import java.util.Observer;
 
+import android.text.TextUtils;
+import android.util.Pair;
+import com.bsb.hike.HikePubSub;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -36,6 +40,10 @@ public class PlatformZipDownloader
 	private boolean isTemplatingEnabled;
 	
 	private boolean doReplace;
+
+	private String callbackId;
+
+	private HashMap<String,Float> callbackProgress;
 	
 	/**
 	 * Instantiates a new platform template download task.
@@ -46,17 +54,22 @@ public class PlatformZipDownloader
 	
 	public PlatformZipDownloader(PlatformContentRequest argRequest, boolean isTemplatingEnabled)
 	{
-		// Get ID from content and call http
-		mRequest = argRequest;
-		this.isTemplatingEnabled = isTemplatingEnabled;
+		this(argRequest, isTemplatingEnabled, false);
 	}
 	
 	public PlatformZipDownloader(PlatformContentRequest argRequest, boolean isTemplatingEnabled,boolean doReplace)
+	{
+		this(argRequest, isTemplatingEnabled, doReplace, null);
+	}
+
+	public PlatformZipDownloader(PlatformContentRequest argRequest, boolean isTemplatingEnabled,boolean doReplace, String callbackId)
 	{
 		// Get ID from content and call http
 		mRequest = argRequest;
 		this.isTemplatingEnabled = isTemplatingEnabled;
 		this.doReplace = doReplace;
+		this.callbackId = callbackId;
+		callbackProgress = new HashMap<String, Float>();
 	}
 	
 	public  boolean isMicroAppExist()
@@ -127,24 +140,35 @@ public class PlatformZipDownloader
 			@Override
 			public void onRequestFailure(HttpException httpException)
 			{
+				HikeMessengerApp.getPubSub().publish(HikePubSub.DOWNLOAD_PROGRESS, new Pair<String, String>(callbackId, "downloadFailure"));
 				deleteTemporaryFolder();
 				PlatformRequestManager.failure(mRequest, EventCode.LOW_CONNECTIVITY, isTemplatingEnabled);
 				File tempFolder = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.TEMP_DIR_NAME);
 				PlatformRequestManager.getCurrentDownloadingTemplates().remove(mRequest.getContentData().appHashCode());
 		        PlatformContentUtils.deleteDirectory(tempFolder);
+				callbackProgress.remove(callbackId);
 			}
 
 			@Override
 			public void onRequestSuccess(Response result)
 			{
+				HikeMessengerApp.getPubSub().publish(HikePubSub.DOWNLOAD_PROGRESS, new Pair<String, String>(callbackId, "downloadSuccess"));
 				unzipMicroApp(zipFile);
 				PlatformRequestManager.getCurrentDownloadingTemplates().remove(mRequest.getContentData().appHashCode());
+				callbackProgress.remove(callbackId);
 			}
 
 			@Override
 			public void onRequestProgressUpdate(float progress)
 			{
-				//do nothing
+				if (!TextUtils.isEmpty(callbackId))
+				{
+					if (updateProgress(progress))
+					{
+						callbackProgress.put(callbackId, progress);
+						HikeMessengerApp.getPubSub().publish(HikePubSub.DOWNLOAD_PROGRESS, new Pair<String, String>(callbackId, String.valueOf(progress)));
+					}
+				}
 			}
 		});
 
@@ -154,6 +178,16 @@ public class PlatformZipDownloader
 			PlatformRequestManager.getCurrentDownloadingTemplates().add(mRequest.getContentData().appHashCode());
 		}
 
+	}
+
+	private boolean updateProgress(float progress)
+	{
+		float lastProgress = 0;
+		if (callbackProgress.containsKey(callbackId))
+		{
+			lastProgress = callbackProgress.get(callbackId);
+		}
+		return progress - lastProgress >= .1;
 	}
 	
 	private void replaceDirectories(String tempPath,String originalPath,boolean replaceSuccess,String unzipPath)
@@ -232,6 +266,11 @@ public class PlatformZipDownloader
 				@Override
 				public void update(Observable observable, Object data)
 				{
+					//When the microapp does not exist, we don't want to replace anything and just unzip the data.
+					if (!isMicroAppExist())
+					{
+						doReplace = false;
+					}
 					// delete temp folder
 					if(!doReplace)
 					{
@@ -259,10 +298,12 @@ public class PlatformZipDownloader
 						{
 							PlatformRequestManager.setReadyState(mRequest);
 						}
+						HikeMessengerApp.getPubSub().publish(HikePubSub.DOWNLOAD_PROGRESS, new Pair<String, String>(callbackId, "unzipSuccess"));
 					}
 					else
 					{
 						mRequest.getListener().onEventOccured(0, EventCode.UNZIP_FAILED);
+						HikeMessengerApp.getPubSub().publish(HikePubSub.DOWNLOAD_PROGRESS, new Pair<String, String>(callbackId, "unzipFailed"));
 					}
 				}
 			});

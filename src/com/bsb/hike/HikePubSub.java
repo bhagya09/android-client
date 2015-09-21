@@ -439,6 +439,8 @@ public class HikePubSub implements Runnable
 	public static final String PLATFORM_CARD_EVENT_SENT = "platformCardEventSent";
 	
 	public static final String LOCATION_AVAILABLE = "locationAvailable";
+
+	public static final String DOWNLOAD_PROGRESS = "progress";
 	
 	private final Thread mThread;
 

@@ -20,6 +20,7 @@ import android.text.TextUtils;
 import com.bsb.hike.modules.httpmgr.Header;
 import com.bsb.hike.modules.httpmgr.HttpUtils;
 import com.bsb.hike.modules.httpmgr.RequestToken;
+import com.bsb.hike.modules.httpmgr.engine.ProgressByteProcessor;
 import com.bsb.hike.modules.httpmgr.interceptor.IRequestInterceptor;
 import com.bsb.hike.modules.httpmgr.interceptor.IResponseInterceptor;
 import com.bsb.hike.modules.httpmgr.interceptor.Pipeline;
@@ -30,6 +31,7 @@ import com.bsb.hike.modules.httpmgr.request.listener.IRequestCancellationListene
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.request.requestbody.IRequestBody;
 import com.bsb.hike.modules.httpmgr.retry.BasicRetryPolicy;
+import com.bsb.hike.utils.Utils;
 
 /**
  * Encapsulates all of the information necessary to make an HTTP request.
@@ -39,6 +41,8 @@ public abstract class Request<T> implements IRequestFacade
 	public static final short REQUEST_TYPE_LONG = 0x0;
 
 	public static final short REQUEST_TYPE_SHORT = 0x1;
+
+	public static final int BUFFER_SIZE = 4 * 1024; // 4Kb
 
 	private String defaultId = "";
 	
@@ -150,8 +154,18 @@ public abstract class Request<T> implements IRequestFacade
 		this.progressListener = null;
 		this.future = null;
 	}
-	
-	public abstract T parseResponse(InputStream in) throws IOException;
+
+	public abstract T parseResponse(InputStream in, int contentLength) throws IOException;
+
+	protected void readBytes(InputStream is, ProgressByteProcessor progressByteProcessor) throws IOException
+	{
+		final byte[] buffer = new byte[BUFFER_SIZE];
+		int len = 0;
+		while ((len = is.read(buffer)) != -1)
+		{
+			progressByteProcessor.processBytes(buffer, 0, len);
+		}
+	}
 
 	/**
 	 * Returns the unique id of the request
