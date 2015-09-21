@@ -256,7 +256,7 @@ public class CocosGamingActivity extends Cocos2dxActivity implements HikePubSub.
 			@Override
 			public void run()
 			{
-				PlatformCallback("SEND_SHARED_MESSAGE", res);
+				PlatformCallback(NativeBridge.SEND_SHARED_MESSAGE, res);
 			}
 		});
 
@@ -705,9 +705,8 @@ public class CocosGamingActivity extends Cocos2dxActivity implements HikePubSub.
 						jsonObject.put(HikePlatformConstants.EVENT_ID, messageEvent.getEventId());
 						jsonObject.put(HikePlatformConstants.EVENT_STATUS, messageEvent.getEventStatus());
 						jsonObject.put(HikePlatformConstants.EVENT_TYPE, messageEvent.getEventType());
-						//TODO: Call native function and send it jsonObject.
 						
-
+						PlatformCallback(NativeBridge.ON_EVENT_RECEIVE, jsonObject.toString());
 					}
 					catch (JSONException e)
 					{
