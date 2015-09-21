@@ -222,7 +222,6 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		addOnPreferenceChangeListeners(HikeConstants.POPUP_ON_KEYPRESS_PREF);
 		addOnPreferenceChangeListeners(HikeConstants.SOUND_ON_KEYPRESS_PREF);
 		addOnPreferenceChangeListeners(HikeConstants.VIBRATE_ON_KEYPRESS_PREF);
-		addOnPreferenceChangeListeners(HikeConstants.PORTRAIT_IS_STD_PREF);
 		addStickerRecommendPreferenceChangeListener();
 		addSslPreferenceChangeListener();
 		addStickerRecommendAutopopupPreferenceChangeListener();
@@ -1308,10 +1307,6 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		else if (HikeConstants.VIBRATE_ON_KEYPRESS_PREF.equals(preference.getKey()))
 		{
 			kptSettings.setVibrateOnKeyPressState(isChecked ? AdaptxtSettings.KPT_TRUE : AdaptxtSettings.KPT_FALSE);
-		}
-		else if (HikeConstants.PORTRAIT_IS_STD_PREF.equals(preference.getKey()))
-		{
-			kptSettings.setPortraitKeyboardType(isChecked ? "0" : "1");
 		}
 		return true;
 	}
