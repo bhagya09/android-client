@@ -1705,7 +1705,7 @@
     <string name="shorthand_title">Shorthand</string>
     <string name="kpt_adv_summary">Auto correction, touch feedback and more</string>
     <string name="kpt_adv_title">Advanced Settings</string>
-    <string name="advanced_keyboard_settings">Advancced Keyboard Settings</string>
+    <string name="advanced_keyboard_settings">Advanced Settings</string>
     <string name="private_mode_title">Private Mode</string>
     <string name="auto_correct_title">Auto Correct</string>
     <string name="auto_caps_summary">Auto Capitalization</string>
