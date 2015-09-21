@@ -324,6 +324,21 @@ public class Utils
 		return arr;
 	}
 
+	public static void makeCall(String number)
+	{
+		Intent intent = new Intent(Intent.ACTION_CALL);
+		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		intent.setData(Uri.parse("tel:"+ number));
+		try
+		{
+			HikeMessengerApp.getInstance().startActivity(intent);
+		}
+		catch (Exception e)
+		{
+			Logger.d("Utils", "makeCall");
+		}
+	}
+
 	public static JSONObject jsonSerialize(Map<String, ? extends JSONSerializable> elements) throws JSONException
 	{
 		JSONObject obj = new JSONObject();
