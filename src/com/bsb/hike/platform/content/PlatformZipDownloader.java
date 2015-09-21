@@ -266,6 +266,11 @@ public class PlatformZipDownloader
 				@Override
 				public void update(Observable observable, Object data)
 				{
+					//When the microapp does not exist, we don't want to replace anything and just unzip the data.
+					if (!isMicroAppExist())
+					{
+						doReplace = false;
+					}
 					// delete temp folder
 					if(!doReplace)
 					{
