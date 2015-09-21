@@ -1586,17 +1586,17 @@
 	<string name="connected_previously">You are connected to %1$s .Disconnect that connection first</string>
     <string name="connecting_previously">You are already connecting to %1$s. Disconnect that connection first</string>
     <string name="connecting_previously_to_same_msisdn">You are already connecting to %1$s .Please wait</string>
-    <string name="disconnect_warning">Connect with %1$s ?</string>
-    <string name="connected_warning">Your connection with <![CDATA[<font color=#E53C3C>%1$s</font>]]> will end.</string>
+    <string name="disconnect_warning">Connect with %1$s?</string>
+    <string name="connected_warning">Your connection with %1$s will end.</string>
     <string name="connecting_to">Connecting to %1$s...</string>
     <string name="offline_animation_second_message">Tip: Hike Direct works within a \n 100 metres radius</string>
     <string name="offline_animation_third_message">It is taking longer than usual. \n Please ask %1$s to \n tap on hike direct as well</string>
     <string name="connect">Connect</string>
 	<string name="sticker_share_popup_activate_toast">Stickey has now been activated!</string>
-    <string name="cancel_connection">Cancel connection attempt with <![CDATA[<font color=#FF0000>%1$s</font>]]> ?</string>
+    <string name="cancel_connection">Cancel connection attempt with %1$s?</string>
     <string name="cancel_offline_connection">Cancel Connection</string>
     <string name="connection_cancelled">Connection cancelled</string>
-    <string name="retry_connection">Connection was not \n established. Try again?</string>
+    <string name="retry_connection">Couldn\'t connect via \n Hike Direct.Try again?</string>
     <string name="file_attachment_info_offline">Share apk , media , files  up to any size</string>
 	<string name="actionbar_activity_feed_title">Activity</string>
 	<string name="photo_like_text">Liked your photo</string>
