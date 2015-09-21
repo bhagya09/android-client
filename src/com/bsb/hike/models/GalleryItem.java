@@ -63,6 +63,7 @@ public class GalleryItem implements Parcelable
 		this.name = source.readString();
 		this.filePath = source.readString();
 		this.layoutIDName = source.readString();
+		this.bucketCount = source.readInt();
 	}
 
 	@Override
@@ -74,6 +75,7 @@ public class GalleryItem implements Parcelable
 		dest.writeString(name);
 		dest.writeString(filePath);
 		dest.writeString(layoutIDName);
+		dest.writeInt(bucketCount);
 	}
 
 	public long getId()

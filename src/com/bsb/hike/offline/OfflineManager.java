@@ -20,6 +20,7 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.db.HikeOfflinePersistence;
 import com.bsb.hike.models.HikeHandlerUtil;
+import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.offline.OfflineConstants.ERRORCODE;
 import com.bsb.hike.offline.OfflineConstants.HandlerConstants;
 import com.bsb.hike.offline.OfflineConstants.OFFLINE_STATE;
@@ -70,7 +71,9 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 	private List<Topic> topics;
 	
 	private long timeTakenToEstablishConnection = 0l;
-
+	
+	private boolean isClientInitialized=false;
+	
 	Handler handler = new Handler(HikeHandlerUtil.getInstance().getLooper())
 	{
 		public void handleMessage(android.os.Message msg)
@@ -160,7 +163,6 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 		connectionManager = new ConnectionManager(context, HikeHandlerUtil.getInstance().getLooper());
 		transporter = Transporter.getInstance();
 		listeners = new ArrayList<IOfflineCallbacks>();
-		receiver = new OfflineBroadCastReceiver(this);
 		Logger.d(TAG, "Contructor called");
 	}
 
@@ -235,17 +237,19 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 
 		if (listeners.size() == 1)
 		{
-			IntentFilter intentFilter = new IntentFilter();
-			addIntentFilters(intentFilter);
-			context.registerReceiver(receiver, intentFilter);
+			addBroadReceiver();
 		}
 	}
 
 	public void addBroadReceiver()
 	{
-		IntentFilter intentFilter = new IntentFilter();
-		addIntentFilters(intentFilter);
-		context.registerReceiver(receiver, intentFilter);
+		if (receiver == null)
+		{
+			receiver = new OfflineBroadCastReceiver(this);
+			IntentFilter intentFilter = new IntentFilter();
+			addIntentFilters(intentFilter);
+			context.registerReceiver(receiver, intentFilter);
+		}
 	}
 	private void addIntentFilters(IntentFilter intentFilter)
 	{
@@ -263,11 +267,10 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 		String offlineNetworkMsisdn = connectionManager.getConnectedHikeNetworkMsisdn();
 		Logger.d(TAG, "CheckConnectedNetwork");
 
-		if (offlineNetworkMsisdn != null && connectedDevice == null && 
+		if (offlineNetworkMsisdn != null &&  !isClientInitialized && 
 				OfflineController.getInstance().getOfflineState() == OFFLINE_STATE.CONNECTING)
 		{
-			connectedDevice = offlineNetworkMsisdn;
-			
+			isClientInitialized=true;
 			// now transporter initAsClient is on Handler Thread/ backend thread
 			final IConnectionListener listener = this;
 			handler.post(new Runnable()
@@ -275,7 +278,7 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 				@Override
 				public void run()
 				{
-					if (initClientConfig(connectedDevice))
+					if (initClientConfig(connectinMsisdn))
 					{
 						Logger.d(TAG, "Starting as Client");
 						if (OfflineController.getInstance().getOfflineState() ==  OFFLINE_STATE.CONNECTING)
@@ -377,7 +380,7 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 
 	public void connectAsPerMsisdn(final String msisdn)
 	{
-
+		addBroadReceiver();
 		timeTakenToEstablishConnection=System.currentTimeMillis();
 		connectinMsisdn = msisdn;
 		OfflineController.getInstance().setOfflineState(OFFLINE_STATE.CONNECTING);
@@ -527,9 +530,29 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 		removeAllMessages();
 		startedForChatThread = false;
 		HikeSharedPreferenceUtil.getInstance().saveData(OfflineConstants.OFFLINE_MSISDN, "");
-		Logger.d(TAG,"All variables cleared");
-		updateListeners(ERRORCODE.SHUTDOWN);
+		Logger.d(TAG, "All variables cleared");
+		isClientInitialized = false;
+		unRegisterReceiver();
 	}
+
+	private void unRegisterReceiver()
+	{
+		if (receiver == null)
+		{
+			return;
+		}
+
+		try
+		{
+			context.unregisterReceiver(receiver);
+		}
+		catch (IllegalArgumentException e)
+		{
+			Logger.e(TAG, "Illegal Argument Exception in unregistering receiver");
+		}
+		receiver = null;
+	}
+
 
 	public void setConnectedDevice(String connectedDevice)
 	{

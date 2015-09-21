@@ -3,7 +3,6 @@ package com.bsb.hike.offline;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
@@ -13,7 +12,12 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Context;
+import android.content.Intent;
+import android.media.MediaScannerConnection;
+import android.net.Uri;
+import android.os.Environment;
 
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
@@ -23,11 +27,10 @@ import com.bsb.hike.filetransfer.FileSavedState;
 import com.bsb.hike.filetransfer.FileTransferBase.FTState;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.HikeFile;
-import com.bsb.hike.models.Sticker;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.offline.OfflineConstants.MessageType;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
-import com.google.android.gms.internal.gi;
+import com.hike.transporter.utils.Logger;
 
 public class OfflineFileManager
 {
@@ -260,7 +263,11 @@ public class OfflineFileManager
 		else 
 		{
 			File tempFile = file;
-			tempFile.renameTo(new File(OfflineUtils.getFilePathFromJSON(messageJSON)));
+			File hikePath=new File(OfflineUtils.getFilePathFromJSON(messageJSON));
+			boolean result=tempFile.renameTo(hikePath);
+			Logger.d(TAG, "renaming result is " + result);
+			// Now scanning the above received file as it was not visible to android before
+			MediaScannerConnection.scanFile(HikeMessengerApp.getInstance().getApplicationContext(), new String[] { hikePath.getAbsolutePath() }, null, null);
 			FileTransferModel fileTransferModel = currentReceivingFiles.get(message.getMsgID());
 
 			removeFromCurrentReceivingFile(message.getMsgID());

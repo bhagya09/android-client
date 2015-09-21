@@ -974,6 +974,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		{
 			HAManager.getInstance().endChatSession(msisdn);
 		}
+		webView.onPause();
 	}
 
 	@Override
@@ -990,6 +991,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		 * Used to clear notif tray if this is opened from notification
 		 */
 		HikeMessengerApp.getPubSub().publish(HikePubSub.CANCEL_ALL_NOTIFICATIONS, null);
+		webView.onResume();
 	}
 	
 	@Override
@@ -1345,5 +1347,6 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 			PlatformUtils.recordBotOpenViaNotification(msisdn);
 		}
 	}
+
 
 }

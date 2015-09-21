@@ -334,7 +334,7 @@ public class OfflineController
 
 	public boolean isConnected()
 	{
-		return false;
+		return ( offlineState == OFFLINE_STATE.CONNECTED);
 	}
 
 	public void shutDown()
@@ -479,7 +479,7 @@ public class OfflineController
 		}
 		else
 		{
-			HikeMessengerApp.getInstance().showToast(R.string.file_expire);
+			HikeMessengerApp.getInstance().showToast(R.string.file_expire,Toast.LENGTH_SHORT);
 		}
 	}
 
@@ -520,6 +520,9 @@ public class OfflineController
 			hikeConverter.releaseResources();
 
 			offlineManager.releaseResources();
+			ERRORCODE errorCode = ERRORCODE.SHUTDOWN;
+			errorCode.setErrorCode(exception);
+			offlineManager.updateListeners(errorCode);
 			// if a sending file didn't go change from spinner to retry button
 			HikeMessengerApp.getPubSub().publish(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED, null);
 			setOfflineState(OFFLINE_STATE.DISCONNECTED);
@@ -602,9 +605,11 @@ public class OfflineController
 		offlineManager.sendConnectedCallback();
 		long connectionId = System.currentTimeMillis();
 		OfflineSessionTracking.getInstance().setConnectionId(connectionId);
-		;
+		
 		offlineManager.sendInfoPacket(connectionId);
-
+		OfflineUtils.showToastForBatteryLevel();
+		
+		
 	}
 
 	public SenderConsignment getSenderConsignment(ConvMessage convMessage, boolean persistence)

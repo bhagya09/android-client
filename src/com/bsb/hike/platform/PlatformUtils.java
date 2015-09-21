@@ -1170,7 +1170,7 @@ public class PlatformUtils
 
 		if (!TextUtils.isEmpty(newPlatformToken))
 		{
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.TOKEN_SETTING, newPlatformToken);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.PLATFORM_TOKEN_SETTING, newPlatformToken);
 		}
 	}
 	/**
