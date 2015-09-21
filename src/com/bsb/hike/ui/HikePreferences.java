@@ -46,6 +46,7 @@ import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.IconListPreference;
 import com.bsb.hike.view.NotificationToneListPreference;
 import com.bsb.hike.view.PreferenceWithSubText;
+import com.bsb.hike.view.SeekBarPreference;
 import com.bsb.hike.view.SwitchPreferenceCompat;
 import com.kpt.adaptxt.beta.AdaptxtSettings;
 import com.kpt.adaptxt.beta.AdaptxtSettingsRegisterListener;
@@ -149,6 +150,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 
 		addClickPreferences();
 		addSwitchPreferences();
+		addSeekbarPreferences();
 		
 		saveKeyboardPref();
 		
@@ -175,6 +177,12 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 
 	}
 	
+	private void addSeekbarPreferences() {
+		addOnSeekbarChangeListeners(HikeConstants.LONG_PRESS_DUR_PREF);
+		addOnSeekbarChangeListeners(HikeConstants.KEYPRESS_VOL_PREF);
+		addOnSeekbarChangeListeners(HikeConstants.KEYPRESS_VIB_DUR_PREF);
+	}
+
 	private void saveKeyboardPref()
 	{
 		Preference kbdPref = findPreference(HikeConstants.KEYBOARD_PREF);
@@ -444,6 +452,14 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		final SwitchPreferenceCompat preference = (SwitchPreferenceCompat) getPreferenceScreen().findPreference(preferenceName);
 		if (preference != null)
 		{
+			preference.setOnPreferenceChangeListener(this);
+		}
+	}
+	
+	private void addOnSeekbarChangeListeners(String preferenceName) {
+		final SeekBarPreference preference = (SeekBarPreference) getPreferenceScreen()
+				.findPreference(preferenceName);
+		if (preference != null) {
 			preference.setOnPreferenceChangeListener(this);
 		}
 	}
@@ -1028,6 +1044,9 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 			return false;
 		}
 		
+		if(newValue instanceof Integer){
+			saveSeekBarPreferences(preference,newValue);
+		}
 		
 		if(! (newValue instanceof Boolean))
 		{
@@ -1304,6 +1323,21 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 			kptSettings.setPortraitKeyboardType(isChecked ? "0" : "1");
 		}
 		return true;
+	}
+
+	private void saveSeekBarPreferences(Preference preference, Object newValue) {
+		int value = (int) newValue;
+
+		if (HikeConstants.LONG_PRESS_DUR_PREF.equals(preference.getKey()))
+		{
+			kptSettings.setLongPressDuration(value);
+		}else if (HikeConstants.KEYPRESS_VOL_PREF.equals(preference.getKey()))
+		{
+			kptSettings.setKeyPressSoundVolume(value);
+		}else if (HikeConstants.KEYPRESS_VIB_DUR_PREF.equals(preference.getKey()))
+		{
+			kptSettings.setKeyPressVibrationDuration(value);
+		}
 	}
 
 	private void showSMSSyncDialog()

@@ -1,6 +1,3 @@
-/**
- * 
- */
 package com.bsb.hike.view;
 
 import android.content.Context;
@@ -10,134 +7,136 @@ import android.view.Gravity;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
+import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 
-/**
- * @author anubansal
- *
- */
-public class SeekBarPreference extends DialogPreference implements SeekBar.OnSeekBarChangeListener
-{
-	private static final String androidns="http://schemas.android.com/apk/res/android";
-	
+public final class SeekBarPreference extends DialogPreference implements
+		OnSeekBarChangeListener {
+
+	// Namespaces to read attributes
+	private static final String PREFERENCE_NS = "http://schemas.android.com/apk/res/com.mnm.seekbarpreference";
+	private static final String ANDROID_NS = "http://schemas.android.com/apk/res/android";
+
+	// Attribute names
+	private static final String ATTR_DEFAULT_VALUE = "defaultValue";
+	private static final String ATTR_MIN_VALUE = "minValue";
+	private static final String ATTR_MAX_VALUE = "maxValue";
+
+	// Default values for defaults
+	private static final int DEFAULT_CURRENT_VALUE = 50;
+	private static final int DEFAULT_MIN_VALUE = 0;
+	private static final int DEFAULT_MAX_VALUE = 100;
+
+	// Real defaults
+	private final int mDefaultValue;
+	private final int mMaxValue;
+	private final int mMinValue;
+
+	// Current value
+	private int mCurrentValue;
+
+	// View elements
 	private SeekBar mSeekBar;
-	
 	private TextView mValueText;
-	
 	private Context mContext;
-	
-	private String mSuffix;
-	
-	private int mDefault, mMax, mValue = 0, mMin = 57;
-	
-	/**
-	 * @param context
-	 * @param attrs
-	 */
-	public SeekBarPreference(Context context, AttributeSet attrs)
-	{
+
+	public SeekBarPreference(Context context, AttributeSet attrs) {
 		super(context, attrs);
 		mContext = context;
-		
-		mSuffix = attrs.getAttributeValue(androidns, "text");
-		mDefault = attrs.getAttributeIntValue(androidns, "defaultValue", 0);
-		mMax = attrs.getAttributeIntValue(androidns, "max", 100);
+
+		mDefaultValue = attrs.getAttributeIntValue(ANDROID_NS, "defaultValue", 0);
+		mMaxValue = attrs.getAttributeIntValue(ANDROID_NS, "max", 100);
+		mMinValue =0; 
 	}
-	
+
 	@Override
 	protected View onCreateDialogView()
+
 	{
+		// Get current value from settings
+		if (shouldPersist())
+			mCurrentValue = getPersistedInt(mDefaultValue);
+
+		// Inflate layout
 		LinearLayout.LayoutParams params;
+
 		LinearLayout layout = new LinearLayout(mContext);
+
 		layout.setOrientation(LinearLayout.VERTICAL);
+
 		layout.setPadding(6, 6, 6, 6);
-		
+
 		mValueText = new TextView(mContext);
+
 		mValueText.setGravity(Gravity.CENTER_HORIZONTAL);
+
 		mValueText.setTextSize(20);
-		params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+		mValueText.setText(Integer.toString(mCurrentValue));
+
+		params = new LinearLayout.LayoutParams(
+				LinearLayout.LayoutParams.MATCH_PARENT,
+				LinearLayout.LayoutParams.WRAP_CONTENT);
+
 		layout.addView(mValueText, params);
-		
+
 		mSeekBar = new SeekBar(mContext);
+
+		
+
+		layout.addView(mSeekBar, new LinearLayout.LayoutParams(
+				LinearLayout.LayoutParams.MATCH_PARENT,
+				LinearLayout.LayoutParams.WRAP_CONTENT));
+
+		
+		 // Setup SeekBar
+		mSeekBar.setMax(mMaxValue);
+		mSeekBar.setProgress(mCurrentValue - mMinValue);
 		mSeekBar.setOnSeekBarChangeListener(this);
-		layout.addView(mSeekBar, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-		
-		if (shouldPersist())
-			mValue = getPersistedInt(mDefault);
-		
-		mSeekBar.setMax(mMax);
-		mSeekBar.setProgress(mValue);
+
 		return layout;
+
 	}
 
 	@Override
-	protected void onBindDialogView(View view)
-	{
-		super.onBindDialogView(view);
-		mSeekBar.setMax(mMax);
-		mSeekBar.setProgress(mValue);
-	}
-	
-	@Override
-	protected void onSetInitialValue(boolean restorePersistedValue, Object defaultValue)
-	{
-		super.onSetInitialValue(restorePersistedValue, defaultValue);
-		if (restorePersistedValue)
-		{
-			mValue = shouldPersist() ? getPersistedInt(mDefault) : 0;
+	protected void onDialogClosed(boolean positiveResult) {
+		super.onDialogClosed(positiveResult);
+
+		// Return if change was cancelled
+		if (!positiveResult) {
+			return;
 		}
-		else
-		{
-			mValue = (Integer)defaultValue;
+
+		// Persist current value if needed
+		if (shouldPersist()) {
+			persistInt(mCurrentValue);
 		}
-	}
+
+		// Notify activity about changes (to update preference summary line)
+		notifyChanged();
+		callChangeListener(mCurrentValue);
 	
-	
-	@Override
-	public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser)
-	{
-		String t = String.valueOf(progress + mMin);
-		mValueText.setText(mSuffix == null ? t : t.concat(mSuffix));
-		if (shouldPersist())
-		{
-			persistInt(progress);
-		}
-		callChangeListener(new Integer(progress));
 	}
 
 	@Override
-	public void onStartTrackingTouch(SeekBar seekBar)
-	{
-		
+	public CharSequence getSummary() {
+		// Format summary string with current value
+		String summary = super.getSummary().toString();
+		int value = getPersistedInt(mDefaultValue);
+		return String.format(summary, value);
 	}
 
-	@Override
-	public void onStopTrackingTouch(SeekBar seekBar)
-	{
-		
-	}
-	
-	public void setMax(int max)
-	{
-		mMax = max;
-	}
-	
-	public int getMax()
-	{
-		return mMax;
+	public void onProgressChanged(SeekBar seek, int value, boolean fromTouch) {
+		// Update current value
+		mCurrentValue = value + mMinValue;
+		// Update label with current value
+		mValueText.setText(Integer.toString(value + mMinValue));
 	}
 
-	public void setProgress(int progress)
-	{
-		mValue = progress;
-		if (mSeekBar != null)
-		{
-			mSeekBar.setProgress(progress);
-		}
+	public void onStartTrackingTouch(SeekBar seek) {
+		// Not used
 	}
-	
-	public int getProgress()
-	{
-		return mValue;
+
+	public void onStopTrackingTouch(SeekBar seek) {
+		// Not used
 	}
 }
