@@ -141,7 +141,7 @@ public class OfflineUtils
 		return HikeConversationsDatabase.getInstance().updateMsgStatus(msgId, status.ordinal(), msisdn);
 	}
 
-	public static int getTotalChunks(int fileSize)
+	public static long getTotalChunks(long fileSize)
 	{
 		return fileSize / OfflineConstants.CHUNK_SIZE + ((fileSize % OfflineConstants.CHUNK_SIZE != 0) ? 1 : 0);
 	}
@@ -350,13 +350,13 @@ public class OfflineUtils
 		}
 	}
 
-	public static int getFileSizeFromJSON(JSONObject packet)
+	public static long getFileSizeFromJSON(JSONObject packet)
 	{
 		try
 		{
 			JSONArray jsonFiles = packet.getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA).getJSONArray(HikeConstants.FILES);
 			JSONObject jsonFile = jsonFiles.getJSONObject(0);
-			return jsonFile.optInt(HikeConstants.FILE_SIZE);
+			return jsonFile.optLong(HikeConstants.FILE_SIZE);
 		}
 		catch (JSONException e)
 		{
@@ -601,7 +601,7 @@ public class OfflineUtils
 			File sourceFile = new File(fileJSON.optString(HikeConstants.FILE_PATH));
 			hikeFile.setFileKey("OfflineKey" + System.currentTimeMillis() / 1000);
 			hikeFile.setFile(sourceFile);
-			hikeFile.setFileSize((int) sourceFile.length());
+			hikeFile.setFileSize(sourceFile.length());
 			hikeFile.setFileName(fileName);
 			hikeFile.setSent(true);
 			fileJSON = hikeFile.serialize();

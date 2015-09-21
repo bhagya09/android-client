@@ -409,12 +409,12 @@ public class FileTransferManager extends BroadcastReceiver
 	public ConvMessage uploadOfflineFile(String msisdn, File sourceFile, String fileKey, String fileType, HikeFileType hikeFileType, boolean isRec,
 			long recordingDuration, int attachment, String fileName)
 	{
-		
-		if(sourceFile.length()>Integer.MAX_VALUE)
-		{
-			HikeMessengerApp.getInstance().showToast(R.string.max_file_size_offline,Toast.LENGTH_LONG);
-			return null;
-		}
+//		
+//		if(sourceFile.length()>Integer.MAX_VALUE)
+//		{
+//			HikeMessengerApp.getInstance().showToast(R.string.max_file_size_offline,Toast.LENGTH_LONG);
+//			return null;
+//		}
 		settings = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
 		String token = settings.getString(HikeMessengerApp.TOKEN_SETTING, null);
 		String uId = settings.getString(HikeMessengerApp.UID_SETTING, null);
@@ -487,7 +487,7 @@ public class FileTransferManager extends BroadcastReceiver
 		_instance = null;
 	}
 
-	public void cancelTask(long msgId, File mFile, boolean sent, int fileSize)
+	public void cancelTask(long msgId, File mFile, boolean sent, long fileSize)
 	{
 		FileSavedState fss;
 		if (sent)
