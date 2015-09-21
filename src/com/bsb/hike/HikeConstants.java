@@ -470,6 +470,12 @@ public class HikeConstants
 
 	public static final String LAST_SEEN_PREF_LIST = "lastSeenPrefList";
 	
+	public static final String LONG_PRESS_DUR_PREF = "longPressDurationPref";
+	
+	public static final String KEYPRESS_VOL_PREF = "keyPressVolPref";
+	
+	public static final String KEYPRESS_VIB_DUR_PREF = "keypressVibDurationPref";
+	
 	public static final String PROFILE_PIC_PREF = "profilePicPref";
 	
 	public static final String SEND_ENTER_PREF = "enterSendPref";
