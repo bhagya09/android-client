@@ -249,7 +249,7 @@
         atx:kpt_rowEdgeFlags="bottom"
         atx:kpt_keyType="@integer/kpt_functional_key_dont_send_to_core" >
         <Key
-            atx:kpt_codes="-2,2"
+            atx:kpt_codes="-2,-136"
             atx:kpt_keyIcon="@drawable/kpt_adaptxt_settings_fk"
             atx:kpt_keyWidth="15%p" />
         <Key
@@ -286,7 +286,7 @@
         atx:kpt_rowEdgeFlags="bottom"
         atx:kpt_keyType="@integer/kpt_functional_key_dont_send_to_core" >
         <Key
-            atx:kpt_codes="-2,2"
+            atx:kpt_codes="-2,-136"
             atx:kpt_keyIcon="@drawable/kpt_adaptxt_settings_fk"
             atx:kpt_keyWidth="15%p" />
         <Key
@@ -326,7 +326,7 @@
         atx:kpt_rowEdgeFlags="bottom"
         atx:kpt_keyType="@integer/kpt_functional_key_dont_send_to_core" >
         <Key
-            atx:kpt_codes="-2,2"
+            atx:kpt_codes="-2,-136"
             atx:kpt_keyIcon="@drawable/kpt_adaptxt_settings_fk"
             atx:kpt_keyWidth="15%p" />
         <Key atx:kpt_keyLabel="\@" />
@@ -362,7 +362,7 @@
         atx:kpt_rowEdgeFlags="bottom"
         atx:kpt_keyType="@integer/kpt_functional_key_dont_send_to_core" >
         <Key
-            atx:kpt_codes="-2,2"
+            atx:kpt_codes="-2,-136"
             atx:kpt_keyIcon="@drawable/kpt_adaptxt_settings_fk"
             atx:kpt_keyWidth="15%p" />
         <Key
@@ -399,7 +399,7 @@
         atx:kpt_rowEdgeFlags="bottom"
         atx:kpt_keyType="@integer/kpt_functional_key_dont_send_to_core" >
         <Key
-            atx:kpt_codes="-2,2"
+            atx:kpt_codes="-2,-136"
             atx:kpt_keyIcon="@drawable/kpt_adaptxt_settings_fk"
             atx:kpt_keyWidth="15%p" />
         <Key
@@ -437,7 +437,7 @@
         atx:kpt_rowEdgeFlags="bottom"
         atx:kpt_keyType="@integer/kpt_functional_key_dont_send_to_core" >
         <Key
-            atx:kpt_codes="-2,2"
+            atx:kpt_codes="-2,-136"
             atx:kpt_horizontalGap="3dp"
             atx:kpt_keyEdgeFlags="left"
             atx:kpt_keyIcon="@drawable/kpt_adaptxt_settings_fk"
@@ -481,7 +481,7 @@
         atx:kpt_rowEdgeFlags="bottom"
         atx:kpt_keyType="@integer/kpt_functional_key_dont_send_to_core" >
         <Key
-            atx:kpt_codes="-2,2"
+            atx:kpt_codes="-2,-136"
             atx:kpt_keyIcon="@drawable/kpt_adaptxt_settings_fk"
             atx:kpt_keyWidth="15%p" />
         <Key
@@ -513,7 +513,7 @@
         atx:kpt_rowEdgeFlags="bottom"
         atx:kpt_keyType="@integer/kpt_functional_key_dont_send_to_core" >
         <Key
-            atx:kpt_codes="-2,2"
+            atx:kpt_codes="-2,-136"
             atx:kpt_keyIcon="@drawable/kpt_adaptxt_settings_fk"
             atx:kpt_keyWidth="15%p" />
         <Key
@@ -553,7 +553,7 @@
         atx:kpt_rowEdgeFlags="bottom"
         atx:kpt_keyType="@integer/kpt_functional_key_dont_send_to_core" >
         <Key
-            atx:kpt_codes="-2,2"
+            atx:kpt_codes="-2,-136"
             atx:kpt_keyIcon="@drawable/kpt_adaptxt_settings_fk"
             atx:kpt_keyWidth="15%p" />
         <Key atx:kpt_keyLabel="\@" />
@@ -584,7 +584,7 @@
         atx:kpt_rowEdgeFlags="bottom"
         atx:kpt_keyType="@integer/kpt_functional_key_dont_send_to_core" >
         <Key
-            atx:kpt_codes="-2,2"
+            atx:kpt_codes="-2,-136"
             atx:kpt_keyIcon="@drawable/kpt_adaptxt_settings_fk"
             atx:kpt_keyWidth="15%p" />
         <Key
@@ -616,7 +616,7 @@
         atx:kpt_rowEdgeFlags="bottom"
         atx:kpt_keyType="@integer/kpt_functional_key_dont_send_to_core" >
         <Key
-            atx:kpt_codes="-2,2"
+            atx:kpt_codes="-2,-136"
             atx:kpt_keyIcon="@drawable/kpt_adaptxt_settings_fk"
             atx:kpt_keyWidth="15%p" />
         <Key
