@@ -2,6 +2,9 @@ package com.bsb.hike.chatHead;
 
 import java.util.Set;
 
+import com.bsb.hike.HikeConstants;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+
 import android.app.Service;
 import android.content.Intent;
 import android.content.res.Configuration;
@@ -25,7 +28,10 @@ public class ChatHeadService extends Service
 		public void run()
 		{   
 			Set<String> foregroundPackages = ChatHeadUtils.getRunningAppPackage(ChatHeadUtils.GET_TOP_MOST_SINGLE_PROCESS);
-			ChatHeadViewManager.getInstance(ChatHeadService.this).actionWindowChange(foregroundPackages);
+			if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.DONT_USE_ACCESSIBILITY, ChatHeadUtils.willPollingWork()))
+			{
+				ChatHeadViewManager.getInstance(ChatHeadService.this).actionWindowChange(foregroundPackages);
+			}
 			chatHeadHandler.postDelayed(this, 1000L);
 		}
 	};

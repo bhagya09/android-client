@@ -704,9 +704,7 @@ public class ChatHeadViewManager
 	public void actionWindowChange(	Set<String> foregroundPackages)
 	{
 		UserLogInfo.recordSessionInfo(foregroundPackages, UserLogInfo.OPERATE);
-		if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.CHAT_HEAD_SERVICE, false)
-				&& HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.CHAT_HEAD_USR_CONTROL, false)
-				&& HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.PACKAGE_LIST, null) != null)
+		if (ChatHeadUtils.shouldRunChatHeadServiceForStickey() && !ChatHeadUtils.canAccessibilityBeUsed(false))
 		{
 			boolean isSharableAppActive = false;
 			for (String sharablePackageName : sharablePackageList)
