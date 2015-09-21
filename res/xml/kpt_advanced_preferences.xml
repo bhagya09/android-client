@@ -56,11 +56,11 @@
 	
 	<com.bsb.hike.view.SeekBarPreference
 	    	android:title="@string/long_press_duration_title"
-	    	android:summary="@string/long_press_duration_summary"
 	    	android:key="longPressDurationPref"
 	    	android:defaultValue="300"
 	    	android:text="ms"
-	    	android:max="400" />
+	    	android:max="400"
+	    	 />
 	
 	<com.bsb.hike.view.SwitchPreferenceCompat
             android:defaultValue="true"
@@ -71,11 +71,11 @@
 	
 	<com.bsb.hike.view.SeekBarPreference
 	    	android:title="@string/keypress_sound_vol_title"
-	    	android:summary="@string/long_press_duration_summary"
 	    	android:key="keyPressVolPref"
 	    	android:defaultValue="3"
 	    	android:text="ms"
-	    	android:max="10" />
+	    	android:max="10"
+	    	 />
 	
 	<com.bsb.hike.view.SwitchPreferenceCompat
             android:defaultValue="true"
@@ -86,7 +86,6 @@
 	
 	<com.bsb.hike.view.SeekBarPreference
 	    	android:title="@string/keypress_vib_duration_title"
-	    	android:summary="@string/long_press_duration_summary"
 	    	android:key="keypressVibDurationPref"
 	    	android:defaultValue="3"
 	    	android:text="ms"

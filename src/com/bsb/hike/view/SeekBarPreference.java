@@ -30,7 +30,7 @@ public final class SeekBarPreference extends DialogPreference implements
 	// Real defaults
 	private final int mDefaultValue;
 	private final int mMaxValue;
-	private final int mMinValue;
+	private final int mMinValue = 0;
 
 	// Current value
 	private int mCurrentValue;
@@ -46,7 +46,7 @@ public final class SeekBarPreference extends DialogPreference implements
 
 		mDefaultValue = attrs.getAttributeIntValue(ANDROID_NS, "defaultValue", 0);
 		mMaxValue = attrs.getAttributeIntValue(ANDROID_NS, "max", 100);
-		mMinValue =0; 
+		
 	}
 
 	@Override
@@ -118,12 +118,7 @@ public final class SeekBarPreference extends DialogPreference implements
 	}
 
 	@Override
-	public CharSequence getSummary() {
-		// Format summary string with current value
-		String summary = super.getSummary().toString();
-		int value = getPersistedInt(mDefaultValue);
-		return String.format(summary, value);
-	}
+	
 
 	public void onProgressChanged(SeekBar seek, int value, boolean fromTouch) {
 		// Update current value
