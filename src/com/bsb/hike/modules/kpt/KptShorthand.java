@@ -25,7 +25,6 @@ import com.kpt.adaptxt.beta.util.KPTConstants;
 import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtEditTextEventListner;
 import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtKeyboordVisibilityStatusListner;
 
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
@@ -57,8 +56,6 @@ public class KptShorthand extends HikeAppStateBaseFragmentActivity implements Ad
 	private boolean systemKeyboard;
 	
 	KPTAdaptxtAddonSettings kptSettings;
-
-	private ProgressDialog mProgressDialog;
 
 	boolean mCoreEngineStatus;
 
@@ -304,7 +301,7 @@ public class KptShorthand extends HikeAppStateBaseFragmentActivity implements Ad
 	@Override
 	protected void onDestroy()
 	{
-		destroyKeyboardResources();
+		KptUtils.destroyKeyboardResources(mCustomKeyboard, R.id.shortcut_et, R.id.expansion_et);
 		kptSettings.saveUserContext();
 		kptSettings.destroySettings();
 		Intent shorthandIntent = new Intent(this, HikePreferences.class);
@@ -313,20 +310,6 @@ public class KptShorthand extends HikeAppStateBaseFragmentActivity implements Ad
 		super.onDestroy();
 	}
 	
-	private void destroyKeyboardResources()
-	{
-		if (mCustomKeyboard != null)
-		{
-			mCustomKeyboard.unregister(shortcutEt);
-
-			mCustomKeyboard.unregister(expansionEt);
-
-			mCustomKeyboard.closeAnyDialogIfShowing();
-
-			mCustomKeyboard.destroyCustomKeyboard();
-		}
-	}
-
 	@Override
 	public void coreEngineService()
 	{
@@ -393,10 +376,9 @@ public class KptShorthand extends HikeAppStateBaseFragmentActivity implements Ad
 	}
 
 	@Override
-	public void analyticalData(String arg0)
+	public void analyticalData(String currentLanguage)
 	{
-		// TODO Auto-generated method stub
-		
+		KptUtils.generateKeyboardAnalytics(currentLanguage);
 	}
 
 	@Override
@@ -416,8 +398,7 @@ public class KptShorthand extends HikeAppStateBaseFragmentActivity implements Ad
 	@Override
 	public void showGlobeKeyView()
 	{
-		// TODO Auto-generated method stub
-		
+		KptUtils.onGlobeKeyPressed(KptShorthand.this, mCustomKeyboard);
 	}
 
 	@Override
@@ -455,26 +436,10 @@ public class KptShorthand extends HikeAppStateBaseFragmentActivity implements Ad
 		
 	}
 	
-	private void pauseKeyboardResources()
-	{
-		if (mCustomKeyboard != null)
-		{
-			mCustomKeyboard.showCustomKeyboard(shortcutEt, false);
-			mCustomKeyboard.showCustomKeyboard(expansionEt, false);
-//			hideKeyboard(shortcutEt);
-//			
-//			hideKeyboard(expansionEt);
-
-			mCustomKeyboard.closeAnyDialogIfShowing();
-			
-			mCustomKeyboard.onPause();
-		}
-	}
-	
 	@Override
 	protected void onPause()
 	{
-		pauseKeyboardResources();
+		KptUtils.pauseKeyboardResources(mCustomKeyboard, shortcutEt, expansionEt);
 		super.onPause();
 	}
 
