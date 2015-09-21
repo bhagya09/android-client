@@ -713,7 +713,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 	@Override
 	protected void onPause()
 	{
-		KptUtils.pauseKeyboardResources(mCustomKeyboard);
+		KptUtils.pauseKeyboardResources(mCustomKeyboard, tagEditText, searchET);
 		
 		super.onPause();
 		if(adapter != null)
@@ -737,7 +737,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 	@Override
 	public void onDestroy()
 	{
-		KptUtils.destroyKeyboardResources(mCustomKeyboard, R.id.composeChatNewGroupTagET);
+		KptUtils.destroyKeyboardResources(mCustomKeyboard, R.id.composeChatNewGroupTagET, R.id.search_src_text);
 		
 		if (progressDialog != null)
 		{

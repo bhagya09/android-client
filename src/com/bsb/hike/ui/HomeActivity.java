@@ -27,6 +27,7 @@ import com.bsb.hike.models.FtueContactsData;
 import com.bsb.hike.models.Conversation.ConversationTip;
 import com.bsb.hike.modules.animationModule.HikeAnimationFactory;
 import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.modules.kpt.KptUtils;
 import com.bsb.hike.offline.OfflineConstants.OFFLINE_STATE;
 import com.bsb.hike.offline.OfflineController;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
@@ -545,7 +546,8 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	protected void onDestroy()
 	{
 		Logger.d(TAG, "onDestroy");
-		destroyKeyboardResources();
+		
+		KptUtils.destroyKeyboardResources(mCustomKeyboard, R.id.search_src_text);
 		if (progDialog != null)
 		{
 			progDialog.dismiss();
@@ -562,16 +564,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		}
 		super.onDestroy();
 	}
-	private void destroyKeyboardResources()
-	{
-		if(mCustomKeyboard!=null && searchET!=null){
-		mCustomKeyboard.unregister(searchET);
 
-		mCustomKeyboard.closeAnyDialogIfShowing();
-
-		mCustomKeyboard.destroyCustomKeyboard();
-		}
-	}
 	@Override
 	protected void onNewIntent(Intent intent)
 	{
@@ -1101,6 +1094,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	@Override
 	protected void onPause()
 	{
+		KptUtils.pauseKeyboardResources(mCustomKeyboard, searchET);
 		if(getIntent().hasExtra(HikeConstants.STEALTH_MSISDN))
 		{
 			//after showing the LockPatternActivity in onResume of ConvFrag the extra is no longer needed, so clearing it out.
@@ -2189,9 +2183,9 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	}
 
 	@Override
-	public void analyticalData(String arg0) {
-		// TODO Auto-generated method stub
-		
+	public void analyticalData(String currentLanguage) 
+	{
+		KptUtils.generateKeyboardAnalytics(currentLanguage);
 	}
 
 	@Override
@@ -2207,9 +2201,9 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	}
 
 	@Override
-	public void showGlobeKeyView() {
-		// TODO Auto-generated method stub
-		
+	public void showGlobeKeyView() 
+	{
+		KptUtils.onGlobeKeyPressed(HomeActivity.this, mCustomKeyboard);
 	}
 
 	@Override
