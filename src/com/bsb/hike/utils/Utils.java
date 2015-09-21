@@ -76,6 +76,7 @@ import android.content.ContentUris;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.OperationApplicationException;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
@@ -110,6 +111,7 @@ import android.net.NetworkInfo;
 import android.net.TrafficStats;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.BatteryManager;
 import android.os.Build;
 import android.os.Environment;
 import android.os.PowerManager;
@@ -4870,7 +4872,7 @@ public class Utils
 		{
 			int gb = bytes / (1024 * 1024 * 1024);
 			int gbPoint = bytes % (1024 * 1024 * 1024);
-			gbPoint /= (1024 * 1024 * 1024);
+			gbPoint /= (1024 * 1024 * 102);
 			return (Integer.toString(gb) + "." + Integer.toString(gbPoint) + " GB");
 		}
 		else if (bytes >= (1000 * 1024))
@@ -7141,5 +7143,35 @@ public class Utils
 		}
 	}
 
+	public static float currentBatteryLevel()
+	{
+		Context context = HikeMessengerApp.getInstance().getApplicationContext();
+		IntentFilter ifilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
+		Intent batteryStatus = context.registerReceiver(null, ifilter);
+
+		int level = batteryStatus.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
+		int scale = batteryStatus.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
+
+		float batteryPct = level / (float) scale;
+
+		return batteryPct * 100;
+	}
+
+	public static String appendTokenInURL(String url)
+	{
+		if (!TextUtils.isEmpty(url))
+		{
+			HikeSharedPreferenceUtil mmHikeSharedPreferenceUtil = HikeSharedPreferenceUtil.getInstance();
+			url = url.replace("$reward_token", mmHikeSharedPreferenceUtil.getData(HikeMessengerApp.REWARDS_TOKEN, ""));
+			url = url.replace("$msisdn", mmHikeSharedPreferenceUtil.getData(HikeMessengerApp.MSISDN_SETTING, ""));
+			url = url.replace("$uid", mmHikeSharedPreferenceUtil.getData(HikeMessengerApp.UID_SETTING, ""));
+			url = url.replace("$invite_token", mmHikeSharedPreferenceUtil.getData(HikeConstants.INVITE_TOKEN, ""));
+			url = url.replace("$resId", Utils.getResolutionId() + "");
+			url = url.replace("$platform_token", mmHikeSharedPreferenceUtil.getData(HikeMessengerApp.PLATFORM_TOKEN_SETTING, ""));
+			url = url.replace("$platform_uid", mmHikeSharedPreferenceUtil.getData(HikeMessengerApp.PLATFORM_UID_SETTING, ""));
+		}
+		return url;
+	}
+	
 }
 

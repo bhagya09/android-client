@@ -8,12 +8,14 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.support.v4.app.NotificationCompat;
 import android.text.TextUtils;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.R;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.modules.contactmgr.ContactManager;
@@ -22,6 +24,7 @@ import com.bsb.hike.offline.OfflineConstants.OFFLINE_STATE;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.StealthModeManager;
 import com.google.gson.Gson;
 
 /**
@@ -111,33 +114,46 @@ public class NotificationThread implements Runnable
 
 		String text = "Awaiting Response " + durationString;
 
-		if(TextUtils.isEmpty(contactFirstName))
+		if (TextUtils.isEmpty(contactFirstName))
 		{
-			ContactInfo contactInfo = ContactManager.getInstance().getContact(connectingMsisdn);
-			if (contactInfo != null && !TextUtils.isEmpty(contactInfo.getFirstName()))
+			if (StealthModeManager.getInstance().isStealthMsisdn(connectingMsisdn) && !StealthModeManager.getInstance().isActive())
 			{
-				contactFirstName = contactInfo.getFirstName();
+				contactFirstName = "Hike Direct Connection Request";
+			}
+			else
+			{
+				ContactInfo contactInfo = ContactManager.getInstance().getContact(connectingMsisdn);
+				if (contactInfo != null && !TextUtils.isEmpty(contactInfo.getFirstName()))
+				{
+					contactFirstName = contactInfo.getFirstName();
+				}
 			}
 		}
 		title = contactFirstName;
 
 		if (bitmap == null)
 		{
-			Drawable drawable = HikeMessengerApp.getLruCache().getIconFromCache(connectingMsisdn);
-			if (drawable == null)
+			if (StealthModeManager.getInstance().isStealthMsisdn(connectingMsisdn) && !StealthModeManager.getInstance().isActive())
 			{
-				drawable = HikeMessengerApp.getLruCache().getDefaultAvatar(connectingMsisdn, false);
+				bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.ic_stat_notify);
 			}
-//			bitmap = HikeBitmapFactory.drawableToBitmap(drawable);
-			bitmap = HikeBitmapFactory.getCircularBitmap(HikeBitmapFactory.returnScaledBitmap((HikeBitmapFactory.drawableToBitmap(drawable, Bitmap.Config.RGB_565)), context));
-			
+			else
+			{
+				Drawable drawable = HikeMessengerApp.getLruCache().getIconFromCache(connectingMsisdn);
+				if (drawable == null)
+				{
+					drawable = HikeMessengerApp.getLruCache().getDefaultAvatar(connectingMsisdn, false);
+				}
+				// bitmap = HikeBitmapFactory.drawableToBitmap(drawable);
+				bitmap = HikeBitmapFactory.getCircularBitmap(HikeBitmapFactory.returnScaledBitmap((HikeBitmapFactory.drawableToBitmap(drawable, Bitmap.Config.RGB_565)), context));
+			}
 		}
 		if (bitmap == null)
 		{
 			return false;
 		}
 		Notification myNotification = builder.setContentTitle(title).setContentText(text).setSmallIcon(HikeNotification.getInstance().returnSmallIcon())
-				.setContentIntent(pendingIntent).setOngoing(true).setLargeIcon(bitmap).build();
+				.setContentIntent(pendingIntent).setOngoing(true).setLargeIcon(bitmap).setColor(context.getResources().getColor(R.color.blue_hike)).build();
 
 		notificationManager.notify(null, OfflineConstants.NOTIFICATION_IDENTIFIER, myNotification);
 		Logger.d("NotificationThread",(System.currentTimeMillis()-startTime) + "");

@@ -32,6 +32,8 @@ public class OfflineException extends TException
 	
 	public static byte APP_SWIPE = 28;
 	
+	public static byte PEER_DISCONNECTED = 29;
+	
 	public OfflineException(byte reasonCode) {
 		super(reasonCode);
 	}
