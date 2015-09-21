@@ -36,7 +36,6 @@ public class IncomingCallReceiver extends PhoneStateListener
 		case TelephonyManager.CALL_STATE_RINGING:
 			ring = true;
 			StickyCaller.isOnCall =true;
-			StickyCaller.callCurrentNumber = incomingNumber;
 			ChatHeadUtils.postNumberRequest(HikeMessengerApp.getInstance(), incomingNumber);
 			break;
 
