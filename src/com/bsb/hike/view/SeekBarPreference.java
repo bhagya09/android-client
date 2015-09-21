@@ -30,7 +30,7 @@ public final class SeekBarPreference extends DialogPreference implements
 	// Real defaults
 	private final int mDefaultValue;
 	private final int mMaxValue;
-	private final int mMinValue = 0;
+	private  int mMinValue = 0;
 
 	// Current value
 	private int mCurrentValue;
@@ -133,5 +133,10 @@ public final class SeekBarPreference extends DialogPreference implements
 
 	public void onStopTrackingTouch(SeekBar seek) {
 		// Not used
+	}
+
+	public void setMinimun(int min) {
+		mMinValue = min;
+		
 	}
 }

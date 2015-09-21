@@ -178,9 +178,9 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 	}
 	
 	private void addSeekbarPreferences() {
-		addOnSeekbarChangeListeners(HikeConstants.LONG_PRESS_DUR_PREF);
-		addOnSeekbarChangeListeners(HikeConstants.KEYPRESS_VOL_PREF);
-		addOnSeekbarChangeListeners(HikeConstants.KEYPRESS_VIB_DUR_PREF);
+		addOnSeekbarChangeListeners(HikeConstants.LONG_PRESS_DUR_PREF,200);
+		addOnSeekbarChangeListeners(HikeConstants.KEYPRESS_VOL_PREF,1);
+		addOnSeekbarChangeListeners(HikeConstants.KEYPRESS_VIB_DUR_PREF,1);
 	}
 
 	private void saveKeyboardPref()
@@ -463,10 +463,11 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		}
 	}
 	
-	private void addOnSeekbarChangeListeners(String preferenceName) {
+	private void addOnSeekbarChangeListeners(String preferenceName, int min) {
 		final SeekBarPreference preference = (SeekBarPreference) getPreferenceScreen()
 				.findPreference(preferenceName);
 		if (preference != null) {
+			preference.setMinimun(min);
 			preference.setOnPreferenceChangeListener(this);
 		}
 	}

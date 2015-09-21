@@ -59,7 +59,7 @@
 	    	android:key="longPressDurationPref"
 	    	android:defaultValue="300"
 	    	android:text="ms"
-	    	android:max="400"
+	    	android:max="200"
 	    	android:persistent="true"/>
 	
 	<com.bsb.hike.view.SwitchPreferenceCompat
@@ -74,7 +74,7 @@
 	    	android:key="keyPressVolPref"
 	    	android:defaultValue="3"
 	    	android:text="ms"
-	    	android:max="10"
+	    	android:max="9"
 	    	android:persistent="true"/>
 	
 	<com.bsb.hike.view.SwitchPreferenceCompat
@@ -89,7 +89,7 @@
 	    	android:key="keypressVibDurationPref"
 	    	android:defaultValue="3"
 	    	android:text="ms"
-	    	android:max="100"
+	    	android:max="99"
 	    	android:persistent="true" />
 	
 	<com.bsb.hike.view.SwitchPreferenceCompat
