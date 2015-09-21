@@ -181,6 +181,7 @@ import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.TrafficsStatsFile;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
+import com.bsb.hike.chatHead.StickyCaller;
 import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.cropimage.CropImage;
@@ -4592,6 +4593,7 @@ public class Utils
 		Intent intent = new Intent(Intent.ACTION_INSERT, ContactsContract.Contacts.CONTENT_URI);
 		intent.putExtra(Insert.PHONE, msisdn);
 		intent.putExtra(Insert.NAME, name);
+		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 		context.startActivity(intent);
 	}
 
@@ -7242,5 +7244,12 @@ public class Utils
 		return url;
 	}
 	
+	public static void sendFreeSms()
+	{
+		Intent intent = IntentFactory.createChatThreadIntentFromMsisdn(HikeMessengerApp.getInstance(), StickyCaller.callCurrentNumber, true, false);
+		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+	    HikeMessengerApp.getInstance().startActivity(intent);
+	}
+
 }
 

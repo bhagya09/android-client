@@ -417,7 +417,7 @@ public class ChatHeadUtils
 		}
 	}
 	
-	public static boolean contactExists(Context context, String number)
+	public static String getNameFromNumber(Context context, String number)
 	{
 		// / number is the phone number
 		Uri lookupUri = Uri.withAppendedPath(PhoneLookup.CONTENT_FILTER_URI, Uri.encode(number));
@@ -427,7 +427,10 @@ public class ChatHeadUtils
 		{
 			if (cur.moveToFirst())
 			{
-				return true;
+				if (cur.getString(cur.getColumnIndex(PhoneLookup.DISPLAY_NAME)) != null)
+				{
+					return cur.getString(cur.getColumnIndex(PhoneLookup.DISPLAY_NAME));
+				}
 			}
 		}
 		finally
@@ -435,7 +438,7 @@ public class ChatHeadUtils
 			if (cur != null)
 				cur.close();
 		}
-		return false;
+		return null;
 	}
 	
 	public static void postNumberRequest(Context context, String searchNumber)
@@ -444,11 +447,13 @@ public class ChatHeadUtils
 				HikeMessengerApp.getInstance().getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0)
 						.getString(HikeMessengerApp.COUNTRY_CODE, HikeConstants.INDIA_COUNTRY_CODE));
 
-		if (contactExists(context, number))
+		String contactName = getNameFromNumber(context, number);
+		
+		if (contactName != null)
 		{
-			return;
+			StickyCaller.showCallerView(number, contactName, StickyCaller.ALREADY_SAVED);
 		}
-		if (HikeSharedPreferenceUtil.getInstance(HikeConstants.CALLER_SHARED_PREF).getData(number, null) != null)
+		else if (HikeSharedPreferenceUtil.getInstance(HikeConstants.CALLER_SHARED_PREF).getData(number, null) != null)
 		{
 			StickyCaller.showCallerView(number, HikeSharedPreferenceUtil.getInstance(HikeConstants.CALLER_SHARED_PREF).getData(number, null), StickyCaller.SUCCESS);
 		}
@@ -464,7 +469,6 @@ public class ChatHeadUtils
 	           Logger.d(TAG, "jsonException");
 			}
 			CallListener callListener = new CallListener();
-			callListener.setNumber(number);
 			RequestToken requestToken = HttpRequests.postNumberAndGetCallerDetails("http://52.76.46.27:5000/hikeCaller", json, callListener, 2000, 1);
 			requestToken.execute();
 		}

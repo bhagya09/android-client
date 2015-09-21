@@ -8,19 +8,12 @@ import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 
 public class CallListener implements IRequestListener
-{
-	private String number;
-
-	public void setNumber(String number)
-	{
-		this.number = number;
-	}
-	
+{	
 	@Override
 	public void onRequestSuccess(Response result)
 	{
-		HikeSharedPreferenceUtil.getInstance(HikeConstants.CALLER_SHARED_PREF).saveData(number, result.getBody().getContent().toString());
-		StickyCaller.showCallerView(number, result.getBody().getContent().toString(), StickyCaller.SUCCESS);
+		HikeSharedPreferenceUtil.getInstance(HikeConstants.CALLER_SHARED_PREF).saveData(StickyCaller.callCurrentNumber, result.getBody().getContent().toString());
+		StickyCaller.showCallerView(StickyCaller.callCurrentNumber, result.getBody().getContent().toString(), StickyCaller.SUCCESS);
 	}
 
 	@Override
