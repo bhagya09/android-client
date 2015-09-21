@@ -284,7 +284,6 @@ public class BotUtils
 	public static void createBot(JSONObject jsonObj)
 	{
 		long startTime = System.currentTimeMillis();
-
 		String type = jsonObj.optString(HikePlatformConstants.BOT_TYPE);
 		if (TextUtils.isEmpty(type))
 		{
@@ -328,9 +327,13 @@ public class BotUtils
 			NonMessagingBotMetadata botMetadata = new NonMessagingBotMetadata(botInfo.getMetadata());
 			if (botMetadata.isMicroAppMode())
 			{
-				PlatformUtils.downloadZipForNonMessagingBot(botInfo, enableBot, botChatTheme, notifType);
+				PlatformUtils.downloadZipForNonMessagingBot(botInfo, enableBot, botChatTheme, notifType, botMetadata.shouldReplace());
 			}
 			else if (botMetadata.isWebUrlMode())
+			{
+				PlatformUtils.botCreationSuccessHandling(botInfo, enableBot, botChatTheme, notifType);
+			}
+			else if (botMetadata.isNativeMode())
 			{
 				PlatformUtils.botCreationSuccessHandling(botInfo, enableBot, botChatTheme, notifType);
 			}
@@ -383,6 +386,12 @@ public class BotUtils
 		{
 			String metadata = jsonObj.optString(HikeConstants.METADATA);
 			botInfo.setMetadata(metadata);
+		}
+
+		if (jsonObj.has(HikePlatformConstants.BOT_VERSION))
+		{
+			int version = jsonObj.optInt(HikePlatformConstants.BOT_VERSION);
+			botInfo.setVersion(version);
 		}
 
 		if (jsonObj.has(HikePlatformConstants.HELPER_DATA))
