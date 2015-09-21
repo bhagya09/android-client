@@ -6145,7 +6145,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	@Override
 	public void showQuickSettingView()
 	{
-		// TODO Auto-generated method stub
-		
+		KptUtils.onGlobeKeyPressed(activity, mCustomKeyboard);
 	}
 }

@@ -802,8 +802,7 @@ public class HikeListActivity extends HikeAppStateBaseFragmentActivity implement
 	@Override
 	public void showQuickSettingView()
 	{
-		// TODO Auto-generated method stub
-		
+		KptUtils.onGlobeKeyPressed(HikeListActivity.this, mCustomKeyboard);
 	}
 
 	@Override

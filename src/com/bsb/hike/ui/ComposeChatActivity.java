@@ -2832,8 +2832,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 	@Override
 	public void showQuickSettingView()
 	{
-		// TODO Auto-generated method stub
-		
+		KptUtils.onGlobeKeyPressed(ComposeChatActivity.this, mCustomKeyboard);
 	}
 
 
