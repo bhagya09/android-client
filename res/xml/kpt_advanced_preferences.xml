@@ -92,11 +92,4 @@
 	    	android:max="99"
 	    	android:persistent="true" />
 	
-	<com.bsb.hike.view.SwitchPreferenceCompat
-            android:defaultValue="true"
-            android:key="portraitIsStdPref"
-            android:layout="@layout/icon_preference"
-            android:title="@string/portrait_is_std_title"
-            android:widgetLayout="@layout/switch_widget" />
-	
 </PreferenceScreen>
