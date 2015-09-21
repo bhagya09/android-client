@@ -81,7 +81,7 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 
 	private final String FRAGMENT_ACTIVITY_FEED_TAG = "fragmentActivityFeedTag";
 	
-	private final String MAIN_ACTIVITY_FEED_TAG = "mainActivityFeedTag";
+	private final String FRAGMENT_UPDATES_TAG = "updatesFragmentTag";
 	
 	private static final String TAG = "TimelineActivity";
 
@@ -191,6 +191,11 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 				TextView title = (TextView) actionBarView.findViewById(R.id.title);
 				title.setText(R.string.timeline);
 			}
+			else
+			{
+				UpdatesFragment updatesFragment = (UpdatesFragment) getSupportFragmentManager().findFragmentByTag(FRAGMENT_UPDATES_TAG);
+				updatesFragment.scrollToTop();
+			}
 		}
 	}
 	
@@ -221,12 +226,12 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 
 	private void setupMainFragment(Bundle savedInstanceState)
 	{
-		mainFragment = (UpdatesFragment)getSupportFragmentManager().findFragmentByTag(MAIN_ACTIVITY_FEED_TAG);
+		mainFragment = (UpdatesFragment)getSupportFragmentManager().findFragmentByTag(FRAGMENT_UPDATES_TAG);
 		
 		if(mainFragment == null)
 		{
 			mainFragment = new UpdatesFragment();
-			getSupportFragmentManager().beginTransaction().add(R.id.parent_layout, mainFragment,MAIN_ACTIVITY_FEED_TAG).commit();
+			getSupportFragmentManager().beginTransaction().add(R.id.parent_layout, mainFragment,FRAGMENT_UPDATES_TAG).commit();
 		}
 	}
 

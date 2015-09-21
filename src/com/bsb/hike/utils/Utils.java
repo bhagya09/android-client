@@ -4872,7 +4872,7 @@ public class Utils
 		{
 			int gb = bytes / (1024 * 1024 * 1024);
 			int gbPoint = bytes % (1024 * 1024 * 1024);
-			gbPoint /= (1024 * 1024 * 1024);
+			gbPoint /= (1024 * 1024 * 102);
 			return (Integer.toString(gb) + "." + Integer.toString(gbPoint) + " GB");
 		}
 		else if (bytes >= (1000 * 1024))
@@ -7142,7 +7142,23 @@ public class Utils
 
 		float batteryPct = level / (float) scale;
 
-		return batteryPct*100;
+		return batteryPct * 100;
+	}
+
+	public static String appendTokenInURL(String url)
+	{
+		if (!TextUtils.isEmpty(url))
+		{
+			HikeSharedPreferenceUtil mmHikeSharedPreferenceUtil = HikeSharedPreferenceUtil.getInstance();
+			url = url.replace("$reward_token", mmHikeSharedPreferenceUtil.getData(HikeMessengerApp.REWARDS_TOKEN, ""));
+			url = url.replace("$msisdn", mmHikeSharedPreferenceUtil.getData(HikeMessengerApp.MSISDN_SETTING, ""));
+			url = url.replace("$uid", mmHikeSharedPreferenceUtil.getData(HikeMessengerApp.UID_SETTING, ""));
+			url = url.replace("$invite_token", mmHikeSharedPreferenceUtil.getData(HikeConstants.INVITE_TOKEN, ""));
+			url = url.replace("$resId", Utils.getResolutionId() + "");
+			url = url.replace("$platform_token", mmHikeSharedPreferenceUtil.getData(HikeMessengerApp.PLATFORM_TOKEN_SETTING, ""));
+			url = url.replace("$platform_uid", mmHikeSharedPreferenceUtil.getData(HikeMessengerApp.PLATFORM_UID_SETTING, ""));
+		}
+		return url;
 	}
 	
 }
