@@ -445,6 +445,7 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 			holder.recyclerView.setAdapter(new MicroappsListAdapter(context, microappShowcaseList, iconloader));
 			LinearLayoutManager layoutManager = new LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false);
             holder.recyclerView.setLayoutManager(layoutManager);
+            holder.recyclerView.setOverScrollMode(View.OVER_SCROLL_NEVER);
 			convertView.setTag(holder);
 			break;
 		default:

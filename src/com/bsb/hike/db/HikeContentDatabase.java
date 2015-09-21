@@ -812,7 +812,7 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 
 	}
 	
-	public List<BotInfo> getShowcaseBotInfoList()
+	public List<BotInfo> getDiscoveryBotInfoList()
 	{
 		List<BotInfo> list = new ArrayList<>();
 		
@@ -841,6 +841,27 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 		}
 		
 		return list;
+	}
+	
+	public JSONArray getDiscoveryBotMsisdnArray()
+	{
+		JSONArray array = new JSONArray();
+		
+		Cursor c = mDB.query(DBConstants.HIKE_CONTENT.BOT_DISCOVERY_TABLE, new String[] { DBConstants.MSISDN }, null, null, null, null, null);
+		String msisdn;
+		
+		while(c.moveToNext())
+		{
+			msisdn = c.getString(c.getColumnIndex(DBConstants.MSISDN));
+			array.put(msisdn);
+		}
+		
+		if (c != null)
+		{
+			c.close();
+		}
+		
+		return array;
 	}
 
 }
