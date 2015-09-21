@@ -28,7 +28,7 @@ public class ChatHeadService extends Service
 		public void run()
 		{   
 			Set<String> foregroundPackages = ChatHeadUtils.getRunningAppPackage(ChatHeadUtils.GET_TOP_MOST_SINGLE_PROCESS);
-			if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.DONT_USE_ACCESSIBILITY, ChatHeadUtils.willPollingWork()))
+			if(!ChatHeadUtils.useOfAccessibilittyPermitted())
 			{
 				ChatHeadViewManager.getInstance(ChatHeadService.this).actionWindowChange(foregroundPackages);
 			}

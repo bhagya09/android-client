@@ -46,6 +46,8 @@ public class ChatHeadUtils
 	
 	// replica of hidden constant ActivityManager.PROCESS_STATE_TOP 
 	public static final int PROCESS_STATE_TOP =2;
+	
+	private static ChatHeadViewManager viewManager;
 
 	
 	/**
@@ -306,6 +308,11 @@ public class ChatHeadUtils
 		return  !isAccessibilityEnabled(HikeMessengerApp.getInstance().getApplicationContext());
 	}
 	
+	public static boolean useOfAccessibilittyPermitted()
+	{
+		return !HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.DONT_USE_ACCESSIBILITY, willPollingWork());
+	}
+	
 	public static boolean canAccessibilityBeUsed(boolean serviceDecision)
 	{
 		boolean forceAccessibility = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.FORCE_ACCESSIBILITY, true);
@@ -318,7 +325,7 @@ public class ChatHeadUtils
 		{
 			return accessibilityDisabled;
 		}
-		boolean wantToUseAccessibility = !HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.DONT_USE_ACCESSIBILITY, willPollingWork());
+		boolean wantToUseAccessibility = useOfAccessibilittyPermitted();
 		//dontUseAccessibility is an internal flag, to prevent user from using accessibility service for stickey,
 		//even if accessibility is enabled by forceAccessibility flag On
 		return  wantToUseAccessibility || accessibilityDisabled;
@@ -342,7 +349,6 @@ public class ChatHeadUtils
 		}
 		else
 		{
-			ChatHeadViewManager.getInstance(HikeMessengerApp.getInstance()).onCreate();
 			stopService();
 		}
 		
@@ -350,6 +356,16 @@ public class ChatHeadUtils
 		{
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.SNOOZE, false);
 			HikeAlarmManager.cancelAlarm(HikeMessengerApp.getInstance(), HikeAlarmManager.REQUESTCODE_START_STICKER_SHARE_SERVICE); 
+		}
+		
+		if (useOfAccessibilittyPermitted())
+		{
+			if(viewManager == null)
+			{
+				viewManager = ChatHeadViewManager.getInstance(HikeMessengerApp.getInstance().getApplicationContext());
+			}
+			viewManager.onDestroy();
+			viewManager.onCreate();
 		}
 	}
 
