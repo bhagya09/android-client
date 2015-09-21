@@ -7,6 +7,7 @@ import org.json.JSONObject;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.os.Bundle;
@@ -260,6 +261,14 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 		super.onSaveInstanceState(outState);
 	}
 
+	@Override
+    public void onConfigurationChanged( Configuration newConfig ) {
+        super.onConfigurationChanged( newConfig );
+        if( !shareLinkFragment.getDialog().isShowing() ){
+        	shareLinkFragment.getDialog().hide();
+        }
+    }
+	
 	private void setupActionBar()
 	{
 		ActionBar actionBar = getSupportActionBar();
@@ -321,12 +330,14 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 				break;
 				
 			case GROUP:
-				int settings = 0;
-				if(gsSettings.isChecked()){
-					settings = 1;
+				if(Utils.isGCViaLinkEnabled())
+				{
+					showLinkShareView(getConvId(), getGroupName(), getGSSettings(), true);
 				}
-				Intent intentGroup = IntentFactory.openComposeChatIntentForGroup(this, convId, convName.getText().toString().trim(),settings);
-				startActivity(intentGroup);
+				else
+				{
+					addMembersViaHike();
+				}
 				break;
 		}
 	}
@@ -401,4 +412,27 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 		this.convId = convId;
 		super.setLocalMsisdn(this.convId);
 	}
+	
+	public String getGroupName()
+	{
+		return convName.getText().toString();
+	}
+
+	public int getGSSettings()
+	{
+		return gsSettings.isChecked() ? 1 : 0;
+	}
+
+	public String getConvId()
+	{
+		return convId;
+	}
+	
+	@Override
+	public void addMembersViaHike()
+	{
+		Intent intentGroup = IntentFactory.openComposeChatIntentForGroup(this, convId, convName.getText().toString().trim(), getGSSettings());
+		startActivity(intentGroup);
+	}
+
 }

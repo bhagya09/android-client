@@ -36,6 +36,8 @@ import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.updateA
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.updateLoveLinkUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.updateUnLoveLinkUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.validateNumberBaseUrl;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getGroupBaseUrlForLinkSharing;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getBaseCodeGCAcceptUrl;
 import static com.bsb.hike.modules.httpmgr.request.PriorityConstants.PRIORITY_HIGH;
 import static com.bsb.hike.modules.httpmgr.request.Request.REQUEST_TYPE_LONG;
 import static com.bsb.hike.modules.httpmgr.request.Request.REQUEST_TYPE_SHORT;
@@ -758,6 +760,53 @@ public class HttpRequests
 				.setRequestType(Request.REQUEST_TYPE_SHORT)
 				.setRequestListener(requestListener)
 				.post(body)
+				.setResponseOnUIThread(true)
+				.build();
+		return requestToken;
+	}
+	
+	/**
+	 * This API is for fetching URL to share group invite link via WA/Others
+	 * @param grpId
+	 * @param requestListener
+	 * @param noOfRetries
+	 * @param delayMultiplier
+	 * @return
+	 */
+	public static RequestToken getShareLinkURLRequest(JSONObject json, IRequestListener requestListener, int noOfRetries, int delayMultiplier)
+	{
+		JsonBody body = null;
+		if (json != null)
+		{
+			body = new JsonBody(json);
+		}
+		
+		RequestToken requestToken = new JSONObjectRequest.Builder()
+				.setUrl(getGroupBaseUrlForLinkSharing())
+				.setRequestType(Request.REQUEST_TYPE_SHORT)
+				.setRetryPolicy(new BasicRetryPolicy(noOfRetries, HikePlatformConstants.RETRY_DELAY, delayMultiplier))
+				.setRequestListener(requestListener)
+				.setResponseOnUIThread(true)
+				.post(body)
+				.build();
+		return requestToken;
+	}
+	
+	/**
+	 * This API is for sending confirmation by user to join Group
+	 * @param grpId
+	 * @param requestListener
+	 * @return
+	 */
+	public static RequestToken acceptGroupMembershipConfirmationRequest(String groupCode, String reffId, IRequestListener requestListener)
+	{
+		// /v1/gcjoin/<referral_id>:gc:<group_code>
+		String url = getBaseCodeGCAcceptUrl() + reffId + ":gc:" + groupCode;  
+		
+		RequestToken requestToken = new JSONObjectRequest.Builder()
+				.setUrl(url)
+				.setRequestType(Request.REQUEST_TYPE_SHORT)
+				.setRequestListener(requestListener)
 				.setResponseOnUIThread(true)
 				.build();
 		return requestToken;

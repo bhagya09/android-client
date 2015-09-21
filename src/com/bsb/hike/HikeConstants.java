@@ -1730,6 +1730,8 @@ public class HikeConstants
 		public static final String DEL_PREV_MSISDN_PIC = "del_prev_msisdn_pic";
 
 		public static final String CHAT_INTENT_TIMESTAMP = "chat_ts";
+		
+		public static final String GROUP_CHAT_DP = "group_chat_dp";
 	}
 
 	public static final class LogEvent
@@ -3280,4 +3282,14 @@ public class HikeConstants
 	public static final String SHOW_NOTIFICATION = "sn";
 	
 	public static final String SHOW_HIGH_RES_IMAGE = "s_h_r";
+	
+	public static final String ENABLE_GC_VIA_LINK_SHARING = "en_gc_ls";
+	
+	public static final String MENU_OPTION_FOR_GC_VIA_WA = "mo_gc_wa";
+	
+	public static final String MENU_OPTIONS_FOR_GC_VIA_OTHERS = "mo_gc_o";
+	
+	public static final String TEXT_FOR_GC_VIA_WA = "t_gc_wa";
+	
+	public static final String TEXT_FOR_GC_VIA_OTHERS = "t_gc_o";
 }

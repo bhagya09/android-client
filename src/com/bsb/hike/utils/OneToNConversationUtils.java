@@ -231,6 +231,11 @@ public class OneToNConversationUtils
 
 	public static void createGroupOrBroadcast(Activity activity, ArrayList<ContactInfo> selectedContactList, String convName, String convId, int setting)
 	{
+		createGroupOrBroadcast(activity, selectedContactList, convName, convId, setting, false);
+	}
+	
+	public static void createGroupOrBroadcast(Activity activity, ArrayList<ContactInfo> selectedContactList, String convName, String convId, int setting, boolean isLinkSharedGroup)
+	{
 		String oneToNConvId;
 		if (activity.getIntent().hasExtra(HikeConstants.Extras.BROADCAST_LIST))
 		{
@@ -319,11 +324,7 @@ public class OneToNConversationUtils
 				}
 				metadata.put(HikeConstants.NAME, convName);
 
-				String directory = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT;
-				String fileName = Utils.getTempProfileImageFileName(oneToNConvId);
-				File groupImageFile = new File(directory, fileName);
-
-				if (groupImageFile.exists())
+				if (isGroupDPSet(oneToNConvId))
 				{
 					metadata.put(HikeConstants.REQUEST_DP, true);
 				}
@@ -345,8 +346,12 @@ public class OneToNConversationUtils
 			ContactManager.getInstance().updateGroupRecency(oneToNConvId, msg.getTimestamp());
 			HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_SENT, msg);
 			
-			HikeMqttManagerNew.getInstance().sendMessage(gcjPacket, MqttConstants.MQTT_QOS_ONE);
-
+			Logger.d(activity.getClass().getSimpleName(), " group creation complete: " + oneToNConvId);
+			if(!isLinkSharedGroup)
+			{
+				HikeMqttManagerNew.getInstance().sendMessage(gcjPacket, MqttConstants.MQTT_QOS_ONE);
+			}
+			
 			/**
 			 * This is for updating the UI in ChatThread if it is not a new conversation. Also used for updating the default broadcast name on homescreen
 			 */
@@ -432,5 +437,22 @@ public class OneToNConversationUtils
 		SimpleDateFormat df = new SimpleDateFormat(format);
 		return df.format(creationTime);
 
+	}
+
+	public static String createNewGroupId(Context context)
+	{
+		SharedPreferences prefs = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, context.MODE_PRIVATE);
+		String uid = prefs.getString(HikeMessengerApp.UID_SETTING, "");
+		String conversationId = uid + ":" + System.currentTimeMillis();
+		return conversationId;
+	}
+	
+	public static boolean isGroupDPSet(String oneToNConvId)
+	{
+		String directory = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT;
+		String fileName = Utils.getTempProfileImageFileName(oneToNConvId);
+		File groupImageFile = new File(directory, fileName);
+		
+		return groupImageFile.exists() ? true : false;
 	}
 }

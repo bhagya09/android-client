@@ -774,7 +774,6 @@
     <string name="compose_chat_contacts_on_hike">Contacts on Hike</string>
     <string name="compose_chat_all_contacts">SMS Contacts</string>
     <string name="compose_chat_other_contacts">OTHER CONTACTS</string>
-    <string name="compose_chat_action_bar_group_mode_title">Select members (min 2)</string>
     <string name="compose_chat_action_bar_title">New Chat</string>
     <string name="name_group">Name the group</string>
     <string name="name_broadcast">Name the broadcast</string>
@@ -1558,6 +1557,7 @@
 	<string name="created_group_text">You created the group chat</string>
 	<string name="group_member_added">added %1$s</string>
 	<string name="num_members">%1$d members</string>
+	<string name="num_member">%1$d member</string>
 	<string name="profile_pic_upload_in_background">Profile picture upload will continue..</string>
 	<string name="profile_pic_failed">Profile picture upload failed. Please try again</string>
 	<string name="show_degraded_image_quality">Going to load a low quality Image</string>
@@ -1720,4 +1720,13 @@
     <string name="action_no_network">Please check network</string>
     <string name="timeline_transition_anim">timeline_image_transit</string>
     <string name="home_overflow_new_photo">New Photo</string>
+    <string name="group_participant_info">You can add upto 500 members to a group</string>
+    <string name="maxContactInGroupErr">Max %1$s members can be added</string>
+    <string name="added_in_group">This contact is already a member</string>
+    <string name="watsapp">Add via Watsapp</string>
+    <string name="others">Add via Others</string>
+    <string name="add_via_hike">Add via Hike</string>
+    <string name="link_share_network_error">Could not share: Please check your network and try again.</string>
+    <string name="link_share_wa_msg">You can now add memebers from group and contacts from WA by sharing link below.</string>
+    <string name="link_share_others_msg">You can now add memebers from group and contacts from Other apps by sharing link below.</string>
 </resources>

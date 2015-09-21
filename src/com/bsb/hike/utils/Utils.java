@@ -6409,6 +6409,18 @@ public class Utils
 		return false;
 	}
 	
+	public static boolean isGCViaLinkEnabled()
+	{
+		HikeSharedPreferenceUtil prefs = HikeSharedPreferenceUtil.getInstance();
+		
+		if (prefs != null)
+		{
+			return prefs.getData(HikeConstants.ENABLE_GC_VIA_LINK_SHARING, false);
+		}
+		
+		return false;
+	}
+	
 	public static boolean moveFile(File inputFile, File outputFile)
 	{
 		Logger.d("Utils", "Input file path - " + inputFile.getPath());

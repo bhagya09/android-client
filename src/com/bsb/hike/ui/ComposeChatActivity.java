@@ -602,17 +602,18 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		boolean fetchRecentlyJoined = pref.getData(HikeConstants.SHOW_RECENTLY_JOINED_DOT, false) || pref.getData(HikeConstants.SHOW_RECENTLY_JOINED, false);
 		fetchRecentlyJoined = fetchRecentlyJoined && !isForwardingMessage && showNujNotif;
 		
+		boolean showSMSContacts = Utils.isGCViaLinkEnabled();
 		switch (composeMode)
 		{
-		case CREATE_GROUP_MODE:
 		case CREATE_BROADCAST_MODE:
-		case PICK_CONTACT_MODE:
 		case PICK_CONTACT_AND_SEND_MODE:
 			//We do not show sms contacts in broadcast mode
 			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage, (isForwardingMessage && !isSharingFile), fetchRecentlyJoined, existingGroupOrBroadcastId, sendingMsisdn, friendsListFetchedCallback, false);
 			break;
+		case CREATE_GROUP_MODE:
+		case PICK_CONTACT_MODE:
 		default:
-			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage, (isForwardingMessage || isSharingFile), fetchRecentlyJoined, existingGroupOrBroadcastId, sendingMsisdn, friendsListFetchedCallback, true);
+			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage, (isForwardingMessage || isSharingFile), fetchRecentlyJoined, existingGroupOrBroadcastId, sendingMsisdn, friendsListFetchedCallback, showSMSContacts);
 			break;
 		}
 
@@ -1285,7 +1286,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 				else if (composeMode == CREATE_GROUP_MODE)
 				{
 					int selected = adapter.getCurrentSelection();
-					if (selected < MIN_MEMBERS_GROUP_CHAT)
+					if (selected < MIN_MEMBERS_GROUP_CHAT && !Utils.isGCViaLinkEnabled())
 					{
 						Toast.makeText(getApplicationContext(), getString(R.string.minContactInGroupErr, MIN_MEMBERS_GROUP_CHAT), Toast.LENGTH_SHORT).show();
 						return;
