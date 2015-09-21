@@ -45,7 +45,7 @@ public class JSONArrayRequest extends Request<JSONArray>
 	}
 
 	@Override
-	public JSONArray parseResponse(InputStream in) throws IOException
+	public JSONArray parseResponse(InputStream in, int contentLength) throws IOException
 	{
 		try
 		{
