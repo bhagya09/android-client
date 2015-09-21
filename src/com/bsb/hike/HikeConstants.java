@@ -1733,6 +1733,8 @@ public class HikeConstants
 		public static final String THUMBNAILS_REQUIRED = "thumbnailsRequired";
 
 		public static final String CHAT_INTENT_TIMESTAMP = "chat_ts";
+		
+		public static final String IS_MICROAPP_SHOWCASE_INTENT = "microappShowcaseIntent";
 	}
 
 	public static final class LogEvent

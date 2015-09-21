@@ -225,7 +225,7 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 		}
 		else if (viewType == ViewType.HIKE_APPS)
 		{
-			
+			// Do nothing.
 		}
 		else
 		{
@@ -444,8 +444,8 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 			holder.recyclerView = (RecyclerView) convertView.findViewById(R.id.mapps_list);
 			holder.recyclerView.setAdapter(new MicroappsListAdapter(context, microappShowcaseList, iconloader));
 			LinearLayoutManager layoutManager = new LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false);
-            holder.recyclerView.setLayoutManager(layoutManager);
-            holder.recyclerView.setOverScrollMode(View.OVER_SCROLL_NEVER);
+	        holder.recyclerView.setLayoutManager(layoutManager);
+	        holder.recyclerView.setOverScrollMode(View.OVER_SCROLL_NEVER);
 			convertView.setTag(holder);
 			break;
 		default:
@@ -524,9 +524,8 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 		
 		if(showMicroappShowcase && microappShowcaseList != null && !microappShowcaseList.isEmpty())
 		{
-			ContactInfo microappSection = new ContactInfo(SECTION_ID, ""+microappShowcaseList.size(), "HIKE APPS", FRIEND_PHONE_NUM);
-			//TODO change params here.
-			ContactInfo microappShowcaseList = new ContactInfo(HIKE_APPS_ID, "111111", "Bot1", "911111");
+			ContactInfo microappSection = new ContactInfo(SECTION_ID, ""+microappShowcaseList.size(), context.getString(R.string.hike_apps), FRIEND_PHONE_NUM);
+			ContactInfo microappShowcaseList = new ContactInfo(HIKE_APPS_ID, HIKE_APPS_MSISDN, context.getString(R.string.hike_apps), HIKE_APPS_NUM);
 			completeList.add(microappSection);
 			completeList.add(microappShowcaseList);
 		}

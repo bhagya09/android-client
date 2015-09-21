@@ -814,7 +814,7 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 	
 	public List<BotInfo> getDiscoveryBotInfoList()
 	{
-		List<BotInfo> list = new ArrayList<>();
+		List<BotInfo> list = new ArrayList<>(0);
 		
 		Cursor c = getCursorForBotDiscoveryTable();
 		String msisdn;

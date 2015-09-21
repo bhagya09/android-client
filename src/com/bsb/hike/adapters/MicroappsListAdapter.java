@@ -19,6 +19,7 @@ import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
@@ -51,7 +52,7 @@ public class MicroappsListAdapter extends RecyclerView.Adapter<MicroappsListAdap
 
 	private OnClickListener onClickListener;
 	
-	private static final String URL = "https://qa-content.hike.in/mapps/api/v1/apps/install.json";
+	private static final String APP_NAME = "appName";
 
 	public MicroappsListAdapter(Context context, List<BotInfo> botsList, IconLoader iconLoader)
 	{
@@ -64,6 +65,11 @@ public class MicroappsListAdapter extends RecyclerView.Adapter<MicroappsListAdap
 	@Override
 	public void onClick(View v)
 	{
+		if (v.getTag() == null)
+		{
+			return;
+		}
+		
 		BotInfo mBotInfo = microappsList.get((int)v.getTag());
 		
 		boolean userHasBot = BotUtils.isBot(mBotInfo.getMsisdn());
@@ -71,21 +77,7 @@ public class MicroappsListAdapter extends RecyclerView.Adapter<MicroappsListAdap
 		// User doesn't have the bot.
 		if(!userHasBot)
 		{
-			final CustomAlertDialog dialog = new CustomAlertDialog(mContext, HikeDialogFactory.MAPP_DOWNLOAD_DIALOG, R.layout.mapp_download_dialog);
-
-			this.iconLoader.loadImage(mBotInfo.getMsisdn(), (ImageView) dialog.findViewById(R.id.bot_icon), false, false, true);
-			
-			TextView bot_name = (TextView) dialog.findViewById(R.id.bot_name);
-			bot_name.setText(mBotInfo.getConversationName());
-			
-			TextView description = (TextView) dialog.findViewById(R.id.bot_description);
-			description.setText(mBotInfo.getBotDescription());
-			
-			String loadingText = String.format(mContext.getResources().getString(R.string.getting_mapp_shortly), mBotInfo.getConversationName());
-			TextView loadingTextView = (TextView) dialog.findViewById(R.id.loading_text);
-			loadingTextView.setText(loadingText);
-			
-			dialog.setPositiveButton(mContext.getResources().getString(R.string.okay), new HikeDialogListener()
+			final HikeDialog dialog = HikeDialogFactory.showDialog(mContext, HikeDialogFactory.MAPP_DOWNLOAD_DIALOG, new HikeDialogListener()
 			{
 				@Override
 				public void positiveClicked(HikeDialog hikeDialog)
@@ -105,10 +97,20 @@ public class MicroappsListAdapter extends RecyclerView.Adapter<MicroappsListAdap
 					hikeDialog.dismiss();
 				}
 			});
-			dialog.setCancelable(true);
-			dialog.show();
 			
-			botDownloadAnalytics(mBotInfo.getMsisdn(), mBotInfo.getConversationName());
+			this.iconLoader.loadImage(mBotInfo.getMsisdn(), (ImageView) dialog.findViewById(R.id.bot_icon), false, false, true);
+			
+			TextView bot_name = (TextView) dialog.findViewById(R.id.bot_name);
+			bot_name.setText(mBotInfo.getConversationName());
+			
+			TextView description = (TextView) dialog.findViewById(R.id.bot_description);
+			description.setText(mBotInfo.getBotDescription());
+			
+			String loadingText = String.format(mContext.getResources().getString(R.string.getting_mapp_shortly), mBotInfo.getConversationName());
+			TextView loadingTextView = (TextView) dialog.findViewById(R.id.loading_text);
+			loadingTextView.setText(loadingText);
+			
+			BotUtils.discoveryBotDownloadAnalytics(mBotInfo.getMsisdn(), mBotInfo.getConversationName());
 			
 			initiateBotDownload(mBotInfo.getMsisdn());
 			
@@ -121,14 +123,14 @@ public class MicroappsListAdapter extends RecyclerView.Adapter<MicroappsListAdap
 		
 		if (mBotInfo != null && mBotInfo.isBlocked())
 		{
-			unblockBot(mBotInfo);
+			BotUtils.unblockBotAndAddConv(mBotInfo);
 			openBot(mBotInfo);
 			return;
 		}
 		
 		if (!HikeConversationsDatabase.getInstance().isConversationExist(mBotInfo.getMsisdn()))
 		{
-			HikeConversationsDatabase.getInstance().addNonMessagingBotconversation(mBotInfo);
+			HikeMessengerApp.getPubSub().publish(HikePubSub.ADD_NM_BOT_CONVERSATION, mBotInfo);
 		}
 		
 		openBot(mBotInfo);
@@ -172,13 +174,13 @@ public class MicroappsListAdapter extends RecyclerView.Adapter<MicroappsListAdap
 	
 	private void openBot(BotInfo mBotInfo)
 	{
-		if (mBotInfo.isNonMessagingBot())
+		if (mContext != null)
 		{
-			mContext.startActivity(IntentFactory.getNonMessagingBotIntent(mBotInfo.getMsisdn(), mContext));
+			mContext.startActivity(IntentFactory.getIntentForBots(mBotInfo, mContext));	
 		}
 		else
 		{
-			mContext.startActivity(IntentFactory.createChatThreadIntentFromMsisdn(mContext, mBotInfo.getMsisdn(), false, false));
+			Logger.e(TAG, "Context is null while trying to open the bot ");
 		}
 	}
 	
@@ -189,13 +191,13 @@ public class MicroappsListAdapter extends RecyclerView.Adapter<MicroappsListAdap
 		jsonArray.put(msisdn);
 		try
 		{
-			json.put("appName", jsonArray);
+			json.put(APP_NAME, jsonArray);
 		}
 		catch (JSONException e)
 		{
 			Logger.e(TAG, "Bot download request Json Exception: "+e.getMessage());
 		}
-		RequestToken token = HttpRequests.microAppPostRequest(URL, json, new IRequestListener()
+		RequestToken token = HttpRequests.microAppPostRequest(HttpRequestConstants.getBotDownloadUrl(), json, new IRequestListener()
 		{
 			
 			@Override
@@ -221,30 +223,4 @@ public class MicroappsListAdapter extends RecyclerView.Adapter<MicroappsListAdap
 			token.execute();
 		}
 	}
-	
-	private void botDownloadAnalytics(String msisdn, String name)
-	{
-		JSONObject json = new JSONObject();
-		try
-		{
-			json.put(AnalyticsConstants.EVENT_KEY, AnalyticsConstants.DISCOVERY_BOT_DOWNLOAD);
-			json.put(HikePlatformConstants.PLATFORM_USER_ID, HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PLATFORM_UID_SETTING, null));
-			json.put(AnalyticsConstants.BOT_NAME, name);
-			json.put(AnalyticsConstants.BOT_MSISDN, msisdn);
-		}
-		catch (JSONException e)
-		{
-			Logger.e(TAG, "JSON Exception in botDownloadAnalytics "+e.getMessage());
-		}
-		HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.BOT_DISCOVERY, json);
-	}
-	
-	public void unblockBot(BotInfo mBotInfo)
-	{
-		mBotInfo.setBlocked(false);
-		HikeMessengerApp.getPubSub().publish(HikePubSub.UNBLOCK_USER, mBotInfo.getMsisdn());
-		
-		HikeConversationsDatabase.getInstance().addNonMessagingBotconversation(mBotInfo);
-	}
-
 }

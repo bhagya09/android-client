@@ -12,14 +12,13 @@
                 android:layout_marginRight="8dp"
                 style="@style/AvatarStyle.MorePadding" />
     
-    <TextView 
+    <com.bsb.hike.view.CustomFontTextView 
         android:id="@+id/microapp_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="5dp"
         android:maxWidth="60dp"
         android:layout_gravity="center"
-        android:text="News"
         android:textSize="11sp"
         android:singleLine="true"
         android:ellipsize="end"

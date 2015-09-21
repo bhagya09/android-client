@@ -446,6 +446,8 @@ public class HikePubSub implements Runnable
 	
 	public static final String BOT_DISCOVERY_TABLE_FLUSH = "botDiscoveryFlush";
 	
+	public static final String ADD_NM_BOT_CONVERSATION = "addNmBotCoversation";
+	
 	private final Thread mThread;
 
 	private final BlockingQueue<Operation> mQueue;
