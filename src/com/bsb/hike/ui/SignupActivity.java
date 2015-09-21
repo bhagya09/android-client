@@ -270,7 +270,10 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 
 		accountPrefs = getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, MODE_PRIVATE);
 		systemKeyboard = HikeMessengerApp.isSystemKeyboard(getApplicationContext());
-		setupCustomKeyboard();
+		if (!systemKeyboard)
+		{
+			setupCustomKeyboard();
+		}
 
 		viewFlipper = (ViewFlipper) findViewById(R.id.signup_viewflipper);
 		numLayout = (ViewGroup) findViewById(R.id.num_layout);
@@ -940,14 +943,31 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 	
 	private void showKeyboard(CustomFontEditText editText)
 	{
-		mCustomKeyboard.init(editText);
-		if (systemKeyboard)
+		if(mCustomKeyboard != null)
 		{
-			Utils.showSoftKeyboard(this, editText);
-		}
-		else
-		{
+			mCustomKeyboard.init(editText);
 			mCustomKeyboard.showCustomKeyboard(editText, true);
+		}
+	}
+	
+	private void addClickListenerForKeyboard()
+	{
+		if (!systemKeyboard)
+		{
+			enterEditText.setOnClickListener(
+					new OnClickListener()
+					{
+						
+						@Override
+						public void onClick(View v)
+						{
+							if (mCustomKeyboard.isCustomKeyboardVisible())
+							{
+								return;
+							}
+							showKeyboard(enterEditText);
+						}
+					});
 		}
 	}
 	
@@ -956,22 +976,8 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 		initializeViews(numLayout);
 
 		showKeyboard(enterEditText);
-		
-		enterEditText.setOnClickListener(
-				new OnClickListener()
-				{
-					
-					@Override
-					public void onClick(View v)
-					{
-						if (mCustomKeyboard.isCustomKeyboardVisible())
-						{
-							mCustomKeyboard.showCustomKeyboard(enterEditText, false);
-						}
-						showKeyboard(enterEditText);
-					}
-				});
-		
+		addClickListenerForKeyboard();
+	
 		countryPicker.setOnFocusChangeListener(new OnFocusChangeListener()
 		{
 			@Override
@@ -1030,16 +1036,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 	{
 		initializeViews(pinLayout);
 
-		enterEditText.setOnClickListener(
-				new OnClickListener()
-				{
-					
-					@Override
-					public void onClick(View v)
-					{
-						showKeyboard(enterEditText);
-					}
-				});
+		addClickListenerForKeyboard();
 		
 		callmeBtn.setVisibility(View.VISIBLE);
 		nextBtnContainer.setVisibility(View.VISIBLE);
@@ -1120,21 +1117,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 		}
 
 		showKeyboard(enterEditText);
-		
-		enterEditText.setOnClickListener(
-				new OnClickListener()
-				{
-					
-					@Override
-					public void onClick(View v)
-					{
-						if (mCustomKeyboard.isCustomKeyboardVisible())
-						{
-							mCustomKeyboard.showCustomKeyboard(enterEditText, false);
-						}
-						showKeyboard(enterEditText);
-					}
-				});
+		addClickListenerForKeyboard();
 		
 		if (!addressBookScanningDone)
 		{

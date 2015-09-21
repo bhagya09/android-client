@@ -31,6 +31,7 @@ import com.bsb.hike.BuildConfig;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
+import com.bsb.hike.modules.kpt.KptUtils;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.Utils;
@@ -502,7 +503,11 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity implem
         mLockPatternView = (LockPatternView) findViewById(R.id.alp_42447968_view_lock_pattern);
         mLockPinView = (CustomFontEditText) findViewById(R.id.alp_42447968_lock_pin);
 
-        initCustomKeyboard();
+        systemKeyboard = HikeMessengerApp.isSystemKeyboard(getApplicationContext());
+        if (!systemKeyboard)
+        {
+            initCustomKeyboard();        	
+        }
 
         mFooter = findViewById(R.id.alp_42447968_viewgroup_footer);
         mBtnCancel = (Button) findViewById(R.id.alp_42447968_button_cancel);
@@ -569,13 +574,18 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity implem
                         if (doComparePin(mLockPinView.getText().toString()))
                         {
                             finishWithResultOk(null);
-                            mCustomKeyboard.updateCore();
+                            if (mCustomKeyboard != null)
+                            {
+                                mCustomKeyboard.updateCore();
+                            }
                         }
                         else 
                         {
                             finishWithNegativeResult(RESULT_CANCELED); 
-                            mCustomKeyboard.updateCore();
-                        }
+                            if (mCustomKeyboard != null)
+                            {
+                                mCustomKeyboard.updateCore();
+                            }                        }
                 	}
                     mTextInfo
                             .setText(R.string.stealth_msg_enter_pin_to_unlock);
@@ -1239,7 +1249,10 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity implem
         @Override
         public void onClick(View v) {
         	mLockPatternViewReloader.run();
-        	mCustomKeyboard.updateCore();
+        	if (mCustomKeyboard != null)
+            {
+                mCustomKeyboard.updateCore();
+            }
         }// onClick()
     };
 
@@ -1285,7 +1298,10 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity implem
                     mLockPinView.setText("");
                     if(mLockPinView.getVisibility() == View.VISIBLE)
                     {
-                    	mCustomKeyboard.updateCore();
+                    	if (mCustomKeyboard != null)
+                        {
+                            mCustomKeyboard.updateCore();
+                        }
                     	mTextInfo.setText(R.string.stealth_msg_reenter_pin_to_confirm);   	
                     } else {
                     	mTextInfo.setText(R.string.stealth_msg_redraw_pattern_to_confirm);
@@ -1345,9 +1361,21 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity implem
     {
     	View keyboardHolder = (LinearLayout) findViewById(R.id.keyboardView_holder);
         mCustomKeyboard = new CustomKeyboard(LockPatternActivity.this, keyboardHolder);
-        systemKeyboard = HikeMessengerApp.isSystemKeyboard(getApplicationContext());
         mCustomKeyboard.registerEditText(R.id.alp_42447968_lock_pin, KPTConstants.SINGLE_LINE_EDITOR, this, this);
         mCustomKeyboard.init(mLockPinView);
+        mLockPinView.setOnClickListener(new View.OnClickListener()
+		{
+			
+			@Override
+			public void onClick(View v)
+			{
+				if (mCustomKeyboard.isCustomKeyboardVisible())
+				{
+					return;
+				}
+				mCustomKeyboard.showCustomKeyboard(mLockPinView, true);
+			}
+		});
     }
 
 	@Override
@@ -1466,38 +1494,25 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity implem
 	@Override
 	protected void onDestroy()
 	{
-		destroyKeyboardResources();
+		KptUtils.destroyKeyboardResources(mCustomKeyboard, R.id.alp_42447968_lock_pin);
 		super.onDestroy();
 	}
 	
 	@Override
 	protected void onPause()
 	{
-		pauseKeyboardResources();
+		KptUtils.pauseKeyboardResources(mCustomKeyboard, mLockPinView);
 		super.onPause();
 	}
 	
-	protected void destroyKeyboardResources()
+	@Override
+	public void onBackPressed()
 	{
-		if (mCustomKeyboard != null)
-		{
-			mCustomKeyboard.unregister(mLockPinView);
-
-			mCustomKeyboard.closeAnyDialogIfShowing();
-
-			mCustomKeyboard.destroyCustomKeyboard();
-		}
-	}
-	
-	protected void pauseKeyboardResources()
-	{
-		if (mCustomKeyboard != null)
+		if (mCustomKeyboard != null && mCustomKeyboard.isCustomKeyboardVisible())
 		{
 			mCustomKeyboard.showCustomKeyboard(mLockPinView, false);
-			
-			mCustomKeyboard.closeAnyDialogIfShowing();
-			
-			mCustomKeyboard.onPause();
+			return;
 		}
+		super.onBackPressed();
 	}
 }

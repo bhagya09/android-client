@@ -247,6 +247,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 			final ListPreference languagePref = (ListPreference) getPreferenceScreen().findPreference(HikeConstants.KEYBOARD_LANGUAGE_PREF);
 			if (languagePref != null)
 			{
+				KPTAddonItem currentLangItem = null;
 				CharSequence entries[] = new String[mInstalledLanguagesList.size()];
 				CharSequence entryValues[] = new String[mInstalledLanguagesList.size()];
 				int i=0;
@@ -254,10 +255,16 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 				{
 					entries[i] = item.getDisplayName();
 					entryValues[i] = item.getDisplayName();
+					
+					if (item.getDisplayName().equalsIgnoreCase(mCurrentlangName))
+					{
+						currentLangItem = item;
+					}
 					i++;
 				}
 				languagePref.setEntries(entries);
 				languagePref.setEntryValues(entryValues);
+				kptSettings.changeLanguage(currentLangItem);
 				
 				languagePref.setOnPreferenceChangeListener(new OnPreferenceChangeListener()
 				{
@@ -614,7 +621,10 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 			mDialog = null;
 		}
 		mTask = null;
-		kptSettings.destroySettings();
+		if (kptSettings != null)
+		{
+			kptSettings.destroySettings();
+		}
 	}
 
 	public void setBlockingTask(ActivityCallableTask task)

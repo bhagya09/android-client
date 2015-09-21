@@ -81,6 +81,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -301,9 +302,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		}
 
 		setContentView(R.layout.compose_chat);
-		LinearLayout viewHolder = (LinearLayout) findViewById(R.id.keyboardView_holder);
-		mCustomKeyboard = new CustomKeyboard(ComposeChatActivity.this, viewHolder);
-
+		
 		if (nuxIncentiveMode)
 		{ 
 			FragmentManager fm = getSupportFragmentManager();
@@ -386,36 +385,19 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		mCustomKeyboard= new CustomKeyboard(this, parentView);
 		mCustomKeyboard.registerEditText(R.id.composeChatNewGroupTagET, KPTConstants.MULTILINE_LINE_EDITOR, ComposeChatActivity.this, ComposeChatActivity.this);
 		mCustomKeyboard.init(tagEditText);
-		
-			if (systemKeyboard)
-			{
-				mCustomKeyboard.showCustomKeyboard(tagEditText, false);
-				mCustomKeyboard.swtichToDefaultKeyboard(tagEditText);
-				mCustomKeyboard.unregister(R.id.composeChatNewGroupTagET);
-				getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
-				Utils.showSoftKeyboard(tagEditText, InputMethodManager.SHOW_FORCED);
-			}
-		
+		tagEditText.setOnClickListener(new OnClickListener()
 		{
-			tagEditText.setOnClickListener(new OnClickListener()
+			
+			@Override
+			public void onClick(View v)
 			{
-				
-				@Override
-				public void onClick(View v)
+				if (mCustomKeyboard.isCustomKeyboardVisible())
 				{
-					if (systemKeyboard)
-					{
-						getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
-						Utils.showSoftKeyboard(tagEditText, InputMethodManager.SHOW_FORCED);
-//						Utils.showSoftKeyboard(getApplicationContext(), tagEditText);
-					}
-					else
-					{
-						mCustomKeyboard.showCustomKeyboard(tagEditText, true);						
-					}
+					return;
 				}
-			});
-		}
+				mCustomKeyboard.showCustomKeyboard(tagEditText, true);						
+			}
+		});
 	}
 	
 	boolean isOpened = false;
@@ -490,21 +472,6 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		}
 	}
 
-	protected void showKeyboard() {
-		if (searchET != null) {
-			if (isSystemKeyboard()) {
-				Utils.showSoftKeyboard(getApplicationContext(), searchET);
-			} else {
-				mCustomKeyboard.showCustomKeyboard(searchET, true);
-			}
-		}
-	}
-
-	public boolean isSystemKeyboard() {
-		return HikeSharedPreferenceUtil.getInstance().getData(
-				HikeConstants.CURRENT_KEYBOARD, false);
-	}
-	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu)
 	{
@@ -706,7 +673,10 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		}
 		
 		systemKeyboard = HikeMessengerApp.isSystemKeyboard(getApplicationContext());
-		initCustomKeyboard();
+		if (!systemKeyboard)
+		{
+			initCustomKeyboard();
+		}
 
 		if (existingGroupOrBroadcastId != null)
 		{
@@ -743,7 +713,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 	@Override
 	protected void onPause()
 	{
-		KptUtils.pauseKeyboardResources(mCustomKeyboard);
+		KptUtils.pauseKeyboardResources(mCustomKeyboard, tagEditText, searchET);
 		
 		super.onPause();
 		if(adapter != null)
@@ -767,7 +737,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 	@Override
 	public void onDestroy()
 	{
-		KptUtils.destroyKeyboardResources(mCustomKeyboard, R.id.composeChatNewGroupTagET);
+		KptUtils.destroyKeyboardResources(mCustomKeyboard, R.id.composeChatNewGroupTagET, R.id.search_src_text);
 		
 		if (progressDialog != null)
 		{
@@ -785,6 +755,16 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		super.onDestroy();
 	}
 
+	@Override
+	public void onConfigurationChanged(Configuration newConfig)
+	{
+		if (mCustomKeyboard != null)
+		{
+			mCustomKeyboard.onConfigurationChanged(newConfig);
+		}
+		super.onConfigurationChanged(newConfig);
+	}
+	
 	@Override
 	public Object onRetainCustomNonConfigurationInstance()
 	{
@@ -2799,20 +2779,22 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			searchMenuItem.setVisible(true);
 			SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchMenuItem);
 			searchView.setOnQueryTextListener(onQueryTextListener);
-			searchView.clearFocus();
-			 searchET = (AdaptxtEditText) searchView.findViewById(R.id.search_src_text);
-			 	mCustomKeyboard.registerEditText(searchET, KPTConstants.MULTILINE_LINE_EDITOR, ComposeChatActivity.this, ComposeChatActivity.this);
-			 		mCustomKeyboard.init(searchET);
-			 		searchET.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-			 			
-			 			@Override
-			 			public void onFocusChange(View v, boolean hasFocus) {
-			 				if(hasFocus){
-			 					//Utils.hideSoftKeyboard(getApplicationContext(), searchET);
-			 					mCustomKeyboard.showCustomKeyboard(searchET, true);
-			 				}
-			 			}
-			 		});
+			if (!systemKeyboard)
+			{
+				searchView.clearFocus();
+				searchET = (AdaptxtEditText) searchView.findViewById(R.id.search_src_text);
+				mCustomKeyboard.registerEditText(searchET, KPTConstants.MULTILINE_LINE_EDITOR, ComposeChatActivity.this, ComposeChatActivity.this);
+				mCustomKeyboard.init(searchET);
+				searchET.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+				 			
+		 			@Override
+		 			public void onFocusChange(View v, boolean hasFocus) {
+		 				if(hasFocus){
+			 				mCustomKeyboard.showCustomKeyboard(searchET, true);			 						
+		 				}
+		 			}
+		 		});
+			}
 		}
 	}
 
