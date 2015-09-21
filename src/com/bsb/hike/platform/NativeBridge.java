@@ -328,5 +328,21 @@ public class NativeBridge
 			}
 		});
 	}
+	/**
+	 * Platform Version 7
+	 * Call this function to get the system architecture.
+	 * @param id: the id of the function that native will call to call the js .
+	 */
+	public void getSystemArchitecture(final String id)
+	{
+		activity.runOnGLThread(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				activity.PlatformCallback(id,System.getProperty("os.arch"));
+			}
+		});
+	}
 
 }
