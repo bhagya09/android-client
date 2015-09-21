@@ -5442,7 +5442,10 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	protected void onConfigurationChanged(Configuration newConfig)
 	{
 		Logger.d(TAG, "newConfig : " + newConfig.toString());
-		mCustomKeyboard.onConfigurationChanged(newConfig);
+		if (mCustomKeyboard != null)
+		{
+			mCustomKeyboard.onConfigurationChanged(newConfig);
+		}
 		if (mShareablePopupLayout != null && mShareablePopupLayout.isShowing())
 		{
 			mShareablePopupLayout.dismiss();

@@ -27,6 +27,7 @@ import com.bsb.hike.models.FtueContactsData;
 import com.bsb.hike.models.Conversation.ConversationTip;
 import com.bsb.hike.modules.animationModule.HikeAnimationFactory;
 import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.modules.kpt.KptUtils;
 import com.bsb.hike.offline.OfflineConstants.OFFLINE_STATE;
 import com.bsb.hike.offline.OfflineController;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
@@ -423,8 +424,11 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 		parentLayout = findViewById(R.id.parent_layout);
 
-		LinearLayout viewHolder = (LinearLayout) findViewById(R.id.keyboardView_holder);
-		mCustomKeyboard = new CustomKeyboard(HomeActivity.this, viewHolder);
+		if (!isSystemKeyboard())
+		{
+			LinearLayout viewHolder = (LinearLayout) findViewById(R.id.keyboardView_holder);
+			mCustomKeyboard = new CustomKeyboard(HomeActivity.this, viewHolder);			
+		}
 		
 		networkErrorPopUp = (TextView) findViewById(R.id.network_error);
 
@@ -542,7 +546,8 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	protected void onDestroy()
 	{
 		Logger.d(TAG, "onDestroy");
-		destroyKeyboardResources();
+		
+		KptUtils.destroyKeyboardResources(mCustomKeyboard, R.id.search_src_text);
 		if (progDialog != null)
 		{
 			progDialog.dismiss();
@@ -559,16 +564,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		}
 		super.onDestroy();
 	}
-	private void destroyKeyboardResources()
-	{
-		if(mCustomKeyboard!=null && searchET!=null){
-		mCustomKeyboard.unregister(searchET);
 
-		mCustomKeyboard.closeAnyDialogIfShowing();
-
-		mCustomKeyboard.destroyCustomKeyboard();
-		}
-	}
 	@Override
 	protected void onNewIntent(Intent intent)
 	{
@@ -643,23 +639,9 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		return super.onPrepareOptionsMenu(menu);
 	}
 	
-	protected void showKeyboard()
-	{
-		if(searchET!=null){
-			if (isSystemKeyboard())
-			{
-				Utils.showSoftKeyboard(getApplicationContext(), searchET);
-			}
-			else
-			{
-				mCustomKeyboard.showCustomKeyboard(searchET, true);
-			}
-		}
-	}
-
 	public boolean isSystemKeyboard()
 	{
-		return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CURRENT_KEYBOARD, false);
+		return HikeMessengerApp.isSystemKeyboard(HomeActivity.this);
 	}
 	
 	private boolean setupMenuOptions(final Menu menu)
@@ -688,19 +670,22 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			searchView.clearFocus();
 	
 			//Code for CustomKeyboard
-			 searchET = (AdaptxtEditText) searchView.findViewById(R.id.search_src_text);
-			mCustomKeyboard.registerEditText(searchET, KPTConstants.MULTILINE_LINE_EDITOR, HomeActivity.this, HomeActivity.this);
-			mCustomKeyboard.init(searchET);
-			searchET.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-				
-				@Override
-				public void onFocusChange(View v, boolean hasFocus) {
-					if(hasFocus){
-						//Utils.hideSoftKeyboard(getApplicationContext(), searchET);
-						mCustomKeyboard.showCustomKeyboard(searchET, true);
+			if (!isSystemKeyboard())
+			{
+				searchET = (AdaptxtEditText) searchView.findViewById(R.id.search_src_text);
+				mCustomKeyboard.registerEditText(searchET, KPTConstants.MULTILINE_LINE_EDITOR, HomeActivity.this, HomeActivity.this);
+				mCustomKeyboard.init(searchET);
+				searchET.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+					
+					@Override
+					public void onFocusChange(View v, boolean hasFocus) {
+						if(hasFocus){
+							//Utils.hideSoftKeyboard(getApplicationContext(), searchET);
+							mCustomKeyboard.showCustomKeyboard(searchET, true);
+						}
 					}
-				}
-			});
+				});
+			}
 			
 			//
 			searchOptionID = searchMenuItem.getItemId();
@@ -730,8 +715,9 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			{
 				if(mainFragment!=null)
 		        {
-					if(mCustomKeyboard!=null&& searchET!=null){
-					  mCustomKeyboard.showCustomKeyboard(searchET, false);
+					if(mCustomKeyboard!=null && searchET!=null)
+					{
+						mCustomKeyboard.showCustomKeyboard(searchET, false);
 					}
 					mainFragment.removeSearch();
 		        }
@@ -1108,6 +1094,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	@Override
 	protected void onPause()
 	{
+		KptUtils.pauseKeyboardResources(mCustomKeyboard, searchET);
 		if(getIntent().hasExtra(HikeConstants.STEALTH_MSISDN))
 		{
 			//after showing the LockPatternActivity in onResume of ConvFrag the extra is no longer needed, so clearing it out.
@@ -2050,6 +2037,10 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	@Override
 	public void onConfigurationChanged(Configuration newConfig)
 	{
+		if (!isSystemKeyboard())
+		{
+			mCustomKeyboard.onConfigurationChanged(newConfig);
+		}
 		super.onConfigurationChanged(newConfig);
 		// handle dialogs here
 		if(progDialog != null && progDialog.isShowing())
@@ -2192,9 +2183,9 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	}
 
 	@Override
-	public void analyticalData(String arg0) {
-		// TODO Auto-generated method stub
-		
+	public void analyticalData(String currentLanguage) 
+	{
+		KptUtils.generateKeyboardAnalytics(currentLanguage);
 	}
 
 	@Override
@@ -2210,9 +2201,9 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	}
 
 	@Override
-	public void showGlobeKeyView() {
-		// TODO Auto-generated method stub
-		
+	public void showGlobeKeyView() 
+	{
+		KptUtils.onGlobeKeyPressed(HomeActivity.this, mCustomKeyboard);
 	}
 
 	@Override

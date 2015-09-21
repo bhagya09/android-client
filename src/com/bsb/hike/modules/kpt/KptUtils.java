@@ -10,6 +10,7 @@ import com.bsb.hike.utils.Logger;
 import com.bsb.hike.view.CustomFontEditText;
 import com.kpt.adaptxt.beta.CustomKeyboard;
 import com.kpt.adaptxt.beta.GlobeKeyData;
+import com.kpt.adaptxt.beta.view.AdaptxtEditText;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -144,13 +145,13 @@ public class KptUtils
 		}
 	}
 	
-	public static void pauseKeyboardResources(CustomKeyboard mCustomKeyboard, CustomFontEditText ... editTexts)
+	public static void pauseKeyboardResources(CustomKeyboard mCustomKeyboard, AdaptxtEditText ... editTexts)
 	{
 		if (mCustomKeyboard != null)
 		{
-			for (CustomFontEditText customFontEditText : editTexts)
+			for (AdaptxtEditText adaptxtEditText : editTexts)
 			{
-				mCustomKeyboard.showCustomKeyboard(customFontEditText, false);
+				mCustomKeyboard.showCustomKeyboard(adaptxtEditText, false);
 			}
 			
 			mCustomKeyboard.closeAnyDialogIfShowing();

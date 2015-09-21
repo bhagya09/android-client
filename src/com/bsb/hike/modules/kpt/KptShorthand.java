@@ -15,7 +15,6 @@ import com.bsb.hike.R;
 import com.bsb.hike.ui.HikePreferences;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.Logger;
-import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.CustomFontEditText;
 import com.kpt.adaptxt.beta.AdaptxtSettings;
 import com.kpt.adaptxt.beta.AdaptxtSettingsRegisterListener;
@@ -36,8 +35,6 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.WindowManager;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -112,8 +109,11 @@ public class KptShorthand extends HikeAppStateBaseFragmentActivity implements Ad
 		mListView.setAdapter(mAdapter);
 		
 		addOnClickListeners();
-		initCustomKeyboard();
-		
+		systemKeyboard = HikeMessengerApp.isSystemKeyboard(KptShorthand.this);
+		if (!systemKeyboard)
+		{
+			initCustomKeyboard();			
+		}
 	}
 	
 	private void addOnClickListeners()
@@ -136,6 +136,7 @@ public class KptShorthand extends HikeAppStateBaseFragmentActivity implements Ad
 				expansionList.add(expansion);
 				mAdapter.notifyDataSetChanged();
 				shortcutEt.setText("");
+				expansionEt.setText("");
 				mCustomKeyboard.updateCore();
 				shortcutEt.requestFocus();
 			}
@@ -148,49 +149,17 @@ public class KptShorthand extends HikeAppStateBaseFragmentActivity implements Ad
 	
 	private void showKeyboard(CustomFontEditText editText)
 	{
-		if (systemKeyboard)
-		{
-			Utils.showSoftKeyboard(KptShorthand.this, editText);
-		}
-		else
-		{
-			mCustomKeyboard.showCustomKeyboard(editText, true);
-		}
-	}
-	
-	private void hideKeyboard(CustomFontEditText editText)
-	{
-		if (systemKeyboard)
-		{
-			Utils.hideSoftKeyboard(KptShorthand.this, editText);
-		}
-		else
-		{
-			mCustomKeyboard.showCustomKeyboard(editText, false);
-		}
+		mCustomKeyboard.showCustomKeyboard(editText, true);
 	}
 	
 	private void initCustomKeyboard()
 	{
 		View keyboardHolder = (LinearLayout) findViewById(R.id.keyboardView_holder);
 		mCustomKeyboard = new CustomKeyboard(KptShorthand.this, keyboardHolder);
-		systemKeyboard = HikeMessengerApp.isSystemKeyboard(KptShorthand.this);
 		mCustomKeyboard.registerEditText(R.id.shortcut_et, KPTConstants.MULTILINE_LINE_EDITOR, this, this);
 		mCustomKeyboard.registerEditText(R.id.expansion_et, KPTConstants.MULTILINE_LINE_EDITOR, this, this);
 		mCustomKeyboard.init(shortcutEt);
 		mCustomKeyboard.showCustomKeyboard(shortcutEt, true);
-		
-		if (systemKeyboard)
-		{
-			mCustomKeyboard.showCustomKeyboard(shortcutEt, false);
-			mCustomKeyboard.swtichToDefaultKeyboard(shortcutEt);
-			mCustomKeyboard.unregister(R.id.shortcut_et);
-			mCustomKeyboard.showCustomKeyboard(expansionEt, false);
-			mCustomKeyboard.swtichToDefaultKeyboard(expansionEt);
-			mCustomKeyboard.unregister(R.id.expansion_et);
-			getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
-			Utils.showSoftKeyboard(shortcutEt, InputMethodManager.SHOW_FORCED);
-		}
 		
 		shortcutEt.setOnClickListener(new OnClickListener()
 		{
