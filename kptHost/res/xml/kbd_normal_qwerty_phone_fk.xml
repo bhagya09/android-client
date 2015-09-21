@@ -37,7 +37,7 @@
     
     atx:kpt_isGlideSupported = "false"
     
-    atx:kpt_keyWidth="32%p"
+    atx:kpt_keyWidth="33.3%p"
     atx:kpt_keyHeight="@dimen/kpt_key_height_dk_fk"
     atx:kpt_verticalGap="0%p" >
 

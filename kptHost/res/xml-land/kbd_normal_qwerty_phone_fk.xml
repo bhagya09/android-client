@@ -21,7 +21,7 @@
     xmlns:atx="http://schemas.android.com/apk/res-auto"
     atx:kpt_horizontalGap="0%p"
     atx:kpt_keyHeight="@dimen/kpt_key_height_dk_fk"
-    atx:kpt_keyWidth="32%p"
+    atx:kpt_keyWidth="33.3%p"
    
     atx:kpt_keyLabelXPos="@dimen/kpt_keyLabelXPos"
     atx:kpt_keyLabelYPos="@dimen/kpt_keyLabelYPos"
