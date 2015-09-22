@@ -3,6 +3,7 @@ package com.bsb.hike.ui;
 import java.util.ArrayList;
 import java.util.List;
 
+import android.util.Pair;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -131,7 +132,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	
 	private Menu mMenu;
 
-	private String[] pubsub = new String[]{HikePubSub.NOTIF_DATA_RECEIVED, HikePubSub.LOCATION_AVAILABLE,  HikePubSub.MESSAGE_EVENT_RECEIVED};
+	private String[] pubsub = new String[]{HikePubSub.NOTIF_DATA_RECEIVED, HikePubSub.LOCATION_AVAILABLE,  HikePubSub.MESSAGE_EVENT_RECEIVED, HikePubSub.DOWNLOAD_PROGRESS};
 
 	private boolean allowLoc;
 	
@@ -811,6 +812,18 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 			if (null != mmBridge)
 			{
 				mmBridge.locationReceived(latLong);
+			}
+		}
+		else if (type.equals(HikePubSub.DOWNLOAD_PROGRESS))
+		{
+			if (object instanceof Pair<?,?>)
+			{
+				if (null != msisdn && (msisdn.equals(botInfo.getMsisdn())|| msisdn.equals(botMetaData.getParentMsisdn())))
+				{
+					Pair<String, String> callback = (Pair<String, String>) object;
+					mmBridge.downloadStatus(callback.first, callback.second);
+				}
+
 			}
 		}
 
