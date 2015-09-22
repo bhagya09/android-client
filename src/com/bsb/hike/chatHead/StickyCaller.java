@@ -59,7 +59,9 @@ public class StickyCaller
 	public static String callCurrentNumber = null;
 
 	public static String callCurrentName = null;
-	
+
+	public static final String ACTIVATE_STICKY_CALLER = "activateStickyCaller";
+
 	public static boolean toCall = false;
 
 	static LayoutParams callerParams = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, LayoutParams.TYPE_PHONE, LayoutParams.FLAG_NOT_FOCUSABLE

@@ -134,6 +134,7 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 		{
 			items.add(new SettingsDisplayPojo(getString(R.string.settings_share_stickers), R.string.settings_share_stickers, R.drawable.settings_icon_sticker_widget));
 		}
+    	items.add(new SettingsDisplayPojo(getString(R.string.sticky_caller_settings), R.string.sticky_caller_settings, R.drawable.sticky_caller_settings));
 		items.add(new SettingsDisplayPojo(getString(R.string.help), R.string.help, R.drawable.ic_help_settings));
 		
 		//Last item is being added as null for the app version TextView
@@ -368,6 +369,10 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 				IntentFactory.openStickerSettings(this);
 				break;
 
+			case R.string.sticky_caller_settings:
+				IntentFactory.openStickyCallerSettings(this);
+				break;
+				
 			case R.string.help:
 				IntentFactory.openSettingHelp(this);
 				break;

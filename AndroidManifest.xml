@@ -326,7 +326,10 @@
             android:name=".chatHead.StickerShareSettings"
             android:configChanges="orientation|screenSize|keyboard|keyboardHidden" >
         </activity>
-        
+        <activity
+            android:name=".chatHead.StickyCallerSettings"
+            android:configChanges="orientation|screenSize|keyboard|keyboardHidden" >
+        </activity>
 		<activity
             android:name=".ui.PinHistoryActivity"
             android:configChanges="orientation|screenSize|keyboard|keyboardHidden"
