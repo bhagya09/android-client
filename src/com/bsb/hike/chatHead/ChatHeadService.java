@@ -36,6 +36,7 @@ import android.view.WindowManager.LayoutParams;
 import android.widget.ImageView;
 
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
@@ -344,14 +345,14 @@ public class ChatHeadService extends Service
 		}
 	}
 	
-	public void insertHomeActivitBeforeStarting(Intent openingIntent)
+	public static void insertHomeActivitBeforeStarting(Intent openingIntent)
 	{
 		//Any activity which is being opened from the Sticker Chat Head will open Homeactivity on BackPress
 		//this is being done to prevent loss of BG packet sent by the app to server when we exit from the activity
 		//its also a product call to take user inside hike after exploring stickers deeply
 		//This code may be removed in case some better strategy replaces the FSM to handle FG-BG-lastseen use cases
-		TaskStackBuilder.create(getApplicationContext())
-		.addNextIntent(IntentFactory.getHomeActivityIntentAsLauncher(getApplicationContext()))
+		TaskStackBuilder.create(HikeMessengerApp.getInstance())
+		.addNextIntent(IntentFactory.getHomeActivityIntentAsLauncher(HikeMessengerApp.getInstance()))
 		.addNextIntent(openingIntent)
 		.startActivities();
 	}

@@ -436,6 +436,8 @@ public class StickyCaller
 				}
 				break;
 			case R.id.caller_settings_button:
+				Intent intent = IntentFactory.getStickyCallerSettingsIntent(HikeMessengerApp.getInstance());
+				ChatHeadService.insertHomeActivitBeforeStarting(intent);
 				break;
 			case R.id.caller_close_button:
 				removeCallerView();
