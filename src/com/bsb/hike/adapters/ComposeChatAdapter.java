@@ -208,6 +208,10 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 				case CONTACT_SMS_NUM:
 					tv.setCompoundDrawablesWithIntrinsicBounds(context.getResources().getDrawable(R.drawable.ic_section_header_sms_contact), null, null, null);
 					break;
+					
+				case APPS_ON_HIKE:
+					tv.setCompoundDrawablesWithIntrinsicBounds(context.getResources().getDrawable(R.drawable.ic_section_header_hike_apps), null, null, null);
+					break;
 				}
 
 				tv.setCompoundDrawablePadding((int) context.getResources().getDimension(R.dimen.favorites_star_icon_drawable_padding));
@@ -524,7 +528,7 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 		
 		if(showMicroappShowcase && microappShowcaseList != null && !microappShowcaseList.isEmpty())
 		{
-			ContactInfo microappSection = new ContactInfo(SECTION_ID, ""+microappShowcaseList.size(), context.getString(R.string.hike_apps), FRIEND_PHONE_NUM);
+			ContactInfo microappSection = new ContactInfo(SECTION_ID, ""+microappShowcaseList.size(), context.getString(R.string.hike_apps), APPS_ON_HIKE);
 			ContactInfo microappShowcaseList = new ContactInfo(HIKE_APPS_ID, HIKE_APPS_MSISDN, context.getString(R.string.hike_apps), HIKE_APPS_NUM);
 			completeList.add(microappSection);
 			completeList.add(microappShowcaseList);
