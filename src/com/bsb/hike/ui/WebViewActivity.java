@@ -821,7 +821,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 				if (null != msisdn && (msisdn.equals(botInfo.getMsisdn())|| msisdn.equals(botMetaData.getParentMsisdn())))
 				{
 					Pair<String, String> callback = (Pair<String, String>) object;
-					mmBridge.callbackToJS(callback.first, callback.second);
+					mmBridge.downloadStatus(callback.first, callback.second);
 				}
 
 			}
