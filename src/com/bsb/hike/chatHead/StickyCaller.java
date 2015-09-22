@@ -12,8 +12,11 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewDebug.FlagToString;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.WindowManager.LayoutParams;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -256,7 +259,6 @@ public class StickyCaller
 		try
 		{
 			windowManager.addView(stickyCallerView, callerParams);
-			slideAnimation(callerParams.x, 0);
 			stickyCallerView.setOnTouchListener(onSwipeTouchListener);
 		}
 		catch (Exception e)
@@ -299,7 +301,7 @@ public class StickyCaller
 	private static void setCallerParams()
 	{
 		callerParams.gravity = Gravity.TOP | Gravity.LEFT;
-		callerParams.x = Utils.getDeviceWidth();
+		callerParams.x = 0;
 		callerParams.y = 0;
 		callerParams.alpha = 1.0f;
 	}
@@ -309,7 +311,11 @@ public class StickyCaller
 		LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		stickyCallerView = (LinearLayout) inflater.inflate(R.layout.caller_layout, null);
 		setBasicClickListener();
-		stickyCallerView.findViewById(R.id.hike_caller_logo).setVisibility(View.VISIBLE);
+		stickyCallerView.findViewById(R.id.fetching_data).setVisibility(View.VISIBLE);
+		View hikeCallerlogo = stickyCallerView.findViewById(R.id.hike_caller_logo);
+		hikeCallerlogo.setVisibility(View.VISIBLE);
+		Animation myFadeInAnimation = AnimationUtils.loadAnimation(context, R.drawable.blink_animation);
+		hikeCallerlogo.startAnimation(myFadeInAnimation);
 	}
 
 	private static void settingLayoutDataSuccess(Context context, String number, String result)

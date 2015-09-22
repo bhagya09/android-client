@@ -481,6 +481,7 @@ public class ChatHeadUtils
 			}
 			CallListener callListener = new CallListener();
 			RequestToken requestToken = HttpRequests.postNumberAndGetCallerDetails("http://52.76.46.27:5000/hikeCaller", json, callListener, 2000, 1);
+			StickyCaller.showCallerView(null, null, StickyCaller.LOADING);
 			requestToken.execute();
 		}
 	}	

@@ -20,6 +20,17 @@
             android:src="@drawable/hike_caller_logo"
             android:visibility="gone" />
 
+        <com.bsb.hike.view.CustomFontTextView
+            android:id="@+id/fetching_data"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Fetching Data ..."
+            android:textColor="@color/conv_item_ts_color"
+            android:textSize="12sp"
+            android:layout_gravity="center"
+            android:visibility="gone" />
+
         <LinearLayout
             android:id="@+id/caller_detail_view"
             android:layout_width="wrap_content"

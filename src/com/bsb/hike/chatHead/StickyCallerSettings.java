@@ -26,7 +26,7 @@ public class StickyCallerSettings extends HikeAppStateBaseFragmentActivity imple
 		setupActionBar();
 		stickyCallerCheckbox = (SwitchCompat) findViewById(R.id.sticky_caller_checkbox);
 		stickyCallerCheckbox.setOnCheckedChangeListener(this);
-		stickyCallerCheckbox.setChecked(HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.ACTIVATE_STICKY_CALLER, true));
+		stickyCallerCheckbox.setChecked(HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.ACTIVATE_STICKY_CALLER, false));
 	}
 
 	private void setupActionBar()
