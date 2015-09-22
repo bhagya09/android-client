@@ -4,11 +4,11 @@ import jp.co.agoop.networkconnectivity.lib.NetworkConnectivity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
-import com.bsb.hike.utils.Logger;
 
 public class NetworkAgModule extends BroadcastReceiver
 {
@@ -19,17 +19,17 @@ public class NetworkAgModule extends BroadcastReceiver
 	public void onReceive(Context context, Intent intent)
 	{
 		String action = intent.getAction();
-		Logger.d(TAG, "action:" + action);
+		Log.d(TAG, "action:" + action);
 		// when the application update.
 		if (action != null && action.equals(Intent.ACTION_PACKAGE_REPLACED) && intent.getDataString().equals("package:" + context.getPackageName()))
 		{
-			Logger.d(TAG, "Module test is updated");
+			Log.d(TAG, "Module test is updated");
 			startLogging();
 		}
 		// when the device is restart.
 		else if (action != null && action.equals(Intent.ACTION_MEDIA_SCANNER_FINISHED))
 		{
-			Logger.d(TAG, "Phone is restarted");
+			Log.d(TAG, "Phone is restarted");
 			startLogging();
 		}
 
@@ -46,7 +46,7 @@ public class NetworkAgModule extends BroadcastReceiver
 			}
 			catch (Exception e)
 			{
-				Logger.e(TAG, "error while stoping AG", e);
+				Log.e(TAG, "error while stoping AG", e);
 			}
 		}
 	}
@@ -55,17 +55,17 @@ public class NetworkAgModule extends BroadcastReceiver
 	{
 		if(!HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.AG_ENABLED, true))
 		{
-			Logger.d(TAG, "AG network logging is not enabled.. returning");
+			Log.d(TAG, "AG network logging is not enabled.. returning");
 			return;
 		}
 		else
 		{
 			if(!HikeMessengerApp.isIndianUser())
 			{
-				Logger.d(TAG, "AG network logging is not enabled.. since this is not an indian user");
+				Log.d(TAG, "AG network logging is not enabled.. since this is not an indian user");
 				return;
 			}
-			Logger.d(TAG, "starting AG network logging");
+			Log.d(TAG, "starting AG network logging");
 		}
 		
 		long startTime = System.currentTimeMillis();
@@ -83,10 +83,10 @@ public class NetworkAgModule extends BroadcastReceiver
 		}
 		catch (Exception e)
 		{
-			Logger.e(TAG, "error while starting AG", e);
+			Log.e(TAG, "error while starting AG", e);
 		}
 		
-		Logger.d(TAG, "time taken in ag module starting : "+ (System.currentTimeMillis() - startTime));
+		Log.d(TAG, "time taken in ag module starting : "+ (System.currentTimeMillis() - startTime));
 	}
 
 }
