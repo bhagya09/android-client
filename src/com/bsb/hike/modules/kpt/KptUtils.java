@@ -16,6 +16,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.view.ContextThemeWrapper;
+import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 
@@ -158,6 +159,15 @@ public class KptUtils
 			Logger.d("kptUtils", "onPause");
 
 			mCustomKeyboard.onPause();
+		}
+	}
+	
+	public static final void updatePadding(Activity activity, int resourceView, int bottomPadding)
+	{
+		View mainView = activity.findViewById(resourceView);
+		if (mainView != null && mainView.getPaddingBottom() != bottomPadding)
+		{
+			mainView.setPadding(0, 0, 0, bottomPadding);
 		}
 	}
 }
