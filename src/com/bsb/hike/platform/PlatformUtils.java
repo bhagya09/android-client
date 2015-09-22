@@ -323,7 +323,9 @@ public class PlatformUtils
 			if (activityName.equals(HIKESCREEN.GAME_ACTIVITY.toString()))
 			{
 				String msisdn = mmObject.optString(HikeConstants.MSISDN);
-				IntentFactory.openIntentForGameActivity(context,msisdn);
+				String extraData=null;
+				extraData=mmObject.optString(HikeConstants.DATA);
+				IntentFactory.openIntentForGameActivity(context,msisdn,extraData);
 			}
 		}
 		catch (JSONException e)

@@ -1071,11 +1071,13 @@ public class IntentFactory
 		activity.startActivityForResult(intent, 0);
 	}
 	
-	public static void openIntentForGameActivity(Context context,String msisdn)
+	public static void openIntentForGameActivity(Context context,String msisdn,String data)
 	{
 		//TODO:Pass Intent of game activity and any extras.
 				Intent i = new Intent(context,CocosGamingActivity.class);
 				i.putExtra(HikeConstants.MSISDN, msisdn);
+				i.putExtra(HikeConstants.DATA, data);
+				
 				context.startActivity(i);
 		
 	}

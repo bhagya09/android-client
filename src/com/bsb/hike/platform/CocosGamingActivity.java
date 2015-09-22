@@ -143,6 +143,9 @@ public class CocosGamingActivity extends Cocos2dxActivity implements HikePubSub.
 		botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
 		if (botInfo == null)
 		{
+
+			finish();
+			Cocos2dxHelper.terminateProcess();
 			Logger.e(TAG, "botinfo is null");
 			// TODO show some error feedback to the user
 			return;
@@ -150,6 +153,8 @@ public class CocosGamingActivity extends Cocos2dxActivity implements HikePubSub.
 		if (botInfo.getMetadata() == null)
 		{
 			// TODO show some error feedback to the user
+			finish();
+			Cocos2dxHelper.terminateProcess();
 			Logger.e(TAG, "metadata is null");
 			return;
 		}
@@ -171,6 +176,15 @@ public class CocosGamingActivity extends Cocos2dxActivity implements HikePubSub.
 		else
 		{
 			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+		}
+
+		if (getIntent().getStringExtra(HikeConstants.DATA) != null && getIntent().getStringExtra(HikeConstants.DATA).length() > 0)
+		{
+			nativeBridge = new NativeBridge(msisdn, CocosGamingActivity.this, getIntent().getStringExtra(HikeConstants.DATA));
+		}
+		else
+		{
+			nativeBridge = new NativeBridge(msisdn, CocosGamingActivity.this);
 		}
 
 		loadGame();
@@ -195,8 +209,6 @@ public class CocosGamingActivity extends Cocos2dxActivity implements HikePubSub.
 		{
 			mVideoHelper = new Cocos2dxVideoHelper(CocosGamingActivity.this, mFrameLayout);
 		}
-
-		nativeBridge = new NativeBridge(msisdn, CocosGamingActivity.this);
 
 		isInit = true;
 		onResume();
