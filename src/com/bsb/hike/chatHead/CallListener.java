@@ -19,7 +19,7 @@ public class CallListener implements IRequestListener
 	@Override
 	public void onRequestProgressUpdate(float progress)
 	{
-		StickyCaller.showCallerView(null, null, StickyCaller.LOADING);
+	
 	}
 
 	@Override
