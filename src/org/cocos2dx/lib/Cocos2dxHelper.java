@@ -108,7 +108,7 @@ public class Cocos2dxHelper {
 		}
 	}
 
-	public static void initDuplicate(final Activity activity, String appId) {
+	public static void initDuplicate(final Activity activity, String appId,String appPath) {
 		if (!sInited) {
 			final ApplicationInfo applicationInfo = activity.getApplicationInfo();
 
@@ -118,7 +118,7 @@ public class Cocos2dxHelper {
 			if (CocosPlayClient.isEnabled() && !CocosPlayClient.isDemo()) {
 				Cocos2dxHelper.sFileDirectory = CocosPlayClient.getGameRoot();
 			} else {
-				Cocos2dxHelper.sFileDirectory = activity.getFilesDir().getAbsolutePath() + "/" + appId;
+				Cocos2dxHelper.sFileDirectory = appPath;
 			}
 			PREFS_NAME = PREFS_NAME + "|" + appId;
 			Cocos2dxHelper.nativeSetApkPath(applicationInfo.sourceDir);
