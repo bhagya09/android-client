@@ -139,19 +139,18 @@ public class CocosGamingActivity extends Cocos2dxActivity implements HikePubSub.
 	{
 		super.onCreateDuplicate(savedInstanceState);
 		context = CocosGamingActivity.this;
-
 		msisdn = getIntent().getStringExtra(HikeConstants.MSISDN);
 		botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
 		if (botInfo == null)
 		{
-			Logger.d("pushkar", "botinfo is null");
+			Logger.e(TAG, "botinfo is null");
 			// TODO show some error feedback to the user
 			return;
 		}
 		if (botInfo.getMetadata() == null)
 		{
 			// TODO show some error feedback to the user
-			Logger.d("pushkar", "metadata is null");
+			Logger.e(TAG, "metadata is null");
 			return;
 		}
 		nonMessagingBotMetadata = new NonMessagingBotMetadata(botInfo.getMetadata());
@@ -177,6 +176,7 @@ public class CocosGamingActivity extends Cocos2dxActivity implements HikePubSub.
 		loadGame();
 
 		HikeMessengerApp.getPubSub().addListeners(this, pubsub);
+		Logger.d("pushkar", "-onCreate()");
 	}
 
 	public void loadGame()
