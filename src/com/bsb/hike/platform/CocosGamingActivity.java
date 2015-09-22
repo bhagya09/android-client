@@ -139,19 +139,23 @@ public class CocosGamingActivity extends Cocos2dxActivity implements HikePubSub.
 	{
 		super.onCreateDuplicate(savedInstanceState);
 		context = CocosGamingActivity.this;
-
 		msisdn = getIntent().getStringExtra(HikeConstants.MSISDN);
 		botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
 		if (botInfo == null)
 		{
-			Logger.d("pushkar", "botinfo is null");
+
+			finish();
+			Cocos2dxHelper.terminateProcess();
+			Logger.e(TAG, "botinfo is null");
 			// TODO show some error feedback to the user
 			return;
 		}
 		if (botInfo.getMetadata() == null)
 		{
 			// TODO show some error feedback to the user
-			Logger.d("pushkar", "metadata is null");
+			finish();
+			Cocos2dxHelper.terminateProcess();
+			Logger.e(TAG, "metadata is null");
 			return;
 		}
 		nonMessagingBotMetadata = new NonMessagingBotMetadata(botInfo.getMetadata());
@@ -174,9 +178,19 @@ public class CocosGamingActivity extends Cocos2dxActivity implements HikePubSub.
 			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
 		}
 
+		if (getIntent().getStringExtra(HikeConstants.DATA) != null && getIntent().getStringExtra(HikeConstants.DATA).length() > 0)
+		{
+			nativeBridge = new NativeBridge(msisdn, CocosGamingActivity.this, getIntent().getStringExtra(HikeConstants.DATA));
+		}
+		else
+		{
+			nativeBridge = new NativeBridge(msisdn, CocosGamingActivity.this);
+		}
+
 		loadGame();
 
 		HikeMessengerApp.getPubSub().addListeners(this, pubsub);
+		Logger.d("pushkar", "-onCreate()");
 	}
 
 	public void loadGame()
@@ -195,8 +209,6 @@ public class CocosGamingActivity extends Cocos2dxActivity implements HikePubSub.
 		{
 			mVideoHelper = new Cocos2dxVideoHelper(CocosGamingActivity.this, mFrameLayout);
 		}
-
-		nativeBridge = new NativeBridge(msisdn, CocosGamingActivity.this);
 
 		isInit = true;
 		onResume();
