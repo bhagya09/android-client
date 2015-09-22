@@ -143,9 +143,11 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 
 	private View addMoodLayout;
 
-	private ViewGroup emojiParent;
+	private boolean isForeground;
 
 	public static final String STATUS_UPDATE_IMAGE_PATH = "SUIMGPTH";
+	
+	StatusUpdateTaskFinishedRunnable suUploadTaskFinishRunnable;
 
 	@Override
 	public Object onRetainCustomNonConfigurationInstance()
@@ -297,10 +299,24 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 	protected void onResume()
 	{
 		super.onResume();
+		isForeground = true;
 		if (statusImage != null && statusImage.getDrawable() != null)
 		{
 			ChatThreadUtils.applyMatrixTransformationToImageView(statusImage.getDrawable(), statusImage);
 		}
+
+		if (suUploadTaskFinishRunnable != null)
+		{
+			runOnUiThread(suUploadTaskFinishRunnable);
+			suUploadTaskFinishRunnable = null;
+		}
+	}
+	
+	@Override
+	protected void onPause()
+	{
+		super.onPause();
+		isForeground = false;
 	}
 
 	private void readArguments(Intent intent)
@@ -313,7 +329,6 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 	 */
 	public void initVarRef()
 	{
-		emojiParent = (ViewGroup) findViewById(R.id.emoji_container);
 		moodParent = (ViewGroup) findViewById(R.id.mood_parent_status);
 		avatar = (RoundedImageView) findViewById(R.id.avatar);
 		statusTxt = (CustomFontEditText) findViewById(R.id.status_txt);
@@ -658,31 +673,47 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		if (HikePubSub.STATUS_POST_REQUEST_DONE.equals(type))
 		{
 			final boolean statusPosted = (Boolean) object;
-			runOnUiThread(new Runnable()
+
+			suUploadTaskFinishRunnable = new StatusUpdateTaskFinishedRunnable(statusPosted);
+
+			if (isForeground)
 			{
-				@Override
-				public void run()
-				{
-					mActivityTask.task = null;
-					if (progressDialog != null)
-					{
-						progressDialog.dismiss();
-						progressDialog = null;
-					}
-					if (statusPosted)
-					{
-						Utils.hideSoftKeyboard(StatusUpdate.this, statusTxt);
-						Intent in = new Intent(StatusUpdate.this, TimelineActivity.class);
-						in.putExtra(HikeConstants.HikePhotos.HOME_ON_BACK_PRESS, true);
-						StatusUpdate.this.startActivity(in);
-						StatusUpdate.this.finish();
-					}
-					else
-					{
-						Toast.makeText(getApplicationContext(), R.string.update_status_fail, Toast.LENGTH_SHORT).show();
-					}
-				}
-			});
+				runOnUiThread(suUploadTaskFinishRunnable);
+				suUploadTaskFinishRunnable = null;
+			}
+		}
+	}
+	
+	class StatusUpdateTaskFinishedRunnable implements Runnable
+	{
+		private boolean mStatusPosted;
+
+		public StatusUpdateTaskFinishedRunnable(boolean statusPosted)
+		{
+			mStatusPosted = statusPosted;
+		}
+		
+		@Override
+		public void run()
+		{
+			mActivityTask.task = null;
+			if (progressDialog != null)
+			{
+				progressDialog.dismiss();
+				progressDialog = null;
+			}
+			if (mStatusPosted)
+			{
+				Utils.hideSoftKeyboard(StatusUpdate.this, statusTxt);
+				Intent in = new Intent(StatusUpdate.this, TimelineActivity.class);
+				in.putExtra(HikeConstants.HikePhotos.HOME_ON_BACK_PRESS, true);
+				StatusUpdate.this.startActivity(in);
+				StatusUpdate.this.finish();
+			}
+			else
+			{
+				Toast.makeText(getApplicationContext(), R.string.update_status_fail, Toast.LENGTH_SHORT).show();
+			}
 		}
 	}
 
