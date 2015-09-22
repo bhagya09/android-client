@@ -24,6 +24,9 @@ public class NativeBridge
 	public static final String TAG = "GameUtils";
 
 	protected WeakReference<Activity> weakActivity;
+	
+	protected static final String SEND_SHARED_MESSAGE = "SEND_SHARED_MESSAGE";
+	protected static final String ON_EVENT_RECEIVE = "ON_EVENT_RECEIVE";
 
 	public NativeBridge(String msisdn, CocosGamingActivity activity)
 	{
@@ -221,7 +224,7 @@ public class NativeBridge
 	 * @param messageHash:
 	 *            the hash of the corresponding message.
 	 */
-	public void getAllEventsForMessageHash(String functionId, final String messageHash)
+	public void getAllEventsForMessageHash(final String functionId, final String messageHash)
 	{
 		if (mThread == null)
 			return;
@@ -231,15 +234,15 @@ public class NativeBridge
 			@Override
 			public void run()
 			{
-					String returnedData = helper.getAllEventsForMessageHash(messageHash, mBotInfo.getNamespace());
-					/**
-					 * TODO
-					 * 
-					 * DummyGameActivity.gameActivity.runOnGLThread(new Runnable() {
-					 * 
-					 * @Override public void run() { // gameCallback(functionId,returnedData); } });
-					 */
-
+					final String returnedData = helper.getAllEventsForMessageHash(messageHash, mBotInfo.getNamespace());
+					activity.runOnGLThread(new Runnable()
+					{
+						@Override
+						public void run()
+						{
+							activity.PlatformCallback(functionId, returnedData);
+						}
+					});
 			}
 		});
 	}
