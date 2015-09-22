@@ -2550,6 +2550,20 @@ public class MqttMessagesManager
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ENABLE_BOT_DISCOVERY, enableBotDiscovery);
 		}
 		
+		if (data.has(HikeConstants.GET_DISCOVERY_BOTS))
+		{
+			boolean shouldGetBots = data.getBoolean(HikeConstants.GET_DISCOVERY_BOTS);
+			if (shouldGetBots)
+			{
+				JSONObject json = new JSONObject();
+				JSONArray botsArray = HikeContentDatabase.getInstance().getDiscoveryBotMsisdnArray();
+				json.put(AnalyticsConstants.DISCOVERY_BOTS, botsArray);
+				json.put(AnalyticsConstants.EVENT_KEY, AnalyticsConstants.GET_DISCOVERY_BOT_LIST);
+				json.put(AnalyticsConstants.DISCOVERY_BOTS, json);
+				HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.BOT_DISCOVERY, json);
+			}
+		}
+		
 		editor.commit();
 		this.pubSub.publish(HikePubSub.UPDATE_OF_MENU_NOTIFICATION, null);
 		
