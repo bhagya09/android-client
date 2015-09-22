@@ -20,7 +20,7 @@ public class TimelineResourceCleaner implements Runnable
 {
 	private volatile static TimelineResourceCleaner instance;
 
-	private AtomicBoolean isRunning;
+	private AtomicBoolean isRunning = new AtomicBoolean(false);
 
 	//TODO Make this dependent on total SD card space
 	private final int DEFAULT_MAX_SIZE = 30;
