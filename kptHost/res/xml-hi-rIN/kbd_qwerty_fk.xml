@@ -557,7 +557,7 @@
         atx:kpt_rowEdgeFlags="bottom">
         
         <Key
-            atx:kpt_codes="-2,2"
+            atx:kpt_codes="-2,-136"
             atx:kpt_keyIcon="@drawable/kpt_adaptxt_settings_fk"
             atx:kpt_keyType="@integer/kpt_functional_key_dont_send_to_core"
             atx:kpt_keyLabelYPos="@dimen/kpt_keyLabelYPos_atx"
@@ -572,22 +572,19 @@
             atx:kpt_vowel_base=""
              />
         
-        
-        
         <Key
-            atx:kpt_codes="-136"
-            atx:kpt_iconText="@string/kpt_icontext_globe"
-            atx:kpt_keyType="@integer/kpt_functional_key_dont_send_to_core"
-            atx:kpt_useExternalFont="true"
-            atx:kpt_keyLabelYPos="0.50"
-            atx:kpt_keyWidth="10%p" />
-        
+            atx:kpt_codes="2360"
+            atx:kpt_keyLabel="स"
+            atx:kpt_syllable_index="31"
+            atx:kpt_vowel_unicode="-1"
+            atx:kpt_vowel_base=""
+             />
         
         <Key
             atx:kpt_codes="32"
             atx:kpt_keyIcon="@drawable/kpt_sym_keyboard_space_dk_fk"
             atx:kpt_keyType="@integer/kpt_functional_key_dont_send_to_core"
-            atx:kpt_keyWidth="30%p"
+            atx:kpt_keyWidth="40%p"
             atx:kpt_syllable_index="-1"
             atx:kpt_vowel_unicode="-1"
             atx:kpt_vowel_base="" />
@@ -607,14 +604,6 @@
             atx:kpt_popupKeyboard="@xml/kbd_popup_template"
              />
 
-        
-        <Key
-            atx:kpt_codes="2360"
-            atx:kpt_keyLabel="स"
-            atx:kpt_syllable_index="31"
-            atx:kpt_vowel_unicode="-1"
-            atx:kpt_vowel_base=""
-             />
         
         <!-- <Key
             atx:kpt_codes="2359"

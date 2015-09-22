@@ -373,8 +373,7 @@ public class KptShorthand extends HikeAppStateBaseFragmentActivity implements Ad
 	@Override
 	public void showQuickSettingView()
 	{
-		// TODO Auto-generated method stub
-		
+		KptUtils.onGlobeKeyPressed(KptShorthand.this, mCustomKeyboard);
 	}
 
 	@Override

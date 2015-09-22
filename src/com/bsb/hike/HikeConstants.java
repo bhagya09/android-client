@@ -635,8 +635,6 @@ public class HikeConstants
 	
 	public static final String VIBRATE_ON_KEYPRESS_PREF = "vibrateOnKeypressPref";
 	
-	public static final String PORTRAIT_IS_STD_PREF = "portraitIsStdPref";
-	
 	public static final String UPGRADE_AVATAR_PROGRESS_USER = "upgradeAvtarProgressUser";
 	
 	public static final String UPGRADING = "upgrading";

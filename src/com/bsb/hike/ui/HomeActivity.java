@@ -2207,9 +2207,9 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	}
 
 	@Override
-	public void showQuickSettingView() {
-		// TODO Auto-generated method stub
-		
+	public void showQuickSettingView() 
+	{
+		KptUtils.onGlobeKeyPressed(HomeActivity.this, mCustomKeyboard);
 	}
 
 	@Override

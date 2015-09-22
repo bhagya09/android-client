@@ -2459,8 +2459,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 	@Override
 	public void showQuickSettingView()
 	{
-		// TODO Auto-generated method stub
-		
+		KptUtils.onGlobeKeyPressed(SignupActivity.this, mCustomKeyboard);
 	}
 
 	@Override

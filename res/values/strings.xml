@@ -1705,7 +1705,7 @@
     <string name="shorthand_title">Shorthand</string>
     <string name="kpt_adv_summary">Auto correction, touch feedback and more</string>
     <string name="kpt_adv_title">Advanced Settings</string>
-    <string name="advanced_keyboard_settings">Advancced Keyboard Settings</string>
+    <string name="advanced_keyboard_settings">Advanced Settings</string>
     <string name="private_mode_title">Private Mode</string>
     <string name="auto_correct_title">Auto Correct</string>
     <string name="auto_caps_summary">Auto Capitalization</string>
@@ -1717,7 +1717,6 @@
     <string name="popup_on_keypress_title">Popup on Keypress</string>
     <string name="sound_on_keypress_title">Sound on keypress</string>
     <string name="vibrate_on_keypress_title">Vibrate on keypress</string>
-    <string name="portrait_is_std_title">Portrait is Standard</string>
     <string name="delete_all">Delete All</string>
     <string name="long_press_duration_title">Long Press Duration</string>
     <string name="long_press_duration_summary">How long something will last</string>

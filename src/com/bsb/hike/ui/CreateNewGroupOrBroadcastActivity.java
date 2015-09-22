@@ -470,8 +470,7 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 	@Override
 	public void showQuickSettingView()
 	{
-		// TODO Auto-generated method stub
-		
+		KptUtils.onGlobeKeyPressed(CreateNewGroupOrBroadcastActivity.this, mCustomKeyboard);
 	}
 
 	@Override

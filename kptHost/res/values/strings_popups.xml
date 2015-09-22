@@ -61,5 +61,8 @@
 	<string name="kpt_alternates_for_pqrs">7pqrsß</string>
 	<string name="kpt_alternates_for_tuv">8tuvúüùû</string>
 	<string name="kpt_alternates_for_wxyz">9wxyzÿ</string>
+	
+	
+	<string name="kpt_alternates_for_dot">,.!\?</string>
     
 </resources>
