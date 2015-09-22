@@ -137,16 +137,6 @@ public class OfflineController
 		offlineManager.addListener(listener);
 	}
 
-	public void startScan()
-	{
-		offlineManager.startScan();
-	}
-
-	public void stopScan()
-	{
-		offlineManager.stopScan();
-	}
-
 	public void startWifi()
 	{
 		offlineManager.startWifi();
