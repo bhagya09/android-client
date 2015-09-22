@@ -46,6 +46,7 @@ import com.bsb.hike.models.Conversation.ConvInfo;
 import com.bsb.hike.timeline.view.StatusUpdate;
 import com.bsb.hike.timeline.view.TimelineActivity;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
+import com.bsb.hike.platform.CocosGamingActivity;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.ui.ApkSelectionActivity;
 import com.bsb.hike.ui.ComposeChatActivity;
@@ -1070,11 +1071,12 @@ public class IntentFactory
 		activity.startActivityForResult(intent, 0);
 	}
 	
-	public static void openIntentForGameActivity(Context context)
+	public static void openIntentForGameActivity(Context context,String msisdn)
 	{
 		//TODO:Pass Intent of game activity and any extras.
-//				Intent i = new Intent(context,SettingsActivity.class);
-//		
-//			context.startActivity(i);
+				Intent i = new Intent(context,CocosGamingActivity.class);
+				i.putExtra(HikeConstants.MSISDN, msisdn);
+				context.startActivity(i);
+		
 	}
 }

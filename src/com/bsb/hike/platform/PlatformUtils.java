@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import com.bsb.hike.bots.NonMessagingBotMetadata;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
@@ -321,7 +322,8 @@ public class PlatformUtils
 			}
 			if (activityName.equals(HIKESCREEN.GAME_ACTIVITY.toString()))
 			{
-				IntentFactory.openIntentForGameActivity(context);
+				String msisdn = mmObject.optString(HikeConstants.MSISDN);
+				IntentFactory.openIntentForGameActivity(context,msisdn);
 			}
 		}
 		catch (JSONException e)
@@ -341,7 +343,7 @@ public class PlatformUtils
 	 * @param botInfo
 	 * @param enableBot
 	 */
-	public static void downloadZipForNonMessagingBot(final BotInfo botInfo, final boolean enableBot, final String botChatTheme, final String notifType, boolean doReplace)
+	public static void downloadZipForNonMessagingBot(final BotInfo botInfo, final boolean enableBot, final String botChatTheme, final String notifType, NonMessagingBotMetadata botMetadata)
 	{
 		PlatformContentRequest rqst = PlatformContentRequest.make(
 				PlatformContentModel.make(botInfo.getMetadata()), new PlatformContentListener<PlatformContentModel>()
@@ -386,7 +388,7 @@ public class PlatformUtils
 					}
 				});
 
-		downloadAndUnzip(rqst, false,doReplace);
+		downloadAndUnzip(rqst, false,botMetadata.shouldReplace(), botMetadata.getCallbackId());
 
 	}
 
@@ -518,7 +520,8 @@ public class PlatformUtils
 					}
 				});
 				boolean doReplace = downloadData.optBoolean(HikePlatformConstants.REPLACE_MICROAPP_VERSION);
-				downloadAndUnzip(rqst, false,doReplace);
+				String callbackId = downloadData.optString(HikePlatformConstants.CALLBACK_ID);
+				downloadAndUnzip(rqst, false,doReplace, callbackId);
 
 	}
 
@@ -549,8 +552,17 @@ public class PlatformUtils
 	
 	public static void downloadAndUnzip(PlatformContentRequest request, boolean isTemplatingEnabled , boolean doReplace)
 	{
+		downloadAndUnzip(request, isTemplatingEnabled, doReplace, null);
+	}
+	public static void downloadAndUnzip(PlatformContentRequest request, boolean isTemplatingEnabled)
+	{
+		downloadAndUnzip(request, isTemplatingEnabled, false);
+	}
 
-		PlatformZipDownloader downloader =  new PlatformZipDownloader(request, isTemplatingEnabled, doReplace);
+	public static void downloadAndUnzip(PlatformContentRequest request, boolean isTemplatingEnabled, boolean doReplace, String callbackId)
+	{
+
+		PlatformZipDownloader downloader =  new PlatformZipDownloader(request, isTemplatingEnabled, doReplace, callbackId);
 		if (!downloader.isMicroAppExist() || doReplace)
 		{
 			downloader.downloadAndUnzip();
@@ -559,11 +571,6 @@ public class PlatformUtils
 		{
 			request.getListener().onEventOccured(request.getContentData()!=null ? request.getContentData().getUniqueId() : 0,PlatformContent.EventCode.ALREADY_DOWNLOADED);
 		}
-		
-	}
-	public static void downloadAndUnzip(PlatformContentRequest request, boolean isTemplatingEnabled)
-	{
-		downloadAndUnzip(request, isTemplatingEnabled, false);
 	}
 
 	/**
@@ -1169,7 +1176,7 @@ public class PlatformUtils
 
 		if (!TextUtils.isEmpty(newPlatformToken))
 		{
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.TOKEN_SETTING, newPlatformToken);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.PLATFORM_TOKEN_SETTING, newPlatformToken);
 		}
 	}
 	/**

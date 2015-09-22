@@ -29,6 +29,7 @@ public class NonMessagingBotMetadata
 	private boolean isSpecialBot;
 	private String targetActivity;
 	private boolean replace;
+	private String callbackId, parentMsisdn;
 
 	public NonMessagingBotMetadata(String jsonString)
 	{
@@ -68,6 +69,8 @@ public class NonMessagingBotMetadata
 		setNonMessagingBotType(json.optString(HikePlatformConstants.NON_MESSAGING_BOT_TYPE, HikePlatformConstants.MICROAPP_MODE));
 		setTargetPlatform(json.optInt(HikePlatformConstants.TARGET_PLATFORM));
 		setReplace(json.optBoolean(HikePlatformConstants.REPLACE_MICROAPP_VERSION));
+		setParentMsisdn(json.optString(HikePlatformConstants.PARENT_MSISDN));
+		setCallbackId(json.optString(HikePlatformConstants.CALLBACK_ID));
 
 		if (json.has(HikePlatformConstants.CARD_OBJECT))
 		{
@@ -253,5 +256,25 @@ public class NonMessagingBotMetadata
 	{
 		this.replace = replace;
 
+	}
+
+	public String getCallbackId()
+	{
+		return callbackId;
+	}
+
+	public void setCallbackId(String callbackId)
+	{
+		this.callbackId = callbackId;
+	}
+
+	public String getParentMsisdn()
+	{
+		return parentMsisdn;
+	}
+
+	public void setParentMsisdn(String parentMsisdn)
+	{
+		this.parentMsisdn = parentMsisdn;
 	}
 }

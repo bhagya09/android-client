@@ -3322,8 +3322,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			}
 		}
 
-		showOverflowIndicatorsIfRequired(firstVisibleItem, visibleItemCount, totalItemCount);
-
 		View unreadMessageIndicator = activity.findViewById(R.id.new_message_indicator);
 
 		if (unreadMessageIndicator.getVisibility() == View.VISIBLE && mConversationsView.getLastVisiblePosition() > messages.size() - unreadMessageCount - 2)
@@ -3367,11 +3365,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		currentFirstVisibleItem = firstVisibleItem;
 	}
 	
-	private void showOverflowIndicatorsIfRequired(int firstVisibleItem, int visibleItemCount, int totalItemCount)
-	{
-		
-	}
-
 
 	@Override
 	public boolean onTouch(View v, MotionEvent event)

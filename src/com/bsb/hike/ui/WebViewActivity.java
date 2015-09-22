@@ -3,6 +3,7 @@ package com.bsb.hike.ui;
 import java.util.ArrayList;
 import java.util.List;
 
+import android.util.Pair;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -131,7 +132,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	
 	private Menu mMenu;
 
-	private String[] pubsub = new String[]{HikePubSub.NOTIF_DATA_RECEIVED, HikePubSub.LOCATION_AVAILABLE,  HikePubSub.MESSAGE_EVENT_RECEIVED};
+	private String[] pubsub = new String[]{HikePubSub.NOTIF_DATA_RECEIVED, HikePubSub.LOCATION_AVAILABLE,  HikePubSub.MESSAGE_EVENT_RECEIVED, HikePubSub.DOWNLOAD_PROGRESS};
 
 	private boolean allowLoc;
 	
@@ -813,6 +814,18 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 				mmBridge.locationReceived(latLong);
 			}
 		}
+		else if (type.equals(HikePubSub.DOWNLOAD_PROGRESS))
+		{
+			if (object instanceof Pair<?,?>)
+			{
+				if (msisdn.equals(botInfo.getMsisdn())|| msisdn.equals(botMetaData.getParentMsisdn()))
+				{
+					Pair<String, String> callback = (Pair<String, String>) object;
+					mmBridge.callbackToJS(callback.first, callback.second);
+				}
+
+			}
+		}
 
 
 	}
@@ -974,6 +987,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		{
 			HAManager.getInstance().endChatSession(msisdn);
 		}
+		webView.onPause();
 	}
 
 	@Override
@@ -990,6 +1004,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		 * Used to clear notif tray if this is opened from notification
 		 */
 		HikeMessengerApp.getPubSub().publish(HikePubSub.CANCEL_ALL_NOTIFICATIONS, null);
+		webView.onResume();
 	}
 	
 	@Override
@@ -1345,5 +1360,6 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 			PlatformUtils.recordBotOpenViaNotification(msisdn);
 		}
 	}
+
 
 }

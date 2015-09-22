@@ -274,7 +274,7 @@ public class HikePubSub implements Runnable
 
 	public static final String FRIENDS_TAB_QUERY = "friendsTabQuery";
 
-	public static final String INCREMENTED_UNSEEN_STATUS_COUNT = "incrementedUnseenStatusCount";
+	public static final String UNSEEN_STATUS_COUNT_CHANGED = "incrementedUnseenStatusCount";
 
 	public static final String SEND_SMS_PREF_TOGGLED = "sendSmsPrefToggled";
 
@@ -439,6 +439,8 @@ public class HikePubSub implements Runnable
 	public static final String PLATFORM_CARD_EVENT_SENT = "platformCardEventSent";
 	
 	public static final String LOCATION_AVAILABLE = "locationAvailable";
+
+	public static final String DOWNLOAD_PROGRESS = "progress";
 	
 	private final Thread mThread;
 
