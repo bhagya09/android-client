@@ -28,15 +28,18 @@ import com.bsb.hike.smartImageLoader.IconLoader;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
+import com.bsb.hike.utils.Utils;
 import com.hike.transporter.utils.Logger;
 
 import android.content.Context;
+import android.support.v4.widget.DrawerLayout.LayoutParams;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -141,12 +144,15 @@ public class MicroappsListAdapter extends RecyclerView.Adapter<MicroappsListAdap
 		ImageView image;
 
 		TextView name;
+		
+		LinearLayout showcase_item;
 
 		public ViewHolder(View view)
 		{
 			super(view);
 			image = (ImageView) view.findViewById(R.id.microapp_image);
 			name = (TextView) view.findViewById(R.id.microapp_name);
+			showcase_item = (LinearLayout) view.findViewById(R.id.showcase_item_layout);
 			image.setOnClickListener(onClickListener);
 		}
 	}
@@ -160,6 +166,18 @@ public class MicroappsListAdapter extends RecyclerView.Adapter<MicroappsListAdap
 	@Override
 	public void onBindViewHolder(ViewHolder holder, int position)
 	{
+		if (position == 0)
+		{
+			LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+			params.setMargins((int)Utils.densityMultiplier * 8, 0, 0, 0);
+			holder.showcase_item.setLayoutParams(params);
+		}
+		else if (position == microappsList.size() - 1)
+		{
+			LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+			params.setMargins(0, 0, (int)Utils.densityMultiplier * 8, 0);
+			holder.showcase_item.setLayoutParams(params);
+		}
 		holder.image.setTag(position);
 		this.iconLoader.loadImage(microappsList.get(position).getMsisdn(), holder.image, false, false, true);
 		holder.name.setText(microappsList.get(position).getConversationName());
