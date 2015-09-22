@@ -96,6 +96,11 @@ public class PlatformZipDownloader
 	 */
 	public void downloadAndUnzip()
 	{
+		//When the microapp does not exist, we don't want to replace anything and just unzip the data.
+		if (!isMicroAppExist())
+		{
+			doReplace = false;
+		}
 		// Create temp folder
 		File tempFolder = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.TEMP_DIR_NAME);
 
@@ -266,11 +271,6 @@ public class PlatformZipDownloader
 				@Override
 				public void update(Observable observable, Object data)
 				{
-					//When the microapp does not exist, we don't want to replace anything and just unzip the data.
-					if (!isMicroAppExist())
-					{
-						doReplace = false;
-					}
 					// delete temp folder
 					if(!doReplace)
 					{
