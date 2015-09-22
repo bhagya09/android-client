@@ -158,7 +158,7 @@ public class PlatformHelper
 	
 	public static void sendSharedMessage(String cardObject, String hikeMessage, String sharedData, BotInfo mBotInfo, final Activity activity)
 	{
-		sendSharedMessage(sharedData, sharedData, sharedData, mBotInfo, activity, -1);
+		sendSharedMessage(cardObject, hikeMessage, sharedData, mBotInfo, activity, -1);
 	}
 
 	public static String getAllEventsForMessageHash(String messageHash, String namespace)
