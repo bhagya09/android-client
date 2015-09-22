@@ -3556,8 +3556,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 	@Override
 	public void showQuickSettingView()
 	{
-		// TODO Auto-generated method stub
-		
+		KptUtils.onGlobeKeyPressed(ProfileActivity.this, mCustomKeyboard);
 	}
 
 	@Override
