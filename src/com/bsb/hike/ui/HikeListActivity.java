@@ -183,6 +183,7 @@ public class HikeListActivity extends HikeAppStateBaseFragmentActivity implement
 					return;
 				}
 				mCustomKeyboard.showCustomKeyboard(input, true);
+				KptUtils.updatePadding(HikeListActivity.this, R.id.hike_list_parent_layout, mCustomKeyboard.getKeyBoardAndCVHeight());
 			}
 		});
 	}
@@ -787,10 +788,16 @@ public class HikeListActivity extends HikeAppStateBaseFragmentActivity implement
 	}
 
 	@Override
-	public void onInputviewVisbility(boolean arg0, int arg1)
+	public void onInputviewVisbility(boolean kptVisible, int height)
 	{
-		// TODO Auto-generated method stub
-		
+		if (kptVisible)
+		{
+			KptUtils.updatePadding(HikeListActivity.this, R.id.hike_list_parent_layout, height);
+		}
+		else
+		{
+			KptUtils.updatePadding(HikeListActivity.this, R.id.hike_list_parent_layout, 0);
+		}
 	}
 
 	@Override
@@ -839,6 +846,7 @@ public class HikeListActivity extends HikeAppStateBaseFragmentActivity implement
 		if (mCustomKeyboard != null && mCustomKeyboard.isCustomKeyboardVisible())
 		{
 			mCustomKeyboard.showCustomKeyboard(input, false);
+			KptUtils.updatePadding(HikeListActivity.this, R.id.hike_list_parent_layout, 0);
 			return;
 		}
 		super.onBackPressed();
