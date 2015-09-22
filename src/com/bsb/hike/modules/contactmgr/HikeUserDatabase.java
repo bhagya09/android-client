@@ -2523,6 +2523,6 @@ class HikeUserDatabase extends SQLiteOpenHelper
 			writeThumbnailToFileForMsisdn(imageFile, msisdn);
 		}
 
-		return imageFile.getAbsolutePath();
+		return HikePlatformConstants.FILE_DESCRIPTOR + imageFile.getAbsolutePath();
 	}
 }
