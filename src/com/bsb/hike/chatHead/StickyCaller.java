@@ -51,9 +51,7 @@ public class StickyCaller
 	public static final short SUCCESS = 2;
 
 	public static final short ALREADY_SAVED = 3;
-
-	public static final short AFTERCALL = 0;
-
+	
 	public static boolean isOnCall = false;
 	
 	public static String callCurrentNumber = null;
@@ -61,6 +59,8 @@ public class StickyCaller
 	public static String callCurrentName = null;
 
 	public static final String ACTIVATE_STICKY_CALLER = "activateStickyCaller";
+
+	public static final String SHOW_STICKY_CALLER = "showStickyCaller";
 
 	public static boolean toCall = false;
 

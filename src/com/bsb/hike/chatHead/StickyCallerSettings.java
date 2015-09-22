@@ -43,6 +43,14 @@ public class StickyCallerSettings extends HikeAppStateBaseFragmentActivity imple
 	public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
 	{
 		HikeSharedPreferenceUtil.getInstance().saveData(StickyCaller.ACTIVATE_STICKY_CALLER, isChecked);
+		if (isChecked)
+		{
+			ChatHeadUtils.registerCallReceiver();
+		}
+		else
+		{
+			ChatHeadUtils.unregisterCallReceiver();
+		}
 	}
 
 }

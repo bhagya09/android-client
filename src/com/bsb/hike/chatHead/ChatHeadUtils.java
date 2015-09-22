@@ -16,8 +16,11 @@ import android.app.ActivityManager.RunningAppProcessInfo;
 import android.app.ActivityManager.RunningTaskInfo;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.provider.Settings;
 import android.provider.Settings.SettingNotFoundException;
+import android.telephony.PhoneStateListener;
+import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.database.Cursor;
 import android.net.Uri;
@@ -48,6 +51,11 @@ public class ChatHeadUtils
 	public static final int GET_FOREGROUND_PROCESSES = 1; 
 
 	public static final int GET_ALL_RUNNING_PROCESSES = 2; 
+	
+	private static IncomingCallReceiver incomingCallReceiver;
+	
+	private static OutgoingCallReceiver outgoingCallReceiver;
+	
 		
 	// replica of hidden constant ActivityManager.PROCESS_STATE_TOP 
 	public static final int PROCESS_STATE_TOP =2;
@@ -477,4 +485,43 @@ public class ChatHeadUtils
 		}
 	}	
 	
+	public static void registerCallReceiver()
+	{
+		if (HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.SHOW_STICKY_CALLER, false)
+				&& HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.ACTIVATE_STICKY_CALLER, false))
+		{
+			Context context = HikeMessengerApp.getInstance();
+			if (incomingCallReceiver == null)
+			{
+				incomingCallReceiver = new IncomingCallReceiver();
+				TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+				telephonyManager.listen(incomingCallReceiver, PhoneStateListener.LISTEN_CALL_STATE);
+			}
+			if (outgoingCallReceiver == null)
+			{
+				outgoingCallReceiver = new OutgoingCallReceiver();
+				IntentFilter intentFilter = new IntentFilter(Intent.ACTION_NEW_OUTGOING_CALL);
+				context.registerReceiver(outgoingCallReceiver, intentFilter);
+			}
+		}
+	}
+	
+	public static void unregisterCallReceiver()
+	{
+		Context context = HikeMessengerApp.getInstance();
+		if (incomingCallReceiver != null)
+		{
+			TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+			telephonyManager.listen(incomingCallReceiver, PhoneStateListener.LISTEN_NONE);
+			incomingCallReceiver = null;
+		}
+
+		if (outgoingCallReceiver != null)
+		{
+			context.unregisterReceiver(outgoingCallReceiver);
+			outgoingCallReceiver = null;
+		}
+
+	}
+
 }
