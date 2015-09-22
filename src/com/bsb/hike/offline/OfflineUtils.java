@@ -780,7 +780,7 @@ public class OfflineUtils
 			{
 				if (contactInfo != null && !TextUtils.isEmpty(contactInfo.getFirstName()))
 				{
-					contactFirstName = contactInfo.getFirstName();
+					contactFirstName = contactInfo.getFirstNameAndSurname();
 				}
 
 				HikeNotification.getInstance().showBigTextStyleNotification(intent, hikeNotifMsgStack.getNotificationIcon(), System.currentTimeMillis() / 1000,
@@ -809,8 +809,9 @@ public class OfflineUtils
 
 		NotificationCompat.Action actions[] = new NotificationCompat.Action[2];
 
-		actions[0] = new NotificationCompat.Action(R.drawable.offline_inline_logo_white, context.getString(R.string.connect), chatThreadPendingIntent);
-		actions[1] = new NotificationCompat.Action(R.drawable.ic_notifcrossicon, context.getString(R.string.cancel), cancelP);
+		
+		actions[0] = new NotificationCompat.Action(R.drawable.ic_notifcrossicon, context.getString(R.string.cancel), cancelP);
+		actions[1] = new NotificationCompat.Action(R.drawable.offline_inline_logo_white, context.getString(R.string.connect), chatThreadPendingIntent);
 
 		return actions;
 	}
