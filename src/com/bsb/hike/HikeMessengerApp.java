@@ -110,6 +110,8 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 
 	public static final String PLATFORM_TOKEN_SETTING = "platformToken";
 
+	public static final String ANONYMOUS_NAME_SETTING = "anonymousName";
+
 	public static final String RESTORE_ACCOUNT_SETTING = "restore";
 
 	public static final String SIGNUP_COMPLETE = "signup_complete";
@@ -1012,7 +1014,7 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 		HikeSharedPreferenceUtil prefs = HikeSharedPreferenceUtil.getInstance();
 		if (prefs.getData(HikeMessengerApp.PLATFORM_UID_SETTING, null) == null && prefs.getData(HikeMessengerApp.PLATFORM_TOKEN_SETTING, null) == null)
 		{
-			PlatformUIDFetch.fetchPlatformUid(HikePlatformConstants.PlatformUIDFetchType.SELF);
+			PlatformUIDFetch.fetchPlatformUid(HikePlatformConstants.PlatformFetchType.SELF);
 		}
 	}
 

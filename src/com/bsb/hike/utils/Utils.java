@@ -7196,6 +7196,17 @@ public class Utils
 		}
 		return url;
 	}
+
+	public static String getCommaSeperatedStringFromArray(String[] array)
+	{
+		StringBuilder sb = new StringBuilder();
+		sb.append(array[0]);
+		for (int i = 1; i < array.length; i++) {
+			sb.append(", ");
+			sb.append(array[i]);
+		}
+		return sb.toString();
+	}
 	
 }
 

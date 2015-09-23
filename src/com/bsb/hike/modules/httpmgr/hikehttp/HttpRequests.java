@@ -271,7 +271,7 @@ public class HttpRequests
 		return requestToken;
 	}
 
-	public static RequestToken getPlatformUserIdForFullAddressBookFetchRequest(String url, IRequestListener requestListener, List<Header> headers)
+	public static RequestToken getPlatformFetchRequest(String url, IRequestListener requestListener, List<Header> headers)
 	{
 		RequestToken requestToken = new JSONArrayRequest.Builder()
 				.setUrl(url)
@@ -307,6 +307,20 @@ public class HttpRequests
 				.setRetryPolicy(new BasicRetryPolicy(HikePlatformConstants.NUMBER_OF_RETRIES, HikePlatformConstants.RETRY_DELAY, HikePlatformConstants.BACK_OFF_MULTIPLIER))
 				.setRequestListener(requestListener)
 				.setRequestType(REQUEST_TYPE_SHORT)
+				.build();
+
+		return requestToken;
+	}
+
+	public static RequestToken postAnonymousNameFetchRequest(String url, IRequestListener requestListener, JSONObject json, List<Header> headers)
+	{
+		RequestToken requestToken = new JSONObjectRequest.Builder()
+				.setUrl(url)
+				.post(new JsonBody(json))
+				.setRetryPolicy(new BasicRetryPolicy(HikePlatformConstants.NUMBER_OF_RETRIES, HikePlatformConstants.RETRY_DELAY, HikePlatformConstants.BACK_OFF_MULTIPLIER))
+				.setRequestListener(requestListener)
+				.setRequestType(REQUEST_TYPE_SHORT)
+				.setHeaders(headers)
 				.build();
 
 		return requestToken;

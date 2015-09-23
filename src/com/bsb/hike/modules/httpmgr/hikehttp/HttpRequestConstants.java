@@ -69,6 +69,8 @@ public class HttpRequestConstants
 	
 	private static final String STICKER_SHARE_PATH = "/stickershare/" ;
 
+	private static final String ANONYMOUS_NAME = "/anonymousName";
+
 
 	public static synchronized void setUpBase()
 	{
@@ -345,6 +347,11 @@ public class HttpRequestConstants
 	public static String getDeleteAvatarBaseUrl()
 	{
 		return BASE_URL + BASE_V1 + BASE_ACCOUNT + "/avatar-delete";
+	}
+
+	public static String getAnonymousNameFetchUrl()
+	{
+		return BASE_PLATFORM_URL + BASE_USER + BASE_V1 + ANONYMOUS_NAME;
 	}
 	
 }
