@@ -7,6 +7,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Context;
+import android.text.TextUtils;
 import android.util.Pair;
 import android.widget.Toast;
 
@@ -101,7 +102,7 @@ public class HikeConverter implements IMessageReceived, IMessageSent {
 		int type = hikeFileType.ordinal();
 		File file = new File(filePath);
 		String fileName = file.getName();
-		if (type == HikeFileType.APK.ordinal())
+		if (type == HikeFileType.APK.ordinal() && !TextUtils.isEmpty(apkLabel))
 			fileName = apkLabel + ".apk";
 		ConvMessage convMessage = FileTransferManager.getInstance(context).uploadOfflineFile(msisdn, file, fileKey, fileType, hikeFileType, isRecording, recordingDuration,
 				attachmentType, fileName);
