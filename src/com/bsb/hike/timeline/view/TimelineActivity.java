@@ -165,7 +165,7 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 			ActivityFeedFragment activityFeedFragment = (ActivityFeedFragment) getSupportFragmentManager().findFragmentByTag(FRAGMENT_ACTIVITY_FEED_TAG);
 			if(activityFeedFragment != null)
 			{
-				if(!activityFeedFragment.isAdded() || !activityFeedFragment.isVisible())
+				if(!activityFeedFragment.isAdded())
 				{
 					getSupportFragmentManager()
 					.beginTransaction()
