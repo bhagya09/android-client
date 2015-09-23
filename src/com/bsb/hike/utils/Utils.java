@@ -76,6 +76,7 @@ import android.content.ContentUris;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.OperationApplicationException;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
@@ -110,6 +111,7 @@ import android.net.NetworkInfo;
 import android.net.TrafficStats;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.BatteryManager;
 import android.os.Build;
 import android.os.Environment;
 import android.os.PowerManager;
@@ -237,13 +239,31 @@ import com.google.android.gms.maps.model.LatLng;
 
 public class Utils
 {
-	public static final int PRECISION_UNIT_SECOND = 0;
+	// Precision points definition for duration logging========================================[[
+	public static final class ExecutionDurationLogger
+	{
+		public static final String TAG = ExecutionDurationLogger.class.getSimpleName();
 
-	public static final int PRECISION_UNIT_MILLI_SECOND = 3;
+		public static final int PRECISION_UNIT_SECOND = 0;
 
-	public static final int PRECISION_UNIT_MICRO_SECOND = 6;
+		public static final int PRECISION_UNIT_MILLI_SECOND = 3;
 
-	public static final int PRECISION_UNIT_NANO_SECOND = 9;
+		public static final int PRECISION_UNIT_MICRO_SECOND = 6;
+
+		public static final int PRECISION_UNIT_NANO_SECOND = 9;
+
+		public static final String sec = " s";
+
+		public static final String ms = " ms";
+
+		public static final String μs = " μs";
+
+		public static final String ns = " ns";
+
+		public static final String DELIMITER = ", ";
+	}
+
+	// ========================================Precision points definition for duration logging]]
 
 	public static Pattern shortCodeRegex;
 
@@ -4878,7 +4898,7 @@ public class Utils
 		{
 			int gb = bytes / (1024 * 1024 * 1024);
 			int gbPoint = bytes % (1024 * 1024 * 1024);
-			gbPoint /= (1024 * 1024 * 1024);
+			gbPoint /= (1024 * 1024 * 102);
 			return (Integer.toString(gb) + "." + Integer.toString(gbPoint) + " GB");
 		}
 		else if (bytes >= (1000 * 1024))
@@ -6621,10 +6641,8 @@ public class Utils
 	 * Determine whether supplied String is actually empty or not.
 	 * 
 	 * @param s
-	 * 			String to be checked
-	 * @return
-	 * 			True, if string contains only white spaces or it is empty.
-	 * 			False, if string containes at least one non-white space character.
+	 *            String to be checked
+	 * @return True, if string contains only white spaces or it is empty. False, if string containes at least one non-white space character.
 	 * @author Ved Prakash Singh [ved@hike.in]
 	 */
 	public static boolean isBlank(final CharSequence s)
@@ -6864,10 +6882,8 @@ public class Utils
 	 * Determine whether supplied module is being tested.
 	 * 
 	 * @param moduleName
-	 * 			String name of the module being analysed
-	 * @return
-	 * 			True, if test mode is enabled for given module.
-	 * 			False, otherwise.
+	 *            String name of the module being analysed
+	 * @return True, if test mode is enabled for given module. False, otherwise.
 	 * @author Ved Prakash Singh [ved@hike.in]
 	 */
 	public static boolean isTestMode(String moduleName)
@@ -6961,12 +6977,10 @@ public class Utils
 	 * Determine whether databse recognized by given instance contains given table or not.
 	 * 
 	 * @param db
-	 * 			Instance of SQLiteDatabase, which possibly contains given table.
+	 *            Instance of SQLiteDatabase, which possibly contains given table.
 	 * @param tableName
-	 * 			String name of table to check whether such table exists in database or not.
-	 * @return
-	 * 			True, if given table exists in database recognized by given instance.
-	 * 			False, otheriwse.
+	 *            String name of table to check whether such table exists in database or not.
+	 * @return True, if given table exists in database recognized by given instance. False, otheriwse.
 	 * @author Ved Prakash Singh [ved@hike.in]
 	 */
 	public static boolean isTableExists(SQLiteDatabase db, String tableName)
@@ -7155,89 +7169,113 @@ public class Utils
 		}
 	}
 
+	public static float currentBatteryLevel()
+	{
+		Context context = HikeMessengerApp.getInstance().getApplicationContext();
+		IntentFilter ifilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
+		Intent batteryStatus = context.registerReceiver(null, ifilter);
+
+		int level = batteryStatus.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
+		int scale = batteryStatus.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
+
+		float batteryPct = level / (float) scale;
+
+		return batteryPct * 100;
+	}
+
+	public static String appendTokenInURL(String url)
+	{
+		if (!TextUtils.isEmpty(url))
+		{
+			HikeSharedPreferenceUtil mmHikeSharedPreferenceUtil = HikeSharedPreferenceUtil.getInstance();
+			url = url.replace("$reward_token", mmHikeSharedPreferenceUtil.getData(HikeMessengerApp.REWARDS_TOKEN, ""));
+			url = url.replace("$msisdn", mmHikeSharedPreferenceUtil.getData(HikeMessengerApp.MSISDN_SETTING, ""));
+			url = url.replace("$uid", mmHikeSharedPreferenceUtil.getData(HikeMessengerApp.UID_SETTING, ""));
+			url = url.replace("$invite_token", mmHikeSharedPreferenceUtil.getData(HikeConstants.INVITE_TOKEN, ""));
+			url = url.replace("$resId", Utils.getResolutionId() + "");
+			url = url.replace("$platform_token", mmHikeSharedPreferenceUtil.getData(HikeMessengerApp.PLATFORM_TOKEN_SETTING, ""));
+			url = url.replace("$platform_uid", mmHikeSharedPreferenceUtil.getData(HikeMessengerApp.PLATFORM_UID_SETTING, ""));
+		}
+
+		return url;
+	}
+
 	/**
 	 * Get differential time logging upto nano second considering maximum significant time unit reference as second.
 	 * 
 	 * @param start
-	 * 			start time of operation as long value
+	 *            start time of operation as long value
 	 * @param end
-	 * 			end time of operation as long value
+	 *            end time of operation as long value
 	 * @param precisionOfTimeUnitInSecond
-	 * 			count of precision points in time unit per second
-	 * @return
-	 * 			Human-readable string of time logging.
+	 *            count of precision points in time unit per second
+	 * @return Human-readable string of time logging.
 	 * @author Ved Prakash Singh [ved@hike.in]
 	 */
 	public static String getExecutionTimeLog(long start, long end, int precisionOfTimeUnitInSecond)
 	{
 		StringBuilder timeLogBuilder = new StringBuilder();
-		String second = " s";
-		String milliSecond = " ms";
-		String microSecond = " μs";
-		String nanoSecond = " ns";
-		String delimiter = ", ";
-		String tag = "ExecutionTimeLogging";
 
 		long diff = end - start;
 		if (diff < 0)
 		{
-			Logger.wtf(tag, "End time can not be less then start time.");
+			Logger.wtf(ExecutionDurationLogger.TAG, "End time can not be less then start time.");
 			diff = 0;
 		}
 
 		switch (precisionOfTimeUnitInSecond)
 		{
-		case PRECISION_UNIT_SECOND:
+		case ExecutionDurationLogger.PRECISION_UNIT_SECOND:
 		{
-			timeLogBuilder.append(diff).append(second);
+			timeLogBuilder.append(diff).append(ExecutionDurationLogger.sec);
 			break;
 		}
 
-		case PRECISION_UNIT_MILLI_SECOND:
+		case ExecutionDurationLogger.PRECISION_UNIT_MILLI_SECOND:
 		{
-			int unitInSecond = (int) Math.pow(10, PRECISION_UNIT_MILLI_SECOND);
+			int unitInSecond = (int) Math.pow(10, ExecutionDurationLogger.PRECISION_UNIT_MILLI_SECOND);
 			long sec = diff / unitInSecond;
-			timeLogBuilder.append(sec).append(second).append(delimiter);
+			timeLogBuilder.append(sec).append(ExecutionDurationLogger.sec).append(ExecutionDurationLogger.DELIMITER);
 			long milliSec = diff - (sec * unitInSecond);
-			timeLogBuilder.append(milliSec).append(milliSecond);
+			timeLogBuilder.append(milliSec).append(ExecutionDurationLogger.ms);
 			break;
 		}
 
-		case PRECISION_UNIT_MICRO_SECOND:
+		case ExecutionDurationLogger.PRECISION_UNIT_MICRO_SECOND:
 		{
-			int unitInSecond = (int) Math.pow(10, PRECISION_UNIT_MICRO_SECOND);
+			int unitInSecond = (int) Math.pow(10, ExecutionDurationLogger.PRECISION_UNIT_MICRO_SECOND);
 			long sec = diff / unitInSecond;
-			timeLogBuilder.append(sec).append(second).append(delimiter);
+			timeLogBuilder.append(sec).append(ExecutionDurationLogger.sec).append(ExecutionDurationLogger.DELIMITER);
 			diff = diff - (sec * unitInSecond);
-			int unitInMilliSecond = (int) Math.pow(10, (PRECISION_UNIT_MICRO_SECOND - PRECISION_UNIT_MILLI_SECOND));
+			int unitInMilliSecond = (int) Math.pow(10, (ExecutionDurationLogger.PRECISION_UNIT_MICRO_SECOND - ExecutionDurationLogger.PRECISION_UNIT_MILLI_SECOND));
 			long milliSec = diff / unitInMilliSecond;
-			timeLogBuilder.append(milliSec).append(milliSecond).append(delimiter);
+			timeLogBuilder.append(milliSec).append(ExecutionDurationLogger.ms).append(ExecutionDurationLogger.DELIMITER);
 			long microSec = diff - (milliSec * unitInMilliSecond);
-			timeLogBuilder.append(microSec).append(microSecond);
+			timeLogBuilder.append(microSec).append(ExecutionDurationLogger.μs);
 			break;
 		}
 
-		case PRECISION_UNIT_NANO_SECOND:
+		case ExecutionDurationLogger.PRECISION_UNIT_NANO_SECOND:
 		{
-			int unitInSecond = (int) Math.pow(10, PRECISION_UNIT_NANO_SECOND);
+			int unitInSecond = (int) Math.pow(10, ExecutionDurationLogger.PRECISION_UNIT_NANO_SECOND);
 			long sec = diff / unitInSecond;
-			timeLogBuilder.append(sec).append(second).append(delimiter);
+			timeLogBuilder.append(sec).append(ExecutionDurationLogger.sec).append(ExecutionDurationLogger.DELIMITER);
 			diff = diff - (sec * unitInSecond);
-			int unitInMilliSecond = (int) Math.pow(10, (PRECISION_UNIT_NANO_SECOND - PRECISION_UNIT_MILLI_SECOND));
+			int unitInMilliSecond = (int) Math.pow(10, (ExecutionDurationLogger.PRECISION_UNIT_NANO_SECOND - ExecutionDurationLogger.PRECISION_UNIT_MILLI_SECOND));
 			long milliSec = diff / unitInMilliSecond;
-			timeLogBuilder.append(milliSec).append(milliSecond).append(delimiter);
+			timeLogBuilder.append(milliSec).append(ExecutionDurationLogger.ms).append(ExecutionDurationLogger.DELIMITER);
 			diff = diff - (milliSec * unitInMilliSecond);
-			int unitInMicroSecond = (int) Math.pow(10, (PRECISION_UNIT_NANO_SECOND - PRECISION_UNIT_MICRO_SECOND));
+			int unitInMicroSecond = (int) Math.pow(10, (ExecutionDurationLogger.PRECISION_UNIT_NANO_SECOND - ExecutionDurationLogger.PRECISION_UNIT_MICRO_SECOND));
 			long microSec = diff / unitInMicroSecond;
-			timeLogBuilder.append(microSec).append(microSecond).append(delimiter);
+			timeLogBuilder.append(microSec).append(ExecutionDurationLogger.μs).append(ExecutionDurationLogger.DELIMITER);
 			long nanoSec = diff - (microSec * unitInMicroSecond);
-			timeLogBuilder.append(nanoSec).append(nanoSecond);
+			timeLogBuilder.append(nanoSec).append(ExecutionDurationLogger.ns);
 			break;
 		}
 
 		default:
 		{
-			Logger.w(tag, "Unable to determine time units.");
+			Logger.w(ExecutionDurationLogger.TAG, "Unable to determine time units.");
 		}
 		}
 
