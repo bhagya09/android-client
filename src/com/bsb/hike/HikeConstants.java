@@ -3218,7 +3218,7 @@ public class HikeConstants
 		public static final String ACTION_KEYBOARD_OPEN = "com.bsb.hike.action.keyboardopen";
 		public static final String ACTION_KEYBOARD_CLOSED = "com.bsb.hike.action.keyboardclosed";
 	}
-	
+
 	public static final String KEYBOARD_HEIGHT = "keyBoardHeight";
 	
 	public static final String TAGGED_PHRASE = "tg";
