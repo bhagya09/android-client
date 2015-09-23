@@ -50,7 +50,6 @@ import com.bsb.hike.media.OverFlowMenuItem;
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.timeline.TimelineResourceCleaner;
-import com.bsb.hike.timeline.adapter.ActivityFeedCursorAdapter;
 import com.bsb.hike.ui.PeopleActivity;
 import com.bsb.hike.ui.ProfileActivity;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
@@ -162,28 +161,15 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 	protected void onNewIntent(Intent intent)
 	{
 		super.onNewIntent(intent);
-		if (intent.getBooleanExtra(HikeConstants.Extras.OPEN_ACTIVITY_FEED, false)) // We have to open ActivityFeedFragment
+		//TODO Improve for multiple fragment support
+		if (intent.getBooleanExtra(HikeConstants.Extras.OPEN_ACTIVITY_FEED, false) && isUpdatesFrgamentOnTop()) // We have to open ActivityFeedFragment
 		{
-			ActivityFeedFragment activityFeedFragment = (ActivityFeedFragment) getSupportFragmentManager().findFragmentByTag(FRAGMENT_ACTIVITY_FEED_TAG);
-			if(activityFeedFragment != null)
-			{
-				if(!activityFeedFragment.isAdded() || !activityFeedFragment.isVisible())
-				{
-					getSupportFragmentManager()
-					.beginTransaction()
-					.add(R.id.parent_layout, activityFeedFragment, FRAGMENT_ACTIVITY_FEED_TAG)
-					.addToBackStack(FRAGMENT_ACTIVITY_FEED_TAG)
-					.commit();
-				}
-			}
-			else
-			{
-				loadActivityFeedFragment();
-			}
+			loadActivityFeedFragment();
 		}
-		else //We have to open UpdatesFragment
+		else
 		{
-			if(!isUpdatesFrgamentOnTop())
+			// We have to open UpdatesFragment
+			if (!isUpdatesFrgamentOnTop())
 			{
 				getSupportFragmentManager().popBackStack();
 				ActionBar actionBar = getSupportActionBar();
