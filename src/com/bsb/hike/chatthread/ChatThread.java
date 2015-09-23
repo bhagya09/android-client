@@ -1545,7 +1545,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		if (mCustomKeyboard.isCustomKeyboardVisible())
 		{
 			mCustomKeyboard.showCustomKeyboard(mComposeView, false); 
-			updatePadding(0);
+			KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, 0);
 			return true;
 		}
 		mCustomKeyboard.closeAnyDialogIfShowing();
@@ -2318,7 +2318,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			if (!isSystemKeyboard())
 			{
 				mCustomKeyboard.showCustomKeyboard(mComposeView, true);
-				updatePadding(mCustomKeyboard.getKeyBoardAndCVHeight());
+				KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, mCustomKeyboard.getKeyBoardAndCVHeight());
 			}
 			else
 			{
@@ -3450,7 +3450,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 				 * This is an approximate height given by kpt until we get keyboard visibility call. The final height is set in onInputViewVisibility().
 				 * This calls is to avoid the seeming delay in appearance of edittext.
 				 */
-				updatePadding(mCustomKeyboard.getKeyBoardAndCVHeight());
+				KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, mCustomKeyboard.getKeyBoardAndCVHeight());
 			}
 			if(stickerTagWatcher != null)
 			{
@@ -4080,8 +4080,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	{
 		if (mCustomKeyboard != null)
 		{
-			KptUtils.pauseKeyboardResources(mCustomKeyboard, mComposeView);
-			updatePadding(0);
+			KptUtils.pauseKeyboardResources(mCustomKeyboard, mComposeView, searchEt);
+			KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, 0);
 		}
 	}
 	
@@ -4168,7 +4168,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		}
 		else
 		{
-			updatePadding(0);
+			KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, 0);
 		}
 	}
 	
@@ -5454,7 +5454,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		
 		if (!isSystemKeyboard() && !mCustomKeyboard.isCustomKeyboardVisible())
 		{
-			updatePadding(0);
+			KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, 0);
 		}
 		
 		if (stickerTagWatcher != null)
@@ -5612,7 +5612,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	{
 		if (mCustomKeyboard.isCustomKeyboardVisible())
 		{
-			updatePadding(mCustomKeyboard.getKeyBoardAndCVHeight());
+			KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, mCustomKeyboard.getKeyBoardAndCVHeight());
 		}
 		Logger.i(TAG, "onPopup Dismiss");
 		if(activity.findViewById(R.id.sticker_btn).isSelected())
@@ -6040,7 +6040,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		
 		if (systemKeyboard)
 		{
-			updatePadding(0);
+			KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, 0);
 			mCustomKeyboard.showCustomKeyboard(mComposeView, false);
 			mCustomKeyboard.swtichToDefaultKeyboard(mComposeView);
 			mCustomKeyboard.unregister(R.id.msg_compose);
@@ -6072,15 +6072,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		return HikeMessengerApp.isSystemKeyboard(activity);
 	}
 	
-	private void updatePadding(int bottomPadding)
-	{
-		View mainView=activity.findViewById(R.id.chatThreadParentLayout);
-		if (mainView != null && mainView.getPaddingBottom() != bottomPadding)
-		{
-			Logger.i("chatthread", "resize main height with bottom padding " + bottomPadding);
-			mainView.setPadding(0, 0, 0, bottomPadding);
-		}
-	}
 	@Override
 	public void onReturnAction(int arg0)
 	{
@@ -6115,11 +6106,11 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	{
 		if (kptVisible)
 		{
-			updatePadding(height);
+			KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, height);
 		}
 		else
 		{
-			updatePadding(0);
+			KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, 0);
 		}
 	}
 	
