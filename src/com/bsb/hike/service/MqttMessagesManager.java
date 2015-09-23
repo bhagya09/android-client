@@ -165,7 +165,7 @@ public class MqttMessagesManager
 		this.context = context;
 		this.pubSub = HikeMessengerApp.getPubSub();
 		this.typingNotificationMap = HikeMessengerApp.getTypingNotificationSet();
-		this.clearTypingNotificationHandler = new Handler();
+		this.clearTypingNotificationHandler = new Handler(HikeMessengerApp.getInstance().getMainLooper());
 		this.appPrefs = PreferenceManager.getDefaultSharedPreferences(context);
 		this.userMsisdn = settings.getString(HikeMessengerApp.MSISDN_SETTING, "");
 	}

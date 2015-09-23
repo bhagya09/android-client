@@ -325,6 +325,7 @@ public class PlatformUtils
 				String msisdn = mmObject.optString(HikeConstants.MSISDN);
 				String extraData=null;
 				extraData=mmObject.optString(HikeConstants.DATA);
+				Logger.d("pushkar","extra data"+extraData);
 				IntentFactory.openIntentForGameActivity(context,msisdn,extraData);
 			}
 		}

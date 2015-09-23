@@ -141,7 +141,6 @@ public class CocosGamingActivity extends Cocos2dxActivity implements HikePubSub.
 		context = CocosGamingActivity.this;
 		msisdn = getIntent().getStringExtra(HikeConstants.MSISDN);
 		botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
-		if (botInfo == null)
 		{
 
 			finish();
@@ -190,7 +189,6 @@ public class CocosGamingActivity extends Cocos2dxActivity implements HikePubSub.
 		loadGame();
 
 		HikeMessengerApp.getPubSub().addListeners(this, pubsub);
-		Logger.d("pushkar", "-onCreate()");
 	}
 
 	public void loadGame()
@@ -201,7 +199,7 @@ public class CocosGamingActivity extends Cocos2dxActivity implements HikePubSub.
 		System.load(getAppBasePath() + "libcocos2dcpp.so"); // loading the game
 
 		CocosGamingActivity.this.mHandler = new Cocos2dxHandler(CocosGamingActivity.this);
-		Cocos2dxHelper.initDuplicate(CocosGamingActivity.this, msisdn, getExternalPath());
+		Cocos2dxHelper.initDuplicate(CocosGamingActivity.this, msisdn, getAppBasePath());
 		appInit(getExternalPath());
 		CocosGamingActivity.this.mGLContextAttrs = getGLContextAttrs();
 		CocosGamingActivity.this.init();
@@ -211,7 +209,6 @@ public class CocosGamingActivity extends Cocos2dxActivity implements HikePubSub.
 		}
 
 		isInit = true;
-		onResume();
 	}
 
 	public static Object getNativeBridge()
@@ -260,29 +257,13 @@ public class CocosGamingActivity extends Cocos2dxActivity implements HikePubSub.
 	@Override
 	protected void onResume()
 	{
-		Logger.d(TAG, "onResume()");
-		if (isInit)
-		{
-			super.onResume();
-		}
-		else
-		{
-			super.onResumeDuplicate();
-		}
+		super.onResume();
 	}
 
 	@Override
 	protected void onPause()
 	{
-		Logger.d(TAG, "onPause()");
-		if (isInit)
-		{
-			super.onPause();
-		}
-		else
-		{
-			super.onPauseDuplicate();
-		}
+		super.onPause();
 	}
 
 	/**
