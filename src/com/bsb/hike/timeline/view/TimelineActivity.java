@@ -509,25 +509,34 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 	@Override
 	public void onBackPressed()
 	{
-		//Get the number of pending backstack records
+		// Get the number of pending backstack records
 		int count = getSupportFragmentManager().getBackStackEntryCount();
-		
-		//If none, open home activity
+
+		// If none, open home activity
 		if (count == 0)
 		{
 			IntentFactory.openHomeActivity(TimelineActivity.this, true);
 		}
-		//Else, found a backstack record, fragmentactivity will pop it, do actionbar changes
-		else 
+		// Else, found a backstack record, fragmentactivity will pop it, do actionbar changes
+		else
 		{
 			ActionBar actionBar = getSupportActionBar();
 			View actionBarView = actionBar.getCustomView();
 			TextView title = (TextView) actionBarView.findViewById(R.id.title);
-			title.setText(R.string.timeline);	
+			title.setText(R.string.timeline);
 		}
-		
-		//Let fragmentactivity do its thing (i.e. either pop backstack[count>0] or finish activity[count=0])
-		super.onBackPressed();
+
+		// Let fragmentactivity do its thing (i.e. either pop backstack[count>0] or finish activity[count=0])
+		try
+		{
+			super.onBackPressed();
+		}
+		catch (IllegalStateException ignored)
+		{
+			//An exception here could be caused by changing activity states when we call openHomeActivity.
+			//The assumed scenario happening is onBackPressed() --> openHomeActivity() --> onPause() --> onSaveInstanceState() --> super.onBackPressed() --> popBackStackImmediate().
+			//Its OK to lose fragment state since we are moving out of this activity anyways.
+		}
 	}
 
 	@Override
