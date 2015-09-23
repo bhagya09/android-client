@@ -17,6 +17,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -2771,6 +2772,13 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchMenuItem);
 			searchView.setOnQueryTextListener(onQueryTextListener);
 		}
+	}
+	
+	@Override
+	public void onConfigurationChanged(final Configuration newConfig)
+	{
+		super.onConfigurationChanged(newConfig);
+    	HikeMessengerApp.getPubSub().publish(HikePubSub.ORIENTATION_CHANGED, newConfig.orientation);
 	}
 	
 }
