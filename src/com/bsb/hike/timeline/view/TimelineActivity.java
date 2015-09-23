@@ -86,6 +86,8 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 
 	private PopupWindow overFlowWindow;
 
+	private boolean shouldOpenActivityFeed;
+
 	@Override
 	public void onEventReceived(String type, Object object)
 	{
@@ -161,10 +163,21 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 	protected void onNewIntent(Intent intent)
 	{
 		super.onNewIntent(intent);
-		//TODO Improve for multiple fragment support
-		if (intent.getBooleanExtra(HikeConstants.Extras.OPEN_ACTIVITY_FEED, false) && isUpdatesFrgamentOnTop()) // We have to open ActivityFeedFragment
+		shouldOpenActivityFeed = intent.getBooleanExtra(HikeConstants.Extras.OPEN_ACTIVITY_FEED, false);
+	}
+	
+	@Override
+	protected void onPostResume()
+	{
+		super.onPostResume();
+		// http://www.androiddesignpatterns.com/2013/08/fragment-transaction-commit-state-loss.html
+		if (shouldOpenActivityFeed) // We have to open ActivityFeedFragment
 		{
-			loadActivityFeedFragment();
+			shouldOpenActivityFeed = false;
+			if (isUpdatesFrgamentOnTop())
+			{
+				loadActivityFeedFragment();
+			}
 		}
 		else
 		{
