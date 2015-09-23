@@ -47,11 +47,10 @@ public class NativeBridge
 
 	public NativeBridge(String msisdn, CocosGamingActivity activity, String cardObj)
 	{
-		this.activity=activity;
-		this.msisdn = msisdn;
+		
+		this(msisdn, activity);
 		this.cardObj = cardObj;
-		weakActivity = new WeakReference<Activity>(activity);
-		init();
+		
 	}
 
 	private void init()
@@ -407,6 +406,23 @@ public class NativeBridge
 			public void run()
 			{
 				activity.PlatformCallback(id, System.getProperty("os.arch"));
+			}
+		});
+	}
+	/**
+	 * Platform Version 7 Call this function to get the current platform version.
+	 * 
+	 * @param id:
+	 *            the id of the function that native will call to call the js .
+	 */
+	public void getCurrentPlatformVersion(final String id)
+	{
+		activity.runOnGLThread(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				activity.PlatformCallback(id, String.valueOf(HikePlatformConstants.CURRENT_VERSION));
 			}
 		});
 	}
