@@ -2,11 +2,14 @@ package com.bsb.hike.platform;
 
 import java.lang.ref.WeakReference;
 
+import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.models.HikeHandlerUtil;
+import com.hike.transporter.utils.Logger;
 
 import android.app.Activity;
+import android.os.Handler;
 import android.util.Log;
 import android.webkit.JavascriptInterface;
 
@@ -31,9 +34,12 @@ public class NativeBridge
 	protected static final String SEND_SHARED_MESSAGE = "SEND_SHARED_MESSAGE";
 
 	protected static final String ON_EVENT_RECEIVE = "ON_EVENT_RECEIVE";
+	
+	public static Handler mHandler;
 
 	public NativeBridge(String msisdn, CocosGamingActivity activity)
 	{
+		this.activity=activity;
 		this.msisdn = msisdn;
 		weakActivity = new WeakReference<Activity>(activity);
 		init();
@@ -41,6 +47,7 @@ public class NativeBridge
 
 	public NativeBridge(String msisdn, CocosGamingActivity activity, String cardObj)
 	{
+		this.activity=activity;
 		this.msisdn = msisdn;
 		this.cardObj = cardObj;
 		weakActivity = new WeakReference<Activity>(activity);
@@ -64,16 +71,44 @@ public class NativeBridge
 	 * 
 	 * @return
 	 */
-	public String getCardObj()
+	public void getCardObj(final String functionId)
 	{
-		if (cardObj != null)
+		if (mThread == null)
+			return;
+		mThread.postRunnable(new Runnable()
 		{
-			return cardObj;
-		}
-		else
+
+			@Override
+			public void run()
+			{
+				String cardObject = cardObj;
+				if (cardObject == null)
+				{
+					cardObject = "{}";
+				}
+				activity.PlatformCallback(functionId, cardObject);
+			}
+		});
+	}
+	
+	/**
+	 * Platform Version 7 Call this method to get cardObj
+	 * 
+	 * @return
+	 */
+	public void getBotHelperData(final String functionId)
+	{
+		if (mThread == null)
+			return;
+		mThread.postRunnable(new Runnable()
 		{
-			return "{}";
-		}
+
+			@Override
+			public void run()
+			{
+				activity.PlatformCallback(functionId, mBotInfo.getHelperData());
+			}
+		});
 	}
 
 	/**
@@ -207,6 +242,8 @@ public class NativeBridge
 				helper.sendNormalEvent(messageHash, eventData, mBotInfo.getNamespace());
 			}
 		});
+		
+		
 	}
 
 	/**
@@ -373,5 +410,7 @@ public class NativeBridge
 			}
 		});
 	}
+	
+	
 
 }
