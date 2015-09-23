@@ -218,6 +218,16 @@ public class VoipCallFragment extends Fragment implements CallActions
 					}
 				}
 				break;
+			case VoIPConstants.MSG_PARTNER_INCOMPATIBLE_PLATFORM:
+				if (voipService != null)
+				{
+					Bundle bundle2 = msg.getData();
+					String msisdn = bundle2.getString(VoIPConstants.MSISDN);
+					if (!voipService.hostingConference()) {
+						showCallFailedFragment(VoIPConstants.CallFailedCodes.PARTNER_INCOMPAT, msisdn);
+					}
+				}
+				break;
 			case VoIPConstants.MSG_UPDATE_CALL_BUTTONS:
 				if (voipService.getCallStatus() != CallStatus.INCOMING_CALL)
 					showActiveCallButtons();
@@ -396,16 +406,6 @@ public class VoipCallFragment extends Fragment implements CallActions
 			if (voipService != null)
 			{
 				voipService.sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CONNECTION_FAILED, VoIPConstants.CallFailedCodes.PARTNER_UPGRADE);
-				voipService.stop();
-			}
-		}
-		
-		if (action.equals(VoIPConstants.PARTNER_INCOMPATIBLE)) 
-		{
-			showCallFailedFragment(VoIPConstants.CallFailedCodes.PARTNER_INCOMPAT, msisdn);
-			if (voipService != null)
-			{
-				voipService.sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CONNECTION_FAILED, VoIPConstants.CallFailedCodes.PARTNER_INCOMPAT);
 				voipService.stop();
 			}
 		}
