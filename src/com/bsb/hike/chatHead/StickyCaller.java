@@ -81,7 +81,7 @@ public class StickyCaller
 				callerParams.alpha = 1.0f - ((float) Math.abs(callerParams.x) / Utils.getDeviceWidth());
 				moveType = HORIZONTAL;
 			}
-			else if (Math.abs(event.getRawX() - initialTouchX) < Math.abs(event.getRawY() - initialTouchY))
+			else if ((moveType == NONE || moveType == VERTICAL) && Math.abs(event.getRawX() - initialTouchX) < Math.abs(event.getRawY() - initialTouchY))
 			{
 				try
 				{
