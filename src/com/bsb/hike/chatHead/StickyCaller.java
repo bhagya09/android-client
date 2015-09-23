@@ -281,7 +281,6 @@ public class StickyCaller
 			e.printStackTrace();
 			Logger.d("StickyCaller", "error in adding caller view");
 		}
-		isOnCall = false;
 	}
 
 	private static void settingLayoutAlreadySavedContact(Context context, String number, String result)
@@ -449,6 +448,7 @@ public class StickyCaller
 		@Override
 		public void onClick(View v)
 		{
+			removeCallerView();
 			switch (v.getId())
 			{
 			case R.id.caller_call_button:
@@ -461,8 +461,16 @@ public class StickyCaller
 			case R.id.caller_free_call_button:
 				if (callCurrentNumber != null)
 				{
-					Utils.killCall();
-					toCall = true;
+					if (isOnCall)
+					{
+						toCall = true;
+						Utils.killCall();
+					}
+					else if (StickyCaller.callCurrentNumber !=  null)
+					{
+						Utils.onCallClicked(HikeMessengerApp.getInstance(), StickyCaller.callCurrentNumber, VoIPUtils.CallSource.HIKE_STICKY_CALLER);
+					}
+					
 				}
 				break;
 			case R.id.caller_free_sms_button:
@@ -484,7 +492,6 @@ public class StickyCaller
 			case R.id.caller_sms_button:
 				if (callCurrentNumber != null)
 				{
-					removeCallerView();
 					Utils.sendSMS(callCurrentNumber);
 				}
 				break;
@@ -493,7 +500,6 @@ public class StickyCaller
 				ChatHeadService.insertHomeActivitBeforeStarting(intent);
 				break;
 			case R.id.caller_close_button:
-				removeCallerView();
 				break;
 			}
 		}

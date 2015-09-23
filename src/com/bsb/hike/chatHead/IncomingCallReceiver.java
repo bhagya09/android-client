@@ -25,7 +25,7 @@ public class IncomingCallReceiver extends PhoneStateListener
 
 	private static boolean ring = false;
 
-	private static boolean callReceived = false;
+	public static boolean callReceived = false;
 
 	
 	@Override
@@ -50,7 +50,6 @@ public class IncomingCallReceiver extends PhoneStateListener
 			if (ring == true && callReceived == false)
 			{   
 				ChatHeadUtils.postNumberRequest(HikeMessengerApp.getInstance(), StickyCaller.callCurrentNumber);
-				StickyCaller.isOnCall = true;
 			}
 			
 			if (StickyCaller.toCall && StickyCaller.callCurrentNumber !=  null)

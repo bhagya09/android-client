@@ -18,6 +18,7 @@ public class OutgoingCallReceiver extends BroadcastReceiver
 	public void onReceive(Context context, Intent intent)
 	{
 		String outgoingNumber = intent.getStringExtra(Intent.EXTRA_PHONE_NUMBER);
+		StickyCaller.isOnCall = true;
 		ChatHeadUtils.postNumberRequest(HikeMessengerApp.getInstance(), outgoingNumber);
 	}
 
