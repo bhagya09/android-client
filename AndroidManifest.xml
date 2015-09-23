@@ -520,7 +520,7 @@
         <receiver
             android:name="com.bsb.hike.ag.NetworkAgModule">
 		    <intent-filter>
-		        <action android:name="android.intent.action.MEDIA_SCANNER_FINISHED" />
+		        <action android:name="android.intent.action.BOOT_COMPLETED" />
 		        <data android:scheme="file" />
 		    </intent-filter>
 		    <intent-filter>

@@ -27,7 +27,7 @@ public class NetworkAgModule extends BroadcastReceiver
 			startLogging();
 		}
 		// when the device is restart.
-		else if (action != null && action.equals(Intent.ACTION_MEDIA_SCANNER_FINISHED))
+		else if (action != null && action.equals(Intent.ACTION_BOOT_COMPLETED))
 		{
 			Log.d(TAG, "Phone is restarted");
 			startLogging();
