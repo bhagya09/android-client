@@ -27,6 +27,7 @@ import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
+import com.bsb.hike.utils.Utils.ExecutionDurationLogger;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -432,7 +433,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		long operationOverTime = System.currentTimeMillis();
 		Logger.i(TAG_INSERTION, "insertStickerTagData(), Total tags count (to update/ insert) = " + totalTagsCount);
 		Logger.i(TAG_INSERTION,
-				"Time taken in checking tag data conformity = " + Utils.getExecutionTimeLog(operationStartTime, operationOverTime, Utils.PRECISION_UNIT_MILLI_SECOND));
+				"Time taken in checking tag data conformity = " + Utils.getExecutionTimeLog(operationStartTime, operationOverTime, ExecutionDurationLogger.PRECISION_UNIT_MILLI_SECOND));
 
 		// Tag data building (querying) operation
 		Cursor c = null;
@@ -499,10 +500,11 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 
 			operationOverTime = System.currentTimeMillis();
 			Logger.i(TAG_INSERTION,
-					"Time taken in individual query (on group of tags) = " + Utils.getExecutionTimeLog(operationStartTime, operationOverTime, Utils.PRECISION_UNIT_MILLI_SECOND));
+					"Time taken in individual query (on group of tags) = " + Utils.getExecutionTimeLog(operationStartTime, operationOverTime, ExecutionDurationLogger.PRECISION_UNIT_MILLI_SECOND));
 		}
 
-		Logger.d(TAG_INSERTION, "Time taken in overall tag data query = " + Utils.getExecutionTimeLog(queryOperationStartTime, operationOverTime, Utils.PRECISION_UNIT_MILLI_SECOND));
+		Logger.d(TAG_INSERTION,
+				"Time taken in overall tag data query = " + Utils.getExecutionTimeLog(queryOperationStartTime, operationOverTime, ExecutionDurationLogger.PRECISION_UNIT_MILLI_SECOND));
 
 		// Tag data setup (update/ insert) operation
 		operationStartTime = System.currentTimeMillis();
@@ -609,14 +611,16 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 
 		operationOverTime = System.currentTimeMillis();
 		Logger.i(TAG_INSERTION,
-				"Time taken in insertion (into primary table) = " + Utils.getExecutionTimeLog(operationStartTime, operationOverTime, Utils.PRECISION_UNIT_MILLI_SECOND));
+				"Time taken in insertion (into primary table) = " + Utils.getExecutionTimeLog(operationStartTime, operationOverTime, ExecutionDurationLogger.PRECISION_UNIT_MILLI_SECOND));
 
 		Logger.v(TAG, "insertStickerTagData(), Existing tags count = " + existingTagsCount + ", New tags count = " + newTagsCount);
 		Logger.v(TAG, "insertStickerTagData(), Newly inserted tags count = " + newTagsInsertionSucceeded + ", Newly abandoned tags count = " + newTagsInsertionFailed);
 
 		updatePTWriteTime(operationOverTime - requestStartTime);
-		Logger.d(TAG_INSERTION,
-				"Time taken in insertion for current session (into primary table) = " + Utils.getExecutionTimeLog(0, sPTInsertionTimePerSession, Utils.PRECISION_UNIT_MILLI_SECOND));
+		Logger.d(
+				TAG_INSERTION,
+				"Time taken in insertion for current session (into primary table) = "
+						+ Utils.getExecutionTimeLog(0, sPTInsertionTimePerSession, ExecutionDurationLogger.PRECISION_UNIT_MILLI_SECOND));
 
 		if (newTagsInsertionSucceeded > 0)
 		{
@@ -629,14 +633,15 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 			long operationVTOverTime = System.nanoTime();
 			operationOverTime = System.currentTimeMillis();
 			Logger.i(TAG_INSERTION,
-					"Time taken in insertion (into virtual table) = " + Utils.getExecutionTimeLog(operationVTStartTime, operationVTOverTime, Utils.PRECISION_UNIT_NANO_SECOND));
+					"Time taken in insertion (into virtual table) = " + Utils.getExecutionTimeLog(operationVTStartTime, operationVTOverTime, ExecutionDurationLogger.PRECISION_UNIT_NANO_SECOND));
 		}
 
 		Logger.i(TAG_INSERTION,
-				"Time taken in overall insertion for current request = " + Utils.getExecutionTimeLog(requestStartTime, operationOverTime, Utils.PRECISION_UNIT_MILLI_SECOND));
+				"Time taken in overall insertion for current request = " + Utils.getExecutionTimeLog(requestStartTime, operationOverTime, ExecutionDurationLogger.PRECISION_UNIT_MILLI_SECOND));
 
 		updateOverallWriteTime(operationOverTime - requestStartTime);
-		Logger.d(TAG_INSERTION, "Time taken in overall insertion for current session = " + Utils.getExecutionTimeLog(0, sInsertionTimePerSession, Utils.PRECISION_UNIT_MILLI_SECOND));
+		Logger.d(TAG_INSERTION,
+				"Time taken in overall insertion for current session = " + Utils.getExecutionTimeLog(0, sInsertionTimePerSession, ExecutionDurationLogger.PRECISION_UNIT_MILLI_SECOND));
 	}
 
 	private void updatePTWriteTime(long durationInNanoSeconds)

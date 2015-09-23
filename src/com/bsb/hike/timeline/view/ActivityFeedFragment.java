@@ -59,6 +59,13 @@ public class ActivityFeedFragment extends Fragment implements Listener
 		setupActionBar();
 		return parent;
 	}
+	
+	@Override
+	public void onResume()
+	{
+		super.onResume();
+		HikeMessengerApp.getPubSub().publish(HikePubSub.UNSEEN_STATUS_COUNT_CHANGED, null);
+	}
 
 	@Override
 	public void onViewCreated(View view, Bundle savedInstanceState)
