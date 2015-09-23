@@ -95,6 +95,8 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 	
 	public static final String RECOMMENDED = "-130";
 	
+	public static final String APPS_ON_HIKE = "-131";
+	
 	// phoneNum for scrolling Microapps showcase
 	public static final String HIKE_APPS_NUM = "-131";
 	
