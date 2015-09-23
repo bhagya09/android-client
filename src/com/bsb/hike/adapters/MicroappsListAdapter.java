@@ -8,6 +8,7 @@ import org.json.JSONObject;
 
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
+import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.bots.BotInfo;
@@ -32,6 +33,8 @@ import com.bsb.hike.utils.Utils;
 import com.hike.transporter.utils.Logger;
 
 import android.content.Context;
+import android.content.res.Configuration;
+import android.os.Handler;
 import android.support.v4.widget.DrawerLayout.LayoutParams;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -43,7 +46,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class MicroappsListAdapter extends RecyclerView.Adapter<MicroappsListAdapter.ViewHolder> implements OnClickListener
+public class MicroappsListAdapter extends RecyclerView.Adapter<MicroappsListAdapter.ViewHolder> implements OnClickListener, Listener
 {
 	Context mContext;
 
@@ -56,6 +59,10 @@ public class MicroappsListAdapter extends RecyclerView.Adapter<MicroappsListAdap
 	private OnClickListener onClickListener;
 	
 	private static final String APP_NAME = "appName";
+	
+	private TextView description;
+	
+	private HikePubSub mPubSub;
 
 	public MicroappsListAdapter(Context context, List<BotInfo> botsList, IconLoader iconLoader)
 	{
@@ -63,6 +70,9 @@ public class MicroappsListAdapter extends RecyclerView.Adapter<MicroappsListAdap
 		this.microappsList = botsList;
 		this.iconLoader = iconLoader;
 		onClickListener = this;
+		
+		mPubSub = HikeMessengerApp.getPubSub();
+		mPubSub.addListeners(this, new String[]{HikePubSub.ORIENTATION_CHANGED});
 	}
 
 	@Override
@@ -262,11 +272,41 @@ public class MicroappsListAdapter extends RecyclerView.Adapter<MicroappsListAdap
 		TextView bot_name = (TextView) dialog.findViewById(R.id.bot_name);
 		bot_name.setText(mBotInfo.getConversationName());
 		
-		TextView description = (TextView) dialog.findViewById(R.id.bot_description);
+		description = (TextView) dialog.findViewById(R.id.bot_description);
 		description.setText(mBotInfo.getBotDescription());
 		
 		String loadingText = String.format(mContext.getResources().getString(R.string.getting_mapp_shortly), mBotInfo.getConversationName());
 		TextView loadingTextView = (TextView) dialog.findViewById(R.id.loading_text);
 		loadingTextView.setText(loadingText);
+	}
+
+	@Override
+	public void onEventReceived(String type, final Object object)
+	{
+		switch(type)
+		{
+		case HikePubSub.ORIENTATION_CHANGED:
+			Handler mainHandler = new Handler(mContext.getMainLooper());
+			Runnable runnable = new Runnable() {
+	            @Override
+	            public void run() 
+	            {
+	            	if (description != null)
+	    			{
+	    				int orientation = (int) object;
+	    				if(orientation == Configuration.ORIENTATION_LANDSCAPE)
+	    				{
+	    					description.setVisibility(View.GONE);
+	    				}
+	    				else
+	    				{
+	    					description.setVisibility(View.VISIBLE);
+	    				}
+	    			}
+	            }
+	        };
+			mainHandler.post(runnable);
+			break;
+		}
 	}
 }
