@@ -372,6 +372,10 @@ public class ChatHeadUtils
 	public static void onClickSetAlarm(Context context, int time)
 	{
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.SNOOZE, true);
+		if(!HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.DONT_USE_ACCESSIBILITY, willPollingWork()))
+		{
+			ChatHeadViewManager.getInstance(context).onDestroy();
+		}
 		HikeAlarmManager.setAlarm(context, Calendar.getInstance().getTimeInMillis() + time, HikeAlarmManager.REQUESTCODE_START_STICKER_SHARE_SERVICE, false);
 		ChatHeadViewManager.getInstance(context).resetPosition(ChatHeadConstants.STOPPING_SERVICE_ANIMATION, null);
 	}

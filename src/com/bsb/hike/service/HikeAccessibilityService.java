@@ -21,11 +21,15 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.provider.Settings;
+import android.text.TextUtils;
 import android.view.accessibility.AccessibilityEvent;
 
+import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikeConstants.ChatHead;
 import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.chatHead.ChatHeadViewManager;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 
 public class HikeAccessibilityService extends AccessibilityService
@@ -59,6 +63,7 @@ public class HikeAccessibilityService extends AccessibilityService
 	{
 
 		String value = event.getEventType() + " ";
+		CharSequence packageName = event.getPackageName();
 		switch (event.getEventType())
 		{
 		case AccessibilityEvent.TYPE_NOTIFICATION_STATE_CHANGED:
@@ -73,15 +78,17 @@ public class HikeAccessibilityService extends AccessibilityService
 		case AccessibilityEvent.TYPE_VIEW_CLICKED:
 		case AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED:
 			String currentKeyboard =  Settings.Secure.getString(getContentResolver(), Settings.Secure.DEFAULT_INPUT_METHOD);
-			String[] current = currentKeyboard.split("/");
-			for(String x : current)
-			{
-				currentKeyboard = x;
-				break;
-			}
-			boolean hikeIsOpen = ChatHeadUtils.getRunningAppPackage(ChatHeadUtils.GET_TOP_MOST_SINGLE_PROCESS).contains("com.bsb.hike");
-			Logger.d("UmangX","check result : " + ( hikeIsOpen ? "hike is open": "hike is backgrounded"));
-			if(hikeIsOpen || !(getEventText(event).equals("hike") || event.getPackageName().equals("com.bsb.hike") || event.getPackageName().equals(currentKeyboard)))
+			boolean keyboardOpen = currentKeyboard.contains(packageName) || TextUtils.isEmpty(packageName);
+
+			Logger.d("UmangX",currentKeyboard  +  " " + packageName + " " + keyboardOpen);
+			
+			// some keyboards do not display their names, like korean keyboard
+			String hikePackage = HikeMessengerApp.getInstance().getPackageName();
+			boolean hikeIsOpen = ChatHeadUtils.getRunningAppPackage(ChatHeadUtils.GET_TOP_MOST_SINGLE_PROCESS).contains(hikePackage);
+			boolean chatHeadStickerPickerIsOpen = getEventText(event).equals("hike") || packageName.equals(hikePackage);
+			boolean snoozed = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.SNOOZE, false);
+
+			if(hikeIsOpen || !( chatHeadStickerPickerIsOpen || keyboardOpen || snoozed))
 			{
 				Set<String> packages = new HashSet<String>(1);
 				packages.add( event.getPackageName().toString());
