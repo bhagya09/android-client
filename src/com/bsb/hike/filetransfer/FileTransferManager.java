@@ -7,8 +7,8 @@ import java.io.ObjectInputStream;
 import java.lang.Thread.State;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 import java.util.Map.Entry;
+import java.util.Random;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
@@ -34,7 +34,6 @@ import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Environment;
 import android.os.Handler;
-import android.support.v4.content.LocalBroadcastManager;
 import android.widget.Toast;
 
 import com.bsb.hike.HikeConstants;
@@ -51,7 +50,6 @@ import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
-import com.bsb.hike.utils.Utils.ExternalStorageState;
 
 /* 
  * This manager will manage the upload and download (File Transfers).
@@ -384,18 +382,6 @@ public class FileTransferManager extends BroadcastReceiver
 	{
 		if(taskOverflowLimitAchieved())
 			return;
-		if(hikeFileType != HikeFileType.IMAGE)
-		{
-			handler.post(new Runnable()
-			{
-				@Override
-				public void run()
-				{
-					Toast.makeText(context, R.string.unknown_msg, Toast.LENGTH_SHORT).show();
-				}
-			});
-			return;
-		}
 		
 		settings = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
 		String token = settings.getString(HikeMessengerApp.TOKEN_SETTING, null);
@@ -410,18 +396,6 @@ public class FileTransferManager extends BroadcastReceiver
 	{
 		if(taskOverflowLimitAchieved())
 			return;
-		if(hikeFileType != HikeFileType.IMAGE)
-		{
-			handler.post(new Runnable()
-			{
-				@Override
-				public void run()
-				{
-					Toast.makeText(context, R.string.unknown_msg, Toast.LENGTH_SHORT).show();
-				}
-			});
-			return;
-		}
 		
 		settings = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
 		String token = settings.getString(HikeMessengerApp.TOKEN_SETTING, null);
@@ -431,6 +405,25 @@ public class FileTransferManager extends BroadcastReceiver
 		task.setFutureTask(ft);
 		pool.execute(ft);
 	}
+	
+	public ConvMessage uploadOfflineFile(String msisdn, File sourceFile, String fileKey, String fileType, HikeFileType hikeFileType, boolean isRec,
+			long recordingDuration, int attachment, String fileName)
+	{
+		
+		if(sourceFile.length()>Integer.MAX_VALUE)
+		{
+			HikeMessengerApp.getInstance().showToast(R.string.max_file_size_offline,Toast.LENGTH_LONG);
+			return null;
+		}
+		settings = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
+		String token = settings.getString(HikeMessengerApp.TOKEN_SETTING, null);
+		String uId = settings.getString(HikeMessengerApp.UID_SETTING, null);
+		UploadFileTask task = new UploadFileTask(handler, fileTaskMap, context, token, uId, msisdn, sourceFile, fileKey, fileType, hikeFileType, isRec,
+				recordingDuration, attachment,fileName);
+		ConvMessage convMessage = ((ConvMessage)task.getUserContext());
+		return convMessage;
+   }
+	
 
 	public void uploadLocation(String msisdn, double latitude, double longitude, int zoomLevel, boolean isRecipientOnhike, boolean newConvIfnotExist)
 	{
@@ -459,7 +452,7 @@ public class FileTransferManager extends BroadcastReceiver
 		task.setFutureTask(ft);
 		pool.execute(ft);
 	}
-
+	
 	public void uploadContactOrLocation(ConvMessage convMessage, boolean uploadingContact, boolean isRecipientOnhike)
 	{
 		if (isFileTaskExist(convMessage.getMsgID())){

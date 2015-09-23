@@ -42,6 +42,7 @@ import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.filetransfer.FTAnalyticEvents;
 import com.bsb.hike.models.GalleryItem;
 import com.bsb.hike.models.HikeFile.HikeFileType;
+import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.smartImageLoader.GalleryImageLoader;
 import com.bsb.hike.tasks.InitiateMultiFileTransferTask;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
@@ -158,20 +159,22 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 		int sizeOfImage = getResources().getDimensionPixelSize(R.dimen.gallery_selection_item_size);
 
 		int numColumns = Utils.getNumColumnsForGallery(getResources(), sizeOfImage);
-		int actualSize = Utils.getActualSizeForGallery(getResources(), sizeOfImage, numColumns);
+		int thumbnailSize = Utils.getActualSizeForGallery(getResources(), sizeOfImage, numColumns);
+		//num of columns is 1 for preview as we will be displaying only one image at a time.
+		int previewSize = Utils.getActualSizeForGallery(getResources(), sizeOfImage, numColumns);
 
-		gridAdapter = new GalleryAdapter(this, galleryGridItems, true, actualSize, null, true);
+		gridAdapter = new GalleryAdapter(this, galleryGridItems, true, thumbnailSize, null, true);
 
 		selectedGrid.setNumColumns(numColumns);
 		selectedGrid.setAdapter(gridAdapter);
 		selectedGrid.setOnScrollListener(this);
 		selectedGrid.setOnItemClickListener(this);
 
-		pagerAdapter = new GalleryPagerAdapter(actualSize);
+		pagerAdapter = new GalleryPagerAdapter(previewSize);
 		selectedPager.setAdapter(pagerAdapter);
 		selectedPager.setOnPageChangeListener(this);
 
-		setSelection(galleryItems.size() - 1);
+		setSelection(galleryItems.size());
 		setupActionBar();
 
 		showTipIfRequired();
@@ -185,6 +188,16 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 			for (int i = 0;i<galleryItems.size();i++)
 			{
 				editedImages.add(null);
+			}
+		}
+		else
+		{
+			for(int i=editedImages.size()-1;i>=0;i--)
+			{
+				if(editedImages.get(i)!=null && !new File(editedImages.get(i)).exists())
+				{
+					editedImages.remove(i);
+				}
 			}
 		}
 	}
@@ -330,6 +343,7 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 				final String msisdn = getIntent().getStringExtra(HikeConstants.Extras.MSISDN);
 				final boolean onHike = getIntent().getBooleanExtra(HikeConstants.Extras.ON_HIKE, true);
 				
+				final Intent intent = IntentFactory.createChatThreadIntentFromMsisdn(GallerySelectionViewer.this, msisdn, false,false);
 				if (!smlDialogShown)
 				{
 					HikeDialogFactory.showDialog(GallerySelectionViewer.this, HikeDialogFactory.SHARE_IMAGE_QUALITY_DIALOG,  new HikeDialogListener()
@@ -343,9 +357,10 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 						@Override
 						public void positiveClicked(HikeDialog hikeDialog)
 						{
-							fileTransferTask = new InitiateMultiFileTransferTask(getApplicationContext(), fileDetails, msisdn, onHike, FTAnalyticEvents.GALLERY_ATTACHEMENT);
+							fileTransferTask = new InitiateMultiFileTransferTask(getApplicationContext(), fileDetails, msisdn, onHike, FTAnalyticEvents.GALLERY_ATTACHEMENT, intent);
 							Utils.executeAsyncTask(fileTransferTask);
-							progressDialog = ProgressDialog.show(GallerySelectionViewer.this, null, getResources().getString(R.string.multi_file_creation));
+							if(!OfflineUtils.isConnectedToSameMsisdn(msisdn))
+								progressDialog = ProgressDialog.show(GallerySelectionViewer.this, null, getResources().getString(R.string.multi_file_creation));
 							hikeDialog.dismiss();
 						}
 
@@ -358,7 +373,7 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 				}
 				else
 				{
-					fileTransferTask = new InitiateMultiFileTransferTask(getApplicationContext(), fileDetails, msisdn, onHike, FTAnalyticEvents.GALLERY_ATTACHEMENT);
+					fileTransferTask = new InitiateMultiFileTransferTask(getApplicationContext(), fileDetails, msisdn, onHike, FTAnalyticEvents.GALLERY_ATTACHEMENT, intent);
 					Utils.executeAsyncTask(fileTransferTask);
 					progressDialog = ProgressDialog.show(GallerySelectionViewer.this, null, getResources().getString(R.string.multi_file_creation));
 				}
@@ -438,10 +453,17 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 
 	private void setSelection(int position)
 	{
+		int scrollPos = position;
+		
+		if(position >= galleryItems.size() )
+		{
+			position = galleryItems.size() - 1;
+		}
+		
 		gridAdapter.setSelectedItemPosition(position);
-
 		selectedPager.setCurrentItem(position);
-		selectedGrid.smoothScrollToPosition(position);
+		
+		selectedGrid.smoothScrollToPosition(scrollPos);
 	}
 
 	private class GalleryPagerAdapter extends PagerAdapter
@@ -587,6 +609,8 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 		if (HikePubSub.MULTI_FILE_TASK_FINISHED.equals(type))
 		{
 			fileTransferTask = null;
+			
+			final Intent intent = (Intent) object;
 
 			runOnUiThread(new Runnable()
 			{
@@ -600,9 +624,6 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 						progressDialog = null;
 					}
 					
-					String msisdn = getIntent().getStringExtra(HikeConstants.Extras.MSISDN);
-					Intent intent = IntentFactory.createChatThreadIntentFromMsisdn(GallerySelectionViewer.this, msisdn, false, false);
-					intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 					startActivity(intent);
 					finish();
 					

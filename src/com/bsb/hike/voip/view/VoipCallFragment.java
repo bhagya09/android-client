@@ -1,7 +1,6 @@
 package com.bsb.hike.voip.view;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -78,6 +77,8 @@ public class VoipCallFragment extends Fragment implements CallActions
 	private LinearLayout forceMuteContainer = null;
 	private LinearLayout signalContainer = null;
 	private boolean isCallActive;
+	private ArrayList<VoIPClient> conferenceClients = null;
+	private ConferenceParticipantsAdapter confClientsAdapter = null;
 
 	private CallFragmentListener activity;
 
@@ -214,6 +215,16 @@ public class VoipCallFragment extends Fragment implements CallActions
 						showCallFailedFragment(VoIPConstants.CallFailedCodes.PARTNER_BUSY, msisdn);
 						voipService.setCallStatus(VoIPConstants.CallStatus.PARTNER_BUSY);
 						updateCallStatus();
+					}
+				}
+				break;
+			case VoIPConstants.MSG_PARTNER_INCOMPATIBLE_PLATFORM:
+				if (voipService != null)
+				{
+					Bundle bundle2 = msg.getData();
+					String msisdn = bundle2.getString(VoIPConstants.MSISDN);
+					if (!voipService.hostingConference()) {
+						showCallFailedFragment(VoIPConstants.CallFailedCodes.PARTNER_INCOMPAT, msisdn);
 					}
 				}
 				break;
@@ -395,16 +406,6 @@ public class VoipCallFragment extends Fragment implements CallActions
 			if (voipService != null)
 			{
 				voipService.sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CONNECTION_FAILED, VoIPConstants.CallFailedCodes.PARTNER_UPGRADE);
-				voipService.stop();
-			}
-		}
-		
-		if (action.equals(VoIPConstants.PARTNER_INCOMPATIBLE)) 
-		{
-			showCallFailedFragment(VoIPConstants.CallFailedCodes.PARTNER_INCOMPAT, msisdn);
-			if (voipService != null)
-			{
-				voipService.sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CONNECTION_FAILED, VoIPConstants.CallFailedCodes.PARTNER_INCOMPAT);
 				voipService.stop();
 			}
 		}
@@ -858,18 +859,13 @@ public class VoipCallFragment extends Fragment implements CallActions
 				}
 				break;
 				
-			case HOSTING_CONFERENCE:
-				callDuration.setText("");
-				if (voipService.recordingAndPlaybackRunning) 
-					startCallDuration();
-				break;
-				
 		default:
 			// Logger.w(tag, "Unhandled status: " + status);
 			callDuration.startAnimation(anim);
 			callDuration.setText("");
 			break;
 		}
+		
 	}
 	
 	private void startCallDuration()
@@ -965,17 +961,30 @@ public class VoipCallFragment extends Fragment implements CallActions
 	private void updateConferenceList() {
 	
 		ListView conferenceList = (ListView) getView().findViewById(R.id.conference_list);
-		List<VoIPClient> clients = new ArrayList<>(voipService.getConferenceClients());
-		ConferenceParticipantsAdapter adapter = new ConferenceParticipantsAdapter(getActivity(), 0, 0, clients);
-		conferenceList.setAdapter(adapter);
-		conferenceList.setVisibility(View.VISIBLE);
-		conferenceList.setFocusable(false);
-		conferenceList.setClickable(false);
 		
-		// Remove profile image
-		ImageView profileView = (ImageView) getView().findViewById(R.id.profile_image);
-		profileView.setVisibility(View.INVISIBLE);
-
+		// FYI, when hosting a conference, we do not have an ArrayList object
+		// to use directly in our listview adapter, since client objects are 
+		// kept in a HashMap for quick lookup. Hence, we create an ArrayList from
+		// the HashMap values in getConferenceClients(). However, this effectively
+		// means that we cannot use notifyDataSetChanged() on updates, since the 
+		// ArrayList object itself will change. 
+		
+		if (conferenceClients == null || voipService.hostingConference())
+			conferenceClients = voipService.getConferenceClients();
+			
+		if (confClientsAdapter == null || voipService.hostingConference()) {
+			confClientsAdapter = new ConferenceParticipantsAdapter(getActivity(), 0, 0, conferenceClients);
+			conferenceList.setAdapter(confClientsAdapter);
+			conferenceList.setVisibility(View.VISIBLE);
+			conferenceList.setFocusable(false);
+			conferenceList.setClickable(false);
+			
+			// Remove profile image
+			ImageView profileView = (ImageView) getView().findViewById(R.id.profile_image);
+			profileView.setVisibility(View.INVISIBLE);
+		} else
+			confClientsAdapter.notifyDataSetChanged();
+		
 		if (voipService.hostingConference()) {
 			
 			// remove quality indicator
@@ -1042,8 +1051,10 @@ public class VoipCallFragment extends Fragment implements CallActions
 	   		signalStrengthView.setText(getString(R.string.voip_signal_good));
 			break;
 		}
-		signalContainer.startAnimation(anim);
-		signalContainer.setVisibility(View.VISIBLE);
+		
+		// TODO: Signal container will remain invisible. 
+//		signalContainer.startAnimation(anim);
+//		signalContainer.setVisibility(View.VISIBLE);
 	}
 
 	private void startCallRateActivity(Bundle bundle)

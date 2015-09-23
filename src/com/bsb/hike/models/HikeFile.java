@@ -33,7 +33,7 @@ public class HikeFile
 {
 	public static enum HikeFileType
 	{
-		PROFILE, IMAGE, VIDEO, AUDIO, LOCATION, CONTACT, AUDIO_RECORDING, OTHER;
+		PROFILE, IMAGE, VIDEO, AUDIO, LOCATION, CONTACT, AUDIO_RECORDING, OTHER,APK;
 
 		public static HikeFileType fromString(String fileTypeString)
 		{
@@ -63,6 +63,10 @@ public class HikeFile
 				else if (fileTypeString.startsWith(HikeConstants.CONTACT_CONTENT_TYPE))
 				{
 					return HikeFileType.CONTACT;
+				}
+				else if (fileTypeString.contains("package-archive"))	
+				{
+					return HikeFileType.APK;
 				}
 			}
 			return HikeFileType.OTHER;
@@ -96,6 +100,14 @@ public class HikeFile
 			else if (hikeFileType == CONTACT)
 			{
 				return HikeConstants.CONTACT_CONTENT_TYPE;
+			}
+			else if (hikeFileType == OTHER)
+			{
+				return "application/octet-stream";
+			}
+			else if (hikeFileType == APK)
+			{
+				return "application/vnd.android.package-archive";
 			}
 			return null;
 		}
@@ -193,7 +205,7 @@ public class HikeFile
 		this.longitude = fileJSON.optDouble(HikeConstants.LONGITUDE);
 		this.zoomLevel = fileJSON.optInt(HikeConstants.ZOOM_LEVEL, HikeConstants.DEFAULT_ZOOM_LEVEL);
 		this.address = fileJSON.optString(HikeConstants.ADDRESS);
-		if (this.file != null)
+		if (this.file != null && (TextUtils.isEmpty(this.fileName) || !isSent))
 		{
 			// Update the file name to prevent duplicacy
 			this.fileName = this.file.getName();
@@ -671,7 +683,7 @@ public class HikeFile
 	 * @return The index of the Media from the relevant table if present or -1 if not present/the params supplied are null.
 	 */
 	
-	private int getMediaId(String filePath, String[] retCol, Uri uri, Context context)
+	public static int getMediaId(String filePath, String[] retCol, Uri uri, Context context)
 	{
 		int id = -1;
 		if (retCol == null || uri == null || filePath == null)
