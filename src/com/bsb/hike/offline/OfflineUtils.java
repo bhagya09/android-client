@@ -639,7 +639,8 @@ public class OfflineUtils
 		try
 		{
 			object.put(HikeConstants.TYPE, OfflineConstants.INFO_PKT);
-			object.put(HikeConstants.VERSION, Utils.getAppVersion());
+			object.put(HikeConstants.VERSION,Utils.getAppVersion());
+			object.put(OfflineConstants.OFFLINE_VERSION,OfflineConstants.OFFLINE_VERSION_NUMER);
 			object.put(HikeConstants.RESOLUTION_ID, Utils.getResolutionId());
 			object.put(OfflineConstants.CONNECTION_ID, connectID);
 		}
@@ -919,5 +920,42 @@ public class OfflineUtils
 		}
 
 		HikeMessengerApp.getInstance().showToast(R.string.low_battery_msg,Toast.LENGTH_LONG);
+	}
+	
+	public static boolean isFeautureAvailable(int myVersion,int clientTwoVersion,int minClientVersion)
+	{
+		if(myVersion>= minClientVersion &&  clientTwoVersion >=minClientVersion)
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+
+	public static int getConnectedDeviceVersion()
+	{
+		JSONObject connectedClientInfo  = OfflineController.getInstance().getConnectedClientInfo();
+		if(connectedClientInfo!=null)
+		{
+			if(connectedClientInfo.has(OfflineConstants.OFFLINE_VERSION))
+			{
+				try
+				{
+					return connectedClientInfo.getInt(OfflineConstants.OFFLINE_VERSION);
+				}
+				catch (JSONException e)
+				{
+					Logger.d(TAG, "Error in offline version");
+					return 1;
+				}
+			}
+			else
+			{
+				return 1;
+			}
+		}
+		return 1;
 	}
 }

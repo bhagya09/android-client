@@ -684,4 +684,14 @@ public class OfflineController
 		mHandler.sendMessageDelayed(msg, timeout);
 	}
 
+	public void setConnectedClientInfo(JSONObject clientInfo)
+	{
+		offlineManager.setConnectedClientInfo(clientInfo);
+	}
+	
+	public JSONObject getConnectedClientInfo()
+	{
+		return offlineManager.getConnectedClientInfo();
+	}
+
 }
