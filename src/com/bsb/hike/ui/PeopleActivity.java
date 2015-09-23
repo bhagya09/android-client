@@ -3,16 +3,18 @@ package com.bsb.hike.ui;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.support.v7.widget.SearchView;
+import com.bsb.hike.ui.v7.SearchView;
+import com.bsb.hike.ui.v7.SearchView.OnQueryTextListener;
 import android.support.v7.widget.Toolbar;
-import android.support.v7.widget.SearchView.OnQueryTextListener;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
@@ -21,11 +23,19 @@ import com.bsb.hike.R;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.ui.fragments.FriendsFragment;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Utils;
+import com.kpt.adaptxt.beta.CustomKeyboard;
+import com.kpt.adaptxt.beta.util.KPTConstants;
+import com.kpt.adaptxt.beta.view.AdaptxtEditText;
+import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtEditTextEventListner;
+import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtKeyboordVisibilityStatusListner;
 
-public class PeopleActivity extends HikeAppStateBaseFragmentActivity implements Listener
+public class PeopleActivity extends HikeAppStateBaseFragmentActivity implements Listener, AdaptxtEditTextEventListner, AdaptxtKeyboordVisibilityStatusListner
 {
 	FriendsFragment mainFragment;
+	private CustomKeyboard mCustomKeyboard;
+	private AdaptxtEditText searchET;
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
@@ -39,9 +49,31 @@ public class PeopleActivity extends HikeAppStateBaseFragmentActivity implements 
 	{
 
 		setContentView(R.layout.home);
+		LinearLayout viewHolder = (LinearLayout) findViewById(R.id.keyboardView_holder);
+		mCustomKeyboard = new CustomKeyboard(PeopleActivity.this, viewHolder);
 		setupMainFragment(savedInstanceState);
 		setupActionBar();
 	}
+	
+	protected void showKeyboard()
+		{
+			if(searchET!=null){
+				if (isSystemKeyboard())
+				{
+					Utils.showSoftKeyboard(getApplicationContext(), searchET);
+				}
+				else
+				{
+					mCustomKeyboard.showCustomKeyboard(searchET, true);
+				}
+			}
+		}
+	 		 
+		public boolean isSystemKeyboard()
+		{
+			return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CURRENT_KEYBOARD, false);
+		}
+
 
 	private void setupActionBar()
 	{
@@ -85,6 +117,24 @@ public class PeopleActivity extends HikeAppStateBaseFragmentActivity implements 
 		searchView.clearFocus();
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 		searchView.setOnQueryTextListener(onQueryTextListener);
+		searchET = (AdaptxtEditText) searchView
+				.findViewById(R.id.search_src_text);
+		mCustomKeyboard.registerEditText(searchET,
+				KPTConstants.MULTILINE_LINE_EDITOR, PeopleActivity.this,
+				PeopleActivity.this);
+		mCustomKeyboard.init(searchET);
+		searchET.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+
+			@Override
+			public void onFocusChange(View v, boolean hasFocus) {
+				if (hasFocus) {
+					// Utils.hideSoftKeyboard(getApplicationContext(),
+					// searchET);
+					mCustomKeyboard.showCustomKeyboard(searchET, true);
+				}
+			}
+		});
+
 		MenuItemCompat.setShowAsAction(MenuItemCompat.setActionView(searchMenuItem, searchView), MenuItem.SHOW_AS_ACTION_ALWAYS | MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
 		MenuItemCompat.setOnActionExpandListener(searchMenuItem, new MenuItemCompat.OnActionExpandListener()
 		{
@@ -99,6 +149,10 @@ public class PeopleActivity extends HikeAppStateBaseFragmentActivity implements 
 			public boolean onMenuItemActionCollapse(MenuItem item)
 			{
 				searchView.setQuery("", true);
+				if (mCustomKeyboard.isCustomKeyboardVisible())
+				{
+					mCustomKeyboard.showCustomKeyboard(searchET, false); 
+				}
 				return true;
 			}
 		});
@@ -139,7 +193,7 @@ public class PeopleActivity extends HikeAppStateBaseFragmentActivity implements 
 			intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 			startActivity(intent);
 		}
-
+		
 		super.onBackPressed();
 	}
 
@@ -166,6 +220,60 @@ public class PeopleActivity extends HikeAppStateBaseFragmentActivity implements 
 	{
 		HikeMessengerApp.getPubSub().publish(HikePubSub.NEW_ACTIVITY, null);
 		super.onPause();
+	}
+
+	@Override
+	public void onAdaptxtFocusChange(View arg0, boolean arg1) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onAdaptxtTouch(View arg0, MotionEvent arg1) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onAdaptxtclick(View arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onReturnAction(int arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void analyticalData(String arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onInputViewCreated() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onInputviewVisbility(boolean arg0, int arg1) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void showGlobeKeyView() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void showQuickSettingView() {
+		// TODO Auto-generated method stub
+		
 	}
 
 }
