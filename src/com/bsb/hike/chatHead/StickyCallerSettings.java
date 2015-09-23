@@ -10,6 +10,8 @@ import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.TextView;
 
 import com.bsb.hike.R;
+import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 
@@ -46,10 +48,12 @@ public class StickyCallerSettings extends HikeAppStateBaseFragmentActivity imple
 		if (isChecked)
 		{
 			ChatHeadUtils.registerCallReceiver();
+			HAManager.getInstance().stickyCallerAnalyticsUIEvent(AnalyticsConstants.StickyCallerEvents.CALLER_SETTINGS_TOGGLE, null, AnalyticsConstants.StickyCallerEvents.ACTIVATE_BUTTON, null);
 		}
 		else
 		{
 			ChatHeadUtils.unregisterCallReceiver();
+			HAManager.getInstance().stickyCallerAnalyticsUIEvent(AnalyticsConstants.StickyCallerEvents.CALLER_SETTINGS_TOGGLE, null, AnalyticsConstants.StickyCallerEvents.DEACTIVATE_BUTTON, null);
 		}
 	}
 

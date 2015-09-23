@@ -22,6 +22,8 @@ import android.widget.TextView;
 
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
+import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
@@ -39,7 +41,7 @@ public class StickyCaller
 
 	private static short moveType;
 
-	private static final short NONE = 0;
+	public static final short NONE = 0;
 
 	private static final short HORIZONTAL = 1;
 
@@ -55,7 +57,13 @@ public class StickyCaller
 
 	public static final short ALREADY_SAVED = 3;
 	
-	public static boolean isOnCall = false;
+	public static short CALL_TYPE = NONE;
+	
+	public static short INCOMING = 1;
+	
+	public static short OUTGOING = 2;
+	
+	public static short MISSED = 3;
 	
 	public static String callCurrentNumber = null;
 
@@ -224,8 +232,10 @@ public class StickyCaller
 			return gestureDetector.onTouchEvent(event);
 		}
 	};
-
-	public static void showCallerView(String number, String result, short type)
+	
+	
+	
+	public static void showCallerView(String number, String result, short type, String source)
 	{
 		final Context context = HikeMessengerApp.getInstance();
 		windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
@@ -237,11 +247,12 @@ public class StickyCaller
 		{
 			Logger.d("StickyCaller", "error in adding caller view");
 		}
-		if (isOnCall)
+		if (CALL_TYPE == INCOMING || CALL_TYPE == OUTGOING)
 		{
 			switch (type)
 			{
 			case ALREADY_SAVED:
+				HAManager.getInstance().stickyCallerAnalyticsNonUIEvent(getCallEventFromCallType(CALL_TYPE), AnalyticsConstants.StickyCallerEvents.KNOWN, number, AnalyticsConstants.StickyCallerEvents.SUCCESS, source);
 				settingLayoutAlreadySavedContact(context, number, result);
 				break;
 
@@ -249,26 +260,36 @@ public class StickyCaller
 				settingLayoutDataLoading(context, number, result);
 				break;
 			case SUCCESS:
+				HAManager.getInstance().stickyCallerAnalyticsNonUIEvent(getCallEventFromCallType(CALL_TYPE), AnalyticsConstants.StickyCallerEvents.UNKNOWN, number, AnalyticsConstants.StickyCallerEvents.SUCCESS, source);
 				settingLayoutDataSuccess(context, number, result);
 				break;
 
 			case FAILURE:
+				HAManager.getInstance().stickyCallerAnalyticsNonUIEvent(getCallEventFromCallType(CALL_TYPE), AnalyticsConstants.StickyCallerEvents.UNKNOWN, number, AnalyticsConstants.StickyCallerEvents.FAIL, source);
 				settingLayoutDataFailure(context, number, result);
 				break;
 			}
 		}
-		else
+		else if (CALL_TYPE == MISSED)
 		{
 			switch (type)
 			{
 			case ALREADY_SAVED:
+				HAManager.getInstance().stickyCallerAnalyticsNonUIEvent(AnalyticsConstants.StickyCallerEvents.MISSED, AnalyticsConstants.StickyCallerEvents.KNOWN, number, AnalyticsConstants.StickyCallerEvents.SUCCESS, source);
 				settingLayoutAlreadySavedContact(context, number, result);
 				break;
 				
 			case SUCCESS:
+				HAManager.getInstance().stickyCallerAnalyticsNonUIEvent(AnalyticsConstants.StickyCallerEvents.MISSED, AnalyticsConstants.StickyCallerEvents.UNKNOWN, number, AnalyticsConstants.StickyCallerEvents.SUCCESS, source);
 				settingLayoutDataSuccess(context, number, result);
 				break;
+			
+			case FAILURE:
+				HAManager.getInstance().stickyCallerAnalyticsNonUIEvent(AnalyticsConstants.StickyCallerEvents.MISSED, AnalyticsConstants.StickyCallerEvents.UNKNOWN, number, AnalyticsConstants.StickyCallerEvents.FAIL, source);
+				break;
+				
 			}
+			CALL_TYPE = NONE;
 		}
 		setCallerParams();
 		try
@@ -281,6 +302,23 @@ public class StickyCaller
 			e.printStackTrace();
 			Logger.d("StickyCaller", "error in adding caller view");
 		}
+	}
+
+	private static String getCallEventFromCallType(short callType)
+	{
+		if (callType == INCOMING)
+		{
+			return AnalyticsConstants.StickyCallerEvents.RECEIVED;
+		}
+		if (callType == MISSED)
+		{
+			return AnalyticsConstants.StickyCallerEvents.MISSED;
+		}
+		if (callType == OUTGOING)
+		{
+			return AnalyticsConstants.StickyCallerEvents.DIALED;
+		}
+		return null;
 	}
 
 	private static void settingLayoutAlreadySavedContact(Context context, String number, String result)
@@ -306,7 +344,7 @@ public class StickyCaller
 		
 		setFreeSmsButton();
 		
-		if (!isOnCall)
+		if (CALL_TYPE == MISSED)
 		{
 			setCallButton();
 			
@@ -399,7 +437,7 @@ public class StickyCaller
 		
 		setFreeSmsButton();
 		
-		if (!isOnCall)
+		if (CALL_TYPE == MISSED)
 		{
 			
 			setCallButton();
@@ -452,6 +490,7 @@ public class StickyCaller
 			switch (v.getId())
 			{
 			case R.id.caller_call_button:
+				HAManager.getInstance().stickyCallerAnalyticsUIEvent(AnalyticsConstants.StickyCallerEvents.CALL_BUTTON, StickyCaller.callCurrentNumber, AnalyticsConstants.StickyCallerEvents.CARD, getCallEventFromCallType(CALL_TYPE));
 				if (callCurrentNumber != null)
 				{
 					Utils.killCall();
@@ -459,9 +498,10 @@ public class StickyCaller
 				}
 				break;
 			case R.id.caller_free_call_button:
+				HAManager.getInstance().stickyCallerAnalyticsUIEvent(AnalyticsConstants.StickyCallerEvents.FREE_CALL_BUTTON, StickyCaller.callCurrentNumber, AnalyticsConstants.StickyCallerEvents.CARD, getCallEventFromCallType(CALL_TYPE));
 				if (callCurrentNumber != null)
 				{
-					if (isOnCall)
+					if (CALL_TYPE == INCOMING || CALL_TYPE == OUTGOING)
 					{
 						toCall = true;
 						Utils.killCall();
@@ -474,6 +514,7 @@ public class StickyCaller
 				}
 				break;
 			case R.id.caller_free_sms_button:
+				HAManager.getInstance().stickyCallerAnalyticsUIEvent(AnalyticsConstants.StickyCallerEvents.FREE_SMS_BUTTON, StickyCaller.callCurrentNumber, AnalyticsConstants.StickyCallerEvents.CARD, getCallEventFromCallType(CALL_TYPE));
 				if (callCurrentNumber != null)
 				{
 					Utils.killCall();
@@ -483,6 +524,7 @@ public class StickyCaller
 				}
 				break;
 			case R.id.caller_save_contact:
+				HAManager.getInstance().stickyCallerAnalyticsUIEvent(AnalyticsConstants.StickyCallerEvents.SAVE_CONTACT, StickyCaller.callCurrentNumber, AnalyticsConstants.StickyCallerEvents.CARD, getCallEventFromCallType(CALL_TYPE));
 				if (callCurrentNumber != null && callCurrentName != null)
 				{
 					Utils.killCall();
@@ -490,16 +532,19 @@ public class StickyCaller
 				}
 				break;
 			case R.id.caller_sms_button:
+				HAManager.getInstance().stickyCallerAnalyticsUIEvent(AnalyticsConstants.StickyCallerEvents.SMS_BUTTON, StickyCaller.callCurrentNumber, AnalyticsConstants.StickyCallerEvents.CARD, getCallEventFromCallType(CALL_TYPE));
 				if (callCurrentNumber != null)
 				{
 					Utils.sendSMS(callCurrentNumber);
 				}
 				break;
 			case R.id.caller_settings_button:
+				HAManager.getInstance().stickyCallerAnalyticsUIEvent(AnalyticsConstants.StickyCallerEvents.CALLER_SETTINGS_BUTTON, StickyCaller.callCurrentNumber, AnalyticsConstants.StickyCallerEvents.CARD, getCallEventFromCallType(CALL_TYPE));
 				Intent intent = IntentFactory.getStickyCallerSettingsIntent(HikeMessengerApp.getInstance());
 				ChatHeadService.insertHomeActivitBeforeStarting(intent);
 				break;
 			case R.id.caller_close_button:
+				HAManager.getInstance().stickyCallerAnalyticsUIEvent(AnalyticsConstants.StickyCallerEvents.CLOSE_BUTTON, StickyCaller.callCurrentNumber, AnalyticsConstants.StickyCallerEvents.CARD, getCallEventFromCallType(CALL_TYPE));
 				break;
 			}
 		}

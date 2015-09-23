@@ -28,6 +28,7 @@ import android.provider.ContactsContract.PhoneLookup;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
@@ -460,13 +461,13 @@ public class ChatHeadUtils
 		StickyCaller.callCurrentNumber = number;
 		String contactName = getNameFromNumber(context, number);
 		
-		if (HikeSharedPreferenceUtil.getInstance(HikeConstants.CALLER_SHARED_PREF).getData(number, null) != null)
+		if (contactName != null)
 		{
-			StickyCaller.showCallerView(number, HikeSharedPreferenceUtil.getInstance(HikeConstants.CALLER_SHARED_PREF).getData(number, null), StickyCaller.SUCCESS);
+			StickyCaller.showCallerView(number, contactName, StickyCaller.ALREADY_SAVED, AnalyticsConstants.StickyCallerEvents.ALREADY_SAVED);
 		}
-		else if (contactName != null)
+		else if (HikeSharedPreferenceUtil.getInstance(HikeConstants.CALLER_SHARED_PREF).getData(number, null) != null)
 		{
-			StickyCaller.showCallerView(number, contactName, StickyCaller.ALREADY_SAVED);
+			StickyCaller.showCallerView(number, HikeSharedPreferenceUtil.getInstance(HikeConstants.CALLER_SHARED_PREF).getData(number, null), StickyCaller.SUCCESS, AnalyticsConstants.StickyCallerEvents.CACHE);
 		}
 		else
 		{
@@ -481,7 +482,7 @@ public class ChatHeadUtils
 			}
 			CallListener callListener = new CallListener();
 			RequestToken requestToken = HttpRequests.postNumberAndGetCallerDetails("http://52.76.46.27:5000/hikeCaller", json, callListener, 2000, 1);
-			StickyCaller.showCallerView(null, null, StickyCaller.LOADING);
+			StickyCaller.showCallerView(null, null, StickyCaller.LOADING, null);
 			requestToken.execute();
 		}
 	}	

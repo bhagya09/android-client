@@ -1,6 +1,7 @@
 package com.bsb.hike.chatHead;
 
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
@@ -13,7 +14,7 @@ public class CallListener implements IRequestListener
 	public void onRequestSuccess(Response result)
 	{
 		HikeSharedPreferenceUtil.getInstance(HikeConstants.CALLER_SHARED_PREF).saveData(StickyCaller.callCurrentNumber, result.getBody().getContent().toString());
-		StickyCaller.showCallerView(StickyCaller.callCurrentNumber, result.getBody().getContent().toString(), StickyCaller.SUCCESS);
+		StickyCaller.showCallerView(StickyCaller.callCurrentNumber, result.getBody().getContent().toString(), StickyCaller.SUCCESS, AnalyticsConstants.StickyCallerEvents.SERVER);
 	}
 
 	@Override
@@ -25,6 +26,6 @@ public class CallListener implements IRequestListener
 	@Override
 	public void onRequestFailure(HttpException httpException)
 	{
-		StickyCaller.showCallerView(null, null, StickyCaller.FAILURE);
+		StickyCaller.showCallerView(null, null, StickyCaller.FAILURE, AnalyticsConstants.StickyCallerEvents.SERVER);
 	}
 }

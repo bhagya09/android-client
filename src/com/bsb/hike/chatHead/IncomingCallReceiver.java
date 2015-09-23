@@ -35,7 +35,7 @@ public class IncomingCallReceiver extends PhoneStateListener
 		{
 		case TelephonyManager.CALL_STATE_RINGING:
 			ring = true;
-			StickyCaller.isOnCall =true;
+			StickyCaller.CALL_TYPE = StickyCaller.INCOMING;
 			ChatHeadUtils.postNumberRequest(HikeMessengerApp.getInstance(), incomingNumber);
 			break;
 
@@ -45,10 +45,11 @@ public class IncomingCallReceiver extends PhoneStateListener
 
 		case TelephonyManager.CALL_STATE_IDLE:
 			StickyCaller.removeCallerView();
-			StickyCaller.isOnCall = false; 
+			StickyCaller.CALL_TYPE = StickyCaller.NONE; 
 			// missed call block
 			if (ring == true && callReceived == false)
 			{   
+				StickyCaller.CALL_TYPE = StickyCaller.MISSED; 
 				ChatHeadUtils.postNumberRequest(HikeMessengerApp.getInstance(), StickyCaller.callCurrentNumber);
 			}
 			
