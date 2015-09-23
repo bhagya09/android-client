@@ -141,14 +141,7 @@ public class CocosGamingActivity extends Cocos2dxActivity implements HikePubSub.
 		context = CocosGamingActivity.this;
 		msisdn = getIntent().getStringExtra(HikeConstants.MSISDN);
 		botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
-		{
 
-			finish();
-			Cocos2dxHelper.terminateProcess();
-			Logger.e(TAG, "botinfo is null");
-			// TODO show some error feedback to the user
-			return;
-		}
 		if (botInfo.getMetadata() == null)
 		{
 			// TODO show some error feedback to the user
