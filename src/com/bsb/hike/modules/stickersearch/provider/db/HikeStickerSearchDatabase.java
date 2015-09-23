@@ -390,7 +390,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 			return;
 		}
 
-		long requestStartTime = System.nanoTime();
+		long requestStartTime = System.currentTimeMillis();
 		long operationStartTime = requestStartTime;
 
 		// Tag data conformity check operation
@@ -429,10 +429,10 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		}
 
 		int totalTagsCount = allTagList.size();
-		long operationOverTime = System.nanoTime();
+		long operationOverTime = System.currentTimeMillis();
 		Logger.i(TAG_INSERTION, "insertStickerTagData(), Total tags count (to update/ insert) = " + totalTagsCount);
 		Logger.i(TAG_INSERTION,
-				"Time taken in checking tag data conformity = " + Utils.getExecutionTimeLog(operationStartTime, operationOverTime, Utils.PRECISION_UNIT_NANO_SECOND));
+				"Time taken in checking tag data conformity = " + Utils.getExecutionTimeLog(operationStartTime, operationOverTime, Utils.PRECISION_UNIT_MILLI_SECOND));
 
 		// Tag data building (querying) operation
 		Cursor c = null;
@@ -440,12 +440,12 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		String[] columnsInvolvedInQuery = new String[] { HikeStickerSearchBaseConstants.STICKER_TAG_PHRASE, HikeStickerSearchBaseConstants.STICKER_RECOGNIZER_CODE };
 		String whereConditionToQueryAndUpdate = StickerSearchUtility.getSQLiteDatabaseMultipleConditionsWithANDSyntax(columnsInvolvedInQuery);
 		int maxRowCountPerQuery = HikeStickerSearchBaseConstants.SQLITE_LIMIT_VARIABLE_NUMBER / columnsInvolvedInQuery.length;
-		long queryOperationStartTime = System.nanoTime();
+		long queryOperationStartTime = System.currentTimeMillis();
 		int currentCount;
 
 		for (int i = 0, remainingCount = totalTagsCount; remainingCount > 0; remainingCount = (remainingCount - currentCount))
 		{
-			operationStartTime = System.nanoTime();
+			operationStartTime = System.currentTimeMillis();
 			currentCount = ((remainingCount / maxRowCountPerQuery) > 0) ? maxRowCountPerQuery : remainingCount;
 
 			// Build arguments to query
@@ -497,15 +497,15 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 				SQLiteDatabase.releaseMemory();
 			}
 
-			operationOverTime = System.nanoTime();
+			operationOverTime = System.currentTimeMillis();
 			Logger.i(TAG_INSERTION,
-					"Time taken in individual query (on group of tags) = " + Utils.getExecutionTimeLog(operationStartTime, operationOverTime, Utils.PRECISION_UNIT_NANO_SECOND));
+					"Time taken in individual query (on group of tags) = " + Utils.getExecutionTimeLog(operationStartTime, operationOverTime, Utils.PRECISION_UNIT_MILLI_SECOND));
 		}
 
-		Logger.d(TAG_INSERTION, "Time taken in overall tag data query = " + Utils.getExecutionTimeLog(queryOperationStartTime, operationOverTime, Utils.PRECISION_UNIT_NANO_SECOND));
+		Logger.d(TAG_INSERTION, "Time taken in overall tag data query = " + Utils.getExecutionTimeLog(queryOperationStartTime, operationOverTime, Utils.PRECISION_UNIT_MILLI_SECOND));
 
 		// Tag data setup (update/ insert) operation
-		operationStartTime = System.nanoTime();
+		operationStartTime = System.currentTimeMillis();
 		int existingTagsCount = existingTagData.size();
 		int newTagsCount = totalTagsCount - existingTagsCount;
 		ArrayList<String> insertedTags = new ArrayList<String>(newTagsCount);
@@ -607,35 +607,36 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 			stickersTagData = null;
 		}
 
-		operationOverTime = System.nanoTime();
+		operationOverTime = System.currentTimeMillis();
 		Logger.i(TAG_INSERTION,
-				"Time taken in insertion (into primary table) = " + Utils.getExecutionTimeLog(operationStartTime, operationOverTime, Utils.PRECISION_UNIT_NANO_SECOND));
+				"Time taken in insertion (into primary table) = " + Utils.getExecutionTimeLog(operationStartTime, operationOverTime, Utils.PRECISION_UNIT_MILLI_SECOND));
 
 		Logger.v(TAG, "insertStickerTagData(), Existing tags count = " + existingTagsCount + ", New tags count = " + newTagsCount);
 		Logger.v(TAG, "insertStickerTagData(), Newly inserted tags count = " + newTagsInsertionSucceeded + ", Newly abandoned tags count = " + newTagsInsertionFailed);
 
 		updatePTWriteTime(operationOverTime - requestStartTime);
 		Logger.d(TAG_INSERTION,
-				"Time taken in insertion for current session (into primary table) = " + Utils.getExecutionTimeLog(0, sPTInsertionTimePerSession, Utils.PRECISION_UNIT_NANO_SECOND));
+				"Time taken in insertion for current session (into primary table) = " + Utils.getExecutionTimeLog(0, sPTInsertionTimePerSession, Utils.PRECISION_UNIT_MILLI_SECOND));
 
 		if (newTagsInsertionSucceeded > 0)
 		{
 			Logger.v(TAG, "insertStickerTagData(), Newly added tags: " + insertedTags);
 
-			operationStartTime = System.nanoTime();
+			long operationVTStartTime = System.nanoTime();
 
 			insertIntoVirtualTable(insertedTags, insertedRows);
 
-			operationOverTime = System.nanoTime();
+			long operationVTOverTime = System.nanoTime();
+			operationOverTime = System.currentTimeMillis();
 			Logger.i(TAG_INSERTION,
-					"Time taken in insertion (into virtual table) = " + Utils.getExecutionTimeLog(operationStartTime, operationOverTime, Utils.PRECISION_UNIT_NANO_SECOND));
+					"Time taken in insertion (into virtual table) = " + Utils.getExecutionTimeLog(operationVTStartTime, operationVTOverTime, Utils.PRECISION_UNIT_NANO_SECOND));
 		}
 
 		Logger.i(TAG_INSERTION,
-				"Time taken in overall insertion for current request = " + Utils.getExecutionTimeLog(requestStartTime, operationOverTime, Utils.PRECISION_UNIT_NANO_SECOND));
+				"Time taken in overall insertion for current request = " + Utils.getExecutionTimeLog(requestStartTime, operationOverTime, Utils.PRECISION_UNIT_MILLI_SECOND));
 
 		updateOverallWriteTime(operationOverTime - requestStartTime);
-		Logger.d(TAG_INSERTION, "Time taken in overall insertion for current session = " + Utils.getExecutionTimeLog(0, sInsertionTimePerSession, Utils.PRECISION_UNIT_NANO_SECOND));
+		Logger.d(TAG_INSERTION, "Time taken in overall insertion for current session = " + Utils.getExecutionTimeLog(0, sInsertionTimePerSession, Utils.PRECISION_UNIT_MILLI_SECOND));
 	}
 
 	private void updatePTWriteTime(long durationInNanoSeconds)
