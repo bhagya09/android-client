@@ -448,23 +448,23 @@ public class StickerSearchUtility
 
 		if (time >= 4.3000000f && time < 12.0000000f)
 		{
-			momentCode = HikeStickerSearchBaseConstants.TIME_CODE.MORNING;
+			momentCode = TIME_CODE.MORNING;
 		}
 		else if (time >= 12.0000000f && time < 12.3000000f)
 		{
-			momentCode = HikeStickerSearchBaseConstants.TIME_CODE.NOON;
+			momentCode = TIME_CODE.NOON;
 		}
 		else if (time >= 12.3000000f && time < 16.3000000f)
 		{
-			momentCode = HikeStickerSearchBaseConstants.TIME_CODE.AFTER_NOON;
+			momentCode = TIME_CODE.AFTER_NOON;
 		}
 		else if (time >= 16.3000000f && time < 20.0000000f)
 		{
-			momentCode = HikeStickerSearchBaseConstants.TIME_CODE.EVENING;
+			momentCode = TIME_CODE.EVENING;
 		}
 		else if ((time >= 20.0000000f && time < 24.0000000f) || (time >= 0.0000000f && time < 4.3000000f))
 		{
-			momentCode = HikeStickerSearchBaseConstants.TIME_CODE.NIGHT;
+			momentCode = TIME_CODE.NIGHT;
 		}
 
 		return momentCode;
