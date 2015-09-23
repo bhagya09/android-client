@@ -460,13 +460,13 @@ public class ChatHeadUtils
 		StickyCaller.callCurrentNumber = number;
 		String contactName = getNameFromNumber(context, number);
 		
-		if (contactName != null)
-		{
-			StickyCaller.showCallerView(number, contactName, StickyCaller.ALREADY_SAVED);
-		}
-		else if (HikeSharedPreferenceUtil.getInstance(HikeConstants.CALLER_SHARED_PREF).getData(number, null) != null)
+		if (HikeSharedPreferenceUtil.getInstance(HikeConstants.CALLER_SHARED_PREF).getData(number, null) != null)
 		{
 			StickyCaller.showCallerView(number, HikeSharedPreferenceUtil.getInstance(HikeConstants.CALLER_SHARED_PREF).getData(number, null), StickyCaller.SUCCESS);
+		}
+		else if (contactName != null)
+		{
+			StickyCaller.showCallerView(number, contactName, StickyCaller.ALREADY_SAVED);
 		}
 		else
 		{
