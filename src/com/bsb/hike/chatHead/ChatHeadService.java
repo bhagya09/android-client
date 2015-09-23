@@ -483,7 +483,7 @@ public class ChatHeadService extends Service
 		overlayAnimation(chatHead, chatHeadParams.x, pixelsX, chatHeadParams.y, pixelsY, ChatHeadConstants.CREATING_CHAT_HEAD_ACTIVITY_ANIMATION, null);
 	}
 
-	private void actionMove(int initialX, int initialY, Float initialTouchX, Float initialTouchY, MotionEvent event)
+	private void actionMove(int initialX, int initialY, float initialTouchX, float initialTouchY, MotionEvent event)
 	{
 		int[] chatHeadLocations = new int[2];
 
@@ -539,13 +539,13 @@ public class ChatHeadService extends Service
 	
 	private OnTouchListener chatHeadOnTouchListener = new OnTouchListener()
 	{
-		Integer initialX;
+		int initialX;
 
-		Integer initialY;
+		int initialY;
 
-		Float initialTouchX;
+		float initialTouchX;
 
-		Float initialTouchY;
+		float initialTouchY;
 
 		@Override
 		public boolean onTouch(View v, MotionEvent event)
