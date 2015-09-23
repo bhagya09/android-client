@@ -23,6 +23,7 @@ import android.content.res.Configuration;
 import android.provider.Settings;
 import android.view.accessibility.AccessibilityEvent;
 
+import com.bsb.hike.HikeConstants.ChatHead;
 import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.chatHead.ChatHeadViewManager;
 import com.bsb.hike.utils.Logger;
@@ -78,8 +79,9 @@ public class HikeAccessibilityService extends AccessibilityService
 				currentKeyboard = x;
 				break;
 			}
-			Logger.d("UmangX","ke " + currentKeyboard);
-			if(!(getEventText(event).equals("hike") || event.getPackageName().equals("com.bsb.hike") || event.getPackageName().equals(currentKeyboard)))
+			boolean hikeIsOpen = ChatHeadUtils.getRunningAppPackage(ChatHeadUtils.GET_TOP_MOST_SINGLE_PROCESS).contains("com.bsb.hike");
+			Logger.d("UmangX","check result : " + ( hikeIsOpen ? "hike is open": "hike is backgrounded"));
+			if(hikeIsOpen || !(getEventText(event).equals("hike") || event.getPackageName().equals("com.bsb.hike") || event.getPackageName().equals(currentKeyboard)))
 			{
 				Set<String> packages = new HashSet<String>(1);
 				packages.add( event.getPackageName().toString());
