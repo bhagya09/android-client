@@ -96,7 +96,7 @@ public class CocosGamingActivity extends Cocos2dxActivity implements HikePubSub.
 
 	private String msisdn;
 
-	private BotInfo botInfo;
+	private static BotInfo botInfo;
 
 	private static NonMessagingBotMetadata nonMessagingBotMetadata;
 
@@ -156,8 +156,8 @@ public class CocosGamingActivity extends Cocos2dxActivity implements HikePubSub.
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 
-		botConfig = null == botInfo.getConfigData() ? new NonMessagingBotConfiguration(botInfo.getConfiguration())
-				: new NonMessagingBotConfiguration(botInfo.getConfiguration(), botInfo.getConfigData());
+		botConfig = null == botInfo.getConfigData() ? new NonMessagingBotConfiguration(botInfo.getConfiguration()) : new NonMessagingBotConfiguration(botInfo.getConfiguration(),
+				botInfo.getConfigData());
 
 		isPortrait = botConfig.isPortraitEnabled();
 
@@ -207,6 +207,11 @@ public class CocosGamingActivity extends Cocos2dxActivity implements HikePubSub.
 	public static Object getNativeBridge()
 	{
 		return nativeBridge;
+	}
+
+	public static Object getBotInfo()
+	{
+		return botInfo;
 	}
 
 	public static native void PlatformCallback(String callID, String response);
