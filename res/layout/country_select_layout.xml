@@ -1,4 +1,10 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+    
+<LinearLayout 
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:background="@color/white"
@@ -19,5 +25,9 @@
         android:fastScrollEnabled="false"
         android:paddingBottom="16dp"
         android:scrollbarStyle="outsideOverlay" />
+    
+    
 
 </LinearLayout>
+<include layout="@layout/kpt_keyboard_viewholder"/>
+</RelativeLayout>
