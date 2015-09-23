@@ -518,10 +518,9 @@
         </receiver>
         
         <receiver
-            android:name="com.bsb.hike.ag.NetworkAgModule">
+            android:name=".ag.NetworkAgModule">
 		    <intent-filter>
 		        <action android:name="android.intent.action.BOOT_COMPLETED" />
-		        <data android:scheme="file" />
 		    </intent-filter>
 		    <intent-filter>
 		        <action android:name="android.intent.action.PACKAGE_REPLACED" />
