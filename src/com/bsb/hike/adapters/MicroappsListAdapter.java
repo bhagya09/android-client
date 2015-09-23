@@ -112,13 +112,14 @@ public class MicroappsListAdapter extends RecyclerView.Adapter<MicroappsListAdap
 		
 		else if (mBotInfo != null && mBotInfo.isMessagingBot())
 		{
+			if (mBotInfo.isBlocked())
+			{
+				mBotInfo.setBlocked(false);
+				HikeMessengerApp.getPubSub().publish(HikePubSub.UNBLOCK_USER, mBotInfo.getMsisdn());
+			}
+			
 			if (!HikeConversationsDatabase.getInstance().isConversationExist(mBotInfo.getMsisdn()))
 			{
-				if (mBotInfo.isBlocked())
-				{
-					mBotInfo.setBlocked(false);
-					HikeMessengerApp.getPubSub().publish(HikePubSub.UNBLOCK_USER, mBotInfo.getMsisdn());
-				}
 				initiateBotDownload(mBotInfo.getMsisdn());
 				// Using the one from the microapp list to get the description of the bot sent in the add_di_bot packet.
 				showDialog(microappsList.get((int)v.getTag()));
