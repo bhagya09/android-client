@@ -385,13 +385,13 @@ public class ChatHeadViewManager
 
 	private OnTouchListener chatHeadOnTouchListener = new OnTouchListener()
 	{
-		Integer initialX;
+		int initialX;
 
-		Integer initialY;
+		int initialY;
 
-		Float initialTouchX;
+		float initialTouchX;
 
-		Float initialTouchY;
+		float initialTouchY;
 
 		@Override
 		public boolean onTouch(View v, MotionEvent event)
