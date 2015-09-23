@@ -55,7 +55,7 @@
             android:layout_gravity="center_horizontal"
             android:background="@drawable/bg_country_picker_selector"
             android:hint="@string/name_group"
-            android:maxLength="50"
+            android:maxLength="@integer/max_length_group_name"
             android:paddingLeft="4dp"
             android:paddingRight="4dp"
             android:singleLine="true"
