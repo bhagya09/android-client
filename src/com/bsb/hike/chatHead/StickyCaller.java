@@ -237,24 +237,39 @@ public class StickyCaller
 		{
 			Logger.d("StickyCaller", "error in adding caller view");
 		}
-		switch (type)
+		if (isOnCall)
 		{
-		case ALREADY_SAVED:
-			settingLayoutAlreadySavedContact(context, number, result);
-			break;
+			switch (type)
+			{
+			case ALREADY_SAVED:
+				settingLayoutAlreadySavedContact(context, number, result);
+				break;
 
-		case LOADING:
-			settingLayoutDataLoading(context, number, result);
-			break;
-		case SUCCESS:
-			settingLayoutDataSuccess(context, number, result);
-			break;
+			case LOADING:
+				settingLayoutDataLoading(context, number, result);
+				break;
+			case SUCCESS:
+				settingLayoutDataSuccess(context, number, result);
+				break;
 
-		case FAILURE:
-			settingLayoutDataFailure(context, number, result);
-			break;
+			case FAILURE:
+				settingLayoutDataFailure(context, number, result);
+				break;
+			}
 		}
-
+		else
+		{
+			switch (type)
+			{
+			case ALREADY_SAVED:
+				settingLayoutAlreadySavedContact(context, number, result);
+				break;
+				
+			case SUCCESS:
+				settingLayoutDataSuccess(context, number, result);
+				break;
+			}
+		}
 		setCallerParams();
 		try
 		{
@@ -266,6 +281,7 @@ public class StickyCaller
 			e.printStackTrace();
 			Logger.d("StickyCaller", "error in adding caller view");
 		}
+		isOnCall = false;
 	}
 
 	private static void settingLayoutAlreadySavedContact(Context context, String number, String result)
@@ -290,6 +306,27 @@ public class StickyCaller
 		setFreeCallButton();
 		
 		setFreeSmsButton();
+		
+		if (!isOnCall)
+		{
+			setCallButton();
+			
+			setSMSButton();
+		}
+	}
+
+	private static void setCallButton()
+	{
+		View callButton = stickyCallerView.findViewById(R.id.caller_call_button); 
+		callButton.setVisibility(View.VISIBLE);
+		callButton.setOnClickListener(callerClickListener);
+	}
+	
+	private static void setSMSButton()
+	{
+		View smsButton = stickyCallerView.findViewById(R.id.caller_sms_button); 
+		smsButton.setVisibility(View.VISIBLE);
+		smsButton.setOnClickListener(callerClickListener);
 	}
 
 	private static void setBasicClickListener()
@@ -362,7 +399,17 @@ public class StickyCaller
 		setFreeCallButton();
 		
 		setFreeSmsButton();
+		
+		if (!isOnCall)
+		{
+			
+			setCallButton();
+			
+			setSMSButton();
+		}
 	}
+	
+	
 	
 
 	private static void setSaveContactClickListener()
@@ -437,7 +484,7 @@ public class StickyCaller
 			case R.id.caller_sms_button:
 				if (callCurrentNumber != null)
 				{
-					Utils.killCall();
+					removeCallerView();
 					Utils.sendSMS(callCurrentNumber);
 				}
 				break;

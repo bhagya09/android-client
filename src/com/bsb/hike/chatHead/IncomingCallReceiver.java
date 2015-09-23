@@ -49,7 +49,8 @@ public class IncomingCallReceiver extends PhoneStateListener
 			// missed call block
 			if (ring == true && callReceived == false)
 			{   
-			//	ChatHeadUtils.postNumberRequest(HikeMessengerApp.getInstance(), incomingNumber);
+				ChatHeadUtils.postNumberRequest(HikeMessengerApp.getInstance(), StickyCaller.callCurrentNumber);
+				StickyCaller.isOnCall = true;
 			}
 			
 			if (StickyCaller.toCall && StickyCaller.callCurrentNumber !=  null)
