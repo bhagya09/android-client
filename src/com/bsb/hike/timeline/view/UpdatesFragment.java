@@ -70,7 +70,7 @@ import com.google.gson.GsonBuilder;
 public class UpdatesFragment extends Fragment implements Listener, OnClickListener
 {
 
-	static final int TIMELINE_POST_IMAGE_REQ = 0;
+	private static final int TIMELINE_POST_IMAGE_REQ = 0;
 
 	public static final String SHOW_PROFILE_HEADER = "showProfileHeader";
 
@@ -1032,7 +1032,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 				galleryFlags = galleryFlags|GalleryActivity.GALLERY_CROP_IMAGE;
 			}
 			
-			Intent galleryPickerIntent = IntentFactory.getHikeGalleryPickerIntent(getActivity(), galleryFlags, Utils.getNewImagePostFilePath());
+			Intent galleryPickerIntent = IntentFactory.getHikeGalleryPickerIntent(getActivity(), galleryFlags, getNewImagePostFilePath());
 			startActivityForResult(galleryPickerIntent, TIMELINE_POST_IMAGE_REQ);
 			break;
 
@@ -1045,6 +1045,18 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 		}
 	}
 
+	public String getNewImagePostFilePath()
+	{
+		String directory = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT;
+		File dir = new File(directory);
+		if (!dir.exists())
+		{
+			dir.mkdirs();
+		}
+		return directory+File.separator + Utils.getUniqueFilename(HikeFileType.IMAGE);
+	
+	}
+	
 	public void notifyVisibleItems()
 	{
 		if (UpdatesFragment.this.isAdded())
