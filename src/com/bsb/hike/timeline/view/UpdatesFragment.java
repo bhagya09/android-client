@@ -1119,4 +1119,15 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 		return false;
 	}
 
+	public void scrollToTop()
+	{
+		if(!isEmpty())
+		{
+			if(mUpdatesList!=null)
+			{
+				mUpdatesList.scrollToPosition(0);
+			}
+		}
+	}
+
 }
