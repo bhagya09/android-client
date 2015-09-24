@@ -37,6 +37,7 @@ import android.content.res.Configuration;
 import android.os.Handler;
 import android.support.v4.widget.DrawerLayout.LayoutParams;
 import android.support.v7.widget.RecyclerView;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -63,6 +64,8 @@ public class MicroappsListAdapter extends RecyclerView.Adapter<MicroappsListAdap
 	private TextView description;
 	
 	private HikePubSub mPubSub;
+	
+	private HikeDialog dialog;
 
 	public MicroappsListAdapter(Context context, List<BotInfo> botsList, IconLoader iconLoader)
 	{
@@ -246,7 +249,7 @@ public class MicroappsListAdapter extends RecyclerView.Adapter<MicroappsListAdap
 	
 	private void showDialog(BotInfo mBotInfo)
 	{
-		final HikeDialog dialog = HikeDialogFactory.showDialog(mContext, HikeDialogFactory.MAPP_DOWNLOAD_DIALOG, new HikeDialogListener()
+		dialog = HikeDialogFactory.showDialog(mContext, HikeDialogFactory.MAPP_DOWNLOAD_DIALOG, new HikeDialogListener()
 		{
 			@Override
 			public void positiveClicked(HikeDialog hikeDialog)
@@ -275,6 +278,8 @@ public class MicroappsListAdapter extends RecyclerView.Adapter<MicroappsListAdap
 		description = (TextView) dialog.findViewById(R.id.bot_description);
 		description.setText(mBotInfo.getBotDescription());
 		
+		handleOrientation(mContext.getResources().getConfiguration().orientation);
+		
 		String loadingText = String.format(mContext.getResources().getString(R.string.getting_mapp_shortly), mBotInfo.getConversationName());
 		TextView loadingTextView = (TextView) dialog.findViewById(R.id.loading_text);
 		loadingTextView.setText(loadingText);
@@ -294,19 +299,46 @@ public class MicroappsListAdapter extends RecyclerView.Adapter<MicroappsListAdap
 	            	if (description != null)
 	    			{
 	    				int orientation = (int) object;
-	    				if(orientation == Configuration.ORIENTATION_LANDSCAPE)
-	    				{
-	    					description.setVisibility(View.GONE);
-	    				}
-	    				else
-	    				{
-	    					description.setVisibility(View.VISIBLE);
-	    				}
+	    				handleOrientation(orientation);
 	    			}
 	            }
 	        };
 			mainHandler.post(runnable);
 			break;
+		}
+	}
+	
+	private void handleOrientation(int orientation)
+	{
+		if(orientation == Configuration.ORIENTATION_LANDSCAPE)
+		{
+			description.setVisibility(View.GONE);
+			dialog.findViewById(R.id.divider_1).setVisibility(View.GONE);
+			dialog.findViewById(R.id.divider_2).setVisibility(View.GONE);
+			LinearLayout.LayoutParams params = new LinearLayout.LayoutParams((int)mContext.getResources().getDimension(R.dimen.mapp_download_dialog_icon), (int)mContext.getResources().getDimension(R.dimen.mapp_download_dialog_icon));
+			changeIconMargins(params, (int)mContext.getResources().getDimension(R.dimen.mapp_download_dialog_icon_margin_land));
+		}
+		else
+		{
+			description.setVisibility(View.VISIBLE);
+			dialog.findViewById(R.id.divider_1).setVisibility(View.VISIBLE);
+			dialog.findViewById(R.id.divider_2).setVisibility(View.VISIBLE);
+			LinearLayout.LayoutParams params = new LinearLayout.LayoutParams((int)mContext.getResources().getDimension(R.dimen.mapp_download_dialog_icon), (int)mContext.getResources().getDimension(R.dimen.mapp_download_dialog_icon));
+			changeIconMargins(params, (int)mContext.getResources().getDimension(R.dimen.mapp_download_dialog_icon_margin));
+		}
+	}
+	
+	private void changeIconMargins(LinearLayout.LayoutParams params, int newMargin)
+	{
+		if (params == null)
+		{
+			return;
+		}
+		params.setMargins(0, newMargin, 0, 0);
+		params.gravity = Gravity.CENTER;
+		if (dialog.findViewById(R.id.bot_icon) != null)
+		{
+			dialog.findViewById(R.id.bot_icon).setLayoutParams(params);
 		}
 	}
 }
