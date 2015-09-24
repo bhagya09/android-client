@@ -77,7 +77,7 @@ public class StickyCaller
 
 	private static final String CALLER_Y_PARAMS = "callerYParams";
 
-	private static final long CALLER_DELAY = 1500;
+	private static final long CALLER_DELAY = 2000;
 
 	public static boolean toCall = false;
 
