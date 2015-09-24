@@ -24,6 +24,7 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
@@ -72,6 +73,8 @@ public class StickyCaller
 	public static final String ACTIVATE_STICKY_CALLER = "activateStickyCaller";
 
 	public static final String SHOW_STICKY_CALLER = "showStickyCaller";
+
+	private static final String CALLER_Y_PARAMS = "callerYParams";
 
 	public static boolean toCall = false;
 
@@ -149,6 +152,7 @@ public class StickyCaller
 	{
 		try
 		{
+			HikeSharedPreferenceUtil.getInstance().saveData(CALLER_Y_PARAMS, callerParams.y);
 			windowManager.removeView(stickyCallerView);
 			stickyCallerView = null;
 		}
@@ -375,8 +379,8 @@ public class StickyCaller
 	private static void setCallerParams()
 	{
 		callerParams.gravity = Gravity.TOP | Gravity.LEFT;
+		callerParams.y = HikeSharedPreferenceUtil.getInstance().getData(CALLER_Y_PARAMS, 0);
 		callerParams.x = 0;
-		callerParams.y = 0;
 		callerParams.alpha = 1.0f;
 	}
 
