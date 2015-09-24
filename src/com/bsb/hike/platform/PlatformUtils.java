@@ -44,6 +44,7 @@ import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.chatHead.ChatHeadUtils;
+import com.bsb.hike.chatHead.StickyCaller;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.HikeHandlerUtil;
@@ -315,6 +316,11 @@ public class PlatformUtils
 				{
 					Toast.makeText(context, context.getString(R.string.sticker_share_popup_not_activate_toast), Toast.LENGTH_LONG).show();
 				}
+			}
+			if (activityName.equals(HIKESCREEN.HIKE_CALLER.toString()))
+			{
+				HikeSharedPreferenceUtil.getInstance().saveData(StickyCaller.ACTIVATE_STICKY_CALLER, true);
+				IntentFactory.openStickyCallerSettings(context);
 			}
 			if(activityName.equals(HIKESCREEN.ACCESS.toString()))
 			{
