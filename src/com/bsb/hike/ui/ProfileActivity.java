@@ -523,6 +523,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		if (!systemKeyboard)
 		{
 			mCustomKeyboard.showCustomKeyboard(mNameEdit, true);
+			KptUtils.updatePadding(ProfileActivity.this, R.id.edit_profile, mCustomKeyboard.getKeyBoardAndCVHeight());
 		}
 	}
 	
@@ -634,6 +635,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		else
 		{
 			mCustomKeyboard.showCustomKeyboard(mNameEdit, false);
+			KptUtils.updatePadding(ProfileActivity.this, R.id.edit_profile, 0);
 		}
 	}
 	
@@ -3541,10 +3543,16 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 	}
 
 	@Override
-	public void onInputviewVisbility(boolean arg0, int arg1)
+	public void onInputviewVisbility(boolean kptVisible, int height)
 	{
-		// TODO Auto-generated method stub
-		
+		if (kptVisible)
+		{
+			KptUtils.updatePadding(ProfileActivity.this, R.id.edit_profile, height);
+		}
+		else
+		{
+			KptUtils.updatePadding(ProfileActivity.this, R.id.edit_profile, 0);
+		}
 	}
 
 	@Override
