@@ -43,11 +43,11 @@ public class IncomingCallReceiver extends PhoneStateListener
 			callReceived = true;
 			if (StickyCaller.CALL_TYPE == StickyCaller.OUTGOING)
 			{
-				StickyCaller.removeCallerViewWithDelay(12000);
+				StickyCaller.removeCallerViewWithDelay(StickyCaller.OUTGOING_DELAY);
 			}
 			else if (StickyCaller.CALL_TYPE == StickyCaller.INCOMING)
 			{
-				StickyCaller.removeCallerViewWithDelay(2000);
+				StickyCaller.removeCallerViewWithDelay(StickyCaller.INCOMING_DELAY);
 			}
 			break;
 
