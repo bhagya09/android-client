@@ -580,13 +580,11 @@ public class ConnectionManager
 
 		if (!isSSIDValid(ssid))
 		{
+			stopWifi();
 			return;
 		}
 
-		if (!wifiManager.isWifiEnabled())
-		{
-			wifiManager.setWifiEnabled(true);
-		}
+		startWifi();
 
 		Logger.d("OfflineMANAGER", "WILL BE GETTING LIST" + System.currentTimeMillis() + " trying ssid " + ssid);
 		List<WifiConfiguration> list = wifiManager.getConfiguredNetworks();
