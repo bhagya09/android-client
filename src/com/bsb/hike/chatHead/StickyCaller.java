@@ -79,6 +79,8 @@ public class StickyCaller
 
 	private static final long CALLER_DELAY = 2000;
 
+	private static final String ERROR_400 = "400";
+	
 	public static boolean toCall = false;
 
 	static LayoutParams callerParams = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, LayoutParams.TYPE_SYSTEM_ERROR, LayoutParams.FLAG_NOT_FOCUSABLE
@@ -509,8 +511,17 @@ public class StickyCaller
 		LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		stickyCallerView = (LinearLayout) inflater.inflate(R.layout.caller_layout, null);
 		setBasicClickListener();
-		stickyCallerView.findViewById(R.id.net_not_connected).setVisibility(View.VISIBLE);
 		stickyCallerView.findViewById(R.id.hike_caller_logo).setVisibility(View.VISIBLE);
+		TextView noResponse = (TextView)stickyCallerView.findViewById(R.id.net_not_connected);
+		noResponse.setVisibility(View.VISIBLE);
+		if (result.equals(ERROR_400))
+		{
+			noResponse.setText(context.getString(R.string.net_not_connected));
+		}
+		else
+		{
+			noResponse.setText(context.getString(R.string.sorry_for_inconvinience));
+		}
 	}
 
 	private static OnClickListener callerClickListener = new OnClickListener()

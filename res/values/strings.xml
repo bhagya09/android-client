@@ -1729,5 +1729,6 @@
 	<string name="net_not_connected">HikeCaller works only on Wi-Fi or 3G/4G.</string>
 	<string name="sticky_caller_settings">Caller ID</string>
 	<string name="sticky_caller_settings_side_text">Show identity and options for unknown numbers.</string>
+	<string name="sorry_for_inconvinience">Sorry for the inconvenience, we are unable to serve you currently.</string>
 	
 </resources>

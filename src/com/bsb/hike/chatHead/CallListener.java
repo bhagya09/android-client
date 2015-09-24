@@ -26,6 +26,6 @@ public class CallListener implements IRequestListener
 	@Override
 	public void onRequestFailure(HttpException httpException)
 	{
-		StickyCaller.showCallerViewWithDelay(null, null, StickyCaller.FAILURE, AnalyticsConstants.StickyCallerEvents.SERVER);
+		StickyCaller.showCallerViewWithDelay(null, httpException.getErrorCode()+"", StickyCaller.FAILURE, AnalyticsConstants.StickyCallerEvents.SERVER);
 	}
 }

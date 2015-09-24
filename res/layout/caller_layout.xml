@@ -84,7 +84,6 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_weight="1"
-            android:text="@string/net_not_connected"
             android:textColor="@color/subtext"
             android:textSize="12sp"
             android:visibility="gone" />
