@@ -2,11 +2,15 @@ package com.bsb.hike.platform;
 
 import java.lang.ref.WeakReference;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.HikeHandlerUtil;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.hike.transporter.utils.Logger;
 
 import android.app.Activity;
@@ -477,7 +481,41 @@ public class NativeBridge
 			}
 		});
 	}
-	
+
+	public void getUserDetails(final String id)
+	{
+		mThread.postRunnable(new Runnable()
+		{
+
+			@Override
+			public void run()
+			{
+				String uid = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PLATFORM_UID_SETTING, null);
+				String name = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.NAME_SETTING, null);
+				final JSONObject result = new JSONObject();
+				try
+				{
+					result.put("uid", uid);
+					result.put("name", name);
+				}
+				catch (JSONException e)
+				{
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				activity.runOnGLThread(new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						activity.PlatformCallback(id, result.toString());
+					}
+				});
+
+			}
+		});
+		
+	}
 	
 
 }
