@@ -1385,7 +1385,58 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			mCustomKeyboard.registerEditText(R.id.name_input,KPTConstants.MULTILINE_LINE_EDITOR,ProfileActivity.this,ProfileActivity.this);
 			mCustomKeyboard.registerEditText(R.id.email_input,KPTConstants.MULTILINE_LINE_EDITOR,ProfileActivity.this,ProfileActivity.this);
 			mCustomKeyboard.init(mNameEdit);
-			showKeyboard();			
+			mNameEdit.setOnFocusChangeListener(new View.OnFocusChangeListener()
+			{
+				
+				@Override
+				public void onFocusChange(View v, boolean hasFocus)
+				{
+					if (mCustomKeyboard.isCustomKeyboardVisible())
+					{
+						mCustomKeyboard.showCustomKeyboard(mNameEdit, false);
+					}
+					mCustomKeyboard.showCustomKeyboard(mNameEdit, true);
+				}
+			});
+			mEmailEdit.setOnFocusChangeListener(new View.OnFocusChangeListener()
+			{
+				
+				@Override
+				public void onFocusChange(View v, boolean hasFocus)
+				{
+					if (mCustomKeyboard.isCustomKeyboardVisible())
+					{
+						mCustomKeyboard.showCustomKeyboard(mEmailEdit, false);
+					}
+					mCustomKeyboard.showCustomKeyboard(mEmailEdit, true);					
+				}
+			});
+			mNameEdit.setOnClickListener(new OnClickListener()
+			{
+				
+				@Override
+				public void onClick(View v)
+				{
+					if (mCustomKeyboard.isCustomKeyboardVisible())
+					{
+						mCustomKeyboard.showCustomKeyboard(mNameEdit, false);
+					}
+					mCustomKeyboard.showCustomKeyboard(mNameEdit, true);
+				}
+			});
+			mEmailEdit.setOnClickListener(new OnClickListener()
+			{
+				
+				@Override
+				public void onClick(View v)
+				{
+					if (mCustomKeyboard.isCustomKeyboardVisible())
+					{
+						mCustomKeyboard.showCustomKeyboard(mEmailEdit, false);
+					}
+					mCustomKeyboard.showCustomKeyboard(mEmailEdit, true);
+				}
+			});
 		}
 		
 		((TextView) name.findViewById(R.id.name_edit_field)).setText(R.string.name);
