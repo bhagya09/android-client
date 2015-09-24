@@ -4113,6 +4113,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 	public void onResume()
 	{
+		tryToDismissAnyOpenPanels();
 		showKeyboard();
 
 		isActivityVisible = true;
@@ -4161,7 +4162,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		
 		if (shouldShowKeyboard())
 		{
-			tryToDismissAnyOpenPanels();
 			if (isSystemKeyboard())
 			{
 				Utils.showSoftKeyboard(activity, mComposeView);

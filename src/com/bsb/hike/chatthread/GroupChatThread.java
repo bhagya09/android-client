@@ -817,7 +817,6 @@ public class GroupChatThread extends OneToNChatThread
 	private void destroyPinCreateView()
 	{
 		// AFTER PIN MODE, we make sure mComposeView is reinitialized to message composer compose
-
 		mComposeView = (CustomFontEditText) activity.findViewById(R.id.msg_compose);
 		if (mEmoticonPicker != null)
 		{
@@ -1128,5 +1127,9 @@ public class GroupChatThread extends OneToNChatThread
 			pinView.setVisibility(View.VISIBLE);
 		}
 		super.destroySearchMode();
+	}
+	protected boolean shouldShowKeyboard()
+	{
+		return ( mActionMode.whichActionModeIsOn() == PIN_CREATE_ACTION_MODE || super.shouldShowKeyboard());
 	}
 }
