@@ -514,13 +514,21 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		mNameEdit.requestFocus();
 		mNameEdit.setText(oneToNConversation.getLabel());
 		mNameEdit.setSelection(mNameEdit.getText().toString().length());
+		mNameEdit.setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				showKeyboard();
+				
+			}
+		});
 		showKeyboard();
 		setupGroupNameEditActionBar();
 	}
 
 	private void showKeyboard()
 	{
-		if (!systemKeyboard)
+		if (!systemKeyboard&&!mCustomKeyboard.isCustomKeyboardVisible())
 		{
 			mCustomKeyboard.showCustomKeyboard(mNameEdit, true);
 		}
