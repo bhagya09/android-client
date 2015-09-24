@@ -1281,7 +1281,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 		callbackToJS(id, String.valueOf(botInfo.getVersion()));
 	}
 
-	public void downloadStatus(final String id, String progress)
+	public void downloadStatus(final String id, final String progress)
 	{
 		if (mHandler == null)
 		{
