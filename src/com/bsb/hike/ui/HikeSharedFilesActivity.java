@@ -98,6 +98,8 @@ public class HikeSharedFilesActivity extends HikeAppStateBaseFragmentActivity
 	
 	private String TAG = "HikeSharedFilesActivity";
 	
+	private boolean allFilesDeleted;
+	
 	public boolean isMultiSelectMode()
 	{
 		return multiSelectMode;
@@ -311,13 +313,18 @@ public class HikeSharedFilesActivity extends HikeAppStateBaseFragmentActivity
 	{
 		//Refresh Full Gallery only when there were some elements selected 
 		//and then cross is clicked on action bar 
-		if (!selectedSharedFileItems.isEmpty())
-		{
-			selectedSharedFileItems.clear();
-			sharedGalleryadapter.notifyDataSetChanged();
-		}
 		
 		setMultiSelectMode(false);
+		
+		if (selectedSharedFileItems.isEmpty() || allFilesDeleted)
+		{
+			onBackPressed();
+			return;
+		}
+		
+		selectedSharedFileItems.clear();
+		sharedGalleryadapter.notifyDataSetChanged();
+		
 		setupActionBar();
 		invalidateOptionsMenu();
 	}
@@ -480,6 +487,8 @@ public class HikeSharedFilesActivity extends HikeAppStateBaseFragmentActivity
 				@Override
 				public void positiveClicked(HikeDialog hikeDialog)
 				{
+					allFilesDeleted = true;
+					
 					ArrayList<Long> msgIds = new ArrayList<Long>(selectedSharedFileItems);
 					Bundle bundle = new Bundle();
 					bundle.putString(HikeConstants.Extras.MSISDN, msisdn);
@@ -497,6 +506,10 @@ public class HikeSharedFilesActivity extends HikeAppStateBaseFragmentActivity
 								hsf.delete(getApplicationContext());
 							}
 							iterator.remove();
+						}
+						else
+						{
+							allFilesDeleted = false;
 						}
 					}
 					
@@ -588,15 +601,17 @@ public class HikeSharedFilesActivity extends HikeAppStateBaseFragmentActivity
 			{
 				return;
 			}
-			final int sharedFilePos = (int) object;
+
+			final HikeSharedFile sharedFile = (HikeSharedFile) object;
 			runOnUiThread(new Runnable()
 			{
 
 				@Override
 				public void run()
 				{
-					sharedGalleryadapter.removeSharedFile(sharedFilePos);
-					sharedGalleryadapter.notifyItemRemoved(sharedFilePos);
+					int position = sharedGalleryadapter.removeSharedFile(sharedFile);
+					if(position >= 0)
+						sharedGalleryadapter.notifyItemRemoved(position);
 					// If there are no files to show, finish shared files gallery activity.
 					// This will only happen in an edge-case,
 					// 1. User comes to this gallery containing only 1 item

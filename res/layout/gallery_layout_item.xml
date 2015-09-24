@@ -35,7 +35,7 @@
                 android:layout_height="wrap_content"
                 android:src="@drawable/ic_file_missing" />
 
-            <com.bsb.hike.view.CustomFontTextView2
+            <com.bsb.hike.view.CustomFontTextView
                 android:id="@+id/file_missing_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

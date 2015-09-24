@@ -161,7 +161,7 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 		int numColumns = Utils.getNumColumnsForGallery(getResources(), sizeOfImage);
 		int thumbnailSize = Utils.getActualSizeForGallery(getResources(), sizeOfImage, numColumns);
 		//num of columns is 1 for preview as we will be displaying only one image at a time.
-		int previewSize = Utils.getActualSizeForGallery(getResources(), sizeOfImage, 1);
+		int previewSize = Utils.getActualSizeForGallery(getResources(), sizeOfImage, numColumns);
 
 		gridAdapter = new GalleryAdapter(this, galleryGridItems, true, thumbnailSize, null, true);
 
@@ -594,7 +594,14 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 
 			if(galleryItems.isEmpty())
 			{
-				startAddMoreGalleryIntent();
+				if(forGalleryShare)
+				{
+					onBackPressed();
+				}
+				else
+				{
+					startAddMoreGalleryIntent();
+				}
 			}
 
 			GallerySelectionViewer.this.selectedPager.setCurrentItem(postion == 0 ? 0 : postion - 1);

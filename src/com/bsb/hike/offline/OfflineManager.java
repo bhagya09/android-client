@@ -10,7 +10,6 @@ import android.content.IntentFilter;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
 import android.net.wifi.p2p.WifiP2pDeviceList;
-import android.net.wifi.p2p.WifiP2pManager;
 import android.net.wifi.p2p.WifiP2pManager.PeerListListener;
 import android.os.Handler;
 import android.os.Message;
@@ -20,12 +19,12 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.db.HikeOfflinePersistence;
 import com.bsb.hike.models.HikeHandlerUtil;
+import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.offline.OfflineConstants.ERRORCODE;
 import com.bsb.hike.offline.OfflineConstants.HandlerConstants;
 import com.bsb.hike.offline.OfflineConstants.OFFLINE_STATE;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
-import com.google.ads.AdRequest.ErrorCode;
 import com.google.gson.Gson;
 import com.hike.transporter.DefaultRetryPolicy;
 import com.hike.transporter.TException;
@@ -55,10 +54,6 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 
 	private static final String TAG = OfflineManager.class.getName();
 
-	private boolean scanResultsAvailable = false;
-
-	private int tryGetScanResults = 0;
-
 	OfflineBroadCastReceiver receiver;
 
 	private boolean startedForChatThread = false;
@@ -70,7 +65,9 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 	private List<Topic> topics;
 	
 	private long timeTakenToEstablishConnection = 0l;
-
+	
+	private boolean isClientInitialized=false;
+	
 	Handler handler = new Handler(HikeHandlerUtil.getInstance().getLooper())
 	{
 		public void handleMessage(android.os.Message msg)
@@ -127,11 +124,6 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 				onDisconnect(new OfflineException(OfflineException.CONNECTION_TIME_OUT));
 			}
 			break;
-		case OfflineConstants.HandlerConstants.START_SCAN:
-			runNetworkScan((int) msg.obj);
-			msg.obj = ((int) msg.obj) + 1;
-			performWorkOnBackEndThread(msg);
-			break;
 		case OfflineConstants.HandlerConstants.DISCONNECT_BY_USER:
 			onDisconnect(new OfflineException(OfflineException.USER_DISCONNECTED));
 			break;
@@ -160,7 +152,6 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 		connectionManager = new ConnectionManager(context, HikeHandlerUtil.getInstance().getLooper());
 		transporter = Transporter.getInstance();
 		listeners = new ArrayList<IOfflineCallbacks>();
-		receiver = new OfflineBroadCastReceiver(this);
 		Logger.d(TAG, "Contructor called");
 	}
 
@@ -175,7 +166,7 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 	@Override
 	public void onRequestPeers()
 	{
-		connectionManager.requestPeers(this);
+		
 	}
 	
 	public String getConnectedDevice()
@@ -202,7 +193,6 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 	@Override
 	public void onScanResultAvailable()
 	{
-		scanResultsAvailable = true;
 		Map<String, ScanResult> results = connectionManager.getWifiNetworksForMyMsisdn();
 		Logger.d(TAG, "On scan results available .  Connected device is "+ connectedDevice +  " started for chat thread is " + startedForChatThread);
 		if (startedForChatThread && connectedDevice==null)
@@ -235,22 +225,22 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 
 		if (listeners.size() == 1)
 		{
-			IntentFilter intentFilter = new IntentFilter();
-			addIntentFilters(intentFilter);
-			context.registerReceiver(receiver, intentFilter);
+			addBroadReceiver();
 		}
 	}
 
 	public void addBroadReceiver()
 	{
-		IntentFilter intentFilter = new IntentFilter();
-		addIntentFilters(intentFilter);
-		context.registerReceiver(receiver, intentFilter);
+		if (receiver == null)
+		{
+			receiver = new OfflineBroadCastReceiver(this);
+			IntentFilter intentFilter = new IntentFilter();
+			addIntentFilters(intentFilter);
+			context.registerReceiver(receiver, intentFilter);
+		}
 	}
 	private void addIntentFilters(IntentFilter intentFilter)
 	{
-		intentFilter.addAction(WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION);
-		intentFilter.addAction(WifiP2pManager.WIFI_P2P_DISCOVERY_CHANGED_ACTION);
 		intentFilter.addAction(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION);
 		intentFilter.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION);
 		intentFilter.addAction(WifiManager.WIFI_STATE_CHANGED_ACTION);
@@ -263,11 +253,10 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 		String offlineNetworkMsisdn = connectionManager.getConnectedHikeNetworkMsisdn();
 		Logger.d(TAG, "CheckConnectedNetwork");
 
-		if (offlineNetworkMsisdn != null && connectedDevice == null && 
+		if (offlineNetworkMsisdn != null &&  !isClientInitialized && 
 				OfflineController.getInstance().getOfflineState() == OFFLINE_STATE.CONNECTING)
 		{
-			connectedDevice = offlineNetworkMsisdn;
-			
+			isClientInitialized=true;
 			// now transporter initAsClient is on Handler Thread/ backend thread
 			final IConnectionListener listener = this;
 			handler.post(new Runnable()
@@ -275,7 +264,7 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 				@Override
 				public void run()
 				{
-					if (initClientConfig(connectedDevice))
+					if (initClientConfig(connectinMsisdn))
 					{
 						Logger.d(TAG, "Starting as Client");
 						if (OfflineController.getInstance().getOfflineState() ==  OFFLINE_STATE.CONNECTING)
@@ -334,17 +323,6 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 	{
 
 	}
-
-	public void startDiscovery()
-	{
-		connectionManager.startDiscovery();
-	}
-
-	public void stopDiscovery()
-	{
-		connectionManager.stopDiscovery();
-	}
-
 	public void createHotspot(final String msisdn)
 	{
 		Message msg = Message.obtain();
@@ -377,7 +355,7 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 
 	public void connectAsPerMsisdn(final String msisdn)
 	{
-
+		addBroadReceiver();
 		timeTakenToEstablishConnection=System.currentTimeMillis();
 		connectinMsisdn = msisdn;
 		OfflineController.getInstance().setOfflineState(OFFLINE_STATE.CONNECTING);
@@ -437,79 +415,6 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 		connectionManager.stopWifi();
 	}
 
-	public void startScan()
-	{
-		Message startScan = Message.obtain();
-		startScan.what = OfflineConstants.HandlerConstants.START_SCAN;
-		startScan.obj = tryGetScanResults;
-		performWorkOnBackEndThread(startScan);
-	}
-
-	private void runNetworkScan(int attemptNumber)
-	{
-
-		if (attemptNumber < OfflineConstants.MAXTRIES_FOR_SCAN_RESULTS || (scanResultsAvailable == true))
-		{
-			connectionManager.startDiscovery();
-			try
-			{
-				Thread.sleep(8000);
-			}
-			catch (InterruptedException e)
-			{
-				e.printStackTrace();
-			}
-			connectionManager.stopDiscovery();
-			try
-			{
-				Thread.sleep(2000);
-			}
-			catch (InterruptedException e)
-			{
-				e.printStackTrace();
-			}
-
-			connectionManager.startWifiScan();
-		}
-		else
-		{
-			connectionManager.stopWifi();
-
-			while (connectionManager.isWifiEnabled())
-			{
-				try
-				{
-					Thread.sleep(1000);
-				}
-				catch (InterruptedException e)
-				{
-					e.printStackTrace();
-				}
-				Logger.d(TAG, "Waiting for wifi to stop");
-			}
-			connectionManager.startWifi();
-			Logger.d(TAG, "Called start wifi");
-			while (!connectionManager.isWifiEnabled())
-			{
-				try
-				{
-					Thread.sleep(1000);
-				}
-				catch (InterruptedException e)
-				{
-					e.printStackTrace();
-				}
-				Logger.d(TAG, "Waiting for wifi to start");
-			}
-			Logger.d(TAG, "Wifi is on, now scanning for any available wifi hotspots");
-			connectionManager.startWifiScan();
-		}
-	}
-
-	public void stopScan()
-	{
-		removeMessage(OfflineConstants.HandlerConstants.START_SCAN);
-	}
 
 	public void removeListener(IOfflineCallbacks listener)
 	{
@@ -527,9 +432,29 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 		removeAllMessages();
 		startedForChatThread = false;
 		HikeSharedPreferenceUtil.getInstance().saveData(OfflineConstants.OFFLINE_MSISDN, "");
-		Logger.d(TAG,"All variables cleared");
-		updateListeners(ERRORCODE.SHUTDOWN);
+		Logger.d(TAG, "All variables cleared");
+		isClientInitialized = false;
+		unRegisterReceiver();
 	}
+
+	private void unRegisterReceiver()
+	{
+		if (receiver == null)
+		{
+			return;
+		}
+
+		try
+		{
+			context.unregisterReceiver(receiver);
+		}
+		catch (IllegalArgumentException e)
+		{
+			Logger.e(TAG, "Illegal Argument Exception in unregistering receiver");
+		}
+		receiver = null;
+	}
+
 
 	public void setConnectedDevice(String connectedDevice)
 	{
