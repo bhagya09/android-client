@@ -164,9 +164,11 @@ public class OfflineDisconnectFragment extends Fragment
 			{
 				if (connectingContactInfo != null && !TextUtils.isEmpty(connectingContactInfo.getFirstName()))
 				{
-					connectingContactFirstName = connectingContactInfo.getFirstName();
+					connectingContactFirstName = connectingContactInfo.getFirstNameAndSurname();
 				}
-				firstMessage = getResources().getString(R.string.disconnect_warning, connectingContactFirstName);
+				firstMessage = getResources().getString(R.string.hike_direct_request, connectingContactFirstName);
+				firstMessage = connectingContactFirstName + " "+ firstMessage;
+				
 				drawable = HikeMessengerApp.getLruCache().getIconFromCache(connectingMsisdn);
 				if (drawable == null)
 				{
@@ -175,8 +177,10 @@ public class OfflineDisconnectFragment extends Fragment
 			}
 			avatar.setImageDrawable(drawable);
 			connectionRequest.setText(Html.fromHtml(firstMessage));
-			positiveBtn.setTextColor(getResources().getColor(R.color.blue_hike));
-			negativeBtn.setTextColor(getResources().getColor(R.color.black));
+			positiveBtn.setTextColor(getResources().getColor(R.color.black_60));
+			negativeBtn.setTextColor(getResources().getColor(R.color.black_60));
+			negativeBtn.setText(getResources().getString(R.string.cancel));
+			positiveBtn.setText(getResources().getString(R.string.connect));
 			break;
 		default:
 			break;
