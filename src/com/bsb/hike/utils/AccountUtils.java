@@ -126,6 +126,8 @@ public class AccountUtils
 
 	public static final String FILE_TRANSFER_DOWNLOAD_BASE = "/user/ft/";
 
+	public static final String LANGUAGE_DICTIONARY_DOWNLOAD_BASE = "/dict/";
+
 	public static String fileTransferBaseDownloadUrl = fileTransferBase + FILE_TRANSFER_DOWNLOAD_BASE;
 	
 	public static String fastFileUploadUrl = fileTransferBase + FILE_TRANSFER_DOWNLOAD_BASE + "ffu/";

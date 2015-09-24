@@ -233,6 +233,8 @@
             android:name=".ui.TellAFriend"
             android:launchMode="singleTop" >
         </activity>
+        <activity android:name=".ui.LanguageSettingsActivity" >
+        </activity>
         <activity android:name=".ui.SettingsActivity" 
                   android:configChanges="orientation|screenSize">            
         </activity>
