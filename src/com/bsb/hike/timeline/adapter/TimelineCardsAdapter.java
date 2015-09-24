@@ -517,6 +517,9 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 				viewHolder.parent.setTag(statusMessage);
 				viewHolder.parent.setOnClickListener(timelinePostDetailsListener);
 				viewHolder.parent.setOnLongClickListener(onCardLongPressListener);
+				
+				viewHolder.textBtnLove.setTag(statusMessage);
+				viewHolder.textBtnLove.setOnClickListener(onLikesClickListener);
 
 				viewHolder.checkBoxLove.setOnCheckedChangeListener(null);
 				viewHolder.checkBoxLove.setTag(statusMessage);
@@ -710,6 +713,9 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 			viewHolder.infoContainer.setOnClickListener(onProfileInfoClickListener);
 			viewHolder.largeProfilePic.setOnLongClickListener(onCardLongPressListener);
 			viewHolder.infoContainer.setOnLongClickListener(onCardLongPressListener);
+
+			viewHolder.textBtnLove.setTag(statusMessage);
+			viewHolder.textBtnLove.setOnClickListener(onLikesClickListener);
 
 			boolean selfLiked = false;
 
@@ -908,6 +914,64 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 				Intent intent = new Intent(mActivity.get(), TimelineSummaryActivity.class);
 				intent.putExtra(HikeConstants.Extras.MAPPED_ID, statusMessage.getMappedId());
 				ActivityCompat.startActivity(mActivity.get(), intent, options.toBundle());
+			}
+		}
+	};
+	
+	private OnClickListener onLikesClickListener = new OnClickListener()
+	{
+		@Override
+		public void onClick(View v)
+		{
+			if (mActivity.get() != null)
+			{
+				Object viewTag = v.getTag();
+
+				if (viewTag != null && mActivity.get() != null)
+				{
+					StatusMessage statusMessage = null;
+
+					if (viewTag instanceof StatusMessage)
+					{
+						statusMessage = (StatusMessage) viewTag;
+					}
+					else if (viewTag instanceof ImageViewerInfo)
+					{
+						ImageViewerInfo imageInfo = (ImageViewerInfo) viewTag;
+						statusMessage = imageInfo.getStatusMessage();
+					}
+
+					if (statusMessage == null)
+					{
+						return;
+					}
+					
+					ActionsDataModel actionsData = TimelineActionsManager.getInstance().getActionsData().getActions(statusMessage.getMappedId(), ActionTypes.LIKE, ActivityObjectTypes.STATUS_UPDATE);
+
+					if (actionsData!= null && actionsData.getAllMsisdn() != null && !actionsData.getAllMsisdn().isEmpty() && (Utils.isTimelineShowLikesEnabled() || statusMessage.isMyStatusUpdate()))
+					{
+						HikeDialog contactsListDialog = HikeDialogFactory.showDialog(mActivity.get(), HikeDialogFactory.LIKE_CONTACTS_DIALOG, statusMessage.getMsisdn(), null,
+								actionsData.getAllMsisdn());
+
+						// TODO bind with activity when supporting landscape
+						contactsListDialog.show();
+						JSONObject metadataSU = new JSONObject();
+						try
+						{
+							metadataSU.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.TIMELINE_SUMMARY_LIKES_DIALOG_OPEN);
+							metadataSU.put(AnalyticsConstants.UPDATE_TYPE, "" + ActivityFeedCursorAdapter.getPostType(statusMessage));
+							metadataSU.put(AnalyticsConstants.TIMELINE_U_ID, statusMessage.getMsisdn());
+							HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, HAManager.EventPriority.HIGH, metadataSU);
+						}
+						catch (JSONException e)
+						{
+							Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+						}
+					}
+
+					return;
+
+				}
 			}
 		}
 	};

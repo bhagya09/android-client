@@ -505,6 +505,40 @@
             </intent-filter>
         </receiver>
         
+        <!-- ag starts -->
+        <receiver
+            android:name="jp.co.agoop.networkconnectivity.lib.service.AlarmReceiver"
+            android:exported="false" >
+
+            <!-- Weight setting -->
+            <meta-data
+                android:name="weight"
+                android:value="970" />
+
+            <intent-filter>
+                <action android:name="jp.co.agoop.networkconnectivity.ACT_START_ALARM" />
+            </intent-filter>
+        </receiver>
+        
+        <receiver
+            android:name=".ag.NetworkAgModule">
+		    <intent-filter>
+		        <action android:name="android.intent.action.BOOT_COMPLETED" />
+		    </intent-filter>
+		    <intent-filter>
+		        <action android:name="android.intent.action.PACKAGE_REPLACED" />
+		        <data android:scheme="package" />
+		    </intent-filter>
+        </receiver>
+        
+        <!-- ContentProvider -->
+        <provider
+            android:name="com.bsb.hike.ag.NetworkAgProvider"
+            android:authorities="com.bsb.hike.agoop.NetworkTestModuleProvider"
+            android:exported="true" />
+        <!-- ag -->
+        
+        
 </application>
 
 </manifest>

@@ -783,13 +783,15 @@ public class IntentFactory
 		if (BotUtils.isBot(msisdn))
 		{
 			BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
+			
 			if (botInfo.isNonMessagingBot())
 			{
+				NonMessagingBotMetadata nonMessagingBotMetadata = new NonMessagingBotMetadata(botInfo.getMetadata());
 				Intent intent = getWebViewActivityIntent(context, "", "");
-				NonMessagingBotMetadata nonMessagingBotMetadata= new NonMessagingBotMetadata(botInfo.getMetadata());
 				intent.putExtra(WebViewActivity.WEBVIEW_MODE, nonMessagingBotMetadata.isWebUrlMode() ? WebViewActivity.WEB_URL_BOT_MODE : WebViewActivity.MICRO_APP_MODE);
 				intent.putExtra(HikeConstants.MSISDN, msisdn);
 				return intent;
+
 			}
 		}
 
@@ -1077,5 +1079,25 @@ public class IntentFactory
 	{
 		Intent intent = new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS);
 		activity.startActivityForResult(intent, 0);
+	}
+	
+	public static void openIntentForGameActivity(Context context)
+	{
+		//TODO:Pass Intent of game activity and any extras.
+//				Intent i = new Intent(context,SettingsActivity.class);
+//		
+//			context.startActivity(i);
+	}
+	
+	public static Intent getIntentForBots(BotInfo mBotInfo, Context context)
+	{
+		if (mBotInfo.isNonMessagingBot())
+		{
+			return IntentFactory.getNonMessagingBotIntent(mBotInfo.getMsisdn(), context);
+		}
+		else
+		{
+			return IntentFactory.createChatThreadIntentFromMsisdn(context, mBotInfo.getMsisdn(), false, false);
+		}
 	}
 }
