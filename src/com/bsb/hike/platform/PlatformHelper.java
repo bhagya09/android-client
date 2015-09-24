@@ -97,6 +97,7 @@ public class PlatformHelper
 			JSONObject webMetadata = new JSONObject();
 			webMetadata.put(HikePlatformConstants.TARGET_PLATFORM, metadata.getTargetPlatform());
 			webMetadata.put(HikePlatformConstants.CARD_OBJECT, cardObj);
+			webMetadata.put(HikePlatformConstants.FORWARD_CARD_OBJECT, metadata.getFwdCardObj());
 			ConvMessage message = PlatformUtils.getConvMessageFromJSON(webMetadata, hikeMessage, mBotInfo.getMsisdn());
 			message.setNameSpace(mBotInfo.getNamespace());
 			if (message != null)
@@ -138,6 +139,7 @@ public class PlatformHelper
 			JSONObject webMetadata = new JSONObject();
 			webMetadata.put(HikePlatformConstants.TARGET_PLATFORM, metadata.getTargetPlatform());
 			webMetadata.put(HikePlatformConstants.CARD_OBJECT, cardObj);
+			webMetadata.put(HikePlatformConstants.FORWARD_CARD_OBJECT, metadata.getFwdCardObj());
 			ConvMessage message = PlatformUtils.getConvMessageFromJSON(webMetadata, hikeMessage, mBotInfo.getMsisdn());
 
 			message.setParticipantInfoState(ConvMessage.ParticipantInfoState.NO_INFO);
