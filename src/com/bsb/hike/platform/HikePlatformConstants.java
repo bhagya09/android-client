@@ -85,6 +85,7 @@ public interface HikePlatformConstants
 	public static final String BOT_VERSION = "version";
 	public static final String CALLBACK_ID = "callback_id";
 	public static final String FORWARD_CARD_OBJECT = "fwdCardObj";
+	public static final String TIMESTAMP = "timestamp";
 
 	public static final class PlatformUIDFetchType
 	{
