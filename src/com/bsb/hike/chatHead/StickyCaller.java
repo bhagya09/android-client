@@ -84,7 +84,7 @@ public class StickyCaller
 	static LayoutParams callerParams = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, LayoutParams.TYPE_SYSTEM_ERROR, LayoutParams.FLAG_NOT_FOCUSABLE
 			| LayoutParams.FLAG_LAYOUT_NO_LIMITS, PixelFormat.TRANSLUCENT);
 
-	private static void actionMove(Context context, int initialX, int initialY, Float initialTouchX, Float initialTouchY, MotionEvent event)
+	private static void actionMove(Context context, int initialX, int initialY, float initialTouchX, float initialTouchY, MotionEvent event)
 	{
 		if (ChatHeadLayout.getOverlayView() == null || !ChatHeadLayout.getOverlayView().isShown())
 		{
@@ -129,13 +129,13 @@ public class StickyCaller
 
 	public static void slideAnimation(int from, int to)
 	{
-		ValueAnimator translateX = ValueAnimator.ofInt(from, to);
-		translateX.addUpdateListener(new ValueAnimator.AnimatorUpdateListener()
+		ValueAnimator translate = ValueAnimator.ofInt(from, to);
+		translate.addUpdateListener(new ValueAnimator.AnimatorUpdateListener()
 		{
 			@Override
 			public void onAnimationUpdate(ValueAnimator valueAnimator)
 			{
-				callerParams.x = (Integer) valueAnimator.getAnimatedValue();
+				callerParams.x = (int) valueAnimator.getAnimatedValue();
 				callerParams.alpha = 1.0f - ((float) Math.abs(callerParams.x) / Utils.getDeviceWidth());
 				try
 				{
@@ -147,8 +147,8 @@ public class StickyCaller
 				}
 			}
 		});
-		translateX.setDuration(ANIMATION_TIME);
-		translateX.start();
+		translate.setDuration(ANIMATION_TIME);
+		translate.start();
 	}
 
 	public static void removeCallerView()
@@ -165,7 +165,7 @@ public class StickyCaller
 		}
 	}
 
-	static OnSwipeTouchListener onSwipeTouchListener = new OnSwipeTouchListener(HikeMessengerApp.getInstance())
+	static OnSwipeTouchListener onSwipeTouchListener = new OnSwipeTouchListener(HikeMessengerApp.getInstance().getApplicationContext())
 	{
 		public void onSwipeRight()
 		{
@@ -265,7 +265,7 @@ public class StickyCaller
 	
 	public static void showCallerView(String number, String result, short type, String source)
 	{
-		final Context context = HikeMessengerApp.getInstance();
+		final Context context = HikeMessengerApp.getInstance().getApplicationContext();
 		windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
 		try
 		{
@@ -556,7 +556,7 @@ public class StickyCaller
 				if (callCurrentNumber != null && callCurrentName != null)
 				{
 					Utils.killCall();
-					Utils.addToContacts(HikeMessengerApp.getInstance(), callCurrentNumber, callCurrentName);
+					Utils.addToContacts(HikeMessengerApp.getInstance().getApplicationContext(), callCurrentNumber, callCurrentName);
 				}
 				break;
 			case R.id.caller_sms_button:

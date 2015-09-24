@@ -22,12 +22,6 @@ public class CallerContentModel
 	final private String LAST_NAME = "last_name";
 
 	@Expose
-	private String lastName;
-
-	@Expose
-	private String firstName;
-
-	@Expose
 	private String location;
 
 	@Expose

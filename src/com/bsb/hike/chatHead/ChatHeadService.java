@@ -351,8 +351,8 @@ public class ChatHeadService extends Service
 		//this is being done to prevent loss of BG packet sent by the app to server when we exit from the activity
 		//its also a product call to take user inside hike after exploring stickers deeply
 		//This code may be removed in case some better strategy replaces the FSM to handle FG-BG-lastseen use cases
-		TaskStackBuilder.create(HikeMessengerApp.getInstance())
-		.addNextIntent(IntentFactory.getHomeActivityIntentAsLauncher(HikeMessengerApp.getInstance()))
+		TaskStackBuilder.create(HikeMessengerApp.getInstance().getApplicationContext())
+		.addNextIntent(IntentFactory.getHomeActivityIntentAsLauncher(HikeMessengerApp.getInstance().getApplicationContext()))
 		.addNextIntent(openingIntent)
 		.startActivities();
 	}

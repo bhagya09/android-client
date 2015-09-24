@@ -57,6 +57,9 @@ public class ChatHeadUtils
 	
 	private static OutgoingCallReceiver outgoingCallReceiver;
 	
+	private static final int HTTP_CALL_RETRY_DELAY = 2000; 
+	
+	private static final int HTTP_CALL_RETRY_MULTIPLIER = 1;
 		
 	// replica of hidden constant ActivityManager.PROCESS_STATE_TOP 
 	public static final int PROCESS_STATE_TOP =2;
@@ -481,7 +484,7 @@ public class ChatHeadUtils
 	           Logger.d(TAG, "jsonException");
 			}
 			CallListener callListener = new CallListener();
-			RequestToken requestToken = HttpRequests.postNumberAndGetCallerDetails("http://52.76.46.27:5000/hikeCaller", json, callListener, 2000, 1);
+			RequestToken requestToken = HttpRequests.postNumberAndGetCallerDetails(HikeConstants.HIKECALLER_API, json, callListener, HTTP_CALL_RETRY_DELAY, HTTP_CALL_RETRY_MULTIPLIER);
 			StickyCaller.showCallerView(null, null, StickyCaller.LOADING, null);
 			requestToken.execute();
 		}
@@ -492,7 +495,7 @@ public class ChatHeadUtils
 		if (HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.SHOW_STICKY_CALLER, false)
 				&& HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.ACTIVATE_STICKY_CALLER, false))
 		{
-			Context context = HikeMessengerApp.getInstance();
+			Context context = HikeMessengerApp.getInstance().getApplicationContext();
 			if (incomingCallReceiver == null)
 			{
 				incomingCallReceiver = new IncomingCallReceiver();

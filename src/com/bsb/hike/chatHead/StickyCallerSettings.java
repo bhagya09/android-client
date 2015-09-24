@@ -30,6 +30,21 @@ public class StickyCallerSettings extends HikeAppStateBaseFragmentActivity imple
 		stickyCallerCheckbox.setOnCheckedChangeListener(this);
 		stickyCallerCheckbox.setChecked(HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.ACTIVATE_STICKY_CALLER, false));
 	}
+	
+	@Override
+	protected void onPause()
+	{
+		// TODO Auto-generated method stub
+		super.onPause();
+		if (HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.ACTIVATE_STICKY_CALLER, false))
+		{
+			ChatHeadUtils.registerCallReceiver();
+		}
+		else
+		{
+			ChatHeadUtils.unregisterCallReceiver();
+		}
+	}
 
 	private void setupActionBar()
 	{
@@ -47,12 +62,10 @@ public class StickyCallerSettings extends HikeAppStateBaseFragmentActivity imple
 		HikeSharedPreferenceUtil.getInstance().saveData(StickyCaller.ACTIVATE_STICKY_CALLER, isChecked);
 		if (isChecked)
 		{
-			ChatHeadUtils.registerCallReceiver();
 			HAManager.getInstance().stickyCallerAnalyticsUIEvent(AnalyticsConstants.StickyCallerEvents.CALLER_SETTINGS_TOGGLE, null, AnalyticsConstants.StickyCallerEvents.ACTIVATE_BUTTON, null);
 		}
 		else
 		{
-			ChatHeadUtils.unregisterCallReceiver();
 			HAManager.getInstance().stickyCallerAnalyticsUIEvent(AnalyticsConstants.StickyCallerEvents.CALLER_SETTINGS_TOGGLE, null, AnalyticsConstants.StickyCallerEvents.DEACTIVATE_BUTTON, null);
 		}
 	}

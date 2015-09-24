@@ -184,9 +184,6 @@ public class HikeService extends Service
 
 	private final String TAG_IMG_UPLOAD = "dp_upload";
 	
-	private IncomingCallReceiver incomingCallReceiver;
-	
-	private OutgoingCallReceiver outgoingCallReceiver;
 	/************************************************************************/
 	/* METHODS - core Service lifecycle methods */
 	/************************************************************************/

@@ -2528,14 +2528,6 @@ public class MqttMessagesManager
 		if (data.has(StickyCaller.SHOW_STICKY_CALLER))
 		{
 			HikeSharedPreferenceUtil.getInstance().saveData(StickyCaller.SHOW_STICKY_CALLER, data.optBoolean(StickyCaller.SHOW_STICKY_CALLER, false));
-			if (data.optBoolean(StickyCaller.SHOW_STICKY_CALLER, false))
-			{
-				ChatHeadUtils.registerCallReceiver();
-			}
-			else
-			{
-				ChatHeadUtils.unregisterCallReceiver();
-			}
 		}
 		editor.commit();
 		this.pubSub.publish(HikePubSub.UPDATE_OF_MENU_NOTIFICATION, null);

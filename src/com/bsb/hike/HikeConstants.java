@@ -3283,4 +3283,6 @@ public class HikeConstants
 
 	public static final String CALLER_SHARED_PREF = "caller_shared_pref";
 
+	public static final String HIKECALLER_API = "http://52.76.46.27:5000/hikeCaller";
+
 }
