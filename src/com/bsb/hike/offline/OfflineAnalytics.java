@@ -173,4 +173,21 @@ public class OfflineAnalytics
 
 	}
 
+	public static void offlineOverflowIndicatorClicked()
+	{
+		JSONObject object = new JSONObject();
+		try
+		{
+			object.put(HikeConstants.EVENT_TYPE, AnalyticsConstants.EVENT_TYPE_OFFLINE);
+			object.put(HikeConstants.EVENT_KEY, AnalyticsConstants.EVENT_KEY_PUSH);
+			object.put(HikeConstants.TAG, AnalyticsConstants.OFFLINE_RED_DOT_CLICKED);
+			recordAnalytics(object);
+		}
+		catch (JSONException e)
+		{
+			Logger.e(TAG, "Exception in logging offline overflow indicator click");
+		}
+		
+	}
+
 }

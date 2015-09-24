@@ -210,6 +210,8 @@ public class OfflineConstants
 
 		public static final String TIP_KEY = "tipkey";
 
+		public static final String OFFLINE_RED_DOT_CLICKED = "rdot";
+
 	}
 	
 	public static final String CONNECTION_ID = "conn_id";
