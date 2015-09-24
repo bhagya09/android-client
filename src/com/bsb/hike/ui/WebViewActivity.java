@@ -3,10 +3,7 @@ package com.bsb.hike.ui;
 import java.util.ArrayList;
 import java.util.List;
 
-import android.net.ParseException;
-import com.bsb.hike.models.ContactInfo;
-import com.bsb.hike.models.MessageEvent;
-import com.bsb.hike.modules.contactmgr.ContactManager;
+import android.util.Pair;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -19,6 +16,8 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.location.Location;
+import android.location.LocationManager;
 import android.net.MailTo;
 import android.net.ParseException;
 import android.net.Uri;
@@ -65,7 +64,10 @@ import com.bsb.hike.media.OverFlowMenuItem;
 import com.bsb.hike.media.OverFlowMenuLayout.OverflowViewListener;
 import com.bsb.hike.media.OverflowItemClickListener;
 import com.bsb.hike.media.TagPicker.TagOnClickListener;
+import com.bsb.hike.models.ContactInfo;
+import com.bsb.hike.models.MessageEvent;
 import com.bsb.hike.models.WhitelistDomain;
+import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.platform.CustomWebView;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUtils;
@@ -129,8 +131,8 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	private View actionBarView;
 	
 	private Menu mMenu;
-	
-	private String[] pubsub = new String[]{HikePubSub.NOTIF_DATA_RECEIVED, HikePubSub.MESSAGE_EVENT_RECEIVED};
+
+	private String[] pubsub = new String[]{HikePubSub.NOTIF_DATA_RECEIVED, HikePubSub.LOCATION_AVAILABLE,  HikePubSub.MESSAGE_EVENT_RECEIVED, HikePubSub.DOWNLOAD_PROGRESS};
 
 	private boolean allowLoc;
 	
@@ -186,6 +188,8 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		HikeMessengerApp.getPubSub().addListeners(this, pubsub);
 		
 		alignAnchorForOverflowMenu();
+		
+		checkAndRecordNotificationAnalytics();
 	}
 
 	private void closeWebViewActivity()
@@ -794,6 +798,35 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 				}
 			}
 		}
+		else if (type.equals(HikePubSub.LOCATION_AVAILABLE))
+		{
+			LocationManager locationManager = (LocationManager) object;
+			Location location = null;
+			if (locationManager != null)
+			{
+
+				location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+
+			}
+			String latLong = PlatformUtils.getLatLongFromLocation(locationManager, location);
+			if (null != mmBridge)
+			{
+				mmBridge.locationReceived(latLong);
+			}
+		}
+		else if (type.equals(HikePubSub.DOWNLOAD_PROGRESS))
+		{
+			if (object instanceof Pair<?,?>)
+			{
+				if (null != msisdn && (msisdn.equals(botInfo.getMsisdn())|| msisdn.equals(botMetaData.getParentMsisdn())))
+				{
+					Pair<String, String> callback = (Pair<String, String>) object;
+					mmBridge.downloadStatus(callback.first, callback.second);
+				}
+
+			}
+		}
+
 
 	}
 
@@ -954,6 +987,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		{
 			HAManager.getInstance().endChatSession(msisdn);
 		}
+		webView.onPause();
 	}
 
 	@Override
@@ -970,6 +1004,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		 * Used to clear notif tray if this is opened from notification
 		 */
 		HikeMessengerApp.getPubSub().publish(HikePubSub.CANCEL_ALL_NOTIFICATIONS, null);
+		webView.onResume();
 	}
 	
 	@Override
@@ -1314,5 +1349,17 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 				break;
 		}
 	}
+	
+	/**
+	 * Used to record analytics for bot opens via push notifications
+	 */
+	private void checkAndRecordNotificationAnalytics()
+	{
+		if (getIntent() != null && getIntent().hasExtra(AnalyticsConstants.BOT_NOTIF_TRACKER))
+		{
+			PlatformUtils.recordBotOpenViaNotification(msisdn);
+		}
+	}
+
 
 }
