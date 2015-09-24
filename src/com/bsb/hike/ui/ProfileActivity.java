@@ -804,7 +804,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			break;
 		case android.R.id.home:
 			Utils.hideSoftKeyboard(getApplicationContext(), getWindow().getDecorView().getRootView());
-			onBackPressed();
+			backPressed(true);
 			return true;
 
 		}
@@ -1593,14 +1593,25 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		mActivityState.genderType = mActivityState.genderType == 0 ? lastSavedGender : mActivityState.genderType;
 	}
 
+	@Override
 	public void onBackPressed()
 	{
-		if (mCustomKeyboard != null && mCustomKeyboard.isCustomKeyboardVisible())
+		backPressed(false);
+	}
+	
+	private void backPressed(boolean actionBarBackPressed)
+	{
+		if (!actionBarBackPressed)
 		{
-			mCustomKeyboard.showCustomKeyboard(mNameEdit, false);
-			mCustomKeyboard.showCustomKeyboard(mEmailEdit, false);
-			return;
+			if (mCustomKeyboard != null && mCustomKeyboard.isCustomKeyboardVisible())
+			{
+				mCustomKeyboard.showCustomKeyboard(mNameEdit, false);
+				mCustomKeyboard.showCustomKeyboard(mEmailEdit, false);
+				KptUtils.updatePadding(ProfileActivity.this, R.id.edit_profile, 0);
+				return;
+			}
 		}
+		
 		if(showingGroupEdit)
 		{
 			closeGroupNameEdit();
