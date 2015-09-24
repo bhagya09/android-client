@@ -30,6 +30,7 @@ public class NonMessagingBotMetadata
 	private String targetActivity;
 	private boolean replace;
 	private String callbackId, parentMsisdn;
+	private JSONObject fwdCardObj;
 
 	public NonMessagingBotMetadata(String jsonString)
 	{
@@ -101,6 +102,11 @@ public class NonMessagingBotMetadata
 				setTargetActivity(cardObj.optString(HikePlatformConstants.TARGET_ACTIVITY));
 			}
 
+		}
+
+		if (json.has((HikePlatformConstants.FORWARD_CARD_OBJECT)))
+		{
+			fwdCardObj = metadata.optJSONObject(HikePlatformConstants.FORWARD_CARD_OBJECT);
 		}
 
 		setUnreadCountShowType();
@@ -276,5 +282,15 @@ public class NonMessagingBotMetadata
 	public void setParentMsisdn(String parentMsisdn)
 	{
 		this.parentMsisdn = parentMsisdn;
+	}
+
+	public JSONObject getFwdCardObj()
+	{
+		return fwdCardObj;
+	}
+
+	public JSONObject getHelperData()
+	{
+		return helperData;
 	}
 }
