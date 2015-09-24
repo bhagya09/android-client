@@ -520,7 +520,11 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 
 	private void showKeyboard()
 	{
-		if (!systemKeyboard)
+		if (systemKeyboard)
+		{
+			Utils.showSoftKeyboard(getApplicationContext(), mNameEdit);
+		}
+		else
 		{
 			mCustomKeyboard.showCustomKeyboard(mNameEdit, true);
 			KptUtils.updatePadding(ProfileActivity.this, R.id.parent_layout, mCustomKeyboard.getKeyBoardAndCVHeight());
