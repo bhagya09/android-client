@@ -336,7 +336,7 @@ public class ChatHeadUtils
 		boolean sessionLogEnabled = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SESSION_LOG_TRACKING, false);
 		boolean startChatHead = shouldRunChatHeadServiceForStickey() && !canAccessibilityBeUsed(true);
 		
-		if (sessionLogEnabled || startChatHead)
+		if (willPollingWork() && (sessionLogEnabled || startChatHead))
 		{
 			if (jsonChanged)
 			{
