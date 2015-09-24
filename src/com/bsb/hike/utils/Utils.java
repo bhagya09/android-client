@@ -3028,6 +3028,30 @@ public class Utils
 		}
 		return b;
 	}
+	
+	/**
+	 * Saves the byteArray to the file specified.
+	 */
+	public static void saveByteArrayToFile(File file, byte[] byteArray) throws IOException
+	{
+		FileOutputStream fos = null;
+		try
+		{
+			fos = new FileOutputStream(file);
+			if (byteArray == null)
+			{
+				throw new IOException();
+			}
+			fos.write(byteArray);
+			fos.flush();
+			fos.getFD().sync();
+		}
+		finally
+		{
+			if (fos != null)
+				fos.close();
+		}
+	}
 
 	public static void setupFormattedTime(TextView tv, long timeElapsed)
 	{
@@ -3776,6 +3800,18 @@ public class Utils
 		else
 		{
 			asyncTask.execute(conversations);
+		}
+	}
+	
+	public static void executeJSONArrayResultTask(AsyncTask<Void, Void, JSONArray> asyncTask)
+	{
+		if (Utils.isHoneycombOrHigher())
+		{
+			asyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+		}
+		else
+		{
+			asyncTask.execute();
 		}
 	}
 

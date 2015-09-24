@@ -28,6 +28,7 @@ import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.AnalyticsConstants.MsgRelEventType;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.MsgRelLogManager;
+import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
@@ -105,6 +106,9 @@ public class DbConversationListener implements Listener
 		mPubSub.addListener(HikePubSub.STEALTH_DATABASE_UNMARKED, this);
 		mPubSub.addListener(HikePubSub.PLATFORM_CARD_EVENT_SENT, this);
 		mPubSub.addListener(HikePubSub.UPDATE_MESSAGE_ORIGIN_TYPE, this);
+		mPubSub.addListener(HikePubSub.BOT_DISCOVERY_DOWNLOAD_SUCCESS, this);
+		mPubSub.addListener(HikePubSub.BOT_DISCOVERY_TABLE_FLUSH, this);
+		mPubSub.addListener(HikePubSub.ADD_NM_BOT_CONVERSATION, this);
 	}
 
 	@Override
@@ -537,6 +541,32 @@ public class DbConversationListener implements Listener
 			long msgId = pair.first;
 
 			HikeConversationsDatabase.getInstance().updateMessageOriginType(msgId, pair.second);
+		}
+		
+		else if (HikePubSub.BOT_DISCOVERY_DOWNLOAD_SUCCESS.equals(type))
+		{
+			JSONObject result = (JSONObject) object;
+
+			boolean flushOldData = result.optBoolean(HikeConstants.BOT_TABLE_REFRESH, false);
+			
+			JSONArray botArray = result.optJSONArray(HikePlatformConstants.BOTS);
+			if (botArray == null || botArray.length() == 0)
+			{
+				Logger.e("BotDiscovery", "Got null botArray");
+				return;
+			}
+			
+			HikeContentDatabase.getInstance().populateBotDiscoveryTable(botArray, flushOldData);
+		}
+		
+		else if (HikePubSub.BOT_DISCOVERY_TABLE_FLUSH.equals(type))
+		{
+			HikeContentDatabase.getInstance().flushBotDiscoveryTable();
+		}
+		
+		else if (HikePubSub.ADD_NM_BOT_CONVERSATION.equals(type))
+		{
+			HikeConversationsDatabase.getInstance().addNonMessagingBotconversation((BotInfo) object);
 		}
 	}
 
