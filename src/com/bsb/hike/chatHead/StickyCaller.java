@@ -24,6 +24,7 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
@@ -76,9 +77,11 @@ public class StickyCaller
 
 	private static final String CALLER_Y_PARAMS = "callerYParams";
 
+	private static final long CALLER_DELAY = 1500;
+
 	public static boolean toCall = false;
 
-	static LayoutParams callerParams = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, LayoutParams.TYPE_PHONE, LayoutParams.FLAG_NOT_FOCUSABLE
+	static LayoutParams callerParams = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, LayoutParams.TYPE_SYSTEM_ERROR, LayoutParams.FLAG_NOT_FOCUSABLE
 			| LayoutParams.FLAG_LAYOUT_NO_LIMITS, PixelFormat.TRANSLUCENT);
 
 	private static void actionMove(Context context, int initialX, int initialY, Float initialTouchX, Float initialTouchY, MotionEvent event)
@@ -236,6 +239,27 @@ public class StickyCaller
 			return gestureDetector.onTouchEvent(event);
 		}
 	};
+	
+	
+	public static void showCallerViewWithDelay(final String number, final String result, final short type, final String source)
+	{
+		HikeHandlerUtil mThread = HikeHandlerUtil.getInstance();
+		mThread.startHandlerThread();
+		if (mThread != null)
+		{
+			mThread.postRunnableWithDelay(new Runnable()
+			{
+
+				@Override
+				public void run()
+				{
+					showCallerView(number, result, type, source);
+				}
+
+			}, CALLER_DELAY);
+		}
+	}
+	
 	
 	
 	
