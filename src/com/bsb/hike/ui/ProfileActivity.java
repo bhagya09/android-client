@@ -523,7 +523,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		if (!systemKeyboard)
 		{
 			mCustomKeyboard.showCustomKeyboard(mNameEdit, true);
-			KptUtils.updatePadding(ProfileActivity.this, R.id.edit_profile, mCustomKeyboard.getKeyBoardAndCVHeight());
+			KptUtils.updatePadding(ProfileActivity.this, R.id.parent_layout, mCustomKeyboard.getKeyBoardAndCVHeight());
 		}
 	}
 	
@@ -636,6 +636,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		{
 			mCustomKeyboard.showCustomKeyboard(mNameEdit, false);
 			KptUtils.updatePadding(ProfileActivity.this, R.id.edit_profile, 0);
+			KptUtils.updatePadding(ProfileActivity.this, R.id.parent_layout, 0);
 		}
 	}
 	
@@ -1659,6 +1660,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 				mCustomKeyboard.showCustomKeyboard(mNameEdit, false);
 				mCustomKeyboard.showCustomKeyboard(mEmailEdit, false);
 				KptUtils.updatePadding(ProfileActivity.this, R.id.edit_profile, 0);
+				KptUtils.updatePadding(ProfileActivity.this, R.id.parent_layout, 0);
 				return;
 			}
 		}
@@ -3610,10 +3612,12 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		if (kptVisible)
 		{
 			KptUtils.updatePadding(ProfileActivity.this, R.id.edit_profile, height);
+			KptUtils.updatePadding(ProfileActivity.this, R.id.parent_layout, height);
 		}
 		else
 		{
 			KptUtils.updatePadding(ProfileActivity.this, R.id.edit_profile, 0);
+			KptUtils.updatePadding(ProfileActivity.this, R.id.parent_layout, 0);
 		}
 	}
 
