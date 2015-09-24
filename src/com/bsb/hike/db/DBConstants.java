@@ -301,7 +301,7 @@ public interface DBConstants
 	 *
 	 */
 	public static interface HIKE_CONTENT{
-		public static final int DB_VERSION = 5;
+		public static final int DB_VERSION = 6;
 		public static final String DB_NAME = "hike_content_db";
 		// CONTENT TABLE -> _id,content_id,love_id,channel_id,timestamp,metadata
 		public static final String CONTENT_TABLE = "content";
@@ -359,7 +359,18 @@ public interface DBConstants
 		public static final String CONTENT_CACHE_TABLE = "contentCache";
 		public static final String KEY = "key";
 		public static final String HELPER_DATA = "helper_data";
+		
 		public static final String BOT_VERSION = "version";
+		
+		//Bot Discrovery Table starts here
+		//Bot Discovery Table --> _id , msisdn, name, type, description, updated_version
+		
+		public static final String BOT_DESCRIPTION = "description";
+		
+		public static final String UPDATED_VERSION = "u_v";
+		
+		public static final String BOT_DISCOVERY_TABLE = "bot_discovery";
+		// --- Bot Discovery Table ends here ---
 	}
 	
 	public static interface HIKE_PERSISTENCE
