@@ -5,11 +5,13 @@ import java.lang.ref.WeakReference;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
+import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.hike.transporter.utils.Logger;
 
 import android.app.Activity;
 import android.os.Handler;
+import android.text.TextUtils;
 import android.util.Log;
 import android.webkit.JavascriptInterface;
 
@@ -423,6 +425,55 @@ public class NativeBridge
 			public void run()
 			{
 				activity.PlatformCallback(id, String.valueOf(HikePlatformConstants.CURRENT_VERSION));
+			}
+		});
+	}
+
+	/**
+	 * Platform Version 7
+	 * Call this function to delete event.
+	 *
+	 * @param messageHash
+	 */
+	public void deleteEvent(final String eventId)
+	{
+		if (TextUtils.isEmpty(eventId))
+		{
+			Logger.e(TAG, "event can't be deleted as the event id is " + eventId);
+			return;
+		}
+		mThread.postRunnable(new Runnable()
+		{
+
+			@Override
+			public void run()
+			{
+		HikeConversationsDatabase.getInstance().deleteEvent(eventId);
+			}
+		});
+	}
+
+	/**
+	 * Platform Version 7
+	 * Call this function to delete all the events, be it shared data or normal event pertaining to a single message.
+	 *
+	 * @param messageHash
+	 */
+	
+	public void deleteAllEventsForMessage(final String messageHash)
+	{
+		if (TextUtils.isEmpty(messageHash))
+		{
+			Logger.e(TAG, "the events corresponding to the message hash can't be deleted as the message hash is " + messageHash);
+			return;
+		}
+		mThread.postRunnable(new Runnable()
+		{
+
+			@Override
+			public void run()
+			{
+		HikeConversationsDatabase.getInstance().deleteAllEventsForMessage(messageHash);
 			}
 		});
 	}
