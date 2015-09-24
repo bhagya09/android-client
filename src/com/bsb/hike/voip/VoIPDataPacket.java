@@ -82,7 +82,11 @@ public class VoIPDataPacket implements Cloneable {
 		FORCE_MUTE_ON (40), 
 		FORCE_MUTE_OFF (41),
 		SPEECH_ON (42), 
-		SPEECH_OFF(43)
+		SPEECH_OFF (43),
+		REPEAT_AUDIO_PACKET_REQUEST (44),
+		REPEAT_AUDIO_PACKET_REQUEST_RESPONSE (45),
+		RTT_REQUEST (46),
+		RTT_RESPONSE (47)
 		;
 		
 		private final int value;
@@ -185,6 +189,14 @@ public class VoIPDataPacket implements Cloneable {
 				return SPEECH_ON;
 			case 43:
 				return SPEECH_OFF;
+			case 44:
+				return REPEAT_AUDIO_PACKET_REQUEST;
+			case 45:
+				return REPEAT_AUDIO_PACKET_REQUEST_RESPONSE;
+			case 46:
+				return RTT_REQUEST;
+			case 47:
+				return RTT_RESPONSE;
 			default:
 				return UPDATE;
 			}

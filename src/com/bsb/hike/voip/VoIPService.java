@@ -1728,103 +1728,107 @@ public class VoIPService extends Service {
 			
 			@Override
 			public void run() {
-				android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_URGENT_AUDIO);
+				try {
+					android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_URGENT_AUDIO);
 
-				if (keepRunning) {
+					if (keepRunning) {
 
-					// Retrieve decoded samples from all clients and combine into one for playback
-					VoIPDataPacket finalDecodedSample = null;
-					synchronized (clients) {
-						for (VoIPClient client : clients.values()) {
-							VoIPDataPacket dp = client.getDecodedBuffer();
-							if (dp != null) {
-								if (hostingConference())
-									clientSample.put(client.getPhoneNumber(), dp.getData());
-
-								if (finalDecodedSample == null)
-									finalDecodedSample = dp;
-								else {
-									// We have to combine samples
-									finalDecodedSample.setData(VoIPUtils.addPCMSamples(finalDecodedSample.getData(), dp.getData()));
-								}
-							} 
-						}
-					}
-
-					// Quality tracking, and buffer underrun protection
-					try {
-						if (finalDecodedSample == null) {
-							// Logger.d(logTag, "Decoded samples underrun. Adding silence.");
-							finalDecodedSample = silentPacket;
-						} 
-
-						// Add to our decoded samples queue for playback
-						if (!hold) {
-							if (playbackBuffersQueue.size() < VoIPConstants.MAX_SAMPLES_BUFFER)
-								playbackBuffersQueue.put(finalDecodedSample);
-							else
-								Logger.w(tag, "Playback buffers queue full.");
-						}
-
-					} catch (InterruptedException e) {
-						Logger.e(tag, "InterruptedException while adding playback sample: " + e.toString());
-					}
-
-					// If we are in conference, then add our own recorded signal as well.
-					// Broadcast this signal to all clients, except for the ones that are speaking.
-					// If someone is speaking, we need to send them a custom stream without their voice signal.
-					
-					if (hostingConference()) {
-						VoIPDataPacket dp = processedRecordedSamples.poll();
-						byte[] conferencePCM = null;
-						if (dp != null) {
-							conferencePCM = VoIPUtils.addPCMSamples(finalDecodedSample.getData(), dp.getData());
-							dp.setData(conferencePCM);
-						}
-						else {
-							dp = new VoIPDataPacket(PacketType.AUDIO_PACKET);
-							conferencePCM = finalDecodedSample.getData();	// Host is probably on mute
-							dp.setData(conferencePCM);
-						}
-
-						// This is the broadcast
-						conferenceBroadcastPackets.add(dp);
-
+						// Retrieve decoded samples from all clients and combine into one for playback
+						VoIPDataPacket finalDecodedSample = null;
 						synchronized (clients) {
 							for (VoIPClient client : clients.values()) {
-								if (!client.isSpeaking() || !client.connected)
-									continue;
+								VoIPDataPacket dp = client.getDecodedBuffer();
+								if (dp != null) {
+									if (hostingConference())
+										clientSample.put(client.getPhoneNumber(), dp.getData());
 
-								// Custom streams
-								VoIPDataPacket clientDp = new VoIPDataPacket();
-								byte[] origPCM = clientSample.get(client.getPhoneNumber());
-								byte[] newPCM = null;
-								if (origPCM == null) {
-									newPCM = conferencePCM;
-								} else {
-									newPCM = VoIPUtils.subtractPCMSamples(conferencePCM, origPCM);
-								}
-								clientDp.setData(newPCM);
-								clientDp.setVoice(true);
-								client.addSampleToEncode(clientDp); 
+									if (finalDecodedSample == null)
+										finalDecodedSample = dp;
+									else {
+										// We have to combine samples
+										finalDecodedSample.setData(VoIPUtils.addPCMSamples(finalDecodedSample.getData(), dp.getData()));
+									}
+								} 
 							}
 						}
+
+						// Quality tracking, and buffer underrun protection
+						try {
+							if (finalDecodedSample == null) {
+								// Logger.d(logTag, "Decoded samples underrun. Adding silence.");
+								finalDecodedSample = silentPacket;
+							} 
+
+							// Add to our decoded samples queue for playback
+							if (!hold) {
+								if (playbackBuffersQueue.size() < VoIPConstants.MAX_SAMPLES_BUFFER)
+									playbackBuffersQueue.put(finalDecodedSample);
+								else
+									Logger.w(tag, "Playback buffers queue full.");
+							}
+
+						} catch (InterruptedException e) {
+							Logger.e(tag, "InterruptedException while adding playback sample: " + e.toString());
+						}
+
+						// If we are in conference, then add our own recorded signal as well.
+						// Broadcast this signal to all clients, except for the ones that are speaking.
+						// If someone is speaking, we need to send them a custom stream without their voice signal.
+						
+						if (hostingConference()) {
+							VoIPDataPacket dp = processedRecordedSamples.poll();
+							byte[] conferencePCM = null;
+							if (dp != null) {
+								conferencePCM = VoIPUtils.addPCMSamples(finalDecodedSample.getData(), dp.getData());
+								dp.setData(conferencePCM);
+							}
+							else {
+								dp = new VoIPDataPacket(PacketType.AUDIO_PACKET);
+								conferencePCM = finalDecodedSample.getData();	// Host is probably on mute
+								dp.setData(conferencePCM);
+							}
+
+							// This is the broadcast
+							conferenceBroadcastPackets.add(dp);
+
+							synchronized (clients) {
+								for (VoIPClient client : clients.values()) {
+									if (!client.isSpeaking() || !client.connected)
+										continue;
+
+									// Custom streams
+									VoIPDataPacket clientDp = new VoIPDataPacket();
+									byte[] origPCM = clientSample.get(client.getPhoneNumber());
+									byte[] newPCM = null;
+									if (origPCM == null) {
+										newPCM = conferencePCM;
+									} else {
+										newPCM = VoIPUtils.subtractPCMSamples(conferencePCM, origPCM);
+									}
+									clientDp.setData(newPCM);
+									clientDp.setVoice(true);
+									client.addSampleToEncode(clientDp); 
+								}
+							}
+						} else {
+							// We are in a one-to-one call, 
+							// so just send our recorded stream to the other client.
+							VoIPDataPacket dp = processedRecordedSamples.poll();
+							VoIPClient client = getClient();
+							if (dp != null && client != null)
+								client.addSampleToEncode(dp);
+						}
+
+						if (hostingConference())
+							clientSample.clear();
+
 					} else {
-						// We are in a one-to-one call, 
-						// so just send our recorded stream to the other client.
-						VoIPDataPacket dp = processedRecordedSamples.poll();
-						VoIPClient client = getClient();
-						if (dp != null && client != null)
-							client.addSampleToEncode(dp);
+						Logger.d(tag, "Shutting down decoded samples poller.");
+						scheduledFuture.cancel(true);
+						scheduledExecutorService.shutdownNow();
 					}
-
-					if (hostingConference())
-						clientSample.clear();
-
-				} else {
-					Logger.d(tag, "Shutting down decoded samples poller.");
-					scheduledFuture.cancel(true);
-					scheduledExecutorService.shutdownNow();
+				} catch (Exception e) {
+					Logger.e(tag, "Exception thrown: " + e);
 				}
 			}
 		}, 0, sleepTime, TimeUnit.MILLISECONDS);
