@@ -463,6 +463,9 @@ public class PlatformContentModel
 		@Expose
 		public String parent_msisdn;
 
+		@Expose
+		public boolean replace;
+
 	}
 
 }

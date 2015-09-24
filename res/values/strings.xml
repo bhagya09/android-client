@@ -1720,6 +1720,8 @@
     <string name="low_battery_msg">Your device is running low on battery. Messaging and sending or receiving files may become slow.</string>
     <string name ="offline_connection_problem">Oops! Facing some problem?\nPlease try later.</string>
     <string name="turn_on_connection">Turn on Mobile Data or Wi-Fi</string>
+    <string name="please_wait">Please wait</string>
+    <string name="loading_data">Loading data...</string>
     <string name="action_no_network">Please check network</string>
     <string name="timeline_transition_anim">timeline_image_transit</string>
     <string name="home_overflow_new_photo">New Photo</string>
@@ -1727,4 +1729,7 @@
     <string name="group_participant_info">You can add upto 500 members to a group</string>
     <string name="maxContactInGroupErr">Max %1$s members can be added</string>
     <string name="added_in_group">This contact is already a member</string>
+    <string name="okay">OKAY</string>
+    <string name="getting_mapp_shortly">Congratulations! You should see %1$s on your chat screen shortly</string>
+    <string name="hike_apps">APPS ON HIKE</string>
 </resources>
