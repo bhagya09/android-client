@@ -25,7 +25,7 @@ public class IncomingCallReceiver extends PhoneStateListener
 
 	private static boolean ring = false;
 
-	private static boolean callReceived = false;
+	public static boolean callReceived = false;
 
 	
 	@Override

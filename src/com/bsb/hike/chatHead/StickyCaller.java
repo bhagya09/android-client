@@ -531,6 +531,7 @@ public class StickyCaller
 				{
 					if (CALL_TYPE == INCOMING || CALL_TYPE == OUTGOING)
 					{
+						IncomingCallReceiver.callReceived = true;
 						toCall = true;
 						Utils.killCall();
 					}
@@ -545,6 +546,7 @@ public class StickyCaller
 				HAManager.getInstance().stickyCallerAnalyticsUIEvent(AnalyticsConstants.StickyCallerEvents.FREE_SMS_BUTTON, StickyCaller.callCurrentNumber, AnalyticsConstants.StickyCallerEvents.CARD, getCallEventFromCallType(CALL_TYPE));
 				if (callCurrentNumber != null)
 				{
+					IncomingCallReceiver.callReceived = true;
 					Utils.killCall();
 					Intent intent = IntentFactory.createChatThreadIntentFromMsisdn(HikeMessengerApp.getInstance(), callCurrentNumber, true, false);
 					intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -567,6 +569,7 @@ public class StickyCaller
 				}
 				break;
 			case R.id.caller_settings_button:
+				IncomingCallReceiver.callReceived = true;
 				HAManager.getInstance().stickyCallerAnalyticsUIEvent(AnalyticsConstants.StickyCallerEvents.CALLER_SETTINGS_BUTTON, StickyCaller.callCurrentNumber, AnalyticsConstants.StickyCallerEvents.CARD, getCallEventFromCallType(CALL_TYPE));
 				Intent intent = IntentFactory.getStickyCallerSettingsIntent(HikeMessengerApp.getInstance());
 				ChatHeadService.insertHomeActivitBeforeStarting(intent);
