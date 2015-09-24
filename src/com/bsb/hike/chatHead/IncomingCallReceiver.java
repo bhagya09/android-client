@@ -41,6 +41,14 @@ public class IncomingCallReceiver extends PhoneStateListener
 
 		case TelephonyManager.CALL_STATE_OFFHOOK:
 			callReceived = true;
+			if (StickyCaller.CALL_TYPE == StickyCaller.OUTGOING)
+			{
+				StickyCaller.removeCallerViewWithDelay(12000);
+			}
+			else if (StickyCaller.CALL_TYPE == StickyCaller.INCOMING)
+			{
+				StickyCaller.removeCallerViewWithDelay(2000);
+			}
 			break;
 
 		case TelephonyManager.CALL_STATE_IDLE:

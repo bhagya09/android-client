@@ -166,6 +166,29 @@ public class StickyCaller
 			Logger.d("Sticky Caller", "Removing Caller View");
 		}
 	}
+	
+	public static void removeCallerViewWithDelay(int delay)
+	{
+		HikeHandlerUtil mThread = HikeHandlerUtil.getInstance();
+		mThread.startHandlerThread();
+		if (mThread != null)
+		{
+			mThread.postRunnableWithDelay(new Runnable()
+			{
+
+				@Override
+				public void run()
+				{
+					if (CALL_TYPE != MISSED)
+					{
+						removeCallerView();
+					}
+				}
+
+			}, delay);
+		}
+
+	}
 
 	static OnSwipeTouchListener onSwipeTouchListener = new OnSwipeTouchListener(HikeMessengerApp.getInstance().getApplicationContext())
 	{
