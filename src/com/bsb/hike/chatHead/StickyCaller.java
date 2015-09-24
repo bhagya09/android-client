@@ -368,10 +368,13 @@ public class StickyCaller
 			callerName.setText(result);
 		}
 	
-		setFreeCallButton();
-		
-		setFreeSmsButton();
-		
+		if (Utils.isIndianNumber(number) || Utils.isOnHike(number))
+		{
+			setFreeCallButton();
+
+			setFreeSmsButton();
+		}
+
 		if (CALL_TYPE == MISSED)
 		{
 			setCallButton();
@@ -435,7 +438,7 @@ public class StickyCaller
 			callerNumber.setVisibility(View.VISIBLE);
 			callerNumber.setText(number);
 		}
-		if (callerContentModel.getFirstName() != null)
+		if (callerContentModel != null && callerContentModel.getFirstName() != null)
 		{
 			TextView callerName = (TextView) stickyCallerView.findViewById(R.id.caller_name);
 			callerName.setVisibility(View.VISIBLE);
@@ -448,23 +451,25 @@ public class StickyCaller
 			callCurrentName = name;
 			setSaveContactClickListener();
 		}
-		else if (callerContentModel.getLastName() != null)
+		else if (callerContentModel != null &&callerContentModel.getLastName() != null)
 		{
 			TextView callerName = (TextView) stickyCallerView.findViewById(R.id.caller_name);
 			callerName.setVisibility(View.VISIBLE);
 			callerName.setText(callerContentModel.getLastName());
 		}
-		if (callerContentModel.getLocation() != null)
+		if (callerContentModel != null && callerContentModel.getLocation() != null)
 		{
 			TextView callerLocation = (TextView) (stickyCallerView.findViewById(R.id.caller_location));
 			callerLocation.setVisibility(View.VISIBLE);
 			callerLocation.setText(callerContentModel.getLocation());
 		}
+		
+		if ((callerContentModel != null && callerContentModel.getIsOnHike()) || Utils.isIndianNumber(number))
+		{
+			setFreeCallButton();
 
-		setFreeCallButton();
-		
-		setFreeSmsButton();
-		
+			setFreeSmsButton();
+		}
 		if (CALL_TYPE == MISSED)
 		{
 			

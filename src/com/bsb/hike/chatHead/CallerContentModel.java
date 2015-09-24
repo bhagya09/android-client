@@ -25,7 +25,7 @@ public class CallerContentModel
 	private String location;
 
 	@Expose
-	private String is_on_hike;
+	private boolean is_on_hike;
 
 	@Expose
 	private JsonObject name;
@@ -59,7 +59,7 @@ public class CallerContentModel
 		return location;
 	}
 
-	public String getIsOnHike()
+	public boolean getIsOnHike()
 	{
 		return is_on_hike;
 	}

@@ -364,6 +364,16 @@ public class Utils
 		return obj;
 	}
 
+	public static boolean isIndianNumber(String number)
+	{
+		if (number != null && (number.startsWith("+919") || number.startsWith("+918") || number.startsWith("+917")))
+		{
+			return true;
+		}
+		return false;
+	}
+	
+	
 	static final private int ANIMATION_DURATION = 400;
 
 	public static Animation inFromRightAnimation(Context ctx)
@@ -7249,6 +7259,16 @@ public class Utils
 		Intent intent = IntentFactory.createChatThreadIntentFromMsisdn(HikeMessengerApp.getInstance(), StickyCaller.callCurrentNumber, true, false);
 		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 	    HikeMessengerApp.getInstance().startActivity(intent);
+	}
+
+	public static boolean isOnHike(String number)
+	{
+		ContactInfo contactInfo = ContactManager.getInstance().getContactInfoFromPhoneNoOrMsisdn(number);
+		if (contactInfo != null && contactInfo.isOnhike())
+		{
+			return true;
+		}
+		return false;
 	}
 
 }
