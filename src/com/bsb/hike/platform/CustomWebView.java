@@ -195,6 +195,12 @@ public class CustomWebView extends WebView
 		super.addJavascriptInterface(obj, interfaceName);
 	}
 
+	@Override
+	public void loadUrl(String url)
+	{
+		super.loadUrl(Utils.appendTokenInURL(url));
+	}
+
 	public boolean isWebViewShowing()
 	{
 		return this.isShowing;

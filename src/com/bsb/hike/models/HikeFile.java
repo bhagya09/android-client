@@ -33,7 +33,7 @@ public class HikeFile
 {
 	public static enum HikeFileType
 	{
-		PROFILE, IMAGE, VIDEO, AUDIO, LOCATION, CONTACT, AUDIO_RECORDING, APK, OTHER;
+		PROFILE, IMAGE, VIDEO, AUDIO, LOCATION, CONTACT, AUDIO_RECORDING, OTHER,APK;
 
 		public static HikeFileType fromString(String fileTypeString)
 		{
@@ -103,11 +103,11 @@ public class HikeFile
 			}
 			else if (hikeFileType == OTHER)
 			{
-				return "other";
+				return "application/octet-stream";
 			}
 			else if (hikeFileType == APK)
 			{
-				return "apk";
+				return "application/vnd.android.package-archive";
 			}
 			return null;
 		}

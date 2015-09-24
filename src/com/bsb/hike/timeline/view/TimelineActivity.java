@@ -49,6 +49,8 @@ import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.media.OverFlowMenuItem;
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
+import com.bsb.hike.timeline.TimelineResourceCleaner;
+import com.bsb.hike.timeline.adapter.ActivityFeedCursorAdapter;
 import com.bsb.hike.ui.PeopleActivity;
 import com.bsb.hike.ui.ProfileActivity;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
@@ -79,7 +81,7 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 
 	private final String FRAGMENT_ACTIVITY_FEED_TAG = "fragmentActivityFeedTag";
 	
-	private final String MAIN_ACTIVITY_FEED_TAG = "mainActivityFeedTag";
+	private final String FRAGMENT_UPDATES_TAG = "updatesFragmentTag";
 	
 	private static final String TAG = "TimelineActivity";
 
@@ -165,7 +167,7 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 			ActivityFeedFragment activityFeedFragment = (ActivityFeedFragment) getSupportFragmentManager().findFragmentByTag(FRAGMENT_ACTIVITY_FEED_TAG);
 			if(activityFeedFragment != null)
 			{
-				if(!activityFeedFragment.isAdded() || !activityFeedFragment.isVisible())
+				if(!activityFeedFragment.isAdded())
 				{
 					getSupportFragmentManager()
 					.beginTransaction()
@@ -184,11 +186,15 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 			if(!isUpdatesFrgamentOnTop())
 			{
 				getSupportFragmentManager().popBackStack();
-				
 				ActionBar actionBar = getSupportActionBar();
 				View actionBarView = actionBar.getCustomView();
 				TextView title = (TextView) actionBarView.findViewById(R.id.title);
 				title.setText(R.string.timeline);
+			}
+			else
+			{
+				UpdatesFragment updatesFragment = (UpdatesFragment) getSupportFragmentManager().findFragmentByTag(FRAGMENT_UPDATES_TAG);
+				updatesFragment.scrollToTop();
 			}
 		}
 	}
@@ -220,12 +226,12 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 
 	private void setupMainFragment(Bundle savedInstanceState)
 	{
-		mainFragment = (UpdatesFragment)getSupportFragmentManager().findFragmentByTag(MAIN_ACTIVITY_FEED_TAG);
+		mainFragment = (UpdatesFragment)getSupportFragmentManager().findFragmentByTag(FRAGMENT_UPDATES_TAG);
 		
 		if(mainFragment == null)
 		{
 			mainFragment = new UpdatesFragment();
-			getSupportFragmentManager().beginTransaction().add(R.id.parent_layout, mainFragment,MAIN_ACTIVITY_FEED_TAG).commit();
+			getSupportFragmentManager().beginTransaction().add(R.id.parent_layout, mainFragment,FRAGMENT_UPDATES_TAG).commit();
 		}
 	}
 
@@ -528,24 +534,25 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 	@Override
 	protected void onResume()
 	{
+		super.onResume();
 		Utils.resetUnseenStatusCount(this);
 		HikeMessengerApp.getPubSub().publish(HikePubSub.NEW_ACTIVITY, this);
 		HikeMessengerApp.getPubSub().publish(HikePubSub.CANCEL_ALL_NOTIFICATIONS, null);
-		super.onResume();
 	}
 
 	@Override
 	protected void onPause()
 	{
-		HikeMessengerApp.getPubSub().publish(HikePubSub.NEW_ACTIVITY, null);
 		super.onPause();
+		HikeMessengerApp.getPubSub().publish(HikePubSub.NEW_ACTIVITY, null);
 	}
 
 	@Override
 	protected void onDestroy()
 	{
-		HikeMessengerApp.getPubSub().removeListeners(this, homePubSubListeners);
 		super.onDestroy();
+		HikeMessengerApp.getPubSub().removeListeners(this, homePubSubListeners);
+		HikeHandlerUtil.getInstance().postRunnable(TimelineResourceCleaner.getInstance());
 	}
 
 	public void updateFriendsNotification(int count, int delayTime)
@@ -715,6 +722,6 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 	public boolean isUpdatesFrgamentOnTop()
 	{
 		int count = getSupportFragmentManager().getBackStackEntryCount();
-		return count <= 1 ? true : false;
+		return count == 0 ? true : false;
 	}
 }
