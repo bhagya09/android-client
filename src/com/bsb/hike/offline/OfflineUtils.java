@@ -936,25 +936,10 @@ public class OfflineUtils
 
 	public static int getConnectedDeviceVersion()
 	{
-		JSONObject connectedClientInfo  = OfflineController.getInstance().getConnectedClientInfo();
+		OfflineClientInfoPOJO connectedClientInfo  = OfflineController.getInstance().getConnectedClientInfo();
 		if(connectedClientInfo!=null)
 		{
-			if(connectedClientInfo.has(OfflineConstants.OFFLINE_VERSION))
-			{
-				try
-				{
-					return connectedClientInfo.getInt(OfflineConstants.OFFLINE_VERSION);
-				}
-				catch (JSONException e)
-				{
-					Logger.d(TAG, "Error in offline version");
-					return 1;
-				}
-			}
-			else
-			{
-				return 1;
-			}
+			return connectedClientInfo.getOfflineVersionNumber();
 		}
 		return 1;
 	}

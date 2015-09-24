@@ -72,7 +72,7 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 	
 	private boolean isClientInitialized=false;
 	
-	private JSONObject connectedClientInfo =null;
+	private OfflineClientInfoPOJO connectedClientInfo =null;
 	
 	Handler handler = new Handler(HikeHandlerUtil.getInstance().getLooper())
 	{
@@ -563,10 +563,14 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 
 	public void setConnectedClientInfo(JSONObject clientInfo)
 	{
-		connectedClientInfo = clientInfo;
+		if(clientInfo==null)
+			return;
+		
+		OfflineClientInfoPOJO  offlineClientInfoPOJO = new Gson().fromJson(clientInfo.toString(), OfflineClientInfoPOJO.class);
+		connectedClientInfo = offlineClientInfoPOJO;
 	}
 
-	public JSONObject getConnectedClientInfo()
+	public OfflineClientInfoPOJO getConnectedClientInfo()
 	{
 		return connectedClientInfo;
 	}

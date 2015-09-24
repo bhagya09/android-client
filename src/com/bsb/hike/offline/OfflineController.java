@@ -684,7 +684,7 @@ public class OfflineController
 		offlineManager.setConnectedClientInfo(clientInfo);
 	}
 	
-	public JSONObject getConnectedClientInfo()
+	public OfflineClientInfoPOJO getConnectedClientInfo()
 	{
 		return offlineManager.getConnectedClientInfo();
 	}
