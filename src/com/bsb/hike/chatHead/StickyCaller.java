@@ -1,5 +1,7 @@
 package com.bsb.hike.chatHead;
 
+import java.net.HttpURLConnection;
+
 import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.Intent;
@@ -79,8 +81,6 @@ public class StickyCaller
 
 	private static final long CALLER_DELAY = 2000;
 
-	private static final String ERROR_400 = "400";
-	
 	public static boolean toCall = false;
 
 	static LayoutParams callerParams = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, LayoutParams.TYPE_SYSTEM_ERROR, LayoutParams.FLAG_NOT_FOCUSABLE
@@ -537,7 +537,7 @@ public class StickyCaller
 		stickyCallerView.findViewById(R.id.hike_caller_logo).setVisibility(View.VISIBLE);
 		TextView noResponse = (TextView)stickyCallerView.findViewById(R.id.net_not_connected);
 		noResponse.setVisibility(View.VISIBLE);
-		if (result.equals(ERROR_400))
+		if (result.equals(Integer.toString(HttpURLConnection.HTTP_BAD_REQUEST)))
 		{
 			noResponse.setText(context.getString(R.string.net_not_connected));
 		}
