@@ -588,15 +588,17 @@ public class HikeSharedFilesActivity extends HikeAppStateBaseFragmentActivity
 			{
 				return;
 			}
-			final int sharedFilePos = (int) object;
+
+			final HikeSharedFile sharedFile = (HikeSharedFile) object;
 			runOnUiThread(new Runnable()
 			{
 
 				@Override
 				public void run()
 				{
-					sharedGalleryadapter.removeSharedFile(sharedFilePos);
-					sharedGalleryadapter.notifyItemRemoved(sharedFilePos);
+					int position = sharedGalleryadapter.removeSharedFile(sharedFile);
+					if(position >= 0)
+						sharedGalleryadapter.notifyItemRemoved(position);
 					// If there are no files to show, finish shared files gallery activity.
 					// This will only happen in an edge-case,
 					// 1. User comes to this gallery containing only 1 item
