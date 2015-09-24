@@ -872,6 +872,9 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			case R.string.email_chat:
 				overFlowMenuItem.enabled = !isMessageListEmpty;
 				break;
+			case R.string.change_keyboard:
+				overFlowMenuItem.enabled = !mConversation.isBlocked();
+				break;
 			case R.string.hide_chat:
 				overFlowMenuItem.text = getString(StealthModeManager.getInstance().isActive() ? 
 						(mConversation.isStealth() ? R.string.mark_visible : R.string.mark_hidden)
