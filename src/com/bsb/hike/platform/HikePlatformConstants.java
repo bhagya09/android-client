@@ -84,6 +84,7 @@ public interface HikePlatformConstants
 	public static final String REPLACE_MICROAPP_VERSION = "replace";
 	public static final String BOT_VERSION = "version";
 	public static final String CALLBACK_ID = "callback_id";
+	public static final String FORWARD_CARD_OBJECT = "fwdCardObj";
 
 	public static final class PlatformUIDFetchType
 	{
