@@ -46,6 +46,8 @@ public class ChatHeadUtils
 	
 	// replica of hidden constant ActivityManager.PROCESS_STATE_TOP 
 	public static final int PROCESS_STATE_TOP =2;
+	
+	private static ChatHeadViewManager viewManager;
 
 	
 	/**
@@ -306,6 +308,11 @@ public class ChatHeadUtils
 		return  !isAccessibilityEnabled(HikeMessengerApp.getInstance().getApplicationContext());
 	}
 	
+	public static boolean useOfAccessibilittyPermitted()
+	{
+		return !HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.DONT_USE_ACCESSIBILITY, willPollingWork());
+	}
+	
 	public static boolean canAccessibilityBeUsed(boolean serviceDecision)
 	{
 		boolean forceAccessibility = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.FORCE_ACCESSIBILITY, true);
@@ -318,7 +325,7 @@ public class ChatHeadUtils
 		{
 			return accessibilityDisabled;
 		}
-		boolean wantToUseAccessibility = !HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.DONT_USE_ACCESSIBILITY, true);
+		boolean wantToUseAccessibility = useOfAccessibilittyPermitted();
 		//dontUseAccessibility is an internal flag, to prevent user from using accessibility service for stickey,
 		//even if accessibility is enabled by forceAccessibility flag On
 		return  wantToUseAccessibility || accessibilityDisabled;
@@ -329,7 +336,7 @@ public class ChatHeadUtils
 		boolean sessionLogEnabled = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SESSION_LOG_TRACKING, false);
 		boolean startChatHead = shouldRunChatHeadServiceForStickey() && !canAccessibilityBeUsed(true);
 		
-		if (sessionLogEnabled || startChatHead)
+		if (willPollingWork() && (sessionLogEnabled || startChatHead))
 		{
 			if (jsonChanged)
 			{
@@ -350,13 +357,27 @@ public class ChatHeadUtils
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.SNOOZE, false);
 			HikeAlarmManager.cancelAlarm(HikeMessengerApp.getInstance(), HikeAlarmManager.REQUESTCODE_START_STICKER_SHARE_SERVICE); 
 		}
+		
+		if (useOfAccessibilittyPermitted())
+		{
+			if(viewManager == null)
+			{
+				viewManager = ChatHeadViewManager.getInstance(HikeMessengerApp.getInstance().getApplicationContext());
+			}
+			viewManager.onDestroy();
+			viewManager.onCreate();
+		}
 	}
 
 	public static void onClickSetAlarm(Context context, int time)
 	{
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.SNOOZE, true);
+		if(!HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.DONT_USE_ACCESSIBILITY, willPollingWork()))
+		{
+			ChatHeadViewManager.getInstance(context).onDestroy();
+		}
 		HikeAlarmManager.setAlarm(context, Calendar.getInstance().getTimeInMillis() + time, HikeAlarmManager.REQUESTCODE_START_STICKER_SHARE_SERVICE, false);
-		ChatHeadService.getInstance().resetPosition(ChatHeadConstants.STOPPING_SERVICE_ANIMATION, null);
+		ChatHeadViewManager.getInstance(context).resetPosition(ChatHeadConstants.STOPPING_SERVICE_ANIMATION, null);
 	}
 	
 	public static void setAllApps(JSONArray pkgList, boolean toSet)
@@ -399,21 +420,15 @@ public class ChatHeadUtils
 		}
 	}
 
+	public static boolean willPollingWork()
+	{
+		Set<String> currentPoll = ChatHeadUtils.getRunningAppPackage(ChatHeadUtils.GET_ALL_RUNNING_PROCESSES);
+		return currentPoll != null && !currentPoll.isEmpty() && !(currentPoll.size() == 1 && currentPoll.contains(HikeMessengerApp.getInstance().getPackageName()));
+	}
+	
 	public static boolean checkDeviceFunctionality()
 	{
-		if (Utils.isIceCreamOrHigher() && !Utils.isLollipopMR1OrHigher())
-		{
-			return true;
-		}
-		else if(Utils.isLollipopMR1OrHigher())
-		{
-			Set<String> currentPoll = ChatHeadUtils.getRunningAppPackage(ChatHeadUtils.GET_ALL_RUNNING_PROCESSES);
-			return currentPoll != null && !currentPoll.isEmpty() && !(currentPoll.size() == 1 && currentPoll.contains(HikeMessengerApp.getInstance().getPackageName()));
-		}
-		else
-		{
-			return false; 
-		}
+		return Utils.isIceCreamOrHigher();
 	}
 	
 }
