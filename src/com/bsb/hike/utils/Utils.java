@@ -366,10 +366,11 @@ public class Utils
 		}
 	}
 	
-	public static void sendSMS(String number)
+	public static void sendSMS(String number, String message)
 	{
 		Intent intent = new Intent(Intent.ACTION_VIEW, Uri.fromParts("sms", number, null));
 		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		intent.putExtra(StickyCaller.SMS_BODY, message); 
 		try
 		{
 			HikeMessengerApp.getInstance().startActivity(intent);

@@ -85,6 +85,8 @@ public class StickyCaller
 	
 	public static final int INCOMING_DELAY = 2000;
 
+	public static final String SMS_BODY = "sms_body";
+
 	public static boolean toCall = false;
 
 	static LayoutParams callerParams = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, LayoutParams.TYPE_SYSTEM_ERROR, LayoutParams.FLAG_NOT_FOCUSABLE
@@ -617,7 +619,7 @@ public class StickyCaller
 				HAManager.getInstance().stickyCallerAnalyticsUIEvent(AnalyticsConstants.StickyCallerEvents.SMS_BUTTON, StickyCaller.callCurrentNumber, AnalyticsConstants.StickyCallerEvents.CARD, getCallEventFromCallType(CALL_TYPE));
 				if (callCurrentNumber != null)
 				{
-					Utils.sendSMS(callCurrentNumber);
+					Utils.sendSMS(callCurrentNumber, HikeMessengerApp.getInstance().getApplicationContext().getString(R.string.hi));
 				}
 				break;
 			case R.id.caller_settings_button:
