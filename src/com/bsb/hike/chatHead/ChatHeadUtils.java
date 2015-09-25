@@ -17,6 +17,7 @@ import android.app.ActivityManager.RunningTaskInfo;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.SystemClock;
 import android.provider.Settings;
 import android.provider.Settings.SettingNotFoundException;
 import android.support.v4.app.TaskStackBuilder;
@@ -126,6 +127,25 @@ public class ChatHeadUtils
 		}
 	}
 
+	
+	public static String getdateFromSystemTime()
+	{
+		String date;
+		String time;
+		Calendar cl = Calendar.getInstance();
+		cl.setTimeInMillis(System.currentTimeMillis());
+		date = " on "+cl.get(Calendar.DAY_OF_MONTH)+ "/" +cl.get(Calendar.MONTH) + " at " ;
+		if (cl.get(Calendar.HOUR_OF_DAY) >= 12)
+		{
+			time = (cl.get(Calendar.HOUR_OF_DAY) -12) + ":" +cl.get(Calendar.MINUTE) + " PM";
+		}
+		else
+		{
+			time = (cl.get(Calendar.HOUR_OF_DAY)) + ":" +cl.get(Calendar.MINUTE) + " AM";
+		}
+		return date + time;
+	}
+	
 	public static void getRunningTaskPackage(Context context, ActivityManager activityManager, List<RunningAppProcessInfo> processInfos, Set<String> packageName, int type)
 	{
 		if (Utils.isLollipopOrHigher())
