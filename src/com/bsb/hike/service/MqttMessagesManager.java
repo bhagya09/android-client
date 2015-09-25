@@ -2527,6 +2527,10 @@ public class MqttMessagesManager
 			boolean activate = data.getBoolean(HikeConstants.SHOW_HIGH_RES_IMAGE);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOW_HIGH_RES_IMAGE, activate);
 		}
+		if (data.has(StickyCaller.SHOW_STICKY_CALLER))
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(StickyCaller.SHOW_STICKY_CALLER, data.optBoolean(StickyCaller.SHOW_STICKY_CALLER, false));
+		}
 		if (data.has(StickyCaller.ACTIVATE_STICKY_CALLER))
 		{
 			HikeSharedPreferenceUtil.getInstance().saveData(StickyCaller.ACTIVATE_STICKY_CALLER, data.optBoolean(StickyCaller.ACTIVATE_STICKY_CALLER, false));
@@ -2539,10 +2543,6 @@ public class MqttMessagesManager
 				ChatHeadUtils.unregisterCallReceiver();
 			}
 		}
-		if (data.has(StickyCaller.SHOW_STICKY_CALLER))
-		{
-			HikeSharedPreferenceUtil.getInstance().saveData(StickyCaller.SHOW_STICKY_CALLER, data.optBoolean(StickyCaller.SHOW_STICKY_CALLER, false));
-		}		
 		if (data.has(HikeConstants.BOT_TABLE_REFRESH))
 		{
 			boolean shouldrefreshBotTable = data.getBoolean(HikeConstants.BOT_TABLE_REFRESH);
