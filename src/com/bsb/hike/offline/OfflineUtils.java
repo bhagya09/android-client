@@ -141,7 +141,7 @@ public class OfflineUtils
 		return HikeConversationsDatabase.getInstance().updateMsgStatus(msgId, status.ordinal(), msisdn);
 	}
 
-	public static int getTotalChunks(int fileSize)
+	public static long getTotalChunks(long fileSize)
 	{
 		return fileSize / OfflineConstants.CHUNK_SIZE + ((fileSize % OfflineConstants.CHUNK_SIZE != 0) ? 1 : 0);
 	}
@@ -350,13 +350,13 @@ public class OfflineUtils
 		}
 	}
 
-	public static int getFileSizeFromJSON(JSONObject packet)
+	public static long getFileSizeFromJSON(JSONObject packet)
 	{
 		try
 		{
 			JSONArray jsonFiles = packet.getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA).getJSONArray(HikeConstants.FILES);
 			JSONObject jsonFile = jsonFiles.getJSONObject(0);
-			return jsonFile.optInt(HikeConstants.FILE_SIZE);
+			return jsonFile.optLong(HikeConstants.FILE_SIZE);
 		}
 		catch (JSONException e)
 		{
@@ -601,7 +601,7 @@ public class OfflineUtils
 			File sourceFile = new File(fileJSON.optString(HikeConstants.FILE_PATH));
 			hikeFile.setFileKey("OfflineKey" + System.currentTimeMillis() / 1000);
 			hikeFile.setFile(sourceFile);
-			hikeFile.setFileSize((int) sourceFile.length());
+			hikeFile.setFileSize(sourceFile.length());
 			hikeFile.setFileName(fileName);
 			hikeFile.setSent(true);
 			fileJSON = hikeFile.serialize();
@@ -639,7 +639,8 @@ public class OfflineUtils
 		try
 		{
 			object.put(HikeConstants.TYPE, OfflineConstants.INFO_PKT);
-			object.put(HikeConstants.VERSION, Utils.getAppVersion());
+			object.put(HikeConstants.VERSION,Utils.getAppVersion());
+			object.put(OfflineConstants.OFFLINE_VERSION,OfflineConstants.OFFLINE_VERSION_NUMER);
 			object.put(HikeConstants.RESOLUTION_ID, Utils.getResolutionId());
 			object.put(OfflineConstants.CONNECTION_ID, connectID);
 		}
@@ -919,5 +920,27 @@ public class OfflineUtils
 		}
 
 		HikeMessengerApp.getInstance().showToast(R.string.low_battery_msg,Toast.LENGTH_LONG);
+	}
+	
+	public static boolean isFeautureAvailable(int myVersion,int clientTwoVersion,int minClientVersion)
+	{
+		if(myVersion>= minClientVersion &&  clientTwoVersion >=minClientVersion)
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+
+	public static int getConnectedDeviceVersion()
+	{
+		OfflineClientInfoPOJO connectedClientInfo  = OfflineController.getInstance().getConnectedClientInfo();
+		if(connectedClientInfo!=null)
+		{
+			return connectedClientInfo.getOfflineVersionNumber();
+		}
+		return 1;
 	}
 }

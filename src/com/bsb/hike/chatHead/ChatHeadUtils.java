@@ -19,6 +19,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.provider.Settings;
 import android.provider.Settings.SettingNotFoundException;
+import android.support.v4.app.TaskStackBuilder;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
@@ -36,6 +37,7 @@ import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.userlogs.PhoneSpecUtils;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.voip.VoIPUtils.CallSource;
@@ -69,6 +71,8 @@ public class ChatHeadUtils
 		
 	// replica of hidden constant ActivityManager.PROCESS_STATE_TOP 
 	public static final int PROCESS_STATE_TOP =2;
+	
+	private static ChatHeadViewManager viewManager;
 
 	/**
 	 * returns the package names of the running processes can be single, all or in tasks packages as per argument
@@ -328,6 +332,11 @@ public class ChatHeadUtils
 		return  !isAccessibilityEnabled(HikeMessengerApp.getInstance().getApplicationContext());
 	}
 	
+	public static boolean useOfAccessibilittyPermitted()
+	{
+		return !HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.DONT_USE_ACCESSIBILITY, willPollingWork());
+	}
+	
 	public static boolean canAccessibilityBeUsed(boolean serviceDecision)
 	{
 		boolean forceAccessibility = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.FORCE_ACCESSIBILITY, true);
@@ -340,7 +349,7 @@ public class ChatHeadUtils
 		{
 			return accessibilityDisabled;
 		}
-		boolean wantToUseAccessibility = !HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.DONT_USE_ACCESSIBILITY, true);
+		boolean wantToUseAccessibility = useOfAccessibilittyPermitted();
 		//dontUseAccessibility is an internal flag, to prevent user from using accessibility service for stickey,
 		//even if accessibility is enabled by forceAccessibility flag On
 		return  wantToUseAccessibility || accessibilityDisabled;
@@ -351,7 +360,7 @@ public class ChatHeadUtils
 		boolean sessionLogEnabled = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SESSION_LOG_TRACKING, false);
 		boolean startChatHead = shouldRunChatHeadServiceForStickey() && !canAccessibilityBeUsed(true);
 		
-		if (sessionLogEnabled || startChatHead)
+		if (willPollingWork() && (sessionLogEnabled || startChatHead))
 		{
 			if (jsonChanged)
 			{
@@ -372,13 +381,27 @@ public class ChatHeadUtils
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.SNOOZE, false);
 			HikeAlarmManager.cancelAlarm(HikeMessengerApp.getInstance(), HikeAlarmManager.REQUESTCODE_START_STICKER_SHARE_SERVICE); 
 		}
+		
+		if (useOfAccessibilittyPermitted())
+		{
+			if(viewManager == null)
+			{
+				viewManager = ChatHeadViewManager.getInstance(HikeMessengerApp.getInstance().getApplicationContext());
+			}
+			viewManager.onDestroy();
+			viewManager.onCreate();
+		}
 	}
 
 	public static void onClickSetAlarm(Context context, int time)
 	{
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.SNOOZE, true);
+		if(!HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.DONT_USE_ACCESSIBILITY, willPollingWork()))
+		{
+			ChatHeadViewManager.getInstance(context).onDestroy();
+		}
 		HikeAlarmManager.setAlarm(context, Calendar.getInstance().getTimeInMillis() + time, HikeAlarmManager.REQUESTCODE_START_STICKER_SHARE_SERVICE, false);
-		ChatHeadService.getInstance().resetPosition(ChatHeadConstants.STOPPING_SERVICE_ANIMATION, null);
+		ChatHeadViewManager.getInstance(context).resetPosition(ChatHeadConstants.STOPPING_SERVICE_ANIMATION, null);
 	}
 	
 	public static void setAllApps(JSONArray pkgList, boolean toSet)
@@ -421,21 +444,15 @@ public class ChatHeadUtils
 		}
 	}
 
+	public static boolean willPollingWork()
+	{
+		Set<String> currentPoll = ChatHeadUtils.getRunningAppPackage(ChatHeadUtils.GET_ALL_RUNNING_PROCESSES);
+		return currentPoll != null && !currentPoll.isEmpty() && !(currentPoll.size() == 1 && currentPoll.contains(HikeMessengerApp.getInstance().getPackageName()));
+	}
+	
 	public static boolean checkDeviceFunctionality()
 	{
-		if (Utils.isIceCreamOrHigher() && !Utils.isLollipopMR1OrHigher())
-		{
-			return true;
-		}
-		else if(Utils.isLollipopMR1OrHigher())
-		{
-			Set<String> currentPoll = ChatHeadUtils.getRunningAppPackage(ChatHeadUtils.GET_ALL_RUNNING_PROCESSES);
-			return currentPoll != null && !currentPoll.isEmpty() && !(currentPoll.size() == 1 && currentPoll.contains(HikeMessengerApp.getInstance().getPackageName()));
-		}
-		else
-		{
-			return false; 
-		}
+		return Utils.isIceCreamOrHigher();
 	}
 	
 	public static String getNameFromNumber(Context context, String number)
@@ -575,6 +592,18 @@ public class ChatHeadUtils
 			Toast.makeText(context, String.format(context.getString(R.string.caller_invited_to_join), callerName), Toast.LENGTH_SHORT).show();
 			//TODO self invite logic
 		}
+	}
+	
+	public static void insertHomeActivitBeforeStarting(Intent openingIntent)
+	{
+		Context context = HikeMessengerApp.getInstance().getApplicationContext();
+		// Any activity which is being opened from the Sticker Chat Head will open Homeactivity on BackPress
+		// this is being done to prevent loss of BG packet sent by the app to server when we exit from the activity
+		// its also a product call to take user inside hike after exploring stickers deeply
+		// This code may be removed in case some better strategy replaces the FSM to handle FG-BG-lastseen use cases
+		TaskStackBuilder.create(context)
+			.addNextIntent(IntentFactory.getHomeActivityIntentAsLauncher(context))
+			.addNextIntent(openingIntent).startActivities();
 	}
 
 }

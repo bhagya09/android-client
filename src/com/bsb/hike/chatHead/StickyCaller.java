@@ -626,7 +626,7 @@ public class StickyCaller
 				IncomingCallReceiver.callReceived = true;
 				HAManager.getInstance().stickyCallerAnalyticsUIEvent(AnalyticsConstants.StickyCallerEvents.CALLER_SETTINGS_BUTTON, StickyCaller.callCurrentNumber, AnalyticsConstants.StickyCallerEvents.CARD, getCallEventFromCallType(CALL_TYPE));
 				Intent intent = IntentFactory.getStickyCallerSettingsIntent(HikeMessengerApp.getInstance());
-				ChatHeadService.insertHomeActivitBeforeStarting(intent);
+				ChatHeadUtils.insertHomeActivitBeforeStarting(intent);
 				break;
 			case R.id.caller_close_button:
 				HAManager.getInstance().stickyCallerAnalyticsUIEvent(AnalyticsConstants.StickyCallerEvents.CLOSE_BUTTON, StickyCaller.callCurrentNumber, AnalyticsConstants.StickyCallerEvents.CARD, getCallEventFromCallType(CALL_TYPE));

@@ -957,53 +957,42 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 	
 	public void bindDisconnectionFragment(String msisdn)
 	{
-		if (TextUtils.isEmpty(msisdn)|| NUXManager.getInstance().getCurrentState() == NUXConstants.NUX_IS_ACTIVE || (NUXManager.getInstance().getCurrentState() == NUXConstants.NUX_SKIPPED)
-				 || (NUXManager.getInstance().getCurrentState() == NUXConstants.COMPLETED))
+		if (TextUtils.isEmpty(msisdn))
 		{
 			return;
 		}
 		final OfflineDisconnectFragment fragment = OfflineDisconnectFragment.newInstance(msisdn, null, DisconnectFragmentType.REQUESTING);
 
-		ViewStub mmStub = (ViewStub) parent.findViewById(R.id.nux_footer);
-		if (mmStub == null)
+		ViewStub stub=(ViewStub) parent.findViewById(R.id.nux_footer);
+		if (stub == null)
 		{
-			// Old fragment is already attached.
-			// remove old frgame and attach new fragment
-			((HomeActivity) getActivity()).removeFragment(OfflineConstants.OFFLINE_DISCONNECT_FRAGMENT);
-			((HomeActivity) getActivity()).addFragment(R.id.fragment_disconnect, fragment, OfflineConstants.OFFLINE_DISCONNECT_FRAGMENT);
+			if (footerState.getEnum() == footerState.OPEN)
+				setFooterHalfOpen();
 		}
-		else
-		{
-			mmStub.setLayoutResource(R.layout.panel_import);
-
-			mmStub.setOnInflateListener(new OnInflateListener()
-			{
-				@Override
-				public void onInflate(ViewStub stub, View inflated)
-				{
-					((HomeActivity) getActivity()).addFragment(R.id.fragment_disconnect, fragment, OfflineConstants.OFFLINE_DISCONNECT_FRAGMENT);
-				}
-			});
-			mmStub.inflate();
-		}
+		
+		// Old fragment is already attached.
+		// remove old frgame and attach new fragment
+		((HomeActivity) getActivity()).removeFragment(OfflineConstants.OFFLINE_DISCONNECT_FRAGMENT);
+		((HomeActivity) getActivity()).addFragment(R.id.hike_direct, fragment, OfflineConstants.OFFLINE_DISCONNECT_FRAGMENT);
 		fragment.setConnectionListner(new OfflineConnectionRequestListener()
 		{
 
 			@Override
 			public void removeDisconnectFragment(boolean isConnectionAccepted)
 			{
-				if(!isConnectionAccepted)
+				if (!isConnectionAccepted)
 				{
-					OfflineUtils.sendOfflineRequestCancelPacket(OfflineUtils.fetchMsisdnFromRequestPkt(HikeSharedPreferenceUtil.getInstance().getData(OfflineConstants.DIRECT_REQUEST_DATA,"")));
+					OfflineUtils.sendOfflineRequestCancelPacket(OfflineUtils.fetchMsisdnFromRequestPkt(HikeSharedPreferenceUtil.getInstance().getData(
+							OfflineConstants.DIRECT_REQUEST_DATA, "")));
 				}
 				OfflineController.getInstance().removeConnectionRequest();
-				
+
 			}
 
 			@Override
 			public void onDisconnectionRequest()
 			{
-				
+
 			}
 
 			@Override
