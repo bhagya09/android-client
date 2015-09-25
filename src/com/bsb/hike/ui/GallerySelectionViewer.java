@@ -594,7 +594,14 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 
 			if(galleryItems.isEmpty())
 			{
-				startAddMoreGalleryIntent();
+				if(forGalleryShare)
+				{
+					onBackPressed();
+				}
+				else
+				{
+					startAddMoreGalleryIntent();
+				}
 			}
 
 			GallerySelectionViewer.this.selectedPager.setCurrentItem(postion == 0 ? 0 : postion - 1);

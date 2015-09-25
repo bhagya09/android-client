@@ -3,7 +3,6 @@ package com.bsb.hike.service;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -39,6 +38,7 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.MqttConstants;
 import com.bsb.hike.R;
+import com.bsb.hike.ag.NetworkAgModule;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.AnalyticsConstants.MsgRelEventType;
 import com.bsb.hike.analytics.HAManager;
@@ -94,9 +94,9 @@ import com.bsb.hike.platform.content.PlatformZipDownloader;
 import com.bsb.hike.productpopup.ProductInfoManager;
 import com.bsb.hike.tasks.PostAddressBookTask;
 import com.bsb.hike.timeline.TimelineActionsManager;
+import com.bsb.hike.timeline.model.ActionsDataModel.ActivityObjectTypes;
 import com.bsb.hike.timeline.model.FeedDataModel;
 import com.bsb.hike.timeline.model.StatusMessage;
-import com.bsb.hike.timeline.model.ActionsDataModel.ActivityObjectTypes;
 import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
 import com.bsb.hike.ui.HomeActivity;
 import com.bsb.hike.userlogs.UserLogInfo;
@@ -2479,6 +2479,20 @@ public class MqttMessagesManager
 		{
 			editor.putString(HikeConstants.EXTRAS_BOT_MSISDN, data.getString(HikeConstants.EXTRAS_BOT_MSISDN));
 		}
+		if (data.has(HikeConstants.AG_ENABLED))
+		{
+			boolean agoopLogs = data.getBoolean(HikeConstants.AG_ENABLED);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.AG_ENABLED, agoopLogs);
+			if(agoopLogs)
+			{
+				NetworkAgModule.startLogging();
+			}
+			else
+			{
+				NetworkAgModule.stopLogging();
+			}
+		}
+		
 		if (data.has(HikeConstants.REFERRAL_EMAIL_TEXT))
 		{
 			editor.putString(HikeConstants.REFERRAL_EMAIL_TEXT, data.getString(HikeConstants.REFERRAL_EMAIL_TEXT));
@@ -2511,6 +2525,58 @@ public class MqttMessagesManager
 		{
 			boolean activate = data.getBoolean(HikeConstants.SHOW_HIGH_RES_IMAGE);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOW_HIGH_RES_IMAGE, activate);
+		}
+		
+		if (data.has(HikeConstants.BOT_TABLE_REFRESH))
+		{
+			boolean shouldrefreshBotTable = data.getBoolean(HikeConstants.BOT_TABLE_REFRESH);
+			if (shouldrefreshBotTable)
+			{
+				if (data.has(HikeConstants.BOTS)) //Expect a JSONArray here
+				{
+					// This pubSub is listened by DbconversationListener, which fills the db
+					HikeMessengerApp.getPubSub().publish(HikePubSub.BOT_DISCOVERY_DOWNLOAD_SUCCESS, data);
+				}
+				
+				else //Assuming this is simply a flush packet for the table
+				{
+					HikeMessengerApp.getPubSub().publish(HikePubSub.BOT_DISCOVERY_TABLE_FLUSH, null);
+				}
+			}
+		}
+		
+		if (data.has(HikeConstants.ADD_DISCOVERY_BOTS))
+		{
+			if (data.getBoolean(HikeConstants.ADD_DISCOVERY_BOTS) && data.has(HikeConstants.BOTS))
+			{
+				HikeMessengerApp.getPubSub().publish(HikePubSub.BOT_DISCOVERY_DOWNLOAD_SUCCESS, data);
+			}
+			
+			else
+			{
+				Logger.e("BotDiscovery", "Did not find { bot : [] } Bot array to populate");
+			}
+		}
+		
+		if (data.has(HikeConstants.ENABLE_BOT_DISCOVERY))
+		{
+			boolean enableBotDiscovery = data.getBoolean(HikeConstants.ENABLE_BOT_DISCOVERY);
+
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ENABLE_BOT_DISCOVERY, enableBotDiscovery);
+		}
+		
+		if (data.has(HikeConstants.GET_DISCOVERY_BOTS))
+		{
+			boolean shouldGetBots = data.getBoolean(HikeConstants.GET_DISCOVERY_BOTS);
+			if (shouldGetBots)
+			{
+				JSONObject json = new JSONObject();
+				JSONArray botsArray = HikeContentDatabase.getInstance().getDiscoveryBotMsisdnArray();
+				json.put(AnalyticsConstants.DISCOVERY_BOTS, botsArray);
+				json.put(AnalyticsConstants.EVENT_KEY, AnalyticsConstants.GET_DISCOVERY_BOT_LIST);
+				json.put(AnalyticsConstants.DISCOVERY_BOTS, json);
+				HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.BOT_DISCOVERY, json);
+			}
 		}
 		
 		editor.commit();
@@ -4532,6 +4598,7 @@ public class MqttMessagesManager
 		
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.TIMELINE_FTUE_CARD_TO_SHOW_COUNTER, counter);
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ENABLE_TIMELINE_FTUE, true);
+		Utils.incrementUnseenStatusCount();
 		//HikeMessengerApp.getPubSub().publish(HikePubSub.TIMELINE_FTUE_LIST_UPDATE, new Pair<Set<String>, Integer>(msisdnSet, counter));
 	}
 }

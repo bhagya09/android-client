@@ -2,8 +2,9 @@ package com.bsb.hike.db;
 
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.List;
 
-import com.bsb.hike.platform.HikePlatformConstants;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -14,13 +15,18 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.net.Uri;
 import android.text.TextUtils;
+import android.util.Base64;
 import android.util.SparseArray;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.HikePubSub;
+import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.db.DBConstants.HIKE_CONTENT;
 import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.models.WhitelistDomain;
+import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.productpopup.ProductContentModel;
 import com.bsb.hike.productpopup.ProductInfoManager;
 import com.bsb.hike.utils.Logger;
@@ -87,7 +93,7 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 
 	private String[] getCreateQueries()
 	{
-		String[] createAndIndexes = new String[7];
+		String[] createAndIndexes = new String[8];
 		int i = 0;
 		// CREATE TABLE
 		// CONTENT TABLE -> _id,content_id,love_id,channel_id,timestamp,metadata
@@ -144,6 +150,8 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 		String cacheDataTable = contentCacheTableCreateStatement();
 
 		createAndIndexes[i++] = cacheDataTable;
+		
+		createAndIndexes[i++] = getCreateBotDiscoveryTableQuery();
 		// INDEX ENDS HERE
 
 		return createAndIndexes;
@@ -202,6 +210,12 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 			queries.add(drop);
 			queries.add(cacheDataTable);
 
+		}
+		
+		if (oldVersion < 6)
+		{
+			String createBotDiscoveryQuery = getCreateBotDiscoveryTableQuery();
+			queries.add(createBotDiscoveryQuery);
 		}
 		
 		return queries.toArray(new String[]{});
@@ -614,4 +628,240 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 	{
 		mDB.delete(HIKE_CONTENT.CONTENT_CACHE_TABLE, HIKE_CONTENT.NAMESPACE + "=?" , new String[]{nameSpace} );
 	}
+	
+	private String getCreateBotDiscoveryTableQuery()
+	{
+		String createBotDiscoveryTable = CREATE_TABLE + DBConstants.HIKE_CONTENT.BOT_DISCOVERY_TABLE + 
+				" ("
+				+ DBConstants._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+				+ DBConstants.MSISDN + " TEXT UNIQUE, " 
+				+ DBConstants.NAME + " TEXT, "
+				+ DBConstants.BOT_TYPE + " INTEGER DEFAULT " +  + BotInfo.MESSAGING_BOT + ", "  
+				+ DBConstants.HIKE_CONTENT.BOT_DESCRIPTION + " TEXT, "
+				+ DBConstants.HIKE_CONTENT.UPDATED_VERSION + " INTEGER DEFAULT 0" 
+				+")";
+
+		return createBotDiscoveryTable;
+	}
+	
+	/**
+	 * Utility method to get a cursor for bot discovery table
+	 * 
+	 * @return
+	 */
+	public Cursor getCursorForBotDiscoveryTable()
+	{
+		Cursor c = null;
+		try
+		{
+			c = mDB.query(DBConstants.HIKE_CONTENT.BOT_DISCOVERY_TABLE, new String[] { DBConstants._ID, DBConstants.MSISDN, DBConstants.NAME, DBConstants.BOT_TYPE,
+					DBConstants.HIKE_CONTENT.BOT_DESCRIPTION, DBConstants.HIKE_CONTENT.UPDATED_VERSION }, null, null, null, null, null);
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+			Logger.e(getClass().getSimpleName(), "Exception in getCursorForBotDiscoveryTable", e);
+		}
+		return c;
+	}
+	
+	/**
+	 * This method is used to flush out the old entries in the bot discovery table
+	 */
+	public void flushBotDiscoveryTable()
+	{
+		Logger.v("HikeContentDatabase", "Fluhsing bot discovery table");
+		mDB.delete(DBConstants.HIKE_CONTENT.BOT_DISCOVERY_TABLE, null, null);
+	}
+
+	public ContentValues getBotDiscoveryTableContentValues(BotInfo botInfo)
+	{
+		ContentValues contentValues = new ContentValues();
+		contentValues.put(DBConstants.MSISDN, botInfo.getMsisdn());
+		contentValues.put(DBConstants.NAME, botInfo.getConversationName());
+		contentValues.put(DBConstants.BOT_TYPE, botInfo.getType());
+		contentValues.put(DBConstants.HIKE_CONTENT.BOT_DESCRIPTION, botInfo.getBotDescription());
+		contentValues.put(DBConstants.HIKE_CONTENT.UPDATED_VERSION, botInfo.getUpdatedVersion());
+
+		return contentValues;
+	}
+
+	private BotInfo createBotInfoFromBotJSON(JSONObject botJSON)
+	{
+		try
+		{
+			String msisdn = botJSON.getString(HikePlatformConstants.MSISDN);
+
+			String name = botJSON.getString(HikePlatformConstants.BOT_NAME);
+
+			int botType = (HikeConstants.NON_MESSAGING_BOT.equalsIgnoreCase(botJSON.optString(HikePlatformConstants.BOT_TYPE, HikeConstants.NON_MESSAGING_BOT))) ? BotInfo.NON_MESSAGING_BOT
+					: BotInfo.MESSAGING_BOT;
+
+			String description = botJSON.optString(HikePlatformConstants.BOT_DESCRIPTION, "");
+
+			int latestVersion = botJSON.optInt(HikePlatformConstants.BOT_LATEST_VERSION, 0); // TODO Add current version here
+
+			BotInfo mBotInfo = new BotInfo.HikeBotBuilder(msisdn).setConvName(name).description(description).setType(botType).setUpdateVersion(latestVersion).build();
+			
+			String thumbnailString = botJSON.optString(HikePlatformConstants.BOT_DP, "");
+			
+			if (!TextUtils.isEmpty(thumbnailString))
+			{
+				ContactManager.getInstance().setIcon(msisdn, Base64.decode(thumbnailString, Base64.DEFAULT), false);
+				HikeMessengerApp.getLruCache().clearIconForMSISDN(msisdn);
+				HikeMessengerApp.getPubSub().publish(HikePubSub.ICON_CHANGED, msisdn);
+			}
+
+			return mBotInfo;
+		}
+
+		catch (JSONException e)
+		{
+			Logger.d("HikeContentDatabase", "Got an exception in createBotInfoFromJSON : " + e.toString() + " \n Returning null");
+			return null;
+		}
+
+	}
+
+	/**
+	 * Utility method used to create content values from a given json array for populating bot discovery table
+	 * @param botInfoArray
+	 * @return
+	 */
+	private ContentValues[] parseBotInfoArray(JSONArray botInfoArray)
+	{
+		if (botInfoArray == null || botInfoArray.length() == 0)
+		{
+			return null;
+		}
+
+		ContentValues[] mContentValues = new ContentValues[botInfoArray.length()];
+		int k = 0;
+
+		try
+		{
+			for (int i = 0; i < botInfoArray.length(); i++)
+			{
+				JSONObject botObj = (JSONObject) botInfoArray.get(i);
+				BotInfo mBotInfo = createBotInfoFromBotJSON(botObj);
+
+				if (mBotInfo != null)
+				{
+					mContentValues[k++] = getBotDiscoveryTableContentValues(mBotInfo);
+				}
+
+			}
+		}
+
+		catch (JSONException e)
+		{
+			Logger.e("HikeContentDatabase", "Got an issue for parseBotInfo Array : " + e.toString());
+			return null;
+		}
+
+		return mContentValues;
+	}
+
+	/**
+	 * Utility method used to populate bot discovery table
+	 * 
+	 * @param botInfoArray
+	 * @param flushOldData
+	 *            - If true, then we eliminate old entries in the bot discovery table
+	 */
+	public void populateBotDiscoveryTable(JSONArray botInfoArray, boolean flushOldData)
+	{
+		Logger.v("HikeContentDatabase", "Populating bot discovery table");
+		
+		if (flushOldData)
+		{
+			flushBotDiscoveryTable();
+		}
+
+		ContentValues[] mContentValues = parseBotInfoArray(botInfoArray);
+
+		if (mContentValues == null || mContentValues.length == 0)
+		{
+			Logger.e("HikeContentDatabase", "No Content values found to populate HikeContentDatabase");
+			return;
+		}
+
+		mDB.beginTransaction();
+
+		try
+		{
+
+			for (ContentValues contentValues : mContentValues)
+			{
+				mDB.insert(DBConstants.HIKE_CONTENT.BOT_DISCOVERY_TABLE, null, contentValues);
+			}
+
+			Logger.v("HikeContentDatabase", "Bot discovery Table populated");
+			mDB.setTransactionSuccessful();
+
+		}
+		catch (Exception e)
+		{
+			Logger.e(getClass().getSimpleName(), "Caught Exception while populating bot discovery table : ", e);
+		}
+
+		finally
+		{
+			mDB.endTransaction();
+		}
+
+	}
+	
+	public List<BotInfo> getDiscoveryBotInfoList()
+	{
+		List<BotInfo> list = new ArrayList<>(0);
+		
+		Cursor c = getCursorForBotDiscoveryTable();
+		String msisdn;
+		String name;
+		int botType;
+		String botDesc;
+		int updateVersion;
+		
+		while (c.moveToNext())
+		{
+			msisdn = c.getString(c.getColumnIndex(DBConstants.MSISDN));
+			name = c.getString(c.getColumnIndex(DBConstants.NAME));
+			botType = c.getInt(c.getColumnIndex(DBConstants.BOT_TYPE));
+			botDesc = c.getString(c.getColumnIndex(DBConstants.HIKE_CONTENT.BOT_DESCRIPTION));
+			updateVersion = c.getInt(c.getColumnIndex(DBConstants.HIKE_CONTENT.UPDATED_VERSION));
+			
+			BotInfo botInfo = new BotInfo.HikeBotBuilder(msisdn).setConvName(name).setType(botType).description(botDesc).setUpdateVersion(updateVersion).build();
+			list.add(botInfo);
+		}
+		
+		if (c != null)
+		{
+			c.close();
+		}
+		
+		return list;
+	}
+	
+	public JSONArray getDiscoveryBotMsisdnArray()
+	{
+		JSONArray array = new JSONArray();
+		
+		Cursor c = mDB.query(DBConstants.HIKE_CONTENT.BOT_DISCOVERY_TABLE, new String[] { DBConstants.MSISDN }, null, null, null, null, null);
+		String msisdn;
+		
+		while(c.moveToNext())
+		{
+			msisdn = c.getString(c.getColumnIndex(DBConstants.MSISDN));
+			array.put(msisdn);
+		}
+		
+		if (c != null)
+		{
+			c.close();
+		}
+		
+		return array;
+	}
+
 }
