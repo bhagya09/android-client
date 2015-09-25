@@ -591,7 +591,7 @@ public class StickyCaller
 					}
 					else if (StickyCaller.callCurrentNumber !=  null)
 					{
-						Utils.onCallClicked(HikeMessengerApp.getInstance(), StickyCaller.callCurrentNumber, VoIPUtils.CallSource.HIKE_STICKY_CALLER);
+						ChatHeadUtils.onCallClickedFromCallerCard(HikeMessengerApp.getInstance().getApplicationContext(), StickyCaller.callCurrentNumber, VoIPUtils.CallSource.HIKE_STICKY_CALLER);
 					}
 					
 				}

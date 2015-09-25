@@ -63,7 +63,7 @@ public class IncomingCallReceiver extends PhoneStateListener
 			
 			if (StickyCaller.toCall && StickyCaller.callCurrentNumber !=  null)
 			{
-				Utils.onCallClicked(HikeMessengerApp.getInstance(), StickyCaller.callCurrentNumber, VoIPUtils.CallSource.HIKE_STICKY_CALLER);
+				ChatHeadUtils.onCallClickedFromCallerCard(HikeMessengerApp.getInstance().getApplicationContext(), StickyCaller.callCurrentNumber, VoIPUtils.CallSource.HIKE_STICKY_CALLER);
 				StickyCaller.toCall = false;
 			}
 			callReceived = false;

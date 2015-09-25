@@ -22,12 +22,14 @@ import android.provider.Settings.SettingNotFoundException;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
+import android.widget.Toast;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.ContactsContract.PhoneLookup;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.modules.httpmgr.RequestToken;
@@ -36,6 +38,10 @@ import com.bsb.hike.userlogs.PhoneSpecUtils;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
+import com.bsb.hike.voip.VoIPUtils.CallSource;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 public class ChatHeadUtils
 {
@@ -527,6 +533,48 @@ public class ChatHeadUtils
 			outgoingCallReceiver = null;
 		}
 
+	}
+	
+	public static void onCallClickedFromCallerCard(Context context, String callCurrentNumber, CallSource hikeStickyCaller)
+	{
+		boolean isOnHike = Utils.isOnHike(callCurrentNumber);
+        String callerName = callCurrentNumber;
+        String contactName = getNameFromNumber(context, callCurrentNumber);
+		if (contactName != null)
+		{
+			callerName = contactName;
+		}
+        if (!isOnHike)
+		{
+			try
+			{
+				JsonParser parser = new JsonParser();
+				JsonObject callerDetails = (JsonObject) parser.parse(HikeSharedPreferenceUtil.getInstance(HikeConstants.CALLER_SHARED_PREF).getData(callCurrentNumber, null));
+				CallerContentModel callerContentModel = new Gson().fromJson(callerDetails, CallerContentModel.class);
+				isOnHike = callerContentModel.getIsOnHike();
+				if (callerContentModel.getFirstName() != null)
+				{
+					callerName = callerContentModel.getFirstName();
+				}
+				else if (callerContentModel.getLastName() != null)
+				{
+					callerName = callerContentModel.getLastName();
+				}
+			}
+			catch (Exception e)
+			{
+				Logger.d("CardFreeCallClicked", "EntryNotFound");
+			}
+		}
+		if (isOnHike)
+		{
+			Utils.onCallClicked(context, callCurrentNumber, hikeStickyCaller);
+		}
+		else
+		{
+			Toast.makeText(context, String.format(context.getString(R.string.caller_invited_to_join), callerName), Toast.LENGTH_SHORT).show();
+			//TODO self invite logic
+		}
 	}
 
 }
