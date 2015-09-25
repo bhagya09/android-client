@@ -402,16 +402,16 @@ public class StickyCaller
 			setFreeCallButton();
 
 			setFreeSmsButton();
-		}
 
-		if (CALL_TYPE == MISSED)
-		{
-			setCallButton();
-			
-			setSMSButton();
+			if (CALL_TYPE == MISSED)
+			{
+				setCallButton();
+
+				setSMSButton();
+			}
+
 		}
 	}
-
 	private static void setCallButton()
 	{
 		View callButton = stickyCallerView.findViewById(R.id.caller_call_button); 
@@ -498,13 +498,14 @@ public class StickyCaller
 			setFreeCallButton();
 
 			setFreeSmsButton();
-		}
-		if (CALL_TYPE == MISSED)
-		{
-			
-			setCallButton();
-			
-			setSMSButton();
+
+			if (CALL_TYPE == MISSED)
+			{
+
+				setCallButton();
+
+				setSMSButton();
+			}
 		}
 	}
 	
@@ -541,13 +542,21 @@ public class StickyCaller
 		stickyCallerView.findViewById(R.id.hike_caller_logo).setVisibility(View.VISIBLE);
 		TextView noResponse = (TextView)stickyCallerView.findViewById(R.id.net_not_connected);
 		noResponse.setVisibility(View.VISIBLE);
-		if (result.equals(Integer.toString(HttpURLConnection.HTTP_BAD_REQUEST)))
+		if (result.equals(Integer.toString(HttpURLConnection.HTTP_FORBIDDEN)))
 		{
-			noResponse.setText(context.getString(R.string.net_not_connected));
+			noResponse.setText(context.getString(R.string.caller_error_403));
+		}
+		else if (result.equals(Integer.toString(HttpURLConnection.HTTP_NOT_ACCEPTABLE)))
+		{
+			noResponse.setText(context.getString(R.string.caller_error_406));
+		}
+		else if (result.equals(Integer.toString(HttpURLConnection.HTTP_INTERNAL_ERROR)))
+		{
+			noResponse.setText(context.getString(R.string.caller_error_500));
 		}
 		else
 		{
-			noResponse.setText(context.getString(R.string.sorry_for_inconvinience));
+			noResponse.setText(context.getString(R.string.net_not_connected));
 		}
 	}
 
