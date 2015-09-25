@@ -3976,7 +3976,7 @@ public class Utils
 		}
 	}
 
-	public static void sendMd5MismatchEvent(String fileName, String fileKey, String md5, int recBytes, boolean downloading)
+	public static void sendMd5MismatchEvent(String fileName, String fileKey, String md5, long recBytes, boolean downloading)
 	{
 		try
 		{
@@ -4926,35 +4926,35 @@ public class Utils
 
 	// @GM
 	// The following methods returns the user readable size when passed the bytes in size
-	public static String getSizeForDisplay(int bytes)
+	public static String getSizeForDisplay(long bytes)
 	{
 		if (bytes <= 0)
 			return ("");
 		if (bytes >= 1000 * 1024 * 1024)
 		{
-			int gb = bytes / (1024 * 1024 * 1024);
-			int gbPoint = bytes % (1024 * 1024 * 1024);
+			long gb = bytes / (1024 * 1024 * 1024);
+			long gbPoint = bytes % (1024 * 1024 * 1024);
 			gbPoint /= (1024 * 1024 * 102);
-			return (Integer.toString(gb) + "." + Integer.toString(gbPoint) + " GB");
+			return (Long.toString(gb) + "." + Long.toString(gbPoint) + " GB");
 		}
 		else if (bytes >= (1000 * 1024))
 		{
-			int mb = bytes / (1024 * 1024);
-			int mbPoint = bytes % (1024 * 1024);
+			long mb = bytes / (1024 * 1024);
+			long mbPoint = bytes % (1024 * 1024);
 			mbPoint /= (1024 * 102);
-			return (Integer.toString(mb) + "." + Integer.toString(mbPoint) + " MB");
+			return (Long.toString(mb) + "." + Long.toString(mbPoint) + " MB");
 		}
 		else if (bytes >= 1000)
 		{
-			int kb;
+			long kb;
 			if (bytes < 1024) // To avoid showing "1000KB"
 				kb = bytes / 1000;
 			else
 				kb = bytes / 1024;
-			return (Integer.toString(kb) + " KB");
+			return (Long.toString(kb) + " KB");
 		}
 		else
-			return (Integer.toString(bytes) + " B");
+			return (Long.toString(bytes) + " B");
 	}
 
 	public static Intent getIntentForPrivacyScreen(Context context)
