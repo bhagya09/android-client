@@ -503,16 +503,23 @@ public class StickyCaller
 
 	private static void settingLayoutDataSuccess(Context context, String number, String result)
 	{
-		JsonParser parser = new JsonParser();
-		JsonObject callerDetails = (JsonObject) parser.parse(result);
-		CallerContentModel callerContentModel = new Gson().fromJson(callerDetails, CallerContentModel.class);
-		if (CALL_TYPE == MISSED)
+		try
 		{
-			settingMissedCallLayoutDataSuccess(context, number, result, callerContentModel);
+			JsonParser parser = new JsonParser();
+			JsonObject callerDetails = (JsonObject) parser.parse(result);
+			CallerContentModel callerContentModel = new Gson().fromJson(callerDetails, CallerContentModel.class);
+			if (CALL_TYPE == MISSED)
+			{
+				settingMissedCallLayoutDataSuccess(context, number, result, callerContentModel);
+			}
+			else
+			{
+				settingOtherCallLayoutDataSuccess(context, number, result, callerContentModel);
+			}
 		}
-		else
+		catch (Exception e)
 		{
-			settingOtherCallLayoutDataSuccess(context, number, result, callerContentModel);
+			Logger.d("CallerLayoutSuccessError", "JsonException");
 		}
 	}
 
