@@ -353,7 +353,7 @@ public class ChatHeadViewManager
 					break;
 				case ChatHeadConstants.GET_MORE_STICKERS_ANIMATION:
 					Intent stickerShareWebViewIntent = IntentFactory.getStickerShareWebViewActivityIntent(context.getApplicationContext());
-					insertHomeActivitBeforeStarting(stickerShareWebViewIntent);
+					ChatHeadUtils.insertHomeActivitBeforeStarting(stickerShareWebViewIntent);
 					setChatHeadInvisible();
 					break;
 				case ChatHeadConstants.OPEN_HIKE_ANIMATION:
@@ -364,11 +364,11 @@ public class ChatHeadViewManager
 				case ChatHeadConstants.STICKER_SHOP_ANIMATION:
 					HAManager.getInstance().record(HikeConstants.LogEvent.STKR_SHOP_BTN_CLICKED, AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, EventPriority.HIGH);
 					Intent stickerShopIntent = IntentFactory.getStickerShopIntent(context.getApplicationContext());
-					insertHomeActivitBeforeStarting(stickerShopIntent);
+					ChatHeadUtils.insertHomeActivitBeforeStarting(stickerShopIntent);
 					break;
 				case ChatHeadConstants.OPEN_SETTINGS_ANIMATION:
 					Intent stickerShareIntent = IntentFactory.getStickerShareSettingsIntent(context.getApplicationContext());
-					insertHomeActivitBeforeStarting(stickerShareIntent);
+					ChatHeadUtils.insertHomeActivitBeforeStarting(stickerShareIntent);
 					setChatHeadInvisible();
 					break;
 				}
@@ -637,16 +637,6 @@ public class ChatHeadViewManager
 		{
 			Logger.d(TAG, "create and open chat head picker layout");
 		}
-	}
-
-	public void insertHomeActivitBeforeStarting(Intent openingIntent)
-	{
-		// Any activity which is being opened from the Sticker Chat Head will open Homeactivity on BackPress
-		// this is being done to prevent loss of BG packet sent by the app to server when we exit from the activity
-		// its also a product call to take user inside hike after exploring stickers deeply
-		// This code may be removed in case some better strategy replaces the FSM to handle FG-BG-lastseen use cases
-		TaskStackBuilder.create(context.getApplicationContext()).addNextIntent(IntentFactory.getHomeActivityIntentAsLauncher(context.getApplicationContext()))
-				.addNextIntent(openingIntent).startActivities();
 	}
 
 	public void resetPosition(int flag, String path)

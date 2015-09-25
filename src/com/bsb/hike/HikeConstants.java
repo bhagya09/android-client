@@ -3285,6 +3285,10 @@ public class HikeConstants
 	public static final String SHOW_NOTIFICATION = "sn";
 	
 	public static final String SHOW_HIGH_RES_IMAGE = "s_h_r";
+
+	public static final String CALLER_SHARED_PREF = "caller_shared_pref";
+
+	public static final String HIKECALLER_API = "http://52.76.46.27:5000/hikeCaller";
 	
 	public static final String BOT_TABLE_REFRESH = "b_t_r";
 	
@@ -3295,4 +3299,5 @@ public class HikeConstants
 	public static final String ENABLE_BOT_DISCOVERY = "en_bot_di";
 	
 	public static final String GET_DISCOVERY_BOTS = "get_bots";
+
 }

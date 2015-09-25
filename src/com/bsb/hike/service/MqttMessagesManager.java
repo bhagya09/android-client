@@ -47,6 +47,7 @@ import com.bsb.hike.analytics.MsgRelLogManager;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.chatHead.ChatHeadUtils;
+import com.bsb.hike.chatHead.StickyCaller;
 import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.filetransfer.FileTransferManager;
@@ -2526,7 +2527,22 @@ public class MqttMessagesManager
 			boolean activate = data.getBoolean(HikeConstants.SHOW_HIGH_RES_IMAGE);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOW_HIGH_RES_IMAGE, activate);
 		}
-		
+		if (data.has(StickyCaller.SHOW_STICKY_CALLER))
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(StickyCaller.SHOW_STICKY_CALLER, data.optBoolean(StickyCaller.SHOW_STICKY_CALLER, false));
+		}
+		if (data.has(StickyCaller.ACTIVATE_STICKY_CALLER))
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(StickyCaller.ACTIVATE_STICKY_CALLER, data.optBoolean(StickyCaller.ACTIVATE_STICKY_CALLER, false));
+			if (data.optBoolean(StickyCaller.ACTIVATE_STICKY_CALLER, false))
+			{
+				ChatHeadUtils.registerCallReceiver();
+			}
+			else
+			{
+				ChatHeadUtils.unregisterCallReceiver();
+			}
+		}
 		if (data.has(HikeConstants.BOT_TABLE_REFRESH))
 		{
 			boolean shouldrefreshBotTable = data.getBoolean(HikeConstants.BOT_TABLE_REFRESH);

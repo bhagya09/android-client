@@ -16,17 +16,34 @@ import android.app.ActivityManager.RunningAppProcessInfo;
 import android.app.ActivityManager.RunningTaskInfo;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.provider.Settings;
 import android.provider.Settings.SettingNotFoundException;
+import android.support.v4.app.TaskStackBuilder;
+import android.telephony.PhoneStateListener;
+import android.telephony.TelephonyManager;
 import android.text.TextUtils;
+import android.widget.Toast;
+import android.database.Cursor;
+import android.net.Uri;
+import android.provider.ContactsContract.PhoneLookup;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.R;
+import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.models.HikeAlarmManager;
+import com.bsb.hike.modules.httpmgr.RequestToken;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.userlogs.PhoneSpecUtils;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
+import com.bsb.hike.voip.VoIPUtils.CallSource;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 public class ChatHeadUtils
 {
@@ -44,12 +61,19 @@ public class ChatHeadUtils
 
 	public static final int GET_ALL_RUNNING_PROCESSES = 2; 
 	
+	private static IncomingCallReceiver incomingCallReceiver;
+	
+	private static OutgoingCallReceiver outgoingCallReceiver;
+	
+	private static final int HTTP_CALL_RETRY_DELAY = 2000; 
+	
+	private static final int HTTP_CALL_RETRY_MULTIPLIER = 1;
+		
 	// replica of hidden constant ActivityManager.PROCESS_STATE_TOP 
 	public static final int PROCESS_STATE_TOP =2;
 	
 	private static ChatHeadViewManager viewManager;
 
-	
 	/**
 	 * returns the package names of the running processes can be single, all or in tasks packages as per argument
 	 */
@@ -431,4 +455,155 @@ public class ChatHeadUtils
 		return Utils.isIceCreamOrHigher();
 	}
 	
+	public static String getNameFromNumber(Context context, String number)
+	{
+		// / number is the phone number
+		Uri lookupUri = Uri.withAppendedPath(PhoneLookup.CONTENT_FILTER_URI, Uri.encode(number));
+		String[] mPhoneNumberProjection = { PhoneLookup._ID, PhoneLookup.NUMBER, PhoneLookup.DISPLAY_NAME };
+		Cursor cur = context.getContentResolver().query(lookupUri, mPhoneNumberProjection, null, null, null);
+		try
+		{
+			if (cur.moveToFirst())
+			{
+				if (cur.getString(cur.getColumnIndex(PhoneLookup.DISPLAY_NAME)) != null)
+				{
+					return cur.getString(cur.getColumnIndex(PhoneLookup.DISPLAY_NAME));
+				}
+			}
+		}
+		finally
+		{
+			if (cur != null)
+				cur.close();
+		}
+		return null;
+	}
+	
+	public static void postNumberRequest(Context context, String searchNumber)
+	{
+		final String number = Utils.normalizeNumber(searchNumber,
+				HikeMessengerApp.getInstance().getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0)
+						.getString(HikeMessengerApp.COUNTRY_CODE, HikeConstants.INDIA_COUNTRY_CODE));
+		StickyCaller.callCurrentNumber = number;
+		String contactName = getNameFromNumber(context, number);
+		
+		if (contactName != null)
+		{
+			StickyCaller.showCallerViewWithDelay(number, contactName, StickyCaller.ALREADY_SAVED, AnalyticsConstants.StickyCallerEvents.ALREADY_SAVED);
+		}
+		else if (HikeSharedPreferenceUtil.getInstance(HikeConstants.CALLER_SHARED_PREF).getData(number, null) != null)
+		{
+			StickyCaller.showCallerViewWithDelay(number, HikeSharedPreferenceUtil.getInstance(HikeConstants.CALLER_SHARED_PREF).getData(number, null), StickyCaller.SUCCESS, AnalyticsConstants.StickyCallerEvents.CACHE);
+		}
+		else
+		{
+			JSONObject json = new JSONObject();
+			try
+			{
+				json.put(HikeConstants.MSISDN, number);
+			}
+			catch (JSONException e)
+			{
+	           Logger.d(TAG, "jsonException");
+			}
+			CallListener callListener = new CallListener();
+			RequestToken requestToken = HttpRequests.postNumberAndGetCallerDetails(HikeConstants.HIKECALLER_API, json, callListener, HTTP_CALL_RETRY_DELAY, HTTP_CALL_RETRY_MULTIPLIER);
+			StickyCaller.showCallerView(null, null, StickyCaller.LOADING, null);
+			requestToken.execute();
+		}
+	}	
+	
+	public static void registerCallReceiver()
+	{
+		if (HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.SHOW_STICKY_CALLER, false)
+				&& HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.ACTIVATE_STICKY_CALLER, false))
+		{
+			Context context = HikeMessengerApp.getInstance().getApplicationContext();
+			if (incomingCallReceiver == null)
+			{
+				incomingCallReceiver = new IncomingCallReceiver();
+				TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+				telephonyManager.listen(incomingCallReceiver, PhoneStateListener.LISTEN_CALL_STATE);
+			}
+			if (outgoingCallReceiver == null)
+			{
+				outgoingCallReceiver = new OutgoingCallReceiver();
+				IntentFilter intentFilter = new IntentFilter(Intent.ACTION_NEW_OUTGOING_CALL);
+				context.registerReceiver(outgoingCallReceiver, intentFilter);
+			}
+		}
+	}
+	
+	public static void unregisterCallReceiver()
+	{
+		Context context = HikeMessengerApp.getInstance();
+		if (incomingCallReceiver != null)
+		{
+			TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+			telephonyManager.listen(incomingCallReceiver, PhoneStateListener.LISTEN_NONE);
+			incomingCallReceiver = null;
+		}
+
+		if (outgoingCallReceiver != null)
+		{
+			context.unregisterReceiver(outgoingCallReceiver);
+			outgoingCallReceiver = null;
+		}
+
+	}
+	
+	public static void onCallClickedFromCallerCard(Context context, String callCurrentNumber, CallSource hikeStickyCaller)
+	{
+		boolean isOnHike = Utils.isOnHike(callCurrentNumber);
+        String callerName = callCurrentNumber;
+        String contactName = getNameFromNumber(context, callCurrentNumber);
+		if (contactName != null)
+		{
+			callerName = contactName;
+		}
+        if (!isOnHike)
+		{
+			try
+			{
+				JsonParser parser = new JsonParser();
+				JsonObject callerDetails = (JsonObject) parser.parse(HikeSharedPreferenceUtil.getInstance(HikeConstants.CALLER_SHARED_PREF).getData(callCurrentNumber, null));
+				CallerContentModel callerContentModel = new Gson().fromJson(callerDetails, CallerContentModel.class);
+				isOnHike = callerContentModel.getIsOnHike();
+				if (callerContentModel.getFirstName() != null)
+				{
+					callerName = callerContentModel.getFirstName();
+				}
+				else if (callerContentModel.getLastName() != null)
+				{
+					callerName = callerContentModel.getLastName();
+				}
+			}
+			catch (Exception e)
+			{
+				Logger.d("CardFreeCallClicked", "EntryNotFound");
+			}
+		}
+		if (isOnHike)
+		{
+			Utils.onCallClicked(context, callCurrentNumber, hikeStickyCaller);
+		}
+		else
+		{
+			Toast.makeText(context, String.format(context.getString(R.string.caller_invited_to_join), callerName), Toast.LENGTH_SHORT).show();
+			//TODO self invite logic
+		}
+	}
+	
+	public static void insertHomeActivitBeforeStarting(Intent openingIntent)
+	{
+		Context context = HikeMessengerApp.getInstance().getApplicationContext();
+		// Any activity which is being opened from the Sticker Chat Head will open Homeactivity on BackPress
+		// this is being done to prevent loss of BG packet sent by the app to server when we exit from the activity
+		// its also a product call to take user inside hike after exploring stickers deeply
+		// This code may be removed in case some better strategy replaces the FSM to handle FG-BG-lastseen use cases
+		TaskStackBuilder.create(context)
+			.addNextIntent(IntentFactory.getHomeActivityIntentAsLauncher(context))
+			.addNextIntent(openingIntent).startActivities();
+	}
+
 }
