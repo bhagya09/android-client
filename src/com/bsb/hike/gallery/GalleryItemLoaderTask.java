@@ -264,6 +264,7 @@ public class GalleryItemLoaderTask extends AsyncTask<Void, Void, Void>{
 	private boolean isImage(String fileName)
 	{
 		boolean isImg = false;
+		fileName = fileName.toLowerCase();
 		if (fileName.endsWith(TYPE_JPG) || fileName.endsWith(TYPE_JPEG) || fileName.endsWith(TYPE_PNG)
 				|| fileName.endsWith(TYPE_GIF) || fileName.endsWith(TYPE_BMP))
 		{
