@@ -40,12 +40,12 @@ public class NativeBridge
 	protected static final String SEND_SHARED_MESSAGE = "SEND_SHARED_MESSAGE";
 
 	protected static final String ON_EVENT_RECEIVE = "ON_EVENT_RECEIVE";
-	
+
 	public static Handler mHandler;
 
 	public NativeBridge(String msisdn, CocosGamingActivity activity)
 	{
-		this.activity=activity;
+		this.activity = activity;
 		this.msisdn = msisdn;
 		weakActivity = new WeakReference<Activity>(activity);
 		init();
@@ -53,10 +53,8 @@ public class NativeBridge
 
 	public NativeBridge(String msisdn, CocosGamingActivity activity, String cardObj)
 	{
-		
 		this(msisdn, activity);
 		this.cardObj = cardObj;
-		
 	}
 
 	private void init()
@@ -76,26 +74,18 @@ public class NativeBridge
 	 * 
 	 * @return
 	 */
-	public void getCardObj(final String functionId)
+	public String getCardObj()
 	{
-		if (mThread == null)
-			return;
-		mThread.postRunnable(new Runnable()
+		Logger.d(TAG,"+getCardObj()");
+		String cardObject = cardObj;
+		if (cardObject == null)
 		{
-
-			@Override
-			public void run()
-			{
-				String cardObject = cardObj;
-				if (cardObject == null)
-				{
-					cardObject = "{}";
-				}
-				activity.PlatformCallback(functionId, cardObject);
-			}
-		});
+			cardObject = "{}";
+		}
+		Logger.d(TAG,"-getCardObj() : "+cardObject);
+		return cardObject;
 	}
-	
+
 	/**
 	 * Platform Version 7 Call this method to get cardObj
 	 * 
@@ -119,10 +109,10 @@ public class NativeBridge
 	/**
 	 * Platform Version 7 Call this method to put data in cache. This will be a key-value pair. A game can have different key-value pairs in the native's cache.
 	 * 
-	 * @param key:
-	 *            key of the data to be saved. Game needs to make sure about the uniqueness of the key.
-	 * @param value:
-	 *            : the data that the game need to cache.
+	 * @param key
+	 *            : key of the data to be saved. Game needs to make sure about the uniqueness of the key.
+	 * @param value
+	 *            : : the data that the game need to cache.
 	 */
 	public void putInCache(final String key, final String value)
 	{
@@ -247,8 +237,7 @@ public class NativeBridge
 				helper.sendNormalEvent(messageHash, eventData, mBotInfo.getNamespace());
 			}
 		});
-		
-		
+
 	}
 
 	/**
@@ -256,13 +245,13 @@ public class NativeBridge
 	 * users it has sent the message to. It will call JavaScript function "onContactChooserResult(int resultCode,JsonArray array)" This JSOnArray contains list of JSONObject where
 	 * each JSONObject reflects one user. As of now each JSON will have name and platform_id, e.g : [{'name':'Paul','platform_id':'dvgd78as'}] resultCode will be 0 for fail and 1
 	 * for success NOTE : JSONArray could be null as well, a game has to take care of this instance
-	 *
-	 * @param cardObject:
-	 *            the cardObject data to create a card
+	 * 
+	 * @param cardObject
+	 *            : the cardObject data to create a card
 	 * @param hikeMessage
 	 *            : the hike message to be included in notif tupple and conversation tupple.
-	 * @param sharedData:
-	 *            the stringified json data to be shared among different bots. A mandatory field "recipients" is a must. It specifies what all namespaces to share the data with.
+	 * @param sharedData
+	 *            : the stringified json data to be shared among different bots. A mandatory field "recipients" is a must. It specifies what all namespaces to share the data with.
 	 */
 	public void sendSharedMessage(final String cardObject, final String hikeMessage, final String sharedData)
 	{
@@ -284,11 +273,11 @@ public class NativeBridge
 	 * name, and if the name isn't present , then the msisdn. "platformUid": the platform user id of the user interacting with. "eventId" : the event id of the event. "d" : the
 	 * data that has been sent/received for the card message "et": the type of message. 0 if shared event, and 1 if normal event. "eventStatus" : the status of the event. 0 if
 	 * sent, 1 if received.
-	 *
-	 * @param functionId:
-	 *            function id to call back to the game.
-	 * @param messageHash:
-	 *            the hash of the corresponding message.
+	 * 
+	 * @param functionId
+	 *            : function id to call back to the game.
+	 * @param messageHash
+	 *            : the hash of the corresponding message.
 	 */
 	public void getAllEventsForMessageHash(final String functionId, final String messageHash)
 	{
@@ -319,9 +308,9 @@ public class NativeBridge
 	 * "name": name of the user interacting with. This gives name, and if the name isn't present , then the msisdn. "platformUid": the platform user id of the user interacting
 	 * with. "eventId" : the event id of the event. "h" : the unique hash of the message. Helps in determining the uniqueness of a card. "d" : the data that has been sent/received
 	 * for the card message "et": the type of message. 0 if shared event, and 1 if normal event. "eventStatus" : the status of the event. 0 if sent, 1 if received.
-	 *
-	 * @param functionId:
-	 *            function id to call back to the game.
+	 * 
+	 * @param functionId
+	 *            : function id to call back to the game.
 	 */
 	public void getAllEventsData(final String functionId)
 	{
@@ -352,9 +341,9 @@ public class NativeBridge
 	 * "name": name of the user interacting with. This gives name, and if the name isn't present , then the msisdn. "platformUid": the platform user id of the user interacting
 	 * with. "eventId" : the event id of the event. "h" : the unique hash of the message. Helps in determining the uniqueness of a card. "d" : the data that has been sent/received
 	 * for the card message "eventStatus" : the status of the event. 0 if sent, 1 if received.
-	 *
-	 * @param functionId:
-	 *            function id to call back to the game.
+	 * 
+	 * @param functionId
+	 *            : function id to call back to the game.
 	 */
 	public void getSharedEventsData(final String functionId)
 	{
@@ -382,8 +371,8 @@ public class NativeBridge
 	/**
 	 * Platform Version 7 Call this function to get the bot version.
 	 * 
-	 * @param id:
-	 *            the id of the function that native will call to call the js .
+	 * @param id
+	 *            : the id of the function that native will call to call the js .
 	 */
 	@JavascriptInterface
 	public void getBotVersion(final String id)
@@ -401,8 +390,8 @@ public class NativeBridge
 	/**
 	 * Platform Version 7 Call this function to get the system architecture.
 	 * 
-	 * @param id:
-	 *            the id of the function that native will call to call the js .
+	 * @param id
+	 *            : the id of the function that native will call to call the js .
 	 */
 	public void getSystemArchitecture(final String id)
 	{
@@ -415,11 +404,12 @@ public class NativeBridge
 			}
 		});
 	}
+
 	/**
 	 * Platform Version 7 Call this function to get the current platform version.
 	 * 
-	 * @param id:
-	 *            the id of the function that native will call to call the js .
+	 * @param id
+	 *            : the id of the function that native will call to call the js .
 	 */
 	public void getCurrentPlatformVersion(final String id)
 	{
@@ -434,9 +424,8 @@ public class NativeBridge
 	}
 
 	/**
-	 * Platform Version 7
-	 * Call this function to delete event.
-	 *
+	 * Platform Version 7 Call this function to delete event.
+	 * 
 	 * @param messageHash
 	 */
 	public void deleteEvent(final String eventId)
@@ -452,18 +441,17 @@ public class NativeBridge
 			@Override
 			public void run()
 			{
-		HikeConversationsDatabase.getInstance().deleteEvent(eventId);
+				HikeConversationsDatabase.getInstance().deleteEvent(eventId);
 			}
 		});
 	}
 
 	/**
-	 * Platform Version 7
-	 * Call this function to delete all the events, be it shared data or normal event pertaining to a single message.
-	 *
+	 * Platform Version 7 Call this function to delete all the events, be it shared data or normal event pertaining to a single message.
+	 * 
 	 * @param messageHash
 	 */
-	
+
 	public void deleteAllEventsForMessage(final String messageHash)
 	{
 		if (TextUtils.isEmpty(messageHash))
@@ -477,7 +465,7 @@ public class NativeBridge
 			@Override
 			public void run()
 			{
-		HikeConversationsDatabase.getInstance().deleteAllEventsForMessage(messageHash);
+				HikeConversationsDatabase.getInstance().deleteAllEventsForMessage(messageHash);
 			}
 		});
 	}
@@ -514,8 +502,7 @@ public class NativeBridge
 
 			}
 		});
-		
+
 	}
-	
 
 }

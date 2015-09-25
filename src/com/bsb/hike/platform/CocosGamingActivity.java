@@ -39,6 +39,7 @@ import android.os.Handler;
 import android.os.PersistableBundle;
 import android.text.TextUtils;
 import android.util.Base64;
+import android.util.Log;
 import android.view.Window;
 import android.view.WindowManager;
 
@@ -142,7 +143,7 @@ public class CocosGamingActivity extends Cocos2dxActivity implements HikePubSub.
 		msisdn = getIntent().getStringExtra(HikeConstants.MSISDN);
 		botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
 
-		if (botInfo.getMetadata() == null)
+		if (botInfo == null || botInfo.getMetadata() == null)
 		{
 			// TODO show some error feedback to the user
 			finish();
@@ -190,9 +191,10 @@ public class CocosGamingActivity extends Cocos2dxActivity implements HikePubSub.
 		// TODO do not hard code the path of the game engine. Please change this
 		try
 		{
-		System.load(PlatformContentConstants.PLATFORM_CONTENT_DIR + "cocosEngine-7/libcocos2d.so");
-		System.load(getAppBasePath() + "libcocos2dcpp.so"); // loading the game
-		}catch(Exception e)
+			System.load(PlatformContentConstants.PLATFORM_CONTENT_DIR + "cocosEngine-7/libcocos2d.so");
+			System.load(getAppBasePath() + "libcocos2dcpp.so"); // loading the game
+		}
+		catch (Exception e)
 		{
 			finish();
 			Cocos2dxHelper.terminateProcess();
