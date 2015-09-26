@@ -528,6 +528,7 @@ public class StickyCaller
 		LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		stickyCallerView = (LinearLayout) inflater.inflate(R.layout.missed_call_layout, null);
 		setBasicClickListener();
+		boolean showSaveContactDivider = false;
 		if (number != null)
 		{ 
 			TextView callerNumber = (TextView) (stickyCallerView.findViewById(R.id.caller_number));
@@ -542,6 +543,7 @@ public class StickyCaller
 			callerName.setText(name);
 			callCurrentName = name;
 			setSaveContactClickListener();
+			showSaveContactDivider =true;
 		}
 		else if (callerContentModel != null &&callerContentModel.getLastName() != null)
 		{
@@ -550,6 +552,7 @@ public class StickyCaller
 			callCurrentName = callerContentModel.getLastName();
 			callerName.setText(callerContentModel.getLastName());
 			setSaveContactClickListener();
+			showSaveContactDivider = true;
 		}
 		if (callerContentModel != null && callerContentModel.getLocation() != null)
 		{
@@ -564,7 +567,13 @@ public class StickyCaller
 			setFreeSmsButton();
 			
 			stickyCallerView.findViewById(R.id.missed_call_free_divider).setVisibility(View.VISIBLE);
+		
+			if (showSaveContactDivider)
+			{
+				stickyCallerView.findViewById(R.id.missed_call_save_contact_divider).setVisibility(View.VISIBLE);
+			}
 		}
+		
 		if (MISSED_CALL_TIMINGS != null)
 		{
 			((TextView) stickyCallerView.findViewById(R.id.missed_call_time)).setText(context.getString(R.string.voip_missed_call_notif) + MISSED_CALL_TIMINGS);
@@ -627,7 +636,6 @@ public class StickyCaller
 
 	private static void setSaveContactClickListener()
 	{
-		stickyCallerView.findViewById(R.id.missed_call_save_contact_divider).setVisibility(View.VISIBLE);
 		View saveContact = stickyCallerView.findViewById(R.id.missed_call_save_contact);
 		saveContact.setVisibility(View.VISIBLE);
 		saveContact.setOnClickListener(callerClickListener);
