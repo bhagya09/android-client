@@ -1257,6 +1257,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			if(!isClicked)
 			{
 				sharedPreference.saveData(OfflineConstants.OFFLINE_INDICATOR_CLICKED, true);
+				OfflineAnalytics.offlineOverflowIndicatorClicked();
 			}
 		}
 		super.showOverflowMenu();
