@@ -5,7 +5,9 @@ package com.bsb.hike.modules.kpt;
 
 import java.util.ArrayList;
 
+import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
+import com.bsb.hike.ui.HomeActivity;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.view.CustomFontEditText;
 import com.kpt.adaptxt.beta.CustomKeyboard;
@@ -170,4 +172,9 @@ public class KptUtils
 			mainView.setPadding(0, 0, 0, bottomPadding);
 		}
 	}
+	public static boolean isSystemKeyboard(Activity activity)
+	{
+		return HikeMessengerApp.isSystemKeyboard(activity);
+	}
+	
 }
