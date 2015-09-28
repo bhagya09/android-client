@@ -159,18 +159,16 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 		int sizeOfImage = getResources().getDimensionPixelSize(R.dimen.gallery_selection_item_size);
 
 		int numColumns = Utils.getNumColumnsForGallery(getResources(), sizeOfImage);
-		int thumbnailSize = Utils.getActualSizeForGallery(getResources(), sizeOfImage, numColumns);
-		//num of columns is 1 for preview as we will be displaying only one image at a time.
-		int previewSize = Utils.getActualSizeForGallery(getResources(), sizeOfImage, numColumns);
+		int imgSize = Utils.getActualSizeForGallery(getResources(), sizeOfImage, numColumns);
 
-		gridAdapter = new GalleryAdapter(this, galleryGridItems, true, thumbnailSize, null, true);
+		gridAdapter = new GalleryAdapter(this, galleryGridItems, true, imgSize, null, true);
 
 		selectedGrid.setNumColumns(numColumns);
 		selectedGrid.setAdapter(gridAdapter);
 		selectedGrid.setOnScrollListener(this);
 		selectedGrid.setOnItemClickListener(this);
 
-		pagerAdapter = new GalleryPagerAdapter(previewSize);
+		pagerAdapter = new GalleryPagerAdapter(imgSize);
 		selectedPager.setAdapter(pagerAdapter);
 		selectedPager.setOnPageChangeListener(this);
 
