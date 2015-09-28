@@ -77,6 +77,7 @@ import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.CustomFontEditText;
 import com.bsb.hike.voip.VoIPUtils;
 import com.kpt.adaptxt.beta.CustomKeyboard;
+import com.kpt.adaptxt.beta.RemoveDialogData;
 import com.kpt.adaptxt.beta.util.KPTConstants;
 import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtEditTextEventListner;
 import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtKeyboordVisibilityStatusListner;
@@ -514,13 +515,21 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		mNameEdit.requestFocus();
 		mNameEdit.setText(oneToNConversation.getLabel());
 		mNameEdit.setSelection(mNameEdit.getText().toString().length());
+		mNameEdit.setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				showKeyboard();
+				
+			}
+		});
 		showKeyboard();
 		setupGroupNameEditActionBar();
 	}
 
 	private void showKeyboard()
 	{
-		if (!systemKeyboard)
+		if (!systemKeyboard&&!mCustomKeyboard.isCustomKeyboardVisible())
 		{
 			mCustomKeyboard.showCustomKeyboard(mNameEdit, true);
 		}
@@ -3583,6 +3592,18 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 	@Override
 	public void onReturnAction(int arg0)
 	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void dismissRemoveDialog() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void showRemoveDialog(RemoveDialogData arg0) {
 		// TODO Auto-generated method stub
 		
 	}

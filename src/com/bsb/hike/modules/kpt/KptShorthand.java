@@ -20,6 +20,7 @@ import com.kpt.adaptxt.beta.AdaptxtSettings;
 import com.kpt.adaptxt.beta.AdaptxtSettingsRegisterListener;
 import com.kpt.adaptxt.beta.CustomKeyboard;
 import com.kpt.adaptxt.beta.KPTAdaptxtAddonSettings;
+import com.kpt.adaptxt.beta.RemoveDialogData;
 import com.kpt.adaptxt.beta.util.KPTConstants;
 import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtEditTextEventListner;
 import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtKeyboordVisibilityStatusListner;
@@ -416,6 +417,18 @@ public class KptShorthand extends HikeAppStateBaseFragmentActivity implements Ad
 	{
 		mCustomKeyboard.onConfigurationChanged(newConfig);
 		super.onConfigurationChanged(newConfig);
+	}
+
+	@Override
+	public void dismissRemoveDialog() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void showRemoveDialog(RemoveDialogData arg0) {
+		// TODO Auto-generated method stub
+		
 	}
 	
 //	deleteatr (shortcut) 
