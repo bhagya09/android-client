@@ -429,7 +429,6 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 	{
 		wasEmojiPreviouslyVisible = false;
 		hideEmojiOrMoodLayout();
-		addMoodLayout.setVisibility(View.GONE);
 		if (mEmoticonPicker.showEmoticonPicker(getResources().getConfiguration().orientation))
 		{
 			Utils.hideSoftKeyboard(this, statusTxt);
