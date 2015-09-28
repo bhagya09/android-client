@@ -243,7 +243,10 @@ public class StickyCaller
 		public boolean onTouch(View v, MotionEvent event)
 		{
 			switch (event.getAction())
-			{
+			{   
+			case MotionEvent.ACTION_OUTSIDE:
+				removeCallerView();
+				break;
 			case MotionEvent.ACTION_DOWN:
 				initialX = callerParams.x;
 				initialY = callerParams.y;
@@ -300,6 +303,7 @@ public class StickyCaller
 	{
 		final Context context = HikeMessengerApp.getInstance().getApplicationContext();
 		windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+		callerParams.flags = LayoutParams.FLAG_LAYOUT_NO_LIMITS | LayoutParams.FLAG_NOT_FOCUSABLE ;
 		try
 		{
 			windowManager.removeView(stickyCallerView);
@@ -398,6 +402,7 @@ public class StickyCaller
 	{
 		LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		stickyCallerView = (LinearLayout) inflater.inflate(R.layout.missed_call_layout, null);
+		callerParams.flags = LayoutParams.FLAG_LAYOUT_NO_LIMITS | LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH | LayoutParams.FLAG_NOT_TOUCH_MODAL  ;
 		setBasicClickListener();
 		if (number != null)
 		{
@@ -527,6 +532,7 @@ public class StickyCaller
 	{
 		LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		stickyCallerView = (LinearLayout) inflater.inflate(R.layout.missed_call_layout, null);
+		callerParams.flags = LayoutParams.FLAG_LAYOUT_NO_LIMITS | LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH | LayoutParams.FLAG_NOT_TOUCH_MODAL  ;
 		setBasicClickListener();
 		boolean showSaveContactDivider = false;
 		if (number != null)
