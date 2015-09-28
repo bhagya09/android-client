@@ -11,6 +11,54 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
+import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
+import android.database.Cursor;
+import android.net.Uri;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.preference.PreferenceManager;
+import android.provider.ContactsContract.Data;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v4.view.MenuItemCompat;
+import android.support.v7.app.ActionBar;
+import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
+import android.util.Pair;
+import android.view.KeyEvent;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.ViewGroup;
+import android.view.ViewStub;
+import android.view.ViewTreeObserver.OnGlobalLayoutListener;
+import android.view.WindowManager;
+import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.view.inputmethod.InputMethodManager;
+import android.webkit.MimeTypeMap;
+import android.widget.AbsListView;
+import android.widget.AbsListView.OnScrollListener;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.LinearLayout;
+import android.widget.ListView;
+import android.widget.ProgressBar;
+import android.widget.TextView;
+import android.widget.Toast;
+
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeConstants.MESSAGE_TYPE;
 import com.bsb.hike.HikeMessengerApp;
@@ -75,53 +123,6 @@ import com.kpt.adaptxt.beta.view.AdaptxtEditText;
 import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtEditTextEventListner;
 import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtKeyboordVisibilityStatusListner;
 
-import android.app.ProgressDialog;
-import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
-import android.content.pm.ActivityInfo;
-import android.content.res.Configuration;
-import android.database.Cursor;
-import android.net.Uri;
-import android.os.AsyncTask;
-import android.os.Bundle;
-import android.preference.PreferenceManager;
-import android.provider.ContactsContract.Data;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v4.view.MenuItemCompat;
-import android.support.v7.app.ActionBar;
-import android.support.v7.widget.Toolbar;
-import android.text.TextUtils;
-import android.util.Pair;
-import android.view.KeyEvent;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.MotionEvent;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.view.ViewGroup;
-import android.view.ViewStub;
-import android.view.ViewTreeObserver.OnGlobalLayoutListener;
-import android.view.WindowManager;
-import android.view.animation.AccelerateDecelerateInterpolator;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
-import android.view.inputmethod.InputMethodManager;
-import android.webkit.MimeTypeMap;
-import android.widget.AbsListView;
-import android.widget.AbsListView.OnScrollListener;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
-import android.widget.LinearLayout;
-import android.widget.ListView;
-import android.widget.ProgressBar;
-import android.widget.TextView;
-import android.widget.Toast;
 
 public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implements TagEditorListener, OnItemClickListener, HikePubSub.Listener, OnScrollListener,
 		AdaptxtEditTextEventListner, AdaptxtKeyboordVisibilityStatusListner
@@ -234,7 +235,11 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 	private MenuItem searchMenuItem;
 
 	private int gcSettings = -1;
-
+	
+	private boolean thumbnailsRequired= false;
+	
+	private boolean hasMicroappShowcaseIntent = false;
+	 
 	@Override
 	public void onCreate(Bundle savedInstanceState)
 	{
@@ -266,6 +271,8 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		isSharingFile = getIntent().getType() != null;
 		nuxIncentiveMode = getIntent().getBooleanExtra(HikeConstants.Extras.NUX_INCENTIVE_MODE, false);
 		createBroadcast = getIntent().getBooleanExtra(HikeConstants.Extras.CREATE_BROADCAST, false);
+		thumbnailsRequired = getIntent().getBooleanExtra(HikeConstants.Extras.THUMBNAILS_REQUIRED, false);
+		hasMicroappShowcaseIntent = getIntent().getBooleanExtra(HikeConstants.Extras.IS_MICROAPP_SHOWCASE_INTENT, false);
 
 		// Getting the group id. This will be a valid value if the intent
 		// was passed to add group participants.
@@ -635,6 +642,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		HikeSharedPreferenceUtil pref = HikeSharedPreferenceUtil.getInstance();
 		boolean fetchRecentlyJoined = pref.getData(HikeConstants.SHOW_RECENTLY_JOINED_DOT, false) || pref.getData(HikeConstants.SHOW_RECENTLY_JOINED, false);
 		fetchRecentlyJoined = fetchRecentlyJoined && !isForwardingMessage && showNujNotif;
+		boolean showMicroappShowcase = BotUtils.isBotDiscoveryEnabled();
 		
 		switch (composeMode)
 		{
@@ -643,10 +651,10 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		case PICK_CONTACT_MODE:
 		case PICK_CONTACT_AND_SEND_MODE:
 			//We do not show sms contacts in broadcast mode
-			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage, (isForwardingMessage && !isSharingFile), fetchRecentlyJoined, existingGroupOrBroadcastId, sendingMsisdn, friendsListFetchedCallback, false);
+			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage, (isForwardingMessage && !isSharingFile), fetchRecentlyJoined, existingGroupOrBroadcastId, sendingMsisdn, friendsListFetchedCallback, false, false);
 			break;
 		default:
-			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage, (isForwardingMessage || isSharingFile), fetchRecentlyJoined, existingGroupOrBroadcastId, sendingMsisdn, friendsListFetchedCallback, true);
+			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage, (isForwardingMessage || isSharingFile), fetchRecentlyJoined, existingGroupOrBroadcastId, sendingMsisdn, friendsListFetchedCallback, true, (showMicroappShowcase && hasMicroappShowcaseIntent));
 			break;
 		}
 
@@ -763,6 +771,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			mCustomKeyboard.onConfigurationChanged(newConfig);
 		}
 		super.onConfigurationChanged(newConfig);
+    	HikeMessengerApp.getPubSub().publish(HikePubSub.ORIENTATION_CHANGED, newConfig.orientation);
 	}
 	
 	@Override
@@ -1424,22 +1433,29 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			Toast.makeText(this,R.string.pick_contact_zero,Toast.LENGTH_SHORT).show();
 			return;
 		}
-		JSONArray array = convertToJSONArray(adapter.getAllSelectedContacts());
-		Intent intent = getIntent();
-		intent.putExtra(HikeConstants.HIKE_CONTACT_PICKER_RESULT, array.toString());
-		setResult(RESULT_OK,intent);
-		Logger.i("composechat", "returning pick contact result "+intent.getExtras().toString());
-		this.finish();
+		
+		ProgressDialog dialog = new ProgressDialog(this);
+		dialog.setCancelable(false);
+		dialog.setTitle(getResources().getString(R.string.please_wait));
+		dialog.setMessage(getResources().getString(R.string.loading_data));
+		ConvertToJSONArrayTask task = new ConvertToJSONArrayTask(adapter.getAllSelectedContacts(), dialog, thumbnailsRequired);
+		Utils.executeJSONArrayResultTask(task);
 	}
 	
-	private JSONArray convertToJSONArray(List<ContactInfo> list)
+	private JSONArray convertToJSONArray(List<ContactInfo> list, boolean thumbnailsRequired)
 	{
 		JSONArray array = new JSONArray();
+		JSONObject platformInfo;
 		for(ContactInfo contactInfo : list)
 		{
 			try
 			{
-				array.put(contactInfo.getPlatformInfo());
+				platformInfo = contactInfo.getPlatformInfo();
+				if (thumbnailsRequired)
+				{
+					platformInfo.put(HikePlatformConstants.THUMBNAIL, ContactManager.getInstance().getImagePathForThumbnail(contactInfo.getMsisdn()));
+				}
+				array.put(platformInfo);
 			}
 			catch (JSONException e)
 			{
@@ -1449,6 +1465,44 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		return array;
 	}
 	
+	private class ConvertToJSONArrayTask extends AsyncTask<Void, Void, JSONArray>
+	{
+		ArrayList<ContactInfo> list;
+		ProgressDialog dialog;
+		boolean thumbnailsRequired;
+		
+		public ConvertToJSONArrayTask(ArrayList<ContactInfo> list, ProgressDialog dialog, boolean thumbnailsRequired)
+		{
+			this.list = list;
+			this.dialog = dialog;
+			this.thumbnailsRequired = thumbnailsRequired;
+		}
+		
+		@Override
+		protected void onPreExecute()
+		{
+			dialog.show();
+			super.onPreExecute();
+		}
+		
+		@Override
+		protected JSONArray doInBackground(Void... params)
+		{
+			return convertToJSONArray(this.list, thumbnailsRequired);
+		}
+
+		@Override
+		protected void onPostExecute(JSONArray array)
+		{
+			Intent intent = getIntent();
+			intent.putExtra(HikeConstants.HIKE_CONTACT_PICKER_RESULT, array == null ? "" : array.toString());
+			setResult(RESULT_OK,intent);
+			ComposeChatActivity.this.finish();
+			dialog.dismiss();
+			super.onPostExecute(array);
+		}
+		
+	}
 	
 	private void forwardConfirmation(final ArrayList<ContactInfo> arrayList)
 	{

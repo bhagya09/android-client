@@ -194,6 +194,14 @@ public class DeleteAccountTask implements ActivityCallableTask
 			AccountBackupRestore.getInstance(ctx).deleteAllFiles();
 		}
 		
+		/*
+		 *Closing connection is connected or connecting  via hike direct    
+		 */
+		if(OfflineController.getInstance().isConnected() || OfflineController.getInstance().isConnecting())
+		{
+			OfflineController.getInstance().shutdownProcess(new OfflineException(OfflineException.USER_DISCONNECTED));
+		}
+		
 		clearAppData();
 		Logger.d("DeleteAccountTask", "account deleted");
 
@@ -205,8 +213,6 @@ public class DeleteAccountTask implements ActivityCallableTask
 
 		finished = true;
 		
-		OfflineController.getInstance().shutdownProcess(new OfflineException(OfflineException.USER_DISCONNECTED));
-
 		/* clear any toast notifications */
 		NotificationManager mgr = (NotificationManager) ctx.getSystemService(android.content.Context.NOTIFICATION_SERVICE);
 		mgr.cancelAll();

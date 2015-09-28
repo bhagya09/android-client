@@ -8,6 +8,33 @@ import java.util.Map;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnDismissListener;
+import android.content.Intent;
+import android.os.Bundle;
+import android.os.Message;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.TextUtils;
+import android.text.method.LinkMovementMethod;
+import android.text.style.ForegroundColorSpan;
+import android.text.util.Linkify;
+import android.util.Pair;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.animation.Animation;
+import android.view.animation.Animation.AnimationListener;
+import android.view.animation.AnimationUtils;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+import android.widget.Toast;
+
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
@@ -37,31 +64,6 @@ import com.bsb.hike.view.CustomFontEditText;
 import com.bsb.hike.voip.VoIPUtils;
 import com.kpt.adaptxt.beta.util.KPTConstants;
 
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.DialogInterface.OnDismissListener;
-import android.content.Intent;
-import android.os.Bundle;
-import android.os.Message;
-import android.text.Spannable;
-import android.text.SpannableString;
-import android.text.TextUtils;
-import android.text.method.LinkMovementMethod;
-import android.text.style.ForegroundColorSpan;
-import android.text.util.Linkify;
-import android.util.Pair;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.MotionEvent;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.view.animation.Animation;
-import android.view.animation.Animation.AnimationListener;
-import android.view.animation.AnimationUtils;
-import android.widget.LinearLayout;
-import android.widget.TextView;
-import android.widget.Toast;
 
 /**
  * @author piyush
@@ -598,20 +600,32 @@ public class GroupChatThread extends OneToNChatThread
 			switch (item.getItemId())
 			{
 			case R.id.voip_call:
-				Map<String, PairModified<GroupParticipant, String>> groupParticipants = oneToNConversation.getConversationParticipantList();
-				ArrayList<String> msisdns = new ArrayList<String>();
+				// Make a group voip call after confirmation
+				new AlertDialog.Builder(activity).
+				setTitle(R.string.voip_conference_label).
+				setMessage(R.string.voip_group_conference_confirmation).
+				setPositiveButton(R.string.call, new DialogInterface.OnClickListener() {
+					
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						Map<String, PairModified<GroupParticipant, String>> groupParticipants = oneToNConversation.getConversationParticipantList();
+						ArrayList<String> msisdns = new ArrayList<String>();
+						
+						for (PairModified<GroupParticipant, String> groupParticipant : groupParticipants.values())
+						{
+							String msisdn = groupParticipant.getFirst().getContactInfo().getMsisdn();
+							msisdns.add(msisdn);
+						}
+						
+						// Launch VoIP service
+						Intent intent = IntentFactory.getVoipCallIntent(activity.getApplicationContext(), 
+								msisdns, msisdn, VoIPUtils.CallSource.CHAT_THREAD);
+						if (intent != null)
+							activity.getApplicationContext().startService(intent);
+					}
+				}).
+				setNegativeButton(R.string.cancel, null).show();
 				
-				for (PairModified<GroupParticipant, String> groupParticipant : groupParticipants.values())
-				{
-					String msisdn = groupParticipant.getFirst().getContactInfo().getMsisdn();
-					msisdns.add(msisdn);
-				}
-				
-				// Launch VoIP service
-				Intent intent = IntentFactory.getVoipCallIntent(activity.getApplicationContext(), 
-						msisdns, msisdn, VoIPUtils.CallSource.CHAT_THREAD);
-				if (intent != null)
-					activity.getApplicationContext().startService(intent);
 				break;
 			}
 			return super.onOptionsItemSelected(item);

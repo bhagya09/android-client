@@ -36,6 +36,7 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.smartImageLoader.IconLoader;
@@ -75,6 +76,8 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 	public static final String EMPTY_ID = "-912";
 
 	public static final String REMOVE_SUGGESTIONS_ID = "-913";
+	
+	public static final String HIKE_APPS_ID = "-914";
 
 	public static final String INVITE_MSISDN = "-123";
 
@@ -91,10 +94,18 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 	public static final String RECENTLY_JOINED = "-129";
 	
 	public static final String RECOMMENDED = "-130";
+	
+	public static final String APPS_ON_HIKE = "-131";
+	
+	// phoneNum for scrolling Microapps showcase
+	public static final String HIKE_APPS_NUM = "-131";
+	
+	// msisdn for scrolling Microapps showcase
+	public static final String HIKE_APPS_MSISDN = "-132";
 
 	public enum ViewType
 	{
-		SECTION, FRIEND, NOT_FRIEND_HIKE, NOT_FRIEND_SMS, FRIEND_REQUEST, EXTRA, EMPTY, FTUE_CONTACT, REMOVE_SUGGESTIONS, NEW_CONTACT, RECOMMENDED
+		SECTION, FRIEND, NOT_FRIEND_HIKE, NOT_FRIEND_SMS, FRIEND_REQUEST, EXTRA, EMPTY, FTUE_CONTACT, REMOVE_SUGGESTIONS, NEW_CONTACT, RECOMMENDED, HIKE_APPS
 	}
 
 	private LayoutInflater layoutInflater;
@@ -138,6 +149,8 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 	protected List<ContactInfo> nuxRecommendedList;
 	
 	protected List<ContactInfo> nuxFilteredRecoList;
+	
+	protected List<BotInfo> microappShowcaseList;
 
 	protected Context context;
 
@@ -205,6 +218,7 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 		smsContactsList = new ArrayList<ContactInfo>(0);
 		recentlyJoinedHikeContactsList = new ArrayList<ContactInfo>(0);
 		nuxRecommendedList = new ArrayList<ContactInfo>(0);
+		microappShowcaseList = new ArrayList<BotInfo>(0);
 		
 		friendsStealthList = new ArrayList<ContactInfo>(0);
 		hikeStealthContactsList = new ArrayList<ContactInfo>(0);
@@ -934,6 +948,10 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 		else if (REMOVE_SUGGESTIONS_ID.equals(contactInfo.getId()))
 		{
 			return ViewType.REMOVE_SUGGESTIONS.ordinal();
+		}
+		else if (HIKE_APPS_ID.equals(contactInfo.getId()))
+		{
+			return ViewType.HIKE_APPS.ordinal();
 		}
 		else
 		{

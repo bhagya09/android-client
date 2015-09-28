@@ -81,7 +81,6 @@ public class StickerShareSettings extends HikeAppStateBaseFragmentActivity
 		selectAllCheckbox = (SwitchCompat) findViewById(R.id.select_all_checkbox);
 		click2Accessibility = (TextView) findViewById(R.id.show_accessibility);
 		settingOnClickEvent();
-	
 		ListView listView = (ListView) findViewById(R.id.list_items);
 		listView.setAdapter(listAdapter);
 		setupActionBar();

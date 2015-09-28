@@ -10,12 +10,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import com.bsb.hike.MqttConstants;
-import com.bsb.hike.models.ContactInfo;
-import com.bsb.hike.models.MessageEvent;
-import com.bsb.hike.modules.contactmgr.ContactManager;
-import com.bsb.hike.service.HikeMqttManagerNew;
-
+import com.bsb.hike.bots.NonMessagingBotMetadata;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
@@ -31,6 +26,8 @@ import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
+import android.location.Location;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.text.TextUtils;
 import android.webkit.MimeTypeMap;
@@ -44,15 +41,19 @@ import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.chatHead.ChatHeadUtils;
+import com.bsb.hike.chatHead.StickyCaller;
 import com.bsb.hike.db.HikeConversationsDatabase;
+import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.HikeHandlerUtil;
+import com.bsb.hike.models.MessageEvent;
 import com.bsb.hike.models.StickerCategory;
+import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.Header;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpHeaderConstants;
-import com.bsb.hike.modules.stickerdownloadmgr.StickerPalleteImageDownloadTask;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadSource;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadType;
+import com.bsb.hike.modules.stickerdownloadmgr.StickerPalleteImageDownloadTask;
 import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.platform.content.PlatformContentConstants;
 import com.bsb.hike.platform.content.PlatformContentListener;
@@ -316,9 +317,18 @@ public class PlatformUtils
 					Toast.makeText(context, context.getString(R.string.sticker_share_popup_not_activate_toast), Toast.LENGTH_LONG).show();
 				}
 			}
+			if (activityName.equals(HIKESCREEN.HIKE_CALLER.toString()))
+			{
+				HikeSharedPreferenceUtil.getInstance().saveData(StickyCaller.ACTIVATE_STICKY_CALLER, true);
+				IntentFactory.openStickyCallerSettings(context);
+			}
 			if(activityName.equals(HIKESCREEN.ACCESS.toString()))
 			{
 				IntentFactory.openAccessibilitySettings(context);
+			}
+			if (activityName.equals(HIKESCREEN.GAME_ACTIVITY.toString()))
+			{
+				IntentFactory.openIntentForGameActivity(context);
 			}
 		}
 		catch (JSONException e)
@@ -338,7 +348,7 @@ public class PlatformUtils
 	 * @param botInfo
 	 * @param enableBot
 	 */
-	public static void downloadZipForNonMessagingBot(final BotInfo botInfo, final boolean enableBot, final String botChatTheme, final String notifType)
+	public static void downloadZipForNonMessagingBot(final BotInfo botInfo, final boolean enableBot, final String botChatTheme, final String notifType, NonMessagingBotMetadata botMetadata)
 	{
 		PlatformContentRequest rqst = PlatformContentRequest.make(
 				PlatformContentModel.make(botInfo.getMetadata()), new PlatformContentListener<PlatformContentModel>()
@@ -383,7 +393,7 @@ public class PlatformUtils
 					}
 				});
 
-		downloadAndUnzip(rqst, false);
+		downloadAndUnzip(rqst, false,botMetadata.shouldReplace(), botMetadata.getCallbackId());
 
 	}
 
@@ -514,8 +524,9 @@ public class PlatformUtils
 						}
 					}
 				});
-				boolean doReplace = downloadData.optBoolean(PlatformContentConstants.REPLACE_MICROAPP_VERSION);
-				downloadAndUnzip(rqst, false,doReplace);
+				boolean doReplace = downloadData.optBoolean(HikePlatformConstants.REPLACE_MICROAPP_VERSION);
+				String callbackId = downloadData.optString(HikePlatformConstants.CALLBACK_ID);
+				downloadAndUnzip(rqst, false,doReplace, callbackId);
 
 	}
 
@@ -546,8 +557,17 @@ public class PlatformUtils
 	
 	public static void downloadAndUnzip(PlatformContentRequest request, boolean isTemplatingEnabled , boolean doReplace)
 	{
+		downloadAndUnzip(request, isTemplatingEnabled, doReplace, null);
+	}
+	public static void downloadAndUnzip(PlatformContentRequest request, boolean isTemplatingEnabled)
+	{
+		downloadAndUnzip(request, isTemplatingEnabled, false);
+	}
 
-		PlatformZipDownloader downloader =  new PlatformZipDownloader(request, isTemplatingEnabled, doReplace);
+	public static void downloadAndUnzip(PlatformContentRequest request, boolean isTemplatingEnabled, boolean doReplace, String callbackId)
+	{
+
+		PlatformZipDownloader downloader =  new PlatformZipDownloader(request, isTemplatingEnabled, doReplace, callbackId);
 		if (!downloader.isMicroAppExist() || doReplace)
 		{
 			downloader.downloadAndUnzip();
@@ -556,11 +576,6 @@ public class PlatformUtils
 		{
 			request.getListener().onEventOccured(request.getContentData()!=null ? request.getContentData().getUniqueId() : 0,PlatformContent.EventCode.ALREADY_DOWNLOADED);
 		}
-		
-	}
-	public static void downloadAndUnzip(PlatformContentRequest request, boolean isTemplatingEnabled)
-	{
-		downloadAndUnzip(request, isTemplatingEnabled, false);
 	}
 
 	/**
@@ -569,14 +584,14 @@ public class PlatformUtils
 	 * @param text:     hm text
 	 * @return
 	 */
-	public static ConvMessage getConvMessageFromJSON(JSONObject metadata, String text, String msisdn)
+	public static ConvMessage getConvMessageFromJSON(JSONObject metadata, String text, String msisdn) throws JSONException
 	{
 
 
 		ConvMessage convMessage = Utils.makeConvMessage(msisdn, true);
 		convMessage.setMessage(text);
 		convMessage.setMessageType(HikeConstants.MESSAGE_TYPE.FORWARD_WEB_CONTENT);
-		convMessage.webMetadata = new WebMetadata(metadata);
+		convMessage.webMetadata = new WebMetadata(PlatformContent.getForwardCardData(metadata.toString()));
 		convMessage.setMsisdn(msisdn);
 		return convMessage;
 
@@ -1098,6 +1113,26 @@ public class PlatformUtils
 		HikeMessengerApp.getPubSub().publish(HikePubSub.PLATFORM_CARD_EVENT_SENT, messageEvent);
 
 	}
+	
+	/**
+	 * Used to record analytics for bot opens via push notifications
+	 * Sample JSON : {"ek":"bno","bot_msisdn":"+hikecricketnew+"}
+	 */
+	public static void recordBotOpenViaNotification(String msisdn)
+	{
+		JSONObject json = new JSONObject();
+		try
+		{
+			json.put(AnalyticsConstants.EVENT_KEY, AnalyticsConstants.BOT_NOTIF_TRACKER);
+			json.put(AnalyticsConstants.BOT_MSISDN, msisdn);
+			HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, json);
+		}
+
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+	}
 
 	public static JSONObject getPlatformContactInfo(String msisdn)
 	{
@@ -1148,6 +1183,39 @@ public class PlatformUtils
 		{
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.PLATFORM_TOKEN_SETTING, newPlatformToken);
 		}
+	}
+	/**
+	 * Call this method to get the latitude and longitude and whether Gps is on/off
+	 * @param LocationManager
+	 * @param Location
+	 * 
+	 */
+	public static String getLatLongFromLocation(LocationManager locationManager, Location location)
+	{
+		JSONObject json = new JSONObject();
+		double longitude = 0;
+		double latitude = 0;
+
+		if (location != null)
+		{
+			longitude = location.getLongitude();
+			latitude = location.getLatitude();
+		}
+		// getting GPS status
+		try
+		{
+			JSONObject s_values = new JSONObject();
+			s_values.put("latitude", latitude);
+			s_values.put("longitude", longitude);
+			json.put("coords", s_values);
+			json.put("gpsAvailable", locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER));
+
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+		return json.toString();
 	}
 
 }

@@ -289,7 +289,7 @@ public class FTAnalyticEvents
 	/*
 	 * We send an event every time user transfer file whether it is succeeded or canceled.
 	 */
-	public void sendFTSuccessFailureEvent(String network,  int fileSize, int status)
+	public void sendFTSuccessFailureEvent(String network,  long fileSize, int status)
 	{
 		try
 		{
@@ -311,7 +311,7 @@ public class FTAnalyticEvents
 	/*
 	 * Send an event for video compression
 	 */
-	public static void sendVideoCompressionEvent(String inputRes, String outRes, int inputSize, int outSize, int compressedState)
+	public static void sendVideoCompressionEvent(String inputRes, String outRes, long inputSize, long outSize, int compressedState)
 	{
 		try
 		{

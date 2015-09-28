@@ -209,8 +209,9 @@ public class OkClient implements IClient
 		InputStream stream = responseBody.byteStream();
 		try
 		{
-			T bodyContent = request.parseResponse(stream);
-			ResponseBody<T> body = ResponseBody.create(responseBody.toString(), (int) responseBody.contentLength(), bodyContent);
+			int contentLength = (int) responseBody.contentLength();
+			T bodyContent = request.parseResponse(stream, contentLength);
+			ResponseBody<T> body = ResponseBody.create(responseBody.toString(), contentLength, bodyContent);
 			responseBuilder.setBody(body);
 			Response res = responseBuilder.build();
 			res.getResponseInterceptors().addAll(request.getResponseInterceptors());
