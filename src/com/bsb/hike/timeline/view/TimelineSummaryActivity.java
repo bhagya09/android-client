@@ -81,7 +81,7 @@ import com.bsb.hike.utils.Utils;
  */
 public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity implements OnClickListener, Listener, IHandlerCallback, HikeImageWorker.TaskCallbacks
 {
-	private static final int LIKE_CONTACTS_DIALOG = 0;
+	
 	
 	ImageView imageView;
 
@@ -146,8 +146,6 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 
 	private ContactInfo profileContactInfo;
 	
-	DisplayContactsAdapter contactsAdapter;
-
 	private ActionsDataModel actionsData;
 
 	public class ActivityState
@@ -369,11 +367,11 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 		}
 
 		checkBoxLove.setOnCheckedChangeListener(onLoveToggleListener);
-
-		if (contactsAdapter != null && !Utils.isEmpty(msisdns) && mStatusMessage != null)
+		
+		if(contactsListDialog!=null && contactsListDialog.isShowing())
 		{
-			contactsAdapter.processInput(msisdns, mStatusMessage.getMsisdn());
-			contactsAdapter.notifyDataSetChanged();
+			contactsListDialog.dismiss();
+			showLikesContactsDialog();
 		}
 	}
 
@@ -395,6 +393,8 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 	}
 
 	private int ANIM_DURATION = 280;
+
+	private HikeDialog contactsListDialog;
 
 	public void runEnterAnimation()
 	{
@@ -667,50 +667,14 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 		}
 	}
 
-	// TODO Make this generic for all action types
-	// TODO Move to HikeDialogFactory
 	public void showLikesContactsDialog()
 	{
 		if (msisdns != null && !msisdns.isEmpty() && (isShowLikesEnabled || mStatusMessage.isMyStatusUpdate()))
 		{
-			final HikeDialog dialog = new HikeDialog(TimelineSummaryActivity.this, R.style.Theme_CustomDialog, LIKE_CONTACTS_DIALOG);
-			dialog.setContentView(R.layout.display_contacts_dialog);
-			dialog.setCancelable(true);
-			dialog.setCanceledOnTouchOutside(true);
-
-			ListView listContacts = (ListView) dialog.findViewById(R.id.listContacts);
-			contactsAdapter = new DisplayContactsAdapter(msisdns, mStatusMessage.getMsisdn());
-			listContacts.setAdapter(contactsAdapter);
-			listContacts.setOnItemClickListener(new AdapterView.OnItemClickListener()
-			{
-				@Override
-				public void onItemClick(AdapterView<?> arg0, View arg1, int position, long arg3)
-				{
-					//We are changing DataSet(msisdns) sent to Adapter inside DisplayContactsAdapter,
-					//So we are fetching msisdn for item clicked from Adapter only
-					String currentMsisdn = contactsAdapter.getMsisdnAsPerPostion(position);
-					if (Utils.isSelfMsisdn(currentMsisdn))
-					{
-						Intent intent2 = new Intent(TimelineSummaryActivity.this, ProfileActivity.class);
-						intent2.putExtra(HikeConstants.Extras.FROM_CENTRAL_TIMELINE, true);
-						startActivity(intent2);
-					}
-					else
-					{
-
-						Intent intent = IntentFactory.createChatThreadIntentFromContactInfo(TimelineSummaryActivity.this, ContactManager.getInstance()
-								.getContact(currentMsisdn,true,true), false, false);
-						// Add anything else to the intent
-						intent.putExtra(HikeConstants.Extras.FROM_CENTRAL_TIMELINE, true);
-						intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-						startActivity(intent);
-					}
-					dialog.dismiss();
-					mActivityState.dialogShown = false;
-				}
-			});
-			dialog.show();
-			mActivityState.dialogShown = true;
+			contactsListDialog = HikeDialogFactory.showDialog(TimelineSummaryActivity.this, HikeDialogFactory.LIKE_CONTACTS_DIALOG, mStatusMessage.getMsisdn(), null, msisdns);
+			
+			//TODO bind with activity when supporting landscape
+			contactsListDialog.show();
 			JSONObject metadataSU = new JSONObject();
 			try
 			{

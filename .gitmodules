@@ -2,3 +2,4 @@
 	path = transporter
 	url = https://github.com/hike/transporter.git
 	ignore = dirty
+	branch=internal_release

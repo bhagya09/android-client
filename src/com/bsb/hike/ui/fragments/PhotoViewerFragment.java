@@ -580,7 +580,7 @@ public class PhotoViewerFragment extends Fragment implements OnPageChangeListene
 					}
 					if (!fromChatThread)
 					{
-						HikeMessengerApp.getPubSub().publish(HikePubSub.HIKE_SHARED_FILE_DELETED, selectedPager.getCurrentItem());
+						HikeMessengerApp.getPubSub().publish(HikePubSub.HIKE_SHARED_FILE_DELETED, itemToDelete);
 					}
 					hikeDialog.dismiss();
 					removeCurrentSelectedItem();
