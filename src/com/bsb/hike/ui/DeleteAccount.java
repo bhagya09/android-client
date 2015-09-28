@@ -17,6 +17,7 @@ import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.CustomFontEditText;
 import com.bsb.hike.view.CustomFontTextView;
 import com.kpt.adaptxt.beta.CustomKeyboard;
+import com.kpt.adaptxt.beta.RemoveDialogData;
 import com.kpt.adaptxt.beta.util.KPTConstants;
 import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtEditTextEventListner;
 import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtKeyboordVisibilityStatusListner;
@@ -405,5 +406,19 @@ public class DeleteAccount extends HikeAppStateBaseFragmentActivity implements D
 		default:
 			break;
 		}
+	}
+
+	@Override
+	public void dismissRemoveDialog()
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void showRemoveDialog(RemoveDialogData arg0)
+	{
+		// TODO Auto-generated method stub
+		
 	}
 }
