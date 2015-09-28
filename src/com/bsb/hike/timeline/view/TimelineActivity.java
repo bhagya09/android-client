@@ -164,6 +164,11 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 	{
 		super.onNewIntent(intent);
 		shouldOpenActivityFeed = intent.getBooleanExtra(HikeConstants.Extras.OPEN_ACTIVITY_FEED, false);
+		if(isUpdatesFrgamentOnTop())
+		{
+			UpdatesFragment updatesFragment = (UpdatesFragment) getSupportFragmentManager().findFragmentByTag(FRAGMENT_UPDATES_TAG);
+			updatesFragment.scrollToTop();
+		}
 	}
 	
 	@Override
@@ -189,11 +194,6 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 				View actionBarView = actionBar.getCustomView();
 				TextView title = (TextView) actionBarView.findViewById(R.id.title);
 				title.setText(R.string.timeline);
-			}
-			else
-			{
-				UpdatesFragment updatesFragment = (UpdatesFragment) getSupportFragmentManager().findFragmentByTag(FRAGMENT_UPDATES_TAG);
-				updatesFragment.scrollToTop();
 			}
 		}
 	}
