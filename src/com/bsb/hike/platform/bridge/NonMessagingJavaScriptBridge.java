@@ -972,7 +972,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	@JavascriptInterface
 	public void postStatusUpdate(String status, String moodId)
 	{
-		postStatusUpdate(status, moodId, null);
+		PlatformHelper.postStatusUpdate(status, moodId, null);
 	}
 	
 	/**
@@ -1022,19 +1022,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	@JavascriptInterface
 	public void postStatusUpdate(String status, String moodId, String imageFilePath)
 	{
-		int mood;
-		
-		try
-		{
-			mood = Integer.parseInt(moodId);
-		}
-		catch(NumberFormatException e)
-		{
-			Logger.e(tag, "moodId to postStatusUpdate should be a number.");
-			mood = -1;
-		}
-		
-		Utils.postStatusUpdate(status, mood, imageFilePath);
+		PlatformHelper.postStatusUpdate(status,moodId,imageFilePath);
 	}
 
 	/**

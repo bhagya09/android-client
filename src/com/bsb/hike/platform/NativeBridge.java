@@ -517,6 +517,53 @@ public class NativeBridge
 			}
 		});
 	}
-	
+
+	/**
+	 * Platform Bridge Version 7 Call this method to post a status update to timeline.
+	 * 
+	 * @param status
+	 * @param moodId
+	 *            : Pass -1 if no mood
+	 * @param imageFilePath
+	 *            : Path of the image on the client. Image should only be of jpeg format and compressed.
+	 * 
+	 *            Status = null, moodId = -1 & imageFilePath = null should not hold together
+	 * 
+	 *            0, happy 1, sad 2, in_love 3, surprised 4, confused 5, angry 6, sleepy 7, hungover 8, chilling 9, studying 10, busy 11, love 12, middle_finger 13, boozing 14,
+	 *            movie 15, caffeinated 16, insomniac 17, driving 18, traffic 19, late 20, shopping 21, gaming 22, coding 23, television 33, music 34, partying_hard 35, singing 36,
+	 *            eating 37, working_out 38, cooking 39, beauty_saloon 40, sick
+	 * 
+	 */
+	public void postStatusUpdate(final String status, final String moodId, final String imageFilePath)
+	{
+		mThread.postRunnable(new Runnable()
+		{
+
+			@Override
+			public void run()
+			{
+				helper.postStatusUpdate(status, moodId, imageFilePath);
+			}
+		});
+	}
+
+	/**
+	 * Platform Bridge Version 7 Call this method to post a status update without an image to timeline.
+	 *
+	 * @param status
+	 * @param moodId
+	 *            : Pass -1 if no mood
+	 *
+	 *            Both status = null and moodId = -1 should not hold together
+	 *
+	 *            0, happy 1, sad 2, in_love 3, surprised 4, confused 5, angry 6, sleepy 7, hungover 8, chilling 9, studying 10, busy 11, love 12, middle_finger 13, boozing 14,
+	 *            movie 15, caffeinated 16, insomniac 17, driving 18, traffic 19, late 20, shopping 21, gaming 22, coding 23, television 33, music 34, partying_hard 35, singing 36,
+	 *            eating 37, working_out 38, cooking 39, beauty_saloon 40, sick
+	 *
+	 */
+	public void postStatusUpdate(final String status, final String moodId)
+	{
+		postStatusUpdate(status, moodId, null);
+	}
 
 }
