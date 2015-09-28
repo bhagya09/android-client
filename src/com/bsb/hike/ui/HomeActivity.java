@@ -796,6 +796,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 					Intent intent = new Intent(HomeActivity.this, ComposeChatActivity.class);
 					intent.putExtra(HikeConstants.Extras.EDIT, true);
+					intent.putExtra(HikeConstants.Extras.IS_MICROAPP_SHOWCASE_INTENT, true);
 
 					newConversationIndicator.setVisibility(View.GONE);
 					startActivity(intent);

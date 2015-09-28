@@ -37,6 +37,7 @@ import com.bsb.hike.view.CustomFontEditText;
 import com.bsb.hike.voip.VoIPUtils;
 import com.kpt.adaptxt.beta.util.KPTConstants;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnDismissListener;
@@ -598,20 +599,32 @@ public class GroupChatThread extends OneToNChatThread
 			switch (item.getItemId())
 			{
 			case R.id.voip_call:
-				Map<String, PairModified<GroupParticipant, String>> groupParticipants = oneToNConversation.getConversationParticipantList();
-				ArrayList<String> msisdns = new ArrayList<String>();
+				// Make a group voip call after confirmation
+				new AlertDialog.Builder(activity).
+				setTitle(R.string.voip_conference_label).
+				setMessage(R.string.voip_group_conference_confirmation).
+				setPositiveButton(R.string.call, new DialogInterface.OnClickListener() {
+					
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						Map<String, PairModified<GroupParticipant, String>> groupParticipants = oneToNConversation.getConversationParticipantList();
+						ArrayList<String> msisdns = new ArrayList<String>();
+						
+						for (PairModified<GroupParticipant, String> groupParticipant : groupParticipants.values())
+						{
+							String msisdn = groupParticipant.getFirst().getContactInfo().getMsisdn();
+							msisdns.add(msisdn);
+						}
+						
+						// Launch VoIP service
+						Intent intent = IntentFactory.getVoipCallIntent(activity.getApplicationContext(), 
+								msisdns, msisdn, VoIPUtils.CallSource.CHAT_THREAD);
+						if (intent != null)
+							activity.getApplicationContext().startService(intent);
+					}
+				}).
+				setNegativeButton(R.string.cancel, null).show();
 				
-				for (PairModified<GroupParticipant, String> groupParticipant : groupParticipants.values())
-				{
-					String msisdn = groupParticipant.getFirst().getContactInfo().getMsisdn();
-					msisdns.add(msisdn);
-				}
-				
-				// Launch VoIP service
-				Intent intent = IntentFactory.getVoipCallIntent(activity.getApplicationContext(), 
-						msisdns, msisdn, VoIPUtils.CallSource.CHAT_THREAD);
-				if (intent != null)
-					activity.getApplicationContext().startService(intent);
 				break;
 			}
 			return super.onOptionsItemSelected(item);
