@@ -25,12 +25,6 @@
         android:widgetLayout="@layout/switch_widget" />
     
     <com.bsb.hike.view.IconPreference
-            android:key="shorthandPref"
-            android:layout="@layout/icon_preference"
-            android:summary="@string/shorthand_summary"
-            android:title="@string/shorthand_title" />
-
-    <com.bsb.hike.view.IconPreference
             android:key="advancedPref"
             android:layout="@layout/icon_preference"
             android:summary="@string/kpt_adv_summary"

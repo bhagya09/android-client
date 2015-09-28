@@ -28,7 +28,6 @@ import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.models.Conversation.ConvInfo;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
-import com.bsb.hike.modules.kpt.KptShorthand;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.timeline.view.StatusUpdate;
 import com.bsb.hike.timeline.view.TimelineActivity;
@@ -285,12 +284,6 @@ public class IntentFactory
 		Intent intent = new Intent(context, HikePreferences.class);
 		intent.putExtra(HikeConstants.Extras.PREF, R.xml.kpt_advanced_preferences);
 		intent.putExtra(HikeConstants.Extras.TITLE, R.string.advanced_keyboard_settings);
-		return intent;
-	}
-	
-	public static Intent getIntentForKeyboardShorthand(Context context)
-	{
-		Intent intent = new Intent(context, KptShorthand.class);
 		return intent;
 	}
 	

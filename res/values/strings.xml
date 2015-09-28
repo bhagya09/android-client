@@ -1701,8 +1701,6 @@
     <string name="keyboard_title">Hike Keyboard</string>
     <string name="glide_summary">Slide over the letters to form words without lifting the finger</string>
     <string name="glide_title">Glide</string>
-    <string name="shorthand_summary">Automatic suggestions</string>
-    <string name="shorthand_title">Shorthand</string>
     <string name="kpt_adv_summary">Auto correction, touch feedback and more</string>
     <string name="kpt_adv_title">Advanced Settings</string>
     <string name="advanced_keyboard_settings">Advanced Settings</string>
