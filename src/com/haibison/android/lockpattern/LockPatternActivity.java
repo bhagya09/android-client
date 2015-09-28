@@ -48,6 +48,7 @@ import com.haibison.android.lockpattern.widget.LockPatternView;
 import com.haibison.android.lockpattern.widget.LockPatternView.Cell;
 import com.haibison.android.lockpattern.widget.LockPatternView.DisplayMode;
 import com.kpt.adaptxt.beta.CustomKeyboard;
+import com.kpt.adaptxt.beta.RemoveDialogData;
 import com.kpt.adaptxt.beta.util.KPTConstants;
 import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtEditTextEventListner;
 import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtKeyboordVisibilityStatusListner;
@@ -1514,5 +1515,17 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity implem
 			return;
 		}
 		super.onBackPressed();
+	}
+
+	@Override
+	public void dismissRemoveDialog() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void showRemoveDialog(RemoveDialogData arg0) {
+		// TODO Auto-generated method stub
+		
 	}
 }

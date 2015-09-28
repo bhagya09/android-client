@@ -52,6 +52,7 @@ import com.bsb.hike.utils.NUXManager;
 import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.Utils;
 import com.kpt.adaptxt.beta.CustomKeyboard;
+import com.kpt.adaptxt.beta.RemoveDialogData;
 import com.kpt.adaptxt.beta.util.KPTConstants;
 import com.kpt.adaptxt.beta.view.AdaptxtEditText;
 import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtEditTextEventListner;
@@ -2235,6 +2236,18 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 	@Override
 	public void onReturnAction(int arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void dismissRemoveDialog() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void showRemoveDialog(RemoveDialogData arg0) {
 		// TODO Auto-generated method stub
 		
 	}

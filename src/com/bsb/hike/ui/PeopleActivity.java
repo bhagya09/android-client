@@ -29,6 +29,7 @@ import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Utils;
 import com.kpt.adaptxt.beta.CustomKeyboard;
+import com.kpt.adaptxt.beta.RemoveDialogData;
 import com.kpt.adaptxt.beta.util.KPTConstants;
 import com.kpt.adaptxt.beta.view.AdaptxtEditText;
 import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtEditTextEventListner;
@@ -282,6 +283,18 @@ public class PeopleActivity extends HikeAppStateBaseFragmentActivity implements 
 
 	@Override
 	public void showQuickSettingView() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void dismissRemoveDialog() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void showRemoveDialog(RemoveDialogData arg0) {
 		// TODO Auto-generated method stub
 		
 	}
