@@ -310,16 +310,18 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		}
 
 		int count = 0;
-		count = Utils.getNotificationCount(accountPrefs, false);
+		count = Utils.getNotificationCount(accountPrefs, true);
 		if (count > 9)
 		{
 			timelineUpdatesIndicator.setVisibility(View.VISIBLE);
 			timelineUpdatesIndicator.setText("9+");
+			timelineUpdatesIndicator.startAnimation(Utils.getNotificationIndicatorAnim());
 		}
 		else if (count > 0)
 		{
 			timelineUpdatesIndicator.setVisibility(View.VISIBLE);
 			timelineUpdatesIndicator.setText(String.valueOf(count));
+			timelineUpdatesIndicator.startAnimation(Utils.getNotificationIndicatorAnim());
 		}
 		else
 		{
