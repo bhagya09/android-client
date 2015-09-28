@@ -57,6 +57,7 @@ import com.bsb.hike.ui.StickerSettingsActivity;
 import com.bsb.hike.ui.StickerShopActivity;
 import com.bsb.hike.ui.WebViewActivity;
 import com.bsb.hike.ui.WelcomeActivity;
+import com.bsb.hike.ui.LanguageSettingsActivity;
 import com.bsb.hike.voip.VoIPConstants;
 import com.bsb.hike.voip.VoIPService;
 import com.bsb.hike.voip.VoIPUtils;
@@ -84,6 +85,11 @@ public class IntentFactory
 	public static void openSetting(Context context)
 	{
 		context.startActivity(new Intent(context, SettingsActivity.class));
+	}
+
+	public static void openLanguageSetting(Context context)
+	{
+		context.startActivity(new Intent(context, LanguageSettingsActivity.class));
 	}
 
 	public static void openSettingNotification(Context context)

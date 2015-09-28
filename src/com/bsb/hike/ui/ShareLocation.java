@@ -24,6 +24,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -33,6 +34,7 @@ import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TableLayout;
 import android.widget.TextView;
@@ -42,9 +44,11 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
 
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.BitmapModule.BitmapUtils;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
+import com.bsb.hike.chatthread.ChatThread;
 import com.bsb.hike.dialog.CustomAlertDialog;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
@@ -52,6 +56,7 @@ import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
+import com.bsb.hike.view.CustomFontEditText;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient.ConnectionCallbacks;
 import com.google.android.gms.common.GooglePlayServicesClient.OnConnectionFailedListener;
@@ -67,8 +72,14 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.kpt.adaptxt.beta.CustomKeyboard;
+import com.kpt.adaptxt.beta.RemoveDialogData;
+import com.kpt.adaptxt.beta.util.KPTConstants;
+import com.kpt.adaptxt.beta.view.AdaptxtEditText;
+import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtEditTextEventListner;
+import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtKeyboordVisibilityStatusListner;
 
-public class ShareLocation extends HikeAppStateBaseFragmentActivity implements ConnectionCallbacks, OnConnectionFailedListener, LocationListener
+public class ShareLocation extends HikeAppStateBaseFragmentActivity implements ConnectionCallbacks, OnConnectionFailedListener, LocationListener, AdaptxtEditTextEventListner, AdaptxtKeyboordVisibilityStatusListner
 {
 
 	private GoogleMap map;
@@ -91,6 +102,8 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 	private Marker[] placeMarkers;
 
 	private String searchStr;
+	
+	private CustomKeyboard mCustomKeyboard;
 
 	// max
 	private final int MAX_PLACES = 20;// most returned from google
@@ -137,6 +150,8 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 
 	private TextView title;
 
+	private CustomFontEditText searchET;
+
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -175,9 +190,15 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 		{ // Google Play Services are available
 
 			setContentView(R.layout.share_location);
+			if (!isSystemKeyboard())
+			{
+				LinearLayout viewHolder = (LinearLayout) findViewById(R.id.keyboardView_holder);
+				mCustomKeyboard = new CustomKeyboard(ShareLocation.this, viewHolder);			
+			}
 			gpsDialogShown = savedInstanceState != null && savedInstanceState.getBoolean(HikeConstants.Extras.GPS_DIALOG_SHOWN);
 			listview = (ListView) findViewById(R.id.itemListView);
 			list = new ArrayList<ItemDetails>();
+			initCustomKeyboard();
 			adapter = new ItemListBaseAdapter(this, list);
 			listview.setAdapter(adapter);
 			listview.setOnItemClickListener(new AdapterView.OnItemClickListener()
@@ -400,7 +421,10 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 	{
 
 	}
-
+	public boolean isSystemKeyboard()
+	{
+		return HikeMessengerApp.isSystemKeyboard(ShareLocation.this);
+	}
 	@Override
 	public void onConnected(Bundle arg0)
 	{
@@ -867,7 +891,22 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 		}
 
 	}
-
+	protected void initCustomKeyboard()
+	{	
+		LinearLayout parentView = (LinearLayout)findViewById(R.id.keyboardView_holder);
+		mCustomKeyboard= new CustomKeyboard(this, parentView);
+		mCustomKeyboard.registerEditText(R.id.search,KPTConstants.MULTILINE_LINE_EDITOR,ShareLocation.this,ShareLocation.this);
+		searchET = (CustomFontEditText)findViewById(R.id.search);
+		mCustomKeyboard.init(searchET);
+		searchET.setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				mCustomKeyboard.showCustomKeyboard(searchET, true);
+				
+			}
+		});
+	}
 	private void updateLocationAddress(final double lat, final double lng, final Marker userMarker)
 	{
 		/*
@@ -929,5 +968,77 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 	{
 		// TODO Auto-generated method stub
 		finish();
+	}
+	public void onBackKeyPressedET(CustomFontEditText editText)
+	{
+		if(mCustomKeyboard!=null && searchET!=null)
+		{
+			mCustomKeyboard.showCustomKeyboard(searchET, false);
+		}
+	}
+	@Override
+	public void analyticalData(String arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onInputViewCreated() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onInputviewVisbility(boolean arg0, int arg1) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void showGlobeKeyView() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void showQuickSettingView() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onAdaptxtFocusChange(View arg0, boolean arg1) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onAdaptxtTouch(View arg0, MotionEvent arg1) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onAdaptxtclick(View arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onReturnAction(int arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void dismissRemoveDialog() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void showRemoveDialog(RemoveDialogData arg0) {
+		// TODO Auto-generated method stub
+		
 	}
 }

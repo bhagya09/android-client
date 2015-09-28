@@ -165,5 +165,7 @@
         <attr name="kpt_kptIcon" format="reference" />
     </declare-styleable>
 	
-	
+	<declare-styleable name="AdaptxtEditText">
+        <attr name="charInputMaxLength" format="integer"/>
+    </declare-styleable>
 </resources>

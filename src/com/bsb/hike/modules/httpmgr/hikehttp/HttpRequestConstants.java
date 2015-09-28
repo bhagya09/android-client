@@ -368,5 +368,10 @@ public class HttpRequestConstants
 			return HTTPS + QA_CONTENT + suffix ;
 		}
 	}
+
+	public static String getLanguageDictionaryBaseUrl()
+	{
+		return BASE_URL + BASE_V1 + "/dict/";
+	}
 	
 }

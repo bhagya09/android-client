@@ -872,6 +872,9 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			case R.string.email_chat:
 				overFlowMenuItem.enabled = !isMessageListEmpty;
 				break;
+			case R.string.change_keyboard:
+				overFlowMenuItem.enabled = !mConversation.isBlocked();
+				break;
 			case R.string.hide_chat:
 				overFlowMenuItem.text = getString(StealthModeManager.getInstance().isActive() ? 
 						(mConversation.isStealth() ? R.string.mark_visible : R.string.mark_hidden)
@@ -4110,6 +4113,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 	public void onResume()
 	{
+		tryToDismissAnyOpenPanels();
 		showKeyboard();
 
 		isActivityVisible = true;
@@ -4158,7 +4162,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		
 		if (shouldShowKeyboard())
 		{
-			tryToDismissAnyOpenPanels();
 			if (isSystemKeyboard())
 			{
 				Utils.showSoftKeyboard(activity, mComposeView);
@@ -6052,9 +6055,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 				@Override
 				public void onClick(View v)
 				{
-					InputMethodManager imm = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
-					imm.showSoftInput(mComposeView, InputMethodManager.SHOW_IMPLICIT);
-
+					Utils.showSoftKeyboard(mComposeView, InputMethodManager.SHOW_FORCED);
 				}
 			});
 		}
@@ -6081,6 +6082,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			sendButtonClicked();
 		}
 	}
+	
 	
 	@Override
 	public void onAdaptxtclick(View edittext)
