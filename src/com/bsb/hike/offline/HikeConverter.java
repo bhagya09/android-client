@@ -18,11 +18,13 @@ import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.filetransfer.FileTransferManager;
+import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.ConvMessage.OriginType;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.Sticker;
+import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.offline.OfflineConstants.MessageType;
 import com.bsb.hike.service.MqttMessagesManager;
 import com.bsb.hike.utils.Logger;
@@ -83,7 +85,14 @@ public class HikeConverter implements IMessageReceived, IMessageSent {
 		{
 			if (!OfflineUtils.isFeautureAvailable(OfflineConstants.OFFLINE_VERSION_NUMER, OfflineUtils.getConnectedDeviceVersion(), OfflineConstants.UNLIMITED_FT_VERSION))
 			{
-				HikeMessengerApp.getInstance().showToast(R.string.upgrade_for_larger_files, Toast.LENGTH_LONG);
+				String msisdn  = convMessage.getMsisdn();
+				ContactInfo contactInfo  = ContactManager.getInstance().getContact(msisdn);
+				String name  = msisdn;
+				if(contactInfo!=null && !TextUtils.isEmpty(contactInfo.getFirstNameAndSurname()))
+				{
+					name = contactInfo.getFirstNameAndSurname();
+				}
+				HikeMessengerApp.getInstance().showToast(context.getString(R.string.upgrade_for_larger_files,name), Toast.LENGTH_LONG);
 				return null;
 			}
 		}
