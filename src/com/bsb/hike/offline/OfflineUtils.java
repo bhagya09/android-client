@@ -842,8 +842,11 @@ public class OfflineUtils
 		try
 		{
 			String msisdn = packet.getString(HikeConstants.FROM);
-
-			OfflineController.getInstance().shutdown(new OfflineException(OfflineException.CANCEL_NOTIFICATION_REQUEST));
+			if(OfflineUtils.isConnectingToSameMsisdn(msisdn))
+			{
+				OfflineController.getInstance().shutdown(new OfflineException(OfflineException.CANCEL_NOTIFICATION_REQUEST));
+			}
+			
 		}
 		catch (JSONException e)
 		{
