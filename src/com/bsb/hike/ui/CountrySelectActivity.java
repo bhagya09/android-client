@@ -14,6 +14,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBar;
+
+import com.bsb.hike.modules.kpt.KptUtils;
 import com.bsb.hike.ui.v7.SearchView;
 import com.bsb.hike.ui.v7.SearchView.OnQueryTextListener;
 import android.support.v7.widget.Toolbar;
@@ -192,7 +194,7 @@ public class CountrySelectActivity extends HikeAppStateBaseFragmentActivity impl
 	protected void showKeyboard()
 		{
 			if(searchET!=null){
-				if (isSystemKeyboard())
+				if (KptUtils.isSystemKeyboard(CountrySelectActivity.this))
 				{
 					Utils.showSoftKeyboard(getApplicationContext(), searchET);
 				}
@@ -202,12 +204,6 @@ public class CountrySelectActivity extends HikeAppStateBaseFragmentActivity impl
 				}
 			}
 		}
-	
-	public boolean isSystemKeyboard()
-		{
-			return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CURRENT_KEYBOARD, false);
-		}
-	 		
 	
 	private void setupActionBar()
 	{
@@ -469,10 +465,12 @@ public class CountrySelectActivity extends HikeAppStateBaseFragmentActivity impl
 		// Code for CustomKeyboard
 		searchET = (AdaptxtEditText) searchView
 				.findViewById(R.id.search_src_text);
-		mCustomKeyboard.registerEditText(searchET,
-				KPTConstants.MULTILINE_LINE_EDITOR, CountrySelectActivity.this,
-				CountrySelectActivity.this);
-		mCustomKeyboard.init(searchET);
+		if (!KptUtils.isSystemKeyboard(CountrySelectActivity.this)) {
+			mCustomKeyboard.registerEditText(searchET,
+					KPTConstants.MULTILINE_LINE_EDITOR,
+					CountrySelectActivity.this, CountrySelectActivity.this);
+			mCustomKeyboard.init(searchET);
+		}
 		searchET.setOnFocusChangeListener(new View.OnFocusChangeListener() {
 
 			@Override

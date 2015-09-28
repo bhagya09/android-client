@@ -12,6 +12,8 @@ import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.inputmethod.InputMethodManager;
+
 import com.bsb.hike.ui.v7.SearchView;
 import com.bsb.hike.ui.v7.SearchView.OnQueryTextListener;
 import android.support.v7.widget.Toolbar;
@@ -20,6 +22,7 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
+import com.bsb.hike.modules.kpt.KptUtils;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.ui.fragments.FriendsFragment;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
@@ -119,18 +122,25 @@ public class PeopleActivity extends HikeAppStateBaseFragmentActivity implements 
 		searchView.setOnQueryTextListener(onQueryTextListener);
 		searchET = (AdaptxtEditText) searchView
 				.findViewById(R.id.search_src_text);
-		mCustomKeyboard.registerEditText(searchET,
-				KPTConstants.MULTILINE_LINE_EDITOR, PeopleActivity.this,
-				PeopleActivity.this);
-		mCustomKeyboard.init(searchET);
+		if (!KptUtils.isSystemKeyboard(PeopleActivity.this)) {
+			mCustomKeyboard.registerEditText(searchET,
+					KPTConstants.MULTILINE_LINE_EDITOR, PeopleActivity.this,
+					PeopleActivity.this);
+			mCustomKeyboard.init(searchET);
+		}
 		searchET.setOnFocusChangeListener(new View.OnFocusChangeListener() {
 
 			@Override
 			public void onFocusChange(View v, boolean hasFocus) {
-				if (hasFocus) {
-					// Utils.hideSoftKeyboard(getApplicationContext(),
-					// searchET);
-					mCustomKeyboard.showCustomKeyboard(searchET, true);
+				if(hasFocus){
+					if (KptUtils.isSystemKeyboard(PeopleActivity.this))
+					{
+						Utils.showSoftKeyboard(searchET, InputMethodManager.SHOW_FORCED);
+					}
+					else
+					{
+						mCustomKeyboard.showCustomKeyboard(searchET, true);
+					}
 				}
 			}
 		});

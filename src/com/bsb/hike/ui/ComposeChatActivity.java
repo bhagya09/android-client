@@ -2779,22 +2779,30 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			searchMenuItem.setVisible(true);
 			SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchMenuItem);
 			searchView.setOnQueryTextListener(onQueryTextListener);
+			searchET = (AdaptxtEditText) searchView.findViewById(R.id.search_src_text);
 			if (!systemKeyboard)
 			{
 				searchView.clearFocus();
-				searchET = (AdaptxtEditText) searchView.findViewById(R.id.search_src_text);
 				mCustomKeyboard.registerEditText(searchET, KPTConstants.MULTILINE_LINE_EDITOR, ComposeChatActivity.this, ComposeChatActivity.this);
 				mCustomKeyboard.init(searchET);
-				searchET.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-				 			
-		 			@Override
-		 			public void onFocusChange(View v, boolean hasFocus) {
-		 				if(hasFocus){
-			 				mCustomKeyboard.showCustomKeyboard(searchET, true);			 						
-		 				}
-		 			}
-		 		});
 			}
+			searchET.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+	 			
+	 			@Override
+	 			public void onFocusChange(View v, boolean hasFocus) {
+	 				if(hasFocus){
+	 					if (KptUtils.isSystemKeyboard(ComposeChatActivity.this))
+						{
+							Utils.showSoftKeyboard(searchET, InputMethodManager.SHOW_FORCED);
+						}
+						else
+						{
+							mCustomKeyboard.showCustomKeyboard(searchET, true);
+						}	 						
+	 				}
+	 			}
+	 		});
+
 		}
 	}
 

@@ -84,6 +84,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.View.OnClickListener;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
@@ -91,6 +92,7 @@ import android.view.ViewStub;
 import android.view.WindowManager.BadTokenException;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
@@ -424,7 +426,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 		parentLayout = findViewById(R.id.parent_layout);
 
-		if (!isSystemKeyboard())
+		if (!KptUtils.isSystemKeyboard(HomeActivity.this))
 		{
 			LinearLayout viewHolder = (LinearLayout) findViewById(R.id.keyboardView_holder);
 			mCustomKeyboard = new CustomKeyboard(HomeActivity.this, viewHolder);			
@@ -639,11 +641,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		return super.onPrepareOptionsMenu(menu);
 	}
 	
-	public boolean isSystemKeyboard()
-	{
-		return HikeMessengerApp.isSystemKeyboard(HomeActivity.this);
-	}
-	
 	private boolean setupMenuOptions(final Menu menu)
 	{
 		// Adding defensive null pointer check (bug#44531)May be due to sherlock code, nullpointerexception occured.
@@ -670,23 +667,29 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			searchView.clearFocus();
 	
 			//Code for CustomKeyboard
-			if (!isSystemKeyboard())
+			searchET = (AdaptxtEditText) searchView.findViewById(R.id.search_src_text);
+			if (!KptUtils.isSystemKeyboard(HomeActivity.this))
 			{
-				searchET = (AdaptxtEditText) searchView.findViewById(R.id.search_src_text);
 				mCustomKeyboard.registerEditText(searchET, KPTConstants.MULTILINE_LINE_EDITOR, HomeActivity.this, HomeActivity.this);
 				mCustomKeyboard.init(searchET);
-				searchET.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-					
-					@Override
-					public void onFocusChange(View v, boolean hasFocus) {
-						if(hasFocus){
-							//Utils.hideSoftKeyboard(getApplicationContext(), searchET);
+			}
+			searchET.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+				
+				@Override
+				public void onFocusChange(View v, boolean hasFocus) {
+					if(hasFocus){
+						if (KptUtils.isSystemKeyboard(HomeActivity.this))
+						{
+							Utils.showSoftKeyboard(searchET, InputMethodManager.SHOW_FORCED);
+						}
+						else
+						{
 							mCustomKeyboard.showCustomKeyboard(searchET, true);
 						}
 					}
-				});
-			}
-			
+				}
+			});
+
 			//
 			searchOptionID = searchMenuItem.getItemId();
 			MenuItemCompat.setShowAsAction(MenuItemCompat.setActionView(searchMenuItem, searchView), MenuItem.SHOW_AS_ACTION_ALWAYS | MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
@@ -2037,7 +2040,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	@Override
 	public void onConfigurationChanged(Configuration newConfig)
 	{
-		if (!isSystemKeyboard())
+		if (!KptUtils.isSystemKeyboard(HomeActivity.this))
 		{
 			mCustomKeyboard.onConfigurationChanged(newConfig);
 		}
