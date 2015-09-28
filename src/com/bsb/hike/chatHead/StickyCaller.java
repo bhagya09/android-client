@@ -672,7 +672,7 @@ public class StickyCaller
 		{
 			setShowResponse(context.getString(R.string.caller_error_403));
 		}
-		else if (result.equals(Integer.toString(HttpURLConnection.HTTP_NOT_ACCEPTABLE)))
+		else if (result.equals(Integer.toString(HttpURLConnection.HTTP_NOT_ACCEPTABLE)) || result.equals(Integer.toString(HttpURLConnection.HTTP_CLIENT_TIMEOUT)))
 		{
 			setShowResponse(context.getString(R.string.caller_error_406));
 		}
