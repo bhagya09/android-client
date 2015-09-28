@@ -25,6 +25,7 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
+import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.chatthread.ChatThreadActivity;
@@ -402,15 +403,22 @@ public class HikeNotificationMsgStack implements Listener
 			mBotInfo = mConvDb.getBotInfoForMsisdn(lastAddedMsisdn);
 		}
 		
+		Intent notifIntent = null;
+		
 		if (mBotInfo.isNonMessagingBot())
 		{
-			return IntentFactory.getNonMessagingBotIntent(lastAddedMsisdn, mContext);
+			notifIntent = IntentFactory.getNonMessagingBotIntent(lastAddedMsisdn, mContext);
 		}
 
 		else
 		{
-			return IntentFactory.createChatThreadIntentFromMsisdn(mContext, lastAddedMsisdn, false, false);
+			notifIntent = IntentFactory.createChatThreadIntentFromMsisdn(mContext, lastAddedMsisdn, false, false);
 		}
+		
+		// Adding the notif tracker to bot notifications
+		notifIntent.putExtra(AnalyticsConstants.BOT_NOTIF_TRACKER, true);
+		
+		return notifIntent;
 	}
 
 	/**

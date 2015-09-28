@@ -16,9 +16,9 @@ public class FileSavedState implements Serializable
 
 	private FTState _currentState;
 
-	private int _totalSize; // (in bytes)
+	private long _totalSize; // (in bytes)
 
-	private int _transferredSize;
+	private long _transferredSize;
 
 	private String _sessionId;
 
@@ -28,7 +28,7 @@ public class FileSavedState implements Serializable
 
 	private int _animatedProgress;
 
-	public FileSavedState(FTState state, int totalSize, int transferredSize, int animatedProgress)
+	public FileSavedState(FTState state, long totalSize, long transferredSize, int animatedProgress)
 	{
 		_currentState = state;
 		_totalSize = totalSize;
@@ -38,7 +38,7 @@ public class FileSavedState implements Serializable
 		_animatedProgress = animatedProgress;
 	}
 
-	public FileSavedState(FTState state, int totalSize, int transferredSize, String sId, JSONObject response, int animatedProgress)
+	public FileSavedState(FTState state, long totalSize, long transferredSize, String sId, JSONObject response, int animatedProgress)
 	{
 		_currentState = state;
 		_totalSize = totalSize;
@@ -67,12 +67,12 @@ public class FileSavedState implements Serializable
 		_animatedProgress = animatedProgress;
 	}
 
-	public int getTotalSize()
+	public long getTotalSize()
 	{
 		return _totalSize;
 	}
 
-	public int getTransferredSize()
+	public long getTransferredSize()
 	{
 		return _transferredSize;
 	}
