@@ -6055,9 +6055,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 				@Override
 				public void onClick(View v)
 				{
-					InputMethodManager imm = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
-					imm.showSoftInput(mComposeView, InputMethodManager.SHOW_IMPLICIT);
-
+					Utils.showSoftKeyboard(mComposeView, InputMethodManager.SHOW_FORCED);
 				}
 			});
 		}
@@ -6084,6 +6082,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			sendButtonClicked();
 		}
 	}
+	
 	
 	@Override
 	public void onAdaptxtclick(View edittext)
