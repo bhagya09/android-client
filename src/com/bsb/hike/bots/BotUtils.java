@@ -10,6 +10,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.text.TextUtils;
 
 import com.bsb.hike.HikeConstants;
@@ -793,5 +794,11 @@ public class BotUtils
 	{
 		return PlatformContentConstants.PLATFORM_CONTENT_DIR + "DP" + File.separator;
 	}
+	
+	public static Bitmap getBotDp(String botMsisdn)
+	{
+		return HikeBitmapFactory.decodeFile(BotUtils.getBotThumbnailRootFolder() + botMsisdn);	
+	}
+	
 
 }
