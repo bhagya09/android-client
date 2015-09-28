@@ -9,6 +9,7 @@ import com.bsb.hike.media.StickerPicker;
 import com.bsb.hike.media.StickerPickerListener;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -60,13 +61,14 @@ public class ChatHeadLayout implements StickerPickerListener
 	{
 		if (HikeSharedPreferenceUtil.getInstance().getData(ChatHeadConstants.DAILY_STICKER_SHARE_COUNT, 0) < ChatHeadUtils.shareLimit)
 		{
-			HAManager.getInstance().chatHeadshareAnalytics(AnalyticsConstants.ChatHeadEvents.STICKER_SHARE, ChatHeadService.foregroundAppName, sticker.getCategoryId(),
+			HAManager.getInstance().chatHeadshareAnalytics(AnalyticsConstants.ChatHeadEvents.STICKER_SHARE, ChatHeadViewManager.foregroundAppName, sticker.getCategoryId(),
 					sticker.getStickerId(), source);
 			HikeSharedPreferenceUtil.getInstance().saveData(ChatHeadConstants.DAILY_STICKER_SHARE_COUNT, HikeSharedPreferenceUtil.getInstance().getData(ChatHeadConstants.DAILY_STICKER_SHARE_COUNT, 0)+1);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.TOTAL_STICKER_SHARE_COUNT, (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.TOTAL_STICKER_SHARE_COUNT,0)+1));
+		    ChatHeadViewManager.dismissed = 0;
 			String filePathBmp = sticker.getStickerPath();
-		    ChatHeadService.getInstance().resetPosition(ChatHeadConstants.SHARING_BEFORE_FINISHING_ANIMATION, filePathBmp);
-			ChatHeadService.dismissed = 0;
+		    picker.resetPostionAfterSharing(filePathBmp);
+		
 		}
 		else
 		{

@@ -46,6 +46,10 @@ import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
+import com.bsb.hike.offline.OfflineConstants;
+import com.bsb.hike.offline.OfflineController;
+import com.bsb.hike.offline.OfflineManager;
+import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
@@ -409,14 +413,25 @@ public class FileTransferManager extends BroadcastReceiver
 	public ConvMessage uploadOfflineFile(String msisdn, File sourceFile, String fileKey, String fileType, HikeFileType hikeFileType, boolean isRec,
 			long recordingDuration, int attachment, String fileName)
 	{
+		/*Checking file transfer limit version
+		 * For V1 it was INT_MAX
+		 * For V2 and above no limit is applied 
+		 */
 		
-		if(taskOverflowLimitAchieved())
-			return  null;
+		if(sourceFile.length()>Integer.MAX_VALUE)
+		{
+			if(!OfflineUtils.isFeautureAvailable(OfflineConstants.OFFLINE_VERSION_NUMER,
+					OfflineUtils.getConnectedDeviceVersion(),OfflineConstants.UNLIMITED_FT_VERSION))
+			{
+				
+						HikeMessengerApp.getInstance().showToast(R.string.upgrade_for_larger_files,Toast.LENGTH_LONG);
+						return null;
+			}
+		}
 		
 		settings = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
 		String token = settings.getString(HikeMessengerApp.TOKEN_SETTING, null);
 		String uId = settings.getString(HikeMessengerApp.UID_SETTING, null);
-		//fileKey = "OfflineMessageFileKey"+System.currentTimeMillis();
 		UploadFileTask task = new UploadFileTask(handler, fileTaskMap, context, token, uId, msisdn, sourceFile, fileKey, fileType, hikeFileType, isRec,
 				recordingDuration, attachment,fileName);
 		ConvMessage convMessage = ((ConvMessage)task.getUserContext());
@@ -486,7 +501,7 @@ public class FileTransferManager extends BroadcastReceiver
 		_instance = null;
 	}
 
-	public void cancelTask(long msgId, File mFile, boolean sent, int fileSize)
+	public void cancelTask(long msgId, File mFile, boolean sent, long fileSize)
 	{
 		FileSavedState fss;
 		if (sent)

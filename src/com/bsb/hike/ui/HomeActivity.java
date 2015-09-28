@@ -310,16 +310,18 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		}
 
 		int count = 0;
-		count = Utils.getNotificationCount(accountPrefs, false);
+		count = Utils.getNotificationCount(accountPrefs, true);
 		if (count > 9)
 		{
 			timelineUpdatesIndicator.setVisibility(View.VISIBLE);
 			timelineUpdatesIndicator.setText("9+");
+			timelineUpdatesIndicator.startAnimation(Utils.getNotificationIndicatorAnim());
 		}
 		else if (count > 0)
 		{
 			timelineUpdatesIndicator.setVisibility(View.VISIBLE);
 			timelineUpdatesIndicator.setText(String.valueOf(count));
+			timelineUpdatesIndicator.startAnimation(Utils.getNotificationIndicatorAnim());
 		}
 		else
 		{
@@ -748,6 +750,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 					Intent intent = new Intent(HomeActivity.this, ComposeChatActivity.class);
 					intent.putExtra(HikeConstants.Extras.EDIT, true);
+					intent.putExtra(HikeConstants.Extras.IS_MICROAPP_SHOWCASE_INTENT, true);
 
 					newConversationIndicator.setVisibility(View.GONE);
 					startActivity(intent);
@@ -1143,6 +1146,11 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	private void showUpdatePopup(final int updateType)
 	{
 		if (updateType == HikeConstants.NO_UPDATE)
+		{
+			return;
+		}
+
+		if (!Utils.isUpdateRequired(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.Extras.LATEST_VERSION, ""), this.getApplicationContext()))
 		{
 			return;
 		}

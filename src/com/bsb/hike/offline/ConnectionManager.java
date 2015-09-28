@@ -13,14 +13,8 @@ import android.net.NetworkInfo;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
-import android.net.wifi.p2p.WifiP2pManager;
-import android.net.wifi.p2p.WifiP2pManager.ActionListener;
-import android.net.wifi.p2p.WifiP2pManager.Channel;
-import android.net.wifi.p2p.WifiP2pManager.ChannelListener;
-import android.net.wifi.p2p.WifiP2pManager.PeerListListener;
 import android.os.Looper;
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.hike.transporter.utils.Logger;
 
@@ -28,13 +22,11 @@ import com.hike.transporter.utils.Logger;
  * 
  * @author sahil/deepak This class deals with functions related to WifiManager and WifiP2pManager and other Hotspot functionalities
  */
-public class ConnectionManager implements ChannelListener
+public class ConnectionManager
 {
 	private boolean retryChannel = false;
 	private Context context;
 	private WifiManager wifiManager;
-	private WifiP2pManager wifiP2pManager;
-	private Channel channel;
 	private String TAG = ConnectionManager.class.getName();
     private WifiConfiguration prevConfig = null;
 	private int connectedNetworkId = -1;
@@ -54,8 +46,6 @@ public class ConnectionManager implements ChannelListener
 	{
 		this.context = context;
 		this.looper = looper;
-        wifiP2pManager = (WifiP2pManager) context.getSystemService(Context.WIFI_P2P_SERVICE);
-        channel = wifiP2pManager.initialize(context, looper, this);
         wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
         
         //For htc devices , we need to call different set of reflection methods
@@ -82,46 +72,7 @@ public class ConnectionManager implements ChannelListener
 		connectToWifi(wifiConfig.SSID);
 	}
 	
-	public void startDiscovery()
-	{
-		if (!wifiManager.isWifiEnabled())
-		{
-			wifiManager.setWifiEnabled(true);
-		}
-		wifiP2pManager.discoverPeers(channel, new WifiP2pManager.ActionListener()
-		{
-			@Override
-			public void onSuccess()
-			{
-				Logger.d(TAG, "Wifi Direct Discovery Enabled");
-			}
-
-			@Override
-			public void onFailure(int reasonCode)
-			{
-				Logger.d(TAG, "Wifi Direct Discovery FAILED");
-			}
-		});
-	}
 	
-	public void requestPeers(PeerListListener peerListListener)
-	{
-		if (wifiP2pManager != null)
-		{
-			wifiP2pManager.requestPeers(channel, peerListListener);
-		}
-	}
-
-	@Override
-	public void onChannelDisconnected()
-	{
-		if (wifiP2pManager != null && !retryChannel)
-		{
-			retryChannel = true;
-			wifiP2pManager.initialize(context, looper, this);
-		}
-	}
-
 	public void startWifiScan()
 	{
 
@@ -191,24 +142,6 @@ public class ConnectionManager implements ChannelListener
 		return wifiManager.isWifiEnabled();
 	}
 
-	public void stopDiscovery()
-	{
-		wifiP2pManager.stopPeerDiscovery(channel, new ActionListener()
-		{
-			@Override
-			public void onSuccess()
-			{
-				Logger.d(TAG, "stop peer discovery started");
-			}
-
-			@Override
-			public void onFailure(int reason)
-			{
-				Logger.d(TAG, "Stop peer discovery failed");
-			}
-		});
-	}
-
 	public String getConnectedHikeNetworkMsisdn()
 	{
 		if (wifiManager.getConnectionInfo() != null)
@@ -255,7 +188,7 @@ public class ConnectionManager implements ChannelListener
 			}
 			
 			scanResult.SSID = OfflineUtils.decodeSsid(scanResult.SSID);
-			if (scanResult.SSID.contains(OfflineUtils.getMyMsisdn()))
+			if (!TextUtils.isEmpty(OfflineUtils.getMyMsisdn()) && scanResult.SSID.contains(OfflineUtils.getMyMsisdn()))
 			{
 				if (!distinctNetworks.containsKey(scanResult))
 				{
@@ -645,15 +578,13 @@ public class ConnectionManager implements ChannelListener
 	private void connectToWifi(String ssid)
 	{
 
-		if (TextUtils.isEmpty(ssid) || (ssid.startsWith("0x") || ssid.startsWith("0X")) || ssid.contains("unknown ssid") || ssid.contains("none"))
+		if (!isSSIDValid(ssid))
 		{
+			stopWifi();
 			return;
 		}
 
-		if (!wifiManager.isWifiEnabled())
-		{
-			wifiManager.setWifiEnabled(true);
-		}
+		startWifi();
 
 		Logger.d("OfflineMANAGER", "WILL BE GETTING LIST" + System.currentTimeMillis() + " trying ssid " + ssid);
 		List<WifiConfiguration> list = wifiManager.getConfiguredNetworks();
@@ -735,11 +666,11 @@ public class ConnectionManager implements ChannelListener
 		if (isWifiHotspotRunning)
 		{
 			closeHikeHotspot(deviceName);
-			if(!TextUtils.isEmpty(currentnetId))
+			if (isSSIDValid(currentnetId))
 			{
 				startWifi();
 			}
-			
+
 		}
 		else
 		{
@@ -749,7 +680,7 @@ public class ConnectionManager implements ChannelListener
 				connectToWifi(currentnetId);
 			}
 		}
-		
+
 		clearAllVariables();
 	}
 
@@ -786,6 +717,14 @@ public class ConnectionManager implements ChannelListener
 	public void updateNetworkId()
 	{
 		currentnetId = wifiManager.getConnectionInfo().getSSID();
+	}
+	
+	private boolean isSSIDValid(String ssid)
+	{
+		if (TextUtils.isEmpty(ssid) || (ssid.startsWith("0x") || ssid.startsWith("0X")) || ssid.contains("unknown ssid") || ssid.contains("none"))
+			return false;
+
+		return true;
 	}
 
 }
