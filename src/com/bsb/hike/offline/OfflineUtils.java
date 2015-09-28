@@ -767,6 +767,7 @@ public class OfflineUtils
 			NotificationCompat.Action[] actions = getNotificationActions(context,msisdn);
 			Intent intent = IntentFactory.createChatThreadIntentFromMsisdn(context, msisdn, false,false);
 			intent.putExtra(OfflineConstants.START_CONNECT_FUNCTION, true);
+			intent.putExtra(HikeConstants.C_TIME_STAMP, System.currentTimeMillis());
 			HikeNotificationMsgStack hikeNotifMsgStack =  HikeNotificationMsgStack.getInstance();
 			Drawable avatarDrawable = Utils.getAvatarDrawableForNotification(context,msisdn, false);
 			ContactInfo contactInfo  = ContactManager.getInstance().getContact(msisdn);
