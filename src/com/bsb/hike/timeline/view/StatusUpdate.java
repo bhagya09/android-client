@@ -206,7 +206,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 
 		mIconImageLoader = new IconLoader(getApplicationContext(), getApplicationContext().getResources().getDimensionPixelSize(R.dimen.icon_picture_size));
 
-		mIconImageLoader.setDefaultAvatarIfNoCustomIcon(false);
+		mIconImageLoader.setDefaultAvatarIfNoCustomIcon(true);
 
 		mIconImageLoader.setDefaultDrawableNull(false);
 
