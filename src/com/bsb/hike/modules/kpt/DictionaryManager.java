@@ -13,6 +13,7 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.filetransfer.FTAnalyticEvents;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
@@ -58,10 +59,10 @@ public class DictionaryManager implements AdaptxtSettingsRegisterListener
 
 	private DictionaryManager(Context ctx)
 	{
+		context = ctx;
 		languageStatusMap = new ConcurrentHashMap<KPTAddonItem, LanguageDictionarySatus>();
 		mLanguagesList = new ArrayList<KPTAddonItem>();
 		kptSettings = new KPTAdaptxtAddonSettings(ctx, this);
-		context = ctx;
 	}
 
 	public static DictionaryManager getInstance(Context context)
@@ -165,8 +166,8 @@ public class DictionaryManager implements AdaptxtSettingsRegisterListener
 	private void downlaodAndUnzip(final KPTAddonItem addOnItem)
 	{
 		String zipFileName = addOnItem.getZipFileName();
-		String fileNameForURL = zipFileName.substring(0, zipFileName.indexOf("_"));
-		File dictonaryDirectory = getDictionaryDownloadDirectory();
+		String fileNameForURL = zipFileName.substring(0, zipFileName.indexOf("_")).toLowerCase();
+		final File dictonaryDirectory = getDictionaryDownloadDirectory();
 		if (dictonaryDirectory == null)
 		{
 			processComplete();
@@ -175,12 +176,13 @@ public class DictionaryManager implements AdaptxtSettingsRegisterListener
 		}
 		final File dictionaryZip = new File(dictonaryDirectory, zipFileName);
 		final File dictionaryFile = new File(dictonaryDirectory, addOnItem.getFileName());
-		RequestToken token = HttpRequests.kptLanguageDictionaryZipDownloadRequest(dictionaryZip.getAbsolutePath(), AccountUtils.LANGUAGE_DICTIONARY_DOWNLOAD_BASE + fileNameForURL,
+		RequestToken token = HttpRequests.kptLanguageDictionaryZipDownloadRequest(dictionaryZip.getAbsolutePath(), HttpRequestConstants.getLanguageDictionaryBaseUrl() + fileNameForURL,
 				new IRequestListener()
 				{
 					@Override
 					public void onRequestFailure(HttpException httpException)
 					{
+						httpException.printStackTrace();
 						processComplete();
 						// use error to show message;
 					}
@@ -188,7 +190,7 @@ public class DictionaryManager implements AdaptxtSettingsRegisterListener
 					@Override
 					public void onRequestSuccess(Response result)
 					{
-						HikeUnzipTask dictionaryUnzipTask = new HikeUnzipTask(dictionaryZip.getAbsolutePath(), dictionaryFile.getAbsolutePath());
+						HikeUnzipTask dictionaryUnzipTask = new HikeUnzipTask(dictionaryZip.getAbsolutePath(), dictonaryDirectory.getAbsolutePath());
 						dictionaryUnzipTask.unzip();
 						kptSettings.installAdaptxtAddon(addOnItem, dictionaryFile.getAbsolutePath(), installationListener);
 					}
