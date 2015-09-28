@@ -2774,11 +2774,4 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		}
 	}
 	
-	@Override
-	public void onConfigurationChanged(final Configuration newConfig)
-	{
-		super.onConfigurationChanged(newConfig);
-    	HikeMessengerApp.getPubSub().publish(HikePubSub.ORIENTATION_CHANGED, newConfig.orientation);
-	}
-	
 }
