@@ -588,6 +588,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	public HikeActionBar mActionBar;
 
 	protected Bundle savedState;
+
+	private CustomFontEditText searchEt;
 	
 	public void onCreate(Bundle savedState)
 	{
@@ -1719,7 +1721,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		mActionMode.showActionMode(SEARCH_ACTION_MODE, R.layout.search_action_bar);
 		setUpSearchViews();
 
-		CustomFontEditText searchEt = (CustomFontEditText) activity.findViewById(R.id.search_text);
+		 searchEt = (CustomFontEditText) activity.findViewById(R.id.search_text);
 
 		if (isSystemKeyboard())
 		{

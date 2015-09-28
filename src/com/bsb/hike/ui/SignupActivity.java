@@ -968,6 +968,18 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 							showKeyboard(enterEditText);
 						}
 					});
+			if (birthdayText != null) {
+				birthdayText.setOnClickListener(new OnClickListener() {
+
+					@Override
+					public void onClick(View v) {
+						if (mCustomKeyboard.isCustomKeyboardVisible()) {
+							return;
+						}
+						showKeyboard(birthdayText);
+					}
+				});
+			}
 		}
 	}
 	
