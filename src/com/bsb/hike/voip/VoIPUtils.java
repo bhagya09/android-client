@@ -429,7 +429,7 @@ public class VoIPUtils {
 		
 		// Network check
 		ConnectionClass connectionClass = VoIPUtils.getConnectionClass(HikeMessengerApp.getInstance());
-		if (connectionClass == ConnectionClass.TwoG || connectionClass == ConnectionClass.ThreeG) {
+		if (connectionClass == ConnectionClass.TwoG) {
 			Toast.makeText(context, context.getString(R.string.voip_conference_network_support), Toast.LENGTH_LONG).show();
 			return false;
 		}

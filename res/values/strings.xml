@@ -1295,7 +1295,7 @@
     <string name="voip_intro_popup_msg">You can now call all your Hike friends for free!</string>
     <string name="voip_intro_popup_btn">AWESOME</string>
     <string name="voip_group_too_large">Maximum number of conference participants is %1$s.</string>
-    <string name="voip_conference_network_support">Please switch to WiFi or 4G to make conference calls.</string>
+    <string name="voip_conference_network_support">Conference calls cannot be hosted on 2G.</string>
     <string name="voip_conference_os_support">Your phone cannot host a conference.</string>
     <string name="voip_conference_host">Conference host</string>
     <string name="voip_conference_not_supported">%1$s does not support conference calls.</string>
