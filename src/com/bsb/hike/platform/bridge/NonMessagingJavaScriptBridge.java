@@ -707,12 +707,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	@JavascriptInterface
 	public void deleteEvent(String eventId)
 	{
-		if (TextUtils.isEmpty(eventId))
-		{
-			Logger.e(TAG, "event can't be deleted as the event id is " + eventId);
-			return;
-		}
-		HikeConversationsDatabase.getInstance().deleteEvent(eventId);
+		PlatformHelper.deleteEvent(eventId);
 	}
 
 	/**
@@ -724,12 +719,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	@JavascriptInterface
 	public void deleteAllEventsForMessage(String messageHash)
 	{
-		if (TextUtils.isEmpty(messageHash))
-		{
-			Logger.e(TAG, "the events corresponding to the message hash can't be deleted as the message hash is " + messageHash);
-			return;
-		}
-		HikeConversationsDatabase.getInstance().deleteAllEventsForMessage(messageHash);
+		PlatformHelper.deleteAllEventsForMessage(messageHash);
 	}
 
 	/**

@@ -227,5 +227,25 @@ public class PlatformHelper
 			}
 		});
 	}
+	
+	public static void deleteEvent(String eventId)
+	{
+		if (TextUtils.isEmpty(eventId))
+		{
+			Logger.e(TAG, "event can't be deleted as the event id is " + eventId);
+			return;
+		}
+		HikeConversationsDatabase.getInstance().deleteEvent(eventId);
+	}
+	
+	public static void deleteAllEventsForMessage(String messageHash)
+	{
+		if (TextUtils.isEmpty(messageHash))
+		{
+			Logger.e(TAG, "the events corresponding to the message hash can't be deleted as the message hash is " + messageHash);
+			return;
+		}
+		HikeConversationsDatabase.getInstance().deleteAllEventsForMessage(messageHash);
+	}
 
 }

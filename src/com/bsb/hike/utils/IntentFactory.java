@@ -1081,4 +1081,16 @@ public class IntentFactory
 				context.startActivity(i);
 		
 	}
+	
+	public static Intent getIntentForBots(BotInfo mBotInfo, Context context)
+	{
+		if (mBotInfo.isNonMessagingBot())
+		{
+			return IntentFactory.getNonMessagingBotIntent(mBotInfo.getMsisdn(), context);
+		}
+		else
+		{
+			return IntentFactory.createChatThreadIntentFromMsisdn(context, mBotInfo.getMsisdn(), false, false);
+		}
+	}
 }

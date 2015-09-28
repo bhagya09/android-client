@@ -17,6 +17,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -222,6 +223,8 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 	private int gcSettings = -1;
 	
 	private boolean thumbnailsRequired= false;
+	
+	private boolean hasMicroappShowcaseIntent = false;
 	 
 	@Override
 	public void onCreate(Bundle savedInstanceState)
@@ -255,6 +258,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		nuxIncentiveMode = getIntent().getBooleanExtra(HikeConstants.Extras.NUX_INCENTIVE_MODE, false);
 		createBroadcast = getIntent().getBooleanExtra(HikeConstants.Extras.CREATE_BROADCAST, false);
 		thumbnailsRequired = getIntent().getBooleanExtra(HikeConstants.Extras.THUMBNAILS_REQUIRED, false);
+		hasMicroappShowcaseIntent = getIntent().getBooleanExtra(HikeConstants.Extras.IS_MICROAPP_SHOWCASE_INTENT, false);
 
 		// Getting the group id. This will be a valid value if the intent
 		// was passed to add group participants.
@@ -604,6 +608,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		HikeSharedPreferenceUtil pref = HikeSharedPreferenceUtil.getInstance();
 		boolean fetchRecentlyJoined = pref.getData(HikeConstants.SHOW_RECENTLY_JOINED_DOT, false) || pref.getData(HikeConstants.SHOW_RECENTLY_JOINED, false);
 		fetchRecentlyJoined = fetchRecentlyJoined && !isForwardingMessage && showNujNotif;
+		boolean showMicroappShowcase = BotUtils.isBotDiscoveryEnabled();
 		
 		switch (composeMode)
 		{
@@ -612,10 +617,10 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		case PICK_CONTACT_MODE:
 		case PICK_CONTACT_AND_SEND_MODE:
 			//We do not show sms contacts in broadcast mode
-			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage, (isForwardingMessage && !isSharingFile), fetchRecentlyJoined, existingGroupOrBroadcastId, sendingMsisdn, friendsListFetchedCallback, false);
+			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage, (isForwardingMessage && !isSharingFile), fetchRecentlyJoined, existingGroupOrBroadcastId, sendingMsisdn, friendsListFetchedCallback, false, false);
 			break;
 		default:
-			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage, (isForwardingMessage || isSharingFile), fetchRecentlyJoined, existingGroupOrBroadcastId, sendingMsisdn, friendsListFetchedCallback, true);
+			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage, (isForwardingMessage || isSharingFile), fetchRecentlyJoined, existingGroupOrBroadcastId, sendingMsisdn, friendsListFetchedCallback, true, (showMicroappShowcase && hasMicroappShowcaseIntent));
 			break;
 		}
 
@@ -2767,6 +2772,13 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchMenuItem);
 			searchView.setOnQueryTextListener(onQueryTextListener);
 		}
+	}
+	
+	@Override
+	public void onConfigurationChanged(final Configuration newConfig)
+	{
+		super.onConfigurationChanged(newConfig);
+    	HikeMessengerApp.getPubSub().publish(HikePubSub.ORIENTATION_CHANGED, newConfig.orientation);
 	}
 	
 }

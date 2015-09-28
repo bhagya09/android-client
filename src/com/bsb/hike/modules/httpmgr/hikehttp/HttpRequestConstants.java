@@ -68,6 +68,8 @@ public class HttpRequestConstants
 	private static final String BASE_ADDRESS_BOOK_READ = "/addressBook";
 	
 	private static final String STICKER_SHARE_PATH = "/stickershare/" ;
+	
+	private static final String QA_CONTENT = "qa-content.hike.in";
 
 
 	public static synchronized void setUpBase()
@@ -345,6 +347,26 @@ public class HttpRequestConstants
 	public static String getDeleteAvatarBaseUrl()
 	{
 		return BASE_URL + BASE_V1 + BASE_ACCOUNT + "/avatar-delete";
+	}
+	
+	public static String getBotdiscoveryTableUrl()
+	{
+		// TODO Add complete url here
+		return BASE_PLATFORM_URL;
+	}
+	
+	public static String getBotDownloadUrl()
+	{
+		String suffix = "/mapps/api" + BASE_V1 + "/apps/install.json";
+		
+		if (isProduction)
+		{
+			return HTTPS + "mapps." + PLATFORM_PRODUCTION_API + suffix;
+		}
+		else
+		{
+			return HTTPS + QA_CONTENT + suffix ;
+		}
 	}
 	
 }

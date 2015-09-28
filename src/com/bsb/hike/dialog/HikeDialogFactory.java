@@ -129,6 +129,8 @@ public class HikeDialogFactory
 	public static final int ACCESSIBILITY_DIALOG = 44;
 	
 	public static final int MICROAPP_DIALOG = 45;
+	
+	public static final int MAPP_DOWNLOAD_DIALOG = 46;
 
 	public static HikeDialog showDialog(Context context, int whichDialog, Object... data)
 	{
@@ -218,6 +220,8 @@ public class HikeDialogFactory
 			return showGroupSettingsDialog(dialogId, context, listener, data);
 		case MICROAPP_DIALOG:
 			return showMicroAppDialog(dialogId,context,listener,data);
+		case MAPP_DOWNLOAD_DIALOG:
+			return showMicroappDownloadDialog(dialogId, context, listener);
 		}
 		return null;
 	}
@@ -1105,5 +1109,16 @@ public class HikeDialogFactory
 			nativeDialog.setNegativeButton(negative, listener);
 		nativeDialog.show();
 		return nativeDialog;
+	}
+	
+	private static HikeDialog showMicroappDownloadDialog (int dialogId, final Context context, final HikeDialogListener listener)
+	{
+		final CustomAlertDialog dialog = new CustomAlertDialog(context, HikeDialogFactory.MAPP_DOWNLOAD_DIALOG, R.layout.mapp_download_dialog);
+		
+		dialog.setPositiveButton(context.getResources().getString(R.string.okay), listener);
+		dialog.setCancelable(true);
+		dialog.show();
+		
+		return dialog;
 	}
 }

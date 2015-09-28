@@ -191,13 +191,12 @@ public class CocosGamingActivity extends Cocos2dxActivity implements HikePubSub.
 		// TODO do not hard code the path of the game engine. Please change this
 		try
 		{
+		System.load(PlatformContentConstants.PLATFORM_CONTENT_DIR + "cocosEngine-7/libcocos2d.so");
+		System.load(getAppBasePath() + "libcocos2dcpp.so"); // loading the game
+		}catch(UnsatisfiedLinkError e)
+		{
 			System.load(PlatformContentConstants.PLATFORM_CONTENT_DIR + "cocosEngine-7/libcocos2d.so");
 			System.load(getAppBasePath() + "libcocos2dcpp.so"); // loading the game
-		}
-		catch (Exception e)
-		{
-			finish();
-			Cocos2dxHelper.terminateProcess();
 		}
 
 		CocosGamingActivity.this.mHandler = new Cocos2dxHandler(CocosGamingActivity.this);

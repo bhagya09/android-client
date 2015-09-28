@@ -11,6 +11,7 @@ import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.Utils;
 import com.hike.transporter.utils.Logger;
 
 import android.app.Activity;
@@ -430,18 +431,13 @@ public class NativeBridge
 	 */
 	public void deleteEvent(final String eventId)
 	{
-		if (TextUtils.isEmpty(eventId))
-		{
-			Logger.e(TAG, "event can't be deleted as the event id is " + eventId);
-			return;
-		}
 		mThread.postRunnable(new Runnable()
 		{
 
 			@Override
 			public void run()
 			{
-				HikeConversationsDatabase.getInstance().deleteEvent(eventId);
+				helper.deleteEvent(eventId);
 			}
 		});
 	}
@@ -454,22 +450,22 @@ public class NativeBridge
 
 	public void deleteAllEventsForMessage(final String messageHash)
 	{
-		if (TextUtils.isEmpty(messageHash))
-		{
-			Logger.e(TAG, "the events corresponding to the message hash can't be deleted as the message hash is " + messageHash);
-			return;
-		}
 		mThread.postRunnable(new Runnable()
 		{
 
 			@Override
 			public void run()
 			{
-				HikeConversationsDatabase.getInstance().deleteAllEventsForMessage(messageHash);
+				helper.deleteAllEventsForMessage(messageHash);
 			}
 		});
 	}
-
+	/**
+	 * Platform Version 7
+	 * Call this function to get the user details.
+	 *
+	 * @param id
+	 */
 	public void getUserDetails(final String id)
 	{
 		mThread.postRunnable(new Runnable()
@@ -504,5 +500,23 @@ public class NativeBridge
 		});
 
 	}
+	/**
+	 * Platform Version 7
+	 * Call this function to create a shortcut.
+	 *
+	 */
+	public void createShortcut()
+	{
+		mThread.postRunnable(new Runnable()
+		{
+
+			@Override
+			public void run()
+			{
+				Utils.createShortcut(weakActivity.get(), mBotInfo);
+			}
+		});
+	}
+	
 
 }
