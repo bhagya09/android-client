@@ -17,6 +17,7 @@ import com.bsb.hike.ui.ComposeChatActivity;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.Utils;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -246,6 +247,24 @@ public class PlatformHelper
 			return;
 		}
 		HikeConversationsDatabase.getInstance().deleteAllEventsForMessage(messageHash);
+	}
+
+	public static void postStatusUpdate(String status, String moodId, String imageFilePath)
+	{
+int mood;
+		
+		try
+		{
+			mood = Integer.parseInt(moodId);
+		}
+		catch(NumberFormatException e)
+		{
+			Logger.e(TAG, "moodId to postStatusUpdate should be a number.");
+			mood = -1;
+		}
+		
+		Utils.postStatusUpdate(status, mood, imageFilePath);
+		
 	}
 
 }

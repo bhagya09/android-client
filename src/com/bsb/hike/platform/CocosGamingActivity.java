@@ -15,6 +15,7 @@ import org.json.JSONObject;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
+import com.bsb.hike.R;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.bots.NonMessagingBotConfiguration;
@@ -42,6 +43,7 @@ import android.util.Base64;
 import android.util.Log;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.Toast;
 
 /**
  * This is an Activity class which renders native games
@@ -145,7 +147,7 @@ public class CocosGamingActivity extends Cocos2dxActivity implements HikePubSub.
 
 		if (botInfo == null || botInfo.getMetadata() == null)
 		{
-			// TODO show some error feedback to the user
+			Toast.makeText(getApplicationContext(), R.string.some_error, Toast.LENGTH_SHORT).show();
 			finish();
 			Cocos2dxHelper.terminateProcess();
 			Logger.e(TAG, "metadata is null");
@@ -195,8 +197,10 @@ public class CocosGamingActivity extends Cocos2dxActivity implements HikePubSub.
 		System.load(getAppBasePath() + "libcocos2dcpp.so"); // loading the game
 		}catch(UnsatisfiedLinkError e)
 		{
-			System.load(PlatformContentConstants.PLATFORM_CONTENT_DIR + "cocosEngine-7/libcocos2d.so");
-			System.load(getAppBasePath() + "libcocos2dcpp.so"); // loading the game
+			Logger.e(TAG, "Game Engine not Found");
+			Toast.makeText(getApplicationContext(), R.string.some_error, Toast.LENGTH_SHORT).show();
+			finish();
+			Cocos2dxHelper.terminateProcess();
 		}
 
 		CocosGamingActivity.this.mHandler = new Cocos2dxHandler(CocosGamingActivity.this);
