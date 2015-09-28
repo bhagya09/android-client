@@ -1,5 +1,7 @@
 package com.bsb.hike.bots;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -9,7 +11,6 @@ import org.json.JSONObject;
 
 import android.content.Context;
 import android.text.TextUtils;
-import android.util.Base64;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeConstants.NotificationType;
@@ -729,10 +730,30 @@ public class BotUtils
 	 */
 	public static void createAndInsertBotDp(String msisdn, byte[] imageData)
 	{
-		ContactManager.getInstance().setIcon(msisdn, imageData, false);
-		HikeMessengerApp.getLruCache().clearIconForMSISDN(msisdn);
-		HikeMessengerApp.getPubSub().publish(HikePubSub.ICON_CHANGED, msisdn);
-	}	
+
+		File botDpPath = new File(getBotThumbnailRootFolder() + msisdn);
+
+		// Bot Dp Path exists ?
+		if (!botDpPath.exists())
+		{
+			botDpPath.mkdirs();
+		}
+
+		// Save Icon to file
+		try
+		{
+			Utils.saveByteArrayToFile(botDpPath, imageData);
+			HikeMessengerApp.getLruCache().clearIconForMSISDN(msisdn);
+			HikeMessengerApp.getPubSub().publish(HikePubSub.ICON_CHANGED, msisdn);
+
+		}
+
+		catch (IOException e)
+		{
+			Logger.e(TAG, "Unable to save dp for bot with msisdn : " + msisdn + " Error : " + e.toString());
+		}
+
+	}
 	
 	/**
 	 * Utility method for persisting a Bot's DP. Note : This method should be the central place for handling bot dp's in a single place. If DP is persisted without calling this
@@ -740,9 +761,37 @@ public class BotUtils
 	 */
 	public static void createAndInsertBotDp(String msisdn, String imageData)
 	{
-		ContactManager.getInstance().setIcon(msisdn, Base64.decode(imageData, Base64.DEFAULT), false);
-		HikeMessengerApp.getLruCache().clearIconForMSISDN(msisdn);
-		HikeMessengerApp.getPubSub().publish(HikePubSub.ICON_CHANGED, msisdn);
+		File botDpPath = new File(getBotThumbnailRootFolder() + msisdn);
+
+		// Bot Dp Path exists ?
+		if (!botDpPath.exists())
+		{
+			botDpPath.mkdirs();
+		}
+		
+		try
+		{
+			Utils.saveBase64StringToFile(botDpPath, imageData);
+			HikeMessengerApp.getLruCache().clearIconForMSISDN(msisdn);
+			HikeMessengerApp.getPubSub().publish(HikePubSub.ICON_CHANGED, msisdn);
+		}
+		catch (IOException e)
+		{
+			Logger.e(TAG, "Unable to save dp for bot with msisdn : " + msisdn + " Error : " + e.toString());
+		}
+		
 	}	
+	
+	
+	/**
+	 * Returns the root folder path for bot thumbnails <br>
+	 * eg : "/data/data/com.bsb.hike/files/Content/DP/"
+	 * 
+	 * @return
+	 */
+	private static String getBotThumbnailRootFolder()
+	{
+		return PlatformContentConstants.PLATFORM_CONTENT_DIR + "DP" + File.separator;
+	}
 
 }
