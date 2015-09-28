@@ -310,9 +310,7 @@ public class BotUtils
 		
 		if (!TextUtils.isEmpty(thumbnailString))
 		{
-			ContactManager.getInstance().setIcon(msisdn, Base64.decode(thumbnailString, Base64.DEFAULT), false);
-			HikeMessengerApp.getLruCache().clearIconForMSISDN(msisdn);
-			HikeMessengerApp.getPubSub().publish(HikePubSub.ICON_CHANGED, msisdn);
+			BotUtils.createAndInsertBotDp(msisdn, thumbnailString);
 		}
 
 		String botChatTheme = jsonObj.optString(HikeConstants.BOT_CHAT_THEME);
@@ -577,9 +575,7 @@ public class BotUtils
 								Logger.i(TAG, "Bot icon request successful for " + mBotInfo.getMsisdn());
 								if (response != null && response.length > 0)
 								{
-									ContactManager.getInstance().setIcon(mBotInfo.getMsisdn(), response, false);
-									HikeMessengerApp.getLruCache().clearIconForMSISDN(mBotInfo.getMsisdn());
-									HikeMessengerApp.getPubSub().publish(HikePubSub.ICON_CHANGED, mBotInfo.getMsisdn());
+									BotUtils.createAndInsertBotDp(mBotInfo.getMsisdn(), response);
 								}
 
 							}
@@ -726,5 +722,27 @@ public class BotUtils
 		
 		HikeMessengerApp.getPubSub().publish(HikePubSub.ADD_NM_BOT_CONVERSATION, botInfo);
 	}
+	
+	/**
+	 * Utility method for persisting a Bot's DP. Note : This method should be the central place for handling bot dp's in a single place. If DP is persisted without calling this
+	 * method, the results might be catastrophic
+	 */
+	public static void createAndInsertBotDp(String msisdn, byte[] imageData)
+	{
+		ContactManager.getInstance().setIcon(msisdn, imageData, false);
+		HikeMessengerApp.getLruCache().clearIconForMSISDN(msisdn);
+		HikeMessengerApp.getPubSub().publish(HikePubSub.ICON_CHANGED, msisdn);
+	}	
+	
+	/**
+	 * Utility method for persisting a Bot's DP. Note : This method should be the central place for handling bot dp's in a single place. If DP is persisted without calling this
+	 * method, the results might be catastrophic
+	 */
+	public static void createAndInsertBotDp(String msisdn, String imageData)
+	{
+		ContactManager.getInstance().setIcon(msisdn, Base64.decode(imageData, Base64.DEFAULT), false);
+		HikeMessengerApp.getLruCache().clearIconForMSISDN(msisdn);
+		HikeMessengerApp.getPubSub().publish(HikePubSub.ICON_CHANGED, msisdn);
+	}	
 
 }
