@@ -505,7 +505,7 @@ public class NativeBridge
 	 * Call this function to create a shortcut.
 	 *
 	 */
-	public void createShortcut()
+	public void addShortCut()
 	{
 		mThread.postRunnable(new Runnable()
 		{
