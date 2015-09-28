@@ -8,13 +8,10 @@ import org.json.JSONObject;
 
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
-import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
-import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.db.HikeConversationsDatabase;
-import com.bsb.hike.dialog.CustomAlertDialog;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
@@ -24,20 +21,18 @@ import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
-import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.smartImageLoader.IconLoader;
-import com.bsb.hike.utils.HikeAnalyticsEvent;
-import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Utils;
 import com.hike.transporter.utils.Logger;
 
+import android.app.Activity;
 import android.content.Context;
-import android.content.res.Configuration;
-import android.os.Handler;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnDismissListener;
+import android.content.pm.ActivityInfo;
 import android.support.v4.widget.DrawerLayout.LayoutParams;
 import android.support.v7.widget.RecyclerView;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -47,7 +42,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class MicroappsListAdapter extends RecyclerView.Adapter<MicroappsListAdapter.ViewHolder> implements OnClickListener, Listener
+public class MicroappsListAdapter extends RecyclerView.Adapter<MicroappsListAdapter.ViewHolder> implements OnClickListener
 {
 	Context mContext;
 
@@ -63,8 +58,6 @@ public class MicroappsListAdapter extends RecyclerView.Adapter<MicroappsListAdap
 	
 	private TextView description;
 	
-	private HikePubSub mPubSub;
-	
 	private HikeDialog dialog;
 
 	public MicroappsListAdapter(Context context, List<BotInfo> botsList, IconLoader iconLoader)
@@ -73,9 +66,6 @@ public class MicroappsListAdapter extends RecyclerView.Adapter<MicroappsListAdap
 		this.microappsList = botsList;
 		this.iconLoader = iconLoader;
 		onClickListener = this;
-		
-		mPubSub = HikeMessengerApp.getPubSub();
-		mPubSub.addListeners(this, new String[]{HikePubSub.ORIENTATION_CHANGED});
 	}
 
 	@Override
@@ -249,6 +239,10 @@ public class MicroappsListAdapter extends RecyclerView.Adapter<MicroappsListAdap
 	
 	private void showDialog(BotInfo mBotInfo)
 	{
+		if (mContext instanceof Activity)
+		{
+			((Activity)mContext).setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+		}
 		dialog = HikeDialogFactory.showDialog(mContext, HikeDialogFactory.MAPP_DOWNLOAD_DIALOG, new HikeDialogListener()
 		{
 			@Override
@@ -270,6 +264,17 @@ public class MicroappsListAdapter extends RecyclerView.Adapter<MicroappsListAdap
 			}
 		});
 		
+		dialog.setOnDismissListener(new OnDismissListener() {
+			
+			@Override
+			public void onDismiss(DialogInterface dialog) {
+				if (mContext instanceof Activity)
+				{
+					Utils.unblockOrientationChange((Activity)mContext);
+				}
+			}
+		});
+		
 		this.iconLoader.loadImage(mBotInfo.getMsisdn(), (ImageView) dialog.findViewById(R.id.bot_icon), false, false, true);
 		
 		TextView bot_name = (TextView) dialog.findViewById(R.id.bot_name);
@@ -278,67 +283,9 @@ public class MicroappsListAdapter extends RecyclerView.Adapter<MicroappsListAdap
 		description = (TextView) dialog.findViewById(R.id.bot_description);
 		description.setText(mBotInfo.getBotDescription());
 		
-		handleOrientation(mContext.getResources().getConfiguration().orientation);
-		
 		String loadingText = String.format(mContext.getResources().getString(R.string.getting_mapp_shortly), mBotInfo.getConversationName());
 		TextView loadingTextView = (TextView) dialog.findViewById(R.id.loading_text);
 		loadingTextView.setText(loadingText);
 	}
-
-	@Override
-	public void onEventReceived(String type, final Object object)
-	{
-		switch(type)
-		{
-		case HikePubSub.ORIENTATION_CHANGED:
-			Handler mainHandler = new Handler(mContext.getMainLooper());
-			Runnable runnable = new Runnable() {
-	            @Override
-	            public void run() 
-	            {
-	            	if (description != null)
-	    			{
-	    				int orientation = (int) object;
-	    				handleOrientation(orientation);
-	    			}
-	            }
-	        };
-			mainHandler.post(runnable);
-			break;
-		}
-	}
 	
-	private void handleOrientation(int orientation)
-	{
-		if(orientation == Configuration.ORIENTATION_LANDSCAPE)
-		{
-			description.setVisibility(View.GONE);
-			dialog.findViewById(R.id.divider_1).setVisibility(View.GONE);
-			dialog.findViewById(R.id.divider_2).setVisibility(View.GONE);
-			LinearLayout.LayoutParams params = new LinearLayout.LayoutParams((int)mContext.getResources().getDimension(R.dimen.mapp_download_dialog_icon), (int)mContext.getResources().getDimension(R.dimen.mapp_download_dialog_icon));
-			changeIconMargins(params, (int)mContext.getResources().getDimension(R.dimen.mapp_download_dialog_icon_margin_land));
-		}
-		else
-		{
-			description.setVisibility(View.VISIBLE);
-			dialog.findViewById(R.id.divider_1).setVisibility(View.VISIBLE);
-			dialog.findViewById(R.id.divider_2).setVisibility(View.VISIBLE);
-			LinearLayout.LayoutParams params = new LinearLayout.LayoutParams((int)mContext.getResources().getDimension(R.dimen.mapp_download_dialog_icon), (int)mContext.getResources().getDimension(R.dimen.mapp_download_dialog_icon));
-			changeIconMargins(params, (int)mContext.getResources().getDimension(R.dimen.mapp_download_dialog_icon_margin));
-		}
-	}
-	
-	private void changeIconMargins(LinearLayout.LayoutParams params, int newMargin)
-	{
-		if (params == null)
-		{
-			return;
-		}
-		params.setMargins(0, newMargin, 0, 0);
-		params.gravity = Gravity.CENTER;
-		if (dialog.findViewById(R.id.bot_icon) != null)
-		{
-			dialog.findViewById(R.id.bot_icon).setLayoutParams(params);
-		}
-	}
 }
