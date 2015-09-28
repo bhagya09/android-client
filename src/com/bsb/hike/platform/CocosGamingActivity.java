@@ -192,7 +192,7 @@ public class CocosGamingActivity extends Cocos2dxActivity implements HikePubSub.
 		{
 		System.load(PlatformContentConstants.PLATFORM_CONTENT_DIR + "cocosEngine-7/libcocos2d.so");
 		System.load(getAppBasePath() + "libcocos2dcpp.so"); // loading the game
-		}catch(Exception e)
+		}catch(UnsatisfiedLinkError e)
 		{
 			finish();
 			Cocos2dxHelper.terminateProcess();
