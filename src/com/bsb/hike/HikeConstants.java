@@ -612,8 +612,6 @@ public class HikeConstants
 	
 	public static final String GLIDE_PREF = "glidePref";
 	
-	public static final String SHORTHAND_PREF = "shorthandPref";
-	
 	public static final String KEYBOARD_ADV_PREF = "advancedPref";
 	
 	public static final String KEYBOARD_ADV_PREF_SCREEN = "kptAdvancedPrefScreen";

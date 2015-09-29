@@ -1133,7 +1133,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			stickerClicked();
 			break;
 		case R.id.emoticon_btn:
-			mShareablePopupLayout.setCustomKeyBoardHeight(mCustomKeyboard.getKeyBoardAndCVHeight());
 			mCustomKeyboard.showCustomKeyboard(mComposeView, false);
 			if (mShareablePopupLayout.isBusyInOperations())
 			{// previous task is running don't accept this event

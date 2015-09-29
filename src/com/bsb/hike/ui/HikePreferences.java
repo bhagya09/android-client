@@ -215,7 +215,6 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		addOnPreferenceClickListeners(HikeConstants.CHAT_BG_NOTIFICATION_PREF);
 		addOnPreferenceClickListeners(HikeConstants.NOTIF_SOUND_PREF);
 		addOnPreferenceClickListeners(HikeConstants.FAV_LIST_PREF);
-		addOnPreferenceClickListeners(HikeConstants.SHORTHAND_PREF);
 		addOnPreferenceClickListeners(HikeConstants.KEYBOARD_ADV_PREF);
 	}
 	
@@ -987,25 +986,6 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		{
 			Intent i = new Intent(HikePreferences.this, StickerSettingsActivity.class);
 			startActivity(i);
-		}
-		else if(HikeConstants.SHORTHAND_PREF.equals(preference.getKey()))
-		{
-			if (mCoreEngineStatus)
-			{
-				if (mProgressDialog != null && mProgressDialog.isShowing())
-				{
-					mProgressDialog.dismiss();
-				}
-				kptSettings = null;
-				Intent shortHandIntent = IntentFactory.getIntentForKeyboardShorthand(HikePreferences.this);
-				startActivityForResult(shortHandIntent, SHORTHAND_REQUEST_CODE);
-			}
-			else
-			{
-				mProgressDialog = ProgressDialog.show(this, getResources().getText(R.string.kpt_title_wait), "Loading languages...", true, false);
-				Thread thread = new Thread();
-				thread.start();
-			}
 		}
 		else if(HikeConstants.KEYBOARD_ADV_PREF.equals(preference.getKey()))
 		{

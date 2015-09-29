@@ -532,6 +532,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		if (!systemKeyboard&&!mCustomKeyboard.isCustomKeyboardVisible())
 		{
 			mCustomKeyboard.showCustomKeyboard(mNameEdit, true);
+			KptUtils.updatePadding(ProfileActivity.this, R.id.parent_layout, mCustomKeyboard.getKeyBoardAndCVHeight());
 		}
 	}
 	
@@ -643,6 +644,8 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		else
 		{
 			mCustomKeyboard.showCustomKeyboard(mNameEdit, false);
+			KptUtils.updatePadding(ProfileActivity.this, R.id.edit_profile, 0);
+			KptUtils.updatePadding(ProfileActivity.this, R.id.parent_layout, 0);
 		}
 	}
 	
@@ -811,7 +814,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			break;
 		case android.R.id.home:
 			Utils.hideSoftKeyboard(getApplicationContext(), getWindow().getDecorView().getRootView());
-			onBackPressed();
+			backPressed(true);
 			return true;
 
 		}
@@ -1392,7 +1395,58 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			mCustomKeyboard.registerEditText(R.id.name_input,KPTConstants.MULTILINE_LINE_EDITOR,ProfileActivity.this,ProfileActivity.this);
 			mCustomKeyboard.registerEditText(R.id.email_input,KPTConstants.MULTILINE_LINE_EDITOR,ProfileActivity.this,ProfileActivity.this);
 			mCustomKeyboard.init(mNameEdit);
-			showKeyboard();			
+			mNameEdit.setOnFocusChangeListener(new View.OnFocusChangeListener()
+			{
+				
+				@Override
+				public void onFocusChange(View v, boolean hasFocus)
+				{
+					if (mCustomKeyboard.isCustomKeyboardVisible())
+					{
+						mCustomKeyboard.showCustomKeyboard(mNameEdit, false);
+					}
+					mCustomKeyboard.showCustomKeyboard(mNameEdit, true);
+				}
+			});
+			mEmailEdit.setOnFocusChangeListener(new View.OnFocusChangeListener()
+			{
+				
+				@Override
+				public void onFocusChange(View v, boolean hasFocus)
+				{
+					if (mCustomKeyboard.isCustomKeyboardVisible())
+					{
+						mCustomKeyboard.showCustomKeyboard(mEmailEdit, false);
+					}
+					mCustomKeyboard.showCustomKeyboard(mEmailEdit, true);					
+				}
+			});
+			mNameEdit.setOnClickListener(new OnClickListener()
+			{
+				
+				@Override
+				public void onClick(View v)
+				{
+					if (mCustomKeyboard.isCustomKeyboardVisible())
+					{
+						mCustomKeyboard.showCustomKeyboard(mNameEdit, false);
+					}
+					mCustomKeyboard.showCustomKeyboard(mNameEdit, true);
+				}
+			});
+			mEmailEdit.setOnClickListener(new OnClickListener()
+			{
+				
+				@Override
+				public void onClick(View v)
+				{
+					if (mCustomKeyboard.isCustomKeyboardVisible())
+					{
+						mCustomKeyboard.showCustomKeyboard(mEmailEdit, false);
+					}
+					mCustomKeyboard.showCustomKeyboard(mEmailEdit, true);
+				}
+			});
 		}
 		
 		((TextView) name.findViewById(R.id.name_edit_field)).setText(R.string.name);
@@ -1600,14 +1654,26 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		mActivityState.genderType = mActivityState.genderType == 0 ? lastSavedGender : mActivityState.genderType;
 	}
 
+	@Override
 	public void onBackPressed()
 	{
-		if (mCustomKeyboard != null && mCustomKeyboard.isCustomKeyboardVisible())
+		backPressed(false);
+	}
+	
+	private void backPressed(boolean actionBarBackPressed)
+	{
+		if (!actionBarBackPressed)
 		{
-			mCustomKeyboard.showCustomKeyboard(mNameEdit, false);
-			mCustomKeyboard.showCustomKeyboard(mEmailEdit, false);
-			return;
+			if (mCustomKeyboard != null && mCustomKeyboard.isCustomKeyboardVisible())
+			{
+				mCustomKeyboard.showCustomKeyboard(mNameEdit, false);
+				mCustomKeyboard.showCustomKeyboard(mEmailEdit, false);
+				KptUtils.updatePadding(ProfileActivity.this, R.id.edit_profile, 0);
+				KptUtils.updatePadding(ProfileActivity.this, R.id.parent_layout, 0);
+				return;
+			}
 		}
+		
 		if(showingGroupEdit)
 		{
 			closeGroupNameEdit();
@@ -3550,10 +3616,18 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 	}
 
 	@Override
-	public void onInputviewVisbility(boolean arg0, int arg1)
+	public void onInputviewVisbility(boolean kptVisible, int height)
 	{
-		// TODO Auto-generated method stub
-		
+		if (kptVisible)
+		{
+			KptUtils.updatePadding(ProfileActivity.this, R.id.edit_profile, height);
+			KptUtils.updatePadding(ProfileActivity.this, R.id.parent_layout, height);
+		}
+		else
+		{
+			KptUtils.updatePadding(ProfileActivity.this, R.id.edit_profile, 0);
+			KptUtils.updatePadding(ProfileActivity.this, R.id.parent_layout, 0);
+		}
 	}
 
 	@Override

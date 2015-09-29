@@ -4,7 +4,7 @@
     package="com.bsb.hike"
     android:installLocation="auto"
     android:versionCode="1439"
-    android:versionName="4.0.6.2.custom_keyboard" >
+    android:versionName="4.0.6.3.custom_keyboard" >
     
     <uses-sdk
         android:minSdkVersion="14"
@@ -189,11 +189,6 @@
         <activity
             android:name=".ui.HikePreferences"
             android:label="@string/preferences">
-        </activity>
-        <activity 
-            android:name=".modules.kpt.KptShorthand"
-            android:configChanges="orientation|keyboardHidden|screenSize"
-            android:windowSoftInputMode="adjustResize|stateAlwaysVisible" >
         </activity>
         <activity
             android:name=".ui.HikeListActivity"

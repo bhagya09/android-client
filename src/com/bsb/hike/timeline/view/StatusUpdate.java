@@ -30,12 +30,10 @@ import com.bsb.hike.view.RoundedImageView;
 import com.kpt.adaptxt.beta.CustomKeyboard;
 import com.kpt.adaptxt.beta.RemoveDialogData;
 import com.kpt.adaptxt.beta.util.KPTConstants;
-import com.kpt.adaptxt.beta.view.AdaptxtEditText;
 import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtEditTextEventListner;
 import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtKeyboordVisibilityStatusListner;
 
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
@@ -62,8 +60,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Listener, OnSoftKeyboardListener, PopupListener, 
-		View.OnClickListener, AdaptxtEditTextEventListner, AdaptxtKeyboordVisibilityStatusListner
+public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Listener, OnSoftKeyboardListener, PopupListener, View.OnClickListener,
+		AdaptxtKeyboordVisibilityStatusListner, AdaptxtEditTextEventListner
 {
 
 	private class ActivityTask
@@ -82,6 +80,10 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 
 		boolean imageDeleted = false;
 	}
+	
+	private CustomKeyboard mCustomKeyboard;
+	
+	private boolean systemKeyboard;
 
 	private ActivityTask mActivityTask;
 
@@ -155,12 +157,6 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 
 	private View addMoodLayout;
 
-	private ViewGroup emojiParent;
-	
-	CustomKeyboard mCustomKeyboard;
-	
-	private boolean systemKeyboard;
-
 	public static final String STATUS_UPDATE_IMAGE_PATH = "SUIMGPTH";
 
 	@Override
@@ -177,10 +173,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 	{
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.status_dialog);
-		initVarRef();
-		initCustomKeyboard();
-		
-		addOnClickListeners();
+
 		Object o = getLastCustomNonConfigurationInstance();
 
 		if (o instanceof ActivityTask)
@@ -202,6 +195,16 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		}
 		
 		initVarRef();
+		
+		initEmoticonPicker();
+
+		systemKeyboard = HikeMessengerApp.isSystemKeyboard(StatusUpdate.this);
+		if (!systemKeyboard)
+		{
+			initCustomKeyboard();			
+		}
+		
+		addOnClickListeners();
 
 		RoundedImageView roundAvatar = (RoundedImageView) avatar;
 		roundAvatar.setOval(true);
@@ -267,17 +270,6 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 
 		statusTxt.addTextChangedListener(new EmoticonTextWatcher());
 		
-		statusTxt.setOnClickListener(new View.OnClickListener()
-		{
-			@Override
-			public void onClick(View arg0)
-			{
-				setEmoticonButtonSelected(false);
-			}
-		});
-		
-		initEmoticonPicker();
-		
 		if (mActivityTask.emojiShowing)
 		{
 			sendUIMessage(SHOW_EMOJI_PALETTE, null);
@@ -302,54 +294,6 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		if (!shouldShowMoodsButton())
 		{
 			addMoodLayout.setVisibility(View.GONE);
-		}
-	}
-	
-	private void initCustomKeyboard()
-	{
-		systemKeyboard = HikeMessengerApp.isSystemKeyboard(this);
-		LinearLayout viewHolder = (LinearLayout) findViewById(R.id.keyboardView_holder);
-		mCustomKeyboard = new CustomKeyboard(StatusUpdate.this, viewHolder);
-		mCustomKeyboard.registerEditText(R.id.status_txt, KPTConstants.MULTILINE_LINE_EDITOR, this, this);
-		mCustomKeyboard.init(statusTxt);
-		mCustomKeyboard.showCustomKeyboard(statusTxt, true);
-		if(systemKeyboard)
-		{
-			changeKeyboard(systemKeyboard);
-		}
-	}
-	
-	private void changeKeyboard(boolean systemKeyboard)
-	{
-		Logger.d("changeKeyboard", "ChageKeyboard called!");
-		AdaptxtEditText editText = (AdaptxtEditText) statusTxt;
-		if (systemKeyboard)
-		{
-			mCustomKeyboard.swtichToDefaultKeyboard(editText);
-			mCustomKeyboard.unregister(editText);
-			mCustomKeyboard.unregister(R.id.msg_compose);
-			statusTxt.setOnClickListener(new OnClickListener()
-			{
-
-				@Override
-				public void onClick(View v)
-				{
-					if (mEmoticonPicker != null && mEmoticonPicker.isShowing())
-					{
-						mEmoticonPicker.dismiss();
-					}
-					InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-					imm.showSoftInput(statusTxt, InputMethodManager.SHOW_IMPLICIT);
-
-				}
-			});
-		}
-		else
-		{
-			mCustomKeyboard.swtichToKPTKeyboard(editText, KPTConstants.MULTILINE_LINE_EDITOR, this, this);
-			mCustomKeyboard.registerEditText(R.id.status_txt, KPTConstants.MULTILINE_LINE_EDITOR, this, this);
-			mCustomKeyboard.init(statusTxt);
-			mCustomKeyboard.showCustomKeyboard(statusTxt, true);
 		}
 	}
 	
@@ -379,7 +323,6 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 	 */
 	public void initVarRef()
 	{
-		emojiParent = (ViewGroup) findViewById(R.id.emoji_container);
 		moodParent = (ViewGroup) findViewById(R.id.mood_parent_status);
 		avatar = (RoundedImageView) findViewById(R.id.avatar);
 		statusTxt = (CustomFontEditText) findViewById(R.id.status_txt);
@@ -387,6 +330,19 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		statusImage = (ImageView) findViewById(R.id.status_image);
 		btnRemovePhoto = (ImageButton) findViewById(R.id.btn_remove_photo);
 		addMoodLayout = findViewById(R.id.addMoodLayout);
+	}
+	
+	private void initCustomKeyboard()
+	{
+		View keyboardHolder = (LinearLayout) findViewById(R.id.keyboardView_holder);
+		mCustomKeyboard = new CustomKeyboard(StatusUpdate.this, keyboardHolder);
+		mCustomKeyboard.registerEditText(R.id.status_txt, KPTConstants.MULTILINE_LINE_EDITOR, this, this);
+		mCustomKeyboard.init(statusTxt);
+		mEmoticonPicker.setCustomKeyBoard(true);
+		mEmoticonPicker.setCustomKeyBoardHeight(mCustomKeyboard.getKeyBoardAndCVHeight());
+		findViewById(R.id.status_txt).setOnClickListener(this);
+		mCustomKeyboard.showCustomKeyboard(statusTxt, true);
+		KptUtils.updatePadding(StatusUpdate.this, R.id.parent_layout, mCustomKeyboard.getKeyBoardAndCVHeight());
 	}
 
 	@Override
@@ -481,8 +437,8 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		addMoodLayout.setVisibility(View.GONE);
 		if (mEmoticonPicker.showEmoticonPicker(getResources().getConfiguration().orientation))
 		{
-			Utils.hideSoftKeyboard(this, statusTxt);
 			mActivityTask.emojiShowing = true;
+			hideKeyboard();
 			showCancelButton(false);
 			setEmoticonButtonSelected(true);
 		}
@@ -554,12 +510,6 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		{
 			super.onBackPressed();
 		}
-		
-		if (mCustomKeyboard.isCustomKeyboardVisible())
-		{
-			mCustomKeyboard.hideCustomKeyboard(statusTxt);
-		}
-		mCustomKeyboard.closeAnyDialogIfShowing();
 	}
 	
 	public void actionBarBackPressed()
@@ -650,7 +600,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 
 	private void showMoodSelector()
 	{
-		Utils.hideSoftKeyboard(this, statusTxt);
+		hideKeyboard();
 
 		addMoodLayout.setVisibility(View.GONE);
 
@@ -743,7 +693,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 					}
 					if (statusPosted)
 					{
-						Utils.hideSoftKeyboard(StatusUpdate.this, statusTxt);
+						hideKeyboard();
 						Intent in = new Intent(StatusUpdate.this, TimelineActivity.class);
 						in.putExtra(HikeConstants.HikePhotos.HOME_ON_BACK_PRESS, true);
 						StatusUpdate.this.startActivity(in);
@@ -806,7 +756,12 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		{
 		case R.id.emoji_btn:
 			setEmoticonButtonSelected(true);
+			mEmoticonPicker.setCustomKeyBoardHeight(mCustomKeyboard.getKeyBoardAndCVHeight());
 			onEmojiClick();
+			break;
+		case R.id.status_txt:
+			setEmoticonButtonSelected(false);
+			showKeyboard();
 			break;
 		default:
 			Logger.e(TAG, "onClick Registered but not added in onClick : " + v.toString());
@@ -821,7 +776,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 	
 	private void initEmoticonPicker()
 	{
-		int[] dontEatThisTouch = {R.id.emoji_btn};
+		int[] dontEatThisTouch = {R.id.emoji_btn, R.id.status_txt};
 		mEmoticonPicker = new EmoticonPicker(this, statusTxt, findViewById(R.id.parent_layout), (int)getResources().getDimension(R.dimen.emoticon_pallete), dontEatThisTouch);
 		mEmoticonPicker.setOnDismissListener(this);
 		mEmoticonPicker.setDisableExtraPadding(true);
@@ -870,7 +825,6 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 	public void onConfigurationChanged(Configuration newConfig) 
 	{
 		super.onConfigurationChanged(newConfig);
-		mCustomKeyboard.onConfigurationChanged(newConfig);
 		if (mEmoticonPicker!=null)
 		{
 			
@@ -904,49 +858,13 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item)
 	{
-		// TODO Auto-generated method stub
 		if(item.getItemId()==android.R.id.home)
 		{
-			Utils.hideSoftKeyboard(StatusUpdate.this, statusTxt);
+			hideKeyboard();
 			actionBarBackPressed();
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
-	}
-
-	@Override
-	public void analyticalData(String arg0)
-	{
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void onInputViewCreated()
-	{
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void onInputviewVisbility(boolean arg0, int arg1)
-	{
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void showGlobeKeyView()
-	{
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void showQuickSettingView()
-	{
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
@@ -978,6 +896,61 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 	}
 
 	@Override
+	public void analyticalData(String currentLanguage)
+	{
+		KptUtils.generateKeyboardAnalytics(currentLanguage);
+	}
+
+	@Override
+	public void onInputViewCreated()
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onInputviewVisbility(boolean visible, int height)
+	{
+		if (visible)
+		{
+			mActivityTask.keyboardShowing = true;
+			hideEmojiOrMoodLayout();
+			Logger.d(StatusUpdate.class.getSimpleName(), "shown keyboard");
+		}
+		else
+		{
+			mActivityTask.keyboardShowing = false;
+			Logger.d(StatusUpdate.class.getSimpleName(), "hidden keyboard");
+		}
+	}
+
+	@Override
+	public void showGlobeKeyView()
+	{
+		KptUtils.onGlobeKeyPressed(StatusUpdate.this, mCustomKeyboard);
+	}
+
+	@Override
+	public void showQuickSettingView()
+	{
+		KptUtils.onGlobeKeyPressed(StatusUpdate.this, mCustomKeyboard);
+	}
+	
+	private void hideKeyboard()
+	{
+
+		if (systemKeyboard)
+		{
+			Utils.hideSoftKeyboard(StatusUpdate.this, statusTxt);
+		}
+		else
+		{
+			mCustomKeyboard.showCustomKeyboard(statusTxt, false);
+			KptUtils.updatePadding(StatusUpdate.this, R.id.parent_layout, 0);
+		}
+	}
+
+	@Override
 	public void dismissRemoveDialog() {
 		// TODO Auto-generated method stub
 		
@@ -989,5 +962,19 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		
 	}
 	
+	private void showKeyboard()
+	{
+		if (systemKeyboard)
+		{
+			statusTxt.setFocusable(true);
+			getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+			Utils.showSoftKeyboard(statusTxt, InputMethodManager.SHOW_FORCED);
+		}
+		else
+		{
+			mCustomKeyboard.showCustomKeyboard(statusTxt, true);
+			KptUtils.updatePadding(StatusUpdate.this, R.id.parent_layout, mCustomKeyboard.getKeyBoardAndCVHeight());
+		}
+	}
 	
 }
