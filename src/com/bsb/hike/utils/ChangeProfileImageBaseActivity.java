@@ -65,8 +65,6 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 	private String mLocalMSISDN;
 	private Dialog mDialog;
 	
-	protected ShareLinkFragment shareLinkFragment;
-	
 	private static final String TAG = "dp_upload";
 
 	public class ChangeProfileImageActivityState
@@ -86,6 +84,8 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 		public DownloadImageTask downloadPicasaImageTask;
 
 		public HikeImageUploader mImageWorkerFragment;
+		
+		public ShareLinkFragment shareLinkFragment;
 	}
 
 	private ChangeProfileImageActivityState mActivityState;
@@ -832,8 +832,8 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 		getSupportFragmentManager().executePendingTransactions();
 		
 		// Create and show the dialog.
-		shareLinkFragment = ShareLinkFragment.newInstance(grpId, grpName, grpSettings, isNewGroup);
-		shareLinkFragment.show(ft, ShareLinkFragment.SHARE_LINK_FRAGMENT_TAG);
+		mActivityState.shareLinkFragment = ShareLinkFragment.newInstance(grpId, grpName, grpSettings, isNewGroup, false);
+		mActivityState.shareLinkFragment.show(ft, ShareLinkFragment.SHARE_LINK_FRAGMENT_TAG);
 	}
 
 	@Override
