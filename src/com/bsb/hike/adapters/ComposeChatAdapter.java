@@ -79,6 +79,8 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 	private boolean nuxStateActive = false;
 	
 	private boolean showMicroappShowcase = false;
+	
+	private MicroappsListAdapter microappsListAdapter;
 
 	public ComposeChatAdapter(Context context, ListView listView, boolean fetchGroups, boolean fetchRecents, boolean fetchRecentlyJoined, String existingGroupId, String sendingMsisdn, FriendsListFetchedCallback friendsListFetchedCallback, boolean showSMSContacts, boolean showMicroappShowcase)
 	{
@@ -446,7 +448,8 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 			convertView = LayoutInflater.from(context).inflate(R.layout.microapps_horizontal_view, null);
 			holder = new ViewHolder();
 			holder.recyclerView = (RecyclerView) convertView.findViewById(R.id.mapps_list);
-			holder.recyclerView.setAdapter(new MicroappsListAdapter(context, microappShowcaseList, iconloader));
+			microappsListAdapter = new MicroappsListAdapter(context, microappShowcaseList, iconloader);
+			holder.recyclerView.setAdapter(microappsListAdapter);
 			LinearLayoutManager layoutManager = new LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false);
 	        holder.recyclerView.setLayoutManager(layoutManager);
 	        holder.recyclerView.setOverScrollMode(View.OVER_SCROLL_NEVER);
@@ -882,6 +885,14 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 		{
 			ContactInfo contactInfo = ContactManager.getInstance().getContact(msisdn, true, false);
 			selectedPeople.put(msisdn, contactInfo);
+		}
+	}
+	
+	public void releaseResources()
+	{
+		if (microappsListAdapter != null)
+		{
+			microappsListAdapter.removePubSubListeners();
 		}
 	}
 	
