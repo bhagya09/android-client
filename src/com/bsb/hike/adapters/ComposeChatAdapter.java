@@ -35,6 +35,7 @@ import com.bsb.hike.smartImageLoader.IconLoader;
 import com.bsb.hike.tasks.FetchFriendsTask;
 import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.utils.EmoticonConstants;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.NUXManager;
 import com.bsb.hike.utils.OneToNConversationUtils;
@@ -531,7 +532,7 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 		
 		if(showMicroappShowcase && microappShowcaseList != null && !microappShowcaseList.isEmpty())
 		{
-			ContactInfo microappSection = new ContactInfo(SECTION_ID, ""+microappShowcaseList.size(), context.getString(R.string.hike_apps), APPS_ON_HIKE);
+			ContactInfo microappSection = new ContactInfo(SECTION_ID, ""+microappShowcaseList.size(), HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.BOTS_DISCOVERY_SECTION, context.getResources().getString(R.string.hike_apps)), APPS_ON_HIKE);
 			ContactInfo microappShowcaseList = new ContactInfo(HIKE_APPS_ID, HIKE_APPS_MSISDN, context.getString(R.string.hike_apps), HIKE_APPS_NUM);
 			completeList.add(microappSection);
 			completeList.add(microappShowcaseList);
