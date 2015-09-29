@@ -252,9 +252,9 @@ public class MicroappsListAdapter extends RecyclerView.Adapter<MicroappsListAdap
 			@Override
 			public void positiveClicked(HikeDialog hikeDialog)
 			{
-				if (mBotInfo.isBlocked())
+				if (BotUtils.isBot(mBotInfo.getMsisdn()) && BotUtils.getBotInfoForBotMsisdn(mBotInfo.getMsisdn()).isBlocked())
 				{
-					mBotInfo.setBlocked(false);
+					BotUtils.getBotInfoForBotMsisdn(mBotInfo.getMsisdn()).setBlocked(false);
 					HikeMessengerApp.getPubSub().publish(HikePubSub.UNBLOCK_USER, mBotInfo.getMsisdn());
 				}
 				
