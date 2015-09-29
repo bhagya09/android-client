@@ -766,8 +766,7 @@ public class HttpRequests
 	}
 	
 	/**
-	 * This API is for fetching URL to share group invite link via WA/Others
-	 * @param grpId
+	 * @param json
 	 * @param requestListener
 	 * @param noOfRetries
 	 * @param delayMultiplier
@@ -793,21 +792,21 @@ public class HttpRequests
 	}
 	
 	/**
-	 * This API is for sending confirmation by user to join Group
-	 * @param grpId
+	 * 
+	 * @param groupCode
 	 * @param requestListener
 	 * @return
 	 */
-	public static RequestToken acceptGroupMembershipConfirmationRequest(String groupCode, String reffId, IRequestListener requestListener)
+	public static RequestToken acceptGroupMembershipConfirmationRequest(String groupCode, IRequestListener requestListener)
 	{
-		// /v1/gcjoin/<referral_id>:gc:<group_code>
-		String url = getBaseCodeGCAcceptUrl() + reffId + ":gc:" + groupCode;  
+		String url = getBaseCodeGCAcceptUrl() + groupCode; 
 		
 		RequestToken requestToken = new JSONObjectRequest.Builder()
 				.setUrl(url)
 				.setRequestType(Request.REQUEST_TYPE_SHORT)
 				.setRequestListener(requestListener)
 				.setResponseOnUIThread(true)
+				.post(null)
 				.build();
 		return requestToken;
 	}

@@ -269,11 +269,6 @@ public class HttpRequestConstants
 		return BASE_URL + BASE_V1 + "/group/";
 	}
 	
-	public static String getGroupBaseUrlForLinkSharing()
-	{
-		return BASE_URL + BASE_V2 + "/group/";
-	}
-
 	public static String getAvatarBaseUrl()
 	{
 		return BASE_URL + BASE_V1 + BASE_ACCOUNT + "/avatar";
@@ -354,8 +349,13 @@ public class HttpRequestConstants
 		return BASE_URL + BASE_V1 + BASE_ACCOUNT + "/avatar-delete";
 	}
 	
+	public static String getGroupBaseUrlForLinkSharing()
+	{
+		return BASE_URL + BASE_V2 + "/group/";
+	}
+	
 	public static String getBaseCodeGCAcceptUrl()
 	{
-		return BASE_URL + BASE_V1 + "/gcjoin/";
+		return BASE_URL + BASE_V2 + "/gcjp/";
 	}
 }
