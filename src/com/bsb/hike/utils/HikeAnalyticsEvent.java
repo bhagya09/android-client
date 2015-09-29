@@ -190,5 +190,5 @@ public class HikeAnalyticsEvent
 			e.printStackTrace();
 		}
 	}
-
+	
 }

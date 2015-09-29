@@ -1,5 +1,7 @@
 package com.bsb.hike.offline;
 
+import com.hike.transporter.TException;
+
 /**
  * 
  * @author himanshu
@@ -52,6 +54,8 @@ public class OfflineConstants
 	
 	public static final String  OFFLINE_FILES_NOT_RECEIVED_TYPE = "offfilenotreceived"; 
 	
+	public static final String OFFLINE_VERSION = "ov";
+	
 	public static final long TIME_TO_CONNECT = 60000;
 
 	public static final long TRY_CONNECT_TO_HOTSPOT = 5000;
@@ -65,6 +69,8 @@ public class OfflineConstants
 	public static final String INFO_PKT = "info";
 	
 	public static final int STICKER_SIZE = 168;
+	
+	public static final int OFFLINE_VERSION_NUMER = 2;
 	
 	public final class HandlerConstants
 	{
@@ -101,7 +107,20 @@ public class OfflineConstants
 	
 	public static enum ERRORCODE
 	{
-		TIMEOUT,DISCONNECTING,OUT_OF_RANGE,COULD_NOT_CONNECT,REQUEST_CANCEL,SHUTDOWN
+		TIMEOUT, DISCONNECTING, OUT_OF_RANGE, COULD_NOT_CONNECT, REQUEST_CANCEL, SHUTDOWN;
+
+		private TException exception = new OfflineException(OfflineException.REASON_UNKNOWN);
+
+		public void setErrorCode(TException exception2)
+		{
+			this.exception = exception2;
+		}
+
+		public TException getErrorCode()
+		{
+			return exception;
+		}
+		
 	}
 	
 	public static enum OFFLINE_STATE
@@ -191,6 +210,8 @@ public class OfflineConstants
 
 		public static final String TIP_KEY = "tipkey";
 
+		public static final String OFFLINE_RED_DOT_CLICKED = "rdot";
+
 	}
 	
 	public static final String CONNECTION_ID = "conn_id";
@@ -208,5 +229,9 @@ public class OfflineConstants
 	}
 	
 	public static final String DIRECT_REQUEST_DATA = "dir_req";
+	
+	public static final float MIN_BATTERY_LEVEL = 10.0f;
+
+	public static final int UNLIMITED_FT_VERSION = 2;
 
 }

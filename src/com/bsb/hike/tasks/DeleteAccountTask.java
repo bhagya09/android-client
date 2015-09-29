@@ -23,6 +23,8 @@ import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
 import com.bsb.hike.modules.stickersearch.provider.StickerSearchDataController;
+import com.bsb.hike.offline.OfflineController;
+import com.bsb.hike.offline.OfflineException;
 import com.bsb.hike.service.HikeService;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.HikeSystemSettingsDBUtil;
@@ -32,6 +34,7 @@ import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 import com.google.android.gcm.GCMRegistrar;
+import com.hike.transporter.TException;
 
 public class DeleteAccountTask implements ActivityCallableTask
 {
@@ -191,6 +194,14 @@ public class DeleteAccountTask implements ActivityCallableTask
 			AccountBackupRestore.getInstance(ctx).deleteAllFiles();
 		}
 		
+		/*
+		 *Closing connection is connected or connecting  via hike direct    
+		 */
+		if(OfflineController.getInstance().isConnected() || OfflineController.getInstance().isConnecting())
+		{
+			OfflineController.getInstance().shutdownProcess(new OfflineException(OfflineException.USER_DISCONNECTED));
+		}
+		
 		clearAppData();
 		Logger.d("DeleteAccountTask", "account deleted");
 
@@ -201,11 +212,12 @@ public class DeleteAccountTask implements ActivityCallableTask
 		HikeMessengerApp.getInstance().startUpdgradeIntent();
 
 		finished = true;
-
+		
 		/* clear any toast notifications */
 		NotificationManager mgr = (NotificationManager) ctx.getSystemService(android.content.Context.NOTIFICATION_SERVICE);
 		mgr.cancelAll();
-
+		
+		
 		// redirect user to the welcome screen
 		if (listener != null)
 		{

@@ -227,7 +227,7 @@ public class UploadFileTask extends FileTransferBase
 		JSONArray filesArray = new JSONArray();
 
 		HikeFile hikeFile = ((ConvMessage)userContext).getMetadata().getHikeFiles().get(0);
-		hikeFile.setFileSize((int)sourceFile.length());
+		hikeFile.setFileSize(sourceFile.length());
 		hikeFile.setHikeFileType(hikeFileType);
 		hikeFile.setRecordingDuration(recordingDuration);
 		hikeFile.setSent(true);
@@ -339,7 +339,7 @@ public class UploadFileTask extends FileTransferBase
 					Logger.d(getClass().getSimpleName(), "Sent Thumbnail Size : " + tBytes.length);
 				}
 			
-				metadata = getFileTransferMetadata(fileName, fileType, hikeFileType, thumbnailString, thumbnail, recordingDuration, mFile.getPath(), (int) mFile.length(), quality);
+				metadata = getFileTransferMetadata(fileName, fileType, hikeFileType, thumbnailString, thumbnail, recordingDuration, mFile.getPath(), mFile.length(), quality);
 			}
 			else
 			// this is the case for picasa picture
@@ -438,7 +438,7 @@ public class UploadFileTask extends FileTransferBase
 	}
 
 	private JSONObject getFileTransferMetadata(String fileName, String fileType, HikeFileType hikeFileType, String thumbnailString, Bitmap thumbnail, long recordingDuration,
-			String sourceFilePath, int fileSize, String img_quality) throws JSONException
+			String sourceFilePath, long fileSize, String img_quality) throws JSONException
 	{
 		JSONArray files = new JSONArray();
 		files.put(new HikeFile(fileName, TextUtils.isEmpty(fileType) ? HikeFileType.toString(hikeFileType) : fileType, thumbnailString, thumbnail, recordingDuration,
@@ -536,14 +536,14 @@ public class UploadFileTask extends FileTransferBase
 					}
 					if(compFile != null && compFile.exists()){
 						FTAnalyticEvents.sendVideoCompressionEvent(info.originalWidth + "x" + info.originalHeight, info.resultWidth + "x" + info.resultHeight,
-								(int) mFile.length(), (int) compFile.length(), 1);
+								mFile.length(),  compFile.length(), 1);
 						selectedFile = compFile;
 						Utils.deleteFileFromHikeDir(context, mFile, hikeFileType);
 					}else{
 						if(info != null)
 						{
 							FTAnalyticEvents.sendVideoCompressionEvent(info.originalWidth + "x" + info.originalHeight, info.resultWidth + "x" + info.resultHeight,
-									(int) mFile.length(), 0, 0);
+									 mFile.length(), 0, 0);
 						}
 						selectedFile = mFile;
 					}
@@ -762,7 +762,7 @@ public class UploadFileTask extends FileTransferBase
 				JSONObject fileJSON = response.getJSONObject(HikeConstants.DATA_2);
 				fileKey = fileJSON.optString(HikeConstants.FILE_KEY);
 				fileType = fileJSON.optString(HikeConstants.CONTENT_TYPE);
-				fileSize = fileJSON.optInt(HikeConstants.FILE_SIZE);
+				fileSize = (int) fileJSON.optLong(HikeConstants.FILE_SIZE);
 			}else
 				_state = FTState.IN_PROGRESS;
 			/*
@@ -882,7 +882,7 @@ public class UploadFileTask extends FileTransferBase
 			FTAnalyticEvents.logDevError(FTAnalyticEvents.UPLOAD_FILE_OPERATION, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "file", "Throwing FileNotFoundException because File size less than 1 byte");
 			throw new FileNotFoundException("File size less than 1 byte");
 		}
-		setFileTotalSize((int) length);
+		setFileTotalSize(length);
 		// Bug Fix: 13029
 		setBytesTransferred(fst.getTransferredSize());
 		long temp = _bytesTransferred;

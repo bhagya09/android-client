@@ -237,4 +237,9 @@ public class OfflineSessionTracking
 			connectionId = connectionIdNew;
 		}
 	}
+	
+	public long getConnectionId()
+	{
+		return connectionId;
+	}
 }

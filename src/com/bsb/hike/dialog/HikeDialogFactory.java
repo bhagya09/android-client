@@ -7,10 +7,12 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
 import android.content.DialogInterface.OnDismissListener;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.preference.PreferenceManager;
 import android.text.Html;
+import android.text.TextUtils;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -41,8 +43,12 @@ import com.bsb.hike.models.AccountData;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfoData;
 import com.bsb.hike.models.PhonebookContact;
+import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.tasks.SyncOldSMSTask;
+import com.bsb.hike.timeline.adapter.DisplayContactsAdapter;
+import com.bsb.hike.ui.ProfileActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Utils;
 
 public class HikeDialogFactory
@@ -126,6 +132,12 @@ public class HikeDialogFactory
 	public static final int ADD_TO_FAV_DIALOG = 43;
 	
 	public static final int ACCESSIBILITY_DIALOG = 44;
+	
+	public static final int LIKE_CONTACTS_DIALOG = 45;
+
+	public static final int MICROAPP_DIALOG = 46;
+	
+	public static final int MAPP_DOWNLOAD_DIALOG = 47;
 
 	public static HikeDialog showDialog(Context context, int whichDialog, Object... data)
 	{
@@ -213,7 +225,22 @@ public class HikeDialogFactory
 			return showVoipFtuePopUp(dialogId, context, listener, data);
 		case GROUP_ADD_MEMBER_SETTINGS:
 			return showGroupSettingsDialog(dialogId, context, listener, data);
+		case MICROAPP_DIALOG:
+			return showMicroAppDialog(dialogId,context,listener,data);
+		case MAPP_DOWNLOAD_DIALOG:
+			return showMicroappDownloadDialog(dialogId, context, listener);
 		}
+		return null;
+	}
+	
+	public static <T> HikeDialog showDialog(Context context, int dialogId, T data1, HikeDialogListener listener, Object... data2)
+	{
+		switch (dialogId)
+		{
+		case LIKE_CONTACTS_DIALOG:
+			return showLikesContactListDialog(dialogId, data1, context, data2);
+		}
+
 		return null;
 	}
 	
@@ -1086,4 +1113,78 @@ public class HikeDialogFactory
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.SHOW_VOIP_FTUE_POPUP, true);
 		return dialog;
 	}	
+
+	private static <T> HikeDialog showLikesContactListDialog(int dialogId, T data1, final Context context, Object... data)
+	{
+		final HikeDialog dialog = new HikeDialog(context, R.style.Theme_CustomDialog, LIKE_CONTACTS_DIALOG);
+		dialog.setContentView(R.layout.display_contacts_dialog);
+		dialog.setCancelable(true);
+		dialog.setCanceledOnTouchOutside(true);
+
+		if (data == null || data.length == 0 || !(data[0] instanceof ArrayList<?>))
+		{
+			return null;
+		}
+
+		ArrayList<String> msisdns = (ArrayList<String>) data[0];
+		String statusMsisdn = (String) data1;
+
+		ListView listContacts = (ListView) dialog.findViewById(R.id.listContacts);
+		final DisplayContactsAdapter contactsAdapter = new DisplayContactsAdapter(msisdns, statusMsisdn);
+		listContacts.setAdapter(contactsAdapter);
+		listContacts.setOnItemClickListener(new AdapterView.OnItemClickListener()
+		{
+			@Override
+			public void onItemClick(AdapterView<?> arg0, View arg1, int position, long arg3)
+			{
+				// We are changing DataSet(msisdns) sent to Adapter inside DisplayContactsAdapter,
+				// So we are fetching msisdn for item clicked from Adapter only
+				String currentMsisdn = contactsAdapter.getMsisdnAsPerPostion(position);
+				if (Utils.isSelfMsisdn(currentMsisdn))
+				{
+					Intent intent2 = new Intent(context, ProfileActivity.class);
+					intent2.putExtra(HikeConstants.Extras.FROM_CENTRAL_TIMELINE, true);
+					context.startActivity(intent2);
+				}
+				else
+				{
+
+					Intent intent = IntentFactory.createChatThreadIntentFromContactInfo(context, ContactManager.getInstance().getContact(currentMsisdn, true, true), false, false);
+					// Add anything else to the intent
+					intent.putExtra(HikeConstants.Extras.FROM_CENTRAL_TIMELINE, true);
+					intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+					context.startActivity(intent);
+				}
+				dialog.dismiss();
+			}
+		});
+		return dialog;
+	}
+
+	private static HikeDialog showMicroAppDialog(int dialogId, final Context context, final HikeDialogListener listener, Object... data)
+	{
+		String title = (String) data[0];
+		String text = (String) data[1];
+		String positive = (String) data[2];
+		String negative = (String) data[3];
+		final CustomAlertDialog nativeDialog = new CustomAlertDialog(context, dialogId);
+		nativeDialog.setTitle(title);
+		nativeDialog.setMessage(text);
+		nativeDialog.setPositiveButton(positive, listener);
+		if (!TextUtils.isEmpty(negative))
+			nativeDialog.setNegativeButton(negative, listener);
+		nativeDialog.show();
+		return nativeDialog;
+	}
+
+	private static HikeDialog showMicroappDownloadDialog(int dialogId, final Context context, final HikeDialogListener listener)
+	{
+		final CustomAlertDialog dialog = new CustomAlertDialog(context, HikeDialogFactory.MAPP_DOWNLOAD_DIALOG, R.layout.mapp_download_dialog);
+
+		dialog.setPositiveButton(context.getResources().getString(R.string.okay), listener);
+		dialog.setCancelable(true);
+		dialog.show();
+
+		return dialog;
+	}
 }

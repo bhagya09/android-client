@@ -65,7 +65,7 @@ public class VoIPUtils {
 
 	public static enum CallSource
 	{
-		CHAT_THREAD, PROFILE_ACTIVITY, MISSED_CALL_NOTIF, CALL_FAILED_FRAG, ADD_TO_CONFERENCE, GROUP_CHAT
+		CHAT_THREAD, PROFILE_ACTIVITY, MISSED_CALL_NOTIF, CALL_FAILED_FRAG, ADD_TO_CONFERENCE, GROUP_CHAT, HIKE_STICKY_CALLER
 	}
 	
     public static boolean isWifiConnected(Context context) {
@@ -429,7 +429,7 @@ public class VoIPUtils {
 		
 		// Network check
 		ConnectionClass connectionClass = VoIPUtils.getConnectionClass(HikeMessengerApp.getInstance());
-		if (connectionClass == ConnectionClass.TwoG || connectionClass == ConnectionClass.ThreeG) {
+		if (connectionClass == ConnectionClass.TwoG) {
 			Toast.makeText(context, context.getString(R.string.voip_conference_network_support), Toast.LENGTH_LONG).show();
 			return false;
 		}

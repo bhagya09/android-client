@@ -3,7 +3,6 @@ package com.bsb.hike.offline;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
@@ -13,7 +12,12 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Context;
+import android.content.Intent;
+import android.media.MediaScannerConnection;
+import android.net.Uri;
+import android.os.Environment;
 
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
@@ -23,11 +27,10 @@ import com.bsb.hike.filetransfer.FileSavedState;
 import com.bsb.hike.filetransfer.FileTransferBase.FTState;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.HikeFile;
-import com.bsb.hike.models.Sticker;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.offline.OfflineConstants.MessageType;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
-import com.google.android.gms.internal.gi;
+import com.hike.transporter.utils.Logger;
 
 public class OfflineFileManager
 {
@@ -115,14 +118,14 @@ public class OfflineFileManager
 				FileTransferModel mmModel = currentSendingFiles.get(msgId);
 				if (mmModel != null)
 				{
-					fss = new FileSavedState(FTState.IN_PROGRESS, (int) file.length(),mmModel.getTransferProgress().getCurrentChunks()
+					fss = new FileSavedState(FTState.IN_PROGRESS,  file.length(),mmModel.getTransferProgress().getCurrentChunks()
 							* OfflineConstants.CHUNK_SIZE * 1024,0);
 					return fss;
 				}
 			}
 			if (TextUtils.isEmpty(hikeFile.getFileKey()))
 			{
-				fss = new FileSavedState(FTState.ERROR, (int) file.length(), 0,0);
+				fss = new FileSavedState(FTState.ERROR, file.length(), 0,0);
 			}
 			else
 			{
@@ -154,7 +157,7 @@ public class OfflineFileManager
 				// Defensive check as in shutdown we  clear the map 
 				if (mmModel != null)
 				{
-					fss = new FileSavedState(FTState.IN_PROGRESS, (int) file.length(), mmModel.getTransferProgress().getCurrentChunks() * OfflineConstants.CHUNK_SIZE * 1024,0);
+					fss = new FileSavedState(FTState.IN_PROGRESS,  file.length(), mmModel.getTransferProgress().getCurrentChunks() * OfflineConstants.CHUNK_SIZE * 1024,0);
 					return fss;
 				}
 			}
@@ -260,7 +263,11 @@ public class OfflineFileManager
 		else 
 		{
 			File tempFile = file;
-			tempFile.renameTo(new File(OfflineUtils.getFilePathFromJSON(messageJSON)));
+			File hikePath=new File(OfflineUtils.getFilePathFromJSON(messageJSON));
+			boolean result=tempFile.renameTo(hikePath);
+			Logger.d(TAG, "renaming result is " + result);
+			// Now scanning the above received file as it was not visible to android before
+			MediaScannerConnection.scanFile(HikeMessengerApp.getInstance().getApplicationContext(), new String[] { hikePath.getAbsolutePath() }, null, null);
 			FileTransferModel fileTransferModel = currentReceivingFiles.get(message.getMsgID());
 
 			removeFromCurrentReceivingFile(message.getMsgID());
@@ -296,7 +303,7 @@ public class OfflineFileManager
 	public void handleMessageReceived(ConvMessage convMessage) 
 	{
 		HikeFile hikeFile = convMessage.getMetadata().getHikeFiles().get(0);
-		int totalChunks = getTotalChunks(hikeFile.getFileSize());
+		long totalChunks = getTotalChunks(hikeFile.getFileSize());
 		
 		FileTransferModel fileTransferModel = new FileTransferModel(new TransferProgress(0, totalChunks), convMessage);
 		addToCurrentReceivingFile(convMessage.getMsgID(), fileTransferModel);
@@ -308,9 +315,9 @@ public class OfflineFileManager
 		
 	}
 	
-	private int getTotalChunks(int fileSize)
+	private long getTotalChunks(long fileSize)
 	{
-		int totalChunks = OfflineUtils.getTotalChunks(fileSize);
+		long totalChunks = OfflineUtils.getTotalChunks(fileSize);
 		return totalChunks;
 	}
 	
