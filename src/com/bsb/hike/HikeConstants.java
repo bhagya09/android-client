@@ -1495,6 +1495,8 @@ public class HikeConstants
 		
 		public static final String CREATE_BROADCAST = "createBroadcast";
 		
+		public static final String CREATE_GROUP_SRC = "createGroupSource";
+		
 		public static final String COMPOSE_MODE = "composeMode";
 
 		public static final int CREATE_BROADCAST_MODE = 7;
@@ -3292,4 +3294,8 @@ public class HikeConstants
 	public static final String TEXT_FOR_GC_VIA_WA = "t_gc_wa";
 	
 	public static final String TEXT_FOR_GC_VIA_OTHERS = "t_gc_o";
+
+	public static final String WA_GROUP_NUMBER = "wa_grp_number";
+	
+	public static final String SHARE_LINK_URL_FOR_GC = "share_link_url";
 }

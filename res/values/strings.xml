@@ -1111,6 +1111,7 @@
     <string name="file_missing_caps">FILE MISSING</string>
     <string name="status_profile_pic_notification">Changed profile picture</string>
     <string name="group_admin">Admin</string>
+    <string name="sms_group_member">Waiting</string>
     <string name="favorite_request_pending">Added as favorite</string>
     <string name="delete_media_from_sdcard">Delete media from phone</string>
     <string name="unable_to_open">Sorry, this file does not exist</string>
@@ -1731,7 +1732,9 @@
     <string name="link_share_network_error">Could not share: Please check your network and try again.</string>
     <string name="link_share_wa_msg">You can now add memebers from group and contacts from WA by sharing link below.</string>
     <string name="link_share_others_msg">You can now add memebers from group and contacts from Other apps by sharing link below.</string>
-    <string name = "max_file_size_offline">Max file size for hike direct is 2 GB</string>
+    <string name="wa_group">Watsapp Group</string>
+    <string name="opening_app">Opening App</string>
+    <string name="max_file_size_offline">Max file size for hike direct is 2 GB</string>
     <string name="group_participant_info">You can add upto 500 members to a group</string>
     <string name="maxContactInGroupErr">Max %1$s members can be added</string>
     <string name="added_in_group">This contact is already a member</string>
