@@ -27,6 +27,7 @@ import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.models.HikeHandlerUtil;
+import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
@@ -687,23 +688,11 @@ public class StickyCaller
 
 	private static void settingLayoutDataFailure(Context context, String number, String result)
 	{
-		LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		stickyCallerView = (LinearLayout) inflater.inflate(R.layout.caller_layout, null);
-		setBasicClickListener();
-		if (result.equals(Integer.toString(HttpURLConnection.HTTP_FORBIDDEN)))
+		if (result.equals(Integer.toString(HttpException.REASON_CODE_NO_NETWORK)))
 		{
-			setShowResponse(context.getString(R.string.caller_error_403));
-		}
-		else if (result.equals(Integer.toString(HttpURLConnection.HTTP_NOT_ACCEPTABLE)) || result.equals(Integer.toString(HttpURLConnection.HTTP_CLIENT_TIMEOUT)))
-		{
-			setShowResponse(context.getString(R.string.caller_error_406));
-		}
-		else if (result.equals(Integer.toString(HttpURLConnection.HTTP_INTERNAL_ERROR)))
-		{
-			setShowResponse(context.getString(R.string.caller_error_500));
-		}
-		else
-		{
+			LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+			stickyCallerView = (LinearLayout) inflater.inflate(R.layout.caller_layout, null);
+			setBasicClickListener();
 			setShowResponse(context.getString(R.string.net_not_connected));
 		}
 	}
