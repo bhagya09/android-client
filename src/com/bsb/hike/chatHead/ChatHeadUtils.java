@@ -1,6 +1,8 @@
 package com.bsb.hike.chatHead;
 
 import java.lang.reflect.Field;
+import java.sql.Date;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -130,20 +132,9 @@ public class ChatHeadUtils
 	
 	public static String getdateFromSystemTime()
 	{
-		String date;
-		String time;
-		Calendar cl = Calendar.getInstance();
-		cl.setTimeInMillis(System.currentTimeMillis());
-		date = " on "+cl.get(Calendar.DAY_OF_MONTH)+ "/" +cl.get(Calendar.MONTH) + " at " ;
-		if (cl.get(Calendar.HOUR_OF_DAY) >= 12)
-		{
-			time = (cl.get(Calendar.HOUR_OF_DAY) -12) + ":" +cl.get(Calendar.MINUTE) + " PM";
-		}
-		else
-		{
-			time = (cl.get(Calendar.HOUR_OF_DAY)) + ":" +cl.get(Calendar.MINUTE) + " AM";
-		}
-		return date + time;
+	    SimpleDateFormat formatter = new SimpleDateFormat(" 'on' MMM dd 'at' hh:mm aaa");
+	    Date resultdate = new Date(System.currentTimeMillis());
+	    return formatter.format(resultdate).replace("am", "AM").replace("pm", "PM");
 	}
 	
 	public static void getRunningTaskPackage(Context context, ActivityManager activityManager, List<RunningAppProcessInfo> processInfos, Set<String> packageName, int type)

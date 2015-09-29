@@ -499,7 +499,7 @@ public class StickyCaller
 		LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		stickyCallerView = (LinearLayout) inflater.inflate(R.layout.caller_layout, null);
 		setBasicClickListener();
-		setShowResponse(context.getString(R.string.fetching_info));
+		setShowResponse(context.getString(R.string.getting_details));
 		View hikeCallerlogo = stickyCallerView.findViewById(R.id.hike_caller_logo);
 		hikeCallerlogo.setVisibility(View.VISIBLE);
 		Animation myFadeInAnimation = AnimationUtils.loadAnimation(context, R.drawable.blink_animation);
