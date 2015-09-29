@@ -734,12 +734,6 @@ public class BotUtils
 
 		File botDpPath = new File(getBotThumbnailRootFolder() + msisdn);
 
-		// Bot Dp Path exists ?
-		if (!botDpPath.exists())
-		{
-			botDpPath.mkdirs();
-		}
-
 		// Save Icon to file
 		try
 		{
@@ -764,12 +758,6 @@ public class BotUtils
 	{
 		File botDpPath = new File(getBotThumbnailRootFolder() + msisdn);
 
-		// Bot Dp Path exists ?
-		if (!botDpPath.exists())
-		{
-			botDpPath.mkdirs();
-		}
-		
 		try
 		{
 			Utils.saveBase64StringToFile(botDpPath, imageData);
@@ -792,6 +780,12 @@ public class BotUtils
 	 */
 	private static String getBotThumbnailRootFolder()
 	{
+		File file = new File (PlatformContentConstants.PLATFORM_CONTENT_DIR + "DP");
+		if (!file.exists())
+		{
+			file.mkdirs();
+		}
+		
 		return PlatformContentConstants.PLATFORM_CONTENT_DIR + "DP" + File.separator;
 	}
 	
