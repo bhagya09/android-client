@@ -892,7 +892,7 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 	{
 		if (microappsListAdapter != null)
 		{
-			microappsListAdapter.removePubSubListeners();
+			microappsListAdapter.releaseResources();
 		}
 	}
 	

@@ -305,6 +305,15 @@ public class MicroappsListAdapter extends RecyclerView.Adapter<MicroappsListAdap
 		
 	}
 	
+	public void releaseResources()
+	{
+		removePubSubListeners();
+		if (dialog != null)
+		{
+			dialog.dismiss();
+		}
+	}
+	
 	public void removePubSubListeners()
 	{
 		if (pubSubListeners != null)
