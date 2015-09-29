@@ -332,7 +332,8 @@ public class PlatformUtils
 				String msisdn = mmObject.optString(HikeConstants.MSISDN);
 				String extraData=null;
 				extraData=mmObject.optString(HikeConstants.DATA);
-				IntentFactory.openIntentForGameActivity(context,msisdn,extraData);
+				Intent i=IntentFactory.openIntentForGameActivity(context,msisdn,extraData);
+				context.startActivity(i);
 			}
 		}
 		catch (JSONException e)
