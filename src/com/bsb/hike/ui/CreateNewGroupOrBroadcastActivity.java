@@ -261,14 +261,6 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 		super.onSaveInstanceState(outState);
 	}
 
-	@Override
-    public void onConfigurationChanged( Configuration newConfig ) {
-        super.onConfigurationChanged( newConfig );
-        if( !shareLinkFragment.getDialog().isShowing() ){
-        	shareLinkFragment.getDialog().hide();
-        }
-    }
-	
 	private void setupActionBar()
 	{
 		ActionBar actionBar = getSupportActionBar();
