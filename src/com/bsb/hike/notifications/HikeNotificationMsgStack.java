@@ -28,6 +28,7 @@ import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
+import com.bsb.hike.bots.NonMessagingBotMetadata;
 import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ConvMessage;
@@ -407,7 +408,15 @@ public class HikeNotificationMsgStack implements Listener
 		
 		if (mBotInfo.isNonMessagingBot())
 		{
-			notifIntent = IntentFactory.getNonMessagingBotIntent(lastAddedMsisdn, mContext);
+			NonMessagingBotMetadata nonMessagingBotMetadata = new NonMessagingBotMetadata(mBotInfo.getMetadata());
+			if (nonMessagingBotMetadata.isNativeMode())
+			{
+				notifIntent=IntentFactory.openIntentForGameActivity(mContext, lastAddedMsisdn, null);
+			}
+			else
+			{
+				notifIntent = IntentFactory.getNonMessagingBotIntent(lastAddedMsisdn, mContext);
+			}
 		}
 
 		else
