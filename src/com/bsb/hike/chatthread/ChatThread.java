@@ -1083,8 +1083,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	{
 		return new OverFlowMenuItem[] {
 				new OverFlowMenuItem(getString(R.string.hide_chat), 0, 0, R.string.hide_chat),
-				new OverFlowMenuItem(getString(R.string.clear_chat), 0, 0, R.string.clear_chat),
-				new OverFlowMenuItem(getString(R.string.email_chat), 0, 0, R.string.email_chat),
+				new OverFlowMenuItem(getString(R.string.clear_chat), 0, 0, true, R.string.clear_chat),
+				new OverFlowMenuItem(getString(R.string.email_chat), 0, 0, true, R.string.email_chat),
 				new OverFlowMenuItem(getString(R.string.change_keyboard), 0, 0, R.string.change_keyboard)};
 	}
 

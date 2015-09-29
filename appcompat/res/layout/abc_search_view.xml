@@ -86,8 +86,9 @@
                   android:singleLine="true"
                   android:ellipsize="end"
                   android:background="@null"
-                  android:inputType="text|textAutoComplete|textNoSuggestions"
+                  android:inputType="textImeMultiLine|textNoSuggestions"
                   android:imeOptions="actionSearch"
+                  android:textCursorDrawable="@null"
                    />
 
             <android.support.v7.internal.widget.TintImageView
