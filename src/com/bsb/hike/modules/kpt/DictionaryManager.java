@@ -23,6 +23,7 @@ import com.bsb.hike.utils.Logger;
 import com.kpt.adaptxt.beta.AdaptxtSettingsRegisterListener;
 import com.kpt.adaptxt.beta.KPTAdaptxtAddonSettings;
 import com.kpt.adaptxt.beta.KPTAdaptxtAddonSettings.AdaptxtAddonInstallationListner;
+import com.kpt.adaptxt.beta.KPTAdaptxtAddonSettings.AdaptxtAddonUnInstallationListner;
 import com.kpt.adaptxt.beta.KPTAddonItem;
 
 public class DictionaryManager implements AdaptxtSettingsRegisterListener
@@ -139,6 +140,37 @@ public class DictionaryManager implements AdaptxtSettingsRegisterListener
 			languageStatusMap.put(addOnItem, LanguageDictionarySatus.IN_QUEUE);
 			if (mState == WAITING)
 				startProcessing();
+		}
+		// this is just for kesting
+		else if (languageStatusMap.get(addOnItem) == LanguageDictionarySatus.INSTALLED)
+		{
+			if (mLanguagesWaitingQueue == null)
+				mLanguagesWaitingQueue = new ArrayList<KPTAddonItem>();
+			kptSettings.unInstallAdaptxtAddon(addOnItem, new AdaptxtAddonUnInstallationListner()
+			{
+				
+				@Override
+				public void onUnInstallationStarted(String arg0)
+				{
+					// TODO Auto-generated method stub
+					
+				}
+				
+				@Override
+				public void onUnInstallationError(String arg0)
+				{
+					// TODO Auto-generated method stub
+					processComplete();
+					
+				}
+				
+				@Override
+				public void onUnInstallationEnded(String arg0)
+				{
+					// TODO Auto-generated method stub
+					processComplete();
+				}
+			});
 		}
 	}
 
