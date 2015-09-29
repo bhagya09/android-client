@@ -278,6 +278,7 @@ public class MicroappsListAdapter extends RecyclerView.Adapter<MicroappsListAdap
 			}
 		});
 		
+		dialog.data = mBotInfo.getMsisdn();
 		dialog.setOnDismissListener(new OnDismissListener() {
 			
 			@Override
@@ -313,12 +314,16 @@ public class MicroappsListAdapter extends RecyclerView.Adapter<MicroappsListAdap
 		switch (type)
 		{
 		case HikePubSub.BOT_CREATED:
-			Logger.i(TAG, "Bot created : "+((BotInfo)object).getMsisdn());
+			String msisdn = ((BotInfo)object).getMsisdn();
+			Logger.i(TAG, "Bot created : "+msisdn);
 			if (dialog != null)
 			{
 				dialog.dismiss();
+				if (dialog.data instanceof String && msisdn.equals((String)dialog.data))
+				{
+					openBot((BotInfo)object);
+				}
 			}
-			openBot((BotInfo)object);
 			break;
 		}
 	}
