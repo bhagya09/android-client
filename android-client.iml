@@ -93,10 +93,10 @@
       <excludeFolder url="file://$MODULE_DIR$/build/outputs" />
       <excludeFolder url="file://$MODULE_DIR$/build/tmp" />
     </content>
-    <orderEntry type="jdk" jdkName="Android 5.0.1 Google APIs" jdkType="Android SDK" />
+    <orderEntry type="jdk" jdkName="Android 5.1.1 Google APIs" jdkType="Android SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" exported="" name="android-support-v4" level="project" />
-    <orderEntry type="library" exported="" name="android-support-v7-recyclerview" level="project" />
+    <orderEntry type="library" exported="" name="NetworkConnectivityLib_hike-3.09" level="project" />
     <orderEntry type="library" exported="" name="aspectjrt-1.8.2" level="project" />
     <orderEntry type="library" exported="" name="musicg-1.4.2.0" level="project" />
     <orderEntry type="library" exported="" name="protobuf-java-2.6.1" level="project" />
@@ -108,10 +108,12 @@
     <orderEntry type="library" exported="" name="httpclient-android-4.3.5" level="project" />
     <orderEntry type="library" exported="" name="renderscript-v8" level="project" />
     <orderEntry type="library" exported="" name="gson-2.3" level="project" />
-    <orderEntry type="module" module-name="facebook" exported="" />
-    <orderEntry type="module" module-name="actionbar-sherlock" exported="" />
+    <orderEntry type="module" module-name="appcompatv7" exported="" />
+    <orderEntry type="module" module-name="recyclerview" exported="" />
+    <orderEntry type="module" module-name="transporter-library" exported="" />
     <orderEntry type="module" module-name="viewpager-indicator-library" exported="" />
     <orderEntry type="module" module-name="google-play" exported="" />
+    <orderEntry type="module" module-name="cardview" exported="" />
   </component>
 </module>
 
