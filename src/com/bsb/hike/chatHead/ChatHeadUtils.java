@@ -569,7 +569,7 @@ public class ChatHeadUtils
 			context.unregisterReceiver(outgoingCallReceiver);
 			outgoingCallReceiver = null;
 		}
-
+		StickyCaller.removeCallerView();
 	}
 	
 	public static void onCallClickedFromCallerCard(Context context, String callCurrentNumber, CallSource hikeStickyCaller)
