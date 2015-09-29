@@ -20,6 +20,7 @@ import android.os.Message;
 import android.provider.ContactsContract.Contacts;
 import android.provider.MediaStore;
 import android.provider.Settings;
+import android.support.v4.app.FragmentActivity;
 import android.text.TextUtils;
 import android.widget.Toast;
 
@@ -1083,5 +1084,24 @@ public class IntentFactory
 		intent.putExtra(HikeConstants.Extras.EXISTING_BROADCAST_LIST, mLocalMSISDN);
 		intent.putExtra(HikeConstants.Extras.COMPOSE_MODE, HikeConstants.Extras.CREATE_BROADCAST_MODE);
 		return intent;
+	}
+
+	public static void openInviteWatsApp(Context context, String str)
+	{
+		Intent whatsappIntent = new Intent(Intent.ACTION_SEND);
+		whatsappIntent.setType("text/plain");
+		whatsappIntent.setPackage(HikeConstants.PACKAGE_WATSAPP);
+		String inviteText = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.WATSAPP_INVITE_MESSAGE_KEY, context.getString(R.string.watsapp_invitation));
+		String inviteToken = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).getString(HikeConstants.INVITE_TOKEN, "");
+		inviteText = inviteText + inviteToken;
+		whatsappIntent.putExtra(Intent.EXTRA_TEXT, inviteText);
+		try
+		{
+			context.startActivity(whatsappIntent);
+		}
+		catch (android.content.ActivityNotFoundException ex)
+		{
+			Toast.makeText(context.getApplicationContext(), "Could not find WhatsApp in System", Toast.LENGTH_SHORT).show();
+		}
 	}
 }

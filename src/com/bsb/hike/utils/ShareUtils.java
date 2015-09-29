@@ -46,6 +46,19 @@ public class ShareUtils
 		return;
 
 	}
+	
+	public static void shareContent(int type, String path, String pkgName)
+	{
+		switch (type)
+		{
+		case HikeConstants.Extras.ShareTypes.TEXT_SHARE:
+			textShare(path, pkgName);
+			break;
+		}
+
+		return;
+
+	}
 
 	// will give the scale ratio based on the screen width and screen height
 	private static float scaleRatio(int imgWidth, int imgHeight)
@@ -138,20 +151,20 @@ public class ShareUtils
 
 	private static void imageShare(String imagePath, String imgHead, String imgDesc, String imgCap, String pkgName, boolean isSticker, boolean isFromChatHead)
 	{
-			View share;
-			if (isSticker)
-			{
-				share = setViewSticker(imagePath, imgDesc);
-			}
-			else
-			{
-				share = setViewImage(imagePath, imgHead, imgDesc);
-			}
-			if (share != null)
-			{
-				ShareBitmapTask task = new ShareBitmapTask(share, mContext, imgCap, pkgName, isFromChatHead);
-				task.execute();
-			}
+		View share;
+		if (isSticker)
+		{
+			share = setViewSticker(imagePath, imgDesc);
+		}
+		else
+		{
+			share = setViewImage(imagePath, imgHead, imgDesc);
+		}
+		if (share != null)
+		{
+			ShareBitmapTask task = new ShareBitmapTask(share, mContext, imgCap, pkgName, isFromChatHead);
+			task.execute();
+		}
 	}
 
 	private static void textShare(String text, String pkgName, boolean isFromChatHead)
@@ -160,7 +173,15 @@ public class ShareUtils
 		String textCap = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.Extras.TEXT_CAPTION, mContext.getString(R.string.text_share_caption));
 		text = text + "\n\n" + textHead + "\n" + textCap;
 		Intent textIntent = IntentFactory.shareIntent("text/plain", null, text, HikeConstants.Extras.ShareTypes.TEXT_SHARE, pkgName, isFromChatHead);
-        mContext.startActivity(textIntent);
+		mContext.startActivity(textIntent);
 	}
 
+	private static void textShare(String text, String pkgName)
+	{
+		String textHead = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.Extras.TEXT_HEADING, mContext.getString(R.string.text_share_heading));
+		String textCap = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.Extras.TEXT_CAPTION, mContext.getString(R.string.text_share_caption));
+		text = text + "\n\n" + textHead + "\n" + textCap;
+		Intent textIntent = IntentFactory.shareIntent("text/plain", null, text, HikeConstants.Extras.ShareTypes.TEXT_SHARE, pkgName, false);
+		mContext.startActivity(textIntent);
+	}
 }

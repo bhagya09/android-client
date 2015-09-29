@@ -30,6 +30,7 @@ import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.ShareUtils;
@@ -250,13 +251,16 @@ public class ShareLinkFragment extends DialogFragment implements OnClickListener
 				switch (buttonClickedType)
 				{
 				case WA:
-					String str = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.TEXT_FOR_GC_VIA_WA, R.string.link_share_wa_msg) + "\n "+url;
-					ShareUtils.shareContent(HikeConstants.Extras.ShareTypes.TEXT_SHARE, str, HikeConstants.Extras.WHATSAPP_PACKAGE, false);
+					String str = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.TEXT_FOR_GC_VIA_WA,
+							HikeMessengerApp.getInstance().getApplicationContext().getString(R.string.link_share_wa_msg))
+							+ "\n " + url;
+					openWA(str);
 					break;
 
 				case OTHERS:
-					str = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.TEXT_FOR_GC_VIA_OTHERS, R.string.link_share_others_msg) + "\n " + url;
-					ShareUtils.shareContent(HikeConstants.Extras.ShareTypes.TEXT_SHARE, str, null, false);
+					str = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.TEXT_FOR_GC_VIA_OTHERS, getString(R.string.link_share_others_msg))
+					+ "\n " + url;
+					ShareUtils.shareContent(HikeConstants.Extras.ShareTypes.TEXT_SHARE, str, null);
 					break;
 
 				default:
@@ -376,5 +380,24 @@ public class ShareLinkFragment extends DialogFragment implements OnClickListener
 			
 		}
 		return urlBuilder.toString();
+	}
+
+	public void setButtonClickedType(int buttonClickedType)
+	{
+		this.buttonClickedType = buttonClickedType;
+	}
+	
+	private void openWA(String str)
+	{
+		if (isStartedViaBot)
+		{
+			//Opens WA via adding Flag NEW_TASK as context is non Activity Context
+			//Used in case when opened via clicking button in bot
+			ShareUtils.shareContent(HikeConstants.Extras.ShareTypes.TEXT_SHARE, str, HikeConstants.Extras.WHATSAPP_PACKAGE);
+		}
+		else
+		{
+			IntentFactory.openInviteWatsApp(getActivity(), str);
+		}
 	}
 }
