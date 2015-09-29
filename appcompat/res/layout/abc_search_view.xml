@@ -86,7 +86,7 @@
                   android:singleLine="true"
                   android:ellipsize="end"
                   android:background="@null"
-                  android:inputType="text|textAutoComplete|textNoSuggestions"
+                  android:inputType="textImeMultiLine|textNoSuggestions"
                   android:imeOptions="actionSearch"
                    />
 
