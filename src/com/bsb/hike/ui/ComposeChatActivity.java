@@ -602,18 +602,17 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		boolean fetchRecentlyJoined = pref.getData(HikeConstants.SHOW_RECENTLY_JOINED_DOT, false) || pref.getData(HikeConstants.SHOW_RECENTLY_JOINED, false);
 		fetchRecentlyJoined = fetchRecentlyJoined && !isForwardingMessage && showNujNotif;
 		
-		boolean showSMSContacts = Utils.isGCViaLinkEnabled();
 		switch (composeMode)
 		{
 		case CREATE_BROADCAST_MODE:
 		case PICK_CONTACT_AND_SEND_MODE:
+		case PICK_CONTACT_MODE:
 			//We do not show sms contacts in broadcast mode
 			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage, (isForwardingMessage && !isSharingFile), fetchRecentlyJoined, existingGroupOrBroadcastId, sendingMsisdn, friendsListFetchedCallback, false);
 			break;
 		case CREATE_GROUP_MODE:
-		case PICK_CONTACT_MODE:
 		default:
-			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage, (isForwardingMessage || isSharingFile), fetchRecentlyJoined, existingGroupOrBroadcastId, sendingMsisdn, friendsListFetchedCallback, showSMSContacts);
+			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage, (isForwardingMessage || isSharingFile), fetchRecentlyJoined, existingGroupOrBroadcastId, sendingMsisdn, friendsListFetchedCallback, true);
 			break;
 		}
 
