@@ -40,36 +40,42 @@ import com.bsb.hike.view.CustomFontTextView;
 public class ShareLinkFragment extends DialogFragment implements OnClickListener
 {
 	private String grpId;
-	
+
 	private String grpName;
-	
+
 	private int grpSettings;
-	
-	public static final int OTHERS = -1;
 
-	public static final int WA = -2;
+	private final int OTHERS = -1;
 
-	public static final int DELAY_MULTIPLIER = 1;
+	public final static int WA = -2;
 
-	public static final int NO_OF_RETRIES = 1;
+	private final int DELAY_MULTIPLIER = 1;
+
+	private final int NO_OF_RETRIES = 1;
+
+	private final String GROUP_ID = "gid";
+
+	private final String GROUP_NAME = "name";
+
+	private final String GROUP_SETTINGS = "gs";
+
+	private final String GROUP_ID_BY_SERVER = "gc_id";
 
 	private int buttonClickedType;
 
 	private boolean isNewGroup;
 
 	private ProgressDialog mDialog;
-	
+
 	public final static String SHARE_LINK_FRAGMENT_TAG = "shareLinkFragmentTag";
-
-	//private final String GROUP_ID = "groupId";
-
-	//private final String TASK_STATUS = "taskStatus";
 
 	private boolean isTaskRunning = false;
 	
 	private ShareLinkFragmentListener shareLinkFragmentListener;
 
-	public static ShareLinkFragment newInstance(String groupId, String groupName, int groupSettings, boolean existingGroupChat)
+	private boolean isStartedViaBot = false;
+	
+	public static ShareLinkFragment newInstance(String groupId, String groupName, int groupSettings, boolean existingGroupChat, boolean isStartedViaBot)
 	{
 		ShareLinkFragment shareLinkFragment = new ShareLinkFragment();
 		Bundle arguments = new Bundle();
@@ -77,6 +83,7 @@ public class ShareLinkFragment extends DialogFragment implements OnClickListener
 		arguments.putString(HikeConstants.Extras.CONVERSATION_ID, groupId);
 		arguments.putString(HikeConstants.Extras.CONVERSATION_NAME, groupName);
 		arguments.putInt(HikeConstants.Extras.CREATE_GROUP_SETTINGS, groupSettings);
+		arguments.putBoolean(HikeConstants.Extras.CREATE_GROUP_SRC, isStartedViaBot);
 		shareLinkFragment.setArguments(arguments);
 		return shareLinkFragment;
 	}
@@ -90,25 +97,27 @@ public class ShareLinkFragment extends DialogFragment implements OnClickListener
 	public void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
+		
+		setRetainInstance(true);
 	}
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
 	{
 		View parent = inflater.inflate(R.layout.link_share_view, null);
-		
-		CustomFontTextView waText = (CustomFontTextView)parent.findViewById(R.id.share_via_WA);
+
+		CustomFontTextView waText = (CustomFontTextView) parent.findViewById(R.id.share_via_WA);
 		waText.setText(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.MENU_OPTION_FOR_GC_VIA_WA, R.string.watsapp));
 		waText.setOnClickListener(this);
-		
-		CustomFontTextView otherSharableAppText = (CustomFontTextView)parent.findViewById(R.id.share_via_Others);
+
+		CustomFontTextView otherSharableAppText = (CustomFontTextView) parent.findViewById(R.id.share_via_Others);
 		otherSharableAppText.setText(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.MENU_OPTION_FOR_GC_VIA_WA, R.string.others));
 		otherSharableAppText.setOnClickListener(this);
 
 		parent.findViewById(R.id.add_via_Hike).setOnClickListener(this);
-		
+
 		getDialog().getWindow().requestFeature(Window.FEATURE_NO_TITLE);
-		
+
 		return parent;
 	}
 
@@ -117,25 +126,7 @@ public class ShareLinkFragment extends DialogFragment implements OnClickListener
 	{
 		super.onViewCreated(view, savedInstanceState);
 
-		if (getArguments() != null)
-		{
-			grpId = getArguments().getString(HikeConstants.Extras.CONVERSATION_ID, null);
-			
-			grpName = getArguments().getString(HikeConstants.Extras.CONVERSATION_NAME, null);
-
-			grpSettings = getArguments().getInt(HikeConstants.Extras.CREATE_GROUP_SETTINGS, 0);
-			
-			isNewGroup = getArguments().getBoolean(HikeConstants.Extras.EXISTING_GROUP_CHAT, false);
-		}
-
-		/*if (savedInstanceState != null)
-		{
-			isTaskRunning = savedInstanceState.getBoolean(TASK_STATUS);
-			if (isTaskRunning)
-			{
-				grpId = savedInstanceState.getString(GROUP_ID, grpId);
-			}
-		}*/
+		initViaArguments();
 
 		boolean isWAInstalled = Utils.isPackageInstalled(getActivity(), HikeConstants.Extras.WHATSAPP_PACKAGE);
 		boolean isAnyOtherShareableApp = Utils.getPackagesMatchingIntent(Intent.ACTION_SEND, null, "text/plain").size() > 0 ? true : false;
@@ -148,6 +139,23 @@ public class ShareLinkFragment extends DialogFragment implements OnClickListener
 		{
 			view.findViewById(R.id.share_via_Others).setVisibility(View.VISIBLE);
 		}
+		
+	}
+
+	public void initViaArguments()
+	{
+		if (getArguments() != null)
+		{
+			grpId = getArguments().getString(HikeConstants.Extras.CONVERSATION_ID, null);
+
+			grpName = getArguments().getString(HikeConstants.Extras.CONVERSATION_NAME, null);
+
+			grpSettings = getArguments().getInt(HikeConstants.Extras.CREATE_GROUP_SETTINGS, 0);
+
+			isNewGroup = getArguments().getBoolean(HikeConstants.Extras.EXISTING_GROUP_CHAT, false);
+			
+			isStartedViaBot = getArguments().getBoolean(HikeConstants.Extras.CREATE_GROUP_SRC, false);
+		}
 	}
 
 	@Override
@@ -156,7 +164,7 @@ public class ShareLinkFragment extends DialogFragment implements OnClickListener
 		super.onAttach(activity);
 		try
 		{
-			this.shareLinkFragmentListener = (ShareLinkFragmentListener)activity;
+			this.shareLinkFragmentListener = (ShareLinkFragmentListener) activity;
 		}
 		catch (ClassCastException e)
 		{
@@ -179,12 +187,12 @@ public class ShareLinkFragment extends DialogFragment implements OnClickListener
 
 		case R.id.add_via_Hike:
 			shareLinkFragmentListener.addMembersViaHike();
-			
-			//dismiss the dialog
+
+			// dismiss the dialog
 			dismiss();
-			
+
 			return;
-			
+
 		default:
 			break;
 		}
@@ -192,6 +200,9 @@ public class ShareLinkFragment extends DialogFragment implements OnClickListener
 		// Start Loader here
 		showProgressDialog();
 
+		// hide dialog
+		getDialog().hide();
+		
 		makeHttpCallForURL();
 	}
 
@@ -201,16 +212,15 @@ public class ShareLinkFragment extends DialogFragment implements OnClickListener
 
 		try
 		{
-			json.put(HikeConstants.Extras.CONVERSATION_ID, grpId);
-			json.put(HikeConstants.Extras.CONVERSATION_NAME, grpName);
-			json.put(HikeConstants.Extras.CREATE_GROUP_SETTINGS, grpSettings);
-			json.put(HikeConstants.Extras.GROUP_CHAT_DP, OneToNConversationUtils.isGroupDPSet(grpId));
+			json.put(GROUP_ID, grpId);
+			json.put(GROUP_NAME, grpName);
+			json.put(GROUP_SETTINGS, grpSettings);
 		}
 		catch (JSONException e)
 		{
 			e.printStackTrace();
 		}
-		
+
 		RequestToken token = HttpRequests.getShareLinkURLRequest(json, shareLinkURLReqListener, NO_OF_RETRIES, DELAY_MULTIPLIER);
 		if (token != null && !token.isRequestRunning() && !isTaskRunning)
 		{
@@ -228,25 +238,29 @@ public class ShareLinkFragment extends DialogFragment implements OnClickListener
 		@Override
 		public void onRequestSuccess(Response result)
 		{
-			if(!isAdded())
-			{
-				return;
-			}
-			
 			final JSONObject response = (JSONObject) result.getBody().getContent();
 
 			Logger.d(ShareLinkFragment.class.getSimpleName(), "responce from http call " + response);
 
 			isTaskRunning = false;
-
+			
 			if (Utils.isResponseValid(response))
 			{
 				if (isNewGroup)
 				{
-					OneToNConversationUtils.createGroupOrBroadcast(getActivity(), new ArrayList<ContactInfo>(), grpName, grpId, grpSettings, true);
+					if (isStartedViaBot)
+					{
+						OneToNConversationUtils.createNewShareGroupViaServerSentCard(grpName, grpId, grpSettings, true);
+					}
+					else
+					{
+						OneToNConversationUtils.createGroupOrBroadcast(getActivity(), new ArrayList<ContactInfo>(), grpName, grpId, grpSettings, true);
+					}
 				}
 
 				final String url = getLinkFromResponse(response);
+
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHARE_LINK_URL_FOR_GC, url);
 				
 				switch (buttonClickedType)
 				{
@@ -267,14 +281,16 @@ public class ShareLinkFragment extends DialogFragment implements OnClickListener
 					break;
 				}
 
-				// Stop Loader here
-				dismissProgressDialog();
-				
-				//dismiss Dialog
-				dismiss();
+				if (isAdded())
+				{
+					// Stop Loader here
+					dismissProgressDialog();
 
+					// dismiss Dialog
+					dismiss();
+				}
 			}
-			
+
 		}
 
 		@Override
@@ -288,21 +304,20 @@ public class ShareLinkFragment extends DialogFragment implements OnClickListener
 		{
 			Logger.d(ShareLinkFragment.class.getSimpleName(), "responce from http call failed " + httpException.toString());
 
-			if(!isAdded())
-			{
-				return;
-			}
-
 			isTaskRunning = false;
 			
-			// Stop Loader here
-			dismissProgressDialog();
-
 			// Show Toast
 			Toast.makeText(HikeMessengerApp.getInstance().getApplicationContext(), getString(R.string.link_share_network_error), Toast.LENGTH_SHORT).show();
+			
+			if (isAdded())
+			{
+				// Stop Loader here
+				dismissProgressDialog();
 
-			//dismiss Dialog
-			dismiss();
+				// dismiss Dialog
+				dismiss();
+			}
+			
 		}
 	};
 
@@ -310,21 +325,11 @@ public class ShareLinkFragment extends DialogFragment implements OnClickListener
 	public void onSaveInstanceState(Bundle outState)
 	{
 		super.onSaveInstanceState(outState);
-		//outState.putString(GROUP_ID, grpId);
-		//outState.putBoolean(TASK_STATUS, isTaskRunning);
 	}
-	
-	/*@Override
-	public void onStart()
-	{
-		super.onStart();
-		//getDialog().getWindow().setLayout(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
-	}
-	*/
-	
+
 	private void dismissProgressDialog()
 	{
-		if (mDialog != null)
+		if (mDialog != null && mDialog.isShowing())
 		{
 			mDialog.dismiss();
 			mDialog = null;
@@ -333,31 +338,32 @@ public class ShareLinkFragment extends DialogFragment implements OnClickListener
 
 	private void showProgressDialog()
 	{
-		mDialog = ProgressDialog.show(getActivity(), null, null);
+		mDialog = ProgressDialog.show(getActivity(), null, getResources().getString(R.string.opening_app));
 	}
 
 	public interface ShareLinkFragmentListener
 	{
 		public void addMembersViaHike();
-		
+
 	}
-	
+
 	@Override
 	public void onDestroyView()
 	{
 		Dialog dialog = getDialog();
 
 	    if ((dialog != null) && getRetainInstance())
-	    {
 	        dialog.setDismissMessage(null);
-	    }
-		super.onDestroy();
+	    
+		super.onDestroyView();
+		
 	}
-
+	
 	/**
 	 * Generates URL to share from response received from server
 	 * 
 	 * Example:- http://hike.in/<referral_id>:gc:<gc_id>
+	 * 
 	 * @param response
 	 * @return
 	 */
@@ -366,18 +372,18 @@ public class ShareLinkFragment extends DialogFragment implements OnClickListener
 		StringBuilder urlBuilder = new StringBuilder();
 		urlBuilder.append(HttpRequestConstants.BASE_LINK_SHARING_URL);
 		Context mContext = HikeMessengerApp.getInstance().getApplicationContext();
-		String utmSource = mContext.getSharedPreferences(HikeMessengerApp.REFERRAL, Context.MODE_PRIVATE).getString("utm_source", "");
+		String inviteToken = mContext.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).getString(HikeConstants.INVITE_TOKEN, "");
 		urlBuilder.append("/");
-		urlBuilder.append(utmSource);
+		urlBuilder.append(inviteToken);
 		urlBuilder.append(":gc:");
 		try
 		{
-			String id = response.getString(HikeConstants.Extras.CONVERSATION_ID);
+			String id = response.getString(GROUP_ID_BY_SERVER);
 			urlBuilder.append(id);
 		}
-		catch(JSONException e)
+		catch (JSONException e)
 		{
-			
+
 		}
 		return urlBuilder.toString();
 	}
