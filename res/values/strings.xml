@@ -1296,7 +1296,7 @@
     <string name="voip_intro_popup_msg">You can now call all your Hike friends for free!</string>
     <string name="voip_intro_popup_btn">AWESOME</string>
     <string name="voip_group_too_large">Maximum number of conference participants is %1$s.</string>
-    <string name="voip_conference_network_support">Please switch to WiFi or 4G to make conference calls.</string>
+    <string name="voip_conference_network_support">Conference calls cannot be hosted on 2G.</string>
     <string name="voip_conference_os_support">Your phone cannot host a conference.</string>
     <string name="voip_conference_host">Conference host</string>
     <string name="voip_conference_not_supported">%1$s does not support conference calls.</string>
@@ -1753,7 +1753,7 @@
     <string name="timeline_transition_anim">timeline_image_transit</string>
     <string name="home_overflow_new_photo">New Photo</string>
     <string name = "max_file_size_offline">Max file size for hike direct is 2 GB</string>
-    <string name = "upgrade_for_larger_files">Ask your friend to update hike to share large files</string>
+    <string name = "upgrade_for_larger_files">%1$s needs to upgrade to receive this file.Share the latest version of Hike now via Hike Direct</string>
     <string name="group_participant_info">You can add upto 500 members to a group</string>
     <string name="maxContactInGroupErr">Max %1$s members can be added</string>
     <string name="added_in_group">This contact is already a member</string>

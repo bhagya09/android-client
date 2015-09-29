@@ -1779,8 +1779,8 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	public void showOverFlowMenu()
 	{
 
-		if (overFlowWindow != null)
-			overFlowWindow.dismiss();
+		if (overFlowWindow != null && overFlowWindow.isShowing())
+			return;
 
 		ArrayList<OverFlowMenuItem> optionsList = new ArrayList<OverFlowMenuItem>();
 

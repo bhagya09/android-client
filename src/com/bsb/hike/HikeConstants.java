@@ -3316,6 +3316,8 @@ public class HikeConstants
 	
 	public static final String ALL_STICKER_TAG_DOWNLOAD = "alstktd";
 
+	public static final String NUDGE_SEND_COOLOFF_TIME = "nudge_cool_off";
+
 	public static final String FT_LATENCY_LOGGING = "ft_latency";
 	
 	public static final String SHOW_NOTIFICATION = "sn";
