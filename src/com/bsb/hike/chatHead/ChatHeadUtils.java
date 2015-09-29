@@ -601,7 +601,7 @@ public class ChatHeadUtils
 		else
 		{
 			Toast.makeText(context, String.format(context.getString(R.string.caller_invited_to_join), callerName), Toast.LENGTH_SHORT).show();
-			//TODO self invite logic
+			Utils.sendInvite(callCurrentNumber, context);
 		}
 	}
 	
