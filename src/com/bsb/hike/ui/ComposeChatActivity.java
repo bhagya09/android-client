@@ -715,6 +715,11 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			lastSeenScheduler.stop(true);
 			lastSeenScheduler = null;
 		}
+		
+		if (adapter != null)
+		{
+			adapter.releaseResources();
+		}
 
 		HikeMessengerApp.getPubSub().removeListeners(this, hikePubSubListeners);
 		super.onDestroy();

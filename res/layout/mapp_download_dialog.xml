@@ -26,54 +26,37 @@
         android:textColor="@color/black_80"
         android:fontFamily="sans-serif-medium"
         android:includeFontPadding="false" />
-
-    <com.bsb.hike.view.CustomFontTextView
-        android:id="@+id/bot_description"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:gravity="center"
-        android:layout_marginTop="8dp"
-        android:layout_marginLeft="42dp"
-        android:layout_marginRight="42dp"
-        android:textColor="@color/black_45"
-        android:textSize="14sp"
-        android:fontFamily="sans-serif-regular"
-        android:includeFontPadding="false" />
     
-    <View
-        android:id="@+id/divider_1"
-        android:layout_width="match_parent"
-        android:layout_height="0.5dp"
-        android:background="@color/black_10"
-        android:layout_marginTop="20dp"
-        android:layout_marginLeft="24dp"
-        android:layout_marginRight="24dp" />
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="60dp"
+        android:layout_marginTop="8dp"
+	    android:gravity="center"
+	    android:layout_gravity="center"
+	    android:minWidth="350dp" >
+	    
+        <com.bsb.hike.view.CustomFontTextView
+	        android:id="@+id/bot_description"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_gravity="center"
+	        android:gravity="center"
+	        android:layout_marginLeft="42dp"
+	        android:layout_marginRight="42dp"
+	        android:textColor="@color/black_45"
+	        android:textSize="14sp"
+	        android:ellipsize="end"
+	        android:fontFamily="sans-serif-regular"
+	        android:includeFontPadding="false" />
         
-    
-    <com.bsb.hike.view.CustomFontTextView
-        android:id="@+id/loading_text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:gravity="center"
-        android:layout_marginTop="8dp"
-        android:layout_marginLeft="40dp"
-        android:layout_marginRight="40dp"
-        android:textColor="@color/black_80"
-        android:textSize="13sp"
-        android:fontFamily="sans-serif-regular"
-        android:includeFontPadding="false"
-        android:lineSpacingMultiplier="1.15" />
-    
-    <View
-        android:id="@+id/divider_2"
-        android:layout_width="match_parent"
-        android:layout_height="0.5dp"
-        android:background="@color/black_10"
-        android:layout_marginTop="8dp"
-        android:layout_marginLeft="24dp"
-        android:layout_marginRight="24dp" />
+        <ProgressBar
+            android:id="@+id/progressbar"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_gravity="center"
+	    	android:visibility="gone" />
+        
+    </LinearLayout>
     
     <LinearLayout 
         android:id="@+id/button_panel"
@@ -84,17 +67,14 @@
         android:layout_marginBottom="8dp"
         android:gravity="right"
         android:layoutDirection="locale"
-        android:orientation="horizontal">
+        android:orientation="horizontal" >
         
         <com.bsb.hike.view.CustomFontButton
             android:id="@+id/btn_positive"
             style="@style/ButtonCustomDialog"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="right"
-            android:text="@string/okay"
-            android:textStyle="bold"
-            android:textSize="14sp" />
+            android:text="@string/take_me_there" />
         
     </LinearLayout>
 
