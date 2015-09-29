@@ -332,7 +332,7 @@ public class PlatformUtils
 				String msisdn = mmObject.optString(HikeConstants.MSISDN);
 				String extraData=null;
 				extraData=mmObject.optString(HikeConstants.DATA);
-				Intent i=IntentFactory.openIntentForGameActivity(context,msisdn,extraData);
+				Intent i=IntentFactory.getNonMessagingBotIntent(msisdn,context,extraData);
 				context.startActivity(i);
 			}
 		}

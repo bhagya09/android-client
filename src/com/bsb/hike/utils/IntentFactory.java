@@ -781,6 +781,11 @@ public class IntentFactory
 
 	public static Intent getNonMessagingBotIntent(String msisdn, Context context)
 	{
+		return(getNonMessagingBotIntent(msisdn,context,null));
+	}
+	
+	public static Intent getNonMessagingBotIntent(String msisdn, Context context,String data)
+	{
 		if (BotUtils.isBot(msisdn))
 		{
 			BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
@@ -788,10 +793,20 @@ public class IntentFactory
 			if (botInfo.isNonMessagingBot())
 			{
 				NonMessagingBotMetadata nonMessagingBotMetadata = new NonMessagingBotMetadata(botInfo.getMetadata());
-				Intent intent = getWebViewActivityIntent(context, "", "");
-				intent.putExtra(WebViewActivity.WEBVIEW_MODE, nonMessagingBotMetadata.isWebUrlMode() ? WebViewActivity.WEB_URL_BOT_MODE : WebViewActivity.MICRO_APP_MODE);
-				intent.putExtra(HikeConstants.MSISDN, msisdn);
-				return intent;
+				if (nonMessagingBotMetadata.isNativeMode())
+				{
+					Intent i = new Intent(context,CocosGamingActivity.class);
+					i.putExtra(HikeConstants.MSISDN, msisdn);
+					i.putExtra(HikeConstants.DATA, data);
+					return i;
+				}
+				else
+				{
+					Intent intent = getWebViewActivityIntent(context, "", "");
+					intent.putExtra(WebViewActivity.WEBVIEW_MODE, nonMessagingBotMetadata.isWebUrlMode() ? WebViewActivity.WEB_URL_BOT_MODE : WebViewActivity.MICRO_APP_MODE);
+					intent.putExtra(HikeConstants.MSISDN, msisdn);
+					return intent;
+				}
 
 			}
 		}
@@ -1082,16 +1097,6 @@ public class IntentFactory
 		activity.startActivityForResult(intent, 0);
 	}
 	
-	public static Intent openIntentForGameActivity(Context context,String msisdn,String data)
-	{
-		//TODO:Pass Intent of game activity and any extras.
-				Intent i = new Intent(context,CocosGamingActivity.class);
-				i.putExtra(HikeConstants.MSISDN, msisdn);
-				i.putExtra(HikeConstants.DATA, data);
-				return i;
-				
-		
-	}
 	
 	public static Intent getIntentForBots(BotInfo mBotInfo, Context context)
 	{
