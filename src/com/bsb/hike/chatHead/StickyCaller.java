@@ -90,6 +90,33 @@ public class StickyCaller
 	public static String MISSED_CALL_TIMINGS;
 
 	public static boolean toCall = false;
+	
+	public static Runnable removeViewRunnable = new Runnable()
+	{
+
+		@Override
+		public void run()
+		{
+			if (CALL_TYPE != MISSED)
+			{
+				removeCallerView();
+			}
+		}
+
+	};
+	
+	private static void removeViewCallBacks()
+	{
+		HikeHandlerUtil mThread = HikeHandlerUtil.getInstance();
+		try
+		{
+			mThread.removeRunnable(removeViewRunnable);
+		}
+		catch (Exception e)
+		{
+			Logger.d("StickyCaller","exceptionRemoveViewCallbacks");
+		}
+	}
 
 	static LayoutParams callerParams = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, LayoutParams.TYPE_SYSTEM_ERROR, LayoutParams.FLAG_NOT_FOCUSABLE
 			| LayoutParams.FLAG_LAYOUT_NO_LIMITS, PixelFormat.TRANSLUCENT);
@@ -165,6 +192,7 @@ public class StickyCaller
 	{
 		try
 		{
+			removeViewCallBacks();
 			HikeSharedPreferenceUtil.getInstance().saveData(CALLER_Y_PARAMS, callerParams.y);
 			windowManager.removeView(stickyCallerView);
 			stickyCallerView = null;
@@ -181,19 +209,7 @@ public class StickyCaller
 		mThread.startHandlerThread();
 		if (mThread != null)
 		{
-			mThread.postRunnableWithDelay(new Runnable()
-			{
-
-				@Override
-				public void run()
-				{
-					if (CALL_TYPE != MISSED)
-					{
-						removeCallerView();
-					}
-				}
-
-			}, delay);
+			mThread.postRunnableWithDelay(removeViewRunnable, delay);
 		}
 
 	}
