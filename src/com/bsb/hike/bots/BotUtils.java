@@ -797,7 +797,14 @@ public class BotUtils
 	
 	public static Bitmap getBotDp(String botMsisdn)
 	{
-		return HikeBitmapFactory.decodeFile(BotUtils.getBotThumbnailRootFolder() + botMsisdn);	
+		File file = new File (BotUtils.getBotThumbnailRootFolder() + botMsisdn);
+		if (file.exists())
+		{
+			return HikeBitmapFactory.decodeFile(BotUtils.getBotThumbnailRootFolder() + botMsisdn);
+		}
+
+		Logger.v(TAG, "File does not exist for : " + botMsisdn + " Maybe it's not a bot");
+		return null;
 	}
 	
 
