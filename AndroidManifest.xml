@@ -142,6 +142,11 @@
                     android:host="hike.in"
                     android:pathPrefix="/"
                     android:scheme="http" />
+                <!-- Accepts URIs that begin with "https://hike.in/” -->
+                <data
+                    android:host="hike.in"
+                    android:pathPrefix="/"
+                    android:scheme="https" />
             </intent-filter>
         </activity>
 

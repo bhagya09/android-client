@@ -263,18 +263,18 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		{
 			Intent intent = getIntent();
 			String action = intent.getAction();
-			String grpId = intent.getStringExtra(HikeConstants.Extras.CONVERSATION_ID);
+			String linkUrl = intent.getDataString();
 
-			String utmSource = getSharedPreferences(HikeMessengerApp.REFERRAL, Context.MODE_PRIVATE).getString("utm_source", "");
-			if (TextUtils.isEmpty(action) || TextUtils.isEmpty(grpId))
+			if (TextUtils.isEmpty(action) || TextUtils.isEmpty(linkUrl))
 			{
+				finish();
 				return;
 			}
-
-			//Check for case of rotation here
-			if (action.contains(HttpRequestConstants.BASE_LINK_SHARING_URL))
+			
+			if (linkUrl.contains(HttpRequestConstants.BASE_LINK_SHARING_URL))
 			{
-				RequestToken requestToken = HttpRequests.acceptGroupMembershipConfirmationRequest(grpId, utmSource, new IRequestListener()
+				String code = linkUrl.split("/")[3];
+				RequestToken requestToken = HttpRequests.acceptGroupMembershipConfirmationRequest(code, new IRequestListener()
 				{
 					
 					@Override
