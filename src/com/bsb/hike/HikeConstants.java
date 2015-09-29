@@ -3301,5 +3301,7 @@ public class HikeConstants
 	public static final String ENABLE_BOT_DISCOVERY = "en_bot_di";
 	
 	public static final String GET_DISCOVERY_BOTS = "get_bots";
+	
+	public static final String BOTS_DISCOVERY_SECTION = "b_d_s";
 
 }
