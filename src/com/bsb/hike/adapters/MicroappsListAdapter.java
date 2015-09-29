@@ -124,6 +124,11 @@ public class MicroappsListAdapter extends RecyclerView.Adapter<MicroappsListAdap
 			}
 			else
 			{
+				if (mBotInfo.isBlocked())
+				{
+					mBotInfo.setBlocked(false);
+					HikeMessengerApp.getPubSub().publish(HikePubSub.UNBLOCK_USER, mBotInfo.getMsisdn());
+				}
 				openBot(mBotInfo);
 			}
 		}
