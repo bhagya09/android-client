@@ -13,12 +13,14 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewConfiguration;
 import android.view.ViewDebug.FlagToString;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.WindowManager.LayoutParams;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -44,6 +46,8 @@ public class StickyCaller
 
 	private static WindowManager windowManager;
 
+	static FrameLayout stickyCallerFrameHolder;
+	
 	private static short moveType;
 
 	public static final short NONE = 0;
@@ -91,6 +95,8 @@ public class StickyCaller
 	public static String MISSED_CALL_TIMINGS;
 
 	public static boolean toCall = false;
+
+    private static boolean horizontalMovementDetected = false;
 	
 	public static Runnable removeViewRunnable = new Runnable()
 	{
@@ -120,47 +126,65 @@ public class StickyCaller
 	}
 
 	static LayoutParams callerParams = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, LayoutParams.TYPE_SYSTEM_ERROR, LayoutParams.FLAG_NOT_FOCUSABLE
-			| LayoutParams.FLAG_LAYOUT_NO_LIMITS, PixelFormat.TRANSLUCENT);
+			, PixelFormat.TRANSLUCENT);
 
 	private static void actionMove(Context context, int initialX, int initialY, float initialTouchX, float initialTouchY, MotionEvent event)
 	{
 		if (ChatHeadLayout.getOverlayView() == null || !ChatHeadLayout.getOverlayView().isShown())
 		{
+			float XaxisMovement = event.getRawX() - initialTouchX;
+			float wanderableTouchDistance =  (float)ViewConfiguration.get(context).getScaledTouchSlop();
+			Logger.d("UmangJ","check : " + XaxisMovement + " > " + wanderableTouchDistance);
+			if(!horizontalMovementDetected)
+				horizontalMovementDetected = Math.abs(XaxisMovement) >  wanderableTouchDistance;
+			//boolean Ymove = Math.abs(event.getRawY() - initialTouchY) > (float)ViewConfiguration.get(context).getScaledEdgeSlop();
+			
+			  if (horizontalMovementDetected && stickyCallerView!=null) {
+				  
+				  float linearHorizontalAlpha = Math.max(0.0f, Math.min(1.0f, 1.0f - (Math.abs(XaxisMovement) / ((float) context.getResources().getDisplayMetrics().widthPixels))));
+				  Logger.d("UmangJ", "setting alpha as : " + linearHorizontalAlpha);
+                  stickyCallerView.setAlpha(linearHorizontalAlpha);
+                  stickyCallerView.setTranslationX(XaxisMovement);
+              }
 
-			if ((moveType == NONE || moveType == HORIZONTAL) && (Math.abs(event.getRawX() - initialTouchX) > Math.abs(event.getRawY() - initialTouchY)))
-			{
-				callerParams.x = initialX + (int) (event.getRawX() - initialTouchX);
-				callerParams.alpha = 1.0f - ((float) Math.abs(callerParams.x) / Utils.getDeviceWidth());
-				moveType = HORIZONTAL;
-			}
-			else if ((moveType == NONE || moveType == VERTICAL) && Math.abs(event.getRawX() - initialTouchX) < Math.abs(event.getRawY() - initialTouchY))
-			{
-				try
-				{
-					callerParams.y = initialY + (int) (event.getRawY() - initialTouchY);
-					if (callerParams.y < 0)
-					{
-						callerParams.y = 0;
-					}
-					if (callerParams.y > Utils.getDeviceHeight() - stickyCallerView.getHeight())
-					{
-						callerParams.y = Utils.getDeviceHeight() - stickyCallerView.getHeight();
-					}
-					moveType = VERTICAL;
-				}
-				catch (Exception e)
-				{
-					Logger.d("Sticky Caller", "stickyCallerView not exists");
-				}
-			}
-			try
-			{
-				windowManager.updateViewLayout(stickyCallerView, callerParams);
-			}
-			catch (Exception e)
-			{
-				Logger.d("Sticky Caller", "action move chat head");
-			}
+//			if ((moveType == NONE || moveType == HORIZONTAL) && (Math.abs(event.getRawX() - initialTouchX) > Math.abs(event.getRawY() - initialTouchY)))
+//			{
+//				callerParams.x = initialX + (int) (event.getRawX() - initialTouchX);
+//				callerParams.alpha = 1.0f - ((float) Math.abs(callerParams.x) / Utils.getDeviceWidth());
+//				moveType = HORIZONTAL;
+//			}
+//			else if ((moveType == NONE || moveType == VERTICAL) && Math.abs(event.getRawX() - initialTouchX) < Math.abs(event.getRawY() - initialTouchY))
+//			{
+//				try
+//				{
+//					callerParams.y = initialY + (int) (event.getRawY() - initialTouchY);
+//					if (callerParams.y < 0)
+//					{
+//						callerParams.y = 0;
+//					}
+//					if (callerParams.y > Utils.getDeviceHeight() - stickyCallerView.getHeight())
+//					{
+//						callerParams.y = Utils.getDeviceHeight() - stickyCallerView.getHeight();
+//					}
+//					moveType = VERTICAL;
+//				}
+//				catch (Exception e)
+//				{
+//					Logger.d("Sticky Caller", "stickyCallerView not exists");
+//				}
+//			}
+//			try
+//			{
+//				windowManager.updateViewLayout(stickyCallerView, callerParams);
+//			}
+//			catch (Exception e)
+//			{
+//				Logger.d("Sticky Caller", "action move chat head");
+//			}
+			
+			
+			
+			
 		}
 		return;
 	}
@@ -272,18 +296,22 @@ public class StickyCaller
 				moveType = NONE;
 				break;
 			case MotionEvent.ACTION_UP:
-				if (callerParams.x < -(3 * Utils.getDeviceWidth() / 4))
+				if(horizontalMovementDetected)
 				{
-					slideAnimation(callerParams.x, -(Utils.getDeviceWidth()));
+					horizontalMovementDetected = false;
 				}
-				else if (callerParams.x > (3 * Utils.getDeviceWidth() / 4))
-				{
-					slideAnimation(callerParams.x, Utils.getDeviceWidth());
-				}
-				else
-				{
-					slideAnimation(callerParams.x, 0);
-				}
+//				if (callerParams.x < -(3 * Utils.getDeviceWidth() / 4))
+//				{
+//					slideAnimation(callerParams.x, -(Utils.getDeviceWidth()));
+//				}
+//				else if (callerParams.x > (3 * Utils.getDeviceWidth() / 4))
+//				{
+//					slideAnimation(callerParams.x, Utils.getDeviceWidth());
+//				}
+//				else
+//				{
+//					slideAnimation(callerParams.x, 0);
+//				}
 				break;
 			case MotionEvent.ACTION_MOVE:
 				actionMove(HikeMessengerApp.getInstance(), initialX, initialY, initialTouchX, initialTouchY, event);
@@ -376,7 +404,9 @@ public class StickyCaller
 		setCallerParams();
 		try
 		{
-			windowManager.addView(stickyCallerView, callerParams);
+			stickyCallerFrameHolder = new FrameLayout(context);
+			stickyCallerFrameHolder.addView(stickyCallerView);
+			windowManager.addView(stickyCallerFrameHolder, callerParams);
 			stickyCallerView.setOnTouchListener(onSwipeTouchListener);
 		}
 		catch (Exception e)
