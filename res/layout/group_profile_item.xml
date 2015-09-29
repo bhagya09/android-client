@@ -47,6 +47,7 @@
         android:gravity="center"
         android:layout_marginRight="16dp"   
         android:visibility="gone"
+        android:orientation="horizontal"
         android:id="@+id/owner_indicator" >
         
     <com.bsb.hike.view.CustomFontTextView
@@ -58,6 +59,20 @@
         android:paddingLeft="6dp"
         android:paddingRight="6dp"
         android:textSize="11sp"
+        android:visibility="gone"
+        android:layout_gravity="center"
+        android:textStyle="normal"/>
+    
+    <com.bsb.hike.view.CustomFontTextView
+        android:id="@+id/sms_member_indicator_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/sms_group_member"
+        android:textColor="@color/blue_hike"
+        android:paddingLeft="6dp"
+        android:paddingRight="6dp"
+        android:textSize="11sp"
+        android:visibility="gone"
         android:layout_gravity="center"
         android:textStyle="normal"/>
     </LinearLayout>
