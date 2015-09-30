@@ -34,6 +34,7 @@ import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Environment;
 import android.os.Handler;
+import android.text.TextUtils;
 import android.widget.Toast;
 
 import com.bsb.hike.HikeConstants;
@@ -46,6 +47,7 @@ import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
+import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.offline.OfflineConstants;
 import com.bsb.hike.offline.OfflineController;
 import com.bsb.hike.offline.OfflineManager;
@@ -423,9 +425,14 @@ public class FileTransferManager extends BroadcastReceiver
 			if(!OfflineUtils.isFeautureAvailable(OfflineConstants.OFFLINE_VERSION_NUMER,
 					OfflineUtils.getConnectedDeviceVersion(),OfflineConstants.UNLIMITED_FT_VERSION))
 			{
-				
-						HikeMessengerApp.getInstance().showToast(R.string.upgrade_for_larger_files,Toast.LENGTH_LONG);
-						return null;
+				ContactInfo contactInfo  = ContactManager.getInstance().getContact(msisdn);
+				String name  = msisdn;
+				if(contactInfo!=null && !TextUtils.isEmpty(contactInfo.getFirstNameAndSurname()))
+				{
+					name = contactInfo.getFirstNameAndSurname();
+				}
+				HikeMessengerApp.getInstance().showToast(context.getString(R.string.upgrade_for_larger_files,name), Toast.LENGTH_LONG);
+				return null;
 			}
 		}
 		

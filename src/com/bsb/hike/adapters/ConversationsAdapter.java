@@ -454,9 +454,7 @@ public class ConversationsAdapter extends BaseAdapter
 		/*
 		 * Purposely returning conversation list on the UI thread on collapse to avoid showing ftue empty state. 
 		 */
-		completeList.clear();
-		completeList.addAll(conversationList);
-		notifyDataSetChanged();
+		onQueryChanged(refinedSearchText, searchFilterListener);
 	}
 
 	/**
