@@ -47,6 +47,7 @@ import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.db.DBConstants.HIKE_CONV_DB;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
+import com.bsb.hike.models.ConvMessage.ConvMessageComparator;
 import com.bsb.hike.models.ConvMessage.OriginType;
 import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
 import com.bsb.hike.models.ConvMessage.State;
@@ -3023,8 +3024,9 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 
 			List<ConvMessage> elements = getMessagesFromDB(c, conversation);
-			Collections.reverse(elements);
-
+			Collections.sort(elements, new ConvMessageComparator());
+			
+			
 			return elements;
 		}
 		finally
@@ -3050,7 +3052,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 
 			List<ConvMessage> elements = getMessagesFromDB(c,true,msisdn);
-			Collections.reverse(elements);
+			Collections.sort(elements, new ConvMessageComparator());
 
 			return elements;
 		}
@@ -3212,6 +3214,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				final int msgIdColumn = c.getColumnIndex(DBConstants.MESSAGE_ID);
 				final int metadataColumn = c.getColumnIndex(DBConstants.MESSAGE_METADATA);
 				final int groupParticipantColumn = c.getColumnIndex(DBConstants.GROUP_PARTICIPANT);
+				final int sortingIdColumn = c.getColumnIndex(DBConstants.SORTING_ID);
 
 				ConvMessage message = new ConvMessage(c.getString(msgColumn), msisdn, c.getInt(tsColumn), ConvMessage.stateValue(c.getInt(msgStatusColumn)),
 						c.getLong(msgIdColumn), c.getLong(mappedMsgIdColumn), c.getString(groupParticipantColumn));
@@ -3224,6 +3227,8 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				{
 					Logger.e(HikeConversationsDatabase.class.getName(), "Invalid JSON metadata", e);
 				}
+				
+				message.setSortingId(c.getLong(sortingIdColumn));
 				return message;
 			}
 		} 
@@ -6616,6 +6621,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		final int loveIdColumn = c.getColumnIndex(DBConstants.HIKE_CONV_DB.LOVE_ID_REL);
 		final int contentIdColumn = c.getColumnIndex(DBConstants.HIKE_CONTENT.CONTENT_ID);
 		final int nameSpaceColumn = c.getColumnIndex(HIKE_CONTENT.NAMESPACE);
+		final int sortId = c.getColumnIndex(DBConstants.SORTING_ID);
 		List<ConvMessage> elements = new ArrayList<ConvMessage>(c.getCount());
 		SparseArray<ConvMessage> contentMessages = new SparseArray<ConvMessage>();
 		StringBuilder loveIds = new StringBuilder("(");
@@ -6626,6 +6632,8 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 			ConvMessage message = new ConvMessage(c.getString(msgColumn),msisdn, c.getInt(tsColumn), ConvMessage.stateValue(c.getInt(msgStatusColumn)),
 					c.getLong(msgIdColumn), c.getLong(mappedMsgIdColumn), c.getString(groupParticipantColumn), !isHikeMessage, c.getInt(typeColumn),c.getInt(contentIdColumn), c.getString(nameSpaceColumn));
+			
+			message.setSortingId(c.getLong(sortId));
 			//if(message.getMessageType() == HikeConstants.MESSAGE_TYPE.CONTENT){
 //				int loveId = c.getInt(loveIdColumn);
 //				// DEFAULT value of love id is -1
