@@ -715,6 +715,11 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			lastSeenScheduler.stop(true);
 			lastSeenScheduler = null;
 		}
+		
+		if (adapter != null)
+		{
+			adapter.releaseResources();
+		}
 
 		HikeMessengerApp.getPubSub().removeListeners(this, hikePubSubListeners);
 		super.onDestroy();
@@ -2772,13 +2777,6 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchMenuItem);
 			searchView.setOnQueryTextListener(onQueryTextListener);
 		}
-	}
-	
-	@Override
-	public void onConfigurationChanged(final Configuration newConfig)
-	{
-		super.onConfigurationChanged(newConfig);
-    	HikeMessengerApp.getPubSub().publish(HikePubSub.ORIENTATION_CHANGED, newConfig.orientation);
 	}
 	
 }

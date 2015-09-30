@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import android.os.Looper;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -38,6 +39,7 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.MqttConstants;
 import com.bsb.hike.R;
+import com.bsb.hike.ag.NetworkAgModule;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.AnalyticsConstants.MsgRelEventType;
 import com.bsb.hike.analytics.HAManager;
@@ -46,6 +48,7 @@ import com.bsb.hike.analytics.MsgRelLogManager;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.chatHead.ChatHeadUtils;
+import com.bsb.hike.chatHead.StickyCaller;
 import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.filetransfer.FileTransferManager;
@@ -164,7 +167,7 @@ public class MqttMessagesManager
 		this.context = context;
 		this.pubSub = HikeMessengerApp.getPubSub();
 		this.typingNotificationMap = HikeMessengerApp.getTypingNotificationSet();
-		this.clearTypingNotificationHandler = new Handler();
+		this.clearTypingNotificationHandler = new Handler(Looper.getMainLooper());
 		this.appPrefs = PreferenceManager.getDefaultSharedPreferences(context);
 		this.userMsisdn = settings.getString(HikeMessengerApp.MSISDN_SETTING, "");
 	}
@@ -2123,7 +2126,7 @@ public class MqttMessagesManager
 			boolean showAccessibility = stickerWidgetJSONObj.optBoolean(HikeConstants.ChatHead.SHOW_ACCESSIBILITY, true);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.SHOW_ACCESSIBILITY, showAccessibility);
 
-			boolean dontUseAccessibility = stickerWidgetJSONObj.optBoolean(HikeConstants.ChatHead.DONT_USE_ACCESSIBILITY, true);
+			boolean dontUseAccessibility = stickerWidgetJSONObj.optBoolean(HikeConstants.ChatHead.DONT_USE_ACCESSIBILITY, ChatHeadUtils.willPollingWork());
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.DONT_USE_ACCESSIBILITY, dontUseAccessibility);
 
 			boolean serviceUserControl = stickerWidgetJSONObj.optBoolean(HikeConstants.ChatHead.CHAT_HEAD_USR_CONTROL, true);
@@ -2478,6 +2481,20 @@ public class MqttMessagesManager
 		{
 			editor.putString(HikeConstants.EXTRAS_BOT_MSISDN, data.getString(HikeConstants.EXTRAS_BOT_MSISDN));
 		}
+		if (data.has(HikeConstants.AG_ENABLED))
+		{
+			boolean agoopLogs = data.getBoolean(HikeConstants.AG_ENABLED);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.AG_ENABLED, agoopLogs);
+			if(agoopLogs)
+			{
+				NetworkAgModule.startLogging();
+			}
+			else
+			{
+				NetworkAgModule.stopLogging();
+			}
+		}
+		
 		if (data.has(HikeConstants.REFERRAL_EMAIL_TEXT))
 		{
 			editor.putString(HikeConstants.REFERRAL_EMAIL_TEXT, data.getString(HikeConstants.REFERRAL_EMAIL_TEXT));
@@ -2501,6 +2518,12 @@ public class MqttMessagesManager
 				StickerManager.getInstance().downloadStickerTagData();
 			}
 		}
+
+		if (data.has(HikeConstants.NUDGE_SEND_COOLOFF_TIME))
+		{
+			int nudgeCoolOffTime = data.getInt(HikeConstants.NUDGE_SEND_COOLOFF_TIME);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.NUDGE_SEND_COOLOFF_TIME, nudgeCoolOffTime);
+		}
 		if(data.has(HikeConstants.OFFLINE))
 		{
 			String offline = data.optString(HikeConstants.OFFLINE, "{}");
@@ -2511,7 +2534,22 @@ public class MqttMessagesManager
 			boolean activate = data.getBoolean(HikeConstants.SHOW_HIGH_RES_IMAGE);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOW_HIGH_RES_IMAGE, activate);
 		}
-		
+		if (data.has(StickyCaller.SHOW_STICKY_CALLER))
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(StickyCaller.SHOW_STICKY_CALLER, data.optBoolean(StickyCaller.SHOW_STICKY_CALLER, false));
+		}
+		if (data.has(StickyCaller.ACTIVATE_STICKY_CALLER))
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(StickyCaller.ACTIVATE_STICKY_CALLER, data.optBoolean(StickyCaller.ACTIVATE_STICKY_CALLER, false));
+			if (data.optBoolean(StickyCaller.ACTIVATE_STICKY_CALLER, false))
+			{
+				ChatHeadUtils.registerCallReceiver();
+			}
+			else
+			{
+				ChatHeadUtils.unregisterCallReceiver();
+			}
+		}
 		if (data.has(HikeConstants.BOT_TABLE_REFRESH))
 		{
 			boolean shouldrefreshBotTable = data.getBoolean(HikeConstants.BOT_TABLE_REFRESH);
@@ -2561,6 +2599,15 @@ public class MqttMessagesManager
 				json.put(AnalyticsConstants.EVENT_KEY, AnalyticsConstants.GET_DISCOVERY_BOT_LIST);
 				json.put(AnalyticsConstants.DISCOVERY_BOTS, json);
 				HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.BOT_DISCOVERY, json);
+			}
+		}
+		
+		if (data.has(HikeConstants.BOTS_DISCOVERY_SECTION))
+		{
+			String sectionName = data.optString(HikeConstants.BOTS_DISCOVERY_SECTION, HikeMessengerApp.getInstance().getApplicationContext().getString(R.string.hike_apps));
+			if (!TextUtils.isEmpty(sectionName))
+			{
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.BOTS_DISCOVERY_SECTION, sectionName);
 			}
 		}
 		

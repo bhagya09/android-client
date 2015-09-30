@@ -181,6 +181,8 @@ import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.TrafficsStatsFile;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
+import com.bsb.hike.chatHead.CallerContentModel;
+import com.bsb.hike.chatHead.StickyCaller;
 import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.cropimage.CropImage;
@@ -235,7 +237,11 @@ import com.bsb.hike.ui.SignupActivity;
 import com.bsb.hike.ui.WebViewActivity;
 import com.bsb.hike.ui.WelcomeActivity;
 import com.bsb.hike.voip.VoIPUtils;
+import com.bsb.hike.voip.VoIPUtils.CallSource;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 public class Utils
 {
@@ -350,6 +356,36 @@ public class Utils
 		return arr;
 	}
 
+	public static void makeCall(String number)
+	{
+		Intent intent = new Intent(Intent.ACTION_CALL);
+		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		intent.setData(Uri.parse("tel:"+ number));
+		try
+		{
+			HikeMessengerApp.getInstance().startActivity(intent);
+		}
+		catch (Exception e)
+		{
+			Logger.d("Utils", "makeCall");
+		}
+	}
+	
+	public static void sendSMS(String number, String message)
+	{
+		Intent intent = new Intent(Intent.ACTION_VIEW, Uri.fromParts("sms", number, null));
+		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		intent.putExtra(StickyCaller.SMS_BODY, message); 
+		try
+		{
+			HikeMessengerApp.getInstance().startActivity(intent);
+		}
+		catch (Exception e)
+		{
+			Logger.d("Utils", "sms exception");
+		}
+	}
+
 	public static JSONObject jsonSerialize(Map<String, ? extends JSONSerializable> elements) throws JSONException
 	{
 		JSONObject obj = new JSONObject();
@@ -360,6 +396,17 @@ public class Utils
 		return obj;
 	}
 
+	public static boolean isIndianNumber(String number)
+	{
+		//13 is the number of chars in the phone msisdn 
+		if (number != null && (number.startsWith("+919") || number.startsWith("+918") || number.startsWith("+917")) && number.length() == 13)
+		{
+			return true;
+		}
+		return false;
+	}
+	
+	
 	static final private int ANIMATION_DURATION = 400;
 
 	public static Animation inFromRightAnimation(Context ctx)
@@ -1114,7 +1161,7 @@ public class Utils
 		messageWithName.setSpan(new StyleSpan(Typeface.BOLD), 0, firstName.length() + 2, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 		return messageWithName;
 	}
-
+	
 	/**
 	 * Used for setting the density multiplier, which is to be multiplied with any pixel value that is programmatically given
 	 * 
@@ -2855,6 +2902,40 @@ public class Utils
 		}
 		return items;
 	}
+	
+	public static boolean killCall()
+	{
+		Context context = HikeMessengerApp.getInstance();
+		try
+		{
+			// Get the boring old TelephonyManager
+			TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+
+			// Get the getITelephony() method
+			Class classTelephony = Class.forName(telephonyManager.getClass().getName());
+			java.lang.reflect.Method methodGetITelephony = classTelephony.getDeclaredMethod("getITelephony");
+
+			// Ignore that the method is supposed to be private
+			methodGetITelephony.setAccessible(true);
+
+			// Invoke getITelephony() to get the ITelephony interface
+			Object telephonyInterface = methodGetITelephony.invoke(telephonyManager);
+
+			// Get the endCall method from ITelephony
+			Class telephonyInterfaceClass = Class.forName(telephonyInterface.getClass().getName());
+			java.lang.reflect.Method methodEndCall = telephonyInterfaceClass.getDeclaredMethod("endCall");
+
+			// Invoke endCall()
+			methodEndCall.invoke(telephonyInterface);
+
+		}
+		catch (Exception ex)
+		{ // Many things can go wrong with reflection calls
+			return false;
+		}
+		return true;
+	}
+	
 
 	/**
 	 * Get unseen status, user-status and friend request count
@@ -3976,7 +4057,7 @@ public class Utils
 		}
 	}
 
-	public static void sendMd5MismatchEvent(String fileName, String fileKey, String md5, int recBytes, boolean downloading)
+	public static void sendMd5MismatchEvent(String fileName, String fileKey, String md5, long recBytes, boolean downloading)
 	{
 		try
 		{
@@ -4585,6 +4666,15 @@ public class Utils
 		i.putExtra(Insert.PHONE, msisdn);
 		context.startActivity(i);
 	}
+	
+	public static void addToContacts(Context context, String msisdn, String name)
+	{
+		Intent intent = new Intent(Intent.ACTION_INSERT, ContactsContract.Contacts.CONTENT_URI);
+		intent.putExtra(Insert.PHONE, msisdn);
+		intent.putExtra(Insert.NAME, name);
+		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		context.startActivity(intent);
+	}
 
 	public static final void cancelScheduledStealthReset()
 	{
@@ -4926,35 +5016,35 @@ public class Utils
 
 	// @GM
 	// The following methods returns the user readable size when passed the bytes in size
-	public static String getSizeForDisplay(int bytes)
+	public static String getSizeForDisplay(long bytes)
 	{
 		if (bytes <= 0)
 			return ("");
 		if (bytes >= 1000 * 1024 * 1024)
 		{
-			int gb = bytes / (1024 * 1024 * 1024);
-			int gbPoint = bytes % (1024 * 1024 * 1024);
+			long gb = bytes / (1024 * 1024 * 1024);
+			long gbPoint = bytes % (1024 * 1024 * 1024);
 			gbPoint /= (1024 * 1024 * 102);
-			return (Integer.toString(gb) + "." + Integer.toString(gbPoint) + " GB");
+			return (Long.toString(gb) + "." + Long.toString(gbPoint) + " GB");
 		}
 		else if (bytes >= (1000 * 1024))
 		{
-			int mb = bytes / (1024 * 1024);
-			int mbPoint = bytes % (1024 * 1024);
+			long mb = bytes / (1024 * 1024);
+			long mbPoint = bytes % (1024 * 1024);
 			mbPoint /= (1024 * 102);
-			return (Integer.toString(mb) + "." + Integer.toString(mbPoint) + " MB");
+			return (Long.toString(mb) + "." + Long.toString(mbPoint) + " MB");
 		}
 		else if (bytes >= 1000)
 		{
-			int kb;
+			long kb;
 			if (bytes < 1024) // To avoid showing "1000KB"
 				kb = bytes / 1000;
 			else
 				kb = bytes / 1024;
-			return (Integer.toString(kb) + " KB");
+			return (Long.toString(kb) + " KB");
 		}
 		else
-			return (Integer.toString(bytes) + " B");
+			return (Long.toString(bytes) + " B");
 	}
 
 	public static Intent getIntentForPrivacyScreen(Context context)
@@ -6796,6 +6886,16 @@ public class Utils
 		Logger.d("image_config", "Screen dimens are :- " + screenWidth + ", " + screenHeight);
 		return screenHeight * screenHeight;
 	}
+	
+	public static int getDeviceWidth()
+	{
+		return HikeMessengerApp.getInstance().getApplicationContext().getResources().getDisplayMetrics().widthPixels;
+	}
+
+	public static int getDeviceHeight()
+	{
+		return HikeMessengerApp.getInstance().getApplicationContext().getResources().getDisplayMetrics().heightPixels;
+	}
 
 	public static String getStackTrace(Throwable ex)
 	{
@@ -7236,6 +7336,23 @@ public class Utils
 		return url;
 	}
 	
+	public static void sendFreeSms()
+	{
+		Intent intent = IntentFactory.createChatThreadIntentFromMsisdn(HikeMessengerApp.getInstance(), StickyCaller.callCurrentNumber, true, false);
+		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+	    HikeMessengerApp.getInstance().startActivity(intent);
+	}
+
+	public static boolean isOnHike(String number)
+	{
+		ContactInfo contactInfo = ContactManager.getInstance().getContactInfoFromPhoneNoOrMsisdn(number);
+		if (contactInfo != null && contactInfo.isOnhike())
+		{
+			return true;
+		}
+		return false;
+	}
+
 	public static String getNewImagePostFilePath()
 	{
 		String directory = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT;
@@ -7328,4 +7445,5 @@ public class Utils
 
 		return timeLogBuilder.toString();
 	}
+
 }
