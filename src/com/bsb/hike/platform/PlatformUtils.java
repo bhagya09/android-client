@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import android.util.Pair;
 import com.bsb.hike.bots.NonMessagingBotMetadata;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -1107,10 +1108,19 @@ public class PlatformUtils
 			return;
 		}
 
-		MessageEvent messageEvent = new MessageEvent(HikePlatformConstants.NORMAL_EVENT, msisdn, nameSpace, eventMetadata, messageHash,
-				HikePlatformConstants.EventStatus.EVENT_SENT, System.currentTimeMillis());
+		try
+		{
+			JSONObject data = new JSONObject(eventMetadata);
+			String cardData = data.getString(HikePlatformConstants.EVENT_CARDDATA);
+			MessageEvent messageEvent = new MessageEvent(HikePlatformConstants.NORMAL_EVENT, msisdn, nameSpace, cardData, messageHash,
+					HikePlatformConstants.EventStatus.EVENT_SENT, System.currentTimeMillis());
 
-		HikeMessengerApp.getPubSub().publish(HikePubSub.PLATFORM_CARD_EVENT_SENT, messageEvent);
+			HikeMessengerApp.getPubSub().publish(HikePubSub.PLATFORM_CARD_EVENT_SENT, new Pair<MessageEvent, JSONObject>(messageEvent, data));
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
 
 	}
 	
