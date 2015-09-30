@@ -24,6 +24,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.Activity;
+import android.app.ActivityManager;
+import android.app.ActivityManager.RunningAppProcessInfo;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
@@ -333,6 +335,7 @@ public class PlatformUtils
 				String extraData=null;
 				extraData=mmObject.optString(HikeConstants.DATA);
 				Intent i=IntentFactory.getNonMessagingBotIntent(msisdn,context,extraData);
+				isProcessRunning(context,"org.cocos2dx.gameprocess");
 				context.startActivity(i);
 			}
 		}
@@ -1230,6 +1233,20 @@ public class PlatformUtils
 			e.printStackTrace();
 		}
 		return json.toString();
+	}
+	public static boolean isProcessRunning(Activity context,String process)
+	{
+		 ActivityManager activityManager = (ActivityManager) context.getSystemService(context. ACTIVITY_SERVICE );
+	        List<RunningAppProcessInfo> procInfos = activityManager.getRunningAppProcesses();
+	        for(int i = 0; i < procInfos.size(); i++)
+	        {
+	            if(procInfos.get(i).processName.equals(process)) 
+	            {
+	            	Logger.d(TAG, "process is running");
+	            	return true;
+	            }
+	        }
+	        return false;
 	}
 
 }
