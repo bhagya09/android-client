@@ -339,8 +339,6 @@ public class PlatformUtils
 				Intent i=IntentFactory.getNonMessagingBotIntent(msisdn,context,extraData);
 				if(isProcessRunning(context,HikePlatformConstants.GAME_PROCESS)&&!(getLastGame().equals(msisdn)))
 				{
-					Logger.d("pushkar","last game"+getLastGame());
-					Logger.d("pushkar","current msisdn"+msisdn);
 					killProcess(context,HikePlatformConstants.GAME_PROCESS);
 					Logger.d(TAG, "process killed");
 				}
