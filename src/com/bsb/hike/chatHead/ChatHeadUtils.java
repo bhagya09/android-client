@@ -492,37 +492,43 @@ public class ChatHeadUtils
 	
 	public static void postNumberRequest(Context context, String searchNumber)
 	{
-		final String number = Utils.normalizeNumber(searchNumber,
-				HikeMessengerApp.getInstance().getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0)
-						.getString(HikeMessengerApp.COUNTRY_CODE, HikeConstants.INDIA_COUNTRY_CODE));
-		StickyCaller.callCurrentNumber = number;
-		String contactName = getNameFromNumber(context, number);
-		
-		if (contactName != null)
+		if (!searchNumber.contains("*") && !searchNumber.contains("#"))
 		{
-			StickyCaller.showCallerViewWithDelay(number, contactName, StickyCaller.ALREADY_SAVED, AnalyticsConstants.StickyCallerEvents.ALREADY_SAVED);
-		}
-		else if (HikeSharedPreferenceUtil.getInstance(HikeConstants.CALLER_SHARED_PREF).getData(number, null) != null)
-		{
-			StickyCaller.showCallerViewWithDelay(number, HikeSharedPreferenceUtil.getInstance(HikeConstants.CALLER_SHARED_PREF).getData(number, null), StickyCaller.SUCCESS, AnalyticsConstants.StickyCallerEvents.CACHE);
-		}
-		else
-		{
-			JSONObject json = new JSONObject();
-			try
+			final String number = Utils.normalizeNumber(
+					searchNumber,
+					HikeMessengerApp.getInstance().getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0)
+							.getString(HikeMessengerApp.COUNTRY_CODE, HikeConstants.INDIA_COUNTRY_CODE));
+			StickyCaller.callCurrentNumber = number;
+			String contactName = getNameFromNumber(context, number);
+
+			if (contactName != null)
 			{
-				json.put(HikeConstants.MSISDN, number);
+				StickyCaller.showCallerViewWithDelay(number, contactName, StickyCaller.ALREADY_SAVED, AnalyticsConstants.StickyCallerEvents.ALREADY_SAVED);
 			}
-			catch (JSONException e)
+			else if (HikeSharedPreferenceUtil.getInstance(HikeConstants.CALLER_SHARED_PREF).getData(number, null) != null)
 			{
-	           Logger.d(TAG, "jsonException");
+				StickyCaller.showCallerViewWithDelay(number, HikeSharedPreferenceUtil.getInstance(HikeConstants.CALLER_SHARED_PREF).getData(number, null), StickyCaller.SUCCESS,
+						AnalyticsConstants.StickyCallerEvents.CACHE);
 			}
-			CallListener callListener = new CallListener();
-			RequestToken requestToken = HttpRequests.postNumberAndGetCallerDetails(HikeConstants.HIKECALLER_API, json, callListener, HTTP_CALL_RETRY_DELAY, HTTP_CALL_RETRY_MULTIPLIER);
-			StickyCaller.showCallerView(null, null, StickyCaller.LOADING, null);
-			requestToken.execute();
+			else
+			{
+				JSONObject json = new JSONObject();
+				try
+				{
+					json.put(HikeConstants.MSISDN, number);
+				}
+				catch (JSONException e)
+				{
+					Logger.d(TAG, "jsonException");
+				}
+				CallListener callListener = new CallListener();
+				RequestToken requestToken = HttpRequests.postNumberAndGetCallerDetails(HikeConstants.HIKECALLER_API, json, callListener, HTTP_CALL_RETRY_DELAY,
+						HTTP_CALL_RETRY_MULTIPLIER);
+				StickyCaller.showCallerView(null, null, StickyCaller.LOADING, null);
+				requestToken.execute();
+			}
 		}
-	}	
+	}
 	
 	public static void registerCallReceiver()
 	{
