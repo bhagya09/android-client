@@ -71,7 +71,7 @@ public class HttpRequestConstants
 	
 	private static final String QA_CONTENT = "qa-content.hike.in";
 
-	private static final String STAGING_HIKECALLER_API = "http://52.76.46.27:5000/hikeCaller";
+	private static final String STAGING_HIKECALLER_API = "http://52.76.46.27:5000/name";
 	
 	private static final String PRODUCTION_HIKECALLER_API = "https://caller.hike.in/name";
 	
