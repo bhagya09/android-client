@@ -7353,6 +7353,16 @@ public class Utils
 		return false;
 	}
 
+	public static String getNewImagePostFilePath()
+	{
+		String directory = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT;
+		File dir = new File(directory);
+		if (!dir.exists())
+		{
+			dir.mkdirs();
+		}
+		return directory+File.separator + Utils.getUniqueFilename(HikeFileType.IMAGE);
+	}
 
 	/**
 	 * Get differential time logging upto nano second considering maximum significant time unit reference as second.
