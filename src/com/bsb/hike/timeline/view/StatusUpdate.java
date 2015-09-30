@@ -505,6 +505,8 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		{
 			hideEmojiOrMoodLayout();
 			setTitle();
+		}else if(mCustomKeyboard.isCustomKeyboardVisible()){
+			hideKeyboard();
 		}
 		else
 		{
