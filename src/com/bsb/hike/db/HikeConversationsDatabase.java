@@ -6761,7 +6761,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		}
 		else
 		{
-			mediaFileTypes = new HikeFileType[] { HikeFileType.OTHER, HikeFileType.AUDIO };
+			mediaFileTypes = new HikeFileType[] { HikeFileType.OTHER, HikeFileType.AUDIO ,HikeFileType.APK };
 		}
 
 		hfTypeSelection = new StringBuilder("(");
