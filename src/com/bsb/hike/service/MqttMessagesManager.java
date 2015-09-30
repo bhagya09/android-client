@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import android.os.Looper;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -166,7 +167,7 @@ public class MqttMessagesManager
 		this.context = context;
 		this.pubSub = HikeMessengerApp.getPubSub();
 		this.typingNotificationMap = HikeMessengerApp.getTypingNotificationSet();
-		this.clearTypingNotificationHandler = new Handler();
+		this.clearTypingNotificationHandler = new Handler(Looper.getMainLooper());
 		this.appPrefs = PreferenceManager.getDefaultSharedPreferences(context);
 		this.userMsisdn = settings.getString(HikeMessengerApp.MSISDN_SETTING, "");
 	}
@@ -2598,6 +2599,15 @@ public class MqttMessagesManager
 				json.put(AnalyticsConstants.EVENT_KEY, AnalyticsConstants.GET_DISCOVERY_BOT_LIST);
 				json.put(AnalyticsConstants.DISCOVERY_BOTS, json);
 				HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.BOT_DISCOVERY, json);
+			}
+		}
+		
+		if (data.has(HikeConstants.BOTS_DISCOVERY_SECTION))
+		{
+			String sectionName = data.optString(HikeConstants.BOTS_DISCOVERY_SECTION, HikeMessengerApp.getInstance().getApplicationContext().getString(R.string.hike_apps));
+			if (!TextUtils.isEmpty(sectionName))
+			{
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.BOTS_DISCOVERY_SECTION, sectionName);
 			}
 		}
 		
