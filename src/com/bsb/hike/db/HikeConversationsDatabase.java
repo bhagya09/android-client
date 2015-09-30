@@ -143,7 +143,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		}
 		String sql = "CREATE TABLE IF NOT EXISTS " + DBConstants.MESSAGES_TABLE
 				+ " ( "
-				+ DBConstants.MESSAGE + " STRING, " // The message text
+				+ DBConstants.MESSAGE + " TEXT, " // The message text
 				+ DBConstants.MSG_STATUS + " INTEGER, " // Whether the message is sent or not. Plus also tells us the current state of the message.
 				+ DBConstants.TIMESTAMP + " INTEGER, " // Message time stamp, send or receiving time in seconds
 				+ DBConstants.MESSAGE_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " // The message id (Unique)
@@ -190,7 +190,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				+ DBConstants.OVERLAY_DISMISSED + " INTEGER, " // Flag. Whether to show the SMS Credits overlay or not.
 
 				// Messages table columns begin (We keep the last entry of messages for a conversation)
-				+ DBConstants.MESSAGE + " STRING, "
+				+ DBConstants.MESSAGE + " TEXT, "
 				+ DBConstants.MSG_STATUS + " INTEGER, "
 				+ DBConstants.LAST_MESSAGE_TIMESTAMP + " INTEGER, "
 				+ DBConstants.MESSAGE_ID + " INTEGER, "
