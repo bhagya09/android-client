@@ -701,7 +701,6 @@ public class HikeFile
 
 			id = cur.getInt(cur.getColumnIndex(MediaStore.MediaColumns._ID));
 		}
-
 		finally
 		{
 			cur.close();
