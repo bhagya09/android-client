@@ -37,6 +37,7 @@ import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.modules.httpmgr.RequestToken;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.userlogs.PhoneSpecUtils;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
@@ -522,7 +523,7 @@ public class ChatHeadUtils
 					Logger.d(TAG, "jsonException");
 				}
 				CallListener callListener = new CallListener();
-				RequestToken requestToken = HttpRequests.postNumberAndGetCallerDetails(HikeConstants.HIKECALLER_API, json, callListener, HTTP_CALL_RETRY_DELAY,
+				RequestToken requestToken = HttpRequests.postNumberAndGetCallerDetails(HttpRequestConstants.getHikeCallerUrl(), json, callListener, HTTP_CALL_RETRY_DELAY,
 						HTTP_CALL_RETRY_MULTIPLIER);
 				StickyCaller.showCallerView(null, null, StickyCaller.LOADING, null);
 				requestToken.execute();
