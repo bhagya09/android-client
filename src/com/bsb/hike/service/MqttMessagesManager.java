@@ -2601,6 +2601,15 @@ public class MqttMessagesManager
 			}
 		}
 		
+		if (data.has(HikeConstants.BOTS_DISCOVERY_SECTION))
+		{
+			String sectionName = data.optString(HikeConstants.BOTS_DISCOVERY_SECTION, HikeMessengerApp.getInstance().getApplicationContext().getString(R.string.hike_apps));
+			if (!TextUtils.isEmpty(sectionName))
+			{
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.BOTS_DISCOVERY_SECTION, sectionName);
+			}
+		}
+		
 		editor.commit();
 		this.pubSub.publish(HikePubSub.UPDATE_OF_MENU_NOTIFICATION, null);
 		

@@ -513,7 +513,10 @@ public class NativeBridge
 			@Override
 			public void run()
 			{
-				Utils.createShortcut(weakActivity.get(), mBotInfo);
+				if (weakActivity != null)
+				{
+					Utils.createShortcut(weakActivity.get(), mBotInfo);
+				}
 			}
 		});
 	}

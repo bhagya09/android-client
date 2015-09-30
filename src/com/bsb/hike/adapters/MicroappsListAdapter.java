@@ -8,6 +8,7 @@ import org.json.JSONObject;
 
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
+import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
@@ -42,7 +43,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class MicroappsListAdapter extends RecyclerView.Adapter<MicroappsListAdapter.ViewHolder> implements OnClickListener
+public class MicroappsListAdapter extends RecyclerView.Adapter<MicroappsListAdapter.ViewHolder> implements OnClickListener, Listener
 {
 	Context mContext;
 
@@ -59,6 +60,8 @@ public class MicroappsListAdapter extends RecyclerView.Adapter<MicroappsListAdap
 	private TextView description;
 	
 	private HikeDialog dialog;
+	
+	private String[] pubSubListeners;
 
 	public MicroappsListAdapter(Context context, List<BotInfo> botsList, IconLoader iconLoader)
 	{
@@ -66,6 +69,9 @@ public class MicroappsListAdapter extends RecyclerView.Adapter<MicroappsListAdap
 		this.microappsList = botsList;
 		this.iconLoader = iconLoader;
 		onClickListener = this;
+		
+		pubSubListeners = new String[]{ HikePubSub.BOT_CREATED };
+		HikeMessengerApp.getPubSub().addListeners(this, pubSubListeners);
 	}
 
 	@Override
@@ -84,10 +90,6 @@ public class MicroappsListAdapter extends RecyclerView.Adapter<MicroappsListAdap
 		if(!userHasBot)
 		{
 			showDialog(mBotInfo);
-			
-			BotUtils.discoveryBotDownloadAnalytics(mBotInfo.getMsisdn(), mBotInfo.getConversationName());
-			
-			initiateBotDownload(mBotInfo.getMsisdn());
 			
 			return;
 		}
@@ -115,20 +117,18 @@ public class MicroappsListAdapter extends RecyclerView.Adapter<MicroappsListAdap
 		
 		else if (mBotInfo != null && mBotInfo.isMessagingBot())
 		{
-			if (mBotInfo.isBlocked())
-			{
-				mBotInfo.setBlocked(false);
-				HikeMessengerApp.getPubSub().publish(HikePubSub.UNBLOCK_USER, mBotInfo.getMsisdn());
-			}
-			
 			if (!HikeConversationsDatabase.getInstance().isConversationExist(mBotInfo.getMsisdn()))
 			{
-				initiateBotDownload(mBotInfo.getMsisdn());
 				// Using the one from the microapp list to get the description of the bot sent in the add_di_bot packet.
 				showDialog(microappsList.get((int)v.getTag()));
 			}
 			else
 			{
+				if (mBotInfo.isBlocked())
+				{
+					mBotInfo.setBlocked(false);
+					HikeMessengerApp.getPubSub().publish(HikePubSub.UNBLOCK_USER, mBotInfo.getMsisdn());
+				}
 				openBot(mBotInfo);
 			}
 		}
@@ -228,7 +228,11 @@ public class MicroappsListAdapter extends RecyclerView.Adapter<MicroappsListAdap
 			public void onRequestFailure(HttpException httpException)
 			{
 				Logger.v(TAG, "Bot download request failure for "+msisdn);
-				Toast.makeText(mContext, ""+mContext.getResources().getString(R.string.error_sharing), Toast.LENGTH_SHORT);
+				Toast.makeText(mContext, ""+mContext.getResources().getString(R.string.error_sharing), Toast.LENGTH_SHORT).show();
+				if (dialog != null)
+				{
+					dialog.dismiss();
+				}
 			}
 		});
 		if (!token.isRequestRunning())
@@ -237,7 +241,7 @@ public class MicroappsListAdapter extends RecyclerView.Adapter<MicroappsListAdap
 		}
 	}
 	
-	private void showDialog(BotInfo mBotInfo)
+	private void showDialog(final BotInfo mBotInfo)
 	{
 		if (mContext instanceof Activity)
 		{
@@ -248,7 +252,22 @@ public class MicroappsListAdapter extends RecyclerView.Adapter<MicroappsListAdap
 			@Override
 			public void positiveClicked(HikeDialog hikeDialog)
 			{
-				hikeDialog.dismiss();
+				if (BotUtils.isBot(mBotInfo.getMsisdn()) && BotUtils.getBotInfoForBotMsisdn(mBotInfo.getMsisdn()).isBlocked())
+				{
+					BotUtils.getBotInfoForBotMsisdn(mBotInfo.getMsisdn()).setBlocked(false);
+					HikeMessengerApp.getPubSub().publish(HikePubSub.UNBLOCK_USER, mBotInfo.getMsisdn());
+				}
+				
+				initiateBotDownload(mBotInfo.getMsisdn());
+				
+				BotUtils.discoveryBotDownloadAnalytics(mBotInfo.getMsisdn(), mBotInfo.getConversationName());
+				
+				if (description != null)
+				{
+					description.setVisibility(View.GONE);
+					hikeDialog.findViewById(R.id.progressbar).setVisibility(View.VISIBLE);
+					hikeDialog.findViewById(R.id.button_panel).setVisibility(View.INVISIBLE);
+				}
 			}
 			
 			@Override
@@ -264,6 +283,7 @@ public class MicroappsListAdapter extends RecyclerView.Adapter<MicroappsListAdap
 			}
 		});
 		
+		dialog.data = mBotInfo.getMsisdn();
 		dialog.setOnDismissListener(new OnDismissListener() {
 			
 			@Override
@@ -283,9 +303,43 @@ public class MicroappsListAdapter extends RecyclerView.Adapter<MicroappsListAdap
 		description = (TextView) dialog.findViewById(R.id.bot_description);
 		description.setText(mBotInfo.getBotDescription());
 		
-		String loadingText = String.format(mContext.getResources().getString(R.string.getting_mapp_shortly), mBotInfo.getConversationName());
-		TextView loadingTextView = (TextView) dialog.findViewById(R.id.loading_text);
-		loadingTextView.setText(loadingText);
+	}
+	
+	public void releaseResources()
+	{
+		removePubSubListeners();
+		if (dialog != null)
+		{
+			dialog.dismiss();
+		}
+	}
+	
+	public void removePubSubListeners()
+	{
+		if (pubSubListeners != null)
+		{
+			HikeMessengerApp.getPubSub().removeListeners(this, pubSubListeners);
+		}
+	}
+
+	@Override
+	public void onEventReceived(String type, Object object)
+	{
+		switch (type)
+		{
+		case HikePubSub.BOT_CREATED:
+			String msisdn = ((BotInfo)object).getMsisdn();
+			Logger.i(TAG, "Bot created : "+msisdn);
+			if (dialog != null)
+			{
+				dialog.dismiss();
+				if (dialog.data instanceof String && msisdn.equals((String)dialog.data))
+				{
+					openBot((BotInfo)object);
+				}
+			}
+			break;
+		}
 	}
 	
 }
