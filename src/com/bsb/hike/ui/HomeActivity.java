@@ -2047,7 +2047,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	@Override
 	public void onConfigurationChanged(Configuration newConfig)
 	{
-		if (!KptUtils.isSystemKeyboard(HomeActivity.this))
+		if (!KptUtils.isSystemKeyboard(HomeActivity.this)&&mCustomKeyboard!=null)
 		{
 			mCustomKeyboard.onConfigurationChanged(newConfig);
 		}
