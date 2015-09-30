@@ -493,7 +493,7 @@ public class ChatHeadUtils
 	
 	public static void postNumberRequest(Context context, String searchNumber)
 	{
-		if (!searchNumber.contains("*") && !searchNumber.contains("#"))
+		if (searchNumber != null && !searchNumber.contains("*") && !searchNumber.contains("#"))
 		{
 			final String number = Utils.normalizeNumber(
 					searchNumber,
