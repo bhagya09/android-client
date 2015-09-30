@@ -1732,7 +1732,7 @@
     <string name="added_in_group">This contact is already a member</string>
 	<string name="net_not_connected">HikeCaller works only on Wi-Fi or 3G/4G.</string>
 	<string name="sticky_caller_settings">Caller</string>
-	<string name="sticky_caller_settings_side_text">Show identity and options for unknown numbers.</string>
+	<string name="sticky_caller_settings_side_text">Show caller information for unknown numbers and free calling, messaging options for calls.</string>
 	<string name="okay">OKAY</string>
     <string name="getting_mapp_shortly">Congratulations! You should see %1$s on your chat screen shortly</string>
     <string name="hike_apps">APPS ON HIKE</string>

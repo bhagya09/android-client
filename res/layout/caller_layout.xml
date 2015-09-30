@@ -89,7 +89,7 @@
                 android:layout_centerVertical="true"
                 android:layout_toLeftOf="@id/caller_settings_button"
                 android:layout_toRightOf="@id/hike_caller_logo"
-                android:textColor="@color/conv_item_last_msg_color"
+                android:textColor="@color/caller_free_call"
                 android:paddingLeft="8dp"
                 android:paddingRight="8dp"
                 android:visibility="gone" />
