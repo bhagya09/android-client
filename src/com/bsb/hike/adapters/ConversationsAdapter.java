@@ -1320,7 +1320,7 @@ public class ConversationsAdapter extends BaseAdapter
 			{
 				conversationsMsisdns.remove(conv.getMsisdn());
 			}
-			if (phoneBookContacts != null && conv.isOnHike() && !conv.isStealth())
+			if (phoneBookContacts != null && conv.isOnHike() && !conv.isStealth() && !BotUtils.isBot(conv.getMsisdn()))
 			{
 				phoneBookContacts.add(getPhoneContactFakeConv(conv));
 			}
