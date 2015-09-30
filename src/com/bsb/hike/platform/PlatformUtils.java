@@ -19,6 +19,7 @@ import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.CoreProtocolPNames;
 import org.apache.http.util.EntityUtils;
+import org.cocos2dx.lib.Cocos2dxHelper;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -45,6 +46,7 @@ import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.chatHead.StickyCaller;
+import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
@@ -335,7 +337,14 @@ public class PlatformUtils
 				String extraData=null;
 				extraData=mmObject.optString(HikeConstants.DATA);
 				Intent i=IntentFactory.getNonMessagingBotIntent(msisdn,context,extraData);
-				isProcessRunning(context,"org.cocos2dx.gameprocess");
+				if(isProcessRunning(context,HikePlatformConstants.GAME_PROCESS)&&!(getLastGame().equals(msisdn)))
+				{
+					Logger.d("pushkar","last game"+getLastGame());
+					Logger.d("pushkar","current msisdn"+msisdn);
+					killProcess(context,HikePlatformConstants.GAME_PROCESS);
+					Logger.d(TAG, "process killed");
+				}
+				HikeContentDatabase.getInstance().putInContentCache(HikePlatformConstants.LAST_GAME,BotUtils.getBotInfoForBotMsisdn(HikePlatformConstants.GAME_CHANNEL).getNamespace() ,msisdn);
 				context.startActivity(i);
 			}
 		}
@@ -1243,10 +1252,30 @@ public class PlatformUtils
 	            if(procInfos.get(i).processName.equals(process)) 
 	            {
 	            	Logger.d(TAG, "process is running");
+	            	
 	            	return true;
 	            }
 	        }
 	        return false;
+	}
+	
+	public static void killProcess(Activity context,String process)
+	{
+		ActivityManager activityManager = (ActivityManager) context.getSystemService(context. ACTIVITY_SERVICE );
+        List<RunningAppProcessInfo> procInfos = activityManager.getRunningAppProcesses();
+        for(int i = 0; i < procInfos.size(); i++)
+        {
+            if(procInfos.get(i).processName.equals(process)) 
+            {
+            	int pid=procInfos.get(i).pid;
+            	android.os.Process.killProcess(pid);
+            	
+            }
+        }
+	}
+	public static String getLastGame()
+	{
+		return HikeContentDatabase.getInstance().getFromContentCache(HikePlatformConstants.LAST_GAME,BotUtils.getBotInfoForBotMsisdn(HikePlatformConstants.GAME_CHANNEL).getNamespace());
 	}
 
 }
