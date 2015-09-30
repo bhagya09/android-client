@@ -3291,6 +3291,10 @@ public class HikeConstants
 	
 	public static final String MENU_OPTIONS_FOR_GC_VIA_OTHERS = "mo_gc_o";
 	
+	public static final String ENABLE_MENU_OPTION_FOR_GC_VIA_WA = "en_mo_gc_wa";
+	
+	public static final String ENABLE_MENU_OPTIONS_FOR_GC_VIA_OTHERS = "en_mo_gc_o";
+	
 	public static final String TEXT_FOR_GC_VIA_WA = "t_gc_wa";
 	
 	public static final String TEXT_FOR_GC_VIA_OTHERS = "t_gc_o";

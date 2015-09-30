@@ -2527,6 +2527,16 @@ public class MqttMessagesManager
 			String textGCOthers = data.getString(HikeConstants.MENU_OPTIONS_FOR_GC_VIA_OTHERS);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.MENU_OPTIONS_FOR_GC_VIA_OTHERS, textGCOthers);
 		}
+		if(data.has(HikeConstants.ENABLE_MENU_OPTION_FOR_GC_VIA_WA))
+		{
+			boolean enableMenu = data.getBoolean(HikeConstants.ENABLE_MENU_OPTION_FOR_GC_VIA_WA);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ENABLE_MENU_OPTION_FOR_GC_VIA_WA, enableMenu);
+		}
+		if(data.has(HikeConstants.ENABLE_MENU_OPTIONS_FOR_GC_VIA_OTHERS))
+		{
+			boolean enableMenu = data.getBoolean(HikeConstants.ENABLE_MENU_OPTIONS_FOR_GC_VIA_OTHERS);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ENABLE_MENU_OPTIONS_FOR_GC_VIA_OTHERS, enableMenu);
+		}
 		if(data.has(HikeConstants.TEXT_FOR_GC_VIA_WA))
 		{
 			String textGCWA = data.getString(HikeConstants.TEXT_FOR_GC_VIA_WA);

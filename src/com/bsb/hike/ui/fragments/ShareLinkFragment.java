@@ -132,11 +132,14 @@ public class ShareLinkFragment extends DialogFragment implements OnClickListener
 		boolean isWAInstalled = Utils.isPackageInstalled(getActivity(), HikeConstants.Extras.WHATSAPP_PACKAGE);
 		boolean isAnyOtherShareableApp = Utils.getPackagesMatchingIntent(Intent.ACTION_SEND, null, "text/plain").size() > 0 ? true : false;
 
-		if (isWAInstalled)
+		boolean toShowWAMenuItem = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ENABLE_MENU_OPTION_FOR_GC_VIA_WA, false);
+		boolean toShowOtherShareableAppMenuItem = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ENABLE_MENU_OPTIONS_FOR_GC_VIA_OTHERS, false);
+		
+		if (isWAInstalled && toShowWAMenuItem)
 		{
 			view.findViewById(R.id.share_via_WA).setVisibility(View.VISIBLE);
 		}
-		if (isAnyOtherShareableApp)
+		if (isAnyOtherShareableApp && toShowOtherShareableAppMenuItem)
 		{
 			view.findViewById(R.id.share_via_Others).setVisibility(View.VISIBLE);
 		}
