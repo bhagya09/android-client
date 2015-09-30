@@ -1174,6 +1174,20 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 		});
 	}
 	
+	public void showToast(final String message,final int duration)
+	{
+		appStateHandler.post(new Runnable()
+		{
+			
+			@Override
+			public void run()
+			{
+				Toast.makeText(getApplicationContext(), message,duration).show();
+			}
+		});
+	}
+	
+	
 	public void showToast(final int stringId,final int duration)
 	{
 		appStateHandler.post(new Runnable()

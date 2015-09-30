@@ -1187,6 +1187,10 @@ public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique
 	 */
 	public boolean isSilent()
 	{
+		if (getPlatformData() != null)
+		{
+			return isNormalMessageSilent();
+		}
 		if (getMessageType() == HikeConstants.MESSAGE_TYPE.WEB_CONTENT && webMetadata != null)
 		{
 			return webMetadata.getPushType().equals(HikePlatformConstants.SILENT_PUSH);
@@ -1462,5 +1466,10 @@ public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique
 	public JSONObject getPlatformData()
 	{
 		return this.platformData;
+	}
+	
+	public boolean isNormalMessageSilent()
+	{
+		return getPlatformData().optString(HikeConstants.PLAY_NOTIFICATION).equals(HikeConstants.SILENT);
 	}
 }

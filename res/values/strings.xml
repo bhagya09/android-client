@@ -1726,7 +1726,7 @@
     <string name="timeline_transition_anim">timeline_image_transit</string>
     <string name="home_overflow_new_photo">New Photo</string>
     <string name = "max_file_size_offline">Max file size for hike direct is 2 GB</string>
-    <string name = "upgrade_for_larger_files">Ask your friend to update hike to share large files</string>
+    <string name = "upgrade_for_larger_files">%1$s needs to upgrade to receive this file.Share the latest version of Hike now via Hike Direct</string>
     <string name="group_participant_info">You can add upto 500 members to a group</string>
     <string name="maxContactInGroupErr">Max %1$s members can be added</string>
     <string name="added_in_group">This contact is already a member</string>
@@ -1741,6 +1741,6 @@
     <string name="hike_apps">APPS ON HIKE</string>
     <string name="hi">Hi</string>
     <string name="caller_invited_to_join">%1$s has been invited to join a call with you.</string>
-    
+    <string name="take_me_there">TAKE ME THERE</string>
     
 </resources>
