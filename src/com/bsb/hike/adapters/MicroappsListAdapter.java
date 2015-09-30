@@ -124,6 +124,11 @@ public class MicroappsListAdapter extends RecyclerView.Adapter<MicroappsListAdap
 			}
 			else
 			{
+				if (mBotInfo.isBlocked())
+				{
+					mBotInfo.setBlocked(false);
+					HikeMessengerApp.getPubSub().publish(HikePubSub.UNBLOCK_USER, mBotInfo.getMsisdn());
+				}
 				openBot(mBotInfo);
 			}
 		}
@@ -247,9 +252,9 @@ public class MicroappsListAdapter extends RecyclerView.Adapter<MicroappsListAdap
 			@Override
 			public void positiveClicked(HikeDialog hikeDialog)
 			{
-				if (mBotInfo.isBlocked())
+				if (BotUtils.isBot(mBotInfo.getMsisdn()) && BotUtils.getBotInfoForBotMsisdn(mBotInfo.getMsisdn()).isBlocked())
 				{
-					mBotInfo.setBlocked(false);
+					BotUtils.getBotInfoForBotMsisdn(mBotInfo.getMsisdn()).setBlocked(false);
 					HikeMessengerApp.getPubSub().publish(HikePubSub.UNBLOCK_USER, mBotInfo.getMsisdn());
 				}
 				
@@ -298,6 +303,15 @@ public class MicroappsListAdapter extends RecyclerView.Adapter<MicroappsListAdap
 		description = (TextView) dialog.findViewById(R.id.bot_description);
 		description.setText(mBotInfo.getBotDescription());
 		
+	}
+	
+	public void releaseResources()
+	{
+		removePubSubListeners();
+		if (dialog != null)
+		{
+			dialog.dismiss();
+		}
 	}
 	
 	public void removePubSubListeners()
