@@ -683,7 +683,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 					if(hasFocus){
 						if (KptUtils.isSystemKeyboard(HomeActivity.this))
 						{
-							Utils.showSoftKeyboard(searchET, InputMethodManager.SHOW_FORCED);
+							Utils.toggleSoftKeyboard(HomeActivity.this.getApplicationContext());
 						}
 						else
 						{
