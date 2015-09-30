@@ -347,7 +347,19 @@ public class BotUtils
 
 	private static BotInfo getBotInfoForNonMessagingBots(JSONObject jsonObj, String msisdn)
 	{
-		BotInfo botInfo = getBotInfoForBotMsisdn(msisdn);
+		
+		BotInfo existingBotInfo = getBotInfoForBotMsisdn(msisdn);
+		BotInfo botInfo = null;
+		try
+		{
+			botInfo = (BotInfo) existingBotInfo.clone();
+
+		}
+		catch (CloneNotSupportedException e)
+		{
+			e.printStackTrace();
+		}
+		
 
 		if (null == botInfo)
 		{
@@ -418,7 +430,17 @@ public class BotUtils
 
 	private static BotInfo getBotInfoFormessagingBots(JSONObject jsonObj, String msisdn)
 	{
-		BotInfo botInfo = getBotInfoForBotMsisdn(msisdn);
+		BotInfo existingBotInfo = getBotInfoForBotMsisdn(msisdn);
+		BotInfo botInfo = null;
+		try
+		{
+			botInfo = (BotInfo) existingBotInfo.clone();
+
+		}
+		catch (CloneNotSupportedException e)
+		{
+			e.printStackTrace();
+		}
 		if (null == botInfo)
 		{
 			botInfo = new BotInfo.HikeBotBuilder(msisdn)
