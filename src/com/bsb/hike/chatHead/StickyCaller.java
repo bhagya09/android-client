@@ -2,6 +2,7 @@ package com.bsb.hike.chatHead;
 
 import java.net.HttpURLConnection;
 
+import android.animation.TimeInterpolator;
 import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.Intent;
@@ -11,6 +12,7 @@ import android.sax.StartElementListener;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
+import android.view.VelocityTracker;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewConfiguration;
@@ -18,6 +20,8 @@ import android.view.ViewDebug.FlagToString;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.WindowManager.LayoutParams;
+import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.AccelerateInterpolator;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.FrameLayout;
@@ -28,6 +32,7 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
@@ -97,7 +102,11 @@ public class StickyCaller
 	public static boolean toCall = false;
 
     private static boolean horizontalMovementDetected = false;
-	
+    
+    private static boolean verticalMovementDetected = false;
+    
+    private static int statusBarHeight;
+    
 	public static Runnable removeViewRunnable = new Runnable()
 	{
 
@@ -130,60 +139,45 @@ public class StickyCaller
 
 	private static void actionMove(Context context, int initialX, int initialY, float initialTouchX, float initialTouchY, MotionEvent event)
 	{
-		if (ChatHeadLayout.getOverlayView() == null || !ChatHeadLayout.getOverlayView().isShown())
+		if ((ChatHeadLayout.getOverlayView() == null || !ChatHeadLayout.getOverlayView().isShown()) && stickyCallerView != null) 
 		{
+			float verticalDistance = 0.0f;
 			float XaxisMovement = event.getRawX() - initialTouchX;
+			float YaxisMovement = event.getRawY() - initialTouchY;
 			float wanderableTouchDistance =  (float)ViewConfiguration.get(context).getScaledTouchSlop();
-			Logger.d("UmangJ","check : " + XaxisMovement + " > " + wanderableTouchDistance);
-			if(!horizontalMovementDetected)
+			Logger.d("StickyCaller","check : " + XaxisMovement + " > " + wanderableTouchDistance);
+			if(!(horizontalMovementDetected || verticalMovementDetected))
+			{
 				horizontalMovementDetected = Math.abs(XaxisMovement) >  wanderableTouchDistance;
-			//boolean Ymove = Math.abs(event.getRawY() - initialTouchY) > (float)ViewConfiguration.get(context).getScaledEdgeSlop();
-			
-			  if (horizontalMovementDetected && stickyCallerView!=null) {
-				  
-				  float linearHorizontalAlpha = Math.max(0.0f, Math.min(1.0f, 1.0f - (Math.abs(XaxisMovement) / ((float) context.getResources().getDisplayMetrics().widthPixels))));
-				  Logger.d("UmangJ", "setting alpha as : " + linearHorizontalAlpha);
-                  stickyCallerView.setAlpha(linearHorizontalAlpha);
-                  stickyCallerView.setTranslationX(XaxisMovement);
-              }
+				verticalMovementDetected = Math.abs(YaxisMovement) > wanderableTouchDistance;
+			}
 
-//			if ((moveType == NONE || moveType == HORIZONTAL) && (Math.abs(event.getRawX() - initialTouchX) > Math.abs(event.getRawY() - initialTouchY)))
-//			{
-//				callerParams.x = initialX + (int) (event.getRawX() - initialTouchX);
-//				callerParams.alpha = 1.0f - ((float) Math.abs(callerParams.x) / Utils.getDeviceWidth());
-//				moveType = HORIZONTAL;
-//			}
-//			else if ((moveType == NONE || moveType == VERTICAL) && Math.abs(event.getRawX() - initialTouchX) < Math.abs(event.getRawY() - initialTouchY))
-//			{
-//				try
-//				{
-//					callerParams.y = initialY + (int) (event.getRawY() - initialTouchY);
-//					if (callerParams.y < 0)
-//					{
-//						callerParams.y = 0;
-//					}
-//					if (callerParams.y > Utils.getDeviceHeight() - stickyCallerView.getHeight())
-//					{
-//						callerParams.y = Utils.getDeviceHeight() - stickyCallerView.getHeight();
-//					}
-//					moveType = VERTICAL;
-//				}
-//				catch (Exception e)
-//				{
-//					Logger.d("Sticky Caller", "stickyCallerView not exists");
-//				}
-//			}
-//			try
-//			{
-//				windowManager.updateViewLayout(stickyCallerView, callerParams);
-//			}
-//			catch (Exception e)
-//			{
-//				Logger.d("Sticky Caller", "action move chat head");
-//			}
+			if (verticalMovementDetected)
+			{
+				int actualYmovement = (int) (YaxisMovement + ((float) verticalDistance));
+				if (actualYmovement < 0)
+				{
+					callerParams.y = 0;
+				}
+				else if (actualYmovement > statusBarHeight - stickyCallerView.getHeight())
+				{
+					callerParams.y = statusBarHeight - stickyCallerView.getHeight();
+				}
+				else
+				{
+					callerParams.y = actualYmovement;
+				}
+				windowManager.updateViewLayout(stickyCallerFrameHolder, callerParams);
+			}
+
 			
-			
-			
+			if (horizontalMovementDetected)
+			{
+				float linearHorizontalAlpha = Math.max(0.0f, Math.min(1.0f, 1.0f - (Math.abs(XaxisMovement) / ((float) context.getResources().getDisplayMetrics().widthPixels))));
+				Logger.d("StickyCaller", "setting alpha as : " + linearHorizontalAlpha);
+				stickyCallerView.setAlpha(linearHorizontalAlpha);
+				stickyCallerView.setTranslationX(XaxisMovement);
+			}
 			
 		}
 		return;
@@ -201,7 +195,7 @@ public class StickyCaller
 				callerParams.alpha = 1.0f - ((float) Math.abs(callerParams.x) / Utils.getDeviceWidth());
 				try
 				{
-					windowManager.updateViewLayout(stickyCallerView, callerParams);
+					windowManager.updateViewLayout(stickyCallerFrameHolder, callerParams);
 				}
 				catch (Exception e)
 				{
@@ -219,7 +213,7 @@ public class StickyCaller
 		{
 			removeViewCallBacks();
 			HikeSharedPreferenceUtil.getInstance().saveData(CALLER_Y_PARAMS, callerParams.y);
-			windowManager.removeView(stickyCallerView);
+			windowManager.removeView(stickyCallerFrameHolder);
 			stickyCallerView = null;
 		}
 		catch (Exception e)
@@ -283,6 +277,10 @@ public class StickyCaller
 
 		public boolean onTouch(View v, MotionEvent event)
 		{
+			VelocityTracker exitSpeedTracker =  VelocityTracker.obtain();
+			Context ctx = HikeMessengerApp.getInstance().getApplicationContext();
+			statusBarHeight = Utils.getDeviceHeight() - ChatThreadUtils.getStatusBarHeight(ctx);
+			
 			switch (event.getAction())
 			{   
 			case MotionEvent.ACTION_OUTSIDE:
@@ -291,6 +289,10 @@ public class StickyCaller
 			case MotionEvent.ACTION_DOWN:
 				initialX = callerParams.x;
 				initialY = callerParams.y;
+				
+				  if (initialY > statusBarHeight - stickyCallerView.getHeight()) {
+                      initialY = statusBarHeight - stickyCallerView.getHeight();
+                  } 
 				initialTouchX = event.getRawX();
 				initialTouchY = event.getRawY();
 				moveType = NONE;
@@ -298,20 +300,30 @@ public class StickyCaller
 			case MotionEvent.ACTION_UP:
 				if(horizontalMovementDetected)
 				{
+					exitSpeedTracker.computeCurrentVelocity(1000);
+					float exitSpeed = exitSpeedTracker.getXVelocity();
+					if ((Math.abs(exitSpeed) <= Utils.densityMultiplier * 400.0f || Math.abs(initialTouchX - event.getRawX()) <= Utils.densityMultiplier * 25.0f)
+							&& Math.abs(stickyCallerView.getTranslationX()) < ((float) (Utils.getDeviceWidth() / 2)))
+					{
+						Logger.d("UmangK", "dismissing" + "0");
+						actionOnMotionUpEvent(0);
+					}
+					else
+					{
+						float Xmove = 0.0f;
+						if (Math.abs(stickyCallerView.getTranslationX()) >= ((float) (Utils.getDeviceWidth() / 2)))
+						{
+							Xmove = stickyCallerView.getTranslationX();
+						}
+						Logger.d("UmangX", "" + ((int) Math.copySign((float) Utils.getDeviceWidth(), Xmove)));
+						actionOnMotionUpEvent((int) Math.copySign((float) Utils.getDeviceWidth(), Xmove));
+					}
+					  
+					
 					horizontalMovementDetected = false;
 				}
-//				if (callerParams.x < -(3 * Utils.getDeviceWidth() / 4))
-//				{
-//					slideAnimation(callerParams.x, -(Utils.getDeviceWidth()));
-//				}
-//				else if (callerParams.x > (3 * Utils.getDeviceWidth() / 4))
-//				{
-//					slideAnimation(callerParams.x, Utils.getDeviceWidth());
-//				}
-//				else
-//				{
-//					slideAnimation(callerParams.x, 0);
-//				}
+				verticalMovementDetected = false;
+
 				break;
 			case MotionEvent.ACTION_MOVE:
 				actionMove(HikeMessengerApp.getInstance(), initialX, initialY, initialTouchX, initialTouchY, event);
@@ -320,6 +332,27 @@ public class StickyCaller
 			return gestureDetector.onTouchEvent(event);
 		}
 	};
+	
+	private static void actionOnMotionUpEvent(int i)
+	{
+		TimeInterpolator accelerateDecelerateInterpolator;
+		float f = 0.0f;
+		if (i == 0)
+		{
+			f = 1.0f;
+			accelerateDecelerateInterpolator = new AccelerateDecelerateInterpolator();
+		}
+		else
+		{
+			accelerateDecelerateInterpolator = new AccelerateInterpolator();
+			if (i == (-1 * Utils.getDeviceWidth()) || i == Utils.getDeviceWidth())
+			{
+				Logger.d("StickyCaller", "may not dismiss");
+				//TODO might make view invisible -> product call
+			}
+		}
+		stickyCallerView.animate().translationX((float) i).alpha(f).setDuration(500L).setInterpolator(accelerateDecelerateInterpolator);
+	}
 	
 	
 	public static void showCallerViewWithDelay(final String number, final String result, final short type, final String source)
@@ -351,7 +384,7 @@ public class StickyCaller
 		callerParams.flags = LayoutParams.FLAG_LAYOUT_NO_LIMITS | LayoutParams.FLAG_NOT_FOCUSABLE ;
 		try
 		{
-			windowManager.removeView(stickyCallerView);
+			windowManager.removeView(stickyCallerFrameHolder);
 		}
 		catch (Exception e)
 		{
