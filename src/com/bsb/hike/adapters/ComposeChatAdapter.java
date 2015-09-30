@@ -35,6 +35,7 @@ import com.bsb.hike.smartImageLoader.IconLoader;
 import com.bsb.hike.tasks.FetchFriendsTask;
 import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.utils.EmoticonConstants;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.NUXManager;
 import com.bsb.hike.utils.OneToNConversationUtils;
@@ -79,6 +80,8 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 	private boolean nuxStateActive = false;
 	
 	private boolean showMicroappShowcase = false;
+	
+	private MicroappsListAdapter microappsListAdapter;
 
 	public ComposeChatAdapter(Context context, ListView listView, boolean fetchGroups, boolean fetchRecents, boolean fetchRecentlyJoined, String existingGroupId, String sendingMsisdn, FriendsListFetchedCallback friendsListFetchedCallback, boolean showSMSContacts, boolean showMicroappShowcase)
 	{
@@ -446,7 +449,8 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 			convertView = LayoutInflater.from(context).inflate(R.layout.microapps_horizontal_view, null);
 			holder = new ViewHolder();
 			holder.recyclerView = (RecyclerView) convertView.findViewById(R.id.mapps_list);
-			holder.recyclerView.setAdapter(new MicroappsListAdapter(context, microappShowcaseList, iconloader));
+			microappsListAdapter = new MicroappsListAdapter(context, microappShowcaseList, iconloader);
+			holder.recyclerView.setAdapter(microappsListAdapter);
 			LinearLayoutManager layoutManager = new LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false);
 	        holder.recyclerView.setLayoutManager(layoutManager);
 	        holder.recyclerView.setOverScrollMode(View.OVER_SCROLL_NEVER);
@@ -528,7 +532,7 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 		
 		if(showMicroappShowcase && microappShowcaseList != null && !microappShowcaseList.isEmpty())
 		{
-			ContactInfo microappSection = new ContactInfo(SECTION_ID, ""+microappShowcaseList.size(), context.getString(R.string.hike_apps), APPS_ON_HIKE);
+			ContactInfo microappSection = new ContactInfo(SECTION_ID, ""+microappShowcaseList.size(), HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.BOTS_DISCOVERY_SECTION, context.getResources().getString(R.string.hike_apps)), APPS_ON_HIKE);
 			ContactInfo microappShowcaseList = new ContactInfo(HIKE_APPS_ID, HIKE_APPS_MSISDN, context.getString(R.string.hike_apps), HIKE_APPS_NUM);
 			completeList.add(microappSection);
 			completeList.add(microappShowcaseList);
@@ -882,6 +886,14 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 		{
 			ContactInfo contactInfo = ContactManager.getInstance().getContact(msisdn, true, false);
 			selectedPeople.put(msisdn, contactInfo);
+		}
+	}
+	
+	public void releaseResources()
+	{
+		if (microappsListAdapter != null)
+		{
+			microappsListAdapter.releaseResources();
 		}
 	}
 	

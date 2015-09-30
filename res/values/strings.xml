@@ -1743,5 +1743,6 @@
     <string name="dismiss_with">DISMISS WITH</string>
     <string name="save_contact">SAVE CONTACT</string>
     <string name="getting_details">Getting details...</string>
-    
+    <string name="take_me_there">TAKE ME THERE</string>
+
 </resources>
