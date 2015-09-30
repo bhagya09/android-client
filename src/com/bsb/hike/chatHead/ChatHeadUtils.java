@@ -1,6 +1,8 @@
 package com.bsb.hike.chatHead;
 
 import java.lang.reflect.Field;
+import java.sql.Date;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -17,6 +19,7 @@ import android.app.ActivityManager.RunningTaskInfo;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.SystemClock;
 import android.provider.Settings;
 import android.provider.Settings.SettingNotFoundException;
 import android.support.v4.app.TaskStackBuilder;
@@ -126,6 +129,14 @@ public class ChatHeadUtils
 		}
 	}
 
+	
+	public static String getdateFromSystemTime()
+	{
+	    SimpleDateFormat formatter = new SimpleDateFormat(" 'on' MMM dd 'at' hh:mm aaa");
+	    Date resultdate = new Date(System.currentTimeMillis());
+	    return formatter.format(resultdate).replace("am", "AM").replace("pm", "PM");
+	}
+	
 	public static void getRunningTaskPackage(Context context, ActivityManager activityManager, List<RunningAppProcessInfo> processInfos, Set<String> packageName, int type)
 	{
 		if (Utils.isLollipopOrHigher())
@@ -549,7 +560,7 @@ public class ChatHeadUtils
 			context.unregisterReceiver(outgoingCallReceiver);
 			outgoingCallReceiver = null;
 		}
-
+		StickyCaller.removeCallerView();
 	}
 	
 	public static void onCallClickedFromCallerCard(Context context, String callCurrentNumber, CallSource hikeStickyCaller)
@@ -590,7 +601,7 @@ public class ChatHeadUtils
 		else
 		{
 			Toast.makeText(context, String.format(context.getString(R.string.caller_invited_to_join), callerName), Toast.LENGTH_SHORT).show();
-			//TODO self invite logic
+			Utils.sendInvite(callCurrentNumber, context);
 		}
 	}
 	
