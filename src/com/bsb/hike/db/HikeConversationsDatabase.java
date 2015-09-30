@@ -6966,6 +6966,14 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 	public int getTotalUnreadMessages()
 	{
 		int unreadMessages = 0;
+		unreadMessages=getTotalUnreadMessagesConversation();
+		unreadMessages += Utils.getNotificationCount(mContext.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0), false);
+
+		return unreadMessages;
+	}
+	public int getTotalUnreadMessagesConversation()
+	{
+		int unreadMessages = 0;
 		Cursor c = null;
 
 		try
@@ -6991,7 +6999,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			}
 		}
 
-		unreadMessages += Utils.getNotificationCount(mContext.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0), false);
+		
 
 		return unreadMessages;
 	}

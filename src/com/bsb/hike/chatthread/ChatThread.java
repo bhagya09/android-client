@@ -4873,6 +4873,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			}
 			HikeMessengerApp.getPubSub().publish(HikePubSub.MSG_READ, msisdn);
 			ChatThreadUtils.sendMR(msisdn, unreadConvMessages, readMessageExists,channelSelector);
+			HikeMessengerApp.getPubSub().publish(HikePubSub.BADGE_COUNT_MESSAGE_CHANGED, msisdn);
 		}
 	}
 	
