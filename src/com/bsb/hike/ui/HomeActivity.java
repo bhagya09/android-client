@@ -267,7 +267,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 			if (TextUtils.isEmpty(action) || TextUtils.isEmpty(linkUrl))
 			{
-				finish();
+				//finish();
 				return;
 			}
 			

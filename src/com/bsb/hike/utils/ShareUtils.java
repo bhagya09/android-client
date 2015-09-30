@@ -178,9 +178,6 @@ public class ShareUtils
 
 	private static void textShare(String text, String pkgName)
 	{
-		String textHead = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.Extras.TEXT_HEADING, mContext.getString(R.string.text_share_heading));
-		String textCap = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.Extras.TEXT_CAPTION, mContext.getString(R.string.text_share_caption));
-		text = text + "\n\n" + textHead + "\n" + textCap;
 		Intent textIntent = IntentFactory.shareIntent("text/plain", null, text, HikeConstants.Extras.ShareTypes.TEXT_SHARE, pkgName, false);
 		mContext.startActivity(textIntent);
 	}
