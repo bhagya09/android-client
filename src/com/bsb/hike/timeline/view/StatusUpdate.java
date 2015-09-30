@@ -528,8 +528,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 			statusTxt.setHint(R.string.status_hint_image);
 			btnRemovePhoto.setVisibility(View.VISIBLE);
 			mActivityTask.imageDeleted = false;
-			resetMood();
-		}
+ 		}
 		
 		refreshLayouts();
 	}
@@ -876,14 +875,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 
 	private boolean shouldShowMoodsButton()
 	{
-		if (TextUtils.isEmpty(mImagePath))
-		{
-			return true;
-		}
-		else
-		{
-			return false;
-		}
+		return true;
 	}
 	
 	private boolean shouldShowAddPhotoButton()
