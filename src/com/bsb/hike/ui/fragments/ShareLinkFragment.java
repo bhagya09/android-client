@@ -105,7 +105,8 @@ public class ShareLinkFragment extends DialogFragment implements OnClickListener
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
 	{
 		View parent = inflater.inflate(R.layout.link_share_view, null);
-
+		parent.setPadding(0, HikeMessengerApp.getInstance().getResources().getDimensionPixelSize(R.dimen.menu_list_padding_top), 0, HikeMessengerApp.getInstance().getResources().getDimensionPixelSize(R.dimen.menu_list_padding_bottom));
+		
 		CustomFontTextView waText = (CustomFontTextView) parent.findViewById(R.id.share_via_WA);
 		waText.setText(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.MENU_OPTION_FOR_GC_VIA_WA, R.string.watsapp));
 		waText.setOnClickListener(this);

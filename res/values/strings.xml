@@ -1726,13 +1726,13 @@
     <string name="group_participant_info">You can add upto 500 members to a group</string>
     <string name="maxContactInGroupErr">Max %1$s members can be added</string>
     <string name="added_in_group">This contact is already a member</string>
-    <string name="watsapp">Add via Watsapp</string>
+    <string name="watsapp">Add via WhatsApp</string>
     <string name="others">Add via Others</string>
     <string name="add_via_hike">Add via Hike</string>
     <string name="link_share_network_error">Could not share: Please check your network and try again.</string>
     <string name="link_share_wa_msg">You can now add memebers from group and contacts from WA by sharing link below.</string>
     <string name="link_share_others_msg">You can now add memebers from group and contacts from Other apps by sharing link below.</string>
-    <string name="wa_group">Watsapp Group</string>
+    <string name="wa_group">WhatsApp Group</string>
     <string name="opening_app">Opening App</string>
     <string name="max_file_size_offline">Max file size for hike direct is 2 GB</string>
     <string name="group_participant_info">You can add upto 500 members to a group</string>
