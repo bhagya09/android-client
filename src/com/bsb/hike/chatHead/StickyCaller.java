@@ -251,8 +251,8 @@ public class StickyCaller
 			{
 				try
 				{
-					stickyCallerView.clearAnimation();
-					slideAnimation(callerParams.x, Utils.getDeviceWidth());
+//					stickyCallerView.clearAnimation();
+//					slideAnimation(callerParams.x, Utils.getDeviceWidth());
 				}
 				catch (Exception e)
 				{
@@ -269,8 +269,8 @@ public class StickyCaller
 			{
 				try
 				{
-					stickyCallerView.clearAnimation();
-					slideAnimation(callerParams.x, -(Utils.getDeviceWidth()));
+//					stickyCallerView.clearAnimation();
+//					slideAnimation(callerParams.x, -(Utils.getDeviceWidth()));
 				}
 				catch (Exception e)
 				{
@@ -307,7 +307,7 @@ public class StickyCaller
 				moveType = NONE;
 				break;
 			case MotionEvent.ACTION_UP:
-				if(horizontalMovementDetected)
+				if(horizontalMovementDetected && stickyCallerView!=null)
 				{
 					exitSpeedTracker.computeCurrentVelocity(1000);
 					float exitSpeed = exitSpeedTracker.getXVelocity();
@@ -356,8 +356,7 @@ public class StickyCaller
 			accelerateDecelerateInterpolator = new AccelerateInterpolator();
 			if (movedOnXaxis == (-1 * Utils.getDeviceWidth()) || movedOnXaxis == Utils.getDeviceWidth())
 			{
-				Logger.d(TAG, "may not dismiss");
-				//TODO might make view invisible -> product call
+				Logger.d("UmangK", "may not dismiss");
 			}
 		}
 		stickyCallerView.animate().translationX((float) movedOnXaxis).alpha(alpha).setDuration(500L).setInterpolator(accelerateDecelerateInterpolator).setListener(new AnimatorListener()
@@ -382,7 +381,7 @@ public class StickyCaller
 			{
 				if(movedOnXaxis != 0)
 				{
-					Logger.d("UmangK","making caller gone");
+					Logger.d(TAG,"making caller gone");
 					stickyCallerFrameHolder.setVisibility(View.GONE);
 				}
 			}
