@@ -2022,6 +2022,11 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 		}
 		if (viewFlipper.getDisplayedChild() == PIN)
 		{
+			if (mCustomKeyboard != null && mCustomKeyboard.isCustomKeyboardVisible())
+			{
+				mCustomKeyboard.showCustomKeyboard(enterEditText, false);
+				return;
+			}
 			if (countDownTimer != null)
 			{
 				countDownTimer.cancel();
