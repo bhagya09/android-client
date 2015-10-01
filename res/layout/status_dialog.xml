@@ -58,11 +58,12 @@
                     android:background="@null"
                     android:hint="@string/status_hint"
                     android:inputType="text|textAutoCorrect|textCapSentences|textMultiLine|"
-                    android:maxLines="3"
+                    android:maxLines="5"
                     android:textColor="@color/list_item_header"
+                    android:maxLength="5000"
                     android:textColorHint="#44444444"
                     android:textSize="16sp"
-                    android:textStyle="italic" >
+                    android:textStyle="normal" >
                 </com.bsb.hike.view.CustomFontEditText>
             </RelativeLayout>
         </RelativeLayout>
@@ -76,7 +77,7 @@
 
             <ImageView
                 android:id="@+id/status_image"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_centerHorizontal="true"
                 android:layout_marginBottom="33dp"
@@ -102,7 +103,7 @@
                 android:src="@drawable/ic_remove_photo" />
         </RelativeLayout>
 
-        <LinearLayout
+        <FrameLayout
             android:id="@+id/emoji_container"
             android:layout_width="match_parent"
             android:layout_height="@dimen/emoticon_pallete"
@@ -111,7 +112,7 @@
             android:visibility="gone" >
 
             <include layout="@layout/emoticon_layout" />
-        </LinearLayout>
+        </FrameLayout>
 
         <LinearLayout
             android:id="@+id/mood_parent_status"
@@ -142,8 +143,8 @@
 
             <View
                 android:layout_width="match_parent"
-                android:layout_height="1.5dp"
-                android:background="@drawable/shadow_top" />
+                android:layout_height="1px"
+                android:background="@color/black_16" />
 
             <com.bsb.hike.view.CustomFontTextView
                 android:layout_width="wrap_content"

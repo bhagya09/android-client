@@ -33,7 +33,7 @@ public class FTAnalyticEvents
 
 	public static final String FT_PAUSE_COUNT = "pc";
 
-	public static final String FT_NETWORK_TYPE = "nw";
+	public static final String FT_NETWORK_TYPE = "con";
 
 	public static final String FT_ATTACHEMENT_TYPE = "at";
 
@@ -183,6 +183,22 @@ public class FTAnalyticEvents
 	public static final String HOST_FALLBACK = "host_fallback";
 
 	public static final String FT_STATE_READ_FAIL = "ft_state_read_fail";
+
+	public static final String FT_BENCH_MARK = "rel_ft";
+
+	public static final String FT_PROCESSING_TIME = "ft_pt";
+
+	public static final String FT_CHUNK_SIZE = "ft_cs";
+
+	public static final String FT_COMPLETED = "ft_c";
+
+	public static final String FT_FILE_ID = "ft_fId";
+
+	public static final String FT_CONTENT_RANGE = "ft_cr";
+
+	public static final String FT_FILE_TYPE = "ft_fileType";
+	
+	public static final int APK_ATTACHMENT = 7;
 	
 	public FTAnalyticEvents(JSONObject logMetaData)
 	{
@@ -271,7 +287,7 @@ public class FTAnalyticEvents
 	/*
 	 * We send an event every time user transfer file whether it is succeeded or canceled.
 	 */
-	public void sendFTSuccessFailureEvent(String network,  int fileSize, int status)
+	public void sendFTSuccessFailureEvent(String network,  long fileSize, int status)
 	{
 		try
 		{
@@ -293,7 +309,7 @@ public class FTAnalyticEvents
 	/*
 	 * Send an event for video compression
 	 */
-	public static void sendVideoCompressionEvent(String inputRes, String outRes, int inputSize, int outSize, int compressedState)
+	public static void sendVideoCompressionEvent(String inputRes, String outRes, long inputSize, long outSize, int compressedState)
 	{
 		try
 		{
@@ -398,6 +414,39 @@ public class FTAnalyticEvents
 			HAManager.getInstance().logDevEvent(FTR_PRODUCT_AREA, devArea, info);
 		} catch (JSONException e) {
 			Logger.e(AnalyticsConstants.ANALYTICS_TAG, "FTR : Exception occurred while logging dev exception log : "+ e);
+		}
+	}
+
+	/**
+	* Logs the file transfer processing time for every chunk 
+	* 
+	* @param taskType
+	* @param sessionId
+	* @param isCompleted
+	* @param chunkSize
+	* @param timeTaken
+	* @param contentRange
+	* @param networkType
+	* @param fileType
+	*/
+	public static void logFTProcessingTime(String taskType, String sessionId, boolean isCompleted, long chunkSize, long timeTaken, String contentRange, int networkType, String fileType) 
+	{
+		if(!HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.FT_LATENCY_LOGGING, false))
+			return;
+
+		JSONObject metadata = new JSONObject();
+		try {
+			metadata.put(FT_FILE_ID, sessionId);
+			metadata.put(FTR_TASK_TYPE, taskType);
+			metadata.put(FT_CHUNK_SIZE, chunkSize);
+			metadata.put(FT_PROCESSING_TIME, timeTaken);
+			metadata.put(FT_COMPLETED, isCompleted);
+			metadata.put(FT_CONTENT_RANGE, contentRange);
+			metadata.put(FT_NETWORK_TYPE, networkType);
+			metadata.put(FT_FILE_TYPE, fileType);
+			HAManager.getInstance().record(FT_BENCH_MARK, AnalyticsConstants.NON_UI_EVENT, EventPriority.HIGH, metadata, FT_BENCH_MARK);
+		} catch (JSONException e) {
+			Logger.e(AnalyticsConstants.ANALYTICS_TAG, "FTR : Exception occurred while logging processing time : "+ e);
 		}
 	}
 

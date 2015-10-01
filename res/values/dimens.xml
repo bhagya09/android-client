@@ -74,7 +74,7 @@
     <!-- Text size for action bar subtitles -->
     <dimen name="ab__action_bar_subtitle_text_size">6dp</dimen>
     <!-- Top margin for action bar subtitles -->
-    <dimen name="ab__action_bar_subtitle_top_margin">-3dp</dimen>
+    <dimen name="ab__action_bar_subtitle_top_margin">2dp</dimen>
     <!-- Bottom margin for action bar subtitles -->
     <dimen name="ab__action_bar_subtitle_bottom_margin">5dip</dimen>
     <dimen name="ab__status_bar_height">24dp</dimen>
@@ -104,7 +104,7 @@
     <dimen name="timeine_big_picture_size">200dp</dimen>
     <dimen name="timeine_profile_picture_size">320dp</dimen>
     <dimen name="icon_picture_size">50dp</dimen>
-    <dimen name="gallery_grid_spacing">5dp</dimen>
+    <dimen name="gallery_grid_spacing">2dp</dimen>
     <dimen name="gallery_cover_item_size">179dp</dimen>
     <dimen name="gallery_album_item_size">134dp</dimen>
     <dimen name="gallery_selection_item_size">89dp</dimen>
@@ -236,4 +236,8 @@
 	
 	<dimen name="overflow_menu_top_margin_non_overlay">-52dp</dimen>
 	<dimen name="overflow_menu_top_margin_overlay">4dp</dimen>
+	<dimen name="hike_direct_msg_padding">6dp</dimen>
+	<dimen name="mapp_download_dialog_icon">64dp</dimen>
+	<dimen name="mapp_download_dialog_icon_margin">36dp</dimen>
+	<dimen name="mapp_download_dialog_icon_margin_land">26dp</dimen>
 </resources>

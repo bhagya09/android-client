@@ -2,9 +2,12 @@ package com.bsb.hike.photos.views;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Bitmap.Config;
 import android.util.AttributeSet;
 
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.R;
+import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.photos.HikeEffectsFactory;
 import com.bsb.hike.photos.HikeEffectsFactory.OnFilterAppliedListener;
 import com.bsb.hike.photos.HikePhotosUtils;
@@ -39,7 +42,16 @@ public class FilterEffectItemLinearLayout extends EffectItemLinearLayout impleme
 		}
 		else
 		{
-			error = true;
+			preview = HikeBitmapFactory.createBitmap(HikePhotosUtils.dpToPx(HikeConstants.HikePhotos.MAX_BRUSH_WIDTH), HikePhotosUtils.dpToPx(HikeConstants.HikePhotos.MAX_BRUSH_WIDTH), Config.ARGB_4444);
+			if(preview != null)
+			{
+				preview.eraseColor(0xFFFFFF);
+				this.setImage(preview);
+			}
+			else 
+			{
+				error = true;
+			}
 		}
 		this.setText(Title);
 

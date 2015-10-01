@@ -226,7 +226,7 @@ public class UploadContactOrLocationTask extends FileTransferBase
 			@Override
 			public void transferred(long num)
 			{
-				incrementBytesTransferred((int) num);
+				incrementBytesTransferred(num);
 				progressPercentage = (int) ((num / (float) maxSize) * 100);
 			}
 		});

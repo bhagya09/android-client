@@ -2,6 +2,9 @@ package com.bsb.hike.platform;
 
 import java.util.ArrayList;
 
+import com.bsb.hike.models.ContactInfo;
+import com.bsb.hike.models.MessageEvent;
+import com.bsb.hike.modules.contactmgr.ContactManager;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -82,6 +85,8 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 	BaseAdapter adapter;
 
 	private SparseArray<String> cardAlarms;
+
+	private SparseArray<String> events;
 	
 	// usually we have seen 3 cards will be inflated, so 3 holders will be initiated (just an optimizations)
 	ArrayList<WebViewHolder> holderList = new ArrayList<WebViewCardRenderer.WebViewHolder>(3);
@@ -92,7 +97,9 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 		this.adapter = adapter;
 		this.convMessages = convMessages;
 		cardAlarms = new SparseArray<String>(3);
+		events = new SparseArray<String>(3);
 		HikeMessengerApp.getPubSub().addListener(HikePubSub.PLATFORM_CARD_ALARM, this);
+		HikeMessengerApp.getPubSub().addListener(HikePubSub.MESSAGE_EVENT_RECEIVED, this);
 	}
 	
 	public void updateMessageList(MovingList<ConvMessage> objects)
@@ -302,6 +309,12 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 				viewHolder.platformJavaScriptBridge.alarmPlayed(alarm);
 				cardAlarms.remove(mId);
 			}
+			String event;
+			if ((event = events.get(mId))!=null)
+			{
+				viewHolder.platformJavaScriptBridge.eventReceived(event);
+				events.remove(mId);
+			}
 		}
 
 		return view;
@@ -480,13 +493,20 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 					if(convMessage.webMetadata.getPlatformJSCompatibleVersion() == HikePlatformConstants.VERSION_NANO)
 					{
 						holder.platformJavaScriptBridge.setData();
-						String alarmData = convMessage.webMetadata.getAlarmData();
-						Logger.d(tag, "alarm data to html is " + alarmData);
-						if (!TextUtils.isEmpty(alarmData))
-						{
-							holder.platformJavaScriptBridge.alarmPlayed(alarmData);
-							cardAlarms.remove((int) convMessage.getMsgID()); // to avoid calling from getview
-						}
+					}
+
+					String alarmData = convMessage.webMetadata.getAlarmData();
+					Logger.d(tag, "alarm data to html is " + alarmData);
+					if (!TextUtils.isEmpty(alarmData))
+					{
+						holder.platformJavaScriptBridge.alarmPlayed(alarmData);
+						cardAlarms.remove((int) convMessage.getMsgID()); // to avoid calling from getview
+					}
+					String event;
+					if ((event = events.get((int)convMessage.getMsgID()))!=null)
+					{
+						holder.platformJavaScriptBridge.eventReceived(event);
+						events.remove((int) convMessage.getMsgID());
 					}
 					
 				}
@@ -519,6 +539,7 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 	{
 		PlatformRequestManager.onDestroy();
 		HikeMessengerApp.getPubSub().removeListener(HikePubSub.PLATFORM_CARD_ALARM, this);
+		HikeMessengerApp.getPubSub().removeListener(HikePubSub.MESSAGE_EVENT_RECEIVED, this);
 		for(WebViewHolder holder : holderList)
 		{
 			holder.platformJavaScriptBridge.onDestroy();
@@ -543,6 +564,42 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 						adapter.notifyDataSetChanged(); // it will make sure alarmPlayed is called if required
 					}
 				});
+			}
+			else
+			{
+				Logger.e(tag, "Expected Message in PubSub but received " + object.getClass());
+			}
+		}
+		else if (HikePubSub.MESSAGE_EVENT_RECEIVED.equals(type))
+		{
+			if (object instanceof MessageEvent)
+			{
+				MessageEvent messageEvent = (MessageEvent) object;
+
+				try
+				{
+					JSONObject jsonObject = PlatformUtils.getPlatformContactInfo(messageEvent.getMsisdn());
+					jsonObject.put(HikePlatformConstants.EVENT_DATA, messageEvent.getEventMetadata());
+					jsonObject.put(HikePlatformConstants.EVENT_ID , messageEvent.getEventId());
+					jsonObject.put(HikePlatformConstants.EVENT_STATUS, messageEvent.getEventStatus());
+
+					jsonObject.put(HikePlatformConstants.EVENT_TYPE, messageEvent.getEventType());
+					events.put((int) messageEvent.getMessageId(),jsonObject.toString());
+					uiHandler.post(new Runnable()
+					{
+						@Override
+						public void run()
+						{
+							adapter.notifyDataSetChanged(); // it will make sure eventReceived is called if required
+						}
+					});
+				}
+				catch (JSONException e)
+				{
+					Logger.e(tag, "JSON Exception in message event received");
+				}
+
+
 			}
 			else
 			{

@@ -7,6 +7,7 @@ import java.io.InputStream;
 
 import com.bsb.hike.modules.httpmgr.HttpUtils;
 import com.bsb.hike.modules.httpmgr.RequestToken;
+import com.bsb.hike.modules.httpmgr.engine.ProgressByteProcessor;
 import com.bsb.hike.utils.Utils;
 /**
  * File request is used to return response in form of File to the request listener. InputStream to File is done in {@link Request#parseResponse(InputStream)}
@@ -55,7 +56,7 @@ public class FileRequest extends Request<File>
 	}
 
 	@Override
-	public File parseResponse(InputStream is) throws IOException
+	public File parseResponse(InputStream is, int contentLength) throws IOException
 	{
 		FileOutputStream fos = null;
 		File file = null;
@@ -63,17 +64,9 @@ public class FileRequest extends Request<File>
 		{
 			file = new File(filePath);
 			fos = new FileOutputStream(file);
-			byte[] buffer = new byte[BUFFER_SIZE];
-			int len = 0;
-
-			while ((len = is.read(buffer)) != -1)
-			{
-				fos.write(buffer, 0, len);
-			}
-
+			readBytes(is, new ProgressByteProcessor(this, fos, contentLength));
 			fos.flush();
 			fos.getFD().sync();
-
 			return file;
 		}
 		catch (IOException ex)

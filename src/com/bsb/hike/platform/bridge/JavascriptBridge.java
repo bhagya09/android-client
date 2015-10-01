@@ -5,23 +5,23 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.lang.ref.WeakReference;
+import java.net.URISyntaxException;
 import java.net.URLEncoder;
 
-import org.apache.http.impl.execchain.MinimalClientExec;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
-import android.provider.MediaStore;
+import android.provider.Settings;
 import android.text.Html;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -40,6 +40,9 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
+import com.bsb.hike.dialog.HikeDialog;
+import com.bsb.hike.dialog.HikeDialogFactory;
+import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
@@ -49,12 +52,12 @@ import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.platform.CustomWebView;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.IFileUploadListener;
+import com.bsb.hike.platform.PlatformHelper;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.platform.content.PlatformContentConstants;
+import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.ui.ComposeChatActivity;
-import com.bsb.hike.ui.GalleryActivity;
-import com.bsb.hike.ui.WebViewActivity;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
@@ -75,17 +78,19 @@ public abstract class JavascriptBridge
 {
 	protected CustomWebView mWebView;
 
-	protected WeakReference<Activity> weakActivity;;
+	protected WeakReference<Activity> weakActivity;
 
 	public static final String tag = "JavascriptBridge";
-
+	
 	protected Handler mHandler;
 	
-	private static final String REQUEST_CODE = "request_code";
+	protected static final String REQUEST_CODE = "request_code";
 	
 	private static final int PICK_CONTACT_REQUEST = 1;
 
-	public String id;
+	public static final int PICK_CONTACT_AND_SEND_REQUEST = 2;
+	
+	protected static final int CLOSE_WEB_VIEW = 3;
 	
 	public JavascriptBridge(Activity activity, CustomWebView mWebView)
 	{
@@ -124,9 +129,22 @@ public abstract class JavascriptBridge
 	
 	protected void handleUiMessage(Message msg)
 	{
-		
+		switch (msg.what)
+		{
+		case CLOSE_WEB_VIEW :
+			
+			Activity currActivity = weakActivity.get();
+			if (currActivity != null)
+			{
+				currActivity.finish();
+			}
+			
+			break;
+
+		default:
+			break;
+		}
 	}
-	
 	
 	protected void sendMessageToUiThread(int what,Object data)
 	{
@@ -489,7 +507,20 @@ public abstract class JavascriptBridge
 	public void onDestroy()
 	{
 		mWebView.removeCallbacks(heightRunnable);
-		mWebView.onActivityDestroyed();
+		if (mHandler == null)
+		{
+			return;
+		}
+
+		mHandler.post(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				mWebView.onActivityDestroyed();
+			}
+		});
+
 	}
 	
 	@JavascriptInterface
@@ -528,31 +559,34 @@ public abstract class JavascriptBridge
 			intent.putExtra(HikeConstants.Extras.COMPOSE_MODE, ComposeChatActivity.PICK_CONTACT_MODE);
 			intent.putExtra(tag, JavascriptBridge.this.hashCode());
 			intent.putExtra(REQUEST_CODE, PICK_CONTACT_REQUEST);
+			intent.putExtra(HikeConstants.Extras.THUMBNAILS_REQUIRED, true);
 			activity.startActivityForResult(intent, HikeConstants.PLATFORM_REQUEST);
 		}
 	}
-	
-	public void onActivityResult(int requestCode,int resultCode, Intent data)
-	{	
-			Logger.d("FileUpload","onactivity result of javascript");
-			if (requestCode != -1)
-			{
-			if(requestCode == HikeConstants.PLATFORM_FILE_CHOOSE_REQUEST)
+
+
+	public void onActivityResult(int requestCode, int resultCode, Intent data)
+	{
+		Logger.d(tag, "onactivity result of javascript");
+		if (requestCode != -1)
+		{
+			if (requestCode == HikeConstants.PLATFORM_FILE_CHOOSE_REQUEST)
+
 				handlePickFileResult(resultCode, data);
 			else
 			{
-			
-			requestCode = data.getIntExtra(REQUEST_CODE, -1);
-			
-			
+
+				requestCode = data.getIntExtra(REQUEST_CODE, -1);
+
 				switch (requestCode)
 				{
 				case PICK_CONTACT_REQUEST:
+				case PICK_CONTACT_AND_SEND_REQUEST:
 					handlePickContactResult(resultCode, data);
 					break;
 				}
-				}
 			}
+		}
 	}
 	
 	private void handlePickFileResult(int resultCode, Intent data)
@@ -603,28 +637,6 @@ public abstract class JavascriptBridge
 			mWebView.loadUrl("javascript:onContactChooserResult('0','[]')");
 		}
 	}
-	
-	protected void startComPoseChatActivity(final ConvMessage message)
-	{
-		if (null == mHandler)
-		{
-			return;
-		}
-
-		mHandler.post(new Runnable()
-		{
-			@Override
-			public void run()
-			{
-				Activity mContext = weakActivity.get();
-				if (mContext != null)
-				{
-					final Intent intent = IntentFactory.getForwardIntentForConvMessage(mContext, message, PlatformContent.getForwardCardData(message.webMetadata.JSONtoString()));
-					mContext.startActivity(intent);
-				}
-			}
-		});
-	}
 
 	/**
 	 *
@@ -640,7 +652,8 @@ public abstract class JavascriptBridge
 			return;
 		}
 		if (mHandler == null)
-		{	Logger.e(tag,"callbacck to JS is empty nHandler");
+		{
+			Logger.e(tag,"callbacck to JS is empty nHandler");
 			return;
 		}
 		mHandler.post(new Runnable()
@@ -649,7 +662,8 @@ public abstract class JavascriptBridge
 			public void run()
 			{
 				if(!mWebView.isWebViewDestroyed())
-				{	Logger.d(tag,"Inside call back to js with id "+ id );
+				{
+					Logger.d(tag,"Inside call back to js with id "+ id );
 					mWebView.loadUrl("javascript:callbackFromNative" + "('" + id + "','" + getEncodedDataForJS(value) + "')");
 				}
 				else
@@ -704,39 +718,18 @@ public abstract class JavascriptBridge
 				{
 					weakActivity.get().startActivity(intent);
 					callbackToJS(id, "Success");
-				}
-				else
-				{
-					callbackToJS(id, "Failure");
+					return;
 				}
 			}
-			else
-			{
-				callbackToJS(id, "Failure");
-			}
 		}
-		else
-		{
-			callbackToJS(id, "Failure");
-		}
-
+		callbackToJS(id, "Failure");
 	}
-	
-	/**
-	 * Platform Bridge Version 3
-	 * call this function to open file chooser and select the file
-	 * @param id	:	The function id
-	 * returns the absolute path of the selected file in onActivityResult() of WebViewActivity
-	 */
-	
-	
 
 	/**
 	 * Platform Bridge Version 3
 	 * call this function to upload multiple files to the server
 	 * @param id			:	the function id
-	 * @param filePathArray	:	the comma separated string containing the list of file paths
-	 * @param url			:	the URL of the server where the files have to be uploaded
+	 * @param data          :   stringified json. Consists of filePath, uploadUrl, doCompress fields.
 	 * returns the response on each file upload success
 	 */
 	@JavascriptInterface
@@ -888,7 +881,7 @@ public abstract class JavascriptBridge
 
 	/**
 	 * Platform Bridge Version 3
-	 * call this function for any post call.
+	 * call this function for any get call.
 	 * @param functionId : function id to call back to the js.
 	 * @param url : "url": the url that will be called.
 	 * Response to the js will be sent as follows:
@@ -955,6 +948,45 @@ public abstract class JavascriptBridge
 		context.startActivity(intent);
 	}
 
+	/**
+	 * Platform Bridge Version 6
+	 * call this function to call the non-messaging bot`
+	 * @param id : : the id of the function that native will call to call the js .
+	 * @param msisdn: the msisdn of the non-messaging bot to be opened.
+	 * @param data : the data to be sent to the bot.
+	 * returns Success if success and failure if failure.
+	 */
+	@JavascriptInterface
+	public void openNonMessagingBot(String id, String msisdn, String data)
+	{
+
+		if (BotUtils.isBot(msisdn))
+		{
+			BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
+			if (botInfo.isNonMessagingBot())
+			{
+				Intent intent = null;
+				if (weakActivity.get() != null)
+				{
+					intent = IntentFactory.getNonMessagingBotIntent(msisdn, weakActivity.get());
+				}
+				if (null != intent)
+				{
+					intent.putExtra(HikePlatformConstants.MICROAPP_DATA, data);
+					weakActivity.get().startActivity(intent);
+					callbackToJS(id, "Success");
+					return;
+				}
+			}
+		}
+		callbackToJS(id, "Failure");
+	}
+
+	public void sendMicroappIntentData(String data)
+	{
+		mWebView.loadUrl("javascript:intentData(" + "'" + getEncodedDataForJS(data) + "')");
+	}
+
 	private class PlatformMicroAppRequestListener implements IRequestListener
 	{
 		String functionId;
@@ -1016,4 +1048,168 @@ public abstract class JavascriptBridge
 
 		}
 	}
+
+	/**
+	 * Added in Platform Version:5
+	 * @param stickerData
+	 * 
+	 * This function is used to share multifwd sticker.
+	 * Sample JSON:{'catId':'expressions','stkId':'002_lol.png','selectAll':false}
+	 */
+	@JavascriptInterface
+	public void sendMultiFwdSticker(String stickerData)
+	{
+		Logger.d(tag,"sendmultiFwdSticker");
+		if (mHandler == null || weakActivity == null)
+		{
+			return;
+		}
+		
+		try
+		{
+			JSONObject mmObject = new JSONObject(stickerData);
+			final String stickerId = mmObject.optString(ProductPopupsConstants.STKID);
+			final String categoryId = mmObject.optString(ProductPopupsConstants.CATID);
+			final boolean selectAll = mmObject.optBoolean(ProductPopupsConstants.SELECTALL, false);
+			if (!TextUtils.isEmpty(stickerId) && !TextUtils.isEmpty(categoryId))
+			{
+				mHandler.post(new Runnable()
+				{
+					
+					@Override
+					public void run()
+					{
+						PlatformUtils.multiFwdStickers(weakActivity.get(), stickerId, categoryId, selectAll);
+					}
+				});
+				}
+
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+	}
+	
+	/**
+	 * Added in Platform Version:5
+	 * This function is used to activate Stickey on the client
+	 */
+	@JavascriptInterface
+	public void activiteStickey()
+	{
+		Logger.d(tag,"onChatHeadPopupActivateClick");
+		PlatformUtils.OnChatHeadPopupActivateClick();
+	}
+
+	/**
+	 * Added in Platform Version:5
+	 * @param stickerData
+	 * This function is used to download a sticker pack on the client.
+	 * Sample JSON:{'catId':'doggy','categoryName':'Adorable Snuggles','totalStickers':30,'categorySize':100}
+	 */
+	@JavascriptInterface
+	public void downloadStkPack(String stickerData)
+	{
+		Logger.d(tag,"downaloadStkPack");
+		PlatformUtils.downloadStkPk(stickerData);
+	}
+	
+	
+	/**
+	 * Platform Version 6 Call this function to close the current activity. This function closes the current activity and takes the user back to the previous activity.
+	 */
+	@JavascriptInterface
+	public void closeWebView()
+	{
+		if (mHandler != null)
+		{
+			mHandler.sendEmptyMessage(CLOSE_WEB_VIEW);
+		}
+	}
+	
+	public void pickContactAndSend(ConvMessage message)
+	{
+		PlatformHelper.pickContactAndSend(message, weakActivity.get(),JavascriptBridge.this.hashCode());
+	}
+	
+	public void sendSharedMessage(String cardObject, String hikeMessage, String sharedData, BotInfo mBotInfo)
+	{
+		PlatformHelper.sendSharedMessage(cardObject, hikeMessage, sharedData, mBotInfo, weakActivity.get(),JavascriptBridge.this.hashCode());
+	}
+
+	/**
+	 * Platform Version 6 Call this function to open a given Intent.
+	 * 
+	 * @param IntentName
+	 *            JS has to ensure the intent is a valid name, and has to provide the intent URI(e.g. android.settings.LOCATION_SOURCE_SETTINGS)
+	 */
+	@JavascriptInterface
+	public void openIntent(String intentURI)
+	{
+
+		Activity currActivity = weakActivity.get();
+		if (currActivity != null)
+		{
+			Intent intent;
+			try
+			{
+				intent = new Intent(intentURI);
+			currActivity.startActivity(intent);
+			}
+			catch (ActivityNotFoundException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
+	@JavascriptInterface
+	/**
+	 * Added in Platform Version:7
+	 * 
+	 * @param id
+	 *            : : the id of the function that native will call to call the js . Show a native dialog and know the button clicked by the user
+	 *            returns positive/negative. Title,Message and positiveBtn are compulsory.
+	 */
+	public void showDialog(final String id, String title, String message, String positiveBtn, String negativeBtn)
+	{
+		if(TextUtils.isEmpty(title)||TextUtils.isEmpty(message)||TextUtils.isEmpty(positiveBtn))
+			return;
+		Activity mContext = weakActivity.get();
+		if (mContext != null)
+		{
+			HikeDialogListener nativeDialogListener = new HikeDialogListener()
+			{
+
+				@Override
+				public void negativeClicked(HikeDialog hikeDialog)
+				{
+					callbackToJS(id, "negative");
+					hikeDialog.dismiss();
+
+				}
+
+				@Override
+				public void positiveClicked(HikeDialog hikeDialog)
+				{
+					callbackToJS(id, "positive");
+					hikeDialog.dismiss();
+
+				}
+
+				@Override
+				public void neutralClicked(HikeDialog hikeDialog)
+				{
+					// TODO Auto-generated method stub
+
+				}
+
+			};
+
+			HikeDialogFactory.showDialog(mContext, HikeDialogFactory.MICROAPP_DIALOG, nativeDialogListener, title, message, positiveBtn, negativeBtn);
+		}
+	}
+
+
 }

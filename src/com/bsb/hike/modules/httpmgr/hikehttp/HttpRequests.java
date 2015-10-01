@@ -6,6 +6,8 @@ import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.deleteA
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.editProfileAvatarBase;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getActionsUpdateUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getAvatarBaseUrl;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getDeleteAvatarBaseUrl;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getDeleteStatusBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getGroupBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getHikeJoinTimeBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getPostImageSUUrl;
@@ -34,6 +36,7 @@ import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.updateA
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.updateLoveLinkUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.updateUnLoveLinkUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.validateNumberBaseUrl;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getBotdiscoveryTableUrl;
 import static com.bsb.hike.modules.httpmgr.request.PriorityConstants.PRIORITY_HIGH;
 import static com.bsb.hike.modules.httpmgr.request.Request.REQUEST_TYPE_LONG;
 import static com.bsb.hike.modules.httpmgr.request.Request.REQUEST_TYPE_SHORT;
@@ -73,6 +76,7 @@ import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.Utils;
+import com.hike.transporter.utils.Logger;
 import com.squareup.okhttp.Headers;
 import com.squareup.okhttp.MediaType;
 import com.squareup.okhttp.MultipartBuilder;
@@ -291,6 +295,21 @@ public class HttpRequests
 				.setRequestListener(requestListener)
 				.setRequestType(REQUEST_TYPE_LONG)
 				.setHeaders(headers)
+				.build();
+
+		return requestToken;
+	}
+	
+	public static RequestToken postNumberAndGetCallerDetails(String url,JSONObject json, IRequestListener requestListener, int delay, int multiplier)
+	{		
+		JsonBody body = new JsonBody(json);
+		RequestToken requestToken = new JSONObjectRequest.Builder()
+				.setUrl(url)
+				.post(body)
+				.setRetryPolicy(new BasicRetryPolicy(HikePlatformConstants.NUMBER_OF_RETRIES, delay, multiplier))
+				.setRequestListener(requestListener)
+				.setRequestType(REQUEST_TYPE_SHORT)
+				.setResponseOnUIThread(true)
 				.build();
 
 		return requestToken;
@@ -535,7 +554,7 @@ public class HttpRequests
 				.setUrl(deleteAccountBaseUrl())
 				.setRequestType(Request.REQUEST_TYPE_SHORT)
 				.setRequestListener(requestListener)
-				.delete()
+				.post(null)
 				.build();
 		return requestToken;
 	}
@@ -729,15 +748,69 @@ public class HttpRequests
 		return requestToken;
 	}
 
-	public static RequestToken deleteStatusRequest(String statusId, IRequestListener requestListener)
+	public static RequestToken deleteStatusRequest(JSONObject json, IRequestListener requestListener)
 	{
+		JsonBody body = new JsonBody(json);
+
 		RequestToken requestToken = new ByteArrayRequest.Builder()
-				.setUrl(getStatusBaseUrl() + "/" + statusId)
+				.setUrl(getDeleteStatusBaseUrl())
 				.setRequestType(Request.REQUEST_TYPE_SHORT)
 				.setRequestListener(requestListener)
 				.setResponseOnUIThread(true)
-				.delete()
+				.post(body)
 				.build();
 		return requestToken;
 	}
+
+	public static RequestToken deleteAvatarRequest(JSONObject json, IRequestListener requestListener)
+	{
+		JsonBody body = null;
+		if (json != null)
+		{
+			body = new JsonBody(json);
+		}
+
+		RequestToken requestToken = new JSONObjectRequest.Builder()
+				.setUrl(getDeleteAvatarBaseUrl())
+				.setRequestType(Request.REQUEST_TYPE_SHORT)
+				.setRequestListener(requestListener)
+				.post(body)
+				.setResponseOnUIThread(true)
+				.build();
+		return requestToken;
+	}
+	
+	public static RequestToken getAvatarForBots(String msisdn, IRequestListener listener)
+	{
+
+		String botAvatarUrl = getAvatarBaseUrl() + "/" + msisdn;
+		Logger.v("BotUtils", botAvatarUrl );  
+
+		RequestToken requestToken = new ByteArrayRequest.Builder().setUrl(botAvatarUrl).setRequestType(Request.REQUEST_TYPE_SHORT).setRequestListener(listener).get().build();
+
+		return requestToken;
+	}
+	
+	public static RequestToken BotDiscoveryTableDownloadRequest(String requestId, int offset, IRequestListener requestListener, JSONObject json)
+	{
+		JsonBody body = null;
+		
+		if (json != null)
+		{
+			body = new JsonBody(json);
+		}
+		
+		RequestToken requestToken = new JSONObjectRequest.Builder()
+				.setUrl(getBotdiscoveryTableUrl() +  "?offset=" + offset)
+				.setId(requestId)
+				.setRequestListener(requestListener)
+				.setRequestType(REQUEST_TYPE_SHORT)
+				.setPriority(PRIORITY_HIGH)
+				.addHeader(PlatformUtils.getHeaders())
+				.post(body)
+				.build();
+		
+		return requestToken;
+	}
+
 }

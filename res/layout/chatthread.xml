@@ -137,6 +137,11 @@
                 android:textColor="@color/actionbar_text"
                 android:textSize="15sp"
                 android:visibility="gone" />
+            
+            <include layout="@layout/no_internet_connection_tip"
+                android:id="@+id/network_error_card"
+                android:visibility="gone"
+                />
 
             <com.bsb.hike.view.CustomFontTextView
                 android:id="@+id/conversation_mute"
@@ -383,5 +388,13 @@
         android:background="@color/white"
         android:visibility="invisible" />
 
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/animation_layout" >
+    </FrameLayout>
+  
 </RelativeLayout>
+ 
+
 </LinearLayout>

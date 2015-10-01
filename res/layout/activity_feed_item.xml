@@ -10,7 +10,7 @@
 
     <RelativeLayout
         android:id="@+id/avatar_container"
-        android:layout_width="60dp"
+        android:layout_width="56dp"
         android:layout_height="45dp"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
@@ -19,6 +19,7 @@
         <com.bsb.hike.view.RoundedImageView
             android:id="@+id/avatar"
             style="@style/AvatarStyle.Padding"
+            android:layout_alignParentLeft="true"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:src="@drawable/misc_timeline_ftue" />
@@ -27,12 +28,14 @@
             android:id="@+id/avatar_frame"
             style="@style/AvatarStyle"
             android:layout_width="40dp"
+            android:layout_alignParentLeft="true"
             android:layout_height="40dp"
             android:layout_marginBottom="4dp" />
 
         <com.bsb.hike.ui.utils.RecyclingImageView
             android:id="@+id/love_status"
             android:layout_width="19dp"
+            android:visibility="gone"
             android:layout_height="18dp"
             android:layout_alignParentRight="true"
             android:layout_alignParentTop="true"
@@ -61,7 +64,7 @@
             android:id="@+id/name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="4dp"
+            android:layout_marginBottom="2dp"
             android:ellipsize="end"
             android:includeFontPadding="false"
             android:singleLine="true"

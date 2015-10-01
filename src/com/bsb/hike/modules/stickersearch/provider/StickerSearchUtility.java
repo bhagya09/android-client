@@ -24,6 +24,7 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
 import com.bsb.hike.modules.stickersearch.datamodel.Word;
+import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchBaseConstants;
 import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchBaseConstants.TIME_CODE;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
@@ -768,21 +769,26 @@ public class StickerSearchUtility
 		return (ArrayList<T>) result;
 	}
 
-	/* Get syntax string (a part of SQL query) while applying 'IN' clause with multiple '?' */
-	public static String getSQLiteDatabaseMultipleParameterSyntax(int count)
+	/* Get syntax string (a part of SQL query) while applying 'IN' clause with combination of multiple '?'s */
+	public static String getSQLiteDatabaseMultipleParametersSyntax(int count)
 	{
 		StringBuilder sb;
 
 		if (count > 0)
 		{
-			sb = new StringBuilder(count * 2 - 1);
+			sb = new StringBuilder(count
+					* (HikeStickerSearchBaseConstants.SYNTAX_SINGLE_PARAMETER_NO_CHECK.length() + HikeStickerSearchBaseConstants.SYNTAX_NEXT_WITHOUT_SPACE.length())
+					- HikeStickerSearchBaseConstants.SYNTAX_NEXT_WITHOUT_SPACE.length());
+			int lengthBeforeLastParameter = count - 1;
 
-			sb.append("?");
-
-			for (int i = 1; i < count; i++)
+			for (int i = 0; i < lengthBeforeLastParameter; i++)
 			{
-				sb.append(",?");
+				sb.append(HikeStickerSearchBaseConstants.SYNTAX_SINGLE_PARAMETER_NO_CHECK);
+				sb.append(HikeStickerSearchBaseConstants.SYNTAX_NEXT_WITHOUT_SPACE);
 			}
+
+			// Add last parameter syntax
+			sb.append(HikeStickerSearchBaseConstants.SYNTAX_SINGLE_PARAMETER_NO_CHECK);
 		}
 		else
 		{
@@ -792,19 +798,113 @@ public class StickerSearchUtility
 		return sb.toString();
 	}
 
-	/* Get syntax string (a part of SQL query) while applying 'MATCH' clause with multiple 'OR' */
-	public static String getSQLiteDatabaseMultipleMatchSyntax(String[] ids)
+	/* Get syntax string (a part of SQL query) while applying multiple conditions using 'OR' operator */
+	public static String getSQLiteDatabaseMultipleConditionsWithORSyntax(int count, String condition)
+	{
+		String syntaxString;
+		boolean isCountArgumnetValid = count > 0;
+		boolean isConditionArgumentValid = !Utils.isBlank(condition);
+
+		if (isCountArgumnetValid && isConditionArgumentValid)
+		{
+			if (count == 1)
+			{
+				syntaxString = condition;
+			}
+			else
+			{
+				StringBuilder sb = new StringBuilder(
+						count
+								* (HikeStickerSearchBaseConstants.SYNTAX_BRACKET_OPEN.length() + condition.length() + HikeStickerSearchBaseConstants.SYNTAX_BRACKET_CLOSE.length() + HikeStickerSearchBaseConstants.SYNTAX_OR_NEXT
+										.length()) - HikeStickerSearchBaseConstants.SYNTAX_OR_NEXT.length());
+				int lengthBeforeLastSubCondition = count - 1;
+
+				for (int i = 0; i < lengthBeforeLastSubCondition; i++)
+				{
+					sb.append(HikeStickerSearchBaseConstants.SYNTAX_BRACKET_OPEN);
+					sb.append(condition);
+					sb.append(HikeStickerSearchBaseConstants.SYNTAX_BRACKET_CLOSE);
+					sb.append(HikeStickerSearchBaseConstants.SYNTAX_OR_NEXT);
+				}
+
+				// Add last sub-condition
+				sb.append(HikeStickerSearchBaseConstants.SYNTAX_BRACKET_OPEN);
+				sb.append(condition);
+				sb.append(HikeStickerSearchBaseConstants.SYNTAX_BRACKET_CLOSE);
+
+				syntaxString = sb.toString();
+			}
+		}
+		else
+		{
+			String error;
+			if (!isCountArgumnetValid && !isConditionArgumentValid)
+			{
+				error = "Invalid arguments (count, condition)";
+			}
+			else if (!isCountArgumnetValid)
+			{
+				error = "Invalid argument (count)";
+			}
+			else
+			{
+				error = "Invalid argument (condition)";
+			}
+
+			throw new IllegalArgumentException(error);
+		}
+
+		return syntaxString;
+	}
+
+	/* Get syntax string (a part of SQL query) while applying multiple conditions using 'AND' operator */
+	public static String getSQLiteDatabaseMultipleConditionsWithANDSyntax(String[] columnsInvolvedInCondition)
+	{
+		StringBuilder sb;
+
+		if ((columnsInvolvedInCondition != null) && (columnsInvolvedInCondition.length > 0))
+		{
+			sb = new StringBuilder();
+			int lengthBeforeLastCondition = columnsInvolvedInCondition.length - 1;
+			int i = 0;
+
+			for (; i < lengthBeforeLastCondition; i++)
+			{
+				sb.append(columnsInvolvedInCondition[i]);
+				sb.append(HikeStickerSearchBaseConstants.SYNTAX_SINGLE_PARAMETER_CHECK);
+				sb.append(HikeStickerSearchBaseConstants.SYNTAX_AND_NEXT);
+			}
+
+			// Add last element syntax in sub-condition
+			sb.append(columnsInvolvedInCondition[i]);
+			sb.append(HikeStickerSearchBaseConstants.SYNTAX_SINGLE_PARAMETER_CHECK);
+		}
+		else
+		{
+			throw new IllegalArgumentException("Invalid argument (columnsInvolvedInCondition)");
+		}
+
+		return sb.toString();
+	}
+
+	/* Get syntax string (a part of SQL query) while applying 'MATCH' clause with multiple 'OR' in virtual table */
+	public static String getSQLiteDatabaseMultipleMatchesSyntax(String[] ids)
 	{
 		StringBuilder sb = new StringBuilder();
 
 		if ((ids != null) && (ids.length > 0))
 		{
-			sb.append(ids[0]);
+			int lengthBeforeLastElement = ids.length - 1;
+			int i = 0;
 
-			for (int i = 1; i < ids.length; i++)
+			for (; i < lengthBeforeLastElement; i++)
 			{
-				sb.append(" OR " + ids[i]);
+				sb.append(ids[i]);
+				sb.append(HikeStickerSearchBaseConstants.SYNTAX_OR_NEXT);
 			}
+
+			// Add last element syntax
+			sb.append(ids[i]);
 		}
 		else
 		{

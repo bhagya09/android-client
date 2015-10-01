@@ -26,6 +26,11 @@ public class NonMessagingBotMetadata
 	private static final String DEFAULT_UNREAD_COUNT = "1+";
 	private String nonMessagingBotType;
 	private String url;
+	private boolean isSpecialBot;
+	private String targetActivity;
+	private boolean replace;
+	private String callbackId, parentMsisdn;
+	private JSONObject fwdCardObj;
 
 	public NonMessagingBotMetadata(String jsonString)
 	{
@@ -64,6 +69,9 @@ public class NonMessagingBotMetadata
 
 		setNonMessagingBotType(json.optString(HikePlatformConstants.NON_MESSAGING_BOT_TYPE, HikePlatformConstants.MICROAPP_MODE));
 		setTargetPlatform(json.optInt(HikePlatformConstants.TARGET_PLATFORM));
+		setReplace(json.optBoolean(HikePlatformConstants.REPLACE_MICROAPP_VERSION));
+		setParentMsisdn(json.optString(HikePlatformConstants.PARENT_MSISDN));
+		setCallbackId(json.optString(HikePlatformConstants.CALLBACK_ID));
 
 		if (json.has(HikePlatformConstants.CARD_OBJECT))
 		{
@@ -83,6 +91,22 @@ public class NonMessagingBotMetadata
 			{
 				setUrl(cardObj.optString(HikePlatformConstants.URL));
 			}
+
+			if (cardObj.has(HikePlatformConstants.SPECIAL))
+			{
+				setIsSpecialBot(cardObj.optBoolean(HikePlatformConstants.SPECIAL));
+			}
+			
+			if (cardObj.has(HikePlatformConstants.TARGET_ACTIVITY))
+			{
+				setTargetActivity(cardObj.optString(HikePlatformConstants.TARGET_ACTIVITY));
+			}
+
+		}
+
+		if (json.has((HikePlatformConstants.FORWARD_CARD_OBJECT)))
+		{
+			fwdCardObj = metadata.optJSONObject(HikePlatformConstants.FORWARD_CARD_OBJECT);
 		}
 
 		setUnreadCountShowType();
@@ -185,6 +209,11 @@ public class NonMessagingBotMetadata
 	{
 		return nonMessagingBotType.equals(HikePlatformConstants.URL_MODE);
 	}
+	
+	public boolean isNativeMode()
+	{
+		return nonMessagingBotType.equals(HikePlatformConstants.NATIVE_MODE);
+	}
 
 	@Override
 	public String toString()
@@ -202,4 +231,66 @@ public class NonMessagingBotMetadata
 		return unReadCountShowType;
 	}
 
+	public boolean isSpecialBot()
+	{
+		return isSpecialBot;
+	}
+
+	public void setIsSpecialBot(boolean isSpecialBot)
+	{
+		this.isSpecialBot = isSpecialBot;
+	}
+
+	
+	public void setTargetActivity(String targetActivity)
+	{
+		this.targetActivity=targetActivity;
+	}
+	
+	public String getTargetActivity()
+	{
+		return targetActivity;
+	}
+
+
+	public boolean shouldReplace()
+	{
+		return replace;
+	}
+
+	public void setReplace(boolean replace)
+	{
+		this.replace = replace;
+
+	}
+
+	public String getCallbackId()
+	{
+		return callbackId;
+	}
+
+	public void setCallbackId(String callbackId)
+	{
+		this.callbackId = callbackId;
+	}
+
+	public String getParentMsisdn()
+	{
+		return parentMsisdn;
+	}
+
+	public void setParentMsisdn(String parentMsisdn)
+	{
+		this.parentMsisdn = parentMsisdn;
+	}
+
+	public JSONObject getFwdCardObj()
+	{
+		return fwdCardObj;
+	}
+
+	public JSONObject getHelperData()
+	{
+		return helperData;
+	}
 }

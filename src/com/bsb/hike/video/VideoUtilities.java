@@ -99,14 +99,7 @@ public class VideoUtilities {
 					videoEditedInfo.bitrate *= Math.max(0.5f, scale);
 				}
 			}
-			if ((videoEditedInfo.resultWidth == videoEditedInfo.originalWidth || videoEditedInfo.resultHeight == videoEditedInfo.originalHeight)) 
-			{
-				videoEditedInfo.isCompRequired = false;
-            }
-			else
-			{
-				videoEditedInfo.isCompRequired = true;
-			}
+			videoEditedInfo.isCompRequired = true;
 		} catch (Exception e) {
 			Logger.d(TAG, "Exception" + e);
 			return null;

@@ -28,8 +28,10 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
+import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.chatHead.ChatHeadUtils;
+import com.bsb.hike.chatHead.StickyCaller;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ImageViewerInfo;
@@ -130,11 +132,15 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 		}
 		items.add(new SettingsDisplayPojo(getString(R.string.manage_account), R.string.manage_account, R.drawable.ic_account_settings));
 		items.add(new SettingsDisplayPojo(getString(R.string.privacy), R.string.privacy, R.drawable.ic_privacy_settings));
-    	if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.CHAT_HEAD_SERVICE, false) && ChatHeadUtils.areWhitelistedPackagesSharable(this))
+    	if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.CHAT_HEAD_SERVICE, false) && ChatHeadUtils.areWhitelistedPackagesSharable(this) && ChatHeadUtils.checkDeviceFunctionality())
 		{
 			items.add(new SettingsDisplayPojo(getString(R.string.settings_share_stickers), R.string.settings_share_stickers, R.drawable.settings_icon_sticker_widget));
 		}
-		items.add(new SettingsDisplayPojo(getString(R.string.help), R.string.help, R.drawable.ic_help_settings));
+		if (HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.SHOW_STICKY_CALLER, false))
+		{
+			items.add(new SettingsDisplayPojo(getString(R.string.sticky_caller_settings), R.string.sticky_caller_settings, R.drawable.sticky_caller_settings));
+		}
+    	items.add(new SettingsDisplayPojo(getString(R.string.help), R.string.help, R.drawable.ic_help_settings));
 		
 		//Last item is being added as null for the app version TextView
 		items.add(null);
@@ -368,6 +374,11 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 				IntentFactory.openStickerSettings(this);
 				break;
 
+			case R.string.sticky_caller_settings:
+				HAManager.getInstance().stickyCallerAnalyticsUIEvent(AnalyticsConstants.StickyCallerEvents.CALLER_SETTINGS_BUTTON, null, AnalyticsConstants.StickyCallerEvents.HIKE, null);
+				IntentFactory.openStickyCallerSettings(this);
+				break;
+				
 			case R.string.help:
 				IntentFactory.openSettingHelp(this);
 				break;

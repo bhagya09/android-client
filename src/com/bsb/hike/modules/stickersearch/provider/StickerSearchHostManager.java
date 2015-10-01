@@ -87,7 +87,7 @@ public class StickerSearchHostManager
 
 	private volatile ArrayList<Word> mCurrentWords = null;
 
-	private TIME_CODE mMomentCode;
+	private static volatile TIME_CODE mMomentCode = StickerSearchUtility.getMomentCode();
 
 	private ArrayList<String> mPreviousWords;
 
@@ -1573,7 +1573,6 @@ public class StickerSearchHostManager
 			sCacheForLocalOrderedStickers.clear();
 
 			mCurrentText = null;
-			mMomentCode = null;
 
 			TextMatchManager.clearResources();
 

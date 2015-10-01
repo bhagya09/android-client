@@ -5,7 +5,9 @@ import java.util.ArrayList;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.app.ProgressDialog;
+import android.animation.Animator;
+import android.animation.Animator.AnimatorListener;
+import android.animation.ObjectAnimator;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -14,11 +16,9 @@ import android.os.Bundle;
 import android.os.Message;
 import android.support.v4.content.Loader;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.text.method.ScrollingMovementMethod;
 import android.text.util.Linkify;
-import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -29,18 +29,18 @@ import android.widget.AdapterView;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
+import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
@@ -50,16 +50,14 @@ import com.bsb.hike.imageHttp.HikeImageWorker;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.modules.contactmgr.ContactManager;
-import com.bsb.hike.modules.httpmgr.RequestToken;
-import com.bsb.hike.modules.httpmgr.exception.HttpException;
-import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
-import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
+import com.bsb.hike.timeline.LoveCheckBoxToggleListener;
+import com.bsb.hike.timeline.TimelineActionsManager;
+import com.bsb.hike.timeline.adapter.ActivityFeedCursorAdapter;
 import com.bsb.hike.timeline.adapter.DisplayContactsAdapter;
 import com.bsb.hike.timeline.model.ActionsDataModel;
 import com.bsb.hike.timeline.model.ActionsDataModel.ActionTypes;
 import com.bsb.hike.timeline.model.ActionsDataModel.ActivityObjectTypes;
-import com.bsb.hike.timeline.model.FeedDataModel;
 import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
 import com.bsb.hike.ui.ProfileActivity;
@@ -69,12 +67,10 @@ import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.HikeUiHandler;
 import com.bsb.hike.utils.HikeUiHandler.IHandlerCallback;
 import com.bsb.hike.utils.IntentFactory;
+import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.ProfileImageLoader;
 import com.bsb.hike.utils.SmileyParser;
 import com.bsb.hike.utils.Utils;
-import com.nineoldandroids.animation.Animator;
-import com.nineoldandroids.animation.Animator.AnimatorListener;
-import com.nineoldandroids.animation.ObjectAnimator;
 
 /**
  * 
@@ -85,7 +81,7 @@ import com.nineoldandroids.animation.ObjectAnimator;
  */
 public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity implements OnClickListener, Listener, IHandlerCallback, HikeImageWorker.TaskCallbacks
 {
-	private static final int LIKE_CONTACTS_DIALOG = 0;
+	
 	
 	ImageView imageView;
 
@@ -93,11 +89,9 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 
 	private int imageSize;
 
-	private String[] timelineSummaryPubSubListeners = { HikePubSub.ICON_CHANGED };
+	private String[] timelineSummaryPubSubListeners = { HikePubSub.ICON_CHANGED, HikePubSub.ACTIVITY_UPDATE };
 
 	private View fadeScreen;
-
-	private final String TAG = TimelineSummaryActivity.class.getSimpleName();
 
 	private boolean hasCustomImage;
 
@@ -152,7 +146,7 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 
 	private ContactInfo profileContactInfo;
 	
-	private boolean isStopped = false;
+	private ActionsDataModel actionsData;
 
 	public class ActivityState
 	{
@@ -173,6 +167,8 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 		overridePendingTransition(0, 0);
 
 		requestWindowFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
+		
+		getWindow().requestFeature(Window.FEATURE_CONTENT_TRANSITIONS);
 
 		super.onCreate(savedInstanceState);
 
@@ -201,26 +197,37 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 			mActivityState = new ActivityState();
 
 			Bundle extras = getIntent().getExtras();
-
 			mappedId = extras.getString(HikeConstants.Extras.MAPPED_ID);
 
-			// TODO think of a better place to do this without breaking animation
+			//Try to get actions data from cache
 			mStatusMessage = HikeConversationsDatabase.getInstance().getStatusMessageFromMappedId(mappedId);
 			
-			msisdns = extras.getStringArrayList(HikeConstants.MSISDNS);
-
-			isLikedByMe = extras.getBoolean(HikeConstants.Extras.LOVED_BY_SELF, false);
+			if(mStatusMessage == null)
+			{
+				finish();
+				Logger.e(HikeConstants.TIMELINE_LOGS, "Opening timeline summary activity for null status message");
+				return;
+			}
+			
+			fetchActionsData();
 
 			mActivityState.mappedId = mappedId;
 			mActivityState.statusMessage = mStatusMessage;
 			mActivityState.msisdnsList = msisdns;
 			mActivityState.isLikedByMe = isLikedByMe;
 		}
-
-		if (msisdns == null)
+		
+		JSONObject metadataSU = new JSONObject();
+		try
 		{
-			// Empty list
-			msisdns = new ArrayList<String>();
+			metadataSU.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.TIMELINE_SUMMARY_OPEN);
+			metadataSU.put(AnalyticsConstants.UPDATE_TYPE, "" + ActivityFeedCursorAdapter.getPostType(mStatusMessage));
+			metadataSU.put(AnalyticsConstants.TIMELINE_U_ID, mStatusMessage.getMsisdn());
+			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, HAManager.EventPriority.HIGH, metadataSU);
+		}
+		catch (JSONException e)
+		{
+			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
 		}
 
 		checkBoxLove.setTag(mStatusMessage);
@@ -269,9 +276,53 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 			showLikesContactsDialog();
 		}
 	}
-
-	private void notifyUI()
+	
+	private void fetchActionsData()
 	{
+		actionsData = TimelineActionsManager.getInstance().getActionsData()
+				.getActions(mStatusMessage.getMappedId(), ActionTypes.LIKE, ActivityObjectTypes.STATUS_UPDATE);
+
+		if(actionsData == null)
+		{
+			// Try to get actions data from database
+			ArrayList<String> suIDs = new ArrayList<String>();
+			suIDs.add(mappedId);
+			
+			HikeConversationsDatabase.getInstance().getActionsData(ActionsDataModel.ActivityObjectTypes.STATUS_UPDATE.getTypeString(), suIDs,
+					TimelineActionsManager.getInstance().getActionsData());
+			actionsData = TimelineActionsManager.getInstance().getActionsData().getActions(mStatusMessage.getMappedId(), ActionTypes.LIKE, ActivityObjectTypes.STATUS_UPDATE);
+		}
+		
+		if (actionsData != null)
+		{
+			msisdns = actionsData.getAllMsisdn();
+
+			isLikedByMe = actionsData.isLikedBySelf();
+		}
+
+		// No likes
+		if (msisdns == null)
+		{
+			// Empty list
+			msisdns = new ArrayList<String>();
+		}
+	}
+
+	private void notifyActivityUI()
+	{
+		// Safety check - Check if activity has a view
+		if (textViewCounts == null)
+		{
+			return;
+		}
+
+		if (actionsData != null)
+		{
+			msisdns = actionsData.getAllMsisdn();
+
+			isLikedByMe = actionsData.isLikedBySelf();
+		}
+
 		checkBoxLove.setOnCheckedChangeListener(null);
 
 		if (isLikedByMe)
@@ -283,7 +334,7 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 			checkBoxLove.setChecked(false);
 		}
 
-		if (!msisdns.isEmpty())
+		if (msisdns != null && !msisdns.isEmpty())
 		{
 
 			if (isShowCountEnabled || mStatusMessage.isMyStatusUpdate())
@@ -316,6 +367,12 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 		}
 
 		checkBoxLove.setOnCheckedChangeListener(onLoveToggleListener);
+		
+		if(contactsListDialog!=null && contactsListDialog.isShowing())
+		{
+			contactsListDialog.dismiss();
+			showLikesContactsDialog();
+		}
 	}
 
 	private void initReferences()
@@ -337,17 +394,22 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 
 	private int ANIM_DURATION = 280;
 
+	private HikeDialog contactsListDialog;
+
 	public void runEnterAnimation()
 	{
 		if (mStatusMessage.getStatusMessageType() == StatusMessageType.TEXT)
 		{
 			ANIM_DURATION = 0;
 		}
-		contentContainer.setScaleX(0.8f);
-		contentContainer.setScaleY(0.8f);
-		contentContainer.setAlpha(0f);
 
-		contentContainer.animate().setDuration(ANIM_DURATION).scaleX(1).scaleY(1).alpha(1f);
+		if (!Utils.isLollipopOrHigher())
+		{
+			contentContainer.setScaleX(0.8f);
+			contentContainer.setScaleY(0.8f);
+			contentContainer.setAlpha(0f);
+			contentContainer.animate().setDuration(ANIM_DURATION).scaleX(1).scaleY(1).alpha(1f);
+		}
 
 		float alphaFinal = isTextStatusMessage ? 1f : 1f;
 
@@ -357,7 +419,7 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 
 		infoContainer.setVisibility(View.VISIBLE);
 
-		notifyUI();
+		notifyActivityUI();
 
 		if (isTextStatusMessage)
 		{
@@ -366,16 +428,18 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 		}
 		else
 		{
+			foregroundScreen.setAlpha(0.25f);
 			foregroundScreen.setVisibility(View.VISIBLE);
+			foregroundScreen.animate().setDuration(1000).alpha(0.8f);
+			
 			if (mStatusMessage.getStatusMessageType() == StatusMessageType.IMAGE)
 			{
-//				textViewCaption.setText(R.string.posted_photo);
 				textViewCaption.setVisibility(View.GONE);
 			}
 			else
 			{
 				SmileyParser smileyParser = SmileyParser.getInstance();
-				textViewCaption.setText(smileyParser.addSmileySpans(mStatusMessage.getText(), true));
+				textViewCaption.setText(smileyParser.addSmileySpans(mStatusMessage.getText().trim(), true));
 				Linkify.addLinks(textViewCaption, Linkify.ALL);
 			}
 		}
@@ -446,7 +510,14 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 	@Override
 	public void onBackPressed()
 	{
-		finish();
+		if (mStatusMessage == null || mStatusMessage.getStatusMessageType() == StatusMessageType.TEXT)
+		{
+			finish();
+		}
+		else
+		{
+			supportFinishAfterTransition();
+		}
 	}
 
 	@Override
@@ -507,7 +578,22 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 	@Override
 	public void onClick(View v)
 	{
-		onBackPressed();
+		if (Utils.isSelfMsisdn(mStatusMessage.getMsisdn()))
+		{
+			Intent intent2 = new Intent(TimelineSummaryActivity.this, ProfileActivity.class);
+			intent2.putExtra(HikeConstants.Extras.FROM_CENTRAL_TIMELINE, true);
+			startActivity(intent2);
+		}
+		else
+		{
+
+			Intent intent = IntentFactory.createChatThreadIntentFromContactInfo(TimelineSummaryActivity.this, ContactManager.getInstance()
+					.getContact(mStatusMessage.getMsisdn(),true,true), false, false);
+			// Add anything else to the intent
+			intent.putExtra(HikeConstants.Extras.FROM_CENTRAL_TIMELINE, true);
+			intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+			startActivity(intent);
+		}
 	}
 
 	public interface DisplayPictureEditListener
@@ -526,7 +612,6 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 			{
 				TimelineSummaryActivity.this.runOnUiThread(new Runnable()
 				{
-
 					@Override
 					public void run()
 					{
@@ -535,26 +620,19 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 				});
 			}
 		}
-		else if ((HikePubSub.FAVORITE_TOGGLED.equals(type) || HikePubSub.FRIEND_REQUEST_ACCEPTED.equals(type) || HikePubSub.REJECT_FRIEND_REQUEST.equals(type)))
+		else if (HikePubSub.ACTIVITY_UPDATE.equals(type))
 		{
-			final Pair<ContactInfo, FavoriteType> favoriteToggle = (Pair<ContactInfo, FavoriteType>) object;
-
-			ContactInfo contactInfo = favoriteToggle.first;
-			FavoriteType favoriteType = favoriteToggle.second;
-
-			if (profileContactInfo != null)
+			runOnUiThread(new Runnable()
 			{
-				if (!profileContactInfo.getMsisdn().equals(contactInfo.getMsisdn()))
+				@Override
+				public void run()
 				{
-					return;
+					fetchActionsData();
+					
+					notifyActivityUI();
 				}
-				else
-				{
-					this.profileContactInfo.setFavoriteType(favoriteType);
-				}
-			}
+			});
 		}
-		
 	}
 
 	public void onCancelled()
@@ -589,55 +667,26 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 		}
 	}
 
-	// TODO Make this generic for all action types
-	// TODO Move to HikeDialogFactory
 	public void showLikesContactsDialog()
 	{
 		if (msisdns != null && !msisdns.isEmpty() && (isShowLikesEnabled || mStatusMessage.isMyStatusUpdate()))
 		{
-			final HikeDialog dialog = new HikeDialog(TimelineSummaryActivity.this, R.style.Theme_CustomDialog, LIKE_CONTACTS_DIALOG);
-			dialog.setContentView(R.layout.display_contacts_dialog);
-			dialog.setCancelable(true);
-
-			ListView listContacts = (ListView) dialog.findViewById(R.id.listContacts);
-			DisplayContactsAdapter contactsAdapter = new DisplayContactsAdapter(msisdns);
-			listContacts.setAdapter(contactsAdapter);
-			listContacts.setOnItemClickListener(new AdapterView.OnItemClickListener()
+			contactsListDialog = HikeDialogFactory.showDialog(TimelineSummaryActivity.this, HikeDialogFactory.LIKE_CONTACTS_DIALOG, mStatusMessage.getMsisdn(), null, msisdns);
+			
+			//TODO bind with activity when supporting landscape
+			contactsListDialog.show();
+			JSONObject metadataSU = new JSONObject();
+			try
 			{
-				@Override
-				public void onItemClick(AdapterView<?> arg0, View arg1, int position, long arg3)
-				{
-					if (Utils.isSelfMsisdn(msisdns.get(position)))
-					{
-						Intent intent2 = new Intent(TimelineSummaryActivity.this, ProfileActivity.class);
-						intent2.putExtra(HikeConstants.Extras.FROM_CENTRAL_TIMELINE, true);
-						startActivity(intent2);
-					}
-					else
-					{
-
-						Intent intent = IntentFactory.createChatThreadIntentFromContactInfo(TimelineSummaryActivity.this, ContactManager.getInstance()
-								.getContact(msisdns.get(position),true,true), false, false);
-						// Add anything else to the intent
-						intent.putExtra(HikeConstants.Extras.FROM_CENTRAL_TIMELINE, true);
-						intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-						startActivity(intent);
-					}
-					mActivityState.dialogShown = false;
-				}
-			});
-			ImageButton cancelButton = (ImageButton) dialog.findViewById(R.id.btn_cancel);
-			cancelButton.setOnClickListener(new View.OnClickListener()
+				metadataSU.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.TIMELINE_SUMMARY_LIKES_DIALOG_OPEN);
+				metadataSU.put(AnalyticsConstants.UPDATE_TYPE, "" + ActivityFeedCursorAdapter.getPostType(mStatusMessage));
+				metadataSU.put(AnalyticsConstants.TIMELINE_U_ID, mStatusMessage.getMsisdn());
+				HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, HAManager.EventPriority.HIGH, metadataSU);
+			}
+			catch (JSONException e)
 			{
-				@Override
-				public void onClick(View arg0)
-				{
-					dialog.dismiss();
-					mActivityState.dialogShown = false;
-				}
-			});
-			dialog.show();
-			mActivityState.dialogShown = true;
+				Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+			}
 		}
 	}
 
@@ -662,19 +711,38 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 
 		TextView contactStatus = (TextView) contactInfoContainer.findViewById(R.id.contact_status);
 
-		String name = ContactManager.getInstance().getName(mStatusMessage.getMsisdn(), true);
+		//Get contact info
+		ContactInfo contactInfo = ContactManager.getInstance().getContact(mStatusMessage.getMsisdn(), true,  false);
 
-		if (name == null)
+		// Check if this guy has a saved name
+		String name = contactInfo.getName();
+
+		try
 		{
-			ContactInfo userConInfo = Utils.getUserContactInfo(true);
-			if (userConInfo.getMsisdn().equals(mStatusMessage.getMsisdn()))
+			if (TextUtils.isEmpty(name))
 			{
-				name = getString(R.string.me);
+				// Was this our own contact info?
+				ContactInfo myContactInfo = Utils.getUserContactInfo(false);
+				if (myContactInfo.getMsisdn().equals(mStatusMessage.getMsisdn()))
+				{
+					// Get name from account shared pref
+					name = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.NAME_SETTING, getApplicationContext().getString(R.string.me));
+				}
+				else
+				{
+					// Neither my contact info nor has a name, show msisdn
+					name = contactInfo.getNameOrMsisdn();
+				}
 			}
-			else
-			{
-				name = mStatusMessage.getMsisdn();
-			}
+		}
+		catch (Exception ex)
+		{
+			ex.printStackTrace();
+		}
+		
+		if(TextUtils.isEmpty(name))
+		{
+			name = contactInfo.getNameOrMsisdn();
 		}
 
 		contactName.setText(name);
@@ -726,28 +794,12 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 		avatar.setImageDrawable(drawable);
 	}
 
-	private OnCheckedChangeListener onLoveToggleListener = new OnCheckedChangeListener()
+	private OnCheckedChangeListener onLoveToggleListener = new LoveCheckBoxToggleListener()
 	{
 		@Override
 		public void onCheckedChanged(final CompoundButton buttonView, boolean isChecked)
 		{
-			buttonView.setEnabled(false);
-			buttonView.setClickable(false);
-
-			final StatusMessage statusMessage = (StatusMessage) buttonView.getTag();
-
-			JSONObject json = new JSONObject();
-
-			try
-			{
-				json.put(HikeConstants.SU_ID, statusMessage.getMappedId());
-			}
-			catch (JSONException e)
-			{
-				e.printStackTrace();
-			}
-
-			profileContactInfo = ContactManager.getInstance().getContact(statusMessage.getMsisdn(), true, true);
+			profileContactInfo = ContactManager.getInstance().getContact(mStatusMessage.getMsisdn(), true, true);
 
 			// First check if user is friends with msisdn
 			if (profileContactInfo.getFavoriteType() != FavoriteType.FRIEND && !Utils.isSelfMsisdn(profileContactInfo.getMsisdn()))
@@ -758,7 +810,7 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 					@Override
 					public void positiveClicked(HikeDialog hikeDialog)
 					{
-						Utils.toggleFavorite(getApplicationContext(), profileContactInfo, false);
+						Utils.toggleFavorite(TimelineSummaryActivity.this.getApplicationContext(), profileContactInfo, false);
 						if (hikeDialog != null && hikeDialog.isShowing())
 						{
 							hikeDialog.dismiss();
@@ -783,150 +835,10 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 				return;
 			}
 
-			if (isChecked)
-			{
-				RequestToken token = HttpRequests.createLoveLink(json, new IRequestListener()
-				{
-					@Override
-					public void onRequestSuccess(Response result)
-					{
-						try
-						{
-							JSONObject response = (JSONObject) result.getBody().getContent();
-							if (response.optString("stat").equals("ok"))
-							{
-								// Increment like count in actions table
-								String selfMsisdn = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.MSISDN_SETTING, null);
-
-								ArrayList<String> actorList = new ArrayList<String>();
-								actorList.add(selfMsisdn);
-
-								HikeConversationsDatabase.getInstance().changeActionCountForObjID(statusMessage.getMappedId(),
-										ActionsDataModel.ActivityObjectTypes.STATUS_UPDATE.getTypeString(), ActionsDataModel.ActionTypes.LIKE.getKey(), actorList, true);
-
-								isLikedByMe = true;
-
-								msisdns.add(selfMsisdn);
-								// UI work
-								if (!isStopped)
-								{
-									notifyUI();
-								}
-
-								FeedDataModel newFeed = new FeedDataModel(System.currentTimeMillis(), ActionTypes.LIKE, selfMsisdn, ActivityObjectTypes.STATUS_UPDATE,
-										statusMessage.getMappedId());
-
-								HikeMessengerApp.getPubSub().publish(HikePubSub.ACTIVITY_UPDATE, newFeed);
-							}
-						}
-						finally
-						{
-							// UI work
-							if (!isStopped)
-							{
-								buttonView.setEnabled(true);
-								buttonView.setClickable(true);
-							}
-						}
-					}
-
-					@Override
-					public void onRequestProgressUpdate(float progress)
-					{
-						// Do nothing
-					}
-
-					@Override
-					public void onRequestFailure(HttpException httpException)
-					{
-						Toast.makeText(HikeMessengerApp.getInstance().getApplicationContext(), R.string.love_failed, Toast.LENGTH_SHORT).show();
-
-						// UI work
-						if (!isStopped)
-						{
-							buttonView.setEnabled(true);
-							buttonView.setClickable(true);
-							toggleCompButtonState(buttonView, onLoveToggleListener);
-						}
-					}
-				}, statusMessage.getMappedId());
-				token.execute();
-
-			}
-			else
-			{
-				RequestToken token = HttpRequests.removeLoveLink(json, new IRequestListener()
-				{
-					@Override
-					public void onRequestSuccess(Response result)
-					{
-						try
-						{
-							JSONObject response = (JSONObject) result.getBody().getContent();
-							if (response.optString("stat").equals("ok"))
-							{
-								// Decrement like count in actions table
-								String selfMsisdn = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.MSISDN_SETTING, null);
-
-								ArrayList<String> actorList = new ArrayList<String>();
-								actorList.add(selfMsisdn);
-
-								HikeConversationsDatabase.getInstance().changeActionCountForObjID(statusMessage.getMappedId(),
-										ActionsDataModel.ActivityObjectTypes.STATUS_UPDATE.getTypeString(), ActionsDataModel.ActionTypes.LIKE.getKey(), actorList, false);
-
-								isLikedByMe = false;
-
-								msisdns.remove(selfMsisdn);
-
-								FeedDataModel newFeed = new FeedDataModel(System.currentTimeMillis(), ActionTypes.UNLIKE, selfMsisdn, ActivityObjectTypes.STATUS_UPDATE,
-										statusMessage.getMappedId());
-
-								HikeMessengerApp.getPubSub().publish(HikePubSub.ACTIVITY_UPDATE, newFeed);
-
-								// UI work
-								if (!isStopped)
-								{
-									notifyUI();
-								}
-							}
-						}
-						finally
-						{
-							// UI work
-							if (!isStopped)
-							{
-								buttonView.setEnabled(true);
-								buttonView.setClickable(true);
-							}
-						}
-					}
-
-					@Override
-					public void onRequestProgressUpdate(float progress)
-					{
-						// Do nothing
-					}
-
-					@Override
-					public void onRequestFailure(HttpException httpException)
-					{
-						Toast.makeText(HikeMessengerApp.getInstance().getApplicationContext(), R.string.love_failed, Toast.LENGTH_SHORT).show();
-
-						// UI work
-						if (!isStopped)
-						{
-							buttonView.setEnabled(true);
-							buttonView.setClickable(true);
-							toggleCompButtonState(buttonView, onLoveToggleListener);
-						}
-					}
-				}, statusMessage.getMappedId());
-				token.execute();
-
-			}
+			super.onCheckedChanged(buttonView, isChecked);
 		}
 	};
-
+	
 	private void toggleCompButtonState(CompoundButton argButton,OnCheckedChangeListener argListener)
 	{
 		//unlink-relink onchange listener
@@ -935,13 +847,6 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 		argButton.setOnCheckedChangeListener(argListener);
 	}
 
-	@Override
-	protected void onStop()
-	{
-		isStopped  = true;
-		super.onStop();
-	}
-	
 	@Override
 	public Object onRetainCustomNonConfigurationInstance()
 	{

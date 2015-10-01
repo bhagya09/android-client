@@ -97,8 +97,6 @@ public class PhotoViewerFragment extends Fragment implements OnPageChangeListene
 	
 	private long maxMsgId;
 	
-	private boolean applyOffset = false;
-	
 	private TextView senderName;
 	
 	private TextView itemTimeStamp;
@@ -229,7 +227,7 @@ public class PhotoViewerFragment extends Fragment implements OnPageChangeListene
 		if (fromChatThread)
 		{
 			Logger.d(TAG, " MsgId : " + sharedMediaItems.get(0).getMsgId());
-			loadItems(false, sharedMediaItems.get(0).getMsgId(), HikeConstants.MAX_MEDIA_ITEMS_TO_LOAD_INITIALLY / 2, false, true, initialPosition); // Left
+			loadItems(false, sharedMediaItems.get(0).getMsgId(), HikeConstants.MAX_MEDIA_ITEMS_TO_LOAD_INITIALLY / 2, false); // Left
 			loadItems(false, sharedMediaItems.get(0).getMsgId(), HikeConstants.MAX_MEDIA_ITEMS_TO_LOAD_INITIALLY / 2, true); // Right
 			setSenderDetails(0);
 		}
@@ -286,16 +284,14 @@ public class PhotoViewerFragment extends Fragment implements OnPageChangeListene
 	{
 		if (!reachedEndRight && !loadingMoreItems && position == (getCount() - PAGER_LIMIT))
 		{
-			loadingMoreItems = true;
 			//Logger.d(TAG,"loading items from right : " + maxMsgId);
 			loadItems(reachedEndRight, maxMsgId, HikeConstants.MAX_MEDIA_ITEMS_TO_LOAD_INITIALLY, true);
 		}
 
 		if (!reachedEndLeft && !loadingMoreItems && position == PAGER_LIMIT)
 		{
-			loadingMoreItems = true;
 			//Logger.d(TAG, "loading items from left : " + minMsgId);
-			loadItems(reachedEndLeft, minMsgId, HikeConstants.MAX_MEDIA_ITEMS_TO_LOAD_INITIALLY, false, true, position);
+			loadItems(reachedEndLeft, minMsgId, HikeConstants.MAX_MEDIA_ITEMS_TO_LOAD_INITIALLY, false);
 
 		}
 		
@@ -425,18 +421,9 @@ public class PhotoViewerFragment extends Fragment implements OnPageChangeListene
 		openPhoto(resId, context, hikeSharedFiles, fromChatThread, mediaPosition, fromMsisdn, convName, false, null, null);
 	}
 	
-	public void loadItems(boolean reachedEnd, long maxMsgId, int limit, boolean itemsToRight)
-	{
-		loadItems(reachedEnd, maxMsgId, limit, itemsToRight, false, 0);
-	}
 	//function called to load items to the left of viewpager
-	public void loadItems(boolean reachedEnd, long msgId, int limit, boolean itemsToRight, boolean applyOffset, int prevPosition)
+	public void loadItems(boolean reachedEnd, long msgId, int limit, boolean itemsToRight)
 	{
-		if(applyOffset)
-		{
-			this.applyOffset = applyOffset;
-			this.prevPosition = prevPosition;
-		}
 		if (Utils.isHoneycombOrHigher())
 		{
 			new GetMoreItemsTask(reachedEnd, msgId, limit, itemsToRight).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
@@ -464,6 +451,12 @@ public class PhotoViewerFragment extends Fragment implements OnPageChangeListene
 			this.msgId = msgId;
 			this.limit = limit;
 		}
+		
+		@Override
+		protected void onPreExecute() {
+			loadingMoreItems = true;
+			super.onPreExecute();
+		}
 
 		@Override
 		protected List<HikeSharedFile> doInBackground(Void... params)
@@ -474,31 +467,36 @@ public class PhotoViewerFragment extends Fragment implements OnPageChangeListene
 		@Override
 		protected void onPostExecute(List<HikeSharedFile> result)
 		{
+			int insertPos =-1;
+			
 			if(getActivity() == null)
 			{
 				return ;
 			}
 			if (!result.isEmpty())
 			{  
-				if (itemsToRight)    //Loading items to the right of the viewpager
+				//items will only be inserted if they are either before  the current minMsdId or after the current maxMsgId to prevent duplicates
+				if (itemsToRight && result.get(0).getMsgId()>maxMsgId)    //Loading items to the right of the viewpager
 				{
-					sharedMediaItems.addAll(getCount() , result);
+					insertPos = getCount();
 				}
-				else				//Loading them to the left
-				{	Collections.reverse(result);
-					sharedMediaItems.addAll(0, result);
-					
+				else if(!itemsToRight && result.get(result.size() -1).getMsgId()<minMsgId)			//Loading them to the left
+				{	
+					Collections.reverse(result);
+					insertPos = 0;
 				}
+				
+				if(insertPos == -1)	
+				{
+					return;
+				}
+				
 			   //Recalculating the min and Max msgIds, for further loading
+				sharedMediaItems.addAll(insertPos , result);
 				smAdapter.notifyDataSetChanged();
 				minMsgId = sharedMediaItems.get(0).getMsgId();
 				maxMsgId = sharedMediaItems.get(getCount()-1).getMsgId();
 
-				if(applyOffset && !itemsToRight)   //Offset needed to correctly display current item in viewpager, if more items are loaded to left
-				{
-					selectedPager.setCurrentItem(result.size() + prevPosition , false); 
-					applyOffset = false;
-				}
 			}
 			
 			else
@@ -658,26 +656,6 @@ public class PhotoViewerFragment extends Fragment implements OnPageChangeListene
 		if(smAdapter != null && smAdapter.getSharedFileImageLoader().getIsExitTasksEarly())
 		{
 			smAdapter.getSharedFileImageLoader().setExitTasksEarly(false);
-			
-			/**
-				In onActivityCreated ---> intializeViewPager ----> smAdapter is already created
-				Which in turns call getView of Adaptor which does following 3 tasks
-				1) loads current image
-				2) loads all images to the left of current image ---> gives to adaptor---> notify
-				3) loads all images to the right of current image ---> gives to adaptor---> notify
-				Now here in resume, when notifDataSetChanged is called, then it is again loaded
-			
-				Earlier caching was there so could not find it, now here no caching, so can see it
-				this gives double loading for images on some device eg Samsung DUOS3
-			
-				after removing this, problem was solved with that device
-			 */
-			smAdapter.notifyDataSetChanged();
-			
-			/**
-			 * Instead refresh current visible view only
-			 */
-//			smAdapter.bindView(mParent, selectedPager.getCurrentItem());
 		}
 		
 		super.onResume();
@@ -703,6 +681,7 @@ public class PhotoViewerFragment extends Fragment implements OnPageChangeListene
 			animation.setFillAfter(true);
 			mParent.findViewById(R.id.info_group).startAnimation(animation);
 			mParent.findViewById(R.id.gradient).startAnimation(animation);
+			gallaryButton.setVisibility((gallaryButton.getVisibility() == View.VISIBLE)?View.GONE:View.VISIBLE);
 		}
 	}
 	

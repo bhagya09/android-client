@@ -6,6 +6,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.content.Intent;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -21,13 +22,17 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.bsb.hike.HikeConstants;
-import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.dialog.HikeDialog;
+import com.bsb.hike.dialog.HikeDialogFactory;
+import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.models.HikeAlarmManager;
+import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
@@ -48,6 +53,8 @@ public class StickerShareSettings extends HikeAppStateBaseFragmentActivity
 	}
 
 	private static ArrayList<ListViewItem> mListViewItems;
+	
+	private static TextView click2Accessibility;
 
 	private static SwitchCompat selectAllCheckbox;
 	
@@ -56,6 +63,8 @@ public class StickerShareSettings extends HikeAppStateBaseFragmentActivity
 	private static final String TAG = "StickerShareSettings";  
 	
 	static boolean isSelectAllTouched = false;
+	
+	HikeDialog accessibilityDialog;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -70,11 +79,42 @@ public class StickerShareSettings extends HikeAppStateBaseFragmentActivity
 		creatingArrayList();
 		listAdapter = new ChatHeadSettingsArrayAdapter(this, R.layout.settings_sticker_share_item, mListViewItems);
 		selectAllCheckbox = (SwitchCompat) findViewById(R.id.select_all_checkbox);
+		click2Accessibility = (TextView) findViewById(R.id.show_accessibility);
 		settingOnClickEvent();
-		settingSelectAllText();
 		ListView listView = (ListView) findViewById(R.id.list_items);
 		listView.setAdapter(listAdapter);
 		setupActionBar();
+	}
+	
+	@Override
+	protected void onResume()
+	{
+		super.onResume();
+		if (ChatHeadUtils.shouldShowAccessibility())
+		{
+			click2Accessibility.setVisibility(View.VISIBLE);
+		}
+		else
+		{
+			click2Accessibility.setVisibility(View.GONE);
+		}
+		
+		if(accessibilityDialog==null || !accessibilityDialog.isShowing())
+		{
+			if (ChatHeadUtils.canAccessibilityBeUsed(false))
+			{
+				forciblyMarkUnchecked();
+			}
+			else
+			{
+				stickerSettingsChangedEvent(false);
+			}
+		}
+		
+		if(getIntent().hasExtra(ProductPopupsConstants.NATIVE_POPUP) && getIntent().getExtras().getBoolean(ProductPopupsConstants.NATIVE_POPUP))
+		{
+			stickerSettingsChangedEvent(true);
+		}
 	}
 
 	private void settingOnClickEvent()
@@ -86,6 +126,15 @@ public class StickerShareSettings extends HikeAppStateBaseFragmentActivity
 			public void onClick(View v)
 			{
 				onSelectAllCheckboxClick();
+			}
+		});
+		click2Accessibility.setOnClickListener(new View.OnClickListener()
+		{
+			
+			@Override
+			public void onClick(View v)
+			{
+				IntentFactory.openAccessibilitySettings(StickerShareSettings.this);
 			}
 		});
 		selectAllCheckbox.setOnTouchListener(new View.OnTouchListener()
@@ -148,44 +197,67 @@ public class StickerShareSettings extends HikeAppStateBaseFragmentActivity
 			Logger.d(TAG, "json exception");
 		}
 	}
+	
+	private void forceToggleAllListItems(boolean currentValue)
+	{
+		for (int j = 0; j < mListViewItems.size(); j++)
+		{
+			mListViewItems.get(j).appChoice = !currentValue;
+		}
+		HAManager.getInstance().chatHeadshareAnalytics(AnalyticsConstants.ChatHeadEvents.SELECT_ALL, currentValue ? AnalyticsConstants.ChatHeadEvents.APP_UNCHECKED : AnalyticsConstants.ChatHeadEvents.APP_CHECKED);
+		if (!currentValue)
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.SNOOZE, false);
+			HikeAlarmManager.cancelAlarm(this, HikeAlarmManager.REQUESTCODE_START_STICKER_SHARE_SERVICE);
+		}
+	}
 
 	private void onSelectAllCheckboxClick()
 	{
-		boolean allChecked = areAllItemsCheckedOrUnchecked(true);
-		if (allChecked)
-		{
-			for (int j = 0; j < mListViewItems.size(); j++)
-			{
-				mListViewItems.get(j).appChoice = false;
-			}
-			HAManager.getInstance().chatHeadshareAnalytics(AnalyticsConstants.ChatHeadEvents.SELECT_ALL, AnalyticsConstants.ChatHeadEvents.APP_UNCHECKED);
-
-		}
-		else
-		{
-			for (int j = 0; j < mListViewItems.size(); j++)
-			{
-				mListViewItems.get(j).appChoice = true;
-			}
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.SNOOZE, false);
-
-			HikeAlarmManager.cancelAlarm(this, HikeAlarmManager.REQUESTCODE_START_STICKER_SHARE_SERVICE);
-			HAManager.getInstance().chatHeadshareAnalytics(AnalyticsConstants.ChatHeadEvents.SELECT_ALL, AnalyticsConstants.ChatHeadEvents.APP_CHECKED);
-		}
-
-		settingSelectAllText();
-
+		forceToggleAllListItems(areAllItemsCheckedOrUnchecked(true));
+		stickerSettingsChangedEvent(true);
 	}
-
-	private static void settingSelectAllText()
+	
+	public void stickerSettingsChangedEvent(boolean showDialog)
 	{
+		if (showDialog && ChatHeadUtils.canAccessibilityBeUsed(false) && (accessibilityDialog == null || !accessibilityDialog.isShowing()))
+		{
+			accessibilityDialog = HikeDialogFactory.showDialog(StickerShareSettings.this, HikeDialogFactory.ACCESSIBILITY_DIALOG, new HikeDialogListener()
+			{
+				@Override
+				public void positiveClicked(HikeDialog hikeDialog)
+				{
+					IntentFactory.openAccessibilitySettings(StickerShareSettings.this);
+					hikeDialog.dismiss();
+				}
+				@Override
+				public void neutralClicked(HikeDialog hikeDialog)
+				{}
+				@Override
+				public void negativeClicked(HikeDialog hikeDialog)
+				{
+					forciblyMarkUnchecked();
+					hikeDialog.dismiss();
+				}
+			}, 2);
+		}
+		
 		selectAllCheckbox.setChecked(areAllItemsCheckedOrUnchecked(true));
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.CHAT_HEAD_USR_CONTROL, !areAllItemsCheckedOrUnchecked(false));
 		listAdapter.notifyDataSetChanged();
 		savingUserPref();
 	}
+	
+	private void forciblyMarkUnchecked()
+	{
+		selectAllCheckbox.setChecked(false);
+		forceToggleAllListItems(true);
+		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.CHAT_HEAD_USR_CONTROL, false);
+		listAdapter.notifyDataSetChanged();
+		savingUserPref();
+	}
 
-	static boolean areAllItemsCheckedOrUnchecked(boolean allItemsExpectedChecked)
+	private static boolean areAllItemsCheckedOrUnchecked(boolean allItemsExpectedChecked)
 	{
 		// if all list items are expected checked, we return false if even one list item is unchecked, and vice versa
 		for (int j = 0; j < mListViewItems.size(); j++)
@@ -198,31 +270,6 @@ public class StickerShareSettings extends HikeAppStateBaseFragmentActivity
 			}
 		}
 		return true;
-	}
-
-	public static void onItemClickEvent(int tag)
-	{
-
-		if (mListViewItems.get(tag).appChoice)
-		{
-			mListViewItems.get(tag).appChoice = false;
-			mListViewItems.get(tag).mCheckBox.setChecked(false);
-			HAManager.getInstance().chatHeadshareAnalytics(AnalyticsConstants.ChatHeadEvents.APP_CLICK, mListViewItems.get(tag).appName,
-					AnalyticsConstants.ChatHeadEvents.APP_UNCHECKED);
-		}
-		else
-		{
-
-			mListViewItems.get(tag).appChoice = true;
-			mListViewItems.get(tag).mCheckBox.setChecked(true);
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.SNOOZE, false);
-			HikeAlarmManager.cancelAlarm(HikeMessengerApp.getInstance(), HikeAlarmManager.REQUESTCODE_START_STICKER_SHARE_SERVICE);
-			HAManager.getInstance().chatHeadshareAnalytics(AnalyticsConstants.ChatHeadEvents.APP_CLICK, mListViewItems.get(tag).appName,
-					AnalyticsConstants.ChatHeadEvents.APP_CHECKED);
-		}
-
-		settingSelectAllText();
-
 	}
 
 	@Override
@@ -282,4 +329,12 @@ public class StickerShareSettings extends HikeAppStateBaseFragmentActivity
 		ChatHeadUtils.startOrStopService(true);
 		super.onStop();
 	}
+	
+	@Override
+	protected void onNewIntent(Intent intent)
+	{
+		setIntent(intent);
+		super.onNewIntent(intent);
+	}
+
 }

@@ -53,6 +53,19 @@ public class ProductPopupsConstants
 
 	public static final String REQUEST_TYPE = "requestType";
 	
+	public static final String NATIVE_POPUP = "popup";
+
+	public static final String PRODUCT_POP_UP = "ppopup";
+	
+	public static final String APP_NAME = "app_name";
+	
+	public static final String PID = "pid";
+	
+	public static final String SEEN = "seen";
+
+	public static final String RECEIVED = "rec";
+
+	
 	public static enum PopupStateEnum
 	{
 		NOT_DOWNLOADED(0), DOWNLOADED(1), UNKNOWN(3);
@@ -384,7 +397,33 @@ public class ProductPopupsConstants
 				// TODO Auto-generated method stub
 				return "chathead";
 			}
-
+		},
+		HIKE_CALLER
+		{
+			@Override
+			public String toString()
+			{
+				// TODO Auto-generated method stub
+				return "hikecaller";
+			}
+		},
+		ACCESS
+		{
+			@Override
+			public String toString()
+			{
+				// TODO Auto-generated method stub
+				return "access";
+			}
+		},
+		GAME_ACTIVITY
+		{
+			@Override
+			public String toString()
+			{
+				// TODO Auto-generated method stub
+				return "gameActivity";
+			}
 		};
 		
 		
