@@ -382,6 +382,7 @@ public class StickyCaller
 		final Context context = HikeMessengerApp.getInstance().getApplicationContext();
 		windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
 		callerParams.flags = LayoutParams.FLAG_LAYOUT_NO_LIMITS | LayoutParams.FLAG_NOT_FOCUSABLE ;
+		callerParams.gravity =Gravity.CENTER;
 		try
 		{
 			windowManager.removeView(stickyCallerFrameHolder);
@@ -483,6 +484,7 @@ public class StickyCaller
 		LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		stickyCallerView = (LinearLayout) inflater.inflate(R.layout.missed_call_layout, null);
 		callerParams.flags = LayoutParams.FLAG_LAYOUT_NO_LIMITS | LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH | LayoutParams.FLAG_NOT_TOUCH_MODAL  ;
+		callerParams.gravity = Gravity.BOTTOM;
 		setBasicClickListener();
 		if (number != null)
 		{
@@ -613,6 +615,7 @@ public class StickyCaller
 		LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		stickyCallerView = (LinearLayout) inflater.inflate(R.layout.missed_call_layout, null);
 		callerParams.flags = LayoutParams.FLAG_LAYOUT_NO_LIMITS | LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH | LayoutParams.FLAG_NOT_TOUCH_MODAL  ;
+		callerParams.gravity = Gravity.BOTTOM;
 		setBasicClickListener();
 		boolean showSaveContactDivider = false;
 		if (number != null)
