@@ -143,7 +143,6 @@ public class StickyCaller
 	{
 		if ((ChatHeadLayout.getOverlayView() == null || !ChatHeadLayout.getOverlayView().isShown()) && stickyCallerFrameHolder != null && stickyCallerView != null) 
 		{
-			float verticalDistance = 0.0f;
 			float XaxisMovement = event.getRawX() - initialTouchX;
 			float YaxisMovement = event.getRawY() - initialTouchY;
 			float wanderableTouchDistance =  (float)ViewConfiguration.get(context).getScaledTouchSlop();
@@ -156,7 +155,7 @@ public class StickyCaller
 
 			if (verticalMovementDetected)
 			{
-				int actualYmovement = (int) (YaxisMovement + ((float) verticalDistance));
+				int actualYmovement = (int) (YaxisMovement + ((float) initialY));
 				if (actualYmovement < 0)
 				{
 					callerParams.y = 0;
