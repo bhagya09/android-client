@@ -18,6 +18,7 @@ include 'services:webservice'
 include 'google-play',':appcompatv7',':viewpager-indicator-library',':cardview',':recyclerview',':transporter-library'
 project(':google-play').projectDir = new File('./google-play-services_lib')
 project(':appcompatv7').projectDir = new File('./appcompat')
+project('badger').projectDir = new File('./badger')
 project(':viewpager-indicator-library').projectDir = new File('./Android ViewPagerIndicator library')
 project(':transporter-library').projectDir = new File('./transporter')
 project(':cardview').projectDir = new File('./cardview')
