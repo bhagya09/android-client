@@ -199,7 +199,7 @@ public class DictionaryManager implements AdaptxtSettingsRegisterListener
 
 	private void downlaodAndUnzip(final KPTAddonItem addOnItem)
 	{
-		String zipFileName = addOnItem.getZipFileName();
+		final String zipFileName = addOnItem.getZipFileName();
 		String fileNameForURL = zipFileName.substring(0, zipFileName.indexOf("_")).toLowerCase();
 		final File dictonaryDirectory = getDictionaryDownloadDirectory();
 		if (dictonaryDirectory == null)
@@ -209,7 +209,6 @@ public class DictionaryManager implements AdaptxtSettingsRegisterListener
 			return;
 		}
 		final File dictionaryZip = new File(dictonaryDirectory, zipFileName);
-		final File dictionaryFile = new File(dictonaryDirectory, addOnItem.getFileName());
 		RequestToken token = HttpRequests.kptLanguageDictionaryZipDownloadRequest(dictionaryZip.getAbsolutePath(), HttpRequestConstants.getLanguageDictionaryBaseUrl() + fileNameForURL,
 				new IRequestListener()
 				{
@@ -226,7 +225,9 @@ public class DictionaryManager implements AdaptxtSettingsRegisterListener
 					{
 						HikeUnzipTask dictionaryUnzipTask = new HikeUnzipTask(dictionaryZip.getAbsolutePath(), dictonaryDirectory.getAbsolutePath());
 						dictionaryUnzipTask.unzip();
-						kptSettings.installAdaptxtAddon(addOnItem, dictionaryFile.getAbsolutePath(), installationListener);
+						dictionaryZip.delete();
+						File atpfile = new File(dictonaryDirectory,zipFileName.replace(".zip", ".atp"));
+						kptSettings.installAdaptxtAddon(addOnItem, atpfile.getAbsolutePath(), installationListener);
 					}
 
 					@Override
