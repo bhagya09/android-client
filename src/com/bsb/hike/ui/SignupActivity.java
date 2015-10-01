@@ -74,6 +74,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnFocusChangeListener;
 import android.view.View.OnKeyListener;
+import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.animation.AlphaAnimation;
@@ -133,7 +134,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 
 	private TextView invalidNum;
 
-	private EditText countryPicker;
+	private CustomFontEditText countryPicker;
 
 	private TextView selectedCountryName;
 
@@ -907,7 +908,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 		loadingText = (TextView) layout.findViewById(R.id.txt_loading);
 		loadingLayout = (ViewGroup) layout.findViewById(R.id.loading_layout);
 		invalidNum = (TextView) layout.findViewById(R.id.invalid_num);
-		countryPicker = (EditText) layout.findViewById(R.id.country_picker);
+		countryPicker = (CustomFontEditText) layout.findViewById(R.id.country_picker);
 		selectedCountryName = (TextView) layout.findViewById(R.id.selected_country_name);
 		selectedCountryPicker = layout.findViewById(R.id.selected_country);
 		callmeBtn = (Button) layout.findViewById(R.id.btn_call_me);
@@ -941,6 +942,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 		mCustomKeyboard.registerEditText(R.id.et_enter_pin, KPTConstants.SINGLE_LINE_EDITOR, SignupActivity.this, SignupActivity.this);
 		mCustomKeyboard.registerEditText(R.id.et_enter_name, KPTConstants.MULTILINE_LINE_EDITOR, SignupActivity.this, SignupActivity.this);
 		mCustomKeyboard.registerEditText(R.id.birthday, KPTConstants.SINGLE_LINE_EDITOR, SignupActivity.this, SignupActivity.this);
+		mCustomKeyboard.registerEditText(R.id.country_picker, KPTConstants.SINGLE_LINE_EDITOR, SignupActivity.this, SignupActivity.this);
 	}
 	
 	private void showKeyboard(CustomFontEditText editText)
@@ -970,6 +972,22 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 							showKeyboard(enterEditText);
 						}
 					});
+			if (countryPicker != null) {
+			   countryPicker.setOnTouchListener(new OnTouchListener()
+			{
+			
+				@Override
+				public boolean onTouch(View v, MotionEvent event)
+				{
+					if (mCustomKeyboard.isCustomKeyboardVisible())
+					{
+						mCustomKeyboard.showCustomKeyboard(countryPicker, false);
+					}
+					showKeyboard(countryPicker);
+					return false;
+				}
+			});
+			}
 			if (birthdayText != null) {
 				birthdayText.setOnClickListener(new OnClickListener() {
 
