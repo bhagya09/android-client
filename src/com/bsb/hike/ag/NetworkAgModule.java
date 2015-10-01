@@ -53,7 +53,7 @@ public class NetworkAgModule extends BroadcastReceiver
 
 	public static void startLogging()
 	{
-		if(!HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.AG_ENABLED, true))
+		if(!HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.AG_ENABLED, false))
 		{
 			Logger.d(TAG, "AG network logging is not enabled.. returning");
 			return;
