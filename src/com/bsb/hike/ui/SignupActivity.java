@@ -818,6 +818,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 						public void onClick(DialogInterface dialog, int which)
 						{
 							dialog.cancel();
+							showKeyboard(enterEditText);
 						}
 					});
 					Dialog dialog = builder.show();
@@ -944,7 +945,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 	
 	private void showKeyboard(CustomFontEditText editText)
 	{
-		if(mCustomKeyboard != null)
+		if(mCustomKeyboard != null&& !mCustomKeyboard.isCustomKeyboardVisible())
 		{
 			mCustomKeyboard.init(editText);
 			mCustomKeyboard.showCustomKeyboard(editText, true);
@@ -1896,6 +1897,18 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 				{
 					errorDialog.dismiss();
 					v.setEnabled(false);
+					if (countryPicker != null)
+					{
+						countryPicker.setEnabled(true);
+					}
+					if (selectedCountryPicker != null)
+					{
+						selectedCountryPicker.setEnabled(true);
+					}
+					if (enterEditText != null)
+					{
+						enterEditText.setEnabled(true);
+					}
 					if (viewFlipper.getDisplayedChild() != SCANNING_CONTACTS)
 					{
 						/*
