@@ -1731,16 +1731,18 @@
     <string name="maxContactInGroupErr">Max %1$s members can be added</string>
     <string name="added_in_group">This contact is already a member</string>
 	<string name="net_not_connected">HikeCaller works only on Wi-Fi or 3G/4G.</string>
-	<string name="sticky_caller_settings">Caller ID</string>
-	<string name="sticky_caller_settings_side_text">Show identity and options for unknown numbers.</string>
-	<string name="caller_error_403">Some error occurred.</string>
-	<string name="caller_error_406">Unable to get the name for this number.</string>
-	<string name="caller_error_500">An internal server error occurred.</string>
-    <string name="okay">OKAY</string>
+	<string name="sticky_caller_settings">Caller</string>
+	<string name="sticky_caller_settings_side_text">Show caller information for unknown numbers and free calling, messaging options for calls.</string>
+	<string name="okay">OKAY</string>
     <string name="getting_mapp_shortly">Congratulations! You should see %1$s on your chat screen shortly</string>
     <string name="hike_apps">APPS ON HIKE</string>
     <string name="hi">Hi</string>
     <string name="caller_invited_to_join">%1$s has been invited to join a call with you.</string>
+    <string name="free_call">FREE CALL</string>
+    <string name="free_message">FREE MESSAGE</string>
+    <string name="dismiss_with">DISMISS WITH</string>
+    <string name="save_contact">SAVE CONTACT</string>
+    <string name="getting_details">Getting details...</string>
     <string name="take_me_there">TAKE ME THERE</string>
-    
+
 </resources>
