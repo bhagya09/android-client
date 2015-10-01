@@ -49,9 +49,6 @@ android {
          compile(project(':transporter-library')) {
             exclude module: 'support-v4'
         }
-	compile(project(':badger')) {
-            exclude module: 'support-v4'
-        }
         compile fileTree(dir: 'libs', include: ['*.jar'])
     }
 
