@@ -22,4 +22,5 @@ project(':viewpager-indicator-library').projectDir = new File('./Android ViewPag
 project(':transporter-library').projectDir = new File('./transporter')
 project(':cardview').projectDir = new File('./cardview')
 project(':recyclerview').projectDir = new File('./recyclerview')
+project(':Cropper').projectDir = new File('./Cropper')
 rootProject.name = 'android-client'
