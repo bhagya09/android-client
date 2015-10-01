@@ -350,16 +350,23 @@ public class BotUtils
 		
 		BotInfo existingBotInfo = getBotInfoForBotMsisdn(msisdn);
 		BotInfo botInfo = null;
-		try
-		{
-			botInfo = (BotInfo) existingBotInfo.clone();
-
-		}
-		catch (CloneNotSupportedException e)
-		{
-			e.printStackTrace();
-		}
 		
+		if (existingBotInfo != null)
+		{
+			try
+			{
+				Object clonedObj = existingBotInfo.clone();
+				if (clonedObj instanceof BotInfo)
+				{
+					botInfo = (BotInfo) clonedObj;
+				}
+
+			}
+			catch (CloneNotSupportedException e)
+			{
+				e.printStackTrace();
+			}
+		}
 
 		if (null == botInfo)
 		{
@@ -432,15 +439,25 @@ public class BotUtils
 	{
 		BotInfo existingBotInfo = getBotInfoForBotMsisdn(msisdn);
 		BotInfo botInfo = null;
-		try
+		
+		if (existingBotInfo != null)
 		{
-			botInfo = (BotInfo) existingBotInfo.clone();
+			try
+			{
+				Object clonedObj = existingBotInfo.clone();
+				if (clonedObj instanceof BotInfo)
+				{
+					botInfo = (BotInfo) clonedObj;
+				}
 
+			}
+			catch (CloneNotSupportedException e)
+			{
+				e.printStackTrace();
+			}
 		}
-		catch (CloneNotSupportedException e)
-		{
-			e.printStackTrace();
-		}
+		
+		
 		if (null == botInfo)
 		{
 			botInfo = new BotInfo.HikeBotBuilder(msisdn)

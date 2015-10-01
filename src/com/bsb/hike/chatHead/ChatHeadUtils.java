@@ -1,6 +1,8 @@
 package com.bsb.hike.chatHead;
 
 import java.lang.reflect.Field;
+import java.sql.Date;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -17,6 +19,7 @@ import android.app.ActivityManager.RunningTaskInfo;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.SystemClock;
 import android.provider.Settings;
 import android.provider.Settings.SettingNotFoundException;
 import android.support.v4.app.TaskStackBuilder;
@@ -34,6 +37,7 @@ import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.modules.httpmgr.RequestToken;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.userlogs.PhoneSpecUtils;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
@@ -126,6 +130,14 @@ public class ChatHeadUtils
 		}
 	}
 
+	
+	public static String getdateFromSystemTime()
+	{
+	    SimpleDateFormat formatter = new SimpleDateFormat(" 'on' MMM dd 'at' hh:mm aaa");
+	    Date resultdate = new Date(System.currentTimeMillis());
+	    return formatter.format(resultdate).replace("am", "AM").replace("pm", "PM");
+	}
+	
 	public static void getRunningTaskPackage(Context context, ActivityManager activityManager, List<RunningAppProcessInfo> processInfos, Set<String> packageName, int type)
 	{
 		if (Utils.isLollipopOrHigher())
@@ -481,37 +493,43 @@ public class ChatHeadUtils
 	
 	public static void postNumberRequest(Context context, String searchNumber)
 	{
-		final String number = Utils.normalizeNumber(searchNumber,
-				HikeMessengerApp.getInstance().getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0)
-						.getString(HikeMessengerApp.COUNTRY_CODE, HikeConstants.INDIA_COUNTRY_CODE));
-		StickyCaller.callCurrentNumber = number;
-		String contactName = getNameFromNumber(context, number);
-		
-		if (contactName != null)
+		if (searchNumber != null && !searchNumber.contains("*") && !searchNumber.contains("#"))
 		{
-			StickyCaller.showCallerViewWithDelay(number, contactName, StickyCaller.ALREADY_SAVED, AnalyticsConstants.StickyCallerEvents.ALREADY_SAVED);
-		}
-		else if (HikeSharedPreferenceUtil.getInstance(HikeConstants.CALLER_SHARED_PREF).getData(number, null) != null)
-		{
-			StickyCaller.showCallerViewWithDelay(number, HikeSharedPreferenceUtil.getInstance(HikeConstants.CALLER_SHARED_PREF).getData(number, null), StickyCaller.SUCCESS, AnalyticsConstants.StickyCallerEvents.CACHE);
-		}
-		else
-		{
-			JSONObject json = new JSONObject();
-			try
+			final String number = Utils.normalizeNumber(
+					searchNumber,
+					HikeMessengerApp.getInstance().getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0)
+							.getString(HikeMessengerApp.COUNTRY_CODE, HikeConstants.INDIA_COUNTRY_CODE));
+			StickyCaller.callCurrentNumber = number;
+			String contactName = getNameFromNumber(context, number);
+
+			if (contactName != null)
 			{
-				json.put(HikeConstants.MSISDN, number);
+				StickyCaller.showCallerViewWithDelay(number, contactName, StickyCaller.ALREADY_SAVED, AnalyticsConstants.StickyCallerEvents.ALREADY_SAVED);
 			}
-			catch (JSONException e)
+			else if (HikeSharedPreferenceUtil.getInstance(HikeConstants.CALLER_SHARED_PREF).getData(number, null) != null)
 			{
-	           Logger.d(TAG, "jsonException");
+				StickyCaller.showCallerViewWithDelay(number, HikeSharedPreferenceUtil.getInstance(HikeConstants.CALLER_SHARED_PREF).getData(number, null), StickyCaller.SUCCESS,
+						AnalyticsConstants.StickyCallerEvents.CACHE);
 			}
-			CallListener callListener = new CallListener();
-			RequestToken requestToken = HttpRequests.postNumberAndGetCallerDetails(HikeConstants.HIKECALLER_API, json, callListener, HTTP_CALL_RETRY_DELAY, HTTP_CALL_RETRY_MULTIPLIER);
-			StickyCaller.showCallerView(null, null, StickyCaller.LOADING, null);
-			requestToken.execute();
+			else
+			{
+				JSONObject json = new JSONObject();
+				try
+				{
+					json.put(HikeConstants.MSISDN, number);
+				}
+				catch (JSONException e)
+				{
+					Logger.d(TAG, "jsonException");
+				}
+				CallListener callListener = new CallListener();
+				RequestToken requestToken = HttpRequests.postNumberAndGetCallerDetails(HttpRequestConstants.getHikeCallerUrl(), json, callListener, HTTP_CALL_RETRY_DELAY,
+						HTTP_CALL_RETRY_MULTIPLIER);
+				StickyCaller.showCallerView(null, null, StickyCaller.LOADING, null);
+				requestToken.execute();
+			}
 		}
-	}	
+	}
 	
 	public static void registerCallReceiver()
 	{
@@ -549,7 +567,7 @@ public class ChatHeadUtils
 			context.unregisterReceiver(outgoingCallReceiver);
 			outgoingCallReceiver = null;
 		}
-
+		StickyCaller.removeCallerView();
 	}
 	
 	public static void onCallClickedFromCallerCard(Context context, String callCurrentNumber, CallSource hikeStickyCaller)
@@ -590,7 +608,7 @@ public class ChatHeadUtils
 		else
 		{
 			Toast.makeText(context, String.format(context.getString(R.string.caller_invited_to_join), callerName), Toast.LENGTH_SHORT).show();
-			//TODO self invite logic
+			Utils.sendInvite(callCurrentNumber, context);
 		}
 	}
 	

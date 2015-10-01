@@ -691,21 +691,24 @@ public class HikeFile
 			return -1;
 		}
 		Cursor cur = context.getContentResolver().query(uri, retCol, MediaStore.MediaColumns.DATA + "='" + filePath + "'", null, null);
-		try
+		if (cur != null)
 		{
-			if (cur.getCount() == 0)
+			try
 			{
-				return -1;
+				if (cur.getCount() == 0)
+				{
+					return -1;
+				}
+				cur.moveToFirst();
+
+				id = cur.getInt(cur.getColumnIndex(MediaStore.MediaColumns._ID));
 			}
-			cur.moveToFirst();
-
-			id = cur.getInt(cur.getColumnIndex(MediaStore.MediaColumns._ID));
+			finally
+			{
+				cur.close();
+			}
 		}
 
-		finally
-		{
-			cur.close();
-		}
 		return id;
 	}
 
