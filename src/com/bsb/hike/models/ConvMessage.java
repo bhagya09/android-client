@@ -1,6 +1,7 @@
 package com.bsb.hike.models;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 import org.json.JSONArray;
@@ -36,7 +37,7 @@ import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.CustomMessageTextView.DimentionMatrixHolder;
 import com.bsb.hike.view.CustomMessageTextView.ViewDimentions;
 
-public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique
+public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique, Comparable<ConvMessage>
 
 {
 	private boolean isBlockAddHeader;
@@ -89,6 +90,8 @@ public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique
 	private ViewDimentions viewDimentions;
 	
 	private int notificationType;
+	
+	private long sortingId = -1;
 
 	public String getNameSpace()
 	{
@@ -324,6 +327,7 @@ public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique
 		this.unreadCount = unreadCount;
 		this.mTimestamp = timestamp;
 		this.msgID = msgId;
+		setSortingId(msgId);
 	}
 	
 	public ConvMessage(TypingNotification typingNotification)
@@ -386,6 +390,8 @@ public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique
 		setContentId(contentId);
 		setNameSpace(nameSpace);
 		setPlatformData(platformData);
+		setSortingId(msgID);
+		
 	}
 	
 	public ConvMessage(ConvMessage other) {
@@ -423,6 +429,7 @@ public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
+		setSortingId(msgID);
 				
 	}
 
@@ -527,6 +534,8 @@ public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique
 		{
 			this.shouldShowPush = data.optBoolean(HikeConstants.PUSH, true);
 		}
+		
+		setSortingId(msgID);
 		
 	}
 
@@ -682,6 +691,7 @@ public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique
 			break;
 		}
 		setState(isSelfGenerated ? State.RECEIVED_READ : State.RECEIVED_UNREAD);
+		setSortingId(msgID);
 	}
 
 	public void setMetadata(MessageMetadata messageMetadata)
@@ -800,7 +810,7 @@ public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique
 	@Override
 	public String toString()
 	{
-		return "ConvMessage [msgID=" + msgID + ", mappedMsgId=" + mappedMsgId + ", mMessage=" + mMessage + ", mMsisdn=" + mMsisdn + ", mTimestamp=" + mTimestamp + ", mIsSent="
+		return "ConvMessage [msgID=" + msgID + ", sortingId=" + sortingId + ", mappedMsgId=" + mappedMsgId + ", mMessage=" + mMessage + ", mMsisdn=" + mMsisdn + ", mTimestamp=" + mTimestamp + ", mIsSent="
 				+ mIsSent + ", mState=" + mState + ", metadata=" + metadata + ", privateData=" + privateData + "]";
 	}
 
@@ -1472,4 +1482,67 @@ public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique
 	{
 		return getPlatformData().optString(HikeConstants.PLAY_NOTIFICATION).equals(HikeConstants.SILENT);
 	}
+
+	@Override
+	public int compareTo(ConvMessage another)
+	{
+		if (another == null )
+		{
+			return 1;
+		}
+		
+		if (this.equals(another))
+		{
+			return 0;
+		}
+		
+		long other_sortingId = another.sortingId;
+		
+		if (this.sortingId == other_sortingId) 
+		{
+			return (this.msgID < another.msgID) ? -1 : 1;
+		}
+		
+		return (this.sortingId < other_sortingId) ? -1 : 1; 
+			
+	}
+
+	/**
+	 * @return the sortingId
+	 */
+	public long getSortingId()
+	{
+		return sortingId;
+	}
+
+	/**
+	 * @param sortId the sortingId to set
+	 */
+	public void setSortingId(long sortId)
+	{
+		this.sortingId = sortId;
+	}
+	
+	
+	public static class ConvMessageComparator implements Comparator<ConvMessage>
+	{
+		/**
+		 * This comparator reverses the order of the normal comparable
+		 * 
+		 * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
+		 */
+
+		@Override
+		public int compare(ConvMessage lhs, ConvMessage rhs)
+		{
+			if (rhs == null)
+			{
+				return 1;
+			}
+
+			return lhs.compareTo(rhs);
+		}
+
+	}
+
 }
