@@ -5,6 +5,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import org.json.JSONObject;
+
 import android.content.Context;
 import android.content.IntentFilter;
 import android.net.wifi.ScanResult;
@@ -67,6 +69,8 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 	private long timeTakenToEstablishConnection = 0l;
 	
 	private boolean isClientInitialized=false;
+	
+	private OfflineClientInfoPOJO connectedClientInfo =null;
 	
 	Handler handler = new Handler(HikeHandlerUtil.getInstance().getLooper())
 	{
@@ -429,6 +433,7 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 		timeTakenToEstablishConnection = 0l;
 		connectedDevice = null;
 		connectinMsisdn = null;
+		connectedClientInfo =null;
 		removeAllMessages();
 		startedForChatThread = false;
 		HikeSharedPreferenceUtil.getInstance().saveData(OfflineConstants.OFFLINE_MSISDN, "");
@@ -552,4 +557,17 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 	}
 
 
+	public void setConnectedClientInfo(JSONObject clientInfo)
+	{
+		if(clientInfo==null)
+			return;
+		
+		OfflineClientInfoPOJO  offlineClientInfoPOJO = new Gson().fromJson(clientInfo.toString(), OfflineClientInfoPOJO.class);
+		connectedClientInfo = offlineClientInfoPOJO;
+	}
+
+	public OfflineClientInfoPOJO getConnectedClientInfo()
+	{
+		return connectedClientInfo;
+	}
 }

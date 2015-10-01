@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -102,6 +104,9 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 	
 	// msisdn for scrolling Microapps showcase
 	public static final String HIKE_APPS_MSISDN = "-132";
+
+	/*stores the regex for matching number during search*/
+	public static Pattern numberPattern;
 
 	public enum ViewType
 	{
@@ -234,6 +239,14 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 		listFetchedOnce = false;
 
 		contactSpanStartIndexes = new HashMap<String, Integer>();
+		
+		/* Regex Explanation - number can start with '+', then any character between [0-9] one or more time and
+	 	any character among them [-, ., space, slash ] only once
+		if this pattern match then ignore all the hyphen, dot, space, slash 
+		removed backtracking for numbers as it can lead to backtracking explosion for large string 
+		reference : http://www.regular-expressions.info/catastrophic.html
+		compiling the pattern once to avoid redundant recompiling */
+		numberPattern = Pattern.compile("^\\+?((?>[0-9]+)[-.\\s/]?)*");
 	}
 
 	public void executeFetchTask()
@@ -252,9 +265,9 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 	public void onQueryChanged(String s)
 	{
 		queryText = s;
-		//Regex Explanation - number can start with '+', then any character between [0-9] one or more time and any character among them [-, ., space, slash ]only once
-		//if this pattern match then ignore all the hyphen, dot, space, slash 
-		if(queryText.matches("^\\+?(([0-9]+[-.\\s/]?))*")){
+		Matcher matcher = numberPattern.matcher(queryText);
+		if(matcher.matches())
+		{
 			queryText = queryText.replaceAll("[-.\\s /]", "");
 		}
 		contactFilter.filter(queryText);

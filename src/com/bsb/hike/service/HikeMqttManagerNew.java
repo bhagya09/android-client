@@ -1034,7 +1034,7 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 			if(throwable != null)
 			{
 				error.put(HikeConstants.ERROR_MESSAGE, message);
-				error.put(HikeConstants.EXCEPTION_MESSAGE, throwable.getMessage());
+				error.put(HikeConstants.EXCEPTION_MESSAGE, Utils.getStackTrace(throwable));
 			}
 			else if(time > 0)
 			{

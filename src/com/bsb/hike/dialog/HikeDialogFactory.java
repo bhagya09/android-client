@@ -1181,8 +1181,9 @@ public class HikeDialogFactory
 	{
 		final CustomAlertDialog dialog = new CustomAlertDialog(context, HikeDialogFactory.MAPP_DOWNLOAD_DIALOG, R.layout.mapp_download_dialog);
 
-		dialog.setPositiveButton(context.getResources().getString(R.string.okay), listener);
+		dialog.setPositiveButton(context.getResources().getString(R.string.take_me_there), listener);
 		dialog.setCancelable(true);
+		dialog.setCanceledOnTouchOutside(true);
 		dialog.show();
 
 		return dialog;
