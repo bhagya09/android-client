@@ -1182,6 +1182,9 @@
     <string name="getting_mapp_shortly">Congratulations! You should see %1$s on your chat screen shortly</string>
     <string name="hike_apps">APPS ON HIKE</string>
     <string name="caller_invited_to_join">%1$s has been invited to join a call with you.</string>
-    
+        <string name="caller_error_403">Some error occurred.</string>
+	<string name="caller_error_406">Unable to get the name for this number.</string>
+	<string name="caller_error_500">An internal server error occurred.</string>
+	<string name="hi">Hi</string>
     
 </resources>
