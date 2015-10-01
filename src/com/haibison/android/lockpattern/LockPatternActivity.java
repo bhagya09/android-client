@@ -1403,8 +1403,7 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity implem
 	@Override
 	public void showGlobeKeyView()
 	{
-		// TODO Auto-generated method stub
-		
+		KptUtils.onGlobeKeyPressed(LockPatternActivity.this, mCustomKeyboard);
 	}
 
 	@Override
