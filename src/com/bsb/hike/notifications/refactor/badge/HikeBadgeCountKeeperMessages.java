@@ -7,16 +7,7 @@ import com.bsb.hike.db.HikeConversationsDatabase;
 public class HikeBadgeCountKeeperMessages extends HikeBadgeCountKeeper
 {
 
-	public HikeBadgeCountKeeperMessages()
-	{
-		this.mBadgeCountCategory = HikeBadgeCountCategory.MESSAGE_RECEIVED;
-
-	}
-
-	public HikeBadgeCountKeeperMessages(HikeBadgeCountCategory mBadgeCountCategory, String[] listener)
-	{
-		super(mBadgeCountCategory, listener);
-	}
+	
 
 	@Override
 	public void onEventReceived(String type, Object object)

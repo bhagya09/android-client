@@ -13,7 +13,6 @@ import com.hike.transporter.utils.Logger;
 
 public class HikeBadgeCountManager implements Listener
 {
-	private static HikeBadgeCountManager mInstance;
 
 	private ShortcutBadger badger;
 

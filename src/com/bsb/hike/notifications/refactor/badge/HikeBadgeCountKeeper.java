@@ -7,7 +7,6 @@ import com.bsb.hike.HikePubSub.Listener;
 
 public abstract class HikeBadgeCountKeeper implements Listener
 {
-	public HikeBadgeCountCategory mBadgeCountCategory;
 
 	private int mBadgeCountPriority = 1;
 
@@ -25,14 +24,6 @@ public abstract class HikeBadgeCountKeeper implements Listener
 	}
 
 	protected abstract void init();
-
-	public HikeBadgeCountKeeper(HikeBadgeCountCategory mBadgeCountCategory, String[] listener)
-	{
-		this.mBadgeCountCategory = mBadgeCountCategory;
-		this.mlistener = listener;
-		addListener();
-
-	}
 
 	private void addListener()
 	{

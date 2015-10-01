@@ -5,15 +5,6 @@ import com.bsb.hike.HikePubSub;
 
 public class HikeBadgeCountKeeperActivityUpdate extends HikeBadgeCountKeeper
 {
-	public HikeBadgeCountKeeperActivityUpdate()
-	{
-		// TODO Auto-generated constructor stub
-	}
-
-	public HikeBadgeCountKeeperActivityUpdate(HikeBadgeCountCategory mBadgeCountCategory, String[] listener)
-	{
-		super(mBadgeCountCategory, listener);
-	}
 
 	@Override
 	public void onEventReceived(String type, Object object)
@@ -21,10 +12,12 @@ public class HikeBadgeCountKeeperActivityUpdate extends HikeBadgeCountKeeper
 
 		if (HikePubSub.ACTIVITY_FEED_COUNT_CHANGED.equals(type) || HikePubSub.BADGE_COUNT_ACTIVITY_UPDATE_CHANGED.equals(type))
 		{
-
-			Integer count = (Integer) object;
-			setCount(count);
-			HikeMessengerApp.getPubSub().publish(HikePubSub.BADGE_COUNT_CHANGED, null);
+			if (object instanceof Integer)
+			{
+				Integer count = (Integer) object;
+				setCount(count);
+				HikeMessengerApp.getPubSub().publish(HikePubSub.BADGE_COUNT_CHANGED, null);
+			}
 		}
 		else if (HikePubSub.TIMELINE_WIPE.equals(type))
 		{

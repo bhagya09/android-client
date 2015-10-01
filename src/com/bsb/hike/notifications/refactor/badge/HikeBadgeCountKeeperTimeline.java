@@ -7,15 +7,6 @@ import com.bsb.hike.utils.Utils;
 public class HikeBadgeCountKeeperTimeline extends HikeBadgeCountKeeper
 {
 
-	public HikeBadgeCountKeeperTimeline()
-	{
-		// TODO Auto-generated constructor stub
-	}
-
-	public HikeBadgeCountKeeperTimeline(HikeBadgeCountCategory mBadgeCountCategory, String[] listener)
-	{
-		super(mBadgeCountCategory, listener);
-	}
 
 	@Override
 	public void onEventReceived(String type, Object object)
