@@ -48,7 +48,8 @@ import com.google.gson.JsonParser;
 
 public class StickyCaller
 {
-
+	private static final String TAG = "StickyCaller";
+	
 	private static LinearLayout stickyCallerView;
 
 	private static WindowManager windowManager;
@@ -132,7 +133,7 @@ public class StickyCaller
 		}
 		catch (Exception e)
 		{
-			Logger.d("StickyCaller","exceptionRemoveViewCallbacks");
+			Logger.d(TAG,"exceptionRemoveViewCallbacks");
 		}
 	}
 
@@ -146,7 +147,7 @@ public class StickyCaller
 			float XaxisMovement = event.getRawX() - initialTouchX;
 			float YaxisMovement = event.getRawY() - initialTouchY;
 			float wanderableTouchDistance =  (float)ViewConfiguration.get(context).getScaledTouchSlop();
-			Logger.d("StickyCaller","check : " + XaxisMovement + " > " + wanderableTouchDistance);
+			Logger.d(TAG,"check : " + XaxisMovement + " > " + wanderableTouchDistance);
 			if(!(horizontalMovementDetected || verticalMovementDetected))
 			{
 				horizontalMovementDetected = Math.abs(XaxisMovement) >  wanderableTouchDistance;
@@ -168,14 +169,21 @@ public class StickyCaller
 				{
 					callerParams.y = actualYmovement;
 				}
-				windowManager.updateViewLayout(stickyCallerFrameHolder, callerParams);
+				try
+				{
+					windowManager.updateViewLayout(stickyCallerFrameHolder, callerParams);
+				}
+				catch(Exception e)
+				{
+					Logger.d(TAG, "Exception on updating view ");
+				}
 			}
 
 			
 			if (horizontalMovementDetected)
 			{
 				float linearHorizontalAlpha = Math.max(0.0f, Math.min(1.0f, 1.0f - (Math.abs(XaxisMovement) / ((float) context.getResources().getDisplayMetrics().widthPixels))));
-				Logger.d("StickyCaller", "setting alpha as : " + linearHorizontalAlpha);
+				Logger.d(TAG, "setting alpha as : " + linearHorizontalAlpha);
 				stickyCallerView.setAlpha(linearHorizontalAlpha);
 				stickyCallerView.setTranslationX(XaxisMovement);
 			}
@@ -200,7 +208,7 @@ public class StickyCaller
 				}
 				catch (Exception e)
 				{
-					Logger.d("StickyCaller", "view not found");
+					Logger.d(TAG, "view not found");
 				}
 			}
 		});
@@ -348,7 +356,7 @@ public class StickyCaller
 			accelerateDecelerateInterpolator = new AccelerateInterpolator();
 			if (movedOnXaxis == (-1 * Utils.getDeviceWidth()) || movedOnXaxis == Utils.getDeviceWidth())
 			{
-				Logger.d("StickyCaller", "may not dismiss");
+				Logger.d(TAG, "may not dismiss");
 				//TODO might make view invisible -> product call
 			}
 		}
@@ -423,7 +431,7 @@ public class StickyCaller
 		}
 		catch (Exception e)
 		{
-			Logger.d("StickyCaller", "error in adding caller view");
+			Logger.d(TAG, "error in adding caller view");
 		}
 		if (CALL_TYPE == INCOMING || CALL_TYPE == OUTGOING)
 		{
@@ -479,8 +487,7 @@ public class StickyCaller
 		}
 		catch (Exception e)
 		{
-			e.printStackTrace();
-			Logger.d("StickyCaller", "error in adding caller view");
+			Logger.d(TAG, "error in adding caller view");
 		}
 	}
 
