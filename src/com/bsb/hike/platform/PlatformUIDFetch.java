@@ -1,17 +1,13 @@
 package com.bsb.hike.platform;
 
-import android.text.TextUtils;
-import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.modules.httpmgr.Header;
-import com.bsb.hike.modules.httpmgr.hikehttp.HttpHeaderConstants;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
 import com.bsb.hike.tasks.PlatformUidFetchTask;
-import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.Utils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -34,12 +30,15 @@ public class PlatformUIDFetch
 		{
 			switch (fetchType)
 			{
-			case HikePlatformConstants.PlatformUIDFetchType.SELF:
+			case HikePlatformConstants.PlatformFetchType.SELF:
 				url = HttpRequestConstants.selfPlatformUidFetchUrl();
 				new PlatformUidFetchTask(fetchType, url).execute();
 				break;
 
-			case HikePlatformConstants.PlatformUIDFetchType.PARTIAL_ADDRESS_BOOK:
+			case HikePlatformConstants.PlatformFetchType.SELF_ANONYMOUS_NAME:
+				url = HttpRequestConstants.getAnonymousNameFetchUrl();
+
+			case HikePlatformConstants.PlatformFetchType.PARTIAL_ADDRESS_BOOK:
 				url = HttpRequestConstants.platformUidForPartialAddressBookFetchUrl();
 				JSONObject jsonObject = new JSONObject();
 				try
@@ -57,8 +56,18 @@ public class PlatformUIDFetch
 				}
 				break;
 
-			case HikePlatformConstants.PlatformUIDFetchType.FULL_ADDRESS_BOOK:
+			case HikePlatformConstants.PlatformFetchType.FULL_ADDRESS_BOOK:
 				url = HttpRequestConstants.platformUIDForFullAddressBookFetchUrl();
+				headers = PlatformUtils.getHeaders();
+				if (headers != null)
+				{
+					new PlatformUidFetchTask(fetchType, url, headers).execute();
+				}
+				break;
+
+			case HikePlatformConstants.PlatformFetchType.OTHER_ANONYMOUS_NAME:
+				url = HttpRequestConstants.getAnonymousNameFetchUrl();
+				url += "?" + HikePlatformConstants.PLATFORM_UIDS + "=" + Utils.getCommaSeperatedStringFromArray(varargs);
 				headers = PlatformUtils.getHeaders();
 				if (headers != null)
 				{
