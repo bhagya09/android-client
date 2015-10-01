@@ -433,7 +433,8 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 
 	private void uploadProfilePic(final String croppedImageFile, final String originalImageFile)
 	{
-
+//		Utils.copyFile(croppedImageFile, TestBmp.getFilename());
+		TestBmp.compressImage(croppedImageFile,croppedImageFile,800f,800f);
 		editView.setVisibility(View.VISIBLE);
 		ProfilePicFragment profilePicFragment = new ProfilePicFragment();
 		Bundle b = new Bundle();
@@ -441,8 +442,6 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 		b.putString(HikeConstants.HikePhotos.ORIG_FILE, originalImageFile);
 		profilePicFragment.setArguments(b);
 		getSupportFragmentManager().beginTransaction().replace(R.id.overlayFrame, profilePicFragment).addToBackStack(null).commit();
-		Utils.copyFile(croppedImageFile, TestBmp.getFilename());
-//		TestBmp.compressImage(croppedImageFile);
 	}
 
 	public class EditorClickListener implements OnClickListener, OnPageChangeListener, OnDoodleStateChangeListener, OnItemClickListener
