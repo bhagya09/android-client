@@ -2046,7 +2046,10 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	{
 		if (!KptUtils.isSystemKeyboard(HomeActivity.this))
 		{
-			mCustomKeyboard.onConfigurationChanged(newConfig);
+			if (mCustomKeyboard != null)
+			{
+				mCustomKeyboard.onConfigurationChanged(newConfig);				
+			}
 		}
 		super.onConfigurationChanged(newConfig);
 		// handle dialogs here
