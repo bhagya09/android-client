@@ -448,6 +448,7 @@ public class StickerManager
 			sendStickerFolderLockedError("uanable to access android folder");
 			return new Pair<Boolean, List<StickerCategory>>(false, null);
 		}
+
 		String rootPath = dir.getPath() + HikeConstants.STICKERS_ROOT;
 		File root = new File(rootPath);
 		if (!root.exists() || !root.isDirectory())
@@ -473,7 +474,8 @@ public class StickerManager
 				allCategoryList.add(new StickerCategory(file.getName()));
 			}
 		}
-		
+		sendStickerFolderLockedError("current sticker categories count = " + allCategoryList.size());
+
 		return new Pair<Boolean, List<StickerCategory>>(true, allCategoryList);
 	}
 

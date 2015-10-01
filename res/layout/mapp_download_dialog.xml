@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical" >
+
+    <com.bsb.hike.view.RoundedImageView
+        android:id="@+id/bot_icon"
+        style="@style/RoundedStyle"
+        android:layout_width="@dimen/mapp_download_dialog_icon"
+        android:layout_height="@dimen/mapp_download_dialog_icon"
+        android:layout_gravity="center"
+        android:layout_marginTop="36dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/sticker_chat_head" />
+
+    <com.bsb.hike.view.CustomFontTextView
+        android:id="@+id/bot_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="14dp"
+        android:layout_marginLeft="48dp"
+        android:layout_marginRight="48dp"
+        android:textSize="20sp"
+        android:textColor="@color/black_80"
+        android:fontFamily="sans-serif-medium"
+        android:includeFontPadding="false" />
+    
+    <LinearLayout
+        android:layout_width="280dp"
+        android:layout_height="60dp"
+        android:layout_marginTop="8dp"
+	    android:gravity="center"
+	    android:layout_gravity="center" >
+	    
+        <com.bsb.hike.view.CustomFontTextView
+	        android:id="@+id/bot_description"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_gravity="center"
+	        android:gravity="center"
+	        android:layout_marginLeft="42dp"
+	        android:layout_marginRight="42dp"
+	        android:textColor="@color/black_45"
+	        android:textSize="14sp"
+	        android:ellipsize="end"
+	        android:fontFamily="sans-serif-regular"
+	        android:includeFontPadding="false" />
+        
+        <ProgressBar
+            android:id="@+id/progressbar"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_gravity="center"
+	    	android:visibility="gone" />
+        
+    </LinearLayout>
+    
+    <LinearLayout 
+        android:id="@+id/button_panel"
+        style="@style/ButtonBarCustomDialog"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:layout_marginBottom="8dp"
+        android:gravity="right"
+        android:layoutDirection="locale"
+        android:orientation="horizontal" >
+        
+        <com.bsb.hike.view.CustomFontButton
+            android:id="@+id/btn_positive"
+            style="@style/ButtonCustomDialog"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/take_me_there" />
+        
+    </LinearLayout>
+
+</LinearLayout>

@@ -88,6 +88,8 @@ public interface HikePlatformConstants
 	public static final String ANONYMOUS_NAME = "anonymousName";
 	public static final String ERROR = "error";
 	public static final String ANONYMOUS_NAMES = "anonymousNames";
+	public static final String FORWARD_CARD_OBJECT = "fwdCardObj";
+	public static final String TIMESTAMP = "timestamp";
 
 	public static final class PlatformFetchType
 	{
@@ -248,4 +250,19 @@ public interface HikePlatformConstants
 	final String STATUS_BAR_COLOR = "sb_color";
 	
 	public static final String PLATFORM_USER_ID_SYNC = "plfsync";
+	
+	public static final String BOT_DESCRIPTION = "desc";
+	
+	public static final String BOT_LATEST_VERSION = "latest_version";
+	
+	public static final String MSISDN = "msisdn";
+	
+	public static final String BOT_NAME = "name";
+	
+	public static final String BOTS = "bots";
+	
+	public static final String ALL_REQUIRED = "all_required";
+	
+	public static final String BOT_DP = "dp";
+	
 }

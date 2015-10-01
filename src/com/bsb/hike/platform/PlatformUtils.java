@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import android.util.Pair;
 import com.bsb.hike.bots.NonMessagingBotMetadata;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -41,6 +42,7 @@ import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.chatHead.ChatHeadUtils;
+import com.bsb.hike.chatHead.StickyCaller;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
@@ -316,6 +318,11 @@ public class PlatformUtils
 					Toast.makeText(context, context.getString(R.string.sticker_share_popup_not_activate_toast), Toast.LENGTH_LONG).show();
 				}
 			}
+			if (activityName.equals(HIKESCREEN.HIKE_CALLER.toString()))
+			{
+				HikeSharedPreferenceUtil.getInstance().saveData(StickyCaller.ACTIVATE_STICKY_CALLER, true);
+				IntentFactory.openStickyCallerSettings(context);
+			}
 			if(activityName.equals(HIKESCREEN.ACCESS.toString()))
 			{
 				IntentFactory.openAccessibilitySettings(context);
@@ -578,14 +585,14 @@ public class PlatformUtils
 	 * @param text:     hm text
 	 * @return
 	 */
-	public static ConvMessage getConvMessageFromJSON(JSONObject metadata, String text, String msisdn)
+	public static ConvMessage getConvMessageFromJSON(JSONObject metadata, String text, String msisdn) throws JSONException
 	{
 
 
 		ConvMessage convMessage = Utils.makeConvMessage(msisdn, true);
 		convMessage.setMessage(text);
 		convMessage.setMessageType(HikeConstants.MESSAGE_TYPE.FORWARD_WEB_CONTENT);
-		convMessage.webMetadata = new WebMetadata(metadata);
+		convMessage.webMetadata = new WebMetadata(PlatformContent.getForwardCardData(metadata.toString()));
 		convMessage.setMsisdn(msisdn);
 		return convMessage;
 
@@ -1101,10 +1108,19 @@ public class PlatformUtils
 			return;
 		}
 
-		MessageEvent messageEvent = new MessageEvent(HikePlatformConstants.NORMAL_EVENT, msisdn, nameSpace, eventMetadata, messageHash,
-				HikePlatformConstants.EventStatus.EVENT_SENT, System.currentTimeMillis());
+		try
+		{
+			JSONObject data = new JSONObject(eventMetadata);
+			String cardData = data.getString(HikePlatformConstants.EVENT_CARDDATA);
+			MessageEvent messageEvent = new MessageEvent(HikePlatformConstants.NORMAL_EVENT, msisdn, nameSpace, cardData, messageHash,
+					HikePlatformConstants.EventStatus.EVENT_SENT, System.currentTimeMillis());
 
-		HikeMessengerApp.getPubSub().publish(HikePubSub.PLATFORM_CARD_EVENT_SENT, messageEvent);
+			HikeMessengerApp.getPubSub().publish(HikePubSub.PLATFORM_CARD_EVENT_SENT, new Pair<MessageEvent, JSONObject>(messageEvent, data));
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
 
 	}
 	

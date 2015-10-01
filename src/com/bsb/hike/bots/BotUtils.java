@@ -347,7 +347,26 @@ public class BotUtils
 
 	private static BotInfo getBotInfoForNonMessagingBots(JSONObject jsonObj, String msisdn)
 	{
-		BotInfo botInfo = getBotInfoForBotMsisdn(msisdn);
+		
+		BotInfo existingBotInfo = getBotInfoForBotMsisdn(msisdn);
+		BotInfo botInfo = null;
+		
+		if (existingBotInfo != null)
+		{
+			try
+			{
+				Object clonedObj = existingBotInfo.clone();
+				if (clonedObj instanceof BotInfo)
+				{
+					botInfo = (BotInfo) clonedObj;
+				}
+
+			}
+			catch (CloneNotSupportedException e)
+			{
+				e.printStackTrace();
+			}
+		}
 
 		if (null == botInfo)
 		{
@@ -418,7 +437,27 @@ public class BotUtils
 
 	private static BotInfo getBotInfoFormessagingBots(JSONObject jsonObj, String msisdn)
 	{
-		BotInfo botInfo = getBotInfoForBotMsisdn(msisdn);
+		BotInfo existingBotInfo = getBotInfoForBotMsisdn(msisdn);
+		BotInfo botInfo = null;
+		
+		if (existingBotInfo != null)
+		{
+			try
+			{
+				Object clonedObj = existingBotInfo.clone();
+				if (clonedObj instanceof BotInfo)
+				{
+					botInfo = (BotInfo) clonedObj;
+				}
+
+			}
+			catch (CloneNotSupportedException e)
+			{
+				e.printStackTrace();
+			}
+		}
+		
+		
 		if (null == botInfo)
 		{
 			botInfo = new BotInfo.HikeBotBuilder(msisdn)
@@ -616,6 +655,115 @@ public class BotUtils
 			return false;
 		}
 		return true;
+	}
+	
+	/**
+	 * Returns whether bot Discovery feature is enabled or not
+	 * 
+	 * @return
+	 */
+	public static boolean isBotDiscoveryEnabled()
+	{
+		return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ENABLE_BOT_DISCOVERY, false);
+	}
+
+//	/**
+//	 * Utility method called to syncBotDiscoveryTable with the table present on server
+//	 */
+//	public static void syncBotDiscoveryTable()
+//	{
+//		makeBotDiscoveryDownloadRequest(true, false, 0);
+//	}
+//	
+//	/**
+//	 * This method makes the POST call to fetch the botInfo objects for bot discoverytable
+//	 * 
+//	 * @param allRequired
+//	 *            - All bots required from server. If true, we ignore the sendClientBots value 
+//	 * @param sendclientBots
+//	 *            - Whether client bots are required to be sent to the server for ordering
+//	 * @param offset
+//	 *            - The offset from where the data is to be fetched. if allRequired is true, offset is hardcoded as 0
+//	 */
+//	public static void makeBotDiscoveryDownloadRequest(boolean allRequired, boolean sendclientBots, int offset)
+//	{
+//		Logger.v(TAG, "Making bot discovery table download request");
+//		JSONObject body = new JSONObject();
+//		int mOffset = offset;
+//
+//		try
+//		{
+//			if (allRequired)
+//			{
+//				body.put(HikePlatformConstants.ALL_REQUIRED, true);
+//				mOffset = 0;
+//			}
+//
+//			if (!allRequired && sendclientBots)
+//			{
+//				body.put(HikePlatformConstants.BOTS, getClientBotJSONArray());
+//			}
+//
+//			BotDiscoveryDownloadTask task = new BotDiscoveryDownloadTask(mOffset, body);
+//
+//			task.execute();
+//
+//		}
+//		catch (JSONException e)
+//		{
+//			Logger.v(TAG, "Making bot discovery table download request : got an exception " + e);
+//		}
+//	}
+//
+//	/**
+//	 * Returns the bot msisdns present in the client in the form of an JSONArray eg : [“+hike1+”, “+hikenews+”,”+hikecricket+”, “hikegrowth+”]
+//	 * 
+//	 * @return {@link JSONArray}
+//	 */
+//	private static JSONArray getClientBotJSONArray()
+//	{
+//		JSONArray botArray = new JSONArray();
+//
+//		for (String msisdn : HikeMessengerApp.hikeBotInfoMap.keySet())
+//		{
+//			botArray.put(msisdn);
+//		}
+//
+//		return botArray;
+//	}
+	
+	/**
+	 * Log analytics for discovery bot download request.
+	 * @param msisdn
+	 * @param name
+	 */
+	public static void discoveryBotDownloadAnalytics(String msisdn, String name)
+	{
+		JSONObject json = new JSONObject();
+		try
+		{
+			json.put(AnalyticsConstants.EVENT_KEY, AnalyticsConstants.DISCOVERY_BOT_DOWNLOAD);
+			json.put(HikePlatformConstants.PLATFORM_USER_ID, HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PLATFORM_UID_SETTING, null));
+			json.put(AnalyticsConstants.BOT_NAME, name);
+			json.put(AnalyticsConstants.BOT_MSISDN, msisdn);
+		}
+		catch (JSONException e)
+		{
+			Logger.e(TAG, "JSON Exception in botDownloadAnalytics "+e.getMessage());
+		}
+		HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.BOT_DISCOVERY, json);
+	}
+	
+	/**
+	 * Unblock the bot and add to the conversation list.
+	 * @param botInfo
+	 */
+	public static void unblockBotAndAddConv(BotInfo botInfo)
+	{
+		botInfo.setBlocked(false);
+		HikeMessengerApp.getPubSub().publish(HikePubSub.UNBLOCK_USER, botInfo.getMsisdn());
+		
+		HikeMessengerApp.getPubSub().publish(HikePubSub.ADD_NM_BOT_CONVERSATION, botInfo);
 	}
 
 }
