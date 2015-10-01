@@ -35,11 +35,8 @@ public class HikeBadgeCountManager implements Listener
 	{
 		if (HikePubSub.BADGE_COUNT_CHANGED.equals(type))
 		{
-			synchronized (this)
-			{
-				Logger.d("badger", "set badgeCount as " + getBadgeCount());
-				badger.count(getBadgeCount());
-			}
+			Logger.d("badger", "set badgeCount as " + getBadgeCount());
+			badger.count(getBadgeCount());
 
 		}
 
