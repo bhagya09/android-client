@@ -162,5 +162,7 @@ public class StickerSearchConstants
 	public static final Character CHAR_SPACE = ' ';
 
 	public static final Character CHAR_OR = '|';
+
+	public static final String STRING_DELIMITER = ":";
 	// =======================================================================Generic constants]]
 }

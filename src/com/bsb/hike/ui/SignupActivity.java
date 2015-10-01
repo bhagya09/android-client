@@ -71,6 +71,7 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
+import com.bsb.hike.ag.NetworkAgModule;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.bots.BotUtils;
@@ -162,6 +163,8 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 	public static final int PIN = 2;
 
 	public static final int NUMBER = 1;
+	
+	public static int callMeWaitTime;
 
 	private String countryCode;
 
@@ -764,7 +767,12 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 							Editor editor = accountPrefs.edit();
 							editor.putString(HikeMessengerApp.TEMP_COUNTRY_CODE, code);
 							editor.commit();
-
+							
+							Utils.setSSLAllowed(code);
+							Utils.setupServerURL(getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, MODE_PRIVATE).getBoolean(HikeMessengerApp.PRODUCTION, true),
+									Utils.switchSSLOn(getApplicationContext()));
+							HttpRequestConstants.setUpBase();
+							
 							mTask.addUserInput(number);
 
 							startLoading();
@@ -2012,7 +2020,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 			// Manual entry for pin
 			else
 			{
-				prepareLayoutForGettingPin(HikeConstants.CALL_ME_WAIT_TIME);
+				prepareLayoutForGettingPin(callMeWaitTime);
 				setAnimation();
 			}
 			break;
@@ -2369,7 +2377,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 			Logger.d(getClass().getSimpleName(), "Downloading profileImage");
 			try
 			{
-				Utils.downloadAndSaveFile(context, destFile, imageUri);
+				Utils.downloadAndSaveFile(context.getContentResolver(), destFile, imageUri);
 				imageDownloadResult.downloadFinished(true);
 			}
 			catch (Exception e)

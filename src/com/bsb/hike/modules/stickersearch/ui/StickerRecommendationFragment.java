@@ -176,14 +176,14 @@ public class StickerRecommendationFragment extends Fragment implements Listener
 	
 	public void click(View view)
 	{
-		int position = recyclerView.getChildPosition(view);
+		int position = recyclerView.getChildAdapterPosition(view);
 
-		if ((listener == null) || (stickerList == null) || (stickerList.size() <= position))
+		if ((listener == null) || (stickerList == null) || (position < 0) || (stickerList.size() <= position) )
 		{
 			Logger.wtf(StickerTagWatcher.TAG, "sometghing wrong, sticker can't be selected.");
 			return;
 		}
-
+		
 		Sticker sticker = stickerList.get(position);
 		String source = (StickerSearchManager.getInstance().isFromAutoRecommendation() ? StickerManager.FROM_AUTO_RECOMMENDATION_PANEL
 				: StickerManager.FROM_BLUE_TAP_RECOMMENDATION_PANEL);

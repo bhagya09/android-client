@@ -68,8 +68,13 @@ public class HttpRequestConstants
 	private static final String BASE_ADDRESS_BOOK_READ = "/addressBook";
 	
 	private static final String STICKER_SHARE_PATH = "/stickershare/" ;
+	
+	private static final String QA_CONTENT = "qa-content.hike.in";
 
-
+	private static final String STAGING_HIKECALLER_API = "http://52.76.46.27:5000/name";
+	
+	private static final String PRODUCTION_HIKECALLER_API = "https://caller.hike.in/name";
+	
 	public static synchronized void setUpBase()
 	{
 		toggleStaging();
@@ -197,6 +202,11 @@ public class HttpRequestConstants
 		return BASE_URL + BASE_V1 + BASE_USER + "/status";
 	}
 
+	public static String getDeleteStatusBaseUrl()
+	{
+		return BASE_URL + BASE_V1 + BASE_USER + "/status-delete";
+	}
+
 	public static String selfPlatformUidFetchUrl()
 	{
 		return BASE_PLATFORM_URL + BASE_USER + BASE_V1 + BASE_CREATE;
@@ -249,7 +259,7 @@ public class HttpRequestConstants
 
 	public static String deleteAccountBaseUrl()
 	{
-		return BASE_URL + BASE_V1 + BASE_ACCOUNT;
+		return BASE_URL + BASE_V1 + "/account-delete";
 	}
 
 	public static String unlinkAccountBaseUrl()
@@ -335,5 +345,42 @@ public class HttpRequestConstants
 	public static String getMorestickersUrl()
 	{
 		return BASE_URL+STICKER_SHARE_PATH ;
+	}
+
+	public static String getDeleteAvatarBaseUrl()
+	{
+		return BASE_URL + BASE_V1 + BASE_ACCOUNT + "/avatar-delete";
+	}
+	
+	public static String getBotdiscoveryTableUrl()
+	{
+		// TODO Add complete url here
+		return BASE_PLATFORM_URL;
+	}
+	
+	public static String getBotDownloadUrl()
+	{
+		String suffix = "/mapps/api" + BASE_V1 + "/apps/install.json";
+		
+		if (isProduction)
+		{
+			return HTTPS + "mapps." + PLATFORM_PRODUCTION_API + suffix;
+		}
+		else
+		{
+			return HTTPS + QA_CONTENT + suffix ;
+		}
+	}
+
+	public static String getHikeCallerUrl()
+	{
+		if (isProduction)
+		{
+			return PRODUCTION_HIKECALLER_API;
+		}
+		else
+		{
+			return STAGING_HIKECALLER_API;
+		}
 	}
 }

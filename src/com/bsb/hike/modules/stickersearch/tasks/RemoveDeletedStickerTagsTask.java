@@ -4,6 +4,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import android.util.Pair;
+
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.models.StickerCategory;
@@ -32,7 +34,15 @@ public class RemoveDeletedStickerTagsTask implements Runnable
 			return;
 		}
 		
-		List<StickerCategory> stickerCategories = StickerManager.getInstance().getAllStickerCategories();
+		Pair<Boolean, List<StickerCategory>> result = StickerManager.getInstance().getAllStickerCategories();
+		
+		if(result.first == false)
+		{
+			return ;
+		}
+		
+		List<StickerCategory> stickerCategories = result.second;
+		
 		Set<String> stickerSet = new HashSet<String>();
 
 		if (Utils.isEmpty(stickerCategories))

@@ -24,11 +24,16 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences.Editor;
+import android.content.pm.ApplicationInfo;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.net.Uri;
+import android.net.wifi.ScanResult;
+import android.net.wifi.p2p.WifiP2pDeviceList;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -62,6 +67,7 @@ import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.inputmethod.EditorInfo;
+import android.webkit.MimeTypeMap;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView;
@@ -132,6 +138,11 @@ import com.bsb.hike.modules.stickersearch.StickerSearchManager;
 import com.bsb.hike.modules.stickersearch.listeners.IStickerPickerRecommendationListener;
 import com.bsb.hike.modules.stickersearch.provider.StickerSearchHostManager;
 import com.bsb.hike.modules.stickersearch.ui.StickerTagWatcher;
+import com.bsb.hike.offline.IOfflineCallbacks;
+import com.bsb.hike.offline.OfflineConstants;
+import com.bsb.hike.offline.OfflineConstants.ERRORCODE;
+import com.bsb.hike.offline.OfflineController;
+import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.platform.CardComponent;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformMessageMetadata;
@@ -169,8 +180,9 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 public abstract class ChatThread extends SimpleOnGestureListener implements OverflowItemClickListener, View.OnClickListener, ThemePickerListener, ImageParserListener,
 		PickFileListener, StickerPickerListener, AudioRecordListener, LoaderCallbacks<Object>, OnItemLongClickListener, OnTouchListener, OnScrollListener,
 		Listener, ActionModeListener, HikeDialogListener, TextWatcher, OnDismissListener, OnEditorActionListener, OnKeyListener, PopupListener, BackKeyListener,
-		OverflowViewListener, OnSoftKeyboardListener, IStickerPickerRecommendationListener
-{
+		OverflowViewListener, OnSoftKeyboardListener, IStickerPickerRecommendationListener,IOfflineCallbacks
+
+		{
 	private static final String TAG = ChatThread.class.getSimpleName();
 
 	protected static final int FETCH_CONV = 1;
@@ -248,7 +260,13 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	
 	protected static final int UPDATE_MESSAGE_LIST = 37;
 	
+	protected static final int SCROLL_LISTENER_ATTACH = 38;
+	
 	protected static final int REMOVE_CHAT_BACKGROUND = 0;
+
+	protected static final int NUDGE_COOLOFF_TIME = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.NUDGE_SEND_COOLOFF_TIME, 1000);
+
+	private long lastNudgeTime = -1;
     
     private int NUDGE_TOAST_OCCURENCE = 2;
     	
@@ -329,10 +347,12 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 	private static final String NEW_LINE_DELIMETER = "\n";
 	
-	private boolean consumedForwardedData;
+	private int intentDataHash;
 	
 	protected HikeDialog dialog;
 	
+	protected IChannelSelector channelSelector;
+
 	private StickerTagWatcher stickerTagWatcher;
 	
 	protected int mCurrentActionMode;
@@ -370,7 +390,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	}
 
 	private ChatThreadBroadcasts mBroadCastReceiver;
-
+	
+	protected OfflineController offlineController = null;
 
 	protected Handler uiHandler = new Handler()
 	{
@@ -492,6 +513,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		case SEARCH_RESULT:
 			updateUIforSearchResult((int) msg.obj);
 			break;
+		case SCROLL_LISTENER_ATTACH:
+			mConversationsView.setOnScrollListener(this);
 		default:
 			Logger.d(TAG, "Did not find any matching event for msg.what : " + msg.what);
 			break;
@@ -601,8 +624,42 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		mActionBar = new HikeActionBar(activity);
 		mConversationDb = HikeConversationsDatabase.getInstance();
 		sharedPreference = HikeSharedPreferenceUtil.getInstance();
+		initMessageChannel();
 		shouldKeyboardPopupShow=HikeMessengerApp.keyboardApproach(activity);
 	}
+
+	
+	protected void initMessageChannel() {
+		
+		
+		if(OfflineUtils.isConnectedToSameMsisdn(msisdn))
+		{
+			if(offlineController==null)
+			{
+				offlineController = OfflineController.getInstance();
+				offlineController.addListener(this);
+			}
+			channelSelector = new OfflineChannel(offlineController);
+			activity.updateActionBarColor(new ColorDrawable(Color.BLACK));
+			StatusBarColorChanger.setStatusBarColor(activity.getWindow(), R.color.black);
+		}
+		else if(OfflineUtils.isConnectingToSameMsisdn(msisdn))
+		{
+			if(offlineController==null)
+			{
+				offlineController = OfflineController.getInstance();
+				offlineController.addListener(this);
+			}
+			// When connecting we still keep channel as Online . This will only be changed when connected
+			channelSelector = new OnlineChannel();
+		}
+		else
+		{
+			channelSelector = new OnlineChannel();
+		}
+
+	}
+
 
 	/**
 	 * This function must be called after setting content view
@@ -857,7 +914,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			 */
 			if (data != null)
 			{
-				ChatThreadUtils.onShareFile(activity.getApplicationContext(), msisdn, data, mConversation.isOnHike());
+				channelSelector.onShareFile(activity.getApplicationContext(), msisdn, data, mConversation.isOnHike());
 			}
 			break;
 		case AttachmentPicker.CONTACT:
@@ -874,6 +931,20 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 				// This would be executed if photos is not enabled on the device
 				mConversationsView.requestFocusFromTouch();
 				mConversationsView.setSelection(messages.size() - 1);
+			}
+			break;
+		case AttachmentPicker.APPS:
+			if (data != null)
+			{
+				ArrayList<ApplicationInfo> results = data.getParcelableArrayListExtra(OfflineConstants.APK_SELECTION_RESULTS);
+				
+				for(ApplicationInfo apk: results)
+				{
+					String filePath = apk.sourceDir;
+					String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(Utils.getFileExtension(filePath));
+					String apkLabel = (String)activity.getPackageManager().getApplicationLabel(apk);
+					channelSelector.sendApps(activity ,filePath, mime, apkLabel, msisdn,mConversation.isOnHike());
+				}
 			}
 			break;
 		case HikeConstants.PLATFORM_REQUEST:
@@ -908,7 +979,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			{
 				activity.closeChatThread(msisdn);
 			}
-
+			
 			break;
 		default:
 			break;
@@ -996,7 +1067,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		mTips.hideTip();
 
 		// Remove the indicator if any on the overflow menu.
-		mActionBar.updateOverflowMenuIndicatorImage(0);
+		mActionBar.updateOverflowMenuIndicatorImage(0,false);
 
 		/**
 		 * Hiding the softkeyboard if we are in landscape mode
@@ -1139,7 +1210,9 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		if (convMessage != null)
 		{
 			addMessage(convMessage);
-			HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_SENT, convMessage);
+			/*This will publish pubsub if convmessage is being sent online 
+			  else it will send it to OfflineController to send it offline*/
+			channelSelector.sendMessage(convMessage);
 		}
 	}
 	
@@ -1309,9 +1382,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		}
 
 		initAttachmentPicker(mConversation.isOnHike());
-		int width = (int) (Utils.scaledDensityMultiplier * 270);
-		int xOffset = -(int) (276 * Utils.scaledDensityMultiplier);
-		int yOffset = -(int) (0.5 * Utils.scaledDensityMultiplier);
+		int xOffset = -(int) (276 * Utils.densityMultiplier);
+		int yOffset = -(int) (0.5 * Utils.densityMultiplier);
 		attachmentPicker.show(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, xOffset, yOffset, activity.findViewById(R.id.attachment_anchor), PopupWindow.INPUT_METHOD_NOT_NEEDED);
 	}
 
@@ -1323,10 +1395,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		if (attachmentPicker == null)
 		{
 			attachmentPicker = new AttachmentPicker(msisdn, this, this, activity, true);
-			if (addContact)
-			{
-				attachmentPicker.appendItem(new OverFlowMenuItem(getString(R.string.contact_msg_sent), 0, R.drawable.ic_attach_contact, AttachmentPicker.CONTACT));
-			}
+			channelSelector.modifyAttachmentPicker(activity,attachmentPicker,addContact);
+			
 		}
 	}
 
@@ -1569,7 +1639,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	private void setupStickerSearch()
 	{
 		if (!(sharedPreference.getData(HikeConstants.STICKER_RECOMMENDATION_ENABLED, false) && sharedPreference.getData(HikeConstants.STICKER_RECOMMEND_PREF, true))
-				|| (Utils.getExternalStorageState() == ExternalStorageState.NONE))
+				|| (Utils.getExternalStorageState() == ExternalStorageState.NONE) || (HikeMessengerApp.getInstance().getExternalFilesDir(null) == null))
 		{
 			return;
 		}
@@ -1691,6 +1761,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	private void searchMessage(boolean searchNext, boolean loop)
 	{
 		mConversationsView.setOnScrollListener(null);
+		
 		Utils.hideSoftKeyboard(activity.getApplicationContext(), mComposeView);
 		if (!TextUtils.isEmpty(searchText) &&
 				// For some devices like micromax A120, one can get multiple calls from one user-input.
@@ -1731,7 +1802,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		}
 		setMessagesRead();
 		loadingMoreMessages = false;
-		mConversationsView.setOnScrollListener(this);
+		sendUIMessage(SCROLL_LISTENER_ATTACH, 128, 0);
 	}
 
 	protected void destroySearchMode()
@@ -1772,13 +1843,13 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	@Override
 	public void imageParsed(Uri uri)
 	{
-		ChatThreadUtils.uploadFile(activity.getApplicationContext(), msisdn, uri, HikeFileType.IMAGE, mConversation.isOnHike());
+		channelSelector.uploadFile(activity.getApplicationContext(), msisdn, uri, HikeFileType.IMAGE, mConversation.isOnHike());
 	}
 
 	@Override
 	public void imageParsed(String imagePath)
 	{
-		ChatThreadUtils.uploadFile(activity.getApplicationContext(), msisdn, imagePath, HikeFileType.IMAGE, mConversation.isOnHike(), FTAnalyticEvents.CAMERA_ATTACHEMENT);
+		channelSelector.uploadFile(activity.getApplicationContext(), msisdn, imagePath, HikeFileType.IMAGE, mConversation.isOnHike(), FTAnalyticEvents.CAMERA_ATTACHEMENT);
 	}
 
 	@Override
@@ -1795,13 +1866,12 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		switch (requestCode)
 		{
 		case AttachmentPicker.AUDIO:
-			ChatThreadUtils.uploadFile(activity.getApplicationContext(), msisdn, filePath, HikeFileType.AUDIO, mConversation.isOnHike(), FTAnalyticEvents.AUDIO_ATTACHEMENT);
+			channelSelector.sendAudio(activity.getApplicationContext(),msisdn,filePath,mConversation.isOnHike());
 			break;
 		case AttachmentPicker.VIDEO:
-			ChatThreadUtils.uploadFile(activity.getApplicationContext(), msisdn, filePath, HikeFileType.VIDEO, mConversation.isOnHike(), FTAnalyticEvents.VIDEO_ATTACHEMENT);
+			channelSelector.sendVideo(activity.getApplicationContext(),msisdn,filePath,mConversation.isOnHike());
 			break;
 		}
-
 	}
 
 	@Override
@@ -1876,9 +1946,16 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		switch (dialog.getId())
 		{
 		case HikeDialogFactory.CONTACT_SEND_DIALOG:
-			ChatThreadUtils.initialiseContactTransfer(activity.getApplicationContext(), msisdn, ((PhonebookContact) dialog.data).jsonData, mConversation.isOnHike());
+			if(channelSelector instanceof OnlineChannel)
+			{
+				ChatThreadUtils.initialiseContactTransfer(activity.getApplicationContext(), msisdn,((PhonebookContact) dialog.data).jsonData, mConversation.isOnHike());	
+			}
+			else
+			{
+				ConvMessage offlineConvMessage = OfflineUtils.createOfflineContactConvMessage(msisdn,((PhonebookContact) dialog.data).jsonData, mConversation.isOnHike());
+				sendMessage(offlineConvMessage);
+			}
 			dialog.dismiss();
-
 			break;
 
 		case HikeDialogFactory.CLEAR_CONVERSATION_DIALOG:
@@ -1910,8 +1987,17 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		// messages theme changed, call adapter
 		mAdapter.setChatTheme(theme);
 		// action bar
-		activity.updateActionBarColor(theme.headerBgResId());
-		setStatusBarColor(theme.statusBarColor());
+		if (OfflineUtils.isConnectedToSameMsisdn(msisdn))
+		{
+			activity.updateActionBarColor(new ColorDrawable(Color.BLACK));
+			setStatusBarColor(R.color.black);
+		}
+		else
+		{
+			activity.updateActionBarColor(theme.headerBgResId());
+			setStatusBarColor(theme.statusBarColor());
+		}
+		
 		
 		// background image
 		setBackground(theme);
@@ -1946,8 +2032,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	public void audioRecordSuccess(String filePath, long duration)
 	{
 		Logger.i(TAG, "Audio Recorded " + filePath + "--" + duration);
-		ChatThreadUtils.initialiseFileTransfer(activity.getApplicationContext(), msisdn, filePath, null, HikeFileType.AUDIO_RECORDING, HikeConstants.VOICE_MESSAGE_CONTENT_TYPE,
-				true, duration, false, mConversation.isOnHike(), FTAnalyticEvents.AUDIO_ATTACHEMENT);
+		channelSelector.sendAudioRecording(activity.getApplicationContext(),filePath,duration,msisdn,mConversation.isOnHike());
 	}
 
 	@Override
@@ -2184,6 +2269,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			Logger.d("gaurav","mOnItemsFinishedListener.getMoreItems");
 			getMessagesFromDB((MovingList<ConvMessage>)movingList, startIndex, endIndex);
 		}
+
 	};
 	
 	protected boolean shouldShowKeyboard()
@@ -2264,6 +2350,10 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		{
 			return false;
 		}
+		if ((System.currentTimeMillis() - lastNudgeTime) < NUDGE_COOLOFF_TIME && lastNudgeTime > 0)
+		{
+			return false;
+		}
 		if (!_doubleTapPref)
 		{
 			try
@@ -2284,8 +2374,9 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			}
 			return false;
 		}
-			sendPoke();
-			return true;
+		lastNudgeTime = System.currentTimeMillis();
+		sendPoke();
+		return true;
 	}
 
 	protected void sendPoke()
@@ -2298,6 +2389,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	private void initListViewAndAdapter()
 	{
 		mConversationsView = (ListView) activity.findViewById(R.id.conversations_list);
+		releaseMessageAdapterResources();
 		mAdapter = new MessagesAdapter(activity, messages, mConversation, this, mConversationsView, activity);
 		mConversationsView.setAdapter(mAdapter);
 		if (mConversation.getUnreadCount() > 0 && !messages.isEmpty())
@@ -2317,12 +2409,12 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			}
 			else
 			{
-				mConversationsView.setSelection(messages.size());
+				mConversationsView.setSelection(messages.size() - 1);
 			}
 		}
 		else
 		{
-			mConversationsView.setSelection(messages.size());
+			mConversationsView.setSelection(messages.size() - 1);
 		}
 		mConversationsView.setOnItemLongClickListener(this);
 		mConversationsView.setOnTouchListener(this);
@@ -2339,12 +2431,12 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	protected void takeActionBasedOnIntent()
 	{
 		Logger.i(TAG, "take action based on intent");
-		if(savedState!=null && savedState.getBoolean(HikeConstants.CONSUMED_FORWARDED_DATA)) {
+		Intent intent = activity.getIntent();
+		if(savedState!=null && (savedState.getInt(HikeConstants.CONSUMED_FORWARDED_DATA) == intent.getExtras().toString().hashCode())) {
 			Logger.i(TAG, "consumed forwarded data");
 			return;
 		}
-		Intent intent = activity.getIntent();
-
+		intentDataHash = intent.getExtras().toString().hashCode();
 		/**
 		 * 1. Has an existing message in intent
 		 */
@@ -2378,7 +2470,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		 */
 		else if (intent.hasExtra(HikeConstants.Extras.FILE_PATH))
 		{
-			ChatThreadUtils.onShareFile(activity.getApplicationContext(), msisdn, intent, mConversation.isOnHike());
+			channelSelector.onShareFile(activity.getApplicationContext(),msisdn,intent,mConversation.isOnHike());
 			// Making sure the file does not get forwarded again on
 			// orientation change.
 			intent.removeExtra(HikeConstants.Extras.FILE_PATH);
@@ -2445,11 +2537,11 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 						if (Utils.isPicasaUri(filePath))
 						{
-							FileTransferManager.getInstance(activity.getApplicationContext()).uploadFile(Uri.parse(filePath), hikeFileType, msisdn, mConversation.isOnHike());
+							channelSelector.sendPicasaUriFile(activity.getApplicationContext(),Uri.parse(filePath), hikeFileType, msisdn, mConversation.isOnHike());
 						}
 						else
 						{
-							ChatThreadUtils.initialiseFileTransfer(activity.getApplicationContext(), msisdn, filePath, fileKey, hikeFileType, fileType, isRecording,
+							channelSelector.sendFile(activity.getApplicationContext(), msisdn, filePath, fileKey, hikeFileType, fileType, isRecording,
 									recordingDuration, true, mConversation.isOnHike(), attachmentType);
 						}
 					}
@@ -2459,14 +2551,14 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 						double latitude = msgExtrasJson.getDouble(HikeConstants.Extras.LATITUDE);
 						double longitude = msgExtrasJson.getDouble(HikeConstants.Extras.LONGITUDE);
 						int zoomLevel = msgExtrasJson.getInt(HikeConstants.Extras.ZOOM_LEVEL);
-						ChatThreadUtils.initialiseLocationTransfer(activity.getApplicationContext(), msisdn, latitude, longitude, zoomLevel, mConversation.isOnHike(),true);
+						channelSelector.initialiaseLocationTransfer(activity.getApplicationContext(), msisdn, latitude, longitude, zoomLevel, mConversation.isOnHike(),true);
 					}
 					else if (msgExtrasJson.has(HikeConstants.Extras.CONTACT_METADATA))
 					{
 						try
 						{
 							JSONObject contactJson = new JSONObject(msgExtrasJson.getString(HikeConstants.Extras.CONTACT_METADATA));
-							ChatThreadUtils.initialiseContactTransfer(activity.getApplicationContext(), msisdn, contactJson, mConversation.isOnHike());
+							channelSelector.initialiseContactTransfer(activity.getApplicationContext(), msisdn, contactJson, mConversation.isOnHike());
 						}
 						catch (JSONException e)
 						{
@@ -2508,6 +2600,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 						// as we will be changing msisdn and hike status while inserting in DB
 						ConvMessage convMessage = Utils.makeConvMessage(msisdn,msgExtrasJson.getString(HikeConstants.HIKE_MESSAGE), mConversation.isOnHike());
 						convMessage.setMessageType(HikeConstants.MESSAGE_TYPE.FORWARD_WEB_CONTENT);
+						convMessage.setPlatformData(msgExtrasJson.optJSONObject(HikeConstants.PLATFORM_PACKET));
 						convMessage.webMetadata = new WebMetadata(msgExtrasJson.optString(HikeConstants.METADATA));
 						JSONObject json = new JSONObject();
 						try
@@ -2553,7 +2646,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			String fileType = intent.getStringExtra(HikeConstants.Extras.FILE_TYPE);
 			for (String filePath : filePaths)
 			{
-				ChatThreadUtils.initiateFileTransferFromIntentData(activity.getApplicationContext(), msisdn, fileType, filePath, mConversation.isOnHike(), FTAnalyticEvents.OTHER_ATTACHEMENT);
+				channelSelector.initiateFileTransferFromIntentData(activity.getApplicationContext(), msisdn, fileType, filePath, mConversation.isOnHike(), FTAnalyticEvents.OTHER_ATTACHEMENT);
 			}
 			intent.removeExtra(HikeConstants.Extras.FILE_PATHS);
 		}
@@ -2576,7 +2669,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			mComposeView.setSelection(mComposeView.length());
 			SmileyParser.getInstance().addSmileyToEditable(mComposeView.getText(), false);
 		}
-		consumedForwardedData = true;
 	}
 
 	/*
@@ -2914,6 +3006,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 				ArrayList<ConvMessage> msgList;
 				if (loaderId == SEARCH_PREVIOUS || loaderId == SEARCH_LOOP)
 				{
+					msgSize = chatThread.get().messages.size();
 					long maxId = chatThread.get().messages.getUniqueId(firstVisisbleItem);
 					long minId = -1;
 					ArrayList<Long> ids = new ArrayList<Long>();
@@ -2961,6 +3054,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 				}
 				if (loaderId == SEARCH_NEXT)
 				{
+					msgSize = chatThread.get().messages.size();
 					int count = firstVisisbleItem;
 					long minId = chatThread.get().messages.getUniqueId(firstVisisbleItem);
 					int maxIdPosition = Math.min(count + loadMessageCount, msgSize - 1);
@@ -3237,8 +3331,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			}
 		}
 
-		showOverflowIndicatorsIfRequired(firstVisibleItem, visibleItemCount, totalItemCount);
-
 		View unreadMessageIndicator = activity.findViewById(R.id.new_message_indicator);
 
 		if (unreadMessageIndicator.getVisibility() == View.VISIBLE && mConversationsView.getLastVisiblePosition() > messages.size() - unreadMessageCount - 2)
@@ -3282,39 +3374,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		currentFirstVisibleItem = firstVisibleItem;
 	}
 	
-	private void showOverflowIndicatorsIfRequired(int firstVisibleItem, int visibleItemCount, int totalItemCount)
-	{
-		showOverflowSearchIndicatorIfRequired(firstVisibleItem, visibleItemCount, totalItemCount);
-	}
-
-	private void showOverflowSearchIndicatorIfRequired(int firstVisibleItem, int visibleItemCount, int totalItemCount)
-	{
-		/* 
-		 * SEARCH INDICATOR
-		 * The search indicator over overflow menu item is shown if:
-		 *  - It hasn't been shown before
-		 *  - Theres nothing being displayed in its position right now, like gc pin unread count.
-		 *  - User has scrolled up by atleast 1 message.
-		 *  - Messages not are being loaded.
-		 *  Note: This is to be shown only once
-		 */
-		boolean ctSearchIndicatorShown = sharedPreference.getData(HikeMessengerApp.CT_SEARCH_INDICATOR_SHOWN, false);
-		if (!ctSearchIndicatorShown && !mActionBar.isOverflowMenuIndicatorInUse()
-				&& (firstVisibleItem + visibleItemCount + 1) < totalItemCount && !loadingMoreMessages)
-		{
-			// If user has already discovered search option, theres on need to show the search icon on overflow menu icon.
-			// Just mark it already shown and move on.
-			if (sharedPreference.getData(HikeMessengerApp.CT_SEARCH_CLICKED, false))
-			{
-				sharedPreference.saveData(HikeMessengerApp.CT_SEARCH_INDICATOR_SHOWN, true);
-			}
-			// If the indicator is successfully displayed the setting is saved, so that its not shown again.
-			else if (mActionBar.updateOverflowMenuIndicatorImage(R.drawable.ic_top_bar_indicator_search))
-			{
-				sharedPreference.saveData(HikeMessengerApp.CT_SEARCH_INDICATOR_SHOWN, true);
-			}
-		}
-	}
 
 	@Override
 	public boolean onTouch(View v, MotionEvent event)
@@ -3690,8 +3749,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		{
 			if (isActivityVisible)
 			{
-				ChatThreadUtils.publishReadByForMessage(message, mConversationDb, msisdn);
-				
+				ChatThreadUtils.publishReadByForMessage(message, mConversationDb, msisdn,channelSelector);
+
 				if(message.getPrivateData() != null && message.getPrivateData().getTrackID() != null)
 				{
 					//Logs for Msg Reliability
@@ -3716,22 +3775,36 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 		}
 	}
-
+	
 	protected boolean onMessageDelivered(Object object)
 	{
 
+		
 		Pair<String, Long> pair = (Pair<String, Long>) object;
 		// If the msisdn don't match we simply return
 		if (!mConversation.getMsisdn().equals(pair.first))
 		{
 			return false;
 		}
+		
 		long msgID = pair.second;
+		Logger.d("BugRef","in OnMessage Delivered  .. msg id is "+ msgID);
 		// TODO we could keep a map of msgId -> conversation objects
 		// somewhere to make this faster
 		ConvMessage msg = findMessageById(msgID);
 		if (Utils.shouldChangeMessageState(msg, ConvMessage.State.SENT_DELIVERED.ordinal()))
 		{
+			Logger.d("BugRef","Going to update state for msg ID"+msgID);
+			// Adding file key for file transfer message in offline mode
+			if (msg.isOfflineMessage() && OfflineUtils.isFileTransferMessage(msg.serialize()))
+			{
+				Logger.d("BugRef","UPDATING FILE KEY FOR   .. msg id is "+ msgID);
+				if (TextUtils.isEmpty(msg.getMetadata().getHikeFiles().get(0).getFileKey()))
+				{
+					msg.getMetadata().getHikeFiles().get(0).setFileKey("OfflineFileKey" + System.currentTimeMillis() / 1000);
+					Logger.d("BugRef","UPDATIED FILE KEY FOR   .. msg id is "+ msgID);
+				}
+			}
 			msg.setState(ConvMessage.State.SENT_DELIVERED);
 
 			uiHandler.sendEmptyMessage(NOTIFY_DATASET_CHANGED);
@@ -3856,6 +3929,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		
 		releaseActionBarResources();
 		
+		releaseOfflineListeners();
+
 		releaseShareablePopUpResources();
 		
 		releaseStickerResources();
@@ -3902,6 +3977,16 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		}
 	}
 	
+	private void releaseOfflineListeners() 
+	{
+		if (offlineController != null)
+		{
+			offlineController.removeListener(this);
+		}
+		offlineController = null;
+	}
+
+
 	private void releaseActionBarResources()
 	{
 		if (mActionBar != null)
@@ -4585,7 +4670,14 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		if (isRemoved && updateActionBar)
 		{
 			setupActionBar(false);
-			activity.updateActionBarColor(currentTheme.headerBgResId());
+			if(OfflineUtils.isConnectedToSameMsisdn(msisdn))
+			{
+				activity.updateActionBarColor(new ColorDrawable(Color.BLACK));
+			}
+			else
+			{
+				activity.updateActionBarColor(currentTheme.headerBgResId());
+			}
 			activity.getSupportActionBar().show();
 		}
 		return isRemoved;
@@ -4715,7 +4807,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			EmailConversationsAsyncTask emailTask = new EmailConversationsAsyncTask(activity, null);
 			Utils.executeConvAsyncTask(emailTask, mConversation.getConvInfo());
 		}
-		
 		else
 		{
 			Toast.makeText(activity, R.string.empty_email, Toast.LENGTH_SHORT).show();
@@ -4727,9 +4818,10 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	 * 
 	 * @param isNetworkError
 	 */
-	private void showNetworkError(boolean isNetworkError)
+	protected void showNetworkError(boolean isNetworkError)
 	{
 		activity.findViewById(R.id.network_error_chat).setVisibility(isNetworkError ? View.VISIBLE : View.GONE);
+		activity.findViewById(R.id.network_error_card).setVisibility(View.GONE);
 	}
 
 	/**
@@ -4789,7 +4881,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 				setSMSReadInNative();
 			}
 			HikeMessengerApp.getPubSub().publish(HikePubSub.MSG_READ, msisdn);
-			ChatThreadUtils.sendMR(msisdn, unreadConvMessages, readMessageExists);
+			ChatThreadUtils.sendMR(msisdn, unreadConvMessages, readMessageExists,channelSelector);
 		}
 	}
 	
@@ -5139,6 +5231,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 					else if (message.getMessageType() == HikeConstants.MESSAGE_TYPE.WEB_CONTENT || message.getMessageType() == HikeConstants.MESSAGE_TYPE.FORWARD_WEB_CONTENT)
 					{
 						multiMsgFwdObject.put(HikeConstants.MESSAGE_TYPE.MESSAGE_TYPE, HikeConstants.MESSAGE_TYPE.FORWARD_WEB_CONTENT);
+						multiMsgFwdObject.put(HikeConstants.PLATFORM_PACKET, message.getPlatformData());
 						multiMsgFwdObject.put(HikeConstants.HIKE_MESSAGE, message.getMessage());
 						if (message.webMetadata != null)
 						{
@@ -5453,9 +5546,9 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		saveCurrentActionMode();
 		if (mShareablePopupLayout != null)
 		{
-			mShareablePopupLayout.onCloseKeyBoard();
-
+			mShareablePopupLayout.dismiss();
 		}
+		
 		
 		if (mActionMode != null && mActionMode.isActionModeOn())
 		{
@@ -5758,14 +5851,49 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	protected void onSaveInstanceState(Bundle outState)
 	{	
 		shouldKeyboardPopupShow=HikeMessengerApp.keyboardApproach(activity);
-		outState.putBoolean(HikeConstants.CONSUMED_FORWARDED_DATA, consumedForwardedData);
+		outState.putInt(HikeConstants.CONSUMED_FORWARDED_DATA, intentDataHash);
 	}
 	
 	protected void onRestoreInstanceState(Bundle savedInstanceState) 
 	{
-		consumedForwardedData = savedInstanceState.getBoolean(HikeConstants.CONSUMED_FORWARDED_DATA, false);
+		intentDataHash = savedInstanceState.getInt(HikeConstants.CONSUMED_FORWARDED_DATA, 0);
 	}
 	
+	public void connectedToMsisdn(String connectedDevice)
+	{
+		
+	}
+	
+	public void wifiP2PScanResults(WifiP2pDeviceList peerList)
+	{
+		
+	}
+
+	public void wifiScanResults(Map<String, ScanResult> results)
+	{
+		
+	}
+
+	public void onDisconnect(ERRORCODE errorCode)
+	{
+		
+	}
+	
+	public void changeChannel(Boolean setOfflineChannel,Boolean removeListener)
+	{
+		if(setOfflineChannel)
+		{
+			channelSelector = new OfflineChannel(offlineController);
+		}
+		else
+		{
+			channelSelector = new OnlineChannel();
+			if(removeListener)
+			{
+				releaseOfflineListeners();
+			}
+		}
+	}	
 	public void setStatusBarColor(int resIdcolor)
 	{
 		StatusBarColorChanger.setStatusBarColor(activity, resIdcolor);

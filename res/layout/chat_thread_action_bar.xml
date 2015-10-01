@@ -55,6 +55,7 @@
             android:clickable="false"
             android:gravity="center_vertical"
             android:orientation="vertical"
+            android:paddingTop="2dp"
             android:paddingLeft="4dp" >
 
             <com.bsb.hike.view.CustomFontTextView

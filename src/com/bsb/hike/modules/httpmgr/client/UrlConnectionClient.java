@@ -120,7 +120,7 @@ public class UrlConnectionClient implements IClient
 			if (status >= 200 && status <= 299)
 			{
 				stream = connection.getInputStream();
-				bodyContent = request.parseResponse(stream);
+				bodyContent = request.parseResponse(stream, length);
 			}
 			else
 			{

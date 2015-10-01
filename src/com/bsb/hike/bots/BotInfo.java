@@ -1,29 +1,17 @@
 package com.bsb.hike.bots;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.R.integer;
-import android.content.Context;
-import android.text.TextUtils;
-
-import com.bsb.hike.HikeConstants;
-import com.bsb.hike.HikeMessengerApp;
-import com.bsb.hike.R;
-import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.models.Conversation.ConvInfo;
 import com.bsb.hike.platform.HikePlatformConstants;
-import com.bsb.hike.service.MqttMessagesManager;
-import com.bsb.hike.utils.Logger;
 
 /**
  * Created by shobhit on 22/04/15.
  */
-public class BotInfo extends ConvInfo
+public class BotInfo extends ConvInfo implements Cloneable
 {
 	public static final int MESSAGING_BOT = 1;
 	public static final int NON_MESSAGING_BOT = 2;
@@ -46,15 +34,25 @@ public class BotInfo extends ConvInfo
 	
 	private AtomicBoolean isBackPressAllowed = new AtomicBoolean(false);
 
+	private AtomicBoolean isUpPressAllowed = new AtomicBoolean(false);
+
 	private String helperData;
+	
+	private boolean isConvPresent = false;
+
+	private int version;
+	
+	private String botDescription;
+	
+	private int updatedVersion;
 	
 	public static abstract class InitBuilder<P extends InitBuilder<P>> extends ConvInfo.InitBuilder<P>
 	{
-		private int type, config;
+		private int type, config, version, updatedVersion;
 
 		private String namespace;
 
-		private String metadata, configData, notifData, helperData;
+		private String metadata, configData, notifData, helperData, botDescription;
 
 		protected InitBuilder(String msisdn)
 		{
@@ -103,6 +101,12 @@ public class BotInfo extends ConvInfo
 			return getSelfObject();
 		}
 
+		public P setVersion(int version)
+		{
+			this.version = version;
+			return getSelfObject();
+		}
+
 		public P setHelperData(String helperData)
 		{
 			this.helperData = helperData;
@@ -112,6 +116,18 @@ public class BotInfo extends ConvInfo
 		public P setOnHike(boolean onHike)
 		{
 			return super.setOnHike(true);
+		}
+		
+		public P setUpdateVersion(int newVersion)
+		{
+			this.updatedVersion = newVersion;
+			return getSelfObject();
+		}
+		
+		public P description(String description)
+		{
+			this.botDescription = description;
+			return getSelfObject();
 		}
 
 		@Override
@@ -236,6 +252,9 @@ public class BotInfo extends ConvInfo
 		this.notifData = builder.notifData;
 		this.helperData = builder.helperData;
 		this.setOnHike(true);
+		this.version = builder.version;
+		this.botDescription = builder.botDescription;
+		this.updatedVersion = builder.updatedVersion;
 	}
 
 	public boolean isMessagingBot()
@@ -284,6 +303,22 @@ public class BotInfo extends ConvInfo
 	public void setIsBackPressAllowed(boolean isBackPressAllowed)
 	{
 		this.isBackPressAllowed.set(isBackPressAllowed);
+	}
+
+	/**
+	 * @return the isUpPressAllowed
+	 */
+	public boolean getIsUpPressAllowed()
+	{
+		return isUpPressAllowed.get();
+	}
+
+	/**
+	 * @param isUpPressAllowed the isUpPressAllowed to set
+	 */
+	public void setIsUpPressAllowed(boolean isUpPressAllowed)
+	{
+		this.isUpPressAllowed.set(isUpPressAllowed);
 	}
 	
 	/**
@@ -382,4 +417,72 @@ public class BotInfo extends ConvInfo
 		return super.getUnreadCountString();
 	}
 	
+	public void setConvPresent(boolean convPresent)
+	{
+		this.isConvPresent = convPresent;
+	}
+	
+	/**
+	 * Indicates whether this bot is present in the conversation table or not
+	 * @return
+	 */
+	public boolean isConvPresent()
+	{
+		return this.isConvPresent;
+	}
+
+	public int getVersion()
+	{
+		return version;
+	}
+
+	public void setVersion(int version)
+	{
+		this.version = version;
+	}
+	
+	/**
+	 * @return the botDescription
+	 */
+	public String getBotDescription()
+	{
+		return botDescription;
+	}
+
+	/**
+	 * Sets the friendly description for the bot. This string can be used in places where we might want to show what a bot does
+	 * 
+	 * @param botDescription
+	 *            the botDescription to set
+	 */
+	public void setBotDescription(String botDescription)
+	{
+		this.botDescription = botDescription;
+	}
+
+	/**
+	 * @return the updatedVersion
+	 */
+	public int getUpdatedVersion()
+	{
+		return updatedVersion;
+	}
+
+	/**
+	 * Sets the latest version available for the given bot. NOTE : This could be different from the bot's current version, but will never be < the bot's current version
+	 * 
+	 * @param updatedVersion
+	 *            the updatedVersion to set
+	 */
+	public void setUpdatedVersion(int updatedVersion)
+	{
+		this.updatedVersion = updatedVersion;
+	}
+	
+	@Override
+	public Object clone() throws CloneNotSupportedException
+	{
+		// TODO Auto-generated method stub
+		return super.clone();
+	}
 }

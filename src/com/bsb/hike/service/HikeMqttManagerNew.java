@@ -63,9 +63,14 @@ import com.bsb.hike.analytics.MsgRelLogManager;
 import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.db.HikeMqttPersistence;
 import com.bsb.hike.db.MqttPersistenceException;
+import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.HikePacket;
 import com.bsb.hike.models.NetInfo;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
+import com.bsb.hike.offline.OfflineConstants.OFFLINE_STATE;
+import com.bsb.hike.offline.OfflineController;
+import com.bsb.hike.offline.OfflineManager;
+import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.HikeSSLUtil;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
@@ -1029,7 +1034,7 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 			if(throwable != null)
 			{
 				error.put(HikeConstants.ERROR_MESSAGE, message);
-				error.put(HikeConstants.EXCEPTION_MESSAGE, throwable.getMessage());
+				error.put(HikeConstants.EXCEPTION_MESSAGE, Utils.getStackTrace(throwable));
 			}
 			else if(time > 0)
 			{
@@ -1090,6 +1095,13 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 								MsgRelLogManager.recordAckMsgRelEvent(packet);
 
 								// HikeMessengerApp.getPubSub().publish(HikePubSub.SERVER_RECEIVED_MSG, msgId);
+							}
+							
+							if(packet.getPacketType()== HikeConstants.OFFLINE_MESSAGE_TYPE)
+							{
+								Logger.d(TAG, "Updating Ordinal value to Normal for mq msgs");
+								HikeMessengerApp.getPubSub().publish(HikePubSub.UPDATE_MESSAGE_ORIGIN_TYPE,
+										new Pair<Long, Integer>(packet.getMsgId(), ConvMessage.OriginType.NORMAL.ordinal()));
 							}
 						}
 						if (haveUnsentMessages.get())

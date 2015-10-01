@@ -2,6 +2,7 @@ package com.bsb.hike.utils;
 
 import java.io.File;
 
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -34,19 +35,18 @@ import com.bsb.hike.dialog.CustomAlertDialog;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
-import com.bsb.hike.http.HikeHttpRequest;
-import com.bsb.hike.http.HikeHttpRequest.HikeHttpCallback;
-import com.bsb.hike.http.HikeHttpRequest.RequestType;
 import com.bsb.hike.imageHttp.HikeImageUploader;
 import com.bsb.hike.imageHttp.HikeImageWorker;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.RequestToken;
+import com.bsb.hike.modules.httpmgr.exception.HttpException;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
+import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.tasks.DownloadImageTask;
 import com.bsb.hike.tasks.DownloadImageTask.ImageDownloadResult;
-import com.bsb.hike.tasks.FinishableEvent;
 import com.bsb.hike.tasks.HikeHTTPTask;
 import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
@@ -55,8 +55,7 @@ import com.bsb.hike.ui.fragments.ImageViewerFragment;
 import com.bsb.hike.ui.fragments.ImageViewerFragment.DisplayPictureEditListener;
 import com.bsb.hike.utils.Utils.ExternalStorageState;
 
-public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActivity implements OnClickListener, 
-						FinishableEvent, DisplayPictureEditListener, HikeImageWorker.TaskCallbacks
+public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActivity implements OnClickListener, DisplayPictureEditListener, HikeImageWorker.TaskCallbacks
 {
 	private HikeSharedPreferenceUtil prefs;
 
@@ -65,38 +64,30 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 	
 	private static final String TAG = "dp_upload";
 
-	public class ActivityState
+	public class ChangeProfileImageActivityState
 	{
-		public HikeHTTPTask task; /* the task to update the global profile */
+		public String deleteAvatarStatusId;
 
-		public RequestToken deleteStatusToken;
-		
-		public DownloadImageTask downloadPicasaImageTask; /*
-														 * the task to download the picasa image
-														 */
+		/*
+		 * the bitmap before the user saves it
+		 */
+		public String destFilePath = null;
 
-		public HikeHTTPTask getHikeJoinTimeTask;
+		public RequestToken deleteAvatarToken;
 
-		public String destFilePath = null; /*
-											 * the bitmap before the user saves it
-											 */
+		/*
+		 * the task to download the picasa image
+		 */
+		public DownloadImageTask downloadPicasaImageTask;
 
-		public int genderType;
-
-		public boolean groupEditDialogShowing = false;
-
-		public String edittedGroupName = null;
-		
-		public String statusId;
-		
-		public StatusMessageType statusMsgType;
-		
 		public HikeImageUploader mImageWorkerFragment;
 	}
 
-	private ActivityState mActivityState;
+	private ChangeProfileImageActivityState mActivityState;
 
 	private String mRemoveImagePath;
+
+	private IRequestListener deleteAvatarRequestListener;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -107,17 +98,19 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 
 		Object obj = getLastCustomNonConfigurationInstance();
 
-		if (obj instanceof ActivityState)
+		if (obj instanceof ChangeProfileImageActivityState)
 		{
-			mActivityState = (ActivityState) obj;
-
-			if (mActivityState.task != null)
+			mActivityState = (ChangeProfileImageActivityState) obj;
+			
+			if (mActivityState.deleteAvatarToken != null)
 			{
 				/* we're currently executing a task, so show the progress dialog */
-				mActivityState.task.setActivity(this);
-				mDialog = ProgressDialog.show(this, null, getResources().getString(R.string.updating_profile));
+				if (mActivityState.deleteAvatarToken.isRequestRunning())
+				{
+					mActivityState.deleteAvatarToken.addRequestListener(getDeleteAvatarRequestListener());
+				}
+				mDialog = ProgressDialog.show(this, null, getString(R.string.removing_dp));
 			}
-			
 			if(mActivityState.mImageWorkerFragment != null &&  (mActivityState.mImageWorkerFragment.isTaskRunning()))
 			{
 				mActivityState.mImageWorkerFragment.setTaskCallbacks(this);
@@ -126,7 +119,7 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 		}
 		else
 		{
-			mActivityState = new ActivityState();
+			mActivityState = new ChangeProfileImageActivityState();
 		}
 	}
 	
@@ -238,7 +231,8 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 			}
 			if (TextUtils.isEmpty(path))
 			{
-				Toast.makeText(getApplicationContext(), R.string.error_capture, Toast.LENGTH_SHORT).show();
+				if (isPicasaImage)
+					Toast.makeText(getApplicationContext(), R.string.error_capture, Toast.LENGTH_SHORT).show();
 				return;
 			}
 			if (!isPicasaImage)
@@ -347,6 +341,12 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 	 */
 	private void showRemovePhotoConfirmDialog()
 	{
+		
+		if(TextUtils.isEmpty(mRemoveImagePath))
+		{
+			return;
+		}
+		
 		JSONObject md = new JSONObject();
 
 		try
@@ -475,45 +475,72 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 	 */
 	public void deleteDisplayPicture(final String id)
 	{
-		String statusId = (id == null) ? "" : (HikeConstants.HTTP_STATUS_ID + id);
+		mActivityState.deleteAvatarStatusId = id;
+		JSONObject json = null;
+		if (mActivityState.deleteAvatarStatusId != null)
+		{
+			try
+			{
+				json = new JSONObject();
+				json.put(HikeConstants.STATUS_ID, mActivityState.deleteAvatarStatusId);
+			}
+			catch (JSONException e)
+			{
+				Logger.e(TAG, "exception while deleting status : " + e);
+			}
+		}
+		mActivityState.deleteAvatarToken = HttpRequests.deleteAvatarRequest(json, getDeleteAvatarRequestListener());
+		mActivityState.deleteAvatarToken.execute();
+		mDialog = ProgressDialog.show(this, null, getString(R.string.removing_dp));
+	}
 
-		HikeHttpRequest hikeHttpRequest = new HikeHttpRequest("/account/avatar" + statusId, RequestType.DELETE_DP, new HikeHttpCallback()
+	private IRequestListener getDeleteAvatarRequestListener()
+	{
+		deleteAvatarRequestListener = new IRequestListener()
 		{
 			@Override
-			public void onSuccess(JSONObject response)
+			public void onRequestSuccess(Response result)
 			{
 				Logger.d("ProfileActivity", "delete dp request succeeded!");
 
 				// clear the profile thumbnail from lru cache and db
 				HikeMessengerApp.getLruCache().deleteIconForMSISDN(mLocalMSISDN);
 
-				if (id != null)
+				if (mActivityState.deleteAvatarStatusId != null)
 				{
-					HikeMessengerApp.getPubSub().publish(HikePubSub.DELETE_STATUS, id);
+					HikeMessengerApp.getPubSub().publish(HikePubSub.DELETE_STATUS, mActivityState.deleteAvatarStatusId);
 					ContactInfo contactInfo = Utils.getUserContactInfo(prefs.getPref());
 					StatusMessageType[] smType = { StatusMessageType.PROFILE_PIC };
 					StatusMessage lastsm = HikeConversationsDatabase.getInstance().getLastStatusMessage(smType, contactInfo);
 
-					if (lastsm != null && id.equals(lastsm.getMappedId()))
+					if (lastsm != null && mActivityState.deleteAvatarStatusId.equals(lastsm.getMappedId()))
 					{
-						displayPictureRemoved(id);
+						displayPictureRemoved(mActivityState.deleteAvatarStatusId);
 					}
 				}
 				clearDpUpdatePref();
 				HikeMessengerApp.getPubSub().publish(HikePubSub.ICON_CHANGED, mLocalMSISDN);
+				dismissDialog();
+				mActivityState.deleteAvatarToken = null;
 			}
 
 			@Override
-			public void onFailure()
+			public void onRequestProgressUpdate(float progress)
+			{
+
+			}
+
+			@Override
+			public void onRequestFailure(HttpException httpException)
 			{
 				Logger.d("ProfileActivity", "delete dp request failed!");
+				dismissDialog();
+				mActivityState.deleteAvatarToken = null;
 			}
-		});
-		mActivityState.task = new HikeHTTPTask(this, R.string.remove_dp_error);
-		Utils.executeHttpTask(mActivityState.task, hikeHttpRequest);
-		mDialog = ProgressDialog.show(this, null, getString(R.string.removing_dp));
+		};
+		return deleteAvatarRequestListener;
 	}
-
+	
 	public void beginProfilePicChange(android.content.DialogInterface.OnClickListener listener, Context context, String removeImagePath, boolean useTimestamp)
 	{
 		ContactInfo contactInfo = Utils.getUserContactInfo(prefs.getPref());
@@ -542,7 +569,6 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 		mRemoveImagePath = removeImagePath;
 
 		AlertDialog.Builder builder = new AlertDialog.Builder(ctx);
-		builder.setTitle(R.string.profile_photo);
 
 		// We have a single element array so that if new options are added to the dialog we just have to add strings to this array.
 		final CharSequence[] items = ctx.getResources().getStringArray(R.array.profile_pic_dialog);
@@ -621,8 +647,6 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 		Logger.d(TAG, "inside onSuccess of request");
 		dismissDialog();
 		
-		mActivityState.task = null;
-		
 		mActivityState.destFilePath = null;
 		
 		JSONObject response = (JSONObject) result.getBody().getContent();
@@ -668,12 +692,8 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 	 */
 	private void failureWhileSettingProfilePic()
 	{
-		
 		dismissDialog();
-		
 		mActivityState.destFilePath = null;
-		
-		mActivityState.task = null;
 	}
 
 	private void dismissDialog()
@@ -694,13 +714,6 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 	public void displayPictureRemoved(final String id)
 	{
 		return;
-	}
-
-	@Override
-	public void onFinish(boolean success)
-	{
-		dismissDialog();
-		mActivityState.task = null;
 	}
 
 	@Override
@@ -734,9 +747,6 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 
 	/**
 	 * Used to clear the pref used to save status id of the dp change status update
-	 * 
-	 * @param statusId
-	 *            of the status update
 	 */
 	public void clearDpUpdatePref()
 	{
@@ -758,8 +768,12 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 	@Override
 	protected void onDestroy()
 	{
-		dismissDialog();
 		super.onDestroy();
+		dismissDialog();
+		if (mActivityState != null && mActivityState.deleteAvatarToken != null)
+		{
+			mActivityState.deleteAvatarToken.removeListener(deleteAvatarRequestListener);
+		}
 	}
 	
 	public void onProgressUpdate(float percent)

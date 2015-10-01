@@ -7,6 +7,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.utils.Logger;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
@@ -290,6 +291,18 @@ public class PlatformContentModel
 		return uniqueId;
 	}
 
+	public String getPid()
+	{
+		if (cardObj.ld != null && cardObj.ld.has(ProductPopupsConstants.PID))
+		{
+			return cardObj.ld.get(ProductPopupsConstants.PID).toString();
+		}
+		else
+		{
+			return "";
+		}
+	}
+
 	@Override
 	public String toString()
 	{
@@ -446,6 +459,12 @@ public class PlatformContentModel
 		
 		@Expose
 		public String notifText;
+
+		@Expose
+		public String parent_msisdn;
+
+		@Expose
+		public boolean replace;
 
 	}
 

@@ -149,8 +149,12 @@ public class ToastListener implements Listener
 			if (activity instanceof TimelineActivity)
 			{
 				Utils.resetUnseenStatusCount(activity);
-				HikeMessengerApp.getPubSub().publish(HikePubSub.INCREMENTED_UNSEEN_STATUS_COUNT, null);
-				return;
+				HikeMessengerApp.getPubSub().publish(HikePubSub.UNSEEN_STATUS_COUNT_CHANGED, null);
+				
+				if (((TimelineActivity) activity).isUpdatesFrgamentOnTop())
+				{
+					return;
+				}
 			}
 			StatusMessage statusMessage = (StatusMessage) object;
 			String msisdn = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).getString(HikeMessengerApp.MSISDN_SETTING, "");
@@ -205,9 +209,15 @@ public class ToastListener implements Listener
 			if(!TextUtils.isEmpty(statusId))
 			{
 				StatusMessage statusMessage = HikeConversationsDatabase.getInstance().getStatusMessageFromMappedId(statusId);
-				if (statusMessage.getStatusMessageType() == StatusMessageType.TEXT_IMAGE || statusMessage.getStatusMessageType() == StatusMessageType.IMAGE)
+				
+				if(statusMessage == null)
 				{
-					toaster.notifyBigPictureStatusNotification(notifyBundle.getString(HikeConstants.Extras.IMAGE_PATH), notifyBundle.getString(HikeConstants.Extras.MSISDN),
+					return;
+				}
+				
+				if (statusMessage.getStatusMessageType() == StatusMessageType.IMAGE || statusMessage.getStatusMessageType() == StatusMessageType.TEXT_IMAGE)
+				{
+					toaster.notifyBigPictureStatusNotification(notifyBundle.getString(HikeConstants.Extras.PATH), notifyBundle.getString(HikeConstants.Extras.MSISDN),
 							notifyBundle.getString(HikeConstants.Extras.NAME), NotificationType.IMAGE_POST);
 				}
 				else if (statusMessage.getStatusMessageType() == StatusMessageType.PROFILE_PIC)
@@ -537,9 +547,13 @@ public class ToastListener implements Listener
 							continue;
 						}
 					}
+					if (message.getPlatformData() != null && message.getPlatformData().optString(HikeConstants.PLAY_NOTIFICATION).equals(HikeConstants.OFF))
+					{
+						continue;
+					}
 					if (participantInfoState == ParticipantInfoState.NO_INFO || participantInfoState == ParticipantInfoState.PARTICIPANT_JOINED
 						|| participantInfoState == ParticipantInfoState.USER_JOIN || participantInfoState == ParticipantInfoState.CHAT_BACKGROUND 
-						|| message.isVoipMissedCallMsg()||participantInfoState == ParticipantInfoState.CHANGE_ADMIN)
+						|| message.isVoipMissedCallMsg() || participantInfoState == ParticipantInfoState.OFFLINE_INLINE_MESSAGE ||participantInfoState == ParticipantInfoState.CHANGE_ADMIN)
 					{
 						if (participantInfoState == ParticipantInfoState.CHAT_BACKGROUND)
 						{

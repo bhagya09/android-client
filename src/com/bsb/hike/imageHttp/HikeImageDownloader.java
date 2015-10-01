@@ -181,7 +181,9 @@ public class HikeImageDownloader extends HikeImageWorker
 			String directory = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT;
 			this.fileName = directory + File.separator + Utils.getProfileImageFileName(msisdn);
 
+			String postedImgPath = directory + "/" +  Utils.getProfileImageFileName(id);
 			Bundle bundle = new Bundle();
+			bundle.putString(HikeConstants.Extras.PATH, postedImgPath);
 			bundle.putString(HikeConstants.Extras.IMAGE_PATH, this.fileName);
 			bundle.putString(HikeConstants.Extras.MSISDN, this.msisdn);
 			bundle.putString(HikeConstants.Extras.NAME, this.name);

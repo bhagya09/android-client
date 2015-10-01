@@ -4,7 +4,6 @@
     android:layout_height="match_parent"
     android:background="@drawable/thatch_repeat"
     android:orientation="vertical"
-    android:layout_marginTop="@dimen/st__action_bar_default_height"
     android:id="@+id/webview_layout" >
 	<View
         android:id="@+id/overflow_anchor"
@@ -19,6 +18,13 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
     
+    <ViewStub
+        android:id="@+id/http_error_viewstub"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:inflatedId="@+id/http_error_viewstub_inflated"
+        android:layout="@layout/http_error_layout"/>
+    
     <ProgressBar 
         android:id="@+id/progress"
         style="?android:attr/progressBarStyleHorizontal"
@@ -27,4 +33,5 @@
         android:max="100"
         android:progress="100"
         android:progressDrawable="@drawable/webview_progress"/>
+    
 </RelativeLayout>

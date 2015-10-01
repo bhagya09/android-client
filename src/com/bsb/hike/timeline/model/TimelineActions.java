@@ -70,9 +70,14 @@ public class TimelineActions
 		return null;
 	}
 
-	public void addActionDetails(String uuid, List<ContactInfo> contactInfo, ActionsDataModel.ActionTypes type, int totalCount, ActivityObjectTypes objType)
+	public void addActionDetails(String uuid, List<ContactInfo> contactInfo, ActionsDataModel.ActionTypes type, int totalCount, ActivityObjectTypes objType, boolean overwrite)
 	{
-		Logger.d(HikeConstants.TIMELINE_COUNT_LOGS,"addActionDetails: "+ uuid); 
+		Logger.d(HikeConstants.TIMELINE_COUNT_LOGS,"addActionDetails: "+ uuid);
+		
+		if(type == ActionTypes.UNLIKE)
+		{
+			return;
+		}
 		
 		Pair<String, String> uuidObjType = new Pair<String, String>(uuid, objType.getTypeString());
 
@@ -80,7 +85,7 @@ public class TimelineActions
 
 		boolean newInstance = false;
 
-		if (actionDMList == null)
+		if (actionDMList == null || overwrite)
 		{
 			actionDMList = new ArrayList<ActionsDataModel>();
 			newInstance = true;
@@ -111,7 +116,8 @@ public class TimelineActions
 		}
 
 		actionDM.addContacts(contactInfo);
-		actionDM.setCount(totalCount);
+		
+		actionDM.setTotalCount(totalCount);
 
 		if (newInstance)
 		{
@@ -141,7 +147,7 @@ public class TimelineActions
 		{
 			ArrayList<ContactInfo> cInfoList = new ArrayList<ContactInfo>();
 			cInfoList.add(ContactManager.getInstance().getContact(feedData.getActor(), true, true));
-			addActionDetails(feedData.getObjID(), cInfoList, actionType, 1, feedData.getObjType());
+			addActionDetails(feedData.getObjID(), cInfoList, actionType, 1, feedData.getObjType(),false);
 		}
 		else
 		{

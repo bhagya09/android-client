@@ -288,7 +288,6 @@ public class HikeAlarmManager
 			AccountBackupRestore.getInstance(context).scheduleNextAutoBackup();
 			break;
 		case HikeAlarmManager.REQUESTCODE_PRODUCT_POPUP:
-			
 			Logger.d("ProductPopup","Alarm recieved in process Tasks");
 			String title = intent.getStringExtra(ProductPopupsConstants.NOTIFICATION_TITLE);
 			String text = intent.getStringExtra(ProductPopupsConstants.USER);

@@ -2,22 +2,20 @@ package com.bsb.hike.ui;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Intent;
-import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v4.view.WindowCompat;
 import android.support.v7.app.ActionBar;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
@@ -33,27 +31,24 @@ import android.widget.Toast;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
-import com.bsb.hike.adapters.GalleryAdapter;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.filetransfer.FileTransferManager;
+import com.bsb.hike.gallery.GalleryItemClickHandler;
+import com.bsb.hike.gallery.GalleryItemLoaderTask;
+import com.bsb.hike.gallery.GalleryItemLoaderTask.GalleryItemLoaderImp;
+import com.bsb.hike.gallery.GalleryRecyclerAdapter;
+import com.bsb.hike.gallery.MarginDecoration;
 import com.bsb.hike.models.GalleryItem;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.IntentFactory;
-import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
-import com.jess.ui.TwoWayAbsListView;
-import com.jess.ui.TwoWayAbsListView.OnScrollListener;
-import com.jess.ui.TwoWayAdapterView;
-import com.jess.ui.TwoWayAdapterView.OnItemClickListener;
-import com.jess.ui.TwoWayAdapterView.OnItemLongClickListener;
-import com.jess.ui.TwoWayGridView;
 
-public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements OnScrollListener, OnItemClickListener, OnItemLongClickListener
+public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements GalleryItemLoaderImp
 {
 
 	public static final String DISABLE_MULTI_SELECT_KEY = "en_mul_sel";
@@ -80,8 +75,6 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 	
 	private List<GalleryItem> galleryItemList;
 
-	private GalleryAdapter adapter;
-
 	private boolean isInsideAlbum;
 
 	private String msisdn;
@@ -96,12 +89,6 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 
 	private String albumTitle;
 
-	private int previousFirstVisibleItem;
-
-	private long previousEventTime;
-
-	private int velocity;
-
 	public static final String START_FOR_RESULT = "startForResult";
 
 	/**
@@ -111,29 +98,25 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 
 	private boolean disableMultiSelect;
 
-	private final String ALL_IMAGES_BUCKET_NAME = "All images";
+	public static final String ALL_IMAGES_BUCKET_NAME = "All images";
 
-	private final String HIKE_IMAGES = "hike";
-	
-	private final String CAMERA_TILE = "gallery_tile_camera";
+	public static final String CAMERA_TILE = "gallery_tile_camera";
 
-	private final String CAMERA_IMAGES = "Camera";
-
-	private final String NEW_PHOTO = "New photo";
-
-	private final String TYPE_JPG = ".jpg";
-
-	private final String TYPE_JPEG = ".jpeg";
-
-	private final String TYPE_PNG = ".png";
+	public static final String NEW_PHOTO = "New photo";
 
 	private boolean enableCameraPick;
 	
 	private boolean editEnabled;
 	
 	private ArrayList<String> editedImages;
+
+	GalleryItemLoaderTask galleryItemLoader = null;
 	
 	public static final String GALLERY_RESULT_ACTION = "gal_res_act";
+
+	private View progressLoading;
+
+	private GalleryRecyclerAdapter recyclerAdapter;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -151,12 +134,12 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 
 		String selection = null;
 		String[] args = null;
-		Cursor cursor = null;
 
 		Bundle data;
 		if (savedInstanceState != null)
 		{
 			data = savedInstanceState;
+			galleryItemList =  data.getParcelableArrayList(HikeConstants.Extras.GALLERY_ITEMS);
 		}
 		else
 		{
@@ -167,7 +150,7 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 		msisdn = data.getString(HikeConstants.Extras.MSISDN);
 		sendResult = data.getBoolean(START_FOR_RESULT);
 		disableMultiSelect = data.getBoolean(DISABLE_MULTI_SELECT_KEY);
-		
+
 		if(editEnabled && data.containsKey(GallerySelectionViewer.EDIT_IMAGES_LIST) && data.getStringArrayList(GallerySelectionViewer.EDIT_IMAGES_LIST)!=null)
 		{
 			editedImages = new ArrayList<String>(data.getStringArrayList(GallerySelectionViewer.EDIT_IMAGES_LIST));
@@ -220,7 +203,6 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 			}
 			sortBy = MediaStore.Images.Media.DATE_TAKEN + " DESC";
 		}
-
 		else
 		{
 			if (foldersRequired)
@@ -237,230 +219,60 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 
 				sortBy = MediaStore.Images.Media.DATE_MODIFIED + " DESC";
 			}
-
-		}
-		
-		// Add "pick from camera" button/bucket
-		if (enableCameraPick)
-		{
-			GalleryItem allImgItem = new GalleryItem(GalleryItem.CAMERA_TILE_ID, NEW_PHOTO, CAMERA_TILE, 0);
-			galleryItemList.add(allImgItem);
 		}
 
-
-		/*
-		 * Creating All images bucket where we will show all images present in the device.
-		 */
-		if (!isInsideAlbum)
-		{
-			String[] proj = { MediaStore.Images.Media._ID, MediaStore.Images.Media.DATA };
-			cursor = getContentResolver().query(uri, proj, null, null, sortBy);
-			if (cursor != null)
-			{
-				try
-				{
-					int idIdx = cursor.getColumnIndex(MediaStore.Images.Media._ID);
-					int dataIdx = cursor.getColumnIndex(MediaStore.Images.Media.DATA);
-					if (cursor.moveToNext())
-					{
-						GalleryItem allImgItem = new GalleryItem(cursor.getLong(idIdx), null, ALL_IMAGES_BUCKET_NAME, cursor.getString(dataIdx), cursor.getCount());
-						galleryItemList.add(allImgItem);
-					}
-				}
-				finally
-				{
-					cursor.close();
-				}
-			}
-		}
-		
-		cursor = getContentResolver().query(uri, projection, selection, args, sortBy);
-
-		if (cursor != null)
-		{
-			try
-			{
-				int idIdx = cursor.getColumnIndex(MediaStore.Images.Media._ID);
-				int bucketIdIdx = cursor.getColumnIndex(MediaStore.Images.Media.BUCKET_ID);
-				int nameIdx = cursor.getColumnIndex(MediaStore.Images.Media.BUCKET_DISPLAY_NAME);
-				int dataIdx = cursor.getColumnIndex(MediaStore.Images.Media.DATA);
-
-				while (cursor.moveToNext())
-				{
-					int count = 0;
-					String filePath = cursor.getString(dataIdx);
-					if(!isValidFile(filePath))
-					{
-						continue;
-					}
-					
-					if (!isInsideAlbum)
-					{
-						count = getGalleryItemCount(new File(filePath).getParent());
-					}
-					
-					GalleryItem galleryItem = new GalleryItem(cursor.getLong(idIdx), cursor.getString(bucketIdIdx), cursor.getString(nameIdx), cursor.getString(dataIdx), count);
-					galleryItemList.add(galleryItem);
-					if (!isInsideAlbum)
-					{
-						galleryItemList = reOrderList(galleryItemList);
-					}
-				}
-			}
-			finally
-			{
-				cursor.close();
-			}
-		}
-		
-		TwoWayGridView gridView = (TwoWayGridView) findViewById(R.id.gallery);
+		RecyclerView recyclerView = (RecyclerView) findViewById(R.id.gallery_recyclerview);
+		recyclerView.addItemDecoration(new MarginDecoration(this));
+		recyclerView.setHasFixedSize(true);
 
 		int sizeOfImage = getResources().getDimensionPixelSize(isInsideAlbum ? R.dimen.gallery_album_item_size : R.dimen.gallery_cover_item_size);
-
 		int numColumns = isInsideAlbum ? 3 : Utils.getNumColumnsForGallery(getResources(), sizeOfImage);
 
-		int actualSize = Utils.getActualSizeForGallery(getResources(), sizeOfImage, numColumns);
+		sizeOfImage = getUpdatedSizeOfImage(numColumns, sizeOfImage);
 
-		adapter = new GalleryAdapter(this, galleryItemList, isInsideAlbum, actualSize, selectedGalleryItems, false);
-
-		gridView.setNumColumns(numColumns);
-		gridView.setAdapter(adapter);
-		gridView.setOnScrollListener(this);
-		gridView.setOnItemClickListener(this);
-
+		recyclerAdapter = new GalleryRecyclerAdapter(this, galleryItemList, isInsideAlbum, sizeOfImage, selectedGalleryItems, false);
+		GalleryItemClickHandler.addTo(recyclerView).setOnItemClickListener(new GalleryItemClickHandler.OnItemClickListener() {
+			@Override
+			public void onItemClicked(RecyclerView recyclerView, int position, View v) {
+				onGalleryItemClick(position);
+			}
+		});
 		if (isInsideAlbum && !disableMultiSelect)
 		{
-			gridView.setOnItemLongClickListener(this);
+			GalleryItemClickHandler.addTo(recyclerView).setOnItemLongClickListener(new GalleryItemClickHandler.OnItemLongClickListener() {
+				@Override
+				public boolean onItemLongClicked(RecyclerView recyclerView, int position,
+						View v) {
+					return onGalleryLongItemClick(position);
+				}
+			});
 		}
+
+		recyclerView.setLayoutManager(new GridLayoutManager(this, numColumns));
+		recyclerView.setAdapter(recyclerAdapter);
+		recyclerView.setVisibility(View.VISIBLE);
 
 		if (!multiSelectMode)
 		{
 			setupActionBar(albumTitle);
 		}
-	}
-	
-	//returns true if the filePath was edited in the current MultiEdit Flow
-	private boolean isImageEdited(String filePath)
-	{
-		if(editedImages == null || !filePath.contains(PictureEditer.getEditImageSaveDirectory(false)))
-		{
-			return false;
-		}
-		
-		String filename=(new File(filePath)).getName();
-		for(String editedImage:editedImages)
-		{
-			if(editedImage == null)
-			{
-				continue;
-			}
-			String editFilename=(new File(editedImage)).getName();
-			if(editFilename.equalsIgnoreCase(filename))
-			{
-				return true;
-			}
-		}
-		return false;
-	}
-	
-	private boolean isValidFile(String filePath)
-	{
-		if (TextUtils.isEmpty(filePath))
-		{
-			Logger.d(GalleryActivity.class.getSimpleName(), "onCreate() filePath: empty " + filePath);
-			return false;
-		}
-		
-		File mediafile = new File(filePath);
-		if (!mediafile.exists())
-		{
-			Logger.d(GalleryActivity.class.getSimpleName(), "onCreate() filePath: does not exist " + filePath);
-			return false;
-		}
-		
-		String dirPath = mediafile.getParent();
-		if(dirPath == null)
-		{
-			return false;
-		}
-		
-		if(editEnabled && isImageEdited(filePath))
-		{
-			//Skipping this file since this is a temp file created by multi-edit 
-			return false;
-		}
-		return true;
-	}
 
-	private ArrayList<GalleryItem> reOrderList(List<GalleryItem> list)
-	{
-		ArrayList<GalleryItem> resultList = new ArrayList<GalleryItem>();
-		LinkedList<GalleryItem> customList = new LinkedList<GalleryItem>();
-		
-		int customCount = 0;
-		
-		for (Iterator<GalleryItem> iterator = list.iterator(); iterator.hasNext();)
+		if(galleryItemList.isEmpty())
 		{
-			GalleryItem galleryItem = (GalleryItem) iterator.next();
-			if (galleryItem.getName().startsWith(HIKE_IMAGES) || galleryItem.getName().startsWith(ALL_IMAGES_BUCKET_NAME) || galleryItem.getName().startsWith(CAMERA_IMAGES))
-			{
-				customList.addLast(galleryItem);
-				iterator.remove();
-			}
-			else if (galleryItem.getType() == GalleryItem.CUSTOM)
-			{
-				customList.add(customCount, galleryItem);
-				customCount++;
-				iterator.remove();
-			}
-		}
-		
-		for (Iterator<GalleryItem> iterator = customList.iterator(); iterator.hasNext();)
-		{
-			GalleryItem galleryItem = (GalleryItem) iterator.next();
-			resultList.add(galleryItem);
-		}
-		
-		for (Iterator<GalleryItem> iterator = list.iterator(); iterator.hasNext();)
-		{
-			GalleryItem galleryItem = (GalleryItem) iterator.next();
-			resultList.add(galleryItem);
-		}
-		return resultList;
-	}
+			galleryItemLoader = new GalleryItemLoaderTask(this, isInsideAlbum, enableCameraPick);
+			galleryItemLoader.buildQuery(uri, projection, selection, args, sortBy, editEnabled, editedImages);
+			Utils.executeAsyncTask(galleryItemLoader);
 
-	private int getGalleryItemCount(String dirPath)
-	{
-		File dir = new File(dirPath);
-		int number = 0;
-		if (dir != null && dir.exists())
-		{
-			File[] files = dir.listFiles();
-			if (files != null)
+			progressLoading = findViewById(R.id.progressLoading);
+			if(!isInsideAlbum)
 			{
-				for (File file : files)
-				{
-					if (file.isFile())// Check file or directory
-					{
-						if (isImage(file.getName().toLowerCase()))
-						{
-							number++;
-						}
-					}
-				}
+				progressLoading.setVisibility(View.VISIBLE);
+			}
+			else
+			{
+				progressLoading.setVisibility(View.GONE);
 			}
 		}
-		return number;
-	}
-
-	private boolean isImage(String fileName)
-	{
-		boolean isImg = false;
-		if (fileName.endsWith(TYPE_JPG) || fileName.endsWith(TYPE_JPEG) || fileName.endsWith(TYPE_PNG))
-		{
-			isImg = true;
-		}
-		return isImg;
 	}
 
 	@Override
@@ -468,9 +280,9 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 	{
 		// TODO Auto-generated method stub
 		super.onPause();
-		if (adapter != null)
+		if (recyclerAdapter != null)
 		{
-			adapter.getGalleryImageLoader().setExitTasksEarly(true);
+			recyclerAdapter.getGalleryImageLoader().setExitTasksEarly(true);
 		}
 	}
 
@@ -479,10 +291,10 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 	{
 		// TODO Auto-generated method stub
 		super.onResume();
-		if (adapter != null)
+		if (recyclerAdapter != null)
 		{
-			adapter.getGalleryImageLoader().setExitTasksEarly(false);
-			adapter.notifyDataSetChanged();
+			recyclerAdapter.getGalleryImageLoader().setExitTasksEarly(false);
+			recyclerAdapter.notifyDataSetChanged();
 		}
 	}
 
@@ -491,6 +303,7 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 	{
 		outState.putAll(getIntent().getExtras());
 		outState.putParcelableArrayList(HikeConstants.Extras.GALLERY_SELECTIONS, (ArrayList<GalleryItem>)selectedGalleryItems);
+		outState.putParcelableArrayList(HikeConstants.Extras.GALLERY_ITEMS, (ArrayList<GalleryItem>)galleryItemList);
 		if(editEnabled && getIntent().hasExtra(GallerySelectionViewer.EDIT_IMAGES_LIST))
 		{
 			outState.putStringArrayList(GallerySelectionViewer.EDIT_IMAGES_LIST, editedImages);
@@ -501,6 +314,10 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 	@Override
 	public void onBackPressed()
 	{
+		if(galleryItemLoader != null)
+		{
+			galleryItemLoader.cancelTask();
+		}
 		if (multiSelectMode)
 		{
 			if( editEnabled && editedImages != null)
@@ -530,7 +347,7 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 			else
 			{
 				selectedGalleryItems.clear();
-				adapter.notifyDataSetChanged();
+				recyclerAdapter.notifyDataSetChanged();
 				
 				setupActionBar(albumTitle);
 				multiSelectMode = false;
@@ -560,7 +377,6 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 
 		titleView.setVisibility(View.VISIBLE);
 
-		actionBarView.findViewById(R.id.done_container).setVisibility(View.INVISIBLE);
 		actionBar.setCustomView(actionBarView);
 		actionBar.setDisplayHomeAsUpEnabled(true);
 		Toolbar parent=(Toolbar)actionBarView.getParent();
@@ -667,20 +483,6 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 	}
 
 	@Override
-	public void onScroll(TwoWayAbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount)
-	{
-		if (previousFirstVisibleItem != firstVisibleItem)
-		{
-			long currTime = System.currentTimeMillis();
-			long timeToScrollOneElement = currTime - previousEventTime;
-			velocity = (int) (((double) 1 / timeToScrollOneElement) * 1000);
-
-			previousFirstVisibleItem = firstVisibleItem;
-			previousEventTime = currTime;
-		}
-	}
-	
-	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data)
 	{
 		super.onActivityResult(requestCode, resultCode, data);
@@ -735,12 +537,6 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 		}
 	}
 
-	@Override
-	public void onScrollStateChanged(TwoWayAbsListView view, int scrollState)
-	{
-		adapter.setIsListFlinging(velocity > HikeConstants.MAX_VELOCITY_FOR_LOADING_IMAGES && scrollState == OnScrollListener.SCROLL_STATE_FLING);
-	}
-
 	public void setGalleryResult(int resultCode,Intent data)
 	{
 		//setting gallery result action if action is not already set for the data
@@ -750,10 +546,84 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 		}
 		setResult(resultCode,data);
 	}
-	
-	@Override
-	public void onItemClick(TwoWayAdapterView<?> adapterView, View view, int position, long id)
+
+
+	private void setMultiSelectTitle()
 	{
+		if (multiSelectTitle == null)
+		{
+			return;
+		}
+		multiSelectTitle.setText(getString(R.string.gallery_num_selected, selectedGalleryItems.size()));
+	}
+
+	private void sendAnalyticsCameraClicked()
+	{
+		try
+		{
+			JSONObject json = new JSONObject();
+			json.put(AnalyticsConstants.EVENT_KEY, HikeConstants.LogEvent.PHOTOS_CAMERA_CLICK);
+			HikeAnalyticsEvent.analyticsForPhotos(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, json);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+	}
+	@Override
+	protected void setStatusBarColor(Window window, String color) {
+		// TODO Auto-generated method stub
+		return;
+	}
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu)
+	{
+		// TODO Auto-generated method stub
+		return true ;
+	}
+	
+	private void deleteJunkTempFiles()
+	{
+		if(!editEnabled || !getIntent().hasExtra(GallerySelectionViewer.EDIT_IMAGES_LIST) || editedImages == null)
+		{
+			return;
+		}
+
+		ArrayList<String> initialEditList = getIntent().getStringArrayListExtra(GallerySelectionViewer.EDIT_IMAGES_LIST);
+
+		if(initialEditList == null)
+		{
+			return;
+		}
+
+		initialEditList.removeAll(editedImages);
+
+		Utils.deleteFiles(getApplicationContext(), initialEditList, HikeFileType.IMAGE);
+	}
+
+	@Override
+	public void onGalleryItemLoaded(final GalleryItem galleryItem) {
+		GalleryActivity.this.runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				if (!isInsideAlbum && (galleryItemLoader == null || !galleryItemLoader.isRunning()) && progressLoading != null)
+				{
+					progressLoading.setVisibility(View.GONE);
+				}
+				try
+				{
+					int position = recyclerAdapter.addItem(galleryItem);
+					recyclerAdapter.notifyItemInserted(position);
+				}
+				catch(Exception e)
+				{
+					e.printStackTrace();
+				}
+			}
+		});
+	}
+
+	public void onGalleryItemClick(int position) {
 		GalleryItem galleryItem = galleryItemList.get(position);
 
 		Intent intent;
@@ -835,7 +705,7 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 					}
 					setMultiSelectTitle();
 				}
-				adapter.notifyDataSetChanged();
+				recyclerAdapter.notifyItemChanged(position);
 			}
 			else
 			{
@@ -881,9 +751,7 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 		}
 	}
 
-	@Override
-	public boolean onItemLongClick(TwoWayAdapterView<?> adapterView, View view, int position, long id)
-	{
+	public boolean onGalleryLongItemClick(int position) {
 		if (!multiSelectMode)
 		{
 			multiSelectMode = true;
@@ -900,65 +768,41 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 
 		selectedGalleryItems.add(galleryItem);
 
-		adapter.notifyDataSetChanged();
+		recyclerAdapter.notifyItemChanged(position);
 
 		setMultiSelectTitle();
-
 		return true;
 	}
 
-	private void setMultiSelectTitle()
+	/**
+	 * Returns new size of image for gallery item based on extra horizontal space.
+	 * It will be used to maintain the fixed horizontal margin between the gallery item in case when screen width is higher than the ((sizeOfImage*numOfColumns) + (numOfColumns*margin)).
+	 * @param numColumns
+	 * @param oldSizeOfImage
+	 */
+	private int getUpdatedSizeOfImage(int numColumns, int oldSizeOfImage)
 	{
-		if (multiSelectTitle == null)
+		int newSizeOfImage = oldSizeOfImage;
+		int extraSpace = getResources().getDisplayMetrics().widthPixels - (numColumns * oldSizeOfImage);
+		int margin = getResources().getDimensionPixelOffset(R.dimen.gallery_grid_spacing);
+		if(extraSpace > (numColumns * margin))
 		{
-			return;
+			extraSpace = extraSpace - (numColumns * margin);
+			newSizeOfImage += extraSpace/numColumns;
 		}
-		multiSelectTitle.setText(getString(R.string.gallery_num_selected, selectedGalleryItems.size()));
+		return newSizeOfImage;
 	}
 
-	private void sendAnalyticsCameraClicked()
-	{
-		try
-		{
-			JSONObject json = new JSONObject();
-			json.put(AnalyticsConstants.EVENT_KEY, HikeConstants.LogEvent.PHOTOS_CAMERA_CLICK);
-			HikeAnalyticsEvent.analyticsForPhotos(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, json);
-		}
-		catch (JSONException e)
-		{
-			e.printStackTrace();
-		}
-	}
 	@Override
-	protected void setStatusBarColor(Window window, String color) {
-		// TODO Auto-generated method stub
-		return;
+	public void onNoGalleryItemFound() {
+		GalleryActivity.this.runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				if (!isInsideAlbum)
+				{
+					progressLoading.setVisibility(View.GONE);
+				}
+			}
+		});
 	}
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu)
-	{
-		// TODO Auto-generated method stub
-		return true ;
-	}
-	
-	private void deleteJunkTempFiles()
-	{
-		if(!editEnabled || !getIntent().hasExtra(GallerySelectionViewer.EDIT_IMAGES_LIST) || editedImages == null)
-		{
-			return;
-		}
-		
-		ArrayList<String> initialEditList = getIntent().getStringArrayListExtra(GallerySelectionViewer.EDIT_IMAGES_LIST);
-		
-		if(initialEditList == null)
-		{
-			return;
-		}
-		
-		initialEditList.removeAll(editedImages);
-		
-		Utils.deleteFiles(getApplicationContext(), initialEditList, HikeFileType.IMAGE);
-		
-	}
-	
 }

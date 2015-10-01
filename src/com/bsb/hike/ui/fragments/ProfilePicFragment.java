@@ -2,6 +2,12 @@ package com.bsb.hike.ui.fragments;
 
 import org.json.JSONObject;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.FloatEvaluator;
+import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
+import android.animation.ValueAnimator.AnimatorUpdateListener;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -29,6 +35,7 @@ import com.bsb.hike.R;
 import com.bsb.hike.BitmapModule.BitmapUtils;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.imageHttp.HikeImageUploader;
+import com.bsb.hike.imageHttp.HikeImageWorker;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.modules.httpmgr.response.Response;
@@ -42,13 +49,6 @@ import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.HoloCircularProgress;
 import com.bsb.hike.view.RoundedImageView;
-import com.bsb.hike.imageHttp.HikeImageWorker;
-import com.nineoldandroids.animation.Animator;
-import com.nineoldandroids.animation.AnimatorListenerAdapter;
-import com.nineoldandroids.animation.FloatEvaluator;
-import com.nineoldandroids.animation.ObjectAnimator;
-import com.nineoldandroids.animation.ValueAnimator;
-import com.nineoldandroids.animation.ValueAnimator.AnimatorUpdateListener;
 
 public class ProfilePicFragment extends Fragment implements FinishableEvent, IHandlerCallback, HikeImageWorker.TaskCallbacks
 {
