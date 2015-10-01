@@ -23,18 +23,18 @@ public abstract class ShortcutBadger {
 
     private static final List<Class<? extends ShortcutBadger>> BADGERS = new LinkedList<Class<? extends ShortcutBadger>>();
 
-    //static {
-      /*  BADGERS.add(AdwHomeBadger.class);
+    static {
+        BADGERS.add(AdwHomeBadger.class);
         BADGERS.add(ApexHomeBadger.class);
         BADGERS.add(NewHtcHomeBadger.class);
         BADGERS.add(NovaHomeBadger.class);
         BADGERS.add(SolidHomeBadger.class);
         BADGERS.add(SonyHomeBadger.class);
         BADGERS.add(XiaomiHomeBadger.class);
-        BADGERS.add(AsusHomeLauncher.class);*/
-//        BADGERS.add(LGHomeBadger.class);
-//        BADGERS.add(SamsungHomeBadger.class);
-   // }
+        BADGERS.add(AsusHomeLauncher.class);
+        BADGERS.add(LGHomeBadger.class);
+        BADGERS.add(SamsungHomeBadger.class);
+    }
 
     private static ShortcutBadger mShortcutBadger;
 
@@ -59,7 +59,7 @@ public abstract class ShortcutBadger {
         Log.d(LOG_TAG, "Finding badger");
 
         //find the home launcher Package
-        /*try {
+        try {
             Intent intent = new Intent(Intent.ACTION_MAIN);
             intent.addCategory(Intent.CATEGORY_HOME);
             ResolveInfo resolveInfo = context.getPackageManager().resolveActivity(intent, PackageManager.MATCH_DEFAULT_ONLY);
@@ -81,7 +81,7 @@ public abstract class ShortcutBadger {
         } catch (Exception e) {
             Log.e(LOG_TAG, e.getMessage(), e);
         }
-*/
+
         if (mShortcutBadger == null) {
             mShortcutBadger = new DefaultBadger(context);
         }
