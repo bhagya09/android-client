@@ -683,11 +683,14 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 					if(hasFocus){
 						if (KptUtils.isSystemKeyboard(HomeActivity.this))
 						{
-							Utils.showSoftKeyboard(searchET, InputMethodManager.SHOW_FORCED);
+							Utils.toggleSoftKeyboard(HomeActivity.this.getApplicationContext());
 						}
 						else
 						{
-							mCustomKeyboard.showCustomKeyboard(searchET, true);
+							if (mCustomKeyboard != null && searchET != null)
+							{
+								mCustomKeyboard.showCustomKeyboard(searchET, true);
+							}
 						}
 					}
 				}
@@ -2044,7 +2047,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	@Override
 	public void onConfigurationChanged(Configuration newConfig)
 	{
-		if (!KptUtils.isSystemKeyboard(HomeActivity.this))
+		if (!KptUtils.isSystemKeyboard(HomeActivity.this)&&mCustomKeyboard!=null)
 		{
 			if (mCustomKeyboard != null)
 			{

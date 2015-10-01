@@ -181,7 +181,6 @@ import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
 
 /**
- * 
  * @generated
  */
 
@@ -1756,6 +1755,13 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		}
 	}
 	
+	public void hideKeyboard(){
+		if (mCustomKeyboard!=null && mCustomKeyboard.isCustomKeyboardVisible())
+		{
+			mCustomKeyboard.showCustomKeyboard(mComposeView, false); 
+			KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, 0);
+		}
+	}
 	private void setUpSearchViews()
 	{
 		int id = mComposeView.getId();
@@ -5752,6 +5758,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	protected void showOverlay(String label, String formatString, String overlayBtnText, SpannableString str, int drawableResId, int viewTag)
 	{
 		Utils.hideSoftKeyboard(activity.getApplicationContext(), mComposeView);
+		hideKeyboard();
 
 		View mOverlayLayout = activity.findViewById(R.id.overlay_layout);
 		mOverlayLayout.setTag(viewTag);

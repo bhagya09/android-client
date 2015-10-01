@@ -29,6 +29,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.Button;
@@ -53,6 +54,7 @@ import com.bsb.hike.dialog.CustomAlertDialog;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
+import com.bsb.hike.modules.kpt.KptUtils;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
@@ -895,15 +897,24 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 	{	
 		LinearLayout parentView = (LinearLayout)findViewById(R.id.keyboardView_holder);
 		mCustomKeyboard= new CustomKeyboard(this, parentView);
-		mCustomKeyboard.registerEditText(R.id.search,KPTConstants.MULTILINE_LINE_EDITOR,ShareLocation.this,ShareLocation.this);
 		searchET = (CustomFontEditText)findViewById(R.id.search);
-		mCustomKeyboard.init(searchET);
+		if (!KptUtils.isSystemKeyboard(ShareLocation.this))
+		{
+    		mCustomKeyboard.registerEditText(R.id.search,KPTConstants.MULTILINE_LINE_EDITOR,ShareLocation.this,ShareLocation.this);
+    		mCustomKeyboard.init(searchET);
+		}
 		searchET.setOnClickListener(new View.OnClickListener() {
 			
 			@Override
 			public void onClick(View v) {
-				mCustomKeyboard.showCustomKeyboard(searchET, true);
-				
+				if (KptUtils.isSystemKeyboard(ShareLocation.this))
+				{
+					Utils.showSoftKeyboard(searchET, InputMethodManager.SHOW_FORCED);
+				}
+				else
+				{
+					mCustomKeyboard.showCustomKeyboard(searchET, true);
+				}	 			
 			}
 		});
 	}

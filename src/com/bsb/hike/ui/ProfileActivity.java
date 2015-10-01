@@ -116,6 +116,7 @@ import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
 import android.view.animation.AnimationUtils;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView;
@@ -533,6 +534,9 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		{
 			mCustomKeyboard.showCustomKeyboard(mNameEdit, true);
 			KptUtils.updatePadding(ProfileActivity.this, R.id.parent_layout, mCustomKeyboard.getKeyBoardAndCVHeight());
+		}else if (KptUtils.isSystemKeyboard(ProfileActivity.this))
+		{
+			Utils.showSoftKeyboard(mNameEdit, InputMethodManager.SHOW_FORCED);
 		}
 	}
 	
