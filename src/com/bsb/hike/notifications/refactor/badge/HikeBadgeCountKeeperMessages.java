@@ -6,11 +6,10 @@ import com.bsb.hike.db.HikeConversationsDatabase;
 
 public class HikeBadgeCountKeeperMessages extends HikeBadgeCountKeeper
 {
-	//mlistener=new String[]{};
+
 	public HikeBadgeCountKeeperMessages()
 	{
 		this.mBadgeCountCategory = HikeBadgeCountCategory.MESSAGE_RECEIVED;
-	
 
 	}
 
@@ -22,7 +21,7 @@ public class HikeBadgeCountKeeperMessages extends HikeBadgeCountKeeper
 	@Override
 	public void onEventReceived(String type, Object object)
 	{
-		
+
 		setCount(HikeConversationsDatabase.getInstance().getTotalUnreadMessagesConversation());
 		HikeMessengerApp.getPubSub().publish(HikePubSub.BADGE_COUNT_CHANGED, null);
 	}
@@ -31,10 +30,8 @@ public class HikeBadgeCountKeeperMessages extends HikeBadgeCountKeeper
 	protected void init()
 	{
 		// TODO Auto-generated method stub
-		mlistener=new String[]{
-				HikePubSub.BULK_MESSAGE_NOTIFICATION,HikePubSub.MESSAGE_RECEIVED,HikePubSub.MSG_READ,HikePubSub.BADGE_COUNT_MESSAGE_CHANGED
-		};
-		
+		mlistener = new String[] { HikePubSub.BULK_MESSAGE_NOTIFICATION, HikePubSub.MESSAGE_RECEIVED, HikePubSub.MSG_READ, HikePubSub.BADGE_COUNT_MESSAGE_CHANGED };
+
 	}
 
 }

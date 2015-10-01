@@ -30,7 +30,6 @@ public class HikeBadgeCountManager implements Listener
 		HikeMessengerApp.getPubSub().addListeners(this, mlistener);
 	}
 
-	
 	@Override
 	public void onEventReceived(String type, Object object)
 	{
@@ -41,7 +40,6 @@ public class HikeBadgeCountManager implements Listener
 				Logger.d("badger", "set badgeCount as " + getBadgeCount());
 				badger.count(getBadgeCount());
 			}
-			
 
 		}
 
