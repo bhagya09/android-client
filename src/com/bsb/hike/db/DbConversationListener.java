@@ -28,6 +28,7 @@ import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.AnalyticsConstants.MsgRelEventType;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.MsgRelLogManager;
+import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
@@ -35,12 +36,12 @@ import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
 import com.bsb.hike.models.ConvMessage.State;
 import com.bsb.hike.models.FtueContactInfo;
+import com.bsb.hike.models.MessageEvent;
 import com.bsb.hike.models.MultipleConvMessage;
 import com.bsb.hike.models.Protip;
 import com.bsb.hike.models.Conversation.ConvInfo;
 import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.modules.contactmgr.ContactManager;
-import com.bsb.hike.offline.OfflineController;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.HikeSDKMessageFilter;
 import com.bsb.hike.service.HikeMqttManagerNew;
@@ -103,7 +104,11 @@ public class DbConversationListener implements Listener
 		mPubSub.addListener(HikePubSub.UPDATE_LAST_MSG_STATE, this);
 		mPubSub.addListener(HikePubSub.STEALTH_DATABASE_MARKED, this);
 		mPubSub.addListener(HikePubSub.STEALTH_DATABASE_UNMARKED, this);
+		mPubSub.addListener(HikePubSub.PLATFORM_CARD_EVENT_SENT, this);
 		mPubSub.addListener(HikePubSub.UPDATE_MESSAGE_ORIGIN_TYPE, this);
+		mPubSub.addListener(HikePubSub.BOT_DISCOVERY_DOWNLOAD_SUCCESS, this);
+		mPubSub.addListener(HikePubSub.BOT_DISCOVERY_TABLE_FLUSH, this);
+		mPubSub.addListener(HikePubSub.ADD_NM_BOT_CONVERSATION, this);
 	}
 
 	@Override
@@ -482,6 +487,55 @@ public class DbConversationListener implements Listener
 				HikeMessengerApp.getPubSub().publish(markStealth ? HikePubSub.STEALTH_CONVERSATION_MARKED : HikePubSub.STEALTH_CONVERSATION_UNMARKED, msisdn);
 			}
 		}
+		
+		else if (HikePubSub.PLATFORM_CARD_EVENT_SENT.equals(type))
+		{
+			Pair<MessageEvent, JSONObject> pair = (Pair<MessageEvent, JSONObject>) object;
+
+			MessageEvent messageEvent = pair.first;
+
+			if (messageEvent == null)
+			{
+				Logger.e(HikePlatformConstants.TAG, "Got Message Event null");
+				return;
+			}
+
+			long eventId = HikeConversationsDatabase.getInstance().insertMessageEvent(messageEvent);
+			messageEvent.setEventId(eventId);
+			if (eventId < 0)
+			{
+				Logger.e(HikePlatformConstants.TAG, "Error inserting message event");
+			}
+			else
+			{
+
+				JSONObject jObj = new JSONObject();
+				JSONObject data;
+				try
+				{
+					data = pair.second;
+
+					jObj.put(HikeConstants.TYPE, HikeConstants.MqttMessageTypes.GENERAL_EVENT_QOS_ONE);
+					jObj.put(HikeConstants.SEND_TIMESTAMP, messageEvent.getSentTimeStamp());
+					jObj.put(HikeConstants.TIMESTAMP, messageEvent.getSentTimeStamp());
+					jObj.put(HikeConstants.TO, messageEvent.getMsisdn());
+
+					data.put(HikeConstants.TYPE, HikeConstants.GeneralEventMessagesTypes.MESSAGE_EVENT);
+					data.put(HikePlatformConstants.MESSAGE_HASH, messageEvent.getMessageHash());
+					data.put(HikePlatformConstants.NAMESPACE, messageEvent.getNameSpace());
+
+					data.put(HikeConstants.EVENT_ID, eventId);
+					jObj.put(HikeConstants.DATA, data);
+					HikeMqttManagerNew.getInstance().sendMessage(jObj, MqttConstants.MQTT_QOS_ONE);
+				}
+
+				catch (JSONException e)
+				{
+					Logger.e(HikePlatformConstants.TAG, "Got a JSON Exception while creating a message event : " + e);
+				}
+			}
+		}
+		
 		else if(HikePubSub.UPDATE_MESSAGE_ORIGIN_TYPE.equals(type))
 		{
 			Pair<Long, Integer> pair = (Pair<Long, Integer>) object;
@@ -489,6 +543,32 @@ public class DbConversationListener implements Listener
 			long msgId = pair.first;
 
 			HikeConversationsDatabase.getInstance().updateMessageOriginType(msgId, pair.second);
+		}
+		
+		else if (HikePubSub.BOT_DISCOVERY_DOWNLOAD_SUCCESS.equals(type))
+		{
+			JSONObject result = (JSONObject) object;
+
+			boolean flushOldData = result.optBoolean(HikeConstants.BOT_TABLE_REFRESH, false);
+			
+			JSONArray botArray = result.optJSONArray(HikePlatformConstants.BOTS);
+			if (botArray == null || botArray.length() == 0)
+			{
+				Logger.e("BotDiscovery", "Got null botArray");
+				return;
+			}
+			
+			HikeContentDatabase.getInstance().populateBotDiscoveryTable(botArray, flushOldData);
+		}
+		
+		else if (HikePubSub.BOT_DISCOVERY_TABLE_FLUSH.equals(type))
+		{
+			HikeContentDatabase.getInstance().flushBotDiscoveryTable();
+		}
+		
+		else if (HikePubSub.ADD_NM_BOT_CONVERSATION.equals(type))
+		{
+			HikeConversationsDatabase.getInstance().addNonMessagingBotconversation((BotInfo) object);
 		}
 	}
 

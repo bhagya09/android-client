@@ -149,7 +149,7 @@ public class ToastListener implements Listener
 			if (activity instanceof TimelineActivity)
 			{
 				Utils.resetUnseenStatusCount(activity);
-				HikeMessengerApp.getPubSub().publish(HikePubSub.INCREMENTED_UNSEEN_STATUS_COUNT, null);
+				HikeMessengerApp.getPubSub().publish(HikePubSub.UNSEEN_STATUS_COUNT_CHANGED, null);
 				
 				if (((TimelineActivity) activity).isUpdatesFrgamentOnTop())
 				{
@@ -546,6 +546,10 @@ public class ToastListener implements Listener
 						{
 							continue;
 						}
+					}
+					if (message.getPlatformData() != null && message.getPlatformData().optString(HikeConstants.PLAY_NOTIFICATION).equals(HikeConstants.OFF))
+					{
+						continue;
 					}
 					if (participantInfoState == ParticipantInfoState.NO_INFO || participantInfoState == ParticipantInfoState.PARTICIPANT_JOINED
 						|| participantInfoState == ParticipantInfoState.USER_JOIN || participantInfoState == ParticipantInfoState.CHAT_BACKGROUND 

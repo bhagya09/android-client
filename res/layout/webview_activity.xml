@@ -18,6 +18,13 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
     
+    <ViewStub
+        android:id="@+id/http_error_viewstub"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:inflatedId="@+id/http_error_viewstub_inflated"
+        android:layout="@layout/http_error_layout"/>
+    
     <ProgressBar 
         android:id="@+id/progress"
         style="?android:attr/progressBarStyleHorizontal"
@@ -26,4 +33,5 @@
         android:max="100"
         android:progress="100"
         android:progressDrawable="@drawable/webview_progress"/>
+    
 </RelativeLayout>

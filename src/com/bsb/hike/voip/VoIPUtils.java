@@ -65,7 +65,7 @@ public class VoIPUtils {
 
 	public static enum CallSource
 	{
-		CHAT_THREAD, PROFILE_ACTIVITY, MISSED_CALL_NOTIF, CALL_FAILED_FRAG, ADD_TO_CONFERENCE, GROUP_CHAT
+		CHAT_THREAD, PROFILE_ACTIVITY, MISSED_CALL_NOTIF, CALL_FAILED_FRAG, ADD_TO_CONFERENCE, GROUP_CHAT, HIKE_STICKY_CALLER
 	}
 	
     public static boolean isWifiConnected(Context context) {
@@ -429,7 +429,7 @@ public class VoIPUtils {
 		
 		// Network check
 		ConnectionClass connectionClass = VoIPUtils.getConnectionClass(HikeMessengerApp.getInstance());
-		if (connectionClass == ConnectionClass.TwoG || connectionClass == ConnectionClass.ThreeG) {
+		if (connectionClass == ConnectionClass.TwoG) {
 			Toast.makeText(context, context.getString(R.string.voip_conference_network_support), Toast.LENGTH_LONG).show();
 			return false;
 		}
@@ -593,57 +593,34 @@ public class VoIPUtils {
 				VoIPUtils.addMessageToChatThread(context, clientPartner, HikeConstants.MqttMessageTypes.VOIP_MSG_TYPE_MISSED_CALL_INCOMING, 0, jsonObj.getJSONObject(HikeConstants.DATA).getLong(HikeConstants.TIMESTAMP), true);
 			}
 			
+			if (subType.equals(HikeConstants.MqttMessageTypes.VOIP_ERROR_CALLEE_INCOMPATIBLE_NOT_UPGRADABLE) ||
+					subType.equals(HikeConstants.MqttMessageTypes.VOIP_ERROR_CALLEE_DOES_NOT_SUPPORT_CONFERENCE) ||
+					subType.equals(HikeConstants.MqttMessageTypes.VOIP_ERROR_ALREADY_IN_CALL)) 
+			{
+				Intent i = new Intent(context, VoIPService.class);
+				i.putExtra(VoIPConstants.Extras.ACTION, subType);
+				i.putExtra(VoIPConstants.Extras.MSISDN, jsonObj.getString(HikeConstants.FROM));
+				context.startService(i);
+			}
+			
 			if (subType.equals(HikeConstants.MqttMessageTypes.VOIP_ERROR_CALLEE_INCOMPATIBLE_UPGRADABLE)) 
 			{
-				String message = jsonObj.getJSONObject(HikeConstants.DATA).getString(HikeConstants.HIKE_MESSAGE);
 				Intent i = new Intent(context, VoIPActivity.class);
 				i.putExtra(VoIPConstants.Extras.ACTION, VoIPConstants.PARTNER_REQUIRES_UPGRADE);
 				i.putExtra(VoIPConstants.Extras.MSISDN, jsonObj.getString(HikeConstants.FROM));
-				i.putExtra(VoIPConstants.Extras.MESSAGE, message);
-				i.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-				context.startActivity(i);
-			}
-			
-			if (subType.equals(HikeConstants.MqttMessageTypes.VOIP_ERROR_CALLEE_INCOMPATIBLE_NOT_UPGRADABLE)) 
-			{
-				String message = jsonObj.getJSONObject(HikeConstants.DATA).getString(HikeConstants.HIKE_MESSAGE);
-				Intent i = new Intent(context, VoIPActivity.class);
-				i.putExtra(VoIPConstants.Extras.ACTION, VoIPConstants.PARTNER_INCOMPATIBLE);
-				i.putExtra(VoIPConstants.Extras.MSISDN, jsonObj.getString(HikeConstants.FROM));
-				i.putExtra(VoIPConstants.Extras.MESSAGE, message);
 				i.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
 				context.startActivity(i);
 			}
 			
 			if (subType.equals(HikeConstants.MqttMessageTypes.VOIP_ERROR_CALLEE_HAS_BLOCKED_YOU)) 
 			{
-				String message = jsonObj.getJSONObject(HikeConstants.DATA).getString(HikeConstants.HIKE_MESSAGE);
 				Intent i = new Intent(context, VoIPActivity.class);
 				i.putExtra(VoIPConstants.Extras.ACTION, VoIPConstants.PARTNER_HAS_BLOCKED_YOU);
 				i.putExtra(VoIPConstants.Extras.MSISDN, jsonObj.getString(HikeConstants.FROM));
-				i.putExtra(VoIPConstants.Extras.MESSAGE, message);
 				i.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
 				context.startActivity(i);
 			}
-			
-			if (subType.equals(HikeConstants.MqttMessageTypes.VOIP_ERROR_CALLEE_DOES_NOT_SUPPORT_CONFERENCE)) 
-			{
-				Intent i = new Intent(context.getApplicationContext(), VoIPService.class);
-				i.putExtra(VoIPConstants.Extras.ACTION, subType);
-				i.putExtra(VoIPConstants.Extras.MSISDN, jsonObj.getString(HikeConstants.FROM));
-				context.startService(i);
-			}
-			
-			if (subType.equals(HikeConstants.MqttMessageTypes.VOIP_ERROR_ALREADY_IN_CALL)) 
-			{
-				Intent i = new Intent(context.getApplicationContext(), VoIPService.class);
-				i.putExtra(VoIPConstants.Extras.ACTION, subType);
-				i.putExtra(VoIPConstants.Extras.MSISDN, jsonObj.getString(HikeConstants.FROM));
-				context.startService(i);
-			}
-			
 		}
-	
 	}
 	
 	public static byte[] addPCMSamples(byte[] original, byte[] toadd) {
@@ -831,17 +808,18 @@ public class VoIPUtils {
 	 * @param callId
 	 * @return
 	 */
-	public static boolean checkForActiveCall(Context context, String fromMsisdn, int callId) {
+	public static boolean checkForActiveCall(Context context, String fromMsisdn, int callId, boolean insertMissedCall) {
 		// Check for currently active call
 		if ((callId != VoIPService.getCallId() && VoIPService.getCallId() > 0) ||
 				VoIPUtils.isUserInCall(context)) {
 			Logger.w(tag, "We are already in a call. local: " + VoIPService.getCallId() +
 					", remote: " + callId);
 
-			VoIPUtils.sendVoIPMessageUsingHike(fromMsisdn, 
-					HikeConstants.MqttMessageTypes.VOIP_ERROR_ALREADY_IN_CALL, 
-					callId, 
-					false);
+			if (insertMissedCall)
+				VoIPUtils.sendVoIPMessageUsingHike(fromMsisdn, 
+						HikeConstants.MqttMessageTypes.VOIP_ERROR_ALREADY_IN_CALL, 
+						callId, 
+						false);
 			return true;
 		}
 		return false;

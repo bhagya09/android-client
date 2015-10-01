@@ -23,6 +23,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Message;
 import android.provider.ContactsContract;
 import android.provider.ContactsContract.Intents.Insert;
@@ -76,6 +77,7 @@ import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.bots.MessagingBotConfiguration;
 import com.bsb.hike.bots.MessagingBotMetadata;
 import com.bsb.hike.bots.NonMessagingBotConfiguration;
+import com.bsb.hike.bots.NonMessagingBotMetadata;
 import com.bsb.hike.db.AccountBackupRestore;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.dialog.HikeDialog;
@@ -103,6 +105,7 @@ import com.bsb.hike.offline.OfflineConstants.DisconnectFragmentType;
 import com.bsb.hike.offline.OfflineController;
 import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.tasks.EmailConversationsAsyncTask;
 import com.bsb.hike.ui.HikeFragmentable;
@@ -182,6 +185,8 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 	private AlertDialog alertDialog;
 
 	private int tipType = ConversationTip.NO_TIP;
+	
+	protected static final int START_OFFLINE_CONNECTION = 1;
 
 	private enum hikeBotConvStat
 	{
@@ -958,37 +963,30 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 		}
 		final OfflineDisconnectFragment fragment = OfflineDisconnectFragment.newInstance(msisdn, null, DisconnectFragmentType.REQUESTING);
 
-		ViewStub mmStub = (ViewStub) parent.findViewById(R.id.nux_footer);
-		if (mmStub == null)
+		ViewStub stub=(ViewStub) parent.findViewById(R.id.nux_footer);
+		if (stub == null)
 		{
-			// Old fragment is already attached.
-			// remove old frgame and attach new fragment
-			((HomeActivity) getActivity()).removeFragment(OfflineConstants.OFFLINE_DISCONNECT_FRAGMENT);
-			((HomeActivity) getActivity()).addFragment(R.id.fragment_disconnect, fragment, OfflineConstants.OFFLINE_DISCONNECT_FRAGMENT);
+			if (footerState.getEnum() == footerState.OPEN)
+				setFooterHalfOpen();
 		}
-		else
-		{
-			mmStub.setLayoutResource(R.layout.panel_import);
-
-			mmStub.setOnInflateListener(new OnInflateListener()
-			{
-				@Override
-				public void onInflate(ViewStub stub, View inflated)
-				{
-					((HomeActivity) getActivity()).addFragment(R.id.fragment_disconnect, fragment, OfflineConstants.OFFLINE_DISCONNECT_FRAGMENT);
-				}
-			});
-			mmStub.inflate();
-		}
+		
+		// Old fragment is already attached.
+		// remove old frgame and attach new fragment
+		((HomeActivity) getActivity()).removeFragment(OfflineConstants.OFFLINE_DISCONNECT_FRAGMENT);
+		((HomeActivity) getActivity()).addFragment(R.id.hike_direct, fragment, OfflineConstants.OFFLINE_DISCONNECT_FRAGMENT);
 		fragment.setConnectionListner(new OfflineConnectionRequestListener()
 		{
 
 			@Override
-			public void removeDisconnectFragment(boolean removeParent)
+			public void removeDisconnectFragment(boolean isConnectionAccepted)
 			{
-				OfflineUtils.sendOfflineRequestCancelPacket(OfflineUtils.fetchMsisdnFromRequestPkt(HikeSharedPreferenceUtil.getInstance().getData(OfflineConstants.DIRECT_REQUEST_DATA,"")));
+				if (!isConnectionAccepted)
+				{
+					OfflineUtils.sendOfflineRequestCancelPacket(OfflineUtils.fetchMsisdnFromRequestPkt(HikeSharedPreferenceUtil.getInstance().getData(
+							OfflineConstants.DIRECT_REQUEST_DATA, "")));
+				}
 				OfflineController.getInstance().removeConnectionRequest();
-				
+
 			}
 
 			@Override
@@ -1000,13 +998,34 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 			@Override
 			public void onConnectionRequest(Boolean startAnimation)
 			{
-
-				Intent in = IntentFactory.createChatThreadIntentFromMsisdn(getActivity(),
-						OfflineUtils.fetchMsisdnFromRequestPkt(HikeSharedPreferenceUtil.getInstance().getData(OfflineConstants.DIRECT_REQUEST_DATA, "")), false, false);
-				in.putExtra(OfflineConstants.START_CONNECT_FUNCTION, true);
-				getActivity().startActivity(in);		
-				// start chatTHread
-
+				String msisdn  = OfflineUtils.fetchMsisdnFromRequestPkt(HikeSharedPreferenceUtil.getInstance().getData(OfflineConstants.DIRECT_REQUEST_DATA, ""));
+				if(TextUtils.isEmpty(msisdn))
+				{
+					return;
+				}
+				
+				if(StealthModeManager.getInstance().isStealthMsisdn(msisdn) && !StealthModeManager.getInstance().isActive())
+				{
+					if(OfflineController.getInstance().isConnected())
+					{
+						OfflineUtils.stopFreeHikeConnection(getActivity().getApplicationContext(), OfflineUtils.getConnectedMsisdn());
+						sendUIMessage(START_OFFLINE_CONNECTION, 1000, msisdn);
+					}
+					else
+					{
+						OfflineController.getInstance().connectAsPerMsisdn(msisdn);
+					}
+					
+				}
+				else
+				{
+					//Starting Chathread
+					Intent in = IntentFactory.createChatThreadIntentFromMsisdn(getActivity(),
+							OfflineUtils.fetchMsisdnFromRequestPkt(HikeSharedPreferenceUtil.getInstance().getData(OfflineConstants.DIRECT_REQUEST_DATA, "")), false, false);
+					in.putExtra(OfflineConstants.START_CONNECT_FUNCTION, true);
+					getActivity().startActivity(in);							
+				}
+				
 			}
 		});
 	}
@@ -1088,10 +1107,29 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 			}
 			else
 			{
-				Intent web = IntentFactory.getNonMessagingBotIntent(convInfo.getMsisdn(), getActivity());
-				if (web != null)
+				NonMessagingBotMetadata nonMessagingBotMetadata = new NonMessagingBotMetadata(botInfo.getMetadata());
+				if (nonMessagingBotMetadata.isNativeMode())
 				{
-					startActivity(web);
+					JSONObject data = new JSONObject();
+					try
+					{
+						data.put(HikeConstants.SCREEN, nonMessagingBotMetadata.getTargetActivity());
+					}
+					catch (JSONException e)
+					{
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					PlatformUtils.openActivity(getActivity(),data.toString());
+
+				}
+				else
+				{
+					Intent web = IntentFactory.getNonMessagingBotIntent(convInfo.getMsisdn(), getActivity());
+					if (web != null)
+					{
+						startActivity(web);
+					}
 				}
 
 				resetNotificationCounter(convInfo);
@@ -1186,10 +1224,9 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 		if (mAdapter != null)
 		{
 			searchText = null;
-			searchMode = false;
 			mAdapter.removeSearch();
 			ShowTipIfNeeded(displayedConversations.isEmpty());
-			setEmptyState(displayedConversations.isEmpty());
+			searchMode = false;
 		}
 	}
 
@@ -1730,7 +1767,11 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 		for (ConvInfo convInfo : conversationList)
 		{
 			convInfo.setBlocked(ContactManager.getInstance().isBlocked(convInfo.getMsisdn()));
-
+			
+			if (convInfo instanceof BotInfo)
+			{
+				((BotInfo) convInfo).setConvPresent(true);
+			}
 		}
 
 		stealthConversations = new HashSet<ConvInfo>();
@@ -1758,6 +1799,13 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 
 		HikeMessengerApp.getPubSub().addListeners(this, pubSubListeners);
 		setEmptyState(mAdapter.isEmpty());
+		
+		// Making the call to fetch thumbnails only once per app cycle to save data
+		if (BotUtils.fetchBotThumbnails)
+		{
+			BotUtils.fetchBotIcons();
+			BotUtils.fetchBotThumbnails = false;
+		}
 
 	}
 
@@ -1991,7 +2039,20 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 			});
 		}
 	}
+	
+	private  Handler uiHandler = new Handler()
+	{
+		public void handleMessage(android.os.Message msg)
+		{
+			if (msg == null)
+			{
+				return;
+			}
+			handleUIMessage(msg);
+		}
 
+	};
+	
 	@SuppressWarnings("unchecked")
 	@Override
 	public void onEventReceived(String type, Object object)
@@ -2934,6 +2995,32 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 		}
 	}
 
+	protected void handleUIMessage(Message msg)
+	{
+		switch(msg.what)
+		{
+			case START_OFFLINE_CONNECTION:
+				OfflineController.getInstance().connectAsPerMsisdn((String)msg.obj);
+				break;
+		}
+	}
+	
+	private void sendUIMessage(int what, Object data)
+	{
+		Message message = Message.obtain();
+		message.what = what;
+		message.obj = data;
+		uiHandler.sendMessage(message);
+	}
+
+	private void sendUIMessage(int what, long delayTime, Object data)
+	{
+		Message message = Message.obtain();
+		message.what = what;
+		message.obj = data;
+		uiHandler.sendMessageDelayed(message, delayTime);
+	}
+
 	private void unreadCountModified(Message message)
 	{
 		String msisdn = (String) message.obj;
@@ -2979,6 +3066,10 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 	 */
 	private void checkAndAddListViewHeader(View headerView)
 	{
+		if (!isAdded())
+		{
+			return;
+		}
 		ListAdapter adapter = getListAdapter();
 
 		if (adapter != null)

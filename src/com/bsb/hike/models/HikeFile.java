@@ -33,7 +33,7 @@ public class HikeFile
 {
 	public static enum HikeFileType
 	{
-		PROFILE, IMAGE, VIDEO, AUDIO, LOCATION, CONTACT, AUDIO_RECORDING, APK, OTHER;
+		PROFILE, IMAGE, VIDEO, AUDIO, LOCATION, CONTACT, AUDIO_RECORDING, OTHER,APK;
 
 		public static HikeFileType fromString(String fileTypeString)
 		{
@@ -103,11 +103,11 @@ public class HikeFile
 			}
 			else if (hikeFileType == OTHER)
 			{
-				return "other";
+				return "application/octet-stream";
 			}
 			else if (hikeFileType == APK)
 			{
-				return "apk";
+				return "application/vnd.android.package-archive";
 			}
 			return null;
 		}
@@ -152,7 +152,7 @@ public class HikeFile
 
 	private String fileKey;
 
-	private int fileSize;
+	private long fileSize;
 
 	private HikeFileType hikeFileType;
 
@@ -200,7 +200,7 @@ public class HikeFile
 			this.file = new File(fileJSON.optString(HikeConstants.FILE_PATH));
 		}
 		this.fileKey = fileJSON.optString(HikeConstants.FILE_KEY);
-		this.fileSize = fileJSON.optInt(HikeConstants.FILE_SIZE);
+		this.fileSize = fileJSON.optLong(HikeConstants.FILE_SIZE);
 		this.latitude = fileJSON.optDouble(HikeConstants.LATITUDE);
 		this.longitude = fileJSON.optDouble(HikeConstants.LONGITUDE);
 		this.zoomLevel = fileJSON.optInt(HikeConstants.ZOOM_LEVEL, HikeConstants.DEFAULT_ZOOM_LEVEL);
@@ -239,7 +239,7 @@ public class HikeFile
 		this.img_quality = img_quality;
 	}
 
-	public HikeFile(String fileName, String fileTypeString, String thumbnailString, Bitmap thumbnail, long recordingDuration, String source, int fileSize, boolean isSent, String img_quality)
+	public HikeFile(String fileName, String fileTypeString, String thumbnailString, Bitmap thumbnail, long recordingDuration, String source, long fileSize, boolean isSent, String img_quality)
 	{
 		this.fileName = fileName;
 		this.fileTypeString = fileTypeString;
@@ -401,12 +401,12 @@ public class HikeFile
 		return fileKey;
 	}
 
-	public void setFileSize(int fileSize)
+	public void setFileSize(long fileSize)
 	{
 		this.fileSize = fileSize;
 	}
 
-	public int getFileSize()
+	public long getFileSize()
 	{
 		return fileSize;
 	}
@@ -691,21 +691,24 @@ public class HikeFile
 			return -1;
 		}
 		Cursor cur = context.getContentResolver().query(uri, retCol, MediaStore.MediaColumns.DATA + "='" + filePath + "'", null, null);
-		try
+		if (cur != null)
 		{
-			if (cur.getCount() == 0)
+			try
 			{
-				return -1;
+				if (cur.getCount() == 0)
+				{
+					return -1;
+				}
+				cur.moveToFirst();
+
+				id = cur.getInt(cur.getColumnIndex(MediaStore.MediaColumns._ID));
 			}
-			cur.moveToFirst();
-
-			id = cur.getInt(cur.getColumnIndex(MediaStore.MediaColumns._ID));
+			finally
+			{
+				cur.close();
+			}
 		}
 
-		finally
-		{
-			cur.close();
-		}
 		return id;
 	}
 
