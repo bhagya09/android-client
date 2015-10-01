@@ -2853,7 +2853,12 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 						{
 							mCustomKeyboard.showCustomKeyboard(searchET, true);
 						}	 						
-	 				}
+	 				}else{
+						if (!KptUtils.isSystemKeyboard(ComposeChatActivity.this))
+						{
+							mCustomKeyboard.showCustomKeyboard(searchET, false);
+						}
+					}
 	 			}
 	 		});
 
