@@ -25,6 +25,7 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationCompat.Action;
 import android.text.TextUtils;
 import android.view.ViewDebug.FlagToString;
+import android.widget.Toast;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
@@ -50,6 +51,7 @@ import com.bsb.hike.smartcache.HikeLruCache;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.voip.VoIPClient;
@@ -139,7 +141,7 @@ public class OfflineUtils
 		return HikeConversationsDatabase.getInstance().updateMsgStatus(msgId, status.ordinal(), msisdn);
 	}
 
-	public static int getTotalChunks(int fileSize)
+	public static long getTotalChunks(long fileSize)
 	{
 		return fileSize / OfflineConstants.CHUNK_SIZE + ((fileSize % OfflineConstants.CHUNK_SIZE != 0) ? 1 : 0);
 	}
@@ -348,13 +350,13 @@ public class OfflineUtils
 		}
 	}
 
-	public static int getFileSizeFromJSON(JSONObject packet)
+	public static long getFileSizeFromJSON(JSONObject packet)
 	{
 		try
 		{
 			JSONArray jsonFiles = packet.getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA).getJSONArray(HikeConstants.FILES);
 			JSONObject jsonFile = jsonFiles.getJSONObject(0);
-			return jsonFile.optInt(HikeConstants.FILE_SIZE);
+			return jsonFile.optLong(HikeConstants.FILE_SIZE);
 		}
 		catch (JSONException e)
 		{
@@ -599,7 +601,7 @@ public class OfflineUtils
 			File sourceFile = new File(fileJSON.optString(HikeConstants.FILE_PATH));
 			hikeFile.setFileKey("OfflineKey" + System.currentTimeMillis() / 1000);
 			hikeFile.setFile(sourceFile);
-			hikeFile.setFileSize((int) sourceFile.length());
+			hikeFile.setFileSize(sourceFile.length());
 			hikeFile.setFileName(fileName);
 			hikeFile.setSent(true);
 			fileJSON = hikeFile.serialize();
@@ -637,7 +639,8 @@ public class OfflineUtils
 		try
 		{
 			object.put(HikeConstants.TYPE, OfflineConstants.INFO_PKT);
-			object.put(HikeConstants.VERSION, Utils.getAppVersion());
+			object.put(HikeConstants.VERSION,Utils.getAppVersion());
+			object.put(OfflineConstants.OFFLINE_VERSION,OfflineConstants.OFFLINE_VERSION_NUMER);
 			object.put(HikeConstants.RESOLUTION_ID, Utils.getResolutionId());
 			object.put(OfflineConstants.CONNECTION_ID, connectID);
 		}
@@ -739,6 +742,10 @@ public class OfflineUtils
 		
 		String myMsisdn=getMyMsisdn();
 		
+		if (TextUtils.isEmpty(myMsisdn))
+		{
+			return false;
+		}
 		return (myMsisdn.compareTo(connectedMsisdn) > 0);
 		
 	}
@@ -758,26 +765,37 @@ public class OfflineUtils
 			}
 			
 			NotificationCompat.Action[] actions = getNotificationActions(context,msisdn);
-			Intent chatThreadIntent = IntentFactory.createChatThreadIntentFromMsisdn(context, msisdn, false,false);
-			chatThreadIntent.putExtra(OfflineConstants.START_CONNECT_FUNCTION, true);
+			Intent intent = IntentFactory.createChatThreadIntentFromMsisdn(context, msisdn, false,false);
+			intent.putExtra(OfflineConstants.START_CONNECT_FUNCTION, true);
 			HikeNotificationMsgStack hikeNotifMsgStack =  HikeNotificationMsgStack.getInstance();
 			Drawable avatarDrawable = Utils.getAvatarDrawableForNotification(context,msisdn, false);
 			ContactInfo contactInfo  = ContactManager.getInstance().getContact(msisdn);
 			String contactFirstName = msisdn;
-			if(contactInfo!=null && !TextUtils.isEmpty(contactInfo.getFirstName()))
+			if (StealthModeManager.getInstance().isStealthMsisdn(msisdn) && !StealthModeManager.getInstance().isActive())
 			{
-				contactFirstName = contactInfo.getFirstName();
+				intent = Utils.getHomeActivityIntent(context);
+				HikeNotification.getInstance().showOfflineRequestStealthNotification(intent, context.getString(R.string.app_name),
+						context.getString(R.string.incoming_hike_direct_request), context.getString(R.string.incoming_hike_direct_request), R.drawable.ic_stat_notify);
 			}
-			HikeNotification.getInstance().showBigTextStyleNotification(chatThreadIntent, hikeNotifMsgStack.getNotificationIcon(),
-					System.currentTimeMillis()/1000,HikeNotification.OFFLINE_REQUEST_ID, contactFirstName + " Sent you offline request",contactFirstName,"wants to Connect Offline", msisdn,null,avatarDrawable, true,0, actions);
+			else
+			{
+				if (contactInfo != null && !TextUtils.isEmpty(contactInfo.getFirstName()))
+				{
+					contactFirstName = contactInfo.getFirstNameAndSurname();
+				}
+
+				HikeNotification.getInstance().showBigTextStyleNotification(intent, hikeNotifMsgStack.getNotificationIcon(), System.currentTimeMillis() / 1000,
+						HikeNotification.OFFLINE_REQUEST_ID, context.getString(R.string.incoming_hike_direct_request), contactFirstName,
+						context.getString(R.string.hike_direct_request), msisdn, null, avatarDrawable, true, 0, actions);
+			}
 			OfflineController.getInstance().handleOfflineRequest(packet);
-			
+
 		}
 		catch (JSONException e)
 		{
 			Logger.d(TAG, "Error in JSon");
 		}
-		
+
 	}
 
 	private static Action[] getNotificationActions(Context context, String msisdn)
@@ -792,8 +810,9 @@ public class OfflineUtils
 
 		NotificationCompat.Action actions[] = new NotificationCompat.Action[2];
 
-		actions[0] = new NotificationCompat.Action(R.drawable.offline_inline_logo, context.getString(R.string.connect), chatThreadPendingIntent);
-		actions[1] = new NotificationCompat.Action(R.drawable.cross, context.getString(R.string.cancel), cancelP);
+		
+		actions[0] = new NotificationCompat.Action(R.drawable.ic_notifcrossicon, context.getString(R.string.cancel), cancelP);
+		actions[1] = new NotificationCompat.Action(R.drawable.offline_inline_logo_white, context.getString(R.string.connect), chatThreadPendingIntent);
 
 		return actions;
 	}
@@ -823,8 +842,11 @@ public class OfflineUtils
 		try
 		{
 			String msisdn = packet.getString(HikeConstants.FROM);
-
-			OfflineController.getInstance().shutdown(new OfflineException(OfflineException.CANCEL_NOTIFICATION_REQUEST));
+			if(OfflineUtils.isConnectingToSameMsisdn(msisdn))
+			{
+				OfflineController.getInstance().shutdown(new OfflineException(OfflineException.CANCEL_NOTIFICATION_REQUEST));
+			}
+			
 		}
 		catch (JSONException e)
 		{
@@ -890,5 +912,38 @@ public class OfflineUtils
 				.getString(R.string.connection_request_inline_msg),OfflineConstants.OFFLINE_INLINE_MESSAGE );
 		HikeConversationsDatabase.getInstance().addConversationMessages(convMessage, true);
 		HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_RECEIVED, convMessage);
+	}
+	
+	public static void showToastForBatteryLevel()
+	{
+		float batteryLevel = Utils.currentBatteryLevel();
+		if (batteryLevel <= 0 || batteryLevel > OfflineConstants.MIN_BATTERY_LEVEL)
+		{
+			return;
+		}
+
+		HikeMessengerApp.getInstance().showToast(R.string.low_battery_msg,Toast.LENGTH_LONG);
+	}
+	
+	public static boolean isFeautureAvailable(int myVersion,int clientTwoVersion,int minClientVersion)
+	{
+		if(myVersion>= minClientVersion &&  clientTwoVersion >=minClientVersion)
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+
+	public static int getConnectedDeviceVersion()
+	{
+		OfflineClientInfoPOJO connectedClientInfo  = OfflineController.getInstance().getConnectedClientInfo();
+		if(connectedClientInfo!=null)
+		{
+			return connectedClientInfo.getOfflineVersionNumber();
+		}
+		return 1;
 	}
 }

@@ -60,8 +60,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bsb.hike.HikeConstants;
-import com.bsb.hike.chatHead.ChatHeadService;
-import com.bsb.hike.chatthread.OnlineChannel;
 import com.bsb.hike.HikeConstants.MESSAGE_TYPE;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
@@ -113,7 +111,6 @@ import com.bsb.hike.utils.ShareUtils;
 import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
-import com.bsb.hike.view.PinnedSectionListView;
 import com.bsb.hike.view.TagEditText;
 import com.bsb.hike.view.TagEditText.Tag;
 import com.bsb.hike.view.TagEditText.TagEditorListener;
@@ -139,6 +136,8 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
     private static final int CREATE_BROADCAST_MODE = 7;
     
     public static final int PICK_CONTACT_MODE = 8;
+
+	public static final int PICK_CONTACT_AND_SEND_MODE = 9;
 
 	private View multiSelectActionBar, groupChatActionBar;
 
@@ -222,6 +221,10 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 	private MenuItem searchMenuItem;
 
 	private int gcSettings = -1;
+	
+	private boolean thumbnailsRequired= false;
+	
+	private boolean hasMicroappShowcaseIntent = false;
 	 
 	@Override
 	public void onCreate(Bundle savedInstanceState)
@@ -254,6 +257,8 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		isSharingFile = getIntent().getType() != null;
 		nuxIncentiveMode = getIntent().getBooleanExtra(HikeConstants.Extras.NUX_INCENTIVE_MODE, false);
 		createBroadcast = getIntent().getBooleanExtra(HikeConstants.Extras.CREATE_BROADCAST, false);
+		thumbnailsRequired = getIntent().getBooleanExtra(HikeConstants.Extras.THUMBNAILS_REQUIRED, false);
+		hasMicroappShowcaseIntent = getIntent().getBooleanExtra(HikeConstants.Extras.IS_MICROAPP_SHOWCASE_INTENT, false);
 
 		// Getting the group id. This will be a valid value if the intent
 		// was passed to add group participants.
@@ -603,17 +608,19 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		HikeSharedPreferenceUtil pref = HikeSharedPreferenceUtil.getInstance();
 		boolean fetchRecentlyJoined = pref.getData(HikeConstants.SHOW_RECENTLY_JOINED_DOT, false) || pref.getData(HikeConstants.SHOW_RECENTLY_JOINED, false);
 		fetchRecentlyJoined = fetchRecentlyJoined && !isForwardingMessage && showNujNotif;
+		boolean showMicroappShowcase = BotUtils.isBotDiscoveryEnabled();
 		
 		switch (composeMode)
 		{
 		case CREATE_GROUP_MODE:
 		case CREATE_BROADCAST_MODE:
 		case PICK_CONTACT_MODE:
+		case PICK_CONTACT_AND_SEND_MODE:
 			//We do not show sms contacts in broadcast mode
-			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage, (isForwardingMessage && !isSharingFile), fetchRecentlyJoined, existingGroupOrBroadcastId, sendingMsisdn, friendsListFetchedCallback, false);
+			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage, (isForwardingMessage && !isSharingFile), fetchRecentlyJoined, existingGroupOrBroadcastId, sendingMsisdn, friendsListFetchedCallback, false, false);
 			break;
 		default:
-			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage, (isForwardingMessage || isSharingFile), fetchRecentlyJoined, existingGroupOrBroadcastId, sendingMsisdn, friendsListFetchedCallback, true);
+			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage, (isForwardingMessage || isSharingFile), fetchRecentlyJoined, existingGroupOrBroadcastId, sendingMsisdn, friendsListFetchedCallback, true, (showMicroappShowcase && hasMicroappShowcaseIntent));
 			break;
 		}
 
@@ -708,6 +715,11 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			lastSeenScheduler.stop(true);
 			lastSeenScheduler = null;
 		}
+		
+		if (adapter != null)
+		{
+			adapter.releaseResources();
+		}
 
 		HikeMessengerApp.getPubSub().removeListeners(this, hikePubSubListeners);
 		super.onDestroy();
@@ -787,6 +799,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			}
 			break;
 		case PICK_CONTACT_MODE:
+		case PICK_CONTACT_AND_SEND_MODE:
 			if(selectAllMode)
 			{
 				onItemClickDuringSelectAllMode(contactInfo);
@@ -983,6 +996,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		{
 		case CREATE_GROUP_MODE:
 		case PICK_CONTACT_MODE:
+		case PICK_CONTACT_AND_SEND_MODE:
 		case CREATE_BROADCAST_MODE:
 			// createGroupHeader.setVisibility(View.GONE);
 			adapter.showCheckBoxAgainstItems(true);
@@ -1190,7 +1204,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 
 	private void setTitle()
 	{
-		if(composeMode==PICK_CONTACT_MODE)
+		if(composeMode==PICK_CONTACT_MODE || composeMode == PICK_CONTACT_AND_SEND_MODE)
 		{
 			title.setText(R.string.choose_contact);
 		}
@@ -1295,6 +1309,10 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 				{
 					onDoneClickPickContact();
 				}
+				else if (composeMode == PICK_CONTACT_AND_SEND_MODE)
+				{
+					forwardConfirmation(adapter.getAllSelectedContacts());
+				}
 			}
 		});
 
@@ -1366,22 +1384,29 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			Toast.makeText(this,R.string.pick_contact_zero,Toast.LENGTH_SHORT).show();
 			return;
 		}
-		JSONArray array = convertToJSONArray(adapter.getAllSelectedContacts());
-		Intent intent = getIntent();
-		intent.putExtra(HikeConstants.HIKE_CONTACT_PICKER_RESULT, array.toString());
-		setResult(RESULT_OK,intent);
-		Logger.i("composechat", "returning pick contact result "+intent.getExtras().toString());
-		this.finish();
+		
+		ProgressDialog dialog = new ProgressDialog(this);
+		dialog.setCancelable(false);
+		dialog.setTitle(getResources().getString(R.string.please_wait));
+		dialog.setMessage(getResources().getString(R.string.loading_data));
+		ConvertToJSONArrayTask task = new ConvertToJSONArrayTask(adapter.getAllSelectedContacts(), dialog, thumbnailsRequired);
+		Utils.executeJSONArrayResultTask(task);
 	}
 	
-	private JSONArray convertToJSONArray(List<ContactInfo> list)
+	private JSONArray convertToJSONArray(List<ContactInfo> list, boolean thumbnailsRequired)
 	{
 		JSONArray array = new JSONArray();
+		JSONObject platformInfo;
 		for(ContactInfo contactInfo : list)
 		{
 			try
 			{
-				array.put(contactInfo.toJSON(false));
+				platformInfo = contactInfo.getPlatformInfo();
+				if (thumbnailsRequired)
+				{
+					platformInfo.put(HikePlatformConstants.THUMBNAIL, ContactManager.getInstance().getImagePathForThumbnail(contactInfo.getMsisdn()));
+				}
+				array.put(platformInfo);
 			}
 			catch (JSONException e)
 			{
@@ -1391,6 +1416,44 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		return array;
 	}
 	
+	private class ConvertToJSONArrayTask extends AsyncTask<Void, Void, JSONArray>
+	{
+		ArrayList<ContactInfo> list;
+		ProgressDialog dialog;
+		boolean thumbnailsRequired;
+		
+		public ConvertToJSONArrayTask(ArrayList<ContactInfo> list, ProgressDialog dialog, boolean thumbnailsRequired)
+		{
+			this.list = list;
+			this.dialog = dialog;
+			this.thumbnailsRequired = thumbnailsRequired;
+		}
+		
+		@Override
+		protected void onPreExecute()
+		{
+			dialog.show();
+			super.onPreExecute();
+		}
+		
+		@Override
+		protected JSONArray doInBackground(Void... params)
+		{
+			return convertToJSONArray(this.list, thumbnailsRequired);
+		}
+
+		@Override
+		protected void onPostExecute(JSONArray array)
+		{
+			Intent intent = getIntent();
+			intent.putExtra(HikeConstants.HIKE_CONTACT_PICKER_RESULT, array == null ? "" : array.toString());
+			setResult(RESULT_OK,intent);
+			ComposeChatActivity.this.finish();
+			dialog.dismiss();
+			super.onPostExecute(array);
+		}
+		
+	}
 	
 	private void forwardConfirmation(final ArrayList<ContactInfo> arrayList)
 	{
@@ -1401,7 +1464,14 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			public void positiveClicked(HikeDialog hikeDialog)
 			{
 				hikeDialog.dismiss();
-				forwardMultipleMessages(arrayList);
+				if (composeMode == PICK_CONTACT_AND_SEND_MODE)
+				{
+					onSendContactAndPick(arrayList);
+				}
+				else
+				{
+					forwardMultipleMessages(arrayList);
+				}
 			}
 			
 			@Override
@@ -1610,7 +1680,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 					}
 
 					
-					if (showMaxFileToast && !fileTransferList.isEmpty())
+					if (showMaxFileToast && !arrayList.isEmpty() && !fileTransferList.isEmpty())
 					{
 						FTAnalyticEvents.logDevError(FTAnalyticEvents.UPLOAD_INIT_1_1, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "init", "Compose - 1forwardMessageAsPerType - Max limit is reached.");
 						Toast.makeText(ComposeChatActivity.this, R.string.max_file_size, Toast.LENGTH_SHORT).show();
@@ -1834,22 +1904,18 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 						}
 						multipleMessageList.add(convMessage);
 					} else if(msgExtrasJson.optInt(MESSAGE_TYPE.MESSAGE_TYPE) == MESSAGE_TYPE.WEB_CONTENT || msgExtrasJson.optInt(MESSAGE_TYPE.MESSAGE_TYPE) == MESSAGE_TYPE.FORWARD_WEB_CONTENT){
-						//Web content message
-						String metadata = msgExtrasJson.optString(HikeConstants.METADATA);
 
-						ConvMessage convMessage = new ConvMessage();
-						convMessage.setIsSent(true);
-						convMessage.setMessageType(MESSAGE_TYPE.FORWARD_WEB_CONTENT);
-						convMessage.webMetadata =  new WebMetadata(PlatformContent.getForwardCardData(metadata));
-
+						ConvMessage convMessage = getConvMessageForForwardedWebContent(msgExtrasJson);
 						try
 						{
+
 							platformCards.append( TextUtils.isEmpty(platformCards) ? convMessage.webMetadata.getAppName() : "," + convMessage.webMetadata.getAppName());
 						}
 						catch (NullPointerException e)
 						{
 							e.printStackTrace();
 						}
+
 						convMessage.setMessage(msgExtrasJson.getString(HikeConstants.HIKE_MESSAGE));
 						if(offlineContact!=null)
 						{
@@ -1857,6 +1923,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 							offlineConvMessage.setMessageOriginType(OriginType.OFFLINE);
                         	offlineMessageList.add(offlineConvMessage);
 						}
+						
 						multipleMessageList.add(convMessage);
 					}
 					/*
@@ -2006,13 +2073,18 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 				
 				if (file.length() > HikeConstants.MAX_FILE_SIZE)  
 				{
-					FTAnalyticEvents.logDevError(FTAnalyticEvents.UPLOAD_INIT_1_2, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "init",
-							"Compose - forwardMessageAsPerType - Max size reached.");
-					Toast.makeText(ComposeChatActivity.this, R.string.max_file_size, Toast.LENGTH_SHORT).show();
-					if (offlineContact != null)
+					//Not showing toast if sharing to offline contact only
+					if (offlineContact != null && arrayList.size()==0)
 					{
 						offlineFileTransferList.add(initialiseFileTransfer(filePath, null, hikeFileType, type, false, -1, true, arrayList));
 					}
+					else
+					{
+						FTAnalyticEvents.logDevError(FTAnalyticEvents.UPLOAD_INIT_1_2, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "init",
+								"Compose - forwardMessageAsPerType - Max size reached.");
+						Toast.makeText(ComposeChatActivity.this, R.string.max_file_size, Toast.LENGTH_SHORT).show();
+					}
+							
 				}
 				else
 				{
@@ -2025,8 +2097,12 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 				}
 				if (offlineContact != null)
 				{
-					offlineFileTransferList.addAll(fileTransferList);
+					if(fileTransferList.size()>0)
+					{
+						offlineFileTransferList.addAll(fileTransferList);
+					}
 					controller.sendFile(offlineFileTransferList, offlineContact.getMsisdn());
+					
 				}
 				
 				// If the arrayList has 2 person 1 online and 1 offline contact then we need to initiate the preFileTransferTask
@@ -2078,7 +2154,67 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		}
 		return arrayList;
 	}
-	
+
+	private void onSendContactAndPick(ArrayList<ContactInfo> arrayList)
+	{
+		Intent presentIntent = getIntent();
+		try
+		{
+
+			ArrayList<ConvMessage> multipleMessageList = new ArrayList<ConvMessage>();
+			String jsonString = presentIntent.getStringExtra(HikeConstants.Extras.MULTIPLE_MSG_OBJECT);
+
+			JSONArray multipleMsgFwdArray = new JSONArray(jsonString);
+			int msgCount = multipleMsgFwdArray.length();
+			if (arrayList.size() == 1)
+			{
+
+				for (int i = 0; i < msgCount; i++)
+				{
+					JSONObject msgExtrasJson = (JSONObject) multipleMsgFwdArray.get(i);
+					ConvMessage convMessage = getConvMessageForForwardedWebContent(msgExtrasJson);
+					convMessage.setMsisdn(arrayList.get(0).getMsisdn());
+					sendMessage(convMessage);
+				}
+			}
+			else
+			{
+
+				for (int i = 0; i < msgCount; i++)
+				{
+					JSONObject msgExtrasJson = (JSONObject) multipleMsgFwdArray.get(i);
+					ConvMessage convMessage = getConvMessageForForwardedWebContent(msgExtrasJson);
+					multipleMessageList.add(convMessage);
+				}
+				sendMultiMessages(multipleMessageList, arrayList, null, false);
+			}
+		}
+		catch (JSONException e)
+		{
+			Logger.e(getClass().getSimpleName(), "Invalid JSON Array", e);
+		}
+		presentIntent.removeExtra(HikeConstants.Extras.MULTIPLE_MSG_OBJECT);
+		onDoneClickPickContact();
+	}
+
+	private ConvMessage getConvMessageForForwardedWebContent(JSONObject msgExtrasJson) throws JSONException
+	{
+		//Web content message
+		String metadata = msgExtrasJson.optString(HikeConstants.METADATA);
+		ConvMessage convMessage = new ConvMessage();
+		convMessage.setIsSent(true);
+		convMessage.setParticipantInfoState(ConvMessage.ParticipantInfoState.NO_INFO);
+		convMessage.setMessageType(MESSAGE_TYPE.FORWARD_WEB_CONTENT);
+		convMessage.webMetadata = new WebMetadata(PlatformContent.getForwardCardData(metadata));
+		convMessage.setPlatformData(msgExtrasJson.optJSONObject(HikeConstants.PLATFORM_PACKET));
+		convMessage.setMessage(msgExtrasJson.getString(HikeConstants.HIKE_MESSAGE));
+		if (msgExtrasJson.has(HikePlatformConstants.NAMESPACE))
+		{
+			convMessage.setNameSpace(msgExtrasJson.getString(HikePlatformConstants.NAMESPACE));
+		}
+		return convMessage;
+	}
+
 	private ArrayList<ContactInfo> updateContactInfoOrdering(ArrayList<ContactInfo> arrayList){
 		Set<ContactInfo> set = new HashSet<ContactInfo>(arrayList);
 		ArrayList<ContactInfo> toReturn = new ArrayList<ContactInfo>();
@@ -2286,7 +2422,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		{
 			ComposeChatActivity.this.finish();
 			return;
-		}else if(composeMode == PICK_CONTACT_MODE)
+		}else if(composeMode == PICK_CONTACT_MODE || composeMode == PICK_CONTACT_AND_SEND_MODE)
 		{
 			setResult(RESULT_CANCELED,getIntent());
 			this.finish();

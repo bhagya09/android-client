@@ -7,6 +7,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Context;
+import android.text.TextUtils;
 import android.util.Pair;
 import android.widget.Toast;
 
@@ -17,11 +18,13 @@ import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.filetransfer.FileTransferManager;
+import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.ConvMessage.OriginType;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.Sticker;
+import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.offline.OfflineConstants.MessageType;
 import com.bsb.hike.service.MqttMessagesManager;
 import com.bsb.hike.utils.Logger;
@@ -73,12 +76,33 @@ public class HikeConverter implements IMessageReceived, IMessageSent {
 	{
 		String filePath = OfflineUtils.getFilePathFromJSON(convMessage.serialize());
 		File file = new File(filePath);
+
+		/*
+		 * Checking file transfer limit version For V1 it was INT_MAX For V2 and above no limit is applied
+		 */
+
+		if (file.length() > Integer.MAX_VALUE)
+		{
+			if (!OfflineUtils.isFeautureAvailable(OfflineConstants.OFFLINE_VERSION_NUMER, OfflineUtils.getConnectedDeviceVersion(), OfflineConstants.UNLIMITED_FT_VERSION))
+			{
+				String msisdn  = convMessage.getMsisdn();
+				ContactInfo contactInfo  = ContactManager.getInstance().getContact(msisdn);
+				String name  = msisdn;
+				if(contactInfo!=null && !TextUtils.isEmpty(contactInfo.getFirstNameAndSurname()))
+				{
+					name = contactInfo.getFirstNameAndSurname();
+				}
+				HikeMessengerApp.getInstance().showToast(context.getString(R.string.upgrade_for_larger_files,name), Toast.LENGTH_LONG);
+				return null;
+			}
+		}
+
 		SenderConsignment senderConsignment = new SenderConsignment.Builder(convMessage.serialize().toString(), OfflineConstants.FILE_TOPIC).file(file).persistance(persistence)
 				.ackRequired(true).build();
 		senderConsignment.setTag(convMessage);
 		senderConsignment.setAwb(convMessage.getMsgID());
 
-		FileTransferModel fileTransferModel = new FileTransferModel(new TransferProgress(0, OfflineUtils.getTotalChunks((int) file.length())), convMessage);
+		FileTransferModel fileTransferModel = new FileTransferModel(new TransferProgress(0, OfflineUtils.getTotalChunks(file.length())), convMessage);
 		fileManager.addToCurrentSendingFile(convMessage.getMsgID(), fileTransferModel);
 		return senderConsignment;
 	}
@@ -94,7 +118,7 @@ public class HikeConverter implements IMessageReceived, IMessageSent {
 		int type = hikeFileType.ordinal();
 		File file = new File(filePath);
 		String fileName = file.getName();
-		if (type == HikeFileType.APK.ordinal())
+		if (type == HikeFileType.APK.ordinal() && !TextUtils.isEmpty(apkLabel))
 			fileName = apkLabel + ".apk";
 		ConvMessage convMessage = FileTransferManager.getInstance(context).uploadOfflineFile(msisdn, file, fileKey, fileType, hikeFileType, isRecording, recordingDuration,
 				attachmentType, fileName);
@@ -289,6 +313,7 @@ public class HikeConverter implements IMessageReceived, IMessageSent {
 			{
 				Logger.d(TAG, "Info Packet received ...>>" + messageJSON.toString() +"and "+messageJSON.opt(OfflineConstants.CONNECTION_ID));
 				OfflineSessionTracking.getInstance().updateConnectionId(messageJSON.optLong(OfflineConstants.CONNECTION_ID));
+				OfflineController.getInstance().setConnectedClientInfo(messageJSON);
 			}
 			else 
 			{
@@ -305,7 +330,7 @@ public class HikeConverter implements IMessageReceived, IMessageSent {
 				}
 				else if (OfflineUtils.isDisconnectPkt(messageJSON))
 				{
-					throw new OfflineException(OfflineException.USER_DISCONNECTED);
+					throw new OfflineException(OfflineException.PEER_DISCONNECTED);
 				}
 				ConvMessage convMessage = new ConvMessage(messageJSON, context);
 				if (OfflineUtils.isStickerMessage(messageJSON))
@@ -446,7 +471,7 @@ public class HikeConverter implements IMessageReceived, IMessageSent {
 	@Override
 	public void onError(SenderConsignment senderConsignment, ERRORCODES errorCode) 
 	{
-		HikeMessengerApp.getInstance().showToast(OfflineUtils.getErrorStringId(errorCode));
+		HikeMessengerApp.getInstance().showToast(OfflineUtils.getErrorStringId(errorCode),Toast.LENGTH_SHORT);
 		
 		switch(errorCode)
 		{

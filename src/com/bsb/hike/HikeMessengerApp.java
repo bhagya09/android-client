@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import com.bsb.hike.platform.content.PlatformContentConstants;
 import org.acra.ACRA;
 import org.acra.ErrorReporter;
 import org.acra.ReportField;
@@ -35,6 +36,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.util.Pair;
 import android.widget.Toast;
 
+import com.bsb.hike.ag.NetworkAgModule;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.chatHead.ChatHeadUtils;
@@ -490,6 +492,8 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 	public static final String UPGRADE_FOR_SERVER_ID_FIELD = "upgradeForServerIdField";
 
 	public static final String UPGRADE_FOR_DEFAULT_BOT_ENTRY = "upgradeForBotEntry";
+	
+	public static final String UPGRADE_SORTING_ID_FIELD = "upgradeForSortingIdField";
 
 	public static final String EXCEPTION_ANALYTIS_ENABLED = "exceptionAnalaticsEnabled";
 
@@ -837,7 +841,7 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 		// successfully.
 		if ((settings.getInt(HikeConstants.UPGRADE_AVATAR_CONV_DB, -1) == 1) || settings.getInt(HikeConstants.UPGRADE_MSG_HASH_GROUP_READBY, -1) == 1
 				|| settings.getInt(HikeConstants.UPGRADE_FOR_DATABASE_VERSION_28, -1) == 1 || settings.getInt(StickerManager.MOVED_HARDCODED_STICKERS_TO_SDCARD, 1) == 1
-				|| settings.getInt(StickerManager.UPGRADE_FOR_STICKER_SHOP_VERSION_1, 1) == 1 || settings.getInt(UPGRADE_FOR_SERVER_ID_FIELD, 0) == 1 || TEST)
+				|| settings.getInt(StickerManager.UPGRADE_FOR_STICKER_SHOP_VERSION_1, 1) == 1 || settings.getInt(UPGRADE_FOR_SERVER_ID_FIELD, 0) == 1 || settings.getInt(UPGRADE_SORTING_ID_FIELD, 0) == 1 || TEST)
 		{
 			startUpdgradeIntent();
 		}
@@ -953,6 +957,7 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 		
 		bottomNavBarHeightPortrait = Utils.getBottomNavBarHeight(getApplicationContext());
 		bottomNavBarWidthLandscape = Utils.getBottomNavBarWidth(getApplicationContext());
+		
 	}
 
 	private void initImportantAppComponents(SharedPreferences prefs)
@@ -1105,6 +1110,10 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 
 		folder = new File(root + HikeConstants.OTHER_ROOT + HikeConstants.SENT_ROOT);
 		Utils.makeNoMediaFile(folder);
+
+		folder = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR);
+		Utils.makeNoMediaFile(folder, true);
+
 	}
 
 	public static HikePubSub getPubSub()
@@ -1165,7 +1174,7 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 		});
 	}
 	
-	public void showToast(final int stringId)
+	public void showToast(final String message,final int duration)
 	{
 		appStateHandler.post(new Runnable()
 		{
@@ -1173,7 +1182,21 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 			@Override
 			public void run()
 			{
-				Toast.makeText(getApplicationContext(),getResources().getString(stringId), Toast.LENGTH_SHORT).show();
+				Toast.makeText(getApplicationContext(), message,duration).show();
+			}
+		});
+	}
+	
+	
+	public void showToast(final int stringId,final int duration)
+	{
+		appStateHandler.post(new Runnable()
+		{
+			
+			@Override
+			public void run()
+			{
+				Toast.makeText(getApplicationContext(),getResources().getString(stringId), duration).show();
 			}
 		});
 	}

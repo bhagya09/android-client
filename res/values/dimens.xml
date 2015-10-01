@@ -237,4 +237,7 @@
 	<dimen name="overflow_menu_top_margin_non_overlay">-52dp</dimen>
 	<dimen name="overflow_menu_top_margin_overlay">4dp</dimen>
 	<dimen name="hike_direct_msg_padding">6dp</dimen>
+	<dimen name="mapp_download_dialog_icon">64dp</dimen>
+	<dimen name="mapp_download_dialog_icon_margin">36dp</dimen>
+	<dimen name="mapp_download_dialog_icon_margin_land">26dp</dimen>
 </resources>

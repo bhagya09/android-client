@@ -38,7 +38,7 @@ public class StringRequest extends Request<String>
 	}
 
 	@Override
-	public String parseResponse(InputStream in) throws IOException
+	public String parseResponse(InputStream in, int contentLength) throws IOException
 	{
 		try
 		{

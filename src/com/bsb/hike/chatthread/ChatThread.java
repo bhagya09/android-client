@@ -263,6 +263,10 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	protected static final int SCROLL_LISTENER_ATTACH = 38;
 	
 	protected static final int REMOVE_CHAT_BACKGROUND = 0;
+
+	protected static final int NUDGE_COOLOFF_TIME = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.NUDGE_SEND_COOLOFF_TIME, 1000);
+
+	private long lastNudgeTime = -1;
     
     private int NUDGE_TOAST_OCCURENCE = 2;
     	
@@ -2346,6 +2350,10 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		{
 			return false;
 		}
+		if ((System.currentTimeMillis() - lastNudgeTime) < NUDGE_COOLOFF_TIME && lastNudgeTime > 0)
+		{
+			return false;
+		}
 		if (!_doubleTapPref)
 		{
 			try
@@ -2366,8 +2374,9 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			}
 			return false;
 		}
-			sendPoke();
-			return true;
+		lastNudgeTime = System.currentTimeMillis();
+		sendPoke();
+		return true;
 	}
 
 	protected void sendPoke()
@@ -2591,6 +2600,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 						// as we will be changing msisdn and hike status while inserting in DB
 						ConvMessage convMessage = Utils.makeConvMessage(msisdn,msgExtrasJson.getString(HikeConstants.HIKE_MESSAGE), mConversation.isOnHike());
 						convMessage.setMessageType(HikeConstants.MESSAGE_TYPE.FORWARD_WEB_CONTENT);
+						convMessage.setPlatformData(msgExtrasJson.optJSONObject(HikeConstants.PLATFORM_PACKET));
 						convMessage.webMetadata = new WebMetadata(msgExtrasJson.optString(HikeConstants.METADATA));
 						JSONObject json = new JSONObject();
 						try
@@ -3321,8 +3331,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			}
 		}
 
-		showOverflowIndicatorsIfRequired(firstVisibleItem, visibleItemCount, totalItemCount);
-
 		View unreadMessageIndicator = activity.findViewById(R.id.new_message_indicator);
 
 		if (unreadMessageIndicator.getVisibility() == View.VISIBLE && mConversationsView.getLastVisiblePosition() > messages.size() - unreadMessageCount - 2)
@@ -3366,11 +3374,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		currentFirstVisibleItem = firstVisibleItem;
 	}
 	
-	private void showOverflowIndicatorsIfRequired(int firstVisibleItem, int visibleItemCount, int totalItemCount)
-	{
-		
-	}
-
 
 	@Override
 	public boolean onTouch(View v, MotionEvent event)
@@ -5228,6 +5231,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 					else if (message.getMessageType() == HikeConstants.MESSAGE_TYPE.WEB_CONTENT || message.getMessageType() == HikeConstants.MESSAGE_TYPE.FORWARD_WEB_CONTENT)
 					{
 						multiMsgFwdObject.put(HikeConstants.MESSAGE_TYPE.MESSAGE_TYPE, HikeConstants.MESSAGE_TYPE.FORWARD_WEB_CONTENT);
+						multiMsgFwdObject.put(HikeConstants.PLATFORM_PACKET, message.getPlatformData());
 						multiMsgFwdObject.put(HikeConstants.HIKE_MESSAGE, message.getMessage());
 						if (message.webMetadata != null)
 						{

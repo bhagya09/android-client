@@ -8,11 +8,11 @@ import java.util.Map;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.DialogInterface.OnDismissListener;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Message;
 import android.text.Spannable;
@@ -23,6 +23,8 @@ import android.text.style.ForegroundColorSpan;
 import android.text.util.Linkify;
 import android.util.Pair;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -33,8 +35,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import android.view.Menu;
-import android.view.MenuItem;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
@@ -163,6 +163,10 @@ public class GroupChatThread extends OneToNChatThread
 		{
 			mActionBar.onCreateOptionsMenu(menu, R.menu.group_chat_thread_menu, getOverFlowItems(), this, this);
 			updateUnreadPinCount();
+			
+			if (shouldShowCallIcon()) 
+				menu.findItem(R.id.voip_call).setVisible(true);
+
 			return super.onCreateOptionsMenu(menu);
 		}
 		
@@ -202,9 +206,7 @@ public class GroupChatThread extends OneToNChatThread
 			unreadPinCount = oneToNConversation.getUnreadPinnedMessageCount();
 		}
 		
-		if (shouldShowCallIcon())
-			list.add(new OverFlowMenuItem(getString(R.string.voip_call_chat), 0, 0, R.string.voip_call_chat));
-		
+		list.add(new OverFlowMenuItem(getString(R.string.create_pin), 0, 0, R.string.create_pin));
 		list.add(new OverFlowMenuItem(getString(R.string.group_profile), unreadPinCount, 0, R.string.group_profile));
 		list.add(new OverFlowMenuItem(getString(R.string.chat_theme), 0, 0, R.string.chat_theme));
 		if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CHAT_SEARCH_ENABLED, true))
@@ -342,23 +344,6 @@ public class GroupChatThread extends OneToNChatThread
 		super.itemClicked(item);
 		switch (item.id)
 		{
-		case R.string.voip_call_chat:
-			
-			Map<String, PairModified<GroupParticipant, String>> groupParticipants = oneToNConversation.getConversationParticipantList();
-			ArrayList<String> msisdns = new ArrayList<String>();
-			
-			for (PairModified<GroupParticipant, String> groupParticipant : groupParticipants.values())
-			{
-				String msisdn = groupParticipant.getFirst().getContactInfo().getMsisdn();
-				msisdns.add(msisdn);
-			}
-			
-			// Launch VoIP service
-			Intent intent = IntentFactory.getVoipCallIntent(activity.getApplicationContext(), 
-					msisdns, msisdn, VoIPUtils.CallSource.CHAT_THREAD);
-			if (intent != null)
-				activity.getApplicationContext().startService(intent);
-			break;
 		case R.string.mute_group:
 			toggleMuteGroup();
 			break;
@@ -367,6 +352,9 @@ public class GroupChatThread extends OneToNChatThread
 			break;
 		case R.string.chat_theme:
 			showThemePicker(R.string.chat_theme_tip_group);
+			break;
+		case R.string.create_pin:
+			showPinCreateView(null);
 			break;
 		default:
 		}
@@ -593,8 +581,33 @@ public class GroupChatThread extends OneToNChatThread
 		{
 			switch (item.getItemId())
 			{
-			case R.id.pin_imp:
-				showPinCreateView(null);
+			case R.id.voip_call:
+				// Make a group voip call after confirmation
+				new AlertDialog.Builder(activity).
+				setTitle(R.string.voip_conference_label).
+				setMessage(R.string.voip_group_conference_confirmation).
+				setPositiveButton(R.string.call, new DialogInterface.OnClickListener() {
+					
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						Map<String, PairModified<GroupParticipant, String>> groupParticipants = oneToNConversation.getConversationParticipantList();
+						ArrayList<String> msisdns = new ArrayList<String>();
+						
+						for (PairModified<GroupParticipant, String> groupParticipant : groupParticipants.values())
+						{
+							String msisdn = groupParticipant.getFirst().getContactInfo().getMsisdn();
+							msisdns.add(msisdn);
+						}
+						
+						// Launch VoIP service
+						Intent intent = IntentFactory.getVoipCallIntent(activity.getApplicationContext(), 
+								msisdns, msisdn, VoIPUtils.CallSource.CHAT_THREAD);
+						if (intent != null)
+							activity.getApplicationContext().startService(intent);
+					}
+				}).
+				setNegativeButton(R.string.cancel, null).show();
+				
 				break;
 			}
 			return super.onOptionsItemSelected(item);
@@ -654,12 +667,16 @@ public class GroupChatThread extends OneToNChatThread
 			// ifkeyboard is not open, then keyboard will come which will make so much animation on screen
 			mBottomView.startAnimation(AnimationUtils.loadAnimation(activity.getApplicationContext(), R.anim.up_down_lower_part));
 		}
+		
+		else //Show keyboard
+		{
+			Utils.toggleSoftKeyboard(activity.getApplicationContext());
+		}
 
 		mBottomView.setVisibility(View.GONE);
 
 		playPinCreateViewAnim();
 
-		Utils.showSoftKeyboard(activity.getApplicationContext(), mComposeView);
 		if (mShareablePopupLayout.isShowing())
 		{
 			mShareablePopupLayout.dismiss();
@@ -1051,7 +1068,7 @@ public class GroupChatThread extends OneToNChatThread
 
 			switch (overFlowMenuItem.id)
 			{
-			case R.string.voip_call_chat:
+			case R.string.create_pin:
 			case R.string.group_profile:
 			case R.string.chat_theme:
 				overFlowMenuItem.enabled = !checkForDeadOrBlocked();

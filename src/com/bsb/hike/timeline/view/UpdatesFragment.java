@@ -141,7 +141,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 	{
 		super.onResume();
 		checkIfTimelineEmpty();
-		HikeMessengerApp.getPubSub().publish(HikePubSub.INCREMENTED_UNSEEN_STATUS_COUNT, null);
+		HikeMessengerApp.getPubSub().publish(HikePubSub.UNSEEN_STATUS_COUNT_CHANGED, null);
 	}
 
 	@Override
@@ -1117,6 +1117,17 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 			return timelineCardsAdapter.getItemCount() == 0;
 		}
 		return false;
+	}
+
+	public void scrollToTop()
+	{
+		if(!isEmpty())
+		{
+			if(mUpdatesList!=null)
+			{
+				mUpdatesList.scrollToPosition(0);
+			}
+		}
 	}
 
 }
