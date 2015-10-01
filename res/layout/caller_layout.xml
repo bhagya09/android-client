@@ -124,7 +124,6 @@
                 <com.bsb.hike.ui.utils.RecyclingImageView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:padding="5dp"
                     android:scaleType="centerInside"
                     android:src="@drawable/caller_call_icon" />
 
@@ -136,6 +135,13 @@
                     android:textColor="@color/caller_free_call"
                     android:textSize="13sp" />
             </LinearLayout>
+
+            <View
+                android:layout_width="0.5dp"
+                android:layout_height="16dp"
+                android:layout_gravity="center"
+                android:layout_weight="0"
+                android:background="@color/home_screen_list_divider" />
 
             <LinearLayout
                 android:id="@+id/caller_free_message"
@@ -149,7 +155,6 @@
                 <com.bsb.hike.ui.utils.RecyclingImageView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:padding="5dp"
                     android:scaleType="centerInside"
                     android:src="@drawable/caller_message_icon" />
 

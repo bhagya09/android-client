@@ -78,7 +78,7 @@ public class HikeAccessibilityService extends AccessibilityService
 		case AccessibilityEvent.TYPE_VIEW_CLICKED:
 		case AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED:
 			String currentKeyboard =  Settings.Secure.getString(getContentResolver(), Settings.Secure.DEFAULT_INPUT_METHOD);
-			boolean keyboardOpen = !TextUtils.isEmpty(currentKeyboard) ? currentKeyboard.contains(packageName) || TextUtils.isEmpty(packageName) : false;
+			boolean keyboardOpen = !TextUtils.isEmpty(currentKeyboard) ? TextUtils.isEmpty(packageName) || currentKeyboard.contains(packageName)  : false;
 
 			Logger.d("UmangX",currentKeyboard  +  " " + packageName + " " + keyboardOpen);
 			
