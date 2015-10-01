@@ -448,7 +448,9 @@ public class HikePubSub implements Runnable
 
 	public static final String BADGE_COUNT_MESSAGE_CHANGED = "badgeCountMessageChanged";
 
-	public static final String BADGE_COUNT_TIMELINE_UPDATE_CHANGED = "badgeCountMessageChanged";
+	public static final String BADGE_COUNT_TIMELINE_UPDATE_CHANGED = "badgeCountTimeLineUpdateChanged";
+
+	public static final String BADGE_COUNT_ACTIVITY_UPDATE_CHANGED = "badgeCountActivityUpdateChanged";
 
 	private final Thread mThread;
 

@@ -2854,7 +2854,20 @@ public class Utils
 		notificationCount += frCount;
 		return notificationCount;
 	}
+	public static int getNotificationCountTimeLineOnly(SharedPreferences accountPrefs, boolean countUsersStatus)
+	{
+		int notificationCount = 0;
 
+		notificationCount += accountPrefs.getInt(HikeMessengerApp.UNSEEN_STATUS_COUNT, 0);
+		if (countUsersStatus)
+		{
+			notificationCount += accountPrefs.getInt(HikeMessengerApp.UNSEEN_USER_STATUS_COUNT, 0);
+		}
+
+		int frCount = accountPrefs.getInt(HikeMessengerApp.FRIEND_REQ_COUNT, 0);
+		notificationCount += frCount;
+		return notificationCount;
+	}
 	/*
 	 * This method returns whether the device is an mdpi or ldpi device. The assumption is that these devices are low end and hence a DB call may block the UI on those devices.
 	 */

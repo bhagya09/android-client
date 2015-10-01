@@ -20,7 +20,7 @@ public class HikeBadgeCountKeeperTimeline extends HikeBadgeCountKeeper
 	public void onEventReceived(String type, Object object)
 	{
 		
-		setCount(Utils.getNotificationCount(mContext.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0), false));
+		setCount(Utils.getNotificationCountTimeLineOnly(mContext.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0), false));
 		HikeMessengerApp.getPubSub().publish(HikePubSub.BADGE_COUNT_CHANGED, null);
 		
 	}
