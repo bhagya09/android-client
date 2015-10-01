@@ -105,6 +105,8 @@ public class CocosGamingActivity extends Cocos2dxActivity implements HikePubSub.
 
 	private NonMessagingBotConfiguration botConfig;
 
+	private static String PLATFORM_CONTENT_DIR;
+
 	@Override
 	public void onPostCreate(Bundle savedInstanceState, PersistableBundle persistentState)
 	{
@@ -143,6 +145,7 @@ public class CocosGamingActivity extends Cocos2dxActivity implements HikePubSub.
 		super.onCreateDuplicate(savedInstanceState);
 		context = CocosGamingActivity.this;
 		msisdn = getIntent().getStringExtra(HikeConstants.MSISDN);
+		PLATFORM_CONTENT_DIR=getIntent().getStringExtra(PlatformContentConstants.PLATFORM_CONTENT_DIR);
 		botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
 
 		if (botInfo == null || botInfo.getMetadata() == null)
@@ -193,8 +196,8 @@ public class CocosGamingActivity extends Cocos2dxActivity implements HikePubSub.
 		// TODO do not hard code the path of the game engine. Please change this
 		try
 		{
-		System.load(PlatformContentConstants.PLATFORM_CONTENT_DIR + "cocosEngine-7/libcocos2d.so");
-		System.load(getAppBasePath() + "libcocos2dcpp.so"); // loading the game
+			System.load(PLATFORM_CONTENT_DIR + "cocosEngine-7/libcocos2d.so");
+			System.load(getAppBasePath() + "libcocos2dcpp.so"); // loading the game
 		}catch(UnsatisfiedLinkError e)
 		{
 			Logger.e(TAG, "Game Engine not Found");
@@ -283,13 +286,14 @@ public class CocosGamingActivity extends Cocos2dxActivity implements HikePubSub.
 	 */
 	public static String getExternalPath()
 	{
-		String path = PlatformContentConstants.PLATFORM_CONTENT_DIR + nonMessagingBotMetadata.getAppName();
+		String path = PLATFORM_CONTENT_DIR + nonMessagingBotMetadata.getAppName();
 		return path + File.separator + "assets/";
 	}
 
 	public String getAppBasePath()
 	{
-		String path = PlatformContentConstants.PLATFORM_CONTENT_DIR + nonMessagingBotMetadata.getAppName();
+		String path = PLATFORM_CONTENT_DIR + nonMessagingBotMetadata.getAppName();
+		
 		return path + File.separator;
 	}
 

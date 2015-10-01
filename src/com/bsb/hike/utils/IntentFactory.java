@@ -49,6 +49,7 @@ import com.bsb.hike.timeline.view.TimelineActivity;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
 import com.bsb.hike.platform.CocosGamingActivity;
 import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.platform.content.PlatformContentConstants;
 import com.bsb.hike.ui.ApkSelectionActivity;
 import com.bsb.hike.ui.ComposeChatActivity;
 import com.bsb.hike.ui.ConnectedAppsActivity;
@@ -798,6 +799,7 @@ public class IntentFactory
 					Intent i = new Intent(context,CocosGamingActivity.class);
 					i.putExtra(HikeConstants.MSISDN, msisdn);
 					i.putExtra(HikeConstants.DATA, (String)data);
+					i.putExtra(PlatformContentConstants.PLATFORM_CONTENT_DIR, PlatformContentConstants.PLATFORM_CONTENT_DIR);
 					return i;
 				}
 				else
