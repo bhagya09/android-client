@@ -316,7 +316,7 @@ public class StickyCaller
 						{
 							Xmove = stickyCallerView.getTranslationX();
 						}
-						Logger.d("UmangX", "" + ((int) Math.copySign((float) Utils.getDeviceWidth(), Xmove)));
+						Logger.d("UmangK", "" + ((int) Math.copySign((float) Utils.getDeviceWidth(), Xmove)));
 						actionOnMotionUpEvent((int) Math.copySign((float) Utils.getDeviceWidth(), Xmove));
 					}
 					  
@@ -334,25 +334,25 @@ public class StickyCaller
 		}
 	};
 	
-	private static void actionOnMotionUpEvent(int i)
+	private static void actionOnMotionUpEvent(final int movedOnXaxis)
 	{
 		TimeInterpolator accelerateDecelerateInterpolator;
-		float f = 0.0f;
-		if (i == 0)
+		float alpha = 0.0f;
+		if (movedOnXaxis == 0)
 		{
-			f = 1.0f;
+			alpha = 1.0f;
 			accelerateDecelerateInterpolator = new AccelerateDecelerateInterpolator();
 		}
 		else
 		{
 			accelerateDecelerateInterpolator = new AccelerateInterpolator();
-			if (i == (-1 * Utils.getDeviceWidth()) || i == Utils.getDeviceWidth())
+			if (movedOnXaxis == (-1 * Utils.getDeviceWidth()) || movedOnXaxis == Utils.getDeviceWidth())
 			{
 				Logger.d("StickyCaller", "may not dismiss");
 				//TODO might make view invisible -> product call
 			}
 		}
-		stickyCallerView.animate().translationX((float) i).alpha(f).setDuration(500L).setInterpolator(accelerateDecelerateInterpolator).setListener(new AnimatorListener()
+		stickyCallerView.animate().translationX((float) movedOnXaxis).alpha(alpha).setDuration(500L).setInterpolator(accelerateDecelerateInterpolator).setListener(new AnimatorListener()
 		{
 			
 			@Override
@@ -372,7 +372,11 @@ public class StickyCaller
 			@Override
 			public void onAnimationEnd(Animator animation)
 			{
-				stickyCallerFrameHolder.setVisibility(View.GONE);
+				if(movedOnXaxis != 0)
+				{
+					Logger.d("UmangK","making caller gone");
+					stickyCallerFrameHolder.setVisibility(View.GONE);
+				}
 			}
 			
 			@Override
