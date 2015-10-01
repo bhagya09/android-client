@@ -18,7 +18,6 @@ import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.platform.content.HikeUnzipTask;
-import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.Logger;
 import com.kpt.adaptxt.beta.AdaptxtSettingsRegisterListener;
 import com.kpt.adaptxt.beta.KPTAdaptxtAddonSettings;
@@ -28,6 +27,7 @@ import com.kpt.adaptxt.beta.KPTAddonItem;
 
 public class DictionaryManager implements AdaptxtSettingsRegisterListener
 {
+	private static final String TAG = "DictionaryManager";
 
 	private static final String HIKE_LANGUAGE_DIR_NAME = "lang-dict";
 
@@ -60,12 +60,14 @@ public class DictionaryManager implements AdaptxtSettingsRegisterListener
 
 	private DictionaryManager(Context ctx)
 	{
+		Logger.d(TAG,"Initializing...");
 		context = ctx;
 		languageStatusMap = new ConcurrentHashMap<KPTAddonItem, LanguageDictionarySatus>();
 		mLanguagesList = new ArrayList<KPTAddonItem>();
 		kptSettings = new KPTAdaptxtAddonSettings(ctx, this);
 		if (kptCoreEngineStatus)
 			fetchKptLanguagesAndUpdate();
+		Logger.d(TAG,"Initialization complete.");
 	}
 
 	public static DictionaryManager getInstance(Context context)
@@ -93,12 +95,14 @@ public class DictionaryManager implements AdaptxtSettingsRegisterListener
 
 	private void fetchAndUpdateLanguages()
 	{
+		Logger.d(TAG,"fetchAndUpdateLanguages");
 		fetchKptLanguagesAndUpdate();
 		notifyAllOfLanguageUpdate();
 	}
 
 	private void fetchKptLanguagesAndUpdate()
 	{
+		Logger.d(TAG,"fetchKptLanguagesAndUpdate");
 		mLanguagesList.clear();
 
 		List<KPTAddonItem> installedList = kptSettings.getInstalledLanguages();
@@ -106,6 +110,7 @@ public class DictionaryManager implements AdaptxtSettingsRegisterListener
 		{
 			languageStatusMap.put(language, LanguageDictionarySatus.INSTALLED);
 		}
+		Logger.d(TAG,"adding installed languages: " + installedList.size());
 		mLanguagesList.addAll(installedList);
 
 		List<KPTAddonItem> unInstalledList = kptSettings.getNotInstalledLanguageList();
@@ -114,6 +119,7 @@ public class DictionaryManager implements AdaptxtSettingsRegisterListener
 			if (languageStatusMap.get(language) != LanguageDictionarySatus.IN_QUEUE)
 				languageStatusMap.put(language, LanguageDictionarySatus.UNINSTALLED);
 		}
+		Logger.d(TAG,"adding uninstalled languages: " + unInstalledList.size());
 		mLanguagesList.addAll(unInstalledList);
 
 		List<KPTAddonItem> UnsupportedList = kptSettings.getUnsupportedLanguagesList();
@@ -121,11 +127,13 @@ public class DictionaryManager implements AdaptxtSettingsRegisterListener
 		{
 			languageStatusMap.put(language, LanguageDictionarySatus.UNSUPPORTED);
 		}
+		Logger.d(TAG,"adding unsupported languages: " + UnsupportedList.size());
 		mLanguagesList.addAll(UnsupportedList);
 	}
 
 	private void notifyAllOfLanguageUpdate()
 	{
+		Logger.d(TAG,"notifyAllOfLanguageUpdate");
 		HikeMessengerApp.getPubSub().publish(HikePubSub.KPT_LANGUAGES_UPDATED, getLanguagesList());
 	}
 
@@ -152,6 +160,7 @@ public class DictionaryManager implements AdaptxtSettingsRegisterListener
 				@Override
 				public void onUnInstallationStarted(String arg0)
 				{
+					Logger.d(TAG,"onUnInstallationStarted: " + arg0);
 					// TODO Auto-generated method stub
 					
 				}
@@ -159,6 +168,7 @@ public class DictionaryManager implements AdaptxtSettingsRegisterListener
 				@Override
 				public void onUnInstallationError(String arg0)
 				{
+					Logger.d(TAG,"onUnInstallationError: " + arg0);
 					// TODO Auto-generated method stub
 					processComplete();
 					
@@ -167,11 +177,13 @@ public class DictionaryManager implements AdaptxtSettingsRegisterListener
 				@Override
 				public void onUnInstallationEnded(String arg0)
 				{
+					Logger.d(TAG,"onUnInstallationEnded: " + arg0);
 					// TODO Auto-generated method stub
 					processComplete();
 				}
 			});
 		}
+		notifyAllOfLanguageUpdate();
 	}
 
 	private void startProcessing()
@@ -249,12 +261,14 @@ public class DictionaryManager implements AdaptxtSettingsRegisterListener
 		@Override
 		public void onInstallationStarted(String arg0)
 		{
+			Logger.d(TAG,"onInstallationStarted: " + arg0);
 			mState = INSTALLING;
 		}
 
 		@Override
 		public void onInstallationError(String arg0)
 		{
+			Logger.d(TAG,"onInstallationError: " + arg0);
 			processComplete();
 			// show error
 		}
@@ -262,6 +276,7 @@ public class DictionaryManager implements AdaptxtSettingsRegisterListener
 		@Override
 		public void onInstallationEnded(String arg0)
 		{
+			Logger.d(TAG,"onInstallationEnded: " + arg0);
 			processComplete();
 			// show success message
 		}
@@ -293,11 +308,14 @@ public class DictionaryManager implements AdaptxtSettingsRegisterListener
 	@Override
 	public void coreEngineStatus(boolean status)
 	{
+		Logger.d(TAG,"coreEngineStatus callback: " + status);
 		kptCoreEngineStatus = status;
 	}
 
 	@Override
 	public void coreEngineService()
-	{}
+	{
+		Logger.d(TAG,"coreEngineService callback");
+	}
 
 }
