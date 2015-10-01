@@ -161,7 +161,6 @@ public class ToastListener implements Listener
 			String msisdn = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).getString(HikeMessengerApp.MSISDN_SETTING, "");
 			if (msisdn.equals(statusMessage.getMsisdn()) || statusMessage.isHistoricalUpdate())
 			{
-				HikeMessengerApp.getInstance().getPubSub().publish(HikePubSub.BADGE_COUNT_TIMELINE_UPDATE_CHANGED, null);
 				return;
 			}
 			if (statusMessage.getStatusMessageType() == StatusMessageType.PROFILE_PIC)
