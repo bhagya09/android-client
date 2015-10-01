@@ -341,8 +341,11 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		mCustomKeyboard.init(statusTxt);
 		findViewById(R.id.status_txt).setOnClickListener(this);
 		mEmoticonPicker.setCustomKeyBoardHeight(mCustomKeyboard.getKeyBoardAndCVHeight());
-		mCustomKeyboard.showCustomKeyboard(statusTxt, true);
-		KptUtils.updatePadding(StatusUpdate.this, R.id.parent_layout, mCustomKeyboard.getKeyBoardAndCVHeight());
+		if (!(getIntent().hasExtra(STATUS_UPDATE_IMAGE_PATH)))
+		{
+			mCustomKeyboard.showCustomKeyboard(statusTxt, true);			
+			KptUtils.updatePadding(StatusUpdate.this, R.id.parent_layout, mCustomKeyboard.getKeyBoardAndCVHeight());
+		}
 	}
 
 	@Override
