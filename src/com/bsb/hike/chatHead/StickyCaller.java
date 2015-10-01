@@ -2,6 +2,8 @@ package com.bsb.hike.chatHead;
 
 import java.net.HttpURLConnection;
 
+import android.animation.Animator;
+import android.animation.Animator.AnimatorListener;
 import android.animation.TimeInterpolator;
 import android.animation.ValueAnimator;
 import android.content.Context;
@@ -351,7 +353,36 @@ public class StickyCaller
 				//TODO might make view invisible -> product call
 			}
 		}
-		stickyCallerView.animate().translationX((float) i).alpha(f).setDuration(500L).setInterpolator(accelerateDecelerateInterpolator);
+		stickyCallerView.animate().translationX((float) i).alpha(f).setDuration(500L).setInterpolator(accelerateDecelerateInterpolator).setListener(new AnimatorListener()
+		{
+			
+			@Override
+			public void onAnimationStart(Animator animation)
+			{
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void onAnimationRepeat(Animator animation)
+			{
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void onAnimationEnd(Animator animation)
+			{
+				stickyCallerFrameHolder.setVisibility(View.GONE);
+			}
+			
+			@Override
+			public void onAnimationCancel(Animator animation)
+			{
+				// TODO Auto-generated method stub
+				
+			}
+		});
 	}
 	
 	
