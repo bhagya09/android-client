@@ -58,6 +58,7 @@ public class IncomingCallReceiver extends PhoneStateListener
 			if (ring == true && callReceived == false)
 			{   
 				StickyCaller.CALL_TYPE = StickyCaller.MISSED; 
+				StickyCaller.MISSED_CALL_TIMINGS = ChatHeadUtils.getdateFromSystemTime();
 				ChatHeadUtils.postNumberRequest(HikeMessengerApp.getInstance(), StickyCaller.callCurrentNumber);
 			}
 			
