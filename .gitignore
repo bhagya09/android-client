@@ -2,6 +2,7 @@ bin/
 gen/
 build/
 **/.idea/workspace.xml
+**/.idea/libraries
 **/.idea/tasks.xml
 **/.idea/gradle.xml
 .settings/

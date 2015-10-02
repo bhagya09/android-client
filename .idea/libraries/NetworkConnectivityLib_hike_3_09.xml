@@ -1,9 +1,0 @@
-<component name="libraryTable">
-  <library name="NetworkConnectivityLib_hike-3.09">
-    <CLASSES>
-      <root url="jar://$PROJECT_DIR$/libs/NetworkConnectivityLib_hike-3.09.jar!/" />
-    </CLASSES>
-    <JAVADOC />
-    <SOURCES />
-  </library>
-</component>
