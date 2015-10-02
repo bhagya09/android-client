@@ -119,7 +119,12 @@ public class HikeAccessibilityService extends AccessibilityService
 	@Override
 	public void onAccessibilityEvent(AccessibilityEvent event)
 	{
-		Logger.d(TAG, String.format("onAccessibilityEvent: [type] %s [class] %s [package] %s [time] %s [text] %s", getEventType(event), event.getClassName(), event.getPackageName(),
+		if(event == null)
+		{
+			return;
+		}
+		String eventType = getEventType(event);
+		Logger.d(TAG, String.format("onAccessibilityEvent: [type] %s [class] %s [package] %s [time] %s [text] %s", eventType, event.getClassName(), event.getPackageName(),
 				event.getEventTime(), getEventText(event)));
 	}
 
