@@ -508,6 +508,8 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 	public static final String DEFAULT_TAGS_DOWNLOADED = "defaultTagsDownloaded";
 
 	public static final String STICKER_SET = "stickerSet";
+	
+	public static final String STICKER_REFRESH_SET = "stickerRefreshSet";
 
 	public static final String SHOWN_STICKER_RECOMMEND_TIP = "shownStickerRecommendTip";
 	
@@ -525,6 +527,8 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 
 	public static final String LAST_STICKER_TAG_REFRESH_TIME = "lastStickerTagRefreshTime";
 
+	public static final String LAST_SUCCESSFUL_STICKER_TAG_REFRESH_TIME = "lastSuccessfulStickerTagRefreshTime";
+	
 	public static final String STICKER_TAG_REFRESH_PERIOD = "stickerTagRefreshPeriod";
 	
 	public static final String SHOWN_STICKER_RECOMMEND_FTUE = "shownStickerRecommendationFtue";
