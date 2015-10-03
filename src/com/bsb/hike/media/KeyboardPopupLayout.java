@@ -44,7 +44,7 @@ public class KeyboardPopupLayout extends PopUpLayout implements OnDismissListene
 	
 	private boolean mIsPaddingDisabled = false;
 	
-	private boolean isCustomKeyBoard=true;
+	private boolean isCustomKeyBoard = false;
 	
 	public int customKeyBoardHeight=0;
 

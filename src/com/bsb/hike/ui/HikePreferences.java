@@ -140,13 +140,16 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 			mTask.setActivity(this);
 		}
 
-		kptSettings = new KPTAdaptxtAddonSettings(this, this);
-
-		if(mCoreEngineStatus)
+		if (preferences == R.xml.keyboard_settings_preferences && titleRes == R.string.settings_keyboard)
 		{
-			callAddonServices();
+			kptSettings = new KPTAdaptxtAddonSettings(this, this);
+
+			if(mCoreEngineStatus)
+			{
+				callAddonServices();
+			}
+			addKeyboardLanguagePrefListener();
 		}
-		addKeyboardLanguagePrefListener();
 
 		addClickPreferences();
 		addSwitchPreferences();

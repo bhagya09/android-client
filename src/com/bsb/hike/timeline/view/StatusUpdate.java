@@ -197,8 +197,9 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		initVarRef();
 		
 		initEmoticonPicker();
-
+		
 		systemKeyboard = HikeMessengerApp.isSystemKeyboard(StatusUpdate.this);
+		mEmoticonPicker.setCustomKeyBoard(!systemKeyboard);
 		if (!systemKeyboard)
 		{
 			initCustomKeyboard();			
@@ -338,11 +339,13 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		mCustomKeyboard = new CustomKeyboard(StatusUpdate.this, keyboardHolder);
 		mCustomKeyboard.registerEditText(R.id.status_txt, KPTConstants.MULTILINE_LINE_EDITOR, this, this);
 		mCustomKeyboard.init(statusTxt);
-		mEmoticonPicker.setCustomKeyBoard(true);
-		mEmoticonPicker.setCustomKeyBoardHeight(mCustomKeyboard.getKeyBoardAndCVHeight());
 		findViewById(R.id.status_txt).setOnClickListener(this);
-		mCustomKeyboard.showCustomKeyboard(statusTxt, true);
-		KptUtils.updatePadding(StatusUpdate.this, R.id.parent_layout, mCustomKeyboard.getKeyBoardAndCVHeight());
+		mEmoticonPicker.setCustomKeyBoardHeight(mCustomKeyboard.getKeyBoardAndCVHeight());
+		if (!(getIntent().hasExtra(STATUS_UPDATE_IMAGE_PATH)))
+		{
+			mCustomKeyboard.showCustomKeyboard(statusTxt, true);			
+			KptUtils.updatePadding(StatusUpdate.this, R.id.parent_layout, mCustomKeyboard.getKeyBoardAndCVHeight());
+		}
 	}
 
 	@Override
@@ -758,7 +761,10 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		{
 		case R.id.emoji_btn:
 			setEmoticonButtonSelected(true);
-			mEmoticonPicker.setCustomKeyBoardHeight(mCustomKeyboard.getKeyBoardAndCVHeight());
+			if (mCustomKeyboard != null)
+			{
+				mEmoticonPicker.setCustomKeyBoardHeight(mCustomKeyboard.getKeyBoardAndCVHeight());
+			}
 			onEmojiClick();
 			break;
 		case R.id.status_txt:

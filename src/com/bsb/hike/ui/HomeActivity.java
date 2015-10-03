@@ -1829,6 +1829,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		}
 
 		optionsList.add(new OverFlowMenuItem(getString(R.string.settings), 0, 0, R.string.settings));
+		optionsList.add(new OverFlowMenuItem("Lang Settings", 0, 0, 420));// this is only for testing purposes
 		
 		optionsList.add(new OverFlowMenuItem(getString(R.string.status), 0, 0, R.string.status));
 
@@ -1883,7 +1884,10 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 					HAManager.logClickEvent(HikeConstants.LogEvent.SETTING_CLICKED);
 					intent = new Intent(HomeActivity.this, SettingsActivity.class);
 					break;
-					
+				case 420:
+					HAManager.logClickEvent(HikeConstants.LogEvent.SETTING_CLICKED);
+					intent = new Intent(HomeActivity.this, LanguageSettingsActivity.class);
+					break;
 				case R.string.new_group:
 					intent = new Intent(HomeActivity.this, CreateNewGroupOrBroadcastActivity.class);
 					break;
@@ -2054,7 +2058,10 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	{
 		if (!KptUtils.isSystemKeyboard(HomeActivity.this)&&mCustomKeyboard!=null)
 		{
-			mCustomKeyboard.onConfigurationChanged(newConfig);
+			if (mCustomKeyboard != null)
+			{
+				mCustomKeyboard.onConfigurationChanged(newConfig);				
+			}
 		}
 		super.onConfigurationChanged(newConfig);
 		// handle dialogs here
