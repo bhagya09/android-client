@@ -200,6 +200,12 @@ public class AnalyticsConstants
 	public static final String HELP_CLICKED = "help_click";
 	
 	public static String ERROR_TRACE = "error";
+
+	public static String MESSAGES_COUNT = "msg_count";
+
+	public static String TIME_TAKEN = "time";
+
+	public static String UPGRADE_EVENT = "upgrade";
 		
 	// Edit picture flags and events
 	public static final class ProfileImageActions
