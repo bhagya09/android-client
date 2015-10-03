@@ -402,7 +402,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 				{
 					return;
 				}
-				mCustomKeyboard.showCustomKeyboard(tagEditText, true);						
+				mCustomKeyboard.showCustomKeyboard(tagEditText, true);	
 			}
 		});
 	}
@@ -2458,6 +2458,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		if (mCustomKeyboard != null && mCustomKeyboard.isCustomKeyboardVisible())
 		{
 			mCustomKeyboard.showCustomKeyboard(tagEditText, false);
+			KptUtils.updatePadding(ComposeChatActivity.this, R.id.ll_compose, 0);
 			return;
 		}
 		
@@ -2877,10 +2878,16 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 
 
 	@Override
-	public void onInputviewVisbility(boolean arg0, int arg1)
+	public void onInputviewVisbility(boolean kptVisible, int height)
 	{
-		// TODO Auto-generated method stub
-		
+		if (kptVisible)
+		{
+			KptUtils.updatePadding(ComposeChatActivity.this, R.id.ll_compose, height);
+		}
+		else
+		{
+			KptUtils.updatePadding(ComposeChatActivity.this, R.id.ll_compose, 0);
+		}
 	}
 
 
