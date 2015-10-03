@@ -1224,7 +1224,6 @@
     <string name="error_pick_location">Error while picking location</string>
     <string name="zero_sms_hint">0 Free SMS left...</string>
     <string name="pin_self">You</string>
-    <string name="hike_upgrade_string">Making hike faster and better for you</string>
     <string name="some_error">Some error occured!</string>
     <string name="nux_fwd_search_hint">Names go here...</string>
     <string name="recently_joined_hike">RECENTLY JOINED HIKE</string>
@@ -1744,5 +1743,5 @@
     <string name="save_contact">SAVE CONTACT</string>
     <string name="getting_details">Getting details...</string>
     <string name="take_me_there">TAKE ME THERE</string>
-
+    <string name="hike_upgrade_string">Making hike faster and better for you. This may take a few minutes</string>
 </resources>
