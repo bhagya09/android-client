@@ -1913,7 +1913,6 @@ public class Utils
 
 	public static void resetImageQuality(SharedPreferences appPrefs)
 	{
-		// TODO Auto-generated method stub
 		final Editor editor = appPrefs.edit();
 		editor.putInt(HikeConstants.IMAGE_QUALITY, ImageQuality.QUALITY_DEFAULT);
 		editor.commit();
@@ -1948,6 +1947,7 @@ public class Utils
 				return 90;
 			}
 		}
+
 		return 0;
 	}
 
@@ -7339,6 +7339,7 @@ public class Utils
 			Logger.e("Utils", "postStatusUpdate : status = null/empty, moodId < 0 & imageFilePath = null conditions hold together. Returning.");
 			return;
 		}
+
 		try
 		{
 			StatusUpdateTask task = new StatusUpdateTask(status, moodId, imageFilePath);
@@ -7396,6 +7397,7 @@ public class Utils
 		{
 			return true;
 		}
+
 		return false;
 	}
 
@@ -7439,7 +7441,7 @@ public class Utils
 	 * @param end
 	 *            end time of operation as long value
 	 * @param precisionOfTimeUnitInSecond
-	 *            count of precision points in time unit per second
+	 *            count of precision points in time unit per second for start and end parameters
 	 * @return Human-readable string of time logging.
 	 * @author Ved Prakash Singh [ved@hike.in]
 	 */
