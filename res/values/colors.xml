@@ -298,6 +298,6 @@
     <color name="fav_accept_btn_normal">#1ECE84</color>
     <color name="fav_reject_btn_pressed">#EB1D1D</color>
     <color name="fav_reject_btn_normal">#FF3636</color>
-    
+    <color name="caller_free_call">#3d475b</color>
 </resources>
 	

@@ -450,7 +450,7 @@ public class HikePubSub implements Runnable
 	
 	public static final String ADD_NM_BOT_CONVERSATION = "addNmBotCoversation";
 	
-	public static final String ORIENTATION_CHANGED = "orientationChanged";
+	public static final String BOT_CREATED = "botCreated";
 	
 	private final Thread mThread;
 

@@ -78,14 +78,14 @@ public class HikeAccessibilityService extends AccessibilityService
 		case AccessibilityEvent.TYPE_VIEW_CLICKED:
 		case AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED:
 			String currentKeyboard =  Settings.Secure.getString(getContentResolver(), Settings.Secure.DEFAULT_INPUT_METHOD);
-			boolean keyboardOpen = currentKeyboard.contains(packageName) || TextUtils.isEmpty(packageName);
+			boolean keyboardOpen = !TextUtils.isEmpty(currentKeyboard) ? TextUtils.isEmpty(packageName) || currentKeyboard.contains(packageName)  : false;
 
-			Logger.d("UmangX",currentKeyboard  +  " " + packageName + " " + keyboardOpen);
+			//Logger.d("UmangX",currentKeyboard  +  " " + packageName + " " + keyboardOpen);
 			
 			// some keyboards do not display their names, like korean keyboard
 			String hikePackage = HikeMessengerApp.getInstance().getPackageName();
 			boolean hikeIsOpen = ChatHeadUtils.getRunningAppPackage(ChatHeadUtils.GET_TOP_MOST_SINGLE_PROCESS).contains(hikePackage);
-			boolean chatHeadStickerPickerIsOpen = getEventText(event).equals("hike") || packageName.equals(hikePackage);
+			boolean chatHeadStickerPickerIsOpen = getEventText(event).equals("hike") ||( !TextUtils.isEmpty(packageName) ? packageName.equals(hikePackage) : false);
 			boolean snoozed = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.SNOOZE, false);
 
 			if(hikeIsOpen || !( chatHeadStickerPickerIsOpen || keyboardOpen || snoozed))
@@ -104,6 +104,10 @@ public class HikeAccessibilityService extends AccessibilityService
 
 	private String getEventText(AccessibilityEvent event)
 	{
+		if(event.getText() == null || event.getText().isEmpty())
+		{
+			return "";
+		}
 		StringBuilder sb = new StringBuilder();
 		for (CharSequence s : event.getText())
 		{
@@ -115,7 +119,12 @@ public class HikeAccessibilityService extends AccessibilityService
 	@Override
 	public void onAccessibilityEvent(AccessibilityEvent event)
 	{
-		Logger.d(TAG, String.format("onAccessibilityEvent: [type] %s [class] %s [package] %s [time] %s [text] %s", getEventType(event), event.getClassName(), event.getPackageName(),
+		if(event == null)
+		{
+			return;
+		}
+		String eventType = getEventType(event);
+		Logger.d(TAG, String.format("onAccessibilityEvent: [type] %s [class] %s [package] %s [time] %s [text] %s", eventType, event.getClassName(), event.getPackageName(),
 				event.getEventTime(), getEventText(event)));
 	}
 
