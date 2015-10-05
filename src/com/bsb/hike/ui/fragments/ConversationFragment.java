@@ -968,6 +968,11 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 				setFooterHalfOpen();
 		}
 		
+		// Defensive check 
+		if(!isAdded())
+		{
+			return ;
+		}
 		// Old fragment is already attached.
 		// remove old frgame and attach new fragment
 		((HomeActivity) getActivity()).removeFragment(OfflineConstants.OFFLINE_DISCONNECT_FRAGMENT);
@@ -2942,6 +2947,11 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 		}
 		else if (HikePubSub.ON_OFFLINE_REQUEST.equals(type))
 		{
+			if(!isAdded())
+			{
+				return;	
+			}
+			
 			if (object == null)
 			{
 				((HomeActivity)getActivity()).removeFragment(OfflineConstants.OFFLINE_DISCONNECT_FRAGMENT);
