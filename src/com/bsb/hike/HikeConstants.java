@@ -3326,9 +3326,7 @@ public class HikeConstants
 
 	public static final String CALLER_SHARED_PREF = "caller_shared_pref";
 
-	public static final String HIKECALLER_API = "http://52.76.46.27:5000/hikeCaller";
-	
-	public static final String BOT_TABLE_REFRESH = "b_t_r";
+	public static final String BOT_TABLE_REFRESH = "btr";
 	
 	public static final String BOTS = HikePlatformConstants.BOTS;
 	
@@ -3337,5 +3335,7 @@ public class HikeConstants
 	public static final String ENABLE_BOT_DISCOVERY = "en_bot_di";
 	
 	public static final String GET_DISCOVERY_BOTS = "get_bots";
+	
+	public static final String BOTS_DISCOVERY_SECTION = "bds";
 
 }

@@ -85,7 +85,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.WindowManager;
 import android.view.View.OnClickListener;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
@@ -93,7 +92,6 @@ import android.view.ViewStub;
 import android.view.WindowManager.BadTokenException;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
@@ -201,6 +199,11 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	private TextView timelineUpdatesIndicator;
 
 	private AdaptxtEditText searchET;
+	
+	/**
+	 * This variable checks whether onSaveInstanceState has been called or not
+	 */
+	private boolean wasOnSavedInstanceCalled = false;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -530,7 +533,18 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		if (mainFragment == null)
 		{
 			mainFragment = new ConversationFragment();
-			getSupportFragmentManager().beginTransaction().add(R.id.home_screen, mainFragment, MAIN_FRAGMENT_TAG).commit();
+			
+			// if onSavedInstanceState has been called, we will get an illegal state exception while commiting a fragment transation. 
+			// Hence using commit allowing state loss
+			if (wasOnSavedInstanceCalled)
+			{
+				getSupportFragmentManager().beginTransaction().add(R.id.home_screen, mainFragment, MAIN_FRAGMENT_TAG).commitAllowingStateLoss();
+			}
+			
+			else
+			{
+				getSupportFragmentManager().beginTransaction().add(R.id.home_screen, mainFragment, MAIN_FRAGMENT_TAG).commit();
+			}
 		}
 	}
 
@@ -1133,6 +1147,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	protected void onStart()
 	{
 		Logger.d(getClass().getSimpleName(), "onStart");
+		wasOnSavedInstanceCalled = false;
 		super.onStart();
 		long t1, t2;
 		t1 = System.currentTimeMillis();
@@ -1152,6 +1167,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	protected void onSaveInstanceState(Bundle outState)
 	{
 		Logger.d(TAG,"onsavedInstance");
+		wasOnSavedInstanceCalled = true;
 		outState.putBoolean(HikeConstants.Extras.DEVICE_DETAILS_SENT, deviceDetailsSent);
 		if (dialog != null && dialog.isShowing())
 		{
