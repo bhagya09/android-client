@@ -337,13 +337,17 @@ public class PlatformUtils
 				String msisdn = mmObject.optString(HikeConstants.MSISDN);
 				extraData=mmObject.optString(HikeConstants.DATA);
 				Intent i=IntentFactory.getNonMessagingBotIntent(msisdn,context,extraData);
-				if(isProcessRunning(context,HikePlatformConstants.GAME_PROCESS)&&!(getLastGame().equals(msisdn)))
+				if (context != null)
 				{
-					killProcess(context,HikePlatformConstants.GAME_PROCESS);
-					Logger.d(TAG, "process killed");
+					if (isProcessRunning(context, HikePlatformConstants.GAME_PROCESS) && !(getLastGame().equals(msisdn)))
+					{
+						CocosGamingActivity.ShutdownGame();
+						Logger.d(TAG, "process killed");
+					}
+					HikeContentDatabase.getInstance().putInContentCache(HikePlatformConstants.LAST_GAME,
+							BotUtils.getBotInfoForBotMsisdn(HikePlatformConstants.GAME_CHANNEL).getNamespace(), msisdn);
+					context.startActivity(i);
 				}
-				HikeContentDatabase.getInstance().putInContentCache(HikePlatformConstants.LAST_GAME,BotUtils.getBotInfoForBotMsisdn(HikePlatformConstants.GAME_CHANNEL).getNamespace() ,msisdn);
-				context.startActivity(i);
 			}
 		}
 		catch (JSONException e)
@@ -1255,21 +1259,6 @@ public class PlatformUtils
 	            }
 	        }
 	        return false;
-	}
-	
-	public static void killProcess(Activity context,String process)
-	{
-		ActivityManager activityManager = (ActivityManager) context.getSystemService(context. ACTIVITY_SERVICE );
-        List<RunningAppProcessInfo> procInfos = activityManager.getRunningAppProcesses();
-        for(int i = 0; i < procInfos.size(); i++)
-        {
-            if(procInfos.get(i).processName.equals(process)) 
-            {
-            	int pid=procInfos.get(i).pid;
-            	android.os.Process.killProcess(pid);
-            	
-            }
-        }
 	}
 	public static String getLastGame()
 	{

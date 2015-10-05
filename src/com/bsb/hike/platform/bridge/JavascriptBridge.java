@@ -1210,22 +1210,6 @@ public abstract class JavascriptBridge
 			HikeDialogFactory.showDialog(mContext, HikeDialogFactory.MICROAPP_DIALOG, nativeDialogListener, title, message, positiveBtn, negativeBtn);
 		}
 	}
-	@JavascriptInterface
-	/**
-	 * Added in Platform Version:8
-	 * 
-	 * @param id
-	 *            : : the id of the function that native will call to call the js.
-	 *            Function to determine if a folder of function exists.
-	 */
-	public void isMicroappExist(String id,String mappFolder)
-	{
-		File file = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + mappFolder);
-		if(file.exists()) 
-		     callbackToJS(id, "true");
-		else
-			callbackToJS(id, "false");
-	}
 
 
 }
