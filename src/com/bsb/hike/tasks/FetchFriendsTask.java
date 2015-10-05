@@ -395,6 +395,7 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 		
 		if(showMicroappShowcase && microappShowcaseList != null)
 		{
+			microappShowcaseList.clear();
 			microappShowcaseList.addAll(HikeContentDatabase.getInstance().getDiscoveryBotInfoList());
 		}
 		
