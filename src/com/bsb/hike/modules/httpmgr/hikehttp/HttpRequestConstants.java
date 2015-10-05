@@ -71,6 +71,8 @@ public class HttpRequestConstants
 	
 	private static final String QA_CONTENT = "qa-content.hike.in";
 
+	private static final String ANONYMOUS_NAME = "/anonymousName";
+
 	private static final String STAGING_HIKECALLER_API = "http://52.76.46.27:5000/name";
 	
 	private static final String PRODUCTION_HIKECALLER_API = "https://caller.hike.in/name";
@@ -350,6 +352,11 @@ public class HttpRequestConstants
 	public static String getDeleteAvatarBaseUrl()
 	{
 		return BASE_URL + BASE_V1 + BASE_ACCOUNT + "/avatar-delete";
+	}
+
+	public static String getAnonymousNameFetchUrl()
+	{
+		return BASE_PLATFORM_URL + BASE_USER + BASE_V1 + ANONYMOUS_NAME;
 	}
 	
 	public static String getBotdiscoveryTableUrl()

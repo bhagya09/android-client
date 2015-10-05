@@ -5918,4 +5918,27 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		hideOverflowMenu();
 		hideThemePicker();
 	}
+	
+	/**
+	 * Call this method instead of directly calling {@link ChatThread#onDestroy()}
+	 */
+	protected void tryToDestroyChatThread()
+	{
+		if (wasAnythingInstantiated())
+		{
+			onDestroy();
+		}
+	}
+	
+	/**
+	 * In cases of deleted conversations, the {@link ChatThread#fetchConversation()} returns null and eventually onDestroy is called. Since there are certain objects in onDestroy
+	 * which might not have been instantiated, hence we were getting NPE there. This fixes that.
+	 * 
+	 * @return
+	 */
+	private boolean wasAnythingInstantiated()
+	{
+		return mConversation != null;
+	}
+	
 }
