@@ -3,7 +3,6 @@ package com.bsb.hike.platform;
 import java.io.File;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Map;
 
 import org.cocos2dx.lib.Cocos2dxActivity;
 import org.cocos2dx.lib.Cocos2dxHandler;
@@ -11,6 +10,22 @@ import org.cocos2dx.lib.Cocos2dxHelper;
 import org.cocos2dx.lib.Cocos2dxVideoHelper;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import android.content.Context;
+import android.content.Intent;
+import android.content.pm.ActivityInfo;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
+import android.content.pm.Signature;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.PersistableBundle;
+import android.text.TextUtils;
+import android.util.Base64;
+import android.view.Window;
+import android.view.WindowManager;
+import android.widget.Toast;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
@@ -25,25 +40,6 @@ import com.bsb.hike.platform.bridge.JavascriptBridge;
 import com.bsb.hike.platform.content.PlatformContentConstants;
 import com.bsb.hike.utils.Logger;
 import com.chukong.cocosplay.client.CocosPlayClient;
-import com.google.gson.Gson;
-
-import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.pm.ActivityInfo;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
-import android.content.pm.PackageManager.NameNotFoundException;
-import android.content.pm.Signature;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.PersistableBundle;
-import android.text.TextUtils;
-import android.util.Base64;
-import android.util.Log;
-import android.view.Window;
-import android.view.WindowManager;
-import android.widget.Toast;
 
 /**
  * This is an Activity class which renders native games
@@ -57,41 +53,9 @@ public class CocosGamingActivity extends Cocos2dxActivity implements HikePubSub.
 
 	private String TAG = getClass().getCanonicalName();
 
-	private boolean isInit = false;
-
-	public static Cocos2dxActivity cocos2dActivity;
-
-	private String downloadPathUrl;
-
 	private boolean isPortrait;
 
-	private String version;
-
-	private static String appId;
-
-	private static String appName;
-
-	private String cocosEngineVersion;
-
 	private Handler mHandler = new Handler();
-
-	public static final String SHARED_PREF = "native_games_sharedpref";
-
-	public static final String LIST_OF_APPS = "list_of_games_map";
-
-	public static final String COCOS_ENGINE_VERSION = "cocos_engine_version";
-
-	private SharedPreferences sharedPreferences;
-
-	private SharedPreferences.Editor sharedPrefEditor;
-
-	private Map<String, String> listOfAppsMap;
-
-	private Gson gson = new Gson();
-
-	private JSONObject gameDataJsonObject;
-
-	private String requestId;
 
 	private static NativeBridge nativeBridge;
 
@@ -216,7 +180,6 @@ public class CocosGamingActivity extends Cocos2dxActivity implements HikePubSub.
 			mVideoHelper = new Cocos2dxVideoHelper(CocosGamingActivity.this, mFrameLayout);
 		}
 
-		isInit = true;
 	}
 
 	public static Object getNativeBridge()
