@@ -2455,13 +2455,6 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 	@Override
 	public void onBackPressed()
 	{
-		if (mCustomKeyboard != null && mCustomKeyboard.isCustomKeyboardVisible())
-		{
-			mCustomKeyboard.showCustomKeyboard(tagEditText, false);
-			KptUtils.updatePadding(ComposeChatActivity.this, R.id.ll_compose, 0);
-			return;
-		}
-		
 		if (composeMode == CREATE_GROUP_MODE || composeMode == CREATE_BROADCAST_MODE)
 		{
 			if (existingGroupOrBroadcastId != null || createGroup || createBroadcast || addToConference)
@@ -2482,6 +2475,12 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		{
 			setResult(RESULT_CANCELED,getIntent());
 			this.finish();
+		}
+		if (mCustomKeyboard != null && mCustomKeyboard.isCustomKeyboardVisible())
+		{
+			mCustomKeyboard.showCustomKeyboard(tagEditText, false);
+			KptUtils.updatePadding(ComposeChatActivity.this, R.id.ll_compose, 0);
+			return;
 		}
 		super.onBackPressed();
 	}
