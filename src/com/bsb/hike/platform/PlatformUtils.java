@@ -333,8 +333,8 @@ public class PlatformUtils
 			}
 			if (activityName.equals(HIKESCREEN.GAME_ACTIVITY.toString()))
 			{
+				String extraData;
 				String msisdn = mmObject.optString(HikeConstants.MSISDN);
-				String extraData=null;
 				extraData=mmObject.optString(HikeConstants.DATA);
 				Intent i=IntentFactory.getNonMessagingBotIntent(msisdn,context,extraData);
 				if(isProcessRunning(context,HikePlatformConstants.GAME_PROCESS)&&!(getLastGame().equals(msisdn)))

@@ -1223,7 +1223,8 @@ public abstract class JavascriptBridge
 		File file = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + mappFolder);
 		if(file.exists()) 
 		     callbackToJS(id, "true");
-		callbackToJS(id, "false");
+		else
+			callbackToJS(id, "false");
 	}
 
 
