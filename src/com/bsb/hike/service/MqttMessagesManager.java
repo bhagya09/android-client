@@ -2512,6 +2512,41 @@ public class MqttMessagesManager
 			boolean activate = data.getBoolean(HikeConstants.SHOW_HIGH_RES_IMAGE);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOW_HIGH_RES_IMAGE, activate);
 		}
+		if(data.has(HikeConstants.ENABLE_GC_VIA_LINK_SHARING))
+		{
+			boolean enableGCViaLinkSharing = data.getBoolean(HikeConstants.ENABLE_GC_VIA_LINK_SHARING);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ENABLE_GC_VIA_LINK_SHARING, enableGCViaLinkSharing);
+		}
+		if(data.has(HikeConstants.MENU_OPTION_FOR_GC_VIA_WA))
+		{
+			String textGCWA = data.getString(HikeConstants.MENU_OPTION_FOR_GC_VIA_WA);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.MENU_OPTION_FOR_GC_VIA_WA, textGCWA);
+		}
+		if(data.has(HikeConstants.MENU_OPTIONS_FOR_GC_VIA_OTHERS))
+		{
+			String textGCOthers = data.getString(HikeConstants.MENU_OPTIONS_FOR_GC_VIA_OTHERS);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.MENU_OPTIONS_FOR_GC_VIA_OTHERS, textGCOthers);
+		}
+		if(data.has(HikeConstants.ENABLE_MENU_OPTION_FOR_GC_VIA_WA))
+		{
+			boolean enableMenu = data.getBoolean(HikeConstants.ENABLE_MENU_OPTION_FOR_GC_VIA_WA);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ENABLE_MENU_OPTION_FOR_GC_VIA_WA, enableMenu);
+		}
+		if(data.has(HikeConstants.ENABLE_MENU_OPTIONS_FOR_GC_VIA_OTHERS))
+		{
+			boolean enableMenu = data.getBoolean(HikeConstants.ENABLE_MENU_OPTIONS_FOR_GC_VIA_OTHERS);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ENABLE_MENU_OPTIONS_FOR_GC_VIA_OTHERS, enableMenu);
+		}
+		if(data.has(HikeConstants.TEXT_FOR_GC_VIA_WA))
+		{
+			String textGCWA = data.getString(HikeConstants.TEXT_FOR_GC_VIA_WA);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.TEXT_FOR_GC_VIA_WA, textGCWA);
+		}
+		if(data.has(HikeConstants.TEXT_FOR_GC_VIA_OTHERS))
+		{
+			String textGCOthers = data.getString(HikeConstants.TEXT_FOR_GC_VIA_OTHERS);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.TEXT_FOR_GC_VIA_OTHERS, textGCOthers);
+		}
 		
 		editor.commit();
 		this.pubSub.publish(HikePubSub.UPDATE_OF_MENU_NOTIFICATION, null);

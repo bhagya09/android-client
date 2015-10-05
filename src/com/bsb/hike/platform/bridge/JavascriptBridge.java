@@ -52,10 +52,13 @@ import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.platform.content.PlatformContentConstants;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.ui.ComposeChatActivity;
+import com.bsb.hike.ui.fragments.ShareLinkFragment;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.OneToNConversationUtils;
+import com.bsb.hike.utils.ShareUtils;
 import com.bsb.hike.utils.Utils;
 
 /**
@@ -1129,6 +1132,49 @@ public abstract class JavascriptBridge
 	public void sendSharedMessage(String cardObject, String hikeMessage, String sharedData, BotInfo mBotInfo)
 	{
 		PlatformHelper.sendSharedMessage(cardObject, hikeMessage, sharedData, mBotInfo, weakActivity.get(),JavascriptBridge.this.hashCode());
+	}
+
+	/**
+	 * Platform Version 8
+	 * This function is made for the special Group bot that has the information about inviting members to join group from WA/Others App.
+	 * 
+	 */
+	@JavascriptInterface
+	public void sendGCInvitationViaLinkSharing()
+	{
+		Context mContext = HikeMessengerApp.getInstance().getApplicationContext();
+		String groupId = OneToNConversationUtils.createNewGroupId(mContext);
+		int number = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.WA_GROUP_NUMBER, 1);
+		String groupName = mContext.getString(R.string.wa_group) + " " + number;
+		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.WA_GROUP_NUMBER, number + 1);
+		
+		ShareLinkFragment fragment = ShareLinkFragment.newInstance(groupId, groupName, 1, true, true);
+		fragment.initViaArguments();
+		fragment.setButtonClickedType(ShareLinkFragment.WA);
+		fragment.makeHttpCallForURL();
+	}
+	
+	/**
+	 * Platform Version 8
+	 * This function is made for the special Group bot that has the information about inviting members to join group from WA/Others App.
+	 * 
+	 */
+	@JavascriptInterface
+	public void remindGCInvitationViaLinkSharing()
+	{
+		Context mContext = HikeMessengerApp.getInstance().getApplicationContext();
+		String baseText = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.TEXT_FOR_GC_VIA_WA, mContext.getString(R.string.link_share_wa_msg)); 
+		String url = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SHARE_LINK_URL_FOR_GC, null);
+		
+		if(!TextUtils.isEmpty(url))
+		{
+			String finalText = baseText + "\n" + url;
+			ShareUtils.shareContent(HikeConstants.Extras.ShareTypes.TEXT_SHARE, finalText, HikeConstants.Extras.WHATSAPP_PACKAGE);
+		}
+		else
+		{
+			//NO GROUP WAS CREATED
+		}
 	}
 
 }

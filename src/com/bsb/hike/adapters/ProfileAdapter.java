@@ -661,8 +661,14 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 			if (groupParticipant.isAdmin())
 			{
 				viewHolder.infoContainer.setVisibility(View.VISIBLE);
+				viewHolder.infoContainer.findViewById(R.id.owner_indicator_text).setVisibility(View.VISIBLE);
 			}
-			else
+			else if(!contactInfo.isGroupConversationContact())
+			{
+				viewHolder.infoContainer.setVisibility(View.VISIBLE);
+				viewHolder.infoContainer.findViewById(R.id.sms_member_indicator_text).setVisibility(View.VISIBLE);
+			}
+			else 
 			{
 				viewHolder.infoContainer.setVisibility(View.GONE);
 			}

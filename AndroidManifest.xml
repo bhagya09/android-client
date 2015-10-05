@@ -4,7 +4,7 @@
     package="com.bsb.hike"
     android:installLocation="auto"
     android:versionCode="1432"
-    android:versionName="4.0.6" >
+    android:versionName="4.0.6.01_hike_link_share" >
     
     <uses-sdk
         android:minSdkVersion="14"
@@ -121,7 +121,6 @@
         </service>
         <service android:name=".service.UpgradeIntentService" />
         <service android:name=".GCMIntentService" />
-
         <activity
             android:name=".ui.HomeActivity"
             android:configChanges="orientation|screenSize|keyboardHidden"
@@ -134,7 +133,24 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <!-- Accepts URIs that begin with "http://hike.in/” -->
+                <data
+                    android:host="hike.in"
+                    android:pathPrefix="/"
+                    android:scheme="http" />
+                <!-- Accepts URIs that begin with "https://hike.in/” -->
+                <data
+                    android:host="hike.in"
+                    android:pathPrefix="/"
+                    android:scheme="https" />
+            </intent-filter>
         </activity>
+
         <activity
             android:name=".ui.ComposeChatActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
