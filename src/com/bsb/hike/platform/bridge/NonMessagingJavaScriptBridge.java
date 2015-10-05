@@ -1,12 +1,13 @@
 package com.bsb.hike.platform.bridge;
 
-import com.bsb.hike.bots.BotUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.Message;
 import android.text.TextUtils;
 import android.webkit.JavascriptInterface;
@@ -15,20 +16,19 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.adapters.ConversationsAdapter;
-import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.bots.BotInfo;
+import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.bots.NonMessagingBotConfiguration;
 import com.bsb.hike.bots.NonMessagingBotMetadata;
 import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.db.HikeConversationsDatabase;
-import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.platform.CustomWebView;
+import com.bsb.hike.platform.GpsLocation;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformHelper;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.ui.GalleryActivity;
 import com.bsb.hike.ui.WebViewActivity;
-import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
@@ -176,6 +176,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 			jsonObject.put(HikePlatformConstants.BLOCK, Boolean.toString(mBotInfo.isBlocked()));
 			jsonObject.put(HikePlatformConstants.MUTE, Boolean.toString(mBotInfo.isMute()));
 			jsonObject.put(HikePlatformConstants.NETWORK_TYPE, Integer.toString(Utils.getNetworkType(HikeMessengerApp.getInstance().getApplicationContext())));
+			jsonObject.put(HikePlatformConstants.BOT_VERSION, mBotInfo.getVersion());
 
 			
 			mWebView.loadUrl("javascript:init('"+getEncodedDataForJS(jsonObject.toString())+"')");
@@ -1057,17 +1058,11 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	@JavascriptInterface
 	public void blockBot(String block, String msisdn)
 	{
-		if (!BotUtils.isBot(msisdn))
+		if (!BotUtils.isSpecialBot(mBotInfo) || !BotUtils.isBot(msisdn))
 		{
 			return;
 		}
 		BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
-		NonMessagingBotMetadata metadata = new NonMessagingBotMetadata(mBotInfo.getMetadata());
-		if (!metadata.isSpecialBot())
-		{
-			Logger.e(TAG, "the bot is not a special bot and only special bot has the authority to call this function.");
-			return;
-		}
 		if (Boolean.valueOf(block))
 		{
 			botInfo.setBlocked(true);
@@ -1078,6 +1073,19 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 		{
 			botInfo.setBlocked(false);
 			HikeMessengerApp.getPubSub().publish(HikePubSub.UNBLOCK_USER, msisdn);
+		}
+	}
+	
+	/**
+	 * Platform Version 7 <br>
+	 * This function is used for providing an ability to add a shortcut for a given bot.
+	 */
+	@JavascriptInterface
+	public void addShortCut()
+	{
+		if (weakActivity.get() != null)
+		{
+			Utils.createShortcut(weakActivity.get(), mBotInfo);
 		}
 	}
 
@@ -1091,17 +1099,11 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	@JavascriptInterface
 	public void isBotBlocked(String id, String msisdn)
 	{
-		if (!BotUtils.isBot(msisdn))
+		if (!BotUtils.isSpecialBot(mBotInfo) || !BotUtils.isBot(msisdn))
 		{
 			return;
 		}
 		BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
-		NonMessagingBotMetadata metadata = new NonMessagingBotMetadata(mBotInfo.getMetadata());
-		if (!metadata.isSpecialBot())
-		{
-			Logger.e(TAG, "the bot is not a special bot and only special bot has the authority to call this function.");
-			return;
-		}
 		callbackToJS(id, String.valueOf(botInfo.isBlocked()));
 	}
 
@@ -1115,16 +1117,8 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	@JavascriptInterface
 	public void isBotEnabled(String id, String msisdn)
 	{
-		if (!BotUtils.isBot(msisdn))
+		if (!BotUtils.isSpecialBot(mBotInfo) || !BotUtils.isBot(msisdn))
 		{
-			callbackToJS(id, "false");
-			return;
-		}
-		BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
-		NonMessagingBotMetadata metadata = new NonMessagingBotMetadata(mBotInfo.getMetadata());
-		if (!metadata.isSpecialBot())
-		{
-			Logger.e(TAG, "the bot is not a special bot and only special bot has the authority to call this function.");
 			return;
 		}
 		String value = String.valueOf(HikeConversationsDatabase.getInstance().isConversationExist(msisdn));
@@ -1136,22 +1130,18 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	 * This function is made for the special Shared bot that has the information about some other bots as well, and acts as a channel for them.
 	 * Call this method to enable/disable bot. Enable means to show the bot in the conv list and disable is vice versa.
 	 * @param msisdn :the msisdn of the bot.
-	 * @param enable : the id of the function that native will call to call the js .
+	 * @param enable : send true to enable the bot in Conversation Fragment and false to disable.
 	 */
 	@JavascriptInterface
 	public void enableBot(String msisdn, String enable)
 	{
-		if (!BotUtils.isBot(msisdn))
+
+		if (!BotUtils.isSpecialBot(mBotInfo) || !BotUtils.isBot(msisdn))
 		{
 			return;
 		}
+
 		BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
-		NonMessagingBotMetadata metadata = new NonMessagingBotMetadata(mBotInfo.getMetadata());
-		if (!metadata.isSpecialBot())
-		{
-			Logger.e(TAG, "the bot is not a special bot and only special bot has the authority to call this function.");
-			return;
-		}
 
 		boolean enableBot = Boolean.valueOf(enable);
 		if (enableBot)
@@ -1162,6 +1152,150 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 		{
 			BotUtils.deleteBotConversation(msisdn, false);
 		}
+	}
+	/**
+	 * Added in Platform Version:7
+	 * 
+	 *            Will call locationReceived function of JS . return a json {"gpsAvailable":true/false,"coords":{"longitude":,"latitude":}} MicroApp to Handle
+	 *            timeout in case GPS tracking takes time.
+	 * 
+	 */
+
+	@JavascriptInterface
+	public void getLocation()
+	{
+		GpsLocation gps = GpsLocation.getInstance();
+		gps.getLocation();
+
+	}
+
+	
+	/**
+	 * Added in Platform Version:7
+	 * 
+	 * @param id
+	 *            : : the id of the function that native will call to call the js . Get last store location,in case GPS is on,but unable to get location. return a json
+	 *            {"gpsAvailable":true/false,"coords":{"longitude":,"latitude":}}
+	 */
+	@JavascriptInterface
+	public void getLastStoredLocation(final String id)
+	{
+		LocationManager locationManager;
+		Location location;
+		Activity mContext = weakActivity.get();
+		if (mContext != null)
+		{
+			locationManager = (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
+			location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+			String latLong = PlatformUtils.getLatLongFromLocation(locationManager, location);
+			callbackToJS(id, latLong);
+		}
+
+	}
+
+	public void locationReceived(final String latLong)
+	{
+		if (mHandler == null)
+		{
+			return;
+		}
+		mHandler.post(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				mWebView.loadUrl("javascript:locationReceived" + "('" + getEncodedDataForJS(latLong) + "')");
+			}
+		});
+		
+	}
+
+
+	/**
+	 * Platform Version 7
+	 * This function is made for the special Shared bot that has the information about some other bots as well, and acts as a channel for them.
+	 * Call this method to mute/unmute bot.
+	 * @param msisdn :the msisdn of the bot.
+	 * @param mute : send true to mute the bot in Conversation Fragment and false to unmute.
+	 */
+	@JavascriptInterface
+	public void muteBot(String msisdn, String mute)
+	{
+
+		if (!BotUtils.isSpecialBot(mBotInfo) || !BotUtils.isBot(msisdn))
+		{
+			return;
+		}
+
+		Boolean muteBot = Boolean.valueOf(mute);
+		BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
+		botInfo.setMute(muteBot);
+		HikeConversationsDatabase.getInstance().toggleMuteBot(msisdn, muteBot);
+	}
+
+	/**
+	 * Platform Version 7
+	 * This function is made for the special Shared bot that has the information about some other bots as well, and acts as a channel for them.
+	 * Call this method to know whether the bot pertaining to the msisdn is muted or not.
+	 * @param msisdn : the msisdn of the bot.
+	 * @param id : the id of the function that native will call to call the js .
+	 */
+	@JavascriptInterface
+	public void isBotMute(String id, String msisdn)
+	{
+		if (!BotUtils.isSpecialBot(mBotInfo) || !BotUtils.isBot(msisdn))
+		{
+			return;
+		}
+
+		BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
+		callbackToJS(id, String.valueOf(botInfo.isMute()));
+	}
+
+	/**
+	 * Platform Version 7
+	 * Call this function to get the bot version.
+	 * @param id: the id of the function that native will call to call the js .
+	 */
+	@JavascriptInterface
+	public void getBotVersion(String id)
+	{
+		callbackToJS(id, String.valueOf(mBotInfo.getVersion()));
+	}
+
+	/**
+	 * Platform Version 7
+	 * This function is made for the special Shared bot that has the information about some other bots as well, and acts as a channel for them.
+	 * Call this function to get the bot version.
+	 * @param id: the id of the function that native will call to call the js .
+	 */
+	@JavascriptInterface
+	public void getBotVersion(String id, String msisdn)
+	{
+		if (!BotUtils.isSpecialBot(mBotInfo) || !BotUtils.isBot(msisdn))
+		{
+			return;
+		}
+
+		BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
+		callbackToJS(id, String.valueOf(botInfo.getVersion()));
+	}
+
+	public void downloadStatus(final String id, final String progress)
+	{
+		if (mHandler == null)
+		{
+			return;
+		}
+		mHandler.post(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				mWebView.loadUrl("javascript:downloadStatus" + "('" + id + "','" + progress + "')");
+			}
+		});
+
 	}
 
 

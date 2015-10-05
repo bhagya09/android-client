@@ -572,8 +572,9 @@ public class AccountBackupRestore
 	 * Replaces the current Application database file with the provided database file
 	 * @param dbCopy
 	 * 		The file to placed as the new database.
+	 * @throws Exception 
 	 */
-	private void importDatabase(File dbCopy)
+	private void importDatabase(File dbCopy) throws Exception
 	{
 		Long time = System.currentTimeMillis();
 
@@ -596,6 +597,7 @@ public class AccountBackupRestore
 		{
 			e.printStackTrace();
 			Logger.d(getClass().getSimpleName(), "copy fail");
+			throw e;
 		}
 		finally
 		{

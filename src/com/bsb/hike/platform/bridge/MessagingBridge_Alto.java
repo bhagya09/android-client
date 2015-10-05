@@ -754,7 +754,6 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 
 	/**
 	 * Platform Version 6
-	 * This function is made for the special Shared bot that has the information about some other bots as well, and acts as a channel for them.
 	 * Call this method to know whether the bot pertaining to the msisdn is blocked or not.
 	 * @param id : the id of the function that native will call to call the js .
 	 */
@@ -771,7 +770,6 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 
 	/**
 	 * Platform Version 6
-	 * This function is made for the special Shared bot that has the information about some other bots as well, and acts as a channel for them.
 	 * Call this method to know whether the bot pertaining to the msisdn is enabled or not.
 	 * @param id : the id of the function that native will call to call the js .
 	 */
@@ -788,7 +786,6 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 
 	/**
 	 * Platform Version 6
-	 * This function is made for the special Shared bot that has the information about some other bots as well, and acts as a channel for them.
 	 * Call this method to enable/disable bot. Enable means to show the bot in the conv list and disable is vice versa.
 	 * @param enable : the id of the function that native will call to call the js .
 	 */
@@ -810,6 +807,60 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 		{
 			BotUtils.deleteBotConversation(botInfo.getMsisdn(), false);
 		}
+	}
+
+	/**
+	 * Platform Version 7
+	 * Call this method to mute/unmute the parent bot.
+	 * @param mute : send true to mute the bot in Conversation Fragment and false to unmute.
+	 */
+	@JavascriptInterface
+	public void muteParentBot(String mute)
+	{
+
+		if (!BotUtils.isBot(message.webMetadata.getParentMsisdn()))
+		{
+			return;
+		}
+
+		Boolean muteBot = Boolean.valueOf(mute);
+		BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(message.webMetadata.getParentMsisdn());
+		botInfo.setMute(muteBot);
+		HikeConversationsDatabase.getInstance().toggleMuteBot(botInfo.getMsisdn(), muteBot);
+	}
+
+	/**
+	 * Platform Version 7
+	 * Call this method to know whether the bot pertaining to the parent msisdn is muted or not.
+	 * @param id : the id of the function that native will call to call the js .
+	 */
+	@JavascriptInterface
+	public void isParentBotMute(String id)
+	{
+		if (!BotUtils.isBot(message.webMetadata.getParentMsisdn()))
+		{
+			return;
+		}
+
+		BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(message.webMetadata.getParentMsisdn());
+		callbackToJS(id, String.valueOf(botInfo.isMute()));
+	}
+
+	/**
+	 * Platform Version 7
+	 * Call this function to get the parent bot version.
+	 * @param id: the id of the function that native will call to call the js .
+	 */
+	@JavascriptInterface
+	public void getParentBotVersion(String id)
+	{
+		if (!BotUtils.isBot(message.webMetadata.getParentMsisdn()))
+		{
+			return;
+		}
+
+		BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(message.webMetadata.getParentMsisdn());
+		callbackToJS(id, String.valueOf(botInfo.getVersion()));
 	}
 
 }

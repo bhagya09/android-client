@@ -438,6 +438,20 @@ public class HikePubSub implements Runnable
 	
 	public static final String PLATFORM_CARD_EVENT_SENT = "platformCardEventSent";
 	
+	public static final String LOCATION_AVAILABLE = "locationAvailable";
+
+	public static final String DOWNLOAD_PROGRESS = "progress";
+	
+	public static final String BOT_DISCOVERY_DOWNLOAD_SUCCESS = "botDiscoveryDownloadOk";
+	
+	public static final String BOT_DISCOVERY_DOWNLOAD_FAILURE = "botDiscoveryDownloadFail";
+	
+	public static final String BOT_DISCOVERY_TABLE_FLUSH = "botDiscoveryFlush";
+	
+	public static final String ADD_NM_BOT_CONVERSATION = "addNmBotCoversation";
+	
+	public static final String BOT_CREATED = "botCreated";
+	
 	private final Thread mThread;
 
 	private final BlockingQueue<Operation> mQueue;
