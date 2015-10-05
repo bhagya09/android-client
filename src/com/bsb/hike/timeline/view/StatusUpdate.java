@@ -308,6 +308,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 	protected void onResume()
 	{
 		super.onResume();
+		showKeyboard();
 		if (statusImage != null && statusImage.getDrawable() != null)
 		{
 			ChatThreadUtils.applyMatrixTransformationToImageView(statusImage.getDrawable(), statusImage);
@@ -508,7 +509,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		{
 			hideEmojiOrMoodLayout();
 			setTitle();
-		}else if(mCustomKeyboard.isCustomKeyboardVisible()){
+		}else if(mCustomKeyboard!=null && mCustomKeyboard.isCustomKeyboardVisible()){
 			hideKeyboard();
 		}
 		else

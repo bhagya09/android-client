@@ -692,6 +692,11 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 								mCustomKeyboard.showCustomKeyboard(searchET, true);
 							}
 						}
+					}else{
+						if (!KptUtils.isSystemKeyboard(HomeActivity.this))
+						{
+							mCustomKeyboard.showCustomKeyboard(searchET, false);
+						}
 					}
 				}
 			});
@@ -1074,6 +1079,16 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	protected void onResume()
 	{
 		Logger.d(TAG,"onResume");
+		if (searchMenuItem != null && searchMenuItem.isActionViewExpanded())
+		{
+			if (!KptUtils.isSystemKeyboard(HomeActivity.this))
+			{
+				if (mCustomKeyboard != null && searchET != null)
+				{
+					mCustomKeyboard.showCustomKeyboard(searchET, true);
+				}
+			}
+		}
 		super.onResume();
 
 		if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STEALTH_INDICATOR_ENABLED, false))

@@ -734,6 +734,16 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 	protected void onResume()
 	{
 		// TODO Auto-generated method stub
+		if (searchMenuItem != null && searchMenuItem.isActionViewExpanded())
+		{
+			if (!KptUtils.isSystemKeyboard(ComposeChatActivity.this))
+			{
+				if (mCustomKeyboard != null && searchET != null)
+				{
+					mCustomKeyboard.showCustomKeyboard(searchET, true);
+				}
+			}
+		}
 		super.onResume();
 		if(adapter != null)
 		{
@@ -2455,13 +2465,6 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 	@Override
 	public void onBackPressed()
 	{
-		if (mCustomKeyboard != null && mCustomKeyboard.isCustomKeyboardVisible())
-		{
-			mCustomKeyboard.showCustomKeyboard(tagEditText, false);
-			KptUtils.updatePadding(ComposeChatActivity.this, R.id.ll_compose, 0);
-			return;
-		}
-		
 		if (composeMode == CREATE_GROUP_MODE || composeMode == CREATE_BROADCAST_MODE)
 		{
 			if (existingGroupOrBroadcastId != null || createGroup || createBroadcast || addToConference)
@@ -2482,6 +2485,12 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		{
 			setResult(RESULT_CANCELED,getIntent());
 			this.finish();
+		}
+		if (mCustomKeyboard != null && mCustomKeyboard.isCustomKeyboardVisible())
+		{
+			mCustomKeyboard.showCustomKeyboard(tagEditText, false);
+			KptUtils.updatePadding(ComposeChatActivity.this, R.id.ll_compose, 0);
+			return;
 		}
 		super.onBackPressed();
 	}
@@ -2854,7 +2863,12 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 						{
 							mCustomKeyboard.showCustomKeyboard(searchET, true);
 						}	 						
-	 				}
+	 				}else{
+						if (!KptUtils.isSystemKeyboard(ComposeChatActivity.this))
+						{
+							mCustomKeyboard.showCustomKeyboard(searchET, false);
+						}
+					}
 	 			}
 	 		});
 
