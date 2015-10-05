@@ -61,13 +61,13 @@ public class HikeAccessibilityService extends AccessibilityService
 	
 	private String getEventType(AccessibilityEvent event)
 	{
-
-		String value = event.getEventType() + " ";
-		CharSequence packageName = event.getPackageName();
-		if(TextUtils.isEmpty(packageName))
+		if(event  == null || TextUtils.isEmpty(event.getPackageName()))
 		{
 			return "";
 		}
+		String value = event.getEventType() + " ";
+		CharSequence packageName = event.getPackageName();
+		
 		switch (event.getEventType())
 		{
 		case AccessibilityEvent.TYPE_NOTIFICATION_STATE_CHANGED:
@@ -95,7 +95,7 @@ public class HikeAccessibilityService extends AccessibilityService
 			if(hikeIsOpen || !( chatHeadStickerPickerIsOpen || keyboardOpen || snoozed))
 			{
 				Set<String> packages = new HashSet<String>(1);
-				packages.add( event.getPackageName().toString());
+				packages.add(packageName.toString());
 				ChatHeadViewManager.getInstance(this).actionWindowChange(packages);
 			}
 			return value + "TYPE_WINDOW_CONTENT-STATE_CHANGED or TYPE_VIEW_CLICKED";
