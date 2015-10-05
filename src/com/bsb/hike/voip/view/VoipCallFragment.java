@@ -1172,9 +1172,12 @@ public class VoipCallFragment extends Fragment implements CallActions
 					Thread.sleep(500);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
+				} finally {
+					if (tg != null) {
+						tg.stopTone();
+						tg.release();
+					}
 				}
-				tg.stopTone();
-				tg.release();
 			}
 		}).start();
 		
