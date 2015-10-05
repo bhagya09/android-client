@@ -1170,9 +1170,6 @@
     <string name="action_no_network">Please check network</string>
     <string name="timeline_transition_anim">timeline_image_transit</string>
     <string name="home_overflow_new_photo">New Photo</string>
-<<<<<<< HEAD
-    <string name = "upgrade_for_larger_files">Ask your friend to update hike to share large files</string>
-=======
     <string name = "max_file_size_offline">Max file size for hike direct is 2 GB</string>
     <string name = "upgrade_for_larger_files">%1$s needs to upgrade to receive this file.Share the latest version of Hike now via Hike Direct</string>
     <string name="group_participant_info">You can add upto 500 members to a group</string>
