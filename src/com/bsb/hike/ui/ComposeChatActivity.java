@@ -661,6 +661,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		
 		pref.saveData(HikeConstants.SHOW_RECENTLY_JOINED_DOT, false);
 		pref.saveData(HikeConstants.SHOW_RECENTLY_JOINED, false);
+		pref.saveData(HikeConstants.NEW_CHAT_RED_DOT, false);
 		
 		if(triggerPointForPopup!=ProductPopupsConstants.PopupTriggerPoints.UNKNOWN.ordinal())
 		{
