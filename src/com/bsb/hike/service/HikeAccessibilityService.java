@@ -64,6 +64,10 @@ public class HikeAccessibilityService extends AccessibilityService
 
 		String value = event.getEventType() + " ";
 		CharSequence packageName = event.getPackageName();
+		if(TextUtils.isEmpty(packageName))
+		{
+			return "";
+		}
 		switch (event.getEventType())
 		{
 		case AccessibilityEvent.TYPE_NOTIFICATION_STATE_CHANGED:
