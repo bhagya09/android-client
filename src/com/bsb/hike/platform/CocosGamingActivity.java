@@ -16,6 +16,7 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
+import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.bots.NonMessagingBotConfiguration;
@@ -176,7 +177,7 @@ public class CocosGamingActivity extends Cocos2dxActivity implements HikePubSub.
 			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
 		}
 
-		if (getIntent().getStringExtra(HikeConstants.DATA) != null && getIntent().getStringExtra(HikeConstants.DATA).length() > 0)
+		if (!TextUtils.isEmpty(getIntent().getStringExtra(HikeConstants.DATA)))
 		{
 			nativeBridge = new NativeBridge(msisdn, CocosGamingActivity.this, getIntent().getStringExtra(HikeConstants.DATA));
 		}
@@ -270,13 +271,16 @@ public class CocosGamingActivity extends Cocos2dxActivity implements HikePubSub.
 	@Override
 	protected void onResume()
 	{
+		HAManager.getInstance().startChatSession(msisdn);
 		super.onResume();
 	}
 
 	@Override
 	protected void onPause()
 	{
+		HAManager.getInstance().endChatSession(msisdn);
 		super.onPause();
+		
 	}
 
 	/**
