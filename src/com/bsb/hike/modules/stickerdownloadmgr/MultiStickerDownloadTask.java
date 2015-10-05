@@ -106,11 +106,14 @@ public class MultiStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRes
 				if (smallStickerDir.exists())
 				{
 					String[] stickerIds = smallStickerDir.list(StickerManager.getInstance().stickerFileFilter);
-					for (String stickerId : stickerIds)
+					if (stickerIds != null)
 					{
-						existingStickerIds.put(stickerId);
-						existingStickerNumber++;
-						Logger.d(TAG, "intercept(), Existing id: " + stickerId);
+						for (String stickerId : stickerIds)
+						{
+							existingStickerIds.put(stickerId);
+							existingStickerNumber++;
+							Logger.d(TAG, "intercept(), Existing id: " + stickerId);
+						}
 					}
 				}
 				else

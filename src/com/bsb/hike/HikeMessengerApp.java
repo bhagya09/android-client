@@ -75,7 +75,6 @@ import com.bsb.hike.utils.Utils;
 		ReportField.ANDROID_VERSION, ReportField.STACK_TRACE, ReportField.USER_APP_START_DATE, ReportField.USER_CRASH_DATE })
 public class HikeMessengerApp extends Application implements HikePubSub.Listener
 {
-
 	public static enum CurrentState
 	{
 		OPENED, RESUMED, BACKGROUNDED, CLOSED, NEW_ACTIVITY, BACK_PRESSED, NEW_ACTIVITY_IN_BG
@@ -517,14 +516,12 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 	public static final String STICKER_SET = "stickerSet";
 
 	public static final String SHOWN_STICKER_RECOMMEND_TIP = "shownStickerRecommendTip";
-	
+
 	public static final String SHOWN_STICKER_RECOMMEND_AUTOPOPUP_OFF_TIP = "shownStickerRecommendAutoPopupOffTip";
 
 	public static final String STICKER_RECOMMEND_SCROLL_FTUE_COUNT = "stickerRecommendScrollFtueCount";
 
 	public static final String SET_ALARM_FIRST_TIME = "setAlarmFirstTime";
-
-	public static final String REBALANCING_TIME = "rebalancingTime";
 
 	public static final String LAST_STICKER_BUTTON_CLICK_ANALYTICS_TIME = "lastStickerButtonClickAnalyticsTime";
 
@@ -532,68 +529,10 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 
 	public static final String LAST_STICKER_TAG_REFRESH_TIME = "lastStickerTagRefreshTime";
 
-	public static final String STICKER_TAG_REFRESH_PERIOD = "stickerTagRefreshPeriod";
-	
 	public static final String SHOWN_STICKER_RECOMMEND_FTUE = "shownStickerRecommendationFtue";
 
-	public static final String STICKER_TAG_SUMMERY_TRENDING = "stickerTagSummeryTrendingPeriod"; // long
-
-	public static final String STICKER_TAG_SUMMERY_LOCAL = "stickerTagSummeryLocalPeriod"; // long
-
-	public static final String STICKER_TAG_SUMMERY_GLOBAL = "stickerTagSummeryGlobalPeriod"; // long
-
-	public static final String STICKER_TAG_MAX_FREQUENCY_TRENDING = "stickerTagMaxTrendingFrequency"; // float
-
-	public static final String STICKER_TAG_MAX_FREQUENCY_LOCAL = "stickerTagMaxLocalFrequency"; // float
-
-	public static final String STICKER_TAG_MAX_FREQUENCY_GLOBAL = "stickerTagMaxGlobalFrequency"; // float
-
-	public static final String STICKER_SCORE_WEITAGE_MATCH_LATERAL = "stickerScoreWeitagePhraseMatch"; // float
-
-	public static final String STICKER_SCORE_WEITAGE_EXACT_MATCH = "stickerScoreWeitageExactMatch"; // float
-
-	public static final String STICKER_SCORE_WEITAGE_FREQUENCY = "stickerScoreWeitageFrequency"; // float
-
-	public static final String STICKER_SCORE_WEITAGE_CONTEXT_MOMENT = "stickerScoreWeitageContextMoment"; // float
-
-	public static final String STICKER_TAG_LIMIT_EXACT_MATCH = "stickerTagExactMatchMinLevel"; // float
-
-	public static final String STICKER_SCORE_MARGINAL_FULL_MATCH_LATERAL = "stickerScoreMarginalFirstWordFullMatch"; // float;
-
-	public static final String STICKER_TAG_LIMIT_AUTO_CORRECTION = "stickerTagAutoCorrectionLevel"; // float
-
-	public static final String STICKER_FREQUENCY_TRENDING_RATIO = "stickerTrendingFrequencyRatio"; // float
-
-	public static final String STICKER_FREQUENCY_LOCAL_RATIO = "stickerLocalFrequencyRatio"; // float
-
-	public static final String STICKER_FREQUENCY_GLOBAL_RATIO = "stickerGlobalFrequencyRatio"; // float
-
-	public static final String STICKER_TAG_MAXIMUM_SEARCH_TEXT_LIMIT = "stickerTagMaxSearchLength"; // integer
-
-	public static final String STICKER_TAG_MAXIMUM_SEARCH_TEXT_LIMIT_BROKER = "stickerTagMaxSearchGreedyLength"; // integer
-
-	public static final String STIKCER_TAG_MAXIMUM_PHRASE_PERMUTATION_SIZE = "stickerTagMaxPhrasePermutationSize"; // integer
-
-	public static final String STICKER_TAG_MINIMUM_WORD_LENGTH_FOR_AUTO_CORRECTION = "stickerTagMinWordLengthToApplyAutoCorrection"; // integer
-
-	public static final String STICKER_TAG_MAXIMUM_SELECTION_RATIO_PER_SEARCH = "stickerTagSelectionCountMaxRatioPerSearch"; // float
-
-	public static final String STICKER_TAG_MAXIMUM_SELECTION_PER_STICKER = "stickerTagSelectionCountMaxCountPerSticker"; // integer
-
-	public static final String STICKER_TAG_RETRY_ON_FAILED_LOCALLY = "stickerTagRetryIfFailedLocally"; // integer
-
-	public static final String STICKER_WAIT_TIME_SINGLE_CHAR_RECOMMENDATION = "stickerRecommendationWaitTimeForSingleCharTag"; // integer
-
-	public static final String STICKER_MAXIMUM_PRIMARY_TABLE_CAPACITY = "stickerPrimaryTableMaxCapacity"; // integer
-
-	public static final String STICKER_THRESHOLD_PRIMARY_TABLE_CAPACITY_FRACTION = "stickerPrimaryTableCapacityThresholdLevel"; // float
-
-	public static final String STICKER_THRESHOLD_DATABASE_EXPANSION_COEFFICIENT = "stickerSearchDatabaseSizeExpansionCoefficient"; // float
-
-	public static final String STICKER_THRESHOLD_DATABASE_FORCED_SHRINK_COEFFICIENT = "stickerSearchDatabaseSizeShrinkCoefficient"; // float
-
 	public static final String LAST_SUCESSFULL_TAGS_DOWNLOAD_TIME = "lastSuccessfulTagsDownloadTime";
-	
+
 	// =========================================================================================Constants for sticker search]]
 
 	private static HikePubSub mPubSubInstance;
