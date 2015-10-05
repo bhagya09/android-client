@@ -65,8 +65,6 @@ public class DictionaryManager implements AdaptxtSettingsRegisterListener
 		languageStatusMap = new ConcurrentHashMap<KPTAddonItem, LanguageDictionarySatus>();
 		mLanguagesList = new ArrayList<KPTAddonItem>();
 		kptSettings = new KPTAdaptxtAddonSettings(ctx, this);
-		if (kptCoreEngineStatus)
-			fetchKptLanguagesAndUpdate();
 		Logger.d(TAG,"Initialization complete.");
 	}
 
@@ -310,6 +308,8 @@ public class DictionaryManager implements AdaptxtSettingsRegisterListener
 	{
 		Logger.d(TAG,"coreEngineStatus callback: " + status);
 		kptCoreEngineStatus = status;
+		if (kptCoreEngineStatus)
+			fetchKptLanguagesAndUpdate();
 	}
 
 	@Override
