@@ -147,7 +147,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 			{
 				callAddonServices();
 			}
-			addKeyboardLanguagePrefListener();
+			//addKeyboardLanguagePrefListener();
 		}
 
 		addClickPreferences();
@@ -1890,7 +1890,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		if(mCoreEngineStatus)
 		{
 			callAddonServices();
-			addKeyboardLanguagePrefListener();
+			//addKeyboardLanguagePrefListener();
 		}
 	}
 
