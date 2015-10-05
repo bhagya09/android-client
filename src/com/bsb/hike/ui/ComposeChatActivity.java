@@ -2800,6 +2800,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 					if (adapter != null)
 					{
 						adapter.setSearchModeOn(false);
+						adapter.refreshBots();
 					}
 
 					return true;
