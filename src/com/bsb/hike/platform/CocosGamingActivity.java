@@ -3,7 +3,6 @@ package com.bsb.hike.platform;
 import java.io.File;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Map;
 
 import org.cocos2dx.lib.Cocos2dxActivity;
 import org.cocos2dx.lib.Cocos2dxHandler;
@@ -12,25 +11,8 @@ import org.cocos2dx.lib.Cocos2dxVideoHelper;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.bsb.hike.HikeConstants;
-import com.bsb.hike.HikeMessengerApp;
-import com.bsb.hike.HikePubSub;
-import com.bsb.hike.R;
-import com.bsb.hike.analytics.HAManager;
-import com.bsb.hike.bots.BotInfo;
-import com.bsb.hike.bots.BotUtils;
-import com.bsb.hike.bots.NonMessagingBotConfiguration;
-import com.bsb.hike.bots.NonMessagingBotMetadata;
-import com.bsb.hike.models.MessageEvent;
-import com.bsb.hike.platform.bridge.JavascriptBridge;
-import com.bsb.hike.platform.content.PlatformContentConstants;
-import com.bsb.hike.utils.Logger;
-import com.chukong.cocosplay.client.CocosPlayClient;
-import com.google.gson.Gson;
-
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -41,10 +23,23 @@ import android.os.Handler;
 import android.os.PersistableBundle;
 import android.text.TextUtils;
 import android.util.Base64;
-import android.util.Log;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Toast;
+
+import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.HikePubSub;
+import com.bsb.hike.R;
+import com.bsb.hike.bots.BotInfo;
+import com.bsb.hike.bots.BotUtils;
+import com.bsb.hike.bots.NonMessagingBotConfiguration;
+import com.bsb.hike.bots.NonMessagingBotMetadata;
+import com.bsb.hike.models.MessageEvent;
+import com.bsb.hike.platform.bridge.JavascriptBridge;
+import com.bsb.hike.platform.content.PlatformContentConstants;
+import com.bsb.hike.utils.Logger;
+import com.chukong.cocosplay.client.CocosPlayClient;
 
 /**
  * This is an Activity class which renders native games
@@ -58,41 +53,9 @@ public class CocosGamingActivity extends Cocos2dxActivity implements HikePubSub.
 
 	private String TAG = getClass().getCanonicalName();
 
-	private boolean isInit = false;
-
-	public static Cocos2dxActivity cocos2dActivity;
-
-	private String downloadPathUrl;
-
 	private boolean isPortrait;
 
-	private String version;
-
-	private static String appId;
-
-	private static String appName;
-
-	private String cocosEngineVersion;
-
 	private Handler mHandler = new Handler();
-
-	public static final String SHARED_PREF = "native_games_sharedpref";
-
-	public static final String LIST_OF_APPS = "list_of_games_map";
-
-	public static final String COCOS_ENGINE_VERSION = "cocos_engine_version";
-
-	private SharedPreferences sharedPreferences;
-
-	private SharedPreferences.Editor sharedPrefEditor;
-
-	private Map<String, String> listOfAppsMap;
-
-	private Gson gson = new Gson();
-
-	private JSONObject gameDataJsonObject;
-
-	private String requestId;
 
 	private static NativeBridge nativeBridge;
 
@@ -146,7 +109,7 @@ public class CocosGamingActivity extends Cocos2dxActivity implements HikePubSub.
 		super.onCreateDuplicate(savedInstanceState);
 		context = CocosGamingActivity.this;
 		msisdn = getIntent().getStringExtra(HikeConstants.MSISDN);
-		PLATFORM_CONTENT_DIR=getIntent().getStringExtra(PlatformContentConstants.PLATFORM_CONTENT_DIR);
+		PLATFORM_CONTENT_DIR = getIntent().getStringExtra(PlatformContentConstants.PLATFORM_CONTENT_DIR);
 		botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
 
 		if (botInfo == null || botInfo.getMetadata() == null)
@@ -199,7 +162,8 @@ public class CocosGamingActivity extends Cocos2dxActivity implements HikePubSub.
 		{
 			System.load(PLATFORM_CONTENT_DIR + "cocosEngine-7/libcocos2d.so");
 			System.load(getAppBasePath() + "libcocos2dcpp.so"); // loading the game
-		}catch(UnsatisfiedLinkError e)
+		}
+		catch (UnsatisfiedLinkError e)
 		{
 			Logger.e(TAG, "Game Engine not Found");
 			Toast.makeText(getApplicationContext(), R.string.some_error, Toast.LENGTH_SHORT).show();
@@ -217,7 +181,6 @@ public class CocosGamingActivity extends Cocos2dxActivity implements HikePubSub.
 			mVideoHelper = new Cocos2dxVideoHelper(CocosGamingActivity.this, mFrameLayout);
 		}
 
-		isInit = true;
 	}
 
 	public static Object getNativeBridge()
@@ -229,6 +192,8 @@ public class CocosGamingActivity extends Cocos2dxActivity implements HikePubSub.
 	{
 		return botInfo;
 	}
+
+	public static native void ShutdownGame();
 
 	public static native void PlatformCallback(String callID, String response);
 
@@ -297,7 +262,7 @@ public class CocosGamingActivity extends Cocos2dxActivity implements HikePubSub.
 	public String getAppBasePath()
 	{
 		String path = PLATFORM_CONTENT_DIR + nonMessagingBotMetadata.getAppName();
-		
+
 		return path + File.separator;
 	}
 
