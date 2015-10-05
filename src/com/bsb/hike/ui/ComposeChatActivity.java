@@ -734,6 +734,16 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 	protected void onResume()
 	{
 		// TODO Auto-generated method stub
+		if (searchMenuItem != null && searchMenuItem.isActionViewExpanded())
+		{
+			if (!KptUtils.isSystemKeyboard(ComposeChatActivity.this))
+			{
+				if (mCustomKeyboard != null && searchET != null)
+				{
+					mCustomKeyboard.showCustomKeyboard(searchET, true);
+				}
+			}
+		}
 		super.onResume();
 		if(adapter != null)
 		{
