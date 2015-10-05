@@ -2550,6 +2550,18 @@ public class MqttMessagesManager
 				ChatHeadUtils.unregisterCallReceiver();
 			}
 		}
+		if(data.has(StickyCaller.SHOW_KNOWN_NUMBER_CARD))
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(StickyCaller.SHOW_KNOWN_NUMBER_CARD, data.optBoolean(StickyCaller.SHOW_KNOWN_NUMBER_CARD, false));
+		}
+		if (data.has(StickyCaller.ENABLE_KNOWN_NUMBER_CARD))
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(StickyCaller.ENABLE_KNOWN_NUMBER_CARD, data.optBoolean(StickyCaller.ENABLE_KNOWN_NUMBER_CARD, true));
+		}
+		if (data.has(StickyCaller.SHOW_FREECALL_VIEW))
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(StickyCaller.SHOW_FREECALL_VIEW, data.optBoolean(StickyCaller.SHOW_FREECALL_VIEW, true));
+		}
 		if (data.has(HikeConstants.BOT_TABLE_REFRESH))
 		{
 			boolean shouldrefreshBotTable = data.getBoolean(HikeConstants.BOT_TABLE_REFRESH);

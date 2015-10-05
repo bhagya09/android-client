@@ -99,6 +99,12 @@ public class StickyCaller
 	public static final int INCOMING_DELAY = 2000;
 
 	public static final String SMS_BODY = "sms_body";
+
+	public static final String SHOW_KNOWN_NUMBER_CARD = "showKnowCard";
+	
+	public static final String ENABLE_KNOWN_NUMBER_CARD = "enblKnowCard";
+	
+	public static final String SHOW_FREECALL_VIEW = "shwFreeCall";
 	
 	public static String MISSED_CALL_TIMINGS;
 
@@ -539,7 +545,7 @@ public class StickyCaller
 			callerName.setText(result);
 		}
 	
-		if (Utils.isIndianNumber(number) || Utils.isOnHike(number))
+		if ((Utils.isIndianNumber(number) && HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.SHOW_FREECALL_VIEW, true)) || Utils.isOnHike(number))
 		{
 			stickyCallerView.findViewById(R.id.missed_call_free_divider).setVisibility(View.VISIBLE);
 
@@ -571,7 +577,7 @@ public class StickyCaller
 			callerName.setText(result);
 		}
 	
-		if (Utils.isIndianNumber(number) || Utils.isOnHike(number))
+		if ((Utils.isIndianNumber(number) && HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.SHOW_FREECALL_VIEW, true)) || Utils.isOnHike(number))
 		{
 			setDismissWithVisible();
 			
@@ -689,7 +695,7 @@ public class StickyCaller
 			callerLocation.setVisibility(View.VISIBLE);
 			callerLocation.setText(callerContentModel.getLocation());
 		}
-		if ((callerContentModel != null && callerContentModel.getIsOnHike()) || Utils.isIndianNumber(number))
+		if ((callerContentModel != null && callerContentModel.getIsOnHike()) || (Utils.isIndianNumber(number) && HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.SHOW_FREECALL_VIEW, true)))
 		{
 			setFreeCallButton();
 
@@ -751,7 +757,7 @@ public class StickyCaller
 			callerLocation.setVisibility(View.VISIBLE);
 			callerLocation.setText(callerContentModel.getLocation());
 		}
-		if ((callerContentModel != null && callerContentModel.getIsOnHike()) || Utils.isIndianNumber(number))
+		if ((callerContentModel != null && callerContentModel.getIsOnHike()) || (Utils.isIndianNumber(number) && HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.SHOW_FREECALL_VIEW, true)))
 		{
 			setDismissWithVisible();
 			

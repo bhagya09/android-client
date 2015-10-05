@@ -14,11 +14,12 @@ import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.hike.transporter.utils.Logger;
 
 public class StickyCallerSettings extends HikeAppStateBaseFragmentActivity implements OnCheckedChangeListener
 {
 
-	private SwitchCompat stickyCallerCheckbox;
+	private SwitchCompat stickyCallerCheckbox, enableSavedContactViewCheckbox;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -29,8 +30,14 @@ public class StickyCallerSettings extends HikeAppStateBaseFragmentActivity imple
 		stickyCallerCheckbox = (SwitchCompat) findViewById(R.id.sticky_caller_checkbox);
 		stickyCallerCheckbox.setOnCheckedChangeListener(this);
 		stickyCallerCheckbox.setChecked(HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.ACTIVATE_STICKY_CALLER, false));
+		if (HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.SHOW_KNOWN_NUMBER_CARD, false))
+		{
+			enableSavedContactViewCheckbox = (SwitchCompat) findViewById(R.id.saved_contact_card_checkbox);
+			enableSavedContactViewCheckbox.setOnCheckedChangeListener(this);
+			enableSavedContactViewCheckbox.setChecked(HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.ENABLE_KNOWN_NUMBER_CARD, true));
+		}
 	}
-	
+
 	@Override
 	protected void onPause()
 	{
@@ -59,14 +66,25 @@ public class StickyCallerSettings extends HikeAppStateBaseFragmentActivity imple
 	@Override
 	public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
 	{
-		HikeSharedPreferenceUtil.getInstance().saveData(StickyCaller.ACTIVATE_STICKY_CALLER, isChecked);
-		if (isChecked)
+		switch (buttonView.getId())
 		{
-			HAManager.getInstance().stickyCallerAnalyticsUIEvent(AnalyticsConstants.StickyCallerEvents.CALLER_SETTINGS_TOGGLE, null, AnalyticsConstants.StickyCallerEvents.ACTIVATE_BUTTON, null);
-		}
-		else
-		{
-			HAManager.getInstance().stickyCallerAnalyticsUIEvent(AnalyticsConstants.StickyCallerEvents.CALLER_SETTINGS_TOGGLE, null, AnalyticsConstants.StickyCallerEvents.DEACTIVATE_BUTTON, null);
+		case R.id.saved_contact_card_checkbox:
+			HikeSharedPreferenceUtil.getInstance().saveData(StickyCaller.ENABLE_KNOWN_NUMBER_CARD, isChecked);
+			break;
+
+		case R.id.sticky_caller_checkbox:
+			HikeSharedPreferenceUtil.getInstance().saveData(StickyCaller.ACTIVATE_STICKY_CALLER, isChecked);
+			if (isChecked)
+			{
+				HAManager.getInstance().stickyCallerAnalyticsUIEvent(AnalyticsConstants.StickyCallerEvents.CALLER_SETTINGS_TOGGLE, null,
+						AnalyticsConstants.StickyCallerEvents.ACTIVATE_BUTTON, null);
+			}
+			else
+			{
+				HAManager.getInstance().stickyCallerAnalyticsUIEvent(AnalyticsConstants.StickyCallerEvents.CALLER_SETTINGS_TOGGLE, null,
+						AnalyticsConstants.StickyCallerEvents.DEACTIVATE_BUTTON, null);
+			}
+			break;
 		}
 	}
 

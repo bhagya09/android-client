@@ -6,7 +6,6 @@
     android:orientation="vertical" >
 
     <LinearLayout
-        android:id="@+id/main_select_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/list_item"
@@ -26,12 +25,10 @@
             android:paddingRight="5dp" >
 
             <com.bsb.hike.view.CustomFontTextView
-                android:id="@+id/sticky_caller_main_heading"
                 style="@style/SettingsHeaderItemTextView"
                 android:text="@string/sticky_caller_settings" />
 
             <com.bsb.hike.view.CustomFontTextView
-                android:id="@+id/sticky_caller_side_text"
                 style="@style/SettingsHeaderSubItemTextView"
                 android:gravity="center_vertical"
                 android:maxLines="4"
@@ -48,7 +45,55 @@
     </LinearLayout>
 
     <View
-        android:id="@+id/main_divider"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_below="@id/main_select_layout"
+        android:layout_marginBottom="10dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:background="#E6E6E6" >
+    </View>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/list_item"
+        android:minHeight="?android:attr/listPreferredItemHeight"
+        android:orientation="horizontal" >
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginBottom="13dp"
+            android:layout_marginLeft="16dp"
+            android:layout_marginTop="13dp"
+            android:layout_weight="1"
+            android:gravity="center_vertical"
+            android:orientation="vertical"
+            android:paddingRight="5dp" >
+
+            <com.bsb.hike.view.CustomFontTextView
+                style="@style/SettingsHeaderItemTextView"
+                android:text="@string/enable_saved_contact_view_heading" />
+
+            <com.bsb.hike.view.CustomFontTextView
+                style="@style/SettingsHeaderSubItemTextView"
+                android:gravity="center_vertical"
+                android:maxLines="4"
+                android:text="@string/enable_saved_contact_view_side_text" />
+        </LinearLayout>
+
+        <android.support.v7.widget.SwitchCompat
+            android:id="@+id/saved_contact_card_checkbox"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:checked="false"
+            android:gravity="center_vertical"
+            android:paddingRight="20dp" />
+    </LinearLayout>
+
+    <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:layout_below="@id/main_select_layout"
