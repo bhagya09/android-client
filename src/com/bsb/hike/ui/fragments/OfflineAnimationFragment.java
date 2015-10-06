@@ -465,7 +465,7 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 			{
 				bringToCenter.removeListener(this);
 				bringToCenter = null;
-				if(!OfflineController.getInstance().isConnecting() || !OfflineController.getInstance().isConnected())
+				if(!OfflineController.getInstance().isConnecting() && !OfflineController.getInstance().isConnected())
 				{
 					updateUIOnDisconnect();
 				}
