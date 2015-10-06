@@ -26,6 +26,8 @@ public class GroupParticipant implements Comparable<GroupParticipant>
 		public static final int MEMBER = 0;
 
 		public static final int ADMIN = 1;
+		
+		public static final int SMS_MEMBER = 2;
 
 	}
 
@@ -139,4 +141,13 @@ public class GroupParticipant implements Comparable<GroupParticipant>
 			return (lhs.getSecond().toLowerCase().compareTo(rhs.getSecond().toLowerCase()));
 		}
 	};
+
+	public boolean isSMSGroupMember() {
+		if(type==Participant_Type.SMS_MEMBER){
+			return true;
+		}
+		return false;
+	}
+	
+	
 }

@@ -670,7 +670,7 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 				viewHolder.infoContainer.setVisibility(View.GONE);
 			}
 			//else It a SMS member ----> show waiting
-			else
+			else if(groupParticipant.isSMSGroupMember())
 			{
 				viewHolder.infoContainer.setVisibility(View.VISIBLE);
 				viewHolder.infoContainer.findViewById(R.id.sms_member_indicator_text).setVisibility(View.VISIBLE);
