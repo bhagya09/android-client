@@ -200,6 +200,12 @@ public class AnalyticsConstants
 	public static final String HELP_CLICKED = "help_click";
 	
 	public static String ERROR_TRACE = "error";
+
+	public static String MESSAGES_COUNT = "msg_count";
+
+	public static String TIME_TAKEN = "time";
+
+	public static String UPGRADE_EVENT = "upgrade";
 		
 	// Edit picture flags and events
 	public static final class ProfileImageActions
@@ -546,4 +552,12 @@ public class AnalyticsConstants
 	public static final String GET_DISCOVERY_BOT_LIST = "gdb";
 	
 	public static final String DISCOVERY_BOTS = "db";
+	
+	public static final String MICRO_APP_EVENT = "micro_app";
+	
+	public static final String EVENT = "event";
+	
+	public static final String LOG_FIELD_5 = "fld5";
+	
+	public static final String LOG_FIELD_6 = "fld6";
 }
