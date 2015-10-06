@@ -202,7 +202,7 @@ public class PlatformZipDownloader
 		{
 			lastProgress = callbackProgress.get(callbackId);
 		}
-		return progress - lastProgress >= .1;
+		return progress - lastProgress >= .01;
 	}
 	
 	private void replaceDirectories(String tempPath,String originalPath,boolean replaceSuccess,String unzipPath)
