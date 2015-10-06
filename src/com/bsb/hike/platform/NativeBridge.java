@@ -7,6 +7,8 @@ import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.models.HikeHandlerUtil;
 
 import android.app.Activity;
+import android.content.Context;
+import android.os.Handler;
 import android.util.Log;
 
 public class NativeBridge
@@ -305,6 +307,30 @@ public class NativeBridge
 					 */
 			}
 		});
+	}
+
+	/**
+	 * Platform Version 8
+	 * Call this fucntion to show a popup
+	 * @param contentData : The stringified JSONobject for the popup.
+	 */
+	public void showPopup(final String contentData)
+	{
+		Activity activity = weakActivity.get();
+		if (activity != null)
+		{
+			Handler handler = new Handler(activity.getMainLooper());
+			handler.post(new Runnable()
+			{
+				@Override
+				public void run()
+				{
+					PlatformHelper.showPopup(contentData, weakActivity.get());
+				}
+			});
+		}
+
+
 	}
 
 }

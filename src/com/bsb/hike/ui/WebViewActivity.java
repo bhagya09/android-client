@@ -78,6 +78,7 @@ import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.platform.content.PlatformContent.EventCode;
 import com.bsb.hike.platform.content.PlatformContentListener;
 import com.bsb.hike.platform.content.PlatformContentModel;
+import com.bsb.hike.productpopup.ProductContentModel;
 import com.bsb.hike.ui.utils.StatusBarColorChanger;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
@@ -1361,5 +1362,9 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		}
 	}
 
+	public void showPopupDialog(ProductContentModel model)
+	{
+		super.showPopupDialog(model);
+	}
 
 }

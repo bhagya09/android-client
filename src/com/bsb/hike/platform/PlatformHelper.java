@@ -13,7 +13,11 @@ import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.platform.bridge.JavascriptBridge;
 import com.bsb.hike.platform.content.PlatformContent;
+import com.bsb.hike.productpopup.IActivityPopup;
+import com.bsb.hike.productpopup.ProductContentModel;
+import com.bsb.hike.productpopup.ProductInfoManager;
 import com.bsb.hike.ui.ComposeChatActivity;
+import com.bsb.hike.ui.WebViewActivity;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
@@ -23,6 +27,7 @@ import android.content.Intent;
 import android.os.Handler;
 import android.text.TextUtils;
 import android.util.Log;
+import android.webkit.JavascriptInterface;
 
 public class PlatformHelper
 {
@@ -226,6 +231,37 @@ public class PlatformHelper
 				}
 			}
 		});
+	}
+
+	public static void showPopup(String contentData, final Activity activity)
+	{
+		try
+		{
+			JSONObject data = new JSONObject(contentData);
+			final ProductContentModel mmModel = ProductContentModel.makeProductContentModel(data);
+			ProductInfoManager.getInstance().parseAndShowPopup(mmModel, new IActivityPopup()
+			{
+				@Override
+				public void onSuccess(ProductContentModel productContentModel)
+				{
+					if (activity != null)
+					{
+						((WebViewActivity)activity).showPopupDialog(mmModel);
+					}
+				}
+
+				@Override
+				public void onFailure()
+				{
+					Logger.e(TAG, "Failure occured when opening popup.");
+				}
+			});
+
+		} catch (JSONException e)
+		{
+			Logger.e(TAG, "JSONException in showPopup ");
+			e.printStackTrace();
+		}
 	}
 
 }
