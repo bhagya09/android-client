@@ -398,7 +398,8 @@ public class Utils
 
 	public static boolean isIndianNumber(String number)
 	{
-		if (number != null && (number.startsWith("+919") || number.startsWith("+918") || number.startsWith("+917")))
+		//13 is the number of chars in the phone msisdn 
+		if (number != null && (number.startsWith("+919") || number.startsWith("+918") || number.startsWith("+917")) && number.length() == 13)
 		{
 			return true;
 		}
@@ -7333,6 +7334,17 @@ public class Utils
 		}
 
 		return url;
+	}
+
+	public static String getCommaSeperatedStringFromArray(String[] array)
+	{
+		StringBuilder sb = new StringBuilder();
+		sb.append(array[0]);
+		for (int i = 1; i < array.length; i++) {
+			sb.append(", ");
+			sb.append(array[i]);
+		}
+		return sb.toString();
 	}
 	
 	public static void sendFreeSms()

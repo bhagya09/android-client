@@ -11,7 +11,7 @@ import com.bsb.hike.platform.HikePlatformConstants;
 /**
  * Created by shobhit on 22/04/15.
  */
-public class BotInfo extends ConvInfo
+public class BotInfo extends ConvInfo implements Cloneable
 {
 	public static final int MESSAGING_BOT = 1;
 	public static final int NON_MESSAGING_BOT = 2;
@@ -477,5 +477,12 @@ public class BotInfo extends ConvInfo
 	public void setUpdatedVersion(int updatedVersion)
 	{
 		this.updatedVersion = updatedVersion;
+	}
+	
+	@Override
+	public Object clone() throws CloneNotSupportedException
+	{
+		// TODO Auto-generated method stub
+		return super.clone();
 	}
 }

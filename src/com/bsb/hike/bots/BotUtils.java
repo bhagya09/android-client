@@ -1,5 +1,7 @@
 package com.bsb.hike.bots;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -8,8 +10,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.text.TextUtils;
-import android.util.Base64;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeConstants.NotificationType;
@@ -310,9 +312,7 @@ public class BotUtils
 		
 		if (!TextUtils.isEmpty(thumbnailString))
 		{
-			ContactManager.getInstance().setIcon(msisdn, Base64.decode(thumbnailString, Base64.DEFAULT), false);
-			HikeMessengerApp.getLruCache().clearIconForMSISDN(msisdn);
-			HikeMessengerApp.getPubSub().publish(HikePubSub.ICON_CHANGED, msisdn);
+			BotUtils.createAndInsertBotDp(msisdn, thumbnailString);
 		}
 
 		String botChatTheme = jsonObj.optString(HikeConstants.BOT_CHAT_THEME);
@@ -347,7 +347,26 @@ public class BotUtils
 
 	private static BotInfo getBotInfoForNonMessagingBots(JSONObject jsonObj, String msisdn)
 	{
-		BotInfo botInfo = getBotInfoForBotMsisdn(msisdn);
+		
+		BotInfo existingBotInfo = getBotInfoForBotMsisdn(msisdn);
+		BotInfo botInfo = null;
+		
+		if (existingBotInfo != null)
+		{
+			try
+			{
+				Object clonedObj = existingBotInfo.clone();
+				if (clonedObj instanceof BotInfo)
+				{
+					botInfo = (BotInfo) clonedObj;
+				}
+
+			}
+			catch (CloneNotSupportedException e)
+			{
+				e.printStackTrace();
+			}
+		}
 
 		if (null == botInfo)
 		{
@@ -418,7 +437,27 @@ public class BotUtils
 
 	private static BotInfo getBotInfoFormessagingBots(JSONObject jsonObj, String msisdn)
 	{
-		BotInfo botInfo = getBotInfoForBotMsisdn(msisdn);
+		BotInfo existingBotInfo = getBotInfoForBotMsisdn(msisdn);
+		BotInfo botInfo = null;
+		
+		if (existingBotInfo != null)
+		{
+			try
+			{
+				Object clonedObj = existingBotInfo.clone();
+				if (clonedObj instanceof BotInfo)
+				{
+					botInfo = (BotInfo) clonedObj;
+				}
+
+			}
+			catch (CloneNotSupportedException e)
+			{
+				e.printStackTrace();
+			}
+		}
+		
+		
 		if (null == botInfo)
 		{
 			botInfo = new BotInfo.HikeBotBuilder(msisdn)
@@ -577,9 +616,7 @@ public class BotUtils
 								Logger.i(TAG, "Bot icon request successful for " + mBotInfo.getMsisdn());
 								if (response != null && response.length > 0)
 								{
-									ContactManager.getInstance().setIcon(mBotInfo.getMsisdn(), response, false);
-									HikeMessengerApp.getLruCache().clearIconForMSISDN(mBotInfo.getMsisdn());
-									HikeMessengerApp.getPubSub().publish(HikePubSub.ICON_CHANGED, mBotInfo.getMsisdn());
+									BotUtils.createAndInsertBotDp(mBotInfo.getMsisdn(), response);
 								}
 
 							}
@@ -727,5 +764,82 @@ public class BotUtils
 			HikeMessengerApp.getPubSub().publish(HikePubSub.UNBLOCK_USER, botInfo.getMsisdn());
 		}
 	}
+	
+	/**
+	 * Utility method for persisting a Bot's DP. Note : This method should be the central place for handling bot dp's in a single place. If DP is persisted without calling this
+	 * method, the results might be catastrophic
+	 */
+	public static void createAndInsertBotDp(String msisdn, byte[] imageData)
+	{
+
+		File botDpPath = new File(getBotThumbnailRootFolder() + msisdn);
+
+		// Save Icon to file
+		try
+		{
+			Utils.saveByteArrayToFile(botDpPath, imageData);
+			HikeMessengerApp.getLruCache().clearIconForMSISDN(msisdn);
+			HikeMessengerApp.getPubSub().publish(HikePubSub.ICON_CHANGED, msisdn);
+
+		}
+
+		catch (IOException e)
+		{
+			Logger.e(TAG, "Unable to save dp for bot with msisdn : " + msisdn + " Error : " + e.toString());
+		}
+
+	}
+	
+	/**
+	 * Utility method for persisting a Bot's DP. Note : This method should be the central place for handling bot dp's in a single place. If DP is persisted without calling this
+	 * method, the results might be catastrophic
+	 */
+	public static void createAndInsertBotDp(String msisdn, String imageData)
+	{
+		File botDpPath = new File(getBotThumbnailRootFolder() + msisdn);
+
+		try
+		{
+			Utils.saveBase64StringToFile(botDpPath, imageData);
+			HikeMessengerApp.getLruCache().clearIconForMSISDN(msisdn);
+			HikeMessengerApp.getPubSub().publish(HikePubSub.ICON_CHANGED, msisdn);
+		}
+		catch (IOException e)
+		{
+			Logger.e(TAG, "Unable to save dp for bot with msisdn : " + msisdn + " Error : " + e.toString());
+		}
+		
+	}	
+	
+	
+	/**
+	 * Returns the root folder path for bot thumbnails <br>
+	 * eg : "/data/data/com.bsb.hike/files/Content/DP/"
+	 * 
+	 * @return
+	 */
+	private static String getBotThumbnailRootFolder()
+	{
+		File file = new File (PlatformContentConstants.PLATFORM_CONTENT_DIR + "DP");
+		if (!file.exists())
+		{
+			file.mkdirs();
+		}
+		
+		return PlatformContentConstants.PLATFORM_CONTENT_DIR + "DP" + File.separator;
+	}
+	
+	public static Bitmap getBotDp(String botMsisdn)
+	{
+		File file = new File (BotUtils.getBotThumbnailRootFolder() + botMsisdn);
+		if (file.exists())
+		{
+			return HikeBitmapFactory.decodeFile(BotUtils.getBotThumbnailRootFolder() + botMsisdn);
+		}
+
+		Logger.v(TAG, "File does not exist for : " + botMsisdn + " Maybe it's not a bot");
+		return null;
+	}
+	
 
 }

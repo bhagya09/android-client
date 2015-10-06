@@ -51,7 +51,7 @@ public interface HikePlatformConstants
 	public float BACK_OFF_MULTIPLIER = 2.0f; // exponential time delay multiplier
 	public int HTTP_CALL_MADE = 2;
 	public int MAKE_HTTP_CALL = 1;
-	public static final String PLATFORM_UID_FETCH_TAG = "platformUID";
+	public static final String FETCH_TAG = "platformFetch";
 	public static final String CONTENT_ID = "content_id";
 	public static final String NAMESPACE = "nameSpace";
 	public static final String PARAMS = "params";
@@ -84,16 +84,24 @@ public interface HikePlatformConstants
 	public static final String REPLACE_MICROAPP_VERSION = "replace";
 	public static final String BOT_VERSION = "version";
 	public static final String CALLBACK_ID = "callback_id";
+	public static final String PLATFORM_UIDS = "platformUids";
+	public static final String ANONYMOUS_NAME = "anonymousName";
+	public static final String ERROR = "error";
+	public static final String ANONYMOUS_NAMES = "anonymousNames";
 	public static final String FORWARD_CARD_OBJECT = "fwdCardObj";
 	public static final String TIMESTAMP = "timestamp";
 
-	public static final class PlatformUIDFetchType
+	public static final class PlatformFetchType
 	{
 		public static final int SELF = 1;
 
 		public static final int FULL_ADDRESS_BOOK = 2;
 
 		public static final int PARTIAL_ADDRESS_BOOK = 3;
+
+		public static final int SELF_ANONYMOUS_NAME = 4;
+
+		public static final int OTHER_ANONYMOUS_NAME = 5;
 
 	}
 

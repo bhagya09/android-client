@@ -10,7 +10,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_centerVertical="true"
-        android:layout_marginLeft="45dp"
+        android:layout_marginLeft="40dp"
         android:scaleType="centerInside"
         android:src="@drawable/sticker_001_as_kikorisa" />
 
@@ -19,8 +19,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_centerVertical="true"
-        android:layout_marginLeft="24dp"
-        android:layout_marginRight="32dp"
+        android:layout_marginLeft="18dp"
+        android:layout_marginRight="18dp"
         android:layout_toRightOf="@id/dialog_icon"
         android:gravity="center"
         android:orientation="vertical" >
@@ -32,6 +32,7 @@
             android:layout_marginBottom="12dp"
             android:text="@string/sticker_shop"
             android:textColor="@color/blue_hike"
+            android:visibility="gone"
             android:textSize="24sp"
             android:textStyle="italic" />
 
