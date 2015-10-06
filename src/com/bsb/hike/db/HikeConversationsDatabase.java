@@ -90,7 +90,6 @@ import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
 import com.bsb.hike.timeline.model.TimelineActions;
 import com.bsb.hike.timeline.view.TimelineActivity;
 import com.bsb.hike.utils.ChatTheme;
-import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.OneToNConversationUtils;
@@ -8604,8 +8603,12 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 	private void analyticsForUpgradeSortId(long numRows, long timeTaken) throws JSONException {
 		JSONObject jObj = new JSONObject();
-		jObj.put(AnalyticsConstants.MESSAGES_COUNT, numRows);
-		jObj.put(AnalyticsConstants.TIME_TAKEN, timeTaken);
+		jObj.put(AnalyticsConstants.EVENT_KEY, AnalyticsConstants.MICRO_APP_EVENT);
+		jObj.put(AnalyticsConstants.EVENT, "upgrade_sortId");
+		
+		jObj.put(AnalyticsConstants.LOG_FIELD_5, numRows); //Msg Count
+		jObj.put(AnalyticsConstants.LOG_FIELD_6, timeTaken); //Time taken in msec
+		
 		HAManager.getInstance().record(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.UPGRADE_EVENT, HAManager.EventPriority.HIGH, jObj, AnalyticsConstants.EVENT_TAG_MOB);
 	}
 

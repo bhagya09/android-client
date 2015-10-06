@@ -48,7 +48,8 @@ import com.google.gson.JsonParser;
 
 public class StickyCaller
 {
-
+	private static final String TAG = "StickyCaller";
+	
 	private static LinearLayout stickyCallerView;
 
 	private static WindowManager windowManager;
@@ -132,7 +133,7 @@ public class StickyCaller
 		}
 		catch (Exception e)
 		{
-			Logger.d("StickyCaller","exceptionRemoveViewCallbacks");
+			Logger.d(TAG,"exceptionRemoveViewCallbacks");
 		}
 	}
 
@@ -141,13 +142,12 @@ public class StickyCaller
 
 	private static void actionMove(Context context, int initialX, int initialY, float initialTouchX, float initialTouchY, MotionEvent event)
 	{
-		if ((ChatHeadLayout.getOverlayView() == null || !ChatHeadLayout.getOverlayView().isShown()) && stickyCallerView != null) 
+		if ((ChatHeadLayout.getOverlayView() == null || !ChatHeadLayout.getOverlayView().isShown()) && stickyCallerFrameHolder != null && stickyCallerView != null) 
 		{
-			float verticalDistance = 0.0f;
 			float XaxisMovement = event.getRawX() - initialTouchX;
 			float YaxisMovement = event.getRawY() - initialTouchY;
 			float wanderableTouchDistance =  (float)ViewConfiguration.get(context).getScaledTouchSlop();
-			Logger.d("StickyCaller","check : " + XaxisMovement + " > " + wanderableTouchDistance);
+			Logger.d(TAG,"check : " + XaxisMovement + " > " + wanderableTouchDistance);
 			if(!(horizontalMovementDetected || verticalMovementDetected))
 			{
 				horizontalMovementDetected = Math.abs(XaxisMovement) >  wanderableTouchDistance;
@@ -156,7 +156,7 @@ public class StickyCaller
 
 			if (verticalMovementDetected)
 			{
-				int actualYmovement = (int) (YaxisMovement + ((float) verticalDistance));
+				int actualYmovement = (int) (YaxisMovement + ((float) initialY));
 				if (actualYmovement < 0)
 				{
 					callerParams.y = 0;
@@ -169,14 +169,21 @@ public class StickyCaller
 				{
 					callerParams.y = actualYmovement;
 				}
-				windowManager.updateViewLayout(stickyCallerFrameHolder, callerParams);
+				try
+				{
+					windowManager.updateViewLayout(stickyCallerFrameHolder, callerParams);
+				}
+				catch(Exception e)
+				{
+					Logger.d(TAG, "Exception on updating view ");
+				}
 			}
 
 			
 			if (horizontalMovementDetected)
 			{
 				float linearHorizontalAlpha = Math.max(0.0f, Math.min(1.0f, 1.0f - (Math.abs(XaxisMovement) / ((float) context.getResources().getDisplayMetrics().widthPixels))));
-				Logger.d("StickyCaller", "setting alpha as : " + linearHorizontalAlpha);
+				Logger.d(TAG, "setting alpha as : " + linearHorizontalAlpha);
 				stickyCallerView.setAlpha(linearHorizontalAlpha);
 				stickyCallerView.setTranslationX(XaxisMovement);
 			}
@@ -201,7 +208,7 @@ public class StickyCaller
 				}
 				catch (Exception e)
 				{
-					Logger.d("StickyCaller", "view not found");
+					Logger.d(TAG, "view not found");
 				}
 			}
 		});
@@ -244,8 +251,8 @@ public class StickyCaller
 			{
 				try
 				{
-					stickyCallerView.clearAnimation();
-					slideAnimation(callerParams.x, Utils.getDeviceWidth());
+//					stickyCallerView.clearAnimation();
+//					slideAnimation(callerParams.x, Utils.getDeviceWidth());
 				}
 				catch (Exception e)
 				{
@@ -262,8 +269,8 @@ public class StickyCaller
 			{
 				try
 				{
-					stickyCallerView.clearAnimation();
-					slideAnimation(callerParams.x, -(Utils.getDeviceWidth()));
+//					stickyCallerView.clearAnimation();
+//					slideAnimation(callerParams.x, -(Utils.getDeviceWidth()));
 				}
 				catch (Exception e)
 				{
@@ -292,7 +299,7 @@ public class StickyCaller
 				initialX = callerParams.x;
 				initialY = callerParams.y;
 				
-				  if (initialY > statusBarHeight - stickyCallerView.getHeight()) {
+				  if (stickyCallerView != null && initialY > statusBarHeight - stickyCallerView.getHeight()) {
                       initialY = statusBarHeight - stickyCallerView.getHeight();
                   } 
 				initialTouchX = event.getRawX();
@@ -300,7 +307,7 @@ public class StickyCaller
 				moveType = NONE;
 				break;
 			case MotionEvent.ACTION_UP:
-				if(horizontalMovementDetected)
+				if(horizontalMovementDetected && stickyCallerView!=null)
 				{
 					exitSpeedTracker.computeCurrentVelocity(1000);
 					float exitSpeed = exitSpeedTracker.getXVelocity();
@@ -317,7 +324,7 @@ public class StickyCaller
 						{
 							Xmove = stickyCallerView.getTranslationX();
 						}
-						Logger.d("UmangX", "" + ((int) Math.copySign((float) Utils.getDeviceWidth(), Xmove)));
+						Logger.d("UmangK", "" + ((int) Math.copySign((float) Utils.getDeviceWidth(), Xmove)));
 						actionOnMotionUpEvent((int) Math.copySign((float) Utils.getDeviceWidth(), Xmove));
 					}
 					  
@@ -335,25 +342,24 @@ public class StickyCaller
 		}
 	};
 	
-	private static void actionOnMotionUpEvent(int i)
+	private static void actionOnMotionUpEvent(final int movedOnXaxis)
 	{
 		TimeInterpolator accelerateDecelerateInterpolator;
-		float f = 0.0f;
-		if (i == 0)
+		float alpha = 0.0f;
+		if (movedOnXaxis == 0)
 		{
-			f = 1.0f;
+			alpha = 1.0f;
 			accelerateDecelerateInterpolator = new AccelerateDecelerateInterpolator();
 		}
 		else
 		{
 			accelerateDecelerateInterpolator = new AccelerateInterpolator();
-			if (i == (-1 * Utils.getDeviceWidth()) || i == Utils.getDeviceWidth())
+			if (movedOnXaxis == (-1 * Utils.getDeviceWidth()) || movedOnXaxis == Utils.getDeviceWidth())
 			{
-				Logger.d("StickyCaller", "may not dismiss");
-				//TODO might make view invisible -> product call
+				Logger.d("UmangK", "may not dismiss");
 			}
 		}
-		stickyCallerView.animate().translationX((float) i).alpha(f).setDuration(500L).setInterpolator(accelerateDecelerateInterpolator).setListener(new AnimatorListener()
+		stickyCallerView.animate().translationX((float) movedOnXaxis).alpha(alpha).setDuration(500L).setInterpolator(accelerateDecelerateInterpolator).setListener(new AnimatorListener()
 		{
 			
 			@Override
@@ -373,7 +379,11 @@ public class StickyCaller
 			@Override
 			public void onAnimationEnd(Animator animation)
 			{
-				stickyCallerFrameHolder.setVisibility(View.GONE);
+				if(movedOnXaxis != 0)
+				{
+					Logger.d(TAG,"making caller gone");
+					stickyCallerFrameHolder.setVisibility(View.GONE);
+				}
 			}
 			
 			@Override
@@ -420,7 +430,7 @@ public class StickyCaller
 		}
 		catch (Exception e)
 		{
-			Logger.d("StickyCaller", "error in adding caller view");
+			Logger.d(TAG, "error in adding caller view");
 		}
 		if (CALL_TYPE == INCOMING || CALL_TYPE == OUTGOING)
 		{
@@ -476,8 +486,7 @@ public class StickyCaller
 		}
 		catch (Exception e)
 		{
-			e.printStackTrace();
-			Logger.d("StickyCaller", "error in adding caller view");
+			Logger.d(TAG, "error in adding caller view");
 		}
 	}
 
