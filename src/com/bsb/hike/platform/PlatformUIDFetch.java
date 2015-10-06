@@ -1,5 +1,8 @@
 package com.bsb.hike.platform;
 
+import android.text.TextUtils;
+
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.modules.httpmgr.Header;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
 import com.bsb.hike.tasks.PlatformUidFetchTask;
@@ -37,6 +40,23 @@ public class PlatformUIDFetch
 
 			case HikePlatformConstants.PlatformFetchType.SELF_ANONYMOUS_NAME:
 				url = HttpRequestConstants.getAnonymousNameFetchUrl();
+				JSONObject jObj = new JSONObject();
+				headers = PlatformUtils.getHeaders();
+				try
+				{
+					String name = (varargs != null && varargs.length > 0) ? varargs[0] : "";
+					if (TextUtils.isEmpty(name))
+					{
+						break;
+					}
+					jObj.put(HikeConstants.NAME, name);
+				}
+				catch (JSONException e)
+				{
+					e.printStackTrace();
+				}
+				new PlatformUidFetchTask(fetchType, url, jObj, headers).execute();
+				break;
 
 			case HikePlatformConstants.PlatformFetchType.PARTIAL_ADDRESS_BOOK:
 				url = HttpRequestConstants.platformUidForPartialAddressBookFetchUrl();
