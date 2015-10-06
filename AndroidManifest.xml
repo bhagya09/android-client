@@ -348,7 +348,7 @@
             android:configChanges="orientation|screenSize|keyboard|keyboardHidden"
             android:screenOrientation="user"
             android:theme="@style/LockPatternTheme"
-            android:windowSoftInputMode="adjustPan|stateAlwaysVisible" />
+            android:windowSoftInputMode="adjustPan|stateUnspecified" />
          <activity
             android:name=".ui.ServerHostChangeActivity"
             android:configChanges="orientation|keyboardHidden|screenSize" 

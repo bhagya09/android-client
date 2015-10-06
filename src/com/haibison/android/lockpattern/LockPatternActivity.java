@@ -1446,8 +1446,7 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity implem
 		if (systemKeyboard)
 		{
 			mLockPinView.setFocusable(true);
-			getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE|WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
-			Utils.showSoftKeyboard(mLockPinView, InputMethodManager.SHOW_FORCED);
+			Utils.showSoftKeyboard(LockPatternActivity.this, mLockPinView);
 		}
 		else
 		{
