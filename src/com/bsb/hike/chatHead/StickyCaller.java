@@ -660,7 +660,13 @@ public class StickyCaller
 		callerParams.gravity = Gravity.BOTTOM;
 		setBasicClickListener();
 		boolean showSaveContactDivider = false;
-		if (number != null)
+		if (callerContentModel != null && callerContentModel.getMsisdn()!= null)
+		{
+			TextView callerNumber = (TextView) (stickyCallerView.findViewById(R.id.caller_number));
+			callerNumber.setVisibility(View.VISIBLE);
+			callerNumber.setText(callerContentModel.getMsisdn());
+		}
+		else if (number != null)
 		{ 
 			TextView callerNumber = (TextView) (stickyCallerView.findViewById(R.id.caller_number));
 			callerNumber.setVisibility(View.VISIBLE);
@@ -726,7 +732,13 @@ public class StickyCaller
 		LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		stickyCallerView = (LinearLayout) inflater.inflate(R.layout.caller_layout, null);
 		setBasicClickListener();
-		if (number != null)
+		if (callerContentModel != null && callerContentModel.getMsisdn()!= null)
+		{
+			TextView callerNumber = (TextView) (stickyCallerView.findViewById(R.id.caller_number));
+			callerNumber.setVisibility(View.VISIBLE);
+			callerNumber.setText(callerContentModel.getMsisdn());
+		}
+		else if (number != null)
 		{ 
 			TextView callerNumber = (TextView) (stickyCallerView.findViewById(R.id.caller_number));
 			callerNumber.setVisibility(View.VISIBLE);
