@@ -722,6 +722,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 	protected void onPause()
 	{
 		KptUtils.pauseKeyboardResources(mCustomKeyboard, tagEditText, searchET);
+		KptUtils.updatePadding(ComposeChatActivity.this, R.id.ll_compose, 0);
 		
 		super.onPause();
 		if(adapter != null)
@@ -734,16 +735,13 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 	protected void onResume()
 	{
 		// TODO Auto-generated method stub
-		if (searchMenuItem != null && searchMenuItem.isActionViewExpanded())
-		{
 			if (!KptUtils.isSystemKeyboard(ComposeChatActivity.this))
 			{
-				if (mCustomKeyboard != null && searchET != null)
+				if (mCustomKeyboard != null && tagEditText != null)
 				{
-					mCustomKeyboard.showCustomKeyboard(searchET, true);
+					mCustomKeyboard.showCustomKeyboard(tagEditText, true);
 				}
 			}
-		}
 		super.onResume();
 		if(adapter != null)
 		{
