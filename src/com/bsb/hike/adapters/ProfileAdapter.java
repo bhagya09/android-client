@@ -658,21 +658,24 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 			GroupParticipant groupParticipant = groupParticipants.getFirst();
 			
 			ContactInfo contactInfo = groupParticipant.getContactInfo();
-			if (groupParticipant.isAdmin())
+			
+			if (groupParticipant.isAdmin())	//If Admin ----> show admin
 			{
 				viewHolder.infoContainer.setVisibility(View.VISIBLE);
 				viewHolder.infoContainer.findViewById(R.id.owner_indicator_text).setVisibility(View.VISIBLE);
 			}
-			else if(!contactInfo.isGroupConversationContact())
+			//else if Already a Member ----> show nothing
+			else if(groupParticipant.getType() == GroupParticipant.Participant_Type.MEMBER)
+			{
+				viewHolder.infoContainer.setVisibility(View.GONE);
+			}
+			//else It a SMS member ----> show waiting
+			else
 			{
 				viewHolder.infoContainer.setVisibility(View.VISIBLE);
 				viewHolder.infoContainer.findViewById(R.id.sms_member_indicator_text).setVisibility(View.VISIBLE);
 			}
-			else 
-			{
-				viewHolder.infoContainer.setVisibility(View.GONE);
-			}
-
+						
 			String groupParticipantName = groupParticipants.getSecond();
 			if (null == groupParticipantName)
 			{
