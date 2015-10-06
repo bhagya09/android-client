@@ -109,7 +109,7 @@ public class CocosGamingActivity extends Cocos2dxActivity implements HikePubSub.
 		super.onCreateDuplicate(savedInstanceState);
 		context = CocosGamingActivity.this;
 		msisdn = getIntent().getStringExtra(HikeConstants.MSISDN);
-		PLATFORM_CONTENT_DIR=getIntent().getStringExtra(PlatformContentConstants.PLATFORM_CONTENT_DIR);
+		PLATFORM_CONTENT_DIR = getIntent().getStringExtra(PlatformContentConstants.PLATFORM_CONTENT_DIR);
 		botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
 
 		if (botInfo == null || botInfo.getMetadata() == null)
@@ -162,7 +162,8 @@ public class CocosGamingActivity extends Cocos2dxActivity implements HikePubSub.
 		{
 			System.load(PLATFORM_CONTENT_DIR + "cocosEngine-7/libcocos2d.so");
 			System.load(getAppBasePath() + "libcocos2dcpp.so"); // loading the game
-		}catch(UnsatisfiedLinkError e)
+		}
+		catch (UnsatisfiedLinkError e)
 		{
 			Logger.e(TAG, "Game Engine not Found");
 			Toast.makeText(getApplicationContext(), R.string.some_error, Toast.LENGTH_SHORT).show();
@@ -191,6 +192,8 @@ public class CocosGamingActivity extends Cocos2dxActivity implements HikePubSub.
 	{
 		return botInfo;
 	}
+
+	public static native void ShutdownGame();
 
 	public static native void PlatformCallback(String callID, String response);
 
@@ -256,7 +259,7 @@ public class CocosGamingActivity extends Cocos2dxActivity implements HikePubSub.
 	public String getAppBasePath()
 	{
 		String path = PLATFORM_CONTENT_DIR + nonMessagingBotMetadata.getAppName();
-		
+
 		return path + File.separator;
 	}
 
