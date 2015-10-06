@@ -99,7 +99,7 @@ public class GeneralEventMessagesManager
 				long clientTimestamp = packet.getLong(HikeConstants.SEND_TIMESTAMP);
 				String eventMetadata = data.getString(HikePlatformConstants.EVENT_CARDDATA);
 				String namespace = data.getString(HikePlatformConstants.NAMESPACE);
-				String parent_msisdn = data.getString(HikePlatformConstants.PARENT_MSISDN);
+				String parent_msisdn = data.optString(HikePlatformConstants.PARENT_MSISDN);
 				MessageEvent messageEvent = new MessageEvent(HikePlatformConstants.NORMAL_EVENT, from, namespace, eventMetadata, messageHash,
 						HikePlatformConstants.EventStatus.EVENT_RECEIVED, clientTimestamp, mappedId, messageId, parent_msisdn);
 				long eventId = HikeConversationsDatabase.getInstance().insertMessageEvent(messageEvent);

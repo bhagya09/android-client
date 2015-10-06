@@ -1299,6 +1299,7 @@
     <string name="voip_conference_os_support">Your phone cannot host a conference.</string>
     <string name="voip_conference_host">Conference host</string>
     <string name="voip_conference_not_supported">%1$s does not support conference calls.</string>
+    <string name="voip_group_conference_confirmation">Do you want to start a conference call with everyone in this group?</string>
     <string name="led_color_none_key">None</string>
     <string name="led_color_blue_key">Blue</string>
     <string name="led_color_cyan_key">Cyan</string>
@@ -1371,7 +1372,7 @@
     <string name="voip_callee_busy">%1$s is busy</string>
     <string name="voip_callee_no_response">%1$s is not responding</string>
     <string name="voip_incompat_platform">Hike calls are currently not\navailable on this contact\'s phone.</string>
-    <string name="voip_older_app">%1$s is on an Older Version of hike</string>
+    <string name="voip_older_app">%1$s is on an older version of hike</string>
     <string name="voip_caller_poor_network">You or %1$s is on a poor network</string>
     <string name="voip_unable_to_connect_call">Unable to connect your call</string>
     <string name="voip_unable_to_connect_to_network">Unable to connect to network</string>
@@ -1719,6 +1720,8 @@
     <string name="low_battery_msg">Your device is running low on battery. Messaging and sending or receiving files may become slow.</string>
     <string name ="offline_connection_problem">Oops! Facing some problem?\nPlease try later.</string>
     <string name="turn_on_connection">Turn on Mobile Data or Wi-Fi</string>
+    <string name="please_wait">Please wait</string>
+    <string name="loading_data">Loading data...</string>
     <string name="action_no_network">Please check network</string>
     <string name="timeline_transition_anim">timeline_image_transit</string>
     <string name="home_overflow_new_photo">New Photo</string>
@@ -1727,4 +1730,17 @@
     <string name="group_participant_info">You can add upto 500 members to a group</string>
     <string name="maxContactInGroupErr">Max %1$s members can be added</string>
     <string name="added_in_group">This contact is already a member</string>
+	<string name="net_not_connected">HikeCaller works only on Wi-Fi or 3G/4G.</string>
+	<string name="sticky_caller_settings">Caller ID</string>
+	<string name="sticky_caller_settings_side_text">Show identity and options for unknown numbers.</string>
+	<string name="caller_error_403">Some error occurred.</string>
+	<string name="caller_error_406">Unable to get the name for this number.</string>
+	<string name="caller_error_500">An internal server error occurred.</string>
+    <string name="okay">OKAY</string>
+    <string name="getting_mapp_shortly">Congratulations! You should see %1$s on your chat screen shortly</string>
+    <string name="hike_apps">APPS ON HIKE</string>
+    <string name="hi">Hi</string>
+    <string name="caller_invited_to_join">%1$s has been invited to join a call with you.</string>
+    
+    
 </resources>

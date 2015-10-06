@@ -76,12 +76,13 @@ public class OfflineAnalytics
 		}
 	}
 
-	public static void recordDisconnectionAnalytics(int reasonCode)
+	public static void recordDisconnectionAnalytics(int reasonCode, long connectionId)
 	{
 		JSONObject object = new JSONObject();
 
 		try
 		{
+			object.put("connId", connectionId);
 			object.put(HikeConstants.EVENT_TYPE, AnalyticsConstants.EVENT_TYPE_OFFLINE);
 			object.put(HikeConstants.EVENT_KEY, AnalyticsConstants.EVENY_KEY_DISCONN_REA);
 			object.put(AnalyticsConstants.TIP_KEY, reasonCode);

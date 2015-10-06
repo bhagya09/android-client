@@ -5,6 +5,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.lang.ref.WeakReference;
+import java.net.URISyntaxException;
 import java.net.URLEncoder;
 
 import org.json.JSONException;
@@ -12,6 +13,7 @@ import org.json.JSONObject;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -19,6 +21,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
+import android.provider.Settings;
 import android.text.Html;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -37,6 +40,9 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
+import com.bsb.hike.dialog.HikeDialog;
+import com.bsb.hike.dialog.HikeDialogFactory;
+import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
@@ -553,6 +559,7 @@ public abstract class JavascriptBridge
 			intent.putExtra(HikeConstants.Extras.COMPOSE_MODE, ComposeChatActivity.PICK_CONTACT_MODE);
 			intent.putExtra(tag, JavascriptBridge.this.hashCode());
 			intent.putExtra(REQUEST_CODE, PICK_CONTACT_REQUEST);
+			intent.putExtra(HikeConstants.Extras.THUMBNAILS_REQUIRED, true);
 			activity.startActivityForResult(intent, HikeConstants.PLATFORM_REQUEST);
 		}
 	}
@@ -1130,5 +1137,79 @@ public abstract class JavascriptBridge
 	{
 		PlatformHelper.sendSharedMessage(cardObject, hikeMessage, sharedData, mBotInfo, weakActivity.get(),JavascriptBridge.this.hashCode());
 	}
+
+	/**
+	 * Platform Version 6 Call this function to open a given Intent.
+	 * 
+	 * @param IntentName
+	 *            JS has to ensure the intent is a valid name, and has to provide the intent URI(e.g. android.settings.LOCATION_SOURCE_SETTINGS)
+	 */
+	@JavascriptInterface
+	public void openIntent(String intentURI)
+	{
+
+		Activity currActivity = weakActivity.get();
+		if (currActivity != null)
+		{
+			Intent intent;
+			try
+			{
+				intent = new Intent(intentURI);
+			currActivity.startActivity(intent);
+			}
+			catch (ActivityNotFoundException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
+	@JavascriptInterface
+	/**
+	 * Added in Platform Version:7
+	 * 
+	 * @param id
+	 *            : : the id of the function that native will call to call the js . Show a native dialog and know the button clicked by the user
+	 *            returns positive/negative. Title,Message and positiveBtn are compulsory.
+	 */
+	public void showDialog(final String id, String title, String message, String positiveBtn, String negativeBtn)
+	{
+		if(TextUtils.isEmpty(title)||TextUtils.isEmpty(message)||TextUtils.isEmpty(positiveBtn))
+			return;
+		Activity mContext = weakActivity.get();
+		if (mContext != null)
+		{
+			HikeDialogListener nativeDialogListener = new HikeDialogListener()
+			{
+
+				@Override
+				public void negativeClicked(HikeDialog hikeDialog)
+				{
+					callbackToJS(id, "negative");
+					hikeDialog.dismiss();
+
+				}
+
+				@Override
+				public void positiveClicked(HikeDialog hikeDialog)
+				{
+					callbackToJS(id, "positive");
+					hikeDialog.dismiss();
+
+				}
+
+				@Override
+				public void neutralClicked(HikeDialog hikeDialog)
+				{
+					// TODO Auto-generated method stub
+
+				}
+
+			};
+
+			HikeDialogFactory.showDialog(mContext, HikeDialogFactory.MICROAPP_DIALOG, nativeDialogListener, title, message, positiveBtn, negativeBtn);
+		}
+	}
+
 
 }

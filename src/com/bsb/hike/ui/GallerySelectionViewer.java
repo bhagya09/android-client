@@ -161,7 +161,7 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 		int numColumns = Utils.getNumColumnsForGallery(getResources(), sizeOfImage);
 		int thumbnailSize = Utils.getActualSizeForGallery(getResources(), sizeOfImage, numColumns);
 		//num of columns is 1 for preview as we will be displaying only one image at a time.
-		int previewSize = Utils.getActualSizeForGallery(getResources(), sizeOfImage, numColumns);
+		int previewSize = Utils.getActualSizeForGallery(getResources(), sizeOfImage, 1);
 
 		gridAdapter = new GalleryAdapter(this, galleryGridItems, true, thumbnailSize, null, true);
 
@@ -527,8 +527,6 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 			
 			galleryImageLoader.loadImage(GalleryImageLoader.GALLERY_KEY_PREFIX + filePath, galleryImageView, false, true);
 
-			setupButtonSpacing(galleryImageView, removeImage);
-
 			removeImage.setTag(position);
 			removeImage.setOnClickListener(removeSelectionClickListener);
 
@@ -536,36 +534,6 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 			return page;
 		}
 
-		private void setupButtonSpacing(ImageView galleryImageView, ImageButton removeImage)
-		{
-			Drawable drawable = galleryImageView.getDrawable();
-			if (drawable == null)
-			{
-				return;
-			}
-
-			int drawableHeight = drawable.getIntrinsicHeight();
-			int drawableWidth = drawable.getIntrinsicWidth();
-
-			int imageWidth;
-			int imageHeight;
-
-			if (viewerHeight / drawableHeight <= viewerWidth / drawableWidth)
-			{
-				imageWidth = drawableWidth * viewerHeight / drawableHeight;
-				imageHeight = viewerHeight;
-			}
-			else
-			{
-				imageHeight = drawableHeight * viewerWidth / drawableWidth;
-				imageWidth = viewerWidth;
-			}
-
-			LayoutParams layoutParams = (LayoutParams) removeImage.getLayoutParams();
-			layoutParams.leftMargin = imageWidth;
-			layoutParams.bottomMargin = imageHeight/2;
-		}
-		
 		public GalleryImageLoader getGalleryImageLoader()
 		{
 			return galleryImageLoader;
@@ -594,7 +562,14 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 
 			if(galleryItems.isEmpty())
 			{
-				startAddMoreGalleryIntent();
+				if(forGalleryShare)
+				{
+					onBackPressed();
+				}
+				else
+				{
+					startAddMoreGalleryIntent();
+				}
 			}
 
 			GallerySelectionViewer.this.selectedPager.setCurrentItem(postion == 0 ? 0 : postion - 1);
