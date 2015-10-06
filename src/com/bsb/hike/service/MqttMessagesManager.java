@@ -2538,10 +2538,10 @@ public class MqttMessagesManager
 		{
 			HikeSharedPreferenceUtil.getInstance().saveData(StickyCaller.SHOW_STICKY_CALLER, data.optBoolean(StickyCaller.SHOW_STICKY_CALLER, false));
 		}
-		if (data.has(StickyCaller.ACTIVATE_STICKY_CALLER))
+		if (data.has(HikeConstants.ACTIVATE_STICKY_CALLER_PREF))
 		{
-			HikeSharedPreferenceUtil.getInstance().saveData(StickyCaller.ACTIVATE_STICKY_CALLER, data.optBoolean(StickyCaller.ACTIVATE_STICKY_CALLER, false));
-			if (data.optBoolean(StickyCaller.ACTIVATE_STICKY_CALLER, false))
+			Utils.setSharedPrefValue(context, HikeConstants.ACTIVATE_STICKY_CALLER_PREF, data.optBoolean(HikeConstants.ACTIVATE_STICKY_CALLER_PREF, false));
+			if (data.optBoolean(HikeConstants.ACTIVATE_STICKY_CALLER_PREF, false))
 			{
 				ChatHeadUtils.registerCallReceiver();
 			}
@@ -2554,9 +2554,9 @@ public class MqttMessagesManager
 		{
 			HikeSharedPreferenceUtil.getInstance().saveData(StickyCaller.SHOW_KNOWN_NUMBER_CARD, data.optBoolean(StickyCaller.SHOW_KNOWN_NUMBER_CARD, false));
 		}
-		if (data.has(StickyCaller.ENABLE_KNOWN_NUMBER_CARD))
+		if (data.has(HikeConstants.ENABLE_KNOWN_NUMBER_CARD_PREF))
 		{
-			HikeSharedPreferenceUtil.getInstance().saveData(StickyCaller.ENABLE_KNOWN_NUMBER_CARD, data.optBoolean(StickyCaller.ENABLE_KNOWN_NUMBER_CARD, true));
+			Utils.setSharedPrefValue(context, HikeConstants.ENABLE_KNOWN_NUMBER_CARD_PREF, data.optBoolean(HikeConstants.ENABLE_KNOWN_NUMBER_CARD_PREF, false));
 		}
 		if (data.has(StickyCaller.SHOW_FREECALL_VIEW))
 		{

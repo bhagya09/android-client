@@ -86,8 +86,6 @@ public class StickyCaller
 
 	public static String callCurrentName = null;
 
-	public static final String ACTIVATE_STICKY_CALLER = "activateStickyCaller";
-
 	public static final String SHOW_STICKY_CALLER = "showStickyCaller";
 
 	private static final String CALLER_Y_PARAMS = "callerYParams";
@@ -101,8 +99,6 @@ public class StickyCaller
 	public static final String SMS_BODY = "sms_body";
 
 	public static final String SHOW_KNOWN_NUMBER_CARD = "showKnowCard";
-	
-	public static final String ENABLE_KNOWN_NUMBER_CARD = "enblKnowCard";
 	
 	public static final String SHOW_FREECALL_VIEW = "shwFreeCall";
 	
@@ -872,8 +868,7 @@ public class StickyCaller
 */			case R.id.caller_settings_button:
 				IncomingCallReceiver.callReceived = true;
 				HAManager.getInstance().stickyCallerAnalyticsUIEvent(AnalyticsConstants.StickyCallerEvents.CALLER_SETTINGS_BUTTON, StickyCaller.callCurrentNumber, AnalyticsConstants.StickyCallerEvents.CARD, getCallEventFromCallType(CALL_TYPE));
-				Intent intent = IntentFactory.getStickyCallerSettingsIntent(HikeMessengerApp.getInstance());
-				ChatHeadUtils.insertHomeActivitBeforeStarting(intent);
+				IntentFactory.openStickyCallerSettings(HikeMessengerApp.getInstance().getApplicationContext(), true);
 				break;
 			case R.id.caller_close_button:
 				HAManager.getInstance().stickyCallerAnalyticsUIEvent(AnalyticsConstants.StickyCallerEvents.CLOSE_BUTTON, StickyCaller.callCurrentNumber, AnalyticsConstants.StickyCallerEvents.CARD, getCallEventFromCallType(CALL_TYPE));

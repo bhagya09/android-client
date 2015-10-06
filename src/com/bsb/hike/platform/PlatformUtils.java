@@ -11,7 +11,9 @@ import java.util.Iterator;
 import java.util.List;
 
 import android.util.Pair;
+
 import com.bsb.hike.bots.NonMessagingBotMetadata;
+
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
@@ -27,9 +29,12 @@ import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
+import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.webkit.MimeTypeMap;
 import android.widget.Toast;
@@ -320,8 +325,9 @@ public class PlatformUtils
 			}
 			if (activityName.equals(HIKESCREEN.HIKE_CALLER.toString()))
 			{
-				HikeSharedPreferenceUtil.getInstance().saveData(StickyCaller.ACTIVATE_STICKY_CALLER, true);
-				IntentFactory.openStickyCallerSettings(context);
+				Utils.setSharedPrefValue(context, HikeConstants.ACTIVATE_STICKY_CALLER_PREF, true);
+				ChatHeadUtils.registerCallReceiver();
+				IntentFactory.openStickyCallerSettings(context, false);
 			}
 			if(activityName.equals(HIKESCREEN.ACCESS.toString()))
 			{

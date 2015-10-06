@@ -20,6 +20,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.SystemClock;
+import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.provider.Settings.SettingNotFoundException;
 import android.support.v4.app.TaskStackBuilder;
@@ -502,10 +503,9 @@ public class ChatHeadUtils
 							.getString(HikeMessengerApp.COUNTRY_CODE, HikeConstants.INDIA_COUNTRY_CODE));
 			StickyCaller.callCurrentNumber = number;
 			String contactName = getNameFromNumber(context, number);
-
 			if (contactName != null)
 			{
-				if (HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.ACTIVATE_STICKY_CALLER, true))
+				if (PreferenceManager.getDefaultSharedPreferences(context).getBoolean(HikeConstants.ENABLE_KNOWN_NUMBER_CARD_PREF, true))
 				{
 					StickyCaller.showCallerViewWithDelay(number, contactName, StickyCaller.ALREADY_SAVED, AnalyticsConstants.StickyCallerEvents.ALREADY_SAVED);
 				}
@@ -537,29 +537,29 @@ public class ChatHeadUtils
 	
 	public static void registerCallReceiver()
 	{
+		final Context context = HikeMessengerApp.getInstance().getApplicationContext();
 		if (HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.SHOW_STICKY_CALLER, false)
-				&& HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.ACTIVATE_STICKY_CALLER, false))
+				&& PreferenceManager.getDefaultSharedPreferences(context).getBoolean(HikeConstants.ACTIVATE_STICKY_CALLER_PREF, false))
 		{
 			HikeHandlerUtil.getInstance().postRunnable(new Runnable()
 			{
 				// putting code inside runnable to make it run on UI thread.
-			@Override
-			public void run()
-			{
-			Context context = HikeMessengerApp.getInstance().getApplicationContext();
-			if (incomingCallReceiver == null)
-			{
-				incomingCallReceiver = new IncomingCallReceiver();
-				TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
-				telephonyManager.listen(incomingCallReceiver, PhoneStateListener.LISTEN_CALL_STATE);
-			}
-			if (outgoingCallReceiver == null)
-			{
-				outgoingCallReceiver = new OutgoingCallReceiver();
-				IntentFilter intentFilter = new IntentFilter(Intent.ACTION_NEW_OUTGOING_CALL);
-				context.registerReceiver(outgoingCallReceiver, intentFilter);
-			}
-			}
+				@Override
+				public void run()
+				{
+					if (incomingCallReceiver == null)
+					{
+						incomingCallReceiver = new IncomingCallReceiver();
+						TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+						telephonyManager.listen(incomingCallReceiver, PhoneStateListener.LISTEN_CALL_STATE);
+					}
+					if (outgoingCallReceiver == null)
+					{
+						outgoingCallReceiver = new OutgoingCallReceiver();
+						IntentFilter intentFilter = new IntentFilter(Intent.ACTION_NEW_OUTGOING_CALL);
+						context.registerReceiver(outgoingCallReceiver, intentFilter);
+					}
+				}
 			});
 
 		}
