@@ -30,6 +30,7 @@ import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
@@ -715,6 +716,7 @@ public class StickyCaller
 		{
 			((TextView) stickyCallerView.findViewById(R.id.missed_call_time)).setText(context.getString(R.string.voip_missed_call_notif) + MISSED_CALL_TIMINGS);
 		}
+		HikeSharedPreferenceUtil.getInstance(HikeConstants.CALLER_SHARED_PREF).saveData(callerContentModel.getMsisdn(), result);
 	}
 	
 	private static String getFullName(CallerContentModel callerContentModel)
@@ -773,6 +775,7 @@ public class StickyCaller
 
 			setFreeSmsButton();
 		}
+		HikeSharedPreferenceUtil.getInstance(HikeConstants.CALLER_SHARED_PREF).saveData(callerContentModel.getMsisdn(), result);
 	}
 	
 	
