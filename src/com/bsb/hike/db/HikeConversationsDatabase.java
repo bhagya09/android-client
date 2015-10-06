@@ -2144,7 +2144,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 	 *            -- list of messages to be added to database
 	 * @return <li><b>true</b> if messages successfully added to database</li> <li><b>false</b> if messages are not inserted to database possibly due to duplicate</li>
 	 */
-	public boolean addConversations(List<ConvMessage> convMessages, ArrayList<ContactInfo> contacts,boolean createConvIfNotExist)
+	public boolean addConversations(List<ConvMessage> convMessages, List<ContactInfo> contacts,boolean createConvIfNotExist)
 	{
         SQLiteStatement insertStatement = getSqLiteStatementToInsertIntoMessagesTable(createConvIfNotExist);
 

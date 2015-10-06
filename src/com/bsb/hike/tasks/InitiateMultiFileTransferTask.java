@@ -12,6 +12,7 @@ import android.util.Pair;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.filetransfer.FTAnalyticEvents;
+import com.bsb.hike.filetransfer.FTMessageBuilder;
 import com.bsb.hike.filetransfer.FileTransferManager;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfoData;
@@ -22,6 +23,7 @@ import com.bsb.hike.offline.OfflineController;
 import com.bsb.hike.offline.OfflineManager;
 import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.ui.ComposeChatActivity.FileTransferData;
+import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
 public class InitiateMultiFileTransferTask extends AsyncTask<Void, Void, Void>
@@ -92,20 +94,24 @@ public class InitiateMultiFileTransferTask extends AsyncTask<Void, Void, Void>
 		}
 		else
 		{
-
-			if (Utils.isPicasaUri(filePath))
-			{
-				FileTransferManager.getInstance(context).uploadFile(Uri.parse(filePath), hikeFileType, msisdn, onHike);
-			}
-			else
-			{
+			Logger.d("InitiateMultiFileTransferTask", "isCloudMedia" + Utils.isPicasaUri(filePath));
 				File file = new File(filePath);
 				if (file.length() == 0)
 				{
 					return;
 				}
-				FileTransferManager.getInstance(context).uploadFile(msisdn, file, null, fileType, hikeFileType, false, false, onHike, -1, attachementType);
-			}
+				FTMessageBuilder.Builder mBuilder = new FTMessageBuilder.Builder()
+				.setMsisdn(msisdn)
+				.setSourceFile(file)
+				.setFileKey(null)
+				.setFileType(fileType)
+				.setHikeFileType(hikeFileType)
+				.setRec(false)
+				.setForwardMsg(false)
+				.setRecipientOnHike(onHike)
+				.setRecordingDuration(-1)
+				.setAttachement(attachementType);
+				mBuilder.build();
 		}
 	}
 }
