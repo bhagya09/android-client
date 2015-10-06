@@ -28,7 +28,8 @@ public class PlatformUIDRequestListener implements IRequestListener
 	@Override
 	public void onRequestFailure(HttpException httpException)
 	{
-		Logger.e(HikePlatformConstants.PLATFORM_UID_FETCH_TAG, httpException.toString());
+		Logger.e(HikePlatformConstants.FETCH_TAG, httpException.toString());
+		//TODO give the response back to the controller for anonymous games.
 	}
 
 	/**
@@ -39,14 +40,14 @@ public class PlatformUIDRequestListener implements IRequestListener
 	@Override
 	public void onRequestSuccess(Response result)
 	{
-
+		HikeSharedPreferenceUtil mPrefs = HikeSharedPreferenceUtil.getInstance();
+		JSONObject obj = (JSONObject) result.getBody().getContent();
 		switch (fetchType)
 		{
-		case HikePlatformConstants.PlatformUIDFetchType.SELF:
+		case HikePlatformConstants.PlatformFetchType.SELF:
 
-			HikeSharedPreferenceUtil mPrefs = HikeSharedPreferenceUtil.getInstance();
-			JSONObject obj = (JSONObject) result.getBody().getContent();
-			Logger.d(HikePlatformConstants.PLATFORM_UID_FETCH_TAG, "response for the platform uid request for " + fetchType + " is " + obj.toString());
+
+			Logger.d(HikePlatformConstants.FETCH_TAG, "response for the platform uid request for " + fetchType + " is " + obj.toString());
 			if (obj.has(HikePlatformConstants.PLATFORM_USER_ID) && obj.has(HikePlatformConstants.PLATFORM_TOKEN))
 			{
 				String platformUID = obj.optString(HikePlatformConstants.PLATFORM_USER_ID);
@@ -59,7 +60,7 @@ public class PlatformUIDRequestListener implements IRequestListener
 
 					if (mPrefs.getData(HikePlatformConstants.PLATFORM_UID_FOR_ADDRESS_BOOK_FETCH, -1) == HikePlatformConstants.MAKE_HTTP_CALL)
 					{
-						PlatformUIDFetch.fetchPlatformUid(HikePlatformConstants.PlatformUIDFetchType.FULL_ADDRESS_BOOK);
+						PlatformUIDFetch.fetchPlatformUid(HikePlatformConstants.PlatformFetchType.FULL_ADDRESS_BOOK);
 						mPrefs.saveData(HikePlatformConstants.PLATFORM_UID_FOR_ADDRESS_BOOK_FETCH, HikePlatformConstants.HTTP_CALL_MADE);
 					}
 				}
@@ -67,14 +68,40 @@ public class PlatformUIDRequestListener implements IRequestListener
 
 			break;
 
-		case HikePlatformConstants.PlatformUIDFetchType.PARTIAL_ADDRESS_BOOK:
-		case HikePlatformConstants.PlatformUIDFetchType.FULL_ADDRESS_BOOK:
+		case HikePlatformConstants.PlatformFetchType.PARTIAL_ADDRESS_BOOK:
+		case HikePlatformConstants.PlatformFetchType.FULL_ADDRESS_BOOK:
 
 			JSONArray response = (JSONArray) result.getBody().getContent();
-			Logger.d(HikePlatformConstants.PLATFORM_UID_FETCH_TAG, "response for the platform uid request for " + fetchType + " is " + response.toString());
+			Logger.d(HikePlatformConstants.FETCH_TAG, "response for the platform uid request for " + fetchType + " is " + response.toString());
 			ContactManager.getInstance().platformUserIdEntry(response);
 
 			break;
+
+		case HikePlatformConstants.PlatformFetchType.SELF_ANONYMOUS_NAME:
+
+			Logger.d(HikePlatformConstants.FETCH_TAG, "response for the anonymous request for " + fetchType + " is " + obj.toString());
+			if (obj.has(HikePlatformConstants.ANONYMOUS_NAME))
+			{
+				String anonName = obj.optString(HikePlatformConstants.ANONYMOUS_NAME);
+				if (!TextUtils.isEmpty(anonName) )
+				{
+					mPrefs.saveData(HikeMessengerApp.ANONYMOUS_NAME_SETTING, anonName);
+				}
+			}
+			else if (obj.has(HikePlatformConstants.ERROR))
+			{
+				String errorMessage = obj.optString(HikePlatformConstants.ERROR);
+				//TODO send this error message to the required place, that'll indeed call this api again to fetch anon name.
+			}
+			break;
+
+		case HikePlatformConstants.PlatformFetchType.OTHER_ANONYMOUS_NAME:
+			Logger.d(HikePlatformConstants.FETCH_TAG, "response for the anonymous request for " + fetchType + " is " + obj.toString());
+			if (obj.has(HikePlatformConstants.ANONYMOUS_NAMES))
+			{
+				String anonNames = obj.optString(HikePlatformConstants.ANONYMOUS_NAME);
+				//TODO send these anonNames to the required place, native or html.
+			}
 		}
 
 	}

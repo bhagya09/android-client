@@ -1,5 +1,7 @@
 package com.bsb.hike.platform.bridge;
 
+import java.io.File;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -27,6 +29,7 @@ import com.bsb.hike.platform.GpsLocation;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformHelper;
 import com.bsb.hike.platform.PlatformUtils;
+import com.bsb.hike.platform.content.PlatformContentConstants;
 import com.bsb.hike.ui.GalleryActivity;
 import com.bsb.hike.ui.WebViewActivity;
 import com.bsb.hike.utils.IntentFactory;
@@ -1297,6 +1300,41 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 		});
 
 	}
+	
+	/**
+	 * Platform Version 8
+	 * This function is made for a bot to know whether its directory exists.
+	 * @param id: the id of the function that native will call to call the js .
+	 */
+	public void isMicroappExist(String id)
+	{
+		NonMessagingBotMetadata nonMessagingBotMetadata = new NonMessagingBotMetadata(mBotInfo.getMetadata());
+		File file = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + nonMessagingBotMetadata.getAppName());
+		if (file.exists())
+			callbackToJS(id, "true");
+		else
+			callbackToJS(id, "false");
+	}
+	/**
+	 * Platform Version 8
+	 * This function is made for a special bot to know whether a microapp exists.
+	 * @param id: the id of the function that native will call to call the js .
+	 * @param mapp: the name of the mapp.
+	 */
+	public void isMicroappExist(String id, String mapp)
+	{
+		if (!BotUtils.isSpecialBot(mBotInfo))
+		{
+			return;
+		}
+		File file = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + mapp);
+		if (file.exists())
+			callbackToJS(id, "true");
+		else
+			callbackToJS(id, "false");
+	}
+	
+	
 
 
 }
