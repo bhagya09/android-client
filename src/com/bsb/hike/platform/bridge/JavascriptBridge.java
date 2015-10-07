@@ -1210,28 +1210,6 @@ public abstract class JavascriptBridge
 			HikeDialogFactory.showDialog(mContext, HikeDialogFactory.MICROAPP_DIALOG, nativeDialogListener, title, message, positiveBtn, negativeBtn);
 		}
 	}
-	/**
-	 * Added in Platform Version:8
-	 * 
-	 * @param type
-	 * 0,Anonymous Name
-	 * @param data
-	 *           
-	 */
-	public void savePlatformData(int type, String data)
-	{
-		final int ANON_NAME = 1;
 
-		switch (type)
-		{
-		case ANON_NAME:
-			if (!TextUtils.isEmpty(data))
-			{
-				HikeSharedPreferenceUtil mPrefs = HikeSharedPreferenceUtil.getInstance();
-				mPrefs.saveData(HikeMessengerApp.ANONYMOUS_NAME_SETTING, data);
-			}
-		}
 
-	}
-	
 }
