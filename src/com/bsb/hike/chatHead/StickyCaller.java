@@ -100,6 +100,8 @@ public class StickyCaller
 	public static final String SHOW_KNOWN_NUMBER_CARD = "showKnowCard";
 	
 	public static final String SHOW_FREECALL_VIEW = "shwFreeCall";
+
+	private static final String INDIA = "India";
 	
 	public static String MISSED_CALL_TIMINGS;
 
@@ -529,17 +531,17 @@ public class StickyCaller
 		setBasicClickListener(number);
 		if (number != null)
 		{
-			TextView callerNumber = (TextView) (stickyCallerView.findViewById(R.id.caller_number));
-			callerNumber.setVisibility(View.VISIBLE);
-			callerNumber.setText(number);
+			setValueOnID(R.id.caller_number, number);
 		}
 		if (result != null)
 		{
-			TextView callerName = (TextView) stickyCallerView.findViewById(R.id.caller_name);
-			callerName.setVisibility(View.VISIBLE);
-			callerName.setText(result);
+			setValueOnID(R.id.caller_name, result);
 		}
-	
+		if (number.startsWith("+91"))
+		{
+			setValueOnID(R.id.caller_location, INDIA);
+		}
+		
 		if ((Utils.isIndianNumber(number) && HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.SHOW_FREECALL_VIEW, true)) || Utils.isOnHike(number))
 		{
 			stickyCallerView.findViewById(R.id.missed_call_free_divider).setVisibility(View.VISIBLE);
@@ -554,6 +556,12 @@ public class StickyCaller
 		}
 	}
 
+	private static void setValueOnID(int id, String value)
+	{
+		TextView callerNumber = (TextView) (stickyCallerView.findViewById(id));
+		callerNumber.setVisibility(View.VISIBLE);
+		callerNumber.setText(value);
+	}
 	private static void settingOtherCallLayoutAlreadySavedContact(Context context, String number, String result)
 	{
 		LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -561,17 +569,16 @@ public class StickyCaller
 		setBasicClickListener(number);
 		if (number != null)
 		{
-			TextView callerNumber = (TextView) (stickyCallerView.findViewById(R.id.caller_number));
-			callerNumber.setVisibility(View.VISIBLE);
-			callerNumber.setText(number);
+			setValueOnID(R.id.caller_number, number);
 		}
 		if (result != null)
 		{
-			TextView callerName = (TextView) stickyCallerView.findViewById(R.id.caller_name);
-			callerName.setVisibility(View.VISIBLE);
-			callerName.setText(result);
+			setValueOnID(R.id.caller_name, result);
 		}
-	
+		if (number.startsWith("+91"))
+		{
+			setValueOnID(R.id.caller_location, INDIA);
+		}
 		if ((Utils.isIndianNumber(number) && HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.SHOW_FREECALL_VIEW, true)) || Utils.isOnHike(number))
 		{
 			setDismissWithVisible();
@@ -663,38 +670,31 @@ public class StickyCaller
 		boolean showSaveContactDivider = false;
 		if (callerContentModel != null && callerContentModel.getMsisdn()!= null)
 		{
-			TextView callerNumber = (TextView) (stickyCallerView.findViewById(R.id.caller_number));
-			callerNumber.setVisibility(View.VISIBLE);
-			callerNumber.setText(callerContentModel.getMsisdn());
+			setValueOnID(R.id.caller_number, callerContentModel.getMsisdn());
 		}
 		else if (number != null)
 		{ 
-			TextView callerNumber = (TextView) (stickyCallerView.findViewById(R.id.caller_number));
-			callerNumber.setVisibility(View.VISIBLE);
-			callerNumber.setText(number);
+			setValueOnID(R.id.caller_number, number);
 		}
 		if (callerContentModel != null && callerContentModel.getFirstName() != null)
 		{
-			TextView callerName = (TextView) stickyCallerView.findViewById(R.id.caller_name);
-			callerName.setVisibility(View.VISIBLE);
-			String name = getFullName(callerContentModel); 
-			callerName.setText(name);
+			setValueOnID(R.id.caller_name, getFullName(callerContentModel));
 			setSaveContactClickListener(number);
 			showSaveContactDivider =true;
 		}
 		else if (callerContentModel != null &&callerContentModel.getLastName() != null)
 		{
-			TextView callerName = (TextView) stickyCallerView.findViewById(R.id.caller_name);
-			callerName.setVisibility(View.VISIBLE);
-			callerName.setText(callerContentModel.getLastName());
+			setValueOnID(R.id.caller_name, callerContentModel.getLastName());
 			setSaveContactClickListener(number);
 			showSaveContactDivider = true;
 		}
 		if (callerContentModel != null && callerContentModel.getLocation() != null)
 		{
-			TextView callerLocation = (TextView) (stickyCallerView.findViewById(R.id.caller_location));
-			callerLocation.setVisibility(View.VISIBLE);
-			callerLocation.setText(callerContentModel.getLocation());
+			setValueOnID(R.id.caller_location, callerContentModel.getLocation());
+		}
+		else if (number.startsWith("+91"))
+		{
+			setValueOnID(R.id.caller_location, INDIA);
 		}
 		if ((callerContentModel != null && callerContentModel.getIsOnHike()) || (Utils.isIndianNumber(number) && HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.SHOW_FREECALL_VIEW, true)))
 		{
@@ -721,10 +721,14 @@ public class StickyCaller
 	{
 		if (callerContentModel != null)
 		{
-			String name = callerContentModel.getFirstName();
+			String name = "";
+			if (callerContentModel.getFirstName() != null)
+			{
+				name = callerContentModel.getFirstName() + " ";
+			}
 			if (callerContentModel.getLastName() != null)
 			{
-				name = name + " " + callerContentModel.getLastName();
+				name = name + callerContentModel.getLastName();
 			}
 			return name;
 		}
@@ -738,34 +742,27 @@ public class StickyCaller
 		setBasicClickListener(number);
 		if (callerContentModel != null && callerContentModel.getMsisdn()!= null)
 		{
-			TextView callerNumber = (TextView) (stickyCallerView.findViewById(R.id.caller_number));
-			callerNumber.setVisibility(View.VISIBLE);
-			callerNumber.setText(callerContentModel.getMsisdn());
+			setValueOnID(R.id.caller_number, callerContentModel.getMsisdn());
 		}
 		else if (number != null)
 		{ 
-			TextView callerNumber = (TextView) (stickyCallerView.findViewById(R.id.caller_number));
-			callerNumber.setVisibility(View.VISIBLE);
-			callerNumber.setText(number);
+			setValueOnID(R.id.caller_number, number);
 		}
 		if (callerContentModel != null && callerContentModel.getFirstName() != null)
 		{
-			TextView callerName = (TextView) stickyCallerView.findViewById(R.id.caller_name);
-			callerName.setVisibility(View.VISIBLE);
-			String name = getFullName(callerContentModel); 
-			callerName.setText(name);
+			setValueOnID(R.id.caller_name, getFullName(callerContentModel));
 		}
 		else if (callerContentModel != null &&callerContentModel.getLastName() != null)
 		{
-			TextView callerName = (TextView) stickyCallerView.findViewById(R.id.caller_name);
-			callerName.setVisibility(View.VISIBLE);
-			callerName.setText(callerContentModel.getLastName());
+			setValueOnID(R.id.caller_name, callerContentModel.getLastName());
 		}
 		if (callerContentModel != null && callerContentModel.getLocation() != null)
 		{
-			TextView callerLocation = (TextView) (stickyCallerView.findViewById(R.id.caller_location));
-			callerLocation.setVisibility(View.VISIBLE);
-			callerLocation.setText(callerContentModel.getLocation());
+			setValueOnID(R.id.caller_location, callerContentModel.getLocation());
+		}
+		else if (number.startsWith("+91"))
+		{
+			setValueOnID(R.id.caller_location, INDIA);
 		}
 		if ((callerContentModel != null && callerContentModel.getIsOnHike()) || (Utils.isIndianNumber(number) && HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.SHOW_FREECALL_VIEW, true)))
 		{
