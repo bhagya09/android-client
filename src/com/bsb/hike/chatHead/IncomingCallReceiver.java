@@ -26,7 +26,6 @@ public class IncomingCallReceiver extends PhoneStateListener
 	private static boolean ring = false;
 
 	public static boolean callReceived = false;
-
 	
 	@Override
 	public void onCallStateChanged(int state, String incomingNumber)
@@ -34,6 +33,7 @@ public class IncomingCallReceiver extends PhoneStateListener
 		switch (state)
 		{
 		case TelephonyManager.CALL_STATE_RINGING:
+			StickyCaller.callCurrentNumber = incomingNumber; 
 			ring = true;
 			StickyCaller.CALL_TYPE = StickyCaller.INCOMING;
 			ChatHeadUtils.postNumberRequest(HikeMessengerApp.getInstance(), incomingNumber);

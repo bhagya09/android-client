@@ -7344,9 +7344,9 @@ public class Utils
 		return url;
 	}
 	
-	public static void sendFreeSms()
+	public static void sendFreeSms(String number)
 	{
-		Intent intent = IntentFactory.createChatThreadIntentFromMsisdn(HikeMessengerApp.getInstance(), StickyCaller.callCurrentNumber, true, false);
+		Intent intent = IntentFactory.createChatThreadIntentFromMsisdn(HikeMessengerApp.getInstance(), number, true, false);
 		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 	    HikeMessengerApp.getInstance().startActivity(intent);
 	}

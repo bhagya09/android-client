@@ -256,6 +256,18 @@ public class ChatHeadUtils
 		}
 	}
 	
+	public static CallerContentModel getCallerContentModelObject(String result)
+	{
+		if (result != null)
+		{
+			JsonParser parser = new JsonParser();
+			JsonObject callerDetails = (JsonObject) parser.parse(result);
+			CallerContentModel callerContentModel = new Gson().fromJson(callerDetails, CallerContentModel.class);
+			return callerContentModel;
+		}
+		return null;
+	}
+
 	public static boolean isAccessibilityEnabled(Context ctx)
 	{
 		int accessibilityEnabled = 0;
@@ -501,7 +513,6 @@ public class ChatHeadUtils
 					searchNumber,
 					HikeMessengerApp.getInstance().getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0)
 							.getString(HikeMessengerApp.COUNTRY_CODE, HikeConstants.INDIA_COUNTRY_CODE));
-			StickyCaller.callCurrentNumber = number;
 			String contactName = getNameFromNumber(context, number);
 			if (contactName != null)
 			{
