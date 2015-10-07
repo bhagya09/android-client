@@ -957,7 +957,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 	
 	public void bindDisconnectionFragment(String msisdn)
 	{
-		if (TextUtils.isEmpty(msisdn))
+		if (!isAdded() || TextUtils.isEmpty(msisdn))
 		{
 			return;
 		}
@@ -970,11 +970,6 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 				setFooterHalfOpen();
 		}
 		
-		// Defensive check 
-		if(!isAdded())
-		{
-			return ;
-		}
 		// Old fragment is already attached.
 		// remove old frgame and attach new fragment
 		((HomeActivity) getActivity()).removeFragment(OfflineConstants.OFFLINE_DISCONNECT_FRAGMENT);
