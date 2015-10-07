@@ -17,8 +17,8 @@ import com.bsb.hike.productpopup.IActivityPopup;
 import com.bsb.hike.productpopup.ProductContentModel;
 import com.bsb.hike.productpopup.ProductInfoManager;
 import com.bsb.hike.ui.ComposeChatActivity;
-import com.bsb.hike.ui.WebViewActivity;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
+import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 
@@ -27,7 +27,6 @@ import android.content.Intent;
 import android.os.Handler;
 import android.text.TextUtils;
 import android.util.Log;
-import android.webkit.JavascriptInterface;
 
 public class PlatformHelper
 {
@@ -233,21 +232,37 @@ public class PlatformHelper
 		});
 	}
 
-	public static void showPopup(String contentData, final Activity activity)
+	public static void showPopup(String contentData, Activity activity)
 	{
+		final HikeAppStateBaseFragmentActivity hikeBaseActivity;
+		if (TextUtils.isEmpty(contentData) || activity == null)
+		{
+			Logger.e(TAG, "Either activity or contentData to showPopup is null. Returning.");
+			return;
+		}
+		if (activity instanceof HikeAppStateBaseFragmentActivity)
+		{
+			hikeBaseActivity = (HikeAppStateBaseFragmentActivity) activity;
+		}
+		else
+		{
+			Logger.e(TAG, "Activity passed to showPopup is not subclass of HikeAppStateBaseFragmentActivity. Returning.");
+			return;
+		}
 		try
 		{
 			JSONObject data = new JSONObject(contentData);
+			if (!checkContentData(data))
+			{
+				return;
+			}
 			final ProductContentModel mmModel = ProductContentModel.makeProductContentModel(data);
 			ProductInfoManager.getInstance().parseAndShowPopup(mmModel, new IActivityPopup()
 			{
 				@Override
 				public void onSuccess(ProductContentModel productContentModel)
 				{
-					if (activity != null)
-					{
-						((WebViewActivity)activity).showPopupDialog(mmModel);
-					}
+					hikeBaseActivity.showPopupDialog(mmModel);
 				}
 
 				@Override
@@ -259,9 +274,38 @@ public class PlatformHelper
 
 		} catch (JSONException e)
 		{
-			Logger.e(TAG, "JSONException in showPopup ");
+			Logger.e(TAG, "JSONException in showPopup : " + e.getMessage());
 			e.printStackTrace();
 		}
 	}
 
+	public static boolean checkContentData(JSONObject data) throws JSONException
+	{
+		if (data.has(HikePlatformConstants.CARD_OBJECT))
+		{
+			JSONObject cardObj = data.optJSONObject(HikePlatformConstants.CARD_OBJECT);
+			if (cardObj == null)
+			{
+				Logger.e(TAG, "cardObj is null in contentData. Returning.");
+				return false;
+			}
+			if (!cardObj.has(HikePlatformConstants.LAYOUT_DATA))
+			{
+				cardObj.put(HikePlatformConstants.LAYOUT_DATA, new JSONObject());
+			}
+			else
+			{
+				if (!(cardObj.get(HikePlatformConstants.LAYOUT_DATA) instanceof JSONObject))
+				{
+					cardObj.put(HikePlatformConstants.LAYOUT_DATA, new JSONObject());
+				}
+			}
+		}
+		else
+		{
+			Logger.e(TAG, "cardObj not present in contentData. Returning.");
+			return false;
+		}
+		return true;
+	}
 }

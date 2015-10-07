@@ -1211,5 +1211,23 @@ public abstract class JavascriptBridge
 		}
 	}
 
+	/**
+	 * Platform Version 8
+	 * This method is used to show a native popup with a WebView rendered within it.
+	 * contentData must have cardObj. Inside cardObj, ld must be present and should be a JSONObject.
+	 * @param contentData
+	 */
+	@JavascriptInterface
+	public void showPopup(final String contentData)
+	{
+		mHandler.post(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				PlatformHelper.showPopup(contentData, weakActivity.get());
+			}
+		});
+	}
 
 }

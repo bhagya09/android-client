@@ -2,6 +2,7 @@ package com.bsb.hike.platform;
 
 import java.lang.ref.WeakReference;
 
+import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.models.HikeHandlerUtil;
@@ -316,21 +317,15 @@ public class NativeBridge
 	 */
 	public void showPopup(final String contentData)
 	{
-		Activity activity = weakActivity.get();
-		if (activity != null)
+		Handler handler = new Handler(HikeMessengerApp.getInstance().getApplicationContext().getMainLooper());
+		handler.post(new Runnable()
 		{
-			Handler handler = new Handler(activity.getMainLooper());
-			handler.post(new Runnable()
+			@Override
+			public void run()
 			{
-				@Override
-				public void run()
-				{
-					PlatformHelper.showPopup(contentData, weakActivity.get());
-				}
-			});
-		}
-
-
+				PlatformHelper.showPopup(contentData, weakActivity.get());
+			}
+		});
 	}
 
 }

@@ -13,7 +13,6 @@ import android.location.LocationManager;
 import android.os.Message;
 import android.text.TextUtils;
 import android.webkit.JavascriptInterface;
-import android.webkit.WebView;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
@@ -32,7 +31,6 @@ import com.bsb.hike.platform.PlatformHelper;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.content.PlatformContentConstants;
 import com.bsb.hike.ui.GalleryActivity;
-import com.bsb.hike.ui.HomeActivity;
 import com.bsb.hike.ui.WebViewActivity;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
@@ -1334,19 +1332,6 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 			callbackToJS(id, "true");
 		else
 			callbackToJS(id, "false");
-	}
-	
-	
-
-	/**
-	 * Platform Version 8
-	 * This method is used to show a native popup with a WebView rendered within it
-	 * @param contentData
-	 */
-	@JavascriptInterface
-	public void showPopup(String contentData)
-	{
-		PlatformHelper.showPopup(contentData, weakActivity.get());
 	}
 
 }
