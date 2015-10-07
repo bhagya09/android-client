@@ -860,9 +860,7 @@ public class StickyCaller
 				{
 					IncomingCallReceiver.callReceived = true;
 					Utils.killCall();
-					Intent intent = IntentFactory.createChatThreadIntentFromMsisdn(HikeMessengerApp.getInstance(), v.getTag().toString(), true, false);
-					intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-				    HikeMessengerApp.getInstance().startActivity(intent);
+					Utils.sendFreeSms(v.getTag().toString());
 				}
 				break;
 			case R.id.missed_call_save_contact:
