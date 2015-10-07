@@ -533,8 +533,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 			statusTxt.setHint(R.string.status_hint_image);
 			btnRemovePhoto.setVisibility(View.VISIBLE);
 			mActivityTask.imageDeleted = false;
-			resetMood();
-		}
+ 		}
 		
 		refreshLayouts();
 	}
