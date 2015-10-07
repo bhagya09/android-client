@@ -19,6 +19,7 @@ public class CallListener implements IRequestListener
 		CallerContentModel callerContentModel = ChatHeadUtils.getCallerContentModelObject(result.getBody().getContent().toString());
 		if (callerContentModel != null && callerContentModel.getMsisdn() != null)
 		{
+			HikeSharedPreferenceUtil.getInstance(HikeConstants.CALLER_SHARED_PREF).saveData(callerContentModel.getMsisdn(), result.getBody().getContent().toString());
 			StickyCaller.showCallerViewWithDelay(callerContentModel.getMsisdn(), result.getBody().getContent().toString(), StickyCaller.SUCCESS,
 					AnalyticsConstants.StickyCallerEvents.SERVER);
 		}

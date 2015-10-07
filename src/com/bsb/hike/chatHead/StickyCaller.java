@@ -714,7 +714,6 @@ public class StickyCaller
 		{
 			((TextView) stickyCallerView.findViewById(R.id.missed_call_time)).setText(context.getString(R.string.voip_missed_call_notif) + MISSED_CALL_TIMINGS);
 		}
-		HikeSharedPreferenceUtil.getInstance(HikeConstants.CALLER_SHARED_PREF).saveData(callerContentModel.getMsisdn(), result);
 	}
 	
 	private static String getFullName(CallerContentModel callerContentModel)
@@ -772,7 +771,6 @@ public class StickyCaller
 
 			setFreeSmsButton(number);
 		}
-		HikeSharedPreferenceUtil.getInstance(HikeConstants.CALLER_SHARED_PREF).saveData(callerContentModel.getMsisdn(), result);
 	}
 	
 	
