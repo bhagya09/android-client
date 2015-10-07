@@ -25,13 +25,9 @@ THE SOFTWARE.
 package org.cocos2dx.lib;
 
 import java.io.UnsupportedEncodingException;
-import java.util.Locale;
 import java.util.LinkedHashSet;
+import java.util.Locale;
 import java.util.Set;
-import java.lang.Runnable;
-
-import com.bsb.hike.utils.Logger;
-import com.chukong.cocosplay.client.CocosPlayClient;
 
 import android.app.Activity;
 import android.content.Context;
@@ -41,10 +37,14 @@ import android.content.pm.ApplicationInfo;
 import android.content.res.AssetManager;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Vibrator;
 import android.preference.PreferenceManager.OnActivityResultListener;
 import android.util.DisplayMetrics;
 import android.view.Display;
 import android.view.WindowManager;
+
+import com.bsb.hike.utils.Logger;
+import com.chukong.cocosplay.client.CocosPlayClient;
 
 public class Cocos2dxHelper {
 	// ===========================================================
@@ -68,7 +68,8 @@ public class Cocos2dxHelper {
 	private static Activity sActivity = null;
 	private static Cocos2dxHelperListener sCocos2dxHelperListener;
 	private static Set<OnActivityResultListener> onActivityResultListeners = new LinkedHashSet<OnActivityResultListener>();
-
+	private static Vibrator sVibrateService = null;
+	
 	// ===========================================================
 	// Constructors
 	// ===========================================================
@@ -98,6 +99,7 @@ public class Cocos2dxHelper {
 			Cocos2dxHelper.sCocos2dMusic = new Cocos2dxMusic(activity);
 			Cocos2dxHelper.sCocos2dSound = new Cocos2dxSound(activity);
 			Cocos2dxHelper.sAssetManager = activity.getAssets();
+			Cocos2dxHelper.sVibrateService = (Vibrator)activity.getSystemService(Context.VIBRATOR_SERVICE);
 			Cocos2dxHelper.nativeSetContext((Context) activity, Cocos2dxHelper.sAssetManager);
 
 			Cocos2dxBitmap.setContext(activity);
@@ -127,6 +129,7 @@ public class Cocos2dxHelper {
 			Cocos2dxHelper.sCocos2dMusic = new Cocos2dxMusic(activity);
 			Cocos2dxHelper.sCocos2dSound = new Cocos2dxSound(activity);
 			Cocos2dxHelper.sAssetManager = activity.getAssets();
+			Cocos2dxHelper.sVibrateService = (Vibrator)activity.getSystemService(Context.VIBRATOR_SERVICE);
 			Cocos2dxHelper.nativeSetContext((Context) activity, Cocos2dxHelper.sAssetManager);
 
 			Cocos2dxBitmap.setContext(activity);
@@ -204,6 +207,10 @@ public class Cocos2dxHelper {
 		Cocos2dxHelper.sAccelerometerEnabled = false;
 		Cocos2dxHelper.sCocos2dxAccelerometer.disable();
 	}
+	
+	public static void vibrate(float duration) {
+        sVibrateService.vibrate((long)(duration * 1000));
+    }
 
 	public static void setKeepScreenOn(boolean value) {
 		((Cocos2dxActivity) sActivity).setKeepScreenOn(value);
