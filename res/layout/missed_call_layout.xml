@@ -126,7 +126,7 @@
             <com.bsb.hike.view.CustomFontTextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="12dp"
+                android:layout_marginLeft="3dp"
                 android:gravity="center"
                 android:text="@string/free_call"
                 android:textColor="@color/caller_free_call"
@@ -163,7 +163,7 @@
             <com.bsb.hike.view.CustomFontTextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="12dp"
+                android:layout_marginLeft="3dp"
                 android:gravity="center"
                 android:text="@string/free_message"
                 android:textColor="@color/caller_free_call"
@@ -200,12 +200,16 @@
             <com.bsb.hike.view.CustomFontTextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="12dp"
+                android:layout_marginLeft="3dp"
                 android:gravity="center"
                 android:text="@string/save_contact"
                 android:textColor="@color/caller_free_call"
                 android:textSize="13sp" />
         </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="4dp" />
     </LinearLayout>
 
 </LinearLayout>
