@@ -898,19 +898,12 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 
 	private boolean shouldShowMoodsButton()
 	{
-		if (TextUtils.isEmpty(mImagePath))
-		{
-			return true;
-		}
-		else
-		{
-			return false;
-		}
+		return true;
 	}
 	
 	private boolean shouldShowAddPhotoButton()
 	{
-		return mImagePath == null;
+		return true;
 	}
 	
 	@Override
