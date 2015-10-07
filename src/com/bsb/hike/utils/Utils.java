@@ -544,6 +544,14 @@ public class Utils
 
 		return new File(mediaStorageDir, orgFileName);
 	}
+	
+	public static void setSharedPrefValue(Context context, String key, boolean value)
+	{
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+		Editor prefEditor = prefs.edit();
+		prefEditor.putBoolean(key, value);
+		prefEditor.commit();
+	}
 
 	public static String getUniqueFilename(HikeFileType type)
 	{

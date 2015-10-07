@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:title="@string/sticky_caller_settings" >
+
+    <com.bsb.hike.view.SwitchPreferenceCompat
+        android:key="activateStickyCaller"
+        android:layout="@layout/icon_preference"
+        android:summary="@string/sticky_caller_settings_side_text"
+        android:title="@string/sticky_caller_settings"
+        android:widgetLayout="@layout/switch_widget" />
+
+    <com.bsb.hike.view.SwitchPreferenceCompat
+        android:key="knownContactEnablePref"
+        android:layout="@layout/icon_preference"
+        android:summary="@string/enable_saved_contact_view_side_text"
+        android:title="@string/enable_saved_contact_view_heading"
+        android:widgetLayout="@layout/switch_widget" />
+
+</PreferenceScreen>

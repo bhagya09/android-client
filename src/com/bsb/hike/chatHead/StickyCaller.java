@@ -30,6 +30,7 @@ import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
@@ -86,8 +87,6 @@ public class StickyCaller
 
 	public static String callCurrentName = null;
 
-	public static final String ACTIVATE_STICKY_CALLER = "activateStickyCaller";
-
 	public static final String SHOW_STICKY_CALLER = "showStickyCaller";
 
 	private static final String CALLER_Y_PARAMS = "callerYParams";
@@ -99,6 +98,10 @@ public class StickyCaller
 	public static final int INCOMING_DELAY = 2000;
 
 	public static final String SMS_BODY = "sms_body";
+
+	public static final String SHOW_KNOWN_NUMBER_CARD = "showKnowCard";
+	
+	public static final String SHOW_FREECALL_VIEW = "shwFreeCall";
 	
 	public static String MISSED_CALL_TIMINGS;
 
@@ -539,7 +542,7 @@ public class StickyCaller
 			callerName.setText(result);
 		}
 	
-		if (Utils.isIndianNumber(number) || Utils.isOnHike(number))
+		if ((Utils.isIndianNumber(number) && HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.SHOW_FREECALL_VIEW, true)) || Utils.isOnHike(number))
 		{
 			stickyCallerView.findViewById(R.id.missed_call_free_divider).setVisibility(View.VISIBLE);
 
@@ -571,7 +574,7 @@ public class StickyCaller
 			callerName.setText(result);
 		}
 	
-		if (Utils.isIndianNumber(number) || Utils.isOnHike(number))
+		if ((Utils.isIndianNumber(number) && HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.SHOW_FREECALL_VIEW, true)) || Utils.isOnHike(number))
 		{
 			setDismissWithVisible();
 			
@@ -658,7 +661,13 @@ public class StickyCaller
 		callerParams.gravity = Gravity.BOTTOM;
 		setBasicClickListener();
 		boolean showSaveContactDivider = false;
-		if (number != null)
+		if (callerContentModel != null && callerContentModel.getMsisdn()!= null)
+		{
+			TextView callerNumber = (TextView) (stickyCallerView.findViewById(R.id.caller_number));
+			callerNumber.setVisibility(View.VISIBLE);
+			callerNumber.setText(callerContentModel.getMsisdn());
+		}
+		else if (number != null)
 		{ 
 			TextView callerNumber = (TextView) (stickyCallerView.findViewById(R.id.caller_number));
 			callerNumber.setVisibility(View.VISIBLE);
@@ -689,7 +698,7 @@ public class StickyCaller
 			callerLocation.setVisibility(View.VISIBLE);
 			callerLocation.setText(callerContentModel.getLocation());
 		}
-		if ((callerContentModel != null && callerContentModel.getIsOnHike()) || Utils.isIndianNumber(number))
+		if ((callerContentModel != null && callerContentModel.getIsOnHike()) || (Utils.isIndianNumber(number) && HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.SHOW_FREECALL_VIEW, true)))
 		{
 			setFreeCallButton();
 
@@ -707,6 +716,7 @@ public class StickyCaller
 		{
 			((TextView) stickyCallerView.findViewById(R.id.missed_call_time)).setText(context.getString(R.string.voip_missed_call_notif) + MISSED_CALL_TIMINGS);
 		}
+		HikeSharedPreferenceUtil.getInstance(HikeConstants.CALLER_SHARED_PREF).saveData(callerContentModel.getMsisdn(), result);
 	}
 	
 	private static String getFullName(CallerContentModel callerContentModel)
@@ -724,7 +734,13 @@ public class StickyCaller
 		LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		stickyCallerView = (LinearLayout) inflater.inflate(R.layout.caller_layout, null);
 		setBasicClickListener();
-		if (number != null)
+		if (callerContentModel != null && callerContentModel.getMsisdn()!= null)
+		{
+			TextView callerNumber = (TextView) (stickyCallerView.findViewById(R.id.caller_number));
+			callerNumber.setVisibility(View.VISIBLE);
+			callerNumber.setText(callerContentModel.getMsisdn());
+		}
+		else if (number != null)
 		{ 
 			TextView callerNumber = (TextView) (stickyCallerView.findViewById(R.id.caller_number));
 			callerNumber.setVisibility(View.VISIBLE);
@@ -751,7 +767,7 @@ public class StickyCaller
 			callerLocation.setVisibility(View.VISIBLE);
 			callerLocation.setText(callerContentModel.getLocation());
 		}
-		if ((callerContentModel != null && callerContentModel.getIsOnHike()) || Utils.isIndianNumber(number))
+		if ((callerContentModel != null && callerContentModel.getIsOnHike()) || (Utils.isIndianNumber(number) && HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.SHOW_FREECALL_VIEW, true)))
 		{
 			setDismissWithVisible();
 			
@@ -759,6 +775,7 @@ public class StickyCaller
 
 			setFreeSmsButton();
 		}
+		HikeSharedPreferenceUtil.getInstance(HikeConstants.CALLER_SHARED_PREF).saveData(callerContentModel.getMsisdn(), result);
 	}
 	
 	
@@ -866,8 +883,7 @@ public class StickyCaller
 */			case R.id.caller_settings_button:
 				IncomingCallReceiver.callReceived = true;
 				HAManager.getInstance().stickyCallerAnalyticsUIEvent(AnalyticsConstants.StickyCallerEvents.CALLER_SETTINGS_BUTTON, StickyCaller.callCurrentNumber, AnalyticsConstants.StickyCallerEvents.CARD, getCallEventFromCallType(CALL_TYPE));
-				Intent intent = IntentFactory.getStickyCallerSettingsIntent(HikeMessengerApp.getInstance());
-				ChatHeadUtils.insertHomeActivitBeforeStarting(intent);
+				IntentFactory.openStickyCallerSettings(HikeMessengerApp.getInstance().getApplicationContext(), true);
 				break;
 			case R.id.caller_close_button:
 				HAManager.getInstance().stickyCallerAnalyticsUIEvent(AnalyticsConstants.StickyCallerEvents.CLOSE_BUTTON, StickyCaller.callCurrentNumber, AnalyticsConstants.StickyCallerEvents.CARD, getCallEventFromCallType(CALL_TYPE));
