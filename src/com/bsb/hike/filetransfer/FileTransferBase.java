@@ -106,9 +106,9 @@ public abstract class FileTransferBase implements Callable<FTResult>
 
 	protected HikeFileType hikeFileType;
 
-	protected volatile int _totalSize = 0;
+	protected volatile long _totalSize = 0;
 
-	protected volatile int _bytesTransferred = 0;
+	protected volatile long _bytesTransferred = 0;
 
 	protected int chunkSize = 0;
 	
@@ -116,7 +116,7 @@ public abstract class FileTransferBase implements Callable<FTResult>
 
 	protected ConcurrentHashMap<Long, FutureTask<FTResult>> fileTaskMap;
 	
-	protected int pausedProgress ;
+	protected long pausedProgress ;
 
 	protected FTAnalyticEvents analyticEvents;
 
@@ -147,18 +147,18 @@ public abstract class FileTransferBase implements Callable<FTResult>
 		this.uId = uId;
 	}
 
-	protected void setFileTotalSize(int ts)
+	protected void setFileTotalSize(long ts)
 	{
 		_totalSize = ts;
 	}
 
 	// this will be used for both upload and download
-	protected void incrementBytesTransferred(int value)
+	protected void incrementBytesTransferred(long value)
 	{
 		_bytesTransferred += value;
 	}
 
-	protected void setBytesTransferred(int value)
+	protected void setBytesTransferred(long value)
 	{
 		_bytesTransferred = value;
 	}
@@ -328,12 +328,12 @@ public abstract class FileTransferBase implements Callable<FTResult>
 		return userContext;
 	}
 	
-	public int getPausedProgress()
+	public long getPausedProgress()
 	{
 		return this.pausedProgress;
 	}
 
-	public void setPausedProgress(int pausedProgress)
+	public void setPausedProgress(long pausedProgress)
 	{
 		this.pausedProgress = pausedProgress;
 	}

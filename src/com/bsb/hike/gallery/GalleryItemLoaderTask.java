@@ -9,6 +9,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.text.TextUtils;
 
@@ -50,9 +51,13 @@ public class GalleryItemLoaderTask extends AsyncTask<Void, Void, Void>{
 
 	private final String TYPE_BMP = ".bmp";
 
+	private final String TYPE_WEBP = ".webp";
+
 	private final String CAMERA_IMAGES = "Camera";
 
 	private final String HIKE_IMAGES = "hike";
+
+	private final String ANDROID_DATA_STORAGE_DIR_SUFFIX = "/Android/data/";
 
 	private final String TAG = "GalleryItemLoaderTask";
 	
@@ -158,7 +163,8 @@ public class GalleryItemLoaderTask extends AsyncTask<Void, Void, Void>{
 							String filePath = cursor.getString(dataIdx);
 							String fileName = cursor.getString(nameIdx);
 							String bucketId = cursor.getString(bucketIdIdx);
-							if(TextUtils.isEmpty(filePath) || TextUtils.isEmpty(fileName) || TextUtils.isEmpty(bucketId) || isImageEdited(filePath))
+							boolean isAndroidDataStorageDir = filePath.startsWith(Environment.getExternalStorageDirectory() + ANDROID_DATA_STORAGE_DIR_SUFFIX);
+							if(TextUtils.isEmpty(filePath) || TextUtils.isEmpty(fileName) || TextUtils.isEmpty(bucketId) || isImageEdited(filePath) || isAndroidDataStorageDir)
 							{
 								continue;
 							}
@@ -264,8 +270,9 @@ public class GalleryItemLoaderTask extends AsyncTask<Void, Void, Void>{
 	private boolean isImage(String fileName)
 	{
 		boolean isImg = false;
+		fileName = fileName.toLowerCase();
 		if (fileName.endsWith(TYPE_JPG) || fileName.endsWith(TYPE_JPEG) || fileName.endsWith(TYPE_PNG)
-				|| fileName.endsWith(TYPE_GIF) || fileName.endsWith(TYPE_BMP))
+				|| fileName.endsWith(TYPE_GIF) || fileName.endsWith(TYPE_BMP) || fileName.endsWith(TYPE_WEBP))
 		{
 			isImg = true;
 		}

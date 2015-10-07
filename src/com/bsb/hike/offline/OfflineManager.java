@@ -5,12 +5,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import org.json.JSONObject;
+
 import android.content.Context;
 import android.content.IntentFilter;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
 import android.net.wifi.p2p.WifiP2pDeviceList;
-import android.net.wifi.p2p.WifiP2pManager;
 import android.net.wifi.p2p.WifiP2pManager.PeerListListener;
 import android.os.Handler;
 import android.os.Message;
@@ -26,7 +27,6 @@ import com.bsb.hike.offline.OfflineConstants.HandlerConstants;
 import com.bsb.hike.offline.OfflineConstants.OFFLINE_STATE;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
-import com.google.ads.AdRequest.ErrorCode;
 import com.google.gson.Gson;
 import com.hike.transporter.DefaultRetryPolicy;
 import com.hike.transporter.TException;
@@ -56,10 +56,6 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 
 	private static final String TAG = OfflineManager.class.getName();
 
-	private boolean scanResultsAvailable = false;
-
-	private int tryGetScanResults = 0;
-
 	OfflineBroadCastReceiver receiver;
 
 	private boolean startedForChatThread = false;
@@ -73,6 +69,8 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 	private long timeTakenToEstablishConnection = 0l;
 	
 	private boolean isClientInitialized=false;
+	
+	private OfflineClientInfoPOJO connectedClientInfo =null;
 	
 	Handler handler = new Handler(HikeHandlerUtil.getInstance().getLooper())
 	{
@@ -130,11 +128,6 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 				onDisconnect(new OfflineException(OfflineException.CONNECTION_TIME_OUT));
 			}
 			break;
-		case OfflineConstants.HandlerConstants.START_SCAN:
-			runNetworkScan((int) msg.obj);
-			msg.obj = ((int) msg.obj) + 1;
-			performWorkOnBackEndThread(msg);
-			break;
 		case OfflineConstants.HandlerConstants.DISCONNECT_BY_USER:
 			onDisconnect(new OfflineException(OfflineException.USER_DISCONNECTED));
 			break;
@@ -177,7 +170,7 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 	@Override
 	public void onRequestPeers()
 	{
-		connectionManager.requestPeers(this);
+		
 	}
 	
 	public String getConnectedDevice()
@@ -204,7 +197,6 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 	@Override
 	public void onScanResultAvailable()
 	{
-		scanResultsAvailable = true;
 		Map<String, ScanResult> results = connectionManager.getWifiNetworksForMyMsisdn();
 		Logger.d(TAG, "On scan results available .  Connected device is "+ connectedDevice +  " started for chat thread is " + startedForChatThread);
 		if (startedForChatThread && connectedDevice==null)
@@ -253,8 +245,6 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 	}
 	private void addIntentFilters(IntentFilter intentFilter)
 	{
-		intentFilter.addAction(WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION);
-		intentFilter.addAction(WifiP2pManager.WIFI_P2P_DISCOVERY_CHANGED_ACTION);
 		intentFilter.addAction(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION);
 		intentFilter.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION);
 		intentFilter.addAction(WifiManager.WIFI_STATE_CHANGED_ACTION);
@@ -337,17 +327,6 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 	{
 
 	}
-
-	public void startDiscovery()
-	{
-		connectionManager.startDiscovery();
-	}
-
-	public void stopDiscovery()
-	{
-		connectionManager.stopDiscovery();
-	}
-
 	public void createHotspot(final String msisdn)
 	{
 		Message msg = Message.obtain();
@@ -440,79 +419,6 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 		connectionManager.stopWifi();
 	}
 
-	public void startScan()
-	{
-		Message startScan = Message.obtain();
-		startScan.what = OfflineConstants.HandlerConstants.START_SCAN;
-		startScan.obj = tryGetScanResults;
-		performWorkOnBackEndThread(startScan);
-	}
-
-	private void runNetworkScan(int attemptNumber)
-	{
-
-		if (attemptNumber < OfflineConstants.MAXTRIES_FOR_SCAN_RESULTS || (scanResultsAvailable == true))
-		{
-			connectionManager.startDiscovery();
-			try
-			{
-				Thread.sleep(8000);
-			}
-			catch (InterruptedException e)
-			{
-				e.printStackTrace();
-			}
-			connectionManager.stopDiscovery();
-			try
-			{
-				Thread.sleep(2000);
-			}
-			catch (InterruptedException e)
-			{
-				e.printStackTrace();
-			}
-
-			connectionManager.startWifiScan();
-		}
-		else
-		{
-			connectionManager.stopWifi();
-
-			while (connectionManager.isWifiEnabled())
-			{
-				try
-				{
-					Thread.sleep(1000);
-				}
-				catch (InterruptedException e)
-				{
-					e.printStackTrace();
-				}
-				Logger.d(TAG, "Waiting for wifi to stop");
-			}
-			connectionManager.startWifi();
-			Logger.d(TAG, "Called start wifi");
-			while (!connectionManager.isWifiEnabled())
-			{
-				try
-				{
-					Thread.sleep(1000);
-				}
-				catch (InterruptedException e)
-				{
-					e.printStackTrace();
-				}
-				Logger.d(TAG, "Waiting for wifi to start");
-			}
-			Logger.d(TAG, "Wifi is on, now scanning for any available wifi hotspots");
-			connectionManager.startWifiScan();
-		}
-	}
-
-	public void stopScan()
-	{
-		removeMessage(OfflineConstants.HandlerConstants.START_SCAN);
-	}
 
 	public void removeListener(IOfflineCallbacks listener)
 	{
@@ -527,6 +433,7 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 		timeTakenToEstablishConnection = 0l;
 		connectedDevice = null;
 		connectinMsisdn = null;
+		connectedClientInfo =null;
 		removeAllMessages();
 		startedForChatThread = false;
 		HikeSharedPreferenceUtil.getInstance().saveData(OfflineConstants.OFFLINE_MSISDN, "");
@@ -650,4 +557,17 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 	}
 
 
+	public void setConnectedClientInfo(JSONObject clientInfo)
+	{
+		if(clientInfo==null)
+			return;
+		
+		OfflineClientInfoPOJO  offlineClientInfoPOJO = new Gson().fromJson(clientInfo.toString(), OfflineClientInfoPOJO.class);
+		connectedClientInfo = offlineClientInfoPOJO;
+	}
+
+	public OfflineClientInfoPOJO getConnectedClientInfo()
+	{
+		return connectedClientInfo;
+	}
 }

@@ -2347,4 +2347,14 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 	public void updateAdminState(String msisdn) {
 		transientCache.updateContactDetailInAllGroups( msisdn);
 	}
+	
+	/**
+	 * Returns the path of the user DP thumbnail. eg - file:///data/data/com.bsb.hike/cache/+91112233456.jpg
+	 * @param msisdn
+	 * @return
+	 */
+	public String getImagePathForThumbnail(String msisdn)
+	{
+		return hDb.getImagePathForThumbnail(msisdn);
+	}
 }
