@@ -11,6 +11,18 @@ import org.cocos2dx.lib.Cocos2dxVideoHelper;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.bsb.hike.HikeConstants;
+import com.bsb.hike.R;
+import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.bots.BotInfo;
+import com.bsb.hike.bots.BotUtils;
+import com.bsb.hike.bots.NonMessagingBotConfiguration;
+import com.bsb.hike.bots.NonMessagingBotMetadata;
+import com.bsb.hike.platform.bridge.JavascriptBridge;
+import com.bsb.hike.platform.content.PlatformContentConstants;
+import com.bsb.hike.utils.Logger;
+import com.chukong.cocosplay.client.CocosPlayClient;
+
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
@@ -27,28 +39,13 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Toast;
 
-import com.bsb.hike.HikeConstants;
-import com.bsb.hike.HikeMessengerApp;
-import com.bsb.hike.HikePubSub;
-import com.bsb.hike.R;
-import com.bsb.hike.analytics.HAManager;
-import com.bsb.hike.bots.BotInfo;
-import com.bsb.hike.bots.BotUtils;
-import com.bsb.hike.bots.NonMessagingBotConfiguration;
-import com.bsb.hike.bots.NonMessagingBotMetadata;
-import com.bsb.hike.models.MessageEvent;
-import com.bsb.hike.platform.bridge.JavascriptBridge;
-import com.bsb.hike.platform.content.PlatformContentConstants;
-import com.bsb.hike.utils.Logger;
-import com.chukong.cocosplay.client.CocosPlayClient;
-
 /**
  * This is an Activity class which renders native games
  * 
  * @author sk
  * 
  */
-public class CocosGamingActivity extends Cocos2dxActivity implements HikePubSub.Listener
+public class CocosGamingActivity extends Cocos2dxActivity
 {
 	private static Context context;
 
@@ -60,8 +57,6 @@ public class CocosGamingActivity extends Cocos2dxActivity implements HikePubSub.
 
 	private static NativeBridge nativeBridge;
 
-	private String[] pubsub = new String[] { HikePubSub.MESSAGE_EVENT_RECEIVED };
-
 	private String msisdn;
 
 	private static BotInfo botInfo;
@@ -70,7 +65,7 @@ public class CocosGamingActivity extends Cocos2dxActivity implements HikePubSub.
 
 	private NonMessagingBotConfiguration botConfig;
 
-	private static String PLATFORM_CONTENT_DIR;
+	private static String platform_content_dir;
 
 	@Override
 	public void onPostCreate(Bundle savedInstanceState, PersistableBundle persistentState)
@@ -110,7 +105,7 @@ public class CocosGamingActivity extends Cocos2dxActivity implements HikePubSub.
 		super.onCreateDuplicate(savedInstanceState);
 		context = CocosGamingActivity.this;
 		msisdn = getIntent().getStringExtra(HikeConstants.MSISDN);
-		PLATFORM_CONTENT_DIR = PlatformContentConstants.PLATFORM_CONTENT_DIR;
+		platform_content_dir = PlatformContentConstants.PLATFORM_CONTENT_DIR;
 		botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
 
 		if (botInfo == null || botInfo.getMetadata() == null)
@@ -152,7 +147,6 @@ public class CocosGamingActivity extends Cocos2dxActivity implements HikePubSub.
 
 		loadGame();
 
-		HikeMessengerApp.getPubSub().addListeners(this, pubsub);
 	}
 
 	public void loadGame()
@@ -161,7 +155,7 @@ public class CocosGamingActivity extends Cocos2dxActivity implements HikePubSub.
 		// TODO do not hard code the path of the game engine. Please change this
 		try
 		{
-			System.load(PLATFORM_CONTENT_DIR + "cocosEngine-7/libcocos2d.so");
+			System.load(platform_content_dir + "cocosEngine-7/libcocos2d.so");
 			System.load(getAppBasePath() + "libcocos2dcpp.so"); // loading the game
 		}
 		catch (UnsatisfiedLinkError e)
@@ -194,9 +188,9 @@ public class CocosGamingActivity extends Cocos2dxActivity implements HikePubSub.
 		return botInfo;
 	}
 
-	public static native void ShutdownGame();
+	public static native void shutdownGame();
 
-	public static native void PlatformCallback(String callID, String response);
+	public static native void platformCallback(String callID, String response);
 
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, final Intent data)
@@ -227,7 +221,7 @@ public class CocosGamingActivity extends Cocos2dxActivity implements HikePubSub.
 			@Override
 			public void run()
 			{
-				PlatformCallback(NativeBridge.SEND_SHARED_MESSAGE, res);
+				platformCallback(NativeBridge.SEND_SHARED_MESSAGE, res);
 			}
 		});
 
@@ -256,46 +250,15 @@ public class CocosGamingActivity extends Cocos2dxActivity implements HikePubSub.
 	 */
 	public static String getExternalPath()
 	{
-		String path = PLATFORM_CONTENT_DIR + nonMessagingBotMetadata.getAppName();
+		String path = platform_content_dir + nonMessagingBotMetadata.getAppName();
 		return path + File.separator + "assets/";
 	}
 
 	public String getAppBasePath()
 	{
-		String path = PLATFORM_CONTENT_DIR + nonMessagingBotMetadata.getAppName();
+		String path = platform_content_dir + nonMessagingBotMetadata.getAppName();
 
 		return path + File.separator;
 	}
 
-	@Override
-	public void onEventReceived(String type, Object object)
-	{
-		if (type.equals(HikePubSub.MESSAGE_EVENT_RECEIVED))
-		{
-
-			if (object instanceof MessageEvent)
-			{
-				MessageEvent messageEvent = (MessageEvent) object;
-				String parent_msisdn = messageEvent.getParent_msisdn();
-				if (!TextUtils.isEmpty(parent_msisdn) && messageEvent.getParent_msisdn().equals(msisdn))
-				{
-					try
-					{
-						JSONObject jsonObject = PlatformUtils.getPlatformContactInfo(msisdn);
-						jsonObject.put(HikePlatformConstants.EVENT_DATA, messageEvent.getEventMetadata());
-						jsonObject.put(HikePlatformConstants.EVENT_ID, messageEvent.getEventId());
-						jsonObject.put(HikePlatformConstants.EVENT_STATUS, messageEvent.getEventStatus());
-						jsonObject.put(HikePlatformConstants.EVENT_TYPE, messageEvent.getEventType());
-
-						PlatformCallback(NativeBridge.ON_EVENT_RECEIVE, jsonObject.toString());
-					}
-					catch (JSONException e)
-					{
-						Logger.e(TAG, "JSON Exception in message event received");
-					}
-				}
-			}
-		}
-
-	}
 }

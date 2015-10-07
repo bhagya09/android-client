@@ -341,7 +341,7 @@ public class PlatformUtils
 				{
 					if (isProcessRunning(context, HikePlatformConstants.GAME_PROCESS) && !(getLastGame().equals(msisdn)))
 					{
-						CocosGamingActivity.ShutdownGame();
+						CocosGamingActivity.shutdownGame();
 						Logger.d(TAG, "process killed");
 					}
 					HikeContentDatabase.getInstance().putInContentCache(HikePlatformConstants.LAST_GAME,
@@ -1247,6 +1247,8 @@ public class PlatformUtils
 	}
 	public static boolean isProcessRunning(Activity context,String process)
 	{
+		if(context!=null)
+		{
 		 ActivityManager activityManager = (ActivityManager) context.getSystemService(context. ACTIVITY_SERVICE );
 	        List<RunningAppProcessInfo> procInfos = activityManager.getRunningAppProcesses();
 	        for(int i = 0; i < procInfos.size(); i++)
@@ -1258,6 +1260,7 @@ public class PlatformUtils
 	            	return true;
 	            }
 	        }
+		}
 	        return false;
 	}
 	public static String getLastGame()

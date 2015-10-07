@@ -42,7 +42,7 @@ public class NativeBridge
 
 	protected static final String ON_EVENT_RECEIVE = "ON_EVENT_RECEIVE";
 
-	public static Handler mHandler;
+	private static Handler mHandler;
 
 	public NativeBridge(String msisdn, CocosGamingActivity activity)
 	{
@@ -80,11 +80,8 @@ public class NativeBridge
 	public String getCardObj()
 	{
 		Logger.d(TAG,"+getCardObj()");
-		String cardObject = cardObj;
-		if (TextUtils.isEmpty(cardObject))
-		{
-			cardObject = "{}";
-		}
+		String cardObject;
+		cardObject=(TextUtils.isEmpty(cardObj))?"{}":cardObj;
 		Logger.d(TAG,"-getCardObj() : "+cardObject);
 		return cardObject;
 	}
@@ -106,7 +103,7 @@ public class NativeBridge
 			@Override
 			public void run()
 			{
-				activity.PlatformCallback(functionId, mBotInfo.getHelperData());
+				activity.platformCallback(functionId, mBotInfo.getHelperData());
 			}
 		});
 	}
@@ -165,7 +162,7 @@ public class NativeBridge
 					@Override
 					public void run()
 					{
-						activity.PlatformCallback(id, cache);
+						activity.platformCallback(id, cache);
 					}
 				});
 
@@ -303,7 +300,7 @@ public class NativeBridge
 					@Override
 					public void run()
 					{
-						activity.PlatformCallback(functionId, returnedData);
+						activity.platformCallback(functionId, returnedData);
 					}
 				});
 			}
@@ -336,7 +333,7 @@ public class NativeBridge
 					@Override
 					public void run()
 					{
-						activity.PlatformCallback(functionId, returnedData);
+						activity.platformCallback(functionId, returnedData);
 					}
 				});
 			}
@@ -369,7 +366,7 @@ public class NativeBridge
 					@Override
 					public void run()
 					{
-						activity.PlatformCallback(functionId, returnedData);
+						activity.platformCallback(functionId, returnedData);
 					}
 				});
 			}
@@ -390,7 +387,7 @@ public class NativeBridge
 			@Override
 			public void run()
 			{
-				activity.PlatformCallback(id, String.valueOf(mBotInfo.getVersion()));
+				activity.platformCallback(id, String.valueOf(mBotInfo.getVersion()));
 			}
 		});
 	}
@@ -399,7 +396,7 @@ public class NativeBridge
 	 * Platform Version 7 Call this function to get the system architecture.
 	 * 
 	 * @param id
-	 *            : the id of the function that native will call to call the js .
+	 *            : the id of the function that native will call .
 	 */
 	public void getSystemArchitecture(final String id)
 	{
@@ -408,7 +405,7 @@ public class NativeBridge
 			@Override
 			public void run()
 			{
-				activity.PlatformCallback(id, System.getProperty("os.arch"));
+				activity.platformCallback(id, System.getProperty("os.arch"));
 			}
 		});
 	}
@@ -426,7 +423,7 @@ public class NativeBridge
 			@Override
 			public void run()
 			{
-				activity.PlatformCallback(id, String.valueOf(HikePlatformConstants.CURRENT_VERSION));
+				activity.platformCallback(id, String.valueOf(HikePlatformConstants.CURRENT_VERSION));
 			}
 		});
 	}
@@ -434,7 +431,7 @@ public class NativeBridge
 	/**
 	 * Platform Version 7 Call this function to delete event.
 	 * 
-	 * @param messageHash
+	 * @param eventId
 	 */
 	public void deleteEvent(final String eventId)
 	{
@@ -501,7 +498,7 @@ public class NativeBridge
 					@Override
 					public void run()
 					{
-						activity.PlatformCallback(id, result.toString());
+						activity.platformCallback(id, result.toString());
 					}
 				});
 
