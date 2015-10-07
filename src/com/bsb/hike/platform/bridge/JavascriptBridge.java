@@ -53,6 +53,7 @@ import com.bsb.hike.platform.CustomWebView;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.IFileUploadListener;
 import com.bsb.hike.platform.PlatformHelper;
+import com.bsb.hike.platform.PlatformUIDFetch;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.platform.content.PlatformContentConstants;
@@ -1210,28 +1211,15 @@ public abstract class JavascriptBridge
 			HikeDialogFactory.showDialog(mContext, HikeDialogFactory.MICROAPP_DIALOG, nativeDialogListener, title, message, positiveBtn, negativeBtn);
 		}
 	}
-	/**
-	 * Added in Platform Version:8
-	 * 
-	 * @param type
-	 * 0,Anonymous Name
-	 * @param data
-	 *           
-	 */
-	public void savePlatformData(int type, String data)
+	@JavascriptInterface
+	public void setAnonName(String name)
 	{
-		final int ANON_NAME = 1;
-
-		switch (type)
+		if(!TextUtils.isEmpty(name))
 		{
-		case ANON_NAME:
-			if (!TextUtils.isEmpty(data))
-			{
-				HikeSharedPreferenceUtil mPrefs = HikeSharedPreferenceUtil.getInstance();
-				mPrefs.saveData(HikeMessengerApp.ANONYMOUS_NAME_SETTING, data);
-			}
+			PlatformUIDFetch.fetchPlatformUid(HikePlatformConstants.PlatformFetchType.SELF_ANONYMOUS_NAME,name);
 		}
-
 	}
 	
+
+
 }

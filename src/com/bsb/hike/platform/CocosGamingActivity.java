@@ -110,7 +110,7 @@ public class CocosGamingActivity extends Cocos2dxActivity implements HikePubSub.
 		super.onCreateDuplicate(savedInstanceState);
 		context = CocosGamingActivity.this;
 		msisdn = getIntent().getStringExtra(HikeConstants.MSISDN);
-		PLATFORM_CONTENT_DIR = getIntent().getStringExtra(PlatformContentConstants.PLATFORM_CONTENT_DIR);
+		PLATFORM_CONTENT_DIR = PlatformContentConstants.PLATFORM_CONTENT_DIR;
 		botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
 
 		if (botInfo == null || botInfo.getMetadata() == null)
