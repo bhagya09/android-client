@@ -12,6 +12,7 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.db.HikeConversationsDatabase;
+import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.MessageEvent;
 import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.offline.OfflineUtils;
@@ -95,6 +96,7 @@ public class GeneralEventMessagesManager
 				MessageEvent messageEvent = new MessageEvent(HikePlatformConstants.NORMAL_EVENT, from, namespace, eventMetadata, messageHash,
 						HikePlatformConstants.EventStatus.EVENT_RECEIVED, clientTimestamp, mappedId, messageId, parent_msisdn);
 				long eventId = HikeConversationsDatabase.getInstance().insertMessageEvent(messageEvent);
+				HikeConversationsDatabase.getInstance().updateSortingIdForAMessage(messageHash, ConvMessage.State.RECEIVED_UNREAD);
 				if (eventId < 0)
 				{
 					Logger.e("General Event", "Duplicate event");

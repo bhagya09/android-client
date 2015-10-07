@@ -501,6 +501,7 @@ public class DbConversationListener implements Listener
 			}
 
 			long eventId = HikeConversationsDatabase.getInstance().insertMessageEvent(messageEvent);
+			HikeConversationsDatabase.getInstance().updateSortingIdForAMessage(messageEvent.getMessageHash(), State.SENT_CONFIRMED);
 			messageEvent.setEventId(eventId);
 			if (eventId < 0)
 			{
