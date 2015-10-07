@@ -39,7 +39,7 @@ public class ByteArrayRequest extends Request<byte[]>
 	}
 
 	@Override
-	public byte[] parseResponse(InputStream in) throws IOException
+	public byte[] parseResponse(InputStream in, int contentLength) throws IOException
 	{
 		return HttpUtils.streamToBytes(in);
 	}

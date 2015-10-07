@@ -10,6 +10,9 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
+import android.media.AudioManager;
+import android.media.SoundPool;
+import android.media.ToneGenerator;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -49,6 +52,8 @@ import com.bsb.hike.ui.ComposeChatActivity;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.ProfileImageLoader;
+import com.bsb.hike.utils.Utils;
+import com.bsb.hike.voip.SoundPoolForLollipop;
 import com.bsb.hike.voip.VoIPClient;
 import com.bsb.hike.voip.VoIPConstants;
 import com.bsb.hike.voip.VoIPConstants.CallQuality;
@@ -446,7 +451,9 @@ public class VoipCallFragment extends Fragment implements CallActions
 			Logger.d(tag, "Not shutting down because call failed fragment is being displayed.");
 			return;
 		}
-
+		
+		playHangUpTone();
+		
 		new Handler().postDelayed(new Runnable()
 		{
 			@Override
@@ -1152,6 +1159,25 @@ public class VoipCallFragment extends Fragment implements CallActions
 			bluetoothButton.setVisibility(View.VISIBLE);
 		} else
 			bluetoothButton.setVisibility(View.GONE);
+	}
+	
+	private void playHangUpTone() {
+		new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				ToneGenerator tg = new ToneGenerator(AudioManager.STREAM_VOICE_CALL, 100);
+				if (tg.startTone(ToneGenerator.TONE_SUP_PIP));
+				try {
+					Thread.sleep(500);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				tg.stopTone();
+				tg.release();
+			}
+		}).start();
+		
 	}
 }
 	
