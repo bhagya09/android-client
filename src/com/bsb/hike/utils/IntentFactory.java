@@ -799,7 +799,6 @@ public class IntentFactory
 					Intent i = new Intent(context,CocosGamingActivity.class);
 					i.putExtra(HikeConstants.MSISDN, msisdn);
 					i.putExtra(HikeConstants.DATA,data);
-					i.putExtra(PlatformContentConstants.PLATFORM_CONTENT_DIR, PlatformContentConstants.PLATFORM_CONTENT_DIR);
 					return i;
 				}
 				else
