@@ -5,6 +5,7 @@ import org.json.JSONObject;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.CountDownTimer;
 import android.text.Html;
 import android.text.TextUtils;
@@ -64,6 +65,12 @@ public class ConversationTip implements OnClickListener
 	public static final int STEALTH_REVEAL_TIP = 14;
 
 	public static final int STEALTH_HIDE_TIP = 15;
+	
+	public static final int UPDATE_CRITICAL_TIP = 16;
+	
+	public static final int UPDATE_NORMAL_TIP = 17;
+	
+	public static final int INVITE_TIP = 18;
 
 	private int tipType;
 
@@ -90,6 +97,7 @@ public class ConversationTip implements OnClickListener
 
 	public View getView(int whichTip)
 	{
+		Logger.d("param", "got tip:"+whichTip);
 		if (whichTip == NO_TIP)
 		{
 			return null;
@@ -198,6 +206,45 @@ public class ConversationTip implements OnClickListener
 		case ATOMIC_APP_GENERIC_TIP:
 			v = generateAtomicTipViews();
 			((ImageView) v.findViewById(R.id.arrow_pointer)).setImageDrawable(null);
+			return v;
+			
+		case UPDATE_NORMAL_TIP:
+			Logger.d("param", "inflating normal update tip view");
+			v = inflater.inflate(R.layout.update_tip, null, false);
+			String normalHeaderText = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.UPDATE_TIP_HEADER, "");
+			String normalMsgTxt = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.UPDATE_TIP_BODY, "");
+			String normalLabelTxt = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.UPDATE_TIP_LABEL, "");
+			((TextView) v.findViewById(R.id.tip_header)).setText(normalHeaderText);
+			((TextView) v.findViewById(R.id.tip_msg)).setText(normalMsgTxt);
+			((TextView) v.findViewById(R.id.update_tip_label)).setText(normalLabelTxt);
+			(v.findViewById(R.id.close_tip)).setVisibility(View.VISIBLE);
+			v.findViewById(R.id.close_tip).setOnClickListener(this);
+			v.findViewById(R.id.all_content).setOnClickListener(this);
+			return v;
+			
+		case UPDATE_CRITICAL_TIP:
+			Logger.d("param", "inflating critical update tip view");
+			v = inflater.inflate(R.layout.update_tip, null, false);
+			String criticalHeaderText = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.UPDATE_TIP_HEADER, "");
+			String criticalMsgText = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.UPDATE_TIP_BODY, "");
+			String criticalLabelText = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.UPDATE_TIP_LABEL, "");
+			((TextView) v.findViewById(R.id.tip_header)).setText(criticalHeaderText);
+			((TextView) v.findViewById(R.id.tip_msg)).setText(criticalMsgText);
+			v.findViewById(R.id.all_content).setOnClickListener(this);
+			return v;
+			
+		case INVITE_TIP:
+			Logger.d("param", "inflating invite tip view");
+			v = inflater.inflate(R.layout.update_tip, null, false);
+			String inviteHeaderText = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.UPDATE_TIP_HEADER, "");
+			String inviteMsgTxt = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.UPDATE_TIP_BODY, "");
+			String inviteLabelTxt = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.UPDATE_TIP_LABEL, "");
+			((TextView) v.findViewById(R.id.tip_header)).setText(inviteHeaderText);
+			((TextView) v.findViewById(R.id.tip_msg)).setText(inviteMsgTxt);
+			((TextView) v.findViewById(R.id.update_tip_label)).setText(inviteLabelTxt);
+			(v.findViewById(R.id.close_tip)).setVisibility(View.VISIBLE);
+			v.findViewById(R.id.close_tip).setOnClickListener(this);
+			v.findViewById(R.id.all_content).setOnClickListener(this);
 			return v;
 
 		default:
@@ -339,6 +386,16 @@ public class ConversationTip implements OnClickListener
 				{
 					mListener.clickTip(tipType);
 				}
+				break;
+			case UPDATE_CRITICAL_TIP:
+			case UPDATE_NORMAL_TIP:
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOW_NORMAL_UPDATE_TIP, false);
+				Uri url = Uri.parse(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.Extras.URL, "market://details?id=com.bsb.hike"));
+				IntentFactory.openURL(context, url);
+				break;
+			case INVITE_TIP:
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOW_INVITE_TIP, false);
+				IntentFactory.openInviteSMS(context);
 				break;
 
 			case ATOMIC_PROFILE_PIC_TIP:

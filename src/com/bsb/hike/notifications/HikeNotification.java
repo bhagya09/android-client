@@ -83,6 +83,8 @@ public class HikeNotification
 	public static final int FREE_SMS_POPUP_NOTIFICATION_ID = -89;
 
 	public static final int APP_UPDATE_AVAILABLE_ID = -90;
+	
+	public static final int PERSISTENT_NOTIF_ID = -111;
 
 	public static final int STEALTH_NOTIFICATION_ID = -89;
 
@@ -314,28 +316,11 @@ public class HikeNotification
 	/*
 	 * method to send a notification of an hike update available or applicationspush update. if isApplicationsPushUpdate is false than it is hike app update.
 	 */
-	public void notifyUpdatePush(int updateType, String packageName, String notifTitle, String message, boolean isApplicationsPushUpdate)
+	public void notifyUpdatePush(int updateType, String packageName, String message, boolean isApplicationsPushUpdate)
 	{
 		message = (TextUtils.isEmpty(message)) ? context.getString(R.string.update_app) : message;
-		notifTitle = !TextUtils.isEmpty(notifTitle) ? notifTitle : context.getString(R.string.team_hike);
 		final int smallIconId = returnSmallIcon();	
-		NotificationCompat.Builder mBuilder;
-		if(settingPref.getBoolean(HikeConstants.IS_PERSISTENT_UPDATE_NOTIFICATION, false))
-		{
-			Logger.d("param", "showing persistent notif");
-			mBuilder = getNotificationBuilder(notifTitle, message, message, null, smallIconId, false);
-			mBuilder.setAutoCancel(false);
-			mBuilder.setOngoing(true);
-			Editor editor = settingPref.edit();
-			editor.putString(HikeConstants.PERSISTENT_NOTIF_MESSAGE, message);
-			editor.putString(HikeConstants.PERSISTENT_NOTIF_TITLE, notifTitle);
-			editor.commit();
-		}
-		else
-		{
-			Logger.d("param", "showing regular notif");
-			mBuilder = getNotificationBuilder(notifTitle, message, message, null, smallIconId, false);
-		}		
+		NotificationCompat.Builder mBuilder = getNotificationBuilder(context.getString(R.string.team_hike), message, message, null, smallIconId, false);		
 
 		Intent intent = new Intent(Intent.ACTION_VIEW);
 		intent.setData(Uri.parse("market://details?id=" + packageName));
@@ -348,6 +333,32 @@ public class HikeNotification
 			notifyNotification(notificationId, mBuilder);
 		}
 		// TODO:: we should reset the gaming download message from preferences
+	}
+	
+	public void notifyPersistentUpdate(String notifTitle, String message, Uri url)
+	{
+		message = (TextUtils.isEmpty(message)) ? context.getString(R.string.update_app) : message;
+		notifTitle = !TextUtils.isEmpty(notifTitle) ? notifTitle : context.getString(R.string.team_hike);
+		final int smallIconId = returnSmallIcon();	
+		NotificationCompat.Builder mBuilder = getNotificationBuilder(notifTitle, message, message, null, smallIconId, false);
+		mBuilder.setAutoCancel(false);
+		mBuilder.setOngoing(true);
+		Editor editor = settingPref.edit();
+		editor.putString(HikeConstants.PERSISTENT_NOTIF_MESSAGE, message);
+		editor.putString(HikeConstants.PERSISTENT_NOTIF_TITLE, notifTitle);
+		editor.putString(HikeConstants.PERSISTENT_NOTIF_URL, url.toString());
+		editor.commit();
+
+		Intent intent = new Intent(Intent.ACTION_VIEW);
+		intent.setData(url);
+		intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY | Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+		mBuilder.setContentIntent(PendingIntent.getActivity(context, 0, intent, 0));
+
+		if (!sharedPreferences.getBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false))
+		{
+			int notificationId = PERSISTENT_NOTIF_ID;
+			notifyNotification(notificationId, mBuilder);
+		}
 	}
 
 	public void notifyMessage(final ContactInfo contactInfo, final ConvMessage convMsg, boolean isRich, Bitmap bigPictureImage, int notificationType)
@@ -1065,16 +1076,16 @@ public class HikeNotification
 			{
 				String message = settingPref.getString(HikeConstants.PERSISTENT_NOTIF_MESSAGE, "Hike Update Available!");
 				String title = settingPref.getString(HikeConstants.PERSISTENT_NOTIF_TITLE, "Update Available");
-				notifyUpdatePush(-1, context.getPackageName(), title, message, false);
+				Uri url = Uri.parse(settingPref.getString(HikeConstants.PERSISTENT_NOTIF_URL, "market://details?id=com.bsb.hike"));
+				notifyPersistentUpdate(title, message, url);
 			}
 		}
 		
 	}
 	
-	public void cancelPersistNotif(int notifId)
+	public void cancelPersistNotif()
 	{
-		notificationManager.cancel(notifId);
-		Logger.d("param", "notif canceled");
+		notificationManager.cancel(PERSISTENT_NOTIF_ID);
 	}
 
 	private void showInboxStyleNotification(final Intent notificationIntent, final int icon, final long timestamp, final int notificationId, final CharSequence text,

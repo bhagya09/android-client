@@ -3060,7 +3060,6 @@ public class MqttMessagesManager
 			String updateURL = data.optString(HikeConstants.Extras.URL);
 			int update = Utils.isUpdateRequired(version, context) ? (data.optBoolean(HikeConstants.CRITICAL_UPDATE_KEY) ? HikeConstants.CRITICAL_UPDATE
 					: HikeConstants.NORMAL_UPDATE) : HikeConstants.NO_UPDATE;
-			boolean isPersistentNotif = data.optBoolean(HikeConstants.IS_PERSISTENT_UPDATE_NOTIFICATION);
 			if ((update == HikeConstants.CRITICAL_UPDATE || update == HikeConstants.NORMAL_UPDATE))
 			{
 				if (Utils.isUpdateRequired(version, context))
@@ -3070,10 +3069,6 @@ public class MqttMessagesManager
 					editor.putString(HikeConstants.Extras.UPDATE_MESSAGE, data.optString(HikeConstants.MESSAGE));
 					editor.putString(HikeConstants.Extras.LATEST_VERSION, version);
 					editor.putString(HikeConstants.Extras.LAST_UPDATE_PACKET_ID, id);
-					Logger.d("param", "isPers:"+String.valueOf(isPersistentNotif));
-					editor.putBoolean(HikeConstants.IS_PERSISTENT_UPDATE_NOTIFICATION, isPersistentNotif);
-					editor.putBoolean(HikeConstants.SHOULD_SHOW_PERSISTENT_NOTIF, isPersistentNotif);
-					editor.putString(HikeConstants.Extras.UPDATE_TITLE, data.optString(HikeConstants.Extras.TITLE));
 					
 					if (!TextUtils.isEmpty(updateURL))
 						editor.putString(HikeConstants.Extras.URL, updateURL);
@@ -3099,19 +3094,30 @@ public class MqttMessagesManager
 			Editor editor = settings.edit();
 			editor.putString(HikeConstants.Extras.APPLICATIONSPUSH_MESSAGE, data.optString(HikeConstants.MESSAGE));
 			editor.putString(HikeConstants.Extras.LAST_APPLICATION_PUSH_PACKET_ID, id);
-			editor.putBoolean(HikeConstants.IS_PERSISTENT_UPDATE_NOTIFICATION, false);
 			editor.commit();
 			this.pubSub.publish(HikePubSub.APPLICATIONS_PUSH, packageName);
 		}
 	}
 	
-	public void flushUpdateNotif(JSONObject jsonObj) throws JSONException
+	public void flushNotifOrTip(JSONObject jsonObj) throws JSONException
 	{
-		Logger.d("param", "processing flush pn");
+		String subType = jsonObj.optString(HikeConstants.SUB_TYPE);
 		Editor editor = settings.edit();
-		editor.putBoolean(HikeConstants.SHOULD_SHOW_PERSISTENT_NOTIF, false);
-		editor.commit();
-		this.pubSub.publish(HikePubSub.FLUSH_PERSISTENT_NOTIF, "flush");
+		
+		if (subType.equals(HikeConstants.PERSISTENT_NOTIFICATION))
+		{
+			editor.putBoolean(HikeConstants.SHOULD_SHOW_PERSISTENT_NOTIF, false);
+			editor.commit();
+			this.pubSub.publish(HikePubSub.FLUSH_PERSISTENT_NOTIF, "flush");
+		}
+		else if(subType.equals(HikeConstants.MqttMessageTypes.UPDATE_AVAILABLE))
+		{
+			editor.putBoolean(HikeConstants.SHOW_CRITICAL_UPDATE_TIP, false);
+			editor.commit();
+			this.pubSub.publish(HikePubSub.FLUSH_CRITICAL_UPDATE_TIP, "flushTip");
+		}
+		
+		
 	}
 
 	public void saveChatBackground(JSONObject jsonObj) throws JSONException
@@ -3422,6 +3428,77 @@ public class MqttMessagesManager
 				editor.putBoolean(HikeMessengerApp.SHOWN_EMOTICON_TIP, false);
 			editor.commit();
 			HikeMessengerApp.getPubSub().publish(HikePubSub.STICKER_FTUE_TIP, null);
+		}
+		else if(subType.equals(HikeConstants.MqttMessageTypes.UPDATE_AVAILABLE))
+		{
+			JSONObject data = jsonObj.optJSONObject(HikeConstants.DATA);
+			boolean isCritical = data.optBoolean(HikeConstants.CRITICAL_UPDATE_KEY);
+			String version = data.optString(HikeConstants.UPDATE_VERSION);
+			String updateURL = data.optString(HikeConstants.Extras.URL);
+			int update = Utils.isUpdateRequired(version, context) ? (data.optBoolean(HikeConstants.CRITICAL_UPDATE_KEY) ? HikeConstants.CRITICAL_UPDATE
+					: HikeConstants.NORMAL_UPDATE) : HikeConstants.NO_UPDATE;
+			if(update == HikeConstants.CRITICAL_UPDATE || update == HikeConstants.NORMAL_UPDATE)
+			{
+				Editor editor = settings.edit();
+				
+				if(isCritical)
+				{
+					Logger.d("param", "received critical update packet");
+					editor.putBoolean(HikeConstants.SHOW_CRITICAL_UPDATE_TIP, true);
+					editor.putBoolean(HikeConstants.SHOW_NORMAL_UPDATE_TIP, false);//Failsafe
+					editor.putBoolean(HikeConstants.SHOW_INVITE_TIP, false);//failsafe
+				}
+				else 
+				{
+					Logger.d("param", "received normal update packet");
+					editor.putBoolean(HikeConstants.SHOW_NORMAL_UPDATE_TIP, true);
+					editor.putBoolean(HikeConstants.SHOW_CRITICAL_UPDATE_TIP, false);//Failsafe
+					editor.putBoolean(HikeConstants.SHOW_INVITE_TIP, false);//failsafe
+				}
+				editor.putString(HikeConstants.Extras.LATEST_VERSION, version);
+				editor.putString(HikeConstants.UPDATE_TIP_HEADER, data.optString(HikeConstants.HEADER));
+				editor.putString(HikeConstants.UPDATE_TIP_BODY, data.optString(HikeConstants.BODY));
+				editor.putString(HikeConstants.UPDATE_TIP_LABEL, data.optString(HikeConstants.LABEL));
+				
+				if (!TextUtils.isEmpty(updateURL))
+					editor.putString(HikeConstants.Extras.URL, updateURL);
+				editor.commit();
+				
+			}
+		}
+		else if(subType.equals(HikeConstants.INVITE_TIP))
+		{
+			Logger.d("param", "received invite tip packet");
+			JSONObject data = jsonObj.optJSONObject(HikeConstants.DATA);
+			Editor editor = settings.edit();
+			editor.putBoolean(HikeConstants.SHOW_INVITE_TIP, true);
+			editor.putBoolean(HikeConstants.SHOW_CRITICAL_UPDATE_TIP, false);//failsafe
+			editor.putBoolean(HikeConstants.SHOW_NORMAL_UPDATE_TIP, false);//failsafe
+			editor.putString(HikeConstants.UPDATE_TIP_HEADER, data.optString(HikeConstants.HEADER));
+			editor.putString(HikeConstants.UPDATE_TIP_BODY, data.optString(HikeConstants.BODY));
+			editor.putString(HikeConstants.UPDATE_TIP_LABEL, data.optString(HikeConstants.LABEL));
+			editor.commit();
+			
+		}
+		else if(subType.equals(HikeConstants.PERSISTENT_NOTIFICATION))
+		{
+			JSONObject data = jsonObj.optJSONObject(HikeConstants.DATA);
+			String version = data.optString(HikeConstants.UPDATE_VERSION);
+			String updateURL = data.optString(HikeConstants.Extras.URL);
+			
+			if (Utils.isUpdateRequired(version, context))
+			{
+				Editor editor = settings.edit();
+				editor.putBoolean(HikeConstants.SHOULD_SHOW_PERSISTENT_NOTIF, true);
+				editor.putString(HikeConstants.Extras.UPDATE_MESSAGE, data.optString(HikeConstants.MESSAGE));
+				editor.putString(HikeConstants.Extras.LATEST_VERSION, version);
+				editor.putString(HikeConstants.Extras.UPDATE_TITLE, data.optString(HikeConstants.Extras.TITLE));
+				
+				if (!TextUtils.isEmpty(updateURL))
+					editor.putString(HikeConstants.Extras.URL, updateURL);
+				editor.commit();
+				this.pubSub.publish(HikePubSub.SHOW_PERSISTENT_NOTIF, "persistentNotif");
+			}
 		}
 	}
 	
@@ -3809,9 +3886,9 @@ public class MqttMessagesManager
 		{
 			saveApplicationsPush(jsonObj);
 		}
-		else if(HikeConstants.MqttMessageTypes.FLUSH_PERS_NOTIF.equals(type))
+		else if(HikeConstants.FLUSH.equals(type))
 		{
-			flushUpdateNotif(jsonObj);
+			flushNotifOrTip(jsonObj);
 		}
 		else if (HikeConstants.MqttMessageTypes.CHAT_BACKGROUD.equals(type))
 		{

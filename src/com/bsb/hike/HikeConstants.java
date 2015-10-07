@@ -47,6 +47,10 @@ public class HikeConstants
 
 	public static final String SUB_TYPE = "st";
 	
+	public static final String INVITE_TIP = "invt";
+	
+	public static final String LABEL = "l" ;
+	
 	public static final String SU_ID = "su_id";
 	
 	public static final String SU_ID_LIST = "su_ids";
@@ -737,7 +741,21 @@ public class HikeConstants
 	
 	public static final String PERSISTENT_NOTIF_TITLE = "persNotifTitle";
 	
+	public static final String PERSISTENT_NOTIF_URL = "persNotifUrl";
+	
 	public static final String SHOULD_SHOW_PERSISTENT_NOTIF = "showPersistNotif";
+	
+	public static final String UPDATE_TIP_HEADER = "updateTipHeader";
+	
+	public static final String UPDATE_TIP_BODY = "updateTipBody";
+	
+	public static final String UPDATE_TIP_LABEL = "updateTipLabel";
+	
+	public static final String SHOW_CRITICAL_UPDATE_TIP = "showCriticalUpdateTip";
+	
+	public static final String SHOW_NORMAL_UPDATE_TIP = "showNormalUpdateTip";
+	
+	public static final String SHOW_INVITE_TIP = "showInviteTip";
 
 	// More explanation required?
 	public static final int NUM_TIMES_SCREEN_SHOULD_OPEN_BEFORE_TOOL_TIP = 2;
@@ -2469,8 +2487,6 @@ public class HikeConstants
 		public static final String UPDATE_PUSH = "update";
 
 		public static final String APPLICATIONS_PUSH = "applications";
-		
-		public static final String FLUSH_PERS_NOTIF = "flushpn";
 
 		public static final String MULTI_INVITE = "mi";
 
@@ -3072,6 +3088,8 @@ public class HikeConstants
 	public static final String HIGHLIGHT_NLS_PERF = "nlsHighlightPerf";
 	
 	public static final String FLUSH = "flush";
+	
+	public static final String PERSISTENT_NOTIFICATION = "pn";
 
 	public static final String FORCE_USER="fu";
 	

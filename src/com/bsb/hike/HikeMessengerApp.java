@@ -44,6 +44,7 @@ import com.bsb.hike.db.DbConversationListener;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.db.HikeMqttPersistence;
 import com.bsb.hike.models.TypingNotification;
+import com.bsb.hike.models.Conversation.ConversationTip;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.HttpManager;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
@@ -831,7 +832,9 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 			/*
 			 * Updating the app version.
 			 */
-			((NotificationManager) getApplicationContext().getSystemService(NOTIFICATION_SERVICE)).cancel(HikeNotification.APP_UPDATE_AVAILABLE_ID);
+			((NotificationManager) getApplicationContext().getSystemService(NOTIFICATION_SERVICE)).cancel(HikeNotification.PERSISTENT_NOTIF_ID);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOW_CRITICAL_UPDATE_TIP, false);
+			mPubSubInstance.publish(HikePubSub.FLUSH_CRITICAL_UPDATE_TIP, "flushTip");
 			Editor editor = settings.edit();
 			editor.putString(CURRENT_APP_VERSION, actualAppVersion);
 			editor.commit();

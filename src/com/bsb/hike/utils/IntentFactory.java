@@ -731,6 +731,13 @@ public class IntentFactory
 		}
 		context.startActivity(in);
 	}
+	
+	public static void openURL(Context context, Uri url)
+	{
+		Intent intent = new Intent(Intent.ACTION_VIEW);
+		intent.setData(url);
+		context.startActivity(intent);
+	}
 	/*
 	 * The returned intent will be similar to the one used by android for opening an activity from the Launcher icon
 	 */

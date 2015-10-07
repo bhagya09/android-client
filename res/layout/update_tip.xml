@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/all_content"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/stealth_tip_bg"
+    android:orientation="horizontal" >
+
+        <LinearLayout
+            android:id="@+id/tip_content"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="8"
+            android:layout_alignParentTop="true"
+            android:layout_alignWithParentIfMissing="true"
+            android:orientation="vertical" >
+
+            <com.bsb.hike.view.CustomFontTextView
+                android:id="@+id/tip_header"
+                style="@style/UpdateTipHeader"
+                android:layout_marginTop="17.5dp"
+                android:layout_marginLeft="17.5dp"
+                android:layout_gravity="top"
+                android:text="New Hike Update Available" />
+
+            <com.bsb.hike.view.CustomFontTextView
+                android:id="@+id/tip_msg"
+                style="@style/UpdateTipBody"
+                android:paddingTop="7dp"
+                android:layout_marginLeft="17.5dp"
+                android:layout_marginBottom="29dp"
+                android:alpha="0.7"
+                android:text="Get free Group Calls, Hike News and \n new Hidden Mode in this update" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="2"
+            android:layout_alignParentRight="true"
+            android:orientation="vertical"
+            android:layout_alignTop="@id/tip_content" >
+
+            <ImageView
+                android:id="@+id/close_tip"
+                android:layout_width="33dp"
+                android:layout_height="33dp"
+                android:layout_alignParentRight="true"
+                android:layout_gravity="top|right"
+                android:layout_marginRight="9.5dp"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/popup_button_bg_selector"
+                android:padding="10dp"
+                android:visibility="gone"
+                android:scaleType="centerInside"
+                android:src="@drawable/connectionscreencross" />
+
+            <TextView
+                android:id="@+id/update_tip_label"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.9"
+                android:gravity="bottom"
+                android:paddingBottom="17.5dp"
+                android:paddingRight="17.5dp"
+                android:text="@string/update_tip_bottom_text"
+                android:textColor="#ffffff"
+                android:textStyle="bold"
+                android:textSize="12sp" />
+
+        </LinearLayout>
+
+</LinearLayout>

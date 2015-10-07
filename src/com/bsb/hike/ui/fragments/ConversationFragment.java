@@ -22,6 +22,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -90,6 +91,7 @@ import com.bsb.hike.models.ConvMessage.State;
 import com.bsb.hike.models.EmptyConversationContactItem;
 import com.bsb.hike.models.EmptyConversationFtueCardItem;
 import com.bsb.hike.models.EmptyConversationItem;
+import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.models.NUXChatReward;
 import com.bsb.hike.models.NUXTaskDetails;
 import com.bsb.hike.models.NuxSelectFriends;
@@ -134,7 +136,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 			HikePubSub.MULTI_MESSAGE_DB_INSERTED, HikePubSub.SERVER_RECEIVED_MULTI_MSG, HikePubSub.MUTE_CONVERSATION_TOGGLED, HikePubSub.CONV_UNREAD_COUNT_MODIFIED,
 			HikePubSub.CONVERSATION_TS_UPDATED, HikePubSub.PARTICIPANT_JOINED_ONETONCONV, HikePubSub.PARTICIPANT_LEFT_ONETONCONV, HikePubSub.BLOCK_USER, HikePubSub.UNBLOCK_USER,
 			HikePubSub.MUTE_BOT, HikePubSub.CONVERSATION_DELETED, HikePubSub.DELETE_THIS_CONVERSATION, HikePubSub.ONETONCONV_NAME_CHANGED, HikePubSub.STEALTH_CONVERSATION_MARKED,
-			HikePubSub.STEALTH_CONVERSATION_UNMARKED, HikePubSub.UPDATE_LAST_MSG_STATE, HikePubSub.OFFLINE_MESSAGE_SENT, HikePubSub.ON_OFFLINE_REQUEST };
+			HikePubSub.STEALTH_CONVERSATION_UNMARKED, HikePubSub.UPDATE_LAST_MSG_STATE, HikePubSub.OFFLINE_MESSAGE_SENT, HikePubSub.ON_OFFLINE_REQUEST, HikePubSub.FLUSH_CRITICAL_UPDATE_TIP };
 
 	private ConversationsAdapter mAdapter;
 
@@ -1871,6 +1873,10 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 		{
 			tipType = ConversationTip.ATOMIC_APP_GENERIC_TIP;
 		}
+		else if(shouldShowUpdateTip())
+		{
+			tipType = whichUpdateTip();
+		}
 
 		// to prevent more than one tip to display at a time , it can happen at time of onnewintent
 		if (!hasNoConversation && tipView != null)
@@ -1882,8 +1888,47 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 
 		if (tipView != null)
 		{
+			Logger.d("param", "adding tip:" + tipType);
 			checkAndAddListViewHeader(tipView);
 		}
+	}
+	
+	private boolean shouldShowUpdateTip()
+	{
+		Logger.d("param", "checking should show tip");
+		if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SHOW_INVITE_TIP, false))
+		{
+			return true;
+		}
+		else if(Utils.isUpdateRequired(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.Extras.LATEST_VERSION, ""), getContext()))
+		{
+			return (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SHOW_CRITICAL_UPDATE_TIP, false)
+					|| HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SHOW_NORMAL_UPDATE_TIP, false));
+		}
+		else
+		{
+			return false;
+		}
+		
+	}
+	
+	private int whichUpdateTip()
+	{
+		Logger.d("param", "checking which tip");
+		if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SHOW_CRITICAL_UPDATE_TIP, false))
+		{
+			return ConversationTip.UPDATE_CRITICAL_TIP;
+		}
+		else if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SHOW_NORMAL_UPDATE_TIP, false))
+		{
+			return ConversationTip.UPDATE_NORMAL_TIP;
+		}
+		else if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SHOW_INVITE_TIP, false))
+		{
+			return ConversationTip.INVITE_TIP;
+		}
+		Logger.d("param", "returning tip -1");
+		return -1;
 	}
 
 	private void setupConversationLists()
@@ -2993,6 +3038,18 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 
 			}
 		}
+		else if(HikePubSub.FLUSH_CRITICAL_UPDATE_TIP.equals(type))
+		{
+			getActivity().runOnUiThread(new Runnable()
+			{
+				@Override
+				public void run()
+				{
+					removeTipIfExists(ConversationTip.UPDATE_CRITICAL_TIP);
+				}
+				
+			});
+		}
 	}
 
 	protected void handleUIMessage(Message msg)
@@ -3597,6 +3654,15 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 			break;
 		case ConversationTip.STEALTH_UNREAD_TIP:
 			HikeSharedPreferenceUtil.getInstance().removeData(HikeMessengerApp.SHOW_STEALTH_UNREAD_TIP);
+			break;
+		case ConversationTip.UPDATE_NORMAL_TIP:
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOW_NORMAL_UPDATE_TIP, false);
+			break;
+		case ConversationTip.UPDATE_CRITICAL_TIP:
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOW_CRITICAL_UPDATE_TIP, false);
+			break;
+		case ConversationTip.INVITE_TIP:
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOW_INVITE_TIP, false);
 			break;
 		case ConversationTip.RESET_STEALTH_TIP:
 			if (convTip != null)
