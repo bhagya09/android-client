@@ -607,9 +607,7 @@ public class ChatHeadUtils
 		{
 			try
 			{
-				JsonParser parser = new JsonParser();
-				JsonObject callerDetails = (JsonObject) parser.parse(HikeSharedPreferenceUtil.getInstance(HikeConstants.CALLER_SHARED_PREF).getData(callCurrentNumber, null));
-				CallerContentModel callerContentModel = new Gson().fromJson(callerDetails, CallerContentModel.class);
+				CallerContentModel callerContentModel = getCallerContentModelObject(HikeSharedPreferenceUtil.getInstance(HikeConstants.CALLER_SHARED_PREF).getData(callCurrentNumber, null));
 				isOnHike = callerContentModel.getIsOnHike();
 				if (callerContentModel.getFirstName() != null)
 				{
