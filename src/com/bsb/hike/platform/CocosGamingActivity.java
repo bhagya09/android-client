@@ -195,37 +195,41 @@ public class CocosGamingActivity extends Cocos2dxActivity
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, final Intent data)
 	{
-		super.onActivityResult(requestCode, resultCode, data);
-		Logger.d(TAG, "-onActivityResult");
-		if (requestCode != JavascriptBridge.PICK_CONTACT_AND_SEND_REQUEST)
+		if (resultCode == RESULT_OK)
 		{
-			return;
-		}
-		JSONObject response = new JSONObject();
-		for (String key : data.getExtras().keySet())
-		{
-			Object value = data.getExtras().get(key);
-			try
+			super.onActivityResult(requestCode, resultCode, data);
+			Logger.d(TAG, "-onActivityResult");
+			switch (requestCode)
 			{
-				response.put(key, value);
-			}
-			catch (JSONException e)
-			{
-				e.printStackTrace();
-			}
-		}
+			case JavascriptBridge.PICK_CONTACT_AND_SEND_REQUEST:
+				JSONObject response = new JSONObject();
+				for (String key : data.getExtras().keySet())
+				{
+					Object value = data.getExtras().get(key);
+					try
+					{
+						response.put(key, value);
+					}
+					catch (JSONException e)
+					{
+						e.printStackTrace();
+					}
+				}
 
-		final String res = response.toString();
-		this.runOnGLThread(new Runnable()
-		{
-			@Override
-			public void run()
-			{
-				platformCallback(NativeBridge.SEND_SHARED_MESSAGE, res);
-			}
-		});
+				final String res = response.toString();
+				this.runOnGLThread(new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						platformCallback(NativeBridge.SEND_SHARED_MESSAGE, res);
+					}
+				});
 
-		Logger.d(TAG, "+onActivityResult");
+				Logger.d(TAG, "+onActivityResult");
+				break;
+			}
+		}
 	}
 
 	@Override
