@@ -729,6 +729,8 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 
 		String[] moodsArray = getResources().getStringArray(R.array.mood_headings);
 		statusTxt.setHint(moodsArray[moodIndex]);
+		
+		toggleEnablePostButton();
 	}
 	
 	private void resetMood()
