@@ -337,7 +337,7 @@ public class BotUtils
 			}
 			else if (botMetadata.isNativeMode())
 			{
-				PlatformUtils.botCreationSuccessHandling(botInfo, enableBot, botChatTheme, notifType);
+				PlatformUtils.downloadZipForNonMessagingBot(botInfo, enableBot, botChatTheme, notifType, botMetadata);
 			}
 
 		}

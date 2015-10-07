@@ -2,6 +2,7 @@ package com.bsb.hike.platform;
 
 import android.text.TextUtils;
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.HikePubSub;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
@@ -86,11 +87,13 @@ public class PlatformUIDRequestListener implements IRequestListener
 				if (!TextUtils.isEmpty(anonName) )
 				{
 					mPrefs.saveData(HikeMessengerApp.ANONYMOUS_NAME_SETTING, anonName);
+					HikeMessengerApp.getPubSub().publish(HikePubSub.ANONYMOUS_NAME_SET, obj);
 				}
 			}
 			else if (obj.has(HikePlatformConstants.ERROR))
 			{
 				String errorMessage = obj.optString(HikePlatformConstants.ERROR);
+				HikeMessengerApp.getPubSub().publish(HikePubSub.ANONYMOUS_NAME_SET, obj);
 				//TODO send this error message to the required place, that'll indeed call this api again to fetch anon name.
 			}
 			break;

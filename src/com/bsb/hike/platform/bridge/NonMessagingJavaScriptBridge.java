@@ -715,12 +715,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	@JavascriptInterface
 	public void deleteEvent(String eventId)
 	{
-		if (TextUtils.isEmpty(eventId))
-		{
-			Logger.e(TAG, "event can't be deleted as the event id is " + eventId);
-			return;
-		}
-		HikeConversationsDatabase.getInstance().deleteEvent(eventId);
+		PlatformHelper.deleteEvent(eventId);
 	}
 
 	/**
@@ -732,12 +727,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	@JavascriptInterface
 	public void deleteAllEventsForMessage(String messageHash)
 	{
-		if (TextUtils.isEmpty(messageHash))
-		{
-			Logger.e(TAG, "the events corresponding to the message hash can't be deleted as the message hash is " + messageHash);
-			return;
-		}
-		HikeConversationsDatabase.getInstance().deleteAllEventsForMessage(messageHash);
+		PlatformHelper.deleteAllEventsForMessage(messageHash);
 	}
 
 	/**
@@ -990,7 +980,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	@JavascriptInterface
 	public void postStatusUpdate(String status, String moodId)
 	{
-		postStatusUpdate(status, moodId, null);
+		PlatformHelper.postStatusUpdate(status, moodId, null);
 	}
 	
 	/**
@@ -1040,19 +1030,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	@JavascriptInterface
 	public void postStatusUpdate(String status, String moodId, String imageFilePath)
 	{
-		int mood;
-		
-		try
-		{
-			mood = Integer.parseInt(moodId);
-		}
-		catch(NumberFormatException e)
-		{
-			Logger.e(tag, "moodId to postStatusUpdate should be a number.");
-			mood = -1;
-		}
-		
-		Utils.postStatusUpdate(status, mood, imageFilePath);
+		PlatformHelper.postStatusUpdate(status,moodId,imageFilePath);
 	}
 
 	/**
@@ -1311,6 +1289,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	 * This function is made for a bot to know whether its directory exists.
 	 * @param id: the id of the function that native will call to call the js .
 	 */
+	@JavascriptInterface
 	public void isMicroappExist(String id)
 	{
 		NonMessagingBotMetadata nonMessagingBotMetadata = new NonMessagingBotMetadata(mBotInfo.getMetadata());
@@ -1326,6 +1305,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	 * @param id: the id of the function that native will call to call the js .
 	 * @param mapp: the name of the mapp.
 	 */
+	@JavascriptInterface
 	public void isMicroappExist(String id, String mapp)
 	{
 		if (!BotUtils.isSpecialBot(mBotInfo))
