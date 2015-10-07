@@ -33,7 +33,7 @@ public enum Edge {
     // Minimum distance in pixels that one edge can get to its opposing edge.
     // This is an arbitrary value that simply prevents the crop window from
     // becoming too small.
-    public static final int MIN_CROP_LENGTH_PX = 40;
+    public static int MIN_CROP_LENGTH_PX = 200;
 
     // Member Variables ////////////////////////////////////////////////////////
 

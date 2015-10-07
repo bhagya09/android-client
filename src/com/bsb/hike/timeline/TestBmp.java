@@ -5,7 +5,10 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+import com.bsb.hike.BitmapModule.BitmapUtils;
+
 import android.graphics.Bitmap;
+import android.graphics.Bitmap.CompressFormat;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
@@ -67,8 +70,10 @@ public class TestBmp
 		{
 			// load the bitmap from its path
 			bmp = BitmapFactory.decodeFile(filePath, options);
+			BitmapUtils.saveBitmapToFile(new File(getFilename()), bmp, CompressFormat.PNG,100);
+			BitmapUtils.saveBitmapToFile(new File(getFilename()), bmp, CompressFormat.JPEG,80);
 		}
-		catch (OutOfMemoryError exception)
+		catch (OutOfMemoryError | IOException exception)
 		{
 			exception.printStackTrace();
 
@@ -97,35 +102,35 @@ public class TestBmp
 		canvas.drawBitmap(bmp, middleX - bmp.getWidth() / 2, middleY - bmp.getHeight() / 2, paint);
 
 		// check the rotation of the image and display it properly
-		ExifInterface exif;
-		try
-		{
-			exif = new ExifInterface(filePath);
-
-			int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, 0);
-			Log.d("EXIF", "Exif: " + orientation);
-			Matrix matrix = new Matrix();
-			if (orientation == 6)
-			{
-				matrix.postRotate(90);
-				Log.d("EXIF", "Exif: " + orientation);
-			}
-			else if (orientation == 3)
-			{
-				matrix.postRotate(180);
-				Log.d("EXIF", "Exif: " + orientation);
-			}
-			else if (orientation == 8)
-			{
-				matrix.postRotate(270);
-				Log.d("EXIF", "Exif: " + orientation);
-			}
-			scaledBitmap = Bitmap.createBitmap(scaledBitmap, 0, 0, scaledBitmap.getWidth(), scaledBitmap.getHeight(), matrix, true);
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-		}
+//		ExifInterface exif;
+//		try
+//		{
+//			exif = new ExifInterface(filePath);
+//
+//			int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, 0);
+//			Log.d("EXIF", "Exif: " + orientation);
+//			Matrix matrix = new Matrix();
+//			if (orientation == 6)
+//			{
+//				matrix.postRotate(90);
+//				Log.d("EXIF", "Exif: " + orientation);
+//			}
+//			else if (orientation == 3)
+//			{
+//				matrix.postRotate(180);
+//				Log.d("EXIF", "Exif: " + orientation);
+//			}
+//			else if (orientation == 8)
+//			{
+//				matrix.postRotate(270);
+//				Log.d("EXIF", "Exif: " + orientation);
+//			}
+//			scaledBitmap = Bitmap.createBitmap(scaledBitmap, 0, 0, scaledBitmap.getWidth(), scaledBitmap.getHeight(), matrix, true);
+//		}
+//		catch (IOException e)
+//		{
+//			e.printStackTrace();
+//		}
 
 		FileOutputStream out = null;
 		try
@@ -133,7 +138,7 @@ public class TestBmp
 			out = new FileOutputStream(destFilePath);
 
 			// write the compressed bitmap at the destination specified by filename.
-			scaledBitmap.compress(Bitmap.CompressFormat.JPEG, 80, out);
+			scaledBitmap.compress(Bitmap.CompressFormat.JPEG, 85, out);
 
 		}
 		catch (FileNotFoundException e)

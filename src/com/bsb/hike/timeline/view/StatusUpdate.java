@@ -26,7 +26,7 @@ import android.view.WindowManager;
 import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.ImageView.ScaleType;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -41,8 +41,8 @@ import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.media.EmoticonPicker;
 import com.bsb.hike.media.ImageParser;
-import com.bsb.hike.media.PopupListener;
 import com.bsb.hike.media.ImageParser.ImageParserListener;
+import com.bsb.hike.media.PopupListener;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.smartImageLoader.IconLoader;
 import com.bsb.hike.tasks.StatusUpdateTask;
@@ -435,6 +435,19 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 			mActivityTask.emojiShowing = true;
 			showCancelButton(false);
 			setEmoticonButtonSelected(true);
+			
+			parentLayout.postDelayed(new Runnable()
+			{
+				@Override
+				public void run()
+				{
+//						RelativeLayout.LayoutParams p = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+//
+//						p.addRule(RelativeLayout.ABOVE, R.id.emoticon_layout_parent);
+//
+//						addItemsLayout.setLayoutParams(p);
+				}
+			}, mActivityTask.keyboardShowing ? 300 : 300);
 		}
 		else
 		{
@@ -616,6 +629,12 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		}
 		else
 		{
+			RelativeLayout.LayoutParams p = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+
+			p.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+
+			addItemsLayout.setLayoutParams(p);
+			
 			addItemsLayout.setVisibility(View.VISIBLE);
 		}
 	}
@@ -655,16 +674,11 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		
 	}
 
-	public void hideEmoticonSelector()
-	{
-		onBackPressed();
-	}
-
 	private void showMoodSelector()
 	{
 		Utils.hideSoftKeyboard(this, statusTxt);
 
-		addItemsLayout.setVisibility(View.GONE);
+//		addItemsLayout.setVisibility(View.GONE);
 
 		mActivityTask.moodShowing = true;
 
@@ -679,7 +693,15 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 			public void run()
 			{
 				if (moodParent != null)
+				{
 					moodParent.setVisibility(View.VISIBLE);
+
+					RelativeLayout.LayoutParams p = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+
+					p.addRule(RelativeLayout.ABOVE, R.id.mood_parent_status);
+
+					addItemsLayout.setLayoutParams(p);
+				}
 			}
 		}, mActivityTask.keyboardShowing ? 300 : 0); // TODO Remove hack. Use Shareable popup layout
 
@@ -850,7 +872,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		int[] dontEatThisTouch = {R.id.emoji_btn};
 		mEmoticonPicker = new EmoticonPicker(this, statusTxt, findViewById(R.id.parent_layout), (int)getResources().getDimension(R.dimen.emoticon_pallete), dontEatThisTouch);
 		mEmoticonPicker.setOnDismissListener(this);
-		mEmoticonPicker.setDisableExtraPadding(true);
+		mEmoticonPicker.setDisableExtraPadding(false);
 		mEmoticonPicker.useStatusUpdateEmojisList(true);
 	}
 	

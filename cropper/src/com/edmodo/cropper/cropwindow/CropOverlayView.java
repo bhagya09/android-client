@@ -19,6 +19,7 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.util.Pair;
 import android.util.TypedValue;
 import android.view.MotionEvent;
@@ -168,7 +169,7 @@ public class CropOverlayView extends View {
     }
 
     @Override
-    public boolean onTouchEvent(MotionEvent event) {
+    public boolean onTouchEvent (MotionEvent event) {
 
         // If this View is not enabled, don't allow for touch interactions.
         if (!isEnabled()) {
@@ -626,6 +627,12 @@ public class CropOverlayView extends View {
         // handle so that the crop window size does not "jump".
         x += mTouchOffset.first;
         y += mTouchOffset.second;
+        
+        Log.d("Atul", ""+x);
+        Log.d("Atul", ""+y);
+        
+        Log.d("Atul diff", ""+(mBitmapRect.left - mBitmapRect.right));
+        Log.d("Atul diff", ""+(mBitmapRect.top - mBitmapRect.bottom));
 
         // Calculate the new crop window size/position.
         if (mFixAspectRatio) {

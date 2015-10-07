@@ -6,7 +6,9 @@ import org.apache.http.util.TextUtils;
 
 import com.bsb.hike.R;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
+import com.bsb.hike.photos.HikePhotosUtils;
 import com.edmodo.cropper.CropImageView;
+import com.edmodo.cropper.cropwindow.edge.Edge;
 import com.hike.transporter.utils.Logger;
 
 import android.graphics.Bitmap;
@@ -57,7 +59,7 @@ public class HikeCropFragment extends Fragment
 		return newFragment;
 	}
 
-	private HikeCropFragment()
+	public HikeCropFragment()
 	{
 		// use newInstance()
 	}
@@ -88,6 +90,14 @@ public class HikeCropFragment extends Fragment
 
 		try
 		{
+			int minSize = HikePhotosUtils.dpToPx(50);
+
+			if (sourceBitmap.getWidth() < minSize || sourceBitmap.getHeight() < minSize)
+			{
+				minSize = sourceBitmap.getWidth() > sourceBitmap.getHeight() ? sourceBitmap.getHeight() : sourceBitmap.getWidth();
+			}
+
+			Edge.MIN_CROP_LENGTH_PX = minSize;
 			mCropImageView.setImageBitmap(sourceBitmap, new ExifInterface(mSourceImagePath));
 		}
 		catch (IOException e)

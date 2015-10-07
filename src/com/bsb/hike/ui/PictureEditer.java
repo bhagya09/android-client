@@ -433,7 +433,7 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 
 	private void uploadProfilePic(final String croppedImageFile, final String originalImageFile)
 	{
-//		Utils.copyFile(croppedImageFile, TestBmp.getFilename());
+		Utils.copyFile(croppedImageFile, TestBmp.getFilename());
 		TestBmp.compressImage(croppedImageFile,croppedImageFile,800f,800f);
 		editView.setVisibility(View.VISIBLE);
 		ProfilePicFragment profilePicFragment = new ProfilePicFragment();
