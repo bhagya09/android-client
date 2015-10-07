@@ -48,6 +48,7 @@ import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.HttpManager;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
+import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.notifications.HikeNotificationUtils;
 import com.bsb.hike.notifications.ToastListener;
 import com.bsb.hike.offline.OfflineConstants;
@@ -830,6 +831,7 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 			/*
 			 * Updating the app version.
 			 */
+			((NotificationManager) getApplicationContext().getSystemService(NOTIFICATION_SERVICE)).cancel(HikeNotification.APP_UPDATE_AVAILABLE_ID);
 			Editor editor = settings.edit();
 			editor.putString(CURRENT_APP_VERSION, actualAppVersion);
 			editor.commit();

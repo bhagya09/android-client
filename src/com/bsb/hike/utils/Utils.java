@@ -3234,6 +3234,7 @@ public class Utils
 				{
 					JSONObject sessionDataObject = HAManager.getInstance().recordAndReturnSessionEnd();
 					sendSessionMQTTPacket(context, HikeConstants.BACKGROUND, sessionDataObject);
+					HikeNotification.getInstance().checkAndShowUpdateNotif();
 				}
 			}
 			else

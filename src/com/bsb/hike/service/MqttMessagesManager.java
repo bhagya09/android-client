@@ -3053,12 +3053,14 @@ public class MqttMessagesManager
 		String devType = data.optString(HikeConstants.DEV_TYPE);
 		String id = data.optString(HikeConstants.MESSAGE_ID);
 		String lastPushPacketId = settings.getString(HikeConstants.Extras.LAST_UPDATE_PACKET_ID, "");
+		Logger.d("param", "last id="+lastPushPacketId+" new id="+id);
 		if (!TextUtils.isEmpty(devType) && devType.equals(HikeConstants.ANDROID) && !TextUtils.isEmpty(id) && !lastPushPacketId.equals(id))
 		{
 			String version = data.optString(HikeConstants.UPDATE_VERSION);
 			String updateURL = data.optString(HikeConstants.Extras.URL);
 			int update = Utils.isUpdateRequired(version, context) ? (data.optBoolean(HikeConstants.CRITICAL_UPDATE_KEY) ? HikeConstants.CRITICAL_UPDATE
 					: HikeConstants.NORMAL_UPDATE) : HikeConstants.NO_UPDATE;
+			boolean isPersistentNotif = data.optBoolean(HikeConstants.IS_PERSISTENT_UPDATE_NOTIFICATION);
 			if ((update == HikeConstants.CRITICAL_UPDATE || update == HikeConstants.NORMAL_UPDATE))
 			{
 				if (Utils.isUpdateRequired(version, context))
@@ -3068,6 +3070,11 @@ public class MqttMessagesManager
 					editor.putString(HikeConstants.Extras.UPDATE_MESSAGE, data.optString(HikeConstants.MESSAGE));
 					editor.putString(HikeConstants.Extras.LATEST_VERSION, version);
 					editor.putString(HikeConstants.Extras.LAST_UPDATE_PACKET_ID, id);
+					Logger.d("param", "isPers:"+String.valueOf(isPersistentNotif));
+					editor.putBoolean(HikeConstants.IS_PERSISTENT_UPDATE_NOTIFICATION, isPersistentNotif);
+					editor.putBoolean(HikeConstants.SHOULD_SHOW_PERSISTENT_NOTIF, isPersistentNotif);
+					editor.putString(HikeConstants.Extras.UPDATE_TITLE, data.optString(HikeConstants.Extras.TITLE));
+					
 					if (!TextUtils.isEmpty(updateURL))
 						editor.putString(HikeConstants.Extras.URL, updateURL);
 					editor.commit();
@@ -3085,15 +3092,26 @@ public class MqttMessagesManager
 		String devType = data.optString(HikeConstants.DEV_TYPE);
 		String message = data.optString(HikeConstants.MESSAGE);
 		String packageName = data.optString(HikeConstants.PACKAGE);
+		
 		if (!TextUtils.isEmpty(devType) && devType.equals(HikeConstants.ANDROID) && !TextUtils.isEmpty(message) && !TextUtils.isEmpty(packageName) && !TextUtils.isEmpty(id)
 				&& !lastPushPacketId.equals(id))
 		{
 			Editor editor = settings.edit();
 			editor.putString(HikeConstants.Extras.APPLICATIONSPUSH_MESSAGE, data.optString(HikeConstants.MESSAGE));
 			editor.putString(HikeConstants.Extras.LAST_APPLICATION_PUSH_PACKET_ID, id);
+			editor.putBoolean(HikeConstants.IS_PERSISTENT_UPDATE_NOTIFICATION, false);
 			editor.commit();
 			this.pubSub.publish(HikePubSub.APPLICATIONS_PUSH, packageName);
 		}
+	}
+	
+	public void flushUpdateNotif(JSONObject jsonObj) throws JSONException
+	{
+		Logger.d("param", "processing flush pn");
+		Editor editor = settings.edit();
+		editor.putBoolean(HikeConstants.SHOULD_SHOW_PERSISTENT_NOTIF, false);
+		editor.commit();
+		this.pubSub.publish(HikePubSub.FLUSH_PERSISTENT_NOTIF, "flush");
 	}
 
 	public void saveChatBackground(JSONObject jsonObj) throws JSONException
@@ -3790,6 +3808,10 @@ public class MqttMessagesManager
 		else if (HikeConstants.MqttMessageTypes.APPLICATIONS_PUSH.equals(type))
 		{
 			saveApplicationsPush(jsonObj);
+		}
+		else if(HikeConstants.MqttMessageTypes.FLUSH_PERS_NOTIF.equals(type))
+		{
+			flushUpdateNotif(jsonObj);
 		}
 		else if (HikeConstants.MqttMessageTypes.CHAT_BACKGROUD.equals(type))
 		{

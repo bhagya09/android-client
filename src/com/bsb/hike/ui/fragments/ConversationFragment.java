@@ -3568,6 +3568,10 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 	{
 		mAdapter.setIsListFlinging(velocity > HikeConstants.MAX_VELOCITY_FOR_LOADING_IMAGES_SMALL && scrollState == OnScrollListener.SCROLL_STATE_FLING);
 	}
+	
+	public int getCurrentTip(){
+		return tipType;
+	}
 
 	private void removeTipIfExists(int whichTip)
 	{

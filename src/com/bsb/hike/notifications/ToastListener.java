@@ -72,7 +72,7 @@ public class ToastListener implements Listener
 			HikePubSub.NEW_ACTIVITY, HikePubSub.CONNECTION_STATUS, HikePubSub.FAVORITE_TOGGLED, HikePubSub.TIMELINE_UPDATE_RECIEVED, HikePubSub.BATCH_STATUS_UPDATE_PUSH_RECEIVED,
 			HikePubSub.CANCEL_ALL_STATUS_NOTIFICATIONS, HikePubSub.CANCEL_ALL_NOTIFICATIONS, HikePubSub.PROTIP_ADDED, HikePubSub.UPDATE_PUSH, HikePubSub.APPLICATIONS_PUSH,
 			HikePubSub.SHOW_FREE_INVITE_SMS, HikePubSub.STEALTH_POPUP_WITH_PUSH, HikePubSub.HIKE_TO_OFFLINE_PUSH, HikePubSub.ATOMIC_POPUP_WITH_PUSH,
-			HikePubSub.BULK_MESSAGE_NOTIFICATION, HikePubSub.USER_JOINED_NOTIFICATION,HikePubSub.ACTIVITY_UPDATE_NOTIF};
+			HikePubSub.BULK_MESSAGE_NOTIFICATION, HikePubSub.USER_JOINED_NOTIFICATION,HikePubSub.ACTIVITY_UPDATE_NOTIF, HikePubSub.FLUSH_PERSISTENT_NOTIF};
 
 	/**
 	 * Used to check whether NUJ/RUJ message notifications are disabled
@@ -295,7 +295,8 @@ public class ToastListener implements Listener
 			// now the user has got a push update from our server.
 			// if its critical, let it go through, if its normal, check the
 			// preference.
-			toaster.notifyUpdatePush(update, context.getPackageName(),
+			toaster.notifyUpdatePush(update,context.getPackageName(),
+					context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).getString(HikeConstants.Extras.UPDATE_TITLE, ""),
 					context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).getString(HikeConstants.Extras.UPDATE_MESSAGE, ""), false);
 		}
 		else if (HikePubSub.APPLICATIONS_PUSH.equals(type))
@@ -304,9 +305,15 @@ public class ToastListener implements Listener
 			{
 				String packageName = ((String) object);
 				toaster.notifyUpdatePush(-1, packageName,
+						context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).getString(HikeConstants.Extras.UPDATE_TITLE, ""),
 						context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).getString(HikeConstants.Extras.APPLICATIONSPUSH_MESSAGE, ""), true);
 			}
 
+		}
+		else if(HikePubSub.FLUSH_PERSISTENT_NOTIF.equals(type))
+		{
+			Logger.d("param", "calling cancel");
+			toaster.cancelPersistNotif(HikeNotification.APP_UPDATE_AVAILABLE_ID);
 		}
 		else if (HikePubSub.SHOW_FREE_INVITE_SMS.equals(type))
 		{

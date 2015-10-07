@@ -730,6 +730,14 @@ public class HikeConstants
 	public static final int CRITICAL_UPDATE = 1;
 
 	public static final int NO_UPDATE = 0;
+	
+	public static final String IS_PERSISTENT_UPDATE_NOTIFICATION = "isPers";
+	
+	public static final String PERSISTENT_NOTIF_MESSAGE = "persNotifMsg";
+	
+	public static final String PERSISTENT_NOTIF_TITLE = "persNotifTitle";
+	
+	public static final String SHOULD_SHOW_PERSISTENT_NOTIF = "showPersistNotif";
 
 	// More explanation required?
 	public static final int NUM_TIMES_SCREEN_SHOULD_OPEN_BEFORE_TOOL_TIP = 2;
@@ -1351,6 +1359,8 @@ public class HikeConstants
 		public static final String UPDATE_TOOL_TIP_SHOWING = "updateToolTipShowing";
 
 		public static final String UPDATE_MESSAGE = "updateMessage";
+		
+		public static final String UPDATE_TITLE = "updateTitle";
 
 		public static final String APPLICATIONSPUSH_MESSAGE = "applicationsPushMessage";
 
@@ -2459,6 +2469,8 @@ public class HikeConstants
 		public static final String UPDATE_PUSH = "update";
 
 		public static final String APPLICATIONS_PUSH = "applications";
+		
+		public static final String FLUSH_PERS_NOTIF = "flushpn";
 
 		public static final String MULTI_INVITE = "mi";
 

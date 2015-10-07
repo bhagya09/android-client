@@ -113,6 +113,8 @@ public class HikeNotification
 	private final NotificationManager notificationManager;
 
 	private final SharedPreferences sharedPreferences;
+	
+	private SharedPreferences settingPref;
 
 	private HikeNotificationMsgStack hikeNotifMsgStack;
 	
@@ -135,6 +137,7 @@ public class HikeNotification
 		this.notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 		this.sharedPreferences = context.getSharedPreferences(HikeMessengerApp.STATUS_NOTIFICATION_SETTING, 0);
 		this.hikeNotifMsgStack = HikeNotificationMsgStack.getInstance();
+		this.settingPref = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0); 
 		
 
 		if (VIB_DEF == null)
@@ -311,12 +314,28 @@ public class HikeNotification
 	/*
 	 * method to send a notification of an hike update available or applicationspush update. if isApplicationsPushUpdate is false than it is hike app update.
 	 */
-	public void notifyUpdatePush(int updateType, String packageName, String message, boolean isApplicationsPushUpdate)
+	public void notifyUpdatePush(int updateType, String packageName, String notifTitle, String message, boolean isApplicationsPushUpdate)
 	{
 		message = (TextUtils.isEmpty(message)) ? context.getString(R.string.update_app) : message;
-		final int smallIconId = returnSmallIcon();
-
-		NotificationCompat.Builder mBuilder = getNotificationBuilder(context.getString(R.string.team_hike), message, message, null, smallIconId, false);
+		notifTitle = !TextUtils.isEmpty(notifTitle) ? notifTitle : context.getString(R.string.team_hike);
+		final int smallIconId = returnSmallIcon();	
+		NotificationCompat.Builder mBuilder;
+		if(settingPref.getBoolean(HikeConstants.IS_PERSISTENT_UPDATE_NOTIFICATION, false))
+		{
+			Logger.d("param", "showing persistent notif");
+			mBuilder = getNotificationBuilder(notifTitle, message, message, null, smallIconId, false);
+			mBuilder.setAutoCancel(false);
+			mBuilder.setOngoing(true);
+			Editor editor = settingPref.edit();
+			editor.putString(HikeConstants.PERSISTENT_NOTIF_MESSAGE, message);
+			editor.putString(HikeConstants.PERSISTENT_NOTIF_TITLE, notifTitle);
+			editor.commit();
+		}
+		else
+		{
+			Logger.d("param", "showing regular notif");
+			mBuilder = getNotificationBuilder(notifTitle, message, message, null, smallIconId, false);
+		}		
 
 		Intent intent = new Intent(Intent.ACTION_VIEW);
 		intent.setData(Uri.parse("market://details?id=" + packageName));
@@ -1035,6 +1054,27 @@ public class HikeNotification
 	{
 		notificationManager.cancelAll();
 		hikeNotifMsgStack.resetMsgStack();
+	}
+	
+	public void checkAndShowUpdateNotif()
+	{
+		Logger.d("param", "latest version = "+settingPref.getString(HikeConstants.Extras.LATEST_VERSION,""));
+		if(settingPref.getBoolean(HikeConstants.SHOULD_SHOW_PERSISTENT_NOTIF, false))
+		{
+			if(Utils.isUpdateRequired(settingPref.getString(HikeConstants.Extras.LATEST_VERSION, ""), context))
+			{
+				String message = settingPref.getString(HikeConstants.PERSISTENT_NOTIF_MESSAGE, "Hike Update Available!");
+				String title = settingPref.getString(HikeConstants.PERSISTENT_NOTIF_TITLE, "Update Available");
+				notifyUpdatePush(-1, context.getPackageName(), title, message, false);
+			}
+		}
+		
+	}
+	
+	public void cancelPersistNotif(int notifId)
+	{
+		notificationManager.cancel(notifId);
+		Logger.d("param", "notif canceled");
 	}
 
 	private void showInboxStyleNotification(final Intent notificationIntent, final int icon, final long timestamp, final int notificationId, final CharSequence text,

@@ -285,6 +285,8 @@ public class HikePubSub implements Runnable
 	public static final String UPDATE_PUSH = "updatePush";
 
 	public static final String APPLICATIONS_PUSH = "applicationsPush";
+	
+	public static final String FLUSH_PERSISTENT_NOTIF = "flushpn";
 
 	public static final String UPDATE_AVAILABLE = "updateAvailable"; // TODO: get rid of this.
 
