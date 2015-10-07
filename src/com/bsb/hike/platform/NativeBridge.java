@@ -34,7 +34,7 @@ public class NativeBridge
 
 	private String cardObj;
 
-	public static final String TAG = "GameUtils";
+	private static final String TAG = "GameUtils";
 
 	protected WeakReference<Activity> weakActivity;
 
@@ -72,6 +72,8 @@ public class NativeBridge
 
 	/**
 	 * Platform Version 7 Call this method to get cardObj
+	 *  @param id
+	 *            : the id of the function that native will call to call the game .
 	 * 
 	 * @return
 	 */
@@ -79,7 +81,7 @@ public class NativeBridge
 	{
 		Logger.d(TAG,"+getCardObj()");
 		String cardObject = cardObj;
-		if (cardObject == null)
+		if (TextUtils.isEmpty(cardObject))
 		{
 			cardObject = "{}";
 		}
@@ -88,7 +90,9 @@ public class NativeBridge
 	}
 
 	/**
-	 * Platform Version 7 Call this method to get cardObj
+	 * Platform Version 7 Call this method to get Bot Helper data
+	 *  @param id
+	 *            : the id of the function that native will call to call the game .
 	 * 
 	 * @return
 	 */
@@ -114,6 +118,7 @@ public class NativeBridge
 	 *            : key of the data to be saved. Game needs to make sure about the uniqueness of the key.
 	 * @param value
 	 *            : : the data that the game need to cache.
+	 *            lastGame is a reserved keyword now
 	 */
 	public void putInCache(final String key, final String value)
 	{
@@ -137,6 +142,7 @@ public class NativeBridge
 	/**
 	 * Platform Version 7
 	 * 
+	 * Call this function to get data from cache.
 	 * @param id
 	 *            : the id of the function that native will call to call the game .
 	 * @param key
@@ -203,7 +209,8 @@ public class NativeBridge
 	 */
 	public void forwardToChat(final String json, final String hikeMessage)
 	{
-		if (mThread == null || weakActivity.get() == null)
+		final Activity gameActivity=weakActivity.get();
+		if (mThread == null || gameActivity == null)
 			return;
 		mThread.postRunnable(new Runnable()
 		{
@@ -211,7 +218,7 @@ public class NativeBridge
 			@Override
 			public void run()
 			{
-				helper.forwardToChat(json, hikeMessage, mBotInfo, weakActivity.get());
+				helper.forwardToChat(json, hikeMessage, mBotInfo, gameActivity);
 			}
 		});
 	}
@@ -410,7 +417,7 @@ public class NativeBridge
 	 * Platform Version 7 Call this function to get the current platform version.
 	 * 
 	 * @param id
-	 *            : the id of the function that native will call to call the js .
+	 *            : the id of the function  .
 	 */
 	public void getCurrentPlatformVersion(final String id)
 	{
@@ -476,11 +483,13 @@ public class NativeBridge
 			{
 				String uid = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PLATFORM_UID_SETTING, null);
 				String name = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.NAME_SETTING, null);
+				String anonName=HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.ANONYMOUS_NAME_SETTING,null);
 				final JSONObject result = new JSONObject();
 				try
 				{
 					result.put("uid", uid);
 					result.put("name", name);
+					result.put("anonName", anonName);
 				}
 				catch (JSONException e)
 				{

@@ -408,7 +408,7 @@ public class HikeNotificationMsgStack implements Listener
 		
 		if (mBotInfo.isNonMessagingBot())
 		{
-				notifIntent = IntentFactory.getNonMessagingBotIntent(lastAddedMsisdn, mContext);
+			notifIntent = IntentFactory.getNonMessagingBotIntent(lastAddedMsisdn, mContext);
 		}
 
 		else
