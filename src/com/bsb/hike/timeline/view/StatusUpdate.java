@@ -27,6 +27,7 @@ import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -230,6 +231,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 			{
 				statusImage.setImageBitmap(bmp);
 				statusTxt.setHint(R.string.status_hint_image);
+				ChatThreadUtils.applyMatrixTransformationToImageView(statusImage.getDrawable(), statusImage);
 			}
 			
 		}
@@ -344,6 +346,8 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		addMoodLayout = findViewById(R.id.addMoodLayout);
 		addPhotoLayout = findViewById(R.id.addPhotoLayout);
 		addItemsLayout = findViewById(R.id.addItemsLayout);
+		ScrollView sv = (ScrollView)findViewById(R.id.scroll);
+        sv.setEnabled(false);
 	}
 
 	@Override
@@ -435,19 +439,6 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 			mActivityTask.emojiShowing = true;
 			showCancelButton(false);
 			setEmoticonButtonSelected(true);
-			
-			parentLayout.postDelayed(new Runnable()
-			{
-				@Override
-				public void run()
-				{
-//						RelativeLayout.LayoutParams p = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-//
-//						p.addRule(RelativeLayout.ABOVE, R.id.emoticon_layout_parent);
-//
-//						addItemsLayout.setLayoutParams(p);
-				}
-			}, mActivityTask.keyboardShowing ? 300 : 300);
 		}
 		else
 		{
@@ -497,6 +488,8 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 	{
 		hideEmojiOrMoodLayout();
 		
+		Utils.hideSoftKeyboard(getApplicationContext(), getWindow().getDecorView());
+		
 		int galleryFlags = GalleryActivity.GALLERY_CATEGORIZE_BY_FOLDERS | GalleryActivity.GALLERY_EDIT_SELECTED_IMAGE | GalleryActivity.GALLERY_COMPRESS_EDITED_IMAGE
 				| GalleryActivity.GALLERY_DISPLAY_CAMERA_ITEM;
 
@@ -532,7 +525,6 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		}
 		else
 		{
-			getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
 			statusImage.setVisibility(View.VISIBLE);
 			BitmapDrawable bmpDrawable = new BitmapDrawable(getResources(), bmp);
 			statusImage.setImageDrawable(bmpDrawable);
@@ -874,7 +866,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		int[] dontEatThisTouch = {R.id.emoji_btn};
 		mEmoticonPicker = new EmoticonPicker(this, statusTxt, findViewById(R.id.parent_layout), (int)getResources().getDimension(R.dimen.emoticon_pallete), dontEatThisTouch);
 		mEmoticonPicker.setOnDismissListener(this);
-		mEmoticonPicker.setDisableExtraPadding(true);
+		mEmoticonPicker.setDisableExtraPadding(false);
 		mEmoticonPicker.useStatusUpdateEmojisList(true);
 	}
 	
