@@ -51,6 +51,8 @@ public class GalleryItemLoaderTask extends AsyncTask<Void, Void, Void>{
 
 	private final String TYPE_BMP = ".bmp";
 
+	private final String TYPE_WEBP = ".webp";
+
 	private final String CAMERA_IMAGES = "Camera";
 
 	private final String HIKE_IMAGES = "hike";
@@ -270,7 +272,7 @@ public class GalleryItemLoaderTask extends AsyncTask<Void, Void, Void>{
 		boolean isImg = false;
 		fileName = fileName.toLowerCase();
 		if (fileName.endsWith(TYPE_JPG) || fileName.endsWith(TYPE_JPEG) || fileName.endsWith(TYPE_PNG)
-				|| fileName.endsWith(TYPE_GIF) || fileName.endsWith(TYPE_BMP))
+				|| fileName.endsWith(TYPE_GIF) || fileName.endsWith(TYPE_BMP) || fileName.endsWith(TYPE_WEBP))
 		{
 			isImg = true;
 		}
