@@ -582,6 +582,7 @@ public class CountrySelectActivity extends HikeAppStateBaseFragmentActivity impl
 	@Override
 	public void showGlobeKeyView() {
 		// TODO Auto-generated method stub
+		KptUtils.onGlobeKeyPressed(CountrySelectActivity.this, mCustomKeyboard);
 		
 	}
 

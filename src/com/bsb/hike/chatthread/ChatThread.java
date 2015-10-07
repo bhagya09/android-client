@@ -1736,6 +1736,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		}
 		else
 		{
+			
+        	mCustomKeyboard.registerEditText(searchEt, KPTConstants.MULTILINE_LINE_EDITOR, ChatThread.this, ChatThread.this);
 			mCustomKeyboard.showCustomKeyboard(searchEt, true);
 		}
 		
