@@ -2276,4 +2276,28 @@ public class StickerManager
 			 HikeSharedPreferenceUtil.getInstance().removeData(HikeMessengerApp.STICKER_SET);
 		}
 	}
+	
+	public boolean isStickerExists(String categoryId, String stickerId)
+	{
+		if(TextUtils.isEmpty(categoryId) || TextUtils.isEmpty(stickerId))
+		{
+			return false;
+		}
+		
+		String categoryDirPath = StickerManager.getInstance().getStickerCategoryDirPath(categoryId) + HikeConstants.LARGE_STICKER_ROOT;
+		
+		if(TextUtils.isEmpty(categoryDirPath))
+		{
+			return false;
+		}
+		
+		File stickerImage = new File(categoryDirPath, stickerId);
+		
+		if(stickerImage == null || !stickerImage.exists())
+		{
+			return false;
+		}
+		
+		return true;
+	}
 }
