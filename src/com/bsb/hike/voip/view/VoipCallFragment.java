@@ -11,7 +11,6 @@ import android.content.ServiceConnection;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.media.AudioManager;
-import android.media.SoundPool;
 import android.media.ToneGenerator;
 import android.os.Bundle;
 import android.os.Handler;
@@ -52,8 +51,6 @@ import com.bsb.hike.ui.ComposeChatActivity;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.ProfileImageLoader;
-import com.bsb.hike.utils.Utils;
-import com.bsb.hike.voip.SoundPoolForLollipop;
 import com.bsb.hike.voip.VoIPClient;
 import com.bsb.hike.voip.VoIPConstants;
 import com.bsb.hike.voip.VoIPConstants.CallQuality;
@@ -411,15 +408,6 @@ public class VoipCallFragment extends Fragment implements CallActions
 			if (voipService != null)
 			{
 				voipService.sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CONNECTION_FAILED, VoIPConstants.CallFailedCodes.PARTNER_UPGRADE);
-				voipService.stop();
-			}
-		}
-		
-		if (action.equals(VoIPConstants.PARTNER_HAS_BLOCKED_YOU)) 
-		{
-			if (voipService != null)
-			{
-				voipService.sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CONNECTION_FAILED, VoIPConstants.CallFailedCodes.PARTNER_BLOCKED_USER);
 				voipService.stop();
 			}
 		}

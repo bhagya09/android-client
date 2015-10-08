@@ -611,15 +611,6 @@ public class VoIPUtils {
 				i.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
 				context.startActivity(i);
 			}
-			
-			if (subType.equals(HikeConstants.MqttMessageTypes.VOIP_ERROR_CALLEE_HAS_BLOCKED_YOU)) 
-			{
-				Intent i = new Intent(context, VoIPActivity.class);
-				i.putExtra(VoIPConstants.Extras.ACTION, VoIPConstants.PARTNER_HAS_BLOCKED_YOU);
-				i.putExtra(VoIPConstants.Extras.MSISDN, jsonObj.getString(HikeConstants.FROM));
-				i.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-				context.startActivity(i);
-			}
 		}
 	}
 	

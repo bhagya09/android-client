@@ -102,7 +102,6 @@ public class VoIPConstants {
 	// Intent actions
 	public static final String PARTNER_REQUIRES_UPGRADE = "pru";
 	public static final String PARTNER_IN_CALL = "incall";
-	public static final String PARTNER_HAS_BLOCKED_YOU = "blocked";
 	
 	// Default bitrates
 	public static final int BITRATE_2G = 12000;
