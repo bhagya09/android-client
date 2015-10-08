@@ -745,6 +745,8 @@ public class HikeConstants
 	
 	public static final String SHOULD_SHOW_PERSISTENT_NOTIF = "showPersistNotif";
 	
+	public static final String IS_HIKE_APP_FOREGROUNDED = "isHikeAppForegrounded";
+	
 	public static final String UPDATE_TIP_HEADER = "updateTipHeader";
 	
 	public static final String UPDATE_TIP_BODY = "updateTipBody";

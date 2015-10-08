@@ -341,7 +341,7 @@ public class HikeNotification
 		message = (TextUtils.isEmpty(message)) ? context.getString(R.string.update_app) : message;
 		notifTitle = !TextUtils.isEmpty(notifTitle) ? notifTitle : context.getString(R.string.team_hike);
 		final int smallIconId = returnSmallIcon();	
-		NotificationCompat.Builder mBuilder = getNotificationBuilder(notifTitle, message, message, null, smallIconId, false);
+		NotificationCompat.Builder mBuilder = getNotificationBuilder(notifTitle, message, message, null, smallIconId, true, true, false);
 		mBuilder.setAutoCancel(false);
 		mBuilder.setOngoing(true);
 		Editor editor = settingPref.edit();
@@ -355,7 +355,7 @@ public class HikeNotification
 		intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY | Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
 		mBuilder.setContentIntent(PendingIntent.getActivity(context, 0, intent, 0));
 
-		if (!sharedPreferences.getBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false))
+		if (!sharedPreferences.getBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false) && !settingPref.getBoolean(HikeConstants.IS_HIKE_APP_FOREGROUNDED, false))
 		{
 			int notificationId = PERSISTENT_NOTIF_ID;
 			notifyNotification(notificationId, mBuilder);

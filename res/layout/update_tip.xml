@@ -41,7 +41,7 @@
             android:orientation="vertical"
             android:layout_alignTop="@id/tip_content" >
 
-            <ImageView
+            <com.bsb.hike.ui.utils.RecyclingImageView
                 android:id="@+id/close_tip"
                 android:layout_width="33dp"
                 android:layout_height="33dp"
@@ -55,18 +55,16 @@
                 android:scaleType="centerInside"
                 android:src="@drawable/connectionscreencross" />
 
-            <TextView
+            <com.bsb.hike.view.CustomFontTextView
                 android:id="@+id/update_tip_label"
+                style="@style/UpdateTipLabel"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="0.9"
                 android:gravity="bottom"
                 android:paddingBottom="17.5dp"
                 android:paddingRight="17.5dp"
-                android:text="@string/update_tip_bottom_text"
-                android:textColor="#ffffff"
-                android:textStyle="bold"
-                android:textSize="12sp" />
+                android:text="@string/update_tip_bottom_text" />
 
         </LinearLayout>
 

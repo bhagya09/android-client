@@ -3036,6 +3036,10 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 		}
 		else if(HikePubSub.FLUSH_CRITICAL_UPDATE_TIP.equals(type))
 		{
+			if(!isAdded())
+			{
+				return;
+			}
 			getActivity().runOnUiThread(new Runnable()
 			{
 				@Override
