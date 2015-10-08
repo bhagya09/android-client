@@ -8,6 +8,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.engine.ProgressByteProcessor;
 import com.bsb.hike.utils.Utils;
@@ -72,7 +73,7 @@ public class FileRequestPersistent extends FileRequest
 	{
 		float newProgress = (downloadedLen/totalContentLength);
 		
-		if ((newProgress - oldProgress) >= 0.01f) // If the delta is > 1% we will write to file
+		if ((newProgress - oldProgress) >= HikeConstants.ONE_PERCENT_PROGRESS) // If the delta is > 1% we will write to file
 		{
 
 			FileOutputStream stateOutputStream = null;
