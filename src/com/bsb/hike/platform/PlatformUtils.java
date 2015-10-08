@@ -1300,17 +1300,20 @@ public class PlatformUtils
 	}
 	public static void killProcess(Activity context,String process)
 	{
-		ActivityManager activityManager = (ActivityManager) context.getSystemService(context. ACTIVITY_SERVICE );
-        List<RunningAppProcessInfo> procInfos = activityManager.getRunningAppProcesses();
-        for(int i = 0; i < procInfos.size(); i++)
-        {
-            if(procInfos.get(i).processName.equals(process)) 
-            {
-            	int pid=procInfos.get(i).pid;
-            	android.os.Process.killProcess(pid);
-            	
-            }
-        }
+		if (context != null)
+		{
+			ActivityManager activityManager = (ActivityManager) context.getSystemService(context.ACTIVITY_SERVICE);
+			List<RunningAppProcessInfo> procInfos = activityManager.getRunningAppProcesses();
+			for (int i = 0; i < procInfos.size(); i++)
+			{
+				if (procInfos.get(i).processName.equals(process))
+				{
+					int pid = procInfos.get(i).pid;
+					android.os.Process.killProcess(pid);
+
+				}
+			}
+		}
 	}
 
 }

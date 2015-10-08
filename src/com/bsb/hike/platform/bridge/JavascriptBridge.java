@@ -1230,7 +1230,7 @@ public abstract class JavascriptBridge
 	@JavascriptInterface
 	public void getAnonName(String id)
 	{
-		String anonName=HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.ANONYMOUS_NAME_SETTING,null);
+		String anonName=HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.ANONYMOUS_NAME_SETTING,"");
 		callbackToJS(id, anonName);
 	}
 	
