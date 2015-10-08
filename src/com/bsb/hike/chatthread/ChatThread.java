@@ -6139,6 +6139,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		if (kptVisible)
 		{
 			KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, height);
+			mShareablePopupLayout.setCustomKeyBoardHeight(height);
 			keyboardHeight = height;
 		}
 		else

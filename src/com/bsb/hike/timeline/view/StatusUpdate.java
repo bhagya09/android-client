@@ -116,6 +116,8 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 	private boolean wasEmojiPreviouslyVisible;
 	
 	private String IS_IMAGE_DELETED = "is_img_d";
+	
+	private int keyboardHeight;
 
 	protected Handler uiHandler = new Handler()
 	{
@@ -341,11 +343,11 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		mCustomKeyboard.registerEditText(R.id.status_txt, KPTConstants.MULTILINE_LINE_EDITOR, this, this);
 		mCustomKeyboard.init(statusTxt);
 		findViewById(R.id.status_txt).setOnClickListener(this);
-		mEmoticonPicker.setCustomKeyBoardHeight(mCustomKeyboard.getKeyBoardAndCVHeight());
+		mEmoticonPicker.setCustomKeyBoardHeight((keyboardHeight == 0) ? mCustomKeyboard.getKeyBoardAndCVHeight() : keyboardHeight);
 		if (!(getIntent().hasExtra(STATUS_UPDATE_IMAGE_PATH)))
 		{
 			mCustomKeyboard.showCustomKeyboard(statusTxt, true);			
-			KptUtils.updatePadding(StatusUpdate.this, R.id.parent_layout, mCustomKeyboard.getKeyBoardAndCVHeight());
+			KptUtils.updatePadding(StatusUpdate.this, R.id.parent_layout, (keyboardHeight == 0) ? mCustomKeyboard.getKeyBoardAndCVHeight() : keyboardHeight);
 		}
 	}
 
@@ -764,7 +766,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 			setEmoticonButtonSelected(true);
 			if (mCustomKeyboard != null)
 			{
-				mEmoticonPicker.setCustomKeyBoardHeight(mCustomKeyboard.getKeyBoardAndCVHeight());
+				mEmoticonPicker.setCustomKeyBoardHeight((keyboardHeight == 0) ? mCustomKeyboard.getKeyBoardAndCVHeight() : keyboardHeight);
 			}
 			onEmojiClick();
 			break;
@@ -924,6 +926,8 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		{
 			mActivityTask.keyboardShowing = true;
 			hideEmojiOrMoodLayout();
+			keyboardHeight = height;
+			KptUtils.updatePadding(StatusUpdate.this, R.id.parent_layout, (keyboardHeight == 0) ? mCustomKeyboard.getKeyBoardAndCVHeight() : keyboardHeight);
 			Logger.d(StatusUpdate.class.getSimpleName(), "shown keyboard");
 		}
 		else
@@ -982,7 +986,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		else
 		{
 			mCustomKeyboard.showCustomKeyboard(statusTxt, true);
-			KptUtils.updatePadding(StatusUpdate.this, R.id.parent_layout, mCustomKeyboard.getKeyBoardAndCVHeight());
+			KptUtils.updatePadding(StatusUpdate.this, R.id.parent_layout, (keyboardHeight == 0) ? mCustomKeyboard.getKeyBoardAndCVHeight() : keyboardHeight);
 		}
 	}
 	
