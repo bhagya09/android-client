@@ -1364,9 +1364,9 @@ public class VoIPService extends Service {
 			}
 		}, "ACCEPT_INCOMING_CALL_THREAD").start();
 
+		startBluetooth();
 		startRecordingAndPlayback(client.getPhoneNumber());
 		client.sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CALL_ACCEPT);
-		startBluetooth();
 	}
 	
 	private synchronized void startRecordingAndPlayback(String msisdn) {
