@@ -4,7 +4,6 @@ import java.lang.ref.WeakReference;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
@@ -374,8 +373,26 @@ public class NativeBridge
 	}
 
 	/**
+	 * Platform Version 8
+	 * Call this fucntion to show a popup
+	 * @param contentData : The stringified JSONobject for the popup.
+	 */
+	public void showPopup(final String contentData)
+	{
+		Handler handler = new Handler(HikeMessengerApp.getInstance().getApplicationContext().getMainLooper());
+		handler.post(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				PlatformHelper.showPopup(contentData, weakActivity.get());
+			}
+		});
+	}
+
+	/**
 	 * Platform Version 7 Call this function to get the bot version.
-	 * 
+	 *
 	 * @param id
 	 *            : the id of the function that native will call to call the js .
 	 */
@@ -383,7 +400,7 @@ public class NativeBridge
 	public void getBotVersion(final String id)
 	{
 		activity.runOnGLThread(new Runnable()
-		{
+	 	{
 			@Override
 			public void run()
 			{
@@ -392,9 +409,10 @@ public class NativeBridge
 		});
 	}
 
+
 	/**
 	 * Platform Version 7 Call this function to get the system architecture.
-	 * 
+	 *
 	 * @param id
 	 *            : the id of the function that native will call .
 	 */

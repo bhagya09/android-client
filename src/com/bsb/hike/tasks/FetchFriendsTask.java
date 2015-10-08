@@ -402,6 +402,7 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 			
 			if (filteredMicroAppShowcaseList != null)
 			{
+				filteredMicroAppShowcaseList.clear();
 				filteredMicroAppShowcaseList.addAll(microappShowcaseList);
 			}
 		}
