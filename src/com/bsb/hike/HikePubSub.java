@@ -451,6 +451,10 @@ public class HikePubSub implements Runnable
 	public static final String ADD_NM_BOT_CONVERSATION = "addNmBotCoversation";
 	
 	public static final String BOT_CREATED = "botCreated";
+
+	public static final String SHOW_NEW_CHAT_RED_DOT = "showNewChatRedDot";
+	
+	public static final String ANONYMOUS_NAME_SET="anonymousNameSet";
 	
 	private final Thread mThread;
 

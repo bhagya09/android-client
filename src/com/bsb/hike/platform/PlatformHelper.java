@@ -17,6 +17,7 @@ import com.bsb.hike.ui.ComposeChatActivity;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.Utils;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -160,7 +161,7 @@ public class PlatformHelper
 	
 	public static void sendSharedMessage(String cardObject, String hikeMessage, String sharedData, BotInfo mBotInfo, final Activity activity)
 	{
-		sendSharedMessage(sharedData, sharedData, sharedData, mBotInfo, activity, -1);
+		sendSharedMessage(cardObject, hikeMessage, sharedData, mBotInfo, activity, -1);
 	}
 
 	public static String getAllEventsForMessageHash(String messageHash, String namespace)
@@ -226,6 +227,44 @@ public class PlatformHelper
 				}
 			}
 		});
+	}
+	
+	public static void deleteEvent(String eventId)
+	{
+		if (TextUtils.isEmpty(eventId))
+		{
+			Logger.e(TAG, "event can't be deleted as the event id is " + eventId);
+			return;
+		}
+		HikeConversationsDatabase.getInstance().deleteEvent(eventId);
+	}
+	
+	public static void deleteAllEventsForMessage(String messageHash)
+	{
+		if (TextUtils.isEmpty(messageHash))
+		{
+			Logger.e(TAG, "the events corresponding to the message hash can't be deleted as the message hash is " + messageHash);
+			return;
+		}
+		HikeConversationsDatabase.getInstance().deleteAllEventsForMessage(messageHash);
+	}
+
+	public static void postStatusUpdate(String status, String moodId, String imageFilePath)
+	{
+int mood;
+		
+		try
+		{
+			mood = Integer.parseInt(moodId);
+		}
+		catch(NumberFormatException e)
+		{
+			Logger.e(TAG, "moodId to postStatusUpdate should be a number.");
+			mood = -1;
+		}
+		
+		Utils.postStatusUpdate(status, mood, imageFilePath);
+		
 	}
 
 }

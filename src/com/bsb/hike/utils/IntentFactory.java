@@ -47,7 +47,9 @@ import com.bsb.hike.models.Conversation.ConvInfo;
 import com.bsb.hike.timeline.view.StatusUpdate;
 import com.bsb.hike.timeline.view.TimelineActivity;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
+import com.bsb.hike.platform.CocosGamingActivity;
 import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.platform.content.PlatformContentConstants;
 import com.bsb.hike.ui.ApkSelectionActivity;
 import com.bsb.hike.ui.ComposeChatActivity;
 import com.bsb.hike.ui.ConnectedAppsActivity;
@@ -780,6 +782,11 @@ public class IntentFactory
 
 	public static Intent getNonMessagingBotIntent(String msisdn, Context context)
 	{
+		return(getNonMessagingBotIntent(msisdn,context,null));
+	}
+	
+	public static Intent getNonMessagingBotIntent(String msisdn, Context context,String data)
+	{
 		if (BotUtils.isBot(msisdn))
 		{
 			BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
@@ -787,10 +794,20 @@ public class IntentFactory
 			if (botInfo.isNonMessagingBot())
 			{
 				NonMessagingBotMetadata nonMessagingBotMetadata = new NonMessagingBotMetadata(botInfo.getMetadata());
-				Intent intent = getWebViewActivityIntent(context, "", "");
-				intent.putExtra(WebViewActivity.WEBVIEW_MODE, nonMessagingBotMetadata.isWebUrlMode() ? WebViewActivity.WEB_URL_BOT_MODE : WebViewActivity.MICRO_APP_MODE);
-				intent.putExtra(HikeConstants.MSISDN, msisdn);
-				return intent;
+				if (nonMessagingBotMetadata.isNativeMode())
+				{
+					Intent i = new Intent(context,CocosGamingActivity.class);
+					i.putExtra(HikeConstants.MSISDN, msisdn);
+					i.putExtra(HikeConstants.DATA,data);
+					return i;
+				}
+				else
+				{
+					Intent intent = getWebViewActivityIntent(context, "", "");
+					intent.putExtra(WebViewActivity.WEBVIEW_MODE, nonMessagingBotMetadata.isWebUrlMode() ? WebViewActivity.WEB_URL_BOT_MODE : WebViewActivity.MICRO_APP_MODE);
+					intent.putExtra(HikeConstants.MSISDN, msisdn);
+					return intent;
+				}
 
 			}
 		}
@@ -1081,13 +1098,6 @@ public class IntentFactory
 		activity.startActivityForResult(intent, 0);
 	}
 	
-	public static void openIntentForGameActivity(Context context)
-	{
-		//TODO:Pass Intent of game activity and any extras.
-//				Intent i = new Intent(context,SettingsActivity.class);
-//		
-//			context.startActivity(i);
-	}
 	
 	public static Intent getIntentForBots(BotInfo mBotInfo, Context context)
 	{

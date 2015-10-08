@@ -3302,4 +3302,6 @@ public class HikeConstants
 	
 	public static final String BOTS_DISCOVERY_SECTION = "bds";
 
+	public static final String NEW_CHAT_RED_DOT = "nc_dot";
+
 }
