@@ -158,7 +158,7 @@ public interface HikePlatformConstants
 
 	public static final String PLATFORM_BRIDGE_NAME = "PlatformBridge";
 
-	public static final String CARD_DATA = "ld";
+	public static final String LAYOUT_DATA = "ld";
 
 	public static final String FILE_ID = "file_id";
 
@@ -270,5 +270,7 @@ public interface HikePlatformConstants
 	public static final String LAST_GAME="lastGame";
 	
 	public static final String GAME_CHANNEL="+hikegames+";
+	
+	final static String RESUME_SUPPORT = "resume_support";
 	
 }

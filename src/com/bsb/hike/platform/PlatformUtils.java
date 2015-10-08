@@ -1,8 +1,11 @@
 package com.bsb.hike.platform;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -10,8 +13,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import android.util.Pair;
-import com.bsb.hike.bots.NonMessagingBotMetadata;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
@@ -19,7 +20,6 @@ import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.CoreProtocolPNames;
 import org.apache.http.util.EntityUtils;
-import org.cocos2dx.lib.Cocos2dxHelper;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -34,6 +34,7 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.text.TextUtils;
+import android.util.Pair;
 import android.webkit.MimeTypeMap;
 import android.widget.Toast;
 
@@ -44,6 +45,7 @@ import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
+import com.bsb.hike.bots.NonMessagingBotMetadata;
 import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.chatHead.StickyCaller;
 import com.bsb.hike.db.HikeContentDatabase;
@@ -56,6 +58,7 @@ import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.Header;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpHeaderConstants;
+import com.bsb.hike.modules.httpmgr.request.FileRequestPersistent;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadSource;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadType;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerPalleteImageDownloadTask;
@@ -339,9 +342,9 @@ public class PlatformUtils
 				Intent i=IntentFactory.getNonMessagingBotIntent(msisdn,context,extraData);
 				if (context != null)
 				{
-					if (isProcessRunning(context, HikePlatformConstants.GAME_PROCESS) && !(getLastGame().equals(msisdn)))
+					if (!(getLastGame().equals(msisdn)))
 					{
-						CocosGamingActivity.shutdownGame();
+						killProcess(context, HikePlatformConstants.GAME_PROCESS);
 						Logger.d(TAG, "process killed");
 					}
 					HikeContentDatabase.getInstance().putInContentCache(HikePlatformConstants.LAST_GAME,
@@ -367,7 +370,7 @@ public class PlatformUtils
 	 * @param botInfo
 	 * @param enableBot
 	 */
-	public static void downloadZipForNonMessagingBot(final BotInfo botInfo, final boolean enableBot, final String botChatTheme, final String notifType, NonMessagingBotMetadata botMetadata)
+	public static void downloadZipForNonMessagingBot(final BotInfo botInfo, final boolean enableBot, final String botChatTheme, final String notifType, NonMessagingBotMetadata botMetadata, boolean resumeSupport)
 	{
 		PlatformContentRequest rqst = PlatformContentRequest.make(
 				PlatformContentModel.make(botInfo.getMetadata()), new PlatformContentListener<PlatformContentModel>()
@@ -582,11 +585,10 @@ public class PlatformUtils
 	{
 		downloadAndUnzip(request, isTemplatingEnabled, false);
 	}
-
-	public static void downloadAndUnzip(PlatformContentRequest request, boolean isTemplatingEnabled, boolean doReplace, String callbackId)
+	
+	public static void downloadAndUnzip(PlatformContentRequest request, boolean isTemplatingEnabled, boolean doReplace, String callbackId, boolean resumeSupported)
 	{
-
-		PlatformZipDownloader downloader =  new PlatformZipDownloader(request, isTemplatingEnabled, doReplace, callbackId);
+		PlatformZipDownloader downloader =  new PlatformZipDownloader(request, isTemplatingEnabled, doReplace, callbackId, resumeSupported);
 		if (!downloader.isMicroAppExist() || doReplace)
 		{
 			downloader.downloadAndUnzip();
@@ -595,6 +597,11 @@ public class PlatformUtils
 		{
 			request.getListener().onEventOccured(request.getContentData()!=null ? request.getContentData().getUniqueId() : 0,PlatformContent.EventCode.ALREADY_DOWNLOADED);
 		}
+	}
+
+	public static void downloadAndUnzip(PlatformContentRequest request, boolean isTemplatingEnabled, boolean doReplace, String callbackId)
+	{
+		downloadAndUnzip(request, isTemplatingEnabled, doReplace, callbackId, false);
 	}
 
 	/**
@@ -1245,27 +1252,77 @@ public class PlatformUtils
 		}
 		return json.toString();
 	}
-	public static boolean isProcessRunning(Activity context,String process)
+	
+	/**
+	 * Returns a String array, which contains the following values :<br>
+	 * [ <total-downloaded-bytes> , <progress> , <original downloaded file path>, <url from which it was downloaded> ]
+	 * 
+	 * @param filePath
+	 * @return
+	 */
+	public static String[] readPartialDownloadState(String filePath)
 	{
-		if(context!=null)
+		String[] data = new String[4];
+		int i = 0;
+		BufferedReader reader = null;
+		try
 		{
-		 ActivityManager activityManager = (ActivityManager) context.getSystemService(context. ACTIVITY_SERVICE );
-	        List<RunningAppProcessInfo> procInfos = activityManager.getRunningAppProcesses();
-	        for(int i = 0; i < procInfos.size(); i++)
-	        {
-	            if(procInfos.get(i).processName.equals(process)) 
-	            {
-	            	Logger.d(TAG, "process is running");
-	            	
-	            	return true;
-	            }
-	        }
+			reader = new BufferedReader(new FileReader(filePath));
+			String line;
+
+			while ((line = reader.readLine()) != null)
+			{
+				data[i] = line.split(FileRequestPersistent.FILE_DELIMETER)[1];
+				i++;
+			}
 		}
-	        return false;
+		catch (FileNotFoundException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		catch (IOException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		finally
+		{
+			if (reader != null)
+			{
+				Utils.closeStreams(reader);
+			}
+		}
+
+		return data;
 	}
+	
 	public static String getLastGame()
 	{
 		return HikeContentDatabase.getInstance().getFromContentCache(HikePlatformConstants.LAST_GAME,BotUtils.getBotInfoForBotMsisdn(HikePlatformConstants.GAME_CHANNEL).getNamespace());
+	}
+	public static void killProcess(Activity context,String process)
+	{
+		if (context != null)
+		{
+			ActivityManager activityManager = (ActivityManager) context.getSystemService(context.ACTIVITY_SERVICE);
+			List<RunningAppProcessInfo> procInfos = activityManager.getRunningAppProcesses();
+			for (int i = 0; i < procInfos.size(); i++)
+			{
+				if (procInfos.get(i).processName.equals(process))
+				{
+					int pid = procInfos.get(i).pid;
+					android.os.Process.killProcess(pid);
+
+				}
+			}
+		}
+	}
+
+	public static Header getDownloadRangeHeader(long startOffset)
+	{
+		return new Header("Range", "bytes=" + startOffset + "-");
 	}
 
 }

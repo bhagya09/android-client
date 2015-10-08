@@ -1211,6 +1211,10 @@ public abstract class JavascriptBridge
 			HikeDialogFactory.showDialog(mContext, HikeDialogFactory.MICROAPP_DIALOG, nativeDialogListener, title, message, positiveBtn, negativeBtn);
 		}
 	}
+	/**
+	 * Added in Platform Version 8. Call this function to set anon name
+	 * @param name
+	 */
 	@JavascriptInterface
 	public void setAnonName(String name)
 	{
@@ -1219,7 +1223,35 @@ public abstract class JavascriptBridge
 			PlatformUIDFetch.fetchPlatformUid(HikePlatformConstants.PlatformFetchType.SELF_ANONYMOUS_NAME,name);
 		}
 	}
+	/**
+	 * Added in Platform Version 8. Call this function to get anon name if exists,else will return null string.
+	 * @param id
+	 */
+	@JavascriptInterface
+	public void getAnonName(String id)
+	{
+		String anonName=HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.ANONYMOUS_NAME_SETTING,"");
+		callbackToJS(id, anonName);
+	}
 	
 
+	/**
+	 * Platform Version 8
+	 * This method is used to show a native popup with a WebView rendered within it.
+	 * contentData must have cardObj. Inside cardObj, ld must be present and should be a JSONObject.
+	 * @param contentData
+	 */
+	@JavascriptInterface
+	public void showPopup(final String contentData)
+	{
+		mHandler.post(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				PlatformHelper.showPopup(contentData, weakActivity.get());
+			}
+		});
+	}
 
 }

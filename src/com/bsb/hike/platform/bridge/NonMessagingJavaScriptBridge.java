@@ -1345,8 +1345,5 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 			callbackToJS(functionId, "false");
 		}
 	}
-	
-	
-
 
 }
