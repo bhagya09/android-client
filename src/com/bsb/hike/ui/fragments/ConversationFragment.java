@@ -1114,6 +1114,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 					try
 					{
 						data.put(HikeConstants.SCREEN, nonMessagingBotMetadata.getTargetActivity());
+						data.put(HikeConstants.MSISDN, botInfo.getMsisdn());
 					}
 					catch (JSONException e)
 					{

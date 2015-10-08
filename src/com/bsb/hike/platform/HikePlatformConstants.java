@@ -265,4 +265,10 @@ public interface HikePlatformConstants
 	
 	public static final String BOT_DP = "dp";
 	
+	public static final String GAME_PROCESS="org.cocos2dx.gameprocess";
+	
+	public static final String LAST_GAME="lastGame";
+	
+	public static final String GAME_CHANNEL="+hikegames+";
+	
 }
