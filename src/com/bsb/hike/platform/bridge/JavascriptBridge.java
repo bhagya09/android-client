@@ -1211,6 +1211,10 @@ public abstract class JavascriptBridge
 			HikeDialogFactory.showDialog(mContext, HikeDialogFactory.MICROAPP_DIALOG, nativeDialogListener, title, message, positiveBtn, negativeBtn);
 		}
 	}
+	/**
+	 * Added in Platform Version 8. Call this function to set anon name
+	 * @param name
+	 */
 	@JavascriptInterface
 	public void setAnonName(String name)
 	{
@@ -1218,6 +1222,16 @@ public abstract class JavascriptBridge
 		{
 			PlatformUIDFetch.fetchPlatformUid(HikePlatformConstants.PlatformFetchType.SELF_ANONYMOUS_NAME,name);
 		}
+	}
+	/**
+	 * Added in Platform Version 8. Call this function to get anon name if exists,else will return null string.
+	 * @param id
+	 */
+	@JavascriptInterface
+	public void getAnonName(String id)
+	{
+		String anonName=HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.ANONYMOUS_NAME_SETTING,null);
+		callbackToJS(id, anonName);
 	}
 	
 
