@@ -120,10 +120,17 @@ public class KeyboardPopupLayout extends PopUpLayout implements OnDismissListene
 		{
 			if (islandScape)
 			{
-				int maxHeight = mainView.getRootView().getHeight();
-				// giving half height of screen in landscape mode
-				Logger.i("chatthread", "landscape mode is on setting half of screen " + maxHeight);
-				height = (maxHeight) / 2;
+				if (isCustomKeyBoard)
+				{
+					height = customKeyBoardHeight;
+				}
+				else
+				{
+					int maxHeight = mainView.getRootView().getHeight();
+					// giving half height of screen in landscape mode
+					Logger.i("chatthread", "landscape mode is on setting half of screen " + maxHeight);
+					height = (maxHeight) / 2;					
+				}
 			}
 
 			else
