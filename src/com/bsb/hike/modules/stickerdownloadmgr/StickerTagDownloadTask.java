@@ -33,17 +33,26 @@ public class StickerTagDownloadTask implements IHikeHTTPTask, IHikeHttpTaskResul
 	private static int requestStep = 0;
 
 	private ArrayList<String> stickerCategoryList;
+	
+	private long lastTagRefreshTime;
+	
+	private int state;
+	
 
-	public StickerTagDownloadTask(Set<String> stickerSet)
+	public StickerTagDownloadTask(Set<String> stickerSet, int state)
 	{
-		if (stickerSet == null)
+		this.stickerCategoryList = new ArrayList<String>(stickerSet);
+		this.state = state;
+		
+		if(state == StickerSearchConstants.STATE_STICKER_DATA_REFRESH)
 		{
-			this.stickerCategoryList = null;
+			this.lastTagRefreshTime = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.LAST_SUCCESSFUL_STICKER_TAG_REFRESH_TIME, System.currentTimeMillis());
 		}
 		else
 		{
-			this.stickerCategoryList = new ArrayList<String>(stickerSet);
+			this.lastTagRefreshTime = 0L;
 		}
+		
 	}
 
 	@Override
@@ -89,6 +98,7 @@ public class StickerTagDownloadTask implements IHikeHTTPTask, IHikeHttpTaskResul
 		{
 			JSONObject json = new JSONObject();
 			json.put(HikeConstants.CATEGORY_ID_LIST, array);
+			json.put("timestamp", (lastTagRefreshTime/1000));
 
 			RequestToken requestToken = tagsForCategoriesRequest(getRequestId(), json, getResponseListener());
 
@@ -169,7 +179,7 @@ public class StickerTagDownloadTask implements IHikeHTTPTask, IHikeHttpTaskResul
 	public void doOnSuccess(Object result)
 	{
 		JSONObject response = (JSONObject) result;
-		StickerSearchManager.getInstance().insertStickerTags(response, StickerSearchConstants.TRIAL_STICKER_DATA_UPDATE_REFRESH);
+		StickerSearchManager.getInstance().insertStickerTags(response, state);
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.TAG_FIRST_TIME_DOWNLOAD, false);
 	}
 
