@@ -8,6 +8,7 @@ import android.text.TextUtils;
 import android.webkit.JavascriptInterface;
 import android.widget.BaseAdapter;
 
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.adapters.ConversationsAdapter;
@@ -856,6 +857,7 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 	{
 		if (!BotUtils.isBot(message.webMetadata.getParentMsisdn()))
 		{
+			callbackToJS(id,Boolean.toString(false));
 			return;
 		}
 

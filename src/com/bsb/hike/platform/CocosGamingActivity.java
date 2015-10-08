@@ -188,7 +188,6 @@ public class CocosGamingActivity extends Cocos2dxActivity
 		return botInfo;
 	}
 
-	public static native void shutdownGame();
 
 	public static native void platformCallback(String callID, String response);
 

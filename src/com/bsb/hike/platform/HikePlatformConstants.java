@@ -248,6 +248,7 @@ public interface HikePlatformConstants
 	final String SECONDARY_TITLE = "secondary_title";
 	
 	final String STATUS_BAR_COLOR = "sb_color";
+	String RESUME_SUPPORTED = "resume_supported";
 	
 	public static final String PLATFORM_USER_ID_SYNC = "plfsync";
 	
