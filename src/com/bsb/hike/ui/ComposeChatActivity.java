@@ -737,7 +737,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		// TODO Auto-generated method stub
 			if (!KptUtils.isSystemKeyboard(ComposeChatActivity.this))
 			{
-				if (mCustomKeyboard != null && tagEditText != null)
+				if (mCustomKeyboard != null &&findViewById(R.id.composeChatNewGroupTagET).getVisibility()==View.VISIBLE&& tagEditText != null)
 				{
 					mCustomKeyboard.showCustomKeyboard(tagEditText, true);
 				}
@@ -2484,7 +2484,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			setResult(RESULT_CANCELED,getIntent());
 			this.finish();
 		}
-		if (mCustomKeyboard != null && mCustomKeyboard.isCustomKeyboardVisible())
+		if (mCustomKeyboard != null && mCustomKeyboard.isCustomKeyboardVisible()&&findViewById(R.id.composeChatNewGroupTagET).getVisibility()==View.VISIBLE)
 		{
 			mCustomKeyboard.showCustomKeyboard(tagEditText, false);
 			KptUtils.updatePadding(ComposeChatActivity.this, R.id.ll_compose, 0);
@@ -2892,13 +2892,16 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 	@Override
 	public void onInputviewVisbility(boolean kptVisible, int height)
 	{
-		if (kptVisible)
+		if (findViewById(R.id.composeChatNewGroupTagET).getVisibility() == View.VISIBLE)
 		{
-			KptUtils.updatePadding(ComposeChatActivity.this, R.id.ll_compose, height);
-		}
-		else
-		{
-			KptUtils.updatePadding(ComposeChatActivity.this, R.id.ll_compose, 0);
+			if (kptVisible)
+			{
+				KptUtils.updatePadding(ComposeChatActivity.this, R.id.ll_compose, height);
+			}
+			else
+			{
+				KptUtils.updatePadding(ComposeChatActivity.this, R.id.ll_compose, 0);
+			}
 		}
 	}
 
