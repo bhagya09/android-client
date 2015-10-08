@@ -99,10 +99,6 @@ public class VoIPConstants {
 
 	public static final int INITIAL_ICE_SOCKET_TIMEOUT = 2;
 	
-	// Intent actions
-	public static final String PARTNER_REQUIRES_UPGRADE = "pru";
-	public static final String PARTNER_IN_CALL = "incall";
-	
 	// Default bitrates
 	public static final int BITRATE_2G = 12000;
 	public static final int BITRATE_3G = 16000;
@@ -153,6 +149,7 @@ public class VoIPConstants {
 	public static final int MSG_UPDATE_FORCE_MUTE_LAYOUT = 31;
 	public static final int MSG_UPDATE_CALL_BUTTONS = 32;
 	public static final int MSG_PARTNER_INCOMPATIBLE_PLATFORM = 33;
+	public static final int MSG_PARTNER_UPGRADABLE_PLATFORM = 34;
 
 	public static final class Analytics
 	{

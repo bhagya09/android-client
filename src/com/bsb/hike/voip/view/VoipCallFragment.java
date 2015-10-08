@@ -230,6 +230,16 @@ public class VoipCallFragment extends Fragment implements CallActions
 					}
 				}
 				break;
+			case VoIPConstants.MSG_PARTNER_UPGRADABLE_PLATFORM:
+				if (voipService != null)
+				{
+					Bundle bundle2 = msg.getData();
+					String msisdn = bundle2.getString(VoIPConstants.MSISDN);
+					if (!voipService.hostingConference()) {
+						showCallFailedFragment(VoIPConstants.CallFailedCodes.PARTNER_UPGRADE, msisdn);
+					}
+				}
+				break;
 			case VoIPConstants.MSG_UPDATE_CALL_BUTTONS:
 				if (voipService.getCallStatus() != CallStatus.INCOMING_CALL)
 					showActiveCallButtons();
@@ -376,42 +386,6 @@ public class VoipCallFragment extends Fragment implements CallActions
 		}
 		
 		setupForceMuteLayout();
-	}
-
-
-	void handleIntent(Intent intent) 
-	{
-		String action = intent.getStringExtra(VoIPConstants.Extras.ACTION);
-		String msisdn = intent.getStringExtra(VoIPConstants.Extras.MSISDN);
-
-		if (action == null || action.isEmpty())
-		{
-			return;
-		}
-		
-		Logger.d(tag, "Intent action: " + action);
-		if (voipService == null) {
-			Logger.w(tag, "voipService is null. Ignoring intent.");
-			return;
-		}
-		
-		// Ignore intents if we're hosting a conference
-		if (voipService != null && voipService.hostingConference()) {
-//			Logger.w(tag, "Ignoring intent with action " + action + " because we're hosting a conference.");
-			voipService.processErrorIntent(action, msisdn);
-			return;
-		}
-		
-		if (action.equals(VoIPConstants.PARTNER_REQUIRES_UPGRADE)) 
-		{
-			showCallFailedFragment(VoIPConstants.CallFailedCodes.PARTNER_UPGRADE, msisdn);
-			if (voipService != null)
-			{
-				voipService.sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CONNECTION_FAILED, VoIPConstants.CallFailedCodes.PARTNER_UPGRADE);
-				voipService.stop();
-			}
-		}
-		
 	}
 
 	private void shutdown(final Bundle bundle) 
