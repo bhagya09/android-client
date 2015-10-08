@@ -102,9 +102,9 @@ public class StickyCaller
 
 	public static final String SMS_BODY = "sms_body";
 
-	public static final String SHOW_KNOWN_NUMBER_CARD = "showKnowCard";
+	public static final String SHOW_KNOWN_NUMBER_CARD = "showKnownCardPref";
 	
-	public static final String SHOW_FREECALL_VIEW = "shwFreeCall";
+	public static final String SHOW_FREECALL_VIEW = "showFreeView";
 
 	private static final String INDIA = "India";
 
