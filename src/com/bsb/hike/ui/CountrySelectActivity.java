@@ -558,6 +558,11 @@ public class CountrySelectActivity extends HikeAppStateBaseFragmentActivity impl
 		}
 	};
 	public void onBackPressed() {
+		if (mCustomKeyboard != null&& searchET!=null && mCustomKeyboard.isCustomKeyboardVisible())
+		{
+			mCustomKeyboard.showCustomKeyboard(searchET, false);
+			return;
+		}
 		finish();
 	}
 
