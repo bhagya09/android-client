@@ -1323,18 +1323,26 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	 * Platform Version 8
 	 * This function is made for the special Shared bot that has the information about some other bots as well, and acts as a channel for them.
 	 * Call this method to cancel the request that the Bot has initiated to do some http /https call.
+	 * @param functionId : the id of the function that native will call to call the js .
 	 * @param url: the url of the call that needs to be cancelled.
 	 */
-	public void cancelRequest(String url)
+	@JavascriptInterface
+	public void cancelRequest(String functionId, String url)
 	{
 		if (!BotUtils.isSpecialBot(mBotInfo))
 		{
+			callbackToJS(functionId, "false");
 			return;
 		}
 		RequestToken token = PlatformZipDownloader.getCurrentDownloadingRequests().get(url);
 		if (null != token)
 		{
+			callbackToJS(functionId, "true");
 			token.cancel();
+		}
+		else
+		{
+			callbackToJS(functionId, "false");
 		}
 	}
 
