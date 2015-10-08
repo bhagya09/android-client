@@ -806,7 +806,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			}
 			else
 			{
-				toggleTag(contactInfo.getName(), contactInfo.getMsisdn(), contactInfo);
+				toggleTag(contactInfo.getNameOrMsisdn(), contactInfo.getMsisdn(), contactInfo);
 			}
 			break;
 		default:

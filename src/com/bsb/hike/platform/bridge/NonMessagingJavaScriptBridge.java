@@ -1337,8 +1337,5 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 			token.cancel();
 		}
 	}
-	
-	
-
 
 }

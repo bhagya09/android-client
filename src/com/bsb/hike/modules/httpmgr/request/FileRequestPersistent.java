@@ -8,6 +8,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+import android.text.TextUtils;
+
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.engine.ProgressByteProcessor;
@@ -15,7 +17,7 @@ import com.bsb.hike.utils.Utils;
 
 /**
  * File request is used to return response in form of File to the request listener. InputStream to File is done in {@link Request#parseResponse(InputStream)} This does not delete
- * the file in case something goes wrong. This allows one to resume the download.
+ * the file in case something goes wrong. This allows one to resume the download. One can also set their own file path for the state file. If that is done, it"ll be the responsibility of the caller to delete the state file as well.
  * 
  * @author piyush
  * 
@@ -31,19 +33,30 @@ public class FileRequestPersistent extends FileRequest
 	public static String FILE_DELIMETER = "##";
 	
 	public static String STATE_FILE_EXT = "_state.bin";
+	
+	private String stateFilePath;
 
 	private FileRequestPersistent(Init<?> init)
 	{
 		super(init);
+		this.stateFilePath = init.stateFilePath;
 	}
 
 	protected static abstract class Init<S extends Init<S>> extends FileRequest.Init<S>
 	{
+		private String stateFilePath;
+		
 		public RequestToken build()
 		{
 			FileRequestPersistent request = new FileRequestPersistent(this);
 			RequestToken token = new RequestToken(request);
 			return token;
+		}
+		
+		public S setStateFilePath(String path)
+		{
+			this.stateFilePath = path;
+			return self();
 		}
 	}
 
@@ -79,7 +92,7 @@ public class FileRequestPersistent extends FileRequest
 			FileOutputStream stateOutputStream = null;
 			try
 			{
-				File stateFile = new File(filePath + STATE_FILE_EXT);
+				File stateFile = new File(TextUtils.isEmpty(stateFilePath) ? (filePath + STATE_FILE_EXT) : (stateFilePath + STATE_FILE_EXT));
 				stateFile.createNewFile();
 				stateOutputStream = new FileOutputStream(stateFile, false); // Do not want to open it in append Mode
 

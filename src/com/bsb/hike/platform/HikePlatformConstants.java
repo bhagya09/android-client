@@ -158,7 +158,7 @@ public interface HikePlatformConstants
 
 	public static final String PLATFORM_BRIDGE_NAME = "PlatformBridge";
 
-	public static final String CARD_DATA = "ld";
+	public static final String LAYOUT_DATA = "ld";
 
 	public static final String FILE_ID = "file_id";
 
