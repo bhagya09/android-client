@@ -1,8 +1,11 @@
 package com.bsb.hike.platform;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -10,8 +13,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import android.util.Pair;
-import com.bsb.hike.bots.NonMessagingBotMetadata;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
@@ -31,6 +32,7 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.text.TextUtils;
+import android.util.Pair;
 import android.webkit.MimeTypeMap;
 import android.widget.Toast;
 
@@ -41,6 +43,7 @@ import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
+import com.bsb.hike.bots.NonMessagingBotMetadata;
 import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.chatHead.StickyCaller;
 import com.bsb.hike.db.HikeConversationsDatabase;
@@ -52,6 +55,7 @@ import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.Header;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpHeaderConstants;
+import com.bsb.hike.modules.httpmgr.request.FileRequestPersistent;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadSource;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadType;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerPalleteImageDownloadTask;
@@ -1226,6 +1230,42 @@ public class PlatformUtils
 			e.printStackTrace();
 		}
 		return json.toString();
+	}
+	
+	/**
+	 * Returns a String array, which contains the following values :<br>
+	 * [ <total-downloaded-bytes> , <progress> , <original downloaded file path>, <url from which it was downloaded> ]
+	 * 
+	 * @param filePath
+	 * @return
+	 */
+	public static String[] readPartialDownloadState(String filePath)
+	{
+		String[] data = new String[4];
+		int i = 0;
+		try
+		{
+			BufferedReader reader = new BufferedReader(new FileReader(filePath));
+			String line;
+
+			while ((line = reader.readLine()) != null)
+			{
+				data[i] = line.split(FileRequestPersistent.FILE_DELIMETER)[1];
+				i++;
+			}
+		}
+		catch (FileNotFoundException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		catch (IOException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		return data;
 	}
 
 }
