@@ -430,7 +430,7 @@ public class VoIPService extends Service {
 			return returnInt;
 
 		String action = intent.getStringExtra(VoIPConstants.Extras.ACTION);
-		String msisdn = intent.getStringExtra(VoIPConstants.Extras.MSISDN);
+		final String msisdn = intent.getStringExtra(VoIPConstants.Extras.MSISDN);
 		if (action == null || action.isEmpty()) {
 			return returnInt;
 		}
@@ -488,10 +488,17 @@ public class VoIPService extends Service {
 		if (action.equals(HikeConstants.MqttMessageTypes.VOIP_ERROR_CALLEE_INCOMPATIBLE_NOT_UPGRADABLE)) {
 			Logger.w(tag, msisdn + " is on an unsupported platform.");
 			sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CONNECTION_FAILED, VoIPConstants.CallFailedCodes.PARTNER_INCOMPAT);
-			removeFromClients(msisdn);
-			Bundle bundle = new Bundle();
-			bundle.putString(VoIPConstants.MSISDN, msisdn);
-			sendHandlerMessage(VoIPConstants.MSG_PARTNER_INCOMPATIBLE_PLATFORM, bundle);
+			
+			new Handler().postDelayed(new Runnable() {
+				
+				@Override
+				public void run() {
+					removeFromClients(msisdn);
+					final Bundle bundle = new Bundle();
+					bundle.putString(VoIPConstants.MSISDN, msisdn);
+					sendHandlerMessage(VoIPConstants.MSG_PARTNER_INCOMPATIBLE_PLATFORM, bundle);
+				}
+			}, 2000);
 		}
 		
 		// Incoming call message
