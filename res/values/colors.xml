@@ -21,7 +21,10 @@
     <color name="white_85">#D9FFFFFF</color>
     <color name="white_65">#A6FFFFFF</color>
     <color name="white_60">#99FFFFFF</color>
+    <color name="white_40">#66FFFFFF</color>
     <color name="white_45">#73FFFFFF</color>
+    <color name="white_20">#33FFFFFF</color>
+    <color name="white_10">#1AFFFFFF</color>
     <color name="offwhite">#F7F7F4</color>
     <color name="signup_blue">#57b2ee</color>
     <color name="disabled">#DDF7F7F4</color>
@@ -418,6 +421,7 @@
     <color name="photos_actions_selected">#f4f4f4</color>
     <color name="photos_camera_selector">#05e7e8e9</color>
     <color name="gallery_camera_tile_bg">#263238</color>
+    <color name="no_internet_card_text">#000000</color>
     <color name="sticker_recommend_highlight_text">#3B79D1</color>
     <color name="external_pallete_text_highlight_color">#00D5FF</color>
     <color name="chat_head_settings_separator">#979797</color>
@@ -487,6 +491,6 @@
     <color name="fav_accept_btn_normal">#1ECE84</color>
     <color name="fav_reject_btn_pressed">#EB1D1D</color>
     <color name="fav_reject_btn_normal">#FF3636</color>
-    
+    <color name="caller_free_call">#3d475b</color>
 </resources>
 	

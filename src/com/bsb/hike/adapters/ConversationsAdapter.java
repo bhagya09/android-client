@@ -33,6 +33,7 @@ import android.widget.Filter.FilterListener;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.bsb.hike.HikeConstants;
@@ -57,6 +58,7 @@ import com.bsb.hike.models.TypingNotification;
 import com.bsb.hike.models.Conversation.ConvInfo;
 import com.bsb.hike.models.Conversation.OneToNConvInfo;
 import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.smartImageLoader.IconLoader;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.NUXManager;
@@ -370,8 +372,9 @@ public class ConversationsAdapter extends BaseAdapter
 			viewHolder = (ViewHolder) v.getTag();
 		}
 
+		
 		viewHolder.msisdn = convInfo.getMsisdn();
-
+		
 		updateViewsRelatedToName(v, convInfo);
 		
 		if (itemToBeAnimated(convInfo))
@@ -451,9 +454,7 @@ public class ConversationsAdapter extends BaseAdapter
 		/*
 		 * Purposely returning conversation list on the UI thread on collapse to avoid showing ftue empty state. 
 		 */
-		completeList.clear();
-		completeList.addAll(conversationList);
-		notifyDataSetChanged();
+		onQueryChanged(refinedSearchText, searchFilterListener);
 	}
 
 	/**
@@ -704,7 +705,8 @@ public class ConversationsAdapter extends BaseAdapter
 		}
 
 		TextView contactView = viewHolder.headerText;
-		String name = convInfo.getLabel();
+		String name="";
+		name = convInfo.getLabel();
 		Integer startSpanIndex = convSpanStartIndexes.get(convInfo.getMsisdn());
 		if(isSearchModeOn && startSpanIndex!=null)
 		{
@@ -818,7 +820,12 @@ public class ConversationsAdapter extends BaseAdapter
 						if (contact != null && contact.getFirstName() != null) {
 							msg = contact.getFirstName()+" "+HikeConstants.IS_TYPING;
 						}
-					} else if (participants.size() > 1) {
+						else
+						{
+							msg = participants.get(0) + " " + HikeConstants.IS_TYPING; // Contact can be returned null. In that case we were simply returning is typing... This will return <msisdn>  is typing...
+						}
+					} 
+					else if (participants.size() > 1) {
 					    	msg = context.getString(R.string.num_members, (participants.size()))+" "+HikeConstants.ARE_TYPING;
 					}
 				}
@@ -965,7 +972,7 @@ public class ConversationsAdapter extends BaseAdapter
 					String unreadCountString = convInfo.getUnreadCountString();
 					unreadIndicator.setText(unreadCountString);
 			}
-			
+			// Using this to differentiate the normal chat and Offline Chat
 			if(isNuxLocked)
 			{ 
 				imgStatus.setVisibility(View.VISIBLE);
@@ -978,6 +985,7 @@ public class ConversationsAdapter extends BaseAdapter
 			messageView.setLayoutParams(lp);
 		}
 
+		
 		if (message.getState() == ConvMessage.State.RECEIVED_UNREAD || isNuxLocked)
 		{
 			/* set NUX waiting or unread messages to BLUE */
@@ -986,6 +994,16 @@ public class ConversationsAdapter extends BaseAdapter
 		else
 		{
 			messageView.setTextColor(context.getResources().getColor(R.color.conv_item_last_msg_color));
+		}
+		
+		if(OfflineUtils.isConnectedToSameMsisdn(convInfo.getMsisdn()))
+		{
+			imgStatus.setVisibility(View.VISIBLE);
+			imgStatus.setImageResource(R.drawable.freehike_logo);
+			messageView.setText(context.getResources().getString(R.string.free_hike_connection));	
+			messageView.setTextColor(context.getResources().getColor(R.color.welcome_blue));
+			imgStatus.setPadding(0, 0,  context.getResources().getDimensionPixelSize(R.dimen.hike_direct_msg_padding), context.getResources().getDimensionPixelSize(R.dimen.tick_padding_bottom));
+
 		}
 	}
 

@@ -1,3 +1,4 @@
+
 package com.bsb.hike.chatthread;
 
 import java.util.ArrayList;
@@ -7,6 +8,7 @@ import java.util.Map;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnDismissListener;
@@ -573,26 +575,39 @@ public class GroupChatThread extends OneToNChatThread
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item)
 	{
-		toastForGroupEnd();
+		if (item.getItemId() != android.R.id.home)
+			toastForGroupEnd();
 		if (!checkForDeadOrBlocked())
 		{
 			switch (item.getItemId())
 			{
 			case R.id.voip_call:
-				Map<String, PairModified<GroupParticipant, String>> groupParticipants = oneToNConversation.getConversationParticipantList();
-				ArrayList<String> msisdns = new ArrayList<String>();
+				// Make a group voip call after confirmation
+				new AlertDialog.Builder(activity).
+				setTitle(R.string.voip_conference_label).
+				setMessage(R.string.voip_group_conference_confirmation).
+				setPositiveButton(R.string.call, new DialogInterface.OnClickListener() {
+					
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						Map<String, PairModified<GroupParticipant, String>> groupParticipants = oneToNConversation.getConversationParticipantList();
+						ArrayList<String> msisdns = new ArrayList<String>();
+						
+						for (PairModified<GroupParticipant, String> groupParticipant : groupParticipants.values())
+						{
+							String msisdn = groupParticipant.getFirst().getContactInfo().getMsisdn();
+							msisdns.add(msisdn);
+						}
+						
+						// Launch VoIP service
+						Intent intent = IntentFactory.getVoipCallIntent(activity.getApplicationContext(), 
+								msisdns, msisdn, VoIPUtils.CallSource.CHAT_THREAD);
+						if (intent != null)
+							activity.getApplicationContext().startService(intent);
+					}
+				}).
+				setNegativeButton(R.string.cancel, null).show();
 				
-				for (PairModified<GroupParticipant, String> groupParticipant : groupParticipants.values())
-				{
-					String msisdn = groupParticipant.getFirst().getContactInfo().getMsisdn();
-					msisdns.add(msisdn);
-				}
-				
-				// Launch VoIP service
-				Intent intent = IntentFactory.getVoipCallIntent(activity.getApplicationContext(), 
-						msisdns, msisdn, VoIPUtils.CallSource.CHAT_THREAD);
-				if (intent != null)
-					activity.getApplicationContext().startService(intent);
 				break;
 			}
 			return super.onOptionsItemSelected(item);
@@ -1056,7 +1071,7 @@ public class GroupChatThread extends OneToNChatThread
 			case R.string.create_pin:
 			case R.string.group_profile:
 			case R.string.chat_theme:
-				overFlowMenuItem.enabled = !checkForDead();
+				overFlowMenuItem.enabled = !checkForDeadOrBlocked();
 				break;
 			case R.string.mute_group:
 				overFlowMenuItem.enabled = oneToNConversation.isConversationAlive();

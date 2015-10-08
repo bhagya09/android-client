@@ -23,6 +23,9 @@ import android.os.Messenger;
 import android.os.RemoteException;
 import android.provider.ContactsContract;
 import android.support.v4.content.LocalBroadcastManager;
+import android.text.TextUtils;
+import android.telephony.PhoneStateListener;
+import android.telephony.TelephonyManager;
 import android.util.Pair;
 import android.widget.Toast;
 
@@ -32,6 +35,10 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.chatHead.ChatHeadUtils;
+import com.bsb.hike.chatHead.IncomingCallReceiver;
+import com.bsb.hike.chatHead.OutgoingCallReceiver;
+import com.bsb.hike.chatHead.StickyCaller;
 import com.bsb.hike.db.AccountBackupRestore;
 import com.bsb.hike.imageHttp.HikeImageUploader;
 import com.bsb.hike.imageHttp.HikeImageWorker;
@@ -45,6 +52,8 @@ import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
+import com.bsb.hike.offline.CleanFileRunnable;
+import com.bsb.hike.offline.OfflineConstants;
 import com.bsb.hike.platform.HikeSDKRequestHandler;
 import com.bsb.hike.tasks.CheckForUpdateTask;
 import com.bsb.hike.tasks.SyncContactExtraInfo;
@@ -300,10 +309,21 @@ public class HikeService extends Service
 			Utils.executeAsyncTask(syncContactExtraInfo);
 		}
 		
+		/*  If user swiped his app while receiving files in OfflineMode we need to remove those files from the user's ui 
+		 *  and add an inline message for the same.
+		 */
+		if(!TextUtils.isEmpty(HikeSharedPreferenceUtil.getInstance().getData(OfflineConstants.OFFLINE_MSISDN, "")))
+		{
+			HikeHandlerUtil.getInstance().postRunnableWithDelay(new CleanFileRunnable(),0);
+		}
+			
+		ChatHeadUtils.registerCallReceiver();
+		
 		setInitialized(true);
 
 	}
 
+	
 	private void assignUtilityThread()
 	{
 		/**
@@ -415,6 +435,8 @@ public class HikeService extends Service
 			unregisterReceiver(postSignupProfilePic);
 			postSignupProfilePic = null;
 		}
+		
+		ChatHeadUtils.unregisterCallReceiver();
 		
 	}
 

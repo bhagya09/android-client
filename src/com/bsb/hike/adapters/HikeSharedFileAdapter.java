@@ -4,10 +4,10 @@ import java.util.HashSet;
 import java.util.List;
 
 import android.content.Context;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.RelativeLayout.LayoutParams;
@@ -18,7 +18,7 @@ import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.HikeSharedFile;
 import com.bsb.hike.smartImageLoader.SharedFileImageLoader;
 
-public class HikeSharedFileAdapter extends BaseAdapter
+public class HikeSharedFileAdapter extends RecyclerView.Adapter<HikeSharedFileAdapter.SharedMediaViewHolder>
 {
 
 	private List<HikeSharedFile> sharedFilesList;
@@ -56,59 +56,28 @@ public class HikeSharedFileAdapter extends BaseAdapter
 	}
 
 	@Override
-	public int getCount()
+	public long getItemId(int position)
 	{
-		return sharedFilesList.size();
+		return position;
 	}
 
 	@Override
+	public int getItemCount() {
+		return sharedFilesList.size();
+	}
+
 	public HikeSharedFile getItem(int position)
 	{
 		return sharedFilesList.get(position);
 	}
 
 	@Override
-	public long getItemId(int position)
-	{
-		return position;
-	}
-
-	public void setSelectedItemPosition(int position)
-	{
-		this.selectedItemPostion = position;
-		notifyDataSetChanged();
-	}
-
-	@Override
-	public View getView(int position, View convertView, ViewGroup parent)
+	public void onBindViewHolder(SharedMediaViewHolder holder, int position)
 	{
 		HikeSharedFile galleryItem = getItem(position);
-		ViewHolder holder;
-
-		if (convertView == null)
-		{
-			convertView = layoutInflater.inflate(R.layout.gallery_item, null);
-			holder = new ViewHolder();
-
-			holder.galleryName = (TextView) convertView.findViewById(R.id.album_title);
-			holder.galleryThumb = (ImageView) convertView.findViewById(R.id.album_image);
-			holder.selected = convertView.findViewById(R.id.selected);
-
-			holder.selected.setBackgroundResource(selectedScreen ? R.drawable.gallery_item_selected_selector : R.drawable.gallery_item_selector);
-
-			LayoutParams layoutParams = new LayoutParams(sizeOfImage, sizeOfImage);
-			holder.galleryThumb.setLayoutParams(layoutParams);
-
-			convertView.setTag(holder);
-		}
-		else
-		{
-			holder = (ViewHolder) convertView.getTag();
-		}
-
 		holder.galleryName.setVisibility(View.GONE);
 		if (galleryItem != null)
-		{	View time_view = convertView.findViewById(R.id.vid_time_layout);
+		{
 			holder.galleryThumb.setImageDrawable(null);
 			if(galleryItem.exactFilePathFileExists())
 			{
@@ -117,16 +86,16 @@ public class HikeSharedFileAdapter extends BaseAdapter
 				
 				if (galleryItem.getHikeFileType() == HikeFileType.VIDEO)
 				{
-					time_view.setVisibility(View.VISIBLE);
+					holder.time_view.setVisibility(View.VISIBLE);
 				}
 				else
 				{
-					time_view.setVisibility(View.GONE);
+					holder.time_view.setVisibility(View.GONE);
 				}
 			}
 			else
 			{
-				time_view.setVisibility(View.GONE);
+				holder.time_view.setVisibility(View.GONE);
 				holder.galleryThumb.setScaleType(ScaleType.CENTER_INSIDE);
 				holder.galleryThumb.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_file_missing));
 			}
@@ -145,34 +114,45 @@ public class HikeSharedFileAdapter extends BaseAdapter
 		{
 			holder.selected.setSelected(false);
 		}
-
-		return convertView;
 	}
 
-	private class ViewHolder
+	@Override
+	public SharedMediaViewHolder onCreateViewHolder(ViewGroup parent, int viewType)
 	{
-		ImageView galleryThumb;
+		View view = layoutInflater.inflate(R.layout.gallery_item, parent, false);
+		SharedMediaViewHolder holder = new SharedMediaViewHolder(view);
 
-		TextView galleryName;
-
-		View selected;
+		holder.selected.setBackgroundResource(selectedScreen ? R.drawable.gallery_item_selected_selector : R.drawable.gallery_item_selector);
+		LayoutParams layoutParams = new LayoutParams(sizeOfImage, sizeOfImage);
+		holder.galleryThumb.setLayoutParams(layoutParams);
+		return holder;
 	}
 
-	public void setIsListFlinging(boolean b)
-	{
-		boolean notify = b != isListFlinging;
-
-		isListFlinging = b;
-
-		if (notify && !isListFlinging)
-		{
-			notifyDataSetChanged();
-		}
-
-	}
-	
 	public SharedFileImageLoader getSharedFileImageLoader()
 	{
 		return thumbnailLoader;
+	}
+
+	public int removeSharedFile(HikeSharedFile sharedFile)
+	{
+		int position = sharedFilesList.indexOf(sharedFile);
+		sharedFilesList.remove(sharedFile);
+		return position;
+	}
+
+	class SharedMediaViewHolder extends RecyclerView.ViewHolder
+	{
+		public ImageView galleryThumb;
+		public TextView galleryName;
+		public View selected;
+		public View time_view;
+
+		public SharedMediaViewHolder(View view) {
+			super(view);
+			galleryName = (TextView) view.findViewById(R.id.album_title);
+			galleryThumb = (ImageView) view.findViewById(R.id.album_image);
+			selected = view.findViewById(R.id.selected);
+			time_view = view.findViewById(R.id.vid_time_layout);
+		}
 	}
 }

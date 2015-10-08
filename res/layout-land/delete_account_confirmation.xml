@@ -50,22 +50,31 @@
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:layout_weight="55"
+        android:layout_weight="42"
         android:background="#ffffff"
-        android:orientation="vertical" >
+        android:orientation="vertical"
+        android:gravity="center_horizontal" >
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="10" />
 
         <com.bsb.hike.view.CustomFontTextView
             android:id="@+id/del_acc_heading_right"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="30dp"
             android:layout_marginLeft="33dp"
             android:layout_marginRight="33dp"
-            android:layout_marginTop="25dp"
             android:contentDescription="Delete account heading in right half"
             android:gravity="center_horizontal"
             android:text="@string/delete_account_heading_2"
             android:textSize="12sp" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="10" />
 
         <include
             android:layout_width="0dp"
@@ -74,16 +83,20 @@
             android:layout_marginRight="25dp"
             layout="@layout/country_phone_del_account" />
 
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="10" />
+
         <com.bsb.hike.view.CustomFontButton
             android:id="@+id/btn_delete_account"
-            android:layout_width="235dp"
+            android:layout_width="match_parent"
+            android:maxWidth="235dp"
             android:layout_height="40dp"
             android:layout_below="@+id/country_phone_layout"
             android:layout_gravity="center_horizontal"
-            android:layout_marginBottom="23dp"
-            android:layout_marginLeft="25dp"
-            android:layout_marginRight="25dp"
-            android:layout_marginTop="25dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
             android:background="@drawable/delete_account_button"
             android:stateListAnimator="@null" 
             android:contentDescription="Delete Account Button"
@@ -91,6 +104,12 @@
             android:text="@string/delete_my_account"
             android:textColor="@color/white"
             android:textSize="14sp" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="12" />
+
     </LinearLayout>
 
 </LinearLayout>

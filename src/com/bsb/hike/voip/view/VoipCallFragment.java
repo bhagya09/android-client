@@ -1,7 +1,6 @@
 package com.bsb.hike.voip.view;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -11,6 +10,9 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
+import android.media.AudioManager;
+import android.media.SoundPool;
+import android.media.ToneGenerator;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -50,6 +52,8 @@ import com.bsb.hike.ui.ComposeChatActivity;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.ProfileImageLoader;
+import com.bsb.hike.utils.Utils;
+import com.bsb.hike.voip.SoundPoolForLollipop;
 import com.bsb.hike.voip.VoIPClient;
 import com.bsb.hike.voip.VoIPConstants;
 import com.bsb.hike.voip.VoIPConstants.CallQuality;
@@ -78,6 +82,8 @@ public class VoipCallFragment extends Fragment implements CallActions
 	private LinearLayout forceMuteContainer = null;
 	private LinearLayout signalContainer = null;
 	private boolean isCallActive;
+	private ArrayList<VoIPClient> conferenceClients = null;
+	private ConferenceParticipantsAdapter confClientsAdapter = null;
 
 	private CallFragmentListener activity;
 
@@ -214,6 +220,16 @@ public class VoipCallFragment extends Fragment implements CallActions
 						showCallFailedFragment(VoIPConstants.CallFailedCodes.PARTNER_BUSY, msisdn);
 						voipService.setCallStatus(VoIPConstants.CallStatus.PARTNER_BUSY);
 						updateCallStatus();
+					}
+				}
+				break;
+			case VoIPConstants.MSG_PARTNER_INCOMPATIBLE_PLATFORM:
+				if (voipService != null)
+				{
+					Bundle bundle2 = msg.getData();
+					String msisdn = bundle2.getString(VoIPConstants.MSISDN);
+					if (!voipService.hostingConference()) {
+						showCallFailedFragment(VoIPConstants.CallFailedCodes.PARTNER_INCOMPAT, msisdn);
 					}
 				}
 				break;
@@ -399,16 +415,6 @@ public class VoipCallFragment extends Fragment implements CallActions
 			}
 		}
 		
-		if (action.equals(VoIPConstants.PARTNER_INCOMPATIBLE)) 
-		{
-			showCallFailedFragment(VoIPConstants.CallFailedCodes.PARTNER_INCOMPAT, msisdn);
-			if (voipService != null)
-			{
-				voipService.sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CONNECTION_FAILED, VoIPConstants.CallFailedCodes.PARTNER_INCOMPAT);
-				voipService.stop();
-			}
-		}
-		
 		if (action.equals(VoIPConstants.PARTNER_HAS_BLOCKED_YOU)) 
 		{
 			if (voipService != null)
@@ -445,7 +451,9 @@ public class VoipCallFragment extends Fragment implements CallActions
 			Logger.d(tag, "Not shutting down because call failed fragment is being displayed.");
 			return;
 		}
-
+		
+		playHangUpTone();
+		
 		new Handler().postDelayed(new Runnable()
 		{
 			@Override
@@ -858,18 +866,13 @@ public class VoipCallFragment extends Fragment implements CallActions
 				}
 				break;
 				
-			case HOSTING_CONFERENCE:
-				callDuration.setText("");
-				if (voipService.recordingAndPlaybackRunning) 
-					startCallDuration();
-				break;
-				
 		default:
 			// Logger.w(tag, "Unhandled status: " + status);
 			callDuration.startAnimation(anim);
 			callDuration.setText("");
 			break;
 		}
+		
 	}
 	
 	private void startCallDuration()
@@ -965,17 +968,30 @@ public class VoipCallFragment extends Fragment implements CallActions
 	private void updateConferenceList() {
 	
 		ListView conferenceList = (ListView) getView().findViewById(R.id.conference_list);
-		List<VoIPClient> clients = new ArrayList<>(voipService.getConferenceClients());
-		ConferenceParticipantsAdapter adapter = new ConferenceParticipantsAdapter(getActivity(), 0, 0, clients);
-		conferenceList.setAdapter(adapter);
-		conferenceList.setVisibility(View.VISIBLE);
-		conferenceList.setFocusable(false);
-		conferenceList.setClickable(false);
 		
-		// Remove profile image
-		ImageView profileView = (ImageView) getView().findViewById(R.id.profile_image);
-		profileView.setVisibility(View.INVISIBLE);
-
+		// FYI, when hosting a conference, we do not have an ArrayList object
+		// to use directly in our listview adapter, since client objects are 
+		// kept in a HashMap for quick lookup. Hence, we create an ArrayList from
+		// the HashMap values in getConferenceClients(). However, this effectively
+		// means that we cannot use notifyDataSetChanged() on updates, since the 
+		// ArrayList object itself will change. 
+		
+		if (conferenceClients == null || voipService.hostingConference())
+			conferenceClients = voipService.getConferenceClients();
+			
+		if (confClientsAdapter == null || voipService.hostingConference()) {
+			confClientsAdapter = new ConferenceParticipantsAdapter(getActivity(), 0, 0, conferenceClients);
+			conferenceList.setAdapter(confClientsAdapter);
+			conferenceList.setVisibility(View.VISIBLE);
+			conferenceList.setFocusable(false);
+			conferenceList.setClickable(false);
+			
+			// Remove profile image
+			ImageView profileView = (ImageView) getView().findViewById(R.id.profile_image);
+			profileView.setVisibility(View.INVISIBLE);
+		} else
+			confClientsAdapter.notifyDataSetChanged();
+		
 		if (voipService.hostingConference()) {
 			
 			// remove quality indicator
@@ -1042,8 +1058,10 @@ public class VoipCallFragment extends Fragment implements CallActions
 	   		signalStrengthView.setText(getString(R.string.voip_signal_good));
 			break;
 		}
-		signalContainer.startAnimation(anim);
-		signalContainer.setVisibility(View.VISIBLE);
+		
+		// TODO: Signal container will remain invisible. 
+//		signalContainer.startAnimation(anim);
+//		signalContainer.setVisibility(View.VISIBLE);
 	}
 
 	private void startCallRateActivity(Bundle bundle)
@@ -1141,6 +1159,25 @@ public class VoipCallFragment extends Fragment implements CallActions
 			bluetoothButton.setVisibility(View.VISIBLE);
 		} else
 			bluetoothButton.setVisibility(View.GONE);
+	}
+	
+	private void playHangUpTone() {
+		new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				ToneGenerator tg = new ToneGenerator(AudioManager.STREAM_VOICE_CALL, 100);
+				if (tg.startTone(ToneGenerator.TONE_SUP_PIP));
+				try {
+					Thread.sleep(500);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				tg.stopTone();
+				tg.release();
+			}
+		}).start();
+		
 	}
 }
 	

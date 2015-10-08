@@ -71,6 +71,7 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
+import com.bsb.hike.ag.NetworkAgModule;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.bots.BotUtils;
@@ -2376,7 +2377,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 			Logger.d(getClass().getSimpleName(), "Downloading profileImage");
 			try
 			{
-				Utils.downloadAndSaveFile(context, destFile, imageUri);
+				Utils.downloadAndSaveFile(context.getContentResolver(), destFile, imageUri);
 				imageDownloadResult.downloadFinished(true);
 			}
 			catch (Exception e)

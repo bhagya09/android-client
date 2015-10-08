@@ -33,7 +33,7 @@ public class HikeFile
 {
 	public static enum HikeFileType
 	{
-		PROFILE, IMAGE, VIDEO, AUDIO, LOCATION, CONTACT, AUDIO_RECORDING, OTHER;
+		PROFILE, IMAGE, VIDEO, AUDIO, LOCATION, CONTACT, AUDIO_RECORDING, OTHER,APK;
 
 		public static HikeFileType fromString(String fileTypeString)
 		{
@@ -63,6 +63,10 @@ public class HikeFile
 				else if (fileTypeString.startsWith(HikeConstants.CONTACT_CONTENT_TYPE))
 				{
 					return HikeFileType.CONTACT;
+				}
+				else if (fileTypeString.contains("package-archive"))	
+				{
+					return HikeFileType.APK;
 				}
 			}
 			return HikeFileType.OTHER;
@@ -96,6 +100,14 @@ public class HikeFile
 			else if (hikeFileType == CONTACT)
 			{
 				return HikeConstants.CONTACT_CONTENT_TYPE;
+			}
+			else if (hikeFileType == OTHER)
+			{
+				return "application/octet-stream";
+			}
+			else if (hikeFileType == APK)
+			{
+				return "application/vnd.android.package-archive";
 			}
 			return null;
 		}
@@ -140,7 +152,7 @@ public class HikeFile
 
 	private String fileKey;
 
-	private int fileSize;
+	private long fileSize;
 
 	private HikeFileType hikeFileType;
 
@@ -188,12 +200,12 @@ public class HikeFile
 			this.file = new File(fileJSON.optString(HikeConstants.FILE_PATH));
 		}
 		this.fileKey = fileJSON.optString(HikeConstants.FILE_KEY);
-		this.fileSize = fileJSON.optInt(HikeConstants.FILE_SIZE);
+		this.fileSize = fileJSON.optLong(HikeConstants.FILE_SIZE);
 		this.latitude = fileJSON.optDouble(HikeConstants.LATITUDE);
 		this.longitude = fileJSON.optDouble(HikeConstants.LONGITUDE);
 		this.zoomLevel = fileJSON.optInt(HikeConstants.ZOOM_LEVEL, HikeConstants.DEFAULT_ZOOM_LEVEL);
 		this.address = fileJSON.optString(HikeConstants.ADDRESS);
-		if (this.file != null)
+		if (this.file != null && (TextUtils.isEmpty(this.fileName) || !isSent))
 		{
 			// Update the file name to prevent duplicacy
 			this.fileName = this.file.getName();
@@ -227,7 +239,7 @@ public class HikeFile
 		this.img_quality = img_quality;
 	}
 
-	public HikeFile(String fileName, String fileTypeString, String thumbnailString, Bitmap thumbnail, long recordingDuration, String source, int fileSize, boolean isSent, String img_quality)
+	public HikeFile(String fileName, String fileTypeString, String thumbnailString, Bitmap thumbnail, long recordingDuration, String source, long fileSize, boolean isSent, String img_quality)
 	{
 		this.fileName = fileName;
 		this.fileTypeString = fileTypeString;
@@ -389,12 +401,12 @@ public class HikeFile
 		return fileKey;
 	}
 
-	public void setFileSize(int fileSize)
+	public void setFileSize(long fileSize)
 	{
 		this.fileSize = fileSize;
 	}
 
-	public int getFileSize()
+	public long getFileSize()
 	{
 		return fileSize;
 	}
@@ -671,7 +683,7 @@ public class HikeFile
 	 * @return The index of the Media from the relevant table if present or -1 if not present/the params supplied are null.
 	 */
 	
-	private int getMediaId(String filePath, String[] retCol, Uri uri, Context context)
+	public static int getMediaId(String filePath, String[] retCol, Uri uri, Context context)
 	{
 		int id = -1;
 		if (retCol == null || uri == null || filePath == null)
@@ -679,21 +691,24 @@ public class HikeFile
 			return -1;
 		}
 		Cursor cur = context.getContentResolver().query(uri, retCol, MediaStore.MediaColumns.DATA + "='" + filePath + "'", null, null);
-		try
+		if (cur != null)
 		{
-			if (cur.getCount() == 0)
+			try
 			{
-				return -1;
+				if (cur.getCount() == 0)
+				{
+					return -1;
+				}
+				cur.moveToFirst();
+
+				id = cur.getInt(cur.getColumnIndex(MediaStore.MediaColumns._ID));
 			}
-			cur.moveToFirst();
-
-			id = cur.getInt(cur.getColumnIndex(MediaStore.MediaColumns._ID));
+			finally
+			{
+				cur.close();
+			}
 		}
 
-		finally
-		{
-			cur.close();
-		}
 		return id;
 	}
 
