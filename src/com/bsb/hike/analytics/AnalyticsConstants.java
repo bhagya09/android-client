@@ -118,9 +118,11 @@ public class AnalyticsConstants
 
 	public static final String REMOVE_SUCCESS = "remsucss";
 
-	public static final String REPLACE_SUCCESS = "replsucss";
+	public static final String REPLACE_SUCCESS = "success";
 	
-	public static final String REPLACE_FAILURE = "replfail";
+	public static final String REPLACE_FAILURE = "failure";
+
+	public static final String REPLACE_STATUS = "success";
 	
 	public static final String REMOVE_MICRO_APP = "dmapp";
 	
