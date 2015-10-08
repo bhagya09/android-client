@@ -17,27 +17,27 @@ import com.bsb.hike.utils.Logger;
 public class MultipleConvMessage
 {
 	
-	private ArrayList<ConvMessage> messageList;
-	private ArrayList<ContactInfo> contactList;
+	private List<ConvMessage> messageList;
+	private List<ContactInfo> contactList;
 	private boolean createChatThread;
 	private String source;
 
-	public ArrayList<ConvMessage> getMessageList()
+	public List<ConvMessage> getMessageList()
 	{
 		return messageList;
 	}
 
-	public void setMessageList(ArrayList<ConvMessage> messageList)
+	public void setMessageList(List<ConvMessage> messageList)
 	{
 		this.messageList = messageList;
 	}
 
-	public ArrayList<ContactInfo> getContactList()
+	public List<ContactInfo> getContactList()
 	{
 		return contactList;
 	}
 
-	public void setContactList(ArrayList<ContactInfo> list)
+	public void setContactList(List<ContactInfo> list)
 	{
 		this.contactList = list;
 	}
@@ -64,21 +64,21 @@ public class MultipleConvMessage
 		return createChatThread;
 	}
 	
-	public MultipleConvMessage(ArrayList<ConvMessage> messageList, ArrayList<ContactInfo> contactList)
+	public MultipleConvMessage(List<ConvMessage> messageList, List<ContactInfo> contactList)
 	{
 		this.messageList = messageList;
 		this.timeStamp = System.currentTimeMillis()/1000;
 		this.contactList = contactList;
 	}
 
-	public MultipleConvMessage(ArrayList<ConvMessage> messageList, ArrayList<ContactInfo> contactList, long timeStamp)
+	public MultipleConvMessage(List<ConvMessage> messageList, List<ContactInfo> contactList, long timeStamp)
 	{
 		this.messageList = messageList;
 		this.timeStamp = timeStamp;
 		this.contactList = contactList;
 	}
 	
-	public MultipleConvMessage(ArrayList<ConvMessage> messageList, ArrayList<ContactInfo> contactList, long timeStamp,boolean createChatThread, String source)
+	public MultipleConvMessage(List<ConvMessage> messageList, List<ContactInfo> contactList, long timeStamp,boolean createChatThread, String source)
 	{
 		this.messageList = messageList;
 		this.timeStamp = timeStamp;
@@ -164,7 +164,7 @@ public class MultipleConvMessage
 	
 	public void sendPubSubForConvScreenMultiMessage()
 	{
-		ArrayList<ConvMessage> convMessages = getMessageList();
+		List<ConvMessage> convMessages = getMessageList();
 		long baseId = ((ConvMessage)convMessages.get(0)).getMsgID();
 		int totalMessages = convMessages.size();
 		ConvMessage lastMessage = convMessages.get(totalMessages-1);
