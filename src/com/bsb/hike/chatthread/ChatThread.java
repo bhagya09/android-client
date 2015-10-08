@@ -4179,6 +4179,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			if (isSystemKeyboard())
 			{
 				Utils.showSoftKeyboard(activity, mComposeView);
+				KptUtils.updatePadding(activity, R.id.msg_compose, 0);
 			}
 			else
 			{
@@ -6053,17 +6054,19 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	{
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CURRENT_KEYBOARD, systemKeyboard);
 		
-		if (mShareablePopupLayout.isShowing())
-		{
-			mShareablePopupLayout.dismiss();
-		}
-		
 		if (systemKeyboard)
 		{
 			KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, 0);
 			mCustomKeyboard.showCustomKeyboard(mComposeView, false);
 			mCustomKeyboard.swtichToDefaultKeyboard(mComposeView);
 			mCustomKeyboard.unregister(R.id.msg_compose);
+			if (mShareablePopupLayout != null)
+			{
+				mShareablePopupLayout.dismiss();
+				mShareablePopupLayout.releaseResources();
+				mShareablePopupLayout = null;
+				initShareablePopup();
+			}
 			mComposeView.setOnClickListener(new OnClickListener()
 			{
 
@@ -6078,6 +6081,13 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		{
 			mCustomKeyboard.swtichToKPTKeyboard(mComposeView, KPTConstants.MULTILINE_LINE_EDITOR, ChatThread.this, ChatThread.this);
 			mCustomKeyboard.registerEditText(R.id.msg_compose, KPTConstants.MULTILINE_LINE_EDITOR, this, this);
+			if (mShareablePopupLayout != null)
+			{
+				mShareablePopupLayout.dismiss();
+				mShareablePopupLayout.releaseResources();
+				mShareablePopupLayout = null;
+				initShareablePopup();
+			}
 			mCustomKeyboard.init(mComposeView);
 			mCustomKeyboard.showCustomKeyboard(mComposeView, true);
 			setEditTextListeners();
