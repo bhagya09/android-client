@@ -1,6 +1,10 @@
 package com.bsb.hike.chatHead;
 
 import java.net.HttpURLConnection;
+import java.util.HashMap;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.animation.Animator;
 import android.animation.Animator.AnimatorListener;
@@ -33,6 +37,7 @@ import android.widget.TextView;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
+import com.bsb.hike.R.string;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.chatthread.ChatThreadUtils;
@@ -102,6 +107,10 @@ public class StickyCaller
 	public static final String SHOW_FREECALL_VIEW = "shwFreeCall";
 
 	private static final String INDIA = "India";
+
+	public static final String NAME = "name";
+	
+	public static final String ADDRESS = "address";
 	
 	public static String MISSED_CALL_TIMINGS;
 
@@ -512,17 +521,28 @@ public class StickyCaller
 
 	private static void settingLayoutAlreadySavedContact(Context context, String number, String result)
 	{
+		String name = null, address = null;
+		try
+		{
+			JSONObject obj = new JSONObject(result);
+			name = (String) obj.get(NAME);
+			address = (String) obj.get(ADDRESS);
+		}
+		catch (JSONException e)
+		{
+		Logger.d("JSON Exception", "can't fetch data from saved contact");
+		}
 		if (CALL_TYPE == MISSED)
 		{
-			settingMissedCallLayoutAlreadySavedContact(context, number, result);
+			settingMissedCallLayoutAlreadySavedContact(context, number, name, address);
 		}
 		else
 		{
-			settingOtherCallLayoutAlreadySavedContact(context, number, result);
+			settingOtherCallLayoutAlreadySavedContact(context, number, name, address);
 		}
 	}
 	
-	private static void settingMissedCallLayoutAlreadySavedContact(Context context, String number, String result)
+	private static void settingMissedCallLayoutAlreadySavedContact(Context context, String number, String name, String address)
 	{
 		LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		stickyCallerView = (LinearLayout) inflater.inflate(R.layout.missed_call_layout, null);
@@ -533,15 +553,22 @@ public class StickyCaller
 		{
 			setValueOnID(R.id.caller_number, number);
 		}
-		if (result != null)
+		if (name != null)
 		{
-			setValueOnID(R.id.caller_name, result);
+			setValueOnID(R.id.caller_name, name);
 		}
-		if (number.startsWith("+91"))
+		else if (number != null)
+		{
+			setValueOnID(R.id.caller_name, number);
+		}
+		if (address != null)
+		{
+			setValueOnID(R.id.caller_location, address);
+		}
+		else if (Utils.isIndianNumber(number))
 		{
 			setValueOnID(R.id.caller_location, INDIA);
 		}
-		
 		if ((Utils.isIndianNumber(number) && HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.SHOW_FREECALL_VIEW, true)) || Utils.isOnHike(number))
 		{
 			stickyCallerView.findViewById(R.id.missed_call_free_divider).setVisibility(View.VISIBLE);
@@ -562,7 +589,7 @@ public class StickyCaller
 		callerNumber.setVisibility(View.VISIBLE);
 		callerNumber.setText(value);
 	}
-	private static void settingOtherCallLayoutAlreadySavedContact(Context context, String number, String result)
+	private static void settingOtherCallLayoutAlreadySavedContact(Context context, String number, String name, String address)
 	{
 		LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		stickyCallerView = (LinearLayout) inflater.inflate(R.layout.caller_layout, null);
@@ -571,11 +598,19 @@ public class StickyCaller
 		{
 			setValueOnID(R.id.caller_number, number);
 		}
-		if (result != null)
+		if (name != null)
 		{
-			setValueOnID(R.id.caller_name, result);
+			setValueOnID(R.id.caller_name, name);
 		}
-		if (number.startsWith("+91"))
+		else if (number != null)
+		{
+			setValueOnID(R.id.caller_name, number);
+		}
+		if (address != null)
+		{
+			setValueOnID(R.id.caller_location, address);
+		}
+		else if (Utils.isIndianNumber(number))
 		{
 			setValueOnID(R.id.caller_location, INDIA);
 		}
@@ -692,7 +727,7 @@ public class StickyCaller
 		{
 			setValueOnID(R.id.caller_location, callerContentModel.getLocation());
 		}
-		else if (number.startsWith("+91"))
+		else if (Utils.isIndianNumber(number))
 		{
 			setValueOnID(R.id.caller_location, INDIA);
 		}
@@ -759,7 +794,7 @@ public class StickyCaller
 		{
 			setValueOnID(R.id.caller_location, callerContentModel.getLocation());
 		}
-		else if (number.startsWith("+91"))
+		else if (Utils.isIndianNumber(number))
 		{
 			setValueOnID(R.id.caller_location, INDIA);
 		}
@@ -864,7 +899,7 @@ public class StickyCaller
 				if (v.getTag() != null && getFullName(callerContentModel) != null)
 				{
 					Utils.killCall();
-					Utils.addToContacts(HikeMessengerApp.getInstance().getApplicationContext(), v.getTag().toString(), getFullName(callerContentModel));
+					Utils.addToContacts(HikeMessengerApp.getInstance().getApplicationContext(), v.getTag().toString(), getFullName(callerContentModel), callerContentModel.getLocation());
 				}
 				break;
 /*			case R.id.caller_sms_button:
