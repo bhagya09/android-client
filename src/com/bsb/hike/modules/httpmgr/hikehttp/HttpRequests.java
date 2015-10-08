@@ -60,6 +60,7 @@ import com.bsb.hike.modules.httpmgr.interceptor.IRequestInterceptor;
 import com.bsb.hike.modules.httpmgr.interceptor.IResponseInterceptor;
 import com.bsb.hike.modules.httpmgr.request.ByteArrayRequest;
 import com.bsb.hike.modules.httpmgr.request.FileRequest;
+import com.bsb.hike.modules.httpmgr.request.FileRequestPersistent;
 import com.bsb.hike.modules.httpmgr.request.JSONArrayRequest;
 import com.bsb.hike.modules.httpmgr.request.JSONObjectRequest;
 import com.bsb.hike.modules.httpmgr.request.Request;
@@ -824,6 +825,19 @@ public class HttpRequests
 				.post(body)
 				.build();
 		
+		return requestToken;
+	}
+	
+	
+	public static RequestToken platformZipDownloadRequestWithResume(String filePath, String stateFilePath, String url, IRequestListener requestListener, long startOffset)
+	{
+		RequestToken requestToken = new FileRequestPersistent.Builder()
+				.setUrl(url)
+				.setFile(filePath)
+				.setStateFilePath(stateFilePath)
+				.setRequestListener(requestListener)
+				.setRetryPolicy(new BasicRetryPolicy(HikePlatformConstants.NUMBER_OF_RETRIES, HikePlatformConstants.RETRY_DELAY, HikePlatformConstants.BACK_OFF_MULTIPLIER))
+				.build();
 		return requestToken;
 	}
 

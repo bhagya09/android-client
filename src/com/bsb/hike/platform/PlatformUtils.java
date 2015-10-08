@@ -370,7 +370,7 @@ public class PlatformUtils
 	 * @param botInfo
 	 * @param enableBot
 	 */
-	public static void downloadZipForNonMessagingBot(final BotInfo botInfo, final boolean enableBot, final String botChatTheme, final String notifType, NonMessagingBotMetadata botMetadata)
+	public static void downloadZipForNonMessagingBot(final BotInfo botInfo, final boolean enableBot, final String botChatTheme, final String notifType, NonMessagingBotMetadata botMetadata, boolean resumeSupport)
 	{
 		PlatformContentRequest rqst = PlatformContentRequest.make(
 				PlatformContentModel.make(botInfo.getMetadata()), new PlatformContentListener<PlatformContentModel>()
@@ -585,11 +585,10 @@ public class PlatformUtils
 	{
 		downloadAndUnzip(request, isTemplatingEnabled, false);
 	}
-
-	public static void downloadAndUnzip(PlatformContentRequest request, boolean isTemplatingEnabled, boolean doReplace, String callbackId)
+	
+	public static void downloadAndUnzip(PlatformContentRequest request, boolean isTemplatingEnabled, boolean doReplace, String callbackId, boolean resumeSupported)
 	{
-
-		PlatformZipDownloader downloader =  new PlatformZipDownloader(request, isTemplatingEnabled, doReplace, callbackId);
+		PlatformZipDownloader downloader =  new PlatformZipDownloader(request, isTemplatingEnabled, doReplace, callbackId, resumeSupported);
 		if (!downloader.isMicroAppExist() || doReplace)
 		{
 			downloader.downloadAndUnzip();
@@ -598,6 +597,11 @@ public class PlatformUtils
 		{
 			request.getListener().onEventOccured(request.getContentData()!=null ? request.getContentData().getUniqueId() : 0,PlatformContent.EventCode.ALREADY_DOWNLOADED);
 		}
+	}
+
+	public static void downloadAndUnzip(PlatformContentRequest request, boolean isTemplatingEnabled, boolean doReplace, String callbackId)
+	{
+		downloadAndUnzip(request, isTemplatingEnabled, doReplace, callbackId, false);
 	}
 
 	/**
@@ -1315,6 +1319,11 @@ public class PlatformUtils
 	public static String getLastGame()
 	{
 		return HikeContentDatabase.getInstance().getFromContentCache(HikePlatformConstants.LAST_GAME,BotUtils.getBotInfoForBotMsisdn(HikePlatformConstants.GAME_CHANNEL).getNamespace());
+	}
+
+	public static Header getDownloadRangeHeader(long startOffset)
+	{
+		return new Header("Range", "bytes=" + startOffset + "-");
 	}
 
 }

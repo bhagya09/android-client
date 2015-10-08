@@ -271,4 +271,6 @@ public interface HikePlatformConstants
 	
 	public static final String GAME_CHANNEL="+hikegames+";
 	
+	final static String RESUME_SUPPORT = "resume_support";
+	
 }
