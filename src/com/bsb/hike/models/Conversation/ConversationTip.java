@@ -97,7 +97,6 @@ public class ConversationTip implements OnClickListener
 
 	public View getView(int whichTip)
 	{
-		Logger.d("param", "got tip:"+whichTip);
 		if (whichTip == NO_TIP)
 		{
 			return null;
@@ -209,7 +208,6 @@ public class ConversationTip implements OnClickListener
 			return v;
 			
 		case UPDATE_NORMAL_TIP:
-			Logger.d("param", "inflating normal update tip view");
 			v = inflater.inflate(R.layout.update_tip, null, false);
 			String normalHeaderText = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.UPDATE_TIP_HEADER, "");
 			String normalMsgTxt = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.UPDATE_TIP_BODY, "");
@@ -223,7 +221,6 @@ public class ConversationTip implements OnClickListener
 			return v;
 			
 		case UPDATE_CRITICAL_TIP:
-			Logger.d("param", "inflating critical update tip view");
 			v = inflater.inflate(R.layout.update_tip, null, false);
 			String criticalHeaderText = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.UPDATE_TIP_HEADER, "");
 			String criticalMsgText = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.UPDATE_TIP_BODY, "");
@@ -234,7 +231,6 @@ public class ConversationTip implements OnClickListener
 			return v;
 			
 		case INVITE_TIP:
-			Logger.d("param", "inflating invite tip view");
 			v = inflater.inflate(R.layout.update_tip, null, false);
 			String inviteHeaderText = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.UPDATE_TIP_HEADER, "");
 			String inviteMsgTxt = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.UPDATE_TIP_BODY, "");

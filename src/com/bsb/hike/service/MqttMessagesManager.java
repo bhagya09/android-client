@@ -3053,7 +3053,6 @@ public class MqttMessagesManager
 		String devType = data.optString(HikeConstants.DEV_TYPE);
 		String id = data.optString(HikeConstants.MESSAGE_ID);
 		String lastPushPacketId = settings.getString(HikeConstants.Extras.LAST_UPDATE_PACKET_ID, "");
-		Logger.d("param", "last id="+lastPushPacketId+" new id="+id);
 		if (!TextUtils.isEmpty(devType) && devType.equals(HikeConstants.ANDROID) && !TextUtils.isEmpty(id) && !lastPushPacketId.equals(id))
 		{
 			String version = data.optString(HikeConstants.UPDATE_VERSION);
@@ -3443,14 +3442,12 @@ public class MqttMessagesManager
 				
 				if(isCritical)
 				{
-					Logger.d("param", "received critical update packet");
 					editor.putBoolean(HikeConstants.SHOW_CRITICAL_UPDATE_TIP, true);
 					editor.putBoolean(HikeConstants.SHOW_NORMAL_UPDATE_TIP, false);//Failsafe
 					editor.putBoolean(HikeConstants.SHOW_INVITE_TIP, false);//failsafe
 				}
 				else 
 				{
-					Logger.d("param", "received normal update packet");
 					editor.putBoolean(HikeConstants.SHOW_NORMAL_UPDATE_TIP, true);
 					editor.putBoolean(HikeConstants.SHOW_CRITICAL_UPDATE_TIP, false);//Failsafe
 					editor.putBoolean(HikeConstants.SHOW_INVITE_TIP, false);//failsafe
@@ -3468,7 +3465,6 @@ public class MqttMessagesManager
 		}
 		else if(subType.equals(HikeConstants.INVITE_TIP))
 		{
-			Logger.d("param", "received invite tip packet");
 			JSONObject data = jsonObj.optJSONObject(HikeConstants.DATA);
 			Editor editor = settings.edit();
 			editor.putBoolean(HikeConstants.SHOW_INVITE_TIP, true);

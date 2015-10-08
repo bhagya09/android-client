@@ -1888,14 +1888,12 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 
 		if (tipView != null)
 		{
-			Logger.d("param", "adding tip:" + tipType);
 			checkAndAddListViewHeader(tipView);
 		}
 	}
 	
 	private boolean shouldShowUpdateTip()
 	{
-		Logger.d("param", "checking should show tip");
 		if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SHOW_INVITE_TIP, false))
 		{
 			return true;
@@ -1914,7 +1912,6 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 	
 	private int whichUpdateTip()
 	{
-		Logger.d("param", "checking which tip");
 		if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SHOW_CRITICAL_UPDATE_TIP, false))
 		{
 			return ConversationTip.UPDATE_CRITICAL_TIP;
@@ -1927,7 +1924,6 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 		{
 			return ConversationTip.INVITE_TIP;
 		}
-		Logger.d("param", "returning tip -1");
 		return -1;
 	}
 
@@ -3624,10 +3620,6 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 	public void onScrollStateChanged(AbsListView view, int scrollState)
 	{
 		mAdapter.setIsListFlinging(velocity > HikeConstants.MAX_VELOCITY_FOR_LOADING_IMAGES_SMALL && scrollState == OnScrollListener.SCROLL_STATE_FLING);
-	}
-	
-	public int getCurrentTip(){
-		return tipType;
 	}
 
 	private void removeTipIfExists(int whichTip)

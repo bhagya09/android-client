@@ -319,7 +319,8 @@ public class HikeNotification
 	public void notifyUpdatePush(int updateType, String packageName, String message, boolean isApplicationsPushUpdate)
 	{
 		message = (TextUtils.isEmpty(message)) ? context.getString(R.string.update_app) : message;
-		final int smallIconId = returnSmallIcon();	
+		final int smallIconId = returnSmallIcon();
+		
 		NotificationCompat.Builder mBuilder = getNotificationBuilder(context.getString(R.string.team_hike), message, message, null, smallIconId, false);		
 
 		Intent intent = new Intent(Intent.ACTION_VIEW);
@@ -1069,7 +1070,6 @@ public class HikeNotification
 	
 	public void checkAndShowUpdateNotif()
 	{
-		Logger.d("param", "latest version = "+settingPref.getString(HikeConstants.Extras.LATEST_VERSION,""));
 		if(settingPref.getBoolean(HikeConstants.SHOULD_SHOW_PERSISTENT_NOTIF, false))
 		{
 			if(Utils.isUpdateRequired(settingPref.getString(HikeConstants.Extras.LATEST_VERSION, ""), context))
