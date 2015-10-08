@@ -3098,18 +3098,17 @@ public class MqttMessagesManager
 		}
 	}
 	
-	public void flushNotifOrTip(JSONObject jsonObj) throws JSONException
+	public void flushNotifOrTip(String type)
 	{
-		String subType = jsonObj.optString(HikeConstants.SUB_TYPE);
 		Editor editor = settings.edit();
 		
-		if (subType.equals(HikeConstants.PERSISTENT_NOTIFICATION))
+		if (type.equals(HikeConstants.PERSISTENT_NOTIFICATION))
 		{
 			editor.putBoolean(HikeConstants.SHOULD_SHOW_PERSISTENT_NOTIF, false);
 			editor.commit();
 			this.pubSub.publish(HikePubSub.FLUSH_PERSISTENT_NOTIF, "flush");
 		}
-		else if(subType.equals(HikeConstants.MqttMessageTypes.UPDATE_AVAILABLE))
+		else if(type.equals(HikeConstants.MqttMessageTypes.UPDATE_AVAILABLE))
 		{
 			editor.putBoolean(HikeConstants.SHOW_CRITICAL_UPDATE_TIP, false);
 			editor.commit();
@@ -3265,6 +3264,97 @@ public class MqttMessagesManager
 		else if(HikeConstants.PLAY_NOTIFICATION.equals(subType))
 		{
 			playNotification(jsonObj);
+		}
+		else if(subType.equals(HikeConstants.MqttMessageTypes.UPDATE_AVAILABLE))
+		{
+			JSONObject data = jsonObj.optJSONObject(HikeConstants.DATA);
+			if(data.has(HikeConstants.FLUSH))
+			{
+				if(data.optBoolean(HikeConstants.FLUSH))
+				{
+					flushNotifOrTip(subType);
+				}
+			}
+			else
+			{
+				boolean isCritical = data.optBoolean(HikeConstants.CRITICAL_UPDATE_KEY);
+				String version = data.optString(HikeConstants.UPDATE_VERSION);
+				String updateURL = data.optString(HikeConstants.Extras.URL);
+				int update = Utils.isUpdateRequired(version, context) ? (data.optBoolean(HikeConstants.CRITICAL_UPDATE_KEY) ? HikeConstants.CRITICAL_UPDATE
+						: HikeConstants.NORMAL_UPDATE) : HikeConstants.NO_UPDATE;
+				if(update == HikeConstants.CRITICAL_UPDATE || update == HikeConstants.NORMAL_UPDATE)
+				{
+					Editor editor = settings.edit();
+					
+					if(isCritical)
+					{
+						editor.putBoolean(HikeConstants.SHOW_CRITICAL_UPDATE_TIP, true);
+						editor.putBoolean(HikeConstants.SHOW_NORMAL_UPDATE_TIP, false);//Failsafe
+						editor.putBoolean(HikeConstants.SHOW_INVITE_TIP, false);//failsafe
+					}
+					else 
+					{
+						editor.putBoolean(HikeConstants.SHOW_NORMAL_UPDATE_TIP, true);
+						editor.putBoolean(HikeConstants.SHOW_CRITICAL_UPDATE_TIP, false);//Failsafe
+						editor.putBoolean(HikeConstants.SHOW_INVITE_TIP, false);//failsafe
+					}
+					editor.putString(HikeConstants.Extras.LATEST_VERSION, version);
+					editor.putString(HikeConstants.UPDATE_TIP_HEADER, data.optString(HikeConstants.HEADER));
+					editor.putString(HikeConstants.UPDATE_TIP_BODY, data.optString(HikeConstants.BODY));
+					editor.putString(HikeConstants.UPDATE_TIP_LABEL, data.optString(HikeConstants.LABEL));
+					
+					if (!TextUtils.isEmpty(updateURL))
+						editor.putString(HikeConstants.Extras.URL, updateURL);
+					editor.commit();
+					
+				}
+			}
+			
+		}
+		else if(subType.equals(HikeConstants.INVITE_TIP))
+		{
+			JSONObject data = jsonObj.optJSONObject(HikeConstants.DATA);
+			Editor editor = settings.edit();
+			editor.putBoolean(HikeConstants.SHOW_INVITE_TIP, true);
+			editor.putBoolean(HikeConstants.SHOW_CRITICAL_UPDATE_TIP, false);//failsafe
+			editor.putBoolean(HikeConstants.SHOW_NORMAL_UPDATE_TIP, false);//failsafe
+			editor.putString(HikeConstants.UPDATE_TIP_HEADER, data.optString(HikeConstants.HEADER));
+			editor.putString(HikeConstants.UPDATE_TIP_BODY, data.optString(HikeConstants.BODY));
+			editor.putString(HikeConstants.UPDATE_TIP_LABEL, data.optString(HikeConstants.LABEL));
+			editor.commit();
+			
+		}
+		else if(subType.equals(HikeConstants.PERSISTENT_NOTIFICATION))
+		{
+			
+			JSONObject data = jsonObj.optJSONObject(HikeConstants.DATA);
+			if(data.has(HikeConstants.FLUSH))
+			{
+				if(data.optBoolean(HikeConstants.FLUSH))
+				{
+					flushNotifOrTip(subType);
+				}				
+			}
+			else
+			{
+				String version = data.optString(HikeConstants.UPDATE_VERSION);
+				String updateURL = data.optString(HikeConstants.Extras.URL);
+				
+				if (Utils.isUpdateRequired(version, context))
+				{
+					Editor editor = settings.edit();
+					editor.putBoolean(HikeConstants.SHOULD_SHOW_PERSISTENT_NOTIF, true);
+					editor.putString(HikeConstants.Extras.UPDATE_MESSAGE, data.optString(HikeConstants.MESSAGE));
+					editor.putString(HikeConstants.Extras.LATEST_VERSION, version);
+					editor.putString(HikeConstants.Extras.UPDATE_TITLE, data.optString(HikeConstants.Extras.TITLE));
+					
+					if (!TextUtils.isEmpty(updateURL))
+						editor.putString(HikeConstants.Extras.URL, updateURL);
+					editor.commit();
+					this.pubSub.publish(HikePubSub.SHOW_PERSISTENT_NOTIF, "persistentNotif");
+				}
+			}
+			
 		}
 		else
 		{
@@ -3428,74 +3518,7 @@ public class MqttMessagesManager
 			editor.commit();
 			HikeMessengerApp.getPubSub().publish(HikePubSub.STICKER_FTUE_TIP, null);
 		}
-		else if(subType.equals(HikeConstants.MqttMessageTypes.UPDATE_AVAILABLE))
-		{
-			JSONObject data = jsonObj.optJSONObject(HikeConstants.DATA);
-			boolean isCritical = data.optBoolean(HikeConstants.CRITICAL_UPDATE_KEY);
-			String version = data.optString(HikeConstants.UPDATE_VERSION);
-			String updateURL = data.optString(HikeConstants.Extras.URL);
-			int update = Utils.isUpdateRequired(version, context) ? (data.optBoolean(HikeConstants.CRITICAL_UPDATE_KEY) ? HikeConstants.CRITICAL_UPDATE
-					: HikeConstants.NORMAL_UPDATE) : HikeConstants.NO_UPDATE;
-			if(update == HikeConstants.CRITICAL_UPDATE || update == HikeConstants.NORMAL_UPDATE)
-			{
-				Editor editor = settings.edit();
-				
-				if(isCritical)
-				{
-					editor.putBoolean(HikeConstants.SHOW_CRITICAL_UPDATE_TIP, true);
-					editor.putBoolean(HikeConstants.SHOW_NORMAL_UPDATE_TIP, false);//Failsafe
-					editor.putBoolean(HikeConstants.SHOW_INVITE_TIP, false);//failsafe
-				}
-				else 
-				{
-					editor.putBoolean(HikeConstants.SHOW_NORMAL_UPDATE_TIP, true);
-					editor.putBoolean(HikeConstants.SHOW_CRITICAL_UPDATE_TIP, false);//Failsafe
-					editor.putBoolean(HikeConstants.SHOW_INVITE_TIP, false);//failsafe
-				}
-				editor.putString(HikeConstants.Extras.LATEST_VERSION, version);
-				editor.putString(HikeConstants.UPDATE_TIP_HEADER, data.optString(HikeConstants.HEADER));
-				editor.putString(HikeConstants.UPDATE_TIP_BODY, data.optString(HikeConstants.BODY));
-				editor.putString(HikeConstants.UPDATE_TIP_LABEL, data.optString(HikeConstants.LABEL));
-				
-				if (!TextUtils.isEmpty(updateURL))
-					editor.putString(HikeConstants.Extras.URL, updateURL);
-				editor.commit();
-				
-			}
-		}
-		else if(subType.equals(HikeConstants.INVITE_TIP))
-		{
-			JSONObject data = jsonObj.optJSONObject(HikeConstants.DATA);
-			Editor editor = settings.edit();
-			editor.putBoolean(HikeConstants.SHOW_INVITE_TIP, true);
-			editor.putBoolean(HikeConstants.SHOW_CRITICAL_UPDATE_TIP, false);//failsafe
-			editor.putBoolean(HikeConstants.SHOW_NORMAL_UPDATE_TIP, false);//failsafe
-			editor.putString(HikeConstants.UPDATE_TIP_HEADER, data.optString(HikeConstants.HEADER));
-			editor.putString(HikeConstants.UPDATE_TIP_BODY, data.optString(HikeConstants.BODY));
-			editor.putString(HikeConstants.UPDATE_TIP_LABEL, data.optString(HikeConstants.LABEL));
-			editor.commit();
-			
-		}
-		else if(subType.equals(HikeConstants.PERSISTENT_NOTIFICATION))
-		{
-			JSONObject data = jsonObj.optJSONObject(HikeConstants.DATA);
-			String version = data.optString(HikeConstants.UPDATE_VERSION);
-			String updateURL = data.optString(HikeConstants.Extras.URL);
-			
-			if (Utils.isUpdateRequired(version, context))
-			{
-				Editor editor = settings.edit();
-				editor.putBoolean(HikeConstants.SHOULD_SHOW_PERSISTENT_NOTIF, true);
-				editor.putString(HikeConstants.Extras.UPDATE_MESSAGE, data.optString(HikeConstants.MESSAGE));
-				editor.putString(HikeConstants.Extras.LATEST_VERSION, version);
-				editor.putString(HikeConstants.Extras.UPDATE_TITLE, data.optString(HikeConstants.Extras.TITLE));
-				
-				if (!TextUtils.isEmpty(updateURL))
-					editor.putString(HikeConstants.Extras.URL, updateURL);
-				editor.commit();
-				this.pubSub.publish(HikePubSub.SHOW_PERSISTENT_NOTIF, "persistentNotif");
-			}
-		}
+		
 	}
 	
 	/**
@@ -3881,10 +3904,6 @@ public class MqttMessagesManager
 		else if (HikeConstants.MqttMessageTypes.APPLICATIONS_PUSH.equals(type))
 		{
 			saveApplicationsPush(jsonObj);
-		}
-		else if(HikeConstants.FLUSH.equals(type))
-		{
-			flushNotifOrTip(jsonObj);
 		}
 		else if (HikeConstants.MqttMessageTypes.CHAT_BACKGROUD.equals(type))
 		{
