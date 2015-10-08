@@ -1243,9 +1243,10 @@ public class PlatformUtils
 	{
 		String[] data = new String[4];
 		int i = 0;
+		BufferedReader reader = null;
 		try
 		{
-			BufferedReader reader = new BufferedReader(new FileReader(filePath));
+			reader = new BufferedReader(new FileReader(filePath));
 			String line;
 
 			while ((line = reader.readLine()) != null)
@@ -1263,6 +1264,14 @@ public class PlatformUtils
 		{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		}
+
+		finally
+		{
+			if (reader != null)
+			{
+				Utils.closeStreams(reader);
+			}
 		}
 
 		return data;
