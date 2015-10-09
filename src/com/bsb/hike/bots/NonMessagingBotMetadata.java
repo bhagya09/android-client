@@ -31,6 +31,7 @@ public class NonMessagingBotMetadata
 	private boolean replace;
 	private String callbackId, parentMsisdn;
 	private JSONObject fwdCardObj;
+	private boolean resumeSupported=false;
 
 	public NonMessagingBotMetadata(String jsonString)
 	{
@@ -72,6 +73,7 @@ public class NonMessagingBotMetadata
 		setReplace(json.optBoolean(HikePlatformConstants.REPLACE_MICROAPP_VERSION));
 		setParentMsisdn(json.optString(HikePlatformConstants.PARENT_MSISDN));
 		setCallbackId(json.optString(HikePlatformConstants.CALLBACK_ID));
+		setResumeSupported(json.optBoolean(HikePlatformConstants.RESUME_SUPPORTED));
 
 		if (json.has(HikePlatformConstants.CARD_OBJECT))
 		{
@@ -292,5 +294,13 @@ public class NonMessagingBotMetadata
 	public JSONObject getHelperData()
 	{
 		return helperData;
+	}
+	public void setResumeSupported(boolean isResume)
+	{
+		this.resumeSupported=isResume;
+	}
+	public boolean isResumeSupported()
+	{
+		return resumeSupported;
 	}
 }

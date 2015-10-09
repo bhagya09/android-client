@@ -20,11 +20,13 @@ import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
+import com.bsb.hike.modules.httpmgr.request.FileRequestPersistent;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.content.PlatformContent.EventCode;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
+import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
 /**
@@ -97,14 +99,30 @@ public class PlatformZipDownloader
 	
 	private void setStartOffset()
 	{
-		// TODO Auto-generated method stub
+		File file = new File(stateFilePath + FileRequestPersistent.STATE_FILE_EXT);
+		if (file.exists())
+		{
+			String data[] = PlatformUtils.readPartialDownloadState(stateFilePath + FileRequestPersistent.STATE_FILE_EXT);
+			if (data.length > 0)
+			{
+				try
+				{
+					startOffset = Integer.parseInt(data[0]);
+				}
+				catch (NumberFormatException e)
+				{
+					Logger.e("PlatformZipDownloader", "Invalid offset");
+					startOffset=0;
+					e.printStackTrace();
+				}
+			}
+		}
 		
 	}
 
 	private void setStateFilePath()
 	{
-		// TODO Auto-generated method stub
-		
+		stateFilePath=PlatformContentConstants.PLATFORM_CONTENT_DIR+mRequest.getContentData().getId();
 	}
 
 	public  boolean isMicroAppExist()

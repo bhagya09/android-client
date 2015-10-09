@@ -25,6 +25,7 @@ import com.bsb.hike.bots.NonMessagingBotMetadata;
 import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.modules.httpmgr.RequestToken;
+import com.bsb.hike.modules.httpmgr.request.FileRequestPersistent;
 import com.bsb.hike.platform.CustomWebView;
 import com.bsb.hike.platform.GpsLocation;
 import com.bsb.hike.platform.HikePlatformConstants;
@@ -1260,6 +1261,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	{
 		if (!BotUtils.isSpecialBot(mBotInfo) || !BotUtils.isBot(msisdn))
 		{
+			callbackToJS(id,Boolean.toString(false));
 			return;
 		}
 
@@ -1345,5 +1347,18 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 			callbackToJS(functionId, "false");
 		}
 	}
-
+	/**
+	 * Platform Version 8
+	 * Call this method to remove resume for an app
+	 */
+	public void removeStateFile(String app)
+	{
+		if (!BotUtils.isSpecialBot(mBotInfo))
+			return;
+		File file = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + app+FileRequestPersistent.STATE_FILE_EXT);
+		if (file.exists())
+		{
+			file.delete();
+		}
+	}
 }

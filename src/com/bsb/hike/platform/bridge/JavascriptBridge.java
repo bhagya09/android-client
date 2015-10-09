@@ -47,6 +47,7 @@ import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
+import com.bsb.hike.modules.httpmgr.request.FileRequestPersistent;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.platform.CustomWebView;
@@ -1253,5 +1254,21 @@ public abstract class JavascriptBridge
 			}
 		});
 	}
+	/**
+	 * Platform Version 8
+	 * Call this method to get the status of app download
+	 * @param id
+	 * @param app The app name
+	 */
+	@JavascriptInterface
+	public void readPartialDownloadState(String id,String app)
+	{
+		String filePath=PlatformContentConstants.PLATFORM_CONTENT_DIR+app+FileRequestPersistent.STATE_FILE_EXT;
+		String data[]=PlatformUtils.readPartialDownloadState(filePath);
+		if(data==null)
+			return;
+		callbackToJS(id, data.toString());
+	}
+	
 
 }

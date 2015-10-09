@@ -315,8 +315,6 @@ public class BotUtils
 			BotUtils.createAndInsertBotDp(msisdn, thumbnailString);
 		}
 		
-		boolean resumeSupport = jsonObj.optBoolean(HikePlatformConstants.RESUME_SUPPORT, false);
-
 		String botChatTheme = jsonObj.optString(HikeConstants.BOT_CHAT_THEME);
 		BotInfo botInfo = null;
 		if (type.equals(HikeConstants.MESSAGING_BOT))
@@ -331,7 +329,7 @@ public class BotUtils
 			NonMessagingBotMetadata botMetadata = new NonMessagingBotMetadata(botInfo.getMetadata());
 			if (botMetadata.isMicroAppMode())
 			{
-				PlatformUtils.downloadZipForNonMessagingBot(botInfo, enableBot, botChatTheme, notifType, botMetadata, resumeSupport);
+				PlatformUtils.downloadZipForNonMessagingBot(botInfo, enableBot, botChatTheme, notifType, botMetadata, botMetadata.isResumeSupported());
 			}
 			else if (botMetadata.isWebUrlMode())
 			{
@@ -339,7 +337,7 @@ public class BotUtils
 			}
 			else if (botMetadata.isNativeMode())
 			{
-				PlatformUtils.downloadZipForNonMessagingBot(botInfo, enableBot, botChatTheme, notifType, botMetadata, resumeSupport);
+				PlatformUtils.downloadZipForNonMessagingBot(botInfo, enableBot, botChatTheme, notifType, botMetadata, botMetadata.isResumeSupported());
 			}
 
 		}
