@@ -736,7 +736,7 @@
 	    <item name="android:layout_height">wrap_content</item>
 	    <item name="android:textSize">20sp</item>
 	    <item name="android:textStyle">normal</item>
-	    <item name="android:textColor">#ffffff</item>
+	    <item name="android:textColor">@color/white</item>
 	</style>
 	
 	<style name="TipHeader.Black">
@@ -768,13 +768,13 @@
 	    <item name="android:layout_height">wrap_content</item>
 	    <item name="android:textSize">14sp</item>
 	    <item name="android:textStyle">normal</item>
-	    <item name="android:textColor">#ffffff</item>
+	    <item name="android:textColor">@color/white</item>
    </style>
    
 	<style name="UpdateTipLabel">
 	    <item name="android:textSize">12sp</item>
 	    <item name="android:textStyle">bold</item>
-	    <item name="android:textColor">#ffffff</item>
+	    <item name="android:textColor">@color/white</item>
 	</style>
 
 	<style name="TipBody.Black">

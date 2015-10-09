@@ -1074,9 +1074,9 @@ public class HikeNotification
 		{
 			if(Utils.isUpdateRequired(settingPref.getString(HikeConstants.Extras.LATEST_VERSION, ""), context))
 			{
-				String message = settingPref.getString(HikeConstants.PERSISTENT_NOTIF_MESSAGE, "Hike Update Available!");
-				String title = settingPref.getString(HikeConstants.PERSISTENT_NOTIF_TITLE, "Update Available");
-				Uri url = Uri.parse(settingPref.getString(HikeConstants.PERSISTENT_NOTIF_URL, "market://details?id=com.bsb.hike"));
+				String message = settingPref.getString(HikeConstants.PERSISTENT_NOTIF_MESSAGE, context.getResources().getString(R.string.pers_notif_message));
+				String title = settingPref.getString(HikeConstants.PERSISTENT_NOTIF_TITLE, context.getResources().getString(R.string.pers_notif_title));
+				Uri url = Uri.parse(settingPref.getString(HikeConstants.PERSISTENT_NOTIF_URL, context.getResources().getString(R.string.pers_notif_url)));
 				notifyPersistentUpdate(title, message, url);
 			}
 		}
