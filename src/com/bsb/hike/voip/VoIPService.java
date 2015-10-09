@@ -501,6 +501,16 @@ public class VoIPService extends Service {
 			}, 2000);
 		}
 		
+		// Recipient is on an unsupported, but upgradable build
+		if (action.equals(HikeConstants.MqttMessageTypes.VOIP_ERROR_CALLEE_INCOMPATIBLE_UPGRADABLE)) {
+			Logger.w(tag, msisdn + " needs to upgrade.");
+			sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CONNECTION_FAILED, VoIPConstants.CallFailedCodes.PARTNER_UPGRADE);
+			removeFromClients(msisdn);
+			Bundle bundle = new Bundle();
+			bundle.putString(VoIPConstants.MSISDN, msisdn);
+			sendHandlerMessage(VoIPConstants.MSG_PARTNER_UPGRADABLE_PLATFORM, bundle);
+		}
+		
 		// Incoming call message
 		if (action.equals(HikeConstants.MqttMessageTypes.VOIP_CALL_REQUEST)) {
 
@@ -1371,9 +1381,9 @@ public class VoIPService extends Service {
 			}
 		}, "ACCEPT_INCOMING_CALL_THREAD").start();
 
+		startBluetooth();
 		startRecordingAndPlayback(client.getPhoneNumber());
 		client.sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CALL_ACCEPT);
-		startBluetooth();
 	}
 	
 	private synchronized void startRecordingAndPlayback(String msisdn) {
