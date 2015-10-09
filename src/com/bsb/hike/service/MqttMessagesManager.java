@@ -3289,22 +3289,10 @@ public class MqttMessagesManager
 					{
 						Editor editor = settings.edit();
 						
-						if(isCritical)
-						{
-							editor.putBoolean(HikeConstants.SHOW_CRITICAL_UPDATE_TIP, true);
-							editor.putBoolean(HikeConstants.SHOW_NORMAL_UPDATE_TIP, false);//Failsafe
-							editor.putBoolean(HikeConstants.SHOW_INVITE_TIP, false);//failsafe
-						}
-						else 
-						{
-							editor.putBoolean(HikeConstants.SHOW_NORMAL_UPDATE_TIP, true);
-							editor.putBoolean(HikeConstants.SHOW_CRITICAL_UPDATE_TIP, false);//Failsafe
-							editor.putBoolean(HikeConstants.SHOW_INVITE_TIP, false);//failsafe
-						}
+						saveTipContent(isCritical, !isCritical, false, data.optString(HikeConstants.HEADER, ""),
+										data.optString(HikeConstants.BODY, ""), data.optString(HikeConstants.LABEL, ""));
+						
 						editor.putString(HikeConstants.Extras.LATEST_VERSION, version);
-						editor.putString(HikeConstants.UPDATE_TIP_HEADER, data.optString(HikeConstants.HEADER, ""));
-						editor.putString(HikeConstants.UPDATE_TIP_BODY, data.optString(HikeConstants.BODY, ""));
-						editor.putString(HikeConstants.UPDATE_TIP_LABEL, data.optString(HikeConstants.LABEL, ""));
 						
 						if (!TextUtils.isEmpty(updateURL))
 							editor.putString(HikeConstants.Extras.URL, updateURL);
@@ -3320,14 +3308,8 @@ public class MqttMessagesManager
 			JSONObject data = jsonObj.optJSONObject(HikeConstants.DATA);
 			if(data != null)
 			{
-				Editor editor = settings.edit();
-				editor.putBoolean(HikeConstants.SHOW_INVITE_TIP, true);
-				editor.putBoolean(HikeConstants.SHOW_CRITICAL_UPDATE_TIP, false);//failsafe
-				editor.putBoolean(HikeConstants.SHOW_NORMAL_UPDATE_TIP, false);//failsafe
-				editor.putString(HikeConstants.UPDATE_TIP_HEADER, data.optString(HikeConstants.HEADER, ""));
-				editor.putString(HikeConstants.UPDATE_TIP_BODY, data.optString(HikeConstants.BODY, ""));
-				editor.putString(HikeConstants.UPDATE_TIP_LABEL, data.optString(HikeConstants.LABEL, ""));
-				editor.commit();
+				saveTipContent(false, false, true, data.optString(HikeConstants.HEADER, ""),
+						data.optString(HikeConstants.BODY, ""), data.optString(HikeConstants.LABEL, ""));
 			}
 			
 		}
@@ -3371,6 +3353,18 @@ public class MqttMessagesManager
 			// updatePopUpData
 			updateAtomicPopUpData(jsonObj);
 		}
+	}
+	
+	private void saveTipContent(boolean showCritical, boolean showNormal, boolean showInvite, String header, String body, String label)
+	{
+		Editor editor = settings.edit();
+		editor.putBoolean(HikeConstants.SHOW_CRITICAL_UPDATE_TIP, showCritical);
+		editor.putBoolean(HikeConstants.SHOW_NORMAL_UPDATE_TIP, showNormal);
+		editor.putBoolean(HikeConstants.SHOW_INVITE_TIP, showInvite);
+		editor.putString(HikeConstants.UPDATE_TIP_HEADER, header);
+		editor.putString(HikeConstants.UPDATE_TIP_BODY, body);
+		editor.putString(HikeConstants.UPDATE_TIP_LABEL, label);
+		editor.commit();
 	}
 	
 	private void playNotification(JSONObject jsonObj)
