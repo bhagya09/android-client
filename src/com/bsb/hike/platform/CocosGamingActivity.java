@@ -1,8 +1,6 @@
 package com.bsb.hike.platform;
 
 import java.io.File;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 
 import org.cocos2dx.lib.Cocos2dxActivity;
 import org.cocos2dx.lib.Cocos2dxHandler;
@@ -10,6 +8,17 @@ import org.cocos2dx.lib.Cocos2dxHelper;
 import org.cocos2dx.lib.Cocos2dxVideoHelper;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import android.content.Context;
+import android.content.Intent;
+import android.content.pm.ActivityInfo;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.PersistableBundle;
+import android.text.TextUtils;
+import android.view.Window;
+import android.view.WindowManager;
+import android.widget.Toast;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.R;
@@ -22,22 +31,6 @@ import com.bsb.hike.platform.bridge.JavascriptBridge;
 import com.bsb.hike.platform.content.PlatformContentConstants;
 import com.bsb.hike.utils.Logger;
 import com.chukong.cocosplay.client.CocosPlayClient;
-
-import android.content.Context;
-import android.content.Intent;
-import android.content.pm.ActivityInfo;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
-import android.content.pm.PackageManager.NameNotFoundException;
-import android.content.pm.Signature;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.PersistableBundle;
-import android.text.TextUtils;
-import android.util.Base64;
-import android.view.Window;
-import android.view.WindowManager;
-import android.widget.Toast;
 
 /**
  * This is an Activity class which renders native games
@@ -72,32 +65,6 @@ public class CocosGamingActivity extends Cocos2dxActivity
 	{
 		super.onPostCreate(savedInstanceState, persistentState);
 		Logger.d(TAG, "onPostCreate()");
-	}
-
-	private String getAppSignature()
-	{
-		try
-		{
-			Logger.d(TAG, "Getting keyHash");
-			PackageInfo info = getPackageManager().getPackageInfo("com.bsb.hike", PackageManager.GET_SIGNATURES);
-			for (Signature signature : info.signatures)
-			{
-				MessageDigest md = MessageDigest.getInstance("SHA");
-				md.update(signature.toByteArray());
-				// Logger.d(TAG, "KeyHash : " +
-				// Base64.encodeToString(md.digest(), Base64.DEFAULT));
-				return Base64.encodeToString(md.digest(), Base64.DEFAULT);
-			}
-		}
-		catch (NameNotFoundException e)
-		{
-			e.printStackTrace();
-		}
-		catch (NoSuchAlgorithmException e)
-		{
-			e.printStackTrace();
-		}
-		return null;
 	}
 
 	public void onCreate(Bundle savedInstanceState)
