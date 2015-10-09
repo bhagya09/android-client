@@ -10,6 +10,7 @@
         android:widgetLayout="@layout/switch_widget" />
 
     <com.bsb.hike.view.SwitchPreferenceCompat
+        android:defaultValue="true"
         android:key="knownContactEnablePref"
         android:layout="@layout/icon_preference"
         android:summary="@string/enable_saved_contact_view_side_text"

@@ -2557,6 +2557,10 @@ public class MqttMessagesManager
 		if (data.has(StickyCaller.SHOW_STICKY_CALLER))
 		{
 			HikeSharedPreferenceUtil.getInstance().saveData(StickyCaller.SHOW_STICKY_CALLER, data.optBoolean(StickyCaller.SHOW_STICKY_CALLER, false));
+			if(!data.optBoolean(StickyCaller.SHOW_STICKY_CALLER, false))
+			{
+				ChatHeadUtils.unregisterCallReceiver();
+			}
 		}
 		if (data.has(HikeConstants.ACTIVATE_STICKY_CALLER_PREF))
 		{
@@ -2576,7 +2580,7 @@ public class MqttMessagesManager
 		}
 		if (data.has(HikeConstants.ENABLE_KNOWN_NUMBER_CARD_PREF))
 		{
-			Utils.setSharedPrefValue(context, HikeConstants.ENABLE_KNOWN_NUMBER_CARD_PREF, data.optBoolean(HikeConstants.ENABLE_KNOWN_NUMBER_CARD_PREF, false));
+			Utils.setSharedPrefValue(context, HikeConstants.ENABLE_KNOWN_NUMBER_CARD_PREF, data.optBoolean(HikeConstants.ENABLE_KNOWN_NUMBER_CARD_PREF, true));
 		}
 		if (data.has(StickyCaller.SHOW_FREECALL_VIEW))
 		{

@@ -4675,11 +4675,15 @@ public class Utils
 		context.startActivity(i);
 	}
 	
-	public static void addToContacts(Context context, String msisdn, String name)
+	public static void addToContacts(Context context, String msisdn, String name, String address)
 	{
 		Intent intent = new Intent(Intent.ACTION_INSERT, ContactsContract.Contacts.CONTENT_URI);
 		intent.putExtra(Insert.PHONE, msisdn);
 		intent.putExtra(Insert.NAME, name);
+		if (address != null)
+		{
+			intent.putExtra(Insert.POSTAL, address);
+		}
 		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 		context.startActivity(intent);
 	}
@@ -7344,9 +7348,9 @@ public class Utils
 		return url;
 	}
 	
-	public static void sendFreeSms()
+	public static void sendFreeSms(String number)
 	{
-		Intent intent = IntentFactory.createChatThreadIntentFromMsisdn(HikeMessengerApp.getInstance(), StickyCaller.callCurrentNumber, true, false);
+		Intent intent = IntentFactory.createChatThreadIntentFromMsisdn(HikeMessengerApp.getInstance(), number, true, false);
 		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 	    HikeMessengerApp.getInstance().startActivity(intent);
 	}

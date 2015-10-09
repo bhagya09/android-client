@@ -1289,6 +1289,20 @@ private void setupToolBar(int titleRes){
 						AnalyticsConstants.StickyCallerEvents.DEACTIVATE_BUTTON, null);
 			}
 		}
+		else if (HikeConstants.ENABLE_KNOWN_NUMBER_CARD_PREF.equals(preference.getKey()))
+		{
+			if (isChecked)
+			{
+				HAManager.getInstance().stickyCallerAnalyticsUIEvent(AnalyticsConstants.StickyCallerEvents.KNOWN_CARD_SETTINGS_TOGGLE, null,
+						AnalyticsConstants.StickyCallerEvents.ACTIVATE_BUTTON, null);
+		
+			}
+			else
+			{
+				HAManager.getInstance().stickyCallerAnalyticsUIEvent(AnalyticsConstants.StickyCallerEvents.KNOWN_CARD_SETTINGS_TOGGLE, null,
+						AnalyticsConstants.StickyCallerEvents.DEACTIVATE_BUTTON, null);
+			}
+		}
 		else if (HikeConstants.NUJ_NOTIF_BOOLEAN_PREF.equals(preference.getKey()))
 		{			
 			try
