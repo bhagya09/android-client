@@ -2238,6 +2238,12 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 						ContactInfo con = grpParticipant.getContactInfo();
 						contactInfo.setOnhike(con.isOnhike());
 						grpParticipant.setContactInfo(contactInfo);
+
+						//For SMS Member
+						if(!grpParticipant.isAdmin() && grpParticipant.getType() != GroupParticipant.Participant_Type.MEMBER)
+						{
+							grpParticipant.setType(GroupParticipant.Participant_Type.MEMBER);
+						}
 					}
 				}
 				
