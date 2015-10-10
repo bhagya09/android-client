@@ -1255,13 +1255,14 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	 * This function is made for the special Shared bot that has the information about some other bots as well, and acts as a channel for them.
 	 * Call this function to get the bot version.
 	 * @param id: the id of the function that native will call to call the js .
+	 * returns -1 if bot not exists
 	 */
 	@JavascriptInterface
 	public void getBotVersion(String id, String msisdn)
 	{
 		if (!BotUtils.isSpecialBot(mBotInfo) || !BotUtils.isBot(msisdn))
 		{
-			callbackToJS(id,Boolean.toString(false));
+			callbackToJS(id,"-1");
 			return;
 		}
 
