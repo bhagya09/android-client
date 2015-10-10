@@ -321,6 +321,8 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 		sql = "CREATE UNIQUE INDEX IF NOT EXISTS " + DBConstants.EVENT_HASH_INDEX + " ON " + DBConstants.MESSAGE_EVENT_TABLE + " ( " + DBConstants.EVENT_HASH + " )";
 		db.execSQL(sql);
+		
+		db.execSQL(getSortingIdxString());
 	}
 
 	private void createIndexOverServerIdField(SQLiteDatabase db)
@@ -887,6 +889,11 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				String alterTable = "ALTER TABLE " + DBConstants.BOT_TABLE + " ADD COLUMN " + HIKE_CONTENT.BOT_VERSION + " INTEGER DEFAULT 0";
 				db.execSQL(alterTable);
 			}
+		}
+		
+		if (oldVersion < 46)
+		{
+			db.execSQL(getSortingIdxString());
 		}
 
 	}
@@ -8642,6 +8649,12 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				c.close();
 			}
 		}
+	}
+	
+	
+	private String getSortingIdxString()
+	{
+		return "CREATE UNIQUE INDEX IF NOT EXISTS " + DBConstants.SORT_ID_IDX + " ON " + DBConstants.MESSAGES_TABLE + " ( " + DBConstants.MSISDN + " , " + DBConstants.SORTING_ID + " )"; 
 	}
 
 }
