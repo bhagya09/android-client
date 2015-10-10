@@ -8662,7 +8662,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 	
 	private String getSortingIdxString()
 	{
-		return "CREATE UNIQUE INDEX IF NOT EXISTS " + DBConstants.SORT_ID_IDX + " ON " + DBConstants.MESSAGES_TABLE + " ( " + DBConstants.MSISDN + " , " + DBConstants.SORTING_ID + " )"; 
+		return "CREATE INDEX IF NOT EXISTS " + DBConstants.SORT_ID_IDX + " ON " + DBConstants.MESSAGES_TABLE + " ( " + DBConstants.MSISDN + " , " + DBConstants.SORTING_ID + " )"; 
 	}
 
 }
