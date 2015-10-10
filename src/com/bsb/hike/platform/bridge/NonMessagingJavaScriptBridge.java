@@ -1352,6 +1352,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	 * Platform Version 8
 	 * Call this method to remove resume for an app
 	 */
+	@JavascriptInterface
 	public void removeStateFile(String app)
 	{
 		if (!BotUtils.isSpecialBot(mBotInfo))
