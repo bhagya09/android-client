@@ -60,6 +60,7 @@
             android:background="#000000"
             custom:fixAspectRatio="true"
             custom:guidelines="on"
+            custom:scaleType="fitCenter"
             custom:imageResource="@drawable/bg_ct_beach_2" />
     </RelativeLayout>
 
