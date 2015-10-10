@@ -4,20 +4,21 @@ import java.io.IOException;
 
 import org.apache.http.util.TextUtils;
 
-import com.bsb.hike.R;
-import com.bsb.hike.BitmapModule.HikeBitmapFactory;
-import com.bsb.hike.photos.HikePhotosUtils;
-import com.edmodo.cropper.CropImageView;
-import com.edmodo.cropper.cropwindow.edge.Edge;
-import com.hike.transporter.utils.Logger;
-
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.media.ExifInterface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import com.bsb.hike.R;
+import com.bsb.hike.BitmapModule.HikeBitmapFactory;
+import com.bsb.hike.photos.HikePhotosUtils;
+import com.edmodo.cropper.CropImageView;
+import com.edmodo.cropper.cropwindow.edge.Edge;
+import com.hike.transporter.utils.Logger;
 
 /**
  * Uses https://github.com/edmodo/cropper/wiki
@@ -79,8 +80,18 @@ public class HikeCropFragment extends Fragment
 	{
 		super.onViewCreated(view, savedInstanceState);
 
+		BitmapFactory.Options options = new BitmapFactory.Options();
+		
+		options.inScaled = false;
+		
+		options.inDither = true;
+		
+		options.inPreferredConfig = Bitmap.Config.ARGB_8888;
+		
+		options.inPreferQualityOverSpeed = true;
+		
 		// Load bitmap
-		Bitmap sourceBitmap = HikeBitmapFactory.decodeFile(mSourceImagePath);
+		Bitmap sourceBitmap = HikeBitmapFactory.decodeFile(mSourceImagePath, options);
 
 		if (sourceBitmap == null)
 		{
@@ -98,6 +109,7 @@ public class HikeCropFragment extends Fragment
 			}
 
 			Edge.MIN_CROP_LENGTH_PX = minSize;
+			
 			mCropImageView.setImageBitmap(sourceBitmap, new ExifInterface(mSourceImagePath));
 		}
 		catch (IOException e)

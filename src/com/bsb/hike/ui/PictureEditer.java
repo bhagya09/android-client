@@ -10,30 +10,28 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.os.Environment;
-import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
+import android.support.v7.app.ActionBar;
+import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import android.support.v7.app.ActionBar;
-import android.support.v7.widget.Toolbar;
-import android.view.Window;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
-import com.bsb.hike.BitmapModule.BitmapUtils;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.cropimage.CropCompression;
 import com.bsb.hike.cropimage.HikeCropActivity;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.HikeFile.HikeFileType;
@@ -45,7 +43,6 @@ import com.bsb.hike.photos.views.CanvasImageView.OnDoodleStateChangeListener;
 import com.bsb.hike.photos.views.DoodleEffectItemLinearLayout;
 import com.bsb.hike.photos.views.FilterEffectItemLinearLayout;
 import com.bsb.hike.photos.views.PhotosEditerFrameLayoutView;
-import com.bsb.hike.timeline.TestBmp;
 import com.bsb.hike.ui.fragments.PhotoActionsFragment;
 import com.bsb.hike.ui.fragments.PhotoActionsFragment.ActionListener;
 import com.bsb.hike.ui.fragments.PreviewFragment;
@@ -433,8 +430,8 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 
 	private void uploadProfilePic(final String croppedImageFile, final String originalImageFile)
 	{
-		Utils.copyFile(croppedImageFile, TestBmp.getFilename());
-		TestBmp.compressImage(croppedImageFile,croppedImageFile,800f,800f);
+//		Utils.copyFile(croppedImageFile, TestBmp.getFilename());
+//		TestBmp.compressImage(croppedImageFile,croppedImageFile,800f,800f);
 		editView.setVisibility(View.VISIBLE);
 		ProfilePicFragment profilePicFragment = new ProfilePicFragment();
 		Bundle b = new Bundle();
@@ -701,9 +698,12 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 					finishProgress();
 					setTempProfileImageName(f.getAbsolutePath());
 //					startActivityForResult(IntentFactory.getCropActivityIntent(PictureEditer.this, f.getAbsolutePath(), f.getAbsolutePath(), true,80, false), HikeConstants.CROP_RESULT);
+					
+					CropCompression compression = new CropCompression().maxWidth(800).maxHeight(800).quality(85);
 					Intent cropIntent = new Intent(PictureEditer.this, HikeCropActivity.class);
 					cropIntent.putExtra(HikeCropActivity.CROPPED_IMAGE_PATH, f.getAbsolutePath());
 					cropIntent.putExtra(HikeCropActivity.SOURCE_IMAGE_PATH, f.getAbsolutePath());
+					cropIntent.putExtra(HikeCropActivity.CROP_COMPRESSION, compression);
 					startActivityForResult(cropIntent, HikeConstants.CROP_RESULT);
 				}
 			});

@@ -3,19 +3,13 @@ package com.bsb.hike.timeline;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
-
-import com.bsb.hike.BitmapModule.BitmapUtils;
 
 import android.graphics.Bitmap;
-import android.graphics.Bitmap.CompressFormat;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
-import android.media.ExifInterface;
 import android.os.Environment;
-import android.util.Log;
 
 public class TestBmp
 {
@@ -65,22 +59,30 @@ public class TestBmp
 
 		// inJustDecodeBounds set to false to load the actual bitmap
 		options.inJustDecodeBounds = false;
+		
+		options.inScaled = false;
+		
+		options.inDither = true;
+		
+		options.inPreferredConfig = Bitmap.Config.ARGB_8888;
+		
+		options.inPreferQualityOverSpeed = true;
 
-		try
-		{
-			// load the bitmap from its path
+//		try
+//		{
+//			// load the bitmap from its path
 			bmp = BitmapFactory.decodeFile(filePath, options);
-			BitmapUtils.saveBitmapToFile(new File(getFilename()), bmp, CompressFormat.PNG,100);
-			BitmapUtils.saveBitmapToFile(new File(getFilename()), bmp, CompressFormat.JPEG,80);
-		}
-		catch (OutOfMemoryError | IOException exception)
-		{
-			exception.printStackTrace();
-
-		}
+//			BitmapUtils.saveBitmapToFile(new File(getFilename()), bmp, CompressFormat.PNG,100);
+//			BitmapUtils.saveBitmapToFile(new File(getFilename()), bmp, CompressFormat.JPEG,80);
+//		}
+//		catch (OutOfMemoryError | IOException exception)
+//		{
+//			exception.printStackTrace();
+//
+//		}
 		try
 		{
-			scaledBitmap = Bitmap.createBitmap(actualWidth, actualHeight, Bitmap.Config.ARGB_8888);
+			scaledBitmap = Bitmap.createBitmap(actualWidth, actualHeight, Bitmap.Config.RGB_565);
 		}
 		catch (OutOfMemoryError exception)
 		{
@@ -100,37 +102,6 @@ public class TestBmp
 		Paint paint = new Paint(Paint.FILTER_BITMAP_FLAG | Paint.DITHER_FLAG | Paint.ANTI_ALIAS_FLAG);
 		paint.setDither(true);
 		canvas.drawBitmap(bmp, middleX - bmp.getWidth() / 2, middleY - bmp.getHeight() / 2, paint);
-
-		// check the rotation of the image and display it properly
-//		ExifInterface exif;
-//		try
-//		{
-//			exif = new ExifInterface(filePath);
-//
-//			int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, 0);
-//			Log.d("EXIF", "Exif: " + orientation);
-//			Matrix matrix = new Matrix();
-//			if (orientation == 6)
-//			{
-//				matrix.postRotate(90);
-//				Log.d("EXIF", "Exif: " + orientation);
-//			}
-//			else if (orientation == 3)
-//			{
-//				matrix.postRotate(180);
-//				Log.d("EXIF", "Exif: " + orientation);
-//			}
-//			else if (orientation == 8)
-//			{
-//				matrix.postRotate(270);
-//				Log.d("EXIF", "Exif: " + orientation);
-//			}
-//			scaledBitmap = Bitmap.createBitmap(scaledBitmap, 0, 0, scaledBitmap.getWidth(), scaledBitmap.getHeight(), matrix, true);
-//		}
-//		catch (IOException e)
-//		{
-//			e.printStackTrace();
-//		}
 
 		FileOutputStream out = null;
 		try

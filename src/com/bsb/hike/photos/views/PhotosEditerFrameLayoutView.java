@@ -35,7 +35,6 @@ import com.bsb.hike.photos.HikePhotosListener;
 import com.bsb.hike.photos.HikePhotosUtils;
 import com.bsb.hike.photos.HikePhotosUtils.FilterTools.FilterType;
 import com.bsb.hike.photos.views.CanvasImageView.OnDoodleStateChangeListener;
-import com.bsb.hike.timeline.TestBmp;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
