@@ -262,11 +262,14 @@ public class HikeCropActivity extends HikeAppStateBaseFragmentActivity
 				scaledBitmap = Bitmap.createBitmap(argBmp.getWidth(), argBmp.getHeight(), Bitmap.Config.RGB_565);
 			}
 			Canvas canvas = new Canvas(scaledBitmap);
-			canvas.setMatrix(scaleTransformation);
+			if (scaleTransformation != null)
+			{
+				canvas.setMatrix(scaleTransformation);
+			}
 			Paint paint = new Paint(Paint.FILTER_BITMAP_FLAG | Paint.DITHER_FLAG | Paint.ANTI_ALIAS_FLAG);
 			paint.setDither(true);
 			paint.setColorFilter(colorFilter);
-
+			
 			if (!shouldScale)
 			{
 				canvas.drawBitmap(argBmp, 0, 0, paint);
@@ -274,8 +277,8 @@ public class HikeCropActivity extends HikeAppStateBaseFragmentActivity
 			else
 			{
 				canvas.drawBitmap(argBmp, 0,0, paint);
-				BitmapUtils.saveBitmapToFile(new File(TestBmp.getFilename()), scaledBitmap, CompressFormat.JPEG, mCropCompression == null ? 85 : mCropCompression.getQuality());
 			}
+			BitmapUtils.saveBitmapToFile(new File(TestBmp.getFilename()), scaledBitmap, CompressFormat.JPEG, mCropCompression == null ? 85 : mCropCompression.getQuality());
 		}
 		catch (OutOfMemoryError | IOException exception)
 		{
