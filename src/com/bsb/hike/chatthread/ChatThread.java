@@ -4188,7 +4188,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 				changeKeyboard(isSystemKeyboard());
 				activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
 				Utils.showSoftKeyboard(mComposeView, InputMethodManager.SHOW_FORCED);
-				KptUtils.updatePadding(activity, R.id.msg_compose, 0);
+				KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, 0);
 			}
 			else
 			{
@@ -6149,7 +6149,10 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		if (kptVisible)
 		{
 			KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, height);
-			mShareablePopupLayout.setCustomKeyBoardHeight(height);
+			if (mShareablePopupLayout != null)
+			{
+				mShareablePopupLayout.setCustomKeyBoardHeight(height);				
+			}
 			keyboardHeight = height;
 		}
 		else
