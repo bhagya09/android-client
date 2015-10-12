@@ -232,6 +232,17 @@ public class ShareablePopupLayout
 	public void releaseResources()
 	{
 		mKeyboardPopupLayout.releaseResources();
+		
+		if (mViewToDisplay != null)
+			
+		{
+			FrameLayout frameLayout = (FrameLayout) mViewToDisplay.findViewById(R.id.shared_keyboard_parent);
+
+			/**
+			* Removing the residual views, if any
+			*/
+			frameLayout.removeAllViews();			
+		}
 	}
 
 	public boolean onEditTextTouch(View v, MotionEvent event){

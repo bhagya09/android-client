@@ -57,6 +57,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.View.OnClickListener;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
@@ -87,7 +88,7 @@ public class GroupChatThread extends OneToNChatThread
 	private View pinView;
 
 	private boolean isNewChat;
-
+	
 	/**
 	 * @param activity
 	 * @param msisdn
@@ -580,10 +581,7 @@ public class GroupChatThread extends OneToNChatThread
 		switch (v.getId())
 		{
 		case R.id.messageedittext:
-			if (!isSystemKeyboard())
-			{
-				mCustomKeyboard.showCustomKeyboard(mComposeView, true);
-			}
+			showKeyboard();
 			return mShareablePopupLayout.onEditTextTouch(v, event);
 		default:
 			return super.onTouch(v, event);
@@ -673,9 +671,16 @@ public class GroupChatThread extends OneToNChatThread
 		View content = activity.findViewById(R.id.impMessageCreateView);
 		content.setVisibility(View.VISIBLE);
 		mComposeView = (CustomFontEditText) content.findViewById(R.id.messageedittext);
-		mCustomKeyboard.registerEditText(R.id.messageedittext, KPTConstants.MULTILINE_LINE_EDITOR, this, this);
+		if (isSystemKeyboard())
+		{
+			mCustomKeyboard.unregister(R.id.messageedittext);
+		}
+		else
+		{
+			mCustomKeyboard.registerEditText(R.id.messageedittext, KPTConstants.MULTILINE_LINE_EDITOR, this, this);	
+			mCustomKeyboard.init(mComposeView);
+		}
 		mComposeView.requestFocus();
-		showKeyboard();
 		if (mEmoticonPicker != null)
 		{
 			mEmoticonPicker.updateET(mComposeView);
@@ -710,6 +715,9 @@ public class GroupChatThread extends OneToNChatThread
 			mComposeView.setText(pinText);
 			mComposeView.setSelection(pinText.length());
 		}
+		
+//		activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+		showKeyboard();
 
 		content.findViewById(R.id.emo_btn).setOnClickListener(this);
 	}

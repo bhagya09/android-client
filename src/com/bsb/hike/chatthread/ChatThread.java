@@ -366,6 +366,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 	private boolean shouldKeyboardPopupShow;
 	
+	protected int keyboardHeight;
+	
 	private class ChatThreadBroadcasts extends BroadcastReceiver
 	{
 		@Override
@@ -604,7 +606,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		fetchConversation(false);
 		uiHandler.sendEmptyMessage(SET_WINDOW_BG);
 		StickerManager.getInstance().checkAndDownLoadStickerData();
-		mShareablePopupLayout.setCustomKeyBoardHeight(mCustomKeyboard.getKeyBoardAndCVHeight());
+		mShareablePopupLayout.setCustomKeyBoardHeight((keyboardHeight == 0) ? mCustomKeyboard.getKeyBoardAndCVHeight() : keyboardHeight);
 		mShareablePopupLayout.setCustomKeyBoard(!isSystemKeyboard());
 		if (isSystemKeyboard())
 		{
@@ -746,7 +748,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			initStickerPicker();
 			initEmoticonPicker();
 			
-			int firstTimeHeight = (isSystemKeyboard()?((int) (activity.getResources().getDimension(R.dimen.emoticon_pallete))) : mCustomKeyboard.getKeyBoardAndCVHeight());
+			int firstTimeHeight = (isSystemKeyboard()?((int) (activity.getResources().getDimension(R.dimen.emoticon_pallete))) : 
+					((keyboardHeight == 0) ? mCustomKeyboard.getKeyBoardAndCVHeight() : keyboardHeight));
 
 			mShareablePopupLayout = new ShareablePopupLayout(activity.getApplicationContext(), activity.findViewById(R.id.chatThreadParentLayout),
 					
@@ -1124,13 +1127,13 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			showOverflowMenu();
 			break;
 		case R.id.sticker_btn:
-			mShareablePopupLayout.setCustomKeyBoardHeight(mCustomKeyboard.getKeyBoardAndCVHeight());
+			mShareablePopupLayout.setCustomKeyBoardHeight((keyboardHeight == 0) ? mCustomKeyboard.getKeyBoardAndCVHeight() : keyboardHeight);
 			mCustomKeyboard.showCustomKeyboard(mComposeView, false);
 			if (mShareablePopupLayout.isBusyInOperations())
 			{//  previous task is running don't accept this event
 				return;
 			}
-			mShareablePopupLayout.setCustomKeyBoardHeight(mCustomKeyboard.getKeyBoardAndCVHeight());
+			mShareablePopupLayout.setCustomKeyBoardHeight((keyboardHeight == 0) ? mCustomKeyboard.getKeyBoardAndCVHeight() : keyboardHeight);
 			setEmoticonButtonSelected(false);
 			setStickerButtonSelected(true);
 			stickerClicked();
@@ -1141,7 +1144,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			{// previous task is running don't accept this event
 				return;
 			}
-			mShareablePopupLayout.setCustomKeyBoardHeight(mCustomKeyboard.getKeyBoardAndCVHeight());
+			mShareablePopupLayout.setCustomKeyBoardHeight((keyboardHeight == 0) ? mCustomKeyboard.getKeyBoardAndCVHeight() : keyboardHeight);
 			setStickerButtonSelected(false);
 			setEmoticonButtonSelected(true);
 			emoticonClicked();
@@ -2332,7 +2335,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			if (!isSystemKeyboard())
 			{
 				mCustomKeyboard.showCustomKeyboard(mComposeView, true);
-				KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, mCustomKeyboard.getKeyBoardAndCVHeight());
+				KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, (keyboardHeight == 0) ? mCustomKeyboard.getKeyBoardAndCVHeight() : keyboardHeight);
 			}
 			else
 			{
@@ -3469,7 +3472,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 				 * This is an approximate height given by kpt until we get keyboard visibility call. The final height is set in onInputViewVisibility().
 				 * This calls is to avoid the seeming delay in appearance of edittext.
 				 */
-				KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, mCustomKeyboard.getKeyBoardAndCVHeight());
+				KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, (keyboardHeight == 0) ? mCustomKeyboard.getKeyBoardAndCVHeight() : keyboardHeight);
 			}
 			if(stickerTagWatcher != null)
 			{
@@ -4178,7 +4181,10 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		{
 			if (isSystemKeyboard())
 			{
-				Utils.showSoftKeyboard(activity, mComposeView);
+				changeKeyboard(isSystemKeyboard());
+				activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+				Utils.showSoftKeyboard(mComposeView, InputMethodManager.SHOW_FORCED);
+				KptUtils.updatePadding(activity, R.id.msg_compose, 0);
 			}
 			else
 			{
@@ -4187,6 +4193,10 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		}
 		else
 		{
+			if (isSystemKeyboard())
+			{
+				changeKeyboard(isSystemKeyboard());
+			}
 			KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, 0);
 		}
 	}
@@ -5631,7 +5641,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	{
 		if (mCustomKeyboard.isCustomKeyboardVisible())
 		{
-			KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, mCustomKeyboard.getKeyBoardAndCVHeight());
+			KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, (keyboardHeight == 0) ? mCustomKeyboard.getKeyBoardAndCVHeight() : keyboardHeight);
 		}
 		Logger.i(TAG, "onPopup Dismiss");
 		if(activity.findViewById(R.id.sticker_btn).isSelected())
@@ -6053,17 +6063,19 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	{
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CURRENT_KEYBOARD, systemKeyboard);
 		
-		if (mShareablePopupLayout.isShowing())
-		{
-			mShareablePopupLayout.dismiss();
-		}
-		
 		if (systemKeyboard)
 		{
 			KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, 0);
 			mCustomKeyboard.showCustomKeyboard(mComposeView, false);
 			mCustomKeyboard.swtichToDefaultKeyboard(mComposeView);
 			mCustomKeyboard.unregister(R.id.msg_compose);
+			if (mShareablePopupLayout != null)
+			{
+				mShareablePopupLayout.dismiss();
+				mShareablePopupLayout.releaseResources();
+				mShareablePopupLayout = null;
+				initShareablePopup();
+			}
 			mComposeView.setOnClickListener(new OnClickListener()
 			{
 
@@ -6078,6 +6090,13 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		{
 			mCustomKeyboard.swtichToKPTKeyboard(mComposeView, KPTConstants.MULTILINE_LINE_EDITOR, ChatThread.this, ChatThread.this);
 			mCustomKeyboard.registerEditText(R.id.msg_compose, KPTConstants.MULTILINE_LINE_EDITOR, this, this);
+			if (mShareablePopupLayout != null)
+			{
+				mShareablePopupLayout.dismiss();
+				mShareablePopupLayout.releaseResources();
+				mShareablePopupLayout = null;
+				initShareablePopup();
+			}
 			mCustomKeyboard.init(mComposeView);
 			mCustomKeyboard.showCustomKeyboard(mComposeView, true);
 			setEditTextListeners();
@@ -6126,6 +6145,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		if (kptVisible)
 		{
 			KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, height);
+			mShareablePopupLayout.setCustomKeyBoardHeight(height);
+			keyboardHeight = height;
 		}
 		else
 		{
