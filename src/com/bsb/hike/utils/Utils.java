@@ -7278,6 +7278,17 @@ public class Utils
 		return url;
 	}
 	
+	public static String getNewImagePostFilePath()
+	{
+		String directory = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT;
+		File dir = new File(directory);
+		if (!dir.exists())
+		{
+			dir.mkdirs();
+		}
+		return directory+File.separator + Utils.getUniqueFilename(HikeFileType.IMAGE);
+	}
+
 	public static void sendFreeSms()
 	{
 		Intent intent = IntentFactory.createChatThreadIntentFromMsisdn(HikeMessengerApp.getInstance(), StickyCaller.callCurrentNumber, true, false);
