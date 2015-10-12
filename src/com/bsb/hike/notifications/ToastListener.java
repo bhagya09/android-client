@@ -316,7 +316,7 @@ public class ToastListener implements Listener
 			toaster.notifyPersistentUpdate(
 					context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).getString(HikeConstants.Extras.UPDATE_TITLE, context.getResources().getString(R.string.pers_notif_title)),
 					context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).getString(HikeConstants.Extras.UPDATE_MESSAGE, context.getResources().getString(R.string.pers_notif_message)),
-					Uri.parse(context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).getString(HikeConstants.Extras.URL, context.getResources().getString(R.string.pers_notif_url))));
+					Uri.parse(context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).getString(HikeConstants.Extras.URL, "market://details?id=" + context.getPackageName())));
 		}
 		else if(HikePubSub.FLUSH_PERSISTENT_NOTIF.equals(type))
 		{

@@ -1749,5 +1749,4 @@
     <string name="update_tip_body_text">Get free Group Calls, Hike News and \n new Hidden Mode in this update</string>
     <string name="pers_notif_title">Update Hike</string>
     <string name="pers_notif_message">Update Hike for exciting new features!</string>
-    <string name="pers_notif_url">"market://details?id=com.bsb.hike"</string>
 </resources>
