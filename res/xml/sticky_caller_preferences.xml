@@ -6,7 +6,7 @@
         android:key="activateStickyCaller"
         android:layout="@layout/icon_preference"
         android:summary="@string/sticky_caller_settings_side_text"
-        android:title="@string/sticky_caller_settings"
+        android:title="@string/sticky_caller_settings_header"
         android:widgetLayout="@layout/switch_widget" />
 
     <com.bsb.hike.view.SwitchPreferenceCompat
