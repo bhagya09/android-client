@@ -614,11 +614,11 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 			addPhotoLayout.setVisibility(View.GONE);
 		}
 		
-		if(!shouldShowAddPhotoButton() && !shouldShowMoodsButton())
+		if((!shouldShowAddPhotoButton() && !shouldShowMoodsButton()))
 		{
 			addItemsLayout.setVisibility(View.GONE);
 		}
-		else
+		else if(!isEmojiOrMoodLayoutVisible())
 		{
 			RelativeLayout.LayoutParams p = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
 
