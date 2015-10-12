@@ -364,39 +364,6 @@ public class FileTransferManager extends BroadcastReceiver
 		task.setFutureTask(ft);
 		pool.execute(ft);
 	}
-
-	public ConvMessage uploadOfflineFile(String msisdn, File sourceFile, String fileKey, String fileType, HikeFileType hikeFileType, boolean isRec,
-			long recordingDuration, int attachment, String fileName)
-	{
-		/*Checking file transfer limit version
-		 * For V1 it was INT_MAX
-		 * For V2 and above no limit is applied 
-		 */
-		
-		if(sourceFile.length()>Integer.MAX_VALUE)
-		{
-			if(!OfflineUtils.isFeautureAvailable(OfflineConstants.OFFLINE_VERSION_NUMER,
-					OfflineUtils.getConnectedDeviceVersion(),OfflineConstants.UNLIMITED_FT_VERSION))
-			{
-				ContactInfo contactInfo  = ContactManager.getInstance().getContact(msisdn);
-				String name  = msisdn;
-				if(contactInfo!=null && !TextUtils.isEmpty(contactInfo.getFirstNameAndSurname()))
-				{
-					name = contactInfo.getFirstNameAndSurname();
-				}
-				HikeMessengerApp.getInstance().showToast(context.getString(R.string.upgrade_for_larger_files,name), Toast.LENGTH_LONG);
-				return null;
-			}
-		}
-		
-		settings = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
-		String token = settings.getString(HikeMessengerApp.TOKEN_SETTING, null);
-		String uId = settings.getString(HikeMessengerApp.UID_SETTING, null);
-		UploadFileTask task = new UploadFileTask(handler, fileTaskMap, context, token, uId, msisdn, sourceFile, fileKey, fileType, hikeFileType, isRec,
-				recordingDuration, attachment,fileName);
-		ConvMessage convMessage = ((ConvMessage)task.getUserContext());
-		return convMessage;
-   }
 	
 	public void uploadContactOrLocation(ConvMessage convMessage, boolean uploadingContact)
 	{
