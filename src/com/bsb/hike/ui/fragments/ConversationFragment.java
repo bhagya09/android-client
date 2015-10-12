@@ -3652,12 +3652,14 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 			HikeSharedPreferenceUtil.getInstance().removeData(HikeMessengerApp.SHOW_STEALTH_UNREAD_TIP);
 			break;
 		case ConversationTip.UPDATE_NORMAL_TIP:
+			HAManager.getInstance().updateTipAnalyticsUIEvent(AnalyticsConstants.UPDATE_TIP_DISMISSED);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOW_NORMAL_UPDATE_TIP, false);
 			break;
 		case ConversationTip.UPDATE_CRITICAL_TIP:
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOW_CRITICAL_UPDATE_TIP, false);
 			break;
 		case ConversationTip.INVITE_TIP:
+			HAManager.getInstance().updateTipAnalyticsUIEvent(AnalyticsConstants.INVITE_TIP_DISMISSED);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOW_INVITE_TIP, false);
 			break;
 		case ConversationTip.RESET_STEALTH_TIP:

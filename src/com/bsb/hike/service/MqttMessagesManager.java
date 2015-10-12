@@ -3312,6 +3312,7 @@ public class MqttMessagesManager
 						saveTipContent(isCritical, !isCritical, false, data.optString(HikeConstants.HEADER, ""),
 										data.optString(HikeConstants.BODY, ""), data.optString(HikeConstants.LABEL, ""));
 						
+						Logger.d("UpdateTipPersistentNotif", "Showing update tip for target version:"+version);
 						editor.putString(HikeConstants.Extras.LATEST_VERSION, version);
 						
 						if (!TextUtils.isEmpty(updateURL))
@@ -3356,6 +3357,7 @@ public class MqttMessagesManager
 						Editor editor = settings.edit();
 						editor.putBoolean(HikeConstants.SHOULD_SHOW_PERSISTENT_NOTIF, true);
 						editor.putString(HikeConstants.Extras.UPDATE_MESSAGE, data.optString(HikeConstants.MESSAGE, ""));
+						Logger.d("UpdateTipPersistentNotif", "Showing persistent notif for target version:"+version);
 						editor.putString(HikeConstants.Extras.LATEST_VERSION, version);
 						editor.putString(HikeConstants.Extras.UPDATE_TITLE, data.optString(HikeConstants.Extras.TITLE, ""));
 						

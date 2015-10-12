@@ -21,6 +21,7 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.timeline.view.StatusUpdate;
 import com.bsb.hike.ui.HomeActivity;
 import com.bsb.hike.ui.PeopleActivity;
@@ -368,11 +369,13 @@ public class ConversationTip implements OnClickListener
 				break;
 			case UPDATE_CRITICAL_TIP:
 			case UPDATE_NORMAL_TIP:
+				HAManager.getInstance().updateTipAnalyticsUIEvent(AnalyticsConstants.UPDATE_TIP_CLICKED);
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOW_NORMAL_UPDATE_TIP, false);
 				Uri url = Uri.parse(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.Extras.URL, "market://details?id=com.bsb.hike"));
 				IntentFactory.openURL(context, url);
 				break;
 			case INVITE_TIP:
+				HAManager.getInstance().updateTipAnalyticsUIEvent(AnalyticsConstants.INVITE_TIP_CLICKED);
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOW_INVITE_TIP, false);
 				IntentFactory.openInviteSMS(context);
 				break;
