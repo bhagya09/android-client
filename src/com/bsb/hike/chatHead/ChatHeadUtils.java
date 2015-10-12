@@ -426,7 +426,6 @@ public class ChatHeadUtils
 				pkgList.getJSONObject(j).put(HikeConstants.ChatHead.APP_ENABLE, toSet);
 			}
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.PACKAGE_LIST, pkgList.toString());
-			ChatHeadUtils.startOrStopService(true);
 		}
 		catch (JSONException e)
 		{

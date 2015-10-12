@@ -2160,14 +2160,12 @@ public class MqttMessagesManager
 			{	
 				boolean chatHeadService = stickerWidgetJSONObj.getBoolean(HikeConstants.ChatHead.CHAT_HEAD_SERVICE);
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.CHAT_HEAD_SERVICE, chatHeadService);
-				ChatHeadUtils.startOrStopService(false);
 			}
 			if (stickerWidgetJSONObj.has(HikeConstants.ChatHead.CHAT_HEAD_USR_CONTROL))
 			{	
 				boolean chatHeadServiceUserControl = stickerWidgetJSONObj.getBoolean(HikeConstants.ChatHead.CHAT_HEAD_USR_CONTROL);
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.CHAT_HEAD_USR_CONTROL, chatHeadServiceUserControl);
 				ChatHeadUtils.setShareEnableForAllApps(chatHeadServiceUserControl);
-				ChatHeadUtils.startOrStopService(false);
 			}
 			if (stickerWidgetJSONObj.has(HikeConstants.ChatHead.STICKERS_PER_DAY))
 			{
@@ -2186,7 +2184,7 @@ public class MqttMessagesManager
 				int dismissCount = stickerWidgetJSONObj.getInt(HikeConstants.ChatHead.DISMISS_COUNT);
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.DISMISS_COUNT, dismissCount);
 			}
-			
+			ChatHeadUtils.startOrStopService(true);
 		}
 		
 		if(data.has(HikeConstants.PROB_NUM_TEXT_MSG))
