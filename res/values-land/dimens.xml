@@ -1,49 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <dimen name="tip_bottom_margin">26dp</dimen>
     <dimen name="emoticon_pallete">190dp</dimen>
-    <dimen name="tell_a_friend_subtext_width">200dp</dimen>
-    <dimen name="free_sms_width">170dp</dimen>
-    <dimen name="free_hike_width">120dp</dimen>
-    <dimen name="micromax_margin">0dp</dimen>
-    <dimen name="hike_tag_width">300dp</dimen>
-    <dimen name="version_item_marginTop">10dp</dimen>
-    
-    <dimen name="gift_box_bottom_width">250dp</dimen>
-	<dimen name="gift_box_bottom_height">250dp</dimen>
-	<dimen name="chat_theme_popup_width">408dp</dimen>
-	<dimen name="chat_theme_popup_height">296dp</dimen>
-	<dimen name="chat_theme_popup_view_width">370dp</dimen>
-	<dimen name="chat_theme_popup_view_height">262dp</dimen>
-	
-	<dimen name="chat_themes_msg_text_padding_right">10dp</dimen>
-	<dimen name="chat_themes_msg_text_padding_top">0dp</dimen>
-	
-	<dimen name="chat_theme_intro_img_height">135dp</dimen>
-	<dimen name="chat_theme_popup_brush_padding_top">24dp</dimen>
-	<dimen name="chat_themes_text_height">35dp</dimen>
-	<dimen name="chat_themes_text_padding_top">11dp</dimen>
-	<dimen name="chat_themes_msg_text_padding_left">10dp</dimen>
-	<dimen name="chat_themes_msg_text_height">37dp</dimen>
-	
-	<dimen name="box_left_fold_width">125dp</dimen>
-	<dimen name="fs_moving_ribbon3_height">98dp</dimen>
-	<dimen name="fs_moving_ribbon2_width">183dp</dimen>
-	<dimen name="fs_moving_ribbon2_height">141dp</dimen>
-	<dimen name="fs_moving_ribbon1_width">150dp</dimen>
-	<dimen name="fs_moving_ribbon1_height">246dp</dimen>
-	<dimen name="gift_card_width">208dp</dimen>
-	<dimen name="gift_card_height">216dp</dimen>
+
+
+
+
 	<dimen name="signup_gender_padding_top">6dp</dimen>
 	<dimen name="signup_gender_drawable_padding">6dp</dimen>
 	<dimen name="signup_header_height">70dp</dimen>
-	<dimen name="addfriend_popup_content_height">128dp</dimen>
 	<dimen name="ftue_card_text_header_font">32dp</dimen>
 	<dimen name="ftue_card_text_msg_font">16dp</dimen>
-	<dimen name="ftue_card_page_indicator_height">15dp</dimen>
-	
-	<dimen name="logo_top_margin">25dp</dimen>
-	<dimen name="welcome_bottom_margin">15dp</dimen>
+
 	<dimen name="festive_popup_width">360dp</dimen>
 	<dimen name="festive_popup_height">270dp</dimen>
 </resources>
