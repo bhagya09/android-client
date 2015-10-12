@@ -386,7 +386,7 @@ public class PlatformUtils
 								json.put(HikePlatformConstants.ERROR_CODE, event.toString());
 								if (zipFileSize > 0)
 								{
-									json.put(AnalyticsConstants.FILE_SIZE, zipFileSize);
+									json.put(AnalyticsConstants.FILE_SIZE, String.valueOf(zipFileSize));
 								}
 								createBotAnalytics(HikePlatformConstants.BOT_CREATION_FAILED, botInfo, json);
 								createBotMqttAnalytics(HikePlatformConstants.BOT_CREATION_FAILED_MQTT, botInfo, json);
@@ -537,7 +537,7 @@ public class PlatformUtils
 							{
 								try
 								{
-									jsonObject.put(AnalyticsConstants.FILE_SIZE, fileLength);
+									jsonObject.put(AnalyticsConstants.FILE_SIZE, String.valueOf(fileLength));
 								}
 								catch (JSONException e)
 								{
