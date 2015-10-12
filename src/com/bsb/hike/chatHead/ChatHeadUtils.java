@@ -395,14 +395,19 @@ public class ChatHeadUtils
 			HikeAlarmManager.cancelAlarm(HikeMessengerApp.getInstance(), HikeAlarmManager.REQUESTCODE_START_STICKER_SHARE_SERVICE); 
 		}
 		
+		if(viewManager == null)
+		{
+			viewManager = ChatHeadViewManager.getInstance(HikeMessengerApp.getInstance().getApplicationContext());
+		}
+		
 		if (useOfAccessibilittyPermitted())
 		{
-			if(viewManager == null)
-			{
-				viewManager = ChatHeadViewManager.getInstance(HikeMessengerApp.getInstance().getApplicationContext());
-			}
 			viewManager.onDestroy();
 			viewManager.onCreate();
+		}
+		else
+		{
+			viewManager.onDestroy();
 		}
 	}
 
