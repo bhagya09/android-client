@@ -1363,4 +1363,25 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 			file.delete();
 		}
 	}
+	/**
+	 * Platform Version 8
+	 * Call this method to decrease the unread counter.
+	 * Can only be called by special bots..
+	 * @param msisdn whose unread count has to be modified.
+	 */
+	@JavascriptInterface
+	public void resetUnreadCounter(String msisdn)
+	{
+		BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
+		if (!BotUtils.isSpecialBot(mBotInfo)||botInfo==null)
+			return;
+		HikeConversationsDatabase.getInstance().resetUnreadCounter(msisdn);
+		Message ms = Message.obtain();
+		ms.arg1 = 0;
+		ms.obj = msisdn;
+		HikeMessengerApp.getPubSub().publish(HikePubSub.CONV_UNREAD_COUNT_MODIFIED, ms);
+		botInfo.setUnreadCount(0);
+		
+	}
+	
 }
