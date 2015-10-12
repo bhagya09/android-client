@@ -21,13 +21,15 @@ import android.webkit.WebView;
 import android.widget.LinearLayout;
 
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.platform.CustomWebView;
 import com.bsb.hike.platform.content.HikeWebClient;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
-public class HikeDialogFragment extends DialogFragment
+public class HikeDialogFragment extends DialogFragment implements HikePubSub.Listener
 {
 	DialogPojo mmModel;
 
@@ -36,6 +38,8 @@ public class HikeDialogFragment extends DialogFragment
 	ProductJavaScriptBridge mmBridge;
 
 	View loadingCard;
+	
+	private String[] pubsub = new String[]{HikePubSub.ANONYMOUS_NAME_SET};
 
 	public static HikeDialogFragment getInstance(DialogPojo productContentModel)
 	{
@@ -78,6 +82,7 @@ public class HikeDialogFragment extends DialogFragment
 		setStyle(STYLE_NO_TITLE, android.R.style.Theme_Holo_Light);
 		}
 		setRetainInstance(true);
+		HikeMessengerApp.getPubSub().addListeners(this, pubsub);
 	}
 
 	@Override
@@ -119,7 +124,14 @@ public class HikeDialogFragment extends DialogFragment
 		loadingCard.setVisibility(View.VISIBLE);
 		return view;
 	}
-
+	
+@Override
+public void onDetach()
+{
+	// TODO Auto-generated method stub
+	super.onDetach();
+	HikeMessengerApp.getPubSub().removeListeners(this, pubsub);
+}
 	/**
 	 * 
 	 * @param supportFragmentManager
@@ -194,6 +206,16 @@ public class HikeDialogFragment extends DialogFragment
 			loadingCard.setVisibility(View.GONE);
 
 		}
+	}
+
+	@Override
+	public void onEventReceived(String type, Object object)
+	{
+		if (type.equals(HikePubSub.ANONYMOUS_NAME_SET))
+		{
+			mmBridge.anonNameSetStatus(object.toString());
+		}
+		
 	}
 
 }

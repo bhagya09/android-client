@@ -25,7 +25,6 @@ import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.models.GroupParticipant;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.timeline.model.StatusMessage;
-import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.NUXManager;
 import com.bsb.hike.utils.PairModified;
@@ -95,6 +94,8 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 	private List<ContactInfo> filteredRecommendedContactsList;
 	
 	private List<BotInfo> microappShowcaseList;
+	
+	private List<BotInfo> filteredMicroAppShowcaseList;
 
 
 	private String existingGroupId;
@@ -134,14 +135,14 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 			List<ContactInfo> filteredHikeContactsList, List<ContactInfo> filteredSmsContactsList, boolean fetchSmsContacts, boolean checkFavTypeInComparision, boolean fetchRecents, boolean fetchRecentlyJoined, boolean showDefaultEmptyList)
 	{
 		this(friendsAdapter, context, friendsList, hikeContactsList, smsContactsList, recentContactsList, recentlyJoinedHikeContactsList,friendsStealthList, hikeStealthContactsList, smsStealthContactsList, recentsStealthList, filteredFriendsList,
-				filteredHikeContactsList, filteredSmsContactsList, null,null, null, null, null, null, null, null, null, false, null, false, fetchSmsContacts, checkFavTypeInComparision, fetchRecents , fetchRecentlyJoined, showDefaultEmptyList, true, true, false, false, null, false);
+				filteredHikeContactsList, filteredSmsContactsList, null,null, null, null, null, null, null, null, null, false, null, false, fetchSmsContacts, checkFavTypeInComparision, fetchRecents , fetchRecentlyJoined, showDefaultEmptyList, true, true, false, false, null,null, false);
 	}
 
 	public FetchFriendsTask(FriendsAdapter friendsAdapter, Context context, List<ContactInfo> friendsList, List<ContactInfo> hikeContactsList, List<ContactInfo> smsContactsList, List<ContactInfo> recentContactsList, List<ContactInfo> recentlyJoinedHikeContactsList,
 			List<ContactInfo> friendsStealthList, List<ContactInfo> hikeStealthContactsList, List<ContactInfo> smsStealthContactsList, List<ContactInfo> recentsStealthList, List<ContactInfo> filteredFriendsList,
 			List<ContactInfo> filteredHikeContactsList, List<ContactInfo> filteredSmsContactsList, List<ContactInfo> groupsList, List<ContactInfo> groupsStealthList, List<ContactInfo> recommendedContactsList, List<ContactInfo> filteredRecommendedContactsList,
 			List<ContactInfo> filteredGroupsList, List<ContactInfo> filteredRecentsList,List<ContactInfo> filteredRecentlyJoinedContactsList, Map<String, ContactInfo> selectedPeople, String sendingMsisdn, boolean fetchGroups, String existingGroupId, boolean creatingOrEditingGrou,
-			boolean fetchSmsContacts, boolean checkFavTypeInComparision, boolean fetchRecents , boolean fetchRecentlyJoined, boolean showDefaultEmptyList, boolean fetchHikeContacts, boolean fetchFavContacts, boolean fetchRecommendedContacts, boolean filterHideList, List<BotInfo> microappShowcaseList, boolean showMicroappShowcase)
+			boolean fetchSmsContacts, boolean checkFavTypeInComparision, boolean fetchRecents , boolean fetchRecentlyJoined, boolean showDefaultEmptyList, boolean fetchHikeContacts, boolean fetchFavContacts, boolean fetchRecommendedContacts, boolean filterHideList, List<BotInfo> microappShowcaseList, List<BotInfo> filteredMicroAppShowcaseList, boolean showMicroappShowcase)
 	{
 		this.friendsAdapter = friendsAdapter;
 
@@ -192,6 +193,7 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 		this.nativeSMSOn = Utils.getSendSmsPref(context);
 		
 		this.microappShowcaseList = microappShowcaseList;
+		this.filteredMicroAppShowcaseList = filteredMicroAppShowcaseList;
 	}
 
 	@Override
@@ -397,14 +399,15 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 		{
 			microappShowcaseList.clear();
 			microappShowcaseList.addAll(HikeContentDatabase.getInstance().getDiscoveryBotInfoList());
+			
+			if (filteredMicroAppShowcaseList != null)
+			{
+				filteredMicroAppShowcaseList.clear();
+				filteredMicroAppShowcaseList.addAll(microappShowcaseList);
+			}
 		}
 		
 		Logger.d("TestQuery", "total time: " + (System.currentTimeMillis() - startTime));
-
-
-
-		
-		
 
 		return null;
 		
@@ -574,6 +577,8 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 		}
 		}
 		friendsAdapter.setListFetchedOnce(true);
+		
+		friendsAdapter.setOriginalMicroAppsCount(microappShowcaseList.size());
 		// We dont need to show contacts in NUX Invite screen
 		if(showDefaultEmptyList)
 		{

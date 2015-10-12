@@ -111,6 +111,8 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 
 	public static final String PLATFORM_TOKEN_SETTING = "platformToken";
 
+	public static final String ANONYMOUS_NAME_SETTING = "anonymousName";
+
 	public static final String RESTORE_ACCOUNT_SETTING = "restore";
 
 	public static final String SIGNUP_COMPLETE = "signup_complete";
@@ -515,6 +517,8 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 	public static final String DEFAULT_TAGS_DOWNLOADED = "defaultTagsDownloaded";
 
 	public static final String STICKER_SET = "stickerSet";
+	
+	public static final String STICKER_REFRESH_SET = "stickerRefreshSet";
 
 	public static final String SHOWN_STICKER_RECOMMEND_TIP = "shownStickerRecommendTip";
 	
@@ -532,6 +536,8 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 
 	public static final String LAST_STICKER_TAG_REFRESH_TIME = "lastStickerTagRefreshTime";
 
+	public static final String LAST_SUCCESSFUL_STICKER_TAG_REFRESH_TIME = "lastSuccessfulStickerTagRefreshTime";
+	
 	public static final String STICKER_TAG_REFRESH_PERIOD = "stickerTagRefreshPeriod";
 	
 	public static final String SHOWN_STICKER_RECOMMEND_FTUE = "shownStickerRecommendationFtue";
@@ -1013,7 +1019,7 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 		HikeSharedPreferenceUtil prefs = HikeSharedPreferenceUtil.getInstance();
 		if (prefs.getData(HikeMessengerApp.PLATFORM_UID_SETTING, null) == null && prefs.getData(HikeMessengerApp.PLATFORM_TOKEN_SETTING, null) == null)
 		{
-			PlatformUIDFetch.fetchPlatformUid(HikePlatformConstants.PlatformUIDFetchType.SELF);
+			PlatformUIDFetch.fetchPlatformUid(HikePlatformConstants.PlatformFetchType.SELF);
 		}
 	}
 

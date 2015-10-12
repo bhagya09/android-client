@@ -1,5 +1,7 @@
 package com.bsb.hike.platform.bridge;
 
+import java.io.File;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -22,16 +24,23 @@ import com.bsb.hike.bots.NonMessagingBotConfiguration;
 import com.bsb.hike.bots.NonMessagingBotMetadata;
 import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.db.HikeConversationsDatabase;
+import com.bsb.hike.modules.httpmgr.RequestToken;
+import com.bsb.hike.modules.httpmgr.request.FileRequestPersistent;
 import com.bsb.hike.platform.CustomWebView;
 import com.bsb.hike.platform.GpsLocation;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformHelper;
 import com.bsb.hike.platform.PlatformUtils;
+import com.bsb.hike.platform.content.PlatformContentConstants;
+import com.bsb.hike.platform.content.PlatformZipDownloader;
 import com.bsb.hike.ui.GalleryActivity;
 import com.bsb.hike.ui.WebViewActivity;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 /**
  * API bridge that connects the javascript to the non-messaging Native environment. Make the instance of this class and add it as the
@@ -707,12 +716,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	@JavascriptInterface
 	public void deleteEvent(String eventId)
 	{
-		if (TextUtils.isEmpty(eventId))
-		{
-			Logger.e(TAG, "event can't be deleted as the event id is " + eventId);
-			return;
-		}
-		HikeConversationsDatabase.getInstance().deleteEvent(eventId);
+		PlatformHelper.deleteEvent(eventId);
 	}
 
 	/**
@@ -724,12 +728,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	@JavascriptInterface
 	public void deleteAllEventsForMessage(String messageHash)
 	{
-		if (TextUtils.isEmpty(messageHash))
-		{
-			Logger.e(TAG, "the events corresponding to the message hash can't be deleted as the message hash is " + messageHash);
-			return;
-		}
-		HikeConversationsDatabase.getInstance().deleteAllEventsForMessage(messageHash);
+		PlatformHelper.deleteAllEventsForMessage(messageHash);
 	}
 
 	/**
@@ -982,7 +981,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	@JavascriptInterface
 	public void postStatusUpdate(String status, String moodId)
 	{
-		postStatusUpdate(status, moodId, null);
+		PlatformHelper.postStatusUpdate(status, moodId, null);
 	}
 	
 	/**
@@ -1032,19 +1031,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	@JavascriptInterface
 	public void postStatusUpdate(String status, String moodId, String imageFilePath)
 	{
-		int mood;
-		
-		try
-		{
-			mood = Integer.parseInt(moodId);
-		}
-		catch(NumberFormatException e)
-		{
-			Logger.e(tag, "moodId to postStatusUpdate should be a number.");
-			mood = -1;
-		}
-		
-		Utils.postStatusUpdate(status, mood, imageFilePath);
+		PlatformHelper.postStatusUpdate(status,moodId,imageFilePath);
 	}
 
 	/**
@@ -1268,12 +1255,14 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	 * This function is made for the special Shared bot that has the information about some other bots as well, and acts as a channel for them.
 	 * Call this function to get the bot version.
 	 * @param id: the id of the function that native will call to call the js .
+	 * returns -1 if bot not exists
 	 */
 	@JavascriptInterface
 	public void getBotVersion(String id, String msisdn)
 	{
 		if (!BotUtils.isSpecialBot(mBotInfo) || !BotUtils.isBot(msisdn))
 		{
+			callbackToJS(id,"-1");
 			return;
 		}
 
@@ -1297,6 +1286,81 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 		});
 
 	}
+	
+	/**
+	 * Platform Version 8
+	 * This function is made for a bot to know whether its directory exists.
+	 * @param id: the id of the function that native will call to call the js .
+	 */
+	@JavascriptInterface
+	public void isMicroappExist(String id)
+	{
+		NonMessagingBotMetadata nonMessagingBotMetadata = new NonMessagingBotMetadata(mBotInfo.getMetadata());
+		File file = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + nonMessagingBotMetadata.getAppName());
+		if (file.exists())
+			callbackToJS(id, "true");
+		else
+			callbackToJS(id, "false");
+	}
+	/**
+	 * Platform Version 8
+	 * This function is made for a special bot to know whether a microapp exists.
+	 * @param id: the id of the function that native will call to call the js .
+	 * @param mapp: the name of the mapp.
+	 */
+	@JavascriptInterface
+	public void isMicroappExist(String id, String mapp)
+	{
+		if (!BotUtils.isSpecialBot(mBotInfo))
+		{
+			return;
+		}
+		File file = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + mapp);
+		if (file.exists())
+			callbackToJS(id, "true");
+		else
+			callbackToJS(id, "false");
+	}
 
-
+	/**
+	 * Platform Version 8
+	 * This function is made for the special Shared bot that has the information about some other bots as well, and acts as a channel for them.
+	 * Call this method to cancel the request that the Bot has initiated to do some http /https call.
+	 * @param functionId : the id of the function that native will call to call the js .
+	 * @param url: the url of the call that needs to be cancelled.
+	 */
+	@JavascriptInterface
+	public void cancelRequest(String functionId, String url)
+	{
+		if (!BotUtils.isSpecialBot(mBotInfo))
+		{
+			callbackToJS(functionId, "false");
+			return;
+		}
+		RequestToken token = PlatformZipDownloader.getCurrentDownloadingRequests().get(url);
+		if (null != token)
+		{
+			callbackToJS(functionId, "true");
+			token.cancel();
+		}
+		else
+		{
+			callbackToJS(functionId, "false");
+		}
+	}
+	/**
+	 * Platform Version 8
+	 * Call this method to remove resume for an app
+	 */
+	@JavascriptInterface
+	public void removeStateFile(String app)
+	{
+		if (!BotUtils.isSpecialBot(mBotInfo))
+			return;
+		File file = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + app+FileRequestPersistent.STATE_FILE_EXT);
+		if (file.exists())
+		{
+			file.delete();
+		}
+	}
 }

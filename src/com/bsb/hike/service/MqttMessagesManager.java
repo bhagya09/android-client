@@ -67,6 +67,7 @@ import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.models.MessageMetadata;
 import com.bsb.hike.models.MessagePrivateData;
 import com.bsb.hike.models.Protip;
+import com.bsb.hike.models.Sticker;
 import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.models.TypingNotification;
 import com.bsb.hike.models.WhitelistDomain;
@@ -81,6 +82,7 @@ import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
+import com.bsb.hike.modules.stickerdownloadmgr.SingleStickerDownloadTask;
 import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
 import com.bsb.hike.modules.stickersearch.provider.StickerSearchUtility;
@@ -705,6 +707,7 @@ public class MqttMessagesManager
 
 		messageProcessVibrate(convMessage);
 		messageProcessFT(convMessage);
+		messageProcessSticker(convMessage);
 		messageProcessStickerRecommendation(convMessage);
 
 		if (convMessage.isOneToNChat() && convMessage.getParticipantInfoState() == ParticipantInfoState.NO_INFO)
@@ -839,6 +842,23 @@ public class MqttMessagesManager
 		convMessage.setTimestamp(Utils.applyServerTimeOffset(context, convMessage.getTimestamp()));
 
 		return convMessage;
+	}
+	
+	/**
+	 * This function download sticker if not already downloaded
+	 */
+	private void messageProcessSticker(ConvMessage convMessage)
+	{
+		if (convMessage.isStickerMessage())
+		{
+			Sticker sticker = convMessage.getMetadata().getSticker();
+			
+			if(!StickerManager.getInstance().isStickerExists(sticker.getCategoryId(), sticker.getStickerId()))
+			{
+				SingleStickerDownloadTask singleStickerDownloadTask = new SingleStickerDownloadTask(sticker.getStickerId(), sticker.getCategoryId(), convMessage);
+				singleStickerDownloadTask.execute();
+			}
+		}
 	}
 
 	/**
@@ -2610,6 +2630,16 @@ public class MqttMessagesManager
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.BOTS_DISCOVERY_SECTION, sectionName);
 			}
 		}
+
+		if (data.has(HikeConstants.NEW_CHAT_RED_DOT))
+		{
+			boolean shouldShowRedDot = data.optBoolean(HikeConstants.NEW_CHAT_RED_DOT);
+			if (shouldShowRedDot)
+			{
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.NEW_CHAT_RED_DOT, true);
+				HikeMessengerApp.getPubSub().publish(HikePubSub.SHOW_NEW_CHAT_RED_DOT, null);
+			}
+		}
 		
 		editor.commit();
 		this.pubSub.publish(HikePubSub.UPDATE_OF_MENU_NOTIFICATION, null);
@@ -3582,6 +3612,8 @@ public class MqttMessagesManager
 		for (ConvMessage convMessage : messageList)
 		{
 			messageProcessFT(convMessage);
+			messageProcessSticker(convMessage);
+			messageProcessStickerRecommendation(convMessage);
 		}
 
 		/*

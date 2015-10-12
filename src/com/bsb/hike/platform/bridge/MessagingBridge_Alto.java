@@ -8,6 +8,7 @@ import android.text.TextUtils;
 import android.webkit.JavascriptInterface;
 import android.widget.BaseAdapter;
 
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.adapters.ConversationsAdapter;
@@ -850,12 +851,14 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 	 * Platform Version 7
 	 * Call this function to get the parent bot version.
 	 * @param id: the id of the function that native will call to call the js .
+	 * returns -1 if bot not exists
 	 */
 	@JavascriptInterface
 	public void getParentBotVersion(String id)
 	{
 		if (!BotUtils.isBot(message.webMetadata.getParentMsisdn()))
 		{
+			callbackToJS(id,"-1");
 			return;
 		}
 

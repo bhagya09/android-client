@@ -47,12 +47,14 @@ import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
+import com.bsb.hike.modules.httpmgr.request.FileRequestPersistent;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.platform.CustomWebView;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.IFileUploadListener;
 import com.bsb.hike.platform.PlatformHelper;
+import com.bsb.hike.platform.PlatformUIDFetch;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.platform.content.PlatformContentConstants;
@@ -1210,6 +1212,68 @@ public abstract class JavascriptBridge
 			HikeDialogFactory.showDialog(mContext, HikeDialogFactory.MICROAPP_DIALOG, nativeDialogListener, title, message, positiveBtn, negativeBtn);
 		}
 	}
+	/**
+	 * Added in Platform Version 8. Call this function to set anon name
+	 * @param name
+	 */
+	@JavascriptInterface
+	public void setAnonName(String name)
+	{
+		if(!TextUtils.isEmpty(name))
+		{
+			PlatformUIDFetch.fetchPlatformUid(HikePlatformConstants.PlatformFetchType.SELF_ANONYMOUS_NAME,name);
+		}
+	}
+	/**
+	 * Added in Platform Version 8. Call this function to get anon name if exists,else will return null string.
+	 * @param id
+	 */
+	@JavascriptInterface
+	public void getAnonName(String id)
+	{
+		String anonName=HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.ANONYMOUS_NAME_SETTING,"");
+		callbackToJS(id, anonName);
+	}
+	
 
+	/**
+	 * Platform Version 8
+	 * This method is used to show a native popup with a WebView rendered within it.
+	 * contentData must have cardObj. Inside cardObj, ld must be present and should be a JSONObject.
+	 * @param contentData
+	 */
+	@JavascriptInterface
+	public void showPopup(final String contentData)
+	{
+		mHandler.post(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				PlatformHelper.showPopup(contentData, weakActivity.get());
+			}
+		});
+	}
+	/**
+	 * Platform Version 8
+	 * Call this method to get the status of app download
+	 * @param id
+	 * @param app The app name
+	 * [ <total-downloaded-bytes> , <progress> , <original downloaded file path>, <url from which it was downloaded> ]
+	 * returns empty string if download not yet started
+	 */
+	@JavascriptInterface
+	public void readPartialDownloadState(String id,String app)
+	{
+		String filePath=PlatformContentConstants.PLATFORM_CONTENT_DIR+app+FileRequestPersistent.STATE_FILE_EXT;
+		String data[]=PlatformUtils.readPartialDownloadState(filePath);
+		if(data==null)
+		{
+			callbackToJS(id,"");
+			return;
+		}
+		callbackToJS(id, data.toString());
+	}
+	
 
 }
