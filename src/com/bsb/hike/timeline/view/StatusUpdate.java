@@ -530,7 +530,12 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 			statusImage.setImageDrawable(bmpDrawable);
 			ChatThreadUtils.applyMatrixTransformationToImageView(bmpDrawable, statusImage);
 			statusImage.invalidate();
-			statusTxt.setHint(R.string.status_hint_image);
+			
+			if(mActivityTask.moodId == -1)
+			{
+				statusTxt.setHint(R.string.status_hint_image);
+			}
+			
 			btnRemovePhoto.setVisibility(View.VISIBLE);
 			mActivityTask.imageDeleted = false;
  		}
