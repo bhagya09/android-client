@@ -475,11 +475,17 @@ public class VoIPService extends Service {
 				VoIPUtils.sendMissedCallNotificationToPartner(msisdn, 
 						TextUtils.isEmpty(cl.groupChatMsisdn) ? null : cl.groupChatMsisdn);
 
-				// Send message to voip activity
-				Bundle bundle = new Bundle();
-				bundle.putString(VoIPConstants.MSISDN, msisdn);
-				sendHandlerMessage(VoIPConstants.MSG_PARTNER_BUSY, bundle);
-				removeFromClients(msisdn);
+				new Handler().postDelayed(new Runnable() {
+					
+					@Override
+					public void run() {
+						// Send message to voip activity
+						Bundle bundle = new Bundle();
+						bundle.putString(VoIPConstants.MSISDN, msisdn);
+						sendHandlerMessage(VoIPConstants.MSG_PARTNER_BUSY, bundle);
+						removeFromClients(msisdn);
+					}
+				}, VoIPConstants.SERVICE_To_ACTIVITY_ERR_MESSAGE_DELAY);
 			} else
 				Logger.w(tag, "Unable to find the client object who we were calling.");
 		}
@@ -498,17 +504,24 @@ public class VoIPService extends Service {
 					bundle.putString(VoIPConstants.MSISDN, msisdn);
 					sendHandlerMessage(VoIPConstants.MSG_PARTNER_INCOMPATIBLE_PLATFORM, bundle);
 				}
-			}, 2000);
+			}, VoIPConstants.SERVICE_To_ACTIVITY_ERR_MESSAGE_DELAY);
 		}
 		
 		// Recipient is on an unsupported, but upgradable build
 		if (action.equals(HikeConstants.MqttMessageTypes.VOIP_ERROR_CALLEE_INCOMPATIBLE_UPGRADABLE)) {
 			Logger.w(tag, msisdn + " needs to upgrade.");
 			sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CONNECTION_FAILED, VoIPConstants.CallFailedCodes.PARTNER_UPGRADE);
-			removeFromClients(msisdn);
-			Bundle bundle = new Bundle();
-			bundle.putString(VoIPConstants.MSISDN, msisdn);
-			sendHandlerMessage(VoIPConstants.MSG_PARTNER_UPGRADABLE_PLATFORM, bundle);
+			
+			new Handler().postDelayed(new Runnable() {
+				
+				@Override
+				public void run() {
+					removeFromClients(msisdn);
+					Bundle bundle = new Bundle();
+					bundle.putString(VoIPConstants.MSISDN, msisdn);
+					sendHandlerMessage(VoIPConstants.MSG_PARTNER_UPGRADABLE_PLATFORM, bundle);
+				}
+			}, VoIPConstants.SERVICE_To_ACTIVITY_ERR_MESSAGE_DELAY);
 		}
 		
 		// Incoming call message
