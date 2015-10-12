@@ -48,6 +48,7 @@ import android.widget.Toast;
 import com.bsb.hike.R;
 import com.bsb.hike.BitmapModule.BitmapUtils;
 import com.bsb.hike.cropimage.HikeCropFragment.HikeCropListener;
+import com.bsb.hike.photos.HikePhotosUtils;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.Logger;
 
@@ -104,8 +105,7 @@ public class HikeCropActivity extends HikeAppStateBaseFragmentActivity
 		{
 			Toast.makeText(this, getResources().getString(R.string.image_failed), Toast.LENGTH_LONG).show();
 			Logger.e(TAG, "Unable to open bitmap");
-			setResult(RESULT_CANCELED);
-			finish();
+			onCropFailed();
 			return;
 		}
 
@@ -121,6 +121,7 @@ public class HikeCropActivity extends HikeAppStateBaseFragmentActivity
 			public void onFailed()
 			{
 				Logger.e(TAG, "Crop failed");
+				onCropFailed();
 			}
 		}, mSrcImagePath);
 
@@ -183,9 +184,14 @@ public class HikeCropActivity extends HikeAppStateBaseFragmentActivity
 		catch (IOException e)
 		{
 			e.printStackTrace();
-			setResult(RESULT_CANCELED);
-			finish();
+			onCropFailed();
 		}
+	}
+	
+	private void onCropFailed()
+	{
+		setResult(RESULT_CANCELED);
+		finish();
 	}
 
 	/**
@@ -234,18 +240,7 @@ public class HikeCropActivity extends HikeAppStateBaseFragmentActivity
 			scaleTransformation.setScale(s1, s1);
 		}
 		
-		float[] colorTransform = {
-	            1, 0, 0, 0, 0,
-	            0, 1, 0, 0, -5f,
-	            0, 0, 1, 0, 0,
-	            0, 0, 0, 1, 0 
-	            };
-
-	    ColorMatrix colorMatrix = new ColorMatrix();
-	    colorMatrix.setSaturation(0f); //Remove Colour 
-	    colorMatrix.set(colorTransform); //Apply the Red
-
-	    ColorMatrixColorFilter colorFilter = new ColorMatrixColorFilter(colorMatrix);
+	    ColorMatrixColorFilter colorFilter = HikePhotosUtils.getGreenDownShiftFilter();
 		
 		argBmp.setHasAlpha(true);
 
@@ -282,6 +277,7 @@ public class HikeCropActivity extends HikeAppStateBaseFragmentActivity
 		catch (OutOfMemoryError exception)
 		{
 			exception.printStackTrace();
+			onCropFailed();
 		}
 		
 		return scaledBitmap;

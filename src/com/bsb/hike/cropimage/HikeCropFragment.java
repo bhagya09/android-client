@@ -115,6 +115,7 @@ public class HikeCropFragment extends Fragment
 		catch (IOException e)
 		{
 			e.printStackTrace();
+			mListener.onFailed();
 		}
 
 		// Rotate button
