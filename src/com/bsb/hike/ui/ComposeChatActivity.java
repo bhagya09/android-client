@@ -722,6 +722,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 	protected void onPause()
 	{
 		KptUtils.pauseKeyboardResources(mCustomKeyboard, tagEditText, searchET);
+		KptUtils.updatePadding(ComposeChatActivity.this, R.id.ll_compose, 0);
 		
 		super.onPause();
 		if(adapter != null)
@@ -734,16 +735,13 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 	protected void onResume()
 	{
 		// TODO Auto-generated method stub
-		if (searchMenuItem != null && searchMenuItem.isActionViewExpanded())
-		{
 			if (!KptUtils.isSystemKeyboard(ComposeChatActivity.this))
 			{
-				if (mCustomKeyboard != null && searchET != null)
+				if (mCustomKeyboard != null &&findViewById(R.id.composeChatNewGroupTagET).getVisibility()==View.VISIBLE&& tagEditText != null)
 				{
-					mCustomKeyboard.showCustomKeyboard(searchET, true);
+					mCustomKeyboard.showCustomKeyboard(tagEditText, true);
 				}
 			}
-		}
 		super.onResume();
 		if(adapter != null)
 		{
@@ -2490,7 +2488,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			setResult(RESULT_CANCELED,getIntent());
 			this.finish();
 		}
-		if (mCustomKeyboard != null && mCustomKeyboard.isCustomKeyboardVisible())
+		if (mCustomKeyboard != null && mCustomKeyboard.isCustomKeyboardVisible()&&findViewById(R.id.composeChatNewGroupTagET).getVisibility()==View.VISIBLE)
 		{
 			mCustomKeyboard.showCustomKeyboard(tagEditText, false);
 			KptUtils.updatePadding(ComposeChatActivity.this, R.id.ll_compose, 0);
@@ -2875,6 +2873,23 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 					}
 	 			}
 	 		});
+			MenuItemCompat.setOnActionExpandListener(searchMenuItem, new MenuItemCompat.OnActionExpandListener()
+			{
+
+				@Override
+				public boolean onMenuItemActionCollapse(MenuItem arg0)
+				{
+					adapter.removeFilter();
+					return true;
+				}
+
+				@Override
+				public boolean onMenuItemActionExpand(MenuItem arg0)
+				{
+					return true;
+				}
+				
+			});
 
 		}
 	}
@@ -2897,13 +2912,16 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 	@Override
 	public void onInputviewVisbility(boolean kptVisible, int height)
 	{
-		if (kptVisible)
+		if (findViewById(R.id.composeChatNewGroupTagET).getVisibility() == View.VISIBLE)
 		{
-			KptUtils.updatePadding(ComposeChatActivity.this, R.id.ll_compose, height);
-		}
-		else
-		{
-			KptUtils.updatePadding(ComposeChatActivity.this, R.id.ll_compose, 0);
+			if (kptVisible)
+			{
+				KptUtils.updatePadding(ComposeChatActivity.this, R.id.ll_compose, height);
+			}
+			else
+			{
+				KptUtils.updatePadding(ComposeChatActivity.this, R.id.ll_compose, 0);
+			}
 		}
 	}
 

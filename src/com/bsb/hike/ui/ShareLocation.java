@@ -15,6 +15,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -46,6 +47,7 @@ import android.support.v7.widget.Toolbar;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.BitmapModule.BitmapUtils;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
@@ -980,6 +982,14 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 		// TODO Auto-generated method stub
 		finish();
 	}
+	public void onConfigurationChanged(Configuration newConfig)
+	{
+		if (mCustomKeyboard != null)
+		{
+			mCustomKeyboard.onConfigurationChanged(newConfig);
+		}
+		super.onConfigurationChanged(newConfig);
+	}
 	public void onBackKeyPressedET(CustomFontEditText editText)
 	{
 		if(mCustomKeyboard!=null && searchET!=null)
@@ -1000,8 +1010,11 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 	}
 
 	@Override
-	public void onInputviewVisbility(boolean arg0, int arg1) {
-		// TODO Auto-generated method stub
+	public void onInputviewVisbility(boolean kptVisible, int height) {
+		if (kptVisible)
+		{
+			KptUtils.updatePadding(ShareLocation.this,R.id.screen, height);
+		}
 		
 	}
 

@@ -1739,6 +1739,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		}
 		else
 		{
+			
+        	mCustomKeyboard.registerEditText(searchEt, KPTConstants.MULTILINE_LINE_EDITOR, ChatThread.this, ChatThread.this);
 			mCustomKeyboard.showCustomKeyboard(searchEt, true);
 		}
 		
@@ -1759,7 +1761,9 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	}
 	
 	public void hideKeyboard(){
-		if (mCustomKeyboard!=null && mCustomKeyboard.isCustomKeyboardVisible())
+		if(KptUtils.isSystemKeyboard(activity)){
+			Utils.hideSoftKeyboard(activity, mComposeView);
+		}else if (mCustomKeyboard!=null && mCustomKeyboard.isCustomKeyboardVisible())
 		{
 			mCustomKeyboard.showCustomKeyboard(mComposeView, false); 
 			KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, 0);
@@ -5975,7 +5979,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		/**
 		 * Hiding soft keyboard
 		 */
-		Utils.hideSoftKeyboard(activity, mComposeView);
+		hideKeyboard();
 		setUpThemePicker();
 		themePicker.showThemePicker(activity.findViewById(R.id.attachment_anchor), currentTheme,footerTextId, activity.getResources().getConfiguration().orientation);
 	}

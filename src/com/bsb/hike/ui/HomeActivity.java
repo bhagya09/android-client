@@ -707,7 +707,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 							}
 						}
 					}else{
-						if (!KptUtils.isSystemKeyboard(HomeActivity.this))
+						if (!KptUtils.isSystemKeyboard(HomeActivity.this) && searchET != null)
 						{
 							mCustomKeyboard.showCustomKeyboard(searchET, false);
 						}

@@ -310,7 +310,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 	protected void onResume()
 	{
 		super.onResume();
-		showKeyboard();
+		showKeyboard(false);
 		if (statusImage != null && statusImage.getDrawable() != null)
 		{
 			ChatThreadUtils.applyMatrixTransformationToImageView(statusImage.getDrawable(), statusImage);
@@ -739,6 +739,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 	protected void onPause()
 	{
 		KptUtils.pauseKeyboardResources(mCustomKeyboard);
+		KptUtils.updatePadding(StatusUpdate.this, R.id.parent_layout, 0);
 		super.onPause();
 	}
 	
@@ -772,7 +773,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 			break;
 		case R.id.status_txt:
 			setEmoticonButtonSelected(false);
-			showKeyboard();
+			showKeyboard(true);
 			break;
 		default:
 			Logger.e(TAG, "onClick Registered but not added in onClick : " + v.toString());
@@ -975,8 +976,10 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		
 	}
 	
-	private void showKeyboard()
+	private void showKeyboard(boolean directClick)
 	{
+		if (!(getIntent().hasExtra(STATUS_UPDATE_IMAGE_PATH))||directClick)
+		{
 		if (systemKeyboard)
 		{
 			statusTxt.setFocusable(true);
@@ -987,6 +990,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		{
 			mCustomKeyboard.showCustomKeyboard(statusTxt, true);
 			KptUtils.updatePadding(StatusUpdate.this, R.id.parent_layout, (keyboardHeight == 0) ? mCustomKeyboard.getKeyBoardAndCVHeight() : keyboardHeight);
+		}
 		}
 	}
 	
