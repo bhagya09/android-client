@@ -375,15 +375,15 @@ public class StickerSearchManager
 		}
 	}
 
-	public void downloadStickerTags(boolean firstTime)
+	public void downloadStickerTags(boolean firstTime, int state)
 	{
-		InitiateStickerTagDownloadTask stickerTagDownloadTask = new InitiateStickerTagDownloadTask(firstTime);
+		InitiateStickerTagDownloadTask stickerTagDownloadTask = new InitiateStickerTagDownloadTask(firstTime, state);
 		searchEngine.runOnQueryThread(stickerTagDownloadTask);
 	}
 
-	public void insertStickerTags(JSONObject json, int trialValue)
+	public void insertStickerTags(JSONObject json, int state)
 	{
-		StickerTagInsertTask stickerInsertTask = new StickerTagInsertTask(json, trialValue);
+		StickerTagInsertTask stickerInsertTask = new StickerTagInsertTask(json, state);
 		searchEngine.runOnQueryThread(stickerInsertTask);
 	}
 

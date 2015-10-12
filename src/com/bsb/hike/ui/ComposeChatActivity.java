@@ -2444,13 +2444,6 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		@Override
 		public void listFetched()
 		{
-//			if(getIntent().getBooleanExtra(HikeConstants.Extras.SELECT_ALL_INITIALLY, false))
-//			{
-//				View selectAllCont = findViewById(R.id.select_all_container);
-//				CheckBox cb = (CheckBox) selectAllCont.findViewById(R.id.select_all_cb);
-//				cb.setChecked(true);
-//			}
-
 			if (PreferenceManager.getDefaultSharedPreferences(ComposeChatActivity.this).getBoolean(HikeConstants.LAST_SEEN_PREF, true))
 			{
 				lastSeenScheduler = LastSeenScheduler.getInstance(ComposeChatActivity.this);
