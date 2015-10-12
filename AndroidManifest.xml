@@ -534,7 +534,7 @@
         <!-- ContentProvider -->
         <provider
             android:name="com.bsb.hike.ag.NetworkAgProvider"
-            android:authorities="com.bsb.hike.agoop.NetworkTestModuleProvider"
+            android:authorities="@string/ag_authority"
             android:exported="true" />
         <!-- ag -->
         
