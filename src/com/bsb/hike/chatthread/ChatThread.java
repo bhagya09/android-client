@@ -4181,7 +4181,9 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		{
 			if (isSystemKeyboard())
 			{
-				Utils.showSoftKeyboard(activity, mComposeView);
+				changeKeyboard(isSystemKeyboard());
+				activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+				Utils.showSoftKeyboard(mComposeView, InputMethodManager.SHOW_FORCED);
 				KptUtils.updatePadding(activity, R.id.msg_compose, 0);
 			}
 			else
@@ -4191,6 +4193,10 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		}
 		else
 		{
+			if (isSystemKeyboard())
+			{
+				changeKeyboard(isSystemKeyboard());
+			}
 			KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, 0);
 		}
 	}
