@@ -3009,17 +3009,17 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 	}
 	
 
-	public List<ConvMessage> getConversationThread(String msisdn, int limit, Conversation conversation, long maxMsgId, long minMsgId)
+	public List<ConvMessage> getConversationThread(String msisdn, int limit, Conversation conversation, long maxSortId, long minSortId)
 	{
 		String limitStr = (limit == -1) ? null : new Integer(limit).toString();
 		String selection = DBConstants.MSISDN + " = ?";
-		if (maxMsgId != -1)
+		if (maxSortId != -1)
 		{
-			selection = selection + " AND " + DBConstants.MESSAGE_ID + "<" + maxMsgId;
+			selection = selection + " AND " + DBConstants.SORTING_ID + "<" + maxSortId;
 		}
-		if (minMsgId != -1)
+		if (minSortId != -1)
 		{
-			selection = selection + " AND " + DBConstants.MESSAGE_ID + ">" + minMsgId;
+			selection = selection + " AND " + DBConstants.SORTING_ID + ">" + minSortId;
 		}
 		Cursor c = null;
 		try
