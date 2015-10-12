@@ -5,8 +5,8 @@
     android:installLocation="auto"
 
     android:versionCode="1455"
-    android:versionName="4.0.7.20.1.sticker_recommendation" >
-    
+    android:versionName="4.0.7.21" >
+
     <uses-sdk
         android:minSdkVersion="14"
         android:targetSdkVersion="17"/>
