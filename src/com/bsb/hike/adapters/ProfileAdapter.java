@@ -665,15 +665,15 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 				viewHolder.infoContainer.findViewById(R.id.owner_indicator_text).setVisibility(View.VISIBLE);
 			}
 			//else if Already a Member ----> show nothing
-			else if(groupParticipant.getType() == GroupParticipant.Participant_Type.MEMBER)
-			{
-				viewHolder.infoContainer.setVisibility(View.GONE);
-			}
 			//else It a SMS member ----> show waiting
 			else if(groupParticipant.isSMSGroupMember())
 			{
 				viewHolder.infoContainer.setVisibility(View.VISIBLE);
 				viewHolder.infoContainer.findViewById(R.id.sms_member_indicator_text).setVisibility(View.VISIBLE);
+			}
+			else if(groupParticipant.getType() == GroupParticipant.Participant_Type.MEMBER)
+			{
+				viewHolder.infoContainer.setVisibility(View.GONE);
 			}
 						
 			String groupParticipantName = groupParticipants.getSecond();
