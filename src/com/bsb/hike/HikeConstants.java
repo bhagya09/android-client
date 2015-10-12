@@ -2559,6 +2559,7 @@ public class HikeConstants
 
 		/**
 		 * The person you are calling has blocked you.
+		 * This is unused. 
 		 */
 		public static final String VOIP_ERROR_CALLEE_HAS_BLOCKED_YOU = "e2";
 
