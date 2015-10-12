@@ -1012,11 +1012,7 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 		
 		// Moving the shared pref stored in account prefs to the default prefs.
 		// This is done because previously we were saving shared pref for caller in accountutils but now using default settings prefs
-		if (HikeSharedPreferenceUtil.getInstance().contains(StickyCaller.SHOW_STICKY_CALLER))
-		{
-			Utils.setSharedPrefValue(this, StickyCaller.SHOW_STICKY_CALLER, HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.SHOW_STICKY_CALLER, false));
-			HikeSharedPreferenceUtil.getInstance().removeData(StickyCaller.SHOW_STICKY_CALLER);
-		}
+        // On a long run this should be deleted 
 		if (HikeSharedPreferenceUtil.getInstance().contains(HikeConstants.ACTIVATE_STICKY_CALLER_PREF))
 		{
 			Utils.setSharedPrefValue(this, HikeConstants.ACTIVATE_STICKY_CALLER_PREF,
