@@ -396,7 +396,7 @@ public class Utils
 		return obj;
 	}
 
-	public static boolean isIndianNumber(String number)
+	public static boolean isIndianMobileNumber(String number)
 	{
 		//13 is the number of chars in the phone msisdn 
 		if (number != null && (number.startsWith("+919") || number.startsWith("+918") || number.startsWith("+917")) && number.length() == 13)
@@ -405,6 +405,18 @@ public class Utils
 		}
 		return false;
 	}
+	
+	public static boolean isIndianNumber(String number)
+	{
+		//13 is the number of chars in the phone msisdn 
+		if (number != null && number.startsWith("+91"))
+		{
+			return true;
+		}
+		return false;
+	}
+	
+	
 	
 	
 	static final private int ANIMATION_DURATION = 400;

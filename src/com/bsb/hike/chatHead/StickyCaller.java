@@ -569,7 +569,7 @@ public class StickyCaller
 		{
 			setValueOnID(R.id.caller_location, INDIA);
 		}
-		if ((Utils.isIndianNumber(number) && HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.SHOW_FREECALL_VIEW, true)) || Utils.isOnHike(number))
+		if ((Utils.isIndianMobileNumber(number) && HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.SHOW_FREECALL_VIEW, true)) || Utils.isOnHike(number))
 		{
 			stickyCallerView.findViewById(R.id.missed_call_free_divider).setVisibility(View.VISIBLE);
 
@@ -614,7 +614,7 @@ public class StickyCaller
 		{
 			setValueOnID(R.id.caller_location, INDIA);
 		}
-		if ((Utils.isIndianNumber(number) && HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.SHOW_FREECALL_VIEW, true)) || Utils.isOnHike(number))
+		if ((Utils.isIndianMobileNumber(number) && HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.SHOW_FREECALL_VIEW, true)) || Utils.isOnHike(number))
 		{
 			setDismissWithVisible();
 			
@@ -731,7 +731,7 @@ public class StickyCaller
 		{
 			setValueOnID(R.id.caller_location, INDIA);
 		}
-		if ((callerContentModel != null && callerContentModel.getIsOnHike()) || (Utils.isIndianNumber(number) && HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.SHOW_FREECALL_VIEW, true)))
+		if ((callerContentModel != null && callerContentModel.getIsOnHike()) || (Utils.isIndianMobileNumber(number) && HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.SHOW_FREECALL_VIEW, true)))
 		{
 			setFreeCallButton(number);
 
@@ -798,7 +798,7 @@ public class StickyCaller
 		{
 			setValueOnID(R.id.caller_location, INDIA);
 		}
-		if ((callerContentModel != null && callerContentModel.getIsOnHike()) || (Utils.isIndianNumber(number) && HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.SHOW_FREECALL_VIEW, true)))
+		if ((callerContentModel != null && callerContentModel.getIsOnHike()) || (Utils.isIndianMobileNumber(number) && HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.SHOW_FREECALL_VIEW, true)))
 		{
 			setDismissWithVisible();
 			
