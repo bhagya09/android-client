@@ -111,6 +111,10 @@ public class HikeStickerSearchBaseConstants
 
 	public static final String STICKER_TAG_MAPPING_INDEX = "stickerTagMappingIndex";
 
+	public static final String STICKER_TAG_KEYBOARD_ISO = "stickerTagKeyboardISO";
+
+	public static final String STICKER_TAG_KEYBOARD_ISO_DEFAULT = "Latn";
+
 	// Table: TABLE_TAG_SEARCH_*X, where *X is dynamically changeable variable
 	public static final String TAG_REAL_PHRASE = "realTagName";
 

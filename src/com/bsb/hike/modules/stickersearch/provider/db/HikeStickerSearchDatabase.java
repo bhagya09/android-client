@@ -155,6 +155,11 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 					+ HikeStickerSearchBaseConstants.SYNTAX_BRACKET_CLOSE;
 			db.execSQL(sql);
 		}
+
+		if (newVersion > oldVersion) {
+			db.execSQL("ALTER TABLE "+HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING+" ADD COLUMN "+HikeStickerSearchBaseConstants.STICKER_TAG_KEYBOARD_ISO+HikeStickerSearchBaseConstants.SYNTAX_TEXT_LAST +" DEFAULT "+HikeStickerSearchBaseConstants.STICKER_TAG_KEYBOARD_ISO_DEFAULT);
+		}
+
 	}
 
 	/* Add tables which are either fixed or default (virtual table) */
@@ -224,7 +229,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 				+ HikeStickerSearchBaseConstants.STICKER_STRING_USED_WITH_TAG + HikeStickerSearchBaseConstants.SYNTAX_TEXT_NEXT
 				+ HikeStickerSearchBaseConstants.STICKER_WORDS_NOT_USED_WITH_TAG + HikeStickerSearchBaseConstants.SYNTAX_TEXT_NEXT
 				+ HikeStickerSearchBaseConstants.STICKER_TAG_POPULARITY + HikeStickerSearchBaseConstants.SYNTAX_INTEGER_NEXT + HikeStickerSearchBaseConstants.STICKER_AVAILABILITY
-				+ HikeStickerSearchBaseConstants.SYNTAX_INTEGER_LAST + HikeStickerSearchBaseConstants.SYNTAX_BRACKET_CLOSE;
+				+ HikeStickerSearchBaseConstants.SYNTAX_INTEGER_NEXT +HikeStickerSearchBaseConstants.STICKER_TAG_KEYBOARD_ISO+HikeStickerSearchBaseConstants.SYNTAX_TEXT_LAST + HikeStickerSearchBaseConstants.SYNTAX_BRACKET_CLOSE;
 		db.execSQL(sql);
 
 		// Create index on fixed table: TABLE_STICKER_TAG_MAPPING for 2 columns 'Tag Word/ Phrase' and 'Sticker Information' together (described above while creating table)
