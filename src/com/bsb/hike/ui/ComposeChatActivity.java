@@ -2869,6 +2869,23 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 					}
 	 			}
 	 		});
+			MenuItemCompat.setOnActionExpandListener(searchMenuItem, new MenuItemCompat.OnActionExpandListener()
+			{
+
+				@Override
+				public boolean onMenuItemActionCollapse(MenuItem arg0)
+				{
+					adapter.removeFilter();
+					return true;
+				}
+
+				@Override
+				public boolean onMenuItemActionExpand(MenuItem arg0)
+				{
+					return true;
+				}
+				
+			});
 
 		}
 	}
