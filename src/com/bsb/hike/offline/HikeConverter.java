@@ -1,6 +1,7 @@
 package com.bsb.hike.offline;
 
 import java.io.File;
+import java.util.List;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -17,9 +18,12 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.db.HikeConversationsDatabase;
+import com.bsb.hike.filetransfer.FTMessageBuilder;
+import com.bsb.hike.filetransfer.FTMessageBuilder.FTConvMsgCreationListener;
 import com.bsb.hike.filetransfer.FileTransferManager;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
+import com.bsb.hike.models.MessageMetadata;
 import com.bsb.hike.models.ConvMessage.OriginType;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
@@ -62,16 +66,117 @@ public class HikeConverter implements IMessageReceived, IMessageSent {
 		context = HikeMessengerApp.getInstance().getApplicationContext();
 	}
 
-	public SenderConsignment getFileConsignment(String filePath, String fileKey, HikeFileType hikeFileType, String fileType, boolean isRecording, long recordingDuration,
-			int attachmentType, String msisdn, String apkLabel)
+	public void buildFileConsignment(final String filePath, String fileKey, final HikeFileType hikeFileType, String fileType, final boolean isRecording,
+			final long recordingDuration, int attachmentType, String msisdn, final String apkLabel)
 	{
-		ConvMessage convMessage = getConvMessageForFileTransfer(filePath, fileKey, hikeFileType, fileType, isRecording, recordingDuration, attachmentType, msisdn, apkLabel);
-		if (convMessage != null)
-			return getFileConsignment(convMessage, false);
-		else
-			return null;
+		if (filePath == null)
+		{
+			Toast.makeText(context, R.string.unknown_msg, Toast.LENGTH_SHORT).show();
+			return;
+		}
+
+		final File sourceFile = new File(filePath);
+
+		if (!isFileValid(sourceFile, msisdn))
+		{
+			return;
+		}
+
+		FTMessageBuilder.Builder mBuilder = new FTMessageBuilder.Builder().setSourceFile(sourceFile).setFileKey(fileKey).setHikeFileType(hikeFileType).setFileType(fileType)
+				.setRec(isRecording).setRecordingDuration(recordingDuration).setAttachement(attachmentType).setMsisdn(msisdn).setIsOffline(true)
+				.setListener(new FTConvMsgCreationListener()
+				{
+
+					@Override
+					public void onFTConvMsgCreation(List<ConvMessage> convMsgs)
+					{
+
+						if (convMsgs != null && convMsgs.size() > 0)
+						{
+							ConvMessage convMessage = convMsgs.get(0);
+
+							if (convMessage == null)
+							{
+								return;
+							}
+
+							File file = new File(filePath);
+							String fileName = file.getName();
+							if (hikeFileType == HikeFileType.APK && !TextUtils.isEmpty(apkLabel))
+								fileName = apkLabel + ".apk";
+							HikeFile hikeFile = convMessage.getMetadata().getHikeFiles().get(0);
+							updateHikeFile(hikeFile, sourceFile, hikeFileType, recordingDuration, fileName);
+							convMessage.setTimestamp(System.currentTimeMillis() / 1000);
+							JSONObject fileJSON = hikeFile.serialize();
+							JSONObject metadata = convMessage.getMetadata().getJSON();
+							JSONArray filesArray = new JSONArray();
+							try
+							{
+								filesArray.put(fileJSON);
+								metadata.put(HikeConstants.FILES, filesArray);
+								MessageMetadata messageMetadata = new MessageMetadata(metadata, true);
+								messageMetadata.getHikeFiles().get(0).setFileName(fileName);
+								messageMetadata.getJSON().putOpt(HikeConstants.FILE_NAME, fileName);
+								convMessage.setMetadata(messageMetadata);
+							}
+							catch (JSONException e)
+							{
+								Logger.e(TAG, "JSON Exception while creating offline convmessage");
+							}
+
+							convMessage.setMessageOriginType(OriginType.OFFLINE);
+							HikeConversationsDatabase.getInstance().addConversationMessages(convMessage, true);
+							HikeMessengerApp.getPubSub().publish(HikePubSub.OFFLINE_MESSAGE_SENT, convMessage);
+							SenderConsignment senderConsignment = getFileConsignment(convMessage, false);
+							if (senderConsignment != null)
+							{
+								OfflineController.getInstance().sendConsignment(senderConsignment);
+							}
+						}
+					}
+
+				});
+		mBuilder.build();
 	}
 
+	private boolean isFileValid(File sourceFile,String msisdn)
+	{
+		if(!(sourceFile!=null && sourceFile.exists()))
+		{
+			return false;	
+		}
+		
+		/*
+		 * Checking file transfer limit version For V1 it was INT_MAX For V2 and above no limit is applied
+		 */
+		if(sourceFile.length()>Integer.MAX_VALUE)
+		{
+			if(!OfflineUtils.isFeautureAvailable(OfflineConstants.OFFLINE_VERSION_NUMER,
+					OfflineUtils.getConnectedDeviceVersion(),OfflineConstants.UNLIMITED_FT_VERSION))
+			{
+				ContactInfo contactInfo  = ContactManager.getInstance().getContact(msisdn);
+				String name  = msisdn;
+				if(contactInfo!=null && !TextUtils.isEmpty(contactInfo.getFirstNameAndSurname()))
+				{
+					name = contactInfo.getFirstNameAndSurname();
+				}
+				HikeMessengerApp.getInstance().showToast(context.getString(R.string.upgrade_for_larger_files,name), Toast.LENGTH_LONG);
+				return false;
+			}
+		}
+		return true;
+	}
+	
+	private void updateHikeFile(HikeFile hikeFile, File sourceFile, HikeFileType hikeFileType, long recordingDuration, String fileName)
+	{
+		hikeFile.setFileSize(sourceFile.length());
+		hikeFile.setHikeFileType(hikeFileType);
+		hikeFile.setRecordingDuration(recordingDuration);
+		hikeFile.setSent(true);
+		hikeFile.setFileName(fileName);
+		hikeFile.setFile(sourceFile);
+	}
+	
 	public SenderConsignment getFileConsignment(ConvMessage convMessage, boolean persistence) 
 	{
 		String filePath = OfflineUtils.getFilePathFromJSON(convMessage.serialize());
@@ -105,24 +210,6 @@ public class HikeConverter implements IMessageReceived, IMessageSent {
 		FileTransferModel fileTransferModel = new FileTransferModel(new TransferProgress(0, OfflineUtils.getTotalChunks(file.length())), convMessage);
 		fileManager.addToCurrentSendingFile(convMessage.getMsgID(), fileTransferModel);
 		return senderConsignment;
-	}
-
-	private ConvMessage getConvMessageForFileTransfer(String filePath, String fileKey, HikeFileType hikeFileType, String fileType, boolean isRecording, long recordingDuration,
-			int attachmentType, String msisdn, String apkLabel)
-	{
-		if (filePath == null)
-		{
-			Toast.makeText(context, R.string.unknown_msg, Toast.LENGTH_SHORT).show();
-			return null;
-		}
-		int type = hikeFileType.ordinal();
-		File file = new File(filePath);
-		String fileName = file.getName();
-		if (type == HikeFileType.APK.ordinal() && !TextUtils.isEmpty(apkLabel))
-			fileName = apkLabel + ".apk";
-		ConvMessage convMessage = FileTransferManager.getInstance(context).uploadOfflineFile(msisdn, file, fileKey, fileType, hikeFileType, isRecording, recordingDuration,
-				attachmentType, fileName);
-		return convMessage;
 	}
 
 	@Override

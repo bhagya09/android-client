@@ -132,52 +132,7 @@ public class UploadFileTask extends FileTransferBase
 		this.isMultiMsg = true;
 		_state = FTState.INITIALIZED;
 	}
-
-	protected UploadFileTask(Handler handler, ConcurrentHashMap<Long, FutureTask<FTResult>> fileTaskMap, Context ctx, String token, String uId, String msisdn, File sourceFile,
-			String fileKey, String fileType, HikeFileType hikeFileType, boolean isRecording, long recordingDuration, int attachement,String fileName)
-	{
-		super(handler, fileTaskMap, ctx, sourceFile, -1, hikeFileType, token, uId);
-//		this.msisdn = msisdn;
-		this.fileType = fileType;
-//		this.isRecipientOnhike = true;
-//		this.recordingDuration = recordingDuration;
-		this.fileKey = fileKey;
-		_state = FTState.IN_PROGRESS;
-		this.mAttachementType = attachement;
-//		createConvMessage(true);
-		stateFile = getStateFile(userContext);
-		JSONObject metadata = userContext.getMetadata().getJSON();
-		JSONArray filesArray = new JSONArray();
-
-		HikeFile hikeFile = userContext.getMetadata().getHikeFiles().get(0);
-		hikeFile.setFileSize(sourceFile.length());
-		hikeFile.setHikeFileType(hikeFileType);
-		hikeFile.setRecordingDuration(recordingDuration);
-		hikeFile.setSent(true);
-		hikeFile.setFileName(fileName);
-		hikeFile.setFile(sourceFile);
-		JSONObject fileJSON =  hikeFile.serialize();
-		
-		try 
-		{
-			filesArray.put(fileJSON);
-			metadata.put(HikeConstants.FILES, filesArray);
-			MessageMetadata messageMetadata = new MessageMetadata(metadata, true);
-			messageMetadata.getHikeFiles().get(0).setFileName(fileName);
-			messageMetadata.getJSON().putOpt(HikeConstants.FILE_NAME, fileName);
-			userContext.setMetadata(messageMetadata);
-		}
-		catch (JSONException e) 
-		{
-			e.printStackTrace();
-		}
-		userContext.setTimestamp(System.currentTimeMillis() / 1000);
-		Logger.d("OfflineManager","Message Metadata is "+userContext.getMetadata().getJSON());
-		userContext.setMessageOriginType(OriginType.OFFLINE);
-		HikeConversationsDatabase.getInstance().addConversationMessages(userContext, true);
-		HikeMessengerApp.getPubSub().publish(HikePubSub.OFFLINE_MESSAGE_SENT, userContext);
-	}
-
+	
 	protected void setFutureTask(FutureTask<FTResult> fuTask)
 	{
 		futureTask = fuTask;
