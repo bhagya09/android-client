@@ -337,7 +337,7 @@ public class ChatHeadUtils
 	
 	public static boolean shouldShowAccessibility()
 	{
-		boolean showAccessibility = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.SHOW_ACCESSIBILITY, true);
+		boolean showAccessibility = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.SHOW_ACCESSIBILITY, !willPollingWork());
 		if(!showAccessibility)
 		{
 			return false;
@@ -352,7 +352,7 @@ public class ChatHeadUtils
 	
 	public static boolean canAccessibilityBeUsed(boolean serviceDecision)
 	{
-		boolean forceAccessibility = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.FORCE_ACCESSIBILITY, true);
+		boolean forceAccessibility = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.FORCE_ACCESSIBILITY, !willPollingWork());
 		if(!forceAccessibility)
 		{
 			return false;
