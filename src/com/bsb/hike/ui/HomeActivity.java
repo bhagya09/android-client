@@ -284,6 +284,21 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 					@Override
 					public void onRequestSuccess(Response result)
 					{
+						JSONObject response = (JSONObject) result.getBody().getContent();
+						Logger.d(TAG, "Response for acceptGroupMembershipConfirmationRequest : " + response.toString());
+						try
+						{
+							int errorCode = response.getInt("error");
+							String errorMessage = response.optString("errorMsg", "Something Went Wrong, GROUP JOIN REQUEST not accepted");
+							if (errorCode == -1)
+							{
+								Toast.makeText(HomeActivity.this, errorMessage, Toast.LENGTH_SHORT).show();
+							}
+						}
+						catch (JSONException e)
+						{
+							Logger.e(TAG, " JSON Error in acceptGroupMembershipConfirmationRequest : " + e.toString());
+						}
 					}
 					
 					@Override

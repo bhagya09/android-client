@@ -363,7 +363,6 @@ public class HttpRequestConstants
 	{
 		return BASE_URL + BASE_V2 + "/gcjp/";
 	}
-}
 	
 	public static String getBotdiscoveryTableUrl()
 	{
