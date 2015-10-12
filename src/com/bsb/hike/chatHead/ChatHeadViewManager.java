@@ -338,6 +338,10 @@ public class ChatHeadViewManager
 
 				switch (flag)
 				{
+				case ChatHeadConstants.REMAINING_ANIMATION:
+					savedPosX = chatHeadParams.x;
+					savedPosY = chatHeadParams.y;
+					break;
 				case ChatHeadConstants.CREATING_CHAT_HEAD_ACTIVITY_ANIMATION:
 //					if (!ChatHeadUtils.getRunningAppPackage(ChatHeadUtils.GET_TOP_MOST_SINGLE_PROCESS).contains(sharableActivePackage))
 //					{
