@@ -77,10 +77,7 @@ public class HikeConverter implements IMessageReceived, IMessageSent {
 
 		final File sourceFile = new File(filePath);
 
-		/*
-		 * Checking file transfer limit version For V1 it was INT_MAX For V2 and above no limit is applied
-		 */
-		if (!isFileSizeValid(sourceFile, msisdn))
+		if (!isFileValid(sourceFile, msisdn))
 		{
 			return;
 		}
@@ -142,8 +139,16 @@ public class HikeConverter implements IMessageReceived, IMessageSent {
 		mBuilder.build();
 	}
 
-	private boolean isFileSizeValid(File sourceFile,String msisdn)
+	private boolean isFileValid(File sourceFile,String msisdn)
 	{
+		if(!(sourceFile!=null && sourceFile.exists()))
+		{
+			return false;	
+		}
+		
+		/*
+		 * Checking file transfer limit version For V1 it was INT_MAX For V2 and above no limit is applied
+		 */
 		if(sourceFile.length()>Integer.MAX_VALUE)
 		{
 			if(!OfflineUtils.isFeautureAvailable(OfflineConstants.OFFLINE_VERSION_NUMER,
