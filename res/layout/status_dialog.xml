@@ -75,25 +75,32 @@
             android:layout_centerHorizontal="true"
             android:animateLayoutChanges="true" >
 
-            <ImageView
-                android:id="@+id/status_image"
+            <ScrollView
+                android:id="@+id/scroll"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_centerHorizontal="true"
                 android:layout_marginBottom="33dp"
                 android:layout_marginLeft="22dp"
                 android:layout_marginRight="30dp"
                 android:layout_marginTop="33dp"
-                android:adjustViewBounds="true"
-                android:scaleType="centerInside"
-                android:src="@drawable/ic_launcher" />
+                android:scrollbars="none" >
+
+                <ImageView
+                    android:id="@+id/status_image"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerHorizontal="true"
+                    android:adjustViewBounds="true"
+                    android:scaleType="centerInside"
+                    android:src="@drawable/ic_launcher" />
+            </ScrollView>
 
             <ImageButton
                 android:id="@+id/btn_remove_photo"
                 android:layout_width="34dp"
                 android:layout_height="34dp"
-                android:layout_alignRight="@+id/status_image"
-                android:layout_alignTop="@+id/status_image"
+                android:layout_alignRight="@+id/scroll"
+                android:layout_alignTop="@+id/scroll"
                 android:layout_marginRight="-15dp"
                 android:layout_marginTop="-15dp"
                 android:adjustViewBounds="false"
@@ -126,7 +133,7 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1px"
-                android:background="@color/black_16" />
+                android:background="#E8E8E8" />
 
             <include layout="@layout/mood_selector_layout" />
         </LinearLayout>
@@ -143,7 +150,7 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1px"
-                android:background="@color/black_16" />
+                android:background="#E8E8E8" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -155,10 +162,10 @@
                     android:id="@+id/addPhotoLayout"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
-                    android:onClick="onPhotoClick"
                     android:layout_weight="1"
                     android:background="@drawable/timeline_tab_selector"
                     android:gravity="center"
+                    android:onClick="onPhotoClick"
                     android:orientation="horizontal" >
 
                     <TextView
@@ -181,10 +188,10 @@
                     android:id="@+id/addMoodLayout"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
-                    android:onClick="onMoodClick"
                     android:layout_weight="1"
                     android:background="@drawable/timeline_tab_selector"
                     android:gravity="center"
+                    android:onClick="onMoodClick"
                     android:orientation="horizontal" >
 
                     <TextView

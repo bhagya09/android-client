@@ -36,7 +36,9 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.models.HikeAlarmManager;
+import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.modules.httpmgr.RequestToken;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.userlogs.PhoneSpecUtils;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
@@ -492,7 +494,7 @@ public class ChatHeadUtils
 	
 	public static void postNumberRequest(Context context, String searchNumber)
 	{
-		if (!searchNumber.contains("*") && !searchNumber.contains("#"))
+		if (searchNumber != null && !searchNumber.contains("*") && !searchNumber.contains("#"))
 		{
 			final String number = Utils.normalizeNumber(
 					searchNumber,
@@ -522,7 +524,7 @@ public class ChatHeadUtils
 					Logger.d(TAG, "jsonException");
 				}
 				CallListener callListener = new CallListener();
-				RequestToken requestToken = HttpRequests.postNumberAndGetCallerDetails(HikeConstants.HIKECALLER_API, json, callListener, HTTP_CALL_RETRY_DELAY,
+				RequestToken requestToken = HttpRequests.postNumberAndGetCallerDetails(HttpRequestConstants.getHikeCallerUrl(), json, callListener, HTTP_CALL_RETRY_DELAY,
 						HTTP_CALL_RETRY_MULTIPLIER);
 				StickyCaller.showCallerView(null, null, StickyCaller.LOADING, null);
 				requestToken.execute();
@@ -535,6 +537,12 @@ public class ChatHeadUtils
 		if (HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.SHOW_STICKY_CALLER, false)
 				&& HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.ACTIVATE_STICKY_CALLER, false))
 		{
+			HikeHandlerUtil.getInstance().postRunnable(new Runnable()
+			{
+				// putting code inside runnable to make it run on UI thread.
+			@Override
+			public void run()
+			{
 			Context context = HikeMessengerApp.getInstance().getApplicationContext();
 			if (incomingCallReceiver == null)
 			{
@@ -548,6 +556,9 @@ public class ChatHeadUtils
 				IntentFilter intentFilter = new IntentFilter(Intent.ACTION_NEW_OUTGOING_CALL);
 				context.registerReceiver(outgoingCallReceiver, intentFilter);
 			}
+			}
+			});
+
 		}
 	}
 	

@@ -8569,10 +8569,11 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 			String updateStatement = "UPDATE " + DBConstants.MESSAGES_TABLE + " SET " + DBConstants.SORTING_ID + " = " + DBConstants.MESSAGE_ID;
 			mDb.execSQL(updateStatement);
+			long numRows = DatabaseUtils.longForQuery(mDb, "SELECT COUNT(*) FROM " + DBConstants.MESSAGES_TABLE, null);
 
-			long endTime = System.currentTimeMillis();
-
-			Logger.d("HikeConversationsDatabase", " ServerId db upgrade time : " + (endTime - startTime));
+			long timeTaken = System.currentTimeMillis() - startTime;
+			analyticsForUpgradeSortId(numRows, timeTaken);
+			Logger.d("HikeConversationsDatabase", " ServerId db upgrade time : " + timeTaken);
 
 			mDb.setTransactionSuccessful();
 			result = true;
@@ -8591,8 +8592,19 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 		return result;
 	}
-	
-	
+
+	private void analyticsForUpgradeSortId(long numRows, long timeTaken) throws JSONException {
+		JSONObject jObj = new JSONObject();
+		jObj.put(AnalyticsConstants.EVENT_KEY, AnalyticsConstants.MICRO_APP_EVENT);
+		jObj.put(AnalyticsConstants.EVENT, "upgrade_sortId");
+		
+		jObj.put(AnalyticsConstants.LOG_FIELD_5, numRows); //Msg Count
+		jObj.put(AnalyticsConstants.LOG_FIELD_6, timeTaken); //Time taken in msec
+		
+		HAManager.getInstance().record(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.UPGRADE_EVENT, HAManager.EventPriority.HIGH, jObj, AnalyticsConstants.EVENT_TAG_MOB);
+	}
+
+
 	public void updateSortingIdForAMessage(String msgHash)
 	{
 		try

@@ -2529,6 +2529,7 @@ public class HikeConstants
 
 		/**
 		 * The person you are calling has blocked you.
+		 * This is unused. 
 		 */
 		public static final String VOIP_ERROR_CALLEE_HAS_BLOCKED_YOU = "e2";
 
@@ -3290,8 +3291,6 @@ public class HikeConstants
 
 	public static final String CALLER_SHARED_PREF = "caller_shared_pref";
 
-	public static final String HIKECALLER_API = "http://52.76.46.27:5000/hikeCaller";
-	
 	public static final String BOT_TABLE_REFRESH = "btr";
 	
 	public static final String BOTS = HikePlatformConstants.BOTS;

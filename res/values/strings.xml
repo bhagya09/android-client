@@ -1224,7 +1224,6 @@
     <string name="error_pick_location">Error while picking location</string>
     <string name="zero_sms_hint">0 Free SMS left...</string>
     <string name="pin_self">You</string>
-    <string name="hike_upgrade_string">Making hike faster and better for you</string>
     <string name="some_error">Some error occured!</string>
     <string name="nux_fwd_search_hint">Names go here...</string>
     <string name="recently_joined_hike">RECENTLY JOINED HIKE</string>
@@ -1732,7 +1731,7 @@
     <string name="added_in_group">This contact is already a member</string>
 	<string name="net_not_connected">HikeCaller works only on Wi-Fi or 3G/4G.</string>
 	<string name="sticky_caller_settings">Caller</string>
-	<string name="sticky_caller_settings_side_text">Show identity and options for unknown numbers.</string>
+	<string name="sticky_caller_settings_side_text">Show caller information for unknown numbers and free calling, messaging options for calls.</string>
 	<string name="okay">OKAY</string>
     <string name="getting_mapp_shortly">Congratulations! You should see %1$s on your chat screen shortly</string>
     <string name="hike_apps">APPS ON HIKE</string>
@@ -1744,5 +1743,5 @@
     <string name="save_contact">SAVE CONTACT</string>
     <string name="getting_details">Getting details...</string>
     <string name="take_me_there">TAKE ME THERE</string>
-
+    <string name="hike_upgrade_string">Making hike faster and better for you\n This may take a few minutes</string>
 </resources>
