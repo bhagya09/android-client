@@ -24,6 +24,7 @@ import android.text.TextUtils;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.analytics.AnalyticsConstants.AppOpenSource;
+import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.media.ShareablePopupLayout;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.HikeFile;
@@ -708,6 +709,21 @@ public class HAManager
 		catch (JSONException e)
 		{
 			e.printStackTrace();
+		}
+	}
+	
+	public void updateTipAnalyticsUIEvent(String eventType)
+	{
+		JSONObject metadata = new JSONObject();
+		try
+		{
+			metadata.put(HikeConstants.EVENT_TYPE, eventType);
+			metadata.put(HikeConstants.EVENT_KEY, AnalyticsConstants.UPDATE_INVITE_TIP);
+			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, EventPriority.HIGH, metadata);
+		}
+		catch (JSONException e)
+		{
+			Logger.d("UpdateTipPersistentNotif", "invite tip analytics json exception");
 		}
 	}
 	

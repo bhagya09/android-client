@@ -1074,6 +1074,7 @@ public class HikeNotification
 		{
 			if(Utils.isUpdateRequired(settingPref.getString(HikeConstants.Extras.LATEST_VERSION, ""), context))
 			{
+				Logger.d("UpdateTipPersistentNotif", "Recreating persistent notif for target version:"+settingPref.getString(HikeConstants.Extras.LATEST_VERSION, ""));
 				String message = settingPref.getString(HikeConstants.PERSISTENT_NOTIF_MESSAGE, context.getResources().getString(R.string.pers_notif_message));
 				String title = settingPref.getString(HikeConstants.PERSISTENT_NOTIF_TITLE, context.getResources().getString(R.string.pers_notif_title));
 				Uri url = Uri.parse(settingPref.getString(HikeConstants.PERSISTENT_NOTIF_URL, "market://details?id=" + context.getPackageName()));
