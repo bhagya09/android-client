@@ -1440,7 +1440,7 @@ public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique, C
 	@Override
 	public Long getUniqueId()
 	{
-		return getMsgID();
+		return getSortingId();
 	}
 
 	public long getSendTimestamp()
