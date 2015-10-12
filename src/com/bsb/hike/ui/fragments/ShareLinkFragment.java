@@ -272,7 +272,10 @@ public class ShareLinkFragment extends DialogFragment implements OnClickListener
 					String str = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.TEXT_FOR_GC_VIA_WA,
 							HikeMessengerApp.getInstance().getApplicationContext().getString(R.string.link_share_wa_msg))
 							+ "\n " + url;
-					openWA(str);
+					if(Utils.isPackageInstalled(HikeMessengerApp.getInstance().getApplicationContext(), HikeConstants.PACKAGE_WATSAPP))
+					{
+						openWA(str);
+					}
 					break;
 
 				case OTHERS:
