@@ -89,7 +89,6 @@ import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
 import com.bsb.hike.timeline.model.TimelineActions;
 import com.bsb.hike.timeline.view.TimelineActivity;
 import com.bsb.hike.utils.ChatTheme;
-import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.OneToNConversationUtils;
@@ -145,7 +144,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		}
 		String sql = "CREATE TABLE IF NOT EXISTS " + DBConstants.MESSAGES_TABLE
 				+ " ( "
-				+ DBConstants.MESSAGE + " STRING, " // The message text
+				+ DBConstants.MESSAGE + " TEXT, " // The message text
 				+ DBConstants.MSG_STATUS + " INTEGER, " // Whether the message is sent or not. Plus also tells us the current state of the message.
 				+ DBConstants.TIMESTAMP + " INTEGER, " // Message time stamp, send or receiving time in seconds
 				+ DBConstants.MESSAGE_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " // The message id (Unique)
@@ -193,7 +192,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				+ DBConstants.OVERLAY_DISMISSED + " INTEGER, " // Flag. Whether to show the SMS Credits overlay or not.
 
 				// Messages table columns begin (We keep the last entry of messages for a conversation)
-				+ DBConstants.MESSAGE + " STRING, "
+				+ DBConstants.MESSAGE + " TEXT, "
 				+ DBConstants.MSG_STATUS + " INTEGER, "
 				+ DBConstants.LAST_MESSAGE_TIMESTAMP + " INTEGER, "
 				+ DBConstants.MESSAGE_ID + " INTEGER, "
@@ -322,6 +321,9 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 		sql = "CREATE UNIQUE INDEX IF NOT EXISTS " + DBConstants.EVENT_HASH_INDEX + " ON " + DBConstants.MESSAGE_EVENT_TABLE + " ( " + DBConstants.EVENT_HASH + " )";
 		db.execSQL(sql);
+
+		// to be aware of the users for whom db upgrade should not be done in future to fix AND-704
+		saveCurrentConvDbVersionToPrefs();
 	}
 
 	private void createIndexOverServerIdField(SQLiteDatabase db)
@@ -8596,8 +8598,12 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 	private void analyticsForUpgradeSortId(long numRows, long timeTaken) throws JSONException {
 		JSONObject jObj = new JSONObject();
-		jObj.put(AnalyticsConstants.MESSAGES_COUNT, numRows);
-		jObj.put(AnalyticsConstants.TIME_TAKEN, timeTaken);
+		jObj.put(AnalyticsConstants.EVENT_KEY, AnalyticsConstants.MICRO_APP_EVENT);
+		jObj.put(AnalyticsConstants.EVENT, "upgrade_sortId");
+		
+		jObj.put(AnalyticsConstants.LOG_FIELD_5, numRows); //Msg Count
+		jObj.put(AnalyticsConstants.LOG_FIELD_6, timeTaken); //Time taken in msec
+		
 		HAManager.getInstance().record(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.UPGRADE_EVENT, HAManager.EventPriority.HIGH, jObj, AnalyticsConstants.EVENT_TAG_MOB);
 	}
 
@@ -8641,4 +8647,11 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		}
 	}
 
+	/**
+	 * Saves the conversations database version to preferences
+	 */
+	private void saveCurrentConvDbVersionToPrefs()
+	{
+		HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.CONV_DB_VERSION_PREF, DBConstants.CONVERSATIONS_DATABASE_VERSION);
+	}
 }

@@ -552,4 +552,12 @@ public class AnalyticsConstants
 	public static final String GET_DISCOVERY_BOT_LIST = "gdb";
 	
 	public static final String DISCOVERY_BOTS = "db";
+	
+	public static final String MICRO_APP_EVENT = "micro_app";
+	
+	public static final String EVENT = "event";
+	
+	public static final String LOG_FIELD_5 = "fld5";
+	
+	public static final String LOG_FIELD_6 = "fld6";
 }
