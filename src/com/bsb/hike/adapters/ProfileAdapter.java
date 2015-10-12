@@ -663,6 +663,8 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 			{
 				viewHolder.infoContainer.setVisibility(View.VISIBLE);
 				viewHolder.infoContainer.findViewById(R.id.owner_indicator_text).setVisibility(View.VISIBLE);
+				viewHolder.infoContainer.findViewById(R.id.sms_member_indicator_text).setVisibility(View.GONE);
+				
 			}
 			//else if Already a Member ----> show nothing
 			//else It a SMS member ----> show waiting
@@ -670,8 +672,9 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 			{
 				viewHolder.infoContainer.setVisibility(View.VISIBLE);
 				viewHolder.infoContainer.findViewById(R.id.sms_member_indicator_text).setVisibility(View.VISIBLE);
+				viewHolder.infoContainer.findViewById(R.id.owner_indicator_text).setVisibility(View.GONE);
 			}
-			else if(groupParticipant.getType() == GroupParticipant.Participant_Type.MEMBER)
+			else
 			{
 				viewHolder.infoContainer.setVisibility(View.GONE);
 			}
