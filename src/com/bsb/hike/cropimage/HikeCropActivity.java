@@ -104,8 +104,7 @@ public class HikeCropActivity extends HikeAppStateBaseFragmentActivity
 		{
 			Toast.makeText(this, getResources().getString(R.string.image_failed), Toast.LENGTH_LONG).show();
 			Logger.e(TAG, "Unable to open bitmap");
-			setResult(RESULT_CANCELED);
-			finish();
+			onCropFailed();
 			return;
 		}
 
@@ -121,6 +120,7 @@ public class HikeCropActivity extends HikeAppStateBaseFragmentActivity
 			public void onFailed()
 			{
 				Logger.e(TAG, "Crop failed");
+				onCropFailed();
 			}
 		}, mSrcImagePath);
 
@@ -183,9 +183,14 @@ public class HikeCropActivity extends HikeAppStateBaseFragmentActivity
 		catch (IOException e)
 		{
 			e.printStackTrace();
-			setResult(RESULT_CANCELED);
-			finish();
+			onCropFailed();
 		}
+	}
+	
+	private void onCropFailed()
+	{
+		setResult(RESULT_CANCELED);
+		finish();
 	}
 
 	/**
@@ -282,6 +287,7 @@ public class HikeCropActivity extends HikeAppStateBaseFragmentActivity
 		catch (OutOfMemoryError exception)
 		{
 			exception.printStackTrace();
+			onCropFailed();
 		}
 		
 		return scaledBitmap;
