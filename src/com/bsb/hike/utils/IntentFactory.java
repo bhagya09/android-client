@@ -35,6 +35,7 @@ import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.bots.NonMessagingBotMetadata;
 import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.chatHead.StickerShareSettings;
+import com.bsb.hike.chatHead.StickyCallerSettings;
 import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.cropimage.CropImage;
@@ -215,6 +216,11 @@ public class IntentFactory
 		}
 	}
 	
+	public static void openStickyCallerSettings(Context context)
+	{
+			context.startActivity(getStickyCallerSettingsIntent(context));
+	}
+	
 	public static void openSettingHelp(Context context)
 	{
 		Intent intent = null;
@@ -381,6 +387,11 @@ public class IntentFactory
 	{
 		HAManager.getInstance().chatHeadshareAnalytics(AnalyticsConstants.ChatHeadEvents.HIKE_STICKER_SETTING);
 		return new Intent(context, StickerShareSettings.class);
+	}
+	
+	public static Intent getStickyCallerSettingsIntent(Context context)
+	{
+		return new Intent(context, StickyCallerSettings.class);
 	}
 	
 
@@ -773,13 +784,15 @@ public class IntentFactory
 		if (BotUtils.isBot(msisdn))
 		{
 			BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
+			
 			if (botInfo.isNonMessagingBot())
 			{
+				NonMessagingBotMetadata nonMessagingBotMetadata = new NonMessagingBotMetadata(botInfo.getMetadata());
 				Intent intent = getWebViewActivityIntent(context, "", "");
-				NonMessagingBotMetadata nonMessagingBotMetadata= new NonMessagingBotMetadata(botInfo.getMetadata());
 				intent.putExtra(WebViewActivity.WEBVIEW_MODE, nonMessagingBotMetadata.isWebUrlMode() ? WebViewActivity.WEB_URL_BOT_MODE : WebViewActivity.MICRO_APP_MODE);
 				intent.putExtra(HikeConstants.MSISDN, msisdn);
 				return intent;
+
 			}
 		}
 
@@ -1099,6 +1112,26 @@ public class IntentFactory
 		catch (android.content.ActivityNotFoundException ex)
 		{
 			Toast.makeText(context.getApplicationContext(), "Could not find WhatsApp in System", Toast.LENGTH_SHORT).show();
+		}
+	}
+	
+	public static void openIntentForGameActivity(Context context)
+	{
+		//TODO:Pass Intent of game activity and any extras.
+//				Intent i = new Intent(context,SettingsActivity.class);
+//		
+//			context.startActivity(i);
+	}
+	
+	public static Intent getIntentForBots(BotInfo mBotInfo, Context context)
+	{
+		if (mBotInfo.isNonMessagingBot())
+		{
+			return IntentFactory.getNonMessagingBotIntent(mBotInfo.getMsisdn(), context);
+		}
+		else
+		{
+			return IntentFactory.createChatThreadIntentFromMsisdn(context, mBotInfo.getMsisdn(), false, false);
 		}
 	}
 }

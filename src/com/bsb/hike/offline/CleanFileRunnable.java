@@ -31,7 +31,7 @@ public class CleanFileRunnable implements Runnable
 
 		HikeSharedPreferenceUtil.getInstance().removeData(OfflineConstants.OFFLINE_MSISDN);
 		HikeSharedPreferenceUtil.getInstance().removeData(OfflineConstants.CURRENT_RECIEVING_MSG_ID);
-		OfflineAnalytics.recordDisconnectionAnalytics(OfflineException.APP_SWIPE);
+		OfflineAnalytics.recordDisconnectionAnalytics(OfflineException.APP_SWIPE, -1);
 		
 	}
 

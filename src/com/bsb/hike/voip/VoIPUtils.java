@@ -48,7 +48,6 @@ import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.voip.VoIPDataPacket.PacketType;
 import com.bsb.hike.voip.protobuf.VoIPSerializer;
-import com.bsb.hike.voip.view.VoIPActivity;
 
 public class VoIPUtils {
 
@@ -65,7 +64,7 @@ public class VoIPUtils {
 
 	public static enum CallSource
 	{
-		CHAT_THREAD, PROFILE_ACTIVITY, MISSED_CALL_NOTIF, CALL_FAILED_FRAG, ADD_TO_CONFERENCE, GROUP_CHAT
+		CHAT_THREAD, PROFILE_ACTIVITY, MISSED_CALL_NOTIF, CALL_FAILED_FRAG, ADD_TO_CONFERENCE, GROUP_CHAT, HIKE_STICKY_CALLER
 	}
 	
     public static boolean isWifiConnected(Context context) {
@@ -429,7 +428,7 @@ public class VoIPUtils {
 		
 		// Network check
 		ConnectionClass connectionClass = VoIPUtils.getConnectionClass(HikeMessengerApp.getInstance());
-		if (connectionClass == ConnectionClass.TwoG || connectionClass == ConnectionClass.ThreeG) {
+		if (connectionClass == ConnectionClass.TwoG) {
 			Toast.makeText(context, context.getString(R.string.voip_conference_network_support), Toast.LENGTH_LONG).show();
 			return false;
 		}
@@ -595,30 +594,13 @@ public class VoIPUtils {
 			
 			if (subType.equals(HikeConstants.MqttMessageTypes.VOIP_ERROR_CALLEE_INCOMPATIBLE_NOT_UPGRADABLE) ||
 					subType.equals(HikeConstants.MqttMessageTypes.VOIP_ERROR_CALLEE_DOES_NOT_SUPPORT_CONFERENCE) ||
-					subType.equals(HikeConstants.MqttMessageTypes.VOIP_ERROR_ALREADY_IN_CALL)) 
+					subType.equals(HikeConstants.MqttMessageTypes.VOIP_ERROR_ALREADY_IN_CALL) ||
+					subType.equals(HikeConstants.MqttMessageTypes.VOIP_ERROR_CALLEE_INCOMPATIBLE_UPGRADABLE)) 
 			{
 				Intent i = new Intent(context, VoIPService.class);
 				i.putExtra(VoIPConstants.Extras.ACTION, subType);
 				i.putExtra(VoIPConstants.Extras.MSISDN, jsonObj.getString(HikeConstants.FROM));
 				context.startService(i);
-			}
-			
-			if (subType.equals(HikeConstants.MqttMessageTypes.VOIP_ERROR_CALLEE_INCOMPATIBLE_UPGRADABLE)) 
-			{
-				Intent i = new Intent(context, VoIPActivity.class);
-				i.putExtra(VoIPConstants.Extras.ACTION, VoIPConstants.PARTNER_REQUIRES_UPGRADE);
-				i.putExtra(VoIPConstants.Extras.MSISDN, jsonObj.getString(HikeConstants.FROM));
-				i.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-				context.startActivity(i);
-			}
-			
-			if (subType.equals(HikeConstants.MqttMessageTypes.VOIP_ERROR_CALLEE_HAS_BLOCKED_YOU)) 
-			{
-				Intent i = new Intent(context, VoIPActivity.class);
-				i.putExtra(VoIPConstants.Extras.ACTION, VoIPConstants.PARTNER_HAS_BLOCKED_YOU);
-				i.putExtra(VoIPConstants.Extras.MSISDN, jsonObj.getString(HikeConstants.FROM));
-				i.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-				context.startActivity(i);
 			}
 		}
 	}

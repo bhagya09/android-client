@@ -118,14 +118,14 @@ public class OfflineFileManager
 				FileTransferModel mmModel = currentSendingFiles.get(msgId);
 				if (mmModel != null)
 				{
-					fss = new FileSavedState(FTState.IN_PROGRESS, (int) file.length(),mmModel.getTransferProgress().getCurrentChunks()
+					fss = new FileSavedState(FTState.IN_PROGRESS,  file.length(),mmModel.getTransferProgress().getCurrentChunks()
 							* OfflineConstants.CHUNK_SIZE * 1024,0);
 					return fss;
 				}
 			}
 			if (TextUtils.isEmpty(hikeFile.getFileKey()))
 			{
-				fss = new FileSavedState(FTState.ERROR, (int) file.length(), 0,0);
+				fss = new FileSavedState(FTState.ERROR, file.length(), 0,0);
 			}
 			else
 			{
@@ -157,7 +157,7 @@ public class OfflineFileManager
 				// Defensive check as in shutdown we  clear the map 
 				if (mmModel != null)
 				{
-					fss = new FileSavedState(FTState.IN_PROGRESS, (int) file.length(), mmModel.getTransferProgress().getCurrentChunks() * OfflineConstants.CHUNK_SIZE * 1024,0);
+					fss = new FileSavedState(FTState.IN_PROGRESS,  file.length(), mmModel.getTransferProgress().getCurrentChunks() * OfflineConstants.CHUNK_SIZE * 1024,0);
 					return fss;
 				}
 			}
@@ -303,7 +303,7 @@ public class OfflineFileManager
 	public void handleMessageReceived(ConvMessage convMessage) 
 	{
 		HikeFile hikeFile = convMessage.getMetadata().getHikeFiles().get(0);
-		int totalChunks = getTotalChunks(hikeFile.getFileSize());
+		long totalChunks = getTotalChunks(hikeFile.getFileSize());
 		
 		FileTransferModel fileTransferModel = new FileTransferModel(new TransferProgress(0, totalChunks), convMessage);
 		addToCurrentReceivingFile(convMessage.getMsgID(), fileTransferModel);
@@ -315,9 +315,9 @@ public class OfflineFileManager
 		
 	}
 	
-	private int getTotalChunks(int fileSize)
+	private long getTotalChunks(long fileSize)
 	{
-		int totalChunks = OfflineUtils.getTotalChunks(fileSize);
+		long totalChunks = OfflineUtils.getTotalChunks(fileSize);
 		return totalChunks;
 	}
 	
