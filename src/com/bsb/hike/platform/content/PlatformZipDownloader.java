@@ -308,7 +308,6 @@ public class PlatformZipDownloader
 						{
 							PlatformRequestManager.setReadyState(mRequest);
 						}
-						zipFile.delete();
 						HikeMessengerApp.getPubSub().publish(HikePubSub.DOWNLOAD_PROGRESS, new Pair<String, String>(callbackId, "unzipSuccess"));
 					}
 					else
@@ -316,6 +315,7 @@ public class PlatformZipDownloader
 						mRequest.getListener().onEventOccured(0, EventCode.UNZIP_FAILED);
 						HikeMessengerApp.getPubSub().publish(HikePubSub.DOWNLOAD_PROGRESS, new Pair<String, String>(callbackId, "unzipFailed"));
 					}
+					zipFile.delete();
 				}
 			});
 		}
