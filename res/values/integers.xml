@@ -5,19 +5,13 @@
 	<integer name="max_length_group_name">50</integer>
 	<integer name="profile_signup_weight1">154</integer>
 	<integer name="profile_signup_weight2">90</integer>
-	<integer name="profile_signup_weight3">276</integer>
 	<integer name="ft_limit">10</integer>
-	<integer name="status_text_limit">1000</integer>
 	<integer name="incentive_amount">50</integer>
 	<integer name="nux_min_contacts">3</integer>
 	<integer name="nux_max_contacts">3</integer>
 	<integer name="photos_editor_weightSum">10000</integer>	
 	<integer name="photos_editor_canvas_weight">8110</integer>
-	<integer name="photos_editor_actionBar_weight">750</integer>
-	<integer name="photos_editor_tabs_weight">750</integer>
 	<integer name="photos_editor_pager_weight">1890</integer>
 	<integer name="photos_pager_preview_weight">5147</integer>
 	<integer name="photos_pager_size_weight">4853</integer>
-	<integer name ="card_flip_time_full">500</integer>
-	<integer name="card_flip_time_half" >250</integer>
 </resources>

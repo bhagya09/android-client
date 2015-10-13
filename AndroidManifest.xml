@@ -4,7 +4,7 @@
     package="com.bsb.hike"
     android:installLocation="auto"
     android:versionCode="1460"
-    android:versionName="4.0.7.21.5.sticky_caller" >
+    android:versionName="4.0.7.0.3.core_messaging" >
     
     <uses-sdk
         android:minSdkVersion="14"
