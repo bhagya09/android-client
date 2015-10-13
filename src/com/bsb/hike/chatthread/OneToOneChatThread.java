@@ -3397,7 +3397,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			break;
 		case SHUTDOWN:
 			sendUIMessage(OFFLINE_DISCONNECTED,null);
-			if (offlineAnimationFragment != null)
+			if (offlineAnimationFragment != null && offlineAnimationFragment.isAdded())
 			{
 				offlineAnimationFragment.onDisconnect(errorCode);
 			}
