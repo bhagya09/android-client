@@ -527,8 +527,8 @@ public class ChatHeadViewManager
 
 	private void setChatHeadParams()
 	{
-		chatHeadParams.x = INITIAL_POS_X;
-		chatHeadParams.y = INITIAL_POS_Y;
+		chatHeadParams.x = savedPosX;
+		chatHeadParams.y = savedPosY;
 		chatHeadParams.gravity = Gravity.TOP | Gravity.LEFT;
 	}
 
