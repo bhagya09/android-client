@@ -97,6 +97,13 @@ public class VoIPConstants {
 	 */
 	public static final int MIN_CALL_DURATION_FOR_RATING_POPUP = 10;
 
+	/**
+	 * Wait before sending an error message to the activity for an outgoing
+	 * call. This is necessary to ensure the VoIP UI gets time to come up
+	 * before the error fragment is shown on top.
+	 */
+	public static final int SERVICE_To_ACTIVITY_ERR_MESSAGE_DELAY = 2000;
+	
 	public static final int INITIAL_ICE_SOCKET_TIMEOUT = 2;
 	
 	// Default bitrates
