@@ -1274,6 +1274,22 @@ public abstract class JavascriptBridge
 		}
 		callbackToJS(id, data.toString());
 	}
+	/**
+	 * Platform Version 8
+	 * Call this method to check if a bot exists
+	 * @param id
+	 * @param msisdn
+	 * Returns true/false string
+	 */
+	@JavascriptInterface
+	public void isBotExist(String id,String msisdn)
+	{
+		BotInfo botinfo=BotUtils.getBotInfoForBotMsisdn(msisdn);
+		if(botinfo!=null)
+			callbackToJS(id,"true");
+		else
+			callbackToJS(id,"false");
+	}
 	
 
 }
