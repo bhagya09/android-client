@@ -451,7 +451,21 @@ public class HikePubSub implements Runnable
 	public static final String ADD_NM_BOT_CONVERSATION = "addNmBotCoversation";
 	
 	public static final String BOT_CREATED = "botCreated";
-	
+
+	public static final String BADGE_COUNT_CHANGED = "badgeCountChanged";
+
+	public static final String BADGE_COUNT_PRIORITY_CHANGED_TIMELINE = "badgeCountPriorityChangedTimeline";
+
+	public static final String BADGE_COUNT_PRIORITY_CHANGED_MESSAGES = "badgeCountPriorityChangedMessages";
+
+	public static final String BADGE_COUNT_PRIORITY_CHANGED_ACTIVITYUPDATE = "badgeCountPriorityChangedActivityUpdate";
+
+	public static final String BADGE_COUNT_MESSAGE_CHANGED = "badgeCountMessageChanged";
+
+	public static final String BADGE_COUNT_TIMELINE_UPDATE_CHANGED = "badgeCountTimeLineUpdateChanged";
+
+	public static final String BADGE_COUNT_ACTIVITY_UPDATE_CHANGED = "badgeCountActivityUpdateChanged";
+
 	private final Thread mThread;
 
 	private final BlockingQueue<Operation> mQueue;
