@@ -79,13 +79,13 @@ public enum StickerSearchDataController
 		if (!Utils.isHoneycombOrHigher())
 		{
 			Logger.d(TAG, "setupStickerSearchWizard(), Sticker Recommendation is not supported in Android OS v 2.3.x or lower.");
-			HikeSharedPreferenceUtil.getInstance().removeData(HikeMessengerApp.STICKER_SET);
+			StickerManager.getInstance().removeStickerSet(state);
 			return;
 		}
 
-		if (!((state == StickerSearchConstants.TRIAL_STICKER_DATA_FIRST_SETUP) || (state == StickerSearchConstants.TRIAL_STICKER_DATA_UPDATE_REFRESH)))
+		if (!((state == StickerSearchConstants.STATE_STICKER_DATA_FRESH_INSERT) || (state == StickerSearchConstants.STATE_STICKER_DATA_REFRESH)))
 		{
-			Logger.e(TAG, "setupStickerSearchWizard(), Invalid trial request.");
+			Logger.e(TAG, "setupStickerSearchWizard(), Invalid state.");
 			return;
 		}
 
@@ -145,19 +145,6 @@ public enum StickerSearchDataController
 				{
 					Logger.e(TAG, "setupStickerSearchWizard(), Empty json data for sticker: " + stickerInfo);
 					continue;
-				}
-
-				if (state == StickerSearchConstants.TRIAL_STICKER_DATA_FIRST_SETUP)
-				{
-					if (TextUtils.isEmpty(stickerData.optString(HikeConstants.IMAGE)))
-					{
-						Logger.e(TAG, "setupStickerSearchWizard(), Empty image data for sticker: " + stickerInfo);
-						continue;
-					}
-				}
-				else if (state == StickerSearchConstants.TRIAL_STICKER_DATA_UPDATE_REFRESH)
-				{
-					Logger.v(TAG, "setupStickerSearchWizard(), No dependency on image data for sticker: " + stickerInfo);
 				}
 
 				JSONObject tagData = stickerData.optJSONObject("tag_data");
@@ -491,10 +478,10 @@ public enum StickerSearchDataController
 			}
 		}
 
-		if ((state == StickerSearchConstants.TRIAL_STICKER_DATA_UPDATE_REFRESH)
+		if ((state == StickerSearchConstants.STATE_STICKER_DATA_REFRESH)
 				|| (HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STICKER_TAG_RETRY_ON_FAILED_LOCALLY, HikeStickerSearchBaseConstants.DECISION_STATE_YES) == HikeStickerSearchBaseConstants.DECISION_STATE_YES))
 		{
-			Set<String> pendingRetrySet = HikeSharedPreferenceUtil.getInstance().getDataSet(HikeMessengerApp.STICKER_SET, null);
+			Set<String> pendingRetrySet = StickerManager.getInstance().getStickerSet(state);
 
 			if (pendingRetrySet != null)
 			{
@@ -511,11 +498,16 @@ public enum StickerSearchDataController
 				Logger.i(TAG, "setupStickerSearchWizard(), Updating tag fetching retry list: " + updateRetrySet);
 				if (updateRetrySet.size() > 0)
 				{
-					HikeSharedPreferenceUtil.getInstance().saveDataSet(HikeMessengerApp.STICKER_SET, updateRetrySet);
+					StickerManager.getInstance().saveStickerSet(updateRetrySet, state);
 				}
 				else
 				{
-					HikeSharedPreferenceUtil.getInstance().removeData(HikeMessengerApp.STICKER_SET);
+					StickerManager.getInstance().removeStickerSet(state);
+					
+					if(state == StickerSearchConstants.STATE_STICKER_DATA_REFRESH)
+					{
+						HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.LAST_SUCCESSFUL_STICKER_TAG_REFRESH_TIME, System.currentTimeMillis());
+					}
 				}
 				pendingRetrySet.clear();
 				updateRetrySet.clear();
