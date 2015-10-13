@@ -41,8 +41,6 @@ import com.bsb.hike.utils.Logger;
  * 
  * @see http://developer.android.com/reference/android/graphics/ColorMatrix.html
  * 
- * @author akhiltripathi
- *
  * 
  */
 
