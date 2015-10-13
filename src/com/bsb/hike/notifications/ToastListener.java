@@ -599,6 +599,8 @@ public class ToastListener implements Listener
 			// Remove unused references
 			filteredMessageList.clear();
 			filteredMessageList = null;
+			HikeMessengerApp.getPubSub().publish(HikePubSub.BADGE_COUNT_MESSAGE_CHANGED, null);
+			HikeMessengerApp.getPubSub().publish(HikePubSub.BADGE_COUNT_TIMELINE_UPDATE_CHANGED, null);
 		}
 	}
 
