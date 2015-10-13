@@ -82,12 +82,15 @@ public class StickyCaller
 	
 	public static short CALL_TYPE = NONE;
 	
-	public static short INCOMING = 1;
+	public static final short INCOMING = 1;
 	
-	public static short OUTGOING = 2;
+	public static final short OUTGOING = 2;
 	
-	public static short MISSED = 3;
+	public static final short MISSED = 3;
 
+	public static final short CLIPBOARD = 4;
+
+	
 	public static String callCurrentNumber = null;
 
 	public static final String SHOW_STICKY_CALLER = "showStickyCaller";
@@ -489,6 +492,28 @@ public class StickyCaller
 				
 			}
 			CALL_TYPE = NONE;
+		}
+		else if (CALL_TYPE == CLIPBOARD)
+		{
+			switch (type)
+			{
+			case ALREADY_SAVED:
+				HAManager.getInstance().stickyCallerAnalyticsNonUIEvent(AnalyticsConstants.StickyCallerEvents.CLIPBOARD, AnalyticsConstants.StickyCallerEvents.KNOWN, number, AnalyticsConstants.StickyCallerEvents.SUCCESS, source);
+				settingLayoutAlreadySavedContact(context, number, result);
+				break;
+				
+			case SUCCESS:
+				HAManager.getInstance().stickyCallerAnalyticsNonUIEvent(AnalyticsConstants.StickyCallerEvents.CLIPBOARD, AnalyticsConstants.StickyCallerEvents.UNKNOWN, number, AnalyticsConstants.StickyCallerEvents.SUCCESS, source);
+				settingLayoutDataSuccess(context, number, result);
+				break;	
+			
+			case FAILURE:
+				HAManager.getInstance().stickyCallerAnalyticsNonUIEvent(AnalyticsConstants.StickyCallerEvents.CLIPBOARD, AnalyticsConstants.StickyCallerEvents.UNKNOWN, number, AnalyticsConstants.StickyCallerEvents.FAIL, source);
+				break;
+				
+			}
+			CALL_TYPE = NONE;
+		    removeCallerViewWithDelay(OUTGOING_DELAY);
 		}
 		setCallerParams();
 		try

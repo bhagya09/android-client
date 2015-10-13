@@ -17,6 +17,7 @@ import org.json.JSONObject;
 import android.app.ActivityManager;
 import android.app.ActivityManager.RunningAppProcessInfo;
 import android.app.ActivityManager.RunningTaskInfo;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -82,6 +83,8 @@ public class ChatHeadUtils
 	private static IncomingCallReceiver incomingCallReceiver;
 	
 	private static OutgoingCallReceiver outgoingCallReceiver;
+	
+	private static ClipboardListener clipboardListener;
 	
 	private static final int HTTP_CALL_RETRY_DELAY = 2000; 
 	
@@ -661,6 +664,8 @@ public class ChatHeadUtils
 				@Override
 				public void run()
 				{
+					registerClipboardListener(context);
+					
 					if (incomingCallReceiver == null)
 					{
 						incomingCallReceiver = new IncomingCallReceiver();
@@ -679,9 +684,33 @@ public class ChatHeadUtils
 		}
 	}
 	
+	
+	public static void registerClipboardListener(Context context)
+	{
+		if (clipboardListener == null)
+		{
+			clipboardListener = new ClipboardListener();
+			ClipboardManager clipBoard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+			clipBoard.addPrimaryClipChangedListener(clipboardListener);
+		}
+	}
+
+	public static void unregisterClipboardListener(Context context)
+	{
+		if (clipboardListener != null)
+		{
+			ClipboardManager clipBoard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+			clipBoard.removePrimaryClipChangedListener(clipboardListener);
+			clipboardListener = null;
+		}
+	}
+	
 	public static void unregisterCallReceiver()
 	{
 		Context context = HikeMessengerApp.getInstance();
+		
+		unregisterClipboardListener(context);
+		
 		if (incomingCallReceiver != null)
 		{
 			TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
