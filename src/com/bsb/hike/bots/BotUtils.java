@@ -746,6 +746,7 @@ public class BotUtils
 			json.put(HikePlatformConstants.PLATFORM_USER_ID, HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PLATFORM_UID_SETTING, null));
 			json.put(AnalyticsConstants.BOT_NAME, name);
 			json.put(AnalyticsConstants.BOT_MSISDN, msisdn);
+			json.put(HikePlatformConstants.NETWORK_TYPE, Integer.toString(Utils.getNetworkType(HikeMessengerApp.getInstance().getApplicationContext())));
 		}
 		catch (JSONException e)
 		{
