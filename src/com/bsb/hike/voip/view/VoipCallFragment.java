@@ -281,6 +281,8 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 		void showCallFailedFragment(Bundle bundle);
 
 		boolean isShowingCallFailedFragment();
+
+		void showDeclineWithMessageFragment(Bundle bundle);
 	}
 
 	private void connectMessenger() 
@@ -551,7 +553,7 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 	}
 
 	@Override
-	public void acceptCall()
+	public void onAcceptCall()
 	{
 		Logger.d(VoIPConstants.TAG, "Accepted call, starting audio...");
 		voipService.acceptIncomingCall();
@@ -560,10 +562,19 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 	}
 
 	@Override
-	public void declineCall()
+	public void onDeclineCall()
 	{
 		Logger.d(VoIPConstants.TAG, "Declined call, rejecting...");
 		voipService.rejectIncomingCall();
+	}
+
+	@Override
+	public void onMessage()
+	{
+		Logger.d(VoIPConstants.TAG, "Declined call, messaging...");
+		Bundle bundle = new Bundle();
+		bundle.putString(VoIPConstants.PARTNER_MSISDN, voipService.getPartnerClient().getPhoneNumber());
+		activity.showDeclineWithMessageFragment(bundle);
 	}
 
 	private void showHikeCallText()

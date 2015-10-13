@@ -3,13 +3,19 @@ package com.bsb.hike.voip.view;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
+import android.support.v4.app.FragmentTransaction;
 import android.view.KeyEvent;
 import android.view.WindowManager;
+import android.widget.Toast;
 
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
+import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.Utils;
 import com.bsb.hike.voip.VoIPConstants;
 import com.bsb.hike.voip.view.CallFailedFragment.CallFailedFragListener;
 import com.bsb.hike.voip.view.VoipCallFragment.CallFragmentListener;
@@ -101,6 +107,16 @@ public class VoIPActivity extends HikeAppStateBaseFragmentActivity implements Ca
 	public boolean isShowingCallFailedFragment() 
 	{
 		return isFragmentAdded(HikeConstants.VOIP_CALL_FAILED_FRAGMENT_TAG);
+	}
+
+	public void showDeclineWithMessageFragment(Bundle bundle)
+	{
+		if(!isFragmentAdded(HikeConstants.VOIP_CALL_DECLINE_MESSAGE_FRAGMENT_TAG))
+		{
+			CallDeclineWithMessageFragment fragment = new CallDeclineWithMessageFragment();
+			fragment.setArguments(bundle);
+			fragment.show(getSupportFragmentManager(), HikeConstants.VOIP_CALL_DECLINE_MESSAGE_FRAGMENT_TAG);
+		}
 	}
 
 	@Override

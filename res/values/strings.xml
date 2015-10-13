@@ -1449,4 +1449,10 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="terms_conditions_title">T &amp; C</string>
     <string name="group_creation">Created on </string>
     <string name="ls_change_failed">Last Seen update failed!</string>
+    <array name="voip_decline_message_texts">
+        <item>Can\'t talk now. What\'s up?</item>
+        <item>I\'ll call you right back</item>
+        <item>I\'ll call you later</item>
+        <item>Can\'t talk now. Call me later?</item>
+    </array>
 </resources>

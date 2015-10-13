@@ -393,6 +393,8 @@ public class HikePubSub implements Runnable
 	public static final String MUTE_BOT = "muteBot";
 	
 	public static final String PARTICIPANT_JOINED_SYSTEM_MESSAGE = "participantJoinedSystemMsg";
+
+	public static final String STOP_VOIP_SERVICE = "stopVoipService";
 	
 	private final Thread mThread;
 
