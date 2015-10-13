@@ -1111,7 +1111,7 @@
     <string name="file_missing_caps">FILE MISSING</string>
     <string name="status_profile_pic_notification">Changed profile picture</string>
     <string name="group_admin">Admin</string>
-    <string name="sms_group_member">Waiting</string>
+    <string name="sms_group_member">Pending</string>
     <string name="favorite_request_pending">Added as favorite</string>
     <string name="delete_media_from_sdcard">Delete media from phone</string>
     <string name="unable_to_open">Sorry, this file does not exist</string>
