@@ -758,12 +758,13 @@ public class BotUtils
 	 * Unblock the bot and add to the conversation list.
 	 * @param botInfo
 	 */
-	public static void unblockBotAndAddConv(BotInfo botInfo)
+	public static void unblockBotIfBlocked(BotInfo botInfo)
 	{
-		botInfo.setBlocked(false);
-		HikeMessengerApp.getPubSub().publish(HikePubSub.UNBLOCK_USER, botInfo.getMsisdn());
-		
-		HikeMessengerApp.getPubSub().publish(HikePubSub.ADD_NM_BOT_CONVERSATION, botInfo);
+		if (botInfo.isBlocked())
+		{
+			botInfo.setBlocked(false);
+			HikeMessengerApp.getPubSub().publish(HikePubSub.UNBLOCK_USER, botInfo.getMsisdn());
+		}
 	}
 
 }
