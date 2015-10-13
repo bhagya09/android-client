@@ -931,13 +931,6 @@ public class VoipCallFragment extends Fragment implements CallActions
 	
 		ListView conferenceList = (ListView) getView().findViewById(R.id.conference_list);
 		
-		// FYI, when hosting a conference, we do not have an ArrayList object
-		// to use directly in our listview adapter, since client objects are 
-		// kept in a HashMap for quick lookup. Hence, we create an ArrayList from
-		// the HashMap values in getConferenceClients(). However, this effectively
-		// means that we cannot use notifyDataSetChanged() on updates, since the 
-		// ArrayList object itself will change. 
-		
 		if (conferenceClients == null || voipService.hostingConference())
 			conferenceClients = voipService.getConferenceClients();
 			
