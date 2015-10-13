@@ -1045,6 +1045,7 @@ public class PlatformUtils
 				{
 					e.printStackTrace();
 				}
+				ChatHeadUtils.startOrStopService(true);
 			}
 		}
 		else
