@@ -520,6 +520,8 @@ public class AnalyticsConstants
 		public static final String HIKE = "hike";
 		
 		public static final String CALLER_SETTINGS_TOGGLE = "clrStgTgl";
+
+		public static final String KNOWN_CARD_SETTINGS_TOGGLE = "knwStgTgl";
 		
 	}
 	
@@ -573,4 +575,5 @@ public class AnalyticsConstants
 	
 	public static final String UPDATE_INVITE_TIP = "uitip";
 			
+	public static final String FILE_SIZE = "fs";
 }

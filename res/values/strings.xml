@@ -1730,8 +1730,6 @@
     <string name="maxContactInGroupErr">Max %1$s members can be added</string>
     <string name="added_in_group">This contact is already a member</string>
 	<string name="net_not_connected">HikeCaller works only on Wi-Fi or 3G/4G.</string>
-	<string name="sticky_caller_settings">Caller</string>
-	<string name="sticky_caller_settings_side_text">Show caller information for unknown numbers and free calling, messaging options for calls.</string>
 	<string name="okay">OKAY</string>
     <string name="getting_mapp_shortly">Congratulations! You should see %1$s on your chat screen shortly</string>
     <string name="hike_apps">APPS ON HIKE</string>
@@ -1749,4 +1747,10 @@
     <string name="update_tip_body_text">Get free Group Calls, Hike News and \n new Hidden Mode in this update</string>
     <string name="pers_notif_title">Update Hike</string>
     <string name="pers_notif_message">Update Hike for exciting new features!</string>
+    <string name="sticky_caller_settings">Caller</string>
+	<string name="sticky_caller_settings_header">Caller Info</string>
+	<string name="sticky_caller_settings_side_text">Show caller info and free calling/messaging options for all contacts</string>
+	<string name="enable_saved_contact_view_heading">Show for Saved Contacts</string>
+	<string name="enable_saved_contact_view_side_text">Show caller info for saved contacts too</string>
+	
 </resources>
