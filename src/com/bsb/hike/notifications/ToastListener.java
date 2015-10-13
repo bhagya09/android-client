@@ -153,6 +153,7 @@ public class ToastListener implements Listener
 				
 				if (((TimelineActivity) activity).isUpdatesFrgamentOnTop())
 				{
+					HikeMessengerApp.getInstance().getPubSub().publish(HikePubSub.BADGE_COUNT_TIMELINE_UPDATE_CHANGED, null);
 					return;
 				}
 			}
@@ -166,6 +167,7 @@ public class ToastListener implements Listener
 			{
 				notificationType = NotificationType.DPUPDATE;
 			}
+			HikeMessengerApp.getInstance().getPubSub().publish(HikePubSub.BADGE_COUNT_TIMELINE_UPDATE_CHANGED, null);
 			toaster.notifyStatusMessage(statusMessage, notificationType);
 		}
 		else if (HikePubSub.ACTIVITY_UPDATE_NOTIF.equals(type))
