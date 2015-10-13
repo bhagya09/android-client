@@ -3,8 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bsb.hike"
     android:installLocation="auto"
-    android:versionCode="1460"
-    android:versionName="4.0.7.21.5.sticky_caller" >
+    android:versionCode="1461"
+    android:versionName="4.0.7.82.20" >
     
     <uses-sdk
         android:minSdkVersion="14"
