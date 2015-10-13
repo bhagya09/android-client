@@ -40,11 +40,6 @@ public class VoIPActivity extends AppCompatActivity implements CallFragmentListe
 		setContentView(R.layout.voip_activity);
 
 		setupMainFragment();
-		Intent intent = getIntent();
-		if (intent != null) 
-		{
-			mainFragment.handleIntent(intent);
-		}
 		StatusBarColorChanger.setStatusBarColor(getWindow(), HikeConstants.STATUS_BAR_BLUE);
 	}
 
@@ -83,11 +78,6 @@ public class VoIPActivity extends AppCompatActivity implements CallFragmentListe
 		
 		if (intent.hasExtra(VoIPConstants.Extras.REMOVE_FAILED_FRAGMENT) && isShowingCallFailedFragment())
 			removeCallFailedFragment();
-
-		if(mainFragment instanceof VoipCallFragment)
-		{
-			mainFragment.handleIntent(intent);
-		}
 
 		if(intent.getBooleanExtra(VoIPConstants.Extras.INCOMING_CALL, false))
 		{

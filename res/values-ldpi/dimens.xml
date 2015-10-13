@@ -1,35 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <dimen name="fav_tut_arrow_marginTop">0dp</dimen>
-    <dimen name="fav_tut_heading_marginTop">5dp</dimen>
-    <dimen name="fav_tut_pager_height">235dp</dimen>
-    <dimen name="fav_tut_pager_marginTop">10dp</dimen>
-    <dimen name="tutorial_button_margin">10dp</dimen>
-    <dimen name="micromax_margin">10dp</dimen>
     <dimen name="hike_logo_margin">50dp</dimen>
-    <dimen name="version_item_marginTop">40dp</dimen>
     <dimen name="icon_picture_size">65dp</dimen>
     <dimen name="signup_header_height">64dp</dimen>
     <dimen name="signup_gender_padding_top">37dp</dimen>
     <dimen name="signup_profile_pic_dimen">66dp</dimen>
     <dimen name="signup_profile_pic_icon_dimen">20dp</dimen>
-    <dimen name="addfriend_popup_content_height">128dp</dimen>
-	<dimen name="addfriend_popup_content_margin_top">16dp</dimen>
-	<dimen name="addfriend_popup_content_margin_bottom">16dp</dimen>
-	<dimen name="addfriend_popup_title_padding_right">8dp</dimen>
-	<dimen name="addfriend_popup_title_margin_bottom">4dp</dimen>
-	<dimen name="addfriend_popup_btn_margin_bottom">8dp</dimen>
     <dimen name="gallery_cover_item_size">140dp</dimen>
     <dimen name="timeine_big_picture_size">380dp</dimen>
-    <dimen name="tutorial_fragment_header_padding_left">7dp</dimen>
-	<dimen name="tutorial_fragment_title_padding_Right">7dp</dimen>
 	<dimen name="stealth_ftue_pu_img_margin_bottom">8dp</dimen>
 	<dimen name="stealth_ftue_pu_img_margin_top">14dp</dimen>
-	<dimen name="stealth_setup_des_margin_bottom">8dp</dimen>
 	<dimen name="stealth_ftue_pu_msg_margin_bottom">10dp</dimen>
-	<dimen name="platform_icon_margin_bottom">10dp</dimen>
-    <dimen name="logo_top_margin">60dp</dimen>
-    <dimen name="welcome_bottom_margin">15dp</dimen>
     <dimen name="welcome_artwork_padding">10dp</dimen>
     <dimen name="welcome_with_love_top">15dp</dimen>
     <dimen name="photos_filter_preview_font_size">12sp</dimen>
@@ -37,8 +18,6 @@
 	<dimen name="photos_doodle_preview_width">50dp</dimen>
 	<dimen name="photos_doodle_preview_padding">4dp</dimen>
 	<dimen name="photos_filters_preview_padding">7dp</dimen>
-	<dimen name="broadcast_ftue_text_bottom_padding">10dp</dimen>
-	<dimen name="broadcast_ftue_text_right_padding">10dp</dimen>
-	<dimen name="photos_selector_top_padding">0dp</dimen>	
+	<dimen name="photos_selector_top_padding">0dp</dimen>
 	<dimen name="preview_brush_width">30dp</dimen>
 </resources>

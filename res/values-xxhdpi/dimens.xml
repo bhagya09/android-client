@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <dimen name="version_item_marginTop">170dp</dimen>
     <dimen name="ftue_card_text_header_font">40dp</dimen>
 	<dimen name="ftue_card_text_msg_font">20dp</dimen>
 	<dimen name="card_header_img_content_padding_top">15dp</dimen>

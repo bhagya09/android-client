@@ -55,11 +55,7 @@
     <string name="privacy_favorites">2</string>
     <string name="privacy_my_contacts">3</string>
     
-    <string name="stealth_timeout_always">0</string>
-    <string name="stealth_timeout_never">-1</string>
-    <string name="stealth_timeout_immediate">30</string>
-    <string name="stealth_timeout_short">120</string>
-    <string name="stealth_timeout_long">300</string>
 
     <string name="authority">com.bsb.hike.providers.HikeProvider</string>
+    <string name="ag_authority">com.bsb.hike.agoop.NetworkTestModuleProvider</string>
 </resources>

@@ -385,6 +385,8 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 
 	public static final String STEALTH_PIN_AS_PASSWORD = "steatlhPinAsPassword";
 
+	public static final String CONV_DB_VERSION_PREF =  "convDbVersion";
+
 	public static final String SHOWING_STEALTH_FTUE_CONV_TIP = "showingStealthFtueConvTip";
 
 	public static final String RESET_COMPLETE_STEALTH_START_TIME = "resetCompleteStealthStartTime";
@@ -515,6 +517,8 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 	public static final String DEFAULT_TAGS_DOWNLOADED = "defaultTagsDownloaded";
 
 	public static final String STICKER_SET = "stickerSet";
+	
+	public static final String STICKER_REFRESH_SET = "stickerRefreshSet";
 
 	public static final String SHOWN_STICKER_RECOMMEND_TIP = "shownStickerRecommendTip";
 	
@@ -532,6 +536,8 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 
 	public static final String LAST_STICKER_TAG_REFRESH_TIME = "lastStickerTagRefreshTime";
 
+	public static final String LAST_SUCCESSFUL_STICKER_TAG_REFRESH_TIME = "lastSuccessfulStickerTagRefreshTime";
+	
 	public static final String STICKER_TAG_REFRESH_PERIOD = "stickerTagRefreshPeriod";
 	
 	public static final String SHOWN_STICKER_RECOMMEND_FTUE = "shownStickerRecommendationFtue";
