@@ -370,6 +370,8 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		
 		mPubSub = HikeMessengerApp.getPubSub();
 		mPubSub.addListeners(this, hikePubSubListeners);
+		
+		
 	}
 
 	boolean isOpened = false;
@@ -1322,6 +1324,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			@Override
 			public void onClick(View v)
 			{
+				getIntent().removeExtra(HikeConstants.Extras.SELECT_ALL_INITIALLY);
 				setModeAndUpdateAdapter(composeMode);
 				if(selectAllMode)
 				{
@@ -2441,13 +2444,6 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		@Override
 		public void listFetched()
 		{
-			if(getIntent().getBooleanExtra(HikeConstants.Extras.SELECT_ALL_INITIALLY, false))
-			{
-				View selectAllCont = findViewById(R.id.select_all_container);
-				CheckBox cb = (CheckBox) selectAllCont.findViewById(R.id.select_all_cb);
-				cb.setChecked(true);
-			}
-
 			if (PreferenceManager.getDefaultSharedPreferences(ComposeChatActivity.this).getBoolean(HikeConstants.LAST_SEEN_PREF, true))
 			{
 				lastSeenScheduler = LastSeenScheduler.getInstance(ComposeChatActivity.this);
@@ -2467,6 +2463,13 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 				else
 				{
 					setupForSelectAll();
+					if(getIntent().getBooleanExtra(HikeConstants.Extras.SELECT_ALL_INITIALLY, false))
+					{
+						View selectAllCont = findViewById(R.id.select_all_container);
+						CheckBox cb = (CheckBox) selectAllCont.findViewById(R.id.select_all_cb);
+						cb.setChecked(true);
+						selectAllMode=true;
+					}
 				}
 			}
 			
