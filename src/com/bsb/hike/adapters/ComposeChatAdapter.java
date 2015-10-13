@@ -921,5 +921,21 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 	{
 		this.isSearchModeOn = isSearchModeOn;
 	}
+
+	/**
+	 * Forcefully refresh microapps list post closing the search view
+	 */
+	public void refreshBots()
+	{
+		if (microappsListAdapter == null)
+		{
+			return;
+		}
+		
+		if (originalMicroAppCount == microappsListAdapter.getItemCount())
+		{
+			microappsListAdapter.notifyDataSetChanged();
+		}
+	}
 	
 }
