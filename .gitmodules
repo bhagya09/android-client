@@ -1,5 +1,5 @@
 [submodule "transporter"]
 	path = transporter
-	url = https://github.com/hike/transporter.git
+	url = https://github.com/himanshukhandelwal/transporter.git
 	ignore = dirty
 	branch=internal_release
