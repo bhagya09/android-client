@@ -753,6 +753,12 @@ public class HikeConstants
 	
 	public static final String UPDATE_TIP_LABEL = "updateTipLabel";
 	
+	public static final String INVITE_TIP_HEADER = "inviteTipHeader";
+	
+	public static final String INVITE_TIP_BODY = "inviteTipBody";
+	
+	public static final String INVITE_TIP_LABEL = "inviteTipLabel";
+	
 	public static final String SHOW_CRITICAL_UPDATE_TIP = "showCriticalUpdateTip";
 	
 	public static final String SHOW_NORMAL_UPDATE_TIP = "showNormalUpdateTip";
@@ -3286,7 +3292,7 @@ public class HikeConstants
 	public static final String CHAT_SEARCH_ENABLED = "cts_e";
 
 	public static final String CALLBACK_ID ="callbackid";
-
+	
 	public static final String DEVICE_DETAILS = "dd";
 	
 	public static final String DOWNLOAD_TAGS = "srdt";
@@ -3334,5 +3340,11 @@ public class HikeConstants
 	public static final String GET_DISCOVERY_BOTS = "get_bots";
 	
 	public static final String BOTS_DISCOVERY_SECTION = "bds";
+	
+	public static final String ACTIVATE_STICKY_CALLER_PREF = "activateStickyCaller";
+
+	public static final String ENABLE_KNOWN_NUMBER_CARD_PREF = "knownContactEnablePref";
+
+	public static final String NEW_CHAT_RED_DOT = "nc_dot";
 
 }

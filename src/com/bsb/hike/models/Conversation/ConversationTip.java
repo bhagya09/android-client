@@ -210,7 +210,6 @@ public class ConversationTip implements OnClickListener
 			
 		case UPDATE_NORMAL_TIP:
 		case UPDATE_CRITICAL_TIP:
-		case INVITE_TIP:
 			v = inflater.inflate(R.layout.update_tip, null, false);
 			String tipHeaderText = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.UPDATE_TIP_HEADER, "");
 			String tipMsgTxt = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.UPDATE_TIP_BODY, "");
@@ -218,7 +217,7 @@ public class ConversationTip implements OnClickListener
 			((TextView) v.findViewById(R.id.tip_header)).setText(tipHeaderText);
 			((TextView) v.findViewById(R.id.tip_msg)).setText(tipMsgTxt);
 			((TextView) v.findViewById(R.id.update_tip_label)).setText(tipLabelTxt);
-			if(tipType == UPDATE_NORMAL_TIP || tipType == INVITE_TIP)
+			if(tipType == UPDATE_NORMAL_TIP)
 			{
 				ImageView close_tip = (ImageView) v.findViewById(R.id.close_tip);
 				close_tip.setVisibility(View.VISIBLE);
@@ -226,7 +225,19 @@ public class ConversationTip implements OnClickListener
 			}
 			v.findViewById(R.id.all_content).setOnClickListener(this);
 			return v;
-
+		case INVITE_TIP:
+			v = inflater.inflate(R.layout.update_tip, null, false);
+			String invtHeaderText = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.INVITE_TIP_HEADER, "");
+			String invtMsgTxt = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.INVITE_TIP_BODY, "");
+			String invtLabelTxt = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.INVITE_TIP_LABEL, "");
+			((TextView) v.findViewById(R.id.tip_header)).setText(invtHeaderText);
+			((TextView) v.findViewById(R.id.tip_msg)).setText(invtMsgTxt);
+			((TextView) v.findViewById(R.id.update_tip_label)).setText(invtLabelTxt);
+			ImageView close_tip = (ImageView) v.findViewById(R.id.close_tip);
+			close_tip.setVisibility(View.VISIBLE);
+			close_tip.setOnClickListener(this);
+			v.findViewById(R.id.all_content).setOnClickListener(this);
+			return v;
 		default:
 			tipType = NO_TIP;
 			return null;

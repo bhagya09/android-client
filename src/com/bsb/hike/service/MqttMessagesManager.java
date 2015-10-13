@@ -887,7 +887,7 @@ public class MqttMessagesManager
 			{
 				boolean vibrate = false;
 				String msisdn = convMessage.getMsisdn();
-				if (ContactManager.getInstance().isConvExists(msisdn) && Utils.isNotificationEnabled(context))
+				if (ContactManager.getInstance().isConvExists(msisdn))
 				{
 					boolean activeStealthChat = StealthModeManager.getInstance().isStealthMsisdn(msisdn) && StealthModeManager.getInstance().isActive();
 					boolean stealthNotifPref = PreferenceManager.getDefaultSharedPreferences(context).getBoolean(HikeConstants.STEALTH_NOTIFICATION_ENABLED, true);
@@ -2557,11 +2557,15 @@ public class MqttMessagesManager
 		if (data.has(StickyCaller.SHOW_STICKY_CALLER))
 		{
 			HikeSharedPreferenceUtil.getInstance().saveData(StickyCaller.SHOW_STICKY_CALLER, data.optBoolean(StickyCaller.SHOW_STICKY_CALLER, false));
+			if(!data.optBoolean(StickyCaller.SHOW_STICKY_CALLER, false))
+			{
+				ChatHeadUtils.unregisterCallReceiver();
+			}
 		}
-		if (data.has(StickyCaller.ACTIVATE_STICKY_CALLER))
+		if (data.has(HikeConstants.ACTIVATE_STICKY_CALLER_PREF))
 		{
-			HikeSharedPreferenceUtil.getInstance().saveData(StickyCaller.ACTIVATE_STICKY_CALLER, data.optBoolean(StickyCaller.ACTIVATE_STICKY_CALLER, false));
-			if (data.optBoolean(StickyCaller.ACTIVATE_STICKY_CALLER, false))
+			Utils.setSharedPrefValue(context, HikeConstants.ACTIVATE_STICKY_CALLER_PREF, data.optBoolean(HikeConstants.ACTIVATE_STICKY_CALLER_PREF, false));
+			if (data.optBoolean(HikeConstants.ACTIVATE_STICKY_CALLER_PREF, false))
 			{
 				ChatHeadUtils.registerCallReceiver();
 			}
@@ -2569,6 +2573,18 @@ public class MqttMessagesManager
 			{
 				ChatHeadUtils.unregisterCallReceiver();
 			}
+		}
+		if(data.has(StickyCaller.SHOW_KNOWN_NUMBER_CARD))
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(StickyCaller.SHOW_KNOWN_NUMBER_CARD, data.optBoolean(StickyCaller.SHOW_KNOWN_NUMBER_CARD, false));
+		}
+		if (data.has(HikeConstants.ENABLE_KNOWN_NUMBER_CARD_PREF))
+		{
+			Utils.setSharedPrefValue(context, HikeConstants.ENABLE_KNOWN_NUMBER_CARD_PREF, data.optBoolean(HikeConstants.ENABLE_KNOWN_NUMBER_CARD_PREF, true));
+		}
+		if (data.has(StickyCaller.SHOW_FREECALL_VIEW))
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(StickyCaller.SHOW_FREECALL_VIEW, data.optBoolean(StickyCaller.SHOW_FREECALL_VIEW, true));
 		}
 		if (data.has(HikeConstants.BOT_TABLE_REFRESH))
 		{
@@ -2628,6 +2644,16 @@ public class MqttMessagesManager
 			if (!TextUtils.isEmpty(sectionName))
 			{
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.BOTS_DISCOVERY_SECTION, sectionName);
+			}
+		}
+
+		if (data.has(HikeConstants.NEW_CHAT_RED_DOT))
+		{
+			boolean shouldShowRedDot = data.optBoolean(HikeConstants.NEW_CHAT_RED_DOT);
+			if (shouldShowRedDot)
+			{
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.NEW_CHAT_RED_DOT, true);
+				HikeMessengerApp.getPubSub().publish(HikePubSub.SHOW_NEW_CHAT_RED_DOT, null);
 			}
 		}
 		
@@ -3308,12 +3334,13 @@ public class MqttMessagesManager
 					if(update == HikeConstants.CRITICAL_UPDATE || update == HikeConstants.NORMAL_UPDATE)
 					{
 						Editor editor = settings.edit();
-						
-						saveTipContent(isCritical, !isCritical, false, data.optString(HikeConstants.HEADER, ""),
-										data.optString(HikeConstants.BODY, ""), data.optString(HikeConstants.LABEL, ""));
-						
+						editor.putBoolean(HikeConstants.SHOW_CRITICAL_UPDATE_TIP, isCritical);
+						editor.putBoolean(HikeConstants.SHOW_NORMAL_UPDATE_TIP, !isCritical);
 						Logger.d("UpdateTipPersistentNotif", "Showing update tip for target version:"+version);
 						editor.putString(HikeConstants.Extras.LATEST_VERSION, version);
+						editor.putString(HikeConstants.UPDATE_TIP_HEADER, data.optString(HikeConstants.HEADER, ""));
+						editor.putString(HikeConstants.UPDATE_TIP_BODY, data.optString(HikeConstants.BODY, ""));
+						editor.putString(HikeConstants.UPDATE_TIP_LABEL, data.optString(HikeConstants.LABEL, ""));
 						
 						if (!TextUtils.isEmpty(updateURL))
 							editor.putString(HikeConstants.Extras.URL, updateURL);
@@ -3329,8 +3356,12 @@ public class MqttMessagesManager
 			JSONObject data = jsonObj.optJSONObject(HikeConstants.DATA);
 			if(data != null)
 			{
-				saveTipContent(false, false, true, data.optString(HikeConstants.HEADER, ""),
-						data.optString(HikeConstants.BODY, ""), data.optString(HikeConstants.LABEL, ""));
+				Editor editor = settings.edit();
+				editor.putBoolean(HikeConstants.SHOW_INVITE_TIP, true);
+				editor.putString(HikeConstants.INVITE_TIP_HEADER, data.optString(HikeConstants.HEADER, ""));
+				editor.putString(HikeConstants.INVITE_TIP_BODY, data.optString(HikeConstants.BODY, ""));
+				editor.putString(HikeConstants.INVITE_TIP_LABEL, data.optString(HikeConstants.LABEL, ""));
+				editor.commit();
 			}
 			
 		}
@@ -3375,18 +3406,6 @@ public class MqttMessagesManager
 			// updatePopUpData
 			updateAtomicPopUpData(jsonObj);
 		}
-	}
-	
-	private void saveTipContent(boolean showCritical, boolean showNormal, boolean showInvite, String header, String body, String label)
-	{
-		Editor editor = settings.edit();
-		editor.putBoolean(HikeConstants.SHOW_CRITICAL_UPDATE_TIP, showCritical);
-		editor.putBoolean(HikeConstants.SHOW_NORMAL_UPDATE_TIP, showNormal);
-		editor.putBoolean(HikeConstants.SHOW_INVITE_TIP, showInvite);
-		editor.putString(HikeConstants.UPDATE_TIP_HEADER, header);
-		editor.putString(HikeConstants.UPDATE_TIP_BODY, body);
-		editor.putString(HikeConstants.UPDATE_TIP_LABEL, label);
-		editor.commit();
 	}
 	
 	private void playNotification(JSONObject jsonObj)
