@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:atx="http://schemas.android.com/apk/res-auto"
      android:layout_width="match_parent"
     android:layout_height="match_parent">
 <com.bsb.hike.view.CustomLinearLayout 
@@ -64,6 +65,7 @@
                     android:maxLines="5"
                     android:textColor="@color/list_item_header"
                     android:maxLength="5000"
+                    atx:charInputMaxLength="5000"
                     android:textColorHint="#44444444"
                     android:textSize="16sp"
                     android:textStyle="normal" >
