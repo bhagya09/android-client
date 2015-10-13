@@ -57,4 +57,5 @@
     
 
     <string name="authority">com.bsb.hike.providers.HikeProvider</string>
+    <string name="ag_authority">com.bsb.hike.agoop.NetworkTestModuleProvider</string>
 </resources>

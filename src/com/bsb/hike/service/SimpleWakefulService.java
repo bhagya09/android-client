@@ -31,6 +31,14 @@ public class SimpleWakefulService extends IntentService
 	protected void onHandleIntent(Intent intent)
 	{
 
+		/**if the service is restarted then a null intent is retured
+		
+		http://developer.android.com/reference/android/app/IntentService.html#onStartCommand(android.content.Intent,%20int,%20int)
+		*/
+		if (intent == null)
+		{
+			return;
+		}
 		try
 		{
 			long time = intent.getLongExtra(HikeAlarmManager.ALARM_TIME, HikeAlarmManager.REQUESTCODE_DEFAULT);
