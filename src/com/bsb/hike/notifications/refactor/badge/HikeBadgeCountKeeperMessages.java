@@ -21,8 +21,13 @@ public class HikeBadgeCountKeeperMessages extends HikeBadgeCountKeeper
 	protected void init()
 	{
 		// TODO Auto-generated method stub
-		mlistener = new String[] { HikePubSub.BULK_MESSAGE_NOTIFICATION, HikePubSub.MESSAGE_RECEIVED, HikePubSub.MSG_READ, HikePubSub.BADGE_COUNT_MESSAGE_CHANGED };
+		mlistener = new String[] { HikePubSub.BULK_MESSAGE_NOTIFICATION, HikePubSub.MESSAGE_RECEIVED, HikePubSub.MSG_READ, HikePubSub.BADGE_COUNT_MESSAGE_CHANGED ,HikePubSub.CONVERSATION_DELETED,HikePubSub.NEW_CONVERSATION};
 
 	}
 
+	@Override
+	public String toString()
+	{
+		return "HikeBadgeCountKeeperMessages";
+	}
 }
