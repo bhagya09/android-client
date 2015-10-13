@@ -8655,9 +8655,9 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 	}
 	public void resetUnreadCounter(String msisdn)
 	{
-		String sqlString = "UPDATE " + DBConstants.CONVERSATIONS_TABLE + " SET " + DBConstants.UNREAD_COUNT + "= 0" + " WHERE "
-				+ DBConstants.MSISDN + "=" + DatabaseUtils.sqlEscapeString(msisdn);
-		mDb.execSQL(sqlString);
+		ContentValues values = new ContentValues();
+		values.put(DBConstants.UNREAD_COUNT,0);
+		mDb.updateWithOnConflict(DBConstants.CONVERSATIONS_TABLE, values, MSISDN + "=?", new String[] { msisdn }, SQLiteDatabase.CONFLICT_IGNORE);
 	}
 
 }
