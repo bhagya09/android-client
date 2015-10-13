@@ -4380,7 +4380,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 					insertStatement.bindLong(ih.getColumnIndex(DBConstants.HAS_LEFT), 0);
 					insertStatement.bindLong(ih.getColumnIndex(DBConstants.ON_DND), groupParticipant.onDnd() ? 1 : 0);
 					insertStatement.bindLong(ih.getColumnIndex(DBConstants.SHOWN_STATUS), groupParticipant.getContactInfo().isOnhike() ? 1 : 0);
-					insertStatement.bindLong(ih.getColumnIndex(DBConstants.TYPE), groupParticipant.isAdmin() ? 1 : (groupParticipant.isSMSGroupMember() ? 2 : 0));
+					insertStatement.bindLong(ih.getColumnIndex(DBConstants.TYPE), groupParticipant.isAdmin() ? 1 : 0);
 					insertStatement.executeInsert();
 
 					newParticipants.put(participant.getKey(), new PairModified<GroupParticipant, String>(groupParticipant, participant.getValue().getSecond()));
