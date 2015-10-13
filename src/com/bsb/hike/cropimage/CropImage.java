@@ -388,7 +388,7 @@ public class CropImage extends MonitoredActivity
 		// If we are circle cropping, we want alpha channel, which is the
 		// third param here.
 		Bitmap croppedImage = returnToFile ? HikeBitmapFactory.createBitmap(width, height, Bitmap.Config.ARGB_8888) : HikeBitmapFactory.createBitmap(width, height,
-				mCircleCrop ? Bitmap.Config.ARGB_8888 : Bitmap.Config.RGB_565);
+				mCircleCrop ? Bitmap.Config.ARGB_8888 : Bitmap.Config.ARGB_8888);
 
 		if (croppedImage == null)
 		{
@@ -443,7 +443,7 @@ public class CropImage extends MonitoredActivity
 
 				// Don't scale the image but instead fill it so it's the
 				// required dimension
-				Bitmap b = HikeBitmapFactory.createBitmap(mOutputX, mOutputY, Bitmap.Config.RGB_565);
+				Bitmap b = HikeBitmapFactory.createBitmap(mOutputX, mOutputY, Bitmap.Config.ARGB_8888);
 				if (b == null)
 				{
 					onError();
