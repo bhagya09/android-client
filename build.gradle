@@ -49,6 +49,9 @@ android {
          compile(project(':transporter-library')) {
             exclude module: 'support-v4'
         }
+         compile(project(':cropper')) {
+            exclude module: 'support-v4'
+        }
         compile fileTree(dir: 'libs', include: ['*.jar'])
     }
 
