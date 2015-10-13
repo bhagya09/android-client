@@ -740,6 +740,8 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 				if (mCustomKeyboard != null &&findViewById(R.id.composeChatNewGroupTagET).getVisibility()==View.VISIBLE&& tagEditText != null)
 				{
 					mCustomKeyboard.showCustomKeyboard(tagEditText, true);
+				}else if(mCustomKeyboard != null&&searchET!=null&&searchMenuItem.isActionViewExpanded()){
+					mCustomKeyboard.showCustomKeyboard(searchET, true);
 				}
 			}
 		super.onResume();
