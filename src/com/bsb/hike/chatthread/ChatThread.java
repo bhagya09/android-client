@@ -6116,7 +6116,11 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	@Override
 	public void onReturnAction(int arg0)
 	{
-		if (!TextUtils.isEmpty(mComposeView.getText())) {
+		 if (searchEt!=null&& searchText!=null)
+		{
+			searchMessage(false,true);
+		 
+		}else if (!TextUtils.isEmpty(mComposeView.getText())) {
 			sendButtonClicked();
 		}
 	}
