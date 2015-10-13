@@ -2296,6 +2296,11 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 	protected void onResume()
 	{
 		super.onResume();
+		if (mCustomKeyboard != null && !mCustomKeyboard.isCustomKeyboardVisible())
+		{
+			mCustomKeyboard.showCustomKeyboard(enterEditText, true);
+			
+		}
 		Logger.d("Signup", "SingupActivity onresume");
 	}
 
