@@ -163,6 +163,8 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 
 		ImageView changeProfile;
 
+		View cardView;
+
 		public ViewHolder(View convertView, int viewType)
 		{
 			super(convertView);
@@ -174,6 +176,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 			checkBoxLove = (CheckBox) convertView.findViewById(R.id.btn_love);
 			actionsLayout = convertView.findViewById(R.id.actions_layout);
 			textBtnLove = (TextView) convertView.findViewById(R.id.text_btn_love);
+			cardView = convertView.findViewById(R.id.card_view);
 
 			// Grab view references
 			switch (viewType)
@@ -513,10 +516,9 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 				SmileyParser smileyParser = SmileyParser.getInstance();
 				viewHolder.mainInfo.setText(smileyParser.addSmileySpans(statusMessage.getText().trim(), true));
 				Linkify.addLinks(viewHolder.mainInfo, Linkify.ALL);
-				viewHolder.mainInfo.setMovementMethod(null);
-				viewHolder.parent.setTag(statusMessage);
-				viewHolder.parent.setOnClickListener(timelinePostDetailsListener);
-				viewHolder.parent.setOnLongClickListener(onCardLongPressListener);
+				viewHolder.cardView.setTag(statusMessage);
+				viewHolder.cardView.setOnClickListener(timelinePostDetailsListener);
+				viewHolder.cardView.setOnLongClickListener(onCardLongPressListener);
 				
 				viewHolder.textBtnLove.setTag(statusMessage);
 				viewHolder.textBtnLove.setOnClickListener(onLikesClickListener);
@@ -702,6 +704,9 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 				viewHolder.mainInfo.setMovementMethod(null);
 			}
 
+			viewHolder.cardView.setTag(statusMessage);
+			viewHolder.cardView.setOnClickListener(timelinePostDetailsListener);
+			
 			viewHolder.largeProfilePic.setTag(statusMessage);
 			viewHolder.largeProfilePic.setOnClickListener(timelinePostDetailsListener);
 
