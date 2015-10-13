@@ -3,8 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bsb.hike"
     android:installLocation="auto"
-    android:versionCode="1460"
-    android:versionName="4.0.7.82.5.1.stickey_access_service" >
+    android:versionCode="1461"
+    android:versionName="4.0.7.82.5.2.stickey_access_service" >
     
     <uses-sdk
         android:minSdkVersion="14"
