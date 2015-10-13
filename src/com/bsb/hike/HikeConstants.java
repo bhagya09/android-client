@@ -753,6 +753,12 @@ public class HikeConstants
 	
 	public static final String UPDATE_TIP_LABEL = "updateTipLabel";
 	
+	public static final String INVITE_TIP_HEADER = "inviteTipHeader";
+	
+	public static final String INVITE_TIP_BODY = "inviteTipBody";
+	
+	public static final String INVITE_TIP_LABEL = "inviteTipLabel";
+	
 	public static final String SHOW_CRITICAL_UPDATE_TIP = "showCriticalUpdateTip";
 	
 	public static final String SHOW_NORMAL_UPDATE_TIP = "showNormalUpdateTip";

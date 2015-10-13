@@ -1912,17 +1912,17 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 	
 	private int whichUpdateTip()
 	{
-		if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SHOW_CRITICAL_UPDATE_TIP, false))
+		if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SHOW_INVITE_TIP, false))
 		{
-			return ConversationTip.UPDATE_CRITICAL_TIP;
+			return ConversationTip.INVITE_TIP;
 		}
 		else if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SHOW_NORMAL_UPDATE_TIP, false))
 		{
 			return ConversationTip.UPDATE_NORMAL_TIP;
 		}
-		else if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SHOW_INVITE_TIP, false))
+		else if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SHOW_CRITICAL_UPDATE_TIP, false))
 		{
-			return ConversationTip.INVITE_TIP;
+			return ConversationTip.UPDATE_CRITICAL_TIP;
 		}
 		return -1;
 	}
