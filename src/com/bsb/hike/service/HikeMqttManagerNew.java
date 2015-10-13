@@ -1436,7 +1436,7 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 			LocalBroadcastManager.getInstance(context).unregisterReceiver(this);
 			context.unregisterReceiver(screenOnOffReceiver);
 			disconnectOnMqttThread(false);
-
+			
 			if(mMessenger != null)
 			{
 				mMessenger = null;
