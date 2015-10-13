@@ -4041,6 +4041,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 		StringBuilder sb = new StringBuilder();
 		sb.append("(");
+		String msisdn=convMessages.get(0).getMsisdn();
 
 		List<Pair<Long, JSONObject>> ids = new ArrayList<Pair<Long, JSONObject>>();
 		for (int j = 0; j < convMessages.size(); j++)
@@ -4076,12 +4077,12 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		ContentValues values = new ContentValues();
 		values.put(DBConstants.MSG_STATUS, ConvMessage.State.RECEIVED_READ.ordinal());
 		int rowsAffected = mDb.update(DBConstants.MESSAGES_TABLE, values, DBConstants.MESSAGE_ID + " in " + sb.toString(), null);
-
+		String[] args = { msisdn };
 		// Resetting the unread count as well
 		values.put(DBConstants.UNREAD_COUNT, 0);
-		mDb.update(DBConstants.CONVERSATIONS_TABLE, values, DBConstants.MESSAGE_ID + " in " + sb.toString(), null);
-
-		Logger.d("HIKE CONVERSATION DB ", "Rows Updated : " + rowsAffected);
+		int rowsAffect = mDb.update(DBConstants.CONVERSATIONS_TABLE, values, DBConstants.MSISDN + "=?", args);
+	
+		Logger.d("HIKE CONVERSATION DB ", "Rows Updated : " + rowsAffected + " RowsUpdated " + rowsAffect);
 		if (ids.size() == 0)
 		{
 			return null;
