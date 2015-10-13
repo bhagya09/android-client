@@ -346,10 +346,6 @@
             android:configChanges="orientation|screenSize|keyboard|keyboardHidden" >
         </activity>
         <activity
-            android:name=".chatHead.StickyCallerSettings"
-            android:configChanges="orientation|screenSize|keyboard|keyboardHidden" >
-        </activity>
-		<activity
             android:name=".ui.PinHistoryActivity"
             android:configChanges="orientation|screenSize|keyboard|keyboardHidden"
             android:theme="@style/AppTheme.ChatThread" >
@@ -466,7 +462,6 @@
             android:theme="@style/TranslucentBlack" >
         </activity>
 
-        <receiver android:name=".chatHead.ChatHeadServiceManager" />
         <service android:name=".chatHead.ChatHeadService" 
             android:label="HikeStickeyService"/>
         <service android:name=".voip.VoIPService" />
