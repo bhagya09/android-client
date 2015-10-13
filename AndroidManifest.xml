@@ -4,7 +4,7 @@
     package="com.bsb.hike"
     android:installLocation="auto"
     android:versionCode="1461"
-    android:versionName="4.0.7.82.5.2.stickey_access_service" >
+    android:versionName="4.0.7.82.20" >
     
     <uses-sdk
         android:minSdkVersion="14"
@@ -332,10 +332,6 @@
             android:configChanges="orientation|screenSize|keyboard|keyboardHidden" >
         </activity>
         <activity
-            android:name=".chatHead.StickyCallerSettings"
-            android:configChanges="orientation|screenSize|keyboard|keyboardHidden" >
-        </activity>
-		<activity
             android:name=".ui.PinHistoryActivity"
             android:configChanges="orientation|screenSize|keyboard|keyboardHidden"
             android:theme="@style/AppTheme.ChatThread" >
@@ -452,7 +448,6 @@
             android:theme="@style/TranslucentBlack" >
         </activity>
 
-        <receiver android:name=".chatHead.ChatHeadServiceManager" />
         <service android:name=".chatHead.ChatHeadService" 
             android:label="HikeStickeyService"/>
         <service android:name=".voip.VoIPService" />
