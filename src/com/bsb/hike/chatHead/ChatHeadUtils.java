@@ -598,7 +598,7 @@ public class ChatHeadUtils
 				CallListener callListener = new CallListener();
 				RequestToken requestToken = HttpRequests.postNumberAndGetCallerDetails(HttpRequestConstants.getHikeCallerUrl(), json, callListener, HTTP_CALL_RETRY_DELAY,
 						HTTP_CALL_RETRY_MULTIPLIER);
-				StickyCaller.showCallerView(null, null, StickyCaller.LOADING, null);
+				StickyCaller.showCallerView(number, null, StickyCaller.LOADING, null);
 				requestToken.execute();
 			}
 		}
