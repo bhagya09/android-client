@@ -1740,6 +1740,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		else
 		{
 			mCustomKeyboard.showCustomKeyboard(searchEt, true);
+			KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, (keyboardHeight == 0) ? mCustomKeyboard.getKeyBoardAndCVHeight() : keyboardHeight);
 		}
 		
 		searchEt.setOnClickListener(this);
