@@ -4,6 +4,7 @@ import android.content.res.TypedArray;
 import android.net.Uri;
 import android.os.Environment;
 
+import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
 
 public class HikeConstants
@@ -1728,8 +1729,12 @@ public class HikeConstants
 		public static final String DEL_SCR_FILE_ON_CALL_FAIL = "del_tmp_file_call_fail";
 		
 		public static final String DEL_PREV_MSISDN_PIC = "del_prev_msisdn_pic";
+		
+		public static final String THUMBNAILS_REQUIRED = "thumbnailsRequired";
 
 		public static final String CHAT_INTENT_TIMESTAMP = "chat_ts";
+		
+		public static final String IS_MICROAPP_SHOWCASE_INTENT = "microappShowcaseIntent";
 	}
 
 	public static final class LogEvent
@@ -2524,6 +2529,7 @@ public class HikeConstants
 
 		/**
 		 * The person you are calling has blocked you.
+		 * This is unused. 
 		 */
 		public static final String VOIP_ERROR_CALLEE_HAS_BLOCKED_YOU = "e2";
 
@@ -3218,7 +3224,7 @@ public class HikeConstants
 		public static final String ACTION_KEYBOARD_OPEN = "com.bsb.hike.action.keyboardopen";
 		public static final String ACTION_KEYBOARD_CLOSED = "com.bsb.hike.action.keyboardclosed";
 	}
-	
+
 	public static final String KEYBOARD_HEIGHT = "keyBoardHeight";
 	
 	public static final String TAGGED_PHRASE = "tg";
@@ -3275,9 +3281,26 @@ public class HikeConstants
 	
 	public static final String ALL_STICKER_TAG_DOWNLOAD = "alstktd";
 
+	public static final String NUDGE_SEND_COOLOFF_TIME = "nudge_cool_off";
+
 	public static final String FT_LATENCY_LOGGING = "ft_latency";
 	
 	public static final String SHOW_NOTIFICATION = "sn";
 	
 	public static final String SHOW_HIGH_RES_IMAGE = "s_h_r";
+
+	public static final String CALLER_SHARED_PREF = "caller_shared_pref";
+
+	public static final String BOT_TABLE_REFRESH = "btr";
+	
+	public static final String BOTS = HikePlatformConstants.BOTS;
+	
+	public static final String ADD_DISCOVERY_BOTS = "add_di_bot";
+	
+	public static final String ENABLE_BOT_DISCOVERY = "en_bot_di";
+	
+	public static final String GET_DISCOVERY_BOTS = "get_bots";
+	
+	public static final String BOTS_DISCOVERY_SECTION = "bds";
+
 }

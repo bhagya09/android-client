@@ -44,7 +44,7 @@ public class JSONObjectRequest extends Request<JSONObject>
 	}
 
 	@Override
-	public JSONObject parseResponse(InputStream in) throws IOException
+	public JSONObject parseResponse(InputStream in, int contentLength) throws IOException
 	{
 		try
 		{

@@ -263,6 +263,10 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	protected static final int SCROLL_LISTENER_ATTACH = 38;
 	
 	protected static final int REMOVE_CHAT_BACKGROUND = 0;
+
+	protected static final int NUDGE_COOLOFF_TIME = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.NUDGE_SEND_COOLOFF_TIME, 1000);
+
+	private long lastNudgeTime = -1;
     
     private int NUDGE_TOAST_OCCURENCE = 2;
     	
@@ -2346,6 +2350,10 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		{
 			return false;
 		}
+		if ((System.currentTimeMillis() - lastNudgeTime) < NUDGE_COOLOFF_TIME && lastNudgeTime > 0)
+		{
+			return false;
+		}
 		if (!_doubleTapPref)
 		{
 			try
@@ -2366,8 +2374,9 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			}
 			return false;
 		}
-			sendPoke();
-			return true;
+		lastNudgeTime = System.currentTimeMillis();
+		sendPoke();
+		return true;
 	}
 
 	protected void sendPoke()

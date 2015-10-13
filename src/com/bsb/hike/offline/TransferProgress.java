@@ -7,9 +7,9 @@ package com.bsb.hike.offline;
  */
 public class TransferProgress
 {
-	private int currentChunks;
+	private long currentChunks;
 
-	private int totalChunks;
+	private long totalChunks;
 
 	public TransferProgress()
 	{
@@ -17,7 +17,7 @@ public class TransferProgress
 		setTotalChunks(0);
 	}
 
-	public TransferProgress(int cChunks, int tChunks)
+	public TransferProgress(long cChunks, long tChunks)
 	{
 		this.setCurrentChunks(cChunks);
 		this.setTotalChunks(tChunks);
@@ -26,7 +26,7 @@ public class TransferProgress
 	/**
 	 * @return the currentChunks
 	 */
-	public int getCurrentChunks()
+	public long getCurrentChunks()
 	{
 		return currentChunks;
 	}
@@ -34,7 +34,7 @@ public class TransferProgress
 	/**
 	 * @param currentChunks the currentChunks to set
 	 */
-	public void setCurrentChunks(int currentChunks)
+	public void setCurrentChunks(long currentChunks)
 	{
 		this.currentChunks = currentChunks;
 	}
@@ -42,7 +42,7 @@ public class TransferProgress
 	/**
 	 * @return the totalChunks
 	 */
-	public int getTotalChunks()
+	public long getTotalChunks()
 	{
 		return totalChunks;
 	}
@@ -50,7 +50,7 @@ public class TransferProgress
 	/**
 	 * @param totalChunks the totalChunks to set
 	 */
-	public void setTotalChunks(int totalChunks)
+	public void setTotalChunks(long totalChunks)
 	{
 		this.totalChunks = totalChunks;
 	}

@@ -549,6 +549,10 @@ public class ToastListener implements Listener
 							continue;
 						}
 					}
+					if (message.getPlatformData() != null && message.getPlatformData().optString(HikeConstants.PLAY_NOTIFICATION).equals(HikeConstants.OFF))
+					{
+						continue;
+					}
 					if (participantInfoState == ParticipantInfoState.NO_INFO || participantInfoState == ParticipantInfoState.PARTICIPANT_JOINED
 						|| participantInfoState == ParticipantInfoState.USER_JOIN || participantInfoState == ParticipantInfoState.CHAT_BACKGROUND 
 						|| message.isVoipMissedCallMsg() || participantInfoState == ParticipantInfoState.OFFLINE_INLINE_MESSAGE ||participantInfoState == ParticipantInfoState.CHANGE_ADMIN)

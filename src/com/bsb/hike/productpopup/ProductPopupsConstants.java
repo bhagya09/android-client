@@ -398,6 +398,15 @@ public class ProductPopupsConstants
 				return "chathead";
 			}
 		},
+		HIKE_CALLER
+		{
+			@Override
+			public String toString()
+			{
+				// TODO Auto-generated method stub
+				return "hikecaller";
+			}
+		},
 		ACCESS
 		{
 			@Override
@@ -405,6 +414,15 @@ public class ProductPopupsConstants
 			{
 				// TODO Auto-generated method stub
 				return "access";
+			}
+		},
+		GAME_ACTIVITY
+		{
+			@Override
+			public String toString()
+			{
+				// TODO Auto-generated method stub
+				return "gameActivity";
 			}
 		};
 		

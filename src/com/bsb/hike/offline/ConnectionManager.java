@@ -578,15 +578,13 @@ public class ConnectionManager
 	private void connectToWifi(String ssid)
 	{
 
-		if (TextUtils.isEmpty(ssid) || (ssid.startsWith("0x") || ssid.startsWith("0X")) || ssid.contains("unknown ssid") || ssid.contains("none"))
+		if (!isSSIDValid(ssid))
 		{
+			stopWifi();
 			return;
 		}
 
-		if (!wifiManager.isWifiEnabled())
-		{
-			wifiManager.setWifiEnabled(true);
-		}
+		startWifi();
 
 		Logger.d("OfflineMANAGER", "WILL BE GETTING LIST" + System.currentTimeMillis() + " trying ssid " + ssid);
 		List<WifiConfiguration> list = wifiManager.getConfiguredNetworks();
@@ -668,11 +666,11 @@ public class ConnectionManager
 		if (isWifiHotspotRunning)
 		{
 			closeHikeHotspot(deviceName);
-			if(!TextUtils.isEmpty(currentnetId))
+			if (isSSIDValid(currentnetId))
 			{
 				startWifi();
 			}
-			
+
 		}
 		else
 		{
@@ -682,7 +680,7 @@ public class ConnectionManager
 				connectToWifi(currentnetId);
 			}
 		}
-		
+
 		clearAllVariables();
 	}
 
@@ -719,6 +717,14 @@ public class ConnectionManager
 	public void updateNetworkId()
 	{
 		currentnetId = wifiManager.getConnectionInfo().getSSID();
+	}
+	
+	private boolean isSSIDValid(String ssid)
+	{
+		if (TextUtils.isEmpty(ssid) || (ssid.startsWith("0x") || ssid.startsWith("0X")) || ssid.contains("unknown ssid") || ssid.contains("none"))
+			return false;
+
+		return true;
 	}
 
 }

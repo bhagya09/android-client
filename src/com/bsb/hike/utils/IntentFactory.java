@@ -34,6 +34,7 @@ import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.bots.NonMessagingBotMetadata;
 import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.chatHead.StickerShareSettings;
+import com.bsb.hike.chatHead.StickyCallerSettings;
 import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.cropimage.CropImage;
@@ -43,10 +44,10 @@ import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.models.Conversation.ConvInfo;
-import com.bsb.hike.timeline.view.StatusUpdate;
-import com.bsb.hike.timeline.view.TimelineActivity;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
 import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.timeline.view.StatusUpdate;
+import com.bsb.hike.timeline.view.TimelineActivity;
 import com.bsb.hike.ui.ApkSelectionActivity;
 import com.bsb.hike.ui.ComposeChatActivity;
 import com.bsb.hike.ui.ConnectedAppsActivity;
@@ -212,6 +213,11 @@ public class IntentFactory
 		{
 			context.startActivity(getStickerShareSettingsIntent(context));
 		}
+	}
+	
+	public static void openStickyCallerSettings(Context context)
+	{
+			context.startActivity(getStickyCallerSettingsIntent(context));
 	}
 	
 	public static void openSettingHelp(Context context)
@@ -380,6 +386,11 @@ public class IntentFactory
 	{
 		HAManager.getInstance().chatHeadshareAnalytics(AnalyticsConstants.ChatHeadEvents.HIKE_STICKER_SETTING);
 		return new Intent(context, StickerShareSettings.class);
+	}
+	
+	public static Intent getStickyCallerSettingsIntent(Context context)
+	{
+		return new Intent(context, StickyCallerSettings.class);
 	}
 	
 
@@ -772,13 +783,15 @@ public class IntentFactory
 		if (BotUtils.isBot(msisdn))
 		{
 			BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
+			
 			if (botInfo.isNonMessagingBot())
 			{
+				NonMessagingBotMetadata nonMessagingBotMetadata = new NonMessagingBotMetadata(botInfo.getMetadata());
 				Intent intent = getWebViewActivityIntent(context, "", "");
-				NonMessagingBotMetadata nonMessagingBotMetadata= new NonMessagingBotMetadata(botInfo.getMetadata());
 				intent.putExtra(WebViewActivity.WEBVIEW_MODE, nonMessagingBotMetadata.isWebUrlMode() ? WebViewActivity.WEB_URL_BOT_MODE : WebViewActivity.MICRO_APP_MODE);
 				intent.putExtra(HikeConstants.MSISDN, msisdn);
 				return intent;
+
 			}
 		}
 
@@ -1066,5 +1079,25 @@ public class IntentFactory
 	{
 		Intent intent = new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS);
 		activity.startActivityForResult(intent, 0);
+	}
+	
+	public static void openIntentForGameActivity(Context context)
+	{
+		//TODO:Pass Intent of game activity and any extras.
+//				Intent i = new Intent(context,SettingsActivity.class);
+//		
+//			context.startActivity(i);
+	}
+	
+	public static Intent getIntentForBots(BotInfo mBotInfo, Context context)
+	{
+		if (mBotInfo.isNonMessagingBot())
+		{
+			return IntentFactory.getNonMessagingBotIntent(mBotInfo.getMsisdn(), context);
+		}
+		else
+		{
+			return IntentFactory.createChatThreadIntentFromMsisdn(context, mBotInfo.getMsisdn(), false, false);
+		}
 	}
 }
