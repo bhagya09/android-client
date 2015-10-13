@@ -79,6 +79,12 @@ import com.bsb.hike.utils.Utils;
 import com.bsb.hike.video.HikeVideoCompressor;
 import com.bsb.hike.video.VideoUtilities;
 import com.bsb.hike.video.VideoUtilities.VideoEditedInfo;
+import com.bsb.hike.modules.httpmgr.Header;
+import com.bsb.hike.modules.httpmgr.RequestToken;
+import com.bsb.hike.modules.httpmgr.exception.HttpException;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
+import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
+import com.bsb.hike.modules.httpmgr.response.Response;
 
 public class UploadFileTask extends FileTransferBase
 {
@@ -109,6 +115,10 @@ public class UploadFileTask extends FileTransferBase
 	private HttpClient client;
 
 	private HttpContext httpContext = HttpClientContext.create();
+
+	private int okHttpResCode;
+
+	private String okHttpRes;
 
 	protected UploadFileTask(Handler handler, ConcurrentHashMap<Long, FutureTask<FTResult>> fileTaskMap, Context ctx, String token, String uId, ConvMessage convMessage)
 	{
@@ -649,7 +659,17 @@ public class UploadFileTask extends FileTransferBase
 				throw new IOException("Exception in partial read. files ended");
 			}
 			String contentRange = "bytes " + start + "-" + end + "/" + length;
-			String responseString = send(contentRange, fileBytes);
+			String responseString = null;
+			if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.FT_USE_APACHE_HTTP_CLIENT, false))
+			{
+				Logger.d(getClass().getSimpleName(), "Using APACHE client to upload the file");
+				responseString = send(contentRange, fileBytes);
+			}
+			else
+			{
+				Logger.d(getClass().getSimpleName(), "Using OKHTTP client to upload the file");
+				responseString = okHttpSend(contentRange, fileBytes);
+			}
 
 			if (end == (length - 1) && responseString != null)
 			{
@@ -1232,5 +1252,80 @@ public class UploadFileTask extends FileTransferBase
 			saveFileKeyState(fileKey);
 			fileKey = null;
 		}
+	}
+
+	private String okHttpSend(String contentRange, byte[] fileBytes) {
+		long time = System.currentTimeMillis();
+		List<Header> headers = new ArrayList<Header>();
+		headers.add(new Header("Connection", "Keep-Alive"));
+		headers.add(new Header("Content-Name", selectedFile.getName()));
+		headers.add(new Header("X-Thumbnail-Required", "0"));
+		headers.add(new Header("X-SESSION-ID", X_SESSION_ID));
+		headers.add(new Header("X-CONTENT-RANGE", contentRange));
+		headers.add(new Header("Cookie", "user=" + token + ";UID=" + uId));
+		headers.add(new Header("Content-Type", "multipart/form-data; boundary=" + BOUNDARY));
+
+		Logger.d(getClass().getSimpleName(), "user=" + token + "; UID=" + uId);
+
+		RequestToken uploadReqToken = HttpRequests.uploadFileRequest(fileBytes, BOUNDARY, new IRequestListener()
+		{
+			@Override
+			public void onRequestSuccess(Response result)
+			{
+				okHttpResCode = result.getStatusCode();
+				okHttpRes = new String((byte[]) result.getBody().getContent());
+				Logger.d("UploadFileTask", "OkHttp response = " + okHttpRes);
+			}
+
+			@Override
+			public void onRequestProgressUpdate(float progress)
+			{
+				// TODO Auto-generated method stub
+			}
+
+			@Override
+			public void onRequestFailure(HttpException httpException)
+			{
+				Logger.e(getClass().getSimpleName(), "FT Upload unknown error : " + httpException.getCause());
+				handleException(httpException.getCause());
+				FTAnalyticEvents.logDevException(FTAnalyticEvents.UPLOAD_HTTP_OPERATION, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "http", "Unknown exception : ", httpException.getCause());
+				okHttpRes = null;
+			}
+		}, headers, mUrl.toString());
+
+		uploadReqToken.execute();
+
+		if (okHttpResCode != 0 && okHttpResCode != RESPONSE_OK && okHttpResCode != RESPONSE_ACCEPTED)
+		{
+			error();
+			okHttpRes = null;
+			if (retryAttempts >= MAX_RETRY_ATTEMPTS || okHttpResCode == RESPONSE_BAD_REQUEST || okHttpResCode == RESPONSE_NOT_FOUND)
+			{
+				FTAnalyticEvents.logDevError(FTAnalyticEvents.UPLOAD_HTTP_OPERATION, okHttpResCode, FTAnalyticEvents.UPLOAD_FILE_TASK, "http", "Upload stopped");
+				retry = false;
+			} else if (okHttpResCode == INTERNAL_SERVER_ERROR)
+			{
+				FTAnalyticEvents.logDevError(FTAnalyticEvents.UPLOAD_HTTP_OPERATION, okHttpResCode, FTAnalyticEvents.UPLOAD_FILE_TASK, "http", "INTERNAL_SERVER_ERROR");
+				deleteStateFile();
+				_state = FTState.IN_PROGRESS;
+				freshStart = true;
+			} else if (okHttpResCode >= 400)
+			{
+				FTAnalyticEvents.logDevError(FTAnalyticEvents.UPLOAD_HTTP_OPERATION, okHttpResCode, FTAnalyticEvents.UPLOAD_FILE_TASK, "http", "Response code greater than 400");
+				_state = FTState.IN_PROGRESS;
+				freshStart = true;
+			}
+		}
+		time = System.currentTimeMillis() - time;
+		boolean isCompleted = okHttpResCode == RESPONSE_OK ? true : false;
+		int netType = Utils.getNetworkType(context);
+		if (okHttpResCode == RESPONSE_OK || okHttpResCode == RESPONSE_ACCEPTED)
+		{
+			String fileExtension = Utils.getFileExtension(selectedFile.getPath());
+			String fileType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(fileExtension);
+			FTAnalyticEvents.logFTProcessingTime(FTAnalyticEvents.UPLOAD_FILE_TASK, X_SESSION_ID, isCompleted, fileBytes.length, time, contentRange, netType, fileType);
+		}
+		Logger.d(getClass().getSimpleName(), "Upload time: " + time / 1000 + "." + time % 1000 + "s.  Response: " + okHttpResCode);
+		return okHttpRes;
 	}
 }
