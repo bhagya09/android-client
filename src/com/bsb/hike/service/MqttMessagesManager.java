@@ -2557,11 +2557,15 @@ public class MqttMessagesManager
 		if (data.has(StickyCaller.SHOW_STICKY_CALLER))
 		{
 			HikeSharedPreferenceUtil.getInstance().saveData(StickyCaller.SHOW_STICKY_CALLER, data.optBoolean(StickyCaller.SHOW_STICKY_CALLER, false));
+			if(!data.optBoolean(StickyCaller.SHOW_STICKY_CALLER, false))
+			{
+				ChatHeadUtils.unregisterCallReceiver();
+			}
 		}
-		if (data.has(StickyCaller.ACTIVATE_STICKY_CALLER))
+		if (data.has(HikeConstants.ACTIVATE_STICKY_CALLER_PREF))
 		{
-			HikeSharedPreferenceUtil.getInstance().saveData(StickyCaller.ACTIVATE_STICKY_CALLER, data.optBoolean(StickyCaller.ACTIVATE_STICKY_CALLER, false));
-			if (data.optBoolean(StickyCaller.ACTIVATE_STICKY_CALLER, false))
+			Utils.setSharedPrefValue(context, HikeConstants.ACTIVATE_STICKY_CALLER_PREF, data.optBoolean(HikeConstants.ACTIVATE_STICKY_CALLER_PREF, false));
+			if (data.optBoolean(HikeConstants.ACTIVATE_STICKY_CALLER_PREF, false))
 			{
 				ChatHeadUtils.registerCallReceiver();
 			}
@@ -2569,6 +2573,18 @@ public class MqttMessagesManager
 			{
 				ChatHeadUtils.unregisterCallReceiver();
 			}
+		}
+		if(data.has(StickyCaller.SHOW_KNOWN_NUMBER_CARD))
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(StickyCaller.SHOW_KNOWN_NUMBER_CARD, data.optBoolean(StickyCaller.SHOW_KNOWN_NUMBER_CARD, false));
+		}
+		if (data.has(HikeConstants.ENABLE_KNOWN_NUMBER_CARD_PREF))
+		{
+			Utils.setSharedPrefValue(context, HikeConstants.ENABLE_KNOWN_NUMBER_CARD_PREF, data.optBoolean(HikeConstants.ENABLE_KNOWN_NUMBER_CARD_PREF, true));
+		}
+		if (data.has(StickyCaller.SHOW_FREECALL_VIEW))
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(StickyCaller.SHOW_FREECALL_VIEW, data.optBoolean(StickyCaller.SHOW_FREECALL_VIEW, true));
 		}
 		if (data.has(HikeConstants.BOT_TABLE_REFRESH))
 		{
