@@ -266,8 +266,7 @@ public class OneToNConversationUtils
 
 		for (ContactInfo particpant : selectedContactList)
 		{
-			int type = particpant.isOnhike() ? GroupParticipant.Participant_Type.MEMBER : GroupParticipant.Participant_Type.SMS_MEMBER;
-			GroupParticipant convParticipant = new GroupParticipant(particpant, false, false, type, convId);
+			GroupParticipant convParticipant = new GroupParticipant(particpant, convId);
 			participantList.put(particpant.getMsisdn(), new PairModified<GroupParticipant, String>(convParticipant, convParticipant.getContactInfo().getNameOrMsisdn()));
 		}
 		ContactInfo userContactInfo = Utils.getUserContactInfo(activity.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, Context.MODE_PRIVATE));
