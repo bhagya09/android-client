@@ -794,4 +794,15 @@ public class ChatHeadUtils
 			.addNextIntent(openingIntent).startActivities();
 	}
 
+	public static void showCallerCard(String number)
+	{
+		Context context = HikeMessengerApp.getInstance().getApplicationContext();
+		if (HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.SHOW_STICKY_CALLER, false)
+				&& PreferenceManager.getDefaultSharedPreferences(context).getBoolean(HikeConstants.ACTIVATE_STICKY_CALLER_PREF, false))
+		{
+			StickyCaller.CALL_TYPE = StickyCaller.SMS;
+			postNumberRequest(context, number);
+		}
+	}
+
 }
