@@ -2111,7 +2111,7 @@ public class VoIPService extends Service implements Listener
 		synchronized (this) {
 			// Stop ringtone if playing
 			try {
-				if (ringtone != null && ringtone.isPlaying())
+				if (ringtone != null)
 				{
 					ringtone.stop();
 					ringtone = null;
