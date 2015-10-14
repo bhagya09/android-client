@@ -23,11 +23,6 @@ public class HikeBadgeCountKeeperUnseenFriendRequest extends HikeBadgeCountKeepe
 		mlistener = new String[] { HikePubSub.FAVORITE_COUNT_CHANGED};
 
 	}
-	@Override
-	public String toString()
-	{
-		// TODO Auto-generated method stub
-		return "HikeBadgeCountKeeperUnseenFriendRequest";
-	}
+	
 
 }

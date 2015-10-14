@@ -23,9 +23,5 @@ public class HikeBadgeCountKeeperTimeline extends HikeBadgeCountKeeper
 		mlistener = new String[] { HikePubSub.BADGE_COUNT_TIMELINE_UPDATE_CHANGED, HikePubSub.TIMELINE_WIPE };
 
 	}
-	@Override
-	public String toString()
-	{
-		return "HikeBadgeCountKeeperTimeline";
-	}
+
 }

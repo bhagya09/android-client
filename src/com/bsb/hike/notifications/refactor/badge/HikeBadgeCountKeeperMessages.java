@@ -25,9 +25,4 @@ public class HikeBadgeCountKeeperMessages extends HikeBadgeCountKeeper
 
 	}
 
-	@Override
-	public String toString()
-	{
-		return "HikeBadgeCountKeeperMessages";
-	}
 }

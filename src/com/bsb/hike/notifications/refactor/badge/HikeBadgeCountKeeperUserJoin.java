@@ -39,11 +39,5 @@ public class HikeBadgeCountKeeperUserJoin extends HikeBadgeCountKeeper
 
 	}
 
-	@Override
-	public String toString()
-	{
-		// TODO Auto-generated method stub
-		return "HikeBadgeCountKeeperUserJoin";
-	}
 
 }
