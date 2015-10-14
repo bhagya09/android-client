@@ -276,6 +276,8 @@ public class PlatformZipDownloader
 				@Override
 				public void update(Observable observable, Object data)
 				{
+
+					long fileSize = zipFile.length();
 					if (!(data instanceof Boolean))
 					{
 						return;
@@ -312,6 +314,7 @@ public class PlatformZipDownloader
 					}
 					else
 					{
+						mRequest.getListener().downloadedContentLength(fileSize);
 						mRequest.getListener().onEventOccured(0, EventCode.UNZIP_FAILED);
 						HikeMessengerApp.getPubSub().publish(HikePubSub.DOWNLOAD_PROGRESS, new Pair<String, String>(callbackId, "unzipFailed"));
 					}

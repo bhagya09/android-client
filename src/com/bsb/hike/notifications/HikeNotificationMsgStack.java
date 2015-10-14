@@ -325,7 +325,7 @@ public class HikeNotificationMsgStack implements Listener
 		
 		if (uniqueNotifTypes.equals(NotificationType.ACTIVITYUPDATE))
 		{
-			mNotificationIntent = Utils.getTimelineActivityIntent(mContext, true);
+			mNotificationIntent = Utils.getTimelineActivityIntent(mContext, true, true);
 		}
 		else if (uniqueNotifTypes.equals(NotificationType.FAVADD))
 		{
@@ -346,7 +346,7 @@ public class HikeNotificationMsgStack implements Listener
 						NotificationType.ACTIVITYUPDATE, NotificationType.FAVADD }))
 				{
 					// General timeline
-					mNotificationIntent = Utils.getTimelineActivityIntent(mContext, false);
+					mNotificationIntent = Utils.getTimelineActivityIntent(mContext, false, true);
 				}
 				else
 				{
@@ -363,7 +363,7 @@ public class HikeNotificationMsgStack implements Listener
 				if (uniqueNotifTypes.containsOnly(new int[] { NotificationType.STATUSUPDATE, NotificationType.IMAGE_POST, NotificationType.DPUPDATE,
 						NotificationType.ACTIVITYUPDATE, NotificationType.FAVADD }))
 				{
-					mNotificationIntent = Utils.getTimelineActivityIntent(mContext, false);
+					mNotificationIntent = Utils.getTimelineActivityIntent(mContext, false, true);
 				}
 				else if (lastAddedMsisdn.equals(mContext.getString(R.string.app_name)))
 				{
