@@ -1259,7 +1259,7 @@ public abstract class JavascriptBridge
 	 * Call this method to get the status of app download
 	 * @param id
 	 * @param app The app name
-	 * [ <total-downloaded-bytes> , <progress> , <original downloaded file path>, <url from which it was downloaded> ]
+	 * returns progress
 	 * returns empty string if download not yet started
 	 */
 	@JavascriptInterface
@@ -1267,12 +1267,12 @@ public abstract class JavascriptBridge
 	{
 		String filePath=PlatformContentConstants.PLATFORM_CONTENT_DIR+app+FileRequestPersistent.STATE_FILE_EXT;
 		String data[]=PlatformUtils.readPartialDownloadState(filePath);
-		if(data==null)
+		if(data==null||data.length<2||TextUtils.isEmpty(data[1]))
 		{
 			callbackToJS(id,"");
 			return;
 		}
-		callbackToJS(id, data.toString());
+		callbackToJS(id, data[1]);
 	}
 	/**
 	 * Platform Version 8
