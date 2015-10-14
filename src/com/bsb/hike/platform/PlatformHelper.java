@@ -1,31 +1,7 @@
 package com.bsb.hike.platform;
 
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-
-import javax.crypto.Cipher;
-import javax.crypto.spec.SecretKeySpec;
-
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import android.app.Activity;
-import android.content.Context;
-import android.content.Intent;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
-import android.content.pm.PackageManager.NameNotFoundException;
-import android.content.pm.Signature;
-import android.os.Handler;
-import android.text.TextUtils;
-import android.util.Base64;
-import android.util.Log;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
@@ -42,6 +18,12 @@ import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
+
+import android.app.Activity;
+import android.content.Intent;
+import android.os.Handler;
+import android.text.TextUtils;
+import android.util.Log;
 
 public class PlatformHelper
 {
@@ -283,97 +265,6 @@ public class PlatformHelper
 
 		Utils.postStatusUpdate(status, mood, imageFilePath);
 
-	}
-
-	public static boolean decryptGame(Context context, String gameFolderPath)
-	{
-		try
-		{
-			long startTime = System.currentTimeMillis();
-			Cipher cipher = Cipher.getInstance("AES");
-			if (getAppSignature(context) != null && getAppSignature(context).length() > 0)
-			{
-				Logger.d(TAG, "appSignature : " + getAppSignature(context).substring(0, 16));
-				SecretKeySpec sks = new SecretKeySpec(getAppSignature(context).substring(0, 16).getBytes(), "AES");
-				cipher.init(Cipher.DECRYPT_MODE, sks);
-				byte[] encrypted = readFile(new File(gameFolderPath + "/libcocos2dcpp.so.aes"));
-				Logger.d(TAG, "encrypted byte size : " + encrypted.length);
-				byte[] decrypted = cipher.doFinal(encrypted);
-				Logger.d(TAG, "decrypted byte size : " + decrypted.length);
-				FileOutputStream fos = new FileOutputStream(gameFolderPath + "/libcocos2dcpp.so");
-				fos.write(decrypted);
-				fos.close();
-				File encryptedFile = new File(gameFolderPath + "/libcocos2dcpp.so.aes");
-				encryptedFile.delete();
-				Logger.d(TAG, "Time to decrypt file : " + ((System.currentTimeMillis() - startTime) / 1000) + " sec");
-				return true;
-			}
-			else
-			{
-				Logger.e(TAG, "Decrypt failed because of empty App signature.");
-			}
-		}
-		catch (Exception e)
-		{
-			e.printStackTrace();
-		}
-		return false;
-	}
-
-	private static String getAppSignature(Context context)
-	{
-		try
-		{
-			Logger.d(TAG, "Getting keyHash");
-			if (context != null)
-			{
-				PackageInfo info = context.getPackageManager().getPackageInfo("com.bsb.hike", PackageManager.GET_SIGNATURES);
-				for (Signature signature : info.signatures)
-				{
-					MessageDigest md = MessageDigest.getInstance("SHA");
-					md.update(signature.toByteArray());
-					return Base64.encodeToString(md.digest(), Base64.DEFAULT);
-				}
-			}
-			else
-			{
-				Logger.e(TAG, "Empty context is passed to getAppSignature()");
-			}
-		}
-		catch (NameNotFoundException e)
-		{
-			e.printStackTrace();
-		}
-		catch (NoSuchAlgorithmException e)
-		{
-			e.printStackTrace();
-		}
-		return null;
-	}
-
-	private static byte[] readFile(File file)
-	{
-		byte[] contents = null;
-		int size = (int) file.length();
-		contents = new byte[size];
-		try
-		{
-			BufferedInputStream buf = new BufferedInputStream(new FileInputStream(file));
-			try
-			{
-				buf.read(contents);
-				buf.close();
-			}
-			catch (IOException e)
-			{
-				e.printStackTrace();
-			}
-		}
-		catch (FileNotFoundException e)
-		{
-			e.printStackTrace();
-		}
-		return contents;
 	}
 
 }
