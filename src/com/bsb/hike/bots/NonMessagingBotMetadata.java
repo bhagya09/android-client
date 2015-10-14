@@ -2,6 +2,7 @@ package com.bsb.hike.bots;
 
 import java.util.List;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -33,7 +34,7 @@ public class NonMessagingBotMetadata
 	private String callbackId, parentMsisdn;
 	private JSONObject fwdCardObj;
 	private boolean resumeSupported=false;
-	private JSONObject assoc_mapp;
+	private JSONArray assoc_mapp;
 
 	public NonMessagingBotMetadata(String jsonString)
 	{
@@ -76,7 +77,7 @@ public class NonMessagingBotMetadata
 		setParentMsisdn(json.optString(HikePlatformConstants.PARENT_MSISDN));
 		setCallbackId(json.optString(HikePlatformConstants.CALLBACK_ID));
 		setResumeSupported(json.optBoolean(HikePlatformConstants.RESUME_SUPPORTED));
-		setAsocmapp(json.optString(HikePlatformConstants.ASSOCIATE_MAPP));
+		setAsocmapp(json.optJSONArray(HikePlatformConstants.ASSOCIATE_MAPP));
 
 		if (json.has(HikePlatformConstants.CARD_OBJECT))
 		{
@@ -306,25 +307,14 @@ public class NonMessagingBotMetadata
 	{
 		return resumeSupported;
 	}
-	public void setAsocmapp(String mapp)
+	public void setAsocmapp(JSONArray mapp)
 	{
-		try
-		{
-			assoc_mapp=new JSONObject(mapp);
-		}
-		catch (JSONException e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 
+			assoc_mapp=mapp;
 	}
-	public String getAsocmappName()
+	public JSONArray getAsocmapp()
 	{
-		return(assoc_mapp.optString(HikeConstants.NAME));
+		return assoc_mapp;
 	}
-	public String getAsocmappUrl()
-	{
-		return(assoc_mapp.optString(HikeConstants.URL));
-	}
+
 }
