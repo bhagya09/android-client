@@ -520,6 +520,8 @@ public class AnalyticsConstants
 		public static final String HIKE = "hike";
 		
 		public static final String CALLER_SETTINGS_TOGGLE = "clrStgTgl";
+
+		public static final String KNOWN_CARD_SETTINGS_TOGGLE = "knwStgTgl";
 		
 	}
 	
@@ -552,4 +554,14 @@ public class AnalyticsConstants
 	public static final String GET_DISCOVERY_BOT_LIST = "gdb";
 	
 	public static final String DISCOVERY_BOTS = "db";
+	
+	public static final String MICRO_APP_EVENT = "micro_app";
+	
+	public static final String EVENT = "event";
+	
+	public static final String LOG_FIELD_5 = "fld5";
+	
+	public static final String LOG_FIELD_6 = "fld6";
+
+	public static final String FILE_SIZE = "fs";
 }

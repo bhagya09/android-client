@@ -89,7 +89,6 @@ import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
 import com.bsb.hike.timeline.model.TimelineActions;
 import com.bsb.hike.timeline.view.TimelineActivity;
 import com.bsb.hike.utils.ChatTheme;
-import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.OneToNConversationUtils;
@@ -3483,6 +3482,12 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			case PARTICIPANT_JOINED:
 				JSONArray participantInfoArray = metadata.getJSONArray(HikeConstants.DATA);
 
+				//This handles the check that of no group participant than, group is successfully created
+				if(participantInfoArray == null || participantInfoArray.length() == 0)
+				{
+					break;
+				}
+				
 				JSONObject participant = (JSONObject) participantInfoArray.opt(0);
 				grpLastMsisdns.add(participant.optString(HikeConstants.MSISDN));
 
@@ -6888,7 +6893,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		}
 		else
 		{
-			mediaFileTypes = new HikeFileType[] { HikeFileType.OTHER, HikeFileType.AUDIO };
+			mediaFileTypes = new HikeFileType[] { HikeFileType.OTHER, HikeFileType.AUDIO ,HikeFileType.APK };
 		}
 
 		hfTypeSelection = new StringBuilder("(");
@@ -8596,8 +8601,12 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 	private void analyticsForUpgradeSortId(long numRows, long timeTaken) throws JSONException {
 		JSONObject jObj = new JSONObject();
-		jObj.put(AnalyticsConstants.MESSAGES_COUNT, numRows);
-		jObj.put(AnalyticsConstants.TIME_TAKEN, timeTaken);
+		jObj.put(AnalyticsConstants.EVENT_KEY, AnalyticsConstants.MICRO_APP_EVENT);
+		jObj.put(AnalyticsConstants.EVENT, "upgrade_sortId");
+		
+		jObj.put(AnalyticsConstants.LOG_FIELD_5, numRows); //Msg Count
+		jObj.put(AnalyticsConstants.LOG_FIELD_6, timeTaken); //Time taken in msec
+		
 		HAManager.getInstance().record(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.UPGRADE_EVENT, HAManager.EventPriority.HIGH, jObj, AnalyticsConstants.EVENT_TAG_MOB);
 	}
 

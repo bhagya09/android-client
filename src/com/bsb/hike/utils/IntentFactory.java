@@ -18,7 +18,6 @@ import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.bots.NonMessagingBotMetadata;
 import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.chatHead.StickerShareSettings;
-import com.bsb.hike.chatHead.StickyCallerSettings;
 import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.cropimage.CropImage;
@@ -44,6 +43,7 @@ import com.bsb.hike.ui.HikeDirectHelpPageActivity;
 import com.bsb.hike.ui.HikeListActivity;
 import com.bsb.hike.ui.HikePreferences;
 import com.bsb.hike.ui.HomeActivity;
+import com.bsb.hike.ui.LanguageSettingsActivity;
 import com.bsb.hike.ui.NUXInviteActivity;
 import com.bsb.hike.ui.NuxSendCustomMessageActivity;
 import com.bsb.hike.ui.PeopleActivity;
@@ -57,7 +57,6 @@ import com.bsb.hike.ui.StickerSettingsActivity;
 import com.bsb.hike.ui.StickerShopActivity;
 import com.bsb.hike.ui.WebViewActivity;
 import com.bsb.hike.ui.WelcomeActivity;
-import com.bsb.hike.ui.LanguageSettingsActivity;
 import com.bsb.hike.voip.VoIPConstants;
 import com.bsb.hike.voip.VoIPService;
 import com.bsb.hike.voip.VoIPUtils;
@@ -221,11 +220,6 @@ public class IntentFactory
 		}
 	}
 	
-	public static void openStickyCallerSettings(Context context)
-	{
-			context.startActivity(getStickyCallerSettingsIntent(context));
-	}
-	
 	public static void openSettingHelp(Context context)
 	{
 		Intent intent = null;
@@ -291,6 +285,18 @@ public class IntentFactory
 		context.startActivity(intent);
 	}
 
+	public static void openStickyCallerSettings(Context context, boolean isFromOutside)
+	{
+		Intent intent = new Intent(context, HikePreferences.class);
+		intent.putExtra(HikeConstants.Extras.PREF, R.xml.sticky_caller_preferences);
+		intent.putExtra(HikeConstants.Extras.TITLE, R.string.sticky_caller_settings);
+		if (isFromOutside)
+		{
+			intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		}
+		context.startActivity(intent);
+	}
+	
 	public static Intent getIntentForKeyboardAdvSettings(Context context)
 	{
 		Intent intent = new Intent(context, HikePreferences.class);
@@ -409,12 +415,6 @@ public class IntentFactory
 		HAManager.getInstance().chatHeadshareAnalytics(AnalyticsConstants.ChatHeadEvents.HIKE_STICKER_SETTING);
 		return new Intent(context, StickerShareSettings.class);
 	}
-	
-	public static Intent getStickyCallerSettingsIntent(Context context)
-	{
-		return new Intent(context, StickyCallerSettings.class);
-	}
-	
 
 	public static Intent createNewBroadcastActivityIntent(Context appContext)
 	{
@@ -1101,6 +1101,39 @@ public class IntentFactory
 	{
 		Intent intent = new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS);
 		activity.startActivityForResult(intent, 0);
+	}
+	
+	public static Intent getAddMembersToExistingGroupIntent(Context context, String mLocalMSISDN)
+	{
+		Intent intent = new Intent(context, ComposeChatActivity.class);
+		intent.putExtra(HikeConstants.Extras.GROUP_CHAT, true);
+		intent.putExtra(HikeConstants.Extras.EXISTING_GROUP_CHAT, mLocalMSISDN);
+		return intent;
+	}
+	
+	public static Intent getAddMembersToExistingBroadcastIntent(Context context, String mLocalMSISDN)
+	{
+		Intent intent = new Intent(context, ComposeChatActivity.class);
+		intent.putExtra(HikeConstants.Extras.BROADCAST_LIST, true);
+		intent.putExtra(HikeConstants.Extras.EXISTING_BROADCAST_LIST, mLocalMSISDN);
+		intent.putExtra(HikeConstants.Extras.COMPOSE_MODE, HikeConstants.Extras.CREATE_BROADCAST_MODE);
+		return intent;
+	}
+
+	public static void openInviteWatsApp(Context context, String inviteText)
+	{
+		Intent whatsappIntent = new Intent(Intent.ACTION_SEND);
+		whatsappIntent.setType("text/plain");
+		whatsappIntent.setPackage(HikeConstants.PACKAGE_WATSAPP);
+		whatsappIntent.putExtra(Intent.EXTRA_TEXT, inviteText);
+		try
+		{
+			context.startActivity(whatsappIntent);
+		}
+		catch (android.content.ActivityNotFoundException ex)
+		{
+			Toast.makeText(context.getApplicationContext(), "Could not find WhatsApp in System", Toast.LENGTH_SHORT).show();
+		}
 	}
 	
 	public static void openIntentForGameActivity(Context context)

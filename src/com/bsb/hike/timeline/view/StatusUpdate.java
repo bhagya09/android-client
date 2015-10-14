@@ -1,6 +1,7 @@
 package com.bsb.hike.timeline.view;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
@@ -12,15 +13,19 @@ import com.bsb.hike.adapters.MoodAdapter;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.media.EmoticonPicker;
+import com.bsb.hike.media.ImageParser;
+import com.bsb.hike.media.ImageParser.ImageParserListener;
 import com.bsb.hike.media.PopupListener;
 import com.bsb.hike.modules.kpt.KptUtils;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.smartImageLoader.IconLoader;
 import com.bsb.hike.tasks.StatusUpdateTask;
+import com.bsb.hike.ui.GalleryActivity;
 import com.bsb.hike.utils.EmoticonConstants;
 import com.bsb.hike.utils.EmoticonTextWatcher;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.CustomFontEditText;
@@ -33,10 +38,13 @@ import com.kpt.adaptxt.beta.util.KPTConstants;
 import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtEditTextEventListner;
 import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtKeyboordVisibilityStatusListner;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -57,6 +65,8 @@ import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -107,8 +117,6 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 
 	private ImageView arrow;
 	
-	private TextView title;
-	
 	private EmoticonPicker mEmoticonPicker;
 	
 	private static final int SHOW_EMOJI_PALETTE = 1;
@@ -118,6 +126,8 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 	private String IS_IMAGE_DELETED = "is_img_d";
 	
 	private int keyboardHeight;
+
+	private String INPUT_INTENT = "ip_in";
 
 	protected Handler uiHandler = new Handler()
 	{
@@ -159,7 +169,17 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 
 	private View addMoodLayout;
 
+	private boolean isForeground;
+
 	public static final String STATUS_UPDATE_IMAGE_PATH = "SUIMGPTH";
+	
+	StatusUpdateTaskFinishedRunnable suUploadTaskFinishRunnable;
+
+	private View addPhotoLayout;
+
+	private View addItemsLayout;
+
+	private String mInputIntentData;
 
 	@Override
 	public Object onRetainCustomNonConfigurationInstance()
@@ -191,11 +211,6 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 			mActivityTask = new ActivityTask();
 		}
 
-		if(savedInstanceState != null)
-		{
-			mActivityTask.imageDeleted = savedInstanceState.getBoolean(IS_IMAGE_DELETED);
-		}
-		
 		initVarRef();
 		
 		initEmoticonPicker();
@@ -214,8 +229,26 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 
 		setupActionBar();
 
-		readArguments(getIntent());
-
+		if(savedInstanceState != null)
+		{
+			mActivityTask.imageDeleted = savedInstanceState.getBoolean(IS_IMAGE_DELETED);
+			String intentURI = savedInstanceState.getString(INPUT_INTENT);
+			if(intentURI != null){
+			try
+			{
+				Intent savedIntent = Intent.parseUri(intentURI, Intent.URI_INTENT_SCHEME);
+				readArguments(savedIntent);
+			}
+			catch (URISyntaxException e)
+			{
+				e.printStackTrace();
+			}}
+		}
+		else
+		{
+			readArguments(getIntent());			
+		}
+		
 		mIconImageLoader = new IconLoader(getApplicationContext(), getApplicationContext().getResources().getDimensionPixelSize(R.dimen.icon_picture_size));
 
 		mIconImageLoader.setDefaultAvatarIfNoCustomIcon(false);
@@ -242,6 +275,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 			{
 				statusImage.setImageBitmap(bmp);
 				statusTxt.setHint(R.string.status_hint_image);
+				ChatThreadUtils.applyMatrixTransformationToImageView(statusImage.getDrawable(), statusImage);
 			}
 			
 		}
@@ -288,21 +322,18 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 			getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
 		}
 
-		toggleEnablePostButton();
-
 		HikeMessengerApp.getPubSub().addListeners(this, pubsubListeners);
 
 		showProductPopup(ProductPopupsConstants.PopupTriggerPoints.STATUS.ordinal());
 
-		if (!shouldShowMoodsButton())
-		{
-			addMoodLayout.setVisibility(View.GONE);
-		}
+		refreshLayouts();
 	}
 	
 	@Override
-	protected void onSaveInstanceState(Bundle outState) {
+	protected void onSaveInstanceState(Bundle outState) 
+	{
 		outState.putBoolean(IS_IMAGE_DELETED, mActivityTask.imageDeleted);
+		outState.putString(INPUT_INTENT, mInputIntentData);
 		super.onSaveInstanceState(outState);
 	}
 	
@@ -311,15 +342,28 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 	{
 		super.onResume();
 		showKeyboard(false);
+		isForeground = true;
 		if (statusImage != null && statusImage.getDrawable() != null)
 		{
 			ChatThreadUtils.applyMatrixTransformationToImageView(statusImage.getDrawable(), statusImage);
 		}
-	}
 
+		if (suUploadTaskFinishRunnable != null)
+		{
+			runOnUiThread(suUploadTaskFinishRunnable);
+			suUploadTaskFinishRunnable = null;
+		}
+	}
+	
 	private void readArguments(Intent intent)
 	{
+		if(intent == null)
+		{
+			// In this case, there will be no image post present. Rest functional.
+			return;
+		}
 		mImagePath = intent.getStringExtra(STATUS_UPDATE_IMAGE_PATH);
+		mInputIntentData = intent.toUri(Intent.URI_INTENT_SCHEME);
 	}
 
 	/**
@@ -334,6 +378,10 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		statusImage = (ImageView) findViewById(R.id.status_image);
 		btnRemovePhoto = (ImageButton) findViewById(R.id.btn_remove_photo);
 		addMoodLayout = findViewById(R.id.addMoodLayout);
+		addPhotoLayout = findViewById(R.id.addPhotoLayout);
+		addItemsLayout = findViewById(R.id.addItemsLayout);
+		ScrollView sv = (ScrollView)findViewById(R.id.scroll);
+        sv.setEnabled(false);
 	}
 	
 	private void initCustomKeyboard()
@@ -377,7 +425,8 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 
 		View actionBarView = LayoutInflater.from(this).inflate(R.layout.compose_action_bar, null);
 
-		title = (TextView) actionBarView.findViewById(R.id.title);
+		TextView title = (TextView) actionBarView.findViewById(R.id.title);
+		title.setText(R.string.status);
 		doneBtn = actionBarView.findViewById(R.id.done_container);
 		arrow = (ImageView) actionBarView.findViewById(R.id.arrow);
 		postText = (TextView) actionBarView.findViewById(R.id.post_btn);
@@ -387,8 +436,6 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		doneBtn.setVisibility(View.VISIBLE);
 
 		Utils.toggleActionBarElementsEnable(doneBtn, arrow, postText, false);
-
-		setTitle();
 
 		doneBtn.setOnClickListener(new OnClickListener()
 		{
@@ -403,11 +450,6 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		actionBar.setCustomView(actionBarView);
 		Toolbar parent = (Toolbar) actionBarView.getParent();
 		parent.setContentInsetsAbsolute(0, 0);
-	}
-
-	private void setTitle()
-	{
-		title.setText(moodParent.getVisibility() == View.VISIBLE ? R.string.moods : R.string.status);
 	}
 
 	public void onTitleIconClick(View v)
@@ -440,7 +482,6 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 	{
 		wasEmojiPreviouslyVisible = false;
 		hideEmojiOrMoodLayout();
-		addMoodLayout.setVisibility(View.GONE);
 		if (mEmoticonPicker.showEmoticonPicker(getResources().getConfiguration().orientation))
 		{
 			mActivityTask.emojiShowing = true;
@@ -490,9 +531,26 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 			hideEmojiOrMoodLayout();
 		}
 		showMoodSelector();
-		setTitle();
 	}
 
+	public void onPhotoClick(View v)
+	{
+		hideEmojiOrMoodLayout();
+		
+		Utils.hideSoftKeyboard(getApplicationContext(), getWindow().getDecorView());
+		
+		int galleryFlags = GalleryActivity.GALLERY_CATEGORIZE_BY_FOLDERS | GalleryActivity.GALLERY_EDIT_SELECTED_IMAGE | GalleryActivity.GALLERY_COMPRESS_EDITED_IMAGE
+				| GalleryActivity.GALLERY_DISPLAY_CAMERA_ITEM;
+
+		if(!Utils.isPhotosEditEnabled())
+		{
+			galleryFlags = galleryFlags|GalleryActivity.GALLERY_CROP_IMAGE;
+		}
+		
+		Intent galleryPickerIntent = IntentFactory.getHikeGalleryPickerIntent(StatusUpdate.this, galleryFlags, Utils.getNewImagePostFilePath());
+		startActivityForResult(galleryPickerIntent, UpdatesFragment.TIMELINE_POST_IMAGE_REQ);
+	}
+	
 	public void removePhoto(View dontUseThis)
 	{
 		btnRemovePhoto.setVisibility(View.GONE);
@@ -501,7 +559,37 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		statusTxt.setHint(R.string.status_hint);
 		mActivityTask.imageDeleted = true;
 		mImagePath = null;
-		toggleEnablePostButton();
+		getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+		refreshLayouts();
+	}
+	
+	public void addPhoto(String imagePath)
+	{
+		mImagePath = imagePath;
+		Bitmap bmp = HikeBitmapFactory.decodeFile(mImagePath);
+		if (bmp == null)
+		{
+			removePhoto(null);
+			Toast.makeText(getApplicationContext(), R.string.photos_oom_load, Toast.LENGTH_SHORT).show();
+		}
+		else
+		{
+			statusImage.setVisibility(View.VISIBLE);
+			BitmapDrawable bmpDrawable = new BitmapDrawable(getResources(), bmp);
+			statusImage.setImageDrawable(bmpDrawable);
+			ChatThreadUtils.applyMatrixTransformationToImageView(bmpDrawable, statusImage);
+			statusImage.invalidate();
+			
+			if(mActivityTask.moodId == -1)
+			{
+				statusTxt.setHint(R.string.status_hint_image);
+			}
+			
+			btnRemovePhoto.setVisibility(View.VISIBLE);
+			mActivityTask.imageDeleted = false;
+ 		}
+		
+		refreshLayouts();
 	}
 
 	@Override
@@ -510,8 +598,9 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		if (isEmojiOrMoodLayoutVisible())
 		{
 			hideEmojiOrMoodLayout();
-			setTitle();
-		}else if(mCustomKeyboard!=null && mCustomKeyboard.isCustomKeyboardVisible()){
+		}
+		else if(mCustomKeyboard!=null && mCustomKeyboard.isCustomKeyboardVisible())
+		{
 			hideKeyboard();
 		}
 		else
@@ -527,7 +616,6 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 			if (moodParent.getVisibility() == View.VISIBLE)
 			{
 				hideEmojiOrMoodLayout();
-				setTitle();
 			}
 			else
 			{
@@ -558,11 +646,45 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 			mEmoticonPicker.dismiss();
 			setEmoticonButtonSelected(false);
 		}
+		
+		refreshLayouts();
+	}
+	
+	private void refreshLayouts()
+	{
 		toggleEnablePostButton();
 
 		if (shouldShowMoodsButton())
 		{
 			addMoodLayout.setVisibility(View.VISIBLE);
+		}
+		else
+		{
+			addMoodLayout.setVisibility(View.GONE);
+		}
+
+		if (shouldShowAddPhotoButton())
+		{
+			addPhotoLayout.setVisibility(View.VISIBLE);
+		}
+		else
+		{
+			addPhotoLayout.setVisibility(View.GONE);
+		}
+		
+		if((!shouldShowAddPhotoButton() && !shouldShowMoodsButton()))
+		{
+			addItemsLayout.setVisibility(View.GONE);
+		}
+		else if(!isEmojiOrMoodLayoutVisible())
+		{
+			RelativeLayout.LayoutParams p = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+
+			p.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+
+			addItemsLayout.setLayoutParams(p);
+			
+			addItemsLayout.setVisibility(View.VISIBLE);
 		}
 	}
 
@@ -601,16 +723,11 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		
 	}
 
-	public void hideEmoticonSelector()
-	{
-		onBackPressed();
-	}
-
 	private void showMoodSelector()
 	{
 		hideKeyboard();
 
-		addMoodLayout.setVisibility(View.GONE);
+//		addItemsLayout.setVisibility(View.GONE);
 
 		mActivityTask.moodShowing = true;
 
@@ -625,7 +742,15 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 			public void run()
 			{
 				if (moodParent != null)
+				{
 					moodParent.setVisibility(View.VISIBLE);
+
+					RelativeLayout.LayoutParams p = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+
+					p.addRule(RelativeLayout.ABOVE, R.id.mood_parent_status);
+
+					addItemsLayout.setLayoutParams(p);
+				}
 			}
 		}, mActivityTask.keyboardShowing ? 300 : 0); // TODO Remove hack. Use Shareable popup layout
 
@@ -642,6 +767,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 	{
 		if (moodId == -1)
 		{
+			resetMood();
 			return;
 		}
 		mActivityTask.moodId = moodId;
@@ -652,8 +778,16 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 
 		String[] moodsArray = getResources().getStringArray(R.array.mood_headings);
 		statusTxt.setHint(moodsArray[moodIndex]);
-
+		
 		toggleEnablePostButton();
+	}
+	
+	private void resetMood()
+	{
+		mActivityTask.moodId = -1;
+		mActivityTask.moodIndex = -1;
+		mIconImageLoader.loadImage(HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.MSISDN_SETTING, null), avatar, false, true, false);
+		avatar.setOval(true);
 	}
 
 	private void showCancelButton(boolean moodLayout)
@@ -688,31 +822,47 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		if (HikePubSub.STATUS_POST_REQUEST_DONE.equals(type))
 		{
 			final boolean statusPosted = (Boolean) object;
-			runOnUiThread(new Runnable()
+
+			suUploadTaskFinishRunnable = new StatusUpdateTaskFinishedRunnable(statusPosted);
+
+			if (isForeground)
 			{
-				@Override
-				public void run()
-				{
-					mActivityTask.task = null;
-					if (progressDialog != null)
-					{
-						progressDialog.dismiss();
-						progressDialog = null;
-					}
-					if (statusPosted)
-					{
-						hideKeyboard();
-						Intent in = new Intent(StatusUpdate.this, TimelineActivity.class);
-						in.putExtra(HikeConstants.HikePhotos.HOME_ON_BACK_PRESS, true);
-						StatusUpdate.this.startActivity(in);
-						StatusUpdate.this.finish();
-					}
-					else
-					{
-						Toast.makeText(getApplicationContext(), R.string.update_status_fail, Toast.LENGTH_SHORT).show();
-					}
-				}
-			});
+				runOnUiThread(suUploadTaskFinishRunnable);
+				suUploadTaskFinishRunnable = null;
+			}
+		}
+	}
+	
+	class StatusUpdateTaskFinishedRunnable implements Runnable
+	{
+		private boolean mStatusPosted;
+
+		public StatusUpdateTaskFinishedRunnable(boolean statusPosted)
+		{
+			mStatusPosted = statusPosted;
+		}
+		
+		@Override
+		public void run()
+		{
+			mActivityTask.task = null;
+			if (progressDialog != null)
+			{
+				progressDialog.dismiss();
+				progressDialog = null;
+			}
+			if (mStatusPosted)
+			{
+				Utils.hideSoftKeyboard(StatusUpdate.this, statusTxt);
+				Intent in = new Intent(StatusUpdate.this, TimelineActivity.class);
+				in.putExtra(HikeConstants.HikePhotos.HOME_ON_BACK_PRESS, true);
+				StatusUpdate.this.startActivity(in);
+				StatusUpdate.this.finish();
+			}
+			else
+			{
+				Toast.makeText(getApplicationContext(), R.string.update_status_fail, Toast.LENGTH_SHORT).show();
+			}
 		}
 	}
 
@@ -740,6 +890,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 	{
 		KptUtils.pauseKeyboardResources(mCustomKeyboard);
 		KptUtils.updatePadding(StatusUpdate.this, R.id.parent_layout, 0);
+		isForeground = false;
 		super.onPause();
 	}
 	
@@ -791,7 +942,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		int[] dontEatThisTouch = {R.id.emoji_btn, R.id.status_txt};
 		mEmoticonPicker = new EmoticonPicker(this, statusTxt, findViewById(R.id.parent_layout), (int)getResources().getDimension(R.dimen.emoticon_pallete), dontEatThisTouch);
 		mEmoticonPicker.setOnDismissListener(this);
-		mEmoticonPicker.setDisableExtraPadding(true);
+		mEmoticonPicker.setDisableExtraPadding(false);
 		mEmoticonPicker.useStatusUpdateEmojisList(true);
 	}
 	
@@ -817,15 +968,14 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 
 	private boolean shouldShowMoodsButton()
 	{
-		if (TextUtils.isEmpty(mImagePath))
-		{
-			return true;
-		}
-		else
-		{
-			return false;
-		}
+		return true;
 	}
+	
+	private boolean shouldShowAddPhotoButton()
+	{
+		return true;
+	}
+	
 	@Override
 	protected void onStart()
 	{
@@ -865,8 +1015,9 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 	@Override
 	public String toString()
 	{
-		return "StatusUpdate [statusTxt=" + statusTxt + ", title=" + title + ", mImagePath=" + mImagePath + ", statusImage=" + statusImage + "]";
+		return "StatusUpdate [statusTxt=" + statusTxt + "mImagePath=" + mImagePath + ", statusImage=" + statusImage + "]";
 	}
+	
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item)
 	{
@@ -980,17 +1131,55 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 	{
 		if (!(getIntent().hasExtra(STATUS_UPDATE_IMAGE_PATH))||directClick)
 		{
-		if (systemKeyboard)
-		{
-			statusTxt.setFocusable(true);
-			getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
-			Utils.showSoftKeyboard(statusTxt, InputMethodManager.SHOW_FORCED);
+			if (systemKeyboard)
+			{
+				statusTxt.setFocusable(true);
+				getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+				Utils.showSoftKeyboard(statusTxt, InputMethodManager.SHOW_FORCED);
+			}
+			else
+			{
+				mCustomKeyboard.showCustomKeyboard(statusTxt, true);
+				KptUtils.updatePadding(StatusUpdate.this, R.id.parent_layout, (keyboardHeight == 0) ? mCustomKeyboard.getKeyBoardAndCVHeight() : keyboardHeight);
+			}
 		}
-		else
+	}
+
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent data)
+	{
+		if (resultCode == Activity.RESULT_CANCELED)
 		{
-			mCustomKeyboard.showCustomKeyboard(statusTxt, true);
-			KptUtils.updatePadding(StatusUpdate.this, R.id.parent_layout, (keyboardHeight == 0) ? mCustomKeyboard.getKeyBoardAndCVHeight() : keyboardHeight);
+			return;
 		}
+
+		switch (requestCode)
+		{
+		case UpdatesFragment.TIMELINE_POST_IMAGE_REQ:
+			ImageParser.parseResult(StatusUpdate.this, resultCode, data, new ImageParserListener()
+			{
+				@Override
+				public void imageParsed(String imagePath)
+				{
+					addPhoto(imagePath);
+				}
+
+				@Override
+				public void imageParsed(Uri uri)
+				{
+					// Do nothing
+				}
+
+				@Override
+				public void imageParseFailed()
+				{
+					// Do nothing
+				}
+			}, false);
+			break;
+
+		default:
+			break;
 		}
 	}
 	

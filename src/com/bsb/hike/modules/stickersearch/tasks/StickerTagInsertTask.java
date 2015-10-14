@@ -10,20 +10,20 @@ public class StickerTagInsertTask implements Runnable
 {
 	private JSONObject data;
 
-	private int trialValue;
+	private int state;
 
-	public StickerTagInsertTask(JSONObject data, int trialValue)
+	public StickerTagInsertTask(JSONObject data, int state)
 	{
 		this.data = data;
-		this.trialValue = trialValue;
+		this.state = state;
 	}
 
 	@Override
 	public void run()
 	{
-		if ((trialValue == StickerSearchConstants.TRIAL_STICKER_DATA_FIRST_SETUP) || (trialValue == StickerSearchConstants.TRIAL_STICKER_DATA_UPDATE_REFRESH))
+		if ((state == StickerSearchConstants.STATE_STICKER_DATA_FRESH_INSERT) || (state == StickerSearchConstants.STATE_STICKER_DATA_REFRESH))
 		{
-			StickerSearchDataController.getInstance().setupStickerSearchWizard(data, trialValue);
+			StickerSearchDataController.getInstance().setupStickerSearchWizard(data, state);
 		}
 		else
 		{

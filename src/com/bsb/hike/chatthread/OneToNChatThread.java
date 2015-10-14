@@ -358,12 +358,13 @@ public abstract class OneToNChatThread extends ChatThread implements HashTagMode
 		
 		TextView memberCountTextView = (TextView) mActionBarView.findViewById(R.id.contact_status);
 
-		if (numActivePeople > 0)
+		if (numActivePeople >= 0)
 		{
 			/**
 			 * Incrementing numActivePeople by + 1 to add self
 			 */
-			memberCountTextView.setText(activity.getResources().getString(R.string.num_members, (numActivePeople + 1)));
+			int id = numActivePeople == 0 ? R.string.num_member: R.string.num_members;
+			memberCountTextView.setText(activity.getResources().getString(id, (numActivePeople + 1)));
 			memberCountTextView.setSelected(true);
 		}
 	}

@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bsb.hike"
     android:installLocation="auto"
-    android:versionCode="1454"
+    android:versionCode="1463"
     android:versionName="4.0.7.8.custom_keyboard" >
     
     <uses-sdk
@@ -122,7 +122,6 @@
         </service>
         <service android:name=".service.UpgradeIntentService" />
         <service android:name=".GCMIntentService" />
-
         <activity
             android:name=".ui.HomeActivity"
             android:configChanges="orientation|screenSize|keyboardHidden"
@@ -135,7 +134,24 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <!-- Accepts URIs that begin with "http://hike.in/” -->
+                <data
+                    android:host="hike.in"
+                    android:pathPrefix="/"
+                    android:scheme="http" />
+                <!-- Accepts URIs that begin with "https://hike.in/” -->
+                <data
+                    android:host="hike.in"
+                    android:pathPrefix="/"
+                    android:scheme="https" />
+            </intent-filter>
         </activity>
+
         <activity
             android:name=".ui.ComposeChatActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
@@ -212,6 +228,11 @@
             android:name=".cropimage.CropImage"
             android:configChanges="orientation|screenSize|screenLayout"
             android:theme="@style/AppTheme.Home.PhotoEditor" />
+        
+        <activity
+            android:name=".cropimage.HikeCropActivity"
+            android:theme="@style/AppTheme.Home.PhotoEditor" />
+        
         <activity
             android:name=".ui.WebViewActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
@@ -330,10 +351,6 @@
             android:configChanges="orientation|screenSize|keyboard|keyboardHidden" >
         </activity>
         <activity
-            android:name=".chatHead.StickyCallerSettings"
-            android:configChanges="orientation|screenSize|keyboard|keyboardHidden" >
-        </activity>
-		<activity
             android:name=".ui.PinHistoryActivity"
             android:configChanges="orientation|screenSize|keyboard|keyboardHidden"
             android:theme="@style/AppTheme.ChatThread" >
@@ -451,7 +468,6 @@
             android:theme="@style/TranslucentBlack" >
         </activity>
 
-        <receiver android:name=".chatHead.ChatHeadServiceManager" />
         <service android:name=".chatHead.ChatHeadService" 
             android:label="HikeStickeyService"/>
         <service android:name=".voip.VoIPService" />
@@ -538,7 +554,7 @@
         <!-- ContentProvider -->
         <provider
             android:name="com.bsb.hike.ag.NetworkAgProvider"
-            android:authorities="com.bsb.hike.agoop.NetworkTestModuleProvider"
+            android:authorities="@string/ag_authority"
             android:exported="true" />
         <!-- ag -->
         
