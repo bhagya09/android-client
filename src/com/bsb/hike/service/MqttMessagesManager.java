@@ -2610,6 +2610,11 @@ public class MqttMessagesManager
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.BOTS_DISCOVERY_SECTION, sectionName);
 			}
 		}
+		if (data.has(HikeConstants.FT_USE_APACHE_HTTP_CLIENT))
+		{
+			boolean useApacheClient = data.getBoolean(HikeConstants.FT_USE_APACHE_HTTP_CLIENT);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.FT_USE_APACHE_HTTP_CLIENT, useApacheClient);
+		}
 		
 		editor.commit();
 		this.pubSub.publish(HikePubSub.UPDATE_OF_MENU_NOTIFICATION, null);

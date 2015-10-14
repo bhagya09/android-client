@@ -3302,4 +3302,5 @@ public class HikeConstants
 	
 	public static final String BOTS_DISCOVERY_SECTION = "bds";
 
+	public static final String FT_USE_APACHE_HTTP_CLIENT = "ft_apache_client";
 }

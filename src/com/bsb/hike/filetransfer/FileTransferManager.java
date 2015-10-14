@@ -46,6 +46,7 @@ import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.modules.httpmgr.HttpManager;
 import com.bsb.hike.offline.OfflineConstants;
 import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.utils.AccountUtils;
@@ -916,6 +917,7 @@ public class FileTransferManager extends BroadcastReceiver
 			ftHostURIs.add("54.169.191.116");
 			ftHostURIs.add("54.169.191.113");
 		}
+		HttpManager.setFtHostUris(ftHostURIs);
 	}
 
 	public String getHost()
