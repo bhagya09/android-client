@@ -335,7 +335,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 
 	}
 
-	private void createVirtualTableForFirstChar(char firstChar)
+	private void createVirtualTableForFirstChar(Character firstChar)
 	{
 		String tableName = HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_SEARCH + firstChar;
 
@@ -343,7 +343,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 
 		if(tableForCharExists(firstChar))
 		{
-			mCreatedTableList = mCreatedTableList + firstChar;
+			mCreatedTableList = mCreatedTableList + firstChar.toString();
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STICKER_SEARCH_VT_TABLES_LIST, mCreatedTableList);
 		}
 	}
@@ -707,8 +707,8 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 				for (int j = 0; j < currentCount; j++, i++)
 				{
 					String tag = tags.get(i);
-					char firstChar = tag.charAt(0);
-					String table = HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_SEARCH + firstChar;
+					Character firstChar = Character.isDefined(tag.charAt(0))?tag.charAt(0):null;
+					String table = HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_SEARCH + ((firstChar==null)?"":firstChar.toString());
 					if(!tableForCharExists(firstChar))
 					{
 						createVirtualTableForFirstChar(firstChar);
@@ -1923,9 +1923,9 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		return true;
 	}
 
-	public static boolean tableForCharExists(char c)
+	public static boolean tableForCharExists(Character c)
 	{
-		return mCreatedTableList.contains(""+c);
+		return mCreatedTableList.contains(c.toString());
 	}
 
 }
