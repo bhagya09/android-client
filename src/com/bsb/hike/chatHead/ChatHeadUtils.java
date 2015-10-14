@@ -20,6 +20,8 @@ import android.app.ActivityManager.RunningTaskInfo;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.provider.ContactsContract;
@@ -380,49 +382,72 @@ public class ChatHeadUtils
 		return isAccessibilityForcedUponUser() && !isAccessibilityActive; 
 	}
 	
-	public static void startOrStopService(boolean jsonChanged)
+	public static void startOrStopService(final boolean jsonChanged)
 	{
 		Context context  = HikeMessengerApp.getInstance().getApplicationContext();
-		boolean sessionLogEnabled = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SESSION_LOG_TRACKING, false);
-		boolean canAccessibilityBeUsed = isAccessibilityForcedUponUser() && ( useOfAccessibilittyPermitted() || !isAccessibilityEnabled(context));
-		boolean startChatHead = shouldRunChatHeadServiceForStickey() && !canAccessibilityBeUsed;
+		final boolean sessionLogEnabled = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SESSION_LOG_TRACKING, false);
+		final boolean canAccessibilityBeUsed = isAccessibilityForcedUponUser() && ( useOfAccessibilittyPermitted() || !isAccessibilityEnabled(context));
+		final boolean startChatHead = shouldRunChatHeadServiceForStickey() && !canAccessibilityBeUsed;
 		
-		if (willPollingWork() && (sessionLogEnabled || startChatHead))
-		{
-			if (jsonChanged)
-			{
-				restartService();
-			}
-			else
-			{
-				startService();
-			}
-		}
-		else
-		{
-			stopService();
-		}
-		
-		if(!startChatHead)
-		{
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.SNOOZE, false);
-			HikeAlarmManager.cancelAlarm(context, HikeAlarmManager.REQUESTCODE_START_STICKER_SHARE_SERVICE); 
-		}
+		Handler uiHandler = new Handler(Looper.getMainLooper());
 		
 		if(viewManager == null)
 		{
 			viewManager = ChatHeadViewManager.getInstance(context);
 		}
 		
+		uiHandler.post(new Runnable()
+		{
+
+			@Override
+			public void run()
+			{
+				viewManager.onDestroy();
+			}
+		});
+		
+		uiHandler.post(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				if (willPollingWork() && (sessionLogEnabled || startChatHead))
+				{
+					if (jsonChanged)
+					{
+						restartService();
+					}
+					else
+					{
+						startService();
+					}
+				}
+				else
+				{
+					stopService();
+				}}
+		});
+
 		if (useOfAccessibilittyPermitted())
 		{
-			viewManager.onDestroy();
-			viewManager.onCreate();
+			uiHandler.post(new Runnable()
+			{
+				
+				@Override
+				public void run()
+				{
+					viewManager.onCreate();
+				}
+			});
+			
 		}
-		else
+		if(!startChatHead)
 		{
-			viewManager.onDestroy();
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.SNOOZE, false);
+			HikeAlarmManager.cancelAlarm(context, HikeAlarmManager.REQUESTCODE_START_STICKER_SHARE_SERVICE); 
 		}
+		
+		
 	}
 
 	public static void onClickSetAlarm(Context context, int time)
