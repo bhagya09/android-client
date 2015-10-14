@@ -18,7 +18,7 @@ public class HikeBadgeCountManager implements Listener
 
 	private final ArrayList<HikeBadgeCountKeeper> mBadgeCountKeeperList = new ArrayList<>();
 
-	private String[] mlistener = new String[] { HikePubSub.BADGE_COUNT_CHANGED };
+	private String[] mlistener = new String[] { HikePubSub.BADGE_COUNT_CHANGED,HikePubSub.BADGE_COUNT_RESET};
 
 	public HikeBadgeCountManager()
 	{
@@ -26,6 +26,8 @@ public class HikeBadgeCountManager implements Listener
 		mBadgeCountKeeperList.add(new HikeBadgeCountKeeperMessages());
 		mBadgeCountKeeperList.add(new HikeBadgeCountKeeperTimeline());
 		mBadgeCountKeeperList.add(new HikeBadgeCountKeeperActivityUpdate());
+		mBadgeCountKeeperList.add(new HikeBadgeCountKeeperUnseenFriendRequest());
+		mBadgeCountKeeperList.add(new HikeBadgeCountKeeperUserJoin());
 		HikeMessengerApp.getPubSub().addListeners(this, mlistener);
 	}
 
@@ -37,6 +39,8 @@ public class HikeBadgeCountManager implements Listener
 			Logger.d("badger", "set badgeCount as " + getBadgeCount());
 			badger.count(getBadgeCount());
 
+		}else if(HikePubSub.BADGE_COUNT_RESET.equals(type)){
+			badger.count(0);
 		}
 
 	}
