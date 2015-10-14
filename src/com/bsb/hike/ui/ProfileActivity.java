@@ -1404,17 +1404,18 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			mCustomKeyboard.registerEditText(R.id.name_input,KPTConstants.MULTILINE_LINE_EDITOR,ProfileActivity.this,ProfileActivity.this);
 			mCustomKeyboard.registerEditText(R.id.email_input,KPTConstants.MULTILINE_LINE_EDITOR,ProfileActivity.this,ProfileActivity.this);
 			mCustomKeyboard.init(mNameEdit);
-			mNameEdit.setOnFocusChangeListener(new View.OnFocusChangeListener()
+			mNameEdit.setOnClickListener(new View.OnClickListener()
 			{
 				
 				@Override
-				public void onFocusChange(View v, boolean hasFocus)
+				public void onClick(View v)
 				{
-					if (mCustomKeyboard.isCustomKeyboardVisible())
+					if (!mCustomKeyboard.isCustomKeyboardVisible())
 					{
-						mCustomKeyboard.showCustomKeyboard(mNameEdit, false);
+						mCustomKeyboard.showCustomKeyboard(mNameEdit, true);
 					}
-					mCustomKeyboard.showCustomKeyboard(mNameEdit, true);
+					
+					
 				}
 			});
 			mEmailEdit.setOnFocusChangeListener(new View.OnFocusChangeListener()

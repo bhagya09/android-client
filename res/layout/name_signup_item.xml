@@ -42,6 +42,7 @@
             android:drawableLeft="@drawable/ic_birthday_common"
             android:hint="@string/how_young_are_you"
             android:inputType="phone"
+            atx:charInputMaxLength="2"
             android:maxLength="2" />
     </RelativeLayout>
 
