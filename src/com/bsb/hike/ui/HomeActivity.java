@@ -67,6 +67,7 @@ import com.bsb.hike.dialog.CustomAlertDialog;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
+import com.bsb.hike.http.HikeHttpRequest;
 import com.bsb.hike.media.OverFlowMenuItem;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
@@ -74,6 +75,12 @@ import com.bsb.hike.models.FtueContactsData;
 import com.bsb.hike.models.Conversation.ConversationTip;
 import com.bsb.hike.modules.animationModule.HikeAnimationFactory;
 import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.modules.httpmgr.RequestToken;
+import com.bsb.hike.modules.httpmgr.exception.HttpException;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
+import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
+import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.offline.OfflineConstants.OFFLINE_STATE;
 import com.bsb.hike.offline.OfflineController;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
@@ -257,6 +264,60 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		}
 		Logger.d(getClass().getSimpleName(),"onCreate "+this.getClass().getSimpleName());
 		showProductPopup(ProductPopupsConstants.PopupTriggerPoints.HOME_SCREEN.ordinal());
+		
+		if (getIntent() != null)
+		{
+			Intent intent = getIntent();
+			String action = intent.getAction();
+			String linkUrl = intent.getDataString();
+
+			if (TextUtils.isEmpty(action) || TextUtils.isEmpty(linkUrl))
+			{
+				//finish();
+				return;
+			}
+			
+			if (linkUrl.contains(HttpRequestConstants.BASE_LINK_SHARING_URL))
+			{
+				String code = linkUrl.split("/")[3];
+				RequestToken requestToken = HttpRequests.acceptGroupMembershipConfirmationRequest(code, new IRequestListener()
+				{
+					
+					@Override
+					public void onRequestSuccess(Response result)
+					{
+						JSONObject response = (JSONObject) result.getBody().getContent();
+						Logger.d(TAG, "Response for acceptGroupMembershipConfirmationRequest : " + response.toString());
+						try
+						{
+							int errorCode = response.getInt("error");
+							String errorMessage = response.optString("errorMsg", "Something Went Wrong, GROUP JOIN REQUEST not accepted");
+							if (errorCode == -1)
+							{
+								Toast.makeText(HomeActivity.this, errorMessage, Toast.LENGTH_SHORT).show();
+							}
+						}
+						catch (JSONException e)
+						{
+							Logger.e(TAG, " JSON Error in acceptGroupMembershipConfirmationRequest : " + e.toString());
+						}
+					}
+					
+					@Override
+					public void onRequestProgressUpdate(float progress)
+					{
+					}
+					
+					@Override
+					public void onRequestFailure(HttpException httpException)
+					{
+						// Show Toast
+						Toast.makeText(HomeActivity.this, getString(R.string.link_share_network_error), Toast.LENGTH_SHORT).show();
+					}
+				});
+				requestToken.execute();
+			}
+		}
 	}
 	
 	@Override

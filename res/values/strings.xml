@@ -774,7 +774,6 @@
     <string name="compose_chat_contacts_on_hike">Contacts on Hike</string>
     <string name="compose_chat_all_contacts">SMS Contacts</string>
     <string name="compose_chat_other_contacts">OTHER CONTACTS</string>
-    <string name="compose_chat_action_bar_group_mode_title">Select members (min 2)</string>
     <string name="compose_chat_action_bar_title">New Chat</string>
     <string name="name_group">Name the group</string>
     <string name="name_broadcast">Name the broadcast</string>
@@ -1112,6 +1111,7 @@
     <string name="file_missing_caps">FILE MISSING</string>
     <string name="status_profile_pic_notification">Changed profile picture</string>
     <string name="group_admin">Admin</string>
+    <string name="sms_group_member">Pending</string>
     <string name="favorite_request_pending">Added as favorite</string>
     <string name="delete_media_from_sdcard">Delete media from phone</string>
     <string name="unable_to_open">Sorry, this file does not exist</string>
@@ -1556,6 +1556,7 @@
 	<string name="created_group_text">You created the group chat</string>
 	<string name="group_member_added">added %1$s</string>
 	<string name="num_members">%1$d members</string>
+	<string name="num_member">%1$d member</string>
 	<string name="profile_pic_upload_in_background">Profile picture upload will continue..</string>
 	<string name="profile_pic_failed">Profile picture upload failed. Please try again</string>
 	<string name="show_degraded_image_quality">Going to load a low quality Image</string>
@@ -1724,11 +1725,20 @@
     <string name="action_no_network">Please check network</string>
     <string name="timeline_transition_anim">timeline_image_transit</string>
     <string name="home_overflow_new_photo">New Photo</string>
-    <string name = "max_file_size_offline">Max file size for hike direct is 2 GB</string>
     <string name = "upgrade_for_larger_files">%1$s needs to upgrade to receive this file.Share the latest version of Hike now via Hike Direct</string>
     <string name="group_participant_info">You can add upto 500 members to a group</string>
     <string name="maxContactInGroupErr">Max %1$s members can be added</string>
     <string name="added_in_group">This contact is already a member</string>
+    <string name="watsapp">Add via WhatsApp</string>
+    <string name="others">Add via Others</string>
+    <string name="add_via_hike">Add via Hike</string>
+    <string name="link_share_network_error">Could not share: Please check your network and try again.</string>
+    <string name="link_share_wa_msg">You can now add memebers to the group %1$s from group and contacts from WA by sharing link below.</string>
+    <string name="link_share_others_msg">You can now add memebers to the group %1$s from group and contacts from Other apps by sharing link below.</string>
+    <string name="link_share_network_error">Hey, you’re offline, please connect to the internet and tap here to connect.</string>
+    <string name="wa_group">WhatsApp Group</string>
+    <string name="opening_app">Opening App</string>
+    <string name="max_file_size_offline">Max file size for hike direct is 2 GB</string>
 	<string name="net_not_connected">HikeCaller works only on Wi-Fi or 3G/4G.</string>
 	<string name="okay">OKAY</string>
     <string name="getting_mapp_shortly">Congratulations! You should see %1$s on your chat screen shortly</string>
