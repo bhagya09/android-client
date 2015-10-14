@@ -112,7 +112,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 			sHikeStickerSearchDatabase.MAXIMUM_TAG_SELECTION_COUNT_PER_STICKER = HikeSharedPreferenceUtil.getInstance().getData(
 					HikeConstants.STICKER_TAG_MAXIMUM_SELECTION_PER_STICKER, StickerSearchConstants.MAXIMUM_TAG_SELECTION_COUNT_PER_STICKER);
 
-			mCreatedTableList = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_SEARCH_VT_TABLES_LIST,"");
+			mCreatedTableList = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_SEARCH_VT_TABLES_LIST,HikeStickerSearchBaseConstants.DEFAULT_TABLE_LIST);
 		}
 	}
 
@@ -331,6 +331,20 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 					+ HikeStickerSearchBaseConstants.SYNTAX_BRACKET_OPEN + HikeStickerSearchBaseConstants.UNIQUE_ID
 					+ HikeStickerSearchBaseConstants.SYNTAX_BRACKET_CLOSE + HikeStickerSearchBaseConstants.SYNTAX_BRACKET_CLOSE;
 			mDb.execSQL(sql);
+		}
+
+	}
+
+	private void createVirtualTableForFirstChar(char firstChar)
+	{
+		String tableName = HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_SEARCH + firstChar;
+
+		createVirtualTable(tableName);
+
+		if(tableForCharExists(firstChar))
+		{
+			mCreatedTableList = mCreatedTableList + firstChar;
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STICKER_SEARCH_VT_TABLES_LIST, mCreatedTableList);
 		}
 	}
 
@@ -697,7 +711,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 					String table = HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_SEARCH + firstChar;
 					if(!tableForCharExists(firstChar))
 					{
-						createVirtualTable(table);
+						createVirtualTableForFirstChar(firstChar);
 					}
 
 					ContentValues cv = new ContentValues();

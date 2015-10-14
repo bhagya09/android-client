@@ -115,6 +115,8 @@ public class HikeStickerSearchBaseConstants
 
 	public static final String STICKER_TAG_KEYBOARD_ISO_DEFAULT = "Latn";
 
+	public static final String DEFAULT_TABLE_LIST = " ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
 	// Table: TABLE_TAG_SEARCH_*X, where *X is dynamically changeable variable
 	public static final String TAG_REAL_PHRASE = "realTagName";
 
