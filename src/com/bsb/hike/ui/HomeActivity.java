@@ -170,7 +170,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	private String[] homePubSubListeners = { HikePubSub.UNSEEN_STATUS_COUNT_CHANGED, HikePubSub.SMS_SYNC_COMPLETE, HikePubSub.SMS_SYNC_FAIL, HikePubSub.FAVORITE_TOGGLED,
 			HikePubSub.USER_JOINED, HikePubSub.USER_LEFT, HikePubSub.FRIEND_REQUEST_ACCEPTED, HikePubSub.REJECT_FRIEND_REQUEST, HikePubSub.UPDATE_OF_MENU_NOTIFICATION,
 			HikePubSub.SERVICE_STARTED, HikePubSub.UPDATE_PUSH, HikePubSub.REFRESH_FAVORITES, HikePubSub.UPDATE_NETWORK_STATE, HikePubSub.CONTACT_SYNCED, HikePubSub.FAVORITE_COUNT_CHANGED,
-			HikePubSub.STEALTH_UNREAD_TIP_CLICKED,HikePubSub.FTUE_LIST_FETCHED_OR_UPDATED, HikePubSub.STEALTH_INDICATOR, HikePubSub.USER_JOINED_NOTIFICATION, HikePubSub.UPDATE_OF_PHOTOS_ICON  };
+			HikePubSub.STEALTH_UNREAD_TIP_CLICKED,HikePubSub.FTUE_LIST_FETCHED_OR_UPDATED, HikePubSub.STEALTH_INDICATOR, HikePubSub.USER_JOINED_NOTIFICATION, HikePubSub.UPDATE_OF_PHOTOS_ICON, HikePubSub.SHOW_NEW_CHAT_RED_DOT  };
 
 	private String[] progressPubSubListeners = { HikePubSub.FINISHED_UPGRADE_INTENT_SERVICE };
 
@@ -189,6 +189,8 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	protected static final int SHOW_RECENTLY_JOINED_INDICATOR = -103;
 	
 	protected static final int SHOW_TIMELINE_UPDATES_INDICATOR = -104;
+
+	protected static final int SHOW_NEW_CHAT_RED_DOT = -105;
 	
 	private View hiButton;
 
@@ -335,6 +337,8 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		case SHOW_TIMELINE_UPDATES_INDICATOR:
 			showTimelineUpdatesIndicator();
 			break;
+		case SHOW_NEW_CHAT_RED_DOT:
+			showNewChatRedDot();
 		default:
 			super.handleUIMessage(msg);
 			break;
@@ -419,6 +423,16 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 				topBarIndicator.setText(String.valueOf(count));
 				topBarIndicator.startAnimation(Utils.getNotificationIndicatorAnim());
 			}
+		}
+	}
+
+	private void showNewChatRedDot()
+	{
+		if (newConversationIndicator != null && HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.NEW_CHAT_RED_DOT, false))
+		{
+			newConversationIndicator.setText("1");
+			newConversationIndicator.setVisibility(View.VISIBLE);
+			newConversationIndicator.startAnimation(Utils.getNotificationIndicatorAnim());
 		}
 	}
 
@@ -807,6 +821,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			});
 
 			showRecentlyJoinedDot(1000);
+			sendUIMessage(SHOW_NEW_CHAT_RED_DOT, 1000);
 
 			MenuItemCompat.getActionView(menu.findItem(R.id.new_conversation)).setOnClickListener(new OnClickListener()
 			{
@@ -1623,6 +1638,10 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 				}
 			});
 		}
+		else if (HikePubSub.SHOW_NEW_CHAT_RED_DOT.equals(type))
+		{
+			sendUIMessage(SHOW_NEW_CHAT_RED_DOT, 1000);
+		}
 	}
 
 	private void updateHomeOverflowToggleCount(final int count, int delayTime)
@@ -2170,6 +2189,13 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	{
 		Message msg = Message.obtain();
 		msg.what = SHOW_TIMELINE_UPDATES_INDICATOR;
+		uiHandler.sendMessageDelayed(msg, delayTime);
+	}
+
+	public void sendUIMessage(int what, long delayTime)
+	{
+		Message msg = Message.obtain();
+		msg.what = what;
 		uiHandler.sendMessageDelayed(msg, delayTime);
 	}
 

@@ -35,7 +35,6 @@ import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.bots.NonMessagingBotMetadata;
 import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.chatHead.StickerShareSettings;
-import com.bsb.hike.chatHead.StickyCallerSettings;
 import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.cropimage.CropImage;
@@ -45,10 +44,10 @@ import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.models.Conversation.ConvInfo;
-import com.bsb.hike.timeline.view.StatusUpdate;
-import com.bsb.hike.timeline.view.TimelineActivity;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
 import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.timeline.view.StatusUpdate;
+import com.bsb.hike.timeline.view.TimelineActivity;
 import com.bsb.hike.ui.ApkSelectionActivity;
 import com.bsb.hike.ui.ComposeChatActivity;
 import com.bsb.hike.ui.ConnectedAppsActivity;
@@ -216,11 +215,6 @@ public class IntentFactory
 		}
 	}
 	
-	public static void openStickyCallerSettings(Context context)
-	{
-			context.startActivity(getStickyCallerSettingsIntent(context));
-	}
-	
 	public static void openSettingHelp(Context context)
 	{
 		Intent intent = null;
@@ -277,6 +271,20 @@ public class IntentFactory
 		intent.putExtra(HikeConstants.Extras.TITLE, R.string.settings_chat);
 		context.startActivity(intent);
 	}
+	
+	public static void openStickyCallerSettings(Context context, boolean isFromOutside)
+	{
+		Intent intent = new Intent(context, HikePreferences.class);
+		intent.putExtra(HikeConstants.Extras.PREF, R.xml.sticky_caller_preferences);
+		intent.putExtra(HikeConstants.Extras.TITLE, R.string.sticky_caller_settings);
+		if (isFromOutside)
+		{
+			intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		}
+		context.startActivity(intent);
+	}
+	
+	
 
 	public static void openInviteSMS(Context context)
 	{
@@ -388,12 +396,6 @@ public class IntentFactory
 		HAManager.getInstance().chatHeadshareAnalytics(AnalyticsConstants.ChatHeadEvents.HIKE_STICKER_SETTING);
 		return new Intent(context, StickerShareSettings.class);
 	}
-	
-	public static Intent getStickyCallerSettingsIntent(Context context)
-	{
-		return new Intent(context, StickyCallerSettings.class);
-	}
-	
 
 	public static Intent createNewBroadcastActivityIntent(Context appContext)
 	{
