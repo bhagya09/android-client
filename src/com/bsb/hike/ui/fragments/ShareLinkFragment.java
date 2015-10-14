@@ -201,12 +201,12 @@ public class ShareLinkFragment extends DialogFragment implements OnClickListener
 			break;
 		}
 
+		// hide dialog
+		getDialog().hide();
+				
 		// Start Loader here
 		showProgressDialog();
 
-		// hide dialog
-		getDialog().hide();
-		
 		makeHttpCallForURL();
 	}
 

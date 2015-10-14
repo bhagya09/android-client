@@ -19,7 +19,7 @@
         android:layout_centerVertical="true"
         android:textSize="16sp"
         android:layout_margin="18dp"
-        android:paddingRight="135dp"
+        android:paddingRight="105dp"
         android:text="@string/add_via_hike"/>
 
     <com.bsb.hike.view.CustomFontTextView
@@ -38,7 +38,7 @@
         android:layout_marginTop="9dp"
         android:layout_marginBottom="9dp"
         android:layout_marginLeft="18dp"
-        android:paddingRight="135dp"
+        android:paddingRight="105dp"
         android:text="@string/watsapp"
         android:visibility="gone" />
 
@@ -56,7 +56,7 @@
         android:layout_centerVertical="true"
         android:textSize="16sp"
         android:layout_margin="18dp"
-        android:paddingRight="135dp"
+        android:paddingRight="105dp"
         android:text="@string/others"
         android:visibility="gone" />
 
