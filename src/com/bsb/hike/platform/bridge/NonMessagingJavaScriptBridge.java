@@ -95,11 +95,9 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	@JavascriptInterface
 	public void onLoadFinished(String height)
 	{
-		mHandler.post(new Runnable()
-		{
+		mHandler.post(new Runnable() {
 			@Override
-			public void run()
-			{
+			public void run() {
 				init();
 			}
 		});
@@ -332,7 +330,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	@JavascriptInterface
 	public void putInCache(String key, String value)
 	{
-		PlatformHelper.putInCache(key, value,mBotInfo.getNamespace());
+		PlatformHelper.putInCache(key, value, mBotInfo.getNamespace());
 	}
 
 	/**
@@ -356,7 +354,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	@JavascriptInterface
 	public void getFromCache(String id, String key)
 	{
-		String value = PlatformHelper.getFromCache(key,mBotInfo.getNamespace());
+		String value = PlatformHelper.getFromCache(key, mBotInfo.getNamespace());
 		callbackToJS(id, value);
 	}
 
@@ -400,11 +398,9 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 		{
 			return;
 		}
-		mHandler.post(new Runnable()
-		{
+		mHandler.post(new Runnable() {
 			@Override
-			public void run()
-			{
+			public void run() {
 				mWebView.loadUrl("javascript:notifDataReceived" + "('" + getEncodedDataForJS(notifData) + "')");
 			}
 		});
@@ -887,7 +883,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	@JavascriptInterface
 	public void getAllEventsForMessageHash(String functionId, String messageHash)
 	{
-		String eventData =PlatformHelper.getAllEventsForMessageHash(messageHash,mBotInfo.getNamespace());
+		String eventData =PlatformHelper.getAllEventsForMessageHash(messageHash, mBotInfo.getNamespace());
 		callbackToJS(functionId, eventData);
 	}
 
@@ -1276,11 +1272,9 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 		{
 			return;
 		}
-		mHandler.post(new Runnable()
-		{
+		mHandler.post(new Runnable() {
 			@Override
-			public void run()
-			{
+			public void run() {
 				mWebView.loadUrl("javascript:downloadStatus" + "('" + id + "','" + progress + "')");
 			}
 		});
@@ -1382,6 +1376,27 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 		HikeMessengerApp.getPubSub().publish(HikePubSub.CONV_UNREAD_COUNT_MODIFIED, ms);
 		botInfo.setUnreadCount(0);
 		
+	}
+/**
+ * Platform Version 8
+ * Call this method to delete a bot and remove its files
+ * Can only be called by special bots
+ * @param msisdn
+ */
+	public void deleteAndRemoveBot(String msisdn)
+	{
+		BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
+		if (!BotUtils.isSpecialBot(mBotInfo)||botInfo==null)
+			return;
+		NonMessagingBotMetadata nonMessagingBotMetadata = new NonMessagingBotMetadata(botInfo.getMetadata());
+		JSONObject json=new JSONObject();
+		try {
+			json.put(HikePlatformConstants.APP_NAME,nonMessagingBotMetadata.getAppName());
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		BotUtils.removeMicroApp(json);
+		BotUtils.deleteBot(msisdn);
 	}
 	
 }
