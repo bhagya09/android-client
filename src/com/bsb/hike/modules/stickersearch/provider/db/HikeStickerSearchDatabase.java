@@ -652,7 +652,9 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 
 			long operationVTStartTime = System.nanoTime();
 
-			insertIntoVirtualTable(insertedTags, insertedRows);
+			synchronized (mCreatedTableList) {
+				insertIntoVirtualTable(insertedTags, insertedRows);
+			}
 
 			long operationVTOverTime = System.nanoTime();
 			operationOverTime = System.currentTimeMillis();
