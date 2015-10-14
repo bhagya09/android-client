@@ -67,6 +67,8 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 
 	private static String mCreatedTableList;
 
+	private static HashMap<Character,Boolean> mCreatedTableMap;
+
 	private HikeStickerSearchDatabase(Context context)
 	{
 		super(context, HikeStickerSearchBaseConstants.DATABASE_HIKE_STICKER_SEARCH, null, HikeStickerSearchBaseConstants.STICKERS_SEARCH_DATABASE_VERSION);
@@ -113,6 +115,8 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 					HikeConstants.STICKER_TAG_MAXIMUM_SELECTION_PER_STICKER, StickerSearchConstants.MAXIMUM_TAG_SELECTION_COUNT_PER_STICKER);
 
 			mCreatedTableList = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_SEARCH_VT_TABLES_LIST,HikeStickerSearchBaseConstants.DEFAULT_TABLE_LIST);
+
+			loadTableMap();
 		}
 	}
 
@@ -341,9 +345,10 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 
 		createVirtualTable(tableName);
 
-		if(tableForCharExists(firstChar))
+		if(!tableForCharExists(firstChar))
 		{
 			mCreatedTableList = mCreatedTableList + firstChar.toString();
+			mCreatedTableMap.put(firstChar,true);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STICKER_SEARCH_VT_TABLES_LIST, mCreatedTableList);
 		}
 	}
@@ -1927,7 +1932,16 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 
 	public static boolean tableForCharExists(Character c)
 	{
-		return mCreatedTableList.contains(c.toString());
+		return mCreatedTableMap.get(c).booleanValue();
+	}
+
+	public static void loadTableMap()
+	{
+		mCreatedTableMap = new HashMap<Character,Boolean>();
+		for(int i = 0;i<mCreatedTableList.length();i++)
+		{
+			mCreatedTableMap.put(mCreatedTableList.charAt(i),true);
+		}
 	}
 
 }
