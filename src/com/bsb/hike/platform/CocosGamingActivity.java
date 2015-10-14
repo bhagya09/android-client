@@ -170,7 +170,7 @@ public class CocosGamingActivity extends Cocos2dxActivity
 			Logger.d(TAG, "-onActivityResult");
 			switch (requestCode)
 			{
-			case JavascriptBridge.PICK_CONTACT_AND_SEND_REQUEST:
+			case HikeConstants.PLATFORM_REQUEST:
 				JSONObject response = new JSONObject();
 				for (String key : data.getExtras().keySet())
 				{
