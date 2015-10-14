@@ -60,10 +60,13 @@ import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.platform.content.PlatformContentConstants;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.ui.ComposeChatActivity;
+import com.bsb.hike.ui.fragments.ShareLinkFragment;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.OneToNConversationUtils;
+import com.bsb.hike.utils.ShareUtils;
 import com.bsb.hike.utils.Utils;
 
 /**
@@ -1141,6 +1144,49 @@ public abstract class JavascriptBridge
 	}
 
 	/**
+	 * Platform Version 8
+	 * This function is made for the special Group bot that has the information about inviting members to join group from WA/Others App.
+	 * 
+	 */
+	@JavascriptInterface
+	public void sendGCInvitationViaLinkSharing()
+	{
+		Context mContext = HikeMessengerApp.getInstance().getApplicationContext();
+		String groupId = OneToNConversationUtils.createNewGroupId(mContext);
+		int number = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.WA_GROUP_NUMBER, 1);
+		String groupName = mContext.getString(R.string.wa_group) + " " + number;
+		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.WA_GROUP_NUMBER, number + 1);
+		
+		ShareLinkFragment fragment = ShareLinkFragment.newInstance(groupId, groupName, 1, true, true);
+		fragment.initViaArguments();
+		fragment.setButtonClickedType(ShareLinkFragment.WA);
+		fragment.makeHttpCallForURL();
+	}
+	
+	/**
+	 * Platform Version 8
+	 * This function is made for the special Group bot that has the information about inviting members to join group from WA/Others App.
+	 * 
+	 */
+	@JavascriptInterface
+	public void remindGCInvitationViaLinkSharing()
+	{
+		Context mContext = HikeMessengerApp.getInstance().getApplicationContext();
+		String baseText = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.TEXT_FOR_GC_VIA_WA, mContext.getString(R.string.link_share_wa_msg)); 
+		String url = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SHARE_LINK_URL_FOR_GC, null);
+		
+		if(!TextUtils.isEmpty(url))
+		{
+			String finalText = baseText + "\n" + url;
+			ShareUtils.shareContent(HikeConstants.Extras.ShareTypes.TEXT_SHARE, finalText, HikeConstants.Extras.WHATSAPP_PACKAGE);
+		}
+		else
+		{
+			//NO GROUP WAS CREATED
+		}
+	}
+
+	/**
 	 * Platform Version 6 Call this function to open a given Intent.
 	 * 
 	 * @param IntentName
@@ -1259,7 +1305,7 @@ public abstract class JavascriptBridge
 	 * Call this method to get the status of app download
 	 * @param id
 	 * @param app The app name
-	 * [ <total-downloaded-bytes> , <progress> , <original downloaded file path>, <url from which it was downloaded> ]
+	 * returns progress
 	 * returns empty string if download not yet started
 	 */
 	@JavascriptInterface
@@ -1267,12 +1313,12 @@ public abstract class JavascriptBridge
 	{
 		String filePath=PlatformContentConstants.PLATFORM_CONTENT_DIR+app+FileRequestPersistent.STATE_FILE_EXT;
 		String data[]=PlatformUtils.readPartialDownloadState(filePath);
-		if(data==null)
+		if(data==null||data.length<2||TextUtils.isEmpty(data[1]))
 		{
 			callbackToJS(id,"");
 			return;
 		}
-		callbackToJS(id, data.toString());
+		callbackToJS(id, data[1]);
 	}
 	/**
 	 * Platform Version 8
@@ -1293,3 +1339,4 @@ public abstract class JavascriptBridge
 	
 
 }
+

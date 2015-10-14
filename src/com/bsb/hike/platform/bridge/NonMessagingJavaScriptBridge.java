@@ -2,6 +2,7 @@ package com.bsb.hike.platform.bridge;
 
 import java.io.File;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -1383,5 +1384,30 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 		botInfo.setUnreadCount(0);
 		
 	}
-	
+	/**
+	 * Platform Version 8
+	 * Call this method to delete a bot and remove its files
+	 * Can only be called by special bots
+	 * @param msisdn
+	 */
+	public void deleteAndRemoveBot(String msisdn)
+	{
+		BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
+		if (!BotUtils.isSpecialBot(mBotInfo) || botInfo == null)
+			return;
+		NonMessagingBotMetadata nonMessagingBotMetadata = new NonMessagingBotMetadata(botInfo.getMetadata());
+		JSONObject json = new JSONObject();
+		try
+		{
+			JSONArray array = new JSONArray();
+			array.put(nonMessagingBotMetadata.getAppName());
+			json.put(HikePlatformConstants.APP_NAME, array);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+		BotUtils.removeMicroApp(json);
+		BotUtils.deleteBot(msisdn);
+	}
 }

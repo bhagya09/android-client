@@ -90,13 +90,29 @@ public class PhoneSpecUtils
 		JSONObject phoneSpec = new JSONObject();
 		try
 		{
-			phoneSpec.put(DATE, (System.currentTimeMillis()/1000));
-			phoneSpec.put(ELAPSED_TIME, (SystemClock.elapsedRealtime()/1000));
+			phoneSpec.put(DATE, (System.currentTimeMillis() / 1000));
+			phoneSpec.put(ELAPSED_TIME, (SystemClock.elapsedRealtime() / 1000));
 			phoneSpec.put(AUTO_TIME_SET, isAutomaticDateAndTimeSet(context));
-			phoneSpec.put(INTERNAL_MEMORY, new JSONObject(getInternalMem()));
-			phoneSpec.put(DATA_MEMORY, new JSONObject(getDataMem()));
-			phoneSpec.put(SD_MEMORY, new JSONObject(getSDCardMem()));
-			phoneSpec.put(CACHE_MEMORY, new JSONObject(getCacheMem()));
+			Map<String, Long> internalMap = getInternalMem();
+			if (internalMap != null)
+			{
+				phoneSpec.put(INTERNAL_MEMORY, new JSONObject(internalMap));
+			}
+			Map<String, Long> dataMap = getDataMem();
+			if (dataMap != null)
+			{
+				phoneSpec.put(DATA_MEMORY, new JSONObject(dataMap));
+			}
+			Map<String, Long> sdCardMap = getSDCardMem();
+			if (getSDCardMem() != null)
+			{
+				phoneSpec.put(SD_MEMORY, new JSONObject(sdCardMap));
+			}
+			Map<String, Long> cacheMap = getCacheMem();
+			if (getCacheMem() != null)
+			{
+				phoneSpec.put(CACHE_MEMORY, new JSONObject(cacheMap));
+			}
 			phoneSpec.put(RAM, new JSONObject(getRamSize(context)));
 			phoneSpec.put(SIM_DETAILS, new JSONObject(getSimDetails(context)));
 			phoneSpec.put(NETWORK_DETAILS, new JSONObject(getNetworkDetails(context)));
@@ -112,10 +128,17 @@ public class PhoneSpecUtils
 	/**
 	 * returns the busy, free and total Cache memory in bytes
 	 */
-	private static Map<String,Long> getCacheMem()
+	private static Map<String, Long> getCacheMem()
 	{
-		StatFs statFs = new StatFs(Environment.getDownloadCacheDirectory().getAbsolutePath());
-		return getMemory(statFs);
+		try
+		{
+			StatFs statFs = new StatFs(Environment.getDownloadCacheDirectory().getAbsolutePath());
+			return getMemory(statFs);
+		}
+		catch (Exception e)
+		{
+			return null;
+		}
 	}
 
 	/**
@@ -177,8 +200,16 @@ public class PhoneSpecUtils
 	 */
 	private static Map<String,Long> getSDCardMem()
 	{
-		StatFs statFs = new StatFs(Environment.getExternalStorageDirectory().getAbsolutePath());
-		return getMemory(statFs);
+		try
+		{
+			StatFs statFs = new StatFs(Environment.getExternalStorageDirectory().getAbsolutePath());
+			return getMemory(statFs);
+		}
+		catch (Exception e)
+		{
+			return null;
+		}
+	
 	}
 
 	/**
@@ -186,17 +217,31 @@ public class PhoneSpecUtils
 	 */
 	private static Map<String, Long> getDataMem()
 	{
-		StatFs statFs = new StatFs(Environment.getDataDirectory().getAbsolutePath());
-		return getMemory(statFs);
+		try
+		{
+			StatFs statFs = new StatFs(Environment.getDataDirectory().getAbsolutePath());
+			return getMemory(statFs);
+		}
+		catch (Exception e)
+		{
+			return null;
+		}
 	}
 
 	/**
 	 * returns the busy, free and total internal memory
 	 */
-	private static Map<String,Long> getInternalMem()
+	private static Map<String, Long> getInternalMem()
 	{
-		StatFs statFs = new StatFs(Environment.getRootDirectory().getAbsolutePath());
-		return getMemory(statFs);
+		try
+		{
+			StatFs statFs = new StatFs(Environment.getRootDirectory().getAbsolutePath());
+			return getMemory(statFs);
+		}
+		catch (Exception e)
+		{
+			return null;
+		}
 	}
 
 	/**

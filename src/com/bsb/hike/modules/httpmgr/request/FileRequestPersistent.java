@@ -24,7 +24,7 @@ import com.bsb.hike.utils.Utils;
  */
 public class FileRequestPersistent extends FileRequest
 {
-	private int downloadedLength = 0;
+	private long downloadedLength = 0;
 
 	private int totalContentLength = 0;
 
@@ -82,9 +82,9 @@ public class FileRequestPersistent extends FileRequest
 
 	}
 
-	private void saveDownloadedState(int downloadedLen) throws IOException
+	private void saveDownloadedState(long downloadedLen) throws IOException
 	{
-		float newProgress = (downloadedLen/totalContentLength);
+		float newProgress = ((float)downloadedLen/(float)totalContentLength);
 		
 		if ((newProgress - oldProgress) >= HikeConstants.ONE_PERCENT_PROGRESS) // If the delta is > 1% we will write to file
 		{
