@@ -392,7 +392,7 @@ public class Utils
 		return obj;
 	}
 
-	public static boolean isIndianNumber(String number)
+	public static boolean isIndianMobileNumber(String number)
 	{
 		//13 is the number of chars in the phone msisdn 
 		if (number != null && (number.startsWith("+919") || number.startsWith("+918") || number.startsWith("+917")) && number.length() == 13)
@@ -401,6 +401,18 @@ public class Utils
 		}
 		return false;
 	}
+	
+	public static boolean isIndianNumber(String number)
+	{
+		//13 is the number of chars in the phone msisdn 
+		if (number != null && number.startsWith("+91"))
+		{
+			return true;
+		}
+		return false;
+	}
+	
+	
 	
 	
 	static final private int ANIMATION_DURATION = 400;
@@ -539,6 +551,14 @@ public class Utils
 		// String fileName = getUniqueFileName(orgFileName, fileKey);
 
 		return new File(mediaStorageDir, orgFileName);
+	}
+	
+	public static void setSharedPrefValue(Context context, String key, boolean value)
+	{
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+		Editor prefEditor = prefs.edit();
+		prefEditor.putBoolean(key, value);
+		prefEditor.commit();
 	}
 
 	public static String getUniqueFilename(HikeFileType type)
@@ -4609,11 +4629,15 @@ public class Utils
 		context.startActivity(i);
 	}
 	
-	public static void addToContacts(Context context, String msisdn, String name)
+	public static void addToContacts(Context context, String msisdn, String name, String address)
 	{
 		Intent intent = new Intent(Intent.ACTION_INSERT, ContactsContract.Contacts.CONTENT_URI);
 		intent.putExtra(Insert.PHONE, msisdn);
 		intent.putExtra(Insert.NAME, name);
+		if (address != null)
+		{
+			intent.putExtra(Insert.POSTAL, address);
+		}
 		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 		context.startActivity(intent);
 	}
@@ -6505,6 +6529,18 @@ public class Utils
 		return false;
 	}
 	
+	public static boolean isGCViaLinkEnabled()
+	{
+		HikeSharedPreferenceUtil prefs = HikeSharedPreferenceUtil.getInstance();
+		
+		if (prefs != null)
+		{
+			return prefs.getData(HikeConstants.ENABLE_GC_VIA_LINK_SHARING, false);
+		}
+		
+		return false;
+	}
+	
 	public static boolean moveFile(File inputFile, File outputFile)
 	{
 		Logger.d("Utils", "Input file path - " + inputFile.getPath());
@@ -7289,9 +7325,9 @@ public class Utils
 		return directory+File.separator + Utils.getUniqueFilename(HikeFileType.IMAGE);
 	}
 
-	public static void sendFreeSms()
+	public static void sendFreeSms(String number)
 	{
-		Intent intent = IntentFactory.createChatThreadIntentFromMsisdn(HikeMessengerApp.getInstance(), StickyCaller.callCurrentNumber, true, false);
+		Intent intent = IntentFactory.createChatThreadIntentFromMsisdn(HikeMessengerApp.getInstance(), number, true, false);
 		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 	    HikeMessengerApp.getInstance().startActivity(intent);
 	}
