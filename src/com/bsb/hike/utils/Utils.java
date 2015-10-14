@@ -4120,14 +4120,14 @@ public class Utils
 
 	public static Intent getTimelineActivityIntent(Context context)
 	{
-		return getTimelineActivityIntent(context, false);
+		return getTimelineActivityIntent(context, false, false);
 	}
 	
-	public static Intent getTimelineActivityIntent(Context context, boolean openActivityFeed)
+	public static Intent getTimelineActivityIntent(Context context, boolean openActivityFeed, boolean fromNotif)
 	{
 		final Intent intent = new Intent(context, TimelineActivity.class);
 		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-		intent.putExtra(HikeConstants.Extras.FROM_NOTIFICATION, true);
+		intent.putExtra(HikeConstants.Extras.FROM_NOTIFICATION, fromNotif);
 		intent.putExtra(HikeConstants.Extras.OPEN_ACTIVITY_FEED, openActivityFeed);
 		return intent;
 	}
