@@ -88,6 +88,8 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 
 	private boolean shouldOpenActivityFeed;
 
+	private boolean isFromNotif;
+
 	@Override
 	public void onEventReceived(String type, Object object)
 	{
@@ -164,6 +166,7 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 	{
 		super.onNewIntent(intent);
 		shouldOpenActivityFeed = intent.getBooleanExtra(HikeConstants.Extras.OPEN_ACTIVITY_FEED, false);
+		isFromNotif = intent.getBooleanExtra(HikeConstants.Extras.FROM_NOTIFICATION, false);
 		if(isUpdatesFrgamentOnTop())
 		{
 			UpdatesFragment updatesFragment = (UpdatesFragment) getSupportFragmentManager().findFragmentByTag(FRAGMENT_UPDATES_TAG);
@@ -187,8 +190,9 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 		else
 		{
 			// We have to open UpdatesFragment
-			if (!isUpdatesFrgamentOnTop())
+			if (!isUpdatesFrgamentOnTop() && isFromNotif)
 			{
+				isFromNotif = false;
 				getSupportFragmentManager().popBackStack();
 				ActionBar actionBar = getSupportActionBar();
 				View actionBarView = actionBar.getCustomView();

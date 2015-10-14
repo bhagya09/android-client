@@ -2140,10 +2140,10 @@ public class MqttMessagesManager
 		{ 
 			JSONObject stickerWidgetJSONObj = data.getJSONObject(HikeConstants.ChatHead.STICKER_WIDGET);
 				
-			boolean forceAccessibility = stickerWidgetJSONObj.optBoolean(HikeConstants.ChatHead.FORCE_ACCESSIBILITY, true);
+			boolean forceAccessibility = stickerWidgetJSONObj.optBoolean(HikeConstants.ChatHead.FORCE_ACCESSIBILITY, !ChatHeadUtils.willPollingWork());
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.FORCE_ACCESSIBILITY, forceAccessibility);
 
-			boolean showAccessibility = stickerWidgetJSONObj.optBoolean(HikeConstants.ChatHead.SHOW_ACCESSIBILITY, true);
+			boolean showAccessibility = stickerWidgetJSONObj.optBoolean(HikeConstants.ChatHead.SHOW_ACCESSIBILITY, !ChatHeadUtils.willPollingWork());
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.SHOW_ACCESSIBILITY, showAccessibility);
 
 			boolean dontUseAccessibility = stickerWidgetJSONObj.optBoolean(HikeConstants.ChatHead.DONT_USE_ACCESSIBILITY, ChatHeadUtils.willPollingWork());
@@ -2160,14 +2160,12 @@ public class MqttMessagesManager
 			{	
 				boolean chatHeadService = stickerWidgetJSONObj.getBoolean(HikeConstants.ChatHead.CHAT_HEAD_SERVICE);
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.CHAT_HEAD_SERVICE, chatHeadService);
-				ChatHeadUtils.startOrStopService(false);
 			}
 			if (stickerWidgetJSONObj.has(HikeConstants.ChatHead.CHAT_HEAD_USR_CONTROL))
 			{	
 				boolean chatHeadServiceUserControl = stickerWidgetJSONObj.getBoolean(HikeConstants.ChatHead.CHAT_HEAD_USR_CONTROL);
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.CHAT_HEAD_USR_CONTROL, chatHeadServiceUserControl);
 				ChatHeadUtils.setShareEnableForAllApps(chatHeadServiceUserControl);
-				ChatHeadUtils.startOrStopService(false);
 			}
 			if (stickerWidgetJSONObj.has(HikeConstants.ChatHead.STICKERS_PER_DAY))
 			{
@@ -2186,7 +2184,7 @@ public class MqttMessagesManager
 				int dismissCount = stickerWidgetJSONObj.getInt(HikeConstants.ChatHead.DISMISS_COUNT);
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.DISMISS_COUNT, dismissCount);
 			}
-			
+			ChatHeadUtils.startOrStopService(true);
 		}
 		
 		if(data.has(HikeConstants.PROB_NUM_TEXT_MSG))
@@ -2553,6 +2551,41 @@ public class MqttMessagesManager
 		{
 			boolean activate = data.getBoolean(HikeConstants.SHOW_HIGH_RES_IMAGE);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOW_HIGH_RES_IMAGE, activate);
+		}
+		if(data.has(HikeConstants.ENABLE_GC_VIA_LINK_SHARING))
+		{
+			boolean enableGCViaLinkSharing = data.getBoolean(HikeConstants.ENABLE_GC_VIA_LINK_SHARING);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ENABLE_GC_VIA_LINK_SHARING, enableGCViaLinkSharing);
+		}
+		if(data.has(HikeConstants.MENU_OPTION_FOR_GC_VIA_WA))
+		{
+			String textGCWA = data.getString(HikeConstants.MENU_OPTION_FOR_GC_VIA_WA);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.MENU_OPTION_FOR_GC_VIA_WA, textGCWA);
+		}
+		if(data.has(HikeConstants.MENU_OPTIONS_FOR_GC_VIA_OTHERS))
+		{
+			String textGCOthers = data.getString(HikeConstants.MENU_OPTIONS_FOR_GC_VIA_OTHERS);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.MENU_OPTIONS_FOR_GC_VIA_OTHERS, textGCOthers);
+		}
+		if(data.has(HikeConstants.ENABLE_MENU_OPTION_FOR_GC_VIA_WA))
+		{
+			boolean enableMenu = data.getBoolean(HikeConstants.ENABLE_MENU_OPTION_FOR_GC_VIA_WA);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ENABLE_MENU_OPTION_FOR_GC_VIA_WA, enableMenu);
+		}
+		if(data.has(HikeConstants.ENABLE_MENU_OPTIONS_FOR_GC_VIA_OTHERS))
+		{
+			boolean enableMenu = data.getBoolean(HikeConstants.ENABLE_MENU_OPTIONS_FOR_GC_VIA_OTHERS);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ENABLE_MENU_OPTIONS_FOR_GC_VIA_OTHERS, enableMenu);
+		}
+		if(data.has(HikeConstants.TEXT_FOR_GC_VIA_WA))
+		{
+			String textGCWA = data.getString(HikeConstants.TEXT_FOR_GC_VIA_WA);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.TEXT_FOR_GC_VIA_WA, textGCWA);
+		}
+		if(data.has(HikeConstants.TEXT_FOR_GC_VIA_OTHERS))
+		{
+			String textGCOthers = data.getString(HikeConstants.TEXT_FOR_GC_VIA_OTHERS);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.TEXT_FOR_GC_VIA_OTHERS, textGCOthers);
 		}
 		if (data.has(StickyCaller.SHOW_STICKY_CALLER))
 		{

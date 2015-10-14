@@ -357,7 +357,7 @@ public class ChatHeadUtils
 	
 	public static boolean shouldShowAccessibility()
 	{
-		boolean showAccessibility = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.SHOW_ACCESSIBILITY, true);
+		boolean showAccessibility = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.SHOW_ACCESSIBILITY, !willPollingWork());
 		if(!showAccessibility)
 		{
 			return false;
@@ -372,7 +372,7 @@ public class ChatHeadUtils
 	
 	public static boolean canAccessibilityBeUsed(boolean serviceDecision)
 	{
-		boolean forceAccessibility = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.FORCE_ACCESSIBILITY, true);
+		boolean forceAccessibility = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.FORCE_ACCESSIBILITY, !willPollingWork());
 		if(!forceAccessibility)
 		{
 			return false;
@@ -415,14 +415,19 @@ public class ChatHeadUtils
 			HikeAlarmManager.cancelAlarm(HikeMessengerApp.getInstance(), HikeAlarmManager.REQUESTCODE_START_STICKER_SHARE_SERVICE); 
 		}
 		
+		if(viewManager == null)
+		{
+			viewManager = ChatHeadViewManager.getInstance(HikeMessengerApp.getInstance().getApplicationContext());
+		}
+		
 		if (useOfAccessibilittyPermitted())
 		{
-			if(viewManager == null)
-			{
-				viewManager = ChatHeadViewManager.getInstance(HikeMessengerApp.getInstance().getApplicationContext());
-			}
 			viewManager.onDestroy();
 			viewManager.onCreate();
+		}
+		else
+		{
+			viewManager.onDestroy();
 		}
 	}
 
@@ -446,7 +451,6 @@ public class ChatHeadUtils
 				pkgList.getJSONObject(j).put(HikeConstants.ChatHead.APP_ENABLE, toSet);
 			}
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.PACKAGE_LIST, pkgList.toString());
-			ChatHeadUtils.startOrStopService(true);
 		}
 		catch (JSONException e)
 		{
