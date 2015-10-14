@@ -2,12 +2,6 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     android:title="@string/settings_keyboard" >
     
-    <ListPreference
-        android:key="languagePref"
-        android:layout="@layout/list_preference"
-        android:summary="@string/language_summary"
-        android:title="@string/language_title" />
-    
     <com.bsb.hike.view.SwitchPreferenceCompat
         android:defaultValue="true"
         android:key="keyboardPref"
