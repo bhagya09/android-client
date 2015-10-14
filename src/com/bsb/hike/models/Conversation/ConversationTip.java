@@ -214,9 +214,11 @@ public class ConversationTip implements OnClickListener
 			String tipHeaderText = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.UPDATE_TIP_HEADER, "");
 			String tipMsgTxt = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.UPDATE_TIP_BODY, "");
 			String tipLabelTxt = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.UPDATE_TIP_LABEL, "");
-			((TextView) v.findViewById(R.id.tip_header)).setText(tipHeaderText);
-			((TextView) v.findViewById(R.id.tip_msg)).setText(tipMsgTxt);
+			((TextView) v.findViewById(R.id.update_tip_header)).setText(tipHeaderText);
+			((TextView) v.findViewById(R.id.update_tip_msg)).setText(tipMsgTxt);
 			((TextView) v.findViewById(R.id.update_tip_label)).setText(tipLabelTxt);
+			((ImageView) v.findViewById(R.id.update_tip_icon)).setVisibility(View.VISIBLE);
+			((ImageView) v.findViewById(R.id.invite_tip_icon)).setVisibility(View.GONE);
 			if(tipType == UPDATE_NORMAL_TIP)
 			{
 				ImageView close_tip = (ImageView) v.findViewById(R.id.close_tip);
@@ -230,9 +232,11 @@ public class ConversationTip implements OnClickListener
 			String invtHeaderText = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.INVITE_TIP_HEADER, "");
 			String invtMsgTxt = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.INVITE_TIP_BODY, "");
 			String invtLabelTxt = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.INVITE_TIP_LABEL, "");
-			((TextView) v.findViewById(R.id.tip_header)).setText(invtHeaderText);
-			((TextView) v.findViewById(R.id.tip_msg)).setText(invtMsgTxt);
+			((TextView) v.findViewById(R.id.update_tip_header)).setText(invtHeaderText);
+			((TextView) v.findViewById(R.id.update_tip_msg)).setText(invtMsgTxt);
 			((TextView) v.findViewById(R.id.update_tip_label)).setText(invtLabelTxt);
+			((ImageView) v.findViewById(R.id.update_tip_icon)).setVisibility(View.GONE);
+			((ImageView) v.findViewById(R.id.invite_tip_icon)).setVisibility(View.VISIBLE);
 			ImageView close_tip = (ImageView) v.findViewById(R.id.close_tip);
 			close_tip.setVisibility(View.VISIBLE);
 			close_tip.setOnClickListener(this);

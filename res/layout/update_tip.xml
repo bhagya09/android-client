@@ -3,69 +3,88 @@
     android:id="@+id/all_content"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/stealth_tip_bg"
-    android:orientation="horizontal" >
+    android:background="#f64126"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
+
+        <ImageView
+            android:id="@+id/update_tip_icon"
+            android:layout_width="52dp"
+            android:layout_height="52dp"
+            android:layout_weight="0"
+            android:layout_gravity="top|left"
+            android:layout_marginLeft="18dp"
+            android:layout_marginTop="18dp"
+            android:visibility="visible"
+            android:src="@drawable/update_tip_download" />
+        
+        <ImageView
+            android:id="@+id/invite_tip_icon"
+            android:layout_width="52dp"
+            android:layout_height="52dp"
+            android:layout_weight="0"
+            android:layout_gravity="top|left"
+            android:layout_marginLeft="18dp"
+            android:layout_marginTop="18dp"
+            android:visibility="gone"
+            android:src="@drawable/invite_tip_icon" />
 
         <LinearLayout
-            android:id="@+id/tip_content"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
+            android:layout_weight="1"
+            android:paddingLeft="12dp"
             android:layout_height="wrap_content"
-            android:layout_weight="8"
             android:layout_alignParentTop="true"
             android:layout_alignWithParentIfMissing="true"
             android:orientation="vertical" >
 
-            <com.bsb.hike.view.CustomFontTextView
-                android:id="@+id/tip_header"
+            <TextView
+                android:id="@+id/update_tip_header"
                 style="@style/UpdateTipHeader"
-                android:layout_marginTop="17.5dp"
-                android:layout_marginLeft="17.5dp"
                 android:layout_gravity="top"
+                android:layout_marginTop="18dp"
+                android:paddingRight="12dp"
+                android:fontFamily="Roboto-Medium"
                 android:text="@string/update_tip_header_text" />
 
-            <com.bsb.hike.view.CustomFontTextView
-                android:id="@+id/tip_msg"
+            <TextView
+                android:id="@+id/update_tip_msg"
                 style="@style/UpdateTipBody"
-                android:paddingTop="7dp"
-                android:layout_marginLeft="17.5dp"
-                android:layout_marginBottom="29dp"
-                android:alpha="0.7"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:fontFamily="Roboto-Regular"
+                android:gravity="top"
                 android:text="@string/update_tip_body_text" />
         </LinearLayout>
 
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="2"
+        <ImageView
+            android:id="@+id/close_tip"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_weight="0"
             android:layout_alignParentRight="true"
-            android:orientation="vertical"
-            android:layout_alignTop="@id/tip_content" >
+            android:layout_gravity="top|right"
+            android:layout_marginRight="8.5dp"
+            android:layout_marginTop="8.5dp"
+            android:scaleType="centerInside"
+            android:src="@drawable/update_tip_cross"
+            android:visibility="invisible" />
+    </LinearLayout>
 
-            <com.bsb.hike.ui.utils.RecyclingImageView
-                android:id="@+id/close_tip"
-                android:layout_width="33dp"
-                android:layout_height="33dp"
-                android:layout_alignParentRight="true"
-                android:layout_gravity="top|right"
-                android:layout_marginRight="9.5dp"
-                android:layout_marginTop="10dp"
-                android:background="@drawable/popup_button_bg_selector"
-                android:padding="10dp"
-                android:visibility="gone"
-                android:scaleType="centerInside"
-                android:src="@drawable/connectionscreencross" />
-
-            <com.bsb.hike.view.CustomFontTextView
-                android:id="@+id/update_tip_label"
-                style="@style/UpdateTipLabel"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="0.9"
-                android:gravity="bottom"
-                android:paddingBottom="17.5dp"
-                android:paddingRight="17.5dp"
-                android:text="@string/update_tip_bottom_text" />
-
-        </LinearLayout>
+    <TextView
+        android:id="@+id/update_tip_label"
+        style="@style/UpdateTipLabel"
+        android:layout_gravity="right"
+        android:fontFamily="Roboto-Medium"
+        android:paddingLeft="31dp"
+        android:paddingBottom="18.5dp"
+        android:paddingRight="31dp"
+        android:paddingTop="18dp"
+        android:text="@string/update_tip_bottom_text" />
 
 </LinearLayout>
