@@ -107,6 +107,7 @@
         android:label="@string/app_name"
         android:largeHeap="true"
         android:logo="@drawable/hike_logo_top_bar"
+        tools:replace="android:allowBackup"
         android:theme="@style/AppTheme" >
         <uses-library
             android:name="com.google.android.maps"
