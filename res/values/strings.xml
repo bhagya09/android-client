@@ -1751,6 +1751,7 @@
     <string name="getting_details">Getting details...</string>
     <string name="take_me_there">TAKE ME THERE</string>
     <string name="hike_upgrade_string">Making hike faster and better for you\n This may take a few minutes</string>
+    <string name="HELP">HELP</string>
     <string name="sticky_caller_settings">Caller</string>
 	<string name="sticky_caller_settings_header">Caller Info</string>
 	<string name="sticky_caller_settings_side_text">Show caller info and free calling/messaging options for all contacts</string>

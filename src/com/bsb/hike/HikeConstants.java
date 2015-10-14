@@ -3293,6 +3293,10 @@ public class HikeConstants
 	
 	public static final String SHOW_HIGH_RES_IMAGE = "s_h_r";
 	
+	public static final String HIKE_DIRECT_UPDGRADE_PEER = "hdu";
+	
+	public static final String HIKE_DIRECT_UNSUPPORTED_PEER = "hdnu";
+	
 	public static final String ENABLE_GC_VIA_LINK_SHARING = "en_gc_ls";
 	
 	public static final String MENU_OPTION_FOR_GC_VIA_WA = "mo_gc_wa";
