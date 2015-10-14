@@ -1,15 +1,14 @@
 bin/
 gen/
 build/
-**/.idea/workspace.xml
-**/.idea/tasks.xml
-**/.idea/gradle.xml
+**/.idea
 .settings/
 facebook-android-sdk/facebook/TestApp/
 proguard/
 local.properties
 .gradle/
 */build/
+**/*.iml
 .gradle/
 proguard/
 local.properties

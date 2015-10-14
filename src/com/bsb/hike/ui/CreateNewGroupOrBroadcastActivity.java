@@ -361,12 +361,14 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 				break;
 				
 			case GROUP:
-				int settings = 0;
-				if(gsSettings.isChecked()){
-					settings = 1;
+				if(Utils.isGCViaLinkEnabled())
+				{
+					showLinkShareView(getConvId(), getGroupName(), getGSSettings(), true);
 				}
-				Intent intentGroup = IntentFactory.openComposeChatIntentForGroup(this, convId, convName.getText().toString().trim(),settings);
-				startActivity(intentGroup);
+				else
+				{
+					addMembersViaHike();
+				}
 				break;
 		}
 	}
@@ -543,4 +545,27 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 		// TODO Auto-generated method stub
 		
 	}
+	
+	public String getGroupName()
+	{
+		return convName.getText().toString();
+	}
+
+	public int getGSSettings()
+	{
+		return gsSettings.isChecked() ? 1 : 0;
+	}
+
+	public String getConvId()
+	{
+		return convId;
+	}
+	
+	@Override
+	public void addMembersViaHike()
+	{
+		Intent intentGroup = IntentFactory.openComposeChatIntentForGroup(this, convId, convName.getText().toString().trim(), getGSSettings());
+		startActivity(intentGroup);
+	}
+
 }

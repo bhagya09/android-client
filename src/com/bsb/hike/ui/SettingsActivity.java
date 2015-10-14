@@ -381,7 +381,7 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 
 			case R.string.sticky_caller_settings:
 				HAManager.getInstance().stickyCallerAnalyticsUIEvent(AnalyticsConstants.StickyCallerEvents.CALLER_SETTINGS_BUTTON, null, AnalyticsConstants.StickyCallerEvents.HIKE, null);
-				IntentFactory.openStickyCallerSettings(this);
+				IntentFactory.openStickyCallerSettings(this, false);
 				break;
 				
 			case R.string.help:

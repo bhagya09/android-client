@@ -67,6 +67,7 @@ import com.bsb.hike.ui.fragments.PhotoViewerFragment;
 import com.bsb.hike.ui.utils.StatusBarColorChanger;
 import com.bsb.hike.utils.ChangeProfileImageBaseActivity;
 import com.bsb.hike.utils.EmoticonConstants;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.OneToNConversationUtils;
@@ -3387,28 +3388,50 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 
 	private void openAddToGroup()
 	{
-		// TODO Auto-generated method stub
-		Intent intent = new Intent(ProfileActivity.this, ComposeChatActivity.class);
 		if (this.profileType == ProfileType.GROUP_INFO)
 		{
-			if(oneToNConversation instanceof GroupConversation){
-				try {
-					intent.putExtra(HikeConstants.Extras.CREATE_GROUP_SETTINGS, oneToNConversation.getMetadata().getAddMembersRight());
-				} catch (JSONException e) {
-					// TODO Auto-generated catch block
+			if(Utils.isGCViaLinkEnabled())
+			{
+				try
+				{
+					showLinkShareView(oneToNConversation.getConvInfo().getMsisdn(), oneToNConversation.getConversationName(), oneToNConversation.getMetadata().getAddMembersRight(), false);
+				}
+				catch (JSONException e)
+				{
 					e.printStackTrace();
 				}
 			}
-			intent.putExtra(HikeConstants.Extras.GROUP_CHAT, true);
-			intent.putExtra(HikeConstants.Extras.EXISTING_GROUP_CHAT, mLocalMSISDN);
+			else
+			{
+				addMembersViaHike();
+			}
 		}
 		else if (this.profileType == ProfileType.BROADCAST_INFO)
 		{
-			intent.putExtra(HikeConstants.Extras.BROADCAST_LIST, true);
-			intent.putExtra(HikeConstants.Extras.EXISTING_BROADCAST_LIST, mLocalMSISDN);
-			intent.putExtra(HikeConstants.Extras.COMPOSE_MODE, HikeConstants.Extras.CREATE_BROADCAST_MODE);
+			Intent intent = IntentFactory.getAddMembersToExistingBroadcastIntent(ProfileActivity.this, mLocalMSISDN);
+			startActivity(intent);
 		}
-		startActivity(intent);
+	}
+
+	@Override
+	public void addMembersViaHike()
+	{
+		if (this.profileType == ProfileType.GROUP_INFO)
+		{
+			Intent intent = IntentFactory.getAddMembersToExistingGroupIntent(ProfileActivity.this, mLocalMSISDN);
+			if (oneToNConversation instanceof GroupConversation)
+			{
+				try
+				{
+					intent.putExtra(HikeConstants.Extras.CREATE_GROUP_SETTINGS, oneToNConversation.getMetadata().getAddMembersRight());
+				}
+				catch (JSONException e)
+				{
+					e.printStackTrace();
+				}
+			}
+			startActivity(intent);
+		}
 	}
 
 	@Override

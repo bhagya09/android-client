@@ -97,12 +97,14 @@ public class VoIPConstants {
 	 */
 	public static final int MIN_CALL_DURATION_FOR_RATING_POPUP = 10;
 
-	public static final int INITIAL_ICE_SOCKET_TIMEOUT = 2;
+	/**
+	 * Wait before sending an error message to the activity for an outgoing
+	 * call. This is necessary to ensure the VoIP UI gets time to come up
+	 * before the error fragment is shown on top.
+	 */
+	public static final int SERVICE_To_ACTIVITY_ERR_MESSAGE_DELAY = 2000;
 	
-	// Intent actions
-	public static final String PARTNER_REQUIRES_UPGRADE = "pru";
-	public static final String PARTNER_IN_CALL = "incall";
-	public static final String PARTNER_HAS_BLOCKED_YOU = "blocked";
+	public static final int INITIAL_ICE_SOCKET_TIMEOUT = 2;
 	
 	// Default bitrates
 	public static final int BITRATE_2G = 12000;
@@ -154,6 +156,7 @@ public class VoIPConstants {
 	public static final int MSG_UPDATE_FORCE_MUTE_LAYOUT = 31;
 	public static final int MSG_UPDATE_CALL_BUTTONS = 32;
 	public static final int MSG_PARTNER_INCOMPATIBLE_PLATFORM = 33;
+	public static final int MSG_PARTNER_UPGRADABLE_PLATFORM = 34;
 
 	public static final class Analytics
 	{
