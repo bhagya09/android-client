@@ -370,28 +370,22 @@ public class ChatHeadUtils
 		return !HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.DONT_USE_ACCESSIBILITY, willPollingWork());
 	}
 	
-	public static boolean canAccessibilityBeUsed(boolean serviceDecision)
+	public static boolean isAccessibilityForcedUponUser()
 	{
-		boolean forceAccessibility = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.FORCE_ACCESSIBILITY, !willPollingWork());
-		if(!forceAccessibility)
-		{
-			return false;
-		}
-		boolean accessibilityDisabled = !isAccessibilityEnabled(HikeMessengerApp.getInstance().getApplicationContext());
-		if(!serviceDecision)
-		{
-			return accessibilityDisabled;
-		}
-		boolean wantToUseAccessibility = useOfAccessibilittyPermitted();
-		//dontUseAccessibility is an internal flag, to prevent user from using accessibility service for stickey,
-		//even if accessibility is enabled by forceAccessibility flag On
-		return  wantToUseAccessibility || accessibilityDisabled;
+		return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.FORCE_ACCESSIBILITY, !willPollingWork());
+	}
+	
+	public static boolean accessibilityMustBeActivated(boolean isAccessibilityActive)
+	{
+		return isAccessibilityForcedUponUser() && !isAccessibilityActive; 
 	}
 	
 	public static void startOrStopService(boolean jsonChanged)
 	{
+		Context context  = HikeMessengerApp.getInstance().getApplicationContext();
 		boolean sessionLogEnabled = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SESSION_LOG_TRACKING, false);
-		boolean startChatHead = shouldRunChatHeadServiceForStickey() && !canAccessibilityBeUsed(true);
+		boolean canAccessibilityBeUsed = isAccessibilityForcedUponUser() && ( useOfAccessibilittyPermitted() || !isAccessibilityEnabled(context));
+		boolean startChatHead = shouldRunChatHeadServiceForStickey() && !canAccessibilityBeUsed;
 		
 		if (willPollingWork() && (sessionLogEnabled || startChatHead))
 		{
@@ -412,12 +406,12 @@ public class ChatHeadUtils
 		if(!startChatHead)
 		{
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.SNOOZE, false);
-			HikeAlarmManager.cancelAlarm(HikeMessengerApp.getInstance(), HikeAlarmManager.REQUESTCODE_START_STICKER_SHARE_SERVICE); 
+			HikeAlarmManager.cancelAlarm(context, HikeAlarmManager.REQUESTCODE_START_STICKER_SHARE_SERVICE); 
 		}
 		
 		if(viewManager == null)
 		{
-			viewManager = ChatHeadViewManager.getInstance(HikeMessengerApp.getInstance().getApplicationContext());
+			viewManager = ChatHeadViewManager.getInstance(context);
 		}
 		
 		if (useOfAccessibilittyPermitted())
