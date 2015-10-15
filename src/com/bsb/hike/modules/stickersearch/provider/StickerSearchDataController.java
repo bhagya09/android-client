@@ -173,13 +173,13 @@ public enum StickerSearchDataController
 								while (scripts.hasNext())
 								{
 									String script = scripts.next();
-									tagDataWithScript.add(new Pair<String, JSONObject>(script, tagData.optJSONObject(script)));
+									tagDataWithScript.add(new Pair<String, JSONObject>(script, scriptData.optJSONObject(script)));
 								}
 							}
 						}
 						else
 						{
-							Logger.e(TAG, "setupStickerSearchWizard(), Sticker: " + stickerInfo + ", tag data is provided with undefined categories for key: " + catgrsType);
+							Logger.e(TAG, "setupStickerSearchWizard(), Sticker: " + stickerInfo + ", tag data is provided with undefined categories type key:" + catgrsType);
 						}
 					}
 
@@ -424,7 +424,7 @@ public enum StickerSearchDataController
 												if (!Utils.isBlank(festivalString))
 												{
 													sb.append(festivalString.trim().toUpperCase(Locale.ENGLISH));
-													sb.append(",");
+													sb.append(StickerSearchConstants.STRING_DISSOCIATOR);
 												}
 											}
 

@@ -157,7 +157,7 @@ public class StickerSearchConstants
 
 	public static final String STRING_ASSOCIATOR = " + ";
 
-	public static final String STRING_DISSOCIATOR = ", ";
+	public static final String STRING_DISSOCIATOR = ",";
 
 	public static final Character CHAR_SPACE = ' ';
 
