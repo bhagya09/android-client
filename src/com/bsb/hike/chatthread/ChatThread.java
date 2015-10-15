@@ -2184,15 +2184,15 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	{
 		int startIndex = getMessagesStartIndex();
 
-		long firstMsgId = messages.get(startIndex).getMsgID();
+		long firstMsgId = messages.get(startIndex).getSortingId();
 		Logger.i(TAG, "inside background thread: loading more messages " + firstMsgId);
 		
 		return loadMoreMessages(messageCountToLoad, firstMsgId, -1);
 	}
 	
-	protected List<ConvMessage> loadMoreMessages(int messageCountToLoad, long maxId, long minId)
+	protected List<ConvMessage> loadMoreMessages(int messageCountToLoad, long maxSortId, long minSortId)
 	{
-		return mConversationDb.getConversationThread(msisdn, messageCountToLoad, mConversation, maxId, minId);
+		return mConversationDb.getConversationThread(msisdn, messageCountToLoad, mConversation, maxSortId, minSortId);
 	}
 
 	protected abstract int getContentView();
