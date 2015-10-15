@@ -56,6 +56,9 @@ import android.widget.Chronometer;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.MqttConstants;
+import com.bsb.hike.HikePubSub;
+import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.notifications.HikeNotification;
@@ -71,7 +74,8 @@ import com.bsb.hike.voip.VoIPUtils.CallSource;
 import com.bsb.hike.voip.view.VoIPActivity;
 import com.musicg.dsp.Resampler;
 
-public class VoIPService extends Service {
+public class VoIPService extends Service implements Listener
+{
 	
 	private final IBinder myBinder = new LocalBinder();
 	private static final int NOTIFICATION_IDENTIFIER = 10;
@@ -157,6 +161,9 @@ public class VoIPService extends Service {
 	private Chronometer chronometer = null;
 	private String groupChatMsisdn; 
 	private DatagramSocket broadcastSocket = null;
+	
+	// Listener for declining call with a message
+	String pubSubListeners[] = {HikePubSub.STOP_VOIP_SERVICE};
 
 	// Bluetooth 
 	private boolean isBluetoothEnabled = false;
@@ -397,11 +404,14 @@ public class VoIPService extends Service {
 
 		startConnectionTimeoutThread();
 		registerBroadcastReceivers();
+		HikeMessengerApp.getPubSub().addListeners(this, pubSubListeners);
+
 	}
 	
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
+		HikeMessengerApp.getPubSub().removeListeners(this, pubSubListeners);
 		stop();
 		dismissNotification();
 		unregisterBroadcastReceivers();
@@ -492,6 +502,16 @@ public class VoIPService extends Service {
 			Bundle bundle = new Bundle();
 			bundle.putString(VoIPConstants.MSISDN, msisdn);
 			sendHandlerMessage(VoIPConstants.MSG_PARTNER_INCOMPATIBLE_PLATFORM, bundle);
+		}
+		
+		// Recipient is on an unsupported, but upgradable build
+		if (action.equals(HikeConstants.MqttMessageTypes.VOIP_ERROR_CALLEE_INCOMPATIBLE_UPGRADABLE)) {
+			Logger.w(tag, msisdn + " needs to upgrade.");
+			sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CONNECTION_FAILED, VoIPConstants.CallFailedCodes.PARTNER_UPGRADE);
+			removeFromClients(msisdn);
+			Bundle bundle = new Bundle();
+			bundle.putString(VoIPConstants.MSISDN, msisdn);
+			sendHandlerMessage(VoIPConstants.MSG_PARTNER_UPGRADABLE_PLATFORM, bundle);
 		}
 		
 		// Incoming call message
@@ -1364,9 +1384,9 @@ public class VoIPService extends Service {
 			}
 		}, "ACCEPT_INCOMING_CALL_THREAD").start();
 
+		startBluetooth();
 		startRecordingAndPlayback(client.getPhoneNumber());
 		client.sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CALL_ACCEPT);
-		startBluetooth();
 	}
 	
 	private synchronized void startRecordingAndPlayback(String msisdn) {
@@ -2095,7 +2115,7 @@ public class VoIPService extends Service {
 		synchronized (this) {
 			// Stop ringtone if playing
 			try {
-				if (ringtone != null && ringtone.isPlaying())
+				if (ringtone != null)
 				{
 					ringtone.stop();
 					ringtone = null;
@@ -2422,6 +2442,14 @@ public class VoIPService extends Service {
 	public void processErrorIntent(String action, String msisdn) {
 		Logger.w(tag, msisdn + " returned an error message: " + action);
 	}
-	
+
+	@Override
+	public void onEventReceived(String type, Object object) 
+	{
+		if(HikePubSub.STOP_VOIP_SERVICE.equals(type))
+		{
+			stop();
+		}
+	}
 }
 

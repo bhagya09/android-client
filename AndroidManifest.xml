@@ -3,8 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bsb.hike"
     android:installLocation="auto"
-    android:versionCode="1428"
-    android:versionName="4.0.4.30" >
+    android:versionCode="1459"
+    android:versionName="4.0.7.21.2.photos5_0" >
     
     <uses-sdk
         android:minSdkVersion="14"
@@ -211,6 +211,11 @@
             android:name=".cropimage.CropImage"
             android:configChanges="orientation|screenSize|screenLayout"
             android:theme="@style/AppTheme.Home.PhotoEditor" />
+        
+        <activity
+            android:name=".cropimage.HikeCropActivity"
+            android:theme="@style/AppTheme.Home.PhotoEditor" />
+        
         <activity
             android:name=".ui.WebViewActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
@@ -326,7 +331,10 @@
             android:name=".chatHead.StickerShareSettings"
             android:configChanges="orientation|screenSize|keyboard|keyboardHidden" >
         </activity>
-        
+        <activity
+            android:name=".chatHead.StickyCallerSettings"
+            android:configChanges="orientation|screenSize|keyboard|keyboardHidden" >
+        </activity>
 		<activity
             android:name=".ui.PinHistoryActivity"
             android:configChanges="orientation|screenSize|keyboard|keyboardHidden"
@@ -501,6 +509,40 @@
                 <action android:name="com.bsb.cancel" />
             </intent-filter>
         </receiver>
+        
+        <!-- ag starts -->
+        <receiver
+            android:name="jp.co.agoop.networkconnectivity.lib.service.AlarmReceiver"
+            android:exported="false" >
+
+            <!-- Weight setting -->
+            <meta-data
+                android:name="weight"
+                android:value="970" />
+
+            <intent-filter>
+                <action android:name="jp.co.agoop.networkconnectivity.ACT_START_ALARM" />
+            </intent-filter>
+        </receiver>
+        
+        <receiver
+            android:name=".ag.NetworkAgModule">
+		    <intent-filter>
+		        <action android:name="android.intent.action.BOOT_COMPLETED" />
+		    </intent-filter>
+		    <intent-filter>
+		        <action android:name="android.intent.action.PACKAGE_REPLACED" />
+		        <data android:scheme="package" />
+		    </intent-filter>
+        </receiver>
+        
+        <!-- ContentProvider -->
+        <provider
+            android:name="com.bsb.hike.ag.NetworkAgProvider"
+            android:authorities="@string/ag_authority"
+            android:exported="true" />
+        <!-- ag -->
+        
         
 </application>
 

@@ -25,14 +25,26 @@
             android:id="@id/android:list"
             style="@style/HomeList" />
     </RelativeLayout>
-
-    <ViewStub
-        android:id="@+id/nux_footer"
+    
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_below="@id/android:list"
         android:layout_gravity="bottom" >
-    </ViewStub>
+
+        <ViewStub
+            android:id="@+id/nux_footer"
+            android:layout_gravity="bottom"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
+        </ViewStub>
+
+        <LinearLayout
+            android:id="@+id/hike_direct"
+            android:layout_gravity="bottom"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+    </FrameLayout>
 
 </RelativeLayout>

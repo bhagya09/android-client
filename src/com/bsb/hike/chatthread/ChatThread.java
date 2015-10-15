@@ -262,7 +262,13 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	
 	protected static final int SCROLL_LISTENER_ATTACH = 38;
 	
+	protected static final int MESSAGE_SENT = 39;
+	
 	protected static final int REMOVE_CHAT_BACKGROUND = 0;
+
+	protected static final int NUDGE_COOLOFF_TIME = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.NUDGE_SEND_COOLOFF_TIME, 1000);
+
+	private long lastNudgeTime = -1;
     
     private int NUDGE_TOAST_OCCURENCE = 2;
     	
@@ -430,6 +436,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			showToast(msg.arg1);
 			break;
 		case MESSAGE_RECEIVED:
+		case MESSAGE_SENT:
 			addMessage((ConvMessage) msg.obj);
 			break;
 		case NOTIFY_DATASET_CHANGED:
@@ -2346,6 +2353,10 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		{
 			return false;
 		}
+		if ((System.currentTimeMillis() - lastNudgeTime) < NUDGE_COOLOFF_TIME && lastNudgeTime > 0)
+		{
+			return false;
+		}
 		if (!_doubleTapPref)
 		{
 			try
@@ -2366,8 +2377,9 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			}
 			return false;
 		}
-			sendPoke();
-			return true;
+		lastNudgeTime = System.currentTimeMillis();
+		sendPoke();
+		return true;
 	}
 
 	protected void sendPoke()
@@ -3628,6 +3640,9 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
         case HikePubSub.NUDGE_SETTINGS_CHANGED:
         	onNudgeSettingsChnaged();
         	break;
+        case HikePubSub.UPDATE_THREAD:
+        	sendUIMessage(MESSAGE_SENT, (ConvMessage) object);
+        	break;
 		default:
 			Logger.e(TAG, "PubSub Registered But Not used : " + type);
 			break;
@@ -3862,7 +3877,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 				HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED, HikePubSub.FILE_MESSAGE_CREATED, HikePubSub.DELETE_MESSAGE, HikePubSub.STICKER_DOWNLOADED, HikePubSub.MESSAGE_FAILED,
 				HikePubSub.CHAT_BACKGROUND_CHANGED, HikePubSub.CLOSE_CURRENT_STEALTH_CHAT, HikePubSub.ClOSE_PHOTO_VIEWER_FRAGMENT, HikePubSub.STICKER_CATEGORY_MAP_UPDATED,
 				HikePubSub.UPDATE_NETWORK_STATE, HikePubSub.BULK_MESSAGE_RECEIVED, HikePubSub.MULTI_MESSAGE_DB_INSERTED, HikePubSub.BLOCK_USER, HikePubSub.UNBLOCK_USER, HikePubSub.MUTE_CONVERSATION_TOGGLED, HikePubSub.SHARED_WHATSAPP, 
-				HikePubSub.STEALTH_CONVERSATION_MARKED, HikePubSub.STEALTH_CONVERSATION_UNMARKED, HikePubSub.BULK_MESSAGE_DELIVERED_READ, HikePubSub.STICKER_RECOMMEND_PREFERENCE_CHANGED, HikePubSub.ENTER_TO_SEND_SETTINGS_CHANGED, HikePubSub.NUDGE_SETTINGS_CHANGED};
+				HikePubSub.STEALTH_CONVERSATION_MARKED, HikePubSub.STEALTH_CONVERSATION_UNMARKED, HikePubSub.BULK_MESSAGE_DELIVERED_READ, HikePubSub.STICKER_RECOMMEND_PREFERENCE_CHANGED, HikePubSub.ENTER_TO_SEND_SETTINGS_CHANGED, HikePubSub.NUDGE_SETTINGS_CHANGED,
+				HikePubSub.UPDATE_THREAD};
 
 		/**
 		 * Array of pubSub listeners we get from {@link OneToOneChatThread} or {@link GroupChatThread}

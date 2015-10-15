@@ -137,16 +137,6 @@ public class OfflineController
 		offlineManager.addListener(listener);
 	}
 
-	public void startScan()
-	{
-		offlineManager.startScan();
-	}
-
-	public void stopScan()
-	{
-		offlineManager.stopScan();
-	}
-
 	public void startWifi()
 	{
 		offlineManager.startWifi();
@@ -336,6 +326,11 @@ public class OfflineController
 	{
 		return ( offlineState == OFFLINE_STATE.CONNECTED);
 	}
+	
+	public boolean isConnecting()
+	{
+		return ( offlineState == OFFLINE_STATE.CONNECTING);
+	}
 
 	public void shutDown()
 	{
@@ -505,7 +500,7 @@ public class OfflineController
 	{
 		if (getOfflineState() != OFFLINE_STATE.DISCONNECTING && getOfflineState() != OFFLINE_STATE.DISCONNECTED)
 		{
-			OfflineAnalytics.recordDisconnectionAnalytics(exception.getReasonCode());
+			OfflineAnalytics.recordDisconnectionAnalytics(exception.getReasonCode(),OfflineSessionTracking.getInstance().getConnectionId());
 			// this function uses offline state == connected.
 			// so changing OfflineState after calling this.
 			setOfflineState(OFFLINE_STATE.DISCONNECTING);
@@ -682,6 +677,16 @@ public class OfflineController
 		msg.what = OfflineConstants.HandlerConstants.REMOVE_CONNECT_REQUEST;
 		msg.obj = timeout;
 		mHandler.sendMessageDelayed(msg, timeout);
+	}
+
+	public void setConnectedClientInfo(JSONObject clientInfo)
+	{
+		offlineManager.setConnectedClientInfo(clientInfo);
+	}
+	
+	public OfflineClientInfoPOJO getConnectedClientInfo()
+	{
+		return offlineManager.getConnectedClientInfo();
 	}
 
 }

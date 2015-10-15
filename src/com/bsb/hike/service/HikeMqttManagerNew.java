@@ -1034,7 +1034,7 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 			if(throwable != null)
 			{
 				error.put(HikeConstants.ERROR_MESSAGE, message);
-				error.put(HikeConstants.EXCEPTION_MESSAGE, throwable.getMessage());
+				error.put(HikeConstants.EXCEPTION_MESSAGE, Utils.getStackTrace(throwable));
 			}
 			else if(time > 0)
 			{
@@ -1438,7 +1438,7 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 			context.unregisterReceiver(screenOnOffReceiver);
 			disconnectOnMqttThread(false);
 			// here we are blocking service main thread for 1 second or less so that disconnection takes place cleanly
-			while (mqttConnStatus != MQTTConnectionStatus.NOT_CONNECTED || mqttConnStatus != MQTTConnectionStatus.NOT_CONNECTED_UNKNOWN_REASON && retryAttempts <= 100)
+			while ((mqttConnStatus != MQTTConnectionStatus.NOT_CONNECTED || mqttConnStatus != MQTTConnectionStatus.NOT_CONNECTED_UNKNOWN_REASON) && retryAttempts <= 100)
 			{
 				Thread.sleep(10);
 				retryAttempts++;

@@ -11,7 +11,6 @@ import android.content.ServiceConnection;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.media.AudioManager;
-import android.media.SoundPool;
 import android.media.ToneGenerator;
 import android.os.Bundle;
 import android.os.Handler;
@@ -52,8 +51,6 @@ import com.bsb.hike.ui.ComposeChatActivity;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.ProfileImageLoader;
-import com.bsb.hike.utils.Utils;
-import com.bsb.hike.voip.SoundPoolForLollipop;
 import com.bsb.hike.voip.VoIPClient;
 import com.bsb.hike.voip.VoIPConstants;
 import com.bsb.hike.voip.VoIPConstants.CallQuality;
@@ -233,6 +230,16 @@ public class VoipCallFragment extends Fragment implements CallActions
 					}
 				}
 				break;
+			case VoIPConstants.MSG_PARTNER_UPGRADABLE_PLATFORM:
+				if (voipService != null)
+				{
+					Bundle bundle2 = msg.getData();
+					String msisdn = bundle2.getString(VoIPConstants.MSISDN);
+					if (!voipService.hostingConference()) {
+						showCallFailedFragment(VoIPConstants.CallFailedCodes.PARTNER_UPGRADE, msisdn);
+					}
+				}
+				break;
 			case VoIPConstants.MSG_UPDATE_CALL_BUTTONS:
 				if (voipService.getCallStatus() != CallStatus.INCOMING_CALL)
 					showActiveCallButtons();
@@ -341,6 +348,8 @@ public class VoipCallFragment extends Fragment implements CallActions
 		boolean isShowingCallFailedFragment();
 		
 		void clearActivityFlags();
+
+		void showDeclineWithMessageFragment(Bundle bundle);
 	}
 
 	private void connectMessenger() 
@@ -379,51 +388,6 @@ public class VoipCallFragment extends Fragment implements CallActions
 		}
 		
 		setupForceMuteLayout();
-	}
-
-
-	void handleIntent(Intent intent) 
-	{
-		String action = intent.getStringExtra(VoIPConstants.Extras.ACTION);
-		String msisdn = intent.getStringExtra(VoIPConstants.Extras.MSISDN);
-
-		if (action == null || action.isEmpty())
-		{
-			return;
-		}
-		
-		Logger.d(tag, "Intent action: " + action);
-		if (voipService == null) {
-			Logger.w(tag, "voipService is null. Ignoring intent.");
-			return;
-		}
-		
-		// Ignore intents if we're hosting a conference
-		if (voipService != null && voipService.hostingConference()) {
-//			Logger.w(tag, "Ignoring intent with action " + action + " because we're hosting a conference.");
-			voipService.processErrorIntent(action, msisdn);
-			return;
-		}
-		
-		if (action.equals(VoIPConstants.PARTNER_REQUIRES_UPGRADE)) 
-		{
-			showCallFailedFragment(VoIPConstants.CallFailedCodes.PARTNER_UPGRADE, msisdn);
-			if (voipService != null)
-			{
-				voipService.sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CONNECTION_FAILED, VoIPConstants.CallFailedCodes.PARTNER_UPGRADE);
-				voipService.stop();
-			}
-		}
-		
-		if (action.equals(VoIPConstants.PARTNER_HAS_BLOCKED_YOU)) 
-		{
-			if (voipService != null)
-			{
-				voipService.sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CONNECTION_FAILED, VoIPConstants.CallFailedCodes.PARTNER_BLOCKED_USER);
-				voipService.stop();
-			}
-		}
-		
 	}
 
 	private void shutdown(final Bundle bundle) 
@@ -482,7 +446,7 @@ public class VoipCallFragment extends Fragment implements CallActions
 		if (keyCode == KeyEvent.KEYCODE_HEADSETHOOK) {
 
 			if (voipService.getCallStatus() == CallStatus.INCOMING_CALL) {
-				acceptCall();
+				onAcceptCall();
 			} else
 				voipService.hangUp();
 			
@@ -561,7 +525,7 @@ public class VoipCallFragment extends Fragment implements CallActions
 	}
 
 	@Override
-	public void acceptCall()
+	public void onAcceptCall()
 	{
 		Logger.d(tag, "Accepted call, starting audio...");
 		if (voipService != null) {
@@ -572,11 +536,20 @@ public class VoipCallFragment extends Fragment implements CallActions
 	}
 
 	@Override
-	public void declineCall()
+	public void onDeclineCall()
 	{
 		Logger.d(tag, "Declined call, rejecting...");
 		if (voipService != null)
 			voipService.rejectIncomingCall();
+	}
+
+	@Override
+	public void onMessage()
+	{
+		Logger.d(tag, "Declined call, messaging...");
+		Bundle bundle = new Bundle();
+		bundle.putString(VoIPConstants.PARTNER_MSISDN, voipService.getPartnerClient().getPhoneNumber());
+		activity.showDeclineWithMessageFragment(bundle);
 	}
 
 	private void showHikeCallText()
@@ -969,13 +942,6 @@ public class VoipCallFragment extends Fragment implements CallActions
 	
 		ListView conferenceList = (ListView) getView().findViewById(R.id.conference_list);
 		
-		// FYI, when hosting a conference, we do not have an ArrayList object
-		// to use directly in our listview adapter, since client objects are 
-		// kept in a HashMap for quick lookup. Hence, we create an ArrayList from
-		// the HashMap values in getConferenceClients(). However, this effectively
-		// means that we cannot use notifyDataSetChanged() on updates, since the 
-		// ArrayList object itself will change. 
-		
 		if (conferenceClients == null || voipService.hostingConference())
 			conferenceClients = voipService.getConferenceClients();
 			
@@ -1172,9 +1138,12 @@ public class VoipCallFragment extends Fragment implements CallActions
 					Thread.sleep(500);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
+				} finally {
+					if (tg != null) {
+						tg.stopTone();
+						tg.release();
+					}
 				}
-				tg.stopTone();
-				tg.release();
 			}
 		}).start();
 		

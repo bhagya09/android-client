@@ -1303,9 +1303,9 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				videoHolder.fileThumb.setScaleType(ScaleType.CENTER);
 				videoHolder.fileThumb.setLayoutParams(fileThumbParams);
 
-				if (convMessage.isSent() && ((int) hikeFile.getFile().length() > 0) && fss.getFTState() != FTState.INITIALIZED)
+				if (convMessage.isSent() && (hikeFile.getFile().length() > 0) && fss.getFTState() != FTState.INITIALIZED)
 				{
-					videoHolder.fileSize.setText(Utils.getSizeForDisplay((int) hikeFile.getFile().length()));
+					videoHolder.fileSize.setText(Utils.getSizeForDisplay(hikeFile.getFile().length()));
 					videoHolder.fileSize.setVisibility(View.VISIBLE);
 				}
 				else if (!convMessage.isSent() && hikeFile.getFileSize() > 0)
@@ -1851,9 +1851,9 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				fileHolder.fileName.setText(fileName);
 				checkIfContainsSearchText(fileHolder.fileName);
 				
-				if (convMessage.isSent() && ((int) hikeFile.getFile().length() > 0))
+				if (convMessage.isSent() && (hikeFile.getFile().length() > 0))
 				{
-					fileHolder.fileSize.setText(Utils.getSizeForDisplay((int) hikeFile.getFile().length()));
+					fileHolder.fileSize.setText(Utils.getSizeForDisplay(hikeFile.getFile().length()));
 				}
 				else if (hikeFile.getFileSize() > 0)
 				{
@@ -3026,7 +3026,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		}
 	}
 
-	private float getTargetProgress(int chunkSize, int totalSize, int progress)
+	private float getTargetProgress(int chunkSize, long totalSize, int progress)
 	{
 		float resultProgress = (float) chunkSize;
 		resultProgress = resultProgress / totalSize;

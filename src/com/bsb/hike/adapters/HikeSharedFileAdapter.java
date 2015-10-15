@@ -133,9 +133,11 @@ public class HikeSharedFileAdapter extends RecyclerView.Adapter<HikeSharedFileAd
 		return thumbnailLoader;
 	}
 
-	public void removeSharedFile(int sharedFilePos)
+	public int removeSharedFile(HikeSharedFile sharedFile)
 	{
-		sharedFilesList.remove(sharedFilePos);
+		int position = sharedFilesList.indexOf(sharedFile);
+		sharedFilesList.remove(sharedFile);
+		return position;
 	}
 
 	class SharedMediaViewHolder extends RecyclerView.ViewHolder

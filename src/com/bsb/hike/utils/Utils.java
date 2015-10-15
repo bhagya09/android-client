@@ -16,7 +16,6 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
 import java.net.URL;
 import java.nio.CharBuffer;
@@ -64,7 +63,6 @@ import android.app.ActivityManager;
 import android.app.ActivityManager.RunningAppProcessInfo;
 import android.app.ActivityManager.RunningServiceInfo;
 import android.app.AlertDialog;
-import android.app.AppOpsManager;
 import android.app.PendingIntent;
 import android.content.ActivityNotFoundException;
 import android.content.ClipData;
@@ -81,7 +79,6 @@ import android.content.OperationApplicationException;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.pm.ActivityInfo;
-import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.pm.ResolveInfo;
@@ -181,6 +178,8 @@ import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.TrafficsStatsFile;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
+import com.bsb.hike.chatHead.CallerContentModel;
+import com.bsb.hike.chatHead.StickyCaller;
 import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.cropimage.CropImage;
@@ -191,7 +190,6 @@ import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.filetransfer.FTAnalyticEvents;
 import com.bsb.hike.http.HikeHttpRequest;
-import com.bsb.hike.http.HikeHttpRequest.Method;
 import com.bsb.hike.models.AccountData;
 import com.bsb.hike.models.AccountInfo;
 import com.bsb.hike.models.ContactInfo;
@@ -235,10 +233,40 @@ import com.bsb.hike.ui.SignupActivity;
 import com.bsb.hike.ui.WebViewActivity;
 import com.bsb.hike.ui.WelcomeActivity;
 import com.bsb.hike.voip.VoIPUtils;
+import com.bsb.hike.voip.VoIPUtils.CallSource;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 public class Utils
 {
+	// Precision points definition for duration logging========================================[[
+	public static final class ExecutionDurationLogger
+	{
+		public static final String TAG = ExecutionDurationLogger.class.getSimpleName();
+
+		public static final int PRECISION_UNIT_SECOND = 0;
+
+		public static final int PRECISION_UNIT_MILLI_SECOND = 3;
+
+		public static final int PRECISION_UNIT_MICRO_SECOND = 6;
+
+		public static final int PRECISION_UNIT_NANO_SECOND = 9;
+
+		public static final String sec = " s";
+
+		public static final String ms = " ms";
+
+		public static final String μs = " μs";
+
+		public static final String ns = " ns";
+
+		public static final String DELIMITER = ", ";
+	}
+
+	// ========================================Precision points definition for duration logging]]
+
 	public static Pattern shortCodeRegex;
 
 	public static Pattern msisdnRegex;
@@ -324,6 +352,36 @@ public class Utils
 		return arr;
 	}
 
+	public static void makeCall(String number)
+	{
+		Intent intent = new Intent(Intent.ACTION_CALL);
+		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		intent.setData(Uri.parse("tel:"+ number));
+		try
+		{
+			HikeMessengerApp.getInstance().startActivity(intent);
+		}
+		catch (Exception e)
+		{
+			Logger.d("Utils", "makeCall");
+		}
+	}
+	
+	public static void sendSMS(String number, String message)
+	{
+		Intent intent = new Intent(Intent.ACTION_VIEW, Uri.fromParts("sms", number, null));
+		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		intent.putExtra(StickyCaller.SMS_BODY, message); 
+		try
+		{
+			HikeMessengerApp.getInstance().startActivity(intent);
+		}
+		catch (Exception e)
+		{
+			Logger.d("Utils", "sms exception");
+		}
+	}
+
 	public static JSONObject jsonSerialize(Map<String, ? extends JSONSerializable> elements) throws JSONException
 	{
 		JSONObject obj = new JSONObject();
@@ -334,6 +392,17 @@ public class Utils
 		return obj;
 	}
 
+	public static boolean isIndianNumber(String number)
+	{
+		//13 is the number of chars in the phone msisdn 
+		if (number != null && (number.startsWith("+919") || number.startsWith("+918") || number.startsWith("+917")) && number.length() == 13)
+		{
+			return true;
+		}
+		return false;
+	}
+	
+	
 	static final private int ANIMATION_DURATION = 400;
 
 	public static Animation inFromRightAnimation(Context ctx)
@@ -744,61 +813,7 @@ public class Utils
 		}
 		return true;
 	}
-	
-	public static boolean isNotificationEnabled(Context context)
-	{
-		if (isJellybeanOrHigher())
-		{
-			String CHECK_OP_NO_THROW = "checkOpNoThrow";
-			String OP_POST_NOTIFICATION = "OP_POST_NOTIFICATION";
 
-			AppOpsManager mAppOps = (AppOpsManager) context.getSystemService(Context.APP_OPS_SERVICE);
-
-			ApplicationInfo appInfo = context.getApplicationInfo();
-
-			String pkg = context.getApplicationContext().getPackageName();
-
-			int uid = appInfo.uid;
-
-			Class appOpsClass = null; /* Context.APP_OPS_MANAGER */
-
-			try
-			{
-
-				appOpsClass = Class.forName(AppOpsManager.class.getName());
-
-				java.lang.reflect.Method checkOpNoThrowMethod = appOpsClass.getMethod(CHECK_OP_NO_THROW, Integer.TYPE, Integer.TYPE, String.class);
-
-				Field opPostNotificationValue = appOpsClass.getDeclaredField(OP_POST_NOTIFICATION);
-				int value = (int) opPostNotificationValue.get(Integer.class);
-
-				return ((int) checkOpNoThrowMethod.invoke(mAppOps, value, uid, pkg) == AppOpsManager.MODE_ALLOWED);
-
-			}
-			catch (ClassNotFoundException e)
-			{
-				e.printStackTrace();
-			}
-			catch (NoSuchMethodException e)
-			{
-				e.printStackTrace();
-			}
-			catch (NoSuchFieldException e)
-			{
-				e.printStackTrace();
-			}
-			catch (InvocationTargetException e)
-			{
-				e.printStackTrace();
-			}
-			catch (IllegalAccessException e)
-			{
-				e.printStackTrace();
-			}
-		}
-		return true;
-	}		
-	
 	private static boolean isUserUpgrading(Context context)
 	{
 		SharedPreferences settings = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
@@ -1088,7 +1103,7 @@ public class Utils
 		messageWithName.setSpan(new StyleSpan(Typeface.BOLD), 0, firstName.length() + 2, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 		return messageWithName;
 	}
-
+	
 	/**
 	 * Used for setting the density multiplier, which is to be multiplied with any pixel value that is programmatically given
 	 * 
@@ -2829,6 +2844,40 @@ public class Utils
 		}
 		return items;
 	}
+	
+	public static boolean killCall()
+	{
+		Context context = HikeMessengerApp.getInstance();
+		try
+		{
+			// Get the boring old TelephonyManager
+			TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+
+			// Get the getITelephony() method
+			Class classTelephony = Class.forName(telephonyManager.getClass().getName());
+			java.lang.reflect.Method methodGetITelephony = classTelephony.getDeclaredMethod("getITelephony");
+
+			// Ignore that the method is supposed to be private
+			methodGetITelephony.setAccessible(true);
+
+			// Invoke getITelephony() to get the ITelephony interface
+			Object telephonyInterface = methodGetITelephony.invoke(telephonyManager);
+
+			// Get the endCall method from ITelephony
+			Class telephonyInterfaceClass = Class.forName(telephonyInterface.getClass().getName());
+			java.lang.reflect.Method methodEndCall = telephonyInterfaceClass.getDeclaredMethod("endCall");
+
+			// Invoke endCall()
+			methodEndCall.invoke(telephonyInterface);
+
+		}
+		catch (Exception ex)
+		{ // Many things can go wrong with reflection calls
+			return false;
+		}
+		return true;
+	}
+	
 
 	/**
 	 * Get unseen status, user-status and friend request count
@@ -3001,6 +3050,30 @@ public class Utils
 				fos.close();
 		}
 		return b;
+	}
+	
+	/**
+	 * Saves the byteArray to the file specified.
+	 */
+	public static void saveByteArrayToFile(File file, byte[] byteArray) throws IOException
+	{
+		FileOutputStream fos = null;
+		try
+		{
+			fos = new FileOutputStream(file);
+			if (byteArray == null)
+			{
+				throw new IOException();
+			}
+			fos.write(byteArray);
+			fos.flush();
+			fos.getFD().sync();
+		}
+		finally
+		{
+			if (fos != null)
+				fos.close();
+		}
 	}
 
 	public static void setupFormattedTime(TextView tv, long timeElapsed)
@@ -3752,6 +3825,18 @@ public class Utils
 			asyncTask.execute(conversations);
 		}
 	}
+	
+	public static void executeJSONArrayResultTask(AsyncTask<Void, Void, JSONArray> asyncTask)
+	{
+		if (Utils.isHoneycombOrHigher())
+		{
+			asyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+		}
+		else
+		{
+			asyncTask.execute();
+		}
+	}
 
 	public static boolean getSendSmsPref(Context context)
 	{
@@ -3914,7 +3999,7 @@ public class Utils
 		}
 	}
 
-	public static void sendMd5MismatchEvent(String fileName, String fileKey, String md5, int recBytes, boolean downloading)
+	public static void sendMd5MismatchEvent(String fileName, String fileKey, String md5, long recBytes, boolean downloading)
 	{
 		try
 		{
@@ -4523,6 +4608,15 @@ public class Utils
 		i.putExtra(Insert.PHONE, msisdn);
 		context.startActivity(i);
 	}
+	
+	public static void addToContacts(Context context, String msisdn, String name)
+	{
+		Intent intent = new Intent(Intent.ACTION_INSERT, ContactsContract.Contacts.CONTENT_URI);
+		intent.putExtra(Insert.PHONE, msisdn);
+		intent.putExtra(Insert.NAME, name);
+		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		context.startActivity(intent);
+	}
 
 	public static final void cancelScheduledStealthReset()
 	{
@@ -4864,35 +4958,35 @@ public class Utils
 
 	// @GM
 	// The following methods returns the user readable size when passed the bytes in size
-	public static String getSizeForDisplay(int bytes)
+	public static String getSizeForDisplay(long bytes)
 	{
 		if (bytes <= 0)
 			return ("");
 		if (bytes >= 1000 * 1024 * 1024)
 		{
-			int gb = bytes / (1024 * 1024 * 1024);
-			int gbPoint = bytes % (1024 * 1024 * 1024);
+			long gb = bytes / (1024 * 1024 * 1024);
+			long gbPoint = bytes % (1024 * 1024 * 1024);
 			gbPoint /= (1024 * 1024 * 102);
-			return (Integer.toString(gb) + "." + Integer.toString(gbPoint) + " GB");
+			return (Long.toString(gb) + "." + Long.toString(gbPoint) + " GB");
 		}
 		else if (bytes >= (1000 * 1024))
 		{
-			int mb = bytes / (1024 * 1024);
-			int mbPoint = bytes % (1024 * 1024);
+			long mb = bytes / (1024 * 1024);
+			long mbPoint = bytes % (1024 * 1024);
 			mbPoint /= (1024 * 102);
-			return (Integer.toString(mb) + "." + Integer.toString(mbPoint) + " MB");
+			return (Long.toString(mb) + "." + Long.toString(mbPoint) + " MB");
 		}
 		else if (bytes >= 1000)
 		{
-			int kb;
+			long kb;
 			if (bytes < 1024) // To avoid showing "1000KB"
 				kb = bytes / 1000;
 			else
 				kb = bytes / 1024;
-			return (Integer.toString(kb) + " KB");
+			return (Long.toString(kb) + " KB");
 		}
 		else
-			return (Integer.toString(bytes) + " B");
+			return (Long.toString(bytes) + " B");
 	}
 
 	public static Intent getIntentForPrivacyScreen(Context context)
@@ -6614,8 +6708,9 @@ public class Utils
 	/**
 	 * Determine whether supplied String is actually empty or not.
 	 * 
-	 * @param String
-	 *            to be checked
+	 * @param s
+	 *            String to be checked
+	 * @return True, if string contains only white spaces or it is empty. False, if string containes at least one non-white space character.
 	 * @author Ved Prakash Singh [ved@hike.in]
 	 */
 	public static boolean isBlank(final CharSequence s)
@@ -6732,6 +6827,16 @@ public class Utils
 		int screenHeight = HikeMessengerApp.getInstance().getApplicationContext().getResources().getDisplayMetrics().heightPixels;
 		Logger.d("image_config", "Screen dimens are :- " + screenWidth + ", " + screenHeight);
 		return screenHeight * screenHeight;
+	}
+	
+	public static int getDeviceWidth()
+	{
+		return HikeMessengerApp.getInstance().getApplicationContext().getResources().getDisplayMetrics().widthPixels;
+	}
+
+	public static int getDeviceHeight()
+	{
+		return HikeMessengerApp.getInstance().getApplicationContext().getResources().getDisplayMetrics().heightPixels;
 	}
 
 	public static String getStackTrace(Throwable ex)
@@ -6854,8 +6959,9 @@ public class Utils
 	/**
 	 * Determine whether supplied module is being tested.
 	 * 
-	 * @param String
-	 *            of module name
+	 * @param moduleName
+	 *            String name of the module being analysed
+	 * @return True, if test mode is enabled for given module. False, otherwise.
 	 * @author Ved Prakash Singh [ved@hike.in]
 	 */
 	public static boolean isTestMode(String moduleName)
@@ -6945,6 +7051,16 @@ public class Utils
 		return false;
 	}
 
+	/**
+	 * Determine whether databse recognized by given instance contains given table or not.
+	 * 
+	 * @param db
+	 *            Instance of SQLiteDatabase, which possibly contains given table.
+	 * @param tableName
+	 *            String name of table to check whether such table exists in database or not.
+	 * @return True, if given table exists in database recognized by given instance. False, otheriwse.
+	 * @author Ved Prakash Singh [ved@hike.in]
+	 */
 	public static boolean isTableExists(SQLiteDatabase db, String tableName)
 	{
 		if ((tableName != null) && (db != null) && db.isOpen())
@@ -6955,7 +7071,7 @@ public class Utils
 				c = db.rawQuery("SELECT COUNT(*) FROM sqlite_master WHERE type=? AND name=?", new String[] { "table", tableName });
 				if ((c != null) && c.moveToFirst())
 				{
-					return c.getInt(0) > 0;
+					return (c.getInt(0) > 0);
 				}
 			}
 			catch (Exception e)
@@ -7158,8 +7274,119 @@ public class Utils
 			url = url.replace("$platform_token", mmHikeSharedPreferenceUtil.getData(HikeMessengerApp.PLATFORM_TOKEN_SETTING, ""));
 			url = url.replace("$platform_uid", mmHikeSharedPreferenceUtil.getData(HikeMessengerApp.PLATFORM_UID_SETTING, ""));
 		}
+
 		return url;
 	}
 	
-}
+	public static String getNewImagePostFilePath()
+	{
+		String directory = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT;
+		File dir = new File(directory);
+		if (!dir.exists())
+		{
+			dir.mkdirs();
+		}
+		return directory+File.separator + Utils.getUniqueFilename(HikeFileType.IMAGE);
+	}
 
+	public static void sendFreeSms()
+	{
+		Intent intent = IntentFactory.createChatThreadIntentFromMsisdn(HikeMessengerApp.getInstance(), StickyCaller.callCurrentNumber, true, false);
+		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+	    HikeMessengerApp.getInstance().startActivity(intent);
+	}
+
+	public static boolean isOnHike(String number)
+	{
+		ContactInfo contactInfo = ContactManager.getInstance().getContactInfoFromPhoneNoOrMsisdn(number);
+		if (contactInfo != null && contactInfo.isOnhike())
+		{
+			return true;
+		}
+		return false;
+	}
+
+
+	/**
+	 * Get differential time logging upto nano second considering maximum significant time unit reference as second.
+	 * 
+	 * @param start
+	 *            start time of operation as long value
+	 * @param end
+	 *            end time of operation as long value
+	 * @param precisionOfTimeUnitInSecond
+	 *            count of precision points in time unit per second
+	 * @return Human-readable string of time logging.
+	 * @author Ved Prakash Singh [ved@hike.in]
+	 */
+	public static String getExecutionTimeLog(long start, long end, int precisionOfTimeUnitInSecond)
+	{
+		StringBuilder timeLogBuilder = new StringBuilder();
+
+		long diff = end - start;
+		if (diff < 0)
+		{
+			Logger.wtf(ExecutionDurationLogger.TAG, "End time can not be less then start time.");
+			diff = 0;
+		}
+
+		switch (precisionOfTimeUnitInSecond)
+		{
+		case ExecutionDurationLogger.PRECISION_UNIT_SECOND:
+		{
+			timeLogBuilder.append(diff).append(ExecutionDurationLogger.sec);
+			break;
+		}
+
+		case ExecutionDurationLogger.PRECISION_UNIT_MILLI_SECOND:
+		{
+			int unitInSecond = (int) Math.pow(10, ExecutionDurationLogger.PRECISION_UNIT_MILLI_SECOND);
+			long sec = diff / unitInSecond;
+			timeLogBuilder.append(sec).append(ExecutionDurationLogger.sec).append(ExecutionDurationLogger.DELIMITER);
+			long milliSec = diff - (sec * unitInSecond);
+			timeLogBuilder.append(milliSec).append(ExecutionDurationLogger.ms);
+			break;
+		}
+
+		case ExecutionDurationLogger.PRECISION_UNIT_MICRO_SECOND:
+		{
+			int unitInSecond = (int) Math.pow(10, ExecutionDurationLogger.PRECISION_UNIT_MICRO_SECOND);
+			long sec = diff / unitInSecond;
+			timeLogBuilder.append(sec).append(ExecutionDurationLogger.sec).append(ExecutionDurationLogger.DELIMITER);
+			diff = diff - (sec * unitInSecond);
+			int unitInMilliSecond = (int) Math.pow(10, (ExecutionDurationLogger.PRECISION_UNIT_MICRO_SECOND - ExecutionDurationLogger.PRECISION_UNIT_MILLI_SECOND));
+			long milliSec = diff / unitInMilliSecond;
+			timeLogBuilder.append(milliSec).append(ExecutionDurationLogger.ms).append(ExecutionDurationLogger.DELIMITER);
+			long microSec = diff - (milliSec * unitInMilliSecond);
+			timeLogBuilder.append(microSec).append(ExecutionDurationLogger.μs);
+			break;
+		}
+
+		case ExecutionDurationLogger.PRECISION_UNIT_NANO_SECOND:
+		{
+			int unitInSecond = (int) Math.pow(10, ExecutionDurationLogger.PRECISION_UNIT_NANO_SECOND);
+			long sec = diff / unitInSecond;
+			timeLogBuilder.append(sec).append(ExecutionDurationLogger.sec).append(ExecutionDurationLogger.DELIMITER);
+			diff = diff - (sec * unitInSecond);
+			int unitInMilliSecond = (int) Math.pow(10, (ExecutionDurationLogger.PRECISION_UNIT_NANO_SECOND - ExecutionDurationLogger.PRECISION_UNIT_MILLI_SECOND));
+			long milliSec = diff / unitInMilliSecond;
+			timeLogBuilder.append(milliSec).append(ExecutionDurationLogger.ms).append(ExecutionDurationLogger.DELIMITER);
+			diff = diff - (milliSec * unitInMilliSecond);
+			int unitInMicroSecond = (int) Math.pow(10, (ExecutionDurationLogger.PRECISION_UNIT_NANO_SECOND - ExecutionDurationLogger.PRECISION_UNIT_MICRO_SECOND));
+			long microSec = diff / unitInMicroSecond;
+			timeLogBuilder.append(microSec).append(ExecutionDurationLogger.μs).append(ExecutionDurationLogger.DELIMITER);
+			long nanoSec = diff - (microSec * unitInMicroSecond);
+			timeLogBuilder.append(nanoSec).append(ExecutionDurationLogger.ns);
+			break;
+		}
+
+		default:
+		{
+			Logger.w(ExecutionDurationLogger.TAG, "Unable to determine time units.");
+		}
+		}
+
+		return timeLogBuilder.toString();
+	}
+
+}
