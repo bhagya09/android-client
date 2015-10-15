@@ -22,6 +22,8 @@ public class StickerTagDataContainer
 
 	private ArrayList<String> mLanguages;
 
+	private ArrayList<String> mScripts;
+
 	private ArrayList<String> mTagCategories;
 
 	private ArrayList<String> mThemes;
@@ -34,12 +36,13 @@ public class StickerTagDataContainer
 
 	private String mFestivals;
 
-	public StickerTagDataContainer(String stickerCode, ArrayList<String> tags, ArrayList<String> languages, ArrayList<String> tagCategories, ArrayList<String> themes,
-			ArrayList<Integer> tagExactMatchPriorities, ArrayList<Integer> tagPriorities, int moment, String festivals)
+	public StickerTagDataContainer(String stickerCode, ArrayList<String> tags, ArrayList<String> languages, ArrayList<String> scripts, ArrayList<String> tagCategories,
+			ArrayList<String> themes, ArrayList<Integer> tagExactMatchPriorities, ArrayList<Integer> tagPriorities, int moment, String festivals)
 	{
 		mStickerCode = stickerCode;
 		mTags = tags;
 		mLanguages = languages;
+		mScripts = scripts;
 		mTagCategories = tagCategories;
 		mThemes = themes;
 		mTagExactMatchPriorities = tagExactMatchPriorities;
@@ -66,6 +69,11 @@ public class StickerTagDataContainer
 	public ArrayList<String> getLanguageList()
 	{
 		return mLanguages;
+	}
+
+	public ArrayList<String> getScriptList()
+	{
+		return mScripts;
 	}
 
 	public ArrayList<String> getTagCategoryList()
@@ -105,13 +113,13 @@ public class StickerTagDataContainer
 
 		if (size > 0)
 		{
-			result = (mStickerCode != null) && (mLanguages != null) && (mTagCategories != null) && (mThemes != null) && (mTagExactMatchPriorities != null)
+			result = (mStickerCode != null) && (mLanguages != null) && (mScripts != null) && (mTagCategories != null) && (mThemes != null) && (mTagExactMatchPriorities != null)
 					&& (mTagPriorities != null) && (mFestivals != null);
 
 			if (result)
 			{
-				result = (mLanguages.size() == size) && (mTagCategories.size() == size) && (mTagExactMatchPriorities.size() == size) && (mTagPriorities.size() == size)
-						&& (mThemes.size() > 0);
+				result = (mLanguages.size() == size) && (mScripts.size() == size) && (mTagCategories.size() == size) && (mTagExactMatchPriorities.size() == size)
+						&& (mTagPriorities.size() == size) && (mThemes.size() > 0);
 			}
 		}
 
@@ -143,6 +151,7 @@ public class StickerTagDataContainer
 		result = prime * result + ((mStickerCode == null) ? 0 : mStickerCode.hashCode());
 		result = prime * result + ((mFestivals == null) ? 0 : mFestivals.hashCode());
 		result = prime * result + ((mLanguages == null) ? 0 : mLanguages.hashCode());
+		result = prime * result + ((mScripts == null) ? 0 : mScripts.hashCode());
 		result = prime * result + ((mTagCategories == null) ? 0 : mTagCategories.hashCode());
 		result = prime * result + ((mTags == null) ? 0 : mTags.hashCode());
 		result = prime * result + ((mThemes == null) ? 0 : mThemes.hashCode());
@@ -237,6 +246,18 @@ public class StickerTagDataContainer
 			return false;
 		}
 
+		if (mScripts == null)
+		{
+			if (other.mScripts != null)
+			{
+				return false;
+			}
+		}
+		else if (!mScripts.equals(other.mScripts))
+		{
+			return false;
+		}
+
 		if (mTagCategories == null)
 		{
 			if (other.mTagCategories != null)
@@ -279,7 +300,7 @@ public class StickerTagDataContainer
 	@Override
 	public String toString()
 	{
-		return "[stkr_info: " + mStickerCode + ", tag_data: {<tag=" + mTags + "><lan=" + mLanguages + "><cat=" + mTagCategories + "><thm=" + mThemes + "><ext_match_ord="
+		return "[stkr_info: " + mStickerCode + ", tag_data: {<tag=" + mTags + "><lan=" + mLanguages + "><scr=" + mScripts + "><cat=" + mTagCategories + "><thm=" + mThemes + "><ext_match_ord="
 				+ mTagExactMatchPriorities + "><tag_popularity_ord=" + mTagPriorities + ">}, attrs: {<mnt_cd=" + mMomentCode + "><fest=" + mFestivals + "}]";
 	}
 }
