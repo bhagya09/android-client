@@ -284,6 +284,7 @@ public class HikeAlarmManager
 		break;
 		
 		case HikeAlarmManager.REQUESTCODE_PERIODIC_BACKUP:
+			HikeSharedPreferenceUtil.getInstance(HikeConstants.CALLER_SHARED_PREF).getPref().edit().clear().commit();
 			AccountBackupRestore.getInstance(context).backup();
 			AccountBackupRestore.getInstance(context).scheduleNextAutoBackup();
 			break;

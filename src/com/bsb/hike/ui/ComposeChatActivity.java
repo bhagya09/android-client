@@ -17,7 +17,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.pm.ActivityInfo;
-import android.content.res.Configuration;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -370,6 +369,8 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		
 		mPubSub = HikeMessengerApp.getPubSub();
 		mPubSub.addListeners(this, hikePubSubListeners);
+		
+		
 	}
 
 	boolean isOpened = false;
@@ -537,7 +538,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 				Toast.makeText(getApplicationContext(), getString(R.string.whatsapp_uninstalled), Toast.LENGTH_SHORT).show();
 			}
 		}
-
+		
 		return super.onOptionsItemSelected(item);
 	}
 	
@@ -612,13 +613,13 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		
 		switch (composeMode)
 		{
-		case CREATE_GROUP_MODE:
 		case CREATE_BROADCAST_MODE:
-		case PICK_CONTACT_MODE:
 		case PICK_CONTACT_AND_SEND_MODE:
+		case PICK_CONTACT_MODE:
 			//We do not show sms contacts in broadcast mode
 			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage, (isForwardingMessage && !isSharingFile), fetchRecentlyJoined, existingGroupOrBroadcastId, sendingMsisdn, friendsListFetchedCallback, false, false);
 			break;
+		case CREATE_GROUP_MODE:
 		default:
 			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage, (isForwardingMessage || isSharingFile), fetchRecentlyJoined, existingGroupOrBroadcastId, sendingMsisdn, friendsListFetchedCallback, true, (showMicroappShowcase && hasMicroappShowcaseIntent));
 			break;
@@ -659,6 +660,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		
 		pref.saveData(HikeConstants.SHOW_RECENTLY_JOINED_DOT, false);
 		pref.saveData(HikeConstants.SHOW_RECENTLY_JOINED, false);
+		pref.saveData(HikeConstants.NEW_CHAT_RED_DOT, false);
 		
 		if(triggerPointForPopup!=ProductPopupsConstants.PopupTriggerPoints.UNKNOWN.ordinal())
 		{
@@ -806,7 +808,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			}
 			else
 			{
-				toggleTag(contactInfo.getName(), contactInfo.getMsisdn(), contactInfo);
+				toggleTag(contactInfo.getNameOrMsisdn(), contactInfo.getMsisdn(), contactInfo);
 			}
 			break;
 		default:
@@ -1297,12 +1299,6 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 				}
 				else if (composeMode == CREATE_GROUP_MODE)
 				{
-					int selected = adapter.getCurrentSelection();
-					if (selected < MIN_MEMBERS_GROUP_CHAT)
-					{
-						Toast.makeText(getApplicationContext(), getString(R.string.minContactInGroupErr, MIN_MEMBERS_GROUP_CHAT), Toast.LENGTH_SHORT).show();
-						return;
-					}
 					OneToNConversationUtils.createGroupOrBroadcast(ComposeChatActivity.this, adapter.getAllSelectedContacts(), oneToNConvName, oneToNConvId, gcSettings);
 				}
 				else if(composeMode == PICK_CONTACT_MODE)
@@ -1322,6 +1318,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			@Override
 			public void onClick(View v)
 			{
+				getIntent().removeExtra(HikeConstants.Extras.SELECT_ALL_INITIALLY);
 				setModeAndUpdateAdapter(composeMode);
 				if(selectAllMode)
 				{
@@ -2441,13 +2438,6 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		@Override
 		public void listFetched()
 		{
-			if(getIntent().getBooleanExtra(HikeConstants.Extras.SELECT_ALL_INITIALLY, false))
-			{
-				View selectAllCont = findViewById(R.id.select_all_container);
-				CheckBox cb = (CheckBox) selectAllCont.findViewById(R.id.select_all_cb);
-				cb.setChecked(true);
-			}
-
 			if (PreferenceManager.getDefaultSharedPreferences(ComposeChatActivity.this).getBoolean(HikeConstants.LAST_SEEN_PREF, true))
 			{
 				lastSeenScheduler = LastSeenScheduler.getInstance(ComposeChatActivity.this);
@@ -2467,6 +2457,13 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 				else
 				{
 					setupForSelectAll();
+					if(getIntent().getBooleanExtra(HikeConstants.Extras.SELECT_ALL_INITIALLY, false))
+					{
+						View selectAllCont = findViewById(R.id.select_all_container);
+						CheckBox cb = (CheckBox) selectAllCont.findViewById(R.id.select_all_cb);
+						cb.setChecked(true);
+						selectAllMode=true;
+					}
 				}
 			}
 			
@@ -2766,6 +2763,8 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 
 			return true;
 		}
+		
+		
 	};
 	
 	private void initSearchMenu(Menu menu)
@@ -2774,6 +2773,34 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		if (searchMenuItem != null)
 		{
 			searchMenuItem.setVisible(true);
+
+			MenuItemCompat.setOnActionExpandListener(searchMenuItem, new MenuItemCompat.OnActionExpandListener()
+			{
+
+				@Override
+				public boolean onMenuItemActionExpand(MenuItem item)
+				{
+					if (adapter != null)
+					{
+						adapter.setSearchModeOn(true);
+					}
+					return true;
+				}
+
+				@Override
+				public boolean onMenuItemActionCollapse(MenuItem item)
+				{
+
+					if (adapter != null)
+					{
+						adapter.setSearchModeOn(false);
+						adapter.refreshBots();
+					}
+
+					return true;
+				}
+			});
+
 			SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchMenuItem);
 			searchView.setOnQueryTextListener(onQueryTextListener);
 		}

@@ -24,4 +24,13 @@ public abstract class PlatformContentListener<T>
 	public abstract void onComplete(T content);
 
 	public abstract void onEventOccured(int uniqueId,EventCode event);
+
+	/**
+	 * Implement this to set the current downloaded content length.
+	 * @param length
+	 */
+	public void downloadedContentLength(long length)
+	{
+		return;
+	}
 }
