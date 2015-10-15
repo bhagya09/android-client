@@ -5,6 +5,7 @@ import org.json.JSONObject;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.CountDownTimer;
 import android.text.Html;
@@ -13,6 +14,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bsb.hike.HikeConstants;
@@ -214,17 +216,25 @@ public class ConversationTip implements OnClickListener
 			String tipHeaderText = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.UPDATE_TIP_HEADER, "");
 			String tipMsgTxt = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.UPDATE_TIP_BODY, "");
 			String tipLabelTxt = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.UPDATE_TIP_LABEL, "");
+			String tipDismissTxt = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.UPDATE_TIP_DISMISS, "");
+			String tipBgColor = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.UPDATE_TIP_BG_COLOR, "");
 			((TextView) v.findViewById(R.id.update_tip_header)).setText(tipHeaderText);
 			((TextView) v.findViewById(R.id.update_tip_msg)).setText(tipMsgTxt);
-			((TextView) v.findViewById(R.id.update_tip_label)).setText(tipLabelTxt);
+			((TextView) v.findViewById(R.id.update_tip_action)).setText(tipLabelTxt);
 			((ImageView) v.findViewById(R.id.update_tip_icon)).setVisibility(View.VISIBLE);
 			((ImageView) v.findViewById(R.id.invite_tip_icon)).setVisibility(View.GONE);
 			if(tipType == UPDATE_NORMAL_TIP)
 			{
-				ImageView close_tip = (ImageView) v.findViewById(R.id.close_tip);
+				TextView close_tip = (TextView) v.findViewById(R.id.close_tip);
+				close_tip.setText(tipDismissTxt);
 				close_tip.setVisibility(View.VISIBLE);
 				close_tip.setOnClickListener(this);
 			}
+			if(!TextUtils.isEmpty(tipBgColor))
+			{
+				((LinearLayout) v.findViewById(R.id.tip_upper)).setBackgroundColor(Color.parseColor(tipBgColor));
+				((LinearLayout) v.findViewById(R.id.tip_lower)).setBackgroundColor(Color.parseColor(tipBgColor));
+			}			
 			v.findViewById(R.id.all_content).setOnClickListener(this);
 			return v;
 		case INVITE_TIP:
@@ -232,12 +242,20 @@ public class ConversationTip implements OnClickListener
 			String invtHeaderText = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.INVITE_TIP_HEADER, "");
 			String invtMsgTxt = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.INVITE_TIP_BODY, "");
 			String invtLabelTxt = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.INVITE_TIP_LABEL, "");
+			String invtDismissTxt = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.INVITE_TIP_DISMISS, "");
+			String invtBgColor = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.INVITE_TIP_BG_COLOR, "");
 			((TextView) v.findViewById(R.id.update_tip_header)).setText(invtHeaderText);
 			((TextView) v.findViewById(R.id.update_tip_msg)).setText(invtMsgTxt);
-			((TextView) v.findViewById(R.id.update_tip_label)).setText(invtLabelTxt);
+			((TextView) v.findViewById(R.id.update_tip_action)).setText(invtLabelTxt);
 			((ImageView) v.findViewById(R.id.update_tip_icon)).setVisibility(View.GONE);
 			((ImageView) v.findViewById(R.id.invite_tip_icon)).setVisibility(View.VISIBLE);
-			ImageView close_tip = (ImageView) v.findViewById(R.id.close_tip);
+			if(!TextUtils.isEmpty(invtBgColor))
+			{
+				((LinearLayout) v.findViewById(R.id.tip_upper)).setBackgroundColor(Color.parseColor(invtBgColor));
+				((LinearLayout) v.findViewById(R.id.tip_lower)).setBackgroundColor(Color.parseColor(invtBgColor));
+			}
+			TextView close_tip = (TextView) v.findViewById(R.id.close_tip);
+			close_tip.setText(invtDismissTxt);
 			close_tip.setVisibility(View.VISIBLE);
 			close_tip.setOnClickListener(this);
 			v.findViewById(R.id.all_content).setOnClickListener(this);

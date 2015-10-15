@@ -336,10 +336,12 @@ public class HikeNotification
 		// TODO:: we should reset the gaming download message from preferences
 	}
 	
-	public void notifyPersistentUpdate(String notifTitle, String message, Uri url)
+	public void notifyPersistentUpdate(String notifTitle, String message, String actionText, String laterText, Uri url, Long alarmInterval)
 	{
-		message = (TextUtils.isEmpty(message)) ? context.getString(R.string.update_app) : message;
-		notifTitle = !TextUtils.isEmpty(notifTitle) ? notifTitle : context.getString(R.string.team_hike);
+		message = (TextUtils.isEmpty(message)) ? context.getString(R.string.pers_notif_message) : message;
+		notifTitle = !TextUtils.isEmpty(notifTitle) ? notifTitle : context.getString(R.string.pers_notif_title);
+		actionText = (TextUtils.isEmpty(actionText)) ? context.getString(R.string.pers_notif_action) : actionText;
+		laterText = (TextUtils.isEmpty(laterText)) ? context.getString(R.string.pers_notif_later) : laterText;
 		final int smallIconId = returnSmallIcon();	
 		NotificationCompat.Builder mBuilder = getNotificationBuilder(notifTitle, message, message, null, smallIconId, true, true, false);
 		mBuilder.setAutoCancel(false);
@@ -347,14 +349,22 @@ public class HikeNotification
 		Editor editor = settingPref.edit();
 		editor.putString(HikeConstants.PERSISTENT_NOTIF_MESSAGE, message);
 		editor.putString(HikeConstants.PERSISTENT_NOTIF_TITLE, notifTitle);
+		editor.putString(HikeConstants.PERSISTENT_NOTIF_ACTION, actionText);
+		editor.putString(HikeConstants.PERSISTENT_NOTIF_LATER, laterText);
 		editor.putString(HikeConstants.PERSISTENT_NOTIF_URL, url.toString());
+		editor.putLong(HikeConstants.PERSISTENT_NOTIF_ALARM, alarmInterval);
 		editor.commit();
 
 		Intent intent = new Intent(Intent.ACTION_VIEW);
 		intent.setData(url);
 		intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY | Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
 		mBuilder.setContentIntent(PendingIntent.getActivity(context, 0, intent, 0));
-
+		
+		Intent laterIntent = new Intent("com.bsb.hike.PERS_NOTIF_ALARM_INTENT");
+		
+		mBuilder.addAction(R.drawable.ic_recents_emo_selected, laterText, PendingIntent.getBroadcast(context, 0, laterIntent, 0))
+				.addAction(R.drawable.ic_download, actionText, PendingIntent.getActivity(context, 0, intent, 0));
+		
 		if (!sharedPreferences.getBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false) && !settingPref.getBoolean(HikeConstants.IS_HIKE_APP_FOREGROUNDED, false))
 		{
 			int notificationId = PERSISTENT_NOTIF_ID;
@@ -1070,15 +1080,18 @@ public class HikeNotification
 	
 	public void checkAndShowUpdateNotif()
 	{
-		if(settingPref.getBoolean(HikeConstants.SHOULD_SHOW_PERSISTENT_NOTIF, false))
+		if(settingPref.getBoolean(HikeConstants.SHOULD_SHOW_PERSISTENT_NOTIF, false) && !settingPref.getBoolean(HikeConstants.IS_PERS_NOTIF_ALARM_SET, false))
 		{
 			if(Utils.isUpdateRequired(settingPref.getString(HikeConstants.Extras.LATEST_VERSION, ""), context))
 			{
 				Logger.d("UpdateTipPersistentNotif", "Recreating persistent notif for target version:"+settingPref.getString(HikeConstants.Extras.LATEST_VERSION, ""));
 				String message = settingPref.getString(HikeConstants.PERSISTENT_NOTIF_MESSAGE, context.getResources().getString(R.string.pers_notif_message));
 				String title = settingPref.getString(HikeConstants.PERSISTENT_NOTIF_TITLE, context.getResources().getString(R.string.pers_notif_title));
+				String action = settingPref.getString(HikeConstants.PERSISTENT_NOTIF_ACTION, context.getResources().getString(R.string.pers_notif_action));
+				String later = settingPref.getString(HikeConstants.PERSISTENT_NOTIF_LATER, context.getResources().getString(R.string.pers_notif_later));
 				Uri url = Uri.parse(settingPref.getString(HikeConstants.PERSISTENT_NOTIF_URL, "market://details?id=" + context.getPackageName()));
-				notifyPersistentUpdate(title, message, url);
+				Long interval = settingPref.getLong(HikeConstants.PERSISTENT_NOTIF_ALARM, HikeConstants.PERS_NOTIF_ALARM_DEFAULT);
+				notifyPersistentUpdate(title, message,action, later, url, interval);
 			}
 		}
 		

@@ -51,6 +51,10 @@ public class HikeConstants
 	
 	public static final String LABEL = "l" ;
 	
+	public static final String DISMISS = "dms";
+	
+	public static final String BACKGROUND_COLOR = "bgc";
+	
 	public static final String SU_ID = "su_id";
 	
 	public static final String SU_ID_LIST = "su_ids";
@@ -741,9 +745,19 @@ public class HikeConstants
 	
 	public static final String PERSISTENT_NOTIF_TITLE = "persNotifTitle";
 	
+	public static final String PERSISTENT_NOTIF_ACTION = "persNotifAction";
+	
+	public static final String PERSISTENT_NOTIF_LATER = "persNotifLater";
+	
+	public static final String PERSISTENT_NOTIF_ALARM = "persNotifAlarm";
+	
 	public static final String PERSISTENT_NOTIF_URL = "persNotifUrl";
 	
+	public static final long PERS_NOTIF_ALARM_DEFAULT = 24*60*60;
+	
 	public static final String SHOULD_SHOW_PERSISTENT_NOTIF = "showPersistNotif";
+	
+	public static final String IS_PERS_NOTIF_ALARM_SET = "isPersNotifAlarmSet";
 	
 	public static final String IS_HIKE_APP_FOREGROUNDED = "isHikeAppForegrounded";
 	
@@ -753,11 +767,19 @@ public class HikeConstants
 	
 	public static final String UPDATE_TIP_LABEL = "updateTipLabel";
 	
+	public static final String UPDATE_TIP_DISMISS = "updateTipDismiss";
+	
+	public static final String UPDATE_TIP_BG_COLOR = "updateTipBgColor";
+	
 	public static final String INVITE_TIP_HEADER = "inviteTipHeader";
 	
 	public static final String INVITE_TIP_BODY = "inviteTipBody";
 	
 	public static final String INVITE_TIP_LABEL = "inviteTipLabel";
+	
+	public static final String INVITE_TIP_DISMISS = "inviteTipDismiss";
+	
+	public static final String INVITE_TIP_BG_COLOR = "inviteTipBgColor";
 	
 	public static final String SHOW_CRITICAL_UPDATE_TIP = "showCriticalUpdateTip";
 	
@@ -1387,6 +1409,12 @@ public class HikeConstants
 		public static final String UPDATE_MESSAGE = "updateMessage";
 		
 		public static final String UPDATE_TITLE = "updateTitle";
+		
+		public static final String UPDATE_ACTION = "updateAction";
+		
+		public static final String UPDATE_LATER = "updateLater";
+		
+		public static final String UPDATE_ALARM = "updateAlarm";
 
 		public static final String APPLICATIONSPUSH_MESSAGE = "applicationsPushMessage";
 
@@ -3103,6 +3131,8 @@ public class HikeConstants
 	public static final String FLUSH = "flush";
 	
 	public static final String PERSISTENT_NOTIFICATION = "pn";
+	
+	public static final String PERSISTENT_NOTIF_ALARM_INTERVAL = "pnai";
 
 	public static final String FORCE_USER="fu";
 	
