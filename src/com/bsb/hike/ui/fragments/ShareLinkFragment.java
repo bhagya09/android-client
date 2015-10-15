@@ -201,12 +201,12 @@ public class ShareLinkFragment extends DialogFragment implements OnClickListener
 			break;
 		}
 
+		// hide dialog
+		getDialog().hide();
+				
 		// Start Loader here
 		showProgressDialog();
 
-		// hide dialog
-		getDialog().hide();
-		
 		makeHttpCallForURL();
 	}
 
@@ -269,18 +269,20 @@ public class ShareLinkFragment extends DialogFragment implements OnClickListener
 				switch (buttonClickedType)
 				{
 				case WA:
-					String str = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.TEXT_FOR_GC_VIA_WA,
-							HikeMessengerApp.getInstance().getApplicationContext().getString(R.string.link_share_wa_msg))
-							+ "\n " + url;
 					if(Utils.isPackageInstalled(HikeMessengerApp.getInstance().getApplicationContext(), HikeConstants.PACKAGE_WATSAPP))
 					{
+						String str = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.TEXT_FOR_GC_VIA_WA,
+								HikeMessengerApp.getInstance().getApplicationContext().getString(R.string.link_share_wa_msg))
+								+ "\n " + url;
+						str = str.replace("$groupname", grpName);
 						openWA(str);
 					}
 					break;
 
 				case OTHERS:
-					str = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.TEXT_FOR_GC_VIA_OTHERS, getString(R.string.link_share_others_msg))
+					String str = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.TEXT_FOR_GC_VIA_OTHERS, getString(R.string.link_share_others_msg))
 					+ "\n " + url;
+					str = str.replace("$groupname", grpName);
 					ShareUtils.shareContent(HikeConstants.Extras.ShareTypes.TEXT_SHARE, str, null);
 					break;
 
