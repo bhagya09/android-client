@@ -5,24 +5,16 @@
     <dimen name="signup_gender_padding_top">56dp</dimen>
     <dimen name="signup_profile_pic_dimen">76dp</dimen>
     <dimen name="signup_profile_pic_icon_dimen">24dp</dimen>
-    <dimen name="addfriend_popup_content_margin_top">20dp</dimen>
-    <dimen name="addfriend_popup_title_padding_right">12dp</dimen>
-    <dimen name="addfriend_popup_title_margin_bottom">6dp</dimen>
-    <dimen name="addfriend_popup_btn_margin_bottom">12dp</dimen>
     <dimen name="gallery_cover_item_size">140dp</dimen>
     <dimen name="timeine_big_picture_size">285dp</dimen>
     <dimen name="stealth_ftue_pu_img_margin_bottom">12dp</dimen>
 	<dimen name="stealth_ftue_pu_img_margin_top">18dp</dimen>
-	<dimen name="stealth_setup_des_margin_bottom">10dp</dimen>
 	<dimen name="stealth_ftue_pu_msg_margin_bottom">10dp</dimen>
-	<dimen name="platform_icon_margin_bottom">12dp</dimen>
 	<dimen name="ftue_card_header">24dp</dimen>
 	<dimen name="ftue_card_body">14dp</dimen>
 	<dimen name="ftue_card_click_text">14dp</dimen>
 	<dimen name="ftue_card_right_padding">7dp</dimen>
 	<dimen name="ftue_card_left_margin">12dp</dimen>
-	<dimen name="logo_top_margin">70dp</dimen>
-    <dimen name="welcome_bottom_margin">15dp</dimen>
     <dimen name="welcome_artwork_padding">10dp</dimen>
     <dimen name="welcome_with_love_top">20dp</dimen>
     <dimen name="sticker_settings_tip_margin">20dp</dimen>
@@ -32,8 +24,6 @@
 	<dimen name="photos_doodle_previewIcon_width">80dp</dimen>
 	<dimen name="photos_doodle_preview_padding">3dp</dimen>
 	<dimen name="photos_filters_preview_padding">7dp</dimen>
-	<dimen name="broadcast_ftue_text_bottom_padding">15dp</dimen>
-	<dimen name="broadcast_ftue_text_right_padding">15dp</dimen>
 	<dimen name="photos_selector_top_padding">4dp</dimen>
 	<dimen name="preview_brush_width">38dp</dimen>
 </resources>
