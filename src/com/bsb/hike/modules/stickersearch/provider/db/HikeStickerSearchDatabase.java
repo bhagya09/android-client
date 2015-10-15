@@ -156,18 +156,24 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 
 		if (oldVersion < HikeStickerSearchBaseConstants.VERSION_STICKER_TAG_MAPPING_INDEX_ADDED)
 		{
-			// Create index on fixed table: TABLE_STICKER_TAG_MAPPING for 2 columns 'Tag Word/ Phrase' and 'Sticker Information' together (described above while creating table)
+			// Create index on fixed table: TABLE_STICKER_TAG_MAPPING for 3 columns 'Tag Word/ Phrase', Tag language' and 'Sticker Information' together (as described above)
 			String sql = HikeStickerSearchBaseConstants.SYNTAX_CREATE_INDEX + HikeStickerSearchBaseConstants.STICKER_TAG_MAPPING_INDEX + HikeStickerSearchBaseConstants.SYNTAX_ON
 					+ HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING + HikeStickerSearchBaseConstants.SYNTAX_BRACKET_OPEN
 					+ HikeStickerSearchBaseConstants.STICKER_TAG_PHRASE + HikeStickerSearchBaseConstants.SYNTAX_NEXT + HikeStickerSearchBaseConstants.STICKER_RECOGNIZER_CODE
-					+ HikeStickerSearchBaseConstants.SYNTAX_BRACKET_CLOSE;
+					+ HikeStickerSearchBaseConstants.SYNTAX_NEXT + HikeStickerSearchBaseConstants.STICKER_TAG_LANGUAGE + HikeStickerSearchBaseConstants.SYNTAX_BRACKET_CLOSE;
 			db.execSQL(sql);
 		}
 
-		if (newVersion > oldVersion) {
-			db.execSQL("ALTER TABLE "+HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING+" ADD COLUMN "+HikeStickerSearchBaseConstants.STICKER_TAG_KEYBOARD_ISO+HikeStickerSearchBaseConstants.SYNTAX_TEXT_LAST +" DEFAULT "+HikeStickerSearchBaseConstants.STICKER_TAG_KEYBOARD_ISO_DEFAULT);
-		}
+		if (oldVersion < HikeStickerSearchBaseConstants.VERSION_STICKER_REGIONAL_TAG_MAPPING_ADDED)
+		{
+			String sql = "ALTER TABLE " + HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING + " ADD COLUMN " + HikeStickerSearchBaseConstants.STICKER_TAG_LANGUAGE
+					+ HikeStickerSearchBaseConstants.SYNTAX_TEXT_LAST;
+			db.execSQL(sql);
 
+			sql = "ALTER TABLE " + HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING + " ADD COLUMN " + HikeStickerSearchBaseConstants.STICKER_TAG_KEYBOARD_ISO
+					+ HikeStickerSearchBaseConstants.SYNTAX_TEXT_LAST + " DEFAULT " + HikeStickerSearchBaseConstants.STICKER_TAG_KEYBOARD_ISO_DEFAULT;
+			db.execSQL(sql);
+		}
 	}
 
 	/* Add tables which are either fixed or default (virtual table) */
@@ -237,13 +243,16 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 				+ HikeStickerSearchBaseConstants.STICKER_STRING_USED_WITH_TAG + HikeStickerSearchBaseConstants.SYNTAX_TEXT_NEXT
 				+ HikeStickerSearchBaseConstants.STICKER_WORDS_NOT_USED_WITH_TAG + HikeStickerSearchBaseConstants.SYNTAX_TEXT_NEXT
 				+ HikeStickerSearchBaseConstants.STICKER_TAG_POPULARITY + HikeStickerSearchBaseConstants.SYNTAX_INTEGER_NEXT + HikeStickerSearchBaseConstants.STICKER_AVAILABILITY
-				+ HikeStickerSearchBaseConstants.SYNTAX_INTEGER_NEXT +HikeStickerSearchBaseConstants.STICKER_TAG_KEYBOARD_ISO+HikeStickerSearchBaseConstants.SYNTAX_TEXT_LAST + HikeStickerSearchBaseConstants.SYNTAX_BRACKET_CLOSE;
+				+ HikeStickerSearchBaseConstants.SYNTAX_INTEGER_NEXT + HikeStickerSearchBaseConstants.STICKER_TAG_LANGUAGE + HikeStickerSearchBaseConstants.SYNTAX_TEXT_NEXT
+				+ HikeStickerSearchBaseConstants.STICKER_TAG_KEYBOARD_ISO + HikeStickerSearchBaseConstants.SYNTAX_TEXT_LAST + " DEFAULT "
+				+ HikeStickerSearchBaseConstants.STICKER_TAG_KEYBOARD_ISO_DEFAULT + HikeStickerSearchBaseConstants.SYNTAX_BRACKET_CLOSE;
 		db.execSQL(sql);
 
-		// Create index on fixed table: TABLE_STICKER_TAG_MAPPING for 2 columns 'Tag Word/ Phrase' and 'Sticker Information' together (described above while creating table)
+		// Create index on fixed table: TABLE_STICKER_TAG_MAPPING for 3 columns 'Tag Word/ Phrase', Tag language' and 'Sticker Information' together (as described above)
 		sql = HikeStickerSearchBaseConstants.SYNTAX_CREATE_INDEX + HikeStickerSearchBaseConstants.STICKER_TAG_MAPPING_INDEX + HikeStickerSearchBaseConstants.SYNTAX_ON
 				+ HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING + HikeStickerSearchBaseConstants.SYNTAX_BRACKET_OPEN + HikeStickerSearchBaseConstants.STICKER_TAG_PHRASE
-				+ HikeStickerSearchBaseConstants.SYNTAX_NEXT + HikeStickerSearchBaseConstants.STICKER_RECOGNIZER_CODE + HikeStickerSearchBaseConstants.SYNTAX_BRACKET_CLOSE;
+				+ HikeStickerSearchBaseConstants.SYNTAX_NEXT + HikeStickerSearchBaseConstants.STICKER_RECOGNIZER_CODE + HikeStickerSearchBaseConstants.SYNTAX_NEXT
+				+ HikeStickerSearchBaseConstants.STICKER_TAG_LANGUAGE + HikeStickerSearchBaseConstants.SYNTAX_BRACKET_CLOSE;
 		db.execSQL(sql);
 	}
 
@@ -427,11 +436,13 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		ArrayList<Integer> validStickerTagDataIndices = new ArrayList<Integer>();
 		ArrayList<String> stickerCodeList = new ArrayList<String>();
 		ArrayList<String> allTagList = new ArrayList<String>();
+		ArrayList<String> allTagLanguageList = new ArrayList<String>();
 
 		int stickerCount = stickersTagData.size();
 		StickerTagDataContainer stickerTagData;
 		String stickerCode;
 		ArrayList<String> tagListPerSticker = null;
+		ArrayList<String> languageListPerSticker = null;
 		int tagCountPerSticker;
 
 		for (int i = 0; i < stickerCount; i++)
@@ -445,11 +456,13 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 				stickerCode = stickerTagData.getStickerCode();
 				tagListPerSticker = stickerTagData.getTagList();
 				tagCountPerSticker = tagListPerSticker.size();
+				languageListPerSticker = stickerTagData.getLanguageList();
 
 				for (int j = 0; j < tagCountPerSticker; j++)
 				{
 					stickerCodeList.add(stickerCode);
 					allTagList.add(tagListPerSticker.get(j));
+					allTagLanguageList.add(languageListPerSticker.get(j));
 				}
 			}
 			else
@@ -467,9 +480,10 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		// Tag data building (querying) operation
 		Cursor c = null;
 		HashMap<String, ContentValues> existingTagData = new HashMap<String, ContentValues>();
-		String[] columnsInvolvedInQuery = new String[] { HikeStickerSearchBaseConstants.STICKER_TAG_PHRASE, HikeStickerSearchBaseConstants.STICKER_RECOGNIZER_CODE };
+		String[] columnsInvolvedInQuery = new String[] { HikeStickerSearchBaseConstants.STICKER_TAG_PHRASE, HikeStickerSearchBaseConstants.STICKER_RECOGNIZER_CODE,
+				HikeStickerSearchBaseConstants.STICKER_TAG_LANGUAGE };
 		String whereConditionToQueryAndUpdate = StickerSearchUtility.getSQLiteDatabaseMultipleConditionsWithANDSyntax(columnsInvolvedInQuery);
-		int maxRowCountPerQuery = HikeStickerSearchBaseConstants.SQLITE_LIMIT_VARIABLE_NUMBER / columnsInvolvedInQuery.length;
+		int maxRowCountPerQuery = HikeStickerSearchBaseConstants.SQLITE_MAX_LIMIT_VARIABLE_NUMBER / columnsInvolvedInQuery.length;
 		long queryOperationStartTime = System.currentTimeMillis();
 		int currentCount;
 
@@ -488,6 +502,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 
 				argsInCondition[argIndex] = allTagList.get(i);
 				argsInCondition[argIndex + 1] = stickerCodeList.get(i);
+				argsInCondition[argIndex + 2] = allTagLanguageList.get(i);
 			}
 
 			try
@@ -495,12 +510,15 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 				c = mDb.query(HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING, null,
 						StickerSearchUtility.getSQLiteDatabaseMultipleConditionsWithORSyntax(currentCount, whereConditionToQueryAndUpdate), argsInCondition, null, null, null);
 
+				String uniqueKey;
+
 				if ((c != null) && (c.getCount() > 0))
 				{
 					int tagPhraseIndex = c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_TAG_PHRASE);
 					int exactnessOrderIndex = c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_EXACTNESS_WITH_TAG_PRIORITY);
 					int momentCodeIndex = c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_ATTRIBUTE_TIME);
 					int stickerCodeIndex = c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_RECOGNIZER_CODE);
+					int tagLanguageIndex = c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_TAG_LANGUAGE);
 					int popularityIndex = c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_TAG_POPULARITY);
 					int availabilityIndex = c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_AVAILABILITY);
 
@@ -512,7 +530,9 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 						existingCv.put(HikeStickerSearchBaseConstants.STICKER_TAG_POPULARITY, c.getInt(popularityIndex));
 						existingCv.put(HikeStickerSearchBaseConstants.STICKER_AVAILABILITY, c.getInt(availabilityIndex));
 
-						existingTagData.put((c.getString(stickerCodeIndex) + StickerSearchConstants.STRING_DELIMITER + c.getString(tagPhraseIndex)), existingCv);
+						uniqueKey = c.getString(stickerCodeIndex) + StickerSearchConstants.STRING_DELIMITER + c.getString(tagPhraseIndex)
+								+ StickerSearchConstants.STRING_DELIMITER + c.getString(tagLanguageIndex);
+						existingTagData.put(uniqueKey, existingCv);
 					}
 				}
 			}
@@ -551,8 +571,10 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 			int stickerCountWithValidData = validStickerTagDataIndices.size();
 			int stickerIndex;
 			String tag;
+			String language;
 			String script;
 			long rowId;
+			String uniqueKey;
 
 			for (int i = 0; i < stickerCountWithValidData; i++)
 			{
@@ -560,6 +582,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 				stickerTagData = stickersTagData.get(stickerIndex);
 				stickerCode = stickerTagData.getStickerCode();
 				ArrayList<String> stickerTags = stickerTagData.getTagList();
+				ArrayList<String> tagLanguages = stickerTagData.getLanguageList();
 				ArrayList<String> tagScripts = stickerTagData.getScriptList();
 				ArrayList<Integer> tagExactnessPriorities = stickerTagData.getTagExactMatchPriorityList();
 				ArrayList<Integer> tagPopularities = stickerTagData.getTagPopularityList();
@@ -571,6 +594,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 				for (int j = 0; j < size; j++)
 				{
 					tag = stickerTags.get(j);
+					language = tagLanguages.get(j);
 					script = tagScripts.get(j);
 
 					ContentValues cv = new ContentValues();
@@ -579,13 +603,15 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 					cv.put(HikeStickerSearchBaseConstants.STICKER_TAG_POPULARITY, tagPopularities.get(j));
 					cv.put(HikeStickerSearchBaseConstants.STICKER_AVAILABILITY, availability);
 
-					ContentValues existingCv = existingTagData.get(stickerCode + StickerSearchConstants.STRING_DELIMITER + tag);
+					uniqueKey = stickerCode + StickerSearchConstants.STRING_DELIMITER + tag + StickerSearchConstants.STRING_DELIMITER + language;
+					ContentValues existingCv = existingTagData.get(uniqueKey);
 
 					if (existingCv == null)
 					{
 						cv.put(HikeStickerSearchBaseConstants.STICKER_TAG_PHRASE, tag);
 						cv.put(HikeStickerSearchBaseConstants.STICKER_RECOGNIZER_CODE, stickerCode);
 						cv.put(HikeStickerSearchBaseConstants.STICKER_ATTRIBUTE_AGE, 0);
+						cv.put(HikeStickerSearchBaseConstants.STICKER_TAG_LANGUAGE, language);
 						cv.put(HikeStickerSearchBaseConstants.STICKER_TAG_KEYBOARD_ISO, script);
 
 						rowId = mDb.insert(HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING, null, cv);
@@ -633,6 +659,8 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 			stickerCodeList = null;
 			allTagList.clear();
 			allTagList = null;
+			allTagLanguageList.clear();
+			allTagLanguageList = null;
 			if (tagListPerSticker != null)
 			{
 				tagListPerSticker.clear();
