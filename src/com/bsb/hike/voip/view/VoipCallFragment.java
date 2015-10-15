@@ -348,6 +348,8 @@ public class VoipCallFragment extends Fragment implements CallActions
 		boolean isShowingCallFailedFragment();
 		
 		void clearActivityFlags();
+
+		void showDeclineWithMessageFragment(Bundle bundle);
 	}
 
 	private void connectMessenger() 
@@ -444,7 +446,7 @@ public class VoipCallFragment extends Fragment implements CallActions
 		if (keyCode == KeyEvent.KEYCODE_HEADSETHOOK) {
 
 			if (voipService.getCallStatus() == CallStatus.INCOMING_CALL) {
-				acceptCall();
+				onAcceptCall();
 			} else
 				voipService.hangUp();
 			
@@ -523,7 +525,7 @@ public class VoipCallFragment extends Fragment implements CallActions
 	}
 
 	@Override
-	public void acceptCall()
+	public void onAcceptCall()
 	{
 		Logger.d(tag, "Accepted call, starting audio...");
 		if (voipService != null) {
@@ -534,11 +536,20 @@ public class VoipCallFragment extends Fragment implements CallActions
 	}
 
 	@Override
-	public void declineCall()
+	public void onDeclineCall()
 	{
 		Logger.d(tag, "Declined call, rejecting...");
 		if (voipService != null)
 			voipService.rejectIncomingCall();
+	}
+
+	@Override
+	public void onMessage()
+	{
+		Logger.d(tag, "Declined call, messaging...");
+		Bundle bundle = new Bundle();
+		bundle.putString(VoIPConstants.PARTNER_MSISDN, voipService.getPartnerClient().getPhoneNumber());
+		activity.showDeclineWithMessageFragment(bundle);
 	}
 
 	private void showHikeCallText()

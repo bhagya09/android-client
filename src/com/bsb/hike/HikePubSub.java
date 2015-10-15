@@ -36,6 +36,8 @@ public class HikePubSub implements Runnable
 	 */
 	public static final String MESSAGE_SENT = "messagesent";
 	
+	public static final String UPDATE_THREAD = "updateThread";
+	
 	public static final String MULTI_MESSAGE_SENT = "multimessagesent";
 	
 	public static final String MULTI_MESSAGE_DB_INSERTED = "multimessagedbinserted";
@@ -395,6 +397,8 @@ public class HikePubSub implements Runnable
 	public static final String MUTE_BOT = "muteBot";
 	
 	public static final String PARTICIPANT_JOINED_SYSTEM_MESSAGE = "participantJoinedSystemMsg";
+
+	public static final String STOP_VOIP_SERVICE = "stopVoipService";
 	
 	public static final String SHARED_WHATSAPP = "sharedWhatsApp";
 
