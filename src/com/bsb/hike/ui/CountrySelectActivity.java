@@ -15,9 +15,11 @@ import android.os.Bundle;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBar;
 
+import com.bsb.hike.modules.kpt.HikeCustomKeyboard;
 import com.bsb.hike.modules.kpt.KptUtils;
 import com.bsb.hike.ui.v7.SearchView;
 import com.bsb.hike.ui.v7.SearchView.OnQueryTextListener;
+
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -48,7 +50,7 @@ import com.kpt.adaptxt.beta.view.AdaptxtEditText;
 import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtEditTextEventListner;
 import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtKeyboordVisibilityStatusListner;
 
-public class CountrySelectActivity extends HikeAppStateBaseFragmentActivity implements  AdaptxtEditTextEventListner, AdaptxtKeyboordVisibilityStatusListner
+public class CountrySelectActivity extends HikeAppStateBaseFragmentActivity implements AdaptxtKeyboordVisibilityStatusListner
 {
 	public static final String RESULT_COUNTRY_NAME = "resCName";
 
@@ -62,7 +64,7 @@ public class CountrySelectActivity extends HikeAppStateBaseFragmentActivity impl
 
 	private CountryFilter filter;
 	
-	private CustomKeyboard mCustomKeyboard;
+	private HikeCustomKeyboard mCustomKeyboard;
 
 	private BaseAdapter searchListViewAdapter;
 
@@ -140,7 +142,7 @@ public class CountrySelectActivity extends HikeAppStateBaseFragmentActivity impl
 
 		setContentView(R.layout.country_select_layout);
 		LinearLayout viewHolder = (LinearLayout) findViewById(R.id.keyboardView_holder);
-		mCustomKeyboard = new CustomKeyboard(CountrySelectActivity.this, viewHolder);
+		mCustomKeyboard = new HikeCustomKeyboard(CountrySelectActivity.this, viewHolder, KPTConstants.MULTILINE_LINE_EDITOR, null, CountrySelectActivity.this);
 
 		searchListViewAdapter = new SearchAdapter(this);
 
@@ -467,9 +469,7 @@ public class CountrySelectActivity extends HikeAppStateBaseFragmentActivity impl
 		searchET = (AdaptxtEditText) searchView
 				.findViewById(R.id.search_src_text);
 		if (!KptUtils.isSystemKeyboard(CountrySelectActivity.this)) {
-			mCustomKeyboard.registerEditText(searchET,
-					KPTConstants.MULTILINE_LINE_EDITOR,
-					CountrySelectActivity.this, CountrySelectActivity.this);
+			mCustomKeyboard.registerEditText(searchET);
 			mCustomKeyboard.init(searchET);
 		}
 		searchET.setOnFocusChangeListener(new View.OnFocusChangeListener() {
@@ -593,30 +593,6 @@ public class CountrySelectActivity extends HikeAppStateBaseFragmentActivity impl
 
 	@Override
 	public void showQuickSettingView() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void onAdaptxtFocusChange(View arg0, boolean arg1) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void onAdaptxtTouch(View arg0, MotionEvent arg1) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void onAdaptxtclick(View arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void onReturnAction(int arg0) {
 		// TODO Auto-generated method stub
 		
 	}

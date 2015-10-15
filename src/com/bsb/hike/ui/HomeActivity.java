@@ -33,6 +33,7 @@ import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
+import com.bsb.hike.modules.kpt.HikeCustomKeyboard;
 import com.bsb.hike.modules.kpt.KptUtils;
 import com.bsb.hike.offline.OfflineConstants.OFFLINE_STATE;
 import com.bsb.hike.offline.OfflineController;
@@ -57,11 +58,9 @@ import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.NUXManager;
 import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.Utils;
-import com.kpt.adaptxt.beta.CustomKeyboard;
 import com.kpt.adaptxt.beta.RemoveDialogData;
 import com.kpt.adaptxt.beta.util.KPTConstants;
 import com.kpt.adaptxt.beta.view.AdaptxtEditText;
-import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtEditTextEventListner;
 import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtKeyboordVisibilityStatusListner;
 
 import android.annotation.SuppressLint;
@@ -111,7 +110,7 @@ import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Listener, AdaptxtEditTextEventListner, AdaptxtKeyboordVisibilityStatusListner
+public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Listener, AdaptxtKeyboordVisibilityStatusListner
 {
 
 	public static FtueContactsData ftueContactsData = new FtueContactsData();
@@ -131,7 +130,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 	private View parentLayout;
 	
-	private CustomKeyboard mCustomKeyboard;
+	private HikeCustomKeyboard mCustomKeyboard;
 
 	private TextView networkErrorPopUp;
 
@@ -509,7 +508,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		if (!KptUtils.isSystemKeyboard(HomeActivity.this))
 		{
 			LinearLayout viewHolder = (LinearLayout) findViewById(R.id.keyboardView_holder);
-			mCustomKeyboard = new CustomKeyboard(HomeActivity.this, viewHolder);			
+			mCustomKeyboard = new HikeCustomKeyboard(HomeActivity.this, viewHolder, KPTConstants.MULTILINE_LINE_EDITOR, null, HomeActivity.this);			
 		}
 		
 		networkErrorPopUp = (TextView) findViewById(R.id.network_error);
@@ -761,7 +760,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			searchET = (AdaptxtEditText) searchView.findViewById(R.id.search_src_text);
 			if (!KptUtils.isSystemKeyboard(HomeActivity.this))
 			{
-				mCustomKeyboard.registerEditText(searchET, KPTConstants.MULTILINE_LINE_EDITOR, HomeActivity.this, HomeActivity.this);
+				mCustomKeyboard.registerEditText(searchET);
 				mCustomKeyboard.init(searchET);
 			}
 			searchET.setOnFocusChangeListener(new View.OnFocusChangeListener() {
@@ -2344,30 +2343,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	public void showQuickSettingView() 
 	{
 		KptUtils.onGlobeKeyPressed(HomeActivity.this, mCustomKeyboard);
-	}
-
-	@Override
-	public void onAdaptxtFocusChange(View arg0, boolean arg1) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void onAdaptxtTouch(View arg0, MotionEvent arg1) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void onAdaptxtclick(View arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void onReturnAction(int arg0) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override

@@ -67,6 +67,8 @@ import com.bsb.hike.models.Sticker;
 import com.bsb.hike.models.TypingNotification;
 import com.bsb.hike.models.Unique;
 import com.bsb.hike.models.Conversation.Conversation;
+import com.bsb.hike.modules.kpt.HikeAdaptxtEditTextEventListner;
+import com.bsb.hike.modules.kpt.HikeCustomKeyboard;
 import com.bsb.hike.modules.kpt.KptUtils;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
 import com.bsb.hike.modules.stickersearch.listeners.IStickerPickerRecommendationListener;
@@ -105,9 +107,7 @@ import com.bsb.hike.view.CustomFontEditText;
 import com.bsb.hike.view.CustomFontEditText.BackKeyListener;
 import com.bsb.hike.view.CustomLinearLayout;
 import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
-import com.kpt.adaptxt.beta.CustomKeyboard;
 import com.kpt.adaptxt.beta.util.KPTConstants;
-import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtEditTextEventListner;
 import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtKeyboordVisibilityStatusListner;
 
 import android.app.Activity;
@@ -187,7 +187,7 @@ import android.widget.Toast;
 public abstract class ChatThread extends SimpleOnGestureListener implements OverflowItemClickListener, View.OnClickListener, ThemePickerListener, ImageParserListener,
 		PickFileListener, StickerPickerListener, AudioRecordListener, LoaderCallbacks<Object>, OnItemLongClickListener, OnTouchListener, OnScrollListener,
 		Listener, ActionModeListener, HikeDialogListener, TextWatcher, OnDismissListener, OnEditorActionListener, OnKeyListener, PopupListener, BackKeyListener,
-		OverflowViewListener, OnSoftKeyboardListener, IStickerPickerRecommendationListener, AdaptxtEditTextEventListner, AdaptxtKeyboordVisibilityStatusListner, IOfflineCallbacks
+		OverflowViewListener, OnSoftKeyboardListener, IStickerPickerRecommendationListener, AdaptxtKeyboordVisibilityStatusListner, IOfflineCallbacks
 {
 	private static final String TAG = ChatThread.class.getSimpleName();
 
@@ -356,7 +356,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	
 	protected HikeDialog dialog;
 	
-	protected CustomKeyboard mCustomKeyboard;
+	protected HikeCustomKeyboard mCustomKeyboard;
 
 	protected IChannelSelector channelSelector;
 
@@ -704,9 +704,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	protected void initCustomKeyboard()
 	{	
 		LinearLayout parentView = (LinearLayout) activity.findViewById(R.id.keyboardView_holder);
-		mCustomKeyboard= new CustomKeyboard(activity, parentView);
-		mCustomKeyboard.registerEditText(R.id.msg_compose,KPTConstants.MULTILINE_LINE_EDITOR,ChatThread.this,ChatThread.this);
-		mCustomKeyboard.registerEditText(R.id.search_text,KPTConstants.MULTILINE_LINE_EDITOR,ChatThread.this,ChatThread.this);
+		mCustomKeyboard= new HikeCustomKeyboard(activity, parentView, KPTConstants.MULTILINE_LINE_EDITOR, kptEditTextEventListener,ChatThread.this);
+		mCustomKeyboard.registerEditText(R.id.msg_compose);
 		mCustomKeyboard.init(mComposeView);
 	}	
 		
@@ -1739,10 +1738,9 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		}
 		else
 		{
-			
-        	mCustomKeyboard.registerEditText(searchEt, KPTConstants.MULTILINE_LINE_EDITOR, ChatThread.this, ChatThread.this);
-			mCustomKeyboard.showCustomKeyboard(searchEt, true);
-			KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, (keyboardHeight == 0) ? mCustomKeyboard.getKeyBoardAndCVHeight() : keyboardHeight);
+			mCustomKeyboard.registerEditText(R.id.search_text);
+        	mCustomKeyboard.showCustomKeyboard(searchEt, true);
+        	KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, (keyboardHeight == 0) ? mCustomKeyboard.getKeyBoardAndCVHeight() : keyboardHeight);
 		}
 		
 		searchEt.setOnClickListener(this);
@@ -1775,7 +1773,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		int id = mComposeView.getId();
 		mComposeView = (CustomFontEditText) activity.findViewById(R.id.search_text);
 		mComposeView.setTag(id);
-		
+
 		mComposeView.requestFocus();
 		Utils.showSoftKeyboard(activity.getApplicationContext(), mComposeView);
 		mComposeView.addTextChangedListener(searchTextWatcher);
@@ -1804,6 +1802,25 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		mBottomView.setVisibility(View.GONE);
 	}
 
+	HikeAdaptxtEditTextEventListner kptEditTextEventListener = new HikeAdaptxtEditTextEventListner()
+	{
+		@Override
+		public void onReturnAction(int resId, int arg0)
+		{
+			switch (resId)
+			{
+			case R.id.msg_compose:
+				if (!TextUtils.isEmpty(mComposeView.getText())) {
+					sendButtonClicked();
+				}
+				break;
+			case R.id.search_text:
+				searchMessage(false,true);
+				break;
+			}
+		}
+	};
+	
 	TextWatcher searchTextWatcher = new TextWatcher()
 	{
 		
@@ -6074,13 +6091,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			mCustomKeyboard.showCustomKeyboard(mComposeView, false);
 			mCustomKeyboard.swtichToDefaultKeyboard(mComposeView);
 			mCustomKeyboard.unregister(R.id.msg_compose);
-			if (mShareablePopupLayout != null)
-			{
-				mShareablePopupLayout.dismiss();
-				mShareablePopupLayout.releaseResources();
-				mShareablePopupLayout = null;
-				initShareablePopup();
-			}
+			resetSharablePopup();
 			mComposeView.setOnClickListener(new OnClickListener()
 			{
 
@@ -6093,59 +6104,29 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		}
 		else
 		{
-			mCustomKeyboard.swtichToKPTKeyboard(mComposeView, KPTConstants.MULTILINE_LINE_EDITOR, ChatThread.this, ChatThread.this);
-			mCustomKeyboard.registerEditText(R.id.msg_compose, KPTConstants.MULTILINE_LINE_EDITOR, this, this);
-			if (mShareablePopupLayout != null)
-			{
-				mShareablePopupLayout.dismiss();
-				mShareablePopupLayout.releaseResources();
-				mShareablePopupLayout = null;
-				initShareablePopup();
-			}
+			mCustomKeyboard.swtichToKPTKeyboard(mComposeView, KPTConstants.MULTILINE_LINE_EDITOR, null, ChatThread.this);
+			mCustomKeyboard.registerEditText(R.id.msg_compose);
+			resetSharablePopup();
 			mCustomKeyboard.init(mComposeView);
 			mCustomKeyboard.showCustomKeyboard(mComposeView, true);
 			setEditTextListeners();
 		}
 
 	}
+	
+	private void resetSharablePopup()
+	{
+		if (mShareablePopupLayout != null)
+		{
+			mShareablePopupLayout.dismiss();
+			releaseShareablePopUpResources();
+		}
+		initShareablePopup();
+	}
 
 	public boolean isSystemKeyboard()
 	{
 		return HikeMessengerApp.isSystemKeyboard(activity);
-	}
-	
-	@Override
-	public void onReturnAction(int arg0)
-	{
-		 if (searchEt!=null&& searchText!=null)
-		{
-			searchMessage(false,true);
-		 
-		}else if (!TextUtils.isEmpty(mComposeView.getText())) {
-			sendButtonClicked();
-		}
-	}
-	
-	
-	@Override
-	public void onAdaptxtclick(View edittext)
-	{
-		// TODO Auto-generated method stub
-
-	}
-	
-	@Override
-	public void onAdaptxtTouch(View arg0, MotionEvent arg1)
-	{
-		// TODO Auto-generated method stub
-		
-	}
-	
-	@Override
-	public void onAdaptxtFocusChange(View arg0, boolean arg1)
-	{
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override

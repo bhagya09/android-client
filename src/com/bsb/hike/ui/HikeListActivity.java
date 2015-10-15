@@ -30,6 +30,7 @@ import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.modules.kpt.HikeCustomKeyboard;
 import com.bsb.hike.modules.kpt.KptUtils;
 import com.bsb.hike.offline.OfflineController;
 import com.bsb.hike.offline.OfflineUtils;
@@ -39,10 +40,8 @@ import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.CustomFontEditText;
-import com.kpt.adaptxt.beta.CustomKeyboard;
 import com.kpt.adaptxt.beta.RemoveDialogData;
 import com.kpt.adaptxt.beta.util.KPTConstants;
-import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtEditTextEventListner;
 import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtKeyboordVisibilityStatusListner;
 
 import android.content.Intent;
@@ -71,7 +70,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class HikeListActivity extends HikeAppStateBaseFragmentActivity implements OnItemClickListener, AdaptxtEditTextEventListner, 
+public class HikeListActivity extends HikeAppStateBaseFragmentActivity implements OnItemClickListener, 
 		AdaptxtKeyboordVisibilityStatusListner
 {
 
@@ -106,7 +105,7 @@ public class HikeListActivity extends HikeAppStateBaseFragmentActivity implement
 
 	private ImageView backIcon;
 	
-	private CustomKeyboard mCustomKeyboard;
+	private HikeCustomKeyboard mCustomKeyboard;
 	
 	private boolean systemKeyboard;
 
@@ -170,8 +169,8 @@ public class HikeListActivity extends HikeAppStateBaseFragmentActivity implement
 	private void initCustomKeyboard()
 	{
 		View keyboardView = (LinearLayout) findViewById(R.id.keyboardView_holder);
-		mCustomKeyboard = new CustomKeyboard(HikeListActivity.this, keyboardView);
-		mCustomKeyboard.registerEditText(R.id.input_number, KPTConstants.MULTILINE_LINE_EDITOR, HikeListActivity.this, HikeListActivity.this);
+		mCustomKeyboard = new HikeCustomKeyboard(HikeListActivity.this, keyboardView, KPTConstants.MULTILINE_LINE_EDITOR, null, HikeListActivity.this);
+		mCustomKeyboard.registerEditText(R.id.input_number);
 		mCustomKeyboard.init(input);
 		input.setOnClickListener(new OnClickListener()
 		{
@@ -813,34 +812,6 @@ public class HikeListActivity extends HikeAppStateBaseFragmentActivity implement
 		KptUtils.onGlobeKeyPressed(HikeListActivity.this, mCustomKeyboard);
 	}
 
-	@Override
-	public void onAdaptxtFocusChange(View arg0, boolean arg1)
-	{
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void onAdaptxtTouch(View arg0, MotionEvent arg1)
-	{
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void onAdaptxtclick(View arg0)
-	{
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void onReturnAction(int arg0)
-	{
-		// TODO Auto-generated method stub
-		
-	}
-	
 	@Override
 	public void onBackPressed()
 	{

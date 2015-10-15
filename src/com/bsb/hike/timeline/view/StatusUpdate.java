@@ -16,6 +16,7 @@ import com.bsb.hike.media.EmoticonPicker;
 import com.bsb.hike.media.ImageParser;
 import com.bsb.hike.media.ImageParser.ImageParserListener;
 import com.bsb.hike.media.PopupListener;
+import com.bsb.hike.modules.kpt.HikeCustomKeyboard;
 import com.bsb.hike.modules.kpt.KptUtils;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.smartImageLoader.IconLoader;
@@ -32,10 +33,8 @@ import com.bsb.hike.view.CustomFontEditText;
 import com.bsb.hike.view.CustomLinearLayout;
 import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 import com.bsb.hike.view.RoundedImageView;
-import com.kpt.adaptxt.beta.CustomKeyboard;
 import com.kpt.adaptxt.beta.RemoveDialogData;
 import com.kpt.adaptxt.beta.util.KPTConstants;
-import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtEditTextEventListner;
 import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtKeyboordVisibilityStatusListner;
 
 import android.app.Activity;
@@ -71,7 +70,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Listener, OnSoftKeyboardListener, PopupListener, View.OnClickListener,
-		AdaptxtKeyboordVisibilityStatusListner, AdaptxtEditTextEventListner
+		AdaptxtKeyboordVisibilityStatusListner
 {
 
 	private class ActivityTask
@@ -91,7 +90,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		boolean imageDeleted = false;
 	}
 	
-	private CustomKeyboard mCustomKeyboard;
+	private HikeCustomKeyboard mCustomKeyboard;
 	
 	private boolean systemKeyboard;
 
@@ -387,8 +386,8 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 	private void initCustomKeyboard()
 	{
 		View keyboardHolder = (LinearLayout) findViewById(R.id.keyboardView_holder);
-		mCustomKeyboard = new CustomKeyboard(StatusUpdate.this, keyboardHolder);
-		mCustomKeyboard.registerEditText(R.id.status_txt, KPTConstants.MULTILINE_LINE_EDITOR, this, this);
+		mCustomKeyboard = new HikeCustomKeyboard(StatusUpdate.this, keyboardHolder, KPTConstants.MULTILINE_LINE_EDITOR, null, this);
+		mCustomKeyboard.registerEditText(R.id.status_txt);
 		mCustomKeyboard.init(statusTxt);
 		findViewById(R.id.status_txt).setOnClickListener(this);
 		mEmoticonPicker.setCustomKeyBoardHeight((keyboardHeight == 0) ? mCustomKeyboard.getKeyBoardAndCVHeight() : keyboardHeight);
@@ -1028,34 +1027,6 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
-	}
-
-	@Override
-	public void onAdaptxtFocusChange(View arg0, boolean arg1)
-	{
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void onAdaptxtTouch(View arg0, MotionEvent arg1)
-	{
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void onAdaptxtclick(View arg0)
-	{
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void onReturnAction(int arg0)
-	{
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
