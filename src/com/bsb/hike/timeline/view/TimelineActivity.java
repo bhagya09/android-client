@@ -50,7 +50,6 @@ import com.bsb.hike.media.OverFlowMenuItem;
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.timeline.TimelineResourceCleaner;
-import com.bsb.hike.timeline.adapter.ActivityFeedCursorAdapter;
 import com.bsb.hike.ui.PeopleActivity;
 import com.bsb.hike.ui.ProfileActivity;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
@@ -86,6 +85,10 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 	private static final String TAG = "TimelineActivity";
 
 	private PopupWindow overFlowWindow;
+
+	private boolean shouldOpenActivityFeed;
+
+	private boolean isFromNotif;
 
 	@Override
 	public void onEventReceived(String type, Object object)
@@ -162,39 +165,39 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 	protected void onNewIntent(Intent intent)
 	{
 		super.onNewIntent(intent);
-		if (intent.getBooleanExtra(HikeConstants.Extras.OPEN_ACTIVITY_FEED, false)) // We have to open ActivityFeedFragment
+		shouldOpenActivityFeed = intent.getBooleanExtra(HikeConstants.Extras.OPEN_ACTIVITY_FEED, false);
+		isFromNotif = intent.getBooleanExtra(HikeConstants.Extras.FROM_NOTIFICATION, false);
+		if(isUpdatesFrgamentOnTop())
 		{
-			ActivityFeedFragment activityFeedFragment = (ActivityFeedFragment) getSupportFragmentManager().findFragmentByTag(FRAGMENT_ACTIVITY_FEED_TAG);
-			if(activityFeedFragment != null)
-			{
-				if(!activityFeedFragment.isAdded())
-				{
-					getSupportFragmentManager()
-					.beginTransaction()
-					.add(R.id.parent_layout, activityFeedFragment, FRAGMENT_ACTIVITY_FEED_TAG)
-					.addToBackStack(FRAGMENT_ACTIVITY_FEED_TAG)
-					.commit();
-				}
-			}
-			else
+			UpdatesFragment updatesFragment = (UpdatesFragment) getSupportFragmentManager().findFragmentByTag(FRAGMENT_UPDATES_TAG);
+			updatesFragment.scrollToTop();
+		}
+	}
+	
+	@Override
+	protected void onPostResume()
+	{
+		super.onPostResume();
+		// http://www.androiddesignpatterns.com/2013/08/fragment-transaction-commit-state-loss.html
+		if (shouldOpenActivityFeed) // We have to open ActivityFeedFragment
+		{
+			shouldOpenActivityFeed = false;
+			if (isUpdatesFrgamentOnTop())
 			{
 				loadActivityFeedFragment();
 			}
 		}
-		else //We have to open UpdatesFragment
+		else
 		{
-			if(!isUpdatesFrgamentOnTop())
+			// We have to open UpdatesFragment
+			if (!isUpdatesFrgamentOnTop() && isFromNotif)
 			{
+				isFromNotif = false;
 				getSupportFragmentManager().popBackStack();
 				ActionBar actionBar = getSupportActionBar();
 				View actionBarView = actionBar.getCustomView();
 				TextView title = (TextView) actionBarView.findViewById(R.id.title);
 				title.setText(R.string.timeline);
-			}
-			else
-			{
-				UpdatesFragment updatesFragment = (UpdatesFragment) getSupportFragmentManager().findFragmentByTag(FRAGMENT_UPDATES_TAG);
-				updatesFragment.scrollToTop();
 			}
 		}
 	}
@@ -510,25 +513,34 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 	@Override
 	public void onBackPressed()
 	{
-		//Get the number of pending backstack records
+		// Get the number of pending backstack records
 		int count = getSupportFragmentManager().getBackStackEntryCount();
-		
-		//If none, open home activity
+
+		// If none, open home activity
 		if (count == 0)
 		{
 			IntentFactory.openHomeActivity(TimelineActivity.this, true);
 		}
-		//Else, found a backstack record, fragmentactivity will pop it, do actionbar changes
-		else 
+		// Else, found a backstack record, fragmentactivity will pop it, do actionbar changes
+		else
 		{
 			ActionBar actionBar = getSupportActionBar();
 			View actionBarView = actionBar.getCustomView();
 			TextView title = (TextView) actionBarView.findViewById(R.id.title);
-			title.setText(R.string.timeline);	
+			title.setText(R.string.timeline);
 		}
-		
-		//Let fragmentactivity do its thing (i.e. either pop backstack[count>0] or finish activity[count=0])
-		super.onBackPressed();
+
+		// Let fragmentactivity do its thing (i.e. either pop backstack[count>0] or finish activity[count=0])
+		try
+		{
+			super.onBackPressed();
+		}
+		catch (IllegalStateException ignored)
+		{
+			//An exception here could be caused by changing activity states when we call openHomeActivity.
+			//The assumed scenario happening is onBackPressed() --> openHomeActivity() --> onPause() --> onSaveInstanceState() --> super.onBackPressed() --> popBackStackImmediate().
+			//Its OK to lose fragment state since we are moving out of this activity anyways.
+		}
 	}
 
 	@Override
