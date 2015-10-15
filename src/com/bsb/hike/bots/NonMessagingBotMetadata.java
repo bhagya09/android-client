@@ -5,6 +5,7 @@ import java.util.List;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.media.OverFlowMenuItem;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.utils.Logger;
@@ -32,6 +33,7 @@ public class NonMessagingBotMetadata
 	private String callbackId, parentMsisdn;
 	private JSONObject fwdCardObj;
 	private boolean resumeSupported=false;
+	private JSONObject assoc_mapp;
 
 	public NonMessagingBotMetadata(String jsonString)
 	{
@@ -74,6 +76,7 @@ public class NonMessagingBotMetadata
 		setParentMsisdn(json.optString(HikePlatformConstants.PARENT_MSISDN));
 		setCallbackId(json.optString(HikePlatformConstants.CALLBACK_ID));
 		setResumeSupported(json.optBoolean(HikePlatformConstants.RESUME_SUPPORTED));
+		setAsocmapp(json.optString(HikePlatformConstants.ASSOCIATE_MAPP));
 
 		if (json.has(HikePlatformConstants.CARD_OBJECT))
 		{
@@ -302,5 +305,26 @@ public class NonMessagingBotMetadata
 	public boolean isResumeSupported()
 	{
 		return resumeSupported;
+	}
+	public void setAsocmapp(String mapp)
+	{
+		try
+		{
+			assoc_mapp=new JSONObject(mapp);
+		}
+		catch (JSONException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+	}
+	public String getAsocmappName()
+	{
+		return(assoc_mapp.optString(HikeConstants.NAME));
+	}
+	public String getAsocmappUrl()
+	{
+		return(assoc_mapp.optString(HikeConstants.URL));
 	}
 }

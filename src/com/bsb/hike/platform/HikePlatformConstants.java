@@ -249,7 +249,7 @@ public interface HikePlatformConstants
 	
 	final String STATUS_BAR_COLOR = "sb_color";
 	String RESUME_SUPPORTED = "resume_supported";
-	
+	final String ASSOCIATE_MAPP = "associate_mapp";
 	public static final String PLATFORM_USER_ID_SYNC = "plfsync";
 	
 	public static final String BOT_DESCRIPTION = "desc";

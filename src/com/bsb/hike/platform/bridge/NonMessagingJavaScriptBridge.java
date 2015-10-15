@@ -1390,6 +1390,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	 * Can only be called by special bots
 	 * @param msisdn
 	 */
+	@JavascriptInterface
 	public void deleteAndRemoveBot(String msisdn)
 	{
 		BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);

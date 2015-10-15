@@ -124,8 +124,11 @@ public class CocosGamingActivity extends Cocos2dxActivity
 		// TODO do not hard code the path of the game engine. Please change this
 		try
 		{
-			System.load(platform_content_dir + "cocosEngine-7/libcocos2d.so");
-			System.load(getAppBasePath() + "libcocos2dcpp.so"); // loading the game
+			if (nonMessagingBotMetadata != null)
+			{
+				System.load(platform_content_dir + nonMessagingBotMetadata.getAsocmappName() + "/libcocos2d.so");
+				System.load(getAppBasePath() + "libcocos2dcpp.so"); // loading the game
+			}
 		}
 		catch (UnsatisfiedLinkError e)
 		{
