@@ -7101,14 +7101,33 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 		return unreadMessages;
 	}
+
 	public int getTotalUnreadMessagesConversation()
+	{
+		return getTotalUnreadMessagesConversation(true);
+	}
+
+	/**
+	 * @param includeStealth
+	 *            whether to include the hidden conversations unread count or not
+	 * @return total unread count of conversations
+	 */
+	public int getTotalUnreadMessagesConversation(boolean includeStealth)
 	{
 		int unreadMessages = 0;
 		Cursor c = null;
 
 		try
 		{
-			c = mDb.query(DBConstants.CONVERSATIONS_TABLE, new String[] { DBConstants.UNREAD_COUNT }, null, null, null, null, null);
+			String selection = null;
+			String[] args = null;
+			if (!includeStealth)
+			{
+				selection = DBConstants.IS_STEALTH + " = ?";
+				args = new String[] { "0" };
+			}
+
+			c = mDb.query(DBConstants.CONVERSATIONS_TABLE, new String[] { DBConstants.UNREAD_COUNT }, selection, args, null, null, null);
 
 			final int unreadMessageColumn = c.getColumnIndex(DBConstants.UNREAD_COUNT);
 
@@ -7129,11 +7148,8 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			}
 		}
 
-		
-
 		return unreadMessages;
 	}
-
 	public HashMap<String, ContentValues> getCurrentStickerDataMapping(String tableName)
 	{
 		HashMap<String, ContentValues> result = new HashMap<String, ContentValues>();
