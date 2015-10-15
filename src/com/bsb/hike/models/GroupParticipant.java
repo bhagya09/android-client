@@ -139,4 +139,10 @@ public class GroupParticipant implements Comparable<GroupParticipant>
 			return (lhs.getSecond().toLowerCase().compareTo(rhs.getSecond().toLowerCase()));
 		}
 	};
+
+	public boolean isSMSGroupMember()
+	{
+		return !contactInfo.isOnhike();
+	}
+	
 }
