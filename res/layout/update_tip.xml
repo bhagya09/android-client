@@ -9,7 +9,7 @@
         android:id="@+id/tip_upper"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#f64126"
+        android:background="@color/update_tip_default"
         android:orientation="horizontal" >
 
         <com.bsb.hike.ui.utils.RecyclingImageView
@@ -71,7 +71,7 @@
         android:layout_height="48dp"
         android:gravity="right"
         android:paddingRight="16dp"
-        android:background="#f64126"
+        android:background="@color/update_tip_default"
         android:orientation="horizontal" >
 
         <com.bsb.hike.view.CustomFontTextView

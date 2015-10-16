@@ -3428,10 +3428,10 @@ public class MqttMessagesManager
 						editor.putString(HikeConstants.Extras.UPDATE_MESSAGE, data.optString(HikeConstants.MESSAGE, ""));
 						Logger.d("UpdateTipPersistentNotif", "Showing persistent notif for target version:"+version);
 						editor.putString(HikeConstants.Extras.LATEST_VERSION, version);
-						editor.putString(HikeConstants.Extras.UPDATE_TITLE, data.optString(HikeConstants.Extras.TITLE, ""));
-						editor.putString(HikeConstants.Extras.UPDATE_ACTION, data.optString(HikeConstants.MqttMessageTypes.ACTION, ""));
-						editor.putString(HikeConstants.Extras.UPDATE_LATER, data.optString(HikeConstants.DISMISS, ""));
-						editor.putLong(HikeConstants.Extras.UPDATE_ALARM, data.optLong(HikeConstants.PERSISTENT_NOTIF_ALARM_INTERVAL, HikeConstants.PERS_NOTIF_ALARM_DEFAULT));
+						editor.putString(HikeConstants.UPDATE_TITLE, data.optString(HikeConstants.Extras.TITLE, ""));
+						editor.putString(HikeConstants.UPDATE_ACTION, data.optString(HikeConstants.MqttMessageTypes.ACTION, ""));
+						editor.putString(HikeConstants.UPDATE_LATER, data.optString(HikeConstants.DISMISS, ""));
+						editor.putLong(HikeConstants.UPDATE_ALARM, data.optLong(HikeConstants.PERSISTENT_NOTIF_ALARM_INTERVAL, HikeConstants.PERS_NOTIF_ALARM_DEFAULT));
 						
 						if (!TextUtils.isEmpty(updateURL))
 							editor.putString(HikeConstants.Extras.URL, updateURL);

@@ -83,7 +83,7 @@ public class HikeAlarmManager
 	
 	public static final int REQUEST_CODE_STICKER_RECOMMENDATION_BALANCING = 4574;
 	
-	public static final int REQUESTCODE_UPDATE_PERSISTENT_NOTIF = 5000;
+	public static final int REQUESTCODE_UPDATE_PERSISTENT_NOTIF = 4575;
 
 	// ******************************************************//
 	

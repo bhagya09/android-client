@@ -492,5 +492,6 @@
     <color name="fav_reject_btn_pressed">#EB1D1D</color>
     <color name="fav_reject_btn_normal">#FF3636</color>
     <color name="caller_free_call">#3d475b</color>
+    <color name="update_tip_default">#f64126</color>
 </resources>
 	

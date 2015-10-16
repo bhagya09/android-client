@@ -84,7 +84,7 @@ public class HikeNotification
 
 	public static final int APP_UPDATE_AVAILABLE_ID = -90;
 	
-	public static final int PERSISTENT_NOTIF_ID = -111;
+	public static final int PERSISTENT_NOTIF_ID = -92;
 
 	public static final int STEALTH_NOTIFICATION_ID = -89;
 
@@ -362,8 +362,8 @@ public class HikeNotification
 		
 		Intent laterIntent = new Intent("com.bsb.hike.PERS_NOTIF_ALARM_INTENT");
 		
-		mBuilder.addAction(R.drawable.ic_recents_emo_selected, laterText, PendingIntent.getBroadcast(context, 0, laterIntent, 0))
-				.addAction(R.drawable.ic_download, actionText, PendingIntent.getActivity(context, 0, intent, 0));
+		mBuilder.addAction(R.drawable.ic_clock_later, laterText, PendingIntent.getBroadcast(context, 0, laterIntent, 0))
+				.addAction(R.drawable.ic_downloaded_tick, actionText, PendingIntent.getActivity(context, 0, intent, 0));
 		
 		if (!sharedPreferences.getBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false) && !settingPref.getBoolean(HikeConstants.IS_HIKE_APP_FOREGROUNDED, false))
 		{
