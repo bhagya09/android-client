@@ -338,6 +338,17 @@ public class ChatHeadViewManager
 
 				switch (flag)
 				{
+				case ChatHeadConstants.REMAINING_ANIMATION:
+					savedPosX = chatHeadParams.x;
+					savedPosY = chatHeadParams.y;
+					try
+					{
+						windowManager.removeView(closeHead);
+					}
+					catch (Exception e) {
+						// TODO: handle exception
+					}
+					break;
 				case ChatHeadConstants.CREATING_CHAT_HEAD_ACTIVITY_ANIMATION:
 //					if (!ChatHeadUtils.getRunningAppPackage(ChatHeadUtils.GET_TOP_MOST_SINGLE_PROCESS).contains(sharableActivePackage))
 //					{
@@ -516,8 +527,8 @@ public class ChatHeadViewManager
 
 	private void setChatHeadParams()
 	{
-		chatHeadParams.x = INITIAL_POS_X;
-		chatHeadParams.y = INITIAL_POS_Y;
+		chatHeadParams.x = savedPosX;
+		chatHeadParams.y = savedPosY;
 		chatHeadParams.gravity = Gravity.TOP | Gravity.LEFT;
 	}
 
@@ -691,10 +702,10 @@ public class ChatHeadViewManager
 		}
 	}
 
-	public void actionWindowChange(	Set<String> foregroundPackages)
+	public void actionWindowChange(	Set<String> foregroundPackages, boolean isAccessibilityBeingUsed)
 	{
 		UserLogInfo.recordSessionInfo(foregroundPackages, UserLogInfo.OPERATE);
-		if (ChatHeadUtils.shouldRunChatHeadServiceForStickey() && !ChatHeadUtils.canAccessibilityBeUsed(false))
+		if (ChatHeadUtils.shouldRunChatHeadServiceForStickey() && !ChatHeadUtils.accessibilityMustBeActivated(isAccessibilityBeingUsed))
 		{
 			boolean isSharableAppActive = false;
 			for (String sharablePackageName : sharablePackageList)

@@ -393,6 +393,7 @@ public class PlatformUtils
 								if (zipFileSize > 0)
 								{
 									json.put(AnalyticsConstants.FILE_SIZE, String.valueOf(zipFileSize));
+									json.put(HikePlatformConstants.NETWORK_TYPE, Integer.toString(Utils.getNetworkType(HikeMessengerApp.getInstance().getApplicationContext())));
 								}
 								createBotAnalytics(HikePlatformConstants.BOT_CREATION_FAILED, botInfo, json);
 								createBotMqttAnalytics(HikePlatformConstants.BOT_CREATION_FAILED_MQTT, botInfo, json);
@@ -544,6 +545,7 @@ public class PlatformUtils
 								try
 								{
 									jsonObject.put(AnalyticsConstants.FILE_SIZE, String.valueOf(fileLength));
+									jsonObject.put(HikePlatformConstants.NETWORK_TYPE, Integer.toString(Utils.getNetworkType(HikeMessengerApp.getInstance().getApplicationContext())));
 								}
 								catch (JSONException e)
 								{
@@ -1043,6 +1045,7 @@ public class PlatformUtils
 				{
 					e.printStackTrace();
 				}
+				ChatHeadUtils.startOrStopService(true);
 			}
 		}
 		else
