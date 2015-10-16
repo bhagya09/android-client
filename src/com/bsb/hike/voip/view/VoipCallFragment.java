@@ -546,9 +546,13 @@ public class VoipCallFragment extends Fragment implements CallActions
 	@Override
 	public void onMessage()
 	{
+		VoIPClient client = voipService.getPartnerClient();
+		if (client == null)
+			return;
+		
 		Logger.d(tag, "Declined call, messaging...");
 		Bundle bundle = new Bundle();
-		bundle.putString(VoIPConstants.PARTNER_MSISDN, voipService.getPartnerClient().getPhoneNumber());
+		bundle.putString(VoIPConstants.PARTNER_MSISDN, client.getPhoneNumber());
 		activity.showDeclineWithMessageFragment(bundle);
 	}
 
