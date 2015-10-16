@@ -2,9 +2,11 @@ package com.bsb.hike.bots;
 
 import java.util.List;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.media.OverFlowMenuItem;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.utils.Logger;
@@ -32,6 +34,7 @@ public class NonMessagingBotMetadata
 	private String callbackId, parentMsisdn;
 	private JSONObject fwdCardObj;
 	private boolean resumeSupported=false;
+	private JSONArray assoc_mapp;
 
 	public NonMessagingBotMetadata(String jsonString)
 	{
@@ -74,6 +77,7 @@ public class NonMessagingBotMetadata
 		setParentMsisdn(json.optString(HikePlatformConstants.PARENT_MSISDN));
 		setCallbackId(json.optString(HikePlatformConstants.CALLBACK_ID));
 		setResumeSupported(json.optBoolean(HikePlatformConstants.RESUME_SUPPORTED));
+		setAsocmapp(json.optJSONArray(HikePlatformConstants.ASSOCIATE_MAPP));
 
 		if (json.has(HikePlatformConstants.CARD_OBJECT))
 		{
@@ -303,4 +307,14 @@ public class NonMessagingBotMetadata
 	{
 		return resumeSupported;
 	}
+	public void setAsocmapp(JSONArray mapp)
+	{
+
+			assoc_mapp=mapp;
+	}
+	public JSONArray getAsocmapp()
+	{
+		return assoc_mapp;
+	}
+
 }
