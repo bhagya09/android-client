@@ -24,6 +24,7 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
 import com.bsb.hike.modules.stickersearch.datamodel.StickerTagDataContainer;
+import com.bsb.hike.modules.stickersearch.datamodel.StickerTagDataContainer.StickerTagDataBuilder;
 import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchBaseConstants;
 import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchDatabase;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
@@ -96,15 +97,15 @@ public enum StickerSearchDataController
 			return;
 		}
 
-		Set<String> receivedStickerSet = new HashSet<String>();
-		HashSet<String> stickerCodeSet = new HashSet<String>();
+		Set<String> receivedStickers = new HashSet<String>();
+		HashSet<String> stickersWithValidTags = new HashSet<String>();
 		Map<String, ArrayList<String>> packStoryData = new HashMap<String, ArrayList<String>>();
 		ArrayList<StickerTagDataContainer> stickersTagData = new ArrayList<StickerTagDataContainer>();
-		Iterator<String> categories = packsData.keys();
+		Iterator<String> packs = packsData.keys();
 
-		while (categories.hasNext())
+		while (packs.hasNext())
 		{
-			String packId = categories.next();
+			String packId = packs.next();
 			if (Utils.isBlank(packId))
 			{
 				Logger.e(TAG, "setupStickerSearchWizard(), Invalid pack id.");
@@ -138,7 +139,7 @@ public enum StickerSearchDataController
 				}
 
 				String stickerInfo = StickerManager.getInstance().getStickerSetString(stickerId, packId);
-				receivedStickerSet.add(stickerInfo);
+				receivedStickers.add(stickerInfo);
 
 				JSONObject stickerData = stickersData.optJSONObject(stickerId);
 
@@ -448,9 +449,9 @@ public enum StickerSearchDataController
 							Logger.e(TAG, "setupStickerSearchWizard(), No attribute is attached with sticker: " + stickerInfo);
 						}
 
-						stickersTagData.add(new StickerTagDataContainer(stickerInfo, tagList, tagLanguageList, tagScriptList, tagCategoryList, themeList,
-								tagExactMatchPriorityList, tagPriorityList, stickerMomentCode, stickerFestivals));
-						stickerCodeSet.add(stickerInfo);
+						stickersTagData.add(new StickerTagDataBuilder(stickerInfo, tagList, themeList, tagLanguageList).tagCategories(tagCategoryList).scripts(tagScriptList)
+								.priorities(tagExactMatchPriorityList, tagPriorityList).events(stickerMomentCode, stickerFestivals).build());
+						stickersWithValidTags.add(stickerInfo);
 					}
 
 					packTagDataCount += stickerTagDataCount;
@@ -495,11 +496,13 @@ public enum StickerSearchDataController
 		}
 
 		HashSet<String> untaggedSet = new HashSet<String>();
-		untaggedSet.addAll(receivedStickerSet);
-		untaggedSet.removeAll(stickerCodeSet);
-		stickerCodeSet.clear();
-		Logger.i(TAG, "setupStickerSearchWizard(), Current untagged stickers: " + untaggedSet);
+		untaggedSet.addAll(receivedStickers);
+		untaggedSet.removeAll(stickersWithValidTags);
+		stickersWithValidTags.clear();
+		stickersWithValidTags = null;
+		Logger.i(TAG, "setupStickerSearchWizard(), Received untagged stickers: " + untaggedSet);
 		untaggedSet.clear();
+		untaggedSet = null;
 
 		if (stickersTagData.size() > 0)
 		{
@@ -530,7 +533,7 @@ public enum StickerSearchDataController
 
 				for (String stickerCode : pendingRetrySet)
 				{
-					if (!receivedStickerSet.contains(stickerCode))
+					if (!receivedStickers.contains(stickerCode))
 					{
 						updateRetrySet.add(stickerCode);
 					}
@@ -551,11 +554,14 @@ public enum StickerSearchDataController
 					}
 				}
 				pendingRetrySet.clear();
+				pendingRetrySet = null;
 				updateRetrySet.clear();
+				updateRetrySet = null;
 			}
 		}
 
-		receivedStickerSet.clear();
+		receivedStickers.clear();
+		receivedStickers = null;
 	}
 
 	public void updateStickerList(Set<String> stickerInfoSet)

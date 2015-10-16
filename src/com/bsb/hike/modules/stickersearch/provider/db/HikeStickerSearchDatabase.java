@@ -284,8 +284,6 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 	}
 
 	/* Mark for first time setup to know the status of setup/ update/ elimination/ insertion/ re-balancing */
-	// Not being used currently
-
 	public void markDataInsertionInitiation()
 	{
 		Logger.i(TAG, "markDataInsertionInitiation()");
