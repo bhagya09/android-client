@@ -7436,4 +7436,21 @@ public class Utils
 		return timeLogBuilder.toString();
 	}
 
+	/**
+	 * Call this method to find the total size of a folder
+	 * @param folder
+	 * @return size of the folder in bytes
+	 */
+	public static long folderSize(File folder)
+	{
+		long length = 0;
+		for (File file : folder.listFiles()) {
+			if (file.isFile())
+				length += file.length();
+			else
+				length += folderSize(file);
+		}
+		return length;
+	}
+
 }
