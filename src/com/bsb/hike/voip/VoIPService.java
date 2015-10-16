@@ -56,7 +56,6 @@ import android.widget.Chronometer;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
-import com.bsb.hike.MqttConstants;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
@@ -2026,12 +2025,6 @@ public class VoIPService extends Service implements Listener
 		if (audioManager != null)
 		{
 			audioManager.setSpeakerphoneOn(speaker);
-			
-			// Restart recording because the audio source will change 
-			// depending on whether we're on speakerphone or not. 
-			// Fixes Anirban's Nexus 5 bug where his mic works only on speakerphone.
-			if (isAudioRunning())
-				startRecording();
 		}
 		
 		// If we have swiched off the speaker and a bluetooth headset is connected
