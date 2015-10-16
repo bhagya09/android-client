@@ -29,6 +29,8 @@ public class HikeConstants
 
 	public static final String MESSAGE = "msg";
 
+	public static final String TOAST = "tst";
+	
 	public static final String UI_TOPIC = "/u";
 
 	public static final String APP_TOPIC = "/a";
@@ -2387,7 +2389,15 @@ public class HikeConstants
 		public static final String TIMELINE_OVERFLOW_OPTION_FAV = "fav";
 
 	}
-
+	public static final class Toast
+	{
+		public static final String TOAST_MESSAGE = "t_msg";
+		
+		public static final String TOAST_GRAVITY = "t_grv";
+		
+		public static final String TOAST_DURATION = "t_dur";
+	}
+	
 	public static final class MqttMessageTypes
 	{
 		public static final String MESSAGE_READ = "mr";
