@@ -411,7 +411,6 @@ public class PlatformUtils
 								if (zipFileSize > 0)
 								{
 									json.put(AnalyticsConstants.FILE_SIZE, String.valueOf(zipFileSize));
-									json.put(HikePlatformConstants.NETWORK_TYPE, Integer.toString(Utils.getNetworkType(HikeMessengerApp.getInstance().getApplicationContext())));
 								}
 								json.put(AnalyticsConstants.INTERNAL_STORAGE_SPACE, String.valueOf(Utils.getFreeInternalStorage()) + " MB");
 								createBotAnalytics(HikePlatformConstants.BOT_CREATION_FAILED, botInfo, json);
@@ -564,7 +563,6 @@ public class PlatformUtils
 								if (fileLength > 0)
 								{
 									jsonObject.put(AnalyticsConstants.FILE_SIZE, String.valueOf(fileLength));
-									jsonObject.put(HikePlatformConstants.NETWORK_TYPE, Integer.toString(Utils.getNetworkType(HikeMessengerApp.getInstance().getApplicationContext())));
 								}
 								jsonObject.put(AnalyticsConstants.INTERNAL_STORAGE_SPACE, String.valueOf(Utils.getFreeInternalStorage()) + " MB");
 							}
