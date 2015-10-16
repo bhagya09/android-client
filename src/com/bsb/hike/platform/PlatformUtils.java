@@ -413,6 +413,7 @@ public class PlatformUtils
 									json.put(AnalyticsConstants.FILE_SIZE, String.valueOf(zipFileSize));
 									json.put(HikePlatformConstants.NETWORK_TYPE, Integer.toString(Utils.getNetworkType(HikeMessengerApp.getInstance().getApplicationContext())));
 								}
+								json.put(AnalyticsConstants.INTERNAL_STORAGE_SPACE, String.valueOf(Utils.getFreeInternalStorage()) + " MB");
 								createBotAnalytics(HikePlatformConstants.BOT_CREATION_FAILED, botInfo, json);
 								createBotMqttAnalytics(HikePlatformConstants.BOT_CREATION_FAILED_MQTT, botInfo, json);
 							}
@@ -558,18 +559,20 @@ public class PlatformUtils
 						}
 						else
 						{
-							if (fileLength > 0)
+							try
 							{
-								try
+								if (fileLength > 0)
 								{
 									jsonObject.put(AnalyticsConstants.FILE_SIZE, String.valueOf(fileLength));
 									jsonObject.put(HikePlatformConstants.NETWORK_TYPE, Integer.toString(Utils.getNetworkType(HikeMessengerApp.getInstance().getApplicationContext())));
 								}
-								catch (JSONException e)
-								{
-									Logger.e(TAG, "JSONException " +e.getMessage());
-								}
+								jsonObject.put(AnalyticsConstants.INTERNAL_STORAGE_SPACE, String.valueOf(Utils.getFreeInternalStorage()) + " MB");
 							}
+							catch (JSONException e)
+							{
+								Logger.e(TAG, "JSONException " +e.getMessage());
+							}
+
 							microappDownloadAnalytics(HikePlatformConstants.MICROAPP_DOWNLOAD_FAILED, platformContentModel, jsonObject);
 							Logger.wtf(TAG, "microapp download packet failed.Because it is" + event.toString());
 						}

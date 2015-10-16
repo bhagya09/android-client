@@ -7453,4 +7453,26 @@ public class Utils
 		return length;
 	}
 
+	/**
+	 * Call this method to get the total available internal storage space
+	 * @return
+	 */
+	public static double getFreeInternalStorage()
+	{
+		double internalSpace = 0.0;
+
+		StatFs stat = new StatFs(Environment.getDataDirectory().getPath());
+		if (isJELLY_BEAN_MR2OrHigher())
+		{
+			internalSpace = (double) stat.getBlockSizeLong() * (double) stat.getAvailableBlocksLong();
+		}
+		else
+		{
+			internalSpace = (double) stat.getBlockSize() * (double) stat.getAvailableBlocks();
+		}
+		double megsAvailable = internalSpace / (1024 * 1024);
+
+		return megsAvailable;
+	}
+
 }

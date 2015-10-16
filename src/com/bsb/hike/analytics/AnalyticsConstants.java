@@ -566,4 +566,6 @@ public class AnalyticsConstants
 	public static final String LOG_FIELD_6 = "fld6";
 
 	public static final String FILE_SIZE = "fs";
+
+	public static final String INTERNAL_STORAGE_SPACE = "mem";
 }
