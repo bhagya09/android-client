@@ -2,7 +2,6 @@ package com.bsb.hike.utils;
 
 import java.io.File;
 
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -18,6 +17,8 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.text.TextUtils;
 import android.widget.Toast;
 
@@ -52,10 +53,12 @@ import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
 import com.bsb.hike.ui.GalleryActivity;
 import com.bsb.hike.ui.fragments.ImageViewerFragment;
+import com.bsb.hike.ui.fragments.ShareLinkFragment;
 import com.bsb.hike.ui.fragments.ImageViewerFragment.DisplayPictureEditListener;
+import com.bsb.hike.ui.fragments.ShareLinkFragment.ShareLinkFragmentListener;
 import com.bsb.hike.utils.Utils.ExternalStorageState;
 
-public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActivity implements OnClickListener, DisplayPictureEditListener, HikeImageWorker.TaskCallbacks
+public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActivity implements OnClickListener, DisplayPictureEditListener, HikeImageWorker.TaskCallbacks, ShareLinkFragmentListener
 {
 	private HikeSharedPreferenceUtil prefs;
 
@@ -81,6 +84,8 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 		public DownloadImageTask downloadPicasaImageTask;
 
 		public HikeImageUploader mImageWorkerFragment;
+		
+		public ShareLinkFragment shareLinkFragment;
 	}
 
 	private ChangeProfileImageActivityState mActivityState;
@@ -813,6 +818,29 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 					dismissDialog();
 				}
 			});
+	}
+	
+	protected void showLinkShareView(String grpId, String grpName, int grpSettings, boolean isNewGroup)
+	{
+		FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+		Fragment prev = getSupportFragmentManager().findFragmentByTag(ShareLinkFragment.SHARE_LINK_FRAGMENT_TAG);
+		if (prev != null)
+		{
+			ft.remove(prev);
+		}
+		ft.addToBackStack(ShareLinkFragment.SHARE_LINK_FRAGMENT_TAG);
+		getSupportFragmentManager().executePendingTransactions();
+		
+		// Create and show the dialog.
+		mActivityState.shareLinkFragment = ShareLinkFragment.newInstance(grpId, grpName, grpSettings, isNewGroup, false);
+		mActivityState.shareLinkFragment.show(ft, ShareLinkFragment.SHARE_LINK_FRAGMENT_TAG);
+	}
+
+	@Override
+	public void addMembersViaHike()
+	{
+		// TODO Auto-generated method stub
+		
 	}
 	
 }

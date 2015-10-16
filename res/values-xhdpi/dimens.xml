@@ -1,18 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <dimen name="top_bar_btn_height">53dp</dimen>
-    <dimen name="fav_indicator_paddingBottom">2dp</dimen>
-    <dimen name="fav_indicator_marginRight">7dp</dimen>
-    <dimen name="fav_indicator_marginTop">7dp</dimen>
-    <dimen name="checkbox_marginRight">15dp</dimen>
-    <dimen name="top_btn_padding">3dp</dimen>
-    <dimen name="tutorial_button_margin">25dp</dimen>
-    <dimen name="version_item_marginTop">120dp</dimen>
     <dimen name="signup_header_height">127dp</dimen>
     <dimen name="signup_gender_padding_top">74dp</dimen>
     <dimen name="signup_profile_pic_dimen">96dp</dimen>
     <dimen name="signup_profile_pic_icon_dimen">32dp</dimen>
-    <dimen name="addfriend_popup_title_padding_right">24dp</dimen>
     <dimen name="ftue_card_text_header_font">40dp</dimen>
 	<dimen name="ftue_card_text_msg_font">20dp</dimen>
 	<dimen name="card_header_img_content_padding_top">15dp</dimen>
@@ -25,10 +16,7 @@
 	<dimen name="ftue_card_right_padding">10dp</dimen>
 	<dimen name="ftue_card_left_margin">18dp</dimen>
 	<dimen name="ftue_contact_card_text_size">24dp</dimen>
-	<dimen name="logo_top_margin">90dp</dimen>
 	<dimen name="welcome_artwork_padding">0dp</dimen>
 	<dimen name="welcome_with_love_top">30dp</dimen>
 	<dimen name="sticker_settings_tip_margin">60dp</dimen>
-	<dimen name="broadcast_ftue_text_bottom_padding">15dp</dimen>
-	<dimen name="broadcast_ftue_text_right_padding">100dp</dimen>
 </resources>

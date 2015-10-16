@@ -552,7 +552,6 @@ public class ChatThreadUtils
 		}
 		
 		Matrix matrix = new Matrix();
-		
 		matrix.setRectToRect(new RectF(0, 0, drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight()), dst, Matrix.ScaleToFit.FILL);
 		Logger.d(TAG, "Matrix:"+ matrix.toString());
 		imageView.setImageMatrix(matrix);

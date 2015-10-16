@@ -583,6 +583,13 @@ public class OfflineController
 		}*/
 		final ConvMessage convMessage = OfflineUtils.createOfflineInlineConvMessage(offlineManager.getConnectedDevice(), HikeMessengerApp.getInstance().getApplicationContext()
 				.getString(R.string.connection_established_inline_msg), OfflineConstants.OFFLINE_INLINE_MESSAGE);
+		
+		if (convMessage == null || TextUtils.isEmpty(convMessage.getMsisdn()))
+		{
+			Logger.e(TAG, "ConvMessage is null or msisdn is empty.The connection has already been closed");
+			return;
+		}
+		
 		HikeConversationsDatabase.getInstance().addConversationMessages(convMessage, true);
 		HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_RECEIVED, convMessage);
 		offlineManager.sendConnectedCallback();

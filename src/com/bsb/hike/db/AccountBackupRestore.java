@@ -62,7 +62,8 @@ public class AccountBackupRestore
 					.put(HikeMessengerApp.STEALTH_MODE_SETUP_DONE, prefUtil.getData(HikeMessengerApp.STEALTH_MODE_SETUP_DONE, false))
 					.put(HikeMessengerApp.SHOWN_FIRST_UNMARK_STEALTH_TOAST, prefUtil.getData(HikeMessengerApp.SHOWN_FIRST_UNMARK_STEALTH_TOAST, false))
 					.put(HikeMessengerApp.SHOW_STEALTH_INFO_TIP, prefUtil.getData(HikeMessengerApp.SHOW_STEALTH_INFO_TIP, false))
-					.put(HikeMessengerApp.STEALTH_PIN_AS_PASSWORD, prefUtil.getData(HikeMessengerApp.STEALTH_PIN_AS_PASSWORD, false));
+					.put(HikeMessengerApp.STEALTH_PIN_AS_PASSWORD, prefUtil.getData(HikeMessengerApp.STEALTH_PIN_AS_PASSWORD, false))					
+					.put(HikeMessengerApp.CONV_DB_VERSION_PREF, prefUtil.getData(HikeMessengerApp.CONV_DB_VERSION_PREF, DBConstants.CONVERSATIONS_DATABASE_VERSION));					
 			
 			SharedPreferences settingUtils =  PreferenceManager.getDefaultSharedPreferences(HikeMessengerApp.getInstance());
 			
@@ -107,6 +108,11 @@ public class AccountBackupRestore
 			{
 				String key = HikeMessengerApp.STEALTH_PIN_AS_PASSWORD;
 				prefUtil.saveData(key, prefJson.getBoolean(key));
+			}
+			if (prefJson.has(HikeMessengerApp.CONV_DB_VERSION_PREF))
+			{
+				String key = HikeMessengerApp.CONV_DB_VERSION_PREF;
+				prefUtil.saveData(key, prefJson.getInt(key));
 			}
 			
 			SharedPreferences settingUtils =  PreferenceManager.getDefaultSharedPreferences(HikeMessengerApp.getInstance());
