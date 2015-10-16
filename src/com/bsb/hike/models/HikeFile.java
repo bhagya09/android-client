@@ -726,7 +726,6 @@ public class HikeFile
 				cur.close();
 			}
 		}
-
 		return id;
 	}
 

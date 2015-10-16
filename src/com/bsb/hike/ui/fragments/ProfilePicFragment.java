@@ -172,7 +172,7 @@ public class ProfilePicFragment extends Fragment implements FinishableEvent, IHa
 		{
 			mCircularImageView.setImageBitmap(bmp);
 		}
-
+		
 		mProfilePicBg.setImageBitmap(bmp);
 
 		text1 = (TextView) mFragmentView.findViewById(R.id.text1);
