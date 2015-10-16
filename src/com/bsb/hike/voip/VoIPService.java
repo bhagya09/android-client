@@ -56,7 +56,6 @@ import android.widget.Chronometer;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
-import com.bsb.hike.MqttConstants;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
@@ -440,7 +439,7 @@ public class VoIPService extends Service implements Listener
 			return returnInt;
 
 		String action = intent.getStringExtra(VoIPConstants.Extras.ACTION);
-		String msisdn = intent.getStringExtra(VoIPConstants.Extras.MSISDN);
+		final String msisdn = intent.getStringExtra(VoIPConstants.Extras.MSISDN);
 		if (action == null || action.isEmpty()) {
 			return returnInt;
 		}
@@ -485,11 +484,17 @@ public class VoIPService extends Service implements Listener
 				VoIPUtils.sendMissedCallNotificationToPartner(msisdn, 
 						TextUtils.isEmpty(cl.groupChatMsisdn) ? null : cl.groupChatMsisdn);
 
-				// Send message to voip activity
-				Bundle bundle = new Bundle();
-				bundle.putString(VoIPConstants.MSISDN, msisdn);
-				sendHandlerMessage(VoIPConstants.MSG_PARTNER_BUSY, bundle);
-				removeFromClients(msisdn);
+				new Handler().postDelayed(new Runnable() {
+					
+					@Override
+					public void run() {
+						// Send message to voip activity
+						Bundle bundle = new Bundle();
+						bundle.putString(VoIPConstants.MSISDN, msisdn);
+						sendHandlerMessage(VoIPConstants.MSG_PARTNER_BUSY, bundle);
+						removeFromClients(msisdn);
+					}
+				}, VoIPConstants.SERVICE_To_ACTIVITY_ERR_MESSAGE_DELAY);
 			} else
 				Logger.w(tag, "Unable to find the client object who we were calling.");
 		}
@@ -498,20 +503,34 @@ public class VoIPService extends Service implements Listener
 		if (action.equals(HikeConstants.MqttMessageTypes.VOIP_ERROR_CALLEE_INCOMPATIBLE_NOT_UPGRADABLE)) {
 			Logger.w(tag, msisdn + " is on an unsupported platform.");
 			sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CONNECTION_FAILED, VoIPConstants.CallFailedCodes.PARTNER_INCOMPAT);
-			removeFromClients(msisdn);
-			Bundle bundle = new Bundle();
-			bundle.putString(VoIPConstants.MSISDN, msisdn);
-			sendHandlerMessage(VoIPConstants.MSG_PARTNER_INCOMPATIBLE_PLATFORM, bundle);
+			
+			new Handler().postDelayed(new Runnable() {
+				
+				@Override
+				public void run() {
+					removeFromClients(msisdn);
+					final Bundle bundle = new Bundle();
+					bundle.putString(VoIPConstants.MSISDN, msisdn);
+					sendHandlerMessage(VoIPConstants.MSG_PARTNER_INCOMPATIBLE_PLATFORM, bundle);
+				}
+			}, VoIPConstants.SERVICE_To_ACTIVITY_ERR_MESSAGE_DELAY);
 		}
 		
 		// Recipient is on an unsupported, but upgradable build
 		if (action.equals(HikeConstants.MqttMessageTypes.VOIP_ERROR_CALLEE_INCOMPATIBLE_UPGRADABLE)) {
 			Logger.w(tag, msisdn + " needs to upgrade.");
 			sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CONNECTION_FAILED, VoIPConstants.CallFailedCodes.PARTNER_UPGRADE);
-			removeFromClients(msisdn);
-			Bundle bundle = new Bundle();
-			bundle.putString(VoIPConstants.MSISDN, msisdn);
-			sendHandlerMessage(VoIPConstants.MSG_PARTNER_UPGRADABLE_PLATFORM, bundle);
+			
+			new Handler().postDelayed(new Runnable() {
+				
+				@Override
+				public void run() {
+					removeFromClients(msisdn);
+					Bundle bundle = new Bundle();
+					bundle.putString(VoIPConstants.MSISDN, msisdn);
+					sendHandlerMessage(VoIPConstants.MSG_PARTNER_UPGRADABLE_PLATFORM, bundle);
+				}
+			}, VoIPConstants.SERVICE_To_ACTIVITY_ERR_MESSAGE_DELAY);
 		}
 		
 		// Incoming call message
@@ -2006,12 +2025,6 @@ public class VoIPService extends Service implements Listener
 		if (audioManager != null)
 		{
 			audioManager.setSpeakerphoneOn(speaker);
-			
-			// Restart recording because the audio source will change 
-			// depending on whether we're on speakerphone or not. 
-			// Fixes Anirban's Nexus 5 bug where his mic works only on speakerphone.
-			if (isAudioRunning())
-				startRecording();
 		}
 		
 		// If we have swiched off the speaker and a bluetooth headset is connected

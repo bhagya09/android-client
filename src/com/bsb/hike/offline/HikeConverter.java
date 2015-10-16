@@ -483,6 +483,7 @@ public class HikeConverter implements IMessageReceived, IMessageSent {
 		case NOT_ENOUGH_MEMORY:
 		case SD_CARD_NOT_PRESENT:
 		case SD_CARD_NOT_WRITABLE:
+			Transporter.getInstance().publishWhenConnected(senderConsignment);
 			try 
 			{
 				

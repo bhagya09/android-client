@@ -22,7 +22,7 @@ public class CallerContentModel
 	final private String LAST_NAME = "last_name";
 
 	@Expose
-	private String location;
+	private String location, msisdn;
 
 	@Expose
 	private boolean is_on_hike;
@@ -62,6 +62,11 @@ public class CallerContentModel
 	public boolean getIsOnHike()
 	{
 		return is_on_hike;
+	}
+	
+	public String getMsisdn()
+	{
+		return msisdn;
 	}
 
 }

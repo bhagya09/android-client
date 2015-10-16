@@ -11,7 +11,9 @@ import java.util.Iterator;
 import java.util.List;
 
 import android.util.Pair;
+
 import com.bsb.hike.bots.NonMessagingBotMetadata;
+
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
@@ -27,9 +29,12 @@ import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
+import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.webkit.MimeTypeMap;
 import android.widget.Toast;
@@ -320,8 +325,9 @@ public class PlatformUtils
 			}
 			if (activityName.equals(HIKESCREEN.HIKE_CALLER.toString()))
 			{
-				HikeSharedPreferenceUtil.getInstance().saveData(StickyCaller.ACTIVATE_STICKY_CALLER, true);
-				IntentFactory.openStickyCallerSettings(context);
+				Utils.setSharedPrefValue(context, HikeConstants.ACTIVATE_STICKY_CALLER_PREF, true);
+				ChatHeadUtils.registerCallReceiver();
+				IntentFactory.openStickyCallerSettings(context, false);
 			}
 			if(activityName.equals(HIKESCREEN.ACCESS.toString()))
 			{
@@ -355,6 +361,8 @@ public class PlatformUtils
 				PlatformContentModel.make(botInfo.getMetadata()), new PlatformContentListener<PlatformContentModel>()
 				{
 
+					long zipFileSize = 0;
+
 					@Override
 					public void onComplete(PlatformContentModel content)
 					{
@@ -382,6 +390,11 @@ public class PlatformUtils
 							try
 							{
 								json.put(HikePlatformConstants.ERROR_CODE, event.toString());
+								if (zipFileSize > 0)
+								{
+									json.put(AnalyticsConstants.FILE_SIZE, String.valueOf(zipFileSize));
+									json.put(HikePlatformConstants.NETWORK_TYPE, Integer.toString(Utils.getNetworkType(HikeMessengerApp.getInstance().getApplicationContext())));
+								}
 								createBotAnalytics(HikePlatformConstants.BOT_CREATION_FAILED, botInfo, json);
 								createBotMqttAnalytics(HikePlatformConstants.BOT_CREATION_FAILED_MQTT, botInfo, json);
 							}
@@ -391,6 +404,12 @@ public class PlatformUtils
 							}
 
 						}
+					}
+
+					@Override
+					public void downloadedContentLength(long length)
+					{
+						zipFileSize = length;
 					}
 				});
 
@@ -485,6 +504,7 @@ public class PlatformUtils
 		PlatformContentRequest rqst = PlatformContentRequest.make(
 				platformContentModel, new PlatformContentListener<PlatformContentModel>()
 				{
+					long fileLength = 0;
 
 					@Override
 					public void onComplete(PlatformContentModel content)
@@ -520,9 +540,27 @@ public class PlatformUtils
 						}
 						else
 						{
+							if (fileLength > 0)
+							{
+								try
+								{
+									jsonObject.put(AnalyticsConstants.FILE_SIZE, String.valueOf(fileLength));
+									jsonObject.put(HikePlatformConstants.NETWORK_TYPE, Integer.toString(Utils.getNetworkType(HikeMessengerApp.getInstance().getApplicationContext())));
+								}
+								catch (JSONException e)
+								{
+									Logger.e(TAG, "JSONException " +e.getMessage());
+								}
+							}
 							microappDownloadAnalytics(HikePlatformConstants.MICROAPP_DOWNLOAD_FAILED, platformContentModel, jsonObject);
 							Logger.wtf(TAG, "microapp download packet failed.Because it is" + event.toString());
 						}
+					}
+
+					@Override
+					public void downloadedContentLength(long length)
+					{
+						fileLength = length;
 					}
 				});
 				boolean doReplace = downloadData.optBoolean(HikePlatformConstants.REPLACE_MICROAPP_VERSION);
@@ -1007,6 +1045,7 @@ public class PlatformUtils
 				{
 					e.printStackTrace();
 				}
+				ChatHeadUtils.startOrStopService(true);
 			}
 		}
 		else
