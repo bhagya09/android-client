@@ -1189,6 +1189,7 @@
     <string name="link_share_error_invalid_link">Hey, Link you clicked on doesn’t seem right, please check.</string>
     <string name="link_share_error_group_deleted">Hey, This group has been deleted.</string>
     <string name="link_share_error_person_not_in_group">Hey, The person who invited you is not in the group anymore.</string>
+    <string name="link_share_error_default">OOPs something went wrong.</string>
     <string name="wa_group">WhatsApp Group</string>
     <string name="opening_app">Opening App</string>
     <string name="max_file_size_offline">Max file size for hike direct is 2 GB</string>
