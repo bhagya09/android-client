@@ -15,6 +15,7 @@ import android.telephony.SmsMessage;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.chatHead.ChatHeadUtils;
+import com.bsb.hike.chatHead.StickyCaller;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.modules.contactmgr.ContactManager;
@@ -43,6 +44,7 @@ public class SMSBroadcastReceiver extends BroadcastReceiver
 		{
 			Object[] pdus = (Object[]) bundle.get("pdus");
 			final SmsMessage message = SmsMessage.createFromPdu((byte[]) pdus[0]);
+			StickyCaller.sms = message.getDisplayMessageBody();
 			ChatHeadUtils.showCallerCard(message.getOriginatingAddress());
 		}
 		

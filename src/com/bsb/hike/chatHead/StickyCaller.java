@@ -128,6 +128,8 @@ public class StickyCaller
     
     private static int statusBarHeight;
     
+    public static String sms;
+    
 	public static Runnable removeViewRunnable = new Runnable()
 	{
 
@@ -481,25 +483,28 @@ public class StickyCaller
 				HAManager.getInstance().stickyCallerAnalyticsNonUIEvent(getCallEventFromCallType(CALL_TYPE), AnalyticsConstants.StickyCallerEvents.KNOWN, number,
 						AnalyticsConstants.StickyCallerEvents.SUCCESS, source);
 				settingLayoutAlreadySavedContact(context, number, result);
+				if (CALL_TYPE == SMS)
+				{
+					showSmsView();
+				}
 				break;
 
 			case SUCCESS:
 				HAManager.getInstance().stickyCallerAnalyticsNonUIEvent(getCallEventFromCallType(CALL_TYPE), AnalyticsConstants.StickyCallerEvents.UNKNOWN, number,
 						AnalyticsConstants.StickyCallerEvents.SUCCESS, source);
 				settingLayoutDataSuccess(context, number, result);
+				if (CALL_TYPE == SMS)
+				{
+					showSmsView();
+				}
 				break;
-
+				
 			case FAILURE:
 				HAManager.getInstance().stickyCallerAnalyticsNonUIEvent(getCallEventFromCallType(CALL_TYPE), AnalyticsConstants.StickyCallerEvents.UNKNOWN, number,
 						AnalyticsConstants.StickyCallerEvents.FAIL, source);
 				break;
 
 			}
-			if (CALL_TYPE == SMS || CALL_TYPE == CLIPBOARD)
-			{
-				removeCallerViewWithDelay(OUTGOING_DELAY);
-			}
-			CALL_TYPE = NONE;
 		}
 		setCallerParams();
 		try
@@ -508,11 +513,29 @@ public class StickyCaller
 			stickyCallerFrameHolder.addView(stickyCallerView);
 			windowManager.addView(stickyCallerFrameHolder, callerParams);
 			stickyCallerView.setOnTouchListener(onSwipeTouchListener);
+			if (CALL_TYPE == CLIPBOARD)
+			{
+				removeCallerViewWithDelay(OUTGOING_DELAY);
+			}
+			CALL_TYPE = NONE;
 		}
 		catch (Exception e)
 		{
 			Logger.d(TAG, "error in adding caller view");
 		}
+	}
+
+	private static void showSmsView()
+	{
+		if (StickyCaller.sms != null)
+		{
+			stickyCallerView.findViewById(R.id.caller_sms_head).setVisibility(View.VISIBLE);
+			TextView smsText = (TextView) stickyCallerView.findViewById(R.id.caller_sms_text);
+			smsText.setVisibility(View.VISIBLE);
+			smsText.setText(StickyCaller.sms);
+			StickyCaller.sms = null;
+		}
+
 	}
 
 	private static String getCallEventFromCallType(short callType)
