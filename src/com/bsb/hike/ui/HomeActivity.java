@@ -220,7 +220,11 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			//android system uses the old intent to fire it, and it will contain unwanted extras.
 			getIntent().removeExtra(HikeConstants.STEALTH_MSISDN);
 			
+			//setting actions and data "null" for case of onCreate called second time 
+			//example: in case of Don't Keep Activities
+			//Means getIntent's Actions and Data can be used first time only
 			getIntent().setAction(null);
+			getIntent().setData(null);
 		}
 
 		if (Utils.requireAuth(this))
