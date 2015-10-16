@@ -3345,4 +3345,5 @@ public class HikeConstants
 
 	public static final String NEW_CHAT_RED_DOT = "nc_dot";
 
+	public static final String FT_USE_APACHE_HTTP_CLIENT = "ft_apache_client";
 }

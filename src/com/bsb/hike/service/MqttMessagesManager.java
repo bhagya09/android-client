@@ -2681,7 +2681,11 @@ public class MqttMessagesManager
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.BOTS_DISCOVERY_SECTION, sectionName);
 			}
 		}
-
+		if (data.has(HikeConstants.FT_USE_APACHE_HTTP_CLIENT))
+		{
+			boolean useApacheClient = data.getBoolean(HikeConstants.FT_USE_APACHE_HTTP_CLIENT);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.FT_USE_APACHE_HTTP_CLIENT, useApacheClient);
+		}
 		if (data.has(HikeConstants.NEW_CHAT_RED_DOT))
 		{
 			boolean shouldShowRedDot = data.optBoolean(HikeConstants.NEW_CHAT_RED_DOT);
