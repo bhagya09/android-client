@@ -30,7 +30,7 @@ public class ChatHeadService extends Service
 			Set<String> foregroundPackages = ChatHeadUtils.getRunningAppPackage(ChatHeadUtils.GET_TOP_MOST_SINGLE_PROCESS);
 			if(!ChatHeadUtils.useOfAccessibilittyPermitted())
 			{
-				ChatHeadViewManager.getInstance(ChatHeadService.this).actionWindowChange(foregroundPackages);
+				ChatHeadViewManager.getInstance(ChatHeadService.this).actionWindowChange(foregroundPackages, false);
 			}
 			chatHeadHandler.postDelayed(this, 1000L);
 		}

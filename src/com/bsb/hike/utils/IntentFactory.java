@@ -292,9 +292,12 @@ public class IntentFactory
 		intent.putExtra(HikeConstants.Extras.TITLE, R.string.sticky_caller_settings);
 		if (isFromOutside)
 		{
-			intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+			ChatHeadUtils.insertHomeActivitBeforeStarting(intent);
 		}
-		context.startActivity(intent);
+		else
+		{
+			context.startActivity(intent);
+		}
 	}
 	
 	public static Intent getIntentForKeyboardAdvSettings(Context context)

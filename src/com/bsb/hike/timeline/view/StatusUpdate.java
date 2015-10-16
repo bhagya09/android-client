@@ -123,7 +123,11 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 	private boolean wasEmojiPreviouslyVisible;
 	
 	private String IS_IMAGE_DELETED = "is_img_d";
-	
+
+	private String SELECTED_MOOD_ID = "mId";
+
+	private String SELECTED_MOOD_INDEX = "smIdx";
+
 	private int keyboardHeight;
 
 	private String INPUT_INTENT = "ip_in";
@@ -178,8 +182,6 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 
 	private View addItemsLayout;
 
-	private String mInputIntentData;
-
 	@Override
 	public Object onRetainCustomNonConfigurationInstance()
 	{
@@ -231,17 +233,19 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		if(savedInstanceState != null)
 		{
 			mActivityTask.imageDeleted = savedInstanceState.getBoolean(IS_IMAGE_DELETED);
-			String intentURI = savedInstanceState.getString(INPUT_INTENT);
-			if(intentURI != null){
-			try
+			
+			int savedMoodId = savedInstanceState.getInt(SELECTED_MOOD_ID, -1);
+			if (savedMoodId != -1)
 			{
-				Intent savedIntent = Intent.parseUri(intentURI, Intent.URI_INTENT_SCHEME);
-				readArguments(savedIntent);
+				int savedMoodIndex = savedInstanceState.getInt(SELECTED_MOOD_INDEX, -1);
+				setMood(savedMoodId, savedMoodIndex);
 			}
-			catch (URISyntaxException e)
+			
+			mImagePath = savedInstanceState.getString(STATUS_UPDATE_IMAGE_PATH);
+			if (!TextUtils.isEmpty(mImagePath))
 			{
-				e.printStackTrace();
-			}}
+				addPhoto(mImagePath);
+			}
 		}
 		else
 		{
@@ -332,7 +336,9 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 	protected void onSaveInstanceState(Bundle outState) 
 	{
 		outState.putBoolean(IS_IMAGE_DELETED, mActivityTask.imageDeleted);
-		outState.putString(INPUT_INTENT, mInputIntentData);
+		outState.putString(STATUS_UPDATE_IMAGE_PATH, mImagePath);
+		outState.putInt(SELECTED_MOOD_ID, mActivityTask.moodId);
+		outState.putInt(SELECTED_MOOD_INDEX, mActivityTask.moodIndex);
 		super.onSaveInstanceState(outState);
 	}
 	
@@ -362,7 +368,6 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 			return;
 		}
 		mImagePath = intent.getStringExtra(STATUS_UPDATE_IMAGE_PATH);
-		mInputIntentData = intent.toUri(Intent.URI_INTENT_SCHEME);
 	}
 
 	/**
@@ -555,7 +560,10 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		btnRemovePhoto.setVisibility(View.GONE);
 		statusImage.setImageResource(0);
 		statusImage.setVisibility(View.GONE);
-		statusTxt.setHint(R.string.status_hint);
+		if (mActivityTask.moodId == -1)
+		{
+			statusTxt.setHint(R.string.status_hint);
+		}
 		mActivityTask.imageDeleted = true;
 		mImagePath = null;
 		getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);

@@ -3,9 +3,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bsb.hike"
     android:installLocation="auto"
-    android:versionCode="1463"
-    android:versionName="4.0.7.8.custom_keyboard" >
-    
+    android:versionCode="1469"
+    android:versionName="4.0.7.82.24.0.custom_keyboard" >
+
     <uses-sdk
         android:minSdkVersion="14"
         android:targetSdkVersion="17"/>
@@ -102,12 +102,12 @@
 
     <application
         android:name=".HikeMessengerApp"
-        android:allowBackup="true"
+        android:allowBackup="false"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:largeHeap="true"
         android:logo="@drawable/hike_logo_top_bar"
-        tools:replace="android:name"
+        tools:replace="android:name,android:allowBackup"
         android:theme="@style/AppTheme" >
         <uses-library
             android:name="com.google.android.maps"
