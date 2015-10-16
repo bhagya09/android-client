@@ -179,7 +179,8 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	private String[] homePubSubListeners = { HikePubSub.UNSEEN_STATUS_COUNT_CHANGED, HikePubSub.SMS_SYNC_COMPLETE, HikePubSub.SMS_SYNC_FAIL, HikePubSub.FAVORITE_TOGGLED,
 			HikePubSub.USER_JOINED, HikePubSub.USER_LEFT, HikePubSub.FRIEND_REQUEST_ACCEPTED, HikePubSub.REJECT_FRIEND_REQUEST, HikePubSub.UPDATE_OF_MENU_NOTIFICATION,
 			HikePubSub.SERVICE_STARTED, HikePubSub.UPDATE_PUSH, HikePubSub.REFRESH_FAVORITES, HikePubSub.UPDATE_NETWORK_STATE, HikePubSub.CONTACT_SYNCED, HikePubSub.FAVORITE_COUNT_CHANGED,
-			HikePubSub.STEALTH_UNREAD_TIP_CLICKED,HikePubSub.FTUE_LIST_FETCHED_OR_UPDATED, HikePubSub.STEALTH_INDICATOR, HikePubSub.USER_JOINED_NOTIFICATION, HikePubSub.UPDATE_OF_PHOTOS_ICON, HikePubSub.SHOW_NEW_CHAT_RED_DOT  };
+			HikePubSub.STEALTH_UNREAD_TIP_CLICKED,HikePubSub.FTUE_LIST_FETCHED_OR_UPDATED, HikePubSub.STEALTH_INDICATOR, HikePubSub.USER_JOINED_NOTIFICATION, HikePubSub.UPDATE_OF_PHOTOS_ICON,
+			HikePubSub.SHOW_NEW_CHAT_RED_DOT, HikePubSub.KEYBOARD_SWITCHED  };
 
 	private String[] progressPubSubListeners = { HikePubSub.FINISHED_UPGRADE_INTENT_SERVICE };
 
@@ -505,11 +506,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 		parentLayout = findViewById(R.id.parent_layout);
 
-		if (!KptUtils.isSystemKeyboard(HomeActivity.this))
-		{
-			LinearLayout viewHolder = (LinearLayout) findViewById(R.id.keyboardView_holder);
-			mCustomKeyboard = new HikeCustomKeyboard(HomeActivity.this, viewHolder, KPTConstants.MULTILINE_LINE_EDITOR, null, HomeActivity.this);			
-		}
+		setupCustomKeyboard();
 		
 		networkErrorPopUp = (TextView) findViewById(R.id.network_error);
 
@@ -755,40 +752,9 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			SearchView searchView=(SearchView) MenuItemCompat.getActionView(searchMenuItem);
 			searchView.setOnQueryTextListener(onQueryTextListener);
 			searchView.clearFocus();
-	
-			//Code for CustomKeyboard
 			searchET = (AdaptxtEditText) searchView.findViewById(R.id.search_src_text);
-			if (!KptUtils.isSystemKeyboard(HomeActivity.this))
-			{
-				mCustomKeyboard.registerEditText(searchET);
-				mCustomKeyboard.init(searchET);
-			}
-			searchET.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-				
-				@Override
-				public void onFocusChange(View v, boolean hasFocus) {
-					if(hasFocus){
-						if (KptUtils.isSystemKeyboard(HomeActivity.this))
-						{
-							Utils.toggleSoftKeyboard(HomeActivity.this.getApplicationContext());
-						}
-						else
-						{
-							if (mCustomKeyboard != null && searchET != null)
-							{
-								mCustomKeyboard.showCustomKeyboard(searchET, true);
-							}
-						}
-					}else{
-						if (!KptUtils.isSystemKeyboard(HomeActivity.this) && searchET != null&&mCustomKeyboard!=null)
-						{
-							mCustomKeyboard.showCustomKeyboard(searchET, false);
-						}
-					}
-				}
-			});
+			setupSearchTextKeyboard();
 
-			//
 			searchOptionID = searchMenuItem.getItemId();
 			MenuItemCompat.setShowAsAction(MenuItemCompat.setActionView(searchMenuItem, searchView), MenuItem.SHOW_AS_ACTION_ALWAYS | MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
 			MenuItemCompat.setOnActionExpandListener(searchMenuItem, new MenuItemCompat.OnActionExpandListener()
@@ -912,6 +878,78 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			Logger.e("NulllpointerException :setupMenuOptions", e.toString());
 			return false;
 		}
+	}
+
+	private boolean setupCustomKeyboard()
+	{
+		if (mCustomKeyboard == null && !KptUtils.isSystemKeyboard(HomeActivity.this))
+		{
+			LinearLayout viewHolder = (LinearLayout) findViewById(R.id.keyboardView_holder);
+			mCustomKeyboard = new HikeCustomKeyboard(HomeActivity.this, viewHolder, KPTConstants.MULTILINE_LINE_EDITOR, null, HomeActivity.this);
+		}
+		return (mCustomKeyboard != null && !KptUtils.isSystemKeyboard(HomeActivity.this)) ? true: false;
+	}
+
+	View.OnFocusChangeListener searchTextFocusChangeListener = new View.OnFocusChangeListener()
+	{
+		@Override
+		public void onFocusChange(View v, boolean hasFocus)
+		{
+			if (!KptUtils.isSystemKeyboard(HomeActivity.this))
+			{
+				if (hasFocus)
+				{
+					mCustomKeyboard.showCustomKeyboard(v, true);
+				}
+				else
+				{
+					mCustomKeyboard.showCustomKeyboard(v, false);
+				}
+			}
+			else
+			{
+				if (hasFocus)
+				{
+					Utils.toggleSoftKeyboard(HomeActivity.this.getApplicationContext());
+				}
+			}
+		}
+	};
+
+	private void setupSearchTextKeyboard()
+	{
+		if (searchET == null)
+			return;
+
+		if (setupCustomKeyboard())
+		{
+			mCustomKeyboard.registerEditText(searchET);
+			mCustomKeyboard.init(searchET);
+		}
+		else
+		{
+			resetSearchTextKeyboard();
+		}
+		searchET.setOnFocusChangeListener(searchTextFocusChangeListener);
+	}
+
+	private void resetSearchTextKeyboard()
+	{
+		if (mCustomKeyboard != null)
+			mCustomKeyboard.unregister(searchET);
+	}
+
+	private void onKeyboardSwitched()
+	{
+		runOnUiThread(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				setupCustomKeyboard();
+				setupSearchTextKeyboard();
+			}
+		});
 	}
 
 	private void recordSearchOptionClick()
@@ -1709,6 +1747,10 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		else if (HikePubSub.SHOW_NEW_CHAT_RED_DOT.equals(type))
 		{
 			sendUIMessage(SHOW_NEW_CHAT_RED_DOT, 1000);
+		}
+		else if (HikePubSub.KEYBOARD_SWITCHED.equals(type))
+		{
+			onKeyboardSwitched();
 		}
 	}
 

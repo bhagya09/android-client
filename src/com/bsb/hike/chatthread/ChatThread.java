@@ -6111,6 +6111,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			mCustomKeyboard.showCustomKeyboard(mComposeView, true);
 			setEditTextListeners();
 		}
+		HikeMessengerApp.getInstance().getPubSub().publish(HikePubSub.KEYBOARD_SWITCHED,null);
 
 	}
 	
