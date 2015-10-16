@@ -6,6 +6,7 @@ import org.cocos2dx.lib.Cocos2dxActivity;
 import org.cocos2dx.lib.Cocos2dxHandler;
 import org.cocos2dx.lib.Cocos2dxHelper;
 import org.cocos2dx.lib.Cocos2dxVideoHelper;
+import org.cocos2dx.lib.Cocos2dxWebViewHelper;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -14,7 +15,6 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.media.AudioManager;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.PersistableBundle;
 import android.text.TextUtils;
 import android.view.Window;
@@ -28,7 +28,6 @@ import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.bots.NonMessagingBotConfiguration;
 import com.bsb.hike.bots.NonMessagingBotMetadata;
-import com.bsb.hike.platform.bridge.JavascriptBridge;
 import com.bsb.hike.platform.content.PlatformContentConstants;
 import com.bsb.hike.utils.Logger;
 import com.chukong.cocosplay.client.CocosPlayClient;
@@ -46,8 +45,6 @@ public class CocosGamingActivity extends Cocos2dxActivity
 	private String TAG = getClass().getCanonicalName();
 
 	private boolean isPortrait;
-
-	private Handler mHandler = new Handler();
 
 	private static NativeBridge nativeBridge;
 
@@ -129,12 +126,14 @@ public class CocosGamingActivity extends Cocos2dxActivity
 		}
 		catch (UnsatisfiedLinkError e)
 		{
+			e.printStackTrace();
 			Logger.e(TAG, "Game Engine not Found");
 			Toast.makeText(getApplicationContext(), R.string.some_error, Toast.LENGTH_SHORT).show();
 			finish();
 			Cocos2dxHelper.terminateProcess();
 		}
 
+		CocosGamingActivity.sContext = this;
 		CocosGamingActivity.this.mHandler = new Cocos2dxHandler(CocosGamingActivity.this);
 		Cocos2dxHelper.initDuplicate(CocosGamingActivity.this, msisdn, getAppBasePath());
 		appInit(getExternalPath());
@@ -143,6 +142,11 @@ public class CocosGamingActivity extends Cocos2dxActivity
 		if (mVideoHelper == null)
 		{
 			mVideoHelper = new Cocos2dxVideoHelper(CocosGamingActivity.this, mFrameLayout);
+		}
+
+		if (mWebViewHelper == null)
+		{
+			mWebViewHelper = new Cocos2dxWebViewHelper(mFrameLayout);
 		}
 
 	}
@@ -213,7 +217,6 @@ public class CocosGamingActivity extends Cocos2dxActivity
 	{
 		HAManager.getInstance().endChatSession(msisdn);
 		super.onPause();
-		
 	}
 
 	/**
