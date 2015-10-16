@@ -1,6 +1,7 @@
 package com.bsb.hike.timeline.view;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -109,6 +110,10 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 	private boolean wasEmojiPreviouslyVisible;
 	
 	private String IS_IMAGE_DELETED = "is_img_d";
+	
+	private String SELECTED_MOOD_ID = "mId";
+	
+	private String SELECTED_MOOD_INDEX = "smIdx";
 
 	protected Handler uiHandler = new Handler()
 	{
@@ -191,11 +196,6 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 			mActivityTask = new ActivityTask();
 		}
 
-		if(savedInstanceState != null)
-		{
-			mActivityTask.imageDeleted = savedInstanceState.getBoolean(IS_IMAGE_DELETED);
-		}
-		
 		initVarRef();
 
 		RoundedImageView roundAvatar = (RoundedImageView) avatar;
@@ -203,8 +203,28 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 
 		setupActionBar();
 
-		readArguments(getIntent());
-
+		if(savedInstanceState != null)
+		{
+			mActivityTask.imageDeleted = savedInstanceState.getBoolean(IS_IMAGE_DELETED);
+			
+			int savedMoodId = savedInstanceState.getInt(SELECTED_MOOD_ID, -1);
+			if (savedMoodId != -1)
+			{
+				int savedMoodIndex = savedInstanceState.getInt(SELECTED_MOOD_INDEX, -1);
+				setMood(savedMoodId, savedMoodIndex);
+			}
+			
+			mImagePath = savedInstanceState.getString(STATUS_UPDATE_IMAGE_PATH);
+			if (!TextUtils.isEmpty(mImagePath))
+			{
+				addPhoto(mImagePath);
+			}
+		}
+		else
+		{
+			readArguments(getIntent());			
+		}
+		
 		mIconImageLoader = new IconLoader(getApplicationContext(), getApplicationContext().getResources().getDimensionPixelSize(R.dimen.icon_picture_size));
 
 		mIconImageLoader.setDefaultAvatarIfNoCustomIcon(false);
@@ -300,6 +320,9 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 	protected void onSaveInstanceState(Bundle outState) 
 	{
 		outState.putBoolean(IS_IMAGE_DELETED, mActivityTask.imageDeleted);
+		outState.putString(STATUS_UPDATE_IMAGE_PATH, mImagePath);
+		outState.putInt(SELECTED_MOOD_ID, mActivityTask.moodId);
+		outState.putInt(SELECTED_MOOD_INDEX, mActivityTask.moodIndex);
 		super.onSaveInstanceState(outState);
 	}
 	
@@ -329,6 +352,11 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 
 	private void readArguments(Intent intent)
 	{
+		if(intent == null)
+		{
+			// In this case, there will be no image post present. Rest functional.
+			return;
+		}
 		mImagePath = intent.getStringExtra(STATUS_UPDATE_IMAGE_PATH);
 	}
 
@@ -507,7 +535,10 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		btnRemovePhoto.setVisibility(View.GONE);
 		statusImage.setImageResource(0);
 		statusImage.setVisibility(View.GONE);
-		statusTxt.setHint(R.string.status_hint);
+		if (mActivityTask.moodId == -1)
+		{
+			statusTxt.setHint(R.string.status_hint);
+		}
 		mActivityTask.imageDeleted = true;
 		mImagePath = null;
 		getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);

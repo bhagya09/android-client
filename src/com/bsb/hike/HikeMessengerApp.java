@@ -11,6 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.bsb.hike.platform.content.PlatformContentConstants;
+
 import org.acra.ACRA;
 import org.acra.ErrorReporter;
 import org.acra.ReportField;
@@ -40,6 +41,7 @@ import com.bsb.hike.ag.NetworkAgModule;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.chatHead.ChatHeadUtils;
+import com.bsb.hike.chatHead.StickyCaller;
 import com.bsb.hike.db.DbConversationListener;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.db.HikeMqttPersistence;
@@ -384,6 +386,8 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 	public static final String STEALTH_MODE_FTUE_DONE = "steatlhModeFtueDone";
 
 	public static final String STEALTH_PIN_AS_PASSWORD = "steatlhPinAsPassword";
+
+	public static final String CONV_DB_VERSION_PREF =  "convDbVersion";
 
 	public static final String SHOWING_STEALTH_FTUE_CONV_TIP = "showingStealthFtueConvTip";
 
@@ -1007,6 +1011,16 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 		ChatHeadUtils.startOrStopService(false);
 
 		StickerSearchManager.getInstance().initStickerSearchProiderSetupWizard();
+		
+		// Moving the shared pref stored in account prefs to the default prefs.
+		// This is done because previously we were saving shared pref for caller in accountutils but now using default settings prefs
+        // On a long run this should be deleted 
+		if (HikeSharedPreferenceUtil.getInstance().contains(HikeConstants.ACTIVATE_STICKY_CALLER_PREF))
+		{
+			Utils.setSharedPrefValue(this, HikeConstants.ACTIVATE_STICKY_CALLER_PREF,
+					HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ACTIVATE_STICKY_CALLER_PREF, false));
+			HikeSharedPreferenceUtil.getInstance().removeData(HikeConstants.ACTIVATE_STICKY_CALLER_PREF);
+		}
 	}
 
 	/**

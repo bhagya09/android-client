@@ -1081,6 +1081,7 @@ public class VoipCallFragment extends Fragment implements CallActions
 
 		Logger.d(tag, "Showing call failed fragment.");
 		activity.showCallFailedFragment(bundle);
+		voipService.stop();
 	}
 
 	@SuppressWarnings("deprecation")
