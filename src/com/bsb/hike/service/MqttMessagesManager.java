@@ -31,6 +31,8 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Pair;
+import android.view.Gravity;
+import android.widget.Toast;
 
 import com.bsb.hike.AppConfig;
 import com.bsb.hike.HikeConstants;
@@ -4074,6 +4076,31 @@ public class MqttMessagesManager
 		else if(HikeConstants.MqttMessageTypes.GENERAL_EVENT_PACKET_ZERO.equals(type))
 		{
 			GeneralEventMessagesManager.getInstance().handleGeneralMessage(jsonObj);
+		}
+		else if(HikeConstants.TOAST.equals(type))
+		{
+			showToast(jsonObj);
+		}
+	}
+	
+	private void showToast(final JSONObject jsonObj) throws JSONException
+	{
+		if(jsonObj.has(HikeConstants.DATA))
+		{
+			final JSONObject toastJson = jsonObj.getJSONObject(HikeConstants.DATA);
+			new Handler(Looper.getMainLooper()).post(new Runnable()
+			{
+				@Override
+				public void run()
+				{
+					Toast toast =  Toast.makeText(context, toastJson.optString(HikeConstants.Toast.TOAST_MESSAGE, 
+							context.getString(R.id.app_name)), 
+							toastJson.optInt(HikeConstants.Toast.TOAST_DURATION, Toast.LENGTH_SHORT));
+					toast.setGravity(toastJson.optInt(HikeConstants.Toast.TOAST_GRAVITY, toast.getGravity()), toast.getXOffset(), toast.getYOffset());
+					toast.show();
+				}
+			});
+
 		}
 	}
 
