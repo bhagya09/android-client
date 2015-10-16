@@ -29,6 +29,8 @@ public class HikeConstants
 
 	public static final String MESSAGE = "msg";
 
+	public static final String TOAST = "tst";
+	
 	public static final String UI_TOPIC = "/u";
 
 	public static final String APP_TOPIC = "/a";
@@ -1496,6 +1498,8 @@ public class HikeConstants
 		
 		public static final String CREATE_BROADCAST = "createBroadcast";
 		
+		public static final String CREATE_GROUP_SRC = "createGroupSource";
+		
 		public static final String COMPOSE_MODE = "composeMode";
 
 		public static final int CREATE_BROADCAST_MODE = 7;
@@ -1733,6 +1737,8 @@ public class HikeConstants
 		public static final String THUMBNAILS_REQUIRED = "thumbnailsRequired";
 
 		public static final String CHAT_INTENT_TIMESTAMP = "chat_ts";
+		
+		public static final String GROUP_CHAT_DP = "group_chat_dp";
 		
 		public static final String IS_MICROAPP_SHOWCASE_INTENT = "microappShowcaseIntent";
 	}
@@ -2349,7 +2355,15 @@ public class HikeConstants
 		public static final String TIMELINE_OVERFLOW_OPTION_FAV = "fav";
 
 	}
-
+	public static final class Toast
+	{
+		public static final String TOAST_MESSAGE = "t_msg";
+		
+		public static final String TOAST_GRAVITY = "t_grv";
+		
+		public static final String TOAST_DURATION = "t_dur";
+	}
+	
 	public static final class MqttMessageTypes
 	{
 		public static final String MESSAGE_READ = "mr";
@@ -3254,7 +3268,7 @@ public class HikeConstants
 	public static final String CHAT_SEARCH_ENABLED = "cts_e";
 
 	public static final String CALLBACK_ID ="callbackid";
-
+	
 	public static final String DEVICE_DETAILS = "dd";
 	
 	public static final String DOWNLOAD_TAGS = "srdt";
@@ -3288,6 +3302,28 @@ public class HikeConstants
 	public static final String SHOW_NOTIFICATION = "sn";
 	
 	public static final String SHOW_HIGH_RES_IMAGE = "s_h_r";
+	
+	public static final String HIKE_DIRECT_UPDGRADE_PEER = "hdu";
+	
+	public static final String HIKE_DIRECT_UNSUPPORTED_PEER = "hdnu";
+	
+	public static final String ENABLE_GC_VIA_LINK_SHARING = "en_gc_ls";
+	
+	public static final String MENU_OPTION_FOR_GC_VIA_WA = "mo_gc_wa";
+	
+	public static final String MENU_OPTIONS_FOR_GC_VIA_OTHERS = "mo_gc_o";
+	
+	public static final String ENABLE_MENU_OPTION_FOR_GC_VIA_WA = "en_mo_gc_wa";
+	
+	public static final String ENABLE_MENU_OPTIONS_FOR_GC_VIA_OTHERS = "en_mo_gc_o";
+	
+	public static final String TEXT_FOR_GC_VIA_WA = "t_gc_wa";
+	
+	public static final String TEXT_FOR_GC_VIA_OTHERS = "t_gc_o";
+
+	public static final String WA_GROUP_NUMBER = "wa_grp_number";
+	
+	public static final String SHARE_LINK_URL_FOR_GC = "share_link_url";
 
 	public static final String CALLER_SHARED_PREF = "caller_shared_pref";
 
@@ -3302,9 +3338,13 @@ public class HikeConstants
 	public static final String GET_DISCOVERY_BOTS = "get_bots";
 	
 	public static final String BOTS_DISCOVERY_SECTION = "bds";
+	
+	public static final String ACTIVATE_STICKY_CALLER_PREF = "activateStickyCaller";
+
+	public static final String ENABLE_KNOWN_NUMBER_CARD_PREF = "knownContactEnablePref";
 
 	public static final String NEW_CHAT_RED_DOT = "nc_dot";
-	
+
 	public static final float ONE_PERCENT_PROGRESS = 0.01f;
 
 }

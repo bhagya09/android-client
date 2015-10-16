@@ -7,14 +7,26 @@ import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 public class CallListener implements IRequestListener
 {	
 	@Override
 	public void onRequestSuccess(Response result)
 	{
-		HikeSharedPreferenceUtil.getInstance(HikeConstants.CALLER_SHARED_PREF).saveData(StickyCaller.callCurrentNumber, result.getBody().getContent().toString());
-		StickyCaller.showCallerViewWithDelay(StickyCaller.callCurrentNumber, result.getBody().getContent().toString(), StickyCaller.SUCCESS, AnalyticsConstants.StickyCallerEvents.SERVER);
+		CallerContentModel callerContentModel = ChatHeadUtils.getCallerContentModelObject(result.getBody().getContent().toString());
+		if (callerContentModel != null && callerContentModel.getMsisdn() != null)
+		{
+			HikeSharedPreferenceUtil.getInstance(HikeConstants.CALLER_SHARED_PREF).saveData(callerContentModel.getMsisdn(), result.getBody().getContent().toString());
+			StickyCaller.showCallerViewWithDelay(callerContentModel.getMsisdn(), result.getBody().getContent().toString(), StickyCaller.SUCCESS,
+					AnalyticsConstants.StickyCallerEvents.SERVER);
+		}
+		else
+		{
+			StickyCaller.showCallerViewWithDelay(callerContentModel.getMsisdn(), null, StickyCaller.FAILURE, AnalyticsConstants.StickyCallerEvents.SERVER);
+		}
 	}
 
 	@Override

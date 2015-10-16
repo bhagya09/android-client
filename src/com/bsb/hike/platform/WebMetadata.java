@@ -140,27 +140,14 @@ public class WebMetadata
 			{
 				setParentMsisdn(cardobj.optString(HikePlatformConstants.PARENT_MSISDN));
 			}
+			setLongPressDisabled(cardobj.optBoolean(HikePlatformConstants.LONG_PRESS_DISABLED));
 		}
 		else
 		{
 			cardobj = new JSONObject();
 		}
 
-		if (metadata.has(HikePlatformConstants.LONG_PRESS_DISABLED))
-		{
-			if (metadata.optBoolean(HikePlatformConstants.LONG_PRESS_DISABLED))
-			{
-				setLongPressDisabled(true);
-			}
-			else
-			{
-				setLongPressDisabled(false);
-			}
-		}
-		else
-		{
-			setLongPressDisabled(false);
-		}
+
 	}
 
 	public boolean isLongPressDisabled()
