@@ -31,6 +31,7 @@ import com.bsb.hike.BuildConfig;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
+import com.bsb.hike.modules.kpt.HikeCustomKeyboard;
 import com.bsb.hike.modules.kpt.KptUtils;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.StealthModeManager;
@@ -47,10 +48,8 @@ import com.haibison.android.lockpattern.widget.LockPatternUtils;
 import com.haibison.android.lockpattern.widget.LockPatternView;
 import com.haibison.android.lockpattern.widget.LockPatternView.Cell;
 import com.haibison.android.lockpattern.widget.LockPatternView.DisplayMode;
-import com.kpt.adaptxt.beta.CustomKeyboard;
 import com.kpt.adaptxt.beta.RemoveDialogData;
 import com.kpt.adaptxt.beta.util.KPTConstants;
-import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtEditTextEventListner;
 import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtKeyboordVisibilityStatusListner;
 
 import android.app.Activity;
@@ -109,7 +108,7 @@ import android.widget.TextView;
  * @author Hai Bison
  * @since v1.0
  */
-public class LockPatternActivity extends HikeAppStateBaseFragmentActivity implements AdaptxtEditTextEventListner, AdaptxtKeyboordVisibilityStatusListner {
+public class LockPatternActivity extends HikeAppStateBaseFragmentActivity implements AdaptxtKeyboordVisibilityStatusListner {
 
     private static final String CLASSNAME = LockPatternActivity.class.getName();
 
@@ -309,7 +308,7 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity implem
     /*
      * HIKE KEYBOARD FIELDS
      */
-    private CustomKeyboard mCustomKeyboard;
+    private HikeCustomKeyboard mCustomKeyboard;
     private boolean systemKeyboard;
     
     /*
@@ -1361,8 +1360,8 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity implem
     private void initCustomKeyboard()
     {
     	View keyboardHolder = (LinearLayout) findViewById(R.id.keyboardView_holder);
-        mCustomKeyboard = new CustomKeyboard(LockPatternActivity.this, keyboardHolder);
-        mCustomKeyboard.registerEditText(R.id.alp_42447968_lock_pin, KPTConstants.SINGLE_LINE_EDITOR, this, this);
+        mCustomKeyboard = new HikeCustomKeyboard(LockPatternActivity.this, keyboardHolder, KPTConstants.SINGLE_LINE_EDITOR, null, this);
+        mCustomKeyboard.registerEditText(R.id.alp_42447968_lock_pin);
         mCustomKeyboard.init(mLockPinView);
         mLockPinView.setOnClickListener(new View.OnClickListener()
 		{
@@ -1408,34 +1407,6 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity implem
 
 	@Override
 	public void showQuickSettingView()
-	{
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void onAdaptxtFocusChange(View arg0, boolean arg1)
-	{
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void onAdaptxtTouch(View arg0, MotionEvent arg1)
-	{
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void onAdaptxtclick(View arg0)
-	{
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void onReturnAction(int arg0)
 	{
 		// TODO Auto-generated method stub
 		

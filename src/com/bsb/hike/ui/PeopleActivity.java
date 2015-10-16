@@ -7,7 +7,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBar;
 import android.view.Menu;
@@ -16,29 +15,30 @@ import android.view.inputmethod.InputMethodManager;
 
 import com.bsb.hike.ui.v7.SearchView;
 import com.bsb.hike.ui.v7.SearchView.OnQueryTextListener;
+
 import android.support.v7.widget.Toolbar;
+
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
+import com.bsb.hike.modules.kpt.HikeCustomKeyboard;
 import com.bsb.hike.modules.kpt.KptUtils;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.ui.fragments.FriendsFragment;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Utils;
-import com.kpt.adaptxt.beta.CustomKeyboard;
 import com.kpt.adaptxt.beta.RemoveDialogData;
 import com.kpt.adaptxt.beta.util.KPTConstants;
 import com.kpt.adaptxt.beta.view.AdaptxtEditText;
-import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtEditTextEventListner;
 import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtKeyboordVisibilityStatusListner;
 
-public class PeopleActivity extends HikeAppStateBaseFragmentActivity implements Listener, AdaptxtEditTextEventListner, AdaptxtKeyboordVisibilityStatusListner
+public class PeopleActivity extends HikeAppStateBaseFragmentActivity implements Listener, AdaptxtKeyboordVisibilityStatusListner
 {
 	FriendsFragment mainFragment;
-	private CustomKeyboard mCustomKeyboard;
+	private HikeCustomKeyboard mCustomKeyboard;
 	private AdaptxtEditText searchET;
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -54,7 +54,9 @@ public class PeopleActivity extends HikeAppStateBaseFragmentActivity implements 
 
 		setContentView(R.layout.home);
 		LinearLayout viewHolder = (LinearLayout) findViewById(R.id.keyboardView_holder);
-		mCustomKeyboard = new CustomKeyboard(PeopleActivity.this, viewHolder);
+		mCustomKeyboard = new HikeCustomKeyboard(PeopleActivity.this, viewHolder,
+				KPTConstants.MULTILINE_LINE_EDITOR, null,
+				PeopleActivity.this);
 		setupMainFragment(savedInstanceState);
 		setupActionBar();
 	}
@@ -124,9 +126,7 @@ public class PeopleActivity extends HikeAppStateBaseFragmentActivity implements 
 		searchET = (AdaptxtEditText) searchView
 				.findViewById(R.id.search_src_text);
 		if (!KptUtils.isSystemKeyboard(PeopleActivity.this)) {
-			mCustomKeyboard.registerEditText(searchET,
-					KPTConstants.MULTILINE_LINE_EDITOR, PeopleActivity.this,
-					PeopleActivity.this);
+			mCustomKeyboard.registerEditText(searchET);
 			mCustomKeyboard.init(searchET);
 		}
 		searchET.setOnFocusChangeListener(new View.OnFocusChangeListener() {
@@ -231,30 +231,6 @@ public class PeopleActivity extends HikeAppStateBaseFragmentActivity implements 
 	{
 		HikeMessengerApp.getPubSub().publish(HikePubSub.NEW_ACTIVITY, null);
 		super.onPause();
-	}
-
-	@Override
-	public void onAdaptxtFocusChange(View arg0, boolean arg1) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void onAdaptxtTouch(View arg0, MotionEvent arg1) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void onAdaptxtclick(View arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void onReturnAction(int arg0) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override

@@ -455,6 +455,8 @@ public class HikePubSub implements Runnable
 	public static final String BOT_CREATED = "botCreated";
 
 	public static final String SHOW_NEW_CHAT_RED_DOT = "showNewChatRedDot";
+
+	public static final String KEYBOARD_SWITCHED = "keyboardSwitched";
 	
 	private final Thread mThread;
 
