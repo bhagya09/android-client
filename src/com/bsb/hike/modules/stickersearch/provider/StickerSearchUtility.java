@@ -858,26 +858,47 @@ public class StickerSearchUtility
 	}
 
 	/* Get syntax string (a part of SQL query) while applying multiple conditions using 'AND' operator */
-	public static String getSQLiteDatabaseMultipleConditionsWithANDSyntax(String[] columnsInvolvedInCondition)
+	public static String getSQLiteDatabaseMultipleConditionsWithANDSyntax(String[] columnsInvolvedInCondition, int[] isCheckingForNullOrNonNULLValueOrBoth)
 	{
 		StringBuilder sb;
 
-		if ((columnsInvolvedInCondition != null) && (columnsInvolvedInCondition.length > 0))
+		if ((columnsInvolvedInCondition != null) && (columnsInvolvedInCondition.length > 0) && (isCheckingForNullOrNonNULLValueOrBoth != null)
+				&& (isCheckingForNullOrNonNULLValueOrBoth.length == columnsInvolvedInCondition.length))
 		{
 			sb = new StringBuilder();
-			int lengthBeforeLastCondition = columnsInvolvedInCondition.length - 1;
-			int i = 0;
+			int lengthBeforeLastElement = columnsInvolvedInCondition.length - 1;
 
-			for (; i < lengthBeforeLastCondition; i++)
+			for (int i = 0; i < columnsInvolvedInCondition.length; i++)
 			{
-				sb.append(columnsInvolvedInCondition[i]);
-				sb.append(HikeStickerSearchBaseConstants.SYNTAX_SINGLE_PARAMETER_CHECK);
-				sb.append(HikeStickerSearchBaseConstants.SYNTAX_AND_NEXT);
-			}
+				if (isCheckingForNullOrNonNULLValueOrBoth[i] == HikeStickerSearchBaseConstants.SQLITE_NULL_CHECK)
+				{
+					sb.append(columnsInvolvedInCondition[i]);
+					sb.append(HikeStickerSearchBaseConstants.SYNTAX_SINGLE_PARAMETER_UNSIGNED_CHECK);
+					sb.append(HikeStickerSearchBaseConstants.SYNTAX_NULL);
+				}
+				else if (isCheckingForNullOrNonNULLValueOrBoth[i] == HikeStickerSearchBaseConstants.SQLITE_NON_NULL_CHECK)
+				{
+					sb.append(columnsInvolvedInCondition[i]);
+					sb.append(HikeStickerSearchBaseConstants.SYNTAX_SINGLE_PARAMETER_CHECK);
+				}
+				else
+				{
+					sb.append(HikeStickerSearchBaseConstants.SYNTAX_BRACKET_OPEN);
+					sb.append(columnsInvolvedInCondition[i]);
+					sb.append(HikeStickerSearchBaseConstants.SYNTAX_SINGLE_PARAMETER_UNSIGNED_CHECK);
+					sb.append(HikeStickerSearchBaseConstants.SYNTAX_NULL);
+					sb.append(HikeStickerSearchBaseConstants.SYNTAX_OR_NEXT);
+					sb.append(columnsInvolvedInCondition[i]);
+					sb.append(HikeStickerSearchBaseConstants.SYNTAX_SINGLE_PARAMETER_CHECK);
+					sb.append(HikeStickerSearchBaseConstants.SYNTAX_BRACKET_CLOSE);
+				}
 
-			// Add last element syntax in sub-condition
-			sb.append(columnsInvolvedInCondition[i]);
-			sb.append(HikeStickerSearchBaseConstants.SYNTAX_SINGLE_PARAMETER_CHECK);
+				// Do not add ' AND ' separator after last element syntax in sub-condition
+				if (i != lengthBeforeLastElement)
+				{
+					sb.append(HikeStickerSearchBaseConstants.SYNTAX_AND_NEXT);
+				}
+			}
 		}
 		else
 		{

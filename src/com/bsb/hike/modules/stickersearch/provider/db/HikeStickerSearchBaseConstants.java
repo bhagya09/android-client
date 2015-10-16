@@ -113,9 +113,9 @@ public class HikeStickerSearchBaseConstants
 
 	public static final String STICKER_AVAILABILITY = "stickerAvailability";
 
-	public static final String STICKER_TAG_MAPPING_INDEX = "stickerTagMappingIndex";
-
 	public static final String STICKER_TAG_KEYBOARD_ISO = "stickerTagKeyboardISO";
+
+	public static final String STICKER_TAG_MAPPING_INDEX = "stickerTagMappingIndex";
 
 	public static final String STICKER_TAG_KEYBOARD_ISO_DEFAULT = "Latn";
 
@@ -132,6 +132,12 @@ public class HikeStickerSearchBaseConstants
 	public static final int SQLITE_LIMIT_VARIABLE_NUMBER = 500;
 
 	public static final int SQLITE_MAX_LIMIT_VARIABLE_NUMBER = 900;
+
+	public static final int SQLITE_NULL_CHECK = 0;
+
+	public static final int SQLITE_NON_NULL_CHECK = 1;
+
+	public static final int SQLITE_NULL_OR_NON_NULL_CHECK = 2;
 
 	public static final String SYNTAX_PRIMARY_KEY = " INTEGER PRIMARY KEY, ";
 
@@ -174,6 +180,10 @@ public class HikeStickerSearchBaseConstants
 	public static final String SYNTAX_SINGLE_PARAMETER_NO_CHECK = "?";
 
 	public static final String SYNTAX_SINGLE_PARAMETER_CHECK = "=?";
+
+	public static final String SYNTAX_SINGLE_PARAMETER_UNSIGNED_CHECK = " IS ";
+
+	public static final String SYNTAX_NULL = "NULL";
 
 	public static final String SYNTAX_AND_NEXT = " AND ";
 

@@ -18,6 +18,14 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
+import android.content.ContentValues;
+import android.content.Context;
+import android.database.Cursor;
+import android.database.SQLException;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
+import android.database.sqlite.SQLiteOpenHelper;
+
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.models.Sticker;
@@ -30,14 +38,6 @@ import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.utils.Utils.ExecutionDurationLogger;
-
-import android.content.ContentValues;
-import android.content.Context;
-import android.database.Cursor;
-import android.database.SQLException;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteException;
-import android.database.sqlite.SQLiteOpenHelper;
 
 public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 {
@@ -167,13 +167,17 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 				sql = "ALTER TABLE " + HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING + " ADD COLUMN " + HikeStickerSearchBaseConstants.STICKER_TAG_KEYBOARD_ISO
 						+ HikeStickerSearchBaseConstants.SYNTAX_TEXT_LAST + " DEFAULT " + HikeStickerSearchBaseConstants.STICKER_TAG_KEYBOARD_ISO_DEFAULT;
 				db.execSQL(sql);
-			}
 
-			if (oldVersion < HikeStickerSearchBaseConstants.VERSION_STICKER_TAG_MAPPING_INDEX_ADDED)
-			{
-				// Create index on fixed table: TABLE_STICKER_TAG_MAPPING for 3 columns 'Tag Word/ Phrase', 'Sticker Information' and Tag language' together (as described above)
-				String sql = HikeStickerSearchBaseConstants.SYNTAX_CREATE_INDEX + HikeStickerSearchBaseConstants.STICKER_TAG_MAPPING_INDEX + HikeStickerSearchBaseConstants.SYNTAX_ON
-						+ HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING + HikeStickerSearchBaseConstants.SYNTAX_BRACKET_OPEN
+				if (oldVersion >= HikeStickerSearchBaseConstants.VERSION_STICKER_TAG_MAPPING_INDEX_ADDED)
+				{
+					// Drop older index on table: TABLE_STICKER_TAG_MAPPING for 2 columns 'Tag Word/ Phrase' and 'Sticker Information' together (as described in onCreate())
+					sql = "DROP INDEX " + HikeStickerSearchBaseConstants.STICKER_TAG_MAPPING_INDEX;
+					db.execSQL(sql);
+				}
+
+				// Create index on table: TABLE_STICKER_TAG_MAPPING for 3 columns 'Tag Word/ Phrase', 'Sticker Information' and Tag language' together (as described in onCreate())
+				sql = HikeStickerSearchBaseConstants.SYNTAX_CREATE_INDEX + HikeStickerSearchBaseConstants.STICKER_TAG_MAPPING_INDEX
+						+ HikeStickerSearchBaseConstants.SYNTAX_ON + HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING + HikeStickerSearchBaseConstants.SYNTAX_BRACKET_OPEN
 						+ HikeStickerSearchBaseConstants.STICKER_TAG_PHRASE + HikeStickerSearchBaseConstants.SYNTAX_NEXT + HikeStickerSearchBaseConstants.STICKER_RECOGNIZER_CODE
 						+ HikeStickerSearchBaseConstants.SYNTAX_NEXT + HikeStickerSearchBaseConstants.STICKER_TAG_LANGUAGE + HikeStickerSearchBaseConstants.SYNTAX_BRACKET_CLOSE;
 				db.execSQL(sql);
@@ -491,9 +495,15 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		// Tag data building (querying) operation
 		Cursor c = null;
 		HashMap<String, ContentValues> existingTagData = new HashMap<String, ContentValues>();
+
 		String[] columnsInvolvedInQuery = new String[] { HikeStickerSearchBaseConstants.STICKER_TAG_PHRASE, HikeStickerSearchBaseConstants.STICKER_RECOGNIZER_CODE,
 				HikeStickerSearchBaseConstants.STICKER_TAG_LANGUAGE };
-		String whereConditionToQueryAndUpdate = StickerSearchUtility.getSQLiteDatabaseMultipleConditionsWithANDSyntax(columnsInvolvedInQuery);
+		int[] nullCheckIndicatorForColumnsInvolvedInQuery = new int[] { HikeStickerSearchBaseConstants.SQLITE_NON_NULL_CHECK, HikeStickerSearchBaseConstants.SQLITE_NON_NULL_CHECK,
+				HikeStickerSearchBaseConstants.SQLITE_NULL_OR_NON_NULL_CHECK };
+
+		String whereConditionToQueryAndUpdate = StickerSearchUtility.getSQLiteDatabaseMultipleConditionsWithANDSyntax(columnsInvolvedInQuery,
+				nullCheckIndicatorForColumnsInvolvedInQuery);
+
 		int maxRowCountPerQuery = HikeStickerSearchBaseConstants.SQLITE_MAX_LIMIT_VARIABLE_NUMBER / columnsInvolvedInQuery.length;
 		long queryOperationStartTime = System.currentTimeMillis();
 		int currentCount;
@@ -586,9 +596,11 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 			String script;
 			long rowId;
 			String uniqueKey;
+			boolean isLanguageUpdateNeeded;
 
 			for (int i = 0; i < stickerCountWithValidData; i++)
 			{
+				isLanguageUpdateNeeded = false;
 				stickerIndex = validStickerTagDataIndices.get(i);
 				stickerTagData = stickersTagData.get(stickerIndex);
 				stickerCode = stickerTagData.getStickerCode();
@@ -616,7 +628,15 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 
 					uniqueKey = stickerCode + StickerSearchConstants.STRING_DELIMITER + tag + StickerSearchConstants.STRING_DELIMITER + language;
 					ContentValues existingCv = existingTagData.get(uniqueKey);
+					// Check for existing row again with language is null, if row with proper language is not available
+					if (existingCv == null)
+					{
+						uniqueKey = stickerCode + StickerSearchConstants.STRING_DELIMITER + tag + StickerSearchConstants.STRING_DELIMITER + null;
+						existingCv = existingTagData.get(uniqueKey);
+						isLanguageUpdateNeeded = true;
+					}
 
+					// Case 1. No row for given sticker and tag was found in database, insert new row
 					if (existingCv == null)
 					{
 						cv.put(HikeStickerSearchBaseConstants.STICKER_TAG_PHRASE, tag);
@@ -641,9 +661,21 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 					}
 					else
 					{
-						if (!cv.equals(existingCv))
+						// Case 2. At least one row for given sticker and tag was found in database, update the language data
+						if (cv.equals(existingCv) && isLanguageUpdateNeeded)
 						{
-							mDb.update(HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING, cv, whereConditionToQueryAndUpdate, new String[] { tag, stickerCode });
+							cv.clear();
+							cv.put(HikeStickerSearchBaseConstants.STICKER_TAG_LANGUAGE, language);
+							mDb.update(HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING, cv, whereConditionToQueryAndUpdate, new String[] { tag, stickerCode, language });
+						}
+						// Case 3. At least one row for given sticker and tag was found in database with different attributes, update the language data and other attributes too
+						else if (!cv.equals(existingCv))
+						{
+							if (isLanguageUpdateNeeded)
+							{
+								cv.put(HikeStickerSearchBaseConstants.STICKER_TAG_LANGUAGE, language);
+							}
+							mDb.update(HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING, cv, whereConditionToQueryAndUpdate, new String[] { tag, stickerCode, language });
 						}
 
 						// Clear data, which is no longer needed
@@ -1175,9 +1207,11 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		Cursor c = null;
 		try
 		{
+			String whereConditionToGetAvailableStickers = StickerSearchUtility.getSQLiteDatabaseMultipleConditionsWithANDSyntax(
+					new String[] { HikeStickerSearchBaseConstants.STICKER_AVAILABILITY }, new int[] { HikeStickerSearchBaseConstants.SQLITE_NON_NULL_CHECK });
+
 			c = mDb.query(true, HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING, new String[] { HikeStickerSearchBaseConstants.STICKER_RECOGNIZER_CODE },
-					StickerSearchUtility.getSQLiteDatabaseMultipleConditionsWithANDSyntax(new String[] { HikeStickerSearchBaseConstants.STICKER_AVAILABILITY }),
-					new String[] { String.valueOf(HikeStickerSearchBaseConstants.DECISION_STATE_YES) }, null, null, null, null);
+					whereConditionToGetAvailableStickers, new String[] { String.valueOf(HikeStickerSearchBaseConstants.DECISION_STATE_YES) }, null, null, null, null);
 		}
 		finally
 		{
@@ -1308,10 +1342,11 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 
 		try
 		{
+			String whereConditionToUpdate = StickerSearchUtility.getSQLiteDatabaseMultipleConditionsWithANDSyntax(
+					new String[] { HikeStickerSearchBaseConstants.STICKER_RECOGNIZER_CODE }, new int[] { HikeStickerSearchBaseConstants.SQLITE_NON_NULL_CHECK });
+
 			c = mDb.query(HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING, new String[] { HikeStickerSearchBaseConstants.UNIQUE_ID,
-					HikeStickerSearchBaseConstants.STICKER_OVERALL_FREQUENCY },
-					StickerSearchUtility.getSQLiteDatabaseMultipleConditionsWithANDSyntax(new String[] { HikeStickerSearchBaseConstants.STICKER_RECOGNIZER_CODE }),
-					new String[] { stickerCode }, null, null, null);
+					HikeStickerSearchBaseConstants.STICKER_OVERALL_FREQUENCY }, whereConditionToUpdate, new String[] { stickerCode }, null, null, null);
 
 			totalCount = (c == null) ? 0 : c.getCount();
 			if (totalCount > 0)
@@ -1805,8 +1840,8 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 					String rowId;
 					char virtualTableSuffix;
 					String table;
-					String whereConditionToDelete = StickerSearchUtility
-							.getSQLiteDatabaseMultipleConditionsWithANDSyntax(new String[] { HikeStickerSearchBaseConstants.UNIQUE_ID });
+					String whereConditionToDelete = StickerSearchUtility.getSQLiteDatabaseMultipleConditionsWithANDSyntax(
+							new String[] { HikeStickerSearchBaseConstants.UNIQUE_ID }, new int[] { HikeStickerSearchBaseConstants.SQLITE_NON_NULL_CHECK });
 
 					for (int i = 0; i < totalDeletingReferenceCount; i++)
 					{
@@ -1892,8 +1927,8 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 						frequencyListPerStciker = new ArrayList<Float>(StickerSearchConstants.FREQUENCY_DIVISION_SLOT_PER_STICKER_COUNT);
 					}
 
-					String whereConditionToUpdate = StickerSearchUtility
-							.getSQLiteDatabaseMultipleConditionsWithANDSyntax(new String[] { HikeStickerSearchBaseConstants.UNIQUE_ID });
+					String whereConditionToUpdate = StickerSearchUtility.getSQLiteDatabaseMultipleConditionsWithANDSyntax(
+							new String[] { HikeStickerSearchBaseConstants.UNIQUE_ID }, new int[] { HikeStickerSearchBaseConstants.SQLITE_NON_NULL_CHECK });
 
 					for (int i = 0; i < retainedDataCount; i++)
 					{
