@@ -1777,7 +1777,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		mComposeView.setTag(id);
 		
 		mComposeView.requestFocus();
-		Utils.showSoftKeyboard(activity.getApplicationContext(), mComposeView);
 		mComposeView.addTextChangedListener(searchTextWatcher);
 		mComposeView.setOnEditorActionListener(this);
 		activity.findViewById(R.id.next).setOnClickListener(this);
