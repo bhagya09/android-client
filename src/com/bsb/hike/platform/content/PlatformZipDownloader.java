@@ -298,6 +298,7 @@ public class PlatformZipDownloader
 								}
 								else
 								{
+									mRequest.getListener().downloadedContentLength(fileSize);
 									mRequest.getListener().onEventOccured(0, EventCode.UNZIP_FAILED);
 								}
 							}
