@@ -156,7 +156,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 
 		if (oldVersion < HikeStickerSearchBaseConstants.VERSION_STICKER_TAG_MAPPING_INDEX_ADDED)
 		{
-			// Create index on fixed table: TABLE_STICKER_TAG_MAPPING for 3 columns 'Tag Word/ Phrase', Tag language' and 'Sticker Information' together (as described above)
+			// Create index on fixed table: TABLE_STICKER_TAG_MAPPING for 3 columns 'Tag Word/ Phrase', 'Sticker Information' and Tag language' together (as described above)
 			String sql = HikeStickerSearchBaseConstants.SYNTAX_CREATE_INDEX + HikeStickerSearchBaseConstants.STICKER_TAG_MAPPING_INDEX + HikeStickerSearchBaseConstants.SYNTAX_ON
 					+ HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING + HikeStickerSearchBaseConstants.SYNTAX_BRACKET_OPEN
 					+ HikeStickerSearchBaseConstants.STICKER_TAG_PHRASE + HikeStickerSearchBaseConstants.SYNTAX_NEXT + HikeStickerSearchBaseConstants.STICKER_RECOGNIZER_CODE
@@ -228,6 +228,8 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		// Surrounding Words For Rejection : String [Optional], List of words/ texts with which given tag-sticker is rejected in LRU cycle
 		// Popularity : Integer [Compulsory], Order of tag for given sticker i.e. overall ranking of tag among all tags used with that sticker in terms of usage count
 		// Availability : Integer [Compulsory], Download state of sticker, whether it is available for direct use or need to download
+		// Language: String [Compulsory], Actual language of the tag irrespective of its script in which tag is written
+		// Script: String [Compulsory], Script of the tag, in which it is written
 		sql = HikeStickerSearchBaseConstants.SYNTAX_CREATE_TABLE + HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING + HikeStickerSearchBaseConstants.SYNTAX_BRACKET_OPEN
 				+ HikeStickerSearchBaseConstants.UNIQUE_ID + HikeStickerSearchBaseConstants.SYNTAX_PRIMARY_KEY + HikeStickerSearchBaseConstants.STICKER_TAG_PHRASE
 				+ HikeStickerSearchBaseConstants.SYNTAX_TEXT_NEXT + HikeStickerSearchBaseConstants.STICKER_REGION_FUNCTION_OF_FREQUENCY
@@ -248,7 +250,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 				+ HikeStickerSearchBaseConstants.STICKER_TAG_KEYBOARD_ISO_DEFAULT + HikeStickerSearchBaseConstants.SYNTAX_BRACKET_CLOSE;
 		db.execSQL(sql);
 
-		// Create index on fixed table: TABLE_STICKER_TAG_MAPPING for 3 columns 'Tag Word/ Phrase', Tag language' and 'Sticker Information' together (as described above)
+		// Create index on fixed table: TABLE_STICKER_TAG_MAPPING for 3 columns 'Tag Word/ Phrase', 'Sticker Information' and Tag language' together (as described above)
 		sql = HikeStickerSearchBaseConstants.SYNTAX_CREATE_INDEX + HikeStickerSearchBaseConstants.STICKER_TAG_MAPPING_INDEX + HikeStickerSearchBaseConstants.SYNTAX_ON
 				+ HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING + HikeStickerSearchBaseConstants.SYNTAX_BRACKET_OPEN + HikeStickerSearchBaseConstants.STICKER_TAG_PHRASE
 				+ HikeStickerSearchBaseConstants.SYNTAX_NEXT + HikeStickerSearchBaseConstants.STICKER_RECOGNIZER_CODE + HikeStickerSearchBaseConstants.SYNTAX_NEXT
