@@ -3011,6 +3011,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 	public List<ConvMessage> getConversationThread(String msisdn, int limit, Conversation conversation, long maxSortId, long minSortId)
 	{
+		Long time = System.currentTimeMillis();
 		String limitStr = (limit == -1) ? null : new Integer(limit).toString();
 		String selection = DBConstants.MSISDN + " = ?";
 		if (maxSortId != -1)
@@ -3033,7 +3034,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			List<ConvMessage> elements = getMessagesFromDB(c, conversation);
 			Collections.sort(elements, new ConvMessageComparator());
 			
-			
+			Logger.d("ChatThread", "Time taken to query messages from db : " + (System.currentTimeMillis() - time));
 			return elements;
 		}
 		finally
