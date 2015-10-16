@@ -1,15 +1,5 @@
 package com.bsb.hike.platform.content;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Observable;
-import java.util.Observer;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.text.TextUtils;
 import android.util.Pair;
 
@@ -28,6 +18,15 @@ import com.bsb.hike.platform.content.PlatformContent.EventCode;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Observable;
+import java.util.Observer;
 
 /**
  * Download and store template. First
@@ -166,6 +165,17 @@ public class PlatformZipDownloader
 			return;
 		}
 
+
+		// Download zip file from web on given url
+		getZipFromWeb(zipFile);
+
+
+		/*
+		 *  Legacy code flow commented for zips lookup in assets folder added with apk files
+		 *  This flow is not in use now
+		 */
+
+		/*
 		//Check if the zip is present in hike app package
 		AssetsZipMoveTask.AssetZipMovedCallbackCallback mCallback = new AssetsZipMoveTask.AssetZipMovedCallbackCallback()
 		{
@@ -185,7 +195,7 @@ public class PlatformZipDownloader
 		};
 
 		Utils.executeBoolResultAsyncTask(new AssetsZipMoveTask(zipFile, mRequest, mCallback, isTemplatingEnabled));
-
+		*/
 	}
 
 	/**
