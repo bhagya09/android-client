@@ -1214,6 +1214,10 @@
     <string name="update_tip_dismiss_text">LATER</string>
     <string name="update_tip_header_text">NEW UPDATE AVAILABLE</string>
     <string name="update_tip_body_text">Get free Group Calls, Hike News and new Hidden Mode in this update</string>
+    <string name="invite_tip_bottom_text">INVITE</string>
+    <string name="invite_tip_dismiss_text">LATER</string>
+    <string name="invite_tip_header_text">Invite Friends</string>
+    <string name="invite_tip_body_text">Invite your friends on Hike and earn free talktime!</string>
     <string name="pers_notif_title">Update Hike</string>
     <string name="pers_notif_message">Update Hike for exciting new features!</string>
     <string name="pers_notif_action">UPDATE</string>
