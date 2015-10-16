@@ -27,6 +27,7 @@ android {
     }
     dexOptions {
         javaMaxHeapSize "2048M"
+        incremental = true;
         preDexLibraries = false 
         jumboMode = true
     }
@@ -75,18 +76,26 @@ android {
     }
 
     signingConfigs {
+        debug {
+            storeFile rootProject.file('debug.keystore')
+            keyAlias 'androiddebugkey'
+            keyPassword 'android'
+             storePassword 'android'
+         }
         release {
-            storeFile file("hike-android-release-key.keystore")
+            storeFile rootProject.file('hike-android-release-key.keystore')
             storePassword "Tequ1laFr1day5"
             keyAlias "hhikedroid"
             keyPassword "Tequ1laFr1day5"
         }
     }
+    if( "$System.env.USER" == "jenkins" ) {
     applicationVariants.all { variant -> 
         variant.outputs.each { output -> 
             def file = output.outputFile
             output.outputFile = new File(file.parent, file.name.replace(".apk","-" + getVersionName() + "-" + getBranchAndCommitID() + "-"+ getDateTime() + ".apk"))
         }
+    }
     }
     buildTypes {
         black {
