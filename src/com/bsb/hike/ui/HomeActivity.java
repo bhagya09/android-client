@@ -321,7 +321,9 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 							break;
 
 						// 16: “This link is invalid”
-						case 16:
+						// 401: “This link is invalid”
+						case HttpURLConnection.HTTP_UNAUTHORIZED:
+						case HttpException.REASON_CODE_UNKNOWN_HOST_EXCEPTION:
 							errorText = getString(R.string.link_share_error_invalid_link);
 							break;
 							
@@ -341,7 +343,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 							break;
 
 						default:
-							errorText = getString(R.string.link_share_network_error);
+							errorText = getString(R.string.link_share_error_default);
 							break;
 						}
 
