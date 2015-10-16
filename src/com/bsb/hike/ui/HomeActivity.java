@@ -208,7 +208,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		Logger.d(TAG,"onCreate");
 		super.onCreate(savedInstanceState);
 
-		if (savedInstanceState != null && savedInstanceState.getBoolean(HikeConstants.Extras.CLEARED_OUT, false)) 
+		if (savedInstanceState != null && !savedInstanceState.getBoolean(HikeConstants.Extras.CLEARED_OUT, false)) 
 		{
 			//this means that singleTop activity has been re-spawned after being destroyed 
 			extrasClearedOut = true;
