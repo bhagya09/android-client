@@ -1205,6 +1205,11 @@
     <string name="take_me_there">TAKE ME THERE</string>
     <string name="hike_upgrade_string">Making hike faster and better for you\n This may take a few minutes</string>
     <string name="HELP">HELP</string>
+    <string name="update_tip_bottom_text">UPDATE</string>
+    <string name="update_tip_header_text">New Hike Update Available</string>
+    <string name="update_tip_body_text">Get free Group Calls, Hike News and \n new Hidden Mode in this update</string>
+    <string name="pers_notif_title">Update Hike</string>
+    <string name="pers_notif_message">Update Hike for exciting new features!</string>
     <string name="sticky_caller_settings">Caller</string>
 	<string name="sticky_caller_settings_header">Caller Info</string>
 	<string name="sticky_caller_settings_side_text">Show caller info and free calling/messaging options for all contacts</string>
