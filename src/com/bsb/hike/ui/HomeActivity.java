@@ -1670,6 +1670,10 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		{
 			sendUIMessage(SHOW_NEW_CHAT_RED_DOT, 1000);
 		}
+		else if (HikePubSub.PRODUCT_POPUP_RECEIVE_COMPLETE.equals(type))
+		{
+			showProductPopup(ProductPopupsConstants.PopupTriggerPoints.HOME_SCREEN.ordinal());
+		}
 	}
 
 	private void updateHomeOverflowToggleCount(final int count, int delayTime)
