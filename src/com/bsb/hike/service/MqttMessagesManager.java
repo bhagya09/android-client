@@ -1913,9 +1913,11 @@ public class MqttMessagesManager
 			{
 				JSONArray mArray = PlatformUtils.readFileList(PlatformContentConstants.PLATFORM_CONTENT_DIR, false);
 				String sentData = PlatformUtils.trimFilePath(mArray).toString();
+				long contentFolderLength = Utils.folderSize(new File(PlatformContentConstants.PLATFORM_CONTENT_DIR));
 				JSONObject json = new JSONObject();
 				json.putOpt(AnalyticsConstants.EVENT_KEY,AnalyticsConstants.NOTIFY_MICRO_APP_STATUS);
 				json.putOpt(AnalyticsConstants.MICRO_APP_INFO, sentData);
+				json.putOpt(AnalyticsConstants.FILE_SIZE, contentFolderLength);
 				HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.MICRO_APP_INFO, json);
 			}
 				
