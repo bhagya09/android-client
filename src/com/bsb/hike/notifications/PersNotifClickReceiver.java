@@ -19,7 +19,7 @@ public class PersNotifClickReceiver extends BroadcastReceiver {
 		Logger.d("UpdateTipPersistentNotif", "setting alarm for persistent notif");
 		HikeNotification.getInstance().cancelPersistNotif();
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.IS_PERS_NOTIF_ALARM_SET, true);
-		HikeAlarmManager.setAlarm(context, Calendar.getInstance().getTimeInMillis() + interval*1000, HikeAlarmManager.REQUESTCODE_UPDATE_PERSISTENT_NOTIF, false);
+		HikeAlarmManager.setAlarmPersistance(context, Calendar.getInstance().getTimeInMillis() + interval*1000, HikeAlarmManager.REQUESTCODE_UPDATE_PERSISTENT_NOTIF, false, true);
 	}
 
 }
