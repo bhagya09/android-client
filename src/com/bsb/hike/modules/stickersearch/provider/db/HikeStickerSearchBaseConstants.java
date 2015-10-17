@@ -117,10 +117,6 @@ public class HikeStickerSearchBaseConstants
 
 	public static final String STICKER_TAG_MAPPING_INDEX = "stickerTagMappingIndex";
 
-	public static final String STICKER_TAG_KEYBOARD_ISO_DEFAULT = "Latn";
-
-	public static final String DEFAULT_TABLE_LIST = " ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-
 	// Table: TABLE_TAG_SEARCH_*X, where *X is dynamically changeable variable
 	public static final String TAG_REAL_PHRASE = "realTagName";
 
@@ -319,11 +315,17 @@ public class HikeStickerSearchBaseConstants
 
 	// =============================================Constants used for indexing of sticker data]]
 
+	// Default virtual tables prefixes
+	public static final String DEFAULT_TABLE_LIST = "ABCDEFGHIJKLMNOPQRSTUVWXYZ\0";
+
 	// Default story
 	public static final String DEFAULT_STORY = "generic";
 
 	// Default theme
 	public static final String DEFAULT_THEME_TAG = "GENERIC";
+
+	// Default script
+	public static final String STICKER_TAG_KEYBOARD_ISO_DEFAULT = "Latn";
 
 	// States used for Sticker-Tag relation and recommendations================================[[
 	public static enum STATE_CATEGORY

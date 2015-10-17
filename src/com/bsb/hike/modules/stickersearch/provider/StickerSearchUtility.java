@@ -527,9 +527,9 @@ public class StickerSearchUtility
 	}
 
 	/* Determine if given character is special character */
-	public static boolean isSpecialCharacter(char c)
+	public static boolean isSpecialCharacterForLatin(char c)
 	{
-		return ((c >= 'A') && (c <= 'Z')) || ((c >= 'a') && (c <= 'z')) || ((c >= '0') && (c <= '9')) || (c == ' ') || (c == '\t') || (c == '\n');
+		return ((int) c < 256) && !(((c >= 'A') && (c <= 'Z')) || ((c >= 'a') && (c <= 'z')));
 	}
 
 	/* Check if given word is of smiley's type */
@@ -560,11 +560,11 @@ public class StickerSearchUtility
 			char[] letters = str.toCharArray();
 
 			// First, check if word is starting from special character
-			if ((letters.length > 0) && !(StickerSearchUtility.isSpecialCharacter(letters[0])))
+			if ((letters.length > 0) && !(StickerSearchUtility.isSpecialCharacterForLatin(letters[0])))
 			{
 				for (char c : letters)
 				{
-					if (!StickerSearchUtility.isSpecialCharacter(c))
+					if (!StickerSearchUtility.isSpecialCharacterForLatin(c))
 					{
 						outputBuilder.append(c);
 					}

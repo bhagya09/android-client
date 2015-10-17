@@ -180,7 +180,7 @@ public enum StickerSearchDataController
 						}
 						else
 						{
-							Logger.e(TAG, "setupStickerSearchWizard(), Sticker: " + stickerInfo + ", tag data is provided with undefined categories type key:" + catgrsType);
+							Logger.v(TAG, "setupStickerSearchWizard(), Sticker: " + stickerInfo + ", other than categories key:" + catgrsType);
 						}
 					}
 
