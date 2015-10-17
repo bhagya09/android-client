@@ -22,6 +22,8 @@ public class StickerTagDataContainer
 
 	private ArrayList<String> mLanguages;
 
+	private ArrayList<String> mScripts;
+
 	private ArrayList<String> mTagCategories;
 
 	private ArrayList<String> mThemes;
@@ -34,19 +36,18 @@ public class StickerTagDataContainer
 
 	private String mFestivals;
 
-	public StickerTagDataContainer(String stickerCode, ArrayList<String> tags, ArrayList<String> languages, ArrayList<String> tagCategories, ArrayList<String> themes,
-			ArrayList<Integer> tagExactMatchPriorities, ArrayList<Integer> tagPriorities, int moment, String festivals)
-	{
-		mStickerCode = stickerCode;
-		mTags = tags;
-		mLanguages = languages;
-		mTagCategories = tagCategories;
-		mThemes = themes;
-		mTagExactMatchPriorities = tagExactMatchPriorities;
-		mTagPriorities = tagPriorities;
-		mMomentCode = moment;
-		mFestivals = festivals;
-	}
+	private StickerTagDataContainer(StickerTagDataBuilder builder) {
+		mStickerCode = builder.mStickerCode;
+		mTags = builder.mTags;
+		mLanguages = builder.mLanguages;
+		mScripts = builder.mScripts;
+		mTagCategories = builder.mTagCategories;
+		mThemes = builder.mThemes;
+		mTagExactMatchPriorities = builder.mTagExactMatchPriorities;
+		mTagPriorities = builder.mTagPriorities;
+		mMomentCode = builder.mMomentCode;
+		mFestivals = builder.mFestivals;
+    }
 
 	public String getStickerCode()
 	{
@@ -66,6 +67,11 @@ public class StickerTagDataContainer
 	public ArrayList<String> getLanguageList()
 	{
 		return mLanguages;
+	}
+
+	public ArrayList<String> getScriptList()
+	{
+		return mScripts;
 	}
 
 	public ArrayList<String> getTagCategoryList()
@@ -105,13 +111,14 @@ public class StickerTagDataContainer
 
 		if (size > 0)
 		{
-			result = (mStickerCode != null) && (mLanguages != null) && (mTagCategories != null) && (mThemes != null) && (mTagExactMatchPriorities != null)
+			result = (mStickerCode != null) && (mLanguages != null) && (mScripts != null) && (mTagCategories != null) && (mThemes != null) && (mTagExactMatchPriorities != null)
 					&& (mTagPriorities != null) && (mFestivals != null);
 
 			if (result)
 			{
-				result = (mLanguages.size() == size) && (mTagCategories.size() == size) && (mTagExactMatchPriorities.size() == size) && (mTagPriorities.size() == size)
-						&& (mThemes.size() > 0);
+				// Language, Script, Category and various Priorities are per tag while themes are per sticker
+				result = (mLanguages.size() == size) && (mScripts.size() == size) && (mTagCategories.size() == size) && (mTagExactMatchPriorities.size() == size)
+						&& (mTagPriorities.size() == size) && (mThemes.size() > 0);
 			}
 		}
 
@@ -143,6 +150,7 @@ public class StickerTagDataContainer
 		result = prime * result + ((mStickerCode == null) ? 0 : mStickerCode.hashCode());
 		result = prime * result + ((mFestivals == null) ? 0 : mFestivals.hashCode());
 		result = prime * result + ((mLanguages == null) ? 0 : mLanguages.hashCode());
+		result = prime * result + ((mScripts == null) ? 0 : mScripts.hashCode());
 		result = prime * result + ((mTagCategories == null) ? 0 : mTagCategories.hashCode());
 		result = prime * result + ((mTags == null) ? 0 : mTags.hashCode());
 		result = prime * result + ((mThemes == null) ? 0 : mThemes.hashCode());
@@ -171,7 +179,7 @@ public class StickerTagDataContainer
 		StickerTagDataContainer other = (StickerTagDataContainer) obj;
 
 		/* Compare in order of raw data types to derived data types i.e. comparison must be done earlier for those data types, which takes low comparison-processing time */
-		/* Like order cab be: Numeric types ---> Strings ---> Collections of numeric values ---> Collections of Strings or, derived classes */
+		/* Like order can be: Numeric types ---> Strings ---> Collections of numeric values ---> Collections of Strings or, derived classes and so on */
 		if (mMomentCode != other.mMomentCode)
 		{
 			return false;
@@ -237,6 +245,18 @@ public class StickerTagDataContainer
 			return false;
 		}
 
+		if (mScripts == null)
+		{
+			if (other.mScripts != null)
+			{
+				return false;
+			}
+		}
+		else if (!mScripts.equals(other.mScripts))
+		{
+			return false;
+		}
+
 		if (mTagCategories == null)
 		{
 			if (other.mTagCategories != null)
@@ -279,7 +299,70 @@ public class StickerTagDataContainer
 	@Override
 	public String toString()
 	{
-		return "[stkr_info: " + mStickerCode + ", tag_data: {<tag=" + mTags + "><lan=" + mLanguages + "><cat=" + mTagCategories + "><thm=" + mThemes + "><ext_match_ord="
+		return "[stkr_info: " + mStickerCode + ", tag_data: {<tag=" + mTags + "><lan=" + mLanguages + "><scr=" + mScripts + "><cat=" + mTagCategories + "><thm=" + mThemes + "><ext_match_ord="
 				+ mTagExactMatchPriorities + "><tag_popularity_ord=" + mTagPriorities + ">}, attrs: {<mnt_cd=" + mMomentCode + "><fest=" + mFestivals + "}]";
+	}
+
+	public static class StickerTagDataBuilder
+	{
+		private String mStickerCode;
+
+		private ArrayList<String> mTags;
+
+		private ArrayList<String> mLanguages;
+
+		private ArrayList<String> mScripts;
+
+		private ArrayList<String> mTagCategories;
+
+		private ArrayList<String> mThemes;
+
+		private ArrayList<Integer> mTagExactMatchPriorities;
+
+		private ArrayList<Integer> mTagPriorities;
+
+		private int mMomentCode;
+
+		private String mFestivals;
+
+		/* Initial constructor should have all 3 parameters, based on which any sticker can be defined uniquely */
+		public StickerTagDataBuilder(String stickerCode, ArrayList<String> tags, ArrayList<String> themes, ArrayList<String> languages)
+		{
+			mStickerCode = stickerCode;
+			mTags = tags;
+			mThemes = themes;
+			mLanguages = languages;
+		}
+
+		public StickerTagDataBuilder tagCategories(ArrayList<String> tagCategories)
+		{
+			mTagCategories = tagCategories;
+			return this;
+		}
+
+		public StickerTagDataBuilder scripts(ArrayList<String> scripts)
+		{
+			mScripts = scripts;
+			return this;
+		}
+
+		public StickerTagDataBuilder priorities(ArrayList<Integer> tagExactMatchPriorities, ArrayList<Integer> tagPriorities)
+		{
+			mTagExactMatchPriorities = tagExactMatchPriorities;
+			mTagPriorities = tagPriorities;
+			return this;
+		}
+
+		public StickerTagDataBuilder events(int moment, String festivals)
+		{
+			mMomentCode = moment;
+			mFestivals = festivals;
+			return this;
+		}
+
+		public StickerTagDataContainer build()
+		{
+			return new StickerTagDataContainer(this);
+		}
 	}
 }
