@@ -3,36 +3,44 @@ package com.bsb.hike.ui;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import android.app.ProgressDialog;
-import android.content.Intent;
-import android.os.Bundle;
-import android.text.TextUtils;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.animation.AnimationUtils;
-import android.widget.EditText;
-import android.widget.TextView;
-import android.widget.Toast;
-
-import android.support.v7.app.ActionBar;
-import android.support.v7.widget.Toolbar;
-
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
+import com.bsb.hike.modules.kpt.HikeCustomKeyboard;
+import com.bsb.hike.modules.kpt.KptUtils;
 import com.bsb.hike.tasks.DeleteAccountTask;
 import com.bsb.hike.tasks.DeleteAccountTask.DeleteAccountListener;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.Utils;
+import com.bsb.hike.view.CustomFontEditText;
+import com.bsb.hike.view.CustomFontTextView;
+import com.kpt.adaptxt.beta.RemoveDialogData;
+import com.kpt.adaptxt.beta.util.KPTConstants;
+import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtKeyboordVisibilityStatusListner;
 
-public class DeleteAccount extends HikeAppStateBaseFragmentActivity implements DeleteAccountListener
+import android.app.ProgressDialog;
+import android.content.Intent;
+import android.os.Bundle;
+import android.support.v7.app.ActionBar;
+import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
+import android.view.LayoutInflater;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.animation.AnimationUtils;
+import android.widget.TextView;
+import android.widget.Toast;
+
+public class DeleteAccount extends HikeAppStateBaseFragmentActivity implements DeleteAccountListener, AdaptxtKeyboordVisibilityStatusListner,
+		OnClickListener
 {
-	private TextView countryName, phoneNum;
-
-	private EditText countryCode;
+	private CustomFontTextView countryName;
+	
+	private CustomFontEditText countryCode, phoneNum;
 	
 	ProgressDialog progressDialog;
 
@@ -47,6 +55,10 @@ public class DeleteAccount extends HikeAppStateBaseFragmentActivity implements D
 	private HashMap<String, String> codesMap = new HashMap<String, String>();
 
 	private HashMap<String, String> languageMap = new HashMap<String, String>();
+	
+	private HikeCustomKeyboard mCustomKeyboard;
+	
+	private boolean systemKeyboard;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -54,11 +66,29 @@ public class DeleteAccount extends HikeAppStateBaseFragmentActivity implements D
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.delete_account_confirmation);
 		
+		systemKeyboard = HikeMessengerApp.isSystemKeyboard(DeleteAccount.this);
+		
 		initViewComponents();
+		if (!systemKeyboard)
+		{
+			initCustomKeyboard();
+		}
 		setupActionBar();
 		handleOrientationChanegs();
 	}
 
+	private void initCustomKeyboard()
+	{
+		View keyboardView = findViewById(R.id.keyboardView_holder);
+		mCustomKeyboard = new HikeCustomKeyboard(DeleteAccount.this, keyboardView, KPTConstants.SINGLE_LINE_EDITOR, null, DeleteAccount.this);
+		mCustomKeyboard.registerEditText(R.id.et_enter_num);
+		mCustomKeyboard.registerEditText(R.id.country_picker);
+		mCustomKeyboard.registerEditText(R.id.selected_country_name);
+		mCustomKeyboard.init(phoneNum);
+		phoneNum.setOnClickListener(this);
+		countryCode.setOnClickListener(this);
+	}
+	
 	private void handleOrientationChanegs()
 	{
 
@@ -87,9 +117,9 @@ public class DeleteAccount extends HikeAppStateBaseFragmentActivity implements D
 
 	private void initViewComponents()
 	{
-		countryName = (TextView) findViewById(R.id.selected_country_name);
-		countryCode = (EditText) findViewById(R.id.country_picker);
-		phoneNum = (TextView) findViewById(R.id.et_enter_num);
+		countryName = (CustomFontTextView) findViewById(R.id.selected_country_name);
+		countryCode = (CustomFontEditText) findViewById(R.id.country_picker);
+		phoneNum = (CustomFontEditText) findViewById(R.id.et_enter_num);
 		Utils.setupCountryCodeData(this, country_code, countryCode, countryName, countriesArray, countriesMap, codesMap, languageMap);
 	}
 
@@ -267,12 +297,99 @@ public class DeleteAccount extends HikeAppStateBaseFragmentActivity implements D
 		{
 			task.setActivity(null);
 		}
+		KptUtils.destroyKeyboardResources(mCustomKeyboard, R.id.et_enter_num, R.id.country_picker);
 		super.onDestroy();
 	}
+	
+	@Override
+	protected void onPause()
+	{
+		KptUtils.pauseKeyboardResources(mCustomKeyboard, countryCode, phoneNum);
+		super.onPause();
+	}
+	
 	@Override
 	public void onBackPressed()
 	{
-		// TODO Auto-generated method stub
+		if (mCustomKeyboard != null && mCustomKeyboard.isCustomKeyboardVisible())
+		{
+			mCustomKeyboard.showCustomKeyboard(countryCode, false);
+			mCustomKeyboard.showCustomKeyboard(phoneNum, false);
+			KptUtils.updatePadding(DeleteAccount.this, R.id.delete_scroll_view, 0);
+			return;
+		}
 		finish();
+	}
+
+	@Override
+	public void analyticalData(String currentLanguage)
+	{
+		KptUtils.generateKeyboardAnalytics(currentLanguage);
+	}
+
+	@Override
+	public void onInputViewCreated()
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onInputviewVisbility(boolean kptVisible, int height)
+	{
+		if (kptVisible)
+		{
+			KptUtils.updatePadding(DeleteAccount.this, R.id.delete_scroll_view, height);
+		}
+		else
+		{
+			KptUtils.updatePadding(DeleteAccount.this, R.id.delete_scroll_view, 0);
+		}
+	}
+
+	@Override
+	public void showGlobeKeyView()
+	{
+		KptUtils.onGlobeKeyPressed(DeleteAccount.this, mCustomKeyboard);
+	}
+
+	@Override
+	public void showQuickSettingView()
+	{
+		KptUtils.onGlobeKeyPressed(DeleteAccount.this, mCustomKeyboard);
+	}
+
+	@Override
+	public void onClick(View v)
+	{
+		switch (v.getId())
+		{
+		case R.id.et_enter_num:
+			mCustomKeyboard.showCustomKeyboard(phoneNum, true);
+			KptUtils.updatePadding(DeleteAccount.this, R.id.delete_scroll_view, mCustomKeyboard.getKeyBoardAndCVHeight());
+			break;
+			
+		case R.id.country_picker:
+			mCustomKeyboard.showCustomKeyboard(countryCode, true);
+			KptUtils.updatePadding(DeleteAccount.this, R.id.delete_scroll_view, mCustomKeyboard.getKeyBoardAndCVHeight());
+			break;
+			
+		default:
+			break;
+		}
+	}
+
+	@Override
+	public void dismissRemoveDialog()
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void showRemoveDialog(RemoveDialogData arg0)
+	{
+		// TODO Auto-generated method stub
+		
 	}
 }

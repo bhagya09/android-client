@@ -31,6 +31,8 @@ public class HikeConstants
 
 	public static final String MESSAGE = "msg";
 
+	public static final String TOAST = "tst";
+	
 	public static final String UI_TOPIC = "/u";
 
 	public static final String APP_TOPIC = "/a";
@@ -473,6 +475,12 @@ public class HikeConstants
 
 	public static final String LAST_SEEN_PREF_LIST = "lastSeenPrefList";
 
+	public static final String LONG_PRESS_DUR_PREF = "longPressDurationPref";
+	
+	public static final String KEYPRESS_VOL_PREF = "keyPressVolPref";
+	
+	public static final String KEYPRESS_VIB_DUR_PREF = "keypressVibDurationPref";
+	
 	public static final String PROFILE_PIC_PREF = "profilePicPref";
 
 	public static final String SEND_ENTER_PREF = "enterSendPref";
@@ -600,6 +608,34 @@ public class HikeConstants
 
 	public static final String H2O_NOTIF_BOOLEAN_PREF = "hikeOfflineNotificationPref";
 
+	public static final String KEYBOARD_LANGUAGE_PREF = "languagePref";
+	
+	public static final String KEYBOARD_PREF = "keyboardPref";
+	
+	public static final String GLIDE_PREF = "glidePref";
+	
+	public static final String KEYBOARD_ADV_PREF = "advancedPref";
+	
+	public static final String KEYBOARD_ADV_PREF_SCREEN = "kptAdvancedPrefScreen";
+	
+	public static final String AUTO_CORRECT_PREF = "autoCorrectPref";
+	
+	public static final String AUTO_CAPITALIZATION_PREF = "autoCapsPref";
+	
+	public static final String AUTO_SPACING_PREF = "autoSpacingPref";
+	
+	public static final String DISPLAY_SUGGESTIONS_PREF = "dispSuggPref";
+	
+	public static final String PRIVATE_MODE_PREF = "privateModePref";
+	
+	public static final String DISPLAY_ACCENTS_PREF = "dispAccentsPref";
+	
+	public static final String POPUP_ON_KEYPRESS_PREF = "popupOnKeypressPref";
+	
+	public static final String SOUND_ON_KEYPRESS_PREF = "soundOnKeypressPref";
+	
+	public static final String VIBRATE_ON_KEYPRESS_PREF = "vibrateOnKeypressPref";
+	
 	public static final String UPGRADE_AVATAR_PROGRESS_USER = "upgradeAvtarProgressUser";
 
 	public static final String UPGRADING = "upgrading";
@@ -2351,7 +2387,15 @@ public class HikeConstants
 		public static final String TIMELINE_OVERFLOW_OPTION_FAV = "fav";
 
 	}
-
+	public static final class Toast
+	{
+		public static final String TOAST_MESSAGE = "t_msg";
+		
+		public static final String TOAST_GRAVITY = "t_grv";
+		
+		public static final String TOAST_DURATION = "t_dur";
+	}
+	
 	public static final class MqttMessageTypes
 	{
 		public static final String MESSAGE_READ = "mr";
@@ -3111,8 +3155,10 @@ public class HikeConstants
 
 	public static final int KEYBOARD_CONFIGURATION_NEW = 2;
 
-	public static final String GET = "get";
+	public static final String CURRENT_KEYBOARD = "currentKeyboard";
 	
+	public static final String GET="get";
+
 	public static final String HIKE_FILE_TYPE = "hft";
 
 	public static final String FTUE_HIKEBOT_MSISDN = "+hike1+";

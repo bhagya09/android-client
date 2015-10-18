@@ -384,6 +384,11 @@ public class HttpRequestConstants
 		}
 	}
 
+	public static String getLanguageDictionaryBaseUrl()
+	{
+		return BASE_URL + BASE_V1 + "/dict/";
+	}
+	
 	public static String getHikeCallerUrl()
 	{
 		if (isProduction)

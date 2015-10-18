@@ -101,7 +101,7 @@ public class StickerShareSettings extends HikeAppStateBaseFragmentActivity
 		
 		if(accessibilityDialog==null || !accessibilityDialog.isShowing())
 		{
-			if (ChatHeadUtils.canAccessibilityBeUsed(false))
+			if (ChatHeadUtils.accessibilityMustBeActivated(ChatHeadUtils.isAccessibilityEnabled(this)))
 			{
 				forciblyMarkUnchecked();
 			}
@@ -220,7 +220,8 @@ public class StickerShareSettings extends HikeAppStateBaseFragmentActivity
 	
 	public void stickerSettingsChangedEvent(boolean showDialog)
 	{
-		if (showDialog && ChatHeadUtils.canAccessibilityBeUsed(false) && (accessibilityDialog == null || !accessibilityDialog.isShowing()))
+		if (showDialog && ChatHeadUtils.accessibilityMustBeActivated(ChatHeadUtils.isAccessibilityEnabled(this)) 
+				&& (accessibilityDialog == null || !accessibilityDialog.isShowing()))
 		{
 			accessibilityDialog = HikeDialogFactory.showDialog(StickerShareSettings.this, HikeDialogFactory.ACCESSIBILITY_DIALOG, new HikeDialogListener()
 			{

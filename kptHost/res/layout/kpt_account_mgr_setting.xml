@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/kpt_social_selector_bg" >
+
+    <LinearLayout
+        android:id="@+id/dummy"
+        android:layout_width="48dip"
+        android:layout_height="48dip"
+        android:layout_alignParentRight="true" >
+
+        <ImageView
+            android:id="@+id/account_setting_account_status_icon"
+            android:layout_width="48dip"
+            android:layout_height="48dip"
+            android:layout_marginTop="8dip" >
+        </ImageView>
+    </LinearLayout>
+
+    <CheckedTextView
+        android:id="@+id/account_settings_mainTxt"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:checkMark="?android:attr/listChoiceIndicatorMultiple"
+        android:orientation="vertical"
+        android:paddingLeft="10dip"
+        android:paddingTop="10dip"
+        android:textColor="@android:color/white"
+        android:textSize="22sp" />
+
+    <TextView
+        android:id="@+id/account_settings_subTxt"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@id/account_settings_mainTxt"
+        android:layout_marginTop="10dip"
+        android:layout_toLeftOf="@id/account_setting_account_status_icon"
+        android:paddingBottom="8dip"
+        android:paddingLeft="10dip"
+        android:textColor="@android:color/white" >
+    </TextView>
+
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="1dip"
+        android:layout_below="@id/account_settings_subTxt"
+        android:background="@android:drawable/divider_horizontal_dark" >
+    </TextView>
+
+</RelativeLayout>

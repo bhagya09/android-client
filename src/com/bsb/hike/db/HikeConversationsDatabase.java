@@ -144,7 +144,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		}
 		String sql = "CREATE TABLE IF NOT EXISTS " + DBConstants.MESSAGES_TABLE
 				+ " ( "
-				+ DBConstants.MESSAGE + " STRING, " // The message text
+				+ DBConstants.MESSAGE + " TEXT, " // The message text
 				+ DBConstants.MSG_STATUS + " INTEGER, " // Whether the message is sent or not. Plus also tells us the current state of the message.
 				+ DBConstants.TIMESTAMP + " INTEGER, " // Message time stamp, send or receiving time in seconds
 				+ DBConstants.MESSAGE_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " // The message id (Unique)
@@ -192,7 +192,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				+ DBConstants.OVERLAY_DISMISSED + " INTEGER, " // Flag. Whether to show the SMS Credits overlay or not.
 
 				// Messages table columns begin (We keep the last entry of messages for a conversation)
-				+ DBConstants.MESSAGE + " STRING, "
+				+ DBConstants.MESSAGE + " TEXT, "
 				+ DBConstants.MSG_STATUS + " INTEGER, "
 				+ DBConstants.LAST_MESSAGE_TIMESTAMP + " INTEGER, "
 				+ DBConstants.MESSAGE_ID + " INTEGER, "
@@ -321,6 +321,9 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 		sql = "CREATE UNIQUE INDEX IF NOT EXISTS " + DBConstants.EVENT_HASH_INDEX + " ON " + DBConstants.MESSAGE_EVENT_TABLE + " ( " + DBConstants.EVENT_HASH + " )";
 		db.execSQL(sql);
+
+		// to be aware of the users for whom db upgrade should not be done in future to fix AND-704
+		saveCurrentConvDbVersionToPrefs();
 	}
 
 	private void createIndexOverServerIdField(SQLiteDatabase db)
@@ -2967,12 +2970,8 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		values.put(HIKE_CONTENT.NAMESPACE, botInfo.getNamespace());
 		values.put(HIKE_CONTENT.HELPER_DATA, botInfo.getHelperData());
 		values.put(HIKE_CONTENT.BOT_VERSION, botInfo.getVersion());
-		float result = mDb.insertWithOnConflict(DBConstants.BOT_TABLE, null, values, SQLiteDatabase.CONFLICT_REPLACE);
+		mDb.insertWithOnConflict(DBConstants.BOT_TABLE, null, values, SQLiteDatabase.CONFLICT_REPLACE);
 		
-		if (result >= 0)
-		{
-			HikeMessengerApp.getPubSub().publish(HikePubSub.BOT_CREATED, botInfo);
-		}
 	}
 
 	public boolean isBotMuted(String msisdn)
@@ -8650,4 +8649,11 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		}
 	}
 
+	/**
+	 * Saves the conversations database version to preferences
+	 */
+	private void saveCurrentConvDbVersionToPrefs()
+	{
+		HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.CONV_DB_VERSION_PREF, DBConstants.CONVERSATIONS_DATABASE_VERSION);
+	}
 }
