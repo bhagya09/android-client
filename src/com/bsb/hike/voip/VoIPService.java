@@ -424,7 +424,7 @@ public class VoIPService extends Service {
 		
 		int returnInt = super.onStartCommand(intent, flags, startId);
 		
-		// Logger.d(logTag, "VoIPService onStartCommand()");
+		 Logger.d(tag, "VoIPService onStartCommand()");
 
 		if (intent == null)
 			return returnInt;

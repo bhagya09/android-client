@@ -38,6 +38,7 @@ import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
@@ -108,6 +109,7 @@ public class VoIPClient  {
 	public boolean isDummy = false, isHost = false;		
 	private String selfMsisdn;
 	public boolean incompatible = false;
+	private boolean usingHikeDirect = false;
 
 	// Conference related
 	public ArrayList<VoIPClient> clientMsisdns = new ArrayList<>();
@@ -389,76 +391,80 @@ public class VoIPClient  {
 			@Override
 			public void run() {
 
+				usingHikeDirect = OfflineUtils.isConnectedToSameMsisdn(getPhoneNumber()); 
+				
 				removeExternalSocketInfo();
-				
-				byte[] receiveData = new byte[10240];
-				
-				Logger.d(tag, "Retrieving external socket information..");
-				VoIPDataPacket dp = new VoIPDataPacket(PacketType.RELAY_INIT);
-				DatagramPacket incomingPacket = new DatagramPacket(receiveData, receiveData.length);
-
-				boolean continueSending = true;
-				int counter = 0;
-
 				getNewSocket();
+				
+				if (!usingHikeDirect) {
+					
+					byte[] receiveData = new byte[10240];
+					
+					Logger.d(tag, "Retrieving external socket information..");
+					VoIPDataPacket dp = new VoIPDataPacket(PacketType.RELAY_INIT);
+					DatagramPacket incomingPacket = new DatagramPacket(receiveData, receiveData.length);
 
-				while (continueSending && keepRunning && (counter < 10 || reconnecting)) {
-					counter++;
-					try {
-						/**
-						 * If we are initiating the connection, then we set the relay server
-						 * to be used by both clients. 
-						 * Also check if the relay has already been set (in case of conferences)
-						 */
-						if (!isInitiator() && TextUtils.isEmpty(getRelayAddress())) {
-							InetAddress host = null;
-							try {
-								host = InetAddress.getByName(VoIPConstants.ICEServerName);
-							} catch (UnknownHostException e) {
-								// Fall back to hardcoded IPs
-								Logger.w(tag, "UnknownHostException while retrieving relay host.");
-								host = VoIPUtils.getRelayIpFromHardcodedAddresses();
-							}
-							
-							if (host == null) {
-								Logger.e(tag, "Unable to get relay server's IP address.");
-								return;
-							}
-							
-							setRelayAddress(host.getHostAddress());
-							setRelayPort(VoIPUtils.getRelayPort(context));
-						}
+					boolean continueSending = true;
+					int counter = 0;
 
-						Logger.d(tag, "ICE Sending.");
-						sendPacket(dp, false);
-						
-						if (socket == null)
-							return;
-						
-						socket.receive(incomingPacket);
-						
-						String serverResponse = new String(incomingPacket.getData(), 0, incomingPacket.getLength());
-						Logger.d(tag, "ICE Received: " + serverResponse);
-						setExternalSocketInfo(serverResponse);
-						continueSending = false;
-						
-					} catch (SocketTimeoutException e) {
-						Logger.d(tag, "UDP timeout on ICE. #" + counter + ". New timeout: " + IceSocketTimeout);
-						getNewSocket();
-					} catch (IOException e) {
-						Logger.d(tag, "retrieveExternalSocket() IOException" + e.toString());
+					while (continueSending && keepRunning && (counter < 10 || reconnecting)) {
+						counter++;
 						try {
-							Thread.sleep(500);
-						} catch (InterruptedException e1) {
-							Logger.d(tag, "Waiting for external socket info interrupted.");
+							/**
+							 * If we are initiating the connection, then we set the relay server
+							 * to be used by both clients. 
+							 * Also check if the relay has already been set (in case of conferences)
+							 */
+							if (!isInitiator() && TextUtils.isEmpty(getRelayAddress())) {
+								InetAddress host = null;
+								try {
+									host = InetAddress.getByName(VoIPConstants.ICEServerName);
+								} catch (UnknownHostException e) {
+									// Fall back to hardcoded IPs
+									Logger.w(tag, "UnknownHostException while retrieving relay host.");
+									host = VoIPUtils.getRelayIpFromHardcodedAddresses();
+								}
+								
+								if (host == null) {
+									Logger.e(tag, "Unable to get relay server's IP address.");
+									return;
+								}
+								
+								setRelayAddress(host.getHostAddress());
+								setRelayPort(VoIPUtils.getRelayPort(context));
+							}
+
+							Logger.d(tag, "ICE Sending.");
+							sendPacket(dp, false);
+							
+							if (socket == null)
+								return;
+							
+							socket.receive(incomingPacket);
+							
+							String serverResponse = new String(incomingPacket.getData(), 0, incomingPacket.getLength());
+							Logger.d(tag, "ICE Received: " + serverResponse);
+							setExternalSocketInfo(serverResponse);
+							continueSending = false;
+							
+						} catch (SocketTimeoutException e) {
+							Logger.d(tag, "UDP timeout on ICE. #" + counter + ". New timeout: " + IceSocketTimeout);
+							getNewSocket();
+						} catch (IOException e) {
+							Logger.d(tag, "retrieveExternalSocket() IOException" + e.toString());
+							try {
+								Thread.sleep(500);
+							} catch (InterruptedException e1) {
+								Logger.d(tag, "Waiting for external socket info interrupted.");
+							}
+						} catch (JSONException e) {
+							Logger.d(tag, "JSONException: " + e.toString());
+							continueSending = true;
 						}
-					} catch (JSONException e) {
-						Logger.d(tag, "JSONException: " + e.toString());
-						continueSending = true;
 					}
 				}
 				
-				if (haveExternalSocketInfo()) {
+				if (haveExternalSocketInfo() || usingHikeDirect) {
 					sendSocketInfoToPartner();
 					if (socketInfoReceived)
 						establishConnection();
@@ -498,7 +504,7 @@ public class VoIPClient  {
 			return;
 		}
 
-		if (!haveExternalSocketInfo()) {
+		if (!haveExternalSocketInfo() && !usingHikeDirect) {
 			Logger.d(tag, "Can't send socket info (don't have it!)");
 			return;
 		}
@@ -703,12 +709,14 @@ public class VoIPClient  {
 							setPreferredConnectionMethod(ConnectionMethods.PRIVATE);
 							dp = new VoIPDataPacket(PacketType.COMM_UDP_SYN_PRIVATE);
 							sendPacket(dp, false);
-							setPreferredConnectionMethod(ConnectionMethods.PUBLIC);
-							dp = new VoIPDataPacket(PacketType.COMM_UDP_SYN_PUBLIC);
-							sendPacket(dp, false);
-							setPreferredConnectionMethod(ConnectionMethods.RELAY);
-							dp = new VoIPDataPacket(PacketType.COMM_UDP_SYN_RELAY);
-							sendPacket(dp, false);
+							if (!usingHikeDirect) {
+								setPreferredConnectionMethod(ConnectionMethods.PUBLIC);
+								dp = new VoIPDataPacket(PacketType.COMM_UDP_SYN_PUBLIC);
+								sendPacket(dp, false);
+								setPreferredConnectionMethod(ConnectionMethods.RELAY);
+								dp = new VoIPDataPacket(PacketType.COMM_UDP_SYN_RELAY);
+								sendPacket(dp, false);
+							}
 
 							setPreferredConnectionMethod(currentMethod);
 						}
@@ -1816,6 +1824,10 @@ public class VoIPClient  {
 		else 
 			localBitrate = wifiBitrate;
 
+		// Hike direct override
+		if (usingHikeDirect)
+			localBitrate = wifiBitrate;
+			
 		// Conference override
 		if ((isInAHostedConference || isHostingConference) && localBitrate > conferenceBitrate)
 			localBitrate = conferenceBitrate;
