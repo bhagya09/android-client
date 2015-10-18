@@ -157,7 +157,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 
 		try
 		{
-			mDb.beginTransaction();
+			db.beginTransaction();
 
 			if (oldVersion < HikeStickerSearchBaseConstants.VERSION_STICKER_REGIONAL_TAG_MAPPING_ADDED)
 			{
@@ -184,11 +184,11 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 				db.execSQL(sql);
 			}
 
-			mDb.setTransactionSuccessful();
+			db.setTransactionSuccessful();
 		}
 		finally
 		{
-			mDb.endTransaction();
+			db.endTransaction();
 		}
 	}
 
@@ -196,11 +196,6 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 	private void createFixedTables(SQLiteDatabase db)
 	{
 		Logger.i(TAG, "createFixedTables(" + db + ")");
-
-		if (db == null)
-		{
-			db = mDb;
-		}
 
 		// Create fixed table: TABLE_STICKER_TAG_ENTITY
 		// Primary key : Integer [Compulsory]
