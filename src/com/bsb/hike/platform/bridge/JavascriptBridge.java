@@ -5,6 +5,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.lang.ref.WeakReference;
+import java.net.URISyntaxException;
 import java.net.URLEncoder;
 
 import org.json.JSONException;
@@ -12,6 +13,7 @@ import org.json.JSONObject;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -19,6 +21,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
+import android.provider.Settings;
 import android.text.Html;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -37,6 +40,9 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
+import com.bsb.hike.dialog.HikeDialog;
+import com.bsb.hike.dialog.HikeDialogFactory;
+import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
@@ -52,10 +58,13 @@ import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.platform.content.PlatformContentConstants;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.ui.ComposeChatActivity;
+import com.bsb.hike.ui.fragments.ShareLinkFragment;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.OneToNConversationUtils;
+import com.bsb.hike.utils.ShareUtils;
 import com.bsb.hike.utils.Utils;
 
 /**
@@ -553,6 +562,7 @@ public abstract class JavascriptBridge
 			intent.putExtra(HikeConstants.Extras.COMPOSE_MODE, ComposeChatActivity.PICK_CONTACT_MODE);
 			intent.putExtra(tag, JavascriptBridge.this.hashCode());
 			intent.putExtra(REQUEST_CODE, PICK_CONTACT_REQUEST);
+			intent.putExtra(HikeConstants.Extras.THUMBNAILS_REQUIRED, true);
 			activity.startActivityForResult(intent, HikeConstants.PLATFORM_REQUEST);
 		}
 	}
@@ -1129,6 +1139,122 @@ public abstract class JavascriptBridge
 	public void sendSharedMessage(String cardObject, String hikeMessage, String sharedData, BotInfo mBotInfo)
 	{
 		PlatformHelper.sendSharedMessage(cardObject, hikeMessage, sharedData, mBotInfo, weakActivity.get(),JavascriptBridge.this.hashCode());
+	}
+
+	/**
+	 * Platform Version 8
+	 * This function is made for the special Group bot that has the information about inviting members to join group from WA/Others App.
+	 * 
+	 */
+	@JavascriptInterface
+	public void sendGCInvitationViaLinkSharing()
+	{
+		Context mContext = HikeMessengerApp.getInstance().getApplicationContext();
+		String groupId = OneToNConversationUtils.createNewGroupId(mContext);
+		int number = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.WA_GROUP_NUMBER, 1);
+		String groupName = mContext.getString(R.string.wa_group) + " " + number;
+		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.WA_GROUP_NUMBER, number + 1);
+		
+		ShareLinkFragment fragment = ShareLinkFragment.newInstance(groupId, groupName, 1, true, true);
+		fragment.initViaArguments();
+		fragment.setButtonClickedType(ShareLinkFragment.WA);
+		fragment.makeHttpCallForURL();
+	}
+	
+	/**
+	 * Platform Version 8
+	 * This function is made for the special Group bot that has the information about inviting members to join group from WA/Others App.
+	 * 
+	 */
+	@JavascriptInterface
+	public void remindGCInvitationViaLinkSharing()
+	{
+		Context mContext = HikeMessengerApp.getInstance().getApplicationContext();
+		String baseText = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.TEXT_FOR_GC_VIA_WA, mContext.getString(R.string.link_share_wa_msg)); 
+		String url = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SHARE_LINK_URL_FOR_GC, null);
+		
+		if(!TextUtils.isEmpty(url))
+		{
+			String finalText = baseText + "\n" + url;
+			ShareUtils.shareContent(HikeConstants.Extras.ShareTypes.TEXT_SHARE, finalText, HikeConstants.Extras.WHATSAPP_PACKAGE);
+		}
+		else
+		{
+			//NO GROUP WAS CREATED
+		}
+	}
+
+	/**
+	 * Platform Version 6 Call this function to open a given Intent.
+	 * 
+	 * @param IntentName
+	 *            JS has to ensure the intent is a valid name, and has to provide the intent URI(e.g. android.settings.LOCATION_SOURCE_SETTINGS)
+	 */
+	@JavascriptInterface
+	public void openIntent(String intentURI)
+	{
+
+		Activity currActivity = weakActivity.get();
+		if (currActivity != null)
+		{
+			Intent intent;
+			try
+			{
+				intent = new Intent(intentURI);
+			currActivity.startActivity(intent);
+			}
+			catch (ActivityNotFoundException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
+	@JavascriptInterface
+	/**
+	 * Added in Platform Version:7
+	 * 
+	 * @param id
+	 *            : : the id of the function that native will call to call the js . Show a native dialog and know the button clicked by the user
+	 *            returns positive/negative. Title,Message and positiveBtn are compulsory.
+	 */
+	public void showDialog(final String id, String title, String message, String positiveBtn, String negativeBtn)
+	{
+		if(TextUtils.isEmpty(title)||TextUtils.isEmpty(message)||TextUtils.isEmpty(positiveBtn))
+			return;
+		Activity mContext = weakActivity.get();
+		if (mContext != null)
+		{
+			HikeDialogListener nativeDialogListener = new HikeDialogListener()
+			{
+
+				@Override
+				public void negativeClicked(HikeDialog hikeDialog)
+				{
+					callbackToJS(id, "negative");
+					hikeDialog.dismiss();
+
+				}
+
+				@Override
+				public void positiveClicked(HikeDialog hikeDialog)
+				{
+					callbackToJS(id, "positive");
+					hikeDialog.dismiss();
+
+				}
+
+				@Override
+				public void neutralClicked(HikeDialog hikeDialog)
+				{
+					// TODO Auto-generated method stub
+
+				}
+
+			};
+
+			HikeDialogFactory.showDialog(mContext, HikeDialogFactory.MICROAPP_DIALOG, nativeDialogListener, title, message, positiveBtn, negativeBtn);
+		}
 	}
 
 }

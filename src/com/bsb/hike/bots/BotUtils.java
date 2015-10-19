@@ -3,37 +3,41 @@ package com.bsb.hike.bots;
 import java.util.HashMap;
 import java.util.Map;
 
-import android.util.Base64;
-
-import com.bsb.hike.HikePubSub;
-import com.bsb.hike.models.ContactInfo;
-import com.bsb.hike.modules.contactmgr.ContactManager;
-import com.bsb.hike.platform.PlatformUtils;
-import com.bsb.hike.utils.Utils;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Context;
 import android.text.TextUtils;
+import android.util.Base64;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeConstants.NotificationType;
-import com.bsb.hike.HikeMessengerApp.CurrentState;
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.HikeMessengerApp.CurrentState;
+import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.db.HikeConversationsDatabase;
+import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
+import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.models.Conversation.ConvInfo;
+import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.modules.httpmgr.RequestToken;
+import com.bsb.hike.modules.httpmgr.exception.HttpException;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
+import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
+import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.content.PlatformContentConstants;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.Utils;
 
 /**
  * This class is for utility methods of bots
@@ -55,6 +59,10 @@ public class BotUtils
 	public static final String SHOW_UNREAD_COUNT_ZERO = "0";
 
 	public static final String SHOW_UNREAD_COUNT_ACTUAL = "-1";
+	
+	private static final String TAG = "BotUtils";
+	
+	public static boolean fetchBotThumbnails = true;
 
 	/**
 	 * adding default bots to bot hashmap. The config is set using {@link com.bsb.hike.bots.MessagingBotConfiguration}, where every bit is set according to the requirement
@@ -175,6 +183,7 @@ public class BotUtils
 	{
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.UPGRADE_FOR_DEFAULT_BOT_ENTRY, true);
 		initBots();
+		fetchBotIcons();
 	}
 	
 	/**
@@ -277,7 +286,6 @@ public class BotUtils
 	public static void createBot(JSONObject jsonObj)
 	{
 		long startTime = System.currentTimeMillis();
-
 		String type = jsonObj.optString(HikePlatformConstants.BOT_TYPE);
 		if (TextUtils.isEmpty(type))
 		{
@@ -321,9 +329,13 @@ public class BotUtils
 			NonMessagingBotMetadata botMetadata = new NonMessagingBotMetadata(botInfo.getMetadata());
 			if (botMetadata.isMicroAppMode())
 			{
-				PlatformUtils.downloadZipForNonMessagingBot(botInfo, enableBot, botChatTheme, notifType);
+				PlatformUtils.downloadZipForNonMessagingBot(botInfo, enableBot, botChatTheme, notifType, botMetadata);
 			}
 			else if (botMetadata.isWebUrlMode())
+			{
+				PlatformUtils.botCreationSuccessHandling(botInfo, enableBot, botChatTheme, notifType);
+			}
+			else if (botMetadata.isNativeMode())
 			{
 				PlatformUtils.botCreationSuccessHandling(botInfo, enableBot, botChatTheme, notifType);
 			}
@@ -335,7 +347,26 @@ public class BotUtils
 
 	private static BotInfo getBotInfoForNonMessagingBots(JSONObject jsonObj, String msisdn)
 	{
-		BotInfo botInfo = getBotInfoForBotMsisdn(msisdn);
+		
+		BotInfo existingBotInfo = getBotInfoForBotMsisdn(msisdn);
+		BotInfo botInfo = null;
+		
+		if (existingBotInfo != null)
+		{
+			try
+			{
+				Object clonedObj = existingBotInfo.clone();
+				if (clonedObj instanceof BotInfo)
+				{
+					botInfo = (BotInfo) clonedObj;
+				}
+
+			}
+			catch (CloneNotSupportedException e)
+			{
+				e.printStackTrace();
+			}
+		}
 
 		if (null == botInfo)
 		{
@@ -378,6 +409,12 @@ public class BotUtils
 			botInfo.setMetadata(metadata);
 		}
 
+		if (jsonObj.has(HikePlatformConstants.BOT_VERSION))
+		{
+			int version = jsonObj.optInt(HikePlatformConstants.BOT_VERSION);
+			botInfo.setVersion(version);
+		}
+
 		if (jsonObj.has(HikePlatformConstants.HELPER_DATA))
 		{
 
@@ -400,7 +437,27 @@ public class BotUtils
 
 	private static BotInfo getBotInfoFormessagingBots(JSONObject jsonObj, String msisdn)
 	{
-		BotInfo botInfo = getBotInfoForBotMsisdn(msisdn);
+		BotInfo existingBotInfo = getBotInfoForBotMsisdn(msisdn);
+		BotInfo botInfo = null;
+		
+		if (existingBotInfo != null)
+		{
+			try
+			{
+				Object clonedObj = existingBotInfo.clone();
+				if (clonedObj instanceof BotInfo)
+				{
+					botInfo = (BotInfo) clonedObj;
+				}
+
+			}
+			catch (CloneNotSupportedException e)
+			{
+				e.printStackTrace();
+			}
+		}
+		
+		
 		if (null == botInfo)
 		{
 			botInfo = new BotInfo.HikeBotBuilder(msisdn)
@@ -529,6 +586,186 @@ public class BotUtils
 			}
 		}
 		return NO_ANIMATION;
+	}
+	
+	/**
+	 * This method makes a HTTP Post Call to fetch avatar of a bot if it is not present in the HikeUserDb
+	 */
+	public static void fetchBotIcons()
+	{
+		HikeHandlerUtil mThread = HikeHandlerUtil.getInstance();
+		mThread.startHandlerThread();
+		mThread.postRunnableWithDelay(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				Logger.i(TAG, "Checking for bot icons");
+				for (final BotInfo mBotInfo : HikeMessengerApp.hikeBotInfoMap.values())
+				{
+					if (mBotInfo.isConvPresent() && !ContactManager.getInstance().hasIcon(mBotInfo.getMsisdn()))
+					{
+						Logger.i(TAG, "Making icon request for " + mBotInfo.getMsisdn() + mBotInfo.getConversationName());
+						RequestToken botRequestToken = HttpRequests.getAvatarForBots(mBotInfo.getMsisdn(), new IRequestListener()
+						{
+							@Override
+							public void onRequestSuccess(Response result)
+							{
+								byte[] response = (byte[]) result.getBody().getContent();
+
+								Logger.i(TAG, "Bot icon request successful for " + mBotInfo.getMsisdn());
+								if (response != null && response.length > 0)
+								{
+									ContactManager.getInstance().setIcon(mBotInfo.getMsisdn(), response, false);
+									HikeMessengerApp.getLruCache().clearIconForMSISDN(mBotInfo.getMsisdn());
+									HikeMessengerApp.getPubSub().publish(HikePubSub.ICON_CHANGED, mBotInfo.getMsisdn());
+								}
+
+							}
+
+							@Override
+							public void onRequestProgressUpdate(float progress)
+							{
+							}
+
+							@Override
+							public void onRequestFailure(HttpException httpException)
+							{
+								Logger.i(
+										TAG,
+										"Bot icon request failed for " + mBotInfo + " Reason :  " + httpException.getMessage() + " Error Code "
+												+ httpException.getErrorCode());
+							}
+						});
+
+						botRequestToken.execute();
+					}
+
+				}
+			}
+		}, 0);
+	}
+
+	public static boolean isSpecialBot(BotInfo botInfo)
+	{
+		NonMessagingBotMetadata metadata = new NonMessagingBotMetadata(botInfo.getMetadata());
+		if (!metadata.isSpecialBot())
+		{
+			Logger.e(TAG, "the bot is not a special bot and only special bot has the authority to call this function.");
+			return false;
+		}
+		return true;
+	}
+	
+	/**
+	 * Returns whether bot Discovery feature is enabled or not
+	 * 
+	 * @return
+	 */
+	public static boolean isBotDiscoveryEnabled()
+	{
+		return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ENABLE_BOT_DISCOVERY, false);
+	}
+
+//	/**
+//	 * Utility method called to syncBotDiscoveryTable with the table present on server
+//	 */
+//	public static void syncBotDiscoveryTable()
+//	{
+//		makeBotDiscoveryDownloadRequest(true, false, 0);
+//	}
+//	
+//	/**
+//	 * This method makes the POST call to fetch the botInfo objects for bot discoverytable
+//	 * 
+//	 * @param allRequired
+//	 *            - All bots required from server. If true, we ignore the sendClientBots value 
+//	 * @param sendclientBots
+//	 *            - Whether client bots are required to be sent to the server for ordering
+//	 * @param offset
+//	 *            - The offset from where the data is to be fetched. if allRequired is true, offset is hardcoded as 0
+//	 */
+//	public static void makeBotDiscoveryDownloadRequest(boolean allRequired, boolean sendclientBots, int offset)
+//	{
+//		Logger.v(TAG, "Making bot discovery table download request");
+//		JSONObject body = new JSONObject();
+//		int mOffset = offset;
+//
+//		try
+//		{
+//			if (allRequired)
+//			{
+//				body.put(HikePlatformConstants.ALL_REQUIRED, true);
+//				mOffset = 0;
+//			}
+//
+//			if (!allRequired && sendclientBots)
+//			{
+//				body.put(HikePlatformConstants.BOTS, getClientBotJSONArray());
+//			}
+//
+//			BotDiscoveryDownloadTask task = new BotDiscoveryDownloadTask(mOffset, body);
+//
+//			task.execute();
+//
+//		}
+//		catch (JSONException e)
+//		{
+//			Logger.v(TAG, "Making bot discovery table download request : got an exception " + e);
+//		}
+//	}
+//
+//	/**
+//	 * Returns the bot msisdns present in the client in the form of an JSONArray eg : [“+hike1+”, “+hikenews+”,”+hikecricket+”, “hikegrowth+”]
+//	 * 
+//	 * @return {@link JSONArray}
+//	 */
+//	private static JSONArray getClientBotJSONArray()
+//	{
+//		JSONArray botArray = new JSONArray();
+//
+//		for (String msisdn : HikeMessengerApp.hikeBotInfoMap.keySet())
+//		{
+//			botArray.put(msisdn);
+//		}
+//
+//		return botArray;
+//	}
+	
+	/**
+	 * Log analytics for discovery bot download request.
+	 * @param msisdn
+	 * @param name
+	 */
+	public static void discoveryBotDownloadAnalytics(String msisdn, String name)
+	{
+		JSONObject json = new JSONObject();
+		try
+		{
+			json.put(AnalyticsConstants.EVENT_KEY, AnalyticsConstants.DISCOVERY_BOT_DOWNLOAD);
+			json.put(HikePlatformConstants.PLATFORM_USER_ID, HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PLATFORM_UID_SETTING, null));
+			json.put(AnalyticsConstants.BOT_NAME, name);
+			json.put(AnalyticsConstants.BOT_MSISDN, msisdn);
+			json.put(HikePlatformConstants.NETWORK_TYPE, Integer.toString(Utils.getNetworkType(HikeMessengerApp.getInstance().getApplicationContext())));
+		}
+		catch (JSONException e)
+		{
+			Logger.e(TAG, "JSON Exception in botDownloadAnalytics "+e.getMessage());
+		}
+		HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.BOT_DISCOVERY, json);
+	}
+	
+	/**
+	 * Unblock the bot and add to the conversation list.
+	 * @param botInfo
+	 */
+	public static void unblockBotIfBlocked(BotInfo botInfo)
+	{
+		if (botInfo.isBlocked())
+		{
+			botInfo.setBlocked(false);
+			HikeMessengerApp.getPubSub().publish(HikePubSub.UNBLOCK_USER, botInfo.getMsisdn());
+		}
 	}
 
 }

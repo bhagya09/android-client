@@ -70,9 +70,17 @@ public class GeneralEventMessagesManager
 				{
 					OfflineUtils.handleOfflineRequestPacket(context, packet);
 				}
-				if(data.optString(HikeConstants.SUB_TYPE).equals(HikeConstants.OFFLINE_MESSAGE_REQUEST_CANCEL))
+				else if(data.optString(HikeConstants.SUB_TYPE).equals(HikeConstants.OFFLINE_MESSAGE_REQUEST_CANCEL))
 				{
 					OfflineUtils.handleOfflineCancelRequestPacket(context,packet);
+				}
+				else if(data.optString(HikeConstants.SUB_TYPE).equals(HikeConstants.HIKE_DIRECT_UNSUPPORTED_PEER))
+				{
+					OfflineUtils.handleUnsupportedPeer(context,packet);
+				}
+				else if(data.optString(HikeConstants.SUB_TYPE).equals(HikeConstants.HIKE_DIRECT_UPDGRADE_PEER))
+				{
+					OfflineUtils.handleUpgradablePeer(context,packet);
 				}
 			}
 			
@@ -91,7 +99,7 @@ public class GeneralEventMessagesManager
 				long clientTimestamp = packet.getLong(HikeConstants.SEND_TIMESTAMP);
 				String eventMetadata = data.getString(HikePlatformConstants.EVENT_CARDDATA);
 				String namespace = data.getString(HikePlatformConstants.NAMESPACE);
-				String parent_msisdn = data.getString(HikePlatformConstants.PARENT_MSISDN);
+				String parent_msisdn = data.optString(HikePlatformConstants.PARENT_MSISDN);
 				MessageEvent messageEvent = new MessageEvent(HikePlatformConstants.NORMAL_EVENT, from, namespace, eventMetadata, messageHash,
 						HikePlatformConstants.EventStatus.EVENT_RECEIVED, clientTimestamp, mappedId, messageId, parent_msisdn);
 				long eventId = HikeConversationsDatabase.getInstance().insertMessageEvent(messageEvent);

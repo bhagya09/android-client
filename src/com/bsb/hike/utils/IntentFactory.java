@@ -20,6 +20,7 @@ import android.os.Message;
 import android.provider.ContactsContract.Contacts;
 import android.provider.MediaStore;
 import android.provider.Settings;
+import android.support.v4.app.FragmentActivity;
 import android.text.TextUtils;
 import android.widget.Toast;
 
@@ -43,10 +44,10 @@ import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.models.Conversation.ConvInfo;
-import com.bsb.hike.timeline.view.StatusUpdate;
-import com.bsb.hike.timeline.view.TimelineActivity;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
 import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.timeline.view.StatusUpdate;
+import com.bsb.hike.timeline.view.TimelineActivity;
 import com.bsb.hike.ui.ApkSelectionActivity;
 import com.bsb.hike.ui.ComposeChatActivity;
 import com.bsb.hike.ui.ConnectedAppsActivity;
@@ -270,6 +271,20 @@ public class IntentFactory
 		intent.putExtra(HikeConstants.Extras.TITLE, R.string.settings_chat);
 		context.startActivity(intent);
 	}
+	
+	public static void openStickyCallerSettings(Context context, boolean isFromOutside)
+	{
+		Intent intent = new Intent(context, HikePreferences.class);
+		intent.putExtra(HikeConstants.Extras.PREF, R.xml.sticky_caller_preferences);
+		intent.putExtra(HikeConstants.Extras.TITLE, R.string.sticky_caller_settings);
+		if (isFromOutside)
+		{
+			intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		}
+		context.startActivity(intent);
+	}
+	
+	
 
 	public static void openInviteSMS(Context context)
 	{
@@ -381,7 +396,6 @@ public class IntentFactory
 		HAManager.getInstance().chatHeadshareAnalytics(AnalyticsConstants.ChatHeadEvents.HIKE_STICKER_SETTING);
 		return new Intent(context, StickerShareSettings.class);
 	}
-	
 
 	public static Intent createNewBroadcastActivityIntent(Context appContext)
 	{
@@ -772,13 +786,15 @@ public class IntentFactory
 		if (BotUtils.isBot(msisdn))
 		{
 			BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
+			
 			if (botInfo.isNonMessagingBot())
 			{
+				NonMessagingBotMetadata nonMessagingBotMetadata = new NonMessagingBotMetadata(botInfo.getMetadata());
 				Intent intent = getWebViewActivityIntent(context, "", "");
-				NonMessagingBotMetadata nonMessagingBotMetadata= new NonMessagingBotMetadata(botInfo.getMetadata());
 				intent.putExtra(WebViewActivity.WEBVIEW_MODE, nonMessagingBotMetadata.isWebUrlMode() ? WebViewActivity.WEB_URL_BOT_MODE : WebViewActivity.MICRO_APP_MODE);
 				intent.putExtra(HikeConstants.MSISDN, msisdn);
 				return intent;
+
 			}
 		}
 
@@ -1066,5 +1082,58 @@ public class IntentFactory
 	{
 		Intent intent = new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS);
 		activity.startActivityForResult(intent, 0);
+	}
+	
+	public static Intent getAddMembersToExistingGroupIntent(Context context, String mLocalMSISDN)
+	{
+		Intent intent = new Intent(context, ComposeChatActivity.class);
+		intent.putExtra(HikeConstants.Extras.GROUP_CHAT, true);
+		intent.putExtra(HikeConstants.Extras.EXISTING_GROUP_CHAT, mLocalMSISDN);
+		return intent;
+	}
+	
+	public static Intent getAddMembersToExistingBroadcastIntent(Context context, String mLocalMSISDN)
+	{
+		Intent intent = new Intent(context, ComposeChatActivity.class);
+		intent.putExtra(HikeConstants.Extras.BROADCAST_LIST, true);
+		intent.putExtra(HikeConstants.Extras.EXISTING_BROADCAST_LIST, mLocalMSISDN);
+		intent.putExtra(HikeConstants.Extras.COMPOSE_MODE, HikeConstants.Extras.CREATE_BROADCAST_MODE);
+		return intent;
+	}
+
+	public static void openInviteWatsApp(Context context, String inviteText)
+	{
+		Intent whatsappIntent = new Intent(Intent.ACTION_SEND);
+		whatsappIntent.setType("text/plain");
+		whatsappIntent.setPackage(HikeConstants.PACKAGE_WATSAPP);
+		whatsappIntent.putExtra(Intent.EXTRA_TEXT, inviteText);
+		try
+		{
+			context.startActivity(whatsappIntent);
+		}
+		catch (android.content.ActivityNotFoundException ex)
+		{
+			Toast.makeText(context.getApplicationContext(), "Could not find WhatsApp in System", Toast.LENGTH_SHORT).show();
+		}
+	}
+	
+	public static void openIntentForGameActivity(Context context)
+	{
+		//TODO:Pass Intent of game activity and any extras.
+//				Intent i = new Intent(context,SettingsActivity.class);
+//		
+//			context.startActivity(i);
+	}
+	
+	public static Intent getIntentForBots(BotInfo mBotInfo, Context context)
+	{
+		if (mBotInfo.isNonMessagingBot())
+		{
+			return IntentFactory.getNonMessagingBotIntent(mBotInfo.getMsisdn(), context);
+		}
+		else
+		{
+			return IntentFactory.createChatThreadIntentFromMsisdn(context, mBotInfo.getMsisdn(), false, false);
+		}
 	}
 }

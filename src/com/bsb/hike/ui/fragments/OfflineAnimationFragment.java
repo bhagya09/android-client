@@ -2,7 +2,9 @@ package com.bsb.hike.ui.fragments;
 
 import java.util.Map;
 
+
 import android.support.v4.app.DialogFragment;
+import android.text.Html;
 import android.text.TextUtils;
 import android.text.method.ScrollingMovementMethod;
 import android.animation.Animator;
@@ -65,6 +67,7 @@ import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.HoloCircularProgress;
 import com.google.gson.Gson;
+import com.hike.transporter.TException;
 
 
 public class OfflineAnimationFragment extends DialogFragment implements IOfflineCallbacks ,OfflineConnectionRequestListener
@@ -132,6 +135,8 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 	private Context context;
 	
 	private int disconnectReasonCode;
+	
+	private String errorMessage = null;
 	
 	private  Handler uiHandler = new Handler()
 	{
@@ -261,9 +266,22 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 			{
 				if(isAdded())
 				{
-					source.setText("");
-					source.setVisibility(View.VISIBLE);
-					source.startAnimation(appearAnimation);
+					if (checkAndDontShowIfNotInConnectingState)
+					{
+						if(isConnetingOffline())
+						{
+							source.setText("");
+							source.setVisibility(View.VISIBLE);
+							source.startAnimation(appearAnimation);
+						}
+					}
+					else
+					{
+						source.setText("");
+						source.setVisibility(View.VISIBLE);
+						source.startAnimation(appearAnimation);
+					}
+
 				}
 				
 			}
@@ -277,7 +295,7 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 			{
 				if(isAdded())
 				{
-					if(checkAndDontShowIfNotInConnectingState)
+					if (checkAndDontShowIfNotInConnectingState)
 					{
 						if(isConnetingOffline())
 						{
@@ -445,11 +463,13 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 			@Override
 			public void onAnimationEnd(Animator animation)
 			{
-				if(shouldResumeFragment && OfflineController.getInstance().getOfflineState() != OFFLINE_STATE.CONNECTING)
+				bringToCenter.removeListener(this);
+				bringToCenter = null;
+				if(!OfflineController.getInstance().isConnecting() && !OfflineController.getInstance().isConnected())
 				{
 					updateUIOnDisconnect();
 				}
-				else
+				else if(OfflineController.getInstance().isConnecting())
 				{
 					startRotateAnimation();
 				}
@@ -691,7 +711,12 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 				@Override
 				public void run()
 				{
-					disconnectReasonCode = errorCode.getErrorCode().getReasonCode();
+					TException  exception = errorCode.getErrorCode();
+					disconnectReasonCode = exception.getReasonCode();
+					if(exception instanceof OfflineException)
+					{
+						errorMessage = ((OfflineException)exception).getErrorMessage();
+					}
 					if(!connectionCancelled)
 					{
 						updateUIOnDisconnect();
@@ -709,6 +734,10 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 		{
 			return;
 		}
+		
+		if(bringToCenter!=null && bringToCenter.isRunning())
+			return;
+		
 		removePostedMessages();
 		hideAndStopTimer();
 		showRetryIcon(R.drawable.cross_retry);
@@ -724,13 +753,21 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 			@Override
 			public void onClick(View v)
 			{
-				sendUiMessages();
-				hideConnectionFailurePanel();
-				showRetryIcon(R.drawable.iconconnection);
-				frame.setVisibility(View.VISIBLE);
-				startRotateAnimation();		
-				listener.onConnectionRequest(false);
-				OfflineAnalytics.retryButtonClicked();
+				String retryButtonText = retryButton.getText().toString();
+				if (retryButtonText.equals(getString(R.string.OK)))
+				{
+					closeFragment();
+				}
+				else if (retryButtonText.equals(getString(R.string.RETRY)))
+				{
+					sendUiMessages();
+					hideConnectionFailurePanel();
+					showRetryIcon(R.drawable.iconconnection);
+					frame.setVisibility(View.VISIBLE);
+					startRotateAnimation();
+					listener.onConnectionRequest(false);
+					OfflineAnalytics.retryButtonClicked();
+				}
 			}
 
 		});
@@ -740,18 +777,26 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 
 	private void setDisconnectErrorMessage()
 	{
-		if(disconnectReasonCode == OfflineException.CANCEL_NOTIFICATION_REQUEST)
+		if(TextUtils.isEmpty(errorMessage))
 		{
-			connectionInfoTextView.setText(getResources().getString(R.string.offline_request_cancelled,contactFirstName));
-		}
-		else if(disconnectReasonCode == OfflineException.CONNECTION_TIME_OUT)
-		{
-			connectionInfoTextView.setText(getResources().getString(R.string.retry_connection));
+			if(disconnectReasonCode == OfflineException.CANCEL_NOTIFICATION_REQUEST)
+			{
+				connectionInfoTextView.setText(getResources().getString(R.string.offline_request_cancelled,contactFirstName));
+			}
+			else if(disconnectReasonCode == OfflineException.CONNECTION_TIME_OUT)
+			{
+				connectionInfoTextView.setText(getResources().getString(R.string.retry_connection));
+			}
+			else
+			{
+				connectionInfoTextView.setText(getResources().getString(R.string.offline_connection_problem));
+			}
 		}
 		else
 		{
-			connectionInfoTextView.setText(getResources().getString(R.string.offline_connection_problem));
+			connectionInfoTextView.setText(Html.fromHtml(errorMessage));
 		}
+		
 		
 	}
 
@@ -871,12 +916,27 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 	
 	public void showConnectionFailurePanel()
 	{
+		setButtonTextBasedOnDisconnectReason();
 		retryButton.setVisibility(View.VISIBLE);
 		divider.setVisibility(View.VISIBLE);
 		helpButton.setVisibility(View.VISIBLE);
 		verticalDivider.setVisibility(View.VISIBLE);
 	}
 	
+	private void setButtonTextBasedOnDisconnectReason()
+	{
+		if(disconnectReasonCode == OfflineException.UNSUPPORTED_PEER || 
+				disconnectReasonCode == OfflineException.UPGRADABLE_UNSUPPORTED_PEER)
+		{
+			retryButton.setText(getResources().getString(R.string.OK));
+		}
+		else
+		{
+			retryButton.setText(getResources().getString(R.string.RETRY));
+		}
+	}
+
+
 	public void showRetryIcon(final int drawrable)
 	{
 		if (!isAdded())
@@ -1008,7 +1068,7 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 	{
 		Fragment fragment = getChildFragmentManager().findFragmentByTag(OfflineConstants.OFFLINE_DISCONNECT_FRAGMENT);
 		if(fragment != null)
-		    getChildFragmentManager().beginTransaction().remove(fragment).commit();	
+		    getChildFragmentManager().beginTransaction().remove(fragment).commitAllowingStateLoss();	
 		if(removeParent)
 		{
 			closeFragment();

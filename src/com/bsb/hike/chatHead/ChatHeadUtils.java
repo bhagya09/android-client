@@ -1,7 +1,10 @@
 package com.bsb.hike.chatHead;
 
 import java.lang.reflect.Field;
+import java.sql.Date;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -16,17 +19,44 @@ import android.app.ActivityManager.RunningAppProcessInfo;
 import android.app.ActivityManager.RunningTaskInfo;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.os.SystemClock;
+import android.preference.PreferenceManager;
+import android.provider.ContactsContract;
+import android.provider.ContactsContract.CommonDataKinds.Phone;
+import android.provider.ContactsContract.CommonDataKinds.StructuredPostal;
+import android.provider.ContactsContract.Contacts;
+import android.provider.ContactsContract.Data;
 import android.provider.Settings;
 import android.provider.Settings.SettingNotFoundException;
+import android.support.v4.app.TaskStackBuilder;
+import android.telephony.PhoneStateListener;
+import android.telephony.TelephonyManager;
 import android.text.TextUtils;
+import android.widget.Toast;
+import android.database.Cursor;
+import android.database.DatabaseUtils;
+import android.net.Uri;
+import android.provider.ContactsContract.PhoneLookup;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.R;
+import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.models.HikeAlarmManager;
+import com.bsb.hike.models.HikeHandlerUtil;
+import com.bsb.hike.modules.httpmgr.RequestToken;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.userlogs.PhoneSpecUtils;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
+import com.bsb.hike.voip.VoIPUtils.CallSource;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 public class ChatHeadUtils
 {
@@ -44,10 +74,19 @@ public class ChatHeadUtils
 
 	public static final int GET_ALL_RUNNING_PROCESSES = 2; 
 	
+	private static IncomingCallReceiver incomingCallReceiver;
+	
+	private static OutgoingCallReceiver outgoingCallReceiver;
+	
+	private static final int HTTP_CALL_RETRY_DELAY = 2000; 
+	
+	private static final int HTTP_CALL_RETRY_MULTIPLIER = 1;
+		
 	// replica of hidden constant ActivityManager.PROCESS_STATE_TOP 
 	public static final int PROCESS_STATE_TOP =2;
-
 	
+	private static ChatHeadViewManager viewManager;
+
 	/**
 	 * returns the package names of the running processes can be single, all or in tasks packages as per argument
 	 */
@@ -100,6 +139,14 @@ public class ChatHeadUtils
 		}
 	}
 
+	
+	public static String getdateFromSystemTime()
+	{
+	    SimpleDateFormat formatter = new SimpleDateFormat(" 'on' MMM dd 'at' hh:mm aaa");
+	    Date resultdate = new Date(System.currentTimeMillis());
+	    return formatter.format(resultdate).replace("am", "AM").replace("pm", "PM");
+	}
+	
 	public static void getRunningTaskPackage(Context context, ActivityManager activityManager, List<RunningAppProcessInfo> processInfos, Set<String> packageName, int type)
 	{
 		if (Utils.isLollipopOrHigher())
@@ -216,6 +263,18 @@ public class ChatHeadUtils
 		}
 	}
 	
+	public static CallerContentModel getCallerContentModelObject(String result)
+	{
+		if (result != null)
+		{
+			JsonParser parser = new JsonParser();
+			JsonObject callerDetails = (JsonObject) parser.parse(result);
+			CallerContentModel callerContentModel = new Gson().fromJson(callerDetails, CallerContentModel.class);
+			return callerContentModel;
+		}
+		return null;
+	}
+
 	public static boolean isAccessibilityEnabled(Context ctx)
 	{
 		int accessibilityEnabled = 0;
@@ -298,7 +357,7 @@ public class ChatHeadUtils
 	
 	public static boolean shouldShowAccessibility()
 	{
-		boolean showAccessibility = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.SHOW_ACCESSIBILITY, true);
+		boolean showAccessibility = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.SHOW_ACCESSIBILITY, !willPollingWork());
 		if(!showAccessibility)
 		{
 			return false;
@@ -306,9 +365,14 @@ public class ChatHeadUtils
 		return  !isAccessibilityEnabled(HikeMessengerApp.getInstance().getApplicationContext());
 	}
 	
+	public static boolean useOfAccessibilittyPermitted()
+	{
+		return !HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.DONT_USE_ACCESSIBILITY, willPollingWork());
+	}
+	
 	public static boolean canAccessibilityBeUsed(boolean serviceDecision)
 	{
-		boolean forceAccessibility = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.FORCE_ACCESSIBILITY, true);
+		boolean forceAccessibility = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.FORCE_ACCESSIBILITY, !willPollingWork());
 		if(!forceAccessibility)
 		{
 			return false;
@@ -318,7 +382,7 @@ public class ChatHeadUtils
 		{
 			return accessibilityDisabled;
 		}
-		boolean wantToUseAccessibility = !HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.DONT_USE_ACCESSIBILITY, true);
+		boolean wantToUseAccessibility = useOfAccessibilittyPermitted();
 		//dontUseAccessibility is an internal flag, to prevent user from using accessibility service for stickey,
 		//even if accessibility is enabled by forceAccessibility flag On
 		return  wantToUseAccessibility || accessibilityDisabled;
@@ -329,7 +393,7 @@ public class ChatHeadUtils
 		boolean sessionLogEnabled = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SESSION_LOG_TRACKING, false);
 		boolean startChatHead = shouldRunChatHeadServiceForStickey() && !canAccessibilityBeUsed(true);
 		
-		if (sessionLogEnabled || startChatHead)
+		if (willPollingWork() && (sessionLogEnabled || startChatHead))
 		{
 			if (jsonChanged)
 			{
@@ -350,13 +414,32 @@ public class ChatHeadUtils
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.SNOOZE, false);
 			HikeAlarmManager.cancelAlarm(HikeMessengerApp.getInstance(), HikeAlarmManager.REQUESTCODE_START_STICKER_SHARE_SERVICE); 
 		}
+		
+		if(viewManager == null)
+		{
+			viewManager = ChatHeadViewManager.getInstance(HikeMessengerApp.getInstance().getApplicationContext());
+		}
+		
+		if (useOfAccessibilittyPermitted())
+		{
+			viewManager.onDestroy();
+			viewManager.onCreate();
+		}
+		else
+		{
+			viewManager.onDestroy();
+		}
 	}
 
 	public static void onClickSetAlarm(Context context, int time)
 	{
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.SNOOZE, true);
+		if(!HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.DONT_USE_ACCESSIBILITY, willPollingWork()))
+		{
+			ChatHeadViewManager.getInstance(context).onDestroy();
+		}
 		HikeAlarmManager.setAlarm(context, Calendar.getInstance().getTimeInMillis() + time, HikeAlarmManager.REQUESTCODE_START_STICKER_SHARE_SERVICE, false);
-		ChatHeadService.getInstance().resetPosition(ChatHeadConstants.STOPPING_SERVICE_ANIMATION, null);
+		ChatHeadViewManager.getInstance(context).resetPosition(ChatHeadConstants.STOPPING_SERVICE_ANIMATION, null);
 	}
 	
 	public static void setAllApps(JSONArray pkgList, boolean toSet)
@@ -368,7 +451,6 @@ public class ChatHeadUtils
 				pkgList.getJSONObject(j).put(HikeConstants.ChatHead.APP_ENABLE, toSet);
 			}
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.PACKAGE_LIST, pkgList.toString());
-			ChatHeadUtils.startOrStopService(true);
 		}
 		catch (JSONException e)
 		{
@@ -399,21 +481,244 @@ public class ChatHeadUtils
 		}
 	}
 
+	public static boolean willPollingWork()
+	{
+		Set<String> currentPoll = ChatHeadUtils.getRunningAppPackage(ChatHeadUtils.GET_ALL_RUNNING_PROCESSES);
+		return currentPoll != null && !currentPoll.isEmpty() && !(currentPoll.size() == 1 && currentPoll.contains(HikeMessengerApp.getInstance().getPackageName()));
+	}
+	
 	public static boolean checkDeviceFunctionality()
 	{
-		if (Utils.isIceCreamOrHigher() && !Utils.isLollipopMR1OrHigher())
+		return Utils.isIceCreamOrHigher();
+	}
+	
+	public static String getNameAndAddressFromNumber(Context context, String number)
+	{
+		if (number != null)
 		{
-			return true;
+			Uri lookupUriName = Uri.withAppendedPath(PhoneLookup.CONTENT_FILTER_URI, Uri.encode(number));
+			String[] mPhoneNumberProjection = { PhoneLookup.DISPLAY_NAME };
+			Cursor cur = null;
+			String name = null;
+			String address = null;
+			try
+			{
+				cur = context.getContentResolver().query(lookupUriName, mPhoneNumberProjection, null, null, null);
+				if (cur.moveToFirst())
+				{
+					if (cur.getString(cur.getColumnIndex(PhoneLookup.DISPLAY_NAME)) != null)
+					{
+						name = cur.getString(cur.getColumnIndex(PhoneLookup.DISPLAY_NAME));
+					}
+				}
+			}
+			catch (Exception e)
+			{
+				Logger.d("Caller", "getNameException");
+			}
+			finally
+			{
+				if (cur != null)
+					cur.close();
+			}
+			String selection = Data.MIMETYPE + "=?";
+			String[] selection_type = new String[] { StructuredPostal.CONTENT_ITEM_TYPE };
+			String[] projection = new String[] { ContactsContract.Contacts.Data.DATA1 };
+			Cursor cursor = null;
+			try
+			{
+				cursor = context.getContentResolver().query(
+						Uri.withAppendedPath(Contacts.getLookupUri(context.getContentResolver(), lookupUriName), Contacts.Data.CONTENT_DIRECTORY), null, selection, selection_type,
+						null);
+				if (cursor.moveToFirst())
+				{
+					if (cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.Data.DATA1)) != null)
+					{
+						address = (cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.Data.DATA1)));
+					}
+				}
+			}
+			catch (Exception e)
+			{
+				Logger.d("Caller", "getAddressException");
+			}
+			finally
+			{
+				if (cursor != null)
+					cursor.close();
+			}
+			try
+			{
+				JSONObject obj = new JSONObject();
+				if (name != null)
+				{
+					obj.put(StickyCaller.NAME, name);
+					obj.put(StickyCaller.ADDRESS, address);
+					return obj.toString();
+				}
+			}
+			catch (JSONException e)
+			{
+				Logger.d("JSONobject", "unable to get json from contact details ");
+			}
+
 		}
-		else if(Utils.isLollipopMR1OrHigher())
+
+		return null;
+	}
+	
+	public static void postNumberRequest(Context context, String searchNumber)
+	{
+		if (searchNumber != null && !searchNumber.contains("*") && !searchNumber.contains("#"))
 		{
-			Set<String> currentPoll = ChatHeadUtils.getRunningAppPackage(ChatHeadUtils.GET_ALL_RUNNING_PROCESSES);
-			return currentPoll != null && !currentPoll.isEmpty() && !(currentPoll.size() == 1 && currentPoll.contains(HikeMessengerApp.getInstance().getPackageName()));
-		}
-		else
-		{
-			return false; 
+			final String number = Utils.normalizeNumber(
+					searchNumber,
+					HikeMessengerApp.getInstance().getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0)
+							.getString(HikeMessengerApp.COUNTRY_CODE, HikeConstants.INDIA_COUNTRY_CODE));
+			String contactName = getNameAndAddressFromNumber(context, number);
+			if (contactName != null)
+			{
+				if (PreferenceManager.getDefaultSharedPreferences(context).getBoolean(HikeConstants.ENABLE_KNOWN_NUMBER_CARD_PREF, true))
+				{
+					StickyCaller.showCallerViewWithDelay(number, contactName, StickyCaller.ALREADY_SAVED, AnalyticsConstants.StickyCallerEvents.ALREADY_SAVED);
+				}
+			}
+			else if (HikeSharedPreferenceUtil.getInstance(HikeConstants.CALLER_SHARED_PREF).getData(number, null) != null)
+			{
+				StickyCaller.showCallerViewWithDelay(number, HikeSharedPreferenceUtil.getInstance(HikeConstants.CALLER_SHARED_PREF).getData(number, null), StickyCaller.SUCCESS,
+						AnalyticsConstants.StickyCallerEvents.CACHE);
+			}
+			else
+			{
+				JSONObject json = new JSONObject();
+				try
+				{
+					json.put(HikeConstants.MSISDN, number);
+				}
+				catch (JSONException e)
+				{
+					Logger.d(TAG, "jsonException");
+				}
+				CallListener callListener = new CallListener();
+				RequestToken requestToken = HttpRequests.postNumberAndGetCallerDetails(HttpRequestConstants.getHikeCallerUrl(), json, callListener, HTTP_CALL_RETRY_DELAY,
+						HTTP_CALL_RETRY_MULTIPLIER);
+				StickyCaller.showCallerView(number, null, StickyCaller.LOADING, null);
+				requestToken.execute();
+			}
 		}
 	}
 	
+	public static void registerCallReceiver()
+	{
+		final Context context = HikeMessengerApp.getInstance().getApplicationContext();
+		if (HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.SHOW_STICKY_CALLER, false)
+				&& PreferenceManager.getDefaultSharedPreferences(context).getBoolean(HikeConstants.ACTIVATE_STICKY_CALLER_PREF, false))
+		{
+			HikeHandlerUtil.getInstance().postRunnable(new Runnable()
+			{
+				// putting code inside runnable to make it run on UI thread.
+				@Override
+				public void run()
+				{
+					if (incomingCallReceiver == null)
+					{
+						incomingCallReceiver = new IncomingCallReceiver();
+						TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+						telephonyManager.listen(incomingCallReceiver, PhoneStateListener.LISTEN_CALL_STATE);
+					}
+					if (outgoingCallReceiver == null)
+					{
+						outgoingCallReceiver = new OutgoingCallReceiver();
+						IntentFilter intentFilter = new IntentFilter(Intent.ACTION_NEW_OUTGOING_CALL);
+						context.registerReceiver(outgoingCallReceiver, intentFilter);
+					}
+				}
+			});
+
+		}
+	}
+	
+	public static void unregisterCallReceiver()
+	{
+		Context context = HikeMessengerApp.getInstance();
+		if (incomingCallReceiver != null)
+		{
+			TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+			telephonyManager.listen(incomingCallReceiver, PhoneStateListener.LISTEN_NONE);
+			incomingCallReceiver = null;
+		}
+
+		if (outgoingCallReceiver != null)
+		{
+			context.unregisterReceiver(outgoingCallReceiver);
+			outgoingCallReceiver = null;
+		}
+		StickyCaller.removeCallerView();
+	}
+	
+	public static void onCallClickedFromCallerCard(Context context, String callCurrentNumber, CallSource hikeStickyCaller)
+	{
+		boolean isOnHike = false;
+		String callerName = callCurrentNumber;
+		String contactDetails = getNameAndAddressFromNumber(context, callCurrentNumber);
+		if (contactDetails != null)
+		{
+			isOnHike = Utils.isOnHike(callCurrentNumber);
+			try
+			{
+				JSONObject obj = new JSONObject(contactDetails);
+				if (obj.getString(StickyCaller.NAME) != null)
+				{
+					callerName = obj.getString(StickyCaller.NAME);
+				}
+			}
+			catch (Exception e)
+			{
+				Logger.d("JSON EXception", "no name found");
+			}
+		}
+		if (callerName.equals(callCurrentNumber))
+		{
+			try
+			{
+				CallerContentModel callerContentModel = getCallerContentModelObject(HikeSharedPreferenceUtil.getInstance(HikeConstants.CALLER_SHARED_PREF).getData(
+						callCurrentNumber, null));
+				isOnHike = callerContentModel.getIsOnHike();
+				if (callerContentModel.getFirstName() != null)
+				{
+					callerName = callerContentModel.getFirstName();
+				}
+				else if (callerContentModel.getLastName() != null)
+				{
+					callerName = callerContentModel.getLastName();
+				}
+			}
+			catch (Exception e)
+			{
+				Logger.d("CardFreeCallClicked", "EntryNotFound");
+			}
+		}
+		if (isOnHike)
+		{
+			Utils.onCallClicked(context, callCurrentNumber, hikeStickyCaller);
+		}
+		else
+		{
+			Toast.makeText(context, String.format(context.getString(R.string.caller_invited_to_join), callerName), Toast.LENGTH_SHORT).show();
+			Utils.sendInvite(callCurrentNumber, context);
+		}
+	}
+	
+	public static void insertHomeActivitBeforeStarting(Intent openingIntent)
+	{
+		Context context = HikeMessengerApp.getInstance().getApplicationContext();
+		// Any activity which is being opened from the Sticker Chat Head will open Homeactivity on BackPress
+		// this is being done to prevent loss of BG packet sent by the app to server when we exit from the activity
+		// its also a product call to take user inside hike after exploring stickers deeply
+		// This code may be removed in case some better strategy replaces the FSM to handle FG-BG-lastseen use cases
+		TaskStackBuilder.create(context)
+			.addNextIntent(IntentFactory.getHomeActivityIntentAsLauncher(context))
+			.addNextIntent(openingIntent).startActivities();
+	}
+
 }

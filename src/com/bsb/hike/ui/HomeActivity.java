@@ -36,10 +36,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.WindowManager.BadTokenException;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.ViewStub;
+import android.view.WindowManager.BadTokenException;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
@@ -67,6 +67,7 @@ import com.bsb.hike.dialog.CustomAlertDialog;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
+import com.bsb.hike.http.HikeHttpRequest;
 import com.bsb.hike.media.OverFlowMenuItem;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
@@ -74,7 +75,12 @@ import com.bsb.hike.models.FtueContactsData;
 import com.bsb.hike.models.Conversation.ConversationTip;
 import com.bsb.hike.modules.animationModule.HikeAnimationFactory;
 import com.bsb.hike.modules.contactmgr.ContactManager;
-import com.bsb.hike.offline.OfflineConstants;
+import com.bsb.hike.modules.httpmgr.RequestToken;
+import com.bsb.hike.modules.httpmgr.exception.HttpException;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
+import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
+import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.offline.OfflineConstants.OFFLINE_STATE;
 import com.bsb.hike.offline.OfflineController;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
@@ -164,7 +170,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	private String[] homePubSubListeners = { HikePubSub.UNSEEN_STATUS_COUNT_CHANGED, HikePubSub.SMS_SYNC_COMPLETE, HikePubSub.SMS_SYNC_FAIL, HikePubSub.FAVORITE_TOGGLED,
 			HikePubSub.USER_JOINED, HikePubSub.USER_LEFT, HikePubSub.FRIEND_REQUEST_ACCEPTED, HikePubSub.REJECT_FRIEND_REQUEST, HikePubSub.UPDATE_OF_MENU_NOTIFICATION,
 			HikePubSub.SERVICE_STARTED, HikePubSub.UPDATE_PUSH, HikePubSub.REFRESH_FAVORITES, HikePubSub.UPDATE_NETWORK_STATE, HikePubSub.CONTACT_SYNCED, HikePubSub.FAVORITE_COUNT_CHANGED,
-			HikePubSub.STEALTH_UNREAD_TIP_CLICKED,HikePubSub.FTUE_LIST_FETCHED_OR_UPDATED, HikePubSub.STEALTH_INDICATOR, HikePubSub.USER_JOINED_NOTIFICATION, HikePubSub.UPDATE_OF_PHOTOS_ICON  };
+			HikePubSub.STEALTH_UNREAD_TIP_CLICKED,HikePubSub.FTUE_LIST_FETCHED_OR_UPDATED, HikePubSub.STEALTH_INDICATOR, HikePubSub.USER_JOINED_NOTIFICATION, HikePubSub.UPDATE_OF_PHOTOS_ICON, HikePubSub.SHOW_NEW_CHAT_RED_DOT  };
 
 	private String[] progressPubSubListeners = { HikePubSub.FINISHED_UPGRADE_INTENT_SERVICE };
 
@@ -183,10 +189,17 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	protected static final int SHOW_RECENTLY_JOINED_INDICATOR = -103;
 	
 	protected static final int SHOW_TIMELINE_UPDATES_INDICATOR = -104;
+
+	protected static final int SHOW_NEW_CHAT_RED_DOT = -105;
 	
 	private View hiButton;
 
 	private TextView timelineUpdatesIndicator;
+	
+	/**
+	 * This variable checks whether onSaveInstanceState has been called or not
+	 */
+	private boolean wasOnSavedInstanceCalled = false;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -251,6 +264,60 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		}
 		Logger.d(getClass().getSimpleName(),"onCreate "+this.getClass().getSimpleName());
 		showProductPopup(ProductPopupsConstants.PopupTriggerPoints.HOME_SCREEN.ordinal());
+		
+		if (getIntent() != null)
+		{
+			Intent intent = getIntent();
+			String action = intent.getAction();
+			String linkUrl = intent.getDataString();
+
+			if (TextUtils.isEmpty(action) || TextUtils.isEmpty(linkUrl))
+			{
+				//finish();
+				return;
+			}
+			
+			if (linkUrl.contains(HttpRequestConstants.BASE_LINK_SHARING_URL))
+			{
+				String code = linkUrl.split("/")[3];
+				RequestToken requestToken = HttpRequests.acceptGroupMembershipConfirmationRequest(code, new IRequestListener()
+				{
+					
+					@Override
+					public void onRequestSuccess(Response result)
+					{
+						JSONObject response = (JSONObject) result.getBody().getContent();
+						Logger.d(TAG, "Response for acceptGroupMembershipConfirmationRequest : " + response.toString());
+						try
+						{
+							int errorCode = response.getInt("error");
+							String errorMessage = response.optString("errorMsg", "Something Went Wrong, GROUP JOIN REQUEST not accepted");
+							if (errorCode == -1)
+							{
+								Toast.makeText(HomeActivity.this, errorMessage, Toast.LENGTH_SHORT).show();
+							}
+						}
+						catch (JSONException e)
+						{
+							Logger.e(TAG, " JSON Error in acceptGroupMembershipConfirmationRequest : " + e.toString());
+						}
+					}
+					
+					@Override
+					public void onRequestProgressUpdate(float progress)
+					{
+					}
+					
+					@Override
+					public void onRequestFailure(HttpException httpException)
+					{
+						// Show Toast
+						Toast.makeText(HomeActivity.this, getString(R.string.link_share_network_error), Toast.LENGTH_SHORT).show();
+					}
+				});
+				requestToken.execute();
+			}
+		}
 	}
 	
 	@Override
@@ -270,6 +337,8 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		case SHOW_TIMELINE_UPDATES_INDICATOR:
 			showTimelineUpdatesIndicator();
 			break;
+		case SHOW_NEW_CHAT_RED_DOT:
+			showNewChatRedDot();
 		default:
 			super.handleUIMessage(msg);
 			break;
@@ -310,16 +379,18 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		}
 
 		int count = 0;
-		count = Utils.getNotificationCount(accountPrefs, false);
+		count = Utils.getNotificationCount(accountPrefs, true);
 		if (count > 9)
 		{
 			timelineUpdatesIndicator.setVisibility(View.VISIBLE);
 			timelineUpdatesIndicator.setText("9+");
+			timelineUpdatesIndicator.startAnimation(Utils.getNotificationIndicatorAnim());
 		}
 		else if (count > 0)
 		{
 			timelineUpdatesIndicator.setVisibility(View.VISIBLE);
 			timelineUpdatesIndicator.setText(String.valueOf(count));
+			timelineUpdatesIndicator.startAnimation(Utils.getNotificationIndicatorAnim());
 		}
 		else
 		{
@@ -352,6 +423,16 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 				topBarIndicator.setText(String.valueOf(count));
 				topBarIndicator.startAnimation(Utils.getNotificationIndicatorAnim());
 			}
+		}
+	}
+
+	private void showNewChatRedDot()
+	{
+		if (newConversationIndicator != null && HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.NEW_CHAT_RED_DOT, false))
+		{
+			newConversationIndicator.setText("1");
+			newConversationIndicator.setVisibility(View.VISIBLE);
+			newConversationIndicator.startAnimation(Utils.getNotificationIndicatorAnim());
 		}
 	}
 
@@ -508,7 +589,18 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		if (mainFragment == null)
 		{
 			mainFragment = new ConversationFragment();
-			getSupportFragmentManager().beginTransaction().add(R.id.home_screen, mainFragment, MAIN_FRAGMENT_TAG).commit();
+			
+			// if onSavedInstanceState has been called, we will get an illegal state exception while commiting a fragment transation. 
+			// Hence using commit allowing state loss
+			if (wasOnSavedInstanceCalled)
+			{
+				getSupportFragmentManager().beginTransaction().add(R.id.home_screen, mainFragment, MAIN_FRAGMENT_TAG).commitAllowingStateLoss();
+			}
+			
+			else
+			{
+				getSupportFragmentManager().beginTransaction().add(R.id.home_screen, mainFragment, MAIN_FRAGMENT_TAG).commit();
+			}
 		}
 	}
 
@@ -729,6 +821,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			});
 
 			showRecentlyJoinedDot(1000);
+			sendUIMessage(SHOW_NEW_CHAT_RED_DOT, 1000);
 
 			MenuItemCompat.getActionView(menu.findItem(R.id.new_conversation)).setOnClickListener(new OnClickListener()
 			{
@@ -748,6 +841,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 					Intent intent = new Intent(HomeActivity.this, ComposeChatActivity.class);
 					intent.putExtra(HikeConstants.Extras.EDIT, true);
+					intent.putExtra(HikeConstants.Extras.IS_MICROAPP_SHOWCASE_INTENT, true);
 
 					newConversationIndicator.setVisibility(View.GONE);
 					startActivity(intent);
@@ -1059,6 +1153,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	protected void onStart()
 	{
 		Logger.d(getClass().getSimpleName(), "onStart");
+		wasOnSavedInstanceCalled = false;
 		super.onStart();
 		long t1, t2;
 		t1 = System.currentTimeMillis();
@@ -1078,6 +1173,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	protected void onSaveInstanceState(Bundle outState)
 	{
 		Logger.d(TAG,"onsavedInstance");
+		wasOnSavedInstanceCalled = true;
 		outState.putBoolean(HikeConstants.Extras.DEVICE_DETAILS_SENT, deviceDetailsSent);
 		if (dialog != null && dialog.isShowing())
 		{
@@ -1542,6 +1638,10 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 				}
 			});
 		}
+		else if (HikePubSub.SHOW_NEW_CHAT_RED_DOT.equals(type))
+		{
+			sendUIMessage(SHOW_NEW_CHAT_RED_DOT, 1000);
+		}
 	}
 
 	private void updateHomeOverflowToggleCount(final int count, int delayTime)
@@ -1723,8 +1823,8 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	public void showOverFlowMenu()
 	{
 
-		if (overFlowWindow != null)
-			overFlowWindow.dismiss();
+		if (overFlowWindow != null && overFlowWindow.isShowing())
+			return;
 
 		ArrayList<OverFlowMenuItem> optionsList = new ArrayList<OverFlowMenuItem>();
 
@@ -2089,6 +2189,13 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	{
 		Message msg = Message.obtain();
 		msg.what = SHOW_TIMELINE_UPDATES_INDICATOR;
+		uiHandler.sendMessageDelayed(msg, delayTime);
+	}
+
+	public void sendUIMessage(int what, long delayTime)
+	{
+		Message msg = Message.obtain();
+		msg.what = what;
 		uiHandler.sendMessageDelayed(msg, delayTime);
 	}
 
