@@ -4154,6 +4154,9 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	{
 		tryToDismissAnyOpenPanels();
 		
+//		actionbar disappears randomly after onResume()
+		setupActionBar(false);
+		
 		showKeyboard();
 
 		isActivityVisible = true;
