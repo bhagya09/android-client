@@ -1361,5 +1361,4 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		}
 	}
 
-
 }

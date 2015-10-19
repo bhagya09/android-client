@@ -399,9 +399,9 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 		{
 			microappShowcaseList.clear();
 			microappShowcaseList.addAll(HikeContentDatabase.getInstance().getDiscoveryBotInfoList());
-			
 			if (filteredMicroAppShowcaseList != null)
 			{
+				filteredMicroAppShowcaseList.clear();
 				filteredMicroAppShowcaseList.addAll(microappShowcaseList);
 			}
 		}
@@ -576,8 +576,12 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 		}
 		}
 		friendsAdapter.setListFetchedOnce(true);
-		
-		friendsAdapter.setOriginalMicroAppsCount(microappShowcaseList.size());
+
+		if (microappShowcaseList != null)
+		{
+			friendsAdapter.setOriginalMicroAppsCount(microappShowcaseList.size());
+		}
+
 		// We dont need to show contacts in NUX Invite screen
 		if(showDefaultEmptyList)
 		{

@@ -2,6 +2,7 @@ package com.bsb.hike.platform.bridge;
 
 import java.io.File;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -25,6 +26,7 @@ import com.bsb.hike.bots.NonMessagingBotMetadata;
 import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.modules.httpmgr.RequestToken;
+import com.bsb.hike.modules.httpmgr.request.FileRequestPersistent;
 import com.bsb.hike.platform.CustomWebView;
 import com.bsb.hike.platform.GpsLocation;
 import com.bsb.hike.platform.HikePlatformConstants;
@@ -185,6 +187,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 			jsonObject.put(HikePlatformConstants.MUTE, Boolean.toString(mBotInfo.isMute()));
 			jsonObject.put(HikePlatformConstants.NETWORK_TYPE, Integer.toString(Utils.getNetworkType(HikeMessengerApp.getInstance().getApplicationContext())));
 			jsonObject.put(HikePlatformConstants.BOT_VERSION, mBotInfo.getVersion());
+			jsonObject.put(HikePlatformConstants.ASSOCIATE_MAPP,botMetadata.getAsocmapp());
 
 			
 			mWebView.loadUrl("javascript:init('"+getEncodedDataForJS(jsonObject.toString())+"')");
@@ -1254,12 +1257,14 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	 * This function is made for the special Shared bot that has the information about some other bots as well, and acts as a channel for them.
 	 * Call this function to get the bot version.
 	 * @param id: the id of the function that native will call to call the js .
+	 * returns -1 if bot not exists
 	 */
 	@JavascriptInterface
 	public void getBotVersion(String id, String msisdn)
 	{
 		if (!BotUtils.isSpecialBot(mBotInfo) || !BotUtils.isBot(msisdn))
 		{
+			callbackToJS(id,"-1");
 			return;
 		}
 
@@ -1323,22 +1328,88 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	 * Platform Version 8
 	 * This function is made for the special Shared bot that has the information about some other bots as well, and acts as a channel for them.
 	 * Call this method to cancel the request that the Bot has initiated to do some http /https call.
+	 * @param functionId : the id of the function that native will call to call the js .
 	 * @param url: the url of the call that needs to be cancelled.
 	 */
-	public void cancelRequest(String url)
+	@JavascriptInterface
+	public void cancelRequest(String functionId, String url)
 	{
 		if (!BotUtils.isSpecialBot(mBotInfo))
 		{
+			callbackToJS(functionId, "false");
 			return;
 		}
 		RequestToken token = PlatformZipDownloader.getCurrentDownloadingRequests().get(url);
 		if (null != token)
 		{
+			callbackToJS(functionId, "true");
 			token.cancel();
 		}
+		else
+		{
+			callbackToJS(functionId, "false");
+		}
 	}
-	
-	
-
-
+	/**
+	 * Platform Version 8
+	 * Call this method to remove resume for an app
+	 */
+	@JavascriptInterface
+	public void removeStateFile(String app)
+	{
+		if (!BotUtils.isSpecialBot(mBotInfo))
+			return;
+		File file = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + app+FileRequestPersistent.STATE_FILE_EXT);
+		if (file.exists())
+		{
+			file.delete();
+		}
+	}
+	/**
+	 * Platform Version 8
+	 * Call this method to decrease the unread counter.
+	 * Can only be called by special bots..
+	 * @param msisdn whose unread count has to be modified.
+	 */
+	@JavascriptInterface
+	public void resetUnreadCounter(String msisdn)
+	{
+		BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
+		if (!BotUtils.isSpecialBot(mBotInfo)||botInfo==null)
+			return;
+		HikeConversationsDatabase.getInstance().resetUnreadCounter(msisdn);
+		Message ms = Message.obtain();
+		ms.arg1 = 0;
+		ms.obj = msisdn;
+		HikeMessengerApp.getPubSub().publish(HikePubSub.CONV_UNREAD_COUNT_MODIFIED, ms);
+		botInfo.setUnreadCount(0);
+		
+	}
+	/**
+	 * Platform Version 8
+	 * Call this method to delete a bot and remove its files
+	 * Can only be called by special bots
+	 * @param msisdn
+	 */
+	@JavascriptInterface
+	public void deleteAndRemoveBot(String msisdn)
+	{
+		BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
+		if (!BotUtils.isSpecialBot(mBotInfo) || botInfo == null)
+			return;
+		NonMessagingBotMetadata nonMessagingBotMetadata = new NonMessagingBotMetadata(botInfo.getMetadata());
+		JSONObject json = new JSONObject();
+		try
+		{
+			JSONArray array = new JSONArray();
+			array.put(nonMessagingBotMetadata.getAppName());
+			json.put(HikePlatformConstants.APP_NAME, array);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+		BotUtils.removeMicroApp(json);
+		BotUtils.deleteBot(msisdn);
+	}
 }

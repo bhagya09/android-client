@@ -47,6 +47,7 @@ import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
+import com.bsb.hike.modules.httpmgr.request.FileRequestPersistent;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.platform.CustomWebView;
@@ -59,10 +60,13 @@ import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.platform.content.PlatformContentConstants;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.ui.ComposeChatActivity;
+import com.bsb.hike.ui.fragments.ShareLinkFragment;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.OneToNConversationUtils;
+import com.bsb.hike.utils.ShareUtils;
 import com.bsb.hike.utils.Utils;
 
 /**
@@ -1140,6 +1144,49 @@ public abstract class JavascriptBridge
 	}
 
 	/**
+	 * Platform Version 8
+	 * This function is made for the special Group bot that has the information about inviting members to join group from WA/Others App.
+	 * 
+	 */
+	@JavascriptInterface
+	public void sendGCInvitationViaLinkSharing()
+	{
+		Context mContext = HikeMessengerApp.getInstance().getApplicationContext();
+		String groupId = OneToNConversationUtils.createNewGroupId(mContext);
+		int number = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.WA_GROUP_NUMBER, 1);
+		String groupName = mContext.getString(R.string.wa_group) + " " + number;
+		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.WA_GROUP_NUMBER, number + 1);
+		
+		ShareLinkFragment fragment = ShareLinkFragment.newInstance(groupId, groupName, 1, true, true);
+		fragment.initViaArguments();
+		fragment.setButtonClickedType(ShareLinkFragment.WA);
+		fragment.makeHttpCallForURL();
+	}
+	
+	/**
+	 * Platform Version 8
+	 * This function is made for the special Group bot that has the information about inviting members to join group from WA/Others App.
+	 * 
+	 */
+	@JavascriptInterface
+	public void remindGCInvitationViaLinkSharing()
+	{
+		Context mContext = HikeMessengerApp.getInstance().getApplicationContext();
+		String baseText = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.TEXT_FOR_GC_VIA_WA, mContext.getString(R.string.link_share_wa_msg)); 
+		String url = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SHARE_LINK_URL_FOR_GC, null);
+		
+		if(!TextUtils.isEmpty(url))
+		{
+			String finalText = baseText + "\n" + url;
+			ShareUtils.shareContent(HikeConstants.Extras.ShareTypes.TEXT_SHARE, finalText, HikeConstants.Extras.WHATSAPP_PACKAGE);
+		}
+		else
+		{
+			//NO GROUP WAS CREATED
+		}
+	}
+
+	/**
 	 * Platform Version 6 Call this function to open a given Intent.
 	 * 
 	 * @param IntentName
@@ -1211,6 +1258,10 @@ public abstract class JavascriptBridge
 			HikeDialogFactory.showDialog(mContext, HikeDialogFactory.MICROAPP_DIALOG, nativeDialogListener, title, message, positiveBtn, negativeBtn);
 		}
 	}
+	/**
+	 * Added in Platform Version 8. Call this function to set anon name
+	 * @param name
+	 */
 	@JavascriptInterface
 	public void setAnonName(String name)
 	{
@@ -1219,7 +1270,73 @@ public abstract class JavascriptBridge
 			PlatformUIDFetch.fetchPlatformUid(HikePlatformConstants.PlatformFetchType.SELF_ANONYMOUS_NAME,name);
 		}
 	}
+	/**
+	 * Added in Platform Version 8. Call this function to get anon name if exists,else will return null string.
+	 * @param id
+	 */
+	@JavascriptInterface
+	public void getAnonName(String id)
+	{
+		String anonName=HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.ANONYMOUS_NAME_SETTING,"");
+		callbackToJS(id, anonName);
+	}
 	
 
+	/**
+	 * Platform Version 8
+	 * This method is used to show a native popup with a WebView rendered within it.
+	 * contentData must have cardObj. Inside cardObj, ld must be present and should be a JSONObject.
+	 * @param contentData
+	 */
+	@JavascriptInterface
+	public void showPopup(final String contentData)
+	{
+		mHandler.post(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				PlatformHelper.showPopup(contentData, weakActivity.get());
+			}
+		});
+	}
+	/**
+	 * Platform Version 8
+	 * Call this method to get the status of app download
+	 * @param id
+	 * @param app The app name
+	 * returns progress
+	 * returns empty string if download not yet started
+	 */
+	@JavascriptInterface
+	public void readPartialDownloadState(String id,String app)
+	{
+		String filePath=PlatformContentConstants.PLATFORM_CONTENT_DIR+app+FileRequestPersistent.STATE_FILE_EXT;
+		String data[]=PlatformUtils.readPartialDownloadState(filePath);
+		if(data==null||data.length<2||TextUtils.isEmpty(data[1]))
+		{
+			callbackToJS(id,"");
+			return;
+		}
+		callbackToJS(id, data[1]);
+	}
+	/**
+	 * Platform Version 8
+	 * Call this method to check if a bot exists
+	 * @param id
+	 * @param msisdn
+	 * Returns true/false string
+	 */
+	@JavascriptInterface
+	public void isBotExist(String id,String msisdn)
+	{
+		BotInfo botinfo=BotUtils.getBotInfoForBotMsisdn(msisdn);
+		if(botinfo!=null)
+			callbackToJS(id,"true");
+		else
+			callbackToJS(id,"false");
+	}
+	
 
 }
+

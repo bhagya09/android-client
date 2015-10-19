@@ -36,6 +36,8 @@ import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.updateA
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.updateLoveLinkUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.updateUnLoveLinkUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.validateNumberBaseUrl;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getGroupBaseUrlForLinkSharing;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getBaseCodeGCAcceptUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getBotdiscoveryTableUrl;
 import static com.bsb.hike.modules.httpmgr.request.PriorityConstants.PRIORITY_HIGH;
 import static com.bsb.hike.modules.httpmgr.request.Request.REQUEST_TYPE_LONG;
@@ -60,6 +62,7 @@ import com.bsb.hike.modules.httpmgr.interceptor.IRequestInterceptor;
 import com.bsb.hike.modules.httpmgr.interceptor.IResponseInterceptor;
 import com.bsb.hike.modules.httpmgr.request.ByteArrayRequest;
 import com.bsb.hike.modules.httpmgr.request.FileRequest;
+import com.bsb.hike.modules.httpmgr.request.FileRequestPersistent;
 import com.bsb.hike.modules.httpmgr.request.JSONArrayRequest;
 import com.bsb.hike.modules.httpmgr.request.JSONObjectRequest;
 import com.bsb.hike.modules.httpmgr.request.Request;
@@ -794,6 +797,52 @@ public class HttpRequests
 		return requestToken;
 	}
 	
+	/**
+	 * @param json
+	 * @param requestListener
+	 * @param noOfRetries
+	 * @param delayMultiplier
+	 * @return
+	 */
+	public static RequestToken getShareLinkURLRequest(JSONObject json, IRequestListener requestListener, int noOfRetries, int delayMultiplier)
+	{
+		JsonBody body = null;
+		if (json != null)
+		{
+			body = new JsonBody(json);
+		}
+		
+		RequestToken requestToken = new JSONObjectRequest.Builder()
+				.setUrl(getGroupBaseUrlForLinkSharing())
+				.setRequestType(Request.REQUEST_TYPE_SHORT)
+				.setRetryPolicy(new BasicRetryPolicy(noOfRetries, HikePlatformConstants.RETRY_DELAY, delayMultiplier))
+				.setRequestListener(requestListener)
+				.setResponseOnUIThread(true)
+				.post(body)
+				.build();
+		return requestToken;
+	}
+	
+	/**
+	 * 
+	 * @param groupCode
+	 * @param requestListener
+	 * @return
+	 */
+	public static RequestToken acceptGroupMembershipConfirmationRequest(String groupCode, IRequestListener requestListener)
+	{
+		String url = getBaseCodeGCAcceptUrl() + groupCode; 
+		
+		RequestToken requestToken = new JSONObjectRequest.Builder()
+				.setUrl(url)
+				.setRequestType(Request.REQUEST_TYPE_SHORT)
+				.setRequestListener(requestListener)
+				.setResponseOnUIThread(true)
+				.post(null)
+				.build();
+		return requestToken;
+	}
+
 	public static RequestToken getAvatarForBots(String msisdn, IRequestListener listener)
 	{
 
@@ -824,6 +873,19 @@ public class HttpRequests
 				.post(body)
 				.build();
 		
+		return requestToken;
+	}
+	
+	
+	public static RequestToken platformZipDownloadRequestWithResume(String filePath, String stateFilePath, String url, IRequestListener requestListener, long startOffset)
+	{
+		RequestToken requestToken = new FileRequestPersistent.Builder()
+				.setUrl(url)
+				.setFile(filePath)
+				.setStateFilePath(stateFilePath)
+				.setRequestListener(requestListener)
+				.setRetryPolicy(new BasicRetryPolicy(HikePlatformConstants.NUMBER_OF_RETRIES, HikePlatformConstants.RETRY_DELAY, HikePlatformConstants.BACK_OFF_MULTIPLIER))
+				.build();
 		return requestToken;
 	}
 

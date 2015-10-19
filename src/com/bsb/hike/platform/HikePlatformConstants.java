@@ -158,7 +158,7 @@ public interface HikePlatformConstants
 
 	public static final String PLATFORM_BRIDGE_NAME = "PlatformBridge";
 
-	public static final String CARD_DATA = "ld";
+	public static final String LAYOUT_DATA = "ld";
 
 	public static final String FILE_ID = "file_id";
 
@@ -248,7 +248,8 @@ public interface HikePlatformConstants
 	final String SECONDARY_TITLE = "secondary_title";
 	
 	final String STATUS_BAR_COLOR = "sb_color";
-	
+	String RESUME_SUPPORTED = "resume_supported";
+	final String ASSOCIATE_MAPP = "associate_mapp";
 	public static final String PLATFORM_USER_ID_SYNC = "plfsync";
 	
 	public static final String BOT_DESCRIPTION = "desc";
@@ -270,5 +271,7 @@ public interface HikePlatformConstants
 	public static final String LAST_GAME="lastGame";
 	
 	public static final String GAME_CHANNEL="+hikegames+";
+	
+	final static String RESUME_SUPPORT = "resume_support";
 	
 }

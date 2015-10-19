@@ -7,6 +7,7 @@ import org.cocos2dx.lib.Cocos2dxHandler;
 import org.cocos2dx.lib.Cocos2dxHelper;
 import org.cocos2dx.lib.Cocos2dxVideoHelper;
 import org.cocos2dx.lib.Cocos2dxWebViewHelper;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -121,8 +122,29 @@ public class CocosGamingActivity extends Cocos2dxActivity
 		// TODO do not hard code the path of the game engine. Please change this
 		try
 		{
-			System.load(platform_content_dir + "cocosEngine-7/libcocos2d.so");
-			System.load(getAppBasePath() + "libcocos2dcpp.so"); // loading the game
+			if (nonMessagingBotMetadata != null)
+			{
+				JSONArray mapps = nonMessagingBotMetadata.getAsocmapp();
+				if (mapps != null)
+				{
+					for (int i = 0; i < mapps.length(); i++)
+					{
+						JSONObject json = new JSONObject();
+						try
+						{
+							json = mapps.getJSONObject(i);
+						} catch (JSONException e)
+						{
+							e.printStackTrace();
+						}
+						String appName = json.optString(HikeConstants.NAME);
+						System.load(platform_content_dir + appName + "/libcocos2d.so");
+
+					}
+				}
+					System.load(getAppBasePath() + "libcocos2dcpp.so"); // loading the game
+			}
+
 		}
 		catch (UnsatisfiedLinkError e)
 		{
@@ -161,7 +183,6 @@ public class CocosGamingActivity extends Cocos2dxActivity
 		return botInfo;
 	}
 
-	public static native void shutdownGame();
 
 	public static native void platformCallback(String callID, String response);
 

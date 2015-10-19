@@ -314,7 +314,7 @@ public class BotUtils
 		{
 			BotUtils.createAndInsertBotDp(msisdn, thumbnailString);
 		}
-
+		
 		String botChatTheme = jsonObj.optString(HikeConstants.BOT_CHAT_THEME);
 		BotInfo botInfo = null;
 		if (type.equals(HikeConstants.MESSAGING_BOT))
@@ -329,7 +329,7 @@ public class BotUtils
 			NonMessagingBotMetadata botMetadata = new NonMessagingBotMetadata(botInfo.getMetadata());
 			if (botMetadata.isMicroAppMode())
 			{
-				PlatformUtils.downloadZipForNonMessagingBot(botInfo, enableBot, botChatTheme, notifType, botMetadata);
+				PlatformUtils.downloadZipForNonMessagingBot(botInfo, enableBot, botChatTheme, notifType, botMetadata, botMetadata.isResumeSupported());
 			}
 			else if (botMetadata.isWebUrlMode())
 			{
@@ -337,7 +337,7 @@ public class BotUtils
 			}
 			else if (botMetadata.isNativeMode())
 			{
-				PlatformUtils.downloadZipForNonMessagingBot(botInfo, enableBot, botChatTheme, notifType, botMetadata);
+				PlatformUtils.downloadZipForNonMessagingBot(botInfo, enableBot, botChatTheme, notifType, botMetadata, botMetadata.isResumeSupported());
 			}
 
 		}
@@ -744,6 +744,7 @@ public class BotUtils
 			json.put(HikePlatformConstants.PLATFORM_USER_ID, HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PLATFORM_UID_SETTING, null));
 			json.put(AnalyticsConstants.BOT_NAME, name);
 			json.put(AnalyticsConstants.BOT_MSISDN, msisdn);
+			json.put(HikePlatformConstants.NETWORK_TYPE, Integer.toString(Utils.getNetworkType(HikeMessengerApp.getInstance().getApplicationContext())));
 		}
 		catch (JSONException e)
 		{
@@ -827,6 +828,7 @@ public class BotUtils
 		}
 		
 		return PlatformContentConstants.PLATFORM_CONTENT_DIR + "DP" + File.separator;
+
 	}
 	
 	public static Bitmap getBotDp(String botMsisdn)
