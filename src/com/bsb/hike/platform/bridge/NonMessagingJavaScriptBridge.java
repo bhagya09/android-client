@@ -334,7 +334,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	@JavascriptInterface
 	public void putInCache(String key, String value)
 	{
-		PlatformHelper.putInCache(key, value,mBotInfo.getNamespace());
+		PlatformHelper.putInCache(key, value, mBotInfo.getNamespace());
 	}
 
 	/**
@@ -358,7 +358,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	@JavascriptInterface
 	public void getFromCache(String id, String key)
 	{
-		String value = PlatformHelper.getFromCache(key,mBotInfo.getNamespace());
+		String value = PlatformHelper.getFromCache(key, mBotInfo.getNamespace());
 		callbackToJS(id, value);
 	}
 
@@ -889,7 +889,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	@JavascriptInterface
 	public void getAllEventsForMessageHash(String functionId, String messageHash)
 	{
-		String eventData =PlatformHelper.getAllEventsForMessageHash(messageHash,mBotInfo.getNamespace());
+		String eventData =PlatformHelper.getAllEventsForMessageHash(messageHash, mBotInfo.getNamespace());
 		callbackToJS(functionId, eventData);
 	}
 
@@ -1411,5 +1411,31 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 		}
 		BotUtils.removeMicroApp(json);
 		BotUtils.deleteBot(msisdn);
+	}
+	/**
+	 * Platform Version 8
+	 * Call this method to know if download request is currently running
+	 * Can only be called by special bots
+	 * @param url
+	 * @param functionId
+	 * return true/false
+	 */
+	@JavascriptInterface
+	public void isRequestRunning(String functionId,String url)
+	{
+		if (!BotUtils.isSpecialBot(mBotInfo))
+		{
+			callbackToJS(functionId, "false");
+			return;
+		}
+		RequestToken token = PlatformZipDownloader.getCurrentDownloadingRequests().get(url);
+		if (null != token&& token.isRequestRunning())
+		{
+			callbackToJS(functionId, "true");
+		}
+		else
+		{
+			callbackToJS(functionId, "false");
+		}
 	}
 }
