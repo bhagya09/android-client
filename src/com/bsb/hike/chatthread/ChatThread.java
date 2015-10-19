@@ -5683,7 +5683,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			return;
 		}
 		
-		Utils.hideSoftKeyboard(activity.getApplicationContext(), mComposeView);
+		hideKeyboard();
 
 		saveCurrentActionMode();
 		if (mShareablePopupLayout != null)
