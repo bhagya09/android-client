@@ -347,6 +347,14 @@ public class PlatformZipDownloader
 							}
 							else
 							{
+								/*
+								 * Added case to delete zip file in case of unzip failure
+								 */
+								if (zipFile.exists())
+								{
+									zipFile.delete();
+								}
+
 								mRequest.getListener().downloadedContentLength(fileSize);
 								mRequest.getListener().onEventOccured(0, EventCode.UNZIP_FAILED);
 								HikeMessengerApp.getPubSub().publish(HikePubSub.DOWNLOAD_PROGRESS, new Pair<String, String>(callbackId, "unzipFailed"));
