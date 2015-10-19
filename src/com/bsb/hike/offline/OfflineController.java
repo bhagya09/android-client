@@ -696,4 +696,10 @@ public class OfflineController
 		return offlineManager.getConnectedClientInfo();
 	}
 
+	public void sendConsignment(SenderConsignment senderConsignment)
+	{
+		if (senderConsignment == null)
+			return;
+		offlineManager.sendConsignment(senderConsignment);
+	}
 }
