@@ -152,6 +152,10 @@ public class ShareLinkFragment extends DialogFragment implements OnClickListener
 			view.findViewById(R.id.share_via_Others).setVisibility(View.VISIBLE);
 		}
 		
+		if(isTaskRunning)
+		{
+			showProgressDialog();
+		}
 	}
 
 	public void initViaArguments()
