@@ -137,7 +137,6 @@ public class VoIPConstants {
 	public static final int MSG_PARTNER_ANSWER_TIMEOUT = 7;
 	public static final int MSG_RECONNECTING = 8;
 	public static final int MSG_RECONNECTED = 9;
-	public static final int MSG_UPDATE_QUALITY = 10;
 	public static final int MSG_NETWORK_SUCKS = 11;
 	public static final int MSG_ALREADY_IN_NATIVE_CALL = 13;
 	public static final int MSG_AUDIORECORD_FAILURE = 14;
@@ -262,19 +261,6 @@ public class VoIPConstants {
 		
 		public static final String VOIP_CLIENTS = "cl";
 		
-	}
-
-	
-	/**
-	 * Call quality
-	 */
-	
-	public static enum CallQuality {
-		EXCELLENT,
-		GOOD,
-		FAIR,
-		WEAK,
-		UNKNOWN
 	}
 
 	/**

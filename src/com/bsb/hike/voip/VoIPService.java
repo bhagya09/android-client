@@ -65,7 +65,6 @@ import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.voip.VoIPClient.ConnectionMethods;
-import com.bsb.hike.voip.VoIPConstants.CallQuality;
 import com.bsb.hike.voip.VoIPConstants.CallStatus;
 import com.bsb.hike.voip.VoIPDataPacket.BroadcastListItem;
 import com.bsb.hike.voip.VoIPDataPacket.PacketType;
@@ -314,13 +313,6 @@ public class VoIPService extends Service implements Listener
 				if (hostingConference())
 					sendClientsListToAllClients();
 				sendHandlerMessage(VoIPConstants.MSG_UPDATE_SPEAKING);
-				break;
-				
-			case VoIPConstants.MSG_UPDATE_QUALITY:
-				// Do not show quality if we're hosting a conference
-				if (hostingConference())
-					return;
-				sendHandlerMessage(VoIPConstants.MSG_UPDATE_QUALITY);
 				break;
 				
 			case VoIPConstants.MSG_UPDATE_FORCE_MUTE_LAYOUT:
@@ -2180,20 +2172,6 @@ public class VoIPService extends Service implements Listener
 			client.sendAnalyticsEvent(ek, value);
 	}
 	
-	public CallQuality getQuality() {
-		
-		// Hard coded quality if hosting a conference. 
-		// Actual logic will need to be more complicated. 
-		if (hostingConference())
-			return CallQuality.GOOD;
-		
-		VoIPClient client = getClient();
-		if (client != null)
-			return client.getQuality();
-		else
-			return CallQuality.UNKNOWN;
-	}
-
 	public boolean isAudioRunning() {
 		return recordingAndPlaybackRunning;
 	}
@@ -2266,11 +2244,12 @@ public class VoIPService extends Service implements Listener
 		return num;
 	}
 	
+	@SuppressWarnings("unchecked")
 	public ArrayList<VoIPClient> getConferenceClients() {
 		if (hostingConference())
 			return new ArrayList<VoIPClient>(clients.values());
 		else {
-			return getClient().clientMsisdns;
+			return (ArrayList<VoIPClient>) getClient().clientMsisdns.clone();
 		}
 	}
 	
