@@ -28,6 +28,7 @@ android {
     }
     dexOptions {
         javaMaxHeapSize "2048M"
+        incremental = true;
         preDexLibraries = false 
         jumboMode = true
     }
@@ -92,11 +93,13 @@ android {
             keyPassword "Tequ1laFr1day5"
         }
     }
+    if( project.hasProperty('isBuildSystemProjectProp') && project.property('isBuildSystemProjectProp').toBoolean() ) {
     applicationVariants.all { variant -> 
         variant.outputs.each { output -> 
             def file = output.outputFile
             output.outputFile = new File(file.parent, file.name.replace(".apk","-" + getVersionName() + "-" + getBranchAndCommitID() + "-"+ getDateTime() + ".apk"))
         }
+    }
     }
     buildTypes {
         black {
@@ -114,7 +117,7 @@ android {
         	minifyEnabled true
             debuggable true
             proguardFile 'proguard.cfg'
-            signingConfig signingConfigs.release
+            signingConfig signingConfigs.debug
         }
         debug {
             debuggable true
