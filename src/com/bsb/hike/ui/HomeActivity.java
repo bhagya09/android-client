@@ -621,89 +621,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			MenuItemCompat.getActionView(searchMenuItem).clearFocus();
 			MenuItemCompat.collapseActionView(searchMenuItem);
 		}
-		
-if(intent != null)
-{
-		String action = intent.getAction();
-		String linkUrl = intent.getDataString();
-
-		if (TextUtils.isEmpty(action) || TextUtils.isEmpty(linkUrl))
-		{
-			//finish();
-			return;
-		}
-		
-		if (linkUrl.contains(HttpRequestConstants.BASE_LINK_SHARING_URL))
-		{
-			String code = linkUrl.split("/")[3];
-			RequestToken requestToken = HttpRequests.acceptGroupMembershipConfirmationRequest(code, new IRequestListener()
-			{
-				
-				@Override
-				public void onRequestSuccess(Response result)
-				{
-				}
-				
-				@Override
-				public void onRequestProgressUpdate(float progress)
-				{
-				}
-				
-				@Override
-				public void onRequestFailure(HttpException httpException)
-				{
-					String errorText = "";
-
-					Logger.d("link_share_error", "The error code received is " + httpException.getErrorCode());
-					
-					switch (httpException.getErrorCode())
-					{
-
-					// 406: “The person who invited you has deleted their account”
-					case HttpURLConnection.HTTP_NOT_ACCEPTABLE:
-						errorText = getString(R.string.link_share_error_invitee_account_deleted);
-						break;
-
-					// 400: “You’re already in the group” 
-					case HttpURLConnection.HTTP_BAD_REQUEST:
-						errorText = getString(R.string.link_share_error_already_group_member);
-						break;
-
-					// 16: “This link is invalid”
-					// 401: “This link is invalid”
-					case HttpURLConnection.HTTP_UNAUTHORIZED:
-					case HttpException.REASON_CODE_UNKNOWN_HOST_EXCEPTION:
-						errorText = getString(R.string.link_share_error_invalid_link);
-						break;
-						
-					// 410: “This group has been deleted”
-					case HttpURLConnection.HTTP_GONE:
-						errorText = getString(R.string.link_share_error_group_deleted);
-						break;
-
-					// 412: “The person who invited you is not in the group anymore”
-					case HttpURLConnection.HTTP_PRECON_FAILED:
-						errorText = getString(R.string.link_share_error_person_not_in_group);
-						break;
-
-					// 1:- NO Internet connectivity
-					case HttpException.REASON_CODE_NO_NETWORK:
-						errorText = getString(R.string.link_share_network_error);
-						break;
-
-					default:
-						errorText = getString(R.string.link_share_error_default);
-						break;
-					}
-
-					// Show Toast
-					Toast.makeText(HomeActivity.this, errorText, Toast.LENGTH_SHORT).show();
-				}
-			});
-			requestToken.execute();
-		}
-}
-		
 			
 		showProductPopup(ProductPopupsConstants.PopupTriggerPoints.HOME_SCREEN.ordinal());
 	}
@@ -1161,6 +1078,95 @@ if(intent != null)
 		showSmsOrFreeInvitePopup();
 	
 		HikeMessengerApp.getPubSub().publish(HikePubSub.CANCEL_ALL_NOTIFICATIONS, null);
+
+		if(getIntent() != null)
+		{
+			acceptGroupMembershipConfirmation(getIntent());
+		}
+	}
+	
+	private void acceptGroupMembershipConfirmation(Intent intent)
+	{
+		String action = intent.getAction();
+		String linkUrl = intent.getDataString();
+
+		if (TextUtils.isEmpty(action) || TextUtils.isEmpty(linkUrl))
+		{
+			//finish();
+			return;
+		}
+		
+		if (linkUrl.contains(HttpRequestConstants.BASE_LINK_SHARING_URL))
+		{
+			String code = linkUrl.split("/")[3];
+			RequestToken requestToken = HttpRequests.acceptGroupMembershipConfirmationRequest(code, new IRequestListener()
+			{
+				
+				@Override
+				public void onRequestSuccess(Response result)
+				{
+				}
+				
+				@Override
+				public void onRequestProgressUpdate(float progress)
+				{
+				}
+				
+				@Override
+				public void onRequestFailure(HttpException httpException)
+				{
+					String errorText = "";
+
+					Logger.d("link_share_error", "The error code received is " + httpException.getErrorCode());
+					
+					switch (httpException.getErrorCode())
+					{
+
+					// 406: “The person who invited you has deleted their account”
+					case HttpURLConnection.HTTP_NOT_ACCEPTABLE:
+						errorText = getString(R.string.link_share_error_invitee_account_deleted);
+						break;
+
+					// 400: “You’re already in the group” 
+					case HttpURLConnection.HTTP_BAD_REQUEST:
+						errorText = getString(R.string.link_share_error_already_group_member);
+						break;
+
+					// 16: “This link is invalid”
+					// 401: “This link is invalid”
+					case HttpURLConnection.HTTP_UNAUTHORIZED:
+					case HttpException.REASON_CODE_UNKNOWN_HOST_EXCEPTION:
+						errorText = getString(R.string.link_share_error_invalid_link);
+						break;
+						
+					// 410: “This group has been deleted”
+					case HttpURLConnection.HTTP_GONE:
+						errorText = getString(R.string.link_share_error_group_deleted);
+						break;
+
+					// 412: “The person who invited you is not in the group anymore”
+					case HttpURLConnection.HTTP_PRECON_FAILED:
+						errorText = getString(R.string.link_share_error_person_not_in_group);
+						break;
+
+					// 1:- NO Internet connectivity
+					case HttpException.REASON_CODE_NO_NETWORK:
+						errorText = getString(R.string.link_share_network_error);
+						break;
+
+					default:
+						errorText = getString(R.string.link_share_error_default);
+						break;
+					}
+
+					// Show Toast
+					Toast.makeText(HomeActivity.this, errorText, Toast.LENGTH_SHORT).show();
+				}
+			});
+			requestToken.execute();
+		}
+
+	
 	}
 
 	@Override
