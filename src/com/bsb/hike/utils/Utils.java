@@ -7436,4 +7436,43 @@ public class Utils
 		return timeLogBuilder.toString();
 	}
 
+	/**
+	 * Call this method to find the total size of a folder
+	 * @param folder
+	 * @return size of the folder in bytes
+	 */
+	public static long folderSize(File folder)
+	{
+		long length = 0;
+		for (File file : folder.listFiles()) {
+			if (file.isFile())
+				length += file.length();
+			else
+				length += folderSize(file);
+		}
+		return length;
+	}
+
+	/**
+	 * Call this method to get the total available internal storage space
+	 * @return
+	 */
+	public static double getFreeInternalStorage()
+	{
+		double internalSpace = 0.0;
+
+		StatFs stat = new StatFs(Environment.getDataDirectory().getPath());
+		if (isJELLY_BEAN_MR2OrHigher())
+		{
+			internalSpace = (double) stat.getBlockSizeLong() * (double) stat.getAvailableBlocksLong();
+		}
+		else
+		{
+			internalSpace = (double) stat.getBlockSize() * (double) stat.getAvailableBlocks();
+		}
+		double megsAvailable = internalSpace / (1024 * 1024);
+
+		return megsAvailable;
+	}
+
 }

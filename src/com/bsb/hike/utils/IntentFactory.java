@@ -1101,7 +1101,7 @@ public class IntentFactory
 		Intent intent = new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS);
 		activity.startActivityForResult(intent, 0);
 	}
-	
+
 	public static Intent getAddMembersToExistingGroupIntent(Context context, String mLocalMSISDN)
 	{
 		Intent intent = new Intent(context, ComposeChatActivity.class);

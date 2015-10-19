@@ -2,6 +2,7 @@ package com.bsb.hike.platform.bridge;
 
 import java.io.File;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -186,6 +187,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 			jsonObject.put(HikePlatformConstants.MUTE, Boolean.toString(mBotInfo.isMute()));
 			jsonObject.put(HikePlatformConstants.NETWORK_TYPE, Integer.toString(Utils.getNetworkType(HikeMessengerApp.getInstance().getApplicationContext())));
 			jsonObject.put(HikePlatformConstants.BOT_VERSION, mBotInfo.getVersion());
+			jsonObject.put(HikePlatformConstants.ASSOCIATE_MAPP,botMetadata.getAsocmapp());
 
 			
 			mWebView.loadUrl("javascript:init('"+getEncodedDataForJS(jsonObject.toString())+"')");
@@ -332,7 +334,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	@JavascriptInterface
 	public void putInCache(String key, String value)
 	{
-		PlatformHelper.putInCache(key, value,mBotInfo.getNamespace());
+		PlatformHelper.putInCache(key, value, mBotInfo.getNamespace());
 	}
 
 	/**
@@ -356,7 +358,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	@JavascriptInterface
 	public void getFromCache(String id, String key)
 	{
-		String value = PlatformHelper.getFromCache(key,mBotInfo.getNamespace());
+		String value = PlatformHelper.getFromCache(key, mBotInfo.getNamespace());
 		callbackToJS(id, value);
 	}
 
@@ -887,7 +889,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	@JavascriptInterface
 	public void getAllEventsForMessageHash(String functionId, String messageHash)
 	{
-		String eventData =PlatformHelper.getAllEventsForMessageHash(messageHash,mBotInfo.getNamespace());
+		String eventData =PlatformHelper.getAllEventsForMessageHash(messageHash, mBotInfo.getNamespace());
 		callbackToJS(functionId, eventData);
 	}
 
@@ -1361,6 +1363,79 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 		if (file.exists())
 		{
 			file.delete();
+		}
+	}
+	/**
+	 * Platform Version 8
+	 * Call this method to decrease the unread counter.
+	 * Can only be called by special bots..
+	 * @param msisdn whose unread count has to be modified.
+	 */
+	@JavascriptInterface
+	public void resetUnreadCounter(String msisdn)
+	{
+		BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
+		if (!BotUtils.isSpecialBot(mBotInfo)||botInfo==null)
+			return;
+		HikeConversationsDatabase.getInstance().resetUnreadCounter(msisdn);
+		Message ms = Message.obtain();
+		ms.arg1 = 0;
+		ms.obj = msisdn;
+		HikeMessengerApp.getPubSub().publish(HikePubSub.CONV_UNREAD_COUNT_MODIFIED, ms);
+		botInfo.setUnreadCount(0);
+		
+	}
+	/**
+	 * Platform Version 8
+	 * Call this method to delete a bot and remove its files
+	 * Can only be called by special bots
+	 * @param msisdn
+	 */
+	@JavascriptInterface
+	public void deleteAndRemoveBot(String msisdn)
+	{
+		BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
+		if (!BotUtils.isSpecialBot(mBotInfo) || botInfo == null)
+			return;
+		NonMessagingBotMetadata nonMessagingBotMetadata = new NonMessagingBotMetadata(botInfo.getMetadata());
+		JSONObject json = new JSONObject();
+		try
+		{
+			JSONArray array = new JSONArray();
+			array.put(nonMessagingBotMetadata.getAppName());
+			json.put(HikePlatformConstants.APP_NAME, array);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+		BotUtils.removeMicroApp(json);
+		BotUtils.deleteBot(msisdn);
+	}
+	/**
+	 * Platform Version 8
+	 * Call this method to know if download request is currently running
+	 * Can only be called by special bots
+	 * @param url
+	 * @param functionId
+	 * return true/false
+	 */
+	@JavascriptInterface
+	public void isRequestRunning(String functionId,String url)
+	{
+		if (!BotUtils.isSpecialBot(mBotInfo))
+		{
+			callbackToJS(functionId, "false");
+			return;
+		}
+		RequestToken token = PlatformZipDownloader.getCurrentDownloadingRequests().get(url);
+		if (null != token&& token.isRequestRunning())
+		{
+			callbackToJS(functionId, "true");
+		}
+		else
+		{
+			callbackToJS(functionId, "false");
 		}
 	}
 }

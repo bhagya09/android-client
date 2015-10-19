@@ -455,7 +455,7 @@ public class HikePubSub implements Runnable
 	public static final String SHOW_NEW_CHAT_RED_DOT = "showNewChatRedDot";
 	
 	public static final String ANONYMOUS_NAME_SET="anonymousNameSet";
-	
+
 	private final Thread mThread;
 
 	private final BlockingQueue<Operation> mQueue;

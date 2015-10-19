@@ -1,15 +1,26 @@
 package com.bsb.hike.platform;
 
 import java.io.File;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 
 import org.cocos2dx.lib.Cocos2dxActivity;
 import org.cocos2dx.lib.Cocos2dxHandler;
 import org.cocos2dx.lib.Cocos2dxHelper;
 import org.cocos2dx.lib.Cocos2dxVideoHelper;
+import org.cocos2dx.lib.Cocos2dxWebViewHelper;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import android.content.Context;
+import android.content.Intent;
+import android.content.pm.ActivityInfo;
+import android.media.AudioManager;
+import android.os.Bundle;
+import android.os.PersistableBundle;
+import android.text.TextUtils;
+import android.view.Window;
+import android.view.WindowManager;
+import android.widget.Toast;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.R;
@@ -18,26 +29,9 @@ import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.bots.NonMessagingBotConfiguration;
 import com.bsb.hike.bots.NonMessagingBotMetadata;
-import com.bsb.hike.platform.bridge.JavascriptBridge;
 import com.bsb.hike.platform.content.PlatformContentConstants;
 import com.bsb.hike.utils.Logger;
 import com.chukong.cocosplay.client.CocosPlayClient;
-
-import android.content.Context;
-import android.content.Intent;
-import android.content.pm.ActivityInfo;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
-import android.content.pm.PackageManager.NameNotFoundException;
-import android.content.pm.Signature;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.PersistableBundle;
-import android.text.TextUtils;
-import android.util.Base64;
-import android.view.Window;
-import android.view.WindowManager;
-import android.widget.Toast;
 
 /**
  * This is an Activity class which renders native games
@@ -52,8 +46,6 @@ public class CocosGamingActivity extends Cocos2dxActivity
 	private String TAG = getClass().getCanonicalName();
 
 	private boolean isPortrait;
-
-	private Handler mHandler = new Handler();
 
 	private static NativeBridge nativeBridge;
 
@@ -72,32 +64,6 @@ public class CocosGamingActivity extends Cocos2dxActivity
 	{
 		super.onPostCreate(savedInstanceState, persistentState);
 		Logger.d(TAG, "onPostCreate()");
-	}
-
-	private String getAppSignature()
-	{
-		try
-		{
-			Logger.d(TAG, "Getting keyHash");
-			PackageInfo info = getPackageManager().getPackageInfo("com.bsb.hike", PackageManager.GET_SIGNATURES);
-			for (Signature signature : info.signatures)
-			{
-				MessageDigest md = MessageDigest.getInstance("SHA");
-				md.update(signature.toByteArray());
-				// Logger.d(TAG, "KeyHash : " +
-				// Base64.encodeToString(md.digest(), Base64.DEFAULT));
-				return Base64.encodeToString(md.digest(), Base64.DEFAULT);
-			}
-		}
-		catch (NameNotFoundException e)
-		{
-			e.printStackTrace();
-		}
-		catch (NoSuchAlgorithmException e)
-		{
-			e.printStackTrace();
-		}
-		return null;
 	}
 
 	public void onCreate(Bundle savedInstanceState)
@@ -121,6 +87,7 @@ public class CocosGamingActivity extends Cocos2dxActivity
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
+		this.setVolumeControlStream(AudioManager.STREAM_MUSIC);
 
 		botConfig = null == botInfo.getConfigData() ? new NonMessagingBotConfiguration(botInfo.getConfiguration()) : new NonMessagingBotConfiguration(botInfo.getConfiguration(),
 				botInfo.getConfigData());
@@ -155,17 +122,40 @@ public class CocosGamingActivity extends Cocos2dxActivity
 		// TODO do not hard code the path of the game engine. Please change this
 		try
 		{
-			System.load(platform_content_dir + "cocosEngine-7/libcocos2d.so");
-			System.load(getAppBasePath() + "libcocos2dcpp.so"); // loading the game
+			if (nonMessagingBotMetadata != null)
+			{
+				JSONArray mapps = nonMessagingBotMetadata.getAsocmapp();
+				if (mapps != null)
+				{
+					for (int i = 0; i < mapps.length(); i++)
+					{
+						JSONObject json = new JSONObject();
+						try
+						{
+							json = mapps.getJSONObject(i);
+						} catch (JSONException e)
+						{
+							e.printStackTrace();
+						}
+						String appName = json.optString(HikeConstants.NAME);
+						System.load(platform_content_dir + appName + "/libcocos2d.so");
+
+					}
+				}
+					System.load(getAppBasePath() + "libcocos2dcpp.so"); // loading the game
+			}
+
 		}
 		catch (UnsatisfiedLinkError e)
 		{
+			e.printStackTrace();
 			Logger.e(TAG, "Game Engine not Found");
 			Toast.makeText(getApplicationContext(), R.string.some_error, Toast.LENGTH_SHORT).show();
 			finish();
 			Cocos2dxHelper.terminateProcess();
 		}
 
+		CocosGamingActivity.sContext = this;
 		CocosGamingActivity.this.mHandler = new Cocos2dxHandler(CocosGamingActivity.this);
 		Cocos2dxHelper.initDuplicate(CocosGamingActivity.this, msisdn, getAppBasePath());
 		appInit(getExternalPath());
@@ -174,6 +164,11 @@ public class CocosGamingActivity extends Cocos2dxActivity
 		if (mVideoHelper == null)
 		{
 			mVideoHelper = new Cocos2dxVideoHelper(CocosGamingActivity.this, mFrameLayout);
+		}
+
+		if (mWebViewHelper == null)
+		{
+			mWebViewHelper = new Cocos2dxWebViewHelper(mFrameLayout);
 		}
 
 	}
@@ -200,7 +195,7 @@ public class CocosGamingActivity extends Cocos2dxActivity
 			Logger.d(TAG, "-onActivityResult");
 			switch (requestCode)
 			{
-			case JavascriptBridge.PICK_CONTACT_AND_SEND_REQUEST:
+			case HikeConstants.PLATFORM_REQUEST:
 				JSONObject response = new JSONObject();
 				for (String key : data.getExtras().keySet())
 				{
@@ -243,7 +238,6 @@ public class CocosGamingActivity extends Cocos2dxActivity
 	{
 		HAManager.getInstance().endChatSession(msisdn);
 		super.onPause();
-		
 	}
 
 	/**
