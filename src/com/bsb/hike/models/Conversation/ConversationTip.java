@@ -405,12 +405,17 @@ public class ConversationTip implements OnClickListener
 			case UPDATE_NORMAL_TIP:
 				HAManager.getInstance().updateTipAnalyticsUIEvent(AnalyticsConstants.UPDATE_TIP_CLICKED);
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOW_NORMAL_UPDATE_TIP, false);
+				if(tipType == UPDATE_NORMAL_TIP)
+				{
+					HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.TIP_TO_FLUSH, UPDATE_NORMAL_TIP);
+				}
 				Uri url = Uri.parse(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.Extras.URL, "market://details?id=com.bsb.hike"));
 				IntentFactory.openURL(context, url);
 				break;
 			case INVITE_TIP:
 				HAManager.getInstance().updateTipAnalyticsUIEvent(AnalyticsConstants.INVITE_TIP_CLICKED);
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOW_INVITE_TIP, false);
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.TIP_TO_FLUSH, INVITE_TIP);
 				IntentFactory.openInviteSMS(context);
 				break;
 
