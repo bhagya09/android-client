@@ -266,7 +266,10 @@ public class ShareLinkFragment extends DialogFragment implements OnClickListener
 					}
 					else
 					{
-						OneToNConversationUtils.createGroupOrBroadcast(getActivity(), new ArrayList<ContactInfo>(), grpName, grpId, grpSettings, true);
+						if(isAdded())
+						{
+							OneToNConversationUtils.createGroupOrBroadcast(getActivity(), new ArrayList<ContactInfo>(), grpName, grpId, grpSettings, true);
+						}
 					}
 				}
 
