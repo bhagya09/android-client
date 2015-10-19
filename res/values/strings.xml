@@ -784,10 +784,6 @@
     <string name="voip_connecting">&#8230;CONNECTING</string>
     <string name="voip_partner_busy">&#8230;BUSY</string>
     <string name="voip_offline_error">Network unavailable. Please try again when you have network connectivity.</string>
-    <string name="voip_signal_fair">FAIR</string>
-    <string name="voip_signal_good">GOOD</string>
-    <string name="voip_signal_weak">WEAK</string>
-    <string name="voip_signal_excellent">EXCELLENT</string>
     <string name="voip_conference_label">Conference Call</string>
     <string name="voip_conference_waiting_for_participants_info">Waiting for conference info...</string>
     <string name="hike_calls">Hike Calls</string>

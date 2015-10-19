@@ -9,7 +9,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.GradientDrawable;
 import android.media.AudioManager;
 import android.media.ToneGenerator;
 import android.os.Bundle;
@@ -53,7 +52,6 @@ import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.ProfileImageLoader;
 import com.bsb.hike.voip.VoIPClient;
 import com.bsb.hike.voip.VoIPConstants;
-import com.bsb.hike.voip.VoIPConstants.CallQuality;
 import com.bsb.hike.voip.VoIPConstants.CallStatus;
 import com.bsb.hike.voip.VoIPService;
 import com.bsb.hike.voip.VoIPService.LocalBinder;
@@ -69,7 +67,6 @@ public class VoipCallFragment extends Fragment implements CallActions
 	private boolean isBound = false;
 	private final Messenger mMessenger = new Messenger(new IncomingHandler());
 	private WakeLock proximityWakeLock = null;
-	private boolean showQuality = true;
 	private int easter = 0;
 
 	private CallActionsView callActionsView;
@@ -77,7 +74,6 @@ public class VoipCallFragment extends Fragment implements CallActions
 
 	private ImageButton muteButton, speakerButton, addButton, bluetoothButton;
 	private LinearLayout forceMuteContainer = null;
-	private LinearLayout signalContainer = null;
 	private boolean isCallActive;
 	private ArrayList<VoIPClient> conferenceClients = null;
 	private ConferenceParticipantsAdapter confClientsAdapter = null;
@@ -174,10 +170,6 @@ public class VoipCallFragment extends Fragment implements CallActions
 				break;
 			case VoIPConstants.MSG_RECONNECTED:
 				updateCallStatus();
-				break;
-			case VoIPConstants.MSG_UPDATE_QUALITY:
-				CallQuality quality = voipService.getQuality();
-				showSignalStrength(quality);
 				break;
 			case VoIPConstants.MSG_NETWORK_SUCKS:
 				showCallFailedFragment(VoIPConstants.CallFailedCodes.CALLER_BAD_NETWORK);
@@ -625,20 +617,13 @@ public class VoipCallFragment extends Fragment implements CallActions
 			anim.setDuration(500);
 			forceMuteContainer.startAnimation(anim);
 			
-			showQuality = false;
-			showSignalStrength(null);
 		} else {
 			// Set the margin from the participants listview
 			ListView conferenceList = (ListView) getView().findViewById(R.id.conference_list);
 			ViewGroup.MarginLayoutParams layoutParams = (ViewGroup.MarginLayoutParams) conferenceList.getLayoutParams();
 			layoutParams.setMargins(0, 50, 0, 20);
 			conferenceList.setLayoutParams(layoutParams);
-
 			forceMuteContainer.setVisibility(View.GONE);
-			
-			showQuality = true;
-			CallQuality quality = voipService.getQuality();
-			showSignalStrength(quality);
 		}
 	}
 	
@@ -953,14 +938,6 @@ public class VoipCallFragment extends Fragment implements CallActions
 		conferenceList.setFocusable(false);
 		conferenceList.setClickable(false);
 
-		if (voipService.hostingConference()) {
-
-			// remove quality indicator
-			if (signalContainer != null) {
-				signalContainer.setVisibility(View.GONE);
-			}
-		}
-
 		// Remove profile image
 		ImageView profileView = (ImageView) getView().findViewById(R.id.profile_image);
 		profileView.setVisibility(View.INVISIBLE);
@@ -988,46 +965,6 @@ public class VoipCallFragment extends Fragment implements CallActions
 		
 		callActionsView.setCallActionsListener(this);
 		callActionsView.startPing();
-	}
-
-	private void showSignalStrength(CallQuality quality)
-	{
-		signalContainer = (LinearLayout) getView().findViewById(R.id.signal_container);
-		TextView signalStrengthView = (TextView) getView().findViewById(R.id.signal_strength);
-		GradientDrawable gd = (GradientDrawable)signalContainer.getBackground();
-
-		if (!showQuality) {
-			signalContainer.setVisibility(View.GONE);
-			return;
-		}
-		
-		AlphaAnimation anim = new AlphaAnimation(0.0f, 1.0f);
-		anim.setDuration(800);
-
-		switch(quality)
-		{
-			case WEAK: 			gd.setColor(getResources().getColor(R.color.signal_red));
-					   			signalStrengthView.setText(getString(R.string.voip_signal_weak));
-					   			break;
-			case FAIR:			gd.setColor(getResources().getColor(R.color.signal_yellow));
-						   		signalStrengthView.setText(getString(R.string.voip_signal_fair));
-						   		break;
-			case GOOD:			gd.setColor(getResources().getColor(R.color.signal_good));
-						   		signalStrengthView.setText(getString(R.string.voip_signal_good));
-						   		break;
-			case EXCELLENT: 	gd.setColor(getResources().getColor(R.color.signal_green));
-					   			signalStrengthView.setText(getString(R.string.voip_signal_excellent));
-					   			break;
-		default:
-			Logger.d(tag, "Unhandled voice quality: " + quality + ". Defaulting to good.");
-			gd.setColor(getResources().getColor(R.color.signal_good));
-	   		signalStrengthView.setText(getString(R.string.voip_signal_good));
-			break;
-		}
-		
-		// TODO: Signal container will remain invisible. 
-//		signalContainer.startAnimation(anim);
-//		signalContainer.setVisibility(View.VISIBLE);
 	}
 
 	private void startCallRateActivity(Bundle bundle)
