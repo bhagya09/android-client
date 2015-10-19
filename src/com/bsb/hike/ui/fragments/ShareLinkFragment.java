@@ -17,6 +17,8 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.bsb.hike.HikeConstants;
@@ -65,7 +67,9 @@ public class ShareLinkFragment extends DialogFragment implements OnClickListener
 
 	private boolean isNewGroup;
 
-	private ProgressDialog mDialog;
+	private ProgressBar mDialog;
+	
+	private LinearLayout menuContainer;
 
 	public final static String SHARE_LINK_FRAGMENT_TAG = "shareLinkFragmentTag";
 
@@ -118,7 +122,11 @@ public class ShareLinkFragment extends DialogFragment implements OnClickListener
 		parent.findViewById(R.id.add_via_Hike).setOnClickListener(this);
 
 		getDialog().getWindow().requestFeature(Window.FEATURE_NO_TITLE);
+		
+		mDialog = (ProgressBar)parent.findViewById(R.id.app_open_loader);
 
+		menuContainer = (LinearLayout)parent.findViewById(R.id.menu_container);
+		
 		return parent;
 	}
 
@@ -202,7 +210,7 @@ public class ShareLinkFragment extends DialogFragment implements OnClickListener
 		}
 
 		// hide dialog
-		getDialog().hide();
+		//getDialog().hide();
 				
 		// Start Loader here
 		showProgressDialog();
@@ -338,16 +346,14 @@ public class ShareLinkFragment extends DialogFragment implements OnClickListener
 
 	private void dismissProgressDialog()
 	{
-		if (mDialog != null && mDialog.isShowing())
-		{
-			mDialog.dismiss();
-			mDialog = null;
-		}
+		mDialog.setVisibility(View.GONE);
 	}
 
 	private void showProgressDialog()
 	{
-		mDialog = ProgressDialog.show(getActivity(), null, getResources().getString(R.string.opening_app));
+		mDialog.setVisibility(View.VISIBLE);
+		menuContainer.setVisibility(View.INVISIBLE);
+		
 	}
 
 	public interface ShareLinkFragmentListener

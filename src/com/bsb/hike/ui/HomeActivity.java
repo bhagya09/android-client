@@ -1,6 +1,7 @@
 package com.bsb.hike.ui;
 
 
+import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -218,6 +219,12 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			//removing unwanted EXTRA becoz every time a singleTop activity is re-spawned, 
 			//android system uses the old intent to fire it, and it will contain unwanted extras.
 			getIntent().removeExtra(HikeConstants.STEALTH_MSISDN);
+			
+			//setting actions and data "null" for case of onCreate called second time 
+			//example: in case of Don't Keep Activities
+			//Means getIntent's Actions and Data can be used first time only
+			getIntent().setAction(null);
+			getIntent().setData(null);
 		}
 
 		if (Utils.requireAuth(this))
@@ -286,21 +293,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 					@Override
 					public void onRequestSuccess(Response result)
 					{
-						JSONObject response = (JSONObject) result.getBody().getContent();
-						Logger.d(TAG, "Response for acceptGroupMembershipConfirmationRequest : " + response.toString());
-						try
-						{
-							int errorCode = response.getInt("error");
-							String errorMessage = response.optString("errorMsg", "Something Went Wrong, GROUP JOIN REQUEST not accepted");
-							if (errorCode == -1)
-							{
-								Toast.makeText(HomeActivity.this, errorMessage, Toast.LENGTH_SHORT).show();
-							}
-						}
-						catch (JSONException e)
-						{
-							Logger.e(TAG, " JSON Error in acceptGroupMembershipConfirmationRequest : " + e.toString());
-						}
 					}
 					
 					@Override
@@ -311,8 +303,52 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 					@Override
 					public void onRequestFailure(HttpException httpException)
 					{
+						String errorText = "";
+
+						Logger.d("link_share_error", "The error code received is " + httpException.getErrorCode());
+						
+						switch (httpException.getErrorCode())
+						{
+
+						// 406: “The person who invited you has deleted their account”
+						case HttpURLConnection.HTTP_NOT_ACCEPTABLE:
+							errorText = getString(R.string.link_share_error_invitee_account_deleted);
+							break;
+
+						// 400: “You’re already in the group” 
+						case HttpURLConnection.HTTP_BAD_REQUEST:
+							errorText = getString(R.string.link_share_error_already_group_member);
+							break;
+
+						// 16: “This link is invalid”
+						// 401: “This link is invalid”
+						case HttpURLConnection.HTTP_UNAUTHORIZED:
+						case HttpException.REASON_CODE_UNKNOWN_HOST_EXCEPTION:
+							errorText = getString(R.string.link_share_error_invalid_link);
+							break;
+							
+						// 410: “This group has been deleted”
+						case HttpURLConnection.HTTP_GONE:
+							errorText = getString(R.string.link_share_error_group_deleted);
+							break;
+
+						// 412: “The person who invited you is not in the group anymore”
+						case HttpURLConnection.HTTP_PRECON_FAILED:
+							errorText = getString(R.string.link_share_error_person_not_in_group);
+							break;
+
+						// 1:- NO Internet connectivity
+						case HttpException.REASON_CODE_NO_NETWORK:
+							errorText = getString(R.string.link_share_network_error);
+							break;
+
+						default:
+							errorText = getString(R.string.link_share_error_default);
+							break;
+						}
+
 						// Show Toast
-						Toast.makeText(HomeActivity.this, getString(R.string.link_share_network_error), Toast.LENGTH_SHORT).show();
+						Toast.makeText(HomeActivity.this, errorText, Toast.LENGTH_SHORT).show();
 					}
 				});
 				requestToken.execute();
@@ -1641,6 +1677,10 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		else if (HikePubSub.SHOW_NEW_CHAT_RED_DOT.equals(type))
 		{
 			sendUIMessage(SHOW_NEW_CHAT_RED_DOT, 1000);
+		}
+		else if (HikePubSub.PRODUCT_POPUP_RECEIVE_COMPLETE.equals(type))
+		{
+			showProductPopup(ProductPopupsConstants.PopupTriggerPoints.HOME_SCREEN.ordinal());
 		}
 	}
 

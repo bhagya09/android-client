@@ -14,6 +14,7 @@ import android.text.TextUtils;
 import android.util.SparseArray;
 
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikePubSub;
 import com.bsb.hike.HikeConstants.NotificationType;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.analytics.AnalyticsConstants;
@@ -279,6 +280,7 @@ public class ProductInfoManager
 						mmSparseArray.put(productContentModel.getTriggerpoint(), mmArrayList);
 					}
 					HikeContentDatabase.getInstance().updatePopupStatus(productContentModel.hashCode(), PopupStateEnum.DOWNLOADED.ordinal());
+					HikeMessengerApp.getPubSub().publish(HikePubSub.PRODUCT_POPUP_RECEIVE_COMPLETE, null);
                     recordPopupEvent(productContentModel.getAppName(), productContentModel.getPid(), productContentModel.isFullScreen(), HikeConstants.DOWNLOAD);
 				}
 			}
