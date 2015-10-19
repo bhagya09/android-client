@@ -209,14 +209,17 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		Logger.d(TAG,"onCreate");
 		super.onCreate(savedInstanceState);
 
-		if (savedInstanceState != null && !savedInstanceState.getBoolean(HikeConstants.Extras.CLEARED_OUT, false)) 
+		if (savedInstanceState != null && savedInstanceState.getBoolean(HikeConstants.Extras.CLEARED_OUT, false)) 
 		{
+
+			Logger.d(TAG," making extra TRUE");
 			//this means that singleTop activity has been re-spawned after being destroyed 
 			extrasClearedOut = true;
 		}
 		
 		if(extrasClearedOut)
 		{
+			Logger.d(TAG,"clearing all data");
 			//removing unwanted EXTRA becoz every time a singleTop activity is re-spawned, 
 			//android system uses the old intent to fire it, and it will contain unwanted extras.
 			getIntent().removeExtra(HikeConstants.STEALTH_MSISDN);
@@ -272,89 +275,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		}
 		Logger.d(getClass().getSimpleName(),"onCreate "+this.getClass().getSimpleName());
 		showProductPopup(ProductPopupsConstants.PopupTriggerPoints.HOME_SCREEN.ordinal());
-		
-		if (getIntent() != null)
-		{
-			Intent intent = getIntent();
-			String action = intent.getAction();
-			String linkUrl = intent.getDataString();
-
-			if (TextUtils.isEmpty(action) || TextUtils.isEmpty(linkUrl))
-			{
-				//finish();
-				return;
-			}
-			
-			if (linkUrl.contains(HttpRequestConstants.BASE_LINK_SHARING_URL))
-			{
-				String code = linkUrl.split("/")[3];
-				RequestToken requestToken = HttpRequests.acceptGroupMembershipConfirmationRequest(code, new IRequestListener()
-				{
-					
-					@Override
-					public void onRequestSuccess(Response result)
-					{
-					}
-					
-					@Override
-					public void onRequestProgressUpdate(float progress)
-					{
-					}
-					
-					@Override
-					public void onRequestFailure(HttpException httpException)
-					{
-						String errorText = "";
-
-						Logger.d("link_share_error", "The error code received is " + httpException.getErrorCode());
-						
-						switch (httpException.getErrorCode())
-						{
-
-						// 406: “The person who invited you has deleted their account”
-						case HttpURLConnection.HTTP_NOT_ACCEPTABLE:
-							errorText = getString(R.string.link_share_error_invitee_account_deleted);
-							break;
-
-						// 400: “You’re already in the group” 
-						case HttpURLConnection.HTTP_BAD_REQUEST:
-							errorText = getString(R.string.link_share_error_already_group_member);
-							break;
-
-						// 16: “This link is invalid”
-						// 401: “This link is invalid”
-						case HttpURLConnection.HTTP_UNAUTHORIZED:
-						case HttpException.REASON_CODE_UNKNOWN_HOST_EXCEPTION:
-							errorText = getString(R.string.link_share_error_invalid_link);
-							break;
-							
-						// 410: “This group has been deleted”
-						case HttpURLConnection.HTTP_GONE:
-							errorText = getString(R.string.link_share_error_group_deleted);
-							break;
-
-						// 412: “The person who invited you is not in the group anymore”
-						case HttpURLConnection.HTTP_PRECON_FAILED:
-							errorText = getString(R.string.link_share_error_person_not_in_group);
-							break;
-
-						// 1:- NO Internet connectivity
-						case HttpException.REASON_CODE_NO_NETWORK:
-							errorText = getString(R.string.link_share_network_error);
-							break;
-
-						default:
-							errorText = getString(R.string.link_share_error_default);
-							break;
-						}
-
-						// Show Toast
-						Toast.makeText(HomeActivity.this, errorText, Toast.LENGTH_SHORT).show();
-					}
-				});
-				requestToken.execute();
-			}
-		}
 	}
 	
 	@Override
@@ -701,6 +621,89 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			MenuItemCompat.getActionView(searchMenuItem).clearFocus();
 			MenuItemCompat.collapseActionView(searchMenuItem);
 		}
+		
+if(intent != null)
+{
+		String action = intent.getAction();
+		String linkUrl = intent.getDataString();
+
+		if (TextUtils.isEmpty(action) || TextUtils.isEmpty(linkUrl))
+		{
+			//finish();
+			return;
+		}
+		
+		if (linkUrl.contains(HttpRequestConstants.BASE_LINK_SHARING_URL))
+		{
+			String code = linkUrl.split("/")[3];
+			RequestToken requestToken = HttpRequests.acceptGroupMembershipConfirmationRequest(code, new IRequestListener()
+			{
+				
+				@Override
+				public void onRequestSuccess(Response result)
+				{
+				}
+				
+				@Override
+				public void onRequestProgressUpdate(float progress)
+				{
+				}
+				
+				@Override
+				public void onRequestFailure(HttpException httpException)
+				{
+					String errorText = "";
+
+					Logger.d("link_share_error", "The error code received is " + httpException.getErrorCode());
+					
+					switch (httpException.getErrorCode())
+					{
+
+					// 406: “The person who invited you has deleted their account”
+					case HttpURLConnection.HTTP_NOT_ACCEPTABLE:
+						errorText = getString(R.string.link_share_error_invitee_account_deleted);
+						break;
+
+					// 400: “You’re already in the group” 
+					case HttpURLConnection.HTTP_BAD_REQUEST:
+						errorText = getString(R.string.link_share_error_already_group_member);
+						break;
+
+					// 16: “This link is invalid”
+					// 401: “This link is invalid”
+					case HttpURLConnection.HTTP_UNAUTHORIZED:
+					case HttpException.REASON_CODE_UNKNOWN_HOST_EXCEPTION:
+						errorText = getString(R.string.link_share_error_invalid_link);
+						break;
+						
+					// 410: “This group has been deleted”
+					case HttpURLConnection.HTTP_GONE:
+						errorText = getString(R.string.link_share_error_group_deleted);
+						break;
+
+					// 412: “The person who invited you is not in the group anymore”
+					case HttpURLConnection.HTTP_PRECON_FAILED:
+						errorText = getString(R.string.link_share_error_person_not_in_group);
+						break;
+
+					// 1:- NO Internet connectivity
+					case HttpException.REASON_CODE_NO_NETWORK:
+						errorText = getString(R.string.link_share_network_error);
+						break;
+
+					default:
+						errorText = getString(R.string.link_share_error_default);
+						break;
+					}
+
+					// Show Toast
+					Toast.makeText(HomeActivity.this, errorText, Toast.LENGTH_SHORT).show();
+				}
+			});
+			requestToken.execute();
+		}
+}
+		
 			
 		showProductPopup(ProductPopupsConstants.PopupTriggerPoints.HOME_SCREEN.ordinal());
 	}
@@ -1177,7 +1180,10 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	@Override
 	protected void onPause()
 	{
-		if(getIntent().hasExtra(HikeConstants.STEALTH_MSISDN))
+		Logger.d(TAG,"onPause");
+		String data = getIntent().getDataString();
+		boolean isDataSet = TextUtils.isEmpty(data)  ? false : data.contains(HttpRequestConstants.BASE_LINK_SHARING_URL);
+		if(getIntent().hasExtra(HikeConstants.STEALTH_MSISDN) || isDataSet)
 		{
 			//after showing the LockPatternActivity in onResume of ConvFrag the extra is no longer needed, so clearing it out.
 			extrasClearedOut = true;
@@ -1221,6 +1227,8 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		outState.putInt(HikeConstants.Extras.HIKE_CONTACTS_COUNT, hikeContactsCount);
 		outState.putInt(HikeConstants.Extras.RECOMMENDED_CONTACTS_COUNT, recommendedCount);
 		//saving the extrasClearedOut value to be used in onCreate, in case the activity is destroyed and re-spawned using old Intent
+
+		Logger.d(TAG," setting value  of EXTRTA  " + extrasClearedOut);
 		outState.putBoolean(HikeConstants.Extras.CLEARED_OUT, extrasClearedOut);
 		super.onSaveInstanceState(outState);
 	}
