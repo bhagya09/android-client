@@ -20,6 +20,8 @@ import android.app.ActivityManager.RunningTaskInfo;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.provider.ContactsContract;
@@ -370,65 +372,82 @@ public class ChatHeadUtils
 		return !HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.DONT_USE_ACCESSIBILITY, willPollingWork());
 	}
 	
-	public static boolean canAccessibilityBeUsed(boolean serviceDecision)
+	public static boolean isAccessibilityForcedUponUser()
 	{
-		boolean forceAccessibility = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.FORCE_ACCESSIBILITY, !willPollingWork());
-		if(!forceAccessibility)
-		{
-			return false;
-		}
-		boolean accessibilityDisabled = !isAccessibilityEnabled(HikeMessengerApp.getInstance().getApplicationContext());
-		if(!serviceDecision)
-		{
-			return accessibilityDisabled;
-		}
-		boolean wantToUseAccessibility = useOfAccessibilittyPermitted();
-		//dontUseAccessibility is an internal flag, to prevent user from using accessibility service for stickey,
-		//even if accessibility is enabled by forceAccessibility flag On
-		return  wantToUseAccessibility || accessibilityDisabled;
+		return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.FORCE_ACCESSIBILITY, !willPollingWork());
 	}
 	
-	public static void startOrStopService(boolean jsonChanged)
+	public static boolean accessibilityMustBeActivated(boolean isAccessibilityActive)
 	{
-		boolean sessionLogEnabled = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SESSION_LOG_TRACKING, false);
-		boolean startChatHead = shouldRunChatHeadServiceForStickey() && !canAccessibilityBeUsed(true);
+		return isAccessibilityForcedUponUser() && !isAccessibilityActive; 
+	}
+	
+	public static void startOrStopService(final boolean jsonChanged)
+	{
+		Context context  = HikeMessengerApp.getInstance().getApplicationContext();
+		final boolean sessionLogEnabled = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SESSION_LOG_TRACKING, false);
+		final boolean canAccessibilityBeUsed = isAccessibilityForcedUponUser() && ( useOfAccessibilittyPermitted() || !isAccessibilityEnabled(context));
+		final boolean startChatHead = shouldRunChatHeadServiceForStickey() && !canAccessibilityBeUsed;
 		
-		if (willPollingWork() && (sessionLogEnabled || startChatHead))
-		{
-			if (jsonChanged)
-			{
-				restartService();
-			}
-			else
-			{
-				startService();
-			}
-		}
-		else
-		{
-			stopService();
-		}
-		
-		if(!startChatHead)
-		{
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.SNOOZE, false);
-			HikeAlarmManager.cancelAlarm(HikeMessengerApp.getInstance(), HikeAlarmManager.REQUESTCODE_START_STICKER_SHARE_SERVICE); 
-		}
+		Handler uiHandler = new Handler(Looper.getMainLooper());
 		
 		if(viewManager == null)
 		{
-			viewManager = ChatHeadViewManager.getInstance(HikeMessengerApp.getInstance().getApplicationContext());
+			viewManager = ChatHeadViewManager.getInstance(context);
 		}
 		
+		uiHandler.post(new Runnable()
+		{
+
+			@Override
+			public void run()
+			{
+				viewManager.onDestroy();
+			}
+		});
+		
+		uiHandler.post(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				if (willPollingWork() && (sessionLogEnabled || startChatHead))
+				{
+					if (jsonChanged)
+					{
+						restartService();
+					}
+					else
+					{
+						startService();
+					}
+				}
+				else
+				{
+					stopService();
+				}}
+		});
+
 		if (useOfAccessibilittyPermitted())
 		{
-			viewManager.onDestroy();
-			viewManager.onCreate();
+			uiHandler.post(new Runnable()
+			{
+				
+				@Override
+				public void run()
+				{
+					viewManager.onCreate();
+				}
+			});
+			
 		}
-		else
+		if(!startChatHead)
 		{
-			viewManager.onDestroy();
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.SNOOZE, false);
+			HikeAlarmManager.cancelAlarm(context, HikeAlarmManager.REQUESTCODE_START_STICKER_SHARE_SERVICE); 
 		}
+		
+		
 	}
 
 	public static void onClickSetAlarm(Context context, int time)

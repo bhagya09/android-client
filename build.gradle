@@ -20,6 +20,7 @@ android {
         renderscriptTargetApi 18
         renderscriptSupportModeEnabled true
         targetSdkVersion 17
+        multiDexEnabled = true
     }
     lintOptions {
         lintConfig file("lint.xml")
@@ -27,6 +28,7 @@ android {
     }
     dexOptions {
         javaMaxHeapSize "2048M"
+        incremental = true;
         preDexLibraries = false 
         jumboMode = true
     }
@@ -45,6 +47,9 @@ android {
         }
         compile(project(':recyclerview')) {
             exclude module: 'support-v4'
+        } 
+        compile(project(':kpt-host')) {
+            exclude module: 'support-v4'
         }
          compile(project(':transporter-library')) {
             exclude module: 'support-v4'
@@ -52,7 +57,7 @@ android {
          compile(project(':cropper')) {
             exclude module: 'support-v4'
         }
-        compile fileTree(dir: 'libs', include: ['*.jar'])
+        compile fileTree(dir: 'libs', include: ['*.jar'], exclude: ['android-support-multidex.jar'])
     }
 
     sourceSets {
@@ -75,18 +80,26 @@ android {
     }
 
     signingConfigs {
+        debug {
+            storeFile rootProject.file('debug.keystore')
+            keyAlias 'androiddebugkey'
+            keyPassword 'android'
+             storePassword 'android'
+         }
         release {
-            storeFile file("hike-android-release-key.keystore")
+            storeFile rootProject.file('hike-android-release-key.keystore')
             storePassword "Tequ1laFr1day5"
             keyAlias "hhikedroid"
             keyPassword "Tequ1laFr1day5"
         }
     }
+    if( project.hasProperty('isBuildSystemProjectProp') && project.property('isBuildSystemProjectProp').toBoolean() ) {
     applicationVariants.all { variant -> 
         variant.outputs.each { output -> 
             def file = output.outputFile
             output.outputFile = new File(file.parent, file.name.replace(".apk","-" + getVersionName() + "-" + getBranchAndCommitID() + "-"+ getDateTime() + ".apk"))
         }
+    }
     }
     buildTypes {
         black {
@@ -97,6 +110,12 @@ android {
         release {
         	minifyEnabled true
             debuggable false
+            proguardFile 'proguard.cfg'
+            signingConfig signingConfigs.release
+        }
+        obfuscated {
+        	minifyEnabled true
+            debuggable true
             proguardFile 'proguard.cfg'
             signingConfig signingConfigs.release
         }

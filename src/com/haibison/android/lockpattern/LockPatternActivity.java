@@ -27,6 +27,31 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import com.bsb.hike.BuildConfig;
+import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.R;
+import com.bsb.hike.modules.kpt.HikeCustomKeyboard;
+import com.bsb.hike.modules.kpt.KptUtils;
+import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
+import com.bsb.hike.utils.StealthModeManager;
+import com.bsb.hike.utils.Utils;
+import com.bsb.hike.view.CustomFontEditText;
+import com.haibison.android.lockpattern.util.IEncrypter;
+import com.haibison.android.lockpattern.util.InvalidEncrypterException;
+import com.haibison.android.lockpattern.util.LoadingDialog;
+import com.haibison.android.lockpattern.util.Settings;
+import com.haibison.android.lockpattern.util.Settings.Display;
+import com.haibison.android.lockpattern.util.Settings.Security;
+import com.haibison.android.lockpattern.util.UI;
+import com.haibison.android.lockpattern.widget.LockPatternUtils;
+import com.haibison.android.lockpattern.widget.LockPatternView;
+import com.haibison.android.lockpattern.widget.LockPatternView.Cell;
+import com.haibison.android.lockpattern.widget.LockPatternView.DisplayMode;
+import com.kpt.adaptxt.beta.RemoveDialogData;
+import com.kpt.adaptxt.beta.util.KPTConstants;
+import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtKeyboordVisibilityStatusListner;
+
 import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.Intent;
@@ -48,28 +73,11 @@ import android.view.ViewConfiguration;
 import android.view.ViewGroup.LayoutParams;
 import android.view.WindowManager;
 import android.view.animation.AlphaAnimation;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
-import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
-
-import com.bsb.hike.BuildConfig;
-import com.bsb.hike.HikeConstants;
-import com.bsb.hike.R;
-import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
-import com.bsb.hike.utils.StealthModeManager;
-import com.bsb.hike.utils.Utils;
-import com.googlecode.mp4parser.boxes.MLPSpecificBox;
-import com.haibison.android.lockpattern.util.IEncrypter;
-import com.haibison.android.lockpattern.util.InvalidEncrypterException;
-import com.haibison.android.lockpattern.util.LoadingDialog;
-import com.haibison.android.lockpattern.util.Settings;
-import com.haibison.android.lockpattern.util.Settings.Display;
-import com.haibison.android.lockpattern.util.Settings.Security;
-import com.haibison.android.lockpattern.util.UI;
-import com.haibison.android.lockpattern.widget.LockPatternUtils;
-import com.haibison.android.lockpattern.widget.LockPatternView;
-import com.haibison.android.lockpattern.widget.LockPatternView.Cell;
-import com.haibison.android.lockpattern.widget.LockPatternView.DisplayMode;
 
 /**
  * Main activity for this library.
@@ -100,7 +108,7 @@ import com.haibison.android.lockpattern.widget.LockPatternView.DisplayMode;
  * @author Hai Bison
  * @since v1.0
  */
-public class LockPatternActivity extends HikeAppStateBaseFragmentActivity {
+public class LockPatternActivity extends HikeAppStateBaseFragmentActivity implements AdaptxtKeyboordVisibilityStatusListner {
 
     private static final String CLASSNAME = LockPatternActivity.class.getName();
 
@@ -298,6 +306,12 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity {
     private static final long DELAY_TIME_TO_RELOAD_LOCK_PATTERN_VIEW = DateUtils.SECOND_IN_MILLIS;
 
     /*
+     * HIKE KEYBOARD FIELDS
+     */
+    private HikeCustomKeyboard mCustomKeyboard;
+    private boolean systemKeyboard;
+    
+    /*
      * FIELDS
      */
     private int mMaxRetries, mMinWiredDots, mRetryCount = 0, mCaptchaWiredDots;
@@ -311,7 +325,7 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity {
      */
     private TextView mTextInfo;
     private LockPatternView mLockPatternView;
-    private EditText mLockPinView;
+    private CustomFontEditText mLockPinView;
     private View mFooter;
     private Button mBtnCancel;
     private Button mBtnConfirm;
@@ -482,12 +496,18 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity {
         	getActionBar().hide();
         }
 
-        setContentView(R.layout.alp_42447968_lock_pattern_activity);
-        UI.adjustDialogSizeForLargeScreens(getWindow());
+        setContentView(R.layout.alp_42447968_lock_pattern_parent);
+        UI.adjustDialogSizeForLargeScreens(getWindow(), (LinearLayout) findViewById(R.id.parentView));
         
         mTextInfo = (TextView) findViewById(R.id.alp_42447968_textview_info);
         mLockPatternView = (LockPatternView) findViewById(R.id.alp_42447968_view_lock_pattern);
-        mLockPinView = (EditText) findViewById(R.id.alp_42447968_lock_pin);
+        mLockPinView = (CustomFontEditText) findViewById(R.id.alp_42447968_lock_pin);
+
+        systemKeyboard = HikeMessengerApp.isSystemKeyboard(getApplicationContext());
+        if (!systemKeyboard)
+        {
+            initCustomKeyboard();        	
+        }
 
         mFooter = findViewById(R.id.alp_42447968_viewgroup_footer);
         mBtnCancel = (Button) findViewById(R.id.alp_42447968_button_cancel);
@@ -552,9 +572,20 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity {
                 	{
 
                         if (doComparePin(mLockPinView.getText().toString()))
+                        {
                             finishWithResultOk(null);
+                            if (mCustomKeyboard != null)
+                            {
+                                mCustomKeyboard.updateCore();
+                            }
+                        }
                         else 
+                        {
                             finishWithNegativeResult(RESULT_CANCELED); 
+                            if (mCustomKeyboard != null)
+                            {
+                                mCustomKeyboard.updateCore();
+                            }                        }
                 	}
                     mTextInfo
                             .setText(R.string.stealth_msg_enter_pin_to_unlock);
@@ -577,9 +608,10 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity {
         	if(StealthModeManager.getInstance().isPinAsPassword())
         	{
         		mLockPatternView.setVisibility(View.GONE);
+        		setGravity(mLockPinView);
         		mLockPinView.setVisibility(View.VISIBLE);
         		mLockPinView.requestFocus();
-        		Utils.showSoftKeyboard(LockPatternActivity.this, mLockPinView);
+        		showKeyboard();
         		getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
         		//Somehow for lollipop, the view was not shifting downwards and hence we needed to add padding manually
         		if (Utils.isLollipopOrHigher() && getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT)
@@ -595,9 +627,10 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity {
         			findViewById(R.id.parentView).setPadding(0, 0, 0, 0);
         		}
         		mLockPinView.setVisibility(View.GONE);
+        		setGravity(mLockPatternView);
         		mLockPatternView.setVisibility(View.VISIBLE);
         		mLockPatternView.requestFocus();
-        		Utils.hideSoftKeyboard(LockPatternActivity.this, mLockPinView);
+        		hideKeyboard();
         	}
 
         	if(isReset)
@@ -624,19 +657,21 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity {
         	{
             	changePasswordSetting.setText(getString(R.string.stealth_set_pin));
             	mTextInfo.setText(R.string.stealth_msg_draw_an_unlock_pattern);
+            	setGravity(mLockPatternView);
             	mLockPatternView.setVisibility(View.VISIBLE);
-				mLockPinView.setVisibility(View.GONE);
+            	mLockPinView.setVisibility(View.GONE);
 				mLockPatternView.requestFocus();
-				Utils.hideSoftKeyboard(LockPatternActivity.this, mLockPinView);
+				hideKeyboard();
         	}
         	else
         	{
 				mLockPatternView.setVisibility(View.GONE);
+				setGravity(mLockPinView);
 				mLockPinView.setVisibility(View.VISIBLE);		
         		changePasswordSetting.setText(getString(R.string.stealth_set_pattern));
             	mTextInfo.setText(R.string.stealth_msg_enter_an_unlock_pin);
             	mLockPinView.requestFocus();
-            	Utils.showSoftKeyboard(LockPatternActivity.this, mLockPinView);
+            	showKeyboard();
             	getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
         	}
         	changePasswordSetting.setOnClickListener(new View.OnClickListener()
@@ -651,6 +686,7 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity {
 					if(mLockPinView.getVisibility() != View.VISIBLE)
 					{
 						mLockPatternView.setVisibility(View.GONE);
+						setGravity(mLockPinView);
 						mLockPinView.setVisibility(View.VISIBLE);
 			        	changePasswordSetting.setText(getString(R.string.stealth_set_pattern));
 			        	if(!isReset)
@@ -659,7 +695,7 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity {
 			        	}
 						mLockPatternView.clearPattern();
 			        	mLockPinView.requestFocus();
-			        	Utils.showSoftKeyboard(LockPatternActivity.this, mLockPinView);
+			        	showKeyboard();
 			        	//Somehow for lollipop, the view was not shifting upwards and hence we needed to add padding manually
 						if (Utils.isLollipopOrHigher() && getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT)
 						{
@@ -673,10 +709,11 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity {
 						{
 							findViewById(R.id.parentView).setPadding(0, 0, 0, 0);
 						}
+						setGravity(mLockPatternView);
 						mLockPatternView.setVisibility(View.VISIBLE);
 						mLockPinView.setVisibility(View.GONE);
 						mLockPatternView.requestFocus();
-						Utils.hideSoftKeyboard(LockPatternActivity.this, mLockPinView);
+						hideKeyboard();
 						mLockPinView.setText("");
 			        	changePasswordSetting.setText(getString(R.string.stealth_set_pin));
 			        	if(!isReset)
@@ -1212,6 +1249,10 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity {
         @Override
         public void onClick(View v) {
         	mLockPatternViewReloader.run();
+        	if (mCustomKeyboard != null)
+            {
+                mCustomKeyboard.updateCore();
+            }
         }// onClick()
     };
 
@@ -1257,6 +1298,10 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity {
                     mLockPinView.setText("");
                     if(mLockPinView.getVisibility() == View.VISIBLE)
                     {
+                    	if (mCustomKeyboard != null)
+                        {
+                            mCustomKeyboard.updateCore();
+                        }
                     	mTextInfo.setText(R.string.stealth_msg_reenter_pin_to_confirm);   	
                     } else {
                     	mTextInfo.setText(R.string.stealth_msg_redraw_pattern_to_confirm);
@@ -1312,4 +1357,144 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity {
     	super.onStop();
     };
 
+    private void initCustomKeyboard()
+    {
+    	View keyboardHolder = (LinearLayout) findViewById(R.id.keyboardView_holder);
+        mCustomKeyboard = new HikeCustomKeyboard(LockPatternActivity.this, keyboardHolder, KPTConstants.SINGLE_LINE_EDITOR, null, this);
+        mCustomKeyboard.registerEditText(R.id.alp_42447968_lock_pin);
+        mCustomKeyboard.init(mLockPinView);
+        mLockPinView.setOnClickListener(new View.OnClickListener()
+		{
+			
+			@Override
+			public void onClick(View v)
+			{
+				if (mCustomKeyboard.isCustomKeyboardVisible())
+				{
+					return;
+				}
+				mCustomKeyboard.showCustomKeyboard(mLockPinView, true);
+			}
+		});
+    }
+
+	@Override
+	public void analyticalData(String arg0)
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onInputViewCreated()
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onInputviewVisbility(boolean arg0, int arg1)
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void showGlobeKeyView()
+	{
+		KptUtils.onGlobeKeyPressed(LockPatternActivity.this, mCustomKeyboard);
+	}
+
+	@Override
+	public void showQuickSettingView()
+	{
+		// TODO Auto-generated method stub
+		
+	}
+	
+	private void showKeyboard()
+	{
+		if (systemKeyboard)
+		{
+			mLockPinView.setFocusable(true);
+			Utils.showSoftKeyboard(LockPatternActivity.this, mLockPinView);
+		}
+		else
+		{
+			mCustomKeyboard.showCustomKeyboard(mLockPinView, true);
+		}
+	}
+	
+	private void hideKeyboard()
+	{
+		if (systemKeyboard)
+		{
+			Utils.hideSoftKeyboard(LockPatternActivity.this, mLockPinView);
+		}
+		else
+		{
+			mCustomKeyboard.showCustomKeyboard(mLockPinView, false);
+		}
+	}
+	
+	private void setGravity(View view)
+	{
+		LinearLayout viewToSet = (LinearLayout) findViewById(R.id.parentView);
+		RelativeLayout.LayoutParams lp =  (android.widget.RelativeLayout.LayoutParams) viewToSet.getLayoutParams();
+		LinearLayout kbdView = (LinearLayout) findViewById(R.id.keyboardView_holder);
+		RelativeLayout.LayoutParams lpKbd = (android.widget.RelativeLayout.LayoutParams) kbdView.getLayoutParams();
+		
+		lpKbd.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+		
+		if (view instanceof LockPatternView)
+		{
+			lp.addRule(RelativeLayout.CENTER_IN_PARENT);
+		}
+		else
+		{
+			if (Utils.isLollipopOrHigher() && getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT)
+    		{
+    			findViewById(R.id.parentView).setPadding(0, 0, 0, getResources().getDimensionPixelSize(R.dimen.bottom_padding_pin_view));
+    		}
+			lp.addRule(RelativeLayout.CENTER_IN_PARENT, RelativeLayout.TRUE);
+		}
+		viewToSet.setLayoutParams(lp);
+	}
+	
+	@Override
+	protected void onDestroy()
+	{
+		KptUtils.destroyKeyboardResources(mCustomKeyboard, R.id.alp_42447968_lock_pin);
+		super.onDestroy();
+	}
+	
+	@Override
+	protected void onPause()
+	{
+		KptUtils.pauseKeyboardResources(mCustomKeyboard, mLockPinView);
+		super.onPause();
+	}
+	
+	@Override
+	public void onBackPressed()
+	{
+		if (mCustomKeyboard != null && mCustomKeyboard.isCustomKeyboardVisible())
+		{
+			mCustomKeyboard.showCustomKeyboard(mLockPinView, false);
+			return;
+		}
+		super.onBackPressed();
+	}
+
+	@Override
+	public void dismissRemoveDialog() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void showRemoveDialog(RemoveDialogData arg0) {
+		// TODO Auto-generated method stub
+		
+	}
 }

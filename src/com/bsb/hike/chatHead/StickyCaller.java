@@ -842,6 +842,11 @@ public class StickyCaller
 		stickyCallerView.findViewById(R.id.caller_free_layout).setVisibility(View.VISIBLE);
 	}
 
+	private static String getPhoneNumberFromTag(View v)
+	{
+		return v.getTag() != null ? v.getTag().toString() : "";
+	}
+	
 	private static void settingLayoutDataFailure(Context context, String number, String result)
 	{
 		if (result.equals(Integer.toString(HttpException.REASON_CODE_NO_NETWORK)))
@@ -871,35 +876,35 @@ public class StickyCaller
 				}
 				break;
 */			case R.id.caller_free_call:
-				HAManager.getInstance().stickyCallerAnalyticsUIEvent(AnalyticsConstants.StickyCallerEvents.FREE_CALL_BUTTON, v.getTag().toString(), AnalyticsConstants.StickyCallerEvents.CARD, getCallEventFromCallType(CALL_TYPE));
+				HAManager.getInstance().stickyCallerAnalyticsUIEvent(AnalyticsConstants.StickyCallerEvents.FREE_CALL_BUTTON, getPhoneNumberFromTag(v), AnalyticsConstants.StickyCallerEvents.CARD, getCallEventFromCallType(CALL_TYPE));
 				if (v.getTag() != null)
 				{
 					if (CALL_TYPE == INCOMING || CALL_TYPE == OUTGOING)
 					{
-						callCurrentNumber = v.getTag().toString();
+						callCurrentNumber = getPhoneNumberFromTag(v);
 						IncomingCallReceiver.callReceived = true;
 						toCall = true;
 						Utils.killCall();
 					}
-						ChatHeadUtils.onCallClickedFromCallerCard(HikeMessengerApp.getInstance().getApplicationContext(), v.getTag().toString(), VoIPUtils.CallSource.HIKE_STICKY_CALLER);
+						ChatHeadUtils.onCallClickedFromCallerCard(HikeMessengerApp.getInstance().getApplicationContext(), getPhoneNumberFromTag(v), VoIPUtils.CallSource.HIKE_STICKY_CALLER);
 				}
 				break;
 			case R.id.caller_free_message:
-				HAManager.getInstance().stickyCallerAnalyticsUIEvent(AnalyticsConstants.StickyCallerEvents.FREE_SMS_BUTTON, v.getTag().toString(), AnalyticsConstants.StickyCallerEvents.CARD, getCallEventFromCallType(CALL_TYPE));
+				HAManager.getInstance().stickyCallerAnalyticsUIEvent(AnalyticsConstants.StickyCallerEvents.FREE_SMS_BUTTON, getPhoneNumberFromTag(v), AnalyticsConstants.StickyCallerEvents.CARD, getCallEventFromCallType(CALL_TYPE));
 				if (v.getTag() != null)
 				{
 					IncomingCallReceiver.callReceived = true;
 					Utils.killCall();
-					Utils.sendFreeSms(v.getTag().toString());
+					Utils.sendFreeSms(getPhoneNumberFromTag(v));
 				}
 				break;
 			case R.id.missed_call_save_contact:
-				HAManager.getInstance().stickyCallerAnalyticsUIEvent(AnalyticsConstants.StickyCallerEvents.SAVE_CONTACT, v.getTag().toString(), AnalyticsConstants.StickyCallerEvents.CARD, getCallEventFromCallType(CALL_TYPE));
-				CallerContentModel callerContentModel = ChatHeadUtils.getCallerContentModelObject(HikeSharedPreferenceUtil.getInstance(HikeConstants.CALLER_SHARED_PREF).getData(v.getTag().toString(), null));
+				HAManager.getInstance().stickyCallerAnalyticsUIEvent(AnalyticsConstants.StickyCallerEvents.SAVE_CONTACT, getPhoneNumberFromTag(v), AnalyticsConstants.StickyCallerEvents.CARD, getCallEventFromCallType(CALL_TYPE));
+				CallerContentModel callerContentModel = ChatHeadUtils.getCallerContentModelObject(HikeSharedPreferenceUtil.getInstance(HikeConstants.CALLER_SHARED_PREF).getData(getPhoneNumberFromTag(v), null));
 				if (v.getTag() != null && getFullName(callerContentModel) != null)
 				{
 					Utils.killCall();
-					Utils.addToContacts(HikeMessengerApp.getInstance().getApplicationContext(), v.getTag().toString(), getFullName(callerContentModel), callerContentModel.getLocation());
+					Utils.addToContacts(HikeMessengerApp.getInstance().getApplicationContext(), getPhoneNumberFromTag(v), getFullName(callerContentModel), callerContentModel.getLocation());
 				}
 				break;
 /*			case R.id.caller_sms_button:
@@ -911,11 +916,11 @@ public class StickyCaller
 				break;
 */			case R.id.caller_settings_button:
 				IncomingCallReceiver.callReceived = true;
-				HAManager.getInstance().stickyCallerAnalyticsUIEvent(AnalyticsConstants.StickyCallerEvents.CALLER_SETTINGS_BUTTON, v.getTag().toString(), AnalyticsConstants.StickyCallerEvents.CARD, getCallEventFromCallType(CALL_TYPE));
+				HAManager.getInstance().stickyCallerAnalyticsUIEvent(AnalyticsConstants.StickyCallerEvents.CALLER_SETTINGS_BUTTON, getPhoneNumberFromTag(v), AnalyticsConstants.StickyCallerEvents.CARD, getCallEventFromCallType(CALL_TYPE));
 				IntentFactory.openStickyCallerSettings(HikeMessengerApp.getInstance().getApplicationContext(), true);
 				break;
 			case R.id.caller_close_button:
-				HAManager.getInstance().stickyCallerAnalyticsUIEvent(AnalyticsConstants.StickyCallerEvents.CLOSE_BUTTON, v.getTag().toString(), AnalyticsConstants.StickyCallerEvents.CARD, getCallEventFromCallType(CALL_TYPE));
+				HAManager.getInstance().stickyCallerAnalyticsUIEvent(AnalyticsConstants.StickyCallerEvents.CLOSE_BUTTON, getPhoneNumberFromTag(v), AnalyticsConstants.StickyCallerEvents.CARD, getCallEventFromCallType(CALL_TYPE));
 				break;
 			}
 		}

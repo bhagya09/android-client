@@ -7,23 +7,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.app.Activity;
-import android.content.ComponentName;
-import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
-import android.net.Uri;
-import android.os.Build;
-import android.os.Bundle;
-import android.os.Message;
-import android.provider.ContactsContract.Contacts;
-import android.provider.MediaStore;
-import android.provider.Settings;
-import android.support.v4.app.FragmentActivity;
-import android.text.TextUtils;
-import android.widget.Toast;
-
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
@@ -60,6 +43,7 @@ import com.bsb.hike.ui.HikeDirectHelpPageActivity;
 import com.bsb.hike.ui.HikeListActivity;
 import com.bsb.hike.ui.HikePreferences;
 import com.bsb.hike.ui.HomeActivity;
+import com.bsb.hike.ui.LanguageSettingsActivity;
 import com.bsb.hike.ui.NUXInviteActivity;
 import com.bsb.hike.ui.NuxSendCustomMessageActivity;
 import com.bsb.hike.ui.PeopleActivity;
@@ -79,11 +63,32 @@ import com.bsb.hike.voip.VoIPUtils;
 import com.bsb.hike.voip.view.CallRateActivity;
 import com.bsb.hike.voip.view.VoIPActivity;
 
+import android.app.Activity;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.net.Uri;
+import android.os.Build;
+import android.os.Bundle;
+import android.os.Message;
+import android.provider.ContactsContract.Contacts;
+import android.provider.MediaStore;
+import android.provider.Settings;
+import android.text.TextUtils;
+import android.widget.Toast;
+
 public class IntentFactory
 {
 	public static void openSetting(Context context)
 	{
 		context.startActivity(new Intent(context, SettingsActivity.class));
+	}
+
+	public static void openLanguageSetting(Context context)
+	{
+		context.startActivity(new Intent(context, LanguageSettingsActivity.class));
 	}
 
 	public static void openSettingNotification(Context context)
@@ -272,6 +277,14 @@ public class IntentFactory
 		context.startActivity(intent);
 	}
 	
+	public static void openSettingKeyboard(Context context)
+	{
+		Intent intent = new Intent(context, HikePreferences.class);
+		intent.putExtra(HikeConstants.Extras.PREF, R.xml.keyboard_settings_preferences);
+		intent.putExtra(HikeConstants.Extras.TITLE, R.string.settings_keyboard);
+		context.startActivity(intent);
+	}
+
 	public static void openStickyCallerSettings(Context context, boolean isFromOutside)
 	{
 		Intent intent = new Intent(context, HikePreferences.class);
@@ -279,13 +292,22 @@ public class IntentFactory
 		intent.putExtra(HikeConstants.Extras.TITLE, R.string.sticky_caller_settings);
 		if (isFromOutside)
 		{
-			intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+			ChatHeadUtils.insertHomeActivitBeforeStarting(intent);
 		}
-		context.startActivity(intent);
+		else
+		{
+			context.startActivity(intent);
+		}
 	}
 	
+	public static Intent getIntentForKeyboardAdvSettings(Context context)
+	{
+		Intent intent = new Intent(context, HikePreferences.class);
+		intent.putExtra(HikeConstants.Extras.PREF, R.xml.kpt_advanced_preferences);
+		intent.putExtra(HikeConstants.Extras.TITLE, R.string.advanced_keyboard_settings);
+		return intent;
+	}
 	
-
 	public static void openInviteSMS(Context context)
 	{
 		context.startActivity(new Intent(context, HikeListActivity.class));

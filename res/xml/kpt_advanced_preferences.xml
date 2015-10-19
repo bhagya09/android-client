@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:title="@string/advanced_keyboard_settings"
+    android:key="kptAdvancedPrefScreen" >
+    
+    <com.bsb.hike.view.SwitchPreferenceCompat
+            android:defaultValue="true"
+            android:key="autoCorrectPref"
+            android:layout="@layout/icon_preference"
+            android:title="@string/auto_correct_title"
+            android:widgetLayout="@layout/switch_widget" />
+    
+	<com.bsb.hike.view.SwitchPreferenceCompat
+            android:defaultValue="true"
+            android:key="autoCapsPref"
+            android:layout="@layout/icon_preference"
+            android:summary="@string/auto_caps_summary"
+            android:title="@string/auto_caps_title"
+            android:widgetLayout="@layout/switch_widget" />
+	
+	<com.bsb.hike.view.SwitchPreferenceCompat
+            android:defaultValue="true"
+            android:key="autoSpacingPref"
+            android:layout="@layout/icon_preference"
+            android:summary="@string/auto_spacing_summary"
+            android:title="@string/auto_spacing_title"
+            android:widgetLayout="@layout/switch_widget" />
+	
+	<com.bsb.hike.view.SwitchPreferenceCompat
+            android:defaultValue="true"
+            android:key="dispSuggPref"
+            android:layout="@layout/icon_preference"
+            android:title="@string/display_suggestion_title"
+            android:widgetLayout="@layout/switch_widget" />
+	
+	<com.bsb.hike.view.SwitchPreferenceCompat
+            android:defaultValue="true"
+            android:key="privateModePref"
+            android:layout="@layout/icon_preference"
+            android:title="@string/private_mode_title"
+            android:widgetLayout="@layout/switch_widget" />
+	
+	<com.bsb.hike.view.SwitchPreferenceCompat
+            android:defaultValue="true"
+            android:key="dispAccentsPref"
+            android:layout="@layout/icon_preference"
+            android:title="@string/display_accents_title"
+            android:widgetLayout="@layout/switch_widget" />
+	
+	<com.bsb.hike.view.SwitchPreferenceCompat
+            android:defaultValue="true"
+            android:key="popupOnKeypressPref"
+            android:layout="@layout/icon_preference"
+            android:title="@string/popup_on_keypress_title"
+            android:widgetLayout="@layout/switch_widget" />
+	
+	<com.bsb.hike.view.SeekBarPreference
+	    	android:title="@string/long_press_duration_title"
+	    	android:key="longPressDurationPref"
+	    	android:defaultValue="300"
+	    	android:text="ms"
+	    	android:max="200"
+	    	android:persistent="true"/>
+	
+	<com.bsb.hike.view.SwitchPreferenceCompat
+            android:defaultValue="true"
+            android:key="soundOnKeypressPref"
+            android:layout="@layout/icon_preference"
+            android:title="@string/sound_on_keypress_title"
+            android:widgetLayout="@layout/switch_widget" />
+	
+	<com.bsb.hike.view.SeekBarPreference
+	    	android:title="@string/keypress_sound_vol_title"
+	    	android:key="keyPressVolPref"
+	    	android:defaultValue="3"
+	    	android:text="ms"
+	    	android:max="9"
+	    	android:persistent="true"/>
+	
+	<com.bsb.hike.view.SwitchPreferenceCompat
+            android:defaultValue="true"
+            android:key="vibrateOnKeypressPref"
+            android:layout="@layout/icon_preference"
+            android:title="@string/vibrate_on_keypress_title"
+            android:widgetLayout="@layout/switch_widget" />
+	
+	<com.bsb.hike.view.SeekBarPreference
+	    	android:title="@string/keypress_vib_duration_title"
+	    	android:key="keypressVibDurationPref"
+	    	android:defaultValue="3"
+	    	android:text="ms"
+	    	android:max="99"
+	    	android:persistent="true" />
+	
+</PreferenceScreen>

@@ -110,6 +110,7 @@ import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.voip.VoIPUtils;
 import com.google.gson.Gson;
+import com.kpt.adaptxt.beta.RemoveDialogData;
 
 /**
  * <!-- begin-user-doc --> <!-- end-user-doc -->
@@ -3462,5 +3463,17 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		}
 		
 		super.onPreNewIntent();
+	}
+
+	@Override
+	public void dismissRemoveDialog() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void showRemoveDialog(RemoveDialogData arg0) {
+		// TODO Auto-generated method stub
+		
 	}
 }

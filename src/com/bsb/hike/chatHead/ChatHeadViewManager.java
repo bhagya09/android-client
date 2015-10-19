@@ -702,10 +702,10 @@ public class ChatHeadViewManager
 		}
 	}
 
-	public void actionWindowChange(	Set<String> foregroundPackages)
+	public void actionWindowChange(	Set<String> foregroundPackages, boolean isAccessibilityBeingUsed)
 	{
 		UserLogInfo.recordSessionInfo(foregroundPackages, UserLogInfo.OPERATE);
-		if (ChatHeadUtils.shouldRunChatHeadServiceForStickey() && !ChatHeadUtils.canAccessibilityBeUsed(false))
+		if (ChatHeadUtils.shouldRunChatHeadServiceForStickey() && !ChatHeadUtils.accessibilityMustBeActivated(isAccessibilityBeingUsed))
 		{
 			boolean isSharableAppActive = false;
 			for (String sharablePackageName : sharablePackageList)

@@ -16,73 +16,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.app.Activity;
-import android.app.NotificationManager;
-import android.app.ProgressDialog;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.SharedPreferences.Editor;
-import android.content.pm.ApplicationInfo;
-import android.content.res.Configuration;
-import android.content.res.Resources;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.Drawable;
-import android.media.AudioManager;
-import android.net.Uri;
-import android.net.wifi.ScanResult;
-import android.net.wifi.p2p.WifiP2pDeviceList;
-import android.os.AsyncTask;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
-import android.preference.PreferenceManager;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.LoaderManager.LoaderCallbacks;
-import android.support.v4.content.AsyncTaskLoader;
-import android.support.v4.content.Loader;
-import android.support.v4.content.LocalBroadcastManager;
-import android.support.v4.view.MenuItemCompat;
-import android.text.Editable;
-import android.text.InputType;
-import android.text.Spannable;
-import android.text.SpannableString;
-import android.text.TextUtils;
-import android.text.TextWatcher;
-import android.text.style.StyleSpan;
-import android.util.Pair;
-import android.view.GestureDetector;
-import android.view.GestureDetector.SimpleOnGestureListener;
-import android.view.KeyEvent;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.MotionEvent;
-import android.view.View;
-import android.view.View.OnKeyListener;
-import android.view.View.OnTouchListener;
-import android.view.ViewGroup.LayoutParams;
-import android.view.WindowManager;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
-import android.view.inputmethod.EditorInfo;
-import android.webkit.MimeTypeMap;
-import android.widget.AbsListView;
-import android.widget.AbsListView.OnScrollListener;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemLongClickListener;
-import android.widget.Button;
-import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.ImageView.ScaleType;
-import android.widget.ListView;
-import android.widget.PopupWindow;
-import android.widget.PopupWindow.OnDismissListener;
-import android.widget.TextView;
-import android.widget.TextView.OnEditorActionListener;
-import android.widget.Toast;
-
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeConstants.MESSAGE_TYPE;
 import com.bsb.hike.HikeMessengerApp;
@@ -134,6 +67,9 @@ import com.bsb.hike.models.Sticker;
 import com.bsb.hike.models.TypingNotification;
 import com.bsb.hike.models.Unique;
 import com.bsb.hike.models.Conversation.Conversation;
+import com.bsb.hike.modules.kpt.HikeAdaptxtEditTextEventListner;
+import com.bsb.hike.modules.kpt.HikeCustomKeyboard;
+import com.bsb.hike.modules.kpt.KptUtils;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
 import com.bsb.hike.modules.stickersearch.listeners.IStickerPickerRecommendationListener;
 import com.bsb.hike.modules.stickersearch.provider.StickerSearchHostManager;
@@ -171,18 +107,88 @@ import com.bsb.hike.view.CustomFontEditText;
 import com.bsb.hike.view.CustomFontEditText.BackKeyListener;
 import com.bsb.hike.view.CustomLinearLayout;
 import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
+import com.kpt.adaptxt.beta.util.KPTConstants;
+import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtKeyboordVisibilityStatusListner;
+
+import android.app.Activity;
+import android.app.NotificationManager;
+import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.SharedPreferences.Editor;
+import android.content.pm.ApplicationInfo;
+import android.content.res.Configuration;
+import android.content.res.Resources;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
+import android.media.AudioManager;
+import android.net.Uri;
+import android.net.wifi.ScanResult;
+import android.net.wifi.p2p.WifiP2pDeviceList;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.preference.PreferenceManager;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager.LoaderCallbacks;
+import android.support.v4.content.AsyncTaskLoader;
+import android.support.v4.content.Loader;
+import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.view.MenuItemCompat;
+import android.text.Editable;
+import android.text.InputType;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.TextUtils;
+import android.text.TextWatcher;
+import android.text.style.StyleSpan;
+import android.util.Pair;
+import android.view.GestureDetector;
+import android.view.GestureDetector.SimpleOnGestureListener;
+import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.View.OnKeyListener;
+import android.view.View.OnTouchListener;
+import android.view.ViewGroup.LayoutParams;
+import android.view.WindowManager;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
+import android.webkit.MimeTypeMap;
+import android.widget.AbsListView;
+import android.widget.AbsListView.OnScrollListener;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemLongClickListener;
+import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.ImageView.ScaleType;
+import android.widget.LinearLayout;
+import android.widget.ListView;
+import android.widget.PopupWindow;
+import android.widget.PopupWindow.OnDismissListener;
+import android.widget.TextView;
+import android.widget.TextView.OnEditorActionListener;
+import android.widget.Toast;
 
 /**
- * 
  * @generated
  */
 
 public abstract class ChatThread extends SimpleOnGestureListener implements OverflowItemClickListener, View.OnClickListener, ThemePickerListener, ImageParserListener,
 		PickFileListener, StickerPickerListener, AudioRecordListener, LoaderCallbacks<Object>, OnItemLongClickListener, OnTouchListener, OnScrollListener,
 		Listener, ActionModeListener, HikeDialogListener, TextWatcher, OnDismissListener, OnEditorActionListener, OnKeyListener, PopupListener, BackKeyListener,
-		OverflowViewListener, OnSoftKeyboardListener, IStickerPickerRecommendationListener,IOfflineCallbacks
-
-		{
+		OverflowViewListener, OnSoftKeyboardListener, IStickerPickerRecommendationListener, AdaptxtKeyboordVisibilityStatusListner, IOfflineCallbacks
+{
 	private static final String TAG = ChatThread.class.getSimpleName();
 
 	protected static final int FETCH_CONV = 1;
@@ -269,7 +275,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	private long lastNudgeTime = -1;
     
     private int NUDGE_TOAST_OCCURENCE = 2;
-    	
+    
     private int currentNudgeCount = 0;
     
     protected ChatThreadActivity activity;
@@ -307,7 +313,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	protected boolean reachedEnd = false;
 	
 	private volatile boolean _doubleTapPref = false;
-
 
 	private int currentFirstVisibleItem = Integer.MAX_VALUE;
 
@@ -351,6 +356,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	
 	protected HikeDialog dialog;
 	
+	protected HikeCustomKeyboard mCustomKeyboard;
+
 	protected IChannelSelector channelSelector;
 
 	private StickerTagWatcher stickerTagWatcher;
@@ -358,6 +365,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	protected int mCurrentActionMode;
 
 	private boolean shouldKeyboardPopupShow;
+	
+	protected int keyboardHeight;
 	
 	private class ChatThreadBroadcasts extends BroadcastReceiver
 	{
@@ -584,6 +593,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	public HikeActionBar mActionBar;
 
 	protected Bundle savedState;
+
+	private CustomFontEditText searchEt;
 	
 	public void onCreate(Bundle savedState)
 	{
@@ -595,6 +606,12 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		fetchConversation(false);
 		uiHandler.sendEmptyMessage(SET_WINDOW_BG);
 		StickerManager.getInstance().checkAndDownLoadStickerData();
+		mShareablePopupLayout.setCustomKeyBoardHeight((keyboardHeight == 0) ? mCustomKeyboard.getKeyBoardAndCVHeight() : keyboardHeight);
+		mShareablePopupLayout.setCustomKeyBoard(!isSystemKeyboard());
+		if (isSystemKeyboard())
+		{
+			changeKeyboard(isSystemKeyboard());
+		}
 	}
 	
 	/**
@@ -666,9 +683,12 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	 */
 	protected void initView()
 	{
-		audioRecordView = new AudioRecordView(activity, this);
 		mComposeView = (CustomFontEditText) activity.findViewById(R.id.msg_compose);
-		mComposeView.setOnClickListener(this);
+
+		initCustomKeyboard();
+		
+		audioRecordView = new AudioRecordView(activity, this);
+
 		initShareablePopup();
 
 		initActionMode();
@@ -681,6 +701,14 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		setupStickerSearch();
 	}
 
+	protected void initCustomKeyboard()
+	{	
+		LinearLayout parentView = (LinearLayout) activity.findViewById(R.id.keyboardView_holder);
+		mCustomKeyboard= new HikeCustomKeyboard(activity, parentView, KPTConstants.MULTILINE_LINE_EDITOR, kptEditTextEventListener,ChatThread.this);
+		mCustomKeyboard.registerEditText(R.id.msg_compose);
+		mCustomKeyboard.init(mComposeView);
+	}	
+		
 	private void defineEnterAction() {
 		
 		if (mComposeView != null) {
@@ -689,17 +717,12 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 					activity.getApplicationContext()).getBoolean(
 					HikeConstants.SEND_ENTER_PREF, false))
 			{
-				mComposeView.setInputType(mComposeView.getInputType()
-						| InputType.TYPE_TEXT_FLAG_MULTI_LINE);
+				mComposeView.setImeOptions(EditorInfo.IME_ACTION_UNSPECIFIED);
 			}
 			else if ((mComposeView.getInputType() & InputType.TYPE_TEXT_FLAG_MULTI_LINE) == InputType.TYPE_TEXT_FLAG_MULTI_LINE)
 			{
-				mComposeView.setInputType(mComposeView.getInputType()
-						^ InputType.TYPE_TEXT_FLAG_MULTI_LINE);
+				mComposeView.setImeOptions(EditorInfo.IME_ACTION_SEND);
 			}
-			//Its a workaround to set the multiline editfield when android:imeOptions="actionSend".
-    		mComposeView.setHorizontallyScrolling(false);
-			mComposeView.setMaxLines(4);
 
 		}
 	}
@@ -723,9 +746,13 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 			initStickerPicker();
 			initEmoticonPicker();
+			
+			int firstTimeHeight = (isSystemKeyboard()?((int) (activity.getResources().getDimension(R.dimen.emoticon_pallete))) : 
+					((keyboardHeight == 0) ? mCustomKeyboard.getKeyBoardAndCVHeight() : keyboardHeight));
 
 			mShareablePopupLayout = new ShareablePopupLayout(activity.getApplicationContext(), activity.findViewById(R.id.chatThreadParentLayout),
-					(int) (activity.getResources().getDimension(R.dimen.emoticon_pallete)), mEatOuterTouchIds, this, this);
+					
+					firstTimeHeight, mEatOuterTouchIds, this, this);
 			if (Utils.isLollipopOrHigher())
 			{
 				mShareablePopupLayout.setWindowSystemBarBgFlag(Utils.isWindowFlagEnabled(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS, activity.getWindow()));
@@ -850,6 +877,9 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			case R.string.email_chat:
 				overFlowMenuItem.enabled = !isMessageListEmpty;
 				break;
+			case R.string.change_keyboard:
+				overFlowMenuItem.enabled = !mConversation.isBlocked();
+				break;
 			case R.string.hide_chat:
 				overFlowMenuItem.text = getString(StealthModeManager.getInstance().isActive() ? 
 						(mConversation.isStealth() ? R.string.mark_visible : R.string.mark_hidden)
@@ -959,6 +989,10 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	{
 		switch (item.id)
 		{
+		case R.string.change_keyboard:
+			changeKeyboard(!isSystemKeyboard());
+			mShareablePopupLayout.setCustomKeyBoard(isSystemKeyboard());
+			break;
 		case R.string.clear_chat:
 			showClearConversationDialog();
 			break;
@@ -1051,7 +1085,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		return new OverFlowMenuItem[] {
 				new OverFlowMenuItem(getString(R.string.hide_chat), 0, 0, R.string.hide_chat),
 				new OverFlowMenuItem(getString(R.string.clear_chat), 0, 0, true, R.string.clear_chat),
-				new OverFlowMenuItem(getString(R.string.email_chat), 0, 0, true, R.string.email_chat)};
+				new OverFlowMenuItem(getString(R.string.email_chat), 0, 0, true, R.string.email_chat),
+				new OverFlowMenuItem(getString(R.string.change_keyboard), 0, 0, R.string.change_keyboard)};
 	}
 
 	protected void showOverflowMenu()
@@ -1091,19 +1126,24 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			showOverflowMenu();
 			break;
 		case R.id.sticker_btn:
+			mShareablePopupLayout.setCustomKeyBoardHeight((keyboardHeight == 0) ? mCustomKeyboard.getKeyBoardAndCVHeight() : keyboardHeight);
+			mCustomKeyboard.showCustomKeyboard(mComposeView, false);
 			if (mShareablePopupLayout.isBusyInOperations())
 			{//  previous task is running don't accept this event
 				return;
 			}
+			mShareablePopupLayout.setCustomKeyBoardHeight((keyboardHeight == 0) ? mCustomKeyboard.getKeyBoardAndCVHeight() : keyboardHeight);
 			setEmoticonButtonSelected(false);
 			setStickerButtonSelected(true);
 			stickerClicked();
 			break;
 		case R.id.emoticon_btn:
+			mCustomKeyboard.showCustomKeyboard(mComposeView, false);
 			if (mShareablePopupLayout.isBusyInOperations())
 			{// previous task is running don't accept this event
 				return;
 			}
+			mShareablePopupLayout.setCustomKeyBoardHeight((keyboardHeight == 0) ? mCustomKeyboard.getKeyBoardAndCVHeight() : keyboardHeight);
 			setStickerButtonSelected(false);
 			setEmoticonButtonSelected(true);
 			emoticonClicked();
@@ -1143,12 +1183,11 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			break;
 		case R.id.search_clear_btn:
 			mComposeView.setText("");
+			mCustomKeyboard.updateCore();
 			break;
-		case R.id.msg_compose:
-			if (mShareablePopupLayout.isShowing())
-			{
-				mShareablePopupLayout.dismiss();
-			}
+		case R.id.search_text:
+			showKeyboard();
+			break;
 		default:
 			Logger.e(TAG, "onClick Registered but not added in onClick : " + v.toString());
 			break;
@@ -1166,6 +1205,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		{
 			sendMessageForStickerRecommendLearning();
 			sendMessage();
+			mCustomKeyboard.updateCore();
 			dismissStickerRecommendationPopup();
 			dismissTip(ChatThreadTips.STICKER_RECOMMEND_TIP);
 		}
@@ -1489,6 +1529,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	public boolean onBackPressed()
 	{
 		mShareablePopupLayout.onBackPressed();
+
 		if (removeFragment(HikeConstants.IMAGE_FRAGMENT_TAG, true))
 		{
 			return true;
@@ -1504,11 +1545,19 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			mShareablePopupLayout.dismiss();
 			return true;
 		}
-
+		
 		if (themePicker != null && themePicker.isShowing())
 		{
 			return themePicker.onBackPressed();
 		}
+		
+		if (mCustomKeyboard.isCustomKeyboardVisible())
+		{
+			mCustomKeyboard.showCustomKeyboard(mComposeView, false); 
+			KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, 0);
+			return true;
+		}
+		mCustomKeyboard.closeAnyDialogIfShowing();
 
 		if (mActionMode.isActionModeOn())
 		{
@@ -1679,6 +1728,23 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		mActionMode.showActionMode(SEARCH_ACTION_MODE, R.layout.search_action_bar);
 		setUpSearchViews();
 
+		 searchEt = (CustomFontEditText) activity.findViewById(R.id.search_text);
+
+		if (isSystemKeyboard())
+		{
+			searchEt.requestFocus();
+			activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+			Utils.showSoftKeyboard(searchEt, InputMethodManager.SHOW_FORCED);
+		}
+		else
+		{
+			mCustomKeyboard.registerEditText(R.id.search_text);
+        	mCustomKeyboard.showCustomKeyboard(searchEt, true);
+        	KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, (keyboardHeight == 0) ? mCustomKeyboard.getKeyBoardAndCVHeight() : keyboardHeight);
+		}
+		
+		searchEt.setOnClickListener(this);
+		
 		// Creating new instance every time.
 		// No need to modify existing instance. It might still be in the process of exiting.
 		messageSearchManager = new SearchManager();
@@ -1693,12 +1759,21 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		}
 	}
 	
+	public void hideKeyboard(){
+		if(KptUtils.isSystemKeyboard(activity)){
+			Utils.hideSoftKeyboard(activity, mComposeView);
+		}else if (mCustomKeyboard!=null && mCustomKeyboard.isCustomKeyboardVisible())
+		{
+			mCustomKeyboard.showCustomKeyboard(mComposeView, false); 
+			KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, 0);
+		}
+	}
 	private void setUpSearchViews()
 	{
 		int id = mComposeView.getId();
 		mComposeView = (CustomFontEditText) activity.findViewById(R.id.search_text);
 		mComposeView.setTag(id);
-		
+
 		mComposeView.requestFocus();
 		Utils.showSoftKeyboard(activity.getApplicationContext(), mComposeView);
 		mComposeView.addTextChangedListener(searchTextWatcher);
@@ -1708,14 +1783,17 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		activity.findViewById(R.id.search_clear_btn).setOnClickListener(this);
 		
 		View mBottomView = activity.findViewById(R.id.bottom_panel);
-		if (mShareablePopupLayout.isKeyboardOpen())
-		{ 
-			// ifkeyboard is not open, then keyboard will come which will make so much animation on screen
-			mBottomView.startAnimation(AnimationUtils.loadAnimation(activity.getApplicationContext(), R.anim.up_down_lower_part));
-		}
-		else
+		if (isSystemKeyboard())
 		{
-			Utils.toggleSoftKeyboard(activity.getApplicationContext());
+			if (mShareablePopupLayout.isKeyboardOpen())
+			{ 
+				// ifkeyboard is not open, then keyboard will come which will make so much animation on screen
+				mBottomView.startAnimation(AnimationUtils.loadAnimation(activity.getApplicationContext(), R.anim.up_down_lower_part));
+			}
+			else
+			{
+				Utils.toggleSoftKeyboard(activity.getApplicationContext());
+			}
 		}
 		if (mShareablePopupLayout.isShowing())
 		{
@@ -1724,6 +1802,25 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		mBottomView.setVisibility(View.GONE);
 	}
 
+	HikeAdaptxtEditTextEventListner kptEditTextEventListener = new HikeAdaptxtEditTextEventListner()
+	{
+		@Override
+		public void onReturnAction(int resId, int arg0)
+		{
+			switch (resId)
+			{
+			case R.id.msg_compose:
+				if (!TextUtils.isEmpty(mComposeView.getText())) {
+					sendButtonClicked();
+				}
+				break;
+			case R.id.search_text:
+				searchMessage(false,true);
+				break;
+			}
+		}
+	};
+	
 	TextWatcher searchTextWatcher = new TextWatcher()
 	{
 		
@@ -2026,6 +2123,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		}
 
 		sendSticker(sticker, sourceOfSticker);
+		mCustomKeyboard.updateCore();
 	}
 
 	@Override
@@ -2256,7 +2354,15 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		 */
 		if (shouldShowKeyboard())
 		{
-			activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+			if (!isSystemKeyboard())
+			{
+				mCustomKeyboard.showCustomKeyboard(mComposeView, true);
+				KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, (keyboardHeight == 0) ? mCustomKeyboard.getKeyBoardAndCVHeight() : keyboardHeight);
+			}
+			else
+			{
+				activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+			}
 		}
 	}
 	
@@ -3380,11 +3486,16 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	{
 		switch (v.getId())
 		{
-		case R.id.messageedittext:
-			return mShareablePopupLayout.onEditTextTouch(v, event);
-
 		case R.id.msg_compose:
-
+			if (!isSystemKeyboard())
+			{
+				mCustomKeyboard.showCustomKeyboard(mComposeView, true);
+				/*
+				 * This is an approximate height given by kpt until we get keyboard visibility call. The final height is set in onInputViewVisibility().
+				 * This calls is to avoid the seeming delay in appearance of edittext.
+				 */
+				KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, (keyboardHeight == 0) ? mCustomKeyboard.getKeyBoardAndCVHeight() : keyboardHeight);
+			}
 			if(stickerTagWatcher != null)
 			{
 				stickerTagWatcher.onTouch(v, event);
@@ -3907,6 +4018,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 	public void onDestroy()
 	{
+		KptUtils.destroyKeyboardResources(mCustomKeyboard, R.id.msg_compose, R.id.search_text, R.id.messageedittext);
+
 		setTipSeen(ChatThreadTips.STICKER_RECOMMEND_TIP, true);
 		
 		setTipSeen(ChatThreadTips.STICKER_RECOMMEND_AUTO_OFF_TIP, true);
@@ -4007,14 +4120,25 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		}
 	}
 
+	protected void pauseKeyboardResources()
+	{
+		if (mCustomKeyboard != null)
+		{
+			KptUtils.pauseKeyboardResources(mCustomKeyboard, mComposeView, searchEt);
+			KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, 0);
+		}
+	}
+	
 	/**
 	 * Mimics the onPause method of an Activity.
 	 */
 
 	public void onPause()
 	{
-		Utils.hideSoftKeyboard(activity, mComposeView);
+		pauseKeyboardResources();
 		
+		Utils.hideSoftKeyboard(activity, mComposeView);
+
 		isActivityVisible = false;
 		
 		resumeImageLoaders(true);
@@ -4028,14 +4152,11 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 	public void onResume()
 	{
+		tryToDismissAnyOpenPanels();
+		showKeyboard();
+
 		isActivityVisible = true;
 
-		if (shouldShowKeyboard())
-		{
-			tryToDismissAnyOpenPanels();
-			Utils.showSoftKeyboard(activity, mComposeView);
-		}
-		
 		/**
 		 * Mark any messages unread as read
 		 */
@@ -4075,6 +4196,33 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		}
 	}
 
+	protected void showKeyboard()
+	{
+		
+		if (shouldShowKeyboard())
+		{
+			if (isSystemKeyboard())
+			{
+				changeKeyboard(isSystemKeyboard());
+				activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+				Utils.showSoftKeyboard(mComposeView, InputMethodManager.SHOW_FORCED);
+				KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, 0);
+			}
+			else
+			{
+				mCustomKeyboard.showCustomKeyboard(mComposeView, true);
+			}
+		}
+		else
+		{
+			if (isSystemKeyboard())
+			{
+				changeKeyboard(isSystemKeyboard());
+			}
+			KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, 0);
+		}
+	}
+	
 	public void onRestart()
 	{
 		isActivityVisible = true;
@@ -5345,11 +5493,19 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	protected void onConfigurationChanged(Configuration newConfig)
 	{
 		Logger.d(TAG, "newConfig : " + newConfig.toString());
-		
+		if (mCustomKeyboard != null)
+		{
+			mCustomKeyboard.onConfigurationChanged(newConfig);
+		}
 		if (mShareablePopupLayout != null && mShareablePopupLayout.isShowing())
 		{
 			mShareablePopupLayout.dismiss();
 			mShareablePopupLayout.onConfigurationChanged();
+		}
+		
+		if (!isSystemKeyboard() && !mCustomKeyboard.isCustomKeyboardVisible())
+		{
+			KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, 0);
 		}
 		
 		if (stickerTagWatcher != null)
@@ -5505,6 +5661,10 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	@Override
 	public void onPopupDismiss()
 	{
+		if (mCustomKeyboard.isCustomKeyboardVisible())
+		{
+			KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, (keyboardHeight == 0) ? mCustomKeyboard.getKeyBoardAndCVHeight() : keyboardHeight);
+		}
 		Logger.i(TAG, "onPopup Dismiss");
 		if(activity.findViewById(R.id.sticker_btn).isSelected())
 		{
@@ -5577,11 +5737,12 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	
 	public boolean isKeyboardOpen()
 	{
-		if(mShareablePopupLayout == null || !mShareablePopupLayout.isKeyboardOpen())
-		{
-			return false;
-		}
-		return true;
+		return ((mShareablePopupLayout != null) && (mShareablePopupLayout.isKeyboardOpen() || mCustomKeyboard.isCustomKeyboardVisible()));
+//		if(mShareablePopupLayout == null || !mShareablePopupLayout.isKeyboardOpen())
+//		{
+//			return false;
+//		}
+//		return true;
 	}
 	
 	@Override
@@ -5629,6 +5790,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	protected void showOverlay(String label, String formatString, String overlayBtnText, SpannableString str, int drawableResId, int viewTag)
 	{
 		Utils.hideSoftKeyboard(activity.getApplicationContext(), mComposeView);
+		hideKeyboard();
 
 		View mOverlayLayout = activity.findViewById(R.id.overlay_layout);
 		mOverlayLayout.setTag(viewTag);
@@ -5835,7 +5997,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		/**
 		 * Hiding soft keyboard
 		 */
-		Utils.hideSoftKeyboard(activity, mComposeView);
+		hideKeyboard();
 		setUpThemePicker();
 		themePicker.showThemePicker(activity.findViewById(R.id.attachment_anchor), currentTheme,footerTextId, activity.getResources().getConfiguration().orientation);
 	}
@@ -5917,5 +6079,97 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	{
 		hideOverflowMenu();
 		hideThemePicker();
+	}
+
+	private void changeKeyboard(boolean systemKeyboard)
+	{
+		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CURRENT_KEYBOARD, systemKeyboard);
+		
+		if (systemKeyboard)
+		{
+			KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, 0);
+			mCustomKeyboard.showCustomKeyboard(mComposeView, false);
+			mCustomKeyboard.swtichToDefaultKeyboard(mComposeView);
+			mCustomKeyboard.unregister(R.id.msg_compose);
+			resetSharablePopup();
+			mComposeView.setOnClickListener(new OnClickListener()
+			{
+
+				@Override
+				public void onClick(View v)
+				{
+					Utils.showSoftKeyboard(mComposeView, InputMethodManager.SHOW_FORCED);
+				}
+			});
+		}
+		else
+		{
+			mCustomKeyboard.swtichToKPTKeyboard(mComposeView, KPTConstants.MULTILINE_LINE_EDITOR, null, ChatThread.this);
+			mCustomKeyboard.registerEditText(R.id.msg_compose);
+			resetSharablePopup();
+			mCustomKeyboard.init(mComposeView);
+			mCustomKeyboard.showCustomKeyboard(mComposeView, true);
+			setEditTextListeners();
+		}
+		HikeMessengerApp.getInstance().getPubSub().publish(HikePubSub.KEYBOARD_SWITCHED,null);
+
+	}
+	
+	private void resetSharablePopup()
+	{
+		if (mShareablePopupLayout != null)
+		{
+			mShareablePopupLayout.dismiss();
+			releaseShareablePopUpResources();
+		}
+		initShareablePopup();
+	}
+
+	public boolean isSystemKeyboard()
+	{
+		return HikeMessengerApp.isSystemKeyboard(activity);
+	}
+
+	@Override
+	public void onInputviewVisbility(boolean kptVisible, int height)
+	{
+		if (kptVisible)
+		{
+			KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, height);
+			if (mShareablePopupLayout != null)
+			{
+				mShareablePopupLayout.setCustomKeyBoardHeight(height);				
+			}
+			keyboardHeight = height;
+		}
+		else
+		{
+			KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, 0);
+		}
+	}
+	
+	@Override
+	public void onInputViewCreated()
+	{
+		// TODO Auto-generated method stub
+		
+	}
+	
+	@Override
+	public void analyticalData(String language)
+	{
+		KptUtils.generateKeyboardAnalytics(language);
+	}
+
+	@Override
+	public void showGlobeKeyView()
+	{
+		KptUtils.onGlobeKeyPressed(activity, mCustomKeyboard);
+	}
+
+	@Override
+	public void showQuickSettingView()
+	{
+		KptUtils.onGlobeKeyPressed(activity, mCustomKeyboard);
 	}
 }
