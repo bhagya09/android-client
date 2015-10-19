@@ -14,22 +14,22 @@
 
         <com.bsb.hike.ui.utils.RecyclingImageView
             android:id="@+id/update_tip_icon"
-            android:layout_width="52dp"
-            android:layout_height="52dp"
+            android:layout_width="72dp"
+            android:layout_height="72dp"
             android:layout_gravity="top|left"
-            android:layout_marginLeft="18dp"
-            android:layout_marginTop="18dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginTop="8dp"
             android:layout_weight="0"
             android:src="@drawable/update_tip_download"
             android:visibility="visible" />
 
         <com.bsb.hike.ui.utils.RecyclingImageView
             android:id="@+id/invite_tip_icon"
-            android:layout_width="52dp"
-            android:layout_height="52dp"
+            android:layout_width="72dp"
+            android:layout_height="72dp"
             android:layout_gravity="top|left"
-            android:layout_marginLeft="18dp"
-            android:layout_marginTop="18dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginTop="8dp"
             android:layout_weight="0"
             android:src="@drawable/invite_tip_icon"
             android:visibility="gone" />
@@ -41,7 +41,7 @@
             android:layout_alignWithParentIfMissing="true"
             android:layout_weight="1"
             android:orientation="vertical"
-            android:paddingLeft="12dp" >
+             >
 
             <com.bsb.hike.view.CustomFontTextView
                 android:id="@+id/update_tip_header"
@@ -58,6 +58,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
+                android:paddingRight="6dp"
                 android:fontFamily="Roboto-Regular"
                 android:gravity="top"
                 android:text="@string/update_tip_body_text" />
@@ -81,10 +82,10 @@
             android:layout_height="match_parent"
             android:fontFamily="Roboto-Medium"
             android:layout_marginRight="8dp"
-            android:paddingBottom="10dp"
+            android:paddingBottom="18dp"
             android:paddingLeft="8dp"
             android:paddingRight="8dp"
-            android:paddingTop="18dp"
+            android:paddingTop="14dp"
             android:visibility="invisible"
             android:text="@string/update_tip_dismiss_text" />
 
@@ -94,10 +95,10 @@
             android:minWidth="36dp"
             android:layout_height="match_parent"
             android:fontFamily="Roboto-Medium"
-            android:paddingBottom="10dp"
+            android:paddingBottom="18dp"
             android:paddingLeft="8dp"
             android:paddingRight="8dp"
-            android:paddingTop="18dp"
+            android:paddingTop="14dp"
             android:text="@string/update_tip_bottom_text" />
     </LinearLayout>
 
