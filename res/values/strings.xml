@@ -1217,5 +1217,6 @@
 	<string name="enable_saved_contact_view_heading">Show for Saved Contacts</string>
 	<string name="enable_saved_contact_view_side_text">Show caller info for saved contacts too</string>
 	<string name="sms_head">SMS:</string>
+	<string name="try_instead">TRY INSTEAD</string>
 	
 </resources>

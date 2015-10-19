@@ -877,8 +877,13 @@ public class StickyCaller
 	
 	private static void setDismissWithVisible()
 	{
-		View freeCallButton = stickyCallerView.findViewById(R.id.caller_dismiss_with); 
+		Context context = HikeMessengerApp.getInstance().getApplicationContext();
+		TextView freeCallButton = (TextView)stickyCallerView.findViewById(R.id.caller_dismiss_with); 
 		freeCallButton.setVisibility(View.VISIBLE);
+		if (CALL_TYPE != INCOMING)
+		{
+			freeCallButton.setText(context.getString(R.string.try_instead));
+		}
 		stickyCallerView.findViewById(R.id.caller_free_layout).setVisibility(View.VISIBLE);
 	}
 
