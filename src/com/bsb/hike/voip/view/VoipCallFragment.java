@@ -943,32 +943,28 @@ public class VoipCallFragment extends Fragment implements CallActions
 	}
 	
 	private void updateConferenceList() {
-	
+
 		ListView conferenceList = (ListView) getView().findViewById(R.id.conference_list);
-		
-		if (conferenceClients == null || voipService.hostingConference())
-			conferenceClients = voipService.getConferenceClients();
-			
-		if (confClientsAdapter == null || voipService.hostingConference()) {
-			confClientsAdapter = new ConferenceParticipantsAdapter(getActivity(), 0, 0, conferenceClients);
-			conferenceList.setAdapter(confClientsAdapter);
-			conferenceList.setVisibility(View.VISIBLE);
-			conferenceList.setFocusable(false);
-			conferenceList.setClickable(false);
-			
-			// Remove profile image
-			ImageView profileView = (ImageView) getView().findViewById(R.id.profile_image);
-			profileView.setVisibility(View.INVISIBLE);
-		} else
-			confClientsAdapter.notifyDataSetChanged();
-		
+		conferenceClients = voipService.getConferenceClients();
+
+		confClientsAdapter = new ConferenceParticipantsAdapter(getActivity(), 0, 0, conferenceClients);
+		conferenceList.setAdapter(confClientsAdapter);
+		conferenceList.setVisibility(View.VISIBLE);
+		conferenceList.setFocusable(false);
+		conferenceList.setClickable(false);
+
 		if (voipService.hostingConference()) {
-			
+
 			// remove quality indicator
 			if (signalContainer != null) {
 				signalContainer.setVisibility(View.GONE);
 			}
 		}
+
+		// Remove profile image
+		ImageView profileView = (ImageView) getView().findViewById(R.id.profile_image);
+		profileView.setVisibility(View.INVISIBLE);
+
 	}
 	
 	private void hideConferenceList() {

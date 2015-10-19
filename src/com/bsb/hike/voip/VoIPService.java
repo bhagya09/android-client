@@ -2266,11 +2266,12 @@ public class VoIPService extends Service implements Listener
 		return num;
 	}
 	
+	@SuppressWarnings("unchecked")
 	public ArrayList<VoIPClient> getConferenceClients() {
 		if (hostingConference())
 			return new ArrayList<VoIPClient>(clients.values());
 		else {
-			return getClient().clientMsisdns;
+			return (ArrayList<VoIPClient>) getClient().clientMsisdns.clone();
 		}
 	}
 	
