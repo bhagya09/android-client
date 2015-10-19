@@ -45,7 +45,6 @@ import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
-import com.bsb.hike.voip.VoIPConstants.CallQuality;
 import com.bsb.hike.voip.VoIPConstants.CallStatus;
 import com.bsb.hike.voip.VoIPDataPacket.PacketType;
 import com.bsb.hike.voip.VoIPEncryptor.EncryptionStage;
@@ -126,7 +125,6 @@ public class VoIPClient  {
 	private final int QUALITY_CALCULATION_FREQUENCY = 4;	// Quality is calculated every 'x' playback samples
 	private BitSet playbackTrackingBits = new BitSet(VoIPConstants.AUDIO_SAMPLE_RATE * QUALITY_BUFFER_SIZE/ OpusWrapper.OPUS_FRAME_SIZE);
 	private int playbackFeederCounter = 0;
-	private CallQuality currentCallQuality = CallQuality.UNKNOWN;
 	private int plcCounter = 0;
 	private int packetLoss = 0, remotePacketLoss = 0;
 	private long lastCongestionControlTimestamp = 0;
@@ -178,7 +176,6 @@ public class VoIPClient  {
 		this.context = context;
 		this.handler = handler;
 		encryptionStage = EncryptionStage.STAGE_INITIAL;
-		currentCallQuality = CallQuality.UNKNOWN;
 		setCallStatus(VoIPConstants.CallStatus.UNINITIALIZED);
 
 		if (context != null)
@@ -2165,28 +2162,8 @@ public class VoIPClient  {
 		packetLoss = (100 - (cardinality*100 / (playbackFeederCounter < playbackTrackingBits.size() ? playbackFeederCounter : playbackTrackingBits.size())));
 //		Logger.d(tag, "Loss: " + packetLoss + ", playbackFeederCounter: " + playbackFeederCounter);
 		
-		CallQuality newQuality;
-		
-		if (packetLoss < 10)
-			newQuality = CallQuality.EXCELLENT;
-		else if (packetLoss < 20)
-			newQuality = CallQuality.GOOD;
-		else if (packetLoss < 30)
-			newQuality = CallQuality.FAIR;
-		else 
-			newQuality = CallQuality.WEAK;
-
-		if (currentCallQuality != newQuality && getCallDuration() > QUALITY_BUFFER_SIZE) {
-			currentCallQuality = newQuality;
-			sendHandlerMessage(VoIPConstants.MSG_UPDATE_QUALITY);
-		}
-
 	}
 
-	public CallQuality getQuality() {
-		return currentCallQuality;
-	}
-	
 	public void updateLocalSpeech(boolean speech) {
 		VoIPDataPacket dp = null;
 //		Logger.d(tag, "Local speech: " + speech);

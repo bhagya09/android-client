@@ -39,6 +39,8 @@ import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
+import com.bsb.hike.chatHead.ChatHeadUtils;
+import com.bsb.hike.chatHead.StickyCaller;
 import com.bsb.hike.db.AccountBackupRestore;
 import com.bsb.hike.dialog.CustomAlertRadioButtonDialog;
 import com.bsb.hike.dialog.CustomAlertRadioButtonDialog.RadioButtonItemCheckedListener;
@@ -226,6 +228,25 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 				stickerPreferenceCategory.removePreference(stickerRecommendAutopopupPreference);
 			}
 			
+		}
+		final SwitchPreferenceCompat enableStickerSettings = (SwitchPreferenceCompat) getPreferenceScreen().findPreference(HikeConstants.ACTIVATE_STICKY_CALLER_PREF);
+		if (enableStickerSettings != null)
+		{
+			enableStickerSettings.setOnPreferenceChangeListener(this);
+		}
+
+		final SwitchPreferenceCompat knownContactEnablePref = (SwitchPreferenceCompat) getPreferenceScreen().findPreference(HikeConstants.ENABLE_KNOWN_NUMBER_CARD_PREF);
+		if (knownContactEnablePref != null)
+		{
+			if (HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.SHOW_KNOWN_NUMBER_CARD, false))
+			{
+				knownContactEnablePref.setDependency(HikeConstants.ACTIVATE_STICKY_CALLER_PREF);
+				knownContactEnablePref.setOnPreferenceChangeListener(this);
+			}
+			else
+			{
+				getPreferenceScreen().removePreference(knownContactEnablePref);
+			}
 		}
 		
 		final SwitchPreferenceCompat sslPreference = (SwitchPreferenceCompat) getPreferenceScreen().findPreference(HikeConstants.SSL_PREF);
@@ -1247,6 +1268,40 @@ private void setupToolBar(int titleRes){
 		else if (HikeConstants.STATUS_BOOLEAN_PREF.equals(preference.getKey()))
 		{
 			//Handled in OnPreferenceClick
+		}
+		else if (HikeConstants.ACTIVATE_STICKY_CALLER_PREF.equals(preference.getKey()))
+		{
+			SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(HikePreferences.this);
+			Editor prefEditor = prefs.edit();
+			prefEditor.putBoolean(HikeConstants.ACTIVATE_STICKY_CALLER_PREF, isChecked);
+			prefEditor.commit();
+		
+			if (isChecked)
+			{
+				ChatHeadUtils.registerCallReceiver();
+				HAManager.getInstance().stickyCallerAnalyticsUIEvent(AnalyticsConstants.StickyCallerEvents.CALLER_SETTINGS_TOGGLE, null,
+						AnalyticsConstants.StickyCallerEvents.ACTIVATE_BUTTON, null);
+			}
+			else
+			{
+				ChatHeadUtils.unregisterCallReceiver();
+				HAManager.getInstance().stickyCallerAnalyticsUIEvent(AnalyticsConstants.StickyCallerEvents.CALLER_SETTINGS_TOGGLE, null,
+						AnalyticsConstants.StickyCallerEvents.DEACTIVATE_BUTTON, null);
+			}
+		}
+		else if (HikeConstants.ENABLE_KNOWN_NUMBER_CARD_PREF.equals(preference.getKey()))
+		{
+			if (isChecked)
+			{
+				HAManager.getInstance().stickyCallerAnalyticsUIEvent(AnalyticsConstants.StickyCallerEvents.KNOWN_CARD_SETTINGS_TOGGLE, null,
+						AnalyticsConstants.StickyCallerEvents.ACTIVATE_BUTTON, null);
+		
+			}
+			else
+			{
+				HAManager.getInstance().stickyCallerAnalyticsUIEvent(AnalyticsConstants.StickyCallerEvents.KNOWN_CARD_SETTINGS_TOGGLE, null,
+						AnalyticsConstants.StickyCallerEvents.DEACTIVATE_BUTTON, null);
+			}
 		}
 		else if (HikeConstants.NUJ_NOTIF_BOOLEAN_PREF.equals(preference.getKey()))
 		{			

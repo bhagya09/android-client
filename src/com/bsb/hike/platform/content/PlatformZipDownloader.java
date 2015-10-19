@@ -260,7 +260,7 @@ public class PlatformZipDownloader
 	/**
 	 * calling this function will unzip the microApp.
 	 */
-	private void unzipMicroApp(File zipFile)
+	private void unzipMicroApp(final File zipFile)
 	{
 		final String unzipPath = (doReplace) ? PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.TEMP_DIR_NAME : PlatformContentConstants.PLATFORM_CONTENT_DIR;
 
@@ -271,6 +271,7 @@ public class PlatformZipDownloader
 				@Override
 				public void update(Observable observable, Object data)
 				{
+					long fileSize = zipFile.length();
 					// delete temp folder
 					if(!doReplace)
 					{
@@ -302,6 +303,7 @@ public class PlatformZipDownloader
 					}
 					else
 					{
+						mRequest.getListener().downloadedContentLength(fileSize);
 						mRequest.getListener().onEventOccured(0, EventCode.UNZIP_FAILED);
 						HikeMessengerApp.getPubSub().publish(HikePubSub.DOWNLOAD_PROGRESS, new Pair<String, String>(callbackId, "unzipFailed"));
 					}

@@ -105,6 +105,13 @@ public class VoIPConstants {
 	 */
 	public static final int MAX_RTT = 5;
 	
+	/**
+	 * Wait before sending an error message to the activity for an outgoing
+	 * call. This is necessary to ensure the VoIP UI gets time to come up
+	 * before the error fragment is shown on top.
+	 */
+	public static final int SERVICE_To_ACTIVITY_ERR_MESSAGE_DELAY = 2000;
+	
 	public static final int INITIAL_ICE_SOCKET_TIMEOUT = 2;
 	
 	// Default bitrates
@@ -138,7 +145,6 @@ public class VoIPConstants {
 	public static final int MSG_PARTNER_ANSWER_TIMEOUT = 7;
 	public static final int MSG_RECONNECTING = 8;
 	public static final int MSG_RECONNECTED = 9;
-	public static final int MSG_UPDATE_QUALITY = 10;
 	public static final int MSG_NETWORK_SUCKS = 11;
 	public static final int MSG_ALREADY_IN_NATIVE_CALL = 13;
 	public static final int MSG_AUDIORECORD_FAILURE = 14;
@@ -263,19 +269,6 @@ public class VoIPConstants {
 		
 		public static final String VOIP_CLIENTS = "cl";
 		
-	}
-
-	
-	/**
-	 * Call quality
-	 */
-	
-	public static enum CallQuality {
-		EXCELLENT,
-		GOOD,
-		FAIR,
-		WEAK,
-		UNKNOWN
 	}
 
 	/**

@@ -1,6 +1,10 @@
 package com.bsb.hike.chatHead;
 
 import java.net.HttpURLConnection;
+import java.util.HashMap;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.animation.Animator;
 import android.animation.Animator.AnimatorListener;
@@ -30,8 +34,10 @@ import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
+import com.bsb.hike.R.string;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.chatthread.ChatThreadUtils;
@@ -81,12 +87,8 @@ public class StickyCaller
 	public static short OUTGOING = 2;
 	
 	public static short MISSED = 3;
-	
+
 	public static String callCurrentNumber = null;
-
-	public static String callCurrentName = null;
-
-	public static final String ACTIVATE_STICKY_CALLER = "activateStickyCaller";
 
 	public static final String SHOW_STICKY_CALLER = "showStickyCaller";
 
@@ -99,6 +101,16 @@ public class StickyCaller
 	public static final int INCOMING_DELAY = 2000;
 
 	public static final String SMS_BODY = "sms_body";
+
+	public static final String SHOW_KNOWN_NUMBER_CARD = "showKnownCardPref";
+	
+	public static final String SHOW_FREECALL_VIEW = "showFreeView";
+
+	private static final String INDIA = "India";
+
+	public static final String NAME = "name";
+	
+	public static final String ADDRESS = "address";
 	
 	public static String MISSED_CALL_TIMINGS;
 
@@ -509,43 +521,61 @@ public class StickyCaller
 
 	private static void settingLayoutAlreadySavedContact(Context context, String number, String result)
 	{
+		String name = null, address = null;
+		try
+		{
+			JSONObject obj = new JSONObject(result);
+			name = (String) obj.get(NAME);
+			address = (String) obj.get(ADDRESS);
+		}
+		catch (JSONException e)
+		{
+		Logger.d("JSON Exception", "can't fetch data from saved contact");
+		}
 		if (CALL_TYPE == MISSED)
 		{
-			settingMissedCallLayoutAlreadySavedContact(context, number, result);
+			settingMissedCallLayoutAlreadySavedContact(context, number, name, address);
 		}
 		else
 		{
-			settingOtherCallLayoutAlreadySavedContact(context, number, result);
+			settingOtherCallLayoutAlreadySavedContact(context, number, name, address);
 		}
 	}
 	
-	private static void settingMissedCallLayoutAlreadySavedContact(Context context, String number, String result)
+	private static void settingMissedCallLayoutAlreadySavedContact(Context context, String number, String name, String address)
 	{
 		LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		stickyCallerView = (LinearLayout) inflater.inflate(R.layout.missed_call_layout, null);
 		callerParams.flags = LayoutParams.FLAG_LAYOUT_NO_LIMITS | LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH | LayoutParams.FLAG_NOT_TOUCH_MODAL  ;
 		callerParams.gravity = Gravity.BOTTOM;
-		setBasicClickListener();
+		setBasicClickListener(number);
 		if (number != null)
 		{
-			TextView callerNumber = (TextView) (stickyCallerView.findViewById(R.id.caller_number));
-			callerNumber.setVisibility(View.VISIBLE);
-			callerNumber.setText(number);
+			setValueOnID(R.id.caller_number, number);
 		}
-		if (result != null)
+		if (name != null)
 		{
-			TextView callerName = (TextView) stickyCallerView.findViewById(R.id.caller_name);
-			callerName.setVisibility(View.VISIBLE);
-			callerName.setText(result);
+			setValueOnID(R.id.caller_name, name);
 		}
-	
-		if (Utils.isIndianNumber(number) || Utils.isOnHike(number))
+		else if (number != null)
+		{
+			setValueOnID(R.id.caller_name, number);
+		}
+		if (address != null)
+		{
+			setValueOnID(R.id.caller_location, address);
+		}
+		else if (Utils.isIndianNumber(number))
+		{
+			setValueOnID(R.id.caller_location, INDIA);
+		}
+		if ((Utils.isIndianMobileNumber(number) && HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.SHOW_FREECALL_VIEW, true)) || Utils.isOnHike(number))
 		{
 			stickyCallerView.findViewById(R.id.missed_call_free_divider).setVisibility(View.VISIBLE);
 
-			setFreeCallButton();
+			setFreeCallButton(number);
 
-			setFreeSmsButton();
+			setFreeSmsButton(number);
 		}
 		if (MISSED_CALL_TIMINGS != null)
 		{
@@ -553,31 +583,44 @@ public class StickyCaller
 		}
 	}
 
-	private static void settingOtherCallLayoutAlreadySavedContact(Context context, String number, String result)
+	private static void setValueOnID(int id, String value)
+	{
+		TextView callerNumber = (TextView) (stickyCallerView.findViewById(id));
+		callerNumber.setVisibility(View.VISIBLE);
+		callerNumber.setText(value);
+	}
+	private static void settingOtherCallLayoutAlreadySavedContact(Context context, String number, String name, String address)
 	{
 		LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		stickyCallerView = (LinearLayout) inflater.inflate(R.layout.caller_layout, null);
-		setBasicClickListener();
+		setBasicClickListener(number);
 		if (number != null)
 		{
-			TextView callerNumber = (TextView) (stickyCallerView.findViewById(R.id.caller_number));
-			callerNumber.setVisibility(View.VISIBLE);
-			callerNumber.setText(number);
+			setValueOnID(R.id.caller_number, number);
 		}
-		if (result != null)
+		if (name != null)
 		{
-			TextView callerName = (TextView) stickyCallerView.findViewById(R.id.caller_name);
-			callerName.setVisibility(View.VISIBLE);
-			callerName.setText(result);
+			setValueOnID(R.id.caller_name, name);
 		}
-	
-		if (Utils.isIndianNumber(number) || Utils.isOnHike(number))
+		else if (number != null)
+		{
+			setValueOnID(R.id.caller_name, number);
+		}
+		if (address != null)
+		{
+			setValueOnID(R.id.caller_location, address);
+		}
+		else if (Utils.isIndianNumber(number))
+		{
+			setValueOnID(R.id.caller_location, INDIA);
+		}
+		if ((Utils.isIndianMobileNumber(number) && HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.SHOW_FREECALL_VIEW, true)) || Utils.isOnHike(number))
 		{
 			setDismissWithVisible();
 			
-			setFreeCallButton();
+			setFreeCallButton(number);
 
-			setFreeSmsButton();
+			setFreeSmsButton(number);
 		}
 	}
 	
@@ -595,10 +638,14 @@ public class StickyCaller
 		smsButton.setOnClickListener(callerClickListener);
 */	}
 
-	private static void setBasicClickListener()
+	private static void setBasicClickListener(String number)
 	{
-		stickyCallerView.findViewById(R.id.caller_settings_button).setOnClickListener(callerClickListener);
-		stickyCallerView.findViewById(R.id.caller_close_button).setOnClickListener(callerClickListener);
+		View callerSettingsButton = stickyCallerView.findViewById(R.id.caller_settings_button);
+		callerSettingsButton.setTag(number);
+		callerSettingsButton.setOnClickListener(callerClickListener);
+		View callerCloseButton = stickyCallerView.findViewById(R.id.caller_close_button);
+		callerCloseButton.setTag(number);
+		callerCloseButton.setOnClickListener(callerClickListener);
 	}
 
 	private static void setCallerParams()
@@ -620,7 +667,7 @@ public class StickyCaller
 	{
 		LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		stickyCallerView = (LinearLayout) inflater.inflate(R.layout.caller_layout, null);
-		setBasicClickListener();
+		setBasicClickListener(number);
 		setShowResponse(context.getString(R.string.getting_details));
 		View hikeCallerlogo = stickyCallerView.findViewById(R.id.hike_caller_logo);
 		hikeCallerlogo.setVisibility(View.VISIBLE);
@@ -632,9 +679,7 @@ public class StickyCaller
 	{
 		try
 		{
-			JsonParser parser = new JsonParser();
-			JsonObject callerDetails = (JsonObject) parser.parse(result);
-			CallerContentModel callerContentModel = new Gson().fromJson(callerDetails, CallerContentModel.class);
+			CallerContentModel callerContentModel = ChatHeadUtils.getCallerContentModelObject(result);
 			if (CALL_TYPE == MISSED)
 			{
 				settingMissedCallLayoutDataSuccess(context, number, result, callerContentModel);
@@ -656,44 +701,41 @@ public class StickyCaller
 		stickyCallerView = (LinearLayout) inflater.inflate(R.layout.missed_call_layout, null);
 		callerParams.flags = LayoutParams.FLAG_LAYOUT_NO_LIMITS | LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH | LayoutParams.FLAG_NOT_TOUCH_MODAL  ;
 		callerParams.gravity = Gravity.BOTTOM;
-		setBasicClickListener();
+		setBasicClickListener(number);
 		boolean showSaveContactDivider = false;
-		if (number != null)
+		if (callerContentModel != null && callerContentModel.getMsisdn()!= null)
+		{
+			setValueOnID(R.id.caller_number, callerContentModel.getMsisdn());
+		}
+		else if (number != null)
 		{ 
-			TextView callerNumber = (TextView) (stickyCallerView.findViewById(R.id.caller_number));
-			callerNumber.setVisibility(View.VISIBLE);
-			callerNumber.setText(number);
+			setValueOnID(R.id.caller_number, number);
 		}
 		if (callerContentModel != null && callerContentModel.getFirstName() != null)
 		{
-			TextView callerName = (TextView) stickyCallerView.findViewById(R.id.caller_name);
-			callerName.setVisibility(View.VISIBLE);
-			String name = getFullName(callerContentModel); 
-			callerName.setText(name);
-			callCurrentName = name;
-			setSaveContactClickListener();
+			setValueOnID(R.id.caller_name, getFullName(callerContentModel));
+			setSaveContactClickListener(number);
 			showSaveContactDivider =true;
 		}
 		else if (callerContentModel != null &&callerContentModel.getLastName() != null)
 		{
-			TextView callerName = (TextView) stickyCallerView.findViewById(R.id.caller_name);
-			callerName.setVisibility(View.VISIBLE);
-			callCurrentName = callerContentModel.getLastName();
-			callerName.setText(callerContentModel.getLastName());
-			setSaveContactClickListener();
+			setValueOnID(R.id.caller_name, callerContentModel.getLastName());
+			setSaveContactClickListener(number);
 			showSaveContactDivider = true;
 		}
 		if (callerContentModel != null && callerContentModel.getLocation() != null)
 		{
-			TextView callerLocation = (TextView) (stickyCallerView.findViewById(R.id.caller_location));
-			callerLocation.setVisibility(View.VISIBLE);
-			callerLocation.setText(callerContentModel.getLocation());
+			setValueOnID(R.id.caller_location, callerContentModel.getLocation());
 		}
-		if ((callerContentModel != null && callerContentModel.getIsOnHike()) || Utils.isIndianNumber(number))
+		else if (Utils.isIndianNumber(number))
 		{
-			setFreeCallButton();
+			setValueOnID(R.id.caller_location, INDIA);
+		}
+		if ((callerContentModel != null && callerContentModel.getIsOnHike()) || (Utils.isIndianMobileNumber(number) && HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.SHOW_FREECALL_VIEW, true)))
+		{
+			setFreeCallButton(number);
 
-			setFreeSmsButton();
+			setFreeSmsButton(number);
 			
 			stickyCallerView.findViewById(R.id.missed_call_free_divider).setVisibility(View.VISIBLE);
 		
@@ -711,77 +753,85 @@ public class StickyCaller
 	
 	private static String getFullName(CallerContentModel callerContentModel)
 	{
-		String name = callerContentModel.getFirstName();
-		if (callerContentModel.getLastName() != null)
+		if (callerContentModel != null)
 		{
-			name = name + " " + callerContentModel.getLastName();
+			String name = "";
+			if (callerContentModel.getFirstName() != null)
+			{
+				name = callerContentModel.getFirstName() + " ";
+			}
+			if (callerContentModel.getLastName() != null)
+			{
+				name = name + callerContentModel.getLastName();
+			}
+			return name;
 		}
-		return name;
+		return null;
 	}
 	
 	private static void settingOtherCallLayoutDataSuccess(Context context, String number, String result, CallerContentModel callerContentModel)
 	{
 		LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		stickyCallerView = (LinearLayout) inflater.inflate(R.layout.caller_layout, null);
-		setBasicClickListener();
-		if (number != null)
+		setBasicClickListener(number);
+		if (callerContentModel != null && callerContentModel.getMsisdn()!= null)
+		{
+			setValueOnID(R.id.caller_number, callerContentModel.getMsisdn());
+		}
+		else if (number != null)
 		{ 
-			TextView callerNumber = (TextView) (stickyCallerView.findViewById(R.id.caller_number));
-			callerNumber.setVisibility(View.VISIBLE);
-			callerNumber.setText(number);
+			setValueOnID(R.id.caller_number, number);
 		}
 		if (callerContentModel != null && callerContentModel.getFirstName() != null)
 		{
-			TextView callerName = (TextView) stickyCallerView.findViewById(R.id.caller_name);
-			callerName.setVisibility(View.VISIBLE);
-			String name = getFullName(callerContentModel); 
-			callerName.setText(name);
-			callCurrentName = name;
+			setValueOnID(R.id.caller_name, getFullName(callerContentModel));
 		}
 		else if (callerContentModel != null &&callerContentModel.getLastName() != null)
 		{
-			TextView callerName = (TextView) stickyCallerView.findViewById(R.id.caller_name);
-			callerName.setVisibility(View.VISIBLE);
-			callCurrentName = callerContentModel.getLastName();
-			callerName.setText(callerContentModel.getLastName());
+			setValueOnID(R.id.caller_name, callerContentModel.getLastName());
 		}
 		if (callerContentModel != null && callerContentModel.getLocation() != null)
 		{
-			TextView callerLocation = (TextView) (stickyCallerView.findViewById(R.id.caller_location));
-			callerLocation.setVisibility(View.VISIBLE);
-			callerLocation.setText(callerContentModel.getLocation());
+			setValueOnID(R.id.caller_location, callerContentModel.getLocation());
 		}
-		if ((callerContentModel != null && callerContentModel.getIsOnHike()) || Utils.isIndianNumber(number))
+		else if (Utils.isIndianNumber(number))
+		{
+			setValueOnID(R.id.caller_location, INDIA);
+		}
+		if ((callerContentModel != null && callerContentModel.getIsOnHike()) || (Utils.isIndianMobileNumber(number) && HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.SHOW_FREECALL_VIEW, true)))
 		{
 			setDismissWithVisible();
 			
-			setFreeCallButton();
+			setFreeCallButton(number);
 
-			setFreeSmsButton();
+			setFreeSmsButton(number);
 		}
 	}
 	
 	
 
-	private static void setSaveContactClickListener()
+	private static void setSaveContactClickListener(String number)
 	{
 		View saveContact = stickyCallerView.findViewById(R.id.missed_call_save_contact);
 		saveContact.setVisibility(View.VISIBLE);
+		saveContact.setTag(number);
 		saveContact.setOnClickListener(callerClickListener);
 	}
 
-	private static void setFreeSmsButton()
+	private static void setFreeSmsButton(String number)
 	{
 		
 		View freeSmsButton = stickyCallerView.findViewById(R.id.caller_free_message); 
 		freeSmsButton.setVisibility(View.VISIBLE);
+		freeSmsButton.setTag(number);
 		freeSmsButton.setOnClickListener(callerClickListener);
 	}
 
-	private static void setFreeCallButton()
+	private static void setFreeCallButton(String number)
 	{
 		View freeCallButton = stickyCallerView.findViewById(R.id.caller_free_call); 
 		freeCallButton.setVisibility(View.VISIBLE);
+		freeCallButton.setTag(number);
 		freeCallButton.setOnClickListener(callerClickListener);
 	}
 	
@@ -792,13 +842,18 @@ public class StickyCaller
 		stickyCallerView.findViewById(R.id.caller_free_layout).setVisibility(View.VISIBLE);
 	}
 
+	private static String getPhoneNumberFromTag(View v)
+	{
+		return v.getTag() != null ? v.getTag().toString() : "";
+	}
+	
 	private static void settingLayoutDataFailure(Context context, String number, String result)
 	{
 		if (result.equals(Integer.toString(HttpException.REASON_CODE_NO_NETWORK)))
 		{
 			LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 			stickyCallerView = (LinearLayout) inflater.inflate(R.layout.caller_layout, null);
-			setBasicClickListener();
+			setBasicClickListener(number);
 			setShowResponse(context.getString(R.string.net_not_connected));
 		}
 	}
@@ -821,39 +876,35 @@ public class StickyCaller
 				}
 				break;
 */			case R.id.caller_free_call:
-				HAManager.getInstance().stickyCallerAnalyticsUIEvent(AnalyticsConstants.StickyCallerEvents.FREE_CALL_BUTTON, StickyCaller.callCurrentNumber, AnalyticsConstants.StickyCallerEvents.CARD, getCallEventFromCallType(CALL_TYPE));
-				if (callCurrentNumber != null)
+				HAManager.getInstance().stickyCallerAnalyticsUIEvent(AnalyticsConstants.StickyCallerEvents.FREE_CALL_BUTTON, getPhoneNumberFromTag(v), AnalyticsConstants.StickyCallerEvents.CARD, getCallEventFromCallType(CALL_TYPE));
+				if (v.getTag() != null)
 				{
 					if (CALL_TYPE == INCOMING || CALL_TYPE == OUTGOING)
 					{
+						callCurrentNumber = getPhoneNumberFromTag(v);
 						IncomingCallReceiver.callReceived = true;
 						toCall = true;
 						Utils.killCall();
 					}
-					else if (StickyCaller.callCurrentNumber !=  null)
-					{
-						ChatHeadUtils.onCallClickedFromCallerCard(HikeMessengerApp.getInstance().getApplicationContext(), StickyCaller.callCurrentNumber, VoIPUtils.CallSource.HIKE_STICKY_CALLER);
-					}
-					
+						ChatHeadUtils.onCallClickedFromCallerCard(HikeMessengerApp.getInstance().getApplicationContext(), getPhoneNumberFromTag(v), VoIPUtils.CallSource.HIKE_STICKY_CALLER);
 				}
 				break;
 			case R.id.caller_free_message:
-				HAManager.getInstance().stickyCallerAnalyticsUIEvent(AnalyticsConstants.StickyCallerEvents.FREE_SMS_BUTTON, StickyCaller.callCurrentNumber, AnalyticsConstants.StickyCallerEvents.CARD, getCallEventFromCallType(CALL_TYPE));
-				if (callCurrentNumber != null)
+				HAManager.getInstance().stickyCallerAnalyticsUIEvent(AnalyticsConstants.StickyCallerEvents.FREE_SMS_BUTTON, getPhoneNumberFromTag(v), AnalyticsConstants.StickyCallerEvents.CARD, getCallEventFromCallType(CALL_TYPE));
+				if (v.getTag() != null)
 				{
 					IncomingCallReceiver.callReceived = true;
 					Utils.killCall();
-					Intent intent = IntentFactory.createChatThreadIntentFromMsisdn(HikeMessengerApp.getInstance(), callCurrentNumber, true, false);
-					intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-				    HikeMessengerApp.getInstance().startActivity(intent);
+					Utils.sendFreeSms(getPhoneNumberFromTag(v));
 				}
 				break;
 			case R.id.missed_call_save_contact:
-				HAManager.getInstance().stickyCallerAnalyticsUIEvent(AnalyticsConstants.StickyCallerEvents.SAVE_CONTACT, StickyCaller.callCurrentNumber, AnalyticsConstants.StickyCallerEvents.CARD, getCallEventFromCallType(CALL_TYPE));
-				if (callCurrentNumber != null && callCurrentName != null)
+				HAManager.getInstance().stickyCallerAnalyticsUIEvent(AnalyticsConstants.StickyCallerEvents.SAVE_CONTACT, getPhoneNumberFromTag(v), AnalyticsConstants.StickyCallerEvents.CARD, getCallEventFromCallType(CALL_TYPE));
+				CallerContentModel callerContentModel = ChatHeadUtils.getCallerContentModelObject(HikeSharedPreferenceUtil.getInstance(HikeConstants.CALLER_SHARED_PREF).getData(getPhoneNumberFromTag(v), null));
+				if (v.getTag() != null && getFullName(callerContentModel) != null)
 				{
 					Utils.killCall();
-					Utils.addToContacts(HikeMessengerApp.getInstance().getApplicationContext(), callCurrentNumber, callCurrentName);
+					Utils.addToContacts(HikeMessengerApp.getInstance().getApplicationContext(), getPhoneNumberFromTag(v), getFullName(callerContentModel), callerContentModel.getLocation());
 				}
 				break;
 /*			case R.id.caller_sms_button:
@@ -865,12 +916,11 @@ public class StickyCaller
 				break;
 */			case R.id.caller_settings_button:
 				IncomingCallReceiver.callReceived = true;
-				HAManager.getInstance().stickyCallerAnalyticsUIEvent(AnalyticsConstants.StickyCallerEvents.CALLER_SETTINGS_BUTTON, StickyCaller.callCurrentNumber, AnalyticsConstants.StickyCallerEvents.CARD, getCallEventFromCallType(CALL_TYPE));
-				Intent intent = IntentFactory.getStickyCallerSettingsIntent(HikeMessengerApp.getInstance());
-				ChatHeadUtils.insertHomeActivitBeforeStarting(intent);
+				HAManager.getInstance().stickyCallerAnalyticsUIEvent(AnalyticsConstants.StickyCallerEvents.CALLER_SETTINGS_BUTTON, getPhoneNumberFromTag(v), AnalyticsConstants.StickyCallerEvents.CARD, getCallEventFromCallType(CALL_TYPE));
+				IntentFactory.openStickyCallerSettings(HikeMessengerApp.getInstance().getApplicationContext(), true);
 				break;
 			case R.id.caller_close_button:
-				HAManager.getInstance().stickyCallerAnalyticsUIEvent(AnalyticsConstants.StickyCallerEvents.CLOSE_BUTTON, StickyCaller.callCurrentNumber, AnalyticsConstants.StickyCallerEvents.CARD, getCallEventFromCallType(CALL_TYPE));
+				HAManager.getInstance().stickyCallerAnalyticsUIEvent(AnalyticsConstants.StickyCallerEvents.CLOSE_BUTTON, getPhoneNumberFromTag(v), AnalyticsConstants.StickyCallerEvents.CARD, getCallEventFromCallType(CALL_TYPE));
 				break;
 			}
 		}
