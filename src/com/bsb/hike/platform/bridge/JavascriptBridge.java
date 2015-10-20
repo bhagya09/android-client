@@ -48,9 +48,11 @@ import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.FileRequestPersistent;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
+import com.bsb.hike.platform.CocosGamingActivity;
 import com.bsb.hike.platform.CustomWebView;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.IFileUploadListener;
+import com.bsb.hike.platform.NativeBridge;
 import com.bsb.hike.platform.PlatformHelper;
 import com.bsb.hike.platform.PlatformUIDFetch;
 import com.bsb.hike.platform.PlatformUtils;
@@ -1334,4 +1336,21 @@ public abstract class JavascriptBridge
 			callbackToJS(id,"false");
 	}
 	
+	/**
+	 * Call this method to provide a callback to the game with the appropriate response.
+	 *
+	 * @param callId
+	 * @param response
+	 */
+	@JavascriptInterface
+	public void nativePlatformCallback(String callId, String response)
+	{
+		NativeBridge nativeBridge = (NativeBridge) CocosGamingActivity.getNativeBridge();
+		if (nativeBridge != null)
+		{
+			nativeBridge.platformCallback(callId, response);
+		}
+
+	}
+
 }
