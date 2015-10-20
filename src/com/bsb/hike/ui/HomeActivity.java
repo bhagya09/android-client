@@ -1194,6 +1194,8 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		{
 			//after showing the LockPatternActivity in onResume of ConvFrag the extra is no longer needed, so clearing it out.
 			extrasClearedOut = true;
+			getIntent().setAction(null);
+			getIntent().setData(null);
 			getIntent().removeExtra(HikeConstants.STEALTH_MSISDN);
 		}
 		super.onPause();
