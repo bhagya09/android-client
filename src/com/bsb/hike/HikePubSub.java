@@ -363,6 +363,8 @@ public class HikePubSub implements Runnable
 	public static String HIKE_TO_OFFLINE_PUSH = "hikeToOfflinePush";
 
 	public static String PROFILE_UPDATE_FINISH = "profileUpdateFinish";
+	
+	public static String PRODUCT_POPUP_RECEIVE_COMPLETE = "productPopupReceiveComplete";
 
 	public static String HIKE_SDK_MESSAGE = "hikeSDKMessage";
 	
