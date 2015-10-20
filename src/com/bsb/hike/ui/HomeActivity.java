@@ -275,6 +275,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		}
 		Logger.d(getClass().getSimpleName(),"onCreate "+this.getClass().getSimpleName());
 		showProductPopup(ProductPopupsConstants.PopupTriggerPoints.HOME_SCREEN.ordinal());
+		
 	}
 	
 	@Override
@@ -1078,7 +1079,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		showSmsOrFreeInvitePopup();
 	
 		HikeMessengerApp.getPubSub().publish(HikePubSub.CANCEL_ALL_NOTIFICATIONS, null);
-
+		
 		if(getIntent() != null)
 		{
 			acceptGroupMembershipConfirmation(getIntent());
