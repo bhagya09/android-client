@@ -189,7 +189,7 @@ public class OfflineUtils
 
 	public static ConvMessage createOfflineInlineConvMessage(String msisdn, String message, String type)
 	{
-		ConvMessage convMessage = Utils.makeConvMessage(msisdn, message, true, State.RECEIVED_UNREAD);
+		ConvMessage convMessage = Utils.makeConvMessage(msisdn, message, true, State.RECEIVED_READ);
 		try
 		{
 			JSONObject metaData = new JSONObject();
@@ -411,6 +411,12 @@ public class OfflineUtils
         File stickerImage;
         String tempPath = getOfflineStkPath(ctgId, stkId);
         
+        if(TextUtils.isEmpty(tempPath))
+        {
+			Logger.e(TAG, "No Sticker direct found");
+        	return null;
+        }
+        
         //String stickerPath = sticker.getStickerPath(HikeMessengerApp.getInstance().getApplicationContext());
         stickerImage = new File(tempPath);
 
@@ -426,18 +432,22 @@ public class OfflineUtils
     }
 
 	public static String getOfflineStkPath(String ctgId, String stkId)
-    {
-        String rootPath = StickerManager.getInstance().getStickerDirectoryForCategoryId(ctgId);
-        String[] pathTokens = rootPath.split("/");
-        String tempPath = "";
-        for(int i=0;i<(pathTokens.length-1);i++)
-        {
-            tempPath += pathTokens[i] + "/"; 
-        }
-        tempPath += "SO/" + ctgId + "/" + stkId;
-        Logger.d(TAG, tempPath);
-        return tempPath;
-    }
+	{
+		String rootPath = StickerManager.getInstance().getStickerDirectoryForCategoryId(ctgId);
+		if (TextUtils.isEmpty(rootPath))
+		{
+			return null;
+		}
+		String[] pathTokens = rootPath.split("/");
+		String tempPath = "";
+		for (int i = 0; i < (pathTokens.length - 1); i++)
+		{
+			tempPath += pathTokens[i] + "/";
+		}
+		tempPath += "SO/" + ctgId + "/" + stkId;
+		Logger.d(TAG, tempPath);
+		return tempPath;
+	}
 	
 	public static boolean isSSIDWithQuotes(String ssid)
 	{
@@ -767,6 +777,7 @@ public class OfflineUtils
 			NotificationCompat.Action[] actions = getNotificationActions(context,msisdn);
 			Intent intent = IntentFactory.createChatThreadIntentFromMsisdn(context, msisdn, false,false);
 			intent.putExtra(OfflineConstants.START_CONNECT_FUNCTION, true);
+			intent.putExtra(HikeConstants.C_TIME_STAMP, System.currentTimeMillis());
 			HikeNotificationMsgStack hikeNotifMsgStack =  HikeNotificationMsgStack.getInstance();
 			Drawable avatarDrawable = Utils.getAvatarDrawableForNotification(context,msisdn, false);
 			ContactInfo contactInfo  = ContactManager.getInstance().getContact(msisdn);

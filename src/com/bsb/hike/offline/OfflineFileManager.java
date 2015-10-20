@@ -233,23 +233,28 @@ public class OfflineFileManager
 			String stpath = OfflineUtils.getStickerPath(messageJSON);
 			File stickerImage = new File(stpath);
 			File tempSticker = file;
-			
+			String filePath=null;
 			if (!stickerImage.exists()) 
 			{
 				try 
 				{
-					stickerImage = new File(OfflineUtils.createStkDirectory(messageJSON));
-				} 
-				catch (JSONException e) 
-				{
-					e.printStackTrace();
-				} 
-				catch (IOException e) 
+					filePath = OfflineUtils.createStkDirectory(messageJSON);
+					if (filePath != null)
+					{
+						stickerImage = new File(filePath);
+					}
+				}
+				catch (JSONException e)
 				{
 					e.printStackTrace();
 				}
-				tempSticker.renameTo(stickerImage);
-				
+				catch (IOException e)
+				{
+					e.printStackTrace();
+				}
+				if (filePath != null)
+					tempSticker.renameTo(stickerImage);
+
 			}
 			else 
 			{
