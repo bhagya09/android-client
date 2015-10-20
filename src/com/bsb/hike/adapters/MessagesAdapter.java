@@ -863,8 +863,12 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			{
 				if (stickerImage == null || !(stickerImage.exists()))
 				{
-					stickerImage = new File(OfflineUtils.getOfflineStkPath(categoryId, stickerId));
-					isStickerOffline=true;
+					String filePath = OfflineUtils.getOfflineStkPath(categoryId, stickerId);
+					if (!TextUtils.isEmpty(filePath))
+					{
+						stickerImage = new File(filePath);
+						isStickerOffline = true;
+					}
 				}
 			}
 			if (stickerImage != null && stickerImage.exists())

@@ -150,7 +150,24 @@ public class FileListItem
 		{
 			return;
 		}
-		item.setTitle(file.getName());
+		
+	    HikeFileType hikeFileType = HikeFileType.fromFilePath(file.getAbsolutePath(),false );
+	    
+	    String fileName = file.getName();
+	    
+		if (hikeFileType == HikeFileType.APK)
+		{
+			if (item.getHikeSharedFile()!=null && !TextUtils.isEmpty((item.getHikeSharedFile().getFileName())))
+			{
+				fileName = item.getHikeSharedFile().getFileName();
+			}
+			else
+			{
+				fileName = file.getName();
+			}
+		}
+	    
+		item.setTitle(fileName);
 		if (file.isDirectory())
 		{
 			item.setIcon(R.drawable.ic_folder);

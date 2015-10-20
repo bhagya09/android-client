@@ -17,6 +17,8 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.bsb.hike.HikeConstants;
@@ -65,7 +67,9 @@ public class ShareLinkFragment extends DialogFragment implements OnClickListener
 
 	private boolean isNewGroup;
 
-	private ProgressDialog mDialog;
+	private ProgressBar mDialog;
+	
+	private LinearLayout menuContainer;
 
 	public final static String SHARE_LINK_FRAGMENT_TAG = "shareLinkFragmentTag";
 
@@ -118,7 +122,11 @@ public class ShareLinkFragment extends DialogFragment implements OnClickListener
 		parent.findViewById(R.id.add_via_Hike).setOnClickListener(this);
 
 		getDialog().getWindow().requestFeature(Window.FEATURE_NO_TITLE);
+		
+		mDialog = (ProgressBar)parent.findViewById(R.id.app_open_loader);
 
+		menuContainer = (LinearLayout)parent.findViewById(R.id.menu_container);
+		
 		return parent;
 	}
 
@@ -144,6 +152,10 @@ public class ShareLinkFragment extends DialogFragment implements OnClickListener
 			view.findViewById(R.id.share_via_Others).setVisibility(View.VISIBLE);
 		}
 		
+		if(isTaskRunning)
+		{
+			showProgressDialog();
+		}
 	}
 
 	public void initViaArguments()
@@ -201,12 +213,12 @@ public class ShareLinkFragment extends DialogFragment implements OnClickListener
 			break;
 		}
 
+		// hide dialog
+		//getDialog().hide();
+				
 		// Start Loader here
 		showProgressDialog();
 
-		// hide dialog
-		getDialog().hide();
-		
 		makeHttpCallForURL();
 	}
 
@@ -258,7 +270,10 @@ public class ShareLinkFragment extends DialogFragment implements OnClickListener
 					}
 					else
 					{
-						OneToNConversationUtils.createGroupOrBroadcast(getActivity(), new ArrayList<ContactInfo>(), grpName, grpId, grpSettings, true);
+						if(isAdded())
+						{
+							OneToNConversationUtils.createGroupOrBroadcast(getActivity(), new ArrayList<ContactInfo>(), grpName, grpId, grpSettings, true);
+						}
 					}
 				}
 
@@ -269,18 +284,20 @@ public class ShareLinkFragment extends DialogFragment implements OnClickListener
 				switch (buttonClickedType)
 				{
 				case WA:
-					String str = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.TEXT_FOR_GC_VIA_WA,
-							HikeMessengerApp.getInstance().getApplicationContext().getString(R.string.link_share_wa_msg))
-							+ "\n " + url;
 					if(Utils.isPackageInstalled(HikeMessengerApp.getInstance().getApplicationContext(), HikeConstants.PACKAGE_WATSAPP))
 					{
+						String str = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.TEXT_FOR_GC_VIA_WA,
+								HikeMessengerApp.getInstance().getApplicationContext().getString(R.string.link_share_wa_msg))
+								+ "\n " + url;
+						str = str.replace("$groupname", grpName);
 						openWA(str);
 					}
 					break;
 
 				case OTHERS:
-					str = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.TEXT_FOR_GC_VIA_OTHERS, getString(R.string.link_share_others_msg))
+					String str = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.TEXT_FOR_GC_VIA_OTHERS, getString(R.string.link_share_others_msg))
 					+ "\n " + url;
+					str = str.replace("$groupname", grpName);
 					ShareUtils.shareContent(HikeConstants.Extras.ShareTypes.TEXT_SHARE, str, null);
 					break;
 
@@ -336,16 +353,14 @@ public class ShareLinkFragment extends DialogFragment implements OnClickListener
 
 	private void dismissProgressDialog()
 	{
-		if (mDialog != null && mDialog.isShowing())
-		{
-			mDialog.dismiss();
-			mDialog = null;
-		}
+		mDialog.setVisibility(View.GONE);
 	}
 
 	private void showProgressDialog()
 	{
-		mDialog = ProgressDialog.show(getActivity(), null, getResources().getString(R.string.opening_app));
+		mDialog.setVisibility(View.VISIBLE);
+		menuContainer.setVisibility(View.INVISIBLE);
+		
 	}
 
 	public interface ShareLinkFragmentListener
