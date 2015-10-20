@@ -4152,6 +4152,10 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	public void onResume()
 	{
 		tryToDismissAnyOpenPanels();
+		
+//		actionbar disappears randomly after onResume()
+		setupActionBar(false);
+		
 		showKeyboard();
 
 		isActivityVisible = true;
@@ -4217,6 +4221,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			if (isSystemKeyboard())
 			{
 				changeKeyboard(isSystemKeyboard());
+				Utils.hideSoftKeyboard(activity, mComposeView);
 			}
 			KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, 0);
 		}
