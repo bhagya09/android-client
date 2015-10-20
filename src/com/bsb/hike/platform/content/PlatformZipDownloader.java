@@ -422,7 +422,7 @@ public class PlatformZipDownloader
 			{
 				if (resumeSupported && !TextUtils.isEmpty(statefilePath))
 				{
-					Utils.deleteFile(new File(statefilePath));
+					(new File(statefilePath + FileRequestPersistent.STATE_FILE_EXT)).delete();
 				}
 
 				HikeMessengerApp.getPubSub().publish(HikePubSub.DOWNLOAD_PROGRESS, new Pair<String, String>(callbackId, "downloadSuccess"));

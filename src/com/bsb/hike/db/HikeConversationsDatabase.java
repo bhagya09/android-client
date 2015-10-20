@@ -8674,13 +8674,6 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		return "CREATE INDEX IF NOT EXISTS " + DBConstants.SORT_ID_IDX + " ON " + DBConstants.MESSAGES_TABLE + " ( " + DBConstants.MSISDN + " , " + DBConstants.SORTING_ID + " )";
 	}
 
-	public void resetUnreadCounter(String msisdn)
-	{
-		ContentValues values = new ContentValues();
-		values.put(DBConstants.UNREAD_COUNT,0);
-		mDb.updateWithOnConflict(DBConstants.CONVERSATIONS_TABLE, values, MSISDN + "=?", new String[] { msisdn }, SQLiteDatabase.CONFLICT_IGNORE);
-	}
-
 	/**
 	 * Saves the conversations database version to preferences
 	 */
