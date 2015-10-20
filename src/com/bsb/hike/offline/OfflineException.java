@@ -34,12 +34,6 @@ public class OfflineException extends TException
 	
 	public static byte PEER_DISCONNECTED = 29;
 	
-	public static byte UNSUPPORTED_PEER = 30;
-	
-	public static byte  UPGRADABLE_UNSUPPORTED_PEER =31;
-	
-	private String errorMessage = null;
-	
 	public OfflineException(byte reasonCode) {
 		super(reasonCode);
 	}
@@ -50,16 +44,5 @@ public class OfflineException extends TException
 
 	public OfflineException(Exception e) {
 		super(e);
-	}
-	
-	public OfflineException(byte reasonCode,String errorMessage)
-	{
-		super(reasonCode);
-		this.errorMessage = errorMessage;
-	}
-	
-	public String getErrorMessage()
-	{
-		return errorMessage;
 	}
 }

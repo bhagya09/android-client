@@ -2,9 +2,7 @@ package com.bsb.hike.ui.fragments;
 
 import java.util.Map;
 
-
 import android.support.v4.app.DialogFragment;
-import android.text.Html;
 import android.text.TextUtils;
 import android.text.method.ScrollingMovementMethod;
 import android.animation.Animator;
@@ -67,7 +65,6 @@ import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.HoloCircularProgress;
 import com.google.gson.Gson;
-import com.hike.transporter.TException;
 
 
 public class OfflineAnimationFragment extends DialogFragment implements IOfflineCallbacks ,OfflineConnectionRequestListener
@@ -135,8 +132,6 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 	private Context context;
 	
 	private int disconnectReasonCode;
-	
-	private String errorMessage = null;
 	
 	private  Handler uiHandler = new Handler()
 	{
@@ -463,13 +458,11 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 			@Override
 			public void onAnimationEnd(Animator animation)
 			{
-				bringToCenter.removeListener(this);
-				bringToCenter = null;
-				if(!OfflineController.getInstance().isConnecting() && !OfflineController.getInstance().isConnected())
+				if(shouldResumeFragment && OfflineController.getInstance().getOfflineState() != OFFLINE_STATE.CONNECTING)
 				{
 					updateUIOnDisconnect();
 				}
-				else if(OfflineController.getInstance().isConnecting())
+				else
 				{
 					startRotateAnimation();
 				}
@@ -711,12 +704,7 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 				@Override
 				public void run()
 				{
-					TException  exception = errorCode.getErrorCode();
-					disconnectReasonCode = exception.getReasonCode();
-					if(exception instanceof OfflineException)
-					{
-						errorMessage = ((OfflineException)exception).getErrorMessage();
-					}
+					disconnectReasonCode = errorCode.getErrorCode().getReasonCode();
 					if(!connectionCancelled)
 					{
 						updateUIOnDisconnect();
@@ -734,10 +722,6 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 		{
 			return;
 		}
-		
-		if(bringToCenter!=null && bringToCenter.isRunning())
-			return;
-		
 		removePostedMessages();
 		hideAndStopTimer();
 		showRetryIcon(R.drawable.cross_retry);
@@ -777,26 +761,18 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 
 	private void setDisconnectErrorMessage()
 	{
-		if(TextUtils.isEmpty(errorMessage))
+		if(disconnectReasonCode == OfflineException.CANCEL_NOTIFICATION_REQUEST)
 		{
-			if(disconnectReasonCode == OfflineException.CANCEL_NOTIFICATION_REQUEST)
-			{
-				connectionInfoTextView.setText(getResources().getString(R.string.offline_request_cancelled,contactFirstName));
-			}
-			else if(disconnectReasonCode == OfflineException.CONNECTION_TIME_OUT)
-			{
-				connectionInfoTextView.setText(getResources().getString(R.string.retry_connection));
-			}
-			else
-			{
-				connectionInfoTextView.setText(getResources().getString(R.string.offline_connection_problem));
-			}
+			connectionInfoTextView.setText(getResources().getString(R.string.offline_request_cancelled,contactFirstName));
+		}
+		else if(disconnectReasonCode == OfflineException.CONNECTION_TIME_OUT)
+		{
+			connectionInfoTextView.setText(getResources().getString(R.string.retry_connection));
 		}
 		else
 		{
-			connectionInfoTextView.setText(Html.fromHtml(errorMessage));
+			connectionInfoTextView.setText(getResources().getString(R.string.offline_connection_problem));
 		}
-		
 		
 	}
 
