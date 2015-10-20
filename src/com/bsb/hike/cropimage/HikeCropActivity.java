@@ -49,7 +49,6 @@ import com.bsb.hike.R;
 import com.bsb.hike.BitmapModule.BitmapUtils;
 import com.bsb.hike.cropimage.HikeCropFragment.HikeCropListener;
 import com.bsb.hike.photos.HikePhotosUtils;
-import com.bsb.hike.timeline.TestBmp;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.Logger;
 
@@ -292,9 +291,8 @@ public class HikeCropActivity extends HikeAppStateBaseFragmentActivity
 			{
 				canvas.drawBitmap(argBmp, 0,0, paint);
 			}
-			BitmapUtils.saveBitmapToFile(new File(TestBmp.getFilename()), scaledBitmap, CompressFormat.JPEG, mCropCompression == null ? 85 : mCropCompression.getQuality());
 		}
-		catch (OutOfMemoryError | IOException exception)
+		catch (OutOfMemoryError exception)
 		{
 			exception.printStackTrace();
 			onCropFailed();
