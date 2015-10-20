@@ -1,8 +1,5 @@
 package com.bsb.hike.bots;
 
-
-import java.io.File;
-import java.io.IOException;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.text.TextUtils;
@@ -39,6 +36,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -831,7 +830,6 @@ public class BotUtils
 		}
 		
 		return PlatformContentConstants.PLATFORM_CONTENT_DIR + "DP" + File.separator;
-
 	}
 	
 	public static Bitmap getBotDp(String botMsisdn)

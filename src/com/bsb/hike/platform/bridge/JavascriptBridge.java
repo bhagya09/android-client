@@ -1354,4 +1354,3 @@ public abstract class JavascriptBridge
 	}
 
 }
-
