@@ -1,6 +1,7 @@
 package com.bsb.hike.modules.stickerdownloadmgr;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Set;
 
 import org.json.JSONArray;
@@ -99,6 +100,13 @@ public class StickerTagDownloadTask implements IHikeHTTPTask, IHikeHttpTaskResul
 			JSONObject json = new JSONObject();
 			json.put(HikeConstants.CATEGORY_ID_LIST, array);
 			json.put("timestamp", (lastTagRefreshTime/1000));
+			//temp changes for regional testing begin here
+			String mStringArray[] = { "hin", "mar", "guj", "tam", "tel", "mal", "ben", "bho", "kan", "dcc" };
+
+			JSONArray temp = new JSONArray(Arrays.asList(mStringArray));
+			json.put("kbd",temp);
+			//temp changes for regional testing end here
+
 
 			RequestToken requestToken = tagsForCategoriesRequest(getRequestId(), json, getResponseListener());
 
