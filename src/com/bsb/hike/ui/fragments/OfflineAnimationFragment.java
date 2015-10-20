@@ -737,21 +737,13 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 			@Override
 			public void onClick(View v)
 			{
-				String retryButtonText = retryButton.getText().toString();
-				if (retryButtonText.equals(getString(R.string.OK)))
-				{
-					closeFragment();
-				}
-				else if (retryButtonText.equals(getString(R.string.RETRY)))
-				{
-					sendUiMessages();
-					hideConnectionFailurePanel();
-					showRetryIcon(R.drawable.iconconnection);
-					frame.setVisibility(View.VISIBLE);
-					startRotateAnimation();
-					listener.onConnectionRequest(false);
-					OfflineAnalytics.retryButtonClicked();
-				}
+				sendUiMessages();
+				hideConnectionFailurePanel();
+				showRetryIcon(R.drawable.iconconnection);
+				frame.setVisibility(View.VISIBLE);
+				startRotateAnimation();		
+				listener.onConnectionRequest(false);
+				OfflineAnalytics.retryButtonClicked();
 			}
 
 		});
@@ -892,27 +884,12 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 	
 	public void showConnectionFailurePanel()
 	{
-		setButtonTextBasedOnDisconnectReason();
 		retryButton.setVisibility(View.VISIBLE);
 		divider.setVisibility(View.VISIBLE);
 		helpButton.setVisibility(View.VISIBLE);
 		verticalDivider.setVisibility(View.VISIBLE);
 	}
 	
-	private void setButtonTextBasedOnDisconnectReason()
-	{
-		if(disconnectReasonCode == OfflineException.UNSUPPORTED_PEER || 
-				disconnectReasonCode == OfflineException.UPGRADABLE_UNSUPPORTED_PEER)
-		{
-			retryButton.setText(getResources().getString(R.string.OK));
-		}
-		else
-		{
-			retryButton.setText(getResources().getString(R.string.RETRY));
-		}
-	}
-
-
 	public void showRetryIcon(final int drawrable)
 	{
 		if (!isAdded())
