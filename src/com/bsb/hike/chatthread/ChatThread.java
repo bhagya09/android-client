@@ -1728,7 +1728,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		mActionMode.showActionMode(SEARCH_ACTION_MODE, R.layout.search_action_bar);
 		setUpSearchViews();
 
-		 searchEt = (CustomFontEditText) activity.findViewById(R.id.search_text);
+		searchEt = (CustomFontEditText) activity.findViewById(R.id.search_text);
 
 		if (isSystemKeyboard())
 		{
@@ -5571,24 +5571,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			hideShowActionModeMenus();
 			mActionMode.updateTitle(activity.getString(R.string.selected_count, mAdapter.getSelectedCount()));
 			break;
-			
-		case SEARCH_ACTION_MODE:
-			mActionMode.reInflateActionMode();
-			String oldText = mComposeView.getText().toString();
-			int start = mComposeView.getSelectionStart();
-			int end = mComposeView.getSelectionEnd();
-			setUpSearchViews();
-			mComposeView.setText(oldText);
-			if (start != end)
-			{
-				mComposeView.setSelection(start, end);
-			}
-			else
-			{
-				mComposeView.setSelection(start);
-			}
-			break;
-			
 		default:
 			break;
 		}
@@ -5701,7 +5683,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			return;
 		}
 		
-		Utils.hideSoftKeyboard(activity.getApplicationContext(), mComposeView);
+		hideKeyboard();
 
 		saveCurrentActionMode();
 		if (mShareablePopupLayout != null)

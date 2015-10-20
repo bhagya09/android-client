@@ -1146,7 +1146,7 @@
     <string name="UNLINK">UNLINK</string>
     <string name="UPDATE_APP">UPDATE</string>
     <string name="language_summary">Select keyboard language</string>
-    <string name="language_title">Language</string>
+    <string name="language">Language</string>
     <string name="keyboard_summary">Enable/disable Hike keyboard</string>
     <string name="keyboard_title">Hike Keyboard</string>
     <string name="glide_summary">Slide over the letters to form words without lifting the finger</string>

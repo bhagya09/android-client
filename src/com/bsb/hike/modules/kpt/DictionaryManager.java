@@ -120,13 +120,14 @@ public class DictionaryManager implements AdaptxtSettingsRegisterListener
 		Logger.d(TAG,"adding uninstalled languages: " + unInstalledList.size());
 		mLanguagesList.addAll(unInstalledList);
 
-		List<KPTAddonItem> UnsupportedList = kptSettings.getUnsupportedLanguagesList();
-		for (KPTAddonItem language : UnsupportedList)
-		{
-			languageStatusMap.put(language, LanguageDictionarySatus.UNSUPPORTED);
-		}
-		Logger.d(TAG,"adding unsupported languages: " + UnsupportedList.size());
-		mLanguagesList.addAll(UnsupportedList);
+//		We are not using unsupported languages anywhere. Not yet.
+//		List<KPTAddonItem> UnsupportedList = kptSettings.getUnsupportedLanguagesList();
+//		for (KPTAddonItem language : UnsupportedList)
+//		{
+//			languageStatusMap.put(language, LanguageDictionarySatus.UNSUPPORTED);
+//		}
+//		Logger.d(TAG,"adding unsupported languages: " + UnsupportedList.size());
+//		mLanguagesList.addAll(UnsupportedList);
 	}
 
 	private void notifyAllOfLanguageUpdate()
