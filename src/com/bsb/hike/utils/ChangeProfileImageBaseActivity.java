@@ -829,11 +829,12 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 			ft.remove(prev);
 		}
 		ft.addToBackStack(ShareLinkFragment.SHARE_LINK_FRAGMENT_TAG);
-		getSupportFragmentManager().executePendingTransactions();
 		
 		// Create and show the dialog.
 		mActivityState.shareLinkFragment = ShareLinkFragment.newInstance(grpId, grpName, grpSettings, isNewGroup, false);
 		mActivityState.shareLinkFragment.show(ft, ShareLinkFragment.SHARE_LINK_FRAGMENT_TAG);
+		
+		getSupportFragmentManager().executePendingTransactions();
 	}
 
 	@Override
