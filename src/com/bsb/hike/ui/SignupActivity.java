@@ -982,6 +982,14 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 			mCustomKeyboard.showCustomKeyboard(editText, true);
 		}
 	}
+
+	private void hideKeyboard(CustomFontEditText editText)
+	{
+		if(mCustomKeyboard != null && mCustomKeyboard.isCustomKeyboardVisible())
+		{
+			mCustomKeyboard.showCustomKeyboard(editText, false);
+		}
+	}
 	
 	private void addClickListenerForKeyboard()
 	{
@@ -1237,6 +1245,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 	
 	private void prepareLayoutForBackupFound(Bundle savedInstanceState)
 	{
+		hideKeyboard(enterEditText);
 		nextBtnContainer.setVisibility(View.VISIBLE);
 		arrow.setVisibility(View.GONE);
 		postText.setText(R.string.skip);
@@ -1251,6 +1260,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 
 	private  void prepareLayoutForSelectingLanguage()
 	{
+		hideKeyboard(enterEditText);
 		nextBtnContainer.setVisibility(View.VISIBLE);
 		arrow.setVisibility(View.VISIBLE);
 		postText.setText(R.string.next_signup);
@@ -1289,6 +1299,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 	
 	private void prepareLayoutForRestoringAnimation(Bundle savedInstanceState, StateValue stateValue)
 	{
+		hideKeyboard(enterEditText);
 		nextBtnContainer.setVisibility(View.GONE);
 		setupActionBarTitle();
 		String restoreStatus = null;
