@@ -29,6 +29,8 @@ import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.bots.NonMessagingBotConfiguration;
 import com.bsb.hike.bots.NonMessagingBotMetadata;
+import com.bsb.hike.db.HikeConversationsDatabase;
+import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.platform.content.PlatformContentConstants;
 import com.bsb.hike.utils.Logger;
 import com.chukong.cocosplay.client.CocosPlayClient;
@@ -82,6 +84,8 @@ public class CocosGamingActivity extends Cocos2dxActivity
 			Logger.e(TAG, "metadata is null");
 			return;
 		}
+		HikeConversationsDatabase.getInstance().updateLastMessageStateAndCount(msisdn, ConvMessage.State.RECEIVED_READ.ordinal());
+		botInfo.setUnreadCount(0);
 		nonMessagingBotMetadata = new NonMessagingBotMetadata(botInfo.getMetadata());
 
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);

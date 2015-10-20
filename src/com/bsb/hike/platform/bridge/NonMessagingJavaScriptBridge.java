@@ -1377,12 +1377,8 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 		BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
 		if (!BotUtils.isSpecialBot(mBotInfo)||botInfo==null)
 			return;
-		HikeConversationsDatabase.getInstance().resetUnreadCounter(msisdn);
-		Message ms = Message.obtain();
-		ms.arg1 = 0;
-		ms.obj = msisdn;
-		HikeMessengerApp.getPubSub().publish(HikePubSub.CONV_UNREAD_COUNT_MODIFIED, ms);
-		botInfo.setUnreadCount(0);
+		Utils.resetUnreadCounterForConversation(botInfo);
+		mBotInfo.setUnreadCount(0);
 		
 	}
 	/**
