@@ -523,7 +523,8 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 			friendsListFetchedCallback.listFetched();
 		}
 
-		boolean shouldContinue = makeSetupForCompleteList(filtered);
+                //Fix AND-3408
+		boolean shouldContinue = makeSetupForCompleteList(filtered, firstFetch);
 
 		if (!shouldContinue)
 		{
