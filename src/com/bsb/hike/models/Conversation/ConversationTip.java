@@ -74,6 +74,10 @@ public class ConversationTip implements OnClickListener
 	public static final int UPDATE_NORMAL_TIP = 17;
 	
 	public static final int INVITE_TIP = 18;
+	
+	public static final int REQUEST_CODE_URL_OPEN = 101;
+	
+	public static final int REQUEST_CODE_SEND_INVITE = 102;
 
 	private int tipType;
 
@@ -403,20 +407,11 @@ public class ConversationTip implements OnClickListener
 				break;
 			case UPDATE_CRITICAL_TIP:
 			case UPDATE_NORMAL_TIP:
-				HAManager.getInstance().updateTipAnalyticsUIEvent(AnalyticsConstants.UPDATE_TIP_CLICKED);
-				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOW_NORMAL_UPDATE_TIP, false);
-				if(tipType == UPDATE_NORMAL_TIP)
-				{
-					HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.TIP_TO_FLUSH, UPDATE_NORMAL_TIP);
-				}
-				Uri url = Uri.parse(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.Extras.URL, "market://details?id=com.bsb.hike"));
-				IntentFactory.openURL(context, url);
-				break;
 			case INVITE_TIP:
-				HAManager.getInstance().updateTipAnalyticsUIEvent(AnalyticsConstants.INVITE_TIP_CLICKED);
-				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOW_INVITE_TIP, false);
-				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.TIP_TO_FLUSH, INVITE_TIP);
-				IntentFactory.openInviteSMS(context);
+				if(mListener != null)
+				{
+					mListener.clickTip(tipType);
+				}
 				break;
 
 			case ATOMIC_PROFILE_PIC_TIP:

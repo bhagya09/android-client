@@ -16,6 +16,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.animation.ObjectAnimator;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -111,6 +112,7 @@ import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.tasks.EmailConversationsAsyncTask;
 import com.bsb.hike.ui.HikeFragmentable;
+import com.bsb.hike.ui.HikeListActivity;
 import com.bsb.hike.ui.HomeActivity;
 import com.bsb.hike.ui.ProfileActivity;
 import com.bsb.hike.ui.fragments.OfflineDisconnectFragment.OfflineConnectionRequestListener;
@@ -1809,6 +1811,11 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 			BotUtils.fetchBotThumbnails = false;
 		}
 
+	}
+	
+	public void startActivityWithResult(Intent intent, int requestCode)
+	{
+		startActivityForResult(intent, requestCode);
 	}
 
 	private void ShowTipIfNeeded(boolean hasNoConversation)
@@ -3770,11 +3777,47 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 	@Override
 	public void clickTip(int whichTip)
 	{
-		if (tipView != null && whichTip == ConversationTip.RESET_STEALTH_TIP)
+		if (tipView != null)
 		{
-			resetStealthTipClicked();
+			switch (whichTip)
+			{
+			case ConversationTip.RESET_STEALTH_TIP:
+				resetStealthTipClicked();
+				break;
+			case ConversationTip.UPDATE_CRITICAL_TIP:
+			case ConversationTip.UPDATE_NORMAL_TIP:
+				HAManager.getInstance().updateTipAnalyticsUIEvent(AnalyticsConstants.UPDATE_TIP_CLICKED);
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOW_NORMAL_UPDATE_TIP, false);
+				Uri url = Uri.parse(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.Extras.URL, "market://details?id=com.bsb.hike"));
+				Intent openUrl = new Intent(Intent.ACTION_VIEW, url);
+				startActivityForResult(openUrl, ConversationTip.REQUEST_CODE_URL_OPEN);
+				break;
+			case ConversationTip.INVITE_TIP:
+				HAManager.getInstance().updateTipAnalyticsUIEvent(AnalyticsConstants.INVITE_TIP_CLICKED);
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOW_INVITE_TIP, false);
+				Intent sendInvite = new Intent(getContext(), HikeListActivity.class);
+				startActivityForResult(sendInvite, ConversationTip.REQUEST_CODE_SEND_INVITE);
+				break;
+			default:
+				break;
+			}
 		}
+		
 
+	}
+
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		// TODO Auto-generated method stub
+		if(requestCode == ConversationTip.REQUEST_CODE_SEND_INVITE)
+		{
+			HikeMessengerApp.getPubSub().publish(HikePubSub.REMOVE_TIP, ConversationTip.INVITE_TIP);
+		}
+		else if(requestCode == ConversationTip.REQUEST_CODE_URL_OPEN)
+		{
+			HikeMessengerApp.getPubSub().publish(HikePubSub.REMOVE_TIP, ConversationTip.UPDATE_NORMAL_TIP);
+		}
+		super.onActivityResult(requestCode, resultCode, data);
 	}
 
 	@Override

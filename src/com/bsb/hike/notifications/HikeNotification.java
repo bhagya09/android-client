@@ -93,6 +93,8 @@ public class HikeNotification
 	public static final int HIKE_TO_OFFLINE_PUSH_NOTIFICATION_ID = -89;
 
 	public static final int VOIP_MISSED_CALL_NOTIFICATION_ID = -89;
+	
+	public static final String NOTIF_ALARM_INTENT = "com.bsb.hike.PERS_NOTIF_ALARM_INTENT";
 
 	// We need a constant notification id for bulk/big text notifications. Since
 	// we are using msisdn for other single notifications, it is safe to use any
@@ -360,7 +362,7 @@ public class HikeNotification
 		intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY | Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
 		mBuilder.setContentIntent(PendingIntent.getActivity(context, 0, intent, 0));
 		
-		Intent laterIntent = new Intent("com.bsb.hike.PERS_NOTIF_ALARM_INTENT");
+		Intent laterIntent = new Intent(NOTIF_ALARM_INTENT);
 		
 		mBuilder.addAction(R.drawable.ic_clock_later, laterText, PendingIntent.getBroadcast(context, 0, laterIntent, 0))
 				.addAction(R.drawable.ic_downloaded_tick, actionText, PendingIntent.getActivity(context, 0, intent, 0));
