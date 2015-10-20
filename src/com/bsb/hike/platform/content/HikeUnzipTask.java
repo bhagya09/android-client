@@ -1,5 +1,9 @@
 package com.bsb.hike.platform.content;
 
+import android.os.AsyncTask;
+
+import com.bsb.hike.utils.Logger;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -10,10 +14,6 @@ import java.util.Enumeration;
 import java.util.Observable;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
-
-import android.os.AsyncTask;
-
-import com.bsb.hike.utils.Logger;
 
 /**
  * Unzips ZIP file. Contains both methods unzipAsync() and unzip() which runs in non-blocking and blocking mode respectively.
