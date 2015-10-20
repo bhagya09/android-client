@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.List;
 import java.util.Map;
 
+import com.bsb.hike.localisation.LocalLanguageUtils;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUIDFetch;
 import org.json.JSONArray;
@@ -109,7 +110,7 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 
 	public enum State
 	{
-		MSISDN, ADDRESSBOOK, NAME, PULLING_PIN, PIN, ERROR, PROFILE_IMAGE, GENDER, SCANNING_CONTACTS, PIN_VERIFIED, BACKUP_AVAILABLE, RESTORING_BACKUP
+		MSISDN, ADDRESSBOOK, NAME, PULLING_PIN, PIN, ERROR, PROFILE_IMAGE, GENDER, SCANNING_CONTACTS, PIN_VERIFIED, BACKUP_AVAILABLE, RESTORING_BACKUP, SELECT_LANGUAGE
 	};
 
 	public class StateValue
@@ -733,6 +734,24 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 				e.printStackTrace();
 				Logger.e("SignupTask","Interrupted while waiting for user's choice on restore.");
 				return Boolean.FALSE;
+			}
+		}
+
+		if (!LocalLanguageUtils.isLocalLanguageSelected())
+		{
+			publishProgress(new StateValue(State.SELECT_LANGUAGE,null));
+			synchronized (this)
+			{
+				try
+				{
+					this.wait();
+				}
+				catch (InterruptedException e)
+				{
+					e.printStackTrace();
+					Logger.e("SignupTask", "Interrupted while waiting for user's choice on langauge.");
+					return Boolean.FALSE;
+				}
 			}
 		}
 		Logger.d("SignupTask", "Publishing Token_Created");
