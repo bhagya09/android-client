@@ -75,6 +75,7 @@ import com.bsb.hike.models.TypingNotification;
 import com.bsb.hike.models.WhitelistDomain;
 import com.bsb.hike.models.Conversation.BroadcastConversation;
 import com.bsb.hike.models.Conversation.Conversation;
+import com.bsb.hike.models.Conversation.ConversationTip;
 import com.bsb.hike.models.Conversation.GroupConversation;
 import com.bsb.hike.models.Conversation.OneToNConversation;
 import com.bsb.hike.modules.contactmgr.ContactManager;
@@ -3193,7 +3194,7 @@ public class MqttMessagesManager
 		{
 			editor.putBoolean(HikeConstants.SHOW_CRITICAL_UPDATE_TIP, false);
 			editor.commit();
-			this.pubSub.publish(HikePubSub.FLUSH_CRITICAL_UPDATE_TIP, null);
+			this.pubSub.publish(HikePubSub.REMOVE_TIP, ConversationTip.UPDATE_CRITICAL_TIP);
 		}
 		
 		

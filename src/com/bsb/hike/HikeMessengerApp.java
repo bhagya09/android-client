@@ -848,7 +848,7 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 			((NotificationManager) getApplicationContext().getSystemService(NOTIFICATION_SERVICE)).cancel(HikeNotification.PERSISTENT_NOTIF_ID);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOW_NORMAL_UPDATE_TIP, false);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOW_CRITICAL_UPDATE_TIP, false);
-			mPubSubInstance.publish(HikePubSub.FLUSH_CRITICAL_UPDATE_TIP, null);
+			mPubSubInstance.publish(HikePubSub.REMOVE_TIP, ConversationTip.UPDATE_CRITICAL_TIP);
 		}
 
 		initImportantAppComponents(settings);
