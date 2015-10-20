@@ -35,6 +35,7 @@ import android.media.AudioTrack;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.media.SoundPool;
+import android.media.audiofx.AutomaticGainControl;
 import android.net.Uri;
 import android.os.Binder;
 import android.os.Bundle;
@@ -1513,6 +1514,18 @@ public class VoIPService extends Service implements Listener
 					Logger.e(tag, "AudioRecord initialization failed. Mic may not work.");
 					sendHandlerMessage(VoIPConstants.MSG_AUDIORECORD_FAILURE);
 					return;
+				}
+				
+				// Attach AGC
+				if (Utils.isJellybeanOrHigher()) {
+					if (AutomaticGainControl.isAvailable()) {
+						AutomaticGainControl agc = AutomaticGainControl.create(recorder.getAudioSessionId());
+						if (agc != null) {
+							Logger.w(VoIPConstants.TAG, "Initial AGC status: " + agc.getEnabled());
+							agc.setEnabled(true);
+						}
+					} else
+						Logger.w(tag, "AGC not available.");
 				}
 				
 				// Start processing recorded data
