@@ -1,6 +1,7 @@
 package com.bsb.hike.timeline.view;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -109,6 +110,8 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 	private boolean wasEmojiPreviouslyVisible;
 	
 	private String IS_IMAGE_DELETED = "is_img_d";
+	
+	private String INPUT_INTENT = "ip_in";
 
 	protected Handler uiHandler = new Handler()
 	{
@@ -160,6 +163,8 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 
 	private View addItemsLayout;
 
+	private String mInputIntentData;
+
 	@Override
 	public Object onRetainCustomNonConfigurationInstance()
 	{
@@ -191,11 +196,6 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 			mActivityTask = new ActivityTask();
 		}
 
-		if(savedInstanceState != null)
-		{
-			mActivityTask.imageDeleted = savedInstanceState.getBoolean(IS_IMAGE_DELETED);
-		}
-		
 		initVarRef();
 
 		RoundedImageView roundAvatar = (RoundedImageView) avatar;
@@ -203,8 +203,26 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 
 		setupActionBar();
 
-		readArguments(getIntent());
-
+		if(savedInstanceState != null)
+		{
+			mActivityTask.imageDeleted = savedInstanceState.getBoolean(IS_IMAGE_DELETED);
+			String intentURI = savedInstanceState.getString(INPUT_INTENT);
+			if(intentURI != null){
+			try
+			{
+				Intent savedIntent = Intent.parseUri(intentURI, Intent.URI_INTENT_SCHEME);
+				readArguments(savedIntent);
+			}
+			catch (URISyntaxException e)
+			{
+				e.printStackTrace();
+			}}
+		}
+		else
+		{
+			readArguments(getIntent());			
+		}
+		
 		mIconImageLoader = new IconLoader(getApplicationContext(), getApplicationContext().getResources().getDimensionPixelSize(R.dimen.icon_picture_size));
 
 		mIconImageLoader.setDefaultAvatarIfNoCustomIcon(false);
@@ -300,6 +318,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 	protected void onSaveInstanceState(Bundle outState) 
 	{
 		outState.putBoolean(IS_IMAGE_DELETED, mActivityTask.imageDeleted);
+		outState.putString(INPUT_INTENT, mInputIntentData);
 		super.onSaveInstanceState(outState);
 	}
 	
@@ -329,7 +348,13 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 
 	private void readArguments(Intent intent)
 	{
+		if(intent == null)
+		{
+			// In this case, there will be no image post present. Rest functional.
+			return;
+		}
 		mImagePath = intent.getStringExtra(STATUS_UPDATE_IMAGE_PATH);
+		mInputIntentData = intent.toUri(Intent.URI_INTENT_SCHEME);
 	}
 
 	/**
