@@ -9,6 +9,7 @@ import com.bsb.hike.R;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
+import com.bsb.hike.modules.kpt.HikeAdaptxtEditTextEventListner;
 import com.bsb.hike.modules.kpt.HikeCustomKeyboard;
 import com.bsb.hike.modules.kpt.KptUtils;
 import com.bsb.hike.tasks.DeleteAccountTask;
@@ -35,7 +36,7 @@ import android.view.animation.AnimationUtils;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class DeleteAccount extends HikeAppStateBaseFragmentActivity implements DeleteAccountListener, AdaptxtKeyboordVisibilityStatusListner,
+public class DeleteAccount extends HikeAppStateBaseFragmentActivity implements DeleteAccountListener, AdaptxtKeyboordVisibilityStatusListner,HikeAdaptxtEditTextEventListner,
 		OnClickListener
 {
 	private CustomFontTextView countryName;
@@ -80,7 +81,7 @@ public class DeleteAccount extends HikeAppStateBaseFragmentActivity implements D
 	private void initCustomKeyboard()
 	{
 		View keyboardView = findViewById(R.id.keyboardView_holder);
-		mCustomKeyboard = new HikeCustomKeyboard(DeleteAccount.this, keyboardView, KPTConstants.SINGLE_LINE_EDITOR, null, DeleteAccount.this);
+		mCustomKeyboard = new HikeCustomKeyboard(DeleteAccount.this, keyboardView, KPTConstants.SINGLE_LINE_EDITOR, DeleteAccount.this, DeleteAccount.this);
 		mCustomKeyboard.registerEditText(R.id.et_enter_num);
 		mCustomKeyboard.registerEditText(R.id.country_picker);
 		mCustomKeyboard.registerEditText(R.id.selected_country_name);
@@ -390,6 +391,13 @@ public class DeleteAccount extends HikeAppStateBaseFragmentActivity implements D
 	public void showRemoveDialog(RemoveDialogData arg0)
 	{
 		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onReturnAction(int resId, int arg0)
+	{
+		deleteAccountClicked(null);
 		
 	}
 }
