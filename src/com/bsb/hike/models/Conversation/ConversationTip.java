@@ -5,6 +5,7 @@ import org.json.JSONObject;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.CountDownTimer;
 import android.text.Html;
 import android.text.TextUtils;
@@ -20,6 +21,7 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.timeline.view.StatusUpdate;
 import com.bsb.hike.ui.HomeActivity;
 import com.bsb.hike.ui.PeopleActivity;
@@ -64,6 +66,12 @@ public class ConversationTip implements OnClickListener
 	public static final int STEALTH_REVEAL_TIP = 14;
 
 	public static final int STEALTH_HIDE_TIP = 15;
+	
+	public static final int UPDATE_CRITICAL_TIP = 16;
+	
+	public static final int UPDATE_NORMAL_TIP = 17;
+	
+	public static final int INVITE_TIP = 18;
 
 	private int tipType;
 
@@ -199,7 +207,37 @@ public class ConversationTip implements OnClickListener
 			v = generateAtomicTipViews();
 			((ImageView) v.findViewById(R.id.arrow_pointer)).setImageDrawable(null);
 			return v;
-
+			
+		case UPDATE_NORMAL_TIP:
+		case UPDATE_CRITICAL_TIP:
+			v = inflater.inflate(R.layout.update_tip, null, false);
+			String tipHeaderText = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.UPDATE_TIP_HEADER, "");
+			String tipMsgTxt = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.UPDATE_TIP_BODY, "");
+			String tipLabelTxt = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.UPDATE_TIP_LABEL, "");
+			((TextView) v.findViewById(R.id.tip_header)).setText(tipHeaderText);
+			((TextView) v.findViewById(R.id.tip_msg)).setText(tipMsgTxt);
+			((TextView) v.findViewById(R.id.update_tip_label)).setText(tipLabelTxt);
+			if(tipType == UPDATE_NORMAL_TIP)
+			{
+				ImageView close_tip = (ImageView) v.findViewById(R.id.close_tip);
+				close_tip.setVisibility(View.VISIBLE);
+				close_tip.setOnClickListener(this);
+			}
+			v.findViewById(R.id.all_content).setOnClickListener(this);
+			return v;
+		case INVITE_TIP:
+			v = inflater.inflate(R.layout.update_tip, null, false);
+			String invtHeaderText = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.INVITE_TIP_HEADER, "");
+			String invtMsgTxt = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.INVITE_TIP_BODY, "");
+			String invtLabelTxt = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.INVITE_TIP_LABEL, "");
+			((TextView) v.findViewById(R.id.tip_header)).setText(invtHeaderText);
+			((TextView) v.findViewById(R.id.tip_msg)).setText(invtMsgTxt);
+			((TextView) v.findViewById(R.id.update_tip_label)).setText(invtLabelTxt);
+			ImageView close_tip = (ImageView) v.findViewById(R.id.close_tip);
+			close_tip.setVisibility(View.VISIBLE);
+			close_tip.setOnClickListener(this);
+			v.findViewById(R.id.all_content).setOnClickListener(this);
+			return v;
 		default:
 			tipType = NO_TIP;
 			return null;
@@ -339,6 +377,18 @@ public class ConversationTip implements OnClickListener
 				{
 					mListener.clickTip(tipType);
 				}
+				break;
+			case UPDATE_CRITICAL_TIP:
+			case UPDATE_NORMAL_TIP:
+				HAManager.getInstance().updateTipAnalyticsUIEvent(AnalyticsConstants.UPDATE_TIP_CLICKED);
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOW_NORMAL_UPDATE_TIP, false);
+				Uri url = Uri.parse(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.Extras.URL, "market://details?id=com.bsb.hike"));
+				IntentFactory.openURL(context, url);
+				break;
+			case INVITE_TIP:
+				HAManager.getInstance().updateTipAnalyticsUIEvent(AnalyticsConstants.INVITE_TIP_CLICKED);
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOW_INVITE_TIP, false);
+				IntentFactory.openInviteSMS(context);
 				break;
 
 			case ATOMIC_PROFILE_PIC_TIP:

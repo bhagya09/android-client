@@ -46,10 +46,12 @@ import com.bsb.hike.db.DbConversationListener;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.db.HikeMqttPersistence;
 import com.bsb.hike.models.TypingNotification;
+import com.bsb.hike.models.Conversation.ConversationTip;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.HttpManager;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
+import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.notifications.HikeNotificationUtils;
 import com.bsb.hike.notifications.ToastListener;
 import com.bsb.hike.offline.OfflineConstants;
@@ -841,6 +843,12 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 			Editor editor = settings.edit();
 			editor.putString(CURRENT_APP_VERSION, actualAppVersion);
 			editor.commit();
+			//Failsafes for Upgrade tips, persistent notifications
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOULD_SHOW_PERSISTENT_NOTIF, false);
+			((NotificationManager) getApplicationContext().getSystemService(NOTIFICATION_SERVICE)).cancel(HikeNotification.PERSISTENT_NOTIF_ID);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOW_NORMAL_UPDATE_TIP, false);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOW_CRITICAL_UPDATE_TIP, false);
+			mPubSubInstance.publish(HikePubSub.FLUSH_CRITICAL_UPDATE_TIP, null);
 		}
 
 		initImportantAppComponents(settings);
