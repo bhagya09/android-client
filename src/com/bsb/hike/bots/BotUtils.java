@@ -1,31 +1,25 @@
 package com.bsb.hike.bots;
 
+
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.text.TextUtils;
 
+import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeConstants.NotificationType;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikeMessengerApp.CurrentState;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
-import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
-import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.models.Conversation.ConvInfo;
+import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
@@ -40,6 +34,13 @@ import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * This class is for utility methods of bots
@@ -508,6 +509,8 @@ public class BotUtils
 		contact.setFavoriteType(ContactInfo.FavoriteType.NOT_FRIEND);
 		ContactManager.getInstance().updateContacts(contact);
 		HikeMessengerApp.getPubSub().publish(HikePubSub.CONTACT_ADDED, contact);
+		
+		HikeMessengerApp.getPubSub().publish(HikePubSub.BOT_CREATED, botInfo);
 		
 		/**
 		 * Notification will be played only if enable bot is true and notifType is Silent/Loud

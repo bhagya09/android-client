@@ -29,6 +29,8 @@ public class HikeConstants
 
 	public static final String MESSAGE = "msg";
 
+	public static final String TOAST = "tst";
+	
 	public static final String UI_TOPIC = "/u";
 
 	public static final String APP_TOPIC = "/a";
@@ -2353,7 +2355,15 @@ public class HikeConstants
 		public static final String TIMELINE_OVERFLOW_OPTION_FAV = "fav";
 
 	}
-
+	public static final class Toast
+	{
+		public static final String TOAST_MESSAGE = "t_msg";
+		
+		public static final String TOAST_GRAVITY = "t_grv";
+		
+		public static final String TOAST_DURATION = "t_dur";
+	}
+	
 	public static final class MqttMessageTypes
 	{
 		public static final String MESSAGE_READ = "mr";
@@ -3292,6 +3302,10 @@ public class HikeConstants
 	public static final String SHOW_NOTIFICATION = "sn";
 	
 	public static final String SHOW_HIGH_RES_IMAGE = "s_h_r";
+	
+	public static final String HIKE_DIRECT_UPDGRADE_PEER = "hdu";
+	
+	public static final String HIKE_DIRECT_UNSUPPORTED_PEER = "hdnu";
 	
 	public static final String ENABLE_GC_VIA_LINK_SHARING = "en_gc_ls";
 	

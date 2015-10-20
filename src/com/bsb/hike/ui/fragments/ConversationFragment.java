@@ -957,7 +957,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 	
 	public void bindDisconnectionFragment(String msisdn)
 	{
-		if (TextUtils.isEmpty(msisdn))
+		if (!isAdded() || TextUtils.isEmpty(msisdn))
 		{
 			return;
 		}
@@ -2974,6 +2974,11 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 		}
 		else if (HikePubSub.ON_OFFLINE_REQUEST.equals(type))
 		{
+			if(!isAdded())
+			{
+				return;	
+			}
+			
 			if (object == null)
 			{
 				((HomeActivity)getActivity()).removeFragment(OfflineConstants.OFFLINE_DISCONNECT_FRAGMENT);
