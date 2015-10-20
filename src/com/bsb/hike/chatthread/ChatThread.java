@@ -5500,6 +5500,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		if (mCustomKeyboard != null)
 		{
 			mCustomKeyboard.onConfigurationChanged(newConfig);
+			keyboardHeight = 0;
 		}
 		if (mShareablePopupLayout != null && mShareablePopupLayout.isShowing())
 		{
