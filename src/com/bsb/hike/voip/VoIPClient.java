@@ -1965,7 +1965,7 @@ public class VoIPClient  {
 		if (!connected)
 			return null;
 
-		printDecodedQueue();
+//		printDecodedQueue();
 		
 		// Introduce an artificial lag if there is packet loss
 		if (decodedBuffersQueue.size() < minimumDecodedQueueSize) {
@@ -2240,10 +2240,6 @@ public class VoIPClient  {
 		
 		// If we are in a large conference, then don't send non-voice audio
 		if (!dp.isVoice() && clientMsisdns.size() > VoIPConstants.CONFERENCE_THRESHOLD)
-			return;
-		
-		// If we are on a 2G connection, don't send non-voice audio
-		if (!dp.isVoice() && (localConnectionClass == ConnectionClass.TwoG || localConnectionClass == ConnectionClass.ThreeG))
 			return;
 		
 		samplesToEncodeQueue.add(dp);
