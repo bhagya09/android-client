@@ -475,7 +475,7 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 			friendsListFetchedCallback.listFetched();
 		}
 
-		boolean shouldContinue = makeSetupForCompleteList(filtered);
+		boolean shouldContinue = makeSetupForCompleteList(filtered,firstFetch);
 
 		if (!shouldContinue)
 		{
@@ -503,16 +503,20 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 		setEmptyView();
 	}
 
-	protected boolean makeSetupForCompleteList(boolean filtered)
+	protected boolean makeSetupForCompleteList(boolean filtered, boolean firstFetch)
 	{
 		/*
 		 * Only try to filter if we've fetched the list once.
 		 */
-		if (!filtered && listFetchedOnce)
-		{
-			contactFilter.filter(queryText);
-			return false;
+		
+                //Begin Fix AND-3408
+		if (!TextUtils.isEmpty(queryText)) {
+			if (firstFetch && listFetchedOnce) {
+				contactFilter.filter(queryText);
+				return false;
+			}
 		}
+                //End Fix AND-3408
 
 		/*
 		 * If we do not fetch the list even once and all the lists are empty, we should show the spinner. Else we show the empty states
