@@ -1,17 +1,5 @@
 package com.bsb.hike.modules.stickerdownloadmgr;
 
-import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_OUT_OF_SPACE;
-import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests.multiStickerDownloadRequest;
-
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.util.Iterator;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.os.Bundle;
 
 import com.bsb.hike.HikeConstants;
@@ -33,6 +21,19 @@ import com.bsb.hike.modules.stickersearch.StickerSearchManager;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Iterator;
+
+import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_OUT_OF_SPACE;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests.multiStickerDownloadRequest;
 
 public class MultiStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskResult
 {
@@ -135,6 +136,13 @@ public class MultiStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRes
 					request.put(HikeConstants.RESOLUTION_ID, Utils.getResolutionId());
 					request.put(HikeConstants.NUMBER_OF_STICKERS, getStickerDownloadSize());
 					request.put(HikeConstants.DOWNLOAD_SOURCE, source.getValue());
+					//temp changes for regional testing begin here
+					String mStringArray[] = { "hin", "mar", "guj", "tam", "tel", "mal", "ben", "bho", "kan", "dcc" };
+
+					JSONArray temp = new JSONArray(Arrays.asList(mStringArray));
+					request.put("kbd",temp);
+					//temp changes for regional testing end here
+
 					Logger.d(TAG, "intercept(), Sticker Download Task Request: " + request.toString());
 
 					IRequestBody body = new JsonBody(request);
