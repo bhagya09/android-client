@@ -41,7 +41,6 @@ import android.widget.ListView;
 import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
 
@@ -56,6 +55,7 @@ import com.bsb.hike.dialog.CustomAlertDialog;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
+import com.bsb.hike.modules.kpt.HikeCustomKeyboard;
 import com.bsb.hike.modules.kpt.KptUtils;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.Logger;
@@ -83,7 +83,7 @@ import com.kpt.adaptxt.beta.view.AdaptxtEditText;
 import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtEditTextEventListner;
 import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtKeyboordVisibilityStatusListner;
 
-public class ShareLocation extends HikeAppStateBaseFragmentActivity implements ConnectionCallbacks, OnConnectionFailedListener, LocationListener, AdaptxtEditTextEventListner, AdaptxtKeyboordVisibilityStatusListner
+public class ShareLocation extends HikeAppStateBaseFragmentActivity implements ConnectionCallbacks, OnConnectionFailedListener, LocationListener, AdaptxtKeyboordVisibilityStatusListner
 {
 
 	private GoogleMap map;
@@ -107,7 +107,7 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 
 	private String searchStr;
 	
-	private CustomKeyboard mCustomKeyboard;
+	private HikeCustomKeyboard mCustomKeyboard;
 
 	// max
 	private final int MAX_PLACES = 20;// most returned from google
@@ -197,7 +197,7 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 			if (!isSystemKeyboard())
 			{
 				LinearLayout viewHolder = (LinearLayout) findViewById(R.id.keyboardView_holder);
-				mCustomKeyboard = new CustomKeyboard(ShareLocation.this, viewHolder);			
+				mCustomKeyboard = new HikeCustomKeyboard(ShareLocation.this, viewHolder,KPTConstants.MULTILINE_LINE_EDITOR, null, ShareLocation.this);			
 			}
 			gpsDialogShown = savedInstanceState != null && savedInstanceState.getBoolean(HikeConstants.Extras.GPS_DIALOG_SHOWN);
 			listview = (ListView) findViewById(R.id.itemListView);
@@ -898,11 +898,11 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 	protected void initCustomKeyboard()
 	{	
 		LinearLayout parentView = (LinearLayout)findViewById(R.id.keyboardView_holder);
-		mCustomKeyboard= new CustomKeyboard(this, parentView);
+		mCustomKeyboard= new HikeCustomKeyboard(this, parentView,KPTConstants.MULTILINE_LINE_EDITOR, null,ShareLocation.this);
 		searchET = (CustomFontEditText)findViewById(R.id.search);
 		if (!KptUtils.isSystemKeyboard(ShareLocation.this))
 		{
-    		mCustomKeyboard.registerEditText(R.id.search,KPTConstants.MULTILINE_LINE_EDITOR,ShareLocation.this,ShareLocation.this);
+    		mCustomKeyboard.registerEditText(R.id.search);
     		mCustomKeyboard.init(searchET);
 		}
 		searchET.setOnClickListener(new View.OnClickListener() {
@@ -1026,30 +1026,6 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 
 	@Override
 	public void showQuickSettingView() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void onAdaptxtFocusChange(View arg0, boolean arg1) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void onAdaptxtTouch(View arg0, MotionEvent arg1) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void onAdaptxtclick(View arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void onReturnAction(int arg0) {
 		// TODO Auto-generated method stub
 		
 	}

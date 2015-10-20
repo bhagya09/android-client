@@ -363,6 +363,8 @@ public class HikePubSub implements Runnable
 	public static String HIKE_TO_OFFLINE_PUSH = "hikeToOfflinePush";
 
 	public static String PROFILE_UPDATE_FINISH = "profileUpdateFinish";
+	
+	public static String PRODUCT_POPUP_RECEIVE_COMPLETE = "productPopupReceiveComplete";
 
 	public static String HIKE_SDK_MESSAGE = "hikeSDKMessage";
 	
@@ -455,6 +457,8 @@ public class HikePubSub implements Runnable
 	public static final String BOT_CREATED = "botCreated";
 
 	public static final String SHOW_NEW_CHAT_RED_DOT = "showNewChatRedDot";
+
+	public static final String KEYBOARD_SWITCHED = "keyboardSwitched";
 	
 	private final Thread mThread;
 

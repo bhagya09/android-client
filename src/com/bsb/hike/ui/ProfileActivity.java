@@ -50,6 +50,7 @@ import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
+import com.bsb.hike.modules.kpt.HikeCustomKeyboard;
 import com.bsb.hike.modules.kpt.KptUtils;
 import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
@@ -77,10 +78,8 @@ import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.CustomFontEditText;
 import com.bsb.hike.voip.VoIPUtils;
-import com.kpt.adaptxt.beta.CustomKeyboard;
 import com.kpt.adaptxt.beta.RemoveDialogData;
 import com.kpt.adaptxt.beta.util.KPTConstants;
-import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtEditTextEventListner;
 import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtKeyboordVisibilityStatusListner;
 
 import android.app.AlertDialog;
@@ -135,9 +134,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 public class ProfileActivity extends ChangeProfileImageBaseActivity implements FinishableEvent, Listener, OnLongClickListener, OnItemLongClickListener, OnScrollListener,
-		View.OnClickListener, AdaptxtEditTextEventListner, AdaptxtKeyboordVisibilityStatusListner
+		View.OnClickListener, AdaptxtKeyboordVisibilityStatusListner
 {
-	private CustomKeyboard mCustomKeyboard;
+	private HikeCustomKeyboard mCustomKeyboard;
 	
 	private boolean systemKeyboard;
 	
@@ -491,7 +490,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		if (!systemKeyboard)
 		{
 			LinearLayout viewHolder = (LinearLayout) findViewById(R.id.keyboardView_holder);
-			mCustomKeyboard= new CustomKeyboard(this, viewHolder);
+			mCustomKeyboard= new HikeCustomKeyboard(this, viewHolder, KPTConstants.MULTILINE_LINE_EDITOR, null, ProfileActivity.this);
 		}
 	}
 	
@@ -501,7 +500,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		{
 			ViewGroup parentView = (ViewGroup) parent.getParent();
 			mNameEdit = (CustomFontEditText) parentView.findViewById(R.id.name_edit);
-			mCustomKeyboard.registerEditText(R.id.name_edit,KPTConstants.MULTILINE_LINE_EDITOR,ProfileActivity.this,ProfileActivity.this);
+			mCustomKeyboard.registerEditText(R.id.name_edit);
 			mCustomKeyboard.init(mNameEdit);
 		}
 	}
@@ -1043,7 +1042,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 				}
 			 }
 			}
-			else  //Hike Bot. Don't show the status subtext bar. No need to take the user to Bot's timeline as well
+			else if(HikeMessengerApp.hikeBotInfoMap.containsKey(contactInfo.getMsisdn()))  //Hike Bot. Don't show the status subtext bar. No need to take the user to Bot's timeline as well
 			{
 				subText.setVisibility(View.GONE);
 				headerView.findViewById(R.id.profile_head).setEnabled(false);
@@ -1402,8 +1401,8 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 
 		if (!systemKeyboard)
 		{
-			mCustomKeyboard.registerEditText(R.id.name_input,KPTConstants.MULTILINE_LINE_EDITOR,ProfileActivity.this,ProfileActivity.this);
-			mCustomKeyboard.registerEditText(R.id.email_input,KPTConstants.MULTILINE_LINE_EDITOR,ProfileActivity.this,ProfileActivity.this);
+			mCustomKeyboard.registerEditText(R.id.name_input);
+			mCustomKeyboard.registerEditText(R.id.email_input);
 			mCustomKeyboard.init(mNameEdit);
 			mNameEdit.setOnClickListener(new View.OnClickListener()
 			{
@@ -3673,34 +3672,6 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 	public void showQuickSettingView()
 	{
 		KptUtils.onGlobeKeyPressed(ProfileActivity.this, mCustomKeyboard);
-	}
-
-	@Override
-	public void onAdaptxtFocusChange(View arg0, boolean arg1)
-	{
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void onAdaptxtTouch(View arg0, MotionEvent arg1)
-	{
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void onAdaptxtclick(View arg0)
-	{
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void onReturnAction(int arg0)
-	{
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override

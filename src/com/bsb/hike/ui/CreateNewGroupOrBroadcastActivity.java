@@ -14,6 +14,7 @@ import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.modules.kpt.HikeCustomKeyboard;
 import com.bsb.hike.modules.kpt.KptUtils;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.utils.ChangeProfileImageBaseActivity;
@@ -22,10 +23,8 @@ import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.CustomFontEditText;
-import com.kpt.adaptxt.beta.CustomKeyboard;
 import com.kpt.adaptxt.beta.RemoveDialogData;
 import com.kpt.adaptxt.beta.util.KPTConstants;
-import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtEditTextEventListner;
 import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtKeyboordVisibilityStatusListner;
 
 import android.content.Intent;
@@ -49,9 +48,9 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseActivity implements AdaptxtEditTextEventListner, AdaptxtKeyboordVisibilityStatusListner, View.OnClickListener
+public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseActivity implements AdaptxtKeyboordVisibilityStatusListner, View.OnClickListener
 {
-	private CustomKeyboard mCustomKeyboard;
+	private HikeCustomKeyboard mCustomKeyboard;
 	
 	private boolean systemKeyboard;
 	
@@ -158,10 +157,9 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 	private void initCustomKeyboard()
 	{
 		LinearLayout viewHolder = (LinearLayout) findViewById(R.id.keyboardView_holder);
-		mCustomKeyboard = new CustomKeyboard(this, viewHolder);
-		mCustomKeyboard.registerEditText((convType == ConvType.GROUP) ? R.id.group_name : R.id.broadcast_name,
-				KPTConstants.MULTILINE_LINE_EDITOR,CreateNewGroupOrBroadcastActivity.this,CreateNewGroupOrBroadcastActivity.this);
-
+		mCustomKeyboard = new HikeCustomKeyboard(this, viewHolder,
+				KPTConstants.MULTILINE_LINE_EDITOR, null,CreateNewGroupOrBroadcastActivity.this);
+		mCustomKeyboard.registerEditText((convType == ConvType.GROUP) ? R.id.group_name : R.id.broadcast_name);
 		mCustomKeyboard.init(convName);
 		convName.setOnClickListener(this);
 	}
@@ -476,34 +474,6 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 		KptUtils.onGlobeKeyPressed(CreateNewGroupOrBroadcastActivity.this, mCustomKeyboard);
 	}
 
-	@Override
-	public void onAdaptxtFocusChange(View arg0, boolean arg1)
-	{
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void onAdaptxtTouch(View arg0, MotionEvent arg1)
-	{
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void onAdaptxtclick(View arg0)
-	{
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void onReturnAction(int arg0)
-	{
-		// TODO Auto-generated method stub
-		
-	}
-	
 	@Override
 	protected void onPause()
 	{

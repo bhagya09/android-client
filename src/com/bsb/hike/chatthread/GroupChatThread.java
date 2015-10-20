@@ -677,7 +677,7 @@ public class GroupChatThread extends OneToNChatThread
 		}
 		else
 		{
-			mCustomKeyboard.registerEditText(R.id.messageedittext, KPTConstants.MULTILINE_LINE_EDITOR, this, this);	
+			mCustomKeyboard.registerEditText(R.id.messageedittext);	
 			mCustomKeyboard.init(mComposeView);
 		}
 		mComposeView.requestFocus();

@@ -390,6 +390,8 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 
 	public static final String STEALTH_PIN_AS_PASSWORD = "steatlhPinAsPassword";
 
+	public static final String CONV_DB_VERSION_PREF =  "convDbVersion";
+
 	public static final String SHOWING_STEALTH_FTUE_CONV_TIP = "showingStealthFtueConvTip";
 
 	public static final String RESET_COMPLETE_STEALTH_START_TIME = "resetCompleteStealthStartTime";

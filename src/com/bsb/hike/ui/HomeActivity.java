@@ -1,6 +1,7 @@
 package com.bsb.hike.ui;
 
 
+import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,6 +34,7 @@ import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
+import com.bsb.hike.modules.kpt.HikeCustomKeyboard;
 import com.bsb.hike.modules.kpt.KptUtils;
 import com.bsb.hike.offline.OfflineConstants.OFFLINE_STATE;
 import com.bsb.hike.offline.OfflineController;
@@ -57,11 +59,9 @@ import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.NUXManager;
 import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.Utils;
-import com.kpt.adaptxt.beta.CustomKeyboard;
 import com.kpt.adaptxt.beta.RemoveDialogData;
 import com.kpt.adaptxt.beta.util.KPTConstants;
 import com.kpt.adaptxt.beta.view.AdaptxtEditText;
-import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtEditTextEventListner;
 import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtKeyboordVisibilityStatusListner;
 
 import android.annotation.SuppressLint;
@@ -111,7 +111,7 @@ import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Listener, AdaptxtEditTextEventListner, AdaptxtKeyboordVisibilityStatusListner
+public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Listener, AdaptxtKeyboordVisibilityStatusListner
 {
 
 	public static FtueContactsData ftueContactsData = new FtueContactsData();
@@ -131,7 +131,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 	private View parentLayout;
 	
-	private CustomKeyboard mCustomKeyboard;
+	private HikeCustomKeyboard mCustomKeyboard;
 
 	private TextView networkErrorPopUp;
 
@@ -180,7 +180,8 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	private String[] homePubSubListeners = { HikePubSub.UNSEEN_STATUS_COUNT_CHANGED, HikePubSub.SMS_SYNC_COMPLETE, HikePubSub.SMS_SYNC_FAIL, HikePubSub.FAVORITE_TOGGLED,
 			HikePubSub.USER_JOINED, HikePubSub.USER_LEFT, HikePubSub.FRIEND_REQUEST_ACCEPTED, HikePubSub.REJECT_FRIEND_REQUEST, HikePubSub.UPDATE_OF_MENU_NOTIFICATION,
 			HikePubSub.SERVICE_STARTED, HikePubSub.UPDATE_PUSH, HikePubSub.REFRESH_FAVORITES, HikePubSub.UPDATE_NETWORK_STATE, HikePubSub.CONTACT_SYNCED, HikePubSub.FAVORITE_COUNT_CHANGED,
-			HikePubSub.STEALTH_UNREAD_TIP_CLICKED,HikePubSub.FTUE_LIST_FETCHED_OR_UPDATED, HikePubSub.STEALTH_INDICATOR, HikePubSub.USER_JOINED_NOTIFICATION, HikePubSub.UPDATE_OF_PHOTOS_ICON, HikePubSub.SHOW_NEW_CHAT_RED_DOT  };
+			HikePubSub.STEALTH_UNREAD_TIP_CLICKED,HikePubSub.FTUE_LIST_FETCHED_OR_UPDATED, HikePubSub.STEALTH_INDICATOR, HikePubSub.USER_JOINED_NOTIFICATION, HikePubSub.UPDATE_OF_PHOTOS_ICON,
+			HikePubSub.SHOW_NEW_CHAT_RED_DOT, HikePubSub.KEYBOARD_SWITCHED  };
 
 	private String[] progressPubSubListeners = { HikePubSub.FINISHED_UPGRADE_INTENT_SERVICE };
 
@@ -230,6 +231,12 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			//removing unwanted EXTRA becoz every time a singleTop activity is re-spawned, 
 			//android system uses the old intent to fire it, and it will contain unwanted extras.
 			getIntent().removeExtra(HikeConstants.STEALTH_MSISDN);
+			
+			//setting actions and data "null" for case of onCreate called second time 
+			//example: in case of Don't Keep Activities
+			//Means getIntent's Actions and Data can be used first time only
+			getIntent().setAction(null);
+			getIntent().setData(null);
 		}
 
 		if (Utils.requireAuth(this))
@@ -298,21 +305,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 					@Override
 					public void onRequestSuccess(Response result)
 					{
-						JSONObject response = (JSONObject) result.getBody().getContent();
-						Logger.d(TAG, "Response for acceptGroupMembershipConfirmationRequest : " + response.toString());
-						try
-						{
-							int errorCode = response.getInt("error");
-							String errorMessage = response.optString("errorMsg", "Something Went Wrong, GROUP JOIN REQUEST not accepted");
-							if (errorCode == -1)
-							{
-								Toast.makeText(HomeActivity.this, errorMessage, Toast.LENGTH_SHORT).show();
-							}
-						}
-						catch (JSONException e)
-						{
-							Logger.e(TAG, " JSON Error in acceptGroupMembershipConfirmationRequest : " + e.toString());
-						}
 					}
 					
 					@Override
@@ -323,8 +315,52 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 					@Override
 					public void onRequestFailure(HttpException httpException)
 					{
+						String errorText = "";
+
+						Logger.d("link_share_error", "The error code received is " + httpException.getErrorCode());
+						
+						switch (httpException.getErrorCode())
+						{
+
+						// 406: “The person who invited you has deleted their account”
+						case HttpURLConnection.HTTP_NOT_ACCEPTABLE:
+							errorText = getString(R.string.link_share_error_invitee_account_deleted);
+							break;
+
+						// 400: “You’re already in the group” 
+						case HttpURLConnection.HTTP_BAD_REQUEST:
+							errorText = getString(R.string.link_share_error_already_group_member);
+							break;
+
+						// 16: “This link is invalid”
+						// 401: “This link is invalid”
+						case HttpURLConnection.HTTP_UNAUTHORIZED:
+						case HttpException.REASON_CODE_UNKNOWN_HOST_EXCEPTION:
+							errorText = getString(R.string.link_share_error_invalid_link);
+							break;
+							
+						// 410: “This group has been deleted”
+						case HttpURLConnection.HTTP_GONE:
+							errorText = getString(R.string.link_share_error_group_deleted);
+							break;
+
+						// 412: “The person who invited you is not in the group anymore”
+						case HttpURLConnection.HTTP_PRECON_FAILED:
+							errorText = getString(R.string.link_share_error_person_not_in_group);
+							break;
+
+						// 1:- NO Internet connectivity
+						case HttpException.REASON_CODE_NO_NETWORK:
+							errorText = getString(R.string.link_share_network_error);
+							break;
+
+						default:
+							errorText = getString(R.string.link_share_error_default);
+							break;
+						}
+
 						// Show Toast
-						Toast.makeText(HomeActivity.this, getString(R.string.link_share_network_error), Toast.LENGTH_SHORT).show();
+						Toast.makeText(HomeActivity.this, errorText, Toast.LENGTH_SHORT).show();
 					}
 				});
 				requestToken.execute();
@@ -506,11 +542,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 		parentLayout = findViewById(R.id.parent_layout);
 
-		if (!KptUtils.isSystemKeyboard(HomeActivity.this))
-		{
-			LinearLayout viewHolder = (LinearLayout) findViewById(R.id.keyboardView_holder);
-			mCustomKeyboard = new CustomKeyboard(HomeActivity.this, viewHolder);			
-		}
+		setupCustomKeyboard();
 		
 		networkErrorPopUp = (TextView) findViewById(R.id.network_error);
 
@@ -756,40 +788,9 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			SearchView searchView=(SearchView) MenuItemCompat.getActionView(searchMenuItem);
 			searchView.setOnQueryTextListener(onQueryTextListener);
 			searchView.clearFocus();
-	
-			//Code for CustomKeyboard
 			searchET = (AdaptxtEditText) searchView.findViewById(R.id.search_src_text);
-			if (!KptUtils.isSystemKeyboard(HomeActivity.this))
-			{
-				mCustomKeyboard.registerEditText(searchET, KPTConstants.MULTILINE_LINE_EDITOR, HomeActivity.this, HomeActivity.this);
-				mCustomKeyboard.init(searchET);
-			}
-			searchET.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-				
-				@Override
-				public void onFocusChange(View v, boolean hasFocus) {
-					if(hasFocus){
-						if (KptUtils.isSystemKeyboard(HomeActivity.this))
-						{
-							Utils.toggleSoftKeyboard(HomeActivity.this.getApplicationContext());
-						}
-						else
-						{
-							if (mCustomKeyboard != null && searchET != null)
-							{
-								mCustomKeyboard.showCustomKeyboard(searchET, true);
-							}
-						}
-					}else{
-						if (!KptUtils.isSystemKeyboard(HomeActivity.this) && searchET != null&&mCustomKeyboard!=null)
-						{
-							mCustomKeyboard.showCustomKeyboard(searchET, false);
-						}
-					}
-				}
-			});
+			setupSearchTextKeyboard();
 
-			//
 			searchOptionID = searchMenuItem.getItemId();
 			MenuItemCompat.setShowAsAction(MenuItemCompat.setActionView(searchMenuItem, searchView), MenuItem.SHOW_AS_ACTION_ALWAYS | MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
 			MenuItemCompat.setOnActionExpandListener(searchMenuItem, new MenuItemCompat.OnActionExpandListener()
@@ -913,6 +914,78 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			Logger.e("NulllpointerException :setupMenuOptions", e.toString());
 			return false;
 		}
+	}
+
+	private boolean setupCustomKeyboard()
+	{
+		if (mCustomKeyboard == null && !KptUtils.isSystemKeyboard(HomeActivity.this))
+		{
+			LinearLayout viewHolder = (LinearLayout) findViewById(R.id.keyboardView_holder);
+			mCustomKeyboard = new HikeCustomKeyboard(HomeActivity.this, viewHolder, KPTConstants.MULTILINE_LINE_EDITOR, null, HomeActivity.this);
+		}
+		return (mCustomKeyboard != null && !KptUtils.isSystemKeyboard(HomeActivity.this)) ? true: false;
+	}
+
+	View.OnFocusChangeListener searchTextFocusChangeListener = new View.OnFocusChangeListener()
+	{
+		@Override
+		public void onFocusChange(View v, boolean hasFocus)
+		{
+			if (!KptUtils.isSystemKeyboard(HomeActivity.this))
+			{
+				if (hasFocus)
+				{
+					mCustomKeyboard.showCustomKeyboard(v, true);
+				}
+				else
+				{
+					mCustomKeyboard.showCustomKeyboard(v, false);
+				}
+			}
+			else
+			{
+				if (hasFocus)
+				{
+					Utils.toggleSoftKeyboard(HomeActivity.this.getApplicationContext());
+				}
+			}
+		}
+	};
+
+	private void setupSearchTextKeyboard()
+	{
+		if (searchET == null)
+			return;
+
+		if (setupCustomKeyboard())
+		{
+			mCustomKeyboard.registerEditText(searchET);
+			mCustomKeyboard.init(searchET);
+		}
+		else
+		{
+			resetSearchTextKeyboard();
+		}
+		searchET.setOnFocusChangeListener(searchTextFocusChangeListener);
+	}
+
+	private void resetSearchTextKeyboard()
+	{
+		if (mCustomKeyboard != null)
+			mCustomKeyboard.unregister(searchET);
+	}
+
+	private void onKeyboardSwitched()
+	{
+		runOnUiThread(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				setupCustomKeyboard();
+				setupSearchTextKeyboard();
+			}
+		});
 	}
 
 	private void recordSearchOptionClick()
@@ -1711,6 +1784,14 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		{
 			sendUIMessage(SHOW_NEW_CHAT_RED_DOT, 1000);
 		}
+		else if (HikePubSub.KEYBOARD_SWITCHED.equals(type))
+		{
+			onKeyboardSwitched();
+		}
+		else if (HikePubSub.PRODUCT_POPUP_RECEIVE_COMPLETE.equals(type))
+		{
+			showProductPopup(ProductPopupsConstants.PopupTriggerPoints.HOME_SCREEN.ordinal());
+		}
 	}
 
 	private void updateHomeOverflowToggleCount(final int count, int delayTime)
@@ -2344,30 +2425,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	public void showQuickSettingView() 
 	{
 		KptUtils.onGlobeKeyPressed(HomeActivity.this, mCustomKeyboard);
-	}
-
-	@Override
-	public void onAdaptxtFocusChange(View arg0, boolean arg1) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void onAdaptxtTouch(View arg0, MotionEvent arg1) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void onAdaptxtclick(View arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void onReturnAction(int arg0) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override

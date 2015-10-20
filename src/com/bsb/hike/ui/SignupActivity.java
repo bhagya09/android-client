@@ -24,6 +24,8 @@ import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
+import com.bsb.hike.modules.kpt.HikeAdaptxtEditTextEventListner;
+import com.bsb.hike.modules.kpt.HikeCustomKeyboard;
 import com.bsb.hike.modules.kpt.KptUtils;
 import com.bsb.hike.tasks.SignupTask;
 import com.bsb.hike.tasks.SignupTask.State;
@@ -34,10 +36,8 @@ import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.utils.Utils.ExternalStorageState;
 import com.bsb.hike.view.CustomFontEditText;
-import com.kpt.adaptxt.beta.CustomKeyboard;
 import com.kpt.adaptxt.beta.RemoveDialogData;
 import com.kpt.adaptxt.beta.util.KPTConstants;
-import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtEditTextEventListner;
 import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtKeyboordVisibilityStatusListner;
 
 import android.app.AlertDialog;
@@ -99,9 +99,9 @@ import android.widget.Toast;
 import android.widget.ViewFlipper;
 
 public class SignupActivity extends ChangeProfileImageBaseActivity implements SignupTask.OnSignupTaskProgressUpdate, OnEditorActionListener, OnClickListener,
-		OnCancelListener, Listener, AdaptxtEditTextEventListner, AdaptxtKeyboordVisibilityStatusListner
+		OnCancelListener, Listener, HikeAdaptxtEditTextEventListner, AdaptxtKeyboordVisibilityStatusListner
 {
-	private CustomKeyboard mCustomKeyboard;
+	private HikeCustomKeyboard mCustomKeyboard;
 	
 	private boolean systemKeyboard;
 
@@ -945,12 +945,12 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 	private void setupCustomKeyboard()
 	{
 		LinearLayout viewHolder = (LinearLayout) findViewById(R.id.keyboardView_holder);
-		mCustomKeyboard = new CustomKeyboard(this, viewHolder);
-		mCustomKeyboard.registerEditText(R.id.et_enter_num, KPTConstants.SINGLE_LINE_EDITOR, SignupActivity.this, SignupActivity.this);
-		mCustomKeyboard.registerEditText(R.id.et_enter_pin, KPTConstants.SINGLE_LINE_EDITOR, SignupActivity.this, SignupActivity.this);
-		mCustomKeyboard.registerEditText(R.id.et_enter_name, KPTConstants.MULTILINE_LINE_EDITOR, SignupActivity.this, SignupActivity.this);
-		mCustomKeyboard.registerEditText(R.id.birthday, KPTConstants.SINGLE_LINE_EDITOR, SignupActivity.this, SignupActivity.this);
-		mCustomKeyboard.registerEditText(R.id.country_picker, KPTConstants.SINGLE_LINE_EDITOR, SignupActivity.this, SignupActivity.this);
+		mCustomKeyboard = new HikeCustomKeyboard(this, viewHolder, KPTConstants.SINGLE_LINE_EDITOR, SignupActivity.this, SignupActivity.this);
+		mCustomKeyboard.registerEditText(R.id.et_enter_num);
+		mCustomKeyboard.registerEditText(R.id.et_enter_pin);
+		mCustomKeyboard.registerEditText(R.id.et_enter_name, KPTConstants.MULTILINE_LINE_EDITOR);
+		mCustomKeyboard.registerEditText(R.id.birthday);
+		mCustomKeyboard.registerEditText(R.id.country_picker);
 	}
 	
 	private void showKeyboard(CustomFontEditText editText)
@@ -2513,28 +2513,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 	}
 
 	@Override
-	public void onAdaptxtFocusChange(View arg0, boolean arg1)
-	{
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void onAdaptxtTouch(View arg0, MotionEvent arg1)
-	{
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void onAdaptxtclick(View arg0)
-	{
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void onReturnAction(int arg0)
+	public void onReturnAction(int resId, int arg0)
 	{
 		submitClicked();		
 	}

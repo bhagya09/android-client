@@ -41,6 +41,7 @@ import com.bsb.hike.models.MultipleConvMessage;
 import com.bsb.hike.models.PhonebookContact;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.modules.kpt.HikeCustomKeyboard;
 import com.bsb.hike.modules.kpt.KptUtils;
 import com.bsb.hike.offline.OfflineController;
 import com.bsb.hike.offline.OfflineUtils;
@@ -125,9 +126,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implements TagEditorListener, OnItemClickListener, HikePubSub.Listener, OnScrollListener,
-		AdaptxtEditTextEventListner, AdaptxtKeyboordVisibilityStatusListner
+		AdaptxtKeyboordVisibilityStatusListner
 {
-	private CustomKeyboard mCustomKeyboard;
+	private HikeCustomKeyboard mCustomKeyboard;
 	
 	private boolean systemKeyboard;
 	
@@ -391,8 +392,8 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 	private void initCustomKeyboard()
 	{	
 		LinearLayout parentView = (LinearLayout) findViewById(R.id.keyboardView_holder);
-		mCustomKeyboard= new CustomKeyboard(this, parentView);
-		mCustomKeyboard.registerEditText(R.id.composeChatNewGroupTagET, KPTConstants.MULTILINE_LINE_EDITOR, ComposeChatActivity.this, ComposeChatActivity.this);
+		mCustomKeyboard= new HikeCustomKeyboard(this, parentView, KPTConstants.MULTILINE_LINE_EDITOR, null, ComposeChatActivity.this);
+		mCustomKeyboard.registerEditText(R.id.composeChatNewGroupTagET);
 		mCustomKeyboard.init(tagEditText);
 		tagEditText.setOnClickListener(new OnClickListener()
 		{
@@ -2879,7 +2880,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			if (!systemKeyboard)
 			{
 				searchView.clearFocus();
-				mCustomKeyboard.registerEditText(searchET, KPTConstants.MULTILINE_LINE_EDITOR, ComposeChatActivity.this, ComposeChatActivity.this);
+				mCustomKeyboard.registerEditText(searchET);
 				mCustomKeyboard.init(searchET);
 			}
 			searchET.setOnFocusChangeListener(new View.OnFocusChangeListener() {
@@ -2967,37 +2968,6 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 	public void showQuickSettingView()
 	{
 		KptUtils.onGlobeKeyPressed(ComposeChatActivity.this, mCustomKeyboard);
-	}
-
-
-	@Override
-	public void onAdaptxtFocusChange(View arg0, boolean arg1)
-	{
-		// TODO Auto-generated method stub
-		
-	}
-
-
-	@Override
-	public void onAdaptxtTouch(View arg0, MotionEvent arg1)
-	{
-		// TODO Auto-generated method stub
-		
-	}
-
-
-	@Override
-	public void onAdaptxtclick(View arg0)
-	{
-		// TODO Auto-generated method stub
-		
-	}
-
-
-	public void onReturnAction(int arg0)
-	{
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
