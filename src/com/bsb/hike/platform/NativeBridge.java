@@ -592,5 +592,22 @@ public class NativeBridge
 	{
 		postStatusUpdate(status, moodId, null);
 	}
+	
+	/**
+	 * 
+	 * @param callID
+	 * @param response
+	 */
+	public void platformCallback(final String callID, final String response)
+	{
+		activity.runOnGLThread(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				activity.platformCallback(callID, response);
+			}
+		});
+	}
 
 }
