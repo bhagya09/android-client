@@ -800,8 +800,6 @@ public class HikeConstants
 	public static final String SHOW_NORMAL_UPDATE_TIP = "showNormalUpdateTip";
 	
 	public static final String SHOW_INVITE_TIP = "showInviteTip";
-	
-	public static final String TIP_TO_FLUSH = "tipToFlush";
 
 	// More explanation required?
 	public static final int NUM_TIMES_SCREEN_SHOULD_OPEN_BEFORE_TOOL_TIP = 2;

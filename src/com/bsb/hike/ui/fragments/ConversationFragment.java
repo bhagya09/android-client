@@ -3517,7 +3517,6 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 		{
 			((HomeActivity)getActivity()).removeFragment(OfflineConstants.OFFLINE_DISCONNECT_FRAGMENT);
 		}
-		removeTipIfExists(prefs.getInt(HikeConstants.TIP_TO_FLUSH, -2));
 		super.onResume();
 	}
 
