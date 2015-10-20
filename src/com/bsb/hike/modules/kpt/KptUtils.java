@@ -55,7 +55,7 @@ public class KptUtils
 					{
 						Logger.e("KPT", " Language name " + supportedLanguages[i]);
 					}
-					createBuilder(activity, mCustomKeyboard);
+					createBuilder(activity, mCustomKeyboard,currentLanguageIndex);
 				}
 				else
 				{
@@ -91,7 +91,7 @@ public class KptUtils
 		}
 	}
 	
-	private static void createBuilder(Activity activity, final CustomKeyboard mCustomKeyboard)
+	private static void createBuilder(Activity activity, final CustomKeyboard mCustomKeyboard, int currentLanguageIndex2)
 	{
 		ContextThemeWrapper mContextWrapper = new ContextThemeWrapper(activity, R.style.AdaptxtTheme);
 		AlertDialog.Builder builderNew = new AlertDialog.Builder(mContextWrapper);
@@ -100,7 +100,7 @@ public class KptUtils
 		// builder.setIcon(R.drawable.adaptxt_launcher_icon);
 		builderNew.setNegativeButton(android.R.string.cancel, null);
 		builderNew.setTitle("Keyboard Language");
-		builderNew.setSingleChoiceItems(supportedLanguages, -1, new DialogInterface.OnClickListener()
+		builderNew.setSingleChoiceItems(supportedLanguages, currentLanguageIndex2, new DialogInterface.OnClickListener()
 		{
 			
 			@Override

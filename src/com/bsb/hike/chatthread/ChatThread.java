@@ -1775,7 +1775,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		mComposeView.setTag(id);
 
 		mComposeView.requestFocus();
-		Utils.showSoftKeyboard(activity.getApplicationContext(), mComposeView);
 		mComposeView.addTextChangedListener(searchTextWatcher);
 		mComposeView.setOnEditorActionListener(this);
 		activity.findViewById(R.id.next).setOnClickListener(this);
@@ -1859,7 +1858,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	{
 		mConversationsView.setOnScrollListener(null);
 		
-		Utils.hideSoftKeyboard(activity.getApplicationContext(), mComposeView);
+		hideKeyboard();
 		if (!TextUtils.isEmpty(searchText) &&
 				// For some devices like micromax A120, one can get multiple calls from one user-input.
 				// Check on the dialog is optimal here as it directly reflects the user intentions.
