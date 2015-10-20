@@ -38,6 +38,8 @@ import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.offline.OfflineConstants;
+import com.bsb.hike.offline.OfflineController;
 import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
@@ -48,6 +50,7 @@ import com.bsb.hike.voip.VoIPConstants.CallStatus;
 import com.bsb.hike.voip.VoIPDataPacket.PacketType;
 import com.bsb.hike.voip.VoIPEncryptor.EncryptionStage;
 import com.bsb.hike.voip.VoIPUtils.ConnectionClass;
+import com.hike.transporter.models.SenderConsignment;
 
 public class VoIPClient  {		
 	
@@ -539,7 +542,11 @@ public class VoIPClient  {
 			message.put(HikeConstants.SUB_TYPE, HikeConstants.MqttMessageTypes.VOIP_SOCKET_INFO);
 			message.put(HikeConstants.DATA, data);
 			
-			HikeMqttManagerNew.getInstance().sendMessage(message, MqttConstants.MQTT_QOS_ZERO);
+			if (usingHikeDirect) {
+                SenderConsignment senderConsignment = new SenderConsignment.Builder(message.toString(), OfflineConstants.TEXT_TOPIC).ackRequired(false).persistance(false).build();
+                OfflineController.getInstance().sendConsignment(senderConsignment);
+            } else
+                HikeMqttManagerNew.getInstance().sendMessage(message, MqttConstants.MQTT_QOS_ZERO);
 			Logger.d(tag, "Sent socket information to partner. Reconnecting: " + reconnecting);
 			socketInfoSent = true;
 

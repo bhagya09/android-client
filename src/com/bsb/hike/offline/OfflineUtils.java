@@ -1007,4 +1007,18 @@ public class OfflineUtils
 			Logger.e(TAG, "JsonException while handling hike direct peer upgrade packet");
 		}
 	}
+	
+	public static boolean isVoipPacket(JSONObject messageJSON)
+	{
+		String type = messageJSON.optString(HikeConstants.TYPE);
+		if (TextUtils.isEmpty(type))
+		{
+			return false;
+		}
+		if (HikeConstants.MqttMessageTypes.MESSAGE_VOIP_0.equals(type) || HikeConstants.MqttMessageTypes.MESSAGE_VOIP_1.equals(type))
+		{
+			return true;
+		}
+		return false;
+}
 }

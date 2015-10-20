@@ -33,6 +33,7 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.ActionBar;
 import android.text.Editable;
 import android.text.Html;
 import android.text.Spannable;
@@ -911,7 +912,7 @@ import com.google.gson.Gson;
 		setLastSeen(message,true);
 		activity.invalidateOptionsMenu();
 		showNetworkError(ChatThreadUtils.checkNetworkError());
-		
+		showCallIcon();
 	}
 
 	private void onOfflineDisconnection()
@@ -3222,7 +3223,23 @@ import com.google.gson.Gson;
 	 */
 	private boolean shouldShowCallIcon()
 	{
-		return Utils.isVoipActivated(activity.getApplicationContext()) && mConversation.isOnHike();
+		if(Utils.isVoipActivated(activity.getApplicationContext()) && mConversation.isOnHike())
+		{
+			if(OfflineUtils.isConnectedToSameMsisdn(msisdn))
+			{
+				if (OfflineUtils.isFeautureAvailable(OfflineConstants.OFFLINE_VERSION_NUMER, OfflineUtils.getConnectedDeviceVersion(), OfflineConstants.VOIP_HIKE_DIRECT))
+				{
+					return true;
+				}
+				else
+				{
+					return false;
+				}
+			}
+			return true;
+			
+		}
+		return false;
 	}
 	
 	/*
