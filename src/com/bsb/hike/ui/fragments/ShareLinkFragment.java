@@ -274,6 +274,11 @@ public class ShareLinkFragment extends DialogFragment implements OnClickListener
 						{
 							OneToNConversationUtils.createGroupOrBroadcast(getActivity(), new ArrayList<ContactInfo>(), grpName, grpId, grpSettings, true);
 						}
+						else
+						{
+							Logger.d(ShareLinkFragment.class.getSimpleName(), "New group call and fragment not added so no group created, so returning from here");
+							return;
+						}
 					}
 				}
 
@@ -425,7 +430,10 @@ public class ShareLinkFragment extends DialogFragment implements OnClickListener
 		}
 		else
 		{
-			IntentFactory.openInviteWatsApp(getActivity(), str);
+			if(isAdded())
+			{
+				IntentFactory.openInviteWatsApp(getActivity(), str);
+			}
 		}
 	}
 }
