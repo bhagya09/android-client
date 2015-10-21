@@ -1243,5 +1243,8 @@
 	<string name="sticky_caller_settings_side_text">Show caller info and free calling/messaging options for all contacts</string>
 	<string name="enable_saved_contact_view_heading">Show for Saved Contacts</string>
 	<string name="enable_saved_contact_view_side_text">Show caller info for saved contacts too</string>
+    <string name="choose_language">Choose Language</string>
+    <string name="choose_language_desciption">Now your favourite messenger in your favourite language</string>
+    <string name="default_language">Default Language</string>
 	
 </resources>
