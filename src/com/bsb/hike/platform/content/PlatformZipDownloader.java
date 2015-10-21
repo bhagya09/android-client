@@ -371,7 +371,7 @@ public class PlatformZipDownloader
 
 	private void unzipWebFile(String zipFilePath, String unzipLocation, Observer observer)
 	{
-		HikeUnzipTask unzipper = new HikeUnzipTask(zipFilePath, unzipLocation);
+		HikeUnzipFile unzipper = new HikeUnzipFile(zipFilePath, unzipLocation);
 		unzipper.addObserver(observer);
 		unzipper.unzip();
 	}
