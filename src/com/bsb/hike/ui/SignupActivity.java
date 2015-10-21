@@ -2380,9 +2380,11 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 		super.onResume();
 		if (mCustomKeyboard != null && !mCustomKeyboard.isCustomKeyboardVisible())
 		{
+			
 			int displayedChild = viewFlipper.getDisplayedChild();
 			if (displayedChild == NUMBER || displayedChild == PIN)
 			{
+				Utils.hideSoftKeyboard(getApplicationContext(), enterEditText);
 				mCustomKeyboard.showCustomKeyboard(enterEditText, true);
 			}
 			else if (displayedChild == NAME)
