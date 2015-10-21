@@ -1,5 +1,14 @@
 package com.bsb.hike.platform.content;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Observable;
+import java.util.Observer;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.text.TextUtils;
 import android.util.Pair;
 
@@ -19,15 +28,6 @@ import com.bsb.hike.platform.content.PlatformContent.EventCode;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Observable;
-import java.util.Observer;
 
 /**
  * Download and store template. First
@@ -298,69 +298,87 @@ public class PlatformZipDownloader
 				{
 					return;
 				}
+					long fileSize = zipFile.length();
 
-				final String unzipPath = (doReplace) ? PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.TEMP_DIR_NAME
-						: PlatformContentConstants.PLATFORM_CONTENT_DIR;
+					final String unzipPath = (doReplace) ? PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.TEMP_DIR_NAME
+							: PlatformContentConstants.PLATFORM_CONTENT_DIR;
 
-				try
-				{
-					unzipWebFile(zipFile.getAbsolutePath(), unzipPath, new Observer()
+					try
 					{
-						@Override
-						public void update(Observable observable, Object data)
+						unzipWebFile(zipFile.getAbsolutePath(), unzipPath, new Observer()
 						{
+							@Override
+							public void update(Observable observable, Object data)
+							{
 
-							long fileSize = zipFile.length();
-							if (!(data instanceof Boolean))
-							{
-								return;
-							}
-							Boolean isSuccess = (Boolean) data;
-							if (isSuccess)
-							{
-								if (!isTemplatingEnabled)
+								long fileSize = zipFile.length();
+								if (!(data instanceof Boolean))
 								{
-									if (doReplace)
+									return;
+								}
+								Boolean isSuccess = (Boolean) data;
+								if (isSuccess)
+								{
+									if (!isTemplatingEnabled)
 									{
-										String tempPath = PlatformContentConstants.PLATFORM_CONTENT_DIR + mRequest.getContentData().getId() + "_temp";
-										String originalPath = PlatformContentConstants.PLATFORM_CONTENT_DIR + mRequest.getContentData().getId();
-										boolean replace = replaceDirectories(tempPath, originalPath, unzipPath);
-										if (replace)
+										if (doReplace)
 										{
-											mRequest.getListener().onComplete(mRequest.getContentData());
+											String tempPath =
+													PlatformContentConstants.PLATFORM_CONTENT_DIR +
+															mRequest.getContentData().getId() +
+															"_temp";
+											String originalPath =
+													PlatformContentConstants.PLATFORM_CONTENT_DIR +
+															mRequest.getContentData().getId();
+											boolean replace = replaceDirectories(tempPath,
+													originalPath, unzipPath);
+											if (replace)
+											{
+												mRequest.getListener()
+														.onComplete(mRequest.getContentData());
+											}
+											else
+											{
+												mRequest.getListener()
+														.onEventOccured(0, EventCode.UNZIP_FAILED);
+											}
 										}
 										else
 										{
-											mRequest.getListener().onEventOccured(0, EventCode.UNZIP_FAILED);
+											mRequest.getListener()
+													.onComplete(mRequest.getContentData());
 										}
 									}
 									else
 									{
-										mRequest.getListener().onComplete(mRequest.getContentData());
+										PlatformRequestManager.setReadyState(mRequest);
 									}
+									HikeMessengerApp.getPubSub()
+											.publish(HikePubSub.DOWNLOAD_PROGRESS,
+													new Pair<String, String>(callbackId,
+															"unzipSuccess"));
 								}
 								else
 								{
-									PlatformRequestManager.setReadyState(mRequest);
+									mRequest.getListener().downloadedContentLength(fileSize);
+									mRequest.getListener()
+											.onEventOccured(0, EventCode.UNZIP_FAILED);
+									HikeMessengerApp.getPubSub()
+											.publish(HikePubSub.DOWNLOAD_PROGRESS,
+													new Pair<String, String>(callbackId,
+															"unzipFailed"));
 								}
-								HikeMessengerApp.getPubSub().publish(HikePubSub.DOWNLOAD_PROGRESS, new Pair<String, String>(callbackId, "unzipSuccess"));
+								zipFile.delete();
 							}
-							else
-							{
-								mRequest.getListener().downloadedContentLength(fileSize);
-								mRequest.getListener().onEventOccured(0, EventCode.UNZIP_FAILED);
-								HikeMessengerApp.getPubSub().publish(HikePubSub.DOWNLOAD_PROGRESS, new Pair<String, String>(callbackId, "unzipFailed"));
-							}
-							zipFile.delete();
-						}
-					});
+						});
+					}
+					catch (IllegalStateException ise)
+					{
+						ise.printStackTrace();
+						PlatformRequestManager
+								.failure(mRequest, EventCode.UNKNOWN, isTemplatingEnabled);
+					}
 				}
-				catch (IllegalStateException ise)
-				{
-					ise.printStackTrace();
-					PlatformRequestManager.failure(mRequest, EventCode.UNKNOWN, isTemplatingEnabled);
-				}
-			}
 		});
 	}
 
@@ -404,7 +422,7 @@ public class PlatformZipDownloader
 			{
 				if (resumeSupported && !TextUtils.isEmpty(statefilePath))
 				{
-					Utils.deleteFile(new File(statefilePath));
+					(new File(statefilePath + FileRequestPersistent.STATE_FILE_EXT)).delete();
 				}
 
 				HikeMessengerApp.getPubSub().publish(HikePubSub.DOWNLOAD_PROGRESS, new Pair<String, String>(callbackId, "downloadSuccess"));

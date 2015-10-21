@@ -322,6 +322,8 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 		sql = "CREATE UNIQUE INDEX IF NOT EXISTS " + DBConstants.EVENT_HASH_INDEX + " ON " + DBConstants.MESSAGE_EVENT_TABLE + " ( " + DBConstants.EVENT_HASH + " )";
 		db.execSQL(sql);
+		
+		db.execSQL(getSortingIdxString());
 
 		// to be aware of the users for whom db upgrade should not be done in future to fix AND-704
 		saveCurrentConvDbVersionToPrefs();
@@ -891,6 +893,11 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				String alterTable = "ALTER TABLE " + DBConstants.BOT_TABLE + " ADD COLUMN " + HIKE_CONTENT.BOT_VERSION + " INTEGER DEFAULT 0";
 				db.execSQL(alterTable);
 			}
+		}
+		
+		if (oldVersion < 46)
+		{
+			db.execSQL(getSortingIdxString());
 		}
 
 	}
@@ -3001,17 +3008,17 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 	}
 	
 
-	public List<ConvMessage> getConversationThread(String msisdn, int limit, Conversation conversation, long maxMsgId, long minMsgId)
+	public List<ConvMessage> getConversationThread(String msisdn, int limit, Conversation conversation, long maxSortId, long minSortId)
 	{
 		String limitStr = (limit == -1) ? null : new Integer(limit).toString();
 		String selection = DBConstants.MSISDN + " = ?";
-		if (maxMsgId != -1)
+		if (maxSortId != -1)
 		{
-			selection = selection + " AND " + DBConstants.MESSAGE_ID + "<" + maxMsgId;
+			selection = selection + " AND " + DBConstants.SORTING_ID + "<" + maxSortId;
 		}
-		if (minMsgId != -1)
+		if (minSortId != -1)
 		{
-			selection = selection + " AND " + DBConstants.MESSAGE_ID + ">" + minMsgId;
+			selection = selection + " AND " + DBConstants.SORTING_ID + ">" + minSortId;
 		}
 		Cursor c = null;
 		try
@@ -3047,7 +3054,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			/* TODO this should be ORDER BY timestamp */
 			c = mDb.query(DBConstants.MESSAGES_TABLE, new String[] { DBConstants.MESSAGE, DBConstants.MSG_STATUS, DBConstants.TIMESTAMP, DBConstants.MESSAGE_ID,
 					DBConstants.MAPPED_MSG_ID, DBConstants.MESSAGE_METADATA, DBConstants.GROUP_PARTICIPANT, DBConstants.IS_HIKE_MESSAGE, DBConstants.READ_BY,
-					DBConstants.MESSAGE_TYPE,DBConstants.HIKE_CONTENT.CONTENT_ID, HIKE_CONTENT.NAMESPACE,DBConstants.MESSAGE_ORIGIN_TYPE}, selection, new String[] { msisdn }, null, null, DBConstants.MESSAGE_ID + " DESC");
+					DBConstants.MESSAGE_TYPE,DBConstants.HIKE_CONTENT.CONTENT_ID, HIKE_CONTENT.NAMESPACE,DBConstants.MESSAGE_ORIGIN_TYPE, DBConstants.SORTING_ID}, selection, new String[] { msisdn }, null, null, DBConstants.SORTING_ID + " DESC");
 
 
 			List<ConvMessage> elements = getMessagesFromDB(c,true,msisdn);
@@ -6300,7 +6307,6 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			String query = "SELECT " + DBConstants.MESSAGE + "," + DBConstants.MSG_STATUS + "," + DBConstants.TIMESTAMP + "," + DBConstants.MESSAGE_ID + ","
 					+ DBConstants.MAPPED_MSG_ID + "," + DBConstants.MESSAGE_METADATA + "," + DBConstants.GROUP_PARTICIPANT + "," + DBConstants.IS_HIKE_MESSAGE + ","
 					+ DBConstants.READ_BY + "," + DBConstants.MESSAGE_TYPE + ","+DBConstants.HIKE_CONTENT.CONTENT_ID + "," + HIKE_CONTENT.NAMESPACE + "," + DBConstants.MESSAGE_ORIGIN_TYPE + "," + DBConstants.SORTING_ID + " FROM " + DBConstants.MESSAGES_TABLE + " where " + selection + " order by " + DBConstants.SORTING_ID
-
 					+ " DESC LIMIT " + limitStr + " OFFSET " + startFrom;
 			c = mDb.rawQuery(query, new String[] { msisdn });
 
@@ -7335,7 +7341,8 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		contentValues.put(DBConstants.IS_VISIBLE, stickerCategory.isVisible());
 		contentValues.put(DBConstants.CATEGORY_INDEX, stickerCategory.getCategoryIndex());
 
-		mDb.insertWithOnConflict(DBConstants.STICKER_CATEGORIES_TABLE, null, contentValues, SQLiteDatabase.CONFLICT_REPLACE);
+		mDb.insertWithOnConflict(DBConstants.STICKER_CATEGORIES_TABLE, null, contentValues,
+				SQLiteDatabase.CONFLICT_REPLACE);
 	}
 
 	/*
@@ -8088,7 +8095,8 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		contentValues.put(DBConstants.MSG_STATUS, convMessage.getState().ordinal());
 		contentValues.put(DBConstants.LAST_MESSAGE_TIMESTAMP, convMessage.getTimestamp());
 
-		mDb.updateWithOnConflict(DBConstants.CONVERSATIONS_TABLE, contentValues, MSISDN + "=?", new String[] { msisdn }, SQLiteDatabase.CONFLICT_REPLACE);
+		mDb.updateWithOnConflict(DBConstants.CONVERSATIONS_TABLE, contentValues, MSISDN + "=?",
+				new String[] { msisdn }, SQLiteDatabase.CONFLICT_REPLACE);
 	}
 	
 	/**
@@ -8453,7 +8461,8 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		selection.append(DBConstants.ACTION_OBJECT_ID + " IN " + uuidSelection.toString());
 
 		//Add object type (su,card, channel)
-		selection.append(" AND " + DBConstants.ACTION_OBJECT_TYPE + " = " + DatabaseUtils.sqlEscapeString(objectType));
+		selection.append(" AND " + DBConstants.ACTION_OBJECT_TYPE + " = " +
+				DatabaseUtils.sqlEscapeString(objectType));
 
 		Cursor c = null;
 		try
@@ -8658,11 +8667,11 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			}
 		}
 	}
-	public void resetUnreadCounter(String msisdn)
+
+	
+	private String getSortingIdxString()
 	{
-		ContentValues values = new ContentValues();
-		values.put(DBConstants.UNREAD_COUNT,0);
-		mDb.updateWithOnConflict(DBConstants.CONVERSATIONS_TABLE, values, MSISDN + "=?", new String[] { msisdn }, SQLiteDatabase.CONFLICT_IGNORE);
+		return "CREATE INDEX IF NOT EXISTS " + DBConstants.SORT_ID_IDX + " ON " + DBConstants.MESSAGES_TABLE + " ( " + DBConstants.MSISDN + " , " + DBConstants.SORTING_ID + " )";
 	}
 
 	/**
