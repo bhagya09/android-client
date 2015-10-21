@@ -20,7 +20,7 @@ public class LocalLanguageUtils {
         return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.LOCAL_LANGUAGE_PREF, "");
     }
 
-    public static void setApplicationLocalLanguage(LocalLanguage lang)
+    synchronized public static void setApplicationLocalLanguage(LocalLanguage lang)
     {
         if (TextUtils.isEmpty(lang.getLocale())) {
             HikeSharedPreferenceUtil.getInstance().removeData(HikeConstants.LOCAL_LANGUAGE_PREF);
