@@ -608,6 +608,8 @@ public class HikeConstants
 
 	public static final String H2O_NOTIF_BOOLEAN_PREF = "hikeOfflineNotificationPref";
 
+	public static final String LOCAL_LANGUAGE_PREF = "localLanguagePref";
+
 	public static final String KEYBOARD_LANGUAGE_PREF = "languagePref";
 	
 	public static final String KEYBOARD_PREF = "keyboardPref";
