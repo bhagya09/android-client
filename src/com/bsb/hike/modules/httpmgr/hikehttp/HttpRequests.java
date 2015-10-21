@@ -333,6 +333,7 @@ public class HttpRequests
 
 	public static RequestToken postAnonymousNameFetchRequest(String url, IRequestListener requestListener, JSONObject json, List<Header> headers)
 	{
+
 		RequestToken requestToken = new JSONObjectRequest.Builder()
 				.setUrl(url)
 				.post(new JsonBody(json))
@@ -879,11 +880,14 @@ public class HttpRequests
 	
 	public static RequestToken platformZipDownloadRequestWithResume(String filePath, String stateFilePath, String url, IRequestListener requestListener, long startOffset)
 	{
+		List<Header> headers = new ArrayList<Header>(1);
+		headers.add(new Header(HttpHeaderConstants.RANGE,"bytes="+startOffset+"-"));
 		RequestToken requestToken = new FileRequestPersistent.Builder()
 				.setUrl(url)
 				.setFile(filePath)
 				.setStateFilePath(stateFilePath)
 				.setRequestListener(requestListener)
+				.setHeaders(headers)
 				.setRetryPolicy(new BasicRetryPolicy(HikePlatformConstants.NUMBER_OF_RETRIES, HikePlatformConstants.RETRY_DELAY, HikePlatformConstants.BACK_OFF_MULTIPLIER))
 				.build();
 		return requestToken;
