@@ -17,7 +17,7 @@ public class LocalLanguageUtils {
 
     public static String getApplicationLocalLanguageLocale()
     {
-        return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.LOCAL_LANGUAGE_PREF, "en");
+        return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.LOCAL_LANGUAGE_PREF, "");
     }
 
     public static void setApplicationLocalLanguage(LocalLanguage lang)

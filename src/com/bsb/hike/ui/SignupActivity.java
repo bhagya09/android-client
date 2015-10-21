@@ -1268,7 +1268,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 
 		final TextView languageText = (TextView) viewFlipper.findViewById(R.id.txt_lang);
 		final ArrayList<LocalLanguage> list = new ArrayList<>(LocalLanguage.getSupportedLanguages(this));
-		languageText.setText(list.get(1).getDisplayName());
+		languageText.setText(list.get(0).getDisplayName());
 
 		languageText.setOnClickListener(
 		new OnClickListener()
