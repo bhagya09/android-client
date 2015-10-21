@@ -1134,6 +1134,17 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 	}
 
 	/**
+	 * Replaces thumbnail for the given msisdn
+	 * 
+	 * @param msisdn
+	 * @param thumbnail
+	 */
+	public void changeUsersDbThumbnail(String msisdn, byte[] thumbnail)
+	{
+		hDb.setThumbnail(msisdn, thumbnail);
+	}
+	
+	/**
 	 * This method returns a byte array of an icon from the database
 	 * 
 	 * @param id

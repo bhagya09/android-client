@@ -7405,4 +7405,16 @@ public class Utils
 		return timeLogBuilder.toString();
 	}
 
+	public static byte[] readBytes(InputStream inputStream) throws IOException
+	{
+		byte[] buffer = new byte[1024];
+		int bytesRead;
+		ByteArrayOutputStream output = new ByteArrayOutputStream();
+		while ((bytesRead = inputStream.read(buffer)) != -1)
+		{
+			output.write(buffer, 0, bytesRead);
+		}
+		return output.toByteArray();
+	}
+
 }
