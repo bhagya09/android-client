@@ -16,6 +16,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.animation.ObjectAnimator;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -111,6 +112,7 @@ import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.tasks.EmailConversationsAsyncTask;
 import com.bsb.hike.ui.HikeFragmentable;
+import com.bsb.hike.ui.HikeListActivity;
 import com.bsb.hike.ui.HomeActivity;
 import com.bsb.hike.ui.ProfileActivity;
 import com.bsb.hike.ui.fragments.OfflineDisconnectFragment.OfflineConnectionRequestListener;
@@ -136,7 +138,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 			HikePubSub.MULTI_MESSAGE_DB_INSERTED, HikePubSub.SERVER_RECEIVED_MULTI_MSG, HikePubSub.MUTE_CONVERSATION_TOGGLED, HikePubSub.CONV_UNREAD_COUNT_MODIFIED,
 			HikePubSub.CONVERSATION_TS_UPDATED, HikePubSub.PARTICIPANT_JOINED_ONETONCONV, HikePubSub.PARTICIPANT_LEFT_ONETONCONV, HikePubSub.BLOCK_USER, HikePubSub.UNBLOCK_USER,
 			HikePubSub.MUTE_BOT, HikePubSub.CONVERSATION_DELETED, HikePubSub.DELETE_THIS_CONVERSATION, HikePubSub.ONETONCONV_NAME_CHANGED, HikePubSub.STEALTH_CONVERSATION_MARKED,
-			HikePubSub.STEALTH_CONVERSATION_UNMARKED, HikePubSub.UPDATE_LAST_MSG_STATE, HikePubSub.OFFLINE_MESSAGE_SENT, HikePubSub.ON_OFFLINE_REQUEST, HikePubSub.FLUSH_CRITICAL_UPDATE_TIP };
+			HikePubSub.STEALTH_CONVERSATION_UNMARKED, HikePubSub.UPDATE_LAST_MSG_STATE, HikePubSub.OFFLINE_MESSAGE_SENT, HikePubSub.ON_OFFLINE_REQUEST};
 
 	private ConversationsAdapter mAdapter;
 
@@ -1810,6 +1812,11 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 		}
 
 	}
+	
+	public void startActivityWithResult(Intent intent, int requestCode)
+	{
+		startActivityForResult(intent, requestCode);
+	}
 
 	private void ShowTipIfNeeded(boolean hasNoConversation)
 	{
@@ -3039,22 +3046,6 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 
 			}
 		}
-		else if(HikePubSub.FLUSH_CRITICAL_UPDATE_TIP.equals(type))
-		{
-			if(!isAdded())
-			{
-				return;
-			}
-			getActivity().runOnUiThread(new Runnable()
-			{
-				@Override
-				public void run()
-				{
-					removeTipIfExists(ConversationTip.UPDATE_CRITICAL_TIP);
-				}
-				
-			});
-		}
 	}
 
 	protected void handleUIMessage(Message msg)
@@ -3785,11 +3776,47 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 	@Override
 	public void clickTip(int whichTip)
 	{
-		if (tipView != null && whichTip == ConversationTip.RESET_STEALTH_TIP)
+		if (tipView != null)
 		{
-			resetStealthTipClicked();
+			switch (whichTip)
+			{
+			case ConversationTip.RESET_STEALTH_TIP:
+				resetStealthTipClicked();
+				break;
+			case ConversationTip.UPDATE_CRITICAL_TIP:
+			case ConversationTip.UPDATE_NORMAL_TIP:
+				HAManager.getInstance().updateTipAnalyticsUIEvent(AnalyticsConstants.UPDATE_TIP_CLICKED);
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOW_NORMAL_UPDATE_TIP, false);
+				Uri url = Uri.parse(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.Extras.URL, "market://details?id=com.bsb.hike"));
+				Intent openUrl = new Intent(Intent.ACTION_VIEW, url);
+				startActivityForResult(openUrl, ConversationTip.REQUEST_CODE_URL_OPEN);
+				break;
+			case ConversationTip.INVITE_TIP:
+				HAManager.getInstance().updateTipAnalyticsUIEvent(AnalyticsConstants.INVITE_TIP_CLICKED);
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOW_INVITE_TIP, false);
+				Intent sendInvite = new Intent(getContext(), HikeListActivity.class);
+				startActivityForResult(sendInvite, ConversationTip.REQUEST_CODE_SEND_INVITE);
+				break;
+			default:
+				break;
+			}
 		}
+		
 
+	}
+
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		// TODO Auto-generated method stub
+		if(requestCode == ConversationTip.REQUEST_CODE_SEND_INVITE)
+		{
+			HikeMessengerApp.getPubSub().publish(HikePubSub.REMOVE_TIP, ConversationTip.INVITE_TIP);
+		}
+		else if(requestCode == ConversationTip.REQUEST_CODE_URL_OPEN)
+		{
+			HikeMessengerApp.getPubSub().publish(HikePubSub.REMOVE_TIP, ConversationTip.UPDATE_NORMAL_TIP);
+		}
+		super.onActivityResult(requestCode, resultCode, data);
 	}
 
 	@Override

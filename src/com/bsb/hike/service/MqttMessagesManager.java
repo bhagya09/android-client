@@ -75,6 +75,7 @@ import com.bsb.hike.models.TypingNotification;
 import com.bsb.hike.models.WhitelistDomain;
 import com.bsb.hike.models.Conversation.BroadcastConversation;
 import com.bsb.hike.models.Conversation.Conversation;
+import com.bsb.hike.models.Conversation.ConversationTip;
 import com.bsb.hike.models.Conversation.GroupConversation;
 import com.bsb.hike.models.Conversation.OneToNConversation;
 import com.bsb.hike.modules.contactmgr.ContactManager;
@@ -3193,7 +3194,7 @@ public class MqttMessagesManager
 		{
 			editor.putBoolean(HikeConstants.SHOW_CRITICAL_UPDATE_TIP, false);
 			editor.commit();
-			this.pubSub.publish(HikePubSub.FLUSH_CRITICAL_UPDATE_TIP, null);
+			this.pubSub.publish(HikePubSub.REMOVE_TIP, ConversationTip.UPDATE_CRITICAL_TIP);
 		}
 		
 		
@@ -3376,6 +3377,8 @@ public class MqttMessagesManager
 						editor.putString(HikeConstants.UPDATE_TIP_HEADER, data.optString(HikeConstants.HEADER, ""));
 						editor.putString(HikeConstants.UPDATE_TIP_BODY, data.optString(HikeConstants.BODY, ""));
 						editor.putString(HikeConstants.UPDATE_TIP_LABEL, data.optString(HikeConstants.LABEL, ""));
+						editor.putString(HikeConstants.UPDATE_TIP_DISMISS, data.optString(HikeConstants.DISMISS, ""));
+						editor.putString(HikeConstants.UPDATE_TIP_BG_COLOR, data.optString(HikeConstants.BACKGROUND_COLOR, ""));
 						
 						if (!TextUtils.isEmpty(updateURL))
 							editor.putString(HikeConstants.Extras.URL, updateURL);
@@ -3396,6 +3399,8 @@ public class MqttMessagesManager
 				editor.putString(HikeConstants.INVITE_TIP_HEADER, data.optString(HikeConstants.HEADER, ""));
 				editor.putString(HikeConstants.INVITE_TIP_BODY, data.optString(HikeConstants.BODY, ""));
 				editor.putString(HikeConstants.INVITE_TIP_LABEL, data.optString(HikeConstants.LABEL, ""));
+				editor.putString(HikeConstants.INVITE_TIP_DISMISS, data.optString(HikeConstants.DISMISS, ""));
+				editor.putString(HikeConstants.INVITE_TIP_BG_COLOR, data.optString(HikeConstants.BACKGROUND_COLOR, ""));
 				editor.commit();
 			}
 			
@@ -3422,10 +3427,14 @@ public class MqttMessagesManager
 					{
 						Editor editor = settings.edit();
 						editor.putBoolean(HikeConstants.SHOULD_SHOW_PERSISTENT_NOTIF, true);
+						editor.putBoolean(HikeConstants.IS_PERS_NOTIF_ALARM_SET, false);
 						editor.putString(HikeConstants.Extras.UPDATE_MESSAGE, data.optString(HikeConstants.MESSAGE, ""));
 						Logger.d("UpdateTipPersistentNotif", "Showing persistent notif for target version:"+version);
 						editor.putString(HikeConstants.Extras.LATEST_VERSION, version);
-						editor.putString(HikeConstants.Extras.UPDATE_TITLE, data.optString(HikeConstants.Extras.TITLE, ""));
+						editor.putString(HikeConstants.UPDATE_TITLE, data.optString(HikeConstants.Extras.TITLE, ""));
+						editor.putString(HikeConstants.UPDATE_ACTION, data.optString(HikeConstants.MqttMessageTypes.ACTION, ""));
+						editor.putString(HikeConstants.UPDATE_LATER, data.optString(HikeConstants.DISMISS, ""));
+						editor.putLong(HikeConstants.UPDATE_ALARM, data.optLong(HikeConstants.PERSISTENT_NOTIF_ALARM_INTERVAL, HikeConstants.PERS_NOTIF_ALARM_DEFAULT));
 						
 						if (!TextUtils.isEmpty(updateURL))
 							editor.putString(HikeConstants.Extras.URL, updateURL);

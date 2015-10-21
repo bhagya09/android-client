@@ -289,8 +289,6 @@ public class HikePubSub implements Runnable
 	public static final String FLUSH_PERSISTENT_NOTIF = "flushpn";
 	
 	public static final String SHOW_PERSISTENT_NOTIF = "showPersistentNotif";
-	
-	public static final String FLUSH_CRITICAL_UPDATE_TIP = "flushCriticalTip";
 
 	public static final String UPDATE_AVAILABLE = "updateAvailable"; // TODO: get rid of this.
 

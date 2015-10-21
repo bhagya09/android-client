@@ -5,6 +5,7 @@ import org.json.JSONObject;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.CountDownTimer;
 import android.text.Html;
@@ -13,6 +14,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bsb.hike.HikeConstants;
@@ -72,6 +74,10 @@ public class ConversationTip implements OnClickListener
 	public static final int UPDATE_NORMAL_TIP = 17;
 	
 	public static final int INVITE_TIP = 18;
+	
+	public static final int REQUEST_CODE_URL_OPEN = 101;
+	
+	public static final int REQUEST_CODE_SEND_INVITE = 102;
 
 	private int tipType;
 
@@ -211,29 +217,50 @@ public class ConversationTip implements OnClickListener
 		case UPDATE_NORMAL_TIP:
 		case UPDATE_CRITICAL_TIP:
 			v = inflater.inflate(R.layout.update_tip, null, false);
-			String tipHeaderText = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.UPDATE_TIP_HEADER, "");
-			String tipMsgTxt = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.UPDATE_TIP_BODY, "");
-			String tipLabelTxt = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.UPDATE_TIP_LABEL, "");
-			((TextView) v.findViewById(R.id.tip_header)).setText(tipHeaderText);
-			((TextView) v.findViewById(R.id.tip_msg)).setText(tipMsgTxt);
-			((TextView) v.findViewById(R.id.update_tip_label)).setText(tipLabelTxt);
+			String tipHeaderText = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.UPDATE_TIP_HEADER, context.getResources().getString(R.string.update_tip_header_text));
+			String tipMsgTxt = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.UPDATE_TIP_BODY, context.getResources().getString(R.string.update_tip_body_text));
+			String tipLabelTxt = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.UPDATE_TIP_LABEL, context.getResources().getString(R.string.update_tip_bottom_text));
+			String tipDismissTxt = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.UPDATE_TIP_DISMISS, context.getResources().getString(R.string.update_tip_dismiss_text));
+			String tipBgColor = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.UPDATE_TIP_BG_COLOR, "");
+			
+			((TextView) v.findViewById(R.id.update_tip_header)).setText(tipHeaderText);
+			((TextView) v.findViewById(R.id.update_tip_msg)).setText(tipMsgTxt);
+			((TextView) v.findViewById(R.id.update_tip_action)).setText(tipLabelTxt);
+			((ImageView) v.findViewById(R.id.update_tip_icon)).setVisibility(View.VISIBLE);
+			((ImageView) v.findViewById(R.id.invite_tip_icon)).setVisibility(View.GONE);
 			if(tipType == UPDATE_NORMAL_TIP)
 			{
-				ImageView close_tip = (ImageView) v.findViewById(R.id.close_tip);
+				TextView close_tip = (TextView) v.findViewById(R.id.close_tip);
+				close_tip.setText(tipDismissTxt);
 				close_tip.setVisibility(View.VISIBLE);
 				close_tip.setOnClickListener(this);
 			}
+			if(!TextUtils.isEmpty(tipBgColor))
+			{
+				((LinearLayout) v.findViewById(R.id.tip_upper)).setBackgroundColor(Color.parseColor(tipBgColor));
+				((LinearLayout) v.findViewById(R.id.tip_lower)).setBackgroundColor(Color.parseColor(tipBgColor));
+			}			
 			v.findViewById(R.id.all_content).setOnClickListener(this);
 			return v;
 		case INVITE_TIP:
 			v = inflater.inflate(R.layout.update_tip, null, false);
-			String invtHeaderText = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.INVITE_TIP_HEADER, "");
-			String invtMsgTxt = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.INVITE_TIP_BODY, "");
-			String invtLabelTxt = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.INVITE_TIP_LABEL, "");
-			((TextView) v.findViewById(R.id.tip_header)).setText(invtHeaderText);
-			((TextView) v.findViewById(R.id.tip_msg)).setText(invtMsgTxt);
-			((TextView) v.findViewById(R.id.update_tip_label)).setText(invtLabelTxt);
-			ImageView close_tip = (ImageView) v.findViewById(R.id.close_tip);
+			String invtHeaderText = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.INVITE_TIP_HEADER, context.getResources().getString(R.string.invite_tip_header_text));
+			String invtMsgTxt = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.INVITE_TIP_BODY, context.getResources().getString(R.string.invite_tip_body_text));
+			String invtLabelTxt = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.INVITE_TIP_LABEL, context.getResources().getString(R.string.invite_tip_bottom_text));
+			String invtDismissTxt = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.INVITE_TIP_DISMISS, context.getResources().getString(R.string.invite_tip_dismiss_text));
+			String invtBgColor = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.INVITE_TIP_BG_COLOR, "");
+			((TextView) v.findViewById(R.id.update_tip_header)).setText(invtHeaderText);
+			((TextView) v.findViewById(R.id.update_tip_msg)).setText(invtMsgTxt);
+			((TextView) v.findViewById(R.id.update_tip_action)).setText(invtLabelTxt);
+			((ImageView) v.findViewById(R.id.update_tip_icon)).setVisibility(View.GONE);
+			((ImageView) v.findViewById(R.id.invite_tip_icon)).setVisibility(View.VISIBLE);
+			if(!TextUtils.isEmpty(invtBgColor))
+			{
+				((LinearLayout) v.findViewById(R.id.tip_upper)).setBackgroundColor(Color.parseColor(invtBgColor));
+				((LinearLayout) v.findViewById(R.id.tip_lower)).setBackgroundColor(Color.parseColor(invtBgColor));
+			}
+			TextView close_tip = (TextView) v.findViewById(R.id.close_tip);
+			close_tip.setText(invtDismissTxt);
 			close_tip.setVisibility(View.VISIBLE);
 			close_tip.setOnClickListener(this);
 			v.findViewById(R.id.all_content).setOnClickListener(this);
@@ -380,15 +407,11 @@ public class ConversationTip implements OnClickListener
 				break;
 			case UPDATE_CRITICAL_TIP:
 			case UPDATE_NORMAL_TIP:
-				HAManager.getInstance().updateTipAnalyticsUIEvent(AnalyticsConstants.UPDATE_TIP_CLICKED);
-				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOW_NORMAL_UPDATE_TIP, false);
-				Uri url = Uri.parse(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.Extras.URL, "market://details?id=com.bsb.hike"));
-				IntentFactory.openURL(context, url);
-				break;
 			case INVITE_TIP:
-				HAManager.getInstance().updateTipAnalyticsUIEvent(AnalyticsConstants.INVITE_TIP_CLICKED);
-				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOW_INVITE_TIP, false);
-				IntentFactory.openInviteSMS(context);
+				if(mListener != null)
+				{
+					mListener.clickTip(tipType);
+				}
 				break;
 
 			case ATOMIC_PROFILE_PIC_TIP:

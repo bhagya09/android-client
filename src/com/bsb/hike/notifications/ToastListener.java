@@ -314,9 +314,12 @@ public class ToastListener implements Listener
 		else if(HikePubSub.SHOW_PERSISTENT_NOTIF.equals(type))
 		{
 			toaster.notifyPersistentUpdate(
-					context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).getString(HikeConstants.Extras.UPDATE_TITLE, context.getResources().getString(R.string.pers_notif_title)),
+					context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).getString(HikeConstants.UPDATE_TITLE, context.getResources().getString(R.string.pers_notif_title)),
 					context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).getString(HikeConstants.Extras.UPDATE_MESSAGE, context.getResources().getString(R.string.pers_notif_message)),
-					Uri.parse(context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).getString(HikeConstants.Extras.URL, "market://details?id=" + context.getPackageName())));
+					context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).getString(HikeConstants.UPDATE_ACTION, context.getResources().getString(R.string.pers_notif_action)),
+					context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).getString(HikeConstants.UPDATE_LATER, context.getResources().getString(R.string.pers_notif_later)),
+					Uri.parse(context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).getString(HikeConstants.Extras.URL, "market://details?id=" + context.getPackageName())),
+					context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).getLong(HikeConstants.UPDATE_ALARM, HikeConstants.PERS_NOTIF_ALARM_DEFAULT));
 		}
 		else if(HikePubSub.FLUSH_PERSISTENT_NOTIF.equals(type))
 		{

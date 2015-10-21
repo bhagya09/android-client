@@ -82,6 +82,8 @@ public class HikeAlarmManager
 	public static final int REQUESTCODE_START_STICKER_SHARE_SERVICE = 4573;
 	
 	public static final int REQUEST_CODE_STICKER_RECOMMENDATION_BALANCING = 4574;
+	
+	public static final int REQUESTCODE_UPDATE_PERSISTENT_NOTIF = 4575;
 
 	// ******************************************************//
 	
@@ -315,6 +317,10 @@ public class HikeAlarmManager
 		case HikeAlarmManager.REQUEST_CODE_STICKER_RECOMMENDATION_BALANCING:	
 			StickerSearchManager.getInstance().startRebalancing(intent);
 			break;
+		case HikeAlarmManager.REQUESTCODE_UPDATE_PERSISTENT_NOTIF:
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.IS_PERS_NOTIF_ALARM_SET, false);
+			HikeNotification.getInstance().checkAndShowUpdateNotif();
+			break;
 			
 		default:
 			PlatformAlarmManager.processTasks(intent, context);
@@ -381,6 +387,10 @@ public class HikeAlarmManager
 			break;
 		case HikeAlarmManager.REQUEST_CODE_STICKER_RECOMMENDATION_BALANCING:	
 			StickerSearchManager.getInstance().startRebalancing(intent);
+			break;
+		case HikeAlarmManager.REQUESTCODE_UPDATE_PERSISTENT_NOTIF:
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.IS_PERS_NOTIF_ALARM_SET, false);
+			HikeNotification.getInstance().checkAndShowUpdateNotif();
 			break;
 			
 		default:
