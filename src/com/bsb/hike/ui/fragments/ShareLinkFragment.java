@@ -259,33 +259,59 @@ public class ShareLinkFragment extends DialogFragment implements OnClickListener
 			Logger.d(ShareLinkFragment.class.getSimpleName(), "responce from http call " + response);
 
 			isTaskRunning = false;
-
-			if (!Utils.isResponseValid(response))
-			{
-				Logger.d(ShareLinkFragment.class.getSimpleName(), "invalid responce from http call " + response);
-				return;
-			}
-
-			if (!isNewGroup)
-			{
-				Logger.d(ShareLinkFragment.class.getSimpleName(), "NO NEW GROUP, so returning ");
-				return;
-			}
 			
-			if (isStartedViaBot)
+			if (Utils.isResponseValid(response))
 			{
-				OneToNConversationUtils.createNewShareGroupViaServerSentCard(grpName, grpId, grpSettings, true);
+				if (isNewGroup)
+				{
+					if (isStartedViaBot)
+					{
+						OneToNConversationUtils.createNewShareGroupViaServerSentCard(grpName, grpId, grpSettings, true);
+					}
+					else
+					{
+						if(isAdded())
+						{
+							OneToNConversationUtils.createGroupOrBroadcast(getActivity(), new ArrayList<ContactInfo>(), grpName, grpId, grpSettings, true);
+						}
+						else
+						{
+							Logger.d(ShareLinkFragment.class.getSimpleName(), "New group call and fragment not added so no group created, so returning from here");
+							return;
+						}
+					}
+				}
 
-				openThirdPartyApp(response);
-			}
-			else
-			{
+				final String url = getLinkFromResponse(response);
+
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHARE_LINK_URL_FOR_GC, url);
+				
+				switch (buttonClickedType)
+				{
+				case WA:
+					if(Utils.isPackageInstalled(HikeMessengerApp.getInstance().getApplicationContext(), HikeConstants.PACKAGE_WATSAPP))
+					{
+						String str = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.TEXT_FOR_GC_VIA_WA,
+								HikeMessengerApp.getInstance().getApplicationContext().getString(R.string.link_share_wa_msg))
+								+ "\n " + url;
+						str = str.replace("$groupname", grpName);
+						openWA(str);
+					}
+					break;
+
+				case OTHERS:
+					String str = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.TEXT_FOR_GC_VIA_OTHERS, getString(R.string.link_share_others_msg))
+					+ "\n " + url;
+					str = str.replace("$groupname", grpName);
+					ShareUtils.shareContent(HikeConstants.Extras.ShareTypes.TEXT_SHARE, str, null);
+					break;
+
+				default:
+					break;
+				}
+
 				if (isAdded())
 				{
-					OneToNConversationUtils.createGroupOrBroadcast(getActivity(), new ArrayList<ContactInfo>(), grpName, grpId, grpSettings, true);
-
-					openThirdPartyApp(response);
-
 					// Stop Loader here
 					dismissProgressDialog();
 
@@ -293,6 +319,7 @@ public class ShareLinkFragment extends DialogFragment implements OnClickListener
 					dismiss();
 				}
 			}
+
 		}
 
 		@Override
@@ -403,38 +430,10 @@ public class ShareLinkFragment extends DialogFragment implements OnClickListener
 		}
 		else
 		{
-			IntentFactory.openInviteWatsApp(getActivity(), str);
-		}
-	}
-	
-	private void openThirdPartyApp(final JSONObject response)
-	{
-		final String url = getLinkFromResponse(response);
-
-		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHARE_LINK_URL_FOR_GC, url);
-		
-		switch (buttonClickedType)
-		{
-		case WA:
-			if(Utils.isPackageInstalled(HikeMessengerApp.getInstance().getApplicationContext(), HikeConstants.PACKAGE_WATSAPP))
+			if(isAdded())
 			{
-				String str = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.TEXT_FOR_GC_VIA_WA,
-						HikeMessengerApp.getInstance().getApplicationContext().getString(R.string.link_share_wa_msg))
-						+ "\n " + url;
-				str = str.replace("$groupname", grpName);
-				openWA(str);
+				IntentFactory.openInviteWatsApp(getActivity(), str);
 			}
-			break;
-
-		case OTHERS:
-			String str = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.TEXT_FOR_GC_VIA_OTHERS, getString(R.string.link_share_others_msg))
-			+ "\n " + url;
-			str = str.replace("$groupname", grpName);
-			ShareUtils.shareContent(HikeConstants.Extras.ShareTypes.TEXT_SHARE, str, null);
-			break;
-
-		default:
-			break;
 		}
 	}
 }
