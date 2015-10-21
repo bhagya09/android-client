@@ -156,6 +156,10 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 	protected List<ContactInfo> nuxFilteredRecoList;
 	
 	protected List<BotInfo> microappShowcaseList;
+	
+	protected List<BotInfo> filteredmicroAppShowcaseList;
+	
+	protected int originalMicroAppCount = 0;
 
 	protected Context context;
 
@@ -224,6 +228,7 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 		recentlyJoinedHikeContactsList = new ArrayList<ContactInfo>(0);
 		nuxRecommendedList = new ArrayList<ContactInfo>(0);
 		microappShowcaseList = new ArrayList<BotInfo>(0);
+		filteredmicroAppShowcaseList = new ArrayList<BotInfo>(0);
 		
 		friendsStealthList = new ArrayList<ContactInfo>(0);
 		hikeStealthContactsList = new ArrayList<ContactInfo>(0);
@@ -280,12 +285,13 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 
 	private class ContactFilter extends Filter
 	{
+		List<BotInfo> filteredBotList = new ArrayList<BotInfo>(0);
+		
 		@Override
 		protected FilterResults performFiltering(CharSequence constraint)
 		{
 			FilterResults results = new FilterResults();
 			contactSpanStartIndexes.clear();
-
 			if (!TextUtils.isEmpty(constraint))
 			{
             	String textToBeFiltered = constraint.toString().toLowerCase().trim();
@@ -297,7 +303,7 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 				List<ContactInfo> filteredRecentsList = new ArrayList<ContactInfo>();
 				List<ContactInfo> filteredRecentlyJoinedList = new ArrayList<ContactInfo>();
 				List<ContactInfo> nuxFilteredRecoList = new ArrayList<ContactInfo>();
- 
+				
 				filterList(friendsList, filteredFriendsList, textToBeFiltered);
 				filterList(hikeContactsList, filteredHikeContactsList, textToBeFiltered);
 				filterList(smsContactsList, filteredSmsContactsList, textToBeFiltered);
@@ -322,6 +328,8 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 
 					filterList(nuxRecommendedList, nuxFilteredRecoList, textToBeFiltered);
 				}
+				
+				filterBots(textToBeFiltered);
 				List<List<ContactInfo>> resultList = new ArrayList<List<ContactInfo>>(3);
 				resultList.add(filteredFriendsList);
 				resultList.add(filteredHikeContactsList);
@@ -337,10 +345,51 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 			else
 			{
 				results.values = makeOriginalList();
+				this.filteredBotList.clear();
+				this.filteredBotList.addAll(microappShowcaseList);
 				isFiltered = false;
 			}
 			results.count = 1;
+			
 			return results;
+		}
+
+		private void filterBots(String textToBeFiltered)
+		{
+			if (filteredBotList != null)
+			{
+				filteredBotList.clear();
+			}
+			
+			else
+			{
+				filteredBotList = new ArrayList<BotInfo>(0);
+			}
+			
+			for (BotInfo mBotInfo : microappShowcaseList)
+			{
+				String name = mBotInfo.getConversationName();
+				
+				boolean found = false;
+				int startIndex = 0;
+				if(name!=null){
+				name = name.toLowerCase();
+				if (name.startsWith(textToBeFiltered))
+				{
+					found = true;
+				}
+				else if (name.contains(" " + textToBeFiltered))
+				{
+					found = true;
+					startIndex = name.indexOf(" " + textToBeFiltered) + 1;
+				}
+				}
+				if(found)
+				{
+					contactSpanStartIndexes.put(mBotInfo.getMsisdn(), startIndex);
+					filteredBotList.add(mBotInfo);
+				}
+			}
 		}
 
 		private void filterList(List<ContactInfo> allList, List<ContactInfo> listToUpdate, String textToBeFiltered)
@@ -396,7 +445,7 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 		{
 			List<List<ContactInfo>> resultList = (List<List<ContactInfo>>) results.values;
 
-			makeFilteredList(constraint, resultList);
+			makeFilteredList(constraint, resultList, filteredBotList);
 
 			if(recentlyJoinedHikeContactsList != null && !recentlyJoinedHikeContactsList.isEmpty())
 			{
@@ -408,6 +457,7 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 				nuxFilteredRecoList.clear();
 				nuxFilteredRecoList.addAll(resultList.get(6));
 			}
+			
 			makeCompleteList(true);
 		}
 	}
@@ -422,7 +472,7 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 		resultList.add(recentContactsList);
 		resultList.add(recentlyJoinedHikeContactsList);
 		resultList.add(nuxRecommendedList);
-
+		
 		return resultList;
 	}
 
@@ -461,6 +511,24 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 			if(listsSize > 4)
 				filteredRecentsList.addAll(resultList.get(4));
 		}
+	}
+	
+	protected void makeFilteredList(CharSequence constraint, List<List<ContactInfo>> resultsList, List<BotInfo> filteredBots)
+	{
+		makeFilteredList(constraint, resultsList);
+		
+		if (filteredBots != null)
+		{
+			if (listFetchedOnce)
+			{	
+				filteredmicroAppShowcaseList.clear();
+			}
+			
+			if (!filteredBots.isEmpty())
+				filteredmicroAppShowcaseList.addAll(filteredBots);
+		}
+		
+		
 	}
 
 	public void makeCompleteList(boolean filtered)
@@ -1696,5 +1764,10 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 	public IconLoader getIconLoader()
 	{
 		return iconloader;
+	}
+	
+	public void setOriginalMicroAppsCount(int count)
+	{
+		this.originalMicroAppCount = count;
 	}
 }

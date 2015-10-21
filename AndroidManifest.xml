@@ -3,9 +3,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bsb.hike"
     android:installLocation="auto"
-    android:versionCode="1460"
-    android:versionName="4.0.7.0.3.core_messaging" >
-    
+    android:versionCode="1479"
+    android:versionName="4.0.7.82.28.0.core_messaging" >
+
     <uses-sdk
         android:minSdkVersion="14"
         android:targetSdkVersion="17"/>
@@ -102,11 +102,12 @@
 
     <application
         android:name=".HikeMessengerApp"
-        android:allowBackup="true"
+        android:allowBackup="false"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:largeHeap="true"
         android:logo="@drawable/hike_logo_top_bar"
+        tools:replace="android:allowBackup"
         android:theme="@style/AppTheme" >
         <uses-library
             android:name="com.google.android.maps"
@@ -121,7 +122,6 @@
         </service>
         <service android:name=".service.UpgradeIntentService" />
         <service android:name=".GCMIntentService" />
-
         <activity
             android:name=".ui.HomeActivity"
             android:configChanges="orientation|screenSize|keyboardHidden"
@@ -135,6 +135,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <activity
             android:name=".ui.ComposeChatActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
@@ -332,10 +333,6 @@
             android:configChanges="orientation|screenSize|keyboard|keyboardHidden" >
         </activity>
         <activity
-            android:name=".chatHead.StickyCallerSettings"
-            android:configChanges="orientation|screenSize|keyboard|keyboardHidden" >
-        </activity>
-		<activity
             android:name=".ui.PinHistoryActivity"
             android:configChanges="orientation|screenSize|keyboard|keyboardHidden"
             android:theme="@style/AppTheme.ChatThread" >
@@ -366,6 +363,28 @@
             android:name=".ui.HikeDirectHelpPageActivity"
             android:label="@string/app_label"
          >
+        </activity>
+        <activity
+            android:name=".ui.LinkDispatcherActivity"
+            android:launchMode="singleInstance"
+            android:noHistory="true"
+            android:theme="@style/Transparent" >
+             <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <!-- Accepts URIs that begin with "http://hike.in/” -->
+                <data
+                    android:host="hike.in"
+                    android:pathPrefix="/"
+                    android:scheme="http" />
+                <!-- Accepts URIs that begin with "https://hike.in/” -->
+                <data
+                    android:host="hike.in"
+                    android:pathPrefix="/"
+                    android:scheme="https" />
+            </intent-filter>
         </activity>
          
         <receiver
@@ -452,7 +471,6 @@
             android:theme="@style/TranslucentBlack" >
         </activity>
 
-        <receiver android:name=".chatHead.ChatHeadServiceManager" />
         <service android:name=".chatHead.ChatHeadService" 
             android:label="HikeStickeyService"/>
         <service android:name=".voip.VoIPService" />

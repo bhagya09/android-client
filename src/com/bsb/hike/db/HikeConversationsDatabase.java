@@ -2970,12 +2970,8 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		values.put(HIKE_CONTENT.NAMESPACE, botInfo.getNamespace());
 		values.put(HIKE_CONTENT.HELPER_DATA, botInfo.getHelperData());
 		values.put(HIKE_CONTENT.BOT_VERSION, botInfo.getVersion());
-		float result = mDb.insertWithOnConflict(DBConstants.BOT_TABLE, null, values, SQLiteDatabase.CONFLICT_REPLACE);
+		mDb.insertWithOnConflict(DBConstants.BOT_TABLE, null, values, SQLiteDatabase.CONFLICT_REPLACE);
 		
-		if (result >= 0)
-		{
-			HikeMessengerApp.getPubSub().publish(HikePubSub.BOT_CREATED, botInfo);
-		}
 	}
 
 	public boolean isBotMuted(String msisdn)
@@ -3485,6 +3481,12 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			case PARTICIPANT_JOINED:
 				JSONArray participantInfoArray = metadata.getJSONArray(HikeConstants.DATA);
 
+				//This handles the check that of no group participant than, group is successfully created
+				if(participantInfoArray == null || participantInfoArray.length() == 0)
+				{
+					break;
+				}
+				
 				JSONObject participant = (JSONObject) participantInfoArray.opt(0);
 				grpLastMsisdns.add(participant.optString(HikeConstants.MSISDN));
 
@@ -6890,7 +6892,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		}
 		else
 		{
-			mediaFileTypes = new HikeFileType[] { HikeFileType.OTHER, HikeFileType.AUDIO };
+			mediaFileTypes = new HikeFileType[] { HikeFileType.OTHER, HikeFileType.AUDIO ,HikeFileType.APK };
 		}
 
 		hfTypeSelection = new StringBuilder("(");
