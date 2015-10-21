@@ -49,7 +49,7 @@ public class HikeUnzipFile extends Observable
 	/*
 	 * Method to unzip zip file from given source to its destination
 	 */
-	private Boolean unZipFromSourceToDestination(String... params)
+	private boolean unZipFromSourceToDestination(String... params)
 	{
 		String filePath = params[0];
 		String destinationPath = params[1];
@@ -152,10 +152,8 @@ public class HikeUnzipFile extends Observable
 			return;
 		}
 		Logger.v(TAG, "Creating dir " + dir.getName());
-		if (!dir.mkdirs())
-		{
-			throw new RuntimeException("Can not create dir " + dir);
-		}
+
+		dir.mkdirs();
 	}
 
 }
