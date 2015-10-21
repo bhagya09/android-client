@@ -1580,7 +1580,7 @@ public class HikeNotification
 
 		final long timeStamp = activityFeed.getTimestamp();
 
-		final Intent notificationIntent = Utils.getTimelineActivityIntent(context, true);
+		final Intent notificationIntent = Utils.getTimelineActivityIntent(context, true, true);
 
 		final int icon = returnSmallIcon();
 

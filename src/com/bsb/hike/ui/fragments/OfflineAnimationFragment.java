@@ -1021,7 +1021,7 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 	{
 		Fragment fragment = getChildFragmentManager().findFragmentByTag(OfflineConstants.OFFLINE_DISCONNECT_FRAGMENT);
 		if(fragment != null)
-		    getChildFragmentManager().beginTransaction().remove(fragment).commit();	
+		    getChildFragmentManager().beginTransaction().remove(fragment).commitAllowingStateLoss();	
 		if(removeParent)
 		{
 			closeFragment();
