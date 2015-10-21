@@ -8,7 +8,6 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
@@ -29,6 +28,8 @@ public class LanguageSettingsActivity extends ChangeProfileImageBaseActivity imp
 	Context mContext;
 
 	DictionaryLanguageAdapter addonItemAdapter;
+
+	ArrayList<KPTAddonItem> addonItems;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -63,11 +64,19 @@ public class LanguageSettingsActivity extends ChangeProfileImageBaseActivity imp
 
 	private void setupLanguageList()
 	{
-		ArrayList<KPTAddonItem> addonItems = DictionaryManager.getInstance(this).getLanguagesList();
+		addonItems = new ArrayList<KPTAddonItem>();
 		addonItemAdapter = new DictionaryLanguageAdapter(this, R.layout.kpt_dictionary_language_list_item, addonItems);
 		ListView langList = (ListView) findViewById(R.id.lang_list);
 		langList.setAdapter(addonItemAdapter);
 		langList.setOnItemClickListener(this);
+		refreshLanguageList();
+	}
+
+	private void refreshLanguageList()
+	{
+		addonItems.clear();
+		addonItems.addAll(DictionaryManager.getInstance(this).getInstalledLanguagesList());
+		addonItems.addAll(DictionaryManager.getInstance(this).getUninstalledLanguagesList());
 	}
 
 	@Override
@@ -91,7 +100,7 @@ public class LanguageSettingsActivity extends ChangeProfileImageBaseActivity imp
 				@Override
 				public void run()
 				{
-					addonItemAdapter.notifyDataSetChanged();
+					refreshLanguageList();
 				}
 			});
 			break;
