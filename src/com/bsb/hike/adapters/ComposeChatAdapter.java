@@ -932,8 +932,10 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 			return;
 		}
 		
-		if (originalMicroAppCount == microappsListAdapter.getItemCount())
+		if (filteredmicroAppShowcaseList != null)
 		{
+			filteredmicroAppShowcaseList.clear();
+			filteredmicroAppShowcaseList.addAll(microappShowcaseList);
 			microappsListAdapter.notifyDataSetChanged();
 		}
 	}

@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/white" >
+
+    <LinearLayout
+        android:id="@+id/menu_container"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/white"
+        android:orientation="vertical" >
+
+        <com.bsb.hike.view.CustomFontTextView
+            android:id="@+id/add_via_Hike"
+            style="@style/BaseStyleTextView"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:padding="18dp"
+            android:ellipsize="end"
+            android:gravity="center_vertical"
+            android:maxLines="1"
+            android:paddingRight="123dp"
+            android:text="@string/add_via_hike"
+            android:textColor="@color/menu_text_color"
+            android:textSize="16sp"
+            android:textStyle="normal" />
+
+        <com.bsb.hike.view.CustomFontTextView
+            android:id="@+id/share_via_WA"
+            style="@style/BaseStyleTextView"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:paddingTop="18dp"
+            android:paddingBottom="18dp"
+            android:paddingLeft="18dp"
+            android:ellipsize="end"
+            android:gravity="center_vertical"
+            android:maxLines="1"
+            android:paddingRight="105dp"
+            android:text="@string/watsapp"
+            android:textColor="@color/menu_text_color"
+            android:textSize="16sp"
+            android:textStyle="normal"
+            android:visibility="gone" />
+
+        <com.bsb.hike.view.CustomFontTextView
+            android:id="@+id/share_via_Others"
+            style="@style/BaseStyleTextView"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:paddingTop="18dp"
+            android:paddingBottom="18dp"
+            android:paddingLeft="18dp"
+            android:ellipsize="end"
+            android:gravity="center_vertical"
+            android:maxLines="1"
+            android:paddingRight="105dp"
+            android:text="@string/others"
+            android:textColor="@color/menu_text_color"
+            android:textSize="16sp"
+            android:textStyle="normal"
+            android:visibility="gone" />
+    </LinearLayout>
+
+    <ProgressBar
+        android:id="@+id/app_open_loader"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:visibility="gone" />
+
+</FrameLayout>

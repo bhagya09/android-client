@@ -15,6 +15,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -87,6 +88,8 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 	private PopupWindow overFlowWindow;
 
 	private boolean shouldOpenActivityFeed;
+
+	private boolean isFromNotif;
 
 	@Override
 	public void onEventReceived(String type, Object object)
@@ -164,6 +167,7 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 	{
 		super.onNewIntent(intent);
 		shouldOpenActivityFeed = intent.getBooleanExtra(HikeConstants.Extras.OPEN_ACTIVITY_FEED, false);
+		isFromNotif = intent.getBooleanExtra(HikeConstants.Extras.FROM_NOTIFICATION, false);
 		if(isUpdatesFrgamentOnTop())
 		{
 			UpdatesFragment updatesFragment = (UpdatesFragment) getSupportFragmentManager().findFragmentByTag(FRAGMENT_UPDATES_TAG);
@@ -187,8 +191,9 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 		else
 		{
 			// We have to open UpdatesFragment
-			if (!isUpdatesFrgamentOnTop())
+			if (!isUpdatesFrgamentOnTop() && isFromNotif)
 			{
+				isFromNotif = false;
 				getSupportFragmentManager().popBackStack();
 				ActionBar actionBar = getSupportActionBar();
 				View actionBarView = actionBar.getCustomView();
@@ -653,8 +658,19 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 
 	private void loadActivityFeedFragment()
 	{
-		ActivityFeedFragment activityFeedFragment = new ActivityFeedFragment();
-		getSupportFragmentManager().beginTransaction().add(R.id.parent_layout, activityFeedFragment, FRAGMENT_ACTIVITY_FEED_TAG).addToBackStack(FRAGMENT_ACTIVITY_FEED_TAG).commit();
+		Fragment activityFeedFragment = getSupportFragmentManager().findFragmentByTag(FRAGMENT_ACTIVITY_FEED_TAG);
+
+		if (activityFeedFragment == null)
+		{
+			activityFeedFragment = new ActivityFeedFragment();
+			getSupportFragmentManager().beginTransaction().add(R.id.parent_layout, activityFeedFragment, FRAGMENT_ACTIVITY_FEED_TAG).addToBackStack(FRAGMENT_ACTIVITY_FEED_TAG)
+					.commit();
+		}
+		else
+		{
+			getSupportFragmentManager().popBackStack(FRAGMENT_ACTIVITY_FEED_TAG, 0);
+		}
+
 	}
 
 	class FetchUnreadFeedsTask extends AsyncTask<Void, Void, Integer>
