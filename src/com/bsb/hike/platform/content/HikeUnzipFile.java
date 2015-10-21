@@ -86,14 +86,14 @@ public class HikeUnzipFile extends Observable
 	{
 		if (entry.isDirectory())
 		{
-			createDir(new File(outputDir, entry.getName()));
-			return;
+				new File(outputDir, entry.getName()).mkdirs();
+				return;
 		}
 
 		File outputFile = new File(outputDir, entry.getName());
 		if (!outputFile.getParentFile().exists())
 		{
-			createDir(outputFile.getParentFile());
+			outputFile.getParentFile().mkdirs();
 		}
 
 		BufferedInputStream inputStream = null;
@@ -140,20 +140,6 @@ public class HikeUnzipFile extends Observable
 			Logger.wtf(TAG, "Unzip failed");
 			notifyObservers(false);
 		}
-	}
-
-	/*
-	 * Method to create directory while unzipping each file from the source
-	 */
-	private void createDir(File dir)
-	{
-		if (dir.exists())
-		{
-			return;
-		}
-		Logger.v(TAG, "Creating dir " + dir.getName());
-
-		dir.mkdirs();
 	}
 
 }
