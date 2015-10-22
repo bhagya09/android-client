@@ -75,13 +75,15 @@ public class ShareLinkFragment extends DialogFragment implements OnClickListener
 
 	private boolean isStartedViaBot = false;
 	
-	private byte mTaskStatus = -1;
-
+	private final byte TASK_DEFAULT = -1;
+	
 	private final byte TASK_COMPLETE = 1;
 
 	private final byte TASK_FAILED = 2;
 
 	private final byte TASK_INPROGRESS = 3;
+	
+	private byte mTaskStatus = TASK_DEFAULT;
 	
 	private static final String TASK_STATUS_KEY = "tsk";
 	
@@ -224,9 +226,6 @@ public class ShareLinkFragment extends DialogFragment implements OnClickListener
 			break;
 		}
 
-		// hide dialog
-		//getDialog().hide();
-				
 		// Start Loader here
 		showProgressDialog();
 
@@ -249,7 +248,7 @@ public class ShareLinkFragment extends DialogFragment implements OnClickListener
 		}
 
 		RequestToken token = HttpRequests.getShareLinkURLRequest(json, shareLinkURLReqListener, NO_OF_RETRIES, DELAY_MULTIPLIER);
-		if (token != null && !token.isRequestRunning())
+		if (token != null && !token.isRequestRunning() && mTaskStatus != TASK_INPROGRESS)
 		{
 			token.execute();
 			mTaskStatus = TASK_INPROGRESS;
@@ -291,43 +290,13 @@ public class ShareLinkFragment extends DialogFragment implements OnClickListener
 					}
 				}
 
-				final String url = getLinkFromResponse(response);
-
-				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHARE_LINK_URL_FOR_GC, url);
-				
-				switch (buttonClickedType)
-				{
-				case WA:
-					if(Utils.isPackageInstalled(HikeMessengerApp.getInstance().getApplicationContext(), HikeConstants.PACKAGE_WATSAPP))
-					{
-						String str = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.TEXT_FOR_GC_VIA_WA,
-								HikeMessengerApp.getInstance().getApplicationContext().getString(R.string.link_share_wa_msg))
-								+ "\n " + url;
-						str = str.replace("$groupname", grpName);
-						openWA(str);
-					}
-					break;
-
-				case OTHERS:
-					String str = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.TEXT_FOR_GC_VIA_OTHERS, getString(R.string.link_share_others_msg))
-					+ "\n " + url;
-					str = str.replace("$groupname", grpName);
-					ShareUtils.shareContent(HikeConstants.Extras.ShareTypes.TEXT_SHARE, str, null);
-					break;
-
-				default:
-					break;
-				}
+				openThirdPartyApp(response);
 				
 				mTaskStatus = TASK_COMPLETE;
 
 				if (isAdded() && isVisible())
 				{
-					// Stop Loader here
-					dismissProgressDialog();
-
-					// dismiss Dialog
-					dismiss();
+					closeDialog();
 				}
 			}
 
@@ -351,11 +320,7 @@ public class ShareLinkFragment extends DialogFragment implements OnClickListener
 					
 			if (isAdded() && isVisible())
 			{
-				// Stop Loader here
-				dismissProgressDialog();
-
-				// dismiss Dialog
-				dismiss();
+				closeDialog();
 			}
 			
 		}
@@ -376,12 +341,17 @@ public class ShareLinkFragment extends DialogFragment implements OnClickListener
 		if (isAdded() && isVisible() && 
 				(mTaskStatus == TASK_COMPLETE || mTaskStatus == TASK_FAILED)) 
 		{
-			// Stop Loader here
-			dismissProgressDialog();
-
-			// dismiss Dialog
-			dismiss();
+			closeDialog();
 		}
+	}
+
+	private void closeDialog()
+	{
+		// Stop Loader here
+		dismissProgressDialog();
+
+		// dismiss Dialog
+		dismiss();
 	}
 	
 	private void dismissProgressDialog()
@@ -465,4 +435,34 @@ public class ShareLinkFragment extends DialogFragment implements OnClickListener
 		}
 	}
 	
+	private void openThirdPartyApp(final JSONObject response)
+	{
+		final String url = getLinkFromResponse(response);
+
+		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHARE_LINK_URL_FOR_GC, url);
+		
+		switch (buttonClickedType)
+		{
+		case WA:
+			if(Utils.isPackageInstalled(HikeMessengerApp.getInstance().getApplicationContext(), HikeConstants.PACKAGE_WATSAPP))
+			{
+				String str = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.TEXT_FOR_GC_VIA_WA,
+						HikeMessengerApp.getInstance().getApplicationContext().getString(R.string.link_share_wa_msg))
+						+ "\n " + url;
+				str = str.replace("$groupname", grpName);
+				openWA(str);
+			}
+			break;
+
+		case OTHERS:
+			String str = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.TEXT_FOR_GC_VIA_OTHERS, getString(R.string.link_share_others_msg))
+			+ "\n " + url;
+			str = str.replace("$groupname", grpName);
+			ShareUtils.shareContent(HikeConstants.Extras.ShareTypes.TEXT_SHARE, str, null);
+			break;
+
+		default:
+			break;
+		}
+	}
 }
