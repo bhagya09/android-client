@@ -798,7 +798,9 @@ public class ChatHeadUtils
 	{
 		Context context = HikeMessengerApp.getInstance().getApplicationContext();
 		if (HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.SHOW_STICKY_CALLER, false)
-				&& PreferenceManager.getDefaultSharedPreferences(context).getBoolean(HikeConstants.ACTIVATE_STICKY_CALLER_PREF, false))
+				&& PreferenceManager.getDefaultSharedPreferences(context).getBoolean(HikeConstants.ACTIVATE_STICKY_CALLER_PREF, false)
+				&& HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.SHOW_SMS_CARD_PREF, false)
+				&& PreferenceManager.getDefaultSharedPreferences(context).getBoolean(HikeConstants.SMS_CARD_ENABLE_PREF, false))
 		{
 			StickyCaller.CALL_TYPE = StickyCaller.SMS;
 			postNumberRequest(context, number);

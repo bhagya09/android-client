@@ -2617,6 +2617,14 @@ public class MqttMessagesManager
 		{
 			Utils.setSharedPrefValue(context, HikeConstants.ENABLE_KNOWN_NUMBER_CARD_PREF, data.optBoolean(HikeConstants.ENABLE_KNOWN_NUMBER_CARD_PREF, true));
 		}
+		if(data.has(StickyCaller.SHOW_SMS_CARD_PREF))
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(StickyCaller.SHOW_SMS_CARD_PREF, data.optBoolean(StickyCaller.SHOW_SMS_CARD_PREF, false));
+		}
+		if (data.has(HikeConstants.SMS_CARD_ENABLE_PREF))
+		{
+			Utils.setSharedPrefValue(context, HikeConstants.SMS_CARD_ENABLE_PREF, data.optBoolean(HikeConstants.SMS_CARD_ENABLE_PREF, false));
+		}
 		if (data.has(StickyCaller.SHOW_FREECALL_VIEW))
 		{
 			HikeSharedPreferenceUtil.getInstance().saveData(StickyCaller.SHOW_FREECALL_VIEW, data.optBoolean(StickyCaller.SHOW_FREECALL_VIEW, true));

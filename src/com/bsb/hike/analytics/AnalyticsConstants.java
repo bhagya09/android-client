@@ -528,6 +528,8 @@ public class AnalyticsConstants
 		public static final String KNOWN_CARD_SETTINGS_TOGGLE = "knwStgTgl";
 		
 		public static final String WRONG_JSON = "wrngJsn";
+
+		public static final String SMS_CARD_SETTINGS_TOGGLE = "smsStgTgl";
 		
 	}
 	

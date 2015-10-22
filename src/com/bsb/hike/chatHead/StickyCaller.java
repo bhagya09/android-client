@@ -112,6 +112,8 @@ public class StickyCaller
 	
 	public static final String SHOW_FREECALL_VIEW = "showFreeView";
 
+	public static final String SHOW_SMS_CARD_PREF = "showSmsCardPref";
+	
 	private static final String INDIA = "India";
 
 	public static final String NAME = "name";
