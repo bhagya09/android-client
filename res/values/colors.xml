@@ -299,5 +299,17 @@
     <color name="fav_reject_btn_pressed">#EB1D1D</color>
     <color name="fav_reject_btn_normal">#FF3636</color>
     <color name="caller_free_call">#3d475b</color>
+    <color name="dp_bg_1">#ff9ace6c</color>
+    <color name="dp_bg_2">#ff9a66d0</color>
+    <color name="dp_bg_3">#ff669cf6</color>
+    <color name="dp_bg_4">#ffffab66</color>
+    <color name="dp_bg_5">#ff66ca99</color>
+    <color name="dp_bg_6">#fff26695</color>
+    <color name="dp_bg_7">#ff66cdff</color>
+    <color name="dp_bg_8">#ffee7166</color>
+    <color name="dp_bg_9">#ff66c0b8</color>
+    <color name="dp_bg_10">#ffa3a3a3</color>
+    <color name="dp_bg_11">#ff66d7e3</color>
+    <color name="dp_bg_12">#ffffd966</color>
 </resources>
 	

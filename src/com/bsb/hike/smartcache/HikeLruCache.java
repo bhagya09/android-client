@@ -295,11 +295,6 @@ public class HikeLruCache extends LruCache<String, BitmapDrawable>
 			return b;
 	}
 	
-	public BitmapDrawable getDefaultAvatar(int index)
-	{
-		//Adding '+' will insure we return one to one conversation avatar
-		return getDefaultAvatar("+" + index);
-	}
 	
 	public BitmapDrawable getDefaultAvatar(String msisdn)
 	{

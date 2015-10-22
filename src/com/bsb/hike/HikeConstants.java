@@ -3011,17 +3011,21 @@ public class HikeConstants
 	public static final String CAM_IMG_PREFIX = "CAM_";
 	
 	public static final String MESSAGE_PROCESS_TIME = "mpt";
-	
+
 	public static TypedArray DEFAULT_AVATAR_BG_COLOR_ARRAY = null;
 
-	public static int DEFAULT_AVATARS[] = {R.drawable.avatar_bubblegum, R.drawable.avatar_apricot, R.drawable.avatar_carnation, R.drawable.avatar_light_gold, R.drawable.avatar_sky_blue};
+	public static int DEFAULT_AVATARS[] = { R.drawable.avatar_bubblegum, R.drawable.avatar_apricot, R.drawable.avatar_carnation, R.drawable.avatar_light_gold,
+			R.drawable.avatar_sky_blue };
 
-	public static String DEFAULT_AVATAR_KEYS[] = {"avatar_buggle_gum","avatar_apricot", "avatar_carnation", "avatar_light_gold", "avatar_sky_blue"};
-	
+	public static String DEFAULT_AVATAR_KEYS[] = { "avatar_01", "avatar_02", "avatar_03", "avatar_04", "avatar_05" };
+
+	public static int DEFAULT_AVATAR_BG_COLORID[] = { R.color.avatar_color_apricot, R.color.avatar_color_bubblegum, R.color.avatar_color_carnation,
+			R.color.avatar_color_light_gold, R.color.avatar_color_sky_blue };
+
 	public static String IS_GROUP = "isGroup";
-	
+
 	public static final String URL_WHITELIST = "uwl";
-	
+
 	public static final String IN_HIKE_URL_WHITELIST = "iuwl";
 	
 	public static final String BROWSER_URL_WHITELIST = "buwl";

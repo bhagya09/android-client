@@ -257,5 +257,12 @@
         <item>Send to friends</item>
         <item>Post to timeline</item>
     </array>
+    <array name="dp_bg">
+        <item>@color/avatar_color_apricot</item>
+        <item>@color/avatar_color_bubblegum</item>
+        <item>@color/avatar_color_carnation</item>
+        <item>@color/avatar_color_light_gold</item>
+        <item>@color/avatar_color_sky_blue</item>
+    </array>
 
 </resources>

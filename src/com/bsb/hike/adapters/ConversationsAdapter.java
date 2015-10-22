@@ -144,6 +144,7 @@ public class ConversationsAdapter extends BaseAdapter
 		iconLoader = new IconLoader(context, mIconImageSize);
 		iconLoader.setImageFadeIn(false);
 		iconLoader.setDefaultAvatarIfNoCustomIcon(true);
+		iconLoader.setDefaultDrawableNull(false);
 		itemsToAnimat = new SparseBooleanArray();
 		contactFilter = new ContactFilter();
 		conversationList = new ArrayList<ConvInfo>();
@@ -1236,8 +1237,13 @@ public class ConversationsAdapter extends BaseAdapter
 				}
 				
 				ConvInfo conversationInfo = getItem(indexOfData);
+				
+				if (ContactManager.getInstance().hasIcon(conversationInfo.getMsisdn()))
+				{
+					updateViewsRelatedToAvatar(view,conversationInfo);
+				}
 
-				updateViewsRelatedToAvatar(view,conversationInfo);
+				
 			}
 		}
 		

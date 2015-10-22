@@ -3,6 +3,7 @@ package com.bsb.hike.BitmapModule;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Random;
 
 import android.annotation.TargetApi;
 import android.content.Context;
@@ -23,8 +24,6 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
 import android.media.ExifInterface;
 import android.os.Build;
-import android.os.Handler;
-import android.os.Looper;
 import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Pair;
@@ -37,6 +36,7 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.models.HikeHandlerUtil;
+import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.photos.HikePhotosListener;
 import com.bsb.hike.photos.HikePhotosUtils;
 import com.bsb.hike.smartcache.HikeLruCache;
@@ -44,6 +44,7 @@ import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.Utils;
+import com.bsb.hike.view.TextDrawable;
 
 public class HikeBitmapFactory
 {
@@ -1280,6 +1281,97 @@ public class HikeBitmapFactory
 		return bd;
 	}
 	
+	public static Drawable getDefaultTextAvatar(String text)
+	{
+		TypedArray bgColorArray = Utils.getDefaultAvatarBG();
+
+		if (TextUtils.isEmpty(text))
+		{
+			return getRandomHashTextDrawable();
+		}
+
+		String initials = getNameInitialsForDefaultAv(text);
+
+		int index = BitmapUtils.iconHash(text) % (bgColorArray.length());
+
+		int bgColor = bgColorArray.getColor(index, 0);
+
+		return TextDrawable.builder().buildRound(initials, bgColor);
+	}
+	
+	private static TextDrawable getRandomHashTextDrawable()
+	{
+		TypedArray bgColorArray = Utils.getDefaultAvatarBG();
+
+		int bgColor = bgColorArray.getColor(new Random().nextInt(bgColorArray.length()), 0);
+
+		return TextDrawable.builder().buildRound("#", bgColor);
+	}
+
+	public static Drawable getRectTextAvatar(String text)
+	{
+		TypedArray bgColorArray = Utils.getDefaultAvatarBG();
+
+		if (TextUtils.isEmpty(text))
+		{
+			return getRandomHashTextDrawable();
+		}
+
+		String initials = getNameInitialsForDefaultAv(text);
+
+		int index = BitmapUtils.iconHash(text) % (bgColorArray.length());
+
+		int bgColor = bgColorArray.getColor(index, 0);
+
+		return TextDrawable.builder().buildRect(initials, bgColor);
+	}
+
+	@SuppressWarnings("unused")
+	public static String getNameInitialsForDefaultAv(String msisdn)
+	{
+		if (TextUtils.isEmpty(msisdn))
+		{
+			return "#";
+		}
+
+		String initials = "";
+
+		String contactName = ContactManager.getInstance().getName(msisdn, true);
+
+		if (TextUtils.isEmpty(contactName))
+		{
+			contactName = msisdn;
+		}
+
+		String[] nameArray = contactName.trim().split(" ");
+
+		char first = nameArray[0].charAt(0);
+
+		if (Character.isLetter(first))
+		{
+			initials += first;
+
+			if (NUMBER_OF_CHARS_DEFAULT_DP > 1)
+			{
+				if (nameArray.length > 1)
+				{
+					// Second is optional (only if is letter)
+					char second = nameArray[nameArray.length - 1].charAt(0);
+					if (Character.isLetter(second))
+					{
+						initials += second;
+					}
+				}
+			}
+		}
+		else
+		{
+			initials = "#";
+		}
+
+		return initials;
+	}
+
 	private static int getDefaultAvatarIconResId( String msisdn, boolean hiRes)
 	{
 		if (OneToNConversationUtils.isBroadcastConversation(msisdn))
