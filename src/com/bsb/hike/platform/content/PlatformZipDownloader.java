@@ -443,6 +443,7 @@ public class PlatformZipDownloader
 				{
 					if (updateProgress(progress))
 					{
+						//Normalising progress as the progress received here would be for the remaining file, so taking in account the part of the file downloaded earlier.
 						progress=progress_done+(progress*(1-progress_done));
 						callbackProgress.put(callbackId, progress);
 						HikeMessengerApp.getPubSub().publish(HikePubSub.DOWNLOAD_PROGRESS, new Pair<String, String>(callbackId, String.valueOf(progress)));
