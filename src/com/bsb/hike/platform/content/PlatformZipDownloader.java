@@ -58,6 +58,8 @@ public class PlatformZipDownloader
 	
 	private String stateFilePath;
 
+	private static float progress_done=0;
+
 	
 	/**
 	 * Instantiates a new platform template download task.
@@ -104,11 +106,12 @@ public class PlatformZipDownloader
 		if (file.exists())
 		{
 			String data[] = PlatformUtils.readPartialDownloadState(stateFilePath + FileRequestPersistent.STATE_FILE_EXT);
-			if (data.length > 0)
+			if (data.length > 1)
 			{
 				try
 				{
 					startOffset = Integer.parseInt(data[0]);
+					progress_done=Float.parseFloat(data[1]);
 				}
 				catch (NumberFormatException e)
 				{
@@ -224,6 +227,7 @@ public class PlatformZipDownloader
 		{
 			lastProgress = callbackProgress.get(callbackId);
 		}
+		progress=progress_done+(progress*(1-progress_done));
 		return progress - lastProgress >= HikeConstants.ONE_PERCENT_PROGRESS;
 	}
 	
@@ -439,6 +443,7 @@ public class PlatformZipDownloader
 				{
 					if (updateProgress(progress))
 					{
+						progress=progress_done+(progress*(1-progress_done));
 						callbackProgress.put(callbackId, progress);
 						HikeMessengerApp.getPubSub().publish(HikePubSub.DOWNLOAD_PROGRESS, new Pair<String, String>(callbackId, String.valueOf(progress)));
 					}
