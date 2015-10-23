@@ -25,11 +25,11 @@
         android:dependency="keyboardPref"
         android:title="@string/keyboard_settings_header" >
         
-        <ListPreference
-        android:key="kbdLanguagePref"
-        android:layout="@layout/list_preference"
-        android:summary="@string/language_summary"
-        android:title="@string/language" />
+        <com.bsb.hike.view.IconPreference
+        	android:key="kbdLanguagePref"
+        	android:layout="@layout/list_preference"
+        	android:summary="@string/language_summary"
+        	android:title="@string/language" />
         
         <com.bsb.hike.view.IconPreference
             android:key="keyboardPrimaryPref"

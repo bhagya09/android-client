@@ -1,5 +1,6 @@
 package com.bsb.hike.ui;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -26,8 +27,11 @@ import com.bsb.hike.dialog.DialogUtils;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
+import com.bsb.hike.localisation.LocalLanguage;
+import com.bsb.hike.localisation.LocalLanguageUtils;
 import com.bsb.hike.models.Conversation.ConversationTip;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
+import com.bsb.hike.modules.kpt.DictionaryManager;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
 import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.tasks.ActivityCallableTask;
@@ -46,6 +50,7 @@ import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.IconListPreference;
+import com.bsb.hike.view.IconPreference;
 import com.bsb.hike.view.NotificationToneListPreference;
 import com.bsb.hike.view.PreferenceWithSubText;
 import com.bsb.hike.view.SeekBarPreference;
@@ -156,6 +161,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		addClickPreferences();
 		addSwitchPreferences();
 		addSeekbarPreferences();
+		addAppLanguagePreference();
 		
 		saveKeyboardPref();
 		
@@ -197,14 +203,32 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 			((SwitchPreferenceCompat) kbdPref).setChecked(!val);
 		}
 		
-		
-		ListPreference languagePrf = (ListPreference) findPreference(HikeConstants.KEYBOARD_LANGUAGE_PREF);
-		if (languagePrf != null && languagePrf instanceof ListPreference)
+		ListPreference localLanguagePrf = (ListPreference) findPreference(HikeConstants.LOCAL_LANGUAGE_PREF);
+		if (localLanguagePrf != null && localLanguagePrf instanceof ListPreference)
 		{
-			languagePrf.setValue(mCurrentlangName);
+			localLanguagePrf.setValue(LocalLanguageUtils.getApplicationLocalLanguage(HikePreferences.this).getDisplayName());
 		}
+		
+		setKeyboardLangSummary();
 	}
 
+	private void setKeyboardLangSummary()
+	{
+		IconPreference kbdLanguagePref = (IconPreference) findPreference(HikeConstants.KEYBOARD_LANGUAGE_PREF);
+		if (kbdLanguagePref != null && kbdLanguagePref instanceof IconPreference)
+		{
+			String summary = new String();
+			ArrayList<KPTAddonItem> langList = DictionaryManager.getInstance(HikePreferences.this).getInstalledLanguagesList();
+			for (KPTAddonItem item : langList)
+			{
+				summary += item.getDisplayName();
+				summary += ", ";
+			}
+			summary = summary.substring(0, summary.length()-2);
+			kbdLanguagePref.setSummary(summary);			
+		}
+	}
+	
 	private void addClickPreferences()
 	{
 		addOnPreferenceClickListeners(HikeConstants.DELETE_PREF);
@@ -220,6 +244,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		addOnPreferenceClickListeners(HikeConstants.CHAT_BG_NOTIFICATION_PREF);
 		addOnPreferenceClickListeners(HikeConstants.NOTIF_SOUND_PREF);
 		addOnPreferenceClickListeners(HikeConstants.FAV_LIST_PREF);
+		addOnPreferenceClickListeners(HikeConstants.KEYBOARD_LANGUAGE_PREF);
 		addKeyboardPreferenceClickListeners(HikeConstants.KEYBOARD_PRIMARY_PREF);
 		addKeyboardPreferenceClickListeners(HikeConstants.TEXT_CORRECTION_PREF);
 		addKeyboardPreferenceClickListeners(HikeConstants.KEYBOARD_ADV_PREF);
@@ -292,53 +317,39 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		}
 	}
 	
-	private void addKeyboardLanguagePrefListener()
+	private void addAppLanguagePreference()
 	{
-		if (mCoreEngineStatus)
+		final ListPreference languagePref = (ListPreference) getPreferenceScreen().findPreference(HikeConstants.LOCAL_LANGUAGE_PREF);
+		if (languagePref != null)
 		{
-			if (mProgressDialog != null && mProgressDialog.isShowing())
+			final LocalLanguage localLanguage = LocalLanguageUtils.getApplicationLocalLanguage(HikePreferences.this);
+			languagePref.setSummary(localLanguage.getDisplayName());
+			CharSequence entries[] = new String[localLanguage.getSupportedLanguages(HikePreferences.this).size()];
+			int i=0;
+			for (LocalLanguage language : localLanguage.getSupportedLanguages(HikePreferences.this))
 			{
-				mProgressDialog.dismiss();
+				entries[i] = language.getDisplayName();
+				i++;
 			}
-			final ListPreference languagePref = (ListPreference) getPreferenceScreen().findPreference(HikeConstants.KEYBOARD_LANGUAGE_PREF);
-			if (languagePref != null)
+			languagePref.setEntries(entries);
+			languagePref.setEntryValues(entries);
+			languagePref.setOnPreferenceChangeListener(new OnPreferenceChangeListener()
 			{
-				CharSequence entries[] = new String[mInstalledLanguagesList.size()];
-				CharSequence entryValues[] = new String[mInstalledLanguagesList.size()];
-				int i=0;
-				for (KPTAddonItem item : mInstalledLanguagesList)
+				
+				@Override
+				public boolean onPreferenceChange(Preference preference, Object newValue)
 				{
-					entries[i] = item.getDisplayName();
-					entryValues[i] = item.getDisplayName();
-					i++;
-				}
-				languagePref.setEntries(entries);
-				languagePref.setEntryValues(entryValues);
-				languagePref.setDependency(HikeConstants.KEYBOARD_PREF);
-				languagePref.setOnPreferenceChangeListener(new OnPreferenceChangeListener()
-				{
-					
-					@Override
-					public boolean onPreferenceChange(Preference preference, Object newValue)
+					for (LocalLanguage language : localLanguage.getSupportedLanguages(HikePreferences.this))
 					{
-						for (KPTAddonItem item : mInstalledLanguagesList)
+						if (language.getDisplayName().equalsIgnoreCase((String) newValue))
 						{
-							if (item.getDisplayName().equalsIgnoreCase((String) newValue))
-							{
-								kptSettings.changeLanguage(item);
-								mCurrentlangName = (String) newValue;
-							}
+							LocalLanguageUtils.setApplicationLocalLanguage(language);
+							languagePref.setSummary(language.getDisplayName());
 						}
-						return true;
 					}
-				});
-			}
-		}
-		else
-		{
-			mProgressDialog = ProgressDialog.show(this, getResources().getText(R.string.kpt_title_wait), "Loading languages...", true, false);
-			Thread thread = new Thread();
-			thread.start();
+					return true;
+				}
+			});
 		}
 	}
 	
@@ -670,6 +681,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 	protected void onResume() {
 		super.onResume();
 		mIsResumed = true;
+		setKeyboardLangSummary();
 	}
 	
 	@Override
@@ -1054,6 +1066,11 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		{
 			Intent i = new Intent(HikePreferences.this, StickerSettingsActivity.class);
 			startActivity(i);
+		}
+		else if (HikeConstants.KEYBOARD_LANGUAGE_PREF.equals(preference.getKey()))
+		{
+			preference.setDependency(HikeConstants.KEYBOARD_PREF);
+			IntentFactory.openKeyboardLanguageSetting(HikePreferences.this);
 		}
 		else if(HikeConstants.KEYBOARD_PRIMARY_PREF.equals(preference.getKey()))
 		{
