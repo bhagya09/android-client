@@ -314,12 +314,17 @@ public class DeleteAccount extends HikeAppStateBaseFragmentActivity implements D
 	{
 		if (mCustomKeyboard != null && mCustomKeyboard.isCustomKeyboardVisible())
 		{
-			mCustomKeyboard.showCustomKeyboard(countryCode, false);
-			mCustomKeyboard.showCustomKeyboard(phoneNum, false);
-			KptUtils.updatePadding(DeleteAccount.this, R.id.delete_scroll_view, 0);
+			hideKeyboard();
 			return;
 		}
 		finish();
+	}
+
+	private void hideKeyboard()
+	{
+		mCustomKeyboard.showCustomKeyboard(countryCode, false);
+		mCustomKeyboard.showCustomKeyboard(phoneNum, false);
+		KptUtils.updatePadding(DeleteAccount.this, R.id.delete_scroll_view, 0);
 	}
 
 	@Override
@@ -397,7 +402,6 @@ public class DeleteAccount extends HikeAppStateBaseFragmentActivity implements D
 	@Override
 	public void onReturnAction(int resId, int arg0)
 	{
-		deleteAccountClicked(null);
-		
+		hideKeyboard();		
 	}
 }
