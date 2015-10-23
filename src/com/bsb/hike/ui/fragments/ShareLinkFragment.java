@@ -11,6 +11,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -19,6 +20,7 @@ import android.view.Window;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.Toast;
+
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
@@ -351,7 +353,11 @@ public class ShareLinkFragment extends DialogFragment implements OnClickListener
 		dismissProgressDialog();
 
 		// dismiss Dialog
-		dismiss();
+		FragmentTransaction ft = getFragmentManager().beginTransaction();
+		ft.remove(this);
+
+		ft.commitAllowingStateLoss();
+
 	}
 	
 	private void dismissProgressDialog()
