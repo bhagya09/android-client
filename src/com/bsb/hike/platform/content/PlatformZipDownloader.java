@@ -57,6 +57,9 @@ public class PlatformZipDownloader
 	
 	private String stateFilePath;
 
+	private  float progress_done=0;
+
+
 	/**
 	 * Instantiates a new platform template download task.
 	 *
@@ -102,11 +105,12 @@ public class PlatformZipDownloader
 		if (file.exists())
 		{
 			String data[] = PlatformUtils.readPartialDownloadState(stateFilePath + FileRequestPersistent.STATE_FILE_EXT);
-			if (data.length > 0)
+			if (data.length > 1)
 			{
 				try
 				{
 					startOffset = Integer.parseInt(data[0]);
+					progress_done=Float.parseFloat(data[1]);
 				}
 				catch (NumberFormatException e)
 				{
@@ -158,8 +162,8 @@ public class PlatformZipDownloader
 
 		tempFolder.mkdirs();
 		final File zipFile = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.TEMP_DIR_NAME, mRequest.getContentData().getId() + ".zip");
-
-		if (zipFile.exists())
+        //If resume is supported we donot want to delete the zipfile on download failure.
+		if (zipFile.exists()&&!resumeSupported)
 		{
 			unzipMicroApp(zipFile);
 			return;
@@ -381,7 +385,7 @@ public class PlatformZipDownloader
 	private RequestToken downloadZipWithResume(File zipFile, String stateFilePath, long startOffset)
 	{
 		RequestToken token = HttpRequests.platformZipDownloadRequestWithResume(zipFile.getAbsolutePath(), stateFilePath, mRequest.getContentData().getLayout_url(),
-				getRequestListenerForDownload(true, stateFilePath, zipFile), startOffset);
+				getRequestListenerForDownload(true, stateFilePath, zipFile), startOffset,progress_done);
 
 		return token;
 
@@ -425,10 +429,11 @@ public class PlatformZipDownloader
 			{
 				callbackProgress.remove(callbackId);
 				platformRequests.remove(mRequest.getContentData().getLayout_url());
-				HikeMessengerApp.getPubSub().publish(HikePubSub.DOWNLOAD_PROGRESS, new Pair<String, String>(callbackId, "downloadFailure"));
+				HikeMessengerApp.getPubSub().publish(HikePubSub.DOWNLOAD_PROGRESS, new Pair<String,String>(callbackId, "downloadFailure"));
 				PlatformRequestManager.failure(mRequest, EventCode.LOW_CONNECTIVITY, isTemplatingEnabled);
 				PlatformRequestManager.getCurrentDownloadingTemplates().remove((Integer) mRequest.getContentData().appHashCode());
-				zipFile.delete();
+				if (!resumeSupported) //As we would write to the same file on download resume.
+					zipFile.delete();
 			}
 		};
 	}

@@ -70,6 +70,10 @@ public class CocosGamingActivity extends Cocos2dxActivity
 
 	public void onCreate(Bundle savedInstanceState)
 	{
+		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+		getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+		requestWindowFeature(Window.FEATURE_NO_TITLE);
+		this.setVolumeControlStream(AudioManager.STREAM_MUSIC);
 		super.onCreateDuplicate(savedInstanceState);
 		context = CocosGamingActivity.this;
 		msisdn = getIntent().getStringExtra(HikeConstants.MSISDN);
@@ -88,10 +92,6 @@ public class CocosGamingActivity extends Cocos2dxActivity
 		botInfo.setUnreadCount(0);
 		nonMessagingBotMetadata = new NonMessagingBotMetadata(botInfo.getMetadata());
 
-		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-		getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-		requestWindowFeature(Window.FEATURE_NO_TITLE);
-		this.setVolumeControlStream(AudioManager.STREAM_MUSIC);
 
 		botConfig = null == botInfo.getConfigData() ? new NonMessagingBotConfiguration(botInfo.getConfiguration()) : new NonMessagingBotConfiguration(botInfo.getConfiguration(),
 				botInfo.getConfigData());
