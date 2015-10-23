@@ -58,9 +58,9 @@ public class PlatformZipDownloader
 	
 	private String stateFilePath;
 
-	private static float progress_done=0;
+	private  float progress_done=0;
 
-	
+
 	/**
 	 * Instantiates a new platform template download task.
 	 *
@@ -164,7 +164,7 @@ public class PlatformZipDownloader
 		tempFolder.mkdirs();
 		final File zipFile = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.TEMP_DIR_NAME, mRequest.getContentData().getId() + ".zip");
 
-		if (zipFile.exists())
+		if (zipFile.exists()&&!resumeSupported)
 		{
 			unzipMicroApp(zipFile);
 			return;
@@ -227,7 +227,6 @@ public class PlatformZipDownloader
 		{
 			lastProgress = callbackProgress.get(callbackId);
 		}
-		progress=progress_done+(progress*(1-progress_done));
 		return progress - lastProgress >= HikeConstants.ONE_PERCENT_PROGRESS;
 	}
 	
@@ -369,7 +368,7 @@ public class PlatformZipDownloader
 											.onEventOccured(0, EventCode.UNZIP_FAILED);
 									HikeMessengerApp.getPubSub()
 											.publish(HikePubSub.DOWNLOAD_PROGRESS,
-													new Pair<String, String>(callbackId,
+													new Pair<String,String>(callbackId,
 															"unzipFailed"));
 								}
 								zipFile.delete();
@@ -410,7 +409,7 @@ public class PlatformZipDownloader
 	private RequestToken downloadZipWithResume(File zipFile, String stateFilePath, long startOffset)
 	{
 		RequestToken token = HttpRequests.platformZipDownloadRequestWithResume(zipFile.getAbsolutePath(), stateFilePath, mRequest.getContentData().getLayout_url(),
-				getRequestListenerForDownload(true, stateFilePath, zipFile), startOffset);
+				getRequestListenerForDownload(true, stateFilePath, zipFile), startOffset,progress_done);
 
 		return token;
 
@@ -444,7 +443,6 @@ public class PlatformZipDownloader
 					if (updateProgress(progress))
 					{
 						//Normalising progress as the progress received here would be for the remaining file, so taking in account the part of the file downloaded earlier.
-						progress=progress_done+(progress*(1-progress_done));
 						callbackProgress.put(callbackId, progress);
 						HikeMessengerApp.getPubSub().publish(HikePubSub.DOWNLOAD_PROGRESS, new Pair<String, String>(callbackId, String.valueOf(progress)));
 					}
@@ -456,10 +454,11 @@ public class PlatformZipDownloader
 			{
 				callbackProgress.remove(callbackId);
 				platformRequests.remove(mRequest.getContentData().getLayout_url());
-				HikeMessengerApp.getPubSub().publish(HikePubSub.DOWNLOAD_PROGRESS, new Pair<String, String>(callbackId, "downloadFailure"));
+				HikeMessengerApp.getPubSub().publish(HikePubSub.DOWNLOAD_PROGRESS, new Pair<String,String>(callbackId, "downloadFailure"));
 				PlatformRequestManager.failure(mRequest, EventCode.LOW_CONNECTIVITY, isTemplatingEnabled);
 				PlatformRequestManager.getCurrentDownloadingTemplates().remove((Integer) mRequest.getContentData().appHashCode());
-				zipFile.delete();
+				if (!resumeSupported)
+					zipFile.delete();
 			}
 		};
 	}
