@@ -1020,6 +1020,11 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 			Utils.setSharedPrefValue(this, HikeConstants.ACTIVATE_STICKY_CALLER_PREF,
 					HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ACTIVATE_STICKY_CALLER_PREF, false));
 			HikeSharedPreferenceUtil.getInstance().removeData(HikeConstants.ACTIVATE_STICKY_CALLER_PREF);
+			
+		}
+		if (HikeSharedPreferenceUtil.getInstance().contains(StickyCaller.CALLER_Y_PARAMS_OLD))
+		{
+			HikeSharedPreferenceUtil.getInstance().removeData(StickyCaller.CALLER_Y_PARAMS_OLD);
 		}
 	}
 

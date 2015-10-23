@@ -3,8 +3,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bsb.hike"
     android:installLocation="auto"
-    android:versionCode="1470"
-    android:versionName="4.0.7.82.25.1.voip" >
+    android:versionCode="1480"
+    android:versionName="4.0.7.82.30" >
+    
     <uses-sdk
         android:minSdkVersion="14"
         android:targetSdkVersion="17"/>
@@ -132,22 +133,6 @@
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-                <!-- Accepts URIs that begin with "http://hike.in/” -->
-                <data
-                    android:host="hike.in"
-                    android:pathPrefix="/"
-                    android:scheme="http" />
-                <!-- Accepts URIs that begin with "https://hike.in/” -->
-                <data
-                    android:host="hike.in"
-                    android:pathPrefix="/"
-                    android:scheme="https" />
             </intent-filter>
         </activity>
 
@@ -378,6 +363,28 @@
             android:name=".ui.HikeDirectHelpPageActivity"
             android:label="@string/app_label"
          >
+        </activity>
+        <activity
+            android:name=".ui.LinkDispatcherActivity"
+            android:launchMode="singleInstance"
+            android:noHistory="true"
+            android:theme="@style/Transparent" >
+             <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <!-- Accepts URIs that begin with "http://hike.in/” -->
+                <data
+                    android:host="hike.in"
+                    android:pathPrefix="/"
+                    android:scheme="http" />
+                <!-- Accepts URIs that begin with "https://hike.in/” -->
+                <data
+                    android:host="hike.in"
+                    android:pathPrefix="/"
+                    android:scheme="https" />
+            </intent-filter>
         </activity>
          
         <receiver
