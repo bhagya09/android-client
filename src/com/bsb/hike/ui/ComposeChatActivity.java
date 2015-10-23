@@ -95,6 +95,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
+import android.text.InputType;
 import android.text.TextUtils;
 import android.util.Pair;
 import android.view.KeyEvent;
@@ -2882,6 +2883,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 				searchView.clearFocus();
 				mCustomKeyboard.registerEditText(searchET);
 				mCustomKeyboard.init(searchET);
+				searchET.setInputType(InputType.TYPE_TEXT_FLAG_MULTI_LINE|InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
 			}
 			searchET.setOnFocusChangeListener(new View.OnFocusChangeListener() {
 	 			

@@ -38,7 +38,7 @@
         android:paddingLeft="10dp"
         android:paddingRight="10dp"
         android:paddingTop="8dp"
-        android:inputType="textMultiLine|textNoSuggestions" >
+        android:inputType="textMultiLine" >
     </com.bsb.hike.view.TagEditText>
 
     <com.bsb.hike.view.PinnedSectionListView
