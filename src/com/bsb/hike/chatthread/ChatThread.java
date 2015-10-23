@@ -4156,7 +4156,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 //		actionbar disappears randomly after onResume()
 		setupActionBar(false);
 		
-		showKeyboard();
+		showKeyboardIfRequired();
 
 		isActivityVisible = true;
 
@@ -4201,32 +4201,41 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 	protected void showKeyboard()
 	{
-		
-		if (shouldShowKeyboard())
+
+		if (isSystemKeyboard())
 		{
-			if (isSystemKeyboard())
-			{
-				changeKeyboard(isSystemKeyboard());
-				activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
-				Utils.showSoftKeyboard(mComposeView, InputMethodManager.SHOW_FORCED);
-				KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, 0);
-			}
-			else
-			{
-				mCustomKeyboard.showCustomKeyboard(mComposeView, true);
-			}
+			changeKeyboard(isSystemKeyboard());
+			activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+			Utils.showSoftKeyboard(mComposeView, InputMethodManager.SHOW_FORCED);
+			KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, 0);
 		}
 		else
 		{
-			if (isSystemKeyboard())
-			{
-				changeKeyboard(isSystemKeyboard());
-				Utils.hideSoftKeyboard(activity, mComposeView);
-			}
-			KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, 0);
+			mCustomKeyboard.showCustomKeyboard(mComposeView, true);
 		}
 	}
-	
+
+	protected void resetKeyboard()
+	{
+		if (isSystemKeyboard())
+		{
+			changeKeyboard(isSystemKeyboard());
+			Utils.hideSoftKeyboard(activity, mComposeView);
+		}
+		KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, 0);
+	}
+
+	protected void showKeyboardIfRequired()
+	{
+		if (shouldShowKeyboard())
+		{
+			showKeyboard();
+		}
+		else
+		{
+			resetKeyboard();
+		}
+	}
 	public void onRestart()
 	{
 		isActivityVisible = true;
