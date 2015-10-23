@@ -466,6 +466,9 @@ public class PlatformContentModel
 		@Expose
 		public boolean replace;
 
+		@Expose
+		public boolean lpd;
+
 	}
 
 }
