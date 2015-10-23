@@ -182,8 +182,6 @@ public class PlatformZipDownloader
 		return zipFile;
 	}
 	
-	
-	
 	/**
 	 * download the zip from web using 3 retries. On success, will unzip the folder.
 	 */
@@ -327,6 +325,7 @@ public class PlatformZipDownloader
 									PlatformRequestManager.setReadyState(mRequest);
 								}
 								HikeMessengerApp.getPubSub().publish(HikePubSub.DOWNLOAD_PROGRESS, new Pair<String, String>(callbackId, "unzipSuccess"));
+								deleteMicroAppsAsPerCompatibilityMap();
 							}
 							else
 							{
@@ -353,7 +352,7 @@ public class PlatformZipDownloader
 	private String getUnZipPath()
 	{
 		String microAppName = mRequest.getContentData().getId();
-		String microAppVersion = mRequest.getContentData().getVersion();
+		int microAppVersion = Integer.parseInt(mRequest.getContentData().getVersion());
 		String unzipPath = (doReplace) ? PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.TEMP_DIR_NAME : PlatformContentConstants.PLATFORM_CONTENT_DIR;
 
 		// Create directory for micro app if not exists already
@@ -365,6 +364,46 @@ public class PlatformZipDownloader
 
 		unzipPath += "Version_" + microAppVersion + File.separator;
 		return unzipPath;
+	}
+
+	/*
+	 * Method to delete unzipped code as per the compatibility map
+	 */
+	private void deleteMicroAppsAsPerCompatibilityMap()
+	{
+		String microAppName = mRequest.getContentData().getId();
+		HashMap <Integer,Integer> compatibilityMap = mRequest.getContentData().cardObj.compatibilityMap;
+		int microAppVersion = Integer.parseInt(mRequest.getContentData().getVersion());
+
+		int minSupportedAppVersion = compatibilityMap.get(microAppVersion);
+		String unzipPath = (doReplace) ? PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.TEMP_DIR_NAME : PlatformContentConstants.PLATFORM_CONTENT_DIR;
+		unzipPath += microAppName + File.separator;
+
+		while(minSupportedAppVersion != microAppVersion){
+			unzipPath += microAppName + "Version_" + microAppVersion + File.separator;
+			deleteDirectory(new File(unzipPath));
+			minSupportedAppVersion++;
+		}
+	}
+
+	/*
+	 * Method to delete a directory by its given path
+	 */
+	public static boolean deleteDirectory(File directory) {
+		if(directory.exists()){
+			File[] files = directory.listFiles();
+			if(null!=files){
+				for(int i=0; i<files.length; i++) {
+					if(files[i].isDirectory()) {
+						deleteDirectory(files[i]);
+					}
+					else {
+						files[i].delete();
+					}
+				}
+			}
+		}
+		return(directory.delete());
 	}
 
 

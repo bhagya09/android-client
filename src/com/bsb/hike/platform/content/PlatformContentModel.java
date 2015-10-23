@@ -2,10 +2,14 @@ package com.bsb.hike.platform.content;
 
 import java.io.File;
 import java.lang.reflect.Field;
+import java.lang.reflect.Type;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.utils.Logger;
@@ -15,6 +19,11 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
 import com.google.gson.annotations.Expose;
+import com.google.gson.reflect.TypeToken;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 /**
  * Content model
@@ -102,17 +111,27 @@ public class PlatformContentModel
 	{
 		Logger.d(TAG, "making PlatformContentModel");
 		JsonParser parser = new JsonParser();
-		JsonObject jsonObj = (JsonObject) parser.parse(contentData);
+		JSONObject json = null;
+		try {
+			json = new JSONObject(contentData);
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		JsonObject gsonObj = (JsonObject) parser.parse(contentData);
 		PlatformContentModel object = null;
 		try
 		{
-			object = new Gson().fromJson(jsonObj, PlatformContentModel.class);
+			String compatibilityMapStr = json.optString(HikePlatformConstants.COMPATIBILITY_MAP);
+			object = new Gson().fromJson(gsonObj, PlatformContentModel.class);
+			object.cardObj.setCompatibilityMap(compatibilityMapStr);
 			if (object.cardObj.getLd() != null)
 			{
 				object.cardObj.ld
 						.addProperty(PlatformContentConstants.KEY_TEMPLATE_PATH, PlatformContentConstants.CONTENT_AUTHORITY_BASE + object.cardObj.appName + File.separator);
 				object.cardObj.ld.addProperty(PlatformContentConstants.MESSAGE_ID, Integer.toString(unique));
 				object.cardObj.ld.addProperty(HikePlatformConstants.PLATFORM_VERSION, HikePlatformConstants.CURRENT_VERSION);
+
+
 			}
 		}
 		catch (JsonParseException e)
@@ -407,6 +426,26 @@ public class PlatformContentModel
 			this.hd = hd;
 		}
 
+		public void setCompatibilityMap(String compatibilityMapStr)
+		{
+			this.compatibilityMap = getMapFromString(compatibilityMapStr);
+		}
+
+		public HashMap<Integer,Integer> getCompatibilityMap(JsonObject hd)
+		{
+			return compatibilityMap;
+		}
+
+		/*
+		 * Code to generate Compatibility matrix HashMap from json
+		 */
+		private HashMap<Integer,Integer> getMapFromString(String json){
+			Gson gson = new Gson();
+			Type stringStringMap = new TypeToken<Map<String, String>>(){}.getType();
+			HashMap<Integer,Integer> map = gson.fromJson(json, stringStringMap);
+			return map;
+		}
+
 		public String getH()
 		{
 			return h;
@@ -468,6 +507,9 @@ public class PlatformContentModel
 
 		@Expose
 		public boolean lpd;
+
+		@Expose
+		public HashMap<Integer,Integer> compatibilityMap;
 
 	}
 
