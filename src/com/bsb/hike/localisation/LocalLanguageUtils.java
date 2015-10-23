@@ -1,5 +1,6 @@
 package com.bsb.hike.localisation;
 
+import android.content.Context;
 import android.text.TextUtils;
 
 import com.bsb.hike.HikeConstants;
@@ -18,6 +19,17 @@ public class LocalLanguageUtils {
     public static String getApplicationLocalLanguageLocale()
     {
         return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.LOCAL_LANGUAGE_PREF, "");
+    }
+
+    public static LocalLanguage getApplicationLocalLanguage(Context context)
+    {
+        String currentLocalLangLocale = getApplicationLocalLanguageLocale();
+        for (LocalLanguage ll : LocalLanguage.getSupportedLanguages(context))
+        {
+            if (currentLocalLangLocale.equals(ll.getLocale()))
+                return ll;
+        }
+        return null;
     }
 
     synchronized public static void setApplicationLocalLanguage(LocalLanguage lang)
