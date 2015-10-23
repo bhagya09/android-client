@@ -3,8 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bsb.hike"
     android:installLocation="auto"
-    android:versionCode="1456"
-    android:versionName="4.0.7.0.4.apk_optimisation_resource_shrinking" >
+    android:versionCode="1457"
+    android:versionName="4.0.7.0.5.apk_optimisation_resource_shrinking" >
     
     <uses-sdk
         android:minSdkVersion="14"
