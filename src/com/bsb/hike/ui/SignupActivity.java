@@ -602,14 +602,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 			dialog.setOnCancelListener(this);
 		}
 	}
-	public void onConfigurationChanged(Configuration newConfig)
-	{
-		if (mCustomKeyboard != null)
-		{
-			mCustomKeyboard.onConfigurationChanged(newConfig);
-		}
-		super.onConfigurationChanged(newConfig);
-	}
+
 	@Override
 	public Object onRetainCustomNonConfigurationInstance()
 	{
@@ -2378,10 +2371,26 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 	protected void onResume()
 	{
 		super.onResume();
-		if (mCustomKeyboard != null && !mCustomKeyboard.isCustomKeyboardVisible()&&enterEditText!=null )
+		if (mCustomKeyboard != null && !mCustomKeyboard.isCustomKeyboardVisible())
 		{
-			mCustomKeyboard.showCustomKeyboard(enterEditText, true);
 			
+			int displayedChild = viewFlipper.getDisplayedChild();
+			if (displayedChild == NUMBER || displayedChild == PIN)
+			{
+				Utils.hideSoftKeyboard(getApplicationContext(), enterEditText);
+				mCustomKeyboard.showCustomKeyboard(enterEditText, true);
+			}
+			else if (displayedChild == NAME)
+			{
+				if (birthdayText != null && birthdayText.isFocused())
+				{
+					mCustomKeyboard.showCustomKeyboard(birthdayText, true);
+				}
+				else
+				{
+					mCustomKeyboard.showCustomKeyboard(enterEditText, true);
+				}
+			}
 		}
 		Logger.d("Signup", "SingupActivity onresume");
 	}
