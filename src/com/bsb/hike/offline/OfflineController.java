@@ -686,10 +686,8 @@ public class OfflineController
 
 	public void sendConsignment(SenderConsignment senderConsignment)
 	{
-		if(senderConsignment!=null)
-		{
-			offlineManager.sendConsignment(senderConsignment);
-		}
+		if (senderConsignment == null)
+			return;
+		offlineManager.sendConsignment(senderConsignment);
 	}
-
 }

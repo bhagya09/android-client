@@ -2577,6 +2577,8 @@ public class HikeConstants
 		public static final String ACTIVITY_UPDATE = "ac_up";
 
 		public static final String TIMELINE_PREFFERED_CONTACTS = "tlpc";
+		
+		public static final String HIKE_DIRECT_ANALYTICS = "hdle";
 	}
 
 	public static final class GeneralEventMessagesTypes

@@ -966,7 +966,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 				}
 			 }
 			}
-			else  //Hike Bot. Don't show the status subtext bar. No need to take the user to Bot's timeline as well
+			else if(HikeMessengerApp.hikeBotInfoMap.containsKey(contactInfo.getMsisdn()))  //Hike Bot. Don't show the status subtext bar. No need to take the user to Bot's timeline as well
 			{
 				subText.setVisibility(View.GONE);
 				headerView.findViewById(R.id.profile_head).setEnabled(false);
