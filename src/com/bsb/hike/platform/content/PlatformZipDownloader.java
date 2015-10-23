@@ -346,19 +346,27 @@ public class PlatformZipDownloader
 			}
 		});
 	}
-	
 
 	/*
 	 * Method to determine the unzip path according to the hierarchical structure determined after the new versioning structure
 	 */
 	private String getUnZipPath()
 	{
+		String microAppName = mRequest.getContentData().getId();
+		String microAppVersion = mRequest.getContentData().getVersion();
 		String unzipPath = (doReplace) ? PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.TEMP_DIR_NAME : PlatformContentConstants.PLATFORM_CONTENT_DIR;
 
+		// Create directory for micro app if not exists already
+		new File(unzipPath, microAppName).mkdirs();
+
+		// Create directory for this version for specific micro app
+		unzipPath += microAppName + File.separator;
+		new File(unzipPath, "Version_" + microAppVersion).mkdirs();
+
+		unzipPath += "Version_" + microAppVersion + File.separator;
 		return unzipPath;
 	}
-	
-	
+
 
 	public static HashMap<String, RequestToken> getCurrentDownloadingRequests()
 	{
