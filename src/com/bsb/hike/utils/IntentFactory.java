@@ -86,7 +86,7 @@ public class IntentFactory
 		context.startActivity(new Intent(context, SettingsActivity.class));
 	}
 
-	public static void openLanguageSetting(Context context)
+	public static void openKeyboardLanguageSetting(Context context)
 	{
 		context.startActivity(new Intent(context, LanguageSettingsActivity.class));
 	}
