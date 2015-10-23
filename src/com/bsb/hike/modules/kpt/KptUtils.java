@@ -7,11 +7,9 @@ import java.util.ArrayList;
 
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
-import com.bsb.hike.ui.HomeActivity;
+import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
-import com.bsb.hike.view.CustomFontEditText;
 import com.kpt.adaptxt.beta.CustomKeyboard;
-import com.kpt.adaptxt.beta.GlobeKeyData;
 import com.kpt.adaptxt.beta.view.AdaptxtEditText;
 
 import android.app.Activity;
@@ -37,58 +35,7 @@ public class KptUtils
 	
 	public static void onGlobeKeyPressed(Activity activity, CustomKeyboard mCustomKeyboard)
 	{
-		GlobeKeyData globeKeyData = mCustomKeyboard.getGlobeKeydata();
-
-		if (null != globeKeyData)
-		{
-
-			final int status = globeKeyData.getStatus();
-			if (status == GlobeKeyData.STATUS_OK)
-			{
-				currentLanguageIndex = globeKeyData.getCurrentIndex();
-				Logger.e("KPT", " current index " + currentLanguageIndex);
-				supportedLanguages = globeKeyData.getDisplayLanguages();
-
-				if (null != supportedLanguages)
-				{
-					for (int i = 0; i < supportedLanguages.length; i++)
-					{
-						Logger.e("KPT", " Language name " + supportedLanguages[i]);
-					}
-					createBuilder(activity, mCustomKeyboard,currentLanguageIndex);
-				}
-				else
-				{
-					Logger.e("KPT", " Strange KPT failed to provide display language name ");
-				}
-
-				unsupportedLanguage = globeKeyData.getUnsupportedLangugeList();
-				final int size = unsupportedLanguage.size();
-
-				if (size > 0)
-				{
-
-					for (String string : unsupportedLanguage)
-					{
-						Logger.e("KPT", " device unsupported " + string);
-					}
-				}
-				else
-				{
-					Logger.e("KPT", " GOOD! Device support all the languag of KPT ");
-				}
-
-				// We need to inform this to hike // 1 is the selected language index
-				/*
-				 * mCustomKeyboard.processChangeLanguageForDialog(1); AdaptxtEditText editText1 = (AdaptxtEditText)findViewById(R.id.edittext1);
-				 * mCustomKeyboard.showCustomKeyboard(editText1, true);
-				 */
-			}
-		}
-		else
-		{
-			Logger.e("KPT", " KPT failed to provide globe key data ");
-		}
+		IntentFactory.openKeyboardLanguageSetting(activity);
 	}
 	
 	private static void createBuilder(Activity activity, final CustomKeyboard mCustomKeyboard, int currentLanguageIndex2)
