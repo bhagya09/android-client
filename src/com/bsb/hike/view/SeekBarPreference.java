@@ -118,8 +118,6 @@ public final class SeekBarPreference extends DialogPreference implements
 	}
 
 	@Override
-	
-
 	public void onProgressChanged(SeekBar seek, int value, boolean fromTouch) {
 		// Update current value
 		mCurrentValue = value + mMinValue;
@@ -137,6 +135,10 @@ public final class SeekBarPreference extends DialogPreference implements
 
 	public void setMinimun(int min) {
 		mMinValue = min;
-		
+	}
+	
+	public int getCurrentValue()
+	{
+		return getPersistedInt(mDefaultValue);
 	}
 }

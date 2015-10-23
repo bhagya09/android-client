@@ -277,11 +277,11 @@ public class IntentFactory
 		context.startActivity(intent);
 	}
 	
-	public static void openSettingKeyboard(Context context)
+	public static void openSettingLocalization(Context context)
 	{
 		Intent intent = new Intent(context, HikePreferences.class);
 		intent.putExtra(HikeConstants.Extras.PREF, R.xml.keyboard_settings_preferences);
-		intent.putExtra(HikeConstants.Extras.TITLE, R.string.settings_keyboard);
+		intent.putExtra(HikeConstants.Extras.TITLE, R.string.settings_localization);
 		context.startActivity(intent);
 	}
 
@@ -305,6 +305,22 @@ public class IntentFactory
 		Intent intent = new Intent(context, HikePreferences.class);
 		intent.putExtra(HikeConstants.Extras.PREF, R.xml.kpt_advanced_preferences);
 		intent.putExtra(HikeConstants.Extras.TITLE, R.string.advanced_keyboard_settings);
+		return intent;
+	}
+	
+	public static Intent getIntentForKeyboardPrimarySettings(Context context)
+	{
+		Intent intent = new Intent(context, HikePreferences.class);
+		intent.putExtra(HikeConstants.Extras.PREF, R.xml.keyboard_preferences);
+		intent.putExtra(HikeConstants.Extras.TITLE, R.string.keyboard_preference_title);
+		return intent;
+	}
+	
+	public static Intent getIntentForTextCorrectionSettings(Context context)
+	{
+		Intent intent = new Intent(context, HikePreferences.class);
+		intent.putExtra(HikeConstants.Extras.PREF, R.xml.text_correction_preferences);
+		intent.putExtra(HikeConstants.Extras.TITLE, R.string.text_correction_pref_title);
 		return intent;
 	}
 	

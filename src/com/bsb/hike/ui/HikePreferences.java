@@ -141,7 +141,8 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 			setBlockingTask((ActivityCallableTask) retained);
 			mTask.setActivity(this);
 		}
-       if (preferences == R.xml.keyboard_settings_preferences && titleRes == R.string.settings_keyboard||preferences == R.xml.kpt_advanced_preferences)
+       if (preferences == R.xml.keyboard_settings_preferences && titleRes == R.string.settings_localization || preferences == R.xml.kpt_advanced_preferences
+    		   || preferences == R.xml.keyboard_preferences || preferences == R.xml.text_correction_preferences)
 		{
 			kptSettings = new KPTAdaptxtAddonSettings(this, this);
 
@@ -219,7 +220,24 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		addOnPreferenceClickListeners(HikeConstants.CHAT_BG_NOTIFICATION_PREF);
 		addOnPreferenceClickListeners(HikeConstants.NOTIF_SOUND_PREF);
 		addOnPreferenceClickListeners(HikeConstants.FAV_LIST_PREF);
-		addOnPreferenceClickListeners(HikeConstants.KEYBOARD_ADV_PREF);
+		addKeyboardPreferenceClickListeners(HikeConstants.KEYBOARD_PRIMARY_PREF);
+		addKeyboardPreferenceClickListeners(HikeConstants.TEXT_CORRECTION_PREF);
+		addKeyboardPreferenceClickListeners(HikeConstants.KEYBOARD_ADV_PREF);
+	}
+	
+	private void addKeyboardPreferenceClickListeners(String preferenceName)
+	{
+		Preference preference = getPreferenceScreen().findPreference(preferenceName);
+		if (preference != null)
+		{
+			Logger.d(getClass().getSimpleName(), preferenceName + " preference not null" + preference.getKey());
+			preference.setDependency(HikeConstants.KEYBOARD_PREF);
+			preference.setOnPreferenceClickListener(this);
+		}
+		else
+		{
+			Logger.d(getClass().getSimpleName(), preferenceName + " preference is null");
+		}
 	}
 	
 	private void addSwitchPreferences()
@@ -229,7 +247,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		addOnPreferenceChangeListeners(HikeConstants.DOUBLE_TAP_PREF);
 		addOnPreferenceChangeListeners(HikeConstants.H2O_NOTIF_BOOLEAN_PREF);
 		addOnPreferenceChangeListeners(HikeConstants.NUJ_NOTIF_BOOLEAN_PREF);
-		addOnPreferenceChangeListeners(HikeConstants.KEYBOARD_PREF);
+		addKeyboardPreferenceChangeListener();
 		addOnPreferenceChangeListeners(HikeConstants.GLIDE_PREF);
 		addOnPreferenceChangeListeners(HikeConstants.AUTO_CORRECT_PREF);
 		addOnPreferenceChangeListeners(HikeConstants.AUTO_CAPITALIZATION_PREF);
@@ -245,6 +263,16 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		addSslPreferenceChangeListener();
 		addStickerRecommendAutopopupPreferenceChangeListener();
 		addEnableKnownNumberCardPrefListener();
+	}
+	
+	private void addKeyboardPreferenceChangeListener()
+	{
+		final SwitchPreferenceCompat preference = (SwitchPreferenceCompat) getPreferenceScreen().findPreference(HikeConstants.KEYBOARD_PREF);
+		if (preference != null)
+		{
+			preference.shouldDisableDependents();
+			preference.setOnPreferenceChangeListener(this);
+		}
 	}
 	
 	private void addEnableKnownNumberCardPrefListener()
@@ -286,7 +314,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 				}
 				languagePref.setEntries(entries);
 				languagePref.setEntryValues(entryValues);
-				
+				languagePref.setDependency(HikeConstants.KEYBOARD_PREF);
 				languagePref.setOnPreferenceChangeListener(new OnPreferenceChangeListener()
 				{
 					
@@ -490,6 +518,23 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		if (preference != null) {
 			preference.setMinimun(min);
 			preference.setOnPreferenceChangeListener(this);
+			setSeekbarPrefSummary(preferenceName, min);
+		}
+	}
+	
+	private void setSeekbarPrefSummary(String preferenceName, int min)
+	{
+		SeekBarPreference preference = (SeekBarPreference) getPreferenceScreen().findPreference(preferenceName);
+		if (preference != null)
+		{
+			if (preferenceName == HikeConstants.KEYPRESS_VOL_PREF)
+			{
+				preference.setSummary("Level " + preference.getCurrentValue());
+			}
+			else
+			{
+				preference.setSummary(preference.getCurrentValue() + " ms");
+			}
 		}
 	}
 	
@@ -1010,6 +1055,14 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 			Intent i = new Intent(HikePreferences.this, StickerSettingsActivity.class);
 			startActivity(i);
 		}
+		else if(HikeConstants.KEYBOARD_PRIMARY_PREF.equals(preference.getKey()))
+		{
+			startActivity(IntentFactory.getIntentForKeyboardPrimarySettings(HikePreferences.this));
+		}
+		else if(HikeConstants.TEXT_CORRECTION_PREF.equals(preference.getKey()))
+		{
+			startActivity(IntentFactory.getIntentForTextCorrectionSettings(HikePreferences.this));
+		}
 		else if(HikeConstants.KEYBOARD_ADV_PREF.equals(preference.getKey()))
 		{
 			startActivity(IntentFactory.getIntentForKeyboardAdvSettings(HikePreferences.this));
@@ -1374,12 +1427,17 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		if (HikeConstants.LONG_PRESS_DUR_PREF.equals(preference.getKey()))
 		{
 			kptSettings.setLongPressDuration(value);
-		}else if (HikeConstants.KEYPRESS_VOL_PREF.equals(preference.getKey()))
+			preference.setSummary(value + " ms");
+		}
+		else if (HikeConstants.KEYPRESS_VOL_PREF.equals(preference.getKey()))
 		{
 			kptSettings.setKeyPressSoundVolume(value);
-		}else if (HikeConstants.KEYPRESS_VIB_DUR_PREF.equals(preference.getKey()))
+			preference.setSummary("Level " + value);
+		}
+		else if (HikeConstants.KEYPRESS_VIB_DUR_PREF.equals(preference.getKey()))
 		{
 			kptSettings.setKeyPressVibrationDuration(value);
+			preference.setSummary(value + " ms");
 		}
 	}
 
