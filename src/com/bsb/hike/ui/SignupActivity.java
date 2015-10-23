@@ -602,14 +602,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 			dialog.setOnCancelListener(this);
 		}
 	}
-	public void onConfigurationChanged(Configuration newConfig)
-	{
-		if (mCustomKeyboard != null)
-		{
-			mCustomKeyboard.onConfigurationChanged(newConfig);
-		}
-		super.onConfigurationChanged(newConfig);
-	}
+
 	@Override
 	public Object onRetainCustomNonConfigurationInstance()
 	{

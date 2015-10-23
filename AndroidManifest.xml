@@ -183,7 +183,6 @@
             android:name=".ui.SignupActivity"
             android:label="@string/app_label"
             android:launchMode="singleTop"
-            android:configChanges="orientation|keyboardHidden|screenSize"
             android:windowSoftInputMode="adjustPan|stateAlwaysVisible" >
         </activity>
         <activity
