@@ -102,7 +102,7 @@ public class FileRequestPersistent extends FileRequest
 			file.write(buffer, 0, len);
 			//PubLish Progress
 			float progress=((float)downloadedLength/totalContentLength);
-			this.publishProgress(initialProgress+(progress*(1-initialProgress)));
+			this.publishProgress(normaliseProgress(initialProgress,progress));
 			saveDownloadedState(downloadedLength);
 		}
 
@@ -123,7 +123,7 @@ public class FileRequestPersistent extends FileRequest
 				stateOutputStream = new FileOutputStream(stateFile, false);// Do not want to open it in append Mode
 
 				String str = "Total Bytes" + FILE_DELIMETER + downloadedLen + "\n";
-				String progress = "Progress" + FILE_DELIMETER + (initialProgress + ((float) downloadedLen / totalContentLength)) + "\n";
+				String progress = "Progress" + FILE_DELIMETER + (normaliseProgress(initialProgress,((float) downloadedLen / totalContentLength))) + "\n";
 				String originalFilePath = "Original File" + FILE_DELIMETER + filePath + "\n";
 				String url = "URL" + FILE_DELIMETER + getUrl().toString();
 
@@ -167,6 +167,10 @@ public class FileRequestPersistent extends FileRequest
 		{
 			Utils.closeStreams(file);
 		}
+	}
+	public float normaliseProgress(float initialProgress,float progress)
+	{
+		return initialProgress+(progress*(1-initialProgress));
 	}
 
 }
