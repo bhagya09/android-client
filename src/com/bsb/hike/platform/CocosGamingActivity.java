@@ -75,6 +75,7 @@ public class CocosGamingActivity extends Cocos2dxActivity
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		this.setVolumeControlStream(AudioManager.STREAM_MUSIC);
 		super.onCreateDuplicate(savedInstanceState);
+		getSupportActionBar().hide();
 		context = CocosGamingActivity.this;
 		msisdn = getIntent().getStringExtra(HikeConstants.MSISDN);
 		platform_content_dir = PlatformContentConstants.PLATFORM_CONTENT_DIR;
