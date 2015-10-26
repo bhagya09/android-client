@@ -609,12 +609,12 @@ public class ConnectionManager
 				Logger.d(TAG, "currentssid is " + currentSsid + "and ssid is " + ssid);
 				if (currentSsid.equals(ssid))
 				{
-
 					Logger.d("OfflineManager", "Disconnecting existing ssid. Current ssid is  " + currentSsid + " Ssid in list is  " + wifiConfiguration.SSID);
 					wifiManager.disconnect();
 					boolean status = wifiManager.enableNetwork(wifiConfiguration.networkId, true);
 					Logger.d("OfflineManager", "Enabled network" + status);
 					connectedNetworkId = wifiConfiguration.networkId;
+					wifiManager.reassociate();
 					wifiManager.reconnect();
 					break;
 				}

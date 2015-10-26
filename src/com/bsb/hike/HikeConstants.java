@@ -3346,5 +3346,9 @@ public class HikeConstants
 	public static final String ENABLE_KNOWN_NUMBER_CARD_PREF = "knownContactEnablePref";
 
 	public static final String NEW_CHAT_RED_DOT = "nc_dot";
+	
+	public static final int GPS_STATUS_CHANGED = 1197;
+	
+	public static final int GPS_SWITCH_OFF = 1198;
 
 }
