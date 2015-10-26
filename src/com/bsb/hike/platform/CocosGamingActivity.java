@@ -161,6 +161,7 @@ public class CocosGamingActivity extends Cocos2dxActivity
 			}
 			finish();
 			Cocos2dxHelper.terminateProcess();
+			return;
 		}
 
 		CocosGamingActivity.sContext = this;
