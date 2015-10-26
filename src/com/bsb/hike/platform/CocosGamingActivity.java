@@ -29,6 +29,8 @@ import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.bots.NonMessagingBotConfiguration;
 import com.bsb.hike.bots.NonMessagingBotMetadata;
+import com.bsb.hike.db.HikeConversationsDatabase;
+import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.platform.content.PlatformContentConstants;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
@@ -69,7 +71,12 @@ public class CocosGamingActivity extends Cocos2dxActivity
 
 	public void onCreate(Bundle savedInstanceState)
 	{
+		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+		getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+		requestWindowFeature(Window.FEATURE_NO_TITLE);
+		this.setVolumeControlStream(AudioManager.STREAM_MUSIC);
 		super.onCreateDuplicate(savedInstanceState);
+		getSupportActionBar().hide();
 		context = CocosGamingActivity.this;
 		msisdn = getIntent().getStringExtra(HikeConstants.MSISDN);
 		platform_content_dir = PlatformContentConstants.PLATFORM_CONTENT_DIR;
@@ -83,12 +90,10 @@ public class CocosGamingActivity extends Cocos2dxActivity
 			Logger.e(TAG, "metadata is null");
 			return;
 		}
+		HikeConversationsDatabase.getInstance().updateLastMessageStateAndCount(msisdn, ConvMessage.State.RECEIVED_READ.ordinal());
+		botInfo.setUnreadCount(0);
 		nonMessagingBotMetadata = new NonMessagingBotMetadata(botInfo.getMetadata());
 
-		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-		getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-		requestWindowFeature(Window.FEATURE_NO_TITLE);
-		this.setVolumeControlStream(AudioManager.STREAM_MUSIC);
 
 		botConfig = null == botInfo.getConfigData() ? new NonMessagingBotConfiguration(botInfo.getConfiguration()) : new NonMessagingBotConfiguration(botInfo.getConfiguration(),
 				botInfo.getConfigData());
@@ -237,15 +242,15 @@ public class CocosGamingActivity extends Cocos2dxActivity
 	@Override
 	protected void onResume()
 	{
-		HAManager.getInstance().startChatSession(msisdn);
 		super.onResume();
+		HAManager.getInstance().startChatSession(msisdn);
 	}
 
 	@Override
 	protected void onPause()
 	{
-		HAManager.getInstance().endChatSession(msisdn);
 		super.onPause();
+		HAManager.getInstance().endChatSession(msisdn);
 	}
 
 	/**

@@ -665,12 +665,11 @@ public abstract class JavascriptBridge
 			@Override
 			public void run()
 			{
-				if(!mWebView.isWebViewDestroyed())
+				if (!mWebView.isWebViewDestroyed())
 				{
-					Logger.d(tag,"Inside call back to js with id "+ id );
+					Logger.d(tag, "Inside call back to js with id " + id);
 					mWebView.loadUrl("javascript:callbackFromNative" + "('" + id + "','" + getEncodedDataForJS(value) + "')");
-				}
-				else
+				} else
 				{
 					Logger.e(tag, "CallBackToJs>>WebView not showing");
 				}
@@ -1139,7 +1138,7 @@ public abstract class JavascriptBridge
 	
 	public void sendSharedMessage(String cardObject, String hikeMessage, String sharedData, BotInfo mBotInfo)
 	{
-		PlatformHelper.sendSharedMessage(cardObject, hikeMessage, sharedData, mBotInfo, weakActivity.get(),JavascriptBridge.this.hashCode());
+		PlatformHelper.sendSharedMessage(cardObject, hikeMessage, sharedData, mBotInfo, weakActivity.get(), JavascriptBridge.this.hashCode());
 	}
 
 	/**
@@ -1266,7 +1265,7 @@ public abstract class JavascriptBridge
 	{
 		if(!TextUtils.isEmpty(name))
 		{
-			PlatformUIDFetch.fetchPlatformUid(HikePlatformConstants.PlatformFetchType.SELF_ANONYMOUS_NAME,name);
+			PlatformUIDFetch.fetchPlatformUid(HikePlatformConstants.PlatformFetchType.SELF_ANONYMOUS_NAME, name);
 		}
 	}
 	/**
@@ -1350,6 +1349,21 @@ public abstract class JavascriptBridge
 		{
 			nativeBridge.platformCallback(callId, response);
 		}
+
+	}
+	/**
+	 * Platform Version 8
+	 * Call this method to decrease the unread counter.
+	 * @param msisdn whose unread count has to be modified.
+	 */
+	@JavascriptInterface
+	public void resetUnreadCounter(String msisdn)
+	{
+		BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
+		if (botInfo==null)
+			return;
+		Utils.resetUnreadCounterForConversation(botInfo);
+		botInfo.setUnreadCount(0);
 
 	}
 
