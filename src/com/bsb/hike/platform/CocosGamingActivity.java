@@ -32,6 +32,7 @@ import com.bsb.hike.bots.NonMessagingBotMetadata;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.platform.content.PlatformContentConstants;
+import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.chukong.cocosplay.client.CocosPlayClient;
 
@@ -138,7 +139,8 @@ public class CocosGamingActivity extends Cocos2dxActivity
 						try
 						{
 							json = mapps.getJSONObject(i);
-						} catch (JSONException e)
+						}
+						catch (JSONException e)
 						{
 							e.printStackTrace();
 						}
@@ -147,7 +149,7 @@ public class CocosGamingActivity extends Cocos2dxActivity
 
 					}
 				}
-					System.load(getAppBasePath() + "libcocos2dcpp.so"); // loading the game
+				System.load(getAppBasePath() + "libcocos2dcpp.so"); // loading the game
 			}
 
 		}
@@ -156,8 +158,15 @@ public class CocosGamingActivity extends Cocos2dxActivity
 			e.printStackTrace();
 			Logger.e(TAG, "Game Engine not Found");
 			Toast.makeText(getApplicationContext(), R.string.some_error, Toast.LENGTH_SHORT).show();
+			String parentMsisdn = nonMessagingBotMetadata.getParentMsisdn();
+			if (parentMsisdn != null && parentMsisdn.length() > 0)
+			{
+				Intent intent = IntentFactory.getNonMessagingBotIntent(parentMsisdn, this);
+				startActivity(intent);
+			}
 			finish();
 			Cocos2dxHelper.terminateProcess();
+			return;
 		}
 
 		CocosGamingActivity.sContext = this;
@@ -187,7 +196,6 @@ public class CocosGamingActivity extends Cocos2dxActivity
 	{
 		return botInfo;
 	}
-
 
 	public static native void platformCallback(String callID, String response);
 
