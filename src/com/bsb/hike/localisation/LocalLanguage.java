@@ -39,7 +39,7 @@ public class LocalLanguage {
 
     public static List<LocalLanguage> getSupportedLanguages(Context context) {
         ArrayList<LocalLanguage> list = new ArrayList<LocalLanguage>();
-        list.add(new LocalLanguage(context.getString(R.string.default_language), ""));    // system Default
+        list.add(new LocalLanguage(context.getString(R.string.system_language), ""));    // system Default
         list.add(new LocalLanguage("English", "en"));    // English
         list.add(new LocalLanguage("हिन्दी", "hi"));    // Hindi
         list.add(new LocalLanguage("বাংলা", "bn"));    // Bengali

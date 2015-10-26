@@ -39,7 +39,11 @@ public class DictionaryManager implements AdaptxtSettingsRegisterListener
 
 	private boolean kptCoreEngineStatus;
 
-	ArrayList<KPTAddonItem> mLanguagesList;
+	ArrayList<KPTAddonItem> mInstalledLanguagesList;
+
+	ArrayList<KPTAddonItem> mUnistalledLanguagesList;
+
+	ArrayList<KPTAddonItem> mUnsupportedLanguagesList;
 
 	ArrayList<KPTAddonItem> mLanguagesWaitingQueue;
 
@@ -63,7 +67,9 @@ public class DictionaryManager implements AdaptxtSettingsRegisterListener
 		Logger.d(TAG,"Initializing...");
 		context = ctx;
 		languageStatusMap = new ConcurrentHashMap<KPTAddonItem, LanguageDictionarySatus>();
-		mLanguagesList = new ArrayList<KPTAddonItem>();
+		mInstalledLanguagesList = new ArrayList<KPTAddonItem>();
+		mUnistalledLanguagesList = new ArrayList<KPTAddonItem>();
+		mUnsupportedLanguagesList = new ArrayList<KPTAddonItem>();
 		kptSettings = new KPTAdaptxtAddonSettings(ctx, this);
 		Logger.d(TAG,"Initialization complete.");
 	}
@@ -81,11 +87,20 @@ public class DictionaryManager implements AdaptxtSettingsRegisterListener
 		return _instance;
 	}
 
-	public ArrayList<KPTAddonItem> getLanguagesList()
+	public ArrayList<KPTAddonItem> getInstalledLanguagesList()
 	{
-		return mLanguagesList;
+		return mInstalledLanguagesList;
 	}
 
+	public ArrayList<KPTAddonItem> getUninstalledLanguagesList()
+	{
+		return mUnistalledLanguagesList;
+	}
+
+	public ArrayList<KPTAddonItem> getUnsupportedLanguagesList()
+	{
+		return mUnsupportedLanguagesList;
+	}
 	public LanguageDictionarySatus getDictionaryLanguageStatus(KPTAddonItem addOnItem)
 	{
 		return languageStatusMap.get(addOnItem);
@@ -101,7 +116,7 @@ public class DictionaryManager implements AdaptxtSettingsRegisterListener
 	private void fetchKptLanguagesAndUpdate()
 	{
 		Logger.d(TAG,"fetchKptLanguagesAndUpdate");
-		mLanguagesList.clear();
+		mInstalledLanguagesList.clear();
 
 		List<KPTAddonItem> installedList = kptSettings.getInstalledLanguages();
 		for (KPTAddonItem language : installedList)
@@ -109,8 +124,9 @@ public class DictionaryManager implements AdaptxtSettingsRegisterListener
 			languageStatusMap.put(language, LanguageDictionarySatus.INSTALLED);
 		}
 		Logger.d(TAG,"adding installed languages: " + installedList.size());
-		mLanguagesList.addAll(installedList);
+		mInstalledLanguagesList.addAll(installedList);
 
+		mUnistalledLanguagesList.clear();
 		List<KPTAddonItem> unInstalledList = kptSettings.getNotInstalledLanguageList();
 		for (KPTAddonItem language : unInstalledList)
 		{
@@ -118,22 +134,22 @@ public class DictionaryManager implements AdaptxtSettingsRegisterListener
 				languageStatusMap.put(language, LanguageDictionarySatus.UNINSTALLED);
 		}
 		Logger.d(TAG,"adding uninstalled languages: " + unInstalledList.size());
-		mLanguagesList.addAll(unInstalledList);
+		mUnistalledLanguagesList.addAll(unInstalledList);
 
-//		We are not using unsupported languages anywhere. Not yet.
-//		List<KPTAddonItem> UnsupportedList = kptSettings.getUnsupportedLanguagesList();
-//		for (KPTAddonItem language : UnsupportedList)
-//		{
-//			languageStatusMap.put(language, LanguageDictionarySatus.UNSUPPORTED);
-//		}
-//		Logger.d(TAG,"adding unsupported languages: " + UnsupportedList.size());
-//		mLanguagesList.addAll(UnsupportedList);
+		getUnsupportedLanguagesList().clear();
+		List<KPTAddonItem> UnsupportedList = kptSettings.getUnsupportedLanguagesList();
+		for (KPTAddonItem language : UnsupportedList)
+		{
+			languageStatusMap.put(language, LanguageDictionarySatus.UNSUPPORTED);
+		}
+		Logger.d(TAG,"adding unsupported languages: " + UnsupportedList.size());
+		mUnsupportedLanguagesList.addAll(UnsupportedList);
 	}
 
 	private void notifyAllOfLanguageUpdate()
 	{
 		Logger.d(TAG,"notifyAllOfLanguageUpdate");
-		HikeMessengerApp.getPubSub().publish(HikePubSub.KPT_LANGUAGES_UPDATED, getLanguagesList());
+		HikeMessengerApp.getPubSub().publish(HikePubSub.KPT_LANGUAGES_UPDATED, null);
 	}
 
 	public void downloadAndInstallLanguage(KPTAddonItem addOnItem)
