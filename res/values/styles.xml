@@ -427,7 +427,7 @@
         <item name="titleTextStyle">@style/NoTitleText</item>
         <item name="android:titleTextStyle">@style/NoTitleText</item>
          <item name="android:colorPrimaryDark">@color/blue_hike</item>
-        <item name="android:colorPrimary">@color/blue_hike</item>
+        <item name="android:colorPrimary">@color/blue_action_bar</item>
         <item name="android:colorAccent">@color/blue_hike</item>
     </style>
 
