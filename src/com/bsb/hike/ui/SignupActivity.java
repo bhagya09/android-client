@@ -1,45 +1,5 @@
 package com.bsb.hike.ui;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.HashMap;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import com.bsb.hike.HikeConstants;
-import com.bsb.hike.HikeMessengerApp;
-import com.bsb.hike.HikePubSub;
-import com.bsb.hike.HikePubSub.Listener;
-import com.bsb.hike.R;
-import com.bsb.hike.BitmapModule.HikeBitmapFactory;
-import com.bsb.hike.analytics.AnalyticsConstants;
-import com.bsb.hike.analytics.HAManager;
-import com.bsb.hike.bots.BotUtils;
-import com.bsb.hike.models.Birthday;
-import com.bsb.hike.modules.httpmgr.RequestToken;
-import com.bsb.hike.modules.httpmgr.exception.HttpException;
-import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
-import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
-import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
-import com.bsb.hike.modules.httpmgr.response.Response;
-import com.bsb.hike.modules.kpt.HikeAdaptxtEditTextEventListner;
-import com.bsb.hike.modules.kpt.HikeCustomKeyboard;
-import com.bsb.hike.modules.kpt.KptUtils;
-import com.bsb.hike.tasks.SignupTask;
-import com.bsb.hike.tasks.SignupTask.State;
-import com.bsb.hike.tasks.SignupTask.StateValue;
-import com.bsb.hike.utils.ChangeProfileImageBaseActivity;
-import com.bsb.hike.utils.Logger;
-import com.bsb.hike.utils.StickerManager;
-import com.bsb.hike.utils.Utils;
-import com.bsb.hike.utils.Utils.ExternalStorageState;
-import com.bsb.hike.view.CustomFontEditText;
-import com.kpt.adaptxt.beta.RemoveDialogData;
-import com.kpt.adaptxt.beta.util.KPTConstants;
-import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtKeyboordVisibilityStatusListner;
-
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
@@ -49,6 +9,7 @@ import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ShapeDrawable;
@@ -88,14 +49,57 @@ import android.view.animation.RotateAnimation;
 import android.view.animation.ScaleAnimation;
 import android.view.animation.TranslateAnimation;
 import android.view.inputmethod.EditorInfo;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ListAdapter;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
+
+import com.bsb.hike.BitmapModule.HikeBitmapFactory;
+import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.HikePubSub;
+import com.bsb.hike.HikePubSub.Listener;
+import com.bsb.hike.R;
+import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.bots.BotUtils;
+import com.bsb.hike.localisation.LocalLanguage;
+import com.bsb.hike.localisation.LocalLanguageUtils;
+import com.bsb.hike.models.Birthday;
+import com.bsb.hike.modules.httpmgr.RequestToken;
+import com.bsb.hike.modules.httpmgr.exception.HttpException;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
+import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
+import com.bsb.hike.modules.httpmgr.response.Response;
+import com.bsb.hike.modules.kpt.HikeAdaptxtEditTextEventListner;
+import com.bsb.hike.modules.kpt.HikeCustomKeyboard;
+import com.bsb.hike.modules.kpt.KptUtils;
+import com.bsb.hike.tasks.SignupTask;
+import com.bsb.hike.tasks.SignupTask.State;
+import com.bsb.hike.tasks.SignupTask.StateValue;
+import com.bsb.hike.utils.ChangeProfileImageBaseActivity;
+import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.StickerManager;
+import com.bsb.hike.utils.Utils;
+import com.bsb.hike.utils.Utils.ExternalStorageState;
+import com.bsb.hike.view.CustomFontEditText;
+import com.kpt.adaptxt.beta.RemoveDialogData;
+import com.kpt.adaptxt.beta.util.KPTConstants;
+import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtKeyboordVisibilityStatusListner;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.HashMap;
 
 public class SignupActivity extends ChangeProfileImageBaseActivity implements SignupTask.OnSignupTaskProgressUpdate, OnEditorActionListener, OnClickListener,
 		OnCancelListener, Listener, HikeAdaptxtEditTextEventListner, AdaptxtKeyboordVisibilityStatusListner
@@ -150,13 +154,17 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 
 	private ImageView profilePicCamIcon;
 
+	private LocalLanguage selectedLocalLanguage;
+
 	private Handler mHandler;
 
 	private boolean addressBookError = false;
 
 	private boolean msisdnErrorDuringSignup = false;
 
-	public static final int POST_SIGNUP = 8;
+	public static final int POST_SIGNUP = 9;
+
+	public static final int SELECT_LANGUAGE = 8;
 
 	public static final int RESTORING_BACKUP = 7;
 
@@ -350,6 +358,9 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 			case RESTORING_BACKUP:
 				prepareLayoutForRestoringAnimation(savedInstanceState,null);
 				break;
+			case SELECT_LANGUAGE:
+				prepareLayoutForSelectingLanguage();
+				break;
 			case POST_SIGNUP:
 				prepareLayoutForPostSignup(savedInstanceState);
 				break;
@@ -463,6 +474,10 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 		else if (displayedChild == RESTORING_BACKUP)
 		{
 			mActionBarTitle.setText(R.string.account_backup);
+		}
+		else if (displayedChild == SELECT_LANGUAGE)
+		{
+			mActionBarTitle.setText(R.string.language);
 		}
 	}
 
@@ -685,7 +700,16 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 		{
 			mCustomKeyboard.showCustomKeyboard(enterEditText, false);
 		}
-		
+		if (viewFlipper.getDisplayedChild() == SELECT_LANGUAGE)
+		{
+			if (selectedLocalLanguage != null)
+				LocalLanguageUtils.setApplicationLocalLanguage(selectedLocalLanguage);
+
+			viewFlipper.setDisplayedChild(POST_SIGNUP);
+			prepareLayoutForPostSignup(null);
+			mTask.addUserInput(null);
+			return;
+		}
 		if (viewFlipper.getDisplayedChild() == BACKUP_FOUND || viewFlipper.getDisplayedChild() == RESTORING_BACKUP)
 		{
 			try
@@ -699,8 +723,6 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 				Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
 			}
 			mTask.addUserInput(null);
-			viewFlipper.setDisplayedChild(POST_SIGNUP);
-			prepareLayoutForPostSignup(null);
 			BotUtils.initBots();
 			return;
 		}
@@ -951,6 +973,14 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 		{
 			mCustomKeyboard.init(editText);
 			mCustomKeyboard.showCustomKeyboard(editText, true);
+		}
+	}
+
+	private void hideKeyboard(CustomFontEditText editText)
+	{
+		if(mCustomKeyboard != null && mCustomKeyboard.isCustomKeyboardVisible())
+		{
+			mCustomKeyboard.showCustomKeyboard(editText, false);
 		}
 	}
 	
@@ -1208,6 +1238,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 	
 	private void prepareLayoutForBackupFound(Bundle savedInstanceState)
 	{
+		hideKeyboard(enterEditText);
 		nextBtnContainer.setVisibility(View.VISIBLE);
 		arrow.setVisibility(View.GONE);
 		postText.setText(R.string.skip);
@@ -1219,9 +1250,49 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 			preRestoreAnimation();
 		}
 	}
+
+	private  void prepareLayoutForSelectingLanguage()
+	{
+		hideKeyboard(enterEditText);
+		nextBtnContainer.setVisibility(View.VISIBLE);
+		arrow.setVisibility(View.VISIBLE);
+		postText.setText(R.string.next_signup);
+		setupActionBarTitle();
+
+		final TextView languageText = (TextView) viewFlipper.findViewById(R.id.txt_lang);
+		final ArrayList<LocalLanguage> list = new ArrayList<>(LocalLanguage.getSupportedLanguages(this));
+		languageText.setText(list.get(0).getDisplayName());
+
+		languageText.setOnClickListener(
+		new OnClickListener()
+		{
+			@Override
+			public void onClick(View v)
+			{
+				AlertDialog.Builder builder = new AlertDialog.Builder(SignupActivity.this);
+				ListAdapter adapter = new ArrayAdapter<LocalLanguage>(SignupActivity.this, R.layout.alert_item, R.id.item,list);
+				builder.setAdapter(adapter, new DialogInterface.OnClickListener()
+				{
+					@Override
+					public void onClick(DialogInterface dialog, int which)
+					{
+						selectedLocalLanguage = list.get(which);
+						languageText.setText(selectedLocalLanguage.getDisplayName());
+					}
+				});
+
+				AlertDialog alertDialog = builder.show();
+				alertDialog.getListView().setDivider(null);
+				alertDialog.getListView().setPadding(0, getResources().getDimensionPixelSize(R.dimen.menu_list_padding_top), 0,
+						getResources().getDimensionPixelSize(R.dimen.menu_list_padding_bottom));
+			}
+		}
+		);
+	}
 	
 	private void prepareLayoutForRestoringAnimation(Bundle savedInstanceState, StateValue stateValue)
 	{
+		hideKeyboard(enterEditText);
 		nextBtnContainer.setVisibility(View.GONE);
 		setupActionBarTitle();
 		String restoreStatus = null;
@@ -2239,6 +2310,10 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 				prepareLayoutForRestoringAnimation(null,stateValue);
 			}
 			break;
+		case SELECT_LANGUAGE:
+			viewFlipper.setDisplayedChild(SELECT_LANGUAGE);
+			prepareLayoutForSelectingLanguage();
+			break;
 		}
 		setListeners();
 	}
@@ -2296,10 +2371,26 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 	protected void onResume()
 	{
 		super.onResume();
-		if (mCustomKeyboard != null && !mCustomKeyboard.isCustomKeyboardVisible())
+		if (mCustomKeyboard != null && !mCustomKeyboard.isCustomKeyboardVisible()&&enterEditText!=null )
 		{
-			mCustomKeyboard.showCustomKeyboard(enterEditText, true);
 			
+			int displayedChild = viewFlipper.getDisplayedChild();
+			if (displayedChild == NUMBER || displayedChild == PIN)
+			{
+				Utils.hideSoftKeyboard(getApplicationContext(), enterEditText);
+				mCustomKeyboard.showCustomKeyboard(enterEditText, true);
+			}
+			else if (displayedChild == NAME)
+			{
+				if (birthdayText != null && birthdayText.isFocused())
+				{
+					mCustomKeyboard.showCustomKeyboard(birthdayText, true);
+				}
+				else
+				{
+					mCustomKeyboard.showCustomKeyboard(enterEditText, true);
+				}
+			}
 		}
 		Logger.d("Signup", "SingupActivity onresume");
 	}

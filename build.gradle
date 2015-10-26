@@ -117,7 +117,7 @@ android {
         	minifyEnabled true
             debuggable true
             proguardFile 'proguard.cfg'
-            signingConfig signingConfigs.release
+            signingConfig signingConfigs.debug
         }
         debug {
             debuggable true
