@@ -2371,7 +2371,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 	protected void onResume()
 	{
 		super.onResume();
-		if (mCustomKeyboard != null && !mCustomKeyboard.isCustomKeyboardVisible())
+		if (mCustomKeyboard != null && !mCustomKeyboard.isCustomKeyboardVisible()&&enterEditText!=null )
 		{
 			
 			int displayedChild = viewFlipper.getDisplayedChild();
