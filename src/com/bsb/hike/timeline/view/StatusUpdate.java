@@ -474,6 +474,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		{
 			mActivityTask.emojiShowing = false;
 			hideEmojiOrMoodLayout();
+			KptUtils.updatePadding(StatusUpdate.this, R.id.parent_layout, 0);
 			setEmoticonButtonSelected(false);
 		}
 		else
