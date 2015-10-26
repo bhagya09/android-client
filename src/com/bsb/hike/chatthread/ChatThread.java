@@ -270,7 +270,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	
 	protected static final int REMOVE_CHAT_BACKGROUND = 0;
 
-	protected static final int NUDGE_COOLOFF_TIME = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.NUDGE_SEND_COOLOFF_TIME, 1000);
+	protected final int NUDGE_COOLOFF_TIME = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.NUDGE_SEND_COOLOFF_TIME, 300);
 
 	private long lastNudgeTime = -1;
     
