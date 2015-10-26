@@ -23,7 +23,7 @@ public class OpusWrapper {
 	 */
 	public static final int OPUS_FRAME_SIZE = 2880;
 	
-	public static final int OPUS_LOWEST_SUPPORTED_BITRATE = 4000; 
+	public static final int OPUS_LOWEST_SUPPORTED_BITRATE = 6000; 
 	
 	private native long opus_encoder_create(int samplingRate, int channels, int errors);
 	private native int opus_encode(long encoder, byte[] input, int frameSize, byte[] output, int outputSize);
