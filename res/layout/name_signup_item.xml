@@ -32,6 +32,7 @@
             style="@style/NameInput"
             atx:charInputMaxLength="@integer/max_length_name"
             android:imeOptions="actionNext"
+            android:inputType="textFilter"
             android:hint="@string/your_name" />
 
         <com.bsb.hike.view.CustomFontEditText
