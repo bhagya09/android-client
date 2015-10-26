@@ -275,6 +275,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		}
 		Logger.d(getClass().getSimpleName(),"onCreate "+this.getClass().getSimpleName());
 		showProductPopup(ProductPopupsConstants.PopupTriggerPoints.HOME_SCREEN.ordinal());
+		
 	}
 	
 	@Override
@@ -801,6 +802,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 					intent.putExtra(HikeConstants.Extras.IS_MICROAPP_SHOWCASE_INTENT, true);
 
 					newConversationIndicator.setVisibility(View.GONE);
+					HikeMessengerApp.getPubSub().publish(HikePubSub.BADGE_COUNT_USER_JOINED, null);
 					startActivity(intent);
 				}
 			});
@@ -1078,7 +1080,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		showSmsOrFreeInvitePopup();
 	
 		HikeMessengerApp.getPubSub().publish(HikePubSub.CANCEL_ALL_NOTIFICATIONS, null);
-
+		
 		if(getIntent() != null)
 		{
 			acceptGroupMembershipConfirmation(getIntent());
@@ -1089,7 +1091,14 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	{
 		String action = intent.getAction();
 		String linkUrl = intent.getDataString();
-
+		int flags = intent.getFlags();
+		
+		if ((flags & Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY) != 0) 
+		{
+		    // The activity was launched from history
+			return;
+		}
+		
 		if (TextUtils.isEmpty(action) || TextUtils.isEmpty(linkUrl))
 		{
 			//finish();
@@ -1193,6 +1202,8 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		{
 			//after showing the LockPatternActivity in onResume of ConvFrag the extra is no longer needed, so clearing it out.
 			extrasClearedOut = true;
+			getIntent().setAction(null);
+			getIntent().setData(null);
 			getIntent().removeExtra(HikeConstants.STEALTH_MSISDN);
 		}
 		super.onPause();

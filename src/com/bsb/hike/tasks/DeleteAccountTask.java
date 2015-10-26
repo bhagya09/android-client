@@ -11,6 +11,7 @@ import android.preference.PreferenceManager;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.HikePubSub;
 import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.db.AccountBackupRestore;
 import com.bsb.hike.db.HikeConversationsDatabase;
@@ -216,7 +217,8 @@ public class DeleteAccountTask implements ActivityCallableTask
 		/* clear any toast notifications */
 		NotificationManager mgr = (NotificationManager) ctx.getSystemService(android.content.Context.NOTIFICATION_SERVICE);
 		mgr.cancelAll();
-		
+		//reset badge counters
+		HikeMessengerApp.getPubSub().publish(HikePubSub.BADGE_COUNT_RESET, null);
 		
 		// redirect user to the welcome screen
 		if (listener != null)
