@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<level-list xmlns:android="http://schemas.android.com/apk/res/android" >
+    <!-- added and download done -->
+    <item
+        android:drawable="@drawable/shop_download_done"
+        android:maxLevel="0" />
+    <!-- download -->
+    <item
+        android:drawable="@drawable/ic_download"
+        android:maxLevel="1" />
+</level-list>

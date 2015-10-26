@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="52dp"
+    android:gravity="center_vertical"
+    android:orientation="horizontal">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginLeft="19dp"
+        android:layout_weight="1.0"
+        android:gravity="center_vertical">
+
+        <com.bsb.hike.view.CustomFontTextView
+            android:id="@+id/dictionary_language_name"
+            style="@style/SettingsHeaderItemTextView"
+            android:text="English" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginLeft="4dp"
+        android:layout_marginRight="4dp"
+        android:gravity="center">
+
+        <com.bsb.hike.ui.utils.RecyclingImageView
+            android:id="@+id/dictionary_status"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerInside"
+            android:src="@drawable/kpt_dictionary_language_drawable_selector" />
+
+        <ProgressBar
+            android:id="@+id/progress_bar"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:indeterminateDrawable="@drawable/rotating_blue"
+            android:visibility="gone" />
+    </LinearLayout>
+
+
+</LinearLayout>

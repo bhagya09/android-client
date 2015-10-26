@@ -8,10 +8,8 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -19,6 +17,7 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
+import com.bsb.hike.adapters.DictionaryLanguageAdapter;
 import com.bsb.hike.modules.kpt.DictionaryManager;
 import com.bsb.hike.utils.ChangeProfileImageBaseActivity;
 import com.kpt.adaptxt.beta.KPTAddonItem;
@@ -28,7 +27,9 @@ public class LanguageSettingsActivity extends ChangeProfileImageBaseActivity imp
 
 	Context mContext;
 
-	ArrayAdapter<KPTAddonItem> addonItemAdapter;
+	DictionaryLanguageAdapter addonItemAdapter;
+
+	ArrayList<KPTAddonItem> addonItems;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -49,7 +50,7 @@ public class LanguageSettingsActivity extends ChangeProfileImageBaseActivity imp
 		View actionBarView = LayoutInflater.from(this).inflate(R.layout.compose_action_bar, null);
 
 		TextView title = (TextView) actionBarView.findViewById(R.id.title);
-		title.setText("languages");
+		title.setText(R.string.language);
 		actionBar.setCustomView(actionBarView);
 		Toolbar parent = (Toolbar) actionBarView.getParent();
 		parent.setContentInsetsAbsolute(0, 0);
@@ -63,48 +64,29 @@ public class LanguageSettingsActivity extends ChangeProfileImageBaseActivity imp
 
 	private void setupLanguageList()
 	{
-		ArrayList<KPTAddonItem> addonItems = DictionaryManager.getInstance(this).getLanguagesList();
-		addonItemAdapter = new ArrayAdapter<KPTAddonItem>(this, R.layout.setting_item, R.id.item, addonItems)
-		{
-
-			@Override
-			public View getView(int position, View convertView, ViewGroup parent)
-			{
-				if (convertView == null)
-				{
-					convertView = getLayoutInflater().inflate(R.layout.setting_item, null);
-				}
-				KPTAddonItem item = getItem(position);
-				TextView textLang = (TextView) convertView.findViewById(R.id.item);
-				textLang.setText(item.getDisplayName() + " (" + DictionaryManager.getInstance(mContext).getDictionaryLanguageStatus(item).toString() + " )");
-
-				return convertView;
-			}
-
-			@Override
-			public int getItemViewType(int position)
-			{
-				return -1;
-			}
-
-			@Override
-			public int getViewTypeCount()
-			{
-				return 1;
-			}
-
-		};
-
+		addonItems = new ArrayList<KPTAddonItem>();
+		addonItemAdapter = new DictionaryLanguageAdapter(this, R.layout.kpt_dictionary_language_list_item, addonItems);
 		ListView langList = (ListView) findViewById(R.id.lang_list);
 		langList.setAdapter(addonItemAdapter);
 		langList.setOnItemClickListener(this);
+		refreshLanguageList();
+	}
+
+	private void refreshLanguageList()
+	{
+		addonItems.clear();
+		addonItems.addAll(DictionaryManager.getInstance(this).getInstalledLanguagesList());
+		addonItems.addAll(DictionaryManager.getInstance(this).getUninstalledLanguagesList());
 	}
 
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id)
 	{
 		KPTAddonItem item = addonItemAdapter.getItem(position);
-		DictionaryManager.getInstance(mContext).downloadAndInstallLanguage(item);
+		if (DictionaryManager.getInstance(LanguageSettingsActivity.this).getDictionaryLanguageStatus(item) == DictionaryManager.LanguageDictionarySatus.UNINSTALLED)
+		{
+			DictionaryManager.getInstance(mContext).downloadAndInstallLanguage(item);
+		}
 	}
 
 	@Override
@@ -118,7 +100,7 @@ public class LanguageSettingsActivity extends ChangeProfileImageBaseActivity imp
 				@Override
 				public void run()
 				{
-					addonItemAdapter.notifyDataSetChanged();
+					refreshLanguageList();
 				}
 			});
 			break;

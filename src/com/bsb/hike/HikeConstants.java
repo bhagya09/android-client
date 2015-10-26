@@ -608,15 +608,25 @@ public class HikeConstants
 
 	public static final String H2O_NOTIF_BOOLEAN_PREF = "hikeOfflineNotificationPref";
 
-	public static final String KEYBOARD_LANGUAGE_PREF = "languagePref";
-	
+	public static final String KEYBOARD_LANGUAGE_PREF = "kbdLanguagePref";
+
+	public static final String LOCAL_LANGUAGE_PREF = "appLanguagePref";
+
 	public static final String KEYBOARD_PREF = "keyboardPref";
 	
 	public static final String GLIDE_PREF = "glidePref";
 	
+	public static final String KEYBOARD_PRIMARY_PREF = "keyboardPrimaryPref";
+
+	public static final String TEXT_CORRECTION_PREF = "textCorrectionPref";
+	
 	public static final String KEYBOARD_ADV_PREF = "advancedPref";
 	
 	public static final String KEYBOARD_ADV_PREF_SCREEN = "kptAdvancedPrefScreen";
+	
+	public static final String KEYBOARD_PRIMARY_PREF_SCREEN = "kptPrimaryPrefScreen";
+	
+	public static final String TEXT_CORRECTION_PREF_SCREEN = "textCorrectionPrefScreen";
 	
 	public static final String AUTO_CORRECT_PREF = "autoCorrectPref";
 	

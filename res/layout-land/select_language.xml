@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    android:orientation="horizontal">
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.4"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <ImageView
+            android:layout_width="96dp"
+            android:layout_height="112dp"
+            android:background="@drawable/ic_languages"
+            android:paddingBottom="36dp"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            android:paddingTop="26dp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.6"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <com.bsb.hike.view.CustomFontTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/choose_language"
+            android:textColor="@color/caller_free_call"
+            android:textSize="20sp"
+            android:textStyle="bold|italic" />
+
+        <com.bsb.hike.view.CustomFontTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:gravity="center"
+            android:maxWidth="224dp"
+            android:text="@string/choose_language_desciption"
+            android:textColor="@color/settings_text_subheader_color"
+            android:textSize="16sp" />
+
+        <LinearLayout
+            android:layout_width="240dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="52dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="10dp">
+
+            <com.bsb.hike.view.CustomFontTextView
+                android:id="@+id/txt_lang"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1.0"
+                android:text="English (IN)"
+                android:textColor="@color/black_60"
+                android:textSize="16dp" />
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_arrow_down" />
+
+        </LinearLayout>
+
+        <View
+            android:layout_width="240dp"
+            android:layout_height="1.5dp"
+            android:background="@color/blue_hike" />
+    </LinearLayout>
+</LinearLayout>

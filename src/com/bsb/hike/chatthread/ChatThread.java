@@ -1728,7 +1728,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		mActionMode.showActionMode(SEARCH_ACTION_MODE, R.layout.search_action_bar);
 		setUpSearchViews();
 
-		 searchEt = (CustomFontEditText) activity.findViewById(R.id.search_text);
+		searchEt = (CustomFontEditText) activity.findViewById(R.id.search_text);
 
 		if (isSystemKeyboard())
 		{
@@ -1775,7 +1775,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		mComposeView.setTag(id);
 
 		mComposeView.requestFocus();
-		Utils.showSoftKeyboard(activity.getApplicationContext(), mComposeView);
 		mComposeView.addTextChangedListener(searchTextWatcher);
 		mComposeView.setOnEditorActionListener(this);
 		activity.findViewById(R.id.next).setOnClickListener(this);
@@ -1859,7 +1858,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	{
 		mConversationsView.setOnScrollListener(null);
 		
-		Utils.hideSoftKeyboard(activity.getApplicationContext(), mComposeView);
+		hideKeyboard();
 		if (!TextUtils.isEmpty(searchText) &&
 				// For some devices like micromax A120, one can get multiple calls from one user-input.
 				// Check on the dialog is optimal here as it directly reflects the user intentions.
@@ -4153,7 +4152,11 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	public void onResume()
 	{
 		tryToDismissAnyOpenPanels();
-		showKeyboard();
+		
+//		actionbar disappears randomly after onResume()
+		setupActionBar(false);
+		
+		showKeyboardIfRequired();
 
 		isActivityVisible = true;
 
@@ -4198,31 +4201,41 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 	protected void showKeyboard()
 	{
-		
-		if (shouldShowKeyboard())
+
+		if (isSystemKeyboard())
 		{
-			if (isSystemKeyboard())
-			{
-				changeKeyboard(isSystemKeyboard());
-				activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
-				Utils.showSoftKeyboard(mComposeView, InputMethodManager.SHOW_FORCED);
-				KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, 0);
-			}
-			else
-			{
-				mCustomKeyboard.showCustomKeyboard(mComposeView, true);
-			}
+			changeKeyboard(isSystemKeyboard());
+			activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+			Utils.showSoftKeyboard(mComposeView, InputMethodManager.SHOW_FORCED);
+			KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, 0);
 		}
 		else
 		{
-			if (isSystemKeyboard())
-			{
-				changeKeyboard(isSystemKeyboard());
-			}
-			KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, 0);
+			mCustomKeyboard.showCustomKeyboard(mComposeView, true);
 		}
 	}
-	
+
+	protected void resetKeyboard()
+	{
+		if (isSystemKeyboard())
+		{
+			changeKeyboard(isSystemKeyboard());
+			Utils.hideSoftKeyboard(activity, mComposeView);
+		}
+		KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, 0);
+	}
+
+	protected void showKeyboardIfRequired()
+	{
+		if (shouldShowKeyboard())
+		{
+			showKeyboard();
+		}
+		else
+		{
+			resetKeyboard();
+		}
+	}
 	public void onRestart()
 	{
 		isActivityVisible = true;
@@ -5496,6 +5509,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		if (mCustomKeyboard != null)
 		{
 			mCustomKeyboard.onConfigurationChanged(newConfig);
+			keyboardHeight = 0;
 		}
 		if (mShareablePopupLayout != null && mShareablePopupLayout.isShowing())
 		{
@@ -5571,24 +5585,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			hideShowActionModeMenus();
 			mActionMode.updateTitle(activity.getString(R.string.selected_count, mAdapter.getSelectedCount()));
 			break;
-			
-		case SEARCH_ACTION_MODE:
-			mActionMode.reInflateActionMode();
-			String oldText = mComposeView.getText().toString();
-			int start = mComposeView.getSelectionStart();
-			int end = mComposeView.getSelectionEnd();
-			setUpSearchViews();
-			mComposeView.setText(oldText);
-			if (start != end)
-			{
-				mComposeView.setSelection(start, end);
-			}
-			else
-			{
-				mComposeView.setSelection(start);
-			}
-			break;
-			
 		default:
 			break;
 		}
@@ -5701,7 +5697,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			return;
 		}
 		
-		Utils.hideSoftKeyboard(activity.getApplicationContext(), mComposeView);
+		hideKeyboard();
 
 		saveCurrentActionMode();
 		if (mShareablePopupLayout != null)
