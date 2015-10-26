@@ -988,20 +988,17 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 	{
 		if (!systemKeyboard)
 		{
-			enterEditText.setOnClickListener(
-					new OnClickListener()
-					{
-						
-						@Override
-						public void onClick(View v)
-						{
-							if (mCustomKeyboard.isCustomKeyboardVisible())
-							{
-								return;
-							}
-							showKeyboard(enterEditText);
-						}
-					});
+			enterEditText.setOnFocusChangeListener(new OnFocusChangeListener()
+			{
+				
+				@Override
+				public void onFocusChange(View v, boolean hasFocus)
+				{
+					if(hasFocus)
+					showKeyboard(enterEditText);
+					
+				}
+			});
 			if (countryPicker != null) {
 			   countryPicker.setOnTouchListener(new OnTouchListener()
 			{
@@ -1019,14 +1016,15 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 			});
 			}
 			if (birthdayText != null) {
-				birthdayText.setOnClickListener(new OnClickListener() {
-
+				birthdayText.setOnFocusChangeListener(new OnFocusChangeListener()
+				{
+					
 					@Override
-					public void onClick(View v) {
-						if (mCustomKeyboard.isCustomKeyboardVisible()) {
-							return;
-						}
+					public void onFocusChange(View v, boolean hasFocus)
+					{
+						if(hasFocus)
 						showKeyboard(birthdayText);
+						
 					}
 				});
 			}
