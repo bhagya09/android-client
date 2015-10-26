@@ -3533,6 +3533,11 @@ public class Utils
 
 	public static void sendLogEvent(JSONObject data, String subType, String toMsisdn)
 	{
+		sendLogEvent(data, subType, toMsisdn, HikeConstants.MqttMessageTypes.ANALYTICS_EVENT);
+	}
+	
+	public static void sendLogEvent(JSONObject data, String subType, String toMsisdn,String type)
+	{
 
 		JSONObject object = new JSONObject();
 		try
@@ -3548,7 +3553,7 @@ public class Utils
 			{
 				object.put(HikeConstants.TO, toMsisdn);
 			}
-			object.put(HikeConstants.TYPE, HikeConstants.MqttMessageTypes.ANALYTICS_EVENT);
+			object.put(HikeConstants.TYPE, type);
 			object.put(HikeConstants.DATA, data);
 
 			HikeMqttManagerNew.getInstance().sendMessage(object, MqttConstants.MQTT_QOS_ONE);
