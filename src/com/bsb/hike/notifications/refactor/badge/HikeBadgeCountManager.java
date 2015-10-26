@@ -28,6 +28,7 @@ public class HikeBadgeCountManager implements Listener
 		mBadgeCountKeeperList.add(new HikeBadgeCountKeeperActivityUpdate());
 		mBadgeCountKeeperList.add(new HikeBadgeCountKeeperUnseenFriendRequest());
 		mBadgeCountKeeperList.add(new HikeBadgeCountKeeperUserJoin());
+		mBadgeCountKeeperList.add(new HikeBadgeCountKeeperProductPopUp());
 		HikeMessengerApp.getPubSub().addListeners(this, mlistener);
 	}
 

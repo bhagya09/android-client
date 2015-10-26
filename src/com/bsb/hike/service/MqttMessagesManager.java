@@ -3931,6 +3931,7 @@ public class MqttMessagesManager
 					{
 						ProductInfoManager.getInstance().parsePopupPacket(mmMetaData);
 					}
+					HikeMessengerApp.getPubSub().publish(HikePubSub.PRODUCT_POPUP_BADGE_COUNT_CHANGED, null);
 				}
 				
 			}
