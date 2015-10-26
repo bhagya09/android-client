@@ -306,9 +306,27 @@ public class DeleteAccount extends HikeAppStateBaseFragmentActivity implements D
 	protected void onPause()
 	{
 		KptUtils.pauseKeyboardResources(mCustomKeyboard, countryCode, phoneNum);
+		KptUtils.updatePadding(DeleteAccount.this, R.id.delete_scroll_view, 0);
 		super.onPause();
 	}
 	
+	@Override
+	protected void onResume()
+	{
+		if (mCustomKeyboard != null)
+		{
+			if (phoneNum != null && phoneNum.isFocused())
+			{
+				mCustomKeyboard.showCustomKeyboard(phoneNum, true);
+			}
+			else if (countryCode != null && countryCode.isFocused())
+			{
+				mCustomKeyboard.showCustomKeyboard(countryCode, true);
+			}
+		}
+		super.onResume();
+	}
+
 	@Override
 	public void onBackPressed()
 	{

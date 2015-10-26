@@ -23,7 +23,7 @@
 	<dimen name="kpt_spacebar_text_vertical_offset">41dip</dimen>
 	
 	<dimen name="kpt_draw_space_key_arrows">26px</dimen>
-	<dimen name="kpt_preview_text_size">16sp</dimen>
+	<dimen name="kpt_preview_text_size">18sp</dimen>
 	
 	<dimen name="kpt_customization_gallery_width">48dip</dimen>
 	<dimen name="kpt_customization_gallery_height">72dip</dimen>
