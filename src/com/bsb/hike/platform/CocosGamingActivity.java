@@ -234,15 +234,15 @@ public class CocosGamingActivity extends Cocos2dxActivity
 	@Override
 	protected void onResume()
 	{
-		HAManager.getInstance().startChatSession(msisdn);
 		super.onResume();
+		HAManager.getInstance().startChatSession(msisdn);
 	}
 
 	@Override
 	protected void onPause()
 	{
-		HAManager.getInstance().endChatSession(msisdn);
 		super.onPause();
+		HAManager.getInstance().endChatSession(msisdn);
 	}
 
 	/**
