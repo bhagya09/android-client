@@ -3,8 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bsb.hike"
     android:installLocation="auto"
-    android:versionCode="1482"
-    android:versionName="4.0.7.82.64" >
+    android:versionCode="1478"
+    android:versionName="4.0.7.82.28" >
     
     <uses-sdk
         android:minSdkVersion="14"
@@ -60,7 +60,21 @@
     <uses-permission android:name="android.permission.READ_SYNC_STATS" />
     <uses-permission android:name="android.permission.USE_CREDENTIALS" />
     <uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS" />
-    
+      <!--for Samsung Badger-->
+    <uses-permission android:name="com.sec.android.provider.badge.permission.READ"/>
+    <uses-permission android:name="com.sec.android.provider.badge.permission.WRITE"/>
+    <!--     for htc -->
+    <uses-permission android:name="com.htc.launcher.permission.READ_SETTINGS"/>
+    <uses-permission android:name="com.htc.launcher.permission.UPDATE_SHORTCUT"/>
+
+<!--     for sony -->
+    <uses-permission android:name="com.sonyericsson.home.permission.BROADCAST_BADGE"/>
+
+<!--     for apex -->
+    <uses-permission android:name="com.anddoes.launcher.permission.UPDATE_COUNT"/>
+
+<!--     for solid -->
+    <uses-permission android:name="com.majeur.launcher.permission.UPDATE_BADGE"/>
     
     <!-- C2DM -->
     <permission
