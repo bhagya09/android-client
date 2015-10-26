@@ -1,10 +1,11 @@
 package com.bsb.hike.modules.stickersearch;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import android.content.Context;
+import android.util.Log;
 import android.util.Pair;
+import android.view.inputmethod.InputMethodInfo;
+import android.view.inputmethod.InputMethodManager;
+import android.view.inputmethod.InputMethodSubtype;
 import android.widget.TextView;
 
 import com.bsb.hike.HikeMessengerApp;
@@ -12,8 +13,14 @@ import com.bsb.hike.R;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.utils.StickerManager;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+
 public class StickerSearchUtils
 {
+	public static final String TAG = StickerSearchUtils.class.getSimpleName();
+
 	// http://stackoverflow.com/questions/11601139/determining-which-word-is-clicked-in-an-android-textview
 	public static int getOffsetForPosition(TextView textView, float x, float y)
 	{
@@ -102,5 +109,49 @@ public class StickerSearchUtils
 		}
 
 		return resultList;
+	}
+
+	/***
+	 * @param : application context
+	 *
+	 * @return : returns a list of string of user enabled device keyboards in ISO 639-2/T format
+	 ****/
+	public static List<String> getISOListOfSystemKeyboards(Context context)
+	{
+		if (context == null) {
+			return null;
+		}
+
+		ArrayList<String> keyBoardISO3Codes = new ArrayList<String>();
+
+		InputMethodManager methodManager = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+		List<InputMethodInfo> inputMethodList = methodManager.getEnabledInputMethodList();
+		for (int i = 0; i < inputMethodList.size(); ++i)
+		{
+			final InputMethodInfo inputMethodInfo = inputMethodList.get(i);
+
+			List<InputMethodSubtype> submethods = methodManager.getEnabledInputMethodSubtypeList(inputMethodInfo, true);
+			for (InputMethodSubtype submethod : submethods)
+			{
+				if (submethod.getMode().equals("keyboard"))
+				{
+					Locale currentLocale = new Locale(submethod.getLocale());
+					Log.i(TAG,  currentLocale.toString());
+					if (!keyBoardISO3Codes.contains(currentLocale.getISO3Language()))
+					{
+						keyBoardISO3Codes.add(currentLocale.getISO3Language());
+					}
+
+				}
+			}
+		}
+
+		if(keyBoardISO3Codes.size()<=0)
+		{
+			return null;
+		}
+
+		return keyBoardISO3Codes;
+
 	}
 }
