@@ -353,10 +353,13 @@ public class ShareLinkFragment extends DialogFragment implements OnClickListener
 		dismissProgressDialog();
 
 		// dismiss Dialog
-		FragmentTransaction ft = getFragmentManager().beginTransaction();
+		android.support.v4.app.FragmentManager fm = getFragmentManager();
+		FragmentTransaction ft = fm.beginTransaction();
 		ft.remove(this);
 
 		ft.commitAllowingStateLoss();
+
+		fm.executePendingTransactions();
 
 	}
 	
