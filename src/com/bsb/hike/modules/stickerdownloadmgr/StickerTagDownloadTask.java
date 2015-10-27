@@ -1,13 +1,5 @@
 package com.bsb.hike.modules.stickerdownloadmgr;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Set;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.modules.httpmgr.RequestToken;
@@ -23,6 +15,14 @@ import com.bsb.hike.modules.stickersearch.ui.StickerTagWatcher;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Set;
 
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests.tagsForCategoriesRequest;
 
@@ -101,7 +101,7 @@ public class StickerTagDownloadTask implements IHikeHTTPTask, IHikeHttpTaskResul
 			json.put(HikeConstants.CATEGORY_ID_LIST, array);
 			json.put("timestamp", (lastTagRefreshTime/1000));
 			//temp changes for regional testing begin here
-			String mStringArray[] = { "hin", "mar", "guj", "tam", "tel", "mal", "ben", "bho", "kan", "dcc" };
+			String mStringArray[] = { "eng","hin", "mar", "guj", "tam", "tel", "mal", "ben", "bho", "kan", "dcc" };
 
 			JSONArray temp = new JSONArray(Arrays.asList(mStringArray));
 			json.put("kbd",temp);
