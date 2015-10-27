@@ -3,8 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bsb.hike"
     android:installLocation="auto"
-    android:versionCode="1480"
-    android:versionName="4.0.7.82.30" >
+    android:versionCode="1483"
+    android:versionName="4.0.7.82.30.3.hike_platform_internal" >
     
     <uses-sdk
         android:minSdkVersion="14"
@@ -475,6 +475,7 @@
             android:name="com.bsb.hike.platform.CocosGamingActivity"
             android:process="org.cocos2dx.gameprocess"
             android:configChanges="orientation"
+            android:launchMode="singleTop"
             android:exported="true" >
         </activity>
 
