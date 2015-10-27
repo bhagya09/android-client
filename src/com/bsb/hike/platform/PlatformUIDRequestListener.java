@@ -1,6 +1,8 @@
 package com.bsb.hike.platform;
 
 import android.text.TextUtils;
+
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.modules.contactmgr.ContactManager;
@@ -10,6 +12,7 @@ import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
@@ -30,7 +33,18 @@ public class PlatformUIDRequestListener implements IRequestListener
 	public void onRequestFailure(HttpException httpException)
 	{
 		Logger.e(HikePlatformConstants.FETCH_TAG, httpException.toString());
-		//TODO give the response back to the controller for anonymous games.
+		if (fetchType == HikePlatformConstants.PlatformFetchType.SELF_ANONYMOUS_NAME)
+		{
+			JSONObject result = new JSONObject();
+			try
+			{
+				result.put("Status", "Failure");
+			} catch (JSONException e)
+			{
+				e.printStackTrace();
+			}
+			HikeMessengerApp.getPubSub().publish(HikePubSub.ANONYMOUS_NAME_SET,result);
+		}
 	}
 
 	/**
