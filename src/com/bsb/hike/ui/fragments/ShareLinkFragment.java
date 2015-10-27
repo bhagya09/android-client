@@ -11,6 +11,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -19,6 +20,7 @@ import android.view.Window;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.Toast;
+
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
@@ -351,7 +353,14 @@ public class ShareLinkFragment extends DialogFragment implements OnClickListener
 		dismissProgressDialog();
 
 		// dismiss Dialog
-		dismiss();
+		android.support.v4.app.FragmentManager fm = getFragmentManager();
+		FragmentTransaction ft = fm.beginTransaction();
+		ft.remove(this);
+
+		ft.commitAllowingStateLoss();
+
+		fm.executePendingTransactions();
+
 	}
 	
 	private void dismissProgressDialog()
@@ -455,7 +464,8 @@ public class ShareLinkFragment extends DialogFragment implements OnClickListener
 			break;
 
 		case OTHERS:
-			String str = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.TEXT_FOR_GC_VIA_OTHERS, getString(R.string.link_share_others_msg))
+			String str = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.TEXT_FOR_GC_VIA_OTHERS, 
+					HikeMessengerApp.getInstance().getApplicationContext().getString(R.string.link_share_others_msg))
 			+ "\n " + url;
 			str = str.replace("$groupname", grpName);
 			ShareUtils.shareContent(HikeConstants.Extras.ShareTypes.TEXT_SHARE, str, null);

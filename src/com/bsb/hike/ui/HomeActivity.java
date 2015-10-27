@@ -1090,7 +1090,14 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	{
 		String action = intent.getAction();
 		String linkUrl = intent.getDataString();
-
+		int flags = intent.getFlags();
+		
+		if ((flags & Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY) != 0) 
+		{
+		    // The activity was launched from history
+			return;
+		}
+		
 		if (TextUtils.isEmpty(action) || TextUtils.isEmpty(linkUrl))
 		{
 			//finish();
