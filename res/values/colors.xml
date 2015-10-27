@@ -196,6 +196,7 @@
     <color name="erase_key_color">#555555</color>
     <color name="sticker_settings_update_color">#60B141</color>
     <color name="white_100">#FFFFFFFF</color>
+    <color name="blue_action_bar">#039BE5</color>
     <color name="shop_update_details_color">#C4EF94</color>
     <color name="shop_update_invisible_color">#cccccc</color>
     <color name="sticker_pallete_bg_color">#555555</color>
