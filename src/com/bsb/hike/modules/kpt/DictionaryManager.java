@@ -87,6 +87,13 @@ public class DictionaryManager implements AdaptxtSettingsRegisterListener
 		return _instance;
 	}
 
+	public String getCurrentLanguage()
+	{
+		if(kptSettings != null)
+			return kptSettings.getCurrentLanguage();
+
+		return null;
+	}
 	public ArrayList<KPTAddonItem> getInstalledLanguagesList()
 	{
 		return mInstalledLanguagesList;
