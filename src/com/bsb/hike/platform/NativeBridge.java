@@ -498,7 +498,7 @@ public class NativeBridge
 			{
 				String uid = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PLATFORM_UID_SETTING, null);
 				String name = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.NAME_SETTING, null);
-				String anonName=HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.ANONYMOUS_NAME_SETTING,null);
+				String anonName=HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.ANONYMOUS_NAME_SETTING,"");
 				final JSONObject result = new JSONObject();
 				try
 				{
