@@ -109,7 +109,7 @@ public class StickerSearchConstants
 
 	public static final float MINIMUM_MATCH_SCORE_PHRASE_LIMITED = 0.10f;
 
-	public static final float MARGINAL_FULL_SCORE_LATERAL = 0.80f; // marginal full score = 80.00% but not 100% (nothing is perfect till its perfect)
+	public static final float MARGINAL_FULL_SCORE_LATERAL = 0.80f; // marginal full score = 80.00% but not 100% (nothing is perfect until it's being perfect.)
 
 	public static final float DEFAULT_FREQUENCY_VALUE = 0.00f;
 
