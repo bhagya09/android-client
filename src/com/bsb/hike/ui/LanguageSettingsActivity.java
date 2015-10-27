@@ -77,6 +77,7 @@ public class LanguageSettingsActivity extends ChangeProfileImageBaseActivity imp
 		addonItems.clear();
 		addonItems.addAll(KptKeyboardManager.getInstance(this).getInstalledLanguagesList());
 		addonItems.addAll(KptKeyboardManager.getInstance(this).getUninstalledLanguagesList());
+		addonItemAdapter.notifyDataSetChanged();
 	}
 
 	@Override
