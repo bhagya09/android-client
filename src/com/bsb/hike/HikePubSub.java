@@ -476,6 +476,8 @@ public class HikePubSub implements Runnable
 
 	public static final String BADGE_COUNT_USER_JOINED = "badgeCountUserJoined";
 
+	public static final String PRODUCT_POPUP_BADGE_COUNT_CHANGED = "productpopupBadgeCountChanged";
+	
 	private final Thread mThread;
 
 	private final BlockingQueue<Operation> mQueue;
