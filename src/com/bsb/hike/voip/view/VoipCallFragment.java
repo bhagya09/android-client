@@ -542,7 +542,7 @@ public class VoipCallFragment extends Fragment implements CallActions
 		if (client == null)
 			return;
 		
-		Logger.d(tag, "Declined call, messaging...");
+		Logger.d(tag, "Declined call, messaging " + client.getPhoneNumber());
 		Bundle bundle = new Bundle();
 		bundle.putString(VoIPConstants.PARTNER_MSISDN, client.getPhoneNumber());
 		activity.showDeclineWithMessageFragment(bundle);

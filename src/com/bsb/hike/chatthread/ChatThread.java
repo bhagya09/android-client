@@ -16,6 +16,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.NotificationManager;
 import android.app.ProgressDialog;
@@ -171,13 +172,14 @@ import com.bsb.hike.view.CustomFontEditText;
 import com.bsb.hike.view.CustomFontEditText.BackKeyListener;
 import com.bsb.hike.view.CustomLinearLayout;
 import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
+import com.bsb.hike.voip.VoIPConstants;
 
 /**
  * 
  * @generated
  */
 
-public abstract class ChatThread extends SimpleOnGestureListener implements OverflowItemClickListener, View.OnClickListener, ThemePickerListener, ImageParserListener,
+@SuppressLint("ResourceAsColor") public abstract class ChatThread extends SimpleOnGestureListener implements OverflowItemClickListener, View.OnClickListener, ThemePickerListener, ImageParserListener,
 		PickFileListener, StickerPickerListener, AudioRecordListener, LoaderCallbacks<Object>, OnItemLongClickListener, OnTouchListener, OnScrollListener,
 		Listener, ActionModeListener, HikeDialogListener, TextWatcher, OnDismissListener, OnEditorActionListener, OnKeyListener, PopupListener, BackKeyListener,
 		OverflowViewListener, OnSoftKeyboardListener, IStickerPickerRecommendationListener,IOfflineCallbacks
@@ -3641,7 +3643,11 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
         	onNudgeSettingsChnaged();
         	break;
         case HikePubSub.UPDATE_THREAD:
-        	sendUIMessage(MESSAGE_SENT, (ConvMessage) object);
+        	ConvMessage msg = (ConvMessage) object;
+        	if (this.msisdn.equals(msg.getMsisdn()))
+        	{
+        		sendUIMessage(MESSAGE_SENT, msg);
+        	}
         	break;
 		default:
 			Logger.e(TAG, "PubSub Registered But Not used : " + type);
