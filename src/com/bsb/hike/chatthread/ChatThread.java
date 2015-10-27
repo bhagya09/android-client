@@ -6226,6 +6226,7 @@ import android.widget.Toast;
 	public void analyticalData(String language)
 	{
 		KptUtils.generateKeyboardAnalytics(language);
+		StickerSearchManager.getInstance().inputMethodChanged(language);
 	}
 
 	@Override

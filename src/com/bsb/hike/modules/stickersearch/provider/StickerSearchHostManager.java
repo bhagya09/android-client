@@ -77,6 +77,10 @@ public class StickerSearchHostManager
 
 	private static HashMap<String, LinkedHashSet<Sticker>> sCacheForLocalOrderedStickers = new HashMap<String, LinkedHashSet<Sticker>>();
 
+	private TIME_CODE mMomentCode = StickerSearchUtility.getMomentCode();
+
+	private String mKeyboardLanguage;
+
 	private String mCurrentText;
 
 	private int mCurrentTextEditingStartIndex;
@@ -86,8 +90,6 @@ public class StickerSearchHostManager
 	private int mCurrentTextSignificantLength;
 
 	private volatile ArrayList<Word> mCurrentWords = null;
-
-	private static volatile TIME_CODE mMomentCode = StickerSearchUtility.getMomentCode();
 
 	private ArrayList<String> mPreviousWords;
 
@@ -806,6 +808,13 @@ public class StickerSearchHostManager
 		return (start == 0) && (end == 0);
 	}
 
+	public void onInputMethodChanged(String language)
+	{
+		Logger.i(TAG, "onInputMethodChanged(" + language + ")");
+
+		mKeyboardLanguage = language;
+	}
+
 	public void onMessageSent(String textBeforeSticker, Sticker sticker, String textAfterSticker, String currentText)
 	{
 		Logger.i(TAG, "onMessageSent(" + textBeforeSticker + ", " + sticker + ", " + textAfterSticker + ", " + currentText + ")");
@@ -1242,12 +1251,12 @@ public class StickerSearchHostManager
 		return stickers;
 	}
 
-	private LinkedHashSet<Sticker> computeOrderingAndGetStickers(String matchKey, ArrayList<StickerAppositeDataContainer> stickerData, float minimumMatchingScore)
+	private LinkedHashSet<Sticker> computeOrderingAndGetStickers(String matchKey, ArrayList<StickerAppositeDataContainer> stickersData, float minimumMatchingScore)
 	{
-		Logger.i(TAG, "computeOrderingAndGetStickers(" + matchKey + ", " + stickerData + ", " + minimumMatchingScore + ")");
+		Logger.i(TAG, "computeOrderingAndGetStickers(" + matchKey + ", " + stickersData + ", " + minimumMatchingScore + ")");
 
 		LinkedHashSet<Sticker> stickers = null;
-		int count = (stickerData == null) ? 0 : stickerData.size();
+		int count = (stickersData == null) ? 0 : stickersData.size();
 
 		if (count > 0)
 		{
@@ -1274,7 +1283,7 @@ public class StickerSearchHostManager
 
 			for (int i = 0; i < count; i++)
 			{
-				stickerAppositeDataContainer = stickerData.get(i);
+				stickerAppositeDataContainer = stickersData.get(i);
 				if (stickerAppositeDataContainer != null)
 				{
 					// Trending frequency
@@ -1317,7 +1326,7 @@ public class StickerSearchHostManager
 			// Calculate overall score
 			for (int i = 0; i < count; i++)
 			{
-				stickerAppositeDataContainer = stickerData.get(i);
+				stickerAppositeDataContainer = stickersData.get(i);
 				if (stickerAppositeDataContainer != null)
 				{
 					int stickerMometCode = stickerAppositeDataContainer.getMomentCode();

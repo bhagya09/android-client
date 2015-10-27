@@ -15,6 +15,7 @@ import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchDatabase;
 import com.bsb.hike.modules.stickersearch.tasks.CurrentLanguageTagsDownloadTask;
 import com.bsb.hike.modules.stickersearch.tasks.HighlightAndShowStickerPopupTask;
 import com.bsb.hike.modules.stickersearch.tasks.InitiateStickerTagDownloadTask;
+import com.bsb.hike.modules.stickersearch.tasks.InputMethodChangedTask;
 import com.bsb.hike.modules.stickersearch.tasks.LoadChatProfileTask;
 import com.bsb.hike.modules.stickersearch.tasks.NewMessageReceivedTask;
 import com.bsb.hike.modules.stickersearch.tasks.NewMessageSentTask;
@@ -402,6 +403,12 @@ public class StickerSearchManager
 	{
 		RemoveDeletedStickerTagsTask removeDeletedStickerTagsTask = new RemoveDeletedStickerTagsTask();
 		searchEngine.runOnQueryThread(removeDeletedStickerTagsTask);
+	}
+
+	public void inputMethodChanged(String language)
+	{
+		InputMethodChangedTask inputMethodChangedTask = new InputMethodChangedTask(language);
+		searchEngine.runOnQueryThread(inputMethodChangedTask);
 	}
 
 	public void downloadTagsForCurrentLanguage()
