@@ -8633,9 +8633,10 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		{
 			String updateStatement = "UPDATE " + DBConstants.MESSAGES_TABLE + " SET " + DBConstants.SORTING_ID + " = "
 					+ " ( ( " + "SELECT" + " MAX( " + DBConstants.SORTING_ID + " ) " + " FROM " + DBConstants.MESSAGES_TABLE + " )" + " + 1 ), "
-					+ DBConstants.MSG_STATUS + " = " + state
+					+ DBConstants.MSG_STATUS + " = " + state.ordinal()
 					+ " WHERE " + DBConstants.MESSAGE_HASH + " = " + "'"
 					+ msgHash + "'";
+
 			mDb.execSQL(updateStatement);
 		}
 
