@@ -24,4 +24,32 @@
             android:src="@drawable/ic_remove_selection" />
     </LinearLayout>
 
+    <com.bsb.hike.view.CustomFontEditText
+        android:id="@+id/caption"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/album_image"
+        android:background="@drawable/image_viewer_fg"
+        android:hint="Add a caption"
+        android:inputType="text|textAutoCorrect|textCapSentences"
+        android:paddingTop="4dp"
+        android:paddingLeft="4dp"
+        android:paddingRight="4dp"
+        android:paddingBottom="6dp"
+        android:singleLine="true"
+        android:textColor="@color/white"
+        android:textColorHint="@color/white_80"
+        android:textSize="18sp"
+        android:textStyle="normal" >
+    </com.bsb.hike.view.CustomFontEditText>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1px"
+        android:layout_alignBottom="@+id/album_image"
+        android:background="@color/white"
+        android:layout_marginBottom="6dp"
+        android:layout_marginLeft="4dp"
+        android:layout_marginRight="4dp" />
+
 </RelativeLayout>
