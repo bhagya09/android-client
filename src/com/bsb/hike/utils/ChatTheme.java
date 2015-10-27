@@ -171,7 +171,7 @@ public enum ChatTheme
 		@Override
 		public int bubbleColor()
 		{
-			return R.color.bubble_smiley_geometric1_independence;
+			return R.color.bubble_blue;
 		}
 
 		@Override
@@ -470,7 +470,7 @@ public enum ChatTheme
 		@Override
 		public int bubbleColor()
 		{
-			return R.color.bubble_forest_study_sporty_fifa_nature;
+			return R.color.bubble_blue;
 		}
 
 		@Override
@@ -566,7 +566,7 @@ public enum ChatTheme
 		@Override
 		public int bubbleColor()
 		{
-			return R.color.bubble_beach_2;
+			return R.color.bubble_love_floral_kisses_valentines_girly_ipl_blurredlight_love2;
 		}
 
 		@Override
@@ -662,7 +662,7 @@ public enum ChatTheme
 		@Override
 		public int bubbleColor()
 		{
-			return R.color.bubble_love_floral_kisses_valentines_girly_ipl_blurredlight_love2;
+			return R.color.bubble_blue;
 		}
 
 		@Override
@@ -757,7 +757,7 @@ public enum ChatTheme
 		@Override
 		public int bubbleColor()
 		{
-			return R.color.bubble_smiley_geometric1_independence;
+			return R.color.bubble_blue;
 		}
 
 		@Override
@@ -865,7 +865,7 @@ public enum ChatTheme
 		@Override
 		public int bubbleColor()
 		{
-			return R.color.bubble_love_floral_kisses_valentines_girly_ipl_blurredlight_love2;
+			return R.color.bubble_blue;
 		}
 
 		@Override
@@ -1601,7 +1601,7 @@ public enum ChatTheme
 		@Override
 		public int bubbleColor()
 		{
-			return R.color.bubble_music;
+			return R.color.bubble_blue;
 		}
 
 		@Override
@@ -2188,7 +2188,7 @@ public enum ChatTheme
 		@Override
 		public int bubbleColor()
 		{
-			return R.color.bubble_hikin_couple_mountain;
+			return R.color.bubble_blue;
 		}
 
 		@Override

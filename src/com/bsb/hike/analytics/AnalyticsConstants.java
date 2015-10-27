@@ -118,9 +118,11 @@ public class AnalyticsConstants
 
 	public static final String REMOVE_SUCCESS = "remsucss";
 
-	public static final String REPLACE_SUCCESS = "replsucss";
+	public static final String REPLACE_SUCCESS = "success";
 	
-	public static final String REPLACE_FAILURE = "replfail";
+	public static final String REPLACE_FAILURE = "failure";
+
+	public static final String REPLACE_STATUS = "success";
 	
 	public static final String REMOVE_MICRO_APP = "dmapp";
 	
@@ -200,6 +202,12 @@ public class AnalyticsConstants
 	public static final String HELP_CLICKED = "help_click";
 	
 	public static String ERROR_TRACE = "error";
+
+	public static String MESSAGES_COUNT = "msg_count";
+
+	public static String TIME_TAKEN = "time";
+
+	public static String UPGRADE_EVENT = "upgrade";
 		
 	// Edit picture flags and events
 	public static final class ProfileImageActions
@@ -452,6 +460,73 @@ public class AnalyticsConstants
 
 	}
 	
+	
+	public static final class StickyCallerEvents
+	{
+		public static final String STICKY_CALLER = "stkyClr";
+		
+		public static final String CALL_TYPE = "clTyp";
+		
+		public static final String NUMBER_TYPE = "noTyp";
+		
+		public static final String MSISDN = "msisdn";
+		
+		public static final String SUCCESS = "success";
+		
+		public static final String FAIL = "fail";
+	
+		public static final String SOURCE = "src";
+		
+		public static final String CALL_EVENT = "clEvnt";
+		
+		public static final String FETCHING = "fetch";
+		
+		public static final String KNOWN = "knw";
+		
+		public static final String UNKNOWN = "unKnw";
+		
+		public static final String MISSED = "miss";
+	
+		public static final String RECEIVED = "rcv";
+		
+		public static final String DIALED = "dial";
+		
+		public static final String SERVER = "srv";
+		
+		public static final String CACHE = "cac";
+
+		public static final String ALREADY_SAVED = "svd";
+
+		public static final String STATUS = "stat";
+		
+		public static final String CALL_BUTTON = "call";
+		
+		public static final String FREE_CALL_BUTTON = "frCl";
+		
+		public static final String SMS_BUTTON = "sms";
+		
+		public static final String FREE_SMS_BUTTON = "frSms";
+		
+		public static final String CALLER_SETTINGS_BUTTON = "clrStg";
+		
+		public static final String ACTIVATE_BUTTON = "activ";
+		
+		public static final String DEACTIVATE_BUTTON = "dActiv";
+		
+		public static final String CLOSE_BUTTON = "close";
+
+		public static final String CARD = "crd";
+
+		public static final String SAVE_CONTACT = "svCntct";
+
+		public static final String HIKE = "hike";
+		
+		public static final String CALLER_SETTINGS_TOGGLE = "clrStgTgl";
+
+		public static final String KNOWN_CARD_SETTINGS_TOGGLE = "knwStgTgl";
+		
+	}
+	
 	public static String EVENT_SOURCE = "sr";
 	
 	public static final String WITH_RED_DOT = "wr";
@@ -481,4 +556,16 @@ public class AnalyticsConstants
 	public static final String GET_DISCOVERY_BOT_LIST = "gdb";
 	
 	public static final String DISCOVERY_BOTS = "db";
+	
+	public static final String MICRO_APP_EVENT = "micro_app";
+	
+	public static final String EVENT = "event";
+	
+	public static final String LOG_FIELD_5 = "fld5";
+	
+	public static final String LOG_FIELD_6 = "fld6";
+
+	public static final String FILE_SIZE = "fs";
+
+	public static final String INTERNAL_STORAGE_SPACE = "mem";
 }

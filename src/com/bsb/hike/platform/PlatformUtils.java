@@ -1,16 +1,48 @@
 package com.bsb.hike.platform;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import android.app.Activity;
+import android.app.ActivityManager;
+import android.app.ActivityManager.RunningAppProcessInfo;
+import android.content.ActivityNotFoundException;
+import android.content.Context;
+import android.content.Intent;
+import android.location.Location;
+import android.location.LocationManager;
+import android.net.Uri;
+import android.text.TextUtils;
+import android.util.Pair;
+import android.webkit.MimeTypeMap;
+import android.widget.Toast;
 
+import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.HikePubSub;
+import com.bsb.hike.R;
+import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.bots.BotInfo;
+import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.bots.NonMessagingBotMetadata;
+import com.bsb.hike.chatHead.ChatHeadUtils;
+import com.bsb.hike.db.HikeContentDatabase;
+import com.bsb.hike.db.HikeConversationsDatabase;
+import com.bsb.hike.models.*;
+import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.modules.httpmgr.Header;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpHeaderConstants;
+import com.bsb.hike.modules.httpmgr.request.FileRequestPersistent;
+import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadSource;
+import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadType;
+import com.bsb.hike.modules.stickerdownloadmgr.StickerPalleteImageDownloadTask;
+import com.bsb.hike.platform.content.*;
+import com.bsb.hike.productpopup.ProductPopupsConstants;
+import com.bsb.hike.productpopup.ProductPopupsConstants.HIKESCREEN;
+import com.bsb.hike.timeline.view.StatusUpdate;
+import com.bsb.hike.ui.CreateNewGroupOrBroadcastActivity;
+import com.bsb.hike.ui.HikeListActivity;
+import com.bsb.hike.ui.HomeActivity;
+import com.bsb.hike.ui.TellAFriend;
+import com.bsb.hike.utils.*;
+
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
@@ -22,57 +54,10 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.app.Activity;
-import android.content.ActivityNotFoundException;
-import android.content.Context;
-import android.content.Intent;
-import android.location.Location;
-import android.location.LocationManager;
-import android.net.Uri;
-import android.text.TextUtils;
-import android.webkit.MimeTypeMap;
-import android.widget.Toast;
-
-import com.bsb.hike.HikeConstants;
-import com.bsb.hike.HikeMessengerApp;
-import com.bsb.hike.HikePubSub;
-import com.bsb.hike.R;
-import com.bsb.hike.analytics.AnalyticsConstants;
-import com.bsb.hike.bots.BotInfo;
-import com.bsb.hike.bots.BotUtils;
-import com.bsb.hike.chatHead.ChatHeadUtils;
-import com.bsb.hike.db.HikeConversationsDatabase;
-import com.bsb.hike.models.ContactInfo;
-import com.bsb.hike.models.ConvMessage;
-import com.bsb.hike.models.HikeHandlerUtil;
-import com.bsb.hike.models.MessageEvent;
-import com.bsb.hike.models.StickerCategory;
-import com.bsb.hike.modules.contactmgr.ContactManager;
-import com.bsb.hike.modules.httpmgr.Header;
-import com.bsb.hike.modules.httpmgr.hikehttp.HttpHeaderConstants;
-import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadSource;
-import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadType;
-import com.bsb.hike.modules.stickerdownloadmgr.StickerPalleteImageDownloadTask;
-import com.bsb.hike.platform.content.PlatformContent;
-import com.bsb.hike.platform.content.PlatformContentConstants;
-import com.bsb.hike.platform.content.PlatformContentListener;
-import com.bsb.hike.platform.content.PlatformContentModel;
-import com.bsb.hike.platform.content.PlatformContentRequest;
-import com.bsb.hike.platform.content.PlatformZipDownloader;
-import com.bsb.hike.productpopup.ProductPopupsConstants;
-import com.bsb.hike.productpopup.ProductPopupsConstants.HIKESCREEN;
-import com.bsb.hike.timeline.view.StatusUpdate;
-import com.bsb.hike.ui.CreateNewGroupOrBroadcastActivity;
-import com.bsb.hike.ui.HikeListActivity;
-import com.bsb.hike.ui.HomeActivity;
-import com.bsb.hike.ui.TellAFriend;
-import com.bsb.hike.utils.AccountUtils;
-import com.bsb.hike.utils.HikeAnalyticsEvent;
-import com.bsb.hike.utils.HikeSharedPreferenceUtil;
-import com.bsb.hike.utils.IntentFactory;
-import com.bsb.hike.utils.Logger;
-import com.bsb.hike.utils.StickerManager;
-import com.bsb.hike.utils.Utils;
+import java.io.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * @author piyush
@@ -316,13 +301,33 @@ public class PlatformUtils
 					Toast.makeText(context, context.getString(R.string.sticker_share_popup_not_activate_toast), Toast.LENGTH_LONG).show();
 				}
 			}
+			if (activityName.equals(HIKESCREEN.HIKE_CALLER.toString()))
+			{
+				Utils.setSharedPrefValue(context, HikeConstants.ACTIVATE_STICKY_CALLER_PREF, true);
+				ChatHeadUtils.registerCallReceiver();
+				IntentFactory.openStickyCallerSettings(context, false);
+			}
 			if(activityName.equals(HIKESCREEN.ACCESS.toString()))
 			{
 				IntentFactory.openAccessibilitySettings(context);
 			}
 			if (activityName.equals(HIKESCREEN.GAME_ACTIVITY.toString()))
 			{
-				IntentFactory.openIntentForGameActivity(context);
+				String extraData;
+				String msisdn = mmObject.optString(HikeConstants.MSISDN);
+				extraData=mmObject.optString(HikeConstants.DATA);
+				Intent i=IntentFactory.getNonMessagingBotIntent(msisdn,context,extraData);
+				if (context != null)
+				{
+					if (!(getLastGame().equals(msisdn)))
+					{
+						killProcess(context, HikePlatformConstants.GAME_PROCESS);
+						Logger.d(TAG, "process killed");
+					}
+					HikeContentDatabase.getInstance().putInContentCache(HikePlatformConstants.LAST_GAME,
+							BotUtils.getBotInfoForBotMsisdn(HikePlatformConstants.GAME_CHANNEL).getNamespace(), msisdn);
+					context.startActivity(i);
+				}
 			}
 		}
 		catch (JSONException e)
@@ -342,11 +347,13 @@ public class PlatformUtils
 	 * @param botInfo
 	 * @param enableBot
 	 */
-	public static void downloadZipForNonMessagingBot(final BotInfo botInfo, final boolean enableBot, final String botChatTheme, final String notifType, NonMessagingBotMetadata botMetadata)
+	public static void downloadZipForNonMessagingBot(final BotInfo botInfo, final boolean enableBot, final String botChatTheme, final String notifType, NonMessagingBotMetadata botMetadata, boolean resumeSupport)
 	{
 		PlatformContentRequest rqst = PlatformContentRequest.make(
 				PlatformContentModel.make(botInfo.getMetadata()), new PlatformContentListener<PlatformContentModel>()
 				{
+
+					long zipFileSize = 0;
 
 					@Override
 					public void onComplete(PlatformContentModel content)
@@ -375,6 +382,11 @@ public class PlatformUtils
 							try
 							{
 								json.put(HikePlatformConstants.ERROR_CODE, event.toString());
+								if (zipFileSize > 0)
+								{
+									json.put(AnalyticsConstants.FILE_SIZE, String.valueOf(zipFileSize));
+								}
+								json.put(AnalyticsConstants.INTERNAL_STORAGE_SPACE, String.valueOf(Utils.getFreeInternalStorage()) + " MB");
 								createBotAnalytics(HikePlatformConstants.BOT_CREATION_FAILED, botInfo, json);
 								createBotMqttAnalytics(HikePlatformConstants.BOT_CREATION_FAILED_MQTT, botInfo, json);
 							}
@@ -385,9 +397,15 @@ public class PlatformUtils
 
 						}
 					}
+
+					@Override
+					public void downloadedContentLength(long length)
+					{
+						zipFileSize = length;
+					}
 				});
 
-		downloadAndUnzip(rqst, false,botMetadata.shouldReplace(), botMetadata.getCallbackId());
+		downloadAndUnzip(rqst, false,botMetadata.shouldReplace(), botMetadata.getCallbackId(),resumeSupport);
 
 	}
 
@@ -478,6 +496,7 @@ public class PlatformUtils
 		PlatformContentRequest rqst = PlatformContentRequest.make(
 				platformContentModel, new PlatformContentListener<PlatformContentModel>()
 				{
+					long fileLength = 0;
 
 					@Override
 					public void onComplete(PlatformContentModel content)
@@ -513,9 +532,28 @@ public class PlatformUtils
 						}
 						else
 						{
+							try
+							{
+								if (fileLength > 0)
+								{
+									jsonObject.put(AnalyticsConstants.FILE_SIZE, String.valueOf(fileLength));
+								}
+								jsonObject.put(AnalyticsConstants.INTERNAL_STORAGE_SPACE, String.valueOf(Utils.getFreeInternalStorage()) + " MB");
+							}
+							catch (JSONException e)
+							{
+								Logger.e(TAG, "JSONException " +e.getMessage());
+							}
+
 							microappDownloadAnalytics(HikePlatformConstants.MICROAPP_DOWNLOAD_FAILED, platformContentModel, jsonObject);
 							Logger.wtf(TAG, "microapp download packet failed.Because it is" + event.toString());
 						}
+					}
+
+					@Override
+					public void downloadedContentLength(long length)
+					{
+						fileLength = length;
 					}
 				});
 				boolean doReplace = downloadData.optBoolean(HikePlatformConstants.REPLACE_MICROAPP_VERSION);
@@ -557,11 +595,10 @@ public class PlatformUtils
 	{
 		downloadAndUnzip(request, isTemplatingEnabled, false);
 	}
-
-	public static void downloadAndUnzip(PlatformContentRequest request, boolean isTemplatingEnabled, boolean doReplace, String callbackId)
+	
+	public static void downloadAndUnzip(PlatformContentRequest request, boolean isTemplatingEnabled, boolean doReplace, String callbackId, boolean resumeSupported)
 	{
-
-		PlatformZipDownloader downloader =  new PlatformZipDownloader(request, isTemplatingEnabled, doReplace, callbackId);
+		PlatformZipDownloader downloader =  new PlatformZipDownloader(request, isTemplatingEnabled, doReplace, callbackId, resumeSupported);
 		if (!downloader.isMicroAppExist() || doReplace)
 		{
 			downloader.downloadAndUnzip();
@@ -572,20 +609,25 @@ public class PlatformUtils
 		}
 	}
 
+	public static void downloadAndUnzip(PlatformContentRequest request, boolean isTemplatingEnabled, boolean doReplace, String callbackId)
+	{
+		downloadAndUnzip(request, isTemplatingEnabled, doReplace, callbackId, false);
+	}
+
 	/**
 	 * Creating a forwarding message for Non-messaging microApp
 	 * @param metadata: the metadata made after merging the json given by the microApp
 	 * @param text:     hm text
 	 * @return
 	 */
-	public static ConvMessage getConvMessageFromJSON(JSONObject metadata, String text, String msisdn)
+	public static ConvMessage getConvMessageFromJSON(JSONObject metadata, String text, String msisdn) throws JSONException
 	{
 
 
 		ConvMessage convMessage = Utils.makeConvMessage(msisdn, true);
 		convMessage.setMessage(text);
 		convMessage.setMessageType(HikeConstants.MESSAGE_TYPE.FORWARD_WEB_CONTENT);
-		convMessage.webMetadata = new WebMetadata(metadata);
+		convMessage.webMetadata = new WebMetadata(PlatformContent.getForwardCardData(metadata.toString()));
 		convMessage.setMsisdn(msisdn);
 		return convMessage;
 
@@ -1000,6 +1042,7 @@ public class PlatformUtils
 				{
 					e.printStackTrace();
 				}
+				ChatHeadUtils.startOrStopService(true);
 			}
 		}
 		else
@@ -1101,10 +1144,19 @@ public class PlatformUtils
 			return;
 		}
 
-		MessageEvent messageEvent = new MessageEvent(HikePlatformConstants.NORMAL_EVENT, msisdn, nameSpace, eventMetadata, messageHash,
-				HikePlatformConstants.EventStatus.EVENT_SENT, System.currentTimeMillis());
+		try
+		{
+			JSONObject data = new JSONObject(eventMetadata);
+			String cardData = data.getString(HikePlatformConstants.EVENT_CARDDATA);
+			MessageEvent messageEvent = new MessageEvent(HikePlatformConstants.NORMAL_EVENT, msisdn, nameSpace, cardData, messageHash,
+					HikePlatformConstants.EventStatus.EVENT_SENT, System.currentTimeMillis());
 
-		HikeMessengerApp.getPubSub().publish(HikePubSub.PLATFORM_CARD_EVENT_SENT, messageEvent);
+			HikeMessengerApp.getPubSub().publish(HikePubSub.PLATFORM_CARD_EVENT_SENT, new Pair<MessageEvent, JSONObject>(messageEvent, data));
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
 
 	}
 	
@@ -1210,6 +1262,78 @@ public class PlatformUtils
 			e.printStackTrace();
 		}
 		return json.toString();
+	}
+	
+	/**
+	 * Returns a String array, which contains the following values :<br>
+	 * [ <total-downloaded-bytes> , <progress> , <original downloaded file path>, <url from which it was downloaded> ]
+	 * 
+	 * @param filePath
+	 * @return
+	 */
+	public static String[] readPartialDownloadState(String filePath)
+	{
+		String[] data = new String[4];
+		int i = 0;
+		BufferedReader reader = null;
+		try
+		{
+			reader = new BufferedReader(new FileReader(filePath));
+			String line;
+
+			while ((line = reader.readLine()) != null)
+			{
+				data[i] = line.split(FileRequestPersistent.FILE_DELIMETER)[1];
+				i++;
+			}
+		}
+		catch (FileNotFoundException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		catch (IOException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		finally
+		{
+			if (reader != null)
+			{
+				Utils.closeStreams(reader);
+			}
+		}
+
+		return data;
+	}
+	
+	public static String getLastGame()
+	{
+		return HikeContentDatabase.getInstance().getFromContentCache(HikePlatformConstants.LAST_GAME,BotUtils.getBotInfoForBotMsisdn(HikePlatformConstants.GAME_CHANNEL).getNamespace());
+	}
+	public static void killProcess(Activity context,String process)
+	{
+		if (context != null)
+		{
+			ActivityManager activityManager = (ActivityManager) context.getSystemService(context.ACTIVITY_SERVICE);
+			List<RunningAppProcessInfo> procInfos = activityManager.getRunningAppProcesses();
+			for (int i = 0; i < procInfos.size(); i++)
+			{
+				if (procInfos.get(i).processName.equals(process))
+				{
+					int pid = procInfos.get(i).pid;
+					android.os.Process.killProcess(pid);
+
+				}
+			}
+		}
+	}
+
+	public static Header getDownloadRangeHeader(long startOffset)
+	{
+		return new Header("Range", "bytes=" + startOffset + "-");
 	}
 
 }

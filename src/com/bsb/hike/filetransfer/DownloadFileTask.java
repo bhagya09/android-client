@@ -116,7 +116,7 @@ public class DownloadFileTask extends FileTransferBase
 				this.analyticEvents.mRetryCount += 1;
 				raf = new RandomAccessFile(tempDownloadedFile, "rw");
 				// Restoring the bytes transferred(downloaded) previously.
-				setBytesTransferred((int) raf.length());
+				setBytesTransferred(raf.length());
 				// Bug Fix: 13029
 				setFileTotalSize(fst.getTotalSize());
 				if (_totalSize > 0)
@@ -218,7 +218,7 @@ public class DownloadFileTask extends FileTransferBase
 						return FTResult.FILE_TOO_LARGE;
 					}
 					Logger.d(getClass().getSimpleName(), "bytes=" + byteRange);
-					setFileTotalSize(contentLength + (int) mStart);
+					setFileTotalSize(contentLength + mStart);
 
 					long temp = _bytesTransferred;
 					temp *= 100;

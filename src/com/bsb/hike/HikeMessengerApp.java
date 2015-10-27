@@ -11,6 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.bsb.hike.platform.content.PlatformContentConstants;
+
 import org.acra.ACRA;
 import org.acra.ErrorReporter;
 import org.acra.ReportField;
@@ -36,9 +37,11 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.util.Pair;
 import android.widget.Toast;
 
+import com.bsb.hike.ag.NetworkAgModule;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.chatHead.ChatHeadUtils;
+import com.bsb.hike.chatHead.StickyCaller;
 import com.bsb.hike.db.DbConversationListener;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.db.HikeMqttPersistence;
@@ -109,6 +112,8 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 	public static final String PLATFORM_UID_SETTING = "platformUID";
 
 	public static final String PLATFORM_TOKEN_SETTING = "platformToken";
+
+	public static final String ANONYMOUS_NAME_SETTING = "anonymousName";
 
 	public static final String RESTORE_ACCOUNT_SETTING = "restore";
 
@@ -384,6 +389,8 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 
 	public static final String STEALTH_PIN_AS_PASSWORD = "steatlhPinAsPassword";
 
+	public static final String CONV_DB_VERSION_PREF =  "convDbVersion";
+
 	public static final String SHOWING_STEALTH_FTUE_CONV_TIP = "showingStealthFtueConvTip";
 
 	public static final String RESET_COMPLETE_STEALTH_START_TIME = "resetCompleteStealthStartTime";
@@ -514,6 +521,8 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 	public static final String DEFAULT_TAGS_DOWNLOADED = "defaultTagsDownloaded";
 
 	public static final String STICKER_SET = "stickerSet";
+	
+	public static final String STICKER_REFRESH_SET = "stickerRefreshSet";
 
 	public static final String SHOWN_STICKER_RECOMMEND_TIP = "shownStickerRecommendTip";
 	
@@ -531,6 +540,8 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 
 	public static final String LAST_STICKER_TAG_REFRESH_TIME = "lastStickerTagRefreshTime";
 
+	public static final String LAST_SUCCESSFUL_STICKER_TAG_REFRESH_TIME = "lastSuccessfulStickerTagRefreshTime";
+	
 	public static final String STICKER_TAG_REFRESH_PERIOD = "stickerTagRefreshPeriod";
 	
 	public static final String SHOWN_STICKER_RECOMMEND_FTUE = "shownStickerRecommendationFtue";
@@ -1002,6 +1013,21 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 		ChatHeadUtils.startOrStopService(false);
 
 		StickerSearchManager.getInstance().initStickerSearchProiderSetupWizard();
+		
+		// Moving the shared pref stored in account prefs to the default prefs.
+		// This is done because previously we were saving shared pref for caller in accountutils but now using default settings prefs
+        // On a long run this should be deleted 
+		if (HikeSharedPreferenceUtil.getInstance().contains(HikeConstants.ACTIVATE_STICKY_CALLER_PREF))
+		{
+			Utils.setSharedPrefValue(this, HikeConstants.ACTIVATE_STICKY_CALLER_PREF,
+					HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ACTIVATE_STICKY_CALLER_PREF, false));
+			HikeSharedPreferenceUtil.getInstance().removeData(HikeConstants.ACTIVATE_STICKY_CALLER_PREF);
+			
+		}
+		if (HikeSharedPreferenceUtil.getInstance().contains(StickyCaller.CALLER_Y_PARAMS_OLD))
+		{
+			HikeSharedPreferenceUtil.getInstance().removeData(StickyCaller.CALLER_Y_PARAMS_OLD);
+		}
 	}
 
 	/**
@@ -1012,7 +1038,7 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 		HikeSharedPreferenceUtil prefs = HikeSharedPreferenceUtil.getInstance();
 		if (prefs.getData(HikeMessengerApp.PLATFORM_UID_SETTING, null) == null && prefs.getData(HikeMessengerApp.PLATFORM_TOKEN_SETTING, null) == null)
 		{
-			PlatformUIDFetch.fetchPlatformUid(HikePlatformConstants.PlatformUIDFetchType.SELF);
+			PlatformUIDFetch.fetchPlatformUid(HikePlatformConstants.PlatformFetchType.SELF);
 		}
 	}
 
@@ -1172,6 +1198,20 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 			}
 		});
 	}
+	
+	public void showToast(final String message,final int duration)
+	{
+		appStateHandler.post(new Runnable()
+		{
+			
+			@Override
+			public void run()
+			{
+				Toast.makeText(getApplicationContext(), message,duration).show();
+			}
+		});
+	}
+	
 	
 	public void showToast(final int stringId,final int duration)
 	{

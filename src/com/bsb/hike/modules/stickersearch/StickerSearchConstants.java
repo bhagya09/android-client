@@ -18,17 +18,17 @@ public class StickerSearchConstants
 	// ================================================================Generic constants for UI]]
 
 	// Generic constants for data setup========================================================[[
-	public static final int TRIAL_STICKER_DATA_FIRST_SETUP = 0;
+	public static final int STATE_STICKER_DATA_FRESH_INSERT = 0;
 
-	public static final int TRIAL_STICKER_DATA_UPDATE_REFRESH = 1;
+	public static final int STATE_STICKER_DATA_REFRESH = 1;
 
 	// ========================================================Generic constants for data setup]]
 
 	// Generic constants for periodic tasks====================================================[[
 	public static final int REBALACING_DEFAULT_TIME = 4; // 4 a.m.
 
-	public static final long DEFAULT_STICKER_TAG_REFRESH_TIME = 14 * 24 * 60 * 60 * 1000L; // 7 days period in milliseconds
-
+	public static final long DEFAULT_STICKER_TAG_REFRESH_PERIOD = 14 * 24 * 60 * 60 * 1000L; // 14 days period in milliseconds
+	
 	// ====================================================Generic constants for periodic tasks]]
 
 	// Generic constants for searching text====================================================[[
@@ -148,5 +148,7 @@ public class StickerSearchConstants
 	public static final String STRING_ASSOCIATOR = " + ";
 
 	public static final String STRING_DISSOCIATOR = ", ";
+
+	public static final String STRING_DELIMITER = ":";
 	// =======================================================================Generic constants]]
 }

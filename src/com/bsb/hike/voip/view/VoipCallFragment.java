@@ -10,6 +10,8 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
+import android.media.AudioManager;
+import android.media.ToneGenerator;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -228,6 +230,16 @@ public class VoipCallFragment extends Fragment implements CallActions
 					}
 				}
 				break;
+			case VoIPConstants.MSG_PARTNER_UPGRADABLE_PLATFORM:
+				if (voipService != null)
+				{
+					Bundle bundle2 = msg.getData();
+					String msisdn = bundle2.getString(VoIPConstants.MSISDN);
+					if (!voipService.hostingConference()) {
+						showCallFailedFragment(VoIPConstants.CallFailedCodes.PARTNER_UPGRADE, msisdn);
+					}
+				}
+				break;
 			case VoIPConstants.MSG_UPDATE_CALL_BUTTONS:
 				if (voipService.getCallStatus() != CallStatus.INCOMING_CALL)
 					showActiveCallButtons();
@@ -376,51 +388,6 @@ public class VoipCallFragment extends Fragment implements CallActions
 		setupForceMuteLayout();
 	}
 
-
-	void handleIntent(Intent intent) 
-	{
-		String action = intent.getStringExtra(VoIPConstants.Extras.ACTION);
-		String msisdn = intent.getStringExtra(VoIPConstants.Extras.MSISDN);
-
-		if (action == null || action.isEmpty())
-		{
-			return;
-		}
-		
-		Logger.d(tag, "Intent action: " + action);
-		if (voipService == null) {
-			Logger.w(tag, "voipService is null. Ignoring intent.");
-			return;
-		}
-		
-		// Ignore intents if we're hosting a conference
-		if (voipService != null && voipService.hostingConference()) {
-//			Logger.w(tag, "Ignoring intent with action " + action + " because we're hosting a conference.");
-			voipService.processErrorIntent(action, msisdn);
-			return;
-		}
-		
-		if (action.equals(VoIPConstants.PARTNER_REQUIRES_UPGRADE)) 
-		{
-			showCallFailedFragment(VoIPConstants.CallFailedCodes.PARTNER_UPGRADE, msisdn);
-			if (voipService != null)
-			{
-				voipService.sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CONNECTION_FAILED, VoIPConstants.CallFailedCodes.PARTNER_UPGRADE);
-				voipService.stop();
-			}
-		}
-		
-		if (action.equals(VoIPConstants.PARTNER_HAS_BLOCKED_YOU)) 
-		{
-			if (voipService != null)
-			{
-				voipService.sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CONNECTION_FAILED, VoIPConstants.CallFailedCodes.PARTNER_BLOCKED_USER);
-				voipService.stop();
-			}
-		}
-		
-	}
-
 	private void shutdown(final Bundle bundle) 
 	{
 		updateCallStatus();
@@ -446,7 +413,9 @@ public class VoipCallFragment extends Fragment implements CallActions
 			Logger.d(tag, "Not shutting down because call failed fragment is being displayed.");
 			return;
 		}
-
+		
+		playHangUpTone();
+		
 		new Handler().postDelayed(new Runnable()
 		{
 			@Override
@@ -1108,6 +1077,7 @@ public class VoipCallFragment extends Fragment implements CallActions
 
 		Logger.d(tag, "Showing call failed fragment.");
 		activity.showCallFailedFragment(bundle);
+		voipService.stop();
 	}
 
 	@SuppressWarnings("deprecation")
@@ -1152,6 +1122,28 @@ public class VoipCallFragment extends Fragment implements CallActions
 			bluetoothButton.setVisibility(View.VISIBLE);
 		} else
 			bluetoothButton.setVisibility(View.GONE);
+	}
+	
+	private void playHangUpTone() {
+		new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				ToneGenerator tg = new ToneGenerator(AudioManager.STREAM_VOICE_CALL, 100);
+				if (tg.startTone(ToneGenerator.TONE_SUP_PIP));
+				try {
+					Thread.sleep(500);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				} finally {
+					if (tg != null) {
+						tg.stopTone();
+						tg.release();
+					}
+				}
+			}
+		}).start();
+		
 	}
 }
 	

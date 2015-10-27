@@ -1,12 +1,5 @@
 package com.bsb.hike.adapters;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
 import android.content.Context;
 import android.preference.PreferenceManager;
 import android.support.v7.widget.LinearLayoutManager;
@@ -26,7 +19,6 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.NUXConstants;
 import com.bsb.hike.R;
-import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.models.NuxSelectFriends;
@@ -34,14 +26,11 @@ import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.smartImageLoader.IconLoader;
 import com.bsb.hike.tasks.FetchFriendsTask;
 import com.bsb.hike.timeline.model.StatusMessage;
-import com.bsb.hike.utils.EmoticonConstants;
-import com.bsb.hike.utils.Logger;
-import com.bsb.hike.utils.NUXManager;
-import com.bsb.hike.utils.OneToNConversationUtils;
-import com.bsb.hike.utils.SmileyParser;
-import com.bsb.hike.utils.Utils;
+import com.bsb.hike.utils.*;
 import com.bsb.hike.utils.Utils.WhichScreen;
 import com.bsb.hike.view.PinnedSectionListView.PinnedSectionListAdapter;
+
+import java.util.*;
 
 public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionListAdapter
 {
@@ -79,6 +68,10 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 	private boolean nuxStateActive = false;
 	
 	private boolean showMicroappShowcase = false;
+	
+	private boolean isSearchModeOn = false;
+	
+	private MicroappsListAdapter microappsListAdapter;
 
 	public ComposeChatAdapter(Context context, ListView listView, boolean fetchGroups, boolean fetchRecents, boolean fetchRecentlyJoined, String existingGroupId, String sendingMsisdn, FriendsListFetchedCallback friendsListFetchedCallback, boolean showSMSContacts, boolean showMicroappShowcase)
 	{
@@ -158,12 +151,12 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 			
 			fetchFriendsTask = new FetchFriendsTask(this, context, friendsList, hikeContactsList, smsContactsList, recentContactsList,recentlyJoinedHikeContactsList, friendsStealthList, hikeStealthContactsList,
 					smsStealthContactsList, recentStealthContactsList, filteredFriendsList, filteredHikeContactsList, filteredSmsContactsList, groupsList, groupsStealthList, nuxRecommendedList, nuxFilteredRecoList, filteredGroupsList, filteredRecentsList,filteredRecentlyJoinedHikeContactsList,
-					existingParticipants, sendingMsisdn, false, existingGroupId, isCreatingOrEditingGroup, fetchSMSContacts, false, false , false, showDefaultEmptyList, fetchHikeContacts, false, fetchRecommendedContacts, fetchHideListContacts, null, false);
+					existingParticipants, sendingMsisdn, false, existingGroupId, isCreatingOrEditingGroup, fetchSMSContacts, false, false , false, showDefaultEmptyList, fetchHikeContacts, false, fetchRecommendedContacts, fetchHideListContacts, null, null, false);
 			
 		} else {
 			fetchFriendsTask = new FetchFriendsTask(this, context, friendsList, hikeContactsList, smsContactsList, recentContactsList,recentlyJoinedHikeContactsList, friendsStealthList, hikeStealthContactsList,
 					smsStealthContactsList, recentStealthContactsList, filteredFriendsList, filteredHikeContactsList, filteredSmsContactsList, groupsList, groupsStealthList, null, null, filteredGroupsList, filteredRecentsList,filteredRecentlyJoinedHikeContactsList,
-					existingParticipants, sendingMsisdn, fetchGroups, existingGroupId, isCreatingOrEditingGroup, showSMSContacts, false, fetchRecents , fetchRecentlyJoined, showDefaultEmptyList, true, true, false , false, microappShowcaseList , showMicroappShowcase);
+					existingParticipants, sendingMsisdn, fetchGroups, existingGroupId, isCreatingOrEditingGroup, showSMSContacts, false, fetchRecents , fetchRecentlyJoined, showDefaultEmptyList, true, true, false , false, microappShowcaseList , filteredmicroAppShowcaseList, showMicroappShowcase);
 		}
 		Utils.executeAsyncTask(fetchFriendsTask);
 	}
@@ -208,6 +201,10 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 				case CONTACT_SMS_NUM:
 					tv.setCompoundDrawablesWithIntrinsicBounds(context.getResources().getDrawable(R.drawable.ic_section_header_sms_contact), null, null, null);
 					break;
+					
+				case APPS_ON_HIKE:
+					tv.setCompoundDrawablesWithIntrinsicBounds(context.getResources().getDrawable(R.drawable.ic_section_header_hike_apps), null, null, null);
+					break;
 				}
 
 				tv.setCompoundDrawablePadding((int) context.getResources().getDimension(R.dimen.favorites_star_icon_drawable_padding));
@@ -225,8 +222,12 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 		}
 		else if (viewType == ViewType.HIKE_APPS)
 		{
-			// Do nothing.
+			if ((microappsListAdapter.getItemCount() != originalMicroAppCount) || isSearchModeOn)
+			{
+				microappsListAdapter.notifyDataSetChanged();
+			}
 		}
+		
 		else
 		{
 			holder = (ViewHolder) convertView.getTag();
@@ -442,7 +443,8 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 			convertView = LayoutInflater.from(context).inflate(R.layout.microapps_horizontal_view, null);
 			holder = new ViewHolder();
 			holder.recyclerView = (RecyclerView) convertView.findViewById(R.id.mapps_list);
-			holder.recyclerView.setAdapter(new MicroappsListAdapter(context, microappShowcaseList, iconloader));
+			microappsListAdapter = new MicroappsListAdapter(context, filteredmicroAppShowcaseList, iconloader);
+			holder.recyclerView.setAdapter(microappsListAdapter);
 			LinearLayoutManager layoutManager = new LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false);
 	        holder.recyclerView.setLayoutManager(layoutManager);
 	        holder.recyclerView.setOverScrollMode(View.OVER_SCROLL_NEVER);
@@ -516,20 +518,31 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 		}
 
 		boolean shouldContinue = makeSetupForCompleteList(filtered);
-
+		
 		if (!shouldContinue)
 		{
 			return;
 		}
 		
-		if(showMicroappShowcase && microappShowcaseList != null && !microappShowcaseList.isEmpty())
+		if (showMicroappShowcase && filteredmicroAppShowcaseList != null)
 		{
-			ContactInfo microappSection = new ContactInfo(SECTION_ID, ""+microappShowcaseList.size(), context.getString(R.string.hike_apps), FRIEND_PHONE_NUM);
+			ContactInfo microappSection = new ContactInfo(SECTION_ID, "" + filteredmicroAppShowcaseList.size(), HikeSharedPreferenceUtil.getInstance().getData(
+					HikeConstants.BOTS_DISCOVERY_SECTION, context.getResources().getString(R.string.hike_apps)), APPS_ON_HIKE);
 			ContactInfo microappShowcaseList = new ContactInfo(HIKE_APPS_ID, HIKE_APPS_MSISDN, context.getString(R.string.hike_apps), HIKE_APPS_NUM);
-			completeList.add(microappSection);
-			completeList.add(microappShowcaseList);
+
+			if (!filteredmicroAppShowcaseList.isEmpty())
+			{
+				completeList.add(microappSection);
+				completeList.add(microappShowcaseList);
+			}
+
+			else
+			{
+				completeList.remove(microappSection);
+				completeList.remove(microappShowcaseList);
+			}
 		}
-		
+
 		if(nuxRecommendedList != null && !nuxRecommendedList.isEmpty())
 		{
 			String recoSectionHeader = NUXManager.getInstance().getNuxSelectFriendsPojo().getRecoSectionTitle();
@@ -878,6 +891,41 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 		{
 			ContactInfo contactInfo = ContactManager.getInstance().getContact(msisdn, true, false);
 			selectedPeople.put(msisdn, contactInfo);
+		}
+	}
+	
+	public void releaseResources()
+	{
+		if (microappsListAdapter != null)
+		{
+			microappsListAdapter.releaseResources();
+		}
+	}
+
+	/**
+	 * @param isSearchModeOn
+	 *            the isSearchModeOn to set
+	 */
+	public void setSearchModeOn(boolean isSearchModeOn)
+	{
+		this.isSearchModeOn = isSearchModeOn;
+	}
+
+	/**
+	 * Forcefully refresh microapps list post closing the search view
+	 */
+	public void refreshBots()
+	{
+		if (microappsListAdapter == null)
+		{
+			return;
+		}
+
+		if (filteredmicroAppShowcaseList != null)
+		{
+			filteredmicroAppShowcaseList.clear();
+			filteredmicroAppShowcaseList.addAll(microappShowcaseList);
+			microappsListAdapter.notifyDataSetChanged();
 		}
 	}
 	

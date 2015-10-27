@@ -263,6 +263,10 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	protected static final int SCROLL_LISTENER_ATTACH = 38;
 	
 	protected static final int REMOVE_CHAT_BACKGROUND = 0;
+
+	protected static final int NUDGE_COOLOFF_TIME = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.NUDGE_SEND_COOLOFF_TIME, 1000);
+
+	private long lastNudgeTime = -1;
     
     private int NUDGE_TOAST_OCCURENCE = 2;
     	
@@ -2180,15 +2184,15 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	{
 		int startIndex = getMessagesStartIndex();
 
-		long firstMsgId = messages.get(startIndex).getMsgID();
+		long firstMsgId = messages.get(startIndex).getSortingId();
 		Logger.i(TAG, "inside background thread: loading more messages " + firstMsgId);
 		
 		return loadMoreMessages(messageCountToLoad, firstMsgId, -1);
 	}
 	
-	protected List<ConvMessage> loadMoreMessages(int messageCountToLoad, long maxId, long minId)
+	protected List<ConvMessage> loadMoreMessages(int messageCountToLoad, long maxSortId, long minSortId)
 	{
-		return mConversationDb.getConversationThread(msisdn, messageCountToLoad, mConversation, maxId, minId);
+		return mConversationDb.getConversationThread(msisdn, messageCountToLoad, mConversation, maxSortId, minSortId);
 	}
 
 	protected abstract int getContentView();
@@ -2346,6 +2350,10 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		{
 			return false;
 		}
+		if ((System.currentTimeMillis() - lastNudgeTime) < NUDGE_COOLOFF_TIME && lastNudgeTime > 0)
+		{
+			return false;
+		}
 		if (!_doubleTapPref)
 		{
 			try
@@ -2366,8 +2374,9 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			}
 			return false;
 		}
-			sendPoke();
-			return true;
+		lastNudgeTime = System.currentTimeMillis();
+		sendPoke();
+		return true;
 	}
 
 	protected void sendPoke()
@@ -5909,4 +5918,27 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		hideOverflowMenu();
 		hideThemePicker();
 	}
+	
+	/**
+	 * Call this method instead of directly calling {@link ChatThread#onDestroy()}
+	 */
+	protected void tryToDestroyChatThread()
+	{
+		if (wasAnythingInstantiated())
+		{
+			onDestroy();
+		}
+	}
+	
+	/**
+	 * In cases of deleted conversations, the {@link ChatThread#fetchConversation()} returns null and eventually onDestroy is called. Since there are certain objects in onDestroy
+	 * which might not have been instantiated, hence we were getting NPE there. This fixes that.
+	 * 
+	 * @return
+	 */
+	private boolean wasAnythingInstantiated()
+	{
+		return mConversation != null;
+	}
+	
 }

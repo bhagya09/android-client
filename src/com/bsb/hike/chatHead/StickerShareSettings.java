@@ -81,7 +81,6 @@ public class StickerShareSettings extends HikeAppStateBaseFragmentActivity
 		selectAllCheckbox = (SwitchCompat) findViewById(R.id.select_all_checkbox);
 		click2Accessibility = (TextView) findViewById(R.id.show_accessibility);
 		settingOnClickEvent();
-	
 		ListView listView = (ListView) findViewById(R.id.list_items);
 		listView.setAdapter(listAdapter);
 		setupActionBar();
@@ -102,7 +101,7 @@ public class StickerShareSettings extends HikeAppStateBaseFragmentActivity
 		
 		if(accessibilityDialog==null || !accessibilityDialog.isShowing())
 		{
-			if (ChatHeadUtils.canAccessibilityBeUsed(false))
+			if (ChatHeadUtils.accessibilityMustBeActivated(ChatHeadUtils.isAccessibilityEnabled(this)))
 			{
 				forciblyMarkUnchecked();
 			}
@@ -221,7 +220,8 @@ public class StickerShareSettings extends HikeAppStateBaseFragmentActivity
 	
 	public void stickerSettingsChangedEvent(boolean showDialog)
 	{
-		if (showDialog && ChatHeadUtils.canAccessibilityBeUsed(false) && (accessibilityDialog == null || !accessibilityDialog.isShowing()))
+		if (showDialog && ChatHeadUtils.accessibilityMustBeActivated(ChatHeadUtils.isAccessibilityEnabled(this)) 
+				&& (accessibilityDialog == null || !accessibilityDialog.isShowing()))
 		{
 			accessibilityDialog = HikeDialogFactory.showDialog(StickerShareSettings.this, HikeDialogFactory.ACCESSIBILITY_DIALOG, new HikeDialogListener()
 			{

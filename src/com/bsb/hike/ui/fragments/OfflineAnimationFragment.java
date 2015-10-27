@@ -261,9 +261,22 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 			{
 				if(isAdded())
 				{
-					source.setText("");
-					source.setVisibility(View.VISIBLE);
-					source.startAnimation(appearAnimation);
+					if (checkAndDontShowIfNotInConnectingState)
+					{
+						if(isConnetingOffline())
+						{
+							source.setText("");
+							source.setVisibility(View.VISIBLE);
+							source.startAnimation(appearAnimation);
+						}
+					}
+					else
+					{
+						source.setText("");
+						source.setVisibility(View.VISIBLE);
+						source.startAnimation(appearAnimation);
+					}
+
 				}
 				
 			}
@@ -277,7 +290,7 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 			{
 				if(isAdded())
 				{
-					if(checkAndDontShowIfNotInConnectingState)
+					if (checkAndDontShowIfNotInConnectingState)
 					{
 						if(isConnetingOffline())
 						{
@@ -1008,7 +1021,7 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 	{
 		Fragment fragment = getChildFragmentManager().findFragmentByTag(OfflineConstants.OFFLINE_DISCONNECT_FRAGMENT);
 		if(fragment != null)
-		    getChildFragmentManager().beginTransaction().remove(fragment).commit();	
+		    getChildFragmentManager().beginTransaction().remove(fragment).commitAllowingStateLoss();	
 		if(removeParent)
 		{
 			closeFragment();

@@ -2,15 +2,27 @@ package com.bsb.hike.platform;
 
 import java.lang.ref.WeakReference;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
+import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.HikeHandlerUtil;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.Utils;
+import com.hike.transporter.utils.Logger;
 
 import android.app.Activity;
+import android.os.Handler;
+import android.text.TextUtils;
 import android.util.Log;
+import android.webkit.JavascriptInterface;
 
 public class NativeBridge
 {
+	private CocosGamingActivity activity;
+
 	public BotInfo mBotInfo;
 
 	public String msisdn;
@@ -19,16 +31,30 @@ public class NativeBridge
 
 	PlatformHelper helper;
 
-	public static final String TAG = "GameUtils";
+	private String cardObj;
+
+	private static final String TAG = "GameUtils";
 
 	protected WeakReference<Activity> weakActivity;
 
-	public NativeBridge(String msisdn, Activity activity)
+	protected static final String SEND_SHARED_MESSAGE = "SEND_SHARED_MESSAGE";
+
+	protected static final String ON_EVENT_RECEIVE = "ON_EVENT_RECEIVE";
+
+	private static Handler mHandler;
+
+	public NativeBridge(String msisdn, CocosGamingActivity activity)
 	{
+		this.activity = activity;
 		this.msisdn = msisdn;
 		weakActivity = new WeakReference<Activity>(activity);
 		init();
+	}
 
+	public NativeBridge(String msisdn, CocosGamingActivity activity, String cardObj)
+	{
+		this(msisdn, activity);
+		this.cardObj = cardObj;
 	}
 
 	private void init()
@@ -40,18 +66,55 @@ public class NativeBridge
 			Log.e(TAG, "Bot doesn't exist for this msisdn");
 		}
 		mBotInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
-		
 
 	}
 
 	/**
-	 * Platform Version 5
-	 * Call this method to put data in cache. This will be a key-value pair. A game can have different key-value pairs in the native's cache.
+	 * Platform Version 7 Call this method to get cardObj
+	 *  @param id
+	 *            : the id of the function that native will call to call the game .
 	 * 
-	 * @param key:
-	 *            key of the data to be saved. Game needs to make sure about the uniqueness of the key.
-	 * @param value:
-	 *            : the data that the game need to cache.
+	 * @return
+	 */
+	public String getCardObj()
+	{
+		Logger.d(TAG,"+getCardObj()");
+		String cardObject;
+		cardObject=(TextUtils.isEmpty(cardObj))?"{}":cardObj;
+		Logger.d(TAG,"-getCardObj() : "+cardObject);
+		return cardObject;
+	}
+
+	/**
+	 * Platform Version 7 Call this method to get Bot Helper data
+	 *  @param id
+	 *            : the id of the function that native will call to call the game .
+	 * 
+	 * @return
+	 */
+	public void getBotHelperData(final String functionId)
+	{
+		if (mThread == null)
+			return;
+		mThread.postRunnable(new Runnable()
+		{
+
+			@Override
+			public void run()
+			{
+				activity.platformCallback(functionId, mBotInfo.getHelperData());
+			}
+		});
+	}
+
+	/**
+	 * Platform Version 7 Call this method to put data in cache. This will be a key-value pair. A game can have different key-value pairs in the native's cache.
+	 * 
+	 * @param key
+	 *            : key of the data to be saved. Game needs to make sure about the uniqueness of the key.
+	 * @param value
+	 *            : : the data that the game need to cache.
+	 *            lastGame is a reserved keyword now
 	 */
 	public void putInCache(final String key, final String value)
 	{
@@ -64,22 +127,24 @@ public class NativeBridge
 			@Override
 			public void run()
 			{
-				
-					helper.putInCache(key, value, mBotInfo.getNamespace());
-				
+
+				helper.putInCache(key, value, mBotInfo.getNamespace());
+
 			}
 		});
 
 	}
 
 	/**
-	 * Platform Version 5
-	 * @param id:
-	 *            the id of the function that native will call to call the game .
-	 * @param key:
-	 *            key of the data demanded. Game needs to make sure about the uniqueness of the key.
+	 * Platform Version 7
+	 * 
+	 * Call this function to get data from cache.
+	 * @param id
+	 *            : the id of the function that native will call to call the game .
+	 * @param key
+	 *            : key of the data demanded. Game needs to make sure about the uniqueness of the key.
 	 */
-	public void getFromCache(String id, final String key)
+	public void getFromCache(final String id, final String key)
 	{
 		if (mThread == null)
 			return;
@@ -89,22 +154,23 @@ public class NativeBridge
 			@Override
 			public void run()
 			{
-					String cache = helper.getFromCache(key, mBotInfo.getNamespace());
-				/**
-				 * TODO
-				 * 
-				 * DummyGameActivity.gameActivity.runOnGLThread(new Runnable() {
-				 * 
-				 * @Override public void run() { // gameCallback(id,cache); } });
-				 */
+				final String cache = helper.getFromCache(key, mBotInfo.getNamespace());
+
+				activity.runOnGLThread(new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						activity.platformCallback(id, cache);
+					}
+				});
 
 			}
 		});
 	}
 
 	/**
-	 * Platform Version 5
-	 * Call this function to log analytics events.
+	 * Platform Version 7 Call this function to log analytics events.
 	 * 
 	 * @param isUI
 	 *            : whether the event is a UI event or not. This is a string. Send "true" or "false".
@@ -123,14 +189,13 @@ public class NativeBridge
 			@Override
 			public void run()
 			{
-					helper.logAnalytics(isUI, subType, json, mBotInfo);
+				helper.logAnalytics(isUI, subType, json, mBotInfo);
 			}
 		});
 	}
 
 	/**
-	 * Platform Version 5
-	 * Calling this function will initiate forward of the message to a friend or group.
+	 * Platform Version 7 Calling this function will initiate forward of the message to a friend or group.
 	 * 
 	 * @param json
 	 *            : the card object data for the forwarded card. This data will be the card object for the new forwarded card that'll be created. The platform version of the card
@@ -140,7 +205,8 @@ public class NativeBridge
 	 */
 	public void forwardToChat(final String json, final String hikeMessage)
 	{
-		if (mThread == null||weakActivity.get() == null)
+		final Activity gameActivity=weakActivity.get();
+		if (mThread == null || gameActivity == null)
 			return;
 		mThread.postRunnable(new Runnable()
 		{
@@ -148,14 +214,13 @@ public class NativeBridge
 			@Override
 			public void run()
 			{
-					helper.forwardToChat(json, hikeMessage, mBotInfo, weakActivity.get());
+				helper.forwardToChat(json, hikeMessage, mBotInfo, gameActivity);
 			}
 		});
 	}
 
 	/**
-	 * Platform Version 5
-	 * Call this method to send a normal event.
+	 * Platform Version 7 Call this method to send a normal event.
 	 * 
 	 * @param messageHash
 	 *            : the message hash that determines the uniqueness of the card message, to which the data is being sent.
@@ -173,28 +238,28 @@ public class NativeBridge
 			@Override
 			public void run()
 			{
-					helper.sendNormalEvent(messageHash, eventData, mBotInfo.getNamespace());
+				helper.sendNormalEvent(messageHash, eventData, mBotInfo.getNamespace());
 			}
 		});
+
 	}
 
 	/**
-	 * Platform Version 5
-	 * Call this function to send a shared message to the contacts of the user. This function when forwards the data, returns with the contact details of the users it has sent the
-	 * message to. It will call JavaScript function "onContactChooserResult(int resultCode,JsonArray array)" This JSOnArray contains list of JSONObject where each JSONObject
-	 * reflects one user. As of now each JSON will have name and platform_id, e.g : [{'name':'Paul','platform_id':'dvgd78as'}] resultCode will be 0 for fail and 1 for success NOTE
-	 * : JSONArray could be null as well, a game has to take care of this instance
-	 *
-	 * @param cardObject:
-	 *            the cardObject data to create a card
+	 * Platform Version 7 Call this function to send a shared message to the contacts of the user. This function when forwards the data, returns with the contact details of the
+	 * users it has sent the message to. It will call JavaScript function "onContactChooserResult(int resultCode,JsonArray array)" This JSOnArray contains list of JSONObject where
+	 * each JSONObject reflects one user. As of now each JSON will have name and platform_id, e.g : [{'name':'Paul','platform_id':'dvgd78as'}] resultCode will be 0 for fail and 1
+	 * for success NOTE : JSONArray could be null as well, a game has to take care of this instance
+	 * 
+	 * @param cardObject
+	 *            : the cardObject data to create a card
 	 * @param hikeMessage
 	 *            : the hike message to be included in notif tupple and conversation tupple.
-	 * @param sharedData:
-	 *            the stringified json data to be shared among different bots. A mandatory field "recipients" is a must. It specifies what all namespaces to share the data with.
+	 * @param sharedData
+	 *            : the stringified json data to be shared among different bots. A mandatory field "recipients" is a must. It specifies what all namespaces to share the data with.
 	 */
 	public void sendSharedMessage(final String cardObject, final String hikeMessage, final String sharedData)
 	{
-		if (mThread == null||weakActivity.get() == null)
+		if (mThread == null || weakActivity.get() == null)
 			return;
 		mThread.postRunnable(new Runnable()
 		{
@@ -202,23 +267,23 @@ public class NativeBridge
 			@Override
 			public void run()
 			{
-					helper.sendSharedMessage(cardObject, hikeMessage, sharedData, mBotInfo, weakActivity.get());
+				helper.sendSharedMessage(cardObject, hikeMessage, sharedData, mBotInfo, weakActivity.get());
 			}
 		});
 	}
 
 	/**
-	 * Platform Version 5
-	 * Call this function to get all the event messages data. The data is a stringified list that contains: "name": name of the user interacting with. This gives name, and if the
-	 * name isn't present , then the msisdn. "platformUid": the platform user id of the user interacting with. "eventId" : the event id of the event. "d" : the data that has been
-	 * sent/received for the card message "et": the type of message. 0 if shared event, and 1 if normal event. "eventStatus" : the status of the event. 0 if sent, 1 if received.
-	 *
-	 * @param functionId:
-	 *            function id to call back to the game.
-	 * @param messageHash:
-	 *            the hash of the corresponding message.
+	 * Platform Version 7 Call this function to get all the event messages data. The data is a stringified list that contains: "name": name of the user interacting with. This gives
+	 * name, and if the name isn't present , then the msisdn. "platformUid": the platform user id of the user interacting with. "eventId" : the event id of the event. "d" : the
+	 * data that has been sent/received for the card message "et": the type of message. 0 if shared event, and 1 if normal event. "eventStatus" : the status of the event. 0 if
+	 * sent, 1 if received.
+	 * 
+	 * @param functionId
+	 *            : function id to call back to the game.
+	 * @param messageHash
+	 *            : the hash of the corresponding message.
 	 */
-	public void getAllEventsForMessageHash(String functionId, final String messageHash)
+	public void getAllEventsForMessageHash(final String functionId, final String messageHash)
 	{
 		if (mThread == null)
 			return;
@@ -228,31 +293,30 @@ public class NativeBridge
 			@Override
 			public void run()
 			{
-					String returnedData = helper.getAllEventsForMessageHash(messageHash, mBotInfo.getNamespace());
-					/**
-					 * TODO
-					 * 
-					 * DummyGameActivity.gameActivity.runOnGLThread(new Runnable() {
-					 * 
-					 * @Override public void run() { // gameCallback(functionId,returnedData); } });
-					 */
-
+				final String returnedData = helper.getAllEventsForMessageHash(messageHash, mBotInfo.getNamespace());
+				activity.runOnGLThread(new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						activity.platformCallback(functionId, returnedData);
+					}
+				});
 			}
 		});
 	}
 
 	/**
-	 * Platform Version 5
-	 * Call this function to get all the event messages data. The data is a stringified list that contains event id, message hash and the data.
+	 * Platform Version 7 Call this function to get all the event messages data. The data is a stringified list that contains event id, message hash and the data.
 	 * <p/>
 	 * "name": name of the user interacting with. This gives name, and if the name isn't present , then the msisdn. "platformUid": the platform user id of the user interacting
 	 * with. "eventId" : the event id of the event. "h" : the unique hash of the message. Helps in determining the uniqueness of a card. "d" : the data that has been sent/received
 	 * for the card message "et": the type of message. 0 if shared event, and 1 if normal event. "eventStatus" : the status of the event. 0 if sent, 1 if received.
-	 *
-	 * @param functionId:
-	 *            function id to call back to the game.
+	 * 
+	 * @param functionId
+	 *            : function id to call back to the game.
 	 */
-	public void getAllEventsData(String functionId)
+	public void getAllEventsData(final String functionId)
 	{
 		if (mThread == null)
 			return;
@@ -262,30 +326,30 @@ public class NativeBridge
 			@Override
 			public void run()
 			{
-					String returnedData = helper.getAllEventsData(mBotInfo.getNamespace());
-					/**
-					 * TODO
-					 * 
-					 * DummyGameActivity.gameActivity.runOnGLThread(new Runnable() {
-					 * 
-					 * @Override public void run() { // gameCallback(functionId,returnedData); } });
-					 */
+				final String returnedData = helper.getAllEventsData(mBotInfo.getNamespace());
+				activity.runOnGLThread(new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						activity.platformCallback(functionId, returnedData);
+					}
+				});
 			}
 		});
 	}
 
 	/**
-	 * Platform Version 5
-	 * Call this function to get all the shared messages data. The data is a stringified list that contains event id, message hash and the data.
+	 * Platform Version 7 Call this function to get all the shared messages data. The data is a stringified list that contains event id, message hash and the data.
 	 * <p/>
 	 * "name": name of the user interacting with. This gives name, and if the name isn't present , then the msisdn. "platformUid": the platform user id of the user interacting
 	 * with. "eventId" : the event id of the event. "h" : the unique hash of the message. Helps in determining the uniqueness of a card. "d" : the data that has been sent/received
 	 * for the card message "eventStatus" : the status of the event. 0 if sent, 1 if received.
-	 *
-	 * @param functionId:
-	 *            function id to call back to the game.
+	 * 
+	 * @param functionId
+	 *            : function id to call back to the game.
 	 */
-	public void getSharedEventsData(String functionId)
+	public void getSharedEventsData(final String functionId)
 	{
 		if (mThread == null)
 			return;
@@ -295,14 +359,253 @@ public class NativeBridge
 			@Override
 			public void run()
 			{
-					String returnedData = helper.getSharedEventsData(mBotInfo.getNamespace());
-					/**
-					 * TODO
-					 * 
-					 * DummyGameActivity.gameActivity.runOnGLThread(new Runnable() {
-					 * 
-					 * @Override public void run() { // gameCallback(functionId,returnedData); } });
-					 */
+				final String returnedData = helper.getSharedEventsData(mBotInfo.getNamespace());
+				activity.runOnGLThread(new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						activity.platformCallback(functionId, returnedData);
+					}
+				});
+			}
+		});
+	}
+
+	/**
+	 * Platform Version 8
+	 * Call this fucntion to show a popup
+	 * @param contentData : The stringified JSONobject for the popup.
+	 */
+	public void showPopup(final String contentData)
+	{
+		Handler handler = new Handler(HikeMessengerApp.getInstance().getApplicationContext().getMainLooper());
+		handler.post(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				PlatformHelper.showPopup(contentData, weakActivity.get());
+			}
+		});
+	}
+
+	/**
+	 * Platform Version 7 Call this function to get the bot version.
+	 *
+	 * @param id
+	 *            : the id of the function that native will call to call the js .
+	 */
+	@JavascriptInterface
+	public void getBotVersion(final String id)
+	{
+		activity.runOnGLThread(new Runnable()
+	 	{
+			@Override
+			public void run()
+			{
+				activity.platformCallback(id, String.valueOf(mBotInfo.getVersion()));
+			}
+		});
+	}
+
+
+	/**
+	 * Platform Version 7 Call this function to get the system architecture.
+	 *
+	 * @param id
+	 *            : the id of the function that native will call .
+	 */
+	public void getSystemArchitecture(final String id)
+	{
+		activity.runOnGLThread(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				activity.platformCallback(id, System.getProperty("os.arch"));
+			}
+		});
+	}
+
+	/**
+	 * Platform Version 7 Call this function to get the current platform version.
+	 * 
+	 * @param id
+	 *            : the id of the function  .
+	 */
+	public void getCurrentPlatformVersion(final String id)
+	{
+		activity.runOnGLThread(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				activity.platformCallback(id, String.valueOf(HikePlatformConstants.CURRENT_VERSION));
+			}
+		});
+	}
+
+	/**
+	 * Platform Version 7 Call this function to delete event.
+	 * 
+	 * @param eventId
+	 */
+	public void deleteEvent(final String eventId)
+	{
+		mThread.postRunnable(new Runnable()
+		{
+
+			@Override
+			public void run()
+			{
+				helper.deleteEvent(eventId);
+			}
+		});
+	}
+
+	/**
+	 * Platform Version 7 Call this function to delete all the events, be it shared data or normal event pertaining to a single message.
+	 * 
+	 * @param messageHash
+	 */
+
+	public void deleteAllEventsForMessage(final String messageHash)
+	{
+		mThread.postRunnable(new Runnable()
+		{
+
+			@Override
+			public void run()
+			{
+				helper.deleteAllEventsForMessage(messageHash);
+			}
+		});
+	}
+	/**
+	 * Platform Version 7
+	 * Call this function to get the user details.
+	 *
+	 * @param id
+	 */
+	public void getUserDetails(final String id)
+	{
+		mThread.postRunnable(new Runnable()
+		{
+
+			@Override
+			public void run()
+			{
+				String uid = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PLATFORM_UID_SETTING, null);
+				String name = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.NAME_SETTING, null);
+				String anonName=HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.ANONYMOUS_NAME_SETTING,null);
+				final JSONObject result = new JSONObject();
+				try
+				{
+					result.put("uid", uid);
+					result.put("name", name);
+					result.put("anonName", anonName);
+				}
+				catch (JSONException e)
+				{
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				activity.runOnGLThread(new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						activity.platformCallback(id, result.toString());
+					}
+				});
+
+			}
+		});
+
+	}
+	/**
+	 * Platform Version 7
+	 * Call this function to create a shortcut.
+	 *
+	 */
+	public void addShortCut()
+	{
+		mThread.postRunnable(new Runnable()
+		{
+
+			@Override
+			public void run()
+			{
+				if (weakActivity != null)
+				{
+					Utils.createShortcut(weakActivity.get(), mBotInfo);
+				}
+			}
+		});
+	}
+
+	/**
+	 * Platform Bridge Version 7 Call this method to post a status update to timeline.
+	 * 
+	 * @param status
+	 * @param moodId
+	 *            : Pass -1 if no mood
+	 * @param imageFilePath
+	 *            : Path of the image on the client. Image should only be of jpeg format and compressed.
+	 * 
+	 *            Status = null, moodId = -1 & imageFilePath = null should not hold together
+	 * 
+	 *            0, happy 1, sad 2, in_love 3, surprised 4, confused 5, angry 6, sleepy 7, hungover 8, chilling 9, studying 10, busy 11, love 12, middle_finger 13, boozing 14,
+	 *            movie 15, caffeinated 16, insomniac 17, driving 18, traffic 19, late 20, shopping 21, gaming 22, coding 23, television 33, music 34, partying_hard 35, singing 36,
+	 *            eating 37, working_out 38, cooking 39, beauty_saloon 40, sick
+	 * 
+	 */
+	public void postStatusUpdate(final String status, final String moodId, final String imageFilePath)
+	{
+		mThread.postRunnable(new Runnable()
+		{
+
+			@Override
+			public void run()
+			{
+				helper.postStatusUpdate(status, moodId, imageFilePath);
+			}
+		});
+	}
+
+	/**
+	 * Platform Bridge Version 7 Call this method to post a status update without an image to timeline.
+	 *
+	 * @param status
+	 * @param moodId
+	 *            : Pass -1 if no mood
+	 *
+	 *            Both status = null and moodId = -1 should not hold together
+	 *
+	 *            0, happy 1, sad 2, in_love 3, surprised 4, confused 5, angry 6, sleepy 7, hungover 8, chilling 9, studying 10, busy 11, love 12, middle_finger 13, boozing 14,
+	 *            movie 15, caffeinated 16, insomniac 17, driving 18, traffic 19, late 20, shopping 21, gaming 22, coding 23, television 33, music 34, partying_hard 35, singing 36,
+	 *            eating 37, working_out 38, cooking 39, beauty_saloon 40, sick
+	 *
+	 */
+	public void postStatusUpdate(final String status, final String moodId)
+	{
+		postStatusUpdate(status, moodId, null);
+	}
+	
+	/**
+	 * 
+	 * @param callID
+	 * @param response
+	 */
+	public void platformCallback(final String callID, final String response)
+	{
+		activity.runOnGLThread(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				activity.platformCallback(callID, response);
 			}
 		});
 	}

@@ -2,9 +2,11 @@ package com.bsb.hike.bots;
 
 import java.util.List;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.media.OverFlowMenuItem;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.utils.Logger;
@@ -30,6 +32,9 @@ public class NonMessagingBotMetadata
 	private String targetActivity;
 	private boolean replace;
 	private String callbackId, parentMsisdn;
+	private JSONObject fwdCardObj;
+	private boolean resumeSupported=false;
+	private JSONArray assoc_mapp;
 
 	public NonMessagingBotMetadata(String jsonString)
 	{
@@ -71,6 +76,8 @@ public class NonMessagingBotMetadata
 		setReplace(json.optBoolean(HikePlatformConstants.REPLACE_MICROAPP_VERSION));
 		setParentMsisdn(json.optString(HikePlatformConstants.PARENT_MSISDN));
 		setCallbackId(json.optString(HikePlatformConstants.CALLBACK_ID));
+		setResumeSupported(json.optBoolean(HikePlatformConstants.RESUME_SUPPORTED));
+		setAsocmapp(json.optJSONArray(HikePlatformConstants.ASSOCIATE_MAPP));
 
 		if (json.has(HikePlatformConstants.CARD_OBJECT))
 		{
@@ -101,6 +108,11 @@ public class NonMessagingBotMetadata
 				setTargetActivity(cardObj.optString(HikePlatformConstants.TARGET_ACTIVITY));
 			}
 
+		}
+
+		if (json.has((HikePlatformConstants.FORWARD_CARD_OBJECT)))
+		{
+			fwdCardObj = metadata.optJSONObject(HikePlatformConstants.FORWARD_CARD_OBJECT);
 		}
 
 		setUnreadCountShowType();
@@ -277,4 +289,32 @@ public class NonMessagingBotMetadata
 	{
 		this.parentMsisdn = parentMsisdn;
 	}
+
+	public JSONObject getFwdCardObj()
+	{
+		return fwdCardObj;
+	}
+
+	public JSONObject getHelperData()
+	{
+		return helperData;
+	}
+	public void setResumeSupported(boolean isResume)
+	{
+		this.resumeSupported=isResume;
+	}
+	public boolean isResumeSupported()
+	{
+		return resumeSupported;
+	}
+	public void setAsocmapp(JSONArray mapp)
+	{
+
+			assoc_mapp=mapp;
+	}
+	public JSONArray getAsocmapp()
+	{
+		return assoc_mapp;
+	}
+
 }

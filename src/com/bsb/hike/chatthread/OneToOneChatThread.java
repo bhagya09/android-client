@@ -1,6 +1,7 @@
 package com.bsb.hike.chatthread;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -11,8 +12,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import android.app.Dialog;
 import android.app.NotificationManager;
@@ -21,7 +20,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.net.wifi.ScanResult;
 import android.net.wifi.p2p.WifiP2pDeviceList;
@@ -50,7 +48,6 @@ import android.view.animation.AnimationUtils;
 import android.widget.CheckBox;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.ImageView.ScaleType;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -84,7 +81,6 @@ import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.lastseenmgr.FetchLastSeenTask;
 import com.bsb.hike.notifications.HikeNotification;
-import com.bsb.hike.notifications.HikeNotificationUtils;
 import com.bsb.hike.offline.OfflineAnalytics;
 import com.bsb.hike.offline.OfflineConstants;
 import com.bsb.hike.offline.OfflineConstants.DisconnectFragmentType;
@@ -97,7 +93,6 @@ import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.ui.fragments.OfflineAnimationFragment;
 import com.bsb.hike.ui.fragments.OfflineDisconnectFragment;
 import com.bsb.hike.ui.fragments.OfflineDisconnectFragment.OfflineConnectionRequestListener;
-import com.bsb.hike.ui.utils.StatusBarColorChanger;
 import com.bsb.hike.utils.ChatTheme;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
@@ -204,6 +199,8 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	 * We keep a flag which indicates whether we can schedule H20Tip or not
 	 */
 	private boolean shouldScheduleH20Tip = true;
+
+	private List<Integer> offlineIntentHashData = new ArrayList<Integer>();
 	
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
@@ -233,9 +230,38 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	
 	private void handleOfflineIntent(Intent intent)
 	{
-		if (intent.getBooleanExtra(OfflineConstants.START_CONNECT_FUNCTION, false) && !ContactManager.getInstance().isBlocked(msisdn)
-				&& (savedState == null || (OfflineUtils.isConnectingToSameMsisdn(msisdn))))
+		
+		boolean shouldHandleIntent=true;
+		
+		if(savedState!=null)
 		{
+			int offlineIntentData[] = savedState.getIntArray(OfflineConstants.DIRECT_REQUEST_DATA);
+			if(offlineIntentData!=null)
+			{
+				Logger.d("IntentHashData","In handleOfleIntent"+offlineIntentData+"");
+				int hashCode = activity.getIntent().getExtras().toString().hashCode();
+				Logger.d("IntentHashData","hanshcode is "+hashCode);
+				for (int i : offlineIntentData)
+				{
+					if (i == hashCode)
+					{
+						if (OfflineUtils.isConnectingToSameMsisdn(msisdn))
+						{
+							shouldHandleIntent = true;
+						}
+						else
+						{
+							shouldHandleIntent = false;
+						}
+						break;
+					}
+				}
+			}
+		}
+		
+		if (intent.getBooleanExtra(OfflineConstants.START_CONNECT_FUNCTION, false) && !ContactManager.getInstance().isBlocked(msisdn)&&shouldHandleIntent)
+		{
+			offlineIntentHashData.add(intent.getExtras().toString().hashCode());
 			OfflineAnalytics.pushNotificationClicked(1);
 			Message msg = Message.obtain();
 			msg.obj = true;
@@ -244,6 +270,25 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			OfflineController.getInstance().removeConnectionRequest();
 		}
 		
+	}
+	
+	
+	
+	@Override
+	protected void onSaveInstanceState(Bundle outState)
+	{
+		int arr[] = new int[offlineIntentHashData.size()];
+		for (int i = 0; i < offlineIntentHashData.size(); i++)
+		{
+			arr[i] = offlineIntentHashData.get(i);
+		}
+
+		if(arr.length>0)
+		{
+			Logger.d("IntentHashData",offlineIntentHashData+"");
+			outState.putIntArray(OfflineConstants.DIRECT_REQUEST_DATA, arr);
+		}
+		super.onSaveInstanceState(outState);
 	}
 
 	private void checkOfflineConnectionStatus()
@@ -1257,6 +1302,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			if(!isClicked)
 			{
 				sharedPreference.saveData(OfflineConstants.OFFLINE_INDICATOR_CLICKED, true);
+				OfflineAnalytics.offlineOverflowIndicatorClicked();
 			}
 		}
 		super.showOverflowMenu();
@@ -1541,6 +1587,16 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		// TODO Auto-generated method stub
 		super.onRestoreInstanceState(savedInstanceState);
 		
+		int[] arr=savedInstanceState.getIntArray(OfflineConstants.DIRECT_REQUEST_DATA);
+		if (arr != null)
+		{
+			offlineIntentHashData = new ArrayList<Integer>();
+			for (int i : arr)
+			{
+				offlineIntentHashData.add(i);
+				Logger.d("IntentHashData", "in On Restrore Instance" + offlineIntentHashData + "");
+			}
+		}
 		handleOfflineFragments(savedInstanceState);
 	}
 	
@@ -3335,7 +3391,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			break;
 		case SHUTDOWN:
 			sendUIMessage(OFFLINE_DISCONNECTED,null);
-			if (offlineAnimationFragment != null)
+			if (offlineAnimationFragment != null && offlineAnimationFragment.isAdded())
 			{
 				offlineAnimationFragment.onDisconnect(errorCode);
 			}
@@ -3397,6 +3453,14 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		{
 			hikeToOfflineTipView.setVisibility(View.GONE);
 			hikeToOfflineTipView = null;
+			
+			/**
+			 * Removing any previously scheduled tips
+			 */
+			if (uiHandler.hasMessages(SCHEDULE_H20_TIP))
+			{
+				uiHandler.removeMessages(SCHEDULE_H20_TIP);
+			}
 		}
 		
 		super.onPreNewIntent();

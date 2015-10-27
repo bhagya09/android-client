@@ -490,7 +490,9 @@ public class DbConversationListener implements Listener
 		
 		else if (HikePubSub.PLATFORM_CARD_EVENT_SENT.equals(type))
 		{
-			MessageEvent messageEvent = (MessageEvent) object;
+			Pair<MessageEvent, JSONObject> pair = (Pair<MessageEvent, JSONObject>) object;
+
+			MessageEvent messageEvent = pair.first;
 
 			if (messageEvent == null)
 			{
@@ -499,6 +501,7 @@ public class DbConversationListener implements Listener
 			}
 
 			long eventId = HikeConversationsDatabase.getInstance().insertMessageEvent(messageEvent);
+			HikeConversationsDatabase.getInstance().updateSortingIdForAMessage(messageEvent.getMessageHash(), State.SENT_UNCONFIRMED);
 			messageEvent.setEventId(eventId);
 			if (eventId < 0)
 			{
@@ -511,7 +514,7 @@ public class DbConversationListener implements Listener
 				JSONObject data;
 				try
 				{
-					data = new JSONObject(messageEvent.getEventMetadata());
+					data = pair.second;
 
 					jObj.put(HikeConstants.TYPE, HikeConstants.MqttMessageTypes.GENERAL_EVENT_QOS_ONE);
 					jObj.put(HikeConstants.SEND_TIMESTAMP, messageEvent.getSentTimeStamp());

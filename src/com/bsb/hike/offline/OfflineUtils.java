@@ -141,7 +141,7 @@ public class OfflineUtils
 		return HikeConversationsDatabase.getInstance().updateMsgStatus(msgId, status.ordinal(), msisdn);
 	}
 
-	public static int getTotalChunks(int fileSize)
+	public static long getTotalChunks(long fileSize)
 	{
 		return fileSize / OfflineConstants.CHUNK_SIZE + ((fileSize % OfflineConstants.CHUNK_SIZE != 0) ? 1 : 0);
 	}
@@ -189,7 +189,7 @@ public class OfflineUtils
 
 	public static ConvMessage createOfflineInlineConvMessage(String msisdn, String message, String type)
 	{
-		ConvMessage convMessage = Utils.makeConvMessage(msisdn, message, true, State.RECEIVED_UNREAD);
+		ConvMessage convMessage = Utils.makeConvMessage(msisdn, message, true, State.RECEIVED_READ);
 		try
 		{
 			JSONObject metaData = new JSONObject();
@@ -350,13 +350,13 @@ public class OfflineUtils
 		}
 	}
 
-	public static int getFileSizeFromJSON(JSONObject packet)
+	public static long getFileSizeFromJSON(JSONObject packet)
 	{
 		try
 		{
 			JSONArray jsonFiles = packet.getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA).getJSONArray(HikeConstants.FILES);
 			JSONObject jsonFile = jsonFiles.getJSONObject(0);
-			return jsonFile.optInt(HikeConstants.FILE_SIZE);
+			return jsonFile.optLong(HikeConstants.FILE_SIZE);
 		}
 		catch (JSONException e)
 		{
@@ -411,6 +411,12 @@ public class OfflineUtils
         File stickerImage;
         String tempPath = getOfflineStkPath(ctgId, stkId);
         
+        if(TextUtils.isEmpty(tempPath))
+        {
+			Logger.e(TAG, "No Sticker direct found");
+        	return null;
+        }
+        
         //String stickerPath = sticker.getStickerPath(HikeMessengerApp.getInstance().getApplicationContext());
         stickerImage = new File(tempPath);
 
@@ -426,18 +432,22 @@ public class OfflineUtils
     }
 
 	public static String getOfflineStkPath(String ctgId, String stkId)
-    {
-        String rootPath = StickerManager.getInstance().getStickerDirectoryForCategoryId(ctgId);
-        String[] pathTokens = rootPath.split("/");
-        String tempPath = "";
-        for(int i=0;i<(pathTokens.length-1);i++)
-        {
-            tempPath += pathTokens[i] + "/"; 
-        }
-        tempPath += "SO/" + ctgId + "/" + stkId;
-        Logger.d(TAG, tempPath);
-        return tempPath;
-    }
+	{
+		String rootPath = StickerManager.getInstance().getStickerDirectoryForCategoryId(ctgId);
+		if (TextUtils.isEmpty(rootPath))
+		{
+			return null;
+		}
+		String[] pathTokens = rootPath.split("/");
+		String tempPath = "";
+		for (int i = 0; i < (pathTokens.length - 1); i++)
+		{
+			tempPath += pathTokens[i] + "/";
+		}
+		tempPath += "SO/" + ctgId + "/" + stkId;
+		Logger.d(TAG, tempPath);
+		return tempPath;
+	}
 	
 	public static boolean isSSIDWithQuotes(String ssid)
 	{
@@ -601,7 +611,7 @@ public class OfflineUtils
 			File sourceFile = new File(fileJSON.optString(HikeConstants.FILE_PATH));
 			hikeFile.setFileKey("OfflineKey" + System.currentTimeMillis() / 1000);
 			hikeFile.setFile(sourceFile);
-			hikeFile.setFileSize((int) sourceFile.length());
+			hikeFile.setFileSize(sourceFile.length());
 			hikeFile.setFileName(fileName);
 			hikeFile.setSent(true);
 			fileJSON = hikeFile.serialize();
@@ -639,7 +649,8 @@ public class OfflineUtils
 		try
 		{
 			object.put(HikeConstants.TYPE, OfflineConstants.INFO_PKT);
-			object.put(HikeConstants.VERSION, Utils.getAppVersion());
+			object.put(HikeConstants.VERSION,Utils.getAppVersion());
+			object.put(OfflineConstants.OFFLINE_VERSION,OfflineConstants.OFFLINE_VERSION_NUMER);
 			object.put(HikeConstants.RESOLUTION_ID, Utils.getResolutionId());
 			object.put(OfflineConstants.CONNECTION_ID, connectID);
 		}
@@ -766,6 +777,7 @@ public class OfflineUtils
 			NotificationCompat.Action[] actions = getNotificationActions(context,msisdn);
 			Intent intent = IntentFactory.createChatThreadIntentFromMsisdn(context, msisdn, false,false);
 			intent.putExtra(OfflineConstants.START_CONNECT_FUNCTION, true);
+			intent.putExtra(HikeConstants.C_TIME_STAMP, System.currentTimeMillis());
 			HikeNotificationMsgStack hikeNotifMsgStack =  HikeNotificationMsgStack.getInstance();
 			Drawable avatarDrawable = Utils.getAvatarDrawableForNotification(context,msisdn, false);
 			ContactInfo contactInfo  = ContactManager.getInstance().getContact(msisdn);
@@ -780,7 +792,7 @@ public class OfflineUtils
 			{
 				if (contactInfo != null && !TextUtils.isEmpty(contactInfo.getFirstName()))
 				{
-					contactFirstName = contactInfo.getFirstName();
+					contactFirstName = contactInfo.getFirstNameAndSurname();
 				}
 
 				HikeNotification.getInstance().showBigTextStyleNotification(intent, hikeNotifMsgStack.getNotificationIcon(), System.currentTimeMillis() / 1000,
@@ -809,8 +821,9 @@ public class OfflineUtils
 
 		NotificationCompat.Action actions[] = new NotificationCompat.Action[2];
 
-		actions[0] = new NotificationCompat.Action(R.drawable.offline_inline_logo_white, context.getString(R.string.connect), chatThreadPendingIntent);
-		actions[1] = new NotificationCompat.Action(R.drawable.ic_notifcrossicon, context.getString(R.string.cancel), cancelP);
+		
+		actions[0] = new NotificationCompat.Action(R.drawable.ic_notifcrossicon, context.getString(R.string.cancel), cancelP);
+		actions[1] = new NotificationCompat.Action(R.drawable.offline_inline_logo_white, context.getString(R.string.connect), chatThreadPendingIntent);
 
 		return actions;
 	}
@@ -840,8 +853,11 @@ public class OfflineUtils
 		try
 		{
 			String msisdn = packet.getString(HikeConstants.FROM);
-
-			OfflineController.getInstance().shutdown(new OfflineException(OfflineException.CANCEL_NOTIFICATION_REQUEST));
+			if(OfflineUtils.isConnectingToSameMsisdn(msisdn))
+			{
+				OfflineController.getInstance().shutdown(new OfflineException(OfflineException.CANCEL_NOTIFICATION_REQUEST));
+			}
+			
 		}
 		catch (JSONException e)
 		{
@@ -918,5 +934,27 @@ public class OfflineUtils
 		}
 
 		HikeMessengerApp.getInstance().showToast(R.string.low_battery_msg,Toast.LENGTH_LONG);
+	}
+	
+	public static boolean isFeautureAvailable(int myVersion,int clientTwoVersion,int minClientVersion)
+	{
+		if(myVersion>= minClientVersion &&  clientTwoVersion >=minClientVersion)
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+
+	public static int getConnectedDeviceVersion()
+	{
+		OfflineClientInfoPOJO connectedClientInfo  = OfflineController.getInstance().getConnectedClientInfo();
+		if(connectedClientInfo!=null)
+		{
+			return connectedClientInfo.getOfflineVersionNumber();
+		}
+		return 1;
 	}
 }
