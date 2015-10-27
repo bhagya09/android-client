@@ -11,6 +11,7 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
+import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.db.HikeConversationsDatabase;
@@ -24,6 +25,7 @@ import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.smartImageLoader.IconLoader;
+import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Utils;
 import com.hike.transporter.utils.Logger;
@@ -80,8 +82,10 @@ public class MicroappsListAdapter extends RecyclerView.Adapter<MicroappsListAdap
 		{
 			return;
 		}
-		
+
 		BotInfo mBotInfo = microappsList.get((int)v.getTag());
+
+		analyticsForDiscoveryBotTap(mBotInfo.getConversationName());
 		
 		boolean userHasBot = BotUtils.isBot(mBotInfo.getMsisdn());
 		
@@ -306,6 +310,22 @@ public class MicroappsListAdapter extends RecyclerView.Adapter<MicroappsListAdap
 			}
 			break;
 		}
+	}
+
+	private void analyticsForDiscoveryBotTap(String botName)
+	{
+		JSONObject json = new JSONObject();
+		try
+		{
+			json.put(AnalyticsConstants.EVENT_KEY, AnalyticsConstants.MICRO_APP_EVENT);
+			json.put(AnalyticsConstants.EVENT, AnalyticsConstants.DISCOVERY_BOT_TAP);
+			json.put(AnalyticsConstants.LOG_FIELD_1, botName);
+		}
+		catch (JSONException e)
+		{
+			Logger.e(TAG, "JSON Exception in analyticsForDiscoveryBotTap "+e.getMessage());
+		}
+		HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.BOT_DISCOVERY, json);
 	}
 	
 }
