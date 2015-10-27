@@ -61,6 +61,6 @@ public class CallDeclineWithMessageFragment extends DialogFragment
 			}
 		}, 1000);
 
-		HikeMessengerApp.getPubSub().publish(HikePubSub.STOP_VOIP_SERVICE, null);
+		HikeMessengerApp.getPubSub().publish(HikePubSub.REJECT_INCOMING_CALL, null);
 	}
 }

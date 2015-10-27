@@ -162,7 +162,7 @@ public class VoIPService extends Service implements Listener
 	private DatagramSocket broadcastSocket = null;
 	
 	// Listener for declining call with a message
-	String pubSubListeners[] = {HikePubSub.STOP_VOIP_SERVICE};
+	String pubSubListeners[] = {HikePubSub.REJECT_INCOMING_CALL};
 
 	// Bluetooth 
 	private boolean isBluetoothEnabled = false;
@@ -2451,10 +2451,8 @@ public class VoIPService extends Service implements Listener
 	@Override
 	public void onEventReceived(String type, Object object) 
 	{
-		if(HikePubSub.STOP_VOIP_SERVICE.equals(type))
-		{
-			stop();
-		}
+		if(HikePubSub.REJECT_INCOMING_CALL.equals(type))
+			rejectIncomingCall();
 	}
 }
 
