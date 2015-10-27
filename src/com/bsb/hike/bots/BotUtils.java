@@ -18,6 +18,7 @@ import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
+import com.bsb.hike.models.Conversation.BotConversation;
 import com.bsb.hike.models.Conversation.ConvInfo;
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.modules.contactmgr.ContactManager;
@@ -759,13 +760,15 @@ public class BotUtils
 	/**
 	 * Unblock the bot and add to the conversation list.
 	 * @param botInfo
+	 * @param origin : From where the unblocking has been triggered. Example : Overflow menu, bot discovery etc.
 	 */
-	public static void unblockBotIfBlocked(BotInfo botInfo)
+	public static void unblockBotIfBlocked(BotInfo botInfo, String origin)
 	{
 		if (botInfo.isBlocked())
 		{
 			botInfo.setBlocked(false);
 			HikeMessengerApp.getPubSub().publish(HikePubSub.UNBLOCK_USER, botInfo.getMsisdn());
+			BotConversation.analyticsForBots(botInfo.getMsisdn(), HikePlatformConstants.BOT_UNBLOCK_CHAT, origin, AnalyticsConstants.CLICK_EVENT, null);
 		}
 	}
 	

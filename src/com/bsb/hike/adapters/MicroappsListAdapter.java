@@ -18,6 +18,7 @@ import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
+import com.bsb.hike.models.Conversation.BotConversation;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
@@ -103,7 +104,7 @@ public class MicroappsListAdapter extends RecyclerView.Adapter<MicroappsListAdap
 		
 		if (mBotInfo != null && mBotInfo.isNonMessagingBot())
 		{
-			BotUtils.unblockBotIfBlocked(mBotInfo);
+			BotUtils.unblockBotIfBlocked(mBotInfo, AnalyticsConstants.BOT_DISCOVERY);
 			if (!HikeConversationsDatabase.getInstance().isConversationExist(mBotInfo.getMsisdn()))
 			{
 				HikeMessengerApp.getPubSub().publish(HikePubSub.ADD_NM_BOT_CONVERSATION, mBotInfo);
@@ -120,7 +121,7 @@ public class MicroappsListAdapter extends RecyclerView.Adapter<MicroappsListAdap
 			}
 			else
 			{
-				BotUtils.unblockBotIfBlocked(mBotInfo);
+				BotUtils.unblockBotIfBlocked(mBotInfo, AnalyticsConstants.BOT_DISCOVERY);
 				openBot(mBotInfo);
 			}
 		}
@@ -244,7 +245,7 @@ public class MicroappsListAdapter extends RecyclerView.Adapter<MicroappsListAdap
 			public void positiveClicked(HikeDialog hikeDialog) {
 
 				if (BotUtils.isBot(mBotInfo.getMsisdn())) {
-					BotUtils.unblockBotIfBlocked(BotUtils.getBotInfoForBotMsisdn(mBotInfo.getMsisdn()));
+					BotUtils.unblockBotIfBlocked(BotUtils.getBotInfoForBotMsisdn(mBotInfo.getMsisdn()), AnalyticsConstants.BOT_DISCOVERY);
 				}
 
 				initiateBotDownload(mBotInfo.getMsisdn());
