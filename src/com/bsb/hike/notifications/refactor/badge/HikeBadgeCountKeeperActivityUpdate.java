@@ -6,6 +6,8 @@ import com.bsb.hike.HikePubSub;
 public class HikeBadgeCountKeeperActivityUpdate extends HikeBadgeCountKeeper
 {
 
+	public static final String BADGE_COUNT_ACTIVITY_UPDATE = "badgecountactivityupdate";
+
 	@Override
 	public void onEventReceived(String type, Object object)
 	{
@@ -16,14 +18,17 @@ public class HikeBadgeCountKeeperActivityUpdate extends HikeBadgeCountKeeper
 			{
 				Integer count = (Integer) object;
 				setCount(count);
-				HikeMessengerApp.getPubSub().publish(HikePubSub.BADGE_COUNT_CHANGED, null);
+
 			}
 		}
 		else if (HikePubSub.TIMELINE_WIPE.equals(type))
 		{
-			setCount(0);
-			HikeMessengerApp.getPubSub().publish(HikePubSub.BADGE_COUNT_CHANGED, null);
+			resetCount();
+
 		}
+		else
+			super.onEventReceived(type, object);
+		HikeMessengerApp.getPubSub().publish(HikePubSub.BADGE_COUNT_CHANGED, null);
 
 	}
 
@@ -32,6 +37,13 @@ public class HikeBadgeCountKeeperActivityUpdate extends HikeBadgeCountKeeper
 	{
 		mlistener = new String[] { HikePubSub.ACTIVITY_FEED_COUNT_CHANGED, HikePubSub.TIMELINE_WIPE, HikePubSub.BADGE_COUNT_ACTIVITY_UPDATE_CHANGED };
 
+	}
+
+	@Override
+	public String getSharedPreferenceTag()
+	{
+
+		return BADGE_COUNT_ACTIVITY_UPDATE;
 	}
 
 }

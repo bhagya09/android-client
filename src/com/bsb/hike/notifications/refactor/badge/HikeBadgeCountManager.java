@@ -5,11 +5,14 @@ import java.util.HashMap;
 import java.util.LinkedList;
 
 import com.bsb.hike.badger.shortcutbadger.ShortcutBadger;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.HikePubSub.Listener;
 import com.hike.transporter.utils.Logger;
+
 
 public class HikeBadgeCountManager implements Listener
 {
@@ -18,7 +21,9 @@ public class HikeBadgeCountManager implements Listener
 
 	private final ArrayList<HikeBadgeCountKeeper> mBadgeCountKeeperList = new ArrayList<>();
 
-	private String[] mlistener = new String[] { HikePubSub.BADGE_COUNT_CHANGED,HikePubSub.BADGE_COUNT_RESET};
+	private String[] mlistener = new String[] { HikePubSub.BADGE_COUNT_CHANGED, HikePubSub.BADGE_COUNT_RESET };
+
+	private static final String BADGE_COUNT_ENABLED = "badgecountenabled";
 
 	public HikeBadgeCountManager()
 	{
@@ -30,6 +35,7 @@ public class HikeBadgeCountManager implements Listener
 		mBadgeCountKeeperList.add(new HikeBadgeCountKeeperUserJoin());
 		mBadgeCountKeeperList.add(new HikeBadgeCountKeeperProductPopUp());
 		HikeMessengerApp.getPubSub().addListeners(this, mlistener);
+		updateBadgeCount();
 	}
 
 	@Override
@@ -37,13 +43,29 @@ public class HikeBadgeCountManager implements Listener
 	{
 		if (HikePubSub.BADGE_COUNT_CHANGED.equals(type))
 		{
-			Logger.d("badger", "set badgeCount as " + getBadgeCount());
-			badger.count(getBadgeCount());
 
-		}else if(HikePubSub.BADGE_COUNT_RESET.equals(type)){
+			updateBadgeCount();
+
+		}
+		else if (HikePubSub.BADGE_COUNT_RESET.equals(type)||HikePubSub.ACCOUNT_RESET_OR_DELETE.equals(type))
+		{
 			badger.count(0);
 		}
 
+	}
+
+	private void updateBadgeCount()
+	{
+		//To check if badge counter is disabled or not 
+		if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.BADGE_COUNT_ENABLED, 1) == 1)
+		{
+			int count = getBadgeCount();
+			Logger.d("badger", "set badgeCount as " + count);
+			badger.count(count);
+
+		}
+		else
+			badger.count(0);
 	}
 
 	private int getBadgeCount()
@@ -59,4 +81,5 @@ public class HikeBadgeCountManager implements Listener
 		}
 		return count;
 	}
+
 }
