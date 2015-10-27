@@ -558,7 +558,8 @@ public class PlatformUtils
 				});
 				boolean doReplace = downloadData.optBoolean(HikePlatformConstants.REPLACE_MICROAPP_VERSION);
 				String callbackId = downloadData.optString(HikePlatformConstants.CALLBACK_ID);
-				downloadAndUnzip(rqst, false,doReplace, callbackId,true);
+				boolean resumeSupported=downloadData.optBoolean(HikePlatformConstants.RESUME_SUPPORTED);
+				downloadAndUnzip(rqst, false,doReplace, callbackId,resumeSupported);
 
 	}
 
