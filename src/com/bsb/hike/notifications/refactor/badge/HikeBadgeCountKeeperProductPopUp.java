@@ -14,8 +14,6 @@ import com.bsb.hike.utils.Utils;
 public class HikeBadgeCountKeeperProductPopUp extends HikeBadgeCountKeeper
 {
 
-	public static final int SET_PRODUCT_POPUPCOUNT = 1001;
-
 	@Override
 	public void onEventReceived(String type, Object object)
 	{
@@ -23,7 +21,8 @@ public class HikeBadgeCountKeeperProductPopUp extends HikeBadgeCountKeeper
 		if (HikePubSub.PRODUCT_POPUP_BADGE_COUNT_CHANGED.equalsIgnoreCase(type))
 		{
 
-			mHandler.sendEmptyMessageDelayed(SET_PRODUCT_POPUPCOUNT, 500);
+			setCount(ProductInfoManager.getInstance().getAllValidPopUp());
+			HikeMessengerApp.getPubSub().publish(HikePubSub.BADGE_COUNT_CHANGED, null);
 
 		}
 
@@ -35,21 +34,5 @@ public class HikeBadgeCountKeeperProductPopUp extends HikeBadgeCountKeeper
 		mlistener = new String[] { HikePubSub.PRODUCT_POPUP_BADGE_COUNT_CHANGED };
 
 	}
-
-	Handler mHandler = new Handler()
-	{
-
-		@Override
-		public void handleMessage(Message msg)
-		{
-			// TODO Auto-generated method stub
-			if (msg.what == SET_PRODUCT_POPUPCOUNT)
-			{
-				setCount(ProductInfoManager.getInstance().getAllValidPopUp());
-				HikeMessengerApp.getPubSub().publish(HikePubSub.BADGE_COUNT_CHANGED, null);
-			}
-		}
-
-	};
 
 }
