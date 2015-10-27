@@ -10,12 +10,11 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.bsb.hike.R;
-import com.bsb.hike.modules.kpt.DictionaryManager;
-import com.bsb.hike.modules.kpt.DictionaryManager.LanguageDictionarySatus;
+import com.bsb.hike.modules.kpt.KptKeyboardManager;
+import com.bsb.hike.modules.kpt.KptKeyboardManager.LanguageDictionarySatus;
 import com.kpt.adaptxt.beta.KPTAddonItem;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by gauravmittal on 19/10/15.
@@ -58,7 +57,7 @@ public class DictionaryLanguageAdapter extends ArrayAdapter<KPTAddonItem> {
         KPTAddonItem item = getItem(position);
 
         viewHolder.dictionaryLanguageName.setText(item.getDisplayName());
-        LanguageDictionarySatus status = DictionaryManager.getInstance(mContext).getDictionaryLanguageStatus(item);
+        LanguageDictionarySatus status = KptKeyboardManager.getInstance(mContext).getDictionaryLanguageStatus(item);
         if (status == LanguageDictionarySatus.PROCESSING || status == LanguageDictionarySatus.IN_QUEUE)
         {
             viewHolder.progressBar.setVisibility(View.VISIBLE);

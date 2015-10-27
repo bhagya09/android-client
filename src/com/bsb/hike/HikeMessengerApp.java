@@ -22,7 +22,6 @@ import org.acra.sender.ReportSender;
 import org.acra.sender.ReportSenderException;
 import org.acra.util.HttpRequest;
 
-import android.app.Application;
 import android.app.NotificationManager;
 import android.content.ComponentName;
 import android.content.Context;
@@ -38,11 +37,9 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.util.Pair;
 import android.widget.Toast;
 
-import com.bsb.hike.ag.NetworkAgModule;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.chatHead.ChatHeadUtils;
-import com.bsb.hike.chatHead.StickyCaller;
 import com.bsb.hike.db.DbConversationListener;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.db.HikeMqttPersistence;
@@ -50,7 +47,7 @@ import com.bsb.hike.models.TypingNotification;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.HttpManager;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
-import com.bsb.hike.modules.kpt.DictionaryManager;
+import com.bsb.hike.modules.kpt.KptKeyboardManager;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
 import com.bsb.hike.notifications.HikeNotificationUtils;
 import com.bsb.hike.notifications.ToastListener;
@@ -790,7 +787,7 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 
 		_instance = this;
 
-		DictionaryManager.getInstance(this);
+		KptKeyboardManager.getInstance(this);
 		Utils.setDensityMultiplier(getResources().getDisplayMetrics());
 
 		// first time or failed DB upgrade.
