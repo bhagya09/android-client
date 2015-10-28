@@ -1846,6 +1846,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 						fileHolder.avatarContainer = (ViewGroup) v.findViewById(R.id.avatar_container);
 						fileHolder.messageContainer = (ViewGroup) v.findViewById(R.id.message_container);
 						fileHolder.dayStub = (ViewStub) v.findViewById(R.id.day_stub);
+						fileHolder.senderDetails.getLayoutParams().width = context.getResources().getDisplayMetrics().widthPixels/2;
 						v.setTag(fileHolder);
 					}
 				}
