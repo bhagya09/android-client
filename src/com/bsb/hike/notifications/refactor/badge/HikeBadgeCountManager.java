@@ -57,7 +57,7 @@ public class HikeBadgeCountManager implements Listener
 	private void updateBadgeCount()
 	{
 		//To check if badge counter is disabled or not 
-		if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.BADGE_COUNT_ENABLED, 1) == 1)
+		if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.BADGE_COUNT_ENABLED, true))
 		{
 			int count = getBadgeCount();
 			Logger.d("badger", "set badgeCount as " + count);
