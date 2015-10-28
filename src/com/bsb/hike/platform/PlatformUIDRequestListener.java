@@ -72,6 +72,14 @@ public class PlatformUIDRequestListener implements IRequestListener
 				{
 					mPrefs.saveData(HikeMessengerApp.PLATFORM_UID_SETTING, platformUID);
 					mPrefs.saveData(HikeMessengerApp.PLATFORM_TOKEN_SETTING, platformToken);
+					if(obj.has(HikePlatformConstants.ANONYMOUS_NAME))
+					{
+						String anonName = obj.optString(HikePlatformConstants.ANONYMOUS_NAME);
+						if (!TextUtils.isEmpty(anonName))
+						{
+							mPrefs.saveData(HikeMessengerApp.ANONYMOUS_NAME_SETTING, anonName);
+						}
+					}
 
 					if (mPrefs.getData(HikePlatformConstants.PLATFORM_UID_FOR_ADDRESS_BOOK_FETCH, -1) == HikePlatformConstants.MAKE_HTTP_CALL)
 					{
