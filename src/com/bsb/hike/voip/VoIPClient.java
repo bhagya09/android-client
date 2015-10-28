@@ -13,7 +13,6 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.BitSet;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.Map;
@@ -149,7 +148,6 @@ public class VoIPClient  {
 	private final LinkedBlockingQueue<VoIPDataPacket> buffersToSendQueue      = new LinkedBlockingQueue<VoIPDataPacket>();
 	private final LinkedList<VoIPDataPacket> decodedBuffersQueue      = new LinkedList<VoIPDataPacket>();
 	private final LinkedBlockingQueue<VoIPDataPacket> samplesToEncodeQueue      = new LinkedBlockingQueue<VoIPDataPacket>();
-	private final HashSet<Integer> requestedVoicePackets = new HashSet<>();
 	private final MaxSizeHashMap<Integer, VoIPDataPacket> voicePacketsCache = new MaxSizeHashMap<>(100);
 	
 	// Simulate packet loss
@@ -1027,7 +1025,6 @@ public class VoIPClient  {
 		buffersToSendQueue.clear();
 		decodedBuffersQueue.clear();
 		samplesToEncodeQueue.clear();
-		requestedVoicePackets.clear();
 		voicePacketsCache.clear();
 	}
 
@@ -1547,6 +1544,7 @@ public class VoIPClient  {
 		if (dataPacket.getVoicePacketNumber() > 0 && 
 				lastAudioPacketPlayed > dataPacket.getVoicePacketNumber()) {
 			Logger.d(tag, "Ignoring packet #" + dataPacket.getVoicePacketNumber() + ". Already played #" + lastAudioPacketPlayed);
+			measureRTT();
 			return;
 		}
 		
@@ -1804,7 +1802,7 @@ public class VoIPClient  {
 //						Logger.w(tag, "Packet loss. Current: " + receivedVoicePacketNumber +
 //								", Expected: " + (lastPacketReceived + 1));
 						try {
-							Logger.d(tag, "FEC packet #" + receivedVoicePacketNumber);
+//							Logger.d(tag, "FEC packet #" + (receivedVoicePacketNumber - 1));
 							uncompressedLength = opusWrapper.fec(dpdecode.getData(), uncompressedData);
 							uncompressedLength = uncompressedLength * 2;
 							if (uncompressedLength > 0) {
@@ -1818,11 +1816,7 @@ public class VoIPClient  {
 								
 								// Request this packet again from the client
 								requestVoicePacket(dp.getVoicePacketNumber());
-
-								synchronized (decodedBuffersQueue) {
-									insertVoicePacketInDecodedQueue(dp);
-								}
-
+								insertVoicePacketInDecodedQueue(dp);
 							}
 						} catch (Exception e) {
 							Logger.d(tag, "Opus decode exception: " + e.toString());
@@ -1844,11 +1838,7 @@ public class VoIPClient  {
 							dp.write(packetData);
 							dp.setVoice(dpdecode.isVoice());
 							dp.setVoicePacketNumber(receivedVoicePacketNumber);
-
-							synchronized (decodedBuffersQueue) {
-								insertVoicePacketInDecodedQueue(dp);
-							}
-
+							insertVoicePacketInDecodedQueue(dp);
 						}
 					} catch (Exception e) {
 						Logger.d(tag, "Opus decode exception: " + e.toString());
@@ -1991,7 +1981,7 @@ public class VoIPClient  {
 		
 		// Introduce an artificial lag if there is packet loss
 		if (decodedBuffersQueue.size() < minimumDecodedQueueSize) {
-			Logger.d(tag, "Stalling. Min: " + minimumDecodedQueueSize + ", current: " + decodedBuffersQueue.size());
+//			Logger.d(tag, "Stalling. Min: " + minimumDecodedQueueSize + ", current: " + decodedBuffersQueue.size());
 			return null;
 		}
 
@@ -2004,7 +1994,7 @@ public class VoIPClient  {
 		while (dp != null && 
 				decodedBuffersQueue.size() > (VoIPConstants.MAX_SAMPLES_BUFFER + minimumDecodedQueueSize) &&
 				!dp.isVoice()) {
-			Logger.d(tag, "Dropping packet #" + dp.getVoicePacketNumber() + ", Size: " + decodedBuffersQueue.size() + ", Limit: " + (VoIPConstants.MAX_SAMPLES_BUFFER + minimumDecodedQueueSize));
+//			Logger.d(tag, "Dropping packet #" + dp.getVoicePacketNumber() + ", Size: " + decodedBuffersQueue.size() + ", Limit: " + (VoIPConstants.MAX_SAMPLES_BUFFER + minimumDecodedQueueSize));
 			droppedDecodedPackets++;
 			lastAudioPacketPlayed = dp.getVoicePacketNumber();
 			dp = decodedBuffersQueue.poll();
@@ -2016,9 +2006,11 @@ public class VoIPClient  {
 			try {
 				if (plcCounter++ > VoIPConstants.PLC_LIMIT) {
 					// We have had no data from the client for a while. 
-					// Assume they are not speaking. 
-					Logger.d(tag, "Assuming client has stopped speaking.");
-					setSpeaking(false);
+					// Assume they are not speaking.
+					if (isSpeaking()) {
+						Logger.d(tag, "Assuming client has stopped speaking.");
+						setSpeaking(false);
+					}
 				} else {
 					// Use the decoder to extrapolate previous samples 
 					// into a current sample.
@@ -2039,7 +2031,6 @@ public class VoIPClient  {
 			}
 			hit = false;
 		} else {
-			// TODO: remove elements from requestedVoicePackets < current voice packet #
 
 			if (lastAudioPacketPlayed > 0 && dp.getVoicePacketNumber() > 0) {
 				if (lastAudioPacketPlayed < dp.getVoicePacketNumber() - 1) {
@@ -2074,7 +2065,6 @@ public class VoIPClient  {
 		return dp;
 	}
 	
-	@SuppressWarnings("unused")
 	private void printDecodedQueue() {
 		String output = "";
 		long time = System.currentTimeMillis() - lastDecodedBufferRequest;
@@ -2117,12 +2107,6 @@ public class VoIPClient  {
 		if (isHostingConference)
 			return;
 		
-		// If packet has been requested once, don't request it again
-		if (requestedVoicePackets.contains(packetNumber))
-			return;
-		else
-			requestedVoicePackets.add(packetNumber);
-		
 		Logger.d(tag, "Requesting voice packet number: " + packetNumber + 
 				", max in queue: " + decodedBuffersQueue.getLast().getVoicePacketNumber());
 		VoIPDataPacket dp = new VoIPDataPacket(PacketType.REPEAT_AUDIO_PACKET_REQUEST);
@@ -2134,11 +2118,9 @@ public class VoIPClient  {
 	/**
 	 * Inserts a decoded voice packet in the decoded queue
 	 * in the right position. <br/>
-	 * A call to this function must be inside a synchronized block 
-	 * using the decodedBuffersQueue object. 
 	 * @param newPacket
 	 */
-	private synchronized void insertVoicePacketInDecodedQueue(VoIPDataPacket newPacket) {
+	private void insertVoicePacketInDecodedQueue(VoIPDataPacket newPacket) {
 
 		// If queue is empty
 		if (decodedBuffersQueue.size() == 0) {
@@ -2183,17 +2165,22 @@ public class VoIPClient  {
 			}
 			
 			// Replacing an FEC packet
-			if (decodedBuffersQueue.get(i).getVoicePacketNumber() == newPacket.getVoicePacketNumber() &&
-					decodedBuffersQueue.get(i).isFecGenerated()) {
-				Logger.d(tag, "Replacing FEC packet #" + decodedBuffersQueue.get(i).getVoicePacketNumber());
-				decodedBuffersQueue.remove(i);
-				decodedBuffersQueue.add(i, newPacket);
-				return;
+			if (decodedBuffersQueue.get(i).getVoicePacketNumber() == newPacket.getVoicePacketNumber()) {
+				if (decodedBuffersQueue.get(i).isFecGenerated()) {
+					decodedBuffersQueue.remove(i);
+					decodedBuffersQueue.add(i, newPacket);
+					return;
+				} else {
+					Logger.d(tag, "Packet #" + newPacket.getVoicePacketNumber() + " already in queue.");
+					return;
+				}
 			}
 		}
 		
+		// Insertion failed.
 		Logger.w(tag, "Decoded buffer insertion failed. Decoded queue size: " + decodedBuffersQueue.size() +
 				", new voice packet #" + newPacket.getVoicePacketNumber());
+		printDecodedQueue();
 	}
 	
 	private void calculateQuality() {

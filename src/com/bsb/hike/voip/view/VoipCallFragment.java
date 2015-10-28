@@ -318,7 +318,7 @@ public class VoipCallFragment extends Fragment implements CallActions
 		}
 		catch (IllegalArgumentException e) 
 		{
-			Logger.d(tag, "unbindService IllegalArgumentException: " + e.toString());
+//			Logger.d(tag, "unbindService IllegalArgumentException: " + e.toString());
 		}
 		
 		if(callActionsView!=null)
