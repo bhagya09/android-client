@@ -69,7 +69,7 @@
     <LinearLayout
         android:id="@+id/tip_lower"
         android:layout_width="match_parent"
-        android:layout_height="48dp"
+        android:layout_height="wrap_content"
         android:gravity="right"
         android:paddingRight="16dp"
         android:background="@color/update_tip_default"
