@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        android:id="@+id/addon_downlaod_title_bar"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/kpt_tab_unselected"
+        android:gravity="center_vertical" >
+
+        <TextView
+            android:id="@+id/theme_download_title_left"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/kpt_tab_selected"
+            android:gravity="center"
+            android:padding="5dp"
+            android:textColor="@color/kpt_functional_keys_white_color"
+            android:textSize="15sp" />
+
+        <!-- <TextView
+            android:id="@+id/theme_download_title_right"
+            android:layout_width="0dip"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.33"
+            android:gravity="center"
+            android:padding="5dp"
+            android:textColor="@color/functional_keys_white_color"
+            android:textSize="15sp" /> -->
+    </LinearLayout>
+
+    <HorizontalScrollView
+        android:id="@+id/hsv"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:scrollbars="none" >
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:orientation="horizontal" >
+
+            <ListView
+                android:id="@+id/theme_downloaded_left_list"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:choiceMode="singleChoice" >
+            </ListView>
+
+            <LinearLayout
+                android:id="@+id/theme_download_lag_progress_parent"
+                android:layout_width="fill_parent"
+                android:gravity="center"
+                android:layout_gravity="center"
+                android:layout_height="fill_parent" >
+
+                <ProgressBar
+                    android:layout_width="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_height="wrap_content"
+                    android:visibility="visible" />
+                
+            </LinearLayout>
+
+            <GridView
+                android:id="@+id/mygrid"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:horizontalSpacing="4dip"
+                android:numColumns="2"
+                android:paddingTop="4dip"
+                android:verticalSpacing="4dip"
+                android:visibility="gone" >
+            </GridView>
+        </LinearLayout>
+    </HorizontalScrollView>
+
+</LinearLayout>

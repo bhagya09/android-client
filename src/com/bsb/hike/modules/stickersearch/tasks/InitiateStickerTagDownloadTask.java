@@ -18,10 +18,13 @@ public class InitiateStickerTagDownloadTask implements Runnable
 	private static final String TAG = InitiateStickerTagDownloadTask.class.getSimpleName();
 
 	private boolean firstTime;
-
-	public InitiateStickerTagDownloadTask(boolean firstTime)
+	
+	private int state;
+	
+	public InitiateStickerTagDownloadTask(boolean firstTime, int state)
 	{
 		this.firstTime = firstTime;
+		this.state = state;
 	}
 
 	@Override
@@ -32,7 +35,7 @@ public class InitiateStickerTagDownloadTask implements Runnable
 		if (firstTime)
 		{
 			List<StickerCategory> stickerCategoryList = StickerManager.getInstance().getAllStickerCategories().second;
-			stickerSet = HikeSharedPreferenceUtil.getInstance().getDataSet(HikeMessengerApp.STICKER_SET, new HashSet<String>());;
+			stickerSet = StickerManager.getInstance().getStickerSet(state);
 
 			if (Utils.isEmpty(stickerCategoryList))
 			{
@@ -43,19 +46,22 @@ public class InitiateStickerTagDownloadTask implements Runnable
 				for (StickerCategory category : stickerCategoryList)
 				{
 					List<Sticker> stickers = category.getStickerList();
-					
-					for(Sticker sticker : stickers)
+
+					if (!Utils.isEmpty(stickers))
 					{
-						stickerSet.add(StickerManager.getInstance().getStickerSetString(sticker));
+						for(Sticker sticker : stickers)
+						{
+							stickerSet.add(StickerManager.getInstance().getStickerSetString(sticker));
+						}
 					}
 				}
 
-				HikeSharedPreferenceUtil.getInstance().saveDataSet(HikeMessengerApp.STICKER_SET, stickerSet);
+				StickerManager.getInstance().saveStickerSet(stickerSet, state);
 			}
 		}
 		else
 		{
-			stickerSet = HikeSharedPreferenceUtil.getInstance().getDataSet(HikeMessengerApp.STICKER_SET, new HashSet<String>());
+			stickerSet = StickerManager.getInstance().getStickerSet(state);
 		}
 
 		
@@ -65,7 +71,7 @@ public class InitiateStickerTagDownloadTask implements Runnable
 			return ;
 		}
 		
-		StickerTagDownloadTask stickerTagDownloadTask = new StickerTagDownloadTask(stickerSet);
+		StickerTagDownloadTask stickerTagDownloadTask = new StickerTagDownloadTask(stickerSet, state);
 		stickerTagDownloadTask.execute();
 	}
 }

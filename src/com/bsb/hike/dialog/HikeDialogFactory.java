@@ -3,6 +3,7 @@ package com.bsb.hike.dialog;
 import java.util.ArrayList;
 import java.util.List;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
@@ -37,6 +38,7 @@ import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.adapters.AccountAdapter;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.dialog.CustomAlertRadioButtonDialog.RadioButtonItemCheckedListener;
 import com.bsb.hike.dialog.CustomAlertRadioButtonDialog.RadioButtonPojo;
 import com.bsb.hike.models.AccountData;
@@ -49,6 +51,7 @@ import com.bsb.hike.timeline.adapter.DisplayContactsAdapter;
 import com.bsb.hike.ui.ProfileActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
+import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
 public class HikeDialogFactory
@@ -228,7 +231,7 @@ public class HikeDialogFactory
 		case MICROAPP_DIALOG:
 			return showMicroAppDialog(dialogId,context,listener,data);
 		case MAPP_DOWNLOAD_DIALOG:
-			return showMicroappDownloadDialog(dialogId, context, listener);
+			return showMicroappDownloadDialog(dialogId, context, listener, data);
 		}
 		return null;
 	}
@@ -1177,13 +1180,40 @@ public class HikeDialogFactory
 		return nativeDialog;
 	}
 
-	private static HikeDialog showMicroappDownloadDialog(int dialogId, final Context context, final HikeDialogListener listener)
+	private static HikeDialog showMicroappDownloadDialog(int dialogId, final Context context, final HikeDialogListener listener, Object... data)
 	{
 		final CustomAlertDialog dialog = new CustomAlertDialog(context, HikeDialogFactory.MAPP_DOWNLOAD_DIALOG, R.layout.mapp_download_dialog);
+		BotInfo botInfo;
+		if (data != null && data[0] != null && data[0] instanceof BotInfo)
+		{
+			botInfo = (BotInfo) data[0];
+		}
+		else
+		{
+			Logger.e("BotDiscovery", "BotInfo to showMicroappDownloadDialog is null or not instanceof BotInfo");
+			return null;
+		}
 
 		dialog.setPositiveButton(context.getResources().getString(R.string.take_me_there), listener);
 		dialog.setCancelable(true);
 		dialog.setCanceledOnTouchOutside(true);
+
+		TextView bot_name = (TextView) dialog.findViewById(R.id.bot_name);
+		bot_name.setText(botInfo.getConversationName());
+
+		TextView description = (TextView) dialog.findViewById(R.id.bot_description);
+		description.setText(botInfo.getBotDescription());
+
+		dialog.setOnDismissListener(new OnDismissListener() {
+
+			@Override
+			public void onDismiss(DialogInterface dialog) {
+				if (context instanceof Activity) {
+					Utils.unblockOrientationChange((Activity) context);
+				}
+			}
+		});
+
 		dialog.show();
 
 		return dialog;

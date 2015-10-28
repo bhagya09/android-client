@@ -1,12 +1,5 @@
 package com.bsb.hike.modules.stickerdownloadmgr;
 
-import java.util.ArrayList;
-import java.util.Set;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.modules.httpmgr.RequestToken;
@@ -23,6 +16,14 @@ import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Set;
+
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests.tagsForCategoriesRequest;
 
 public class StickerTagDownloadTask implements IHikeHTTPTask, IHikeHttpTaskResult
@@ -33,17 +34,26 @@ public class StickerTagDownloadTask implements IHikeHTTPTask, IHikeHttpTaskResul
 	private static int requestStep = 0;
 
 	private ArrayList<String> stickerCategoryList;
+	
+	private long lastTagRefreshTime;
+	
+	private int state;
+	
 
-	public StickerTagDownloadTask(Set<String> stickerSet)
+	public StickerTagDownloadTask(Set<String> stickerSet, int state)
 	{
-		if (stickerSet == null)
+		this.stickerCategoryList = new ArrayList<String>(stickerSet);
+		this.state = state;
+		
+		if(state == StickerSearchConstants.STATE_STICKER_DATA_REFRESH)
 		{
-			this.stickerCategoryList = null;
+			this.lastTagRefreshTime = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.LAST_SUCCESSFUL_STICKER_TAG_REFRESH_TIME, System.currentTimeMillis());
 		}
 		else
 		{
-			this.stickerCategoryList = new ArrayList<String>(stickerSet);
+			this.lastTagRefreshTime = 0L;
 		}
+		
 	}
 
 	@Override
@@ -89,6 +99,14 @@ public class StickerTagDownloadTask implements IHikeHTTPTask, IHikeHttpTaskResul
 		{
 			JSONObject json = new JSONObject();
 			json.put(HikeConstants.CATEGORY_ID_LIST, array);
+			json.put("timestamp", (lastTagRefreshTime/1000));
+			//temp changes for regional testing begin here
+			String mStringArray[] = { "eng","hin", "mar", "guj", "tam", "tel", "mal", "ben", "bho", "kan", "dcc" };
+
+			JSONArray temp = new JSONArray(Arrays.asList(mStringArray));
+			json.put("kbd",temp);
+			//temp changes for regional testing end here
+
 
 			RequestToken requestToken = tagsForCategoriesRequest(getRequestId(), json, getResponseListener());
 
@@ -169,7 +187,7 @@ public class StickerTagDownloadTask implements IHikeHTTPTask, IHikeHttpTaskResul
 	public void doOnSuccess(Object result)
 	{
 		JSONObject response = (JSONObject) result;
-		StickerSearchManager.getInstance().insertStickerTags(response, StickerSearchConstants.TRIAL_STICKER_DATA_UPDATE_REFRESH);
+		StickerSearchManager.getInstance().insertStickerTags(response, state);
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.TAG_FIRST_TIME_DOWNLOAD, false);
 	}
 

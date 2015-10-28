@@ -71,6 +71,8 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.chatthread.ChatThread;
+import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.dialog.ContactDialog;
 import com.bsb.hike.dialog.HikeDialog;
@@ -863,8 +865,12 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			{
 				if (stickerImage == null || !(stickerImage.exists()))
 				{
-					stickerImage = new File(OfflineUtils.getOfflineStkPath(categoryId, stickerId));
-					isStickerOffline=true;
+					String filePath = OfflineUtils.getOfflineStkPath(categoryId, stickerId);
+					if (!TextUtils.isEmpty(filePath))
+					{
+						stickerImage = new File(filePath);
+						isStickerOffline = true;
+					}
 				}
 			}
 			if (stickerImage != null && stickerImage.exists())
@@ -3672,6 +3678,9 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				ArrayList<HikeSharedFile> hsf = new ArrayList<HikeSharedFile>();
 				hsf.add(new HikeSharedFile(hikeFile.serialize(), hikeFile.isSent(), convMessage.getMsgID(), convMessage.getMsisdn(), convMessage.getTimestamp(), convMessage
 						.getGroupParticipantMsisdn()));
+				if(mActivity!=null && mActivity instanceof ChatThreadActivity){
+					((ChatThreadActivity)mActivity).hideKeyboard();
+				}
 				PhotoViewerFragment.openPhoto(R.id.ct_parent_rl, context, hsf, true, conversation);
 			}
 			else

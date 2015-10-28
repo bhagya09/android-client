@@ -70,9 +70,17 @@ public class GeneralEventMessagesManager
 				{
 					OfflineUtils.handleOfflineRequestPacket(context, packet);
 				}
-				if(data.optString(HikeConstants.SUB_TYPE).equals(HikeConstants.OFFLINE_MESSAGE_REQUEST_CANCEL))
+				else if(data.optString(HikeConstants.SUB_TYPE).equals(HikeConstants.OFFLINE_MESSAGE_REQUEST_CANCEL))
 				{
 					OfflineUtils.handleOfflineCancelRequestPacket(context,packet);
+				}
+				else if(data.optString(HikeConstants.SUB_TYPE).equals(HikeConstants.HIKE_DIRECT_UNSUPPORTED_PEER))
+				{
+					OfflineUtils.handleUnsupportedPeer(context,packet);
+				}
+				else if(data.optString(HikeConstants.SUB_TYPE).equals(HikeConstants.HIKE_DIRECT_UPDGRADE_PEER))
+				{
+					OfflineUtils.handleUpgradablePeer(context,packet);
 				}
 			}
 			

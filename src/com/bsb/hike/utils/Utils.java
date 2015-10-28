@@ -16,13 +16,13 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
 import java.net.URL;
 import java.nio.CharBuffer;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -64,7 +64,6 @@ import android.app.ActivityManager;
 import android.app.ActivityManager.RunningAppProcessInfo;
 import android.app.ActivityManager.RunningServiceInfo;
 import android.app.AlertDialog;
-import android.app.AppOpsManager;
 import android.app.PendingIntent;
 import android.content.ActivityNotFoundException;
 import android.content.ClipData;
@@ -81,7 +80,6 @@ import android.content.OperationApplicationException;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.pm.ActivityInfo;
-import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.pm.ResolveInfo;
@@ -181,7 +179,6 @@ import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.TrafficsStatsFile;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
-import com.bsb.hike.chatHead.CallerContentModel;
 import com.bsb.hike.chatHead.StickyCaller;
 import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.chatthread.ChatThreadUtils;
@@ -193,7 +190,6 @@ import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.filetransfer.FTAnalyticEvents;
 import com.bsb.hike.http.HikeHttpRequest;
-import com.bsb.hike.http.HikeHttpRequest.Method;
 import com.bsb.hike.models.AccountData;
 import com.bsb.hike.models.AccountInfo;
 import com.bsb.hike.models.ContactInfo;
@@ -237,11 +233,7 @@ import com.bsb.hike.ui.SignupActivity;
 import com.bsb.hike.ui.WebViewActivity;
 import com.bsb.hike.ui.WelcomeActivity;
 import com.bsb.hike.voip.VoIPUtils;
-import com.bsb.hike.voip.VoIPUtils.CallSource;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 
 public class Utils
 {
@@ -292,9 +284,9 @@ public class Utils
 	public static float densityMultiplier = 1.0f;
 
 	public static int densityDpi;
-	
+
 	public static int displayWidthPixels;
-	
+
 	public static int displayHeightPixels;
 
 	private static final String defaultCountryName = "India";
@@ -396,7 +388,7 @@ public class Utils
 		return obj;
 	}
 
-	public static boolean isIndianNumber(String number)
+	public static boolean isIndianMobileNumber(String number)
 	{
 		//13 is the number of chars in the phone msisdn 
 		if (number != null && (number.startsWith("+919") || number.startsWith("+918") || number.startsWith("+917")) && number.length() == 13)
@@ -405,6 +397,18 @@ public class Utils
 		}
 		return false;
 	}
+	
+	public static boolean isIndianNumber(String number)
+	{
+		//13 is the number of chars in the phone msisdn 
+		if (number != null && number.startsWith("+91"))
+		{
+			return true;
+		}
+		return false;
+	}
+	
+	
 	
 	
 	static final private int ANIMATION_DURATION = 400;
@@ -543,6 +547,14 @@ public class Utils
 		// String fileName = getUniqueFileName(orgFileName, fileKey);
 
 		return new File(mediaStorageDir, orgFileName);
+	}
+	
+	public static void setSharedPrefValue(Context context, String key, boolean value)
+	{
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+		Editor prefEditor = prefs.edit();
+		prefEditor.putBoolean(key, value);
+		prefEditor.commit();
 	}
 
 	public static String getUniqueFilename(HikeFileType type)
@@ -706,7 +718,7 @@ public class Utils
 		editor.putInt(HikeMessengerApp.INVITED_JOINED, accountInfo.getAllInviteeJoined());
 		editor.putString(HikeMessengerApp.COUNTRY_CODE, accountInfo.getCountryCode());
 		editor.commit();
-		
+
 		/*
 		 * Just after pin validation we need to set self msisdn field in ContactManager
 		 */
@@ -817,61 +829,7 @@ public class Utils
 		}
 		return true;
 	}
-	
-	public static boolean isNotificationEnabled(Context context)
-	{
-		if (isJellybeanOrHigher())
-		{
-			String CHECK_OP_NO_THROW = "checkOpNoThrow";
-			String OP_POST_NOTIFICATION = "OP_POST_NOTIFICATION";
 
-			AppOpsManager mAppOps = (AppOpsManager) context.getSystemService(Context.APP_OPS_SERVICE);
-
-			ApplicationInfo appInfo = context.getApplicationInfo();
-
-			String pkg = context.getApplicationContext().getPackageName();
-
-			int uid = appInfo.uid;
-
-			Class appOpsClass = null; /* Context.APP_OPS_MANAGER */
-
-			try
-			{
-
-				appOpsClass = Class.forName(AppOpsManager.class.getName());
-
-				java.lang.reflect.Method checkOpNoThrowMethod = appOpsClass.getMethod(CHECK_OP_NO_THROW, Integer.TYPE, Integer.TYPE, String.class);
-
-				Field opPostNotificationValue = appOpsClass.getDeclaredField(OP_POST_NOTIFICATION);
-				int value = (int) opPostNotificationValue.get(Integer.class);
-
-				return ((int) checkOpNoThrowMethod.invoke(mAppOps, value, uid, pkg) == AppOpsManager.MODE_ALLOWED);
-
-			}
-			catch (ClassNotFoundException e)
-			{
-				e.printStackTrace();
-			}
-			catch (NoSuchMethodException e)
-			{
-				e.printStackTrace();
-			}
-			catch (NoSuchFieldException e)
-			{
-				e.printStackTrace();
-			}
-			catch (InvocationTargetException e)
-			{
-				e.printStackTrace();
-			}
-			catch (IllegalAccessException e)
-			{
-				e.printStackTrace();
-			}
-		}
-		return true;
-	}		
-	
 	private static boolean isUserUpgrading(Context context)
 	{
 		SharedPreferences settings = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
@@ -1072,7 +1030,6 @@ public class Utils
 		return deviceId;
 	}
 
-	
 	public static void recordDeviceDetails(Context context)
 	{
 		try
@@ -1223,9 +1180,9 @@ public class Utils
 	 */
 	public static ContactInfo getUserContactInfo(SharedPreferences prefs, boolean showNameAsYou)
 	{
-	
+
 		String myMsisdn = prefs.getString(HikeMessengerApp.MSISDN_SETTING, null);
-		
+
 		long userJoinTime = prefs.getLong(HikeMessengerApp.USER_JOIN_TIME, 0);
 
 		String myName;
@@ -1605,10 +1562,10 @@ public class Utils
 			if (cursor != null)
 				cursor.close();
 		}
-		
+
 		try
 		{
-			if(result == null && isKitkatOrHigher() && DocumentsContract.isDocumentUri(mContext, uri))
+			if (result == null && isKitkatOrHigher() && DocumentsContract.isDocumentUri(mContext, uri))
 			{
 				result = getPathFromDocumentedUri(uri, mContext);
 			}
@@ -1919,7 +1876,6 @@ public class Utils
 
 	public static void resetImageQuality(SharedPreferences appPrefs)
 	{
-		// TODO Auto-generated method stub
 		final Editor editor = appPrefs.edit();
 		editor.putInt(HikeConstants.IMAGE_QUALITY, ImageQuality.QUALITY_DEFAULT);
 		editor.commit();
@@ -1954,6 +1910,7 @@ public class Utils
 				return 90;
 			}
 		}
+
 		return 0;
 	}
 
@@ -2436,12 +2393,15 @@ public class Utils
 		{
 			return null;
 		}
+
 		FileInputStream fileInputStream = null;
 		JSONObject currentFiles = null;
+		BufferedReader reader = null;
+
 		try
 		{
 			fileInputStream = new FileInputStream(hikeFileList);
-			BufferedReader reader = new BufferedReader(new InputStreamReader(fileInputStream));
+			reader = new BufferedReader(new InputStreamReader(fileInputStream));
 
 			StringBuilder builder = new StringBuilder();
 			CharBuffer target = CharBuffer.allocate(10000);
@@ -2474,8 +2434,9 @@ public class Utils
 		}
 		finally
 		{
-			closeStreams(fileInputStream);
+			closeStreams(fileInputStream, reader);
 		}
+
 		return currentFiles;
 	}
 
@@ -2691,18 +2652,18 @@ public class Utils
 		return getTempProfileImageFileName(msisdn, false);
 	}
 
-	public static String getTempProfileImageFileName(String msisdn,boolean useTimeStamp)
+	public static String getTempProfileImageFileName(String msisdn, boolean useTimeStamp)
 	{
 		String suffix = "_tmp.jpg";
-		
-		if(useTimeStamp)
+
+		if (useTimeStamp)
 		{
-			suffix = Long.toString(System.currentTimeMillis())+suffix;
+			suffix = Long.toString(System.currentTimeMillis()) + suffix;
 		}
-		
-		return getValidFileNameForMsisdn(msisdn) +suffix;
+
+		return getValidFileNameForMsisdn(msisdn) + suffix;
 	}
-	
+
 	public static String getProfileImageFileName(String msisdn)
 	{
 		return getValidFileNameForMsisdn(msisdn) + ".jpg";
@@ -2722,12 +2683,12 @@ public class Utils
 
 	public static boolean renameFiles(String newFilePath, String oldFilePath)
 	{
-		Logger.d(Utils.class.getSimpleName(), "inside renameUniqueTempProfileImage "+ newFilePath + ", "+ oldFilePath);
-		if(!TextUtils.isEmpty(oldFilePath) && !TextUtils.isEmpty(newFilePath))
+		Logger.d(Utils.class.getSimpleName(), "inside renameUniqueTempProfileImage " + newFilePath + ", " + oldFilePath);
+		if (!TextUtils.isEmpty(oldFilePath) && !TextUtils.isEmpty(newFilePath))
 		{
 			File tempFile = new File(oldFilePath);
 			File newFile = new File(newFilePath);
-			if(tempFile.exists())
+			if (tempFile.exists())
 			{
 				return tempFile.renameTo(newFile);
 			}
@@ -2735,18 +2696,18 @@ public class Utils
 		}
 		else
 		{
-			Logger.d(Utils.class.getSimpleName(), "inside renameUniqueTempProfileImage, file name empty "+ newFilePath + ", "+ oldFilePath);
+			Logger.d(Utils.class.getSimpleName(), "inside renameUniqueTempProfileImage, file name empty " + newFilePath + ", " + oldFilePath);
 			return false;
 		}
 	}
 
 	public static boolean removeFile(String tmpFilePath)
 	{
-		if(!TextUtils.isEmpty(tmpFilePath))
+		if (!TextUtils.isEmpty(tmpFilePath))
 		{
-			Logger.d(Utils.class.getSimpleName(), "inside removeUniqueTempProfileImage "+ tmpFilePath);
+			Logger.d(Utils.class.getSimpleName(), "inside removeUniqueTempProfileImage " + tmpFilePath);
 			File file = new File(tmpFilePath);
-			if(file.exists())
+			if (file.exists())
 			{
 				return file.delete();
 			}
@@ -2754,11 +2715,11 @@ public class Utils
 		}
 		else
 		{
-			Logger.d(Utils.class.getSimpleName(), "inside removeUniqueTempProfileImage, empty file "+ tmpFilePath);
+			Logger.d(Utils.class.getSimpleName(), "inside removeUniqueTempProfileImage, empty file " + tmpFilePath);
 			return false;
 		}
 	}
-	
+
 	public static void vibrateNudgeReceived(Context context)
 	{
 		String VIB_OFF = context.getResources().getString(R.string.vib_off);
@@ -2998,7 +2959,7 @@ public class Utils
 		InputMethodManager imm = (InputMethodManager) v.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
 		imm.showSoftInput(v, flags);
 	}
-	
+
 	public static void toggleSoftKeyboard(Context context)
 	{
 		InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -3530,14 +3491,14 @@ public class Utils
 		}
 		file.delete();
 	}
-	
-	public static void deleteFile(Context context,String filename,HikeFileType type)
+
+	public static void deleteFile(Context context, String filename, HikeFileType type)
 	{
-		if(TextUtils.isEmpty(filename))
+		if (TextUtils.isEmpty(filename))
 		{
 			return;
 		}
-		
+
 		HikeFile temp = new HikeFile(new File(filename).getName(), HikeFileType.toString(type), null, null, 0, false, null);
 		temp.delete(context);
 	}
@@ -4158,14 +4119,14 @@ public class Utils
 
 	public static Intent getTimelineActivityIntent(Context context)
 	{
-		return getTimelineActivityIntent(context, false);
+		return getTimelineActivityIntent(context, false, false);
 	}
 	
-	public static Intent getTimelineActivityIntent(Context context, boolean openActivityFeed)
+	public static Intent getTimelineActivityIntent(Context context, boolean openActivityFeed, boolean fromNotif)
 	{
 		final Intent intent = new Intent(context, TimelineActivity.class);
 		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-		intent.putExtra(HikeConstants.Extras.FROM_NOTIFICATION, true);
+		intent.putExtra(HikeConstants.Extras.FROM_NOTIFICATION, fromNotif);
 		intent.putExtra(HikeConstants.Extras.OPEN_ACTIVITY_FEED, openActivityFeed);
 		return intent;
 	}
@@ -4667,11 +4628,15 @@ public class Utils
 		context.startActivity(i);
 	}
 	
-	public static void addToContacts(Context context, String msisdn, String name)
+	public static void addToContacts(Context context, String msisdn, String name, String address)
 	{
 		Intent intent = new Intent(Intent.ACTION_INSERT, ContactsContract.Contacts.CONTENT_URI);
 		intent.putExtra(Insert.PHONE, msisdn);
 		intent.putExtra(Insert.NAME, name);
+		if (address != null)
+		{
+			intent.putExtra(Insert.POSTAL, address);
+		}
 		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 		context.startActivity(intent);
 	}
@@ -5886,7 +5851,47 @@ public class Utils
 		calendar.set(Calendar.MINUTE, minutes);
 		calendar.set(Calendar.SECOND, seconds);
 		calendar.set(Calendar.MILLISECOND, milliseconds);
+
 		return calendar.getTimeInMillis();
+	}
+
+	/**
+	 * Get time in millisecond from given time-stamp represented in format HH:mm:ss.SSS
+	 * 
+	 * @param Calendar
+	 *            calendar instance to be checked
+	 * @param timeStamp
+	 *            time-stamp to be parsed
+	 * @param default_ii
+	 *            time elements like hour, minute, second and millisecond
+	 * @author Ved Prakash Singh [ved@hike.in]
+	 */
+	public static long getTimeInMillis(Calendar calendar, String timeStamp, int default_hh, int default_mm, int default_ss, int default_SSS)
+	{
+		if (!isBlank(timeStamp))
+		{
+			try
+			{
+				int date = calendar.get(Calendar.DATE);
+				int month = calendar.get(Calendar.MONTH);
+				int year = calendar.get(Calendar.YEAR);
+
+				calendar.setTime((new SimpleDateFormat(HikeConstants.FORMAT_TIME_OF_THE_DAY, Locale.ENGLISH)).parse(timeStamp));
+
+				// Preserve supplied date from calendar instance, so that only time elements of a day are set from given time-stamp
+				calendar.set(Calendar.DATE, date);
+				calendar.set(Calendar.MONTH, month);
+				calendar.set(Calendar.YEAR, year);
+
+				return calendar.getTimeInMillis();
+			}
+			catch (ParseException e)
+			{
+				Logger.e("TimeStampParsing", "Error while parsing given time-stamp string...", e);
+			}
+		}
+
+		return getTimeInMillis(calendar, default_hh, default_mm, default_ss, default_SSS);
 	}
 
 	public static void disableNetworkListner(Context context)
@@ -6563,6 +6568,18 @@ public class Utils
 		return false;
 	}
 	
+	public static boolean isGCViaLinkEnabled()
+	{
+		HikeSharedPreferenceUtil prefs = HikeSharedPreferenceUtil.getInstance();
+		
+		if (prefs != null)
+		{
+			return prefs.getData(HikeConstants.ENABLE_GC_VIA_LINK_SHARING, false);
+		}
+		
+		return false;
+	}
+	
 	public static boolean moveFile(File inputFile, File outputFile)
 	{
 		Logger.d("Utils", "Input file path - " + inputFile.getPath());
@@ -6595,11 +6612,15 @@ public class Utils
 			result = false;
 			Logger.e("Utils", "1Failed due to - " + e1.getMessage());
 			FTAnalyticEvents.logDevException(FTAnalyticEvents.DOWNLOAD_RENAME_FILE, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "File", "1.Exception on moving file", e1);
-		} catch (Exception e2) {
+		}
+		catch (Exception e2)
+		{
 			result = false;
 			Logger.e("Utils", "2Failed due to - " + e2.getMessage());
 			FTAnalyticEvents.logDevException(FTAnalyticEvents.DOWNLOAD_RENAME_FILE, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "File", "2.Exception on moving file", e2);
-		} finally {
+		}
+		finally
+		{
 			closeStreams(in, out);
 		}
 		return result;
@@ -6765,7 +6786,7 @@ public class Utils
 
 	/**
 	 * Determine whether supplied String is actually empty or not.
-	 * 
+	 *
 	 * @param s
 	 *            String to be checked
 	 * @return True, if string contains only white spaces or it is empty. False, if string containes at least one non-white space character.
@@ -7007,16 +7028,14 @@ public class Utils
 	 */
 	public static <S, T extends Iterable<S>> boolean isEmpty(T argument)
 	{
-		if (argument == null || !argument.iterator().hasNext())
-		{
-			return true;
-		}
-		return false;
+		return (argument == null) || !argument.iterator().hasNext();
 	}
 
 	/**
 	 * Determine whether supplied module is being tested.
-	 * 
+	 *
+	 * @param String
+	 *            module name to be simulated
 	 * @param moduleName
 	 *            String name of the module being analysed
 	 * @return True, if test mode is enabled for given module. False, otherwise.
@@ -7028,7 +7047,7 @@ public class Utils
 
 		if (BuildConfig.DEBUG && (getExternalStorageState() != ExternalStorageState.NONE))
 		{
-			String testFolderName = HikeMessengerApp.getInstance().getPackageName() + "_test_9274563810";
+			String testFolderName = HikeMessengerApp.getInstance().getPackageName() + "_test_" + HikeConstants.APP_TEST_UID;
 			File root = new File(Environment.getExternalStorageDirectory().getAbsolutePath());
 			File listRootFile[] = root.listFiles();
 
@@ -7086,7 +7105,7 @@ public class Utils
 
 	}
 
-	public static boolean ifColumnExistsInTable(SQLiteDatabase db, String tableName, String givenColumnName)
+	public static boolean isColumnExistsInTable(SQLiteDatabase db, String tableName, String givenColumnName)
 	{
 		if (db != null)
 		{
@@ -7098,18 +7117,24 @@ public class Utils
 					String columnName = cursor.getString(1);
 					if (givenColumnName.equals(columnName))
 					{
-						Logger.e("Utils", "ifColumnExistsInTable : " + givenColumnName + " column exists in " + tableName + " table");
+						Logger.e("ColumnExistsCheck", givenColumnName + " column exists in " + tableName + " table.");
 						return true;
 					}
 				}
 			}
 		}
 
-		Logger.w("Utils", "ifColumnExistsInTable : " + givenColumnName + " does not column exists in " + tableName + " table");
+		Logger.w("ColumnExistsCheck", givenColumnName + " column does not exist in " + tableName + " table.");
 		return false;
 	}
 
 	/**
+	 * Determine whether a table exists.
+	 * 
+	 * @param SQLiteDatabase
+	 *            instance of databse containing such table
+	 * @param String
+	 *            table name to be checked
 	 * Determine whether databse recognized by given instance contains given table or not.
 	 * 
 	 * @param db
@@ -7218,7 +7243,7 @@ public class Utils
 	{
 		return ((contactInfo.getFavoriteType() == FavoriteType.FRIEND) || (contactInfo.getFavoriteType() == FavoriteType.REQUEST_RECEIVED) || (contactInfo.getFavoriteType() == FavoriteType.REQUEST_RECEIVED_REJECTED)) && (contactInfo.isOnhike());
 	}
-	
+
 	public static int getUnreadCounterBadgeWidth(Context context, String unreadCount)
 	{
 		switch (unreadCount.length())
@@ -7293,6 +7318,7 @@ public class Utils
 			Logger.e("Utils", "postStatusUpdate : status = null/empty, moodId < 0 & imageFilePath = null conditions hold together. Returning.");
 			return;
 		}
+
 		try
 		{
 			StatusUpdateTask task = new StatusUpdateTask(status, moodId, imageFilePath);
@@ -7336,9 +7362,20 @@ public class Utils
 		return url;
 	}
 	
-	public static void sendFreeSms()
+	public static String getNewImagePostFilePath()
 	{
-		Intent intent = IntentFactory.createChatThreadIntentFromMsisdn(HikeMessengerApp.getInstance(), StickyCaller.callCurrentNumber, true, false);
+		String directory = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT;
+		File dir = new File(directory);
+		if (!dir.exists())
+		{
+			dir.mkdirs();
+		}
+		return directory+File.separator + Utils.getUniqueFilename(HikeFileType.IMAGE);
+	}
+
+	public static void sendFreeSms(String number)
+	{
+		Intent intent = IntentFactory.createChatThreadIntentFromMsisdn(HikeMessengerApp.getInstance(), number, true, false);
 		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 	    HikeMessengerApp.getInstance().startActivity(intent);
 	}
@@ -7350,9 +7387,41 @@ public class Utils
 		{
 			return true;
 		}
+
 		return false;
 	}
 
+	/**
+	 * Determine whether a time-stamp represents correct clock time of a day.
+	 * 
+	 * @param HH_mm_ss_SSS
+	 *            time elements of the day
+	 * @author Ved Prakash Singh [ved@hike.in]
+	 */
+	public static boolean isValidTimeStampOfTheDay(int HH, int mm, int ss, int SSS)
+	{
+		if ((HH < 0) || (HH >= 24))
+		{
+			return false;
+		}
+
+		if ((mm < 0) || (mm >= 60))
+		{
+			return false;
+		}
+
+		if ((ss < 0) || (ss >= 60))
+		{
+			return false;
+		}
+
+		if ((SSS < 0) || (SSS >= 1000))
+		{
+			return false;
+		}
+
+		return true;
+	}
 
 	/**
 	 * Get differential time logging upto nano second considering maximum significant time unit reference as second.
@@ -7362,7 +7431,7 @@ public class Utils
 	 * @param end
 	 *            end time of operation as long value
 	 * @param precisionOfTimeUnitInSecond
-	 *            count of precision points in time unit per second
+	 *            count of precision points in time unit per second for start and end parameters
 	 * @return Human-readable string of time logging.
 	 * @author Ved Prakash Singh [ved@hike.in]
 	 */
@@ -7435,5 +7504,4 @@ public class Utils
 
 		return timeLogBuilder.toString();
 	}
-
 }

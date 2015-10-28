@@ -6,6 +6,8 @@ import java.util.List;
 
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.ColorMatrix;
+import android.graphics.ColorMatrixColorFilter;
 import android.graphics.Bitmap.Config;
 import android.graphics.Canvas;
 import android.graphics.drawable.BitmapDrawable;
@@ -406,6 +408,23 @@ public class HikePhotosUtils
 	public static int getServerConfigDimenForDP()
 	{
 		return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.DP_IMAGE_SIZE, HikeConstants.HikePhotos.MAX_IMAGE_DIMEN);
+	}
+	
+	public static ColorMatrixColorFilter getGreenDownShiftFilter()
+	{
+		float[] colorTransform = {
+	            1, 0, 0, 0, 0,
+	            0, 1, 0, 0, -5f,
+	            0, 0, 1, 0, 0,
+	            0, 0, 0, 1, 0 
+	            };
+
+	    ColorMatrix colorMatrix = new ColorMatrix();
+	    colorMatrix.setSaturation(0f); //Remove Colour 
+	    colorMatrix.set(colorTransform); //Apply the Red
+
+	    ColorMatrixColorFilter colorFilter = new ColorMatrixColorFilter(colorMatrix);
+	    return colorFilter;
 	}
 
 }
