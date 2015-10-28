@@ -431,7 +431,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			setWindowBackGround();
 			break;
 		case SHOW_TOAST:
-			showToast(msg.arg1);
+			showToast((Integer)msg.obj);
 			break;
 		case MESSAGE_RECEIVED:
 			addMessage((ConvMessage) msg.obj);
