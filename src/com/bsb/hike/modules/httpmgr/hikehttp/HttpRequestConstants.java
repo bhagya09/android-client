@@ -24,6 +24,8 @@ public class HttpRequestConstants
 	public static final String PLATFORM_STAGING_API = "staging.platform.hike.in";
 	
 	public static final String STICKERS_PRODUCTION_API = "stickers.im.hike.in";
+	
+	public static final String BASE_LINK_SHARING_URL = HTTP + "hike.in";
 		
 	public static final int PRODUCTION_PORT = 80;
 
@@ -271,7 +273,7 @@ public class HttpRequestConstants
 	{
 		return BASE_URL + BASE_V1 + "/group/";
 	}
-
+	
 	public static String getAvatarBaseUrl()
 	{
 		return BASE_URL + BASE_V1 + BASE_ACCOUNT + "/avatar";
@@ -352,6 +354,16 @@ public class HttpRequestConstants
 		return BASE_URL + BASE_V1 + BASE_ACCOUNT + "/avatar-delete";
 	}
 	
+	public static String getGroupBaseUrlForLinkSharing()
+	{
+		return BASE_URL + BASE_V2 + "/group/";
+	}
+	
+	public static String getBaseCodeGCAcceptUrl()
+	{
+		return BASE_URL + BASE_V2 + "/gcjp/";
+	}
+	
 	public static String getBotdiscoveryTableUrl()
 	{
 		// TODO Add complete url here
@@ -372,6 +384,11 @@ public class HttpRequestConstants
 		}
 	}
 
+	public static String getLanguageDictionaryBaseUrl()
+	{
+		return BASE_URL + BASE_V1 + "/dict/";
+	}
+	
 	public static String getHikeCallerUrl()
 	{
 		if (isProduction)

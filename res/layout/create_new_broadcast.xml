@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:atx="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    
+<LinearLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:gravity="center_horizontal"
@@ -33,6 +38,7 @@
         android:background="@drawable/bg_country_picker_selector"
         android:drawablePadding="9dp"
         android:gravity="center_vertical"
+        atx:charInputMaxLength="@integer/max_length_group_name"
         android:maxLength="@integer/max_length_group_name"
         android:paddingLeft="10dp"
         android:paddingRight="10dp"
@@ -53,3 +59,7 @@
         android:text="@string/broadcast_participant_info"/>
 
 </LinearLayout>
+
+    <include layout="@layout/kpt_keyboard_viewholder" />
+
+</RelativeLayout>

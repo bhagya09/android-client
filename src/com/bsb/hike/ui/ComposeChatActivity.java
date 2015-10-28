@@ -11,54 +11,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.app.ProgressDialog;
-import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
-import android.content.pm.ActivityInfo;
-import android.content.res.Configuration;
-import android.database.Cursor;
-import android.net.Uri;
-import android.os.AsyncTask;
-import android.os.Bundle;
-import android.preference.PreferenceManager;
-import android.provider.ContactsContract.Data;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v4.view.MenuItemCompat;
-import android.support.v7.app.ActionBar;
-import android.support.v7.widget.SearchView;
-import android.support.v7.widget.SearchView.OnQueryTextListener;
-import android.support.v7.widget.Toolbar;
-import android.text.TextUtils;
-import android.util.Pair;
-import android.view.KeyEvent;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.view.ViewGroup;
-import android.view.ViewStub;
-import android.view.ViewTreeObserver.OnGlobalLayoutListener;
-import android.view.WindowManager;
-import android.view.animation.AccelerateDecelerateInterpolator;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
-import android.view.inputmethod.InputMethodManager;
-import android.webkit.MimeTypeMap;
-import android.widget.AbsListView;
-import android.widget.AbsListView.OnScrollListener;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
-import android.widget.ListView;
-import android.widget.ProgressBar;
-import android.widget.TextView;
-import android.widget.Toast;
-
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeConstants.MESSAGE_TYPE;
 import com.bsb.hike.HikeMessengerApp;
@@ -89,6 +41,8 @@ import com.bsb.hike.models.MultipleConvMessage;
 import com.bsb.hike.models.PhonebookContact;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.modules.kpt.HikeCustomKeyboard;
+import com.bsb.hike.modules.kpt.KptUtils;
 import com.bsb.hike.offline.OfflineController;
 import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.platform.ContentLove;
@@ -99,6 +53,8 @@ import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.service.HikeService;
 import com.bsb.hike.tasks.InitiateMultiFileTransferTask;
+import com.bsb.hike.ui.v7.SearchView;
+import com.bsb.hike.ui.v7.SearchView.OnQueryTextListener;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
@@ -114,9 +70,68 @@ import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.TagEditText;
 import com.bsb.hike.view.TagEditText.Tag;
 import com.bsb.hike.view.TagEditText.TagEditorListener;
+import com.kpt.adaptxt.beta.CustomKeyboard;
+import com.kpt.adaptxt.beta.RemoveDialogData;
+import com.kpt.adaptxt.beta.util.KPTConstants;
+import com.kpt.adaptxt.beta.view.AdaptxtEditText;
+import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtEditTextEventListner;
+import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtKeyboordVisibilityStatusListner;
 
-public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implements TagEditorListener, OnItemClickListener, HikePubSub.Listener, OnScrollListener
+import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
+import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
+import android.database.Cursor;
+import android.net.Uri;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.preference.PreferenceManager;
+import android.provider.ContactsContract.Data;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v4.view.MenuItemCompat;
+import android.support.v7.app.ActionBar;
+import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
+import android.util.Pair;
+import android.view.KeyEvent;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.ViewGroup;
+import android.view.ViewStub;
+import android.view.ViewTreeObserver.OnGlobalLayoutListener;
+import android.view.WindowManager;
+import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.view.inputmethod.InputMethodManager;
+import android.webkit.MimeTypeMap;
+import android.widget.AbsListView;
+import android.widget.AbsListView.OnScrollListener;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.LinearLayout;
+import android.widget.ListView;
+import android.widget.ProgressBar;
+import android.widget.TextView;
+import android.widget.Toast;
+
+public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implements TagEditorListener, OnItemClickListener, HikePubSub.Listener, OnScrollListener,
+		AdaptxtKeyboordVisibilityStatusListner
 {
+	private HikeCustomKeyboard mCustomKeyboard;
+	
+	private boolean systemKeyboard;
+	
 	private static final String SELECT_ALL_MSISDN="all";
 	
 	private final String HORIZONTAL_FRIEND_FRAGMENT = "horizontalFriendFragment";
@@ -295,7 +310,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		}
 
 		setContentView(R.layout.compose_chat);
-
+		
 		if (nuxIncentiveMode)
 		{ 
 			FragmentManager fm = getSupportFragmentManager();
@@ -370,8 +385,31 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		
 		mPubSub = HikeMessengerApp.getPubSub();
 		mPubSub.addListeners(this, hikePubSubListeners);
+		
+		
 	}
 
+	private void initCustomKeyboard()
+	{	
+		LinearLayout parentView = (LinearLayout) findViewById(R.id.keyboardView_holder);
+		mCustomKeyboard= new HikeCustomKeyboard(this, parentView, KPTConstants.MULTILINE_LINE_EDITOR, null, ComposeChatActivity.this);
+		mCustomKeyboard.registerEditText(R.id.composeChatNewGroupTagET);
+		mCustomKeyboard.init(tagEditText);
+		tagEditText.setOnClickListener(new OnClickListener()
+		{
+			
+			@Override
+			public void onClick(View v)
+			{
+				if (mCustomKeyboard.isCustomKeyboardVisible())
+				{
+					return;
+				}
+				mCustomKeyboard.showCustomKeyboard(tagEditText, true);	
+			}
+		});
+	}
+	
 	boolean isOpened = false;
 
 	private HikeDialog contactDialog;
@@ -443,7 +481,6 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			invalidateOptionsMenu();
 		}
 	}
-
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu)
@@ -537,7 +574,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 				Toast.makeText(getApplicationContext(), getString(R.string.whatsapp_uninstalled), Toast.LENGTH_SHORT).show();
 			}
 		}
-
+		
 		return super.onOptionsItemSelected(item);
 	}
 	
@@ -612,13 +649,13 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		
 		switch (composeMode)
 		{
-		case CREATE_GROUP_MODE:
 		case CREATE_BROADCAST_MODE:
-		case PICK_CONTACT_MODE:
 		case PICK_CONTACT_AND_SEND_MODE:
+		case PICK_CONTACT_MODE:
 			//We do not show sms contacts in broadcast mode
 			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage, (isForwardingMessage && !isSharingFile), fetchRecentlyJoined, existingGroupOrBroadcastId, sendingMsisdn, friendsListFetchedCallback, false, false);
 			break;
+		case CREATE_GROUP_MODE:
 		default:
 			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage, (isForwardingMessage || isSharingFile), fetchRecentlyJoined, existingGroupOrBroadcastId, sendingMsisdn, friendsListFetchedCallback, true, (showMicroappShowcase && hasMicroappShowcaseIntent));
 			break;
@@ -645,6 +682,12 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			tagEditText = (TagEditText) findViewById(R.id.composeChatNewGroupTagET);
 			tagEditText.setVisibility(View.GONE);
 		}
+		
+		systemKeyboard = HikeMessengerApp.isSystemKeyboard(getApplicationContext());
+		if (!systemKeyboard)
+		{
+			initCustomKeyboard();
+		}
 
 		if (existingGroupOrBroadcastId != null)
 		{
@@ -659,6 +702,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		
 		pref.saveData(HikeConstants.SHOW_RECENTLY_JOINED_DOT, false);
 		pref.saveData(HikeConstants.SHOW_RECENTLY_JOINED, false);
+		pref.saveData(HikeConstants.NEW_CHAT_RED_DOT, false);
 		
 		if(triggerPointForPopup!=ProductPopupsConstants.PopupTriggerPoints.UNKNOWN.ordinal())
 		{
@@ -681,7 +725,9 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 	@Override
 	protected void onPause()
 	{
-		// TODO Auto-generated method stub
+		KptUtils.pauseKeyboardResources(mCustomKeyboard, tagEditText, searchET);
+		KptUtils.updatePadding(ComposeChatActivity.this, R.id.ll_compose, 0);
+		
 		super.onPause();
 		if(adapter != null)
 		{
@@ -693,6 +739,15 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 	protected void onResume()
 	{
 		// TODO Auto-generated method stub
+			if (!KptUtils.isSystemKeyboard(ComposeChatActivity.this))
+			{
+				if (mCustomKeyboard != null &&findViewById(R.id.composeChatNewGroupTagET).getVisibility()==View.VISIBLE&& tagEditText != null)
+				{
+					mCustomKeyboard.showCustomKeyboard(tagEditText, true);
+				}else if(mCustomKeyboard != null&&searchET!=null&&searchMenuItem.isActionViewExpanded()){
+					mCustomKeyboard.showCustomKeyboard(searchET, true);
+				}
+			}
 		super.onResume();
 		if(adapter != null)
 		{
@@ -704,6 +759,8 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 	@Override
 	public void onDestroy()
 	{
+		KptUtils.destroyKeyboardResources(mCustomKeyboard, R.id.composeChatNewGroupTagET, R.id.search_src_text);
+		
 		if (progressDialog != null)
 		{
 			progressDialog.dismiss();
@@ -725,6 +782,16 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		super.onDestroy();
 	}
 
+	@Override
+	public void onConfigurationChanged(Configuration newConfig)
+	{
+		if (mCustomKeyboard != null)
+		{
+			mCustomKeyboard.onConfigurationChanged(newConfig);
+		}
+		super.onConfigurationChanged(newConfig);
+	}
+	
 	@Override
 	public Object onRetainCustomNonConfigurationInstance()
 	{
@@ -806,7 +873,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			}
 			else
 			{
-				toggleTag(contactInfo.getName(), contactInfo.getMsisdn(), contactInfo);
+				toggleTag(contactInfo.getNameOrMsisdn(), contactInfo.getMsisdn(), contactInfo);
 			}
 			break;
 		default:
@@ -1297,12 +1364,6 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 				}
 				else if (composeMode == CREATE_GROUP_MODE)
 				{
-					int selected = adapter.getCurrentSelection();
-					if (selected < MIN_MEMBERS_GROUP_CHAT)
-					{
-						Toast.makeText(getApplicationContext(), getString(R.string.minContactInGroupErr, MIN_MEMBERS_GROUP_CHAT), Toast.LENGTH_SHORT).show();
-						return;
-					}
 					OneToNConversationUtils.createGroupOrBroadcast(ComposeChatActivity.this, adapter.getAllSelectedContacts(), oneToNConvName, oneToNConvId, gcSettings);
 				}
 				else if(composeMode == PICK_CONTACT_MODE)
@@ -1322,6 +1383,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			@Override
 			public void onClick(View v)
 			{
+				getIntent().removeExtra(HikeConstants.Extras.SELECT_ALL_INITIALLY);
 				setModeAndUpdateAdapter(composeMode);
 				if(selectAllMode)
 				{
@@ -2427,6 +2489,12 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			setResult(RESULT_CANCELED,getIntent());
 			this.finish();
 		}
+		if (mCustomKeyboard != null && mCustomKeyboard.isCustomKeyboardVisible()&&findViewById(R.id.composeChatNewGroupTagET).getVisibility()==View.VISIBLE)
+		{
+			mCustomKeyboard.showCustomKeyboard(tagEditText, false);
+			KptUtils.updatePadding(ComposeChatActivity.this, R.id.ll_compose, 0);
+			return;
+		}
 		super.onBackPressed();
 	}
 
@@ -2441,13 +2509,6 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		@Override
 		public void listFetched()
 		{
-			if(getIntent().getBooleanExtra(HikeConstants.Extras.SELECT_ALL_INITIALLY, false))
-			{
-				View selectAllCont = findViewById(R.id.select_all_container);
-				CheckBox cb = (CheckBox) selectAllCont.findViewById(R.id.select_all_cb);
-				cb.setChecked(true);
-			}
-
 			if (PreferenceManager.getDefaultSharedPreferences(ComposeChatActivity.this).getBoolean(HikeConstants.LAST_SEEN_PREF, true))
 			{
 				lastSeenScheduler = LastSeenScheduler.getInstance(ComposeChatActivity.this);
@@ -2467,6 +2528,13 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 				else
 				{
 					setupForSelectAll();
+					if(getIntent().getBooleanExtra(HikeConstants.Extras.SELECT_ALL_INITIALLY, false))
+					{
+						View selectAllCont = findViewById(R.id.select_all_container);
+						CheckBox cb = (CheckBox) selectAllCont.findViewById(R.id.select_all_cb);
+						cb.setChecked(true);
+						selectAllMode=true;
+					}
 				}
 			}
 			
@@ -2766,7 +2834,11 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 
 			return true;
 		}
+		
+		
 	};
+
+	private AdaptxtEditText searchET;
 	
 	private void initSearchMenu(Menu menu)
 	{
@@ -2774,9 +2846,140 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		if (searchMenuItem != null)
 		{
 			searchMenuItem.setVisible(true);
+
+			MenuItemCompat.setOnActionExpandListener(searchMenuItem, new MenuItemCompat.OnActionExpandListener()
+			{
+
+				@Override
+				public boolean onMenuItemActionExpand(MenuItem item)
+				{
+					if (adapter != null)
+					{
+						adapter.setSearchModeOn(true);
+					}
+					return true;
+				}
+
+				@Override
+				public boolean onMenuItemActionCollapse(MenuItem item)
+				{
+
+					if (adapter != null)
+					{
+						adapter.setSearchModeOn(false);
+						adapter.refreshBots();
+					}
+
+					return true;
+				}
+			});
+
 			SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchMenuItem);
 			searchView.setOnQueryTextListener(onQueryTextListener);
+			searchET = (AdaptxtEditText) searchView.findViewById(R.id.search_src_text);
+			if (!systemKeyboard)
+			{
+				searchView.clearFocus();
+				mCustomKeyboard.registerEditText(searchET);
+				mCustomKeyboard.init(searchET);
+			}
+			searchET.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+	 			
+	 			@Override
+	 			public void onFocusChange(View v, boolean hasFocus) {
+	 				if(hasFocus){
+	 					if (KptUtils.isSystemKeyboard(ComposeChatActivity.this))
+						{
+							Utils.showSoftKeyboard(searchET, InputMethodManager.SHOW_FORCED);
+						}
+						else
+						{
+							mCustomKeyboard.showCustomKeyboard(searchET, true);
+						}	 						
+	 				}else{
+						if (!KptUtils.isSystemKeyboard(ComposeChatActivity.this))
+						{
+							mCustomKeyboard.showCustomKeyboard(searchET, false);
+						}
+					}
+	 			}
+	 		});
+			MenuItemCompat.setOnActionExpandListener(searchMenuItem, new MenuItemCompat.OnActionExpandListener()
+			{
+
+				@Override
+				public boolean onMenuItemActionCollapse(MenuItem arg0)
+				{
+					adapter.removeFilter();
+					return true;
+				}
+
+				@Override
+				public boolean onMenuItemActionExpand(MenuItem arg0)
+				{
+					return true;
+				}
+				
+			});
+
 		}
+	}
+
+	@Override
+	public void analyticalData(String currentLanguage)
+	{
+		KptUtils.generateKeyboardAnalytics(currentLanguage);
+	}
+
+
+	@Override
+	public void onInputViewCreated()
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	public void onInputviewVisbility(boolean kptVisible, int height)
+	{
+		if (findViewById(R.id.composeChatNewGroupTagET).getVisibility() == View.VISIBLE)
+		{
+			if (kptVisible)
+			{
+				KptUtils.updatePadding(ComposeChatActivity.this, R.id.ll_compose, height);
+			}
+			else
+			{
+				KptUtils.updatePadding(ComposeChatActivity.this, R.id.ll_compose, 0);
+			}
+		}
+	}
+
+
+	@Override
+	public void showGlobeKeyView()
+	{
+		KptUtils.onGlobeKeyPressed(ComposeChatActivity.this, mCustomKeyboard);
+	}
+
+
+	@Override
+	public void showQuickSettingView()
+	{
+		KptUtils.onGlobeKeyPressed(ComposeChatActivity.this, mCustomKeyboard);
+	}
+
+	@Override
+	public void dismissRemoveDialog() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void showRemoveDialog(RemoveDialogData arg0) {
+		// TODO Auto-generated method stub
+		
 	}
 	
 }

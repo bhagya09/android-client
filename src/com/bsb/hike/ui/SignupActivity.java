@@ -1,13 +1,5 @@
 package com.bsb.hike.ui;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.HashMap;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
@@ -17,16 +9,18 @@ import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.OvalShape;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
+import android.support.v7.app.ActionBar;
+import android.support.v7.widget.Toolbar;
 import android.telephony.TelephonyManager;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
@@ -36,10 +30,12 @@ import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnFocusChangeListener;
 import android.view.View.OnKeyListener;
+import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.animation.AlphaAnimation;
@@ -53,28 +49,27 @@ import android.view.animation.RotateAnimation;
 import android.view.animation.ScaleAnimation;
 import android.view.animation.TranslateAnimation;
 import android.view.inputmethod.EditorInfo;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ListAdapter;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
 
-import android.support.v7.app.ActionBar;
-import android.support.v7.widget.Toolbar;
-
+import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.HikeConstants;
-import com.bsb.hike.HikeConstants.ImageQuality;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
-import com.bsb.hike.BitmapModule.HikeBitmapFactory;
-import com.bsb.hike.ag.NetworkAgModule;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.bots.BotUtils;
+import com.bsb.hike.localisation.LocalLanguage;
+import com.bsb.hike.localisation.LocalLanguageUtils;
 import com.bsb.hike.models.Birthday;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
@@ -82,19 +77,36 @@ import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
+import com.bsb.hike.modules.kpt.HikeAdaptxtEditTextEventListner;
+import com.bsb.hike.modules.kpt.HikeCustomKeyboard;
+import com.bsb.hike.modules.kpt.KptUtils;
 import com.bsb.hike.tasks.SignupTask;
 import com.bsb.hike.tasks.SignupTask.State;
 import com.bsb.hike.tasks.SignupTask.StateValue;
 import com.bsb.hike.utils.ChangeProfileImageBaseActivity;
-import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.utils.Utils.ExternalStorageState;
+import com.bsb.hike.view.CustomFontEditText;
+import com.kpt.adaptxt.beta.RemoveDialogData;
+import com.kpt.adaptxt.beta.util.KPTConstants;
+import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtKeyboordVisibilityStatusListner;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.HashMap;
 
 public class SignupActivity extends ChangeProfileImageBaseActivity implements SignupTask.OnSignupTaskProgressUpdate, OnEditorActionListener, OnClickListener,
-		OnCancelListener, Listener
+		OnCancelListener, Listener, HikeAdaptxtEditTextEventListner, AdaptxtKeyboordVisibilityStatusListner
 {
+	private HikeCustomKeyboard mCustomKeyboard;
+	
+	private boolean systemKeyboard;
 
 	private SignupTask mTask;
 
@@ -122,11 +134,11 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 
 	private ViewGroup loadingLayout;
 
-	private EditText enterEditText;
+	private CustomFontEditText enterEditText;
 
 	private TextView invalidNum;
 
-	private EditText countryPicker;
+	private CustomFontEditText countryPicker;
 
 	private TextView selectedCountryName;
 
@@ -134,7 +146,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 
 	private ImageView mIconView;
 
-	private TextView birthdayText;
+	private CustomFontEditText birthdayText;
 
 	private TextView maleText;
 
@@ -142,13 +154,17 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 
 	private ImageView profilePicCamIcon;
 
+	private LocalLanguage selectedLocalLanguage;
+
 	private Handler mHandler;
 
 	private boolean addressBookError = false;
 
 	private boolean msisdnErrorDuringSignup = false;
 
-	public static final int POST_SIGNUP = 8;
+	public static final int POST_SIGNUP = 9;
+
+	public static final int SELECT_LANGUAGE = 8;
 
 	public static final int RESTORING_BACKUP = 7;
 
@@ -263,6 +279,11 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 		mHandler = new Handler();
 
 		accountPrefs = getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, MODE_PRIVATE);
+		systemKeyboard = HikeMessengerApp.isSystemKeyboard(getApplicationContext());
+		if (!systemKeyboard)
+		{
+			setupCustomKeyboard();
+		}
 
 		viewFlipper = (ViewFlipper) findViewById(R.id.signup_viewflipper);
 		numLayout = (ViewGroup) findViewById(R.id.num_layout);
@@ -336,6 +357,9 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 				break;
 			case RESTORING_BACKUP:
 				prepareLayoutForRestoringAnimation(savedInstanceState,null);
+				break;
+			case SELECT_LANGUAGE:
+				prepareLayoutForSelectingLanguage();
 				break;
 			case POST_SIGNUP:
 				prepareLayoutForPostSignup(savedInstanceState);
@@ -450,6 +474,10 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 		else if (displayedChild == RESTORING_BACKUP)
 		{
 			mActionBarTitle.setText(R.string.account_backup);
+		}
+		else if (displayedChild == SELECT_LANGUAGE)
+		{
+			mActionBarTitle.setText(R.string.language);
 		}
 	}
 
@@ -581,9 +609,20 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 		return mActivityState;
 	}
 
+	@Override
+	protected void onPause()
+	{
+		KptUtils.pauseKeyboardResources(mCustomKeyboard);
+		
+		super.onPause();
+	}
+	
 	protected void onDestroy()
 	{
 		super.onDestroy();
+		
+		KptUtils.destroyKeyboardResources(mCustomKeyboard, R.id.et_enter_name, R.id.et_enter_num, R.id.et_enter_pin, R.id.birthday);
+		
 		HikeMessengerApp.getPubSub().removeListener(HikePubSub.FACEBOOK_IMAGE_DOWNLOADED, this);
 		if (dialog != null)
 		{
@@ -657,6 +696,20 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 
 	private void submitClicked()
 	{
+		if (!systemKeyboard)
+		{
+			mCustomKeyboard.showCustomKeyboard(enterEditText, false);
+		}
+		if (viewFlipper.getDisplayedChild() == SELECT_LANGUAGE)
+		{
+			if (selectedLocalLanguage != null)
+				LocalLanguageUtils.setApplicationLocalLanguage(selectedLocalLanguage);
+
+			viewFlipper.setDisplayedChild(POST_SIGNUP);
+			prepareLayoutForPostSignup(null);
+			mTask.addUserInput(null);
+			return;
+		}
 		if (viewFlipper.getDisplayedChild() == BACKUP_FOUND || viewFlipper.getDisplayedChild() == RESTORING_BACKUP)
 		{
 			try
@@ -670,8 +723,6 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 				Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
 			}
 			mTask.addUserInput(null);
-			viewFlipper.setDisplayedChild(POST_SIGNUP);
-			prepareLayoutForPostSignup(null);
 			BotUtils.initBots();
 			return;
 		}
@@ -790,6 +841,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 						public void onClick(DialogInterface dialog, int which)
 						{
 							dialog.cancel();
+							showKeyboard(enterEditText);
 						}
 					});
 					Dialog dialog = builder.show();
@@ -841,8 +893,8 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 		switch (layout.getId())
 		{
 		case R.id.name_layout:
-			enterEditText = (EditText) layout.findViewById(R.id.et_enter_name);
-			birthdayText = (TextView) layout.findViewById(R.id.birthday);
+			enterEditText = (CustomFontEditText) layout.findViewById(R.id.et_enter_name);
+			birthdayText = (CustomFontEditText) layout.findViewById(R.id.birthday);
 			profilePicCamIcon = (ImageView) layout.findViewById(R.id.profile_cam);
 			
 			if(profilePicCamIcon != null)
@@ -858,13 +910,13 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 			}
 			break;
 		case R.id.num_layout:
-			enterEditText = (EditText) layout.findViewById(R.id.et_enter_num);
+			enterEditText = (CustomFontEditText) layout.findViewById(R.id.et_enter_num);
 			infoTxt = (TextView) layout.findViewById(R.id.txt_img1);
 			infoTxt.setVisibility(View.VISIBLE);
 			verifiedPin = layout.findViewById(R.id.verified_pin);
 			break;
 		case R.id.pin_layout:
-			enterEditText = (EditText) layout.findViewById(R.id.et_enter_pin);
+			enterEditText = (CustomFontEditText) layout.findViewById(R.id.et_enter_pin);
 			infoTxt = (TextView) layout.findViewById(R.id.txt_img1);
 			invalidPin = (TextView) layout.findViewById(R.id.invalid_pin);
 			verifiedPin = layout.findViewById(R.id.verified_pin);
@@ -878,7 +930,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 		loadingText = (TextView) layout.findViewById(R.id.txt_loading);
 		loadingLayout = (ViewGroup) layout.findViewById(R.id.loading_layout);
 		invalidNum = (TextView) layout.findViewById(R.id.invalid_num);
-		countryPicker = (EditText) layout.findViewById(R.id.country_picker);
+		countryPicker = (CustomFontEditText) layout.findViewById(R.id.country_picker);
 		selectedCountryName = (TextView) layout.findViewById(R.id.selected_country_name);
 		selectedCountryPicker = layout.findViewById(R.id.selected_country);
 		callmeBtn = (Button) layout.findViewById(R.id.btn_call_me);
@@ -904,10 +956,90 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 		setupActionBarTitle();
 	}
 
+	private void setupCustomKeyboard()
+	{
+		LinearLayout viewHolder = (LinearLayout) findViewById(R.id.keyboardView_holder);
+		mCustomKeyboard = new HikeCustomKeyboard(this, viewHolder, KPTConstants.SINGLE_LINE_EDITOR, SignupActivity.this, SignupActivity.this);
+		mCustomKeyboard.registerEditText(R.id.et_enter_num);
+		mCustomKeyboard.registerEditText(R.id.et_enter_pin);
+		mCustomKeyboard.registerEditText(R.id.et_enter_name, KPTConstants.MULTILINE_LINE_EDITOR);
+		mCustomKeyboard.registerEditText(R.id.birthday);
+		mCustomKeyboard.registerEditText(R.id.country_picker);
+	}
+	
+	private void showKeyboard(CustomFontEditText editText)
+	{
+		if(mCustomKeyboard != null&& !mCustomKeyboard.isCustomKeyboardVisible())
+		{
+			mCustomKeyboard.init(editText);
+			mCustomKeyboard.showCustomKeyboard(editText, true);
+		}
+	}
+
+	private void hideKeyboard(CustomFontEditText editText)
+	{
+		if(mCustomKeyboard != null && mCustomKeyboard.isCustomKeyboardVisible())
+		{
+			mCustomKeyboard.showCustomKeyboard(editText, false);
+		}
+	}
+	
+	private void addClickListenerForKeyboard()
+	{
+		if (!systemKeyboard)
+		{
+			enterEditText.setOnClickListener(
+					new OnClickListener()
+					{
+						
+						@Override
+						public void onClick(View v)
+						{
+							if (mCustomKeyboard.isCustomKeyboardVisible())
+							{
+								return;
+							}
+							showKeyboard(enterEditText);
+						}
+					});
+			if (countryPicker != null) {
+			   countryPicker.setOnTouchListener(new OnTouchListener()
+			{
+			
+				@Override
+				public boolean onTouch(View v, MotionEvent event)
+				{
+					if (mCustomKeyboard.isCustomKeyboardVisible())
+					{
+						mCustomKeyboard.showCustomKeyboard(countryPicker, false);
+					}
+					showKeyboard(countryPicker);
+					return false;
+				}
+			});
+			}
+			if (birthdayText != null) {
+				birthdayText.setOnClickListener(new OnClickListener() {
+
+					@Override
+					public void onClick(View v) {
+						if (mCustomKeyboard.isCustomKeyboardVisible()) {
+							return;
+						}
+						showKeyboard(birthdayText);
+					}
+				});
+			}
+		}
+	}
+	
 	private void prepareLayoutForFetchingNumber()
 	{
 		initializeViews(numLayout);
 
+		showKeyboard(enterEditText);
+		addClickListenerForKeyboard();
+	
 		countryPicker.setOnFocusChangeListener(new OnFocusChangeListener()
 		{
 			@Override
@@ -966,6 +1098,8 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 	{
 		initializeViews(pinLayout);
 
+		addClickListenerForKeyboard();
+		
 		callmeBtn.setVisibility(View.VISIBLE);
 		nextBtnContainer.setVisibility(View.VISIBLE);
 
@@ -1044,24 +1178,9 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 			}
 		}
 
-		/*Session session = Session.getActiveSession();
-		if (session == null)
-		{
-			if (savedInstanceState != null)
-			{
-				session = Session.restoreSession(this, null, statusCallback, savedInstanceState);
-			}
-			if (session == null)
-			{
-				session = new Session(this);
-			}
-			Session.setActiveSession(session);
-			if (session.getState().equals(SessionState.CREATED_TOKEN_LOADED))
-			{
-				session.openForRead(new Session.OpenRequest(this).setCallback(statusCallback));
-			}
-		}*/
-
+		showKeyboard(enterEditText);
+		addClickListenerForKeyboard();
+		
 		if (!addressBookScanningDone)
 		{
 			Utils.hideSoftKeyboard(this, enterEditText);
@@ -1085,20 +1204,12 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 				bd = HikeMessengerApp.getLruCache().getDefaultAvatar(msisdn, false);
 			}
 			mIconView.setImageDrawable(bd);
-			// mIconView.setImageDrawable(IconCacheManager.getInstance()
-			// .getIconForMSISDN(msisdn, true));
 		}
 		else
 		{
 			mIconView.setImageBitmap(mActivityState.profileBitmap);
 		}
 
-		/*if (mActivityState.fbConnected)
-		{
-			Button fbBtn = (Button) findViewById(R.id.connect_fb);
-			fbBtn.setEnabled(false);
-			fbBtn.setText(R.string.connected);
-		}*/
 		nextBtnContainer.setVisibility(View.VISIBLE);
 		setupActionBarTitle();
 	}
@@ -1127,6 +1238,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 	
 	private void prepareLayoutForBackupFound(Bundle savedInstanceState)
 	{
+		hideKeyboard(enterEditText);
 		nextBtnContainer.setVisibility(View.VISIBLE);
 		arrow.setVisibility(View.GONE);
 		postText.setText(R.string.skip);
@@ -1138,9 +1250,49 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 			preRestoreAnimation();
 		}
 	}
+
+	private  void prepareLayoutForSelectingLanguage()
+	{
+		hideKeyboard(enterEditText);
+		nextBtnContainer.setVisibility(View.VISIBLE);
+		arrow.setVisibility(View.VISIBLE);
+		postText.setText(R.string.next_signup);
+		setupActionBarTitle();
+
+		final TextView languageText = (TextView) viewFlipper.findViewById(R.id.txt_lang);
+		final ArrayList<LocalLanguage> list = new ArrayList<>(LocalLanguage.getSupportedLanguages(this));
+		languageText.setText(list.get(0).getDisplayName());
+
+		languageText.setOnClickListener(
+		new OnClickListener()
+		{
+			@Override
+			public void onClick(View v)
+			{
+				AlertDialog.Builder builder = new AlertDialog.Builder(SignupActivity.this);
+				ListAdapter adapter = new ArrayAdapter<LocalLanguage>(SignupActivity.this, R.layout.alert_item, R.id.item,list);
+				builder.setAdapter(adapter, new DialogInterface.OnClickListener()
+				{
+					@Override
+					public void onClick(DialogInterface dialog, int which)
+					{
+						selectedLocalLanguage = list.get(which);
+						languageText.setText(selectedLocalLanguage.getDisplayName());
+					}
+				});
+
+				AlertDialog alertDialog = builder.show();
+				alertDialog.getListView().setDivider(null);
+				alertDialog.getListView().setPadding(0, getResources().getDimensionPixelSize(R.dimen.menu_list_padding_top), 0,
+						getResources().getDimensionPixelSize(R.dimen.menu_list_padding_bottom));
+			}
+		}
+		);
+	}
 	
 	private void prepareLayoutForRestoringAnimation(Bundle savedInstanceState, StateValue stateValue)
 	{
+		hideKeyboard(enterEditText);
 		nextBtnContainer.setVisibility(View.GONE);
 		setupActionBarTitle();
 		String restoreStatus = null;
@@ -1834,6 +1986,18 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 				{
 					errorDialog.dismiss();
 					v.setEnabled(false);
+					if (countryPicker != null)
+					{
+						countryPicker.setEnabled(true);
+					}
+					if (selectedCountryPicker != null)
+					{
+						selectedCountryPicker.setEnabled(true);
+					}
+					if (enterEditText != null)
+					{
+						enterEditText.setEnabled(true);
+					}
 					if (viewFlipper.getDisplayedChild() != SCANNING_CONTACTS)
 					{
 						/*
@@ -1891,9 +2055,6 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 	@Override
 	protected void onSaveInstanceState(Bundle outState)
 	{
-		/*Session session = Session.getActiveSession();
-		Session.saveSession(session, outState);*/
-
 		int displayedChild = viewFlipper.getDisplayedChild();
 		if (restoreInitialized)
 		{
@@ -1932,6 +2093,11 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 		}
 		if (viewFlipper.getDisplayedChild() == PIN)
 		{
+			if (mCustomKeyboard != null && mCustomKeyboard.isCustomKeyboardVisible())
+			{
+				mCustomKeyboard.showCustomKeyboard(enterEditText, false);
+				return;
+			}
 			if (countDownTimer != null)
 			{
 				countDownTimer.cancel();
@@ -1944,6 +2110,13 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 			mTask.cancelTask();
 		}
 		SignupTask.isAlreadyFetchingNumber = false;
+		
+		if (mCustomKeyboard != null && mCustomKeyboard.isCustomKeyboardVisible())
+		{
+			mCustomKeyboard.showCustomKeyboard(enterEditText, false);
+			mCustomKeyboard.showCustomKeyboard(birthdayText, false);
+			return;
+		}
 		super.onBackPressed();
 	}
 
@@ -2001,6 +2174,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 			break;
 		case PIN:
 			viewFlipper.setDisplayedChild(PIN);
+			mCustomKeyboard.updateCore();
 
 			// Wrong Pin
 			if (value != null && value.equals(HikeConstants.PIN_ERROR))
@@ -2136,6 +2310,10 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 				prepareLayoutForRestoringAnimation(null,stateValue);
 			}
 			break;
+		case SELECT_LANGUAGE:
+			viewFlipper.setDisplayedChild(SELECT_LANGUAGE);
+			prepareLayoutForSelectingLanguage();
+			break;
 		}
 		setListeners();
 	}
@@ -2181,170 +2359,40 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 	public void onStart()
 	{
 		super.onStart();
-		/*Session session = Session.getActiveSession();
-		if (session != null)
-		{
-			session.addCallback(statusCallback);
-		}*/
 	}
 
 	@Override
 	public void onStop()
 	{
 		super.onStop();
-		/*Session session = Session.getActiveSession();
-		if (session != null)
-		{
-			session.removeCallback(statusCallback);
-		}*/
 	}
-
-	/*boolean fbClicked = false;
-
-	boolean fbAuthing = false;*/
-
-	/*public void onFacebookConnectClick(View v)
-	{
-		fbClicked = true;
-		Session session = Session.getActiveSession();
-		if (session == null)
-		{
-			fbClicked = false;
-			return;
-		}
-
-		Logger.d(getClass().getSimpleName(), "FB CLICKED");
-		if (!session.isOpened() && !session.isClosed())
-		{
-			session.openForRead(new Session.OpenRequest(this).setCallback(statusCallback).setPermissions(Arrays.asList("basic_info", "user_birthday")));
-			Logger.d(getClass().getSimpleName(), "Opening for read");
-			fbAuthing = true;
-		}
-		else
-		{
-			Session.openActiveSession(this, true, statusCallback);
-			Logger.d(getClass().getSimpleName(), "Opening active session");
-		}
-	}*/
-
-	/*private class SessionStatusCallback implements Session.StatusCallback
-	{
-		@Override
-		public void call(Session session, SessionState state, Exception exception)
-		{
-			if (fbClicked && session.isOpened())
-			{
-				updateView();
-				fbClicked = false;
-			}
-		}
-	}*/
 
 	@Override
 	protected void onResume()
 	{
 		super.onResume();
-		Logger.d("Signup", "SingupActivity onresume");
-		/*if (fbAuthing)
+		if (mCustomKeyboard != null && !mCustomKeyboard.isCustomKeyboardVisible()&&enterEditText!=null )
 		{
-			Session session = Session.getActiveSession();
-			if (session != null)
+			
+			int displayedChild = viewFlipper.getDisplayedChild();
+			if (displayedChild == NUMBER || displayedChild == PIN)
 			{
-				Logger.d(getClass().getSimpleName(), "Clearing token");
-				session.closeAndClearTokenInformation();
+				Utils.hideSoftKeyboard(getApplicationContext(), enterEditText);
+				mCustomKeyboard.showCustomKeyboard(enterEditText, true);
 			}
-		}*/
-	}
-
-	/*public void updateView()
-	{
-		Session session = Session.getActiveSession();
-		if (session != null && session.isOpened())
-		{
-			Request.executeMeRequestAsync(session, new GraphUserCallback()
+			else if (displayedChild == NAME)
 			{
-				@Override
-				public void onCompleted(final GraphUser user, Response response)
+				if (birthdayText != null && birthdayText.isFocused())
 				{
-					if (user != null)
-					{
-						final String fbProfileUrl = String.format(HikeConstants.FACEBOOK_PROFILEPIC_URL_FORMAT, user.getId(), HikeConstants.MAX_DIMENSION_FULL_SIZE_PROFILE_PX);
-
-						String directory = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT;
-						String fileName = Utils.getTempProfileImageFileName(accountPrefs.getString(HikeMessengerApp.MSISDN_SETTING, ""));
-
-						try
-						{
-							String gender = (String) user.getProperty("gender");
-
-							mActivityState.isFemale = "female".equalsIgnoreCase(gender);
-						}
-						catch (Exception e)
-						{
-							Logger.w(getClass().getSimpleName(), "Exception while fetching gender", e);
-						}
-						try
-						{
-							String birthdayString = user.getBirthday();
-							if (!TextUtils.isEmpty(birthdayString))
-							{
-								Date date = new SimpleDateFormat("MM/dd/yyyy", Locale.ENGLISH).parse(user.getBirthday());
-								if (date.compareTo(Calendar.getInstance().getTime()) <= 0)
-								{
-									Calendar calendar = Calendar.getInstance();
-									calendar.setTime(date);
-									mActivityState.birthday = new Birthday(calendar.get(Calendar.DAY_OF_MONTH), calendar.get(Calendar.MONTH), calendar.get(Calendar.YEAR));
-									mTask.addBirthdate(mActivityState.birthday);
-									birthdayText.setText(String.valueOf(Calendar.getInstance().get(Calendar.YEAR) - mActivityState.birthday.year));
-								}
-							}
-
-						}
-						catch (Exception e)
-						{
-							Logger.w(getClass().getSimpleName(), "Exception while fetching birthday", e);
-						}
-
-						final File destFile = new File(directory, fileName);
-						downloadImage(destFile, Uri.parse(fbProfileUrl), new ImageDownloadResult()
-						{
-
-							@Override
-							public void downloadFinished(boolean result)
-							{
-								mActivityState = new ActivityState();
-								if (!result)
-								{
-									runOnUiThread(new Runnable()
-									{
-
-										@Override
-										public void run()
-										{
-											Toast.makeText(getApplicationContext(), R.string.fb_fetch_image_error, Toast.LENGTH_SHORT).show();
-										}
-									});
-								}
-								else
-								{
-									mActivityState.destFilePath = destFile.getPath();
-									mActivityState.userName = user.getName();
-								}
-								HikeMessengerApp.getPubSub().publish(HikePubSub.FACEBOOK_IMAGE_DOWNLOADED, result);
-							}
-						});
-						dialog = ProgressDialog.show(SignupActivity.this, null, getResources().getString(R.string.fetching_info));
-					}
+					mCustomKeyboard.showCustomKeyboard(birthdayText, true);
 				}
-			});
+				else
+				{
+					mCustomKeyboard.showCustomKeyboard(enterEditText, true);
+				}
+			}
 		}
-	}
-*/
-	private void downloadImage(final File destFile, Uri picasaUri, ImageDownloadResult imageDownloadResult)
-	{
-		mActivityState.downloadImageTask = new Thread(new DownloadImageTask(getApplicationContext(), destFile, picasaUri, imageDownloadResult));
-
-		mActivityState.downloadImageTask.start();
+		Logger.d("Signup", "SingupActivity onresume");
 	}
 
 	public interface ImageDownloadResult
@@ -2352,43 +2400,6 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 		public void downloadFinished(boolean result);
 	}
 
-	private class DownloadImageTask implements Runnable
-	{
-
-		private File destFile;
-
-		private Uri imageUri;
-
-		private Context context;
-
-		private ImageDownloadResult imageDownloadResult;
-
-		public DownloadImageTask(Context context, File destFile, Uri picasaUri, ImageDownloadResult imageDownloadResult)
-		{
-			this.destFile = destFile;
-			this.imageUri = picasaUri;
-			this.context = context;
-			this.imageDownloadResult = imageDownloadResult;
-		}
-
-		@Override
-		public void run()
-		{
-			Logger.d(getClass().getSimpleName(), "Downloading profileImage");
-			try
-			{
-				Utils.downloadAndSaveFile(context.getContentResolver(), destFile, imageUri);
-				imageDownloadResult.downloadFinished(true);
-			}
-			catch (Exception e)
-			{
-				Logger.e(getClass().getSimpleName(), "Error while fetching image", e);
-				imageDownloadResult.downloadFinished(false);
-			}
-		}
-
-	}
-	
 	@Override
 	protected String getNewProfileImagePath(boolean toUseTimestamp)
 	{
@@ -2506,13 +2517,6 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 						Logger.w(getClass().getSimpleName(), "IOOB thrown while setting the name's textbox selection");
 					}
 
-					/*Button fbBtn = (Button) findViewById(R.id.connect_fb);
-					if (fbBtn != null)
-					{
-						fbBtn.setEnabled(false);
-						fbBtn.setText(R.string.connected);
-						mActivityState.fbConnected = true;
-					}*/
 				}
 			});
 		}
@@ -2557,5 +2561,55 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 	{
 		// TODO Auto-generated method stub
 		return true;
+	}
+
+	@Override
+	public void analyticalData(String currentLanguage)
+	{
+		KptUtils.generateKeyboardAnalytics(currentLanguage);
+	}
+
+	@Override
+	public void onInputViewCreated()
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onInputviewVisbility(boolean arg0, int arg1)
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void showGlobeKeyView()
+	{
+		KptUtils.onGlobeKeyPressed(SignupActivity.this, mCustomKeyboard);
+	}
+
+	@Override
+	public void showQuickSettingView()
+	{
+		KptUtils.onGlobeKeyPressed(SignupActivity.this, mCustomKeyboard);
+	}
+
+	@Override
+	public void onReturnAction(int resId, int arg0)
+	{
+		submitClicked();		
+	}
+
+	@Override
+	public void dismissRemoveDialog() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void showRemoveDialog(RemoveDialogData arg0) {
+		// TODO Auto-generated method stub
+		
 	}
 }

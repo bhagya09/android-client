@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+     xmlns:atx="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
 <LinearLayout android:id="@+id/chatThreadParentLayout"
-    xmlns:android="http://schemas.android.com/apk/res/android" 
+     
     android:layout_width="fill_parent"
     android:layout_height="fill_parent" >
     
@@ -326,8 +331,9 @@
                             android:background="@null"
                             android:gravity="center_vertical"
                             android:imeOptions="actionSend"
-                            android:inputType="text|textAutoCorrect|textCapSentences"
+                            android:inputType="text|textAutoCorrect|textCapSentences|textMultiLine"
                             android:lineSpacingExtra="1dp"
+                            atx:charInputMaxLength="@integer/max_length_message"
                             android:maxLength="@integer/max_length_message"
                             android:maxLines="4"
                             android:minHeight="27dp"
@@ -396,5 +402,8 @@
   
 </RelativeLayout>
  
-
 </LinearLayout>
+
+	<include layout="@layout/kpt_keyboard_viewholder"/>
+	
+</RelativeLayout>

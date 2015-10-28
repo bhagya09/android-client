@@ -14,29 +14,43 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBar;
-import android.support.v7.widget.SearchView;
-import android.support.v7.widget.SearchView.OnQueryTextListener;
+
+import com.bsb.hike.modules.kpt.HikeCustomKeyboard;
+import com.bsb.hike.modules.kpt.KptUtils;
+import com.bsb.hike.ui.v7.SearchView;
+import com.bsb.hike.ui.v7.SearchView.OnQueryTextListener;
+
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.Filter;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.adapters.SectionedBaseAdapter;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.PinnedSectionListView;
 import com.bsb.hike.view.PinnedSectionListView.PinnedSectionListAdapter;
+import com.kpt.adaptxt.beta.CustomKeyboard;
+import com.kpt.adaptxt.beta.RemoveDialogData;
+import com.kpt.adaptxt.beta.util.KPTConstants;
+import com.kpt.adaptxt.beta.view.AdaptxtEditText;
+import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtEditTextEventListner;
+import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtKeyboordVisibilityStatusListner;
 
-public class CountrySelectActivity extends HikeAppStateBaseFragmentActivity 
+public class CountrySelectActivity extends HikeAppStateBaseFragmentActivity implements AdaptxtKeyboordVisibilityStatusListner
 {
 	public static final String RESULT_COUNTRY_NAME = "resCName";
 
@@ -49,6 +63,8 @@ public class CountrySelectActivity extends HikeAppStateBaseFragmentActivity
 	private boolean searching;
 
 	private CountryFilter filter;
+	
+	private HikeCustomKeyboard mCustomKeyboard;
 
 	private BaseAdapter searchListViewAdapter;
 
@@ -57,6 +73,8 @@ public class CountrySelectActivity extends HikeAppStateBaseFragmentActivity
 	private List<String> sortedCountries = new ArrayList<String>();
 
 	public ArrayList<Country> searchResult;
+
+	private AdaptxtEditText searchET;
 
 	public static class Country
 	{
@@ -123,6 +141,8 @@ public class CountrySelectActivity extends HikeAppStateBaseFragmentActivity
 		}
 
 		setContentView(R.layout.country_select_layout);
+		LinearLayout viewHolder = (LinearLayout) findViewById(R.id.keyboardView_holder);
+		mCustomKeyboard = new HikeCustomKeyboard(CountrySelectActivity.this, viewHolder, KPTConstants.MULTILINE_LINE_EDITOR, null, CountrySelectActivity.this);
 
 		searchListViewAdapter = new SearchAdapter(this);
 
@@ -174,6 +194,20 @@ public class CountrySelectActivity extends HikeAppStateBaseFragmentActivity
 		finish();
 	}
 
+	protected void showKeyboard()
+		{
+			if(searchET!=null){
+				if (KptUtils.isSystemKeyboard(CountrySelectActivity.this))
+				{
+					Utils.showSoftKeyboard(getApplicationContext(), searchET);
+				}
+				else
+				{
+					mCustomKeyboard.showCustomKeyboard(searchET, true);
+				}
+			}
+		}
+	
 	private void setupActionBar()
 	{
 		ActionBar actionBar = getSupportActionBar();
@@ -431,6 +465,27 @@ public class CountrySelectActivity extends HikeAppStateBaseFragmentActivity
 		searchView.clearFocus();
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 		searchView.setOnQueryTextListener(onQueryTextListener);
+		// Code for CustomKeyboard
+		searchET = (AdaptxtEditText) searchView
+				.findViewById(R.id.search_src_text);
+		if (!KptUtils.isSystemKeyboard(CountrySelectActivity.this)) {
+			mCustomKeyboard.registerEditText(searchET);
+			mCustomKeyboard.init(searchET);
+		}
+		searchET.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+
+			@Override
+			public void onFocusChange(View v, boolean hasFocus) {
+				if (hasFocus) {
+					// Utils.hideSoftKeyboard(getApplicationContext(),
+					// searchET);
+					showKeyboard();
+				}
+			}
+		});
+
+		// /
+		
 		MenuItemCompat.setShowAsAction(MenuItemCompat.setActionView(searchMenuItem, searchView), MenuItem.SHOW_AS_ACTION_ALWAYS | MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
 		MenuItemCompat.setOnActionExpandListener(searchMenuItem, new MenuItemCompat.OnActionExpandListener()
 		{
@@ -445,6 +500,10 @@ public class CountrySelectActivity extends HikeAppStateBaseFragmentActivity
 			public boolean onMenuItemActionCollapse(MenuItem item)
 			{
 				searchView.setQuery("", true);
+				if (mCustomKeyboard.isCustomKeyboardVisible())
+				{
+					mCustomKeyboard.showCustomKeyboard(searchET, false); 
+				}
 				return true;
 			}
 		});
@@ -499,6 +558,54 @@ public class CountrySelectActivity extends HikeAppStateBaseFragmentActivity
 		}
 	};
 	public void onBackPressed() {
+		if (mCustomKeyboard != null&& searchET!=null && mCustomKeyboard.isCustomKeyboardVisible())
+		{
+			mCustomKeyboard.showCustomKeyboard(searchET, false);
+			return;
+		}
 		finish();
+	}
+
+	@Override
+	public void analyticalData(String arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onInputViewCreated() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onInputviewVisbility(boolean arg0, int arg1) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void showGlobeKeyView() {
+		// TODO Auto-generated method stub
+		KptUtils.onGlobeKeyPressed(CountrySelectActivity.this, mCustomKeyboard);
+		
+	}
+
+	@Override
+	public void showQuickSettingView() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void dismissRemoveDialog() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void showRemoveDialog(RemoveDialogData arg0) {
+		// TODO Auto-generated method stub
+		
 	}
 }

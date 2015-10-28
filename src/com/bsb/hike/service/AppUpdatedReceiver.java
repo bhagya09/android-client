@@ -12,6 +12,7 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
+import com.kpt.adaptxt.beta.util.KPTConstants;
 
 /**
  * @author Rishabh This receiver is used to notify that the app has been updated.
@@ -28,6 +29,11 @@ public class AppUpdatedReceiver extends BroadcastReceiver
 
 			final SharedPreferences prefs = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
 
+
+			Intent intentKpt = new Intent();
+			intentKpt.setAction(KPTConstants.ACTION_BASE_PACKAGE_REPLACED);
+			context.sendBroadcast(intentKpt);
+			
 			/*
 			 * If the user has not signed up yet, don't do anything.
 			 */

@@ -5,6 +5,28 @@ import java.io.File;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.R;
+import com.bsb.hike.BitmapModule.BitmapUtils;
+import com.bsb.hike.BitmapModule.HikeBitmapFactory;
+import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.analytics.HAManager.EventPriority;
+import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.modules.kpt.HikeCustomKeyboard;
+import com.bsb.hike.modules.kpt.KptUtils;
+import com.bsb.hike.productpopup.ProductPopupsConstants;
+import com.bsb.hike.utils.ChangeProfileImageBaseActivity;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.IntentFactory;
+import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.Utils;
+import com.bsb.hike.view.CustomFontEditText;
+import com.kpt.adaptxt.beta.RemoveDialogData;
+import com.kpt.adaptxt.beta.util.KPTConstants;
+import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtKeyboordVisibilityStatusListner;
+
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -17,40 +39,28 @@ import android.text.Html;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.CheckBox;
-import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.bsb.hike.HikeConstants;
-import com.bsb.hike.HikeMessengerApp;
-import com.bsb.hike.R;
-import com.bsb.hike.BitmapModule.BitmapUtils;
-import com.bsb.hike.BitmapModule.HikeBitmapFactory;
-import com.bsb.hike.analytics.AnalyticsConstants;
-import com.bsb.hike.analytics.HAManager;
-import com.bsb.hike.analytics.HAManager.EventPriority;
-import com.bsb.hike.modules.contactmgr.ContactManager;
-import com.bsb.hike.productpopup.ProductPopupsConstants;
-import com.bsb.hike.utils.ChangeProfileImageBaseActivity;
-import com.bsb.hike.utils.HikeSharedPreferenceUtil;
-import com.bsb.hike.utils.IntentFactory;
-import com.bsb.hike.utils.Logger;
-import com.bsb.hike.utils.Utils;
-
-public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseActivity
+public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseActivity implements AdaptxtKeyboordVisibilityStatusListner, View.OnClickListener
 {
-
+	private HikeCustomKeyboard mCustomKeyboard;
+	
+	private boolean systemKeyboard;
+	
 	private SharedPreferences preferences;
 
 	private String convId;
 
 	private ImageView convImage;
 
-	private EditText convName;
+	private CustomFontEditText convName;
 
 	private TextView broadcastNote;
 	
@@ -90,7 +100,13 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 		setupActionBar();
 
 		preferences = getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, MODE_PRIVATE);
+		systemKeyboard = HikeMessengerApp.isSystemKeyboard(getApplicationContext());
 
+		if (!systemKeyboard)
+		{
+			initCustomKeyboard();
+		}
+		
 		if (savedInstanceState != null)
 		{
 			setConversationId(savedInstanceState.getString(HikeConstants.Extras.CONVERSATION_ID));
@@ -138,6 +154,16 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 		}
 	}
 
+	private void initCustomKeyboard()
+	{
+		LinearLayout viewHolder = (LinearLayout) findViewById(R.id.keyboardView_holder);
+		mCustomKeyboard = new HikeCustomKeyboard(this, viewHolder,
+				KPTConstants.MULTILINE_LINE_EDITOR, null,CreateNewGroupOrBroadcastActivity.this);
+		mCustomKeyboard.registerEditText((convType == ConvType.GROUP) ? R.id.group_name : R.id.broadcast_name);
+		mCustomKeyboard.init(convName);
+		convName.setOnClickListener(this);
+	}
+
 	/**
 	 * This method sets the OneToNConversation type to be handled
 	 */
@@ -146,6 +172,12 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 		convType = getIntent().hasExtra(HikeConstants.Extras.CREATE_BROADCAST) ? ConvType.BROADCAST : ConvType.GROUP;
 	}
 
+	@Override
+	protected void onResume()
+	{
+		super.onResume();
+	}
+	
 	private void createView() {
 		
 		if (convType == ConvType.BROADCAST)
@@ -153,7 +185,7 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 			setContentView(R.layout.create_new_broadcast);
 
 			convImage = (ImageView) findViewById(R.id.broadcast_profile_image);
-			convName = (EditText) findViewById(R.id.broadcast_name);
+			convName = (CustomFontEditText) findViewById(R.id.broadcast_name);
 			myMsisdn = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.MSISDN_SETTING, "");
 			broadcastNote = (TextView) findViewById(R.id.broadcast_info);
 			broadcastNote.setText(Html.fromHtml(getString(R.string.broadcast_participant_info, myMsisdn)));
@@ -185,7 +217,7 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 			setContentView(R.layout.create_new_group);
 
 			convImage = (ImageView) findViewById(R.id.group_profile_image);
-			convName = (EditText) findViewById(R.id.group_name);
+			convName = (CustomFontEditText) findViewById(R.id.group_name);
 			editImageIcon = (ImageView) findViewById(R.id.change_image);
 			gsSettings = (CheckBox) findViewById(R.id.checkBox);
 			if((HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SERVER_CONFIGURABLE_GROUP_SETTING,0))==1){
@@ -231,6 +263,12 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 	@Override
 	public void onBackPressed()
 	{
+		if (mCustomKeyboard != null && mCustomKeyboard.isCustomKeyboardVisible())
+		{
+			mCustomKeyboard.showCustomKeyboard(convName, false);
+			return;
+		}
+		
 		/**
 		 * Deleting the temporary file, if it exists.
 		 */
@@ -321,12 +359,14 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 				break;
 				
 			case GROUP:
-				int settings = 0;
-				if(gsSettings.isChecked()){
-					settings = 1;
+				if(Utils.isGCViaLinkEnabled())
+				{
+					showLinkShareView(getConvId(), getGroupName(), getGSSettings(), true);
 				}
-				Intent intentGroup = IntentFactory.openComposeChatIntentForGroup(this, convId, convName.getText().toString().trim(),settings);
-				startActivity(intentGroup);
+				else
+				{
+					addMembersViaHike();
+				}
 				break;
 		}
 	}
@@ -401,4 +441,101 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 		this.convId = convId;
 		super.setLocalMsisdn(this.convId);
 	}
+
+	@Override
+	public void analyticalData(String currentLanguage)
+	{
+		KptUtils.generateKeyboardAnalytics(currentLanguage);
+	}
+
+	@Override
+	public void onInputViewCreated()
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onInputviewVisbility(boolean arg0, int arg1)
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void showGlobeKeyView()
+	{
+		KptUtils.onGlobeKeyPressed(CreateNewGroupOrBroadcastActivity.this, mCustomKeyboard);
+	}
+
+	@Override
+	public void showQuickSettingView()
+	{
+		KptUtils.onGlobeKeyPressed(CreateNewGroupOrBroadcastActivity.this, mCustomKeyboard);
+	}
+
+	@Override
+	protected void onPause()
+	{
+		KptUtils.pauseKeyboardResources(mCustomKeyboard);
+		
+		super.onPause();
+	}
+	
+	@Override
+	protected void onDestroy()
+	{
+		KptUtils.destroyKeyboardResources(mCustomKeyboard, R.id.group_name, R.id.broadcast_name);
+
+		super.onDestroy();
+	}
+
+	@Override
+	public void onClick(View v)
+	{
+		switch (v.getId())
+		{
+		case R.id.group_name:
+		case R.id.broadcast_name:
+			mCustomKeyboard.showCustomKeyboard(convName, true);
+			break;
+		default:
+			break;
+		}
+	}
+
+	@Override
+	public void dismissRemoveDialog() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void showRemoveDialog(RemoveDialogData arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	public String getGroupName()
+	{
+		return convName.getText().toString();
+	}
+
+	public int getGSSettings()
+	{
+		return gsSettings.isChecked() ? 1 : 0;
+	}
+
+	public String getConvId()
+	{
+		return convId;
+	}
+	
+	@Override
+	public void addMembersViaHike()
+	{
+		Intent intentGroup = IntentFactory.openComposeChatIntentForGroup(this, convId, convName.getText().toString().trim(), getGSSettings());
+		startActivity(intentGroup);
+	}
+
 }

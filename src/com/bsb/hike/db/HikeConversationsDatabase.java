@@ -144,7 +144,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		}
 		String sql = "CREATE TABLE IF NOT EXISTS " + DBConstants.MESSAGES_TABLE
 				+ " ( "
-				+ DBConstants.MESSAGE + " STRING, " // The message text
+				+ DBConstants.MESSAGE + " TEXT, " // The message text
 				+ DBConstants.MSG_STATUS + " INTEGER, " // Whether the message is sent or not. Plus also tells us the current state of the message.
 				+ DBConstants.TIMESTAMP + " INTEGER, " // Message time stamp, send or receiving time in seconds
 				+ DBConstants.MESSAGE_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " // The message id (Unique)
@@ -192,7 +192,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				+ DBConstants.OVERLAY_DISMISSED + " INTEGER, " // Flag. Whether to show the SMS Credits overlay or not.
 
 				// Messages table columns begin (We keep the last entry of messages for a conversation)
-				+ DBConstants.MESSAGE + " STRING, "
+				+ DBConstants.MESSAGE + " TEXT, "
 				+ DBConstants.MSG_STATUS + " INTEGER, "
 				+ DBConstants.LAST_MESSAGE_TIMESTAMP + " INTEGER, "
 				+ DBConstants.MESSAGE_ID + " INTEGER, "
@@ -321,6 +321,9 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 		sql = "CREATE UNIQUE INDEX IF NOT EXISTS " + DBConstants.EVENT_HASH_INDEX + " ON " + DBConstants.MESSAGE_EVENT_TABLE + " ( " + DBConstants.EVENT_HASH + " )";
 		db.execSQL(sql);
+
+		// to be aware of the users for whom db upgrade should not be done in future to fix AND-704
+		saveCurrentConvDbVersionToPrefs();
 	}
 
 	private void createIndexOverServerIdField(SQLiteDatabase db)
@@ -824,17 +827,17 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		 */
 		if (oldVersion < 42)
 		{
-			if (!Utils.ifColumnExistsInTable(db, DBConstants.MESSAGES_TABLE, DBConstants.SEND_TIMESTAMP))
+			if (!Utils.isColumnExistsInTable(db, DBConstants.MESSAGES_TABLE, DBConstants.SEND_TIMESTAMP))
 			{
 				String alter = "ALTER TABLE " + DBConstants.MESSAGES_TABLE + " ADD COLUMN " + DBConstants.SEND_TIMESTAMP + " LONG DEFAULT -1";
 				db.execSQL(alter);
 			}
-			if (!Utils.ifColumnExistsInTable(db, DBConstants.GROUP_INFO_TABLE, DBConstants.GROUP_CREATOR))
+			if (!Utils.isColumnExistsInTable(db, DBConstants.GROUP_INFO_TABLE, DBConstants.GROUP_CREATOR))
 			{
 				String alter = "ALTER TABLE " + DBConstants.GROUP_INFO_TABLE + " ADD COLUMN " + DBConstants.GROUP_CREATOR + " TEXT DEFAULT NULL";
 				db.execSQL(alter);
 			}
-			if (!Utils.ifColumnExistsInTable(db, DBConstants.GROUP_MEMBERS_TABLE, DBConstants.TYPE))
+			if (!Utils.isColumnExistsInTable(db, DBConstants.GROUP_MEMBERS_TABLE, DBConstants.TYPE))
 			{
 				String alter = "ALTER TABLE " + DBConstants.GROUP_MEMBERS_TABLE + " ADD COLUMN " + DBConstants.TYPE + " INTEGER  DEFAULT 0";
 				db.execSQL(alter);
@@ -853,7 +856,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			sql = getFeedTableCreateQuery();
 			db.execSQL(sql);
 			
-			if (!Utils.ifColumnExistsInTable(db, DBConstants.STATUS_TABLE, DBConstants.FILE_KEY))
+			if (!Utils.isColumnExistsInTable(db, DBConstants.STATUS_TABLE, DBConstants.FILE_KEY))
 			{
 				String alterST = "ALTER TABLE " + DBConstants.STATUS_TABLE + " ADD COLUMN " + DBConstants.FILE_KEY + " TEXT";
 				db.execSQL(alterST);
@@ -873,7 +876,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		
 		if (oldVersion < 45)
 		{
-			if (!Utils.ifColumnExistsInTable(db, DBConstants.MESSAGES_TABLE, DBConstants.SORTING_ID))
+			if (!Utils.isColumnExistsInTable(db, DBConstants.MESSAGES_TABLE, DBConstants.SORTING_ID))
 			{
 				String alterMessageTable = "ALTER TABLE " + DBConstants.MESSAGES_TABLE + " ADD COLUMN " + DBConstants.SORTING_ID + " INTEGER DEFAULT -1";
 				db.execSQL(alterMessageTable);
@@ -882,7 +885,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.UPGRADE_SORTING_ID_FIELD, 1);
 			}
 
-			if (!Utils.ifColumnExistsInTable(db, DBConstants.BOT_TABLE, HIKE_CONTENT.BOT_VERSION))
+			if (!Utils.isColumnExistsInTable(db, DBConstants.BOT_TABLE, HIKE_CONTENT.BOT_VERSION))
 			{
 				String alterTable = "ALTER TABLE " + DBConstants.BOT_TABLE + " ADD COLUMN " + HIKE_CONTENT.BOT_VERSION + " INTEGER DEFAULT 0";
 				db.execSQL(alterTable);
@@ -895,7 +898,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 	{
 		Logger.d(getClass().getSimpleName(), "Reinitialising conversation DB");
 		close();
-		Logger.d(getClass().getSimpleName(), "conversation DB is closed now");
+		Logger.d(getClass().getSimpleName(), "Conversation DB is closed now");
 		
 		hikeConversationsDatabase = new HikeConversationsDatabase(HikeMessengerApp.getInstance());
 		/*
@@ -2967,12 +2970,8 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		values.put(HIKE_CONTENT.NAMESPACE, botInfo.getNamespace());
 		values.put(HIKE_CONTENT.HELPER_DATA, botInfo.getHelperData());
 		values.put(HIKE_CONTENT.BOT_VERSION, botInfo.getVersion());
-		float result = mDb.insertWithOnConflict(DBConstants.BOT_TABLE, null, values, SQLiteDatabase.CONFLICT_REPLACE);
+		mDb.insertWithOnConflict(DBConstants.BOT_TABLE, null, values, SQLiteDatabase.CONFLICT_REPLACE);
 		
-		if (result >= 0)
-		{
-			HikeMessengerApp.getPubSub().publish(HikePubSub.BOT_CREATED, botInfo);
-		}
 	}
 
 	public boolean isBotMuted(String msisdn)
@@ -3482,6 +3481,12 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			case PARTICIPANT_JOINED:
 				JSONArray participantInfoArray = metadata.getJSONArray(HikeConstants.DATA);
 
+				//This handles the check that of no group participant than, group is successfully created
+				if(participantInfoArray == null || participantInfoArray.length() == 0)
+				{
+					break;
+				}
+				
 				JSONObject participant = (JSONObject) participantInfoArray.opt(0);
 				grpLastMsisdns.add(participant.optString(HikeConstants.MSISDN));
 
@@ -6887,7 +6892,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		}
 		else
 		{
-			mediaFileTypes = new HikeFileType[] { HikeFileType.OTHER, HikeFileType.AUDIO };
+			mediaFileTypes = new HikeFileType[] { HikeFileType.OTHER, HikeFileType.AUDIO ,HikeFileType.APK };
 		}
 
 		hfTypeSelection = new StringBuilder("(");
@@ -8644,4 +8649,11 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		}
 	}
 
+	/**
+	 * Saves the conversations database version to preferences
+	 */
+	private void saveCurrentConvDbVersionToPrefs()
+	{
+		HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.CONV_DB_VERSION_PREF, DBConstants.CONVERSATIONS_DATABASE_VERSION);
+	}
 }
