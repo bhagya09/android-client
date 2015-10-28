@@ -8628,7 +8628,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 	}
 
 
-	public void updateMessageForGeneralEvent(String msgHash, ConvMessage.State state, String hm)
+	public ConvMessage updateMessageForGeneralEvent(String msgHash, ConvMessage.State state, String hm)
 	{
 		try
 		{
@@ -8647,6 +8647,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		{
 			Logger.e("HikeConversationsDatabase", "Got an exception while updating sortingId for a Message");
 		}
+		return getMessageFromMessageHash(msgHash);
 	}
 
 	public boolean isConversationExist(String msisdn)
@@ -8683,5 +8684,40 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 	private void saveCurrentConvDbVersionToPrefs()
 	{
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.CONV_DB_VERSION_PREF, DBConstants.CONVERSATIONS_DATABASE_VERSION);
+	}
+
+
+	/**
+	 * This does only for the last message values for convmessage.
+	 * @param msgHash
+	 * @return
+	 */
+	public ConvMessage getMessageFromMessageHash(String msgHash)
+	{
+		Cursor c;
+		c = mDb.query(DBConstants.MESSAGES_TABLE,null, DBConstants.MESSAGE_HASH + " =?", new String[] {msgHash }, null, null, null, null);
+
+		if (c.moveToFirst())
+		{
+			final int msisdnColumn=c.getColumnIndex(DBConstants.MSISDN);
+			final int msgColumn = c.getColumnIndex(DBConstants.MESSAGE);
+			final int msgStatusColumn = c.getColumnIndex(DBConstants.MSG_STATUS);
+			final int lastTsColumn = c.getColumnIndex(DBConstants.LAST_MESSAGE_TIMESTAMP);
+			final int mappedMsgIdColumn = c.getColumnIndex(DBConstants.MAPPED_MSG_ID);
+			final int msgIdColumn = c.getColumnIndex(DBConstants.MESSAGE_ID);
+			final int metadataColumn = c.getColumnIndex(DBConstants.MESSAGE_METADATA);
+			final int pvtDataColumn = c.getColumnIndex(DBConstants.PRIVATE_DATA);
+			final int serveridColumn=c.getColumnIndex(DBConstants.SERVER_ID);
+			final int messageOriginColumn=c.getColumnIndex(DBConstants.MESSAGE_ORIGIN_TYPE);
+			final int groupParticipantColumn = c.getColumnIndex(DBConstants.GROUP_PARTICIPANT);
+
+			ConvMessage message = new ConvMessage(c.getString(msgColumn),c.getString(msisdnColumn),c.getLong(lastTsColumn), ConvMessage.stateValue(c.getInt(msgStatusColumn)),
+					c.getLong(msgIdColumn), c.getLong(mappedMsgIdColumn), c.getString(groupParticipantColumn));
+			String metadata = c.getString(metadataColumn);
+
+
+			return message;
+		}
+		return null;
 	}
 }
