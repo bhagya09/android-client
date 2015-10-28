@@ -94,7 +94,6 @@ public class CocosGamingActivity extends Cocos2dxActivity
 		botInfo.setUnreadCount(0);
 		nonMessagingBotMetadata = new NonMessagingBotMetadata(botInfo.getMetadata());
 
-
 		botConfig = null == botInfo.getConfigData() ? new NonMessagingBotConfiguration(botInfo.getConfiguration()) : new NonMessagingBotConfiguration(botInfo.getConfiguration(),
 				botInfo.getConfigData());
 
@@ -125,49 +124,35 @@ public class CocosGamingActivity extends Cocos2dxActivity
 	public void loadGame()
 	{
 		CocosPlayClient.init(CocosGamingActivity.this, false);
-		// TODO do not hard code the path of the game engine. Please change this
-		try
+		String cocosEnginePath = null;
+		String cocosGamePath = null;
+
+		if (nonMessagingBotMetadata != null)
 		{
-			if (nonMessagingBotMetadata != null)
+			JSONArray mapps = nonMessagingBotMetadata.getAsocmapp();
+			if (mapps != null)
 			{
-				JSONArray mapps = nonMessagingBotMetadata.getAsocmapp();
-				if (mapps != null)
+				for (int i = 0; i < mapps.length(); i++)
 				{
-					for (int i = 0; i < mapps.length(); i++)
+					JSONObject json = new JSONObject();
+					try
 					{
-						JSONObject json = new JSONObject();
-						try
-						{
-							json = mapps.getJSONObject(i);
-						}
-						catch (JSONException e)
-						{
-							e.printStackTrace();
-						}
-						String appName = json.optString(HikeConstants.NAME);
-						System.load(platform_content_dir + appName + "/libcocos2d.so");
-
+						json = mapps.getJSONObject(i);
 					}
-				}
-				System.load(getAppBasePath() + "libcocos2dcpp.so"); // loading the game
-			}
+					catch (JSONException e)
+					{
+						e.printStackTrace();
+					}
+					String appName = json.optString(HikeConstants.NAME);
+					cocosEnginePath = platform_content_dir + appName + "/libcocos2d.so";
 
-		}
-		catch (UnsatisfiedLinkError e)
-		{
-			e.printStackTrace();
-			Logger.e(TAG, "Game Engine not Found");
-			Toast.makeText(getApplicationContext(), R.string.some_error, Toast.LENGTH_SHORT).show();
-			String parentMsisdn = nonMessagingBotMetadata.getParentMsisdn();
-			if (parentMsisdn != null && parentMsisdn.length() > 0)
-			{
-				Intent intent = IntentFactory.getNonMessagingBotIntent(parentMsisdn, this);
-				startActivity(intent);
+				}
 			}
-			finish();
-			Cocos2dxHelper.terminateProcess();
-			return;
+			cocosGamePath = getAppBasePath() + "libcocos2dcpp.so";
 		}
+
+		loadSoFile(cocosEnginePath, true);
+		loadSoFile(cocosGamePath, false);
 
 		CocosGamingActivity.sContext = this;
 		CocosGamingActivity.this.mHandler = new Cocos2dxHandler(CocosGamingActivity.this);
@@ -185,6 +170,69 @@ public class CocosGamingActivity extends Cocos2dxActivity
 			mWebViewHelper = new Cocos2dxWebViewHelper(mFrameLayout);
 		}
 
+	}
+
+	private void loadSoFile(String path, boolean isEngine)
+	{
+		try
+		{
+			System.load(path);
+		}
+		catch (UnsatisfiedLinkError e)
+		{
+			e.printStackTrace();
+
+			if (isEngine)
+			{
+				Logger.e(TAG, "Game Engine load failed");
+			}
+			else
+			{
+				Logger.e(TAG, "Game load failed");
+			}
+			nativeBridge.logAnalytics("true", "gaming", getErrorJson(isEngine).toString());
+			Toast.makeText(getApplicationContext(), R.string.some_error, Toast.LENGTH_SHORT).show();
+			String parentMsisdn = nonMessagingBotMetadata.getParentMsisdn();
+			if (parentMsisdn != null && parentMsisdn.length() > 0)
+			{
+				Intent intent = IntentFactory.getNonMessagingBotIntent(parentMsisdn, this);
+				startActivity(intent);
+			}
+			finish();
+			Cocos2dxHelper.terminateProcess();
+			return;
+		}
+	}
+
+	private JSONObject getErrorJson(boolean isEngine)
+	{
+		try
+		{
+			JSONObject jsonObject = new JSONObject();
+			jsonObject.put("ek", "act_game");
+			jsonObject.put("ep", nonMessagingBotMetadata.getAppName());
+			jsonObject.put("ec", botInfo.getMsisdn());
+			if (isEngine)
+			{
+				jsonObject.put("eo", "engine_load_failed");
+			}
+			else
+			{
+				jsonObject.put("eo", "game_load_failed");
+			}
+			jsonObject.put("ef", "");
+			jsonObject.put("eg", "");
+			jsonObject.put("es", "");
+			jsonObject.put("et", "");
+			jsonObject.put("eu", "");
+			jsonObject.put("ev", "");
+			return jsonObject;
+		}
+		catch (JSONException e1)
+		{
+			e1.printStackTrace();
+		}
+		return null;
 	}
 
 	public static Object getNativeBridge()
