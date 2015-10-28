@@ -369,24 +369,35 @@ public enum StickerSearchDataController
 									Logger.e(TAG, "setupStickerSearchWizard(), Empty language:" + languageId + " tag data for sticker: " + stickerInfo);
 								}
 							}
-
-							if (themeList.size() <= 0)
-							{
-								tagList.clear();
-								tagLanguageList.clear();
-								tagScriptList.clear();
-								tagCategoryList.clear();
-								tagExactMatchPriorityList.clear();
-								tagPriorityList.clear();
-
-								Logger.e(TAG, "setupStickerSearchWizard(), No valid theme is attached with sticker: " + stickerInfo);
-								continue;
-							}
 						}
 						else
 						{
 							Logger.e(TAG, "setupStickerSearchWizard(), Empty tag data for sticker: " + stickerInfo);
 						}
+
+						tempExactMatchElements = null;
+						tempRemainingExactMatchElements = null;
+					}
+
+					// Check themes associated with tags per sticker for each language and script altogether
+					if (themeList.size() <= 0)
+					{
+						themeList = null;
+						tagList.clear();
+						tagList = null;
+						tagLanguageList.clear();
+						tagLanguageList = null;
+						tagScriptList.clear();
+						tagScriptList = null;
+						tagCategoryList.clear();
+						tagCategoryList = null;
+						tagExactMatchPriorityList.clear();
+						tagExactMatchPriorityList = null;
+						tagPriorityList.clear();
+						tagPriorityList = null;
+
+						Logger.e(TAG, "setupStickerSearchWizard(), No valid theme is attached with sticker: " + stickerInfo);
+						continue;
 					}
 
 					int stickerTagDataCount = tagList.size();
