@@ -1,6 +1,7 @@
 package com.bsb.hike.ui;
 
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -273,6 +274,16 @@ public class PeopleActivity extends HikeAppStateBaseFragmentActivity implements 
 	public void showRemoveDialog(RemoveDialogData arg0) {
 		// TODO Auto-generated method stub
 		
+	}
+	
+	@Override
+	public void onConfigurationChanged(Configuration newConfig) 
+	{
+		if (mCustomKeyboard != null)
+		{
+			mCustomKeyboard.onConfigurationChanged(newConfig);			
+		}
+		super.onConfigurationChanged(newConfig);
 	}
 
 }
