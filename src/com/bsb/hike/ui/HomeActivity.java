@@ -1,6 +1,7 @@
 package com.bsb.hike.ui;
 
 
+import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -67,6 +68,7 @@ import com.bsb.hike.dialog.CustomAlertDialog;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
+import com.bsb.hike.http.HikeHttpRequest;
 import com.bsb.hike.media.OverFlowMenuItem;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
@@ -74,6 +76,12 @@ import com.bsb.hike.models.FtueContactsData;
 import com.bsb.hike.models.Conversation.ConversationTip;
 import com.bsb.hike.modules.animationModule.HikeAnimationFactory;
 import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.modules.httpmgr.RequestToken;
+import com.bsb.hike.modules.httpmgr.exception.HttpException;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
+import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
+import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.offline.OfflineConstants.OFFLINE_STATE;
 import com.bsb.hike.offline.OfflineController;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
@@ -163,7 +171,8 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	private String[] homePubSubListeners = { HikePubSub.UNSEEN_STATUS_COUNT_CHANGED, HikePubSub.SMS_SYNC_COMPLETE, HikePubSub.SMS_SYNC_FAIL, HikePubSub.FAVORITE_TOGGLED,
 			HikePubSub.USER_JOINED, HikePubSub.USER_LEFT, HikePubSub.FRIEND_REQUEST_ACCEPTED, HikePubSub.REJECT_FRIEND_REQUEST, HikePubSub.UPDATE_OF_MENU_NOTIFICATION,
 			HikePubSub.SERVICE_STARTED, HikePubSub.UPDATE_PUSH, HikePubSub.REFRESH_FAVORITES, HikePubSub.UPDATE_NETWORK_STATE, HikePubSub.CONTACT_SYNCED, HikePubSub.FAVORITE_COUNT_CHANGED,
-			HikePubSub.STEALTH_UNREAD_TIP_CLICKED,HikePubSub.FTUE_LIST_FETCHED_OR_UPDATED, HikePubSub.STEALTH_INDICATOR, HikePubSub.USER_JOINED_NOTIFICATION, HikePubSub.UPDATE_OF_PHOTOS_ICON  };
+			HikePubSub.STEALTH_UNREAD_TIP_CLICKED,HikePubSub.FTUE_LIST_FETCHED_OR_UPDATED, HikePubSub.STEALTH_INDICATOR, HikePubSub.USER_JOINED_NOTIFICATION, HikePubSub.UPDATE_OF_PHOTOS_ICON, 
+			HikePubSub.SHOW_NEW_CHAT_RED_DOT, HikePubSub.PRODUCT_POPUP_RECEIVE_COMPLETE  };
 
 	private String[] progressPubSubListeners = { HikePubSub.FINISHED_UPGRADE_INTENT_SERVICE };
 
@@ -182,15 +191,12 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	protected static final int SHOW_RECENTLY_JOINED_INDICATOR = -103;
 	
 	protected static final int SHOW_TIMELINE_UPDATES_INDICATOR = -104;
+
+	protected static final int SHOW_NEW_CHAT_RED_DOT = -105;
 	
 	private View hiButton;
 
 	private TextView timelineUpdatesIndicator;
-	
-	/**
-	 * This variable checks whether onSaveInstanceState has been called or not
-	 */
-	private boolean wasOnSavedInstanceCalled = false;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -200,15 +206,24 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 		if (savedInstanceState != null && savedInstanceState.getBoolean(HikeConstants.Extras.CLEARED_OUT, false)) 
 		{
+
+			Logger.d(TAG," making extra TRUE");
 			//this means that singleTop activity has been re-spawned after being destroyed 
 			extrasClearedOut = true;
 		}
 		
 		if(extrasClearedOut)
 		{
+			Logger.d(TAG,"clearing all data");
 			//removing unwanted EXTRA becoz every time a singleTop activity is re-spawned, 
 			//android system uses the old intent to fire it, and it will contain unwanted extras.
 			getIntent().removeExtra(HikeConstants.STEALTH_MSISDN);
+			
+			//setting actions and data "null" for case of onCreate called second time 
+			//example: in case of Don't Keep Activities
+			//Means getIntent's Actions and Data can be used first time only
+			getIntent().setAction(null);
+			getIntent().setData(null);
 		}
 
 		if (Utils.requireAuth(this))
@@ -255,6 +270,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		}
 		Logger.d(getClass().getSimpleName(),"onCreate "+this.getClass().getSimpleName());
 		showProductPopup(ProductPopupsConstants.PopupTriggerPoints.HOME_SCREEN.ordinal());
+		
 	}
 	
 	@Override
@@ -274,6 +290,8 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		case SHOW_TIMELINE_UPDATES_INDICATOR:
 			showTimelineUpdatesIndicator();
 			break;
+		case SHOW_NEW_CHAT_RED_DOT:
+			showNewChatRedDot();
 		default:
 			super.handleUIMessage(msg);
 			break;
@@ -358,6 +376,16 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 				topBarIndicator.setText(String.valueOf(count));
 				topBarIndicator.startAnimation(Utils.getNotificationIndicatorAnim());
 			}
+		}
+	}
+
+	private void showNewChatRedDot()
+	{
+		if (newConversationIndicator != null && HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.NEW_CHAT_RED_DOT, false))
+		{
+			newConversationIndicator.setText("1");
+			newConversationIndicator.setVisibility(View.VISIBLE);
+			newConversationIndicator.startAnimation(Utils.getNotificationIndicatorAnim());
 		}
 	}
 
@@ -515,17 +543,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		{
 			mainFragment = new ConversationFragment();
 			
-			// if onSavedInstanceState has been called, we will get an illegal state exception while commiting a fragment transation. 
-			// Hence using commit allowing state loss
-			if (wasOnSavedInstanceCalled)
-			{
-				getSupportFragmentManager().beginTransaction().add(R.id.home_screen, mainFragment, MAIN_FRAGMENT_TAG).commitAllowingStateLoss();
-			}
-			
-			else
-			{
-				getSupportFragmentManager().beginTransaction().add(R.id.home_screen, mainFragment, MAIN_FRAGMENT_TAG).commit();
-			}
+			getSupportFragmentManager().beginTransaction().add(R.id.home_screen, mainFragment, MAIN_FRAGMENT_TAG).commitAllowingStateLoss();
 		}
 	}
 
@@ -746,6 +764,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			});
 
 			showRecentlyJoinedDot(1000);
+			sendUIMessage(SHOW_NEW_CHAT_RED_DOT, 1000);
 
 			MenuItemCompat.getActionView(menu.findItem(R.id.new_conversation)).setOnClickListener(new OnClickListener()
 			{
@@ -1045,6 +1064,95 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		showSmsOrFreeInvitePopup();
 	
 		HikeMessengerApp.getPubSub().publish(HikePubSub.CANCEL_ALL_NOTIFICATIONS, null);
+		
+		if(getIntent() != null)
+		{
+			acceptGroupMembershipConfirmation(getIntent());
+		}
+	}
+	
+	private void acceptGroupMembershipConfirmation(Intent intent)
+	{
+		String action = intent.getAction();
+		String linkUrl = intent.getDataString();
+
+		if (TextUtils.isEmpty(action) || TextUtils.isEmpty(linkUrl))
+		{
+			//finish();
+			return;
+		}
+		
+		if (linkUrl.contains(HttpRequestConstants.BASE_LINK_SHARING_URL))
+		{
+			String code = linkUrl.split("/")[3];
+			RequestToken requestToken = HttpRequests.acceptGroupMembershipConfirmationRequest(code, new IRequestListener()
+			{
+				
+				@Override
+				public void onRequestSuccess(Response result)
+				{
+				}
+				
+				@Override
+				public void onRequestProgressUpdate(float progress)
+				{
+				}
+				
+				@Override
+				public void onRequestFailure(HttpException httpException)
+				{
+					String errorText = "";
+
+					Logger.d("link_share_error", "The error code received is " + httpException.getErrorCode());
+					
+					switch (httpException.getErrorCode())
+					{
+
+					// 406: “The person who invited you has deleted their account”
+					case HttpURLConnection.HTTP_NOT_ACCEPTABLE:
+						errorText = getString(R.string.link_share_error_invitee_account_deleted);
+						break;
+
+					// 400: “You’re already in the group” 
+					case HttpURLConnection.HTTP_BAD_REQUEST:
+						errorText = getString(R.string.link_share_error_already_group_member);
+						break;
+
+					// 16: “This link is invalid”
+					// 401: “This link is invalid”
+					case HttpURLConnection.HTTP_UNAUTHORIZED:
+					case HttpException.REASON_CODE_UNKNOWN_HOST_EXCEPTION:
+						errorText = getString(R.string.link_share_error_invalid_link);
+						break;
+						
+					// 410: “This group has been deleted”
+					case HttpURLConnection.HTTP_GONE:
+						errorText = getString(R.string.link_share_error_group_deleted);
+						break;
+
+					// 412: “The person who invited you is not in the group anymore”
+					case HttpURLConnection.HTTP_PRECON_FAILED:
+						errorText = getString(R.string.link_share_error_person_not_in_group);
+						break;
+
+					// 1:- NO Internet connectivity
+					case HttpException.REASON_CODE_NO_NETWORK:
+						errorText = getString(R.string.link_share_network_error);
+						break;
+
+					default:
+						errorText = getString(R.string.link_share_error_default);
+						break;
+					}
+
+					// Show Toast
+					Toast.makeText(HomeActivity.this, errorText, Toast.LENGTH_SHORT).show();
+				}
+			});
+			requestToken.execute();
+		}
+
+	
 	}
 
 	@Override
@@ -1064,10 +1172,15 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	@Override
 	protected void onPause()
 	{
-		if(getIntent().hasExtra(HikeConstants.STEALTH_MSISDN))
+		Logger.d(TAG,"onPause");
+		String data = getIntent().getDataString();
+		boolean isDataSet = TextUtils.isEmpty(data)  ? false : data.contains(HttpRequestConstants.BASE_LINK_SHARING_URL);
+		if(getIntent().hasExtra(HikeConstants.STEALTH_MSISDN) || isDataSet)
 		{
 			//after showing the LockPatternActivity in onResume of ConvFrag the extra is no longer needed, so clearing it out.
 			extrasClearedOut = true;
+			getIntent().setAction(null);
+			getIntent().setData(null);
 			getIntent().removeExtra(HikeConstants.STEALTH_MSISDN);
 		}
 		super.onPause();
@@ -1077,7 +1190,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	protected void onStart()
 	{
 		Logger.d(getClass().getSimpleName(), "onStart");
-		wasOnSavedInstanceCalled = false;
 		super.onStart();
 		long t1, t2;
 		t1 = System.currentTimeMillis();
@@ -1097,7 +1209,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	protected void onSaveInstanceState(Bundle outState)
 	{
 		Logger.d(TAG,"onsavedInstance");
-		wasOnSavedInstanceCalled = true;
 		outState.putBoolean(HikeConstants.Extras.DEVICE_DETAILS_SENT, deviceDetailsSent);
 		if (dialog != null && dialog.isShowing())
 		{
@@ -1108,6 +1219,8 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		outState.putInt(HikeConstants.Extras.HIKE_CONTACTS_COUNT, hikeContactsCount);
 		outState.putInt(HikeConstants.Extras.RECOMMENDED_CONTACTS_COUNT, recommendedCount);
 		//saving the extrasClearedOut value to be used in onCreate, in case the activity is destroyed and re-spawned using old Intent
+
+		Logger.d(TAG," setting value  of EXTRTA  " + extrasClearedOut);
 		outState.putBoolean(HikeConstants.Extras.CLEARED_OUT, extrasClearedOut);
 		super.onSaveInstanceState(outState);
 	}
@@ -1561,6 +1674,14 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 					invalidateOptionsMenu();
 				}
 			});
+		}
+		else if (HikePubSub.SHOW_NEW_CHAT_RED_DOT.equals(type))
+		{
+			sendUIMessage(SHOW_NEW_CHAT_RED_DOT, 1000);
+		}
+		else if (HikePubSub.PRODUCT_POPUP_RECEIVE_COMPLETE.equals(type))
+		{
+			showProductPopup(ProductPopupsConstants.PopupTriggerPoints.HOME_SCREEN.ordinal());
 		}
 	}
 
@@ -2109,6 +2230,13 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	{
 		Message msg = Message.obtain();
 		msg.what = SHOW_TIMELINE_UPDATES_INDICATOR;
+		uiHandler.sendMessageDelayed(msg, delayTime);
+	}
+
+	public void sendUIMessage(int what, long delayTime)
+	{
+		Message msg = Message.obtain();
+		msg.what = what;
 		uiHandler.sendMessageDelayed(msg, delayTime);
 	}
 

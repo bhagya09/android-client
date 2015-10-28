@@ -118,9 +118,11 @@ public class AnalyticsConstants
 
 	public static final String REMOVE_SUCCESS = "remsucss";
 
-	public static final String REPLACE_SUCCESS = "replsucss";
+	public static final String REPLACE_SUCCESS = "success";
 	
-	public static final String REPLACE_FAILURE = "replfail";
+	public static final String REPLACE_FAILURE = "failure";
+
+	public static final String REPLACE_STATUS = "success";
 	
 	public static final String REMOVE_MICRO_APP = "dmapp";
 	
@@ -520,6 +522,8 @@ public class AnalyticsConstants
 		public static final String HIKE = "hike";
 		
 		public static final String CALLER_SETTINGS_TOGGLE = "clrStgTgl";
+
+		public static final String KNOWN_CARD_SETTINGS_TOGGLE = "knwStgTgl";
 		
 	}
 	
@@ -556,8 +560,16 @@ public class AnalyticsConstants
 	public static final String MICRO_APP_EVENT = "micro_app";
 	
 	public static final String EVENT = "event";
+
+	public static final String LOG_FIELD_1 = "fld1";
 	
 	public static final String LOG_FIELD_5 = "fld5";
 	
 	public static final String LOG_FIELD_6 = "fld6";
+
+	public static final String FILE_SIZE = "fs";
+
+	public static final String INTERNAL_STORAGE_SPACE = "mem";
+
+	public static final String DISCOVERY_BOT_TAP = "bd_tap";
 }

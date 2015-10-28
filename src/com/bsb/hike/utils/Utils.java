@@ -16,7 +16,6 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
 import java.net.URL;
 import java.nio.CharBuffer;
@@ -64,7 +63,6 @@ import android.app.ActivityManager;
 import android.app.ActivityManager.RunningAppProcessInfo;
 import android.app.ActivityManager.RunningServiceInfo;
 import android.app.AlertDialog;
-import android.app.AppOpsManager;
 import android.app.PendingIntent;
 import android.content.ActivityNotFoundException;
 import android.content.ClipData;
@@ -81,7 +79,6 @@ import android.content.OperationApplicationException;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.pm.ActivityInfo;
-import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.pm.ResolveInfo;
@@ -193,7 +190,6 @@ import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.filetransfer.FTAnalyticEvents;
 import com.bsb.hike.http.HikeHttpRequest;
-import com.bsb.hike.http.HikeHttpRequest.Method;
 import com.bsb.hike.models.AccountData;
 import com.bsb.hike.models.AccountInfo;
 import com.bsb.hike.models.ContactInfo;
@@ -396,7 +392,7 @@ public class Utils
 		return obj;
 	}
 
-	public static boolean isIndianNumber(String number)
+	public static boolean isIndianMobileNumber(String number)
 	{
 		//13 is the number of chars in the phone msisdn 
 		if (number != null && (number.startsWith("+919") || number.startsWith("+918") || number.startsWith("+917")) && number.length() == 13)
@@ -405,6 +401,18 @@ public class Utils
 		}
 		return false;
 	}
+	
+	public static boolean isIndianNumber(String number)
+	{
+		//13 is the number of chars in the phone msisdn 
+		if (number != null && number.startsWith("+91"))
+		{
+			return true;
+		}
+		return false;
+	}
+	
+	
 	
 	
 	static final private int ANIMATION_DURATION = 400;
@@ -543,6 +551,14 @@ public class Utils
 		// String fileName = getUniqueFileName(orgFileName, fileKey);
 
 		return new File(mediaStorageDir, orgFileName);
+	}
+	
+	public static void setSharedPrefValue(Context context, String key, boolean value)
+	{
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+		Editor prefEditor = prefs.edit();
+		prefEditor.putBoolean(key, value);
+		prefEditor.commit();
 	}
 
 	public static String getUniqueFilename(HikeFileType type)
@@ -817,61 +833,7 @@ public class Utils
 		}
 		return true;
 	}
-	
-	public static boolean isNotificationEnabled(Context context)
-	{
-		if (isJellybeanOrHigher())
-		{
-			String CHECK_OP_NO_THROW = "checkOpNoThrow";
-			String OP_POST_NOTIFICATION = "OP_POST_NOTIFICATION";
 
-			AppOpsManager mAppOps = (AppOpsManager) context.getSystemService(Context.APP_OPS_SERVICE);
-
-			ApplicationInfo appInfo = context.getApplicationInfo();
-
-			String pkg = context.getApplicationContext().getPackageName();
-
-			int uid = appInfo.uid;
-
-			Class appOpsClass = null; /* Context.APP_OPS_MANAGER */
-
-			try
-			{
-
-				appOpsClass = Class.forName(AppOpsManager.class.getName());
-
-				java.lang.reflect.Method checkOpNoThrowMethod = appOpsClass.getMethod(CHECK_OP_NO_THROW, Integer.TYPE, Integer.TYPE, String.class);
-
-				Field opPostNotificationValue = appOpsClass.getDeclaredField(OP_POST_NOTIFICATION);
-				int value = (int) opPostNotificationValue.get(Integer.class);
-
-				return ((int) checkOpNoThrowMethod.invoke(mAppOps, value, uid, pkg) == AppOpsManager.MODE_ALLOWED);
-
-			}
-			catch (ClassNotFoundException e)
-			{
-				e.printStackTrace();
-			}
-			catch (NoSuchMethodException e)
-			{
-				e.printStackTrace();
-			}
-			catch (NoSuchFieldException e)
-			{
-				e.printStackTrace();
-			}
-			catch (InvocationTargetException e)
-			{
-				e.printStackTrace();
-			}
-			catch (IllegalAccessException e)
-			{
-				e.printStackTrace();
-			}
-		}
-		return true;
-	}		
-	
 	private static boolean isUserUpgrading(Context context)
 	{
 		SharedPreferences settings = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
@@ -3549,6 +3511,11 @@ public class Utils
 
 	public static void sendLogEvent(JSONObject data, String subType, String toMsisdn)
 	{
+		sendLogEvent(data, subType, toMsisdn, HikeConstants.MqttMessageTypes.ANALYTICS_EVENT);
+	}
+	
+	public static void sendLogEvent(JSONObject data, String subType, String toMsisdn,String type)
+	{
 
 		JSONObject object = new JSONObject();
 		try
@@ -3564,7 +3531,7 @@ public class Utils
 			{
 				object.put(HikeConstants.TO, toMsisdn);
 			}
-			object.put(HikeConstants.TYPE, HikeConstants.MqttMessageTypes.ANALYTICS_EVENT);
+			object.put(HikeConstants.TYPE, type);
 			object.put(HikeConstants.DATA, data);
 
 			HikeMqttManagerNew.getInstance().sendMessage(object, MqttConstants.MQTT_QOS_ONE);
@@ -4158,14 +4125,14 @@ public class Utils
 
 	public static Intent getTimelineActivityIntent(Context context)
 	{
-		return getTimelineActivityIntent(context, false);
+		return getTimelineActivityIntent(context, false, false);
 	}
 	
-	public static Intent getTimelineActivityIntent(Context context, boolean openActivityFeed)
+	public static Intent getTimelineActivityIntent(Context context, boolean openActivityFeed, boolean fromNotif)
 	{
 		final Intent intent = new Intent(context, TimelineActivity.class);
 		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-		intent.putExtra(HikeConstants.Extras.FROM_NOTIFICATION, true);
+		intent.putExtra(HikeConstants.Extras.FROM_NOTIFICATION, fromNotif);
 		intent.putExtra(HikeConstants.Extras.OPEN_ACTIVITY_FEED, openActivityFeed);
 		return intent;
 	}
@@ -4667,11 +4634,15 @@ public class Utils
 		context.startActivity(i);
 	}
 	
-	public static void addToContacts(Context context, String msisdn, String name)
+	public static void addToContacts(Context context, String msisdn, String name, String address)
 	{
 		Intent intent = new Intent(Intent.ACTION_INSERT, ContactsContract.Contacts.CONTENT_URI);
 		intent.putExtra(Insert.PHONE, msisdn);
 		intent.putExtra(Insert.NAME, name);
+		if (address != null)
+		{
+			intent.putExtra(Insert.POSTAL, address);
+		}
 		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 		context.startActivity(intent);
 	}
@@ -6563,6 +6534,18 @@ public class Utils
 		return false;
 	}
 	
+	public static boolean isGCViaLinkEnabled()
+	{
+		HikeSharedPreferenceUtil prefs = HikeSharedPreferenceUtil.getInstance();
+		
+		if (prefs != null)
+		{
+			return prefs.getData(HikeConstants.ENABLE_GC_VIA_LINK_SHARING, false);
+		}
+		
+		return false;
+	}
+	
 	public static boolean moveFile(File inputFile, File outputFile)
 	{
 		Logger.d("Utils", "Input file path - " + inputFile.getPath());
@@ -7335,10 +7318,32 @@ public class Utils
 
 		return url;
 	}
-	
-	public static void sendFreeSms()
+
+	public static String getCommaSeperatedStringFromArray(String[] array)
 	{
-		Intent intent = IntentFactory.createChatThreadIntentFromMsisdn(HikeMessengerApp.getInstance(), StickyCaller.callCurrentNumber, true, false);
+		StringBuilder sb = new StringBuilder();
+		sb.append(array[0]);
+		for (int i = 1; i < array.length; i++) {
+			sb.append(", ");
+			sb.append(array[i]);
+		}
+		return sb.toString();
+	}
+	
+	public static String getNewImagePostFilePath()
+	{
+		String directory = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT;
+		File dir = new File(directory);
+		if (!dir.exists())
+		{
+			dir.mkdirs();
+		}
+		return directory+File.separator + Utils.getUniqueFilename(HikeFileType.IMAGE);
+	}
+
+	public static void sendFreeSms(String number)
+	{
+		Intent intent = IntentFactory.createChatThreadIntentFromMsisdn(HikeMessengerApp.getInstance(), number, true, false);
 		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 	    HikeMessengerApp.getInstance().startActivity(intent);
 	}
@@ -7434,6 +7439,45 @@ public class Utils
 		}
 
 		return timeLogBuilder.toString();
+	}
+
+	/**
+	 * Call this method to find the total size of a folder
+	 * @param folder
+	 * @return size of the folder in bytes
+	 */
+	public static long folderSize(File folder)
+	{
+		long length = 0;
+		for (File file : folder.listFiles()) {
+			if (file.isFile())
+				length += file.length();
+			else
+				length += folderSize(file);
+		}
+		return length;
+	}
+
+	/**
+	 * Call this method to get the total available internal storage space
+	 * @return
+	 */
+	public static double getFreeInternalStorage()
+	{
+		double internalSpace = 0.0;
+
+		StatFs stat = new StatFs(Environment.getDataDirectory().getPath());
+		if (isJELLY_BEAN_MR2OrHigher())
+		{
+			internalSpace = (double) stat.getBlockSizeLong() * (double) stat.getAvailableBlocksLong();
+		}
+		else
+		{
+			internalSpace = (double) stat.getBlockSize() * (double) stat.getAvailableBlocks();
+		}
+		double megsAvailable = internalSpace / (1024 * 1024);
+
+		return megsAvailable;
 	}
 
 }

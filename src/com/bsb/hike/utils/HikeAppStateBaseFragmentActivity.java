@@ -44,7 +44,7 @@ public class HikeAppStateBaseFragmentActivity extends HikeBaseActivity implement
 	 * @param msg
 	 * Shows the Popup on the Activity
 	 */
-	protected void showPopupDialog(ProductContentModel mmModel)
+	public void showPopupDialog(ProductContentModel mmModel)
 	{
 		if (mmModel != null)
 		{
