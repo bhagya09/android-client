@@ -1,18 +1,12 @@
 package com.bsb.hike.notifications.refactor.badge;
 
-import android.os.Handler;
-import android.os.Message;
-import android.preference.PreferenceManager;
-
-import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.productpopup.ProductInfoManager;
-import com.bsb.hike.ui.HomeActivity;
-import com.bsb.hike.utils.Utils;
 
 public class HikeBadgeCountKeeperProductPopUp extends HikeBadgeCountKeeper
 {
+	public static final String BADGE_COUNT_PRODUCT_POPUP = "badgecountproductpopup";
 
 	@Override
 	public void onEventReceived(String type, Object object)
@@ -22,9 +16,11 @@ public class HikeBadgeCountKeeperProductPopUp extends HikeBadgeCountKeeper
 		{
 
 			setCount(ProductInfoManager.getInstance().getAllValidPopUp());
-			HikeMessengerApp.getPubSub().publish(HikePubSub.BADGE_COUNT_CHANGED, null);
 
 		}
+		else
+			super.onEventReceived(type, object);
+		HikeMessengerApp.getPubSub().publish(HikePubSub.BADGE_COUNT_CHANGED, null);
 
 	}
 
@@ -33,6 +29,13 @@ public class HikeBadgeCountKeeperProductPopUp extends HikeBadgeCountKeeper
 	{
 		mlistener = new String[] { HikePubSub.PRODUCT_POPUP_BADGE_COUNT_CHANGED };
 
+	}
+
+	@Override
+	public String getSharedPreferenceTag()
+	{
+		// TODO Auto-generated method stub
+		return BADGE_COUNT_PRODUCT_POPUP;
 	}
 
 }

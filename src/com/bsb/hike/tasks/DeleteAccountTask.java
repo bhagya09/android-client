@@ -218,7 +218,7 @@ public class DeleteAccountTask implements ActivityCallableTask
 		NotificationManager mgr = (NotificationManager) ctx.getSystemService(android.content.Context.NOTIFICATION_SERVICE);
 		mgr.cancelAll();
 		//reset badge counters
-		HikeMessengerApp.getPubSub().publish(HikePubSub.BADGE_COUNT_RESET, null);
+		HikeMessengerApp.getPubSub().publish(HikePubSub.ACCOUNT_RESET_OR_DELETE, null);
 		
 		// redirect user to the welcome screen
 		if (listener != null)

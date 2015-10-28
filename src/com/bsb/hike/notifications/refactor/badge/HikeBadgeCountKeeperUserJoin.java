@@ -10,6 +10,7 @@ import com.bsb.hike.utils.Utils;
 
 public class HikeBadgeCountKeeperUserJoin extends HikeBadgeCountKeeper
 {
+	public static final String BADGE_COUNT_USER_JOIN = "badgecountuserjoin";
 
 	@Override
 	public void onEventReceived(String type, Object object)
@@ -23,11 +24,11 @@ public class HikeBadgeCountKeeperUserJoin extends HikeBadgeCountKeeper
 				setCount(1);
 			}
 			else
-				setCount(0);
+				resetCount();
 
 		}
 		else
-			setCount(0);
+			resetCount();
 		HikeMessengerApp.getPubSub().publish(HikePubSub.BADGE_COUNT_CHANGED, null);
 
 	}
@@ -39,5 +40,11 @@ public class HikeBadgeCountKeeperUserJoin extends HikeBadgeCountKeeper
 
 	}
 
+	@Override
+	public String getSharedPreferenceTag()
+	{
+		// TODO Auto-generated method stub
+		return BADGE_COUNT_USER_JOIN;
+	}
 
 }
