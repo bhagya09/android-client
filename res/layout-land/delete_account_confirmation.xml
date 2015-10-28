@@ -2,20 +2,28 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_height="match_parent"
     android:layout_width="match_parent">
-    
-    <ScrollView android:layout_height="match_parent"
+
+    <LinearLayout
+        android:id="@+id/parent_layout"
         android:layout_width="match_parent"
-        android:id="@+id/delete_scroll_view">
-        
+        android:layout_height="match_parent">
+    <ScrollView
+        android:id="@+id/delete_scroll_view"
+        android:layout_height="match_parent"
+        android:layout_width="match_parent"
+        android:background="@color/red_no_network"
+        android:fillViewport="true">
+
 <LinearLayout 
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:baselineAligned="false"    
+    android:baselineAligned="false"
     android:orientation="horizontal" >
 
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="match_parent"
+        android:minHeight="280dp"
         android:layout_weight="45"
         android:background="#f1f2f1"
         android:orientation="vertical" >
@@ -58,6 +66,7 @@
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="match_parent"
+        android:minHeight="280dp"
         android:layout_weight="42"
         android:background="#ffffff"
         android:orientation="vertical"
@@ -124,6 +133,7 @@
 
     </ScrollView>
 
+    </LinearLayout>
     	<include layout="@layout/kpt_keyboard_viewholder" />
     
 </RelativeLayout>

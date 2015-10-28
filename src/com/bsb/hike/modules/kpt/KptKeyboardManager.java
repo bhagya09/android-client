@@ -25,15 +25,15 @@ import com.kpt.adaptxt.beta.KPTAdaptxtAddonSettings.AdaptxtAddonInstallationList
 import com.kpt.adaptxt.beta.KPTAdaptxtAddonSettings.AdaptxtAddonUnInstallationListner;
 import com.kpt.adaptxt.beta.KPTAddonItem;
 
-public class DictionaryManager implements AdaptxtSettingsRegisterListener
+public class KptKeyboardManager implements AdaptxtSettingsRegisterListener
 {
-	private static final String TAG = "DictionaryManager";
+	private static final String TAG = "KptKeyboardManager";
 
 	private static final String HIKE_LANGUAGE_DIR_NAME = "lang-dict";
 
 	private final Context context;
 
-	private static volatile DictionaryManager _instance = null;
+	private static volatile KptKeyboardManager _instance = null;
 
 	KPTAdaptxtAddonSettings kptSettings;
 
@@ -62,7 +62,7 @@ public class DictionaryManager implements AdaptxtSettingsRegisterListener
 
 	private final ConcurrentHashMap<KPTAddonItem, LanguageDictionarySatus> languageStatusMap;
 
-	private DictionaryManager(Context ctx)
+	private KptKeyboardManager(Context ctx)
 	{
 		Logger.d(TAG,"Initializing...");
 		context = ctx;
@@ -74,19 +74,26 @@ public class DictionaryManager implements AdaptxtSettingsRegisterListener
 		Logger.d(TAG,"Initialization complete.");
 	}
 
-	public static DictionaryManager getInstance(Context context)
+	public static KptKeyboardManager getInstance(Context context)
 	{
 		if (_instance == null)
 		{
-			synchronized (DictionaryManager.class)
+			synchronized (KptKeyboardManager.class)
 			{
 				if (_instance == null)
-					_instance = new DictionaryManager(context.getApplicationContext());
+					_instance = new KptKeyboardManager(context.getApplicationContext());
 			}
 		}
 		return _instance;
 	}
 
+	public String getCurrentLanguage()
+	{
+		if(kptSettings != null)
+			return kptSettings.getCurrentLanguage();
+
+		return null;
+	}
 	public ArrayList<KPTAddonItem> getInstalledLanguagesList()
 	{
 		return mInstalledLanguagesList;
@@ -311,7 +318,7 @@ public class DictionaryManager implements AdaptxtSettingsRegisterListener
 		{
 			if (!hikeLangDir.mkdirs())
 			{
-				Logger.d("DictionaryManager", "failed to create directory");
+				Logger.d("KptKeyboardManager", "failed to create directory");
 				FTAnalyticEvents.logDevError(FTAnalyticEvents.UNABLE_TO_CREATE_LANG_DIC_DIR, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "File",
 						"Unable to create language dictionary dir when external storage state is - " + Environment.getExternalStorageState());
 				return null;

@@ -31,7 +31,7 @@ import com.bsb.hike.localisation.LocalLanguage;
 import com.bsb.hike.localisation.LocalLanguageUtils;
 import com.bsb.hike.models.Conversation.ConversationTip;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
-import com.bsb.hike.modules.kpt.DictionaryManager;
+import com.bsb.hike.modules.kpt.KptKeyboardManager;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
 import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.tasks.ActivityCallableTask;
@@ -218,7 +218,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		if (kbdLanguagePref != null && kbdLanguagePref instanceof IconPreference)
 		{
 			String summary = new String();
-			ArrayList<KPTAddonItem> langList = DictionaryManager.getInstance(HikePreferences.this).getInstalledLanguagesList();
+			ArrayList<KPTAddonItem> langList = KptKeyboardManager.getInstance(HikePreferences.this).getInstalledLanguagesList();
 			for (KPTAddonItem item : langList)
 			{
 				summary += item.getDisplayName();

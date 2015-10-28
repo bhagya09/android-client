@@ -61,6 +61,8 @@ public class DeleteAccount extends HikeAppStateBaseFragmentActivity implements D
 	
 	private boolean systemKeyboard;
 
+	protected int keyboardHeight;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
@@ -306,7 +308,7 @@ public class DeleteAccount extends HikeAppStateBaseFragmentActivity implements D
 	protected void onPause()
 	{
 		KptUtils.pauseKeyboardResources(mCustomKeyboard, countryCode, phoneNum);
-		KptUtils.updatePadding(DeleteAccount.this, R.id.delete_scroll_view, 0);
+		KptUtils.updatePadding(DeleteAccount.this, R.id.parent_layout, 0);
 		super.onPause();
 	}
 	
@@ -342,7 +344,7 @@ public class DeleteAccount extends HikeAppStateBaseFragmentActivity implements D
 	{
 		mCustomKeyboard.showCustomKeyboard(countryCode, false);
 		mCustomKeyboard.showCustomKeyboard(phoneNum, false);
-		KptUtils.updatePadding(DeleteAccount.this, R.id.delete_scroll_view, 0);
+		KptUtils.updatePadding(DeleteAccount.this, R.id.parent_layout, 0);
 	}
 
 	@Override
@@ -363,11 +365,12 @@ public class DeleteAccount extends HikeAppStateBaseFragmentActivity implements D
 	{
 		if (kptVisible)
 		{
-			KptUtils.updatePadding(DeleteAccount.this, R.id.delete_scroll_view, height);
+			keyboardHeight = height;
+			KptUtils.updatePadding(DeleteAccount.this, R.id.parent_layout, height);
 		}
 		else
 		{
-			KptUtils.updatePadding(DeleteAccount.this, R.id.delete_scroll_view, 0);
+			KptUtils.updatePadding(DeleteAccount.this, R.id.parent_layout, 0);
 		}
 	}
 
@@ -390,12 +393,12 @@ public class DeleteAccount extends HikeAppStateBaseFragmentActivity implements D
 		{
 		case R.id.et_enter_num:
 			mCustomKeyboard.showCustomKeyboard(phoneNum, true);
-			KptUtils.updatePadding(DeleteAccount.this, R.id.delete_scroll_view, mCustomKeyboard.getKeyBoardAndCVHeight());
+			KptUtils.updatePadding(DeleteAccount.this, R.id.parent_layout, (keyboardHeight == 0) ? mCustomKeyboard.getKeyBoardAndCVHeight() : keyboardHeight);
 			break;
 			
 		case R.id.country_picker:
 			mCustomKeyboard.showCustomKeyboard(countryCode, true);
-			KptUtils.updatePadding(DeleteAccount.this, R.id.delete_scroll_view, mCustomKeyboard.getKeyBoardAndCVHeight());
+			KptUtils.updatePadding(DeleteAccount.this, R.id.parent_layout, (keyboardHeight == 0) ? mCustomKeyboard.getKeyBoardAndCVHeight() : keyboardHeight);
 			break;
 			
 		default:
