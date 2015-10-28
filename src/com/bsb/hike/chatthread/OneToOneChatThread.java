@@ -1711,21 +1711,9 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		case DISCONNECTED:
 			Logger.d("OfflineAnimationFragment", msisdn);
 			OfflineUtils.sendOfflineRequestPacket(msisdn);
-			if (Utils.isMarshmallowOrHigher())
+			if (shouldShowLocationDialog())
 			{
-				if (OfflineUtils.willConnnectToHotspot(msisdn) && !Utils.isLocationEnabled(activity.getApplicationContext()))
-				{
-					showLocationDialog();
-				}
-				else
-				{
-					offlineController.connectAsPerMsisdn(msisdn);
-					setupOfflineUI();
-					if (showAnimation)
-					{
-						startFreeHikeAnimation();
-					}
-				}
+				showLocationDialog();
 			}
 			else
 			{
@@ -1739,8 +1727,24 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			break;
 		}
 	}
-	
-	
+
+	/**
+	 * 
+	 * @return 1)>lollipop 2)smaller msisdn 3)location disabled 4)server variable
+	 */
+	private boolean shouldShowLocationDialog()
+	{
+		return (Utils.isMarshmallowOrHigher() && OfflineUtils.willConnnectToHotspot(msisdn) && !Utils.isLocationEnabled(activity.getApplicationContext()) && HikeSharedPreferenceUtil
+				.getInstance().getData(HikeConstants.SHOW_GPS_DIALOG, false));
+	}
+
+	private void showLocationCloseDialog()
+	{
+		if (Utils.isMarshmallowOrHigher() && Utils.isLocationEnabled(activity) && HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SHOW_GPS_DIALOG, false))
+			sendUIMessage(SHOW_TOAST, 1000, R.string.close_gps);
+	}
+
+
 	/**
 	 * 
 	 * @param isConnected True if device is already connected to some other device
@@ -3386,47 +3390,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
         notificationManager.cancel(HikeNotification.OFFLINE_REQUEST_ID);
         showLocationCloseDialog();
 	}
-
-	private void showLocationCloseDialog()
-	{
-		if(alert!=null && alert.isShowing())
-		{
-			return;
-		}
-		// change text here
-		int messageId = currentLocationDevice == GPS_DISABLED ? R.string.gps_disabled : R.string.location_disabled;
-
-		alert = HikeDialogFactory.showDialog(activity, HikeDialogFactory.GPS_DIALOG, new HikeDialogListener()
-		{
-
-			@Override
-			public void positiveClicked(HikeDialog hikeDialog)
-			{
-				Intent callGPSSettingIntent = new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-				activity.startActivityForResult(callGPSSettingIntent, HikeConstants.GPS_STATUS_CHANGED);
-				hikeDialog.dismiss();
-			}
-
-			@Override
-			public void neutralClicked(HikeDialog hikeDialog)
-			{
-			}
-
-			@Override
-			public void negativeClicked(HikeDialog hikeDialog)
-			{
-				gpsDialogShown = currentLocationDevice == GPS_DISABLED;
-				Toast.makeText(activity, "Sorry hike direct wont work if gps not on", Toast.LENGTH_LONG).show();
-				hikeDialog.dismiss();
-			}
-		}, messageId);
-
-		if (isActivityVisible)
-			alert.show();
-
-		
-	}
-
+	
 	private void clearAttachmentPicker() {
 		attachmentPicker = null;
 	}
@@ -3568,11 +3532,10 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			return;
 		}
 
-		int messageId = currentLocationDevice == GPS_DISABLED ? R.string.gps_disabled : R.string.location_disabled;
+		int messageId = R.string.switch_on_gps;
 
 		alert = HikeDialogFactory.showDialog(activity, HikeDialogFactory.GPS_DIALOG, new HikeDialogListener()
 		{
-
 			@Override
 			public void positiveClicked(HikeDialog hikeDialog)
 			{
@@ -3593,7 +3556,8 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 				Toast.makeText(activity, "Sorry hike direct wont work if gps not on", Toast.LENGTH_LONG).show();
 				hikeDialog.dismiss();
 			}
-		}, messageId);
+		}, messageId, R.string.gps_settings);
+
 
 		if (isActivityVisible)
 			alert.show();
