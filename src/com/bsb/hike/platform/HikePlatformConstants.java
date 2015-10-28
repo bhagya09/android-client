@@ -168,6 +168,8 @@ public interface HikePlatformConstants
 
 	public static final String INCREASE_UNREAD = "increase_unread";
 
+	public static final String REARRANGE_CHAT = "rearrange_chat";
+
 	public static final String MESSAGE_ID = "message_id";
 
 	public static final String CONV_MSISDN = "conv_msisdn";
