@@ -860,6 +860,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 				else
 				{
 					mCustomKeyboard.showCustomKeyboard(v, false);
+					mCustomKeyboard.updateCore();
 				}
 			}
 			else

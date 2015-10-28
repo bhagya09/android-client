@@ -2900,6 +2900,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 						if (!KptUtils.isSystemKeyboard(ComposeChatActivity.this))
 						{
 							mCustomKeyboard.showCustomKeyboard(searchET, false);
+							mCustomKeyboard.updateCore();
 						}
 					}
 	 			}
