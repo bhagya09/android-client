@@ -18,6 +18,7 @@ import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.Utils;
 
 
 public class GeneralEventMessagesManager
@@ -29,20 +30,6 @@ public class GeneralEventMessagesManager
 	private GeneralEventMessagesManager(Context context)
 	{
 		this.context = context;
-	}
-
-	private static void increaseUnreadCount(String msisdn)
-	{
-		// increase unread count
-		HikeConversationsDatabase db = HikeConversationsDatabase.getInstance();
-		db.incrementUnreadCounter(msisdn, 1);
-		int newCount = db.getConvUnreadCount(msisdn);
-		Message ms = Message.obtain();
-		ms.arg1 = newCount;
-		ms.obj = msisdn;
-		HikeMessengerApp.getPubSub().publish(HikePubSub.CONV_UNREAD_COUNT_MODIFIED, ms);
-		Pair<String, Long> pair = new Pair<String, Long>(msisdn, System.currentTimeMillis() / 1000);
-		HikeMessengerApp.getPubSub().publish(HikePubSub.CONVERSATION_TS_UPDATED, pair);
 	}
 
 	private static void showNotification(JSONObject data, String msisdn)
@@ -106,10 +93,8 @@ public class GeneralEventMessagesManager
 
 				HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_EVENT_RECEIVED, messageEvent);
 				boolean increaseUnreadCount = data.optBoolean(HikePlatformConstants.INCREASE_UNREAD);
-				if (increaseUnreadCount)
-				{
-					increaseUnreadCount(from);
-				}
+				boolean rearrangeChat = data.optBoolean(HikePlatformConstants.REARRANGE_CHAT);
+				Utils.rearrangeChat(from, rearrangeChat, increaseUnreadCount);
 				showNotification(data, from);
 
 			}

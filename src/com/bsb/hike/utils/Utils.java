@@ -111,6 +111,7 @@ import android.os.AsyncTask;
 import android.os.BatteryManager;
 import android.os.Build;
 import android.os.Environment;
+import android.os.Message;
 import android.os.PowerManager;
 import android.os.RemoteException;
 import android.os.StatFs;
@@ -7478,6 +7479,36 @@ public class Utils
 		double megsAvailable = internalSpace / (1024 * 1024);
 
 		return megsAvailable;
+	}
+
+	/**
+	 * Utility method to rearrange chat and update the unread counter if needed
+	 *
+	 * @param destination
+	 *            : Msisdn
+	 * @param rearrangeChat
+	 *            : Whether to shift the chat up or not
+	 * @param updateUnreadCount
+	 *            : Whether to update the unread counter or not
+	 */
+	public static void rearrangeChat(String destination, boolean rearrangeChat, boolean updateUnreadCount)
+	{
+		if (updateUnreadCount)
+		{
+			HikeConversationsDatabase convDb = HikeConversationsDatabase.getInstance();
+			convDb.incrementUnreadCounter(destination);
+			int unreadCount = convDb.getConvUnreadCount(destination);
+			Message ms = Message.obtain();
+			ms.arg1 = unreadCount;
+			ms.obj = destination;
+			HikeMessengerApp.getPubSub().publish(HikePubSub.CONV_UNREAD_COUNT_MODIFIED, ms);
+		}
+
+		if (rearrangeChat)
+		{
+			Pair<String, Long> pair = new Pair<String, Long>(destination, System.currentTimeMillis() / 1000);
+			HikeMessengerApp.getPubSub().publish(HikePubSub.CONVERSATION_TS_UPDATED, pair);
+		}
 	}
 
 }
