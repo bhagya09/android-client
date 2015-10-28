@@ -3351,4 +3351,6 @@ public class HikeConstants
 	
 	public static final int GPS_SWITCH_OFF = 1198;
 
+	public static final String SHOW_GPS_DIALOG = "gps_dialog_show";
+
 }
