@@ -8628,7 +8628,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 	}
 
 
-	public void updateSortingIdForAMessage(String msgHash, ConvMessage.State state)
+	public void updateMessageForGeneralEvent(String msgHash, ConvMessage.State state, String hm)
 	{
 		try
 		{
@@ -8636,6 +8636,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 					+ " ( ( " + "SELECT" + " MAX( " + DBConstants.SORTING_ID + " ) " + " FROM " + DBConstants.MESSAGES_TABLE + " )" + " + 1 ), "
 					+ DBConstants.MSG_STATUS + " = " + state.ordinal()
 					+ DBConstants.TIMESTAMP + " = " + System.currentTimeMillis()/1000
+					+ DBConstants.MESSAGE + " = " + hm
 					+ " WHERE " + DBConstants.MESSAGE_HASH + " = " + "'"
 					+ msgHash + "'";
 
