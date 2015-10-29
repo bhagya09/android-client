@@ -65,6 +65,11 @@ public class CocosGamingActivity extends Cocos2dxActivity
 	private long openTimestamp = 0;
 
 	private long activeDuration = 0;
+	
+	private final String ANALYTICS_KINGDOM = "act_game";
+	private final String ANALYTICS_ENGINE_FAILED = "engine_load_failed";
+	private final String ANALYTICS_GAME_FAILED = "game_load_failed";
+	private final String ANALYTICS_GAME_OPEN = "game_open";
 
 	@Override
 	public void onPostCreate(Bundle savedInstanceState, PersistableBundle persistentState)
@@ -212,16 +217,16 @@ public class CocosGamingActivity extends Cocos2dxActivity
 		try
 		{
 			JSONObject jsonObject = new JSONObject();
-			jsonObject.put("ek", "act_game");
+			jsonObject.put("ek", ANALYTICS_KINGDOM);
 			jsonObject.put("ep", nonMessagingBotMetadata.getAppName());
 			jsonObject.put("ec", botInfo.getMsisdn());
 			if (isEngine)
 			{
-				jsonObject.put("eo", "engine_load_failed");
+				jsonObject.put("eo", ANALYTICS_ENGINE_FAILED);
 			}
 			else
 			{
-				jsonObject.put("eo", "game_load_failed");
+				jsonObject.put("eo", ANALYTICS_GAME_FAILED);
 			}
 			jsonObject.put("ef", "");
 			jsonObject.put("eg", "");
@@ -328,10 +333,10 @@ public class CocosGamingActivity extends Cocos2dxActivity
 		try
 		{
 			JSONObject jsonObject = new JSONObject();
-			jsonObject.put("ek", "act_game");
+			jsonObject.put("ek", ANALYTICS_KINGDOM);
 			jsonObject.put("ep", nonMessagingBotMetadata.getAppName());
 			jsonObject.put("ec", botInfo.getMsisdn());
-			jsonObject.put("eo", "game_open");
+			jsonObject.put("eo", ANALYTICS_GAME_OPEN);
 			jsonObject.put("ef", String.valueOf(activeDuration));
 			jsonObject.put("eg", "");
 			jsonObject.put("es", "");
