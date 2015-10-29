@@ -3201,7 +3201,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		return getConversation(msisdn, limit, false);
 	}
 	
-	private ConvMessage getLastMessage(String msisdn)
+	public ConvMessage getLastMessage(String msisdn)
 	{
 		/*
 		 * We get the latest message from the messages table
