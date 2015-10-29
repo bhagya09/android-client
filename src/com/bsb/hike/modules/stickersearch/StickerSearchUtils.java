@@ -1,9 +1,7 @@
 package com.bsb.hike.modules.stickersearch;
 
 import android.content.Context;
-import android.util.Log;
 import android.util.Pair;
-import android.view.inputmethod.InputMethodInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.view.inputmethod.InputMethodSubtype;
 import android.widget.TextView;
@@ -11,6 +9,7 @@ import android.widget.TextView;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.models.Sticker;
+import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 
 import java.util.ArrayList;
@@ -111,47 +110,27 @@ public class StickerSearchUtils
 		return resultList;
 	}
 
-	/***
-	 * @param : application context
-	 *
-	 * @return : returns a list of string of user enabled device keyboards in ISO 639-2/T format
-	 ****/
-	public static List<String> getISOListOfSystemKeyboards(Context context)
-	{
-		if (context == null) {
-			return null;
-		}
+    /***
+     * @return current keyboard language in ISO 639-2/T format
+     */
+    public static String getCurrentLanguage() {
+        try {
 
-		ArrayList<String> keyBoardISO3Codes = new ArrayList<String>();
+            InputMethodManager inputMethodManager = (InputMethodManager) HikeMessengerApp.getInstance().getSystemService(Context.INPUT_METHOD_SERVICE);
 
-		InputMethodManager methodManager = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
-		List<InputMethodInfo> inputMethodList = methodManager.getEnabledInputMethodList();
-		for (int i = 0; i < inputMethodList.size(); ++i)
-		{
-			final InputMethodInfo inputMethodInfo = inputMethodList.get(i);
+            InputMethodSubtype inputMethodSubtype = inputMethodManager.getCurrentInputMethodSubtype();
 
-			List<InputMethodSubtype> submethods = methodManager.getEnabledInputMethodSubtypeList(inputMethodInfo, true);
-			for (InputMethodSubtype submethod : submethods)
-			{
-				if (submethod.getMode().equals("keyboard"))
-				{
-					Locale currentLocale = new Locale(submethod.getLocale());
-					Log.i(TAG,  currentLocale.toString());
-					if (!keyBoardISO3Codes.contains(currentLocale.getISO3Language()))
-					{
-						keyBoardISO3Codes.add(currentLocale.getISO3Language());
-					}
+            Locale currentLocale = new Locale(inputMethodSubtype.getLocale());
 
-				}
-			}
-		}
+            Logger.d(TAG, currentLocale.toString());
 
-		if(keyBoardISO3Codes.size()<=0)
-		{
-			return null;
-		}
+            return currentLocale.getISO3Language();
 
-		return keyBoardISO3Codes;
+        } catch (Exception e) {
+            Logger.e(TAG, "exception in getting current language : ", e);
+        }
 
-	}
+        return StickerSearchConstants.DEFAULT_KEYBOARD_LANGUAGE;
+    }
+
 }

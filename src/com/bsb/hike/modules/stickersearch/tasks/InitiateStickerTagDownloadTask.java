@@ -1,17 +1,14 @@
 package com.bsb.hike.modules.stickersearch.tasks;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerTagDownloadTask;
-import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
+
+import java.util.List;
+import java.util.Set;
 
 public class InitiateStickerTagDownloadTask implements Runnable
 {
@@ -20,17 +17,20 @@ public class InitiateStickerTagDownloadTask implements Runnable
 	private boolean firstTime;
 	
 	private int state;
+
+	private Set<String> languagesSet;
 	
-	public InitiateStickerTagDownloadTask(boolean firstTime, int state)
+	public InitiateStickerTagDownloadTask(boolean firstTime, int state, Set<String> languagesSet)
 	{
 		this.firstTime = firstTime;
 		this.state = state;
+		this.languagesSet = languagesSet;
 	}
 
 	@Override
 	public void run()
 	{
-		Set<String> stickerSet = null;
+		Set<String> stickerSet;
 		
 		if (firstTime)
 		{
@@ -71,7 +71,7 @@ public class InitiateStickerTagDownloadTask implements Runnable
 			return ;
 		}
 		
-		StickerTagDownloadTask stickerTagDownloadTask = new StickerTagDownloadTask(stickerSet, state);
+		StickerTagDownloadTask stickerTagDownloadTask = new StickerTagDownloadTask(stickerSet, state, languagesSet);
 		stickerTagDownloadTask.execute();
 	}
 }

@@ -25,6 +25,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
@@ -7503,5 +7504,10 @@ public class Utils
 		}
 
 		return timeLogBuilder.toString();
+	}
+
+	public static boolean isJSONObjectEmpty(JSONObject obj)
+	{
+		return obj == null || obj.toString().equals("{}");
 	}
 }
