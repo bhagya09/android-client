@@ -16,7 +16,6 @@ import android.widget.ViewFlipper;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
-import com.bsb.hike.chatHead.OnSwipeTouchListener;
 import com.bsb.hike.modules.kpt.KptKeyboardManager;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.kpt.adaptxt.beta.KPTAddonItem;
@@ -29,6 +28,10 @@ import java.util.HashSet;
  */
 public class KeyboardFtue implements HikePubSub.Listener
 {
+    public interface OnKeyboardFTUEDestroyedListener
+    {
+        void onDestroyed();
+    }
 
     private final String KEYBOARD_FTUE_STATE = "keyboardFTUEState";
     private final int NOT_STARTED = 0;
@@ -45,6 +48,8 @@ public class KeyboardFtue implements HikePubSub.Listener
 
     private ViewFlipper flipper;
 
+    private OnKeyboardFTUEDestroyedListener destroyedListener;
+
     ArrayList<KPTAddonItem> addonItems;
 
     LanguageItemAdapter addonItemAdapter;
@@ -60,10 +65,11 @@ public class KeyboardFtue implements HikePubSub.Listener
         mState = HikeSharedPreferenceUtil.getInstance().getData(KEYBOARD_FTUE_STATE,NOT_STARTED);
     }
 
-    public void init(Activity activity, LayoutInflater inflater, ViewGroup container)
+    public void init(Activity activity, LayoutInflater inflater, ViewGroup container, OnKeyboardFTUEDestroyedListener listener)
     {
         this.mActivity = activity;
         this.container = container;
+        this.destroyedListener = listener;
         rootView = inflater.inflate(R.layout.keyboard_ftue_layout, container, false);
         mInitialised = true;
         addToPubSub();
@@ -304,6 +310,8 @@ public class KeyboardFtue implements HikePubSub.Listener
         container.invalidate();
         removeFromPubSub();
         mInitialised = false;
+        if (destroyedListener != null)
+            destroyedListener.onDestroyed();
     }
 
     private void removeFromPubSub()

@@ -786,8 +786,18 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	private void initKeyboardFtue()
 	{
 		if (!keyboardFtue.isFTUEComplete())
-			keyboardFtue.init(activity, (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE),(ViewGroup)activity.findViewById(R.id.keyboard_ftue_container));
+			keyboardFtue.init(activity, (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE),(ViewGroup)activity.findViewById(R.id.keyboard_ftue_container),keyboardFTUEdestroyedListener);
 	}
+
+	private KeyboardFtue.OnKeyboardFTUEDestroyedListener keyboardFTUEdestroyedListener = new KeyboardFtue.OnKeyboardFTUEDestroyedListener()
+	{
+		@Override
+		public void onDestroyed()
+		{
+			showKeyboard();
+		}
+	};
+
 	/**
 	 * Updates the mainView for KeyBoard popup as well as updates the Picker Listeners for Emoticon and Stickers
 	 */
