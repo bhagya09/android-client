@@ -1216,13 +1216,13 @@
     <string name="add_via_hike">Add via Hike</string>
     <string name="link_share_wa_msg">You can now add memebers to the group $groupname from group and contacts from WA by sharing link below.</string>
     <string name="link_share_others_msg">You can now add memebers to the group $groupname from group and contacts from Other apps by sharing link below.</string>
-    <string name="link_share_network_error">Hey, you’re offline, please connect to the internet and tap here to connect.</string>
-    <string name="link_share_error_invitee_account_deleted">Hey, The person who invited you has deleted their account.</string>
-    <string name="link_share_error_already_group_member">Hey, You’re already in the group.</string>
-    <string name="link_share_error_invalid_link">Hey, Link you clicked on doesn’t seem right, please check.</string>
-    <string name="link_share_error_group_deleted">Hey, This group has been deleted.</string>
-    <string name="link_share_error_person_not_in_group">Hey, The person who invited you is not in the group anymore.</string>
-    <string name="link_share_error_default">OOPs something went wrong.</string>
+    <string name="link_share_network_error">Hey, you are offline, please connect to the internet.</string>
+    <string name="link_share_error_invitee_account_deleted">The person who invited you has deleted their account.</string>
+    <string name="link_share_error_already_group_member">You’re already in the group.</string>
+    <string name="link_share_error_invalid_link">The link you clicked on doesn’t seem right. Please check.</string>
+    <string name="link_share_error_group_deleted">This group has been deleted.</string>
+    <string name="link_share_error_person_not_in_group">The person who invited you is not in the group anymore.</string>
+    <string name="link_share_error_default">Some error has occurred!</string>
     <string name="wa_group">WhatsApp Group</string>
     <string name="opening_app">Opening App</string>
     <string name="max_file_size_offline">Max file size for hike direct is 2 GB</string>
@@ -1252,5 +1252,10 @@
     <string name="choose_language">Choose Language</string>
     <string name="choose_language_desciption">Now your favourite messenger in your favourite language</string>
     <string name="system_language">System Language</string>
-	
+    <string name="regional_keyboard">Regional Keyboard</string>
+    <string name="regional_keyboard_subtext">Now chat in your favourite language with new keyboard</string>
+    <string name="CHOOSE_LANGUAGE">CHOOSE LANGUAGE</string>
+	<string name="apply">Apply</string>
+    <string name="keyboad_ftue_swipe">Swipe to change between your language</string>
+    <string name="setting_up_keyboard">Setting up Keyboard</string>
 </resources>

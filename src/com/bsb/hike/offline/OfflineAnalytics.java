@@ -4,11 +4,14 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeConstants.MqttMessageTypes;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.offline.OfflineConstants.AnalyticsConstants;
 import com.bsb.hike.offline.OfflineConstants.DisconnectFragmentType;
+import com.bsb.hike.service.MqttMessagesManager;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.Utils;
 
 //import com.bsb.hike.offline.OfflineConstants.AnalyticsEvents;
 
@@ -172,6 +175,7 @@ public class OfflineAnalytics
 
 		HAManager.getInstance().record(HikeConstants.UI_EVENT, HikeConstants.LogEvent.CLICK, EventPriority.HIGH, md);
 
+		Utils.sendLogEvent(md,"hike_direct",null,MqttMessageTypes.HIKE_DIRECT_ANALYTICS);
 	}
 
 	public static void offlineOverflowIndicatorClicked()
