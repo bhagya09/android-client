@@ -66,10 +66,21 @@ public class CocosGamingActivity extends Cocos2dxActivity
 
 	private long activeDuration = 0;
 	
-	private final String ANALYTICS_KINGDOM = "act_game";
-	private final String ANALYTICS_ENGINE_FAILED = "engine_load_failed";
-	private final String ANALYTICS_GAME_FAILED = "game_load_failed";
-	private final String ANALYTICS_GAME_OPEN = "game_open";
+	private final String GAME_ANALYTICS_KINGDOM = "ek";
+	private final String GAME_ANALYTICS_PHYLUM = "ep";
+	private final String GAME_ANALYTICS_CLASS = "ec";
+	private final String GAME_ANALYTICS_ORDER = "eo";
+	private final String GAME_ANALYTICS_FAMILY = "ef";
+	private final String GAME_ANALYTICS_GENUS = "eg";
+	private final String GAME_ANALYTICS_SPECIES = "es";
+	private final String GAME_ANALYTICS_T = "et";
+	private final String GAME_ANALYTICS_U = "eu";
+	private final String GAME_ANALYTICS_V = "ev";
+	
+	private final String GAME_ANALYTICS_KINGDOM_VALUE = "act_game";
+	private final String GAME_ANALYTICS_ENGINE_FAILED = "engine_load_failed";
+	private final String GAME_ANALYTICS_GAME_FAILED = "game_load_failed";
+	private final String GAME_ANALYTICS_GAME_OPEN = "game_open";
 
 	@Override
 	public void onPostCreate(Bundle savedInstanceState, PersistableBundle persistentState)
@@ -217,23 +228,23 @@ public class CocosGamingActivity extends Cocos2dxActivity
 		try
 		{
 			JSONObject jsonObject = new JSONObject();
-			jsonObject.put("ek", ANALYTICS_KINGDOM);
-			jsonObject.put("ep", nonMessagingBotMetadata.getAppName());
-			jsonObject.put("ec", botInfo.getMsisdn());
+			jsonObject.put(GAME_ANALYTICS_KINGDOM, GAME_ANALYTICS_KINGDOM_VALUE);
+			jsonObject.put(GAME_ANALYTICS_PHYLUM, nonMessagingBotMetadata.getAppName());
+			jsonObject.put(GAME_ANALYTICS_CLASS, botInfo.getMsisdn());
 			if (isEngine)
 			{
-				jsonObject.put("eo", ANALYTICS_ENGINE_FAILED);
+				jsonObject.put(GAME_ANALYTICS_ORDER, GAME_ANALYTICS_ENGINE_FAILED);
 			}
 			else
 			{
-				jsonObject.put("eo", ANALYTICS_GAME_FAILED);
+				jsonObject.put(GAME_ANALYTICS_ORDER, GAME_ANALYTICS_GAME_FAILED);
 			}
-			jsonObject.put("ef", "");
-			jsonObject.put("eg", "");
-			jsonObject.put("es", "");
-			jsonObject.put("et", "");
-			jsonObject.put("eu", "");
-			jsonObject.put("ev", "");
+			jsonObject.put(GAME_ANALYTICS_FAMILY, "");
+			jsonObject.put(GAME_ANALYTICS_GENUS, "");
+			jsonObject.put(GAME_ANALYTICS_SPECIES, "");
+			jsonObject.put(GAME_ANALYTICS_T, "");
+			jsonObject.put(GAME_ANALYTICS_U, "");
+			jsonObject.put(GAME_ANALYTICS_V, "");
 			return jsonObject;
 		}
 		catch (JSONException e1)
@@ -333,16 +344,16 @@ public class CocosGamingActivity extends Cocos2dxActivity
 		try
 		{
 			JSONObject jsonObject = new JSONObject();
-			jsonObject.put("ek", ANALYTICS_KINGDOM);
-			jsonObject.put("ep", nonMessagingBotMetadata.getAppName());
-			jsonObject.put("ec", botInfo.getMsisdn());
-			jsonObject.put("eo", ANALYTICS_GAME_OPEN);
-			jsonObject.put("ef", String.valueOf(activeDuration));
-			jsonObject.put("eg", "");
-			jsonObject.put("es", "");
-			jsonObject.put("et", "");
-			jsonObject.put("eu", "");
-			jsonObject.put("ev", "");
+			jsonObject.put(GAME_ANALYTICS_KINGDOM, GAME_ANALYTICS_KINGDOM_VALUE);
+			jsonObject.put(GAME_ANALYTICS_PHYLUM, nonMessagingBotMetadata.getAppName());
+			jsonObject.put(GAME_ANALYTICS_CLASS, botInfo.getMsisdn());
+			jsonObject.put(GAME_ANALYTICS_ORDER, GAME_ANALYTICS_GAME_OPEN);
+			jsonObject.put(GAME_ANALYTICS_FAMILY, String.valueOf(activeDuration));
+			jsonObject.put(GAME_ANALYTICS_GENUS, "");
+			jsonObject.put(GAME_ANALYTICS_SPECIES, "");
+			jsonObject.put(GAME_ANALYTICS_T, "");
+			jsonObject.put(GAME_ANALYTICS_U, "");
+			jsonObject.put(GAME_ANALYTICS_V, "");
 			return jsonObject;
 		}
 		catch (JSONException e1)
