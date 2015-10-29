@@ -458,6 +458,8 @@ public class HikePubSub implements Runnable
 	
 	public static final String ANONYMOUS_NAME_SET="anonymousNameSet";
 
+	public static final String GENERAL_EVENT="generalEvent";
+
 	private final Thread mThread;
 
 	private final BlockingQueue<Operation> mQueue;

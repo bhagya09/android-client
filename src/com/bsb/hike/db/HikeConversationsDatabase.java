@@ -8097,7 +8097,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		contentValues.put(DBConstants.LAST_MESSAGE_TIMESTAMP, convMessage.getTimestamp());
 
 		mDb.updateWithOnConflict(DBConstants.CONVERSATIONS_TABLE, contentValues, MSISDN + "=?",
-				new String[] { msisdn }, SQLiteDatabase.CONFLICT_REPLACE);
+				new String[]{msisdn}, SQLiteDatabase.CONFLICT_REPLACE);
 	}
 	
 	/**
@@ -8634,11 +8634,10 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		{
 			String updateStatement = "UPDATE " + DBConstants.MESSAGES_TABLE + " SET " + DBConstants.SORTING_ID + " = "
 					+ " ( ( " + "SELECT" + " MAX( " + DBConstants.SORTING_ID + " ) " + " FROM " + DBConstants.MESSAGES_TABLE + " )" + " + 1 ), "
-					+ DBConstants.MSG_STATUS + " = " + state.ordinal()
-					+ DBConstants.TIMESTAMP + " = " + System.currentTimeMillis()/1000
-					+ DBConstants.MESSAGE + " = " + hm
-					+ " WHERE " + DBConstants.MESSAGE_HASH + " = " + "'"
-					+ msgHash + "'";
+					+ DBConstants.MSG_STATUS + " = " + state.ordinal()+","
+					+ DBConstants.TIMESTAMP + " = " + System.currentTimeMillis()/1000+","
+					+ DBConstants.MESSAGE + " = " + DatabaseUtils.sqlEscapeString(hm)
+					+ " WHERE " + DBConstants.MESSAGE_HASH + " = " + DatabaseUtils.sqlEscapeString(msgHash);
 
 			mDb.execSQL(updateStatement);
 		}
@@ -8647,7 +8646,9 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		{
 			Logger.e("HikeConversationsDatabase", "Got an exception while updating sortingId for a Message");
 		}
-		return getMessageFromMessageHash(msgHash);
+		ConvMessage msg =getMessageFromMessageHash(msgHash);
+		updateConvTable(msg);
+		return msg;
 	}
 
 	public boolean isConversationExist(String msisdn)
@@ -8699,25 +8700,34 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 		if (c.moveToFirst())
 		{
-			final int msisdnColumn=c.getColumnIndex(DBConstants.MSISDN);
-			final int msgColumn = c.getColumnIndex(DBConstants.MESSAGE);
-			final int msgStatusColumn = c.getColumnIndex(DBConstants.MSG_STATUS);
-			final int lastTsColumn = c.getColumnIndex(DBConstants.LAST_MESSAGE_TIMESTAMP);
-			final int mappedMsgIdColumn = c.getColumnIndex(DBConstants.MAPPED_MSG_ID);
-			final int msgIdColumn = c.getColumnIndex(DBConstants.MESSAGE_ID);
-			final int metadataColumn = c.getColumnIndex(DBConstants.MESSAGE_METADATA);
-			final int pvtDataColumn = c.getColumnIndex(DBConstants.PRIVATE_DATA);
-			final int serveridColumn=c.getColumnIndex(DBConstants.SERVER_ID);
-			final int messageOriginColumn=c.getColumnIndex(DBConstants.MESSAGE_ORIGIN_TYPE);
-			final int groupParticipantColumn = c.getColumnIndex(DBConstants.GROUP_PARTICIPANT);
-
-			ConvMessage message = new ConvMessage(c.getString(msgColumn),c.getString(msisdnColumn),c.getLong(lastTsColumn), ConvMessage.stateValue(c.getInt(msgStatusColumn)),
-					c.getLong(msgIdColumn), c.getLong(mappedMsgIdColumn), c.getString(groupParticipantColumn));
-			String metadata = c.getString(metadataColumn);
 
 
-			return message;
+
+			 final int msisdnColumn=c.getColumnIndex(DBConstants.MSISDN);
+			 final int msgColumn = c.getColumnIndex(DBConstants.MESSAGE);
+			 final int msgStatusColumn = c.getColumnIndex(DBConstants.MSG_STATUS);
+			 final int tsColumn = c.getColumnIndex(DBConstants.TIMESTAMP);
+			 final int mappedMsgIdColumn = c.getColumnIndex(DBConstants.MAPPED_MSG_ID);
+			 final int msgIdColumn = c.getColumnIndex(DBConstants.MESSAGE_ID);
+			 final int groupParticipantColumn = c.getColumnIndex(DBConstants.GROUP_PARTICIPANT);
+			 final int typeColumn = c.getColumnIndex(DBConstants.MESSAGE_TYPE);
+			 final int contentIdColumn = c.getColumnIndex(DBConstants.HIKE_CONTENT.CONTENT_ID);
+			 final int nameSpaceColumn = c.getColumnIndex(HIKE_CONTENT.NAMESPACE);
+			 final int sortId = c.getColumnIndex(DBConstants.SORTING_ID);
+
+				 ConvMessage message = new ConvMessage(c.getString(msgColumn),c.getString(msisdnColumn), c.getInt(tsColumn), ConvMessage.stateValue(c.getInt(msgStatusColumn)),
+						 c.getLong(msgIdColumn), c.getLong(mappedMsgIdColumn), c.getString(groupParticipantColumn), true, c.getInt(typeColumn), c.getInt(contentIdColumn), c.getString(nameSpaceColumn));
+				 message.setSortingId(c.getLong(sortId));
+				 return message;
+
 		}
 		return null;
+	}
+
+	public void updateConvTable(ConvMessage convMessage)
+	{
+		ContentValues value=getContentValueForConversationMessage(convMessage,convMessage.getTimestamp());
+		mDb.update(DBConstants.CONVERSATIONS_TABLE,value, DBConstants.MSISDN + "=?", new String[] {convMessage.getMsisdn()});
+
 	}
 }

@@ -34,6 +34,8 @@ public class MessageEvent
 
 	private String parent_msisdn;
 
+	private String hike_message;
+
 	public MessageEvent(String eventType, String msisdn, String nameSpace, String eventMetadata, String messageHash, int eventStatus, long timeStamp)
 	{
 		this(eventType, msisdn, nameSpace, eventMetadata, messageHash, eventStatus, timeStamp, -1);
@@ -48,8 +50,12 @@ public class MessageEvent
 	{
 		this(eventType, msisdn, nameSpace, eventMetadata, messageHash, eventStatus, timeStamp, mappedEventId, messageId, null);
 	}
-
 	public MessageEvent(String eventType, String msisdn, String nameSpace, String eventMetadata, String messageHash, int eventStatus, long timeStamp, long mappedEventId, long messageId, String parent_msisdn)
+	{
+		this(eventType, msisdn, nameSpace, eventMetadata, messageHash, eventStatus, timeStamp, mappedEventId, messageId,parent_msisdn,"");
+	}
+
+	public MessageEvent(String eventType, String msisdn, String nameSpace, String eventMetadata, String messageHash, int eventStatus, long timeStamp, long mappedEventId, long messageId, String parent_msisdn,String hike_message)
 	{
 		setEventType(eventType);
 		this.msisdn = msisdn;
@@ -61,6 +67,7 @@ public class MessageEvent
 		this.mappedEventId = mappedEventId;
 		this.messageId = messageId;
 		this.parent_msisdn = parent_msisdn;
+		this.hike_message=hike_message;
 	}
 
 	public int getEventStatus()
@@ -191,6 +198,11 @@ public class MessageEvent
 	public String getSenderMsisdn()
 	{
      	return isEventSent(eventStatus) ? ContactManager.getInstance().getSelfMsisdn() : msisdn;
+	}
+
+	public String getHikeMessage()
+	{
+		return hike_message;
 	}
 	
 }

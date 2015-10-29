@@ -78,11 +78,14 @@ public class GeneralEventMessagesManager
 				String eventMetadata = data.getString(HikePlatformConstants.EVENT_CARDDATA);
 				String namespace = data.getString(HikePlatformConstants.NAMESPACE);
 				String parent_msisdn = data.optString(HikePlatformConstants.PARENT_MSISDN);
+				String hm=data.optString(HikePlatformConstants.HIKE_MESSAGE,data.optString(HikePlatformConstants.NOTIFICATION));
 				MessageEvent messageEvent = new MessageEvent(HikePlatformConstants.NORMAL_EVENT, from, namespace, eventMetadata, messageHash,
-						HikePlatformConstants.EventStatus.EVENT_RECEIVED, clientTimestamp, mappedId, messageId, parent_msisdn);
+						HikePlatformConstants.EventStatus.EVENT_RECEIVED, clientTimestamp, mappedId, messageId, parent_msisdn,hm);
 				long eventId = HikeConversationsDatabase.getInstance().insertMessageEvent(messageEvent);
-				String hm=data.optString(HikePlatformConstants.HIKE_MESSAGE);
-				HikeConversationsDatabase.getInstance().updateMessageForGeneralEvent(messageHash, ConvMessage.State.RECEIVED_UNREAD, hm);
+
+
+				ConvMessage message=HikeConversationsDatabase.getInstance().updateMessageForGeneralEvent(messageHash, ConvMessage.State.RECEIVED_UNREAD, hm);
+				HikeMessengerApp.getPubSub().publish(HikePubSub.GENERAL_EVENT, message);
 				if (eventId < 0)
 				{
 					Logger.e("General Event", "Duplicate event");
