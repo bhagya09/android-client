@@ -843,12 +843,6 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 			Editor editor = settings.edit();
 			editor.putString(CURRENT_APP_VERSION, actualAppVersion);
 			editor.commit();
-			//Failsafes for Upgrade tips, persistent notifications
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOULD_SHOW_PERSISTENT_NOTIF, false);
-			((NotificationManager) getApplicationContext().getSystemService(NOTIFICATION_SERVICE)).cancel(HikeNotification.PERSISTENT_NOTIF_ID);
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOW_NORMAL_UPDATE_TIP, false);
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOW_CRITICAL_UPDATE_TIP, false);
-			mPubSubInstance.publish(HikePubSub.REMOVE_TIP, ConversationTip.UPDATE_CRITICAL_TIP);
 		}
 
 		initImportantAppComponents(settings);
