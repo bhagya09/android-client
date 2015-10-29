@@ -179,7 +179,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 
 	private LastSeenScheduler lastSeenScheduler;
 
-	private String[] hikePubSubListeners = { HikePubSub.MULTI_FILE_TASK_FINISHED, HikePubSub.APP_FOREGROUNDED, HikePubSub.LAST_SEEN_TIME_UPDATED,
+	private String[] hikePubSubListeners = { HikePubSub.MULTI_FILE_TASK_STARTED, HikePubSub.APP_FOREGROUNDED, HikePubSub.LAST_SEEN_TIME_UPDATED,
 			HikePubSub.LAST_SEEN_TIME_BULK_UPDATED, HikePubSub.CONTACT_SYNC_STARTED, HikePubSub.CONTACT_SYNCED };
 
 	private int previousFirstVisibleItem;
@@ -2259,7 +2259,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 	{
 		super.onEventReceived(type, object);
 
-		if (HikePubSub.MULTI_FILE_TASK_FINISHED.equals(type))
+		if (HikePubSub.MULTI_FILE_TASK_STARTED.equals(type))
 		{
 			final Intent intent = (Intent) object;
 
