@@ -1,29 +1,22 @@
 package com.bsb.hike.bots;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.content.Context;
 import android.text.TextUtils;
 import android.util.Base64;
 
+import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeConstants.NotificationType;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikeMessengerApp.CurrentState;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
-import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
-import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.models.Conversation.ConvInfo;
+import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
@@ -38,6 +31,13 @@ import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * This class is for utility methods of bots
@@ -509,6 +509,8 @@ public class BotUtils
 		ContactManager.getInstance().updateContacts(contact);
 		HikeMessengerApp.getPubSub().publish(HikePubSub.CONTACT_ADDED, contact);
 		
+		HikeMessengerApp.getPubSub().publish(HikePubSub.BOT_CREATED, botInfo);
+		
 		/**
 		 * Notification will be played only if enable bot is true and notifType is Silent/Loud
 		 */
@@ -746,6 +748,7 @@ public class BotUtils
 			json.put(HikePlatformConstants.PLATFORM_USER_ID, HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PLATFORM_UID_SETTING, null));
 			json.put(AnalyticsConstants.BOT_NAME, name);
 			json.put(AnalyticsConstants.BOT_MSISDN, msisdn);
+			json.put(HikePlatformConstants.NETWORK_TYPE, Integer.toString(Utils.getNetworkType(HikeMessengerApp.getInstance().getApplicationContext())));
 		}
 		catch (JSONException e)
 		{
@@ -758,12 +761,13 @@ public class BotUtils
 	 * Unblock the bot and add to the conversation list.
 	 * @param botInfo
 	 */
-	public static void unblockBotAndAddConv(BotInfo botInfo)
+	public static void unblockBotIfBlocked(BotInfo botInfo)
 	{
-		botInfo.setBlocked(false);
-		HikeMessengerApp.getPubSub().publish(HikePubSub.UNBLOCK_USER, botInfo.getMsisdn());
-		
-		HikeMessengerApp.getPubSub().publish(HikePubSub.ADD_NM_BOT_CONVERSATION, botInfo);
+		if (botInfo.isBlocked())
+		{
+			botInfo.setBlocked(false);
+			HikeMessengerApp.getPubSub().publish(HikePubSub.UNBLOCK_USER, botInfo.getMsisdn());
+		}
 	}
 
 }

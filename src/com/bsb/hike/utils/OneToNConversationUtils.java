@@ -35,6 +35,11 @@ import com.bsb.hike.models.Conversation.GroupConversation;
 import com.bsb.hike.models.Conversation.OneToNConversation;
 import com.bsb.hike.models.Conversation.OneToNConversationMetadata;
 import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.modules.httpmgr.RequestToken;
+import com.bsb.hike.modules.httpmgr.exception.HttpException;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
+import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
+import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.service.HikeMqttManagerNew;
 
 public class OneToNConversationUtils
@@ -231,6 +236,11 @@ public class OneToNConversationUtils
 
 	public static void createGroupOrBroadcast(Activity activity, ArrayList<ContactInfo> selectedContactList, String convName, String convId, int setting)
 	{
+		createGroupOrBroadcast(activity, selectedContactList, convName, convId, setting, false);
+	}
+	
+	public static void createGroupOrBroadcast(Activity activity, ArrayList<ContactInfo> selectedContactList, String convName, String convId, int setting, boolean isLinkSharedGroup)
+	{
 		String oneToNConvId;
 		if (activity.getIntent().hasExtra(HikeConstants.Extras.BROADCAST_LIST))
 		{
@@ -319,11 +329,7 @@ public class OneToNConversationUtils
 				}
 				metadata.put(HikeConstants.NAME, convName);
 
-				String directory = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT;
-				String fileName = Utils.getTempProfileImageFileName(oneToNConvId);
-				File groupImageFile = new File(directory, fileName);
-
-				if (groupImageFile.exists())
+				if (isGroupDPSetWhileCreatingGroup(oneToNConvId))
 				{
 					metadata.put(HikeConstants.REQUEST_DP, true);
 				}
@@ -345,8 +351,12 @@ public class OneToNConversationUtils
 			ContactManager.getInstance().updateGroupRecency(oneToNConvId, msg.getTimestamp());
 			HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_SENT, msg);
 			
-			HikeMqttManagerNew.getInstance().sendMessage(gcjPacket, MqttConstants.MQTT_QOS_ONE);
-
+			// isLinkSharedGroup:- This group is created for Sharing link so no mqtt packet
+			if(!isLinkSharedGroup)
+			{
+				HikeMqttManagerNew.getInstance().sendMessage(gcjPacket, MqttConstants.MQTT_QOS_ONE);
+			}
+			
 			/**
 			 * This is for updating the UI in ChatThread if it is not a new conversation. Also used for updating the default broadcast name on homescreen
 			 */
@@ -432,5 +442,130 @@ public class OneToNConversationUtils
 		SimpleDateFormat df = new SimpleDateFormat(format);
 		return df.format(creationTime);
 
+	}
+
+	public static String createNewGroupId(Context context)
+	{
+		SharedPreferences prefs = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, context.MODE_PRIVATE);
+		String uid = prefs.getString(HikeMessengerApp.UID_SETTING, "");
+		String conversationId = uid + ":" + System.currentTimeMillis();
+		return conversationId;
+	}
+	
+	public static boolean isGroupDPSetWhileCreatingGroup(String oneToNConvId)
+	{
+		String directory = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT;
+		String fileName = Utils.getTempProfileImageFileName(oneToNConvId);
+		File groupImageFile = new File(directory, fileName);
+		
+		return groupImageFile.exists();
+	}
+	
+	/**
+	 * This creates a new Chat Group on clicking a button inside Bot
+	 * @param convName
+	 * @param convId
+	 * @param setting
+	 * @param isLinkSharedGroup
+	 */
+	public static void createNewShareGroupViaServerSentCard(String convName, String convId, int setting, boolean isLinkSharedGroup)
+	{
+		Context mContext = HikeMessengerApp.getInstance().getApplicationContext(); 
+		String oneToNConvId = convId;
+		boolean newOneToNConv = true;
+
+		Map<String, PairModified<GroupParticipant, String>> participantList = new HashMap<String, PairModified<GroupParticipant, String>>();
+
+		ContactInfo userContactInfo = Utils.getUserContactInfo(mContext.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, Context.MODE_PRIVATE));
+
+		OneToNConversation oneToNConversation = new GroupConversation.ConversationBuilder(oneToNConvId).setConversationOwner(userContactInfo.getMsisdn()).setIsAlive(true).setCreationTime(System.currentTimeMillis()).setConversationCreator(userContactInfo.getMsisdn()).build();
+
+		oneToNConversation.setConversationParticipantList(participantList);
+
+		HikeConversationsDatabase mConversationDb = HikeConversationsDatabase.getInstance();
+		mConversationDb.addRemoveGroupParticipants(oneToNConvId, oneToNConversation.getConversationParticipantList(), false);
+		
+		mConversationDb.addConversation(oneToNConversation.getMsisdn(), false, convName, oneToNConversation.getConversationOwner(), null, oneToNConversation.getCreationDate(), oneToNConversation.getConversationCreator());
+		ContactManager.getInstance().insertGroup(oneToNConversation.getMsisdn(), convName);
+		if (oneToNConversation instanceof GroupConversation)
+		{
+	    	mConversationDb.changeGroupSettings(oneToNConvId, setting,1, new ContentValues());
+		}
+
+		try
+		{
+			// Adding this boolean value to show a different system message
+			// if its a new group
+			JSONObject gcjPacket = oneToNConversation.serialize(HikeConstants.MqttMessageTypes.GROUP_CHAT_JOIN);
+			gcjPacket.put(HikeConstants.NEW_GROUP, newOneToNConv);
+			
+			JSONObject metadata = new JSONObject();
+			if (oneToNConversation instanceof GroupConversation){
+			metadata.put(HikeConstants.FROM, oneToNConversation.getConversationOwner());
+			metadata.put(HikeConstants.GROUP_TYPE, HikeConstants.GROUPS_TYPE.MULTI_ADMIN);
+			metadata.put(HikeConstants.GROUP_SETTING,setting);
+			}
+			metadata.put(HikeConstants.NAME, convName);
+
+			if (isGroupDPSetWhileCreatingGroup(oneToNConvId))
+			{
+				metadata.put(HikeConstants.REQUEST_DP, true);
+			}
+			
+			gcjPacket.put(HikeConstants.METADATA, metadata);
+	
+			ConvMessage msg = new ConvMessage(gcjPacket, oneToNConversation, mContext, true);
+			ContactManager.getInstance().updateGroupRecency(oneToNConvId, msg.getTimestamp());
+			HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_SENT, msg);
+			
+			ContactInfo conversationContactInfo = new ContactInfo(oneToNConvId, oneToNConvId, oneToNConvId, oneToNConvId);
+			Intent intent = IntentFactory.createChatThreadIntentFromContactInfo(mContext, conversationContactInfo, true, newOneToNConv);
+			intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+			mContext.startActivity(intent);
+
+		}
+		catch (JSONException e)
+		{
+			Logger.e(TAG, "Getting a JSON Exception while creating a newgroup/broadcast : " + e.toString());
+		}
+
+	
+	}
+	
+	public static void uploadGroupProfileImage(final String groupId)
+	{
+		String directory = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT;
+		String fileName = Utils.getTempProfileImageFileName(groupId);
+
+		File groupImageFile = new File(directory, fileName);
+		if (!groupImageFile.exists())
+		{
+			return;
+		}
+		
+		IRequestListener requestListener = new IRequestListener()
+		{
+			@Override
+			public void onRequestSuccess(Response result)
+			{
+				Utils.renameTempProfileImage(groupId);
+			}
+			
+			@Override
+			public void onRequestProgressUpdate(float progress)
+			{				
+			}
+			
+			@Override
+			public void onRequestFailure(HttpException httpException)
+			{
+				Utils.removeTempProfileImage(groupId);
+				HikeMessengerApp.getLruCache().deleteIconForMSISDN(groupId);
+				HikeMessengerApp.getPubSub().publish(HikePubSub.ICON_CHANGED, groupId);
+			}
+		};
+		
+		RequestToken requestToken = HttpRequests.editGroupProfileAvatarRequest(groupImageFile.getPath(), requestListener, groupId);
+		requestToken.execute();
 	}
 }
