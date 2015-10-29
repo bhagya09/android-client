@@ -1252,5 +1252,10 @@
     <string name="choose_language">Choose Language</string>
     <string name="choose_language_desciption">Now your favourite messenger in your favourite language</string>
     <string name="system_language">System Language</string>
-	
+    <string name="regional_keyboard">Regional Keyboard</string>
+    <string name="regional_keyboard_subtext">Now chat in your favourite language with new keyboard</string>
+    <string name="CHOOSE_LANGUAGE">CHOOSE LANGUAGE</string>
+	<string name="apply">Apply</string>
+    <string name="keyboad_ftue_swipe">Swipe to change between your language</string>
+    <string name="setting_up_keyboard">Setting up Keyboard</string>
 </resources>
