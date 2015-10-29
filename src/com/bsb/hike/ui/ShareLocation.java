@@ -975,14 +975,20 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 	{
 		if(item.getItemId()==android.R.id.home)
 		{
-			if (mCustomKeyboard != null && mCustomKeyboard.isCustomKeyboardVisible())
-			{
-				mCustomKeyboard.showCustomKeyboard(searchET, false);
-			}
+			hideKeyboard(searchET);
 			onBackPressed();
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
+	}
+	
+	public void hideKeyboard(CustomFontEditText editText)
+	{
+		if (mCustomKeyboard != null && mCustomKeyboard.isCustomKeyboardVisible())
+		{
+			mCustomKeyboard.showCustomKeyboard(editText, false);
+			KptUtils.updatePadding(ShareLocation.this, R.id.screen, 0);
+		}
 	}
 	
 	@Override
@@ -990,8 +996,7 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 	{
 		if (mCustomKeyboard != null && mCustomKeyboard.isCustomKeyboardVisible())
 		{
-			mCustomKeyboard.showCustomKeyboard(searchET, false);
-			KptUtils.updatePadding(ShareLocation.this, R.id.screen, 0);
+			hideKeyboard(searchET);
 			return;
 		}
 		finish();
@@ -1005,13 +1010,7 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 		}
 		super.onConfigurationChanged(newConfig);
 	}
-	public void onBackKeyPressedET(CustomFontEditText editText)
-	{
-		if(mCustomKeyboard!=null && searchET!=null)
-		{
-			mCustomKeyboard.showCustomKeyboard(searchET, false);
-		}
-	}
+	
 	@Override
 	public void analyticalData(String arg0) {
 		// TODO Auto-generated method stub
