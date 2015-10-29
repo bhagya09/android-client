@@ -4067,6 +4067,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 		StringBuilder sb = new StringBuilder();
 		sb.append("(");
+		String msisdn=convMessages.get(0).getMsisdn();
 
 		List<Pair<Long, JSONObject>> ids = new ArrayList<Pair<Long, JSONObject>>();
 		for (int j = 0; j < convMessages.size(); j++)
@@ -4102,12 +4103,12 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		ContentValues values = new ContentValues();
 		values.put(DBConstants.MSG_STATUS, ConvMessage.State.RECEIVED_READ.ordinal());
 		int rowsAffected = mDb.update(DBConstants.MESSAGES_TABLE, values, DBConstants.MESSAGE_ID + " in " + sb.toString(), null);
-
+		String[] args = { msisdn };
 		// Resetting the unread count as well
 		values.put(DBConstants.UNREAD_COUNT, 0);
-		mDb.update(DBConstants.CONVERSATIONS_TABLE, values, DBConstants.MESSAGE_ID + " in " + sb.toString(), null);
-
-		Logger.d("HIKE CONVERSATION DB ", "Rows Updated : " + rowsAffected);
+		int rowsAffect = mDb.update(DBConstants.CONVERSATIONS_TABLE, values, DBConstants.MSISDN + "=?", args);
+	
+		Logger.d("HIKE CONVERSATION DB ", "Rows Updated : " + rowsAffected + " RowsUpdated " + rowsAffect);
 		if (ids.size() == 0)
 		{
 			return null;
@@ -7121,11 +7122,38 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 	public int getTotalUnreadMessages()
 	{
 		int unreadMessages = 0;
+		unreadMessages=getTotalUnreadMessagesConversation();
+		unreadMessages += Utils.getNotificationCount(mContext.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0), false);
+
+		return unreadMessages;
+	}
+
+	public int getTotalUnreadMessagesConversation()
+	{
+		return getTotalUnreadMessagesConversation(true);
+	}
+
+	/**
+	 * @param includeStealth
+	 *            whether to include the hidden conversations unread count or not
+	 * @return total unread count of conversations
+	 */
+	public int getTotalUnreadMessagesConversation(boolean includeStealth)
+	{
+		int unreadMessages = 0;
 		Cursor c = null;
 
 		try
 		{
-			c = mDb.query(DBConstants.CONVERSATIONS_TABLE, new String[] { DBConstants.UNREAD_COUNT }, null, null, null, null, null);
+			String selection = null;
+			String[] args = null;
+			if (!includeStealth)
+			{
+				selection = DBConstants.IS_STEALTH + " = ?";
+				args = new String[] { "0" };
+			}
+
+			c = mDb.query(DBConstants.CONVERSATIONS_TABLE, new String[] { DBConstants.UNREAD_COUNT }, selection, args, null, null, null);
 
 			final int unreadMessageColumn = c.getColumnIndex(DBConstants.UNREAD_COUNT);
 
@@ -7146,11 +7174,8 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			}
 		}
 
-		unreadMessages += Utils.getNotificationCount(mContext.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0), false);
-
 		return unreadMessages;
 	}
-
 	public HashMap<String, ContentValues> getCurrentStickerDataMapping(String tableName)
 	{
 		HashMap<String, ContentValues> result = new HashMap<String, ContentValues>();

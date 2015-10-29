@@ -25,7 +25,6 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.graphics.Canvas;
-import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
 import android.graphics.Matrix;
 import android.graphics.Paint;
@@ -45,6 +44,7 @@ import android.view.WindowManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.BitmapModule.BitmapUtils;
 import com.bsb.hike.cropimage.HikeCropFragment.HikeCropListener;
@@ -93,11 +93,30 @@ public class HikeCropActivity extends HikeAppStateBaseFragmentActivity
 		if (extras != null)
 		{
 			mSrcImagePath = extras.getString(SOURCE_IMAGE_PATH);
-			mCropImagePath = extras.getString(CROPPED_IMAGE_PATH);
-			Parcelable parcelable = extras.getParcelable(CROP_COMPRESSION);
-			if (parcelable != null)
+
+			if (TextUtils.isEmpty(mSrcImagePath))
 			{
-				mCropCompression = (CropCompression) parcelable;
+				mSrcImagePath = intent.getStringExtra(HikeConstants.Extras.GALLERY_SELECTION_SINGLE);
+			}
+
+			if (TextUtils.isEmpty(mSrcImagePath))
+			{
+				onCropFailed();
+				return;
+			}
+
+			mCropImagePath = extras.getString(CROPPED_IMAGE_PATH);
+
+			Bundle intentExtraBundle = extras.getBundle(CROP_COMPRESSION);
+
+			if (intentExtraBundle != null)
+			{
+				Parcelable parcelable = intentExtraBundle.getParcelable(CROP_COMPRESSION);
+
+				if (parcelable != null)
+				{
+					mCropCompression = (CropCompression) parcelable;
+				}
 			}
 		}
 
@@ -272,7 +291,6 @@ public class HikeCropActivity extends HikeAppStateBaseFragmentActivity
 			{
 				canvas.drawBitmap(argBmp, 0,0, paint);
 			}
-//			BitmapUtils.saveBitmapToFile(new File(TestBmp.getFilename()), scaledBitmap, CompressFormat.JPEG, mCropCompression == null ? 85 : mCropCompression.getQuality());
 		}
 		catch (OutOfMemoryError exception)
 		{
