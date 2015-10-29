@@ -519,6 +519,7 @@ public class HikeListActivity extends HikeAppStateBaseFragmentActivity implement
 	{
 		super.onPause();
 		KptUtils.pauseKeyboardResources(mCustomKeyboard, input);
+		KptUtils.updatePadding(HikeListActivity.this, R.id.hike_list_parent_layout, 0);
 		if(adapter != null)
 		{
 			adapter.getIconLoader().setExitTasksEarly(true);
@@ -536,6 +537,7 @@ public class HikeListActivity extends HikeAppStateBaseFragmentActivity implement
 			adapter.notifyDataSetChanged();
 		}
 	}
+	
 	@Override
 	protected void onDestroy()
 	{
