@@ -353,10 +353,13 @@ public class ShareLinkFragment extends DialogFragment implements OnClickListener
 		dismissProgressDialog();
 
 		// dismiss Dialog
-		FragmentTransaction ft = getFragmentManager().beginTransaction();
+		android.support.v4.app.FragmentManager fm = getFragmentManager();
+		FragmentTransaction ft = fm.beginTransaction();
 		ft.remove(this);
 
 		ft.commitAllowingStateLoss();
+
+		fm.executePendingTransactions();
 
 	}
 	
@@ -461,7 +464,8 @@ public class ShareLinkFragment extends DialogFragment implements OnClickListener
 			break;
 
 		case OTHERS:
-			String str = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.TEXT_FOR_GC_VIA_OTHERS, getString(R.string.link_share_others_msg))
+			String str = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.TEXT_FOR_GC_VIA_OTHERS, 
+					HikeMessengerApp.getInstance().getApplicationContext().getString(R.string.link_share_others_msg))
 			+ "\n " + url;
 			str = str.replace("$groupname", grpName);
 			ShareUtils.shareContent(HikeConstants.Extras.ShareTypes.TEXT_SHARE, str, null);

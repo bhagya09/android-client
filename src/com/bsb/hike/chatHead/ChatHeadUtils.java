@@ -59,6 +59,7 @@ import com.bsb.hike.voip.VoIPUtils.CallSource;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.google.gson.JsonSyntaxException;
 
 public class ChatHeadUtils
 {
@@ -269,10 +270,18 @@ public class ChatHeadUtils
 	{
 		if (result != null)
 		{
-			JsonParser parser = new JsonParser();
-			JsonObject callerDetails = (JsonObject) parser.parse(result);
-			CallerContentModel callerContentModel = new Gson().fromJson(callerDetails, CallerContentModel.class);
-			return callerContentModel;
+			try
+			{
+				JsonParser parser = new JsonParser();
+				JsonObject callerDetails = (JsonObject) parser.parse(result);
+				CallerContentModel callerContentModel = new Gson().fromJson(callerDetails, CallerContentModel.class);
+				return callerContentModel;
+			}
+			catch (JsonSyntaxException e)
+			{
+				Logger.d(TAG, "Json Syntax Exception" + e);
+			}
+			
 		}
 		return null;
 	}
