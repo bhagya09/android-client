@@ -150,6 +150,7 @@ import android.util.Pair;
 import android.view.GestureDetector;
 import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -157,6 +158,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnKeyListener;
 import android.view.View.OnTouchListener;
+import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.view.WindowManager;
 import android.view.animation.Animation;
@@ -367,6 +369,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	private boolean shouldKeyboardPopupShow;
 	
 	protected int keyboardHeight;
+
+	protected KeyboardFtue keyboardFtue;
 	
 	private class ChatThreadBroadcasts extends BroadcastReceiver
 	{
@@ -643,6 +647,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		sharedPreference = HikeSharedPreferenceUtil.getInstance();
 		initMessageChannel();
 		shouldKeyboardPopupShow=HikeMessengerApp.keyboardApproach(activity);
+		keyboardFtue = new KeyboardFtue();
 	}
 
 	
@@ -693,6 +698,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 		initActionMode();
 
+		initKeyboardFtue();
 		addOnClickListeners();
 
 		showNetworkError(ChatThreadUtils.checkNetworkError());
@@ -776,6 +782,21 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	{
 		mActionMode = new HikeActionMode(activity, this);
 	}
+
+	private void initKeyboardFtue()
+	{
+		if (!keyboardFtue.isFTUEComplete())
+			keyboardFtue.init(activity, (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE),(ViewGroup)activity.findViewById(R.id.keyboard_ftue_container),keyboardFTUEdestroyedListener);
+	}
+
+	private KeyboardFtue.OnKeyboardFTUEDestroyedListener keyboardFTUEdestroyedListener = new KeyboardFtue.OnKeyboardFTUEDestroyedListener()
+	{
+		@Override
+		public void onDestroyed()
+		{
+			showKeyboard();
+		}
+	};
 
 	/**
 	 * Updates the mainView for KeyBoard popup as well as updates the Picker Listeners for Emoticon and Stickers
@@ -2379,7 +2400,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	
 	protected boolean shouldShowKeyboard()
 	{
-		return mConversation.getMessagesList().isEmpty() && !mConversation.isBlocked();
+		return mConversation.getMessagesList().isEmpty() && !mConversation.isBlocked() && !keyboardFtue.isReadyForFTUE();
 	}
 
 	/**
@@ -3494,6 +3515,11 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 				 * This calls is to avoid the seeming delay in appearance of edittext.
 				 */
 				KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, (keyboardHeight == 0) ? mCustomKeyboard.getKeyBoardAndCVHeight() : keyboardHeight);
+				if (keyboardFtue.isReadyForFTUE())
+				{
+					keyboardFtue.showNextFtue();
+					hideKeyboard();
+				}
 			}
 			if(stickerTagWatcher != null)
 			{
