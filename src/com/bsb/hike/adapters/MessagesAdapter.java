@@ -3547,7 +3547,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 						}
 						else if (fss.getFTState() != FTState.INITIALIZED)
 						{
-							FileTransferManager.getInstance(context).uploadFile(convMessage);
+							FileTransferManager.getInstance(context).uploadFile(convMessage, null);
 						}
 					}
 					notifyDataSetChanged();

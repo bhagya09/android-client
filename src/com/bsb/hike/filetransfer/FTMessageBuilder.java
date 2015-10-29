@@ -54,7 +54,7 @@ public class FTMessageBuilder {
 					 */
 					if(builder.contactList != null && !builder.contactList.isEmpty())
 					{
-						FileTransferManager.getInstance(mContext).uploadFile(builder.contactList, ftConvMsgs);
+						FileTransferManager.getInstance(mContext).uploadFile(builder.contactList, ftConvMsgs, builder.fileKey);
 					}
 					else
 					{
@@ -67,7 +67,7 @@ public class FTMessageBuilder {
 							}
 							else
 							{
-								FileTransferManager.getInstance(mContext).uploadFile(convMessage);
+								FileTransferManager.getInstance(mContext).uploadFile(convMessage, builder.fileKey);
 							}
 						}
 					}
