@@ -296,6 +296,7 @@ public class CocosGamingActivity extends Cocos2dxActivity
 	@Override
 	protected void onResume()
 	{
+		Logger.d(TAG, "onResume()");
 		super.onResume();
 		HAManager.getInstance().startChatSession(msisdn);
 		openTimestamp = System.currentTimeMillis();
@@ -304,17 +305,24 @@ public class CocosGamingActivity extends Cocos2dxActivity
 	@Override
 	protected void onPause()
 	{
+		Logger.d(TAG, "onPause()");
 		super.onPause();
 		HAManager.getInstance().endChatSession(msisdn);
 		activeDuration = activeDuration + (System.currentTimeMillis() - openTimestamp);
 	}
 
 	@Override
-	protected void onStop()
+	protected void onDestroy()
 	{
-		HikeAppStateUtils.onStop(this);
-		super.onStop();
-		HikeMessengerApp.getPubSub().removeListener(HikePubSub.SHOW_IMAGE, this);
+		sendGameOpenAnalytics();
+		onHandlerDestroy();
+		super.onDestroy();
+	}
+
+	public void sendGameOpenAnalytics()
+	{
+		activeDuration = activeDuration + (System.currentTimeMillis() - openTimestamp);
+		Logger.d(TAG, "Active duration : " + activeDuration);
 		nativeBridge.logAnalytics("true", "gaming", getGameOpenAnalyticsJson().toString());
 	}
 
