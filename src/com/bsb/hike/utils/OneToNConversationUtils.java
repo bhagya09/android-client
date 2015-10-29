@@ -35,6 +35,11 @@ import com.bsb.hike.models.Conversation.GroupConversation;
 import com.bsb.hike.models.Conversation.OneToNConversation;
 import com.bsb.hike.models.Conversation.OneToNConversationMetadata;
 import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.modules.httpmgr.RequestToken;
+import com.bsb.hike.modules.httpmgr.exception.HttpException;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
+import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
+import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.service.HikeMqttManagerNew;
 
 public class OneToNConversationUtils
@@ -521,5 +526,42 @@ public class OneToNConversationUtils
 		}
 
 	
+	}
+	
+	public static void uploadGroupProfileImage(final String groupId)
+	{
+		String directory = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT;
+		String fileName = Utils.getTempProfileImageFileName(groupId);
+
+		File groupImageFile = new File(directory, fileName);
+		if (!groupImageFile.exists())
+		{
+			return;
+		}
+		
+		IRequestListener requestListener = new IRequestListener()
+		{
+			@Override
+			public void onRequestSuccess(Response result)
+			{
+				Utils.renameTempProfileImage(groupId);
+			}
+			
+			@Override
+			public void onRequestProgressUpdate(float progress)
+			{				
+			}
+			
+			@Override
+			public void onRequestFailure(HttpException httpException)
+			{
+				Utils.removeTempProfileImage(groupId);
+				HikeMessengerApp.getLruCache().deleteIconForMSISDN(groupId);
+				HikeMessengerApp.getPubSub().publish(HikePubSub.ICON_CHANGED, groupId);
+			}
+		};
+		
+		RequestToken requestToken = HttpRequests.editGroupProfileAvatarRequest(groupImageFile.getPath(), requestListener, groupId);
+		requestToken.execute();
 	}
 }
