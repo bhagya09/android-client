@@ -6,9 +6,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ListView;
+import android.widget.Toast;
 import android.widget.ViewFlipper;
 
 import com.bsb.hike.HikeMessengerApp;
@@ -48,6 +50,10 @@ public class KeyboardFtue implements HikePubSub.Listener
     LanguageItemAdapter addonItemAdapter;
 
     String[] mPubSubListeners = new String[] { HikePubSub.KPT_LANGUAGES_UPDATED, HikePubSub.KPT_LANGUAGES_INSTALLATION_FINISHED };
+
+    private int originallyInstalledLanguageCount;
+
+    private int toInstallLanguageCount;
 
     public KeyboardFtue()
     {
@@ -218,22 +224,56 @@ public class KeyboardFtue implements HikePubSub.Listener
 
     private void skipLanguageSelection()
     {
+        finishLanguageSelectionFTUE();
+    }
+
+    private void finishLanguageSelectionFTUE()
+    {
         updateState(LANGUAGE_SELECTION_COMPLETE);
         showNextFtue();
     }
 
     private void installSelectedLangauges()
     {
-        for(KPTAddonItem item : addonItemAdapter.getSelectedItems())
+        originallyInstalledLanguageCount = KptKeyboardManager.getInstance(mActivity).getInstalledLanguagesList().size();
+        toInstallLanguageCount = addonItemAdapter.getSelectedItems().size();
+        if (toInstallLanguageCount > 0)
         {
-            KptKeyboardManager.getInstance(mActivity).downloadAndInstallLanguage(item);
+            for (KPTAddonItem item : addonItemAdapter.getSelectedItems())
+            {
+                KptKeyboardManager.getInstance(mActivity).downloadAndInstallLanguage(item);
+            }
+        }
+        else
+        {
+            onInstallationComplete();
         }
     }
 
     private void onInstallationComplete()
     {
-        updateState(LANGUAGE_SELECTION_COMPLETE);
-        showNextFtue();
+        if (KptKeyboardManager.getInstance(mActivity).getInstalledLanguagesList().size()
+                >= (originallyInstalledLanguageCount + toInstallLanguageCount))
+        {
+            onInstallationSuccess();
+        }
+        else
+        {
+            onInstallationFailed();
+        }
+    }
+
+    private void onInstallationSuccess()
+    {
+        finishLanguageSelectionFTUE();
+    }
+
+    private void onInstallationFailed()
+    {
+        Toast.makeText(mActivity,mActivity.getString(R.string.restore_error),Toast.LENGTH_SHORT).show();
+        Button retry = (Button) flipper.findViewById(R.id.btn_positive);
+        retry.setText(mActivity.getString(R.string.retry));
+        addonItemAdapter.notifyDataSetChanged();
     }
 
     @Override
