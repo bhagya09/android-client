@@ -23,6 +23,8 @@ import android.view.WindowManager;
 import android.widget.Toast;
 
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.bots.BotInfo;
@@ -32,6 +34,7 @@ import com.bsb.hike.bots.NonMessagingBotMetadata;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.platform.content.PlatformContentConstants;
+import com.bsb.hike.utils.HikeAppStateUtils;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.chukong.cocosplay.client.CocosPlayClient;
@@ -61,6 +64,10 @@ public class CocosGamingActivity extends Cocos2dxActivity
 	private NonMessagingBotConfiguration botConfig;
 
 	private static String platform_content_dir;
+
+	private long openTimestamp = 0;
+
+	private long activeDuration = 0;
 
 	@Override
 	public void onPostCreate(Bundle savedInstanceState, PersistableBundle persistentState)
@@ -118,7 +125,6 @@ public class CocosGamingActivity extends Cocos2dxActivity
 		}
 
 		loadGame();
-
 	}
 
 	public void loadGame()
@@ -292,6 +298,7 @@ public class CocosGamingActivity extends Cocos2dxActivity
 	{
 		super.onResume();
 		HAManager.getInstance().startChatSession(msisdn);
+		openTimestamp = System.currentTimeMillis();
 	}
 
 	@Override
@@ -299,6 +306,40 @@ public class CocosGamingActivity extends Cocos2dxActivity
 	{
 		super.onPause();
 		HAManager.getInstance().endChatSession(msisdn);
+		activeDuration = activeDuration + (System.currentTimeMillis() - openTimestamp);
+	}
+
+	@Override
+	protected void onStop()
+	{
+		HikeAppStateUtils.onStop(this);
+		super.onStop();
+		HikeMessengerApp.getPubSub().removeListener(HikePubSub.SHOW_IMAGE, this);
+		nativeBridge.logAnalytics("true", "gaming", getGameOpenAnalyticsJson().toString());
+	}
+
+	private JSONObject getGameOpenAnalyticsJson()
+	{
+		try
+		{
+			JSONObject jsonObject = new JSONObject();
+			jsonObject.put("ek", "act_game");
+			jsonObject.put("ep", nonMessagingBotMetadata.getAppName());
+			jsonObject.put("ec", botInfo.getMsisdn());
+			jsonObject.put("eo", "game_open");
+			jsonObject.put("ef", String.valueOf(activeDuration));
+			jsonObject.put("eg", "");
+			jsonObject.put("es", "");
+			jsonObject.put("et", "");
+			jsonObject.put("eu", "");
+			jsonObject.put("ev", "");
+			return jsonObject;
+		}
+		catch (JSONException e1)
+		{
+			e1.printStackTrace();
+		}
+		return null;
 	}
 
 	/**
