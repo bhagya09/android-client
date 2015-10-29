@@ -822,18 +822,22 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 	
 	protected void showLinkShareView(String grpId, String grpName, int grpSettings, boolean isNewGroup)
 	{
-		FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+		android.support.v4.app.FragmentManager fm = getSupportFragmentManager();
+		FragmentTransaction ft = fm.beginTransaction();
 		Fragment prev = getSupportFragmentManager().findFragmentByTag(ShareLinkFragment.SHARE_LINK_FRAGMENT_TAG);
 		if (prev != null)
 		{
 			ft.remove(prev);
+			ft.commitAllowingStateLoss();
+			fm.executePendingTransactions();
+			ft = fm.beginTransaction();
 		}
-		ft.addToBackStack(ShareLinkFragment.SHARE_LINK_FRAGMENT_TAG);
-		getSupportFragmentManager().executePendingTransactions();
 		
 		// Create and show the dialog.
 		mActivityState.shareLinkFragment = ShareLinkFragment.newInstance(grpId, grpName, grpSettings, isNewGroup, false);
 		mActivityState.shareLinkFragment.show(ft, ShareLinkFragment.SHARE_LINK_FRAGMENT_TAG);
+		
+		fm.executePendingTransactions();
 	}
 
 	@Override
