@@ -89,7 +89,6 @@ import android.util.Pair;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewConfiguration;
@@ -861,6 +860,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 				else
 				{
 					mCustomKeyboard.showCustomKeyboard(v, false);
+					mCustomKeyboard.updateCore();
 				}
 			}
 			else

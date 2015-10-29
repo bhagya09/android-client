@@ -9,49 +9,11 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.annotation.SuppressLint;
-import android.app.Dialog;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.content.res.Configuration;
-import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
-import android.location.Location;
-import android.location.LocationManager;
-import android.os.AsyncTask;
-import android.os.Bundle;
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.MotionEvent;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.view.ViewGroup;
-import android.view.ViewGroup.LayoutParams;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.AdapterView;
-import android.widget.BaseAdapter;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.ListView;
-import android.widget.TableLayout;
-import android.widget.TextView;
-import android.widget.Toast;
-import android.support.v7.app.ActionBar;
-import android.support.v7.widget.Toolbar;
-
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
-import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.BitmapModule.BitmapUtils;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
-import com.bsb.hike.chatthread.ChatThread;
-import com.bsb.hike.dialog.CustomAlertDialog;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
@@ -76,12 +38,43 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.kpt.adaptxt.beta.CustomKeyboard;
 import com.kpt.adaptxt.beta.RemoveDialogData;
 import com.kpt.adaptxt.beta.util.KPTConstants;
-import com.kpt.adaptxt.beta.view.AdaptxtEditText;
-import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtEditTextEventListner;
 import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtKeyboordVisibilityStatusListner;
+
+import android.annotation.SuppressLint;
+import android.app.Dialog;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.res.Configuration;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.location.Location;
+import android.location.LocationManager;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.support.v7.app.ActionBar;
+import android.support.v7.widget.Toolbar;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
+import android.widget.BaseAdapter;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.ListView;
+import android.widget.TableLayout;
+import android.widget.TextView;
+import android.widget.Toast;
 
 public class ShareLocation extends HikeAppStateBaseFragmentActivity implements ConnectionCallbacks, OnConnectionFailedListener, LocationListener, AdaptxtKeyboordVisibilityStatusListner
 {
@@ -976,12 +969,39 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 		}
 		return address;
 	}
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) 
+	{
+		if(item.getItemId()==android.R.id.home)
+		{
+			hideKeyboard(searchET);
+			onBackPressed();
+			return true;
+		}
+		return super.onOptionsItemSelected(item);
+	}
+	
+	public void hideKeyboard(CustomFontEditText editText)
+	{
+		if (mCustomKeyboard != null && mCustomKeyboard.isCustomKeyboardVisible())
+		{
+			mCustomKeyboard.showCustomKeyboard(editText, false);
+			KptUtils.updatePadding(ShareLocation.this, R.id.screen, 0);
+		}
+	}
+	
 	@Override
 	public void onBackPressed()
 	{
-		// TODO Auto-generated method stub
+		if (mCustomKeyboard != null && mCustomKeyboard.isCustomKeyboardVisible())
+		{
+			hideKeyboard(searchET);
+			return;
+		}
 		finish();
 	}
+	
 	public void onConfigurationChanged(Configuration newConfig)
 	{
 		if (mCustomKeyboard != null)
@@ -990,13 +1010,7 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 		}
 		super.onConfigurationChanged(newConfig);
 	}
-	public void onBackKeyPressedET(CustomFontEditText editText)
-	{
-		if(mCustomKeyboard!=null && searchET!=null)
-		{
-			mCustomKeyboard.showCustomKeyboard(searchET, false);
-		}
-	}
+	
 	@Override
 	public void analyticalData(String arg0) {
 		// TODO Auto-generated method stub
