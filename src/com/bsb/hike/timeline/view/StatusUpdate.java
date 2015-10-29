@@ -1119,6 +1119,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 			}
 			else
 			{
+				getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);				
 				mCustomKeyboard.showCustomKeyboard(statusTxt, true);
 				KptUtils.updatePadding(StatusUpdate.this, R.id.parent_layout, (keyboardHeight == 0) ? mCustomKeyboard.getKeyBoardAndCVHeight() : keyboardHeight);
 			}
