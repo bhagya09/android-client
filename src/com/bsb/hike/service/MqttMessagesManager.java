@@ -2691,7 +2691,13 @@ public class MqttMessagesManager
 				HikeMessengerApp.getPubSub().publish(HikePubSub.SHOW_NEW_CHAT_RED_DOT, null);
 			}
 		}
-		
+		if (data.has(HikeConstants.BADGECOUNTER))
+		{
+			boolean enableBadgeCount = data.getBoolean(HikeConstants.BADGECOUNTER);
+
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.BADGE_COUNT_ENABLED, enableBadgeCount);
+			HikeMessengerApp.getPubSub().publish(HikePubSub.BADGE_COUNT_CHANGED, null);
+		}
 		editor.commit();
 		this.pubSub.publish(HikePubSub.UPDATE_OF_MENU_NOTIFICATION, null);
 		
