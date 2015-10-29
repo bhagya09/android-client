@@ -28,6 +28,14 @@ import com.kpt.adaptxt.beta.KPTAddonItem;
 
 public class KptKeyboardManager implements AdaptxtSettingsRegisterListener
 {
+	public static final int PREINSTALLED_LANGUAGE_COUNT = 1;
+
+	public static final Byte WAITING = 0;
+
+	public static final Byte DOWNLOADING = 1;
+
+	public static final Byte INSTALLING = 2;
+
 	private static final String TAG = "KptKeyboardManager";
 
 	private static final String HIKE_LANGUAGE_DIR_NAME = "lang-dict";
@@ -48,15 +56,10 @@ public class KptKeyboardManager implements AdaptxtSettingsRegisterListener
 
 	ArrayList<KPTAddonItem> mLanguagesWaitingQueue;
 
-	private Byte WAITING = 0;
 
-	private Byte DOWNLOADING = 1;
+	private volatile Byte mState = WAITING;
 
-	private Byte INSTALLING = 2;
-
-	private Byte mState = WAITING;
-
-	public static enum LanguageDictionarySatus
+	public enum LanguageDictionarySatus
 	{
 		INSTALLED, UNINSTALLED, UNSUPPORTED, PROCESSING, IN_QUEUE
 	}
@@ -95,6 +98,12 @@ public class KptKeyboardManager implements AdaptxtSettingsRegisterListener
 
 		return null;
 	}
+
+	public Byte getCurrentState()
+	{
+		return mState;
+	}
+
 	public ArrayList<KPTAddonItem> getInstalledLanguagesList()
 	{
 		return mInstalledLanguagesList;
@@ -227,6 +236,7 @@ public class KptKeyboardManager implements AdaptxtSettingsRegisterListener
 	private void finishProcessing()
 	{
 		mState = WAITING;
+		HikeMessengerApp.getPubSub().publish(HikePubSub.KPT_LANGUAGES_INSTALLATION_FINISHED, null);
 	}
 
 	private void processComplete()

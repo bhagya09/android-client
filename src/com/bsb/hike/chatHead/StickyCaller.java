@@ -92,7 +92,9 @@ public class StickyCaller
 
 	public static final String SHOW_STICKY_CALLER = "showStickyCaller";
 
-	private static final String CALLER_Y_PARAMS = "callerYParams";
+	private static final String CALLER_Y_PARAMS = "callerYParamsNew";
+
+	public static final String CALLER_Y_PARAMS_OLD = "callerYParams";
 
 	private static final long CALLER_DELAY = 2000;
 	
@@ -233,8 +235,8 @@ public class StickyCaller
 		try
 		{
 			removeViewCallBacks();
-			HikeSharedPreferenceUtil.getInstance().saveData(CALLER_Y_PARAMS, callerParams.y);
 			windowManager.removeView(stickyCallerFrameHolder);
+			HikeSharedPreferenceUtil.getInstance().saveData(CALLER_Y_PARAMS, callerParams.y);
 			stickyCallerView = null;
 		}
 		catch (Exception e)
@@ -651,7 +653,7 @@ public class StickyCaller
 	private static void setCallerParams()
 	{
 		callerParams.gravity = Gravity.TOP | Gravity.LEFT;
-		callerParams.y = HikeSharedPreferenceUtil.getInstance().getData(CALLER_Y_PARAMS, 0);
+		callerParams.y = HikeSharedPreferenceUtil.getInstance().getData(CALLER_Y_PARAMS, (int)(130f * Utils.densityMultiplier));
 		callerParams.x = 0;
 		callerParams.alpha = 1.0f;
 	}
