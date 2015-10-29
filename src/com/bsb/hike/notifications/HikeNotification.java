@@ -1033,13 +1033,37 @@ public class HikeNotification
 
 	public void cancelAllNotifications()
 	{
-		notificationManager.cancelAll();
-		hikeNotifMsgStack.resetMsgStack();
+		try
+		{
+			notificationManager.cancelAll();
+			hikeNotifMsgStack.resetMsgStack();
+		}
+		catch (SecurityException e)
+		{
+			/**
+			 * some of the users on HTC HTC Desire 626GPLUS dual sim were getting permission denial
+			 * while try to cancel notifications. we haven't been able to find any probable reason
+			 * for that.
+			 */
+			Logger.e("HikeNotification", "Exception while clearing notification from notication panel", e);
+		}
 	}
 
 	public void cancelNotification(int id)
 	{
-		notificationManager.cancel(id);
+		try
+		{
+			notificationManager.cancel(id);
+		}
+		catch (SecurityException e)
+		{
+			/**
+			 * some of the users on HTC HTC Desire 626GPLUS dual sim were getting permission denial
+			 * while try to cancel notifications. we haven't been able to find any probable reason
+			 * for that.
+			 */
+			Logger.e("HikeNotification", "Exception while clearing notification from notication panel", e);
+		}
 	}
 
 	private void showInboxStyleNotification(final Intent notificationIntent, final int icon, final long timestamp, final int notificationId, final CharSequence text,
