@@ -72,7 +72,44 @@ public class ConnectionManager
 		WifiConfiguration wifiConfig = new WifiConfiguration();
 		wifiConfig.SSID = "\"" +OfflineUtils.encodeSsid(ssid) +"\"";
 		wifiConfig.preSharedKey  = "\"" + OfflineUtils.generatePassword(ssid)  +  "\"";
-		wifiManager.addNetwork(wifiConfig);
+		//wifiConfig.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.WPA_PSK);
+//		wifiConfig.allowedProtocols.set(1);
+//		wifiConfig.allowedPairwiseCiphers.set(1);
+//		wifiConfig.allowedPairwiseCiphers.set(2);
+//		wifiConfig.allowedGroupCiphers.set(0);
+//		wifiConfig.allowedGroupCiphers.set(1);
+//		wifiConfig.allowedGroupCiphers.set(2);
+//        wifiConfig.allowedGroupCiphers.set(3);
+//      //  wifiConfig.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.WPA_PSK);
+		
+//		wifiManager.enableNetwork(result, false);
+//		wifiConfig.networkId=result;
+//		wifiManager.updateNetwork(wifiConfig);
+//		wifiManager.saveConfiguration();
+//		wifiConfig.allowedAuthAlgorithms.set(0);
+//		wifiConfig.allowedProtocols.set(1);
+//		wifiConfig.allowedProtocols.set(0);
+//		wifiConfig.allowedPairwiseCiphers.set(2);
+//		wifiConfig.allowedPairwiseCiphers.set(1);
+//        wifiConfig.allowedGroupCiphers.set(3);
+//        wifiConfig.allowedGroupCiphers.set(2);
+		
+		
+		
+		
+		// stack overflow 
+		wifiConfig.allowedProtocols.set(WifiConfiguration.Protocol.RSN);
+		wifiConfig.allowedProtocols.set(WifiConfiguration.Protocol.WPA);
+		wifiConfig.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.WPA_PSK);
+		wifiConfig.allowedPairwiseCiphers.set(WifiConfiguration.PairwiseCipher.CCMP);
+		wifiConfig.allowedPairwiseCiphers.set(WifiConfiguration.PairwiseCipher.TKIP);
+		wifiConfig.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.WEP40);
+		wifiConfig.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.WEP104);
+		wifiConfig.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.CCMP);
+		wifiConfig.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.TKIP);
+		
+        int result=wifiManager.addNetwork(wifiConfig);
+        wifiManager.saveConfiguration();
 		connectToWifi(wifiConfig.SSID);
 	}
 	
@@ -306,6 +343,15 @@ public class ConnectionManager
 		myConfig.preSharedKey = pass;
 		myConfig.status = WifiConfiguration.Status.ENABLED;
 		myConfig.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.WPA_PSK);
+//		myConfig.allowedProtocols.set(WifiConfiguration.Protocol.RSN);
+//		myConfig.allowedProtocols.set(WifiConfiguration.Protocol.WPA);
+//		
+//		myConfig.allowedPairwiseCiphers.set(WifiConfiguration.PairwiseCipher.CCMP);
+//		myConfig.allowedPairwiseCiphers.set(WifiConfiguration.PairwiseCipher.TKIP);
+//		myConfig.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.WEP40);
+//		myConfig.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.WEP104);
+//		myConfig.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.CCMP);
+//		myConfig.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.TKIP);
 
 		if (isHTC)
 			setHTCSSID(myConfig);
@@ -568,8 +614,8 @@ public class ConnectionManager
 	private void forgetWifiNetwork()
 	{
 		boolean success = wifiManager.removeNetwork(connectedNetworkId);
+		wifiManager.disconnect();
 		wifiManager.saveConfiguration();
-		wifiManager.disconnect();	
 		Logger.d(TAG, "Forget Netwrork was " + success);
 		connectedNetworkId = -1;
 	}
@@ -612,12 +658,13 @@ public class ConnectionManager
 				else
 					currentSsid = wifiConfiguration.SSID;
 
-				Logger.d(TAG, "currentssid is " + currentSsid + "and ssid is " + ssid);
+				Logger.d(TAG, "currentssid is " + currentSsid + "and ssid is " + ssid+"BSSID is "+wifiConfiguration.BSSID);
 				if (currentSsid.equals(ssid))
 				{
-					Logger.d("OfflineManager", "Disconnecting existing ssid. Current ssid is  " + currentSsid + " Ssid in list is  " + wifiConfiguration.SSID);
+					Logger.d("OfflineManager", "Disconnecting existing ssid. Current ssid is  " + currentSsid + " Ssid in list is  " + wifiConfiguration.SSID+"BSSID is "+wifiConfiguration.BSSID);
 					wifiManager.disconnect();
 					boolean status = wifiManager.enableNetwork(wifiConfiguration.networkId, true);
+					wifiManager.saveConfiguration();
 					Logger.d("OfflineManager", "Enabled network" + status);
 					connectedNetworkId = wifiConfiguration.networkId;
 					wifiManager.reassociate();
