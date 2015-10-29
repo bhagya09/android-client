@@ -341,7 +341,9 @@ public class Cocos2dxHelper {
 	}
 
 	public static void terminateProcess() {
-		cocosGamingActivity.sendGameOpenAnalytics();
+		if(cocosGamingActivity != null) {
+			cocosGamingActivity.sendGameOpenAnalytics();
+		}
 		Logger.d("Cocos2dxHelper", "Terminating Process : " + android.os.Process.myPid());
 		android.os.Process.killProcess(android.os.Process.myPid());
 	}
