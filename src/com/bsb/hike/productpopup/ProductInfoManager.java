@@ -178,10 +178,11 @@ public class ProductInfoManager
 						mmSparseArray.get(triggerPoint).removeAll(mmArrayList);
 
 					Logger.d("ProductPopup", "End deleting" + mmArrayList.toString());
+					HikeMessengerApp.getPubSub().publish(HikePubSub.PRODUCT_POPUP_BADGE_COUNT_CHANGED, null);
 				}
 			}
 		});
-		HikeMessengerApp.getPubSub().publish(HikePubSub.PRODUCT_POPUP_BADGE_COUNT_CHANGED, null);
+		
 	}
 	
 	public static void recordPopupEvent(String appName, String pid, boolean isFullScreen, String type)
