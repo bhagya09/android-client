@@ -57,6 +57,12 @@ public class InitiateMultiFileTransferTask extends AsyncTask<Void, Void, Void>
 	}
 
 	@Override
+	protected void onPreExecute()
+	{
+		HikeMessengerApp.getPubSub().publish(HikePubSub.MULTI_FILE_TASK_STARTED, this.intent);
+	}
+
+	@Override
 	protected Void doInBackground(Void... params)
 	{
 		for (Pair<String, String> fileDetail : fileDetails)
@@ -64,12 +70,6 @@ public class InitiateMultiFileTransferTask extends AsyncTask<Void, Void, Void>
 			initiateFileTransferFromIntentData(fileDetail.first, fileDetail.second);
 		}
 		return null;
-	}
-
-	@Override
-	protected void onPostExecute(Void result)
-	{
-		HikeMessengerApp.getPubSub().publish(HikePubSub.MULTI_FILE_TASK_FINISHED, this.intent);
 	}
 
 	private void initiateFileTransferFromIntentData(String filePath, String fileType)

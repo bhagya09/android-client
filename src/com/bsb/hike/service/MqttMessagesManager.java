@@ -703,14 +703,14 @@ public class MqttMessagesManager
 			return;
 		}
 
+		// We have to do publish this here since we are adding the message
+		// to the db here, and the id is set after inserting into the db.
+		this.pubSub.publish(HikePubSub.MESSAGE_RECEIVED, convMessage);
+
 		messageProcessVibrate(convMessage);
 		messageProcessFT(convMessage);
 		messageProcessSticker(convMessage);
 		messageProcessStickerRecommendation(convMessage);
-
-		// We have to do publish this here since we are adding the message
-		// to the db here, and the id is set after inserting into the db.
-		this.pubSub.publish(HikePubSub.MESSAGE_RECEIVED, convMessage);
 
 		if (convMessage.isOneToNChat() && convMessage.getParticipantInfoState() == ParticipantInfoState.NO_INFO)
 		{

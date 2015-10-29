@@ -120,10 +120,11 @@ public class UploadFileTask extends FileTransferBase
 
 	private String okHttpRes;
 
-	protected UploadFileTask(Handler handler, ConcurrentHashMap<Long, FutureTask<FTResult>> fileTaskMap, Context ctx, String token, String uId, ConvMessage convMessage)
+	protected UploadFileTask(Handler handler, ConcurrentHashMap<Long, FutureTask<FTResult>> fileTaskMap, Context ctx, String token, String uId, ConvMessage convMessage, String fileKey)
 	{
 		super(handler, fileTaskMap, ctx, null, -1, null, token, uId);
 		userContext = convMessage;
+		this.fileKey = fileKey;
 		HikeFile hikeFile = userContext.getMetadata().getHikeFiles().get(0);
 		if (!TextUtils.isEmpty(hikeFile.getSourceFilePath()))
 			if (hikeFile.getSourceFilePath().startsWith(HikeConstants.PICASA_PREFIX))
@@ -134,11 +135,12 @@ public class UploadFileTask extends FileTransferBase
 	}
 
 	protected UploadFileTask(Handler handler, ConcurrentHashMap<Long, FutureTask<FTResult>> fileTaskMap, Context ctx, String token, String uId,
-			List<ContactInfo> contactList, List<ConvMessage> messageList) {
+			List<ContactInfo> contactList, List<ConvMessage> messageList, String fileKey) {
 		super(handler, fileTaskMap, ctx, null, -1, null, token, uId);
 		this.contactList = contactList;
 		this.messageList = messageList;
 		userContext = messageList.get(0);
+		this.fileKey = fileKey;
 		this.isMultiMsg = true;
 		_state = FTState.INITIALIZED;
 	}

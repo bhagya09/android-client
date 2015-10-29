@@ -329,7 +329,7 @@ public class FileTransferManager extends BroadcastReceiver
 
 	}
 
-	public void uploadFile(ConvMessage convMessage)
+	public void uploadFile(ConvMessage convMessage, String fileKey)
 	{
 		if (isFileTaskExist(convMessage.getMsgID())){
 			validateFilePauseState(convMessage.getMsgID());
@@ -341,13 +341,13 @@ public class FileTransferManager extends BroadcastReceiver
 		settings = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
 		String token = settings.getString(HikeMessengerApp.TOKEN_SETTING, null);
 		String uId = settings.getString(HikeMessengerApp.UID_SETTING, null);
-		UploadFileTask task = new UploadFileTask(handler, fileTaskMap, context, token, uId, convMessage);
+		UploadFileTask task = new UploadFileTask(handler, fileTaskMap, context, token, uId, convMessage, fileKey);
 		MyFutureTask ft = new MyFutureTask(task);
 		task.setFutureTask(ft);
 		pool.execute(ft);
 	}
 
-	public void uploadFile(List<ContactInfo> contactList, List<ConvMessage> messageList)
+	public void uploadFile(List<ContactInfo> contactList, List<ConvMessage> messageList, String fileKey)
 	{
 		ConvMessage convMessage = messageList.get(0);
 		if (isFileTaskExist(convMessage.getMsgID())){
@@ -360,7 +360,7 @@ public class FileTransferManager extends BroadcastReceiver
 		settings = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
 		String token = settings.getString(HikeMessengerApp.TOKEN_SETTING, null);
 		String uId = settings.getString(HikeMessengerApp.UID_SETTING, null);
-		UploadFileTask task = new UploadFileTask(handler, fileTaskMap, context, token, uId, contactList, messageList);
+		UploadFileTask task = new UploadFileTask(handler, fileTaskMap, context, token, uId, contactList, messageList, fileKey);
 		MyFutureTask ft = new MyFutureTask(task);
 		task.setFutureTask(ft);
 		pool.execute(ft);
