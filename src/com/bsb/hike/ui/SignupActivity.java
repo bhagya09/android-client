@@ -1263,7 +1263,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 		final ArrayList<LocalLanguage> list = new ArrayList<>(LocalLanguage.getSupportedLanguages(this));
 		languageText.setText(list.get(0).getDisplayName());
 
-		languageText.setOnClickListener(
+		viewFlipper.findViewById(R.id.lang_select).setOnClickListener(
 		new OnClickListener()
 		{
 			@Override
