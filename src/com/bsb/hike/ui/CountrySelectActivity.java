@@ -502,7 +502,8 @@ public class CountrySelectActivity extends HikeAppStateBaseFragmentActivity impl
 				searchView.setQuery("", true);
 				if (mCustomKeyboard.isCustomKeyboardVisible())
 				{
-					mCustomKeyboard.showCustomKeyboard(searchET, false); 
+					mCustomKeyboard.showCustomKeyboard(searchET, false);
+					KptUtils.updatePadding(CountrySelectActivity.this, R.id.listView, 0);
 				}
 				return true;
 			}
@@ -561,6 +562,7 @@ public class CountrySelectActivity extends HikeAppStateBaseFragmentActivity impl
 		if (mCustomKeyboard != null&& searchET!=null && mCustomKeyboard.isCustomKeyboardVisible())
 		{
 			mCustomKeyboard.showCustomKeyboard(searchET, false);
+			KptUtils.updatePadding(CountrySelectActivity.this, R.id.listView, 0);
 			return;
 		}
 		finish();
@@ -579,9 +581,15 @@ public class CountrySelectActivity extends HikeAppStateBaseFragmentActivity impl
 	}
 
 	@Override
-	public void onInputviewVisbility(boolean arg0, int arg1) {
-		// TODO Auto-generated method stub
-		
+	public void onInputviewVisbility(boolean kptVisible, int height) {
+		if (kptVisible)
+		{
+			KptUtils.updatePadding(CountrySelectActivity.this, R.id.listView, height);
+		}
+		else
+		{
+			KptUtils.updatePadding(CountrySelectActivity.this, R.id.listView, 0);
+		}
 	}
 
 	@Override

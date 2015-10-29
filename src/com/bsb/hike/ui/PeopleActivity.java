@@ -254,7 +254,7 @@ public class PeopleActivity extends HikeAppStateBaseFragmentActivity implements 
 
 	@Override
 	public void showGlobeKeyView() {
-		// TODO Auto-generated method stub
+		KptUtils.onGlobeKeyPressed(PeopleActivity.this, mCustomKeyboard);
 		
 	}
 
