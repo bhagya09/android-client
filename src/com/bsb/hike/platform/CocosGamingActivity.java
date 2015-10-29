@@ -23,8 +23,6 @@ import android.view.WindowManager;
 import android.widget.Toast;
 
 import com.bsb.hike.HikeConstants;
-import com.bsb.hike.HikeMessengerApp;
-import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.bots.BotInfo;
@@ -34,7 +32,6 @@ import com.bsb.hike.bots.NonMessagingBotMetadata;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.platform.content.PlatformContentConstants;
-import com.bsb.hike.utils.HikeAppStateUtils;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.chukong.cocosplay.client.CocosPlayClient;
