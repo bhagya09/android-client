@@ -348,6 +348,7 @@ public class HikeNotification
 		NotificationCompat.Builder mBuilder = getNotificationBuilder(notifTitle, message, message, null, smallIconId, true, true, false);
 		mBuilder.setAutoCancel(false);
 		mBuilder.setOngoing(true);
+		mBuilder.setStyle(new NotificationCompat.BigTextStyle().bigText(message));
 		Editor editor = settingPref.edit();
 		editor.putString(HikeConstants.PERSISTENT_NOTIF_MESSAGE, message);
 		editor.putString(HikeConstants.PERSISTENT_NOTIF_TITLE, notifTitle);
