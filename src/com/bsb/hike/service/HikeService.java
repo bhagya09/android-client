@@ -52,6 +52,7 @@ import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
+import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.offline.CleanFileRunnable;
 import com.bsb.hike.offline.OfflineConstants;
 import com.bsb.hike.platform.HikeSDKRequestHandler;
@@ -317,6 +318,8 @@ public class HikeService extends Service
 			HikeHandlerUtil.getInstance().postRunnableWithDelay(new CleanFileRunnable(),0);
 		}
 			
+		HikeNotification.getInstance().checkAndShowUpdateNotif();
+		
 		ChatHeadUtils.registerCallReceiver();
 		
 		setInitialized(true);
