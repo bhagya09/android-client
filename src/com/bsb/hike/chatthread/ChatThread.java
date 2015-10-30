@@ -2143,7 +2143,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		}
 
 		sendSticker(sticker, sourceOfSticker);
-		mCustomKeyboard.updateCore();
 	}
 
 	@Override
