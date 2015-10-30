@@ -3918,6 +3918,7 @@ public class Utils
 		if (conv instanceof BotInfo && ((BotInfo) conv).isNonMessagingBot())
 		{
 			shortcutIntent = IntentFactory.getNonMessagingBotIntent(conv.getMsisdn(), activity);
+			shortcutIntent.putExtra(HikePlatformConstants.IS_SHORTCUT, true);
 		}
 
 		else
