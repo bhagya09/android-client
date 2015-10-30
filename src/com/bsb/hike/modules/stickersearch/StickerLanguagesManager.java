@@ -138,24 +138,16 @@ public class StickerLanguagesManager {
         switch (type)
         {
             case NOT_DOWNLOADED_LANGUAGE_SET_TYPE:
-                Set<String> notDownloadedLanguagesSet = HikeSharedPreferenceUtil.getInstance().getDataSet(HikeMessengerApp.NOT_DOWNLOADED_LANGUAGES_SET, new HashSet<String>());
-                notDownloadedLanguagesSet.addAll(languages);
-                HikeSharedPreferenceUtil.getInstance().saveDataSet(HikeMessengerApp.NOT_DOWNLOADED_LANGUAGES_SET, notDownloadedLanguagesSet);
+                HikeSharedPreferenceUtil.getInstance().saveDataSet(HikeMessengerApp.NOT_DOWNLOADED_LANGUAGES_SET, getNewSet(HikeSharedPreferenceUtil.getInstance().getDataSet(HikeMessengerApp.NOT_DOWNLOADED_LANGUAGES_SET, new HashSet<String>()), languages, true));
                 break;
             case DOWNLOADING_LANGUAGE_SET_TYPE:
-                Set<String> downloadingLanguagesSet = HikeSharedPreferenceUtil.getInstance().getDataSet(HikeMessengerApp.DOWNLOADING_LANGUAGES_SET, new HashSet<String>());
-                downloadingLanguagesSet.addAll(languages);
-                HikeSharedPreferenceUtil.getInstance().saveDataSet(HikeMessengerApp.DOWNLOADING_LANGUAGES_SET, downloadingLanguagesSet);
+                HikeSharedPreferenceUtil.getInstance().saveDataSet(HikeMessengerApp.DOWNLOADING_LANGUAGES_SET, getNewSet(HikeSharedPreferenceUtil.getInstance().getDataSet(HikeMessengerApp.DOWNLOADING_LANGUAGES_SET, new HashSet<String>()), languages, true));
                 break;
             case DOWNLOADED_LANGUAGE_SET_TYPE:
-                Set<String> downloadedLanguagesSet = HikeSharedPreferenceUtil.getInstance().getDataSet(HikeMessengerApp.DOWNLOADED_LANGUAGES_SET, new HashSet<String>());
-                downloadedLanguagesSet.addAll(languages);
-                HikeSharedPreferenceUtil.getInstance().saveDataSet(HikeMessengerApp.DOWNLOADED_LANGUAGES_SET, downloadedLanguagesSet);
+                HikeSharedPreferenceUtil.getInstance().saveDataSet(HikeMessengerApp.DOWNLOADED_LANGUAGES_SET, getNewSet(HikeSharedPreferenceUtil.getInstance().getDataSet(HikeMessengerApp.DOWNLOADED_LANGUAGES_SET, new HashSet<String>()), languages, true));
                 break;
             case FORBIDDEN_LANGUAGE_SET_TYPE:
-                Set<String> forbiddenLanguagesSet = HikeSharedPreferenceUtil.getInstance().getDataSet(HikeMessengerApp.FORBIDDEN_LANGUAGES_SET, new HashSet<String>());
-                forbiddenLanguagesSet.addAll(languages);
-                HikeSharedPreferenceUtil.getInstance().saveDataSet(HikeMessengerApp.FORBIDDEN_LANGUAGES_SET, forbiddenLanguagesSet);
+                HikeSharedPreferenceUtil.getInstance().saveDataSet(HikeMessengerApp.FORBIDDEN_LANGUAGES_SET, getNewSet(HikeSharedPreferenceUtil.getInstance().getDataSet(HikeMessengerApp.FORBIDDEN_LANGUAGES_SET, new HashSet<String>()), languages, true));
                 break;
         }
     }
@@ -165,24 +157,16 @@ public class StickerLanguagesManager {
         switch (type)
         {
             case NOT_DOWNLOADED_LANGUAGE_SET_TYPE:
-                Set<String> notDownloadedLanguagesSet = HikeSharedPreferenceUtil.getInstance().getDataSet(HikeMessengerApp.NOT_DOWNLOADED_LANGUAGES_SET, new HashSet<String>());
-                notDownloadedLanguagesSet.removeAll(languages);
-                HikeSharedPreferenceUtil.getInstance().saveDataSet(HikeMessengerApp.NOT_DOWNLOADED_LANGUAGES_SET, notDownloadedLanguagesSet);
+                HikeSharedPreferenceUtil.getInstance().saveDataSet(HikeMessengerApp.NOT_DOWNLOADED_LANGUAGES_SET, getNewSet(HikeSharedPreferenceUtil.getInstance().getDataSet(HikeMessengerApp.NOT_DOWNLOADED_LANGUAGES_SET, new HashSet<String>()), languages, false));
                 break;
             case DOWNLOADING_LANGUAGE_SET_TYPE:
-                Set<String> downloadingLanguagesSet = HikeSharedPreferenceUtil.getInstance().getDataSet(HikeMessengerApp.DOWNLOADING_LANGUAGES_SET, new HashSet<String>());
-                downloadingLanguagesSet.removeAll(languages);
-                HikeSharedPreferenceUtil.getInstance().saveDataSet(HikeMessengerApp.DOWNLOADING_LANGUAGES_SET, downloadingLanguagesSet);
+                HikeSharedPreferenceUtil.getInstance().saveDataSet(HikeMessengerApp.DOWNLOADING_LANGUAGES_SET, getNewSet(HikeSharedPreferenceUtil.getInstance().getDataSet(HikeMessengerApp.DOWNLOADING_LANGUAGES_SET, new HashSet<String>()), languages, false));
                 break;
             case DOWNLOADED_LANGUAGE_SET_TYPE:
-                Set<String> downloadedLanguagesSet = HikeSharedPreferenceUtil.getInstance().getDataSet(HikeMessengerApp.DOWNLOADED_LANGUAGES_SET, new HashSet<String>());
-                downloadedLanguagesSet.removeAll(languages);
-                HikeSharedPreferenceUtil.getInstance().saveDataSet(HikeMessengerApp.DOWNLOADED_LANGUAGES_SET, downloadedLanguagesSet);
+                HikeSharedPreferenceUtil.getInstance().saveDataSet(HikeMessengerApp.DOWNLOADED_LANGUAGES_SET, getNewSet(HikeSharedPreferenceUtil.getInstance().getDataSet(HikeMessengerApp.DOWNLOADED_LANGUAGES_SET, new HashSet<String>()), languages, false));
                 break;
             case FORBIDDEN_LANGUAGE_SET_TYPE:
-                Set<String> forbiddenLanguagesSet = HikeSharedPreferenceUtil.getInstance().getDataSet(HikeMessengerApp.FORBIDDEN_LANGUAGES_SET, new HashSet<String>());
-                forbiddenLanguagesSet.removeAll(languages);
-                HikeSharedPreferenceUtil.getInstance().saveDataSet(HikeMessengerApp.FORBIDDEN_LANGUAGES_SET, forbiddenLanguagesSet);
+                HikeSharedPreferenceUtil.getInstance().saveDataSet(HikeMessengerApp.FORBIDDEN_LANGUAGES_SET, getNewSet(HikeSharedPreferenceUtil.getInstance().getDataSet(HikeMessengerApp.FORBIDDEN_LANGUAGES_SET, new HashSet<String>()), languages, false));
                 break;
         }
     }
@@ -214,6 +198,21 @@ public class StickerLanguagesManager {
         else {
             return true;
         }
+    }
+
+    private Set<String> getNewSet(Set<String> existingSet, Collection<String> newCollection , Boolean addOperation)
+    {
+        Set<String> resultSet = new HashSet<>(existingSet);
+
+        if(addOperation)
+        {
+            resultSet.addAll(newCollection);
+        }
+        else
+        {
+            resultSet.removeAll(newCollection);
+        }
+        return resultSet;
     }
 
     private void initialiseLocalLanguagesMap() {
