@@ -1106,7 +1106,15 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		
 		if (linkUrl.contains(HttpRequestConstants.BASE_LINK_SHARING_URL))
 		{
-			String code = linkUrl.split("/")[3];
+			//linkurl is http://hike.in/refid:gc:code
+			String codeArray[] = linkUrl.split("/");
+			if(codeArray.length < 4)
+			{
+				Logger.d("link_share_error", "The linkurl is wrong, split in '/' is < 4 " + linkUrl);
+				return;
+			}
+			
+			String code = codeArray[3];
 			RequestToken requestToken = HttpRequests.acceptGroupMembershipConfirmationRequest(code, new IRequestListener()
 			{
 				
