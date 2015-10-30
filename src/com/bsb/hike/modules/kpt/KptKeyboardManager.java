@@ -17,6 +17,7 @@ import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
+import com.bsb.hike.modules.stickersearch.StickerLanguagesManager;
 import com.bsb.hike.platform.content.HikeUnzipTask;
 import com.bsb.hike.utils.Logger;
 import com.kpt.adaptxt.beta.AdaptxtSettingsRegisterListener;
@@ -170,6 +171,9 @@ public class KptKeyboardManager implements AdaptxtSettingsRegisterListener
 
 	public void downloadAndInstallLanguage(KPTAddonItem addOnItem)
 	{
+		StickerLanguagesManager.getInstance().downloadTagsForLanguage(StickerLanguagesManager.getInstance().getLanguageCode(addOnItem.getDisplayName()));
+		StickerLanguagesManager.getInstance().downloadDefaultTagsForLanguage(StickerLanguagesManager.getInstance().getLanguageCode(addOnItem.getDisplayName()));
+
 		if (languageStatusMap.get(addOnItem) == LanguageDictionarySatus.UNINSTALLED)
 		{
 			if (mLanguagesWaitingQueue == null)

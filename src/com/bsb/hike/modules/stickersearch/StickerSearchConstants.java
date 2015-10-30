@@ -22,6 +22,8 @@ public class StickerSearchConstants
 
 	public static final int STATE_STICKER_DATA_REFRESH = 1;
 
+	public static final int STATE_LANGUAGE_TAGS_DOWNLOAD = 2;
+
 	public static final int DECISION_STATE_NO = 0;
 
 	public static final int DECISION_STATE_YES = 1;
@@ -167,4 +169,6 @@ public class StickerSearchConstants
 
 	public static final String STRING_DELIMITER = ":";
 	// =======================================================================Generic constants]]
+
+	public static final String DEFAULT_KEYBOARD_LANGUAGE = "eng";
 }

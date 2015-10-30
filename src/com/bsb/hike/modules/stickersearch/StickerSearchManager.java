@@ -1,11 +1,5 @@
 package com.bsb.hike.modules.stickersearch;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Locale;
-
-import org.json.JSONObject;
-
 import android.content.Intent;
 import android.util.Pair;
 
@@ -16,8 +10,8 @@ import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.modules.stickersearch.listeners.IStickerSearchListener;
 import com.bsb.hike.modules.stickersearch.provider.StickerSearchHostManager;
-import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchDatabase;
 import com.bsb.hike.modules.stickersearch.provider.StickerSearchUtility;
+import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchDatabase;
 import com.bsb.hike.modules.stickersearch.tasks.HighlightAndShowStickerPopupTask;
 import com.bsb.hike.modules.stickersearch.tasks.InitiateStickerTagDownloadTask;
 import com.bsb.hike.modules.stickersearch.tasks.LoadChatProfileTask;
@@ -34,6 +28,13 @@ import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
+
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Locale;
+import java.util.Set;
 
 public class StickerSearchManager
 {
@@ -378,9 +379,9 @@ public class StickerSearchManager
 		}
 	}
 
-	public void downloadStickerTags(boolean firstTime, int state)
+	public void downloadStickerTags(boolean firstTime, int state, Set<String> languagesSet)
 	{
-		InitiateStickerTagDownloadTask stickerTagDownloadTask = new InitiateStickerTagDownloadTask(firstTime, state);
+		InitiateStickerTagDownloadTask stickerTagDownloadTask = new InitiateStickerTagDownloadTask(firstTime, state, languagesSet);
 		searchEngine.runOnQueryThread(stickerTagDownloadTask);
 	}
 

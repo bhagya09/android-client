@@ -9,6 +9,7 @@ import com.bsb.hike.modules.httpmgr.hikehttp.IHikeHttpTaskResult;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.StickerRequestType;
+import com.bsb.hike.modules.stickersearch.StickerLanguagesManager;
 import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
 import com.bsb.hike.modules.stickersearch.ui.StickerTagWatcher;
@@ -21,7 +22,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Set;
 
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests.tagsForCategoriesRequest;
@@ -34,15 +34,18 @@ public class StickerTagDownloadTask implements IHikeHTTPTask, IHikeHttpTaskResul
 	private static int requestStep = 0;
 
 	private ArrayList<String> stickerCategoryList;
+
+	private ArrayList<String> languagesList;
 	
 	private long lastTagRefreshTime;
 	
 	private int state;
 	
 
-	public StickerTagDownloadTask(Set<String> stickerSet, int state)
+	public StickerTagDownloadTask(Set<String> stickerSet, int state, Set<String> languagesSet)
 	{
 		this.stickerCategoryList = new ArrayList<String>(stickerSet);
+		this.languagesList = new ArrayList<>(languagesSet);
 		this.state = state;
 		
 		if(state == StickerSearchConstants.STATE_STICKER_DATA_REFRESH)
@@ -99,13 +102,14 @@ public class StickerTagDownloadTask implements IHikeHTTPTask, IHikeHttpTaskResul
 		{
 			JSONObject json = new JSONObject();
 			json.put(HikeConstants.CATEGORY_ID_LIST, array);
-			json.put("timestamp", (lastTagRefreshTime/1000));
-			//temp changes for regional testing begin here
-			String mStringArray[] = { "eng","hin", "mar", "guj", "tam", "tel", "mal", "ben", "bho", "kan", "dcc" };
+			json.put(HikeConstants.TIMESTAMP_2, (lastTagRefreshTime/1000));
 
-			JSONArray temp = new JSONArray(Arrays.asList(mStringArray));
-			json.put("kbd",temp);
-			//temp changes for regional testing end here
+			if(Utils.isEmpty(languagesList))
+			{
+				languagesList.add(StickerSearchConstants.DEFAULT_KEYBOARD_LANGUAGE);
+			}
+            Logger.d(TAG, "language list for download : " + languagesList);
+			json.put(HikeConstants.KEYBOARD_LIST, new JSONArray(languagesList));
 
 
 			RequestToken requestToken = tagsForCategoriesRequest(getRequestId(), json, getResponseListener());
@@ -187,6 +191,7 @@ public class StickerTagDownloadTask implements IHikeHTTPTask, IHikeHttpTaskResul
 	public void doOnSuccess(Object result)
 	{
 		JSONObject response = (JSONObject) result;
+        checkAndUpdateForbiddenList(response);
 		StickerSearchManager.getInstance().insertStickerTags(response, state);
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.TAG_FIRST_TIME_DOWNLOAD, false);
 	}
@@ -196,4 +201,14 @@ public class StickerTagDownloadTask implements IHikeHTTPTask, IHikeHttpTaskResul
 	{
 		Logger.d(TAG, "response failed.");
 	}
+
+
+    private void checkAndUpdateForbiddenList(JSONObject result)
+    {
+        if(Utils.isJSONObjectEmpty(result))
+        {
+            Logger.d(TAG, "languages added to forbidden list");
+            StickerLanguagesManager.getInstance().addToLanguageSet(StickerLanguagesManager.FORBIDDEN_LANGUAGE_SET_TYPE, languagesList);
+        }
+    }
 }

@@ -16,6 +16,7 @@ import com.bsb.hike.modules.httpmgr.request.requestbody.JsonBody;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadSource;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.StickerRequestType;
+import com.bsb.hike.modules.stickersearch.StickerLanguagesManager;
 import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
 import com.bsb.hike.utils.Logger;
@@ -29,7 +30,6 @@ import org.json.JSONObject;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Iterator;
 
 import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_OUT_OF_SPACE;
@@ -136,12 +136,7 @@ public class MultiStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRes
 					request.put(HikeConstants.RESOLUTION_ID, Utils.getResolutionId());
 					request.put(HikeConstants.NUMBER_OF_STICKERS, getStickerDownloadSize());
 					request.put(HikeConstants.DOWNLOAD_SOURCE, source.getValue());
-					//temp changes for regional testing begin here
-					String mStringArray[] = { "eng","hin", "mar", "guj", "tam", "tel", "mal", "ben", "bho", "kan", "dcc" };
-
-					JSONArray temp = new JSONArray(Arrays.asList(mStringArray));
-					request.put("kbd",temp);
-					//temp changes for regional testing end here
+					request.put(HikeConstants.KEYBOARD_LIST, new JSONArray(StickerLanguagesManager.getInstance().getLanguageSet(StickerLanguagesManager.DOWNLOADED_LANGUAGE_SET_TYPE)));
 
 					Logger.d(TAG, "intercept(), Sticker Download Task Request: " + request.toString());
 
