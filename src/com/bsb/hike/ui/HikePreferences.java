@@ -217,14 +217,18 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		IconPreference kbdLanguagePref = (IconPreference) findPreference(HikeConstants.KEYBOARD_LANGUAGE_PREF);
 		if (kbdLanguagePref != null && kbdLanguagePref instanceof IconPreference)
 		{
+			kbdLanguagePref.setDependency(HikeConstants.KEYBOARD_PREF);
 			String summary = new String();
 			ArrayList<KPTAddonItem> langList = KptKeyboardManager.getInstance(HikePreferences.this).getInstalledLanguagesList();
-			for (KPTAddonItem item : langList)
+			if (langList != null && !langList.isEmpty())
 			{
-				summary += item.getDisplayName();
-				summary += ", ";
+				for (KPTAddonItem item : langList)
+				{
+					summary += item.getDisplayName();
+					summary += ", ";
+				}
+				summary = summary.substring(0, summary.length()-2);				
 			}
-			summary = summary.substring(0, summary.length()-2);
 			kbdLanguagePref.setSummary(summary);			
 		}
 	}
@@ -1069,7 +1073,6 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		}
 		else if (HikeConstants.KEYBOARD_LANGUAGE_PREF.equals(preference.getKey()))
 		{
-			preference.setDependency(HikeConstants.KEYBOARD_PREF);
 			IntentFactory.openKeyboardLanguageSetting(HikePreferences.this);
 		}
 		else if(HikeConstants.KEYBOARD_PRIMARY_PREF.equals(preference.getKey()))

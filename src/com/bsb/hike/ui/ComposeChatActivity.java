@@ -727,7 +727,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 	{
 		KptUtils.pauseKeyboardResources(mCustomKeyboard, tagEditText, searchET);
 		KptUtils.updatePadding(ComposeChatActivity.this, R.id.ll_compose, 0);
-		
+		Utils.hideSoftKeyboard(getApplicationContext(), searchET);
 		super.onPause();
 		if(adapter != null)
 		{
