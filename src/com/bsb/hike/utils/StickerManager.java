@@ -443,10 +443,10 @@ public class StickerManager
 	/**
 	 * 
 	 * @return
-	 * pair in which first parameter is boolean -- delete tags if true else not
-	 * pair in which first parameter is list -- list of sticker categories currently user has
+	 * pair in which first parameter is boolean -- delete tags if true else not.
+	 * pair in which second parameter is list -- list of sticker categories currently user has
 	 */
-	public Pair<Boolean , List<StickerCategory>> getAllStickerCategories()
+	public Pair<Boolean, List<StickerCategory>> getAllStickerCategories()
 	{
 		
 		List<StickerCategory> allCategoryList = null;
