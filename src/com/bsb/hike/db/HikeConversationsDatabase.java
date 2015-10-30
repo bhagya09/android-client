@@ -8689,7 +8689,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 
 	/**
-	 * This does only for the last message values for convmessage.
+	 * This does only for the last message values for convmessage.I t return convmessage only with fields reqd for last message.
 	 * @param msgHash
 	 * @return
 	 */
@@ -8718,9 +8718,11 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				 ConvMessage message = new ConvMessage(c.getString(msgColumn),c.getString(msisdnColumn), c.getInt(tsColumn), ConvMessage.stateValue(c.getInt(msgStatusColumn)),
 						 c.getLong(msgIdColumn), c.getLong(mappedMsgIdColumn), c.getString(groupParticipantColumn), true, c.getInt(typeColumn), c.getInt(contentIdColumn), c.getString(nameSpaceColumn));
 				 message.setSortingId(c.getLong(sortId));
+			c.close();
 				 return message;
 
 		}
+		c.close();
 		return null;
 	}
 

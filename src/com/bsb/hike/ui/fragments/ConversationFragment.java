@@ -3003,17 +3003,20 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 		{
 			final ConvMessage message=(ConvMessage)object;
 			final ConvInfo convInfo = mConversationsByMSISDN.get(message.getMsisdn());
-			getActivity().runOnUiThread(new Runnable()
+			if(convInfo!=null&&isAdded())
 			{
-				@Override
-				public void run()
+				getActivity().runOnUiThread(new Runnable()
 				{
+					@Override
+					public void run()
+					{
 
 						convInfo.setLastConversationMsg(message);
 						sortAndUpdateTheView(convInfo, message, false);
 
-				}
-			});
+					}
+				});
+			}
 		}
 	}
 
