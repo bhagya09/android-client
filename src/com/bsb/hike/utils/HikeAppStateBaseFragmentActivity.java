@@ -69,18 +69,8 @@ public class HikeAppStateBaseFragmentActivity extends HikeBaseActivity implement
 	{
 		HikeAppStateUtils.onCreate(this);
 		super.onCreate(savedInstanceState);
-
-		if (LocalLanguageUtils.isLocalLanguageSelected())
-			setUpLanguage();
 	}
 
-	private void setUpLanguage()
-	{
-		Resources res = this.getResources();
-		Configuration config = res.getConfiguration();
-		config.locale = new Locale(LocalLanguageUtils.getApplicationLocalLanguageLocale());
-		res.updateConfiguration(config,res.getDisplayMetrics());
-	}
 	@Override
 	protected void onResume()
 	{
