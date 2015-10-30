@@ -119,8 +119,7 @@ public class OfflineController
 	public void removeConnectionRequest()
 	{
 		mHandler.removeMessages(OfflineConstants.HandlerConstants.REMOVE_CONNECT_REQUEST);
-		NotificationManager notificationManager = (NotificationManager) HikeMessengerApp.getInstance().getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
-		notificationManager.cancel(HikeNotification.OFFLINE_REQUEST_ID);
+		HikeNotification.getInstance().cancelNotification(HikeNotification.OFFLINE_REQUEST_ID);
 		HikeSharedPreferenceUtil.getInstance().removeData(OfflineConstants.DIRECT_REQUEST_DATA);
 		HikeMessengerApp.getPubSub().publish(HikePubSub.ON_OFFLINE_REQUEST, null);
 	}

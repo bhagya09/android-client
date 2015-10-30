@@ -1023,7 +1023,7 @@ public class HikeNotification
 			{
 				continue;
 			}
-			notificationManager.cancel(Integer.parseInt(id));
+			cancelNotification(Integer.parseInt(id));
 		}
 
 		final Editor editor = sharedPreferences.edit();
@@ -1035,6 +1035,11 @@ public class HikeNotification
 	{
 		notificationManager.cancelAll();
 		hikeNotifMsgStack.resetMsgStack();
+	}
+
+	public void cancelNotification(int id)
+	{
+		notificationManager.cancel(id);
 	}
 
 	private void showInboxStyleNotification(final Intent notificationIntent, final int icon, final long timestamp, final int notificationId, final CharSequence text,
