@@ -2584,6 +2584,8 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 								}
 							}
 
+							convInfo.setLastConversationMsg(finalMessage);
+
 							if (!isAdded())
 							{
 								return;
@@ -3370,7 +3372,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 				StealthModeManager.getInstance().setTipVisibility(true, ConversationTip.STEALTH_INFO_TIP);
 			}
 		}
-		convInfo.setLastConversationMsg(convMessage);
+
 		Logger.d(getClass().getSimpleName(), "new message is " + convMessage);
 
 		if (sortAndUpdateView)
@@ -3800,6 +3802,9 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 				return;
 			}
 		}
+
+		conv.setLastConversationMsg(finalMessage); //Adding this here since the ConvInfo object can be read simultaneously on the pubSub and UI Thread.
+
 		if (!isAdded())
 		{
 			return;
