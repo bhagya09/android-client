@@ -1149,6 +1149,7 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 				viewHolder.inviteIcon = (ImageView) convertView.findViewById(R.id.invite_icon);
 				viewHolder.addFriend = (ImageView) convertView.findViewById(R.id.add_friend);
 				viewHolder.info = (TextView) convertView.findViewById(R.id.info);
+				viewHolder.infoContainer = (ViewGroup) convertView.findViewById(R.id.info_container);
 				break;
 
 			case SECTION:
