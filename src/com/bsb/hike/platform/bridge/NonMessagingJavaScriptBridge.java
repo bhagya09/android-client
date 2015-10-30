@@ -919,7 +919,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	 * @param messageHash : the message hash that determines the uniqueness of the card message, to which the data is being sent.
 	 * @param eventData   : the stringified json data to be sent. It should contain the following things :
 	 *                       "cd" : card data, "increase_unread" : true/false, "notification" : the string to be notified to the user,
-	 *                       "notification_sound" : true/ false, play sound or not.
+	 *                       "notification_sound" : true/ false, play sound or not, "rearrange_chat":true/false.
 	 */
 	@JavascriptInterface
 	public void sendNormalEvent(String messageHash, String eventData)
