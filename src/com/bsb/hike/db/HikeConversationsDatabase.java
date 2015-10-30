@@ -8689,38 +8689,53 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 
 	/**
-	 * This does only for the last message values for convmessage.
+	 * This does only for the last message values for convmessage.I t return convmessage only with fields reqd for last message.
 	 * @param msgHash
 	 * @return
 	 */
 	public ConvMessage getMessageFromMessageHash(String msgHash)
 	{
-		Cursor c;
-		c = mDb.query(DBConstants.MESSAGES_TABLE,null, DBConstants.MESSAGE_HASH + " =?", new String[] {msgHash }, null, null, null, null);
-
-		if (c.moveToFirst())
+		Cursor c=null;
+		try
 		{
+			c = mDb.query(DBConstants.MESSAGES_TABLE, null, DBConstants.MESSAGE_HASH + " =?", new String[]{msgHash}, null, null, null, null);
+
+			if (c.moveToFirst())
+			{
 
 
+				final int msisdnColumn = c.getColumnIndex(DBConstants.MSISDN);
+				final int msgColumn = c.getColumnIndex(DBConstants.MESSAGE);
+				final int msgStatusColumn = c.getColumnIndex(DBConstants.MSG_STATUS);
+				final int tsColumn = c.getColumnIndex(DBConstants.TIMESTAMP);
+				final int mappedMsgIdColumn = c.getColumnIndex(DBConstants.MAPPED_MSG_ID);
+				final int msgIdColumn = c.getColumnIndex(DBConstants.MESSAGE_ID);
+				final int groupParticipantColumn = c.getColumnIndex(DBConstants.GROUP_PARTICIPANT);
+				final int typeColumn = c.getColumnIndex(DBConstants.MESSAGE_TYPE);
+				final int contentIdColumn = c.getColumnIndex(DBConstants.HIKE_CONTENT.CONTENT_ID);
+				final int nameSpaceColumn = c.getColumnIndex(HIKE_CONTENT.NAMESPACE);
+				final int sortId = c.getColumnIndex(DBConstants.SORTING_ID);
 
-			 final int msisdnColumn=c.getColumnIndex(DBConstants.MSISDN);
-			 final int msgColumn = c.getColumnIndex(DBConstants.MESSAGE);
-			 final int msgStatusColumn = c.getColumnIndex(DBConstants.MSG_STATUS);
-			 final int tsColumn = c.getColumnIndex(DBConstants.TIMESTAMP);
-			 final int mappedMsgIdColumn = c.getColumnIndex(DBConstants.MAPPED_MSG_ID);
-			 final int msgIdColumn = c.getColumnIndex(DBConstants.MESSAGE_ID);
-			 final int groupParticipantColumn = c.getColumnIndex(DBConstants.GROUP_PARTICIPANT);
-			 final int typeColumn = c.getColumnIndex(DBConstants.MESSAGE_TYPE);
-			 final int contentIdColumn = c.getColumnIndex(DBConstants.HIKE_CONTENT.CONTENT_ID);
-			 final int nameSpaceColumn = c.getColumnIndex(HIKE_CONTENT.NAMESPACE);
-			 final int sortId = c.getColumnIndex(DBConstants.SORTING_ID);
+				ConvMessage message = new ConvMessage(c.getString(msgColumn), c.getString(msisdnColumn), c.getInt(tsColumn), ConvMessage.stateValue(c.getInt(msgStatusColumn)),
+						c.getLong(msgIdColumn), c.getLong(mappedMsgIdColumn), c.getString(groupParticipantColumn), true, c.getInt(typeColumn), c.getInt(contentIdColumn), c.getString(nameSpaceColumn));
+				message.setSortingId(c.getLong(sortId));
+				return message;
 
-				 ConvMessage message = new ConvMessage(c.getString(msgColumn),c.getString(msisdnColumn), c.getInt(tsColumn), ConvMessage.stateValue(c.getInt(msgStatusColumn)),
-						 c.getLong(msgIdColumn), c.getLong(mappedMsgIdColumn), c.getString(groupParticipantColumn), true, c.getInt(typeColumn), c.getInt(contentIdColumn), c.getString(nameSpaceColumn));
-				 message.setSortingId(c.getLong(sortId));
-				 return message;
-
+			}
 		}
+		catch(Exception e)
+		{
+			Logger.d(HikePlatformConstants.TAG,"DB error");
+		}
+
+		finally
+		{
+			if(c!=null)
+			{
+				c.close();
+			}
+		}
+
 		return null;
 	}
 
