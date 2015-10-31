@@ -349,6 +349,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 						{
 							LocalLanguageUtils.setApplicationLocalLanguage(language);
 							languagePref.setSummary(language.getDisplayName());
+							restartHomeActivity();
 						}
 					}
 					return true;
@@ -356,7 +357,12 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 			});
 		}
 	}
-	
+
+	private void restartHomeActivity()
+	{
+		startActivity(IntentFactory.getHomeActivityIntentAsFreshLaunch(this));
+	}
+
 	private void addStealthPrefListeners()
 	{
 		Preference stealthPreference = getPreferenceScreen().findPreference(HikeConstants.STEALTH_PREF_SCREEN);
