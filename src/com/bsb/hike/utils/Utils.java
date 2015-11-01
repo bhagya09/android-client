@@ -300,6 +300,8 @@ public class Utils
 	 */
 	private static final int NETWORK_TYPE_GSM = 16;
 
+	private final static String ANDROID_DATA_STORAGE_DIR_SUFFIX = "/Android/data/";
+
 	static
 	{
 		shortCodeRegex = Pattern.compile("\\*\\d{3,10}#");
@@ -7430,4 +7432,21 @@ public class Utils
 		return timeLogBuilder.toString();
 	}
 
+	/**
+	 * returns true if the filePath starts with android data storage directory path
+	 * @param filePath
+	 */
+	public static boolean isAndroidDataStorageDir(String filePath)
+	{
+		boolean isAndroidDataStorageDir = false;
+		if(TextUtils.isEmpty(filePath))
+		{
+			isAndroidDataStorageDir =  false;
+		}
+		else if(getExternalStorageState() == ExternalStorageState.WRITEABLE)
+		{
+			isAndroidDataStorageDir = filePath.startsWith(Environment.getExternalStorageDirectory() + ANDROID_DATA_STORAGE_DIR_SUFFIX);
+		}
+		return isAndroidDataStorageDir;
+	}
 }
