@@ -324,9 +324,6 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 		// to be aware of the users for whom db upgrade should not be done in future to fix AND-704
 		saveCurrentConvDbVersionToPrefs();
-		
-		String sqlIndex = getFeedTableIndexQuery();
-		db.execSQL(sqlIndex);
 	}
 
 	private void createIndexOverServerIdField(SQLiteDatabase db)
@@ -892,21 +889,6 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			{
 				String alterTable = "ALTER TABLE " + DBConstants.BOT_TABLE + " ADD COLUMN " + HIKE_CONTENT.BOT_VERSION + " INTEGER DEFAULT 0";
 				db.execSQL(alterTable);
-			}
-		}
-
-		if(oldVersion < 46)
-		{
-			try
-			{
-				String sqlIndex = getFeedTableIndexQuery();
-				db.execSQL(sqlIndex);
-			}
-			catch (SQLiteException sqe)
-			{
-				db.delete(DBConstants.FEED_TABLE, null, null);
-				String sqlIndex = getFeedTableIndexQuery();
-				db.execSQL(sqlIndex);
 			}
 		}
 
@@ -1958,12 +1940,6 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				+ DBConstants.FEED_TS + " INTEGER DEFAULT 0" // timestamp
 				+ ")";
 		return sql;
-	}
-	
-	private String getFeedTableIndexQuery()
-	{
-		return "CREATE UNIQUE INDEX IF NOT EXISTS " + DBConstants.FEED_INDEX + " ON " + DBConstants.FEED_TABLE + " ( " + DBConstants.FEED_ACTION_ID + ", "
-				+ DBConstants.FEED_OBJECT_ID + ", " + DBConstants.FEED_ACTOR + " ) ";
 	}
 
 	private void addThumbnailStringToMetadata(MessageMetadata metadata, String thumbnailString)
