@@ -798,7 +798,6 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		@Override
 		public void onDestroyed()
 		{
-			showKeyboard();
 		}
 	};
 
@@ -3521,7 +3520,6 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 				if (keyboardFtue.isReadyForFTUE())
 				{
 					keyboardFtue.showNextFtue();
-					hideKeyboard();
 				}
 			}
 			if(stickerTagWatcher != null)
