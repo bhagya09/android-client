@@ -4,6 +4,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Message;
 import android.text.TextUtils;
 import android.util.Pair;
@@ -16,6 +17,7 @@ import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.MessageEvent;
 import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.offline.OfflineUtils;
+import com.bsb.hike.platform.CocosGamingIntentService;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
@@ -90,7 +92,7 @@ public class GeneralEventMessagesManager
 					return;
 				}
 				messageEvent.setEventId(eventId);
-
+				triggerIntentService(messageEvent);
 				HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_EVENT_RECEIVED, messageEvent);
 				boolean increaseUnreadCount = data.optBoolean(HikePlatformConstants.INCREASE_UNREAD);
 				boolean rearrangeChat = data.optBoolean(HikePlatformConstants.REARRANGE_CHAT);
@@ -115,6 +117,13 @@ public class GeneralEventMessagesManager
 			}
 		}
 		return instance;
+	}
+
+	public void triggerIntentService(MessageEvent messageEvent)
+	{
+		Intent cocosGamingIntentService = new Intent(this.context, CocosGamingIntentService.class);
+		cocosGamingIntentService.putExtra(CocosGamingIntentService.MESSAGE_EVENT_RECEIVED_DATA, messageEvent);
+		context.startService(cocosGamingIntentService);
 	}
 	
 }

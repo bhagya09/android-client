@@ -478,6 +478,9 @@
             android:launchMode="singleTop"
             android:exported="true" >
         </activity>
+        <service android:name="com.bsb.hike.platform.CocosGamingIntentService"
+            android:process="org.cocos2dx.gameprocess"
+            />
 
         <service android:name=".chatHead.ChatHeadService" 
             android:label="HikeStickeyService"/>

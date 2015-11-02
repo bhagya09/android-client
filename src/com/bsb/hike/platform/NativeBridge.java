@@ -21,7 +21,7 @@ import android.webkit.JavascriptInterface;
 
 public class NativeBridge
 {
-	private CocosGamingActivity activity;
+	protected CocosGamingActivity activity;
 
 	public BotInfo mBotInfo;
 
@@ -71,23 +71,25 @@ public class NativeBridge
 
 	/**
 	 * Platform Version 7 Call this method to get cardObj
-	 *  @param id
+	 * 
+	 * @param id
 	 *            : the id of the function that native will call to call the game .
 	 * 
 	 * @return
 	 */
 	public String getCardObj()
 	{
-		Logger.d(TAG,"+getCardObj()");
+		Logger.d(TAG, "+getCardObj()");
 		String cardObject;
-		cardObject=(TextUtils.isEmpty(cardObj))?"{}":cardObj;
-		Logger.d(TAG,"-getCardObj() : "+cardObject);
+		cardObject = (TextUtils.isEmpty(cardObj)) ? "{}" : cardObj;
+		Logger.d(TAG, "-getCardObj() : " + cardObject);
 		return cardObject;
 	}
 
 	/**
 	 * Platform Version 7 Call this method to get Bot Helper data
-	 *  @param id
+	 * 
+	 * @param id
 	 *            : the id of the function that native will call to call the game .
 	 * 
 	 * @return
@@ -113,8 +115,7 @@ public class NativeBridge
 	 * @param key
 	 *            : key of the data to be saved. Game needs to make sure about the uniqueness of the key.
 	 * @param value
-	 *            : : the data that the game need to cache.
-	 *            lastGame is a reserved keyword now
+	 *            : : the data that the game need to cache. lastGame is a reserved keyword now
 	 */
 	public void putInCache(final String key, final String value)
 	{
@@ -139,6 +140,7 @@ public class NativeBridge
 	 * Platform Version 7
 	 * 
 	 * Call this function to get data from cache.
+	 * 
 	 * @param id
 	 *            : the id of the function that native will call to call the game .
 	 * @param key
@@ -205,7 +207,7 @@ public class NativeBridge
 	 */
 	public void forwardToChat(final String json, final String hikeMessage)
 	{
-		final Activity gameActivity=weakActivity.get();
+		final Activity gameActivity = weakActivity.get();
 		if (mThread == null || gameActivity == null)
 			return;
 		mThread.postRunnable(new Runnable()
@@ -373,9 +375,10 @@ public class NativeBridge
 	}
 
 	/**
-	 * Platform Version 8
-	 * Call this fucntion to show a popup
-	 * @param contentData : The stringified JSONobject for the popup.
+	 * Platform Version 8 Call this fucntion to show a popup
+	 * 
+	 * @param contentData
+	 *            : The stringified JSONobject for the popup.
 	 */
 	public void showPopup(final String contentData)
 	{
@@ -400,7 +403,7 @@ public class NativeBridge
 	public void getBotVersion(final String id)
 	{
 		activity.runOnGLThread(new Runnable()
-	 	{
+		{
 			@Override
 			public void run()
 			{
@@ -408,7 +411,6 @@ public class NativeBridge
 			}
 		});
 	}
-
 
 	/**
 	 * Platform Version 7 Call this function to get the system architecture.
@@ -432,7 +434,7 @@ public class NativeBridge
 	 * Platform Version 7 Call this function to get the current platform version.
 	 * 
 	 * @param id
-	 *            : the id of the function  .
+	 *            : the id of the function .
 	 */
 	public void getCurrentPlatformVersion(final String id)
 	{
@@ -482,9 +484,9 @@ public class NativeBridge
 			}
 		});
 	}
+
 	/**
-	 * Platform Version 7
-	 * Call this function to get the user details.
+	 * Platform Version 7 Call this function to get the user details.
 	 *
 	 * @param id
 	 */
@@ -498,7 +500,7 @@ public class NativeBridge
 			{
 				String uid = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PLATFORM_UID_SETTING, null);
 				String name = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.NAME_SETTING, null);
-				String anonName=HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.ANONYMOUS_NAME_SETTING,"");
+				String anonName = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.ANONYMOUS_NAME_SETTING, "");
 				final JSONObject result = new JSONObject();
 				try
 				{
@@ -524,9 +526,9 @@ public class NativeBridge
 		});
 
 	}
+
 	/**
-	 * Platform Version 7
-	 * Call this function to create a shortcut.
+	 * Platform Version 7 Call this function to create a shortcut.
 	 *
 	 */
 	public void addShortCut()
@@ -592,7 +594,7 @@ public class NativeBridge
 	{
 		postStatusUpdate(status, moodId, null);
 	}
-	
+
 	/**
 	 * 
 	 * @param callID
@@ -608,6 +610,16 @@ public class NativeBridge
 				activity.platformCallback(callID, response);
 			}
 		});
+	}
+
+	/**
+	 * Handler for message event Received. Invokes platformCallback
+	 * 
+	 * @param eventData
+	 */
+	public void eventReceived(String eventData)
+	{
+		platformCallback(ON_EVENT_RECEIVE, eventData);
 	}
 
 }
