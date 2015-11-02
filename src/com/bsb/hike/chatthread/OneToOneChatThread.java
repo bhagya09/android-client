@@ -12,6 +12,7 @@ import java.util.Map;
 
 import org.json.JSONArray;
 
+import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.app.NotificationManager;
 import android.content.ContentValues;
@@ -30,6 +31,7 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.ActionBar;
 import android.text.Editable;
 import android.text.Html;
 import android.text.Spannable;
@@ -113,7 +115,7 @@ import com.google.gson.Gson;
  * @generated
  */
 
-public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCallback, ViewStub.OnInflateListener,OfflineConnectionRequestListener
+@SuppressLint("ResourceAsColor") public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCallback, ViewStub.OnInflateListener,OfflineConnectionRequestListener
 {
 	private static final String TAG = "oneonechatthread";
 
@@ -918,7 +920,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		setLastSeen(message,true);
 		activity.invalidateOptionsMenu();
 		showNetworkError(ChatThreadUtils.checkNetworkError());
-		
+		showCallIcon();
 	}
 
 	private void onOfflineDisconnection()
@@ -3253,7 +3255,23 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	 */
 	private boolean shouldShowCallIcon()
 	{
-		return Utils.isVoipActivated(activity.getApplicationContext()) && mConversation.isOnHike() && !OfflineUtils.isConnectedToSameMsisdn(msisdn);
+		if(Utils.isVoipActivated(activity.getApplicationContext()) && mConversation.isOnHike())
+		{
+			if(OfflineUtils.isConnectedToSameMsisdn(msisdn))
+			{
+				if (OfflineUtils.isFeautureAvailable(OfflineConstants.OFFLINE_VERSION_NUMER, OfflineUtils.getConnectedDeviceVersion(), OfflineConstants.VOIP_HIKE_DIRECT))
+				{
+					return true;
+				}
+				else
+				{
+					return false;
+				}
+			}
+			return true;
+			
+		}
+		return false;
 	}
 	
 	/*

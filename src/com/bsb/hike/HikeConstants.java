@@ -949,6 +949,8 @@ public class HikeConstants
 	public static final String VOIP_CALL_ISSUES_FRAGMENT_TAG = "voipCallIssuesFragmentTag";
 
 	public static final String VOIP_CALL_FAILED_FRAGMENT_TAG = "voipCallFailedFragmentTag";
+
+	public static final String VOIP_CALL_DECLINE_MESSAGE_FRAGMENT_TAG = "voipCallDeclineMessageFragTag";
 	/*
 	 * Contact Type
 	 */
