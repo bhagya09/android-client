@@ -739,6 +739,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 	protected void onResume()
 	{
 		// TODO Auto-generated method stub
+		if(composeMode != CREATE_GROUP_MODE && composeMode != CREATE_BROADCAST_MODE){
 			if (!KptUtils.isSystemKeyboard(ComposeChatActivity.this))
 			{
 				if (mCustomKeyboard != null &&findViewById(R.id.composeChatNewGroupTagET).getVisibility()==View.VISIBLE&& tagEditText != null)
@@ -748,6 +749,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 					mCustomKeyboard.showCustomKeyboard(searchET, true);
 				}
 			}
+		}
 		super.onResume();
 		if(adapter != null)
 		{
