@@ -100,6 +100,8 @@ public class HikeNotification
 	public static final int TICKER_TEXT_MAX_LENGHT = 100;
 	
 	public static final int OFFLINE_REQUEST_ID = -91;
+	
+	public static final int NOTIFICATION_PRODUCT_POPUP = -92;
 	// We need a key to pair notification id. This will be used to retrieve notification id on notification dismiss/action.
 	public static final String HIKE_NOTIFICATION_ID_KEY = "hike.notification";
 
@@ -1514,7 +1516,7 @@ public class HikeNotification
 	public  void notifyUserAndOpenHomeActivity(String text, String title, boolean shouldNotPlaySound)
 	{
 		Intent intent=Utils.getHomeActivityIntent(context);
-		showBigTextStyleNotification(intent, 0, System.currentTimeMillis(), HikeNotification.HIKE_SUMMARY_NOTIFICATION_ID, title, text,
+		showBigTextStyleNotification(intent, 0, System.currentTimeMillis(), HikeNotification.NOTIFICATION_PRODUCT_POPUP, title, text,
 				title, "", null, null, shouldNotPlaySound, 0);
 	}
 
