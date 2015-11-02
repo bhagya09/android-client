@@ -441,6 +441,8 @@ public class HikePubSub implements Runnable
 	public static final String PLATFORM_CARD_EVENT_SENT = "platformCardEventSent";
 
 	public static final String KPT_LANGUAGES_UPDATED = "kptLangUpdated";
+
+	public static final String KPT_LANGUAGES_INSTALLATION_FINISHED = "kptLangInstFin";
 	
 	public static final String LOCATION_AVAILABLE = "locationAvailable";
 
