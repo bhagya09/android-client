@@ -25,6 +25,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.ImageView.ScaleType;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
@@ -165,6 +166,13 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 
 		gridAdapter = new GalleryAdapter(this, galleryGridItems, true, imgSize, null, true);
 
+		if(galleryGridItems != null && galleryGridItems.size() > 4)
+		{
+			RelativeLayout.LayoutParams params =  (android.widget.RelativeLayout.LayoutParams) selectedGrid.getLayoutParams();
+			params.height = getResources().getDimensionPixelSize(R.dimen.gallery_selected_grid_height);
+			selectedGrid.setLayoutParams(params);
+		}
+		
 		selectedGrid.setNumColumns(numColumns);
 		selectedGrid.setAdapter(gridAdapter);
 		selectedGrid.setOnScrollListener(this);
@@ -302,6 +310,7 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 		{
 			actionsView.setVisibility(View.VISIBLE);
 			actionBarView.findViewById(R.id.seprator).setVisibility(View.VISIBLE);
+			actionBarView.findViewById(R.id.seprator).setAlpha(0.2f);
 			actionsView.setOnClickListener(new OnClickListener()
 			{
 				

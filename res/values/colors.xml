@@ -167,6 +167,7 @@
     <color name="jellies_btn_pressed">#391b17</color>
     <color name="jellies_btn_normal">#4e251f</color>
     <color name="white_80">#CCFFFFFF</color>
+    <color name="white_75">#BFFFFFFF</color>
     <color name="black_16">#28000000</color>
     <color name="ftue_card_group_click_text">#cf5545</color>
     <color name="ftue_card_invite_click_text">#01b085</color>
