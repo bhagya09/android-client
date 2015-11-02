@@ -216,10 +216,13 @@ public class KeyboardFtue implements HikePubSub.Listener
 
     private void refreshLanguageList()
     {
-        addonItems.clear();
-        addonItems.addAll(KptKeyboardManager.getInstance(mActivity).getInstalledLanguagesList());
-        addonItems.addAll(KptKeyboardManager.getInstance(mActivity).getUninstalledLanguagesList());
-        addonItemAdapter.notifyDataSetChanged();
+        if (addonItems != null)
+        {
+            addonItems.clear();
+            addonItems.addAll(KptKeyboardManager.getInstance(mActivity).getInstalledLanguagesList());
+            addonItems.addAll(KptKeyboardManager.getInstance(mActivity).getUninstalledLanguagesList());
+            addonItemAdapter.notifyDataSetChanged();
+        }
     }
 
     private void updateState(int state)
