@@ -5,6 +5,12 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.view.animation.AnimationSet;
+import android.view.animation.DecelerateInterpolator;
+import android.view.animation.RotateAnimation;
+import android.view.animation.TranslateAnimation;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -188,8 +194,64 @@ public class KeyboardFtue implements HikePubSub.Listener
                 showNextFtue();
             }
         });
+        resetSwipeAnimation();
     }
 
+    private void resetSwipeAnimation()
+    {
+        int startOffsetTime = 1200;
+        int durationTime = 1000;
+        int holdTime = 1200;
+        TranslateAnimation translateText1Animation = new TranslateAnimation(Animation.RELATIVE_TO_SELF,-1.0f,Animation.RELATIVE_TO_SELF,0.0f,Animation.RELATIVE_TO_SELF,0.0f,Animation.RELATIVE_TO_SELF,0.0f);
+        translateText1Animation.setStartOffset(startOffsetTime);
+        translateText1Animation.setDuration(durationTime);
+        translateText1Animation.setFillAfter(true);
+        translateText1Animation.setFillBefore(true);
+        translateText1Animation.setFillEnabled(true);
+        TranslateAnimation translateText2Animation = new TranslateAnimation(Animation.RELATIVE_TO_SELF,0.0f,Animation.RELATIVE_TO_SELF,1.0f,Animation.RELATIVE_TO_SELF,0.0f,Animation.RELATIVE_TO_SELF,0.0f);
+        translateText2Animation.setStartOffset(startOffsetTime);
+        translateText2Animation.setDuration(durationTime);
+        translateText2Animation.setFillAfter(true);
+        translateText2Animation.setFillBefore(true);
+        translateText2Animation.setFillEnabled(true);
+        TranslateAnimation translateHandAnimation = new TranslateAnimation(Animation.RELATIVE_TO_SELF,0.0f,Animation.RELATIVE_TO_SELF,2.2f,Animation.RELATIVE_TO_SELF,0.0f,Animation.RELATIVE_TO_SELF,0.0f);
+        translateHandAnimation.setStartOffset(startOffsetTime);
+        translateHandAnimation.setDuration(durationTime);
+        AlphaAnimation alphaHandAnimation = new AlphaAnimation(1,0);
+        alphaHandAnimation.setStartOffset(startOffsetTime);
+        alphaHandAnimation.setDuration(durationTime);
+        RotateAnimation fakeAnimation = new RotateAnimation(0,1);
+        fakeAnimation.setStartOffset(startOffsetTime + durationTime);
+        fakeAnimation.setDuration(holdTime);
+
+        AnimationSet handAnimationSet = new AnimationSet(true);
+        handAnimationSet.addAnimation(translateHandAnimation);
+        handAnimationSet.addAnimation(alphaHandAnimation);
+        handAnimationSet.addAnimation(fakeAnimation);
+        handAnimationSet.setFillAfter(true);
+        handAnimationSet.setFillBefore(true);
+        handAnimationSet.setFillEnabled(true);
+        handAnimationSet.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                resetSwipeAnimation();
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+
+        flipper.findViewById(R.id.txt_language_1).startAnimation(translateText1Animation);
+        flipper.findViewById(R.id.txt_language_2).startAnimation(translateText2Animation);
+        flipper.findViewById(R.id.hand).startAnimation(handAnimationSet);
+    }
     private void refreshActionPanel()
     {
         Byte keyboardManagerState = KptKeyboardManager.getInstance(mActivity).getCurrentState();

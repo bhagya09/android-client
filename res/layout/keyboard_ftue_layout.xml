@@ -144,18 +144,20 @@
             </LinearLayout>
         </LinearLayout>
 
-        <LinearLayout
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="#cc000000"
-            android:gravity="center_horizontal"
             android:orientation="vertical"
             android:padding="26dp">
 
             <com.bsb.hike.view.CustomFontTextView
+                android:id="@+id/txt_swipe"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_margin="68dp"
+                android:layout_centerHorizontal="true"
+                android:layout_marginBottom="68dp"
+                android:layout_marginTop="68dp"
                 android:gravity="center"
                 android:maxWidth="208dp"
                 android:text="@string/keyboad_ftue_swipe"
@@ -163,22 +165,44 @@
                 android:textSize="16dp"
                 android:textStyle="bold|italic" />
 
-            <LinearLayout
+            <RelativeLayout
                 android:id="@+id/langauage_layout"
                 android:layout_width="160dp"
                 android:layout_height="52dp"
+                android:layout_below="@id/txt_swipe"
+                android:layout_centerHorizontal="true"
                 android:background="@drawable/ic_spacebar"
-                android:gravity="center_horizontal"
                 android:padding="10dp">
 
+
                 <com.bsb.hike.view.CustomFontTextView
-                    android:layout_width="wrap_content"
+                    android:id="@+id/txt_language_1"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="हिन्दी"
+                    android:textColor="@color/white"
+                    android:textSize="12dp" />
+
+                <com.bsb.hike.view.CustomFontTextView
+                    android:id="@+id/txt_language_2"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
                     android:text="English"
                     android:textColor="@color/white"
                     android:textSize="12dp" />
-            </LinearLayout>
-        </LinearLayout>
+            </RelativeLayout>
+
+            <ImageView
+                android:id="@+id/hand"
+                android:layout_width="64dp"
+                android:layout_height="56dp"
+                android:layout_alignLeft="@id/langauage_layout"
+                android:layout_alignTop="@id/langauage_layout"
+                android:layout_marginTop="20dp"
+                android:background="@drawable/art_hand_swipe" />
+        </RelativeLayout>
 
 
     </ViewFlipper>
