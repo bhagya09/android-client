@@ -2691,6 +2691,10 @@ public class MqttMessagesManager
 				HikeMessengerApp.getPubSub().publish(HikePubSub.SHOW_NEW_CHAT_RED_DOT, null);
 			}
 		}
+		if(data.has(HikeConstants.SHOW_GPS_DIALOG))
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOW_GPS_DIALOG, data.optBoolean(HikeConstants.SHOW_GPS_DIALOG));
+		}
 		
 		editor.commit();
 		this.pubSub.publish(HikePubSub.UPDATE_OF_MENU_NOTIFICATION, null);
@@ -3269,7 +3273,7 @@ public class MqttMessagesManager
 	private void saveRequestDP(JSONObject jsonObj) throws JSONException
 	{
 		final String groupId = jsonObj.getString(HikeConstants.TO);
-		uploadGroupProfileImage(groupId);
+		OneToNConversationUtils.uploadGroupProfileImage(groupId);
 	}
 
 	private void savePopup(JSONObject jsonObj) throws JSONException
@@ -4033,43 +4037,6 @@ public class MqttMessagesManager
 				}
 			}
 		}, 0);
-	}
-
-	private void uploadGroupProfileImage(final String groupId)
-	{
-		String directory = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT;
-		String fileName = Utils.getTempProfileImageFileName(groupId);
-
-		File groupImageFile = new File(directory, fileName);
-		if (!groupImageFile.exists())
-		{
-			return;
-		}
-		
-		IRequestListener requestListener = new IRequestListener()
-		{
-			@Override
-			public void onRequestSuccess(Response result)
-			{
-				Utils.renameTempProfileImage(groupId);
-			}
-			
-			@Override
-			public void onRequestProgressUpdate(float progress)
-			{				
-			}
-			
-			@Override
-			public void onRequestFailure(HttpException httpException)
-			{
-				Utils.removeTempProfileImage(groupId);
-				HikeMessengerApp.getLruCache().deleteIconForMSISDN(groupId);
-				HikeMessengerApp.getPubSub().publish(HikePubSub.ICON_CHANGED, groupId);
-			}
-		};
-		
-		RequestToken requestToken = HttpRequests.editGroupProfileAvatarRequest(groupImageFile.getPath(), requestListener, groupId);
-		requestToken.execute();
 	}
 
 	private void handleSendNativeInviteKey(boolean sendNativeInvite, boolean showFreeSmsPopup, String header, String body, Editor editor)
