@@ -18,7 +18,7 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
 import com.bsb.hike.adapters.DictionaryLanguageAdapter;
-import com.bsb.hike.modules.kpt.DictionaryManager;
+import com.bsb.hike.modules.kpt.KptKeyboardManager;
 import com.bsb.hike.utils.ChangeProfileImageBaseActivity;
 import com.kpt.adaptxt.beta.KPTAddonItem;
 
@@ -75,17 +75,18 @@ public class LanguageSettingsActivity extends ChangeProfileImageBaseActivity imp
 	private void refreshLanguageList()
 	{
 		addonItems.clear();
-		addonItems.addAll(DictionaryManager.getInstance(this).getInstalledLanguagesList());
-		addonItems.addAll(DictionaryManager.getInstance(this).getUninstalledLanguagesList());
+		addonItems.addAll(KptKeyboardManager.getInstance(this).getInstalledLanguagesList());
+		addonItems.addAll(KptKeyboardManager.getInstance(this).getUninstalledLanguagesList());
+		addonItemAdapter.notifyDataSetChanged();
 	}
 
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id)
 	{
 		KPTAddonItem item = addonItemAdapter.getItem(position);
-		if (DictionaryManager.getInstance(LanguageSettingsActivity.this).getDictionaryLanguageStatus(item) == DictionaryManager.LanguageDictionarySatus.UNINSTALLED)
+		if (KptKeyboardManager.getInstance(LanguageSettingsActivity.this).getDictionaryLanguageStatus(item) == KptKeyboardManager.LanguageDictionarySatus.UNINSTALLED)
 		{
-			DictionaryManager.getInstance(mContext).downloadAndInstallLanguage(item);
+			KptKeyboardManager.getInstance(mContext).downloadAndInstallLanguage(item);
 		}
 	}
 

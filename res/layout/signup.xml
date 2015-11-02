@@ -1,10 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
-    
-<RelativeLayout 
-    android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/white" >
 
@@ -39,9 +35,5 @@
             android:layout_height="25dp"
             android:layout_gravity="center" />
     </com.bsb.hike.view.MyViewFlipper>
-
-</RelativeLayout>
-
-    <include layout="@layout/kpt_keyboard_viewholder" />
 
 </RelativeLayout>

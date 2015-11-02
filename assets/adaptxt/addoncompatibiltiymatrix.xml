@@ -24,18 +24,7 @@
 			<compatiblebasever>2.0</compatiblebasever>
 		</currentver>
     </addon>
-    
-	<addon id="52" type="addon">
-        <displayname>Hinglish</displayname>
-        <filename>engin</filename>
-          <zipfilename>ENGIN_Android_KPT_smartphone.zip</zipfilename>
-		  <searchstring>Hinglish:IN:EN</searchstring>
-         <type>Language</type>  
-         <currentver no="2.0">
-			<compatiblebasever>2.0</compatiblebasever>
-		</currentver>
-    </addon>
-    
+   
 	 <addon id="49" type="addon">
         <displayname>ગુજરાતી</displayname>
   		<filename>gujin</filename>
@@ -43,7 +32,7 @@
         <searchstring>Gujarati:IN</searchstring>
          <type>Language</type>  
           <currentver no="2.0">
-		<compatiblebasever>2.0</compatiblebasever>
+				<compatiblebasever>2.0</compatiblebasever>
 		</currentver>
     </addon>  
     
@@ -54,7 +43,7 @@
         <searchstring>Marathi:MR:IN</searchstring>
          <type>Language</type>  
         <currentver no="2.0">
-		<compatiblebasever>2.0</compatiblebasever>
+			<compatiblebasever>2.0</compatiblebasever>
 		</currentver>
     </addon>
     
@@ -65,7 +54,7 @@
         <searchstring>Tamil:IN</searchstring>
          <type>Language</type>  
          <currentver no="2.0">
-		<compatiblebasever>2.0</compatiblebasever>
+			<compatiblebasever>2.0</compatiblebasever>
 		</currentver>
     </addon>
     
@@ -76,49 +65,40 @@
         <searchstring>Telugu:IN</searchstring>
          <type>Language</type>
          <currentver no="2.0">
-		<compatiblebasever>2.0</compatiblebasever>
+			<compatiblebasever>2.0</compatiblebasever>
 		</currentver>
     </addon>
     
-	  <addon id="191" type="addon"> 
-		<displayname>Basketball (US)</displayname>
-		<filename>basketball_us</filename>
-		<zipfilename>BASKETBALL_US_Android_KPT_smartphone.zip</zipfilename>
-		<searchstring>Basketball (US):US</searchstring>
-		<type>Technical</type>
-		 <currentver no="8.0">
-			<compatiblebasever>6.0|7.0</compatiblebasever>
+	 <addon id="47" type="addon">
+        <displayname>বাংলা</displayname>
+        <filename>benin</filename>
+        <zipfilename>BENIN_Android_KPT_smartphone.zip</zipfilename>
+        <searchstring>Bengali:IN:BN</searchstring>
+         <type>Language</type>
+         <currentver no="2.0">
+			<compatiblebasever>2.0</compatiblebasever>
 		</currentver>
-		
-		<previousversions>
-		    <ver no="6.0">
-			<compatiblebasever>6.0|7.0</compatiblebasever>
-		</ver>
-		    <ver no="5.0">
-			<compatiblebasever>6.0|7.0</compatiblebasever>
-		</ver>
-		    <ver no="3.0">
-				<compatiblebasever>4.0|5.0|6.0|7.0</compatiblebasever>
-			</ver> 
-			<ver no="2.0">
-			<compatiblebasever>3.0|4.0</compatiblebasever>
-		</ver>
-		</previousversions>
-	</addon>
+      </addon>
+      
+     <addon id="55" type="addon">
+        <displayname>മലയാളം</displayname>
+        <filename>malin</filename>
+        <zipfilename>MALIN_Android_KPT_smartphone.zip</zipfilename>
+        <searchstring>Malayalam:ML:IN</searchstring>
+         <type>Language</type> 
+         <currentver no="2.0">
+			<compatiblebasever>2.0</compatiblebasever>
+		</currentver>
+    </addon>
     
-	<!-- <addon type="addon" id="185">
-		<displayname>मारवाड़ी</displayname>
-		<filename>mwrin</filename>
-		<zipfilename>MWRIN_Android_KPT_smartphone.zip</zipfilename>
-		<searchstring>Marwari (New):MW:IN:MWR</searchstring>
-		<type>Language</type>
-		<currentver no="8.0">
-		    <compatiblebasever>7.0</compatiblebasever>
+      <addon id="53" type="addon">
+        <displayname>ಕನ್ನಡ</displayname>
+        <filename>kanin</filename>
+        <zipfilename>KANIN_Android_KPT_smartphone.zip</zipfilename>
+        <searchstring>Kannada:KN:IN</searchstring>
+         <type>Language</type> 
+         <currentver no="2.0">
+			<compatiblebasever>2.0</compatiblebasever>
 		</currentver>
-		<previousversions>
-		    <ver no="8.0">
-		        <compatiblebasever>7.0</compatiblebasever>
-		    </ver>
-		</previousversions>
-	</addon> -->
+    </addon>
 </addons>

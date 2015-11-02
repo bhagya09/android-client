@@ -405,5 +405,11 @@
 </LinearLayout>
 
 	<include layout="@layout/kpt_keyboard_viewholder"/>
-	
+
+    <FrameLayout
+        android:id="@+id/keyboard_ftue_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"></FrameLayout>
+
 </RelativeLayout>
