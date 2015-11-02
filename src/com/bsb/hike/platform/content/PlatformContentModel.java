@@ -51,6 +51,7 @@ public class PlatformContentModel
 
 	public String target_platform;
 
+	private static PlatformContentModel object = null;
 	/*
 	 * (non-Javadoc)
 	 * 
