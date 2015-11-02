@@ -29,6 +29,7 @@ import com.bsb.hike.offline.OfflineConstants.MessageType;
 import com.bsb.hike.service.MqttMessagesManager;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
+import com.bsb.hike.voip.VoIPUtils;
 import com.hike.transporter.TException;
 import com.hike.transporter.Transporter;
 import com.hike.transporter.interfaces.IMessageReceived;
@@ -314,6 +315,11 @@ public class HikeConverter implements IMessageReceived, IMessageSent {
 				Logger.d(TAG, "Info Packet received ...>>" + messageJSON.toString() +"and "+messageJSON.opt(OfflineConstants.CONNECTION_ID));
 				OfflineSessionTracking.getInstance().updateConnectionId(messageJSON.optLong(OfflineConstants.CONNECTION_ID));
 				OfflineController.getInstance().setConnectedClientInfo(messageJSON);
+				OfflineController.getInstance().sendConnectedCallback();
+			}
+			else if(OfflineUtils.isVoipPacket(messageJSON))
+			{
+				VoIPUtils.handleVOIPPacket(context, messageJSON);
 			}
 			else 
 			{

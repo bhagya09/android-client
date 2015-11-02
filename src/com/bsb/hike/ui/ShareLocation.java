@@ -749,7 +749,7 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 				gpsDialogShown = currentLocationDevice == GPS_DISABLED;
 				hikeDialog.dismiss();
 			}
-		}, messageId);
+		}, messageId,R.string.OK);
 
 		if (!ShareLocation.this.isFinishing())
 			alert.show();
