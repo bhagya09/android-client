@@ -134,7 +134,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 			HikePubSub.MULTI_MESSAGE_DB_INSERTED, HikePubSub.SERVER_RECEIVED_MULTI_MSG, HikePubSub.MUTE_CONVERSATION_TOGGLED, HikePubSub.CONV_UNREAD_COUNT_MODIFIED,
 			HikePubSub.CONVERSATION_TS_UPDATED, HikePubSub.PARTICIPANT_JOINED_ONETONCONV, HikePubSub.PARTICIPANT_LEFT_ONETONCONV, HikePubSub.BLOCK_USER, HikePubSub.UNBLOCK_USER,
 			HikePubSub.MUTE_BOT, HikePubSub.CONVERSATION_DELETED, HikePubSub.DELETE_THIS_CONVERSATION, HikePubSub.ONETONCONV_NAME_CHANGED, HikePubSub.STEALTH_CONVERSATION_MARKED,
-			HikePubSub.STEALTH_CONVERSATION_UNMARKED, HikePubSub.UPDATE_LAST_MSG_STATE, HikePubSub.OFFLINE_MESSAGE_SENT, HikePubSub.ON_OFFLINE_REQUEST };
+			HikePubSub.STEALTH_CONVERSATION_UNMARKED, HikePubSub.UPDATE_LAST_MSG_STATE, HikePubSub.OFFLINE_MESSAGE_SENT, HikePubSub.ON_OFFLINE_REQUEST,HikePubSub.GENERAL_EVENT };
 
 	private ConversationsAdapter mAdapter;
 
@@ -2584,6 +2584,8 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 								}
 							}
 
+							convInfo.setLastConversationMsg(finalMessage);
+
 							if (!isAdded())
 							{
 								return;
@@ -2999,6 +3001,25 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 
 			}
 		}
+		else if (HikePubSub.GENERAL_EVENT.equals(type))
+		{
+			final ConvMessage message=(ConvMessage)object;
+			final ConvInfo convInfo = mConversationsByMSISDN.get(message.getMsisdn());
+			if(convInfo!=null&&isAdded())
+			{
+				getActivity().runOnUiThread(new Runnable()
+				{
+					@Override
+					public void run()
+					{
+
+						convInfo.setLastConversationMsg(message);
+						sortAndUpdateTheView(convInfo, message, false);
+
+					}
+				});
+			}
+		}
 	}
 
 	protected void handleUIMessage(Message msg)
@@ -3351,7 +3372,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 				StealthModeManager.getInstance().setTipVisibility(true, ConversationTip.STEALTH_INFO_TIP);
 			}
 		}
-		convInfo.setLastConversationMsg(convMessage);
+
 		Logger.d(getClass().getSimpleName(), "new message is " + convMessage);
 
 		if (sortAndUpdateView)
@@ -3781,6 +3802,9 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 				return;
 			}
 		}
+
+		conv.setLastConversationMsg(finalMessage); //Adding this here since the ConvInfo object can be read simultaneously on the pubSub and UI Thread.
+
 		if (!isAdded())
 		{
 			return;

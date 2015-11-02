@@ -36,6 +36,8 @@ public class MessageEvent implements Parcelable
 
 	private String parent_msisdn;
 
+	private String hike_message;
+
 	public MessageEvent(String eventType, String msisdn, String nameSpace, String eventMetadata, String messageHash, int eventStatus, long timeStamp)
 	{
 		this(eventType, msisdn, nameSpace, eventMetadata, messageHash, eventStatus, timeStamp, -1);
@@ -50,8 +52,12 @@ public class MessageEvent implements Parcelable
 	{
 		this(eventType, msisdn, nameSpace, eventMetadata, messageHash, eventStatus, timeStamp, mappedEventId, messageId, null);
 	}
-
 	public MessageEvent(String eventType, String msisdn, String nameSpace, String eventMetadata, String messageHash, int eventStatus, long timeStamp, long mappedEventId, long messageId, String parent_msisdn)
+	{
+		this(eventType, msisdn, nameSpace, eventMetadata, messageHash, eventStatus, timeStamp, mappedEventId, messageId,parent_msisdn,"");
+	}
+
+	public MessageEvent(String eventType, String msisdn, String nameSpace, String eventMetadata, String messageHash, int eventStatus, long timeStamp, long mappedEventId, long messageId, String parent_msisdn,String hike_message)
 	{
 		setEventType(eventType);
 		this.msisdn = msisdn;
@@ -63,6 +69,7 @@ public class MessageEvent implements Parcelable
 		this.mappedEventId = mappedEventId;
 		this.messageId = messageId;
 		this.parent_msisdn = parent_msisdn;
+		this.hike_message=hike_message;
 	}
 
 	public int getEventStatus()
@@ -195,6 +202,11 @@ public class MessageEvent implements Parcelable
      	return isEventSent(eventStatus) ? ContactManager.getInstance().getSelfMsisdn() : msisdn;
 	}
 
+	public String getHikeMessage()
+	{
+		return hike_message;
+	}
+
 	@Override
 	public int describeContents()
 	{
@@ -215,6 +227,7 @@ public class MessageEvent implements Parcelable
 		dest.writeLong(eventId);
 		dest.writeLong(messageId);
 		dest.writeString(parent_msisdn);
+		dest.writeString(hike_message);
 	}
 
 	public MessageEvent(Parcel source)
@@ -230,6 +243,7 @@ public class MessageEvent implements Parcelable
 		this.eventId = source.readLong();
 		this.messageId = source.readLong();
 		this.parent_msisdn = source.readString();
+		this.hike_message = source.readString();
 	}
 
 	public static final Parcelable.Creator CREATOR = new Parcelable.Creator()
@@ -244,5 +258,7 @@ public class MessageEvent implements Parcelable
 			return new MessageEvent[size];
 		}
 	};
+
+
 }
 
