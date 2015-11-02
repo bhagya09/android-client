@@ -493,7 +493,9 @@ public class DbConversationListener implements Listener
 			Pair<MessageEvent, JSONObject> pair = (Pair<MessageEvent, JSONObject>) object;
 
 			MessageEvent messageEvent = pair.first;
-
+			JSONObject data;
+			data = pair.second;
+			String hm=data.optString(HikePlatformConstants.HIKE_MESSAGE,data.optString(HikePlatformConstants.NOTIFICATION));
 			if (messageEvent == null)
 			{
 				Logger.e(HikePlatformConstants.TAG, "Got Message Event null");
@@ -501,7 +503,7 @@ public class DbConversationListener implements Listener
 			}
 
 			long eventId = HikeConversationsDatabase.getInstance().insertMessageEvent(messageEvent);
-			HikeConversationsDatabase.getInstance().updateMessageForGeneralEvent(messageEvent.getMessageHash(), State.SENT_UNCONFIRMED,messageEvent.getHikeMessage());
+			HikeConversationsDatabase.getInstance().updateMessageForGeneralEvent(messageEvent.getMessageHash(), State.SENT_UNCONFIRMED,hm);
 			messageEvent.setEventId(eventId);
 			if (eventId < 0)
 			{
@@ -511,10 +513,8 @@ public class DbConversationListener implements Listener
 			{
 
 				JSONObject jObj = new JSONObject();
-				JSONObject data;
 				try
 				{
-					data = pair.second;
 
 					jObj.put(HikeConstants.TYPE, HikeConstants.MqttMessageTypes.GENERAL_EVENT_QOS_ONE);
 					jObj.put(HikeConstants.SEND_TIMESTAMP, messageEvent.getSentTimeStamp());
