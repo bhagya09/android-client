@@ -150,30 +150,17 @@
             android:layout_height="match_parent"
             android:background="@color/black_90"
             android:orientation="vertical"
-            android:paddingBottom="20dp"
             android:paddingLeft="26dp"
             android:paddingRight="26dp">
 
-            <com.bsb.hike.view.CustomFontTextView
-                android:id="@+id/txt_swipe"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerHorizontal="true"
-                android:layout_marginBottom="84dp"
-                android:layout_marginTop="84dp"
-                android:gravity="center"
-                android:maxWidth="208dp"
-                android:text="@string/keyboad_ftue_swipe"
-                android:textColor="@color/white"
-                android:textSize="16dp"
-                android:textStyle="bold|italic" />
 
             <RelativeLayout
                 android:id="@+id/langauage_layout"
                 android:layout_width="160dp"
                 android:layout_height="52dp"
-                android:layout_below="@id/txt_swipe"
+                android:layout_alignParentBottom="true"
                 android:layout_centerHorizontal="true"
+                android:layout_marginBottom="32dp"
                 android:background="@drawable/ic_spacebar"
                 android:padding="10dp">
 
@@ -199,13 +186,26 @@
 
             <ImageView
                 android:id="@+id/hand"
-                android:layout_width="64dp"
+                android:layout_width="66dp"
                 android:layout_height="56dp"
                 android:layout_alignLeft="@id/langauage_layout"
                 android:layout_alignTop="@id/langauage_layout"
                 android:layout_marginTop="20dp"
                 android:scaleType="center"
                 android:src="@drawable/art_hand_swipe" />
+
+            <com.bsb.hike.view.CustomFontTextView
+                android:id="@+id/txt_swipe"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_above="@id/langauage_layout"
+                android:layout_centerHorizontal="true"
+                android:gravity="center"
+                android:maxWidth="208dp"
+                android:text="@string/keyboad_ftue_swipe"
+                android:textColor="@color/white"
+                android:textSize="16dp"
+                android:textStyle="bold|italic" />
         </RelativeLayout>
 
 
