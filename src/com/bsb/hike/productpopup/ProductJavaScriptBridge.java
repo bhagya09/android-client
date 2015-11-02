@@ -162,7 +162,11 @@ public class ProductJavaScriptBridge extends JavascriptBridge
 		{
 			if (productContentModel != null && productContentModel instanceof ProductContentModel && ((ProductContentModel) productContentModel).getConfig().showInPortraitOnly())
 			{
-				mHikeDialogFragment.get().getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_USER);
+				//ACRA crash
+				if (mHikeDialogFragment.get().getActivity() != null)
+				{
+					mHikeDialogFragment.get().getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_USER);
+				}
 			}
 			if (mHikeDialogFragment.get().isAdded())
 			{
