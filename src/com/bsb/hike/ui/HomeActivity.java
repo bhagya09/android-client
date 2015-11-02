@@ -773,7 +773,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 					HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOW_TIMELINE_RED_DOT, false);
 					Intent intent = new Intent(HomeActivity.this, TimelineActivity.class);
-					timelineUpdatesIndicator.setVisibility(View.GONE);
 					startActivity(intent);
 				}
 			});
