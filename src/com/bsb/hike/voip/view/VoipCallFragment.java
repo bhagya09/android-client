@@ -1070,12 +1070,15 @@ public class VoipCallFragment extends Fragment implements CallActions
 			
 			@Override
 			public void run() {
-				ToneGenerator tg = new ToneGenerator(AudioManager.STREAM_VOICE_CALL, 100);
-				if (tg.startTone(ToneGenerator.TONE_SUP_PIP));
+				ToneGenerator tg = null;
 				try {
+					tg = new ToneGenerator(AudioManager.STREAM_VOICE_CALL, 100);
+					tg.startTone(ToneGenerator.TONE_SUP_PIP);
 					Thread.sleep(500);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
+				} catch (RuntimeException e) {
+					Logger.e(tag, "ToneGenerator RuntimeException: " + e.toString());
 				} finally {
 					if (tg != null) {
 						tg.stopTone();
@@ -1084,7 +1087,7 @@ public class VoipCallFragment extends Fragment implements CallActions
 				}
 			}
 		}).start();
-		
 	}
+	
 }
 	
