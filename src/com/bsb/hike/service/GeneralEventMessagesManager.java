@@ -13,7 +13,7 @@ import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.MessageEvent;
 import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.offline.OfflineUtils;
-import com.bsb.hike.platform.CocosGamingIntentService;
+import com.bsb.hike.platform.CocosProcessIntentService;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
@@ -121,9 +121,9 @@ public class GeneralEventMessagesManager
 
 	public void triggerIntentService(MessageEvent messageEvent)
 	{
-		Intent cocosGamingIntentService = new Intent(this.context, CocosGamingIntentService.class);
-		cocosGamingIntentService.putExtra(CocosGamingIntentService.MESSAGE_EVENT_RECEIVED_DATA, messageEvent);
-		context.startService(cocosGamingIntentService);
+		Intent cocosProcessIntentService = new Intent(this.context, CocosProcessIntentService.class);
+		cocosProcessIntentService.putExtra(CocosProcessIntentService.MESSAGE_EVENT_RECEIVED_DATA, messageEvent);
+		context.startService(cocosProcessIntentService);
 	}
 	
 }

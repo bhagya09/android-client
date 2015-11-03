@@ -478,7 +478,7 @@
             android:launchMode="singleTop"
             android:exported="true" >
         </activity>
-        <service android:name="com.bsb.hike.platform.CocosGamingIntentService"
+        <service android:name=".platform.CocosProcessIntentService"
             android:process="org.cocos2dx.gameprocess"
             />
 
