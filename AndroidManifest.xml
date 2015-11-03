@@ -3,9 +3,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bsb.hike"
     android:installLocation="auto"
-    android:versionCode="1487"
-    android:versionName="4.0.8.4.photos5_0" >
-    
+    android:versionCode="1489"
+    android:versionName="4.0.8.81.20" >
+
     <uses-sdk
         android:minSdkVersion="14"
         android:targetSdkVersion="17"/>
