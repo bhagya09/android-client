@@ -323,7 +323,8 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		sql = "CREATE UNIQUE INDEX IF NOT EXISTS " + DBConstants.EVENT_HASH_INDEX + " ON " + DBConstants.MESSAGE_EVENT_TABLE + " ( " + DBConstants.EVENT_HASH + " )";
 		db.execSQL(sql);
 		
-		db.execSQL(getSortingIdxString());
+		db.execSQL(getMsisdnAndSortingIdIndex()); //This index is for querying the messages table
+		db.execSQL(getSortingIndexQuery()); //This index enables O(1) access for max sort id query, which will be used frequently
 
 		// to be aware of the users for whom db upgrade should not be done in future to fix AND-704
 		saveCurrentConvDbVersionToPrefs();
@@ -895,9 +896,10 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			}
 		}
 		
-		if (oldVersion < 46)
+		if (oldVersion < 47)
 		{
-			db.execSQL(getSortingIdxString());
+			db.execSQL(getMsisdnAndSortingIdIndex()); //This index is for querying the messages table
+			db.execSQL(getSortingIndexQuery()); //This index enables O(1) access for max sort id query, which will be used frequently
 		}
 
 	}
@@ -8674,9 +8676,14 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		}
 	}
 	
-	private String getSortingIdxString()
+	private String getMsisdnAndSortingIdIndex()
 	{
 		return "CREATE INDEX IF NOT EXISTS " + DBConstants.SORT_ID_IDX + " ON " + DBConstants.MESSAGES_TABLE + " ( " + DBConstants.MSISDN + " , " + DBConstants.SORTING_ID + " )";
+	}
+
+	private String getSortingIndexQuery()
+	{
+		return "CREATE INDEX IF NOT EXISTS " + DBConstants.SORT_ID_IDX2 + " ON " + DBConstants.MESSAGES_TABLE + " ( " + DBConstants.SORTING_ID + " )";
 	}
 
 	/**

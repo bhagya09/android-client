@@ -4,7 +4,7 @@ import com.bsb.hike.models.ContactInfo.FavoriteType;
 
 public interface DBConstants
 {
-	public static final int CONVERSATIONS_DATABASE_VERSION = 46;
+	public static final int CONVERSATIONS_DATABASE_VERSION = 47;
 
 	public static final int USERS_DATABASE_VERSION = 17;
 
@@ -463,5 +463,7 @@ public interface DBConstants
 	public static final String SORTING_ID = "sortingId";
 	
 	public static final String SORT_ID_IDX = "srtIdx";
+
+	public static final String SORT_ID_IDX2 = "srt_Index";
 	
 }
