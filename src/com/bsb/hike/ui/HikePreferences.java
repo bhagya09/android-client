@@ -352,6 +352,20 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 							restartHomeActivity();
 						}
 					}
+					
+//					tracking app language change event
+					try
+					{
+						JSONObject metadata = new JSONObject();
+						metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.APP_LANGUAGE_CHANGE_EVENT);
+						metadata.put(HikeConstants.APP_LANGUAGE, newValue);
+						HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
+					}
+					catch(JSONException e)
+					{
+						Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json : " + e);
+					}
+					
 					return true;
 				}
 			});
@@ -1403,30 +1417,37 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		else if (HikeConstants.KEYBOARD_PREF.equals(preference.getKey()))
 		{
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CURRENT_KEYBOARD, !isChecked);
+			trackAnalyticEvent(HikeConstants.LogEvent.HIKE_KEYBOARD_ON, isChecked);
 		}
 		else if (HikeConstants.GLIDE_PREF.equals(preference.getKey()))
 		{
 			kptSettings.setGlideState(isChecked ? AdaptxtSettings.KPT_TRUE : AdaptxtSettings.KPT_FALSE);
+			trackAnalyticEvent(HikeConstants.LogEvent.GLIDE_ON, isChecked);
 		}
 		else if (HikeConstants.AUTO_CORRECT_PREF.equals(preference.getKey()))
 		{
 			kptSettings.setAutoCorrectionState(isChecked ? AdaptxtSettings.KPT_TRUE : AdaptxtSettings.KPT_FALSE);
+			trackAnalyticEvent(HikeConstants.LogEvent.AUTO_CORRECT_ON, isChecked);
 		}
 		else if (HikeConstants.AUTO_CAPITALIZATION_PREF.equals(preference.getKey()))
 		{
 			kptSettings.setAutoCapitalizationState(isChecked ? AdaptxtSettings.KPT_TRUE : AdaptxtSettings.KPT_FALSE);
+			trackAnalyticEvent(HikeConstants.LogEvent.AUTO_CAPITALIZATION_ON, isChecked);
 		}
 		else if (HikeConstants.AUTO_SPACING_PREF.equals(preference.getKey()))
 		{
 			kptSettings.setAutoSpacingState(isChecked ? AdaptxtSettings.KPT_TRUE : kptSettings.KPT_FALSE);
+			trackAnalyticEvent(HikeConstants.LogEvent.AUTO_SPACING_ON, isChecked);
 		}
 		else if (HikeConstants.DISPLAY_SUGGESTIONS_PREF.equals(preference.getKey()))
 		{
 			kptSettings.setDisplaySuggestionsState(isChecked ? AdaptxtSettings.KPT_TRUE : AdaptxtSettings.KPT_FALSE);
+			trackAnalyticEvent(HikeConstants.LogEvent.DISPLAY_SUGGESTION_ON, isChecked);
 		}
 		else if (HikeConstants.PRIVATE_MODE_PREF.equals(preference.getKey()))
 		{
 			kptSettings.setPrivateModeState(isChecked ? AdaptxtSettings.KPT_TRUE : AdaptxtSettings.KPT_FALSE);
+			trackAnalyticEvent(HikeConstants.LogEvent.PRIVATE_MODE_ON, isChecked);
 		}
 		else if (HikeConstants.DISPLAY_ACCENTS_PREF.equals(preference.getKey()))
 		{
@@ -1435,14 +1456,17 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		else if (HikeConstants.POPUP_ON_KEYPRESS_PREF.equals(preference.getKey()))
 		{
 			kptSettings.setPopupOnKeyPressState(isChecked ? AdaptxtSettings.KPT_TRUE : AdaptxtSettings.KPT_FALSE);
+			trackAnalyticEvent(HikeConstants.LogEvent.KEYPRESS_POPUP_ON, isChecked);
 		}
 		else if (HikeConstants.SOUND_ON_KEYPRESS_PREF.equals(preference.getKey()))
 		{
 			kptSettings.setSoundOnKeyPressState(isChecked ? AdaptxtSettings.KPT_TRUE : AdaptxtSettings.KPT_FALSE);
+			trackAnalyticEvent(HikeConstants.LogEvent.KEYPRESS_SOUND_ON, isChecked);
 		}
 		else if (HikeConstants.VIBRATE_ON_KEYPRESS_PREF.equals(preference.getKey()))
 		{
 			kptSettings.setVibrateOnKeyPressState(isChecked ? AdaptxtSettings.KPT_TRUE : AdaptxtSettings.KPT_FALSE);
+			trackAnalyticEvent(HikeConstants.LogEvent.KEYPRESS_VIBRATION_ON, isChecked);
 		}
 		return true;
 	}
@@ -1492,6 +1516,23 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		}
 	}
 
+	/*
+	 * This method tracks the click analytic events on switch preferences
+	 */
+	private void trackAnalyticEvent(String event, boolean isChecked)
+	{
+		try
+		{
+			JSONObject metadata = new JSONObject();
+			metadata.put(event, String.valueOf(isChecked));
+			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
+		}
+		catch(JSONException e)
+		{
+			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json : " + event + "\n" + e);
+		}
+	}
+	
 	private void updatePrivacyPrefView()
 	{
 		IconListPreference lp = (IconListPreference) getPreferenceScreen().findPreference(HikeConstants.LAST_SEEN_PREF_LIST);

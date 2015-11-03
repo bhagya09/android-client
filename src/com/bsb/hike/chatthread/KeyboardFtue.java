@@ -13,15 +13,22 @@ import android.widget.ListView;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
 
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
+import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.modules.kpt.KptKeyboardManager;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.Logger;
 import com.kpt.adaptxt.beta.KPTAddonItem;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 /**
  * Created by gauravmittal on 28/10/15.
@@ -140,20 +147,41 @@ public class KeyboardFtue implements HikePubSub.Listener
     private void prepareIntroLayout()
     {
         flipper.setDisplayedChild(0);
+        trackClickAnalyticEvents(HikeConstants.LogEvent.KEYBOARD_FTUE_INITIATED);
+        
         flipper.findViewById(R.id.close).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 skipLanguageSelection();
+                trackClickAnalyticEvents(HikeConstants.LogEvent.KEYBOARD_FTUE_CLOSE_BUTTON);
             }
         });
         flipper.findViewById(R.id.txt_choose_language).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 prepareLanguageListLayout();
+                trackClickAnalyticEvents(HikeConstants.LogEvent.KEYBOARD_FTUE_CHOOSE_LANGUAGE_BUTTON);
             }
         });
     }
 
+    /*
+     * This method is to track the analytic events on various ftue clicks
+     */
+    private void trackClickAnalyticEvents(String event)
+    {
+    	try
+		{
+			JSONObject metadata = new JSONObject();
+			metadata.put(HikeConstants.EVENT_KEY, event);
+			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
+		}
+		catch(JSONException e)
+		{
+			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json : " + e);
+		}
+    }
+    
     private void prepareLanguageListLayout()
     {
         flipper.setDisplayedChild(1);
@@ -163,11 +191,13 @@ public class KeyboardFtue implements HikePubSub.Listener
             @Override
             public void onClick(View v) {
                 skipLanguageSelection();
+                trackClickAnalyticEvents(HikeConstants.LogEvent.KEYBOARD_FTUE_CLOSE_LANG_SELECTION);
             }
         });
         flipper.findViewById(R.id.btn_positive).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                trackClickAnalyticEvents(HikeConstants.LogEvent.KEYBOARD_FTUE_INSTALL_SELECTED_LANGUAGES);
                 installSelectedLangauges();
                 refreshActionPanel();
             }
@@ -248,6 +278,19 @@ public class KeyboardFtue implements HikePubSub.Listener
             for (KPTAddonItem item : addonItemAdapter.getSelectedItems())
             {
                 KptKeyboardManager.getInstance(mActivity).downloadAndInstallLanguage(item);
+                
+//                tracking download of each language in ftue
+                try
+        		{
+        			JSONObject metadata = new JSONObject();
+        			metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.KEYBOARD_FTUE_LANGUAGE_DOWNLOADED);
+        			metadata.put(HikeConstants.KEYBOARD_LANGUAGE, item.getDisplayName());
+        			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
+        		}
+        		catch(JSONException e)
+        		{
+        			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json : " + e);
+        		}
             }
         }
         else
@@ -306,6 +349,9 @@ public class KeyboardFtue implements HikePubSub.Listener
 
     public void destroy()
     {
+//    	tracking analytic event for keyboard ftue completion
+        trackClickAnalyticEvents(HikeConstants.LogEvent.KEYBOARD_FTUE_COMPLETES);
+    	
         container.removeAllViews();
         container.invalidate();
         removeFromPubSub();
