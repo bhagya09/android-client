@@ -7,24 +7,18 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Locale;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.app.Notification;
-import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationCompat.Action;
 import android.text.TextUtils;
-import android.view.ViewDebug.FlagToString;
 import android.widget.Toast;
 
 import com.bsb.hike.HikeConstants;
@@ -32,14 +26,12 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.MqttConstants;
 import com.bsb.hike.R;
-import com.bsb.hike.BitmapModule.HikeBitmapFactory;
-import com.bsb.hike.HikeConstants.NotificationType;
 import com.bsb.hike.db.HikeConversationsDatabase;
+import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.ConvMessage.State;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
-import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.MessageMetadata;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.modules.contactmgr.ContactManager;
@@ -47,17 +39,13 @@ import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.notifications.HikeNotificationMsgStack;
 import com.bsb.hike.offline.OfflineConstants.OFFLINE_STATE;
 import com.bsb.hike.service.HikeMqttManagerNew;
-import com.bsb.hike.smartcache.HikeLruCache;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
-import com.bsb.hike.voip.VoIPClient;
-import com.bsb.hike.voip.view.VoIPActivity;
 import com.google.gson.Gson;
-import com.hike.transporter.TException;
 import com.hike.transporter.utils.TConstants.ERRORCODES;
 
 /**
@@ -963,4 +951,19 @@ public class OfflineUtils
 		String myMsisdn = getMyMsisdn();
 		return (myMsisdn.compareTo(connectingMisdn) < 0);
 	}
+	
+	public static boolean isVoipPacket(JSONObject messageJSON)
+	{
+		String type = messageJSON.optString(HikeConstants.TYPE);
+		if (TextUtils.isEmpty(type))
+		{
+			return false;
+		}
+		if (HikeConstants.MqttMessageTypes.MESSAGE_VOIP_0.equals(type) || HikeConstants.MqttMessageTypes.MESSAGE_VOIP_1.equals(type))
+		{
+			return true;
+		}
+		return false;
+	}
 }
+	
