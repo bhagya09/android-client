@@ -12,6 +12,7 @@ import android.util.Pair;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
+import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.utils.Logger;
 
 public class MultipleConvMessage
@@ -125,18 +126,15 @@ public class MultipleConvMessage
                     msg.put(HikeConstants.METADATA, convMessage.platformMessageMetadata.getJSON());
                     msg.put(HikeConstants.SUB_TYPE, HikeConstants.ConvMessagePacketKeys.CONTENT_TYPE);
 
-                } else if (convMessage.getMessageType() == HikeConstants.MESSAGE_TYPE.WEB_CONTENT)
+                } else if (convMessage.getMessageType() == HikeConstants.MESSAGE_TYPE.WEB_CONTENT || convMessage.getMessageType() == HikeConstants.MESSAGE_TYPE.FORWARD_WEB_CONTENT)
 				{
-					msg.put(HikeConstants.METADATA, convMessage.webMetadata.getJSON());
+					JSONObject metadata = convMessage.webMetadata.getJSON();
+					metadata.put(HikePlatformConstants.NAMESPACE, convMessage.getNameSpace());
+					metadata.put(HikePlatformConstants.CONTENT_ID, convMessage.getContentId());
+					msg.put(HikeConstants.METADATA, metadata);
 					msg.put(HikeConstants.PLATFORM_PACKET, convMessage.getPlatformData());
-					msg.put(HikeConstants.SUB_TYPE, HikeConstants.ConvMessagePacketKeys.WEB_CONTENT_TYPE);
+					msg.put(HikeConstants.SUB_TYPE, convMessage.getMessageType() == HikeConstants.MESSAGE_TYPE.WEB_CONTENT ? HikeConstants.ConvMessagePacketKeys.WEB_CONTENT_TYPE : HikeConstants.ConvMessagePacketKeys.FORWARD_WEB_CONTENT_TYPE);
 
-				}
-				else if (convMessage.getMessageType() == HikeConstants.MESSAGE_TYPE.FORWARD_WEB_CONTENT)
-				{
-					msg.put(HikeConstants.METADATA, convMessage.webMetadata.getJSON());
-					msg.put(HikeConstants.PLATFORM_PACKET, convMessage.getPlatformData());
-					msg.put(HikeConstants.SUB_TYPE, HikeConstants.ConvMessagePacketKeys.FORWARD_WEB_CONTENT_TYPE);
 				}
 				
 				msgArray.put(msg);
