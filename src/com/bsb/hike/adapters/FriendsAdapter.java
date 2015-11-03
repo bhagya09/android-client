@@ -1231,10 +1231,11 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 					if(lastStatusMessage != null)
 					{
 						lastSeen.setTextColor(context.getResources().getColor(R.color.list_item_subtext));
+						SmileyParser smileyParser = SmileyParser.getInstance();
 						switch (lastStatusMessage.getStatusMessageType())
 						{
 						case TEXT:
-							lastSeen.setText(lastStatusMessage.getText());
+							lastSeen.setText(smileyParser.addSmileySpans(lastStatusMessage.getText(), true));
 							if (lastStatusMessage.hasMood())
 							{
 								statusMood.setVisibility(View.VISIBLE);
@@ -1253,7 +1254,6 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 
 						case IMAGE:
 						case TEXT_IMAGE:
-							SmileyParser smileyParser = SmileyParser.getInstance();
 							if(TextUtils.isEmpty(lastStatusMessage.getText()))
 							{
 								lastSeen.setText(lastStatusMessage.getMsisdn());
