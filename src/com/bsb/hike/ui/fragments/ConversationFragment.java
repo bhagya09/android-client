@@ -3794,6 +3794,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOW_NORMAL_UPDATE_TIP, false);
 				Uri url = Uri.parse(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.Extras.URL, "market://details?id=com.bsb.hike"));
 				Intent openUrl = new Intent(Intent.ACTION_VIEW, url);
+				openUrl.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 				startActivityForResult(openUrl, ConversationTip.REQUEST_CODE_URL_OPEN);
 				break;
 			case ConversationTip.INVITE_TIP:
