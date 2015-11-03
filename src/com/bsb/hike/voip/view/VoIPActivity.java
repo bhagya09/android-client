@@ -168,6 +168,16 @@ public class VoIPActivity extends AppCompatActivity implements CallFragmentListe
 		}
 		return false;
 	}
+	
+	public void showDeclineWithMessageFragment(Bundle bundle)
+	{
+		if(!isFragmentAdded(HikeConstants.VOIP_CALL_DECLINE_MESSAGE_FRAGMENT_TAG))
+		{
+			CallDeclineWithMessageFragment fragment = new CallDeclineWithMessageFragment();
+			fragment.setArguments(bundle);
+			fragment.show(getSupportFragmentManager(), HikeConstants.VOIP_CALL_DECLINE_MESSAGE_FRAGMENT_TAG);
+		}
+	}
 
 	@Override
 	public void clearActivityFlags() {

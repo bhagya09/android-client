@@ -782,6 +782,13 @@ public class IntentFactory
 		return homeIntent;
 	}
 
+	public static Intent getHomeActivityIntentAsFreshLaunch(Context context)
+	{
+		Intent homeIntent = Intent.makeMainActivity(new ComponentName(context, HomeActivity.class));
+		homeIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+		return homeIntent;
+	}
+
 	public static Intent openInviteFriends(Activity context)
 	{
 		Intent in = new Intent(context, NUXInviteActivity.class);

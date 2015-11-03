@@ -6,10 +6,12 @@ import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import com.bsb.hike.localisation.LocalLanguageUtils;
 import com.bsb.hike.platform.content.PlatformContentConstants;
 
 import org.acra.ACRA;
@@ -30,6 +32,8 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.multidex.MultiDexApplication;
@@ -744,6 +748,7 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 
 		_instance = this;
 
+		setupLocalLanguage();
 		KptKeyboardManager.getInstance(this);
 		Utils.setDensityMultiplier(getResources().getDisplayMetrics());
 
@@ -925,7 +930,7 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		
 		bottomNavBarHeightPortrait = Utils.getBottomNavBarHeight(getApplicationContext());
 		bottomNavBarWidthLandscape = Utils.getBottomNavBarWidth(getApplicationContext());
-		
+
 	}
 
 	private void initImportantAppComponents(SharedPreferences prefs)
@@ -1208,5 +1213,27 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		boolean currentKbd = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CURRENT_KEYBOARD, false);
 		Logger.d("keyboard", "Current keyboard : " + currentKbd);
 		return currentKbd;
+	}
+
+	@Override
+	public void onConfigurationChanged(Configuration newConfig)
+	{
+		super.onConfigurationChanged(newConfig);
+		setupLocalLanguage();
+	}
+
+	public void setupLocalLanguage()
+	{
+		Resources res = getApplicationContext().getResources();
+		Configuration config = res.getConfiguration();
+		if (LocalLanguageUtils.isLocalLanguageSelected())
+		{
+			config.locale = new Locale(LocalLanguageUtils.getApplicationLocalLanguageLocale());
+		}
+		else
+		{
+			config.locale = Locale.getDefault();
+		}
+		res.updateConfiguration(config, res.getDisplayMetrics());
 	}
 }
