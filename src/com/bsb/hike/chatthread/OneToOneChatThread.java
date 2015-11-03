@@ -1,7 +1,6 @@
 package com.bsb.hike.chatthread;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -12,8 +11,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import android.annotation.SuppressLint;
 import android.app.Dialog;
@@ -21,9 +18,10 @@ import android.app.NotificationManager;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.Drawable;
+import android.location.LocationManager;
 import android.media.AudioManager;
 import android.net.wifi.ScanResult;
 import android.net.wifi.p2p.WifiP2pDeviceList;
@@ -53,7 +51,6 @@ import android.view.animation.AnimationUtils;
 import android.widget.CheckBox;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.ImageView.ScaleType;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -71,6 +68,7 @@ import com.bsb.hike.db.HikeMqttPersistence;
 import com.bsb.hike.dialog.H20Dialog;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
+import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.media.OverFlowMenuItem;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
@@ -87,7 +85,6 @@ import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.lastseenmgr.FetchLastSeenTask;
 import com.bsb.hike.notifications.HikeNotification;
-import com.bsb.hike.notifications.HikeNotificationUtils;
 import com.bsb.hike.offline.OfflineAnalytics;
 import com.bsb.hike.offline.OfflineConstants;
 import com.bsb.hike.offline.OfflineConstants.DisconnectFragmentType;
@@ -100,7 +97,6 @@ import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.ui.fragments.OfflineAnimationFragment;
 import com.bsb.hike.ui.fragments.OfflineDisconnectFragment;
 import com.bsb.hike.ui.fragments.OfflineDisconnectFragment.OfflineConnectionRequestListener;
-import com.bsb.hike.ui.utils.StatusBarColorChanger;
 import com.bsb.hike.utils.ChatTheme;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
@@ -209,6 +205,18 @@ import com.google.gson.Gson;
 	private boolean shouldScheduleH20Tip = true;
 
 	private List<Integer> offlineIntentHashData = new ArrayList<Integer>();
+	
+	private Dialog alert = null;
+	
+	private int currentLocationDevice;
+	
+	private final int GPS_ENABLED = 1;
+
+	private final int GPS_DISABLED = 2;
+
+	private final int NO_LOCATION_DEVICE_ENABLED = 0;
+
+	private boolean gpsDialogShown = false;
 	
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
@@ -1679,7 +1687,7 @@ import com.google.gson.Gson;
 	}
 	private void startFreeHikeConversation(Boolean showAnimation)
 	{
-		if(offlineController==null)
+		if (offlineController == null)
 		{
 			offlineController = OfflineController.getInstance();
 			offlineController.addListener(this);
@@ -1687,15 +1695,15 @@ import com.google.gson.Gson;
 		switch (OfflineController.getInstance().getOfflineState())
 		{
 		case CONNECTED:
-			if(!OfflineUtils.isConnectedToSameMsisdn(msisdn))
+			if (!OfflineUtils.isConnectedToSameMsisdn(msisdn))
 			{
-				showPreviouslyConnectedorConnectingTip(true,true);
+				showPreviouslyConnectedorConnectingTip(true, true);
 			}
 			break;
 		case CONNECTING:
-			if(!OfflineUtils.isConnectingToSameMsisdn(msisdn))
+			if (!OfflineUtils.isConnectingToSameMsisdn(msisdn))
 			{
-				showPreviouslyConnectedorConnectingTip(false,true);
+				showPreviouslyConnectedorConnectingTip(false, true);
 			}
 			break;
 		case DISCONNECTING:
@@ -1703,18 +1711,42 @@ import com.google.gson.Gson;
 			break;
 		case NOT_CONNECTED:
 		case DISCONNECTED:
-			if(showAnimation)
-			{
-				startFreeHikeAnimation();
-			}
-			Logger.d("OfflineAnimationFragment",msisdn);
+			Logger.d("OfflineAnimationFragment", msisdn);
 			OfflineUtils.sendOfflineRequestPacket(msisdn);
-			offlineController.connectAsPerMsisdn(msisdn);
-			setupOfflineUI();
+			if (shouldShowLocationDialog())
+			{
+				showLocationDialog();
+			}
+			else
+			{
+				offlineController.connectAsPerMsisdn(msisdn);
+				setupOfflineUI();
+				if (showAnimation)
+				{
+					startFreeHikeAnimation();
+				}
+			}
 			break;
 		}
 	}
-	
+
+	/**
+	 * 
+	 * @return 1)>lollipop 2)smaller msisdn 3)location disabled 4)server variable
+	 */
+	private boolean shouldShowLocationDialog()
+	{
+		return (Utils.isMarshmallowOrHigher() && OfflineUtils.willConnnectToHotspot(msisdn) && !Utils.isLocationEnabled(activity.getApplicationContext()) && HikeSharedPreferenceUtil
+				.getInstance().getData(HikeConstants.SHOW_GPS_DIALOG, false));
+	}
+
+	private void showLocationCloseDialog()
+	{
+		if (Utils.isMarshmallowOrHigher() && Utils.isLocationEnabled(activity) && HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SHOW_GPS_DIALOG, false))
+			sendUIMessage(SHOW_TOAST, 1000, R.string.close_gps);
+	}
+
+
 	/**
 	 * 
 	 * @param isConnected True if device is already connected to some other device
@@ -3374,8 +3406,9 @@ import com.google.gson.Gson;
 		}
 		NotificationManager notificationManager = (NotificationManager)activity.getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.cancel(HikeNotification.OFFLINE_REQUEST_ID);
+        showLocationCloseDialog();
 	}
-
+	
 	private void clearAttachmentPicker() {
 		attachmentPicker = null;
 	}
@@ -3480,5 +3513,92 @@ import com.google.gson.Gson;
 		}
 		
 		super.onPreNewIntent();
+	}
+	
+	private void showLocationDialog()
+	{
+		if (alert != null && alert.isShowing())
+		{
+			return;
+		}
+		LocationManager locManager = (LocationManager) activity.getSystemService(Context.LOCATION_SERVICE);
+
+		boolean hasGps = activity.getPackageManager().hasSystemFeature(PackageManager.FEATURE_LOCATION_GPS);
+
+		if (locManager.isProviderEnabled(LocationManager.GPS_PROVIDER))
+		{
+			currentLocationDevice = GPS_ENABLED;
+		}
+		else if (locManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER))
+		{
+			currentLocationDevice = GPS_DISABLED;
+		}
+		else
+		{
+			currentLocationDevice = NO_LOCATION_DEVICE_ENABLED;
+		}
+
+		/*
+		 * Don't show anything if the GPS is already enabled or the device does not have gps and the network is enabled or the the GPS dialog was shown once.
+		 */
+		if (currentLocationDevice == GPS_ENABLED)
+		{
+			return;
+		}
+		else if (currentLocationDevice == GPS_DISABLED && (!hasGps || gpsDialogShown))
+		{
+			return;
+		}
+
+		int messageId = R.string.switch_on_gps;
+
+		alert = HikeDialogFactory.showDialog(activity, HikeDialogFactory.GPS_DIALOG, new HikeDialogListener()
+		{
+			@Override
+			public void positiveClicked(HikeDialog hikeDialog)
+			{
+				Intent callGPSSettingIntent = new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+				activity.startActivityForResult(callGPSSettingIntent, HikeConstants.GPS_STATUS_CHANGED);
+				hikeDialog.dismiss();
+			}
+
+			@Override
+			public void neutralClicked(HikeDialog hikeDialog)
+			{
+			}
+
+			@Override
+			public void negativeClicked(HikeDialog hikeDialog)
+			{
+				gpsDialogShown = currentLocationDevice == GPS_DISABLED;
+				Toast.makeText(activity, "Sorry hike direct wont work if gps not on", Toast.LENGTH_LONG).show();
+				hikeDialog.dismiss();
+			}
+		}, messageId, R.string.gps_settings);
+
+
+		if (isActivityVisible)
+			alert.show();
+
+	}	
+	
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent data)
+	{
+		switch (requestCode)
+		{
+		case HikeConstants.GPS_STATUS_CHANGED:
+			if (Utils.isLocationEnabled(activity.getApplicationContext()))
+			{
+				sendUIMessage(START_OFFLINE_CONNECTION, true);
+			}
+			else
+			{
+				Toast.makeText(activity, "Sorry hike direct wont work if gps not on", Toast.LENGTH_LONG).show();
+			}
+			break;
+		default:
+			super.onActivityResult(requestCode, resultCode, data);
+		}
 	}
 }

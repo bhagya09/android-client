@@ -946,6 +946,12 @@ public class OfflineUtils
 		return 1;
 	}
 	
+	public static boolean willConnnectToHotspot(String connectingMisdn)
+	{
+		String myMsisdn = getMyMsisdn();
+		return (myMsisdn.compareTo(connectingMisdn) < 0);
+	}
+	
 	public static boolean isVoipPacket(JSONObject messageJSON)
 	{
 		String type = messageJSON.optString(HikeConstants.TYPE);
@@ -958,5 +964,6 @@ public class OfflineUtils
 			return true;
 		}
 		return false;
+	}
 }
-}
+	

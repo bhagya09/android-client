@@ -100,6 +100,7 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
 import android.location.Address;
 import android.location.Geocoder;
+import android.location.LocationManager;
 import android.media.AudioManager;
 import android.media.ExifInterface;
 import android.media.MediaScannerConnection;
@@ -217,6 +218,7 @@ import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.notifications.HikeNotification;
+import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.service.ConnectionChangeReceiver;
 import com.bsb.hike.service.HikeMqttManagerNew;
@@ -299,6 +301,8 @@ public class Utils
 	 * copied from {@link android.telephony.TelephonyManager}
 	 */
 	private static final int NETWORK_TYPE_GSM = 16;
+
+	private final static String ANDROID_DATA_STORAGE_DIR_SUFFIX = "/Android/data/";
 
 	static
 	{
@@ -3956,7 +3960,7 @@ public class Utils
 			return;
 		}
 
-		if (!isUserOnline(context))
+		if (!isUserOnline(context) && !OfflineUtils.isConnectedToSameMsisdn(mContactNumber))
 		{
 			Toast.makeText(context, context.getString(R.string.voip_offline_error), Toast.LENGTH_SHORT).show();
 			return;
@@ -7430,4 +7434,49 @@ public class Utils
 		return timeLogBuilder.toString();
 	}
 
+	
+	public static boolean isLocationEnabled(Context context)
+	{
+		LocationManager locManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+
+		boolean hasGps = context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_LOCATION_GPS);
+
+		if (!hasGps)
+		{
+			return false;
+		}
+		else if (locManager.isProviderEnabled(LocationManager.GPS_PROVIDER))
+		{
+			return true;
+		}
+		else if (locManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER))
+		{
+			return false;
+		}
+
+		return false;
+
+	}
+
+	public static boolean isMarshmallowOrHigher()
+	{
+		return Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1;
+	}
+	/**
+	 * returns true if the filePath starts with android data storage directory path
+	 * @param filePath
+	 */
+	public static boolean isAndroidDataStorageDir(String filePath)
+	{
+		boolean isAndroidDataStorageDir = false;
+		if(TextUtils.isEmpty(filePath))
+		{
+			isAndroidDataStorageDir =  false;
+		}
+		else if(getExternalStorageState() == ExternalStorageState.WRITEABLE)
+		{
+			isAndroidDataStorageDir = filePath.startsWith(Environment.getExternalStorageDirectory() + ANDROID_DATA_STORAGE_DIR_SUFFIX);
+		}
+		return isAndroidDataStorageDir;
+	}
 }
