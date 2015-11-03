@@ -526,6 +526,8 @@ public class DbConversationListener implements Listener
 					data.put(HikePlatformConstants.NAMESPACE, messageEvent.getNameSpace());
 
 					data.put(HikeConstants.EVENT_ID, eventId);
+					long messageId = HikeConversationsDatabase.getInstance().getMessageIdFromMessageHash(messageEvent.getMessageHash(), messageEvent.getMsisdn());
+					data.put(HikeConstants.MESSAGE_ID,messageId);
 					jObj.put(HikeConstants.DATA, data);
 					HikeMqttManagerNew.getInstance().sendMessage(jObj, MqttConstants.MQTT_QOS_ONE);
 					boolean increaseUnreadCount = data.optBoolean(HikePlatformConstants.INCREASE_UNREAD);
