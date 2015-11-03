@@ -3354,8 +3354,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			changeChannel(true,false);
 			clearAttachmentPicker();
 		}
-		NotificationManager notificationManager = (NotificationManager)activity.getSystemService(Context.NOTIFICATION_SERVICE);
-        notificationManager.cancel(HikeNotification.OFFLINE_REQUEST_ID);
+		HikeNotification.getInstance().cancelNotification(HikeNotification.OFFLINE_REQUEST_ID);
 	}
 
 	private void clearAttachmentPicker() {
@@ -3378,8 +3377,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	public void onDisconnect(ERRORCODE errorCode)
 	{
 		
-		NotificationManager notificationManager = (NotificationManager)activity.getSystemService(Context.NOTIFICATION_SERVICE);
-        notificationManager.cancel(HikeNotification.OFFLINE_REQUEST_ID);
+		HikeNotification.getInstance().cancelNotification(HikeNotification.OFFLINE_REQUEST_ID);
         
 		Logger.d("OfflineManager", "disconnect Called " + errorCode +  "excetion code"+ errorCode.getErrorCode().getReasonCode()+ " time- "  + System.currentTimeMillis());
 		switch (errorCode)
