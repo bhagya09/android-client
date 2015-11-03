@@ -3571,7 +3571,7 @@ import com.google.gson.Gson;
 			public void negativeClicked(HikeDialog hikeDialog)
 			{
 				gpsDialogShown = currentLocationDevice == GPS_DISABLED;
-				Toast.makeText(activity, "Sorry hike direct wont work if gps not on", Toast.LENGTH_LONG).show();
+				Toast.makeText(activity, getString(R.string.user_gps_off), Toast.LENGTH_LONG).show();
 				hikeDialog.dismiss();
 			}
 		}, messageId, R.string.gps_settings);
@@ -3594,7 +3594,7 @@ import com.google.gson.Gson;
 			}
 			else
 			{
-				Toast.makeText(activity, "Sorry hike direct wont work if gps not on", Toast.LENGTH_LONG).show();
+				Toast.makeText(activity, getString(R.string.user_gps_off), Toast.LENGTH_LONG).show();
 			}
 			break;
 		default:
