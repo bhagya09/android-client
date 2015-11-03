@@ -6,17 +6,6 @@
 
 package com.bsb.hike.modules.stickersearch.provider;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
-
 import android.util.Pair;
 
 import com.bsb.hike.HikeConstants;
@@ -32,6 +21,17 @@ import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 
 public enum StickerSearchDataController
 {
@@ -375,7 +375,9 @@ public enum StickerSearchDataController
 					}
 
 					// Check themes associated with tags per sticker for each language and script altogether
-					if (themeList.size() <= 0)
+					//if (themeList.size() <= 0)
+					//temp hack since theme list is not being used currently and also server does not send theme list for tags in regional scripts
+					if (themeList.size() < 0)
 					{
 						themeList = null;
 						tagList.clear();
