@@ -318,6 +318,7 @@ public class HikeService extends Service
 			HikeHandlerUtil.getInstance().postRunnableWithDelay(new CleanFileRunnable(),0);
 		}
 			
+		Logger.d("UpdateTipPersistentNotif", "Hike service is being initialized. Calling show persistent notif.");
 		HikeNotification.getInstance().checkAndShowUpdateNotif();
 		
 		ChatHeadUtils.registerCallReceiver();

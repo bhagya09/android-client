@@ -313,6 +313,7 @@ public class ToastListener implements Listener
 		}
 		else if(HikePubSub.SHOW_PERSISTENT_NOTIF.equals(type))
 		{
+			Logger.d("UpdateTipPersistentNotif", "Creating persistent notification!");
 			toaster.notifyPersistentUpdate(
 					context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).getString(HikeConstants.UPDATE_TITLE, context.getResources().getString(R.string.pers_notif_title)),
 					context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).getString(HikeConstants.Extras.UPDATE_MESSAGE, context.getResources().getString(R.string.pers_notif_message)),

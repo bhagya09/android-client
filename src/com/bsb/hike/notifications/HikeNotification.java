@@ -358,9 +358,7 @@ public class HikeNotification
 		editor.putLong(HikeConstants.PERSISTENT_NOTIF_ALARM, alarmInterval);
 		editor.commit();
 
-		Intent intent = new Intent(Intent.ACTION_VIEW);
-		intent.setData(url);
-		intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY | Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+		Intent intent = new Intent(Intent.ACTION_VIEW, url);
 		mBuilder.setContentIntent(PendingIntent.getActivity(context, 0, intent, 0));
 		
 		Intent laterIntent = new Intent(NOTIF_ALARM_INTENT);
@@ -1102,6 +1100,7 @@ public class HikeNotification
 	
 	public void cancelPersistNotif()
 	{
+		Logger.d("UpdateTipPersistentNotif", "Removing Persistent Notif.");
 		notificationManager.cancel(PERSISTENT_NOTIF_ID);
 	}
 
