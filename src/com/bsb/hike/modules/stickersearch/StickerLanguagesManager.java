@@ -271,5 +271,16 @@ public class StickerLanguagesManager {
         }
         return result.substring(0, result.length() -1); // remove last comma
     }
+
+    public Set<String> getAccumulatedSet(int... types)
+    {
+        Set<String> accumulatedSet = new HashSet<>();
+
+        for(int type : types)
+        {
+            accumulatedSet.addAll(getLanguageSet(type));
+        }
+        return accumulatedSet;
+    }
 }
 

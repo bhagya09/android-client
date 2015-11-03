@@ -4,6 +4,7 @@ import android.content.Context;
 import android.text.TextUtils;
 
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 
 /**
@@ -39,5 +40,6 @@ public class LocalLanguageUtils {
         } else {
             HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.LOCAL_LANGUAGE_PREF, lang.getLocale());
         }
+        HikeMessengerApp.getInstance().setupLocalLanguage();
     }
 }
