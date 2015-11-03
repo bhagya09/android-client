@@ -81,18 +81,18 @@ public class KptUtils
 	
 	public static void generateKeyboardAnalytics(String currentLanguage)
 	{
-//		tracking keyboard language change event
-		try
-		{
-			JSONObject metadata = new JSONObject();
-			metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.KEYBOARD_LANGUAGE_CHANGED_EVENT);
-			metadata.put(HikeConstants.KEYBOARD_LANGUAGE, currentLanguage);
-			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
-		}
-		catch(JSONException e)
-		{
-			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json : " + currentLanguage + "\n" + e);
-		}
+////		tracking keyboard language change event
+//		try
+//		{
+//			JSONObject metadata = new JSONObject();
+//			metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.KEYBOARD_LANGUAGE_CHANGED_EVENT);
+//			metadata.put(HikeConstants.KEYBOARD_LANGUAGE, currentLanguage);
+//			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
+//		}
+//		catch(JSONException e)
+//		{
+//			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json : " + currentLanguage + "\n" + e);
+//		}
 	}
 
 	public static void destroyKeyboardResources(CustomKeyboard mCustomKeyboard, int ... editTexts)
