@@ -136,7 +136,7 @@ public class MultiStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRes
 					request.put(HikeConstants.RESOLUTION_ID, Utils.getResolutionId());
 					request.put(HikeConstants.NUMBER_OF_STICKERS, getStickerDownloadSize());
 					request.put(HikeConstants.DOWNLOAD_SOURCE, source.getValue());
-					request.put(HikeConstants.KEYBOARD_LIST, new JSONArray(StickerLanguagesManager.getInstance().getLanguageSet(StickerLanguagesManager.DOWNLOADED_LANGUAGE_SET_TYPE)));
+					request.put(HikeConstants.KEYBOARD_LIST, new JSONArray(StickerLanguagesManager.getInstance().getAccumulatedSet(StickerLanguagesManager.DOWNLOADED_LANGUAGE_SET_TYPE, StickerLanguagesManager.DOWNLOADING_LANGUAGE_SET_TYPE)));
 
 					Logger.d(TAG, "intercept(), Sticker Download Task Request: " + request.toString());
 
