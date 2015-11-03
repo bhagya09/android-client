@@ -77,6 +77,34 @@ public class PlatformHelper
 		}
 	}
 
+	// Function to log Analytics
+	public static void logAnalytics(String isUI, String subType, String json, String botMsisdn, String botName)
+	{
+
+		try
+		{
+			JSONObject jsonObject = new JSONObject(json);
+			jsonObject.put(AnalyticsConstants.BOT_MSISDN, botMsisdn);
+			jsonObject.put(AnalyticsConstants.BOT_NAME, botName);
+			if (Boolean.valueOf(isUI))
+			{
+				HikeAnalyticsEvent.analyticsForNonMessagingBots(AnalyticsConstants.MICROAPP_UI_EVENT, subType, jsonObject);
+			}
+			else
+			{
+				HikeAnalyticsEvent.analyticsForNonMessagingBots(AnalyticsConstants.MICROAPP_NON_UI_EVENT, subType, jsonObject);
+			}
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+		catch (NullPointerException e)
+		{
+			e.printStackTrace();
+		}
+	}
+
 	// Function to forward to chat
 	public static void forwardToChat(String json, String hikeMessage, BotInfo mBotInfo, Activity activity)
 	{

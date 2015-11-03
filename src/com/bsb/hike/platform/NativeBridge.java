@@ -4,20 +4,23 @@ import java.lang.ref.WeakReference;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import com.bsb.hike.HikeMessengerApp;
-import com.bsb.hike.bots.BotInfo;
-import com.bsb.hike.bots.BotUtils;
-import com.bsb.hike.db.HikeConversationsDatabase;
-import com.bsb.hike.models.HikeHandlerUtil;
-import com.bsb.hike.utils.HikeSharedPreferenceUtil;
-import com.bsb.hike.utils.Utils;
-import com.hike.transporter.utils.Logger;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Handler;
 import android.text.TextUtils;
 import android.util.Log;
 import android.webkit.JavascriptInterface;
+
+import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.bots.BotInfo;
+import com.bsb.hike.bots.BotUtils;
+import com.bsb.hike.models.HikeHandlerUtil;
+import com.bsb.hike.models.LogAnalyticsEvent;
+import com.bsb.hike.models.NormalEvent;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.Utils;
+import com.hike.transporter.utils.Logger;
 
 public class NativeBridge
 {
@@ -98,12 +101,10 @@ public class NativeBridge
 	{
 		if (mThread == null)
 			return;
-		mThread.postRunnable(new Runnable()
-		{
+		mThread.postRunnable(new Runnable() {
 
 			@Override
-			public void run()
-			{
+			public void run() {
 				activity.platformCallback(functionId, mBotInfo.getHelperData());
 			}
 		});
@@ -111,7 +112,7 @@ public class NativeBridge
 
 	/**
 	 * Platform Version 7 Call this method to put data in cache. This will be a key-value pair. A game can have different key-value pairs in the native's cache.
-	 * 
+	 *
 	 * @param key
 	 *            : key of the data to be saved. Game needs to make sure about the uniqueness of the key.
 	 * @param value
@@ -138,9 +139,9 @@ public class NativeBridge
 
 	/**
 	 * Platform Version 7
-	 * 
+	 *
 	 * Call this function to get data from cache.
-	 * 
+	 *
 	 * @param id
 	 *            : the id of the function that native will call to call the game .
 	 * @param key
@@ -158,11 +159,9 @@ public class NativeBridge
 			{
 				final String cache = helper.getFromCache(key, mBotInfo.getNamespace());
 
-				activity.runOnGLThread(new Runnable()
-				{
+				activity.runOnGLThread(new Runnable() {
 					@Override
-					public void run()
-					{
+					public void run() {
 						activity.platformCallback(id, cache);
 					}
 				});
@@ -173,7 +172,7 @@ public class NativeBridge
 
 	/**
 	 * Platform Version 7 Call this function to log analytics events.
-	 * 
+	 *
 	 * @param isUI
 	 *            : whether the event is a UI event or not. This is a string. Send "true" or "false".
 	 * @param subType
@@ -191,14 +190,18 @@ public class NativeBridge
 			@Override
 			public void run()
 			{
-				helper.logAnalytics(isUI, subType, json, mBotInfo);
+				LogAnalyticsEvent logAnalyticsEvent = new LogAnalyticsEvent(isUI, subType, json, mBotInfo.getMsisdn(), mBotInfo.getConversationName());
+				Intent hikeProcessIntentService = new Intent(activity, HikeProcessIntentService.class);
+				hikeProcessIntentService.putExtra(HikeProcessIntentService.LOG_ANALYTICS_EVENT_DATA, logAnalyticsEvent);
+				activity.startService(hikeProcessIntentService);
+
 			}
 		});
 	}
 
 	/**
 	 * Platform Version 7 Calling this function will initiate forward of the message to a friend or group.
-	 * 
+	 *
 	 * @param json
 	 *            : the card object data for the forwarded card. This data will be the card object for the new forwarded card that'll be created. The platform version of the card
 	 *            should be same as the bot, that is defined by the server. The app name and app package will also be added from the card object of the bot metadata.
@@ -223,7 +226,7 @@ public class NativeBridge
 
 	/**
 	 * Platform Version 7 Call this method to send a normal event.
-	 * 
+	 *
 	 * @param messageHash
 	 *            : the message hash that determines the uniqueness of the card message, to which the data is being sent.
 	 * @param eventData
@@ -240,7 +243,10 @@ public class NativeBridge
 			@Override
 			public void run()
 			{
-				helper.sendNormalEvent(messageHash, eventData, mBotInfo.getNamespace());
+				NormalEvent normalEvent = new NormalEvent(messageHash, eventData, mBotInfo.getNamespace());
+				Intent hikeProcessIntentService = new Intent(activity, HikeProcessIntentService.class);
+				hikeProcessIntentService.putExtra(HikeProcessIntentService.SEND_NORMAL_EVENT_DATA, normalEvent);
+				activity.startService(hikeProcessIntentService);
 			}
 		});
 
@@ -251,7 +257,7 @@ public class NativeBridge
 	 * users it has sent the message to. It will call JavaScript function "onContactChooserResult(int resultCode,JsonArray array)" This JSOnArray contains list of JSONObject where
 	 * each JSONObject reflects one user. As of now each JSON will have name and platform_id, e.g : [{'name':'Paul','platform_id':'dvgd78as'}] resultCode will be 0 for fail and 1
 	 * for success NOTE : JSONArray could be null as well, a game has to take care of this instance
-	 * 
+	 *
 	 * @param cardObject
 	 *            : the cardObject data to create a card
 	 * @param hikeMessage
@@ -279,7 +285,7 @@ public class NativeBridge
 	 * name, and if the name isn't present , then the msisdn. "platformUid": the platform user id of the user interacting with. "eventId" : the event id of the event. "d" : the
 	 * data that has been sent/received for the card message "et": the type of message. 0 if shared event, and 1 if normal event. "eventStatus" : the status of the event. 0 if
 	 * sent, 1 if received.
-	 * 
+	 *
 	 * @param functionId
 	 *            : function id to call back to the game.
 	 * @param messageHash
@@ -296,11 +302,9 @@ public class NativeBridge
 			public void run()
 			{
 				final String returnedData = helper.getAllEventsForMessageHash(messageHash, mBotInfo.getNamespace());
-				activity.runOnGLThread(new Runnable()
-				{
+				activity.runOnGLThread(new Runnable() {
 					@Override
-					public void run()
-					{
+					public void run() {
 						activity.platformCallback(functionId, returnedData);
 					}
 				});
@@ -314,7 +318,7 @@ public class NativeBridge
 	 * "name": name of the user interacting with. This gives name, and if the name isn't present , then the msisdn. "platformUid": the platform user id of the user interacting
 	 * with. "eventId" : the event id of the event. "h" : the unique hash of the message. Helps in determining the uniqueness of a card. "d" : the data that has been sent/received
 	 * for the card message "et": the type of message. 0 if shared event, and 1 if normal event. "eventStatus" : the status of the event. 0 if sent, 1 if received.
-	 * 
+	 *
 	 * @param functionId
 	 *            : function id to call back to the game.
 	 */
@@ -347,7 +351,7 @@ public class NativeBridge
 	 * "name": name of the user interacting with. This gives name, and if the name isn't present , then the msisdn. "platformUid": the platform user id of the user interacting
 	 * with. "eventId" : the event id of the event. "h" : the unique hash of the message. Helps in determining the uniqueness of a card. "d" : the data that has been sent/received
 	 * for the card message "eventStatus" : the status of the event. 0 if sent, 1 if received.
-	 * 
+	 *
 	 * @param functionId
 	 *            : function id to call back to the game.
 	 */
@@ -376,18 +380,16 @@ public class NativeBridge
 
 	/**
 	 * Platform Version 8 Call this fucntion to show a popup
-	 * 
+	 *
 	 * @param contentData
 	 *            : The stringified JSONobject for the popup.
 	 */
 	public void showPopup(final String contentData)
 	{
 		Handler handler = new Handler(HikeMessengerApp.getInstance().getApplicationContext().getMainLooper());
-		handler.post(new Runnable()
-		{
+		handler.post(new Runnable() {
 			@Override
-			public void run()
-			{
+			public void run() {
 				PlatformHelper.showPopup(contentData, weakActivity.get());
 			}
 		});
@@ -402,11 +404,9 @@ public class NativeBridge
 	@JavascriptInterface
 	public void getBotVersion(final String id)
 	{
-		activity.runOnGLThread(new Runnable()
-		{
+		activity.runOnGLThread(new Runnable() {
 			@Override
-			public void run()
-			{
+			public void run() {
 				activity.platformCallback(id, String.valueOf(mBotInfo.getVersion()));
 			}
 		});
@@ -432,7 +432,7 @@ public class NativeBridge
 
 	/**
 	 * Platform Version 7 Call this function to get the current platform version.
-	 * 
+	 *
 	 * @param id
 	 *            : the id of the function .
 	 */
@@ -450,17 +450,15 @@ public class NativeBridge
 
 	/**
 	 * Platform Version 7 Call this function to delete event.
-	 * 
+	 *
 	 * @param eventId
 	 */
 	public void deleteEvent(final String eventId)
 	{
-		mThread.postRunnable(new Runnable()
-		{
+		mThread.postRunnable(new Runnable() {
 
 			@Override
-			public void run()
-			{
+			public void run() {
 				helper.deleteEvent(eventId);
 			}
 		});
@@ -468,7 +466,7 @@ public class NativeBridge
 
 	/**
 	 * Platform Version 7 Call this function to delete all the events, be it shared data or normal event pertaining to a single message.
-	 * 
+	 *
 	 * @param messageHash
 	 */
 
@@ -513,11 +511,9 @@ public class NativeBridge
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-				activity.runOnGLThread(new Runnable()
-				{
+				activity.runOnGLThread(new Runnable() {
 					@Override
-					public void run()
-					{
+					public void run() {
 						activity.platformCallback(id, result.toString());
 					}
 				});
@@ -549,19 +545,19 @@ public class NativeBridge
 
 	/**
 	 * Platform Bridge Version 7 Call this method to post a status update to timeline.
-	 * 
+	 *
 	 * @param status
 	 * @param moodId
 	 *            : Pass -1 if no mood
 	 * @param imageFilePath
 	 *            : Path of the image on the client. Image should only be of jpeg format and compressed.
-	 * 
+	 *
 	 *            Status = null, moodId = -1 & imageFilePath = null should not hold together
-	 * 
+	 *
 	 *            0, happy 1, sad 2, in_love 3, surprised 4, confused 5, angry 6, sleepy 7, hungover 8, chilling 9, studying 10, busy 11, love 12, middle_finger 13, boozing 14,
 	 *            movie 15, caffeinated 16, insomniac 17, driving 18, traffic 19, late 20, shopping 21, gaming 22, coding 23, television 33, music 34, partying_hard 35, singing 36,
 	 *            eating 37, working_out 38, cooking 39, beauty_saloon 40, sick
-	 * 
+	 *
 	 */
 	public void postStatusUpdate(final String status, final String moodId, final String imageFilePath)
 	{
@@ -596,17 +592,15 @@ public class NativeBridge
 	}
 
 	/**
-	 * 
+	 *
 	 * @param callID
 	 * @param response
 	 */
 	public void platformCallback(final String callID, final String response)
 	{
-		activity.runOnGLThread(new Runnable()
-		{
+		activity.runOnGLThread(new Runnable() {
 			@Override
-			public void run()
-			{
+			public void run() {
 				activity.platformCallback(callID, response);
 			}
 		});

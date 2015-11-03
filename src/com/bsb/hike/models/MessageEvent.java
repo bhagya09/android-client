@@ -2,11 +2,9 @@ package com.bsb.hike.models;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.text.TextUtils;
+
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.platform.HikePlatformConstants;
-import com.bsb.hike.utils.Logger;
-import org.json.JSONObject;
 
 /**
  * Created by shobhit on 27/07/15.

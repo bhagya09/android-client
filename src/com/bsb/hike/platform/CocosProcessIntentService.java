@@ -22,40 +22,41 @@ import java.util.Set;
 public class CocosProcessIntentService extends IntentService
 {
 
-    public static final String MESSAGE_EVENT_RECEIVED_DATA = "messageEventRecData";
+	public static final String MESSAGE_EVENT_RECEIVED_DATA = "messageEventRecData";
 
-    public CocosProcessIntentService()
-    {
-        super("CocosProcessIntentService");
-    }
+	public CocosProcessIntentService()
+	{
+		super("CocosProcessIntentService");
+	}
 
-    @Override
-    protected void onHandleIntent(Intent intent)
-    {
-        Bundle bundleData = intent.getExtras();
-		if( bundleData != null )
+	@Override
+	protected void onHandleIntent(Intent intent)
+	{
+		Bundle bundleData = intent.getExtras();
+		if (bundleData != null)
 		{
 			Set<String> bundleKeys = bundleData.keySet();
-			for( String bundleKey : bundleKeys )
+			for (String bundleKey : bundleKeys)
 			{
 				switch (bundleKey)
 				{
-					case MESSAGE_EVENT_RECEIVED_DATA:
-						MessageEvent messageEvent = bundleData.getParcelable(MESSAGE_EVENT_RECEIVED_DATA);
-						handleMessageEventReceived(messageEvent);
-						break;
+				case MESSAGE_EVENT_RECEIVED_DATA:
+					MessageEvent messageEvent = bundleData.getParcelable(MESSAGE_EVENT_RECEIVED_DATA);
+					handleMessageEventReceived(messageEvent);
+					break;
 
 				}
 
 			}
 		}
 
-    }
+	}
 
-    /**
-     * Handler for message event received
-     * @param messageEvent
-     */
+	/**
+	 * Handler for message event received
+	 * 
+	 * @param messageEvent
+	 */
 	private void handleMessageEventReceived(MessageEvent messageEvent)
 	{
 		if (messageEvent != null)
