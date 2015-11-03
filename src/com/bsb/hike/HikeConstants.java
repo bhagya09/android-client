@@ -67,7 +67,7 @@ public class HikeConstants
 
 	public static final String MESSAGE_ID = "i";
 
-	public static final String EVENT_ID = "i";
+	public static final String EVENT_ID = "ei";
 
 	public static final String METADATA = "md";
 
