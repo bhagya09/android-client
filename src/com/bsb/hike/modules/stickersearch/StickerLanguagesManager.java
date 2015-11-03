@@ -135,6 +135,11 @@ public class StickerLanguagesManager {
 
     public void addToLanguageSet(int type, Collection<String> languages)
     {
+        if(Utils.isEmpty(languages))
+        {
+            return ;
+        }
+
         switch (type)
         {
             case NOT_DOWNLOADED_LANGUAGE_SET_TYPE:
@@ -154,6 +159,11 @@ public class StickerLanguagesManager {
 
     public void removeFromLanguageSet(int type, Collection<String> languages)
     {
+        if(Utils.isEmpty(languages))
+        {
+            return ;
+        }
+
         switch (type)
         {
             case NOT_DOWNLOADED_LANGUAGE_SET_TYPE:
