@@ -603,35 +603,17 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	{
 		//do nothing
 	}
-	@JavascriptInterface
-	public void chooseFile(final String id)
-	{	
-		Logger.d("FileUpload","input Id chooseFile is "+ id);
 
-		
-	
-		if (null == mHandler)
-		{
-			Logger.e("FileUpload", "mHandler is null");
-			return;
-		}
-		
-		
-		mHandler.post(new Runnable()
-		{
-			@Override
-			public void run()
-			{	Context weakActivityRef=weakActivity.get();
-				if (weakActivityRef != null)
-				{	
-					int galleryFlags =GalleryActivity.GALLERY_CATEGORIZE_BY_FOLDERS|GalleryActivity.GALLERY_DISPLAY_CAMERA_ITEM;
-					Intent galleryPickerIntent = IntentFactory.getHikeGalleryPickerIntent(weakActivityRef, galleryFlags,null);
-					galleryPickerIntent.putExtra(GalleryActivity.START_FOR_RESULT, true);
-					galleryPickerIntent.putExtra(HikeConstants.CALLBACK_ID,id);
-					((WebViewActivity) weakActivityRef). startActivityForResult(galleryPickerIntent, HikeConstants.PLATFORM_FILE_CHOOSE_REQUEST);
-					}
-			}
-		});
+	/**
+	 * Platform Version 3
+	 * Call this method to show the gallery view and select a file.
+	 * This method will not show the camera item in the gallery view.
+	 * @param id
+	 */
+	@JavascriptInterface
+	public void chooseFile(String id)
+	{	
+		chooseFile(id, "false");
 	}
 	/**
 	 * Platform Version 3
@@ -1418,5 +1400,47 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 		{
 			callbackToJS(functionId, "false");
 		}
+	}
+
+	/**
+	 * Platform Version 8
+	 * Call this method to open the gallery view to select a file.
+	 * @param id
+	 * @param displayCameraItem : Whether or not to display the camera item in the gallery view.
+	 */
+	@JavascriptInterface
+	public void chooseFile(final String id, final String displayCameraItem)
+	{
+		Logger.d("FileUpload","input Id chooseFile is "+ id);
+
+		if (null == mHandler)
+		{
+			Logger.e("FileUpload", "mHandler is null");
+			return;
+		}
+
+		mHandler.post(new Runnable()
+		{
+			@Override
+			public void run()
+			{	Context weakActivityRef=weakActivity.get();
+				if (weakActivityRef != null)
+				{
+					int galleryFlags;
+					if (Boolean.valueOf(displayCameraItem))
+					{
+						galleryFlags = GalleryActivity.GALLERY_CATEGORIZE_BY_FOLDERS | GalleryActivity.GALLERY_DISPLAY_CAMERA_ITEM;
+					}
+					else
+					{
+						galleryFlags = GalleryActivity.GALLERY_CATEGORIZE_BY_FOLDERS;
+					}
+					Intent galleryPickerIntent = IntentFactory.getHikeGalleryPickerIntent(weakActivityRef, galleryFlags,null);
+					galleryPickerIntent.putExtra(GalleryActivity.START_FOR_RESULT, true);
+					galleryPickerIntent.putExtra(HikeConstants.CALLBACK_ID,id);
+					((WebViewActivity) weakActivityRef). startActivityForResult(galleryPickerIntent, HikeConstants.PLATFORM_FILE_CHOOSE_REQUEST);
+				}
+			}
+		});
 	}
 }
