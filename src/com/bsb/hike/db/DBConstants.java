@@ -461,9 +461,16 @@ public interface DBConstants
 	 * Introduced in ConvDb v44, this column will be used henceforth for sorting the messages pertaining to a single conversation
 	 */
 	public static final String SORTING_ID = "sortingId";
-	
-	public static final String SORT_ID_IDX = "srtIdx";
 
-	public static final String SORT_ID_IDX2 = "srt_Index";
+	/**
+	 * Introduced in db version 47, this index is used for optimizing the query for fetching messages from messages table. This index consists of msisdn and sortId
+	 */
+	public static final String SORT_ID_COMPOSITE_IDX = "srtIdx";
+
+	/**
+	 * Introduced in db version 47, this index is used for optimizing the query for fetching max value of sortId from messages table. The max query is used frequently, hence the need for index
+	 */
+
+	public static final String SORT_ID_SINGLE_IDX = "srt_Index";
 	
 }

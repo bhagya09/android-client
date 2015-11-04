@@ -8678,12 +8678,12 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 	
 	private String getMsisdnAndSortingIdIndex()
 	{
-		return "CREATE INDEX IF NOT EXISTS " + DBConstants.SORT_ID_IDX + " ON " + DBConstants.MESSAGES_TABLE + " ( " + DBConstants.MSISDN + " , " + DBConstants.SORTING_ID + " )";
+		return "CREATE INDEX IF NOT EXISTS " + DBConstants.SORT_ID_COMPOSITE_IDX + " ON " + DBConstants.MESSAGES_TABLE + " ( " + DBConstants.MSISDN + " , " + DBConstants.SORTING_ID + " )";
 	}
 
 	private String getSortingIndexQuery()
 	{
-		return "CREATE INDEX IF NOT EXISTS " + DBConstants.SORT_ID_IDX2 + " ON " + DBConstants.MESSAGES_TABLE + " ( " + DBConstants.SORTING_ID + " )";
+		return "CREATE INDEX IF NOT EXISTS " + DBConstants.SORT_ID_SINGLE_IDX + " ON " + DBConstants.MESSAGES_TABLE + " ( " + DBConstants.SORTING_ID + " )";
 	}
 
 	/**
