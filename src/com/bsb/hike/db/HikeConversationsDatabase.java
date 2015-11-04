@@ -8752,4 +8752,41 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		mDb.update(DBConstants.CONVERSATIONS_TABLE,value, DBConstants.MSISDN + "=?", new String[] {convMessage.getMsisdn()});
 
 	}
+
+	/**
+	 * Returns the maximum sorting id column value index from Messages Table
+	 * 
+	 * @return
+	 */
+	public int getMaxSortingIdFromMessages()
+	{
+		Cursor c = null;
+
+		long time = System.currentTimeMillis();
+		try
+		{
+			c = mDb.query(DBConstants.MESSAGES_TABLE, new String[] { "MAX(" + DBConstants.SORTING_ID + ")" + "AS " + DBConstants.SORTING_ID }, null, null, null, null, null, null);
+
+			if (c.moveToFirst())
+			{
+				return c.getInt(c.getColumnIndex(DBConstants.SORTING_ID));
+			}
+			else
+				return -1;
+		}
+
+		catch (Exception e)
+		{
+			return -1;
+		}
+
+		finally
+		{
+			if (c != null)
+				c.close();
+
+			Logger.d("HikeConversationsDatabase", "Time taken to get max sort Id : " + (System.currentTimeMillis() - time));
+		}
+	}
+
 }
