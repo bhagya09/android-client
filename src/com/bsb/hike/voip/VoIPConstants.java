@@ -10,9 +10,12 @@ public class VoIPConstants {
 	 * - Voice packet numbers, so that FEC can be triggered
 	 * <p>Added in <b>v3</b>: <br/>
 	 * - Congestion control and conference
+	 * <p>Added in <b>v4</b>: <br/>
+	 * - Ability to request missing audio packets again, and introduce
+	 * and artificial delay in playback. 
 	 * </p>
 	 */
-	public static final int VOIP_VERSION = 3;
+	public static final int VOIP_VERSION = 4;
 	
 	// Relay and ICE server 
 	public static final String ICEServerName = "relay.hike.in";	 // Staging: 54.179.137.97, Production: relay.hike.in 
@@ -98,6 +101,12 @@ public class VoIPConstants {
 	public static final int MIN_CALL_DURATION_FOR_RATING_POPUP = 10;
 
 	/**
+	 * Maximum round trip time between clients. If RTT is more than this
+	 * value, then quality will suffer since repeat audio requests won't work.
+	 */
+	public static final int MAX_RTT = 5;
+	
+	/**
 	 * Wait before sending an error message to the activity for an outgoing
 	 * call. This is necessary to ensure the VoIP UI gets time to come up
 	 * before the error fragment is shown on top.
@@ -137,7 +146,6 @@ public class VoIPConstants {
 	public static final int MSG_PARTNER_ANSWER_TIMEOUT = 7;
 	public static final int MSG_RECONNECTING = 8;
 	public static final int MSG_RECONNECTED = 9;
-	public static final int MSG_UPDATE_QUALITY = 10;
 	public static final int MSG_NETWORK_SUCKS = 11;
 	public static final int MSG_ALREADY_IN_NATIVE_CALL = 13;
 	public static final int MSG_AUDIORECORD_FAILURE = 14;
@@ -262,19 +270,6 @@ public class VoIPConstants {
 		
 		public static final String VOIP_CLIENTS = "cl";
 		
-	}
-
-	
-	/**
-	 * Call quality
-	 */
-	
-	public static enum CallQuality {
-		EXCELLENT,
-		GOOD,
-		FAIR,
-		WEAK,
-		UNKNOWN
 	}
 
 	/**
