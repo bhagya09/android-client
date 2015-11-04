@@ -1,7 +1,6 @@
 package com.bsb.hike.ui;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -149,13 +148,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
        if (preferences == R.xml.keyboard_settings_preferences && titleRes == R.string.settings_localization || preferences == R.xml.kpt_advanced_preferences
     		   || preferences == R.xml.keyboard_preferences || preferences == R.xml.text_correction_preferences)
 		{
-			kptSettings = new KPTAdaptxtAddonSettings(this, this);
-
-			if(mCoreEngineStatus)
-			{
-				callAddonServices();
-			}
-			//addKeyboardLanguagePrefListener();
+			kptSettings = KptKeyboardManager.getInstance(getApplicationContext()).getKptSettings();
 		}
 
 		addClickPreferences();
@@ -1822,19 +1815,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 	 */
 	protected void onActivityResult(int requestCode, int resultCode, Intent data)
 	{
-		if (requestCode == SHORTHAND_REQUEST_CODE)
-		{
-			if (kptSettings == null)
-			{
-				kptSettings = new KPTAdaptxtAddonSettings(this, this);
-				if(mCoreEngineStatus)
-				{
-					callAddonServices();
-				}
-			}
-			
-		}
-		else if(requestCode == HikeConstants.ResultCodes.CONFIRM_LOCK_PATTERN_CHANGE_PREF)
+		if(requestCode == HikeConstants.ResultCodes.CONFIRM_LOCK_PATTERN_CHANGE_PREF)
 		{
 			if(resultCode != RESULT_OK)
 			{
@@ -2069,8 +2050,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 	{
 		if(mCoreEngineStatus)
 		{
-			callAddonServices();
-			//addKeyboardLanguagePrefListener();
+
 		}
 	}
 
@@ -2089,47 +2069,4 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		}
 	}
 	
-	private void callAddonServices(){
-		mInstalledLanguagesList = kptSettings.getInstalledLanguages();
-		mCurrentlangName = kptSettings.getCurrentLanguage();
-
-		HashMap<String, String> atrMap = kptSettings.getATRList();
-
-
-		for (HashMap.Entry<String, String> entry : atrMap.entrySet()){
-			Logger.e("KPT", entry.getKey() + "/" + entry.getValue());
-		}
-
-		int atrStatus = kptSettings.addATRShortcut("HRU", "How are you?");
-
-		// Intimate the user here for errors
-		switch (atrStatus) {
-		case AdaptxtSettings.KPT_SUCCESS:
-			Logger.e("KPT", "-----------> ATR SHORTCUT ADDED SUCCESFULLY <------------");
-			break;
-		case AdaptxtSettings.ATR_ERROR_EXPANSION_SHORT:
-			Logger.e("KPT", "-----------> ATR EXPANSION is LESS than 3 <------------");
-			break;
-		case AdaptxtSettings.ATR_ERROR_SHORTCUT_SHORT:
-			Logger.e("KPT", "-----------> ATR SHORTCUT is LESS than 3 <------------");
-			break;
-		case AdaptxtSettings.ATR_ERROR_SHORTCUT_LONG:
-			Logger.e("KPT", "-----------> ATR SHORTCUT is GREATER than 3 <------------");
-			break;
-		case AdaptxtSettings.ATR_ERROR_NULL:
-			Logger.e("KPT", "-----------> ATR OR EXPANSION is NULL <------------");
-			break;
-
-
-		default:
-			break;
-		}
-		
-		//mLangList = kptSettings.getLanguagesList();
-		//Log.e("VMC", "TOTAL LANGUAGES LIST ---------> "+langList.size());
-		Logger.e("KPT", "INSTALLED LANGUAGES -----------> "+mInstalledLanguagesList.size());
-		Logger.e("KPT", "CURRENT LANGUAGE --------------> "+mCurrentlangName);
-		Logger.e("KPT", "UNSUPPORTED LANGUAGE --------------> "+kptSettings.getUnsupportedLanguagesList().size());
-		
-	}
 }
