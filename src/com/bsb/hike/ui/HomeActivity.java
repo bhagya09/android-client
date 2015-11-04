@@ -872,6 +872,18 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			}
 		}
 	};
+	
+	View.OnClickListener searchTextClickChangeListener = new View.OnClickListener()
+	{
+		
+		@Override
+		public void onClick(View v)
+		{
+			
+			showKeyboard();
+		}
+	} ;
+
 
 	private void setupSearchTextKeyboard()
 	{
@@ -888,6 +900,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			resetSearchTextKeyboard();
 		}
 		searchET.setOnFocusChangeListener(searchTextFocusChangeListener);
+		searchET.setOnClickListener(searchTextClickChangeListener);
 	}
 
 	private void resetSearchTextKeyboard()
@@ -1164,13 +1177,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		Logger.d(TAG,"onResume");
 		if (searchMenuItem != null && searchMenuItem.isActionViewExpanded())
 		{
-			if (!KptUtils.isSystemKeyboard(HomeActivity.this))
-			{
-				if (mCustomKeyboard != null && searchET != null)
-				{
-					mCustomKeyboard.showCustomKeyboard(searchET, true);
-				}
-			}
+			showKeyboard();
 		}
 		super.onResume();
 
@@ -1187,6 +1194,19 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		if(getIntent() != null)
 		{
 			acceptGroupMembershipConfirmation(getIntent());
+		}
+	}
+
+	private void showKeyboard()
+	{
+		if (!KptUtils.isSystemKeyboard(HomeActivity.this))
+		{
+			if (mCustomKeyboard != null && searchET != null)
+			{
+				mCustomKeyboard.showCustomKeyboard(searchET, true);
+			}
+		}else{
+			Utils.showSoftKeyboard(getApplicationContext(), searchET);
 		}
 	}
 	

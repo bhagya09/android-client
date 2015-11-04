@@ -55,7 +55,6 @@ import com.bsb.hike.view.PreferenceWithSubText;
 import com.bsb.hike.view.SeekBarPreference;
 import com.bsb.hike.view.SwitchPreferenceCompat;
 import com.kpt.adaptxt.beta.AdaptxtSettings;
-import com.kpt.adaptxt.beta.AdaptxtSettingsRegisterListener;
 import com.kpt.adaptxt.beta.KPTAdaptxtAddonSettings;
 import com.kpt.adaptxt.beta.KPTAddonItem;
 
@@ -82,7 +81,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 public class HikePreferences extends HikeAppStateBasePreferenceActivity implements OnPreferenceClickListener, 
-							OnPreferenceChangeListener, DeleteAccountListener, BackupAccountListener, RingtoneFetchListener, AdaptxtSettingsRegisterListener
+							OnPreferenceChangeListener, DeleteAccountListener, BackupAccountListener, RingtoneFetchListener
 {
 	private enum BlockingTaskType
 	{
@@ -105,16 +104,8 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 	
 	KPTAdaptxtAddonSettings kptSettings;
 
-	private ProgressDialog mProgressDialog;
-
-	boolean mCoreEngineStatus;
-
 	List<KPTAddonItem> mInstalledLanguagesList;
 
-	private String mCurrentlangName;
-	
-	private static int SHORTHAND_REQUEST_CODE = 412;
-	
 	@Override
 	public Object onRetainNonConfigurationInstance()
 	{
@@ -2045,28 +2036,4 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		}
 	}
 
-	@Override
-	public void coreEngineService()
-	{
-		if(mCoreEngineStatus)
-		{
-
-		}
-	}
-
-	@Override
-	public void coreEngineStatus(boolean coreStatus)
-	{
-		if (coreStatus)
-		{
-			mCoreEngineStatus = coreStatus;
-			Logger.e("KPT", "--------------> core engine connected -----> " + coreStatus);
-		}
-		else
-		{
-			mCoreEngineStatus = coreStatus;
-			Logger.e("KPT", "--------------> core engine init start -----> " + coreStatus);
-		}
-	}
-	
 }
