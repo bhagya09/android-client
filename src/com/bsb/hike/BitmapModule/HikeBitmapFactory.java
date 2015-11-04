@@ -35,6 +35,7 @@ import android.widget.Toast;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
+import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.photos.HikePhotosListener;
@@ -1336,11 +1337,22 @@ public class HikeBitmapFactory
 
 		String initials = "";
 
-		String contactName = ContactManager.getInstance().getName(msisdn, true);
+		ContactInfo contactInfo = ContactManager.getInstance().getContactInfoFromPhoneNoOrMsisdn(msisdn, true);
 
-		if (TextUtils.isEmpty(contactName))
+		String contactName = null;
+		
+		if (contactInfo == null)
 		{
 			contactName = msisdn;
+		}
+		else
+		{
+			contactName = contactInfo.getNameOrMsisdn();
+		}
+		
+		if(contactName == null) //Safety
+		{
+			return "#";
 		}
 
 		String[] nameArray = contactName.trim().split(" ");
