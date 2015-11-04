@@ -3507,4 +3507,6 @@ public class HikeConstants
 	public static final String KEYBOARD_LIST = "kbd";
 
 	public static final String TIMESTAMP_2 = "timestamp";
+
+	public static final String UNKNOWN_KEYBOARDS = "unknown_kbds";
 }

@@ -191,7 +191,7 @@ public class StickerTagDownloadTask implements IHikeHTTPTask, IHikeHttpTaskResul
 	public void doOnSuccess(Object result)
 	{
 		JSONObject response = (JSONObject) result;
-        checkAndUpdateForbiddenList(response);
+        StickerLanguagesManager.getInstance().checkAndUpdateForbiddenList(response);
 		StickerSearchManager.getInstance().insertStickerTags(response, state);
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.TAG_FIRST_TIME_DOWNLOAD, false);
 	}
@@ -201,14 +201,4 @@ public class StickerTagDownloadTask implements IHikeHTTPTask, IHikeHttpTaskResul
 	{
 		Logger.d(TAG, "response failed.");
 	}
-
-
-    private void checkAndUpdateForbiddenList(JSONObject result)
-    {
-        if(Utils.isJSONObjectEmpty(result))
-        {
-            Logger.d(TAG, "languages added to forbidden list");
-            StickerLanguagesManager.getInstance().addToLanguageSet(StickerLanguagesManager.FORBIDDEN_LANGUAGE_SET_TYPE, languagesList);
-        }
-    }
 }

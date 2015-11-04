@@ -121,6 +121,7 @@ public class DefaultTagDownloadTask implements IHikeHTTPTask, IHikeHttpTaskResul
 	public void doOnSuccess(Object result)
 	{
 		JSONObject response = (JSONObject) result;
+		StickerLanguagesManager.getInstance().checkAndUpdateForbiddenList(response);
 		StickerSearchManager.getInstance().insertStickerTags(response, StickerSearchConstants.STATE_STICKER_DATA_FRESH_INSERT);
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.DEFAULT_TAGS_DOWNLOADED, true);
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.LAST_SUCESSFULL_TAGS_DOWNLOAD_TIME, System.currentTimeMillis());
