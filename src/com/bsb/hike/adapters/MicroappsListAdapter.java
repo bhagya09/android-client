@@ -19,6 +19,7 @@ import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.models.Conversation.BotConversation;
+import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
@@ -244,8 +245,17 @@ public class MicroappsListAdapter extends RecyclerView.Adapter<MicroappsListAdap
 			@Override
 			public void positiveClicked(HikeDialog hikeDialog) {
 
-				if (BotUtils.isBot(mBotInfo.getMsisdn())) {
+				if (BotUtils.isBot(mBotInfo.getMsisdn()))
+				{
 					BotUtils.unblockBotIfBlocked(BotUtils.getBotInfoForBotMsisdn(mBotInfo.getMsisdn()), AnalyticsConstants.BOT_DISCOVERY);
+				}
+				/**
+				 * On resetting account, a previously blocked microapp will remain blocked.
+				 * So we're checking if that msisdn is blocked before we initiate the bot download.
+				 */
+				else if (ContactManager.getInstance().isBlocked(mBotInfo.getMsisdn()))
+				{
+					ContactManager.getInstance().unblock(mBotInfo.getMsisdn());
 				}
 
 				initiateBotDownload(mBotInfo.getMsisdn());
