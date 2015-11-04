@@ -171,4 +171,5 @@ public class StickerSearchConstants
 	// =======================================================================Generic constants]]
 
 	public static final String DEFAULT_KEYBOARD_LANGUAGE = "eng";
+
 }
