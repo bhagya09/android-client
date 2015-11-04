@@ -100,6 +100,7 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
 import android.location.Address;
 import android.location.Geocoder;
+import android.location.LocationManager;
 import android.media.AudioManager;
 import android.media.ExifInterface;
 import android.media.MediaScannerConnection;
@@ -7412,6 +7413,34 @@ public class Utils
 		return timeLogBuilder.toString();
 	}
 
+	
+	public static boolean isLocationEnabled(Context context)
+	{
+		LocationManager locManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+
+		boolean hasGps = context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_LOCATION_GPS);
+
+		if (!hasGps)
+		{
+			return false;
+		}
+		else if (locManager.isProviderEnabled(LocationManager.GPS_PROVIDER))
+		{
+			return true;
+		}
+		else if (locManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER))
+		{
+			return false;
+		}
+
+		return false;
+
+	}
+
+	public static boolean isMarshmallowOrHigher()
+	{
+		return Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1;
+	}
 	/**
 	 * returns true if the filePath starts with android data storage directory path
 	 * @param filePath

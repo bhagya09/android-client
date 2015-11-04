@@ -603,7 +603,7 @@ public class OfflineController
 		
 		HikeConversationsDatabase.getInstance().addConversationMessages(convMessage, true);
 		HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_RECEIVED, convMessage);
-		offlineManager.sendConnectedCallback();
+		//offlineManager.sendConnectedCallback();
 		long connectionId = System.currentTimeMillis();
 		OfflineSessionTracking.getInstance().setConnectionId(connectionId);
 		
@@ -700,5 +700,11 @@ public class OfflineController
 		if (senderConsignment == null)
 			return;
 		offlineManager.sendConsignment(senderConsignment);
+	}
+
+	public void sendConnectedCallback()
+	{
+		offlineManager.sendConnectedCallback();
+		
 	}
 }

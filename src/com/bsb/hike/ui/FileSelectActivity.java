@@ -672,14 +672,21 @@ public class FileSelectActivity extends HikeAppStateBaseFragmentActivity impleme
 
 	private String getRootSubtitle(String path)
 	{
-		StatFs stat = new StatFs(path);
-		long total = (long) stat.getBlockCount() * (long) stat.getBlockSize();
-		long free = (long) stat.getAvailableBlocks() * (long) stat.getBlockSize();
-		if (total == 0)
+		try
+		{
+			StatFs stat = new StatFs(path);
+			long total = (long) stat.getBlockCount() * (long) stat.getBlockSize();
+			long free = (long) stat.getAvailableBlocks() * (long) stat.getBlockSize();
+			if (total == 0)
+			{
+				return "";
+			}
+			return getString(R.string.free_of_total, Utils.formatFileSize(free), Utils.formatFileSize(total));
+		}
+		catch (Exception e)
 		{
 			return "";
 		}
-		return getString(R.string.free_of_total, Utils.formatFileSize(free), Utils.formatFileSize(total));
 	}
 
 	@Override
