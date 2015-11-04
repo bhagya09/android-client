@@ -961,7 +961,6 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 	
 		StickerManager.getInstance().sendStickerPackAndOrderListForAnalytics();
 		StickerManager.getInstance().refreshTagData();
-		StickerSearchManager.getInstance().removeDeletedStickerTags();
 		
 		bottomNavBarHeightPortrait = Utils.getBottomNavBarHeight(getApplicationContext());
 		bottomNavBarWidthLandscape = Utils.getBottomNavBarWidth(getApplicationContext());
