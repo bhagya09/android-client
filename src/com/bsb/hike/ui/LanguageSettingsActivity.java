@@ -84,9 +84,18 @@ public class LanguageSettingsActivity extends ChangeProfileImageBaseActivity imp
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id)
 	{
 		KPTAddonItem item = addonItemAdapter.getItem(position);
-		if (KptKeyboardManager.getInstance(LanguageSettingsActivity.this).getDictionaryLanguageStatus(item) == KptKeyboardManager.LanguageDictionarySatus.UNINSTALLED)
+		KptKeyboardManager.LanguageDictionarySatus status = KptKeyboardManager.getInstance(LanguageSettingsActivity.this).getDictionaryLanguageStatus(item);
+		if (status == KptKeyboardManager.LanguageDictionarySatus.UNINSTALLED)
 		{
 			KptKeyboardManager.getInstance(mContext).downloadAndInstallLanguage(item);
+		}
+		else if (status == KptKeyboardManager.LanguageDictionarySatus.INSTALLED_LOADED)
+		{
+			KptKeyboardManager.getInstance(mContext).unloadInstalledLanguage(item);
+		}
+		else if (status == KptKeyboardManager.LanguageDictionarySatus.INSTALLED_UNLOADED)
+		{
+			KptKeyboardManager.getInstance(mContext).loadInstalledLanguage(item);
 		}
 	}
 
