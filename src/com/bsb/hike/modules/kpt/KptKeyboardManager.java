@@ -132,6 +132,9 @@ public class KptKeyboardManager implements AdaptxtSettingsRegisterListener
 	private void fetchKptLanguagesAndUpdate()
 	{
 		Logger.d(TAG, "fetchKptLanguagesAndUpdate");
+		if (!kptCoreEngineStatus)
+			return;
+
 		mInstalledLanguagesList.clear();
 
 		KPTAdaptxtAddonSettings.KPTLanguageData data= kptSettings.getAllLanguageData();
@@ -362,8 +365,7 @@ public class KptKeyboardManager implements AdaptxtSettingsRegisterListener
 	{
 		Logger.d(TAG,"coreEngineStatus callback: " + status);
 		kptCoreEngineStatus = status;
-		if (kptCoreEngineStatus)
-			fetchKptLanguagesAndUpdate();
+		fetchKptLanguagesAndUpdate();
 	}
 
 	@Override
