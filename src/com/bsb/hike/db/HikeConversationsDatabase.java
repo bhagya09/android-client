@@ -2130,7 +2130,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			conv.setMsgID(msgId);
 			ContentValues contentValues = new ContentValues();
 			contentValues.put(DBConstants.SERVER_ID, conv.getServerId());
-			contentValues.put(DBConstants.SORTING_ID, msgId);
+			contentValues.put(DBConstants.SORTING_ID, (getMaxSortingIdFromMessages() + 1));
 			if (conv.isSent())
 			{
 				// for recieved messages message hash would directly be added from insertStatement.executeInsert() statement
