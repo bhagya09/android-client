@@ -2906,6 +2906,40 @@ public class Utils
 		notificationCount += frCount;
 		return notificationCount;
 	}
+	
+	/**
+	 * Get unseen status, user-status and friend request count,
+	 * 
+	 * @param accountPrefs
+	 *            Account settings shared preference
+	 * @param countUsersStatus
+	 *            Whether to include user status count in the total
+	 * @param countUsersActivity
+	 *            Whether to include user activity count in the total
+	 * @param countUnseenStatus
+	 *            Whether to include unseen status count in the total
+	 * @param friendRequestCount
+	 *            Whether to include friend request count in the total
+	 * @return
+	 */
+	public static int getNotificationCount(SharedPreferences accountPrefs, boolean countUsersStatus, boolean countUserActivity,boolean countUnseenStatus,boolean friendRequestCount)
+	{
+		int notificationCount = 0;
+		if (countUnseenStatus)
+		notificationCount += accountPrefs.getInt(HikeMessengerApp.UNSEEN_STATUS_COUNT, 0);
+		if (countUserActivity)
+			notificationCount += accountPrefs.getInt(HikeMessengerApp.USER_TIMELINE_ACTIVITY_COUNT, 0);
+		if (countUsersStatus)
+		{
+			notificationCount += accountPrefs.getInt(HikeMessengerApp.UNSEEN_USER_STATUS_COUNT, 0);
+		}
+		if (friendRequestCount)
+		{
+		int frCount = accountPrefs.getInt(HikeMessengerApp.FRIEND_REQ_COUNT, 0);
+		notificationCount += frCount;
+		}
+		return notificationCount;
+	}
 
 	/*
 	 * This method returns whether the device is an mdpi or ldpi device. The assumption is that these devices are low end and hence a DB call may block the UI on those devices.
