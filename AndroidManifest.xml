@@ -3,8 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bsb.hike"
     android:installLocation="auto"
-    android:versionCode="1486"
-    android:versionName="4.0.7.82.28.4.badgecounterfeature" >
+    android:versionCode="1487"
+    android:versionName="4.0.7.82.28.5.badgecounterfeature" >
     
     <uses-sdk
         android:minSdkVersion="14"
