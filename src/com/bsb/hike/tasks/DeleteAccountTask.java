@@ -214,8 +214,19 @@ public class DeleteAccountTask implements ActivityCallableTask
 		finished = true;
 		
 		/* clear any toast notifications */
-		NotificationManager mgr = (NotificationManager) ctx.getSystemService(android.content.Context.NOTIFICATION_SERVICE);
-		mgr.cancelAll();
+		try
+		{
+			NotificationManager mgr = (NotificationManager) ctx.getSystemService(android.content.Context.NOTIFICATION_SERVICE);
+			mgr.cancelAll();
+		}
+		catch (SecurityException e)
+		{
+			/**
+			 * some of the users on HTC HTC Desire 626GPLUS dual sim were getting permission denial
+			 * while try to cancel notifications.
+			 */
+			Logger.e("DeleteAccountTask", "Exception while canceling notification from DeleteAccountTask", e);
+		}
 		
 		
 		// redirect user to the welcome screen

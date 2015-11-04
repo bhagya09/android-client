@@ -139,6 +139,7 @@ import com.bsb.hike.modules.stickersearch.StickerSearchManager;
 import com.bsb.hike.modules.stickersearch.listeners.IStickerPickerRecommendationListener;
 import com.bsb.hike.modules.stickersearch.provider.StickerSearchHostManager;
 import com.bsb.hike.modules.stickersearch.ui.StickerTagWatcher;
+import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.offline.IOfflineCallbacks;
 import com.bsb.hike.offline.OfflineConstants;
 import com.bsb.hike.offline.OfflineConstants.ERRORCODE;
@@ -4066,8 +4067,7 @@ import com.bsb.hike.voip.VoIPConstants;
 
 		if (mConversation != null)
 		{
-			NotificationManager mgr = (NotificationManager) (activity.getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE));
-			mgr.cancel((int) mConversation.getMsisdn().hashCode());
+			HikeNotification.getInstance().cancelNotification((int) mConversation.getMsisdn().hashCode());
 		}
 
 		/**
