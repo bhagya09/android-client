@@ -898,8 +898,10 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		
 		if (oldVersion < 47)
 		{
+			Long time = System.currentTimeMillis();
 			db.execSQL(getMsisdnAndSortingIdIndex()); //This index is for querying the messages table
 			db.execSQL(getSortingIndexQuery()); //This index enables O(1) access for max sort id query, which will be used frequently
+			Logger.d("HikeConversationsDatabase", "Time taken to create indices for sortingId : " + (System.currentTimeMillis() - time));
 		}
 
 	}
