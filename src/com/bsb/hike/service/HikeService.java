@@ -91,7 +91,8 @@ public class HikeService extends Service
 				HikeMessengerApp.getPubSub().publish(HikePubSub.CONTACT_SYNCED, new Pair<Boolean, Byte>(manualSync, contactSyncResult));
 				
 				//After AB sync, begin fetching contact icons
-				HikeHandlerUtil.getInstance().postRunnable(new FetchContactIconRunnable(ContactManager.getInstance().getAllContacts()));
+				// TODO Add a server side switch for this
+				// HikeHandlerUtil.getInstance().postRunnable(new FetchContactIconRunnable(ContactManager.getInstance().getAllContacts()));
 			}
 
 		}
