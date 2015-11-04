@@ -4,15 +4,17 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 
+import android.content.Context;
+
 import com.bsb.hike.badger.shortcutbadger.ShortcutBadger;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.Utils;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.HikePubSub.Listener;
 import com.hike.transporter.utils.Logger;
-
 
 public class HikeBadgeCountManager implements Listener
 {
@@ -25,9 +27,12 @@ public class HikeBadgeCountManager implements Listener
 
 	private static final String BADGE_COUNT_ENABLED = "badgecountenabled";
 
+	private static Context mContext;
+
 	public HikeBadgeCountManager()
 	{
-		badger = ShortcutBadger.with(HikeMessengerApp.getInstance().getApplicationContext());
+		mContext = HikeMessengerApp.getInstance().getApplicationContext();
+		badger = ShortcutBadger.with(mContext);
 		mBadgeCountKeeperList.add(new HikeBadgeCountKeeperMessages());
 		mBadgeCountKeeperList.add(new HikeBadgeCountKeeperTimeline());
 		mBadgeCountKeeperList.add(new HikeBadgeCountKeeperActivityUpdate());
@@ -35,7 +40,18 @@ public class HikeBadgeCountManager implements Listener
 		mBadgeCountKeeperList.add(new HikeBadgeCountKeeperUserJoin());
 		mBadgeCountKeeperList.add(new HikeBadgeCountKeeperProductPopUp());
 		HikeMessengerApp.getPubSub().addListeners(this, mlistener);
+		init();
+	}
+
+	private void init()
+	{
+		if (!Utils.isUserSignedUp(mContext, false))
+		{
+			badger.count(0);
+			return;
+		}
 		updateBadgeCount();
+
 	}
 
 	@Override
@@ -47,7 +63,7 @@ public class HikeBadgeCountManager implements Listener
 			updateBadgeCount();
 
 		}
-		else if (HikePubSub.BADGE_COUNT_RESET.equals(type)||HikePubSub.ACCOUNT_RESET_OR_DELETE.equals(type))
+		else if (HikePubSub.BADGE_COUNT_RESET.equals(type) || HikePubSub.ACCOUNT_RESET_OR_DELETE.equals(type))
 		{
 			badger.count(0);
 		}
@@ -56,7 +72,7 @@ public class HikeBadgeCountManager implements Listener
 
 	private void updateBadgeCount()
 	{
-		//To check if badge counter is disabled or not 
+		// To check if badge counter is disabled or not
 		if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.BADGE_COUNT_ENABLED, true))
 		{
 			int count = getBadgeCount();
