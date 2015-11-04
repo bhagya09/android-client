@@ -12,6 +12,7 @@ import com.bsb.hike.modules.stickersearch.listeners.IStickerSearchListener;
 import com.bsb.hike.modules.stickersearch.provider.StickerSearchHostManager;
 import com.bsb.hike.modules.stickersearch.provider.StickerSearchUtility;
 import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchDatabase;
+import com.bsb.hike.modules.stickersearch.tasks.CurrentLanguageTagsDownloadTask;
 import com.bsb.hike.modules.stickersearch.tasks.HighlightAndShowStickerPopupTask;
 import com.bsb.hike.modules.stickersearch.tasks.InitiateStickerTagDownloadTask;
 import com.bsb.hike.modules.stickersearch.tasks.LoadChatProfileTask;
@@ -401,6 +402,12 @@ public class StickerSearchManager
 	{
 		RemoveDeletedStickerTagsTask removeDeletedStickerTagsTask = new RemoveDeletedStickerTagsTask();
 		searchEngine.runOnQueryThread(removeDeletedStickerTagsTask);
+	}
+
+	public void downloadTagsForCurrentLanguage()
+	{
+		CurrentLanguageTagsDownloadTask currentLanguageTagsDownloadTask = new CurrentLanguageTagsDownloadTask();
+		searchEngine.runOnQueryThread(currentLanguageTagsDownloadTask);
 	}
 
 	public void sentMessage(String prevText, Sticker sticker, String nextText, String currentText)

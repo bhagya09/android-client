@@ -134,6 +134,11 @@ public class StickerLanguagesManager {
 
     public void downloadDefaultTagsForLanguage(String language)
     {
+        if(containsLanguage(FORBIDDEN_LANGUAGE_SET_TYPE, language) ||  HikeSharedPreferenceUtil.getInstance(HikeMessengerApp.DEFAULT_TAG_DOWNLOAD_LANGUAGES_PREF).getData(language, false))
+        {
+            Logger.d(TAG, "language is forbidden or defaults tags are already downloaded " + this.toString());
+            return ;
+        }
         HikeSharedPreferenceUtil.getInstance(HikeMessengerApp.DEFAULT_TAG_DOWNLOAD_LANGUAGES_PREF).saveData(language, false);
         StickerManager.getInstance().downloadDefaultTags(false, Collections.singleton(language));
     }
@@ -307,8 +312,17 @@ public class StickerLanguagesManager {
                 return ;
             }
 
-            Logger.d(TAG, "languages added to forbidden list : " + languagesArray);
-            StickerLanguagesManager.getInstance().addToLanguageSet(StickerLanguagesManager.FORBIDDEN_LANGUAGE_SET_TYPE, new Gson().fromJson(languagesArray.toString(), ArrayList.class));
+            List<String> languages = new Gson().fromJson(languagesArray.toString(), ArrayList.class);
+
+            Logger.d(TAG, "languages added to forbidden list : " + languages);
+
+            //removing from rest of sets
+            StickerLanguagesManager.getInstance().removeFromLanguageSet(StickerLanguagesManager.NOT_DOWNLOADED_LANGUAGE_SET_TYPE, languages);
+            StickerLanguagesManager.getInstance().removeFromLanguageSet(StickerLanguagesManager.DOWNLOADING_LANGUAGE_SET_TYPE, languages);
+            StickerLanguagesManager.getInstance().removeFromLanguageSet(StickerLanguagesManager.DOWNLOADED_LANGUAGE_SET_TYPE, languages);
+
+            // adding to forbidden set
+            StickerLanguagesManager.getInstance().addToLanguageSet(StickerLanguagesManager.FORBIDDEN_LANGUAGE_SET_TYPE, languages);
         } catch (Exception e) {
             Logger.e(TAG, "exception in json parsing while updating forbidden list : ", e);
         }
