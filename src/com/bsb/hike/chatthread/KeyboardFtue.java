@@ -429,7 +429,8 @@ public class KeyboardFtue implements HikePubSub.Listener
 
             viewHolder.checkBoxItem.setText(item.getDisplayName());
             KptKeyboardManager.LanguageDictionarySatus status = KptKeyboardManager.getInstance(mContext).getDictionaryLanguageStatus(item);
-            if (status == KptKeyboardManager.LanguageDictionarySatus.INSTALLED
+            if (status == KptKeyboardManager.LanguageDictionarySatus.INSTALLED_LOADED
+                    || status == KptKeyboardManager.LanguageDictionarySatus.INSTALLED_LOADED
                     || status == KptKeyboardManager.LanguageDictionarySatus.PROCESSING
                     || status == KptKeyboardManager.LanguageDictionarySatus.IN_QUEUE
                     || selectedItems.contains(item))
@@ -441,7 +442,8 @@ public class KeyboardFtue implements HikePubSub.Listener
                 viewHolder.checkBoxItem.setChecked(false);
             }
 
-            if(KptKeyboardManager.getInstance(mContext).getCurrentState() != KptKeyboardManager.WAITING || status == KptKeyboardManager.LanguageDictionarySatus.INSTALLED)
+            if(KptKeyboardManager.getInstance(mContext).getCurrentState() != KptKeyboardManager.WAITING || status == KptKeyboardManager.LanguageDictionarySatus.INSTALLED_LOADED
+                    || status == KptKeyboardManager.LanguageDictionarySatus.INSTALLED_UNLOADED)
             {
                 viewHolder.checkBoxItem.setClickable(false);
             }

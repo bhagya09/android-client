@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -27,7 +28,7 @@ public class DictionaryLanguageAdapter extends ArrayAdapter<KPTAddonItem> {
     class ViewHolder
     {
         TextView dictionaryLanguageName;
-        ImageView dictionayStatus;
+        CheckBox dictionayStatus;
         ProgressBar progressBar;
     }
 
@@ -46,7 +47,7 @@ public class DictionaryLanguageAdapter extends ArrayAdapter<KPTAddonItem> {
             convertView = inflater.inflate(R.layout.kpt_dictionary_language_list_item, null);
             viewHolder = new ViewHolder();
             viewHolder.dictionaryLanguageName = (TextView) convertView.findViewById(R.id.dictionary_language_name);
-            viewHolder.dictionayStatus = (ImageView) convertView.findViewById(R.id.dictionary_status);
+            viewHolder.dictionayStatus = (CheckBox) convertView.findViewById(R.id.checkbox_status);
             viewHolder.progressBar = (ProgressBar) convertView.findViewById(R.id.progress_bar);
             convertView.setTag(viewHolder);
         }
@@ -67,8 +68,16 @@ public class DictionaryLanguageAdapter extends ArrayAdapter<KPTAddonItem> {
         {
             viewHolder.progressBar.setVisibility(View.GONE);
             viewHolder.dictionayStatus.setVisibility(View.VISIBLE);
-            viewHolder.dictionayStatus.setImageLevel(status.ordinal());
+            if (status == LanguageDictionarySatus.INSTALLED_LOADED)
+            {
+                viewHolder.dictionayStatus.setChecked(true);
+            }
+            else
+            {
+                viewHolder.dictionayStatus.setChecked(false);
+            }
         }
+        viewHolder.dictionayStatus.setClickable(false);
         return convertView;
     }
 

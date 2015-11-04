@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="52dp"
+    android:descendantFocusability="blocksDescendants"
     android:gravity="center_vertical"
     android:orientation="horizontal">
 
@@ -25,12 +26,14 @@
         android:layout_marginRight="4dp"
         android:gravity="center">
 
-        <com.bsb.hike.ui.utils.RecyclingImageView
-            android:id="@+id/dictionary_status"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:scaleType="centerInside"
-            android:src="@drawable/kpt_dictionary_language_drawable_selector" />
+        <CheckBox
+            android:id="@+id/checkbox_status"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:button="@drawable/hike_list_item_checkbox"
+            android:checked="false"
+            android:focusable="false"
+            android:gravity="center_vertical" />
 
         <ProgressBar
             android:id="@+id/progress_bar"

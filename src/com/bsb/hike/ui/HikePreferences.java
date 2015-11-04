@@ -204,15 +204,15 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 			kbdLanguagePref.setDependency(HikeConstants.KEYBOARD_PREF);
 			String summary = new String();
 			ArrayList<KPTAddonItem> langList = KptKeyboardManager.getInstance(HikePreferences.this).getInstalledLanguagesList();
-			if (langList != null && !langList.isEmpty())
+			for (KPTAddonItem item : langList)
 			{
-				for (KPTAddonItem item : langList)
+				if (KptKeyboardManager.getInstance(HikePreferences.this).getDictionaryLanguageStatus(item) == KptKeyboardManager.LanguageDictionarySatus.INSTALLED_LOADED)
 				{
 					summary += item.getDisplayName();
 					summary += ", ";
 				}
-				summary = summary.substring(0, summary.length()-2);				
 			}
+			summary = summary.substring(0, Math.max(summary.length() - 2, 0));
 			kbdLanguagePref.setSummary(summary);			
 		}
 	}
