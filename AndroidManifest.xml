@@ -6,7 +6,6 @@
     android:versionCode="1489"
     android:versionName="4.0.8.81.1.media_dp_avatar" >
 
->>>>>>> c8638a584e1cc7a723d31c098b24327c3b1e07e8
     <uses-sdk
         android:minSdkVersion="14"
         android:targetSdkVersion="17"/>
