@@ -312,9 +312,9 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		{
 			final LocalLanguage localLanguage = LocalLanguageUtils.getApplicationLocalLanguage(HikePreferences.this);
 			languagePref.setSummary(localLanguage.getDisplayName());
-			CharSequence entries[] = new String[localLanguage.getSupportedLanguages(HikePreferences.this).size()];
+			CharSequence entries[] = new String[localLanguage.getDeviceSupportedHikeLanguages(HikePreferences.this).size()];
 			int i=0;
-			for (LocalLanguage language : localLanguage.getSupportedLanguages(HikePreferences.this))
+			for (LocalLanguage language : localLanguage.getDeviceSupportedHikeLanguages(HikePreferences.this))
 			{
 				entries[i] = language.getDisplayName();
 				i++;
@@ -327,7 +327,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 				@Override
 				public boolean onPreferenceChange(Preference preference, Object newValue)
 				{
-					for (LocalLanguage language : localLanguage.getSupportedLanguages(HikePreferences.this))
+					for (LocalLanguage language : localLanguage.getDeviceSupportedHikeLanguages(HikePreferences.this))
 					{
 						if (language.getDisplayName().equalsIgnoreCase((String) newValue))
 						{
