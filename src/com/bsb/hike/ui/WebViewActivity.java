@@ -577,6 +577,11 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 					mmBridge.onUpPressed();
 					return true;
 				}
+				else if (isShortcut)
+				{
+					Intent intent = IntentFactory.getHomeActivityIntent(this);
+					startActivity(intent);
+				}
 			}
 			this.finish();
 			return true;
