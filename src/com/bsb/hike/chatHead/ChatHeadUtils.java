@@ -45,6 +45,8 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.modules.httpmgr.RequestToken;
@@ -59,6 +61,7 @@ import com.bsb.hike.voip.VoIPUtils.CallSource;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.google.gson.JsonSyntaxException;
 
 public class ChatHeadUtils
 {
@@ -269,10 +272,29 @@ public class ChatHeadUtils
 	{
 		if (result != null)
 		{
-			JsonParser parser = new JsonParser();
-			JsonObject callerDetails = (JsonObject) parser.parse(result);
-			CallerContentModel callerContentModel = new Gson().fromJson(callerDetails, CallerContentModel.class);
-			return callerContentModel;
+			try
+			{
+				JsonParser parser = new JsonParser();
+				JsonObject callerDetails = (JsonObject) parser.parse(result);
+				CallerContentModel callerContentModel = new Gson().fromJson(callerDetails, CallerContentModel.class);
+				return callerContentModel;
+			}
+			catch (JsonSyntaxException e)
+			{
+				Logger.d(TAG, "Json Syntax Exception" + e);
+				JSONObject metadata = new JSONObject();
+				try
+				{
+					metadata.put(HikeConstants.EVENT_TYPE, AnalyticsConstants.StickyCallerEvents.STICKY_CALLER);
+					metadata.put(HikeConstants.EVENT_KEY, AnalyticsConstants.StickyCallerEvents.WRONG_JSON);
+					metadata.put(AnalyticsConstants.StickyCallerEvents.WRONG_JSON, result);
+					HAManager.getInstance().record(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.ERROR_EVENT, EventPriority.HIGH, metadata);
+				}
+				catch (JSONException e1)
+				{
+					Logger.d(TAG, "Failure while making anaytics JSON for wrong JSON syntax");
+				}
+			}
 		}
 		return null;
 	}
@@ -702,14 +724,17 @@ public class ChatHeadUtils
 			{
 				CallerContentModel callerContentModel = getCallerContentModelObject(HikeSharedPreferenceUtil.getInstance(HikeConstants.CALLER_SHARED_PREF).getData(
 						callCurrentNumber, null));
-				isOnHike = callerContentModel.getIsOnHike();
-				if (callerContentModel.getFirstName() != null)
+				if(callerContentModel != null)
 				{
-					callerName = callerContentModel.getFirstName();
-				}
-				else if (callerContentModel.getLastName() != null)
-				{
-					callerName = callerContentModel.getLastName();
+					isOnHike = callerContentModel.getIsOnHike();
+					if (callerContentModel.getFirstName() != null)
+					{
+						callerName = callerContentModel.getFirstName();
+					}
+					else if (callerContentModel.getLastName() != null)
+					{
+						callerName = callerContentModel.getLastName();
+					}
 				}
 			}
 			catch (Exception e)

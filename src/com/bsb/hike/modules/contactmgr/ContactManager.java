@@ -1750,6 +1750,18 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 				contactNames.put(id, name);
 			}
 		}
+		catch (SecurityException e)
+		{
+			/**
+			 * currently some one plus one users are getting this exception on 5.1. we haven't found
+			 * any particular reason how it can happen. putting a catch block for the same.
+			 *
+			 * In future, when our target sdk version is 23 and user denies contacts permission
+			 * to hike. then we would get a security exception here, if we try to access contacts.
+			 */
+
+			Logger.e("ContactUtils", "Exception while querying contacts to name projection", e);
+		}
 		finally
 		{
 			if (contacts != null)
@@ -1795,6 +1807,14 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 					}
 				}
 			}
+		}
+		catch (SecurityException e)
+		{
+			/**
+			 * similar reason here as above security exception.
+			 */
+
+			Logger.e("ContactUtils", "Exception while querying phone numbers", e);
 		}
 		finally
 		{
@@ -1844,6 +1864,14 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 					}
 				}
 			}
+		}
+		catch (SecurityException e)
+		{
+			/**
+			 * similar reason here as above security exception.
+			 */
+
+			Logger.e("ContactUtils", "Exception while querying sim contacts", e);
 		}
 		catch (Exception e)
 		{

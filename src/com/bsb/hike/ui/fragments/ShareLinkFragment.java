@@ -7,11 +7,11 @@ import org.json.JSONObject;
 
 import android.app.Activity;
 import android.app.Dialog;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -73,11 +73,23 @@ public class ShareLinkFragment extends DialogFragment implements OnClickListener
 
 	public final static String SHARE_LINK_FRAGMENT_TAG = "shareLinkFragmentTag";
 
-	private boolean isTaskRunning = false;
-	
 	private ShareLinkFragmentListener shareLinkFragmentListener;
 
 	private boolean isStartedViaBot = false;
+	
+	private final byte TASK_DEFAULT = -1;
+	
+	private final byte TASK_COMPLETE = 1;
+
+	private final byte TASK_FAILED = 2;
+
+	private final byte TASK_INPROGRESS = 3;
+	
+	private byte mTaskStatus = TASK_DEFAULT;
+	
+	private static Context appContext = HikeMessengerApp.getInstance().getApplicationContext();
+	
+	private static final String TASK_STATUS_KEY = "tsk";
 	
 	public static ShareLinkFragment newInstance(String groupId, String groupName, int groupSettings, boolean existingGroupChat, boolean isStartedViaBot)
 	{
@@ -109,14 +121,14 @@ public class ShareLinkFragment extends DialogFragment implements OnClickListener
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
 	{
 		View parent = inflater.inflate(R.layout.link_share_view, null);
-		parent.setPadding(0, HikeMessengerApp.getInstance().getResources().getDimensionPixelSize(R.dimen.menu_list_padding_top), 0, HikeMessengerApp.getInstance().getResources().getDimensionPixelSize(R.dimen.menu_list_padding_bottom));
+		parent.setPadding(0, appContext.getResources().getDimensionPixelSize(R.dimen.menu_list_padding_top), 0, appContext.getResources().getDimensionPixelSize(R.dimen.menu_list_padding_bottom));
 		
 		CustomFontTextView waText = (CustomFontTextView) parent.findViewById(R.id.share_via_WA);
-		waText.setText(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.MENU_OPTION_FOR_GC_VIA_WA, getString(R.string.watsapp)));
+		waText.setText(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.MENU_OPTION_FOR_GC_VIA_WA, appContext.getString(R.string.watsapp)));
 		waText.setOnClickListener(this);
 
 		CustomFontTextView otherSharableAppText = (CustomFontTextView) parent.findViewById(R.id.share_via_Others);
-		otherSharableAppText.setText(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.MENU_OPTIONS_FOR_GC_VIA_OTHERS, getString(R.string.others)));
+		otherSharableAppText.setText(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.MENU_OPTIONS_FOR_GC_VIA_OTHERS, appContext.getString(R.string.others)));
 		otherSharableAppText.setOnClickListener(this);
 
 		parent.findViewById(R.id.add_via_Hike).setOnClickListener(this);
@@ -152,9 +164,14 @@ public class ShareLinkFragment extends DialogFragment implements OnClickListener
 			view.findViewById(R.id.share_via_Others).setVisibility(View.VISIBLE);
 		}
 		
-		if(isTaskRunning)
+		if(savedInstanceState != null)
 		{
-			showProgressDialog();
+			mTaskStatus = savedInstanceState.getByte(TASK_STATUS_KEY) ;
+			
+			if(mTaskStatus == TASK_INPROGRESS)
+			{
+				showProgressDialog();
+			}
 		}
 	}
 
@@ -213,9 +230,6 @@ public class ShareLinkFragment extends DialogFragment implements OnClickListener
 			break;
 		}
 
-		// hide dialog
-		//getDialog().hide();
-				
 		// Start Loader here
 		showProgressDialog();
 
@@ -238,10 +252,10 @@ public class ShareLinkFragment extends DialogFragment implements OnClickListener
 		}
 
 		RequestToken token = HttpRequests.getShareLinkURLRequest(json, shareLinkURLReqListener, NO_OF_RETRIES, DELAY_MULTIPLIER);
-		if (token != null && !token.isRequestRunning() && !isTaskRunning)
+		if (token != null && !token.isRequestRunning() && mTaskStatus != TASK_INPROGRESS)
 		{
 			token.execute();
-			isTaskRunning = true;
+			mTaskStatus = TASK_INPROGRESS;
 		}
 		else
 		{
@@ -258,8 +272,6 @@ public class ShareLinkFragment extends DialogFragment implements OnClickListener
 
 			Logger.d(ShareLinkFragment.class.getSimpleName(), "responce from http call " + response);
 
-			isTaskRunning = false;
-			
 			if (Utils.isResponseValid(response))
 			{
 				if (isNewGroup)
@@ -273,45 +285,26 @@ public class ShareLinkFragment extends DialogFragment implements OnClickListener
 						if(isAdded())
 						{
 							OneToNConversationUtils.createGroupOrBroadcast(getActivity(), new ArrayList<ContactInfo>(), grpName, grpId, grpSettings, true);
+							if(OneToNConversationUtils.isGroupDPSetWhileCreatingGroup(grpId))
+							{
+								OneToNConversationUtils.uploadGroupProfileImage(grpId);
+							}
+						}
+						else
+						{
+							Logger.d(ShareLinkFragment.class.getSimpleName(), "New group call and fragment not added so no group created, so returning from here");
+							return;
 						}
 					}
 				}
 
-				final String url = getLinkFromResponse(response);
-
-				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHARE_LINK_URL_FOR_GC, url);
+				openThirdPartyApp(response);
 				
-				switch (buttonClickedType)
+				mTaskStatus = TASK_COMPLETE;
+
+				if (isAdded() && isVisible())
 				{
-				case WA:
-					if(Utils.isPackageInstalled(HikeMessengerApp.getInstance().getApplicationContext(), HikeConstants.PACKAGE_WATSAPP))
-					{
-						String str = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.TEXT_FOR_GC_VIA_WA,
-								HikeMessengerApp.getInstance().getApplicationContext().getString(R.string.link_share_wa_msg))
-								+ "\n " + url;
-						str = str.replace("$groupname", grpName);
-						openWA(str);
-					}
-					break;
-
-				case OTHERS:
-					String str = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.TEXT_FOR_GC_VIA_OTHERS, getString(R.string.link_share_others_msg))
-					+ "\n " + url;
-					str = str.replace("$groupname", grpName);
-					ShareUtils.shareContent(HikeConstants.Extras.ShareTypes.TEXT_SHARE, str, null);
-					break;
-
-				default:
-					break;
-				}
-
-				if (isAdded())
-				{
-					// Stop Loader here
-					dismissProgressDialog();
-
-					// dismiss Dialog
-					dismiss();
+					closeDialog();
 				}
 			}
 
@@ -328,18 +321,14 @@ public class ShareLinkFragment extends DialogFragment implements OnClickListener
 		{
 			Logger.d(ShareLinkFragment.class.getSimpleName(), "responce from http call failed " + httpException.toString());
 
-			isTaskRunning = false;
-			
 			// Show Toast
-			Toast.makeText(HikeMessengerApp.getInstance().getApplicationContext(), getString(R.string.link_share_network_error), Toast.LENGTH_SHORT).show();
+			Toast.makeText(appContext,appContext.getString(R.string.link_share_network_error), Toast.LENGTH_SHORT).show();
 			
-			if (isAdded())
+			mTaskStatus = TASK_FAILED;
+					
+			if (isAdded() && isVisible())
 			{
-				// Stop Loader here
-				dismissProgressDialog();
-
-				// dismiss Dialog
-				dismiss();
+				closeDialog();
 			}
 			
 		}
@@ -348,9 +337,38 @@ public class ShareLinkFragment extends DialogFragment implements OnClickListener
 	@Override
 	public void onSaveInstanceState(Bundle outState)
 	{
+		outState.putByte(TASK_STATUS_KEY, mTaskStatus);
 		super.onSaveInstanceState(outState);
 	}
 
+	@Override
+	public void onResume()
+	{
+		super.onResume();
+		
+		if (isAdded() && isVisible() && 
+				(mTaskStatus == TASK_COMPLETE || mTaskStatus == TASK_FAILED)) 
+		{
+			closeDialog();
+		}
+	}
+
+	private void closeDialog()
+	{
+		// Stop Loader here
+		dismissProgressDialog();
+
+		// dismiss Dialog
+		android.support.v4.app.FragmentManager fm = getFragmentManager();
+		FragmentTransaction ft = fm.beginTransaction();
+		ft.remove(this);
+
+		ft.commitAllowingStateLoss();
+
+		fm.executePendingTransactions();
+
+	}
+	
 	private void dismissProgressDialog()
 	{
 		mDialog.setVisibility(View.GONE);
@@ -393,7 +411,7 @@ public class ShareLinkFragment extends DialogFragment implements OnClickListener
 	{
 		StringBuilder urlBuilder = new StringBuilder();
 		urlBuilder.append(HttpRequestConstants.BASE_LINK_SHARING_URL);
-		Context mContext = HikeMessengerApp.getInstance().getApplicationContext();
+		Context mContext = appContext;
 		String inviteToken = mContext.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).getString(HikeConstants.INVITE_TOKEN, "");
 		urlBuilder.append("/");
 		urlBuilder.append(inviteToken);
@@ -425,7 +443,42 @@ public class ShareLinkFragment extends DialogFragment implements OnClickListener
 		}
 		else
 		{
-			IntentFactory.openInviteWatsApp(getActivity(), str);
+			if(isAdded())
+			{
+				IntentFactory.openInviteWatsApp(getActivity(), str);
+			}
+		}
+	}
+	
+	private void openThirdPartyApp(final JSONObject response)
+	{
+		final String url = getLinkFromResponse(response);
+
+		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHARE_LINK_URL_FOR_GC, url);
+		
+		switch (buttonClickedType)
+		{
+		case WA:
+			if(Utils.isPackageInstalled(appContext, HikeConstants.PACKAGE_WATSAPP))
+			{
+				String str = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.TEXT_FOR_GC_VIA_WA,
+						appContext.getString(R.string.link_share_wa_msg))
+						+ "\n " + url;
+				str = str.replace("$groupname", grpName);
+				openWA(str);
+			}
+			break;
+
+		case OTHERS:
+			String str = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.TEXT_FOR_GC_VIA_OTHERS, 
+					appContext.getString(R.string.link_share_others_msg))
+			+ "\n " + url;
+			str = str.replace("$groupname", grpName);
+			ShareUtils.shareContent(HikeConstants.Extras.ShareTypes.TEXT_SHARE, str, null);
+			break;
+
+		default:
+			break;
 		}
 	}
 }

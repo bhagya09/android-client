@@ -949,6 +949,8 @@ public class HikeConstants
 	public static final String VOIP_CALL_ISSUES_FRAGMENT_TAG = "voipCallIssuesFragmentTag";
 
 	public static final String VOIP_CALL_FAILED_FRAGMENT_TAG = "voipCallFailedFragmentTag";
+
+	public static final String VOIP_CALL_DECLINE_MESSAGE_FRAGMENT_TAG = "voipCallDeclineMessageFragTag";
 	/*
 	 * Contact Type
 	 */
@@ -2577,6 +2579,8 @@ public class HikeConstants
 		public static final String ACTIVITY_UPDATE = "ac_up";
 
 		public static final String TIMELINE_PREFFERED_CONTACTS = "tlpc";
+		
+		public static final String HIKE_DIRECT_ANALYTICS = "hdle";
 	}
 
 	public static final class GeneralEventMessagesTypes
@@ -3348,5 +3352,11 @@ public class HikeConstants
 	public static final String ENABLE_KNOWN_NUMBER_CARD_PREF = "knownContactEnablePref";
 
 	public static final String NEW_CHAT_RED_DOT = "nc_dot";
+	
+	public static final int GPS_STATUS_CHANGED = 1197;
+	
+	public static final int GPS_SWITCH_OFF = 1198;
+
+	public static final String SHOW_GPS_DIALOG = "gps_dialog_show";
 
 }
