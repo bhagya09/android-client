@@ -118,7 +118,7 @@ public class StickerSearchUtils
 
 		if(!HikeMessengerApp.isSystemKeyboard(HikeMessengerApp.getInstance().getApplicationContext()))
 		{
-			return KptKeyboardManager.getInstance().getCurrentLanguage();
+			return KptKeyboardManager.getInstance(HikeMessengerApp.getInstance()).getCurrentLanguage();
 		}
 
         try {
