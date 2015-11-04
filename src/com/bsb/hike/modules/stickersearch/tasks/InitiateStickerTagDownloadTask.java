@@ -3,6 +3,8 @@ package com.bsb.hike.modules.stickersearch.tasks;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerTagDownloadTask;
+import com.bsb.hike.modules.stickersearch.StickerLanguagesManager;
+import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
@@ -68,6 +70,12 @@ public class InitiateStickerTagDownloadTask implements Runnable
 		if(Utils.isEmpty(stickerSet))
 		{
 			Logger.wtf(TAG, "empty sticker set.");
+
+			if(state == StickerSearchConstants.STATE_LANGUAGE_TAGS_DOWNLOAD)  // in one case tags are downloaded but still language has not moved from downloading to downloaded
+			{
+				StickerLanguagesManager.getInstance().addToLanguageSet(StickerLanguagesManager.DOWNLOADED_LANGUAGE_SET_TYPE, languagesSet);
+				StickerLanguagesManager.getInstance().removeFromLanguageSet(StickerLanguagesManager.DOWNLOADING_LANGUAGE_SET_TYPE, languagesSet);
+			}
 			return ;
 		}
 		
