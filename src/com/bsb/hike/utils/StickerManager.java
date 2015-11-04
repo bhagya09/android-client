@@ -40,6 +40,7 @@ import com.bsb.hike.modules.stickerdownloadmgr.StickerSignupUpgradeDownloadTask;
 import com.bsb.hike.modules.stickersearch.StickerLanguagesManager;
 import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
+import com.bsb.hike.modules.stickersearch.StickerSearchUtils;
 import com.bsb.hike.modules.stickersearch.provider.StickerSearchUtility;
 import com.bsb.hike.smartcache.HikeLruCache;
 import com.bsb.hike.utils.Utils.ExternalStorageState;
@@ -2149,7 +2150,7 @@ public class StickerManager
 				metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.PACK_DATA_ANALYTIC_EVENT);
 				metadata.put(HikeConstants.NUMBER_OF_PACKS, stickerCategories.size());
 				metadata.put(HikeConstants.PACK_DATA, stickerPackAndOrderList);
-
+				metadata.put(HikeConstants.KEYBOARD_LIST, StickerSearchUtils.getCurrentLanguage());
 				HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, EventPriority.HIGH, metadata);
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.LAST_STICKER_PACK_AND_ORDERING_SENT_TIME, currentTime);
 			}
@@ -2221,7 +2222,7 @@ public class StickerManager
 			metadata.put(HikeConstants.SOURCE, rejectionSource);
 			metadata.put(HikeConstants.TAGGED_PHRASE, taggedPhrase);
 			metadata.put(HikeConstants.TAP_WORD, tappedWord);
-
+			metadata.put(HikeConstants.KEYBOARD_LIST, StickerSearchUtils.getCurrentLanguage());
 			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, EventPriority.HIGH, metadata);
 		}
 		catch (JSONException e)
@@ -2243,7 +2244,7 @@ public class StickerManager
 			metadata.put(HikeConstants.SOURCE, rejectionSource);
 			metadata.put(HikeConstants.TAGGED_PHRASE, taggedPhrase);
 			metadata.put(HikeConstants.TAP_WORD, tappedWord);
-
+			metadata.put(HikeConstants.KEYBOARD_LIST, StickerSearchUtils.getCurrentLanguage());
 			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, EventPriority.HIGH, metadata);
 		}
 		catch (JSONException e)
@@ -2268,7 +2269,7 @@ public class StickerManager
 			metadata.put(HikeConstants.TAP_WORD, tappedWord);
 			metadata.put(HikeConstants.STICKER_ID, stickerId);
 			metadata.put(HikeConstants.CATEGORY_ID, categoryId);
-
+			metadata.put(HikeConstants.KEYBOARD_LIST, StickerSearchUtils.getCurrentLanguage());
 			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, EventPriority.HIGH, metadata);
 		}
 		catch (JSONException e)

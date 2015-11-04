@@ -9,6 +9,7 @@ import android.widget.TextView;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.models.Sticker;
+import com.bsb.hike.modules.kpt.KptKeyboardManager;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 
@@ -114,6 +115,12 @@ public class StickerSearchUtils
      * @return current keyboard language in ISO 639-2/T format
      */
     public static String getCurrentLanguage() {
+
+		if(!HikeMessengerApp.isSystemKeyboard(HikeMessengerApp.getInstance().getApplicationContext()))
+		{
+			return KptKeyboardManager.getInstance().getCurrentLanguage();
+		}
+
         try {
 
             InputMethodManager inputMethodManager = (InputMethodManager) HikeMessengerApp.getInstance().getSystemService(Context.INPUT_METHOD_SERVICE);
