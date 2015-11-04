@@ -131,10 +131,11 @@ public class KptKeyboardManager implements AdaptxtSettingsRegisterListener
 
 	private void fetchKptLanguagesAndUpdate()
 	{
-		Logger.d(TAG,"fetchKptLanguagesAndUpdate");
+		Logger.d(TAG, "fetchKptLanguagesAndUpdate");
 		mInstalledLanguagesList.clear();
 
-		List<KPTAddonItem> installedList = kptSettings.getInstalledLanguages();
+		KPTAdaptxtAddonSettings.KPTLanguageData data= kptSettings.getAllLanguageData();
+		List<KPTAddonItem> installedList = data.getInstalledLanguage();
 		for (KPTAddonItem language : installedList)
 		{
 			languageStatusMap.put(language, LanguageDictionarySatus.INSTALLED);
@@ -143,7 +144,7 @@ public class KptKeyboardManager implements AdaptxtSettingsRegisterListener
 		mInstalledLanguagesList.addAll(installedList);
 
 		mUnistalledLanguagesList.clear();
-		List<KPTAddonItem> unInstalledList = kptSettings.getNotInstalledLanguageList();
+		List<KPTAddonItem> unInstalledList = data.getUnInstalledLanguage();
 		for (KPTAddonItem language : unInstalledList)
 		{
 			if (languageStatusMap.get(language) != LanguageDictionarySatus.IN_QUEUE)
@@ -153,7 +154,7 @@ public class KptKeyboardManager implements AdaptxtSettingsRegisterListener
 		mUnistalledLanguagesList.addAll(unInstalledList);
 
 		getUnsupportedLanguagesList().clear();
-		List<KPTAddonItem> UnsupportedList = kptSettings.getUnsupportedLanguagesList();
+		List<KPTAddonItem> UnsupportedList = data.getUnSupportedLanguage();
 		for (KPTAddonItem language : UnsupportedList)
 		{
 			languageStatusMap.put(language, LanguageDictionarySatus.UNSUPPORTED);
@@ -352,4 +353,12 @@ public class KptKeyboardManager implements AdaptxtSettingsRegisterListener
 		Logger.d(TAG,"coreEngineService callback");
 	}
 
+	public KPTAdaptxtAddonSettings getKptSettings()
+	{
+		if (kptSettings != null)
+		{
+			return kptSettings;
+		}
+		return null;
+	}
 }
