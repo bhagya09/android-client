@@ -439,6 +439,11 @@ public abstract class ImageWorker
 				final AsyncDrawable asyncDrawable = (AsyncDrawable) drawable;
 				return asyncDrawable.getBitmapWorkerTask();
 			}
+			else if (drawable instanceof AsyncShapeDrawable)
+			{
+				final AsyncShapeDrawable asyncDrawable = (AsyncShapeDrawable) drawable;
+				return asyncDrawable.getBitmapWorkerTask();
+			}
 		}
 		return null;
 	}
