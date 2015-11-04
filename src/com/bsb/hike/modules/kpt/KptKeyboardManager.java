@@ -352,4 +352,12 @@ public class KptKeyboardManager implements AdaptxtSettingsRegisterListener
 		Logger.d(TAG,"coreEngineService callback");
 	}
 
+	public KPTAdaptxtAddonSettings getKptSettings()
+	{
+		if (kptSettings != null)
+		{
+			return kptSettings;
+		}
+		return null;
+	}
 }
