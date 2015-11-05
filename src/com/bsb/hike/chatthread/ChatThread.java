@@ -2402,7 +2402,8 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	
 	protected boolean shouldShowKeyboard()
 	{
-		return mConversation.getMessagesList().isEmpty() && !mConversation.isBlocked() && !keyboardFtue.isReadyForFTUE();
+		return ((mConversation.getMessagesList().isEmpty() && !mConversation.isBlocked() && !keyboardFtue.isReadyForFTUE())
+		|| mActionMode.isActionModeOn());
 	}
 
 	/**
