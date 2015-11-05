@@ -1579,6 +1579,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		{
 			mCustomKeyboard.showCustomKeyboard(mComposeView, false); 
 			KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, 0);
+			mComposeView.setMaxLines(4);
 			return true;
 		}
 		mCustomKeyboard.closeAnyDialogIfShowing();
@@ -5603,6 +5604,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 				attachmentPicker.onOrientationChange(newConfig.orientation);
 			}
 		}
+		
 	}
 	
 	/**
@@ -6172,10 +6174,20 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 				mShareablePopupLayout.setCustomKeyBoardHeight(height);				
 			}
 			keyboardHeight = height;
+			
+			if (activity.getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE)
+			{
+				mComposeView.setMaxLines(1);
+			}
+			else
+			{
+				mComposeView.setMaxLines(4);
+			}
 		}
 		else
 		{
 			KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, 0);
+			mComposeView.setMaxLines(4);
 		}
 	}
 	
