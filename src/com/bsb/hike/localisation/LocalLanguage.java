@@ -69,7 +69,7 @@ public class LocalLanguage {
             hikeSupportedList.add(Hindi);       // Hindi
             hikeSupportedList.add(Bengali);     // Bengali
             hikeSupportedList.add(Marathi);     // Marathi
-            hikeSupportedList.add(Gujarati);    // Gujarati
+            //hikeSupportedList.add(Gujarati);    // Gujarati
             hikeSupportedList.add(Tamil);       // Tamil
             hikeSupportedList.add(Telugu);      // Telugu
             hikeSupportedList.add(Kannada);     // Kannada
