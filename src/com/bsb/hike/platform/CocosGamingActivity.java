@@ -142,7 +142,7 @@ public class CocosGamingActivity extends Cocos2dxActivity
 							e.printStackTrace();
 						}
 						String appName = json.optString(HikeConstants.NAME);
-						System.load(platform_content_dir + appName + "/libcocos2d.so");
+						System.load(platform_content_dir + PlatformContentConstants.HIKE_MICRO_APPS +PlatformContentConstants.HIKE_MAPPS + appName + "/libcocos2d.so");
 
 					}
 				}
@@ -251,15 +251,15 @@ public class CocosGamingActivity extends Cocos2dxActivity
 	 */
 	public static String getExternalPath()
 	{
-		String path = platform_content_dir + nonMessagingBotMetadata.getAppName();
+		String path = platform_content_dir + PlatformContentConstants.HIKE_MICRO_APPS + PlatformContentConstants.HIKE_GAMES + nonMessagingBotMetadata.getAppName() + File.separator + "Version_" + nonMessagingBotMetadata.getBotVersionCode();
 		return path + File.separator + "assets/";
 	}
 
 	public String getAppBasePath()
 	{
-		String path = platform_content_dir + nonMessagingBotMetadata.getAppName();
+        String path = platform_content_dir + PlatformContentConstants.HIKE_MICRO_APPS + PlatformContentConstants.HIKE_GAMES + nonMessagingBotMetadata.getAppName() + File.separator + "Version_" + nonMessagingBotMetadata.getBotVersionCode();
 
-		return path + File.separator;
+        return path + File.separator;
 	}
 
 }

@@ -320,24 +320,35 @@ public class BotUtils
 		if (type.equals(HikeConstants.MESSAGING_BOT))
 		{
 			botInfo = getBotInfoFormessagingBots(jsonObj, msisdn);
-			PlatformUtils.botCreationSuccessHandling(botInfo, false, botChatTheme, notifType);
+			PlatformUtils.botCreationSuccessHandling(botInfo, false, botChatTheme, notifType,"");
 		}
 		else if (type.equals(HikeConstants.NON_MESSAGING_BOT))
 		{
 			botInfo = getBotInfoForNonMessagingBots(jsonObj, msisdn);
 			boolean enableBot = jsonObj.optBoolean(HikePlatformConstants.ENABLE_BOT);
 			NonMessagingBotMetadata botMetadata = new NonMessagingBotMetadata(botInfo.getMetadata());
-			if (botMetadata.isMicroAppMode())
+
+            JSONObject mdJsonObject = jsonObj.optJSONObject(HikePlatformConstants.METADATA);
+            JSONObject cardObjectJson = mdJsonObject.optJSONObject(HikePlatformConstants.CARD_OBJECT);
+            JSONObject compatibilityMapJson = cardObjectJson.optJSONObject(HikePlatformConstants.COMPATIBILITY_MAP);
+            String compatibilityMapJsonString;
+
+            if(compatibilityMapJson != null)
+                compatibilityMapJsonString = compatibilityMapJson.toString();
+            else
+                compatibilityMapJsonString = "";
+
+            if (botMetadata.isMicroAppMode())
 			{
-				PlatformUtils.downloadZipForNonMessagingBot(botInfo, enableBot, botChatTheme, notifType, botMetadata, botMetadata.isResumeSupported());
+				PlatformUtils.downloadZipForNonMessagingBot(botInfo, enableBot, botChatTheme, notifType, botMetadata, botMetadata.isResumeSupported(),compatibilityMapJsonString);
 			}
 			else if (botMetadata.isWebUrlMode())
 			{
-				PlatformUtils.botCreationSuccessHandling(botInfo, enableBot, botChatTheme, notifType);
+				PlatformUtils.botCreationSuccessHandling(botInfo, enableBot, botChatTheme, notifType,"");
 			}
 			else if (botMetadata.isNativeMode())
 			{
-				PlatformUtils.downloadZipForNonMessagingBot(botInfo, enableBot, botChatTheme, notifType, botMetadata, botMetadata.isResumeSupported());
+				PlatformUtils.downloadZipForNonMessagingBot(botInfo, enableBot, botChatTheme, notifType, botMetadata, botMetadata.isResumeSupported(),compatibilityMapJsonString);
 			}
 
 		}
@@ -496,12 +507,12 @@ public class BotUtils
 	 * @param enableBot
 	 * @param notifType
 	 */
-	public static void updateBotParamsInDb(String botChatTheme, BotInfo botInfo, boolean enableBot, String notifType)
+	public static void updateBotParamsInDb(String botChatTheme, BotInfo botInfo, boolean enableBot, String notifType,String compatibilityMapJsonString)
 	{
 		String msisdn = botInfo.getMsisdn();
 		HikeConversationsDatabase convDb = HikeConversationsDatabase.getInstance();
 		convDb.setChatBackground(msisdn, botChatTheme, System.currentTimeMillis()/1000);
-		convDb.insertBot(botInfo);
+		convDb.insertBot(botInfo,compatibilityMapJsonString);
 
 		HikeMessengerApp.hikeBotInfoMap.put(msisdn, botInfo);
 		ContactInfo contact = new ContactInfo(msisdn, msisdn, botInfo.getConversationName(), msisdn);
