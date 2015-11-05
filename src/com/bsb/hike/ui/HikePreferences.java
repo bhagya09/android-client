@@ -204,15 +204,15 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 			kbdLanguagePref.setDependency(HikeConstants.KEYBOARD_PREF);
 			String summary = new String();
 			ArrayList<KPTAddonItem> langList = KptKeyboardManager.getInstance(HikePreferences.this).getInstalledLanguagesList();
-			if (langList != null && !langList.isEmpty())
+			for (KPTAddonItem item : langList)
 			{
-				for (KPTAddonItem item : langList)
+				if (KptKeyboardManager.getInstance(HikePreferences.this).getDictionaryLanguageStatus(item) == KptKeyboardManager.LanguageDictionarySatus.INSTALLED_LOADED)
 				{
 					summary += item.getDisplayName();
 					summary += ", ";
 				}
-				summary = summary.substring(0, summary.length()-2);				
 			}
+			summary = summary.substring(0, Math.max(summary.length() - 2, 0));
 			kbdLanguagePref.setSummary(summary);			
 		}
 	}
@@ -312,9 +312,9 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		{
 			final LocalLanguage localLanguage = LocalLanguageUtils.getApplicationLocalLanguage(HikePreferences.this);
 			languagePref.setSummary(localLanguage.getDisplayName());
-			CharSequence entries[] = new String[localLanguage.getSupportedLanguages(HikePreferences.this).size()];
+			CharSequence entries[] = new String[localLanguage.getDeviceSupportedHikeLanguages(HikePreferences.this).size()];
 			int i=0;
-			for (LocalLanguage language : localLanguage.getSupportedLanguages(HikePreferences.this))
+			for (LocalLanguage language : localLanguage.getDeviceSupportedHikeLanguages(HikePreferences.this))
 			{
 				entries[i] = language.getDisplayName();
 				i++;
@@ -327,7 +327,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 				@Override
 				public boolean onPreferenceChange(Preference preference, Object newValue)
 				{
-					for (LocalLanguage language : localLanguage.getSupportedLanguages(HikePreferences.this))
+					for (LocalLanguage language : localLanguage.getDeviceSupportedHikeLanguages(HikePreferences.this))
 					{
 						if (language.getDisplayName().equalsIgnoreCase((String) newValue))
 						{

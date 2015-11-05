@@ -19,6 +19,28 @@ public class LocalLanguage {
 
     private String name;
 
+    public static final LocalLanguage English = new LocalLanguage("English", "en");
+
+    public static final LocalLanguage Hindi = new LocalLanguage("हिन्दी", "hi");
+
+    public static final LocalLanguage Bengali = new LocalLanguage("বাংলা", "bn");
+
+    public static final LocalLanguage Marathi = new LocalLanguage("मराठी", "mr");
+
+    public static final LocalLanguage Gujarati = new LocalLanguage("ગુજરાતી", "gu");
+
+    public static final LocalLanguage Tamil = new LocalLanguage("தமிழ்", "ta");
+
+    public static final LocalLanguage Telugu = new LocalLanguage("తెలుగు", "te");
+
+    public static final LocalLanguage Kannada = new LocalLanguage("ಕನ್ನಡ", "kn");
+
+    public static final LocalLanguage Malayalam = new LocalLanguage("മലയാളം", "ml");
+
+    private static ArrayList<LocalLanguage> hikeSupportedList;
+
+    private static ArrayList<LocalLanguage> deviceSupportedHikeList;
+
     public LocalLanguage(String languageName, String locale) {
         this.name = languageName;
         this.locale = locale;
@@ -37,24 +59,41 @@ public class LocalLanguage {
         return getDisplayName();
     }
 
-    public static List<LocalLanguage> getSupportedLanguages(Context context) {
-        ArrayList<LocalLanguage> list = new ArrayList<LocalLanguage>();
-        list.add(new LocalLanguage(context.getString(R.string.system_language), ""));    // system Default
-        list.add(new LocalLanguage("English", "en"));    // English
-        list.add(new LocalLanguage("हिन्दी", "hi"));    // Hindi
-        list.add(new LocalLanguage("বাংলা", "bn"));    // Bengali
-        list.add(new LocalLanguage("मराठी", "mr"));    // Marathi
-        list.add(new LocalLanguage("ગુજરાતી", "gu"));    // Gujarati
-        list.add(new LocalLanguage("தமிழ்", "ta"));    // Tamil
-        list.add(new LocalLanguage("తెలుగు", "te"));    // Telugu
-        list.add(new LocalLanguage("ಕನ್ನಡ", "kn"));    // Kannada
-        list.add(new LocalLanguage("മലയാളം", "ml"));    // Malayalam
+    public static List<LocalLanguage> getHikeSupportedLanguages(Context context)
+    {
+        if (hikeSupportedList == null)
+        {
+            hikeSupportedList = new ArrayList<LocalLanguage>();
+            hikeSupportedList.add(new LocalLanguage(context.getString(R.string.system_language), ""));    // system Default
+            hikeSupportedList.add(English);     // English
+            hikeSupportedList.add(Hindi);       // Hindi
+            hikeSupportedList.add(Bengali);     // Bengali
+            hikeSupportedList.add(Marathi);     // Marathi
+            hikeSupportedList.add(Gujarati);    // Gujarati
+            hikeSupportedList.add(Tamil);       // Tamil
+            hikeSupportedList.add(Telugu);      // Telugu
+            hikeSupportedList.add(Kannada);     // Kannada
+            hikeSupportedList.add(Malayalam);   // Malayalam
+        }
 
-        return list;
+        return hikeSupportedList;
     }
 
-
-
-
+    public static List<LocalLanguage> getDeviceSupportedHikeLanguages(Context context)
+    {
+        if (deviceSupportedHikeList == null)
+        {
+            deviceSupportedHikeList = new ArrayList<LocalLanguage>();
+            List<LocalLanguage> hikeList = getHikeSupportedLanguages(context);
+            deviceSupportedHikeList.add(hikeList.get(0));
+            deviceSupportedHikeList.add(hikeList.get(1));
+            for (int i = 2; i < hikeList.size(); i++)
+            {
+                LocalLanguage item = hikeList.get(i);
+                deviceSupportedHikeList.add(item);
+            }
+        }
+        return deviceSupportedHikeList;
+    }
 
 }

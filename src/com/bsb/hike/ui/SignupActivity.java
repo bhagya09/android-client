@@ -1154,7 +1154,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 		setupActionBarTitle();
 
 		final TextView languageText = (TextView) viewFlipper.findViewById(R.id.txt_lang);
-		final ArrayList<LocalLanguage> list = new ArrayList<>(LocalLanguage.getSupportedLanguages(this));
+		final ArrayList<LocalLanguage> list = new ArrayList<>(LocalLanguage.getDeviceSupportedHikeLanguages(this));
 		languageText.setText(list.get(0).getDisplayName());
 
 		viewFlipper.findViewById(R.id.lang_select).setOnClickListener(
