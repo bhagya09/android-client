@@ -237,6 +237,7 @@ public class MultiStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRes
 						}
 					}
 
+					StickerLanguagesManager.getInstance().checkAndUpdateForbiddenList(data);
 					StickerSearchManager.getInstance().insertStickerTags(data, StickerSearchConstants.STATE_STICKER_DATA_FRESH_INSERT);
 
 					if (totalNumber != 0)

@@ -1,10 +1,15 @@
 package com.bsb.hike.modules.stickersearch;
 
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
+import com.google.gson.Gson;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -129,6 +134,11 @@ public class StickerLanguagesManager {
 
     public void downloadDefaultTagsForLanguage(String language)
     {
+        if(containsLanguage(FORBIDDEN_LANGUAGE_SET_TYPE, language) ||  HikeSharedPreferenceUtil.getInstance(HikeMessengerApp.DEFAULT_TAG_DOWNLOAD_LANGUAGES_PREF).getData(language, false))
+        {
+            Logger.d(TAG, "language is forbidden or defaults tags are already downloaded " + this.toString());
+            return ;
+        }
         HikeSharedPreferenceUtil.getInstance(HikeMessengerApp.DEFAULT_TAG_DOWNLOAD_LANGUAGES_PREF).saveData(language, false);
         StickerManager.getInstance().downloadDefaultTags(false, Collections.singleton(language));
     }
@@ -291,6 +301,31 @@ public class StickerLanguagesManager {
             accumulatedSet.addAll(getLanguageSet(type));
         }
         return accumulatedSet;
+    }
+
+    public void checkAndUpdateForbiddenList(JSONObject result)
+    {
+        try {
+            JSONArray languagesArray = result.getJSONArray(HikeConstants.UNKNOWN_KEYBOARDS);
+            if(languagesArray == null || languagesArray.length() == 0)
+            {
+                return ;
+            }
+
+            List<String> languages = new Gson().fromJson(languagesArray.toString(), ArrayList.class);
+
+            Logger.d(TAG, "languages added to forbidden list : " + languages);
+
+            //removing from rest of sets
+            StickerLanguagesManager.getInstance().removeFromLanguageSet(StickerLanguagesManager.NOT_DOWNLOADED_LANGUAGE_SET_TYPE, languages);
+            StickerLanguagesManager.getInstance().removeFromLanguageSet(StickerLanguagesManager.DOWNLOADING_LANGUAGE_SET_TYPE, languages);
+            StickerLanguagesManager.getInstance().removeFromLanguageSet(StickerLanguagesManager.DOWNLOADED_LANGUAGE_SET_TYPE, languages);
+
+            // adding to forbidden set
+            StickerLanguagesManager.getInstance().addToLanguageSet(StickerLanguagesManager.FORBIDDEN_LANGUAGE_SET_TYPE, languages);
+        } catch (Exception e) {
+            Logger.e(TAG, "exception in json parsing while updating forbidden list : ", e);
+        }
     }
 }
 
