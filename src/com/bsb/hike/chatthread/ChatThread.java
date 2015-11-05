@@ -4188,10 +4188,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	public void onResume()
 	{
 		tryToDismissAnyOpenPanels();
-		
-//		actionbar disappears randomly after onResume()
-		setupActionBar(false);
-		
+
 		showKeyboardIfRequired();
 
 		isActivityVisible = true;
