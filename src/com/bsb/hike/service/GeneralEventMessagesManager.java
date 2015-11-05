@@ -92,7 +92,7 @@ public class GeneralEventMessagesManager
 					return;
 				}
 				messageEvent.setEventId(eventId);
-				triggerIntentService(messageEvent);
+				sendMessageEventToIntentService(messageEvent);
 				HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_EVENT_RECEIVED, messageEvent);
 				boolean increaseUnreadCount = data.optBoolean(HikePlatformConstants.INCREASE_UNREAD);
 				boolean rearrangeChat = data.optBoolean(HikePlatformConstants.REARRANGE_CHAT);
@@ -119,7 +119,7 @@ public class GeneralEventMessagesManager
 		return instance;
 	}
 
-	public void triggerIntentService(MessageEvent messageEvent)
+	public void sendMessageEventToIntentService(MessageEvent messageEvent)
 	{
 		Intent cocosProcessIntentService = new Intent(this.context, CocosProcessIntentService.class);
 		cocosProcessIntentService.putExtra(CocosProcessIntentService.MESSAGE_EVENT_RECEIVED_DATA, messageEvent);

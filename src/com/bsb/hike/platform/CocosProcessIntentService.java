@@ -21,6 +21,7 @@ import java.util.Set;
  */
 public class CocosProcessIntentService extends IntentService
 {
+	public static final String TAG = "CocosProcessIntentService";
 
 	public static final String MESSAGE_EVENT_RECEIVED_DATA = "messageEventRecData";
 
@@ -41,8 +42,15 @@ public class CocosProcessIntentService extends IntentService
 				switch (bundleKey)
 				{
 				case MESSAGE_EVENT_RECEIVED_DATA:
-					MessageEvent messageEvent = bundleData.getParcelable(MESSAGE_EVENT_RECEIVED_DATA);
-					handleMessageEventReceived(messageEvent);
+					if(bundleData.getParcelable(MESSAGE_EVENT_RECEIVED_DATA) instanceof MessageEvent )
+					{
+						MessageEvent messageEvent = bundleData.getParcelable(MESSAGE_EVENT_RECEIVED_DATA);
+						handleMessageEventReceived(messageEvent);
+					}
+					else
+					{
+						Logger.e(TAG, "Data passed to MESSAGE_EVENT_RECEIVED_DATA is not instance of MessageEvent");
+					}
 					break;
 
 				}
