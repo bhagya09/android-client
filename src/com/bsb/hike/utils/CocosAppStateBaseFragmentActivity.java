@@ -42,6 +42,7 @@ public class CocosAppStateBaseFragmentActivity extends HikeBaseActivity implemen
 	 * @param msg
 	 * Shows the Popup on the Activity
 	 */
+	@Override
 	public void showPopupDialog(ProductContentModel mmModel)
 	{
 		if (mmModel != null)

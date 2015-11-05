@@ -3,6 +3,12 @@ package com.bsb.hike.platform;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.app.Activity;
+import android.content.Intent;
+import android.os.Handler;
+import android.text.TextUtils;
+import android.util.Log;
+
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.analytics.AnalyticsConstants;
@@ -17,17 +23,11 @@ import com.bsb.hike.productpopup.IActivityPopup;
 import com.bsb.hike.productpopup.ProductContentModel;
 import com.bsb.hike.productpopup.ProductInfoManager;
 import com.bsb.hike.ui.ComposeChatActivity;
+import com.bsb.hike.ui.HikeBaseActivity;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
-import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
-
-import android.app.Activity;
-import android.content.Intent;
-import android.os.Handler;
-import android.text.TextUtils;
-import android.util.Log;
 
 public class PlatformHelper
 {
@@ -301,15 +301,15 @@ public class PlatformHelper
 
 	public static void showPopup(String contentData, Activity activity)
 	{
-		final HikeAppStateBaseFragmentActivity hikeBaseActivity;
+		final HikeBaseActivity hikeBaseActivity;
 		if (TextUtils.isEmpty(contentData) || activity == null)
 		{
 			Logger.e(TAG, "Either activity or contentData to showPopup is null. Returning.");
 			return;
 		}
-		if (activity instanceof HikeAppStateBaseFragmentActivity)
+		if (activity instanceof HikeBaseActivity)
 		{
-			hikeBaseActivity = (HikeAppStateBaseFragmentActivity) activity;
+			hikeBaseActivity = (HikeBaseActivity) activity;
 		}
 		else
 		{
