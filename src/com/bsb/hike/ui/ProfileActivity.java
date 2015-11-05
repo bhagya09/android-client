@@ -683,11 +683,6 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			}
 			profileAdapter.notifyDataSetChanged();
 		}
-		
-		if (showingGroupEdit)
-		{
-			showKeyboard();
-		}
 	}
 
 	@Override
