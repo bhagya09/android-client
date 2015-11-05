@@ -220,7 +220,10 @@ public class KeyboardFtue implements HikePubSub.Listener
             @Override
             public void onClick(View v)
             {
-                updateState(COMPLETE);
+//            	tracking analytic event for keyboard ftue completion
+                trackClickAnalyticEvents(HikeConstants.LogEvent.KEYBOARD_FTUE_COMPLETES);
+            	
+            	updateState(COMPLETE);
                 showNextFtue();
             }
         });
@@ -414,9 +417,6 @@ public class KeyboardFtue implements HikePubSub.Listener
 
     public void destroy()
     {
-//    	tracking analytic event for keyboard ftue completion
-        trackClickAnalyticEvents(HikeConstants.LogEvent.KEYBOARD_FTUE_COMPLETES);
-    	
         container.removeAllViews();
         container.invalidate();
         removeFromPubSub();
