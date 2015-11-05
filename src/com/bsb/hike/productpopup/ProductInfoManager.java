@@ -213,7 +213,7 @@ public class ProductInfoManager
 	public void parseAndShowPopup(final ProductContentModel productContentModel, final IActivityPopup iShowPopup)
 	{
 
-		PlatformContent.getContent(productContentModel.toJSONString(), new PopupContentListener(productContentModel, iShowPopup)
+		PlatformContent.getContent(PlatformContentModel.ONE_TIME_POPUPS,productContentModel.toJSONString(), new PopupContentListener(productContentModel, iShowPopup)
 		{
 			ProductContentModel productContentModel = null;
 

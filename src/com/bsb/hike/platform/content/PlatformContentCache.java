@@ -106,7 +106,29 @@ class PlatformContentCache
 		// return null;
 		// }
 
-		File file = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + content.getContentData().getId(), content.getContentData().getTag());
+
+
+
+		String unzipPath = PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.HIKE_MICRO_APPS;
+        String microAppName = content.getContentData().getId();
+
+        if(content.getRequestType() == PlatformContentRequest.HIKE_MICRO_APPS) {
+            int microAppVersion = content.getContentData().getBotVersionCode();
+            unzipPath += microAppName + File.separator + "Version_" + microAppVersion + File.separator;
+        }else if(content.getRequestType() == PlatformContentRequest.ONE_TIME_POPUPS){
+            unzipPath += PlatformContentConstants.HIKE_ONE_TIME_POPUPS;
+            unzipPath += microAppName + File.separator;
+        }else if(content.getRequestType() == PlatformContentRequest.HIKE_GAMES){
+            unzipPath += PlatformContentConstants.HIKE_GAMES;
+            unzipPath += microAppName + File.separator;
+        }
+
+		File file = new File(unzipPath,content.getContentData().getTag());
+
+		if (file.exists()) {
+		}else{
+			 file = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + content.getContentData().getId(), content.getContentData().getTag());
+		}
 
 		String templateString = PlatformContentUtils.readDataFromFile(file);
 

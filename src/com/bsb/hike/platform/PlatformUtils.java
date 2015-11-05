@@ -347,10 +347,15 @@ public class PlatformUtils
 	 * @param botInfo
 	 * @param enableBot
 	 */
-	public static void downloadZipForNonMessagingBot(final BotInfo botInfo, final boolean enableBot, final String botChatTheme, final String notifType, NonMessagingBotMetadata botMetadata, boolean resumeSupport)
+	public static void downloadZipForNonMessagingBot(final BotInfo botInfo, final boolean enableBot, final String botChatTheme, final String notifType, NonMessagingBotMetadata botMetadata, boolean resumeSupport,final String compatibilityMapJsonString)
 	{
+
+        byte requestType = PlatformContentModel.HIKE_MICRO_APPS;
+        if(botMetadata.isNativeMode())
+            requestType = PlatformContentModel.HIKE_GAMES;
+
 		PlatformContentRequest rqst = PlatformContentRequest.make(
-				PlatformContentModel.make(botInfo.getMetadata()), new PlatformContentListener<PlatformContentModel>()
+				PlatformContentModel.make(botInfo.getMetadata(),requestType), new PlatformContentListener<PlatformContentModel>()
 				{
 
 					long zipFileSize = 0;
@@ -359,7 +364,7 @@ public class PlatformUtils
 					public void onComplete(PlatformContentModel content)
 					{
 						Logger.d(TAG, "microapp download packet success.");
-						botCreationSuccessHandling(botInfo, enableBot, botChatTheme, notifType);
+						botCreationSuccessHandling(botInfo, enableBot, botChatTheme, notifType,compatibilityMapJsonString);
 					}
 
 					@Override
@@ -373,7 +378,7 @@ public class PlatformUtils
 						else if (event == PlatformContent.EventCode.ALREADY_DOWNLOADED)
 						{
 							Logger.d(TAG, "microapp already exists");
-							botCreationSuccessHandling(botInfo, enableBot, botChatTheme, notifType);
+							botCreationSuccessHandling(botInfo, enableBot, botChatTheme, notifType,compatibilityMapJsonString);
 						}
 						else
 						{
@@ -405,14 +410,18 @@ public class PlatformUtils
 					}
 				});
 
-		downloadAndUnzip(rqst, false,botMetadata.shouldReplace(), botMetadata.getCallbackId(),resumeSupport);
+        if(botMetadata.isNativeMode()) {
+            rqst.setRequestType(PlatformContentRequest.HIKE_GAMES);
+            rqst.getContentData().setRequestType(PlatformContentModel.HIKE_GAMES);
+        }
+		downloadAndUnzip(rqst, false,botMetadata.shouldReplace(), botMetadata.getCallbackId(),resumeSupport,botInfo.getMsisdn());
 
 	}
 
-	public static void botCreationSuccessHandling(BotInfo botInfo, boolean enableBot, String botChatTheme, String notifType)
+	public static void botCreationSuccessHandling(BotInfo botInfo, boolean enableBot, String botChatTheme, String notifType,String compatibilityMapJsonString)
 	{
 		enableBot(botInfo, enableBot);
-		BotUtils.updateBotParamsInDb(botChatTheme, botInfo, enableBot, notifType);
+		BotUtils.updateBotParamsInDb(botChatTheme, botInfo, enableBot, notifType,compatibilityMapJsonString);
 		createBotAnalytics(HikePlatformConstants.BOT_CREATED, botInfo);
 		createBotMqttAnalytics(HikePlatformConstants.BOT_CREATED_MQTT, botInfo);
 	}
@@ -596,9 +605,9 @@ public class PlatformUtils
 		downloadAndUnzip(request, isTemplatingEnabled, false);
 	}
 	
-	public static void downloadAndUnzip(PlatformContentRequest request, boolean isTemplatingEnabled, boolean doReplace, String callbackId, boolean resumeSupported)
+	public static void downloadAndUnzip(PlatformContentRequest request, boolean isTemplatingEnabled, boolean doReplace, String callbackId, boolean resumeSupported,String msisdn)
 	{
-		PlatformZipDownloader downloader =  new PlatformZipDownloader(request, isTemplatingEnabled, doReplace, callbackId, resumeSupported);
+		PlatformZipDownloader downloader =  new PlatformZipDownloader(request, isTemplatingEnabled, doReplace, callbackId, resumeSupported,msisdn);
 		if (!downloader.isMicroAppExist() || doReplace)
 		{
 			downloader.downloadAndUnzip();
@@ -611,7 +620,7 @@ public class PlatformUtils
 
 	public static void downloadAndUnzip(PlatformContentRequest request, boolean isTemplatingEnabled, boolean doReplace, String callbackId)
 	{
-		downloadAndUnzip(request, isTemplatingEnabled, doReplace, callbackId, false);
+		downloadAndUnzip(request, isTemplatingEnabled, doReplace, callbackId, false,"");
 	}
 
 	/**
