@@ -603,12 +603,17 @@ public class FileSelectActivity extends HikeAppStateBaseFragmentActivity impleme
 		currentDir = null;
 		items.clear();
 		String extStorage = Environment.getExternalStorageDirectory().getAbsolutePath();
-		FileListItem ext = new FileListItem();
-		ext.setTitle(getString(!Utils.hasGingerbread() || Environment.isExternalStorageRemovable() ? R.string.sd_card : R.string.internal_storage));
-		ext.setIcon(R.drawable.ic_folder);
-		ext.setSubtitle(getRootSubtitle(extStorage));
-		ext.setFile(Environment.getExternalStorageDirectory());
-		items.add(ext);
+		try {
+			FileListItem ext = new FileListItem();
+			ext.setTitle(getString(!Utils.hasGingerbread() || Environment.isExternalStorageRemovable() ? R.string.sd_card : R.string.internal_storage));
+			ext.setIcon(R.drawable.ic_folder);
+			ext.setSubtitle(getRootSubtitle(extStorage));
+			ext.setFile(Environment.getExternalStorageDirectory());
+			items.add(ext);
+		}
+		catch(Exception e) {
+			Logger.e(getClass().getSimpleName(), "Exception while showing root", e);
+		}
 		try
 		{
 			BufferedReader reader = new BufferedReader(new FileReader("/proc/mounts"));
@@ -672,21 +677,14 @@ public class FileSelectActivity extends HikeAppStateBaseFragmentActivity impleme
 
 	private String getRootSubtitle(String path)
 	{
-		try
-		{
-			StatFs stat = new StatFs(path);
-			long total = (long) stat.getBlockCount() * (long) stat.getBlockSize();
-			long free = (long) stat.getAvailableBlocks() * (long) stat.getBlockSize();
-			if (total == 0)
-			{
-				return "";
-			}
-			return getString(R.string.free_of_total, Utils.formatFileSize(free), Utils.formatFileSize(total));
-		}
-		catch (Exception e)
+		StatFs stat = new StatFs(path);
+		long total = (long) stat.getBlockCount() * (long) stat.getBlockSize();
+		long free = (long) stat.getAvailableBlocks() * (long) stat.getBlockSize();
+		if (total == 0)
 		{
 			return "";
 		}
+		return getString(R.string.free_of_total, Utils.formatFileSize(free), Utils.formatFileSize(total));
 	}
 
 	@Override
