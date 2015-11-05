@@ -200,7 +200,7 @@ public class VoIPService extends Service implements Listener
 			Logger.d(tag, "Bluetooth onScoAudioConnected()");
 			audioManager.startBluetoothSco();
 			audioManager.setBluetoothScoOn(true);
-			sendHandlerMessage(VoIPConstants.MSG_BLUETOOTH_SHOW);
+			sendMessageToActivity(VoIPConstants.MSG_BLUETOOTH_SHOW);
 		}
 	}
 	
@@ -269,14 +269,14 @@ public class VoIPService extends Service implements Listener
 					}).start();
 				}
 					
-				sendHandlerMessage(VoIPConstants.CONNECTION_ESTABLISHED_FIRST_TIME);
+				sendMessageToActivity(VoIPConstants.CONNECTION_ESTABLISHED_FIRST_TIME);
 				break;
 
 			case VoIPConstants.MSG_UPDATE_REMOTE_HOLD:
 				if (client == null)
 					return;
 				client.setCallStatus(!hold && !client.remoteHold ? VoIPConstants.CallStatus.ACTIVE : VoIPConstants.CallStatus.ON_HOLD);
-				sendHandlerMessage(VoIPConstants.MSG_UPDATE_REMOTE_HOLD);
+				sendMessageToActivity(VoIPConstants.MSG_UPDATE_REMOTE_HOLD);
 				break;
 
 			case VoIPConstants.MSG_START_RECORDING_AND_PLAYBACK:
@@ -313,7 +313,7 @@ public class VoIPService extends Service implements Listener
 			case VoIPConstants.MSG_UPDATE_SPEAKING:
 				if (hostingConference())
 					sendClientsListToAllClients();
-				sendHandlerMessage(VoIPConstants.MSG_UPDATE_SPEAKING);
+				sendMessageToActivity(VoIPConstants.MSG_UPDATE_SPEAKING);
 				break;
 				
 			case VoIPConstants.MSG_UPDATE_FORCE_MUTE_LAYOUT:
@@ -334,12 +334,17 @@ public class VoIPService extends Service implements Listener
 							tts.speak(getString(R.string.voip_speech_force_mute_off), TextToSpeech.QUEUE_FLUSH, null);
 					}
 
-					sendHandlerMessage(VoIPConstants.MSG_UPDATE_FORCE_MUTE_LAYOUT);
+					sendMessageToActivity(VoIPConstants.MSG_UPDATE_FORCE_MUTE_LAYOUT);
 				}
+				
+			case VoIPConstants.MSG_PARTNER_ANSWER_TIMEOUT:
+				hangUp();
+				sendMessageToActivity(VoIPConstants.MSG_PARTNER_ANSWER_TIMEOUT);
+				break;
 				
 			default:
 				// Pass message to activity through its handler
-				sendHandlerMessage(msg.what);
+				sendMessageToActivity(msg.what);
 				break;
 			}
 			super.handleMessage(msg);
@@ -462,7 +467,7 @@ public class VoIPService extends Service implements Listener
 				// Send message to voip activity
 				Bundle bundle = new Bundle();
 				bundle.putString(VoIPConstants.PARTNER_NAME, cl.getName());
-				sendHandlerMessage(VoIPConstants.MSG_DOES_NOT_SUPPORT_CONFERENCE, bundle);
+				sendMessageToActivity(VoIPConstants.MSG_DOES_NOT_SUPPORT_CONFERENCE, bundle);
 				cl.hangUp();
 			}
 		}
@@ -484,7 +489,7 @@ public class VoIPService extends Service implements Listener
 						// Send message to voip activity
 						Bundle bundle = new Bundle();
 						bundle.putString(VoIPConstants.MSISDN, msisdn);
-						sendHandlerMessage(VoIPConstants.MSG_PARTNER_BUSY, bundle);
+						sendMessageToActivity(VoIPConstants.MSG_PARTNER_BUSY, bundle);
 						removeFromClients(msisdn);
 					}
 				}, VoIPConstants.SERVICE_To_ACTIVITY_ERR_MESSAGE_DELAY);
@@ -504,7 +509,7 @@ public class VoIPService extends Service implements Listener
 					removeFromClients(msisdn);
 					final Bundle bundle = new Bundle();
 					bundle.putString(VoIPConstants.MSISDN, msisdn);
-					sendHandlerMessage(VoIPConstants.MSG_PARTNER_INCOMPATIBLE_PLATFORM, bundle);
+					sendMessageToActivity(VoIPConstants.MSG_PARTNER_INCOMPATIBLE_PLATFORM, bundle);
 				}
 			}, VoIPConstants.SERVICE_To_ACTIVITY_ERR_MESSAGE_DELAY);
 		}
@@ -521,7 +526,7 @@ public class VoIPService extends Service implements Listener
 					removeFromClients(msisdn);
 					Bundle bundle = new Bundle();
 					bundle.putString(VoIPConstants.MSISDN, msisdn);
-					sendHandlerMessage(VoIPConstants.MSG_PARTNER_UPGRADABLE_PLATFORM, bundle);
+					sendMessageToActivity(VoIPConstants.MSG_PARTNER_UPGRADABLE_PLATFORM, bundle);
 				}
 			}, VoIPConstants.SERVICE_To_ACTIVITY_ERR_MESSAGE_DELAY);
 		}
@@ -667,7 +672,7 @@ public class VoIPService extends Service implements Listener
 			if (VoIPUtils.isUserInCall(getApplicationContext())) 
 			{
 				Logger.w(tag, "We are already in a cellular call.");
-				sendHandlerMessage(VoIPConstants.MSG_ALREADY_IN_NATIVE_CALL);
+				sendMessageToActivity(VoIPConstants.MSG_ALREADY_IN_NATIVE_CALL);
 				if (client == null)	// In case of a group call
 					client = new VoIPClient(getApplicationContext(), null);
 				client.sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CONNECTION_FAILED, VoIPConstants.CallFailedCodes.CALLER_IN_NATIVE_CALL);
@@ -745,11 +750,11 @@ public class VoIPService extends Service implements Listener
 			
 			// Show activity
 			restoreActivity();
-			sendHandlerMessage(VoIPConstants.MSG_UPDATE_CONTACT_DETAILS);
+			sendMessageToActivity(VoIPConstants.MSG_UPDATE_CONTACT_DETAILS);
 			startBluetooth();
 			
 			if (clients.size() > 1)
-				sendHandlerMessage(VoIPConstants.MSG_UPDATE_FORCE_MUTE_LAYOUT);
+				sendMessageToActivity(VoIPConstants.MSG_UPDATE_FORCE_MUTE_LAYOUT);
 
 		}
 
@@ -1221,7 +1226,7 @@ public class VoIPService extends Service implements Listener
 			bundle.putBoolean(VoIPConstants.IS_CONFERENCE, hostingConference() || clientPartner.isHostingConference);
 		}
 		
-		sendHandlerMessage(VoIPConstants.MSG_SHUTDOWN_ACTIVITY, bundle);
+		sendMessageToActivity(VoIPConstants.MSG_SHUTDOWN_ACTIVITY, bundle);
 
 		synchronized (clients) {
 			for (VoIPClient client : clients.values())
@@ -1345,11 +1350,11 @@ public class VoIPService extends Service implements Listener
 		return hostForceMute;
 	}
 	
-	private void sendHandlerMessage(int message) {
-		sendHandlerMessage(message, null);
+	private void sendMessageToActivity(int message) {
+		sendMessageToActivity(message, null);
 	}
 
-	private void sendHandlerMessage(int message, Bundle bundle) {
+	private void sendMessageToActivity(int message, Bundle bundle) {
 		Message msg = Message.obtain();
 		msg.what = message;
 		msg.setData(bundle);
@@ -1423,7 +1428,7 @@ public class VoIPService extends Service implements Listener
 		stopFromSoundPool(ringtoneStreamID);
 		isRingingOutgoing = isRingingIncoming = false;
 		playFromSoundPool(SOUND_ACCEPT, false);
-		sendHandlerMessage(VoIPConstants.MSG_AUDIO_START);
+		sendMessageToActivity(VoIPConstants.MSG_AUDIO_START);
 
 		if (recordingAndPlaybackRunning == false) {
 			recordingAndPlaybackRunning = true;
@@ -1436,7 +1441,7 @@ public class VoIPService extends Service implements Listener
 		}
 		
 		if (hostingConference()) {
-			sendHandlerMessage(VoIPConstants.MSG_UPDATE_SPEAKING);
+			sendMessageToActivity(VoIPConstants.MSG_UPDATE_SPEAKING);
 			sendClientsListToAllClients();
 		}
 	}
@@ -1510,7 +1515,7 @@ public class VoIPService extends Service implements Listener
 				
 				if (recorder == null || recorder.getState() != AudioRecord.STATE_INITIALIZED) {
 					Logger.e(tag, "AudioRecord initialization failed. Mic may not work.");
-					sendHandlerMessage(VoIPConstants.MSG_AUDIORECORD_FAILURE);
+					sendMessageToActivity(VoIPConstants.MSG_AUDIORECORD_FAILURE);
 					return;
 				}
 				
@@ -1988,7 +1993,7 @@ public class VoIPService extends Service implements Listener
 		}
 
 		client.setCallStatus(!hold && !client.remoteHold ? VoIPConstants.CallStatus.ACTIVE : VoIPConstants.CallStatus.ON_HOLD);
-		sendHandlerMessage(VoIPConstants.MSG_UPDATE_CALL_BUTTONS);
+		sendMessageToActivity(VoIPConstants.MSG_UPDATE_CALL_BUTTONS);
 		
 		// Send hold status to partner
 		sendHoldStatus();
@@ -2311,7 +2316,7 @@ public class VoIPService extends Service implements Listener
 					
 					@Override
 					public void run() {
-						sendHandlerMessage(VoIPConstants.MSG_UPDATE_CONTACT_DETAILS);
+						sendMessageToActivity(VoIPConstants.MSG_UPDATE_CONTACT_DETAILS);
 						synchronized (clients) {
 
 							try {
