@@ -74,6 +74,18 @@
                     android:layout_centerInParent="true" />
             </RelativeLayout>
 
+            <com.bsb.hike.view.CustomSendMessageTextView
+                android:id="@+id/caption"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignLeft="@+id/file_thumb"
+                android:layout_alignRight="@id/file_thumb"
+                android:layout_below="@id/file_thumb"
+                android:gravity="left"
+                android:padding="2dp"
+                android:textColor="@color/chat_color"
+                android:textSize="16sp" />
+
             <include
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

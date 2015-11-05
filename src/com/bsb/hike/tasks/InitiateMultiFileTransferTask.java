@@ -70,7 +70,7 @@ public class InitiateMultiFileTransferTask extends AsyncTask<Void, Void, Void>
 		HikeMessengerApp.getPubSub().publish(HikePubSub.MULTI_FILE_TASK_FINISHED, this.intent);
 	}
 
-	private void initiateFileTransferFromIntentData(String filePath, String fileType)
+	private void initiateFileTransferFromIntentData(String filePath, String fileType, String caption)
 	{
 		HikeFileType hikeFileType = HikeFileType.fromString(fileType, false);
 		
@@ -104,7 +104,7 @@ public class InitiateMultiFileTransferTask extends AsyncTask<Void, Void, Void>
 				{
 					return;
 				}
-				FileTransferManager.getInstance(context).uploadFile(msisdn, file, null, fileType, hikeFileType, false, false, onHike, -1, attachementType);
+				FileTransferManager.getInstance(context).uploadFile(msisdn, file, null, fileType, hikeFileType, false, false, onHike, -1, attachementType, caption);
 			}
 		}
 	}

@@ -126,8 +126,10 @@ public class UploadFileTask extends FileTransferBase
 
 	private HttpContext httpContext = HttpClientContext.create();
 
+	private String caption;
+
 	protected UploadFileTask(Handler handler, ConcurrentHashMap<Long, FutureTask<FTResult>> fileTaskMap, Context ctx, String token, String uId, String msisdn, File sourceFile,
-			String fileKey, String fileType, HikeFileType hikeFileType, boolean isRecording, boolean isForwardMsg, boolean isRecipientOnHike, long recordingDuration, int attachement)
+			String fileKey, String fileType, HikeFileType hikeFileType, boolean isRecording, boolean isForwardMsg, boolean isRecipientOnHike, long recordingDuration, int attachement, String argCaption)
 	{
 		super(handler, fileTaskMap, ctx, sourceFile, -1, hikeFileType, token, uId);
 		this.msisdn = msisdn;
@@ -138,6 +140,7 @@ public class UploadFileTask extends FileTransferBase
 		this.fileKey = fileKey;
 		_state = FTState.INITIALIZED;
 		this.mAttachementType = attachement;
+		this.caption = argCaption;
 		createConvMessage(false);
 	}
 	
@@ -339,7 +342,7 @@ public class UploadFileTask extends FileTransferBase
 					Logger.d(getClass().getSimpleName(), "Sent Thumbnail Size : " + tBytes.length);
 				}
 			
-				metadata = getFileTransferMetadata(fileName, fileType, hikeFileType, thumbnailString, thumbnail, recordingDuration, mFile.getPath(), mFile.length(), quality);
+				metadata = getFileTransferMetadata(fileName, fileType, hikeFileType, thumbnailString, thumbnail, recordingDuration, mFile.getPath(), mFile.length(), quality,caption);
 			}
 			else
 			// this is the case for picasa picture
@@ -362,7 +365,7 @@ public class UploadFileTask extends FileTransferBase
 				{
 					fileName = destinationFile.getName();
 				}
-				metadata = getFileTransferMetadata(fileName, fileType, hikeFileType, null, null, recordingDuration, HikeConstants.PICASA_PREFIX + picasaUri.toString(), 0, ImageQuality.IMAGE_QUALITY_ORIGINAL);
+				metadata = getFileTransferMetadata(fileName, fileType, hikeFileType, null, null, recordingDuration, HikeConstants.PICASA_PREFIX + picasaUri.toString(), 0, ImageQuality.IMAGE_QUALITY_ORIGINAL,caption);
 			}
 			if (isMultiMsg)
 			{
@@ -438,13 +441,17 @@ public class UploadFileTask extends FileTransferBase
 	}
 
 	private JSONObject getFileTransferMetadata(String fileName, String fileType, HikeFileType hikeFileType, String thumbnailString, Bitmap thumbnail, long recordingDuration,
-			String sourceFilePath, long fileSize, String img_quality) throws JSONException
+			String sourceFilePath, long fileSize, String img_quality, String caption) throws JSONException
 	{
 		JSONArray files = new JSONArray();
 		files.put(new HikeFile(fileName, TextUtils.isEmpty(fileType) ? HikeFileType.toString(hikeFileType) : fileType, thumbnailString, thumbnail, recordingDuration,
 				sourceFilePath, fileSize, true, img_quality).serialize());
 		JSONObject metadata = new JSONObject();
 		metadata.put(HikeConstants.FILES, files);
+		if(!TextUtils.isEmpty(caption))
+		{
+			metadata.put(HikeConstants.CAPTION, caption);	
+		}
 		return metadata;
 	}
 
@@ -780,6 +787,7 @@ public class UploadFileTask extends FileTransferBase
 
 			filesArray.put(hikeFile.serialize());
 			metadata.put(HikeConstants.FILES, filesArray);
+			metadata.put(HikeConstants.CAPTION, "thisisatestcaption");
 
 			if (isMultiMsg)
 			{

@@ -709,7 +709,6 @@ public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique
 
 			isStickerMessage = this.metadata.getSticker() != null;
 			
-			
 		}
 	}
 
