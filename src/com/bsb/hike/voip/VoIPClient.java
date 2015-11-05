@@ -368,7 +368,7 @@ public class VoIPClient  {
 		if (this.isSpeaking != isSpeaking) {
 //			Logger.d(tag, "Speaking: " + isSpeaking);
 			this.isSpeaking = isSpeaking;
-			sendHandlerMessage(VoIPConstants.MSG_UPDATE_SPEAKING);
+			sendMessageToService(VoIPConstants.MSG_UPDATE_SPEAKING);
 		}
 	}
 
@@ -498,7 +498,7 @@ public class VoIPClient  {
 				} else {
 					if (!Thread.currentThread().isInterrupted()) {
 						Logger.d(tag, "Failed to retrieve external socket.");
-						sendHandlerMessage(VoIPConstants.MSG_EXTERNAL_SOCKET_RETRIEVAL_FAILURE);
+						sendMessageToService(VoIPConstants.MSG_EXTERNAL_SOCKET_RETRIEVAL_FAILURE);
 						sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CONNECTION_FAILED, VoIPConstants.CallFailedCodes.EXTERNAL_SOCKET_RETRIEVAL_FAILURE);
 						stop();
 					}
@@ -682,7 +682,7 @@ public class VoIPClient  {
 			receivingThread.interrupt();
 		
 		setCallStatus(VoIPConstants.CallStatus.RECONNECTING);
-		sendHandlerMessage(VoIPConstants.MSG_RECONNECTING);
+		sendMessageToService(VoIPConstants.MSG_RECONNECTING);
 		socketInfoReceived = false;
 		connected = false;
 		retrieveExternalSocket();
@@ -788,7 +788,7 @@ public class VoIPClient  {
 
 					if (reconnecting) {
 						setInitialCallStatus();
-						sendHandlerMessage(VoIPConstants.MSG_RECONNECTED);
+						sendMessageToService(VoIPConstants.MSG_RECONNECTED);
 						// Give the heartbeat a chance to recover
 						lastHeartbeat = System.currentTimeMillis() + 5000;
 						startSendingAndReceiving();
@@ -797,12 +797,12 @@ public class VoIPClient  {
 						if (!isInitiator())
 							startResponseTimeout();
 						startStreaming();
-						sendHandlerMessage(VoIPConstants.MSG_CONNECTED);
+						sendMessageToService(VoIPConstants.MSG_CONNECTED);
 					}
 				} else {
 					Logger.d(tag, "UDP connection failure! :(");
 					if (!reconnectForConference()) {
-						sendHandlerMessage(VoIPConstants.MSG_CONNECTION_FAILURE);
+						sendMessageToService(VoIPConstants.MSG_CONNECTION_FAILURE);
 						sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CONNECTION_FAILED, VoIPConstants.CallFailedCodes.UDP_CONNECTION_FAIL);
 						stop();
 					}
@@ -826,7 +826,7 @@ public class VoIPClient  {
 					Thread.sleep(VoIPConstants.TIMEOUT_PARTNER_ANSWER);
 					if (!isAudioRunning()) {
 						// Call not answered yet?
-						sendHandlerMessage(VoIPConstants.MSG_PARTNER_ANSWER_TIMEOUT);
+						sendMessageToService(VoIPConstants.MSG_PARTNER_ANSWER_TIMEOUT);
 						sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_PARTNER_ANSWER_TIMEOUT);
 						// Sleep for a little bit before destroying this object
 						// since the call failure screen will need its info. 
@@ -1059,7 +1059,7 @@ public class VoIPClient  {
 				if (reconnectForConference()) 
 					return;
 				
-				sendHandlerMessage(VoIPConstants.MSG_PARTNER_SOCKET_INFO_TIMEOUT);
+				sendMessageToService(VoIPConstants.MSG_PARTNER_SOCKET_INFO_TIMEOUT);
 				if (!isInitiator() && !reconnecting) {
 					VoIPUtils.sendMissedCallNotificationToPartner(getPhoneNumber(), groupChatMsisdn);
 				}
@@ -1162,11 +1162,11 @@ public class VoIPClient  {
 		}		
 	}
 	
-	private void sendHandlerMessage(int message) {
-		sendHandlerMessage(message, null);
+	private void sendMessageToService(int message) {
+		sendMessageToService(message, null);
 	}
 	
-	private void sendHandlerMessage(int message, Bundle bundle) {
+	private void sendMessageToService(int message, Bundle bundle) {
 		
 		if (bundle == null)
 			bundle = new Bundle();
@@ -1479,12 +1479,12 @@ public class VoIPClient  {
 						
 					case FORCE_MUTE_ON:
 						forceMute = true;
-						sendHandlerMessage(VoIPConstants.MSG_UPDATE_FORCE_MUTE_LAYOUT);
+						sendMessageToService(VoIPConstants.MSG_UPDATE_FORCE_MUTE_LAYOUT);
 						break;
 						
 					case FORCE_MUTE_OFF:
 						forceMute = false;
-						sendHandlerMessage(VoIPConstants.MSG_UPDATE_FORCE_MUTE_LAYOUT);
+						sendMessageToService(VoIPConstants.MSG_UPDATE_FORCE_MUTE_LAYOUT);
 						break;
 						
 					case SPEECH_OFF:
@@ -1686,7 +1686,7 @@ public class VoIPClient  {
 			return;
 
 		remoteHold = newHold;
-		sendHandlerMessage(VoIPConstants.MSG_UPDATE_REMOTE_HOLD);
+		sendMessageToService(VoIPConstants.MSG_UPDATE_REMOTE_HOLD);
 	}
 
 	public boolean isRemoteMute() {
@@ -2315,7 +2315,7 @@ public class VoIPClient  {
 		} else
 			isHostingConference = true;
 		
-		sendHandlerMessage(VoIPConstants.MSG_UPDATE_CONTACT_DETAILS);
+		sendMessageToService(VoIPConstants.MSG_UPDATE_CONTACT_DETAILS);
 	}
 	
 	public int getVoiceBitrate() {
@@ -2357,7 +2357,7 @@ public class VoIPClient  {
 	}
 
 	private void stop() {
-		sendHandlerMessage(VoIPConstants.MSG_VOIP_CLIENT_STOP);
+		sendMessageToService(VoIPConstants.MSG_VOIP_CLIENT_STOP);
 	}
 	
 	private void connectionEstablished() {
@@ -2366,19 +2366,19 @@ public class VoIPClient  {
 		audioFramesPerUDPPacket = 1;
 		decodedBuffersQueue.clear();
 		measureRTT();
-		sendHandlerMessage(VoIPConstants.CONNECTION_ESTABLISHED_FIRST_TIME);
+		sendMessageToService(VoIPConstants.CONNECTION_ESTABLISHED_FIRST_TIME);
 	}
 
 	private void startRecordingAndPlayback() {
-		sendHandlerMessage(VoIPConstants.MSG_START_RECORDING_AND_PLAYBACK);
+		sendMessageToService(VoIPConstants.MSG_START_RECORDING_AND_PLAYBACK);
 	}
 	
 	private void startReconnectBeeps() {
-		sendHandlerMessage(VoIPConstants.MSG_START_RECONNECTION_BEEPS);
+		sendMessageToService(VoIPConstants.MSG_START_RECONNECTION_BEEPS);
 	}
 	
 	private void stopReconnectBeeps() {
-		sendHandlerMessage(VoIPConstants.MSG_STOP_RECONNECTION_BEEPS);
+		sendMessageToService(VoIPConstants.MSG_STOP_RECONNECTION_BEEPS);
 	}
 	
 }
