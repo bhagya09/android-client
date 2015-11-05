@@ -502,6 +502,8 @@
         <service android:name=".service.SimpleWakefulService" >
         </service>
 
+        <service android:name=".service.HikeMicroAppsCodeMigrationService" />
+
 		<receiver android:name=".service.ScreenOnOffReceiver" >
         </receiver>
         

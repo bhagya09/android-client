@@ -27,6 +27,7 @@ import com.bsb.hike.platform.PlatformAlarmManager;
 import com.bsb.hike.productpopup.NotificationContentModel;
 import com.bsb.hike.productpopup.ProductInfoManager;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
+import com.bsb.hike.service.HikeMicroAppsCodeMigrationService;
 import com.bsb.hike.service.PreloadNotificationSchedular;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
@@ -83,6 +84,8 @@ public class HikeAlarmManager
 	
 	public static final int REQUEST_CODE_STICKER_RECOMMENDATION_BALANCING = 4574;
 
+    public static final int REQUEST_CODE_MICROAPPS_MIGRATION = 4575;
+
 	// ******************************************************//
 	
 	public static final String INTENT_EXTRA = "intent_extra";
@@ -93,7 +96,7 @@ public class HikeAlarmManager
 
 
 	/**
-	 * 
+	 *
 	 * @param context
 	 * @param time
 	 * @param requestCode
@@ -315,7 +318,10 @@ public class HikeAlarmManager
 		case HikeAlarmManager.REQUEST_CODE_STICKER_RECOMMENDATION_BALANCING:	
 			StickerSearchManager.getInstance().startRebalancing(intent);
 			break;
-			
+        case HikeAlarmManager.REQUEST_CODE_MICROAPPS_MIGRATION:
+            Intent migrationIntent = new Intent(context, HikeMicroAppsCodeMigrationService.class);
+            context.startService(migrationIntent);
+             break;
 		default:
 			PlatformAlarmManager.processTasks(intent, context);
 			break;
@@ -382,6 +388,10 @@ public class HikeAlarmManager
 		case HikeAlarmManager.REQUEST_CODE_STICKER_RECOMMENDATION_BALANCING:	
 			StickerSearchManager.getInstance().startRebalancing(intent);
 			break;
+        case HikeAlarmManager.REQUEST_CODE_MICROAPPS_MIGRATION:
+            Intent migrationIntent = new Intent(context, HikeMicroAppsCodeMigrationService.class);
+            context.startService(migrationIntent);
+            break;
 			
 		default:
 			PlatformAlarmManager.processTasks(intent, context);

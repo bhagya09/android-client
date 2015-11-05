@@ -1,12 +1,5 @@
 package com.bsb.hike.service;
 
-import java.io.File;
-import java.util.Calendar;
-import java.util.List;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -24,8 +17,6 @@ import android.os.RemoteException;
 import android.provider.ContactsContract;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
-import android.telephony.PhoneStateListener;
-import android.telephony.TelephonyManager;
 import android.util.Pair;
 import android.widget.Toast;
 
@@ -36,9 +27,6 @@ import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.chatHead.ChatHeadUtils;
-import com.bsb.hike.chatHead.IncomingCallReceiver;
-import com.bsb.hike.chatHead.OutgoingCallReceiver;
-import com.bsb.hike.chatHead.StickyCaller;
 import com.bsb.hike.db.AccountBackupRestore;
 import com.bsb.hike.imageHttp.HikeImageUploader;
 import com.bsb.hike.imageHttp.HikeImageWorker;
@@ -62,6 +50,13 @@ import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.File;
+import java.util.Calendar;
+import java.util.List;
 
 public class HikeService extends Service
 {
@@ -249,6 +244,7 @@ public class HikeService extends Service
 		 */
 		assignUtilityThread();
 		scheduleNextAnalyticsSendAlarm();
+        scheduleHikeMicroAppsMigrationAlarm();
 		AccountBackupRestore.getInstance(getApplicationContext()).scheduleNextAutoBackup();
 
 		/*
@@ -915,4 +911,32 @@ public class HikeService extends Service
 		
 		HikeAlarmManager.setAlarm(getApplicationContext(), nextAlarm, HikeAlarmManager.REQUESTCODE_HIKE_ANALYTICS, false);
  	}
+
+    /**
+     * Used to schedule the alarm for scheduling migration of old running micro apps in the content directory as per the given mapping file
+     */
+    private void scheduleHikeMicroAppsMigrationAlarm()
+    {
+        boolean isMicroAppsMigrationDone = false;
+
+        try {
+            isMicroAppsMigrationDone = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.HIKE_CONTENT_MICROAPPS_MIGRATION, false);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        if(!isMicroAppsMigrationDone) {
+
+            long scheduleTime = Utils.getTimeInMillis(Calendar.getInstance(), 4, 40, 30, 0);
+            // If the scheduled time is in the past OR the account restore process(at the time of signup) is not yet complete.
+            // Scheduled time is increased by 24 hours i.e. same time next day.
+            if (scheduleTime < System.currentTimeMillis())
+            {
+                scheduleTime += 24 * 60 * 60 * 1000;
+            }
+
+            HikeAlarmManager.setAlarm(getApplicationContext(), scheduleTime, HikeAlarmManager.REQUEST_CODE_MICROAPPS_MIGRATION, false);
+        }
+    }
+
 }
