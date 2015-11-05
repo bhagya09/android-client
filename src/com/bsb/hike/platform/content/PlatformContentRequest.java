@@ -23,6 +23,17 @@ public class PlatformContentRequest
 
 	private byte mState = STATE_READY;
 
+    public static byte HIKE_MICRO_APPS = 1;
+
+    public static byte ONE_TIME_POPUPS = 2;
+
+    public static byte HIKE_GAMES = 3;
+
+    public static byte HIKE_MAPPS = 4;
+
+    private byte requestType = HIKE_MICRO_APPS;
+
+
 	private PlatformContentRequest(PlatformContentModel contentData, PlatformContentListener<PlatformContentModel> contentListner)
 	{
 		mContentData = contentData;
@@ -81,4 +92,12 @@ public class PlatformContentRequest
 			return mContentData.hashCode();
 		}
 	}
+
+    public byte getRequestType() {
+        return requestType;
+    }
+
+    public void setRequestType(byte requestType) {
+        this.requestType = requestType;
+    }
 }

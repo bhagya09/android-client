@@ -24,12 +24,13 @@ public class HikeUnzipFile extends Observable
 
 	private static final String TAG = "HikeUnzipFile";
 
-	private String mFilePath, mDestinationPath;
+	private String mFilePath, mDestinationPath,mAppName;
 
-	public HikeUnzipFile(String filePath, String destinationPath)
+	public HikeUnzipFile(String filePath, String destinationPath,String appName)
 	{
 		mFilePath = filePath;
 		mDestinationPath = destinationPath;
+        mAppName = appName;
 	}
 
 	public String getFilePath()
@@ -63,7 +64,7 @@ public class HikeUnzipFile extends Observable
 
 		try
 		{
-			ZipFile zipfile = new ZipFile(archive);
+            ZipFile zipfile = new ZipFile(filePath);
 			for (Enumeration e = zipfile.entries(); e.hasMoreElements();)
 			{
 				ZipEntry entry = (ZipEntry) e.nextElement();
@@ -76,32 +77,34 @@ public class HikeUnzipFile extends Observable
 			return false;
 		}
 
+
+
 		return true;
 	}
+
 
 	/*
 	 * This method called from the above method does the actual unzip of each file and directorie present within the zip file and copy them to the destination
 	 */
 	private void unzipEachEntry(ZipFile zipfile, ZipEntry entry, String outputDir) throws IOException
 	{
-		if (entry.isDirectory())
+        // Code logic to get the exact unzip directory name that needs to be generated
+        String name =entry.getName();
+        name = name.substring(name.indexOf("/")+1,name.length());
+
+        if (entry.isDirectory())
 		{
-				new File(outputDir, entry.getName()).mkdirs();
+				new File(outputDir, name).mkdirs();
 				return;
 		}
 
-		File outputFile = new File(outputDir, entry.getName());
-		if (!outputFile.getParentFile().exists())
-		{
-			outputFile.getParentFile().mkdirs();
-		}
+		File outputFile = new File(outputDir,name);
 
 		BufferedInputStream inputStream = null;
 		BufferedOutputStream outputStream = null;
 
 		try
 		{
-			Logger.v(TAG, "Extracting: " + entry);
 			inputStream = new BufferedInputStream(zipfile.getInputStream(entry));
 			outputStream = new BufferedOutputStream(new FileOutputStream(outputFile));
 

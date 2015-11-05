@@ -1,8 +1,8 @@
 package com.bsb.hike.platform.content;
 
-import java.io.File;
-
 import android.os.Environment;
+
+import java.io.File;
 
 /**
  * Constants
@@ -15,9 +15,17 @@ public class PlatformContentConstants
 
 	public static final String HIKE_DIR_NAME = "Hike";
 
+	public static final String HIKE_MICRO_APPS = "HikeMicroApps" + File.separator;
+
+    public static final String HIKE_ONE_TIME_POPUPS = "OneTimePopups" + File.separator;
+
+    public static final String HIKE_GAMES = "Games" + File.separator;
+
+    public static final String HIKE_MAPPS = "mApps" + File.separator;
+
 	public static String PLATFORM_CONTENT_DIR = Environment.getExternalStorageDirectory() + File.separator + HIKE_DIR_NAME + File.separator + CONTENT_DIR_NAME + File.separator;
 
-	public static final String KEY_TEMPLATE_PATH = "basePath";
+    public static final String KEY_TEMPLATE_PATH = "basePath";
 
 	public static final String PLATFORM_CONFIG_FILE_NAME = "config.json";
 

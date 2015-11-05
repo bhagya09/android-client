@@ -1,13 +1,12 @@
 package com.bsb.hike.platform.content;
 
 
-import java.io.File;
-
 import android.os.Environment;
+
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.utils.Logger;
-import com.bsb.hike.utils.Utils;
-import com.bsb.hike.utils.Utils.ExternalStorageState;
+
+import java.io.File;
 
 public class PlatformContent
 {
@@ -103,6 +102,23 @@ public class PlatformContent
 	{
 		return getContent(0, contentData, listener);
 	}
+
+
+    /**
+     * Gets well formed HTML content.
+     *
+     * @param contentData
+     *            the content data
+     * @param listener
+     *            the listener
+     * @return new request made, use this for cancelling requests
+     *
+     * @return the content
+     */
+    public static PlatformContentRequest getContent(byte requestType,String contentData, PlatformContentListener<PlatformContentModel> listener)
+    {
+        return getContent(requestType,0, contentData, listener);
+    }
 	
 	/**
 	 * 
@@ -133,11 +149,40 @@ public class PlatformContent
 		}
 	}
 
+    /**
+     *
+     * @param uniqueId - the id which you will get back once templating is finished :  {@link PlatformContentModel#getUniqueId()}
+     * @param contentData
+     * @param listener
+     * @return
+     */
+    public static PlatformContentRequest getContent(byte requestType,int uniqueId, String contentData, PlatformContentListener<PlatformContentModel> listener)
+    {
+        Logger.d("PlatformContent", "Content Dir : " + PlatformContentConstants.PLATFORM_CONTENT_DIR);
+        PlatformContentModel model = PlatformContentModel.make(uniqueId,contentData,requestType);
+        if(model != null) {
+            model.setUniqueId(uniqueId); // GSON issue
+        }
+        PlatformContentRequest request = PlatformContentRequest.make(model, listener);
+
+        if (request != null)
+        {
+            PlatformContentLoader.getLoader().handleRequest(request);
+            return request;
+        }
+        else
+        {
+            Logger.e("PlatformContent", "Incorrect content data");
+            listener.onEventOccured(0,EventCode.INVALID_DATA);
+            return null;
+        }
+    }
+
 	public static void init(boolean isProduction)
 	{
 		PlatformContentConstants.PLATFORM_CONTENT_DIR = isProduction ? HikeMessengerApp.getInstance().getApplicationContext().getFilesDir() + File.separator + PlatformContentConstants.CONTENT_DIR_NAME + File.separator:
 				Environment.getExternalStorageDirectory() + File.separator + PlatformContentConstants.HIKE_DIR_NAME + File.separator + PlatformContentConstants.CONTENT_DIR_NAME + File.separator ;
-	}
+    }
 
 	public static String getForwardCardData(String contentData)
 	{
