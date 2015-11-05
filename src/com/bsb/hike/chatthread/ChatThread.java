@@ -4086,6 +4086,8 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		releaseEmoticonResources();
 		
 		releaseStickerSearchResources();
+
+		keyboardFtue.destroy();
 	}
 	
 	private void releaseShareablePopUpResources()
