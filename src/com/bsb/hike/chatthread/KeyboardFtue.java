@@ -417,12 +417,15 @@ public class KeyboardFtue implements HikePubSub.Listener
 
     public void destroy()
     {
-        container.removeAllViews();
-        container.invalidate();
-        removeFromPubSub();
-        mInitialised = false;
-        if (destroyedListener != null)
-            destroyedListener.onDestroyed();
+        if (mInitialised)
+        {
+            container.removeAllViews();
+            container.invalidate();
+            removeFromPubSub();
+            mInitialised = false;
+            if (destroyedListener != null)
+                destroyedListener.onDestroyed();
+        }
     }
 
     private void removeFromPubSub()
