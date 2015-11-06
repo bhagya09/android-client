@@ -44,8 +44,8 @@
     
            <!-- Dimensions of Drak Theme   -->  
         
-	<dimen name="kpt_key_height_dk_fk">38dip</dimen> 
-	<dimen name="kpt_key_height_hindhi_5_rows_dk_fk">30dip</dimen>
+	<dimen name="kpt_key_height_dk_fk">40dip</dimen> 
+	<dimen name="kpt_key_height_hindhi_5_rows_dk_fk">32dip</dimen>
 	<dimen name="kpt_hindhi_key_height_dk_fk">25dip</dimen> 
 	<dimen name="kpt_candidate_strip_height_dk_fk">34dip</dimen>  
 	<dimen name="kpt_text_size_min">16sp</dimen>
