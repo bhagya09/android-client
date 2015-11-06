@@ -718,7 +718,7 @@ public class OfflineUtils
 			data.put(HikeConstants.TYPE,HikeConstants.GeneralEventMessagesTypes.OFFLINE);
 		    data.put(HikeConstants.SUB_TYPE, HikeConstants.OFFLINE_MESSAGE_REQUEST);
 			data.put(HikeConstants.TIMESTAMP,System.currentTimeMillis() / 1000);
-			OfflineParameters offlineParameters = new Gson().fromJson(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.OFFLINE, "{}"), OfflineParameters.class);
+			OfflineParameters offlineParameters = OfflineController.getInstance().getConfigurationParamerters();
 			data.put(OfflineConstants.TIMEOUT,offlineParameters.getConnectionTimeout());
 			message.put(HikeConstants.TO, targetMsisdn);
 			message.put(HikeConstants.TYPE, HikeConstants.MqttMessageTypes.GENERAL_EVENT_PACKET_ZERO);
@@ -755,8 +755,7 @@ public class OfflineUtils
 		try
 		{
 			msisdn = packet.getString(HikeConstants.FROM);
-			OfflineParameters offlineParameters = new Gson().fromJson(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.OFFLINE, "{}"), OfflineParameters.class);
-			
+			OfflineParameters offlineParameters = OfflineController.getInstance().getConfigurationParamerters();
 			if(TextUtils.isEmpty(msisdn)||isConnectedToSameMsisdn(msisdn)|| isConnectingToSameMsisdn(msisdn) || !offlineParameters.isOfflineEnabled())
 			{
 				return;

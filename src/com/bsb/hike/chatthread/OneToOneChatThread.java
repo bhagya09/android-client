@@ -169,8 +169,6 @@ import com.google.gson.Gson;
 
 	private static short H2H_MODE = 1; // Hike to Hike Mode
 	
-	private OfflineParameters offlineParameters=null;
-
 	/* The waiting time in seconds before scheduling a H20 Tip */
 	private static final int DEFAULT_UNDELIVERED_WAIT_TIME = 60;
 
@@ -239,7 +237,6 @@ import com.google.gson.Gson;
 	protected void init()
 	{
 		super.init();
-		offlineParameters = new Gson().fromJson(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.OFFLINE, "{}"), OfflineParameters.class);
 		handleOfflineIntent(activity.getIntent());
 		
 	}
@@ -382,7 +379,7 @@ import com.google.gson.Gson;
 	{
 		List<OverFlowMenuItem> list = new ArrayList<OverFlowMenuItem>();
 		
-		if(offlineParameters.isOfflineEnabled())
+		if(OfflineController.getInstance().getConfigurationParamerters().isOfflineEnabled())
 			list.add(new OverFlowMenuItem(getString(R.string.scan_free_hike), 0, 0, R.string.scan_free_hike));
 
 		list.add(new OverFlowMenuItem(getString(R.string.view_profile), 0, 0, R.string.view_profile));
@@ -1299,7 +1296,7 @@ import com.google.gson.Gson;
 
 	private void showOfflineOverflowIndiactorIfRequired()
 	{
-		if(offlineParameters.isOfflineEnabled())
+		if(OfflineController.getInstance().getConfigurationParamerters().isOfflineEnabled())
 		{
 			Boolean isClicked = sharedPreference.getData(OfflineConstants.OFFLINE_INDICATOR_CLICKED,false);
 			if(!isClicked)
@@ -1312,7 +1309,7 @@ import com.google.gson.Gson;
 	@Override
 	protected void showOverflowMenu()
 	{
-		if(offlineParameters.isOfflineEnabled())
+		if(OfflineController.getInstance().getConfigurationParamerters().isOfflineEnabled())
 		{
 			Boolean isClicked = sharedPreference.getData(OfflineConstants.OFFLINE_INDICATOR_CLICKED,false);
 			if(!isClicked)
@@ -1878,12 +1875,7 @@ import com.google.gson.Gson;
 	@Override
 	protected void showNetworkError(boolean isNetworkError)
 	{
-		if (offlineParameters == null)
-		{
-			offlineParameters = new Gson().fromJson(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.OFFLINE, "{}"), OfflineParameters.class);
-		}
-		
-		if (offlineParameters.isOfflineEnabled())
+		if (OfflineController.getInstance().getConfigurationParamerters().isOfflineEnabled())
 		{
 			if (noNetworkCardView == null)
 			{

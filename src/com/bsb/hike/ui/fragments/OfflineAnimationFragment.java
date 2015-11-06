@@ -119,8 +119,6 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 	
 	private View verticalDivider;
 	
-	private OfflineParameters offlineParameters=null;
-	
 	private int timerDuration;
 	
 	private boolean shouldResumeFragment = false;
@@ -578,8 +576,7 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 		super.onCreate(savedInstanceState);
 		
 		setStyle(STYLE_NO_TITLE, android.R.style.Theme_Translucent);
-		offlineParameters = new Gson().fromJson(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.OFFLINE, "{}"), OfflineParameters.class);
-	    timerDuration = offlineParameters.getConnectionTimeout() - OfflineConstants.TIMER_START_TIME;
+	    timerDuration = OfflineController.getInstance().getConfigurationParamerters().getConnectionTimeout() - OfflineConstants.TIMER_START_TIME;
 	    Bundle arguments = getArguments();
 	    if(arguments != null)
 	    {
