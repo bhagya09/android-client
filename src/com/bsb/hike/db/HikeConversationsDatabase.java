@@ -8753,7 +8753,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		ContentValues value=getContentValueForConversationMessage(convMessage, convMessage.getTimestamp());
 
 			int rows_updated=mDb.update(DBConstants.CONVERSATIONS_TABLE, value, DBConstants.MSISDN + "=?", new String[]{convMessage.getMsisdn()});
-		if(rows_updated>0)
+		if(rows_updated<0)
 		{
 			//We want to create a conversation when an event is replied to if conversation doesn't exist.
 			String from = convMessage.getSenderMsisdn();
