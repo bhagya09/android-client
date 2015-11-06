@@ -8750,8 +8750,37 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 	public void updateConvTable(ConvMessage convMessage)
 	{
-		ContentValues value=getContentValueForConversationMessage(convMessage,convMessage.getTimestamp());
-		mDb.update(DBConstants.CONVERSATIONS_TABLE,value, DBConstants.MSISDN + "=?", new String[] {convMessage.getMsisdn()});
+		ContentValues value=getContentValueForConversationMessage(convMessage, convMessage.getTimestamp());
+
+			int rows_updated=mDb.update(DBConstants.CONVERSATIONS_TABLE, value, DBConstants.MSISDN + "=?", new String[]{convMessage.getMsisdn()});
+		if(rows_updated<0)
+		{
+			//We want to create a conversation when an event is replied to if conversation doesn't exist.
+			String from = convMessage.getSenderMsisdn();
+			ContactInfo contactInfo = OneToNConversationUtils.isOneToNConversation(from) ? new ContactInfo(from, from, from, from)
+					: ContactManager.getInstance().getContact(from, false, true);
+			Conversation conv = new OneToOneConversation.ConversationBuilder(from).setConvName((contactInfo != null) ? contactInfo.getName() : null).setIsOnHike(true).build();
+			if (convMessage != null)
+			{
+				conv.updateLastConvMessage(convMessage);
+			}
+			ContentValues contentValues= new ContentValues();
+			contentValues.put(DBConstants.MSISDN, convMessage.getMsisdn());
+			contentValues.put(DBConstants.CONTACT_ID,contactInfo != null?contactInfo.getId():convMessage.getMsisdn());
+			contentValues.put(DBConstants.ONHIKE, 1);
+			contentValues.put(DBConstants.MESSAGE, convMessage.getMessage());
+			contentValues.put(DBConstants.MSG_STATUS, convMessage.getState().ordinal());
+			contentValues.put(DBConstants.LAST_MESSAGE_TIMESTAMP, convMessage.getTimestamp());
+			contentValues.put(DBConstants.SORTING_TIMESTAMP, convMessage.getTimestamp());
+			contentValues.put(DBConstants.MESSAGE_ID, convMessage.getMsgID());
+			contentValues.put(DBConstants.UNREAD_COUNT, 1); // inOrder to show 1+ on conv screen, we need to have some unread counter
+
+			/**
+			 * InsertWithOnConflict returns -1 on error while inserting/replacing a new row
+			 */
+			mDb.insertWithOnConflict(DBConstants.CONVERSATIONS_TABLE, null, contentValues, SQLiteDatabase.CONFLICT_REPLACE);
+			HikeMessengerApp.getPubSub().publish(HikePubSub.NEW_CONVERSATION, conv.getConvInfo());
+		}
 
 	}
 
