@@ -2130,14 +2130,8 @@ public class VoIPClient  {
 		
 		// In case there is no packet number, insert packet at tail
 		if (newPacket.getVoicePacketNumber() == 0) {
-			Logger.w(tag, "Voice packet number is 0. Inserting at tail.");
+//			Logger.w(tag, "Voice packet number is 0. Inserting at tail.");
 			decodedBuffersQueue.addLast(newPacket);
-			return;
-		}
-		
-		// If packet is being inserted at the head
-		if (decodedBuffersQueue.getFirst().getVoicePacketNumber() > newPacket.getVoicePacketNumber()) {
-			decodedBuffersQueue.addFirst(newPacket);
 			return;
 		}
 		
@@ -2152,6 +2146,12 @@ public class VoIPClient  {
 					}
 
 			decodedBuffersQueue.addLast(newPacket);
+			return;
+		}
+
+		// If packet is being inserted at the head
+		if (decodedBuffersQueue.getFirst().getVoicePacketNumber() > newPacket.getVoicePacketNumber()) {
+			decodedBuffersQueue.addFirst(newPacket);
 			return;
 		}
 		

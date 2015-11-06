@@ -325,7 +325,6 @@ public class VoIPService extends Service implements Listener
 					if (forceMute == true) {
 						setMute(forceMute);
 					} 
-					
 					// Text to speech
 					if (recordingAndPlaybackRunning) {
 						if (forceMute == true) 
@@ -336,6 +335,7 @@ public class VoIPService extends Service implements Listener
 
 					sendMessageToActivity(VoIPConstants.MSG_UPDATE_FORCE_MUTE_LAYOUT);
 				}
+				break;
 				
 			case VoIPConstants.MSG_PARTNER_ANSWER_TIMEOUT:
 				hangUp();
