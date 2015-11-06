@@ -1504,6 +1504,8 @@ public class HikeConstants
 
 		public static final String FROM_CENTRAL_TIMELINE = "fromCentralTimeline";
 		
+		public static final String FROM_DELETE_ACCOUNT = "fromDeleteAccount";
+		
 		public static final String BLOCKED_LIST = "blockedList";
 
 		public static final String NUX1_NUMBERS = "nux1Numbers";
