@@ -9,6 +9,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences.Editor;
+import android.content.pm.ActivityInfo;
 import android.content.pm.ApplicationInfo;
 import android.content.res.Configuration;
 import android.content.res.Resources;
@@ -798,6 +799,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		@Override
 		public void onDestroyed()
 		{
+			Utils.unblockOrientationChange(activity);
 		}
 	};
 
@@ -3521,6 +3523,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 				KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, (keyboardHeight == 0) ? mCustomKeyboard.getKeyBoardAndCVHeight() : keyboardHeight);
 				if (keyboardFtue.isReadyForFTUE())
 				{
+					activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 					keyboardFtue.showNextFtue();
 				}
 			}
