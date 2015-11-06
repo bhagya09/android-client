@@ -2,15 +2,13 @@ package com.bsb.hike.utils;
 
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
-import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Message;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
-import android.widget.Toast;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
+import android.widget.Toast;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
@@ -28,10 +26,10 @@ import com.bsb.hike.productpopup.ProductInfoManager;
 import com.bsb.hike.ui.HikeBaseActivity;
 import com.bsb.hike.utils.HikeUiHandler.IHandlerCallback;
 
-public class HikeAppStateBaseFragmentActivity extends HikeBaseActivity implements Listener,IHandlerCallback
+public class CocosAppStateBaseFragmentActivity extends HikeBaseActivity implements Listener,IHandlerCallback
 {
 
-	private static final String TAG = "HikeAppState";
+	private static final String TAG = "CocosAppState";
 	
 	protected static final int PRODUCT_POPUP_HANDLER_WHAT = -99;
 	
@@ -63,7 +61,6 @@ public class HikeAppStateBaseFragmentActivity extends HikeBaseActivity implement
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
-		HikeAppStateUtils.onCreate(this);
 		super.onCreate(savedInstanceState);
 
 	}
@@ -71,23 +68,18 @@ public class HikeAppStateBaseFragmentActivity extends HikeBaseActivity implement
 	@Override
 	protected void onResume()
 	{
-		HikeAppStateUtils.onResume(this);
-		HikeAlarmManager.cancelAlarm(HikeAppStateBaseFragmentActivity.this, HikeAlarmManager.REQUESTCODE_RETRY_LOCAL_NOTIFICATION);
 		super.onResume();
 	}
 
 	@Override
 	protected void onStart()
 	{
-		HikeAppStateUtils.onStart(this);
 		super.onStart();
-		HikeMessengerApp.getPubSub().addListener(HikePubSub.SHOW_IMAGE, this);
 	}
 
 	@Override
 	protected void onRestart()
 	{
-		HikeAppStateUtils.onRestart(this);
 		super.onRestart();
 	}
 
@@ -100,7 +92,6 @@ public class HikeAppStateBaseFragmentActivity extends HikeBaseActivity implement
 		}
 		else
 		{
-			HikeAppStateUtils.onBackPressed();
 			super.onBackPressed();
 		}
 	}
@@ -116,29 +107,24 @@ public class HikeAppStateBaseFragmentActivity extends HikeBaseActivity implement
 	@Override
 	protected void onPause()
 	{
-		HikeAppStateUtils.onPause(this);
 		super.onPause();
 	}
 
 	@Override
 	protected void onStop()
 	{
-		HikeAppStateUtils.onStop(this);
 		super.onStop();
-		HikeMessengerApp.getPubSub().removeListener(HikePubSub.SHOW_IMAGE, this);
 	}
 
 	@Override
 	public void finish()
 	{
-		HikeAppStateUtils.finish();
 		super.finish();
 	}
 
 	@Override
 	public void startActivityFromFragment(Fragment fragment, Intent intent, int requestCode)
 	{
-		HikeMessengerApp.currentState = CurrentState.NEW_ACTIVITY;
 		try
 		{
 			super.startActivityFromFragment(fragment, intent, requestCode);
@@ -153,7 +139,6 @@ public class HikeAppStateBaseFragmentActivity extends HikeBaseActivity implement
 	@Override
 	public void startActivityForResult(Intent intent, int requestCode)
 	{
-		HikeAppStateUtils.startActivityForResult(this);
 		try
 		{
 			super.startActivityForResult(intent, requestCode);
@@ -161,7 +146,7 @@ public class HikeAppStateBaseFragmentActivity extends HikeBaseActivity implement
 		catch (ActivityNotFoundException e)
 		{
 			Logger.w(getClass().getSimpleName(), "Unable to find activity", e);
-			FTAnalyticEvents.logDevException(FTAnalyticEvents.UNABLE_TO_START_ACTIVITY, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "file", "Unable to find activity :" , e);
+//			FTAnalyticEvents.logDevException(FTAnalyticEvents.UNABLE_TO_START_ACTIVITY, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "file", "Unable to find activity :" , e);
 			Toast.makeText(this, R.string.activity_not_found, Toast.LENGTH_SHORT).show();
 		}
 	}
@@ -176,7 +161,7 @@ public class HikeAppStateBaseFragmentActivity extends HikeBaseActivity implement
 		catch (ActivityNotFoundException e)
 		{
 			Logger.w(getClass().getSimpleName(), "Unable to find activity", e);
-			FTAnalyticEvents.logDevException(FTAnalyticEvents.UNABLE_TO_START_ACTIVITY, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "file", "Unable to find activity :", e);
+//			FTAnalyticEvents.logDevException(FTAnalyticEvents.UNABLE_TO_START_ACTIVITY, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "file", "Unable to find activity :", e);
 			Toast.makeText(this, R.string.activity_not_found, Toast.LENGTH_SHORT).show();
 		}		
 	}
@@ -184,25 +169,13 @@ public class HikeAppStateBaseFragmentActivity extends HikeBaseActivity implement
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data)
 	{
-		HikeAppStateUtils.onActivityResult(this);
 		super.onActivityResult(requestCode, resultCode, data);
 	}
 
 	@Override
 	public void onEventReceived(String type, final Object object)
 	{
-		if (HikePubSub.SHOW_IMAGE.equals(type))
-		{
-			runOnUiThread(new Runnable()
-			{
 
-				@Override
-				public void run()
-				{
-					openImageViewer(object);
-				}
-			});
-		}
 	}
 	
 	protected void openImageViewer(Object object)
@@ -316,7 +289,7 @@ public class HikeAppStateBaseFragmentActivity extends HikeBaseActivity implement
 	}
 	/**
 	 * This method is made to be called from handler, do not call this method directly 
-	 * Post Message to mHandler to call this method
+	 * Post Message to mHandler to callw this method
 	 * Subclasses should override this method to perform some UI functionality
 	 * <b>(DO NOT FORGET TO CALL super)</b>
 	 * @param msg

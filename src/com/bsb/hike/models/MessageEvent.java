@@ -1,15 +1,15 @@
 package com.bsb.hike.models;
 
-import android.text.TextUtils;
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.platform.HikePlatformConstants;
-import com.bsb.hike.utils.Logger;
-import org.json.JSONObject;
 
 /**
  * Created by shobhit on 27/07/15.
  */
-public class MessageEvent
+public class MessageEvent implements Parcelable
 {
 
 	private int eventStatus;
@@ -204,6 +204,59 @@ public class MessageEvent
 	{
 		return hike_message;
 	}
-	
+
+	@Override
+	public int describeContents()
+	{
+		return 0;
+	}
+
+	@Override
+	public void writeToParcel(Parcel dest, int flags)
+	{
+		dest.writeInt(eventStatus);
+		dest.writeInt(eventType);
+		dest.writeLong(sentTimeStamp);
+		dest.writeLong(mappedEventId);
+		dest.writeString(msisdn);
+		dest.writeString(nameSpace);
+		dest.writeString(eventMetadata);
+		dest.writeString(messageHash);
+		dest.writeLong(eventId);
+		dest.writeLong(messageId);
+		dest.writeString(parent_msisdn);
+		dest.writeString(hike_message);
+	}
+
+	public MessageEvent(Parcel source)
+	{
+		this.eventStatus = source.readInt();
+		this.eventType = source.readInt();
+		this.sentTimeStamp = source.readLong();
+		this.mappedEventId = source.readLong();
+		this.msisdn = source.readString();
+		this.nameSpace = source.readString();
+		this.eventMetadata = source.readString();
+		this.messageHash = source.readString();
+		this.eventId = source.readLong();
+		this.messageId = source.readLong();
+		this.parent_msisdn = source.readString();
+		this.hike_message = source.readString();
+	}
+
+	public static final Parcelable.Creator CREATOR = new Parcelable.Creator()
+	{
+		public MessageEvent createFromParcel(Parcel in)
+		{
+			return new MessageEvent(in);
+		}
+
+		public MessageEvent[] newArray(int size)
+		{
+			return new MessageEvent[size];
+		}
+	};
+
+
 }
 

@@ -2,10 +2,9 @@ package com.bsb.hike.service;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import android.content.Context;
+import android.content.Intent;
 import android.text.TextUtils;
-
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
@@ -14,6 +13,7 @@ import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.MessageEvent;
 import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.offline.OfflineUtils;
+import com.bsb.hike.platform.CocosProcessIntentService;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
@@ -92,7 +92,7 @@ public class GeneralEventMessagesManager
 					return;
 				}
 				messageEvent.setEventId(eventId);
-
+				sendMessageEventToIntentService(messageEvent);
 				HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_EVENT_RECEIVED, messageEvent);
 				boolean increaseUnreadCount = data.optBoolean(HikePlatformConstants.INCREASE_UNREAD);
 				boolean rearrangeChat = data.optBoolean(HikePlatformConstants.REARRANGE_CHAT);
@@ -117,6 +117,13 @@ public class GeneralEventMessagesManager
 			}
 		}
 		return instance;
+	}
+
+	public void sendMessageEventToIntentService(MessageEvent messageEvent)
+	{
+		Intent cocosProcessIntentService = new Intent(this.context, CocosProcessIntentService.class);
+		cocosProcessIntentService.putExtra(CocosProcessIntentService.MESSAGE_EVENT_RECEIVED_DATA, messageEvent);
+		context.startService(cocosProcessIntentService);
 	}
 	
 }

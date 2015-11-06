@@ -46,7 +46,7 @@ public class CocosGamingActivity extends Cocos2dxActivity
 {
 	private static Context context;
 
-	private String TAG = getClass().getCanonicalName();
+	protected String TAG = getClass().getCanonicalName();
 
 	private boolean isPortrait;
 

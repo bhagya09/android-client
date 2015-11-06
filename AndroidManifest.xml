@@ -3,8 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bsb.hike"
     android:installLocation="auto"
-    android:versionCode="1493"
-    android:versionName="4.0.8.7.hike_platform_internal" >
+    android:versionCode="1494"
+    android:versionName="4.0.8.8.hike_platform_internal" >
 
     <uses-sdk
         android:minSdkVersion="14"
@@ -478,6 +478,12 @@
             android:launchMode="singleTop"
             android:exported="true" >
         </activity>
+        <service android:name="com.bsb.hike.platform.CocosProcessIntentService"
+            android:process="org.cocos2dx.gameprocess"
+            />
+        <service android:name="com.bsb.hike.platform.HikeProcessIntentService"
+            android:process="com.bsb.hike"
+            />
 
         <service android:name=".chatHead.ChatHeadService" 
             android:label="HikeStickeyService"/>
