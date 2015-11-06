@@ -2402,7 +2402,8 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	
 	protected boolean shouldShowKeyboard()
 	{
-		return mConversation.getMessagesList().isEmpty() && !mConversation.isBlocked() && !keyboardFtue.isReadyForFTUE();
+		return ((mConversation.getMessagesList().isEmpty() && !mConversation.isBlocked() && !keyboardFtue.isReadyForFTUE())
+		|| mActionMode.isActionModeOn());
 	}
 
 	/**
@@ -4085,6 +4086,8 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		releaseEmoticonResources();
 		
 		releaseStickerSearchResources();
+
+		keyboardFtue.destroy();
 	}
 	
 	private void releaseShareablePopUpResources()
@@ -4187,10 +4190,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	public void onResume()
 	{
 		tryToDismissAnyOpenPanels();
-		
-//		actionbar disappears randomly after onResume()
-		setupActionBar(false);
-		
+
 		showKeyboardIfRequired();
 
 		isActivityVisible = true;
