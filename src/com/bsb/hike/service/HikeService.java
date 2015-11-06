@@ -928,7 +928,7 @@ public class HikeService extends Service
         if(!isMicroAppsMigrationDone) {
 
             long scheduleTime = Utils.getTimeInMillis(Calendar.getInstance(), 4, 40, 30, 0);
-            // If the scheduled time is in the past OR the account restore process(at the time of signup) is not yet complete.
+            // If the scheduled time is in the past
             // Scheduled time is increased by 24 hours i.e. same time next day.
             if (scheduleTime < System.currentTimeMillis())
             {
