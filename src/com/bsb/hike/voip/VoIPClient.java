@@ -1155,7 +1155,7 @@ public class VoIPClient  {
 			long currentTime = System.currentTimeMillis();
 			for (VoIPDataPacket dp : ackWaitQueue.values()) {
 				if (dp.getTimestamp() < currentTime - 1000) {	// Give each packet 1 second to get ack
-					Logger.d(tag, "Resending packet: " + dp.getType());
+					Logger.d(tag, "Resending packet: " + dp.getType() + " #" + dp.getPacketNumber());
 					sendPacket(dp, true);
 				}
 			}
@@ -1622,6 +1622,12 @@ public class VoIPClient  {
 	}
 	
 	private void markPacketReceived(int packetNumber) {
+		
+		if (packetNumber < 0) {
+			Logger.e(tag, "Unexpected packetNumber: " + packetNumber);
+			return;
+		}
+		
 		if (packetNumber > previousHighestRemotePacketNumber) {
 			// New highest packet received
 			// Set all bits between this and previous highest packet to zero
@@ -2020,7 +2026,7 @@ public class VoIPClient  {
 					dp.setData(data);
 				}
 				
-				if (isSpeaking()) {
+				if (version >= 4 && isSpeaking()) {
 					measureRTT();
 					if (minimumDecodedQueueSize == 0)
 						minimumDecodedQueueSize = 1;
@@ -2032,7 +2038,7 @@ public class VoIPClient  {
 			hit = false;
 		} else {
 
-			if (lastAudioPacketPlayed > 0 && dp.getVoicePacketNumber() > 0) {
+			if (version >= 4 && lastAudioPacketPlayed > 0 && dp.getVoicePacketNumber() > 0) {
 				if (lastAudioPacketPlayed < dp.getVoicePacketNumber() - 1) {
 					Logger.w(tag, "Missing audio.");
 					measureRTT();
