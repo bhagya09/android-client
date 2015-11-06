@@ -1172,6 +1172,19 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 					{
 						selectedLocalLanguage = list.get(which);
 						languageText.setText(selectedLocalLanguage.getDisplayName());
+						
+//						tracking the app language selected by the user in ftue
+						try
+						{
+							JSONObject metadata = new JSONObject();
+							metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.APP_LANGUAGE_FTUE);
+							metadata.put(HikeConstants.KEYBOARD_LANGUAGE, selectedLocalLanguage.getDisplayName());
+							HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
+						}
+						catch(JSONException e)
+						{
+							Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json : " + selectedLocalLanguage.getDisplayName() + "\n" + e);
+						}
 					}
 				});
 

@@ -5,8 +5,14 @@ package com.bsb.hike.modules.kpt;
 
 import java.util.ArrayList;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
+import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.kpt.adaptxt.beta.CustomKeyboard;
@@ -75,7 +81,18 @@ public class KptUtils
 	
 	public static void generateKeyboardAnalytics(String currentLanguage)
 	{
-//		TODO : analytics code here
+////		tracking keyboard language change event
+//		try
+//		{
+//			JSONObject metadata = new JSONObject();
+//			metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.KEYBOARD_LANGUAGE_CHANGED_EVENT);
+//			metadata.put(HikeConstants.KEYBOARD_LANGUAGE, currentLanguage);
+//			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
+//		}
+//		catch(JSONException e)
+//		{
+//			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json : " + currentLanguage + "\n" + e);
+//		}
 	}
 
 	public static void destroyKeyboardResources(CustomKeyboard mCustomKeyboard, int ... editTexts)
