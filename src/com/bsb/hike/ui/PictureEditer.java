@@ -697,14 +697,14 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 				{
 					finishProgress();
 					setTempProfileImageName(f.getAbsolutePath());
-//					startActivityForResult(IntentFactory.getCropActivityIntent(PictureEditer.this, f.getAbsolutePath(), f.getAbsolutePath(), true,80, false), HikeConstants.CROP_RESULT);
+					startActivityForResult(IntentFactory.getCropActivityIntent(PictureEditer.this, f.getAbsolutePath(), f.getAbsolutePath(), true,80, false), HikeConstants.CROP_RESULT);
 					
-					CropCompression compression = new CropCompression().maxWidth(640).maxHeight(640).quality(80);
-					Intent cropIntent = new Intent(PictureEditer.this, HikeCropActivity.class);
-					cropIntent.putExtra(HikeCropActivity.CROPPED_IMAGE_PATH, f.getAbsolutePath());
-					cropIntent.putExtra(HikeCropActivity.SOURCE_IMAGE_PATH, f.getAbsolutePath());
-					cropIntent.putExtra(HikeCropActivity.CROP_COMPRESSION, compression);
-					startActivityForResult(cropIntent, HikeConstants.CROP_RESULT);
+//					CropCompression compression = new CropCompression().maxWidth(640).maxHeight(640).quality(80);
+//					Intent cropIntent = new Intent(PictureEditer.this, HikeCropActivity.class);
+//					cropIntent.putExtra(HikeCropActivity.CROPPED_IMAGE_PATH, f.getAbsolutePath());
+//					cropIntent.putExtra(HikeCropActivity.SOURCE_IMAGE_PATH, f.getAbsolutePath());
+//					cropIntent.putExtra(HikeCropActivity.CROP_COMPRESSION, compression);
+//					startActivityForResult(cropIntent, HikeConstants.CROP_RESULT);
 				}
 			});
 		}
