@@ -483,22 +483,8 @@ public class HikeBitmapFactory
 
 	public static Bitmap decodeSampledBitmapFromFile(String filename, int reqWidth, int reqHeight, Bitmap.Config con)
 	{
-		return decodeSampledBitmapFromFile(filename, reqWidth, reqHeight, con, null);
-	}
-	
-	public static Bitmap decodeSampledBitmapFromFile(String filename, int reqWidth, int reqHeight, Bitmap.Config con, BitmapFactory.Options argOptions)
-	{
 		// First decode with inJustDecodeBounds=true to check dimensions
-		BitmapFactory.Options options = null;
-
-		if (argOptions == null)
-		{
-			options = new BitmapFactory.Options();
-		}
-		else
-		{
-			options = argOptions;
-		}
+		final BitmapFactory.Options options = new BitmapFactory.Options();
 		options.inJustDecodeBounds = true;
 
 		decodeFile(filename, options);
@@ -507,6 +493,12 @@ public class HikeBitmapFactory
 
 		// Calculate inSampleSize
 		options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
+
+		// If we're running on Honeycomb or newer, try to use inBitmap
+		// if (Utils.hasHoneycomb())
+		// {
+		// addInBitmapOptions(options, cache);
+		// }
 
 		// Decode bitmap with inSampleSize set
 		options.inJustDecodeBounds = false;
@@ -705,7 +697,7 @@ public class HikeBitmapFactory
 	 *            The requested height of the resulting bitmap
 	 * @return The value to be used for inSampleSize
 	 */
-	public static int calculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight)
+	private static int calculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight)
 	{
 		final int height = options.outHeight;
 		final int width = options.outWidth;
