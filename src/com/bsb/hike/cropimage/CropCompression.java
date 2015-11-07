@@ -54,7 +54,7 @@ public class CropCompression implements Parcelable
 		dest.writeInt(mHeight);
 		dest.writeInt(mQuality);
 	}
-	
+
 	public int getWidth()
 	{
 		return mWidth;
