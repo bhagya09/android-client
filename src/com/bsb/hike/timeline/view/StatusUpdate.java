@@ -526,6 +526,11 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		int galleryFlags = GalleryActivity.GALLERY_CATEGORIZE_BY_FOLDERS | GalleryActivity.GALLERY_EDIT_SELECTED_IMAGE | GalleryActivity.GALLERY_COMPRESS_EDITED_IMAGE
 				| GalleryActivity.GALLERY_DISPLAY_CAMERA_ITEM;
 
+		if(!Utils.isPhotosEditEnabled())
+		{
+			galleryFlags = galleryFlags|GalleryActivity.GALLERY_CROP_IMAGE;
+		}
+		
 		Intent galleryPickerIntent = IntentFactory.getHikeGalleryPickerIntent(StatusUpdate.this, galleryFlags, Utils.getNewImagePostFilePath());
 		startActivityForResult(galleryPickerIntent, UpdatesFragment.TIMELINE_POST_IMAGE_REQ);
 	}
