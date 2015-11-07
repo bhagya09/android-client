@@ -97,7 +97,7 @@ public class TimelineResourceCleaner implements Runnable
 					}
 
 					File orgFile = new File(HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT, fileName);
-					Utils.deleteFile(orgFile);
+					Utils.deleteFile(HikeMessengerApp.getInstance().getApplicationContext(), orgFile.getAbsolutePath(), HikeFileType.IMAGE);
 				}
 			}
 		}
