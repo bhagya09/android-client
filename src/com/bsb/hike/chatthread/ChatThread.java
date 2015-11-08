@@ -2433,6 +2433,8 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		mComposeView.setOnTouchListener(this);
 
 		mComposeView.setOnKeyListener(this);
+
+		mComposeView.setSelectAllOnFocus(true);
 	}
 
 	/*
