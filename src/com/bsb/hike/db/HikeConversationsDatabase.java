@@ -8754,7 +8754,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		ContentValues value=getContentValueForConversationMessage(convMessage, convMessage.getTimestamp());
 
 			int rows_updated=mDb.update(DBConstants.CONVERSATIONS_TABLE, value, DBConstants.MSISDN + "=?", new String[]{convMessage.getMsisdn()});
-		if(rows_updated<0)
+		if(rows_updated<=0)
 		{
 			//We want to create a conversation when an event is replied to if conversation doesn't exist.
 			String from = convMessage.getSenderMsisdn();
@@ -8774,7 +8774,6 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			contentValues.put(DBConstants.LAST_MESSAGE_TIMESTAMP, convMessage.getTimestamp());
 			contentValues.put(DBConstants.SORTING_TIMESTAMP, convMessage.getTimestamp());
 			contentValues.put(DBConstants.MESSAGE_ID, convMessage.getMsgID());
-			contentValues.put(DBConstants.UNREAD_COUNT, 1); // inOrder to show 1+ on conv screen, we need to have some unread counter
 
 			/**
 			 * InsertWithOnConflict returns -1 on error while inserting/replacing a new row
