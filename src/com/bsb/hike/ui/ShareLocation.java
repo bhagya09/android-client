@@ -420,7 +420,7 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 	}
 	public boolean isSystemKeyboard()
 	{
-		return HikeMessengerApp.isSystemKeyboard(ShareLocation.this);
+		return HikeMessengerApp.isSystemKeyboard();
 	}
 	@Override
 	public void onConnected(Bundle arg0)
@@ -893,7 +893,7 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 		LinearLayout parentView = (LinearLayout)findViewById(R.id.keyboardView_holder);
 		mCustomKeyboard= new HikeCustomKeyboard(this, parentView,KPTConstants.MULTILINE_LINE_EDITOR, null,ShareLocation.this);
 		searchET = (CustomFontEditText)findViewById(R.id.search);
-		if (!KptUtils.isSystemKeyboard(ShareLocation.this))
+		if (!KptUtils.isSystemKeyboard())
 		{
     		mCustomKeyboard.registerEditText(R.id.search);
     		mCustomKeyboard.init(searchET);
@@ -902,7 +902,7 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 			
 			@Override
 			public void onClick(View v) {
-				if (KptUtils.isSystemKeyboard(ShareLocation.this))
+				if (KptUtils.isSystemKeyboard())
 				{
 					Utils.showSoftKeyboard(searchET, InputMethodManager.SHOW_FORCED);
 				}

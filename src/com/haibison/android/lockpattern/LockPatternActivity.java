@@ -503,7 +503,7 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity implem
         mLockPatternView = (LockPatternView) findViewById(R.id.alp_42447968_view_lock_pattern);
         mLockPinView = (CustomFontEditText) findViewById(R.id.alp_42447968_lock_pin);
 
-        systemKeyboard = HikeMessengerApp.isSystemKeyboard(getApplicationContext());
+        systemKeyboard = HikeMessengerApp.isSystemKeyboard();
         if (!systemKeyboard)
         {
             initCustomKeyboard();        	

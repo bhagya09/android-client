@@ -1788,7 +1788,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	}
 	
 	public void hideKeyboard(){
-		if(KptUtils.isSystemKeyboard(activity)){
+		if(KptUtils.isSystemKeyboard()){
 			Utils.hideSoftKeyboard(activity, mComposeView);
 		}else if (mCustomKeyboard!=null && mCustomKeyboard.isCustomKeyboardVisible())
 		{
@@ -6164,7 +6164,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
 	public boolean isSystemKeyboard()
 	{
-		return HikeMessengerApp.isSystemKeyboard(activity);
+		return HikeMessengerApp.isSystemKeyboard();
 	}
 
 	@Override

@@ -136,9 +136,10 @@ public class KptUtils
 			mainView.setPadding(0, 0, 0, bottomPadding);
 		}
 	}
-	public static boolean isSystemKeyboard(Activity activity)
+	
+	public static boolean isSystemKeyboard()
 	{
-		return HikeMessengerApp.isSystemKeyboard(activity);
+		return HikeMessengerApp.isSystemKeyboard();
 	}
 	
 }

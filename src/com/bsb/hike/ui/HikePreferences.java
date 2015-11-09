@@ -183,7 +183,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		Preference kbdPref = findPreference(HikeConstants.KEYBOARD_PREF);
 		if (kbdPref != null && kbdPref instanceof SwitchPreferenceCompat)
 		{
-			boolean val = HikeMessengerApp.isSystemKeyboard(HikePreferences.this);
+			boolean val = HikeMessengerApp.isSystemKeyboard();
 			((SwitchPreferenceCompat) kbdPref).setChecked(!val);
 		}
 		
