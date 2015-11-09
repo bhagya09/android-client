@@ -1029,10 +1029,8 @@ public class VoIPService extends Service implements Listener
 
 	public void dismissNotification() {
 		// Dismiss notification
-		if (notificationManager != null) {
-			Logger.d(tag, "Removing notification..");
-			notificationManager.cancel(NOTIFICATION_IDENTIFIER);
-		}
+		Logger.d(tag, "Removing notification..");
+		HikeNotification.getInstance().cancelNotification(NOTIFICATION_IDENTIFIER);
 	}
 	
 	private void initAudioManager() {

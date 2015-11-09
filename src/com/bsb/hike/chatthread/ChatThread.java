@@ -9,6 +9,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences.Editor;
+import android.content.pm.ActivityInfo;
 import android.content.pm.ApplicationInfo;
 import android.content.res.Configuration;
 import android.content.res.Resources;
@@ -131,6 +132,7 @@ import com.bsb.hike.modules.stickersearch.StickerSearchManager;
 import com.bsb.hike.modules.stickersearch.listeners.IStickerPickerRecommendationListener;
 import com.bsb.hike.modules.stickersearch.provider.StickerSearchHostManager;
 import com.bsb.hike.modules.stickersearch.ui.StickerTagWatcher;
+import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.offline.IOfflineCallbacks;
 import com.bsb.hike.offline.OfflineConstants;
 import com.bsb.hike.offline.OfflineConstants.ERRORCODE;
@@ -798,6 +800,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		@Override
 		public void onDestroyed()
 		{
+			Utils.unblockOrientationChange(activity);
 		}
 	};
 
@@ -1789,6 +1792,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 			Utils.hideSoftKeyboard(activity, mComposeView);
 		}else if (mCustomKeyboard!=null && mCustomKeyboard.isCustomKeyboardVisible())
 		{
+			keyboardFtue.destroy();
 			mCustomKeyboard.showCustomKeyboard(mComposeView, false); 
 			KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, 0);
 		}
@@ -3521,6 +3525,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 				KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, (keyboardHeight == 0) ? mCustomKeyboard.getKeyBoardAndCVHeight() : keyboardHeight);
 				if (keyboardFtue.isReadyForFTUE())
 				{
+					activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 					keyboardFtue.showNextFtue();
 				}
 			}
@@ -4213,8 +4218,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
 		if (mConversation != null)
 		{
-			NotificationManager mgr = (NotificationManager) (activity.getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE));
-			mgr.cancel((int) mConversation.getMsisdn().hashCode());
+			HikeNotification.getInstance().cancelNotification((int) mConversation.getMsisdn().hashCode());
 		}
 
 		/**

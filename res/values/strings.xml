@@ -1260,8 +1260,10 @@
 	<string name="apply">Apply</string>
     <string name="keyboad_ftue_swipe">Swipe to change between your language</string>
     <string name="setting_up_keyboard">Setting up Keyboard</string>
-	<string name="close_gps">Kindly close gps to save battery</string>
-	<string name ="gps_not_on">Sorry hike direct wont work if gps not on</string>
-	<string name="switch_on_gps">Switch on GPS to use Hike Direct</string>
+	<string name="close_gps">You can now turn off your location to save battery. Your Hike Direct connection will not get affected.</string>
+	<string name="gps_not_on">Sorry hike direct wont work if gps not on</string>
+	<string name="switch_on_gps">Please enable location for Hike Direct to work. Press back once you\'re done. </string>
 	<string name="gps_settings">SETTING</string>
+	<string name="user_gps_off">Hike Direct cannot work till your location is enabled.</string>
+	
 </resources>
