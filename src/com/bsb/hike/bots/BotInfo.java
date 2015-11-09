@@ -1,12 +1,13 @@
 package com.bsb.hike.bots;
 
-import java.util.concurrent.atomic.AtomicBoolean;
+import com.bsb.hike.models.Conversation.ConvInfo;
+import com.bsb.hike.platform.HikePlatformConstants;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.bsb.hike.models.Conversation.ConvInfo;
-import com.bsb.hike.platform.HikePlatformConstants;
+import java.util.TreeMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Created by shobhit on 22/04/15.
@@ -45,6 +46,8 @@ public class BotInfo extends ConvInfo implements Cloneable
 	private String botDescription;
 	
 	private int updatedVersion;
+
+    private TreeMap<Integer,Integer> compatibilityMap;
 	
 	public static abstract class InitBuilder<P extends InitBuilder<P>> extends ConvInfo.InitBuilder<P>
 	{
@@ -53,6 +56,8 @@ public class BotInfo extends ConvInfo implements Cloneable
 		private String namespace;
 
 		private String metadata, configData, notifData, helperData, botDescription;
+
+        private TreeMap<Integer,Integer> compatibilityMap;
 
 		protected InitBuilder(String msisdn)
 		{
@@ -112,6 +117,13 @@ public class BotInfo extends ConvInfo implements Cloneable
 			this.helperData = helperData;
 			return getSelfObject();
 		}
+
+        public P setCompatibilityMap(TreeMap<Integer,Integer> compatibilityMap)
+        {
+            this.compatibilityMap = compatibilityMap;
+            return getSelfObject();
+        }
+
 		@Override
 		public P setOnHike(boolean onHike)
 		{
@@ -255,6 +267,7 @@ public class BotInfo extends ConvInfo implements Cloneable
 		this.version = builder.version;
 		this.botDescription = builder.botDescription;
 		this.updatedVersion = builder.updatedVersion;
+        this.compatibilityMap = builder.compatibilityMap;
 	}
 
 	public boolean isMessagingBot()
@@ -478,7 +491,22 @@ public class BotInfo extends ConvInfo implements Cloneable
 	{
 		this.updatedVersion = updatedVersion;
 	}
-	
+
+    public TreeMap<Integer,Integer> getCompatibilityMap()
+    {
+        return compatibilityMap;
+    }
+
+    /**
+     * Sets the latest compatibility Matrix available for the given bot.
+     *
+     * @param compatibilityMap
+     */
+    public void setCompatibilityMap(TreeMap<Integer,Integer> compatibilityMap)
+    {
+        this.compatibilityMap = compatibilityMap;
+    }
+
 	@Override
 	public Object clone() throws CloneNotSupportedException
 	{

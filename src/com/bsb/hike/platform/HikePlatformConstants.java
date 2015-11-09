@@ -91,6 +91,7 @@ public interface HikePlatformConstants
 	public static final String ANONYMOUS_NAMES = "anonymousNames";
 	public static final String FORWARD_CARD_OBJECT = "fwdCardObj";
 	public static final String TIMESTAMP = "timestamp";
+    public static final String VERSIONING_CONSTANT = "Version_";
 
 	public static final class PlatformFetchType
 	{

@@ -31,6 +31,8 @@ import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -38,8 +40,10 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * This class is for utility methods of bots
@@ -118,7 +122,7 @@ public class BotUtils
 		defaultBotEntry("+hike5+", "Natasha", null, HikeBitmapFactory.getBase64ForDrawable(R.drawable.natasha, context.getApplicationContext()), 2069487, true, context);
 
 		defaultBotEntry("+hikecricket+", "Cricket 2015", HikePlatformConstants.CRICKET_CHAT_THEME_ID,
-				HikeBitmapFactory.getBase64ForDrawable(R.drawable.cric_icon, context.getApplicationContext()), 21487, false, context);
+                HikeBitmapFactory.getBase64ForDrawable(R.drawable.cric_icon, context.getApplicationContext()), 21487, false, context);
 	}
 
 	/**
@@ -320,7 +324,7 @@ public class BotUtils
 		if (type.equals(HikeConstants.MESSAGING_BOT))
 		{
 			botInfo = getBotInfoFormessagingBots(jsonObj, msisdn);
-			PlatformUtils.botCreationSuccessHandling(botInfo, false, botChatTheme, notifType,"");
+			PlatformUtils.botCreationSuccessHandling(botInfo, false, botChatTheme, notifType);
 		}
 		else if (type.equals(HikeConstants.NON_MESSAGING_BOT))
 		{
@@ -331,24 +335,24 @@ public class BotUtils
             JSONObject mdJsonObject = jsonObj.optJSONObject(HikePlatformConstants.METADATA);
             JSONObject cardObjectJson = mdJsonObject.optJSONObject(HikePlatformConstants.CARD_OBJECT);
             JSONObject compatibilityMapJson = cardObjectJson.optJSONObject(HikePlatformConstants.COMPATIBILITY_MAP);
-            String compatibilityMapJsonString;
 
-            if(compatibilityMapJson != null)
-                compatibilityMapJsonString = compatibilityMapJson.toString();
-            else
-                compatibilityMapJsonString = "";
+            if (compatibilityMapJson != null)
+            {
+                TreeMap<Integer, Integer> compatibilityMap = getCompatibilityMapFromString(compatibilityMapJson.toString());
+                botInfo.setCompatibilityMap(compatibilityMap);
+            }
 
             if (botMetadata.isMicroAppMode())
 			{
-				PlatformUtils.downloadZipForNonMessagingBot(botInfo, enableBot, botChatTheme, notifType, botMetadata, botMetadata.isResumeSupported(),compatibilityMapJsonString);
+				PlatformUtils.downloadZipForNonMessagingBot(botInfo, enableBot, botChatTheme, notifType, botMetadata, botMetadata.isResumeSupported());
 			}
 			else if (botMetadata.isWebUrlMode())
 			{
-				PlatformUtils.botCreationSuccessHandling(botInfo, enableBot, botChatTheme, notifType,"");
+				PlatformUtils.botCreationSuccessHandling(botInfo, enableBot, botChatTheme, notifType);
 			}
 			else if (botMetadata.isNativeMode())
 			{
-				PlatformUtils.downloadZipForNonMessagingBot(botInfo, enableBot, botChatTheme, notifType, botMetadata, botMetadata.isResumeSupported(),compatibilityMapJsonString);
+				PlatformUtils.downloadZipForNonMessagingBot(botInfo, enableBot, botChatTheme, notifType, botMetadata, botMetadata.isResumeSupported());
 			}
 
 		}
@@ -507,12 +511,12 @@ public class BotUtils
 	 * @param enableBot
 	 * @param notifType
 	 */
-	public static void updateBotParamsInDb(String botChatTheme, BotInfo botInfo, boolean enableBot, String notifType,String compatibilityMapJsonString)
+	public static void updateBotParamsInDb(String botChatTheme, BotInfo botInfo, boolean enableBot, String notifType)
 	{
 		String msisdn = botInfo.getMsisdn();
 		HikeConversationsDatabase convDb = HikeConversationsDatabase.getInstance();
 		convDb.setChatBackground(msisdn, botChatTheme, System.currentTimeMillis()/1000);
-		convDb.insertBot(botInfo,compatibilityMapJsonString);
+		convDb.insertBot(botInfo);
 
 		HikeMessengerApp.hikeBotInfoMap.put(msisdn, botInfo);
 		ContactInfo contact = new ContactInfo(msisdn, msisdn, botInfo.getConversationName(), msisdn);
@@ -854,6 +858,17 @@ public class BotUtils
 		Logger.v(TAG, "File does not exist for : " + botMsisdn + " Maybe it's not a bot");
 		return null;
 	}
+
+    /*
+     * Code to generate Compatibility matrix TreeMap from json
+     */
+    private static TreeMap<Integer,Integer> getCompatibilityMapFromString(String json)
+    {
+        Gson gson = new Gson();
+        Type stringStringMap = new TypeToken<TreeMap<Integer, Integer>>(){}.getType();
+        TreeMap<Integer,Integer> map = gson.fromJson(json, stringStringMap);
+        return map;
+    }
 	
 
 }

@@ -80,11 +80,14 @@ import com.bsb.hike.utils.PairModified;
 import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -97,6 +100,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.TreeMap;
 
 public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBConstants, HIKE_CONV_DB
 {
@@ -306,8 +310,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				+ HIKE_CONTENT.NAMESPACE + " TEXT, "         //namespace of a bot for caching purpose.
 				+ HIKE_CONTENT.NOTIF_DATA + " TEXT, "       //notif data used for notifications pertaining to the microapp
 				+ HIKE_CONTENT.HELPER_DATA + " TEXT DEFAULT '{}', "  //helper data
-				+ HIKE_CONTENT.BOT_VERSION + " INTEGER DEFAULT 0, "   //bot version for bot upgrade scenario
-                + HIKE_CONTENT.BOT_COMPATIBILITY_MAP + " TEXT DEFAULT '{}'"  //helper data
+				+ HIKE_CONTENT.BOT_VERSION + " INTEGER DEFAULT 0 "   //bot version for bot upgrade scenario
 				+ ")";
 		db.execSQL(sql);
 		sql = getActionsTableCreateQuery();
@@ -898,15 +901,6 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		if (oldVersion < 46)
 		{
 			db.execSQL(getSortingIdxString());
-		}
-
-		if (oldVersion < 47)
-		{
-			if (!Utils.ifColumnExistsInTable(db, DBConstants.BOT_TABLE, HIKE_CONTENT.BOT_COMPATIBILITY_MAP))
-			{
-				String alterTable = "ALTER TABLE " + DBConstants.BOT_TABLE + " ADD COLUMN " + HIKE_CONTENT.BOT_COMPATIBILITY_MAP + " TEXT";
-				db.execSQL(alterTable);
-			}
 		}
 
 	}
@@ -2974,7 +2968,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		}
 	}
 
-	public void insertBot(BotInfo botInfo,String compatibilityMapJsonString)
+	public void insertBot(BotInfo botInfo)
 	{
 		ContentValues values = new ContentValues();
 		values.put(DBConstants.MSISDN, botInfo.getMsisdn());
@@ -2987,7 +2981,6 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		values.put(HIKE_CONTENT.NAMESPACE, botInfo.getNamespace());
 		values.put(HIKE_CONTENT.HELPER_DATA, botInfo.getHelperData());
 		values.put(HIKE_CONTENT.BOT_VERSION, botInfo.getVersion());
-		values.put(HIKE_CONTENT.BOT_COMPATIBILITY_MAP,compatibilityMapJsonString);
 		mDb.insertWithOnConflict(DBConstants.BOT_TABLE, null, values, SQLiteDatabase.CONFLICT_REPLACE);
 	}
 
@@ -7350,8 +7343,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		contentValues.put(DBConstants.IS_VISIBLE, stickerCategory.isVisible());
 		contentValues.put(DBConstants.CATEGORY_INDEX, stickerCategory.getCategoryIndex());
 
-		mDb.insertWithOnConflict(DBConstants.STICKER_CATEGORIES_TABLE, null, contentValues,
-				SQLiteDatabase.CONFLICT_REPLACE);
+		mDb.insertWithOnConflict(DBConstants.STICKER_CATEGORIES_TABLE, null, contentValues,SQLiteDatabase.CONFLICT_REPLACE);
 	}
 
 	/*
@@ -8105,7 +8097,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		contentValues.put(DBConstants.LAST_MESSAGE_TIMESTAMP, convMessage.getTimestamp());
 
 		mDb.updateWithOnConflict(DBConstants.CONVERSATIONS_TABLE, contentValues, MSISDN + "=?",
-				new String[] { msisdn }, SQLiteDatabase.CONFLICT_REPLACE);
+                new String[]{msisdn}, SQLiteDatabase.CONFLICT_REPLACE);
 	}
 	
 	/**
@@ -8153,8 +8145,19 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				String notifData = c.getString(notifDataIdx);
 				String helperData = c.getString(helperDataIdx);
 				int version = c.getInt(versionIdx);
-				BotInfo botInfo = new BotInfo.HikeBotBuilder(msisdn).setConvName(name).setConfig(config).setType(botType).setMetadata(metadata).setIsMute(mute == 1)
-						.setNamespace(namespace).setConfigData(configData).setHelperData(helperData).setNotifData(notifData).setVersion(version).build();
+                TreeMap<Integer,Integer> compatibilityMap = new TreeMap<Integer,Integer>();
+
+                try {
+                    JSONObject json = new JSONObject(metadata);
+                    JSONObject cardObj = json.optJSONObject("cardObj");
+                    String compatibilityMapStr = cardObj.optString(HikePlatformConstants.COMPATIBILITY_MAP);
+                    compatibilityMap = getCompatibilityMapFromString(compatibilityMapStr);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                BotInfo botInfo = new BotInfo.HikeBotBuilder(msisdn).setConvName(name).setConfig(config).setType(botType).setMetadata(metadata).setIsMute(mute == 1)
+						.setNamespace(namespace).setConfigData(configData).setHelperData(helperData).setNotifData(notifData).setVersion(version).setCompatibilityMap(compatibilityMap).build();
 				
 				botInfo.setBlocked(ContactManager.getInstance().isBlocked(msisdn));
 				return botInfo;
@@ -8471,7 +8474,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 		//Add object type (su,card, channel)
 		selection.append(" AND " + DBConstants.ACTION_OBJECT_TYPE + " = " +
-				DatabaseUtils.sqlEscapeString(objectType));
+                DatabaseUtils.sqlEscapeString(objectType));
 
 		Cursor c = null;
 		try
@@ -8690,4 +8693,16 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 	{
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.CONV_DB_VERSION_PREF, DBConstants.CONVERSATIONS_DATABASE_VERSION);
 	}
+
+    /*
+     * Code to generate Compatibility matrix TreeMap from json
+     */
+    private TreeMap<Integer,Integer> getCompatibilityMapFromString(String json)
+    {
+        Gson gson = new Gson();
+        Type stringStringMap = new TypeToken<TreeMap<Integer, Integer>>(){}.getType();
+        TreeMap<Integer,Integer> map = gson.fromJson(json, stringStringMap);
+        return map;
+    }
+
 }
