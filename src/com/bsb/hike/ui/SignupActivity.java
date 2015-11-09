@@ -18,7 +18,6 @@ import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
 import android.preference.PreferenceManager;
-import android.provider.MediaStore;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
 import android.telephony.TelephonyManager;
@@ -70,6 +69,7 @@ import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.localisation.LocalLanguage;
 import com.bsb.hike.localisation.LocalLanguageUtils;
+import com.bsb.hike.cropimage.HikeCropActivity;
 import com.bsb.hike.models.Birthday;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
@@ -86,9 +86,6 @@ import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.utils.Utils.ExternalStorageState;
 import com.bsb.hike.view.CustomFontEditText;
-import com.kpt.adaptxt.beta.RemoveDialogData;
-import com.kpt.adaptxt.beta.util.KPTConstants;
-import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtKeyboordVisibilityStatusListner;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -2304,7 +2301,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 		{
 
 		case HikeConstants.ResultCodes.PHOTOS_REQUEST_CODE:
-			mActivityState.destFilePath = data.getStringExtra(MediaStore.EXTRA_OUTPUT);
+			mActivityState.destFilePath = data.getStringExtra(HikeCropActivity.CROPPED_IMAGE_PATH);
 			
 			if (mActivityState.destFilePath == null)
 			{
