@@ -368,7 +368,7 @@ public class DbConversationListener implements Listener
 				ConvMessage lastMessage = messages.get(messages.size() -1);
 				
 				ConvMessage convMessage = new ConvMessage(Utils.combineInOneSmsString(context, true, messages, true), lastMessage.getMsisdn(), 
-						lastMessage.getTimestamp(), lastMessage.getState(), lastMessage.getMsgID(), lastMessage.getMappedMsgID());
+						lastMessage.getTimestamp(), lastMessage.getState(), lastMessage.getMsgID(), lastMessage.getMappedMsgID(), lastMessage.getSortingId());
 				JSONObject messageJSON = convMessage.serialize().getJSONObject(HikeConstants.DATA);
 
 				messagesArray.put(messageJSON);
@@ -406,7 +406,7 @@ public class DbConversationListener implements Listener
 				mConversationDb.updateIsHikeMessageState(convMessage.getMsgID(), false);
 			}
 			ConvMessage lastMessage = messages.get(messages.size() - 1);
-			sendNativeSMS(new ConvMessage(Utils.combineInOneSmsString(context, true, messages, false), lastMessage.getMsisdn(), lastMessage.getTimestamp(), State.UNKNOWN, lastMessage.getMsgID(), -1));
+			sendNativeSMS(new ConvMessage(Utils.combineInOneSmsString(context, true, messages, false), lastMessage.getMsisdn(), lastMessage.getTimestamp(), State.UNKNOWN, lastMessage.getMsgID(), -1, lastMessage.getSortingId()));
 
 			mPubSub.publish(HikePubSub.CHANGED_MESSAGE_TYPE, null);
 		}
