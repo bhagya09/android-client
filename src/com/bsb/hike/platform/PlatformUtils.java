@@ -559,7 +559,8 @@ public class PlatformUtils
 				boolean doReplace = downloadData.optBoolean(HikePlatformConstants.REPLACE_MICROAPP_VERSION);
 				String callbackId = downloadData.optString(HikePlatformConstants.CALLBACK_ID);
 				boolean resumeSupported=downloadData.optBoolean(HikePlatformConstants.RESUME_SUPPORTED);
-				downloadAndUnzip(rqst, false,doReplace, callbackId,resumeSupported);
+				String assoc_cbot=downloadData.optString(HikePlatformConstants.ASSOCIATE_CBOT,"");
+				downloadAndUnzip(rqst, false,doReplace, callbackId,resumeSupported,assoc_cbot);
 
 	}
 
@@ -596,10 +597,15 @@ public class PlatformUtils
 	{
 		downloadAndUnzip(request, isTemplatingEnabled, false);
 	}
-	
+
 	public static void downloadAndUnzip(PlatformContentRequest request, boolean isTemplatingEnabled, boolean doReplace, String callbackId, boolean resumeSupported)
 	{
-		PlatformZipDownloader downloader =  new PlatformZipDownloader(request, isTemplatingEnabled, doReplace, callbackId, resumeSupported);
+		downloadAndUnzip(request, isTemplatingEnabled, doReplace,callbackId,resumeSupported,"");
+	}
+	
+	public static void downloadAndUnzip(PlatformContentRequest request, boolean isTemplatingEnabled, boolean doReplace, String callbackId, boolean resumeSupported,String assocCbot)
+	{
+		PlatformZipDownloader downloader =  new PlatformZipDownloader(request, isTemplatingEnabled, doReplace, callbackId, resumeSupported,assocCbot);
 		if (!downloader.isMicroAppExist() || doReplace)
 		{
 			downloader.downloadAndUnzip();
