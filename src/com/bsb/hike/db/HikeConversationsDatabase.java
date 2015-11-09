@@ -2125,14 +2125,16 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 	private long insertMessage(SQLiteStatement insertStatement, ConvMessage conv) throws Exception
 	{
 		long msgId = -1;
+		long sortingId = -1;
 		try
 		{
 			msgId = insertStatement.executeInsert();
-
+			sortingId = getMaxSortingIdFromMessages() + 1;
 			conv.setMsgID(msgId);
+			conv.setSortingId(sortingId);
 			ContentValues contentValues = new ContentValues();
 			contentValues.put(DBConstants.SERVER_ID, conv.getServerId());
-			contentValues.put(DBConstants.SORTING_ID, (getMaxSortingIdFromMessages() + 1));
+			contentValues.put(DBConstants.SORTING_ID, sortingId);
 			if (conv.isSent())
 			{
 				// for recieved messages message hash would directly be added from insertStatement.executeInsert() statement
@@ -2145,6 +2147,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		catch (Exception e)
 		{
 			conv.setMsgID(-1);
+			conv.setSortingId(-1);
 			Logger.e(getClass().getSimpleName(), "Duplicate value ", e);
 			logDuplicateMessageEntry(conv, e);
 			throw e;
