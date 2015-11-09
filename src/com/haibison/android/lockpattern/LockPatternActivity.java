@@ -62,9 +62,11 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.ResultReceiver;
 import android.text.Editable;
+import android.text.InputType;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.text.format.DateUtils;
+import android.text.method.PasswordTransformationMethod;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
@@ -515,6 +517,9 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity implem
 
         mLockPinView.setFocusable(true);
         mLockPatternView.setFocusable(true);
+        mLockPinView.setInputType(InputType.TYPE_TEXT_VARIATION_PASSWORD | InputType.TYPE_CLASS_PHONE);
+        mLockPinView.setTransformationMethod(PasswordTransformationMethod.getInstance());
+
         mLockPinView.addTextChangedListener(new TextWatcher(){
             public void afterTextChanged(Editable s) {
             	if (ACTION_CREATE_PATTERN.equals(getIntent().getAction())) {

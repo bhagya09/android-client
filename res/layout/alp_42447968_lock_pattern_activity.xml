@@ -88,7 +88,6 @@
                 android:layout_height="wrap_content"
 				android:layout_gravity="center"
                 android:layout_marginBottom="18dp"
-                android:password="true"
                 android:background="@drawable/bg_stealth_pin"
                 android:ellipsize="start"
                 android:focusable="true"
