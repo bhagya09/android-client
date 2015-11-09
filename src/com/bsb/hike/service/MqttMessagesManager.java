@@ -14,6 +14,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import android.os.Looper;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -89,6 +90,7 @@ import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
 import com.bsb.hike.modules.stickersearch.provider.StickerSearchUtility;
 import com.bsb.hike.notifications.HikeNotification;
+import com.bsb.hike.offline.OfflineController;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.content.PlatformContent;
@@ -2548,6 +2550,7 @@ public class MqttMessagesManager
 		{
 			String offline = data.optString(HikeConstants.OFFLINE, "{}");
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.OFFLINE, offline);
+			OfflineController.getInstance().setConfiguration(offline);
 		}
 		if(data.has(HikeConstants.SHOW_HIGH_RES_IMAGE))
 		{

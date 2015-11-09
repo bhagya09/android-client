@@ -54,6 +54,9 @@ import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.offline.CleanFileRunnable;
 import com.bsb.hike.offline.OfflineConstants;
+import com.bsb.hike.offline.OfflineController;
+import com.bsb.hike.offline.OfflineException;
+import com.bsb.hike.offline.OfflineSessionTracking;
 import com.bsb.hike.platform.HikeSDKRequestHandler;
 import com.bsb.hike.tasks.CheckForUpdateTask;
 import com.bsb.hike.tasks.SyncContactExtraInfo;
@@ -62,6 +65,7 @@ import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
+import com.hike.transporter.TException;
 
 public class HikeService extends Service
 {
@@ -208,6 +212,18 @@ public class HikeService extends Service
 		initHikeService();
 	}
 
+	@Override
+	public void onTaskRemoved(Intent rootIntent)
+	{
+		Logger.d("HikeService", "onTaskRemoved");
+		super.onTaskRemoved(rootIntent);
+		
+		if(OfflineController.getInstance().isConnected())
+		{
+			OfflineController.getInstance().shutdownProcess(new OfflineException(OfflineException.APP_SWIPE));
+		}
+	}
+	
 	/**
 	 * Initialize HikeService variables, references and other components.
 	 */
