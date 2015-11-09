@@ -526,6 +526,7 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity implem
                     		if (s.length() == 4){
                         		mTextInfo.setText(R.string.stealth_msg_pin_recorded);
                         		mBtnConfirm.setEnabled(true);
+                                mCustomKeyboard.hideCustomKeyboard(mLockPinView);
                         	} 
                     		else 
                         	{
@@ -550,6 +551,9 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity implem
 //                        		if(!check) 
 //                        			mLockPinView.setText("");   
                         		mBtnConfirm.setEnabled(check);
+                                if(check){
+                                    mCustomKeyboard.hideCustomKeyboard(mLockPinView);
+                                }
                         	} 
                     		else 
                         	{
@@ -1296,6 +1300,7 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity implem
                     mBtnOkCmd = ButtonOkCommand.DONE;
                     mLockPatternView.clearPattern();
                     mLockPinView.setText("");
+                    mCustomKeyboard.showCustomKeyboard(mLockPinView, true);
                     if(mLockPinView.getVisibility() == View.VISIBLE)
                     {
                     	if (mCustomKeyboard != null)
