@@ -39,6 +39,7 @@ public class HikeAppStateBaseFragmentActivity extends HikeBaseActivity implement
 	
 	protected HikeUiHandler uiHandler = new HikeUiHandler (this);
 	
+	private boolean isActivityVisible = false;
 	/**
 	 * 
 	 * @param msg
@@ -70,6 +71,7 @@ public class HikeAppStateBaseFragmentActivity extends HikeBaseActivity implement
 	@Override
 	protected void onResume()
 	{
+		isActivityVisible = true;
 		HikeAppStateUtils.onResume(this);
 		HikeAlarmManager.cancelAlarm(HikeAppStateBaseFragmentActivity.this, HikeAlarmManager.REQUESTCODE_RETRY_LOCAL_NOTIFICATION);
 		super.onResume();
@@ -115,6 +117,7 @@ public class HikeAppStateBaseFragmentActivity extends HikeBaseActivity implement
 	@Override
 	protected void onPause()
 	{
+		isActivityVisible = false;
 		HikeAppStateUtils.onPause(this);
 		super.onPause();
 	}
@@ -333,6 +336,11 @@ public class HikeAppStateBaseFragmentActivity extends HikeBaseActivity implement
 			break;
 		}
 
+	}
+	
+	protected boolean isActivityVisible()
+	{
+		return isActivityVisible;
 	}
 
 }
