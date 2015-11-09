@@ -6042,14 +6042,19 @@ public class Utils
 
 		if (isIceCreamOrHigher() && context != null)
 		{
-			Cursor c = context.getContentResolver().query(ContactsContract.Profile.CONTENT_URI, null, null, null, null);
-			if (c != null)
+			try
 			{
-				if (c.moveToFirst())
-				{
-					name = c.getString(c.getColumnIndex(ContactsContract.Profile.DISPLAY_NAME));
+				Cursor c = context.getContentResolver().query(ContactsContract.Profile.CONTENT_URI, null, null, null, null);
+				if (c != null) {
+					if (c.moveToFirst()) {
+						name = c.getString(c.getColumnIndex(ContactsContract.Profile.DISPLAY_NAME));
+					}
+					c.close();
 				}
-				c.close();
+			}
+			catch (SecurityException e)
+			{
+				Logger.e("Utils", "Security exception while trying to getOwnerName");
 			}
 		}
 
