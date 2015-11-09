@@ -1792,6 +1792,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 			Utils.hideSoftKeyboard(activity, mComposeView);
 		}else if (mCustomKeyboard!=null && mCustomKeyboard.isCustomKeyboardVisible())
 		{
+			keyboardFtue.destroy();
 			mCustomKeyboard.showCustomKeyboard(mComposeView, false); 
 			KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, 0);
 		}
