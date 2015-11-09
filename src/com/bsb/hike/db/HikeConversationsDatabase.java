@@ -2125,14 +2125,16 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 	private long insertMessage(SQLiteStatement insertStatement, ConvMessage conv) throws Exception
 	{
 		long msgId = -1;
+		long sortingId = -1;
 		try
 		{
 			msgId = insertStatement.executeInsert();
-
+			sortingId = getMaxSortingIdFromMessages() + 1;
 			conv.setMsgID(msgId);
+			conv.setSortingId(sortingId);
 			ContentValues contentValues = new ContentValues();
 			contentValues.put(DBConstants.SERVER_ID, conv.getServerId());
-			contentValues.put(DBConstants.SORTING_ID, (getMaxSortingIdFromMessages() + 1));
+			contentValues.put(DBConstants.SORTING_ID, sortingId);
 			if (conv.isSent())
 			{
 				// for recieved messages message hash would directly be added from insertStatement.executeInsert() statement
@@ -2145,6 +2147,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		catch (Exception e)
 		{
 			conv.setMsgID(-1);
+			conv.setSortingId(-1);
 			Logger.e(getClass().getSimpleName(), "Duplicate value ", e);
 			logDuplicateMessageEntry(conv, e);
 			throw e;
@@ -3228,7 +3231,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				final int sortingIdColumn = c.getColumnIndex(DBConstants.SORTING_ID);
 
 				ConvMessage message = new ConvMessage(c.getString(msgColumn), msisdn, c.getInt(tsColumn), ConvMessage.stateValue(c.getInt(msgStatusColumn)),
-						c.getLong(msgIdColumn), c.getLong(mappedMsgIdColumn), c.getString(groupParticipantColumn));
+						c.getLong(msgIdColumn), c.getLong(mappedMsgIdColumn), c.getString(groupParticipantColumn), c.getLong(sortingIdColumn));
 				String metadata = c.getString(metadataColumn);
 				try
 				{
@@ -3239,7 +3242,6 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 					Logger.e(HikeConversationsDatabase.class.getName(), "Invalid JSON metadata", e);
 				}
 				
-				message.setSortingId(c.getLong(sortingIdColumn));
 				return message;
 			}
 		} 
@@ -6647,9 +6649,8 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			boolean isHikeMessage = hikeMessage == -1 ?isOnHike : (hikeMessage == 0 ? false : true);
 
 			ConvMessage message = new ConvMessage(c.getString(msgColumn),msisdn, c.getInt(tsColumn), ConvMessage.stateValue(c.getInt(msgStatusColumn)),
-					c.getLong(msgIdColumn), c.getLong(mappedMsgIdColumn), c.getString(groupParticipantColumn), !isHikeMessage, c.getInt(typeColumn),c.getInt(contentIdColumn), c.getString(nameSpaceColumn));
+					c.getLong(msgIdColumn), c.getLong(mappedMsgIdColumn), c.getString(groupParticipantColumn), !isHikeMessage, c.getInt(typeColumn),c.getInt(contentIdColumn), c.getString(nameSpaceColumn), c.getLong(sortId));
 			
-			message.setSortingId(c.getLong(sortId));
 			//if(message.getMessageType() == HikeConstants.MESSAGE_TYPE.CONTENT){
 //				int loveId = c.getInt(loveIdColumn);
 //				// DEFAULT value of love id is -1
@@ -8726,8 +8727,8 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				final int sortId = c.getColumnIndex(DBConstants.SORTING_ID);
 
 				ConvMessage message = new ConvMessage(c.getString(msgColumn), c.getString(msisdnColumn), c.getInt(tsColumn), ConvMessage.stateValue(c.getInt(msgStatusColumn)),
-						c.getLong(msgIdColumn), c.getLong(mappedMsgIdColumn), c.getString(groupParticipantColumn), true, c.getInt(typeColumn), c.getInt(contentIdColumn), c.getString(nameSpaceColumn));
-				message.setSortingId(c.getLong(sortId));
+						c.getLong(msgIdColumn), c.getLong(mappedMsgIdColumn), c.getString(groupParticipantColumn), true, c.getInt(typeColumn), c.getInt(contentIdColumn), c.getString(nameSpaceColumn), c.getLong(sortId));
+				
 				return message;
 
 			}

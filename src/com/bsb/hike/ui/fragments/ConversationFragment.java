@@ -27,8 +27,6 @@ import android.os.Handler;
 import android.os.Message;
 import android.provider.ContactsContract;
 import android.provider.ContactsContract.Intents.Insert;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.ListFragment;
 import android.text.Spannable;
 import android.text.SpannableString;
@@ -2562,7 +2560,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 									ConvMessage prevMessage = convInfo.getLastConversationMsg();
 									String metadata = message.getMetadata().serialize();
 									message = new ConvMessage(message.getMessage(), message.getMsisdn(), prevMessage.getTimestamp(), prevMessage.getState(),
-											prevMessage.getMsgID(), prevMessage.getMappedMsgID(), message.getGroupParticipantMsisdn());
+											prevMessage.getMsgID(), prevMessage.getMappedMsgID(), message.getGroupParticipantMsisdn(), prevMessage.getSortingId());
 									try
 									{
 										message.setMetadata(metadata);
@@ -3781,7 +3779,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 				ConvMessage prevMessage = conv.getLastConversationMsg();
 				String metadata = message.getMetadata().serialize();
 				message = new ConvMessage(message.getMessage(), message.getMsisdn(), prevMessage.getTimestamp(), prevMessage.getState(), prevMessage.getMsgID(),
-						prevMessage.getMappedMsgID(), message.getGroupParticipantMsisdn());
+						prevMessage.getMappedMsgID(), message.getGroupParticipantMsisdn(), prevMessage.getSortingId());
 				try
 				{
 					message.setMetadata(metadata);
