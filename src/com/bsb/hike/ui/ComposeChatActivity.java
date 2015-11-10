@@ -94,6 +94,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBar;
+import android.view.ActionMode;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Pair;
@@ -397,7 +398,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		mCustomKeyboard.init(tagEditText);
 		tagEditText.setOnClickListener(new OnClickListener()
 		{
-			
+
 			@Override
 			public void onClick(View v)
 			{
@@ -405,7 +406,34 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 				{
 					return;
 				}
-				mCustomKeyboard.showCustomKeyboard(tagEditText, true);	
+				mCustomKeyboard.showCustomKeyboard(tagEditText, true);
+			}
+		});
+		tagEditText.setCustomSelectionActionModeCallback(new ActionMode.Callback()
+		{
+			@Override
+			public boolean onCreateActionMode(ActionMode mode, Menu menu)
+			{
+				mCustomKeyboard.showCustomKeyboard(tagEditText, true);
+				return true;
+			}
+
+			@Override
+			public boolean onPrepareActionMode(ActionMode mode, Menu menu)
+			{
+				return false;
+			}
+
+			@Override
+			public boolean onActionItemClicked(ActionMode mode, MenuItem item)
+			{
+				return false;
+			}
+
+			@Override
+			public void onDestroyActionMode(ActionMode mode)
+			{
+
 			}
 		});
 	}
