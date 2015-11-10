@@ -1,25 +1,19 @@
 package com.bsb.hike.chatthread;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.json.JSONArray;
 
+import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.app.NotificationManager;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.location.LocationManager;
 import android.media.AudioManager;
 import android.net.wifi.ScanResult;
 import android.net.wifi.p2p.WifiP2pDeviceList;
@@ -29,34 +23,16 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.text.Editable;
-import android.text.Html;
-import android.text.Spannable;
-import android.text.SpannableString;
-import android.text.TextUtils;
+import android.text.*;
 import android.text.style.ForegroundColorSpan;
 import android.util.Pair;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.MotionEvent;
-import android.view.View;
-import android.view.ViewStub;
+import android.view.*;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
 import android.view.animation.AnimationUtils;
-import android.widget.CheckBox;
-import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.TextView;
-import android.widget.Toast;
+import android.widget.*;
 
-import com.bsb.hike.HikeConstants;
-import com.bsb.hike.HikeMessengerApp;
-import com.bsb.hike.HikePubSub;
-import com.bsb.hike.MqttConstants;
-import com.bsb.hike.R;
+import com.bsb.hike.*;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.AnalyticsConstants.MessageType;
 import com.bsb.hike.analytics.HAManager;
@@ -65,43 +41,28 @@ import com.bsb.hike.db.HikeMqttPersistence;
 import com.bsb.hike.dialog.H20Dialog;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
+import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.media.OverFlowMenuItem;
-import com.bsb.hike.models.ContactInfo;
+import com.bsb.hike.models.*;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
-import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
 import com.bsb.hike.models.ConvMessage.State;
-import com.bsb.hike.models.HikeFile;
-import com.bsb.hike.models.MovingList;
-import com.bsb.hike.models.Sticker;
-import com.bsb.hike.models.TypingNotification;
 import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.models.Conversation.OneToOneConversation;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.lastseenmgr.FetchLastSeenTask;
 import com.bsb.hike.notifications.HikeNotification;
-import com.bsb.hike.offline.OfflineAnalytics;
-import com.bsb.hike.offline.OfflineConstants;
+import com.bsb.hike.offline.*;
 import com.bsb.hike.offline.OfflineConstants.DisconnectFragmentType;
 import com.bsb.hike.offline.OfflineConstants.ERRORCODE;
 import com.bsb.hike.offline.OfflineConstants.OFFLINE_STATE;
-import com.bsb.hike.offline.OfflineController;
-import com.bsb.hike.offline.OfflineParameters;
-import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.ui.fragments.OfflineAnimationFragment;
 import com.bsb.hike.ui.fragments.OfflineDisconnectFragment;
 import com.bsb.hike.ui.fragments.OfflineDisconnectFragment.OfflineConnectionRequestListener;
-import com.bsb.hike.utils.ChatTheme;
-import com.bsb.hike.utils.HikeSharedPreferenceUtil;
-import com.bsb.hike.utils.IntentFactory;
-import com.bsb.hike.utils.LastSeenScheduler;
+import com.bsb.hike.utils.*;
 import com.bsb.hike.utils.LastSeenScheduler.LastSeenFetchedCallback;
-import com.bsb.hike.utils.Logger;
-import com.bsb.hike.utils.SoundUtils;
-import com.bsb.hike.utils.StickerManager;
-import com.bsb.hike.utils.Utils;
 import com.bsb.hike.voip.VoIPUtils;
 import com.google.gson.Gson;
 
@@ -111,7 +72,7 @@ import com.google.gson.Gson;
  * @generated
  */
 
-public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCallback, ViewStub.OnInflateListener,OfflineConnectionRequestListener
+@SuppressLint("ResourceAsColor") public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCallback, ViewStub.OnInflateListener,OfflineConnectionRequestListener
 {
 	private static final String TAG = "oneonechatthread";
 
@@ -201,6 +162,18 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	private boolean shouldScheduleH20Tip = true;
 
 	private List<Integer> offlineIntentHashData = new ArrayList<Integer>();
+	
+	private Dialog alert = null;
+	
+	private int currentLocationDevice;
+	
+	private final int GPS_ENABLED = 1;
+
+	private final int GPS_DISABLED = 2;
+
+	private final int NO_LOCATION_DEVICE_ENABLED = 0;
+
+	private boolean gpsDialogShown = false;
 	
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
@@ -904,7 +877,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		setLastSeen(message,true);
 		activity.invalidateOptionsMenu();
 		showNetworkError(ChatThreadUtils.checkNetworkError());
-		
+		showCallIcon();
 	}
 
 	private void onOfflineDisconnection()
@@ -1671,7 +1644,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	}
 	private void startFreeHikeConversation(Boolean showAnimation)
 	{
-		if(offlineController==null)
+		if (offlineController == null)
 		{
 			offlineController = OfflineController.getInstance();
 			offlineController.addListener(this);
@@ -1679,15 +1652,15 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		switch (OfflineController.getInstance().getOfflineState())
 		{
 		case CONNECTED:
-			if(!OfflineUtils.isConnectedToSameMsisdn(msisdn))
+			if (!OfflineUtils.isConnectedToSameMsisdn(msisdn))
 			{
-				showPreviouslyConnectedorConnectingTip(true,true);
+				showPreviouslyConnectedorConnectingTip(true, true);
 			}
 			break;
 		case CONNECTING:
-			if(!OfflineUtils.isConnectingToSameMsisdn(msisdn))
+			if (!OfflineUtils.isConnectingToSameMsisdn(msisdn))
 			{
-				showPreviouslyConnectedorConnectingTip(false,true);
+				showPreviouslyConnectedorConnectingTip(false, true);
 			}
 			break;
 		case DISCONNECTING:
@@ -1695,18 +1668,42 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			break;
 		case NOT_CONNECTED:
 		case DISCONNECTED:
-			if(showAnimation)
-			{
-				startFreeHikeAnimation();
-			}
-			Logger.d("OfflineAnimationFragment",msisdn);
+			Logger.d("OfflineAnimationFragment", msisdn);
 			OfflineUtils.sendOfflineRequestPacket(msisdn);
-			offlineController.connectAsPerMsisdn(msisdn);
-			setupOfflineUI();
+			if (shouldShowLocationDialog())
+			{
+				showLocationDialog();
+			}
+			else
+			{
+				offlineController.connectAsPerMsisdn(msisdn);
+				setupOfflineUI();
+				if (showAnimation)
+				{
+					startFreeHikeAnimation();
+				}
+			}
 			break;
 		}
 	}
-	
+
+	/**
+	 * 
+	 * @return 1)>lollipop 2)smaller msisdn 3)location disabled 4)server variable
+	 */
+	private boolean shouldShowLocationDialog()
+	{
+		return (Utils.isMarshmallowOrHigher() && OfflineUtils.willConnnectToHotspot(msisdn) && !Utils.isLocationEnabled(activity.getApplicationContext()) && HikeSharedPreferenceUtil
+				.getInstance().getData(HikeConstants.SHOW_GPS_DIALOG, false));
+	}
+
+	private void showLocationCloseDialog()
+	{
+		if (Utils.isMarshmallowOrHigher() && Utils.isLocationEnabled(activity) && HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SHOW_GPS_DIALOG, false))
+			sendUIMessage(SHOW_TOAST, 1000, R.string.close_gps);
+	}
+
+
 	/**
 	 * 
 	 * @param isConnected True if device is already connected to some other device
@@ -3215,7 +3212,23 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	 */
 	private boolean shouldShowCallIcon()
 	{
-		return Utils.isVoipActivated(activity.getApplicationContext()) && mConversation.isOnHike() && !OfflineUtils.isConnectedToSameMsisdn(msisdn);
+		if(Utils.isVoipActivated(activity.getApplicationContext()) && mConversation.isOnHike())
+		{
+			if(OfflineUtils.isConnectedToSameMsisdn(msisdn))
+			{
+				if (OfflineUtils.isFeautureAvailable(OfflineConstants.OFFLINE_VERSION_NUMER, OfflineUtils.getConnectedDeviceVersion(), OfflineConstants.VOIP_HIKE_DIRECT))
+				{
+					return true;
+				}
+				else
+				{
+					return false;
+				}
+			}
+			return true;
+			
+		}
+		return false;
 	}
 	
 	/*
@@ -3350,8 +3363,9 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		}
 		NotificationManager notificationManager = (NotificationManager)activity.getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.cancel(HikeNotification.OFFLINE_REQUEST_ID);
+        showLocationCloseDialog();
 	}
-
+	
 	private void clearAttachmentPicker() {
 		attachmentPicker = null;
 	}
@@ -3372,8 +3386,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	public void onDisconnect(ERRORCODE errorCode)
 	{
 		
-		NotificationManager notificationManager = (NotificationManager)activity.getSystemService(Context.NOTIFICATION_SERVICE);
-        notificationManager.cancel(HikeNotification.OFFLINE_REQUEST_ID);
+		HikeNotification.getInstance().cancelNotification(HikeNotification.OFFLINE_REQUEST_ID);
         
 		Logger.d("OfflineManager", "disconnect Called " + errorCode +  "excetion code"+ errorCode.getErrorCode().getReasonCode()+ " time- "  + System.currentTimeMillis());
 		switch (errorCode)
@@ -3464,5 +3477,92 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		}
 		
 		super.onPreNewIntent();
+	}
+	
+	private void showLocationDialog()
+	{
+		if (alert != null && alert.isShowing())
+		{
+			return;
+		}
+		LocationManager locManager = (LocationManager) activity.getSystemService(Context.LOCATION_SERVICE);
+
+		boolean hasGps = activity.getPackageManager().hasSystemFeature(PackageManager.FEATURE_LOCATION_GPS);
+
+		if (locManager.isProviderEnabled(LocationManager.GPS_PROVIDER))
+		{
+			currentLocationDevice = GPS_ENABLED;
+		}
+		else if (locManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER))
+		{
+			currentLocationDevice = GPS_DISABLED;
+		}
+		else
+		{
+			currentLocationDevice = NO_LOCATION_DEVICE_ENABLED;
+		}
+
+		/*
+		 * Don't show anything if the GPS is already enabled or the device does not have gps and the network is enabled or the the GPS dialog was shown once.
+		 */
+		if (currentLocationDevice == GPS_ENABLED)
+		{
+			return;
+		}
+		else if (currentLocationDevice == GPS_DISABLED && (!hasGps || gpsDialogShown))
+		{
+			return;
+		}
+
+		int messageId = R.string.switch_on_gps;
+
+		alert = HikeDialogFactory.showDialog(activity, HikeDialogFactory.GPS_DIALOG, new HikeDialogListener()
+		{
+			@Override
+			public void positiveClicked(HikeDialog hikeDialog)
+			{
+				Intent callGPSSettingIntent = new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+				activity.startActivityForResult(callGPSSettingIntent, HikeConstants.GPS_STATUS_CHANGED);
+				hikeDialog.dismiss();
+			}
+
+			@Override
+			public void neutralClicked(HikeDialog hikeDialog)
+			{
+			}
+
+			@Override
+			public void negativeClicked(HikeDialog hikeDialog)
+			{
+				gpsDialogShown = currentLocationDevice == GPS_DISABLED;
+				Toast.makeText(activity, getString(R.string.user_gps_off), Toast.LENGTH_LONG).show();
+				hikeDialog.dismiss();
+			}
+		}, messageId, R.string.gps_settings);
+
+
+		if (isActivityVisible)
+			alert.show();
+
+	}	
+	
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent data)
+	{
+		switch (requestCode)
+		{
+		case HikeConstants.GPS_STATUS_CHANGED:
+			if (Utils.isLocationEnabled(activity.getApplicationContext()))
+			{
+				sendUIMessage(START_OFFLINE_CONNECTION, true);
+			}
+			else
+			{
+				Toast.makeText(activity, getString(R.string.user_gps_off), Toast.LENGTH_LONG).show();
+			}
+			break;
+		default:
+			super.onActivityResult(requestCode, resultCode, data);
+		}
 	}
 }

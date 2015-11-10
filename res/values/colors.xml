@@ -211,10 +211,6 @@
     <color name="nuxunlocked">#6bbe00</color>
     <color name="black_90">#E6000000</color>
     <color name="voip_hang_up">#F64444</color>
-    <color name="signal_yellow">#f09b05</color>
-    <color name="signal_red">#f14646</color>
-    <color name="signal_green">#45ad25</color>
-    <color name="signal_good">#8bb605</color>
     <color name="black_80">#CC000000</color>
     <color name="call_rate_dismiss">#26292d</color>
     <color name="call_rate_submit">#1DA8E8</color>

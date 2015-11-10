@@ -1547,6 +1547,17 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		conVal.put(DBConstants.FEED_ACTOR, feedData.getActor());
 		conVal.put(DBConstants.FEED_TS, feedData.getTimestamp());
 
+		String whereQuery = DBConstants.FEED_TS + " = ? AND " + DBConstants.FEED_ACTOR + " = ?";
+
+		String[] whereArgs = new String[] { Long.toString(feedData.getTimestamp()), feedData.getActor() };
+
+		Cursor cursor = mDb.query(DBConstants.FEED_TABLE, null, whereQuery, whereArgs, null, null, null, new Integer(1).toString());
+
+		if (cursor.moveToFirst())
+		{
+			return false;
+		}
+
 		long rowID = mDb.insert(DBConstants.FEED_TABLE, null, conVal);
 
 		if (rowID == -1L)
@@ -1564,8 +1575,8 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			ArrayList<String> actorList = new ArrayList<String>();
 			actorList.add(feedData.getActor());
 			changeActionCountForObjID(feedData.getObjID(), feedData.getObjType().getTypeString(), ActionsDataModel.ActionTypes.LIKE.getKey(), actorList, true);
-		
-			//Fire UPDATE_ACTIVITY_FEED_ICON_NOTIFICATION pubsub
+
+			// Fire UPDATE_ACTIVITY_FEED_ICON_NOTIFICATION pubsub
 			fireUpdateNotificationIconPubsub(TimelineActivity.FETCH_FEED_FROM_DB);
 		}
 

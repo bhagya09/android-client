@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.platform.content.PlatformContentConstants;
 
 import org.acra.ACRA;
@@ -956,14 +957,12 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 		}
 		
 		// Cancel any going OfflineNotification
-		NotificationManager notificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
-		notificationManager.cancel(OfflineConstants.NOTIFICATION_IDENTIFIER);
+		HikeNotification.getInstance().cancelNotification(OfflineConstants.NOTIFICATION_IDENTIFIER);
 
 		HikeSharedPreferenceUtil.getInstance().removeData(OfflineConstants.DIRECT_REQUEST_DATA);
 	
 		StickerManager.getInstance().sendStickerPackAndOrderListForAnalytics();
 		StickerManager.getInstance().refreshTagData();
-		StickerSearchManager.getInstance().removeDeletedStickerTags();
 		
 		bottomNavBarHeightPortrait = Utils.getBottomNavBarHeight(getApplicationContext());
 		bottomNavBarWidthLandscape = Utils.getBottomNavBarWidth(getApplicationContext());
