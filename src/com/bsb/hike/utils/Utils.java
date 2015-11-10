@@ -101,6 +101,7 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
 import android.location.Address;
 import android.location.Geocoder;
+import android.location.LocationManager;
 import android.media.AudioManager;
 import android.media.ExifInterface;
 import android.media.MediaScannerConnection;
@@ -182,7 +183,6 @@ import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.chatHead.StickyCaller;
 import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.chatthread.ChatThreadUtils;
-import com.bsb.hike.cropimage.CropImage;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.dialog.CustomAlertDialog;
 import com.bsb.hike.dialog.HikeDialog;
@@ -295,6 +295,8 @@ public class Utils
 	 * copied from {@link android.telephony.TelephonyManager}
 	 */
 	private static final int NETWORK_TYPE_GSM = 16;
+
+	private final static String ANDROID_DATA_STORAGE_DIR_SUFFIX = "/Android/data/";
 
 	static
 	{
@@ -2773,20 +2775,6 @@ public class Utils
 		return "and:" + SHA1(deviceId);
 	}
 
-	public static void startCropActivity(Activity activity, String path, String destPath)
-	{
-		/* Crop the image */
-		Intent intent = new Intent(activity, CropImage.class);
-		intent.putExtra(MediaStore.EXTRA_OUTPUT, destPath);
-		intent.putExtra(HikeConstants.Extras.IMAGE_PATH, path);
-		intent.putExtra(HikeConstants.Extras.SCALE, true);
-		intent.putExtra(HikeConstants.Extras.OUTPUT_X, HikeConstants.MAX_DIMENSION_LOW_FULL_SIZE_PX);
-		intent.putExtra(HikeConstants.Extras.OUTPUT_Y, HikeConstants.MAX_DIMENSION_LOW_FULL_SIZE_PX);
-		intent.putExtra(HikeConstants.Extras.ASPECT_X, 1);
-		intent.putExtra(HikeConstants.Extras.ASPECT_Y, 1);
-		activity.startActivityForResult(intent, HikeConstants.CROP_RESULT);
-	}
-
 	public static long getContactId(Context context, long rawContactId)
 	{
 		Cursor cur = null;
@@ -2920,6 +2908,40 @@ public class Utils
 
 		int frCount = accountPrefs.getInt(HikeMessengerApp.FRIEND_REQ_COUNT, 0);
 		notificationCount += frCount;
+		return notificationCount;
+	}
+	
+	/**
+	 * Get unseen status, user-status and friend request count,
+	 * 
+	 * @param accountPrefs
+	 *            Account settings shared preference
+	 * @param countUsersStatus
+	 *            Whether to include user status count in the total
+	 * @param countUsersActivity
+	 *            Whether to include user activity count in the total
+	 * @param countUnseenStatus
+	 *            Whether to include unseen status count in the total
+	 * @param friendRequestCount
+	 *            Whether to include friend request count in the total
+	 * @return
+	 */
+	public static int getNotificationCount(SharedPreferences accountPrefs, boolean countUsersStatus, boolean countUserActivity,boolean countUnseenStatus,boolean friendRequestCount)
+	{
+		int notificationCount = 0;
+		if (countUnseenStatus)
+		notificationCount += accountPrefs.getInt(HikeMessengerApp.UNSEEN_STATUS_COUNT, 0);
+		if (countUserActivity)
+			notificationCount += accountPrefs.getInt(HikeMessengerApp.USER_TIMELINE_ACTIVITY_COUNT, 0);
+		if (countUsersStatus)
+		{
+			notificationCount += accountPrefs.getInt(HikeMessengerApp.UNSEEN_USER_STATUS_COUNT, 0);
+		}
+		if (friendRequestCount)
+		{
+		int frCount = accountPrefs.getInt(HikeMessengerApp.FRIEND_REQ_COUNT, 0);
+		notificationCount += frCount;
+		}
 		return notificationCount;
 	}
 
@@ -3510,6 +3532,11 @@ public class Utils
 
 	public static void sendLogEvent(JSONObject data, String subType, String toMsisdn)
 	{
+		sendLogEvent(data, subType, toMsisdn, HikeConstants.MqttMessageTypes.ANALYTICS_EVENT);
+	}
+	
+	public static void sendLogEvent(JSONObject data, String subType, String toMsisdn,String type)
+	{
 
 		JSONObject object = new JSONObject();
 		try
@@ -3525,7 +3552,7 @@ public class Utils
 			{
 				object.put(HikeConstants.TO, toMsisdn);
 			}
-			object.put(HikeConstants.TYPE, HikeConstants.MqttMessageTypes.ANALYTICS_EVENT);
+			object.put(HikeConstants.TYPE, type);
 			object.put(HikeConstants.DATA, data);
 
 			HikeMqttManagerNew.getInstance().sendMessage(object, MqttConstants.MQTT_QOS_ONE);
@@ -7504,4 +7531,50 @@ public class Utils
 
 		return timeLogBuilder.toString();
 	}
+	
+	public static boolean isLocationEnabled(Context context)
+	{
+		LocationManager locManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+
+		boolean hasGps = context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_LOCATION_GPS);
+
+		if (!hasGps)
+		{
+			return false;
+		}
+		else if (locManager.isProviderEnabled(LocationManager.GPS_PROVIDER))
+		{
+			return true;
+		}
+		else if (locManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER))
+		{
+			return false;
+		}
+
+		return false;
+
+	}
+
+	public static boolean isMarshmallowOrHigher()
+	{
+		return Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1;
+	}
+	/**
+	 * returns true if the filePath starts with android data storage directory path
+	 * @param filePath
+	 */
+	public static boolean isAndroidDataStorageDir(String filePath)
+	{
+		boolean isAndroidDataStorageDir = false;
+		if(TextUtils.isEmpty(filePath))
+		{
+			isAndroidDataStorageDir =  false;
+		}
+		else if(getExternalStorageState() == ExternalStorageState.WRITEABLE)
+		{
+			isAndroidDataStorageDir = filePath.startsWith(Environment.getExternalStorageDirectory() + ANDROID_DATA_STORAGE_DIR_SUFFIX);
+		}
+		return isAndroidDataStorageDir;
+	}
+
 }
