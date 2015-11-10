@@ -252,6 +252,14 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 		public int height;
 	}
 
+        /* Empty onNewIntent is created so as to avoid overriding the existing intent of SignupActivity,
+           if we don't do this then SignupActivity will be launched as fresh i.e. requesting msisdn */
+	@Override
+	protected void onNewIntent(Intent intent)
+	{
+
+	}
+
 	@Override
 	public void onCreate(Bundle savedInstanceState)
 	{
