@@ -708,10 +708,6 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 			mDialog = null;
 		}
 		mTask = null;
-		if (kptSettings != null)
-		{
-			kptSettings.destroySettings();
-		}
 	}
 
 	public void setBlockingTask(ActivityCallableTask task)
