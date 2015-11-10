@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="320dp"
+    android:orientation="vertical">
+
+    <ViewFlipper
+        android:id="@+id/flipper"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/white">
+
+            <ImageView
+                android:id="@+id/close"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentTop="true"
+                android:scaleType="center"
+                android:src="@drawable/ic_keyboard_popup_cross" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_centerInParent="true"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:padding="22dp">
+
+                <ImageView
+                    android:layout_width="90dp"
+                    android:layout_height="97dp"
+                    android:layout_margin="12dp"
+                    android:background="@drawable/art_keyboard" />
+
+                <com.bsb.hike.view.CustomFontTextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="12dp"
+                    android:text="@string/regional_keyboard"
+                    android:textColor="#3d475b"
+                    android:textSize="20dp"
+                    android:textStyle="bold|italic" />
+
+                <com.bsb.hike.view.CustomFontTextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:maxLines="2"
+                    android:maxWidth="260dp"
+                    android:text="@string/regional_keyboard_subtext"
+                    android:textColor="@color/settings_text_subheader_color"
+                    android:textSize="16sp" />
+
+                <com.bsb.hike.view.CustomFontTextView
+                    android:id="@+id/txt_choose_language"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="28dp"
+                    android:text="@string/CHOOSE_LANGUAGE"
+                    android:textColor="#1da8e8"
+                    android:textSize="14sp"
+                    android:textStyle="bold|italic" />
+            </LinearLayout>
+        </RelativeLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/white"
+            android:orientation="vertical"
+            android:paddingBottom="4dp"
+            android:paddingLeft="24dp"
+            android:paddingRight="4dp"
+            android:paddingTop="4dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:gravity="center_vertical|left">
+
+                <com.bsb.hike.view.CustomFontTextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/choose_language"
+                    android:textColor="#de000000"
+                    android:textSize="20dp"
+                    android:textStyle="bold|italic" />
+            </LinearLayout>
+
+            <ListView
+                android:id="@+id/lang_list"
+                style="@style/HomeList"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1.0"
+                android:divider="@null"></ListView>
+
+            <LinearLayout
+                android:id="@+id/action_panel"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:gravity="center_vertical|right"
+                android:visibility="gone">
+
+                <com.bsb.hike.view.CustomFontButton
+                    android:id="@+id/btn_negative"
+                    style="@style/ButtonCustomDialog"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/cancel" />
+
+                <com.bsb.hike.view.CustomFontButton
+                    android:id="@+id/btn_positive"
+                    style="@style/ButtonCustomDialog"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/apply" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/waiting_panel"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:gravity="center_vertical">
+
+                <com.bsb.hike.view.CustomFontTextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1.0"
+                    android:text="@string/setting_up_keyboard"
+                    android:textColor="#5c000000"
+                    android:textSize="14dp" />
+
+                <ProgressBar
+                    android:id="@+id/progress_bar"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_margin="20dp"
+                    android:indeterminateDrawable="@drawable/rotating_blue" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/black_90"
+            android:orientation="vertical"
+            android:paddingLeft="26dp"
+            android:paddingRight="26dp">
+
+
+            <RelativeLayout
+                android:id="@+id/langauage_layout"
+                android:layout_width="160dp"
+                android:layout_height="52dp"
+                android:layout_alignParentBottom="true"
+                android:layout_centerHorizontal="true"
+                android:layout_marginBottom="32dp"
+                android:background="@drawable/ic_spacebar"
+                android:padding="10dp">
+
+
+                <com.bsb.hike.view.CustomFontTextView
+                    android:id="@+id/txt_language_1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="हिन्दी"
+                    android:textColor="@color/white"
+                    android:textSize="12dp" />
+
+                <com.bsb.hike.view.CustomFontTextView
+                    android:id="@+id/txt_language_2"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="English"
+                    android:textColor="@color/white"
+                    android:textSize="12dp" />
+            </RelativeLayout>
+
+            <ImageView
+                android:id="@+id/hand"
+                android:layout_width="66dp"
+                android:layout_height="56dp"
+                android:layout_alignLeft="@id/langauage_layout"
+                android:layout_alignTop="@id/langauage_layout"
+                android:layout_marginTop="20dp"
+                android:scaleType="center"
+                android:src="@drawable/art_hand_swipe" />
+
+            <com.bsb.hike.view.CustomFontTextView
+                android:id="@+id/txt_swipe"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_above="@id/langauage_layout"
+                android:layout_centerHorizontal="true"
+                android:gravity="center"
+                android:maxWidth="208dp"
+                android:text="@string/keyboad_ftue_swipe"
+                android:textColor="@color/white"
+                android:textSize="16dp"
+                android:textStyle="bold|italic" />
+        </RelativeLayout>
+
+
+    </ViewFlipper>
+</LinearLayout>

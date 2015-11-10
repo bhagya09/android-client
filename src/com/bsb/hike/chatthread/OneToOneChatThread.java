@@ -108,6 +108,7 @@ import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.voip.VoIPUtils;
 import com.google.gson.Gson;
+import com.kpt.adaptxt.beta.RemoveDialogData;
 
 /**
  * <!-- begin-user-doc --> <!-- end-user-doc -->
@@ -3513,7 +3514,18 @@ import com.google.gson.Gson;
 		
 		super.onPreNewIntent();
 	}
-	
+
+	@Override
+	public void dismissRemoveDialog() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void showRemoveDialog(RemoveDialogData arg0) {
+		// TODO Auto-generated method stub
+	}
+		
 	private void showLocationDialog()
 	{
 		if (alert != null && alert.isShowing())

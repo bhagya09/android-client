@@ -8,33 +8,6 @@ import java.util.Map;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.app.AlertDialog;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.DialogInterface.OnDismissListener;
-import android.content.Intent;
-import android.os.Bundle;
-import android.os.Message;
-import android.text.Spannable;
-import android.text.SpannableString;
-import android.text.TextUtils;
-import android.text.method.LinkMovementMethod;
-import android.text.style.ForegroundColorSpan;
-import android.text.util.Linkify;
-import android.util.Pair;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.MotionEvent;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.view.animation.Animation;
-import android.view.animation.Animation.AnimationListener;
-import android.view.animation.AnimationUtils;
-import android.widget.LinearLayout;
-import android.widget.TextView;
-import android.widget.Toast;
-
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
@@ -62,6 +35,36 @@ import com.bsb.hike.utils.SmileyParser;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.CustomFontEditText;
 import com.bsb.hike.voip.VoIPUtils;
+import com.kpt.adaptxt.beta.RemoveDialogData;
+import com.kpt.adaptxt.beta.util.KPTConstants;
+
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnDismissListener;
+import android.content.Intent;
+import android.os.Bundle;
+import android.os.Message;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.TextUtils;
+import android.text.method.LinkMovementMethod;
+import android.text.style.ForegroundColorSpan;
+import android.text.util.Linkify;
+import android.util.Pair;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.WindowManager;
+import android.view.View.OnClickListener;
+import android.view.animation.Animation;
+import android.view.animation.Animation.AnimationListener;
+import android.view.animation.AnimationUtils;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+import android.widget.Toast;
 
 /**
  * @author piyush
@@ -85,7 +88,7 @@ public class GroupChatThread extends OneToNChatThread
 	private View pinView;
 
 	private boolean isNewChat;
-
+	
 	/**
 	 * @param activity
 	 * @param msisdn
@@ -573,6 +576,19 @@ public class GroupChatThread extends OneToNChatThread
 	}
 
 	@Override
+	public boolean onTouch(View v, MotionEvent event)
+	{
+		switch (v.getId())
+		{
+		case R.id.messageedittext:
+			showKeyboard();
+			return mShareablePopupLayout.onEditTextTouch(v, event);
+		default:
+			return super.onTouch(v, event);
+		}
+	}
+	
+	@Override
 	public boolean onOptionsItemSelected(MenuItem item)
 	{
 		if (item.getItemId() != android.R.id.home)
@@ -655,6 +671,15 @@ public class GroupChatThread extends OneToNChatThread
 		View content = activity.findViewById(R.id.impMessageCreateView);
 		content.setVisibility(View.VISIBLE);
 		mComposeView = (CustomFontEditText) content.findViewById(R.id.messageedittext);
+		if (isSystemKeyboard())
+		{
+			mCustomKeyboard.unregister(R.id.messageedittext);
+		}
+		else
+		{
+			mCustomKeyboard.registerEditText(R.id.messageedittext);	
+			mCustomKeyboard.init(mComposeView);
+		}
 		mComposeView.requestFocus();
 		if (mEmoticonPicker != null)
 		{
@@ -690,6 +715,9 @@ public class GroupChatThread extends OneToNChatThread
 			mComposeView.setText(pinText);
 			mComposeView.setSelection(pinText.length());
 		}
+		
+//		activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+		showKeyboard();
 
 		content.findViewById(R.id.emo_btn).setOnClickListener(this);
 	}
@@ -811,7 +839,6 @@ public class GroupChatThread extends OneToNChatThread
 	private void destroyPinCreateView()
 	{
 		// AFTER PIN MODE, we make sure mComposeView is reinitialized to message composer compose
-
 		mComposeView = (CustomFontEditText) activity.findViewById(R.id.msg_compose);
 		if (mEmoticonPicker != null)
 		{
@@ -1123,5 +1150,20 @@ public class GroupChatThread extends OneToNChatThread
 		}
 		super.destroySearchMode();
 	}
+	protected boolean shouldShowKeyboard()
+	{
+		return ( mActionMode.whichActionModeIsOn() == PIN_CREATE_ACTION_MODE || super.shouldShowKeyboard());
+	}
 
+	@Override
+	public void dismissRemoveDialog() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void showRemoveDialog(RemoveDialogData arg0) {
+		// TODO Auto-generated method stub
+		
+	}
 }

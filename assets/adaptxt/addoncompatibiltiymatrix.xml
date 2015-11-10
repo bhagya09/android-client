@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<addons>
+	<baseurl>adaptxt.com/adaptxtlive/addon/</baseurl>
+	
+	
+	 <addon id="51" type="addon">
+        <displayname>हिन्दी</displayname>
+        <filename>hinin</filename>
+          <zipfilename>HININ_Android_KPT_smartphone.zip</zipfilename>
+        <searchstring>Hindi:IN</searchstring>
+        <iso639dash2code>hin</iso639dash2code>
+         <type>Language</type>  
+         <currentver no="2.0">
+			<compatiblebasever>2.0</compatiblebasever>
+		</currentver>
+    </addon>
+	
+	<addon id="2" type="addon">
+        <displayname>English (US)</displayname>
+        <filename>engus</filename>
+        <zipfilename>ENGUS_Android_KPT_smartphone.zip</zipfilename>
+        <searchstring>English (US):US</searchstring>
+        <iso639dash2code>eng</iso639dash2code>
+         <type>Language</type>  
+         <currentver no="2.0">
+			<compatiblebasever>2.0</compatiblebasever>
+		</currentver>
+    </addon>
+   
+	 <addon id="49" type="addon">
+        <displayname>ગુજરાતી</displayname>
+  		<filename>gujin</filename>
+  		<zipfilename>GUJIN_Android_KPT_smartphone.zip</zipfilename>
+        <searchstring>Gujarati:IN</searchstring>
+         <iso639dash2code>guj</iso639dash2code>
+         <type>Language</type>  
+          <currentver no="2.0">
+				<compatiblebasever>2.0</compatiblebasever>
+		</currentver>
+    </addon>  
+    
+	 <addon id="56" type="addon">
+        <displayname>मराठी</displayname>
+        <filename>marin</filename>
+          <zipfilename>MARIN_Android_KPT_smartphone.zip</zipfilename>
+        <searchstring>Marathi:MR:IN</searchstring>
+         <iso639dash2code>mar</iso639dash2code>
+         <type>Language</type>  
+        <currentver no="2.0">
+			<compatiblebasever>2.0</compatiblebasever>
+		</currentver>
+    </addon>
+    
+	 <addon id="58" type="addon">
+        <displayname>தமிழ்</displayname>
+        <filename>tamin</filename>
+        <zipfilename>TAMIN_Android_KPT_smartphone.zip</zipfilename>
+        <searchstring>Tamil:IN</searchstring>
+        <iso639dash2code>tam</iso639dash2code>
+         <type>Language</type>  
+         <currentver no="2.0">
+			<compatiblebasever>2.0</compatiblebasever>
+		</currentver>
+    </addon>
+    
+	  <addon id="59" type="addon">
+        <displayname>తెలుగు</displayname>
+        <filename>telin</filename>
+        <zipfilename>TELIN_Android_KPT_smartphone.zip</zipfilename>
+        <searchstring>Telugu:IN</searchstring>
+         <iso639dash2code>tel</iso639dash2code>
+         <type>Language</type>
+         <currentver no="2.0">
+			<compatiblebasever>2.0</compatiblebasever>
+		</currentver>
+    </addon>
+    
+	 <addon id="47" type="addon">
+        <displayname>বাংলা</displayname>
+        <filename>benin</filename>
+        <zipfilename>BENIN_Android_KPT_smartphone.zip</zipfilename>
+        <searchstring>Bengali:IN:BN</searchstring>
+        <iso639dash2code>ben</iso639dash2code>
+         <type>Language</type>
+         <currentver no="2.0">
+			<compatiblebasever>2.0</compatiblebasever>
+		</currentver>
+      </addon>
+      
+     <addon id="55" type="addon">
+        <displayname>മലയാളം</displayname>
+        <filename>malin</filename>
+        <zipfilename>MALIN_Android_KPT_smartphone.zip</zipfilename>
+        <searchstring>Malayalam:ML:IN</searchstring>
+        <iso639dash2code>mal</iso639dash2code>
+         <type>Language</type> 
+         <currentver no="2.0">
+			<compatiblebasever>2.0</compatiblebasever>
+		</currentver>
+    </addon>
+    
+      <addon id="53" type="addon">
+        <displayname>ಕನ್ನಡ</displayname>
+        <filename>kanin</filename>
+        <zipfilename>KANIN_Android_KPT_smartphone.zip</zipfilename>
+        <searchstring>Kannada:KN:IN</searchstring>
+         <iso639dash2code>kan</iso639dash2code>
+         <type>Language</type> 
+         <currentver no="2.0">
+			<compatiblebasever>2.0</compatiblebasever>
+		</currentver>
+    </addon>
+</addons>

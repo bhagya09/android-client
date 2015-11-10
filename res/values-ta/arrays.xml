@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+ * Copyright (C) 2008 Esmertec AG.
+ * Copyright (C) 2008 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ -->
+<resources>
+    <string-array name="mood_headings">
+        <item>மகிழ்ச்சி</item>
+                
+        <item>சோகம்</item>
+                
+        <item>காதலில்</item>
+                
+        <item>ஆச்சரியமடைந்தேன்</item>
+                
+        <item>குழப்பமடைந்தேன்</item>
+                
+        <item>கோபம்</item>
+                
+        <item>தூக்கமாக</item>
+                
+        <item>போதைமயக்கம்</item>
+                
+        <item>குளிர்வித்தல்</item>
+                
+        <item>படித்துக் கொண்டு</item>
+                
+        <item>வேலையாக</item>
+                
+        <item>காதல்</item>
+                
+        <item>நடு விரல்</item>
+                
+        <item>போதையேற்றுதல்</item>
+                
+        <item>சினிமா ஒன்றில்</item>
+                
+        <item>கஃபீன் சேர்த்த</item>
+                
+        <item>தூக்கமில்லாத</item>
+                
+        <item>வாகனம் ஓட்டுகிற</item>
+                
+        <item>போக்குவரத்தில் சிக்கிக் கொண்ட</item>
+                
+        <item>தாமதமாகிக் கொண்டிருக்கிறது</item>
+                
+        <item>பொருள் வாங்குதல்</item>
+                
+        <item>விளையாடுதல்</item>
+                
+        <item>குறியிடுதல்</item>
+                
+        <item>TV பார்த்தல்</item>
+                
+        <item>இசை</item>
+                
+        <item>கடுமையாக விருந்துண்ணுதல்</item>
+                
+        <item>பாடுதல்</item>
+                
+        <item>சாப்பிடுதல்</item>
+                
+        <item>உடற்பயிற்சி செய்தல்</item>
+                
+        <item>சமைத்தல்</item>
+                
+        <item>சிகை அலங்கார மையம்</item>
+                
+        <item>சுகவீனம்</item>
+    </string-array>
+</resources>

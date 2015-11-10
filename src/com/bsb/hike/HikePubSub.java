@@ -443,6 +443,10 @@ public class HikePubSub implements Runnable
 	public static final String ON_OFFLINE_REQUEST = "on_offline_request";
 	
 	public static final String PLATFORM_CARD_EVENT_SENT = "platformCardEventSent";
+
+	public static final String KPT_LANGUAGES_UPDATED = "kptLangUpdated";
+
+	public static final String KPT_LANGUAGES_INSTALLATION_FINISHED = "kptLangInstFin";
 	
 	public static final String LOCATION_AVAILABLE = "locationAvailable";
 
@@ -459,6 +463,8 @@ public class HikePubSub implements Runnable
 	public static final String BOT_CREATED = "botCreated";
 
 	public static final String SHOW_NEW_CHAT_RED_DOT = "showNewChatRedDot";
+
+	public static final String KEYBOARD_SWITCHED = "keyboardSwitched";
 	
 	private final Thread mThread;
 

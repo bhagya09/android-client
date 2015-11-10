@@ -1,21 +1,5 @@
 package com.bsb.hike.chatthread;
 
-import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
-
-import java.io.File;
-import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.NotificationManager;
@@ -25,6 +9,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences.Editor;
+import android.content.pm.ActivityInfo;
 import android.content.pm.ApplicationInfo;
 import android.content.res.Configuration;
 import android.content.res.Resources;
@@ -57,17 +42,21 @@ import android.util.Pair;
 import android.view.GestureDetector;
 import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.View.OnKeyListener;
 import android.view.View.OnTouchListener;
+import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.webkit.MimeTypeMap;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
@@ -77,6 +66,7 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.PopupWindow;
 import android.widget.PopupWindow.OnDismissListener;
@@ -126,6 +116,7 @@ import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
 import com.bsb.hike.models.ConvMessage.State;
+import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.MovingList;
@@ -134,7 +125,9 @@ import com.bsb.hike.models.PhonebookContact;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.models.TypingNotification;
 import com.bsb.hike.models.Unique;
-import com.bsb.hike.models.Conversation.Conversation;
+import com.bsb.hike.modules.kpt.HikeAdaptxtEditTextEventListner;
+import com.bsb.hike.modules.kpt.HikeCustomKeyboard;
+import com.bsb.hike.modules.kpt.KptUtils;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
 import com.bsb.hike.modules.stickersearch.listeners.IStickerPickerRecommendationListener;
 import com.bsb.hike.modules.stickersearch.provider.StickerSearchHostManager;
@@ -173,19 +166,34 @@ import com.bsb.hike.view.CustomFontEditText;
 import com.bsb.hike.view.CustomFontEditText.BackKeyListener;
 import com.bsb.hike.view.CustomLinearLayout;
 import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
-import com.bsb.hike.voip.VoIPConstants;
+import com.kpt.adaptxt.beta.util.KPTConstants;
+import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtKeyboordVisibilityStatusListner;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.File;
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
 /**
- * 
  * @generated
  */
 
 @SuppressLint("ResourceAsColor") public abstract class ChatThread extends SimpleOnGestureListener implements OverflowItemClickListener, View.OnClickListener, ThemePickerListener, ImageParserListener,
 		PickFileListener, StickerPickerListener, AudioRecordListener, LoaderCallbacks<Object>, OnItemLongClickListener, OnTouchListener, OnScrollListener,
 		Listener, ActionModeListener, HikeDialogListener, TextWatcher, OnDismissListener, OnEditorActionListener, OnKeyListener, PopupListener, BackKeyListener,
-		OverflowViewListener, OnSoftKeyboardListener, IStickerPickerRecommendationListener,IOfflineCallbacks
-
-		{
+		OverflowViewListener, OnSoftKeyboardListener, IStickerPickerRecommendationListener, AdaptxtKeyboordVisibilityStatusListner, IOfflineCallbacks
+{
 	private static final String TAG = ChatThread.class.getSimpleName();
 
 	protected static final int FETCH_CONV = 1;
@@ -274,7 +282,7 @@ import com.bsb.hike.voip.VoIPConstants;
 	private long lastNudgeTime = -1;
     
     private int NUDGE_TOAST_OCCURENCE = 2;
-    	
+    
     private int currentNudgeCount = 0;
     
     protected ChatThreadActivity activity;
@@ -312,7 +320,6 @@ import com.bsb.hike.voip.VoIPConstants;
 	protected boolean reachedEnd = false;
 	
 	private volatile boolean _doubleTapPref = false;
-
 
 	private int currentFirstVisibleItem = Integer.MAX_VALUE;
 
@@ -356,6 +363,8 @@ import com.bsb.hike.voip.VoIPConstants;
 	
 	protected HikeDialog dialog;
 	
+	protected HikeCustomKeyboard mCustomKeyboard;
+
 	protected IChannelSelector channelSelector;
 
 	private StickerTagWatcher stickerTagWatcher;
@@ -363,6 +372,10 @@ import com.bsb.hike.voip.VoIPConstants;
 	protected int mCurrentActionMode;
 
 	private boolean shouldKeyboardPopupShow;
+	
+	protected int keyboardHeight;
+
+	protected KeyboardFtue keyboardFtue;
 	
 	private class ChatThreadBroadcasts extends BroadcastReceiver
 	{
@@ -590,6 +603,8 @@ import com.bsb.hike.voip.VoIPConstants;
 	public HikeActionBar mActionBar;
 
 	protected Bundle savedState;
+
+	private CustomFontEditText searchEt;
 	
 	public void onCreate(Bundle savedState)
 	{
@@ -601,6 +616,12 @@ import com.bsb.hike.voip.VoIPConstants;
 		fetchConversation(false);
 		uiHandler.sendEmptyMessage(SET_WINDOW_BG);
 		StickerManager.getInstance().checkAndDownLoadStickerData();
+		mShareablePopupLayout.setCustomKeyBoardHeight((keyboardHeight == 0) ? mCustomKeyboard.getKeyBoardAndCVHeight() : keyboardHeight);
+		mShareablePopupLayout.setCustomKeyBoard(!isSystemKeyboard());
+		if (isSystemKeyboard())
+		{
+			changeKeyboard(isSystemKeyboard());
+		}
 	}
 	
 	/**
@@ -632,6 +653,7 @@ import com.bsb.hike.voip.VoIPConstants;
 		sharedPreference = HikeSharedPreferenceUtil.getInstance();
 		initMessageChannel();
 		shouldKeyboardPopupShow=HikeMessengerApp.keyboardApproach(activity);
+		keyboardFtue = new KeyboardFtue();
 	}
 
 	
@@ -672,13 +694,17 @@ import com.bsb.hike.voip.VoIPConstants;
 	 */
 	protected void initView()
 	{
-		audioRecordView = new AudioRecordView(activity, this);
 		mComposeView = (CustomFontEditText) activity.findViewById(R.id.msg_compose);
-		mComposeView.setOnClickListener(this);
+
+		initCustomKeyboard();
+		
+		audioRecordView = new AudioRecordView(activity, this);
+
 		initShareablePopup();
 
 		initActionMode();
 
+		initKeyboardFtue();
 		addOnClickListeners();
 
 		showNetworkError(ChatThreadUtils.checkNetworkError());
@@ -687,6 +713,14 @@ import com.bsb.hike.voip.VoIPConstants;
 		setupStickerSearch();
 	}
 
+	protected void initCustomKeyboard()
+	{	
+		LinearLayout parentView = (LinearLayout) activity.findViewById(R.id.keyboardView_holder);
+		mCustomKeyboard= new HikeCustomKeyboard(activity, parentView, KPTConstants.MULTILINE_LINE_EDITOR, kptEditTextEventListener,ChatThread.this);
+		mCustomKeyboard.registerEditText(R.id.msg_compose);
+		mCustomKeyboard.init(mComposeView);
+	}	
+		
 	private void defineEnterAction() {
 		
 		if (mComposeView != null) {
@@ -695,17 +729,12 @@ import com.bsb.hike.voip.VoIPConstants;
 					activity.getApplicationContext()).getBoolean(
 					HikeConstants.SEND_ENTER_PREF, false))
 			{
-				mComposeView.setInputType(mComposeView.getInputType()
-						| InputType.TYPE_TEXT_FLAG_MULTI_LINE);
+				mComposeView.setImeOptions(EditorInfo.IME_ACTION_UNSPECIFIED);
 			}
 			else if ((mComposeView.getInputType() & InputType.TYPE_TEXT_FLAG_MULTI_LINE) == InputType.TYPE_TEXT_FLAG_MULTI_LINE)
 			{
-				mComposeView.setInputType(mComposeView.getInputType()
-						^ InputType.TYPE_TEXT_FLAG_MULTI_LINE);
+				mComposeView.setImeOptions(EditorInfo.IME_ACTION_SEND);
 			}
-			//Its a workaround to set the multiline editfield when android:imeOptions="actionSend".
-    		mComposeView.setHorizontallyScrolling(false);
-			mComposeView.setMaxLines(4);
 
 		}
 	}
@@ -729,9 +758,13 @@ import com.bsb.hike.voip.VoIPConstants;
 
 			initStickerPicker();
 			initEmoticonPicker();
+			
+			int firstTimeHeight = (isSystemKeyboard()?((int) (activity.getResources().getDimension(R.dimen.emoticon_pallete))) : 
+					((keyboardHeight == 0) ? mCustomKeyboard.getKeyBoardAndCVHeight() : keyboardHeight));
 
 			mShareablePopupLayout = new ShareablePopupLayout(activity.getApplicationContext(), activity.findViewById(R.id.chatThreadParentLayout),
-					(int) (activity.getResources().getDimension(R.dimen.emoticon_pallete)), mEatOuterTouchIds, this, this);
+					
+					firstTimeHeight, mEatOuterTouchIds, this, this);
 			if (Utils.isLollipopOrHigher())
 			{
 				mShareablePopupLayout.setWindowSystemBarBgFlag(Utils.isWindowFlagEnabled(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS, activity.getWindow()));
@@ -755,6 +788,21 @@ import com.bsb.hike.voip.VoIPConstants;
 	{
 		mActionMode = new HikeActionMode(activity, this);
 	}
+
+	private void initKeyboardFtue()
+	{
+		if (!keyboardFtue.isFTUEComplete())
+			keyboardFtue.init(activity, (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE),(ViewGroup)activity.findViewById(R.id.keyboard_ftue_container),keyboardFTUEdestroyedListener);
+	}
+
+	private KeyboardFtue.OnKeyboardFTUEDestroyedListener keyboardFTUEdestroyedListener = new KeyboardFtue.OnKeyboardFTUEDestroyedListener()
+	{
+		@Override
+		public void onDestroyed()
+		{
+			Utils.unblockOrientationChange(activity);
+		}
+	};
 
 	/**
 	 * Updates the mainView for KeyBoard popup as well as updates the Picker Listeners for Emoticon and Stickers
@@ -855,6 +903,9 @@ import com.bsb.hike.voip.VoIPConstants;
 			case R.string.clear_chat:
 			case R.string.email_chat:
 				overFlowMenuItem.enabled = !isMessageListEmpty;
+				break;
+			case R.string.change_keyboard:
+				overFlowMenuItem.enabled = !mConversation.isBlocked();
 				break;
 			case R.string.hide_chat:
 				overFlowMenuItem.text = getString(StealthModeManager.getInstance().isActive() ? 
@@ -965,6 +1016,10 @@ import com.bsb.hike.voip.VoIPConstants;
 	{
 		switch (item.id)
 		{
+		case R.string.change_keyboard:
+			changeKeyboard(!isSystemKeyboard());
+			mShareablePopupLayout.setCustomKeyBoard(isSystemKeyboard());
+			break;
 		case R.string.clear_chat:
 			showClearConversationDialog();
 			break;
@@ -1058,6 +1113,7 @@ import com.bsb.hike.voip.VoIPConstants;
 				new OverFlowMenuItem(getString(R.string.hide_chat), 0, 0, R.string.hide_chat),
 				new OverFlowMenuItem(getString(R.string.clear_chat), 0, 0, true, R.string.clear_chat),
 				new OverFlowMenuItem(getString(R.string.email_chat), 0, 0, true, R.string.email_chat)};
+//				new OverFlowMenuItem(getString(R.string.change_keyboard), 0, 0, R.string.change_keyboard)};
 	}
 
 	protected void showOverflowMenu()
@@ -1097,19 +1153,24 @@ import com.bsb.hike.voip.VoIPConstants;
 			showOverflowMenu();
 			break;
 		case R.id.sticker_btn:
+			mShareablePopupLayout.setCustomKeyBoardHeight((keyboardHeight == 0) ? mCustomKeyboard.getKeyBoardAndCVHeight() : keyboardHeight);
+			mCustomKeyboard.showCustomKeyboard(mComposeView, false);
 			if (mShareablePopupLayout.isBusyInOperations())
 			{//  previous task is running don't accept this event
 				return;
 			}
+			mShareablePopupLayout.setCustomKeyBoardHeight((keyboardHeight == 0) ? mCustomKeyboard.getKeyBoardAndCVHeight() : keyboardHeight);
 			setEmoticonButtonSelected(false);
 			setStickerButtonSelected(true);
 			stickerClicked();
 			break;
 		case R.id.emoticon_btn:
+			mCustomKeyboard.showCustomKeyboard(mComposeView, false);
 			if (mShareablePopupLayout.isBusyInOperations())
 			{// previous task is running don't accept this event
 				return;
 			}
+			mShareablePopupLayout.setCustomKeyBoardHeight((keyboardHeight == 0) ? mCustomKeyboard.getKeyBoardAndCVHeight() : keyboardHeight);
 			setStickerButtonSelected(false);
 			setEmoticonButtonSelected(true);
 			emoticonClicked();
@@ -1149,12 +1210,11 @@ import com.bsb.hike.voip.VoIPConstants;
 			break;
 		case R.id.search_clear_btn:
 			mComposeView.setText("");
+			mCustomKeyboard.updateCore();
 			break;
-		case R.id.msg_compose:
-			if (mShareablePopupLayout.isShowing())
-			{
-				mShareablePopupLayout.dismiss();
-			}
+		case R.id.search_text:
+			showKeyboard();
+			break;
 		default:
 			Logger.e(TAG, "onClick Registered but not added in onClick : " + v.toString());
 			break;
@@ -1172,6 +1232,7 @@ import com.bsb.hike.voip.VoIPConstants;
 		{
 			sendMessageForStickerRecommendLearning();
 			sendMessage();
+			mCustomKeyboard.updateCore();
 			dismissStickerRecommendationPopup();
 			dismissTip(ChatThreadTips.STICKER_RECOMMEND_TIP);
 		}
@@ -1495,6 +1556,7 @@ import com.bsb.hike.voip.VoIPConstants;
 	public boolean onBackPressed()
 	{
 		mShareablePopupLayout.onBackPressed();
+
 		if (removeFragment(HikeConstants.IMAGE_FRAGMENT_TAG, true))
 		{
 			return true;
@@ -1510,11 +1572,20 @@ import com.bsb.hike.voip.VoIPConstants;
 			mShareablePopupLayout.dismiss();
 			return true;
 		}
-
+		
 		if (themePicker != null && themePicker.isShowing())
 		{
 			return themePicker.onBackPressed();
 		}
+		
+		if (mCustomKeyboard.isCustomKeyboardVisible())
+		{
+			mCustomKeyboard.showCustomKeyboard(mComposeView, false); 
+			KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, 0);
+			mComposeView.setMaxLines(4);
+			return true;
+		}
+		mCustomKeyboard.closeAnyDialogIfShowing();
 
 		if (mActionMode.isActionModeOn())
 		{
@@ -1685,6 +1756,23 @@ import com.bsb.hike.voip.VoIPConstants;
 		mActionMode.showActionMode(SEARCH_ACTION_MODE, R.layout.search_action_bar);
 		setUpSearchViews();
 
+		searchEt = (CustomFontEditText) activity.findViewById(R.id.search_text);
+
+		if (isSystemKeyboard())
+		{
+			searchEt.requestFocus();
+			activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+			Utils.showSoftKeyboard(searchEt, InputMethodManager.SHOW_FORCED);
+		}
+		else
+		{
+			mCustomKeyboard.registerEditText(R.id.search_text);
+        	mCustomKeyboard.showCustomKeyboard(searchEt, true);
+        	KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, (keyboardHeight == 0) ? mCustomKeyboard.getKeyBoardAndCVHeight() : keyboardHeight);
+		}
+		
+		searchEt.setOnClickListener(this);
+		
 		// Creating new instance every time.
 		// No need to modify existing instance. It might still be in the process of exiting.
 		messageSearchManager = new SearchManager();
@@ -1699,14 +1787,23 @@ import com.bsb.hike.voip.VoIPConstants;
 		}
 	}
 	
+	public void hideKeyboard(){
+		if(KptUtils.isSystemKeyboard(activity)){
+			Utils.hideSoftKeyboard(activity, mComposeView);
+		}else if (mCustomKeyboard!=null && mCustomKeyboard.isCustomKeyboardVisible())
+		{
+			keyboardFtue.destroy();
+			mCustomKeyboard.showCustomKeyboard(mComposeView, false); 
+			KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, 0);
+		}
+	}
 	private void setUpSearchViews()
 	{
 		int id = mComposeView.getId();
 		mComposeView = (CustomFontEditText) activity.findViewById(R.id.search_text);
 		mComposeView.setTag(id);
-		
+
 		mComposeView.requestFocus();
-		Utils.showSoftKeyboard(activity.getApplicationContext(), mComposeView);
 		mComposeView.addTextChangedListener(searchTextWatcher);
 		mComposeView.setOnEditorActionListener(this);
 		activity.findViewById(R.id.next).setOnClickListener(this);
@@ -1714,14 +1811,17 @@ import com.bsb.hike.voip.VoIPConstants;
 		activity.findViewById(R.id.search_clear_btn).setOnClickListener(this);
 		
 		View mBottomView = activity.findViewById(R.id.bottom_panel);
-		if (mShareablePopupLayout.isKeyboardOpen())
-		{ 
-			// ifkeyboard is not open, then keyboard will come which will make so much animation on screen
-			mBottomView.startAnimation(AnimationUtils.loadAnimation(activity.getApplicationContext(), R.anim.up_down_lower_part));
-		}
-		else
+		if (isSystemKeyboard())
 		{
-			Utils.toggleSoftKeyboard(activity.getApplicationContext());
+			if (mShareablePopupLayout.isKeyboardOpen())
+			{ 
+				// ifkeyboard is not open, then keyboard will come which will make so much animation on screen
+				mBottomView.startAnimation(AnimationUtils.loadAnimation(activity.getApplicationContext(), R.anim.up_down_lower_part));
+			}
+			else
+			{
+				Utils.toggleSoftKeyboard(activity.getApplicationContext());
+			}
 		}
 		if (mShareablePopupLayout.isShowing())
 		{
@@ -1730,6 +1830,25 @@ import com.bsb.hike.voip.VoIPConstants;
 		mBottomView.setVisibility(View.GONE);
 	}
 
+	HikeAdaptxtEditTextEventListner kptEditTextEventListener = new HikeAdaptxtEditTextEventListner()
+	{
+		@Override
+		public void onReturnAction(int resId, int arg0)
+		{
+			switch (resId)
+			{
+			case R.id.msg_compose:
+				if (!TextUtils.isEmpty(mComposeView.getText())) {
+					sendButtonClicked();
+				}
+				break;
+			case R.id.search_text:
+				searchMessage(false,true);
+				break;
+			}
+		}
+	};
+	
 	TextWatcher searchTextWatcher = new TextWatcher()
 	{
 		
@@ -1768,7 +1887,7 @@ import com.bsb.hike.voip.VoIPConstants;
 	{
 		mConversationsView.setOnScrollListener(null);
 		
-		Utils.hideSoftKeyboard(activity.getApplicationContext(), mComposeView);
+		hideKeyboard();
 		if (!TextUtils.isEmpty(searchText) &&
 				// For some devices like micromax A120, one can get multiple calls from one user-input.
 				// Check on the dialog is optimal here as it directly reflects the user intentions.
@@ -2262,7 +2381,15 @@ import com.bsb.hike.voip.VoIPConstants;
 		 */
 		if (shouldShowKeyboard())
 		{
-			activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+			if (!isSystemKeyboard())
+			{
+				mCustomKeyboard.showCustomKeyboard(mComposeView, true);
+				KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, (keyboardHeight == 0) ? mCustomKeyboard.getKeyBoardAndCVHeight() : keyboardHeight);
+			}
+			else
+			{
+				activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+			}
 		}
 	}
 	
@@ -2280,7 +2407,8 @@ import com.bsb.hike.voip.VoIPConstants;
 	
 	protected boolean shouldShowKeyboard()
 	{
-		return mConversation.getMessagesList().isEmpty() && !mConversation.isBlocked();
+		return ((mConversation.getMessagesList().isEmpty() && !mConversation.isBlocked() && !keyboardFtue.isReadyForFTUE())
+		|| mActionMode.isActionModeOn());
 	}
 
 	/**
@@ -2307,6 +2435,8 @@ import com.bsb.hike.voip.VoIPConstants;
 		mComposeView.setOnTouchListener(this);
 
 		mComposeView.setOnKeyListener(this);
+
+		mComposeView.setSelectAllOnFocus(true);
 	}
 
 	/*
@@ -3386,11 +3516,21 @@ import com.bsb.hike.voip.VoIPConstants;
 	{
 		switch (v.getId())
 		{
-		case R.id.messageedittext:
-			return mShareablePopupLayout.onEditTextTouch(v, event);
-
 		case R.id.msg_compose:
-
+			if (!isSystemKeyboard())
+			{
+				mCustomKeyboard.showCustomKeyboard(mComposeView, true);
+				/*
+				 * This is an approximate height given by kpt until we get keyboard visibility call. The final height is set in onInputViewVisibility().
+				 * This calls is to avoid the seeming delay in appearance of edittext.
+				 */
+				KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, (keyboardHeight == 0) ? mCustomKeyboard.getKeyBoardAndCVHeight() : keyboardHeight);
+				if (keyboardFtue.isReadyForFTUE())
+				{
+					activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+					keyboardFtue.showNextFtue();
+				}
+			}
 			if(stickerTagWatcher != null)
 			{
 				stickerTagWatcher.onTouch(v, event);
@@ -3921,6 +4061,8 @@ import com.bsb.hike.voip.VoIPConstants;
 
 	public void onDestroy()
 	{
+		KptUtils.destroyKeyboardResources(mCustomKeyboard, R.id.msg_compose, R.id.search_text, R.id.messageedittext);
+
 		setTipSeen(ChatThreadTips.STICKER_RECOMMEND_TIP, true);
 		
 		setTipSeen(ChatThreadTips.STICKER_RECOMMEND_AUTO_OFF_TIP, true);
@@ -3952,6 +4094,8 @@ import com.bsb.hike.voip.VoIPConstants;
 		releaseEmoticonResources();
 		
 		releaseStickerSearchResources();
+
+		keyboardFtue.destroy();
 	}
 	
 	private void releaseShareablePopUpResources()
@@ -4021,14 +4165,25 @@ import com.bsb.hike.voip.VoIPConstants;
 		}
 	}
 
+	protected void pauseKeyboardResources()
+	{
+		if (mCustomKeyboard != null)
+		{
+			KptUtils.pauseKeyboardResources(mCustomKeyboard, mComposeView, searchEt);
+			KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, 0);
+		}
+	}
+	
 	/**
 	 * Mimics the onPause method of an Activity.
 	 */
 
 	public void onPause()
 	{
-		Utils.hideSoftKeyboard(activity, mComposeView);
+		pauseKeyboardResources();
 		
+		Utils.hideSoftKeyboard(activity, mComposeView);
+
 		isActivityVisible = false;
 		
 		resumeImageLoaders(true);
@@ -4042,14 +4197,12 @@ import com.bsb.hike.voip.VoIPConstants;
 
 	public void onResume()
 	{
+		tryToDismissAnyOpenPanels();
+
+		showKeyboardIfRequired();
+
 		isActivityVisible = true;
 
-		if (shouldShowKeyboard())
-		{
-			tryToDismissAnyOpenPanels();
-			Utils.showSoftKeyboard(activity, mComposeView);
-		}
-		
 		/**
 		 * Mark any messages unread as read
 		 */
@@ -4088,6 +4241,43 @@ import com.bsb.hike.voip.VoIPConstants;
 		}
 	}
 
+	protected void showKeyboard()
+	{
+
+		if (isSystemKeyboard())
+		{
+			changeKeyboard(isSystemKeyboard());
+			activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+			Utils.showSoftKeyboard(mComposeView, InputMethodManager.SHOW_FORCED);
+			KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, 0);
+		}
+		else
+		{
+			mCustomKeyboard.showCustomKeyboard(mComposeView, true);
+		}
+	}
+
+	protected void resetKeyboard()
+	{
+		if (isSystemKeyboard())
+		{
+			changeKeyboard(isSystemKeyboard());
+			Utils.hideSoftKeyboard(activity, mComposeView);
+		}
+		KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, 0);
+	}
+
+	protected void showKeyboardIfRequired()
+	{
+		if (shouldShowKeyboard())
+		{
+			showKeyboard();
+		}
+		else
+		{
+			resetKeyboard();
+		}
+	}
 	public void onRestart()
 	{
 		isActivityVisible = true;
@@ -5358,11 +5548,20 @@ import com.bsb.hike.voip.VoIPConstants;
 	protected void onConfigurationChanged(Configuration newConfig)
 	{
 		Logger.d(TAG, "newConfig : " + newConfig.toString());
-		
+		if (mCustomKeyboard != null)
+		{
+			mCustomKeyboard.onConfigurationChanged(newConfig);
+			keyboardHeight = 0;
+		}
 		if (mShareablePopupLayout != null && mShareablePopupLayout.isShowing())
 		{
 			mShareablePopupLayout.dismiss();
 			mShareablePopupLayout.onConfigurationChanged();
+		}
+		
+		if (!isSystemKeyboard() && !mCustomKeyboard.isCustomKeyboardVisible())
+		{
+			KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, 0);
 		}
 		
 		if (stickerTagWatcher != null)
@@ -5411,6 +5610,7 @@ import com.bsb.hike.voip.VoIPConstants;
 				attachmentPicker.onOrientationChange(newConfig.orientation);
 			}
 		}
+		
 	}
 	
 	/**
@@ -5428,24 +5628,6 @@ import com.bsb.hike.voip.VoIPConstants;
 			hideShowActionModeMenus();
 			mActionMode.updateTitle(activity.getString(R.string.selected_count, mAdapter.getSelectedCount()));
 			break;
-			
-		case SEARCH_ACTION_MODE:
-			mActionMode.reInflateActionMode();
-			String oldText = mComposeView.getText().toString();
-			int start = mComposeView.getSelectionStart();
-			int end = mComposeView.getSelectionEnd();
-			setUpSearchViews();
-			mComposeView.setText(oldText);
-			if (start != end)
-			{
-				mComposeView.setSelection(start, end);
-			}
-			else
-			{
-				mComposeView.setSelection(start);
-			}
-			break;
-			
 		default:
 			break;
 		}
@@ -5518,6 +5700,10 @@ import com.bsb.hike.voip.VoIPConstants;
 	@Override
 	public void onPopupDismiss()
 	{
+		if (mCustomKeyboard.isCustomKeyboardVisible())
+		{
+			KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, (keyboardHeight == 0) ? mCustomKeyboard.getKeyBoardAndCVHeight() : keyboardHeight);
+		}
 		Logger.i(TAG, "onPopup Dismiss");
 		if(activity.findViewById(R.id.sticker_btn).isSelected())
 		{
@@ -5554,7 +5740,7 @@ import com.bsb.hike.voip.VoIPConstants;
 			return;
 		}
 		
-		Utils.hideSoftKeyboard(activity.getApplicationContext(), mComposeView);
+		hideKeyboard();
 
 		saveCurrentActionMode();
 		if (mShareablePopupLayout != null)
@@ -5590,11 +5776,12 @@ import com.bsb.hike.voip.VoIPConstants;
 	
 	public boolean isKeyboardOpen()
 	{
-		if(mShareablePopupLayout == null || !mShareablePopupLayout.isKeyboardOpen())
-		{
-			return false;
-		}
-		return true;
+		return ((mShareablePopupLayout != null) && (mShareablePopupLayout.isKeyboardOpen() || mCustomKeyboard.isCustomKeyboardVisible()));
+//		if(mShareablePopupLayout == null || !mShareablePopupLayout.isKeyboardOpen())
+//		{
+//			return false;
+//		}
+//		return true;
 	}
 	
 	@Override
@@ -5642,6 +5829,7 @@ import com.bsb.hike.voip.VoIPConstants;
 	protected void showOverlay(String label, String formatString, String overlayBtnText, SpannableString str, int drawableResId, int viewTag)
 	{
 		Utils.hideSoftKeyboard(activity.getApplicationContext(), mComposeView);
+		hideKeyboard();
 
 		View mOverlayLayout = activity.findViewById(R.id.overlay_layout);
 		mOverlayLayout.setTag(viewTag);
@@ -5848,7 +6036,7 @@ import com.bsb.hike.voip.VoIPConstants;
 		/**
 		 * Hiding soft keyboard
 		 */
-		Utils.hideSoftKeyboard(activity, mComposeView);
+		hideKeyboard();
 		setUpThemePicker();
 		themePicker.showThemePicker(activity.findViewById(R.id.attachment_anchor), currentTheme,footerTextId, activity.getResources().getConfiguration().orientation);
 	}
@@ -5918,6 +6106,7 @@ import com.bsb.hike.voip.VoIPConstants;
 		if(mComposeView != null)
 		{
 			mComposeView.setText("");
+			mCustomKeyboard.updateCore();
 		}
 	}
 	
@@ -5930,5 +6119,107 @@ import com.bsb.hike.voip.VoIPConstants;
 	{
 		hideOverflowMenu();
 		hideThemePicker();
+	}
+
+	private void changeKeyboard(boolean systemKeyboard)
+	{
+		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CURRENT_KEYBOARD, systemKeyboard);
+		
+		if (systemKeyboard)
+		{
+			KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, 0);
+			mCustomKeyboard.showCustomKeyboard(mComposeView, false);
+			mCustomKeyboard.swtichToDefaultKeyboard(mComposeView);
+			mCustomKeyboard.unregister(R.id.msg_compose);
+			resetSharablePopup();
+			mComposeView.setOnClickListener(new OnClickListener()
+			{
+
+				@Override
+				public void onClick(View v)
+				{
+					Utils.showSoftKeyboard(mComposeView, InputMethodManager.SHOW_FORCED);
+				}
+			});
+		}
+		else
+		{
+			mCustomKeyboard.swtichToKPTKeyboard(mComposeView, KPTConstants.MULTILINE_LINE_EDITOR, null, ChatThread.this);
+			mCustomKeyboard.registerEditText(R.id.msg_compose);
+			resetSharablePopup();
+			mCustomKeyboard.init(mComposeView);
+			mCustomKeyboard.showCustomKeyboard(mComposeView, true);
+			setEditTextListeners();
+		}
+		HikeMessengerApp.getInstance().getPubSub().publish(HikePubSub.KEYBOARD_SWITCHED,null);
+
+	}
+	
+	private void resetSharablePopup()
+	{
+		if (mShareablePopupLayout != null)
+		{
+			mShareablePopupLayout.dismiss();
+			releaseShareablePopUpResources();
+		}
+		initShareablePopup();
+	}
+
+	public boolean isSystemKeyboard()
+	{
+		return HikeMessengerApp.isSystemKeyboard(activity);
+	}
+
+	@Override
+	public void onInputviewVisbility(boolean kptVisible, int height)
+	{
+		if (kptVisible)
+		{
+			KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, height);
+			if (mShareablePopupLayout != null)
+			{
+				mShareablePopupLayout.setCustomKeyBoardHeight(height);				
+			}
+			keyboardHeight = height;
+			
+			if (activity.getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE)
+			{
+				mComposeView.setMaxLines(1);
+			}
+			else
+			{
+				mComposeView.setMaxLines(4);
+			}
+		}
+		else
+		{
+			KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, 0);
+			mComposeView.setMaxLines(4);
+		}
+	}
+	
+	@Override
+	public void onInputViewCreated()
+	{
+		// TODO Auto-generated method stub
+		
+	}
+	
+	@Override
+	public void analyticalData(String language)
+	{
+		KptUtils.generateKeyboardAnalytics(language);
+	}
+
+	@Override
+	public void showGlobeKeyView()
+	{
+		KptUtils.onGlobeKeyPressed(activity, mCustomKeyboard);
+	}
+
+	@Override
+	public void showQuickSettingView()
+	{
+		KptUtils.onGlobeKeyPressed(activity, mCustomKeyboard);
 	}
 }

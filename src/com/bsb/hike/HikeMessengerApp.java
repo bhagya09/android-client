@@ -6,10 +6,12 @@ import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import com.bsb.hike.localisation.LocalLanguageUtils;
 import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.platform.content.PlatformContentConstants;
 
@@ -23,7 +25,6 @@ import org.acra.sender.ReportSender;
 import org.acra.sender.ReportSenderException;
 import org.acra.util.HttpRequest;
 
-import android.app.Application;
 import android.app.NotificationManager;
 import android.content.ComponentName;
 import android.content.Context;
@@ -32,13 +33,15 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.support.multidex.MultiDexApplication;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Pair;
 import android.widget.Toast;
 
-import com.bsb.hike.ag.NetworkAgModule;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.chatHead.ChatHeadUtils;
@@ -50,6 +53,7 @@ import com.bsb.hike.models.TypingNotification;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.HttpManager;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
+import com.bsb.hike.modules.kpt.KptKeyboardManager;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
 import com.bsb.hike.notifications.HikeNotificationUtils;
 import com.bsb.hike.notifications.ToastListener;
@@ -72,11 +76,12 @@ import com.bsb.hike.utils.SmileyParser;
 import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
+import com.kpt.adaptxt.beta.core.coreservice.KPTCoreEngineImpl;
 
 //https://github.com/ACRA/acra/wiki/Backends
 @ReportsCrashes(customReportContent = { ReportField.APP_VERSION_CODE, ReportField.APP_VERSION_NAME, ReportField.PHONE_MODEL, ReportField.BRAND, ReportField.PRODUCT,
 		ReportField.ANDROID_VERSION, ReportField.STACK_TRACE, ReportField.USER_APP_START_DATE, ReportField.USER_CRASH_DATE })
-public class HikeMessengerApp extends Application implements HikePubSub.Listener
+public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.Listener
 {
 
 	public static enum CurrentState
@@ -768,6 +773,7 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 
 	public void onCreate()
 	{
+		KPTCoreEngineImpl.atxAssestCopyFromAppInfo(this, getFilesDir().getAbsolutePath(), getAssets());
 		SharedPreferences settings = getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
 		token = settings.getString(HikeMessengerApp.TOKEN_SETTING, null);
 		msisdn = settings.getString(HikeMessengerApp.MSISDN_SETTING, null);
@@ -787,6 +793,8 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 
 		_instance = this;
 
+		setupLocalLanguage();
+		KptKeyboardManager.getInstance(this);
 		Utils.setDensityMultiplier(getResources().getDisplayMetrics());
 
 		// first time or failed DB upgrade.
@@ -964,7 +972,7 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 		
 		bottomNavBarHeightPortrait = Utils.getBottomNavBarHeight(getApplicationContext());
 		bottomNavBarWidthLandscape = Utils.getBottomNavBarWidth(getApplicationContext());
-		
+
 	}
 
 	private void initImportantAppComponents(SharedPreferences prefs)
@@ -1240,5 +1248,34 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 	{// server side switch
 		int kc = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.KEYBOARD_CONFIGURATION, HikeConstants.KEYBOARD_CONFIGURATION_NEW);
 		return kc == HikeConstants.KEYBOARD_CONFIGURATION_NEW;
+	}
+	
+	public static boolean isSystemKeyboard(Context context)
+	{
+		boolean currentKbd = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CURRENT_KEYBOARD, false);
+		Logger.d("keyboard", "Current keyboard : " + currentKbd);
+		return currentKbd;
+	}
+
+	@Override
+	public void onConfigurationChanged(Configuration newConfig)
+	{
+		super.onConfigurationChanged(newConfig);
+		setupLocalLanguage();
+	}
+
+	public void setupLocalLanguage()
+	{
+		Resources res = getApplicationContext().getResources();
+		Configuration config = res.getConfiguration();
+		if (LocalLanguageUtils.isLocalLanguageSelected())
+		{
+			config.locale = new Locale(LocalLanguageUtils.getApplicationLocalLanguageLocale());
+		}
+		else
+		{
+			config.locale = Locale.getDefault();
+		}
+		res.updateConfiguration(config, res.getDisplayMetrics());
 	}
 }

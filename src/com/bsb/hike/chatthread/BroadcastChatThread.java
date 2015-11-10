@@ -25,6 +25,7 @@ import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
+import com.kpt.adaptxt.beta.RemoveDialogData;
 
 /**
  * @author piyush
@@ -224,5 +225,17 @@ public class BroadcastChatThread extends OneToNChatThread
 		startHomeActivity();
 		
 		super.fetchConversationFailed();
+	}
+
+	@Override
+	public void dismissRemoveDialog() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void showRemoveDialog(RemoveDialogData arg0) {
+		// TODO Auto-generated method stub
+		
 	}
 }

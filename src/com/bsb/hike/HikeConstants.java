@@ -473,6 +473,12 @@ public class HikeConstants
 
 	public static final String LAST_SEEN_PREF_LIST = "lastSeenPrefList";
 	
+	public static final String LONG_PRESS_DUR_PREF = "longPressDurationPref";
+	
+	public static final String KEYPRESS_VOL_PREF = "keyPressVolPref";
+	
+	public static final String KEYPRESS_VIB_DUR_PREF = "keypressVibDurationPref";
+	
 	public static final String PROFILE_PIC_PREF = "profilePicPref";
 	
 	public static final String SEND_ENTER_PREF = "enterSendPref";
@@ -602,6 +608,48 @@ public class HikeConstants
 
 	public static final String H2O_NOTIF_BOOLEAN_PREF = "hikeOfflineNotificationPref";
 
+	public static final String KEYBOARD_LANGUAGE_PREF = "kbdLanguagePref";
+
+	public static final String LOCAL_LANGUAGE_PREF = "appLanguagePref";
+
+	public static final String KEYBOARD_PREF = "keyboardPref";
+	
+	public static final String GLIDE_PREF = "glidePref";
+	
+	public static final String KEYBOARD_PRIMARY_PREF = "keyboardPrimaryPref";
+
+	public static final String TEXT_CORRECTION_PREF = "textCorrectionPref";
+	
+	public static final String KEYBOARD_ADV_PREF = "advancedPref";
+	
+	public static final String KEYBOARD_ADV_PREF_SCREEN = "kptAdvancedPrefScreen";
+	
+	public static final String KEYBOARD_PRIMARY_PREF_SCREEN = "kptPrimaryPrefScreen";
+	
+	public static final String TEXT_CORRECTION_PREF_SCREEN = "textCorrectionPrefScreen";
+	
+	public static final String AUTO_CORRECT_PREF = "autoCorrectPref";
+	
+	public static final String AUTO_CAPITALIZATION_PREF = "autoCapsPref";
+	
+	public static final String AUTO_SPACING_PREF = "autoSpacingPref";
+	
+	public static final String DISPLAY_SUGGESTIONS_PREF = "dispSuggPref";
+	
+	public static final String PRIVATE_MODE_PREF = "privateModePref";
+	
+	public static final String DISPLAY_ACCENTS_PREF = "dispAccentsPref";
+	
+	public static final String POPUP_ON_KEYPRESS_PREF = "popupOnKeypressPref";
+	
+	public static final String SOUND_ON_KEYPRESS_PREF = "soundOnKeypressPref";
+	
+	public static final String VIBRATE_ON_KEYPRESS_PREF = "vibrateOnKeypressPref";
+	
+	public static final String APP_LANGUAGE = "app_language";
+	
+	public static final String KEYBOARD_LANGUAGE = "keyboard_language";
+	
 	public static final String UPGRADE_AVATAR_PROGRESS_USER = "upgradeAvtarProgressUser";
 	
 	public static final String UPGRADING = "upgrading";
@@ -1459,6 +1507,8 @@ public class HikeConstants
 		public static final String CONTACT_METADATA = "contactMetadata";
 
 		public static final String FROM_CENTRAL_TIMELINE = "fromCentralTimeline";
+		
+		public static final String FROM_DELETE_ACCOUNT = "fromDeleteAccount";
 		
 		public static final String BLOCKED_LIST = "blockedList";
 
@@ -2356,6 +2406,49 @@ public class HikeConstants
 		
 		public static final String TIMELINE_OVERFLOW_OPTION_FAV = "fav";
 
+		public static final String AUTO_CAPITALIZATION_ON = "auto_capitalization_on";
+		
+		public static final String AUTO_SPACING_ON = "auto_spacing_on";
+		
+		public static final String GLIDE_ON = "glide_on";
+		
+		public static final String KEYPRESS_SOUND_ON = "keypress_sound_on";
+		
+		public static final String KEYPRESS_POPUP_ON = "keypress_popup_on";
+		
+		public static final String KEYPRESS_VIBRATION_ON = "keypress_vibration_on";
+		
+		public static final String AUTO_CORRECT_ON = "auto_correct_on";
+		
+		public static final String DISPLAY_SUGGESTION_ON = "display_suggestion_on";
+		
+		public static final String PRIVATE_MODE_ON = "private_mode_on";
+		
+		public static final String APP_LANGUAGE_CHANGE_EVENT = "app_language_change_event";
+		
+		public static final String HIKE_KEYBOARD_ON = "hike_keyboard_on";
+		
+		public static final String KEYBOARD_LANGUAGE_DOWNLOAD_EVENT = "keyboard_language_download_event";
+		
+		public static final String LANGUAGE_DOWNLOADING = "language_downloading";
+		
+		public static final String KEYBOARD_LANGUAGE_CHANGED_EVENT = "keyboard_language_changed_event";
+		
+		public static final String APP_LANGUAGE_FTUE = "app_language_ftue";
+		
+		public static final String KEYBOARD_FTUE_INITIATED = "keyboard_ftue_initiated";
+		
+		public static final String KEYBOARD_FTUE_CLOSE_BUTTON = "keyboard_ftue_close_button";
+		
+		public static final String KEYBOARD_FTUE_CHOOSE_LANGUAGE_BUTTON = "keyboard_ftue_choose_language_button";
+		
+		public static final String KEYBOARD_FTUE_LANGUAGE_DOWNLOADED = "keyboard_ftue_language_downloaded";
+		
+		public static final String KEYBOARD_FTUE_CLOSE_LANG_SELECTION = "keyboard_ftue_close_lang_selection";
+		
+		public static final String KEYBOARD_FTUE_INSTALL_SELECTED_LANGUAGES = "keyboard_ftue_install_selected_languages";
+
+		public static final String KEYBOARD_FTUE_COMPLETES = "keyboard_ftue_completes";
 	}
 	public static final class Toast
 	{
@@ -3121,6 +3214,8 @@ public class HikeConstants
 	public static final int KEYBOARD_CONFIGURATION_OLD = 1;
 
 	public static final int KEYBOARD_CONFIGURATION_NEW = 2;
+	
+	public static final String CURRENT_KEYBOARD = "currentKeyboard";
 	
 	public static final String GET="get";
 	
