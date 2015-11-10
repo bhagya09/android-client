@@ -719,7 +719,8 @@ public class HikeBitmapFactory
 
 			// Calculate the largest inSampleSize value that is a power of 2 and keeps both
 			// height and width larger than the requested height and width.
-			while ((halfHeight / inSampleSize) >= reqHeight && (halfWidth / inSampleSize) >= reqWidth)
+			while (((halfHeight / inSampleSize) >= reqHeight && (halfWidth / inSampleSize) >= reqWidth)
+					|| (height/inSampleSize) > 4096 || (width/inSampleSize) > 4096) //OpenGL Surface limitation
 			{
 				inSampleSize *= 2;
 			}
@@ -727,7 +728,7 @@ public class HikeBitmapFactory
 		}
 		return inSampleSize;
 	}
-
+	
 	/**
 	 * Decode and sample down a bitmap from resources to the requested inSampleSize.
 	 * 
