@@ -206,7 +206,7 @@ public class CountrySelectActivity extends HikeAppStateBaseFragmentActivity impl
 			if(searchET!=null){
 			if (customKeyboardRequired)
 			{
-				if (KptUtils.isSystemKeyboard(CountrySelectActivity.this))
+				if (KptUtils.isSystemKeyboard())
 				{
 					Utils.showSoftKeyboard(getApplicationContext(), searchET);
 				}
@@ -482,7 +482,7 @@ public class CountrySelectActivity extends HikeAppStateBaseFragmentActivity impl
 		// Code for CustomKeyboard
 		searchET = (AdaptxtEditText) searchView
 				.findViewById(R.id.search_src_text);
-		if (mCustomKeyboard!=null &&!KptUtils.isSystemKeyboard(CountrySelectActivity.this)) {
+		if (mCustomKeyboard!=null &&!KptUtils.isSystemKeyboard()) {
 			mCustomKeyboard.registerEditText(searchET);
 			mCustomKeyboard.init(searchET);
 		}

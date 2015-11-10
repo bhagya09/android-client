@@ -2449,6 +2449,9 @@ public class HikeConstants
 		public static final String KEYBOARD_FTUE_INSTALL_SELECTED_LANGUAGES = "keyboard_ftue_install_selected_languages";
 
 		public static final String KEYBOARD_FTUE_COMPLETES = "keyboard_ftue_completes";
+		
+		public static final String KPT = "kpt";
+
 	}
 	public static final class Toast
 	{
@@ -3210,7 +3213,7 @@ public class HikeConstants
 	public static final String NOTIFIACTION_DELAY_ONE_TO_ONE = "ont";
 
 	public static final String KEYBOARD_CONFIGURATION = "kc";
-
+	
 	public static final int KEYBOARD_CONFIGURATION_OLD = 1;
 
 	public static final int KEYBOARD_CONFIGURATION_NEW = 2;

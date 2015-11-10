@@ -218,7 +218,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		
 		initEmoticonPicker();
 		
-		systemKeyboard = HikeMessengerApp.isSystemKeyboard(StatusUpdate.this);
+		systemKeyboard = HikeMessengerApp.isSystemKeyboard();
 		mEmoticonPicker.setCustomKeyBoard(!systemKeyboard);
 		if (!systemKeyboard)
 		{

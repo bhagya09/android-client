@@ -69,7 +69,7 @@ public class DeleteAccount extends HikeAppStateBaseFragmentActivity implements D
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.delete_account_confirmation);
 		
-		systemKeyboard = HikeMessengerApp.isSystemKeyboard(DeleteAccount.this);
+		systemKeyboard = HikeMessengerApp.isSystemKeyboard();
 		
 		initViewComponents();
 		if (!systemKeyboard)

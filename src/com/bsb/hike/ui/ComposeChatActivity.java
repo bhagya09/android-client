@@ -711,7 +711,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			tagEditText.setVisibility(View.GONE);
 		}
 		
-		systemKeyboard = HikeMessengerApp.isSystemKeyboard(getApplicationContext());
+		systemKeyboard = HikeMessengerApp.isSystemKeyboard();
 		if (!systemKeyboard)
 		{
 			initCustomKeyboard();
@@ -768,7 +768,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 	{
 		// TODO Auto-generated method stub
 		if(composeMode != CREATE_GROUP_MODE && composeMode != CREATE_BROADCAST_MODE){
-			if (!KptUtils.isSystemKeyboard(ComposeChatActivity.this))
+			if (!KptUtils.isSystemKeyboard())
 			{
 				if (mCustomKeyboard != null &&findViewById(R.id.composeChatNewGroupTagET).getVisibility()==View.VISIBLE&& tagEditText != null)
 				{
@@ -2919,7 +2919,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 	 			@Override
 	 			public void onFocusChange(View v, boolean hasFocus) {
 	 				if(hasFocus){
-	 					if (KptUtils.isSystemKeyboard(ComposeChatActivity.this))
+	 					if (KptUtils.isSystemKeyboard())
 						{
 							Utils.showSoftKeyboard(searchET, InputMethodManager.SHOW_FORCED);
 						}
@@ -2928,7 +2928,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 							mCustomKeyboard.showCustomKeyboard(searchET, true);
 						}	 						
 	 				}else{
-						if (!KptUtils.isSystemKeyboard(ComposeChatActivity.this))
+						if (!KptUtils.isSystemKeyboard())
 						{
 							mCustomKeyboard.showCustomKeyboard(searchET, false);
 							mCustomKeyboard.updateCore();

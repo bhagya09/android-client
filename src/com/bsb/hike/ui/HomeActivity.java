@@ -837,12 +837,12 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 	private boolean setupCustomKeyboard()
 	{
-		if (mCustomKeyboard == null && !KptUtils.isSystemKeyboard(HomeActivity.this))
+		if (mCustomKeyboard == null && !KptUtils.isSystemKeyboard())
 		{
 			LinearLayout viewHolder = (LinearLayout) findViewById(R.id.keyboardView_holder);
 			mCustomKeyboard = new HikeCustomKeyboard(HomeActivity.this, viewHolder, KPTConstants.MULTILINE_LINE_EDITOR, null, HomeActivity.this);
 		}
-		return (mCustomKeyboard != null && !KptUtils.isSystemKeyboard(HomeActivity.this)) ? true: false;
+		return (mCustomKeyboard != null && !KptUtils.isSystemKeyboard()) ? true: false;
 	}
 
 	View.OnFocusChangeListener searchTextFocusChangeListener = new View.OnFocusChangeListener()
@@ -850,7 +850,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		@Override
 		public void onFocusChange(View v, boolean hasFocus)
 		{
-			if (!KptUtils.isSystemKeyboard(HomeActivity.this))
+			if (!KptUtils.isSystemKeyboard())
 			{
 				if (hasFocus)
 				{
@@ -1198,7 +1198,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 	private void showKeyboard()
 	{
-		if (!KptUtils.isSystemKeyboard(HomeActivity.this))
+		if (!KptUtils.isSystemKeyboard())
 		{
 			if (mCustomKeyboard != null && searchET != null)
 			{
@@ -2288,7 +2288,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	@Override
 	public void onConfigurationChanged(Configuration newConfig)
 	{
-		if (!KptUtils.isSystemKeyboard(HomeActivity.this)&&mCustomKeyboard!=null)
+		if (!KptUtils.isSystemKeyboard()&&mCustomKeyboard!=null)
 		{
 			if (mCustomKeyboard != null)
 			{
