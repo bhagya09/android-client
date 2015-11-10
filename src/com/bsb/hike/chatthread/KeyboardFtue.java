@@ -287,16 +287,19 @@ public class KeyboardFtue implements HikePubSub.Listener
     }
     private void refreshActionPanel()
     {
-        Byte keyboardManagerState = KptKeyboardManager.getInstance(mActivity).getCurrentState();
-        if (keyboardManagerState == KptKeyboardManager.WAITING)
+        if (flipper != null)
         {
-            flipper.findViewById(R.id.action_panel).setVisibility(View.VISIBLE);
-            flipper.findViewById(R.id.waiting_panel).setVisibility(View.GONE);
-        }
-        else
-        {
-            flipper.findViewById(R.id.action_panel).setVisibility(View.GONE);
-            flipper.findViewById(R.id.waiting_panel).setVisibility(View.VISIBLE);
+            Byte keyboardManagerState = KptKeyboardManager.getInstance(mActivity).getCurrentState();
+            if (keyboardManagerState == KptKeyboardManager.WAITING)
+            {
+                flipper.findViewById(R.id.action_panel).setVisibility(View.VISIBLE);
+                flipper.findViewById(R.id.waiting_panel).setVisibility(View.GONE);
+            }
+            else
+            {
+                flipper.findViewById(R.id.action_panel).setVisibility(View.GONE);
+                flipper.findViewById(R.id.waiting_panel).setVisibility(View.VISIBLE);
+            }
         }
     }
 
