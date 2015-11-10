@@ -24,6 +24,12 @@ public class OfflineParameters
 	@Expose
 	int portno = OfflineConstants.PORT_PING;
 	
+	@Expose
+	int ipreadtimes = 150; //sleep=100-->totoal time =15 sec
+	
+	@Expose
+	int wifionwaittimes = 40; //sleep=500-->totoal time =20sec
+	
 
 	public boolean isOfflineEnabled()
 	{
@@ -48,6 +54,16 @@ public class OfflineParameters
 	public int getPortNo()
 	{
 		return portno;
+	}
+	
+	public int getMaxTryForIpExtraction()
+	{
+		return ipreadtimes;
+	}
+	
+	public int getMaxWifiwaitTime()
+	{
+		return wifionwaittimes;
 	}
 	
 	

@@ -31,6 +31,8 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Pair;
+import android.view.Gravity;
+import android.widget.Toast;
 
 import com.bsb.hike.AppConfig;
 import com.bsb.hike.HikeConstants;
@@ -2698,6 +2700,10 @@ public class MqttMessagesManager
 				HikeMessengerApp.getPubSub().publish(HikePubSub.SHOW_NEW_CHAT_RED_DOT, null);
 			}
 		}
+		if(data.has(HikeConstants.SHOW_GPS_DIALOG))
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOW_GPS_DIALOG, data.optBoolean(HikeConstants.SHOW_GPS_DIALOG));
+		}
 		
 		editor.commit();
 		this.pubSub.publish(HikePubSub.UPDATE_OF_MENU_NOTIFICATION, null);
@@ -3276,7 +3282,7 @@ public class MqttMessagesManager
 	private void saveRequestDP(JSONObject jsonObj) throws JSONException
 	{
 		final String groupId = jsonObj.getString(HikeConstants.TO);
-		uploadGroupProfileImage(groupId);
+		OneToNConversationUtils.uploadGroupProfileImage(groupId);
 	}
 
 	private void savePopup(JSONObject jsonObj) throws JSONException
@@ -3964,6 +3970,31 @@ public class MqttMessagesManager
 		{
 			GeneralEventMessagesManager.getInstance().handleGeneralMessage(jsonObj);
 		}
+		else if(HikeConstants.TOAST.equals(type))
+		{
+			showToast(jsonObj);
+		}
+	}
+	
+	private void showToast(final JSONObject jsonObj) throws JSONException
+	{
+		if(jsonObj.has(HikeConstants.DATA))
+		{
+			final JSONObject toastJson = jsonObj.getJSONObject(HikeConstants.DATA);
+			new Handler(Looper.getMainLooper()).post(new Runnable()
+			{
+				@Override
+				public void run()
+				{
+					Toast toast =  Toast.makeText(context, toastJson.optString(HikeConstants.Toast.TOAST_MESSAGE, 
+							context.getString(R.id.app_name)), 
+							toastJson.optInt(HikeConstants.Toast.TOAST_DURATION, Toast.LENGTH_SHORT));
+					toast.setGravity(toastJson.optInt(HikeConstants.Toast.TOAST_GRAVITY, toast.getGravity()), toast.getXOffset(), toast.getYOffset());
+					toast.show();
+				}
+			});
+
+		}
 	}
 
 	private void saveActivityUpdate(final JSONObject jsonObj)
@@ -4016,43 +4047,6 @@ public class MqttMessagesManager
 				}
 			}
 		}, 0);
-	}
-
-	private void uploadGroupProfileImage(final String groupId)
-	{
-		String directory = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT;
-		String fileName = Utils.getTempProfileImageFileName(groupId);
-
-		File groupImageFile = new File(directory, fileName);
-		if (!groupImageFile.exists())
-		{
-			return;
-		}
-		
-		IRequestListener requestListener = new IRequestListener()
-		{
-			@Override
-			public void onRequestSuccess(Response result)
-			{
-				Utils.renameTempProfileImage(groupId);
-			}
-			
-			@Override
-			public void onRequestProgressUpdate(float progress)
-			{				
-			}
-			
-			@Override
-			public void onRequestFailure(HttpException httpException)
-			{
-				Utils.removeTempProfileImage(groupId);
-				HikeMessengerApp.getLruCache().deleteIconForMSISDN(groupId);
-				HikeMessengerApp.getPubSub().publish(HikePubSub.ICON_CHANGED, groupId);
-			}
-		};
-		
-		RequestToken requestToken = HttpRequests.editGroupProfileAvatarRequest(groupImageFile.getPath(), requestListener, groupId);
-		requestToken.execute();
 	}
 
 	private void handleSendNativeInviteKey(boolean sendNativeInvite, boolean showFreeSmsPopup, String header, String body, Editor editor)

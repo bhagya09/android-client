@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.platform.content.PlatformContentConstants;
 
 import org.acra.ACRA;
@@ -385,6 +386,8 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 	public static final String STEALTH_MODE_FTUE_DONE = "steatlhModeFtueDone";
 
 	public static final String STEALTH_PIN_AS_PASSWORD = "steatlhPinAsPassword";
+
+	public static final String CONV_DB_VERSION_PREF =  "convDbVersion";
 
 	public static final String SHOWING_STEALTH_FTUE_CONV_TIP = "showingStealthFtueConvTip";
 
@@ -893,14 +896,12 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 		}
 		
 		// Cancel any going OfflineNotification
-		NotificationManager notificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
-		notificationManager.cancel(OfflineConstants.NOTIFICATION_IDENTIFIER);
+		HikeNotification.getInstance().cancelNotification(OfflineConstants.NOTIFICATION_IDENTIFIER);
 
 		HikeSharedPreferenceUtil.getInstance().removeData(OfflineConstants.DIRECT_REQUEST_DATA);
 	
 		StickerManager.getInstance().sendStickerPackAndOrderListForAnalytics();
 		StickerManager.getInstance().refreshTagData();
-		StickerSearchManager.getInstance().removeDeletedStickerTags();
 		
 		bottomNavBarHeightPortrait = Utils.getBottomNavBarHeight(getApplicationContext());
 		bottomNavBarWidthLandscape = Utils.getBottomNavBarWidth(getApplicationContext());
@@ -959,6 +960,11 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 			Utils.setSharedPrefValue(this, HikeConstants.ACTIVATE_STICKY_CALLER_PREF,
 					HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ACTIVATE_STICKY_CALLER_PREF, false));
 			HikeSharedPreferenceUtil.getInstance().removeData(HikeConstants.ACTIVATE_STICKY_CALLER_PREF);
+			
+		}
+		if (HikeSharedPreferenceUtil.getInstance().contains(StickyCaller.CALLER_Y_PARAMS_OLD))
+		{
+			HikeSharedPreferenceUtil.getInstance().removeData(StickyCaller.CALLER_Y_PARAMS_OLD);
 		}
 	}
 

@@ -31,6 +31,8 @@ import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.AnalyticsConstants.ProfileImageActions;
 import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.cropimage.CropCompression;
+import com.bsb.hike.cropimage.HikeCropActivity;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.dialog.CustomAlertDialog;
 import com.bsb.hike.dialog.HikeDialog;
@@ -52,6 +54,7 @@ import com.bsb.hike.tasks.HikeHTTPTask;
 import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
 import com.bsb.hike.ui.GalleryActivity;
+import com.bsb.hike.ui.PictureEditer;
 import com.bsb.hike.ui.fragments.ImageViewerFragment;
 import com.bsb.hike.ui.fragments.ShareLinkFragment;
 import com.bsb.hike.ui.fragments.ImageViewerFragment.DisplayPictureEditListener;
@@ -249,7 +252,9 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 				}
 				else
 				{
-					Utils.startCropActivity(this, path, getNewProfileImagePath(true));
+					CropCompression compression = new CropCompression().maxWidth(640).maxHeight(640).quality(80);
+					Intent cropIntent = IntentFactory.getCropActivityIntent(ChangeProfileImageBaseActivity.this, path, getNewProfileImagePath(true), compression);
+					startActivityForResult(cropIntent, HikeConstants.CROP_RESULT);
 				}
 			}
 			else
@@ -281,7 +286,9 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 							}
 							else
 							{
-								Utils.startCropActivity(ChangeProfileImageBaseActivity.this, destFile.getAbsolutePath(), getNewProfileImagePath(true));
+								CropCompression compression = new CropCompression().maxWidth(640).maxHeight(640).quality(80);
+								Intent cropIntent = IntentFactory.getCropActivityIntent(ChangeProfileImageBaseActivity.this, destFile.getAbsolutePath(), getNewProfileImagePath(true), compression);
+								startActivityForResult(cropIntent, HikeConstants.CROP_RESULT);
 							}
 						}
 					}
@@ -304,7 +311,7 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 
 		case HikeConstants.ResultCodes.PHOTOS_REQUEST_CODE:
 		case HikeConstants.CROP_RESULT:
-			mActivityState.destFilePath = data.getStringExtra(MediaStore.EXTRA_OUTPUT);
+			mActivityState.destFilePath = data.getStringExtra(HikeCropActivity.CROPPED_IMAGE_PATH);
 
 			if (mActivityState.destFilePath == null)
 			{
@@ -822,18 +829,22 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 	
 	protected void showLinkShareView(String grpId, String grpName, int grpSettings, boolean isNewGroup)
 	{
-		FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+		android.support.v4.app.FragmentManager fm = getSupportFragmentManager();
+		FragmentTransaction ft = fm.beginTransaction();
 		Fragment prev = getSupportFragmentManager().findFragmentByTag(ShareLinkFragment.SHARE_LINK_FRAGMENT_TAG);
 		if (prev != null)
 		{
 			ft.remove(prev);
+			ft.commitAllowingStateLoss();
+			fm.executePendingTransactions();
+			ft = fm.beginTransaction();
 		}
-		ft.addToBackStack(ShareLinkFragment.SHARE_LINK_FRAGMENT_TAG);
-		getSupportFragmentManager().executePendingTransactions();
 		
 		// Create and show the dialog.
 		mActivityState.shareLinkFragment = ShareLinkFragment.newInstance(grpId, grpName, grpSettings, isNewGroup, false);
 		mActivityState.shareLinkFragment.show(ft, ShareLinkFragment.SHARE_LINK_FRAGMENT_TAG);
+		
+		fm.executePendingTransactions();
 	}
 
 	@Override

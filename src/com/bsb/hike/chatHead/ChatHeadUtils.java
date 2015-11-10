@@ -20,6 +20,8 @@ import android.app.ActivityManager.RunningTaskInfo;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.provider.ContactsContract;
@@ -43,6 +45,8 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.modules.httpmgr.RequestToken;
@@ -57,6 +61,7 @@ import com.bsb.hike.voip.VoIPUtils.CallSource;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.google.gson.JsonSyntaxException;
 
 public class ChatHeadUtils
 {
@@ -267,10 +272,29 @@ public class ChatHeadUtils
 	{
 		if (result != null)
 		{
-			JsonParser parser = new JsonParser();
-			JsonObject callerDetails = (JsonObject) parser.parse(result);
-			CallerContentModel callerContentModel = new Gson().fromJson(callerDetails, CallerContentModel.class);
-			return callerContentModel;
+			try
+			{
+				JsonParser parser = new JsonParser();
+				JsonObject callerDetails = (JsonObject) parser.parse(result);
+				CallerContentModel callerContentModel = new Gson().fromJson(callerDetails, CallerContentModel.class);
+				return callerContentModel;
+			}
+			catch (JsonSyntaxException e)
+			{
+				Logger.d(TAG, "Json Syntax Exception" + e);
+				JSONObject metadata = new JSONObject();
+				try
+				{
+					metadata.put(HikeConstants.EVENT_TYPE, AnalyticsConstants.StickyCallerEvents.STICKY_CALLER);
+					metadata.put(HikeConstants.EVENT_KEY, AnalyticsConstants.StickyCallerEvents.WRONG_JSON);
+					metadata.put(AnalyticsConstants.StickyCallerEvents.WRONG_JSON, result);
+					HAManager.getInstance().record(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.ERROR_EVENT, EventPriority.HIGH, metadata);
+				}
+				catch (JSONException e1)
+				{
+					Logger.d(TAG, "Failure while making anaytics JSON for wrong JSON syntax");
+				}
+			}
 		}
 		return null;
 	}
@@ -370,65 +394,82 @@ public class ChatHeadUtils
 		return !HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.DONT_USE_ACCESSIBILITY, willPollingWork());
 	}
 	
-	public static boolean canAccessibilityBeUsed(boolean serviceDecision)
+	public static boolean isAccessibilityForcedUponUser()
 	{
-		boolean forceAccessibility = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.FORCE_ACCESSIBILITY, !willPollingWork());
-		if(!forceAccessibility)
-		{
-			return false;
-		}
-		boolean accessibilityDisabled = !isAccessibilityEnabled(HikeMessengerApp.getInstance().getApplicationContext());
-		if(!serviceDecision)
-		{
-			return accessibilityDisabled;
-		}
-		boolean wantToUseAccessibility = useOfAccessibilittyPermitted();
-		//dontUseAccessibility is an internal flag, to prevent user from using accessibility service for stickey,
-		//even if accessibility is enabled by forceAccessibility flag On
-		return  wantToUseAccessibility || accessibilityDisabled;
+		return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.FORCE_ACCESSIBILITY, !willPollingWork());
 	}
 	
-	public static void startOrStopService(boolean jsonChanged)
+	public static boolean accessibilityMustBeActivated(boolean isAccessibilityActive)
 	{
-		boolean sessionLogEnabled = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SESSION_LOG_TRACKING, false);
-		boolean startChatHead = shouldRunChatHeadServiceForStickey() && !canAccessibilityBeUsed(true);
+		return isAccessibilityForcedUponUser() && !isAccessibilityActive; 
+	}
+	
+	public static void startOrStopService(final boolean jsonChanged)
+	{
+		Context context  = HikeMessengerApp.getInstance().getApplicationContext();
+		final boolean sessionLogEnabled = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SESSION_LOG_TRACKING, false);
+		final boolean canAccessibilityBeUsed = isAccessibilityForcedUponUser() && ( useOfAccessibilittyPermitted() || !isAccessibilityEnabled(context));
+		final boolean startChatHead = shouldRunChatHeadServiceForStickey() && !canAccessibilityBeUsed;
 		
-		if (willPollingWork() && (sessionLogEnabled || startChatHead))
-		{
-			if (jsonChanged)
-			{
-				restartService();
-			}
-			else
-			{
-				startService();
-			}
-		}
-		else
-		{
-			stopService();
-		}
-		
-		if(!startChatHead)
-		{
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.SNOOZE, false);
-			HikeAlarmManager.cancelAlarm(HikeMessengerApp.getInstance(), HikeAlarmManager.REQUESTCODE_START_STICKER_SHARE_SERVICE); 
-		}
+		Handler uiHandler = new Handler(Looper.getMainLooper());
 		
 		if(viewManager == null)
 		{
-			viewManager = ChatHeadViewManager.getInstance(HikeMessengerApp.getInstance().getApplicationContext());
+			viewManager = ChatHeadViewManager.getInstance(context);
 		}
 		
+		uiHandler.post(new Runnable()
+		{
+
+			@Override
+			public void run()
+			{
+				viewManager.onDestroy();
+			}
+		});
+		
+		uiHandler.post(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				if (willPollingWork() && (sessionLogEnabled || startChatHead))
+				{
+					if (jsonChanged)
+					{
+						restartService();
+					}
+					else
+					{
+						startService();
+					}
+				}
+				else
+				{
+					stopService();
+				}}
+		});
+
 		if (useOfAccessibilittyPermitted())
 		{
-			viewManager.onDestroy();
-			viewManager.onCreate();
+			uiHandler.post(new Runnable()
+			{
+				
+				@Override
+				public void run()
+				{
+					viewManager.onCreate();
+				}
+			});
+			
 		}
-		else
+		if(!startChatHead)
 		{
-			viewManager.onDestroy();
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.SNOOZE, false);
+			HikeAlarmManager.cancelAlarm(context, HikeAlarmManager.REQUESTCODE_START_STICKER_SHARE_SERVICE); 
 		}
+		
+		
 	}
 
 	public static void onClickSetAlarm(Context context, int time)
@@ -683,14 +724,17 @@ public class ChatHeadUtils
 			{
 				CallerContentModel callerContentModel = getCallerContentModelObject(HikeSharedPreferenceUtil.getInstance(HikeConstants.CALLER_SHARED_PREF).getData(
 						callCurrentNumber, null));
-				isOnHike = callerContentModel.getIsOnHike();
-				if (callerContentModel.getFirstName() != null)
+				if(callerContentModel != null)
 				{
-					callerName = callerContentModel.getFirstName();
-				}
-				else if (callerContentModel.getLastName() != null)
-				{
-					callerName = callerContentModel.getLastName();
+					isOnHike = callerContentModel.getIsOnHike();
+					if (callerContentModel.getFirstName() != null)
+					{
+						callerName = callerContentModel.getFirstName();
+					}
+					else if (callerContentModel.getLastName() != null)
+					{
+						callerName = callerContentModel.getLastName();
+					}
 				}
 			}
 			catch (Exception e)
