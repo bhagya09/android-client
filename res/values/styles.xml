@@ -69,7 +69,9 @@
         <item name="android:textAllCaps">false</item>
     </style>
 
-    <style name="NoTitleBar" parent="Base.NoTitleBar"></style>
+    <style name="NoTitleBar" parent="Base.NoTitleBar">
+        <item name="colorPrimary">@color/blue_action_bar</item>
+    </style>
 
     <style name="WelcomeHikeMessage">
         <item name="android:layout_marginTop">@dimen/hike_logo_margin</item>

@@ -101,6 +101,7 @@
 
      <style name="NoTitleBar" parent="Base.NoTitleBar">
          <item name="colorAccent">@color/white</item>
+         <item name="colorPrimary">@color/blue_action_bar</item>
      </style>
      
      <style name="Widget.Styled.ActionBar.ShadowLess" parent="Widget.Styled.ActionBar">
