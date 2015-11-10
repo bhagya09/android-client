@@ -58,6 +58,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Configuration;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.ResultReceiver;
@@ -77,6 +78,7 @@ import android.view.WindowManager;
 import android.view.animation.AlphaAnimation;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -1386,6 +1388,16 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity implem
 				mCustomKeyboard.showCustomKeyboard(mLockPinView, true);
 			}
 		});
+
+		if (Utils.isLollipopOrHigher() && getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE)
+		{
+
+			FrameLayout.LayoutParams lp = (android.widget.FrameLayout.LayoutParams) findViewById(R.id.lock_pattern_root_view).getLayoutParams();
+			View rootView = findViewById(R.id.lock_pattern_root_view);
+			lp.setMargins(0, 0, 0, 0);
+			rootView.setLayoutParams(lp);
+
+		}
     }
 
 	@Override
