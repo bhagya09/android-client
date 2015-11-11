@@ -166,8 +166,8 @@ public class StickerSearchUtility
 						if (frequencyData != null)
 						{
 							float trending = (float) frequencyData.getDouble(HikeConstants.STICKER_DATA_TRENDING);
-							float local = (float) frequencyData.getLong(HikeConstants.STICKER_DATA_LOCAL);
-							float global = (float) frequencyData.getLong(HikeConstants.STICKER_DATA_GLOBAL);
+							float local = (float) frequencyData.getDouble(HikeConstants.STICKER_DATA_LOCAL);
+							float global = (float) frequencyData.getDouble(HikeConstants.STICKER_DATA_GLOBAL);
 
 							if ((trending > 0) && (local > trending) && (global > local))
 							{
@@ -199,9 +199,9 @@ public class StickerSearchUtility
 						if (scoreWeightageData != null)
 						{
 							float wLateral = (float) scoreWeightageData.getDouble(HikeConstants.STICKER_SCORE_WEIGHTAGE_MATCH_LATERAL);
-							float wExactMatch = (float) scoreWeightageData.getLong(HikeConstants.STICKER_SCORE_WEIGHTAGE_EXACT_MATCH);
-							float wFrequency = (float) scoreWeightageData.getLong(HikeConstants.STICKER_SCORE_WEIGHTAGE_FREQUENCY);
-							float wContextMoment = (float) scoreWeightageData.getLong(HikeConstants.STICKER_SCORE_WEIGHTAGE_CONTEXT_MOMENT);
+							float wExactMatch = (float) scoreWeightageData.getDouble(HikeConstants.STICKER_SCORE_WEIGHTAGE_EXACT_MATCH);
+							float wFrequency = (float) scoreWeightageData.getDouble(HikeConstants.STICKER_SCORE_WEIGHTAGE_FREQUENCY);
+							float wContextMoment = (float) scoreWeightageData.getDouble(HikeConstants.STICKER_SCORE_WEIGHTAGE_CONTEXT_MOMENT);
 
 							if (isValidFraction(wLateral) && isValidFraction(wExactMatch) && isValidFraction(wFrequency) && isValidFraction(wContextMoment)
 									&& ((wLateral + wExactMatch + wFrequency + wContextMoment) == 1.00f))
@@ -295,8 +295,8 @@ public class StickerSearchUtility
 						if (frequencyRatioData != null)
 						{
 							float trending = (float) frequencyRatioData.getDouble(HikeConstants.STICKER_DATA_TRENDING);
-							float local = (float) frequencyRatioData.getLong(HikeConstants.STICKER_DATA_LOCAL);
-							float global = (float) frequencyRatioData.getLong(HikeConstants.STICKER_DATA_GLOBAL);
+							float local = (float) frequencyRatioData.getDouble(HikeConstants.STICKER_DATA_LOCAL);
+							float global = (float) frequencyRatioData.getDouble(HikeConstants.STICKER_DATA_GLOBAL);
 
 							if (isValidFraction(trending) && isValidFraction(local) && isValidFraction(global) && (local > trending) && (global > local)
 									&& ((trending + local + global) == 1.00f))
