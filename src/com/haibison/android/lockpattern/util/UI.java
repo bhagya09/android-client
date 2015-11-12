@@ -27,6 +27,7 @@ import android.util.Log;
 import android.util.TypedValue;
 import android.view.ViewGroup.LayoutParams;
 import android.view.Window;
+import android.view.WindowManager;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
@@ -174,18 +175,23 @@ public class UI {
 //        if (!dialogWindow.isFloating())
 //            return;
 //
-        final ScreenSize screenSize = ScreenSize.getCurrent(dialogWindow
-                .getContext());
-//        switch (screenSize) {
-//        case LARGE:
-//        case XLARGE:
-//            break;
-//        default:
-//            return;
-//        }
+		Context context = dialogWindow.getContext();
+		final ScreenSize screenSize = ScreenSize.getCurrent(context);
+		// switch (screenSize) {
+		// case LARGE:
+		// case XLARGE:
+		// break;
+		// default:
+		// return;
+		// }
 
-        final DisplayMetrics metrics = dialogWindow.getContext().getResources()
-                .getDisplayMetrics();
+		final DisplayMetrics metrics = dialogWindow.getContext().getResources().getDisplayMetrics();
+		if (Utils.isLollipopOrHigher() && context.getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE)
+		{
+			WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+			wm.getDefaultDisplay().getRealMetrics(metrics);
+
+		}
         final boolean isPortrait = metrics.widthPixels < metrics.heightPixels;
 
         int width = metrics.widthPixels;// dialogWindow.getDecorView().getWidth();

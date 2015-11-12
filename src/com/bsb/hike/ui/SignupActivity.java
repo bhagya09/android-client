@@ -18,7 +18,6 @@ import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
 import android.preference.PreferenceManager;
-import android.provider.MediaStore;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
 import android.telephony.TelephonyManager;
@@ -70,6 +69,7 @@ import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.localisation.LocalLanguage;
 import com.bsb.hike.localisation.LocalLanguageUtils;
+import com.bsb.hike.cropimage.HikeCropActivity;
 import com.bsb.hike.models.Birthday;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
@@ -86,9 +86,6 @@ import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.utils.Utils.ExternalStorageState;
 import com.bsb.hike.view.CustomFontEditText;
-import com.kpt.adaptxt.beta.RemoveDialogData;
-import com.kpt.adaptxt.beta.util.KPTConstants;
-import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtKeyboordVisibilityStatusListner;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -1154,7 +1151,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 		setupActionBarTitle();
 
 		final TextView languageText = (TextView) viewFlipper.findViewById(R.id.txt_lang);
-		final ArrayList<LocalLanguage> list = new ArrayList<>(LocalLanguage.getSupportedLanguages(this));
+		final ArrayList<LocalLanguage> list = new ArrayList<>(LocalLanguage.getDeviceSupportedHikeLanguages(this));
 		languageText.setText(list.get(0).getDisplayName());
 
 		viewFlipper.findViewById(R.id.lang_select).setOnClickListener(
@@ -1172,6 +1169,19 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 					{
 						selectedLocalLanguage = list.get(which);
 						languageText.setText(selectedLocalLanguage.getDisplayName());
+						
+//						tracking the app language selected by the user in ftue
+						try
+						{
+							JSONObject metadata = new JSONObject();
+							metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.APP_LANGUAGE_FTUE);
+							metadata.put(HikeConstants.KEYBOARD_LANGUAGE, selectedLocalLanguage.getDisplayName());
+							HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
+						}
+						catch(JSONException e)
+						{
+							Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json : " + selectedLocalLanguage.getDisplayName() + "\n" + e);
+						}
 					}
 				});
 
@@ -2291,7 +2301,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 		{
 
 		case HikeConstants.ResultCodes.PHOTOS_REQUEST_CODE:
-			mActivityState.destFilePath = data.getStringExtra(MediaStore.EXTRA_OUTPUT);
+			mActivityState.destFilePath = data.getStringExtra(HikeCropActivity.CROPPED_IMAGE_PATH);
 			
 			if (mActivityState.destFilePath == null)
 			{

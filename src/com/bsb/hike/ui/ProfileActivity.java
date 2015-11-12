@@ -397,7 +397,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			mActivityState = new ProfileActivityState();
 		}
 
-		systemKeyboard = HikeMessengerApp.isSystemKeyboard(getApplicationContext());
+		systemKeyboard = HikeMessengerApp.isSystemKeyboard();
 
 		if (getIntent().hasExtra(HikeConstants.Extras.EXISTING_GROUP_CHAT) || getIntent().hasExtra(HikeConstants.Extras.EXISTING_BROADCAST_LIST))
 		{
@@ -534,7 +534,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		{
 			mCustomKeyboard.showCustomKeyboard(mNameEdit, true);
 			KptUtils.updatePadding(ProfileActivity.this, R.id.parent_layout, mCustomKeyboard.getKeyBoardAndCVHeight());
-		}else if (KptUtils.isSystemKeyboard(ProfileActivity.this))
+		}else if (KptUtils.isSystemKeyboard())
 		{
 			Utils.showSoftKeyboard(mNameEdit, InputMethodManager.SHOW_FORCED);
 		}

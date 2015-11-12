@@ -10,7 +10,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -32,6 +31,8 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.cropimage.CropCompression;
+import com.bsb.hike.cropimage.HikeCropActivity;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.photos.HikeEffectsFactory;
@@ -395,8 +396,7 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 				try
 				{
 					isWorking = true;
-//					uploadProfilePic(data.getStringExtra(HikeCropActivity.CROPPED_IMAGE_PATH), data.getStringExtra(HikeCropActivity.SOURCE_IMAGE_PATH));
-					uploadProfilePic(data.getStringExtra(MediaStore.EXTRA_OUTPUT), data.getStringExtra(HikeConstants.HikePhotos.ORIG_FILE));
+					uploadProfilePic(data.getStringExtra(HikeCropActivity.CROPPED_IMAGE_PATH), data.getStringExtra(HikeCropActivity.SOURCE_IMAGE_PATH));
 				}
 				finally
 				{
@@ -697,14 +697,10 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 				{
 					finishProgress();
 					setTempProfileImageName(f.getAbsolutePath());
-					startActivityForResult(IntentFactory.getCropActivityIntent(PictureEditer.this, f.getAbsolutePath(), f.getAbsolutePath(), true,80, false), HikeConstants.CROP_RESULT);
-					
-//					CropCompression compression = new CropCompression().maxWidth(640).maxHeight(640).quality(80);
-//					Intent cropIntent = new Intent(PictureEditer.this, HikeCropActivity.class);
-//					cropIntent.putExtra(HikeCropActivity.CROPPED_IMAGE_PATH, f.getAbsolutePath());
-//					cropIntent.putExtra(HikeCropActivity.SOURCE_IMAGE_PATH, f.getAbsolutePath());
-//					cropIntent.putExtra(HikeCropActivity.CROP_COMPRESSION, compression);
-//					startActivityForResult(cropIntent, HikeConstants.CROP_RESULT);
+
+					CropCompression compression = new CropCompression().maxWidth(640).maxHeight(640).quality(80);
+					Intent cropIntent = IntentFactory.getCropActivityIntent(PictureEditer.this, f.getAbsolutePath(), f.getAbsolutePath(), compression);
+					startActivityForResult(cropIntent, HikeConstants.CROP_RESULT);
 				}
 			});
 		}

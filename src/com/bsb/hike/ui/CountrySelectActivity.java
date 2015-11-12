@@ -76,6 +76,8 @@ public class CountrySelectActivity extends HikeAppStateBaseFragmentActivity impl
 
 	private AdaptxtEditText searchET;
 
+	private boolean customKeyboardRequired = false;
+
 	public static class Country
 	{
 		public String name;
@@ -91,7 +93,10 @@ public class CountrySelectActivity extends HikeAppStateBaseFragmentActivity impl
 		super.onCreate(savedInstanceState);
 
 		searching = false;
-
+		if(getIntent().hasExtra(HikeConstants.Extras.FROM_DELETE_ACCOUNT)){
+			customKeyboardRequired  = true;
+		}
+		
 		try
 		{
 			BufferedReader reader = new BufferedReader(new InputStreamReader(getResources().getAssets().open("countries.txt")));
@@ -142,8 +147,10 @@ public class CountrySelectActivity extends HikeAppStateBaseFragmentActivity impl
 
 		setContentView(R.layout.country_select_layout);
 		LinearLayout viewHolder = (LinearLayout) findViewById(R.id.keyboardView_holder);
-		mCustomKeyboard = new HikeCustomKeyboard(CountrySelectActivity.this, viewHolder, KPTConstants.MULTILINE_LINE_EDITOR, null, CountrySelectActivity.this);
-
+		if (customKeyboardRequired)
+		{
+			mCustomKeyboard = new HikeCustomKeyboard(CountrySelectActivity.this, viewHolder, KPTConstants.MULTILINE_LINE_EDITOR, null, CountrySelectActivity.this);
+		}
 		searchListViewAdapter = new SearchAdapter(this);
 
 		listView = (PinnedSectionListView) findViewById(R.id.listView);
@@ -197,14 +204,21 @@ public class CountrySelectActivity extends HikeAppStateBaseFragmentActivity impl
 	protected void showKeyboard()
 		{
 			if(searchET!=null){
-				if (KptUtils.isSystemKeyboard(CountrySelectActivity.this))
+			if (customKeyboardRequired)
+			{
+				if (KptUtils.isSystemKeyboard())
 				{
 					Utils.showSoftKeyboard(getApplicationContext(), searchET);
 				}
-				else
+				else if (mCustomKeyboard != null)
 				{
 					mCustomKeyboard.showCustomKeyboard(searchET, true);
 				}
+			}
+			else
+			{
+				Utils.showSoftKeyboard(getApplicationContext(), searchET);
+			}
 			}
 		}
 	
@@ -468,7 +482,7 @@ public class CountrySelectActivity extends HikeAppStateBaseFragmentActivity impl
 		// Code for CustomKeyboard
 		searchET = (AdaptxtEditText) searchView
 				.findViewById(R.id.search_src_text);
-		if (!KptUtils.isSystemKeyboard(CountrySelectActivity.this)) {
+		if (mCustomKeyboard!=null &&!KptUtils.isSystemKeyboard()) {
 			mCustomKeyboard.registerEditText(searchET);
 			mCustomKeyboard.init(searchET);
 		}
@@ -500,7 +514,7 @@ public class CountrySelectActivity extends HikeAppStateBaseFragmentActivity impl
 			public boolean onMenuItemActionCollapse(MenuItem item)
 			{
 				searchView.setQuery("", true);
-				if (mCustomKeyboard.isCustomKeyboardVisible())
+				if (mCustomKeyboard!= null &&mCustomKeyboard.isCustomKeyboardVisible())
 				{
 					mCustomKeyboard.showCustomKeyboard(searchET, false);
 					KptUtils.updatePadding(CountrySelectActivity.this, R.id.listView, 0);

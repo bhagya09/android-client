@@ -58,13 +58,16 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Configuration;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.ResultReceiver;
 import android.text.Editable;
+import android.text.InputType;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.text.format.DateUtils;
+import android.text.method.PasswordTransformationMethod;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
@@ -75,6 +78,7 @@ import android.view.WindowManager;
 import android.view.animation.AlphaAnimation;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -503,7 +507,7 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity implem
         mLockPatternView = (LockPatternView) findViewById(R.id.alp_42447968_view_lock_pattern);
         mLockPinView = (CustomFontEditText) findViewById(R.id.alp_42447968_lock_pin);
 
-        systemKeyboard = HikeMessengerApp.isSystemKeyboard(getApplicationContext());
+        systemKeyboard = HikeMessengerApp.isSystemKeyboard();
         if (!systemKeyboard)
         {
             initCustomKeyboard();        	
@@ -515,6 +519,9 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity implem
 
         mLockPinView.setFocusable(true);
         mLockPatternView.setFocusable(true);
+        mLockPinView.setInputType(InputType.TYPE_TEXT_VARIATION_PASSWORD | InputType.TYPE_CLASS_PHONE);
+        mLockPinView.setTransformationMethod(PasswordTransformationMethod.getInstance());
+
         mLockPinView.addTextChangedListener(new TextWatcher(){
             public void afterTextChanged(Editable s) {
             	if (ACTION_CREATE_PATTERN.equals(getIntent().getAction())) {
@@ -526,6 +533,7 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity implem
                     		if (s.length() == 4){
                         		mTextInfo.setText(R.string.stealth_msg_pin_recorded);
                         		mBtnConfirm.setEnabled(true);
+                                mCustomKeyboard.hideCustomKeyboard(mLockPinView);
                         	} 
                     		else 
                         	{
@@ -550,6 +558,9 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity implem
 //                        		if(!check) 
 //                        			mLockPinView.setText("");   
                         		mBtnConfirm.setEnabled(check);
+                                if(check){
+                                    mCustomKeyboard.hideCustomKeyboard(mLockPinView);
+                                }
                         	} 
                     		else 
                         	{
@@ -1296,6 +1307,7 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity implem
                     mBtnOkCmd = ButtonOkCommand.DONE;
                     mLockPatternView.clearPattern();
                     mLockPinView.setText("");
+                    mCustomKeyboard.showCustomKeyboard(mLockPinView, true);
                     if(mLockPinView.getVisibility() == View.VISIBLE)
                     {
                     	if (mCustomKeyboard != null)
@@ -1376,6 +1388,16 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity implem
 				mCustomKeyboard.showCustomKeyboard(mLockPinView, true);
 			}
 		});
+
+		if (Utils.isLollipopOrHigher() && getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE)
+		{
+
+			FrameLayout.LayoutParams lp = (android.widget.FrameLayout.LayoutParams) findViewById(R.id.lock_pattern_root_view).getLayoutParams();
+			View rootView = findViewById(R.id.lock_pattern_root_view);
+			lp.setMargins(0, 0, 0, 0);
+			rootView.setLayoutParams(lp);
+
+		}
     }
 
 	@Override

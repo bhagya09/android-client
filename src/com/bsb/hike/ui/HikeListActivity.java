@@ -144,7 +144,7 @@ public class HikeListActivity extends HikeAppStateBaseFragmentActivity implement
 
 		findViewById(android.R.id.empty).setVisibility(View.GONE);
 
-		systemKeyboard = HikeMessengerApp.isSystemKeyboard(HikeListActivity.this);
+		systemKeyboard = HikeMessengerApp.isSystemKeyboard();
 		if (!systemKeyboard)
 		{
 			initCustomKeyboard();

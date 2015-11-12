@@ -1,30 +1,5 @@
 package com.bsb.hike;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URL;
-import java.net.URLEncoder;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicBoolean;
-
-import com.bsb.hike.localisation.LocalLanguageUtils;
-import com.bsb.hike.platform.content.PlatformContentConstants;
-
-import org.acra.ACRA;
-import org.acra.ErrorReporter;
-import org.acra.ReportField;
-import org.acra.annotation.ReportsCrashes;
-import org.acra.collector.CrashReportData;
-import org.acra.sender.HttpSender;
-import org.acra.sender.ReportSender;
-import org.acra.sender.ReportSenderException;
-import org.acra.util.HttpRequest;
-
-import android.app.NotificationManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -48,19 +23,21 @@ import com.bsb.hike.chatHead.StickyCaller;
 import com.bsb.hike.db.DbConversationListener;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.db.HikeMqttPersistence;
+import com.bsb.hike.localisation.LocalLanguageUtils;
 import com.bsb.hike.models.TypingNotification;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.HttpManager;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
 import com.bsb.hike.modules.kpt.KptKeyboardManager;
-import com.bsb.hike.modules.stickersearch.StickerLanguagesManager;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
+import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.notifications.HikeNotificationUtils;
 import com.bsb.hike.notifications.ToastListener;
 import com.bsb.hike.offline.OfflineConstants;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUIDFetch;
 import com.bsb.hike.platform.content.PlatformContent;
+import com.bsb.hike.platform.content.PlatformContentConstants;
 import com.bsb.hike.productpopup.ProductInfoManager;
 import com.bsb.hike.service.HikeService;
 import com.bsb.hike.service.RegisterToGCMTrigger;
@@ -77,6 +54,27 @@ import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 import com.kpt.adaptxt.beta.core.coreservice.KPTCoreEngineImpl;
+
+import org.acra.ACRA;
+import org.acra.ErrorReporter;
+import org.acra.ReportField;
+import org.acra.annotation.ReportsCrashes;
+import org.acra.collector.CrashReportData;
+import org.acra.sender.HttpSender;
+import org.acra.sender.ReportSender;
+import org.acra.sender.ReportSenderException;
+import org.acra.util.HttpRequest;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 //https://github.com/ACRA/acra/wiki/Backends
 @ReportsCrashes(customReportContent = { ReportField.APP_VERSION_CODE, ReportField.APP_VERSION_NAME, ReportField.PHONE_MODEL, ReportField.BRAND, ReportField.PRODUCT,
@@ -918,16 +916,13 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		}
 		
 		// Cancel any going OfflineNotification
-		NotificationManager notificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
-		notificationManager.cancel(OfflineConstants.NOTIFICATION_IDENTIFIER);
+		HikeNotification.getInstance().cancelNotification(OfflineConstants.NOTIFICATION_IDENTIFIER);
 
 		HikeSharedPreferenceUtil.getInstance().removeData(OfflineConstants.DIRECT_REQUEST_DATA);
 	
 		StickerManager.getInstance().sendStickerPackAndOrderListForAnalytics();
 		StickerManager.getInstance().refreshTagData();
-		StickerSearchManager.getInstance().removeDeletedStickerTags();
-        StickerLanguagesManager.getInstance().retryDownloadDefaultTagsForLanguages();
-		
+
 		bottomNavBarHeightPortrait = Utils.getBottomNavBarHeight(getApplicationContext());
 		bottomNavBarWidthLandscape = Utils.getBottomNavBarWidth(getApplicationContext());
 
@@ -1208,7 +1203,7 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		return kc == HikeConstants.KEYBOARD_CONFIGURATION_NEW;
 	}
 	
-	public static boolean isSystemKeyboard(Context context)
+	public static boolean isSystemKeyboard()
 	{
 		boolean currentKbd = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CURRENT_KEYBOARD, false);
 		Logger.d("keyboard", "Current keyboard : " + currentKbd);

@@ -3430,8 +3430,7 @@ import com.kpt.adaptxt.beta.RemoveDialogData;
 	public void onDisconnect(ERRORCODE errorCode)
 	{
 		
-		NotificationManager notificationManager = (NotificationManager)activity.getSystemService(Context.NOTIFICATION_SERVICE);
-        notificationManager.cancel(HikeNotification.OFFLINE_REQUEST_ID);
+		HikeNotification.getInstance().cancelNotification(HikeNotification.OFFLINE_REQUEST_ID);
         
 		Logger.d("OfflineManager", "disconnect Called " + errorCode +  "excetion code"+ errorCode.getErrorCode().getReasonCode()+ " time- "  + System.currentTimeMillis());
 		switch (errorCode)
@@ -3583,7 +3582,7 @@ import com.kpt.adaptxt.beta.RemoveDialogData;
 			public void negativeClicked(HikeDialog hikeDialog)
 			{
 				gpsDialogShown = currentLocationDevice == GPS_DISABLED;
-				Toast.makeText(activity, "Sorry hike direct wont work if gps not on", Toast.LENGTH_LONG).show();
+				Toast.makeText(activity, getString(R.string.user_gps_off), Toast.LENGTH_LONG).show();
 				hikeDialog.dismiss();
 			}
 		}, messageId, R.string.gps_settings);
@@ -3606,7 +3605,7 @@ import com.kpt.adaptxt.beta.RemoveDialogData;
 			}
 			else
 			{
-				Toast.makeText(activity, "Sorry hike direct wont work if gps not on", Toast.LENGTH_LONG).show();
+				Toast.makeText(activity, getString(R.string.user_gps_off), Toast.LENGTH_LONG).show();
 			}
 			break;
 		default:
