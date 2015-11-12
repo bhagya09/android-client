@@ -105,6 +105,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="52dp"
                 android:gravity="center_vertical|right"
+                android:paddingRight="12dp"
                 android:visibility="gone">
 
                 <com.bsb.hike.view.CustomFontButton
@@ -112,14 +113,14 @@
                     style="@style/ButtonCustomDialog"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/cancel" />
+                    android:text="@string/CANCEL" />
 
                 <com.bsb.hike.view.CustomFontButton
                     android:id="@+id/btn_positive"
                     style="@style/ButtonCustomDialog"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/apply" />
+                    android:text="@string/APPLY" />
             </LinearLayout>
 
             <LinearLayout
