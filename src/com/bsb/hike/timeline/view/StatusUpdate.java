@@ -115,6 +115,8 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 	
 	private String SELECTED_MOOD_INDEX = "smIdx";
 
+	private String INPUT_INTENT = "ip_in";
+
 	protected Handler uiHandler = new Handler()
 	{
 		public void handleMessage(android.os.Message msg)
@@ -164,6 +166,8 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 	private View addPhotoLayout;
 
 	private View addItemsLayout;
+
+	private String mInputIntentData;
 
 	@Override
 	public Object onRetainCustomNonConfigurationInstance()
@@ -358,6 +362,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 			return;
 		}
 		mImagePath = intent.getStringExtra(STATUS_UPDATE_IMAGE_PATH);
+		mInputIntentData = intent.toUri(Intent.URI_INTENT_SCHEME);
 	}
 
 	/**
@@ -521,11 +526,6 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		int galleryFlags = GalleryActivity.GALLERY_CATEGORIZE_BY_FOLDERS | GalleryActivity.GALLERY_EDIT_SELECTED_IMAGE | GalleryActivity.GALLERY_COMPRESS_EDITED_IMAGE
 				| GalleryActivity.GALLERY_DISPLAY_CAMERA_ITEM;
 
-		if(!Utils.isPhotosEditEnabled())
-		{
-			galleryFlags = galleryFlags|GalleryActivity.GALLERY_CROP_IMAGE;
-		}
-		
 		Intent galleryPickerIntent = IntentFactory.getHikeGalleryPickerIntent(StatusUpdate.this, galleryFlags, Utils.getNewImagePostFilePath());
 		startActivityForResult(galleryPickerIntent, UpdatesFragment.TIMELINE_POST_IMAGE_REQ);
 	}

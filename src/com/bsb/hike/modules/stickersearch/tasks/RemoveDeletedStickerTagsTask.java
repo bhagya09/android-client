@@ -27,7 +27,8 @@ public class RemoveDeletedStickerTagsTask implements Runnable
 	@Override
 	public void run()
 	{
-		if (!Utils.isUserSignedUp(HikeMessengerApp.getInstance(), false) || (Utils.getExternalStorageState() == ExternalStorageState.NONE)) // if there is no external storage do not delete any tags. In this case we dont show any recommendation
+		// If there is no external storage, do not delete any tags. In this case, we don't show any recommendation.
+		if (!Utils.isUserSignedUp(HikeMessengerApp.getInstance(), false) || (Utils.getExternalStorageState() == ExternalStorageState.NONE))
 		{
 			Logger.d(TAG, "External storage state is none.");
 			return;
