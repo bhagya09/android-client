@@ -506,7 +506,7 @@ public class HikeBitmapFactory
 		options.inPreferredConfig = con;
 
 		// Calculate inSampleSize
-		options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
+		options.inSampleSize = calculateSmallerInSampleSize(options, reqWidth, reqHeight);
 
 		// Decode bitmap with inSampleSize set
 		options.inJustDecodeBounds = false;
@@ -725,6 +725,32 @@ public class HikeBitmapFactory
 				inSampleSize *= 2;
 			}
 
+		}
+		return inSampleSize;
+	}
+	
+	/**
+	 * Calculate an inSampleSize for use in a {@link BitmapFactory.Options} object when decoding bitmaps using the decode* methods from {@link BitmapFactory}. This implementation
+	 * calculates the closest inSampleSize that is a power of 2 and will result in the final decoded bitmap having a width and height equal to or smaller than the requested width
+	 * and height.
+	 * 
+	 * @param options
+	 *            An options object with out* params already populated (run through a decode* method with inJustDecodeBounds==true
+	 * @param reqWidth
+	 *            The requested width of the resulting bitmap
+	 * @param reqHeight
+	 *            The requested height of the resulting bitmap
+	 * @return The value to be used for inSampleSize
+	 */
+	public static int calculateSmallerInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight)
+	{
+		final int height = options.outHeight;
+		final int width = options.outWidth;
+		int inSampleSize = 1;
+
+		while ((height / inSampleSize) > reqHeight || (width / inSampleSize) > reqWidth)
+		{
+			inSampleSize *= 2;
 		}
 		return inSampleSize;
 	}
