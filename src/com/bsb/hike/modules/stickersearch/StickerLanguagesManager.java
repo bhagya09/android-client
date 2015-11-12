@@ -12,12 +12,14 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -25,6 +27,9 @@ import java.util.Set;
  * Created by anubhavgupta on 28/10/15.
  */
 public class StickerLanguagesManager {
+
+    public static final Set<String> ISO_LANGUAGES = new HashSet<String>
+            (Arrays.asList(Locale.getISOLanguages()));
 
     private static final String TAG = "StickerLanguagesManager";
 
@@ -63,9 +68,9 @@ public class StickerLanguagesManager {
 
     public void downloadTagsForLanguage(String language)
     {
-        if(containsLanguage(DOWNLOADING_LANGUAGE_SET_TYPE, language) || containsLanguage(DOWNLOADED_LANGUAGE_SET_TYPE, language) || containsLanguage(FORBIDDEN_LANGUAGE_SET_TYPE, language))
+        if(!isValidISOLanguage(language) || containsLanguage(DOWNLOADING_LANGUAGE_SET_TYPE, language) || containsLanguage(DOWNLOADED_LANGUAGE_SET_TYPE, language) || containsLanguage(FORBIDDEN_LANGUAGE_SET_TYPE, language))
         {
-            Logger.d(TAG, "language cannnot be downloaded " + this.toString());
+            Logger.d(TAG, "language : " + language + " cannnot be downloaded " + this.toString());
             return ;
         }
 
@@ -134,9 +139,9 @@ public class StickerLanguagesManager {
 
     public void downloadDefaultTagsForLanguage(String language)
     {
-        if(containsLanguage(FORBIDDEN_LANGUAGE_SET_TYPE, language) ||  HikeSharedPreferenceUtil.getInstance(HikeMessengerApp.DEFAULT_TAG_DOWNLOAD_LANGUAGES_PREF).getData(language, false))
+        if(!isValidISOLanguage(language) || containsLanguage(FORBIDDEN_LANGUAGE_SET_TYPE, language) ||  HikeSharedPreferenceUtil.getInstance(HikeMessengerApp.DEFAULT_TAG_DOWNLOAD_LANGUAGES_PREF).getData(language, false))
         {
-            Logger.d(TAG, "language is forbidden or defaults tags are already downloaded " + this.toString());
+            Logger.d(TAG, "language : " + language + "  is wrong or forbidden or defaults tags are already downloaded " + this.toString());
             return ;
         }
         HikeSharedPreferenceUtil.getInstance(HikeMessengerApp.DEFAULT_TAG_DOWNLOAD_LANGUAGES_PREF).saveData(language, false);
@@ -145,6 +150,7 @@ public class StickerLanguagesManager {
 
     public void addToLanguageSet(int type, Collection<String> languages)
     {
+        languages = getValidLanguageCollection(languages);
         if(Utils.isEmpty(languages))
         {
             return ;
@@ -169,6 +175,8 @@ public class StickerLanguagesManager {
 
     public void removeFromLanguageSet(int type, Collection<String> languages)
     {
+        languages = getValidLanguageCollection(languages);
+
         if(Utils.isEmpty(languages))
         {
             return ;
@@ -254,12 +262,6 @@ public class StickerLanguagesManager {
         return localLanguagesMap.get(language);
     }
 
-    public Map<String, String> getLanguagesMap()
-    {
-        return localLanguagesMap;
-    }
-
-
     public String toString()
     {
         return      "\n"
@@ -275,10 +277,17 @@ public class StickerLanguagesManager {
 
     public void clearAllSets()
     {
+        Logger.d(TAG, "clearing all language sets");
         HikeSharedPreferenceUtil.getInstance().removeData(HikeMessengerApp.NOT_DOWNLOADED_LANGUAGES_SET);
         HikeSharedPreferenceUtil.getInstance().removeData(HikeMessengerApp.DOWNLOADING_LANGUAGES_SET);
         HikeSharedPreferenceUtil.getInstance().removeData(HikeMessengerApp.DOWNLOADED_LANGUAGES_SET);
         HikeSharedPreferenceUtil.getInstance().removeData(HikeMessengerApp.FORBIDDEN_LANGUAGES_SET);
+
+        Map<String, Boolean> defaultTagLanguageStatusMap = (HashMap<String, Boolean> ) HikeSharedPreferenceUtil.getInstance(HikeMessengerApp.DEFAULT_TAG_DOWNLOAD_LANGUAGES_PREF).getAllData();
+        for(String lang : defaultTagLanguageStatusMap.keySet())
+        {
+            HikeSharedPreferenceUtil.getInstance(HikeMessengerApp.DEFAULT_TAG_DOWNLOAD_LANGUAGES_PREF).removeData(lang);
+        }
     }
 
     public String listToSting(Collection<String> languages)
@@ -314,6 +323,13 @@ public class StickerLanguagesManager {
 
             List<String> languages = new Gson().fromJson(languagesArray.toString(), ArrayList.class);
 
+            languages = (List<String>) getValidLanguageCollection(languages);
+
+            if(Utils.isEmpty(languages))
+            {
+                Logger.e(TAG, "no valid languages to be added to forbidden list");
+            }
+
             Logger.d(TAG, "languages added to forbidden list : " + languages);
 
             //removing from rest of sets
@@ -326,6 +342,24 @@ public class StickerLanguagesManager {
         } catch (Exception e) {
             Logger.e(TAG, "exception in json parsing while updating forbidden list : ", e);
         }
+    }
+
+    public static boolean isValidISOLanguage(String s) {
+        return ISO_LANGUAGES.contains(s);
+    }
+
+    public Collection<String> getValidLanguageCollection(Collection<String> languages)
+    {
+        if(!Utils.isEmpty(languages)) {
+            Iterator<String> iterator = languages.iterator();
+            while (iterator.hasNext()) {
+                String lang = iterator.next();
+                if (!isValidISOLanguage(lang)) {
+                    iterator.remove();
+                }
+            }
+        }
+        return languages;
     }
 }
 
