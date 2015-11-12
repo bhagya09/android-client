@@ -126,7 +126,7 @@ public class PeopleActivity extends HikeAppStateBaseFragmentActivity implements 
 		searchView.setOnQueryTextListener(onQueryTextListener);
 		searchET = (AdaptxtEditText) searchView
 				.findViewById(R.id.search_src_text);
-		if (!KptUtils.isSystemKeyboard(PeopleActivity.this)) {
+		if (!KptUtils.isSystemKeyboard()) {
 			mCustomKeyboard.registerEditText(searchET);
 			mCustomKeyboard.init(searchET);
 		}
@@ -135,7 +135,7 @@ public class PeopleActivity extends HikeAppStateBaseFragmentActivity implements 
 			@Override
 			public void onFocusChange(View v, boolean hasFocus) {
 				if(hasFocus){
-					if (KptUtils.isSystemKeyboard(PeopleActivity.this))
+					if (KptUtils.isSystemKeyboard())
 					{
 						Utils.showSoftKeyboard(searchET, InputMethodManager.SHOW_FORCED);
 					}

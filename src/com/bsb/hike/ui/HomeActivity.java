@@ -709,6 +709,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			searchView.setOnQueryTextListener(onQueryTextListener);
 			searchView.clearFocus();
 			searchET = (AdaptxtEditText) searchView.findViewById(R.id.search_src_text);
+			Utils.setEditTextCursorDrawableColor(searchET,R.drawable.edittextcursorsearch);
 			setupSearchTextKeyboard();
 
 			searchOptionID = searchMenuItem.getItemId();
@@ -794,7 +795,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 					HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOW_TIMELINE_RED_DOT, false);
 					Intent intent = new Intent(HomeActivity.this, TimelineActivity.class);
-					timelineUpdatesIndicator.setVisibility(View.GONE);
 					startActivity(intent);
 				}
 			});
@@ -838,12 +838,12 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 	private boolean setupCustomKeyboard()
 	{
-		if (mCustomKeyboard == null && !KptUtils.isSystemKeyboard(HomeActivity.this))
+		if (mCustomKeyboard == null && !KptUtils.isSystemKeyboard())
 		{
 			LinearLayout viewHolder = (LinearLayout) findViewById(R.id.keyboardView_holder);
 			mCustomKeyboard = new HikeCustomKeyboard(HomeActivity.this, viewHolder, KPTConstants.MULTILINE_LINE_EDITOR, null, HomeActivity.this);
 		}
-		return (mCustomKeyboard != null && !KptUtils.isSystemKeyboard(HomeActivity.this)) ? true: false;
+		return (mCustomKeyboard != null && !KptUtils.isSystemKeyboard()) ? true: false;
 	}
 
 	View.OnFocusChangeListener searchTextFocusChangeListener = new View.OnFocusChangeListener()
@@ -851,7 +851,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		@Override
 		public void onFocusChange(View v, boolean hasFocus)
 		{
-			if (!KptUtils.isSystemKeyboard(HomeActivity.this))
+			if (!KptUtils.isSystemKeyboard())
 			{
 				if (hasFocus)
 				{
@@ -1199,7 +1199,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 	private void showKeyboard()
 	{
-		if (!KptUtils.isSystemKeyboard(HomeActivity.this))
+		if (!KptUtils.isSystemKeyboard())
 		{
 			if (mCustomKeyboard != null && searchET != null)
 			{
@@ -1230,7 +1230,15 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		
 		if (linkUrl.contains(HttpRequestConstants.BASE_LINK_SHARING_URL))
 		{
-			String code = linkUrl.split("/")[3];
+			//linkurl is http://hike.in/refid:gc:code
+			String codeArray[] = linkUrl.split("/");
+			if(codeArray.length < 4)
+			{
+				Logger.d("link_share_error", "The linkurl is wrong, split in '/' is < 4 " + linkUrl);
+				return;
+			}
+			
+			String code = codeArray[3];
 			RequestToken requestToken = HttpRequests.acceptGroupMembershipConfirmationRequest(code, new IRequestListener()
 			{
 				
@@ -2281,7 +2289,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	@Override
 	public void onConfigurationChanged(Configuration newConfig)
 	{
-		if (!KptUtils.isSystemKeyboard(HomeActivity.this)&&mCustomKeyboard!=null)
+		if (!KptUtils.isSystemKeyboard()&&mCustomKeyboard!=null)
 		{
 			if (mCustomKeyboard != null)
 			{

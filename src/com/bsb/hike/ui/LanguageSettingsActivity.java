@@ -2,6 +2,9 @@ package com.bsb.hike.ui;
 
 import java.util.ArrayList;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
@@ -13,13 +16,17 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
 import com.bsb.hike.adapters.DictionaryLanguageAdapter;
+import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.modules.kpt.KptKeyboardManager;
 import com.bsb.hike.utils.ChangeProfileImageBaseActivity;
+import com.bsb.hike.utils.Logger;
 import com.kpt.adaptxt.beta.KPTAddonItem;
 
 public class LanguageSettingsActivity extends ChangeProfileImageBaseActivity implements Listener, OnItemClickListener
@@ -84,9 +91,31 @@ public class LanguageSettingsActivity extends ChangeProfileImageBaseActivity imp
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id)
 	{
 		KPTAddonItem item = addonItemAdapter.getItem(position);
-		if (KptKeyboardManager.getInstance(LanguageSettingsActivity.this).getDictionaryLanguageStatus(item) == KptKeyboardManager.LanguageDictionarySatus.UNINSTALLED)
+		KptKeyboardManager.LanguageDictionarySatus status = KptKeyboardManager.getInstance(LanguageSettingsActivity.this).getDictionaryLanguageStatus(item);
+		if (status == KptKeyboardManager.LanguageDictionarySatus.UNINSTALLED)
 		{
 			KptKeyboardManager.getInstance(mContext).downloadAndInstallLanguage(item);
+			
+//			tracking keyboard language download event
+			try
+			{
+				JSONObject metadata = new JSONObject();
+				metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.KEYBOARD_LANGUAGE_DOWNLOAD_EVENT);
+				metadata.put(HikeConstants.LogEvent.LANGUAGE_DOWNLOADING, item.getDisplayName());
+				HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
+			}
+			catch(JSONException e)
+			{
+				Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json : " + item.getDisplayName() + "\n" + e);
+			}
+		}
+		else if (status == KptKeyboardManager.LanguageDictionarySatus.INSTALLED_LOADED)
+		{
+			KptKeyboardManager.getInstance(mContext).unloadInstalledLanguage(item);
+		}
+		else if (status == KptKeyboardManager.LanguageDictionarySatus.INSTALLED_UNLOADED)
+		{
+			KptKeyboardManager.getInstance(mContext).loadInstalledLanguage(item);
 		}
 	}
 

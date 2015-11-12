@@ -25,8 +25,7 @@ public class LocalLanguageUtils {
     public static LocalLanguage getApplicationLocalLanguage(Context context)
     {
         String currentLocalLangLocale = getApplicationLocalLanguageLocale();
-        for (LocalLanguage ll : LocalLanguage.getSupportedLanguages(context))
-        {
+        for (LocalLanguage ll : LocalLanguage.getHikeSupportedLanguages(context)) {
             if (currentLocalLangLocale.equals(ll.getLocale()))
                 return ll;
         }

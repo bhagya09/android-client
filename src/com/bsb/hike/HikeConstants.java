@@ -646,6 +646,10 @@ public class HikeConstants
 	
 	public static final String VIBRATE_ON_KEYPRESS_PREF = "vibrateOnKeypressPref";
 	
+	public static final String APP_LANGUAGE = "app_language";
+	
+	public static final String KEYBOARD_LANGUAGE = "keyboard_language";
+	
 	public static final String UPGRADE_AVATAR_PROGRESS_USER = "upgradeAvtarProgressUser";
 
 	public static final String UPGRADING = "upgrading";
@@ -1504,6 +1508,8 @@ public class HikeConstants
 
 		public static final String FROM_CENTRAL_TIMELINE = "fromCentralTimeline";
 
+		public static final String FROM_DELETE_ACCOUNT = "fromDeleteAccount";
+		
 		public static final String BLOCKED_LIST = "blockedList";
 
 		public static final String NUX1_NUMBERS = "nux1Numbers";
@@ -2397,6 +2403,52 @@ public class HikeConstants
 		
 		public static final String TIMELINE_OVERFLOW_OPTION_FAV = "fav";
 
+		public static final String AUTO_CAPITALIZATION_ON = "auto_capitalization_on";
+		
+		public static final String AUTO_SPACING_ON = "auto_spacing_on";
+		
+		public static final String GLIDE_ON = "glide_on";
+		
+		public static final String KEYPRESS_SOUND_ON = "keypress_sound_on";
+		
+		public static final String KEYPRESS_POPUP_ON = "keypress_popup_on";
+		
+		public static final String KEYPRESS_VIBRATION_ON = "keypress_vibration_on";
+		
+		public static final String AUTO_CORRECT_ON = "auto_correct_on";
+		
+		public static final String DISPLAY_SUGGESTION_ON = "display_suggestion_on";
+		
+		public static final String PRIVATE_MODE_ON = "private_mode_on";
+		
+		public static final String APP_LANGUAGE_CHANGE_EVENT = "app_language_change_event";
+		
+		public static final String HIKE_KEYBOARD_ON = "hike_keyboard_on";
+		
+		public static final String KEYBOARD_LANGUAGE_DOWNLOAD_EVENT = "keyboard_language_download_event";
+		
+		public static final String LANGUAGE_DOWNLOADING = "language_downloading";
+		
+		public static final String KEYBOARD_LANGUAGE_CHANGED_EVENT = "keyboard_language_changed_event";
+		
+		public static final String APP_LANGUAGE_FTUE = "app_language_ftue";
+		
+		public static final String KEYBOARD_FTUE_INITIATED = "keyboard_ftue_initiated";
+		
+		public static final String KEYBOARD_FTUE_CLOSE_BUTTON = "keyboard_ftue_close_button";
+		
+		public static final String KEYBOARD_FTUE_CHOOSE_LANGUAGE_BUTTON = "keyboard_ftue_choose_language_button";
+		
+		public static final String KEYBOARD_FTUE_LANGUAGE_DOWNLOADED = "keyboard_ftue_language_downloaded";
+		
+		public static final String KEYBOARD_FTUE_CLOSE_LANG_SELECTION = "keyboard_ftue_close_lang_selection";
+		
+		public static final String KEYBOARD_FTUE_INSTALL_SELECTED_LANGUAGES = "keyboard_ftue_install_selected_languages";
+
+		public static final String KEYBOARD_FTUE_COMPLETES = "keyboard_ftue_completes";
+		
+		public static final String KPT = "kpt";
+
 	}
 	public static final class Toast
 	{
@@ -3163,14 +3215,14 @@ public class HikeConstants
 	public static final String NOTIFIACTION_DELAY_ONE_TO_ONE = "ont";
 
 	public static final String KEYBOARD_CONFIGURATION = "kc";
-
+	
 	public static final int KEYBOARD_CONFIGURATION_OLD = 1;
 
 	public static final int KEYBOARD_CONFIGURATION_NEW = 2;
 
 	public static final String CURRENT_KEYBOARD = "currentKeyboard";
 	
-	public static final String GET="get";
+	public static final String GET = "get";
 
 	public static final String HIKE_FILE_TYPE = "hft";
 
