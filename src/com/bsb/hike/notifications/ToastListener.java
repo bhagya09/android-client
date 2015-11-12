@@ -696,7 +696,7 @@ public class ToastListener implements Listener
 			}
 		}
 
-		HikeNotification.getInstance().sendNotificationToChatThread(msisdn, message, forceNotPlaySound);
+		toaster.sendNotificationToChatThread(msisdn, message, forceNotPlaySound);
 
 	}
 }
