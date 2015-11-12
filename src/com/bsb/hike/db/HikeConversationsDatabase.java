@@ -827,17 +827,17 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		 */
 		if (oldVersion < 42)
 		{
-			if (!Utils.ifColumnExistsInTable(db, DBConstants.MESSAGES_TABLE, DBConstants.SEND_TIMESTAMP))
+			if (!Utils.isColumnExistsInTable(db, DBConstants.MESSAGES_TABLE, DBConstants.SEND_TIMESTAMP))
 			{
 				String alter = "ALTER TABLE " + DBConstants.MESSAGES_TABLE + " ADD COLUMN " + DBConstants.SEND_TIMESTAMP + " LONG DEFAULT -1";
 				db.execSQL(alter);
 			}
-			if (!Utils.ifColumnExistsInTable(db, DBConstants.GROUP_INFO_TABLE, DBConstants.GROUP_CREATOR))
+			if (!Utils.isColumnExistsInTable(db, DBConstants.GROUP_INFO_TABLE, DBConstants.GROUP_CREATOR))
 			{
 				String alter = "ALTER TABLE " + DBConstants.GROUP_INFO_TABLE + " ADD COLUMN " + DBConstants.GROUP_CREATOR + " TEXT DEFAULT NULL";
 				db.execSQL(alter);
 			}
-			if (!Utils.ifColumnExistsInTable(db, DBConstants.GROUP_MEMBERS_TABLE, DBConstants.TYPE))
+			if (!Utils.isColumnExistsInTable(db, DBConstants.GROUP_MEMBERS_TABLE, DBConstants.TYPE))
 			{
 				String alter = "ALTER TABLE " + DBConstants.GROUP_MEMBERS_TABLE + " ADD COLUMN " + DBConstants.TYPE + " INTEGER  DEFAULT 0";
 				db.execSQL(alter);
@@ -856,7 +856,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			sql = getFeedTableCreateQuery();
 			db.execSQL(sql);
 			
-			if (!Utils.ifColumnExistsInTable(db, DBConstants.STATUS_TABLE, DBConstants.FILE_KEY))
+			if (!Utils.isColumnExistsInTable(db, DBConstants.STATUS_TABLE, DBConstants.FILE_KEY))
 			{
 				String alterST = "ALTER TABLE " + DBConstants.STATUS_TABLE + " ADD COLUMN " + DBConstants.FILE_KEY + " TEXT";
 				db.execSQL(alterST);
@@ -876,7 +876,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		
 		if (oldVersion < 45)
 		{
-			if (!Utils.ifColumnExistsInTable(db, DBConstants.MESSAGES_TABLE, DBConstants.SORTING_ID))
+			if (!Utils.isColumnExistsInTable(db, DBConstants.MESSAGES_TABLE, DBConstants.SORTING_ID))
 			{
 				String alterMessageTable = "ALTER TABLE " + DBConstants.MESSAGES_TABLE + " ADD COLUMN " + DBConstants.SORTING_ID + " INTEGER DEFAULT -1";
 				db.execSQL(alterMessageTable);
@@ -885,7 +885,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.UPGRADE_SORTING_ID_FIELD, 1);
 			}
 
-			if (!Utils.ifColumnExistsInTable(db, DBConstants.BOT_TABLE, HIKE_CONTENT.BOT_VERSION))
+			if (!Utils.isColumnExistsInTable(db, DBConstants.BOT_TABLE, HIKE_CONTENT.BOT_VERSION))
 			{
 				String alterTable = "ALTER TABLE " + DBConstants.BOT_TABLE + " ADD COLUMN " + HIKE_CONTENT.BOT_VERSION + " INTEGER DEFAULT 0";
 				db.execSQL(alterTable);
@@ -898,7 +898,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 	{
 		Logger.d(getClass().getSimpleName(), "Reinitialising conversation DB");
 		close();
-		Logger.d(getClass().getSimpleName(), "conversation DB is closed now");
+		Logger.d(getClass().getSimpleName(), "Conversation DB is closed now");
 		
 		hikeConversationsDatabase = new HikeConversationsDatabase(HikeMessengerApp.getInstance());
 		/*
@@ -4054,6 +4054,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 		StringBuilder sb = new StringBuilder();
 		sb.append("(");
+		String msisdn=convMessages.get(0).getMsisdn();
 
 		List<Pair<Long, JSONObject>> ids = new ArrayList<Pair<Long, JSONObject>>();
 		for (int j = 0; j < convMessages.size(); j++)
@@ -4089,12 +4090,12 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		ContentValues values = new ContentValues();
 		values.put(DBConstants.MSG_STATUS, ConvMessage.State.RECEIVED_READ.ordinal());
 		int rowsAffected = mDb.update(DBConstants.MESSAGES_TABLE, values, DBConstants.MESSAGE_ID + " in " + sb.toString(), null);
-
+		String[] args = { msisdn };
 		// Resetting the unread count as well
 		values.put(DBConstants.UNREAD_COUNT, 0);
-		mDb.update(DBConstants.CONVERSATIONS_TABLE, values, DBConstants.MESSAGE_ID + " in " + sb.toString(), null);
-
-		Logger.d("HIKE CONVERSATION DB ", "Rows Updated : " + rowsAffected);
+		int rowsAffect = mDb.update(DBConstants.CONVERSATIONS_TABLE, values, DBConstants.MSISDN + "=?", args);
+	
+		Logger.d("HIKE CONVERSATION DB ", "Rows Updated : " + rowsAffected + " RowsUpdated " + rowsAffect);
 		if (ids.size() == 0)
 		{
 			return null;
@@ -7108,11 +7109,38 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 	public int getTotalUnreadMessages()
 	{
 		int unreadMessages = 0;
+		unreadMessages=getTotalUnreadMessagesConversation();
+		unreadMessages += Utils.getNotificationCount(mContext.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0), false);
+
+		return unreadMessages;
+	}
+
+	public int getTotalUnreadMessagesConversation()
+	{
+		return getTotalUnreadMessagesConversation(true);
+	}
+
+	/**
+	 * @param includeStealth
+	 *            whether to include the hidden conversations unread count or not
+	 * @return total unread count of conversations
+	 */
+	public int getTotalUnreadMessagesConversation(boolean includeStealth)
+	{
+		int unreadMessages = 0;
 		Cursor c = null;
 
 		try
 		{
-			c = mDb.query(DBConstants.CONVERSATIONS_TABLE, new String[] { DBConstants.UNREAD_COUNT }, null, null, null, null, null);
+			String selection = null;
+			String[] args = null;
+			if (!includeStealth)
+			{
+				selection = DBConstants.IS_STEALTH + " = ?";
+				args = new String[] { "0" };
+			}
+
+			c = mDb.query(DBConstants.CONVERSATIONS_TABLE, new String[] { DBConstants.UNREAD_COUNT }, selection, args, null, null, null);
 
 			final int unreadMessageColumn = c.getColumnIndex(DBConstants.UNREAD_COUNT);
 
@@ -7133,11 +7161,8 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			}
 		}
 
-		unreadMessages += Utils.getNotificationCount(mContext.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0), false);
-
 		return unreadMessages;
 	}
-
 	public HashMap<String, ContentValues> getCurrentStickerDataMapping(String tableName)
 	{
 		HashMap<String, ContentValues> result = new HashMap<String, ContentValues>();
