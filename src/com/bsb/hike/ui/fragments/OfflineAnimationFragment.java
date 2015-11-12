@@ -656,13 +656,14 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 	protected void sendUiMessages()
 	{
 
-		connectionInfoTextView.setText(getResources().getString(R.string.connecting_to, contactFirstName));
+		connectionInfoTextView.setText(String.format(OfflineController.getInstance().getConfigurationParamerters().getInitialString(), contactFirstName));
 		connectionInfoTextView.setVisibility(View.VISIBLE);
 		connectionHintTextView.setText("");
 		if (!shouldResumeFragment)
 		{
-			sendUIMessage(UPDATE_ANIMATION_MESSAGE, OfflineConstants.FIRST_MESSAGE_TIME, getResources().getString(R.string.offline_animation_second_message));
-			sendUIMessage(UPDATE_ANIMATION_SECOND_MESSAGE,OfflineConstants.SECOND_MESSAGE_TIME, getResources().getString(R.string.offline_animation_third_message, contactFirstName));
+			sendUIMessage(UPDATE_ANIMATION_MESSAGE, OfflineConstants.FIRST_MESSAGE_TIME, String.format(OfflineController.getInstance().getConfigurationParamerters().getStringOnTime8Sec(),contactFirstName));
+			sendUIMessage(UPDATE_ANIMATION_SECOND_MESSAGE, OfflineConstants.SECOND_MESSAGE_TIME,
+					String.format(OfflineController.getInstance().getConfigurationParamerters().getStringonTime18Sec(), contactFirstName));
 			sendUIMessage(START_TIMER, OfflineConstants.TIMER_START_TIME, null);
 		}
 		else
