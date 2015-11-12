@@ -592,7 +592,7 @@ public class BotUtils
 	}
 	
 	/**
-	 * This method makes a HTTP Post Call to fetch avatar of a bot if it is not present in the HikeUserDb
+	 * This method makes a HTTP Post Call to fetch avatar of a bot if it is not present in the HikeUserDb / Local Storage
 	 */
 	public static void fetchBotIcons()
 	{
@@ -606,7 +606,7 @@ public class BotUtils
 				Logger.i(TAG, "Checking for bot icons");
 				for (final BotInfo mBotInfo : HikeMessengerApp.hikeBotInfoMap.values())
 				{
-					if (mBotInfo.isConvPresent() && !ContactManager.getInstance().hasIcon(mBotInfo.getMsisdn()))
+					if (mBotInfo.isConvPresent() && !isBotDpPresent(mBotInfo.getMsisdn()))
 					{
 						Logger.i(TAG, "Making icon request for " + mBotInfo.getMsisdn() + mBotInfo.getConversationName());
 						RequestToken botRequestToken = HttpRequests.getAvatarForBots(mBotInfo.getMsisdn(), new IRequestListener()
@@ -845,6 +845,24 @@ public class BotUtils
 
 		Logger.v(TAG, "File does not exist for : " + botMsisdn + " Maybe it's not a bot");
 		return null;
+	}
+
+	/**
+	 * Utility method to check whether a bot DP Exists either with the ContactManager or on the Disk.
+	 *
+	 * @param msisdn
+	 * @return
+	 */
+	private static boolean isBotDpPresent(String msisdn)
+	{
+		File botDpFile = new File(getBotThumbnailRootFolder() + msisdn);
+
+		if (!botDpFile.exists())
+		{
+			//Possibly the Bot DP exists in the HikeUserDb
+			return ContactManager.getInstance().hasIcon(msisdn);
+		}
+		return true;
 	}
 	
 
