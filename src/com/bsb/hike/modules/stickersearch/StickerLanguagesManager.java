@@ -28,8 +28,10 @@ import java.util.Set;
  */
 public class StickerLanguagesManager {
 
-    public static final Set<String> ISO_LANGUAGES = new HashSet<String>
-            (Arrays.asList(Locale.getISOLanguages()));
+    public static final Set<Locale> LOCALES_SET = new HashSet<Locale>
+            (Arrays.asList(Locale.getAvailableLocales()));
+
+    public static Set<String> ISO_LANGUAGES;
 
     private static final String TAG = "StickerLanguagesManager";
 
@@ -48,6 +50,7 @@ public class StickerLanguagesManager {
     private StickerLanguagesManager()
     {
         initialiseLocalLanguagesMap();
+        initialiseIsoLanguages();
     }
 
     public static StickerLanguagesManager getInstance()
@@ -257,6 +260,15 @@ public class StickerLanguagesManager {
         localLanguagesMap.put("മലയാളം", "mal");
     }
 
+    private void initialiseIsoLanguages()
+    {
+        ISO_LANGUAGES = new HashSet<>(LOCALES_SET.size());
+        for(Locale locale : LOCALES_SET)
+        {
+            ISO_LANGUAGES.add(locale.getISO3Language());
+        }
+    }
+
     public String getLanguageCode(String language)
     {
         return localLanguagesMap.get(language);
@@ -351,6 +363,7 @@ public class StickerLanguagesManager {
     public Collection<String> getValidLanguageCollection(Collection<String> languages)
     {
         if(!Utils.isEmpty(languages)) {
+            languages = new ArrayList<>(languages);
             Iterator<String> iterator = languages.iterator();
             while (iterator.hasNext()) {
                 String lang = iterator.next();
