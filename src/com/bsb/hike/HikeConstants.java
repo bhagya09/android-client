@@ -3222,11 +3222,7 @@ public class HikeConstants
 
 	public static final String CURRENT_KEYBOARD = "currentKeyboard";
 	
-<<<<<<< HEAD
-	public static final String GET="get";
-=======
 	public static final String GET = "get";
->>>>>>> f101470b774e03616fa1410bd97f35793f0ddba2
 
 	public static final String HIKE_FILE_TYPE = "hft";
 
