@@ -329,12 +329,7 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 					holder.status.setText(contactInfo.getMsisdn());
 					holder.statusMood.setVisibility(View.GONE);
 				}
-				if (lastSeenPref && contactInfo.getOffline() == 0 && !showCheckbox)
-				{
-					holder.onlineIndicator.setVisibility(View.VISIBLE);
-					holder.onlineIndicator.setImageResource(R.drawable.ic_online_green_dot);
-				}
-				else
+				if(holder.onlineIndicator != null)
 				{
 					holder.onlineIndicator.setVisibility(View.GONE);
 				}

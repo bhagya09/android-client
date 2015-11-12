@@ -1282,13 +1282,7 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 						lastSeen.setText(contactInfo.getMsisdn());
 						statusMood.setVisibility(View.GONE);
 					}
-					
-					if(lastSeenPref && contactInfo.getOffline() == 0)
-					{
-						onlineIndicator.setVisibility(View.VISIBLE);
-						onlineIndicator.setImageResource(R.drawable.ic_online_green_dot);
-					}
-					else
+					if(onlineIndicator != null)
 					{
 						onlineIndicator.setVisibility(View.GONE);
 					}
