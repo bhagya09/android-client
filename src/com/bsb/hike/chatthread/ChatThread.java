@@ -6206,6 +6206,7 @@ import android.widget.Toast;
 			{
 				mComposeView.setMaxLines(4);
 			}
+			onShown();
 		}
 		else
 		{
