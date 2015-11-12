@@ -1,22 +1,24 @@
 package com.bsb.hike.service;
 
-import org.json.JSONException;
-import org.json.JSONObject;
 import android.content.Context;
 import android.content.Intent;
 import android.text.TextUtils;
+
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.MessageEvent;
-import com.bsb.hike.notifications.HikeNotification;
+import com.bsb.hike.notifications.ToastListener;
 import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.platform.CocosProcessIntentService;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 
 public class GeneralEventMessagesManager
@@ -38,7 +40,7 @@ public class GeneralEventMessagesManager
 		{
 			boolean playSound = data.optBoolean(HikePlatformConstants.NOTIFICATION_SOUND);
 
-			HikeNotification.getInstance().sendNotificationToChatThread(msisdn, message, !playSound);
+			ToastListener.getInstance().showMessageEventNotification(msisdn, message, !playSound);
 		}
 	}
 

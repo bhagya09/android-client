@@ -1,19 +1,6 @@
 package com.bsb.hike.notifications;
 
-import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.app.Activity;
-import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -24,6 +11,7 @@ import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Pair;
 
+import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeConstants.NotificationType;
 import com.bsb.hike.HikeMessengerApp;
@@ -31,18 +19,13 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.MqttConstants;
 import com.bsb.hike.MqttConstants.MQTTConnectionStatus;
-import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.db.HikeConversationsDatabase;
-import com.bsb.hike.models.ContactInfo;
+import com.bsb.hike.models.*;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
-import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
-import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
-import com.bsb.hike.models.Protip;
-import com.bsb.hike.models.Sticker;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.timeline.model.FeedDataModel;
@@ -55,6 +38,14 @@ import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.Utils;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.lang.ref.WeakReference;
+import java.util.*;
+import java.util.Map.Entry;
 
 public class ToastListener implements Listener
 {
@@ -682,5 +673,30 @@ public class ToastListener implements Listener
 		Intent intent = new Intent(context, HomeActivity.class);
 		toaster.showBigTextStyleNotification(intent, 0, System.currentTimeMillis(), HikeNotification.HIKE_SUMMARY_NOTIFICATION_ID, title, text, title, "",
 				null, null, false, 0);
+	}
+
+	/**
+	 * This method is called from @link GeneralEventMessagesManager. It is used to notify a user for events related to a message
+	 *
+	 * @param msisdn
+	 * @param message
+	 * @param forceNotPlaySound
+	 */
+	public void showMessageEventNotification(String msisdn, String message, boolean forceNotPlaySound)
+	{
+		Activity activity = (currentActivity != null) ? currentActivity.get() : null;
+
+		if ((activity instanceof ChatThreadActivity))
+		{
+			String contactNumber = ((ChatThreadActivity) activity).getContactNumber();
+			if (TextUtils.isEmpty(msisdn) || (msisdn.equals(contactNumber)))
+			{
+				Logger.e("ToastListener", "Either the same chat thread was open or the msisdn passed is null");
+				return;
+			}
+		}
+
+		HikeNotification.getInstance().sendNotificationToChatThread(msisdn, message, forceNotPlaySound);
+
 	}
 }
