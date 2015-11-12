@@ -1398,6 +1398,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		{
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CURRENT_KEYBOARD, !isChecked);
 			trackAnalyticEvent(HikeConstants.LogEvent.HIKE_KEYBOARD_ON, isChecked);
+			HikeMessengerApp.getPubSub().publish(HikePubSub.KEYBOARD_SWITCHED, null);
 		}
 		else if (HikeConstants.GLIDE_PREF.equals(preference.getKey()))
 		{
