@@ -963,6 +963,57 @@ public class OfflineUtils
 			return true;
 		}
 		return false;
+
+	}
+	
+	public static void handleUnsupportedPeer(Context context, JSONObject packet)
+	{
+	
+		try
+		{
+			String msisdn = packet.getString(HikeConstants.FROM);
+			
+			if(OfflineUtils.isConnectingToSameMsisdn(msisdn))
+			{
+				JSONObject data  =  packet.optJSONObject(HikeConstants.DATA);
+				if(data!=null)
+				{
+					String errorMessage = data.getString(HikeConstants.HIKE_MESSAGE);
+					OfflineController.getInstance().shutdown(new OfflineException(OfflineException.UNSUPPORTED_PEER,errorMessage));
+				}
+				
+			}
+			
+		}
+		catch (JSONException e)
+		{
+			Logger.e(TAG, "JsonException while handling hike direct peer unsupported packet");
+		}
+		
+	}
+
+	public static void handleUpgradablePeer(Context context, JSONObject packet)
+	{
+		try
+		{
+			String msisdn = packet.getString(HikeConstants.FROM);
+			
+			if(OfflineUtils.isConnectingToSameMsisdn(msisdn))
+			{
+				JSONObject data  =  packet.optJSONObject(HikeConstants.DATA);
+				if(data!=null)
+				{
+					String errorMessage = data.getString(HikeConstants.HIKE_MESSAGE);
+					OfflineController.getInstance().shutdown(new OfflineException(OfflineException.UPGRADABLE_UNSUPPORTED_PEER,errorMessage));
+				}
+				
+			}
+			
+		}
+		catch (JSONException e)
+		{
+			Logger.e(TAG, "JsonException while handling hike direct peer upgrade packet");
+		}
 	}
 }
 	
