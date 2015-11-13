@@ -2,6 +2,8 @@ package com.bsb.hike.tasks;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 import android.content.Context;
 import android.content.Intent;
@@ -16,6 +18,7 @@ import com.bsb.hike.filetransfer.FTMessageBuilder;
 import com.bsb.hike.filetransfer.FileTransferManager;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfoData;
+import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.offline.HikeConverter;
@@ -57,9 +60,9 @@ public class InitiateMultiFileTransferTask extends AsyncTask<Void, Void, Void>
 	}
 
 	@Override
-	protected void onPreExecute()
+	protected void onPostExecute(Void result)
 	{
-		HikeMessengerApp.getPubSub().publish(HikePubSub.MULTI_FILE_TASK_STARTED, this.intent);
+		HikeMessengerApp.getPubSub().publish(HikePubSub.MULTI_FILE_TASK_FINISHED, this.intent);
 	}
 
 	@Override
@@ -111,7 +114,20 @@ public class InitiateMultiFileTransferTask extends AsyncTask<Void, Void, Void>
 				.setRecipientOnHike(onHike)
 				.setRecordingDuration(-1)
 				.setAttachement(attachementType);
-				mBuilder.build();
+				List<ConvMessage> ftConvMsgs = mBuilder.buildInSync();
+				Context mContext = HikeMessengerApp.getInstance().getApplicationContext();
+				for (Iterator<ConvMessage> iterator = ftConvMsgs.iterator(); iterator.hasNext();)
+				{
+					ConvMessage convMessage = (ConvMessage) iterator.next();
+					if(hikeFileType == HikeFileType.CONTACT || hikeFileType == HikeFileType.LOCATION)
+					{
+						FileTransferManager.getInstance(mContext).uploadContactOrLocation(convMessage, hikeFileType == HikeFileType.CONTACT);
+					}
+					else
+					{
+						FileTransferManager.getInstance(mContext).uploadFile(convMessage, null);
+					}
+				}
 		}
 	}
 }
