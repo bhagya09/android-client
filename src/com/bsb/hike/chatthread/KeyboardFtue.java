@@ -162,7 +162,7 @@ public class KeyboardFtue implements HikePubSub.Listener
                 trackClickAnalyticEvents(HikeConstants.LogEvent.KEYBOARD_FTUE_CLOSE_BUTTON);
             }
         });
-        flipper.findViewById(R.id.txt_choose_language).setOnClickListener(new View.OnClickListener() {
+        flipper.findViewById(R.id.btn_choose_language).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 prepareLanguageListLayout();

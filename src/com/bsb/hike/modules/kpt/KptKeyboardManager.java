@@ -10,6 +10,7 @@ import android.os.Environment;
 
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
+import com.bsb.hike.R;
 import com.bsb.hike.filetransfer.FTAnalyticEvents;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
@@ -27,6 +28,11 @@ import com.kpt.adaptxt.beta.KPTAddonItem;
 
 public class KptKeyboardManager implements AdaptxtSettingsRegisterListener
 {
+	public interface KptLanguageInstallErrorHandler
+	{
+		void onError(String message);
+	}
+
 	public static final int PREINSTALLED_LANGUAGE_COUNT = 1;
 
 	public static final Byte WAITING = 0;
@@ -55,6 +61,7 @@ public class KptKeyboardManager implements AdaptxtSettingsRegisterListener
 
 	ArrayList<KPTAddonItem> mLanguagesWaitingQueue;
 
+	KptLanguageInstallErrorHandler mErrorHandler;
 
 	private volatile Byte mState = WAITING;
 
@@ -88,6 +95,19 @@ public class KptKeyboardManager implements AdaptxtSettingsRegisterListener
 			}
 		}
 		return _instance;
+	}
+
+	public void setErrorHandler(KptLanguageInstallErrorHandler errorHandler)
+	{
+		mErrorHandler = errorHandler;
+	}
+
+	private void showError(String errorMessage)
+	{
+		if (mErrorHandler != null)
+		{
+			mErrorHandler.onError(errorMessage);
+		}
 	}
 
 	public String getCurrentLanguage()
@@ -272,7 +292,7 @@ public class KptKeyboardManager implements AdaptxtSettingsRegisterListener
 		if (dictonaryDirectory == null)
 		{
 			processComplete();
-			// use error to show message;
+			showError(context.getString(R.string.out_of_space));
 			return;
 		}
 		final File dictionaryZip = new File(dictonaryDirectory, zipFileName);
@@ -284,7 +304,7 @@ public class KptKeyboardManager implements AdaptxtSettingsRegisterListener
 					{
 						httpException.printStackTrace();
 						processComplete();
-						// use error to show message;
+						showError(context.getString(R.string.download_failed));
 					}
 
 					@Override
@@ -325,7 +345,7 @@ public class KptKeyboardManager implements AdaptxtSettingsRegisterListener
 		{
 			Logger.d(TAG,"onInstallationError: " + arg0);
 			processComplete();
-			// show error
+			showError(context.getString(R.string.some_error));
 		}
 
 		@Override
