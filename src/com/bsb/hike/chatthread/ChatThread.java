@@ -1596,9 +1596,7 @@ import android.widget.Toast;
 		
 		if (mCustomKeyboard.isCustomKeyboardVisible())
 		{
-			mCustomKeyboard.showCustomKeyboard(mComposeView, false); 
-			KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, 0);
-			mComposeView.setMaxLines(4);
+			hideKptKeyboard();
 			return true;
 		}
 		mCustomKeyboard.closeAnyDialogIfShowing();
@@ -1806,13 +1804,20 @@ import android.widget.Toast;
 	public void hideKeyboard(){
 		if(KptUtils.isSystemKeyboard()){
 			Utils.hideSoftKeyboard(activity, mComposeView);
-		}else if (mCustomKeyboard!=null && mCustomKeyboard.isCustomKeyboardVisible())
+		}
+		else if (mCustomKeyboard!=null && mCustomKeyboard.isCustomKeyboardVisible())
 		{
-			keyboardFtue.destroy();
-			mCustomKeyboard.showCustomKeyboard(mComposeView, false); 
-			KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, 0);
+			hideKptKeyboard();
 		}
 	}
+
+	private void hideKptKeyboard()
+	{
+		keyboardFtue.destroy();
+		mCustomKeyboard.showCustomKeyboard(mComposeView, false);
+		KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, 0);
+	}
+
 	private void setUpSearchViews()
 	{
 		int id = mComposeView.getId();
