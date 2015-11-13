@@ -168,7 +168,7 @@ public class FileSelectActivity extends HikeAppStateBaseFragmentActivity impleme
 			progressDialog.dismiss();
 			progressDialog = null;
 		}
-		HikeMessengerApp.getPubSub().removeListener(HikePubSub.MULTI_FILE_TASK_STARTED, this);
+		HikeMessengerApp.getPubSub().removeListener(HikePubSub.MULTI_FILE_TASK_FINISHED, this);
 		super.onDestroy();
 	}
 
@@ -355,7 +355,7 @@ public class FileSelectActivity extends HikeAppStateBaseFragmentActivity impleme
 		listRoots();
 		setupActionBar(getString(R.string.select_file));
 
-		HikeMessengerApp.getPubSub().addListener(HikePubSub.MULTI_FILE_TASK_STARTED, this);
+		HikeMessengerApp.getPubSub().addListener(HikePubSub.MULTI_FILE_TASK_FINISHED, this);
 	}
 		
 
@@ -707,7 +707,7 @@ public class FileSelectActivity extends HikeAppStateBaseFragmentActivity impleme
 	{
 		super.onEventReceived(type, object);
 
-		if (HikePubSub.MULTI_FILE_TASK_STARTED.equals(type))
+		if (HikePubSub.MULTI_FILE_TASK_FINISHED.equals(type))
 		{
 			fileTransferTask = null;
 			

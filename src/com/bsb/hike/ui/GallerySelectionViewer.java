@@ -149,7 +149,7 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 		if(!forGalleryShare)
         {
             galleryGridItems.add(null);
-            HikeMessengerApp.getPubSub().addListener(HikePubSub.MULTI_FILE_TASK_STARTED, this);
+            HikeMessengerApp.getPubSub().addListener(HikePubSub.MULTI_FILE_TASK_FINISHED, this);
         }
 
 
@@ -269,7 +269,7 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 	@Override
 	protected void onDestroy()
 	{
-		HikeMessengerApp.getPubSub().removeListener(HikePubSub.MULTI_FILE_TASK_STARTED, this);
+		HikeMessengerApp.getPubSub().removeListener(HikePubSub.MULTI_FILE_TASK_FINISHED, this);
 
 		if (progressDialog != null)
 		{
@@ -611,7 +611,7 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 	{
 		super.onEventReceived(type, object);
 
-		if (HikePubSub.MULTI_FILE_TASK_STARTED.equals(type))
+		if (HikePubSub.MULTI_FILE_TASK_FINISHED.equals(type))
 		{
 			fileTransferTask = null;
 			
