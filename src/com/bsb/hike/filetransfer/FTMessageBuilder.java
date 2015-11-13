@@ -11,6 +11,7 @@ import org.json.JSONObject;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.text.TextUtils;
 import android.util.Base64;
@@ -28,6 +29,9 @@ import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.MultipleConvMessage;
 import com.bsb.hike.models.ConvMessage.OriginType;
 import com.bsb.hike.models.HikeFile.HikeFileType;
+import com.bsb.hike.smartImageLoader.GalleryImageLoader;
+import com.bsb.hike.smartImageLoader.ImageWorker;
+import com.bsb.hike.smartcache.HikeLruCache;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
@@ -132,7 +136,16 @@ public class FTMessageBuilder {
 				destinationFile = builder.sourceFile;
 				fileName = destinationFile.getName();
 				String thumbnailString = null;
-				Bitmap thumbnail = FTUtils.getMediaThumbnail(builder.hikeFileType, destinationFile, builder.fileKey);
+				BitmapDrawable bitDrawable = HikeMessengerApp.getLruCache().get(GalleryImageLoader.GALLERY_KEY_PREFIX + destinationFile.getPath());
+				Bitmap thumbnail = null;
+				if(bitDrawable != null)
+				{
+					thumbnail = ImageWorker.drawableToBitmap(bitDrawable);
+				}
+				else
+				{
+					thumbnail = FTUtils.getMediaThumbnail(builder.hikeFileType, destinationFile, builder.fileKey);
+				}
 				if (thumbnail != null)
 				{
 					byte [] tBytes = FTUtils.compressThumb(thumbnail, builder.hikeFileType);
