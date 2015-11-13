@@ -8331,6 +8331,11 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 	{
 		Cursor c = null;
 
+		if (TextUtils.isEmpty(from))
+		{
+			return -1;
+		}
+
 		try
 		{
 

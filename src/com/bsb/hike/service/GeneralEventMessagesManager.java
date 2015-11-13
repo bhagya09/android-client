@@ -14,6 +14,7 @@ import com.bsb.hike.notifications.ToastListener;
 import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.platform.CocosProcessIntentService;
 import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
@@ -66,9 +67,9 @@ public class GeneralEventMessagesManager
 			
 			else if (HikeConstants.GeneralEventMessagesTypes.MESSAGE_EVENT.equals(type))
 			{
-				String from = packet.getString(HikeConstants.FROM);
+				String fromMsisdn = packet.getString(HikeConstants.FROM);
 				String messageHash = data.getString(HikePlatformConstants.MESSAGE_HASH);
-				long messageId = HikeConversationsDatabase.getInstance().getMessageIdFromMessageHash(messageHash, from);
+				long messageId = HikeConversationsDatabase.getInstance().getMessageIdFromMessageHash(messageHash, fromMsisdn);
 				if (messageId < 0)
 				{
 					Logger.e("General Event", "Event is unauthenticated");
@@ -81,7 +82,7 @@ public class GeneralEventMessagesManager
 				String namespace = data.getString(HikePlatformConstants.NAMESPACE);
 				String parent_msisdn = data.optString(HikePlatformConstants.PARENT_MSISDN);
 				String hm=data.optString(HikePlatformConstants.HIKE_MESSAGE,data.optString(HikePlatformConstants.NOTIFICATION));
-				MessageEvent messageEvent = new MessageEvent(HikePlatformConstants.NORMAL_EVENT, from, namespace, eventMetadata, messageHash,
+				MessageEvent messageEvent = new MessageEvent(HikePlatformConstants.NORMAL_EVENT, fromMsisdn, namespace, eventMetadata, messageHash,
 						HikePlatformConstants.EventStatus.EVENT_RECEIVED, clientTimestamp, mappedId, messageId, parent_msisdn,hm);
 				long eventId = HikeConversationsDatabase.getInstance().insertMessageEvent(messageEvent);
 
@@ -92,6 +93,7 @@ public class GeneralEventMessagesManager
 					return;
 				}
 
+				PlatformUtils.sendGeneralEventDeliveryReport(mappedId, fromMsisdn);
 				HikeMessengerApp.getPubSub().publish(HikePubSub.GENERAL_EVENT, message);
 				if (eventId < 0)
 				{
@@ -103,8 +105,8 @@ public class GeneralEventMessagesManager
 				HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_EVENT_RECEIVED, messageEvent);
 				boolean increaseUnreadCount = data.optBoolean(HikePlatformConstants.INCREASE_UNREAD);
 				boolean rearrangeChat = data.optBoolean(HikePlatformConstants.REARRANGE_CHAT);
-				Utils.rearrangeChat(from, rearrangeChat, increaseUnreadCount);
-				showNotification(data, from);
+				Utils.rearrangeChat(fromMsisdn, rearrangeChat, increaseUnreadCount);
+				showNotification(data, fromMsisdn);
 
 			}
 			
@@ -132,5 +134,5 @@ public class GeneralEventMessagesManager
 		cocosProcessIntentService.putExtra(CocosProcessIntentService.MESSAGE_EVENT_RECEIVED_DATA, messageEvent);
 		context.startService(cocosProcessIntentService);
 	}
-	
+
 }

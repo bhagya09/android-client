@@ -1,5 +1,21 @@
 package com.bsb.hike.platform;
 
+import java.io.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ByteArrayEntity;
+import org.apache.http.params.CoreConnectionPNames;
+import org.apache.http.params.CoreProtocolPNames;
+import org.apache.http.util.EntityUtils;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.ActivityManager.RunningAppProcessInfo;
@@ -36,28 +52,13 @@ import com.bsb.hike.modules.stickerdownloadmgr.StickerPalleteImageDownloadTask;
 import com.bsb.hike.platform.content.*;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.productpopup.ProductPopupsConstants.HIKESCREEN;
+import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.timeline.view.StatusUpdate;
 import com.bsb.hike.ui.CreateNewGroupOrBroadcastActivity;
 import com.bsb.hike.ui.HikeListActivity;
 import com.bsb.hike.ui.HomeActivity;
 import com.bsb.hike.ui.TellAFriend;
 import com.bsb.hike.utils.*;
-
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.ByteArrayEntity;
-import org.apache.http.params.CoreConnectionPNames;
-import org.apache.http.params.CoreProtocolPNames;
-import org.apache.http.util.EntityUtils;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.*;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 
 /**
  * @author piyush
@@ -1341,6 +1342,37 @@ public class PlatformUtils
 	public static Header getDownloadRangeHeader(long startOffset)
 	{
 		return new Header("Range", "bytes=" + startOffset + "-");
+	}
+
+	/**
+	 * Utility method to send a delivery report for Event related messages via the general event framework. The packet structure is as follows : <br>
+	 * {“t” : “ge1”, “d”: { “t” : “dr”, “d”:”155”}, “to” : "9717xxxxx" }
+	 * 
+	 * @param mappedEventId
+	 * @param receiverMsisdn
+	 */
+	public static void sendGeneralEventDeliveryReport(long mappedEventId, String receiverMsisdn)
+	{
+
+		JSONObject jObj = new JSONObject();
+		JSONObject data = new JSONObject();
+		try
+		{
+
+			jObj.put(HikeConstants.TYPE, HikeConstants.MqttMessageTypes.GENERAL_EVENT_QOS_ONE);
+			jObj.put(HikeConstants.TO, receiverMsisdn);
+
+			data.put(HikeConstants.TYPE, HikeConstants.GeneralEventMessagesTypes.GENERAL_EVENT_DR);
+			data.put(HikePlatformConstants.EVENT_DATA, mappedEventId);
+
+			jObj.put(HikeConstants.DATA, data);
+			HikeMqttManagerNew.getInstance().sendMessage(jObj, MqttConstants.MQTT_QOS_ONE);
+		}
+
+		catch (JSONException e)
+		{
+			Logger.e(TAG, "JSON Exception while sending DR packet for normal event" + e.toString());
+		}
 	}
 
 }

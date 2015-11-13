@@ -2588,6 +2588,8 @@ public class HikeConstants
 		public static final String MESSAGE_EVENT = "me";
 		
 		public static final String OFFLINE = "offline";
+
+		public static final String GENERAL_EVENT_DR = "dr";
 	}
 
 	
