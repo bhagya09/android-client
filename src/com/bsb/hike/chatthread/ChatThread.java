@@ -2280,7 +2280,7 @@ import com.bsb.hike.voip.VoIPConstants;
 	
 	protected boolean shouldShowKeyboard()
 	{
-		return mConversation.getMessagesList().isEmpty() && !mConversation.isBlocked();
+		return mConversation.getMessagesList().isEmpty() && !mConversation.isBlocked() && !activity.getIntent().getBooleanExtra(HikeConstants.Extras.HIKE_DIRECT_MODE,false);
 	}
 
 	/**

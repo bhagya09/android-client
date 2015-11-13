@@ -137,6 +137,8 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
     public static final int PICK_CONTACT_MODE = 8;
 
 	public static final int PICK_CONTACT_AND_SEND_MODE = 9;
+	
+	public static final int HIKE_DIRECT_MODE = 10;
 
 	private View multiSelectActionBar, groupChatActionBar;
 
@@ -613,6 +615,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		
 		switch (composeMode)
 		{
+		case HIKE_DIRECT_MODE:
 		case CREATE_BROADCAST_MODE:
 		case PICK_CONTACT_AND_SEND_MODE:
 		case PICK_CONTACT_MODE:
@@ -635,7 +638,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 
 		originalAdapterLength = adapter.getCount();
 
-		if (this.composeMode != START_CHAT_MODE)
+		if (this.composeMode != START_CHAT_MODE && this.composeMode != HIKE_DIRECT_MODE)
 		{
 			initTagEditText();
 			tagEditText.setVisibility(View.VISIBLE);
@@ -874,7 +877,16 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			}
 			else
 			{
-				Utils.startChatThread(this, contactInfo);
+				if(getIntent().hasExtra(HikeConstants.Extras.HIKE_DIRECT_MODE))
+				{
+					Intent in=IntentFactory.createChatThreadIntentFromContactInfo(this, contactInfo, false, false);
+					in.putExtra(HikeConstants.Extras.HIKE_DIRECT_MODE, true);
+					startActivity(in);
+				}
+				else
+				{
+					Utils.startChatThread(this, contactInfo);
+				}
 				finish();
 			}
 			break;
@@ -981,6 +993,10 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		{
 				mode=CREATE_GROUP_MODE;
 		}
+		else if (getIntent().hasExtra(HikeConstants.Extras.HIKE_DIRECT_MODE))
+		{
+			mode = HIKE_DIRECT_MODE;
+		}
 		else if (addToConference) {
 			mode = CREATE_GROUP_MODE;
 		}
@@ -1037,6 +1053,12 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			adapter.preSelectContacts(nm.getLockedContacts(), nm.getUnlockedContacts());
 			adapter.setStatusForEmptyContactInfo(R.string.compose_chat_empty_contact_status_group_mode);
 			tagEditText.setHint(R.string.search);
+			break;
+		case HIKE_DIRECT_MODE:
+			tagEditText.clear(false);
+			adapter.clearAllSelection(false);
+			adapter.removeFilter();
+			adapter.setStatusForEmptyContactInfo(R.string.compose_chat_empty_contact_status_chat_mode);
 			break;
 		}
 		if(!nuxIncentiveMode) 

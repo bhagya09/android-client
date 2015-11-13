@@ -165,6 +165,8 @@ import com.google.gson.Gson;
 	
 	private static final int START_OFFLINE_CONNECTION = 118;
 	
+	private static final int SHOW_OVERFLOW_MENU = 119;
+	
 	private static short H2S_MODE = 0; // Hike to SMS Mode
 
 	private static short H2H_MODE = 1; // Hike to Hike Mode
@@ -238,7 +240,21 @@ import com.google.gson.Gson;
 	{
 		super.init();
 		handleOfflineIntent(activity.getIntent());
-		
+		if (activity.getIntent().getBooleanExtra(HikeConstants.Extras.HIKE_DIRECT_MODE, false))
+		{
+			if (OfflineController.getInstance().getConfigurationParamerters().shouldShowConnectingScreen())
+			{
+				Message msg = Message.obtain();
+				msg.obj = true;
+				msg.what = START_OFFLINE_CONNECTION;
+				uiHandler.sendMessage(msg);
+				OfflineController.getInstance().removeConnectionRequest();
+			}
+			else
+			{
+				sendUIMessage(SHOW_OVERFLOW_MENU, 500, null);
+			}
+		}
 	}
 	
 	private void handleOfflineIntent(Intent intent)
@@ -889,6 +905,9 @@ import com.google.gson.Gson;
 			break;
 		case START_OFFLINE_CONNECTION:  
 			startFreeHikeConversation((Boolean)msg.obj);
+			break;
+		case SHOW_OVERFLOW_MENU:
+			showOverflowMenu();
 			break;
 		default:
 			Logger.d(TAG, "Did not find any matching event in OneToOne ChatThread. Calling super class' handleUIMessage");

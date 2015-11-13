@@ -1910,10 +1910,18 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		optionsList.add(new OverFlowMenuItem(getString(R.string.new_group), 0, 0, R.string.new_group));
 
 
-		if (Utils.isPhotosEditEnabled())
+		if (OfflineController.getInstance().getConfigurationParamerters().shouldShowHikeDirectOption())
 		{
-			optionsList.add(new OverFlowMenuItem(getString(R.string.home_overflow_new_photo), 0, 0, R.string.home_overflow_new_photo));
+			optionsList.add(new OverFlowMenuItem(getString(R.string.scan_free_hike), 0, 0, R.string.scan_free_hike));
 		}
+		else
+		{
+			if (Utils.isPhotosEditEnabled())
+			{
+				optionsList.add(new OverFlowMenuItem(getString(R.string.home_overflow_new_photo), 0, 0, R.string.home_overflow_new_photo));
+			}
+		}
+		
 		
 		optionsList.add(new OverFlowMenuItem(getString(R.string.invite_friends), 0, 0, R.string.invite_friends));
 	
@@ -1970,6 +1978,10 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 				switch (item.id)
 				{
+				case R.string.scan_free_hike:
+					intent = IntentFactory.getComposeChatActivityIntent(HomeActivity.this);
+					intent.putExtra(HikeConstants.Extras.HIKE_DIRECT_MODE, true);
+					break;
 				case R.string.invite_friends:
 					intent = new Intent(HomeActivity.this, TellAFriend.class);
 					break;

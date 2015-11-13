@@ -1,9 +1,13 @@
 package com.bsb.hike.offline;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.text.TextUtils;
 
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.google.gson.annotations.Expose;
 
 /**
@@ -103,6 +107,47 @@ public class OfflineParameters
 			strOnTime18 = HikeMessengerApp.getInstance().getString(R.string.offline_animation_third_message);
 		}
 		return strOnTime18;
+	}
+	
+	public boolean shouldShowHikeDirectOption()
+	{
+		String options = HikeSharedPreferenceUtil.getInstance().getData(OfflineConstants.HIKE_DIRECT_MENU_OPTIONS, null);
+		if (TextUtils.isEmpty(options))
+		{
+			return false;
+		}
+		JSONObject ob = null;
+		try
+		{
+			ob = new JSONObject(options);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+			return false;
+		}
+
+		return ob.optBoolean(OfflineConstants.HIKE_DIRECT_SHOW_MENU) && isOfflineEnabled();
+	}
+	
+	public boolean shouldShowConnectingScreen()
+	{
+		String options = HikeSharedPreferenceUtil.getInstance().getData(OfflineConstants.HIKE_DIRECT_MENU_OPTIONS, null);
+		if (TextUtils.isEmpty(options))
+		{
+			return false;
+		}
+		JSONObject ob = null;
+		try
+		{
+			ob = new JSONObject(options);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+			return false;
+		}
+		return ob.optBoolean(OfflineConstants.HIKE_DIRECT_START_CONN);
 	}
 
 }
