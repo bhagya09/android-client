@@ -22,7 +22,7 @@ public class HikeBadgeCountKeeperUnseenFriendRequest extends HikeBadgeCountKeepe
 	protected void init()
 	{
 		mlistener = new String[] { HikePubSub.FAVORITE_COUNT_CHANGED};
-
+		defaultCount=Utils.getNotificationCount(mContext.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0), false,false,false,true);
 	}
 
 	@Override
