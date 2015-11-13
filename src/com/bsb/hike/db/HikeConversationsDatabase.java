@@ -8847,4 +8847,41 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		}
 	}
 
+	/**
+	 * Utility method to get Message Hash present in Message Event Table from event Id
+	 * 
+	 * @param eventId
+	 * @return
+	 */
+	public long getMessageIdFromEventId(long eventId, String fromMsisdn)
+	{
+		Cursor c = null;
+
+		try
+		{
+
+			c = mDb.query(DBConstants.MESSAGE_EVENT_TABLE, new String[] { DBConstants.MESSAGE_HASH }, DBConstants.EVENT_ID + " =?", new String[] { Long.toString(eventId) }, null,
+					null, null, null);
+
+			int msgHashIdx = c.getColumnIndex(DBConstants.MESSAGE_HASH);
+
+			if (c.moveToFirst())
+			{
+				String msgHash = c.getString(msgHashIdx);
+
+				return getMessageIdFromMessageHash(msgHash, fromMsisdn);
+			}
+		}
+
+		finally
+		{
+			if (c != null)
+			{
+				c.close();
+			}
+		}
+
+		return -1;
+	}
+
 }

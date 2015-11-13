@@ -30,10 +30,7 @@ import android.util.Pair;
 import android.webkit.MimeTypeMap;
 import android.widget.Toast;
 
-import com.bsb.hike.HikeConstants;
-import com.bsb.hike.HikeMessengerApp;
-import com.bsb.hike.HikePubSub;
-import com.bsb.hike.R;
+import com.bsb.hike.*;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
