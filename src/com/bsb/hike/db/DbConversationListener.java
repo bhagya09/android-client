@@ -1,13 +1,5 @@
 package com.bsb.hike.db;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.app.PendingIntent;
 import android.content.ContentValues;
 import android.content.Context;
@@ -18,27 +10,18 @@ import android.telephony.SmsManager;
 import android.text.TextUtils;
 import android.util.Pair;
 
-import com.bsb.hike.HikeConstants;
-import com.bsb.hike.HikeMessengerApp;
-import com.bsb.hike.HikePubSub;
+import com.bsb.hike.*;
 import com.bsb.hike.HikePubSub.Listener;
-import com.bsb.hike.MqttConstants;
-import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.AnalyticsConstants.MsgRelEventType;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.MsgRelLogManager;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
-import com.bsb.hike.models.ContactInfo;
+import com.bsb.hike.models.*;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
-import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
 import com.bsb.hike.models.ConvMessage.State;
-import com.bsb.hike.models.FtueContactInfo;
-import com.bsb.hike.models.MessageEvent;
-import com.bsb.hike.models.MultipleConvMessage;
-import com.bsb.hike.models.Protip;
 import com.bsb.hike.models.Conversation.ConvInfo;
 import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.modules.contactmgr.ContactManager;
@@ -51,6 +34,14 @@ import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.Utils;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
 
 public class DbConversationListener implements Listener
 {
@@ -503,15 +494,14 @@ public class DbConversationListener implements Listener
 			}
 
 			long eventId = HikeConversationsDatabase.getInstance().insertMessageEvent(messageEvent);
-			HikeConversationsDatabase.getInstance().updateMessageForGeneralEvent(messageEvent.getMessageHash(), State.SENT_UNCONFIRMED,hm);
-			messageEvent.setEventId(eventId);
-			if (eventId < 0)
+
+			if (eventId < 0 || (HikeConversationsDatabase.getInstance().updateMessageForGeneralEvent(messageEvent.getMessageHash(), State.SENT_UNCONFIRMED, hm) == null))
 			{
 				Logger.e(HikePlatformConstants.TAG, "Error inserting message event");
 			}
 			else
 			{
-
+				messageEvent.setEventId(eventId);
 				JSONObject jObj = new JSONObject();
 				try
 				{

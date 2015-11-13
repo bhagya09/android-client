@@ -8646,8 +8646,10 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 	public ConvMessage updateMessageForGeneralEvent(String msgHash, ConvMessage.State state, String hm)
 	{
+		ConvMessage msg = null;
 		try
 		{
+			mDb.beginTransaction();
 			String updateStatement = "UPDATE " + DBConstants.MESSAGES_TABLE + " SET " + DBConstants.SORTING_ID + " = "
 					+ " ( ( " + "SELECT" + " MAX( " + DBConstants.SORTING_ID + " ) " + " FROM " + DBConstants.MESSAGES_TABLE + " )" + " + 1 ), "
 					+ DBConstants.MSG_STATUS + " = " + state.ordinal()+","
@@ -8656,14 +8658,23 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 					+ " WHERE " + DBConstants.MESSAGE_HASH + " = " + DatabaseUtils.sqlEscapeString(msgHash);
 
 			mDb.execSQL(updateStatement);
+
+			msg =getMessageFromMessageHash(msgHash);
+			updateConvTable(msg);
+			mDb.setTransactionSuccessful();
 		}
 
 		catch (Exception e)
 		{
 			Logger.e("HikeConversationsDatabase", "Got an exception while updating sortingId for a Message");
+			msg = null;
 		}
-		ConvMessage msg =getMessageFromMessageHash(msgHash);
-		updateConvTable(msg);
+
+		finally
+		{
+			mDb.endTransaction();
+		}
+
 		return msg;
 	}
 

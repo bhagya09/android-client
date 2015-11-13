@@ -85,8 +85,13 @@ public class GeneralEventMessagesManager
 						HikePlatformConstants.EventStatus.EVENT_RECEIVED, clientTimestamp, mappedId, messageId, parent_msisdn,hm);
 				long eventId = HikeConversationsDatabase.getInstance().insertMessageEvent(messageEvent);
 
+				ConvMessage message = HikeConversationsDatabase.getInstance().updateMessageForGeneralEvent(messageHash, ConvMessage.State.RECEIVED_UNREAD, hm);
 
-				ConvMessage message=HikeConversationsDatabase.getInstance().updateMessageForGeneralEvent(messageHash, ConvMessage.State.RECEIVED_UNREAD, hm);
+				if (message == null || eventId < 0)
+				{
+					return;
+				}
+
 				HikeMessengerApp.getPubSub().publish(HikePubSub.GENERAL_EVENT, message);
 				if (eventId < 0)
 				{
