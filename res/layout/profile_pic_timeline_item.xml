@@ -85,15 +85,15 @@
                 </LinearLayout>
             </RelativeLayout>
 
-            <com.bsb.hike.ui.utils.SquareRecyclingImageView
+            <com.bsb.hike.ui.utils.FitXImageView
                 android:id="@+id/profile_pic"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/info_container"
-                android:transitionName="@string/timeline_transition_anim"
+                android:adjustViewBounds="true"
                 android:background="@null"
-                android:scaleType="centerCrop"
-                android:src="@drawable/misc_timeline_ftue" />
+                android:src="@drawable/misc_timeline_ftue"
+                android:transitionName="@string/timeline_transition_anim" />
 
             <LinearLayout
                 android:id="@+id/details_content"
