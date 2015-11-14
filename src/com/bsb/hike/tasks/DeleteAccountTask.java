@@ -11,6 +11,7 @@ import android.preference.PreferenceManager;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.HikePubSub;
 import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.db.AccountBackupRestore;
 import com.bsb.hike.db.HikeConversationsDatabase;
@@ -227,7 +228,6 @@ public class DeleteAccountTask implements ActivityCallableTask
 			 */
 			Logger.e("DeleteAccountTask", "Exception while canceling notification from DeleteAccountTask", e);
 		}
-		
 		
 		// redirect user to the welcome screen
 		if (listener != null)
