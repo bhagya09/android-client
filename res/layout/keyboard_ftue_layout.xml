@@ -72,14 +72,14 @@
             android:background="@color/bg_custom_dialog"
             android:orientation="vertical"
             android:paddingBottom="4dp"
-            android:paddingLeft="24dp"
             android:paddingRight="4dp"
             android:paddingTop="4dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="52dp"
-                android:gravity="center_vertical|left">
+                android:gravity="center_vertical|left"
+                android:paddingLeft="24dp">
 
                 <com.bsb.hike.view.CustomFontTextView
                     android:layout_width="wrap_content"
@@ -96,13 +96,15 @@
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_weight="1.0"
-                android:divider="@null"></ListView>
+                android:divider="@null"
+                android:listSelector="@drawable/list_item"></ListView>
 
             <LinearLayout
                 android:id="@+id/action_panel"
                 android:layout_width="match_parent"
                 android:layout_height="52dp"
                 android:gravity="center_vertical|right"
+                android:paddingLeft="24dp"
                 android:paddingRight="12dp"
                 android:visibility="gone">
 
@@ -125,7 +127,8 @@
                 android:id="@+id/waiting_panel"
                 android:layout_width="match_parent"
                 android:layout_height="52dp"
-                android:gravity="center_vertical">
+                android:gravity="center_vertical"
+                android:paddingLeft="24dp">
 
                 <com.bsb.hike.view.CustomFontTextView
                     android:layout_width="0dp"

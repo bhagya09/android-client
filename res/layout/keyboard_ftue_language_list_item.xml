@@ -2,8 +2,10 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:descendantFocusability="blocksDescendants"
     android:gravity="center_vertical"
-    android:orientation="horizontal">
+    android:orientation="horizontal"
+    android:paddingLeft="24dp">
 
     <CheckBox
         android:id="@+id/checkbox_item"
@@ -11,6 +13,7 @@
         android:layout_height="48dp"
         android:button="@drawable/hike_list_item_checkbox"
         android:checked="false"
+        android:focusable="false"
         android:gravity="center_vertical"
         android:paddingLeft="18dp"
         android:text="language item"

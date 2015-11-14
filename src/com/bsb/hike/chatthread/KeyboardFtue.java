@@ -11,6 +11,7 @@ import android.view.animation.AnimationSet;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.RotateAnimation;
 import android.view.animation.TranslateAnimation;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -309,6 +310,7 @@ public class KeyboardFtue implements HikePubSub.Listener
         addonItemAdapter = new LanguageItemAdapter(mActivity, R.layout.keyboard_ftue_language_list_item, addonItems);
         ListView langList = (ListView) flipper.findViewById(R.id.lang_list);
         langList.setAdapter(addonItemAdapter);
+        langList.setOnItemClickListener(addonItemAdapter);
         refreshLanguageList();
     }
 
@@ -436,7 +438,7 @@ public class KeyboardFtue implements HikePubSub.Listener
         HikeMessengerApp.getPubSub().removeListeners(this, mPubSubListeners);
     }
 
-    class LanguageItemAdapter extends ArrayAdapter<KPTAddonItem> {
+    class LanguageItemAdapter extends ArrayAdapter<KPTAddonItem> implements AdapterView.OnItemClickListener {
 
         Context mContext;
 
@@ -463,8 +465,18 @@ public class KeyboardFtue implements HikePubSub.Listener
         }
 
         @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id)
+        {
+            ViewHolder viewHolder;
+            viewHolder = (ViewHolder) view.getTag();
+            if (viewHolder.checkBoxItem.isEnabled())
+                viewHolder.checkBoxItem.performClick();
+        }
+
+        @Override
         public View getView(int position, View convertView, ViewGroup parent)
         {
+            KPTAddonItem item = getItem(position);
             ViewHolder viewHolder;
             if (convertView == null)
             {
@@ -477,12 +489,10 @@ public class KeyboardFtue implements HikePubSub.Listener
             {
                 viewHolder = (ViewHolder) convertView.getTag();
             }
-            KPTAddonItem item = getItem(position);
 
             viewHolder.checkBoxItem.setText(item.getDisplayName());
             KptKeyboardManager.LanguageDictionarySatus status = KptKeyboardManager.getInstance(mContext).getDictionaryLanguageStatus(item);
             if (status == KptKeyboardManager.LanguageDictionarySatus.INSTALLED_LOADED
-                    || status == KptKeyboardManager.LanguageDictionarySatus.INSTALLED_LOADED
                     || status == KptKeyboardManager.LanguageDictionarySatus.PROCESSING
                     || status == KptKeyboardManager.LanguageDictionarySatus.IN_QUEUE
                     || selectedItems.contains(item))
@@ -497,11 +507,11 @@ public class KeyboardFtue implements HikePubSub.Listener
             if(KptKeyboardManager.getInstance(mContext).getCurrentState() != KptKeyboardManager.WAITING || status == KptKeyboardManager.LanguageDictionarySatus.INSTALLED_LOADED
                     || status == KptKeyboardManager.LanguageDictionarySatus.INSTALLED_UNLOADED)
             {
-                viewHolder.checkBoxItem.setClickable(false);
+                viewHolder.checkBoxItem.setEnabled(false);
             }
             else
             {
-                viewHolder.checkBoxItem.setClickable(true);
+                viewHolder.checkBoxItem.setEnabled(true);
             }
             viewHolder.checkBoxItem.setOnCheckedChangeListener(langItemCheckChangeListener);
             viewHolder.checkBoxItem.setTag(item);
