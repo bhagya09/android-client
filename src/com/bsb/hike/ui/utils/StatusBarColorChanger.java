@@ -42,6 +42,9 @@ public class StatusBarColorChanger
 			case HikeConstants.STATUS_BAR_TRANSPARENT:
 				setStatusBarColor(window,Color.BLACK);
 				break;
+			case HikeConstants.STATUS_BAR_TIMELINE:
+				setStatusBarColor(window,0xE6000000);
+				break;
 			default:
 				break;
 			}
