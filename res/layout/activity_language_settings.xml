@@ -2,12 +2,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.bsb.hike.LanguageSettingsActivity" >
+    android:background="@color/white"
+    tools:context="com.bsb.hike.LanguageSettingsActivity">
 
     <ListView
         android:id="@+id/lang_list"
         style="@style/HomeList"
-        android:divider="@drawable/dictionary_list_divider">
+        android:divider="@drawable/dictionary_list_divider"
+        android:listSelector="@drawable/list_item">
     </ListView>
 
 </RelativeLayout>
