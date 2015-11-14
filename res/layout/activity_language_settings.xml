@@ -7,8 +7,6 @@
     <ListView
         android:id="@+id/lang_list"
         style="@style/HomeList"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
         android:divider="@drawable/dictionary_list_divider">
     </ListView>
 
