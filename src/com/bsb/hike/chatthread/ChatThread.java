@@ -793,8 +793,18 @@ import android.widget.Toast;
 			keyboardFtue.init(activity, (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE),(ViewGroup)activity.findViewById(R.id.keyboard_ftue_container),keyboardFTUEdestroyedListener);
 	}
 
-	private KeyboardFtue.OnKeyboardFTUEDestroyedListener keyboardFTUEdestroyedListener = new KeyboardFtue.OnKeyboardFTUEDestroyedListener()
+	private KeyboardFtue.OnKeyboardFTUEStateChangeListener keyboardFTUEdestroyedListener = new KeyboardFtue.OnKeyboardFTUEStateChangeListener()
 	{
+		@Override
+		public void onStateChange(int state)
+		{
+			if (state == KeyboardFtue.LANGUAGE_SELECTION_COMPLETE)
+			{
+				mCustomKeyboard.showCustomKeyboard(mComposeView,false);
+				mCustomKeyboard.showCustomKeyboard(mComposeView,true);
+			}
+		}
+
 		@Override
 		public void onDestroyed()
 		{

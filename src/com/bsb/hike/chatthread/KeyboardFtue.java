@@ -8,7 +8,6 @@ import android.view.ViewGroup;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.AnimationSet;
-import android.view.animation.DecelerateInterpolator;
 import android.view.animation.RotateAnimation;
 import android.view.animation.TranslateAnimation;
 import android.widget.AdapterView;
@@ -42,15 +41,16 @@ import org.json.JSONObject;
  */
 public class KeyboardFtue implements HikePubSub.Listener
 {
-    public interface OnKeyboardFTUEDestroyedListener
+    public interface OnKeyboardFTUEStateChangeListener
     {
+        void onStateChange(int state);
         void onDestroyed();
     }
 
     private final String KEYBOARD_FTUE_STATE = "keyboardFTUEState";
-    private final int NOT_STARTED = 0;
-    private final int LANGUAGE_SELECTION_COMPLETE = 1;
-    private final int COMPLETE = 3;
+    public static final int NOT_STARTED = 0;
+    public static final int LANGUAGE_SELECTION_COMPLETE = 1;
+    public static final int COMPLETE = 3;
     private int mState;
     private boolean mInitialised;
 
@@ -62,7 +62,7 @@ public class KeyboardFtue implements HikePubSub.Listener
 
     private ViewFlipper flipper;
 
-    private OnKeyboardFTUEDestroyedListener destroyedListener;
+    private OnKeyboardFTUEStateChangeListener stateChangeListener;
 
     ArrayList<KPTAddonItem> addonItems;
 
@@ -79,11 +79,11 @@ public class KeyboardFtue implements HikePubSub.Listener
         mState = HikeSharedPreferenceUtil.getInstance().getData(KEYBOARD_FTUE_STATE,NOT_STARTED);
     }
 
-    public void init(Activity activity, LayoutInflater inflater, ViewGroup container, OnKeyboardFTUEDestroyedListener listener)
+    public void init(Activity activity, LayoutInflater inflater, ViewGroup container, OnKeyboardFTUEStateChangeListener listener)
     {
         this.mActivity = activity;
         this.container = container;
-        this.destroyedListener = listener;
+        this.stateChangeListener = listener;
         rootView = inflater.inflate(R.layout.keyboard_ftue_layout, container, false);
         mInitialised = true;
         addToPubSub();
@@ -329,6 +329,8 @@ public class KeyboardFtue implements HikePubSub.Listener
     {
         mState = state;
         HikeSharedPreferenceUtil.getInstance().saveData(KEYBOARD_FTUE_STATE, state);
+        if (stateChangeListener != null)
+            stateChangeListener.onStateChange(mState);
     }
 
     private void skipLanguageSelection()
@@ -428,8 +430,8 @@ public class KeyboardFtue implements HikePubSub.Listener
             container.invalidate();
             removeFromPubSub();
             mInitialised = false;
-            if (destroyedListener != null)
-                destroyedListener.onDestroyed();
+            if (stateChangeListener != null)
+                stateChangeListener.onDestroyed();
         }
     }
 
