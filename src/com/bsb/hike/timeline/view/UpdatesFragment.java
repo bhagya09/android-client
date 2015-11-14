@@ -61,6 +61,7 @@ import com.bsb.hike.ui.GalleryActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.Utils;
 import com.etiennelawlor.quickreturn.library.enums.QuickReturnViewType;
 import com.etiennelawlor.quickreturn.library.listeners.QuickReturnRecyclerViewOnScrollListener;
@@ -704,6 +705,12 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 					{
 						continue;
 					}
+					
+					if(StealthModeManager.getInstance().isStealthMsisdn(contactInfo.getMsisdn()) && !StealthModeManager.getInstance().isActive())
+					{
+						continue;
+					}
+					
 					msisdnList.add(contactInfo.getMsisdn());
 				}
 
