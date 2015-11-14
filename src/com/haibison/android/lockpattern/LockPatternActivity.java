@@ -48,6 +48,7 @@ import com.haibison.android.lockpattern.widget.LockPatternUtils;
 import com.haibison.android.lockpattern.widget.LockPatternView;
 import com.haibison.android.lockpattern.widget.LockPatternView.Cell;
 import com.haibison.android.lockpattern.widget.LockPatternView.DisplayMode;
+import com.kpt.adaptxt.beta.KPTAddonItem;
 import com.kpt.adaptxt.beta.RemoveDialogData;
 import com.kpt.adaptxt.beta.util.KPTConstants;
 import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtKeyboordVisibilityStatusListner;
@@ -1376,18 +1377,18 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity implem
         mCustomKeyboard.registerEditText(R.id.alp_42447968_lock_pin);
         mCustomKeyboard.init(mLockPinView);
         mLockPinView.setOnClickListener(new View.OnClickListener()
-		{
-			
-			@Override
-			public void onClick(View v)
-			{
-				if (mCustomKeyboard.isCustomKeyboardVisible())
-				{
-					return;
-				}
-				mCustomKeyboard.showCustomKeyboard(mLockPinView, true);
-			}
-		});
+        {
+
+            @Override
+            public void onClick(View v)
+            {
+                if (mCustomKeyboard.isCustomKeyboardVisible())
+                {
+                    return;
+                }
+                mCustomKeyboard.showCustomKeyboard(mLockPinView, true);
+            }
+        });
 
 		if (Utils.isLollipopOrHigher() && getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE)
 		{
@@ -1400,12 +1401,11 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity implem
 		}
     }
 
-	@Override
-	public void analyticalData(String arg0)
-	{
-		// TODO Auto-generated method stub
-		
-	}
+    @Override
+    public void analyticalData(KPTAddonItem kptAddonItem)
+    {
+        KptUtils.generateKeyboardAnalytics(kptAddonItem);
+    }
 
 	@Override
 	public void onInputViewCreated()

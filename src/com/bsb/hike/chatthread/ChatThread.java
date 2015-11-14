@@ -109,6 +109,7 @@ import com.bsb.hike.view.CustomFontEditText;
 import com.bsb.hike.view.CustomFontEditText.BackKeyListener;
 import com.bsb.hike.view.CustomLinearLayout;
 import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
+import com.kpt.adaptxt.beta.KPTAddonItem;
 import com.kpt.adaptxt.beta.util.KPTConstants;
 import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtKeyboordVisibilityStatusListner;
 
@@ -801,7 +802,7 @@ import android.widget.Toast;
 			if (state == KeyboardFtue.LANGUAGE_SELECTION_COMPLETE)
 			{
 				mCustomKeyboard.showCustomKeyboard(mComposeView,false);
-				mCustomKeyboard.showCustomKeyboard(mComposeView,true);
+				mCustomKeyboard.showCustomKeyboard(mComposeView, true);
 			}
 		}
 
@@ -1262,7 +1263,7 @@ import android.widget.Toast;
 		JSONObject metadata = new JSONObject();
 		try 
 		{
-			metadata.put(HikeConstants.LogEvent.KPT, KptKeyboardManager.getInstance(activity).getCurrentLanguage());
+			metadata.put(HikeConstants.LogEvent.KPT, KptKeyboardManager.getInstance(activity).getCurrentLanguageAddonItem().getlocaleName());
 			convMessage.setMetadata(metadata);
 		} 
 		catch (JSONException e) 
@@ -6233,11 +6234,11 @@ import android.widget.Toast;
 		// TODO Auto-generated method stub
 		
 	}
-	
+
 	@Override
-	public void analyticalData(String language)
+	public void analyticalData(KPTAddonItem kptAddonItem)
 	{
-		KptUtils.generateKeyboardAnalytics(language);
+		KptUtils.generateKeyboardAnalytics(kptAddonItem);
 	}
 
 	@Override

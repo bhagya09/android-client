@@ -110,10 +110,10 @@ public class KptKeyboardManager implements AdaptxtSettingsRegisterListener
 		}
 	}
 
-	public String getCurrentLanguage()
+	public KPTAddonItem getCurrentLanguageAddonItem()
 	{
 		if(kptSettings != null)
-			return kptSettings.getCurrentLanguage();
+			return kptSettings.getCurrentAddonItem();
 
 		return null;
 	}

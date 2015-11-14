@@ -14,6 +14,7 @@ import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.kpt.adaptxt.beta.CustomKeyboard;
+import com.kpt.adaptxt.beta.KPTAddonItem;
 import com.kpt.adaptxt.beta.view.AdaptxtEditText;
 
 import android.app.Activity;
@@ -31,19 +32,19 @@ public class KptUtils
 		
 	}
 	
-	public static void generateKeyboardAnalytics(String currentLanguage)
+	public static void generateKeyboardAnalytics(KPTAddonItem item)
 	{
 //		tracking keyboard language change event
 		try
 		{
 			JSONObject metadata = new JSONObject();
 			metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.KEYBOARD_LANGUAGE_CHANGED_EVENT);
-			metadata.put(HikeConstants.KEYBOARD_LANGUAGE, currentLanguage);
+			metadata.put(HikeConstants.KEYBOARD_LANGUAGE, item.getlocaleName());
 			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
 		}
 		catch(JSONException e)
 		{
-			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json : " + currentLanguage + "\n" + e);
+			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json : " + item.getDisplayName() + "\n" + e);
 		}
 	}
 
