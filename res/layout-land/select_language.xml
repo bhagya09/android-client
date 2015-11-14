@@ -52,6 +52,7 @@
             android:layout_width="240dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="52dp"
+            android:background="@drawable/bg_fill_country_selector"
             android:gravity="center_vertical"
             android:orientation="horizontal"
             android:padding="10dp">
@@ -65,16 +66,7 @@
                 android:textColor="@color/black_60"
                 android:textSize="16dp" />
 
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/ic_arrow_down" />
-
         </LinearLayout>
 
-        <View
-            android:layout_width="240dp"
-            android:layout_height="1.5dp"
-            android:background="@color/blue_hike" />
     </LinearLayout>
 </LinearLayout>

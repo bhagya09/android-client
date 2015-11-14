@@ -604,8 +604,6 @@ import android.widget.Toast;
 
 	protected Bundle savedState;
 
-	private CustomFontEditText searchEt;
-	
 	public void onCreate(Bundle savedState)
 	{
 		Logger.i(TAG, "onCreate(" + savedState + ")");
@@ -795,8 +793,18 @@ import android.widget.Toast;
 			keyboardFtue.init(activity, (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE),(ViewGroup)activity.findViewById(R.id.keyboard_ftue_container),keyboardFTUEdestroyedListener);
 	}
 
-	private KeyboardFtue.OnKeyboardFTUEDestroyedListener keyboardFTUEdestroyedListener = new KeyboardFtue.OnKeyboardFTUEDestroyedListener()
+	private KeyboardFtue.OnKeyboardFTUEStateChangeListener keyboardFTUEdestroyedListener = new KeyboardFtue.OnKeyboardFTUEStateChangeListener()
 	{
+		@Override
+		public void onStateChange(int state)
+		{
+			if (state == KeyboardFtue.LANGUAGE_SELECTION_COMPLETE)
+			{
+				mCustomKeyboard.showCustomKeyboard(mComposeView,false);
+				mCustomKeyboard.showCustomKeyboard(mComposeView,true);
+			}
+		}
+
 		@Override
 		public void onDestroyed()
 		{
@@ -1770,22 +1778,20 @@ import android.widget.Toast;
 		mActionMode.showActionMode(SEARCH_ACTION_MODE, R.layout.search_action_bar);
 		setUpSearchViews();
 
-		searchEt = (CustomFontEditText) activity.findViewById(R.id.search_text);
-
 		if (isSystemKeyboard())
 		{
-			searchEt.requestFocus();
+			mComposeView.requestFocus();
 			activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
-			Utils.showSoftKeyboard(searchEt, InputMethodManager.SHOW_FORCED);
+			Utils.showSoftKeyboard(mComposeView, InputMethodManager.SHOW_FORCED);
 		}
 		else
 		{
 			mCustomKeyboard.registerEditText(R.id.search_text);
-        	mCustomKeyboard.showCustomKeyboard(searchEt, true);
+        	mCustomKeyboard.showCustomKeyboard(mComposeView, true);
         	KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, (keyboardHeight == 0) ? mCustomKeyboard.getKeyBoardAndCVHeight() : keyboardHeight);
 		}
-		
-		searchEt.setOnClickListener(this);
+
+		mComposeView.setOnClickListener(this);
 		
 		// Creating new instance every time.
 		// No need to modify existing instance. It might still be in the process of exiting.
@@ -4190,8 +4196,9 @@ import android.widget.Toast;
 	{
 		if (mCustomKeyboard != null)
 		{
-			KptUtils.pauseKeyboardResources(mCustomKeyboard, mComposeView, searchEt);
-			KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, 0);
+			if (mCustomKeyboard.isCustomKeyboardVisible())
+				hideKptKeyboard();
+			KptUtils.pauseKeyboardResources(mCustomKeyboard, mComposeView);
 		}
 	}
 	
