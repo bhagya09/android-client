@@ -71,6 +71,7 @@ import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.ProfileImageLoader;
 import com.bsb.hike.utils.SmileyParser;
 import com.bsb.hike.utils.Utils;
+import com.bsb.hike.view.TouchImageView;
 
 /**
  * 
@@ -83,7 +84,7 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 {
 	
 	
-	ImageView imageView;
+	TouchImageView imageView;
 
 	private String mappedId;
 
@@ -377,7 +378,7 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 
 	private void initReferences()
 	{
-		imageView = (ImageView) findViewById(R.id.image);
+		imageView = (TouchImageView) findViewById(R.id.image);
 		fadeScreen = findViewById(R.id.bg_screen);
 		foregroundScreen = findViewById(R.id.fg_screen);
 		infoContainer = findViewById(R.id.image_info_container);
@@ -516,6 +517,10 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 		}
 		else
 		{
+			if(imageView!= null && imageView.isZoomed())
+			{
+				imageView.resetZoom();
+			}
 			supportFinishAfterTransition();
 		}
 	}
