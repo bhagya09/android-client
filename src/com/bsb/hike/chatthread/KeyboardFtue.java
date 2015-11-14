@@ -515,6 +515,7 @@ public class KeyboardFtue implements HikePubSub.Listener
             {
                 viewHolder.checkBoxItem.setEnabled(true);
             }
+            viewHolder.checkBoxItem.setClickable(false);
             viewHolder.checkBoxItem.setOnCheckedChangeListener(langItemCheckChangeListener);
             viewHolder.checkBoxItem.setTag(item);
             return convertView;
