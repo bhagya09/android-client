@@ -10,6 +10,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -53,6 +54,7 @@ import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.timeline.TimelineResourceCleaner;
 import com.bsb.hike.ui.PeopleActivity;
 import com.bsb.hike.ui.ProfileActivity;
+import com.bsb.hike.ui.utils.StatusBarColorChanger;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
@@ -216,7 +218,7 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 		ActionBar actionBar = getSupportActionBar();
 		actionBar.setIcon(R.drawable.hike_logo_top_bar);
 		actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
-
+		actionBar.setBackgroundDrawable(new ColorDrawable(Color.BLACK));
 		View actionBarView = LayoutInflater.from(this).inflate(R.layout.compose_action_bar, null);
 
 		actionBarView.findViewById(R.id.seprator).setVisibility(View.GONE);
@@ -226,6 +228,8 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 
 
 		actionBar.setCustomView(actionBarView);
+		
+		StatusBarColorChanger.setStatusBarColor(TimelineActivity.this, HikeConstants.STATUS_BAR_TRANSPARENT);
 	}
 
 	private void setupMainFragment(Bundle savedInstanceState)
