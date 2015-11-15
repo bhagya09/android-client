@@ -5,9 +5,12 @@ import android.text.TextUtils;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.R;
+import com.bsb.hike.modules.kpt.KptKeyboardManager;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.kpt.adaptxt.beta.KPTAddonItem;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 /**
@@ -63,13 +66,13 @@ public class LocalLanguage {
     {
         if (hikeSupportedList == null)
         {
-            hikeSupportedList = new ArrayList<LocalLanguage>();
+            hikeSupportedList = new ArrayList<>();
             hikeSupportedList.add(new LocalLanguage(context.getString(R.string.system_language), ""));    // system Default
             hikeSupportedList.add(English);     // English
             hikeSupportedList.add(Hindi);       // Hindi
             hikeSupportedList.add(Bengali);     // Bengali
             hikeSupportedList.add(Marathi);     // Marathi
-            //hikeSupportedList.add(Gujarati);    // Gujarati
+            hikeSupportedList.add(Gujarati);    // Gujarati
             hikeSupportedList.add(Tamil);       // Tamil
             hikeSupportedList.add(Telugu);      // Telugu
             hikeSupportedList.add(Kannada);     // Kannada
@@ -83,14 +86,21 @@ public class LocalLanguage {
     {
         if (deviceSupportedHikeList == null)
         {
-            deviceSupportedHikeList = new ArrayList<LocalLanguage>();
-            List<LocalLanguage> hikeList = getHikeSupportedLanguages(context);
-            deviceSupportedHikeList.add(hikeList.get(0));
-            deviceSupportedHikeList.add(hikeList.get(1));
-            for (int i = 2; i < hikeList.size(); i++)
+            ArrayList<KPTAddonItem> deviceSupportedkptLanguages = new ArrayList<>();
+            deviceSupportedkptLanguages.addAll(KptKeyboardManager.getInstance(context).getInstalledLanguagesList());
+            deviceSupportedkptLanguages.addAll(KptKeyboardManager.getInstance(context).getUninstalledLanguagesList());
+            HashSet<String> supportedLocaleSet = new HashSet<>();
+            for (KPTAddonItem item : deviceSupportedkptLanguages)
             {
-                LocalLanguage item = hikeList.get(i);
-                deviceSupportedHikeList.add(item);
+                supportedLocaleSet.add(item.getlocaleName().substring(0,item.getlocaleName().indexOf("-")));
+            }
+
+            deviceSupportedHikeList = new ArrayList<>();
+            List<LocalLanguage> hikeList = getHikeSupportedLanguages(context);
+            for (LocalLanguage item : hikeList)
+            {
+                if (supportedLocaleSet.contains(item.getLocale()) || TextUtils.isEmpty(item.getLocale()))
+                    deviceSupportedHikeList.add(item);
             }
         }
         return deviceSupportedHikeList;
