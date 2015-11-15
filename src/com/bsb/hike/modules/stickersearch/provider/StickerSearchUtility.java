@@ -498,6 +498,12 @@ public class StickerSearchUtility
 		return isValidSeparators;
 	}
 
+	/* Get combined regular expression for all separators applicable to language argument */
+	public static String getSeparatorRegex(String keyboardLanguage)
+	{
+		return null;
+	}
+
 	/* Get list of unique separator characters in the given regular expression */
 	public static Set<Character> getSeparatorChars(String regex)
 	{
