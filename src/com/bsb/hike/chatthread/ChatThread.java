@@ -3948,8 +3948,6 @@ import android.widget.Toast;
 	
 	protected boolean onMessageDelivered(Object object)
 	{
-
-		
 		Pair<String, Long> pair = (Pair<String, Long>) object;
 		// If the msisdn don't match we simply return
 		if (!mConversation.getMsisdn().equals(pair.first))

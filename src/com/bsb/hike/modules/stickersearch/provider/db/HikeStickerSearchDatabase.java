@@ -43,6 +43,8 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 {
 	public static final String TAG = HikeStickerSearchDatabase.class.getSimpleName();
 
+	public static final String TAG_UPGRADE = "HSSDB$UpgradeOperation";
+
 	public static final String TAG_INSERTION = "HSSDB$InsertOperation";
 
 	public static final String TAG_REBALANCING = "HSSDB$RebalancingOperation";
@@ -114,8 +116,8 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 			sHikeStickerSearchDatabase.MAXIMUM_TAG_SELECTION_COUNT_PER_STICKER = HikeSharedPreferenceUtil.getInstance().getData(
 					HikeConstants.STICKER_TAG_MAXIMUM_SELECTION_PER_STICKER, StickerSearchConstants.MAXIMUM_TAG_SELECTION_COUNT_PER_STICKER);
 
-			sHikeStickerSearchDatabase.mExistingVirtualTablesList = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_SEARCH_VT_TABLES_LIST,
-					HikeStickerSearchBaseConstants.DEFAULT_TABLE_LIST);
+			sHikeStickerSearchDatabase.mExistingVirtualTablesList = HikeSharedPreferenceUtil.getInstance(HikeStickerSearchBaseConstants.SHARED_PREF_STICKER_DATA).getData(
+					HikeStickerSearchBaseConstants.KEY_PREF_STICKER_SEARCH_VT_TABLES_LIST, HikeStickerSearchBaseConstants.DEFAULT_VT_TABLE_LIST);
 
 			sHikeStickerSearchDatabase.loadTableMap();
 		}
@@ -154,7 +156,8 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion)
 	{
 		Logger.i(TAG, "onUpgrade(" + db + ", " + oldVersion + ", " + newVersion + ")");
-		Logger.i(TAG, "Upgrade Started at : "+ System.currentTimeMillis());
+
+		long operationStartTime = System.currentTimeMillis();
 
 		if (oldVersion < HikeStickerSearchBaseConstants.VERSION_STICKER_REGIONAL_TAG_MAPPING_ADDED)
 		{
@@ -180,7 +183,9 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 					+ HikeStickerSearchBaseConstants.SYNTAX_NEXT + HikeStickerSearchBaseConstants.STICKER_TAG_LANGUAGE + HikeStickerSearchBaseConstants.SYNTAX_BRACKET_CLOSE;
 			db.execSQL(sql);
 		}
-		Logger.i(TAG, "Upgrade Finished at : "+ System.currentTimeMillis());
+
+		Logger.i(TAG_UPGRADE,
+				"Time taken in db upgrade = " + Utils.getExecutionTimeLog(operationStartTime, System.currentTimeMillis(), ExecutionDurationLogger.PRECISION_UNIT_MILLI_SECOND));
 	}
 
 	/* Add tables which are either fixed or default (virtual table) */
@@ -265,17 +270,18 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 	{
 		Logger.i(TAG, "prepare()");
 
-		String[] tables = new String[mExistingVirtualTablesList.length()];
-		for (int i = 0; i < mExistingVirtualTablesList.length(); i++)
-		{
-			tables[i] = getVirtualTableNameForChar(mExistingVirtualTablesList.charAt(i));
-		}
-
 		Logger.d(TAG, "Starting population first time...");
 		try
 		{
 			mDb.beginTransaction();
-			createVirtualTables(tables);
+
+			int initialTableCount = (mExistingVirtualTablesList == null) ? 0 : mExistingVirtualTablesList.length();
+
+			for (int i = 0; i < initialTableCount; i++)
+			{
+				createVirtualTable(getVirtualTableNameForChar(mExistingVirtualTablesList.charAt(i)));
+			}
+
 			mDb.setTransactionSuccessful();
 		}
 		finally
@@ -297,35 +303,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		mDb.insert(HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_ENTITY, null, cv);
 	}
 
-	/* Create virtual tables used for searching tags */
-	private void createVirtualTables(String[] tablesNames)
-	{
-		Logger.i(TAG, "createVirtualTables(" + Arrays.toString(tablesNames) + ")");
-
-		// Create fixed virtual table: TABLE_STICKER_TAG_TEXT_SEARCH_PrefixStart_PrefixEnd
-		// Real Tag Word/Phrase : String [Compulsory], Given tag either a single word or a phrase, element of [PrefixStart*, PrefixEnd*)
-		// Group Id : Integer [Compulsory], Group id of given tag put from TABLE_STICKER_TAG_MAPPING
-
-		try
-		{
-			if (tablesNames != null)
-			{
-				for (int i = 0; i < tablesNames.length; i++)
-				{
-					createVirtualTable(tablesNames[i]);
-				}
-			}
-			else
-			{
-				Logger.e(TAG, "Invalid table names to create for fts.");
-			}
-		}
-		catch (SQLException e)
-		{
-			Logger.d(TAG, "Error in executing sql: ", e);
-		}
-	}
-
+	/* Create virtual table used for searching tags */
 	private void createVirtualTable(String tableName)
 	{
 		String sql;
@@ -341,24 +319,63 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 					+ HikeStickerSearchBaseConstants.SYNTAX_FOREIGN_REF + HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING
 					+ HikeStickerSearchBaseConstants.SYNTAX_BRACKET_OPEN + HikeStickerSearchBaseConstants.UNIQUE_ID + HikeStickerSearchBaseConstants.SYNTAX_BRACKET_CLOSE
 					+ HikeStickerSearchBaseConstants.SYNTAX_BRACKET_CLOSE;
+
 			mDb.execSQL(sql);
 		}
 
 	}
 
-	private void createVirtualTableForFirstChar(Character prefix)
+	/* Setup virtual table for given prefix, if does not exist */
+	private String setupVirtualTableForFirstChar(Character prefix)
 	{
-		createVirtualTable(getVirtualTableNameForChar(prefix));
+		String tableName = getVirtualTableNameForChar(prefix);
+
+		createVirtualTable(tableName);
 
 		if (!tableForCharExists(prefix))
 		{
-			mExistingVirtualTablesList = mExistingVirtualTablesList + prefix;
 			mExistingVirtualTableMap.put(prefix, true);
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STICKER_SEARCH_VT_TABLES_LIST, mExistingVirtualTablesList);
+			mExistingVirtualTablesList = mExistingVirtualTablesList + prefix;
+			HikeSharedPreferenceUtil.getInstance(HikeStickerSearchBaseConstants.SHARED_PREF_STICKER_DATA).saveData(
+					HikeStickerSearchBaseConstants.KEY_PREF_STICKER_SEARCH_VT_TABLES_LIST, mExistingVirtualTablesList);
+		}
+
+		return tableName;
+	}
+
+	private void loadTableMap()
+	{
+		mExistingVirtualTableMap = new HashMap<Character, Boolean>();
+
+		for (int i = 0; i < mExistingVirtualTablesList.length(); i++)
+		{
+			mExistingVirtualTableMap.put(mExistingVirtualTablesList.charAt(i), true);
 		}
 	}
 
-	/* Do not change the order of deletion as per dependency of foreign keys. */
+	private boolean tableForCharExists(Character c)
+	{
+		if (mExistingVirtualTableMap.get(c) == null)
+		{
+			return false;
+		}
+
+		return mExistingVirtualTableMap.get(c).booleanValue();
+	}
+
+	private String getVirtualTableNameForChar(Character suffix)
+	{
+		if (suffix == StickerSearchConstants.CHAR_EMPTY)
+		{
+			return HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_SEARCH;
+		}
+		else
+		{
+			return HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_SEARCH + suffix;
+		}
+	}
+
+	/* Do not change the order of deletion as per dependency of foreign keys */
 	public void deleteDataInTables(boolean isNeedToDeleteAllSearchData)
 	{
 		Logger.i(TAG, "deleteDataInTables(" + isNeedToDeleteAllSearchData + ")");
@@ -412,6 +429,9 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 				SQLiteDatabase.releaseMemory();
 			}
 		}
+
+		HikeSharedPreferenceUtil.getInstance(HikeStickerSearchBaseConstants.SHARED_PREF_STICKER_DATA).removeData(
+				HikeStickerSearchBaseConstants.KEY_PREF_STICKER_SEARCH_VT_TABLES_LIST);
 	}
 
 	public void insertStickerTagData(Map<String, ArrayList<String>> packStoryData, ArrayList<StickerTagDataContainer> stickersTagData)
@@ -787,12 +807,15 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 						firstChar = StickerSearchConstants.CHAR_EMPTY;
 					}
 
-					if (!tableForCharExists(firstChar))
+					String table;
+					if (tableForCharExists(firstChar))
 					{
-						createVirtualTableForFirstChar(firstChar);
+						table = getVirtualTableNameForChar(firstChar);
 					}
-
-					String table = getVirtualTableNameForChar(firstChar);
+					else
+					{
+						table = setupVirtualTableForFirstChar(firstChar);
+					}
 
 					ContentValues cv = new ContentValues();
 					cv.put(HikeStickerSearchBaseConstants.TAG_REAL_PHRASE, tag);
@@ -2018,37 +2041,5 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		}
 
 		return true;
-	}
-
-	private boolean tableForCharExists(Character c)
-	{
-		if (sHikeStickerSearchDatabase.mExistingVirtualTableMap.get(c) == null)
-		{
-			return false;
-		}
-
-		return sHikeStickerSearchDatabase.mExistingVirtualTableMap.get(c).booleanValue();
-	}
-
-	private void loadTableMap()
-	{
-		sHikeStickerSearchDatabase.mExistingVirtualTableMap = new HashMap<Character, Boolean>();
-
-		for (int i = 0; i < sHikeStickerSearchDatabase.mExistingVirtualTablesList.length(); i++)
-		{
-			sHikeStickerSearchDatabase.mExistingVirtualTableMap.put(sHikeStickerSearchDatabase.mExistingVirtualTablesList.charAt(i), true);
-		}
-	}
-
-	private String getVirtualTableNameForChar(Character suffix)
-	{
-		if (suffix == StickerSearchConstants.CHAR_EMPTY)
-		{
-			return HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_SEARCH;
-		}
-		else
-		{
-			return HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_SEARCH + suffix;
-		}
 	}
 }

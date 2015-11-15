@@ -3484,8 +3484,6 @@ public class HikeConstants
 
 	public static final String STICKER_SEARCH_BASE_THRESHOLD_FORCED_SHRINK_COEFFICIENT = "ssb_tfsc"; // float
 
-	public static final String STICKER_SEARCH_VT_TABLES_LIST = "ss_vtl";
-
 	// =========================================================================================Constants for sticker search]]
 
 	public static final String AG_ENABLED = "agLogs";
