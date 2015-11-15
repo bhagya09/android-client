@@ -1265,8 +1265,6 @@ public class StickerSearchHostManager
 			Logger.v(TAG, "computeOrderingAndGetStickers(), context Moment is '" + TIME_CODE.getContinuer(contextMomentCode).name() + "' and terminal Moment is '"
 					+ TIME_CODE.getTerminal(currentMomentTerminalCode).name() + "'");
 
-			stickers = new LinkedHashSet<Sticker>();
-
 			ArrayList<StickerAppositeDataContainer> timePrioritizedStickerList = new ArrayList<StickerAppositeDataContainer>();
 			ArrayList<StickerAppositeDataContainer> tempStickerDataList = new ArrayList<StickerAppositeDataContainer>();
 			TreeSet<StickerAppositeDataContainer> leastButSignificantStickerDataList = new TreeSet<StickerAppositeDataContainer>();
@@ -1389,7 +1387,9 @@ public class StickerSearchHostManager
 			count = tempStickerDataList.size();
 			if (count > 0)
 			{
+				stickers = new LinkedHashSet<Sticker>(count);
 				Collections.sort(tempStickerDataList);
+
 				for (int i = 0; i < count; i++)
 				{
 					stickerAppositeDataContainer = tempStickerDataList.get(i);
@@ -1398,35 +1398,45 @@ public class StickerSearchHostManager
 				}
 
 				tempStickerDataList.clear();
+				tempStickerDataList = null;
 			}
-			else if (leastButSignificantStickerDataList.size() > 0)
+			else
 			{
-				for (StickerAppositeDataContainer marginalSticker : leastButSignificantStickerDataList)
+				count = leastButSignificantStickerDataList.size();
+				if (count > 0)
 				{
-					stickers.add(StickerManager.getInstance().getStickerFromSetString(marginalSticker.getStickerCode(), marginalSticker.getStickerAvailabilityStatus()));
-				}
+					stickers = new LinkedHashSet<Sticker>(count);
 
-				leastButSignificantStickerDataList.clear();
+					for (StickerAppositeDataContainer marginalSticker : leastButSignificantStickerDataList)
+					{
+						stickers.add(StickerManager.getInstance().getStickerFromSetString(marginalSticker.getStickerCode(), marginalSticker.getStickerAvailabilityStatus()));
+					}
+
+					leastButSignificantStickerDataList.clear();
+					leastButSignificantStickerDataList = null;
+				}
 			}
 
 			// Apply time division, if such stickers are found after ordering
-			int timelyStcikersCount = timePrioritizedStickerList.size();
-
-			if (timelyStcikersCount > 0)
+			int timelyStickersCount = timePrioritizedStickerList.size();
+			if (timelyStickersCount > 0)
 			{
+				LinkedHashSet<Sticker> timePrioritizedStickers = new LinkedHashSet<Sticker>(timelyStickersCount + count);
 				Collections.sort(timePrioritizedStickerList);
-
-				LinkedHashSet<Sticker> timePrioritizedStickers = new LinkedHashSet<Sticker>();
-
-				for (int i = 0; i < timelyStcikersCount; i++)
+				
+				for (int i = 0; i < timelyStickersCount; i++)
 				{
-					StickerAppositeDataContainer timelySticker = timePrioritizedStickerList.get(i);
-					timePrioritizedStickers.add(StickerManager.getInstance().getStickerFromSetString(timelySticker.getStickerCode(), timelySticker.getStickerAvailabilityStatus()));
+					stickerAppositeDataContainer = timePrioritizedStickerList.get(i);
+					timePrioritizedStickers.add(StickerManager.getInstance().getStickerFromSetString(stickerAppositeDataContainer.getStickerCode(),
+							stickerAppositeDataContainer.getStickerAvailabilityStatus()));
 				}
 
 				// Put remaining stickers after time-prioritized stickers in pop-up
-				timePrioritizedStickers.addAll(stickers);
-				stickers.clear();
+				if (count > 0)
+				{
+					timePrioritizedStickers.addAll(stickers);
+					stickers.clear();
+				}
 				stickers = timePrioritizedStickers;
 			}
 		}
