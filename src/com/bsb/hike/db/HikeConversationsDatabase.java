@@ -8331,6 +8331,11 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 	{
 		Cursor c = null;
 
+		if (TextUtils.isEmpty(from))
+		{
+			return -1;
+		}
+
 		try
 		{
 
@@ -8646,8 +8651,10 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 	public ConvMessage updateMessageForGeneralEvent(String msgHash, ConvMessage.State state, String hm)
 	{
+		ConvMessage msg = null;
 		try
 		{
+			mDb.beginTransaction();
 			String updateStatement = "UPDATE " + DBConstants.MESSAGES_TABLE + " SET " + DBConstants.SORTING_ID + " = "
 					+ " ( ( " + "SELECT" + " MAX( " + DBConstants.SORTING_ID + " ) " + " FROM " + DBConstants.MESSAGES_TABLE + " )" + " + 1 ), "
 					+ DBConstants.MSG_STATUS + " = " + state.ordinal()+","
@@ -8656,14 +8663,23 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 					+ " WHERE " + DBConstants.MESSAGE_HASH + " = " + DatabaseUtils.sqlEscapeString(msgHash);
 
 			mDb.execSQL(updateStatement);
+
+			msg =getMessageFromMessageHash(msgHash);
+			updateConvTable(msg);
+			mDb.setTransactionSuccessful();
 		}
 
 		catch (Exception e)
 		{
 			Logger.e("HikeConversationsDatabase", "Got an exception while updating sortingId for a Message");
+			msg = null;
 		}
-		ConvMessage msg =getMessageFromMessageHash(msgHash);
-		updateConvTable(msg);
+
+		finally
+		{
+			mDb.endTransaction();
+		}
+
 		return msg;
 	}
 
@@ -8829,6 +8845,43 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 			Logger.d("HikeConversationsDatabase", "Time taken to get max sort Id : " + (System.currentTimeMillis() - time));
 		}
+	}
+
+	/**
+	 * Utility method to get Message Hash present in Message Event Table from event Id
+	 * 
+	 * @param eventId
+	 * @return
+	 */
+	public long getMessageIdFromEventId(long eventId, String fromMsisdn)
+	{
+		Cursor c = null;
+
+		try
+		{
+
+			c = mDb.query(DBConstants.MESSAGE_EVENT_TABLE, new String[] { DBConstants.MESSAGE_HASH }, DBConstants.EVENT_ID + " =?", new String[] { Long.toString(eventId) }, null,
+					null, null, null);
+
+			int msgHashIdx = c.getColumnIndex(DBConstants.MESSAGE_HASH);
+
+			if (c.moveToFirst())
+			{
+				String msgHash = c.getString(msgHashIdx);
+
+				return getMessageIdFromMessageHash(msgHash, fromMsisdn);
+			}
+		}
+
+		finally
+		{
+			if (c != null)
+			{
+				c.close();
+			}
+		}
+
+		return -1;
 	}
 
 }
