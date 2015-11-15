@@ -44,6 +44,7 @@ import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.PinnedSectionListView;
 import com.bsb.hike.view.PinnedSectionListView.PinnedSectionListAdapter;
 import com.kpt.adaptxt.beta.CustomKeyboard;
+import com.kpt.adaptxt.beta.KPTAddonItem;
 import com.kpt.adaptxt.beta.RemoveDialogData;
 import com.kpt.adaptxt.beta.util.KPTConstants;
 import com.kpt.adaptxt.beta.view.AdaptxtEditText;
@@ -583,9 +584,9 @@ public class CountrySelectActivity extends HikeAppStateBaseFragmentActivity impl
 	}
 
 	@Override
-	public void analyticalData(String arg0) {
-		// TODO Auto-generated method stub
-		
+	public void analyticalData(KPTAddonItem kptAddonItem)
+	{
+		KptUtils.generateKeyboardAnalytics(kptAddonItem);
 	}
 
 	@Override

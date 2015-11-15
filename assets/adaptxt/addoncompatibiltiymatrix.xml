@@ -8,7 +8,7 @@
         <filename>hinin</filename>
           <zipfilename>HININ_Android_KPT_smartphone.zip</zipfilename>
         <searchstring>Hindi:IN</searchstring>
-        <iso639dash2code>hin</iso639dash2code>
+        <localename>hi-IN</localename>
          <type>Language</type>  
          <currentver no="2.0">
 			<compatiblebasever>2.0</compatiblebasever>
@@ -20,7 +20,7 @@
         <filename>engus</filename>
         <zipfilename>ENGUS_Android_KPT_smartphone.zip</zipfilename>
         <searchstring>English (US):US</searchstring>
-        <iso639dash2code>eng</iso639dash2code>
+        <localename>en-US</localename>
          <type>Language</type>  
          <currentver no="2.0">
 			<compatiblebasever>2.0</compatiblebasever>
@@ -32,7 +32,7 @@
   		<filename>gujin</filename>
   		<zipfilename>GUJIN_Android_KPT_smartphone.zip</zipfilename>
         <searchstring>Gujarati:IN</searchstring>
-         <iso639dash2code>guj</iso639dash2code>
+         <localename>gu-IN</localename>
          <type>Language</type>  
           <currentver no="2.0">
 				<compatiblebasever>2.0</compatiblebasever>
@@ -44,7 +44,7 @@
         <filename>marin</filename>
           <zipfilename>MARIN_Android_KPT_smartphone.zip</zipfilename>
         <searchstring>Marathi:MR:IN</searchstring>
-         <iso639dash2code>mar</iso639dash2code>
+         <localename>mr-IN</localename>
          <type>Language</type>  
         <currentver no="2.0">
 			<compatiblebasever>2.0</compatiblebasever>
@@ -56,7 +56,7 @@
         <filename>tamin</filename>
         <zipfilename>TAMIN_Android_KPT_smartphone.zip</zipfilename>
         <searchstring>Tamil:IN</searchstring>
-        <iso639dash2code>tam</iso639dash2code>
+        <localename>ta-IN</localename>
          <type>Language</type>  
          <currentver no="2.0">
 			<compatiblebasever>2.0</compatiblebasever>
@@ -68,7 +68,7 @@
         <filename>telin</filename>
         <zipfilename>TELIN_Android_KPT_smartphone.zip</zipfilename>
         <searchstring>Telugu:IN</searchstring>
-         <iso639dash2code>tel</iso639dash2code>
+         <localename>te-IN</localename>
          <type>Language</type>
          <currentver no="2.0">
 			<compatiblebasever>2.0</compatiblebasever>
@@ -80,7 +80,7 @@
         <filename>benin</filename>
         <zipfilename>BENIN_Android_KPT_smartphone.zip</zipfilename>
         <searchstring>Bengali:IN:BN</searchstring>
-        <iso639dash2code>ben</iso639dash2code>
+        <localename>bn-IN</localename>
          <type>Language</type>
          <currentver no="2.0">
 			<compatiblebasever>2.0</compatiblebasever>
@@ -92,7 +92,7 @@
         <filename>malin</filename>
         <zipfilename>MALIN_Android_KPT_smartphone.zip</zipfilename>
         <searchstring>Malayalam:ML:IN</searchstring>
-        <iso639dash2code>mal</iso639dash2code>
+        <localename>ml-IN</localename>
          <type>Language</type> 
          <currentver no="2.0">
 			<compatiblebasever>2.0</compatiblebasever>
@@ -104,7 +104,7 @@
         <filename>kanin</filename>
         <zipfilename>KANIN_Android_KPT_smartphone.zip</zipfilename>
         <searchstring>Kannada:KN:IN</searchstring>
-         <iso639dash2code>kan</iso639dash2code>
+         <localename>kn-IN</localename>
          <type>Language</type> 
          <currentver no="2.0">
 			<compatiblebasever>2.0</compatiblebasever>

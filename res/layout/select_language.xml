@@ -6,8 +6,8 @@
     android:orientation="vertical">
 
     <ImageView
-        android:layout_width="96dp"
-        android:layout_height="112dp"
+        android:layout_width="88dp"
+        android:layout_height="104dp"
         android:background="@drawable/ic_languages"
         android:paddingBottom="36dp"
         android:paddingLeft="16dp"
