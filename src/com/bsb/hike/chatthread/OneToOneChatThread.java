@@ -465,7 +465,7 @@ import com.google.gson.Gson;
 				/**
 				 * Creating a new conv message to be appended at the 0th position.
 				 */
-				cm = new ConvMessage(0, 0l, 0l);
+				cm = new ConvMessage(0, 0l, 0l, -1);
 				cm.setBlockAddHeader(true);
 				messages.add(0, cm);
 				Logger.d(TAG, "Adding unknownContact Header to the chatThread");

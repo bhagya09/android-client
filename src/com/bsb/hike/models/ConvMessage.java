@@ -322,14 +322,14 @@ public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique, C
         this.mTimestamp = System.currentTimeMillis()/1000;
 		
 	}
-	public ConvMessage(int unreadCount, long timestamp, long msgId)
+	public ConvMessage(int unreadCount, long timestamp, long msgId, long sortingId)
 	{
 		this.unreadCount = unreadCount;
 		this.mTimestamp = timestamp;
 		this.msgID = msgId;
-		setSortingId(msgId);
+		this.sortingId = sortingId;
 	}
-	
+
 	public ConvMessage(TypingNotification typingNotification)
 	{
 		this.typingNotification = typingNotification;
