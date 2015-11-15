@@ -46,10 +46,13 @@ public class InitiateStickerTagDownloadTask implements Runnable
 				for (StickerCategory category : stickerCategoryList)
 				{
 					List<Sticker> stickers = category.getStickerList();
-					
-					for(Sticker sticker : stickers)
+
+					if (!Utils.isEmpty(stickers))
 					{
-						stickerSet.add(StickerManager.getInstance().getStickerSetString(sticker));
+						for(Sticker sticker : stickers)
+						{
+							stickerSet.add(StickerManager.getInstance().getStickerSetString(sticker));
+						}
 					}
 				}
 
