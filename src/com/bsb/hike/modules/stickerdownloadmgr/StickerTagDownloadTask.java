@@ -106,7 +106,7 @@ public class StickerTagDownloadTask implements IHikeHTTPTask, IHikeHttpTaskResul
 
 			if(Utils.isEmpty(languagesList))
 			{
-				languagesList.add(StickerSearchConstants.DEFAULT_KEYBOARD_LANGUAGE);
+				languagesList.add(StickerSearchConstants.DEFAULT_KEYBOARD_LANGUAGE_ISO_CODE);
 			}
             Logger.d(TAG, "language list for download : " + languagesList);
 			json.put(HikeConstants.KEYBOARD_LIST, new JSONArray(languagesList));

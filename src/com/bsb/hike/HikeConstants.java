@@ -3406,7 +3406,11 @@ public class HikeConstants
 
 	public static final String STICKER_DATA_MILLI_SECOND = "SSS"; // integer
 
-	public static final String STICKER_TAG_REGEX_SEPARATORS = "strs"; // regular expression
+	public static final String STICKER_TAG_REGEX_SEPARATORS = "strs"; // initial to following 2 keys
+
+	public static final String STICKER_TAG_REGEX_SEPARATORS_LATIN_REGULAR = "lr"; // regular expression for Latin default
+
+	public static final String STICKER_TAG_REGEX_SEPARATORS_REGIONAL_REGULAR = "rr"; // regular expression for Regional default
 
 	public static final String STICKER_DATA_TRENDING = "t";
 
@@ -3483,8 +3487,6 @@ public class HikeConstants
 	public static final String STICKER_SEARCH_BASE_THRESHOLD_EXPANSION_COEFFICIENT = "ssb_tec"; // float
 
 	public static final String STICKER_SEARCH_BASE_THRESHOLD_FORCED_SHRINK_COEFFICIENT = "ssb_tfsc"; // float
-
-	public static final String STICKER_SEARCH_VT_TABLES_LIST = "ss_vtl";
 
 	// =========================================================================================Constants for sticker search]]
 

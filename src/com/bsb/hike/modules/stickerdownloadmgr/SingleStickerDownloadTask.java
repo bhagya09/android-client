@@ -68,7 +68,14 @@ public class SingleStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRe
 
 		String requestId = getRequestId(); // for duplicate check
 
-		token = singleStickerDownloadRequest(requestId, stickerId, categoryId, getRequestListener(), StickerLanguagesManager.getInstance().listToSting(StickerLanguagesManager.getInstance().getAccumulatedSet(StickerLanguagesManager.DOWNLOADED_LANGUAGE_SET_TYPE, StickerLanguagesManager.DOWNLOADING_LANGUAGE_SET_TYPE)));
+		token = singleStickerDownloadRequest(
+				requestId,
+				stickerId,
+				categoryId,
+				getRequestListener(),
+				StickerLanguagesManager.getInstance().listToString(
+						StickerLanguagesManager.getInstance().getAccumulatedSet(StickerLanguagesManager.DOWNLOADED_LANGUAGE_SET_TYPE,
+								StickerLanguagesManager.DOWNLOADING_LANGUAGE_SET_TYPE)));
 
 		if (token.isRequestRunning()) // return if request is running
 		{

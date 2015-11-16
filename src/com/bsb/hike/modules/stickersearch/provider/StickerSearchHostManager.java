@@ -23,6 +23,7 @@ import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
 import com.bsb.hike.modules.stickersearch.datamodel.StickerAppositeDataContainer;
 import com.bsb.hike.modules.stickersearch.datamodel.Word;
 import com.bsb.hike.modules.stickersearch.provider.StickerSearchUtility.TextMatchManager;
+import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchBaseConstants;
 import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchBaseConstants.TIME_CODE;
 import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchDatabase;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
@@ -77,6 +78,10 @@ public class StickerSearchHostManager
 
 	private static HashMap<String, LinkedHashSet<Sticker>> sCacheForLocalOrderedStickers = new HashMap<String, LinkedHashSet<Sticker>>();
 
+	private TIME_CODE mMomentCode = StickerSearchUtility.getMomentCode();
+
+	private String mKeyboardlanguageISOCode;
+
 	private String mCurrentText;
 
 	private int mCurrentTextEditingStartIndex;
@@ -86,8 +91,6 @@ public class StickerSearchHostManager
 	private int mCurrentTextSignificantLength;
 
 	private volatile ArrayList<Word> mCurrentWords = null;
-
-	private static volatile TIME_CODE mMomentCode = StickerSearchUtility.getMomentCode();
 
 	private ArrayList<String> mPreviousWords;
 
@@ -117,45 +120,43 @@ public class StickerSearchHostManager
 
 		NUMBER_OF_STICKERS_VISIBLE_IN_ONE_SCROLL_CONTINUED = NUMBER_OF_STICKERS_VISIBLE_IN_ONE_SCROLL + 1;
 
-		REGEX_SEPARATORS = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_TAG_REGEX_SEPARATORS, StickerSearchConstants.REGEX_SEPARATORS);
+		HikeSharedPreferenceUtil stickerDataSharedPref = HikeSharedPreferenceUtil.getInstance(HikeStickerSearchBaseConstants.SHARED_PREF_STICKER_DATA);
+
+		REGEX_SEPARATORS = StickerSearchUtility.getSeparatorsRegex(mKeyboardlanguageISOCode);
 
 		SEPARATOR_CHARS = (HashSet<Character>) StickerSearchUtility.getSeparatorChars(REGEX_SEPARATORS);
 
-		MAXIMUM_SEARCH_TEXT_LIMIT = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_TAG_MAXIMUM_SEARCH_TEXT_LIMIT,
-				StickerSearchConstants.MAXIMUM_SEARCH_TEXT_LIMIT);
+		MAXIMUM_SEARCH_TEXT_LIMIT = stickerDataSharedPref.getData(HikeConstants.STICKER_TAG_MAXIMUM_SEARCH_TEXT_LIMIT, StickerSearchConstants.MAXIMUM_SEARCH_TEXT_LIMIT);
 
-		MAXIMUM_SEARCH_TEXT_BROKER_LIMIT = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_TAG_MAXIMUM_SEARCH_TEXT_LIMIT_BROKER,
+		MAXIMUM_SEARCH_TEXT_BROKER_LIMIT = stickerDataSharedPref.getData(HikeConstants.STICKER_TAG_MAXIMUM_SEARCH_TEXT_LIMIT_BROKER,
 				StickerSearchConstants.MAXIMUM_SEARCH_TEXT_BROKER_LIMIT);
 
-		MAXIMUM_PHRASE_PERMUTATION_SIZE = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STIKCER_TAG_MAXIMUM_SEARCH_PHRASE_PERMUTATION_SIZE,
+		MAXIMUM_PHRASE_PERMUTATION_SIZE = stickerDataSharedPref.getData(HikeConstants.STIKCER_TAG_MAXIMUM_SEARCH_PHRASE_PERMUTATION_SIZE,
 				StickerSearchConstants.MAXIMUM_PHRASE_PERMUTATION_SIZE);
 
-		MINIMUM_WORD_LENGTH_FOR_AUTO_CORRECTION = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_TAG_MINIMUM_SEARCH_WORD_LENGTH_FOR_AUTO_CORRECTION,
+		MINIMUM_WORD_LENGTH_FOR_AUTO_CORRECTION = stickerDataSharedPref.getData(HikeConstants.STICKER_TAG_MINIMUM_SEARCH_WORD_LENGTH_FOR_AUTO_CORRECTION,
 				StickerSearchConstants.MINIMUM_WORD_LENGTH_FOR_AUTO_CORRECTION);
 
-		LIMIT_AUTO_CORRECTION = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_TAG_LIMIT_AUTO_CORRECTION, StickerSearchConstants.LIMIT_AUTO_CORRECTION);
+		LIMIT_AUTO_CORRECTION = stickerDataSharedPref.getData(HikeConstants.STICKER_TAG_LIMIT_AUTO_CORRECTION, StickerSearchConstants.LIMIT_AUTO_CORRECTION);
 
-		LIMIT_EXACT_MATCH = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_TAG_LIMIT_EXACT_MATCH, StickerSearchConstants.LIMIT_EXACT_MATCH);
+		LIMIT_EXACT_MATCH = stickerDataSharedPref.getData(HikeConstants.STICKER_TAG_LIMIT_EXACT_MATCH, StickerSearchConstants.LIMIT_EXACT_MATCH);
 
-		WEIGHTAGE_MATCH_LATERAL = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_SCORE_WEIGHTAGE_MATCH_LATERAL,
-				StickerSearchConstants.WEIGHTAGE_MATCH_LATERAL);
+		WEIGHTAGE_MATCH_LATERAL = stickerDataSharedPref.getData(HikeConstants.STICKER_SCORE_WEIGHTAGE_MATCH_LATERAL, StickerSearchConstants.WEIGHTAGE_MATCH_LATERAL);
 
-		WEIGHTAGE_EXACT_MATCH = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_SCORE_WEIGHTAGE_EXACT_MATCH, StickerSearchConstants.WEIGHTAGE_EXACT_MATCH);
+		WEIGHTAGE_EXACT_MATCH = stickerDataSharedPref.getData(HikeConstants.STICKER_SCORE_WEIGHTAGE_EXACT_MATCH, StickerSearchConstants.WEIGHTAGE_EXACT_MATCH);
 
-		WEIGHTAGE_FREQUENCY_TRENDING = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_SCORE_WEIGHTAGE_FREQUENCY, StickerSearchConstants.WEIGHTAGE_FREQUENCY)
-				* HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_FREQUENCY_RATIO_TRENDING, StickerSearchConstants.RATIO_TRENDING_FREQUENCY);
+		WEIGHTAGE_FREQUENCY_TRENDING = stickerDataSharedPref.getData(HikeConstants.STICKER_SCORE_WEIGHTAGE_FREQUENCY, StickerSearchConstants.WEIGHTAGE_FREQUENCY)
+				* stickerDataSharedPref.getData(HikeConstants.STICKER_FREQUENCY_RATIO_TRENDING, StickerSearchConstants.RATIO_TRENDING_FREQUENCY);
 
-		WEIGHTAGE_FREQUENCY_LOCAL = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_SCORE_WEIGHTAGE_FREQUENCY, StickerSearchConstants.WEIGHTAGE_FREQUENCY)
-				* HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_FREQUENCY_RATIO_LOCAL, StickerSearchConstants.RATIO_LOCAL_FREQUENCY);
+		WEIGHTAGE_FREQUENCY_LOCAL = stickerDataSharedPref.getData(HikeConstants.STICKER_SCORE_WEIGHTAGE_FREQUENCY, StickerSearchConstants.WEIGHTAGE_FREQUENCY)
+				* stickerDataSharedPref.getData(HikeConstants.STICKER_FREQUENCY_RATIO_LOCAL, StickerSearchConstants.RATIO_LOCAL_FREQUENCY);
 
-		WEIGHTAGE_FREQUENCY_GLOBAL = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_SCORE_WEIGHTAGE_FREQUENCY, StickerSearchConstants.WEIGHTAGE_FREQUENCY)
-				* HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_FREQUENCY_RATIO_GLOBAL, StickerSearchConstants.RATIO_GLOBAL_FREQUENCY);
+		WEIGHTAGE_FREQUENCY_GLOBAL = stickerDataSharedPref.getData(HikeConstants.STICKER_SCORE_WEIGHTAGE_FREQUENCY, StickerSearchConstants.WEIGHTAGE_FREQUENCY)
+				* stickerDataSharedPref.getData(HikeConstants.STICKER_FREQUENCY_RATIO_GLOBAL, StickerSearchConstants.RATIO_GLOBAL_FREQUENCY);
 
-		WEIGHTAGE_CONTEXT_MOMENT = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_SCORE_WEIGHTAGE_CONTEXT_MOMENT,
-				StickerSearchConstants.WEIGHTAGE_CONTEXT_MOMENT);
+		WEIGHTAGE_CONTEXT_MOMENT = stickerDataSharedPref.getData(HikeConstants.STICKER_SCORE_WEIGHTAGE_CONTEXT_MOMENT, StickerSearchConstants.WEIGHTAGE_CONTEXT_MOMENT);
 
-		MARGINAL_FULL_SCORE_LATERAL = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_SCORE_MARGINAL_FULL_MATCH_LATERAL,
-				StickerSearchConstants.MARGINAL_FULL_SCORE_LATERAL);
+		MARGINAL_FULL_SCORE_LATERAL = stickerDataSharedPref.getData(HikeConstants.STICKER_SCORE_MARGINAL_FULL_MATCH_LATERAL, StickerSearchConstants.MARGINAL_FULL_SCORE_LATERAL);
 	}
 
 	/* Get the instance of this class from outside */
@@ -806,6 +807,17 @@ public class StickerSearchHostManager
 		return (start == 0) && (end == 0);
 	}
 
+	public void onInputMethodChanged(String languageISOCode)
+	{
+		Logger.i(TAG, "onInputMethodChanged(" + languageISOCode + ")");
+
+		mKeyboardlanguageISOCode = languageISOCode;
+
+		REGEX_SEPARATORS = StickerSearchUtility.getSeparatorsRegex(mKeyboardlanguageISOCode);
+
+		SEPARATOR_CHARS = (HashSet<Character>) StickerSearchUtility.getSeparatorChars(REGEX_SEPARATORS);
+	}
+
 	public void onMessageSent(String textBeforeSticker, Sticker sticker, String textAfterSticker, String currentText)
 	{
 		Logger.i(TAG, "onMessageSent(" + textBeforeSticker + ", " + sticker + ", " + textAfterSticker + ", " + currentText + ")");
@@ -1242,12 +1254,12 @@ public class StickerSearchHostManager
 		return stickers;
 	}
 
-	private LinkedHashSet<Sticker> computeOrderingAndGetStickers(String matchKey, ArrayList<StickerAppositeDataContainer> stickerData, float minimumMatchingScore)
+	private LinkedHashSet<Sticker> computeOrderingAndGetStickers(String matchKey, ArrayList<StickerAppositeDataContainer> stickersData, float minimumMatchingScore)
 	{
-		Logger.i(TAG, "computeOrderingAndGetStickers(" + matchKey + ", " + stickerData + ", " + minimumMatchingScore + ")");
+		Logger.i(TAG, "computeOrderingAndGetStickers(" + matchKey + ", " + stickersData + ", " + minimumMatchingScore + ")");
 
 		LinkedHashSet<Sticker> stickers = null;
-		int count = (stickerData == null) ? 0 : stickerData.size();
+		int count = (stickersData == null) ? 0 : stickersData.size();
 
 		if (count > 0)
 		{
@@ -1255,8 +1267,6 @@ public class StickerSearchHostManager
 			int currentMomentTerminalCode = ((mMomentCode.getId() == TIME_CODE.UNKNOWN.getId()) ? TIME_CODE.INVALID.getId() : (mMomentCode.getId() + 2));
 			Logger.v(TAG, "computeOrderingAndGetStickers(), context Moment is '" + TIME_CODE.getContinuer(contextMomentCode).name() + "' and terminal Moment is '"
 					+ TIME_CODE.getTerminal(currentMomentTerminalCode).name() + "'");
-
-			stickers = new LinkedHashSet<Sticker>();
 
 			ArrayList<StickerAppositeDataContainer> timePrioritizedStickerList = new ArrayList<StickerAppositeDataContainer>();
 			ArrayList<StickerAppositeDataContainer> tempStickerDataList = new ArrayList<StickerAppositeDataContainer>();
@@ -1274,7 +1284,7 @@ public class StickerSearchHostManager
 
 			for (int i = 0; i < count; i++)
 			{
-				stickerAppositeDataContainer = stickerData.get(i);
+				stickerAppositeDataContainer = stickersData.get(i);
 				if (stickerAppositeDataContainer != null)
 				{
 					// Trending frequency
@@ -1317,7 +1327,7 @@ public class StickerSearchHostManager
 			// Calculate overall score
 			for (int i = 0; i < count; i++)
 			{
-				stickerAppositeDataContainer = stickerData.get(i);
+				stickerAppositeDataContainer = stickersData.get(i);
 				if (stickerAppositeDataContainer != null)
 				{
 					int stickerMometCode = stickerAppositeDataContainer.getMomentCode();
@@ -1380,7 +1390,9 @@ public class StickerSearchHostManager
 			count = tempStickerDataList.size();
 			if (count > 0)
 			{
+				stickers = new LinkedHashSet<Sticker>(count);
 				Collections.sort(tempStickerDataList);
+
 				for (int i = 0; i < count; i++)
 				{
 					stickerAppositeDataContainer = tempStickerDataList.get(i);
@@ -1389,35 +1401,45 @@ public class StickerSearchHostManager
 				}
 
 				tempStickerDataList.clear();
+				tempStickerDataList = null;
 			}
-			else if (leastButSignificantStickerDataList.size() > 0)
+			else
 			{
-				for (StickerAppositeDataContainer marginalSticker : leastButSignificantStickerDataList)
+				count = leastButSignificantStickerDataList.size();
+				if (count > 0)
 				{
-					stickers.add(StickerManager.getInstance().getStickerFromSetString(marginalSticker.getStickerCode(), marginalSticker.getStickerAvailabilityStatus()));
-				}
+					stickers = new LinkedHashSet<Sticker>(count);
 
-				leastButSignificantStickerDataList.clear();
+					for (StickerAppositeDataContainer marginalSticker : leastButSignificantStickerDataList)
+					{
+						stickers.add(StickerManager.getInstance().getStickerFromSetString(marginalSticker.getStickerCode(), marginalSticker.getStickerAvailabilityStatus()));
+					}
+
+					leastButSignificantStickerDataList.clear();
+					leastButSignificantStickerDataList = null;
+				}
 			}
 
 			// Apply time division, if such stickers are found after ordering
-			int timelyStcikersCount = timePrioritizedStickerList.size();
-
-			if (timelyStcikersCount > 0)
+			int timelyStickersCount = timePrioritizedStickerList.size();
+			if (timelyStickersCount > 0)
 			{
+				LinkedHashSet<Sticker> timePrioritizedStickers = new LinkedHashSet<Sticker>(timelyStickersCount + count);
 				Collections.sort(timePrioritizedStickerList);
-
-				LinkedHashSet<Sticker> timePrioritizedStickers = new LinkedHashSet<Sticker>();
-
-				for (int i = 0; i < timelyStcikersCount; i++)
+				
+				for (int i = 0; i < timelyStickersCount; i++)
 				{
-					StickerAppositeDataContainer timelySticker = timePrioritizedStickerList.get(i);
-					timePrioritizedStickers.add(StickerManager.getInstance().getStickerFromSetString(timelySticker.getStickerCode(), timelySticker.getStickerAvailabilityStatus()));
+					stickerAppositeDataContainer = timePrioritizedStickerList.get(i);
+					timePrioritizedStickers.add(StickerManager.getInstance().getStickerFromSetString(stickerAppositeDataContainer.getStickerCode(),
+							stickerAppositeDataContainer.getStickerAvailabilityStatus()));
 				}
 
 				// Put remaining stickers after time-prioritized stickers in pop-up
-				timePrioritizedStickers.addAll(stickers);
-				stickers.clear();
+				if (count > 0)
+				{
+					timePrioritizedStickers.addAll(stickers);
+					stickers.clear();
+				}
 				stickers = timePrioritizedStickers;
 			}
 		}

@@ -108,6 +108,10 @@ public class HikeSharedPreferenceUtil
 		return editor.commit();
 	}
 
+	/**
+	 * It was API 11 onwards.
+	 * Instead of this, use of getDataSet(String, Set<String>) in all cases is recommended.
+	 */
 	public synchronized boolean saveStringSet(String key, Set<String> stringSet)
 	{
 		editor.putStringSet(key, stringSet);
@@ -160,9 +164,12 @@ public class HikeSharedPreferenceUtil
 		return hikeSharedPreferences.getString(key, defaultValue);
 	}
 
+	/**
+	 * It was API 11 onwards.
+	 * Instead of this, use of getDataSet(String, Set<String>) in all cases is recommended.
+	 */
 	public synchronized Set<String> getStringSet(String key, Set<String> defaultValues)
 	{
-
 		return hikeSharedPreferences.getStringSet(key, defaultValues);
 	}
 
