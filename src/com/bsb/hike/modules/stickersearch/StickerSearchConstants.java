@@ -126,7 +126,9 @@ public class StickerSearchConstants
 	// Regular expressions=====================================================================[[
 	public static final String REGEX_OR = "\\|\\\\|\\|"; // Regular expression for '|' or '\\|'
 
-	public static final String REGEX_SEPARATORS = " |\n|\t|,|\\.|\\?";
+	public static final String DEFAULT_REGEX_SEPARATORS_LATIN = " |\n|\t|,|\\.|\\?";
+
+	public static final String DEFAULT_REGEX_SEPARATORS_REGIONAL = " |\n|\t|,|\\।|\\?";
 
 	public static final String REGEX_PREDICATE = "\\*";
 
@@ -168,6 +170,8 @@ public class StickerSearchConstants
 	public static final Character CHAR_OR = '|';
 
 	public static final String STRING_DELIMITER = ":";
+
+	public static final String STRING_JOINTER = "_";
 	// =======================================================================Generic constants]]
 
 	public static final String DEFAULT_KEYBOARD_LANGUAGE = "eng";

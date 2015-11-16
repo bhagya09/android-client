@@ -26,6 +26,7 @@ import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
 import com.bsb.hike.modules.stickersearch.datamodel.Word;
 import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchBaseConstants;
 import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchBaseConstants.TIME_CODE;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
@@ -499,9 +500,28 @@ public class StickerSearchUtility
 	}
 
 	/* Get combined regular expression for all separators applicable to language argument */
-	public static String getSeparatorRegex(String keyboardLanguage)
+	public static String getSeparatorsRegex(String keyboardLanguage)
 	{
-		return null;
+		String separatorsRegex;
+
+		if (!Utils.isBlank(keyboardLanguage) && !keyboardLanguage.startsWith("English"))
+		{
+			separatorsRegex = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_TAG_REGEX_SEPARATORS + StickerSearchConstants.STRING_JOINTER + keyboardLanguage,
+					null);
+
+			if (separatorsRegex == null)
+			{
+				separatorsRegex = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_TAG_REGEX_SEPARATORS_REGIONAL_REGULAR,
+						StickerSearchConstants.DEFAULT_REGEX_SEPARATORS_REGIONAL);
+			}
+		}
+		else
+		{
+			separatorsRegex = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_TAG_REGEX_SEPARATORS_LATIN_REGULAR,
+					StickerSearchConstants.DEFAULT_REGEX_SEPARATORS_LATIN);
+		}
+
+		return separatorsRegex;
 	}
 
 	/* Get list of unique separator characters in the given regular expression */

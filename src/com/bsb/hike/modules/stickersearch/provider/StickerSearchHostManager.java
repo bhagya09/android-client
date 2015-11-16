@@ -119,7 +119,7 @@ public class StickerSearchHostManager
 
 		NUMBER_OF_STICKERS_VISIBLE_IN_ONE_SCROLL_CONTINUED = NUMBER_OF_STICKERS_VISIBLE_IN_ONE_SCROLL + 1;
 
-		REGEX_SEPARATORS = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_TAG_REGEX_SEPARATORS, StickerSearchConstants.REGEX_SEPARATORS);
+		REGEX_SEPARATORS = StickerSearchUtility.getSeparatorsRegex(mKeyboardLanguage);
 
 		SEPARATOR_CHARS = (HashSet<Character>) StickerSearchUtility.getSeparatorChars(REGEX_SEPARATORS);
 
@@ -813,6 +813,10 @@ public class StickerSearchHostManager
 		Logger.i(TAG, "onInputMethodChanged(" + language + ")");
 
 		mKeyboardLanguage = language;
+
+		REGEX_SEPARATORS = StickerSearchUtility.getSeparatorsRegex(mKeyboardLanguage);
+
+		SEPARATOR_CHARS = (HashSet<Character>) StickerSearchUtility.getSeparatorChars(REGEX_SEPARATORS);
 	}
 
 	public void onMessageSent(String textBeforeSticker, Sticker sticker, String textAfterSticker, String currentText)

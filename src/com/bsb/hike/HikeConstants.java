@@ -3406,7 +3406,11 @@ public class HikeConstants
 
 	public static final String STICKER_DATA_MILLI_SECOND = "SSS"; // integer
 
-	public static final String STICKER_TAG_REGEX_SEPARATORS = "strs"; // regular expression
+	public static final String STICKER_TAG_REGEX_SEPARATORS = "strs"; // initial to following 2 keys
+
+	public static final String STICKER_TAG_REGEX_SEPARATORS_LATIN_REGULAR = "strs_lr"; // regular expression for Latin default
+
+	public static final String STICKER_TAG_REGEX_SEPARATORS_REGIONAL_REGULAR = "strs_rr"; // regular expression for Regional default
 
 	public static final String STICKER_DATA_TRENDING = "t";
 
