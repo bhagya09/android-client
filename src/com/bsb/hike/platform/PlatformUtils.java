@@ -735,7 +735,7 @@ public class PlatformUtils
 			String platformToken = mpref.getData(HikeMessengerApp.PLATFORM_TOKEN_SETTING, null);
 			if (!TextUtils.isEmpty(platformToken) && !TextUtils.isEmpty(platformUID))
 			{
-				post.addHeader((HttpHeaderConstants.COOKIE_HEADER_NAME,
+				post.addHeader(HttpHeaderConstants.COOKIE_HEADER_NAME,
 						HikePlatformConstants.PLATFORM_TOKEN + "=" + platformToken + "; " +
 								HikePlatformConstants.PLATFORM_USER_ID + "=" + platformUID);
 			}
