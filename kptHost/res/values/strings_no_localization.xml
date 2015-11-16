@@ -19,7 +19,6 @@
     <string name="kpt_icontext_suggestion_shrink">\u011B</string>
     <string name="kpt_icontext_suggestion_expand">\u011C</string>   
     <string name="kpt_icontext_keyboard_hide">\u011D</string>   
-    <string name="kpt_icontext_xi_key">\u011A</string>   
     <string name="kpt_icontext_shift_off">\u010C</string>
     <string name="kpt_icontext_shift_on">\u010B</string>
     <string name="kpt_icontext_space">\u011E</string>
