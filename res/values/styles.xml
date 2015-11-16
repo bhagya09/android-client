@@ -816,7 +816,7 @@
 	</style>
 	
     <style name="BaseStyleTextView">
-        <item name="android:includeFontPadding">false</item>
+        <item name="android:includeFontPadding">true</item>
     </style>
     
 	<style name="ListItemHeaderTextView" parent="BaseStyleTextView">

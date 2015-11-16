@@ -20,7 +20,7 @@
 
 <resources>
     <dimen name="kpt_key_height">38dip</dimen>
-    <dimen name="kpt_candidate_strip_height">27dip</dimen>
+    <dimen name="kpt_candidate_strip_height">37dip</dimen>
     <dimen name="kpt_spacebar_vertical_correction">0dip</dimen>
     <dimen name="kpt_spacebar_text_size">15sp</dimen>
     <dimen name="kpt_vertical_gap">0sp</dimen>

@@ -15,6 +15,7 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
@@ -29,7 +30,7 @@ import com.bsb.hike.utils.ChangeProfileImageBaseActivity;
 import com.bsb.hike.utils.Logger;
 import com.kpt.adaptxt.beta.KPTAddonItem;
 
-public class LanguageSettingsActivity extends ChangeProfileImageBaseActivity implements Listener, OnItemClickListener
+public class LanguageSettingsActivity extends ChangeProfileImageBaseActivity implements Listener, OnItemClickListener, KptKeyboardManager.KptLanguageInstallErrorHandler
 {
 
 	Context mContext;
@@ -47,6 +48,7 @@ public class LanguageSettingsActivity extends ChangeProfileImageBaseActivity imp
 		mContext = this;
 		setupLanguageList();
 		addToPubSub();
+		KptKeyboardManager.getInstance(mContext).setErrorHandler(this);
 	}
 
 	private void setupActionBar()
@@ -137,4 +139,23 @@ public class LanguageSettingsActivity extends ChangeProfileImageBaseActivity imp
 		}
 	}
 
+	@Override
+	public void onError(final String message)
+	{
+		this.runOnUiThread(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				Toast.makeText(mContext, message, Toast.LENGTH_SHORT).show();
+			}
+		});
+	}
+
+	@Override
+	protected void onDestroy()
+	{
+		super.onDestroy();
+		KptKeyboardManager.getInstance(mContext).setErrorHandler(null);
+	}
 }

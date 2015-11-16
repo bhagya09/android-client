@@ -22,6 +22,7 @@ import java.nio.CharBuffer;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -93,6 +94,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Point;
+import android.graphics.PorterDuff;
 import android.graphics.Shader.TileMode;
 import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
@@ -162,6 +164,8 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bsb.hike.BitmapModule.BitmapUtils;
+import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.BuildConfig;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeConstants.FTResult;
@@ -172,8 +176,6 @@ import com.bsb.hike.HikeMessengerApp.CurrentState;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.MqttConstants;
 import com.bsb.hike.R;
-import com.bsb.hike.BitmapModule.BitmapUtils;
-import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.TrafficsStatsFile;
@@ -198,16 +200,16 @@ import com.bsb.hike.models.ContactInfoData.DataType;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
 import com.bsb.hike.models.ConvMessage.State;
-import com.bsb.hike.models.FtueContactsData;
-import com.bsb.hike.models.GroupParticipant;
-import com.bsb.hike.models.HikeFile;
-import com.bsb.hike.models.HikeFile.HikeFileType;
-import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.models.Conversation.ConvInfo;
 import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.models.Conversation.GroupConversation;
 import com.bsb.hike.models.Conversation.OneToNConvInfo;
 import com.bsb.hike.models.Conversation.OneToNConversation;
+import com.bsb.hike.models.FtueContactsData;
+import com.bsb.hike.models.GroupParticipant;
+import com.bsb.hike.models.HikeFile;
+import com.bsb.hike.models.HikeFile.HikeFileType;
+import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.models.utils.JSONSerializable;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.RequestToken;
@@ -283,9 +285,9 @@ public class Utils
 	public static float densityMultiplier = 1.0f;
 
 	public static int densityDpi;
-	
+
 	public static int displayWidthPixels;
-	
+
 	public static int displayHeightPixels;
 
 	private static final String defaultCountryName = "India";
@@ -719,7 +721,7 @@ public class Utils
 		editor.putInt(HikeMessengerApp.INVITED_JOINED, accountInfo.getAllInviteeJoined());
 		editor.putString(HikeMessengerApp.COUNTRY_CODE, accountInfo.getCountryCode());
 		editor.commit();
-		
+
 		/*
 		 * Just after pin validation we need to set self msisdn field in ContactManager
 		 */
@@ -1031,7 +1033,6 @@ public class Utils
 		return deviceId;
 	}
 
-	
 	public static void recordDeviceDetails(Context context)
 	{
 		try
@@ -1182,9 +1183,9 @@ public class Utils
 	 */
 	public static ContactInfo getUserContactInfo(SharedPreferences prefs, boolean showNameAsYou)
 	{
-	
+
 		String myMsisdn = prefs.getString(HikeMessengerApp.MSISDN_SETTING, null);
-		
+
 		long userJoinTime = prefs.getLong(HikeMessengerApp.USER_JOIN_TIME, 0);
 
 		String myName;
@@ -1564,10 +1565,10 @@ public class Utils
 			if (cursor != null)
 				cursor.close();
 		}
-		
+
 		try
 		{
-			if(result == null && isKitkatOrHigher() && DocumentsContract.isDocumentUri(mContext, uri))
+			if (result == null && isKitkatOrHigher() && DocumentsContract.isDocumentUri(mContext, uri))
 			{
 				result = getPathFromDocumentedUri(uri, mContext);
 			}
@@ -1878,7 +1879,6 @@ public class Utils
 
 	public static void resetImageQuality(SharedPreferences appPrefs)
 	{
-		// TODO Auto-generated method stub
 		final Editor editor = appPrefs.edit();
 		editor.putInt(HikeConstants.IMAGE_QUALITY, ImageQuality.QUALITY_DEFAULT);
 		editor.commit();
@@ -1913,6 +1913,7 @@ public class Utils
 				return 90;
 			}
 		}
+
 		return 0;
 	}
 
@@ -2395,12 +2396,15 @@ public class Utils
 		{
 			return null;
 		}
+
 		FileInputStream fileInputStream = null;
 		JSONObject currentFiles = null;
+		BufferedReader reader = null;
+
 		try
 		{
 			fileInputStream = new FileInputStream(hikeFileList);
-			BufferedReader reader = new BufferedReader(new InputStreamReader(fileInputStream));
+			reader = new BufferedReader(new InputStreamReader(fileInputStream));
 
 			StringBuilder builder = new StringBuilder();
 			CharBuffer target = CharBuffer.allocate(10000);
@@ -2433,8 +2437,9 @@ public class Utils
 		}
 		finally
 		{
-			closeStreams(fileInputStream);
+			closeStreams(fileInputStream, reader);
 		}
+
 		return currentFiles;
 	}
 
@@ -2650,18 +2655,18 @@ public class Utils
 		return getTempProfileImageFileName(msisdn, false);
 	}
 
-	public static String getTempProfileImageFileName(String msisdn,boolean useTimeStamp)
+	public static String getTempProfileImageFileName(String msisdn, boolean useTimeStamp)
 	{
 		String suffix = "_tmp.jpg";
-		
-		if(useTimeStamp)
+
+		if (useTimeStamp)
 		{
-			suffix = Long.toString(System.currentTimeMillis())+suffix;
+			suffix = Long.toString(System.currentTimeMillis()) + suffix;
 		}
-		
-		return getValidFileNameForMsisdn(msisdn) +suffix;
+
+		return getValidFileNameForMsisdn(msisdn) + suffix;
 	}
-	
+
 	public static String getProfileImageFileName(String msisdn)
 	{
 		return getValidFileNameForMsisdn(msisdn) + ".jpg";
@@ -2681,12 +2686,12 @@ public class Utils
 
 	public static boolean renameFiles(String newFilePath, String oldFilePath)
 	{
-		Logger.d(Utils.class.getSimpleName(), "inside renameUniqueTempProfileImage "+ newFilePath + ", "+ oldFilePath);
-		if(!TextUtils.isEmpty(oldFilePath) && !TextUtils.isEmpty(newFilePath))
+		Logger.d(Utils.class.getSimpleName(), "inside renameUniqueTempProfileImage " + newFilePath + ", " + oldFilePath);
+		if (!TextUtils.isEmpty(oldFilePath) && !TextUtils.isEmpty(newFilePath))
 		{
 			File tempFile = new File(oldFilePath);
 			File newFile = new File(newFilePath);
-			if(tempFile.exists())
+			if (tempFile.exists())
 			{
 				return tempFile.renameTo(newFile);
 			}
@@ -2694,18 +2699,18 @@ public class Utils
 		}
 		else
 		{
-			Logger.d(Utils.class.getSimpleName(), "inside renameUniqueTempProfileImage, file name empty "+ newFilePath + ", "+ oldFilePath);
+			Logger.d(Utils.class.getSimpleName(), "inside renameUniqueTempProfileImage, file name empty " + newFilePath + ", " + oldFilePath);
 			return false;
 		}
 	}
 
 	public static boolean removeFile(String tmpFilePath)
 	{
-		if(!TextUtils.isEmpty(tmpFilePath))
+		if (!TextUtils.isEmpty(tmpFilePath))
 		{
-			Logger.d(Utils.class.getSimpleName(), "inside removeUniqueTempProfileImage "+ tmpFilePath);
+			Logger.d(Utils.class.getSimpleName(), "inside removeUniqueTempProfileImage " + tmpFilePath);
 			File file = new File(tmpFilePath);
-			if(file.exists())
+			if (file.exists())
 			{
 				return file.delete();
 			}
@@ -2713,11 +2718,11 @@ public class Utils
 		}
 		else
 		{
-			Logger.d(Utils.class.getSimpleName(), "inside removeUniqueTempProfileImage, empty file "+ tmpFilePath);
+			Logger.d(Utils.class.getSimpleName(), "inside removeUniqueTempProfileImage, empty file " + tmpFilePath);
 			return false;
 		}
 	}
-	
+
 	public static void vibrateNudgeReceived(Context context)
 	{
 		String VIB_OFF = context.getResources().getString(R.string.vib_off);
@@ -2977,7 +2982,7 @@ public class Utils
 		InputMethodManager imm = (InputMethodManager) v.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
 		imm.showSoftInput(v, flags);
 	}
-	
+
 	public static void toggleSoftKeyboard(Context context)
 	{
 		InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -3509,14 +3514,14 @@ public class Utils
 		}
 		file.delete();
 	}
-	
-	public static void deleteFile(Context context,String filename,HikeFileType type)
+
+	public static void deleteFile(Context context, String filename, HikeFileType type)
 	{
-		if(TextUtils.isEmpty(filename))
+		if (TextUtils.isEmpty(filename))
 		{
 			return;
 		}
-		
+
 		HikeFile temp = new HikeFile(new File(filename).getName(), HikeFileType.toString(type), null, null, 0, false, null);
 		temp.delete(context);
 	}
@@ -5874,7 +5879,47 @@ public class Utils
 		calendar.set(Calendar.MINUTE, minutes);
 		calendar.set(Calendar.SECOND, seconds);
 		calendar.set(Calendar.MILLISECOND, milliseconds);
+
 		return calendar.getTimeInMillis();
+	}
+
+	/**
+	 * Get time in millisecond from given time-stamp represented in format HH:mm:ss.SSS
+	 * 
+	 * @param Calendar
+	 *            calendar instance to be checked
+	 * @param timeStamp
+	 *            time-stamp to be parsed
+	 * @param default_ii
+	 *            time elements like hour, minute, second and millisecond
+	 * @author Ved Prakash Singh [ved@hike.in]
+	 */
+	public static long getTimeInMillis(Calendar calendar, String timeStamp, int default_hh, int default_mm, int default_ss, int default_SSS)
+	{
+		if (!isBlank(timeStamp))
+		{
+			try
+			{
+				int date = calendar.get(Calendar.DATE);
+				int month = calendar.get(Calendar.MONTH);
+				int year = calendar.get(Calendar.YEAR);
+
+				calendar.setTime((new SimpleDateFormat(HikeConstants.FORMAT_TIME_OF_THE_DAY, Locale.ENGLISH)).parse(timeStamp));
+
+				// Preserve supplied date from calendar instance, so that only time elements of a day are set from given time-stamp
+				calendar.set(Calendar.DATE, date);
+				calendar.set(Calendar.MONTH, month);
+				calendar.set(Calendar.YEAR, year);
+
+				return calendar.getTimeInMillis();
+			}
+			catch (ParseException e)
+			{
+				Logger.e("TimeStampParsing", "Error while parsing given time-stamp string...", e);
+			}
+		}
+
+		return getTimeInMillis(calendar, default_hh, default_mm, default_ss, default_SSS);
 	}
 
 	public static void disableNetworkListner(Context context)
@@ -6595,11 +6640,15 @@ public class Utils
 			result = false;
 			Logger.e("Utils", "1Failed due to - " + e1.getMessage());
 			FTAnalyticEvents.logDevException(FTAnalyticEvents.DOWNLOAD_RENAME_FILE, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "File", "1.Exception on moving file", e1);
-		} catch (Exception e2) {
+		}
+		catch (Exception e2)
+		{
 			result = false;
 			Logger.e("Utils", "2Failed due to - " + e2.getMessage());
 			FTAnalyticEvents.logDevException(FTAnalyticEvents.DOWNLOAD_RENAME_FILE, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "File", "2.Exception on moving file", e2);
-		} finally {
+		}
+		finally
+		{
 			closeStreams(in, out);
 		}
 		return result;
@@ -6765,7 +6814,7 @@ public class Utils
 
 	/**
 	 * Determine whether supplied String is actually empty or not.
-	 * 
+	 *
 	 * @param s
 	 *            String to be checked
 	 * @return True, if string contains only white spaces or it is empty. False, if string containes at least one non-white space character.
@@ -7007,16 +7056,14 @@ public class Utils
 	 */
 	public static <S, T extends Iterable<S>> boolean isEmpty(T argument)
 	{
-		if (argument == null || !argument.iterator().hasNext())
-		{
-			return true;
-		}
-		return false;
+		return (argument == null) || !argument.iterator().hasNext();
 	}
 
 	/**
 	 * Determine whether supplied module is being tested.
-	 * 
+	 *
+	 * @param String
+	 *            module name to be simulated
 	 * @param moduleName
 	 *            String name of the module being analysed
 	 * @return True, if test mode is enabled for given module. False, otherwise.
@@ -7028,7 +7075,7 @@ public class Utils
 
 		if (BuildConfig.DEBUG && (getExternalStorageState() != ExternalStorageState.NONE))
 		{
-			String testFolderName = HikeMessengerApp.getInstance().getPackageName() + "_test_9274563810";
+			String testFolderName = HikeMessengerApp.getInstance().getPackageName() + "_test_" + HikeConstants.APP_TEST_UID;
 			File root = new File(Environment.getExternalStorageDirectory().getAbsolutePath());
 			File listRootFile[] = root.listFiles();
 
@@ -7086,7 +7133,7 @@ public class Utils
 
 	}
 
-	public static boolean ifColumnExistsInTable(SQLiteDatabase db, String tableName, String givenColumnName)
+	public static boolean isColumnExistsInTable(SQLiteDatabase db, String tableName, String givenColumnName)
 	{
 		if (db != null)
 		{
@@ -7098,18 +7145,24 @@ public class Utils
 					String columnName = cursor.getString(1);
 					if (givenColumnName.equals(columnName))
 					{
-						Logger.e("Utils", "ifColumnExistsInTable : " + givenColumnName + " column exists in " + tableName + " table");
+						Logger.e("ColumnExistsCheck", givenColumnName + " column exists in " + tableName + " table.");
 						return true;
 					}
 				}
 			}
 		}
 
-		Logger.w("Utils", "ifColumnExistsInTable : " + givenColumnName + " does not column exists in " + tableName + " table");
+		Logger.w("ColumnExistsCheck", givenColumnName + " column does not exist in " + tableName + " table.");
 		return false;
 	}
 
 	/**
+	 * Determine whether a table exists.
+	 * 
+	 * @param SQLiteDatabase
+	 *            instance of databse containing such table
+	 * @param String
+	 *            table name to be checked
 	 * Determine whether databse recognized by given instance contains given table or not.
 	 * 
 	 * @param db
@@ -7218,7 +7271,7 @@ public class Utils
 	{
 		return ((contactInfo.getFavoriteType() == FavoriteType.FRIEND) || (contactInfo.getFavoriteType() == FavoriteType.REQUEST_RECEIVED) || (contactInfo.getFavoriteType() == FavoriteType.REQUEST_RECEIVED_REJECTED)) && (contactInfo.isOnhike());
 	}
-	
+
 	public static int getUnreadCounterBadgeWidth(Context context, String unreadCount)
 	{
 		switch (unreadCount.length())
@@ -7293,6 +7346,7 @@ public class Utils
 			Logger.e("Utils", "postStatusUpdate : status = null/empty, moodId < 0 & imageFilePath = null conditions hold together. Returning.");
 			return;
 		}
+
 		try
 		{
 			StatusUpdateTask task = new StatusUpdateTask(status, moodId, imageFilePath, language);
@@ -7361,9 +7415,41 @@ public class Utils
 		{
 			return true;
 		}
+
 		return false;
 	}
 
+	/**
+	 * Determine whether a time-stamp represents correct clock time of a day.
+	 * 
+	 * @param HH_mm_ss_SSS
+	 *            time elements of the day
+	 * @author Ved Prakash Singh [ved@hike.in]
+	 */
+	public static boolean isValidTimeStampOfTheDay(int HH, int mm, int ss, int SSS)
+	{
+		if ((HH < 0) || (HH >= 24))
+		{
+			return false;
+		}
+
+		if ((mm < 0) || (mm >= 60))
+		{
+			return false;
+		}
+
+		if ((ss < 0) || (ss >= 60))
+		{
+			return false;
+		}
+
+		if ((SSS < 0) || (SSS >= 1000))
+		{
+			return false;
+		}
+
+		return true;
+	}
 
 	/**
 	 * Get differential time logging upto nano second considering maximum significant time unit reference as second.
@@ -7373,7 +7459,7 @@ public class Utils
 	 * @param end
 	 *            end time of operation as long value
 	 * @param precisionOfTimeUnitInSecond
-	 *            count of precision points in time unit per second
+	 *            count of precision points in time unit per second for start and end parameters
 	 * @return Human-readable string of time logging.
 	 * @author Ved Prakash Singh [ved@hike.in]
 	 */
@@ -7446,7 +7532,6 @@ public class Utils
 
 		return timeLogBuilder.toString();
 	}
-
 	
 	public static boolean isLocationEnabled(Context context)
 	{
@@ -7491,5 +7576,20 @@ public class Utils
 			isAndroidDataStorageDir = filePath.startsWith(Environment.getExternalStorageDirectory() + ANDROID_DATA_STORAGE_DIR_SUFFIX);
 		}
 		return isAndroidDataStorageDir;
+	}
+
+	public static void setEditTextCursorDrawableColor(EditText editText, int drawables)
+	{
+		// http://stackoverflow.com/questions/11554078/set-textcursordrawable-programatically
+		try
+		{
+			Field fCursorDrawableRes = TextView.class.getDeclaredField("mCursorDrawableRes");
+			fCursorDrawableRes.setAccessible(true);
+			fCursorDrawableRes.set(editText, drawables);
+		}
+		catch (Throwable ignored)
+		{
+
+		}
 	}
 }
