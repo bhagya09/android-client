@@ -2444,12 +2444,23 @@ public class MqttMessagesManager
 			}
 		}
 
-		if (data.has(HikeConstants.STICKER_TAG_REFRESH_TIME))
+		if (data.has(HikeConstants.STICKER_TAG_REFRESH_TIME_INTERVAL))
 		{
-			long tagRefreshTime = data.getLong(HikeConstants.STICKER_TAG_REFRESH_TIME);
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STICKER_TAG_REFRESH_PERIOD, tagRefreshTime);
+			long tagRefreshInterval = data.getLong(HikeConstants.STICKER_TAG_REFRESH_TIME_INTERVAL);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STICKER_TAG_REFRESH_TIME_INTERVAL, tagRefreshInterval);
 		}
-		
+
+		if (data.has(HikeConstants.STICKER_RECOMMENDATION_DOWNLOAD_TAGS))
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.DEFAULT_TAGS_DOWNLOADED, false);
+			StickerManager.getInstance().downloadDefaultTags(false);
+		}
+
+		if (data.has(HikeConstants.STICKER_RECOMMENDATION_CONFIGURATION_DATA))
+		{
+			StickerSearchUtility.saveStickerRecommendationConfiguration(data.getJSONObject(HikeConstants.STICKER_RECOMMENDATION_CONFIGURATION_DATA), editor);
+		}
+
 		if (data.has(HikeConstants.CHAT_SEARCH_ENABLED))
 		{
 			boolean chatSearchEnable = data.getBoolean(HikeConstants.CHAT_SEARCH_ENABLED);
@@ -2461,12 +2472,12 @@ public class MqttMessagesManager
 			int dpImageSize = data.getInt(HikeConstants.DP_IMAGE_SIZE);
 			editor.putInt(HikeConstants.DP_IMAGE_SIZE, dpImageSize);
 		}
-		
+
 		if (data.has(HikeConstants.INVITE_TOKEN))
 		{
 			editor.putString(HikeConstants.INVITE_TOKEN, data.getString(HikeConstants.INVITE_TOKEN));
 		}
-		
+
 		if (data.has(HikeConstants.InviteSection.INVITE_SECTION))
 		{
 			JSONObject inviteSection = data.getJSONObject(HikeConstants.InviteSection.INVITE_SECTION); 
@@ -2486,21 +2497,18 @@ public class MqttMessagesManager
 			{
 				editor.putString(HikeConstants.InviteSection.INVITE_SECTION_IMAGE, inviteSection.getString(HikeConstants.InviteSection.INVITE_SECTION_IMAGE));
 			}
-		}		
-		if(data.has(HikeConstants.DOWNLOAD_TAGS))
-		{
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.DEFAULT_TAGS_DOWNLOADED, false);
-			StickerManager.getInstance().downloadDefaultTags(false);
 		}
-		
+
 		if (data.has(HikeConstants.REWARDS_BOT_MSISDN))
 		{
 			editor.putString(HikeConstants.REWARDS_BOT_MSISDN, data.getString(HikeConstants.REWARDS_BOT_MSISDN));
 		}
+
 		if (data.has(HikeConstants.EXTRAS_BOT_MSISDN))
 		{
 			editor.putString(HikeConstants.EXTRAS_BOT_MSISDN, data.getString(HikeConstants.EXTRAS_BOT_MSISDN));
 		}
+
 		if (data.has(HikeConstants.AG_ENABLED))
 		{
 			boolean agoopLogs = data.getBoolean(HikeConstants.AG_ENABLED);
@@ -2528,6 +2536,7 @@ public class MqttMessagesManager
 			boolean httpExceptionLogging = data.getBoolean(HikeConstants.FT_LATENCY_LOGGING);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.FT_LATENCY_LOGGING, httpExceptionLogging);
 		}
+
 		if (data.has(HikeConstants.ALL_STICKER_TAG_DOWNLOAD))
 		{
 			boolean shouldDownload = data.getBoolean(HikeConstants.ALL_STICKER_TAG_DOWNLOAD);
@@ -2691,6 +2700,14 @@ public class MqttMessagesManager
 				HikeMessengerApp.getPubSub().publish(HikePubSub.SHOW_NEW_CHAT_RED_DOT, null);
 			}
 		}
+		if (data.has(HikeConstants.BADGECOUNTER))
+		{
+			boolean enableBadgeCount = data.getBoolean(HikeConstants.BADGECOUNTER);
+
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.BADGE_COUNT_ENABLED, enableBadgeCount);
+			HikeMessengerApp.getPubSub().publish(HikePubSub.BADGE_COUNT_CHANGED, null);
+		}
+
 		if(data.has(HikeConstants.SHOW_GPS_DIALOG))
 		{
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOW_GPS_DIALOG, data.optBoolean(HikeConstants.SHOW_GPS_DIALOG));
@@ -3687,6 +3704,7 @@ public class MqttMessagesManager
 	public void saveMqttMessage(JSONObject jsonObj) throws JSONException
 	{
 		Logger.d("Gcm test", jsonObj.toString());
+
 		String type = jsonObj.optString(HikeConstants.TYPE);
 		Logger.d(VoIPConstants.TAG, "Received message of type: " + type);  // TODO: Remove me!
 		if (HikeConstants.MqttMessageTypes.ICON.equals(type)) // Icon changed
@@ -3935,6 +3953,7 @@ public class MqttMessagesManager
 					{
 						ProductInfoManager.getInstance().parsePopupPacket(mmMetaData);
 					}
+					HikeMessengerApp.getPubSub().publish(HikePubSub.PRODUCT_POPUP_BADGE_COUNT_CHANGED, null);
 				}
 				
 			}
