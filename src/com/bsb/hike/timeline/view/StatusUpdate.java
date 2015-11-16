@@ -709,7 +709,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 
 		try
 		{
-			mActivityTask.task = new StatusUpdateTask(status, mActivityTask.moodId, mImagePath, KptKeyboardManager.getInstance(getApplicationContext()).getCurrentLanguage());
+			mActivityTask.task = new StatusUpdateTask(status, mActivityTask.moodId, mImagePath, KptKeyboardManager.getInstance(getApplicationContext()).getCurrentLanguageAddonItem().getlocaleName());
 		}
 		catch (IOException e)
 		{

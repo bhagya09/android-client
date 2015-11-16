@@ -1045,7 +1045,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 			mood = -1;
 		}
 		
-		Utils.postStatusUpdate(status, mood, imageFilePath, KptKeyboardManager.getInstance(HikeMessengerApp.getInstance().getApplicationContext()).getCurrentLanguage());
+		Utils.postStatusUpdate(status, mood, imageFilePath, KptKeyboardManager.getInstance(HikeMessengerApp.getInstance().getApplicationContext()).getCurrentLanguageAddonItem().getlocaleName());
 	}
 
 	/**
