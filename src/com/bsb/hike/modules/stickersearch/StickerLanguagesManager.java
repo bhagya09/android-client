@@ -115,30 +115,34 @@ public class StickerLanguagesManager {
     }
 
     public void retryDownloadDefaultTagsForLanguages()
-    {
-        Map<String, Boolean> defaultTagLanguageStatusMap = (HashMap<String, Boolean> ) HikeSharedPreferenceUtil.getInstance(HikeMessengerApp.DEFAULT_TAG_DOWNLOAD_LANGUAGES_PREF).getAllData();
-        ArrayList<String> languages = new ArrayList<>();
-        for(String lang : defaultTagLanguageStatusMap.keySet())
-        {
-            if(defaultTagLanguageStatusMap.get(lang) == false) // not downloaded
-            {
-                languages.add(lang);
-            }
-        }
-        StickerManager.getInstance().downloadDefaultTags(false, languages);
-    }
+	{
+		@SuppressWarnings("unchecked")
+		Map<String, Boolean> defaultTagLanguageStatusMap = (HashMap<String, Boolean>) HikeSharedPreferenceUtil.getInstance(HikeMessengerApp.DEFAULT_TAG_DOWNLOAD_LANGUAGES_PREF)
+				.getAllData();
+		ArrayList<String> languages = new ArrayList<>();
+		for (String lang : defaultTagLanguageStatusMap.keySet())
+		{
+			if (defaultTagLanguageStatusMap.get(lang) == false) // not downloaded
+			{
+				languages.add(lang);
+			}
+		}
+		StickerManager.getInstance().downloadDefaultTags(false, languages);
+	}
 
     public void redownloadAllDefaultTagsForLanguages(boolean isSignUp)
-    {
-        Map<String, Boolean> defaultTagLanguageStatusMap = (HashMap<String, Boolean> ) HikeSharedPreferenceUtil.getInstance(HikeMessengerApp.DEFAULT_TAG_DOWNLOAD_LANGUAGES_PREF).getAllData();
-        ArrayList<String> languages = new ArrayList<>();
-        for(String lang : defaultTagLanguageStatusMap.keySet())
-        {
-            HikeSharedPreferenceUtil.getInstance(HikeMessengerApp.DEFAULT_TAG_DOWNLOAD_LANGUAGES_PREF).saveData(lang, false);
-            languages.add(lang);
-        }
-        StickerManager.getInstance().downloadDefaultTags(isSignUp, languages);
-    }
+	{
+		@SuppressWarnings("unchecked")
+		Map<String, Boolean> defaultTagLanguageStatusMap = (HashMap<String, Boolean>) HikeSharedPreferenceUtil.getInstance(HikeMessengerApp.DEFAULT_TAG_DOWNLOAD_LANGUAGES_PREF)
+				.getAllData();
+		ArrayList<String> languages = new ArrayList<>();
+		for (String lang : defaultTagLanguageStatusMap.keySet())
+		{
+			HikeSharedPreferenceUtil.getInstance(HikeMessengerApp.DEFAULT_TAG_DOWNLOAD_LANGUAGES_PREF).saveData(lang, false);
+			languages.add(lang);
+		}
+		StickerManager.getInstance().downloadDefaultTags(isSignUp, languages);
+	}
 
     public void downloadDefaultTagsForLanguage(String language)
     {
