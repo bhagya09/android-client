@@ -513,9 +513,9 @@ public class BotUtils
 		HikeMessengerApp.getPubSub().publish(HikePubSub.BOT_CREATED, botInfo);
 		
 		/**
-		 * Notification will be played only if enable bot is true and notifType is Silent/Loud
+		 * Notification will be played only if notifType is Silent/Loud
 		 */
-		if (enableBot && (!HikeConstants.OFF.equals(notifType)))
+		if (!HikeConstants.OFF.equals(notifType))
 		{
 			HikeNotification.getInstance().notifyStringMessage(msisdn, botInfo.getLastMessageText(), notifType.equals(HikeConstants.SILENT), NotificationType.OTHER);
 		}
