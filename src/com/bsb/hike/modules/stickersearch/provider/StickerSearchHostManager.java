@@ -23,6 +23,7 @@ import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
 import com.bsb.hike.modules.stickersearch.datamodel.StickerAppositeDataContainer;
 import com.bsb.hike.modules.stickersearch.datamodel.Word;
 import com.bsb.hike.modules.stickersearch.provider.StickerSearchUtility.TextMatchManager;
+import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchBaseConstants;
 import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchBaseConstants.TIME_CODE;
 import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchDatabase;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
@@ -119,45 +120,43 @@ public class StickerSearchHostManager
 
 		NUMBER_OF_STICKERS_VISIBLE_IN_ONE_SCROLL_CONTINUED = NUMBER_OF_STICKERS_VISIBLE_IN_ONE_SCROLL + 1;
 
+		HikeSharedPreferenceUtil stickerDataSharedPref = HikeSharedPreferenceUtil.getInstance(HikeStickerSearchBaseConstants.SHARED_PREF_STICKER_DATA);
+
 		REGEX_SEPARATORS = StickerSearchUtility.getSeparatorsRegex(mKeyboardlanguageISOCode);
 
 		SEPARATOR_CHARS = (HashSet<Character>) StickerSearchUtility.getSeparatorChars(REGEX_SEPARATORS);
 
-		MAXIMUM_SEARCH_TEXT_LIMIT = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_TAG_MAXIMUM_SEARCH_TEXT_LIMIT,
-				StickerSearchConstants.MAXIMUM_SEARCH_TEXT_LIMIT);
+		MAXIMUM_SEARCH_TEXT_LIMIT = stickerDataSharedPref.getData(HikeConstants.STICKER_TAG_MAXIMUM_SEARCH_TEXT_LIMIT, StickerSearchConstants.MAXIMUM_SEARCH_TEXT_LIMIT);
 
-		MAXIMUM_SEARCH_TEXT_BROKER_LIMIT = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_TAG_MAXIMUM_SEARCH_TEXT_LIMIT_BROKER,
+		MAXIMUM_SEARCH_TEXT_BROKER_LIMIT = stickerDataSharedPref.getData(HikeConstants.STICKER_TAG_MAXIMUM_SEARCH_TEXT_LIMIT_BROKER,
 				StickerSearchConstants.MAXIMUM_SEARCH_TEXT_BROKER_LIMIT);
 
-		MAXIMUM_PHRASE_PERMUTATION_SIZE = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STIKCER_TAG_MAXIMUM_SEARCH_PHRASE_PERMUTATION_SIZE,
+		MAXIMUM_PHRASE_PERMUTATION_SIZE = stickerDataSharedPref.getData(HikeConstants.STIKCER_TAG_MAXIMUM_SEARCH_PHRASE_PERMUTATION_SIZE,
 				StickerSearchConstants.MAXIMUM_PHRASE_PERMUTATION_SIZE);
 
-		MINIMUM_WORD_LENGTH_FOR_AUTO_CORRECTION = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_TAG_MINIMUM_SEARCH_WORD_LENGTH_FOR_AUTO_CORRECTION,
+		MINIMUM_WORD_LENGTH_FOR_AUTO_CORRECTION = stickerDataSharedPref.getData(HikeConstants.STICKER_TAG_MINIMUM_SEARCH_WORD_LENGTH_FOR_AUTO_CORRECTION,
 				StickerSearchConstants.MINIMUM_WORD_LENGTH_FOR_AUTO_CORRECTION);
 
-		LIMIT_AUTO_CORRECTION = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_TAG_LIMIT_AUTO_CORRECTION, StickerSearchConstants.LIMIT_AUTO_CORRECTION);
+		LIMIT_AUTO_CORRECTION = stickerDataSharedPref.getData(HikeConstants.STICKER_TAG_LIMIT_AUTO_CORRECTION, StickerSearchConstants.LIMIT_AUTO_CORRECTION);
 
-		LIMIT_EXACT_MATCH = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_TAG_LIMIT_EXACT_MATCH, StickerSearchConstants.LIMIT_EXACT_MATCH);
+		LIMIT_EXACT_MATCH = stickerDataSharedPref.getData(HikeConstants.STICKER_TAG_LIMIT_EXACT_MATCH, StickerSearchConstants.LIMIT_EXACT_MATCH);
 
-		WEIGHTAGE_MATCH_LATERAL = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_SCORE_WEIGHTAGE_MATCH_LATERAL,
-				StickerSearchConstants.WEIGHTAGE_MATCH_LATERAL);
+		WEIGHTAGE_MATCH_LATERAL = stickerDataSharedPref.getData(HikeConstants.STICKER_SCORE_WEIGHTAGE_MATCH_LATERAL, StickerSearchConstants.WEIGHTAGE_MATCH_LATERAL);
 
-		WEIGHTAGE_EXACT_MATCH = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_SCORE_WEIGHTAGE_EXACT_MATCH, StickerSearchConstants.WEIGHTAGE_EXACT_MATCH);
+		WEIGHTAGE_EXACT_MATCH = stickerDataSharedPref.getData(HikeConstants.STICKER_SCORE_WEIGHTAGE_EXACT_MATCH, StickerSearchConstants.WEIGHTAGE_EXACT_MATCH);
 
-		WEIGHTAGE_FREQUENCY_TRENDING = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_SCORE_WEIGHTAGE_FREQUENCY, StickerSearchConstants.WEIGHTAGE_FREQUENCY)
-				* HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_FREQUENCY_RATIO_TRENDING, StickerSearchConstants.RATIO_TRENDING_FREQUENCY);
+		WEIGHTAGE_FREQUENCY_TRENDING = stickerDataSharedPref.getData(HikeConstants.STICKER_SCORE_WEIGHTAGE_FREQUENCY, StickerSearchConstants.WEIGHTAGE_FREQUENCY)
+				* stickerDataSharedPref.getData(HikeConstants.STICKER_FREQUENCY_RATIO_TRENDING, StickerSearchConstants.RATIO_TRENDING_FREQUENCY);
 
-		WEIGHTAGE_FREQUENCY_LOCAL = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_SCORE_WEIGHTAGE_FREQUENCY, StickerSearchConstants.WEIGHTAGE_FREQUENCY)
-				* HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_FREQUENCY_RATIO_LOCAL, StickerSearchConstants.RATIO_LOCAL_FREQUENCY);
+		WEIGHTAGE_FREQUENCY_LOCAL = stickerDataSharedPref.getData(HikeConstants.STICKER_SCORE_WEIGHTAGE_FREQUENCY, StickerSearchConstants.WEIGHTAGE_FREQUENCY)
+				* stickerDataSharedPref.getData(HikeConstants.STICKER_FREQUENCY_RATIO_LOCAL, StickerSearchConstants.RATIO_LOCAL_FREQUENCY);
 
-		WEIGHTAGE_FREQUENCY_GLOBAL = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_SCORE_WEIGHTAGE_FREQUENCY, StickerSearchConstants.WEIGHTAGE_FREQUENCY)
-				* HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_FREQUENCY_RATIO_GLOBAL, StickerSearchConstants.RATIO_GLOBAL_FREQUENCY);
+		WEIGHTAGE_FREQUENCY_GLOBAL = stickerDataSharedPref.getData(HikeConstants.STICKER_SCORE_WEIGHTAGE_FREQUENCY, StickerSearchConstants.WEIGHTAGE_FREQUENCY)
+				* stickerDataSharedPref.getData(HikeConstants.STICKER_FREQUENCY_RATIO_GLOBAL, StickerSearchConstants.RATIO_GLOBAL_FREQUENCY);
 
-		WEIGHTAGE_CONTEXT_MOMENT = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_SCORE_WEIGHTAGE_CONTEXT_MOMENT,
-				StickerSearchConstants.WEIGHTAGE_CONTEXT_MOMENT);
+		WEIGHTAGE_CONTEXT_MOMENT = stickerDataSharedPref.getData(HikeConstants.STICKER_SCORE_WEIGHTAGE_CONTEXT_MOMENT, StickerSearchConstants.WEIGHTAGE_CONTEXT_MOMENT);
 
-		MARGINAL_FULL_SCORE_LATERAL = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_SCORE_MARGINAL_FULL_MATCH_LATERAL,
-				StickerSearchConstants.MARGINAL_FULL_SCORE_LATERAL);
+		MARGINAL_FULL_SCORE_LATERAL = stickerDataSharedPref.getData(HikeConstants.STICKER_SCORE_MARGINAL_FULL_MATCH_LATERAL, StickerSearchConstants.MARGINAL_FULL_SCORE_LATERAL);
 	}
 
 	/* Get the instance of this class from outside */

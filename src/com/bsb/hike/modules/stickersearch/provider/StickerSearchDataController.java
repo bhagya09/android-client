@@ -531,7 +531,8 @@ public enum StickerSearchDataController
 		}
 
 		if ((state == StickerSearchConstants.STATE_STICKER_DATA_REFRESH)
-				|| (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_TAG_RETRY_ON_FAILED_LOCALLY, StickerSearchConstants.DECISION_STATE_YES) == StickerSearchConstants.DECISION_STATE_YES))
+				|| (HikeSharedPreferenceUtil.getInstance(HikeStickerSearchBaseConstants.SHARED_PREF_STICKER_DATA).getData(HikeConstants.STICKER_TAG_RETRY_ON_FAILED_LOCALLY,
+						StickerSearchConstants.DECISION_STATE_YES) == StickerSearchConstants.DECISION_STATE_YES))
 		{
 			Set<String> pendingRetrySet = StickerManager.getInstance().getStickerSet(state);
 

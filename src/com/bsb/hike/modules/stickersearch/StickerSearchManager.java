@@ -11,6 +11,7 @@ import com.bsb.hike.models.Sticker;
 import com.bsb.hike.modules.stickersearch.listeners.IStickerSearchListener;
 import com.bsb.hike.modules.stickersearch.provider.StickerSearchHostManager;
 import com.bsb.hike.modules.stickersearch.provider.StickerSearchUtility;
+import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchBaseConstants;
 import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchDatabase;
 import com.bsb.hike.modules.stickersearch.tasks.CurrentLanguageTagsDownloadTask;
 import com.bsb.hike.modules.stickersearch.tasks.HighlightAndShowStickerPopupTask;
@@ -72,8 +73,8 @@ public class StickerSearchManager
 
 	private StickerSearchManager()
 	{
-		WAIT_TIME_SINGLE_CHARACTER_RECOMMENDATION = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_WAIT_TIME_SINGLE_CHAR_RECOMMENDATION,
-				StickerSearchConstants.WAIT_TIME_SINGLE_CHARACTER_RECOMMENDATION);
+		WAIT_TIME_SINGLE_CHARACTER_RECOMMENDATION = HikeSharedPreferenceUtil.getInstance(HikeStickerSearchBaseConstants.SHARED_PREF_STICKER_DATA).getData(
+				HikeConstants.STICKER_WAIT_TIME_SINGLE_CHAR_RECOMMENDATION, StickerSearchConstants.WAIT_TIME_SINGLE_CHARACTER_RECOMMENDATION);
 
 		searchEngine = new StickerSearchEngine();
 		isFirstPhraseOrWord = false;
@@ -457,9 +458,10 @@ public class StickerSearchManager
 
 	public void setRebalancingAlarm()
 	{
-		long scheduleTime = Utils.getTimeInMillis(Calendar.getInstance(Locale.ENGLISH),
-				HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_TAG_REBALANCING_TRIGGER_TIME_STAMP, null),
-				StickerSearchConstants.REBALACING_DEFAULT_TIME_HOUR, 0, 0, 0);
+		long scheduleTime = Utils.getTimeInMillis(
+				Calendar.getInstance(Locale.ENGLISH),
+				HikeSharedPreferenceUtil.getInstance(HikeStickerSearchBaseConstants.SHARED_PREF_STICKER_DATA).getData(HikeConstants.STICKER_TAG_REBALANCING_TRIGGER_TIME_STAMP,
+						null), StickerSearchConstants.REBALACING_DEFAULT_TIME_HOUR, 0, 0, 0);
 
 		if (scheduleTime < System.currentTimeMillis())
 		{
