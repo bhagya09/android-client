@@ -25,6 +25,7 @@ import com.kpt.adaptxt.beta.KPTAddonItem;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class KptKeyboardManager implements AdaptxtSettingsRegisterListener
@@ -152,17 +153,18 @@ public class KptKeyboardManager implements AdaptxtSettingsRegisterListener
 
 	private void fetchKptLanguagesAndUpdate()
 	{
-		Logger.d(TAG, "fetchKptLanguagesAndUpdate");
+		Logger.d(TAG, "fetchKptLanguagesAndUpdate()");
 		if (!kptCoreEngineStatus)
 			return;
 
 		mInstalledLanguagesList.clear();
 
-		KPTAdaptxtAddonSettings.KPTLanguageData data= kptSettings.getAllLanguageData();
+		KPTAdaptxtAddonSettings.KPTLanguageData data = kptSettings.getAllLanguageData();
+		@SuppressWarnings("unchecked")
 		List<KPTAddonItem> installedList = data.getInstalledLanguage();
 		for (KPTAddonItem language : installedList)
 		{
-			if(language.getIsLoaded())
+			if (language.getIsLoaded())
 			{
 				languageStatusMap.put(language.getDisplayName(), LanguageDictionarySatus.INSTALLED_LOADED);
 			}
@@ -171,26 +173,28 @@ public class KptKeyboardManager implements AdaptxtSettingsRegisterListener
 				languageStatusMap.put(language.getDisplayName(), LanguageDictionarySatus.INSTALLED_UNLOADED);
 			}
 		}
-		Logger.d(TAG,"adding installed languages: " + installedList.size());
+		Logger.d(TAG, "adding installed languages: " + installedList.size());
 		mInstalledLanguagesList.addAll(installedList);
 
 		mUnistalledLanguagesList.clear();
+		@SuppressWarnings("unchecked")
 		List<KPTAddonItem> unInstalledList = data.getUnInstalledLanguage();
 		for (KPTAddonItem language : unInstalledList)
 		{
 			if (languageStatusMap.get(language.getDisplayName()) != LanguageDictionarySatus.IN_QUEUE)
 				languageStatusMap.put(language.getDisplayName(), LanguageDictionarySatus.UNINSTALLED);
 		}
-		Logger.d(TAG,"adding uninstalled languages: " + unInstalledList.size());
+		Logger.d(TAG, "adding uninstalled languages: " + unInstalledList.size());
 		mUnistalledLanguagesList.addAll(unInstalledList);
 
 		getUnsupportedLanguagesList().clear();
+		@SuppressWarnings("unchecked")
 		List<KPTAddonItem> UnsupportedList = data.getUnSupportedLanguage();
 		for (KPTAddonItem language : UnsupportedList)
 		{
 			languageStatusMap.put(language.getDisplayName(), LanguageDictionarySatus.UNSUPPORTED);
 		}
-		Logger.d(TAG,"adding unsupported languages: " + UnsupportedList.size());
+		Logger.d(TAG, "adding unsupported languages: " + UnsupportedList.size());
 		mUnsupportedLanguagesList.addAll(UnsupportedList);
 	}
 
@@ -202,8 +206,8 @@ public class KptKeyboardManager implements AdaptxtSettingsRegisterListener
 
 	public void downloadAndInstallLanguage(KPTAddonItem addOnItem)
 	{
-		StickerLanguagesManager.getInstance().downloadTagsForLanguage(StickerLanguagesManager.getInstance().getLanguageCode(addOnItem.getDisplayName()));
-		StickerLanguagesManager.getInstance().downloadDefaultTagsForLanguage(StickerLanguagesManager.getInstance().getLanguageCode(addOnItem.getDisplayName()));
+		StickerLanguagesManager.getInstance().downloadTagsForLanguage(new Locale(addOnItem.getlocaleName()).getISO3Language());
+		StickerLanguagesManager.getInstance().downloadDefaultTagsForLanguage(new Locale(addOnItem.getlocaleName()).getISO3Language());
 
 		if (languageStatusMap.get(addOnItem.getDisplayName()) == LanguageDictionarySatus.UNINSTALLED)
 		{
@@ -222,33 +226,29 @@ public class KptKeyboardManager implements AdaptxtSettingsRegisterListener
 				mLanguagesWaitingQueue = new ArrayList<KPTAddonItem>();
 			kptSettings.unInstallAdaptxtAddon(addOnItem, new AdaptxtAddonUnInstallationListner()
 			{
-
 				@Override
 				public void onUnInstallationStarted(String arg0)
 				{
-					Logger.d(TAG,"onUnInstallationStarted: " + arg0);
+					Logger.d(TAG, "onUnInstallationStarted: " + arg0);
 					// TODO Auto-generated method stub
-
 				}
 
 				@Override
 				public void onUnInstallationError(String arg0)
 				{
-					Logger.d(TAG,"onUnInstallationError: " + arg0);
-					// TODO Auto-generated method stub
+					Logger.d(TAG, "onUnInstallationError: " + arg0);
 					processComplete();
-
 				}
 
 				@Override
 				public void onUnInstallationEnded(String arg0)
 				{
-					Logger.d(TAG,"onUnInstallationEnded: " + arg0);
-					// TODO Auto-generated method stub
+					Logger.d(TAG, "onUnInstallationEnded: " + arg0);
 					processComplete();
 				}
 			});
 		}
+
 		notifyAllOfLanguageUpdate();
 	}
 
