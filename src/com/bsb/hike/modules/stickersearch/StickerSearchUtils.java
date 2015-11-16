@@ -129,7 +129,7 @@ public class StickerSearchUtils
 
             Locale currentLocale = new Locale(inputMethodSubtype.getLocale());
 
-            Logger.d(TAG, currentLocale.toString());
+            Logger.d(TAG, "Current language is " + currentLocale.toString());
 
             return currentLocale.getISO3Language();
 
@@ -137,7 +137,6 @@ public class StickerSearchUtils
             Logger.e(TAG, "exception in getting current language : ", e);
         }
 
-        return StickerSearchConstants.DEFAULT_KEYBOARD_LANGUAGE;
+        return StickerSearchConstants.DEFAULT_KEYBOARD_LANGUAGE_ISO_CODE;
     }
-
 }

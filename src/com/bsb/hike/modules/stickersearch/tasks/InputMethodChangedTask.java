@@ -4,16 +4,16 @@ import com.bsb.hike.modules.stickersearch.provider.StickerSearchHostManager;
 
 public class InputMethodChangedTask implements Runnable
 {
-	private String language;
+	private String languageISOCode;
 
-	public InputMethodChangedTask(String language)
+	public InputMethodChangedTask(String languageISOCode)
 	{
-		this.language = language;
+		this.languageISOCode = languageISOCode;
 	}
 
 	@Override
 	public void run()
 	{
-		StickerSearchHostManager.getInstance().onInputMethodChanged(language);
+		StickerSearchHostManager.getInstance().onInputMethodChanged(languageISOCode);
 	}
 }

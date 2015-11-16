@@ -12,7 +12,7 @@
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@color/white">
+            android:background="@color/signup_white">
 
             <ImageView
                 android:id="@+id/close"
@@ -56,32 +56,30 @@
                     android:textColor="@color/settings_text_subheader_color"
                     android:textSize="16sp" />
 
-                <com.bsb.hike.view.CustomFontTextView
-                    android:id="@+id/txt_choose_language"
+                <com.bsb.hike.view.CustomFontButton
+                    android:id="@+id/btn_choose_language"
+                    style="@style/ButtonCustomDialog"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="28dp"
-                    android:text="@string/CHOOSE_LANGUAGE"
-                    android:textColor="#1da8e8"
-                    android:textSize="14sp"
-                    android:textStyle="bold|italic" />
+                    android:layout_marginTop="16dp"
+                    android:text="@string/CHOOSE_LANGUAGE" />
             </LinearLayout>
         </RelativeLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@color/white"
+            android:background="@color/signup_white"
             android:orientation="vertical"
             android:paddingBottom="4dp"
-            android:paddingLeft="24dp"
             android:paddingRight="4dp"
             android:paddingTop="4dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="52dp"
-                android:gravity="center_vertical|left">
+                android:gravity="center_vertical|left"
+                android:paddingLeft="24dp">
 
                 <com.bsb.hike.view.CustomFontTextView
                     android:layout_width="wrap_content"
@@ -98,13 +96,16 @@
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_weight="1.0"
-                android:divider="@null"></ListView>
+                android:divider="@null"
+                android:listSelector="@drawable/list_item"></ListView>
 
             <LinearLayout
                 android:id="@+id/action_panel"
                 android:layout_width="match_parent"
                 android:layout_height="52dp"
                 android:gravity="center_vertical|right"
+                android:paddingLeft="24dp"
+                android:paddingRight="12dp"
                 android:visibility="gone">
 
                 <com.bsb.hike.view.CustomFontButton
@@ -112,21 +113,22 @@
                     style="@style/ButtonCustomDialog"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/cancel" />
+                    android:text="@string/CANCEL" />
 
                 <com.bsb.hike.view.CustomFontButton
                     android:id="@+id/btn_positive"
                     style="@style/ButtonCustomDialog"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/apply" />
+                    android:text="@string/APPLY" />
             </LinearLayout>
 
             <LinearLayout
                 android:id="@+id/waiting_panel"
                 android:layout_width="match_parent"
                 android:layout_height="52dp"
-                android:gravity="center_vertical">
+                android:gravity="center_vertical"
+                android:paddingLeft="24dp">
 
                 <com.bsb.hike.view.CustomFontTextView
                     android:layout_width="0dp"

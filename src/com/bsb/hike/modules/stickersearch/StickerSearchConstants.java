@@ -174,5 +174,5 @@ public class StickerSearchConstants
 	public static final String STRING_JOINTER = "_";
 	// =======================================================================Generic constants]]
 
-	public static final String DEFAULT_KEYBOARD_LANGUAGE = "eng";
+	public static final String DEFAULT_KEYBOARD_LANGUAGE_ISO_CODE = "eng";
 }

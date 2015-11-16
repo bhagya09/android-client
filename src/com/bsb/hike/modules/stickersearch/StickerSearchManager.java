@@ -405,9 +405,9 @@ public class StickerSearchManager
 		searchEngine.runOnQueryThread(removeDeletedStickerTagsTask);
 	}
 
-	public void inputMethodChanged(String language)
+	public void inputMethodChanged(String languageISOCode)
 	{
-		InputMethodChangedTask inputMethodChangedTask = new InputMethodChangedTask(language);
+		InputMethodChangedTask inputMethodChangedTask = new InputMethodChangedTask(languageISOCode);
 		searchEngine.runOnQueryThread(inputMethodChangedTask);
 	}
 

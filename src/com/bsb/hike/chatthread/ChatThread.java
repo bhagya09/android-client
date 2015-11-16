@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -109,6 +110,7 @@ import com.bsb.hike.view.CustomFontEditText;
 import com.bsb.hike.view.CustomFontEditText.BackKeyListener;
 import com.bsb.hike.view.CustomLinearLayout;
 import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
+import com.kpt.adaptxt.beta.KPTAddonItem;
 import com.kpt.adaptxt.beta.util.KPTConstants;
 import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtKeyboordVisibilityStatusListner;
 
@@ -604,8 +606,6 @@ import android.widget.Toast;
 
 	protected Bundle savedState;
 
-	private CustomFontEditText searchEt;
-	
 	public void onCreate(Bundle savedState)
 	{
 		Logger.i(TAG, "onCreate(" + savedState + ")");
@@ -796,8 +796,18 @@ import android.widget.Toast;
 			keyboardFtue.init(activity, (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE),(ViewGroup)activity.findViewById(R.id.keyboard_ftue_container),keyboardFTUEdestroyedListener);
 	}
 
-	private KeyboardFtue.OnKeyboardFTUEDestroyedListener keyboardFTUEdestroyedListener = new KeyboardFtue.OnKeyboardFTUEDestroyedListener()
+	private KeyboardFtue.OnKeyboardFTUEStateChangeListener keyboardFTUEdestroyedListener = new KeyboardFtue.OnKeyboardFTUEStateChangeListener()
 	{
+		@Override
+		public void onStateChange(int state)
+		{
+			if (state == KeyboardFtue.LANGUAGE_SELECTION_COMPLETE)
+			{
+				mCustomKeyboard.showCustomKeyboard(mComposeView,false);
+				mCustomKeyboard.showCustomKeyboard(mComposeView, true);
+			}
+		}
+
 		@Override
 		public void onDestroyed()
 		{
@@ -1255,7 +1265,7 @@ import android.widget.Toast;
 		JSONObject metadata = new JSONObject();
 		try 
 		{
-			metadata.put(HikeConstants.LogEvent.KPT, KptKeyboardManager.getInstance(activity).getCurrentLanguage());
+			metadata.put(HikeConstants.LogEvent.KPT, KptKeyboardManager.getInstance(activity).getCurrentLanguageAddonItem().getlocaleName());
 			convMessage.setMetadata(metadata);
 		} 
 		catch (JSONException e) 
@@ -1597,9 +1607,7 @@ import android.widget.Toast;
 		
 		if (mCustomKeyboard.isCustomKeyboardVisible())
 		{
-			mCustomKeyboard.showCustomKeyboard(mComposeView, false); 
-			KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, 0);
-			mComposeView.setMaxLines(4);
+			hideKptKeyboard();
 			return true;
 		}
 		mCustomKeyboard.closeAnyDialogIfShowing();
@@ -1773,22 +1781,20 @@ import android.widget.Toast;
 		mActionMode.showActionMode(SEARCH_ACTION_MODE, R.layout.search_action_bar);
 		setUpSearchViews();
 
-		searchEt = (CustomFontEditText) activity.findViewById(R.id.search_text);
-
 		if (isSystemKeyboard())
 		{
-			searchEt.requestFocus();
+			mComposeView.requestFocus();
 			activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
-			Utils.showSoftKeyboard(searchEt, InputMethodManager.SHOW_FORCED);
+			Utils.showSoftKeyboard(mComposeView, InputMethodManager.SHOW_FORCED);
 		}
 		else
 		{
 			mCustomKeyboard.registerEditText(R.id.search_text);
-        	mCustomKeyboard.showCustomKeyboard(searchEt, true);
+        	mCustomKeyboard.showCustomKeyboard(mComposeView, true);
         	KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, (keyboardHeight == 0) ? mCustomKeyboard.getKeyBoardAndCVHeight() : keyboardHeight);
 		}
-		
-		searchEt.setOnClickListener(this);
+
+		mComposeView.setOnClickListener(this);
 		
 		// Creating new instance every time.
 		// No need to modify existing instance. It might still be in the process of exiting.
@@ -1807,13 +1813,20 @@ import android.widget.Toast;
 	public void hideKeyboard(){
 		if(KptUtils.isSystemKeyboard()){
 			Utils.hideSoftKeyboard(activity, mComposeView);
-		}else if (mCustomKeyboard!=null && mCustomKeyboard.isCustomKeyboardVisible())
+		}
+		else if (mCustomKeyboard!=null && mCustomKeyboard.isCustomKeyboardVisible())
 		{
-			keyboardFtue.destroy();
-			mCustomKeyboard.showCustomKeyboard(mComposeView, false); 
-			KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, 0);
+			hideKptKeyboard();
 		}
 	}
+
+	private void hideKptKeyboard()
+	{
+		keyboardFtue.destroy();
+		mCustomKeyboard.showCustomKeyboard(mComposeView, false);
+		KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, 0);
+	}
+
 	private void setUpSearchViews()
 	{
 		int id = mComposeView.getId();
@@ -4184,8 +4197,9 @@ import android.widget.Toast;
 	{
 		if (mCustomKeyboard != null)
 		{
-			KptUtils.pauseKeyboardResources(mCustomKeyboard, mComposeView, searchEt);
-			KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, 0);
+			if (mCustomKeyboard.isCustomKeyboardVisible())
+				hideKptKeyboard();
+			KptUtils.pauseKeyboardResources(mCustomKeyboard, mComposeView);
 		}
 	}
 	
@@ -6205,6 +6219,7 @@ import android.widget.Toast;
 			{
 				mComposeView.setMaxLines(4);
 			}
+			onShown();
 		}
 		else
 		{
@@ -6219,12 +6234,12 @@ import android.widget.Toast;
 		// TODO Auto-generated method stub
 		
 	}
-	
+
 	@Override
-	public void analyticalData(String language)
+	public void analyticalData(KPTAddonItem kptAddonItem)
 	{
-		KptUtils.generateKeyboardAnalytics(language);
-		StickerSearchManager.getInstance().inputMethodChanged(language);
+		KptUtils.generateKeyboardAnalytics(kptAddonItem);
+		StickerSearchManager.getInstance().inputMethodChanged(new Locale(kptAddonItem.getlocaleName()).getISO3Language());
 	}
 
 	@Override

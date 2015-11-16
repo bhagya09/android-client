@@ -79,7 +79,7 @@ public class StickerSearchHostManager
 
 	private TIME_CODE mMomentCode = StickerSearchUtility.getMomentCode();
 
-	private String mKeyboardLanguage;
+	private String mKeyboardlanguageISOCode;
 
 	private String mCurrentText;
 
@@ -119,7 +119,7 @@ public class StickerSearchHostManager
 
 		NUMBER_OF_STICKERS_VISIBLE_IN_ONE_SCROLL_CONTINUED = NUMBER_OF_STICKERS_VISIBLE_IN_ONE_SCROLL + 1;
 
-		REGEX_SEPARATORS = StickerSearchUtility.getSeparatorsRegex(mKeyboardLanguage);
+		REGEX_SEPARATORS = StickerSearchUtility.getSeparatorsRegex(mKeyboardlanguageISOCode);
 
 		SEPARATOR_CHARS = (HashSet<Character>) StickerSearchUtility.getSeparatorChars(REGEX_SEPARATORS);
 
@@ -808,13 +808,13 @@ public class StickerSearchHostManager
 		return (start == 0) && (end == 0);
 	}
 
-	public void onInputMethodChanged(String language)
+	public void onInputMethodChanged(String languageISOCode)
 	{
-		Logger.i(TAG, "onInputMethodChanged(" + language + ")");
+		Logger.i(TAG, "onInputMethodChanged(" + languageISOCode + ")");
 
-		mKeyboardLanguage = language;
+		mKeyboardlanguageISOCode = languageISOCode;
 
-		REGEX_SEPARATORS = StickerSearchUtility.getSeparatorsRegex(mKeyboardLanguage);
+		REGEX_SEPARATORS = StickerSearchUtility.getSeparatorsRegex(mKeyboardlanguageISOCode);
 
 		SEPARATOR_CHARS = (HashSet<Character>) StickerSearchUtility.getSeparatorChars(REGEX_SEPARATORS);
 	}

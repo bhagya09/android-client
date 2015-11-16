@@ -227,48 +227,7 @@
             atx:kpt_keyWidth="10.5%p"
             atx:kpt_useExternalFont="true" />
     </Row>
-    <Row atx:kpt_keyboardMode="@+id/mode_normal" 
-        atx:kpt_rowEdgeFlags="bottom"
-        atx:kpt_keyType="@integer/kpt_functional_key_dont_send_to_core" >
-        <Key
-            atx:kpt_codes="-2,-136"
-            atx:kpt_horizontalGap="0.5%p"
-            atx:kpt_keyEdgeFlags="left"
-            atx:kpt_keyLabelYPos="@dimen/kpt_keyLabelYPos_atx"
-            atx:kpt_keyIcon="@drawable/kpt_adaptxt_settings_fk"
-            atx:kpt_keyWidth="15%p" />
-        <Key
-            atx:kpt_codes="44,-102"
-            atx:kpt_iconText="@string/kpt_icontext_comma_mic"
-            atx:kpt_keyLabel2YPos="0.35"
-            atx:kpt_keyWidth="10%p"
-            atx:kpt_useExternalFont="true" />
-
-        <Key
-            atx:kpt_codes="32"
-            atx:kpt_keyIcon="@drawable/kpt_sym_keyboard_space_dk_fk"
-            atx:kpt_keyLabel2TextSize="@dimen/kpt_keyLabel2TextSizeForSpace"
-            atx:kpt_keyWidth="44%p" />
-        <Key
-            atx:kpt_codes="2404"
-            atx:kpt_iconText="@string/kpt_icontext_danda_share"
-	    atx:kpt_keyLabel2YPos="0.35"
-            atx:kpt_keyWidth="10%p"
-            atx:kpt_useExternalFont="true" />
-        <Key
-            atx:kpt_codes="1"
-            atx:kpt_iconText="@string/kpt_icontext_xi_key"
-            atx:kpt_keyLabelYPos="0.50"
-            atx:kpt_keyWidth="10%p"
-            atx:kpt_useExternalFont="true" />
-        <Key
-            atx:kpt_codes="10"
-            atx:kpt_iconText="@string/kpt_icontext_enter_kbhide"
-            atx:kpt_keyLabelYPos="0.50"
-            atx:kpt_keyWidth="10%p"
-            atx:kpt_keyEdgeFlags="right"
-            atx:kpt_useExternalFont="true" />
-    </Row>
+    
     
     <Row atx:kpt_keyboardMode="@+id/mode_normal_hide_xi" 
         atx:kpt_rowEdgeFlags="bottom"

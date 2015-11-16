@@ -215,11 +215,11 @@ public class StickerLanguagesManager {
             case DOWNLOADING_LANGUAGE_SET_TYPE:
                 return HikeSharedPreferenceUtil.getInstance().getDataSet(HikeMessengerApp.DOWNLOADING_LANGUAGES_SET, new HashSet<String>());
             case DOWNLOADED_LANGUAGE_SET_TYPE:
-                return  HikeSharedPreferenceUtil.getInstance().getDataSet(HikeMessengerApp.DOWNLOADED_LANGUAGES_SET, new HashSet<String>(Collections.singleton(StickerSearchConstants.DEFAULT_KEYBOARD_LANGUAGE)));
+                return  HikeSharedPreferenceUtil.getInstance().getDataSet(HikeMessengerApp.DOWNLOADED_LANGUAGES_SET, new HashSet<String>(Collections.singleton(StickerSearchConstants.DEFAULT_KEYBOARD_LANGUAGE_ISO_CODE)));
             case FORBIDDEN_LANGUAGE_SET_TYPE:
                 return  HikeSharedPreferenceUtil.getInstance().getDataSet(HikeMessengerApp.FORBIDDEN_LANGUAGES_SET, new HashSet<String>());
             default:
-                return HikeSharedPreferenceUtil.getInstance().getDataSet(HikeMessengerApp.DOWNLOADED_LANGUAGES_SET, new HashSet<String>(Collections.singleton(StickerSearchConstants.DEFAULT_KEYBOARD_LANGUAGE)));
+                return HikeSharedPreferenceUtil.getInstance().getDataSet(HikeMessengerApp.DOWNLOADED_LANGUAGES_SET, new HashSet<String>(Collections.singleton(StickerSearchConstants.DEFAULT_KEYBOARD_LANGUAGE_ISO_CODE)));
         }
     }
 

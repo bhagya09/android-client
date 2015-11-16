@@ -500,14 +500,14 @@ public class StickerSearchUtility
 	}
 
 	/* Get combined regular expression for all separators applicable to language argument */
-	public static String getSeparatorsRegex(String keyboardLanguage)
+	public static String getSeparatorsRegex(String keyboardlanguageISOCode)
 	{
 		String separatorsRegex;
 
-		if (!Utils.isBlank(keyboardLanguage) && !keyboardLanguage.startsWith("English"))
+		if (!Utils.isBlank(keyboardlanguageISOCode) && !keyboardlanguageISOCode.startsWith(StickerSearchConstants.DEFAULT_KEYBOARD_LANGUAGE_ISO_CODE))
 		{
-			separatorsRegex = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_TAG_REGEX_SEPARATORS + StickerSearchConstants.STRING_JOINTER + keyboardLanguage,
-					null);
+			separatorsRegex = HikeSharedPreferenceUtil.getInstance().getData(
+					HikeConstants.STICKER_TAG_REGEX_SEPARATORS + StickerSearchConstants.STRING_JOINTER + keyboardlanguageISOCode, null);
 
 			if (separatorsRegex == null)
 			{

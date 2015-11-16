@@ -59,6 +59,7 @@ import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.NUXManager;
 import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.Utils;
+import com.kpt.adaptxt.beta.KPTAddonItem;
 import com.kpt.adaptxt.beta.RemoveDialogData;
 import com.kpt.adaptxt.beta.util.KPTConstants;
 import com.kpt.adaptxt.beta.view.AdaptxtEditText;
@@ -2267,12 +2268,10 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		final int count = getHomeOverflowCount(accountPrefs, false, false);
 		if (topBarIndicator != null)
 		{
-			runOnUiThread(new Runnable()
-			{
+			runOnUiThread(new Runnable() {
 
 				@Override
-				public void run()
-				{
+				public void run() {
 					updateHomeOverflowToggleCount(count, 1000);
 				}
 			});
@@ -2445,9 +2444,9 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	}
 
 	@Override
-	public void analyticalData(String currentLanguage) 
+	public void analyticalData(KPTAddonItem kptAddonItem)
 	{
-		KptUtils.generateKeyboardAnalytics(currentLanguage);
+		KptUtils.generateKeyboardAnalytics(kptAddonItem);
 	}
 
 	@Override
