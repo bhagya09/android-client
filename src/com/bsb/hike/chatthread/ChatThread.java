@@ -377,6 +377,8 @@ import android.widget.Toast;
 
 	protected KeyboardFtue keyboardFtue;
 	
+	protected boolean changeKbdClicked = false;
+	
 	private class ChatThreadBroadcasts extends BroadcastReceiver
 	{
 		@Override
@@ -1017,8 +1019,15 @@ import android.widget.Toast;
 		switch (item.id)
 		{
 		case R.string.change_keyboard:
-			changeKeyboard(!isSystemKeyboard());
-			mShareablePopupLayout.setCustomKeyBoard(isSystemKeyboard());
+			changeKbdClicked = true;
+			if (isSystemKeyboard())
+			{
+				Utils.hideSoftKeyboard(activity, mComposeView);	
+			}
+			else
+			{
+				onHidden();
+			}
 			break;
 		case R.string.clear_chat:
 			showClearConversationDialog();
@@ -5820,6 +5829,12 @@ import android.widget.Toast;
 	@Override
 	public void onHidden()
 	{
+		if (changeKbdClicked == true)
+		{
+			changeKeyboard(!isSystemKeyboard());
+			mShareablePopupLayout.setCustomKeyBoard(isSystemKeyboard());
+			changeKbdClicked = false;
+		}
 	}
 
 	public void dismissResidualAcitonMode()
