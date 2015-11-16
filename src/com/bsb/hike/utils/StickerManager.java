@@ -453,7 +453,7 @@ public class StickerManager
 		File dir = context.getExternalFilesDir(null);
 		if (dir == null)
 		{
-			sendStickerFolderLockedError("uanable to access android folder");
+			sendStickerFolderLockedError("Unable to access android folder.");
 			return new Pair<Boolean, List<StickerCategory>>(false, null);
 		}
 
@@ -461,7 +461,7 @@ public class StickerManager
 		File root = new File(rootPath);
 		if (!root.exists() || !root.isDirectory())
 		{
-			sendStickerFolderLockedError("uanable to access sticker root folder");
+			sendStickerFolderLockedError("Unable to access sticker root folder.");
 			return new Pair<Boolean, List<StickerCategory>>(false, null);
 		}
 
@@ -469,7 +469,7 @@ public class StickerManager
 
 		if (files == null || files.length == 0)
 		{
-			sendStickerFolderLockedError("sticker root folder is empty");
+			sendStickerFolderLockedError("Sticker root folder is empty.");
 			return new Pair<Boolean, List<StickerCategory>>(true, null);
 		}
 
@@ -483,7 +483,7 @@ public class StickerManager
 			}
 		}
 
-		sendStickerFolderLockedError("current sticker categories count = " + allCategoryList.size());
+		sendStickerFolderLockedError("Current sticker categories count = " + allCategoryList.size());
 
 		return new Pair<Boolean, List<StickerCategory>>(true, allCategoryList);
 	}
