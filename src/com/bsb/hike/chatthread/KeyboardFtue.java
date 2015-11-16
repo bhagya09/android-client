@@ -8,9 +8,9 @@ import android.view.ViewGroup;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.AnimationSet;
-import android.view.animation.DecelerateInterpolator;
 import android.view.animation.RotateAnimation;
 import android.view.animation.TranslateAnimation;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -41,15 +41,16 @@ import org.json.JSONObject;
  */
 public class KeyboardFtue implements HikePubSub.Listener
 {
-    public interface OnKeyboardFTUEDestroyedListener
+    public interface OnKeyboardFTUEStateChangeListener
     {
+        void onStateChange(int state);
         void onDestroyed();
     }
 
     private final String KEYBOARD_FTUE_STATE = "keyboardFTUEState";
-    private final int NOT_STARTED = 0;
-    private final int LANGUAGE_SELECTION_COMPLETE = 1;
-    private final int COMPLETE = 3;
+    public static final int NOT_STARTED = 0;
+    public static final int LANGUAGE_SELECTION_COMPLETE = 1;
+    public static final int COMPLETE = 3;
     private int mState;
     private boolean mInitialised;
 
@@ -61,7 +62,7 @@ public class KeyboardFtue implements HikePubSub.Listener
 
     private ViewFlipper flipper;
 
-    private OnKeyboardFTUEDestroyedListener destroyedListener;
+    private OnKeyboardFTUEStateChangeListener stateChangeListener;
 
     ArrayList<KPTAddonItem> addonItems;
 
@@ -78,11 +79,11 @@ public class KeyboardFtue implements HikePubSub.Listener
         mState = HikeSharedPreferenceUtil.getInstance().getData(KEYBOARD_FTUE_STATE,NOT_STARTED);
     }
 
-    public void init(Activity activity, LayoutInflater inflater, ViewGroup container, OnKeyboardFTUEDestroyedListener listener)
+    public void init(Activity activity, LayoutInflater inflater, ViewGroup container, OnKeyboardFTUEStateChangeListener listener)
     {
         this.mActivity = activity;
         this.container = container;
-        this.destroyedListener = listener;
+        this.stateChangeListener = listener;
         rootView = inflater.inflate(R.layout.keyboard_ftue_layout, container, false);
         mInitialised = true;
         addToPubSub();
@@ -162,7 +163,7 @@ public class KeyboardFtue implements HikePubSub.Listener
                 trackClickAnalyticEvents(HikeConstants.LogEvent.KEYBOARD_FTUE_CLOSE_BUTTON);
             }
         });
-        flipper.findViewById(R.id.txt_choose_language).setOnClickListener(new View.OnClickListener() {
+        flipper.findViewById(R.id.btn_choose_language).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 prepareLanguageListLayout();
@@ -309,6 +310,7 @@ public class KeyboardFtue implements HikePubSub.Listener
         addonItemAdapter = new LanguageItemAdapter(mActivity, R.layout.keyboard_ftue_language_list_item, addonItems);
         ListView langList = (ListView) flipper.findViewById(R.id.lang_list);
         langList.setAdapter(addonItemAdapter);
+        langList.setOnItemClickListener(addonItemAdapter);
         refreshLanguageList();
     }
 
@@ -327,6 +329,8 @@ public class KeyboardFtue implements HikePubSub.Listener
     {
         mState = state;
         HikeSharedPreferenceUtil.getInstance().saveData(KEYBOARD_FTUE_STATE, state);
+        if (stateChangeListener != null)
+            stateChangeListener.onStateChange(mState);
     }
 
     private void skipLanguageSelection()
@@ -426,8 +430,8 @@ public class KeyboardFtue implements HikePubSub.Listener
             container.invalidate();
             removeFromPubSub();
             mInitialised = false;
-            if (destroyedListener != null)
-                destroyedListener.onDestroyed();
+            if (stateChangeListener != null)
+                stateChangeListener.onDestroyed();
         }
     }
 
@@ -436,7 +440,7 @@ public class KeyboardFtue implements HikePubSub.Listener
         HikeMessengerApp.getPubSub().removeListeners(this, mPubSubListeners);
     }
 
-    class LanguageItemAdapter extends ArrayAdapter<KPTAddonItem> {
+    class LanguageItemAdapter extends ArrayAdapter<KPTAddonItem> implements AdapterView.OnItemClickListener {
 
         Context mContext;
 
@@ -463,8 +467,18 @@ public class KeyboardFtue implements HikePubSub.Listener
         }
 
         @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id)
+        {
+            ViewHolder viewHolder;
+            viewHolder = (ViewHolder) view.getTag();
+            if (viewHolder.checkBoxItem.isEnabled())
+                viewHolder.checkBoxItem.performClick();
+        }
+
+        @Override
         public View getView(int position, View convertView, ViewGroup parent)
         {
+            KPTAddonItem item = getItem(position);
             ViewHolder viewHolder;
             if (convertView == null)
             {
@@ -477,12 +491,10 @@ public class KeyboardFtue implements HikePubSub.Listener
             {
                 viewHolder = (ViewHolder) convertView.getTag();
             }
-            KPTAddonItem item = getItem(position);
 
             viewHolder.checkBoxItem.setText(item.getDisplayName());
             KptKeyboardManager.LanguageDictionarySatus status = KptKeyboardManager.getInstance(mContext).getDictionaryLanguageStatus(item);
             if (status == KptKeyboardManager.LanguageDictionarySatus.INSTALLED_LOADED
-                    || status == KptKeyboardManager.LanguageDictionarySatus.INSTALLED_LOADED
                     || status == KptKeyboardManager.LanguageDictionarySatus.PROCESSING
                     || status == KptKeyboardManager.LanguageDictionarySatus.IN_QUEUE
                     || selectedItems.contains(item))
@@ -497,12 +509,13 @@ public class KeyboardFtue implements HikePubSub.Listener
             if(KptKeyboardManager.getInstance(mContext).getCurrentState() != KptKeyboardManager.WAITING || status == KptKeyboardManager.LanguageDictionarySatus.INSTALLED_LOADED
                     || status == KptKeyboardManager.LanguageDictionarySatus.INSTALLED_UNLOADED)
             {
-                viewHolder.checkBoxItem.setClickable(false);
+                viewHolder.checkBoxItem.setEnabled(false);
             }
             else
             {
-                viewHolder.checkBoxItem.setClickable(true);
+                viewHolder.checkBoxItem.setEnabled(true);
             }
+            viewHolder.checkBoxItem.setClickable(false);
             viewHolder.checkBoxItem.setOnCheckedChangeListener(langItemCheckChangeListener);
             viewHolder.checkBoxItem.setTag(item);
             return convertView;
