@@ -73,6 +73,7 @@ import com.bsb.hike.modules.kpt.HikeCustomKeyboard;
 import com.bsb.hike.modules.kpt.KptKeyboardManager;
 import com.bsb.hike.modules.kpt.KptUtils;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
+import com.bsb.hike.modules.stickersearch.StickerSearchUtils;
 import com.bsb.hike.modules.stickersearch.listeners.IStickerPickerRecommendationListener;
 import com.bsb.hike.modules.stickersearch.provider.StickerSearchHostManager;
 import com.bsb.hike.modules.stickersearch.ui.StickerTagWatcher;
@@ -6180,8 +6181,9 @@ import android.widget.Toast;
 			mCustomKeyboard.showCustomKeyboard(mComposeView, true);
 			setEditTextListeners();
 		}
-		HikeMessengerApp.getInstance().getPubSub().publish(HikePubSub.KEYBOARD_SWITCHED,null);
+		HikeMessengerApp.getPubSub().publish(HikePubSub.KEYBOARD_SWITCHED,null);
 
+		StickerSearchManager.getInstance().inputMethodChanged(StickerSearchUtils.getCurrentLanguageISOCode());
 	}
 	
 	private void resetSharablePopup()

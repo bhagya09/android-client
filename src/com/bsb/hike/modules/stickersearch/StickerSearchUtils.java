@@ -114,7 +114,7 @@ public class StickerSearchUtils
     /***
      * @return current keyboard language in ISO 639-2/T format
      */
-	public static String getCurrentLanguage()
+	public static String getCurrentLanguageISOCode()
 	{
 		if (!HikeMessengerApp.isSystemKeyboard())
 		{
@@ -123,17 +123,14 @@ public class StickerSearchUtils
 
 		try
 		{
-
-			InputMethodManager inputMethodManager = (InputMethodManager) HikeMessengerApp.getInstance().getSystemService(Context.INPUT_METHOD_SERVICE);
-
-			InputMethodSubtype inputMethodSubtype = inputMethodManager.getCurrentInputMethodSubtype();
+			InputMethodSubtype inputMethodSubtype = ((InputMethodManager) HikeMessengerApp.getInstance().getSystemService(Context.INPUT_METHOD_SERVICE))
+					.getCurrentInputMethodSubtype();
 
 			Locale currentLocale = new Locale(inputMethodSubtype.getLocale());
 
 			Logger.d(TAG, "Current language is " + currentLocale.toString());
 
 			return currentLocale.getISO3Language();
-
 		}
 		catch (Exception e)
 		{
