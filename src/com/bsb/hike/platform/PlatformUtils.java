@@ -41,8 +41,14 @@ import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.*;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.Header;
+import com.bsb.hike.modules.httpmgr.RequestToken;
+import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpHeaderConstants;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.FileRequestPersistent;
+import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
+import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadSource;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadType;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerPalleteImageDownloadTask;
@@ -727,6 +733,17 @@ public class PlatformUtils
 		try
 		{
 			post.setHeader("Content-Type", "multipart/form-data; boundary=" + BOUNDARY);
+
+			HikeSharedPreferenceUtil mpref = HikeSharedPreferenceUtil.getInstance();
+			String platformUID = mpref.getData(HikeMessengerApp.PLATFORM_UID_SETTING, null);
+			String platformToken = mpref.getData(HikeMessengerApp.PLATFORM_TOKEN_SETTING, null);
+			if (!TextUtils.isEmpty(platformToken) && !TextUtils.isEmpty(platformUID))
+			{
+				post.addHeader(HttpHeaderConstants.COOKIE_HEADER_NAME,
+						HikePlatformConstants.PLATFORM_TOKEN + "=" + platformToken + "; " +
+								HikePlatformConstants.PLATFORM_USER_ID + "=" + platformUID);
+			}
+
 			post.setEntity(new ByteArrayEntity(fileBytes));
 			HttpResponse response = client.execute(post);
 			Logger.d("FileUpload", response.toString());
@@ -752,6 +769,7 @@ public class PlatformUtils
 		}
 		return res;
 	}
+
 	/*
 	 * gets the boundary message for the file path
 	 */
@@ -1370,6 +1388,50 @@ public class PlatformUtils
 		{
 			Logger.e(TAG, "JSON Exception while sending DR packet for normal event" + e.toString());
 		}
+	}
+
+	/**
+	 * Utility method to send microapp download success or failure analytics
+	 * @param success
+	 * @param appName
+	 * @param appVersion
+	 */
+	public static void sendMicroAppServerAnalytics(boolean success, String appName, String appVersion)
+	{
+		try
+		{
+			JSONObject body = new JSONObject();
+			body.put(HikePlatformConstants.APP_NAME, appName);
+			body.put(HikePlatformConstants.APP_VERSION, appVersion);
+
+			RequestToken token = HttpRequests.microAppPostRequest(
+					HttpRequestConstants.getMicroAppLoggingUrl(success), body,
+					new IRequestListener()
+					{
+						@Override
+						public void onRequestFailure(HttpException httpException)
+						{
+
+						}
+
+						@Override
+						public void onRequestSuccess(Response result)
+						{
+
+						}
+
+						@Override
+						public void onRequestProgressUpdate(float progress)
+						{
+
+						}
+					});
+		}
+		catch (JSONException e)
+		{
+			Logger.e(TAG, "Exception occured while sending microapp analytics : " + e.toString());
+		}
+
 	}
 
 }
