@@ -288,30 +288,40 @@ public class StickerLanguagesManager {
     }
 
     public void clearAllSets()
-    {
-        Logger.d(TAG, "clearing all language sets");
-        HikeSharedPreferenceUtil.getInstance().removeData(HikeMessengerApp.NOT_DOWNLOADED_LANGUAGES_SET);
-        HikeSharedPreferenceUtil.getInstance().removeData(HikeMessengerApp.DOWNLOADING_LANGUAGES_SET);
-        HikeSharedPreferenceUtil.getInstance().removeData(HikeMessengerApp.DOWNLOADED_LANGUAGES_SET);
-        HikeSharedPreferenceUtil.getInstance().removeData(HikeMessengerApp.FORBIDDEN_LANGUAGES_SET);
+	{
+		Logger.d(TAG, "clearing all language sets");
+		HikeSharedPreferenceUtil.getInstance().removeData(HikeMessengerApp.NOT_DOWNLOADED_LANGUAGES_SET);
+		HikeSharedPreferenceUtil.getInstance().removeData(HikeMessengerApp.DOWNLOADING_LANGUAGES_SET);
+		HikeSharedPreferenceUtil.getInstance().removeData(HikeMessengerApp.DOWNLOADED_LANGUAGES_SET);
+		HikeSharedPreferenceUtil.getInstance().removeData(HikeMessengerApp.FORBIDDEN_LANGUAGES_SET);
 
-        Map<String, Boolean> defaultTagLanguageStatusMap = (HashMap<String, Boolean> ) HikeSharedPreferenceUtil.getInstance(HikeMessengerApp.DEFAULT_TAG_DOWNLOAD_LANGUAGES_PREF).getAllData();
-        for(String lang : defaultTagLanguageStatusMap.keySet())
-        {
-            HikeSharedPreferenceUtil.getInstance(HikeMessengerApp.DEFAULT_TAG_DOWNLOAD_LANGUAGES_PREF).removeData(lang);
-        }
-    }
+		@SuppressWarnings("unchecked")
+		Map<String, Boolean> defaultTagLanguageStatusMap = (HashMap<String, Boolean>) HikeSharedPreferenceUtil.getInstance(HikeMessengerApp.DEFAULT_TAG_DOWNLOAD_LANGUAGES_PREF)
+				.getAllData();
+		for (String lang : defaultTagLanguageStatusMap.keySet())
+		{
+			HikeSharedPreferenceUtil.getInstance(HikeMessengerApp.DEFAULT_TAG_DOWNLOAD_LANGUAGES_PREF).removeData(lang);
+		}
+	}
 
-    public String listToSting(Collection<String> languages)
-    {
-        String result = "";
+    public String listToString(Collection<String> languages)
+	{
+		String result = "";
 
-        for(String lang : languages)
-        {
-            result += lang + ",";
-        }
-        return result.substring(0, result.length() -1); // remove last comma
-    }
+		for (String lang : languages)
+		{
+			result += lang + ",";
+		}
+
+		if (result.length() > 0)
+		{
+			return result.substring(0, result.length() - 1); // remove last comma
+		}
+		else
+		{
+			return result;
+		}
+	}
 
     public Set<String> getAccumulatedSet(int... types)
     {
