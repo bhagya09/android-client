@@ -187,7 +187,7 @@ public class HttpRequests
 		return requestToken;
 	}
 	
-	public static RequestToken postStatusRequest(String argStatusMessage, int argMood, IRequestListener requestListener, String imageFilePath) throws IOException
+	public static RequestToken postStatusRequest(String argStatusMessage, int argMood, IRequestListener requestListener, String imageFilePath, String language) throws IOException
 	{
 		final MediaType MEDIA_TYPE_PNG = MediaType.parse("image/png");
 
@@ -222,6 +222,8 @@ public class HttpRequests
 				isAnyHeaderPresent = true;
 			}
 		}
+		
+		multipartBuilder.addPart(Headers.of("Content-Disposition", "form-data; name=\"kpt\""), RequestBody.create(MEDIA_TYPE_TEXTPLAIN, language));
 		
 		if(isAnyHeaderPresent)
 		{
