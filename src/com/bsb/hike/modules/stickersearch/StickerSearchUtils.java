@@ -114,29 +114,32 @@ public class StickerSearchUtils
     /***
      * @return current keyboard language in ISO 639-2/T format
      */
-    public static String getCurrentLanguage() {
-
-		if(!HikeMessengerApp.isSystemKeyboard())
+	public static String getCurrentLanguage()
+	{
+		if (!HikeMessengerApp.isSystemKeyboard())
 		{
-			return KptKeyboardManager.getInstance(HikeMessengerApp.getInstance()).getCurrentLanguage();
+			return new Locale(KptKeyboardManager.getInstance(HikeMessengerApp.getInstance()).getCurrentLanguageAddonItem().getlocaleName()).getISO3Language();
 		}
 
-        try {
+		try
+		{
 
-            InputMethodManager inputMethodManager = (InputMethodManager) HikeMessengerApp.getInstance().getSystemService(Context.INPUT_METHOD_SERVICE);
+			InputMethodManager inputMethodManager = (InputMethodManager) HikeMessengerApp.getInstance().getSystemService(Context.INPUT_METHOD_SERVICE);
 
-            InputMethodSubtype inputMethodSubtype = inputMethodManager.getCurrentInputMethodSubtype();
+			InputMethodSubtype inputMethodSubtype = inputMethodManager.getCurrentInputMethodSubtype();
 
-            Locale currentLocale = new Locale(inputMethodSubtype.getLocale());
+			Locale currentLocale = new Locale(inputMethodSubtype.getLocale());
 
-            Logger.d(TAG, "Current language is " + currentLocale.toString());
+			Logger.d(TAG, "Current language is " + currentLocale.toString());
 
-            return currentLocale.getISO3Language();
+			return currentLocale.getISO3Language();
 
-        } catch (Exception e) {
-            Logger.e(TAG, "exception in getting current language : ", e);
-        }
+		}
+		catch (Exception e)
+		{
+			Logger.e(TAG, "Exception in getting current language: ", e);
+		}
 
-        return StickerSearchConstants.DEFAULT_KEYBOARD_LANGUAGE_ISO_CODE;
-    }
+		return StickerSearchConstants.DEFAULT_KEYBOARD_LANGUAGE_ISO_CODE;
+	}
 }
