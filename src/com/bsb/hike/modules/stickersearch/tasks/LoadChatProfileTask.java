@@ -1,6 +1,5 @@
 package com.bsb.hike.modules.stickersearch.tasks;
 
-import com.bsb.hike.modules.stickersearch.StickerSearchManager;
 import com.bsb.hike.modules.stickersearch.provider.StickerSearchHostManager;
 
 public class LoadChatProfileTask implements Runnable
