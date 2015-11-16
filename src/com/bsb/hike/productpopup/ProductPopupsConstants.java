@@ -424,7 +424,15 @@ public class ProductPopupsConstants
 				// TODO Auto-generated method stub
 				return "gameActivity";
 			}
-		};
+		}, CHAT_THREAD
+		{
+			@Override
+			public String toString()
+			{
+				// TODO Auto-generated method stub
+				return "chatthread";
+			}
+		}
 		
 		
 	}

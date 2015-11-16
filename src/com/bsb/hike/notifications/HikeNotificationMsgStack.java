@@ -373,7 +373,10 @@ public class HikeNotificationMsgStack implements Listener
 				else if (BotUtils.isBot(lastAddedMsisdn))
 				{
 					// Single msisdn, bot
-					mNotificationIntent = getIntentForBots(mContext, lastAddedMsisdn);
+					mNotificationIntent = IntentFactory.getIntentForBots(mContext, lastAddedMsisdn);
+
+					// Adding the notif tracker to bot notifications
+					mNotificationIntent.putExtra(AnalyticsConstants.BOT_NOTIF_TRACKER, true);
 				}
 				else
 				{
@@ -394,33 +397,7 @@ public class HikeNotificationMsgStack implements Listener
 		}
 	}
 
-	private Intent getIntentForBots(Context mContext, String lastAddedMsisdn)
-	{
-		BotInfo mBotInfo = BotUtils.getBotInfoForBotMsisdn(lastAddedMsisdn);
-		
-		if (mBotInfo == null)
-		{
-			mBotInfo = mConvDb.getBotInfoForMsisdn(lastAddedMsisdn);
-		}
-		
-		Intent notifIntent = null;
-		
-		if (mBotInfo.isNonMessagingBot())
-		{
-			notifIntent = IntentFactory.getNonMessagingBotIntent(lastAddedMsisdn, mContext);
-		}
-
-		else
-		{
-			notifIntent = IntentFactory.createChatThreadIntentFromMsisdn(mContext, lastAddedMsisdn, false, false);
-		}
-		
-		// Adding the notif tracker to bot notifications
-		notifIntent.putExtra(AnalyticsConstants.BOT_NOTIF_TRACKER, true);
-		
-		return notifIntent;
-	}
-
+	
 	/**
 	 * Returns notification intent based on messages present in stack
 	 * 

@@ -1223,5 +1223,6 @@
 	<string name="switch_on_gps">Please enable location for Hike Direct to work. Press back once you\'re done. </string>
 	<string name="gps_settings">SETTING</string>
 	<string name="user_gps_off">Hike Direct cannot work till your location is enabled.</string>
+	<string name="app_not_enabled">You don\'t have this app enabled.</string>
 	
 </resources>
