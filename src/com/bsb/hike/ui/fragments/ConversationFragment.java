@@ -1133,6 +1133,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 				}
 
 				resetNotificationCounter(convInfo);
+				HikeMessengerApp.getPubSub().publish(HikePubSub.BADGE_COUNT_MESSAGE_CHANGED, null);
 			}
 		}
 		else
@@ -2491,7 +2492,9 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 		}
 		else if (HikePubSub.STEALTH_MODE_TOGGLED.equals(type))
 		{
-			if (!isAdded())
+			//for Android M and also for security updates of Android L, the isAdded check does not
+			//check for activity being null, instead a fragmentHostController is used in its place
+			if (!isAdded() || getActivity() == null)
 			{
 				return;
 			}

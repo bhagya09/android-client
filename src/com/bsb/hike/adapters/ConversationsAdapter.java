@@ -939,12 +939,17 @@ public class ConversationsAdapter extends BaseAdapter
 			}
 			
 			messageView.setText(messageText);
-			if (message.getState() == ConvMessage.State.RECEIVED_UNREAD && (message.getTypingNotification() == null) && convInfo.getUnreadCount() > 0 && !message.isSent())
+			if (message.getState() == ConvMessage.State.RECEIVED_UNREAD
+					&& (message.getTypingNotification() == null)
+					&& convInfo.getUnreadCount() > 0
+					&& !message.isSent()
+					|| (message.getParticipantInfoState() == ParticipantInfoState.VOIP_CALL_SUMMARY && message.getMetadata() != null && !message.getMetadata().isVoipInitiator() && convInfo
+							.getUnreadCount() > 0))
 			{
-					unreadIndicator.setVisibility(View.VISIBLE);
-					unreadIndicator.setBackgroundResource(R.drawable.ic_messagecounter);
-					String unreadCountString = convInfo.getUnreadCountString();
-					unreadIndicator.setText(unreadCountString);
+				unreadIndicator.setVisibility(View.VISIBLE);
+				unreadIndicator.setBackgroundResource(R.drawable.ic_messagecounter);
+				String unreadCountString = convInfo.getUnreadCountString();
+				unreadIndicator.setText(unreadCountString);
 			}
 
 			imgStatus.setImageResource(imageId);
@@ -965,12 +970,17 @@ public class ConversationsAdapter extends BaseAdapter
 				setImgStatusPadding(imgStatus, drawableResId);
 			}
 
-			if (message.getState() == ConvMessage.State.RECEIVED_UNREAD && (message.getTypingNotification() == null) && convInfo.getUnreadCount() > 0 && !message.isSent())
+			if (message.getState() == ConvMessage.State.RECEIVED_UNREAD
+					&& (message.getTypingNotification() == null)
+					&& convInfo.getUnreadCount() > 0
+					&& !message.isSent()
+					|| (message.getParticipantInfoState() == ParticipantInfoState.VOIP_CALL_SUMMARY && message.getMetadata() != null && !message.getMetadata().isVoipInitiator() && convInfo
+							.getUnreadCount() > 0))
 			{
-					unreadIndicator.setVisibility(View.VISIBLE);
-					unreadIndicator.setBackgroundResource(R.drawable.ic_messagecounter);
-					String unreadCountString = convInfo.getUnreadCountString();
-					unreadIndicator.setText(unreadCountString);
+				unreadIndicator.setVisibility(View.VISIBLE);
+				unreadIndicator.setBackgroundResource(R.drawable.ic_messagecounter);
+				String unreadCountString = convInfo.getUnreadCountString();
+				unreadIndicator.setText(unreadCountString);
 			}
 			// Using this to differentiate the normal chat and Offline Chat
 			if(isNuxLocked)

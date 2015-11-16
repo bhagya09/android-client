@@ -944,7 +944,7 @@ public class HikeDialogFactory
 		final CustomAlertDialog alert = new CustomAlertDialog(context, dialogId);
 		alert.setTitle(R.string.location);
 		alert.setMessage((int) data[0]);
-		alert.setPositiveButton(R.string.OK, listener);
+		alert.setPositiveButton((int)data[1], listener);
 		alert.setNegativeButton(R.string.CANCEL, listener);
 		alert.show();
 		
