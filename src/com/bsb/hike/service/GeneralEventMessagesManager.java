@@ -76,6 +76,7 @@ public class GeneralEventMessagesManager
 					return;
 				}
 				long mappedId = data.getLong(HikeConstants.EVENT_ID);
+				long mappedMessageId=data.optLong(HikeConstants.MESSAGE_ID);
 
 				long clientTimestamp = packet.getLong(HikeConstants.SEND_TIMESTAMP);
 				String eventMetadata = data.getString(HikePlatformConstants.EVENT_CARDDATA);
@@ -86,7 +87,7 @@ public class GeneralEventMessagesManager
 						HikePlatformConstants.EventStatus.EVENT_RECEIVED, clientTimestamp, mappedId, messageId, parent_msisdn,hm);
 				long eventId = HikeConversationsDatabase.getInstance().insertMessageEvent(messageEvent);
 
-				ConvMessage message = HikeConversationsDatabase.getInstance().updateMessageForGeneralEvent(messageHash, ConvMessage.State.RECEIVED_UNREAD, hm);
+				ConvMessage message = HikeConversationsDatabase.getInstance().updateMessageForGeneralEvent(messageHash, ConvMessage.State.RECEIVED_UNREAD, hm,mappedMessageId);
 
 				if (message == null || eventId < 0)
 				{

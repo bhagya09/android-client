@@ -495,7 +495,7 @@ public class DbConversationListener implements Listener
 
 			long eventId = HikeConversationsDatabase.getInstance().insertMessageEvent(messageEvent);
 
-			if (eventId < 0 || (HikeConversationsDatabase.getInstance().updateMessageForGeneralEvent(messageEvent.getMessageHash(), State.SENT_UNCONFIRMED, hm) == null))
+			if (eventId < 0 || (HikeConversationsDatabase.getInstance().updateMessageForGeneralEvent(messageEvent.getMessageHash(), State.SENT_UNCONFIRMED, hm,null) == null))
 			{
 				Logger.e(HikePlatformConstants.TAG, "Error inserting message event");
 			}

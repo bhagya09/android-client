@@ -8674,17 +8674,28 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 	}
 
 
-	public ConvMessage updateMessageForGeneralEvent(String msgHash, ConvMessage.State state, String hm)
+	public ConvMessage updateMessageForGeneralEvent(String msgHash, ConvMessage.State state, String hm,Long mappedMessageID)
 	{
 		ConvMessage msg = null;
 		try
 		{
 			mDb.beginTransaction();
-			String updateStatement = "UPDATE " + DBConstants.MESSAGES_TABLE + " SET " + DBConstants.SORTING_ID + " = "
+			String updateStatement;
+			String mappedmsgIdUpdate;
+			if(mappedMessageID!=null)
+			{
+				mappedmsgIdUpdate=","+DBConstants.MAPPED_MSG_ID + " = " + mappedMessageID;
+			}
+			else
+			{
+				mappedmsgIdUpdate="";
+			}
+			updateStatement = "UPDATE " + DBConstants.MESSAGES_TABLE + " SET " + DBConstants.SORTING_ID + " = "
 					+ " ( ( " + "SELECT" + " MAX( " + DBConstants.SORTING_ID + " ) " + " FROM " + DBConstants.MESSAGES_TABLE + " )" + " + 1 ), "
 					+ DBConstants.MSG_STATUS + " = " + state.ordinal()+","
 					+ DBConstants.TIMESTAMP + " = " + System.currentTimeMillis()/1000+","
 					+ DBConstants.MESSAGE + " = " + DatabaseUtils.sqlEscapeString(hm)
+					+ mappedmsgIdUpdate
 					+ " WHERE " + DBConstants.MESSAGE_HASH + " = " + DatabaseUtils.sqlEscapeString(msgHash);
 
 			mDb.execSQL(updateStatement);
