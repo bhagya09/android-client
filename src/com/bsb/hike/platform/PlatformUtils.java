@@ -5,7 +5,9 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.http.HeaderElement;
 import org.apache.http.HttpResponse;
+import org.apache.http.ParseException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ByteArrayEntity;
@@ -727,6 +729,17 @@ public class PlatformUtils
 		try
 		{
 			post.setHeader("Content-Type", "multipart/form-data; boundary=" + BOUNDARY);
+
+			HikeSharedPreferenceUtil mpref = HikeSharedPreferenceUtil.getInstance();
+			String platformUID = mpref.getData(HikeMessengerApp.PLATFORM_UID_SETTING, null);
+			String platformToken = mpref.getData(HikeMessengerApp.PLATFORM_TOKEN_SETTING, null);
+			if (!TextUtils.isEmpty(platformToken) && !TextUtils.isEmpty(platformUID))
+			{
+				post.addHeader((HttpHeaderConstants.COOKIE_HEADER_NAME,
+						HikePlatformConstants.PLATFORM_TOKEN + "=" + platformToken + "; " +
+								HikePlatformConstants.PLATFORM_USER_ID + "=" + platformUID);
+			}
+
 			post.setEntity(new ByteArrayEntity(fileBytes));
 			HttpResponse response = client.execute(post);
 			Logger.d("FileUpload", response.toString());
@@ -752,6 +765,7 @@ public class PlatformUtils
 		}
 		return res;
 	}
+
 	/*
 	 * gets the boundary message for the file path
 	 */
