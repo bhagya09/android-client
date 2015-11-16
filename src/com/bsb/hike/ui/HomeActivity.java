@@ -852,7 +852,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		@Override
 		public void onFocusChange(View v, boolean hasFocus)
 		{
-			if (!KptUtils.isSystemKeyboard())
+			if (!KptUtils.isSystemKeyboard()&& mCustomKeyboard!=null)
 			{
 				if (hasFocus)
 				{
