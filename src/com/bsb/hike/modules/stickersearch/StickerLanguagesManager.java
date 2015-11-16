@@ -148,7 +148,7 @@ public class StickerLanguagesManager {
     {
         if(!isValidISOLanguage(language) || containsLanguage(FORBIDDEN_LANGUAGE_SET_TYPE, language) ||  HikeSharedPreferenceUtil.getInstance(HikeMessengerApp.DEFAULT_TAG_DOWNLOAD_LANGUAGES_PREF).getData(language, false))
         {
-            Logger.d(TAG, "language : " + language + "  is wrong or forbidden or defaults tags are already downloaded " + this.toString());
+            Logger.d(TAG, "language: " + language + " is wrong or forbidden or defaults tags are already downloaded " + this.toString());
             return ;
         }
         HikeSharedPreferenceUtil.getInstance(HikeMessengerApp.DEFAULT_TAG_DOWNLOAD_LANGUAGES_PREF).saveData(language, false);
