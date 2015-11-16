@@ -20,6 +20,7 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
+import com.bsb.hike.modules.stickersearch.StickerSearchUtils;
 import com.bsb.hike.modules.stickersearch.datamodel.StickerAppositeDataContainer;
 import com.bsb.hike.modules.stickersearch.datamodel.Word;
 import com.bsb.hike.modules.stickersearch.provider.StickerSearchUtility.TextMatchManager;
@@ -182,7 +183,7 @@ public class StickerSearchHostManager
 	 */
 	public void loadChatProfile(String contactId, boolean isGroupChat, long lastMessageTimestamp)
 	{
-		Logger.v(TAG, "loadChatProfile(" + contactId + ", " + isGroupChat + ")");
+		Logger.i(TAG, "loadChatProfile(" + contactId + ", " + isGroupChat + ")");
 
 		synchronized (sHostOperateLock)
 		{
@@ -209,6 +210,9 @@ public class StickerSearchHostManager
 		mCurrentTextSignificantLength = 0;
 		mCurrentText = null;
 		mMomentCode = StickerSearchUtility.getMomentCode();
+
+		REGEX_SEPARATORS = StickerSearchUtility.getSeparatorsRegex(StickerSearchUtils.getCurrentLanguageISOCode());
+		SEPARATOR_CHARS = (HashSet<Character>) StickerSearchUtility.getSeparatorChars(REGEX_SEPARATORS);
 	}
 
 	public int[] beforeTextChange(CharSequence s, int start, int count, int after)
@@ -1113,7 +1117,7 @@ public class StickerSearchHostManager
 
 		for (String previousPhrase = null; maxPermutationSize > 0;)
 		{
-			// build phrase from a group of some words
+			// Build phrase from a group of some words
 			searchText.append(word);
 			rawSearchText.append(word);
 			currentMaxPermutationSize = maxPermutationSize;
