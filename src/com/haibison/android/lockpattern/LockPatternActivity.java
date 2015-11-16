@@ -534,7 +534,10 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity implem
                     		if (s.length() == 4){
                         		mTextInfo.setText(R.string.stealth_msg_pin_recorded);
                         		mBtnConfirm.setEnabled(true);
-                                mCustomKeyboard.hideCustomKeyboard(mLockPinView);
+                        		if (mCustomKeyboard != null)
+                        		{
+                                    mCustomKeyboard.hideCustomKeyboard(mLockPinView);                        			
+                        		}
                         	} 
                     		else 
                         	{
