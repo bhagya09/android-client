@@ -168,7 +168,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 			db.execSQL(sql);
 
 			sql = "ALTER TABLE " + HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING + " ADD COLUMN " + HikeStickerSearchBaseConstants.STICKER_TAG_KEYBOARD_ISO
-					+ HikeStickerSearchBaseConstants.SYNTAX_TEXT_LAST + " DEFAULT " + HikeStickerSearchBaseConstants.STICKER_TAG_KEYBOARD_ISO_DEFAULT;
+					+ HikeStickerSearchBaseConstants.SYNTAX_TEXT_LAST + " DEFAULT " + HikeStickerSearchBaseConstants.DEFAULT_STICKER_TAG_SCRIPT_ISO_CODE;
 			db.execSQL(sql);
 
 			if (oldVersion >= HikeStickerSearchBaseConstants.VERSION_STICKER_TAG_MAPPING_INDEX_ADDED)
@@ -256,7 +256,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 				+ HikeStickerSearchBaseConstants.STICKER_TAG_POPULARITY + HikeStickerSearchBaseConstants.SYNTAX_INTEGER_NEXT + HikeStickerSearchBaseConstants.STICKER_AVAILABILITY
 				+ HikeStickerSearchBaseConstants.SYNTAX_INTEGER_NEXT + HikeStickerSearchBaseConstants.STICKER_TAG_LANGUAGE + HikeStickerSearchBaseConstants.SYNTAX_TEXT_NEXT
 				+ HikeStickerSearchBaseConstants.STICKER_TAG_KEYBOARD_ISO + HikeStickerSearchBaseConstants.SYNTAX_TEXT_LAST + " DEFAULT "
-				+ HikeStickerSearchBaseConstants.STICKER_TAG_KEYBOARD_ISO_DEFAULT + HikeStickerSearchBaseConstants.SYNTAX_BRACKET_CLOSE;
+				+ HikeStickerSearchBaseConstants.DEFAULT_STICKER_TAG_SCRIPT_ISO_CODE + HikeStickerSearchBaseConstants.SYNTAX_BRACKET_CLOSE;
 		db.execSQL(sql);
 
 		// Create index on fixed table: TABLE_STICKER_TAG_MAPPING for 3 columns 'Tag Word/ Phrase', 'Sticker Information' and Tag language' together (as described above)
