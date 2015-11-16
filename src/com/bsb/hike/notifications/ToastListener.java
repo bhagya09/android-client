@@ -669,8 +669,7 @@ public class ToastListener implements Listener
 		boolean connectedOnce = settings.getBoolean(HikeMessengerApp.CONNECTED_ONCE, false);
 		if (status == MqttConstants.MQTTConnectionStatus.CONNECTED)
 		{
-			NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-			notificationManager.cancel(HikeConstants.HIKE_SYSTEM_NOTIFICATION);
+			HikeNotification.getInstance().cancelNotification(HikeConstants.HIKE_SYSTEM_NOTIFICATION);
 			if (!connectedOnce)
 			{
 				Editor editor = settings.edit();

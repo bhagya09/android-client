@@ -6,13 +6,14 @@ import com.bsb.hike.utils.Utils;
 
 public class HikeBadgeCountKeeperTimeline extends HikeBadgeCountKeeper
 {
-
+	public static final String BADGE_COUNT_TIMELINE_ONLY = "badgecounttimelineonly";
 
 	@Override
 	public void onEventReceived(String type, Object object)
 	{
-
-		setCount(Utils.getNotificationCount(mContext.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0), false,false,true,true));
+		
+		setCount(Utils.getNotificationCount(mContext.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0), true, false, true, true));
+		super.onEventReceived(type, object);
 		HikeMessengerApp.getPubSub().publish(HikePubSub.BADGE_COUNT_CHANGED, null);
 
 	}
@@ -20,8 +21,15 @@ public class HikeBadgeCountKeeperTimeline extends HikeBadgeCountKeeper
 	@Override
 	protected void init()
 	{
-		mlistener = new String[] { HikePubSub.BADGE_COUNT_TIMELINE_UPDATE_CHANGED, HikePubSub.TIMELINE_WIPE };
+		mlistener = new String[] { HikePubSub.BADGE_COUNT_TIMELINE_UPDATE_CHANGED, HikePubSub.TIMELINE_WIPE,HikePubSub.UNSEEN_STATUS_COUNT_CHANGED };
 
+	}
+
+	@Override
+	public String getSharedPreferenceTag()
+	{
+		// TODO Auto-generated method stub
+		return BADGE_COUNT_TIMELINE_ONLY;
 	}
 
 }

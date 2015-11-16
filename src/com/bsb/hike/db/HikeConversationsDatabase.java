@@ -827,17 +827,17 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		 */
 		if (oldVersion < 42)
 		{
-			if (!Utils.ifColumnExistsInTable(db, DBConstants.MESSAGES_TABLE, DBConstants.SEND_TIMESTAMP))
+			if (!Utils.isColumnExistsInTable(db, DBConstants.MESSAGES_TABLE, DBConstants.SEND_TIMESTAMP))
 			{
 				String alter = "ALTER TABLE " + DBConstants.MESSAGES_TABLE + " ADD COLUMN " + DBConstants.SEND_TIMESTAMP + " LONG DEFAULT -1";
 				db.execSQL(alter);
 			}
-			if (!Utils.ifColumnExistsInTable(db, DBConstants.GROUP_INFO_TABLE, DBConstants.GROUP_CREATOR))
+			if (!Utils.isColumnExistsInTable(db, DBConstants.GROUP_INFO_TABLE, DBConstants.GROUP_CREATOR))
 			{
 				String alter = "ALTER TABLE " + DBConstants.GROUP_INFO_TABLE + " ADD COLUMN " + DBConstants.GROUP_CREATOR + " TEXT DEFAULT NULL";
 				db.execSQL(alter);
 			}
-			if (!Utils.ifColumnExistsInTable(db, DBConstants.GROUP_MEMBERS_TABLE, DBConstants.TYPE))
+			if (!Utils.isColumnExistsInTable(db, DBConstants.GROUP_MEMBERS_TABLE, DBConstants.TYPE))
 			{
 				String alter = "ALTER TABLE " + DBConstants.GROUP_MEMBERS_TABLE + " ADD COLUMN " + DBConstants.TYPE + " INTEGER  DEFAULT 0";
 				db.execSQL(alter);
@@ -856,7 +856,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			sql = getFeedTableCreateQuery();
 			db.execSQL(sql);
 			
-			if (!Utils.ifColumnExistsInTable(db, DBConstants.STATUS_TABLE, DBConstants.FILE_KEY))
+			if (!Utils.isColumnExistsInTable(db, DBConstants.STATUS_TABLE, DBConstants.FILE_KEY))
 			{
 				String alterST = "ALTER TABLE " + DBConstants.STATUS_TABLE + " ADD COLUMN " + DBConstants.FILE_KEY + " TEXT";
 				db.execSQL(alterST);
@@ -876,7 +876,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		
 		if (oldVersion < 45)
 		{
-			if (!Utils.ifColumnExistsInTable(db, DBConstants.MESSAGES_TABLE, DBConstants.SORTING_ID))
+			if (!Utils.isColumnExistsInTable(db, DBConstants.MESSAGES_TABLE, DBConstants.SORTING_ID))
 			{
 				String alterMessageTable = "ALTER TABLE " + DBConstants.MESSAGES_TABLE + " ADD COLUMN " + DBConstants.SORTING_ID + " INTEGER DEFAULT -1";
 				db.execSQL(alterMessageTable);
@@ -885,7 +885,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.UPGRADE_SORTING_ID_FIELD, 1);
 			}
 
-			if (!Utils.ifColumnExistsInTable(db, DBConstants.BOT_TABLE, HIKE_CONTENT.BOT_VERSION))
+			if (!Utils.isColumnExistsInTable(db, DBConstants.BOT_TABLE, HIKE_CONTENT.BOT_VERSION))
 			{
 				String alterTable = "ALTER TABLE " + DBConstants.BOT_TABLE + " ADD COLUMN " + HIKE_CONTENT.BOT_VERSION + " INTEGER DEFAULT 0";
 				db.execSQL(alterTable);
@@ -898,7 +898,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 	{
 		Logger.d(getClass().getSimpleName(), "Reinitialising conversation DB");
 		close();
-		Logger.d(getClass().getSimpleName(), "conversation DB is closed now");
+		Logger.d(getClass().getSimpleName(), "Conversation DB is closed now");
 		
 		hikeConversationsDatabase = new HikeConversationsDatabase(HikeMessengerApp.getInstance());
 		/*
@@ -1535,6 +1535,17 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		conVal.put(DBConstants.FEED_ACTOR, feedData.getActor());
 		conVal.put(DBConstants.FEED_TS, feedData.getTimestamp());
 
+		String whereQuery = DBConstants.FEED_TS + " = ? AND " + DBConstants.FEED_ACTOR + " = ?";
+
+		String[] whereArgs = new String[] { Long.toString(feedData.getTimestamp()), feedData.getActor() };
+
+		Cursor cursor = mDb.query(DBConstants.FEED_TABLE, null, whereQuery, whereArgs, null, null, null, new Integer(1).toString());
+
+		if (cursor.moveToFirst())
+		{
+			return false;
+		}
+
 		long rowID = mDb.insert(DBConstants.FEED_TABLE, null, conVal);
 
 		if (rowID == -1L)
@@ -1552,8 +1563,8 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			ArrayList<String> actorList = new ArrayList<String>();
 			actorList.add(feedData.getActor());
 			changeActionCountForObjID(feedData.getObjID(), feedData.getObjType().getTypeString(), ActionsDataModel.ActionTypes.LIKE.getKey(), actorList, true);
-		
-			//Fire UPDATE_ACTIVITY_FEED_ICON_NOTIFICATION pubsub
+
+			// Fire UPDATE_ACTIVITY_FEED_ICON_NOTIFICATION pubsub
 			fireUpdateNotificationIconPubsub(TimelineActivity.FETCH_FEED_FROM_DB);
 		}
 

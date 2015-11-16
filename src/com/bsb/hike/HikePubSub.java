@@ -475,11 +475,15 @@ public class HikePubSub implements Runnable
 	public static final String BADGE_COUNT_ACTIVITY_UPDATE_CHANGED = "badgeCountActivityUpdateChanged";
 
 	public static final String BADGE_COUNT_RESET = "resetBadgeCount";
+	
+	public static final String ACCOUNT_RESET_OR_DELETE = "accountresetDelete";
 
 	public static final String BADGE_COUNT_UNSEEN_FRIEND_REQUEST_CHANGED = "badgeCountUnseenFriendRequestChanged";
 
 	public static final String BADGE_COUNT_USER_JOINED = "badgeCountUserJoined";
 
+	public static final String PRODUCT_POPUP_BADGE_COUNT_CHANGED = "productpopupBadgeCountChanged";
+	
 	private final Thread mThread;
 
 	private final BlockingQueue<Operation> mQueue;
