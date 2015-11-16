@@ -416,7 +416,7 @@ public class VoIPClient  {
 			@Override
 			public void run() {
 
-				usingHikeDirect = OfflineUtils.isConnectedToSameMsisdn(getPhoneNumber()); 
+				usingHikeDirect = isUsingHikeDirect(); 
 				
 				removeExternalSocketInfo();
 				getNewSocket();
@@ -2360,6 +2360,10 @@ public class VoIPClient  {
 	
 	public boolean isHost() {
 		return isHost;
+	}
+	
+	public boolean isUsingHikeDirect() {
+		return OfflineUtils.isConnectedToSameMsisdn(getPhoneNumber());
 	}
 
 	private void stop() {

@@ -114,9 +114,6 @@ public class VoipCallFragment extends Fragment implements CallActions
 		bluetoothButton = (ImageButton) view.findViewById(R.id.bluetooth_btn);
 		forceMuteContainer = (LinearLayout) view.findViewById(R.id.force_mute_layout);
 		
-		if (VoIPUtils.isConferencingEnabled(getActivity())) 
-			addButton.setVisibility(View.VISIBLE);
-
 		return view;
 	}
 
@@ -918,7 +915,7 @@ public class VoipCallFragment extends Fragment implements CallActions
 		}
 
 		if (VoIPUtils.isConferencingEnabled(HikeMessengerApp.getInstance())) {
-			if (clientPartner.isHostingConference) {
+			if (clientPartner.isHostingConference || clientPartner.isUsingHikeDirect()) {
 				addButton.setVisibility(View.GONE);
 			} else {
 				addButton.setVisibility(View.VISIBLE);
