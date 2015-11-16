@@ -160,7 +160,6 @@ public class KptKeyboardManager implements AdaptxtSettingsRegisterListener
 		mInstalledLanguagesList.clear();
 
 		KPTAdaptxtAddonSettings.KPTLanguageData data = kptSettings.getAllLanguageData();
-		@SuppressWarnings("unchecked")
 		List<KPTAddonItem> installedList = data.getInstalledLanguage();
 		for (KPTAddonItem language : installedList)
 		{
@@ -177,7 +176,6 @@ public class KptKeyboardManager implements AdaptxtSettingsRegisterListener
 		mInstalledLanguagesList.addAll(installedList);
 
 		mUnistalledLanguagesList.clear();
-		@SuppressWarnings("unchecked")
 		List<KPTAddonItem> unInstalledList = data.getUnInstalledLanguage();
 		for (KPTAddonItem language : unInstalledList)
 		{
@@ -188,7 +186,6 @@ public class KptKeyboardManager implements AdaptxtSettingsRegisterListener
 		mUnistalledLanguagesList.addAll(unInstalledList);
 
 		getUnsupportedLanguagesList().clear();
-		@SuppressWarnings("unchecked")
 		List<KPTAddonItem> UnsupportedList = data.getUnSupportedLanguage();
 		for (KPTAddonItem language : UnsupportedList)
 		{
