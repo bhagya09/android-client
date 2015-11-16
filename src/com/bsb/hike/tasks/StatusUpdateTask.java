@@ -38,13 +38,16 @@ public class StatusUpdateTask implements IHikeHTTPTask
 	private RequestToken token;
 
 	private String imageFilePath;
+	
+	private String language;
 
-	public StatusUpdateTask(String status, int argMoodId, String imageFilePath) throws IOException
+	public StatusUpdateTask(String status, int argMoodId, String imageFilePath, String language) throws IOException
 	{
 		this.status = status;
 		this.moodId = argMoodId;
 		this.imageFilePath = imageFilePath;
-		token = HttpRequests.postStatusRequest(status, argMoodId, getRequestListener(), imageFilePath);
+		this.language = language;
+		token = HttpRequests.postStatusRequest(status, argMoodId, getRequestListener(), imageFilePath, language);
 	}
 
 	@Override

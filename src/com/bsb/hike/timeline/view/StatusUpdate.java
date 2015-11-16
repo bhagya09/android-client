@@ -17,6 +17,7 @@ import com.bsb.hike.media.ImageParser;
 import com.bsb.hike.media.ImageParser.ImageParserListener;
 import com.bsb.hike.media.PopupListener;
 import com.bsb.hike.modules.kpt.HikeCustomKeyboard;
+import com.bsb.hike.modules.kpt.KptKeyboardManager;
 import com.bsb.hike.modules.kpt.KptUtils;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.smartImageLoader.IconLoader;
@@ -708,7 +709,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 
 		try
 		{
-			mActivityTask.task = new StatusUpdateTask(status, mActivityTask.moodId, mImagePath);
+			mActivityTask.task = new StatusUpdateTask(status, mActivityTask.moodId, mImagePath, KptKeyboardManager.getInstance(getApplicationContext()).getCurrentLanguageAddonItem().getlocaleName());
 		}
 		catch (IOException e)
 		{
