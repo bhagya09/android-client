@@ -3029,7 +3029,7 @@ import com.bsb.hike.voip.VoIPConstants;
 						ids.addAll(0, MovingList.getIds(msgList));
 						if (position >= 0)
 						{
-							Logger.d("gaurav","found at pos: "+ position + ", id:" + msgList.get(position).getMsgID());
+							Logger.d("gaurav","found at pos: "+ position + ", id:" + msgList.get(position).getSortingId());
 							int start = Math.max(position - HikeConstants.MAX_OLDER_MESSAGES_TO_LOAD_EACH_TIME, 0);
 							int end = Math.min(position + HikeConstants.MAX_OLDER_MESSAGES_TO_LOAD_EACH_TIME, msgList.size()-1);
 							ArrayList<ConvMessage> toBeAddedList = new ArrayList<ConvMessage>(ids.size());
@@ -3049,7 +3049,7 @@ import com.bsb.hike.voip.VoIPConstants;
 							{
 								loadMessageCount *= 2;
 							}
-							maxId = msgList.get(0).getMsgID();
+							maxId = msgList.get(0).getSortingId();
 						}
 					}
 					if (loaderId == SEARCH_LOOP && position < 0)
@@ -3076,7 +3076,7 @@ import com.bsb.hike.voip.VoIPConstants;
 						position = messageSearchManager.searchFirstItem(msgList, 0, msgList.size(), chatThread.get().searchText);
 						if (position >= 0)
 						{
-							Logger.d("gaurav","found at pos: "+ position + ", id:" + msgList.get(position).getMsgID());
+							Logger.d("gaurav","found at pos: "+ position + ", id:" + msgList.get(position).getSortingId());
 							count += (position + 1);
 							position = count;
 						}
@@ -3088,7 +3088,7 @@ import com.bsb.hike.voip.VoIPConstants;
 							{
 								loadMessageCount *= 2;
 							}
-							minId = msgList.get(msgList.size() - 1).getMsgID();
+							minId = msgList.get(msgList.size() - 1).getSortingId();
 							maxIdPosition = Math.min(count + loadMessageCount, msgSize - 1);
 							maxId = chatThread.get().messages.getUniqueId(maxIdPosition);
 						}
@@ -4893,8 +4893,10 @@ import com.bsb.hike.voip.VoIPConstants;
 				// below method marks sms msgs as read
 				setSMSReadInNative();
 			}
-			HikeMessengerApp.getPubSub().publish(HikePubSub.MSG_READ, msisdn);
+		
 			ChatThreadUtils.sendMR(msisdn, unreadConvMessages, readMessageExists,channelSelector);
+			//Moved here so MSG_READ is published after it has been updated in DB
+			HikeMessengerApp.getPubSub().publish(HikePubSub.MSG_READ, msisdn);
 		}
 	}
 	

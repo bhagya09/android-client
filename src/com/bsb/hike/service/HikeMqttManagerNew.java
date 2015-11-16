@@ -1791,7 +1791,7 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 				|| (HikeConstants.MqttMessageTypes.INVITE.equals(o.optString(HikeConstants.TYPE))))
 		{
 			JSONObject json = o.optJSONObject(HikeConstants.DATA);
-			msgId = Long.parseLong(json.optString(HikeConstants.MESSAGE_ID));
+			msgId = Long.parseLong(json.optString(HikeConstants.MESSAGE_ID, "-1"));
 		}
 		else if((HikeConstants.MqttMessageTypes.NEW_MESSAGE_READ.equals(o.optString(HikeConstants.TYPE))))
 		{

@@ -1132,6 +1132,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 				}
 
 				resetNotificationCounter(convInfo);
+				HikeMessengerApp.getPubSub().publish(HikePubSub.BADGE_COUNT_MESSAGE_CHANGED, null);
 			}
 		}
 		else
