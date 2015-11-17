@@ -156,6 +156,7 @@ public class ToastListener implements Listener
 				
 				if (((TimelineActivity) activity).isUpdatesFrgamentOnTop())
 				{
+					HikeMessengerApp.getInstance().getPubSub().publish(HikePubSub.BADGE_COUNT_TIMELINE_UPDATE_CHANGED, null);
 					return;
 				}
 			}
@@ -169,6 +170,7 @@ public class ToastListener implements Listener
 			{
 				notificationType = NotificationType.DPUPDATE;
 			}
+			HikeMessengerApp.getInstance().getPubSub().publish(HikePubSub.BADGE_COUNT_TIMELINE_UPDATE_CHANGED, null);
 			toaster.notifyStatusMessage(statusMessage, notificationType);
 		}
 		else if (HikePubSub.ACTIVITY_UPDATE_NOTIF.equals(type))
@@ -615,6 +617,8 @@ public class ToastListener implements Listener
 			// Remove unused references
 			filteredMessageList.clear();
 			filteredMessageList = null;
+			HikeMessengerApp.getPubSub().publish(HikePubSub.BADGE_COUNT_MESSAGE_CHANGED, null);
+			HikeMessengerApp.getPubSub().publish(HikePubSub.BADGE_COUNT_TIMELINE_UPDATE_CHANGED, null);
 		}
 	}
 
@@ -683,8 +687,7 @@ public class ToastListener implements Listener
 		boolean connectedOnce = settings.getBoolean(HikeMessengerApp.CONNECTED_ONCE, false);
 		if (status == MqttConstants.MQTTConnectionStatus.CONNECTED)
 		{
-			NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-			notificationManager.cancel(HikeConstants.HIKE_SYSTEM_NOTIFICATION);
+			HikeNotification.getInstance().cancelNotification(HikeConstants.HIKE_SYSTEM_NOTIFICATION);
 			if (!connectedOnce)
 			{
 				Editor editor = settings.edit();

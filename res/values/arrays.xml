@@ -236,19 +236,19 @@
 	
 	<array name="call_glowpad_drawables">
         <item>@drawable/ic_item_call_pick</item>
-        <item>@null</item>
+        <item>@drawable/ic_item_decline_message</item>
         <item>@drawable/ic_item_call_hang</item>
         <item>@null</item>
     </array>
     <array name="call_glowpad_descr">
         <item>dismiss</item>
-        <item>@null</item>
-        <item>snooze</item>
+        <item>message</item>
+        <item>pickup</item>
         <item>@null</item>
     </array>
     <array name="call_glowpad_directions">
         <item>right</item>
-        <item>@null</item>
+        <item>top</item>
         <item>left</item>
         <item>@null</item>
     </array>
