@@ -4,20 +4,22 @@ import java.lang.ref.WeakReference;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import com.bsb.hike.HikeMessengerApp;
-import com.bsb.hike.bots.BotInfo;
-import com.bsb.hike.bots.BotUtils;
-import com.bsb.hike.db.HikeConversationsDatabase;
-import com.bsb.hike.models.HikeHandlerUtil;
-import com.bsb.hike.utils.HikeSharedPreferenceUtil;
-import com.bsb.hike.utils.Utils;
-import com.hike.transporter.utils.Logger;
 
 import android.app.Activity;
+import android.content.Context;
+import android.net.ConnectivityManager;
 import android.os.Handler;
 import android.text.TextUtils;
 import android.util.Log;
 import android.webkit.JavascriptInterface;
+
+import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.bots.BotInfo;
+import com.bsb.hike.bots.BotUtils;
+import com.bsb.hike.models.HikeHandlerUtil;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.Utils;
+import com.hike.transporter.utils.Logger;
 
 public class NativeBridge
 {
@@ -608,6 +610,12 @@ public class NativeBridge
 				activity.platformCallback(callID, response);
 			}
 		});
+	}
+	
+	public boolean isNetworkConnected()
+	{
+	  ConnectivityManager cm = (ConnectivityManager) activity.getSystemService(Context.CONNECTIVITY_SERVICE);
+	  return cm.getActiveNetworkInfo() != null;
 	}
 
 }
