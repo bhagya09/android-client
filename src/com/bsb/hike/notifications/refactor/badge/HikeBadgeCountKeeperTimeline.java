@@ -21,8 +21,8 @@ public class HikeBadgeCountKeeperTimeline extends HikeBadgeCountKeeper
 	@Override
 	protected void init()
 	{
-		mlistener = new String[] { HikePubSub.BADGE_COUNT_TIMELINE_UPDATE_CHANGED, HikePubSub.TIMELINE_WIPE,HikePubSub.UNSEEN_STATUS_COUNT_CHANGED };
-		defaultCount=Utils.getNotificationCount(mContext.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0), true, false, true, false);
+		mlistener = new String[] { HikePubSub.BADGE_COUNT_TIMELINE_UPDATE_CHANGED, HikePubSub.TIMELINE_WIPE,HikePubSub.UNSEEN_STATUS_COUNT_CHANGED,HikePubSub.FAVORITE_COUNT_CHANGED };
+		defaultCount=Utils.getNotificationCount(mContext.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0), true, false, true, true);
 	}
 
 	@Override
