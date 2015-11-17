@@ -6169,14 +6169,12 @@ import android.widget.Toast;
 		
 		if (systemKeyboard)
 		{
-			KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, 0);
-			mCustomKeyboard.showCustomKeyboard(mComposeView, false);
+			hideKptKeyboard();
 			mCustomKeyboard.swtichToDefaultKeyboard(mComposeView);
 			mCustomKeyboard.unregister(R.id.msg_compose);
 			resetSharablePopup();
 			mComposeView.setOnClickListener(new OnClickListener()
 			{
-
 				@Override
 				public void onClick(View v)
 				{
