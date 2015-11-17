@@ -28,6 +28,7 @@ import com.bsb.hike.modules.httpmgr.hikehttp.IHikeHttpTaskResult;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.StickerRequestType;
+import com.bsb.hike.modules.stickersearch.StickerLanguagesManager;
 import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
 import com.bsb.hike.utils.Logger;
@@ -67,7 +68,7 @@ public class SingleStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRe
 
 		String requestId = getRequestId(); // for duplicate check
 
-		token = singleStickerDownloadRequest(requestId, stickerId, categoryId, getRequestListener());
+		token = singleStickerDownloadRequest(requestId, stickerId, categoryId, getRequestListener(), StickerLanguagesManager.getInstance().listToSting(StickerLanguagesManager.getInstance().getAccumulatedSet(StickerLanguagesManager.DOWNLOADED_LANGUAGE_SET_TYPE, StickerLanguagesManager.DOWNLOADING_LANGUAGE_SET_TYPE)));
 
 		if (token.isRequestRunning()) // return if request is running
 		{
@@ -205,6 +206,7 @@ public class SingleStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRe
 							BitmapUtils.saveBitmapToFile(smallImage, thumbnail);
 							thumbnail.recycle();
 							StickerManager.getInstance().saveInStickerTagSet(stickerId, categoryId);
+							StickerLanguagesManager.getInstance().checkAndUpdateForbiddenList(data);
 							StickerSearchManager.getInstance().insertStickerTags(data, StickerSearchConstants.STATE_STICKER_DATA_FRESH_INSERT);
 						}
 					}

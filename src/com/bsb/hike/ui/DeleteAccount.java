@@ -18,6 +18,7 @@ import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.CustomFontEditText;
 import com.bsb.hike.view.CustomFontTextView;
+import com.kpt.adaptxt.beta.KPTAddonItem;
 import com.kpt.adaptxt.beta.RemoveDialogData;
 import com.kpt.adaptxt.beta.util.KPTConstants;
 import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtKeyboordVisibilityStatusListner;
@@ -69,7 +70,7 @@ public class DeleteAccount extends HikeAppStateBaseFragmentActivity implements D
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.delete_account_confirmation);
 		
-		systemKeyboard = HikeMessengerApp.isSystemKeyboard(DeleteAccount.this);
+		systemKeyboard = HikeMessengerApp.isSystemKeyboard();
 		
 		initViewComponents();
 		if (!systemKeyboard)
@@ -130,6 +131,7 @@ public class DeleteAccount extends HikeAppStateBaseFragmentActivity implements D
 	{
 
 		Intent intent = new Intent(this, CountrySelectActivity.class);
+		intent.putExtra(HikeConstants.Extras.FROM_DELETE_ACCOUNT, true);
 		this.startActivityForResult(intent, HikeConstants.ResultCodes.SELECT_COUNTRY);
 	}
 
@@ -315,17 +317,6 @@ public class DeleteAccount extends HikeAppStateBaseFragmentActivity implements D
 	@Override
 	protected void onResume()
 	{
-		if (mCustomKeyboard != null)
-		{
-			if (phoneNum != null && phoneNum.isFocused())
-			{
-				mCustomKeyboard.showCustomKeyboard(phoneNum, true);
-			}
-			else if (countryCode != null && countryCode.isFocused())
-			{
-				mCustomKeyboard.showCustomKeyboard(countryCode, true);
-			}
-		}
 		super.onResume();
 	}
 
@@ -348,9 +339,9 @@ public class DeleteAccount extends HikeAppStateBaseFragmentActivity implements D
 	}
 
 	@Override
-	public void analyticalData(String currentLanguage)
+	public void analyticalData(KPTAddonItem kptAddonItem)
 	{
-		KptUtils.generateKeyboardAnalytics(currentLanguage);
+		KptUtils.generateKeyboardAnalytics(kptAddonItem);
 	}
 
 	@Override

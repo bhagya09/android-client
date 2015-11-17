@@ -31,6 +31,7 @@ import com.bsb.hike.ui.fragments.FriendsFragment;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Utils;
+import com.kpt.adaptxt.beta.KPTAddonItem;
 import com.kpt.adaptxt.beta.RemoveDialogData;
 import com.kpt.adaptxt.beta.util.KPTConstants;
 import com.kpt.adaptxt.beta.view.AdaptxtEditText;
@@ -126,7 +127,7 @@ public class PeopleActivity extends HikeAppStateBaseFragmentActivity implements 
 		searchView.setOnQueryTextListener(onQueryTextListener);
 		searchET = (AdaptxtEditText) searchView
 				.findViewById(R.id.search_src_text);
-		if (!KptUtils.isSystemKeyboard(PeopleActivity.this)) {
+		if (!KptUtils.isSystemKeyboard()) {
 			mCustomKeyboard.registerEditText(searchET);
 			mCustomKeyboard.init(searchET);
 		}
@@ -135,7 +136,7 @@ public class PeopleActivity extends HikeAppStateBaseFragmentActivity implements 
 			@Override
 			public void onFocusChange(View v, boolean hasFocus) {
 				if(hasFocus){
-					if (KptUtils.isSystemKeyboard(PeopleActivity.this))
+					if (KptUtils.isSystemKeyboard())
 					{
 						Utils.showSoftKeyboard(searchET, InputMethodManager.SHOW_FORCED);
 					}
@@ -235,9 +236,9 @@ public class PeopleActivity extends HikeAppStateBaseFragmentActivity implements 
 	}
 
 	@Override
-	public void analyticalData(String arg0) {
-		// TODO Auto-generated method stub
-		
+	public void analyticalData(KPTAddonItem kptAddonItem)
+	{
+		KptUtils.generateKeyboardAnalytics(kptAddonItem);
 	}
 
 	@Override

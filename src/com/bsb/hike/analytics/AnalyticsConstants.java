@@ -525,6 +525,8 @@ public class AnalyticsConstants
 
 		public static final String KNOWN_CARD_SETTINGS_TOGGLE = "knwStgTgl";
 		
+		public static final String WRONG_JSON = "wrngJsn";
+		
 	}
 	
 	public static String EVENT_SOURCE = "sr";

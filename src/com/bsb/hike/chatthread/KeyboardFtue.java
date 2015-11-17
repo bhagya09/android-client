@@ -5,6 +5,12 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.view.animation.AnimationSet;
+import android.view.animation.RotateAnimation;
+import android.view.animation.TranslateAnimation;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -13,30 +19,38 @@ import android.widget.ListView;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
 
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
+import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.modules.kpt.KptKeyboardManager;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.Logger;
 import com.kpt.adaptxt.beta.KPTAddonItem;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 /**
  * Created by gauravmittal on 28/10/15.
  */
 public class KeyboardFtue implements HikePubSub.Listener
 {
-    public interface OnKeyboardFTUEDestroyedListener
+    public interface OnKeyboardFTUEStateChangeListener
     {
+        void onStateChange(int state);
         void onDestroyed();
     }
 
     private final String KEYBOARD_FTUE_STATE = "keyboardFTUEState";
-    private final int NOT_STARTED = 0;
-    private final int LANGUAGE_SELECTION_COMPLETE = 1;
-    private final int COMPLETE = 3;
+    public static final int NOT_STARTED = 0;
+    public static final int LANGUAGE_SELECTION_COMPLETE = 1;
+    public static final int COMPLETE = 3;
     private int mState;
     private boolean mInitialised;
 
@@ -48,7 +62,7 @@ public class KeyboardFtue implements HikePubSub.Listener
 
     private ViewFlipper flipper;
 
-    private OnKeyboardFTUEDestroyedListener destroyedListener;
+    private OnKeyboardFTUEStateChangeListener stateChangeListener;
 
     ArrayList<KPTAddonItem> addonItems;
 
@@ -65,11 +79,11 @@ public class KeyboardFtue implements HikePubSub.Listener
         mState = HikeSharedPreferenceUtil.getInstance().getData(KEYBOARD_FTUE_STATE,NOT_STARTED);
     }
 
-    public void init(Activity activity, LayoutInflater inflater, ViewGroup container, OnKeyboardFTUEDestroyedListener listener)
+    public void init(Activity activity, LayoutInflater inflater, ViewGroup container, OnKeyboardFTUEStateChangeListener listener)
     {
         this.mActivity = activity;
         this.container = container;
-        this.destroyedListener = listener;
+        this.stateChangeListener = listener;
         rootView = inflater.inflate(R.layout.keyboard_ftue_layout, container, false);
         mInitialised = true;
         addToPubSub();
@@ -140,20 +154,41 @@ public class KeyboardFtue implements HikePubSub.Listener
     private void prepareIntroLayout()
     {
         flipper.setDisplayedChild(0);
+        trackClickAnalyticEvents(HikeConstants.LogEvent.KEYBOARD_FTUE_INITIATED);
+        
         flipper.findViewById(R.id.close).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 skipLanguageSelection();
+                trackClickAnalyticEvents(HikeConstants.LogEvent.KEYBOARD_FTUE_CLOSE_BUTTON);
             }
         });
-        flipper.findViewById(R.id.txt_choose_language).setOnClickListener(new View.OnClickListener() {
+        flipper.findViewById(R.id.btn_choose_language).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 prepareLanguageListLayout();
+                trackClickAnalyticEvents(HikeConstants.LogEvent.KEYBOARD_FTUE_CHOOSE_LANGUAGE_BUTTON);
             }
         });
     }
 
+    /*
+     * This method is to track the analytic events on various ftue clicks
+     */
+    private void trackClickAnalyticEvents(String event)
+    {
+    	try
+		{
+			JSONObject metadata = new JSONObject();
+			metadata.put(HikeConstants.EVENT_KEY, event);
+			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
+		}
+		catch(JSONException e)
+		{
+			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json : " + e);
+		}
+    }
+    
     private void prepareLanguageListLayout()
     {
         flipper.setDisplayedChild(1);
@@ -163,11 +198,13 @@ public class KeyboardFtue implements HikePubSub.Listener
             @Override
             public void onClick(View v) {
                 skipLanguageSelection();
+                trackClickAnalyticEvents(HikeConstants.LogEvent.KEYBOARD_FTUE_CLOSE_LANG_SELECTION);
             }
         });
         flipper.findViewById(R.id.btn_positive).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                trackClickAnalyticEvents(HikeConstants.LogEvent.KEYBOARD_FTUE_INSTALL_SELECTED_LANGUAGES);
                 installSelectedLangauges();
                 refreshActionPanel();
             }
@@ -184,24 +221,86 @@ public class KeyboardFtue implements HikePubSub.Listener
             @Override
             public void onClick(View v)
             {
-                updateState(COMPLETE);
+//            	tracking analytic event for keyboard ftue completion
+                trackClickAnalyticEvents(HikeConstants.LogEvent.KEYBOARD_FTUE_COMPLETES);
+            	
+            	updateState(COMPLETE);
                 showNextFtue();
             }
         });
+        resetSwipeAnimation();
     }
 
+    private void resetSwipeAnimation()
+    {
+        int startOffsetTime = 1200;
+        int durationTime = 1000;
+        int holdTime = 1200;
+        TranslateAnimation translateText1Animation = new TranslateAnimation(Animation.RELATIVE_TO_SELF,-1.0f,Animation.RELATIVE_TO_SELF,0.0f,Animation.RELATIVE_TO_SELF,0.0f,Animation.RELATIVE_TO_SELF,0.0f);
+        translateText1Animation.setStartOffset(startOffsetTime);
+        translateText1Animation.setDuration(durationTime);
+        translateText1Animation.setFillAfter(true);
+        translateText1Animation.setFillBefore(true);
+        translateText1Animation.setFillEnabled(true);
+        TranslateAnimation translateText2Animation = new TranslateAnimation(Animation.RELATIVE_TO_SELF,0.0f,Animation.RELATIVE_TO_SELF,1.0f,Animation.RELATIVE_TO_SELF,0.0f,Animation.RELATIVE_TO_SELF,0.0f);
+        translateText2Animation.setStartOffset(startOffsetTime);
+        translateText2Animation.setDuration(durationTime);
+        translateText2Animation.setFillAfter(true);
+        translateText2Animation.setFillBefore(true);
+        translateText2Animation.setFillEnabled(true);
+        TranslateAnimation translateHandAnimation = new TranslateAnimation(Animation.RELATIVE_TO_SELF,0.0f,Animation.RELATIVE_TO_SELF,2.2f,Animation.RELATIVE_TO_SELF,0.0f,Animation.RELATIVE_TO_SELF,0.0f);
+        translateHandAnimation.setStartOffset(startOffsetTime);
+        translateHandAnimation.setDuration(durationTime);
+        AlphaAnimation alphaHandAnimation = new AlphaAnimation(1,0);
+        alphaHandAnimation.setStartOffset(startOffsetTime);
+        alphaHandAnimation.setDuration(durationTime);
+        RotateAnimation fakeAnimation = new RotateAnimation(0,1);
+        fakeAnimation.setStartOffset(startOffsetTime + durationTime);
+        fakeAnimation.setDuration(holdTime);
+
+        AnimationSet handAnimationSet = new AnimationSet(true);
+        handAnimationSet.addAnimation(translateHandAnimation);
+        handAnimationSet.addAnimation(alphaHandAnimation);
+        handAnimationSet.addAnimation(fakeAnimation);
+        handAnimationSet.setFillAfter(true);
+        handAnimationSet.setFillBefore(true);
+        handAnimationSet.setFillEnabled(true);
+        handAnimationSet.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                resetSwipeAnimation();
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+
+        flipper.findViewById(R.id.txt_language_1).startAnimation(translateText1Animation);
+        flipper.findViewById(R.id.txt_language_2).startAnimation(translateText2Animation);
+        flipper.findViewById(R.id.hand).startAnimation(handAnimationSet);
+    }
     private void refreshActionPanel()
     {
-        Byte keyboardManagerState = KptKeyboardManager.getInstance(mActivity).getCurrentState();
-        if (keyboardManagerState == KptKeyboardManager.WAITING)
+        if (flipper != null)
         {
-            flipper.findViewById(R.id.action_panel).setVisibility(View.VISIBLE);
-            flipper.findViewById(R.id.waiting_panel).setVisibility(View.GONE);
-        }
-        else
-        {
-            flipper.findViewById(R.id.action_panel).setVisibility(View.GONE);
-            flipper.findViewById(R.id.waiting_panel).setVisibility(View.VISIBLE);
+            Byte keyboardManagerState = KptKeyboardManager.getInstance(mActivity).getCurrentState();
+            if (keyboardManagerState == KptKeyboardManager.WAITING)
+            {
+                flipper.findViewById(R.id.action_panel).setVisibility(View.VISIBLE);
+                flipper.findViewById(R.id.waiting_panel).setVisibility(View.GONE);
+            }
+            else
+            {
+                flipper.findViewById(R.id.action_panel).setVisibility(View.GONE);
+                flipper.findViewById(R.id.waiting_panel).setVisibility(View.VISIBLE);
+            }
         }
     }
 
@@ -211,21 +310,27 @@ public class KeyboardFtue implements HikePubSub.Listener
         addonItemAdapter = new LanguageItemAdapter(mActivity, R.layout.keyboard_ftue_language_list_item, addonItems);
         ListView langList = (ListView) flipper.findViewById(R.id.lang_list);
         langList.setAdapter(addonItemAdapter);
+        langList.setOnItemClickListener(addonItemAdapter);
         refreshLanguageList();
     }
 
     private void refreshLanguageList()
     {
-        addonItems.clear();
-        addonItems.addAll(KptKeyboardManager.getInstance(mActivity).getInstalledLanguagesList());
-        addonItems.addAll(KptKeyboardManager.getInstance(mActivity).getUninstalledLanguagesList());
-        addonItemAdapter.notifyDataSetChanged();
+        if (addonItems != null)
+        {
+            addonItems.clear();
+            addonItems.addAll(KptKeyboardManager.getInstance(mActivity).getInstalledLanguagesList());
+            addonItems.addAll(KptKeyboardManager.getInstance(mActivity).getUninstalledLanguagesList());
+            addonItemAdapter.notifyDataSetChanged();
+        }
     }
 
     private void updateState(int state)
     {
         mState = state;
         HikeSharedPreferenceUtil.getInstance().saveData(KEYBOARD_FTUE_STATE, state);
+        if (stateChangeListener != null)
+            stateChangeListener.onStateChange(mState);
     }
 
     private void skipLanguageSelection()
@@ -248,6 +353,19 @@ public class KeyboardFtue implements HikePubSub.Listener
             for (KPTAddonItem item : addonItemAdapter.getSelectedItems())
             {
                 KptKeyboardManager.getInstance(mActivity).downloadAndInstallLanguage(item);
+                
+//                tracking download of each language in ftue
+                try
+        		{
+        			JSONObject metadata = new JSONObject();
+        			metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.KEYBOARD_FTUE_LANGUAGE_DOWNLOADED);
+        			metadata.put(HikeConstants.KEYBOARD_LANGUAGE, item.getDisplayName());
+        			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
+        		}
+        		catch(JSONException e)
+        		{
+        			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json : " + e);
+        		}
             }
         }
         else
@@ -306,12 +424,15 @@ public class KeyboardFtue implements HikePubSub.Listener
 
     public void destroy()
     {
-        container.removeAllViews();
-        container.invalidate();
-        removeFromPubSub();
-        mInitialised = false;
-        if (destroyedListener != null)
-            destroyedListener.onDestroyed();
+        if (mInitialised)
+        {
+            container.removeAllViews();
+            container.invalidate();
+            removeFromPubSub();
+            mInitialised = false;
+            if (stateChangeListener != null)
+                stateChangeListener.onDestroyed();
+        }
     }
 
     private void removeFromPubSub()
@@ -319,7 +440,7 @@ public class KeyboardFtue implements HikePubSub.Listener
         HikeMessengerApp.getPubSub().removeListeners(this, mPubSubListeners);
     }
 
-    class LanguageItemAdapter extends ArrayAdapter<KPTAddonItem> {
+    class LanguageItemAdapter extends ArrayAdapter<KPTAddonItem> implements AdapterView.OnItemClickListener {
 
         Context mContext;
 
@@ -346,8 +467,18 @@ public class KeyboardFtue implements HikePubSub.Listener
         }
 
         @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id)
+        {
+            ViewHolder viewHolder;
+            viewHolder = (ViewHolder) view.getTag();
+            if (viewHolder.checkBoxItem.isEnabled())
+                viewHolder.checkBoxItem.performClick();
+        }
+
+        @Override
         public View getView(int position, View convertView, ViewGroup parent)
         {
+            KPTAddonItem item = getItem(position);
             ViewHolder viewHolder;
             if (convertView == null)
             {
@@ -360,11 +491,10 @@ public class KeyboardFtue implements HikePubSub.Listener
             {
                 viewHolder = (ViewHolder) convertView.getTag();
             }
-            KPTAddonItem item = getItem(position);
 
             viewHolder.checkBoxItem.setText(item.getDisplayName());
             KptKeyboardManager.LanguageDictionarySatus status = KptKeyboardManager.getInstance(mContext).getDictionaryLanguageStatus(item);
-            if (status == KptKeyboardManager.LanguageDictionarySatus.INSTALLED
+            if (status == KptKeyboardManager.LanguageDictionarySatus.INSTALLED_LOADED
                     || status == KptKeyboardManager.LanguageDictionarySatus.PROCESSING
                     || status == KptKeyboardManager.LanguageDictionarySatus.IN_QUEUE
                     || selectedItems.contains(item))
@@ -376,14 +506,16 @@ public class KeyboardFtue implements HikePubSub.Listener
                 viewHolder.checkBoxItem.setChecked(false);
             }
 
-            if(KptKeyboardManager.getInstance(mContext).getCurrentState() != KptKeyboardManager.WAITING || status == KptKeyboardManager.LanguageDictionarySatus.INSTALLED)
+            if(KptKeyboardManager.getInstance(mContext).getCurrentState() != KptKeyboardManager.WAITING || status == KptKeyboardManager.LanguageDictionarySatus.INSTALLED_LOADED
+                    || status == KptKeyboardManager.LanguageDictionarySatus.INSTALLED_UNLOADED)
             {
-                viewHolder.checkBoxItem.setClickable(false);
+                viewHolder.checkBoxItem.setEnabled(false);
             }
             else
             {
-                viewHolder.checkBoxItem.setClickable(true);
+                viewHolder.checkBoxItem.setEnabled(true);
             }
+            viewHolder.checkBoxItem.setClickable(false);
             viewHolder.checkBoxItem.setOnCheckedChangeListener(langItemCheckChangeListener);
             viewHolder.checkBoxItem.setTag(item);
             return convertView;

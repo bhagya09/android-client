@@ -1,6 +1,8 @@
 package com.bsb.hike.utils;
 
+import android.app.NotificationManager;
 import android.content.ActivityNotFoundException;
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.content.res.Resources;
@@ -23,6 +25,7 @@ import com.bsb.hike.R;
 import com.bsb.hike.filetransfer.FTAnalyticEvents;
 import com.bsb.hike.localisation.LocalLanguageUtils;
 import com.bsb.hike.models.HikeAlarmManager;
+import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.productpopup.DialogPojo;
 import com.bsb.hike.productpopup.HikeDialogFragment;
 import com.bsb.hike.productpopup.IActivityPopup;
@@ -53,13 +56,18 @@ public class HikeAppStateBaseFragmentActivity extends HikeBaseActivity implement
 	{
 		if (mmModel != null)
 		{
+			// clearing the notification once the popup is been seen
+
+			NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+			if (notificationManager != null)
+				notificationManager.cancel(HikeNotification.NOTIFICATION_PRODUCT_POPUP);
 			DialogPojo mmDialogPojo = ProductInfoManager.getInstance().getDialogPojo(mmModel);
 			HikeDialogFragment mmFragment = HikeDialogFragment.getInstance(mmDialogPojo);
-			
-		// If activity is finishing don't commit.
-			
-			if(!isFinishing())
-			mmFragment.showDialog(getSupportFragmentManager());
+
+			// If activity is finishing don't commit.
+
+			if (!isFinishing())
+				mmFragment.showDialog(getSupportFragmentManager());
 		}
 	}
 	

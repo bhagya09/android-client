@@ -6,22 +6,12 @@
 
 package com.bsb.hike.modules.stickersearch.provider;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
-
 import android.util.Pair;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.models.Sticker;
+import com.bsb.hike.modules.stickersearch.StickerLanguagesManager;
 import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
 import com.bsb.hike.modules.stickersearch.datamodel.StickerTagDataContainer;
 import com.bsb.hike.modules.stickersearch.datamodel.StickerTagDataContainer.StickerTagDataBuilder;
@@ -31,6 +21,17 @@ import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 
 public enum StickerSearchDataController
 {
@@ -82,12 +83,6 @@ public enum StickerSearchDataController
 		{
 			Logger.d(TAG, "setupStickerSearchWizard(), Sticker Recommendation is not supported in Android OS v 2.3.x or lower.");
 			StickerManager.getInstance().removeStickerSet(state);
-			return;
-		}
-
-		if (!((state == StickerSearchConstants.STATE_STICKER_DATA_FRESH_INSERT) || (state == StickerSearchConstants.STATE_STICKER_DATA_REFRESH)))
-		{
-			Logger.e(TAG, "setupStickerSearchWizard(), Invalid state.");
 			return;
 		}
 
@@ -380,7 +375,9 @@ public enum StickerSearchDataController
 					}
 
 					// Check themes associated with tags per sticker for each language and script altogether
-					if (themeList.size() <= 0)
+					//if (themeList.size() <= 0)
+					//temp hack since theme list is not being used currently and also server does not send theme list for tags in regional scripts
+					if (themeList.size() < 0)
 					{
 						themeList = null;
 						tagList.clear();
@@ -558,11 +555,7 @@ public enum StickerSearchDataController
 				else
 				{
 					StickerManager.getInstance().removeStickerSet(state);
-					
-					if(state == StickerSearchConstants.STATE_STICKER_DATA_REFRESH)
-					{
-						HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.LAST_SUCCESSFUL_STICKER_TAG_REFRESH_TIME, System.currentTimeMillis());
-					}
+					takeDecisionOnState(state);
 				}
 				pendingRetrySet.clear();
 				pendingRetrySet = null;
@@ -573,6 +566,19 @@ public enum StickerSearchDataController
 
 		receivedStickers.clear();
 		receivedStickers = null;
+	}
+
+	private void takeDecisionOnState(int state)
+	{
+		switch(state)
+		{
+			case StickerSearchConstants.STATE_STICKER_DATA_REFRESH:
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.LAST_SUCCESSFUL_STICKER_TAG_REFRESH_TIME, System.currentTimeMillis());
+				break;
+			case StickerSearchConstants.STATE_LANGUAGE_TAGS_DOWNLOAD:
+				StickerLanguagesManager.getInstance().downloadTagsForNextLanguage();
+				break;
+		}
 	}
 
 	public void updateStickerList(Set<String> stickerInfoSet)

@@ -59,6 +59,7 @@ import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.NUXManager;
 import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.Utils;
+import com.kpt.adaptxt.beta.KPTAddonItem;
 import com.kpt.adaptxt.beta.RemoveDialogData;
 import com.kpt.adaptxt.beta.util.KPTConstants;
 import com.kpt.adaptxt.beta.view.AdaptxtEditText;
@@ -709,6 +710,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			searchView.setOnQueryTextListener(onQueryTextListener);
 			searchView.clearFocus();
 			searchET = (AdaptxtEditText) searchView.findViewById(R.id.search_src_text);
+			Utils.setEditTextCursorDrawableColor(searchET,R.drawable.edittextcursorsearch);
 			setupSearchTextKeyboard();
 
 			searchOptionID = searchMenuItem.getItemId();
@@ -794,7 +796,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 					HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOW_TIMELINE_RED_DOT, false);
 					Intent intent = new Intent(HomeActivity.this, TimelineActivity.class);
-					timelineUpdatesIndicator.setVisibility(View.GONE);
 					startActivity(intent);
 				}
 			});
@@ -838,12 +839,12 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 	private boolean setupCustomKeyboard()
 	{
-		if (mCustomKeyboard == null && !KptUtils.isSystemKeyboard(HomeActivity.this))
+		if (mCustomKeyboard == null && !KptUtils.isSystemKeyboard())
 		{
 			LinearLayout viewHolder = (LinearLayout) findViewById(R.id.keyboardView_holder);
 			mCustomKeyboard = new HikeCustomKeyboard(HomeActivity.this, viewHolder, KPTConstants.MULTILINE_LINE_EDITOR, null, HomeActivity.this);
 		}
-		return (mCustomKeyboard != null && !KptUtils.isSystemKeyboard(HomeActivity.this)) ? true: false;
+		return (mCustomKeyboard != null && !KptUtils.isSystemKeyboard()) ? true: false;
 	}
 
 	View.OnFocusChangeListener searchTextFocusChangeListener = new View.OnFocusChangeListener()
@@ -851,7 +852,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		@Override
 		public void onFocusChange(View v, boolean hasFocus)
 		{
-			if (!KptUtils.isSystemKeyboard(HomeActivity.this))
+			if (!KptUtils.isSystemKeyboard())
 			{
 				if (hasFocus)
 				{
@@ -872,6 +873,18 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			}
 		}
 	};
+	
+	View.OnClickListener searchTextClickChangeListener = new View.OnClickListener()
+	{
+		
+		@Override
+		public void onClick(View v)
+		{
+			
+			showKeyboard();
+		}
+	} ;
+
 
 	private void setupSearchTextKeyboard()
 	{
@@ -888,6 +901,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			resetSearchTextKeyboard();
 		}
 		searchET.setOnFocusChangeListener(searchTextFocusChangeListener);
+		searchET.setOnClickListener(searchTextClickChangeListener);
 	}
 
 	private void resetSearchTextKeyboard()
@@ -1164,13 +1178,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		Logger.d(TAG,"onResume");
 		if (searchMenuItem != null && searchMenuItem.isActionViewExpanded())
 		{
-			if (!KptUtils.isSystemKeyboard(HomeActivity.this))
-			{
-				if (mCustomKeyboard != null && searchET != null)
-				{
-					mCustomKeyboard.showCustomKeyboard(searchET, true);
-				}
-			}
+			showKeyboard();
 		}
 		super.onResume();
 
@@ -1187,6 +1195,19 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		if(getIntent() != null)
 		{
 			acceptGroupMembershipConfirmation(getIntent());
+		}
+	}
+
+	private void showKeyboard()
+	{
+		if (!KptUtils.isSystemKeyboard())
+		{
+			if (mCustomKeyboard != null && searchET != null)
+			{
+				mCustomKeyboard.showCustomKeyboard(searchET, true);
+			}
+		}else{
+			Utils.showSoftKeyboard(getApplicationContext(), searchET);
 		}
 	}
 	
@@ -1210,7 +1231,15 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		
 		if (linkUrl.contains(HttpRequestConstants.BASE_LINK_SHARING_URL))
 		{
-			String code = linkUrl.split("/")[3];
+			//linkurl is http://hike.in/refid:gc:code
+			String codeArray[] = linkUrl.split("/");
+			if(codeArray.length < 4)
+			{
+				Logger.d("link_share_error", "The linkurl is wrong, split in '/' is < 4 " + linkUrl);
+				return;
+			}
+			
+			String code = codeArray[3];
 			RequestToken requestToken = HttpRequests.acceptGroupMembershipConfirmationRequest(code, new IRequestListener()
 			{
 				
@@ -2239,12 +2268,10 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		final int count = getHomeOverflowCount(accountPrefs, false, false);
 		if (topBarIndicator != null)
 		{
-			runOnUiThread(new Runnable()
-			{
+			runOnUiThread(new Runnable() {
 
 				@Override
-				public void run()
-				{
+				public void run() {
 					updateHomeOverflowToggleCount(count, 1000);
 				}
 			});
@@ -2261,7 +2288,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	@Override
 	public void onConfigurationChanged(Configuration newConfig)
 	{
-		if (!KptUtils.isSystemKeyboard(HomeActivity.this)&&mCustomKeyboard!=null)
+		if (!KptUtils.isSystemKeyboard()&&mCustomKeyboard!=null)
 		{
 			if (mCustomKeyboard != null)
 			{
@@ -2417,9 +2444,9 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	}
 
 	@Override
-	public void analyticalData(String currentLanguage) 
+	public void analyticalData(KPTAddonItem kptAddonItem)
 	{
-		KptUtils.generateKeyboardAnalytics(currentLanguage);
+		KptUtils.generateKeyboardAnalytics(kptAddonItem);
 	}
 
 	@Override

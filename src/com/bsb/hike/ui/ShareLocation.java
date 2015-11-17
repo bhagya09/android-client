@@ -38,6 +38,7 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.kpt.adaptxt.beta.KPTAddonItem;
 import com.kpt.adaptxt.beta.RemoveDialogData;
 import com.kpt.adaptxt.beta.util.KPTConstants;
 import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtKeyboordVisibilityStatusListner;
@@ -420,7 +421,7 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 	}
 	public boolean isSystemKeyboard()
 	{
-		return HikeMessengerApp.isSystemKeyboard(ShareLocation.this);
+		return HikeMessengerApp.isSystemKeyboard();
 	}
 	@Override
 	public void onConnected(Bundle arg0)
@@ -749,7 +750,7 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 				gpsDialogShown = currentLocationDevice == GPS_DISABLED;
 				hikeDialog.dismiss();
 			}
-		}, messageId);
+		}, messageId,R.string.OK);
 
 		if (!ShareLocation.this.isFinishing())
 			alert.show();
@@ -893,7 +894,7 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 		LinearLayout parentView = (LinearLayout)findViewById(R.id.keyboardView_holder);
 		mCustomKeyboard= new HikeCustomKeyboard(this, parentView,KPTConstants.MULTILINE_LINE_EDITOR, null,ShareLocation.this);
 		searchET = (CustomFontEditText)findViewById(R.id.search);
-		if (!KptUtils.isSystemKeyboard(ShareLocation.this))
+		if (!KptUtils.isSystemKeyboard())
 		{
     		mCustomKeyboard.registerEditText(R.id.search);
     		mCustomKeyboard.init(searchET);
@@ -902,7 +903,7 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 			
 			@Override
 			public void onClick(View v) {
-				if (KptUtils.isSystemKeyboard(ShareLocation.this))
+				if (KptUtils.isSystemKeyboard())
 				{
 					Utils.showSoftKeyboard(searchET, InputMethodManager.SHOW_FORCED);
 				}
@@ -1010,11 +1011,11 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 		}
 		super.onConfigurationChanged(newConfig);
 	}
-	
+
 	@Override
-	public void analyticalData(String arg0) {
-		// TODO Auto-generated method stub
-		
+	public void analyticalData(KPTAddonItem kptAddonItem)
+	{
+		KptUtils.generateKeyboardAnalytics(kptAddonItem);
 	}
 
 	@Override

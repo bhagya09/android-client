@@ -6,11 +6,11 @@
 
 package com.bsb.hike.modules.stickersearch.datamodel;
 
-import java.util.ArrayList;
-
 import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchBaseConstants;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
+
+import java.util.ArrayList;
 
 public class StickerTagDataContainer
 {
@@ -117,8 +117,11 @@ public class StickerTagDataContainer
 			if (result)
 			{
 				// Language, Script, Category and various Priorities are per tag while themes are per sticker
+//				result = (mLanguages.size() == size) && (mScripts.size() == size) && (mTagCategories.size() == size) && (mTagExactMatchPriorities.size() == size)
+//						&& (mTagPriorities.size() == size) && (mThemes.size() > 0);
+				//temp hack since theme list is not being used currently and also server does not send theme list for tags in regional scripts
 				result = (mLanguages.size() == size) && (mScripts.size() == size) && (mTagCategories.size() == size) && (mTagExactMatchPriorities.size() == size)
-						&& (mTagPriorities.size() == size) && (mThemes.size() > 0);
+						&& (mTagPriorities.size() == size) && (mThemes.size() >= 0);
 			}
 		}
 

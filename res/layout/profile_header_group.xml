@@ -63,6 +63,7 @@
                     android:contentDescription="Edit Group Name"
                     atx:charInputMaxLength="@integer/max_length_group_name"
                     style="@style/ProfileHeaderText"
+                     android:imeOptions="actionSend"
                     android:visibility="gone" />
             </FrameLayout>
 

@@ -33,6 +33,7 @@ import com.bsb.hike.view.CustomFontEditText;
 import com.bsb.hike.view.CustomLinearLayout;
 import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 import com.bsb.hike.view.RoundedImageView;
+import com.kpt.adaptxt.beta.KPTAddonItem;
 import com.kpt.adaptxt.beta.RemoveDialogData;
 import com.kpt.adaptxt.beta.util.KPTConstants;
 import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtKeyboordVisibilityStatusListner;
@@ -182,6 +183,8 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 
 	private View addItemsLayout;
 
+	private String mInputIntentData;
+
 	@Override
 	public Object onRetainCustomNonConfigurationInstance()
 	{
@@ -216,7 +219,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		
 		initEmoticonPicker();
 		
-		systemKeyboard = HikeMessengerApp.isSystemKeyboard(StatusUpdate.this);
+		systemKeyboard = HikeMessengerApp.isSystemKeyboard();
 		mEmoticonPicker.setCustomKeyBoard(!systemKeyboard);
 		if (!systemKeyboard)
 		{
@@ -368,6 +371,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 			return;
 		}
 		mImagePath = intent.getStringExtra(STATUS_UPDATE_IMAGE_PATH);
+		mInputIntentData = intent.toUri(Intent.URI_INTENT_SCHEME);
 	}
 
 	/**
@@ -410,14 +414,10 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 
 		super.onStop();
 
+
 		if (mActivityTask.moodShowing || mActivityTask.emojiShowing)
 		{
 			getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
-		}
-
-		else
-		{
-			getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
 		}
 		
 	}
@@ -547,11 +547,6 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		int galleryFlags = GalleryActivity.GALLERY_CATEGORIZE_BY_FOLDERS | GalleryActivity.GALLERY_EDIT_SELECTED_IMAGE | GalleryActivity.GALLERY_COMPRESS_EDITED_IMAGE
 				| GalleryActivity.GALLERY_DISPLAY_CAMERA_ITEM;
 
-		if(!Utils.isPhotosEditEnabled())
-		{
-			galleryFlags = galleryFlags|GalleryActivity.GALLERY_CROP_IMAGE;
-		}
-		
 		Intent galleryPickerIntent = IntentFactory.getHikeGalleryPickerIntent(StatusUpdate.this, galleryFlags, Utils.getNewImagePostFilePath());
 		startActivityForResult(galleryPickerIntent, UpdatesFragment.TIMELINE_POST_IMAGE_REQ);
 	}
@@ -1039,9 +1034,9 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 	}
 
 	@Override
-	public void analyticalData(String currentLanguage)
+	public void analyticalData(KPTAddonItem kptAddonItem)
 	{
-		KptUtils.generateKeyboardAnalytics(currentLanguage);
+		KptUtils.generateKeyboardAnalytics(kptAddonItem);
 	}
 
 	@Override
