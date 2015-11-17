@@ -237,6 +237,8 @@ public class AnalyticsConstants
 	
 	public static final String STICKER_SEARCH = "stks";
 
+	public static final String STICKER_SEARCH_BACKEND = "ssb";
+
 	public static final class MessageType
 	{
 		public static final String NUDGE = "nudge";

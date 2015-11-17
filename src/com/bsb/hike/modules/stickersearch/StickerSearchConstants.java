@@ -31,7 +31,7 @@ public class StickerSearchConstants
 	// ========================================================Generic constants for data setup]]
 
 	// Generic constants for periodic tasks====================================================[[
-	public static final int REBALACING_DEFAULT_TIME_HOUR = 4; // 4 a.m. time-stamp
+	public static final int DEFAULT_REBALANCING_TIME_HOUR = 4; // 4 a.m. time-stamp
 
 	public static final long DEFAULT_STICKER_TAG_REFRESH_TIME_INTERVAL = 14 * 24 * 60 * 60 * 1000L; // 14 days period in milliseconds
 
@@ -49,6 +49,8 @@ public class StickerSearchConstants
 	public static final int MAXIMUM_PHRASE_PERMUTATION_SIZE = 4;
 
 	public static final int MINIMUM_AUTO_RECOMMENDATION_REJECTION_PATTERN_COUNT = 1;
+
+	public static final String DEFAULT_KEYBOARD_LANGUAGE_ISO_CODE = "eng";
 
 	// ====================================================Generic constants for searching text]]
 
@@ -173,6 +175,4 @@ public class StickerSearchConstants
 
 	public static final String STRING_JOINTER = "_";
 	// =======================================================================Generic constants]]
-
-	public static final String DEFAULT_KEYBOARD_LANGUAGE_ISO_CODE = "eng";
 }

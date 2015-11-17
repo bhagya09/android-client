@@ -168,7 +168,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 			db.execSQL(sql);
 
 			sql = "ALTER TABLE " + HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING + " ADD COLUMN " + HikeStickerSearchBaseConstants.STICKER_TAG_KEYBOARD_ISO
-					+ HikeStickerSearchBaseConstants.SYNTAX_TEXT_LAST + " DEFAULT " + HikeStickerSearchBaseConstants.STICKER_TAG_KEYBOARD_ISO_DEFAULT;
+					+ HikeStickerSearchBaseConstants.SYNTAX_TEXT_LAST + " DEFAULT " + HikeStickerSearchBaseConstants.DEFAULT_STICKER_TAG_SCRIPT_ISO_CODE;
 			db.execSQL(sql);
 
 			if (oldVersion >= HikeStickerSearchBaseConstants.VERSION_STICKER_TAG_MAPPING_INDEX_ADDED)
@@ -256,7 +256,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 				+ HikeStickerSearchBaseConstants.STICKER_TAG_POPULARITY + HikeStickerSearchBaseConstants.SYNTAX_INTEGER_NEXT + HikeStickerSearchBaseConstants.STICKER_AVAILABILITY
 				+ HikeStickerSearchBaseConstants.SYNTAX_INTEGER_NEXT + HikeStickerSearchBaseConstants.STICKER_TAG_LANGUAGE + HikeStickerSearchBaseConstants.SYNTAX_TEXT_NEXT
 				+ HikeStickerSearchBaseConstants.STICKER_TAG_KEYBOARD_ISO + HikeStickerSearchBaseConstants.SYNTAX_TEXT_LAST + " DEFAULT "
-				+ HikeStickerSearchBaseConstants.STICKER_TAG_KEYBOARD_ISO_DEFAULT + HikeStickerSearchBaseConstants.SYNTAX_BRACKET_CLOSE;
+				+ HikeStickerSearchBaseConstants.DEFAULT_STICKER_TAG_SCRIPT_ISO_CODE + HikeStickerSearchBaseConstants.SYNTAX_BRACKET_CLOSE;
 		db.execSQL(sql);
 
 		// Create index on fixed table: TABLE_STICKER_TAG_MAPPING for 3 columns 'Tag Word/ Phrase', 'Sticker Information' and Tag language' together (as described above)
@@ -1507,17 +1507,19 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 				c.close();
 				c = null;
 			}
+
 			SQLiteDatabase.releaseMemory();
 		}
 
 		Logger.i(TAG_REBALANCING, "summarizeAndDoRebalancing(), total tags entered = " + totalPossibleTagCount + " till date:: " + date.toString());
 
+		long previousTrendingTime = HikeSharedPreferenceUtil.getInstance().getData(HikeStickerSearchBaseConstants.KEY_PREF_LAST_TRENDING_SUMMERIZATION_TIME, 0L);
+		long previousLocalTime = HikeSharedPreferenceUtil.getInstance().getData(HikeStickerSearchBaseConstants.KEY_PREF_LAST_LOCAL_SUMMERIZATION_TIME, 0L);
+		long previousGlobalTime = HikeSharedPreferenceUtil.getInstance().getData(HikeStickerSearchBaseConstants.KEY_PREF_LAST_GLOBAL_SUMMERIZATION_TIME, 0L);
+		
 		if (totalPossibleTagCount > 0)
 		{
 			Logger.i(TAG_REBALANCING, "summarizeAndDoRebalancing(), Current time = " + currentTime + " milliseconds.");
-			long previousTrendingTime = HikeSharedPreferenceUtil.getInstance().getData(HikeStickerSearchBaseConstants.KEY_PREF_LAST_TRENDING_SUMMERIZATION_TIME, 0L);
-			long previousLocalTime = HikeSharedPreferenceUtil.getInstance().getData(HikeStickerSearchBaseConstants.KEY_PREF_LAST_LOCAL_SUMMERIZATION_TIME, 0L);
-			long previousGlobalTime = HikeSharedPreferenceUtil.getInstance().getData(HikeStickerSearchBaseConstants.KEY_PREF_LAST_GLOBAL_SUMMERIZATION_TIME, 0L);
 
 			long intervalFromPreviousSummeryTime = currentTime - previousTrendingTime;
 			Logger.i(TAG_REBALANCING, "summarizeAndDoRebalancing(), Previous trending summary time = " + previousTrendingTime + " milliseconds.");
@@ -1634,6 +1636,9 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 			//
 
 			int existingTotalTagCount = rowsIds.size();
+			int initialTotalTagCount = existingTotalTagCount;
+			long dbSizeInBytes = -1;
+			long availableMemoryInBytes = -1;
 
 			// Prepare trending summarization
 			if (isTrendingSummeryTurn)
@@ -1770,11 +1775,11 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 			{
 				// Check internal memory insufficiency
 				File file = mContext.getDatabasePath(HikeStickerSearchBaseConstants.DATABASE_HIKE_STICKER_SEARCH);
-				long dbSize = file.length();
-				long availableSizeInBytes = file.getFreeSpace();
-				long possibleDbExpansionSizeInBytes = (long) (dbSize * THRESHOLD_DATABASE_EXPANSION_COEFFICIENT);
+				dbSizeInBytes = file.length();
+				availableMemoryInBytes = file.getFreeSpace();
+				long possibleDbExpansionSizeInBytes = (long) (dbSizeInBytes * THRESHOLD_DATABASE_EXPANSION_COEFFICIENT);
 
-				if (availableSizeInBytes < possibleDbExpansionSizeInBytes)
+				if (availableMemoryInBytes < possibleDbExpansionSizeInBytes)
 				{
 					Logger.w(TAG_REBALANCING, "summarizeAndDoRebalancing(), Internal memory seems to get full in few days. Let's shrink sticker search database.");
 					cuttOffTagDataSize = (int) (existingTotalTagCount * THRESHOLD_DATABASE_FORCED_SHRINK_COEFFICIENT);
@@ -2031,6 +2036,9 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 			{
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeStickerSearchBaseConstants.KEY_PREF_LAST_GLOBAL_SUMMERIZATION_TIME, currentTime);
 			}
+
+			// Send summarization analytics to record current data status
+			StickerManager.getInstance().sendRebalancingAnalytics(date.toString(), dbSizeInBytes, availableMemoryInBytes, initialTotalTagCount, totalDeletingReferenceCount);
 		}
 		else
 		{
@@ -2039,6 +2047,12 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 			HikeSharedPreferenceUtil.getInstance().removeData(HikeStickerSearchBaseConstants.KEY_PREF_LAST_TRENDING_SUMMERIZATION_TIME);
 			HikeSharedPreferenceUtil.getInstance().removeData(HikeStickerSearchBaseConstants.KEY_PREF_LAST_LOCAL_SUMMERIZATION_TIME);
 			HikeSharedPreferenceUtil.getInstance().removeData(HikeStickerSearchBaseConstants.KEY_PREF_LAST_GLOBAL_SUMMERIZATION_TIME);
+
+			// Send summarization analytics to record that operation need not to be performed and stop further recording, once operation was halted
+			if ((previousTrendingTime != 0L) || (previousLocalTime != 0L) || (previousGlobalTime != 0L))
+			{
+				StickerManager.getInstance().sendRebalancingAnalytics(date.toString(), -1L, -1L, -1, -1);
+			}
 		}
 
 		return true;
