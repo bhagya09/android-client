@@ -219,8 +219,10 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 			{
 				case AdaptxtSettings.KPT_TRUE:
 					value = true;
+					break;
 				case AdaptxtSettings.KPT_FALSE:
 					value = false;
+					break;
 			}
 			((SwitchPreferenceCompat)preference).setChecked(value);
 		}
