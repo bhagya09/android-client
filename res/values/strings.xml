@@ -786,6 +786,9 @@
     <string name="voip_offline_error">Network unavailable. Please try again when you have network connectivity.</string>
     <string name="voip_conference_label">Conference Call</string>
     <string name="voip_conference_waiting_for_participants_info">Waiting for conference info...</string>
+    <string name="voip_hang_up">Hang Up</string>
+    <string name="voip_decline">Decline</string>
+    <string name="voip_accept">Accept</string>
     <string name="hike_calls">Hike Calls</string>
     <string name="voip_intro_popup_msg">You can now call all your Hike friends for free!</string>
     <string name="voip_intro_popup_btn">AWESOME</string>

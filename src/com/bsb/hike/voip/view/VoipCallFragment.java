@@ -239,6 +239,9 @@ public class VoipCallFragment extends Fragment implements CallActions
 					setupForceMuteLayout();
 				}
 				break;
+			case VoIPConstants.MSG_ACCEPT_CALL:
+				onAcceptCall();
+				break;
 			default:
 				super.handleMessage(msg);
 			}
@@ -529,7 +532,7 @@ public class VoipCallFragment extends Fragment implements CallActions
 	{
 		Logger.d(tag, "Declined call, rejecting...");
 		if (voipService != null)
-			voipService.rejectIncomingCall();
+			voipService.declineIncomingCall();
 	}
 
 	@Override
