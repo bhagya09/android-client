@@ -500,6 +500,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		Cursor c = null;
 		HashMap<String, ContentValues> existingTagData = new HashMap<String, ContentValues>();
 
+		/* No need to involve script of tag in querying because tags itself will be different for different scripts. */
 		String[] columnsInvolvedInQuery = new String[] { HikeStickerSearchBaseConstants.STICKER_TAG_PHRASE, HikeStickerSearchBaseConstants.STICKER_RECOGNIZER_CODE,
 				HikeStickerSearchBaseConstants.STICKER_TAG_LANGUAGE };
 		int[] nullCheckIndicatorForColumnsInvolvedInQuery = new int[] { HikeStickerSearchBaseConstants.SQLITE_NON_NULL_CHECK, HikeStickerSearchBaseConstants.SQLITE_NON_NULL_CHECK,
@@ -687,7 +688,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 						}
 
 						// Clear data, which is no longer needed
-						existingTagData.remove(stickerCode + StickerSearchConstants.STRING_DELIMITER + tag);
+						existingTagData.remove(uniqueKey);
 						existingCv.clear();
 						existingCv = null;
 					}

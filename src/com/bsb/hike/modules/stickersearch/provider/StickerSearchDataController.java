@@ -237,10 +237,11 @@ public enum StickerSearchDataController
 											{
 												for (int i = 0; i < tagArray.length(); i++)
 												{
-													tag = tagArray.optString(i);
-													if (!Utils.isBlank(tag))
+													tag = tagArray.optString(i).trim().toUpperCase(Locale.ENGLISH);
+
+													// Do not add exact tag of any language in list, if it is already added for same language due to duplicates in json response
+													if (!Utils.isBlank(tag) && !tempExactMatchElements.contains(tag))
 													{
-														tag = tag.trim().toUpperCase(Locale.ENGLISH);
 														tempExactMatchElements.add(tag);
 														tempRemainingExactMatchElements.add(tag);
 													}
@@ -269,15 +270,16 @@ public enum StickerSearchDataController
 
 												for (int i = 0; i < tagArray.length(); i++)
 												{
-													tag = tagArray.optString(i);
-													if (!Utils.isBlank(tag))
+													tag = tagArray.optString(i).trim().toLowerCase(Locale.ENGLISH);
+
+													// Do not add theme of any language in list, if it is already added for same language due to duplicates in json response
+													if (!Utils.isBlank(tag) && !themeList.contains(tag))
 													{
-														tag = tag.trim().toLowerCase(Locale.ENGLISH);
 														themeList.add(tag);
 
 														if (!HikeStickerSearchBaseConstants.DEFAULT_THEME_TAG.equalsIgnoreCase(tag))
 														{
-															tag = tag.trim().toUpperCase(Locale.ENGLISH);
+															tag = tag.toUpperCase(Locale.ENGLISH);
 															tagList.add(tag);
 															tagLanguageList.add(languageId);
 															tagScriptList.add(scriptId);
@@ -316,21 +318,25 @@ public enum StickerSearchDataController
 
 												for (int i = 0; i < tagArray.length(); i++)
 												{
-													tag = tagArray.optString(i);
+													tag = tagArray.optString(i).trim().toUpperCase(Locale.ENGLISH);
 													if (!Utils.isBlank(tag))
 													{
-														tag = tag.trim().toUpperCase(Locale.ENGLISH);
-														tagList.add(tag);
-														tagLanguageList.add(languageId);
-														tagScriptList.add(scriptId);
-														tagCategoryList.add(formattedKey);
-														exactMatchPriority = tempExactMatchElements.indexOf(tag);
-														tagExactMatchPriorityList.add(exactMatchPriority);
-														if (exactMatchPriority >= 0)
+														// Do not add tag of any language in list, if it is already added for same language due to duplicates in json response
+														int indexOfPreExistingTagInList = tagList.indexOf(tag);
+														if ((indexOfPreExistingTagInList < 0) || !languageId.equals(tagLanguageList.get(indexOfPreExistingTagInList)))
 														{
-															tempRemainingExactMatchElements.remove(tag);
+															tagList.add(tag);
+															tagLanguageList.add(languageId);
+															tagScriptList.add(scriptId);
+															tagCategoryList.add(formattedKey);
+															exactMatchPriority = tempExactMatchElements.indexOf(tag);
+															tagExactMatchPriorityList.add(exactMatchPriority);
+															if (exactMatchPriority >= 0)
+															{
+																tempRemainingExactMatchElements.remove(tag);
+															}
+															tagPriorityList.add(i);
 														}
-														tagPriorityList.add(i);
 													}
 												}
 											}
