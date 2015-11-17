@@ -59,7 +59,7 @@ public class InitiateMultiFileTransferTask extends AsyncTask<Void, Void, Void>
 	{
 		for (Pair<String, String> fileDetail : fileDetails)
 		{
-			initiateFileTransferFromIntentData(fileDetail.first, fileDetail.second);
+			initiateFileTransferFromIntentData(fileDetail.first, fileDetail.second, null);
 		}
 		return null;
 	}

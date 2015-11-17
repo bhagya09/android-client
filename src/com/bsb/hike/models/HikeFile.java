@@ -187,9 +187,17 @@ public class HikeFile
 	private String downloadURL;
 
 	private VideoEditedInfo vEditInfo;
+	
+	private HikeFileMetadata metadata;
 
+	private HikeFile()
+	{
+		metadata = new HikeFileMetadata();
+	}
+	
 	public HikeFile(JSONObject fileJSON, boolean isSent)
 	{
+		this();
 		this.fileName = fileJSON.optString(HikeConstants.FILE_NAME);
 		this.fileTypeString = fileJSON.optString(HikeConstants.CONTENT_TYPE);
 		this.thumbnailString = fileJSON.optString(HikeConstants.THUMBNAIL, null);
@@ -229,6 +237,7 @@ public class HikeFile
 
 	public HikeFile(String fileName, String fileTypeString, String thumbnailString, Bitmap thumbnail, long recordingDuration, boolean isSent, String img_quality)
 	{
+		this();
 		this.fileName = fileName;
 		this.fileTypeString = fileTypeString;
 		this.hikeFileType = HikeFileType.fromString(fileTypeString, recordingDuration != -1);
@@ -241,6 +250,7 @@ public class HikeFile
 
 	public HikeFile(String fileName, String fileTypeString, String thumbnailString, Bitmap thumbnail, long recordingDuration, String source, long fileSize, boolean isSent, String img_quality)
 	{
+		this();
 		this.fileName = fileName;
 		this.fileTypeString = fileTypeString;
 		this.hikeFileType = HikeFileType.fromString(fileTypeString, recordingDuration != -1);
@@ -255,6 +265,7 @@ public class HikeFile
 
 	public HikeFile(double latitude, double longitude, int zoomLevel, String address, String thumbnailString, Bitmap thumbnail, boolean isSent)
 	{
+		this();
 		this.fileName = HikeConstants.LOCATION_FILE_NAME;
 		this.latitude = latitude;
 		this.longitude = longitude;
@@ -710,5 +721,15 @@ public class HikeFile
 		}
 		return id;
 	}
-
+	
+	public void setCaption(String caption)
+	{
+		metadata.setCaption(caption);
+	}
+	
+	public String getCaption()
+	{
+		return metadata.getCaption();
+	}
+	
 }

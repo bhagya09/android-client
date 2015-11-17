@@ -19,7 +19,7 @@ public class HikeSharedFile extends HikeFile implements Parcelable
 	private JSONObject fileJSON;
 	
 	private String groupParticipantMsisdn;
-
+	
 	public HikeSharedFile(JSONObject fileJSON, boolean isSent, long msgId, String msisdn, long timeStamp, String groupParticipantMsisdn)
 	{
 		super(fileJSON, isSent);

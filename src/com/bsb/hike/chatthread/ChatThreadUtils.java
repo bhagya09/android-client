@@ -242,7 +242,7 @@ public class ChatThreadUtils
 			FTAnalyticEvents.logDevError(FTAnalyticEvents.UPLOAD_INIT_1_3, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "init", "InitialiseFileTransfer - Max size limit reached.");
 			return;
 		}
-		FileTransferManager.getInstance(context).uploadFile(msisdn, file, fileKey, fileType, hikeFileType, isRecording, isForwardingFile, convOnHike, recordingDuration, attachmentType);
+		FileTransferManager.getInstance(context).uploadFile(msisdn, file, fileKey, fileType, hikeFileType, isRecording, isForwardingFile, convOnHike, recordingDuration, attachmentType, null);
 	}
 
 	protected static void onShareFile(Context context, String msisdn, Intent intent, boolean isConvOnHike)
