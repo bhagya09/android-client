@@ -738,6 +738,7 @@ public class IntentFactory
 		}
 		context.startActivity(in);
 	}
+	
 	/*
 	 * The returned intent will be similar to the one used by android for opening an activity from the Launcher icon
 	 */
