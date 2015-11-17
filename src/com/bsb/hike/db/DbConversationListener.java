@@ -435,6 +435,7 @@ public class DbConversationListener implements Listener
 		{
 			String msisdn = (String) object;
 			mConversationDb.clearConversation(msisdn);
+			HikeMessengerApp.getPubSub().publish(HikePubSub.BADGE_COUNT_MESSAGE_CHANGED, null);
 		}
 		else if (HikePubSub.UPDATE_PIN_METADATA.equals(type))
 		{
