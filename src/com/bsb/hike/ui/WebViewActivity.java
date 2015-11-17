@@ -157,7 +157,9 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	String callingMsisdn;
 
 	// Miscellaneous data received in the intent.
-	private String extraData;
+	private String extraData = "";
+
+	private String urlParams;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -184,6 +186,8 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		callingMsisdn = getIntent().getStringExtra(CALLING_MSISDN);
 
 		extraData = getIntent().getStringExtra(HikePlatformConstants.EXTRA_DATA);
+
+		urlParams = getIntent().getStringExtra(URL_PARAMETER_STRING);
 
 		if (mode == MICRO_APP_MODE || mode == WEB_URL_BOT_MODE)
 		{
@@ -413,6 +417,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		setupMicroAppActionBar();
 		setupNavBar();
 		setupTagPicker();
+		sendUrlParamsInExtraData(urlParams);
 		deliverExtraDataToMicroapp(extraData);
 		loadMicroApp();
 		checkAndBlockOrientation();
@@ -1548,5 +1553,30 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		{
 			mmBridge.setExtraData(data);
 		}
+	}
+
+	// Any URL parameters received in the intent will be passed to the microapp in it's init method as part of extraData.
+	private void sendUrlParamsInExtraData(String params)
+	{
+		if (TextUtils.isEmpty(params))
+		{
+			Logger.e(tag, "No params to send in extra data to Microapp.");
+			return;
+		}
+		try
+		{
+			if (TextUtils.isEmpty(extraData))
+			{
+				JSONObject data = new JSONObject();
+				data.put(URL_PARAMETER_STRING, params);
+				extraData = data.toString();
+			}
+		}
+		catch (JSONException e)
+		{
+			Logger.e(tag, "JSONException in sendUrlParamsInExtraData + "+e.getMessage());
+			e.printStackTrace();
+		}
+
 	}
 }
