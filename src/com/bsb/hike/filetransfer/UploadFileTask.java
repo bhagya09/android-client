@@ -120,6 +120,8 @@ public class UploadFileTask extends FileTransferBase
 
 	private String okHttpRes;
 
+	private String vidCompressionRequired = "0";
+
 	protected UploadFileTask(Handler handler, ConcurrentHashMap<Long, FutureTask<FTResult>> fileTaskMap, Context ctx, String token, String uId, ConvMessage convMessage, String fileKey)
 	{
 		super(handler, fileTaskMap, ctx, null, -1, null, token, uId);
@@ -252,6 +254,7 @@ public class UploadFileTask extends FileTransferBase
 						FTAnalyticEvents.sendVideoCompressionEvent(info.originalWidth + "x" + info.originalHeight, info.resultWidth + "x" + info.resultHeight,
 								mFile.length(),  compFile.length(), 1);
 						selectedFile = compFile;
+						vidCompressionRequired = "1";
 						Utils.deleteFileFromHikeDir(context, mFile, hikeFileType);
 					}else{
 						if(info != null)
@@ -1010,6 +1013,7 @@ public class UploadFileTask extends FileTransferBase
 			post.addHeader("X-SESSION-ID", X_SESSION_ID);
 			post.addHeader("X-CONTENT-RANGE", contentRange);
 			post.addHeader("Cookie", "user=" + token + ";UID=" + uId);
+			post.addHeader("X-Compression-Required", vidCompressionRequired);
 			AccountUtils.setNoTransform(post);
 			Logger.d(getClass().getSimpleName(), "user=" + token + ";UID=" + uId);
 			post.setHeader("Content-Type", "multipart/form-data; boundary=" + BOUNDARY);
@@ -1264,6 +1268,7 @@ public class UploadFileTask extends FileTransferBase
 		headers.add(new Header("X-Thumbnail-Required", "0"));
 		headers.add(new Header("X-SESSION-ID", X_SESSION_ID));
 		headers.add(new Header("X-CONTENT-RANGE", contentRange));
+		headers.add(new Header("X-Compression-Required", vidCompressionRequired));
 		headers.add(new Header("Cookie", "user=" + token + ";UID=" + uId));
 		headers.add(new Header("Content-Type", "multipart/form-data; boundary=" + BOUNDARY));
 
