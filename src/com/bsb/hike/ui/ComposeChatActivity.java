@@ -464,7 +464,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			getSupportActionBar().setDisplayHomeAsUpEnabled(false);
 		}
 		
-		if (composeMode == START_CHAT_MODE)
+		if (composeMode == START_CHAT_MODE||composeMode==HIKE_DIRECT_MODE)
 		{
 			initSearchMenu(menu);
 		}
@@ -1228,7 +1228,11 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 
 	private void setTitle()
 	{
-		if(composeMode==PICK_CONTACT_MODE || composeMode == PICK_CONTACT_AND_SEND_MODE)
+		if (composeMode == HIKE_DIRECT_MODE)
+		{
+			title.setText(R.string.scan_free_hike);
+		}
+		else if (composeMode == PICK_CONTACT_MODE || composeMode == PICK_CONTACT_AND_SEND_MODE)
 		{
 			title.setText(R.string.choose_contact);
 		}
