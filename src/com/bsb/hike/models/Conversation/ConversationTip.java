@@ -213,7 +213,6 @@ public class ConversationTip implements OnClickListener
 			v = generateAtomicTipViews();
 			((ImageView) v.findViewById(R.id.arrow_pointer)).setImageDrawable(null);
 			return v;
-			
 		case UPDATE_NORMAL_TIP:
 		case UPDATE_CRITICAL_TIP:
 			v = inflater.inflate(R.layout.update_tip, null, false);

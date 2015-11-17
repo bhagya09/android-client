@@ -300,7 +300,7 @@ public class ToastListener implements Listener
 			// now the user has got a push update from our server.
 			// if its critical, let it go through, if its normal, check the
 			// preference.
-			toaster.notifyUpdatePush(update,context.getPackageName(),
+			toaster.notifyUpdatePush(update, context.getPackageName(),
 					context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).getString(HikeConstants.Extras.UPDATE_MESSAGE, ""), false);
 		}
 		else if (HikePubSub.APPLICATIONS_PUSH.equals(type))

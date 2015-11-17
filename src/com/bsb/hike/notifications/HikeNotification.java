@@ -327,8 +327,8 @@ public class HikeNotification
 	{
 		message = (TextUtils.isEmpty(message)) ? context.getString(R.string.update_app) : message;
 		final int smallIconId = returnSmallIcon();
-		
-		NotificationCompat.Builder mBuilder = getNotificationBuilder(context.getString(R.string.team_hike), message, message, null, smallIconId, false);		
+
+		NotificationCompat.Builder mBuilder = getNotificationBuilder(context.getString(R.string.team_hike), message, message, null, smallIconId, false);
 
 		Intent intent = new Intent(Intent.ACTION_VIEW);
 		intent.setData(Uri.parse("market://details?id=" + packageName));

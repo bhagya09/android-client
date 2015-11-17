@@ -5,6 +5,7 @@
     android:installLocation="auto"
     android:versionCode="1492"
     android:versionName="4.0.8.81.23.1.badgecounterfeature" >
+    
     <uses-sdk
         android:minSdkVersion="14"
         android:targetSdkVersion="17"/>
@@ -573,6 +574,7 @@
             android:authorities="@string/ag_authority"
             android:exported="true" />
         <!-- ag -->
+        
         <receiver
             android:name="com.bsb.hike.notifications.PersNotifClickReceiver" >
             <intent-filter>

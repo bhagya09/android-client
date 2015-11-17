@@ -1423,7 +1423,7 @@ public class HikeConstants
 		public static final String UPDATE_TOOL_TIP_SHOWING = "updateToolTipShowing";
 
 		public static final String UPDATE_MESSAGE = "updateMessage";
-		
+
 		public static final String APPLICATIONSPUSH_MESSAGE = "applicationsPushMessage";
 
 		public static final String URL_TO_LOAD = "urlToLoad";

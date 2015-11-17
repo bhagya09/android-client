@@ -3628,7 +3628,6 @@ public class MqttMessagesManager
 			editor.commit();
 			HikeMessengerApp.getPubSub().publish(HikePubSub.STICKER_FTUE_TIP, null);
 		}
-		
 	}
 	
 	/**
