@@ -1216,5 +1216,6 @@
 	<string name="sticky_caller_settings_side_text">Show caller info and free calling/messaging options for all contacts</string>
 	<string name="enable_saved_contact_view_heading">Show for Saved Contacts</string>
 	<string name="enable_saved_contact_view_side_text">Show caller info for saved contacts too</string>
-	
+	<string name="no_results_found">No results found</string>
+
 </resources>
