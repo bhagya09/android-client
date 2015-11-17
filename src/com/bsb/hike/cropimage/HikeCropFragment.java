@@ -93,7 +93,7 @@ public class HikeCropFragment extends Fragment
 		options.inPreferQualityOverSpeed = true;
 		
 		// Load bitmap
-		Bitmap sourceBitmap = HikeBitmapFactory.decodeSampledBitmapFromFile(mSourceImagePath, (HikeConstants.HikePhotos.MAX_IMAGE_DIMEN + SIZE_MODIFIER), (HikeConstants.HikePhotos.MAX_IMAGE_DIMEN + SIZE_MODIFIER), Config.ARGB_8888, options);
+		Bitmap sourceBitmap = HikeBitmapFactory.decodeSampledBitmapFromFile(mSourceImagePath, (HikeConstants.HikePhotos.MAX_IMAGE_DIMEN + SIZE_MODIFIER), (HikeConstants.HikePhotos.MAX_IMAGE_DIMEN + SIZE_MODIFIER), Config.ARGB_8888, options, true);
 
 		if (sourceBitmap == null)
 		{
