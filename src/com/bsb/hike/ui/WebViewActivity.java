@@ -156,6 +156,9 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	// The msisdn of the WebViewActivity microapp that called this WebViewActivity (if such a case exists, null otherwise)
 	String callingMsisdn;
 
+	// Miscellaneous data received in the intent.
+	private String extraData;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
@@ -179,6 +182,8 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		initInterceptUrls(getIntent().getStringExtra(INTERCEPT_URLS));
 
 		callingMsisdn = getIntent().getStringExtra(CALLING_MSISDN);
+
+		extraData = getIntent().getStringExtra(HikePlatformConstants.EXTRA_DATA);
 
 		if (mode == MICRO_APP_MODE || mode == WEB_URL_BOT_MODE)
 		{
@@ -408,6 +413,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		setupMicroAppActionBar();
 		setupNavBar();
 		setupTagPicker();
+		deliverExtraDataToMicroapp(extraData);
 		loadMicroApp();
 		checkAndBlockOrientation();
 		resetNotificationCounter();
@@ -1532,6 +1538,15 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		if (mmBridge != null && urlParams != null)
 		{
 			mmBridge.urlIntercepted(urlParams);
+		}
+	}
+
+	// Method to pass extra miscellaneous data from the intent to the microapp.
+	private void deliverExtraDataToMicroapp(String data)
+	{
+		if (mmBridge != null)
+		{
+			mmBridge.setExtraData(data);
 		}
 	}
 }

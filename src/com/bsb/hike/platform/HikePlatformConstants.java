@@ -284,5 +284,6 @@ public interface HikePlatformConstants
 	{
 		public static final int INTERCEPT_AND_CLOSE_WEBVIEW = 1;
 	}
-	
+
+	public static final String EXTRA_DATA = "extra_data";
 }
