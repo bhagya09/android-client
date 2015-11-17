@@ -175,7 +175,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 	private void addSeekbarPreferences() {
 		addOnSeekbarChangeListeners(HikeConstants.LONG_PRESS_DUR_PREF,200);
 		addOnSeekbarChangeListeners(HikeConstants.KEYPRESS_VOL_PREF,1);
-		addOnSeekbarChangeListeners(HikeConstants.KEYPRESS_VIB_DUR_PREF,1);
+		addOnSeekbarChangeListeners(HikeConstants.KEYPRESS_VIB_DUR_PREF, 1);
 	}
 
 	private void saveKeyboardPref()
@@ -1162,353 +1162,262 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 	public boolean onPreferenceChange(Preference preference, Object newValue)
 	{
 		Logger.d("HikePreferences", "Preference changed: " + preference.getKey());
-		
-		if(HikeConstants.CHANGE_STEALTH_TIMEOUT.equals(preference.getKey()))
+
+		if (HikeConstants.CHANGE_STEALTH_TIMEOUT.equals(preference.getKey()))
 		{
 			stealthConfirmPasswordOnPreferenceChange(preference, newValue);
 			return false;
 		}
-		
-		if(newValue instanceof Integer){
-			saveSeekBarPreferences(preference,newValue);
-		}
-		
-		if(! (newValue instanceof Boolean))
-		{
-			return true;
-		}
-		
-		boolean isChecked = (Boolean) newValue;
 
-		if (HikeConstants.SMS_SETTINGS.KEY_RECEIVE_SMS_PREF.equals(preference.getKey()))
+		if (newValue instanceof Integer)
 		{
-			try
+			int value = (int) newValue;
+			if (HikeConstants.LONG_PRESS_DUR_PREF.equals(preference.getKey()))
 			{
-				JSONObject metadata = new JSONObject();
-				metadata.put(HikeConstants.UNIFIED_INBOX, String.valueOf(isChecked));
-				HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
+				kptSettings.setLongPressDuration(value);
+				preference.setSummary(value + " ms");
 			}
-			catch(JSONException e)
+			else if (HikeConstants.KEYPRESS_VOL_PREF.equals(preference.getKey()))
 			{
-				Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+				kptSettings.setKeyPressSoundVolume(value);
+				preference.setSummary("Level " + value);
 			}
+			else if (HikeConstants.KEYPRESS_VIB_DUR_PREF.equals(preference.getKey()))
+			{
+				kptSettings.setKeyPressVibrationDuration(value);
+				preference.setSummary(value + " ms");
+			}
+		}
+		else if (newValue instanceof Boolean)
+		{
+			boolean isChecked = (Boolean) newValue;
 
-			if (!isChecked)
-			{
-				Editor editor = PreferenceManager.getDefaultSharedPreferences(HikePreferences.this).edit();
-				editor.putBoolean(HikeConstants.SEND_SMS_PREF, false);
+			if (HikeConstants.SMS_SETTINGS.KEY_RECEIVE_SMS_PREF.equals(preference.getKey())) {
+				try {
+					JSONObject metadata = new JSONObject();
+					metadata.put(HikeConstants.UNIFIED_INBOX, String.valueOf(isChecked));
+					HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
+				} catch (JSONException e) {
+					Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+				}
+
+				if (!isChecked) {
+					Editor editor = PreferenceManager.getDefaultSharedPreferences(HikePreferences.this).edit();
+					editor.putBoolean(HikeConstants.SEND_SMS_PREF, false);
+					editor.commit();
+				} else {
+					if (!HikePreferences.this.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).getBoolean(HikeMessengerApp.SHOWN_SMS_SYNC_POPUP, false)) {
+						showSMSSyncDialog();
+					}
+				}
+			} else if (HikeConstants.PROFILE_PIC_PREF.equals(preference.getKey())) {
+				JSONObject object = new JSONObject();
+				try {
+					object.put(HikeConstants.TYPE, HikeConstants.MqttMessageTypes.ACCOUNT_CONFIG);
+
+					int avatarSetting = 1;
+					if (isChecked) {
+						avatarSetting = 2;
+					}
+					JSONObject data = new JSONObject();
+					data.put(HikeConstants.AVATAR, avatarSetting);
+					object.put(HikeConstants.DATA, data);
+
+					HikeMqttManagerNew.getInstance().sendMessage(object, MqttConstants.MQTT_QOS_ONE);
+				} catch (JSONException e) {
+					Logger.w(getClass().getSimpleName(), "Invalid json", e);
+				}
+			} else if (HikeConstants.SMS_SETTINGS.FREE_SMS_PREF.equals(preference.getKey())) {
+				Logger.d(getClass().getSimpleName(), "Free SMS toggled");
+				HikeMessengerApp.getPubSub().publish(HikePubSub.FREE_SMS_TOGGLED, isChecked);
+
+				try {
+					JSONObject metadata = new JSONObject();
+					metadata.put(HikeConstants.FREE_SMS_ON, String.valueOf(isChecked));
+					HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
+				} catch (JSONException e) {
+					Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+				}
+			} else if (HikeConstants.SEND_ENTER_PREF.equals(preference.getKey())) {
+
+				Editor editor = PreferenceManager.getDefaultSharedPreferences(
+						HikePreferences.this).edit();
+				editor.putBoolean(HikeConstants.SEND_ENTER_PREF, isChecked);
 				editor.commit();
-			}
-			else
-			{
-				if (!HikePreferences.this.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).getBoolean(HikeMessengerApp.SHOWN_SMS_SYNC_POPUP, false))
-				{
-					showSMSSyncDialog();
-				}
-			}
-		}
-		else if (HikeConstants.PROFILE_PIC_PREF.equals(preference.getKey()))
-		{
-			JSONObject object = new JSONObject();
-			try
-			{
-				object.put(HikeConstants.TYPE, HikeConstants.MqttMessageTypes.ACCOUNT_CONFIG);
-
-				int avatarSetting =1;
-				if(isChecked){
-					avatarSetting = 2;
-				}
-				JSONObject data = new JSONObject();
-				data.put(HikeConstants.AVATAR, avatarSetting);
-				object.put(HikeConstants.DATA, data);
-
-				HikeMqttManagerNew.getInstance().sendMessage(object, MqttConstants.MQTT_QOS_ONE);
-	     	}
-			catch (JSONException e)
-			{
-				Logger.w(getClass().getSimpleName(), "Invalid json", e);
-			}
-		}
-		
-		
-		else if (HikeConstants.SMS_SETTINGS.FREE_SMS_PREF.equals(preference.getKey()))
-		{
-			Logger.d(getClass().getSimpleName(), "Free SMS toggled");
-			HikeMessengerApp.getPubSub().publish(HikePubSub.FREE_SMS_TOGGLED, isChecked);
-
-			try
-			{
-				JSONObject metadata = new JSONObject();
-				metadata.put(HikeConstants.FREE_SMS_ON, String.valueOf(isChecked));
-				HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
-			}
-			catch(JSONException e)
-			{
-				Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
-			}
-		} 
-		
-		else if (HikeConstants.SEND_ENTER_PREF.equals(preference.getKey())) {
-
-			Editor editor = PreferenceManager.getDefaultSharedPreferences(
-					HikePreferences.this).edit();
-			editor.putBoolean(HikeConstants.SEND_ENTER_PREF, isChecked);
-			editor.commit();
-			JSONObject metadata = new JSONObject();
-			if (isChecked) {
-				preference.setSummary(getResources().getString(
-						R.string.enter_setting_info));
-				try {
-					metadata.put(HikeConstants.EVENT_KEY,
-							HikeConstants.LogEvent.SETTINGS_ENTER_ON);
-				} catch (JSONException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			} else {
-				preference.setSummary(getResources().getString(
-						R.string.new_line_setting_info));
-				try {
-					metadata.put(HikeConstants.EVENT_KEY,
-							HikeConstants.LogEvent.SETTINGS_ENTER_OFF);
-				} catch (JSONException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT,
-					AnalyticsConstants.CLICK_EVENT, metadata);
-			HikeMessengerApp.getPubSub().publish(HikePubSub.ENTER_TO_SEND_SETTINGS_CHANGED, isChecked);
-		} else if (HikeConstants.DOUBLE_TAP_PREF.equals(preference.getKey())) {
-
-			Editor editor = PreferenceManager.getDefaultSharedPreferences(
-					HikePreferences.this).edit();
-			editor.putBoolean(HikeConstants.DOUBLE_TAP_PREF, isChecked);
-			editor.commit();
-			try {
 				JSONObject metadata = new JSONObject();
 				if (isChecked) {
-					metadata.put(HikeConstants.EVENT_KEY,
-							HikeConstants.LogEvent.SETTINGS_NUDGE_ON);
+					preference.setSummary(getResources().getString(
+							R.string.enter_setting_info));
+					try {
+						metadata.put(HikeConstants.EVENT_KEY,
+								HikeConstants.LogEvent.SETTINGS_ENTER_ON);
+					} catch (JSONException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 				} else {
-					metadata.put(HikeConstants.EVENT_KEY,
-							HikeConstants.LogEvent.SETTINGS_NUDGE_OFF);
+					preference.setSummary(getResources().getString(
+							R.string.new_line_setting_info));
+					try {
+						metadata.put(HikeConstants.EVENT_KEY,
+								HikeConstants.LogEvent.SETTINGS_ENTER_OFF);
+					} catch (JSONException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 				}
 				HAManager.getInstance().record(AnalyticsConstants.UI_EVENT,
 						AnalyticsConstants.CLICK_EVENT, metadata);
-			} catch (JSONException e) {
-				e.printStackTrace();
-			}
-			HikeMessengerApp.getPubSub().publish(HikePubSub.NUDGE_SETTINGS_CHANGED, isChecked);
-		}
-		else if (HikeConstants.STICKER_RECOMMEND_PREF.equals(preference.getKey()))
-		{
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STICKER_RECOMMEND_PREF, isChecked);
-			HikeMessengerApp.getPubSub().publish(HikePubSub.STICKER_RECOMMEND_PREFERENCE_CHANGED, null);
+				HikeMessengerApp.getPubSub().publish(HikePubSub.ENTER_TO_SEND_SETTINGS_CHANGED, isChecked);
+			} else if (HikeConstants.DOUBLE_TAP_PREF.equals(preference.getKey())) {
 
-			StickerManager.getInstance().sendRecommendationlSettingsStateAnalytics(StickerManager.FROM_CHAT_SETTINGS, isChecked);
-		}
-		else if (HikeConstants.STICKER_RECOMMEND_AUTOPOPUP_PREF.equals(preference.getKey()))
-		{
-			StickerSearchManager.getInstance().setShowAutoPopupSettingOn(isChecked);
-			StickerSearchManager.getInstance().saveOrDeleteAutoPopupTrialState(true);
-
-			// Auto-suggestion setting is turned on by user, remove disable toast pref which was set automatically due to rejection pattern
-			if (isChecked)
-			{
-				HikeSharedPreferenceUtil.getInstance().removeData(HikeConstants.STICKER_AUTO_RECOMMEND_SETTING_OFF_TIP);
-			}
-
-			StickerManager.getInstance().sendRecommendationAutopopupSettingsStateAnalytics(StickerManager.FROM_CHAT_SETTINGS, isChecked);
-		}
-		else if (HikeConstants.SSL_PREF.equals(preference.getKey()))
-		{
-			PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit().putBoolean(HikeConstants.SSL_PREF, isChecked).commit();
-			Utils.setupUri();
-			HttpRequestConstants.toggleSSL();
-			LocalBroadcastManager.getInstance(this.getApplicationContext()).sendBroadcast(new Intent(HikePubSub.SSL_PREFERENCE_CHANGED));
-		}
-		else if (HikeConstants.STATUS_BOOLEAN_PREF.equals(preference.getKey()))
-		{
-			//Handled in OnPreferenceClick
-		}
-		else if (HikeConstants.ACTIVATE_STICKY_CALLER_PREF.equals(preference.getKey()))
-		{
-			SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(HikePreferences.this);
-			Editor prefEditor = prefs.edit();
-			prefEditor.putBoolean(HikeConstants.ACTIVATE_STICKY_CALLER_PREF, isChecked);
-			prefEditor.commit();
-		
-			if (isChecked)
-			{
-				ChatHeadUtils.registerCallReceiver();
-				HAManager.getInstance().stickyCallerAnalyticsUIEvent(AnalyticsConstants.StickyCallerEvents.CALLER_SETTINGS_TOGGLE, null,
-						AnalyticsConstants.StickyCallerEvents.ACTIVATE_BUTTON, null);
-			}
-			else
-			{
-				ChatHeadUtils.unregisterCallReceiver();
-				HAManager.getInstance().stickyCallerAnalyticsUIEvent(AnalyticsConstants.StickyCallerEvents.CALLER_SETTINGS_TOGGLE, null,
-						AnalyticsConstants.StickyCallerEvents.DEACTIVATE_BUTTON, null);
-			}
-		}
-		else if (HikeConstants.ENABLE_KNOWN_NUMBER_CARD_PREF.equals(preference.getKey()))
-		{
-			if (isChecked)
-			{
-				HAManager.getInstance().stickyCallerAnalyticsUIEvent(AnalyticsConstants.StickyCallerEvents.KNOWN_CARD_SETTINGS_TOGGLE, null,
-						AnalyticsConstants.StickyCallerEvents.ACTIVATE_BUTTON, null);
-		
-			}
-			else
-			{
-				HAManager.getInstance().stickyCallerAnalyticsUIEvent(AnalyticsConstants.StickyCallerEvents.KNOWN_CARD_SETTINGS_TOGGLE, null,
-						AnalyticsConstants.StickyCallerEvents.DEACTIVATE_BUTTON, null);
-			}
-		}
-		else if (HikeConstants.NUJ_NOTIF_BOOLEAN_PREF.equals(preference.getKey()))
-		{			
-			try
-			{
-				JSONObject metadata = new JSONObject();
-				
-				if(isChecked)
-				{
-					metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.SETTINGS_NOTIFICATION_NUJ_ON);
+				Editor editor = PreferenceManager.getDefaultSharedPreferences(
+						HikePreferences.this).edit();
+				editor.putBoolean(HikeConstants.DOUBLE_TAP_PREF, isChecked);
+				editor.commit();
+				try {
+					JSONObject metadata = new JSONObject();
+					if (isChecked) {
+						metadata.put(HikeConstants.EVENT_KEY,
+								HikeConstants.LogEvent.SETTINGS_NUDGE_ON);
+					} else {
+						metadata.put(HikeConstants.EVENT_KEY,
+								HikeConstants.LogEvent.SETTINGS_NUDGE_OFF);
+					}
+					HAManager.getInstance().record(AnalyticsConstants.UI_EVENT,
+							AnalyticsConstants.CLICK_EVENT, metadata);
+				} catch (JSONException e) {
+					e.printStackTrace();
 				}
-				else{
-					metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.SETTINGS_NOTIFICATION_NUJ_OFF);
-				}
-				HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
-			}
-			catch(JSONException e)
-			{
-				Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
-			}			
-			JSONObject object = new JSONObject();
-			
-			try
-			{
-				object.put(HikeConstants.TYPE, HikeConstants.MqttMessageTypes.ACCOUNT_CONFIG);
+				HikeMessengerApp.getPubSub().publish(HikePubSub.NUDGE_SETTINGS_CHANGED, isChecked);
+			} else if (HikeConstants.STICKER_RECOMMEND_PREF.equals(preference.getKey())) {
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STICKER_RECOMMEND_PREF, isChecked);
+				HikeMessengerApp.getPubSub().publish(HikePubSub.STICKER_RECOMMEND_PREFERENCE_CHANGED, null);
 
-				JSONObject data = new JSONObject();
-				data.put(HikeConstants.UJ_NOTIF_SETTING, isChecked? 1:0 );
-				data.put(HikeConstants.MESSAGE_ID, Long.toString(System.currentTimeMillis()));
-				object.put(HikeConstants.DATA, data);
+				StickerManager.getInstance().sendRecommendationlSettingsStateAnalytics(StickerManager.FROM_CHAT_SETTINGS, isChecked);
+			} else if (HikeConstants.STICKER_RECOMMEND_AUTOPOPUP_PREF.equals(preference.getKey())) {
+				StickerSearchManager.getInstance().setShowAutoPopupSettingOn(isChecked);
+				StickerSearchManager.getInstance().saveOrDeleteAutoPopupTrialState(true);
 
-				HikeMqttManagerNew.getInstance().sendMessage(object, MqttConstants.MQTT_QOS_ONE);
-			}
-			catch (JSONException e)
-			{
-				Logger.w(getClass().getSimpleName(), "Invalid json", e);
-			}
-		}
-		else if (HikeConstants.H2O_NOTIF_BOOLEAN_PREF.equals(preference.getKey()))
-		{
-			try
-			{
-				JSONObject metadata = new JSONObject();
-				
-				if(isChecked)
-				{
-					metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.SETTINGS_NOTIFICATION_H2O_ON);
+				// Auto-suggestion setting is turned on by user, remove disable toast pref which was set automatically due to rejection pattern
+				if (isChecked) {
+					HikeSharedPreferenceUtil.getInstance().removeData(HikeConstants.STICKER_AUTO_RECOMMEND_SETTING_OFF_TIP);
 				}
-				else{
-					metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.SETTINGS_NOTIFICATION_H2O_OFF);
+
+				StickerManager.getInstance().sendRecommendationAutopopupSettingsStateAnalytics(StickerManager.FROM_CHAT_SETTINGS, isChecked);
+			} else if (HikeConstants.SSL_PREF.equals(preference.getKey())) {
+				PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit().putBoolean(HikeConstants.SSL_PREF, isChecked).commit();
+				Utils.setupUri();
+				HttpRequestConstants.toggleSSL();
+				LocalBroadcastManager.getInstance(this.getApplicationContext()).sendBroadcast(new Intent(HikePubSub.SSL_PREFERENCE_CHANGED));
+			} else if (HikeConstants.STATUS_BOOLEAN_PREF.equals(preference.getKey())) {
+				//Handled in OnPreferenceClick
+			} else if (HikeConstants.ACTIVATE_STICKY_CALLER_PREF.equals(preference.getKey())) {
+				SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(HikePreferences.this);
+				Editor prefEditor = prefs.edit();
+				prefEditor.putBoolean(HikeConstants.ACTIVATE_STICKY_CALLER_PREF, isChecked);
+				prefEditor.commit();
+
+				if (isChecked) {
+					ChatHeadUtils.registerCallReceiver();
+					HAManager.getInstance().stickyCallerAnalyticsUIEvent(AnalyticsConstants.StickyCallerEvents.CALLER_SETTINGS_TOGGLE, null,
+							AnalyticsConstants.StickyCallerEvents.ACTIVATE_BUTTON, null);
+				} else {
+					ChatHeadUtils.unregisterCallReceiver();
+					HAManager.getInstance().stickyCallerAnalyticsUIEvent(AnalyticsConstants.StickyCallerEvents.CALLER_SETTINGS_TOGGLE, null,
+							AnalyticsConstants.StickyCallerEvents.DEACTIVATE_BUTTON, null);
 				}
-				HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
+			} else if (HikeConstants.ENABLE_KNOWN_NUMBER_CARD_PREF.equals(preference.getKey())) {
+				if (isChecked) {
+					HAManager.getInstance().stickyCallerAnalyticsUIEvent(AnalyticsConstants.StickyCallerEvents.KNOWN_CARD_SETTINGS_TOGGLE, null,
+							AnalyticsConstants.StickyCallerEvents.ACTIVATE_BUTTON, null);
+
+				} else {
+					HAManager.getInstance().stickyCallerAnalyticsUIEvent(AnalyticsConstants.StickyCallerEvents.KNOWN_CARD_SETTINGS_TOGGLE, null,
+							AnalyticsConstants.StickyCallerEvents.DEACTIVATE_BUTTON, null);
+				}
+			} else if (HikeConstants.NUJ_NOTIF_BOOLEAN_PREF.equals(preference.getKey())) {
+				try {
+					JSONObject metadata = new JSONObject();
+
+					if (isChecked) {
+						metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.SETTINGS_NOTIFICATION_NUJ_ON);
+					} else {
+						metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.SETTINGS_NOTIFICATION_NUJ_OFF);
+					}
+					HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
+				} catch (JSONException e) {
+					Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+				}
+				JSONObject object = new JSONObject();
+
+				try {
+					object.put(HikeConstants.TYPE, HikeConstants.MqttMessageTypes.ACCOUNT_CONFIG);
+
+					JSONObject data = new JSONObject();
+					data.put(HikeConstants.UJ_NOTIF_SETTING, isChecked ? 1 : 0);
+					data.put(HikeConstants.MESSAGE_ID, Long.toString(System.currentTimeMillis()));
+					object.put(HikeConstants.DATA, data);
+
+					HikeMqttManagerNew.getInstance().sendMessage(object, MqttConstants.MQTT_QOS_ONE);
+				} catch (JSONException e) {
+					Logger.w(getClass().getSimpleName(), "Invalid json", e);
+				}
+			} else if (HikeConstants.H2O_NOTIF_BOOLEAN_PREF.equals(preference.getKey())) {
+				try {
+					JSONObject metadata = new JSONObject();
+
+					if (isChecked) {
+						metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.SETTINGS_NOTIFICATION_H2O_ON);
+					} else {
+						metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.SETTINGS_NOTIFICATION_H2O_OFF);
+					}
+					HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
+				} catch (JSONException e) {
+					Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+				}
+			} else if (HikeConstants.STEALTH_NOTIFICATION_ENABLED.equals(preference.getKey())) {
+				stealthConfirmPasswordOnPreferenceChange(preference, newValue);
+				return false;
+			} else if (HikeConstants.STEALTH_INDICATOR_ENABLED.equals(preference.getKey())) {
+				stealthConfirmPasswordOnPreferenceChange(preference, newValue);
+				return false;
+			} else if (HikeConstants.KEYBOARD_PREF.equals(preference.getKey())) {
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CURRENT_KEYBOARD, !isChecked);
+				trackAnalyticEvent(HikeConstants.LogEvent.HIKE_KEYBOARD_ON, isChecked);
+				HikeMessengerApp.getPubSub().publish(HikePubSub.KEYBOARD_SWITCHED, null);
+			} else if (HikeConstants.GLIDE_PREF.equals(preference.getKey())) {
+				kptSettings.setGlideState(isChecked ? AdaptxtSettings.KPT_TRUE : AdaptxtSettings.KPT_FALSE);
+				trackAnalyticEvent(HikeConstants.LogEvent.GLIDE_ON, isChecked);
+			} else if (HikeConstants.AUTO_CORRECT_PREF.equals(preference.getKey())) {
+				kptSettings.setAutoCorrectionState(isChecked ? AdaptxtSettings.KPT_TRUE : AdaptxtSettings.KPT_FALSE);
+				trackAnalyticEvent(HikeConstants.LogEvent.AUTO_CORRECT_ON, isChecked);
+			} else if (HikeConstants.AUTO_CAPITALIZATION_PREF.equals(preference.getKey())) {
+				kptSettings.setAutoCapitalizationState(isChecked ? AdaptxtSettings.KPT_TRUE : AdaptxtSettings.KPT_FALSE);
+				trackAnalyticEvent(HikeConstants.LogEvent.AUTO_CAPITALIZATION_ON, isChecked);
+			} else if (HikeConstants.AUTO_SPACING_PREF.equals(preference.getKey())) {
+				kptSettings.setAutoSpacingState(isChecked ? AdaptxtSettings.KPT_TRUE : kptSettings.KPT_FALSE);
+				trackAnalyticEvent(HikeConstants.LogEvent.AUTO_SPACING_ON, isChecked);
+			} else if (HikeConstants.DISPLAY_SUGGESTIONS_PREF.equals(preference.getKey())) {
+				kptSettings.setDisplaySuggestionsState(isChecked ? AdaptxtSettings.KPT_TRUE : AdaptxtSettings.KPT_FALSE);
+				trackAnalyticEvent(HikeConstants.LogEvent.DISPLAY_SUGGESTION_ON, isChecked);
+			} else if (HikeConstants.PRIVATE_MODE_PREF.equals(preference.getKey())) {
+				kptSettings.setPrivateModeState(isChecked ? AdaptxtSettings.KPT_TRUE : AdaptxtSettings.KPT_FALSE);
+				trackAnalyticEvent(HikeConstants.LogEvent.PRIVATE_MODE_ON, isChecked);
+			} else if (HikeConstants.DISPLAY_ACCENTS_PREF.equals(preference.getKey())) {
+				kptSettings.setDisplayAccentsState(isChecked ? AdaptxtSettings.KPT_TRUE : AdaptxtSettings.KPT_FALSE);
+			} else if (HikeConstants.POPUP_ON_KEYPRESS_PREF.equals(preference.getKey())) {
+				kptSettings.setPopupOnKeyPressState(isChecked ? AdaptxtSettings.KPT_TRUE : AdaptxtSettings.KPT_FALSE);
+				trackAnalyticEvent(HikeConstants.LogEvent.KEYPRESS_POPUP_ON, isChecked);
+			} else if (HikeConstants.SOUND_ON_KEYPRESS_PREF.equals(preference.getKey())) {
+				kptSettings.setSoundOnKeyPressState(isChecked ? AdaptxtSettings.KPT_TRUE : AdaptxtSettings.KPT_FALSE);
+				trackAnalyticEvent(HikeConstants.LogEvent.KEYPRESS_SOUND_ON, isChecked);
+			} else if (HikeConstants.VIBRATE_ON_KEYPRESS_PREF.equals(preference.getKey())) {
+				kptSettings.setVibrateOnKeyPressState(isChecked ? AdaptxtSettings.KPT_TRUE : AdaptxtSettings.KPT_FALSE);
+				trackAnalyticEvent(HikeConstants.LogEvent.KEYPRESS_VIBRATION_ON, isChecked);
 			}
-			catch(JSONException e)
-			{
-				Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
-			}
-		}
-		else if (HikeConstants.STEALTH_NOTIFICATION_ENABLED.equals(preference.getKey()))
-		{
-			stealthConfirmPasswordOnPreferenceChange(preference, newValue);
-			return false;
-		}
-		else if (HikeConstants.STEALTH_INDICATOR_ENABLED.equals(preference.getKey()))
-		{
-			stealthConfirmPasswordOnPreferenceChange(preference, newValue);
-			return false;
-		}
-		else if (HikeConstants.KEYBOARD_PREF.equals(preference.getKey()))
-		{
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CURRENT_KEYBOARD, !isChecked);
-			trackAnalyticEvent(HikeConstants.LogEvent.HIKE_KEYBOARD_ON, isChecked);
-			HikeMessengerApp.getPubSub().publish(HikePubSub.KEYBOARD_SWITCHED, null);
-		}
-		else if (HikeConstants.GLIDE_PREF.equals(preference.getKey()))
-		{
-			kptSettings.setGlideState(isChecked ? AdaptxtSettings.KPT_TRUE : AdaptxtSettings.KPT_FALSE);
-			trackAnalyticEvent(HikeConstants.LogEvent.GLIDE_ON, isChecked);
-		}
-		else if (HikeConstants.AUTO_CORRECT_PREF.equals(preference.getKey()))
-		{
-			kptSettings.setAutoCorrectionState(isChecked ? AdaptxtSettings.KPT_TRUE : AdaptxtSettings.KPT_FALSE);
-			trackAnalyticEvent(HikeConstants.LogEvent.AUTO_CORRECT_ON, isChecked);
-		}
-		else if (HikeConstants.AUTO_CAPITALIZATION_PREF.equals(preference.getKey()))
-		{
-			kptSettings.setAutoCapitalizationState(isChecked ? AdaptxtSettings.KPT_TRUE : AdaptxtSettings.KPT_FALSE);
-			trackAnalyticEvent(HikeConstants.LogEvent.AUTO_CAPITALIZATION_ON, isChecked);
-		}
-		else if (HikeConstants.AUTO_SPACING_PREF.equals(preference.getKey()))
-		{
-			kptSettings.setAutoSpacingState(isChecked ? AdaptxtSettings.KPT_TRUE : kptSettings.KPT_FALSE);
-			trackAnalyticEvent(HikeConstants.LogEvent.AUTO_SPACING_ON, isChecked);
-		}
-		else if (HikeConstants.DISPLAY_SUGGESTIONS_PREF.equals(preference.getKey()))
-		{
-			kptSettings.setDisplaySuggestionsState(isChecked ? AdaptxtSettings.KPT_TRUE : AdaptxtSettings.KPT_FALSE);
-			trackAnalyticEvent(HikeConstants.LogEvent.DISPLAY_SUGGESTION_ON, isChecked);
-		}
-		else if (HikeConstants.PRIVATE_MODE_PREF.equals(preference.getKey()))
-		{
-			kptSettings.setPrivateModeState(isChecked ? AdaptxtSettings.KPT_TRUE : AdaptxtSettings.KPT_FALSE);
-			trackAnalyticEvent(HikeConstants.LogEvent.PRIVATE_MODE_ON, isChecked);
-		}
-		else if (HikeConstants.DISPLAY_ACCENTS_PREF.equals(preference.getKey()))
-		{
-			kptSettings.setDisplayAccentsState(isChecked ? AdaptxtSettings.KPT_TRUE : AdaptxtSettings.KPT_FALSE);
-		}
-		else if (HikeConstants.POPUP_ON_KEYPRESS_PREF.equals(preference.getKey()))
-		{
-			kptSettings.setPopupOnKeyPressState(isChecked ? AdaptxtSettings.KPT_TRUE : AdaptxtSettings.KPT_FALSE);
-			trackAnalyticEvent(HikeConstants.LogEvent.KEYPRESS_POPUP_ON, isChecked);
-		}
-		else if (HikeConstants.SOUND_ON_KEYPRESS_PREF.equals(preference.getKey()))
-		{
-			kptSettings.setSoundOnKeyPressState(isChecked ? AdaptxtSettings.KPT_TRUE : AdaptxtSettings.KPT_FALSE);
-			trackAnalyticEvent(HikeConstants.LogEvent.KEYPRESS_SOUND_ON, isChecked);
-		}
-		else if (HikeConstants.VIBRATE_ON_KEYPRESS_PREF.equals(preference.getKey()))
-		{
-			kptSettings.setVibrateOnKeyPressState(isChecked ? AdaptxtSettings.KPT_TRUE : AdaptxtSettings.KPT_FALSE);
-			trackAnalyticEvent(HikeConstants.LogEvent.KEYPRESS_VIBRATION_ON, isChecked);
 		}
 		return true;
-	}
-
-	private void saveSeekBarPreferences(Preference preference, Object newValue) {
-		int value = (int) newValue;
-
-		if (HikeConstants.LONG_PRESS_DUR_PREF.equals(preference.getKey()))
-		{
-			kptSettings.setLongPressDuration(value);
-			preference.setSummary(value + " ms");
-		}
-		else if (HikeConstants.KEYPRESS_VOL_PREF.equals(preference.getKey()))
-		{
-			kptSettings.setKeyPressSoundVolume(value);
-			preference.setSummary("Level " + value);
-		}
-		else if (HikeConstants.KEYPRESS_VIB_DUR_PREF.equals(preference.getKey()))
-		{
-			kptSettings.setKeyPressVibrationDuration(value);
-			preference.setSummary(value + " ms");
-		}
 	}
 
 	private void showSMSSyncDialog()
