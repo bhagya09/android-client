@@ -1133,6 +1133,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 				}
 
 				resetNotificationCounter(convInfo);
+				HikeMessengerApp.getPubSub().publish(HikePubSub.BADGE_COUNT_MESSAGE_CHANGED, null);
 			}
 		}
 		else
@@ -2491,7 +2492,9 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 		}
 		else if (HikePubSub.STEALTH_MODE_TOGGLED.equals(type))
 		{
-			if (!isAdded())
+			//for Android M and also for security updates of Android L, the isAdded check does not
+			//check for activity being null, instead a fragmentHostController is used in its place
+			if (!isAdded() || getActivity() == null)
 			{
 				return;
 			}
@@ -2542,11 +2545,13 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 						if (convInfo != null)
 						{
 							int unreadCount = 0;
+							ConvMessage lastNonStatusMsg = null;
 							for (ConvMessage convMessage : messageList)
 							{
 								if (Utils.shouldIncrementCounter(convMessage))
 								{
 									unreadCount++;
+									lastNonStatusMsg = convMessage; //AND-3159
 								}
 							}
 							if (unreadCount > 0)
@@ -2560,8 +2565,12 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 								{
 									ConvMessage prevMessage = convInfo.getLastConversationMsg();
 									String metadata = message.getMetadata().serialize();
-									message = new ConvMessage(message.getMessage(), message.getMsisdn(), prevMessage.getTimestamp(), prevMessage.getState(),
+									/* Begin: AND-3159 */
+									// The below logic is to correct the sorting of the conversation list, list should be sorted on last non-status message of bulk.
+									long timestampToSortOn = (lastNonStatusMsg != null) ? lastNonStatusMsg.getTimestamp() : prevMessage.getTimestamp();
+									message = new ConvMessage(message.getMessage(), message.getMsisdn(), timestampToSortOn, prevMessage.getState(),
 											prevMessage.getMsgID(), prevMessage.getMappedMsgID(), message.getGroupParticipantMsisdn());
+									/* End: AND-3159 */
 									try
 									{
 										message.setMetadata(metadata);
