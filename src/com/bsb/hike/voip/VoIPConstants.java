@@ -165,6 +165,7 @@ public class VoIPConstants {
 	public static final int MSG_UPDATE_CALL_BUTTONS = 32;
 	public static final int MSG_PARTNER_INCOMPATIBLE_PLATFORM = 33;
 	public static final int MSG_PARTNER_UPGRADABLE_PLATFORM = 34;
+	public static final int MSG_ACCEPT_CALL = 35;
 
 	public static final class Analytics
 	{
