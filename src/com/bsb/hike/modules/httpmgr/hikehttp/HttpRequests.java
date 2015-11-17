@@ -271,6 +271,7 @@ public class HttpRequests
 				.setFile(filePath)
 				.setRequestListener(requestListener)
 				.setRetryPolicy(new BasicRetryPolicy(HikePlatformConstants.NUMBER_OF_RETRIES, HikePlatformConstants.RETRY_DELAY, HikePlatformConstants.BACK_OFF_MULTIPLIER))
+				.setHeaders(PlatformUtils.getHeaders())
 				.build();
 		return requestToken;
 	}
@@ -881,13 +882,14 @@ public class HttpRequests
 	public static RequestToken platformZipDownloadRequestWithResume(String filePath, String stateFilePath, String url, IRequestListener requestListener, long startOffset,float progressDone)
 	{
 		List<Header> headers = new ArrayList<Header>(1);
-		headers.add(new Header(HttpHeaderConstants.RANGE,"bytes="+startOffset+"-"));
+		headers.add(new Header(HttpHeaderConstants.RANGE, "bytes=" + startOffset + "-"));
 		RequestToken requestToken = new FileRequestPersistent.Builder()
 				.setUrl(url)
 				.setFile(filePath)
 				.setStateFilePath(stateFilePath)
 				.setRequestListener(requestListener)
 				.setHeaders(headers)
+				.addHeader(PlatformUtils.getHeaders())
 				.setCurrentPointer(startOffset)
 				.setInitialProgress(progressDone)
 				.setRetryPolicy(new BasicRetryPolicy(HikePlatformConstants.NUMBER_OF_RETRIES, HikePlatformConstants.RETRY_DELAY, HikePlatformConstants.BACK_OFF_MULTIPLIER))

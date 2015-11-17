@@ -2,6 +2,7 @@ package com.bsb.hike.modules.stickersearch;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Locale;
 
 import org.json.JSONObject;
 
@@ -15,6 +16,7 @@ import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.modules.stickersearch.listeners.IStickerSearchListener;
 import com.bsb.hike.modules.stickersearch.provider.StickerSearchHostManager;
+import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchDatabase;
 import com.bsb.hike.modules.stickersearch.provider.StickerSearchUtility;
 import com.bsb.hike.modules.stickersearch.tasks.HighlightAndShowStickerPopupTask;
 import com.bsb.hike.modules.stickersearch.tasks.InitiateStickerTagDownloadTask;
@@ -67,7 +69,7 @@ public class StickerSearchManager
 
 	private StickerSearchManager()
 	{
-		WAIT_TIME_SINGLE_CHARACTER_RECOMMENDATION = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STICKER_WAIT_TIME_SINGLE_CHAR_RECOMMENDATION,
+		WAIT_TIME_SINGLE_CHARACTER_RECOMMENDATION = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_WAIT_TIME_SINGLE_CHAR_RECOMMENDATION,
 				StickerSearchConstants.WAIT_TIME_SINGLE_CHARACTER_RECOMMENDATION);
 
 		searchEngine = new StickerSearchEngine();
@@ -80,7 +82,7 @@ public class StickerSearchManager
 
 		setNumStickersVisibleAtOneTime(StickerManager.getInstance().getNumColumnsForStickerGrid(HikeMessengerApp.getInstance()));
 
-		setAlarmFirstTime();
+		setRebalancingAlarmFirstTime();
 	}
 
 	public static StickerSearchManager getInstance()
@@ -95,6 +97,7 @@ public class StickerSearchManager
 				}
 			}
 		}
+
 		return _instance;
 	}
 
@@ -426,24 +429,28 @@ public class StickerSearchManager
 		return this.autoPopupTurningOffTrailRunning;
 	}
 
-	private void setAlarmFirstTime()
+	public void setRebalancingAlarmFirstTime()
 	{
 		if (!HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.SET_ALARM_FIRST_TIME, false))
 		{
-			Logger.d("Rebalancing", "setting alarm first time");
-			setAlarm();
+			Logger.d(HikeStickerSearchDatabase.TAG_REBALANCING, "Setting rebalancing alarm first time...");
+
+			setRebalancingAlarm();
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.SET_ALARM_FIRST_TIME, true);
 		}
 	}
 
-	public void setAlarm()
+	public void setRebalancingAlarm()
 	{
-		long scheduleTime = Utils.getTimeInMillis(Calendar.getInstance(),
-				HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.REBALANCING_TIME, StickerSearchConstants.REBALACING_DEFAULT_TIME), 0, 0, 0);
+		long scheduleTime = Utils.getTimeInMillis(Calendar.getInstance(Locale.ENGLISH),
+				HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_TAG_REBALANCING_TRIGGER_TIME_STAMP, null),
+				StickerSearchConstants.REBALACING_DEFAULT_TIME_HOUR, 0, 0, 0);
+
 		if (scheduleTime < System.currentTimeMillis())
 		{
-			scheduleTime += 24 * 60 * 60 * 1000;
+			scheduleTime += 24 * 60 * 60 * 1000; // Next day at given time
 		}
+
 		HikeAlarmManager.setAlarmwithIntentPersistance(HikeMessengerApp.getInstance(), scheduleTime, HikeAlarmManager.REQUEST_CODE_STICKER_RECOMMENDATION_BALANCING, true,
 				getRebalancingAlarmIntent(), true);
 	}

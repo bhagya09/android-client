@@ -347,15 +347,18 @@ public class PlatformZipDownloader
 										if (replace)
 										{
 											mRequest.getListener().onComplete(mRequest.getContentData());
+											PlatformUtils.sendMicroAppServerAnalytics(true, mRequest.getContentData().cardObj.appName, mRequest.getContentData().cardObj.appVersion);
 										}
 										else
 										{
 											mRequest.getListener().onEventOccured(0, EventCode.UNZIP_FAILED);
+											PlatformUtils.sendMicroAppServerAnalytics(false, mRequest.getContentData().cardObj.appName, mRequest.getContentData().cardObj.appVersion);
 										}
 									}
 									else
 									{
 										mRequest.getListener().onComplete(mRequest.getContentData());
+										PlatformUtils.sendMicroAppServerAnalytics(true, mRequest.getContentData().cardObj.appName, mRequest.getContentData().cardObj.appVersion);
 									}
 								}
 								else
@@ -378,6 +381,7 @@ public class PlatformZipDownloader
 				{
 					ise.printStackTrace();
 					PlatformRequestManager.failure(mRequest, EventCode.UNKNOWN, isTemplatingEnabled);
+					PlatformUtils.sendMicroAppServerAnalytics(false, mRequest.getContentData().cardObj.appName, mRequest.getContentData().cardObj.appVersion);
 				}
 			}
 		});
