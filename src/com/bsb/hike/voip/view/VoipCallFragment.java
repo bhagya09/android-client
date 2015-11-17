@@ -9,7 +9,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.GradientDrawable;
 import android.media.AudioManager;
 import android.media.ToneGenerator;
 import android.os.Bundle;
@@ -53,7 +52,6 @@ import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.ProfileImageLoader;
 import com.bsb.hike.voip.VoIPClient;
 import com.bsb.hike.voip.VoIPConstants;
-import com.bsb.hike.voip.VoIPConstants.CallQuality;
 import com.bsb.hike.voip.VoIPConstants.CallStatus;
 import com.bsb.hike.voip.VoIPService;
 import com.bsb.hike.voip.VoIPService.LocalBinder;
@@ -69,7 +67,6 @@ public class VoipCallFragment extends Fragment implements CallActions
 	private boolean isBound = false;
 	private final Messenger mMessenger = new Messenger(new IncomingHandler());
 	private WakeLock proximityWakeLock = null;
-	private boolean showQuality = true;
 	private int easter = 0;
 
 	private CallActionsView callActionsView;
@@ -77,7 +74,6 @@ public class VoipCallFragment extends Fragment implements CallActions
 
 	private ImageButton muteButton, speakerButton, addButton, bluetoothButton;
 	private LinearLayout forceMuteContainer = null;
-	private LinearLayout signalContainer = null;
 	private boolean isCallActive;
 	private ArrayList<VoIPClient> conferenceClients = null;
 	private ConferenceParticipantsAdapter confClientsAdapter = null;
@@ -174,10 +170,6 @@ public class VoipCallFragment extends Fragment implements CallActions
 				break;
 			case VoIPConstants.MSG_RECONNECTED:
 				updateCallStatus();
-				break;
-			case VoIPConstants.MSG_UPDATE_QUALITY:
-				CallQuality quality = voipService.getQuality();
-				showSignalStrength(quality);
 				break;
 			case VoIPConstants.MSG_NETWORK_SUCKS:
 				showCallFailedFragment(VoIPConstants.CallFailedCodes.CALLER_BAD_NETWORK);
@@ -326,7 +318,7 @@ public class VoipCallFragment extends Fragment implements CallActions
 		}
 		catch (IllegalArgumentException e) 
 		{
-			Logger.d(tag, "unbindService IllegalArgumentException: " + e.toString());
+//			Logger.d(tag, "unbindService IllegalArgumentException: " + e.toString());
 		}
 		
 		if(callActionsView!=null)
@@ -348,6 +340,8 @@ public class VoipCallFragment extends Fragment implements CallActions
 		boolean isShowingCallFailedFragment();
 		
 		void clearActivityFlags();
+
+		void showDeclineWithMessageFragment(Bundle bundle);
 	}
 
 	private void connectMessenger() 
@@ -444,7 +438,7 @@ public class VoipCallFragment extends Fragment implements CallActions
 		if (keyCode == KeyEvent.KEYCODE_HEADSETHOOK) {
 
 			if (voipService.getCallStatus() == CallStatus.INCOMING_CALL) {
-				acceptCall();
+				onAcceptCall();
 			} else
 				voipService.hangUp();
 			
@@ -523,7 +517,7 @@ public class VoipCallFragment extends Fragment implements CallActions
 	}
 
 	@Override
-	public void acceptCall()
+	public void onAcceptCall()
 	{
 		Logger.d(tag, "Accepted call, starting audio...");
 		if (voipService != null) {
@@ -534,11 +528,24 @@ public class VoipCallFragment extends Fragment implements CallActions
 	}
 
 	@Override
-	public void declineCall()
+	public void onDeclineCall()
 	{
 		Logger.d(tag, "Declined call, rejecting...");
 		if (voipService != null)
 			voipService.rejectIncomingCall();
+	}
+
+	@Override
+	public void onMessage()
+	{
+		VoIPClient client = voipService.getPartnerClient();
+		if (client == null)
+			return;
+		
+		Logger.d(tag, "Declined call, messaging " + client.getPhoneNumber());
+		Bundle bundle = new Bundle();
+		bundle.putString(VoIPConstants.PARTNER_MSISDN, client.getPhoneNumber());
+		activity.showDeclineWithMessageFragment(bundle);
 	}
 
 	private void showHikeCallText()
@@ -610,20 +617,13 @@ public class VoipCallFragment extends Fragment implements CallActions
 			anim.setDuration(500);
 			forceMuteContainer.startAnimation(anim);
 			
-			showQuality = false;
-			showSignalStrength(null);
 		} else {
 			// Set the margin from the participants listview
 			ListView conferenceList = (ListView) getView().findViewById(R.id.conference_list);
 			ViewGroup.MarginLayoutParams layoutParams = (ViewGroup.MarginLayoutParams) conferenceList.getLayoutParams();
 			layoutParams.setMargins(0, 50, 0, 20);
 			conferenceList.setLayoutParams(layoutParams);
-
 			forceMuteContainer.setVisibility(View.GONE);
-			
-			showQuality = true;
-			CallQuality quality = voipService.getQuality();
-			showSignalStrength(quality);
 		}
 	}
 	
@@ -928,39 +928,20 @@ public class VoipCallFragment extends Fragment implements CallActions
 	}
 	
 	private void updateConferenceList() {
-	
+
 		ListView conferenceList = (ListView) getView().findViewById(R.id.conference_list);
-		
-		// FYI, when hosting a conference, we do not have an ArrayList object
-		// to use directly in our listview adapter, since client objects are 
-		// kept in a HashMap for quick lookup. Hence, we create an ArrayList from
-		// the HashMap values in getConferenceClients(). However, this effectively
-		// means that we cannot use notifyDataSetChanged() on updates, since the 
-		// ArrayList object itself will change. 
-		
-		if (conferenceClients == null || voipService.hostingConference())
-			conferenceClients = voipService.getConferenceClients();
-			
-		if (confClientsAdapter == null || voipService.hostingConference()) {
-			confClientsAdapter = new ConferenceParticipantsAdapter(getActivity(), 0, 0, conferenceClients);
-			conferenceList.setAdapter(confClientsAdapter);
-			conferenceList.setVisibility(View.VISIBLE);
-			conferenceList.setFocusable(false);
-			conferenceList.setClickable(false);
-			
-			// Remove profile image
-			ImageView profileView = (ImageView) getView().findViewById(R.id.profile_image);
-			profileView.setVisibility(View.INVISIBLE);
-		} else
-			confClientsAdapter.notifyDataSetChanged();
-		
-		if (voipService.hostingConference()) {
-			
-			// remove quality indicator
-			if (signalContainer != null) {
-				signalContainer.setVisibility(View.GONE);
-			}
-		}
+		conferenceClients = voipService.getConferenceClients();
+
+		confClientsAdapter = new ConferenceParticipantsAdapter(getActivity(), 0, 0, conferenceClients);
+		conferenceList.setAdapter(confClientsAdapter);
+		conferenceList.setVisibility(View.VISIBLE);
+		conferenceList.setFocusable(false);
+		conferenceList.setClickable(false);
+
+		// Remove profile image
+		ImageView profileView = (ImageView) getView().findViewById(R.id.profile_image);
+		profileView.setVisibility(View.INVISIBLE);
+
 	}
 	
 	private void hideConferenceList() {
@@ -984,46 +965,6 @@ public class VoipCallFragment extends Fragment implements CallActions
 		
 		callActionsView.setCallActionsListener(this);
 		callActionsView.startPing();
-	}
-
-	private void showSignalStrength(CallQuality quality)
-	{
-		signalContainer = (LinearLayout) getView().findViewById(R.id.signal_container);
-		TextView signalStrengthView = (TextView) getView().findViewById(R.id.signal_strength);
-		GradientDrawable gd = (GradientDrawable)signalContainer.getBackground();
-
-		if (!showQuality) {
-			signalContainer.setVisibility(View.GONE);
-			return;
-		}
-		
-		AlphaAnimation anim = new AlphaAnimation(0.0f, 1.0f);
-		anim.setDuration(800);
-
-		switch(quality)
-		{
-			case WEAK: 			gd.setColor(getResources().getColor(R.color.signal_red));
-					   			signalStrengthView.setText(getString(R.string.voip_signal_weak));
-					   			break;
-			case FAIR:			gd.setColor(getResources().getColor(R.color.signal_yellow));
-						   		signalStrengthView.setText(getString(R.string.voip_signal_fair));
-						   		break;
-			case GOOD:			gd.setColor(getResources().getColor(R.color.signal_good));
-						   		signalStrengthView.setText(getString(R.string.voip_signal_good));
-						   		break;
-			case EXCELLENT: 	gd.setColor(getResources().getColor(R.color.signal_green));
-					   			signalStrengthView.setText(getString(R.string.voip_signal_excellent));
-					   			break;
-		default:
-			Logger.d(tag, "Unhandled voice quality: " + quality + ". Defaulting to good.");
-			gd.setColor(getResources().getColor(R.color.signal_good));
-	   		signalStrengthView.setText(getString(R.string.voip_signal_good));
-			break;
-		}
-		
-		// TODO: Signal container will remain invisible. 
-//		signalContainer.startAnimation(anim);
-//		signalContainer.setVisibility(View.VISIBLE);
 	}
 
 	private void startCallRateActivity(Bundle bundle)

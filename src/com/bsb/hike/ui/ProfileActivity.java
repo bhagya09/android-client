@@ -78,6 +78,7 @@ import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.CustomFontEditText;
 import com.bsb.hike.voip.VoIPUtils;
+import com.kpt.adaptxt.beta.KPTAddonItem;
 import com.kpt.adaptxt.beta.RemoveDialogData;
 import com.kpt.adaptxt.beta.util.KPTConstants;
 import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtKeyboordVisibilityStatusListner;
@@ -397,7 +398,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			mActivityState = new ProfileActivityState();
 		}
 
-		systemKeyboard = HikeMessengerApp.isSystemKeyboard(getApplicationContext());
+		systemKeyboard = HikeMessengerApp.isSystemKeyboard();
 
 		if (getIntent().hasExtra(HikeConstants.Extras.EXISTING_GROUP_CHAT) || getIntent().hasExtra(HikeConstants.Extras.EXISTING_BROADCAST_LIST))
 		{
@@ -534,7 +535,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		{
 			mCustomKeyboard.showCustomKeyboard(mNameEdit, true);
 			KptUtils.updatePadding(ProfileActivity.this, R.id.parent_layout, mCustomKeyboard.getKeyBoardAndCVHeight());
-		}else if (KptUtils.isSystemKeyboard(ProfileActivity.this))
+		}else if (KptUtils.isSystemKeyboard())
 		{
 			Utils.showSoftKeyboard(mNameEdit, InputMethodManager.SHOW_FORCED);
 		}
@@ -3635,9 +3636,9 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 	}
 
 	@Override
-	public void analyticalData(String currentLanguage)
+	public void analyticalData(KPTAddonItem kptAddonItem)
 	{
-		KptUtils.generateKeyboardAnalytics(currentLanguage);
+		KptUtils.generateKeyboardAnalytics(kptAddonItem);
 	}
 
 	@Override

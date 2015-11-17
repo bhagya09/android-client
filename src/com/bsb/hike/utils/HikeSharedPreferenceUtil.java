@@ -1,15 +1,16 @@
 package com.bsb.hike.utils;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 
 import com.bsb.hike.HikeMessengerApp;
+
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 public class HikeSharedPreferenceUtil
 {
@@ -219,6 +220,11 @@ public class HikeSharedPreferenceUtil
 	public synchronized long getData(String key, long defaultValue)
 	{
 		return hikeSharedPreferences.getLong(key, defaultValue);
+	}
+
+	public synchronized Map<String, ?> getAllData()
+	{
+		return hikeSharedPreferences.getAll();
 	}
 
 	public synchronized void deleteAllData()

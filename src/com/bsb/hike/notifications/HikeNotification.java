@@ -100,6 +100,8 @@ public class HikeNotification
 	public static final int TICKER_TEXT_MAX_LENGHT = 100;
 	
 	public static final int OFFLINE_REQUEST_ID = -91;
+	
+	public static final int NOTIFICATION_PRODUCT_POPUP = -92;
 	// We need a key to pair notification id. This will be used to retrieve notification id on notification dismiss/action.
 	public static final String HIKE_NOTIFICATION_ID_KEY = "hike.notification";
 
@@ -1023,7 +1025,7 @@ public class HikeNotification
 			{
 				continue;
 			}
-			notificationManager.cancel(Integer.parseInt(id));
+			cancelNotification(Integer.parseInt(id));
 		}
 
 		final Editor editor = sharedPreferences.edit();
@@ -1033,8 +1035,37 @@ public class HikeNotification
 
 	public void cancelAllNotifications()
 	{
-		notificationManager.cancelAll();
-		hikeNotifMsgStack.resetMsgStack();
+		try
+		{
+			notificationManager.cancelAll();
+			hikeNotifMsgStack.resetMsgStack();
+		}
+		catch (SecurityException e)
+		{
+			/**
+			 * some of the users on HTC HTC Desire 626GPLUS dual sim were getting permission denial
+			 * while try to cancel notifications. we haven't been able to find any probable reason
+			 * for that.
+			 */
+			Logger.e("HikeNotification", "Exception while clearing notification from notication panel", e);
+		}
+	}
+
+	public void cancelNotification(int id)
+	{
+		try
+		{
+			notificationManager.cancel(id);
+		}
+		catch (SecurityException e)
+		{
+			/**
+			 * some of the users on HTC HTC Desire 626GPLUS dual sim were getting permission denial
+			 * while try to cancel notifications. we haven't been able to find any probable reason
+			 * for that.
+			 */
+			Logger.e("HikeNotification", "Exception while clearing notification from notication panel", e);
+		}
 	}
 
 	private void showInboxStyleNotification(final Intent notificationIntent, final int icon, final long timestamp, final int notificationId, final CharSequence text,
@@ -1514,7 +1545,7 @@ public class HikeNotification
 	public  void notifyUserAndOpenHomeActivity(String text, String title, boolean shouldNotPlaySound)
 	{
 		Intent intent=Utils.getHomeActivityIntent(context);
-		showBigTextStyleNotification(intent, 0, System.currentTimeMillis(), HikeNotification.HIKE_SUMMARY_NOTIFICATION_ID, title, text,
+		showBigTextStyleNotification(intent, 0, System.currentTimeMillis(), HikeNotification.NOTIFICATION_PRODUCT_POPUP, title, text,
 				title, "", null, null, shouldNotPlaySound, 0);
 	}
 

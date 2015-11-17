@@ -7,6 +7,22 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.app.Activity;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.net.Uri;
+import android.os.Build;
+import android.os.Bundle;
+import android.os.Message;
+import android.provider.ContactsContract.Contacts;
+import android.provider.MediaStore;
+import android.provider.Settings;
+import android.text.TextUtils;
+import android.widget.Toast;
+
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
@@ -20,7 +36,8 @@ import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.chatHead.StickerShareSettings;
 import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.chatthread.ChatThreadUtils;
-import com.bsb.hike.cropimage.CropImage;
+import com.bsb.hike.cropimage.CropCompression;
+import com.bsb.hike.cropimage.HikeCropActivity;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.HikeFile;
@@ -721,7 +738,8 @@ public class IntentFactory
 		
 		if(cropImage)
 		{
-			destIntents.add(IntentFactory.getCropActivityIntent(context, null, outputDestination, true,80, false));
+			CropCompression compression = new CropCompression().maxWidth(640).maxHeight(640).quality(80);
+			destIntents.add(IntentFactory.getCropActivityIntent(context, null, outputDestination, compression));
 		}
 		
 		if(destIntents.size()>0)
@@ -1029,19 +1047,18 @@ public class IntentFactory
 		startShareImageIntent(mimeType, imagePath, null);
 	}
 	
-	public static Intent getCropActivityIntent(Context context, String path, String destPath, boolean preventScaling, int quality,boolean circleHighlight)
+	public static Intent getCropActivityIntent(Context argActivity, String argPath, String argDestPath, CropCompression argCropCompression)
 	{
-		/* Crop the image */
-		Intent intent = new Intent(context, CropImage.class);
-		intent.putExtra(MediaStore.EXTRA_OUTPUT, destPath);
-		intent.putExtra(HikeConstants.Extras.IMAGE_PATH, path);
-		intent.putExtra(HikeConstants.Extras.CIRCLE_HIGHLIGHT, circleHighlight);
-		intent.putExtra(HikeConstants.Extras.SCALE, false);
-		intent.putExtra(HikeConstants.Extras.RETURN_CROP_RESULT_TO_FILE, preventScaling);
-		intent.putExtra(HikeConstants.Extras.ASPECT_X, 1);
-		intent.putExtra(HikeConstants.Extras.ASPECT_Y, 1);
-		intent.putExtra(HikeConstants.Extras.JPEG_COMPRESSION_QUALITY, quality);
-		return intent;
+		Intent cropIntent = new Intent(argActivity, HikeCropActivity.class);
+		cropIntent.putExtra(HikeCropActivity.CROPPED_IMAGE_PATH, argDestPath);
+		cropIntent.putExtra(HikeCropActivity.SOURCE_IMAGE_PATH, argPath);
+		
+		//https://code.google.com/p/android/issues/detail?id=6822
+		Bundle cropCompBundle = new Bundle();
+		cropCompBundle.putParcelable(HikeCropActivity.CROP_COMPRESSION, argCropCompression);
+		
+		cropIntent.putExtra(HikeCropActivity.CROP_COMPRESSION, cropCompBundle);
+		return cropIntent;
 	}
 
 	public static Intent getApkSelectionActivityIntent(Context context) 

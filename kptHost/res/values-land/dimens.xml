@@ -20,7 +20,7 @@
 
 <resources>
     <dimen name="kpt_key_height">38dip</dimen>
-    <dimen name="kpt_candidate_strip_height">27dip</dimen>
+    <dimen name="kpt_candidate_strip_height">37dip</dimen>
     <dimen name="kpt_spacebar_vertical_correction">0dip</dimen>
     <dimen name="kpt_spacebar_text_size">15sp</dimen>
     <dimen name="kpt_vertical_gap">0sp</dimen>
@@ -44,8 +44,8 @@
     
            <!-- Dimensions of Drak Theme   -->  
         
-	<dimen name="kpt_key_height_dk_fk">38dip</dimen> 
-	<dimen name="kpt_key_height_hindhi_5_rows_dk_fk">30dip</dimen>
+	<dimen name="kpt_key_height_dk_fk">40dip</dimen> 
+	<dimen name="kpt_key_height_hindhi_5_rows_dk_fk">32dip</dimen>
 	<dimen name="kpt_hindhi_key_height_dk_fk">25dip</dimen> 
 	<dimen name="kpt_candidate_strip_height_dk_fk">34dip</dimen>  
 	<dimen name="kpt_text_size_min">16sp</dimen>

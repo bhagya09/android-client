@@ -1,9 +1,5 @@
 package com.bsb.hike.modules.stickerdownloadmgr;
 
-import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests.defaultTagsRequest;
-
-import org.json.JSONObject;
-
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.modules.httpmgr.RequestToken;
@@ -13,12 +9,19 @@ import com.bsb.hike.modules.httpmgr.hikehttp.IHikeHttpTaskResult;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.StickerRequestType;
+import com.bsb.hike.modules.stickersearch.StickerLanguagesManager;
 import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
 import com.bsb.hike.modules.stickersearch.ui.StickerTagWatcher;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
+
+import org.json.JSONObject;
+
+import java.util.Collection;
+
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests.defaultTagsRequest;
 
 public class DefaultTagDownloadTask implements IHikeHTTPTask, IHikeHttpTaskResult
 {
@@ -27,26 +30,34 @@ public class DefaultTagDownloadTask implements IHikeHTTPTask, IHikeHttpTaskResul
 
 	private boolean isSignUp;
 
+	private Collection<String> languages;
+
 	private RequestToken requestToken;
 	
-	public DefaultTagDownloadTask(boolean isSignUp)
+	public DefaultTagDownloadTask(boolean isSignUp, Collection<String> languages)
 	{
 		this.isSignUp = isSignUp;
+        this.languages = languages;
+
+        Logger.d(TAG, "languages list : " + languages);
+
 	}
 
 	@Override
-	public void execute()
-	{
-		long lastSuccessfulTagDownloadTime = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.LAST_SUCESSFULL_TAGS_DOWNLOAD_TIME, 0L);
-		requestToken = defaultTagsRequest(getRequestId(), isSignUp, lastSuccessfulTagDownloadTime, getResponseListener());
+	public void execute() {
 
-		if (requestToken.isRequestRunning())
-		{
-			return;
-		}
+        if (Utils.isEmpty(languages)) {
+            return;
+        }
+        long lastSuccessfulTagDownloadTime = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.LAST_SUCESSFULL_TAGS_DOWNLOAD_TIME, 0L);
+        requestToken = defaultTagsRequest(getRequestId(), isSignUp, lastSuccessfulTagDownloadTime, getResponseListener(), StickerLanguagesManager.getInstance().listToSting(languages));
 
-		requestToken.execute();
-	}
+        if (requestToken.isRequestRunning()) {
+            return;
+        }
+
+        requestToken.execute();
+    }
 
 	private IRequestListener getResponseListener()
 	{
@@ -110,9 +121,15 @@ public class DefaultTagDownloadTask implements IHikeHTTPTask, IHikeHttpTaskResul
 	public void doOnSuccess(Object result)
 	{
 		JSONObject response = (JSONObject) result;
+		StickerLanguagesManager.getInstance().checkAndUpdateForbiddenList(response);
 		StickerSearchManager.getInstance().insertStickerTags(response, StickerSearchConstants.STATE_STICKER_DATA_FRESH_INSERT);
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.DEFAULT_TAGS_DOWNLOADED, true);
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.LAST_SUCESSFULL_TAGS_DOWNLOAD_TIME, System.currentTimeMillis());
+
+		for(String lang : languages)
+		{
+			HikeSharedPreferenceUtil.getInstance(HikeMessengerApp.DEFAULT_TAG_DOWNLOAD_LANGUAGES_PREF).saveData(lang, true);
+		}
 	}
 
 	@Override

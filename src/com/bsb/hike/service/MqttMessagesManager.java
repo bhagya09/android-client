@@ -2453,7 +2453,7 @@ public class MqttMessagesManager
 		if (data.has(HikeConstants.STICKER_RECOMMENDATION_DOWNLOAD_TAGS))
 		{
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.DEFAULT_TAGS_DOWNLOADED, false);
-			StickerManager.getInstance().downloadDefaultTags(false);
+			StickerManager.getInstance().downloadDefaultTagsFirstTime(false);
 		}
 
 		if (data.has(HikeConstants.STICKER_RECOMMENDATION_CONFIGURATION_DATA))
@@ -2699,6 +2699,10 @@ public class MqttMessagesManager
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.NEW_CHAT_RED_DOT, true);
 				HikeMessengerApp.getPubSub().publish(HikePubSub.SHOW_NEW_CHAT_RED_DOT, null);
 			}
+		}
+		if(data.has(HikeConstants.SHOW_GPS_DIALOG))
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOW_GPS_DIALOG, data.optBoolean(HikeConstants.SHOW_GPS_DIALOG));
 		}
 		
 		editor.commit();
