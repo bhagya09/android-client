@@ -16,6 +16,9 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.bots.BotInfo;
+import com.bsb.hike.bots.BotUtils;
+import com.bsb.hike.bots.NonMessagingBotMetadata;
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
@@ -23,6 +26,8 @@ import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.FileRequestPersistent;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
+import com.bsb.hike.notifications.HikeNotification;
+import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.content.PlatformContent.EventCode;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
@@ -59,6 +64,8 @@ public class PlatformZipDownloader
 
 	private  float progress_done=0;
 
+	private String asocCbotMsisdn;
+
 
 	/**
 	 * Instantiates a new platform template download task.
@@ -86,11 +93,19 @@ public class PlatformZipDownloader
 		this.callbackId = callbackId;
 	}
 	
-	public PlatformZipDownloader(PlatformContentRequest argRequest, boolean isTemplatingEnabled,boolean doReplace, String callbackId, boolean resumeSupported)
+	public PlatformZipDownloader(PlatformContentRequest argRequest, boolean isTemplatingEnabled,boolean doReplace, String callbackId, boolean resumeSupported,String asocCbot)
 	{
 		// Get ID from content and call http
 		this(argRequest, isTemplatingEnabled, doReplace, callbackId);
 		this.resumeSupported = resumeSupported;
+		if(asocCbot==null)
+		{
+			this.asocCbotMsisdn="";
+		}
+		else
+		{
+			this.asocCbotMsisdn = asocCbot;
+		}
 		
 		if (resumeSupported)
 		{
@@ -98,7 +113,8 @@ public class PlatformZipDownloader
 			setStartOffset();
 		}
 	}
-	
+
+
 	private void setStartOffset()
 	{
 		File file = new File(stateFilePath + FileRequestPersistent.STATE_FILE_EXT);
@@ -315,6 +331,12 @@ public class PlatformZipDownloader
 							Boolean isSuccess = (Boolean) data;
 							if (isSuccess)
 							{
+								BotInfo botinfo= BotUtils.getBotInfoForBotMsisdn(asocCbotMsisdn);
+								if(botinfo!=null)
+								{
+									NonMessagingBotMetadata nonMessagingBotMetadata = new NonMessagingBotMetadata(botinfo.getMetadata());
+									HikeNotification.getInstance().sendNotificationToChatThread(asocCbotMsisdn,nonMessagingBotMetadata.getCardObj().optString(HikePlatformConstants.HIKE_MESSAGE),false);
+								}
 								if (!isTemplatingEnabled)
 								{
 									if (doReplace)
@@ -325,15 +347,18 @@ public class PlatformZipDownloader
 										if (replace)
 										{
 											mRequest.getListener().onComplete(mRequest.getContentData());
+											PlatformUtils.sendMicroAppServerAnalytics(true, mRequest.getContentData().cardObj.appName, mRequest.getContentData().cardObj.appVersion);
 										}
 										else
 										{
 											mRequest.getListener().onEventOccured(0, EventCode.UNZIP_FAILED);
+											PlatformUtils.sendMicroAppServerAnalytics(false, mRequest.getContentData().cardObj.appName, mRequest.getContentData().cardObj.appVersion);
 										}
 									}
 									else
 									{
 										mRequest.getListener().onComplete(mRequest.getContentData());
+										PlatformUtils.sendMicroAppServerAnalytics(true, mRequest.getContentData().cardObj.appName, mRequest.getContentData().cardObj.appVersion);
 									}
 								}
 								else
@@ -356,6 +381,7 @@ public class PlatformZipDownloader
 				{
 					ise.printStackTrace();
 					PlatformRequestManager.failure(mRequest, EventCode.UNKNOWN, isTemplatingEnabled);
+					PlatformUtils.sendMicroAppServerAnalytics(false, mRequest.getContentData().cardObj.appName, mRequest.getContentData().cardObj.appVersion);
 				}
 			}
 		});

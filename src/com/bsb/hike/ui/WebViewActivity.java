@@ -64,10 +64,8 @@ import com.bsb.hike.media.OverFlowMenuItem;
 import com.bsb.hike.media.OverFlowMenuLayout.OverflowViewListener;
 import com.bsb.hike.media.OverflowItemClickListener;
 import com.bsb.hike.media.TagPicker.TagOnClickListener;
-import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.MessageEvent;
 import com.bsb.hike.models.WhitelistDomain;
-import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.platform.CustomWebView;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUtils;
@@ -142,6 +140,8 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 
 	private String microappData;
 
+	private boolean isShortcut = false;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
@@ -158,6 +158,8 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		allowLoc = getIntent().getBooleanExtra(HikeConstants.Extras.WEBVIEW_ALLOW_LOCATION, false);
 
 		microappData = getIntent().getStringExtra(HikePlatformConstants.MICROAPP_DATA);
+
+		isShortcut = getIntent().getBooleanExtra(HikePlatformConstants.IS_SHORTCUT, false);
 		
 		setMode(getIntent().getIntExtra(WEBVIEW_MODE, WEB_URL_MODE));
 
@@ -575,6 +577,11 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 					mmBridge.onUpPressed();
 					return true;
 				}
+				else if (isShortcut)
+				{
+					Intent intent = IntentFactory.getHomeActivityIntent(this);
+					startActivity(intent);
+				}
 			}
 			this.finish();
 			return true;
@@ -735,13 +742,17 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 				mmBridge.onBackPressed();
 				return;
 			}
+			else if (isShortcut)
+			{
+				Intent intent = IntentFactory.getHomeActivityIntent(this);
+				startActivity(intent);
+			}
 		}
 
 		if ((mode == WEB_URL_MODE || mode == SERVER_CONTROLLED_WEB_URL_MODE) && webView.canGoBack())
 		{
 			webView.goBack();
 		}
-		
 		else
 		{
 			super.onBackPressed();

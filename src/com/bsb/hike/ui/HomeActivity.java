@@ -758,7 +758,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 					HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOW_TIMELINE_RED_DOT, false);
 					Intent intent = new Intent(HomeActivity.this, TimelineActivity.class);
-					timelineUpdatesIndicator.setVisibility(View.GONE);
 					startActivity(intent);
 				}
 			});
@@ -787,6 +786,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 					intent.putExtra(HikeConstants.Extras.IS_MICROAPP_SHOWCASE_INTENT, true);
 
 					newConversationIndicator.setVisibility(View.GONE);
+					HikeMessengerApp.getPubSub().publish(HikePubSub.BADGE_COUNT_USER_JOINED, null);
 					startActivity(intent);
 				}
 			});
@@ -1091,7 +1091,15 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		
 		if (linkUrl.contains(HttpRequestConstants.BASE_LINK_SHARING_URL))
 		{
-			String code = linkUrl.split("/")[3];
+			//linkurl is http://hike.in/refid:gc:code
+			String codeArray[] = linkUrl.split("/");
+			if(codeArray.length < 4)
+			{
+				Logger.d("link_share_error", "The linkurl is wrong, split in '/' is < 4 " + linkUrl);
+				return;
+			}
+			
+			String code = codeArray[3];
 			RequestToken requestToken = HttpRequests.acceptGroupMembershipConfirmationRequest(code, new IRequestListener()
 			{
 				

@@ -402,4 +402,18 @@ public class HttpRequestConstants
 			return STAGING_HIKECALLER_API;
 		}
 	}
+
+	public static String getMicroAppLoggingUrl(boolean isSuccess)
+	{
+		String suffix = "/mapps/api" + BASE_V1 + "/apps/ack/" + (isSuccess ? "success" : "failure");
+
+		if (isProduction)
+		{
+			return HTTPS + "mapps." + PLATFORM_PRODUCTION_API + suffix;
+		}
+		else
+		{
+			return HTTPS + QA_CONTENT + suffix ;
+		}
+	}
 }

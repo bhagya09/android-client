@@ -1,5 +1,21 @@
 package com.bsb.hike.platform;
 
+import java.io.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ByteArrayEntity;
+import org.apache.http.params.CoreConnectionPNames;
+import org.apache.http.params.CoreProtocolPNames;
+import org.apache.http.util.EntityUtils;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.ActivityManager.RunningAppProcessInfo;
@@ -14,10 +30,7 @@ import android.util.Pair;
 import android.webkit.MimeTypeMap;
 import android.widget.Toast;
 
-import com.bsb.hike.HikeConstants;
-import com.bsb.hike.HikeMessengerApp;
-import com.bsb.hike.HikePubSub;
-import com.bsb.hike.R;
+import com.bsb.hike.*;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
@@ -28,36 +41,27 @@ import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.*;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.Header;
+import com.bsb.hike.modules.httpmgr.RequestToken;
+import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpHeaderConstants;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.FileRequestPersistent;
+import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
+import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadSource;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadType;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerPalleteImageDownloadTask;
 import com.bsb.hike.platform.content.*;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.productpopup.ProductPopupsConstants.HIKESCREEN;
+import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.timeline.view.StatusUpdate;
 import com.bsb.hike.ui.CreateNewGroupOrBroadcastActivity;
 import com.bsb.hike.ui.HikeListActivity;
 import com.bsb.hike.ui.HomeActivity;
 import com.bsb.hike.ui.TellAFriend;
 import com.bsb.hike.utils.*;
-
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.ByteArrayEntity;
-import org.apache.http.params.CoreConnectionPNames;
-import org.apache.http.params.CoreProtocolPNames;
-import org.apache.http.util.EntityUtils;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.*;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 
 /**
  * @author piyush
@@ -559,7 +563,8 @@ public class PlatformUtils
 				boolean doReplace = downloadData.optBoolean(HikePlatformConstants.REPLACE_MICROAPP_VERSION);
 				String callbackId = downloadData.optString(HikePlatformConstants.CALLBACK_ID);
 				boolean resumeSupported=downloadData.optBoolean(HikePlatformConstants.RESUME_SUPPORTED);
-				downloadAndUnzip(rqst, false,doReplace, callbackId,resumeSupported);
+				String assoc_cbot=downloadData.optString(HikePlatformConstants.ASSOCIATE_CBOT,"");
+				downloadAndUnzip(rqst, false,doReplace, callbackId,resumeSupported,assoc_cbot);
 
 	}
 
@@ -596,10 +601,15 @@ public class PlatformUtils
 	{
 		downloadAndUnzip(request, isTemplatingEnabled, false);
 	}
-	
+
 	public static void downloadAndUnzip(PlatformContentRequest request, boolean isTemplatingEnabled, boolean doReplace, String callbackId, boolean resumeSupported)
 	{
-		PlatformZipDownloader downloader =  new PlatformZipDownloader(request, isTemplatingEnabled, doReplace, callbackId, resumeSupported);
+		downloadAndUnzip(request, isTemplatingEnabled, doReplace,callbackId,resumeSupported,"");
+	}
+	
+	public static void downloadAndUnzip(PlatformContentRequest request, boolean isTemplatingEnabled, boolean doReplace, String callbackId, boolean resumeSupported,String assocCbot)
+	{
+		PlatformZipDownloader downloader =  new PlatformZipDownloader(request, isTemplatingEnabled, doReplace, callbackId, resumeSupported,assocCbot);
 		if (!downloader.isMicroAppExist() || doReplace)
 		{
 			downloader.downloadAndUnzip();
@@ -723,6 +733,17 @@ public class PlatformUtils
 		try
 		{
 			post.setHeader("Content-Type", "multipart/form-data; boundary=" + BOUNDARY);
+
+			HikeSharedPreferenceUtil mpref = HikeSharedPreferenceUtil.getInstance();
+			String platformUID = mpref.getData(HikeMessengerApp.PLATFORM_UID_SETTING, null);
+			String platformToken = mpref.getData(HikeMessengerApp.PLATFORM_TOKEN_SETTING, null);
+			if (!TextUtils.isEmpty(platformToken) && !TextUtils.isEmpty(platformUID))
+			{
+				post.addHeader(HttpHeaderConstants.COOKIE_HEADER_NAME,
+						HikePlatformConstants.PLATFORM_TOKEN + "=" + platformToken + "; " +
+								HikePlatformConstants.PLATFORM_USER_ID + "=" + platformUID);
+			}
+
 			post.setEntity(new ByteArrayEntity(fileBytes));
 			HttpResponse response = client.execute(post);
 			Logger.d("FileUpload", response.toString());
@@ -748,6 +769,7 @@ public class PlatformUtils
 		}
 		return res;
 	}
+
 	/*
 	 * gets the boundary message for the file path
 	 */
@@ -1335,6 +1357,81 @@ public class PlatformUtils
 	public static Header getDownloadRangeHeader(long startOffset)
 	{
 		return new Header("Range", "bytes=" + startOffset + "-");
+	}
+
+	/**
+	 * Utility method to send a delivery report for Event related messages via the general event framework. The packet structure is as follows : <br>
+	 * {“t” : “ge1”, “d”: { “t” : “dr”, “d”:”155”}, “to” : "9717xxxxx" }
+	 * 
+	 * @param mappedEventId
+	 * @param receiverMsisdn
+	 */
+	public static void sendGeneralEventDeliveryReport(long mappedEventId, String receiverMsisdn)
+	{
+
+		JSONObject jObj = new JSONObject();
+		JSONObject data = new JSONObject();
+		try
+		{
+
+			jObj.put(HikeConstants.TYPE, HikeConstants.MqttMessageTypes.GENERAL_EVENT_QOS_ONE);
+			jObj.put(HikeConstants.TO, receiverMsisdn);
+
+			data.put(HikeConstants.TYPE, HikeConstants.GeneralEventMessagesTypes.GENERAL_EVENT_DR);
+			data.put(HikePlatformConstants.EVENT_DATA, mappedEventId);
+
+			jObj.put(HikeConstants.DATA, data);
+			HikeMqttManagerNew.getInstance().sendMessage(jObj, MqttConstants.MQTT_QOS_ONE);
+		}
+
+		catch (JSONException e)
+		{
+			Logger.e(TAG, "JSON Exception while sending DR packet for normal event" + e.toString());
+		}
+	}
+
+	/**
+	 * Utility method to send microapp download success or failure analytics
+	 * @param success
+	 * @param appName
+	 * @param appVersion
+	 */
+	public static void sendMicroAppServerAnalytics(boolean success, String appName, String appVersion)
+	{
+		try
+		{
+			JSONObject body = new JSONObject();
+			body.put(HikePlatformConstants.APP_NAME, appName);
+			body.put(HikePlatformConstants.APP_VERSION, appVersion);
+
+			RequestToken token = HttpRequests.microAppPostRequest(
+					HttpRequestConstants.getMicroAppLoggingUrl(success), body,
+					new IRequestListener()
+					{
+						@Override
+						public void onRequestFailure(HttpException httpException)
+						{
+
+						}
+
+						@Override
+						public void onRequestSuccess(Response result)
+						{
+
+						}
+
+						@Override
+						public void onRequestProgressUpdate(float progress)
+						{
+
+						}
+					});
+		}
+		catch (JSONException e)
+		{
+			Logger.e(TAG, "Exception occured while sending microapp analytics : " + e.toString());
+		}
+
 	}
 
 }
