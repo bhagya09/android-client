@@ -1,17 +1,5 @@
 package com.bsb.hike.adapters;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
@@ -54,6 +42,18 @@ import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.utils.Utils.WhichScreen;
 import com.bsb.hike.view.PinnedSectionListView.PinnedSectionListAdapter;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class FriendsAdapter extends BaseAdapter implements OnClickListener, PinnedSectionListAdapter
 {
@@ -105,6 +105,8 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 	// msisdn for scrolling Microapps showcase
 	public static final String HIKE_APPS_MSISDN = "-132";
 
+    public static final String CONTACT_SUGGESTED_NUM = "--133";
+
 	/*stores the regex for matching number during search*/
 	public static Pattern numberPattern;
 
@@ -122,6 +124,8 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 	protected List<ContactInfo> hikeContactsList;
 
 	protected List<ContactInfo> smsContactsList;
+
+    protected List<ContactInfo> suggestedContactsList;
 	
 	protected List<ContactInfo> recentContactsList;
 	
@@ -141,6 +145,10 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 
 	protected List<ContactInfo> filteredSmsContactsList;
 
+    protected List<ContactInfo> filteredSuggestedContactsList;
+
+    protected List<ContactInfo> filteredRecommendedContactsList;
+
 	protected List<ContactInfo> filteredRecentlyJoinedHikeContactsList;
 	
 	protected List<ContactInfo> groupsList;
@@ -154,8 +162,10 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 	protected List<ContactInfo> nuxRecommendedList;
 	
 	protected List<ContactInfo> nuxFilteredRecoList;
-	
-	protected List<BotInfo> microappShowcaseList;
+
+    protected List<ContactInfo> recommendedUsersList;
+
+    protected List<BotInfo> microappShowcaseList;
 	
 	protected List<BotInfo> filteredmicroAppShowcaseList;
 	
@@ -169,7 +179,9 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 
 	private ContactInfo smsContactsSection;
 
-	private ContactInfo inviteExtraItem;
+    private ContactInfo suggestedContactsSection;
+
+    private ContactInfo inviteExtraItem;
 
 	private ContactInfo groupExtraItem;
 
@@ -201,6 +213,15 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 
 	protected Map<String, Integer> contactSpanStartIndexes;
 
+    /*
+     * Variables added for showing friends list based on a given csv
+     */
+    private boolean showContactsBasedOnCsv;
+
+    private String msisdnList;
+
+    private String phoneNoList;
+
 	public FriendsAdapter(Context context, ListView listView, FriendsListFetchedCallback friendsListFetchedCallback, LastSeenComparator lastSeenComparator)
 	{
 		this.listView = listView;
@@ -225,6 +246,7 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 		friendsList = new ArrayList<ContactInfo>(0);
 		hikeContactsList = new ArrayList<ContactInfo>(0);
 		smsContactsList = new ArrayList<ContactInfo>(0);
+        suggestedContactsList = new ArrayList<ContactInfo>(0);
 		recentlyJoinedHikeContactsList = new ArrayList<ContactInfo>(0);
 		nuxRecommendedList = new ArrayList<ContactInfo>(0);
 		microappShowcaseList = new ArrayList<BotInfo>(0);
@@ -237,6 +259,7 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 		filteredFriendsList = new ArrayList<ContactInfo>(0);
 		filteredHikeContactsList = new ArrayList<ContactInfo>(0);
 		filteredSmsContactsList = new ArrayList<ContactInfo>(0);
+        filteredSuggestedContactsList = new ArrayList<ContactInfo>(0);
 		filteredRecentlyJoinedHikeContactsList = new ArrayList<ContactInfo>(0);
 		nuxFilteredRecoList = new ArrayList<ContactInfo>(0);
 		lastStatusMessagesMap = new HashMap<String, StatusMessage>();
@@ -254,12 +277,88 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 		numberPattern = Pattern.compile("^\\+?((?>[0-9]+)[-.\\s/]?)*");
 	}
 
+    public FriendsAdapter(Context context, ListView listView, FriendsListFetchedCallback friendsListFetchedCallback, LastSeenComparator lastSeenComparator,boolean showContactsBasedOnCsv,String msisdnList,String phoneNoList)
+    {
+        this.listView = listView;
+        mIconImageSize = context.getResources().getDimensionPixelSize(R.dimen.icon_picture_size);
+        this.iconloader = new IconLoader(context, mIconImageSize);
+        this.iconloader.setDefaultAvatarIfNoCustomIcon(true);
+        this.iconloader.setImageFadeIn(false);
+        this.layoutInflater = LayoutInflater.from(context);
+        this.context = context;
+        this.contactFilter = new ContactFilter();
+        this.lastSeenPref = PreferenceManager.getDefaultSharedPreferences(context).getBoolean(HikeConstants.LAST_SEEN_PREF, true);
+		/*
+		 * Now we never show sms contacts section in people screen.
+		 */
+        //this.showSMSContacts = PreferenceManager.getDefaultSharedPreferences(context).getBoolean(HikeConstants.FREE_SMS_PREF, true) || Utils.getSendSmsPref(context);
+        this.showSMSContacts = false;
+        this.friendsListFetchedCallback = friendsListFetchedCallback;
+        this.lastSeenComparator = lastSeenComparator;
+
+        completeList = new ArrayList<ContactInfo>();
+
+        friendsList = new ArrayList<ContactInfo>(0);
+        hikeContactsList = new ArrayList<ContactInfo>(0);
+        smsContactsList = new ArrayList<ContactInfo>(0);
+        suggestedContactsList = new ArrayList<ContactInfo>(0);
+        recentlyJoinedHikeContactsList = new ArrayList<ContactInfo>(0);
+        nuxRecommendedList = new ArrayList<ContactInfo>(0);
+        microappShowcaseList = new ArrayList<BotInfo>(0);
+        filteredmicroAppShowcaseList = new ArrayList<BotInfo>(0);
+
+        friendsStealthList = new ArrayList<ContactInfo>(0);
+        hikeStealthContactsList = new ArrayList<ContactInfo>(0);
+        smsStealthContactsList = new ArrayList<ContactInfo>(0);
+
+        filteredFriendsList = new ArrayList<ContactInfo>(0);
+        filteredHikeContactsList = new ArrayList<ContactInfo>(0);
+        filteredSmsContactsList = new ArrayList<ContactInfo>(0);
+        filteredSuggestedContactsList = new ArrayList<ContactInfo>(0);
+        filteredRecentlyJoinedHikeContactsList = new ArrayList<ContactInfo>(0);
+        nuxFilteredRecoList = new ArrayList<ContactInfo>(0);
+        lastStatusMessagesMap = new HashMap<String, StatusMessage>();
+
+        listFetchedOnce = false;
+
+        contactSpanStartIndexes = new HashMap<String, Integer>();
+
+		/* Regex Explanation - number can start with '+', then any character between [0-9] one or more time and
+	 	any character among them [-, ., space, slash ] only once
+		if this pattern match then ignore all the hyphen, dot, space, slash
+		removed backtracking for numbers as it can lead to backtracking explosion for large string
+		reference : http://www.regular-expressions.info/catastrophic.html
+		compiling the pattern once to avoid redundant recompiling */
+        numberPattern = Pattern.compile("^\\+?((?>[0-9]+)[-.\\s/]?)*");
+
+        /*
+         * Initializing instance variables for retrieval of contacts based on given msisdns and phone nos list
+         */
+        this.showContactsBasedOnCsv = showContactsBasedOnCsv;
+        this.msisdnList = msisdnList;
+        this.phoneNoList = phoneNoList;
+    }
+
+
 	public void executeFetchTask()
 	{
 		setLoadingView();
-		FetchFriendsTask fetchFriendsTask = new FetchFriendsTask(this, context, friendsList, hikeContactsList, smsContactsList, recentContactsList, recentlyJoinedHikeContactsList,friendsStealthList, hikeStealthContactsList,
-				smsStealthContactsList, recentStealthContactsList, filteredFriendsList, filteredHikeContactsList, filteredSmsContactsList, false, true, false, false, false);
-		Utils.executeAsyncTask(fetchFriendsTask);
+
+        FetchFriendsTask fetchFriendsTask;
+
+        if(showContactsBasedOnCsv)
+        {
+            fetchFriendsTask = new FetchFriendsTask(this, context, friendsList, hikeContactsList, smsContactsList, recentContactsList, recentlyJoinedHikeContactsList,friendsStealthList, hikeStealthContactsList,
+                    smsStealthContactsList, recentStealthContactsList, filteredFriendsList, filteredHikeContactsList, filteredSmsContactsList,suggestedContactsList,filteredSuggestedContactsList, false, false, false, false, false,false,false,true,msisdnList,phoneNoList);
+            Utils.executeAsyncTask(fetchFriendsTask);
+        }
+        else
+        {
+            fetchFriendsTask = new FetchFriendsTask(this, context, friendsList, hikeContactsList, smsContactsList, recentContactsList, recentlyJoinedHikeContactsList,friendsStealthList, hikeStealthContactsList,
+                    smsStealthContactsList, recentStealthContactsList, filteredFriendsList, filteredHikeContactsList, filteredSmsContactsList,suggestedContactsList,filteredSuggestedContactsList, false, false, false, false, false,true,true,false,"","");
+            Utils.executeAsyncTask(fetchFriendsTask);
+        }
+
 	}
 
 	public void setListFetchedOnce(boolean b)
@@ -302,13 +401,17 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 				List<ContactInfo> filteredGroupList = new ArrayList<ContactInfo>();
 				List<ContactInfo> filteredRecentsList = new ArrayList<ContactInfo>();
 				List<ContactInfo> filteredRecentlyJoinedList = new ArrayList<ContactInfo>();
+                List<ContactInfo> filteredSuggestedContactsList = new ArrayList<ContactInfo>();
+
 				List<ContactInfo> nuxFilteredRecoList = new ArrayList<ContactInfo>();
 				
 				filterList(friendsList, filteredFriendsList, textToBeFiltered);
 				filterList(hikeContactsList, filteredHikeContactsList, textToBeFiltered);
 				filterList(smsContactsList, filteredSmsContactsList, textToBeFiltered);
+                filterList(suggestedContactsList, filteredSuggestedContactsList, textToBeFiltered);
 
-				if (groupsList != null && !groupsList.isEmpty())
+
+                if (groupsList != null && !groupsList.isEmpty())
 				{
 					filterList(groupsList, filteredGroupList, textToBeFiltered);
 				}
@@ -337,6 +440,7 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 				resultList.add(filteredGroupList);
 				resultList.add(filteredRecentsList);
 				resultList.add(filteredRecentlyJoinedList);
+                resultList.add(filteredSuggestedContactsList);
 				resultList.add(nuxFilteredRecoList);
 
 				results.values = resultList;
@@ -554,9 +658,13 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 		 * removed extra items from friends screen
 		 */
 
-		friendsSection = new ContactInfo(SECTION_ID, Integer.toString(filteredFriendsList.size()), context.getString(R.string.favorites_upper_case), FRIEND_PHONE_NUM);
-		updateFriendsList(friendsSection, true, true);
-		if (isHikeContactsPresent())
+        if(!showContactsBasedOnCsv)
+        {
+            friendsSection = new ContactInfo(SECTION_ID, Integer.toString(filteredFriendsList.size()), context.getString(R.string.favorites_upper_case), FRIEND_PHONE_NUM);
+            updateFriendsList(friendsSection, true, true);
+        }
+
+        if (isHikeContactsPresent())
 		{
 			hikeContactsSection = new ContactInfo(SECTION_ID, Integer.toString(filteredHikeContactsList.size()), context.getString(R.string.add_favorites_upper_case), CONTACT_PHONE_NUM);
 			updateHikeContactList(hikeContactsSection);
@@ -566,6 +674,11 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 			smsContactsSection = new ContactInfo(SECTION_ID, Integer.toString(filteredSmsContactsList.size()), context.getString(R.string.sms_contacts), CONTACT_SMS_NUM);
 			updateSMSContacts(smsContactsSection);
 		}
+        if(showContactsBasedOnCsv)
+        {
+            suggestedContactsSection = new ContactInfo(SECTION_ID, Integer.toString(filteredSuggestedContactsList.size()), context.getString(R.string.recommended_contacts), CONTACT_SUGGESTED_NUM);
+            updateSuggestedContacts(suggestedContactsSection);
+        }
 
 		notifyDataSetChanged();
 		setEmptyView();
@@ -702,6 +815,19 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 			completeList.addAll(filteredSmsContactsList);
 		}
 	}
+
+    protected void updateSuggestedContacts(ContactInfo section)
+    {
+        if (!filteredSuggestedContactsList.isEmpty())
+        {
+            if (section != null)
+            {
+                completeList.add(section);
+            }
+            completeList.addAll(filteredSuggestedContactsList);
+        }
+    }
+
 
 	protected boolean isHikeContactsPresent()
 	{

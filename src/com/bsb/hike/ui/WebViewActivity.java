@@ -938,7 +938,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		super.onActivityResult(requestCode, resultCode, data);
 		if (resultCode == RESULT_OK)
 		{
-			if(requestCode == HikeConstants.PLATFORM_REQUEST || requestCode == HikeConstants.PLATFORM_FILE_CHOOSE_REQUEST)
+			if(requestCode == HikeConstants.PLATFORM_REQUEST || requestCode == HikeConstants.PLATFORM_FILE_CHOOSE_REQUEST || requestCode == HikeConstants.PLATFORM_CSV_LIST_DISPLAY_REQUEST)
 			{
 				mmBridge.onActivityResult(requestCode,resultCode, data);
 			}

@@ -95,7 +95,7 @@ public abstract class JavascriptBridge
 	public static final int PICK_CONTACT_AND_SEND_REQUEST = 2;
 	
 	protected static final int CLOSE_WEB_VIEW = 3;
-	
+
 	public JavascriptBridge(Activity activity, CustomWebView mWebView)
 	{
 		this.mWebView = mWebView;
@@ -568,13 +568,46 @@ public abstract class JavascriptBridge
 		}
 	}
 
+    /**
+     * Platform Bridge Version 0
+     * This function can be used to start a hike native contact chooser/picker which will show hike contacts to user based on the given msisdn and contactsList
+     * It will call JavaScript function "onContactChooserResult(int resultCode,JsonArray array)" This JSOnArray contains list of JSONObject where each JSONObject reflects one user. As of now
+     * each JSON will have name and platform_id, e.g : [{'name':'Paul','platform_id':'dvgd78as'}] resultCode will be 0 for fail and 1 for success NOTE : JSONArray could be null as
+     * well
+     */
+    @JavascriptInterface
+    public void startContactChooserForMsisdnOrPhoneNos(String msisdns,String phoneNosList,String title)
+    {
+        // Return from here if both contacts list and msisdns are empty
+        if(TextUtils.isEmpty(msisdns) && TextUtils.isEmpty(phoneNosList))
+            return;
+
+        Activity activity = weakActivity.get();
+        if (activity != null)
+        {
+            Intent intent = IntentFactory.getFavouritesIntent(activity);
+            intent.putExtra(tag, JavascriptBridge.this.hashCode());
+            intent.putExtra(HikeConstants.Extras.FORWARD_MESSAGE, true);
+            intent.putExtra(HikeConstants.Extras.MSISDN,msisdns);
+            intent.putExtra(HikeConstants.Extras.CONTACT_ID,phoneNosList);
+            intent.putExtra(HikeConstants.Extras.TITLE,title);
+            activity.startActivityForResult(intent, HikeConstants.PLATFORM_CSV_LIST_DISPLAY_REQUEST);
+        }
+    }
+
 
 	public void onActivityResult(int requestCode, int resultCode, Intent data)
 	{
 		Logger.d(tag, "onactivity result of javascript");
+
 		if (requestCode != -1)
 		{
-			if (requestCode == HikeConstants.PLATFORM_FILE_CHOOSE_REQUEST)
+            if(requestCode == HikeConstants.PLATFORM_CSV_LIST_DISPLAY_REQUEST)
+            {
+                handlePickContactResult(resultCode, data);
+                return;
+            }
+            else if (requestCode == HikeConstants.PLATFORM_FILE_CHOOSE_REQUEST)
 
 				handlePickFileResult(resultCode, data);
 			else
@@ -631,7 +664,7 @@ public abstract class JavascriptBridge
 
 	private void handlePickContactResult(int resultCode, Intent data)
 	{
-		Logger.i(tag, "pick contact result " + data.getExtras().toString());
+        Logger.i(tag, "pick contact result " + data.getExtras().toString());
 		if (resultCode == Activity.RESULT_OK)
 		{
 			mWebView.loadUrl("javascript:onContactChooserResult('1','" + data.getStringExtra(HikeConstants.HIKE_CONTACT_PICKER_RESULT) + "')");

@@ -1,25 +1,5 @@
 package com.bsb.hike.modules.contactmgr;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicBoolean;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -37,10 +17,10 @@ import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Pair;
 
+import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
-import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.db.DBConstants;
 import com.bsb.hike.db.DbException;
@@ -50,6 +30,26 @@ import com.bsb.hike.models.FtueContactsData;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 class HikeUserDatabase extends SQLiteOpenHelper
 {
@@ -1478,6 +1478,52 @@ class HikeUserDatabase extends SQLiteOpenHelper
 			}
 		}
 	}
+
+    List<ContactInfo> getContactInfoListFromPhoneNoOrMsisdn(String msisdnsIn,String contactNumberIn)
+    {
+        Cursor c = null;
+        List<ContactInfo> contactInfos = null;
+
+        if(TextUtils.isEmpty(msisdnsIn) && TextUtils.isEmpty(contactNumberIn))
+            return contactInfos;
+
+        try
+        {
+            StringBuilder selectionBuilder = new StringBuilder();
+            if (!TextUtils.isEmpty(msisdnsIn))
+            {
+                selectionBuilder.append(DBConstants.MSISDN + " IN ('" + msisdnsIn + "') AND ");
+            }
+            if (!TextUtils.isEmpty(contactNumberIn))
+            {
+                selectionBuilder.append(DBConstants.PHONE + " IN ('" + contactNumberIn + "') AND ");
+            }
+
+            c = mReadDb.query(DBConstants.USERS_TABLE, new String[] { DBConstants.MSISDN, "max(" + DBConstants.ID + ") as " + DBConstants.ID, DBConstants.NAME,
+                    DBConstants.ONHIKE, DBConstants.PHONE, DBConstants.MSISDN_TYPE, DBConstants.LAST_MESSAGED, DBConstants.HAS_CUSTOM_PHOTO,
+                    DBConstants.FAVORITE_TYPE_SELECTION, DBConstants.HIKE_JOIN_TIME, DBConstants.IS_OFFLINE, DBConstants.LAST_SEEN }, selectionBuilder.toString()
+                    + DBConstants.MSISDN + "!='null'" , null, null, null, null);
+
+            contactInfos = extractContactInfo(c, true);
+
+            for (ContactInfo contactInfo:
+                    contactInfos) {
+            }
+
+            return contactInfos;
+        }
+        finally
+        {
+            if (c != null)
+            {
+                c.close();
+            }
+        }
+
+    }
+
+
+
 
 	void unblock(String msisdn)
 	{
