@@ -2545,11 +2545,13 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 						if (convInfo != null)
 						{
 							int unreadCount = 0;
+							ConvMessage lastNonStatusMsg = null;
 							for (ConvMessage convMessage : messageList)
 							{
 								if (Utils.shouldIncrementCounter(convMessage))
 								{
 									unreadCount++;
+									lastNonStatusMsg = convMessage; //AND-3159
 								}
 							}
 							if (unreadCount > 0)
@@ -2563,8 +2565,12 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 								{
 									ConvMessage prevMessage = convInfo.getLastConversationMsg();
 									String metadata = message.getMetadata().serialize();
-									message = new ConvMessage(message.getMessage(), message.getMsisdn(), prevMessage.getTimestamp(), prevMessage.getState(),
+									/* Begin: AND-3159 */
+									// The below logic is to correct the sorting of the conversation list, list should be sorted on last non-status message of bulk.
+									long timestampToSortOn = (lastNonStatusMsg != null) ? lastNonStatusMsg.getTimestamp() : prevMessage.getTimestamp();
+									message = new ConvMessage(message.getMessage(), message.getMsisdn(), timestampToSortOn, prevMessage.getState(),
 											prevMessage.getMsgID(), prevMessage.getMappedMsgID(), message.getGroupParticipantMsisdn());
+									/* End: AND-3159 */
 									try
 									{
 										message.setMetadata(metadata);
