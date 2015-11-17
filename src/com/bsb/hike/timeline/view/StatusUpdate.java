@@ -133,8 +133,6 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 	private int keyboardHeight;
 
 	private String INPUT_INTENT = "ip_in";
-	
-	private boolean moodClicked = false;
 
 	protected Handler uiHandler = new Handler()
 	{
@@ -538,8 +536,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 			mActivityTask.emojiShowing = false;
 			hideEmojiOrMoodLayout();
 		}
-		hideKeyboard();
-		moodClicked = true;
+		showMoodSelector();
 	}
 
 	public void onPhotoClick(View v)
@@ -914,11 +911,6 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 	{
 		mActivityTask.keyboardShowing = false;
 		Logger.d(StatusUpdate.class.getSimpleName(), "hidden keyboard");
-		if (moodClicked)
-		{
-			showMoodSelector();
-			moodClicked = false;
-		}
 	}
 
 	@Override
