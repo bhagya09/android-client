@@ -30,7 +30,7 @@
 	<com.bsb.hike.view.SeekBarPreference
 	    	android:title="@string/keypress_vib_duration_title"
 	    	android:key="keypressVibDurationPref"
-	    	android:defaultValue="3"
+	    	android:defaultValue="10"
 	    	android:text="ms"
 	    	android:max="99"
 	    	android:persistent="true" />

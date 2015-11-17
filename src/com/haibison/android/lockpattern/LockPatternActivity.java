@@ -534,7 +534,10 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity implem
                     		if (s.length() == 4){
                         		mTextInfo.setText(R.string.stealth_msg_pin_recorded);
                         		mBtnConfirm.setEnabled(true);
-                                mCustomKeyboard.hideCustomKeyboard(mLockPinView);
+                        		if (mCustomKeyboard != null)
+                        		{
+                                    mCustomKeyboard.hideCustomKeyboard(mLockPinView);                        			
+                        		}
                         	} 
                     		else 
                         	{
@@ -559,9 +562,10 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity implem
 //                        		if(!check) 
 //                        			mLockPinView.setText("");   
                         		mBtnConfirm.setEnabled(check);
-                                if(check){
-                                    mCustomKeyboard.hideCustomKeyboard(mLockPinView);
-                                }
+                        		if (check && mCustomKeyboard != null)
+                        		{
+                        			mCustomKeyboard.hideCustomKeyboard(mLockPinView);
+                        		}
                         	} 
                     		else 
                         	{
@@ -1264,6 +1268,10 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity implem
         	if (mCustomKeyboard != null)
             {
                 mCustomKeyboard.updateCore();
+                if (!mCustomKeyboard.isCustomKeyboardVisible())
+                {
+                	mCustomKeyboard.showCustomKeyboard(mLockPinView, true);
+                }
             }
         }// onClick()
     };
@@ -1308,11 +1316,11 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity implem
                     mBtnOkCmd = ButtonOkCommand.DONE;
                     mLockPatternView.clearPattern();
                     mLockPinView.setText("");
-                    mCustomKeyboard.showCustomKeyboard(mLockPinView, true);
                     if(mLockPinView.getVisibility() == View.VISIBLE)
                     {
                     	if (mCustomKeyboard != null)
                         {
+                            mCustomKeyboard.showCustomKeyboard(mLockPinView, true);
                             mCustomKeyboard.updateCore();
                         }
                     	mTextInfo.setText(R.string.stealth_msg_reenter_pin_to_confirm);   	
