@@ -1265,7 +1265,7 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity implem
         @Override
         public void onClick(View v) {
         	mLockPatternViewReloader.run();
-        	if (mCustomKeyboard != null)
+        	if (mCustomKeyboard != null&&mLockPinView.getVisibility()== View.VISIBLE)
             {
                 mCustomKeyboard.updateCore();
                 if (!mCustomKeyboard.isCustomKeyboardVisible())
