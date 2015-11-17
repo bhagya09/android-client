@@ -159,6 +159,7 @@ import com.bsb.hike.ui.utils.StatusBarColorChanger;
 import com.bsb.hike.utils.ChatTheme;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.HikeUiHandler;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.PairModified;
@@ -3650,6 +3651,26 @@ import com.bsb.hike.voip.VoIPConstants;
         		sendUIMessage(MESSAGE_SENT, msg);
         	}
         	break;
+			case HikePubSub.GENERAL_EVENT_STATE_CHANGE:
+				ConvMessage eventMessage=(ConvMessage)object;
+				if(eventMessage!=null&&this.msisdn.equals(eventMessage.getMsisdn()))
+				{
+					long messageId = eventMessage.getMsgID();
+					for (int i = messages.size() - 1; i >= 0; i--)
+					{
+						ConvMessage mesg = messages.get(i);
+						if (mesg.getMsgID() == messageId)
+						{
+							messages.get(i).setState(eventMessage.getState());
+							uiHandler.sendEmptyMessage(NOTIFY_DATASET_CHANGED);
+							break;
+						}
+
+					}
+				}
+				break;
+
+
 		default:
 			Logger.e(TAG, "PubSub Registered But Not used : " + type);
 			break;
