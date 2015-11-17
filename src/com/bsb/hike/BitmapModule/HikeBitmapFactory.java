@@ -483,10 +483,29 @@ public class HikeBitmapFactory
 
 	public static Bitmap decodeSampledBitmapFromFile(String filename, int reqWidth, int reqHeight, Bitmap.Config con)
 	{
-		return decodeSampledBitmapFromFile(filename, reqWidth, reqHeight, con, null);
+		return decodeSampledBitmapFromFile(filename, reqWidth, reqHeight, con, null, false);
 	}
-	
-	public static Bitmap decodeSampledBitmapFromFile(String filename, int reqWidth, int reqHeight, Bitmap.Config con, BitmapFactory.Options argOptions)
+
+	/**
+	 * 
+	 * Decode and sample down a bitmap from a file to the requested width and height.
+	 * 
+	 * @param filename
+	 *            The full path of the file to decode
+	 * @param reqWidth
+	 *            The requested width of the resulting bitmap
+	 * @param reqHeight
+	 *            The requested height of the resulting bitmap
+	 * @param con
+	 *            Bitmap factory configurations
+	 * @param argOptions
+	 *            Bitmap factory options
+	 * @param fitEqualOrSmall
+	 *            If true, the returned bitmap will be equal or smaller than required width/height
+	 * 
+	 * @return
+	 */
+	public static Bitmap decodeSampledBitmapFromFile(String filename, int reqWidth, int reqHeight, Bitmap.Config con, BitmapFactory.Options argOptions, boolean fitEqualOrSmall)
 	{
 		// First decode with inJustDecodeBounds=true to check dimensions
 		BitmapFactory.Options options = null;
@@ -506,7 +525,14 @@ public class HikeBitmapFactory
 		options.inPreferredConfig = con;
 
 		// Calculate inSampleSize
-		options.inSampleSize = calculateSmallerInSampleSize(options, reqWidth, reqHeight);
+		if (fitEqualOrSmall)
+		{
+			options.inSampleSize = calculateSmallerInSampleSize(options, reqWidth, reqHeight);
+		}
+		else
+		{
+			options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
+		}
 
 		// Decode bitmap with inSampleSize set
 		options.inJustDecodeBounds = false;
