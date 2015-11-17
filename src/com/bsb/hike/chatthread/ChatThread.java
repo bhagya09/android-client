@@ -4876,6 +4876,7 @@ import com.bsb.hike.voip.VoIPConstants;
 			if (msg.getState() == ConvMessage.State.RECEIVED_UNREAD)
 			{
 				unreadConvMessages.add(msg);
+				msg.setState(ConvMessage.State.RECEIVED_READ);
 			}
 			else if (msg.getState() == ConvMessage.State.RECEIVED_READ)
 			{
