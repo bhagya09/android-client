@@ -3,8 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bsb.hike"
     android:installLocation="auto"
-    android:versionCode="1507"
-    android:versionName="4.0.8.81.23.22.custom_keybaord_SR" >
+    android:versionCode="1508"
+    android:versionName="4.0.8.81.23.23.custom_keybaord_SR" >
 
     <uses-sdk
         android:minSdkVersion="14"
