@@ -576,10 +576,10 @@ public abstract class JavascriptBridge
      * well
      */
     @JavascriptInterface
-    public void startContactChooserForMsisdnOrPhoneNos(String msisdns,String phoneNosList,String title)
+    public void startContactChooserForMsisdnFilter(String msisdns, String title)
     {
         // Return from here if both contacts list and msisdns are empty
-        if(TextUtils.isEmpty(msisdns) && TextUtils.isEmpty(phoneNosList))
+        if(TextUtils.isEmpty(msisdns))
             return;
 
         Activity activity = weakActivity.get();
@@ -589,9 +589,8 @@ public abstract class JavascriptBridge
             intent.putExtra(tag, JavascriptBridge.this.hashCode());
             intent.putExtra(HikeConstants.Extras.FORWARD_MESSAGE, true);
             intent.putExtra(HikeConstants.Extras.MSISDN,msisdns);
-            intent.putExtra(HikeConstants.Extras.CONTACT_ID,phoneNosList);
             intent.putExtra(HikeConstants.Extras.TITLE,title);
-            activity.startActivityForResult(intent, HikeConstants.PLATFORM_CSV_LIST_DISPLAY_REQUEST);
+            activity.startActivityForResult(intent, HikeConstants.PLATFORM_MSISDN_FILTER_DISPLAY_REQUEST);
         }
     }
 
@@ -602,7 +601,7 @@ public abstract class JavascriptBridge
 
 		if (requestCode != -1)
 		{
-            if(requestCode == HikeConstants.PLATFORM_CSV_LIST_DISPLAY_REQUEST)
+            if(requestCode == HikeConstants.PLATFORM_MSISDN_FILTER_DISPLAY_REQUEST)
             {
                 handlePickContactResult(resultCode, data);
                 return;

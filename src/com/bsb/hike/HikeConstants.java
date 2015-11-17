@@ -778,7 +778,7 @@ public class HikeConstants
 
 	public static final int PLATFORM_FILE_CHOOSE_REQUEST = 1196;
 
-    public static final int PLATFORM_CSV_LIST_DISPLAY_REQUEST = 1197;
+    public static final int PLATFORM_MSISDN_FILTER_DISPLAY_REQUEST = 1197;
 
     public static final int ADD_TO_CONFERENCE_REQUEST = 1196;
 

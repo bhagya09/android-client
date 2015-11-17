@@ -1479,25 +1479,19 @@ class HikeUserDatabase extends SQLiteOpenHelper
 		}
 	}
 
-    List<ContactInfo> getContactInfoListFromPhoneNoOrMsisdn(String msisdnsIn,String contactNumberIn)
+    List<ContactInfo> getContactInfoListFromPhoneNoOrMsisdn(String msisdnsIn)
     {
         Cursor c = null;
         List<ContactInfo> contactInfos = null;
 
-        if(TextUtils.isEmpty(msisdnsIn) && TextUtils.isEmpty(contactNumberIn))
+        if(TextUtils.isEmpty(msisdnsIn))
             return contactInfos;
 
         try
         {
             StringBuilder selectionBuilder = new StringBuilder();
-            if (!TextUtils.isEmpty(msisdnsIn))
-            {
-                selectionBuilder.append(DBConstants.MSISDN + " IN ('" + msisdnsIn + "') AND ");
-            }
-            if (!TextUtils.isEmpty(contactNumberIn))
-            {
-                selectionBuilder.append(DBConstants.PHONE + " IN ('" + contactNumberIn + "') AND ");
-            }
+
+            selectionBuilder.append(DBConstants.MSISDN + " IN ('" + msisdnsIn + "') AND ");
 
             c = mReadDb.query(DBConstants.USERS_TABLE, new String[] { DBConstants.MSISDN, "max(" + DBConstants.ID + ") as " + DBConstants.ID, DBConstants.NAME,
                     DBConstants.ONHIKE, DBConstants.PHONE, DBConstants.MSISDN_TYPE, DBConstants.LAST_MESSAGED, DBConstants.HAS_CUSTOM_PHOTO,
@@ -1505,10 +1499,6 @@ class HikeUserDatabase extends SQLiteOpenHelper
                     + DBConstants.MSISDN + "!='null'" , null, null, null, null);
 
             contactInfos = extractContactInfo(c, true);
-
-            for (ContactInfo contactInfo:
-                    contactInfos) {
-            }
 
             return contactInfos;
         }

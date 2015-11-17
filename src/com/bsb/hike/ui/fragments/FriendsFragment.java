@@ -68,8 +68,6 @@ public class FriendsFragment extends ListFragment implements Listener, OnItemLon
 
     public String msisdnList = "";
 
-    public String phoneNosList = "";
-
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
 	{
@@ -77,21 +75,20 @@ public class FriendsFragment extends ListFragment implements Listener, OnItemLon
 
 		ListView friendsList = (ListView) parent.findViewById(android.R.id.list);
 
-        if(((PeopleActivity)getActivity()).showContactsBasedOnCsv)
-        {
-            msisdnList = ((PeopleActivity)getActivity()).msisdnList;
-            phoneNosList = ((PeopleActivity)getActivity()).phoneNosList;
-        }
+		if (getActivity() instanceof PeopleActivity)
+		{
 
-        if(((PeopleActivity)getActivity()).showContactsBasedOnCsv)
-        {
-            friendsAdapter = new FriendsAdapter(getActivity(), friendsList, friendsListFetchedCallback, ContactInfo.lastSeenTimeComparator,true,msisdnList,phoneNosList);
-        }
-        else
-        {
-            friendsAdapter = new FriendsAdapter(getActivity(), friendsList, friendsListFetchedCallback, ContactInfo.lastSeenTimeComparator);
-        }
+			if (((PeopleActivity) getActivity()).showFilteredContacts)
+			{
+				msisdnList = ((PeopleActivity) getActivity()).msisdnList;
+				friendsAdapter = new FriendsAdapter(getActivity(), friendsList, friendsListFetchedCallback, ContactInfo.lastSeenTimeComparator, ((PeopleActivity) getActivity()).showFilteredContacts, msisdnList);
+			}
+			else
+			{
+				friendsAdapter = new FriendsAdapter(getActivity(), friendsList, friendsListFetchedCallback, ContactInfo.lastSeenTimeComparator);
+			}
 
+		}
 
         friendsAdapter.setLoadingView(parent.findViewById(R.id.spinner));
 		friendsAdapter.setEmptyView(parent.findViewById(R.id.noResultView));
@@ -164,7 +161,7 @@ public class FriendsFragment extends ListFragment implements Listener, OnItemLon
         ArrayList<ContactInfo> contactInfos = new ArrayList<>(1);
 
 
-        if(((PeopleActivity)getActivity()).showContactsBasedOnCsv)
+        if(((PeopleActivity)getActivity()).showFilteredContacts)
         {
             contactInfos.add(contactInfo);
             ConvertToJsonArrayTask task = new ConvertToJsonArrayTask(this,contactInfos);

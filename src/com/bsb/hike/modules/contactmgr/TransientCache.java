@@ -947,94 +947,14 @@ public class TransientCache extends ContactsCache
 	}
 
     /**
-     * This method is used when <code>number</code> can be phone number.
-     *
-     * @param number
-     * @return
-     */
-    public ContactInfo getContactFromPhoneNoFromCache(String number)
-    {
-        ContactInfo contact = getContact(number);
-
-        if (null != contact)
-        {
-            return contact;
-        }
-
-        if (allContactsLoaded)
-        {
-            readLock.lock();
-            try
-            {
-                for (Entry<String, PairModified<ContactInfo, Integer>> mapEntry : transientContacts.entrySet())
-                {
-                    PairModified<ContactInfo, Integer> contactPair = mapEntry.getValue();
-                    String phoneNum = contactPair.getFirst().getPhoneNum();
-                    if (null != contactPair && null != number && phoneNum.equals(number))
-                    {
-                        contact = contactPair.getFirst();
-                        break;
-                    }
-                }
-            }
-            finally
-            {
-                readLock.unlock();
-            }
-        }
-        return contact;
-    }
-
-    /**
-     * This method is used when <code>number</code> can be msisdn .
-     *
-     * @param number
-     * @return
-     */
-    public ContactInfo getContactFromMsisdnsFromCache(String number)
-    {
-        ContactInfo contact = getContact(number);
-
-        if (null != contact)
-        {
-            return contact;
-        }
-
-        if (allContactsLoaded)
-        {
-            readLock.lock();
-            try
-            {
-                for (Entry<String, PairModified<ContactInfo, Integer>> mapEntry : transientContacts.entrySet())
-                {
-                    PairModified<ContactInfo, Integer> contactPair = mapEntry.getValue();
-                    String msisdn = contactPair.getFirst().getMsisdn();
-                    if (null != contactPair && null != number && msisdn.equals(number))
-                    {
-                        contact = contactPair.getFirst();
-                        break;
-                    }
-                }
-            }
-            finally
-            {
-                readLock.unlock();
-            }
-        }
-        return contact;
-    }
-
-
-    /**
      * This method is used for msisdns or phone numbers list. It will make a db call and insert the contacts in the cache
      */
-    public List<ContactInfo> getContactListFromDb(List<String> msisdnList,List<String> contactsList)
+    public List<ContactInfo> getContactListFromDb(List<String> msisdnList)
     {
         List<ContactInfo> contactInfoList;
         String msisdnString = listToString(msisdnList,",");
-        String contactsListString = listToString(contactsList,",");
 
-        contactInfoList = hDb.getContactInfoListFromPhoneNoOrMsisdn(msisdnString, contactsListString);
+        contactInfoList = hDb.getContactInfoListFromPhoneNoOrMsisdn(msisdnString);
 
         if(contactInfoList == null)
             return null;

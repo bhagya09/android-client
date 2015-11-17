@@ -30,9 +30,7 @@ public class PeopleActivity extends HikeAppStateBaseFragmentActivity implements 
 
     public String msisdnList;
 
-    public String phoneNosList;
-
-    public boolean showContactsBasedOnCsv = false;
+    public boolean showFilteredContacts = false;
 
     private String actionBarTitle;
 
@@ -46,9 +44,8 @@ public class PeopleActivity extends HikeAppStateBaseFragmentActivity implements 
             if(getIntent().hasExtra(HikeConstants.Extras.FORWARD_MESSAGE) && getIntent().getBooleanExtra(HikeConstants.Extras.FORWARD_MESSAGE, true))
             {
                 msisdnList = getIntent().getStringExtra(HikeConstants.Extras.MSISDN);
-                phoneNosList = getIntent().getStringExtra(HikeConstants.Extras.CONTACT_ID);
                 actionBarTitle = getIntent().getStringExtra(HikeConstants.Extras.TITLE);
-                showContactsBasedOnCsv = true;
+                showFilteredContacts = true;
             }
         }
 
