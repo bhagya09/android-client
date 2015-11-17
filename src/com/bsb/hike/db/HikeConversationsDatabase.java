@@ -8703,6 +8703,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			msg =getMessageFromMessageHash(msgHash);
 			updateConvTable(msg);
 			mDb.setTransactionSuccessful();
+			HikeMessengerApp.getPubSub().publish(HikePubSub.GENERAL_EVENT_STATE_CHANGE,msg);
 		}
 
 		catch (Exception e)

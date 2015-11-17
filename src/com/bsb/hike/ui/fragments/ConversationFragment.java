@@ -3021,6 +3021,37 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 				});
 			}
 		}
+		else if(HikePubSub.GENERAL_EVENT_STATE_CHANGE.equals(type))
+		{
+			if (isAdded())
+			{
+				final ConvMessage message = (ConvMessage) object;
+				final ConvInfo convInfo = mConversationsByMSISDN.get(message.getMsisdn());
+				if (convInfo != null)
+				{
+					final ConvMessage convMsg = convInfo.getLastConversationMsg();
+					if (convMsg != null)
+					{
+						getActivity().runOnUiThread(new Runnable()
+						{
+							@Override
+							public void run()
+							{
+								View parentView = getListView().getChildAt(
+										displayedConversations.indexOf(convInfo) - getListView().getFirstVisiblePosition() + getOffsetForListHeader());
+
+								if (parentView != null)
+								{
+									mAdapter.updateViewsRelatedToLastMessage(parentView, convMsg, convInfo);
+								}
+							}
+						});
+					}
+				}
+
+
+			}
+		}
 	}
 
 	protected void handleUIMessage(Message msg)
