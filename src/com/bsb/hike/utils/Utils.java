@@ -7322,7 +7322,7 @@ public class Utils
 	*/
 	public static void postStatusUpdate(String status, int moodId)
 	{
-		postStatusUpdate(status, moodId, null);
+		postStatusUpdate(status, moodId, null, null);
 	}
 	
 	/**
@@ -7337,7 +7337,7 @@ public class Utils
 	 * {@link com.bsb.hike.utils.EmoticonConstants#moodMapping}
 	 * 
 	 */
-	public static void postStatusUpdate(String status, int moodId, String imageFilePath)
+	public static void postStatusUpdate(String status, int moodId, String imageFilePath, String language)
 	{
 		if(TextUtils.isEmpty(status) && moodId < 0 && TextUtils.isEmpty(imageFilePath) )
 		{
@@ -7347,7 +7347,7 @@ public class Utils
 
 		try
 		{
-			StatusUpdateTask task = new StatusUpdateTask(status, moodId, imageFilePath);
+			StatusUpdateTask task = new StatusUpdateTask(status, moodId, imageFilePath, language);
 			task.execute();
 		}
 		catch (IOException e)

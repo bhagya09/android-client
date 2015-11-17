@@ -22,6 +22,7 @@ import com.bsb.hike.bots.NonMessagingBotConfiguration;
 import com.bsb.hike.bots.NonMessagingBotMetadata;
 import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.db.HikeConversationsDatabase;
+import com.bsb.hike.modules.kpt.KptKeyboardManager;
 import com.bsb.hike.platform.CustomWebView;
 import com.bsb.hike.platform.GpsLocation;
 import com.bsb.hike.platform.HikePlatformConstants;
@@ -1044,7 +1045,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 			mood = -1;
 		}
 		
-		Utils.postStatusUpdate(status, mood, imageFilePath);
+		Utils.postStatusUpdate(status, mood, imageFilePath, KptKeyboardManager.getInstance(HikeMessengerApp.getInstance().getApplicationContext()).getCurrentLanguageAddonItem().getlocaleName());
 	}
 
 	/**

@@ -1360,7 +1360,7 @@
     <string name="photo_gallery_choose_pic">ఒక ఫోటో ఎంచుకో</string>
     <string name="cropping_image">ఇమేజ్‌ల కత్తిరింపు...</string>
     <string name="compose_chat">కొత్త ఛాట్</string>
-	<string name="home_search_empty_text">\&apos;%1$s\’ కొరకు మీ వెతకడం ఎలాంటి కాంటాక్ట్‌లను జతచేయలేదు</string>
+	<string name="home_search_empty_text">"\&apos;%1$s\&apos; కొరకు మీ వెతకడం ఎలాంటి కాంటాక్ట్‌లను జతచేయలేదు"</string>
     <string name="voip_mic_error">మైక్‌ని ప్రారంభించలేకపోయింది ఈ కాల్ పని చేయకపోవచ్చు</string>
     <string name="voip_call_failed_frag_subheader">మీరు ఇంకా %1$sని కాంటాక్ట్ చేయవచ్చు</string>
     <string name="dismiss_upper_case">రద్దు చేయి</string>

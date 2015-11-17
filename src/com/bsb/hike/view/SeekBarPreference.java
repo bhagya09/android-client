@@ -141,4 +141,9 @@ public final class SeekBarPreference extends DialogPreference implements
 	{
 		return getPersistedInt(mDefaultValue);
 	}
+	
+	public void setCurrentValue(int value)
+	{
+		this.mCurrentValue = value;
+	}
 }

@@ -2933,6 +2933,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 						if (!KptUtils.isSystemKeyboard())
 						{
 							mCustomKeyboard.showCustomKeyboard(searchET, false);
+							KptUtils.updatePadding(ComposeChatActivity.this, R.id.ll_compose, 0);
 							mCustomKeyboard.updateCore();
 						}
 					}
@@ -2976,7 +2977,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 	@Override
 	public void onInputviewVisbility(boolean kptVisible, int height)
 	{
-		if (findViewById(R.id.composeChatNewGroupTagET).getVisibility() == View.VISIBLE)
+		if (findViewById(R.id.composeChatNewGroupTagET).getVisibility() == View.VISIBLE|| searchET.getVisibility() == View.VISIBLE)
 		{
 			if (kptVisible)
 			{

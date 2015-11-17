@@ -194,8 +194,43 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		}
 		
 		setKeyboardLangSummary();
+		
+		setPrefValueFromKpt(HikeConstants.AUTO_CAPITALIZATION_PREF, kptSettings.getAutoCapitalizationState());
+		setPrefValueFromKpt(HikeConstants.AUTO_SPACING_PREF, kptSettings.getAutoSpacingState());
+		setPrefValueFromKpt(HikeConstants.GLIDE_PREF, kptSettings.getGlideState());
+		setPrefValueFromKpt(HikeConstants.SOUND_ON_KEYPRESS_PREF, kptSettings.getSoundOnKeyPressState());
+		setPrefValueFromKpt(HikeConstants.POPUP_ON_KEYPRESS_PREF, kptSettings.getPopupOnKeyPressState());
+		setPrefValueFromKpt(HikeConstants.VIBRATE_ON_KEYPRESS_PREF, kptSettings.getVibrateOnKeyPressState());
+		setPrefValueFromKpt(HikeConstants.AUTO_CORRECT_PREF, kptSettings.getAutoCorrectionState());
+		setPrefValueFromKpt(HikeConstants.DISPLAY_SUGGESTIONS_PREF, kptSettings.getDisplaySuggestionsState());
+		setPrefValueFromKpt(HikeConstants.PRIVATE_MODE_PREF, kptSettings.getPrivateModeState());
+		setPrefValueFromKpt(HikeConstants.DISPLAY_ACCENTS_PREF, kptSettings.getDisplayAccentsState());
+		setPrefValueFromKpt(HikeConstants.LONG_PRESS_DUR_PREF, kptSettings.getLongPressDuration());
+		setPrefValueFromKpt(HikeConstants.KEYPRESS_VOL_PREF, (int)kptSettings.getKeyPressSoundVolume());
+		setPrefValueFromKpt(HikeConstants.KEYPRESS_VIB_DUR_PREF, kptSettings.getKeyPressVibrationDuration());
 	}
 
+	private void setPrefValueFromKpt(String PreferenceName, int state)
+	{
+		Preference preference = findPreference(PreferenceName);
+		if (preference != null && preference instanceof SwitchPreferenceCompat)
+		{
+			boolean value = true;
+			switch (state)
+			{
+				case AdaptxtSettings.KPT_TRUE:
+					value = true;
+				case AdaptxtSettings.KPT_FALSE:
+					value = false;
+			}
+			((SwitchPreferenceCompat)preference).setChecked(value);
+		}
+		else if (preference != null && preference instanceof SeekBarPreference)
+		{
+			((SeekBarPreference)preference).setCurrentValue(state);
+		}
+	}
+	
 	private void setKeyboardLangSummary()
 	{
 		IconPreference kbdLanguagePref = (IconPreference) findPreference(HikeConstants.KEYBOARD_LANGUAGE_PREF);
@@ -548,11 +583,15 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		{
 			if (preferenceName == HikeConstants.KEYPRESS_VOL_PREF)
 			{
-				preference.setSummary("Level " + preference.getCurrentValue());
+				preference.setSummary("Level " + kptSettings.getKeyPressSoundVolume());
 			}
-			else
+			else if (preferenceName == HikeConstants.KEYPRESS_VIB_DUR_PREF)
 			{
-				preference.setSummary(preference.getCurrentValue() + " ms");
+				preference.setSummary(kptSettings.getKeyPressVibrationDuration() + " ms");
+			}
+			else if (preferenceName == HikeConstants.LONG_PRESS_DUR_PREF)
+			{
+				preference.setSummary(kptSettings.getLongPressDuration() + " ms");
 			}
 		}
 	}

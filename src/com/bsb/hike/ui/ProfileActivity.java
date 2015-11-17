@@ -310,7 +310,10 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 				profileAdapter.getSharedFileImageLoader().setExitTasksEarly(true);
 			}
 		}
-		
+		if (mNameEdit != null)
+		{
+			Utils.hideSoftKeyboard(getApplicationContext(), mNameEdit);			
+		}
 		KptUtils.pauseKeyboardResources(mCustomKeyboard);
 	}
 	

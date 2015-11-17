@@ -1360,7 +1360,7 @@
     <string name="photo_gallery_choose_pic">ஃபோட்டோ ஒன்றைத் தேர்ந்தெடுங்கள்</string>
     <string name="cropping_image">இமேஜை கிராப் செய்கிறது..</string>
     <string name="compose_chat">புதிய சேட்</string>
-	<string name="home_search_empty_text">\&apos;%1$s\&apos;-க்கான உங்களது தேடலுக்கு எந்த தொடர்புகளும் பொருந்தவில்லை.</string>
+	<string name="home_search_empty_text">"\&apos;%1$s\&apos;-க்கான உங்களது தேடலுக்கு எந்த தொடர்புகளும் பொருந்தவில்லை."</string>
     <string name="voip_mic_error">மைக்-ஐ ஸ்டார்ட் செய்ய முடியவில்லை. இந்த அழைப்பு வேலை செய்யாது.</string>
     <string name="voip_call_failed_frag_subheader">உங்களால் இப்போதும் உடன் %1$s தொடர்பு கொள்ள முடியும்</string>
     <string name="dismiss_upper_case">டிஸ்மிஸ்</string>
