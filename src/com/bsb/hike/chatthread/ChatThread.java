@@ -1029,7 +1029,7 @@ import android.widget.Toast;
 		{
 		case R.string.change_keyboard:
 			changeKbdClicked = true;
-			if (isSystemKeyboard())
+			if (isSystemKeyboard() && isKeyboardOpen())
 			{
 				Utils.hideSoftKeyboard(activity, mComposeView);	
 			}
