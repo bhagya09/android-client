@@ -140,15 +140,14 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
     		   || preferences == R.xml.keyboard_preferences || preferences == R.xml.text_correction_preferences)
 		{
 			kptSettings = KptKeyboardManager.getInstance(getApplicationContext()).getKptSettings();
+			saveKeyboardPref();
 		}
 
 		addClickPreferences();
 		addSwitchPreferences();
 		addSeekbarPreferences();
 		addAppLanguagePreference();
-		
-		saveKeyboardPref();
-		
+
 		Preference deletePreference = getPreferenceScreen().findPreference(HikeConstants.DELETE_PREF);
 		if (deletePreference != null)
 		{
