@@ -333,7 +333,7 @@ public class BotUtils
 			if(JavascriptBridge.platformRequests.get(botInfo.getMsisdn())!=null)
 			{
 
-				String url=" http://qa-content.hike.in/mapps/stats/dump/cbot_round/gauge?value="+(System.currentTimeMillis() - JavascriptBridge.platformRequests.get(botInfo.getMsisdn()));
+				String url=" http://mapps.platform.hike.in/mapps/stats/dump/cbot_round/gauge?value="+(System.currentTimeMillis() - JavascriptBridge.platformRequests.get(botInfo.getMsisdn()));
 				Logger.d("pushkar","url is"+url);
 				RequestToken token = HttpRequests.microAppGetRequest(url, new PlatformMicroAppServerLogsListener());
 

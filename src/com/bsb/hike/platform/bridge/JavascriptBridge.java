@@ -1075,7 +1075,7 @@ public abstract class JavascriptBridge
 					}
 
 					Logger.d("pushkar", "appname" + appName);
-					String url = "http://qa-content.hike.in/mapps/stats/dump/http_round/gauge?value=" + (System.currentTimeMillis() - platformRequests.get(appName));
+					String url = "http://mapps.platform.hike.in/mapps/stats/dump/http_round/gauge?value=" + (System.currentTimeMillis() - platformRequests.get(appName));
 					RequestToken token = HttpRequests.microAppGetRequest(url, new PlatformMicroAppServerLogsListener());
 					if (!token.isRequestRunning())
 					{
