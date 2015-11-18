@@ -1,31 +1,5 @@
 package com.bsb.hike;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URL;
-import java.net.URLEncoder;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicBoolean;
-
-import com.bsb.hike.localisation.LocalLanguageUtils;
-import com.bsb.hike.notifications.HikeNotification;
-import com.bsb.hike.platform.content.PlatformContentConstants;
-
-import org.acra.ACRA;
-import org.acra.ErrorReporter;
-import org.acra.ReportField;
-import org.acra.annotation.ReportsCrashes;
-import org.acra.collector.CrashReportData;
-import org.acra.sender.HttpSender;
-import org.acra.sender.ReportSender;
-import org.acra.sender.ReportSenderException;
-import org.acra.util.HttpRequest;
-
-import android.app.NotificationManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -49,18 +23,21 @@ import com.bsb.hike.chatHead.StickyCaller;
 import com.bsb.hike.db.DbConversationListener;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.db.HikeMqttPersistence;
+import com.bsb.hike.localisation.LocalLanguageUtils;
 import com.bsb.hike.models.TypingNotification;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.HttpManager;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
 import com.bsb.hike.modules.kpt.KptKeyboardManager;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
+import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.notifications.HikeNotificationUtils;
 import com.bsb.hike.notifications.ToastListener;
 import com.bsb.hike.offline.OfflineConstants;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUIDFetch;
 import com.bsb.hike.platform.content.PlatformContent;
+import com.bsb.hike.platform.content.PlatformContentConstants;
 import com.bsb.hike.productpopup.ProductInfoManager;
 import com.bsb.hike.service.HikeService;
 import com.bsb.hike.service.RegisterToGCMTrigger;
@@ -77,6 +54,27 @@ import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 import com.kpt.adaptxt.beta.core.coreservice.KPTCoreEngineImpl;
+
+import org.acra.ACRA;
+import org.acra.ErrorReporter;
+import org.acra.ReportField;
+import org.acra.annotation.ReportsCrashes;
+import org.acra.collector.CrashReportData;
+import org.acra.sender.HttpSender;
+import org.acra.sender.ReportSender;
+import org.acra.sender.ReportSenderException;
+import org.acra.util.HttpRequest;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 //https://github.com/ACRA/acra/wiki/Backends
 @ReportsCrashes(customReportContent = { ReportField.APP_VERSION_CODE, ReportField.APP_VERSION_NAME, ReportField.PHONE_MODEL, ReportField.BRAND, ReportField.PRODUCT,
@@ -527,6 +525,8 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 	
 	public static final String STICKER_REFRESH_SET = "stickerRefreshSet";
 
+    public static final String STICKER_SET_FOR_LANGUAGE = "stickerSetForLanguage";
+
 	public static final String SHOWN_STICKER_RECOMMEND_TIP = "shownStickerRecommendTip";
 
 	public static final String SHOWN_STICKER_RECOMMEND_AUTOPOPUP_OFF_TIP = "shownStickerRecommendAutoPopupOffTip";
@@ -548,6 +548,18 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 	public static final String SHOWN_STICKER_RECOMMEND_FTUE = "shownStickerRecommendationFtue";
 
 	public static final String LAST_SUCESSFULL_TAGS_DOWNLOAD_TIME = "lastSuccessfulTagsDownloadTime";
+
+    public static final String NOT_DOWNLOADED_LANGUAGES_SET = "notDownloadedLanguagesSet";
+
+    public static final String DOWNLOADING_LANGUAGES_SET = "downloadingLanguagesSet";
+
+	public static final String DOWNLOADED_LANGUAGES_SET = "downloadedLanguagesSet";
+
+	public static final String FORBIDDEN_LANGUAGES_SET = "forbiddenLanguagesSet";
+
+    public static final String DEFAULT_TAG_DOWNLOAD_LANGUAGES_PREF = "defaultTagDownloadLanguagePref";
+
+
 
 	// =========================================================================================Constants for sticker search]]
 
@@ -910,7 +922,7 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 	
 		StickerManager.getInstance().sendStickerPackAndOrderListForAnalytics();
 		StickerManager.getInstance().refreshTagData();
-		
+
 		bottomNavBarHeightPortrait = Utils.getBottomNavBarHeight(getApplicationContext());
 		bottomNavBarWidthLandscape = Utils.getBottomNavBarWidth(getApplicationContext());
 

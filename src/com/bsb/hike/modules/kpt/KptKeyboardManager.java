@@ -1,10 +1,5 @@
 package com.bsb.hike.modules.kpt;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
-
 import android.content.Context;
 import android.os.Environment;
 
@@ -18,6 +13,7 @@ import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
+import com.bsb.hike.modules.stickersearch.StickerLanguagesManager;
 import com.bsb.hike.platform.content.HikeUnzipTask;
 import com.bsb.hike.utils.Logger;
 import com.kpt.adaptxt.beta.AdaptxtSettingsRegisterListener;
@@ -25,6 +21,12 @@ import com.kpt.adaptxt.beta.KPTAdaptxtAddonSettings;
 import com.kpt.adaptxt.beta.KPTAdaptxtAddonSettings.AdaptxtAddonInstallationListner;
 import com.kpt.adaptxt.beta.KPTAdaptxtAddonSettings.AdaptxtAddonUnInstallationListner;
 import com.kpt.adaptxt.beta.KPTAddonItem;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class KptKeyboardManager implements AdaptxtSettingsRegisterListener
 {
@@ -151,17 +153,17 @@ public class KptKeyboardManager implements AdaptxtSettingsRegisterListener
 
 	private void fetchKptLanguagesAndUpdate()
 	{
-		Logger.d(TAG, "fetchKptLanguagesAndUpdate");
+		Logger.d(TAG, "fetchKptLanguagesAndUpdate()");
 		if (!kptCoreEngineStatus)
 			return;
 
 		mInstalledLanguagesList.clear();
 
-		KPTAdaptxtAddonSettings.KPTLanguageData data= kptSettings.getAllLanguageData();
+		KPTAdaptxtAddonSettings.KPTLanguageData data = kptSettings.getAllLanguageData();
 		List<KPTAddonItem> installedList = data.getInstalledLanguage();
 		for (KPTAddonItem language : installedList)
 		{
-			if(language.getIsLoaded())
+			if (language.getIsLoaded())
 			{
 				languageStatusMap.put(language.getDisplayName(), LanguageDictionarySatus.INSTALLED_LOADED);
 			}
@@ -170,7 +172,7 @@ public class KptKeyboardManager implements AdaptxtSettingsRegisterListener
 				languageStatusMap.put(language.getDisplayName(), LanguageDictionarySatus.INSTALLED_UNLOADED);
 			}
 		}
-		Logger.d(TAG,"adding installed languages: " + installedList.size());
+		Logger.d(TAG, "adding installed languages: " + installedList.size());
 		mInstalledLanguagesList.addAll(installedList);
 
 		mUnistalledLanguagesList.clear();
@@ -180,7 +182,7 @@ public class KptKeyboardManager implements AdaptxtSettingsRegisterListener
 			if (languageStatusMap.get(language.getDisplayName()) != LanguageDictionarySatus.IN_QUEUE)
 				languageStatusMap.put(language.getDisplayName(), LanguageDictionarySatus.UNINSTALLED);
 		}
-		Logger.d(TAG,"adding uninstalled languages: " + unInstalledList.size());
+		Logger.d(TAG, "adding uninstalled languages: " + unInstalledList.size());
 		mUnistalledLanguagesList.addAll(unInstalledList);
 
 		getUnsupportedLanguagesList().clear();
@@ -189,7 +191,7 @@ public class KptKeyboardManager implements AdaptxtSettingsRegisterListener
 		{
 			languageStatusMap.put(language.getDisplayName(), LanguageDictionarySatus.UNSUPPORTED);
 		}
-		Logger.d(TAG,"adding unsupported languages: " + UnsupportedList.size());
+		Logger.d(TAG, "adding unsupported languages: " + UnsupportedList.size());
 		mUnsupportedLanguagesList.addAll(UnsupportedList);
 	}
 
@@ -201,6 +203,9 @@ public class KptKeyboardManager implements AdaptxtSettingsRegisterListener
 
 	public void downloadAndInstallLanguage(KPTAddonItem addOnItem)
 	{
+		StickerLanguagesManager.getInstance().downloadTagsForLanguage(new Locale(addOnItem.getlocaleName()).getISO3Language());
+		StickerLanguagesManager.getInstance().downloadDefaultTagsForLanguage(new Locale(addOnItem.getlocaleName()).getISO3Language());
+
 		if (languageStatusMap.get(addOnItem.getDisplayName()) == LanguageDictionarySatus.UNINSTALLED)
 		{
 			if (mLanguagesWaitingQueue == null)
@@ -218,33 +223,29 @@ public class KptKeyboardManager implements AdaptxtSettingsRegisterListener
 				mLanguagesWaitingQueue = new ArrayList<KPTAddonItem>();
 			kptSettings.unInstallAdaptxtAddon(addOnItem, new AdaptxtAddonUnInstallationListner()
 			{
-
 				@Override
 				public void onUnInstallationStarted(String arg0)
 				{
-					Logger.d(TAG,"onUnInstallationStarted: " + arg0);
+					Logger.d(TAG, "onUnInstallationStarted: " + arg0);
 					// TODO Auto-generated method stub
-
 				}
 
 				@Override
 				public void onUnInstallationError(String arg0)
 				{
-					Logger.d(TAG,"onUnInstallationError: " + arg0);
-					// TODO Auto-generated method stub
+					Logger.d(TAG, "onUnInstallationError: " + arg0);
 					processComplete();
-
 				}
 
 				@Override
 				public void onUnInstallationEnded(String arg0)
 				{
-					Logger.d(TAG,"onUnInstallationEnded: " + arg0);
-					// TODO Auto-generated method stub
+					Logger.d(TAG, "onUnInstallationEnded: " + arg0);
 					processComplete();
 				}
 			});
 		}
+
 		notifyAllOfLanguageUpdate();
 	}
 

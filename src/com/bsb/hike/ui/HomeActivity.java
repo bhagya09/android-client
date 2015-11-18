@@ -824,6 +824,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 					intent.putExtra(HikeConstants.Extras.IS_MICROAPP_SHOWCASE_INTENT, true);
 
 					newConversationIndicator.setVisibility(View.GONE);
+					HikeMessengerApp.getPubSub().publish(HikePubSub.BADGE_COUNT_USER_JOINED, null);
 					startActivity(intent);
 				}
 			});
