@@ -473,7 +473,8 @@ public class GroupChatThread extends OneToNChatThread
 				index = index >= 0 ? index : 0;
 				long timeStamp = messages.get(index).getTimestamp();
 				long msgId = messages.get(index).getMsgID();
-				messages.add(index, new ConvMessage(mConversation.getUnreadCount(), timeStamp, msgId));
+				long sortingId = messages.get(index).getSortingId();
+				messages.add(index, new ConvMessage(mConversation.getUnreadCount(), timeStamp, msgId, sortingId));
 			}
 		}
 	}
