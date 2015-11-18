@@ -72,7 +72,6 @@ public class PlatformUIDRequestListener implements IRequestListener
 				{
 					mPrefs.saveData(HikeMessengerApp.PLATFORM_UID_SETTING, platformUID);
 					mPrefs.saveData(HikeMessengerApp.PLATFORM_TOKEN_SETTING, platformToken);
-					Logger.d("pushkar", "platformuid being set" + HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PLATFORM_UID_SETTING, null));
 					if(obj.has(HikePlatformConstants.ANONYMOUS_NAME))
 					{
 						String anonName = obj.optString(HikePlatformConstants.ANONYMOUS_NAME);

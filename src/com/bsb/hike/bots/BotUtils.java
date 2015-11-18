@@ -27,7 +27,6 @@ import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUtils;
-import com.bsb.hike.platform.bridge.JavascriptBridge;
 import com.bsb.hike.platform.content.PlatformContentConstants;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
@@ -329,19 +328,6 @@ public class BotUtils
 			botInfo = getBotInfoForNonMessagingBots(jsonObj, msisdn);
 			boolean enableBot = jsonObj.optBoolean(HikePlatformConstants.ENABLE_BOT);
 			NonMessagingBotMetadata botMetadata = new NonMessagingBotMetadata(botInfo.getMetadata());
-			Logger.d("pushkar","cbot"+botInfo.getMsisdn());
-			if(JavascriptBridge.platformRequests.get(botInfo.getMsisdn())!=null)
-			{
-
-				String url=" http://mapps.platform.hike.in/mapps/stats/dump/cbot_round/gauge?value="+(System.currentTimeMillis() - JavascriptBridge.platformRequests.get(botInfo.getMsisdn()));
-				Logger.d("pushkar","url is"+url);
-				RequestToken token = HttpRequests.microAppGetRequest(url, new PlatformMicroAppServerLogsListener());
-
-				if (!token.isRequestRunning())
-				{
-					token.execute();
-				}
-			}
 			if (botMetadata.isMicroAppMode())
 			{
 				PlatformUtils.downloadZipForNonMessagingBot(botInfo, enableBot, botChatTheme, notifType, botMetadata, botMetadata.isResumeSupported());
