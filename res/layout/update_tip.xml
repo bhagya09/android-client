@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/all_content"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        android:id="@+id/tip_upper"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/update_tip_default"
+        android:orientation="horizontal" >
+
+        <ImageView
+            android:id="@+id/update_tip_icon"
+            android:layout_width="72dp"
+            android:layout_height="72dp"
+            android:layout_gravity="top|left"
+            android:layout_marginLeft="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_weight="0"
+            android:src="@drawable/update_tip_download"
+            android:visibility="visible" />
+
+        <ImageView
+            android:id="@+id/invite_tip_icon"
+            android:layout_width="72dp"
+            android:layout_height="72dp"
+            android:layout_gravity="top|left"
+            android:layout_marginLeft="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_weight="0"
+            android:src="@drawable/invite_tip_icon"
+            android:visibility="gone" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_alignWithParentIfMissing="true"
+            android:layout_weight="1"
+            android:orientation="vertical"
+             >
+
+            <com.bsb.hike.view.CustomFontTextView
+                android:id="@+id/update_tip_header"
+                style="@style/UpdateTipHeader"
+                android:layout_gravity="top"
+                android:layout_marginTop="18dp"
+                android:fontFamily="Roboto-Medium"
+                android:paddingRight="12dp"
+                android:text="@string/update_tip_header_text" />
+
+            <com.bsb.hike.view.CustomFontTextView
+                android:id="@+id/update_tip_msg"
+                style="@style/UpdateTipBody"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:paddingRight="6dp"
+                android:fontFamily="Roboto-Regular"
+                android:gravity="top"
+                android:text="@string/update_tip_body_text" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/tip_lower"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="right"
+        android:paddingRight="16dp"
+        android:background="@color/update_tip_default"
+        android:orientation="horizontal" >
+
+        <com.bsb.hike.view.CustomFontTextView
+            android:id="@+id/close_tip"
+            style="@style/UpdateTipLabel"
+            android:minWidth="36dp"
+            android:layout_height="match_parent"
+            android:fontFamily="Roboto-Medium"
+            android:layout_marginRight="8dp"
+            android:paddingBottom="18dp"
+            android:paddingLeft="8dp"
+            android:paddingRight="8dp"
+            android:paddingTop="14dp"
+            android:visibility="invisible"
+            android:text="@string/tip_and_notif_later_text" />
+
+        <com.bsb.hike.view.CustomFontTextView
+            android:id="@+id/update_tip_action"
+            style="@style/UpdateTipLabel"
+            android:minWidth="36dp"
+            android:layout_height="match_parent"
+            android:fontFamily="Roboto-Medium"
+            android:paddingBottom="18dp"
+            android:paddingLeft="8dp"
+            android:paddingRight="8dp"
+            android:paddingTop="14dp"
+            android:text="@string/tip_and_notif_update_text" />
+    </LinearLayout>
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/art_update_shadow" />
+
+</LinearLayout>
