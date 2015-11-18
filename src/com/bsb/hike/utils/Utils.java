@@ -94,7 +94,6 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Point;
-import android.graphics.PorterDuff;
 import android.graphics.Shader.TileMode;
 import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
@@ -5886,12 +5885,19 @@ public class Utils
 	/**
 	 * Get time in millisecond from given time-stamp represented in format HH:mm:ss.SSS
 	 * 
-	 * @param Calendar
-	 *            calendar instance to be checked
+	 * @param calendar
+	 *            Instance of calendar to be checked
 	 * @param timeStamp
-	 *            time-stamp to be parsed
-	 * @param default_ii
-	 *            time elements like hour, minute, second and millisecond
+	 *            Parseable time-stamp as string value
+	 * @param default_hh
+	 *            Default hour element as integer value
+	 * @param default_mm
+	 *            Default minute element as integer value
+	 * @param default_ss
+	 *            Default second element as integer value
+	 * @param default_SSS
+	 *            Default element milliSecond element as integer value
+	 * @return System-level clock value represented by long value.
 	 * @author Ved Prakash Singh [ved@hike.in]
 	 */
 	public static long getTimeInMillis(Calendar calendar, String timeStamp, int default_hh, int default_mm, int default_ss, int default_SSS)
@@ -7062,8 +7068,6 @@ public class Utils
 	/**
 	 * Determine whether supplied module is being tested.
 	 *
-	 * @param String
-	 *            module name to be simulated
 	 * @param moduleName
 	 *            String name of the module being analysed
 	 * @return True, if test mode is enabled for given module. False, otherwise.
@@ -7157,12 +7161,6 @@ public class Utils
 	}
 
 	/**
-	 * Determine whether a table exists.
-	 * 
-	 * @param SQLiteDatabase
-	 *            instance of databse containing such table
-	 * @param String
-	 *            table name to be checked
 	 * Determine whether databse recognized by given instance contains given table or not.
 	 * 
 	 * @param db
@@ -7422,8 +7420,15 @@ public class Utils
 	/**
 	 * Determine whether a time-stamp represents correct clock time of a day.
 	 * 
-	 * @param HH_mm_ss_SSS
-	 *            time elements of the day
+	 * @param HH
+	 *            Hour element of the day
+	 * @param mm
+	 *            Minute element of the day
+	 * @param ss
+	 *            Second element of the day
+	 * @param SSS
+	 *            MilliSecond element of the day
+	 * @return True, if given combination represents valid time of the day in 24 hours format. False, otherwise.
 	 * @author Ved Prakash Singh [ved@hike.in]
 	 */
 	public static boolean isValidTimeStampOfTheDay(int HH, int mm, int ss, int SSS)
@@ -7455,11 +7460,11 @@ public class Utils
 	 * Get differential time logging upto nano second considering maximum significant time unit reference as second.
 	 * 
 	 * @param start
-	 *            start time of operation as long value
+	 *            Start time of operation as long value
 	 * @param end
-	 *            end time of operation as long value
+	 *            End time of operation as long value
 	 * @param precisionOfTimeUnitInSecond
-	 *            count of precision points in time unit per second for start and end parameters
+	 *            Count of precision points in time unit per second for start and end parameters
 	 * @return Human-readable string of time logging.
 	 * @author Ved Prakash Singh [ved@hike.in]
 	 */
@@ -7532,7 +7537,7 @@ public class Utils
 
 		return timeLogBuilder.toString();
 	}
-	
+
 	public static boolean isLocationEnabled(Context context)
 	{
 		LocationManager locManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);

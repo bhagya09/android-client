@@ -6,6 +6,25 @@
 
 package com.bsb.hike.modules.stickersearch.provider;
 
+import android.util.Pair;
+
+import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.models.Sticker;
+import com.bsb.hike.modules.stickersearch.StickerLanguagesManager;
+import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
+import com.bsb.hike.modules.stickersearch.datamodel.StickerTagDataContainer;
+import com.bsb.hike.modules.stickersearch.datamodel.StickerTagDataContainer.StickerTagDataBuilder;
+import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchBaseConstants;
+import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchDatabase;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.StickerManager;
+import com.bsb.hike.utils.Utils;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -13,23 +32,6 @@ import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
-
-import android.text.TextUtils;
-
-import com.bsb.hike.HikeConstants;
-import com.bsb.hike.HikeMessengerApp;
-import com.bsb.hike.models.Sticker;
-import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
-import com.bsb.hike.modules.stickersearch.datamodel.StickerTagDataContainer;
-import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchBaseConstants;
-import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchDatabase;
-import com.bsb.hike.utils.HikeSharedPreferenceUtil;
-import com.bsb.hike.utils.Logger;
-import com.bsb.hike.utils.StickerManager;
-import com.bsb.hike.utils.Utils;
 
 public enum StickerSearchDataController
 {
@@ -84,27 +86,21 @@ public enum StickerSearchDataController
 			return;
 		}
 
-		if (!((state == StickerSearchConstants.STATE_STICKER_DATA_FRESH_INSERT) || (state == StickerSearchConstants.STATE_STICKER_DATA_REFRESH)))
-		{
-			Logger.e(TAG, "setupStickerSearchWizard(), Invalid state.");
-			return;
-		}
-
 		JSONObject packsData = json.optJSONObject(HikeConstants.PACKS);
 		if ((packsData == null) || (packsData.length() <= 0))
 		{
 			return;
 		}
 
-		Set<String> receivedStickerSet = new HashSet<String>();
-		HashSet<String> stickerCodeSet = new HashSet<String>();
+		Set<String> receivedStickers = new HashSet<String>();
+		HashSet<String> stickersWithValidTags = new HashSet<String>();
 		Map<String, ArrayList<String>> packStoryData = new HashMap<String, ArrayList<String>>();
 		ArrayList<StickerTagDataContainer> stickersTagData = new ArrayList<StickerTagDataContainer>();
-		Iterator<String> categories = packsData.keys();
+		Iterator<String> packs = packsData.keys();
 
-		while (categories.hasNext())
+		while (packs.hasNext())
 		{
-			String packId = categories.next();
+			String packId = packs.next();
 			if (Utils.isBlank(packId))
 			{
 				Logger.e(TAG, "setupStickerSearchWizard(), Invalid pack id.");
@@ -138,7 +134,7 @@ public enum StickerSearchDataController
 				}
 
 				String stickerInfo = StickerManager.getInstance().getStickerSetString(stickerId, packId);
-				receivedStickerSet.add(stickerInfo);
+				receivedStickers.add(stickerInfo);
 
 				JSONObject stickerData = stickersData.optJSONObject(stickerId);
 
@@ -153,102 +149,180 @@ public enum StickerSearchDataController
 
 				if ((tagData != null) && (tagData.length() > 0))
 				{
-					JSONObject tags = tagData.optJSONObject("catgrs");
+					Iterator<String> catgrs = tagData.keys();
+					ArrayList<Pair<String, JSONObject>> tagDataWithScript = new ArrayList<Pair<String, JSONObject>>(tagData.length());
 
+					while (catgrs.hasNext())
+					{
+						String catgrsType = catgrs.next();
+						if ("catgrs".equals(catgrsType))
+						{
+							tagDataWithScript.add(new Pair<String, JSONObject>(HikeStickerSearchBaseConstants.DEFAULT_STICKER_TAG_SCRIPT_ISO_CODE, tagData.optJSONObject("catgrs")));
+						}
+						else if ("catgrs_loc".equals(catgrsType))
+						{
+							JSONObject scriptData = tagData.optJSONObject("catgrs_loc");
+
+							if ((scriptData != null) && (scriptData.length() > 0))
+							{
+								Iterator<String> scripts = scriptData.keys();
+								while (scripts.hasNext())
+								{
+									String script = scripts.next();
+									tagDataWithScript.add(new Pair<String, JSONObject>(script, scriptData.optJSONObject(script)));
+								}
+							}
+						}
+						else
+						{
+							Logger.v(TAG, "setupStickerSearchWizard(), Sticker: " + stickerInfo + ", other than categories key:" + catgrsType);
+						}
+					}
+
+					int scriptCount = tagDataWithScript.size();
 					ArrayList<String> themeList = new ArrayList<String>();
 					ArrayList<String> tagList = new ArrayList<String>();
 					ArrayList<String> tagLanguageList = new ArrayList<String>();
+					ArrayList<String> tagScriptList = new ArrayList<String>();
 					ArrayList<String> tagCategoryList = new ArrayList<String>();
 					ArrayList<Integer> tagExactMatchPriorityList = new ArrayList<Integer>();
 					ArrayList<Integer> tagPriorityList = new ArrayList<Integer>();
 					int stickerMomentCode = HikeStickerSearchBaseConstants.MOMENT_CODE_UNIVERSAL;
 					String stickerFestivals = StickerSearchConstants.STRING_EMPTY;
 
-					ArrayList<String> tempExactMatchElements = new ArrayList<String>();
-					ArrayList<String> tempRemainingExactMatchElements = new ArrayList<String>();
-
-					if ((tags != null) && (tags.length() > 0))
+					for (int scriptIndex = 0; scriptIndex < scriptCount; scriptIndex++)
 					{
-						Iterator<String> languages = tags.keys();
+						String scriptId = tagDataWithScript.get(scriptIndex).first;
+						JSONObject tags = tagDataWithScript.get(scriptIndex).second;
 
-						while (languages.hasNext())
+						ArrayList<String> tempExactMatchElements = new ArrayList<String>();
+						ArrayList<String> tempRemainingExactMatchElements = new ArrayList<String>();
+
+						if ((tags != null) && (tags.length() > 0))
 						{
-							String languageId = languages.next();
-							if (Utils.isBlank(languageId))
+							Iterator<String> languages = tags.keys();
+
+							while (languages.hasNext())
 							{
-								Logger.e(TAG, "setupStickerSearchWizard(), Invalid language id for sticker: " + stickerInfo);
-								continue;
-							}
-
-							JSONObject dictionaryData = tags.optJSONObject(languageId);
-
-							if ((dictionaryData != null) && (dictionaryData.length() > 0))
-							{
-								languageId = languageId.trim().toLowerCase(Locale.ENGLISH);
-								Logger.v(TAG, "setupStickerSearchWizard(), Fetching language:" + languageId + " tag data for sticker: " + stickerInfo);
-
-								String key;
-								String formattedKey;
-								String tag;
-								int exactMatchPriority;
-								Iterator<String> tagTypeKeys = dictionaryData.keys();
-
-								while (tagTypeKeys.hasNext())
+								String languageId = languages.next();
+								if (Utils.isBlank(languageId))
 								{
-									key = tagTypeKeys.next();
-
-									if ("*ctitle".equalsIgnoreCase(key))
-									{
-										JSONArray tagArray = dictionaryData.optJSONArray(key);
-										Logger.v(TAG, "setupStickerSearchWizard(), sticker id: " + stickerInfo + ", exact matching tags: " + tagArray);
-
-										if ((tagArray != null) && (tagArray.length() > 0))
-										{
-											for (int i = 0; i < tagArray.length(); i++)
-											{
-												tag = tagArray.optString(i);
-												if (!Utils.isBlank(tag))
-												{
-													tag = tag.trim().toUpperCase(Locale.ENGLISH);
-													tempExactMatchElements.add(tag);
-													tempRemainingExactMatchElements.add(tag);
-												}
-											}
-										}
-
-										dictionaryData.remove(key);
-										break;
-									}
+									Logger.e(TAG, "setupStickerSearchWizard(), Invalid language id for sticker: " + stickerInfo);
+									continue;
 								}
 
-								tagTypeKeys = dictionaryData.keys();
+								JSONObject dictionaryData = tags.optJSONObject(languageId);
 
-								while (tagTypeKeys.hasNext())
+								if ((dictionaryData != null) && (dictionaryData.length() > 0))
 								{
-									key = tagTypeKeys.next();
+									languageId = languageId.trim().toLowerCase(Locale.ENGLISH);
+									Logger.v(TAG, "setupStickerSearchWizard(), Fetching language:" + languageId + " tag data for sticker: " + stickerInfo);
 
-									if ("*ctheme".equalsIgnoreCase(key))
+									String key;
+									String formattedKey;
+									String tag;
+									int exactMatchPriority;
+									Iterator<String> tagTypeKeys = dictionaryData.keys();
+
+									while (tagTypeKeys.hasNext())
 									{
+										key = tagTypeKeys.next();
+
+										if ("*ctitle".equalsIgnoreCase(key))
+										{
+											JSONArray tagArray = dictionaryData.optJSONArray(key);
+											Logger.v(TAG, "setupStickerSearchWizard(), sticker id: " + stickerInfo + ", exact matching tags: " + tagArray);
+
+											if ((tagArray != null) && (tagArray.length() > 0))
+											{
+												for (int i = 0; i < tagArray.length(); i++)
+												{
+													tag = tagArray.optString(i);
+													if (!Utils.isBlank(tag))
+													{
+														tag = tag.trim().toUpperCase(Locale.ENGLISH);
+														tempExactMatchElements.add(tag);
+														tempRemainingExactMatchElements.add(tag);
+													}
+												}
+											}
+
+											dictionaryData.remove(key);
+											break;
+										}
+									}
+
+									tagTypeKeys = dictionaryData.keys();
+
+									while (tagTypeKeys.hasNext())
+									{
+										key = tagTypeKeys.next();
+
+										if ("*ctheme".equalsIgnoreCase(key))
+										{
+											JSONArray tagArray = dictionaryData.optJSONArray(key);
+											Logger.v(TAG, "setupStickerSearchWizard(), sticker id: " + stickerInfo + ", theme tags: " + tagArray);
+
+											if ((tagArray != null) && (tagArray.length() > 0))
+											{
+												formattedKey = key.toLowerCase(Locale.ENGLISH).replace("*c", StickerSearchConstants.STRING_EMPTY);
+
+												for (int i = 0; i < tagArray.length(); i++)
+												{
+													tag = tagArray.optString(i);
+													if (!Utils.isBlank(tag))
+													{
+														tag = tag.trim().toLowerCase(Locale.ENGLISH);
+														themeList.add(tag);
+
+														if (!HikeStickerSearchBaseConstants.DEFAULT_THEME_TAG.equalsIgnoreCase(tag))
+														{
+															tag = tag.trim().toUpperCase(Locale.ENGLISH);
+															tagList.add(tag);
+															tagLanguageList.add(languageId);
+															tagScriptList.add(scriptId);
+															tagCategoryList.add(formattedKey);
+															exactMatchPriority = tempExactMatchElements.indexOf(tag);
+															tagExactMatchPriorityList.add(exactMatchPriority);
+															if (exactMatchPriority >= 0)
+															{
+																tempRemainingExactMatchElements.remove(tag);
+															}
+															tagPriorityList.add(i);
+														}
+													}
+												}
+											}
+
+											dictionaryData.remove(key);
+											break;
+										}
+									}
+
+									tagTypeKeys = dictionaryData.keys();
+
+									while (tagTypeKeys.hasNext())
+									{
+										key = tagTypeKeys.next();
 										JSONArray tagArray = dictionaryData.optJSONArray(key);
-										Logger.v(TAG, "setupStickerSearchWizard(), sticker id: " + stickerInfo + ", theme tags: " + tagArray);
+										Logger.v(TAG, "setupStickerSearchWizard(), sticker id: " + stickerInfo + ", '" + key + "' tags: " + tagArray);
 
 										if ((tagArray != null) && (tagArray.length() > 0))
 										{
-											formattedKey = key.toLowerCase(Locale.ENGLISH).replace("*c", StickerSearchConstants.STRING_EMPTY);
-
-											for (int i = 0; i < tagArray.length(); i++)
+											key = key.toLowerCase(Locale.ENGLISH);
+											if (key.startsWith("*c"))
 											{
-												tag = tagArray.optString(i);
-												if (!Utils.isBlank(tag))
-												{
-													tag = tag.trim().toLowerCase(Locale.ENGLISH);
-													themeList.add(tag);
+												formattedKey = key.replace("*c", StickerSearchConstants.STRING_EMPTY);
 
-													if (!HikeStickerSearchBaseConstants.DEFAULT_THEME_TAG.equalsIgnoreCase(tag))
+												for (int i = 0; i < tagArray.length(); i++)
+												{
+													tag = tagArray.optString(i);
+													if (!Utils.isBlank(tag))
 													{
 														tag = tag.trim().toUpperCase(Locale.ENGLISH);
 														tagList.add(tag);
 														tagLanguageList.add(languageId);
+														tagScriptList.add(scriptId);
 														tagCategoryList.add(formattedKey);
 														exactMatchPriority = tempExactMatchElements.indexOf(tag);
 														tagExactMatchPriorityList.add(exactMatchPriority);
@@ -260,92 +334,67 @@ public enum StickerSearchDataController
 													}
 												}
 											}
-										}
-
-										dictionaryData.remove(key);
-										break;
-									}
-								}
-
-								tagTypeKeys = dictionaryData.keys();
-
-								while (tagTypeKeys.hasNext())
-								{
-									key = tagTypeKeys.next();
-									JSONArray tagArray = dictionaryData.optJSONArray(key);
-									Logger.v(TAG, "setupStickerSearchWizard(), sticker id: " + stickerInfo + ", '" + key + "' tags: " + tagArray);
-
-									if ((tagArray != null) && (tagArray.length() > 0))
-									{
-										key = key.toLowerCase(Locale.ENGLISH);
-										if (key.startsWith("*c"))
-										{
-											formattedKey = key.replace("*c", StickerSearchConstants.STRING_EMPTY);
-
-											for (int i = 0; i < tagArray.length(); i++)
+											else
 											{
-												tag = tagArray.optString(i);
-												if (!Utils.isBlank(tag))
-												{
-													tag = tag.trim().toUpperCase(Locale.ENGLISH);
-													tagList.add(tag);
-													tagLanguageList.add(languageId);
-													tagCategoryList.add(formattedKey);
-													exactMatchPriority = tempExactMatchElements.indexOf(tag);
-													tagExactMatchPriorityList.add(exactMatchPriority);
-													if (exactMatchPriority >= 0)
-													{
-														tempRemainingExactMatchElements.remove(tag);
-													}
-													tagPriorityList.add(i);
-												}
+												Logger.w(TAG, "setupStickerSearchWizard(), Unresolved key:" + key + " was found for sticker id: " + stickerInfo);
 											}
 										}
 										else
 										{
-											Logger.w(TAG, "setupStickerSearchWizard(), Unresolved key:" + key + " was found for sticker id: " + stickerInfo);
+											Logger.w(TAG, "setupStickerSearchWizard(), Dictionary of '" + key + "' is invalid/ empty for sticker id: " + stickerInfo);
 										}
 									}
-									else
+
+									for (String remainingExactMatchTag : tempRemainingExactMatchElements)
 									{
-										Logger.w(TAG, "setupStickerSearchWizard(), Dictionary of '" + key + "' is invalid/ empty for sticker id: " + stickerInfo);
+										tagList.add(remainingExactMatchTag);
+										tagLanguageList.add(languageId);
+										tagScriptList.add(scriptId);
+										tagCategoryList.add("title");
+										exactMatchPriority = tempExactMatchElements.indexOf(remainingExactMatchTag);
+										tagExactMatchPriorityList.add(exactMatchPriority);
+										tagPriorityList.add(exactMatchPriority);
 									}
-								}
 
-								for (String remainingExactMatchTag : tempRemainingExactMatchElements)
+									tempExactMatchElements.clear();
+									tempRemainingExactMatchElements.clear();
+								}
+								else
 								{
-									tagList.add(remainingExactMatchTag);
-									tagLanguageList.add(languageId);
-									tagCategoryList.add("title");
-									exactMatchPriority = tempExactMatchElements.indexOf(remainingExactMatchTag);
-									tagExactMatchPriorityList.add(exactMatchPriority);
-									tagPriorityList.add(exactMatchPriority);
+									Logger.e(TAG, "setupStickerSearchWizard(), Empty language:" + languageId + " tag data for sticker: " + stickerInfo);
 								}
-
-								tempExactMatchElements.clear();
-								tempRemainingExactMatchElements.clear();
-							}
-							else
-							{
-								Logger.e(TAG, "setupStickerSearchWizard(), Empty language:" + languageId + " tag data for sticker: " + stickerInfo);
 							}
 						}
-
-						if (themeList.size() <= 0)
+						else
 						{
-							tagList.clear();
-							tagLanguageList.clear();
-							tagCategoryList.clear();
-							tagExactMatchPriorityList.clear();
-							tagPriorityList.clear();
-
-							Logger.e(TAG, "setupStickerSearchWizard(), No valid theme is attached with sticker: " + stickerInfo);
-							continue;
+							Logger.e(TAG, "setupStickerSearchWizard(), Empty tag data for sticker: " + stickerInfo);
 						}
+
+						tempExactMatchElements = null;
+						tempRemainingExactMatchElements = null;
 					}
-					else
+
+					// Check themes associated with tags per sticker for each language and script altogether
+					//if (themeList.size() <= 0)
+					//temp hack since theme list is not being used currently and also server does not send theme list for tags in regional scripts
+					if (themeList.size() < 0)
 					{
-						Logger.e(TAG, "setupStickerSearchWizard(), Empty tag data for sticker: " + stickerInfo);
+						themeList = null;
+						tagList.clear();
+						tagList = null;
+						tagLanguageList.clear();
+						tagLanguageList = null;
+						tagScriptList.clear();
+						tagScriptList = null;
+						tagCategoryList.clear();
+						tagCategoryList = null;
+						tagExactMatchPriorityList.clear();
+						tagExactMatchPriorityList = null;
+						tagPriorityList.clear();
+						tagPriorityList = null;
+
+						Logger.e(TAG, "setupStickerSearchWizard(), No valid theme is attached with sticker: " + stickerInfo);
+						continue;
 					}
 
 					int stickerTagDataCount = tagList.size();
@@ -384,7 +433,7 @@ public enum StickerSearchDataController
 												if (!Utils.isBlank(festivalString))
 												{
 													sb.append(festivalString.trim().toUpperCase(Locale.ENGLISH));
-													sb.append(",");
+													sb.append(StickerSearchConstants.STRING_DISSOCIATOR);
 												}
 											}
 
@@ -408,9 +457,9 @@ public enum StickerSearchDataController
 							Logger.e(TAG, "setupStickerSearchWizard(), No attribute is attached with sticker: " + stickerInfo);
 						}
 
-						stickersTagData.add(new StickerTagDataContainer(stickerInfo, tagList, tagLanguageList, tagCategoryList, themeList, tagExactMatchPriorityList,
-								tagPriorityList, stickerMomentCode, stickerFestivals));
-						stickerCodeSet.add(stickerInfo);
+						stickersTagData.add(new StickerTagDataBuilder(stickerInfo, tagList, themeList, tagLanguageList).tagCategories(tagCategoryList).scripts(tagScriptList)
+								.priorities(tagExactMatchPriorityList, tagPriorityList).events(stickerMomentCode, stickerFestivals).build());
+						stickersWithValidTags.add(stickerInfo);
 					}
 
 					packTagDataCount += stickerTagDataCount;
@@ -455,11 +504,13 @@ public enum StickerSearchDataController
 		}
 
 		HashSet<String> untaggedSet = new HashSet<String>();
-		untaggedSet.addAll(receivedStickerSet);
-		untaggedSet.removeAll(stickerCodeSet);
-		stickerCodeSet.clear();
-		Logger.i(TAG, "setupStickerSearchWizard(), Current untagged stickers: " + untaggedSet);
+		untaggedSet.addAll(receivedStickers);
+		untaggedSet.removeAll(stickersWithValidTags);
+		stickersWithValidTags.clear();
+		stickersWithValidTags = null;
+		Logger.i(TAG, "setupStickerSearchWizard(), Received untagged stickers: " + untaggedSet);
 		untaggedSet.clear();
+		untaggedSet = null;
 
 		if (stickersTagData.size() > 0)
 		{
@@ -480,7 +531,8 @@ public enum StickerSearchDataController
 		}
 
 		if ((state == StickerSearchConstants.STATE_STICKER_DATA_REFRESH)
-				|| (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_TAG_RETRY_ON_FAILED_LOCALLY, StickerSearchConstants.DECISION_STATE_YES) == StickerSearchConstants.DECISION_STATE_YES))
+				|| (HikeSharedPreferenceUtil.getInstance(HikeStickerSearchBaseConstants.SHARED_PREF_STICKER_DATA).getData(HikeConstants.STICKER_TAG_RETRY_ON_FAILED_LOCALLY,
+						StickerSearchConstants.DECISION_STATE_YES) == StickerSearchConstants.DECISION_STATE_YES))
 		{
 			Set<String> pendingRetrySet = StickerManager.getInstance().getStickerSet(state);
 
@@ -490,7 +542,7 @@ public enum StickerSearchDataController
 
 				for (String stickerCode : pendingRetrySet)
 				{
-					if (!receivedStickerSet.contains(stickerCode))
+					if (!receivedStickers.contains(stickerCode))
 					{
 						updateRetrySet.add(stickerCode);
 					}
@@ -504,18 +556,30 @@ public enum StickerSearchDataController
 				else
 				{
 					StickerManager.getInstance().removeStickerSet(state);
-					
-					if(state == StickerSearchConstants.STATE_STICKER_DATA_REFRESH)
-					{
-						HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.LAST_SUCCESSFUL_STICKER_TAG_REFRESH_TIME, System.currentTimeMillis());
-					}
+					takeDecisionOnState(state);
 				}
 				pendingRetrySet.clear();
+				pendingRetrySet = null;
 				updateRetrySet.clear();
+				updateRetrySet = null;
 			}
 		}
 
-		receivedStickerSet.clear();
+		receivedStickers.clear();
+		receivedStickers = null;
+	}
+
+	private void takeDecisionOnState(int state)
+	{
+		switch(state)
+		{
+			case StickerSearchConstants.STATE_STICKER_DATA_REFRESH:
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.LAST_SUCCESSFUL_STICKER_TAG_REFRESH_TIME, System.currentTimeMillis());
+				break;
+			case StickerSearchConstants.STATE_LANGUAGE_TAGS_DOWNLOAD:
+				StickerLanguagesManager.getInstance().downloadTagsForNextLanguage();
+				break;
+		}
 	}
 
 	public void updateStickerList(Set<String> stickerInfoSet)
