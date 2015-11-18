@@ -6,9 +6,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
-import android.net.ConnectivityManager;
 import android.os.Handler;
 import android.text.TextUtils;
 import android.util.Log;
@@ -608,10 +606,14 @@ public class NativeBridge
 		});
 	}
 	
+	/**
+	 * Returns status of connectivity, on the same thread. No need of handler/GlThread explicit invocation.  
+	 * 
+	 * @return
+	 */
 	public boolean isNetworkConnected()
 	{
-	  ConnectivityManager cm = (ConnectivityManager) activity.getSystemService(Context.CONNECTIVITY_SERVICE);
-	  return cm.getActiveNetworkInfo() != null;
+	  return Utils.getNetInfoFromConnectivityManager().second;
 	}
 
 	/**
