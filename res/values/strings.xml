@@ -1148,7 +1148,6 @@
     <string name="keyboard_title">Hike Keyboard</string>
     <string name="glide_summary">Continuous gesture typing</string>
     <string name="glide_title">Glide</string>
-    <string name="kpt_adv_summary">Auto correction, touch feedback and more</string>
     <string name="keyboard_preference_title">Preferences</string>
     <string name="text_correction_pref_title">Text Correction</string>
     <string name="kpt_adv_title">Advanced</string>

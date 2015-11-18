@@ -894,6 +894,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 	{
 		KptUtils.pauseKeyboardResources(mCustomKeyboard);
 		KptUtils.updatePadding(StatusUpdate.this, R.id.parent_layout, 0);
+		Utils.hideSoftKeyboard(getApplicationContext(), statusTxt);
 		isForeground = false;
 		super.onPause();
 	}
