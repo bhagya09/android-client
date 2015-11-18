@@ -90,6 +90,7 @@ public interface HikePlatformConstants
 	public static final String ANONYMOUS_NAMES = "anonymousNames";
 	public static final String FORWARD_CARD_OBJECT = "fwdCardObj";
 	public static final String TIMESTAMP = "timestamp";
+	public static final String ASSOCIATE_CBOT = "assocCbot";
 
 	public static final class PlatformFetchType
 	{
@@ -167,6 +168,8 @@ public interface HikePlatformConstants
 	public static final String NOTIFICATION_SOUND = "notification_sound";
 
 	public static final String INCREASE_UNREAD = "increase_unread";
+
+	public static final String REARRANGE_CHAT = "rearrange_chat";
 
 	public static final String MESSAGE_ID = "message_id";
 
@@ -273,5 +276,7 @@ public interface HikePlatformConstants
 	public static final String GAME_CHANNEL="+hikegames+";
 	
 	final static String RESUME_SUPPORT = "resume_support";
+
+	public static final String IS_SHORTCUT = "is_shortcut";
 	
 }

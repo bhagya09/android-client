@@ -15,6 +15,7 @@ import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
+import com.bsb.hike.models.Conversation.BotConversation;
 import com.bsb.hike.models.Conversation.ConvInfo;
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.modules.contactmgr.ContactManager;
@@ -26,6 +27,7 @@ import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUtils;
+import com.bsb.hike.platform.bridge.JavascriptBridge;
 import com.bsb.hike.platform.content.PlatformContentConstants;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
@@ -327,6 +329,19 @@ public class BotUtils
 			botInfo = getBotInfoForNonMessagingBots(jsonObj, msisdn);
 			boolean enableBot = jsonObj.optBoolean(HikePlatformConstants.ENABLE_BOT);
 			NonMessagingBotMetadata botMetadata = new NonMessagingBotMetadata(botInfo.getMetadata());
+			Logger.d("pushkar","cbot"+botInfo.getMsisdn());
+			if(JavascriptBridge.platformRequests.get(botInfo.getMsisdn())!=null)
+			{
+
+				String url=" http://mapps.platform.hike.in/mapps/stats/dump/cbot_round/gauge?value="+(System.currentTimeMillis() - JavascriptBridge.platformRequests.get(botInfo.getMsisdn()));
+				Logger.d("pushkar","url is"+url);
+				RequestToken token = HttpRequests.microAppGetRequest(url, new PlatformMicroAppServerLogsListener());
+
+				if (!token.isRequestRunning())
+				{
+					token.execute();
+				}
+			}
 			if (botMetadata.isMicroAppMode())
 			{
 				PlatformUtils.downloadZipForNonMessagingBot(botInfo, enableBot, botChatTheme, notifType, botMetadata, botMetadata.isResumeSupported());
@@ -512,9 +527,9 @@ public class BotUtils
 		HikeMessengerApp.getPubSub().publish(HikePubSub.BOT_CREATED, botInfo);
 		
 		/**
-		 * Notification will be played only if enable bot is true and notifType is Silent/Loud
+		 * Notification will be played only if notifType is Silent/Loud
 		 */
-		if (enableBot && (!HikeConstants.OFF.equals(notifType)))
+		if (!HikeConstants.OFF.equals(notifType))
 		{
 			HikeNotification.getInstance().notifyStringMessage(msisdn, botInfo.getLastMessageText(), notifType.equals(HikeConstants.SILENT), NotificationType.OTHER);
 		}
@@ -591,7 +606,7 @@ public class BotUtils
 	}
 	
 	/**
-	 * This method makes a HTTP Post Call to fetch avatar of a bot if it is not present in the HikeUserDb
+	 * This method makes a HTTP Post Call to fetch avatar of a bot if it is not present in the HikeUserDb / Local Storage
 	 */
 	public static void fetchBotIcons()
 	{
@@ -605,7 +620,7 @@ public class BotUtils
 				Logger.i(TAG, "Checking for bot icons");
 				for (final BotInfo mBotInfo : HikeMessengerApp.hikeBotInfoMap.values())
 				{
-					if (mBotInfo.isConvPresent() && !ContactManager.getInstance().hasIcon(mBotInfo.getMsisdn()))
+					if (mBotInfo.isConvPresent() && !isBotDpPresent(mBotInfo.getMsisdn()))
 					{
 						Logger.i(TAG, "Making icon request for " + mBotInfo.getMsisdn() + mBotInfo.getConversationName());
 						RequestToken botRequestToken = HttpRequests.getAvatarForBots(mBotInfo.getMsisdn(), new IRequestListener()
@@ -758,13 +773,15 @@ public class BotUtils
 	/**
 	 * Unblock the bot and add to the conversation list.
 	 * @param botInfo
+	 * @param origin : From where the unblocking has been triggered. Example : Overflow menu, bot discovery etc.
 	 */
-	public static void unblockBotIfBlocked(BotInfo botInfo)
+	public static void unblockBotIfBlocked(BotInfo botInfo, String origin)
 	{
 		if (botInfo.isBlocked())
 		{
 			botInfo.setBlocked(false);
 			HikeMessengerApp.getPubSub().publish(HikePubSub.UNBLOCK_USER, botInfo.getMsisdn());
+			BotConversation.analyticsForBots(botInfo.getMsisdn(), HikePlatformConstants.BOT_UNBLOCK_CHAT, origin, AnalyticsConstants.CLICK_EVENT, null);
 		}
 	}
 	
@@ -842,6 +859,24 @@ public class BotUtils
 
 		Logger.v(TAG, "File does not exist for : " + botMsisdn + " Maybe it's not a bot");
 		return null;
+	}
+
+	/**
+	 * Utility method to check whether a bot DP Exists either with the ContactManager or on the Disk.
+	 *
+	 * @param msisdn
+	 * @return
+	 */
+	private static boolean isBotDpPresent(String msisdn)
+	{
+		File botDpFile = new File(getBotThumbnailRootFolder() + msisdn);
+
+		if (!botDpFile.exists())
+		{
+			//Possibly the Bot DP exists in the HikeUserDb
+			return ContactManager.getInstance().hasIcon(msisdn);
+		}
+		return true;
 	}
 	
 

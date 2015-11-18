@@ -322,7 +322,6 @@ public class HikeService extends Service
 		setInitialized(true);
 
 	}
-
 	
 	private void assignUtilityThread()
 	{
@@ -655,7 +654,6 @@ public class HikeService extends Service
 		editor.putInt(lastBackOffTimePref, lastBackOffTime);
 		editor.commit();
 	}
-
 
 	private Runnable sendDevDetailsToServer = new Runnable()
 	{

@@ -36,7 +36,8 @@ public class MessagingBotBridgeHelper
 		ArrayList<Long> msgIds = new ArrayList<Long>(1);
 		msgIds.add(mId);
 		Bundle bundle = new Bundle();
-		if (adapter.getCount() <= 1)
+		ConvMessage message=HikeConversationsDatabase.getInstance().getLastMessage(msisdn);
+		if (message != null && message.getMsgID() == mId)
 		{
 			bundle.putBoolean(HikeConstants.Extras.IS_LAST_MESSAGE, true);
 		}

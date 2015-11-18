@@ -27,8 +27,6 @@ import android.os.Handler;
 import android.os.Message;
 import android.provider.ContactsContract;
 import android.provider.ContactsContract.Intents.Insert;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.ListFragment;
 import android.text.Spannable;
 import android.text.SpannableString;
@@ -134,7 +132,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 			HikePubSub.MULTI_MESSAGE_DB_INSERTED, HikePubSub.SERVER_RECEIVED_MULTI_MSG, HikePubSub.MUTE_CONVERSATION_TOGGLED, HikePubSub.CONV_UNREAD_COUNT_MODIFIED,
 			HikePubSub.CONVERSATION_TS_UPDATED, HikePubSub.PARTICIPANT_JOINED_ONETONCONV, HikePubSub.PARTICIPANT_LEFT_ONETONCONV, HikePubSub.BLOCK_USER, HikePubSub.UNBLOCK_USER,
 			HikePubSub.MUTE_BOT, HikePubSub.CONVERSATION_DELETED, HikePubSub.DELETE_THIS_CONVERSATION, HikePubSub.ONETONCONV_NAME_CHANGED, HikePubSub.STEALTH_CONVERSATION_MARKED,
-			HikePubSub.STEALTH_CONVERSATION_UNMARKED, HikePubSub.UPDATE_LAST_MSG_STATE, HikePubSub.OFFLINE_MESSAGE_SENT, HikePubSub.ON_OFFLINE_REQUEST };
+			HikePubSub.STEALTH_CONVERSATION_UNMARKED, HikePubSub.UPDATE_LAST_MSG_STATE, HikePubSub.OFFLINE_MESSAGE_SENT, HikePubSub.ON_OFFLINE_REQUEST,HikePubSub.GENERAL_EVENT };
 
 	private ConversationsAdapter mAdapter;
 
@@ -1134,6 +1132,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 				}
 
 				resetNotificationCounter(convInfo);
+				HikeMessengerApp.getPubSub().publish(HikePubSub.BADGE_COUNT_MESSAGE_CHANGED, null);
 			}
 		}
 		else
@@ -2492,7 +2491,9 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 		}
 		else if (HikePubSub.STEALTH_MODE_TOGGLED.equals(type))
 		{
-			if (!isAdded())
+			//for Android M and also for security updates of Android L, the isAdded check does not
+			//check for activity being null, instead a fragmentHostController is used in its place
+			if (!isAdded() || getActivity() == null)
 			{
 				return;
 			}
@@ -2562,7 +2563,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 									ConvMessage prevMessage = convInfo.getLastConversationMsg();
 									String metadata = message.getMetadata().serialize();
 									message = new ConvMessage(message.getMessage(), message.getMsisdn(), prevMessage.getTimestamp(), prevMessage.getState(),
-											prevMessage.getMsgID(), prevMessage.getMappedMsgID(), message.getGroupParticipantMsisdn());
+											prevMessage.getMsgID(), prevMessage.getMappedMsgID(), message.getGroupParticipantMsisdn(), prevMessage.getSortingId());
 									try
 									{
 										message.setMetadata(metadata);
@@ -2583,6 +2584,8 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 									return;
 								}
 							}
+
+							convInfo.setLastConversationMsg(finalMessage);
 
 							if (!isAdded())
 							{
@@ -2999,6 +3002,56 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 
 			}
 		}
+		else if (HikePubSub.GENERAL_EVENT.equals(type))
+		{
+			final ConvMessage message=(ConvMessage)object;
+			final ConvInfo convInfo = mConversationsByMSISDN.get(message.getMsisdn());
+			if(convInfo!=null&&isAdded())
+			{
+				getActivity().runOnUiThread(new Runnable()
+				{
+					@Override
+					public void run()
+					{
+
+						convInfo.setLastConversationMsg(message);
+						sortAndUpdateTheView(convInfo, message, false);
+
+					}
+				});
+			}
+		}
+		else if(HikePubSub.GENERAL_EVENT_STATE_CHANGE.equals(type))
+		{
+			if (isAdded())
+			{
+				final ConvMessage message = (ConvMessage) object;
+				final ConvInfo convInfo = mConversationsByMSISDN.get(message.getMsisdn());
+				if (convInfo != null)
+				{
+					final ConvMessage convMsg = convInfo.getLastConversationMsg();
+					if (convMsg != null)
+					{
+						getActivity().runOnUiThread(new Runnable()
+						{
+							@Override
+							public void run()
+							{
+								View parentView = getListView().getChildAt(
+										displayedConversations.indexOf(convInfo) - getListView().getFirstVisiblePosition() + getOffsetForListHeader());
+
+								if (parentView != null)
+								{
+									mAdapter.updateViewsRelatedToLastMessage(parentView, convMsg, convInfo);
+								}
+							}
+						});
+					}
+				}
+
+
+			}
+		}
 	}
 
 	protected void handleUIMessage(Message msg)
@@ -3351,7 +3404,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 				StealthModeManager.getInstance().setTipVisibility(true, ConversationTip.STEALTH_INFO_TIP);
 			}
 		}
-		convInfo.setLastConversationMsg(convMessage);
+
 		Logger.d(getClass().getSimpleName(), "new message is " + convMessage);
 
 		if (sortAndUpdateView)
@@ -3760,7 +3813,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 				ConvMessage prevMessage = conv.getLastConversationMsg();
 				String metadata = message.getMetadata().serialize();
 				message = new ConvMessage(message.getMessage(), message.getMsisdn(), prevMessage.getTimestamp(), prevMessage.getState(), prevMessage.getMsgID(),
-						prevMessage.getMappedMsgID(), message.getGroupParticipantMsisdn());
+						prevMessage.getMappedMsgID(), message.getGroupParticipantMsisdn(), prevMessage.getSortingId());
 				try
 				{
 					message.setMetadata(metadata);
@@ -3781,6 +3834,9 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 				return;
 			}
 		}
+
+		conv.setLastConversationMsg(finalMessage); //Adding this here since the ConvInfo object can be read simultaneously on the pubSub and UI Thread.
+
 		if (!isAdded())
 		{
 			return;

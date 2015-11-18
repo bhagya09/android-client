@@ -163,10 +163,7 @@ public class NotificationThread implements Runnable
 	public void cancelNotification()
 	{
 		Context context = HikeMessengerApp.getInstance().getApplicationContext();
-		if (notificationManager == null)
-			notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-
-		notificationManager.cancel(OfflineConstants.NOTIFICATION_IDENTIFIER);
+		HikeNotification.getInstance().cancelNotification(OfflineConstants.NOTIFICATION_IDENTIFIER);
 	}
 
 }

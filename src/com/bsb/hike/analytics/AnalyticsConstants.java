@@ -525,6 +525,8 @@ public class AnalyticsConstants
 
 		public static final String KNOWN_CARD_SETTINGS_TOGGLE = "knwStgTgl";
 		
+		public static final String WRONG_JSON = "wrngJsn";
+		
 	}
 	
 	public static String EVENT_SOURCE = "sr";
@@ -560,6 +562,8 @@ public class AnalyticsConstants
 	public static final String MICRO_APP_EVENT = "micro_app";
 	
 	public static final String EVENT = "event";
+
+	public static final String LOG_FIELD_1 = "fld1";
 	
 	public static final String LOG_FIELD_5 = "fld5";
 	
@@ -568,4 +572,6 @@ public class AnalyticsConstants
 	public static final String FILE_SIZE = "fs";
 
 	public static final String INTERNAL_STORAGE_SPACE = "mem";
+
+	public static final String DISCOVERY_BOT_TAP = "bd_tap";
 }
