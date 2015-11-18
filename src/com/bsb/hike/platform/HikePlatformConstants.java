@@ -231,7 +231,7 @@ public interface HikePlatformConstants
 	
 	public static final int VERSION_ALTO = 1;
 
-	public static final int CURRENT_VERSION = 7;
+	public static final int CURRENT_VERSION = 9;
 
 	public static final String AB_COLOR = "color";
 	

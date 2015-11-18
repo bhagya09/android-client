@@ -1257,7 +1257,7 @@ public abstract class JavascriptBridge
 		}
 	}
 	/**
-	 * Added in Platform Version 8. Call this function to set anon name
+	 * Added in Platform Version 9. Call this function to set anon name
 	 * @param name
 	 */
 	@JavascriptInterface
@@ -1269,7 +1269,7 @@ public abstract class JavascriptBridge
 		}
 	}
 	/**
-	 * Added in Platform Version 8. Call this function to get anon name if exists,else will return null string.
+	 * Added in Platform Version 9. Call this function to get anon name if exists,else will return null string.
 	 * @param id
 	 */
 	@JavascriptInterface
@@ -1281,7 +1281,7 @@ public abstract class JavascriptBridge
 	
 
 	/**
-	 * Platform Version 8
+	 * Platform Version 9
 	 * This method is used to show a native popup with a WebView rendered within it.
 	 * contentData must have cardObj. Inside cardObj, ld must be present and should be a JSONObject.
 	 * @param contentData
@@ -1299,7 +1299,7 @@ public abstract class JavascriptBridge
 		});
 	}
 	/**
-	 * Platform Version 8
+	 * Platform Version 9
 	 * Call this method to get the status of app download
 	 * @param id
 	 * @param app The app name
@@ -1319,7 +1319,7 @@ public abstract class JavascriptBridge
 		callbackToJS(id, data[1]);
 	}
 	/**
-	 * Platform Version 8
+	 * Platform Version 9
 	 * Call this method to check if a bot exists
 	 * @param id
 	 * @param msisdn
@@ -1352,7 +1352,7 @@ public abstract class JavascriptBridge
 
 	}
 	/**
-	 * Platform Version 8
+	 * Platform Version 9
 	 * Call this method to decrease the unread counter.
 	 * @param msisdn whose unread count has to be modified.
 	 */
