@@ -2394,4 +2394,9 @@ public class StickerManager
 		
 		return true;
 	}
+
+	public void resetStickerShopLastUpdateTime()
+	{
+		HikeSharedPreferenceUtil.getInstance().saveData(StickerManager.LAST_STICKER_SHOP_UPDATE_TIME, 0l);
+	}
 }

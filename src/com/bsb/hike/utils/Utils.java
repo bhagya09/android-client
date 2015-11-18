@@ -190,6 +190,7 @@ import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.filetransfer.FTAnalyticEvents;
 import com.bsb.hike.http.HikeHttpRequest;
+import com.bsb.hike.localisation.LocalLanguageUtils;
 import com.bsb.hike.models.AccountData;
 import com.bsb.hike.models.AccountInfo;
 import com.bsb.hike.models.ContactInfo;
@@ -7582,6 +7583,18 @@ public class Utils
 		catch (Throwable ignored)
 		{
 
+		}
+	}
+
+	public static Locale getCurrentLanguageLocale()
+	{
+		if (LocalLanguageUtils.isLocalLanguageSelected())
+		{
+			return new Locale(LocalLanguageUtils.getApplicationLocalLanguageLocale());
+		}
+		else
+		{
+			return Locale.getDefault();
 		}
 	}
 }

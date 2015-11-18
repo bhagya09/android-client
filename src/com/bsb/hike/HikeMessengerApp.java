@@ -23,7 +23,6 @@ import com.bsb.hike.chatHead.StickyCaller;
 import com.bsb.hike.db.DbConversationListener;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.db.HikeMqttPersistence;
-import com.bsb.hike.localisation.LocalLanguageUtils;
 import com.bsb.hike.models.TypingNotification;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.HttpManager;
@@ -71,7 +70,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -1221,14 +1219,7 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 	{
 		Resources res = getApplicationContext().getResources();
 		Configuration config = res.getConfiguration();
-		if (LocalLanguageUtils.isLocalLanguageSelected())
-		{
-			config.locale = new Locale(LocalLanguageUtils.getApplicationLocalLanguageLocale());
-		}
-		else
-		{
-			config.locale = Locale.getDefault();
-		}
+		config.locale = Utils.getCurrentLanguageLocale();
 		res.updateConfiguration(config, res.getDisplayMetrics());
 	}
 }
