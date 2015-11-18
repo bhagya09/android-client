@@ -53,6 +53,7 @@ import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.Protip;
 import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.notifications.refactor.badge.HikeBadgeCountManager;
 import com.bsb.hike.timeline.model.ActionsDataModel.ActionTypes;
 import com.bsb.hike.timeline.model.ActionsDataModel.ActivityObjectTypes;
 import com.bsb.hike.timeline.model.FeedDataModel;
@@ -129,15 +130,17 @@ public class HikeNotification
 	private static HikeNotification hikeNotificationInstance=new HikeNotification();
 	
 	private static long lastNotificationPlayedTimeForOneToOne;
+	
+	private static HikeBadgeCountManager mBadgeCountManager;
 
-
+	
 	private HikeNotification()
 	{
 		this.context = HikeMessengerApp.getInstance().getApplicationContext();
 		this.notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 		this.sharedPreferences = context.getSharedPreferences(HikeMessengerApp.STATUS_NOTIFICATION_SETTING, 0);
 		this.hikeNotifMsgStack = HikeNotificationMsgStack.getInstance();
-		
+		this.mBadgeCountManager=new HikeBadgeCountManager();
 
 		if (VIB_DEF == null)
 		{
