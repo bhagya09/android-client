@@ -1,6 +1,9 @@
 package com.bsb.hike.platform.bridge;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -70,6 +73,8 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	private static final String TAG  = "NonMessagingJavaScriptBridge";
 	
 	private IBridgeCallback mCallback;
+
+	private String extraData; // Any extra miscellaneous data received in the intent.
 	
 	public NonMessagingJavaScriptBridge(Activity activity, CustomWebView mWebView, BotInfo botInfo, IBridgeCallback callback)
 	{
@@ -189,7 +194,11 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 			jsonObject.put(HikePlatformConstants.BOT_VERSION, mBotInfo.getVersion());
 			jsonObject.put(HikePlatformConstants.ASSOCIATE_MAPP,botMetadata.getAsocmapp());
 
-			
+			if (!TextUtils.isEmpty(extraData))
+			{
+				jsonObject.put(HikePlatformConstants.EXTRA_DATA, extraData);
+			}
+
 			mWebView.loadUrl("javascript:init('"+getEncodedDataForJS(jsonObject.toString())+"')");
 		}
 		catch (JSONException e)
@@ -482,7 +491,15 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 			if (mCallback != null)
 			{
 				String[] params = (String[]) msg.obj;
-				mCallback.openFullPageWithTitle(params[1], params[0]); // Url, Title
+				// checking for interceptUrl JSON String
+				if (params[2] != null)
+				{
+					mCallback.openFullPageWithTitle(params[1], params[0], params[2]); // Url, title, interceptUrlJson
+				}
+				else
+				{
+					mCallback.openFullPageWithTitle(params[1], params[0]); // Url, Title
+				}
 			}
 			break;
 		case CHANGE_ACTION_BAR_TITLE:
@@ -529,14 +546,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	@Override
 	public void openFullPage(final String title, final String url)
 	{
-		if (TextUtils.isEmpty(title))
-		{
-			sendMessageToUiThread(OPEN_FULL_PAGE, url);
-		}
-		else
-		{
-			sendMessageToUiThread(OPEN_FULL_PAGE_WITH_TITLE, new String[] { title, url });
-		}
+		openFullPage(title, url, null);
 	}
 	
 	/**
@@ -1443,4 +1453,52 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 			}
 		});
 	}
+
+	/**
+	 * Platform bridge Version 8
+	 * Call this function to open a full page webView within hike. Calling this function will create full page with action bar
+	 * color specified by server, js injected to remove unwanted features from the full page, and URLs defined by the interceptUrlJson
+	 * will be intercepted when they start loading.
+	 * @param title
+	 *            : the title on the action bar.
+	 * @param url
+	 *            : the url that will be loaded.
+	 * @param interceptUrlJson
+	 * 			  : the JSON String that contains the interception URL and type.
+	 * 			    If a loading url contains the String value of the "url" field, it will be intercepted.
+	 * 			    eg - {"icpt_url":[{"url":"ndtv","type":1},{"url":"techinsider.com","type":1}]}
+	 * 			    URL http://www.ndtv.com/news?txId=1234&authId=12345&key1=val1&key2=val2
+	 * 			    will be intercepted and parameter String ?txId=1234&authId=12345&key1=val1&key2=val2 will be returned to the microapp
+	 * 			    in the urlIntercepted method.
+	 *
+	 * 			    Type 1 : Closes the current WebView and opens the microapp that invoked it, with the URL parameters from the
+	 * 			    		 intercepted URL.
+	 */
+	@JavascriptInterface
+	public void openFullPage(String title, String url, String interceptUrlJson)
+	{
+		if (TextUtils.isEmpty(title))
+		{
+			sendMessageToUiThread(OPEN_FULL_PAGE, url);
+		}
+		else if (TextUtils.isEmpty(interceptUrlJson))
+		{
+			sendMessageToUiThread(OPEN_FULL_PAGE_WITH_TITLE, new String[] { title, url, null });
+		}
+		else
+		{
+			sendMessageToUiThread(OPEN_FULL_PAGE_WITH_TITLE, new String[] { title, url, interceptUrlJson });
+		}
+	}
+
+	public void urlIntercepted(String urlParams)
+	{
+		mWebView.loadUrl("javascript:urlIntercepted('" + urlParams + "')");
+	}
+
+	public void setExtraData(String data)
+	{
+		this.extraData = data;
+	}
+
 }

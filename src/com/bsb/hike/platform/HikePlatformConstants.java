@@ -278,5 +278,13 @@ public interface HikePlatformConstants
 	final static String RESUME_SUPPORT = "resume_support";
 
 	public static final String IS_SHORTCUT = "is_shortcut";
-	
+
+	public static final String TYPE = "type";
+
+	public static class UrlInterceptTypes
+	{
+		public static final int INTERCEPT_AND_CLOSE_WEBVIEW = 1;
+	}
+
+	public static final String EXTRA_DATA = "extra_data";
 }

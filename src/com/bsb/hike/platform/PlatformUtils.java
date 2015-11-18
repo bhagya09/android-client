@@ -333,9 +333,16 @@ public class PlatformUtils
 					context.startActivity(i);
 				}
 			}
+			if (activityName.equals(HIKESCREEN.OPEN_MICROAPP.toString()))
+			{
+				Intent intent = IntentFactory.getNonMessagingBotIntent(mmObject.getString(HikeConstants.MSISDN), context);
+				intent.putExtra(HikePlatformConstants.EXTRA_DATA, mmObject.optString(HikePlatformConstants.EXTRA_DATA));
+				context.startActivity(intent);
+			}
 		}
 		catch (JSONException e)
 		{
+			Logger.e(TAG, "JSONException in openActivity : "+e.getMessage());
 			e.printStackTrace();
 		}
 		catch (ActivityNotFoundException e)
