@@ -1175,7 +1175,6 @@ import android.widget.Toast;
 			break;
 		case R.id.sticker_btn:
 			mShareablePopupLayout.setCustomKeyBoardHeight((keyboardHeight == 0) ? mCustomKeyboard.getKeyBoardAndCVHeight() : keyboardHeight);
-			mCustomKeyboard.showCustomKeyboard(mComposeView, false);
 			if (mShareablePopupLayout.isBusyInOperations())
 			{//  previous task is running don't accept this event
 				return;
@@ -1186,7 +1185,6 @@ import android.widget.Toast;
 			stickerClicked();
 			break;
 		case R.id.emoticon_btn:
-			mCustomKeyboard.showCustomKeyboard(mComposeView, false);
 			if (mShareablePopupLayout.isBusyInOperations())
 			{// previous task is running don't accept this event
 				return;
@@ -6172,14 +6170,12 @@ import android.widget.Toast;
 		
 		if (systemKeyboard)
 		{
-			KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, 0);
-			mCustomKeyboard.showCustomKeyboard(mComposeView, false);
+			hideKptKeyboard();
 			mCustomKeyboard.swtichToDefaultKeyboard(mComposeView);
 			mCustomKeyboard.unregister(R.id.msg_compose);
 			resetSharablePopup();
 			mComposeView.setOnClickListener(new OnClickListener()
 			{
-
 				@Override
 				public void onClick(View v)
 				{

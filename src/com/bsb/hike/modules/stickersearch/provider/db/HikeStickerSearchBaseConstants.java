@@ -327,7 +327,7 @@ public class HikeStickerSearchBaseConstants
 	public static final String DEFAULT_THEME_TAG = "GENERIC";
 
 	// Default script
-	public static final String STICKER_TAG_KEYBOARD_ISO_DEFAULT = "Latn";
+	public static final String DEFAULT_STICKER_TAG_SCRIPT_ISO_CODE = "Latn";
 
 	// States used for Sticker-Tag relation and recommendations================================[[
 	public static enum STATE_CATEGORY

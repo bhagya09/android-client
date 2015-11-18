@@ -2106,6 +2106,8 @@ public class HikeConstants
 
 		public static final String STICKER_RECOMMENDATION_SELECTION_KEY = "acID";
 
+		public static final String STICKER_RECOMMENDATION_REBALANCING_SUMMERIZATION = "srRS";
+
 		public static final String PACK_DATA_ANALYTIC_EVENT = "pckD";
 
 		public static final String SEEN_REORDERING_TIP = "seenReorderingTip";
@@ -3487,6 +3489,12 @@ public class HikeConstants
 	public static final String STICKER_SEARCH_BASE_THRESHOLD_EXPANSION_COEFFICIENT = "ssb_tec"; // float
 
 	public static final String STICKER_SEARCH_BASE_THRESHOLD_FORCED_SHRINK_COEFFICIENT = "ssb_tfsc"; // float
+
+	public static final String STICKER_SEARCH_REBALANCING_TIME_STAMP = "ts";
+
+	public static final String STICKER_SEARCH_REBALANCING_MEMORY_STATUS = "ms";
+	
+	public static final String STICKER_SEARCH_REBALANCING_ROW_STATUS = "rs";
 
 	// =========================================================================================Constants for sticker search]]
 

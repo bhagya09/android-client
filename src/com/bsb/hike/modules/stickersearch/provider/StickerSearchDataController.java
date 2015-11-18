@@ -157,7 +157,7 @@ public enum StickerSearchDataController
 						String catgrsType = catgrs.next();
 						if ("catgrs".equals(catgrsType))
 						{
-							tagDataWithScript.add(new Pair<String, JSONObject>(HikeStickerSearchBaseConstants.STICKER_TAG_KEYBOARD_ISO_DEFAULT, tagData.optJSONObject("catgrs")));
+							tagDataWithScript.add(new Pair<String, JSONObject>(HikeStickerSearchBaseConstants.DEFAULT_STICKER_TAG_SCRIPT_ISO_CODE, tagData.optJSONObject("catgrs")));
 						}
 						else if ("catgrs_loc".equals(catgrsType))
 						{

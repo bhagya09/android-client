@@ -461,7 +461,7 @@ public class StickerSearchManager
 		long scheduleTime = Utils.getTimeInMillis(
 				Calendar.getInstance(Locale.ENGLISH),
 				HikeSharedPreferenceUtil.getInstance(HikeStickerSearchBaseConstants.SHARED_PREF_STICKER_DATA).getData(HikeConstants.STICKER_TAG_REBALANCING_TRIGGER_TIME_STAMP,
-						null), StickerSearchConstants.REBALACING_DEFAULT_TIME_HOUR, 0, 0, 0);
+						null), StickerSearchConstants.DEFAULT_REBALANCING_TIME_HOUR, 0, 0, 0);
 
 		if (scheduleTime < System.currentTimeMillis())
 		{

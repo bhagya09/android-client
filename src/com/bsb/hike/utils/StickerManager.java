@@ -24,7 +24,6 @@ import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.db.HikeConversationsDatabase;
-import com.bsb.hike.media.ShareablePopupLayout;
 import com.bsb.hike.models.CustomStickerCategory;
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.models.Sticker;
@@ -453,7 +452,7 @@ public class StickerManager
 		File dir = context.getExternalFilesDir(null);
 		if (dir == null)
 		{
-			sendStickerFolderLockedError("uanable to access android folder");
+			sendStickerFolderLockedError("Unable to access android folder.");
 			return new Pair<Boolean, List<StickerCategory>>(false, null);
 		}
 
@@ -461,7 +460,7 @@ public class StickerManager
 		File root = new File(rootPath);
 		if (!root.exists() || !root.isDirectory())
 		{
-			sendStickerFolderLockedError("uanable to access sticker root folder");
+			sendStickerFolderLockedError("Unable to access sticker root folder.");
 			return new Pair<Boolean, List<StickerCategory>>(false, null);
 		}
 
@@ -469,7 +468,7 @@ public class StickerManager
 
 		if (files == null || files.length == 0)
 		{
-			sendStickerFolderLockedError("sticker root folder is empty");
+			sendStickerFolderLockedError("Sticker root folder is empty.");
 			return new Pair<Boolean, List<StickerCategory>>(true, null);
 		}
 
@@ -483,7 +482,7 @@ public class StickerManager
 			}
 		}
 
-		sendStickerFolderLockedError("current sticker categories count = " + allCategoryList.size());
+		sendStickerFolderLockedError("Current sticker categories count = " + allCategoryList.size());
 
 		return new Pair<Boolean, List<StickerCategory>>(true, allCategoryList);
 	}
@@ -2223,6 +2222,7 @@ public class StickerManager
 			metadata.put(HikeConstants.TAGGED_PHRASE, taggedPhrase);
 			metadata.put(HikeConstants.TAP_WORD, tappedWord);
 			metadata.put(HikeConstants.KEYBOARD_LIST, StickerSearchUtils.getCurrentLanguageISOCode());
+
 			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, EventPriority.HIGH, metadata);
 		}
 		catch (JSONException e)
@@ -2245,6 +2245,7 @@ public class StickerManager
 			metadata.put(HikeConstants.TAGGED_PHRASE, taggedPhrase);
 			metadata.put(HikeConstants.TAP_WORD, tappedWord);
 			metadata.put(HikeConstants.KEYBOARD_LIST, StickerSearchUtils.getCurrentLanguageISOCode());
+
 			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, EventPriority.HIGH, metadata);
 		}
 		catch (JSONException e)
@@ -2270,6 +2271,7 @@ public class StickerManager
 			metadata.put(HikeConstants.STICKER_ID, stickerId);
 			metadata.put(HikeConstants.CATEGORY_ID, categoryId);
 			metadata.put(HikeConstants.KEYBOARD_LIST, StickerSearchUtils.getCurrentLanguageISOCode());
+
 			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, EventPriority.HIGH, metadata);
 		}
 		catch (JSONException e)
@@ -2277,9 +2279,30 @@ public class StickerManager
 			Logger.e(AnalyticsConstants.ANALYTICS_TAG, "invalid json", e);
 		}
 	}
-	
+
 	/**
-	 * Used for logging sticker/emoticon weird behaviours
+	 * Send sticker search data rebalancing analytics
+	 */
+	public void sendRebalancingAnalytics(String timeStamp, long initialDBSize, long availableMemory, int initialRowCount, int deletedRowCount)
+	{
+		try
+		{
+			JSONObject metadata = new JSONObject();
+			metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.STICKER_RECOMMENDATION_REBALANCING_SUMMERIZATION);
+			metadata.put(HikeConstants.STICKER_SEARCH_REBALANCING_TIME_STAMP, timeStamp);
+			metadata.put(HikeConstants.STICKER_SEARCH_REBALANCING_MEMORY_STATUS, initialDBSize + STRING_DELIMETER + availableMemory);
+			metadata.put(HikeConstants.STICKER_SEARCH_REBALANCING_ROW_STATUS, initialRowCount + STRING_DELIMETER + deletedRowCount);
+
+			HAManager.getInstance().record(AnalyticsConstants.DEV_EVENT, AnalyticsConstants.STICKER_SEARCH_BACKEND, EventPriority.HIGH, metadata);
+		}
+		catch (JSONException e)
+		{
+			Logger.e(AnalyticsConstants.ANALYTICS_TAG, "invalid json", e);
+		}
+	}
+
+	/**
+	 * Used for logging sticker/emoticon weird behaviors
 	 * 
 	 * @param errorMsg
 	 */
@@ -2288,7 +2311,7 @@ public class StickerManager
 		JSONObject error = new JSONObject();
 		try
 		{
-			error.put(ShareablePopupLayout.TAG, errorMsg);
+			error.put(TAG, errorMsg);
 			HAManager.getInstance().record(AnalyticsConstants.DEV_EVENT, AnalyticsConstants.STICKER_SEARCH, EventPriority.HIGH, error);
 		}
 		catch (JSONException e)
