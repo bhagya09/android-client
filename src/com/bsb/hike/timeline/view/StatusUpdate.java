@@ -756,7 +756,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 					addItemsLayout.setLayoutParams(p);
 				}
 			}
-		}, mActivityTask.keyboardShowing ? 300 : 0); // TODO Remove hack. Use Shareable popup layout
+		}, 300); // TODO Remove hack. Use Shareable popup layout
 
 		boolean portrait = getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT;
 		int columns = portrait ? 4 : 6;

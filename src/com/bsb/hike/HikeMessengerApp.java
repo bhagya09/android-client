@@ -526,6 +526,8 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 	
 	public static final String STICKER_REFRESH_SET = "stickerRefreshSet";
 
+    public static final String STICKER_SET_FOR_LANGUAGE = "stickerSetForLanguage";
+
 	public static final String SHOWN_STICKER_RECOMMEND_TIP = "shownStickerRecommendTip";
 
 	public static final String SHOWN_STICKER_RECOMMEND_AUTOPOPUP_OFF_TIP = "shownStickerRecommendAutoPopupOffTip";
@@ -547,6 +549,18 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 	public static final String SHOWN_STICKER_RECOMMEND_FTUE = "shownStickerRecommendationFtue";
 
 	public static final String LAST_SUCESSFULL_TAGS_DOWNLOAD_TIME = "lastSuccessfulTagsDownloadTime";
+
+    public static final String NOT_DOWNLOADED_LANGUAGES_SET = "notDownloadedLanguagesSet";
+
+    public static final String DOWNLOADING_LANGUAGES_SET = "downloadingLanguagesSet";
+
+	public static final String DOWNLOADED_LANGUAGES_SET = "downloadedLanguagesSet";
+
+	public static final String FORBIDDEN_LANGUAGES_SET = "forbiddenLanguagesSet";
+
+    public static final String DEFAULT_TAG_DOWNLOAD_LANGUAGES_PREF = "defaultTagDownloadLanguagePref";
+
+
 
 	// =========================================================================================Constants for sticker search]]
 
@@ -909,7 +923,7 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 	
 		StickerManager.getInstance().sendStickerPackAndOrderListForAnalytics();
 		StickerManager.getInstance().refreshTagData();
-		
+
 		bottomNavBarHeightPortrait = Utils.getBottomNavBarHeight(getApplicationContext());
 		bottomNavBarWidthLandscape = Utils.getBottomNavBarWidth(getApplicationContext());
 
