@@ -212,7 +212,7 @@ public class ProductInfoManager
 	 * 
 	 *            This method is responsible for downloading the zip if not present and then mustaching the template,validating the data
 	 */
-	private void parseAndShowPopup(final ProductContentModel productContentModel, final IActivityPopup iShowPopup)
+	public void parseAndShowPopup(final ProductContentModel productContentModel, final IActivityPopup iShowPopup)
 	{
 
 		PlatformContent.getContent(productContentModel.toJSONString(), new PopupContentListener(productContentModel, iShowPopup)

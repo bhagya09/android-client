@@ -1,8 +1,6 @@
 package com.bsb.hike.modules.contactmgr;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -18,8 +16,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import com.bsb.hike.platform.HikePlatformConstants;
-import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -34,6 +30,7 @@ import android.database.DatabaseUtils.InsertHelper;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteStatement;
+import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.provider.ContactsContract.CommonDataKinds.Phone;
 import android.text.TextUtils;
@@ -43,13 +40,14 @@ import android.util.Pair;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
-import com.bsb.hike.BitmapModule.BitmapUtils;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
+import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.db.DBConstants;
 import com.bsb.hike.db.DbException;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.models.FtueContactsData;
+import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
@@ -1541,11 +1539,32 @@ class HikeUserDatabase extends SQLiteOpenHelper
 
 	Drawable getIcon(String msisdn)
 	{
+		// Fetch Bot DP from file
+		if (BotUtils.isBot(msisdn))
+		{
+			Bitmap botDp = BotUtils.getBotDp(msisdn);
+			
+			if (botDp != null)
+			{
+				return HikeBitmapFactory.getBitmapDrawable(botDp);
+			}
+		}
+		
 		byte[] icondata = getIconByteArray(msisdn);
 		
 		if(icondata != null)
 		{
 			return HikeBitmapFactory.getBitmapDrawable(mContext.getResources(), HikeBitmapFactory.decodeByteArray(icondata, 0, icondata.length));
+		}
+		
+		else //Discovery Bots 
+		{
+			Bitmap botDp = BotUtils.getBotDp(msisdn);
+			
+			if (botDp != null)
+			{
+				return HikeBitmapFactory.getBitmapDrawable(botDp);
+			}
 		}
 		
 		return null;
