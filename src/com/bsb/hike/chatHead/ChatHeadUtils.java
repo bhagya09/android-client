@@ -733,23 +733,32 @@ public class ChatHeadUtils
 
 	public static void unregisterCallReceiver()
 	{
-		Context context = HikeMessengerApp.getInstance();
-		
-		unregisterClipboardListener(context);
-		
-		if (incomingCallReceiver != null)
-		{
-			TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
-			telephonyManager.listen(incomingCallReceiver, PhoneStateListener.LISTEN_NONE);
-			incomingCallReceiver = null;
-		}
+		final Context context = HikeMessengerApp.getInstance();
 
-		if (outgoingCallReceiver != null)
+		unregisterClipboardListener(context);
+
+		HikeHandlerUtil.getInstance().postRunnable(new Runnable()
 		{
-			context.unregisterReceiver(outgoingCallReceiver);
-			outgoingCallReceiver = null;
-		}
-		StickyCaller.removeCallerView();
+			// putting code inside runnable to make it run on UI thread.
+			@Override
+			public void run()
+			{
+
+				if (incomingCallReceiver != null)
+				{
+					TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+					telephonyManager.listen(incomingCallReceiver, PhoneStateListener.LISTEN_NONE);
+					incomingCallReceiver = null;
+				}
+
+				if (outgoingCallReceiver != null)
+				{
+					context.unregisterReceiver(outgoingCallReceiver);
+					outgoingCallReceiver = null;
+				}
+				StickyCaller.removeCallerView();
+			}
+		});
 	}
 	
 	public static void onCallClickedFromCallerCard(Context context, String callCurrentNumber, CallSource hikeStickyCaller)
