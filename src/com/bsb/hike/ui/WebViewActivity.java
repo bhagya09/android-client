@@ -1505,7 +1505,8 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		{
 			case HikePlatformConstants.UrlInterceptTypes.INTERCEPT_AND_CLOSE_WEBVIEW:
 
-				String params = urlToIntercept.substring(urlToIntercept.indexOf('?'));
+				int index = urlToIntercept.indexOf('?');
+				String params = index < 0 ? "" : urlToIntercept.substring(index);
 				if (TextUtils.isEmpty(callingMsisdn))
 				{
 					Logger.e(tag, "callingMsisdn, the msisdn to open after URL intercept is missing. Returning.");
