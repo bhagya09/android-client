@@ -288,7 +288,7 @@
     <string name="invite_friends_hike">Invite friends to hike</string>
     <string name="hike_contacts">PEOPLE ON HIKE</string>
     <string name="sms_contacts">SMS CONTACTS</string>
-    <string name="recommended_contacts">RECOMMENDED CONTACTS</string>
+    <string name="contacts">CONTACTS</string>
     <string name="invite_subtext">Earn additional free SMS for every friend that joins hike through your SMS invite.</string>
     <string name="india_only">Free SMS can only be sent to India.</string>
     <string name="feedback_on_hike">Feedback on hike for Android</string>

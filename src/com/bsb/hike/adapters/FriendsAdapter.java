@@ -105,7 +105,7 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 	// msisdn for scrolling Microapps showcase
 	public static final String HIKE_APPS_MSISDN = "-132";
 
-    public static final String CONTACT_SUGGESTED_NUM = "--133";
+    public static final String CONTACT_FILTERED_NUM = "--133";
 
 	/*stores the regex for matching number during search*/
 	public static Pattern numberPattern;
@@ -359,6 +359,12 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 				{
 					filterList(recentlyJoinedHikeContactsList, filteredRecentlyJoinedList, textToBeFiltered);
 				}
+
+                if(suggestedContactsList != null && !suggestedContactsList.isEmpty())
+                {
+                    filteredSuggestedContactsList.clear();
+                    filterList(suggestedContactsList, filteredSuggestedContactsList, textToBeFiltered);
+                }
 				
 				if(nuxRecommendedList != null && !nuxRecommendedList.isEmpty())
 				{
@@ -374,8 +380,8 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 				resultList.add(filteredGroupList);
 				resultList.add(filteredRecentsList);
 				resultList.add(filteredRecentlyJoinedList);
-                resultList.add(filteredSuggestedContactsList);
 				resultList.add(nuxFilteredRecoList);
+                resultList.add(filteredSuggestedContactsList);
 
 				results.values = resultList;
 				isFiltered = true;
@@ -495,6 +501,11 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 				nuxFilteredRecoList.clear();
 				nuxFilteredRecoList.addAll(resultList.get(6));
 			}
+            if(suggestedContactsList != null && !suggestedContactsList.isEmpty())
+            {
+                filteredSuggestedContactsList.clear();
+                filteredSuggestedContactsList.addAll(resultList.get(7));
+            }
 			
 			makeCompleteList(true);
 		}
@@ -510,7 +521,7 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 		resultList.add(recentContactsList);
 		resultList.add(recentlyJoinedHikeContactsList);
 		resultList.add(nuxRecommendedList);
-		
+		resultList.add(suggestedContactsList);
 		return resultList;
 	}
 
@@ -610,7 +621,7 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 		}
         if(showFilteredContacts)
         {
-            suggestedContactsSection = new ContactInfo(SECTION_ID, Integer.toString(filteredSuggestedContactsList.size()), context.getString(R.string.recommended_contacts), CONTACT_SUGGESTED_NUM);
+            suggestedContactsSection = new ContactInfo(SECTION_ID, Integer.toString(filteredSuggestedContactsList.size()), context.getString(R.string.contacts), CONTACT_FILTERED_NUM);
             updateSuggestedContacts(suggestedContactsSection);
         }
 
@@ -1425,8 +1436,8 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 
 					setInviteButton(contactInfo, inviteBtn, inviteIcon);
 
-					if (!showFilteredContacts)
-					{
+//					if (!showFilteredContacts)
+//					{
 						LayoutParams layoutParams = (LayoutParams) infoContainer.getLayoutParams();
 						if (inviteIcon.getVisibility() == View.VISIBLE)
 						{
@@ -1436,7 +1447,7 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 						{
 							layoutParams.addRule(RelativeLayout.LEFT_OF, inviteBtn.getId());
 						}
-					}
+//					}
 				}
 			}
 			break;
@@ -1460,8 +1471,12 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 					break;
 
 				case CONTACT_SMS_NUM:
-					headerName.setCompoundDrawablesWithIntrinsicBounds(context.getResources().getDrawable(R.drawable.ic_section_header_sms_contact), null, null, null);
-					break;
+                    headerName.setCompoundDrawablesWithIntrinsicBounds(context.getResources().getDrawable(R.drawable.ic_section_header_sms_contact), null, null, null);
+                    break;
+
+                case CONTACT_FILTERED_NUM:
+                    headerName.setCompoundDrawablesWithIntrinsicBounds(context.getResources().getDrawable(R.drawable.ic_section_header_sms_contact), null, null, null);
+                    break;
 				}
 
 				headerName.setCompoundDrawablePadding((int) context.getResources().getDimension(R.dimen.favorites_star_icon_drawable_padding));
