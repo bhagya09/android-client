@@ -1787,11 +1787,11 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 		 * if this is a message, then grab the messageId out of the json object so we can get confirmation of success/failure
 		 */
 		// get Values of (uid, msgId, type, track) from metadata of convMsg
-		if (HikeConstants.MqttMessageTypes.MESSAGE.equals(o.optString(HikeConstants.TYPE)) 
+		if (HikeConstants.MqttMessageTypes.MESSAGE.equals(o.optString(HikeConstants.TYPE)) || HikeConstants.MqttMessageTypes.GENERAL_EVENT_QOS_ONE.equals(o.optString(HikeConstants.TYPE))
 				|| (HikeConstants.MqttMessageTypes.INVITE.equals(o.optString(HikeConstants.TYPE))))
 		{
 			JSONObject json = o.optJSONObject(HikeConstants.DATA);
-			msgId = Long.parseLong(json.optString(HikeConstants.MESSAGE_ID));
+			msgId = Long.parseLong(json.optString(HikeConstants.MESSAGE_ID, "-1"));
 		}
 		else if((HikeConstants.MqttMessageTypes.NEW_MESSAGE_READ.equals(o.optString(HikeConstants.TYPE))))
 		{

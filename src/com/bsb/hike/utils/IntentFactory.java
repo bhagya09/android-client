@@ -20,7 +20,6 @@ import android.os.Message;
 import android.provider.ContactsContract.Contacts;
 import android.provider.MediaStore;
 import android.provider.Settings;
-import android.support.v4.app.FragmentActivity;
 import android.text.TextUtils;
 import android.widget.Toast;
 
@@ -37,7 +36,8 @@ import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.chatHead.StickerShareSettings;
 import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.chatthread.ChatThreadUtils;
-import com.bsb.hike.cropimage.CropImage;
+import com.bsb.hike.cropimage.CropCompression;
+import com.bsb.hike.cropimage.HikeCropActivity;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.HikeFile;
@@ -45,6 +45,7 @@ import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.models.Conversation.ConvInfo;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
+import com.bsb.hike.platform.CocosGamingActivity;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.timeline.view.StatusUpdate;
 import com.bsb.hike.timeline.view.TimelineActivity;
@@ -686,7 +687,8 @@ public class IntentFactory
 		
 		if(cropImage)
 		{
-			destIntents.add(IntentFactory.getCropActivityIntent(context, null, outputDestination, true,80, false));
+			CropCompression compression = new CropCompression().maxWidth(640).maxHeight(640).quality(80);
+			destIntents.add(IntentFactory.getCropActivityIntent(context, null, outputDestination, compression));
 		}
 		
 		if(destIntents.size()>0)
@@ -786,6 +788,11 @@ public class IntentFactory
 
 	public static Intent getNonMessagingBotIntent(String msisdn, Context context)
 	{
+		return(getNonMessagingBotIntent(msisdn,context,null));
+	}
+	
+	public static Intent getNonMessagingBotIntent(String msisdn, Context context,String data)
+	{
 		if (BotUtils.isBot(msisdn))
 		{
 			BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
@@ -793,10 +800,20 @@ public class IntentFactory
 			if (botInfo.isNonMessagingBot())
 			{
 				NonMessagingBotMetadata nonMessagingBotMetadata = new NonMessagingBotMetadata(botInfo.getMetadata());
-				Intent intent = getWebViewActivityIntent(context, "", "");
-				intent.putExtra(WebViewActivity.WEBVIEW_MODE, nonMessagingBotMetadata.isWebUrlMode() ? WebViewActivity.WEB_URL_BOT_MODE : WebViewActivity.MICRO_APP_MODE);
-				intent.putExtra(HikeConstants.MSISDN, msisdn);
-				return intent;
+				if (nonMessagingBotMetadata.isNativeMode())
+				{
+					Intent i = new Intent(context,CocosGamingActivity.class);
+					i.putExtra(HikeConstants.MSISDN, msisdn);
+					i.putExtra(HikeConstants.DATA,data);
+					return i;
+				}
+				else
+				{
+					Intent intent = getWebViewActivityIntent(context, "", "");
+					intent.putExtra(WebViewActivity.WEBVIEW_MODE, nonMessagingBotMetadata.isWebUrlMode() ? WebViewActivity.WEB_URL_BOT_MODE : WebViewActivity.MICRO_APP_MODE);
+					intent.putExtra(HikeConstants.MSISDN, msisdn);
+					return intent;
+				}
 
 			}
 		}
@@ -987,19 +1004,18 @@ public class IntentFactory
 		startShareImageIntent(mimeType, imagePath, null);
 	}
 	
-	public static Intent getCropActivityIntent(Context context, String path, String destPath, boolean preventScaling, int quality,boolean circleHighlight)
+	public static Intent getCropActivityIntent(Context argActivity, String argPath, String argDestPath, CropCompression argCropCompression)
 	{
-		/* Crop the image */
-		Intent intent = new Intent(context, CropImage.class);
-		intent.putExtra(MediaStore.EXTRA_OUTPUT, destPath);
-		intent.putExtra(HikeConstants.Extras.IMAGE_PATH, path);
-		intent.putExtra(HikeConstants.Extras.CIRCLE_HIGHLIGHT, circleHighlight);
-		intent.putExtra(HikeConstants.Extras.SCALE, false);
-		intent.putExtra(HikeConstants.Extras.RETURN_CROP_RESULT_TO_FILE, preventScaling);
-		intent.putExtra(HikeConstants.Extras.ASPECT_X, 1);
-		intent.putExtra(HikeConstants.Extras.ASPECT_Y, 1);
-		intent.putExtra(HikeConstants.Extras.JPEG_COMPRESSION_QUALITY, quality);
-		return intent;
+		Intent cropIntent = new Intent(argActivity, HikeCropActivity.class);
+		cropIntent.putExtra(HikeCropActivity.CROPPED_IMAGE_PATH, argDestPath);
+		cropIntent.putExtra(HikeCropActivity.SOURCE_IMAGE_PATH, argPath);
+		
+		//https://code.google.com/p/android/issues/detail?id=6822
+		Bundle cropCompBundle = new Bundle();
+		cropCompBundle.putParcelable(HikeCropActivity.CROP_COMPRESSION, argCropCompression);
+		
+		cropIntent.putExtra(HikeCropActivity.CROP_COMPRESSION, cropCompBundle);
+		return cropIntent;
 	}
 
 	public static Intent getApkSelectionActivityIntent(Context context) 
@@ -1086,7 +1102,7 @@ public class IntentFactory
 		Intent intent = new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS);
 		activity.startActivityForResult(intent, 0);
 	}
-	
+
 	public static Intent getAddMembersToExistingGroupIntent(Context context, String mLocalMSISDN)
 	{
 		Intent intent = new Intent(context, ComposeChatActivity.class);

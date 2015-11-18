@@ -473,7 +473,8 @@ public class GroupChatThread extends OneToNChatThread
 				index = index >= 0 ? index : 0;
 				long timeStamp = messages.get(index).getTimestamp();
 				long msgId = messages.get(index).getMsgID();
-				messages.add(index, new ConvMessage(mConversation.getUnreadCount(), timeStamp, msgId));
+				long sortingId = messages.get(index).getSortingId();
+				messages.add(index, new ConvMessage(mConversation.getUnreadCount(), timeStamp, msgId, sortingId));
 			}
 		}
 	}
@@ -1096,7 +1097,7 @@ public class GroupChatThread extends OneToNChatThread
 		/* the user must have deleted the chat. */
 		Message message = Message.obtain();
 		message.what = SHOW_TOAST;
-		message.arg1 = R.string.invalid_group_chat;
+		message.obj = R.string.invalid_group_chat;
 		uiHandler.sendMessage(message);
 
 		startHomeActivity();

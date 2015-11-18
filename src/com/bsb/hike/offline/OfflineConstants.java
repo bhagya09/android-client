@@ -70,7 +70,7 @@ public class OfflineConstants
 	
 	public static final int STICKER_SIZE = 168;
 	
-	public static final int OFFLINE_VERSION_NUMER = 2;
+	public static final int OFFLINE_VERSION_NUMER = 3;
 	
 	public final class HandlerConstants
 	{
@@ -233,5 +233,7 @@ public class OfflineConstants
 	public static final float MIN_BATTERY_LEVEL = 10.0f;
 
 	public static final int UNLIMITED_FT_VERSION = 2;
+	
+	public static final int VOIP_HIKE_DIRECT=3;
 
 }
