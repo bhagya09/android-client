@@ -140,6 +140,7 @@ public class ProductInfoManager
 		{
 			iShowPopup.onFailure();
 		}
+		HikeMessengerApp.getPubSub().publish(HikePubSub.BADGE_COUNT_CHANGED, null);
 	}
 
 	/**
@@ -177,10 +178,11 @@ public class ProductInfoManager
 						mmSparseArray.get(triggerPoint).removeAll(mmArrayList);
 
 					Logger.d("ProductPopup", "End deleting" + mmArrayList.toString());
+					HikeMessengerApp.getPubSub().publish(HikePubSub.PRODUCT_POPUP_BADGE_COUNT_CHANGED, null);
 				}
 			}
 		});
-
+		
 	}
 	
 	public static void recordPopupEvent(String appName, String pid, boolean isFullScreen, String type)
@@ -210,7 +212,7 @@ public class ProductInfoManager
 	 * 
 	 *            This method is responsible for downloading the zip if not present and then mustaching the template,validating the data
 	 */
-	private void parseAndShowPopup(final ProductContentModel productContentModel, final IActivityPopup iShowPopup)
+	public void parseAndShowPopup(final ProductContentModel productContentModel, final IActivityPopup iShowPopup)
 	{
 
 		PlatformContent.getContent(productContentModel.toJSONString(), new PopupContentListener(productContentModel, iShowPopup)
@@ -442,10 +444,39 @@ public class ProductInfoManager
 	{
 		HikeContentDatabase.getInstance().deleteAllPopupsFromDatabase();
 		clearPopupStack();
+		HikeMessengerApp.getPubSub().publish(HikePubSub.PRODUCT_POPUP_BADGE_COUNT_CHANGED, null);
 	}
 	
 	private void clearPopupStack()
 	{
 		mmSparseArray.clear();
+	}
+	
+	public int getAllValidPopUp()
+	{
+		long presentTime = System.currentTimeMillis();
+		int countValidPopUps = 0;
+
+		ProductPopupsConstants.PopupTriggerPoints[] triggerPoints = ProductPopupsConstants.PopupTriggerPoints.values();
+		for (int i = 0; i < triggerPoints.length; i++)
+		{
+			ArrayList<ProductContentModel> mmArray = mmSparseArray.get(triggerPoints[i].ordinal());
+			if (mmArray != null&&!mmArray.isEmpty())
+			{
+				Collections.sort(mmArray, ProductContentModel.ProductContentStartTimeComp);
+				for (ProductContentModel productContentModel : mmArray)
+				{
+					if (productContentModel.getStarttime() <= presentTime && productContentModel.getEndtime() >= presentTime)
+					{
+
+						countValidPopUps++;
+
+						break;
+
+					}
+				}
+			}
+		}
+		return countValidPopUps;
 	}
 }

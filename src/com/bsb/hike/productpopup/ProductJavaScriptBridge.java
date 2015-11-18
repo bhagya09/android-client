@@ -7,6 +7,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.Activity;
+import android.app.NotificationManager;
+import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.text.TextUtils;
 import android.webkit.JavascriptInterface;
@@ -16,6 +18,8 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.models.HikeAlarmManager;
+import com.bsb.hike.notifications.HikeNotification;
+import com.bsb.hike.offline.OfflineConstants;
 import com.bsb.hike.platform.CustomWebView;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.bridge.JavascriptBridge;
@@ -169,7 +173,30 @@ public class ProductJavaScriptBridge extends JavascriptBridge
 				mHikeDialogFragment.get().dismiss();
 			}
 			HikeAlarmManager.cancelAlarm(HikeMessengerApp.getInstance().getApplicationContext(), HikeAlarmManager.REQUESTCODE_PRODUCT_POPUP);
+			
+			//clearing the notification once the popup is been addressed
+			NotificationManager notificationManager = (NotificationManager) HikeMessengerApp.getInstance().getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
+			if (notificationManager != null)
+				notificationManager.cancel(HikeNotification.NOTIFICATION_PRODUCT_POPUP);
+
 		}
 
+	}
+	
+	public void anonNameSetStatus(final String string)
+	{
+		if (mHandler == null)
+		{
+			return;
+		}
+		mHandler.post(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				mWebView.loadUrl("javascript:anonymousName" + "('" + string + "')");
+			}
+		});
+		
 	}
 }

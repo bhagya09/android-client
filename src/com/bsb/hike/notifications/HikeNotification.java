@@ -53,6 +53,7 @@ import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.Protip;
 import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.notifications.refactor.badge.HikeBadgeCountManager;
 import com.bsb.hike.timeline.model.ActionsDataModel.ActionTypes;
 import com.bsb.hike.timeline.model.ActionsDataModel.ActivityObjectTypes;
 import com.bsb.hike.timeline.model.FeedDataModel;
@@ -100,6 +101,8 @@ public class HikeNotification
 	public static final int TICKER_TEXT_MAX_LENGHT = 100;
 	
 	public static final int OFFLINE_REQUEST_ID = -91;
+	
+	public static final int NOTIFICATION_PRODUCT_POPUP = -92;
 	// We need a key to pair notification id. This will be used to retrieve notification id on notification dismiss/action.
 	public static final String HIKE_NOTIFICATION_ID_KEY = "hike.notification";
 
@@ -127,15 +130,17 @@ public class HikeNotification
 	private static HikeNotification hikeNotificationInstance=new HikeNotification();
 	
 	private static long lastNotificationPlayedTimeForOneToOne;
+	
+	private static HikeBadgeCountManager mBadgeCountManager;
 
-
+	
 	private HikeNotification()
 	{
 		this.context = HikeMessengerApp.getInstance().getApplicationContext();
 		this.notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 		this.sharedPreferences = context.getSharedPreferences(HikeMessengerApp.STATUS_NOTIFICATION_SETTING, 0);
 		this.hikeNotifMsgStack = HikeNotificationMsgStack.getInstance();
-		
+		this.mBadgeCountManager=new HikeBadgeCountManager();
 
 		if (VIB_DEF == null)
 		{
@@ -1543,7 +1548,7 @@ public class HikeNotification
 	public  void notifyUserAndOpenHomeActivity(String text, String title, boolean shouldNotPlaySound)
 	{
 		Intent intent=Utils.getHomeActivityIntent(context);
-		showBigTextStyleNotification(intent, 0, System.currentTimeMillis(), HikeNotification.HIKE_SUMMARY_NOTIFICATION_ID, title, text,
+		showBigTextStyleNotification(intent, 0, System.currentTimeMillis(), HikeNotification.NOTIFICATION_PRODUCT_POPUP, title, text,
 				title, "", null, null, shouldNotPlaySound, 0);
 	}
 
