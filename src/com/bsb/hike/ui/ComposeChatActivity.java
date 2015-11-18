@@ -139,6 +139,8 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 
 	public static final int PICK_CONTACT_AND_SEND_MODE = 9;
 
+    public static final int PICK_CONTACT_SINGLE_MODE = 10;
+
 	private View multiSelectActionBar, groupChatActionBar;
 
 	private TagEditText tagEditText;
@@ -226,7 +228,9 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 	
 	private boolean hasMicroappShowcaseIntent = false;
 
-	@Override
+    private boolean isContactChooserFilter = false;
+
+    @Override
 	public void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
@@ -281,8 +285,14 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			oneToNConvId = bundle.getString(HikeConstants.Extras.CONVERSATION_ID);
 			gcSettings = bundle.getInt(HikeConstants.Extras.CREATE_GROUP_SETTINGS);
 		}
-		
-		if (savedInstanceState != null)
+
+        if (getIntent().hasExtra(HikeConstants.Extras.IS_CONTACT_CHOOSER_FILTER_INTENT))
+        {
+            isContactChooserFilter = getIntent().getBooleanExtra(HikeConstants.Extras.IS_CONTACT_CHOOSER_FILTER_INTENT,false);
+            composeMode = PICK_CONTACT_SINGLE_MODE;
+        }
+
+        if (savedInstanceState != null)
 		{
 			deviceDetailsSent = savedInstanceState.getBoolean(HikeConstants.Extras.DEVICE_DETAILS_SENT);
 		}
@@ -618,11 +628,11 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		case PICK_CONTACT_AND_SEND_MODE:
 		case PICK_CONTACT_MODE:
 			//We do not show sms contacts in broadcast mode
-			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage, (isForwardingMessage && !isSharingFile), fetchRecentlyJoined, existingGroupOrBroadcastId, sendingMsisdn, friendsListFetchedCallback, false, false);
+			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage, (isForwardingMessage && !isSharingFile), fetchRecentlyJoined, existingGroupOrBroadcastId, sendingMsisdn, friendsListFetchedCallback, false, false,isContactChooserFilter);
 			break;
 		case CREATE_GROUP_MODE:
 		default:
-			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage, (isForwardingMessage || isSharingFile), fetchRecentlyJoined, existingGroupOrBroadcastId, sendingMsisdn, friendsListFetchedCallback, true, (showMicroappShowcase && hasMicroappShowcaseIntent));
+			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage, (isForwardingMessage || isSharingFile), fetchRecentlyJoined, existingGroupOrBroadcastId, sendingMsisdn, friendsListFetchedCallback, true, (showMicroappShowcase && hasMicroappShowcaseIntent),isContactChooserFilter);
 			break;
 		}
 
@@ -748,6 +758,16 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 	public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3)
 	{
 		final ContactInfo contactInfo = adapter.getItem(arg2);
+
+        if(isContactChooserFilter)
+        {
+            ArrayList<ContactInfo> contactInfos = new ArrayList<>(1);
+            contactInfos.add(contactInfo);
+            ConvertToJsonArrayTask convertToJsonArrayTask = new ConvertToJsonArrayTask(this,contactInfos,true);
+            Utils.executeJSONArrayResultTask(convertToJsonArrayTask);
+            return;
+        }
+
 
 		// jugaad , coz of pinned listview , discussed with team
 		if (ComposeChatAdapter.EXTRA_ID.equals(contactInfo.getId()))
@@ -999,6 +1019,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		{
 		case CREATE_GROUP_MODE:
 		case PICK_CONTACT_MODE:
+        case PICK_CONTACT_SINGLE_MODE:
 		case PICK_CONTACT_AND_SEND_MODE:
 		case CREATE_BROADCAST_MODE:
 			// createGroupHeader.setVisibility(View.GONE);
@@ -1239,6 +1260,10 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		{
 			title.setText(R.string.add_broadcast);
 		}
+        else if (this.composeMode == PICK_CONTACT_SINGLE_MODE)
+        {
+            title.setText(R.string.contacts);
+        }
 		else
 		{
 			title.setText(R.string.new_chat);

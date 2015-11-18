@@ -1,15 +1,5 @@
 package com.bsb.hike.platform.bridge;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.lang.ref.WeakReference;
-import java.net.URLEncoder;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
@@ -67,6 +57,16 @@ import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.ShareUtils;
 import com.bsb.hike.utils.Utils;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.lang.ref.WeakReference;
+import java.net.URLEncoder;
 
 /**
  * API bridge that connects the javascript to the Native environment. Make the instance of this class and add it as the JavaScript interface of the Card WebView.
@@ -569,28 +569,32 @@ public abstract class JavascriptBridge
 	}
 
     /**
-     * Platform Bridge Version 0
+     * Platform Bridge Version 8
      * This function can be used to start a hike native contact chooser/picker which will show hike contacts to user based on the given msisdn and contactsList
      * It will call JavaScript function "onContactChooserResult(int resultCode,JsonArray array)" This JSOnArray contains list of JSONObject where each JSONObject reflects one user. As of now
-     * each JSON will have name and platform_id, e.g : [{'name':'Paul','platform_id':'dvgd78as'}] resultCode will be 0 for fail and 1 for success NOTE : JSONArray could be null as
+     * each JSON will have name and platform_id, e.g : [{'name':'Paul','platform_id':'dvgd78as','msisdn':'9988776554','thumbnail':''}] resultCode will be 0 for fail and 1 for success NOTE : JSONArray could be null as
      * well
      */
     @JavascriptInterface
-    public void startContactChooserForMsisdnFilter(String msisdns, String title)
-    {
-        // Return from here if both contacts list and msisdns are empty
-        if(TextUtils.isEmpty(msisdns))
-            return;
-
+    public void startContactChooserForMsisdnFilter(String msisdns, String title) {
         Activity activity = weakActivity.get();
-        if (activity != null)
-        {
-            Intent intent = IntentFactory.getFavouritesIntent(activity);
-            intent.putExtra(tag, JavascriptBridge.this.hashCode());
-            intent.putExtra(HikeConstants.Extras.FORWARD_MESSAGE, true);
-            intent.putExtra(HikeConstants.Extras.MSISDN,msisdns);
-            intent.putExtra(HikeConstants.Extras.TITLE,title);
-            activity.startActivityForResult(intent, HikeConstants.PLATFORM_MSISDN_FILTER_DISPLAY_REQUEST);
+
+        if (activity != null) {
+
+            if (TextUtils.isEmpty(msisdns)) {
+                Intent intent = new Intent(activity, ComposeChatActivity.class);
+                intent.putExtra(HikeConstants.Extras.EDIT, true);
+                intent.putExtra(REQUEST_CODE, ComposeChatActivity.PICK_CONTACT_SINGLE_MODE);
+                intent.putExtra(HikeConstants.Extras.IS_CONTACT_CHOOSER_FILTER_INTENT,true);
+                activity.startActivityForResult(intent, HikeConstants.PLATFORM_MSISDN_FILTER_DISPLAY_REQUEST);
+            } else {
+                Intent intent = IntentFactory.getFavouritesIntent(activity);
+                intent.putExtra(tag, JavascriptBridge.this.hashCode());
+                intent.putExtra(HikeConstants.Extras.FORWARD_MESSAGE, true);
+                intent.putExtra(HikeConstants.Extras.MSISDN, msisdns);
+                intent.putExtra(HikeConstants.Extras.TITLE, title);
+                activity.startActivityForResult(intent, HikeConstants.PLATFORM_MSISDN_FILTER_DISPLAY_REQUEST);
+            }
         }
     }
 
