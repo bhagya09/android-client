@@ -664,7 +664,7 @@ public class ChatHeadUtils
 				@Override
 				public void run()
 				{
-					registerClipboardListener(context);
+					registerOrUnregisterClipboardListener(context);
 					
 					if (incomingCallReceiver == null)
 					{
@@ -683,28 +683,54 @@ public class ChatHeadUtils
 
 		}
 	}
-	
-	
-	public static void registerClipboardListener(Context context)
+
+
+	public static void registerOrUnregisterClipboardListener(final Context context)
 	{
-		if (clipboardListener == null)
+		if (HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.ENABLE_CLIPBOARD_CARD, true))
 		{
-			clipboardListener = new ClipboardListener();
-			ClipboardManager clipBoard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
-			clipBoard.addPrimaryClipChangedListener(clipboardListener);
+			HikeHandlerUtil.getInstance().postRunnable(new Runnable()
+			{
+				// putting code inside runnable to make it run on UI thread.
+				@Override
+				public void run()
+				{
+
+					if (clipboardListener == null)
+					{
+						clipboardListener = new ClipboardListener();
+						ClipboardManager clipBoard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+						clipBoard.addPrimaryClipChangedListener(clipboardListener);
+					}
+				}
+			});
 		}
+		else
+		{
+			unregisterClipboardListener(context);
+		}
+
 	}
 
-	public static void unregisterClipboardListener(Context context)
+	public static void unregisterClipboardListener(final Context context)
 	{
-		if (clipboardListener != null)
+		HikeHandlerUtil.getInstance().postRunnable(new Runnable()
 		{
-			ClipboardManager clipBoard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
-			clipBoard.removePrimaryClipChangedListener(clipboardListener);
-			clipboardListener = null;
-		}
+			// putting code inside runnable to make it run on UI thread.
+			@Override
+			public void run()
+			{
+				if (clipboardListener != null)
+				{
+					ClipboardManager clipBoard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+					clipBoard.removePrimaryClipChangedListener(clipboardListener);
+					clipboardListener = null;
+				}
+			}
+		});
+
 	}
-	
+
 	public static void unregisterCallReceiver()
 	{
 		Context context = HikeMessengerApp.getInstance();
