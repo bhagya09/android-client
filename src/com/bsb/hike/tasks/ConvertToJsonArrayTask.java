@@ -37,10 +37,11 @@ public class ConvertToJsonArrayTask extends AsyncTask<Void, Void, JSONArray>
         this.convertToJsonArrayCallback = convertToJsonArrayCallback;
     }
 
-    public ConvertToJsonArrayTask(ConvertToJsonArrayCallback convertToJsonArrayCallback,ArrayList<ContactInfo> list)
+    public ConvertToJsonArrayTask(ConvertToJsonArrayCallback convertToJsonArrayCallback,ArrayList<ContactInfo> list, boolean thumbnailsRequired)
     {
         this.list = list;
         this.convertToJsonArrayCallback = convertToJsonArrayCallback;
+        this.thumbnailsRequired = thumbnailsRequired;
     }
 
     @Override
