@@ -85,7 +85,7 @@ public class HikeNotification
 
 	public static final int APP_UPDATE_AVAILABLE_ID = -90;
 	
-	public static final int PERSISTENT_NOTIF_ID = -92;
+	public static final int PERSISTENT_NOTIF_ID = -93;
 
 	public static final int STEALTH_NOTIFICATION_ID = -89;
 
