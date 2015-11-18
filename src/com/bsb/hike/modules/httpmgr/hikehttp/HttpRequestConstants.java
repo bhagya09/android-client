@@ -395,4 +395,16 @@ public class HttpRequestConstants
 			return STAGING_HIKECALLER_API;
 		}
 	}
+
+    public static String httpNetworkTestUrl()
+    {
+        if (isProduction)
+        {
+            return HTTP + "ping.im.hike.in/android";
+        }
+        else
+        {
+            return HTTP + STAGING_API + "/android";
+        }
+    }
 }

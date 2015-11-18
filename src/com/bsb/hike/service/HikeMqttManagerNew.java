@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.acra.util.HttpRequest;
 import org.eclipse.paho.client.mqttv3.IMqttActionListener;
 import org.eclipse.paho.client.mqttv3.IMqttActionListenerNew;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
@@ -66,7 +67,9 @@ import com.bsb.hike.db.MqttPersistenceException;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.HikePacket;
 import com.bsb.hike.models.NetInfo;
+import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.offline.OfflineConstants.OFFLINE_STATE;
 import com.bsb.hike.offline.OfflineController;
 import com.bsb.hike.offline.OfflineManager;
@@ -1192,6 +1195,11 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 		}
 	}
 
+    private void sendHttpNetworkTestRequest(int errorCode)
+    {
+        RequestToken requestToken =  HttpRequests.httpNetworkTestRequest(errorCode);
+        requestToken.execute();
+    }
 	private void handleMqttException(MqttException e, boolean reConnect)
 	{
 		Logger.i(TAG, "entered handleMqttException method "+ e.getReasonCode());
@@ -1203,13 +1211,14 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 			Random random = new Random();
 			int reconnectIn = random.nextInt(HikeConstants.SERVER_UNAVAILABLE_MAX_CONNECT_TIME) + 1;
 			scheduleNextConnectionCheck(reconnectIn * 60); // Converting minutes to seconds
-
+            sendHttpNetworkTestRequest(e.getReasonCode());
 			break;
 		case MqttException.REASON_CODE_CLIENT_ALREADY_DISCONNECTED:
 			Logger.e(TAG, "Client already disconnected.");
 			mqttConnStatus = MQTTConnectionStatus.NOT_CONNECTED;
 			if (reConnect)
 				connectOnMqttThread();
+            sendHttpNetworkTestRequest(e.getReasonCode());
 			break;
 		case MqttException.REASON_CODE_CLIENT_CLOSED:
 			// this will happen only when you close the conn, so dont do any thing
@@ -1236,6 +1245,7 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 				{
 					handleDNSException();
 					sendAnalyticsEvent(e, analyticsDevArea + "_" + "0" );
+                    sendHttpNetworkTestRequest(100);
 				}
 				// we are getting this exception in one phone in which message is "Host is unresolved"
 				else if (e.getCause() instanceof SocketException)
@@ -1244,23 +1254,27 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 					{
 						handleDNSException();
 						sendAnalyticsEvent(e, analyticsDevArea + "_" + "0" );
+                        sendHttpNetworkTestRequest(100);
 					}
 					else
 					{
 						handleOtherException();
 						sendAnalyticsEvent(e, analyticsDevArea + "_" + "2" );
+                        sendHttpNetworkTestRequest(102);
 					}
 				}
 				else if (e.getCause() instanceof SocketTimeoutException)
 				{
 					handleSocketTimeOutException();
 					sendAnalyticsEvent(e, analyticsDevArea + "_" + "1" );
+                    sendHttpNetworkTestRequest(101);
 				}
 				// added this exception for safety , we might also get this exception in some phones
 				else if (e.getCause() instanceof UnresolvedAddressException)
 				{
 					handleDNSException();
 					sendAnalyticsEvent(e, analyticsDevArea + "_" + "0" );
+                    sendHttpNetworkTestRequest(100);
 				}
 				// Till this point disconnect has already happened due to exception (This is as per lib)
 				else if (reConnect)
@@ -1268,25 +1282,29 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 					handleOtherException();
 					connectOnMqttThread(MQTT_WAIT_BEFORE_RECONNECT_TIME);
 					sendAnalyticsEvent(e, analyticsDevArea + "_" + "2" );
+                    sendHttpNetworkTestRequest(102);
 				}
 				else
 				{
 					handleOtherException();
 					sendAnalyticsEvent(e, analyticsDevArea + "_" + "2" );
+                    sendHttpNetworkTestRequest(102);
 				}
 			}
 			else
 			{
 				handleOtherException();
 				scheduleNextConnectionCheck(getConnRetryTime());
+                sendHttpNetworkTestRequest(e.getReasonCode());
 			}
-			break;
+            break;
 		case MqttException.REASON_CODE_CLIENT_NOT_CONNECTED:
 			Logger.e(TAG, "Client not connected retry connection");
 			mqttConnStatus = MQTTConnectionStatus.NOT_CONNECTED;
 			if (reConnect)
 				connectOnMqttThread();
 			sendAnalyticsEvent(e);
+            sendHttpNetworkTestRequest(e.getReasonCode());
 			break;
 		case MqttException.REASON_CODE_CLIENT_TIMEOUT:
 			// Till this point disconnect has already happened. This could happen in PING or other TIMEOUT happen such as CONNECT, DISCONNECT
@@ -1357,6 +1375,7 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 			mqttConnStatus = MQTTConnectionStatus.NOT_CONNECTED;
 			connectOnMqttThread(getConnRetryTime());
 			sendAnalyticsEvent(e, MqttConstants.EXCEPTION_DEFAULT);
+            sendHttpNetworkTestRequest(e.getReasonCode());
 			break;
 		}
 		e.printStackTrace();
