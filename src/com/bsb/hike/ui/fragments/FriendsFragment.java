@@ -161,7 +161,7 @@ public class FriendsFragment extends ListFragment implements Listener, OnItemLon
         ArrayList<ContactInfo> contactInfos = new ArrayList<>(1);
 
 
-        if(((PeopleActivity)getActivity()).showFilteredContacts)
+        if(getActivity() instanceof PeopleActivity && ((PeopleActivity)getActivity()).showFilteredContacts)
         {
             contactInfos.add(contactInfo);
             ConvertToJsonArrayTask task = new ConvertToJsonArrayTask(this,contactInfos);

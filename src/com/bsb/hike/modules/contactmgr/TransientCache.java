@@ -952,7 +952,7 @@ public class TransientCache extends ContactsCache
     public List<ContactInfo> getContactListFromDb(List<String> msisdnList)
     {
         List<ContactInfo> contactInfoList;
-        String msisdnString = listToString(msisdnList,",");
+        String msisdnString = Utils.listToString(msisdnList,",");
 
         contactInfoList = hDb.getContactInfoListFromPhoneNoOrMsisdn(msisdnString);
 
@@ -969,25 +969,6 @@ public class TransientCache extends ContactsCache
         return contactInfoList;
     }
 
-
-    public static String listToString(List<String> list, String strInterVal) {
-        if (list == null) {
-            return null;
-        }
-        StringBuilder result = new StringBuilder();
-        boolean flag = false;
-        for (String str : list) {
-            if (flag) {
-                result.append(strInterVal);
-            }
-            if (null == str) {
-                str = "";
-            }
-            result.append(str);
-            flag = true;
-        }
-        return result.toString();
-    }
 
 	/**
 	 * clears the transient memory

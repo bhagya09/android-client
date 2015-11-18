@@ -1436,18 +1436,15 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 
 					setInviteButton(contactInfo, inviteBtn, inviteIcon);
 
-//					if (!showFilteredContacts)
-//					{
-						LayoutParams layoutParams = (LayoutParams) infoContainer.getLayoutParams();
-						if (inviteIcon.getVisibility() == View.VISIBLE)
-						{
-							layoutParams.addRule(RelativeLayout.LEFT_OF, inviteIcon.getId());
-						}
-						else
-						{
-							layoutParams.addRule(RelativeLayout.LEFT_OF, inviteBtn.getId());
-						}
-//					}
+                    LayoutParams layoutParams = (LayoutParams) infoContainer.getLayoutParams();
+                    if (inviteIcon.getVisibility() == View.VISIBLE)
+                    {
+                        layoutParams.addRule(RelativeLayout.LEFT_OF, inviteIcon.getId());
+                    }
+                    else
+                    {
+                        layoutParams.addRule(RelativeLayout.LEFT_OF, inviteBtn.getId());
+                    }
 				}
 			}
 			break;
