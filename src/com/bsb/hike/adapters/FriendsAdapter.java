@@ -291,7 +291,7 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
         msisdnList = showFilteredContacts ? (msisdnList) : "";
 
         fetchFriendsTask = new FetchFriendsTask(this, context, friendsList, hikeContactsList, smsContactsList, recentContactsList, recentlyJoinedHikeContactsList,friendsStealthList, hikeStealthContactsList,
-                smsStealthContactsList, recentStealthContactsList, filteredFriendsList, filteredHikeContactsList, filteredSmsContactsList,suggestedContactsList,filteredSuggestedContactsList, false, false, false, false, false,false,false,showFilteredContacts,msisdnList);
+                smsStealthContactsList, recentStealthContactsList, filteredFriendsList, filteredHikeContactsList, filteredSmsContactsList,suggestedContactsList,filteredSuggestedContactsList, false, true, false, false, false,false,true,showFilteredContacts,msisdnList);
         Utils.executeAsyncTask(fetchFriendsTask);
 	}
 
@@ -1472,7 +1472,7 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
                     break;
 
                 case CONTACT_FILTERED_NUM:
-                    headerName.setCompoundDrawablesWithIntrinsicBounds(context.getResources().getDrawable(R.drawable.ic_section_header_sms_contact), null, null, null);
+                    headerName.setCompoundDrawablesWithIntrinsicBounds(context.getResources().getDrawable(R.drawable.ic_section_header_people_on_hike), null, null, null);
                     break;
 				}
 
