@@ -71,7 +71,7 @@ public class HikeConstants
 
 	public static final String MESSAGE_ID = "i";
 
-	public static final String EVENT_ID = "i";
+	public static final String EVENT_ID = "ei";
 
 	public static final String METADATA = "md";
 
@@ -2654,6 +2654,8 @@ public class HikeConstants
 		public static final String MESSAGE_EVENT = "me";
 		
 		public static final String OFFLINE = "offline";
+
+		public static final String GENERAL_EVENT_DR = "dr";
 	}
 
 	
@@ -3529,5 +3531,7 @@ public class HikeConstants
 	public static final int GPS_SWITCH_OFF = 1198;
 
 	public static final String SHOW_GPS_DIALOG = "gps_dialog_show";
+
+	public static final float ONE_PERCENT_PROGRESS = 0.01f;
 
 }
