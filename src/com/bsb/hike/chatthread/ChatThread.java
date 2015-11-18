@@ -803,8 +803,11 @@ import android.widget.Toast;
 		{
 			if (state == KeyboardFtue.LANGUAGE_SELECTION_COMPLETE)
 			{
-				mCustomKeyboard.showCustomKeyboard(mComposeView,false);
-				mCustomKeyboard.showCustomKeyboard(mComposeView, true);
+				if (KptKeyboardManager.getInstance(activity).getInstalledLanguagesList().size() > 1)
+				{
+					mCustomKeyboard.showCustomKeyboard(mComposeView, false);
+					mCustomKeyboard.showCustomKeyboard(mComposeView, true);
+				}
 			}
 		}
 
