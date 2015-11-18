@@ -117,7 +117,7 @@
                 android:layout_marginLeft="16dp"
                 android:layout_marginTop="4dp"
                 android:text="@string/sms_head"
-                android:textColor="@color/standard_light_grey"
+                android:textColor="@color/timestampcolor"
                 android:textSize="13sp"
                 android:visibility="gone" />
 
