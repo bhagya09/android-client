@@ -6,9 +6,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.lang.ref.WeakReference;
 import java.net.URLEncoder;
-import java.util.HashMap;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -40,7 +38,6 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
-import com.bsb.hike.bots.PlatformMicroAppServerLogsListener;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
@@ -98,8 +95,6 @@ public abstract class JavascriptBridge
 	public static final int PICK_CONTACT_AND_SEND_REQUEST = 2;
 	
 	protected static final int CLOSE_WEB_VIEW = 3;
-
-	public static HashMap<String, Long> platformRequests= new HashMap<String, Long>();
 	
 	public JavascriptBridge(Activity activity, CustomWebView mWebView)
 	{
@@ -874,7 +869,7 @@ public abstract class JavascriptBridge
 			JSONObject jsonObject = new JSONObject(data);
 			String url = jsonObject.optString(HikePlatformConstants.URL);
 			String params = jsonObject.optString(HikePlatformConstants.PARAMS);
-			RequestToken token = HttpRequests.microAppPostRequest(url, new JSONObject(params), new PlatformMicroAppRequestListener(functionId,new JSONObject(params)));
+			RequestToken token = HttpRequests.microAppPostRequest(url, new JSONObject(params), new PlatformMicroAppRequestListener(functionId));
 			if (!token.isRequestRunning())
 			{
 				token.execute();
@@ -902,7 +897,7 @@ public abstract class JavascriptBridge
 	@JavascriptInterface
 	public void doGetRequest(final String functionId, String url)
 	{
-		RequestToken token = HttpRequests.microAppGetRequest(url, new PlatformMicroAppRequestListener(functionId,null));
+		RequestToken token = HttpRequests.microAppGetRequest(url, new PlatformMicroAppRequestListener(functionId));
 		if (!token.isRequestRunning())
 		{
 			token.execute();
@@ -998,33 +993,7 @@ public abstract class JavascriptBridge
 	private class PlatformMicroAppRequestListener implements IRequestListener
 	{
 		String functionId;
-		String appName;
-		JSONArray appNameJson;
 
-		PlatformMicroAppRequestListener(String functionId,JSONObject params)
-		{
-			this.functionId = functionId;
-			if(params!=null)
-			{
-				try
-				{
-					appNameJson = params.getJSONArray(HikePlatformConstants.APP_NAME);
-					for(int i=0;i<appNameJson.length();i++)
-					{
-						appName = appNameJson.getString(i);
-						if (!TextUtils.isEmpty(appName))
-						{
-							platformRequests.put(appName, System.currentTimeMillis());
-						}
-					}
-				} catch (JSONException e)
-				{
-					e.printStackTrace();
-				}
-			}
-
-
-		}
 		PlatformMicroAppRequestListener(String functionId)
 		{
 			this.functionId = functionId;
@@ -1061,28 +1030,6 @@ public abstract class JavascriptBridge
 		public void onRequestSuccess(Response result)
 		{
 			Logger.d("JavascriptBridge", "microapp request success with code " + result.getStatusCode());
-			if(!TextUtils.isEmpty(appName))
-			{
-
-				for(int i=0;i<appNameJson.length();i++)
-				{
-					try
-					{
-						appName = appNameJson.getString(i);
-					} catch (JSONException e)
-					{
-						e.printStackTrace();
-					}
-
-					Logger.d("pushkar", "appname" + appName);
-					String url = "http://mapps.platform.hike.in/mapps/stats/dump/http_round/gauge?value=" + (System.currentTimeMillis() - platformRequests.get(appName));
-					RequestToken token = HttpRequests.microAppGetRequest(url, new PlatformMicroAppServerLogsListener());
-					if (!token.isRequestRunning())
-					{
-						token.execute();
-					}
-				}
-			}
 			JSONObject success = new JSONObject();
 			try
 			{
