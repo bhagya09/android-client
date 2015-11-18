@@ -5360,10 +5360,14 @@ import com.bsb.hike.voip.VoIPConstants;
 	protected void onConfigurationChanged(Configuration newConfig)
 	{
 		Logger.d(TAG, "newConfig : " + newConfig.toString());
-		
-		if (mShareablePopupLayout != null && mShareablePopupLayout.isShowing())
+
+		/* AND-3521: calling onConfigurationChange when mShareablePopupLayout is not null,
+		   so that bottomNavBar(width/height) can be updated according to orientation */
+		if (mShareablePopupLayout != null )
 		{
-			mShareablePopupLayout.dismiss();
+			if(mShareablePopupLayout.isShowing()) {
+				mShareablePopupLayout.dismiss();
+			}
 			mShareablePopupLayout.onConfigurationChanged();
 		}
 		
