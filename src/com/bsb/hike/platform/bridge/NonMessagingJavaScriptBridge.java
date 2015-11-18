@@ -1272,7 +1272,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	}
 	
 	/**
-	 * Platform Version 8
+	 * Platform Version 9
 	 * This function is made for a bot to know whether its directory exists.
 	 * @param id: the id of the function that native will call to call the js .
 	 */
@@ -1287,7 +1287,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 			callbackToJS(id, "false");
 	}
 	/**
-	 * Platform Version 8
+	 * Platform Version 9
 	 * This function is made for a special bot to know whether a microapp exists.
 	 * @param id: the id of the function that native will call to call the js .
 	 * @param mapp: the name of the mapp.
@@ -1307,7 +1307,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	}
 
 	/**
-	 * Platform Version 8
+	 * Platform Version 9
 	 * This function is made for the special Shared bot that has the information about some other bots as well, and acts as a channel for them.
 	 * Call this method to cancel the request that the Bot has initiated to do some http /https call.
 	 * @param functionId : the id of the function that native will call to call the js .
@@ -1333,7 +1333,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 		}
 	}
 	/**
-	 * Platform Version 8
+	 * Platform Version 9
 	 * Call this method to remove resume for an app
 	 */
 	@JavascriptInterface
@@ -1349,7 +1349,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	}
 
 	/**
-	 * Platform Version 8
+	 * Platform Version 9
 	 * Call this method to delete a bot and remove its files
 	 * Can only be called by special bots
 	 * @param msisdn
@@ -1376,7 +1376,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 		BotUtils.deleteBot(msisdn);
 	}
 	/**
-	 * Platform Version 8
+	 * Platform Version 9
 	 * Call this method to know if download request is currently running
 	 * Can only be called by special bots
 	 * @param url
@@ -1403,7 +1403,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	}
 
 	/**
-	 * Platform Version 8
+	 * Platform Version 9
 	 * Call this method to open the gallery view to select a file.
 	 * @param id
 	 * @param displayCameraItem : Whether or not to display the camera item in the gallery view.
