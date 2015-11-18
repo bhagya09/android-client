@@ -3190,7 +3190,7 @@ public class Utils
 				object.put(HikeConstants.DATA, data);
 				
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.IS_HIKE_APP_FOREGROUNDED, true);
-				Logger.d("UpdateTipPersistentNotif", "Hike has come to foreground. Calling cancel persistent notif");
+				Logger.d(HikeConstants.UPDATE_TIP_AND_PERS_NOTIF_LOG, "Hike has come to foreground. Calling cancel persistent notif");
 				HikeNotification.getInstance().cancelPersistNotif();
 				HikeMessengerApp.getPubSub().publish(HikePubSub.APP_FOREGROUNDED, null);
 				if (toLog)
@@ -3208,7 +3208,7 @@ public class Utils
 					JSONObject sessionDataObject = HAManager.getInstance().recordAndReturnSessionEnd();
 					sendSessionMQTTPacket(context, HikeConstants.BACKGROUND, sessionDataObject);
 					HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.IS_HIKE_APP_FOREGROUNDED, false);
-					Logger.d("UpdateTipPersistentNotif", "Hike has moved to background. Calling show persistent notif");
+					Logger.d(HikeConstants.UPDATE_TIP_AND_PERS_NOTIF_LOG, "Hike has moved to background. Calling show persistent notif");
 					HikeNotification.getInstance().checkAndShowUpdateNotif();
 				}
 			}

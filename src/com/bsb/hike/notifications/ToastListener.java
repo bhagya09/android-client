@@ -53,6 +53,7 @@ import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
 import com.bsb.hike.timeline.view.TimelineActivity;
 import com.bsb.hike.ui.HomeActivity;
 import com.bsb.hike.ui.PeopleActivity;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.StealthModeManager;
@@ -315,14 +316,15 @@ public class ToastListener implements Listener
 		}
 		else if(HikePubSub.SHOW_PERSISTENT_NOTIF.equals(type))
 		{
-			Logger.d("UpdateTipPersistentNotif", "Creating persistent notification!");
+			Logger.d(HikeConstants.UPDATE_TIP_AND_PERS_NOTIF_LOG, "Creating persistent notification!");
+			HikeSharedPreferenceUtil settingPref = HikeSharedPreferenceUtil.getInstance();
 			toaster.notifyPersistentUpdate(
-					context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).getString(HikeConstants.UPDATE_TITLE, context.getResources().getString(R.string.pers_notif_title)),
-					context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).getString(HikeConstants.Extras.UPDATE_MESSAGE, context.getResources().getString(R.string.pers_notif_message)),
-					context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).getString(HikeConstants.UPDATE_ACTION, context.getResources().getString(R.string.pers_notif_action)),
-					context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).getString(HikeConstants.UPDATE_LATER, context.getResources().getString(R.string.pers_notif_later)),
-					Uri.parse(context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).getString(HikeConstants.Extras.URL, "market://details?id=" + context.getPackageName())),
-					context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).getLong(HikeConstants.UPDATE_ALARM, HikeConstants.PERS_NOTIF_ALARM_DEFAULT));
+					settingPref.getData(HikeConstants.UPDATE_TITLE, context.getResources().getString(R.string.pers_notif_title)),
+					settingPref.getData(HikeConstants.Extras.UPDATE_MESSAGE, context.getResources().getString(R.string.pers_notif_message)),
+					settingPref.getData(HikeConstants.UPDATE_ACTION, context.getResources().getString(R.string.tip_and_notif_update_text)),
+					settingPref.getData(HikeConstants.UPDATE_LATER, context.getResources().getString(R.string.tip_and_notif_later_text)),
+					Uri.parse(settingPref.getData(HikeConstants.Extras.URL, "market://details?id=" + context.getPackageName())),
+					settingPref.getData(HikeConstants.UPDATE_ALARM, HikeConstants.PERS_NOTIF_ALARM_DEFAULT));
 		}
 		else if(HikePubSub.FLUSH_PERSISTENT_NOTIF.equals(type))
 		{

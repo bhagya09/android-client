@@ -1884,7 +1884,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 		else if(shouldShowUpdateTip())
 		{
 			tipType = whichUpdateTip();
-			Logger.d("UpdateTipPersistentNotif", "Preparing to show tip:"+tipType);
+			Logger.d(HikeConstants.UPDATE_TIP_AND_PERS_NOTIF_LOG, "Preparing to show tip:"+tipType);
 		}
 
 		// to prevent more than one tip to display at a time , it can happen at time of onnewintent
@@ -3652,16 +3652,16 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 			HikeSharedPreferenceUtil.getInstance().removeData(HikeMessengerApp.SHOW_STEALTH_UNREAD_TIP);
 			break;
 		case ConversationTip.UPDATE_NORMAL_TIP:
-			Logger.d("UpdateTipPersistentNotif", "Removing normal update tip");
+			Logger.d(HikeConstants.UPDATE_TIP_AND_PERS_NOTIF_LOG, "Removing normal update tip");
 			HAManager.getInstance().updateTipAnalyticsUIEvent(AnalyticsConstants.UPDATE_TIP_DISMISSED);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOW_NORMAL_UPDATE_TIP, false);
 			break;
 		case ConversationTip.UPDATE_CRITICAL_TIP:
-			Logger.d("UpdateTipPersistentNotif", "Removing critical update tip");
+			Logger.d(HikeConstants.UPDATE_TIP_AND_PERS_NOTIF_LOG, "Removing critical update tip");
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOW_CRITICAL_UPDATE_TIP, false);
 			break;
 		case ConversationTip.INVITE_TIP:
-			Logger.d("UpdateTipPersistentNotif", "Removing invite tip");
+			Logger.d(HikeConstants.UPDATE_TIP_AND_PERS_NOTIF_LOG, "Removing invite tip");
 			HAManager.getInstance().updateTipAnalyticsUIEvent(AnalyticsConstants.INVITE_TIP_DISMISSED);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOW_INVITE_TIP, false);
 			break;
@@ -3792,7 +3792,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 				break;
 			case ConversationTip.UPDATE_CRITICAL_TIP:
 			case ConversationTip.UPDATE_NORMAL_TIP:
-				Logger.d("UpdateTipPersistentNotif", "Processing update tip click.");
+				Logger.d(HikeConstants.UPDATE_TIP_AND_PERS_NOTIF_LOG, "Processing update tip click.");
 				HAManager.getInstance().updateTipAnalyticsUIEvent(AnalyticsConstants.UPDATE_TIP_CLICKED);
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOW_NORMAL_UPDATE_TIP, false);
 				Uri url = Uri.parse(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.Extras.URL, "market://details?id=com.bsb.hike"));
@@ -3801,7 +3801,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 				startActivityForResult(openUrl, ConversationTip.REQUEST_CODE_URL_OPEN);
 				break;
 			case ConversationTip.INVITE_TIP:
-				Logger.d("UpdateTipPersistentNotif", "Processing invite tip click.");
+				Logger.d(HikeConstants.UPDATE_TIP_AND_PERS_NOTIF_LOG, "Processing invite tip click.");
 				HAManager.getInstance().updateTipAnalyticsUIEvent(AnalyticsConstants.INVITE_TIP_CLICKED);
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOW_INVITE_TIP, false);
 				Intent sendInvite = new Intent(getContext(), HikeListActivity.class);
@@ -3820,12 +3820,12 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 	{
 		if(requestCode == ConversationTip.REQUEST_CODE_SEND_INVITE)
 		{
-			Logger.d("UpdateTipPersistentNotif", "Returned after invite tip click.");
+			Logger.d(HikeConstants.UPDATE_TIP_AND_PERS_NOTIF_LOG, "Returned after invite tip click.");
 			removeTipIfExists(ConversationTip.INVITE_TIP);
 		}
 		else if(requestCode == ConversationTip.REQUEST_CODE_URL_OPEN)
 		{
-			Logger.d("UpdateTipPersistentNotif", "Returned after update tip click.");
+			Logger.d(HikeConstants.UPDATE_TIP_AND_PERS_NOTIF_LOG, "Returned after update tip click.");
 			removeTipIfExists(ConversationTip.UPDATE_NORMAL_TIP);
 		}
 		super.onActivityResult(requestCode, resultCode, data);
