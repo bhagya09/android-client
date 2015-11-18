@@ -15,19 +15,23 @@ public abstract class HikeBadgeCountKeeper implements Listener
 	public String[] mlistener;
 
 	private int count = 0;
+	
+	protected int defaultCount;
 
 	protected Context mContext;
 
 	/**
 	 * Listeners are added for listening to events 
-	 * count is also fetched from shared Preference and updated for the initialization
+	 * count is also fetched from shared Preference and updated for the initialization and on 
+	 * initialization we check if the sharedPreference exists which is a valid case in case of a upgrade 
+	 * otherwise we set the default Count which is kept by the keepers
 	 */
 	public HikeBadgeCountKeeper()
 	{
 		mContext = HikeMessengerApp.getInstance().getApplicationContext();
 		init();
+		setCount(HikeSharedPreferenceUtil.getInstance().getData(getSharedPreferenceTag(), defaultCount));
 		addListener();
-		count = HikeSharedPreferenceUtil.getInstance().getData(getSharedPreferenceTag(), 0);
 	}
 
 	protected abstract void init();

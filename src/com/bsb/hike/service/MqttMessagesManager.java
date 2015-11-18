@@ -1916,9 +1916,11 @@ public class MqttMessagesManager
 			{
 				JSONArray mArray = PlatformUtils.readFileList(PlatformContentConstants.PLATFORM_CONTENT_DIR, false);
 				String sentData = PlatformUtils.trimFilePath(mArray).toString();
+				long contentFolderLength = Utils.folderSize(new File(PlatformContentConstants.PLATFORM_CONTENT_DIR));
 				JSONObject json = new JSONObject();
 				json.putOpt(AnalyticsConstants.EVENT_KEY,AnalyticsConstants.NOTIFY_MICRO_APP_STATUS);
 				json.putOpt(AnalyticsConstants.MICRO_APP_INFO, sentData);
+				json.putOpt(AnalyticsConstants.FILE_SIZE, contentFolderLength);
 				HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.MICRO_APP_INFO, json);
 			}
 				
@@ -3515,7 +3517,7 @@ public class MqttMessagesManager
 						
 						if (Utils.isConversationMuted(destination))
 						{
-							rearrangeChat(destination, rearrangeChat, updateUnreadCount);
+							Utils.rearrangeChat(destination, rearrangeChat, updateUnreadCount);
 						}
 						
 						else if (!Utils.isConversationMuted(destination) && data.optBoolean(HikeConstants.PUSH, true))
@@ -3564,41 +3566,13 @@ public class MqttMessagesManager
 		}
 	}
 
-	/**
-	 * Utility method to rearrange chat and update the unread counter if needed
-	 * 
-	 * @param destination
-	 *            : Msisdn
-	 * @param rearrangeChat
-	 *            : Whether to shift the chat up or not
-	 * @param updateUnreadCount
-	 *            : Whether to update the unread counter or not
-	 */
-	private void rearrangeChat(String destination, boolean rearrangeChat, boolean updateUnreadCount)
-	{
-		if (updateUnreadCount)
-		{
-			convDb.incrementUnreadCounter(destination);
-			int unreadCount = convDb.getConvUnreadCount(destination);
-			Message ms = Message.obtain();
-			ms.arg1 = unreadCount;
-			ms.obj = destination;
-			HikeMessengerApp.getPubSub().publish(HikePubSub.CONV_UNREAD_COUNT_MODIFIED, ms);
-		}
-
-		if (rearrangeChat)
-		{
-			Pair<String, Long> pair = new Pair<String, Long>(destination, System.currentTimeMillis() / 1000);
-			HikeMessengerApp.getPubSub().publish(HikePubSub.CONVERSATION_TS_UPDATED, pair);
-		}
-	}
 
 	private void generateNotification(String body, String destination, boolean silent, boolean rearrangeChat, boolean updateUnreadCount)
 	{
 
 		HikeNotification.getInstance().notifyStringMessage(destination, body, silent, NotificationType.OTHER);
 		
-		rearrangeChat(destination, rearrangeChat, updateUnreadCount);
+		Utils.rearrangeChat(destination, rearrangeChat, updateUnreadCount);
 	}
 
 	private void blockedMessageAnalytics(String type)
