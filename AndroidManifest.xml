@@ -3,9 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bsb.hike"
     android:installLocation="auto"
-    android:versionCode="1493"
-    android:versionName="4.0.8.81.23.2.badgecounterfeature" >
-
+    android:versionCode="1504"
+    android:versionName="4.0.8.81.23.7.hike_platform_internal" >
     <uses-sdk
         android:minSdkVersion="14"
         android:targetSdkVersion="17"/>
@@ -484,6 +483,20 @@
             android:excludeFromRecents="true"
             android:theme="@style/TranslucentBlack" >
         </activity>
+         <!-- CocosGaming Activity -->
+        <activity
+            android:name="com.bsb.hike.platform.CocosGamingActivity"
+            android:process="org.cocos2dx.gameprocess"
+            android:configChanges="orientation"
+            android:launchMode="singleTop"
+            android:exported="true" >
+        </activity>
+        <service android:name="com.bsb.hike.platform.CocosProcessIntentService"
+            android:process="org.cocos2dx.gameprocess"
+            />
+        <service android:name="com.bsb.hike.platform.HikeProcessIntentService"
+            android:process="com.bsb.hike"
+            />
 
         <service android:name=".chatHead.ChatHeadService" 
             android:label="HikeStickeyService"/>

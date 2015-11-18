@@ -1,14 +1,6 @@
 package com.bsb.hike.chatthread;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.json.JSONArray;
 
@@ -31,35 +23,16 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v7.app.ActionBar;
-import android.text.Editable;
-import android.text.Html;
-import android.text.Spannable;
-import android.text.SpannableString;
-import android.text.TextUtils;
+import android.text.*;
 import android.text.style.ForegroundColorSpan;
 import android.util.Pair;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.MotionEvent;
-import android.view.View;
-import android.view.ViewStub;
+import android.view.*;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
 import android.view.animation.AnimationUtils;
-import android.widget.CheckBox;
-import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.TextView;
-import android.widget.Toast;
+import android.widget.*;
 
-import com.bsb.hike.HikeConstants;
-import com.bsb.hike.HikeMessengerApp;
-import com.bsb.hike.HikePubSub;
-import com.bsb.hike.MqttConstants;
-import com.bsb.hike.R;
+import com.bsb.hike.*;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.AnalyticsConstants.MessageType;
 import com.bsb.hike.analytics.HAManager;
@@ -70,42 +43,26 @@ import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.media.OverFlowMenuItem;
-import com.bsb.hike.models.ContactInfo;
+import com.bsb.hike.models.*;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
-import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
 import com.bsb.hike.models.ConvMessage.State;
-import com.bsb.hike.models.HikeFile;
-import com.bsb.hike.models.MovingList;
-import com.bsb.hike.models.Sticker;
-import com.bsb.hike.models.TypingNotification;
 import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.models.Conversation.OneToOneConversation;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.lastseenmgr.FetchLastSeenTask;
 import com.bsb.hike.notifications.HikeNotification;
-import com.bsb.hike.offline.OfflineAnalytics;
-import com.bsb.hike.offline.OfflineConstants;
+import com.bsb.hike.offline.*;
 import com.bsb.hike.offline.OfflineConstants.DisconnectFragmentType;
 import com.bsb.hike.offline.OfflineConstants.ERRORCODE;
 import com.bsb.hike.offline.OfflineConstants.OFFLINE_STATE;
-import com.bsb.hike.offline.OfflineController;
-import com.bsb.hike.offline.OfflineParameters;
-import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.ui.fragments.OfflineAnimationFragment;
 import com.bsb.hike.ui.fragments.OfflineDisconnectFragment;
 import com.bsb.hike.ui.fragments.OfflineDisconnectFragment.OfflineConnectionRequestListener;
-import com.bsb.hike.utils.ChatTheme;
-import com.bsb.hike.utils.HikeSharedPreferenceUtil;
-import com.bsb.hike.utils.IntentFactory;
-import com.bsb.hike.utils.LastSeenScheduler;
+import com.bsb.hike.utils.*;
 import com.bsb.hike.utils.LastSeenScheduler.LastSeenFetchedCallback;
-import com.bsb.hike.utils.Logger;
-import com.bsb.hike.utils.SoundUtils;
-import com.bsb.hike.utils.StickerManager;
-import com.bsb.hike.utils.Utils;
 import com.bsb.hike.voip.VoIPUtils;
 import com.google.gson.Gson;
 
@@ -508,7 +465,7 @@ import com.google.gson.Gson;
 				/**
 				 * Creating a new conv message to be appended at the 0th position.
 				 */
-				cm = new ConvMessage(0, 0l, 0l);
+				cm = new ConvMessage(0, 0l, 0l, -1);
 				cm.setBlockAddHeader(true);
 				messages.add(0, cm);
 				Logger.d(TAG, "Adding unknownContact Header to the chatThread");
@@ -3509,6 +3466,14 @@ import com.google.gson.Gson;
 		{
 			hikeToOfflineTipView.setVisibility(View.GONE);
 			hikeToOfflineTipView = null;
+			
+			/**
+			 * Removing any previously scheduled tips
+			 */
+			if (uiHandler.hasMessages(SCHEDULE_H20_TIP))
+			{
+				uiHandler.removeMessages(SCHEDULE_H20_TIP);
+			}
 		}
 		
 		super.onPreNewIntent();
