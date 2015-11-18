@@ -120,8 +120,6 @@ public class HikeNotification
 	private final NotificationManager notificationManager;
 
 	private final SharedPreferences sharedPreferences;
-	
-	private SharedPreferences settingPref;
 
 	private HikeNotificationMsgStack hikeNotifMsgStack;
 	
@@ -146,7 +144,6 @@ public class HikeNotification
 		this.notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 		this.sharedPreferences = context.getSharedPreferences(HikeMessengerApp.STATUS_NOTIFICATION_SETTING, 0);
 		this.hikeNotifMsgStack = HikeNotificationMsgStack.getInstance();
-		this.settingPref = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0); 
 		this.mBadgeCountManager=new HikeBadgeCountManager();
 
 		if (VIB_DEF == null)
@@ -347,21 +344,20 @@ public class HikeNotification
 	{
 		message = (TextUtils.isEmpty(message)) ? context.getString(R.string.pers_notif_message) : message;
 		notifTitle = !TextUtils.isEmpty(notifTitle) ? notifTitle : context.getString(R.string.pers_notif_title);
-		actionText = (TextUtils.isEmpty(actionText)) ? context.getString(R.string.pers_notif_action) : actionText;
-		laterText = (TextUtils.isEmpty(laterText)) ? context.getString(R.string.pers_notif_later) : laterText;
+		actionText = (TextUtils.isEmpty(actionText)) ? context.getString(R.string.tip_and_notif_update_text) : actionText;
+		laterText = (TextUtils.isEmpty(laterText)) ? context.getString(R.string.tip_and_notif_later_text) : laterText;
 		final int smallIconId = returnSmallIcon();	
 		NotificationCompat.Builder mBuilder = getNotificationBuilder(notifTitle, message, message, null, smallIconId, true, true, false);
 		mBuilder.setAutoCancel(false);
 		mBuilder.setOngoing(true);
 		mBuilder.setStyle(new NotificationCompat.BigTextStyle().bigText(message));
-		Editor editor = settingPref.edit();
-		editor.putString(HikeConstants.PERSISTENT_NOTIF_MESSAGE, message);
-		editor.putString(HikeConstants.PERSISTENT_NOTIF_TITLE, notifTitle);
-		editor.putString(HikeConstants.PERSISTENT_NOTIF_ACTION, actionText);
-		editor.putString(HikeConstants.PERSISTENT_NOTIF_LATER, laterText);
-		editor.putString(HikeConstants.PERSISTENT_NOTIF_URL, url.toString());
-		editor.putLong(HikeConstants.PERSISTENT_NOTIF_ALARM, alarmInterval);
-		editor.commit();
+		HikeSharedPreferenceUtil settingPref = HikeSharedPreferenceUtil.getInstance();
+		settingPref.saveData(HikeConstants.PERSISTENT_NOTIF_MESSAGE, message);
+		settingPref.saveData(HikeConstants.PERSISTENT_NOTIF_TITLE, notifTitle);
+		settingPref.saveData(HikeConstants.PERSISTENT_NOTIF_ACTION, actionText);
+		settingPref.saveData(HikeConstants.PERSISTENT_NOTIF_LATER, laterText);
+		settingPref.saveData(HikeConstants.PERSISTENT_NOTIF_URL, url.toString());
+		settingPref.saveData(HikeConstants.PERSISTENT_NOTIF_ALARM, alarmInterval);
 
 		Intent intent = new Intent(Intent.ACTION_VIEW, url);
 		mBuilder.setContentIntent(PendingIntent.getActivity(context, 0, intent, 0));
@@ -371,7 +367,7 @@ public class HikeNotification
 		mBuilder.addAction(R.drawable.ic_clock_later, laterText, PendingIntent.getBroadcast(context, 0, laterIntent, 0))
 				.addAction(R.drawable.ic_downloaded_tick, actionText, PendingIntent.getActivity(context, 0, intent, 0));
 		
-		if (!sharedPreferences.getBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false) && !settingPref.getBoolean(HikeConstants.IS_HIKE_APP_FOREGROUNDED, false))
+		if (!sharedPreferences.getBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false) && !settingPref.getData(HikeConstants.IS_HIKE_APP_FOREGROUNDED, false))
 		{
 			int notificationId = PERSISTENT_NOTIF_ID;
 			notifyNotification(notificationId, mBuilder);
@@ -1115,17 +1111,18 @@ public class HikeNotification
 	
 	public void checkAndShowUpdateNotif()
 	{
-		if(settingPref.getBoolean(HikeConstants.SHOULD_SHOW_PERSISTENT_NOTIF, false) && !settingPref.getBoolean(HikeConstants.IS_PERS_NOTIF_ALARM_SET, false))
+		HikeSharedPreferenceUtil settingPref = HikeSharedPreferenceUtil.getInstance();
+		if(settingPref.getData(HikeConstants.SHOULD_SHOW_PERSISTENT_NOTIF, false) && !settingPref.getData(HikeConstants.IS_PERS_NOTIF_ALARM_SET, false))
 		{
-			if(Utils.isUpdateRequired(settingPref.getString(HikeConstants.Extras.LATEST_VERSION, ""), context))
+			if(Utils.isUpdateRequired(settingPref.getData(HikeConstants.Extras.LATEST_VERSION, ""), context))
 			{
-				Logger.d("UpdateTipPersistentNotif", "Recreating persistent notif for target version:"+settingPref.getString(HikeConstants.Extras.LATEST_VERSION, ""));
-				String message = settingPref.getString(HikeConstants.PERSISTENT_NOTIF_MESSAGE, context.getResources().getString(R.string.pers_notif_message));
-				String title = settingPref.getString(HikeConstants.PERSISTENT_NOTIF_TITLE, context.getResources().getString(R.string.pers_notif_title));
-				String action = settingPref.getString(HikeConstants.PERSISTENT_NOTIF_ACTION, context.getResources().getString(R.string.pers_notif_action));
-				String later = settingPref.getString(HikeConstants.PERSISTENT_NOTIF_LATER, context.getResources().getString(R.string.pers_notif_later));
-				Uri url = Uri.parse(settingPref.getString(HikeConstants.PERSISTENT_NOTIF_URL, "market://details?id=" + context.getPackageName()));
-				Long interval = settingPref.getLong(HikeConstants.PERSISTENT_NOTIF_ALARM, HikeConstants.PERS_NOTIF_ALARM_DEFAULT);
+				Logger.d(HikeConstants.UPDATE_TIP_AND_PERS_NOTIF_LOG, "Recreating persistent notif for target version:"+settingPref.getData(HikeConstants.Extras.LATEST_VERSION, ""));
+				String message = settingPref.getData(HikeConstants.PERSISTENT_NOTIF_MESSAGE, context.getResources().getString(R.string.pers_notif_message));
+				String title = settingPref.getData(HikeConstants.PERSISTENT_NOTIF_TITLE, context.getResources().getString(R.string.pers_notif_title));
+				String action = settingPref.getData(HikeConstants.PERSISTENT_NOTIF_ACTION, context.getResources().getString(R.string.tip_and_notif_update_text));
+				String later = settingPref.getData(HikeConstants.PERSISTENT_NOTIF_LATER, context.getResources().getString(R.string.tip_and_notif_later_text));
+				Uri url = Uri.parse(settingPref.getData(HikeConstants.PERSISTENT_NOTIF_URL, "market://details?id=" + context.getPackageName()));
+				Long interval = settingPref.getData(HikeConstants.PERSISTENT_NOTIF_ALARM, HikeConstants.PERS_NOTIF_ALARM_DEFAULT);
 				notifyPersistentUpdate(title, message,action, later, url, interval);
 			}
 		}
@@ -1134,8 +1131,8 @@ public class HikeNotification
 	
 	public void cancelPersistNotif()
 	{
-		Logger.d("UpdateTipPersistentNotif", "Removing Persistent Notif.");
-		notificationManager.cancel(PERSISTENT_NOTIF_ID);
+		Logger.d(HikeConstants.UPDATE_TIP_AND_PERS_NOTIF_LOG, "Removing Persistent Notif.");
+		cancelNotification(PERSISTENT_NOTIF_ID);
 	}
 
 	private void showInboxStyleNotification(final Intent notificationIntent, final int icon, final long timestamp, final int notificationId, final CharSequence text,

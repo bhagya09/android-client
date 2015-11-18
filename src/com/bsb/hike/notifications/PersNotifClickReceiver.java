@@ -16,7 +16,7 @@ public class PersNotifClickReceiver extends BroadcastReceiver {
 	@Override
 	public void onReceive(Context context, Intent intent) {
 		Long interval = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.PERSISTENT_NOTIF_ALARM, HikeConstants.PERS_NOTIF_ALARM_DEFAULT);
-		Logger.d("UpdateTipPersistentNotif", "setting alarm for persistent notif for interval:"+interval);
+		Logger.d(HikeConstants.UPDATE_TIP_AND_PERS_NOTIF_LOG, "setting alarm for persistent notif for interval:"+interval);
 		HikeNotification.getInstance().cancelPersistNotif();
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.IS_PERS_NOTIF_ALARM_SET, true);
 		HikeAlarmManager.setAlarmPersistance(context, Calendar.getInstance().getTimeInMillis() + interval*1000, HikeAlarmManager.REQUESTCODE_UPDATE_PERSISTENT_NOTIF, false, true);

@@ -56,7 +56,7 @@ public class AppUpdatedReceiver extends BroadcastReceiver
 				editor.commit();
 				
 				//Removing Upgrade tips, persistent notifications
-				Logger.d("UpdateTipPersistentNotif", "Flushing update tips and persistent notifs.");
+				Logger.d(HikeConstants.UPDATE_TIP_AND_PERS_NOTIF_LOG, "Flushing update tips and persistent notifs.");
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOULD_SHOW_PERSISTENT_NOTIF, false);
 				HikeNotification.getInstance().cancelPersistNotif();
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOW_NORMAL_UPDATE_TIP, false);

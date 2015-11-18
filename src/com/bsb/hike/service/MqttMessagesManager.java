@@ -3393,7 +3393,7 @@ public class MqttMessagesManager
 						Editor editor = settings.edit();
 						editor.putBoolean(HikeConstants.SHOW_CRITICAL_UPDATE_TIP, isCritical);
 						editor.putBoolean(HikeConstants.SHOW_NORMAL_UPDATE_TIP, !isCritical);
-						Logger.d("UpdateTipPersistentNotif", "Target version for update tip:"+version);
+						Logger.d(HikeConstants.UPDATE_TIP_AND_PERS_NOTIF_LOG, "Target version for update tip:"+version);
 						editor.putString(HikeConstants.Extras.LATEST_VERSION, version);
 						editor.putString(HikeConstants.UPDATE_TIP_HEADER, data.optString(HikeConstants.HEADER, ""));
 						editor.putString(HikeConstants.UPDATE_TIP_BODY, data.optString(HikeConstants.BODY, ""));
@@ -3450,7 +3450,7 @@ public class MqttMessagesManager
 						editor.putBoolean(HikeConstants.SHOULD_SHOW_PERSISTENT_NOTIF, true);
 						editor.putBoolean(HikeConstants.IS_PERS_NOTIF_ALARM_SET, false);
 						editor.putString(HikeConstants.Extras.UPDATE_MESSAGE, data.optString(HikeConstants.MESSAGE, ""));
-						Logger.d("UpdateTipPersistentNotif", "Target version for persistent notif:"+version);
+						Logger.d(HikeConstants.UPDATE_TIP_AND_PERS_NOTIF_LOG, "Target version for persistent notif:"+version);
 						editor.putString(HikeConstants.Extras.LATEST_VERSION, version);
 						editor.putString(HikeConstants.UPDATE_TITLE, data.optString(HikeConstants.Extras.TITLE, ""));
 						editor.putString(HikeConstants.UPDATE_ACTION, data.optString(HikeConstants.MqttMessageTypes.ACTION, ""));

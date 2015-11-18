@@ -723,7 +723,7 @@ public class HAManager
 		}
 		catch (JSONException e)
 		{
-			Logger.d("UpdateTipPersistentNotif", "invite tip analytics json exception");
+			Logger.d(HikeConstants.UPDATE_TIP_AND_PERS_NOTIF_LOG, "invite tip analytics json exception");
 		}
 	}
 	

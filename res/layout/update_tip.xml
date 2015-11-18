@@ -12,7 +12,7 @@
         android:background="@color/update_tip_default"
         android:orientation="horizontal" >
 
-        <com.bsb.hike.ui.utils.RecyclingImageView
+        <ImageView
             android:id="@+id/update_tip_icon"
             android:layout_width="72dp"
             android:layout_height="72dp"
@@ -23,7 +23,7 @@
             android:src="@drawable/update_tip_download"
             android:visibility="visible" />
 
-        <com.bsb.hike.ui.utils.RecyclingImageView
+        <ImageView
             android:id="@+id/invite_tip_icon"
             android:layout_width="72dp"
             android:layout_height="72dp"
@@ -87,7 +87,7 @@
             android:paddingRight="8dp"
             android:paddingTop="14dp"
             android:visibility="invisible"
-            android:text="@string/update_tip_dismiss_text" />
+            android:text="@string/tip_and_notif_later_text" />
 
         <com.bsb.hike.view.CustomFontTextView
             android:id="@+id/update_tip_action"
@@ -99,10 +99,10 @@
             android:paddingLeft="8dp"
             android:paddingRight="8dp"
             android:paddingTop="14dp"
-            android:text="@string/update_tip_bottom_text" />
+            android:text="@string/tip_and_notif_update_text" />
     </LinearLayout>
 
-    <com.bsb.hike.ui.utils.RecyclingImageView
+    <ImageView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/art_update_shadow" />

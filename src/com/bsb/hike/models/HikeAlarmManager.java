@@ -307,7 +307,7 @@ public class HikeAlarmManager
 			StickerSearchManager.getInstance().startRebalancing(intent);
 			break;
 		case HikeAlarmManager.REQUESTCODE_UPDATE_PERSISTENT_NOTIF:
-			Logger.d("UpdateTipPersistentNotif", "PersNotifAlarm interval over. Processing persistent notif.");
+			Logger.d(HikeConstants.UPDATE_TIP_AND_PERS_NOTIF_LOG, "PersNotifAlarm interval over. Processing persistent notif.");
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.IS_PERS_NOTIF_ALARM_SET, false);
 			HikeNotification.getInstance().checkAndShowUpdateNotif();
 			break;
@@ -379,7 +379,7 @@ public class HikeAlarmManager
 			StickerSearchManager.getInstance().startRebalancing(intent);
 			break;
 		case HikeAlarmManager.REQUESTCODE_UPDATE_PERSISTENT_NOTIF:
-			Logger.d("UpdateTipPersistentNotif", "PersNotifAlarm interval over and alarm expired. Processing persistent notif.");
+			Logger.d(HikeConstants.UPDATE_TIP_AND_PERS_NOTIF_LOG, "PersNotifAlarm interval over and alarm expired. Processing persistent notif.");
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.IS_PERS_NOTIF_ALARM_SET, false);
 			HikeNotification.getInstance().checkAndShowUpdateNotif();
 			break;
