@@ -710,6 +710,11 @@ class HikeUserDatabase extends SQLiteOpenHelper
 
 		Map<String, ContactInfo> contactMap = new HashMap<String, ContactInfo>();
 
+		if(TextUtils.isEmpty(phoneNumbers))
+		{
+			return contactMap;
+		}
+
 		try
 		{
 			c = mReadDb.rawQuery("SELECT max(" + DBConstants.ID + ") AS " + DBConstants.ID + ", " + DBConstants.NAME + ", " + DBConstants.MSISDN + ", " + DBConstants.PHONE + ", "
@@ -1688,6 +1693,10 @@ class HikeUserDatabase extends SQLiteOpenHelper
 			editor.putBoolean(HikeMessengerApp.CONTACT_EXTRA_INFO_SYNCED, true);
 			editor.commit();
 			mDb.setTransactionSuccessful();
+		}
+		catch (SecurityException e)
+		{
+			Logger.e("ContactUtils", "Exception while syncContactExtraInfo", e);
 		}
 		finally
 		{
