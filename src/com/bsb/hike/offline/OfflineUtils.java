@@ -784,7 +784,7 @@ public class OfflineUtils
 
 				HikeNotification.getInstance().showBigTextStyleNotification(intent, hikeNotifMsgStack.getNotificationIcon(), System.currentTimeMillis() / 1000,
 						HikeNotification.OFFLINE_REQUEST_ID, context.getString(R.string.incoming_hike_direct_request), contactFirstName,
-						context.getString(R.string.hike_direct_request), msisdn, null, avatarDrawable, true, 0, actions);
+						context.getString(R.string.hike_direct_request), msisdn, null, avatarDrawable, false, 0, actions);
 			}
 			OfflineController.getInstance().handleOfflineRequest(packet);
 

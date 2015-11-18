@@ -1595,9 +1595,13 @@ import com.google.gson.Gson;
 			{
 				startFreeHikeConversation(true);
 			}
-			else 
+			else
 			{
 				OfflineUtils.stopFreeHikeConnection(activity, msisdn);
+			}
+			if (!sharedPreference.getData(OfflineConstants.CT_HIKE_DIRECT_CLICKED, false))
+			{
+				sharedPreference.saveData(OfflineConstants.CT_HIKE_DIRECT_CLICKED, true);
 			}
 			break;
 		default:
@@ -3348,6 +3352,14 @@ import com.google.gson.Gson;
 					overFlowMenuItem.text = getString(R.string.cancel_offline_connection);
 				}
 				overFlowMenuItem.enabled = !mConversation.isBlocked();
+				if (!sharedPreference.getData(OfflineConstants.CT_HIKE_DIRECT_CLICKED, false) && overFlowMenuItem.enabled)
+				{
+					overFlowMenuItem.drawableId = R.drawable.ftue_hike_direct_logo_red_dot;
+				}
+				else
+				{
+					overFlowMenuItem.drawableId = 0;
+				}
 				break;
 			}
 		}

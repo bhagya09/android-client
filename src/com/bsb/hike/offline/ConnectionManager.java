@@ -620,7 +620,6 @@ public class ConnectionManager
 					boolean status = wifiManager.enableNetwork(wifiConfiguration.networkId, true);
 					Logger.d("OfflineManager", "Enabled network" + status);
 					connectedNetworkId = wifiConfiguration.networkId;
-					wifiManager.reassociate();
 					wifiManager.reconnect();
 					break;
 				}
