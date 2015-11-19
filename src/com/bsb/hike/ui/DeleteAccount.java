@@ -30,6 +30,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -331,6 +332,21 @@ public class DeleteAccount extends HikeAppStateBaseFragmentActivity implements D
 		finish();
 	}
 
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+
+		if(item.getItemId()==android.R.id.home)
+		{
+			if (mCustomKeyboard != null && mCustomKeyboard.isCustomKeyboardVisible())
+			{
+				hideKeyboard();
+			}
+			onBackPressed();
+			return true;
+		}
+		return super.onOptionsItemSelected(item);
+	}
+	
 	private void hideKeyboard()
 	{
 		mCustomKeyboard.showCustomKeyboard(countryCode, false);

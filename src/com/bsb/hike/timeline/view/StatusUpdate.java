@@ -1,7 +1,9 @@
 package com.bsb.hike.timeline.view;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
@@ -10,6 +12,7 @@ import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.adapters.MoodAdapter;
+import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.media.EmoticonPicker;
@@ -56,7 +59,6 @@ import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -709,7 +711,8 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 
 		try
 		{
-			mActivityTask.task = new StatusUpdateTask(status, mActivityTask.moodId, mImagePath, KptKeyboardManager.getInstance(getApplicationContext()).getCurrentLanguageAddonItem().getlocaleName());
+			mActivityTask.task = new StatusUpdateTask(status, mActivityTask.moodId, mImagePath);
+			addLanguageAnalytics();
 		}
 		catch (IOException e)
 		{
@@ -727,6 +730,20 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		
 	}
 
+	protected void addLanguageAnalytics()
+	{
+		JSONObject metadata = new JSONObject();
+		try 
+		{
+			metadata.put(HikeConstants.LogEvent.KPT, KptKeyboardManager.getInstance(StatusUpdate.this).getCurrentLanguageAddonItem().getlocaleName());
+			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
+		} 
+		catch (JSONException e) 
+		{
+			e.printStackTrace();
+		}
+	}
+	
 	private void showMoodSelector()
 	{
 		hideKeyboard();
@@ -756,7 +773,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 					addItemsLayout.setLayoutParams(p);
 				}
 			}
-		}, mActivityTask.keyboardShowing ? 300 : 0); // TODO Remove hack. Use Shareable popup layout
+		}, 300); // TODO Remove hack. Use Shareable popup layout
 
 		boolean portrait = getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT;
 		int columns = portrait ? 4 : 6;
@@ -894,6 +911,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 	{
 		KptUtils.pauseKeyboardResources(mCustomKeyboard);
 		KptUtils.updatePadding(StatusUpdate.this, R.id.parent_layout, 0);
+		Utils.hideSoftKeyboard(getApplicationContext(), statusTxt);
 		isForeground = false;
 		super.onPause();
 	}

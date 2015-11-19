@@ -604,6 +604,19 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			}
 		}
 		
+		if(item.getItemId()==android.R.id.home)
+		{
+			if (mCustomKeyboard != null && mCustomKeyboard.isCustomKeyboardVisible())
+			{
+				if (tagEditText != null)
+				{
+					mCustomKeyboard.showCustomKeyboard(tagEditText, false);
+				}
+			}
+			onBackPressed();
+			return true;
+		}
+		
 		return super.onOptionsItemSelected(item);
 	}
 	

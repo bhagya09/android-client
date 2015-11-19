@@ -806,8 +806,11 @@ import android.widget.Toast;
 		{
 			if (state == KeyboardFtue.LANGUAGE_SELECTION_COMPLETE)
 			{
-				mCustomKeyboard.showCustomKeyboard(mComposeView,false);
-				mCustomKeyboard.showCustomKeyboard(mComposeView, true);
+				if (KptKeyboardManager.getInstance(activity).getInstalledLanguagesList().size() > 1)
+				{
+					mCustomKeyboard.showCustomKeyboard(mComposeView, false);
+					mCustomKeyboard.showCustomKeyboard(mComposeView, true);
+				}
 			}
 		}
 
@@ -1275,6 +1278,7 @@ import android.widget.Toast;
 		{
 			metadata.put(HikeConstants.LogEvent.KPT, KptKeyboardManager.getInstance(activity).getCurrentLanguageAddonItem().getlocaleName());
 			convMessage.setMetadata(metadata);
+			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
 		} 
 		catch (JSONException e) 
 		{
@@ -1592,8 +1596,7 @@ import android.widget.Toast;
 	{
 		mShareablePopupLayout.onBackPressed();
 
-		if (removeFragment(HikeConstants.IMAGE_FRAGMENT_TAG, true))
-		{
+		if(handleImageFragmentBackPressed()){
 			return true;
 		}
 		
@@ -1628,6 +1631,20 @@ import android.widget.Toast;
 
 		return false;
 	}
+
+	private boolean handleImageFragmentBackPressed(){
+		if (removeFragment(HikeConstants.IMAGE_FRAGMENT_TAG, true))
+		{
+			if(mActionMode.isActionModeOn() && mCustomKeyboard.isCustomKeyboardVisible()){
+				if(mActionMode.whichActionModeIsOn() == this.SEARCH_ACTION_MODE) {
+					mActionMode.finish();
+					setupSearchMode(searchText);
+				}
+			}
+			return true;
+		}
+		return false;
+	}
 	
 	private void actionBarBackPressed()
 	{
@@ -1637,8 +1654,7 @@ import android.widget.Toast;
 			return;
 		}
 
-		if (removeFragment(HikeConstants.IMAGE_FRAGMENT_TAG, true))
-		{
+		if(handleImageFragmentBackPressed()){
 			return;
 		}
 
@@ -5120,8 +5136,10 @@ import android.widget.Toast;
 				// below method marks sms msgs as read
 				setSMSReadInNative();
 			}
-			HikeMessengerApp.getPubSub().publish(HikePubSub.MSG_READ, msisdn);
+		
 			ChatThreadUtils.sendMR(msisdn, unreadConvMessages, readMessageExists,channelSelector);
+			//Moved here so MSG_READ is published after it has been updated in DB
+			HikeMessengerApp.getPubSub().publish(HikePubSub.MSG_READ, msisdn);
 		}
 	}
 	
