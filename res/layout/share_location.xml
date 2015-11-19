@@ -44,8 +44,10 @@
         <com.bsb.hike.view.CustomFontEditText
             android:id="@+id/search"
             android:layout_width="0dp"
-            android:layout_height="44dp"
+            android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:maxLines="4"
+            android:minHeight="44dp"
             android:layout_marginLeft="8dp"
             android:background="@null"
             android:hint="@string/search" />
