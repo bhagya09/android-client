@@ -39,6 +39,7 @@ import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.validat
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getGroupBaseUrlForLinkSharing;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getBaseCodeGCAcceptUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getBotdiscoveryTableUrl;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.httpNetworkTestUrl;
 import static com.bsb.hike.modules.httpmgr.request.PriorityConstants.PRIORITY_HIGH;
 import static com.bsb.hike.modules.httpmgr.request.Request.REQUEST_TYPE_LONG;
 import static com.bsb.hike.modules.httpmgr.request.Request.REQUEST_TYPE_SHORT;
@@ -78,9 +79,9 @@ import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.utils.AccountUtils;
+import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.Utils;
-import com.hike.transporter.utils.Logger;
 import com.squareup.okhttp.Headers;
 import com.squareup.okhttp.MediaType;
 import com.squareup.okhttp.MultipartBuilder;
@@ -914,4 +915,21 @@ public class HttpRequests
 				.build();
 		return requestToken;
 	}
+
+    /*
+     * this request is just for checking that internet is working but mqtt is unable to connect.
+     * we will send an async http call to server
+     */
+    public static RequestToken httpNetworkTestRequest(int errorCode)
+    {
+        RequestToken requestToken = new JSONObjectRequest.Builder()
+                .setUrl(httpNetworkTestUrl() + "/" + errorCode)
+                .setRequestType(REQUEST_TYPE_SHORT)
+                .setAsynchronous(true)
+                .setPriority(PRIORITY_HIGH)
+                .setRetryPolicy(new BasicRetryPolicy(0, 1, 1))
+                .build();
+        Logger.e("HikeHttpRequests", "Making http call to " + httpNetworkTestUrl().toString() + "/" + errorCode);
+        return requestToken;
+    }
 }
