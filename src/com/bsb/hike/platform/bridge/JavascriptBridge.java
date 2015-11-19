@@ -1371,5 +1371,20 @@ public abstract class JavascriptBridge
 		botInfo.setUnreadCount(0);
 
 	}
+	/**
+	 * Platform Version 9
+	 * This function is made  to know whether a microapp exists.
+	 * @param id: the id of the function that native will call to call the js .
+	 * @param mapp: the name of the mapp.
+	 */
+	@JavascriptInterface
+	public void isMicroappExist(String id, String mapp)
+	{
+		File file = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + mapp);
+		if (file.exists())
+			callbackToJS(id, "true");
+		else
+			callbackToJS(id, "false");
+	}
 
 }
