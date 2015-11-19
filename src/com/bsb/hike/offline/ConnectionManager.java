@@ -106,7 +106,7 @@ public class ConnectionManager
 		}
 		// We are trying to switch on user's wifi
 		int attempts = 0;
-		int MAX_TRIES = new Gson().fromJson(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.OFFLINE, "{}"), OfflineParameters.class).getMaxWifiwaitTime();
+		int MAX_TRIES = OfflineController.getInstance().getConfigurationParamerters().getMaxWifiwaitTime();
 		Logger.d(TAG,"Number of reties for swtictching on wifi is   "+MAX_TRIES);
 		while (!wifiManager.isWifiEnabled() && attempts < MAX_TRIES)
 		{
@@ -620,7 +620,6 @@ public class ConnectionManager
 					boolean status = wifiManager.enableNetwork(wifiConfiguration.networkId, true);
 					Logger.d("OfflineManager", "Enabled network" + status);
 					connectedNetworkId = wifiConfiguration.networkId;
-					wifiManager.reassociate();
 					wifiManager.reconnect();
 					break;
 				}
@@ -701,7 +700,7 @@ public class ConnectionManager
 	{
 		String host = OfflineUtils.getIPFromMac(null);
 		int tries = 0;
-		int MAX_TRIES = new Gson().fromJson(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.OFFLINE, "{}"), OfflineParameters.class).getMaxTryForIpExtraction();
+		int MAX_TRIES = OfflineController.getInstance().getConfigurationParamerters().getMaxTryForIpExtraction();
 		Logger.d(TAG,"Number of reties is for getting host address is  "+MAX_TRIES);
 		while (TextUtils.isEmpty(host))
 		{
