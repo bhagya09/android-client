@@ -4,6 +4,7 @@ import android.content.Context;
 import android.text.TextUtils;
 
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.modules.kpt.KptKeyboardManager;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
@@ -21,6 +22,8 @@ public class LocalLanguage {
     private String locale;
 
     private String name;
+
+    public static final LocalLanguage PhoneLangauge = new LocalLanguage(HikeMessengerApp.getInstance().getString(R.string.phone_language), "");
 
     public static final LocalLanguage English = new LocalLanguage("English", "en");
 
@@ -67,7 +70,7 @@ public class LocalLanguage {
         if (hikeSupportedList == null)
         {
             hikeSupportedList = new ArrayList<>();
-            hikeSupportedList.add(new LocalLanguage(context.getString(R.string.system_language), ""));    // system Default
+            hikeSupportedList.add(PhoneLangauge);    // system Default
             hikeSupportedList.add(English);     // English
             hikeSupportedList.add(Hindi);       // Hindi
             hikeSupportedList.add(Bengali);     // Bengali
