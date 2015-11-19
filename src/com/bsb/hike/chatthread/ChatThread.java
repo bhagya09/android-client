@@ -1278,6 +1278,7 @@ import android.widget.Toast;
 		{
 			metadata.put(HikeConstants.LogEvent.KPT, KptKeyboardManager.getInstance(activity).getCurrentLanguageAddonItem().getlocaleName());
 			convMessage.setMetadata(metadata);
+			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
 		} 
 		catch (JSONException e) 
 		{
