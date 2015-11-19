@@ -92,7 +92,7 @@
                 android:ellipsize="start"
                 android:focusable="true"
                 android:gravity="center|center_vertical|center_horizontal"
-                android:inputType="phone"
+                android:inputType="numberPassword"
                 android:maxLength="4"
                 atx:charInputMaxLength="4"
                 android:maxLines="1"
