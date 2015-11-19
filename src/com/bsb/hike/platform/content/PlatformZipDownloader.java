@@ -1,14 +1,5 @@
 package com.bsb.hike.platform.content;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Observable;
-import java.util.Observer;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.text.TextUtils;
 import android.util.Pair;
 
@@ -32,6 +23,15 @@ import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.content.PlatformContent.EventCode;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.Logger;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Observable;
+import java.util.Observer;
 
 /**
  * Download and store template. First
@@ -64,7 +64,7 @@ public class PlatformZipDownloader
 
 	private  float progress_done=0;
 
-	private String asocCbotMsisdn;
+	private String asocCbotMsisdn = "";
 
 
 	/**
@@ -98,15 +98,12 @@ public class PlatformZipDownloader
 		// Get ID from content and call http
 		this(argRequest, isTemplatingEnabled, doReplace, callbackId);
 		this.resumeSupported = resumeSupported;
-		if(asocCbot==null)
-		{
-			this.asocCbotMsisdn="";
-		}
-		else
-		{
-			this.asocCbotMsisdn = asocCbot;
-		}
 		
+		if(!TextUtils.isEmpty(asocCbot))
+		{
+			this.asocCbotMsisdn=asocCbot;
+		}
+
 		if (resumeSupported)
 		{
 			setStateFilePath();
@@ -331,11 +328,15 @@ public class PlatformZipDownloader
 							Boolean isSuccess = (Boolean) data;
 							if (isSuccess)
 							{
-								BotInfo botinfo= BotUtils.getBotInfoForBotMsisdn(asocCbotMsisdn);
-								if(botinfo!=null)
+								if (!TextUtils.isEmpty(asocCbotMsisdn))
 								{
-									NonMessagingBotMetadata nonMessagingBotMetadata = new NonMessagingBotMetadata(botinfo.getMetadata());
-									HikeNotification.getInstance().sendNotificationToChatThread(asocCbotMsisdn,nonMessagingBotMetadata.getCardObj().optString(HikePlatformConstants.HIKE_MESSAGE),false);
+									BotInfo botinfo = BotUtils.getBotInfoForBotMsisdn(asocCbotMsisdn);
+									if (botinfo != null)
+									{
+										NonMessagingBotMetadata nonMessagingBotMetadata = new NonMessagingBotMetadata(botinfo.getMetadata());
+										HikeNotification.getInstance().sendNotificationToChatThread(asocCbotMsisdn,
+												nonMessagingBotMetadata.getCardObj().optString(HikePlatformConstants.HIKE_MESSAGE), false);
+									}
 								}
 								if (!isTemplatingEnabled)
 								{
