@@ -1,7 +1,6 @@
 package com.bsb.hike.timeline.view;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -19,7 +18,6 @@ import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.media.EmoticonPicker;
 import com.bsb.hike.media.ImageParser;
 import com.bsb.hike.media.ImageParser.ImageParserListener;
-import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.media.PopupListener;
 import com.bsb.hike.modules.kpt.HikeCustomKeyboard;
 import com.bsb.hike.modules.kpt.KptKeyboardManager;
@@ -61,7 +59,6 @@ import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -714,7 +711,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 
 		try
 		{
-			mActivityTask.task = new StatusUpdateTask(status, mActivityTask.moodId, mImagePath, KptKeyboardManager.getInstance(getApplicationContext()).getCurrentLanguageAddonItem().getlocaleName());
+			mActivityTask.task = new StatusUpdateTask(status, mActivityTask.moodId, mImagePath);
 			addLanguageAnalytics();
 		}
 		catch (IOException e)
