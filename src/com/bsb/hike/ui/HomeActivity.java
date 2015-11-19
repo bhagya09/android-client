@@ -90,6 +90,7 @@ import android.util.Pair;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewConfiguration;
@@ -824,6 +825,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 					intent.putExtra(HikeConstants.Extras.IS_MICROAPP_SHOWCASE_INTENT, true);
 
 					newConversationIndicator.setVisibility(View.GONE);
+					HikeMessengerApp.getPubSub().publish(HikePubSub.BADGE_COUNT_USER_JOINED, null);
 					startActivity(intent);
 				}
 			});
@@ -847,12 +849,23 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		return (mCustomKeyboard != null && !KptUtils.isSystemKeyboard()) ? true: false;
 	}
 
+	View.OnTouchListener searchTextOnTouchListener = new View.OnTouchListener()
+	{
+		@Override
+		public boolean onTouch(View v, MotionEvent event) {
+			if (MotionEvent.ACTION_UP == event.getAction()){
+				showKeyboard();
+			}
+			return false;
+		}
+	};
+
 	View.OnFocusChangeListener searchTextFocusChangeListener = new View.OnFocusChangeListener()
 	{
 		@Override
 		public void onFocusChange(View v, boolean hasFocus)
 		{
-			if (!KptUtils.isSystemKeyboard())
+			if (!KptUtils.isSystemKeyboard()&& mCustomKeyboard!=null)
 			{
 				if (hasFocus)
 				{
@@ -902,6 +915,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		}
 		searchET.setOnFocusChangeListener(searchTextFocusChangeListener);
 		searchET.setOnClickListener(searchTextClickChangeListener);
+		searchET.setOnTouchListener(searchTextOnTouchListener);
 	}
 
 	private void resetSearchTextKeyboard()

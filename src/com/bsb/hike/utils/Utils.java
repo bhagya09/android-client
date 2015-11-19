@@ -25,7 +25,6 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
@@ -95,7 +94,6 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Point;
-import android.graphics.PorterDuff;
 import android.graphics.Shader.TileMode;
 import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
@@ -2887,32 +2885,6 @@ public class Utils
 		return true;
 	}
 	
-
-	/**
-	 * Get unseen status, user-status and friend request count
-	 * 
-	 * @param accountPrefs
-	 *            Account settings shared preference
-	 * @param countUsersStatus
-	 *            Whether to include user status count in the total
-	 * @return
-	 */
-	public static int getNotificationCount(SharedPreferences accountPrefs, boolean countUsersStatus)
-	{
-		int notificationCount = 0;
-
-		notificationCount += accountPrefs.getInt(HikeMessengerApp.UNSEEN_STATUS_COUNT, 0);
-		notificationCount += accountPrefs.getInt(HikeMessengerApp.USER_TIMELINE_ACTIVITY_COUNT, 0);
-		if (countUsersStatus)
-		{
-			notificationCount += accountPrefs.getInt(HikeMessengerApp.UNSEEN_USER_STATUS_COUNT, 0);
-		}
-
-		int frCount = accountPrefs.getInt(HikeMessengerApp.FRIEND_REQ_COUNT, 0);
-		notificationCount += frCount;
-		return notificationCount;
-	}
-	
 	/**
 	 * Get unseen status, user-status and friend request count,
 	 * 
@@ -2947,6 +2919,19 @@ public class Utils
 		return notificationCount;
 	}
 
+	/**
+	 * Get unseen status, user-status and friend request count,includes activity count as well
+	 * 
+	 * @param accountPrefs
+	 *            Account settings shared preference
+	 * @param countUsersStatus
+	 *            Whether to include user status count in the total
+	 * @return
+	 */
+	public static int getNotificationCount(SharedPreferences accountPrefs, boolean countUsersStatus)
+	{
+		return getNotificationCount(accountPrefs, countUsersStatus, true,true,true);
+	}
 	/*
 	 * This method returns whether the device is an mdpi or ldpi device. The assumption is that these devices are low end and hence a DB call may block the UI on those devices.
 	 */
@@ -5887,12 +5872,19 @@ public class Utils
 	/**
 	 * Get time in millisecond from given time-stamp represented in format HH:mm:ss.SSS
 	 * 
-	 * @param Calendar
-	 *            calendar instance to be checked
+	 * @param calendar
+	 *            Instance of calendar to be checked
 	 * @param timeStamp
-	 *            time-stamp to be parsed
-	 * @param default_ii
-	 *            time elements like hour, minute, second and millisecond
+	 *            Parseable time-stamp as string value
+	 * @param default_hh
+	 *            Default hour element as integer value
+	 * @param default_mm
+	 *            Default minute element as integer value
+	 * @param default_ss
+	 *            Default second element as integer value
+	 * @param default_SSS
+	 *            Default element milliSecond element as integer value
+	 * @return System-level clock value represented by long value.
 	 * @author Ved Prakash Singh [ved@hike.in]
 	 */
 	public static long getTimeInMillis(Calendar calendar, String timeStamp, int default_hh, int default_mm, int default_ss, int default_SSS)
@@ -7063,8 +7055,6 @@ public class Utils
 	/**
 	 * Determine whether supplied module is being tested.
 	 *
-	 * @param String
-	 *            module name to be simulated
 	 * @param moduleName
 	 *            String name of the module being analysed
 	 * @return True, if test mode is enabled for given module. False, otherwise.
@@ -7158,12 +7148,6 @@ public class Utils
 	}
 
 	/**
-	 * Determine whether a table exists.
-	 * 
-	 * @param SQLiteDatabase
-	 *            instance of databse containing such table
-	 * @param String
-	 *            table name to be checked
 	 * Determine whether databse recognized by given instance contains given table or not.
 	 * 
 	 * @param db
@@ -7423,8 +7407,15 @@ public class Utils
 	/**
 	 * Determine whether a time-stamp represents correct clock time of a day.
 	 * 
-	 * @param HH_mm_ss_SSS
-	 *            time elements of the day
+	 * @param HH
+	 *            Hour element of the day
+	 * @param mm
+	 *            Minute element of the day
+	 * @param ss
+	 *            Second element of the day
+	 * @param SSS
+	 *            MilliSecond element of the day
+	 * @return True, if given combination represents valid time of the day in 24 hours format. False, otherwise.
 	 * @author Ved Prakash Singh [ved@hike.in]
 	 */
 	public static boolean isValidTimeStampOfTheDay(int HH, int mm, int ss, int SSS)
@@ -7456,11 +7447,11 @@ public class Utils
 	 * Get differential time logging upto nano second considering maximum significant time unit reference as second.
 	 * 
 	 * @param start
-	 *            start time of operation as long value
+	 *            Start time of operation as long value
 	 * @param end
-	 *            end time of operation as long value
+	 *            End time of operation as long value
 	 * @param precisionOfTimeUnitInSecond
-	 *            count of precision points in time unit per second for start and end parameters
+	 *            Count of precision points in time unit per second for start and end parameters
 	 * @return Human-readable string of time logging.
 	 * @author Ved Prakash Singh [ved@hike.in]
 	 */

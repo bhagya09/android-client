@@ -31,6 +31,7 @@ import com.bsb.hike.BuildConfig;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
+import com.bsb.hike.modules.kpt.HikeAdaptxtEditTextEventListner;
 import com.bsb.hike.modules.kpt.HikeCustomKeyboard;
 import com.bsb.hike.modules.kpt.KptUtils;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
@@ -534,7 +535,6 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity implem
                     		if (s.length() == 4){
                         		mTextInfo.setText(R.string.stealth_msg_pin_recorded);
                         		mBtnConfirm.setEnabled(true);
-                                mCustomKeyboard.hideCustomKeyboard(mLockPinView);
                         	} 
                     		else 
                         	{
@@ -559,9 +559,6 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity implem
 //                        		if(!check) 
 //                        			mLockPinView.setText("");   
                         		mBtnConfirm.setEnabled(check);
-                                if(check){
-                                    mCustomKeyboard.hideCustomKeyboard(mLockPinView);
-                                }
                         	} 
                     		else 
                         	{
@@ -1261,9 +1258,13 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity implem
         @Override
         public void onClick(View v) {
         	mLockPatternViewReloader.run();
-        	if (mCustomKeyboard != null)
+        	if (mCustomKeyboard != null&&mLockPinView.getVisibility()== View.VISIBLE)
             {
                 mCustomKeyboard.updateCore();
+                if (!mCustomKeyboard.isCustomKeyboardVisible())
+                {
+                	mCustomKeyboard.showCustomKeyboard(mLockPinView, true);
+                }
             }
         }// onClick()
     };
@@ -1308,7 +1309,6 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity implem
                     mBtnOkCmd = ButtonOkCommand.DONE;
                     mLockPatternView.clearPattern();
                     mLockPinView.setText("");
-                    mCustomKeyboard.showCustomKeyboard(mLockPinView, true);
                     if(mLockPinView.getVisibility() == View.VISIBLE)
                     {
                     	if (mCustomKeyboard != null)
@@ -1373,7 +1373,7 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity implem
     private void initCustomKeyboard()
     {
     	View keyboardHolder = (LinearLayout) findViewById(R.id.keyboardView_holder);
-        mCustomKeyboard = new HikeCustomKeyboard(LockPatternActivity.this, keyboardHolder, KPTConstants.SINGLE_LINE_EDITOR, null, this);
+        mCustomKeyboard = new HikeCustomKeyboard(LockPatternActivity.this, keyboardHolder, KPTConstants.SINGLE_LINE_EDITOR, kptEditTextEventListener, this);
         mCustomKeyboard.registerEditText(R.id.alp_42447968_lock_pin);
         mCustomKeyboard.init(mLockPinView);
         mLockPinView.setOnClickListener(new View.OnClickListener()
@@ -1400,7 +1400,19 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity implem
 
 		}
     }
-
+    HikeAdaptxtEditTextEventListner kptEditTextEventListener = new HikeAdaptxtEditTextEventListner()
+	{
+		@Override
+		public void onReturnAction(int resId, int arg0)
+		{
+			switch (resId)
+			{
+			case R.id.alp_42447968_lock_pin:
+				break;
+			}
+		
+		}
+	};
     @Override
     public void analyticalData(KPTAddonItem kptAddonItem)
     {

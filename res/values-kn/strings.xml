@@ -1360,7 +1360,7 @@
     <string name="photo_gallery_choose_pic">ಫೊಟೋ ಆಯ್ಕೆ ಮಾಡಿ</string>
     <string name="cropping_image">ಚಿತ್ರ ಕ್ರಾಪ್‌ ಮಾಡಲಾಗುತ್ತಿದೆ...</string>
     <string name="compose_chat">ಹೊಸ ಚಾಟ್‌</string>
-	<string name="home_search_empty_text">\’%1$S\’ ಗೆ ನಿಮ್ಮ ಹುಡುಕಾಟ ಯಾವುದೇ ಸಂಪರ್ಕಗಳಿಗೆ ಹೊಂದುತ್ತಿಲ್ಲ.</string>
+	<string name="home_search_empty_text">"\&apos;%1$s\&apos; ಗೆ ನಿಮ್ಮ ಹುಡುಕಾಟ ಯಾವುದೇ ಸಂಪರ್ಕಗಳಿಗೆ ಹೊಂದುತ್ತಿಲ್ಲ."</string>
     <string name="voip_mic_error">ಮೈಕ್‌ ಆರಂಬಿಸಲು ಅಸಾಧ್ಯ. ಈ ಕರೆ ಕೆಲಸ ಮಾಡದಿರದು.</string>
     <string name="voip_call_failed_frag_subheader">ನೀವು ಈಗಲೂ %1$s ಸಂಪರ್ಕವನ್ನು ಇವರೊಂದಿಗೆ ಮಾಡಬಹುದು</string>
     <string name="dismiss_upper_case">ವಜಾಗೊಳಿಸಿ</string>

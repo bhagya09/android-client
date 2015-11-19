@@ -221,7 +221,7 @@ public class HikeStickerSearchBaseConstants
 	// ======================================================================Decision constants]]
 
 	// Constants used in shared_pref or system_db==============================================[[
-	public static final String SHARED_PREF_STICKER_DATA = "hike_sticker_tag_data";
+	public static final String SHARED_PREF_STICKER_DATA = "hike_sticker_search_data";
 
 	public static final String KEY_PREF_USER_ID = "hike_user_id";
 
@@ -242,6 +242,8 @@ public class HikeStickerSearchBaseConstants
 	public static final String KEY_PREF_LAST_LOCAL_SUMMERIZATION_TIME = "last_local_summerization_time";
 
 	public static final String KEY_PREF_LAST_GLOBAL_SUMMERIZATION_TIME = "last_global_summerization_time";
+
+	public static final String KEY_PREF_STICKER_SEARCH_VT_TABLES_LIST = "virtualTableList";
 
 	// ==============================================Constants used in shared_pref or system_db]]
 
@@ -316,7 +318,7 @@ public class HikeStickerSearchBaseConstants
 	// =============================================Constants used for indexing of sticker data]]
 
 	// Default virtual tables prefixes
-	public static final String DEFAULT_TABLE_LIST = "ABCDEFGHIJKLMNOPQRSTUVWXYZ\0";
+	public static final String DEFAULT_VT_TABLE_LIST = "ABCDEFGHIJKLMNOPQRSTUVWXYZ\0";
 
 	// Default story
 	public static final String DEFAULT_STORY = "generic";
@@ -325,7 +327,7 @@ public class HikeStickerSearchBaseConstants
 	public static final String DEFAULT_THEME_TAG = "GENERIC";
 
 	// Default script
-	public static final String STICKER_TAG_KEYBOARD_ISO_DEFAULT = "Latn";
+	public static final String DEFAULT_STICKER_TAG_SCRIPT_ISO_CODE = "Latn";
 
 	// States used for Sticker-Tag relation and recommendations================================[[
 	public static enum STATE_CATEGORY

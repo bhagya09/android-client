@@ -1360,7 +1360,7 @@
     <string name="photo_gallery_choose_pic">ছবি চয়ন করুন</string>
     <string name="cropping_image">ছবি কাটা হচ্ছে..</string>
     <string name="compose_chat">নতুন চ্যাট</string>
-	<string name="home_search_empty_text">আপনি \’%1$s\’ এর যে অনুসন্ধান করেছেন তা কোনো পরিচিতির সঙ্গে মেলেনি।</string>
+	<string name="home_search_empty_text">"আপনি \&apos;%1$s\&apos; এর যে অনুসন্ধান করেছেন তা কোনো পরিচিতির সঙ্গে মেলেনি।"</string>
     <string name="voip_mic_error">মাইক শুরু করা যাচ্ছে না। এই কলটি কাজ নাও করতে পারে।</string>
     <string name="voip_call_failed_frag_subheader">আপনি এখনও %1$s এর সঙ্গে যোগাযোগ করতে পারেন</string>
     <string name="dismiss_upper_case">খারিজ করুন</string>

@@ -157,7 +157,7 @@ public enum StickerSearchDataController
 						String catgrsType = catgrs.next();
 						if ("catgrs".equals(catgrsType))
 						{
-							tagDataWithScript.add(new Pair<String, JSONObject>(HikeStickerSearchBaseConstants.STICKER_TAG_KEYBOARD_ISO_DEFAULT, tagData.optJSONObject("catgrs")));
+							tagDataWithScript.add(new Pair<String, JSONObject>(HikeStickerSearchBaseConstants.DEFAULT_STICKER_TAG_SCRIPT_ISO_CODE, tagData.optJSONObject("catgrs")));
 						}
 						else if ("catgrs_loc".equals(catgrsType))
 						{
@@ -531,7 +531,8 @@ public enum StickerSearchDataController
 		}
 
 		if ((state == StickerSearchConstants.STATE_STICKER_DATA_REFRESH)
-				|| (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_TAG_RETRY_ON_FAILED_LOCALLY, StickerSearchConstants.DECISION_STATE_YES) == StickerSearchConstants.DECISION_STATE_YES))
+				|| (HikeSharedPreferenceUtil.getInstance(HikeStickerSearchBaseConstants.SHARED_PREF_STICKER_DATA).getData(HikeConstants.STICKER_TAG_RETRY_ON_FAILED_LOCALLY,
+						StickerSearchConstants.DECISION_STATE_YES) == StickerSearchConstants.DECISION_STATE_YES))
 		{
 			Set<String> pendingRetrySet = StickerManager.getInstance().getStickerSet(state);
 

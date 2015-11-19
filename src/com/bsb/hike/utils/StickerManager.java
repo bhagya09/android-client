@@ -24,7 +24,6 @@ import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.db.HikeConversationsDatabase;
-import com.bsb.hike.media.ShareablePopupLayout;
 import com.bsb.hike.models.CustomStickerCategory;
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.models.Sticker;
@@ -443,17 +442,17 @@ public class StickerManager
 	/**
 	 * 
 	 * @return
-	 * pair in which first parameter is boolean -- delete tags if true else not
-	 * pair in which first parameter is list -- list of sticker categories currently user has
+	 * pair in which first parameter is boolean -- delete tags if true else not.
+	 * pair in which second parameter is list -- list of sticker categories currently user has
 	 */
-	public Pair<Boolean , List<StickerCategory>> getAllStickerCategories()
+	public Pair<Boolean, List<StickerCategory>> getAllStickerCategories()
 	{
 		
 		List<StickerCategory> allCategoryList = null;
 		File dir = context.getExternalFilesDir(null);
 		if (dir == null)
 		{
-			sendStickerFolderLockedError("uanable to access android folder");
+			sendStickerFolderLockedError("Unable to access android folder.");
 			return new Pair<Boolean, List<StickerCategory>>(false, null);
 		}
 
@@ -461,7 +460,7 @@ public class StickerManager
 		File root = new File(rootPath);
 		if (!root.exists() || !root.isDirectory())
 		{
-			sendStickerFolderLockedError("uanable to access sticker root folder");
+			sendStickerFolderLockedError("Unable to access sticker root folder.");
 			return new Pair<Boolean, List<StickerCategory>>(false, null);
 		}
 
@@ -469,7 +468,7 @@ public class StickerManager
 
 		if (files == null || files.length == 0)
 		{
-			sendStickerFolderLockedError("sticker root folder is empty");
+			sendStickerFolderLockedError("Sticker root folder is empty.");
 			return new Pair<Boolean, List<StickerCategory>>(true, null);
 		}
 
@@ -483,7 +482,7 @@ public class StickerManager
 			}
 		}
 
-		sendStickerFolderLockedError("current sticker categories count = " + allCategoryList.size());
+		sendStickerFolderLockedError("Current sticker categories count = " + allCategoryList.size());
 
 		return new Pair<Boolean, List<StickerCategory>>(true, allCategoryList);
 	}
@@ -2077,8 +2076,8 @@ public class StickerManager
 			return;
 		}
 
-		StickerLanguagesManager.getInstance().addToLanguageSet(StickerLanguagesManager.DOWNLOADED_LANGUAGE_SET_TYPE, Collections.singletonList(StickerSearchConstants.DEFAULT_KEYBOARD_LANGUAGE));
-		HikeSharedPreferenceUtil.getInstance(HikeMessengerApp.DEFAULT_TAG_DOWNLOAD_LANGUAGES_PREF).saveData(StickerSearchConstants.DEFAULT_KEYBOARD_LANGUAGE, true);
+		StickerLanguagesManager.getInstance().addToLanguageSet(StickerLanguagesManager.DOWNLOADED_LANGUAGE_SET_TYPE, Collections.singletonList(StickerSearchConstants.DEFAULT_KEYBOARD_LANGUAGE_ISO_CODE));
+		HikeSharedPreferenceUtil.getInstance(HikeMessengerApp.DEFAULT_TAG_DOWNLOAD_LANGUAGES_PREF).saveData(StickerSearchConstants.DEFAULT_KEYBOARD_LANGUAGE_ISO_CODE, true);
 		StickerManager.getInstance().downloadStickerTagData();
 		StickerManager.getInstance().downloadDefaultTagsFirstTime(false);
 	}
@@ -2090,8 +2089,8 @@ public class StickerManager
 			return;
 		}
 
-		StickerLanguagesManager.getInstance().addToLanguageSet(StickerLanguagesManager.DOWNLOADED_LANGUAGE_SET_TYPE, Collections.singletonList(StickerSearchConstants.DEFAULT_KEYBOARD_LANGUAGE));
-		HikeSharedPreferenceUtil.getInstance(HikeMessengerApp.DEFAULT_TAG_DOWNLOAD_LANGUAGES_PREF).saveData(StickerSearchConstants.DEFAULT_KEYBOARD_LANGUAGE, false);
+		StickerLanguagesManager.getInstance().addToLanguageSet(StickerLanguagesManager.DOWNLOADED_LANGUAGE_SET_TYPE, Collections.singletonList(StickerSearchConstants.DEFAULT_KEYBOARD_LANGUAGE_ISO_CODE));
+		HikeSharedPreferenceUtil.getInstance(HikeMessengerApp.DEFAULT_TAG_DOWNLOAD_LANGUAGES_PREF).saveData(StickerSearchConstants.DEFAULT_KEYBOARD_LANGUAGE_ISO_CODE, false);
 		StickerManager.getInstance().downloadStickerTagData();
 		StickerManager.getInstance().downloadDefaultTagsFirstTime(true);
 	}
@@ -2150,7 +2149,7 @@ public class StickerManager
 				metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.PACK_DATA_ANALYTIC_EVENT);
 				metadata.put(HikeConstants.NUMBER_OF_PACKS, stickerCategories.size());
 				metadata.put(HikeConstants.PACK_DATA, stickerPackAndOrderList);
-				metadata.put(HikeConstants.KEYBOARD_LIST, StickerSearchUtils.getCurrentLanguage());
+				metadata.put(HikeConstants.KEYBOARD_LIST, StickerSearchUtils.getCurrentLanguageISOCode());
 				HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, EventPriority.HIGH, metadata);
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.LAST_STICKER_PACK_AND_ORDERING_SENT_TIME, currentTime);
 			}
@@ -2222,7 +2221,8 @@ public class StickerManager
 			metadata.put(HikeConstants.SOURCE, rejectionSource);
 			metadata.put(HikeConstants.TAGGED_PHRASE, taggedPhrase);
 			metadata.put(HikeConstants.TAP_WORD, tappedWord);
-			metadata.put(HikeConstants.KEYBOARD_LIST, StickerSearchUtils.getCurrentLanguage());
+			metadata.put(HikeConstants.KEYBOARD_LIST, StickerSearchUtils.getCurrentLanguageISOCode());
+
 			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, EventPriority.HIGH, metadata);
 		}
 		catch (JSONException e)
@@ -2244,7 +2244,8 @@ public class StickerManager
 			metadata.put(HikeConstants.SOURCE, rejectionSource);
 			metadata.put(HikeConstants.TAGGED_PHRASE, taggedPhrase);
 			metadata.put(HikeConstants.TAP_WORD, tappedWord);
-			metadata.put(HikeConstants.KEYBOARD_LIST, StickerSearchUtils.getCurrentLanguage());
+			metadata.put(HikeConstants.KEYBOARD_LIST, StickerSearchUtils.getCurrentLanguageISOCode());
+
 			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, EventPriority.HIGH, metadata);
 		}
 		catch (JSONException e)
@@ -2269,7 +2270,8 @@ public class StickerManager
 			metadata.put(HikeConstants.TAP_WORD, tappedWord);
 			metadata.put(HikeConstants.STICKER_ID, stickerId);
 			metadata.put(HikeConstants.CATEGORY_ID, categoryId);
-			metadata.put(HikeConstants.KEYBOARD_LIST, StickerSearchUtils.getCurrentLanguage());
+			metadata.put(HikeConstants.KEYBOARD_LIST, StickerSearchUtils.getCurrentLanguageISOCode());
+
 			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, EventPriority.HIGH, metadata);
 		}
 		catch (JSONException e)
@@ -2277,9 +2279,30 @@ public class StickerManager
 			Logger.e(AnalyticsConstants.ANALYTICS_TAG, "invalid json", e);
 		}
 	}
-	
+
 	/**
-	 * Used for logging sticker/emoticon weird behaviours
+	 * Send sticker search data rebalancing analytics
+	 */
+	public void sendRebalancingAnalytics(String timeStamp, long initialDBSize, long availableMemory, int initialRowCount, int deletedRowCount)
+	{
+		try
+		{
+			JSONObject metadata = new JSONObject();
+			metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.STICKER_RECOMMENDATION_REBALANCING_SUMMERIZATION);
+			metadata.put(HikeConstants.STICKER_SEARCH_REBALANCING_TIME_STAMP, timeStamp);
+			metadata.put(HikeConstants.STICKER_SEARCH_REBALANCING_MEMORY_STATUS, initialDBSize + STRING_DELIMETER + availableMemory);
+			metadata.put(HikeConstants.STICKER_SEARCH_REBALANCING_ROW_STATUS, initialRowCount + STRING_DELIMETER + deletedRowCount);
+
+			HAManager.getInstance().record(AnalyticsConstants.DEV_EVENT, AnalyticsConstants.STICKER_SEARCH_BACKEND, EventPriority.HIGH, metadata);
+		}
+		catch (JSONException e)
+		{
+			Logger.e(AnalyticsConstants.ANALYTICS_TAG, "invalid json", e);
+		}
+	}
+
+	/**
+	 * Used for logging sticker/emoticon weird behaviors
 	 * 
 	 * @param errorMsg
 	 */
@@ -2288,7 +2311,7 @@ public class StickerManager
 		JSONObject error = new JSONObject();
 		try
 		{
-			error.put(ShareablePopupLayout.TAG, errorMsg);
+			error.put(TAG, errorMsg);
 			HAManager.getInstance().record(AnalyticsConstants.DEV_EVENT, AnalyticsConstants.STICKER_SEARCH, EventPriority.HIGH, error);
 		}
 		catch (JSONException e)
