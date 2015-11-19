@@ -64,23 +64,18 @@ public class PeopleActivity extends HikeAppStateBaseFragmentActivity implements 
 	}
 	
 	protected void showKeyboard()
-		{
-			if(searchET!=null){
-				if (isSystemKeyboard())
-				{
-					Utils.showSoftKeyboard(getApplicationContext(), searchET);
-				}
-				else
-				{
-					mCustomKeyboard.showCustomKeyboard(searchET, true);
-				}
+	{
+		if(searchET!=null){
+			if (HikeMessengerApp.isSystemKeyboard())
+			{
+				Utils.showSoftKeyboard(getApplicationContext(), searchET);
+			}
+			else
+			{
+				mCustomKeyboard.showCustomKeyboard(searchET, true);
 			}
 		}
-	 		 
-		public boolean isSystemKeyboard()
-		{
-			return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CURRENT_KEYBOARD, false);
-		}
+	}
 
 
 	private void setupActionBar()

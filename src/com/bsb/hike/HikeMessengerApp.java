@@ -1206,7 +1206,7 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 	
 	public static boolean isSystemKeyboard()
 	{
-		boolean currentKbd = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CURRENT_KEYBOARD, false);
+		boolean currentKbd = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CURRENT_KEYBOARD, true);
 		Logger.d("keyboard", "Current keyboard : " + currentKbd);
 		return currentKbd;
 	}
