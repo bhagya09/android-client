@@ -76,6 +76,7 @@ import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.filetransfer.FTAnalyticEvents;
+import com.bsb.hike.filetransfer.FTMessageBuilder;
 import com.bsb.hike.filetransfer.FileTransferManager;
 import com.bsb.hike.media.PickContactParser;
 import com.bsb.hike.models.ContactInfo;
@@ -1827,35 +1828,26 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 						}
 
 						HikeFileType hikeFileType = HikeFileType.fromString(fileType, isRecording);
-						
-						if (Utils.isPicasaUri(filePath))
+						Logger.d("ComposeChatActivity", "CompChAct : isCloudUri" + Utils.isPicasaUri(filePath));
+						FileTransferData fileData = initialiseFileTransfer(filePath, fileKey, hikeFileType, fileType,
+								isRecording, recordingDuration, true, arrayList);
+						if (fileData != null && fileData.file != null)
 						{
-							FileTransferManager.getInstance(getApplicationContext()).uploadFile(Uri.parse(filePath), hikeFileType, ((ContactInfo)arrayList.get(0)).getMsisdn(), ((ContactInfo)arrayList.get(0)).isOnhike());
-						}
-						else
-						{
-							FileTransferData fileData = initialiseFileTransfer(filePath, fileKey, hikeFileType, fileType, isRecording, recordingDuration, true, arrayList);
-							if (fileData != null && fileData.file != null)
+							if ((HikeConstants.MAX_FILE_SIZE > fileData.file.length()))
 							{
-								if ((HikeConstants.MAX_FILE_SIZE > fileData.file.length()))
+								fileTransferList.add(fileData);
+								offlinefileTransferList.add(fileData);
+							} else {
+								if (offlineContact != null)
 								{
-									fileTransferList.add(fileData);
 									offlinefileTransferList.add(fileData);
 								}
-								else
-								{
-									if (offlineContact != null)
-									{
-										offlinefileTransferList.add(fileData);
-									}
-									FTAnalyticEvents.logDevError(FTAnalyticEvents.UPLOAD_INIT_1_4, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "init",
-											"Compose - InitialiseFileTransfer - Max size reached.");
-									Toast.makeText(getApplicationContext(), R.string.max_file_size, Toast.LENGTH_SHORT).show();
-								}
-
+								FTAnalyticEvents.logDevError(FTAnalyticEvents.UPLOAD_INIT_1_4, 0, FTAnalyticEvents.UPLOAD_FILE_TASK,
+												"init", "Compose - InitialiseFileTransfer - Max size reached.");
+								Toast.makeText(getApplicationContext(), R.string.max_file_size, Toast.LENGTH_SHORT).show();
 							}
+
 						}
-						
 					}
 					else if (msgExtrasJson.has(HikeConstants.Extras.LATITUDE) && msgExtrasJson.has(HikeConstants.Extras.LONGITUDE)
 							&& msgExtrasJson.has(HikeConstants.Extras.ZOOM_LEVEL))
@@ -2582,8 +2574,17 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		if(arrayList.size()==1){
 			newConvIfnotExist = true;
 		}
-		for(ContactInfo contactInfo:arrayList){
-		FileTransferManager.getInstance(getApplicationContext()).uploadLocation(contactInfo.getMsisdn(), latitude, longitude, zoomLevel, ((ContactInfo)arrayList.get(0)).isOnhike(),newConvIfnotExist);
+		for(ContactInfo contactInfo:arrayList)
+		{
+			FTMessageBuilder.Builder msgBuilder = new FTMessageBuilder.Builder()
+			.setMsisdn(contactInfo.getMsisdn())
+			.setLatitude(latitude)
+			.setLongitude(longitude)
+			.setZoomLevel(zoomLevel)
+			.setRecipientOnHike(((ContactInfo)arrayList.get(0)).isOnhike())
+			.setNewConvIfnotExist(newConvIfnotExist)
+			.setHikeFileType(HikeFileType.LOCATION);
+			msgBuilder.build();
 		}
 	}
 	private void initialiseContactTransfer(JSONObject contactJson, ArrayList<ContactInfo>arrayList )
@@ -2659,24 +2660,42 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			progressDialog = ProgressDialog.show(ComposeChatActivity.this, null, message);
 		}
 		@Override
-		protected Void doInBackground(Void... params) {
+		protected Void doInBackground(Void... params)
+		{
 			if(arrayList!=null){
-				if(fileType == FILE_TRANSFER){
+				if(fileType == FILE_TRANSFER)
+				{
 					ArrayList<FileTransferData> files = (ArrayList<FileTransferData>)arrayList;
-			        for(FileTransferData file:files){
-			        	if (Utils.isPicasaUri(file.filePath))
-						{
-							FileTransferManager.getInstance(getApplicationContext()).uploadFile(Uri.parse(file.filePath), file.hikeFileType, file.arrayList, false);
-						}else{
-							FileTransferManager.getInstance(getApplicationContext()).uploadFile(file.arrayList, file.file, file.fileKey, file.fileType, file.hikeFileType, file.isRecording, file.isForwardingFile,
-									((ContactInfo)file.arrayList.get(0)).isOnhike(), file.recordingDuration,  FTAnalyticEvents.OTHER_ATTACHEMENT);
-						 }
-				}}else if(fileType == CONTACT_TRANSFER){
+			        for(FileTransferData file:files)
+			        {
+			        	Logger.d("ComposeChatActivity", "PreFTAsyncTask : isCloudMedia = " + Utils.isPicasaUri(file.filePath));
+						FTMessageBuilder.Builder mBuilder = new FTMessageBuilder.Builder()
+								.setContactList(file.arrayList)
+								.setSourceFile(file.file)
+								.setFileKey(file.fileKey)
+								.setFileType(file.fileType)
+								.setHikeFileType(file.hikeFileType)
+								.setRec(file.isRecording)
+								.setForwardMsg(file.isForwardingFile)
+								.setRecipientOnHike(((ContactInfo) file.arrayList.get(0)).isOnhike())
+								.setRecordingDuration(file.recordingDuration)
+								.setAttachement(FTAnalyticEvents.OTHER_ATTACHEMENT);
+						mBuilder.build();
+			        }
+				}else if(fileType == CONTACT_TRANSFER)
+				{
 					ArrayList<ContactInfo> contactList = (ArrayList<ContactInfo>)arrayList;	
-       			    for(ContactInfo contactInfo:contactList){
-			    	FileTransferManager.getInstance(getApplicationContext()).uploadContact(contactInfo.getMsisdn(), contactJson, (((ContactInfo)contactList.get(0)).isOnhike()), newConvIfnotExist);
+       			    for(ContactInfo contactInfo:contactList)
+       			    {
+						FTMessageBuilder.Builder msgBuilder = new FTMessageBuilder.Builder()
+								.setMsisdn(contactInfo.getMsisdn())
+								.setContactJson(contactJson)
+								.setRecipientOnHike(contactInfo.isOnhike())
+								.setNewConvIfnotExist(newConvIfnotExist)
+								.setHikeFileType(HikeFileType.CONTACT);
+						msgBuilder.build();
+       			    }
 				}
-			}
 		  }
 		
 			return null;

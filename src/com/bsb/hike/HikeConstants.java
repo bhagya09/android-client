@@ -3536,4 +3536,5 @@ public class HikeConstants
 
 	public static final float ONE_PERCENT_PROGRESS = 0.01f;
 
+	public static final String FT_USE_APACHE_HTTP_CLIENT = "ft_apache_client";
 }
