@@ -2464,7 +2464,6 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 		mIconView.setBackgroundResource(R.color.transparent);
 		profilePicCamIcon.setImageResource(R.drawable.ic_edit_group);
 
-		tempBitmap.recycle();
 		tempBitmap = null;
 	}
 	
