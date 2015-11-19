@@ -1286,25 +1286,6 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 		else
 			callbackToJS(id, "false");
 	}
-	/**
-	 * Platform Version 9
-	 * This function is made for a special bot to know whether a microapp exists.
-	 * @param id: the id of the function that native will call to call the js .
-	 * @param mapp: the name of the mapp.
-	 */
-	@JavascriptInterface
-	public void isMicroappExist(String id, String mapp)
-	{
-		if (!BotUtils.isSpecialBot(mBotInfo))
-		{
-			return;
-		}
-		File file = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + mapp);
-		if (file.exists())
-			callbackToJS(id, "true");
-		else
-			callbackToJS(id, "false");
-	}
 
 	/**
 	 * Platform Version 9
