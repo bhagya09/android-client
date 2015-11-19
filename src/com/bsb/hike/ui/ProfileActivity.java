@@ -50,6 +50,7 @@ import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
+import com.bsb.hike.modules.kpt.HikeAdaptxtEditTextEventListner;
 import com.bsb.hike.modules.kpt.HikeCustomKeyboard;
 import com.bsb.hike.modules.kpt.KptUtils;
 import com.bsb.hike.offline.OfflineUtils;
@@ -491,10 +492,27 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		if (!systemKeyboard)
 		{
 			LinearLayout viewHolder = (LinearLayout) findViewById(R.id.keyboardView_holder);
-			mCustomKeyboard= new HikeCustomKeyboard(this, viewHolder, KPTConstants.MULTILINE_LINE_EDITOR, null, ProfileActivity.this);
+			mCustomKeyboard= new HikeCustomKeyboard(this, viewHolder, KPTConstants.MULTILINE_LINE_EDITOR, kptEditTextEventListener, ProfileActivity.this);
 		}
 	}
-	
+	HikeAdaptxtEditTextEventListner kptEditTextEventListener = new HikeAdaptxtEditTextEventListner()
+	{
+		@Override
+		public void onReturnAction(int resId, int arg0)
+		{
+			if (profileType == ProfileType.USER_PROFILE_EDIT){
+				if (mCustomKeyboard.isCustomKeyboardVisible())
+				{
+					if(mEmailEdit.hasFocus()){
+						mCustomKeyboard.showCustomKeyboard(mEmailEdit, false);
+					}else if(mNameEdit.hasFocus()){
+						mCustomKeyboard.showCustomKeyboard(mNameEdit, false);
+					}
+					
+				}
+			}
+		}
+	};
 	private void initCustomKeyboard(View parent)
 	{
 		if (!systemKeyboard)
