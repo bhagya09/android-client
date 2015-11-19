@@ -1169,10 +1169,6 @@ public class IntentFactory
 		{
 			intent = IntentFactory.getNonMessagingBotIntent(msisdn, mContext);
 		}
-		else
-		{
-			 intent=IntentFactory.createChatThreadIntentFromMsisdn(mContext, msisdn, false, false);
-		}
 		return intent;
 	}
 
