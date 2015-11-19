@@ -400,11 +400,11 @@ public class HttpRequestConstants
     {
         if (isProduction)
         {
-            return HTTP + "ping.im.hike.in/android";
+            return HTTP + "ping.im.hike.in" + BASE_V1 + "/android";
         }
         else
         {
-            return HTTP + STAGING_API + "/android";
+            return HTTP + STAGING_API  + BASE_V1 + "/android";
         }
     }
 }
