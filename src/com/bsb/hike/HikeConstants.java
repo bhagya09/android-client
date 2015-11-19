@@ -612,6 +612,8 @@ public class HikeConstants
 
 	public static final String LOCAL_LANGUAGE_PREF = "appLanguagePref";
 
+	public static final String LOCALIZATION_FTUE_COMPLETE = "localizationFtueComplete";
+
 	public static final String KEYBOARD_PREF = "keyboardPref";
 	
 	public static final String GLIDE_PREF = "glidePref";

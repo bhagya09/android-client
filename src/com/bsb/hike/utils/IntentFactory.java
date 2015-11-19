@@ -60,6 +60,7 @@ import com.bsb.hike.ui.HikeDirectHelpPageActivity;
 import com.bsb.hike.ui.HikeListActivity;
 import com.bsb.hike.ui.HikePreferences;
 import com.bsb.hike.ui.HomeActivity;
+import com.bsb.hike.ui.HomeFtueActivity;
 import com.bsb.hike.ui.LanguageSettingsActivity;
 import com.bsb.hike.ui.NUXInviteActivity;
 import com.bsb.hike.ui.NuxSendCustomMessageActivity;
@@ -776,6 +777,14 @@ public class IntentFactory
 	public static void openSignupActivity(Context appContext)
 	{
 		Intent i = new Intent(appContext, SignupActivity.class);
+		i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+		i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		appContext.startActivity(i);
+	}
+
+	public static void openHomeFtueActivity(Context appContext)
+	{
+		Intent i = new Intent(appContext, HomeFtueActivity.class);
 		i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
 		i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 		appContext.startActivity(i);

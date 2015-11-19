@@ -27,7 +27,7 @@
 
         <include layout="@layout/restoring_backup" />
 
-        <include layout="@layout/select_language" />
+
 
         <ProgressBar
             android:id="@+id/loading_progress"
