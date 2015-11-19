@@ -203,6 +203,16 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	{
 		Logger.d(TAG,"onCreate");
 		super.onCreate(savedInstanceState);
+		
+		if (!isTaskRoot())
+		{
+		    final Intent intent = getIntent();
+		    if (intent.hasCategory(Intent.CATEGORY_LAUNCHER) && Intent.ACTION_MAIN.equals(intent.getAction())) {
+		        Logger.d(TAG, "Main Activity is not the root.  Finishing Main Activity instead of launching.");
+		        finish();
+		        return;       
+		    }
+		}
 
 		if (savedInstanceState != null && savedInstanceState.getBoolean(HikeConstants.Extras.CLEARED_OUT, false)) 
 		{
@@ -349,6 +359,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		{
 			timelineUpdatesIndicator.setVisibility(View.GONE);
 		}
+		HikeMessengerApp.getPubSub().publish(HikePubSub.BADGE_COUNT_TIMELINE_UPDATE_CHANGED, null);
 
 	}
 	
@@ -786,7 +797,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 					intent.putExtra(HikeConstants.Extras.IS_MICROAPP_SHOWCASE_INTENT, true);
 
 					newConversationIndicator.setVisibility(View.GONE);
-					HikeMessengerApp.getPubSub().publish(HikePubSub.BADGE_COUNT_USER_JOINED, null);
+					HikeMessengerApp.getPubSub().publish(HikePubSub.BADGE_COUNT_USER_JOINED, new Integer(0));
 					startActivity(intent);
 				}
 			});
@@ -1696,7 +1707,10 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		}
 		else if (HikePubSub.PRODUCT_POPUP_RECEIVE_COMPLETE.equals(type))
 		{
-			showProductPopup(ProductPopupsConstants.PopupTriggerPoints.HOME_SCREEN.ordinal());
+			if (isActivityVisible())
+			{
+				showProductPopup(ProductPopupsConstants.PopupTriggerPoints.HOME_SCREEN.ordinal());
+			}
 		}
 	}
 

@@ -247,7 +247,14 @@ public class ChatHeadViewManager
 			Logger.d("MotionEvent", "scrolled");
 			try
 			{
-				windowManager.addView(closeHead, closeHeadParams);
+				if (closeHead.isShown())
+				{
+					windowManager.updateViewLayout(closeHead, closeHeadParams);
+				}
+				else
+				{
+					windowManager.addView(closeHead, closeHeadParams);
+				}
 			}
 			catch (Exception e)
 			{
