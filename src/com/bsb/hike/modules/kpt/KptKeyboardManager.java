@@ -2,6 +2,7 @@ package com.bsb.hike.modules.kpt;
 
 import android.content.Context;
 import android.os.Environment;
+import android.text.TextUtils;
 
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
@@ -135,6 +136,14 @@ public class KptKeyboardManager implements AdaptxtSettingsRegisterListener
 		return mUnistalledLanguagesList;
 	}
 
+	public ArrayList<KPTAddonItem> getSupportedLanguagesList()
+	{
+		ArrayList<KPTAddonItem> mSupportedLanguagesList = new ArrayList<>();
+		mSupportedLanguagesList.addAll(getInstalledLanguagesList());
+		mSupportedLanguagesList.addAll(getUninstalledLanguagesList());
+		return mUnsupportedLanguagesList;
+	}
+
 	public ArrayList<KPTAddonItem> getUnsupportedLanguagesList()
 	{
 		return mUnsupportedLanguagesList;
@@ -201,6 +210,23 @@ public class KptKeyboardManager implements AdaptxtSettingsRegisterListener
 		HikeMessengerApp.getPubSub().publish(HikePubSub.KPT_LANGUAGES_UPDATED, null);
 	}
 
+	public void downloadAndInstallLanguage(String locale)
+	{
+		if (TextUtils.isEmpty(locale))
+		{
+			return;
+		}
+		for(KPTAddonItem item : getSupportedLanguagesList())
+		{
+			if (item.getlocaleName().substring(0,item.getlocaleName().indexOf("-")).equals(locale))
+			{
+				downloadAndInstallLanguage(item);
+				return;
+			}
+		}
+
+	}
+
 	public void downloadAndInstallLanguage(KPTAddonItem addOnItem)
 	{
 		StickerLanguagesManager.getInstance().downloadTagsForLanguage(new Locale(addOnItem.getlocaleName()).getISO3Language());
@@ -216,30 +242,30 @@ public class KptKeyboardManager implements AdaptxtSettingsRegisterListener
 			if (mState == WAITING)
 				startProcessing();
 		}
+		else if (languageStatusMap.get(addOnItem.getDisplayName()) == LanguageDictionarySatus.INSTALLED_UNLOADED)
+		{
+			loadInstalledLanguage(addOnItem);
+		}
 		// this is just for kesting
 		else
 		{
 			if (mLanguagesWaitingQueue == null)
 				mLanguagesWaitingQueue = new ArrayList<KPTAddonItem>();
-			kptSettings.unInstallAdaptxtAddon(addOnItem, new AdaptxtAddonUnInstallationListner()
-			{
+			kptSettings.unInstallAdaptxtAddon(addOnItem, new AdaptxtAddonUnInstallationListner() {
 				@Override
-				public void onUnInstallationStarted(String arg0)
-				{
+				public void onUnInstallationStarted(String arg0) {
 					Logger.d(TAG, "onUnInstallationStarted: " + arg0);
 					// TODO Auto-generated method stub
 				}
 
 				@Override
-				public void onUnInstallationError(String arg0)
-				{
+				public void onUnInstallationError(String arg0) {
 					Logger.d(TAG, "onUnInstallationError: " + arg0);
 					processComplete();
 				}
 
 				@Override
-				public void onUnInstallationEnded(String arg0)
-				{
+				public void onUnInstallationEnded(String arg0) {
 					Logger.d(TAG, "onUnInstallationEnded: " + arg0);
 					processComplete();
 				}

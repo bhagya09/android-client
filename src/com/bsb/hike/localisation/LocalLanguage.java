@@ -89,9 +89,7 @@ public class LocalLanguage {
     {
         if (deviceSupportedHikeList == null)
         {
-            ArrayList<KPTAddonItem> deviceSupportedkptLanguages = new ArrayList<>();
-            deviceSupportedkptLanguages.addAll(KptKeyboardManager.getInstance(context).getInstalledLanguagesList());
-            deviceSupportedkptLanguages.addAll(KptKeyboardManager.getInstance(context).getUninstalledLanguagesList());
+            ArrayList<KPTAddonItem> deviceSupportedkptLanguages = KptKeyboardManager.getInstance(context).getSupportedLanguagesList();
             HashSet<String> supportedLocaleSet = new HashSet<>();
             for (KPTAddonItem item : deviceSupportedkptLanguages)
             {
