@@ -119,8 +119,7 @@ public class OfflineController
 	public void removeConnectionRequest()
 	{
 		mHandler.removeMessages(OfflineConstants.HandlerConstants.REMOVE_CONNECT_REQUEST);
-		NotificationManager notificationManager = (NotificationManager) HikeMessengerApp.getInstance().getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
-		notificationManager.cancel(HikeNotification.OFFLINE_REQUEST_ID);
+		HikeNotification.getInstance().cancelNotification(HikeNotification.OFFLINE_REQUEST_ID);
 		HikeSharedPreferenceUtil.getInstance().removeData(OfflineConstants.DIRECT_REQUEST_DATA);
 		HikeMessengerApp.getPubSub().publish(HikePubSub.ON_OFFLINE_REQUEST, null);
 	}
@@ -592,7 +591,7 @@ public class OfflineController
 		
 		HikeConversationsDatabase.getInstance().addConversationMessages(convMessage, true);
 		HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_RECEIVED, convMessage);
-		offlineManager.sendConnectedCallback();
+		//offlineManager.sendConnectedCallback();
 		long connectionId = System.currentTimeMillis();
 		OfflineSessionTracking.getInstance().setConnectionId(connectionId);
 		
@@ -689,5 +688,11 @@ public class OfflineController
 		if (senderConsignment == null)
 			return;
 		offlineManager.sendConsignment(senderConsignment);
+	}
+
+	public void sendConnectedCallback()
+	{
+		offlineManager.sendConnectedCallback();
+		
 	}
 }

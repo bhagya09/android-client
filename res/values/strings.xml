@@ -784,10 +784,6 @@
     <string name="voip_connecting">&#8230;CONNECTING</string>
     <string name="voip_partner_busy">&#8230;BUSY</string>
     <string name="voip_offline_error">Network unavailable. Please try again when you have network connectivity.</string>
-    <string name="voip_signal_fair">FAIR</string>
-    <string name="voip_signal_good">GOOD</string>
-    <string name="voip_signal_weak">WEAK</string>
-    <string name="voip_signal_excellent">EXCELLENT</string>
     <string name="voip_conference_label">Conference Call</string>
     <string name="voip_conference_waiting_for_participants_info">Waiting for conference info...</string>
     <string name="hike_calls">Hike Calls</string>
@@ -1210,11 +1206,31 @@
     <string name="getting_details">Getting details...</string>
     <string name="take_me_there">TAKE ME THERE</string>
     <string name="hike_upgrade_string">Making hike faster and better for you\n This may take a few minutes</string>
+    <array name="voip_decline_message_texts">
+        <item>Can\'t talk now. What\'s up?</item>
+        <item>I\'ll call you right back</item>
+        <item>I\'ll call you later</item>
+        <item>Can\'t talk now. Call me later?</item>
+    </array>
     <string name="HELP">HELP</string>
     <string name="sticky_caller_settings">Caller</string>
 	<string name="sticky_caller_settings_header">Caller Info</string>
 	<string name="sticky_caller_settings_side_text">Show caller info and free calling/messaging options for all contacts</string>
 	<string name="enable_saved_contact_view_heading">Show for Saved Contacts</string>
 	<string name="enable_saved_contact_view_side_text">Show caller info for saved contacts too</string>
+	<string name="tip_and_notif_update_text">UPDATE</string>
+    <string name="tip_and_notif_later_text">LATER</string>
+    <string name="update_tip_header_text">NEW HIKE UPDATE AVAILABLE</string>
+    <string name="update_tip_body_text">Get free Group Calls, Hike News and new Hidden Mode in this update</string>
+    <string name="invite_tip_bottom_text">INVITE</string>
+    <string name="invite_tip_header_text">Invite Friends</string>
+    <string name="invite_tip_body_text">Invite your friends on Hike and earn free talktime!</string>
+    <string name="pers_notif_title">Update Hike</string>
+    <string name="pers_notif_message">Update Hike for exciting new features!</string>
+	<string name="close_gps">You can now turn off your location to save battery. Your Hike Direct connection will not get affected.</string>
+	<string name ="gps_not_on">Sorry hike direct wont work if gps not on</string>
+	<string name="switch_on_gps">Please enable location for Hike Direct to work. Press back once you\'re done. </string>
+	<string name="gps_settings">SETTING</string>
+	<string name="user_gps_off">Hike Direct cannot work till your location is enabled.</string>
 	
 </resources>
