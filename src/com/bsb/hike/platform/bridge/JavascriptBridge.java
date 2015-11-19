@@ -5,6 +5,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.lang.ref.WeakReference;
+import java.net.HttpURLConnection;
 import java.net.URLEncoder;
 
 import org.json.JSONException;
@@ -1017,6 +1018,10 @@ public abstract class JavascriptBridge
 				failure.put(HikePlatformConstants.STATUS, HikePlatformConstants.FAILURE);
 				failure.put(HikePlatformConstants.ERROR_MESSAGE, httpException.getMessage());
 				failure.put(HikePlatformConstants.STATUS_CODE, httpException.getErrorCode());
+				if(httpException.getErrorCode()== HttpURLConnection.HTTP_UNAUTHORIZED);
+				{
+					PlatformUIDFetch.fetchPlatformUid(HikePlatformConstants.PlatformFetchType.SELF);
+				}
 			}
 			catch (JSONException e)
 			{
