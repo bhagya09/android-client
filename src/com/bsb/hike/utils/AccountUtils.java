@@ -531,7 +531,7 @@ public class AccountUtils
 
 		if (msisdnForMissingPlatformUID != null && msisdnForMissingPlatformUID.size()>0)
 		{
-			PlatformUIDFetch.fetchPlatformUid(HikePlatformConstants.PlatformUIDFetchType.PARTIAL_ADDRESS_BOOK, msisdnForMissingPlatformUID.toArray(new String[] { }));
+			PlatformUIDFetch.fetchPlatformUid(HikePlatformConstants.PlatformFetchType.PARTIAL_ADDRESS_BOOK, msisdnForMissingPlatformUID.toArray(new String[] { }));
 		}
 
 		String encoded = data.toString();

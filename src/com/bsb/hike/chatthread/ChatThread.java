@@ -97,6 +97,7 @@ import com.bsb.hike.ui.utils.StatusBarColorChanger;
 import com.bsb.hike.utils.ChatTheme;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.HikeUiHandler;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.PairModified;
@@ -2363,15 +2364,15 @@ import android.widget.Toast;
 	{
 		int startIndex = getMessagesStartIndex();
 
-		long firstMsgId = messages.get(startIndex).getMsgID();
+		long firstMsgId = messages.get(startIndex).getSortingId();
 		Logger.i(TAG, "inside background thread: loading more messages " + firstMsgId);
 		
 		return loadMoreMessages(messageCountToLoad, firstMsgId, -1);
 	}
 	
-	protected List<ConvMessage> loadMoreMessages(int messageCountToLoad, long maxId, long minId)
+	protected List<ConvMessage> loadMoreMessages(int messageCountToLoad, long maxSortId, long minSortId)
 	{
-		return mConversationDb.getConversationThread(msisdn, messageCountToLoad, mConversation, maxId, minId);
+		return mConversationDb.getConversationThread(msisdn, messageCountToLoad, mConversation, maxSortId, minSortId);
 	}
 
 	protected abstract int getContentView();
@@ -2461,7 +2462,7 @@ import android.widget.Toast;
 	
 	protected boolean shouldShowKeyboard()
 	{
-		return ((mConversation.getMessagesList().isEmpty() && !mConversation.isBlocked() && !keyboardFtue.isReadyForFTUE())
+		return ((mConversation.getMessagesList().isEmpty() && !mConversation.isBlocked() && !activity.getIntent().getBooleanExtra(HikeConstants.Extras.HIKE_DIRECT_MODE,false) && !keyboardFtue.isReadyForFTUE())
 		|| mActionMode.isActionModeOn());
 	}
 
@@ -3213,7 +3214,7 @@ import android.widget.Toast;
 						ids.addAll(0, MovingList.getIds(msgList));
 						if (position >= 0)
 						{
-							Logger.d("gaurav","found at pos: "+ position + ", id:" + msgList.get(position).getMsgID());
+							Logger.d("gaurav","found at pos: "+ position + ", id:" + msgList.get(position).getSortingId());
 							int start = Math.max(position - HikeConstants.MAX_OLDER_MESSAGES_TO_LOAD_EACH_TIME, 0);
 							int end = Math.min(position + HikeConstants.MAX_OLDER_MESSAGES_TO_LOAD_EACH_TIME, msgList.size()-1);
 							ArrayList<ConvMessage> toBeAddedList = new ArrayList<ConvMessage>(ids.size());
@@ -3233,7 +3234,7 @@ import android.widget.Toast;
 							{
 								loadMessageCount *= 2;
 							}
-							maxId = msgList.get(0).getMsgID();
+							maxId = msgList.get(0).getSortingId();
 						}
 					}
 					if (loaderId == SEARCH_LOOP && position < 0)
@@ -3260,7 +3261,7 @@ import android.widget.Toast;
 						position = messageSearchManager.searchFirstItem(msgList, 0, msgList.size(), chatThread.get().searchText);
 						if (position >= 0)
 						{
-							Logger.d("gaurav","found at pos: "+ position + ", id:" + msgList.get(position).getMsgID());
+							Logger.d("gaurav","found at pos: "+ position + ", id:" + msgList.get(position).getSortingId());
 							count += (position + 1);
 							position = count;
 						}
@@ -3272,7 +3273,7 @@ import android.widget.Toast;
 							{
 								loadMessageCount *= 2;
 							}
-							minId = msgList.get(msgList.size() - 1).getMsgID();
+							minId = msgList.get(msgList.size() - 1).getSortingId();
 							maxIdPosition = Math.min(count + loadMessageCount, msgSize - 1);
 							maxId = chatThread.get().messages.getUniqueId(maxIdPosition);
 						}
@@ -3844,6 +3845,26 @@ import android.widget.Toast;
         		sendUIMessage(MESSAGE_SENT, msg);
         	}
         	break;
+			case HikePubSub.GENERAL_EVENT_STATE_CHANGE:
+				ConvMessage eventMessage=(ConvMessage)object;
+				if(eventMessage!=null&&this.msisdn.equals(eventMessage.getMsisdn()))
+				{
+					long messageId = eventMessage.getMsgID();
+					for (int i = messages.size() - 1; i >= 0; i--)
+					{
+						ConvMessage mesg = messages.get(i);
+						if (mesg.getMsgID() == messageId)
+						{
+							messages.get(i).setState(eventMessage.getState());
+							uiHandler.sendEmptyMessage(NOTIFY_DATASET_CHANGED);
+							break;
+						}
+
+					}
+				}
+				break;
+
+
 		default:
 			Logger.e(TAG, "PubSub Registered But Not used : " + type);
 			break;
@@ -5119,6 +5140,7 @@ import android.widget.Toast;
 			if (msg.getState() == ConvMessage.State.RECEIVED_UNREAD)
 			{
 				unreadConvMessages.add(msg);
+				msg.setState(ConvMessage.State.RECEIVED_READ);
 			}
 			else if (msg.getState() == ConvMessage.State.RECEIVED_READ)
 			{
@@ -6284,4 +6306,27 @@ import android.widget.Toast;
 	{
 		KptUtils.onGlobeKeyPressed(activity, mCustomKeyboard);
 	}
+	
+	/**
+	 * Call this method instead of directly calling {@link ChatThread#onDestroy()}
+	 */
+	protected void tryToDestroyChatThread()
+	{
+		if (wasAnythingInstantiated())
+		{
+			onDestroy();
+		}
+	}
+	
+	/**
+	 * In cases of deleted conversations, the {@link ChatThread#fetchConversation()} returns null and eventually onDestroy is called. Since there are certain objects in onDestroy
+	 * which might not have been instantiated, hence we were getting NPE there. This fixes that.
+	 * 
+	 * @return
+	 */
+	private boolean wasAnythingInstantiated()
+	{
+		return mConversation != null;
+	}
+	
 }

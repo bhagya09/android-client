@@ -41,6 +41,7 @@ import com.bsb.hike.ui.ComposeChatActivity.FileTransferData;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.google.ads.AdRequest.ErrorCode;
+import com.google.gson.Gson;
 import com.hike.transporter.TException;
 import com.hike.transporter.Transporter;
 import com.hike.transporter.models.SenderConsignment;
@@ -67,6 +68,8 @@ public class OfflineController
 
 	private volatile OFFLINE_STATE offlineState = OFFLINE_STATE.NOT_CONNECTED;
 
+	private OfflineParameters offlineParamerterPojo = new Gson().fromJson(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.OFFLINE, "{}"), OfflineParameters.class);
+	
 	private Handler mHandler = new Handler(HikeHandlerUtil.getInstance().getLooper())
 	{
 		public void handleMessage(android.os.Message msg)
@@ -705,6 +708,19 @@ public class OfflineController
 	public void sendConnectedCallback()
 	{
 		offlineManager.sendConnectedCallback();
-		
+	}
+	
+	public OfflineParameters getConfigurationParamerters()
+	{
+		return offlineParamerterPojo;
+	}
+	
+	public void setConfiguration(String configuration)
+	{
+		if (TextUtils.isEmpty(configuration))
+		{
+			return;
+		}
+		offlineParamerterPojo = new Gson().fromJson(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.OFFLINE, configuration), OfflineParameters.class);
 	}
 }
