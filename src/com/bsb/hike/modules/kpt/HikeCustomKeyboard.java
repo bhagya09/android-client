@@ -105,4 +105,10 @@ public class HikeCustomKeyboard extends CustomKeyboard
 			};
 		super.registerEditText(text, eType, listener, keyboardVisibilityListener);
 	}
+
+	@Override
+	public void showCustomKeyboard(View view, boolean b)
+	{
+		super.showCustomKeyboard(view, b);
+	}
 }
