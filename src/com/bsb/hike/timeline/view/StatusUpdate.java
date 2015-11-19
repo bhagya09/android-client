@@ -3,6 +3,9 @@ package com.bsb.hike.timeline.view;
 import java.io.IOException;
 import java.net.URISyntaxException;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
@@ -10,11 +13,13 @@ import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.adapters.MoodAdapter;
+import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.media.EmoticonPicker;
 import com.bsb.hike.media.ImageParser;
 import com.bsb.hike.media.ImageParser.ImageParserListener;
+import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.media.PopupListener;
 import com.bsb.hike.modules.kpt.HikeCustomKeyboard;
 import com.bsb.hike.modules.kpt.KptKeyboardManager;
@@ -710,6 +715,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		try
 		{
 			mActivityTask.task = new StatusUpdateTask(status, mActivityTask.moodId, mImagePath, KptKeyboardManager.getInstance(getApplicationContext()).getCurrentLanguageAddonItem().getlocaleName());
+			addLanguageAnalytics();
 		}
 		catch (IOException e)
 		{
@@ -727,6 +733,20 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		
 	}
 
+	protected void addLanguageAnalytics()
+	{
+		JSONObject metadata = new JSONObject();
+		try 
+		{
+			metadata.put(HikeConstants.LogEvent.KPT, KptKeyboardManager.getInstance(StatusUpdate.this).getCurrentLanguageAddonItem().getlocaleName());
+			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
+		} 
+		catch (JSONException e) 
+		{
+			e.printStackTrace();
+		}
+	}
+	
 	private void showMoodSelector()
 	{
 		hideKeyboard();
