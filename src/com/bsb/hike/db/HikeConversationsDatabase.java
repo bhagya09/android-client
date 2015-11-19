@@ -188,7 +188,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				+ " ( "
 				+ DBConstants.CONV_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " // Deprecated
 				+ DBConstants.ONHIKE + " INTEGER, " // Whether the conversation is on hike or not
-				+ DBConstants.CONTACT_ID + " STRING, " // Deprecated
+				+ DBConstants.CONTACT_ID + " TEXT, " // Deprecated
 				+ DBConstants.MSISDN + " UNIQUE, " // The conversation's msisdn. This will be the msisdn for one-to-one and the group id for groups
 				+ DBConstants.OVERLAY_DISMISSED + " INTEGER, " // Flag. Whether to show the SMS Credits overlay or not.
 
@@ -214,7 +214,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		db.execSQL(sql);
 		sql = "CREATE TABLE IF NOT EXISTS " + DBConstants.GROUP_MEMBERS_TABLE
 				+ " ( "
-				+ DBConstants.GROUP_ID + " STRING, " // The group id.
+				+ DBConstants.GROUP_ID + " TEXT, " // The group id.
 				+ DBConstants.MSISDN + " TEXT, " // Msisdn of the group participant
 				+ DBConstants.NAME + " TEXT, " // Name of the participant
 				+ DBConstants.ONHIKE + " INTEGER, " // Whether the participant is on hike or not.
@@ -229,7 +229,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		db.execSQL(sql);
 		sql = "CREATE TABLE IF NOT EXISTS " + DBConstants.GROUP_INFO_TABLE
 				+ " ( "
-				+ DBConstants.GROUP_ID + " STRING PRIMARY KEY, " // The group id
+				+ DBConstants.GROUP_ID + " TEXT PRIMARY KEY, " // The group id
 				+ DBConstants.GROUP_NAME + " TEXT, " // Name of the group
 				+ DBConstants.GROUP_OWNER + " TEXT, " // Group owner's msisdn
 				+ DBConstants.GROUP_ALIVE + " INTEGER, " // Whether the group is alive or not
@@ -8703,6 +8703,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			msg =getMessageFromMessageHash(msgHash);
 			updateConvTable(msg);
 			mDb.setTransactionSuccessful();
+			HikeMessengerApp.getPubSub().publish(HikePubSub.GENERAL_EVENT_STATE_CHANGE,msg);
 		}
 
 		catch (Exception e)

@@ -488,6 +488,8 @@ public class HikePubSub implements Runnable
 
 	public static final String GENERAL_EVENT="generalEvent";
 
+	public static final String GENERAL_EVENT_STATE_CHANGE="generalEventStateChanged";
+
 	private final Thread mThread;
 
 	private final BlockingQueue<Operation> mQueue;

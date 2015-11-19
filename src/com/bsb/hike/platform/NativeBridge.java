@@ -605,6 +605,16 @@ public class NativeBridge
 			}
 		});
 	}
+	
+	/**
+	 * Returns status of connectivity, on the same thread. No need of handler/GlThread explicit invocation.  
+	 * 
+	 * @return
+	 */
+	public boolean isNetworkConnected()
+	{
+	  return Utils.getNetInfoFromConnectivityManager().second;
+	}
 
 	/**
 	 * Handler for message event Received. Invokes platformCallback
