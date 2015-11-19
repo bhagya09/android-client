@@ -44,7 +44,6 @@
         <com.bsb.hike.view.IconPreference
             android:key="advancedPref"
             android:layout="@layout/icon_preference"
-            android:summary="@string/kpt_adv_summary"
             android:title="@string/kpt_adv_title" />
         
     </PreferenceCategory>
