@@ -177,7 +177,7 @@ public class OfflineUtils
 
 	public static ConvMessage createOfflineInlineConvMessage(String msisdn, String message, String type)
 	{
-		ConvMessage convMessage = Utils.makeConvMessage(msisdn, message, true, State.RECEIVED_READ);
+		ConvMessage convMessage = Utils.makeConvMessage(msisdn, message, true, State.RECEIVED_UNREAD);
 		try
 		{
 			JSONObject metaData = new JSONObject();
