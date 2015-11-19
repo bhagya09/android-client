@@ -1744,6 +1744,8 @@ public class HikeConstants
 		public static final String GROUP_CHAT_DP = "group_chat_dp";
 		
 		public static final String IS_MICROAPP_SHOWCASE_INTENT = "microappShowcaseIntent";
+
+        public static final String IS_CONTACT_CHOOSER_FILTER_INTENT = "contactChooserFilterIntent";
 	}
 
 	public static final class LogEvent
