@@ -658,14 +658,14 @@ public class ChatHeadUtils
 		if (HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.SHOW_STICKY_CALLER, false)
 				&& PreferenceManager.getDefaultSharedPreferences(context).getBoolean(HikeConstants.ACTIVATE_STICKY_CALLER_PREF, false))
 		{
+			registerOrUnregisterClipboardListener(context);
+
 			HikeHandlerUtil.getInstance().postRunnable(new Runnable()
 			{
 				// putting code inside runnable to make it run on UI thread.
 				@Override
 				public void run()
 				{
-					registerOrUnregisterClipboardListener(context);
-					
 					if (incomingCallReceiver == null)
 					{
 						incomingCallReceiver = new IncomingCallReceiver();

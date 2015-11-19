@@ -517,7 +517,7 @@ public class StickyCaller
 			stickyCallerFrameHolder.addView(stickyCallerView);
 			windowManager.addView(stickyCallerFrameHolder, callerParams);
 			stickyCallerView.setOnTouchListener(onSwipeTouchListener);
-			if (CALL_TYPE == CLIPBOARD)
+			if (CALL_TYPE != INCOMING && CALL_TYPE != OUTGOING)
 			{
 				removeCallerViewWithDelay(OUTGOING_DELAY);
 			}
@@ -537,7 +537,6 @@ public class StickyCaller
 			TextView smsText = (TextView) stickyCallerView.findViewById(R.id.caller_sms_text);
 			smsText.setVisibility(View.VISIBLE);
 			smsText.setText(StickyCaller.sms);
-			StickyCaller.sms = null;
 		}
 
 	}

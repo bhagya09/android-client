@@ -9,8 +9,17 @@ public class ClipboardListener implements OnPrimaryClipChangedListener
 {
 	public void onPrimaryClipChanged()
 	{
-		ClipboardManager mClipboard = (ClipboardManager) HikeMessengerApp.getInstance().getSystemService(Context.CLIPBOARD_SERVICE);
-		String clipboardText = mClipboard.getPrimaryClip().getItemAt(0).getText().toString();
+		String clipboardText;
+
+		try
+		{
+			ClipboardManager mClipboard = (ClipboardManager) HikeMessengerApp.getInstance().getSystemService(Context.CLIPBOARD_SERVICE);
+			clipboardText = mClipboard.getPrimaryClip().getItemAt(0).getText().toString();
+		}
+		catch (Exception e)
+		{
+			clipboardText = null;
+		}
 		if (clipboardText != null)
 		{
 			String regex = "^(\\s*\\+?(\\d{1,5}\\s?\\-?){1,6}\\s*){6,13}$";
