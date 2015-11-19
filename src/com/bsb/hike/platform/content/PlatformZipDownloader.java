@@ -2,6 +2,7 @@ package com.bsb.hike.platform.content;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.util.HashMap;
 import java.util.Observable;
 import java.util.Observer;
