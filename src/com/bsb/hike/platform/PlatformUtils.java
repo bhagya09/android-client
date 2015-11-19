@@ -217,7 +217,14 @@ public class PlatformUtils
 			}
 			if (activityName.equals(HIKESCREEN.COMPOSE_CHAT.toString()))
 			{
-				context.startActivity(IntentFactory.getComposeChatIntent(context));
+				if (mmObject.optBoolean(AnalyticsConstants.BOT_DISCOVERY, false))
+				{
+					context.startActivity(IntentFactory.getComposeChatIntentWithBotDiscovery(context));
+				}
+				else
+				{
+					context.startActivity(IntentFactory.getComposeChatIntent(context));
+				}
 			}
 			if (activityName.equals(HIKESCREEN.INVITE_SMS.toString()))
 			{
