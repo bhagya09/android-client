@@ -792,9 +792,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 						Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
 					}
 
-					Intent intent = new Intent(HomeActivity.this, ComposeChatActivity.class);
-					intent.putExtra(HikeConstants.Extras.EDIT, true);
-					intent.putExtra(HikeConstants.Extras.IS_MICROAPP_SHOWCASE_INTENT, true);
+					Intent intent = IntentFactory.getComposeChatIntentWithBotDiscovery(HomeActivity.this);
 
 					newConversationIndicator.setVisibility(View.GONE);
 					HikeMessengerApp.getPubSub().publish(HikePubSub.BADGE_COUNT_USER_JOINED, new Integer(0));
