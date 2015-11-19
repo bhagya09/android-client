@@ -1596,8 +1596,7 @@ import android.widget.Toast;
 	{
 		mShareablePopupLayout.onBackPressed();
 
-		if (removeFragment(HikeConstants.IMAGE_FRAGMENT_TAG, true))
-		{
+		if(handleImageFragmentBackPressed()){
 			return true;
 		}
 		
@@ -1632,6 +1631,20 @@ import android.widget.Toast;
 
 		return false;
 	}
+
+	private boolean handleImageFragmentBackPressed(){
+		if (removeFragment(HikeConstants.IMAGE_FRAGMENT_TAG, true))
+		{
+			if(mActionMode.isActionModeOn() && mCustomKeyboard.isCustomKeyboardVisible()){
+				if(mActionMode.whichActionModeIsOn() == this.SEARCH_ACTION_MODE) {
+					mActionMode.finish();
+					setupSearchMode(searchText);
+				}
+			}
+			return true;
+		}
+		return false;
+	}
 	
 	private void actionBarBackPressed()
 	{
@@ -1641,8 +1654,7 @@ import android.widget.Toast;
 			return;
 		}
 
-		if (removeFragment(HikeConstants.IMAGE_FRAGMENT_TAG, true))
-		{
+		if(handleImageFragmentBackPressed()){
 			return;
 		}
 
