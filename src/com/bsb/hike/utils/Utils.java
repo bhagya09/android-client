@@ -5845,7 +5845,7 @@ public class Utils
 		}
 	}
 
-	private static void sendDeviceDetails(Context context, boolean upgrade, boolean sendBot)
+	public static void sendDeviceDetails(Context context, boolean upgrade, boolean sendBot)
 	{
 		recordDeviceDetails(context);
 		requestAccountInfo(upgrade, sendBot);
