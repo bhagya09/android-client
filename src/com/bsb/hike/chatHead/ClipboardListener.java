@@ -13,7 +13,7 @@ public class ClipboardListener implements OnPrimaryClipChangedListener
 		String clipboardText = mClipboard.getPrimaryClip().getItemAt(0).getText().toString();
 		if (clipboardText != null)
 		{
-			String regex = "^\\s*\\+?(\\d{1,5}\\s?\\-?){1,6}\\s*$";
+			String regex = "^(\\s*\\+?(\\d{1,5}\\s?\\-?){1,6}\\s*){6,13}$";
 			if (clipboardText.matches(regex))
 			{
 				String number = "";
