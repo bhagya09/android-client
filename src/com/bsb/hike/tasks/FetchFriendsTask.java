@@ -465,6 +465,10 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 			{
 				removeContactsFromList(smsTaskList, groupParticipants);
 			}
+			if(fetchRecentlyJoined)
+			{
+				removeContactsFromList(recentlyJoinedTaskList, groupParticipants);
+			}
 
 			for (PairModified<GroupParticipant, String> groupParticipant : groupParticipants.values())
 			{

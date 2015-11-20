@@ -217,7 +217,14 @@ public class PlatformUtils
 			}
 			if (activityName.equals(HIKESCREEN.COMPOSE_CHAT.toString()))
 			{
-				context.startActivity(IntentFactory.getComposeChatIntent(context));
+				if (mmObject.optBoolean(AnalyticsConstants.BOT_DISCOVERY, false))
+				{
+					context.startActivity(IntentFactory.getComposeChatIntentWithBotDiscovery(context));
+				}
+				else
+				{
+					context.startActivity(IntentFactory.getComposeChatIntent(context));
+				}
 			}
 			if (activityName.equals(HIKESCREEN.INVITE_SMS.toString()))
 			{
@@ -333,9 +340,16 @@ public class PlatformUtils
 					context.startActivity(i);
 				}
 			}
+			if (activityName.equals(HIKESCREEN.OPEN_MICROAPP.toString()))
+			{
+				Intent intent = IntentFactory.getNonMessagingBotIntent(mmObject.getString(HikeConstants.MSISDN), context);
+				intent.putExtra(HikePlatformConstants.EXTRA_DATA, mmObject.optString(HikePlatformConstants.EXTRA_DATA));
+				context.startActivity(intent);
+			}
 		}
 		catch (JSONException e)
 		{
+			Logger.e(TAG, "JSONException in openActivity : "+e.getMessage());
 			e.printStackTrace();
 		}
 		catch (ActivityNotFoundException e)
@@ -415,7 +429,7 @@ public class PlatformUtils
 
 	public static void botCreationSuccessHandling(BotInfo botInfo, boolean enableBot, String botChatTheme, String notifType)
 	{
-		enableBot(botInfo, enableBot);
+		enableBot(botInfo, enableBot,true);
 		BotUtils.updateBotParamsInDb(botChatTheme, botInfo, enableBot, notifType);
 		createBotAnalytics(HikePlatformConstants.BOT_CREATED, botInfo);
 		createBotMqttAnalytics(HikePlatformConstants.BOT_CREATED_MQTT, botInfo);
@@ -477,11 +491,12 @@ public class PlatformUtils
 		}
 	}
 
-	public static void enableBot(BotInfo botInfo, boolean enableBot)
+	public static void enableBot(BotInfo botInfo, boolean enableBot,boolean increaseUnread)
 	{
 		if (enableBot && botInfo.isNonMessagingBot())
 		{
 			HikeConversationsDatabase.getInstance().addNonMessagingBotconversation(botInfo);
+			Utils.rearrangeChat(botInfo.getMsisdn(),true,increaseUnread);
 		}
 	}
 

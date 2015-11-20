@@ -730,6 +730,14 @@ public class IntentFactory
 		appContext.startActivity(i);
 	}
 
+	public static void reopenSignupActivity(Context context)
+	{
+		Intent i = new Intent(context, SignupActivity.class);
+		i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		context.startActivity(i);
+	}
+
 	public static void openHomeActivity(Context context, boolean clearTop)
 	{
 		Intent in = new Intent(context, HomeActivity.class);
@@ -739,6 +747,7 @@ public class IntentFactory
 		}
 		context.startActivity(in);
 	}
+	
 	/*
 	 * The returned intent will be similar to the one used by android for opening an activity from the Launcher icon
 	 */
@@ -853,6 +862,13 @@ public class IntentFactory
 	{
 		Intent intent = new Intent(context, ComposeChatActivity.class);
 		intent.putExtra(HikeConstants.Extras.EDIT, true);
+		return intent;
+	}
+
+	public static Intent getComposeChatIntentWithBotDiscovery(Activity context)
+	{
+		Intent intent = getComposeChatIntent(context);
+		intent.putExtra(HikeConstants.Extras.IS_MICROAPP_SHOWCASE_INTENT, true);
 		return intent;
 	}
 

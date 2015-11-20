@@ -11,6 +11,8 @@ public class AnalyticsConstants
 	
 	/** one day in seconds */
 	public static final int DAY_IN_SECONDS = 24 * 60 * 60;
+	public static final Object FILE_DOWNLOADED ="FileDownloaded" ;
+	public static final String RESULT_CODE = "resultCode";
 
 	/** Default maximum size per file in kilobytes */ 
 	public static long MAX_FILE_SIZE = 200; // 200KB
@@ -569,6 +571,18 @@ public class AnalyticsConstants
 	
 	public static final String LOG_FIELD_6 = "fld6";
 
+	public static final String UPDATE_TIP_CLICKED = "utclkd";
+	
+	public static final String INVITE_TIP_CLICKED = "utclkd";
+	
+	public static final String PERSISTENT_NOTIF_CLICKED = "pnclkd";
+	
+	public static final String UPDATE_TIP_DISMISSED = "utdsmd";
+	
+	public static final String INVITE_TIP_DISMISSED = "itdsmd";
+	
+	public static final String UPDATE_INVITE_TIP = "uitip";
+			
 	public static final String FILE_SIZE = "fs";
 
 	public static final String INTERNAL_STORAGE_SPACE = "mem";

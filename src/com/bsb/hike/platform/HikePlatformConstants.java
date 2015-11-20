@@ -231,7 +231,7 @@ public interface HikePlatformConstants
 	
 	public static final int VERSION_ALTO = 1;
 
-	public static final int CURRENT_VERSION = 7;
+	public static final int CURRENT_VERSION = 9;
 
 	public static final String AB_COLOR = "color";
 	
@@ -278,5 +278,6 @@ public interface HikePlatformConstants
 	final static String RESUME_SUPPORT = "resume_support";
 
 	public static final String IS_SHORTCUT = "is_shortcut";
-	
+
+	public static final String EXTRA_DATA = "extra_data";
 }

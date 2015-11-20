@@ -592,7 +592,7 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 			friendsListFetchedCallback.listFetched();
 		}
 
-		boolean shouldContinue = makeSetupForCompleteList(filtered);
+		boolean shouldContinue = makeSetupForCompleteList(filtered,firstFetch);
 
 		if (!shouldContinue)
 		{
@@ -629,16 +629,20 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 		setEmptyView();
 	}
 
-	protected boolean makeSetupForCompleteList(boolean filtered)
+	protected boolean makeSetupForCompleteList(boolean filtered, boolean firstFetch)
 	{
 		/*
 		 * Only try to filter if we've fetched the list once.
 		 */
-		if (!filtered && listFetchedOnce)
-		{
-			contactFilter.filter(queryText);
-			return false;
+		
+                //Begin Fix AND-3408
+		if (!TextUtils.isEmpty(queryText)) {
+			if (firstFetch && listFetchedOnce) {
+				contactFilter.filter(queryText);
+				return false;
+			}
 		}
+                //End Fix AND-3408
 
 		/*
 		 * If we do not fetch the list even once and all the lists are empty, we should show the spinner. Else we show the empty states
@@ -1216,6 +1220,7 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 				viewHolder.inviteIcon = (ImageView) convertView.findViewById(R.id.invite_icon);
 				viewHolder.addFriend = (ImageView) convertView.findViewById(R.id.add_friend);
 				viewHolder.info = (TextView) convertView.findViewById(R.id.info);
+				viewHolder.infoContainer = (ViewGroup) convertView.findViewById(R.id.info_container);
 				break;
 
 			case SECTION:
@@ -1297,10 +1302,11 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 					if(lastStatusMessage != null)
 					{
 						lastSeen.setTextColor(context.getResources().getColor(R.color.list_item_subtext));
+						SmileyParser smileyParser = SmileyParser.getInstance();
 						switch (lastStatusMessage.getStatusMessageType())
 						{
 						case TEXT:
-							lastSeen.setText(lastStatusMessage.getText());
+							lastSeen.setText(smileyParser.addSmileySpans(lastStatusMessage.getText(), true));
 							if (lastStatusMessage.hasMood())
 							{
 								statusMood.setVisibility(View.VISIBLE);
@@ -1319,7 +1325,6 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 
 						case IMAGE:
 						case TEXT_IMAGE:
-							SmileyParser smileyParser = SmileyParser.getInstance();
 							if(TextUtils.isEmpty(lastStatusMessage.getText()))
 							{
 								lastSeen.setText(lastStatusMessage.getMsisdn());
@@ -1348,13 +1353,7 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 						lastSeen.setText(contactInfo.getMsisdn());
 						statusMood.setVisibility(View.GONE);
 					}
-					
-					if(lastSeenPref && contactInfo.getOffline() == 0)
-					{
-						onlineIndicator.setVisibility(View.VISIBLE);
-						onlineIndicator.setImageResource(R.drawable.ic_online_green_dot);
-					}
-					else
+					if(onlineIndicator != null)
 					{
 						onlineIndicator.setVisibility(View.GONE);
 					}

@@ -159,6 +159,7 @@ import com.bsb.hike.ui.utils.StatusBarColorChanger;
 import com.bsb.hike.utils.ChatTheme;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.HikeUiHandler;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.PairModified;
@@ -2280,7 +2281,7 @@ import com.bsb.hike.voip.VoIPConstants;
 	
 	protected boolean shouldShowKeyboard()
 	{
-		return mConversation.getMessagesList().isEmpty() && !mConversation.isBlocked();
+		return mConversation.getMessagesList().isEmpty() && !mConversation.isBlocked() && !activity.getIntent().getBooleanExtra(HikeConstants.Extras.HIKE_DIRECT_MODE,false);
 	}
 
 	/**
@@ -2541,15 +2542,9 @@ import com.bsb.hike.voip.VoIPConstants;
 
 						HikeFileType hikeFileType = HikeFileType.fromString(fileType, isRecording);
 
-						if (Utils.isPicasaUri(filePath))
-						{
-							channelSelector.sendPicasaUriFile(activity.getApplicationContext(),Uri.parse(filePath), hikeFileType, msisdn, mConversation.isOnHike());
-						}
-						else
-						{
-							channelSelector.sendFile(activity.getApplicationContext(), msisdn, filePath, fileKey, hikeFileType, fileType, isRecording,
+						Logger.d("ChatThread", "isCloudMediaUri" + Utils.isPicasaUri(filePath));
+						channelSelector.sendFile(activity.getApplicationContext(), msisdn, filePath, fileKey, hikeFileType, fileType, isRecording,
 									recordingDuration, true, mConversation.isOnHike(), attachmentType);
-						}
 					}
 					else if (msgExtrasJson.has(HikeConstants.Extras.LATITUDE) && msgExtrasJson.has(HikeConstants.Extras.LONGITUDE)
 							&& msgExtrasJson.has(HikeConstants.Extras.ZOOM_LEVEL))
@@ -3650,6 +3645,26 @@ import com.bsb.hike.voip.VoIPConstants;
         		sendUIMessage(MESSAGE_SENT, msg);
         	}
         	break;
+			case HikePubSub.GENERAL_EVENT_STATE_CHANGE:
+				ConvMessage eventMessage=(ConvMessage)object;
+				if(eventMessage!=null&&this.msisdn.equals(eventMessage.getMsisdn()))
+				{
+					long messageId = eventMessage.getMsgID();
+					for (int i = messages.size() - 1; i >= 0; i--)
+					{
+						ConvMessage mesg = messages.get(i);
+						if (mesg.getMsgID() == messageId)
+						{
+							messages.get(i).setState(eventMessage.getState());
+							uiHandler.sendEmptyMessage(NOTIFY_DATASET_CHANGED);
+							break;
+						}
+
+					}
+				}
+				break;
+
+
 		default:
 			Logger.e(TAG, "PubSub Registered But Not used : " + type);
 			break;
@@ -4876,6 +4891,7 @@ import com.bsb.hike.voip.VoIPConstants;
 			if (msg.getState() == ConvMessage.State.RECEIVED_UNREAD)
 			{
 				unreadConvMessages.add(msg);
+				msg.setState(ConvMessage.State.RECEIVED_READ);
 			}
 			else if (msg.getState() == ConvMessage.State.RECEIVED_READ)
 			{
@@ -5360,10 +5376,14 @@ import com.bsb.hike.voip.VoIPConstants;
 	protected void onConfigurationChanged(Configuration newConfig)
 	{
 		Logger.d(TAG, "newConfig : " + newConfig.toString());
-		
-		if (mShareablePopupLayout != null && mShareablePopupLayout.isShowing())
+
+		/* AND-3521: calling onConfigurationChange when mShareablePopupLayout is not null,
+		   so that bottomNavBar(width/height) can be updated according to orientation */
+		if (mShareablePopupLayout != null )
 		{
-			mShareablePopupLayout.dismiss();
+			if(mShareablePopupLayout.isShowing()) {
+				mShareablePopupLayout.dismiss();
+			}
 			mShareablePopupLayout.onConfigurationChanged();
 		}
 		

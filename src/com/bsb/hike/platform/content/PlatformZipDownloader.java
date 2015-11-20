@@ -64,7 +64,7 @@ public class PlatformZipDownloader
 
 	private  float progress_done=0;
 
-	private String asocCbotMsisdn;
+	private String asocCbotMsisdn = "";
 
 
 	/**
@@ -98,15 +98,12 @@ public class PlatformZipDownloader
 		// Get ID from content and call http
 		this(argRequest, isTemplatingEnabled, doReplace, callbackId);
 		this.resumeSupported = resumeSupported;
-		if(asocCbot==null)
-		{
-			this.asocCbotMsisdn="";
-		}
-		else
-		{
-			this.asocCbotMsisdn = asocCbot;
-		}
 		
+		if(!TextUtils.isEmpty(asocCbot))
+		{
+			this.asocCbotMsisdn=asocCbot;
+		}
+
 		if (resumeSupported)
 		{
 			setStateFilePath();
@@ -331,11 +328,15 @@ public class PlatformZipDownloader
 							Boolean isSuccess = (Boolean) data;
 							if (isSuccess)
 							{
-								BotInfo botinfo= BotUtils.getBotInfoForBotMsisdn(asocCbotMsisdn);
-								if(botinfo!=null)
+								if (!TextUtils.isEmpty(asocCbotMsisdn))
 								{
-									NonMessagingBotMetadata nonMessagingBotMetadata = new NonMessagingBotMetadata(botinfo.getMetadata());
-									HikeNotification.getInstance().sendNotificationToChatThread(asocCbotMsisdn,nonMessagingBotMetadata.getCardObj().optString(HikePlatformConstants.HIKE_MESSAGE),false);
+									BotInfo botinfo = BotUtils.getBotInfoForBotMsisdn(asocCbotMsisdn);
+									if (botinfo != null)
+									{
+										NonMessagingBotMetadata nonMessagingBotMetadata = new NonMessagingBotMetadata(botinfo.getMetadata());
+										HikeNotification.getInstance().sendNotificationToChatThread(asocCbotMsisdn,
+												nonMessagingBotMetadata.getCardObj().optString(HikePlatformConstants.HIKE_MESSAGE), false);
+									}
 								}
 								if (!isTemplatingEnabled)
 								{
@@ -425,6 +426,23 @@ public class PlatformZipDownloader
 			@Override
 			public void onRequestSuccess(Response result)
 			{
+				if(!resumeSupported)
+				{
+					JSONObject json = new JSONObject();
+					try
+					{
+						json.putOpt(AnalyticsConstants.EVENT_KEY,AnalyticsConstants.FILE_DOWNLOADED);
+						json.putOpt(AnalyticsConstants.FILE_SIZE, zipFile.length());
+						json.putOpt(AnalyticsConstants.APP_NAME, mRequest.getContentData().getId());
+						json.putOpt(AnalyticsConstants.RESULT_CODE,result.getStatusCode());
+					} catch (JSONException e)
+					{
+						e.printStackTrace();
+					}
+
+					HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.MICRO_APP_REPLACED, json);
+				}
+
 				if (resumeSupported && !TextUtils.isEmpty(statefilePath))
 				{
 					(new File(statefilePath + FileRequestPersistent.STATE_FILE_EXT)).delete();
