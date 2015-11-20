@@ -1,6 +1,7 @@
 package com.bsb.hike.view;
 
 import android.content.Context;
+import android.graphics.Typeface;
 import android.preference.DialogPreference;
 import android.util.AttributeSet;
 import android.view.Gravity;
@@ -40,12 +41,16 @@ public final class SeekBarPreference extends DialogPreference implements
 	private TextView mValueText;
 	private Context mContext;
 
+	private Typeface prefFont;
+
 	public SeekBarPreference(Context context, AttributeSet attrs) {
 		super(context, attrs);
 		mContext = context;
 
 		mDefaultValue = attrs.getAttributeIntValue(ANDROID_NS, "defaultValue", 0);
 		mMaxValue = attrs.getAttributeIntValue(ANDROID_NS, "max", 100);
+
+		prefFont = Typeface.createFromAsset(mContext.getAssets(), "fonts/Roboto-Regular.ttf");
 		
 	}
 
@@ -72,6 +77,7 @@ public final class SeekBarPreference extends DialogPreference implements
 
 		mValueText.setTextSize(20);
 		mValueText.setText(Integer.toString(mCurrentValue));
+		mValueText.setTypeface(prefFont);
 
 		params = new LinearLayout.LayoutParams(
 				LinearLayout.LayoutParams.MATCH_PARENT,
@@ -95,6 +101,16 @@ public final class SeekBarPreference extends DialogPreference implements
 
 		return layout;
 
+	}
+
+	@Override
+	protected void onBindView(View view) {
+		super.onBindView(view);
+		TextView titleView = (TextView) view.findViewById(android.R.id.title);
+		titleView.setTypeface(prefFont);
+
+		TextView summaryView = (TextView) view.findViewById(android.R.id.summary);
+		summaryView.setTypeface(prefFont);
 	}
 
 	@Override
