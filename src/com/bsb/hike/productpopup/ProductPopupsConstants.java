@@ -433,7 +433,6 @@ public class ProductPopupsConstants
 				return "microapp";
 			}
 		};
-
 		
 		
 	}
