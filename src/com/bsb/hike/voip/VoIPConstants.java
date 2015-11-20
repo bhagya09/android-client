@@ -104,7 +104,7 @@ public class VoIPConstants {
 	 * Maximum round trip time between clients. If RTT is more than this
 	 * value, then quality will suffer since repeat audio requests won't work.
 	 */
-	public static final int MAX_RTT = 5;
+	public static final int MAX_RTT = 2;
 	
 	/**
 	 * Wait before sending an error message to the activity for an outgoing
@@ -165,6 +165,7 @@ public class VoIPConstants {
 	public static final int MSG_UPDATE_CALL_BUTTONS = 32;
 	public static final int MSG_PARTNER_INCOMPATIBLE_PLATFORM = 33;
 	public static final int MSG_PARTNER_UPGRADABLE_PLATFORM = 34;
+	public static final int MSG_ACCEPT_CALL = 35;
 
 	public static final class Analytics
 	{
