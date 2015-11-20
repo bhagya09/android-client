@@ -946,9 +946,14 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			dataString = (String) tag.data;
 		}
 
-		setupMultiSelectActionBar();
-		invalidateOptionsMenu();
-		multiSelectTitle.setText(createBroadcast ? getString(R.string.broadcast_selected, adapter.getCurrentSelection()) : 
+		/* AND-2137:: [Optional]
+		Adding this for optimization - as there is no change from 1st selection to 2nd selection in views,
+		except multiSelectTitle which is updated below anyways */
+		if (adapter.getCurrentSelection() == 1 || selectAllMode ) {
+			setupMultiSelectActionBar();
+			invalidateOptionsMenu();
+		}
+		multiSelectTitle.setText(createBroadcast ? getString(R.string.broadcast_selected, adapter.getCurrentSelection()) :
 				getString(R.string.gallery_num_selected, adapter.getCurrentSelection()));
 		}
 
@@ -1365,13 +1370,15 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		actionBar.setCustomView(multiSelectActionBar);
 		Toolbar parent=(Toolbar)multiSelectActionBar.getParent();
 		parent.setContentInsetsAbsolute(0,0);
-
-		Animation slideIn = AnimationUtils.loadAnimation(this, R.anim.slide_in_left_noalpha);
-		slideIn.setInterpolator(new AccelerateDecelerateInterpolator());
-		slideIn.setDuration(200);
-		closeBtn.startAnimation(slideIn);
-		sendBtn.startAnimation(AnimationUtils.loadAnimation(this, R.anim.scale_in));
-
+		//Begin : AND-2137
+		if(!showingMultiSelectActionBar) {
+			Animation slideIn = AnimationUtils.loadAnimation(this, R.anim.slide_in_left_noalpha);
+			slideIn.setInterpolator(new AccelerateDecelerateInterpolator());
+			slideIn.setDuration(200);
+			closeBtn.startAnimation(slideIn);
+			sendBtn.startAnimation(AnimationUtils.loadAnimation(this, R.anim.scale_in));
+		}
+		//End : AND-2137
 		showingMultiSelectActionBar = true;
 	}
 	
