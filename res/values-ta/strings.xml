@@ -226,7 +226,7 @@
     <string name="last_seen_more">கடைசியாகப் பார்த்தது %1$s மணிக்கு</string>
     <string name="last_seen_while_ago">கடைசியாகப் பார்த்தது சற்று நேரத்திற்கு முன்</string>
     <string name="online">ஆன்லைன்</string>
-    <string name="moods_tip">அழகிய \&apos;மூடு\' :) ஒன்றினை அட்டாச் செய்ய இங்கே கிளிக் செய்யும்</string>
+    <string name="moods_tip">அழகிய \&apos;மூடு\&apos; :) ஒன்றினை அட்டாச் செய்ய இங்கே கிளிக் செய்யும்</string>
     <string name="dismiss">டிஸ்மிஸ்</string>
     <string name="group">குரூப்</string>
     <string name="posting_update">போஸ்டிங்...</string>
