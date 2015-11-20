@@ -278,5 +278,6 @@ public interface HikePlatformConstants
 	final static String RESUME_SUPPORT = "resume_support";
 
 	public static final String IS_SHORTCUT = "is_shortcut";
-	
+
+	public static final String EXTRA_DATA = "extra_data";
 }

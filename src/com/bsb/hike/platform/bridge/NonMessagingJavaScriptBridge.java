@@ -70,6 +70,8 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	private static final String TAG  = "NonMessagingJavaScriptBridge";
 	
 	private IBridgeCallback mCallback;
+
+	private String extraData; // Any extra miscellaneous data received in the intent.
 	
 	public NonMessagingJavaScriptBridge(Activity activity, CustomWebView mWebView, BotInfo botInfo, IBridgeCallback callback)
 	{
@@ -1437,4 +1439,10 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 			BotUtils.deleteBotConversation(msisdn, false);
 		}
 	}
+
+	public void setExtraData(String data)
+	{
+		this.extraData = data;
+	}
+
 }
