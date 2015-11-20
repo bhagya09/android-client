@@ -12,6 +12,8 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.chatthread.ChatThread;
 import com.bsb.hike.models.ConvMessage;
+import com.bsb.hike.offline.OfflineController;
+import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.voip.VoIPConstants;
 
@@ -55,9 +57,13 @@ public class CallDeclineWithMessageFragment extends DialogFragment
 			public void run() {
 				ConvMessage convMessage = Utils.makeConvMessage(msisdn, message, true);
 				ChatThread.addtoMessageMap(convMessage);
-				HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_SENT, convMessage);
-				HikeMessengerApp.getPubSub().publish(HikePubSub.UPDATE_THREAD, convMessage);
+
+				if (OfflineUtils.isConnectedToSameMsisdn(msisdn)) 
+					OfflineController.getInstance().sendMessage(convMessage);
+				else 
+					HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_SENT, convMessage);
 				
+				HikeMessengerApp.getPubSub().publish(HikePubSub.UPDATE_THREAD, convMessage);
 			}
 		}, 1000);
 
