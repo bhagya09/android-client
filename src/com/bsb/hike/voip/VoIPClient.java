@@ -646,8 +646,13 @@ public class VoIPClient  {
 					if (rttSent == true && System.currentTimeMillis() - rttSentAt > VoIPConstants.MAX_RTT * 1000) {
 						Logger.w(tag, "RTT expired.");
 						rttSent = false;
+						measureRTT();
 					}
 
+					// If we have a playback buffer, then keep calculating RTT every second. 
+					if (minimumDecodedQueueSize > 0)
+						measureRTT();
+					
 					try {
 						Thread.sleep(HEARTBEAT_INTERVAL);
 					} catch (InterruptedException e) {
@@ -942,6 +947,7 @@ public class VoIPClient  {
 				"\nDropped decoded packets: " + droppedDecodedPackets +
 				"\nReconnect attempts: " + reconnectAttempts +
 				"\nCall duration: " + getCallDuration() + " seconds" +
+				"\nRTT: " + rtt + " ms" +
 				"\nVersion: " + version + "\n" +
 				"=========================================");
 		
@@ -1341,7 +1347,7 @@ public class VoIPClient  {
 						break;
 						
 					case REPEAT_AUDIO_PACKET_REQUEST_RESPONSE:
-						Logger.d(tag, "Received packet #" + dataPacket.getVoicePacketNumber());
+//						Logger.d(tag, "Received packet #" + dataPacket.getVoicePacketNumber());
 					case AUDIO_PACKET:
 						audioPacketsReceivedPerSecond++;
 						processAudioPacket(dataPacket);
@@ -1517,13 +1523,16 @@ public class VoIPClient  {
 					case RTT_RESPONSE:
 						if (rttSent) {
 							long newRtt = System.currentTimeMillis() - rttSentAt; 
-							Logger.d(tag, "Round Trip Time. Was: " + rtt + " ms, Is: " + newRtt + " ms.");
-							rtt = newRtt;
+							if (newRtt > VoIPConstants.MAX_RTT * 1000) {
+								Logger.w(tag, "Discarding excessive RTT: " + newRtt);
+							} else {
+								Logger.d(tag, "Round Trip Time. Was: " + rtt + " ms, Is: " + newRtt + " ms.");
+								rtt = newRtt;
+								if (minimumDecodedQueueSize > 0)
+									setAudioLatency();
+							}
 							rttSent = false;
 							
-							// Reset the audio latency depending on the RTT.
-							if (minimumDecodedQueueSize > 0)
-								setAudioLatency();
 						}
 						break;
 						
@@ -1987,7 +1996,6 @@ public class VoIPClient  {
 		
 		// Introduce an artificial lag if there is packet loss
 		if (decodedBuffersQueue.size() < minimumDecodedQueueSize) {
-//			Logger.d(tag, "Stalling. Min: " + minimumDecodedQueueSize + ", current: " + decodedBuffersQueue.size());
 			return null;
 		}
 
@@ -2000,7 +2008,6 @@ public class VoIPClient  {
 		while (dp != null && 
 				decodedBuffersQueue.size() > (VoIPConstants.MAX_SAMPLES_BUFFER + minimumDecodedQueueSize) &&
 				!dp.isVoice()) {
-//			Logger.d(tag, "Dropping packet #" + dp.getVoicePacketNumber() + ", Size: " + decodedBuffersQueue.size() + ", Limit: " + (VoIPConstants.MAX_SAMPLES_BUFFER + minimumDecodedQueueSize));
 			droppedDecodedPackets++;
 			lastAudioPacketPlayed = dp.getVoicePacketNumber();
 			dp = decodedBuffersQueue.poll();
@@ -2026,7 +2033,7 @@ public class VoIPClient  {
 					dp.setData(data);
 				}
 				
-				if (version >= 4 && isSpeaking()) {
+				if (version >= 4) {
 					measureRTT();
 					if (minimumDecodedQueueSize == 0)
 						minimumDecodedQueueSize = 1;
@@ -2038,19 +2045,19 @@ public class VoIPClient  {
 			hit = false;
 		} else {
 
-			if (version >= 4 && lastAudioPacketPlayed > 0 && dp.getVoicePacketNumber() > 0) {
-				if (lastAudioPacketPlayed < dp.getVoicePacketNumber() - 1) {
-					Logger.w(tag, "Missing audio.");
-					measureRTT();
-					if (minimumDecodedQueueSize == 0)
-						minimumDecodedQueueSize = 1;
-				}
-			}
+//			if (version >= 4 && lastAudioPacketPlayed > 0 && dp.getVoicePacketNumber() > 0) {
+//				if (lastAudioPacketPlayed < dp.getVoicePacketNumber() - 1) {
+//					Logger.w(tag, "Missing audio.");
+//					measureRTT();
+//					if (minimumDecodedQueueSize == 0)
+//						minimumDecodedQueueSize = 1;
+//				}
+//			}
 
 			lastAudioPacketPlayed = dp.getVoicePacketNumber();
 		}
 
-		if (isSpeaking()) {
+		if (isSpeaking() || version >= 4) {		// After v4, clients always send data (whether speaking or not)
 			playbackFeederCounter++;
 			if (playbackFeederCounter == Integer.MAX_VALUE)
 				playbackFeederCounter = 0;
@@ -2107,6 +2114,11 @@ public class VoIPClient  {
 	private void requestVoicePacket(int packetNumber) {
 		
 		if (version < 4)
+			return;
+		
+		// Do not re-request packets if we haven't calculated the RTT already
+		// and don't have an audio buffer. 
+		if (minimumDecodedQueueSize == 0)
 			return;
 		
 		// Don't request packets again if participating in a hosted conference
@@ -2348,6 +2360,7 @@ public class VoIPClient  {
 		if (rttSent == true)
 			return;
 		
+		Logger.d(tag, "Measuring RTT.");
 		VoIPDataPacket dp = new VoIPDataPacket(PacketType.RTT_REQUEST);
 		sendPacket(dp, false);
 		rttSent = true;
