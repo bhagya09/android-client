@@ -3,8 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bsb.hike"
     android:installLocation="auto"
-    android:versionCode="1505"
-    android:versionName="4.0.8.81.23.1.hike_caller" >
+    android:versionCode="1506"
+    android:versionName="4.0.8.81.23.2.hike_caller" >
 
     <uses-sdk
         android:minSdkVersion="14"
