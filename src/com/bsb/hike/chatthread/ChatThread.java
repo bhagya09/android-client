@@ -808,6 +808,7 @@ import android.widget.Toast;
 			{
 				if (KptKeyboardManager.getInstance(activity).getInstalledLanguagesList().size() > 1)
 				{
+					//TODO::doing this because we need to show the arrows on the spacebar. These do not show up otherwise. Forceful hackish refresh
 					mCustomKeyboard.showCustomKeyboard(mComposeView, false);
 					mCustomKeyboard.showCustomKeyboard(mComposeView, true);
 				}
@@ -1072,6 +1073,9 @@ import android.widget.Toast;
 		recordOverflowItemClicked(item);
 	}
 	
+	/*
+	 #test code
+	 */
 	private void automateMessages(final int count)
 	{
 		AsyncTask<Void, Void, Void> automateMessages = new AsyncTask<Void, Void, Void>()
