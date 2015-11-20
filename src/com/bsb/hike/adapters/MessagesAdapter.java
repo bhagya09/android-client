@@ -2893,10 +2893,20 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			{
 				if (TextUtils.isEmpty(hikeFile.getFileKey()))
 				{
-					holder.ftAction.setImageResource(retryImage);
-					holder.ftAction.setContentDescription(context.getResources().getString(R.string.content_des_retry_file_download));
-					holder.ftAction.setVisibility(View.VISIBLE);
-					holder.circularProgressBg.setVisibility(View.VISIBLE);
+					if(FileTransferManager.getInstance(context).isFileTaskExist(msgId))
+					{
+						holder.ftAction.setImageResource(0);
+						holder.ftAction.setVisibility(View.VISIBLE);
+						holder.circularProgressBg.setVisibility(View.VISIBLE);
+						showTransferInitialization(holder, hikeFile);
+					}
+					else
+					{
+						holder.ftAction.setImageResource(retryImage);
+						holder.ftAction.setContentDescription(context.getResources().getString(R.string.content_des_retry_file_download));
+						holder.ftAction.setVisibility(View.VISIBLE);
+						holder.circularProgressBg.setVisibility(View.VISIBLE);
+					}
 				}
 				else if ((hikeFile.getHikeFileType() == HikeFileType.VIDEO) && !ext)
 				{
@@ -3526,7 +3536,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 					if ((hikeFile.getHikeFileType() == HikeFileType.LOCATION) || (hikeFile.getHikeFileType() == HikeFileType.CONTACT))
 					{
 						FileTransferManager.getInstance(context)
-								.uploadContactOrLocation(convMessage, (hikeFile.getHikeFileType() == HikeFileType.CONTACT), conversation.isOnHike());
+								.uploadContactOrLocation(convMessage, (hikeFile.getHikeFileType() == HikeFileType.CONTACT));
 					}
 					else
 					{
@@ -3539,7 +3549,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 						}
 						else if (fss.getFTState() != FTState.INITIALIZED)
 						{
-							FileTransferManager.getInstance(context).uploadFile(convMessage, conversation.isOnHike());
+							FileTransferManager.getInstance(context).uploadFile(convMessage, null);
 						}
 					}
 					notifyDataSetChanged();

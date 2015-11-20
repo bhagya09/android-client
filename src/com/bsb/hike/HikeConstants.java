@@ -51,6 +51,8 @@ public class HikeConstants
 
 	public static final String SUB_TYPE = "st";
 
+	public static final String BACKGROUND_COLOR = "bgc";
+	
 	public static final String SU_ID = "su_id";
 
 	public static final String SU_ID_LIST = "su_ids";
@@ -69,7 +71,7 @@ public class HikeConstants
 
 	public static final String MESSAGE_ID = "i";
 
-	public static final String EVENT_ID = "i";
+	public static final String EVENT_ID = "ei";
 
 	public static final String METADATA = "md";
 
@@ -782,6 +784,74 @@ public class HikeConstants
 	public static final int CRITICAL_UPDATE = 1;
 
 	public static final int NO_UPDATE = 0;
+	
+	public static final String INVITE_TIP = "invt";
+	
+	public static final String LABEL = "l" ;
+	
+	public static final String DISMISS = "dms";
+	
+	public static final String PERSISTENT_NOTIFICATION = "pn";
+	
+	public static final String PERSISTENT_NOTIF_ALARM_INTERVAL = "pnai";
+	
+	public static final String UPDATE_TITLE = "updateTitle";
+	
+	public static final String UPDATE_ACTION = "updateAction";
+	
+	public static final String UPDATE_LATER = "updateLater";
+	
+	public static final String UPDATE_ALARM = "updateAlarm";
+	
+	public static final String IS_PERSISTENT_UPDATE_NOTIFICATION = "isPers";
+	
+	public static final String PERSISTENT_NOTIF_MESSAGE = "persNotifMsg";
+	
+	public static final String PERSISTENT_NOTIF_TITLE = "persNotifTitle";
+	
+	public static final String PERSISTENT_NOTIF_ACTION = "persNotifAction";
+	
+	public static final String PERSISTENT_NOTIF_LATER = "persNotifLater";
+	
+	public static final String PERSISTENT_NOTIF_ALARM = "persNotifAlarm";
+	
+	public static final String PERSISTENT_NOTIF_URL = "persNotifUrl";
+	
+	public static final long PERS_NOTIF_ALARM_DEFAULT = 24*60*60;
+	
+	public static final String SHOULD_SHOW_PERSISTENT_NOTIF = "showPersistNotif";
+	
+	public static final String IS_PERS_NOTIF_ALARM_SET = "isPersNotifAlarmSet";
+	
+	public static final String IS_HIKE_APP_FOREGROUNDED = "isHikeAppForegrounded";
+	
+	public static final String UPDATE_TIP_HEADER = "updateTipHeader";
+	
+	public static final String UPDATE_TIP_BODY = "updateTipBody";
+	
+	public static final String UPDATE_TIP_LABEL = "updateTipLabel";
+	
+	public static final String UPDATE_TIP_DISMISS = "updateTipDismiss";
+	
+	public static final String UPDATE_TIP_BG_COLOR = "updateTipBgColor";
+	
+	public static final String INVITE_TIP_HEADER = "inviteTipHeader";
+	
+	public static final String INVITE_TIP_BODY = "inviteTipBody";
+	
+	public static final String INVITE_TIP_LABEL = "inviteTipLabel";
+	
+	public static final String INVITE_TIP_DISMISS = "inviteTipDismiss";
+	
+	public static final String INVITE_TIP_BG_COLOR = "inviteTipBgColor";
+	
+	public static final String SHOW_CRITICAL_UPDATE_TIP = "showCriticalUpdateTip";
+	
+	public static final String SHOW_NORMAL_UPDATE_TIP = "showNormalUpdateTip";
+	
+	public static final String SHOW_INVITE_TIP = "showInviteTip";
+	
+	public static final String UPDATE_TIP_AND_PERS_NOTIF_LOG = "UpdateTipPersistentNotif";
 
 	// More explanation required?
 	public static final int NUM_TIMES_SCREEN_SHOULD_OPEN_BEFORE_TOOL_TIP = 2;
@@ -1689,6 +1759,8 @@ public class HikeConstants
 		public static final String CALL_RATE_BUNDLE = "callRateBundle";
 
 		public static final String CLEARED_OUT = "extrasClearedOut";
+		
+		public static final String HIKE_DIRECT_MODE="hikedirectmode";
 
 		// constants related to sharing Functioanlity
 		public static final class ShareTypes
@@ -2662,6 +2734,12 @@ public class HikeConstants
 
 		public static final String VOIP_MSG_TYPE_MISSED_CALL_OUTGOING = "vmco";
 
+		public static final String VOIP_MSG_HANG_UP = "vHangUp";
+
+		public static final String VOIP_MSG_DECLINE = "vDecline";
+
+		public static final String VOIP_MSG_ACCEPT = "vAccept";
+
 		public static final String PRODUCT_POPUP = "productpopup";
 
 		public static final String SESSION = "sess";
@@ -2684,6 +2762,8 @@ public class HikeConstants
 		public static final String MESSAGE_EVENT = "me";
 		
 		public static final String OFFLINE = "offline";
+
+		public static final String GENERAL_EVENT_DR = "dr";
 	}
 
 	
@@ -3577,4 +3657,8 @@ public class HikeConstants
 	public static final String TIMESTAMP_2 = "timestamp";
 
 	public static final String UNKNOWN_KEYBOARDS = "unknown_kbds";
+
+	public static final float ONE_PERCENT_PROGRESS = 0.01f;
+
+	public static final String FT_USE_APACHE_HTTP_CLIENT = "ft_apache_client";
 }

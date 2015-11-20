@@ -235,5 +235,13 @@ public class OfflineConstants
 	public static final int UNLIMITED_FT_VERSION = 2;
 	
 	public static final int VOIP_HIKE_DIRECT=3;
+	
+	public static final String HIKE_DIRECT_MENU_OPTIONS = "hdrtmo";
+	
+	public static final String HIKE_DIRECT_SHOW_MENU="show_hd_option";
+	
+	public static final String HIKE_DIRECT_START_CONN = "startconn";
+	
+	public static final String CT_HIKE_DIRECT_CLICKED = "hike_direct_clicked";
 
 }

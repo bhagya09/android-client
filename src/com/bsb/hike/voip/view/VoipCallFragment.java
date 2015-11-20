@@ -114,9 +114,6 @@ public class VoipCallFragment extends Fragment implements CallActions
 		bluetoothButton = (ImageButton) view.findViewById(R.id.bluetooth_btn);
 		forceMuteContainer = (LinearLayout) view.findViewById(R.id.force_mute_layout);
 		
-		if (VoIPUtils.isConferencingEnabled(getActivity())) 
-			addButton.setVisibility(View.VISIBLE);
-
 		return view;
 	}
 
@@ -241,6 +238,9 @@ public class VoipCallFragment extends Fragment implements CallActions
 					showActiveCallButtons();
 					setupForceMuteLayout();
 				}
+				break;
+			case VoIPConstants.MSG_ACCEPT_CALL:
+				onAcceptCall();
 				break;
 			default:
 				super.handleMessage(msg);
@@ -532,7 +532,7 @@ public class VoipCallFragment extends Fragment implements CallActions
 	{
 		Logger.d(tag, "Declined call, rejecting...");
 		if (voipService != null)
-			voipService.rejectIncomingCall();
+			voipService.declineIncomingCall();
 	}
 
 	@Override
@@ -918,7 +918,7 @@ public class VoipCallFragment extends Fragment implements CallActions
 		}
 
 		if (VoIPUtils.isConferencingEnabled(HikeMessengerApp.getInstance())) {
-			if (clientPartner.isHostingConference) {
+			if (clientPartner.isHostingConference || clientPartner.isUsingHikeDirect()) {
 				addButton.setVisibility(View.GONE);
 			} else {
 				addButton.setVisibility(View.VISIBLE);
@@ -1070,12 +1070,15 @@ public class VoipCallFragment extends Fragment implements CallActions
 			
 			@Override
 			public void run() {
-				ToneGenerator tg = new ToneGenerator(AudioManager.STREAM_VOICE_CALL, 100);
-				if (tg.startTone(ToneGenerator.TONE_SUP_PIP));
+				ToneGenerator tg = null;
 				try {
+					tg = new ToneGenerator(AudioManager.STREAM_VOICE_CALL, 100);
+					tg.startTone(ToneGenerator.TONE_SUP_PIP);
 					Thread.sleep(500);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
+				} catch (RuntimeException e) {
+					Logger.e(tag, "ToneGenerator RuntimeException: " + e.toString());
 				} finally {
 					if (tg != null) {
 						tg.stopTone();
@@ -1084,7 +1087,7 @@ public class VoipCallFragment extends Fragment implements CallActions
 				}
 			}
 		}).start();
-		
 	}
+	
 }
 	

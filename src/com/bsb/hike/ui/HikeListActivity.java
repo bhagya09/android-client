@@ -55,7 +55,6 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
 import android.util.Pair;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -773,6 +772,7 @@ public class HikeListActivity extends HikeAppStateBaseFragmentActivity implement
 				Utils.sendInvite(msisdn, this);
 				Toast.makeText(this, R.string.invite_sent, Toast.LENGTH_SHORT).show();
 			}
+			setResult(RESULT_OK);
 			finish();
 		}
 	}
@@ -824,6 +824,7 @@ public class HikeListActivity extends HikeAppStateBaseFragmentActivity implement
 			KptUtils.updatePadding(HikeListActivity.this, R.id.hike_list_parent_layout, 0);
 			return;
 		}
+		setResult(RESULT_OK);
 		super.onBackPressed();
 	}
 	
@@ -848,4 +849,5 @@ public class HikeListActivity extends HikeAppStateBaseFragmentActivity implement
 		// TODO Auto-generated method stub
 		
 	}
+
 }

@@ -15,7 +15,7 @@ import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.modules.stickersearch.StickerLanguagesManager;
-import com.bsb.hike.platform.content.HikeUnzipTask;
+import com.bsb.hike.platform.content.HikeUnzipFile;
 import com.bsb.hike.utils.Logger;
 import com.kpt.adaptxt.beta.AdaptxtSettingsRegisterListener;
 import com.kpt.adaptxt.beta.KPTAdaptxtAddonSettings;
@@ -337,7 +337,7 @@ public class KptKeyboardManager implements AdaptxtSettingsRegisterListener
 					@Override
 					public void onRequestSuccess(Response result)
 					{
-						HikeUnzipTask dictionaryUnzipTask = new HikeUnzipTask(dictionaryZip.getAbsolutePath(), dictonaryDirectory.getAbsolutePath());
+						HikeUnzipFile dictionaryUnzipTask = new HikeUnzipFile(dictionaryZip.getAbsolutePath(), dictonaryDirectory.getAbsolutePath());
 						dictionaryUnzipTask.unzip();
 						dictionaryZip.delete();
 						File atpfile = new File(dictonaryDirectory,zipFileName.replace(".zip", ".atp"));
