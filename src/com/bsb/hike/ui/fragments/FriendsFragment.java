@@ -625,6 +625,7 @@ public class FriendsFragment extends ListFragment implements Listener, OnItemLon
     public void onCallBack(JSONArray array) {
         Intent intent = getActivity().getIntent();
         intent.putExtra(HikeConstants.HIKE_CONTACT_PICKER_RESULT, array == null ? "" : array.toString());
+        intent.putExtra(HikeConstants.Extras.FUNCTION_ID,getActivity().getIntent().getStringExtra(HikeConstants.Extras.FUNCTION_ID));
         getActivity().setResult(getActivity().RESULT_OK, intent);
         getActivity().finish();
     }

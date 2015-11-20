@@ -2552,6 +2552,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
     public void onCallBack(JSONArray array) {
         Intent intent = getIntent();
         intent.putExtra(HikeConstants.HIKE_CONTACT_PICKER_RESULT, array == null ? "" : array.toString());
+        intent.putExtra(HikeConstants.Extras.FUNCTION_ID,getIntent().getStringExtra(HikeConstants.Extras.FUNCTION_ID));
         setResult(RESULT_OK, intent);
         ComposeChatActivity.this.finish();
     }

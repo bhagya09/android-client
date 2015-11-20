@@ -96,8 +96,6 @@ public abstract class JavascriptBridge
 	
 	protected static final int CLOSE_WEB_VIEW = 3;
 
-    private int platform_contact_chooser_filter_code = -1;
-
 	public JavascriptBridge(Activity activity, CustomWebView mWebView)
 	{
 		this.mWebView = mWebView;
@@ -572,24 +570,25 @@ public abstract class JavascriptBridge
 
     /**
      * Platform Bridge Version 8
-     * This function can be used to start a hike native contact chooser/picker which will show hike contacts to user based on the given msisdn and contactsList
-     * It will call JavaScript function "onContactChooserResult(int microAppRequestCode , JSON : {(int resultCode,JsonArray array)})". As of now
-     * JSON will have name and platform_id, e.g : [{'name':'Paul','platform_id':'dvgd78as','msisdn':'9988776554','thumbnail':''}] resultCode will be 0 for fail and 1 for success NOTE : JSONArray could be null as
-     * well
+     * This function can be used to start a hike native contact chooser/picker which will show hike contacts to user based on the given msisdn in requestJson
+     * It will call JavaScript function callbackFromNative "(String functionCallbackId , JSON : [{(int resultCode,JsonArray array)})]". As of now
+     * JSON will have name,platform_id,thumbnail,msisdn e.g : [{'name':'Paul','platform_id':'dvgd78as','msisdn':'9988776554','thumbnail':''}].
+     * ResultCode will be 0 for fail and 1 for success NOTE : JSONArray could be null as well
      */
     @JavascriptInterface
-    public void startContactChooserForMsisdnFilter(int microAppRequestCode,String requestJson) {
+    public void startContactChooserForMsisdnFilter(String id,String requestJson) {
         Activity activity = weakActivity.get();
         String msisdns = "";
         String title = "";
-        platform_contact_chooser_filter_code = microAppRequestCode;
 
-        try {
-            JSONObject json = new JSONObject(requestJson);
-            msisdns = json.getString(HikeConstants.Extras.LIST);
-            title = json.getString(HikeConstants.Extras.TITLE);
-        } catch (JSONException e) {
-            e.printStackTrace();
+        if(!TextUtils.isEmpty(requestJson)) {
+            try {
+                JSONObject json = new JSONObject(requestJson);
+                msisdns = json.getString(HikeConstants.Extras.LIST);
+                title = json.getString(HikeConstants.Extras.TITLE);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
         }
 
         if (activity != null) {
@@ -599,6 +598,7 @@ public abstract class JavascriptBridge
                 intent.putExtra(HikeConstants.Extras.EDIT, true);
                 intent.putExtra(REQUEST_CODE, ComposeChatActivity.PICK_CONTACT_SINGLE_MODE);
                 intent.putExtra(HikeConstants.Extras.IS_CONTACT_CHOOSER_FILTER_INTENT,true);
+                intent.putExtra(HikeConstants.Extras.FUNCTION_ID,id);
                 activity.startActivityForResult(intent, HikeConstants.PLATFORM_MSISDN_FILTER_DISPLAY_REQUEST);
             } else {
                 Intent intent = IntentFactory.getFavouritesIntent(activity);
@@ -606,6 +606,7 @@ public abstract class JavascriptBridge
                 intent.putExtra(HikeConstants.Extras.FORWARD_MESSAGE, true);
                 intent.putExtra(HikeConstants.Extras.MSISDN, msisdns);
                 intent.putExtra(HikeConstants.Extras.TITLE, title);
+                intent.putExtra(HikeConstants.Extras.FUNCTION_ID,id);
                 activity.startActivityForResult(intent, HikeConstants.PLATFORM_MSISDN_FILTER_DISPLAY_REQUEST);
             }
         }
@@ -620,7 +621,27 @@ public abstract class JavascriptBridge
 		{
             if(requestCode == HikeConstants.PLATFORM_MSISDN_FILTER_DISPLAY_REQUEST)
             {
-                handlePickContactResultForFilteredContacts(resultCode, data);
+                JSONObject responseJsonObj = new JSONObject();
+                if (!TextUtils.isEmpty(data.getStringExtra(HikeConstants.HIKE_CONTACT_PICKER_RESULT)))
+                {
+                    try {
+                        responseJsonObj.put(HikeConstants.Extras.RESULT_CODE, "1");
+                        responseJsonObj.put(HikeConstants.Extras.CONTACT_INFO, data.getStringExtra(HikeConstants.HIKE_CONTACT_PICKER_RESULT));
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+                else
+                {
+                    try {
+                        responseJsonObj.put(HikeConstants.Extras.RESULT_CODE, "0");
+                        responseJsonObj.put(HikeConstants.Extras.CONTACT_INFO, "'[]'");
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                callbackToJS(data.getStringExtra(HikeConstants.Extras.FUNCTION_ID),responseJsonObj.toString());
                 return;
             }
             else if (requestCode == HikeConstants.PLATFORM_FILE_CHOOSE_REQUEST)
@@ -690,26 +711,6 @@ public abstract class JavascriptBridge
 			mWebView.loadUrl("javascript:onContactChooserResult('0','[]')");
 		}
 	}
-
-    private void handlePickContactResultForFilteredContacts(int resultCode, Intent data)
-    {
-        JSONObject responseJsonObj = new JSONObject();
-        try {
-            responseJsonObj.put(HikeConstants.Extras.MICRO_APPS_REQUEST_CODE,platform_contact_chooser_filter_code);
-            responseJsonObj.put(HikeConstants.Extras.CONTACT_INFO,data.getStringExtra(HikeConstants.HIKE_CONTACT_PICKER_RESULT));
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        if (resultCode == Activity.RESULT_OK)
-        {
-            mWebView.loadUrl("javascript:onContactChooserResult('1','" + responseJsonObj.toString() + "')");
-        }
-        else
-        {
-            mWebView.loadUrl("javascript:onContactChooserResult('0','[]')");
-        }
-    }
 
 	/**
 	 *
