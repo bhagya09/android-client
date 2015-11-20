@@ -41,7 +41,7 @@ public final class SeekBarPreference extends DialogPreference implements
 	private TextView mValueText;
 	private Context mContext;
 
-	private Typeface prefFont;
+	private CustomTypeFace prefFont;
 
 	public SeekBarPreference(Context context, AttributeSet attrs) {
 		super(context, attrs);
@@ -50,7 +50,7 @@ public final class SeekBarPreference extends DialogPreference implements
 		mDefaultValue = attrs.getAttributeIntValue(ANDROID_NS, "defaultValue", 0);
 		mMaxValue = attrs.getAttributeIntValue(ANDROID_NS, "max", 100);
 
-		prefFont = Typeface.createFromAsset(mContext.getAssets(), "fonts/Roboto-Regular.ttf");
+		prefFont = CustomTypeFace.getTypeFace("roboto");
 		
 	}
 
@@ -77,7 +77,7 @@ public final class SeekBarPreference extends DialogPreference implements
 
 		mValueText.setTextSize(20);
 		mValueText.setText(Integer.toString(mCurrentValue));
-		mValueText.setTypeface(prefFont);
+		mValueText.setTypeface(prefFont.normal);
 
 		params = new LinearLayout.LayoutParams(
 				LinearLayout.LayoutParams.MATCH_PARENT,
@@ -107,10 +107,10 @@ public final class SeekBarPreference extends DialogPreference implements
 	protected void onBindView(View view) {
 		super.onBindView(view);
 		TextView titleView = (TextView) view.findViewById(android.R.id.title);
-		titleView.setTypeface(prefFont);
+		titleView.setTypeface(prefFont.normal);
 
 		TextView summaryView = (TextView) view.findViewById(android.R.id.summary);
-		summaryView.setTypeface(prefFont);
+		summaryView.setTypeface(prefFont.normal);
 	}
 
 	@Override
