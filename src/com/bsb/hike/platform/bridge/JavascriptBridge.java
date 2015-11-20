@@ -1,5 +1,16 @@
 package com.bsb.hike.platform.bridge;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.lang.ref.WeakReference;
+import java.net.HttpURLConnection;
+import java.net.URLEncoder;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
@@ -1087,6 +1098,10 @@ public abstract class JavascriptBridge
 				failure.put(HikePlatformConstants.STATUS, HikePlatformConstants.FAILURE);
 				failure.put(HikePlatformConstants.ERROR_MESSAGE, httpException.getMessage());
 				failure.put(HikePlatformConstants.STATUS_CODE, httpException.getErrorCode());
+				if(httpException.getErrorCode()== HttpURLConnection.HTTP_UNAUTHORIZED);
+				{
+					PlatformUIDFetch.fetchPlatformUid(HikePlatformConstants.PlatformFetchType.SELF);
+				}
 			}
 			catch (JSONException e)
 			{
@@ -1327,7 +1342,7 @@ public abstract class JavascriptBridge
 		}
 	}
 	/**
-	 * Added in Platform Version 8. Call this function to set anon name
+	 * Added in Platform Version 9. Call this function to set anon name
 	 * @param name
 	 */
 	@JavascriptInterface
@@ -1339,7 +1354,7 @@ public abstract class JavascriptBridge
 		}
 	}
 	/**
-	 * Added in Platform Version 8. Call this function to get anon name if exists,else will return null string.
+	 * Added in Platform Version 9. Call this function to get anon name if exists,else will return null string.
 	 * @param id
 	 */
 	@JavascriptInterface
@@ -1351,7 +1366,7 @@ public abstract class JavascriptBridge
 	
 
 	/**
-	 * Platform Version 8
+	 * Platform Version 9
 	 * This method is used to show a native popup with a WebView rendered within it.
 	 * contentData must have cardObj. Inside cardObj, ld must be present and should be a JSONObject.
 	 * @param contentData
@@ -1369,7 +1384,7 @@ public abstract class JavascriptBridge
 		});
 	}
 	/**
-	 * Platform Version 8
+	 * Platform Version 9
 	 * Call this method to get the status of app download
 	 * @param id
 	 * @param app The app name
@@ -1389,7 +1404,7 @@ public abstract class JavascriptBridge
 		callbackToJS(id, data[1]);
 	}
 	/**
-	 * Platform Version 8
+	 * Platform Version 9
 	 * Call this method to check if a bot exists
 	 * @param id
 	 * @param msisdn
@@ -1422,7 +1437,7 @@ public abstract class JavascriptBridge
 
 	}
 	/**
-	 * Platform Version 8
+	 * Platform Version 9
 	 * Call this method to decrease the unread counter.
 	 * @param msisdn whose unread count has to be modified.
 	 */
@@ -1435,6 +1450,21 @@ public abstract class JavascriptBridge
 		Utils.resetUnreadCounterForConversation(botInfo);
 		botInfo.setUnreadCount(0);
 
+	}
+	/**
+	 * Platform Version 9
+	 * This function is made  to know whether a microapp exists.
+	 * @param id: the id of the function that native will call to call the js .
+	 * @param mapp: the name of the mapp.
+	 */
+	@JavascriptInterface
+	public void isMicroappExist(String id, String mapp)
+	{
+		File file = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + mapp);
+		if (file.exists())
+			callbackToJS(id, "true");
+		else
+			callbackToJS(id, "false");
 	}
 
 }

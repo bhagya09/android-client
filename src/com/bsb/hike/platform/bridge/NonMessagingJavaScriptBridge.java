@@ -1,14 +1,5 @@
 package com.bsb.hike.platform.bridge;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -43,8 +34,11 @@ import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.io.File;
 
 /**
  * API bridge that connects the javascript to the non-messaging Native environment. Make the instance of this class and add it as the
@@ -1116,23 +1110,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	@JavascriptInterface
 	public void enableBot(String msisdn, String enable)
 	{
-
-		if (!BotUtils.isSpecialBot(mBotInfo) || !BotUtils.isBot(msisdn))
-		{
-			return;
-		}
-
-		BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
-
-		boolean enableBot = Boolean.valueOf(enable);
-		if (enableBot)
-		{
-			PlatformUtils.enableBot(botInfo, true);
-		}
-		else
-		{
-			BotUtils.deleteBotConversation(msisdn, false);
-		}
+		enableBot(msisdn,enable,false);
 	}
 	/**
 	 * Added in Platform Version:7
@@ -1282,7 +1260,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	}
 	
 	/**
-	 * Platform Version 8
+	 * Platform Version 9
 	 * This function is made for a bot to know whether its directory exists.
 	 * @param id: the id of the function that native will call to call the js .
 	 */
@@ -1296,28 +1274,9 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 		else
 			callbackToJS(id, "false");
 	}
-	/**
-	 * Platform Version 8
-	 * This function is made for a special bot to know whether a microapp exists.
-	 * @param id: the id of the function that native will call to call the js .
-	 * @param mapp: the name of the mapp.
-	 */
-	@JavascriptInterface
-	public void isMicroappExist(String id, String mapp)
-	{
-		if (!BotUtils.isSpecialBot(mBotInfo))
-		{
-			return;
-		}
-		File file = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + mapp);
-		if (file.exists())
-			callbackToJS(id, "true");
-		else
-			callbackToJS(id, "false");
-	}
 
 	/**
-	 * Platform Version 8
+	 * Platform Version 9
 	 * This function is made for the special Shared bot that has the information about some other bots as well, and acts as a channel for them.
 	 * Call this method to cancel the request that the Bot has initiated to do some http /https call.
 	 * @param functionId : the id of the function that native will call to call the js .
@@ -1343,7 +1302,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 		}
 	}
 	/**
-	 * Platform Version 8
+	 * Platform Version 9
 	 * Call this method to remove resume for an app
 	 */
 	@JavascriptInterface
@@ -1359,7 +1318,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	}
 
 	/**
-	 * Platform Version 8
+	 * Platform Version 9
 	 * Call this method to delete a bot and remove its files
 	 * Can only be called by special bots
 	 * @param msisdn
@@ -1386,7 +1345,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 		BotUtils.deleteBot(msisdn);
 	}
 	/**
-	 * Platform Version 8
+	 * Platform Version 9
 	 * Call this method to know if download request is currently running
 	 * Can only be called by special bots
 	 * @param url
@@ -1413,7 +1372,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	}
 
 	/**
-	 * Platform Version 8
+	 * Platform Version 9
 	 * Call this method to open the gallery view to select a file.
 	 * @param id
 	 * @param displayCameraItem : Whether or not to display the camera item in the gallery view.
@@ -1452,6 +1411,36 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 				}
 			}
 		});
+	}
+
+	/**
+	 * Platform Version 9
+	 * This function is made for the special Shared bot that has the information about some other bots as well, and acts as a channel for them.
+	 * Call this method to enable/disable bot. Enable means to show the bot in the conv list and disable is vice versa.
+	 * @param msisdn :the msisdn of the bot.
+	 * @param enable : send true to enable the bot in Conversation Fragment and false to disable.
+	 * @param increaseUnread
+	 */
+	@JavascriptInterface
+	public void enableBot(String msisdn, String enable,Boolean increaseUnread)
+	{
+
+		if (!BotUtils.isSpecialBot(mBotInfo) || !BotUtils.isBot(msisdn))
+		{
+			return;
+		}
+
+		BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
+
+		boolean enableBot = Boolean.valueOf(enable);
+		if (enableBot)
+		{
+			PlatformUtils.enableBot(botInfo, true,increaseUnread);
+		}
+		else
+		{
+			BotUtils.deleteBotConversation(msisdn, false);
+		}
 	}
 
 	/**

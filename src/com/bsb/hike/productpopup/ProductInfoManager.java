@@ -285,8 +285,9 @@ public class ProductInfoManager
 					HikeMessengerApp.getPubSub().publish(HikePubSub.PRODUCT_POPUP_RECEIVE_COMPLETE, null);
                     recordPopupEvent(productContentModel.getAppName(), productContentModel.getPid(), productContentModel.isFullScreen(), HikeConstants.DOWNLOAD);
 				}
+					HikeMessengerApp.getPubSub().publish(HikePubSub.PRODUCT_POPUP_BADGE_COUNT_CHANGED, null);
 			}
-
+				
 		});
 
 	}

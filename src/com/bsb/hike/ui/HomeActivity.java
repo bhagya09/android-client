@@ -203,6 +203,16 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	{
 		Logger.d(TAG,"onCreate");
 		super.onCreate(savedInstanceState);
+		
+		if (!isTaskRoot())
+		{
+		    final Intent intent = getIntent();
+		    if (intent.hasCategory(Intent.CATEGORY_LAUNCHER) && Intent.ACTION_MAIN.equals(intent.getAction())) {
+		        Logger.d(TAG, "Main Activity is not the root.  Finishing Main Activity instead of launching.");
+		        finish();
+		        return;       
+		    }
+		}
 
 		if (savedInstanceState != null && savedInstanceState.getBoolean(HikeConstants.Extras.CLEARED_OUT, false)) 
 		{
@@ -349,6 +359,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		{
 			timelineUpdatesIndicator.setVisibility(View.GONE);
 		}
+		HikeMessengerApp.getPubSub().publish(HikePubSub.BADGE_COUNT_TIMELINE_UPDATE_CHANGED, null);
 
 	}
 	
@@ -781,12 +792,10 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 						Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
 					}
 
-					Intent intent = new Intent(HomeActivity.this, ComposeChatActivity.class);
-					intent.putExtra(HikeConstants.Extras.EDIT, true);
-					intent.putExtra(HikeConstants.Extras.IS_MICROAPP_SHOWCASE_INTENT, true);
+					Intent intent = IntentFactory.getComposeChatIntentWithBotDiscovery(HomeActivity.this);
 
 					newConversationIndicator.setVisibility(View.GONE);
-					HikeMessengerApp.getPubSub().publish(HikePubSub.BADGE_COUNT_USER_JOINED, null);
+					HikeMessengerApp.getPubSub().publish(HikePubSub.BADGE_COUNT_USER_JOINED, new Integer(0));
 					startActivity(intent);
 				}
 			});
@@ -1696,7 +1705,10 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		}
 		else if (HikePubSub.PRODUCT_POPUP_RECEIVE_COMPLETE.equals(type))
 		{
-			showProductPopup(ProductPopupsConstants.PopupTriggerPoints.HOME_SCREEN.ordinal());
+			if (isActivityVisible())
+			{
+				showProductPopup(ProductPopupsConstants.PopupTriggerPoints.HOME_SCREEN.ordinal());
+			}
 		}
 	}
 
@@ -1893,10 +1905,18 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		optionsList.add(new OverFlowMenuItem(getString(R.string.new_group), 0, 0, R.string.new_group));
 
 
-		if (Utils.isPhotosEditEnabled())
+		if (OfflineController.getInstance().getConfigurationParamerters().shouldShowHikeDirectOption())
 		{
-			optionsList.add(new OverFlowMenuItem(getString(R.string.home_overflow_new_photo), 0, 0, R.string.home_overflow_new_photo));
+			optionsList.add(new OverFlowMenuItem(getString(R.string.scan_free_hike), 0, 0, R.string.scan_free_hike));
 		}
+		else
+		{
+			if (Utils.isPhotosEditEnabled())
+			{
+				optionsList.add(new OverFlowMenuItem(getString(R.string.home_overflow_new_photo), 0, 0, R.string.home_overflow_new_photo));
+			}
+		}
+		
 		
 		optionsList.add(new OverFlowMenuItem(getString(R.string.invite_friends), 0, 0, R.string.invite_friends));
 	
@@ -1953,6 +1973,10 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 				switch (item.id)
 				{
+				case R.string.scan_free_hike:
+					intent = IntentFactory.getComposeChatActivityIntent(HomeActivity.this);
+					intent.putExtra(HikeConstants.Extras.HIKE_DIRECT_MODE, true);
+					break;
 				case R.string.invite_friends:
 					intent = new Intent(HomeActivity.this, TellAFriend.class);
 					break;

@@ -149,6 +149,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 
 	private boolean isShortcut = false;
 
+
 	private HashMap<String, Integer> interceptUrlMap;
 
 	private final String CALLING_MSISDN = "calling_msisdn";

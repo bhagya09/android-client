@@ -430,10 +430,9 @@ public class ProductPopupsConstants
 			@Override
 			public String toString()
 			{
-				return "openMicroapp";
+				return "microapp";
 			}
 		};
-
 		
 		
 	}

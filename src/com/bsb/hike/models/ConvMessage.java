@@ -596,7 +596,7 @@ public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique, C
 			this.mMessage = OneToNConversationUtils.getAdminUpdatedMessage(this, context);
 			break;
 		case GC_SETTING_CHANGE:
-			this.mMessage = OneToNConversationUtils.getAdminUpdatedMessage(this, context);
+			this.mMessage = OneToNConversationUtils.getSettingUpdatedMessage(this, context);
 			break;
 		case GROUP_END:
 			this.mMessage = OneToNConversationUtils.getConversationEndedMessage(conversation.getMsisdn(), context);
