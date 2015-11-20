@@ -69,48 +69,40 @@ public class ConnectionManager
 		String ssid = OfflineUtils.getSsidForMsisdn(OfflineUtils.getMyMsisdn(),targetMsisdn);
 	//	wifiManager.saveConfiguration();
 		Logger.d("OfflineManager","SSID is "+ssid);
-		WifiConfiguration wifiConfig = new WifiConfiguration();
-		wifiConfig.SSID = "\"" +OfflineUtils.encodeSsid(ssid) +"\"";
-		wifiConfig.preSharedKey  = "\"" + OfflineUtils.generatePassword(ssid)  +  "\"";
-		//wifiConfig.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.WPA_PSK);
-//		wifiConfig.allowedProtocols.set(1);
-//		wifiConfig.allowedPairwiseCiphers.set(1);
-//		wifiConfig.allowedPairwiseCiphers.set(2);
-//		wifiConfig.allowedGroupCiphers.set(0);
-//		wifiConfig.allowedGroupCiphers.set(1);
-//		wifiConfig.allowedGroupCiphers.set(2);
-//        wifiConfig.allowedGroupCiphers.set(3);
-//      //  wifiConfig.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.WPA_PSK);
+		WifiConfiguration wificonfiguration = new WifiConfiguration();
+		wificonfiguration.SSID = "\"" +OfflineUtils.encodeSsid(ssid) +"\"";
+		wificonfiguration.preSharedKey  = "\"" + OfflineUtils.generatePassword(ssid)  +  "\"";
 		
-//		wifiManager.enableNetwork(result, false);
-//		wifiConfig.networkId=result;
-//		wifiManager.updateNetwork(wifiConfig);
-//		wifiManager.saveConfiguration();
-//		wifiConfig.allowedAuthAlgorithms.set(0);
-//		wifiConfig.allowedProtocols.set(1);
-//		wifiConfig.allowedProtocols.set(0);
-//		wifiConfig.allowedPairwiseCiphers.set(2);
-//		wifiConfig.allowedPairwiseCiphers.set(1);
-//        wifiConfig.allowedGroupCiphers.set(3);
-//        wifiConfig.allowedGroupCiphers.set(2);
-		
-		
-		
-		
+		 wificonfiguration.hiddenSSID = false;
+	        wificonfiguration.status = 2;
+	        wificonfiguration.allowedKeyManagement.set(1);
+            wificonfiguration.allowedProtocols.set(0);
+            wificonfiguration.allowedAuthAlgorithms.set(0);
+            wificonfiguration.hiddenSSID = true;
+            wificonfiguration.allowedProtocols.set(0);
+            wificonfiguration.allowedProtocols.set(1);
+            wificonfiguration.allowedPairwiseCiphers.set(1);
+            wificonfiguration.allowedPairwiseCiphers.set(2);
+            wificonfiguration.allowedGroupCiphers.set(0);
+            wificonfiguration.allowedGroupCiphers.set(1);
+            wificonfiguration.allowedGroupCiphers.set(2);
+            wificonfiguration.allowedGroupCiphers.set(3);
+            int i1 = wifiManager.addNetwork(wificonfiguration);
+            if (i1 != -1)
+            {
+                wifiManager.enableNetwork(i1, false);
+                wificonfiguration.networkId = i1;
+                wifiManager.updateNetwork(wificonfiguration);
+                wifiManager.saveConfiguration();
+            }
+             wifiManager.enableNetwork(i1, true);
+            wifiManager.reconnect();
 		// stack overflow 
-		wifiConfig.allowedProtocols.set(WifiConfiguration.Protocol.RSN);
-		wifiConfig.allowedProtocols.set(WifiConfiguration.Protocol.WPA);
-		wifiConfig.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.WPA_PSK);
-		wifiConfig.allowedPairwiseCiphers.set(WifiConfiguration.PairwiseCipher.CCMP);
-		wifiConfig.allowedPairwiseCiphers.set(WifiConfiguration.PairwiseCipher.TKIP);
-		wifiConfig.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.WEP40);
-		wifiConfig.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.WEP104);
-		wifiConfig.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.CCMP);
-		wifiConfig.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.TKIP);
+	
 		
-        int result=wifiManager.addNetwork(wifiConfig);
-        wifiManager.saveConfiguration();
-		connectToWifi(wifiConfig.SSID);
+		
+      //  int result=wifiManager.addNetwork(wifiConfig);
+		//connectToWifi(wifiConfig.SSID);
 	}
 	
 	
