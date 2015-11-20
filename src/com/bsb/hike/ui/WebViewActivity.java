@@ -1,9 +1,12 @@
 package com.bsb.hike.ui;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import android.util.Pair;
+
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -108,6 +111,10 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 
 	public static final String WEBVIEW_MODE = "webviewMode";
 
+	public static final String INTERCEPT_URLS = "icpt_url";
+
+	public static final String URL_PARAMETER_STRING = "url_params";
+
 	private CustomWebView webView;
 	
 	private  ProgressBar bar;
@@ -142,13 +149,22 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 
 	private boolean isShortcut = false;
 
+
+	private HashMap<String, Integer> interceptUrlMap;
+
+	private final String CALLING_MSISDN = "calling_msisdn";
+
+	// The msisdn of the WebViewActivity microapp that called this WebViewActivity (if such a case exists, null otherwise)
+	String callingMsisdn;
+
 	// Miscellaneous data received in the intent.
-	private String extraData;
+	private String extraData = "";
+
+	private String urlParams;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
-
 		/**
 		 * force the user into the reg-flow process if the token isn't set
 		 */
@@ -166,7 +182,13 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		
 		setMode(getIntent().getIntExtra(WEBVIEW_MODE, WEB_URL_MODE));
 
+		initInterceptUrls(getIntent().getStringExtra(INTERCEPT_URLS));
+
+		callingMsisdn = getIntent().getStringExtra(CALLING_MSISDN);
+
 		extraData = getIntent().getStringExtra(HikePlatformConstants.EXTRA_DATA);
+
+		urlParams = getIntent().getStringExtra(URL_PARAMETER_STRING);
 
 		if (mode == MICRO_APP_MODE || mode == WEB_URL_BOT_MODE)
 		{
@@ -396,6 +418,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		setupMicroAppActionBar();
 		setupNavBar();
 		setupTagPicker();
+		sendUrlParamsInExtraData(urlParams);
 		deliverExtraDataToMicroapp(extraData);
 		loadMicroApp();
 		checkAndBlockOrientation();
@@ -944,7 +967,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		super.onActivityResult(requestCode, resultCode, data);
 		if (resultCode == RESULT_OK)
 		{
-			if(requestCode == HikeConstants.PLATFORM_REQUEST || requestCode == HikeConstants.PLATFORM_FILE_CHOOSE_REQUEST)
+			if(requestCode == HikeConstants.PLATFORM_REQUEST || requestCode == HikeConstants.PLATFORM_FILE_CHOOSE_REQUEST || requestCode == HikeConstants.PLATFORM_MSISDN_FILTER_DISPLAY_REQUEST)
 			{
 				mmBridge.onActivityResult(requestCode,resultCode, data);
 			}
@@ -953,7 +976,12 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	
 	public void openFullPage(String url)
 	{
-		startWebViewWithBridge(url, "");
+		openFullPage(url, null);
+	}
+
+	public void openFullPage(String url, String interceptUrlJson)
+	{
+		startWebViewWithBridge(url, "", interceptUrlJson);
 	}
 	
 	@Override
@@ -961,8 +989,19 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	{
 		startWebViewWithBridge(url, title);
 	}
+
+	@Override
+	public void openFullPageWithTitle(String url, String title, String interceptUrlJson)
+	{
+		startWebViewWithBridge(url, title, interceptUrlJson);
+	}
 	
 	private void startWebViewWithBridge(String url, String title)
+	{
+		startWebViewWithBridge(url, title, null);
+	}
+
+	private void startWebViewWithBridge(String url, String title, String interceptUrlJson)
 	{
 		if (TextUtils.isEmpty(title))
 		{
@@ -974,12 +1013,21 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		intent.putExtra(FULL_SCREEN_AB_COLOR, color == -1 ? botConfig.getActionBarColor() : color);
 		int sb_color = botConfig.getSecondaryStatusBarColor();
 		intent.putExtra(FULL_SCREEN_SB_COLOR, sb_color == -1 ? botConfig.getStatusBarColor() : sb_color);
-		
+		if (this.msisdn != null)
+		{
+			intent.putExtra(CALLING_MSISDN, msisdn);
+		}
+
+		if (!TextUtils.isEmpty(interceptUrlJson))
+		{
+			intent.putExtra(INTERCEPT_URLS, interceptUrlJson);
+		}
+
 		if (botConfig.isJSInjectorEnabled())
 		{
 			intent.putExtra(JS_TO_INJECT, botConfig.getJSToInject());
 		}
-		
+
 		startActivity(intent);
 	}
 
@@ -1106,6 +1154,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 			{
 				return false;
 			}
+			interceptUrlIfRequired(url);
 			if (url.startsWith("mailto:"))
 			{
 				try
@@ -1378,6 +1427,127 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		}
 	}
 
+	public void setInterceptUrlMap(HashMap<String, Integer> interceptUrlMap)
+	{
+		this.interceptUrlMap = interceptUrlMap;
+	}
+
+	/**
+	 * Initializes the intercept URL map from JSONString.
+	 * @param urlJson
+	 */
+	public void initInterceptUrls(String urlJson)
+	{
+		if (TextUtils.isEmpty(urlJson))
+		{
+			Logger.e(tag, "Intercept URL json is empty. Returning.");
+			return;
+		}
+		HashMap<String, Integer> urlToTypeMap = new HashMap<>();
+
+		try
+		{
+			JSONObject urls = new JSONObject(urlJson);
+			JSONArray array = urls.getJSONArray(INTERCEPT_URLS);
+
+			for (int i = 0; i < array.length(); i++)
+			{
+				JSONObject tuple = (JSONObject) array.get(i);
+				urlToTypeMap.put(tuple.getString(HikePlatformConstants.URL), tuple.getInt(HikePlatformConstants.TYPE));
+			}
+		}
+		catch (JSONException e)
+		{
+			Logger.e(tag, "JSONException in initInterceptUrls. "+e.getMessage());
+			e.printStackTrace();
+		}
+
+		setInterceptUrlMap(urlToTypeMap);
+	}
+
+	/**
+	 * Checks and intercepts the interceptUrl param if it exists in the interceptUrl map.
+	 * @param interceptUrl
+	 */
+	private void interceptUrlIfRequired(String interceptUrl)
+	{
+		if (this.interceptUrlMap == null || this.interceptUrlMap.isEmpty())
+		{
+			Logger.i(tag, "URL " + interceptUrl + " not intercepted.");
+			return;
+		}
+
+		interceptUrl = interceptUrl.toLowerCase();
+
+		for (String url : this.interceptUrlMap.keySet())
+		{
+			if (interceptUrl.contains(url))
+			{
+				int type = this.interceptUrlMap.get(url);
+				interceptUrl(interceptUrl, type);
+				return;
+			}
+		}
+	}
+
+	/**
+	 * This method contains the intercept logic for each type.
+	 * @param urlToIntercept
+	 * @param type
+	 */
+	private void interceptUrl(String urlToIntercept, int type)
+	{
+		if (TextUtils.isEmpty(urlToIntercept))
+		{
+			Logger.e(tag, "URL passed to interceptUrl is empty or null. Returning.");
+			return;
+		}
+		switch(type)
+		{
+			case HikePlatformConstants.UrlInterceptTypes.INTERCEPT_AND_CLOSE_WEBVIEW:
+
+				int index = urlToIntercept.indexOf('?');
+				String params = index < 0 ? "" : urlToIntercept.substring(index);
+				if (TextUtils.isEmpty(callingMsisdn))
+				{
+					Logger.e(tag, "callingMsisdn, the msisdn to open after URL intercept is missing. Returning.");
+					return;
+				}
+				Intent intent = IntentFactory.getNonMessagingBotIntent(callingMsisdn, getApplicationContext());
+				intent.putExtra(URL_PARAMETER_STRING, params);
+				intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+				webView.stopLoading();
+
+				this.finish();
+				startActivity(intent);
+
+				break;
+
+		}
+	}
+
+	@Override
+	protected void onNewIntent(Intent intent)
+	{
+		super.onNewIntent(intent);
+		if (mode == MICRO_APP_MODE && getIntent().getStringExtra(HikeConstants.MSISDN).equals(intent.getStringExtra(HikeConstants.MSISDN)))
+		{
+			deliverUrlParamsToMicroapp(intent.getStringExtra(URL_PARAMETER_STRING));
+		}
+	}
+
+	/**
+	 * This method passes along the intercepted URL's parameters to the microapp.
+	 * @param urlParams
+	 */
+	private void deliverUrlParamsToMicroapp(String urlParams)
+	{
+		if (mmBridge != null && urlParams != null)
+		{
+			mmBridge.urlIntercepted(urlParams);
+		}
+	}
+
 	// Method to pass extra miscellaneous data from the intent to the microapp.
 	private void deliverExtraDataToMicroapp(String data)
 	{
@@ -1385,5 +1555,30 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		{
 			mmBridge.setExtraData(data);
 		}
+	}
+
+	// Any URL parameters received in the intent will be passed to the microapp in it's init method as part of extraData.
+	private void sendUrlParamsInExtraData(String params)
+	{
+		if (TextUtils.isEmpty(params))
+		{
+			Logger.e(tag, "No params to send in extra data to Microapp.");
+			return;
+		}
+		try
+		{
+			if (TextUtils.isEmpty(extraData))
+			{
+				JSONObject data = new JSONObject();
+				data.put(URL_PARAMETER_STRING, params);
+				extraData = data.toString();
+			}
+		}
+		catch (JSONException e)
+		{
+			Logger.e(tag, "JSONException in sendUrlParamsInExtraData + "+e.getMessage());
+			e.printStackTrace();
+		}
+
 	}
 }
