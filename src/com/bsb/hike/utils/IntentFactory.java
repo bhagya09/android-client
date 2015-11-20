@@ -730,6 +730,14 @@ public class IntentFactory
 		appContext.startActivity(i);
 	}
 
+	public static void reopenSignupActivity(Context context)
+	{
+		Intent i = new Intent(context, SignupActivity.class);
+		i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		context.startActivity(i);
+	}
+
 	public static void openHomeActivity(Context context, boolean clearTop)
 	{
 		Intent in = new Intent(context, HomeActivity.class);
