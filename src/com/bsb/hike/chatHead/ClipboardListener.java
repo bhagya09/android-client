@@ -7,6 +7,10 @@ import android.content.Context;
 
 public class ClipboardListener implements OnPrimaryClipChangedListener
 {
+	private int MIN_DIGIT_CONST = 6;
+
+	private int MAX_DIGIT_CONST = 13;
+
 	public void onPrimaryClipChanged()
 	{
 		String clipboardText;
@@ -22,7 +26,7 @@ public class ClipboardListener implements OnPrimaryClipChangedListener
 		}
 		if (clipboardText != null)
 		{
-			String regex = "^(\\s*\\+?(\\d{1,5}\\s?\\-?){1,6}\\s*){6,13}$";
+			String regex = "^(\\s*\\+?(\\d{1,3}\\s?\\-?){3,6}\\s*)$";
 			if (clipboardText.matches(regex))
 			{
 				String number = "";
@@ -33,8 +37,11 @@ public class ClipboardListener implements OnPrimaryClipChangedListener
 						number = number + clipboardText.charAt(var);
 					}
 				}
-				StickyCaller.CALL_TYPE = StickyCaller.CLIPBOARD;
-				ChatHeadUtils.postNumberRequest(HikeMessengerApp.getInstance().getApplicationContext(), number);
+				if (number.length() >= MIN_DIGIT_CONST && number.length() <= MAX_DIGIT_CONST)
+				{
+					StickyCaller.CALL_TYPE = StickyCaller.CLIPBOARD;
+					ChatHeadUtils.postNumberRequest(HikeMessengerApp.getInstance().getApplicationContext(), number);
+				}
 			}
 		}
 	}
