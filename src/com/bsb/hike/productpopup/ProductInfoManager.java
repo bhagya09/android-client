@@ -212,7 +212,7 @@ public class ProductInfoManager
 	 * 
 	 *            This method is responsible for downloading the zip if not present and then mustaching the template,validating the data
 	 */
-	private void parseAndShowPopup(final ProductContentModel productContentModel, final IActivityPopup iShowPopup)
+	public void parseAndShowPopup(final ProductContentModel productContentModel, final IActivityPopup iShowPopup)
 	{
 
 		PlatformContent.getContent(productContentModel.toJSONString(), new PopupContentListener(productContentModel, iShowPopup)
@@ -285,8 +285,9 @@ public class ProductInfoManager
 					HikeMessengerApp.getPubSub().publish(HikePubSub.PRODUCT_POPUP_RECEIVE_COMPLETE, null);
                     recordPopupEvent(productContentModel.getAppName(), productContentModel.getPid(), productContentModel.isFullScreen(), HikeConstants.DOWNLOAD);
 				}
+					HikeMessengerApp.getPubSub().publish(HikePubSub.PRODUCT_POPUP_BADGE_COUNT_CHANGED, null);
 			}
-
+				
 		});
 
 	}

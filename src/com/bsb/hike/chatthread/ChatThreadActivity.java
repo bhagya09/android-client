@@ -176,7 +176,7 @@ public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
 		if(processNewIntent(intent))
 		{
 			chatThread.onPreNewIntent();
-			chatThread.onDestroy();
+			chatThread.tryToDestroyChatThread();
 			init(intent);
 			setIntent(intent);
 			chatThread.onNewIntent();
@@ -254,7 +254,7 @@ public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
 		 */
 		if (chatThread != null)
 		{
-			chatThread.onDestroy();
+			chatThread.tryToDestroyChatThread();
 		}
 		super.onDestroy();
 	}
