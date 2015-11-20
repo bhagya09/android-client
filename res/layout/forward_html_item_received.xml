@@ -112,11 +112,11 @@
 
     </RelativeLayout>
 
-    <include
+    <View
+        android:id="@+id/selected_state_overlay"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:layout_alignBottom="@id/overlay"
-        android:layout_alignTop="@id/overlay"
-        layout="@layout/message_overlay" />
+        android:layout_alignTop="@id/overlay" />
 
 </RelativeLayout>

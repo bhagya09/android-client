@@ -787,6 +787,9 @@
     <string name="voip_offline_error">Network unavailable. Please try again when you have network connectivity.</string>
     <string name="voip_conference_label">Conference Call</string>
     <string name="voip_conference_waiting_for_participants_info">Waiting for conference info...</string>
+    <string name="voip_hang_up">Hang Up</string>
+    <string name="voip_decline">Decline</string>
+    <string name="voip_accept">Accept</string>
     <string name="hike_calls">Hike Calls</string>
     <string name="voip_intro_popup_msg">You can now call all your Hike friends for free!</string>
     <string name="voip_intro_popup_btn">AWESOME</string>
@@ -1259,6 +1262,15 @@
 	<string name="apply">Apply</string>
     <string name="keyboad_ftue_swipe">Swipe to change between your language</string>
     <string name="setting_up_keyboard">Setting up Keyboard</string>
+	<string name="tip_and_notif_update_text">UPDATE</string>
+    <string name="tip_and_notif_later_text">LATER</string>
+    <string name="update_tip_header_text">NEW HIKE UPDATE AVAILABLE</string>
+    <string name="update_tip_body_text">Get free Group Calls, Hike News and new Hidden Mode in this update</string>
+    <string name="invite_tip_bottom_text">INVITE</string>
+    <string name="invite_tip_header_text">Invite Friends</string>
+    <string name="invite_tip_body_text">Invite your friends on Hike and earn free talktime!</string>
+    <string name="pers_notif_title">Update Hike</string>
+    <string name="pers_notif_message">Update Hike for exciting new features!</string>
 	<string name="close_gps">You can now turn off your location to save battery. Your Hike Direct connection will not get affected.</string>
 	<string name="gps_not_on">Sorry hike direct wont work if gps not on</string>
 	<string name="switch_on_gps">Please enable location for Hike Direct to work. Press back once you\'re done. </string>
