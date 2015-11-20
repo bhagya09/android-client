@@ -840,7 +840,7 @@
     <string name="photo_dp_save_error_sub">Нажмите для повтора</string>
     <string name="photo_gallery_choose_pic">Выберите фото</string>
     <string name="cropping_image">Обрезка...</string>
-	<string name="home_search_empty_text">По запросу %1$s никого не найдено.</string>
+	<string name="home_search_empty_text">По запросу \'%1$s\' никого не найдено.</string>
     <string name="voip_mic_error">Ошибка в работе микрофона. Возможно, совершить вызов не удастся.</string>
     <string name="voip_call_failed_frag_subheader">Можете отправить контакту %1$s</string>
     <string name="dismiss_upper_case">ОТКЛОНИТЬ</string>

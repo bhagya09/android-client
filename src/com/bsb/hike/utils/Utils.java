@@ -129,6 +129,7 @@ import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.notifications.HikeNotification;
+import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.service.ConnectionChangeReceiver;
 import com.bsb.hike.service.HikeMqttManagerNew;
@@ -658,7 +659,7 @@ public class Utils
 
 		if (settings.getString(HikeMessengerApp.NAME_SETTING, null) == null)
 		{
-			activity.startActivity(new Intent(activity, SignupActivity.class));
+			IntentFactory.reopenSignupActivity(activity);
 			activity.finish();
 			return true;
 		}
@@ -675,7 +676,7 @@ public class Utils
 			}
 			else
 			{
-				activity.startActivity(new Intent(activity, SignupActivity.class));
+				IntentFactory.reopenSignupActivity(activity);
 				activity.finish();
 				return true;
 			}
@@ -3095,7 +3096,10 @@ public class Utils
 				 */
 				data.put(HikeConstants.BULK_LAST_SEEN, false);
 				object.put(HikeConstants.DATA, data);
-
+				
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.IS_HIKE_APP_FOREGROUNDED, true);
+				Logger.d(HikeConstants.UPDATE_TIP_AND_PERS_NOTIF_LOG, "Hike has come to foreground. Calling cancel persistent notif");
+				HikeNotification.getInstance().cancelPersistNotif();
 				HikeMessengerApp.getPubSub().publish(HikePubSub.APP_FOREGROUNDED, null);
 				if (toLog)
 				{
@@ -3111,6 +3115,9 @@ public class Utils
 				{
 					JSONObject sessionDataObject = HAManager.getInstance().recordAndReturnSessionEnd();
 					sendSessionMQTTPacket(context, HikeConstants.BACKGROUND, sessionDataObject);
+					HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.IS_HIKE_APP_FOREGROUNDED, false);
+					Logger.d(HikeConstants.UPDATE_TIP_AND_PERS_NOTIF_LOG, "Hike has moved to background. Calling show persistent notif");
+					HikeNotification.getInstance().checkAndShowUpdateNotif();
 				}
 			}
 			else
@@ -3872,7 +3879,7 @@ public class Utils
 			return;
 		}
 
-		if (!isUserOnline(context))
+		if (!isUserOnline(context) && !OfflineUtils.isConnectedToSameMsisdn(mContactNumber))
 		{
 			Toast.makeText(context, context.getString(R.string.voip_offline_error), Toast.LENGTH_SHORT).show();
 			return;

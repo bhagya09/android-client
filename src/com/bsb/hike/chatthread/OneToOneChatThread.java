@@ -122,12 +122,12 @@ import com.google.gson.Gson;
 	
 	private static final int START_OFFLINE_CONNECTION = 118;
 	
+	private static final int SHOW_OVERFLOW_MENU = 119;
+	
 	private static short H2S_MODE = 0; // Hike to SMS Mode
 
 	private static short H2H_MODE = 1; // Hike to Hike Mode
 	
-	private OfflineParameters offlineParameters=null;
-
 	/* The waiting time in seconds before scheduling a H20 Tip */
 	private static final int DEFAULT_UNDELIVERED_WAIT_TIME = 60;
 
@@ -196,9 +196,22 @@ import com.google.gson.Gson;
 	protected void init()
 	{
 		super.init();
-		offlineParameters = new Gson().fromJson(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.OFFLINE, "{}"), OfflineParameters.class);
 		handleOfflineIntent(activity.getIntent());
-		
+		if (activity.getIntent().getBooleanExtra(HikeConstants.Extras.HIKE_DIRECT_MODE, false))
+		{
+			if (OfflineController.getInstance().getConfigurationParamerters().shouldShowConnectingScreen())
+			{
+				Message msg = Message.obtain();
+				msg.obj = true;
+				msg.what = START_OFFLINE_CONNECTION;
+				uiHandler.sendMessage(msg);
+				OfflineController.getInstance().removeConnectionRequest();
+			}
+			else
+			{
+				sendUIMessage(SHOW_OVERFLOW_MENU, 500, null);
+			}
+		}
 	}
 	
 	private void handleOfflineIntent(Intent intent)
@@ -339,7 +352,7 @@ import com.google.gson.Gson;
 	{
 		List<OverFlowMenuItem> list = new ArrayList<OverFlowMenuItem>();
 		
-		if(offlineParameters.isOfflineEnabled())
+		if(OfflineController.getInstance().getConfigurationParamerters().isOfflineEnabled())
 			list.add(new OverFlowMenuItem(getString(R.string.scan_free_hike), 0, 0, R.string.scan_free_hike));
 
 		list.add(new OverFlowMenuItem(getString(R.string.view_profile), 0, 0, R.string.view_profile));
@@ -850,6 +863,9 @@ import com.google.gson.Gson;
 		case START_OFFLINE_CONNECTION:  
 			startFreeHikeConversation((Boolean)msg.obj);
 			break;
+		case SHOW_OVERFLOW_MENU:
+			showOverflowMenu();
+			break;
 		default:
 			Logger.d(TAG, "Did not find any matching event in OneToOne ChatThread. Calling super class' handleUIMessage");
 			super.handleUIMessage(msg);
@@ -1256,7 +1272,7 @@ import com.google.gson.Gson;
 
 	private void showOfflineOverflowIndiactorIfRequired()
 	{
-		if(offlineParameters.isOfflineEnabled())
+		if(OfflineController.getInstance().getConfigurationParamerters().isOfflineEnabled())
 		{
 			Boolean isClicked = sharedPreference.getData(OfflineConstants.OFFLINE_INDICATOR_CLICKED,false);
 			if(!isClicked)
@@ -1269,7 +1285,7 @@ import com.google.gson.Gson;
 	@Override
 	protected void showOverflowMenu()
 	{
-		if(offlineParameters.isOfflineEnabled())
+		if(OfflineController.getInstance().getConfigurationParamerters().isOfflineEnabled())
 		{
 			Boolean isClicked = sharedPreference.getData(OfflineConstants.OFFLINE_INDICATOR_CLICKED,false);
 			if(!isClicked)
@@ -1536,9 +1552,13 @@ import com.google.gson.Gson;
 			{
 				startFreeHikeConversation(true);
 			}
-			else 
+			else
 			{
 				OfflineUtils.stopFreeHikeConnection(activity, msisdn);
+			}
+			if (!sharedPreference.getData(OfflineConstants.CT_HIKE_DIRECT_CLICKED, false))
+			{
+				sharedPreference.saveData(OfflineConstants.CT_HIKE_DIRECT_CLICKED, true);
 			}
 			break;
 		default:
@@ -1835,12 +1855,7 @@ import com.google.gson.Gson;
 	@Override
 	protected void showNetworkError(boolean isNetworkError)
 	{
-		if (offlineParameters == null)
-		{
-			offlineParameters = new Gson().fromJson(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.OFFLINE, "{}"), OfflineParameters.class);
-		}
-		
-		if (offlineParameters.isOfflineEnabled())
+		if (OfflineController.getInstance().getConfigurationParamerters().isOfflineEnabled())
 		{
 			if (noNetworkCardView == null)
 			{
@@ -3294,6 +3309,14 @@ import com.google.gson.Gson;
 					overFlowMenuItem.text = getString(R.string.cancel_offline_connection);
 				}
 				overFlowMenuItem.enabled = !mConversation.isBlocked();
+				if (!sharedPreference.getData(OfflineConstants.CT_HIKE_DIRECT_CLICKED, false) && overFlowMenuItem.enabled)
+				{
+					overFlowMenuItem.drawableId = R.drawable.ftue_hike_direct_logo_red_dot;
+				}
+				else
+				{
+					overFlowMenuItem.drawableId = 0;
+				}
 				break;
 			}
 		}
