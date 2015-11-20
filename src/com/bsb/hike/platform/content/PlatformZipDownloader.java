@@ -2,7 +2,6 @@ package com.bsb.hike.platform.content;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.HttpURLConnection;
 import java.util.HashMap;
 import java.util.Observable;
 import java.util.Observer;
@@ -33,15 +32,6 @@ import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.content.PlatformContent.EventCode;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.Logger;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Observable;
-import java.util.Observer;
 
 /**
  * Download and store template. First
@@ -436,12 +426,12 @@ public class PlatformZipDownloader
 			@Override
 			public void onRequestSuccess(Response result)
 			{
-				if(!resumeSupported&&result.getStatusCode()== HttpURLConnection.HTTP_PARTIAL)
+				if(!resumeSupported)
 				{
 					JSONObject json = new JSONObject();
 					try
 					{
-						json.putOpt(AnalyticsConstants.EVENT_KEY,AnalyticsConstants.PARTIAL_FILE_DOWNLOADED);
+						json.putOpt(AnalyticsConstants.EVENT_KEY,AnalyticsConstants.FILE_DOWNLOADED);
 						json.putOpt(AnalyticsConstants.FILE_SIZE, zipFile.length());
 						json.putOpt(AnalyticsConstants.APP_NAME, mRequest.getContentData().getId());
 						json.putOpt(AnalyticsConstants.RESULT_CODE,result.getStatusCode());
