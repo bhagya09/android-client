@@ -1115,7 +1115,7 @@
     <string name="DELETE">DELETE</string>
     <string name= "disconnecting_offline">Closing Connection</string>
     <string name="sticker_recommend_auto_off_tip_text">Sticker Suggestions turned off! Get them back from Settings > Chat Settings</string>
-    <string name="timeline_tab_photo">Add Photo</string>
+    <string name="timeline_tab_photo">Photo</string>
     <string name="timeline_tab_status">Status</string>
     <string name="timeline_empty_desc1">Timeline Updates</string>
     <string name="timeline_empty_desc2">You can see photos and status updates\nfrom your friends\' lives here.</string>
