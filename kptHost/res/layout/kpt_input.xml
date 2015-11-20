@@ -47,7 +47,7 @@
             android:layout_alignParentBottom="true"
             atx:kpt_keyPreviewHeight="50dip"
             atx:kpt_keyPreviewLayout="@layout/kpt_keyboard_key_preview"
-            atx:kpt_keyPreviewOffset="-12dip"
+            atx:kpt_keyPreviewOffset="-5dip"
             atx:kpt_keyTextColor="@color/kpt_primary_key_color"
             atx:kpt_keyTextColor1="@color/kpt_primary_key_color_dk_fk"
             atx:kpt_keyTextColor2="@color/kpt_secondary_key_color"

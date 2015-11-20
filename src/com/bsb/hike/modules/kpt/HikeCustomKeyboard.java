@@ -38,11 +38,9 @@ public class HikeCustomKeyboard extends CustomKeyboard
 		if (textEventListener != null)
 			listener = new AdaptxtEditTextEventListner()
 			{
-
 				@Override
-				public void onReturnAction(int arg0)
-				{
-					textEventListener.onReturnAction(resId, arg0);
+				public void onReturnAction(int i, AdaptxtEditText adaptxtEditText) {
+					textEventListener.onReturnAction(resId, i);
 				}
 
 				@Override
@@ -78,11 +76,9 @@ public class HikeCustomKeyboard extends CustomKeyboard
 		if (textEventListener != null)
 			listener = new AdaptxtEditTextEventListner()
 			{
-
 				@Override
-				public void onReturnAction(int arg0)
-				{
-					textEventListener.onReturnAction(text.getId(), arg0);
+				public void onReturnAction(int i, AdaptxtEditText adaptxtEditText) {
+					textEventListener.onReturnAction(text.getId(), i);
 				}
 
 				@Override
