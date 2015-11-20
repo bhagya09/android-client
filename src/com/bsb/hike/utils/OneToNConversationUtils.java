@@ -186,22 +186,18 @@ public class OneToNConversationUtils
 			}
 		
 			String adder = "";
-			if (groupAdder.equalsIgnoreCase(preferences.getString(
-					HikeMessengerApp.MSISDN_SETTING, ""))) {
-				adder = context.getString(R.string.you);
-				participantAddedMessage =  context
-								.getString(R.string.you_group_settings_updated, highlight);
-			} else {
-				if (groupAdder != null && groupAdder.trim().length() > 0) {
-					ContactInfo contact = ContactManager.getInstance()
-							.getContact(groupAdder, true, false);
-					if (contact != null) {
-						adder = contact.getFirstNameAndSurname();
-						participantAddedMessage = adder
-								+ " "
-								+ context
-										.getString(R.string.group_settings_updated);
-					}
+			//removing the 'You' adder in this case as the mailed chat will be sent to all users in the group
+			if (groupAdder != null && !TextUtils.isEmpty(groupAdder.trim()))
+			{
+				ContactInfo contact = ContactManager.getInstance()
+						.getContact(groupAdder, true, false);
+				if (contact != null) 
+				{
+					adder = contact.getFirstNameAndSurname();
+					participantAddedMessage = adder
+							+ " "
+							+ context
+									.getString(R.string.group_settings_updated);
 				}
 			}
 			
