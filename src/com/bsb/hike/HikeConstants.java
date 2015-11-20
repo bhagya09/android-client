@@ -2732,6 +2732,12 @@ public class HikeConstants
 
 		public static final String VOIP_MSG_TYPE_MISSED_CALL_OUTGOING = "vmco";
 
+		public static final String VOIP_MSG_HANG_UP = "vHangUp";
+
+		public static final String VOIP_MSG_DECLINE = "vDecline";
+
+		public static final String VOIP_MSG_ACCEPT = "vAccept";
+
 		public static final String PRODUCT_POPUP = "productpopup";
 
 		public static final String SESSION = "sess";
@@ -3652,4 +3658,5 @@ public class HikeConstants
 
 	public static final float ONE_PERCENT_PROGRESS = 0.01f;
 
+	public static final String FT_USE_APACHE_HTTP_CLIENT = "ft_apache_client";
 }

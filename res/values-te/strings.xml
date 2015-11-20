@@ -30,7 +30,7 @@
     <string name="sending_feedback">ఫీడ్‌బ్యాక్ పంపుతోంది</string>
     <string name="sending_feedback_failed">ఫీడ్‌బ్యాక్ పంపలేకపోయింది</string>
     <string name="feedback_hint">మీ నుంచి వినడాన్ని మేం ఎంతగానో ఇష్టపడతాం...</string>
-    <string name="block_overlay_message">%1$Sను మీరు బ్లాక్ చేశారు. అన్‌బ్లాక్ చేయండి మరియు hiking కొనసాగించండి.</string>
+    <string name="block_overlay_message">%1$sను మీరు బ్లాక్ చేశారు. అన్‌బ్లాక్ చేయండి మరియు hiking కొనసాగించండి.</string>
     <string name="how_hike_feel">hike మీరు ఏవిధంగా అనుభూతి చెందేట్లు చేసింది?</string>
     <string name="feedback_success">మీ ఫీడ్‌బ్యాక్‌కు ధన్యవాదాలు</string>
     <string name="phone_num">ఫోన్ నెంబరు</string>

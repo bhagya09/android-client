@@ -97,7 +97,6 @@ import com.bsb.hike.ui.utils.StatusBarColorChanger;
 import com.bsb.hike.utils.ChatTheme;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
-import com.bsb.hike.utils.HikeUiHandler;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.PairModified;
@@ -809,6 +808,7 @@ import android.widget.Toast;
 			{
 				if (KptKeyboardManager.getInstance(activity).getInstalledLanguagesList().size() > 1)
 				{
+					//TODO::doing this because we need to show the arrows on the spacebar. These do not show up otherwise. Forceful hackish refresh
 					mCustomKeyboard.showCustomKeyboard(mComposeView, false);
 					mCustomKeyboard.showCustomKeyboard(mComposeView, true);
 				}
@@ -1073,6 +1073,9 @@ import android.widget.Toast;
 		recordOverflowItemClicked(item);
 	}
 	
+	/*
+	 #test code
+	 */
 	private void automateMessages(final int count)
 	{
 		AsyncTask<Void, Void, Void> automateMessages = new AsyncTask<Void, Void, Void>()
@@ -2462,8 +2465,8 @@ import android.widget.Toast;
 	
 	protected boolean shouldShowKeyboard()
 	{
-		return ((mConversation.getMessagesList().isEmpty() && !mConversation.isBlocked() && !activity.getIntent().getBooleanExtra(HikeConstants.Extras.HIKE_DIRECT_MODE,false) && !keyboardFtue.isReadyForFTUE())
-		|| mActionMode.isActionModeOn());
+		return ((mConversation.getMessagesList().isEmpty() && !mConversation.isBlocked() && !activity.getIntent().getBooleanExtra(HikeConstants.Extras.HIKE_DIRECT_MODE,false) 
+				&& !keyboardFtue.isReadyForFTUE()) || mActionMode.isActionModeOn());
 	}
 
 	/**
@@ -2726,15 +2729,9 @@ import android.widget.Toast;
 
 						HikeFileType hikeFileType = HikeFileType.fromString(fileType, isRecording);
 
-						if (Utils.isPicasaUri(filePath))
-						{
-							channelSelector.sendPicasaUriFile(activity.getApplicationContext(),Uri.parse(filePath), hikeFileType, msisdn, mConversation.isOnHike());
-						}
-						else
-						{
-							channelSelector.sendFile(activity.getApplicationContext(), msisdn, filePath, fileKey, hikeFileType, fileType, isRecording,
+						Logger.d("ChatThread", "isCloudMediaUri" + Utils.isPicasaUri(filePath));
+						channelSelector.sendFile(activity.getApplicationContext(), msisdn, filePath, fileKey, hikeFileType, fileType, isRecording,
 									recordingDuration, true, mConversation.isOnHike(), attachmentType);
-						}
 					}
 					else if (msgExtrasJson.has(HikeConstants.Extras.LATITUDE) && msgExtrasJson.has(HikeConstants.Extras.LONGITUDE)
 							&& msgExtrasJson.has(HikeConstants.Extras.ZOOM_LEVEL))

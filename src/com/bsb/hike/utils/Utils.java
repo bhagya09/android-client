@@ -236,6 +236,9 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bsb.hike.offline.OfflineUtils;
+
+
 public class Utils
 {
 	// Precision points definition for duration logging========================================[[
@@ -3972,7 +3975,7 @@ public class Utils
 			return;
 		}
 
-		if (!isUserOnline(context))
+		if (!isUserOnline(context) && !OfflineUtils.isConnectedToSameMsisdn(mContactNumber))
 		{
 			Toast.makeText(context, context.getString(R.string.voip_offline_error), Toast.LENGTH_SHORT).show();
 			return;
