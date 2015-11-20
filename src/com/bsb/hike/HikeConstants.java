@@ -1746,7 +1746,15 @@ public class HikeConstants
 		public static final String IS_MICROAPP_SHOWCASE_INTENT = "microappShowcaseIntent";
 
         public static final String IS_CONTACT_CHOOSER_FILTER_INTENT = "contactChooserFilterIntent";
-	}
+
+        public static final String LIST = "list";
+
+        public static final String MICRO_APPS_REQUEST_CODE = "microapps_request_code";
+
+        public static final String FUNCTION_ID = "function_id";
+
+        public static final String RESULT_CODE = "result_code";
+    }
 
 	public static final class LogEvent
 	{
