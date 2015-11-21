@@ -21,7 +21,7 @@
     <string name="block_title">బ్లాక్ చేయి</string>
     <string name="unblock_title">అన్‌బ్లాక్ చేయి</string>
     <string name="feedback">ఫీడ్‌బ్యాక్</string>
-    <string name="block_overlay_message">%1$Sను మీరు బ్లాక్ చేశారు. అన్‌బ్లాక్ చేయండి, hiking కొనసాగించండి.</string>
+    <string name="block_overlay_message">%1$sను మీరు బ్లాక్ చేశారు. అన్‌బ్లాక్ చేయండి, hiking కొనసాగించండి.</string>
     <string name="phone_num">ఫోన్ నెంబరు</string>
     <string name="pin">PIN</string>
     <string name="name">పేరు</string>
