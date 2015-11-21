@@ -3,6 +3,7 @@ package com.bsb.hike.chatthread;
 import android.app.Activity;
 import android.content.Context;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AlphaAnimation;
@@ -25,6 +26,7 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.chatHead.OnSwipeTouchListener;
 import com.bsb.hike.modules.kpt.KptKeyboardManager;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
@@ -74,6 +76,8 @@ public class KeyboardFtue implements HikePubSub.Listener
 
     private int toInstallLanguageCount;
 
+    private boolean isShowing;
+
     public KeyboardFtue()
     {
         mState = HikeSharedPreferenceUtil.getInstance().getData(KEYBOARD_FTUE_STATE,NOT_STARTED);
@@ -117,7 +121,12 @@ public class KeyboardFtue implements HikePubSub.Listener
         if (!mInitialised)
             return false;
 
-        if (mState < COMPLETE && KptKeyboardManager.getInstance(mActivity).getInstalledLanguagesList().size() > KptKeyboardManager.PREINSTALLED_LANGUAGE_COUNT)
+        // Localized keyboard is for india users only. Other users still have setting but do not see the FTUE
+        if (!HikeMessengerApp.isIndianUser())
+            return false;
+
+        if (mState < COMPLETE && KptKeyboardManager.getInstance(mActivity).getInstalledLanguagesList().size() > KptKeyboardManager.PREINSTALLED_LANGUAGE_COUNT
+                && !HikeMessengerApp.isSystemKeyboard())
             return true;
         else if (mState == NOT_STARTED)
             return true;
@@ -133,7 +142,9 @@ public class KeyboardFtue implements HikePubSub.Listener
         if (flipper == null)
             setupFlipper();
 
-        if (mState < COMPLETE && KptKeyboardManager.getInstance(mActivity).getInstalledLanguagesList().size() > KptKeyboardManager.PREINSTALLED_LANGUAGE_COUNT)
+        isShowing = true;
+        if (mState < COMPLETE && KptKeyboardManager.getInstance(mActivity).getInstalledLanguagesList().size() > KptKeyboardManager.PREINSTALLED_LANGUAGE_COUNT
+                && !HikeMessengerApp.isSystemKeyboard())
             showLanguageUseFtue();
         else if (mState == NOT_STARTED)
             showLanguageSelectionFtue();
@@ -216,18 +227,7 @@ public class KeyboardFtue implements HikePubSub.Listener
         if (flipper.getDisplayedChild() == 2)
             return;
         flipper.setDisplayedChild(2);
-        flipper.findViewById(R.id.langauage_layout).setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View v)
-            {
-//            	tracking analytic event for keyboard ftue completion
-                trackClickAnalyticEvents(HikeConstants.LogEvent.KEYBOARD_FTUE_COMPLETES);
-            	
-            	updateState(COMPLETE);
-                showNextFtue();
-            }
-        });
+        flipper.findViewById(R.id.langauage_layout).setOnTouchListener(onSwipeTouchListener);
         resetSwipeAnimation();
     }
 
@@ -422,10 +422,16 @@ public class KeyboardFtue implements HikePubSub.Listener
         });
     }
 
+    public boolean isShowing()
+    {
+        return isShowing;
+    }
+
     public void destroy()
     {
         if (mInitialised)
         {
+            isShowing = false;
             container.removeAllViews();
             container.invalidate();
             removeFromPubSub();
@@ -546,4 +552,24 @@ public class KeyboardFtue implements HikePubSub.Listener
             return 1;
         }
     }
+
+
+	OnSwipeTouchListener onSwipeTouchListener = new OnSwipeTouchListener(HikeMessengerApp.getInstance().getApplicationContext())
+	{
+		public void onSwipeRight()
+		{
+			trackClickAnalyticEvents(HikeConstants.LogEvent.KEYBOARD_FTUE_COMPLETES);
+
+			updateState(COMPLETE);
+			showNextFtue();
+
+		}
+
+		public boolean onTouch(View v, MotionEvent event)
+		{
+
+			return gestureDetector.onTouchEvent(event);
+		}
+	};
+
 }

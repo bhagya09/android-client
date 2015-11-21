@@ -14,11 +14,11 @@ public class HikeCustomKeyboard extends CustomKeyboard
 
 	int eType;
 
-	HikeAdaptxtEditTextEventListner textEventListener;
+	AdaptxtEditTextEventListner textEventListener;
 
 	AdaptxtKeyboordVisibilityStatusListner keyboardVisibilityListener;
 
-	public HikeCustomKeyboard(Activity host, View viewHolder, int etype, HikeAdaptxtEditTextEventListner listener, AdaptxtKeyboordVisibilityStatusListner listener2)
+	public HikeCustomKeyboard(Activity host, View viewHolder, int etype, AdaptxtEditTextEventListner listener, AdaptxtKeyboordVisibilityStatusListner listener2)
 	{
 		super(host, viewHolder);
 		this.textEventListener = listener;
@@ -33,37 +33,7 @@ public class HikeCustomKeyboard extends CustomKeyboard
 
 	public void registerEditText(final int resId, int eType)
 	{
-		AdaptxtEditTextEventListner listener = null;
-
-		if (textEventListener != null)
-			listener = new AdaptxtEditTextEventListner()
-			{
-
-				@Override
-				public void onReturnAction(int arg0)
-				{
-					textEventListener.onReturnAction(resId, arg0);
-				}
-
-				@Override
-				public void onAdaptxtclick(View arg0)
-				{
-					// TODO Auto-generated method stub
-				}
-
-				@Override
-				public void onAdaptxtTouch(View arg0, MotionEvent arg1)
-				{
-					// TODO Auto-generated method stub
-				}
-
-				@Override
-				public void onAdaptxtFocusChange(View arg0, boolean arg1)
-				{
-					// TODO Auto-generated method stub
-				}
-			};
-		super.registerEditText(resId, eType, listener, keyboardVisibilityListener);
+		super.registerEditText(resId, eType, textEventListener, keyboardVisibilityListener);
 	}
 
 	public void registerEditText(AdaptxtEditText text)
@@ -73,36 +43,12 @@ public class HikeCustomKeyboard extends CustomKeyboard
 
 	public void registerEditText(final AdaptxtEditText text, int eType)
 	{
-		AdaptxtEditTextEventListner listener = null;
+		super.registerEditText(text, eType, textEventListener, keyboardVisibilityListener);
+	}
 
-		if (textEventListener != null)
-			listener = new AdaptxtEditTextEventListner()
-			{
-
-				@Override
-				public void onReturnAction(int arg0)
-				{
-					textEventListener.onReturnAction(text.getId(), arg0);
-				}
-
-				@Override
-				public void onAdaptxtclick(View arg0)
-				{
-					// TODO Auto-generated method stub
-				}
-
-				@Override
-				public void onAdaptxtTouch(View arg0, MotionEvent arg1)
-				{
-					// TODO Auto-generated method stub
-				}
-
-				@Override
-				public void onAdaptxtFocusChange(View arg0, boolean arg1)
-				{
-					// TODO Auto-generated method stub
-				}
-			};
-		super.registerEditText(text, eType, listener, keyboardVisibilityListener);
+	@Override
+	public void showCustomKeyboard(View view, boolean b)
+	{
+		super.showCustomKeyboard(view, b);
 	}
 }

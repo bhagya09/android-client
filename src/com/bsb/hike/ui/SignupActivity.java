@@ -152,9 +152,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 
 	private boolean msisdnErrorDuringSignup = false;
 
-	public static final int POST_SIGNUP = 9;
-
-	public static final int SELECT_LANGUAGE = 8;
+	public static final int POST_SIGNUP = 8;
 
 	public static final int RESTORING_BACKUP = 7;
 
@@ -343,9 +341,6 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 			case RESTORING_BACKUP:
 				prepareLayoutForRestoringAnimation(savedInstanceState,null);
 				break;
-			case SELECT_LANGUAGE:
-				prepareLayoutForSelectingLanguage();
-				break;
 			case POST_SIGNUP:
 				prepareLayoutForPostSignup(savedInstanceState);
 				break;
@@ -459,10 +454,6 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 		else if (displayedChild == RESTORING_BACKUP)
 		{
 			mActionBarTitle.setText(R.string.account_backup);
-		}
-		else if (displayedChild == SELECT_LANGUAGE)
-		{
-			mActionBarTitle.setText(R.string.language);
 		}
 	}
 
@@ -677,16 +668,6 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 
 	private void submitClicked()
 	{
-		if (viewFlipper.getDisplayedChild() == SELECT_LANGUAGE)
-		{
-			if (selectedLocalLanguage != null)
-				LocalLanguageUtils.setApplicationLocalLanguage(selectedLocalLanguage);
-
-			viewFlipper.setDisplayedChild(POST_SIGNUP);
-			prepareLayoutForPostSignup(null);
-			mTask.addUserInput(null);
-			return;
-		}
 		if (viewFlipper.getDisplayedChild() == BACKUP_FOUND || viewFlipper.getDisplayedChild() == RESTORING_BACKUP)
 		{
 			try
@@ -699,6 +680,8 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 			{
 				Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
 			}
+			viewFlipper.setDisplayedChild(POST_SIGNUP);
+			prepareLayoutForPostSignup(null);
 			mTask.addUserInput(null);
 			BotUtils.initBots();
 			return;
@@ -1143,57 +1126,6 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 		}
 	}
 
-	private  void prepareLayoutForSelectingLanguage()
-	{
-		nextBtnContainer.setVisibility(View.VISIBLE);
-		arrow.setVisibility(View.VISIBLE);
-		postText.setText(R.string.next_signup);
-		setupActionBarTitle();
-
-		final TextView languageText = (TextView) viewFlipper.findViewById(R.id.txt_lang);
-		final ArrayList<LocalLanguage> list = new ArrayList<>(LocalLanguage.getDeviceSupportedHikeLanguages(this));
-		languageText.setText(list.get(0).getDisplayName());
-
-		viewFlipper.findViewById(R.id.lang_select).setOnClickListener(
-		new OnClickListener()
-		{
-			@Override
-			public void onClick(View v)
-			{
-				AlertDialog.Builder builder = new AlertDialog.Builder(SignupActivity.this);
-				ListAdapter adapter = new ArrayAdapter<LocalLanguage>(SignupActivity.this, R.layout.alert_item, R.id.item,list);
-				builder.setAdapter(adapter, new DialogInterface.OnClickListener()
-				{
-					@Override
-					public void onClick(DialogInterface dialog, int which)
-					{
-						selectedLocalLanguage = list.get(which);
-						languageText.setText(selectedLocalLanguage.getDisplayName());
-						
-//						tracking the app language selected by the user in ftue
-						try
-						{
-							JSONObject metadata = new JSONObject();
-							metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.APP_LANGUAGE_FTUE);
-							metadata.put(HikeConstants.KEYBOARD_LANGUAGE, selectedLocalLanguage.getDisplayName());
-							HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
-						}
-						catch(JSONException e)
-						{
-							Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json : " + selectedLocalLanguage.getDisplayName() + "\n" + e);
-						}
-					}
-				});
-
-				AlertDialog alertDialog = builder.show();
-				alertDialog.getListView().setDivider(null);
-				alertDialog.getListView().setPadding(0, getResources().getDimensionPixelSize(R.dimen.menu_list_padding_top), 0,
-						getResources().getDimensionPixelSize(R.dimen.menu_list_padding_bottom));
-			}
-		}
-		);
-	}
-	
 	private void prepareLayoutForRestoringAnimation(Bundle savedInstanceState, StateValue stateValue)
 	{
 		nextBtnContainer.setVisibility(View.GONE);
@@ -2200,10 +2132,6 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 				prepareLayoutForRestoringAnimation(null,stateValue);
 			}
 			break;
-		case SELECT_LANGUAGE:
-			viewFlipper.setDisplayedChild(SELECT_LANGUAGE);
-			prepareLayoutForSelectingLanguage();
-			break;
 		}
 		setListeners();
 	}
@@ -2430,6 +2358,4 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 		// TODO Auto-generated method stub
 		return true;
 	}
-
-
 }
