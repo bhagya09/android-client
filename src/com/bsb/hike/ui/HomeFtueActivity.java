@@ -14,6 +14,7 @@ import android.widget.TextView;
 import android.widget.ViewFlipper;
 
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
@@ -48,8 +49,11 @@ public class HomeFtueActivity extends HikeAppStateBaseFragmentActivity {
 
     private TextView submitBtnText;
 
-    public static boolean isFtueToBeShown() {
-        if (!HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.LOCALIZATION_FTUE_COMPLETE, false)) {
+    public static boolean isFtueToBeShown()
+    {
+        // Localized keyboard is for india users only. Other users still have setting but do not see the FTUE
+        if (!HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.LOCALIZATION_FTUE_COMPLETE, false) && HikeMessengerApp.isIndianUser())
+        {
             return true;
         }
         return false;

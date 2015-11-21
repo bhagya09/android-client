@@ -121,6 +121,10 @@ public class KeyboardFtue implements HikePubSub.Listener
         if (!mInitialised)
             return false;
 
+        // Localized keyboard is for india users only. Other users still have setting but do not see the FTUE
+        if (!HikeMessengerApp.isIndianUser())
+            return false;
+
         if (mState < COMPLETE && KptKeyboardManager.getInstance(mActivity).getInstalledLanguagesList().size() > KptKeyboardManager.PREINSTALLED_LANGUAGE_COUNT
                 && !HikeMessengerApp.isSystemKeyboard())
             return true;
