@@ -151,7 +151,7 @@ public class KptKeyboardManager implements AdaptxtSettingsRegisterListener
 		ArrayList<KPTAddonItem> mSupportedLanguagesList = new ArrayList<>();
 		mSupportedLanguagesList.addAll(getInstalledLanguagesList());
 		mSupportedLanguagesList.addAll(getUninstalledLanguagesList());
-		return mUnsupportedLanguagesList;
+		return mSupportedLanguagesList;
 	}
 
 	public ArrayList<KPTAddonItem> getUnsupportedLanguagesList()
