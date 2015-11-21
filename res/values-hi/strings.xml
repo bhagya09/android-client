@@ -1450,7 +1450,6 @@
     <string name="stealth_msg_enter_pin_to_unlock">अनलॉक करने हेतु PIN दर्ज करें</string>
     <string name="stealth_msg_enter_pin_to_unlock_in_reset">मौजूदा PIN दर्ज करें</string>
     <string name="change_password_from_privacy">छुपा मोड सेटिंग्स</string>
-    <string name="search_hint">खोजें</string>
     <string name="nudge_setting_header">नज करने हेतु डबल टैप करें</string>
     <string name="nudge_setting_info">चैटिंग करते हुए डबल टैपिंग द्वारा एक नज भेजें</string>
     <string name="enter_setting_header">Enter कुंजी प्रेषण हेतु है</string>
