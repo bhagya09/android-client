@@ -400,7 +400,7 @@ public class HikeNotification
 			}
 			else
 			{
-				message = context.getString(R.string.chat_bg_changed, contactInfo.getFirstName());
+				message = Utils.createStringWithName(context, msisdn, R.string.you_chat_bg_changed, R.string.chat_bg_changed);
 			}
 		}
 		final long timestamp = convMsg.getTimestamp();

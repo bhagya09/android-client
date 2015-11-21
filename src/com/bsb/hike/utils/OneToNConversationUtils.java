@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -25,15 +26,14 @@ import com.bsb.hike.MqttConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ContactInfo;
-import com.bsb.hike.models.ContactInfoData;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.ConvMessage.OriginType;
 import com.bsb.hike.models.GroupParticipant;
 import com.bsb.hike.models.MessageMetadata;
 import com.bsb.hike.models.Conversation.BroadcastConversation;
 import com.bsb.hike.models.Conversation.GroupConversation;
+import com.bsb.hike.models.Conversation.OneToNConvInfo;
 import com.bsb.hike.models.Conversation.OneToNConversation;
-import com.bsb.hike.models.Conversation.OneToNConversationMetadata;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
@@ -46,7 +46,7 @@ public class OneToNConversationUtils
 {
 	private static final String TAG = "OneToNConversationUtils";
 	
-	public static String getParticipantAddedMessage(ConvMessage convMessage, Context context, String highlight)
+	public static String getParticipantAddedMessage(ConvMessage convMessage, Context context, JSONArray participantInfoArray, OneToNConvInfo convInfo, boolean newGrp)
 	{
 		String participantAddedMessage;
 		MessageMetadata metadata = convMessage.getMetadata();
@@ -54,11 +54,13 @@ public class OneToNConversationUtils
 		{
 			if (metadata.isNewBroadcast())
 			{
-				participantAddedMessage = String.format(context.getString(R.string.new_broadcast_message), highlight);
+				participantAddedMessage = Utils.createStringWithNames(context, R.string.new_broadcast_message, R.string.new_broadcast_message_2, R.string.new_broadcast_message_multi,
+						participantInfoArray, convInfo, newGrp);
 			}
 			else
 			{
-				participantAddedMessage = String.format(context.getString(R.string.add_to_broadcast_message), highlight);
+				participantAddedMessage = Utils.createStringWithNames(context, R.string.add_to_broadcast_message, R.string.add_to_broadcast_message_2, R.string.add_to_broadcast_message_multi,
+						participantInfoArray, convInfo, newGrp);
 			}
 		}
 		else
@@ -67,52 +69,51 @@ public class OneToNConversationUtils
 			SharedPreferences preferences = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS,context. MODE_PRIVATE);
 			if (metadata.isNewGroup())
 			{
-				if (groupAdder == null) {
-					 participantAddedMessage = String.format(context.getString(R.string.new_group_message), highlight);
-				} else {
-					String adder = "";
-					if (groupAdder != null && groupAdder.trim().length() > 0) {
-						ContactInfo contact = ContactManager.getInstance()
-								.getContact(groupAdder, true, false);
-						if (contact != null) {
-							adder = contact.getFirstNameAndSurname();
-						}
+				if (groupAdder == null) 
+				{
+					participantAddedMessage = Utils.createStringWithNames(context, R.string.new_group_message, R.string.new_group_message_2, R.string.new_group_message_multi,
+							participantInfoArray, convInfo, newGrp);
+				} 
+				else 
+				{
+					if(groupAdder.equalsIgnoreCase( preferences.getString(HikeMessengerApp.MSISDN_SETTING, "")))
+					{
+						participantAddedMessage = context.getString(R.string.created_group_text);
 					}
-					if(groupAdder.equalsIgnoreCase( preferences.getString(HikeMessengerApp.MSISDN_SETTING, ""))){
-						participantAddedMessage = context.getString(
-								R.string.created_group_text, highlight);
-					}else{
-					    participantAddedMessage = adder
-								+ " "
-								+ context.getString(R.string.group_member_added,
-										highlight);
+					else
+					{
+						participantAddedMessage = Utils.createStringWithNames(context, groupAdder, convMessage.getMetadata().getMsisdn(), R.string.you_added_group_member, R.string.you_added_as_group_member, R.string.group_member_added);
 					}
 				
 				}
 			}
 			else
-          {
-				if (groupAdder == null) {
-					 participantAddedMessage = String.format(context.getString(R.string.add_to_group_message), highlight);
-				} else {
+			{
+				if (groupAdder == null) 
+				{
+					participantAddedMessage = Utils.createStringWithNames(context, R.string.new_group_message, R.string.new_group_message_2, R.string.new_group_message_multi,
+							participantInfoArray, convInfo, newGrp);
+				} 
+				else 
+				{
 					String adder = "";
-					if (groupAdder.equalsIgnoreCase(preferences.getString(
-							HikeMessengerApp.MSISDN_SETTING, ""))) {
+					if (groupAdder.equalsIgnoreCase(preferences.getString(HikeMessengerApp.MSISDN_SETTING, ""))) 
+					{
 						adder = context.getString(R.string.you);
-					} else {
-						if (groupAdder != null
-								&& groupAdder.trim().length() > 0) {
-							ContactInfo contact = ContactManager.getInstance()
-									.getContact(groupAdder, true, false);
-							if (contact != null) {
+					} 
+					else 
+					{
+						if (groupAdder != null && groupAdder.trim().length() > 0) 
+						{
+							ContactInfo contact = ContactManager.getInstance().getContact(groupAdder, true, false);
+							if (contact != null) 
+							{
 								adder = contact.getFirstNameAndSurname();
 							}
 						}
 					}
-					participantAddedMessage = adder
-							+ " "
-							+ context.getString(R.string.group_member_added,
-									highlight);
+					participantAddedMessage = adder + " " + Utils.createStringWithNames(context, R.string.add_to_group_message, R.string.add_to_group_message_2, R.string.add_to_group_message_multi,
+							participantInfoArray, convInfo, newGrp);
 				}
 			}
 		}
@@ -128,36 +129,7 @@ public class OneToNConversationUtils
 			SharedPreferences preferences = context.getSharedPreferences(
 					HikeMessengerApp.ACCOUNT_SETTINGS, context.MODE_PRIVATE);
 
-			if (highlight != null) {
-				if (highlight.equalsIgnoreCase(preferences.getString(
-						HikeMessengerApp.MSISDN_SETTING, ""))) {
-					highlight = context.getString(R.string.you).toLowerCase();
-				}else{
-				ContactInfo contact = ContactManager.getInstance().getContact(
-						highlight, true, false);
-				if (contact != null) {
-					highlight = contact.getFirstNameAndSurname();
-				}
-				}
-			}
-		
-			String adder = "";
-			if (groupAdder.equalsIgnoreCase(preferences.getString(
-					HikeMessengerApp.MSISDN_SETTING, ""))) {
-				adder = context.getString(R.string.you);
-			} else {
-				if (groupAdder != null && groupAdder.trim().length() > 0) {
-					ContactInfo contact = ContactManager.getInstance()
-							.getContact(groupAdder, true, false);
-					if (contact != null) {
-						adder = contact.getFirstNameAndSurname();
-					}
-				}
-			}
-			participantAddedMessage = adder
-					+ " "
-					+ context
-							.getString(R.string.group_admin_updated, highlight);
+			Utils.createStringWithNames(context, groupAdder, highlight, R.string.you_updated_group_admin, R.string.you_updated_as_group_admin, R.string.group_admin_updated);
 		}
 
 		return participantAddedMessage;
@@ -216,10 +188,10 @@ public class OneToNConversationUtils
 		return participantRemovedMessage;
 	}
 
-	public static String getConversationNameChangedMessage(String msisdn, Context context, String participantName)
+	public static String getConversationNameChangedMessage(String msisdn, Context context)
 	{
-		String nameChangedMessage = String
-				.format(context.getString(isBroadcastConversation(msisdn) ? R.string.change_broadcast_name : R.string.change_group_name), participantName);
+		String nameChangedMessage = isBroadcastConversation(msisdn)? Utils.createStringWithName(context, msisdn, R.string.you_change_broadcast_name, R.string.change_broadcast_name)
+				: Utils.createStringWithName(context, msisdn, R.string.you_change_group_name, R.string.change_group_name);
 		return nameChangedMessage;
 	}
 
