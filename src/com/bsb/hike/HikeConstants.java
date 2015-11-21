@@ -3661,4 +3661,12 @@ public class HikeConstants
 	public static final float ONE_PERCENT_PROGRESS = 0.01f;
 
 	public static final String FT_USE_APACHE_HTTP_CLIENT = "ft_apache_client";
+
+	// Added for switching the Change Keyboard Option in chat thread
+	public static final String CHANGE_KEYBOARD_CHAT_ENABLED = "ckc_e";
+
+	// Analytics Event key for Change Keyboard ,because externalized string was converted to phone language and analytics key was changin
+	public static final String SYSTEM_KEYBOARD = "System Keyboard";
+
+	public static final String HIKE_KEYBOARD = "Hike Keyboard";
 }
