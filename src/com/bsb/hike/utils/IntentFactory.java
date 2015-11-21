@@ -813,6 +813,14 @@ public class IntentFactory
 		return homeIntent;
 	}
 
+	public static void freshLaunchHomeActivity(Context context){
+		if(Utils.isLollipopOrHigher()){
+			context.startActivity(IntentFactory.getHomeActivityIntentAsFreshLaunch(context));
+		}else {
+			relaunchApplicationWithPendingIntent(context);
+		}
+	}
+	/*This will not send FG, BG packet to the server*/
 	public static Intent getHomeActivityIntentAsFreshLaunch(Context context)
 	{
 		Intent homeIntent = Intent.makeMainActivity(new ComponentName(context, HomeActivity.class));
@@ -820,7 +828,8 @@ public class IntentFactory
 		return homeIntent;
 	}
 
-	public static void relaunchApplication(Context context)
+	/*This will not send FG, BG packet to the server*/
+	public static void relaunchApplicationWithPendingIntent(Context context)
 	{
 		Intent mStartActivity = new Intent(context, HomeActivity.class);
 		mStartActivity.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
