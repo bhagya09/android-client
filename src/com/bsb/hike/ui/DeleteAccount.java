@@ -21,6 +21,7 @@ import com.bsb.hike.view.CustomFontTextView;
 import com.kpt.adaptxt.beta.KPTAddonItem;
 import com.kpt.adaptxt.beta.RemoveDialogData;
 import com.kpt.adaptxt.beta.util.KPTConstants;
+import com.kpt.adaptxt.beta.view.AdaptxtEditText;
 import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtKeyboordVisibilityStatusListner;
 
 import android.app.ProgressDialog;
@@ -31,14 +32,13 @@ import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.animation.AnimationUtils;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class DeleteAccount extends HikeAppStateBaseFragmentActivity implements DeleteAccountListener, AdaptxtKeyboordVisibilityStatusListner,HikeAdaptxtEditTextEventListner,
+public class DeleteAccount extends HikeAppStateBaseFragmentActivity implements DeleteAccountListener, AdaptxtKeyboordVisibilityStatusListner,
 		OnClickListener
 {
 	private CustomFontTextView countryName;
@@ -85,7 +85,7 @@ public class DeleteAccount extends HikeAppStateBaseFragmentActivity implements D
 	private void initCustomKeyboard()
 	{
 		View keyboardView = findViewById(R.id.keyboardView_holder);
-		mCustomKeyboard = new HikeCustomKeyboard(DeleteAccount.this, keyboardView, KPTConstants.SINGLE_LINE_EDITOR, DeleteAccount.this, DeleteAccount.this);
+		mCustomKeyboard = new HikeCustomKeyboard(DeleteAccount.this, keyboardView, KPTConstants.SINGLE_LINE_EDITOR, kptEditTextEventListener, DeleteAccount.this);
 		mCustomKeyboard.registerEditText(R.id.et_enter_num);
 		mCustomKeyboard.registerEditText(R.id.country_picker);
 		mCustomKeyboard.registerEditText(R.id.selected_country_name);
@@ -93,6 +93,15 @@ public class DeleteAccount extends HikeAppStateBaseFragmentActivity implements D
 		phoneNum.setOnClickListener(this);
 		countryCode.setOnClickListener(this);
 	}
+
+	HikeAdaptxtEditTextEventListner kptEditTextEventListener = new HikeAdaptxtEditTextEventListner()
+	{
+		@Override
+		public void onReturnAction(int i, AdaptxtEditText adaptxtEditText)
+		{
+			hideKeyboard();
+		}
+	};
 	
 	private void handleOrientationChanegs()
 	{
@@ -425,11 +434,5 @@ public class DeleteAccount extends HikeAppStateBaseFragmentActivity implements D
 	{
 		// TODO Auto-generated method stub
 		
-	}
-
-	@Override
-	public void onReturnAction(int resId, int arg0)
-	{
-		hideKeyboard();		
 	}
 }
