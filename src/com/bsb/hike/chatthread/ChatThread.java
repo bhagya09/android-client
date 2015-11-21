@@ -809,9 +809,16 @@ import android.widget.Toast;
 			{
 				if (KptKeyboardManager.getInstance(activity).getInstalledLanguagesList().size() > 1)
 				{
-					//TODO::doing this because we need to show the arrows on the spacebar. These do not show up otherwise. Forceful hackish refresh
-					mCustomKeyboard.showCustomKeyboard(mComposeView, false);
-					mCustomKeyboard.showCustomKeyboard(mComposeView, true);
+					if (isSystemKeyboard())
+					{
+						changeKeyboard(false);
+					}
+					else
+					{
+						//TODO::doing this because we need to show the arrows on the spacebar. These do not show up otherwise. Forceful hackish refresh
+						mCustomKeyboard.showCustomKeyboard(mComposeView, false);
+						mCustomKeyboard.showCustomKeyboard(mComposeView, true);
+					}
 				}
 			}
 		}
@@ -1627,6 +1634,7 @@ import android.widget.Toast;
 			return true;
 		}
 		mCustomKeyboard.closeAnyDialogIfShowing();
+		removeKeyboardFtueIfShowing();
 
 		if (mActionMode.isActionModeOn())
 		{
@@ -1847,11 +1855,11 @@ import android.widget.Toast;
 		{
 			hideKptKeyboard();
 		}
+		removeKeyboardFtueIfShowing();
 	}
 
 	private void hideKptKeyboard()
 	{
-		keyboardFtue.destroy();
 		mCustomKeyboard.showCustomKeyboard(mComposeView, false);
 		KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, 0);
 	}
@@ -3613,7 +3621,21 @@ import android.widget.Toast;
 		}
 		currentFirstVisibleItem = firstVisibleItem;
 	}
-	
+
+	private void removeKeyboardFtueIfShowing()
+	{
+		if (keyboardFtue.isShowing())
+			keyboardFtue.destroy();
+	}
+
+	private void showKeyboardFtueIfReady()
+	{
+		if (keyboardFtue.isReadyForFTUE())
+		{
+			activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+			keyboardFtue.showNextFtue();
+		}
+	}
 
 	@Override
 	public boolean onTouch(View v, MotionEvent event)
@@ -3629,11 +3651,7 @@ import android.widget.Toast;
 				 * This calls is to avoid the seeming delay in appearance of edittext.
 				 */
 				KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, (keyboardHeight == 0) ? mCustomKeyboard.getKeyBoardAndCVHeight() : keyboardHeight);
-				if (keyboardFtue.isReadyForFTUE())
-				{
-					activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-					keyboardFtue.showNextFtue();
-				}
+				showKeyboardFtueIfReady();
 			}
 			if(stickerTagWatcher != null)
 			{
@@ -6269,6 +6287,7 @@ import android.widget.Toast;
 				public void onClick(View v)
 				{
 					Utils.showSoftKeyboard(mComposeView, InputMethodManager.SHOW_FORCED);
+					showKeyboardFtueIfReady();
 				}
 			});
 		}
