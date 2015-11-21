@@ -6203,7 +6203,7 @@ import android.widget.Toast;
 
 	private void changeKeyboard(boolean systemKeyboard)
 	{
-		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CURRENT_KEYBOARD, systemKeyboard);
+		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SYSTEM_KEYBOARD_SELECTED, systemKeyboard);
 		
 		if (systemKeyboard)
 		{

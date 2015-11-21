@@ -3304,7 +3304,7 @@ public class HikeConstants
 
 	public static final int KEYBOARD_CONFIGURATION_NEW = 2;
 
-	public static final String CURRENT_KEYBOARD = "currentKeyboard";
+	public static final String SYSTEM_KEYBOARD_SELECTED = "systemKeyboardSelected";
 	
 	public static final String GET = "get";
 
