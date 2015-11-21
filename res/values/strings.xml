@@ -1237,5 +1237,8 @@
 	<string name="user_gps_off">Hike Direct cannot work till your location is enabled.</string>
     <string name="no_results_found">No results found</string>
     <string name="dismiss_button">DISMISS</string>
-
+	<string name="sms_head">SMS:</string>
+	<string name="try_instead">TRY INSTEAD</string>
+	<string name="sms_card_settings_side_text">On all text messages</string>
+	<string name="sms_card_settings_heading">SMS ID</string>
 </resources>

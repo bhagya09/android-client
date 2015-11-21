@@ -17,6 +17,7 @@ import org.json.JSONObject;
 import android.app.ActivityManager;
 import android.app.ActivityManager.RunningAppProcessInfo;
 import android.app.ActivityManager.RunningTaskInfo;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -82,6 +83,8 @@ public class ChatHeadUtils
 	private static IncomingCallReceiver incomingCallReceiver;
 	
 	private static OutgoingCallReceiver outgoingCallReceiver;
+	
+	private static ClipboardListener clipboardListener;
 	
 	private static final int HTTP_CALL_RETRY_DELAY = 2000; 
 	
@@ -655,6 +658,8 @@ public class ChatHeadUtils
 		if (HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.SHOW_STICKY_CALLER, false)
 				&& PreferenceManager.getDefaultSharedPreferences(context).getBoolean(HikeConstants.ACTIVATE_STICKY_CALLER_PREF, false))
 		{
+			registerOrUnregisterClipboardListener(context);
+
 			HikeHandlerUtil.getInstance().postRunnable(new Runnable()
 			{
 				// putting code inside runnable to make it run on UI thread.
@@ -678,23 +683,82 @@ public class ChatHeadUtils
 
 		}
 	}
-	
-	public static void unregisterCallReceiver()
+
+
+	public static void registerOrUnregisterClipboardListener(final Context context)
 	{
-		Context context = HikeMessengerApp.getInstance();
-		if (incomingCallReceiver != null)
+		if (HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.ENABLE_CLIPBOARD_CARD, true))
 		{
-			TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
-			telephonyManager.listen(incomingCallReceiver, PhoneStateListener.LISTEN_NONE);
-			incomingCallReceiver = null;
+			HikeHandlerUtil.getInstance().postRunnable(new Runnable()
+			{
+				// putting code inside runnable to make it run on UI thread.
+				@Override
+				public void run()
+				{
+
+					if (clipboardListener == null)
+					{
+						clipboardListener = new ClipboardListener();
+						ClipboardManager clipBoard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+						clipBoard.addPrimaryClipChangedListener(clipboardListener);
+					}
+				}
+			});
+		}
+		else
+		{
+			unregisterClipboardListener(context);
 		}
 
-		if (outgoingCallReceiver != null)
+	}
+
+	public static void unregisterClipboardListener(final Context context)
+	{
+		HikeHandlerUtil.getInstance().postRunnable(new Runnable()
 		{
-			context.unregisterReceiver(outgoingCallReceiver);
-			outgoingCallReceiver = null;
-		}
-		StickyCaller.removeCallerView();
+			// putting code inside runnable to make it run on UI thread.
+			@Override
+			public void run()
+			{
+				if (clipboardListener != null)
+				{
+					ClipboardManager clipBoard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+					clipBoard.removePrimaryClipChangedListener(clipboardListener);
+					clipboardListener = null;
+				}
+			}
+		});
+
+	}
+
+	public static void unregisterCallReceiver()
+	{
+		final Context context = HikeMessengerApp.getInstance();
+
+		unregisterClipboardListener(context);
+
+		HikeHandlerUtil.getInstance().postRunnable(new Runnable()
+		{
+			// putting code inside runnable to make it run on UI thread.
+			@Override
+			public void run()
+			{
+
+				if (incomingCallReceiver != null)
+				{
+					TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+					telephonyManager.listen(incomingCallReceiver, PhoneStateListener.LISTEN_NONE);
+					incomingCallReceiver = null;
+				}
+
+				if (outgoingCallReceiver != null)
+				{
+					context.unregisterReceiver(outgoingCallReceiver);
+					outgoingCallReceiver = null;
+				}
+				StickyCaller.removeCallerView();
+			}
+		});
 	}
 	
 	public static void onCallClickedFromCallerCard(Context context, String callCurrentNumber, CallSource hikeStickyCaller)
@@ -763,6 +827,19 @@ public class ChatHeadUtils
 		TaskStackBuilder.create(context)
 			.addNextIntent(IntentFactory.getHomeActivityIntentAsLauncher(context))
 			.addNextIntent(openingIntent).startActivities();
+	}
+
+	public static void showCallerCard(String number)
+	{
+		Context context = HikeMessengerApp.getInstance().getApplicationContext();
+		if (HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.SHOW_STICKY_CALLER, false)
+				&& PreferenceManager.getDefaultSharedPreferences(context).getBoolean(HikeConstants.ACTIVATE_STICKY_CALLER_PREF, false)
+				&& HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.SHOW_SMS_CARD_PREF, false)
+				&& PreferenceManager.getDefaultSharedPreferences(context).getBoolean(HikeConstants.SMS_CARD_ENABLE_PREF, false))
+		{
+			StickyCaller.CALL_TYPE = StickyCaller.SMS;
+			postNumberRequest(context, number);
+		}
 	}
 
 }

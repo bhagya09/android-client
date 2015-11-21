@@ -100,6 +100,28 @@
             </RelativeLayout>
 
             <com.bsb.hike.view.CustomFontTextView
+                android:id="@+id/caller_sms_head"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="16dp"
+                android:text="@string/sms_head"
+                android:textColor="@color/subtext"
+                android:textSize="14sp"
+                android:visibility="gone" />
+
+            <com.bsb.hike.view.CustomFontTextView
+                android:id="@+id/caller_sms_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:layout_marginLeft="16dp"
+                android:layout_marginTop="4dp"
+                android:text="@string/sms_head"
+                android:textColor="@color/timestampcolor"
+                android:textSize="13sp"
+                android:visibility="gone" />
+
+            <com.bsb.hike.view.CustomFontTextView
                 android:id="@+id/caller_dismiss_with"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

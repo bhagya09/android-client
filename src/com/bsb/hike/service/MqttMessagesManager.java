@@ -2641,6 +2641,19 @@ public class MqttMessagesManager
 		{
 			HikeSharedPreferenceUtil.getInstance().saveData(StickyCaller.SHOW_FREEMESSAGE_BUTTON, data.optBoolean(StickyCaller.SHOW_FREEMESSAGE_BUTTON, true));
 		}
+		if(data.has(StickyCaller.SHOW_SMS_CARD_PREF))
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(StickyCaller.SHOW_SMS_CARD_PREF, data.optBoolean(StickyCaller.SHOW_SMS_CARD_PREF, false));
+		}
+		if (data.has(HikeConstants.SMS_CARD_ENABLE_PREF))
+		{
+			Utils.setSharedPrefValue(context, HikeConstants.SMS_CARD_ENABLE_PREF, data.optBoolean(HikeConstants.SMS_CARD_ENABLE_PREF, false));
+		}
+		if (data.has(StickyCaller.ENABLE_CLIPBOARD_CARD))
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(StickyCaller.ENABLE_CLIPBOARD_CARD, data.optBoolean(StickyCaller.ENABLE_CLIPBOARD_CARD, true));
+			ChatHeadUtils.registerOrUnregisterClipboardListener(context);
+		}
 		if (data.has(HikeConstants.BOT_TABLE_REFRESH))
 		{
 			boolean shouldrefreshBotTable = data.getBoolean(HikeConstants.BOT_TABLE_REFRESH);
