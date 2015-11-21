@@ -3661,4 +3661,13 @@ public class HikeConstants
 	public static final float ONE_PERCENT_PROGRESS = 0.01f;
 
 	public static final String FT_USE_APACHE_HTTP_CLIENT = "ft_apache_client";
+
+	// ============================================================================================= LOCALIZATION SWITCHES
+
+	public static final String LOCALIZATION_ENABLED = "local_e";
+
+	public static final String CUSTOM_KEYBOARD_ENABLED = "custom_key_e";
+
+	// ============================================================================================= LOCALIZATION SWITCHES
+
 }
