@@ -804,13 +804,6 @@ public class IntentFactory
 		return homeIntent;
 	}
 
-	public static Intent getHomeActivityIntentAsFreshLaunch(Context context)
-	{
-		Intent homeIntent = Intent.makeMainActivity(new ComponentName(context, HomeActivity.class));
-		homeIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-		return homeIntent;
-	}
-
 	public static void relaunchApplication(Context context)
 	{
 		Intent mStartActivity = new Intent(context, HomeActivity.class);
