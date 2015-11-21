@@ -810,5 +810,29 @@ public class VoIPUtils {
 		}
 		return false;
 	}
+
+	/**
+	 * Returns a <b>PendingIntent</b> that can be caused for setting
+	 * up the action buttons in a VoIP notification.
+	 * @param context
+	 * @param requestCode
+	 * @param action
+	 * @return
+	 */
+	public static PendingIntent getPendingIntentForVoip(Context context, int requestCode, String action) {
+		Intent intent = new Intent(context, VoIPService.class);
+		intent.putExtra(VoIPConstants.Extras.ACTION, action);
+		return PendingIntent.getService(context, requestCode, intent, 0);
+	}
 	
+	/**
+	 * Request all temporary system dialogs to dismiss. 
+	 * This causes the notification drawer to close as well.
+	 * @param context
+	 */
+	public static void closeSystemDialogs(Context context) {
+		// Close all system dialogs and/or the notification bar
+		Intent closeDiaogs = new Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS);
+		context.sendBroadcast(closeDiaogs);
+	}
 }

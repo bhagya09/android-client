@@ -476,7 +476,8 @@ public class GroupChatThread extends OneToNChatThread
 				index = index >= 0 ? index : 0;
 				long timeStamp = messages.get(index).getTimestamp();
 				long msgId = messages.get(index).getMsgID();
-				messages.add(index, new ConvMessage(mConversation.getUnreadCount(), timeStamp, msgId));
+				long sortingId = messages.get(index).getSortingId();
+				messages.add(index, new ConvMessage(mConversation.getUnreadCount(), timeStamp, msgId, sortingId));
 			}
 		}
 	}
@@ -1153,17 +1154,5 @@ public class GroupChatThread extends OneToNChatThread
 	protected boolean shouldShowKeyboard()
 	{
 		return ( mActionMode.whichActionModeIsOn() == PIN_CREATE_ACTION_MODE || super.shouldShowKeyboard());
-	}
-
-	@Override
-	public void dismissRemoveDialog() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void showRemoveDialog(RemoveDialogData arg0) {
-		// TODO Auto-generated method stub
-		
 	}
 }
