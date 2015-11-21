@@ -184,6 +184,12 @@
             android:windowSoftInputMode="adjustPan|stateAlwaysVisible" >
         </activity>
         <activity
+            android:name=".ui.HomeFtueActivity"
+            android:label="@string/app_label"
+            android:launchMode="singleTop"
+            android:windowSoftInputMode="adjustPan|stateAlwaysHidden">
+        </activity>
+        <activity
             android:name=".chatthread.ChatThreadActivity"
             android:configChanges="orientation|screenSize|keyboard|keyboardHidden"
             android:hardwareAccelerated="true"

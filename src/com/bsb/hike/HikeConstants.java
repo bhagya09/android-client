@@ -614,6 +614,8 @@ public class HikeConstants
 
 	public static final String LOCAL_LANGUAGE_PREF = "appLanguagePref";
 
+	public static final String LOCALIZATION_FTUE_COMPLETE = "localizationFtueComplete";
+
 	public static final String KEYBOARD_PREF = "keyboardPref";
 	
 	public static final String GLIDE_PREF = "glidePref";
@@ -3302,7 +3304,7 @@ public class HikeConstants
 
 	public static final int KEYBOARD_CONFIGURATION_NEW = 2;
 
-	public static final String CURRENT_KEYBOARD = "currentKeyboard";
+	public static final String SYSTEM_KEYBOARD_SELECTED = "systemKeyboardSelected";
 	
 	public static final String GET = "get";
 

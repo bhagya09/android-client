@@ -229,14 +229,14 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		if (savedInstanceState != null && savedInstanceState.getBoolean(HikeConstants.Extras.CLEARED_OUT, false)) 
 		{
 
-			Logger.d(TAG," making extra TRUE");
+			Logger.d(TAG, " making extra TRUE");
 			//this means that singleTop activity has been re-spawned after being destroyed 
 			extrasClearedOut = true;
 		}
 		
 		if(extrasClearedOut)
 		{
-			Logger.d(TAG,"clearing all data");
+			Logger.d(TAG, "clearing all data");
 			//removing unwanted EXTRA becoz every time a singleTop activity is re-spawned, 
 			//android system uses the old intent to fire it, and it will contain unwanted extras.
 			getIntent().removeExtra(HikeConstants.STEALTH_MSISDN);
@@ -251,6 +251,13 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		if (Utils.requireAuth(this))
 		{
 			Logger.wtf(TAG, "user is not authenticated. Finishing activity");
+			return;
+		}
+
+		if (HomeFtueActivity.isFtueToBeShown())
+		{
+			IntentFactory.openHomeFtueActivity(HomeActivity.this);
+			this.finish();
 			return;
 		}
 				
@@ -1391,9 +1398,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 	private void sendDeviceDetails()
 	{
-		Utils.recordDeviceDetails(HomeActivity.this);
-		Utils.requestAccountInfo(false, false);
-		Utils.sendLocaleToServer(HomeActivity.this);
+		Utils.sendDeviceDetails(HomeActivity.this, false, false);
 		deviceDetailsSent = true;
 	}
 
