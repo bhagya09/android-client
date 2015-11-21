@@ -3503,17 +3503,6 @@ import com.kpt.adaptxt.beta.RemoveDialogData;
 		super.onPreNewIntent();
 	}
 
-	@Override
-	public void dismissRemoveDialog() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void showRemoveDialog(RemoveDialogData arg0) {
-		// TODO Auto-generated method stub
-	}
-		
 	private void showLocationDialog()
 	{
 		if (alert != null && alert.isShowing())

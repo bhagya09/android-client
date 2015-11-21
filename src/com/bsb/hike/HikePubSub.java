@@ -451,6 +451,8 @@ public class HikePubSub implements Runnable
 	public static final String KPT_LANGUAGES_UPDATED = "kptLangUpdated";
 
 	public static final String KPT_LANGUAGES_INSTALLATION_FINISHED = "kptLangInstFin";
+
+	public static final String LOCAL_LANGUAGE_CHANGED = "localLangChange";
 	
 	public static final String LOCATION_AVAILABLE = "locationAvailable";
 

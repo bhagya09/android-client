@@ -69,7 +69,6 @@ import com.bsb.hike.ui.fragments.PhotoViewerFragment;
 import com.bsb.hike.ui.utils.StatusBarColorChanger;
 import com.bsb.hike.utils.ChangeProfileImageBaseActivity;
 import com.bsb.hike.utils.EmoticonConstants;
-import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.OneToNConversationUtils;
@@ -82,6 +81,7 @@ import com.bsb.hike.voip.VoIPUtils;
 import com.kpt.adaptxt.beta.KPTAddonItem;
 import com.kpt.adaptxt.beta.RemoveDialogData;
 import com.kpt.adaptxt.beta.util.KPTConstants;
+import com.kpt.adaptxt.beta.view.AdaptxtEditText;
 import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtKeyboordVisibilityStatusListner;
 
 import android.app.AlertDialog;
@@ -108,7 +108,6 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
@@ -501,7 +500,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 	HikeAdaptxtEditTextEventListner kptEditTextEventListener = new HikeAdaptxtEditTextEventListner()
 	{
 		@Override
-		public void onReturnAction(int resId, int arg0)
+		public void onReturnAction(int i, AdaptxtEditText adaptxtEditText)
 		{
 			if (profileType == ProfileType.USER_PROFILE_EDIT){
 				if (mCustomKeyboard.isCustomKeyboardVisible())

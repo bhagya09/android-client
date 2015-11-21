@@ -1155,16 +1155,4 @@ public class GroupChatThread extends OneToNChatThread
 	{
 		return ( mActionMode.whichActionModeIsOn() == PIN_CREATE_ACTION_MODE || super.shouldShowKeyboard());
 	}
-
-	@Override
-	public void dismissRemoveDialog() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void showRemoveDialog(RemoveDialogData arg0) {
-		// TODO Auto-generated method stub
-		
-	}
 }
