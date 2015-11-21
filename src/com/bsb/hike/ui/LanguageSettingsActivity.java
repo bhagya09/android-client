@@ -30,7 +30,7 @@ import com.bsb.hike.utils.ChangeProfileImageBaseActivity;
 import com.bsb.hike.utils.Logger;
 import com.kpt.adaptxt.beta.KPTAddonItem;
 
-public class LanguageSettingsActivity extends ChangeProfileImageBaseActivity implements Listener, OnItemClickListener, KptKeyboardManager.KptLanguageInstallErrorHandler
+public class LanguageSettingsActivity extends ChangeProfileImageBaseActivity implements Listener, OnItemClickListener, KptKeyboardManager.KptLanguageInstallListener
 {
 
 	Context mContext;
@@ -48,7 +48,7 @@ public class LanguageSettingsActivity extends ChangeProfileImageBaseActivity imp
 		mContext = this;
 		setupLanguageList();
 		addToPubSub();
-		KptKeyboardManager.getInstance(mContext).setErrorHandler(this);
+		KptKeyboardManager.getInstance(mContext).setInstallListener(this);
 	}
 
 	private void setupActionBar()
@@ -139,7 +139,7 @@ public class LanguageSettingsActivity extends ChangeProfileImageBaseActivity imp
 	}
 
 	@Override
-	public void onError(final String message)
+	public void onError(KPTAddonItem item, final String message)
 	{
 		this.runOnUiThread(new Runnable()
 		{
@@ -152,9 +152,14 @@ public class LanguageSettingsActivity extends ChangeProfileImageBaseActivity imp
 	}
 
 	@Override
+	public void onSuccess(KPTAddonItem item) {
+
+	}
+
+	@Override
 	protected void onDestroy()
 	{
 		super.onDestroy();
-		KptKeyboardManager.getInstance(mContext).setErrorHandler(null);
+		KptKeyboardManager.getInstance(mContext).setInstallListener(null);
 	}
 }

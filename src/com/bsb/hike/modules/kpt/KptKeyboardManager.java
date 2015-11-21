@@ -31,9 +31,11 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class KptKeyboardManager implements AdaptxtSettingsRegisterListener
 {
-	public interface KptLanguageInstallErrorHandler
+	public interface KptLanguageInstallListener
 	{
-		void onError(String message);
+		void onError(KPTAddonItem item, String message);
+
+		void onSuccess(KPTAddonItem item);
 	}
 
 	public static final int PREINSTALLED_LANGUAGE_COUNT = 1;
@@ -64,7 +66,7 @@ public class KptKeyboardManager implements AdaptxtSettingsRegisterListener
 
 	ArrayList<KPTAddonItem> mLanguagesWaitingQueue;
 
-	KptLanguageInstallErrorHandler mErrorHandler;
+	KptLanguageInstallListener mInstallListener;
 
 	private volatile Byte mState = WAITING;
 
@@ -100,16 +102,24 @@ public class KptKeyboardManager implements AdaptxtSettingsRegisterListener
 		return _instance;
 	}
 
-	public void setErrorHandler(KptLanguageInstallErrorHandler errorHandler)
+	public void setInstallListener(KptLanguageInstallListener listener)
 	{
-		mErrorHandler = errorHandler;
+		mInstallListener = listener;
 	}
 
-	private void showError(String errorMessage)
+	private void handleError(KPTAddonItem item, String errorMessage)
 	{
-		if (mErrorHandler != null)
+		if (mInstallListener != null)
 		{
-			mErrorHandler.onError(errorMessage);
+			mInstallListener.onError(item, errorMessage);
+		}
+	}
+
+	private void handleSuccess(KPTAddonItem item)
+	{
+		if (mInstallListener != null)
+		{
+			mInstallListener.onSuccess(item);
 		}
 	}
 
@@ -319,7 +329,7 @@ public class KptKeyboardManager implements AdaptxtSettingsRegisterListener
 		if (dictonaryDirectory == null)
 		{
 			processComplete();
-			showError(context.getString(R.string.out_of_space));
+			handleError(addOnItem, context.getString(R.string.out_of_space));
 			return;
 		}
 		final File dictionaryZip = new File(dictonaryDirectory, zipFileName);
@@ -331,7 +341,7 @@ public class KptKeyboardManager implements AdaptxtSettingsRegisterListener
 					{
 						httpException.printStackTrace();
 						processComplete();
-						showError(context.getString(R.string.download_failed));
+						handleError(addOnItem, context.getString(R.string.download_failed));
 					}
 
 					@Override
@@ -372,7 +382,7 @@ public class KptKeyboardManager implements AdaptxtSettingsRegisterListener
 		{
 			Logger.d(TAG,"onInstallationError: " + arg0);
 			processComplete();
-			showError(context.getString(R.string.some_error));
+			handleError(null, context.getString(R.string.some_error));
 		}
 
 		@Override
@@ -380,7 +390,7 @@ public class KptKeyboardManager implements AdaptxtSettingsRegisterListener
 		{
 			Logger.d(TAG,"onInstallationEnded: " + arg0);
 			processComplete();
-			// show success message
+			handleSuccess(null);
 		}
 	};
 

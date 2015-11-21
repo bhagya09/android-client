@@ -24,6 +24,7 @@ import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
+import com.kpt.adaptxt.beta.KPTAddonItem;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -124,7 +125,26 @@ public class HomeFtueActivity extends HikeAppStateBaseFragmentActivity {
             if (LocalLanguageUtils.isLocalLanguageSelected())
             {
                 selectedLocalLanguage = LocalLanguageUtils.getApplicationLocalLanguage(HomeFtueActivity.this);
-                KptKeyboardManager.getInstance(HomeFtueActivity.this).downloadAndInstallLanguage(selectedLocalLanguage.getLocale());
+                // download and install language only if custem language selected is not English
+                if (!selectedLocalLanguage.getLocale().equals(LocalLanguage.English.getLocale()))
+                {
+                    KptKeyboardManager.getInstance(HomeFtueActivity.this).setInstallListener(
+                            new KptKeyboardManager.KptLanguageInstallListener() {
+                                @Override
+                                public void onError(KPTAddonItem item, String message) {
+                                    KptKeyboardManager.getInstance(HomeFtueActivity.this).setInstallListener(null);
+                                }
+
+                                @Override
+                                public void onSuccess(KPTAddonItem item) {
+                                    // change keyboard to custom keyboard if the language selected is successfully downloaded
+                                    HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SYSTEM_KEYBOARD_SELECTED, false);
+                                    KptKeyboardManager.getInstance(HomeFtueActivity.this).setInstallListener(null);
+                                }
+                            }
+                    );
+                    KptKeyboardManager.getInstance(HomeFtueActivity.this).downloadAndInstallLanguage(selectedLocalLanguage.getLocale());
+                }
             }
             showNextFtue();
         }
