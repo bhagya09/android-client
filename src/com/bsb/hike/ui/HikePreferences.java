@@ -179,21 +179,31 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 
 	private void saveKeyboardPref()
 	{
+		if (!HikeMessengerApp.isCustomKeyboardEnabled())
+		{
+			PreferenceCategory keyboardSettings = (PreferenceCategory) getPreferenceScreen().findPreference(HikeConstants.KEYBOARD_SETTING_PREF_CATEGORY);
+			if (keyboardSettings != null)
+			{
+				getPreferenceScreen().removePreference(keyboardSettings);
+				return;
+			}
+		}
+
 		Preference kbdPref = findPreference(HikeConstants.KEYBOARD_PREF);
 		if (kbdPref != null && kbdPref instanceof SwitchPreferenceCompat)
 		{
 			boolean val = HikeMessengerApp.isSystemKeyboard();
 			((SwitchPreferenceCompat) kbdPref).setChecked(!val);
 		}
-		
+
 		ListPreference localLanguagePrf = (ListPreference) findPreference(HikeConstants.LOCAL_LANGUAGE_PREF);
 		if (localLanguagePrf != null && localLanguagePrf instanceof ListPreference)
 		{
 			localLanguagePrf.setValue(LocalLanguageUtils.getApplicationLocalLanguage(HikePreferences.this).getDisplayName());
 		}
-		
+
 		setKeyboardLangSummary();
-		
+
 		setPrefValueFromKpt(HikeConstants.AUTO_CAPITALIZATION_PREF, kptSettings.getAutoCapitalizationState());
 		setPrefValueFromKpt(HikeConstants.AUTO_SPACING_PREF, kptSettings.getAutoSpacingState());
 		setPrefValueFromKpt(HikeConstants.GLIDE_PREF, kptSettings.getGlideState());
@@ -237,7 +247,6 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		IconPreference kbdLanguagePref = (IconPreference) findPreference(HikeConstants.KEYBOARD_LANGUAGE_PREF);
 		if (kbdLanguagePref != null && kbdLanguagePref instanceof IconPreference)
 		{
-			kbdLanguagePref.setDependency(HikeConstants.KEYBOARD_PREF);
 			String summary = new String();
 			ArrayList<KPTAddonItem> langList = KptKeyboardManager.getInstance(HikePreferences.this).getInstalledLanguagesList();
 			for (KPTAddonItem item : langList)
@@ -280,7 +289,6 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		if (preference != null)
 		{
 			Logger.d(getClass().getSimpleName(), preferenceName + " preference not null" + preference.getKey());
-			preference.setDependency(HikeConstants.KEYBOARD_PREF);
 			preference.setOnPreferenceClickListener(this);
 		}
 		else

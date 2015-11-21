@@ -610,6 +610,8 @@ public class HikeConstants
 
 	public static final String H2O_NOTIF_BOOLEAN_PREF = "hikeOfflineNotificationPref";
 
+	public static final String KEYBOARD_SETTING_PREF_CATEGORY = "keyboardSettingsCategory";
+
 	public static final String KEYBOARD_LANGUAGE_PREF = "kbdLanguagePref";
 
 	public static final String LOCAL_LANGUAGE_PREF = "appLanguagePref";
@@ -3305,7 +3307,7 @@ public class HikeConstants
 	public static final int KEYBOARD_CONFIGURATION_NEW = 2;
 
 	public static final String SYSTEM_KEYBOARD_SELECTED = "systemKeyboardSelected";
-	
+
 	public static final String GET = "get";
 
 	public static final String HIKE_FILE_TYPE = "hft";
