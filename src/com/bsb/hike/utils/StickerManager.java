@@ -2281,6 +2281,70 @@ public class StickerManager
 	}
 
 	/**
+	 * Send sticker search data accuracy summary analytics
+	 */
+	public void sendRecommendationAccuracyAnalytics(String timeStamp, Map<String, Pair<Integer, Integer>> autoPopupClicksPerLanguageMap,
+			Map<String, Pair<Integer, Integer>> tapOnHighlightWordClicksPerLanguageMap)
+	{
+		try
+		{
+			Set<String> languages;
+			Pair<Integer, Integer> totalAndAcceptedRecommendationCountPair;
+
+			// Build auto-popup data for each language
+			JSONObject autoPopupData;
+			if ((autoPopupClicksPerLanguageMap != null) && (autoPopupClicksPerLanguageMap.size() > 0))
+			{
+				languages = autoPopupClicksPerLanguageMap.keySet();
+				autoPopupData = new JSONObject();
+
+				for (String languageISOCode : languages)
+				{
+					totalAndAcceptedRecommendationCountPair = autoPopupClicksPerLanguageMap.get(languageISOCode);
+					autoPopupData.put(languageISOCode, totalAndAcceptedRecommendationCountPair.first + STRING_DELIMETER + totalAndAcceptedRecommendationCountPair.second);
+				}
+			}
+			else
+			{
+				autoPopupData = null;
+			}
+
+			// Build highlight word tapping data for each language
+			JSONObject tapOnHighlightWordData;
+			if ((tapOnHighlightWordClicksPerLanguageMap != null) && (tapOnHighlightWordClicksPerLanguageMap.size() > 0))
+			{
+				languages = tapOnHighlightWordClicksPerLanguageMap.keySet();
+				tapOnHighlightWordData = new JSONObject();
+
+				for (String languageISOCode : languages)
+				{
+					totalAndAcceptedRecommendationCountPair = tapOnHighlightWordClicksPerLanguageMap.get(languageISOCode);
+					tapOnHighlightWordData.put(languageISOCode, totalAndAcceptedRecommendationCountPair.first + STRING_DELIMETER + totalAndAcceptedRecommendationCountPair.second);
+				}
+			}
+			else
+			{
+				tapOnHighlightWordData = null;
+			}
+
+			if ((autoPopupData != null) || (tapOnHighlightWordData != null))
+			{
+				JSONObject metadata = new JSONObject();
+				metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.STICKER_RECOMMENDATION_ACCURACY_INDEX_KEY);
+				metadata.put(HikeConstants.STICKER_SEARCH_EVENT_TIME_STAMP, timeStamp);
+				metadata.put(HikeConstants.STICKER_SEARCH_AUTO_POPUP_DATA, autoPopupData);
+				metadata.put(HikeConstants.STICKER_SEARCH_HAIGHLIGHT_WORD_DATA, tapOnHighlightWordData);
+
+				HAManager.getInstance().record(AnalyticsConstants.DEV_EVENT, AnalyticsConstants.STICKER_SEARCH_BACKEND, EventPriority.HIGH, metadata);
+			}
+		}
+		catch (JSONException e)
+		{
+			Logger.e(AnalyticsConstants.ANALYTICS_TAG, "invalid json", e);
+		}
+	}
+
+	/**
 	 * Send sticker search data rebalancing analytics
 	 */
 	public void sendRebalancingAnalytics(String timeStamp, long initialDBSize, long availableMemory, int initialRowCount, int deletedRowCount)
@@ -2289,7 +2353,7 @@ public class StickerManager
 		{
 			JSONObject metadata = new JSONObject();
 			metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.STICKER_RECOMMENDATION_REBALANCING_SUMMERIZATION);
-			metadata.put(HikeConstants.STICKER_SEARCH_REBALANCING_TIME_STAMP, timeStamp);
+			metadata.put(HikeConstants.STICKER_SEARCH_EVENT_TIME_STAMP, timeStamp);
 			metadata.put(HikeConstants.STICKER_SEARCH_REBALANCING_MEMORY_STATUS, initialDBSize + STRING_DELIMETER + availableMemory);
 			metadata.put(HikeConstants.STICKER_SEARCH_REBALANCING_ROW_STATUS, initialRowCount + STRING_DELIMETER + deletedRowCount);
 

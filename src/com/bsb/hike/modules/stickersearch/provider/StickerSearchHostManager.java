@@ -20,7 +20,6 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
-import com.bsb.hike.modules.stickersearch.StickerSearchUtils;
 import com.bsb.hike.modules.stickersearch.datamodel.StickerAppositeDataContainer;
 import com.bsb.hike.modules.stickersearch.datamodel.Word;
 import com.bsb.hike.modules.stickersearch.provider.StickerSearchUtility.TextMatchManager;
@@ -181,9 +180,9 @@ public class StickerSearchHostManager
 	/*
 	 * Call this method just after choosing any contact to chat (while opening chat-thread) to load the history of that contact (either a person or a group)
 	 */
-	public void loadChatProfile(String contactId, boolean isGroupChat, long lastMessageTimestamp)
+	public void loadChatProfile(String contactId, boolean isGroupChat, long lastMessageTimestamp, String keyboardlanguageISOCode)
 	{
-		Logger.i(TAG, "loadChatProfile(" + contactId + ", " + isGroupChat + ")");
+		Logger.i(TAG, "loadChatProfile(" + contactId + ", " + isGroupChat + "," + lastMessageTimestamp + ", " + keyboardlanguageISOCode + ")");
 
 		synchronized (sHostOperateLock)
 		{
@@ -210,8 +209,9 @@ public class StickerSearchHostManager
 		mCurrentTextSignificantLength = 0;
 		mCurrentText = null;
 		mMomentCode = StickerSearchUtility.getMomentCode();
+		mKeyboardlanguageISOCode = keyboardlanguageISOCode;
 
-		REGEX_SEPARATORS = StickerSearchUtility.getSeparatorsRegex(StickerSearchUtils.getCurrentLanguageISOCode());
+		REGEX_SEPARATORS = StickerSearchUtility.getSeparatorsRegex(mKeyboardlanguageISOCode);
 		SEPARATOR_CHARS = (HashSet<Character>) StickerSearchUtility.getSeparatorChars(REGEX_SEPARATORS);
 	}
 
@@ -818,7 +818,6 @@ public class StickerSearchHostManager
 		mKeyboardlanguageISOCode = languageISOCode;
 
 		REGEX_SEPARATORS = StickerSearchUtility.getSeparatorsRegex(mKeyboardlanguageISOCode);
-
 		SEPARATOR_CHARS = (HashSet<Character>) StickerSearchUtility.getSeparatorChars(REGEX_SEPARATORS);
 	}
 

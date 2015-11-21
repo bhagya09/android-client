@@ -17,7 +17,6 @@ import com.bsb.hike.modules.stickersearch.tasks.CurrentLanguageTagsDownloadTask;
 import com.bsb.hike.modules.stickersearch.tasks.HighlightAndShowStickerPopupTask;
 import com.bsb.hike.modules.stickersearch.tasks.InitiateStickerTagDownloadTask;
 import com.bsb.hike.modules.stickersearch.tasks.InputMethodChangedTask;
-import com.bsb.hike.modules.stickersearch.tasks.LoadChatProfileTask;
 import com.bsb.hike.modules.stickersearch.tasks.NewMessageReceivedTask;
 import com.bsb.hike.modules.stickersearch.tasks.NewMessageSentTask;
 import com.bsb.hike.modules.stickersearch.tasks.RebalancingTask;
@@ -36,6 +35,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Set;
 
@@ -70,6 +70,12 @@ public class StickerSearchManager
 	private int rejectionCountPerTrial;
 
 	private int trialCountForAutoPopupTurnOff;
+
+	private String keyboardLanguageISOCode;
+
+	private HashMap<String, Pair<Integer, Integer>> autoPopupClicksPerLanguageMap;
+
+	private HashMap<String, Pair<Integer, Integer>> tapOnHighlightWordClicksPerLanguageMap;
 
 	private StickerSearchManager()
 	{
@@ -120,10 +126,14 @@ public class StickerSearchManager
 		this.listener = null;
 	}
 
-	public void loadChatProfile(String msidn, boolean isGroupChat, long lastMessageTimestamp)
+	public void loadChatProfile(String msisdn, boolean isGroupChat, long lastMessageTimestamp, String currentKeyboardLanguageISOCode)
 	{
-		LoadChatProfileTask loadChatProfileTask = new LoadChatProfileTask(msidn, isGroupChat, lastMessageTimestamp);
-		searchEngine.runOnSearchThread(loadChatProfileTask, 0);
+		keyboardLanguageISOCode = currentKeyboardLanguageISOCode;
+		StickerSearchHostManager.getInstance().loadChatProfile(msisdn, isGroupChat, lastMessageTimestamp, keyboardLanguageISOCode);
+
+		/*
+		 * LoadChatProfileTask loadChatProfileTask = new LoadChatProfileTask(msisdn, isGroupChat, lastMessageTimestamp); searchEngine.runOnSearchThread(loadChatProfileTask, 0);
+		 */
 	}
 
 	public void onTextChanged(CharSequence s, int start, int before, int count)

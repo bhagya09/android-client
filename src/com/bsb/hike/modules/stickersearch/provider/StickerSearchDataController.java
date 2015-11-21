@@ -551,7 +551,7 @@ public enum StickerSearchDataController
 				int finalSetSize = updateRetrySet.size();
 				
 				// turn on sticker recommendation if number of stickers left in queue is less than threshold value
-				if(finalSetSize < StickerSearchConstants.NUM_STICKERS_THRESHOLD)
+				if(finalSetSize < StickerSearchConstants.THRESHOLD_NUM_STICKERS)
 				{
 					Logger.d(TAG, "threshold reached turnig recommendation on");
 					StickerManager.getInstance().toggleStickerRecommendation(true);
