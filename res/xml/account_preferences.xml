@@ -6,7 +6,7 @@
             android:key="backupAccount"
             android:layout="@layout/icon_preference"
             android:summary="Last backup:"
-            android:title="Backup Account" />
+            android:title="@string/backup_account" />
         <com.bsb.hike.view.IconPreference
             android:key="unlinkAccount"
             android:layout="@layout/icon_preference"

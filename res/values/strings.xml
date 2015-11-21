@@ -186,6 +186,10 @@
     <string name="number_confirm_title">Confirm your number</string>
     <string name="birthday">Birthday</string>
     <string name="anniversary">Anniversary</string>
+    <string name="backup_account">Backup Account</string>
+    <string name="search_hint_text">Search...</string>
+    <string name="is_typing">is typing...</string>
+    <string name="are_typing">are typing...</string>
     <string name="other">Other</string>
     <string name="target_account">Save contact to this account</string>
     <string name="save">Save</string>

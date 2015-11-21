@@ -817,21 +817,21 @@ public class ConversationsAdapter extends BaseAdapter
 						ContactInfo contact = ContactManager.getInstance()
 								.getContact((String) participants.get(0));
 						if (contact != null && contact.getFirstName() != null) {
-							msg = contact.getFirstName()+" "+HikeConstants.IS_TYPING;
+							msg = contact.getFirstName() +" "+ context.getString(R.string.is_typing);
 						}
 						else
 						{
-							msg = participants.get(0) + " " + HikeConstants.IS_TYPING; // Contact can be returned null. In that case we were simply returning is typing... This will return <msisdn>  is typing...
+							msg = participants.get(0) + " " + context.getString(R.string.is_typing); // Contact can be returned null. In that case we were simply returning is typing... This will return <msisdn>  is typing...
 						}
 					} 
 					else if (participants.size() > 1) {
-					    	msg = context.getString(R.string.num_members, (participants.size()))+" "+HikeConstants.ARE_TYPING;
+					    	msg = context.getString(R.string.num_members, (participants.size()))+" "+context.getString(R.string.are_typing);
 					}
 				}
 			}
 			convMessage.setMessage(msg);
 		}else{
-			convMessage.setMessage(HikeConstants.IS_TYPING);
+			convMessage.setMessage(context.getString(R.string.is_typing));
 		}
 		convMessage.setState(State.RECEIVED_UNREAD);
 		return convMessage;
