@@ -394,7 +394,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 
 	private void restartHomeActivity()
 	{
-		startActivity(IntentFactory.getHomeActivityIntentAsFreshLaunch(this));
+		IntentFactory.relaunchApplication(this);
 	}
 
 	private void addStealthPrefListeners()
