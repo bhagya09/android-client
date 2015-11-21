@@ -52,6 +52,7 @@ import com.haibison.android.lockpattern.widget.LockPatternView.DisplayMode;
 import com.kpt.adaptxt.beta.KPTAddonItem;
 import com.kpt.adaptxt.beta.RemoveDialogData;
 import com.kpt.adaptxt.beta.util.KPTConstants;
+import com.kpt.adaptxt.beta.view.AdaptxtEditText;
 import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtKeyboordVisibilityStatusListner;
 
 import android.app.Activity;
@@ -60,7 +61,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Configuration;
-import android.graphics.drawable.GradientDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.ResultReceiver;
@@ -78,7 +78,6 @@ import android.view.ViewConfiguration;
 import android.view.ViewGroup.LayoutParams;
 import android.view.WindowManager;
 import android.view.animation.AlphaAnimation;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
@@ -1403,11 +1402,12 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity implem
     HikeAdaptxtEditTextEventListner kptEditTextEventListener = new HikeAdaptxtEditTextEventListner()
 	{
 		@Override
-		public void onReturnAction(int resId, int arg0)
+		public void onReturnAction(int i, AdaptxtEditText adaptxtEditText)
 		{
-			switch (resId)
+			switch (adaptxtEditText.getId())
 			{
 			case R.id.alp_42447968_lock_pin:
+                hideKeyboard();
 				break;
 			}
 		

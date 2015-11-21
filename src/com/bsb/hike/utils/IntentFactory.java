@@ -8,6 +8,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.Activity;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -45,6 +47,7 @@ import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.models.Conversation.ConvInfo;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
+import com.bsb.hike.platform.CocosGamingActivity;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.timeline.view.StatusUpdate;
 import com.bsb.hike.timeline.view.TimelineActivity;
@@ -60,6 +63,7 @@ import com.bsb.hike.ui.HikeDirectHelpPageActivity;
 import com.bsb.hike.ui.HikeListActivity;
 import com.bsb.hike.ui.HikePreferences;
 import com.bsb.hike.ui.HomeActivity;
+import com.bsb.hike.ui.HomeFtueActivity;
 import com.bsb.hike.ui.LanguageSettingsActivity;
 import com.bsb.hike.ui.NUXInviteActivity;
 import com.bsb.hike.ui.NuxSendCustomMessageActivity;
@@ -781,6 +785,14 @@ public class IntentFactory
 		appContext.startActivity(i);
 	}
 
+	public static void openHomeFtueActivity(Context appContext)
+	{
+		Intent i = new Intent(appContext, HomeFtueActivity.class);
+		i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+		i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		appContext.startActivity(i);
+	}
+
 	public static void openHomeActivity(Context context, boolean clearTop)
 	{
 		Intent in = new Intent(context, HomeActivity.class);
@@ -790,6 +802,7 @@ public class IntentFactory
 		}
 		context.startActivity(in);
 	}
+	
 	/*
 	 * The returned intent will be similar to the one used by android for opening an activity from the Launcher icon
 	 */
@@ -800,11 +813,15 @@ public class IntentFactory
 		return homeIntent;
 	}
 
-	public static Intent getHomeActivityIntentAsFreshLaunch(Context context)
+	public static void relaunchApplication(Context context)
 	{
-		Intent homeIntent = Intent.makeMainActivity(new ComponentName(context, HomeActivity.class));
-		homeIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-		return homeIntent;
+		Intent mStartActivity = new Intent(context, HomeActivity.class);
+		mStartActivity.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+		int mPendingIntentId = 123456;
+		PendingIntent mPendingIntent = PendingIntent.getActivity(context, mPendingIntentId, mStartActivity, PendingIntent.FLAG_CANCEL_CURRENT);
+		AlarmManager mgr = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
+		mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 100, mPendingIntent);
+		android.os.Process.killProcess(android.os.Process.myPid());
 	}
 
 	public static Intent openInviteFriends(Activity context)
@@ -846,6 +863,11 @@ public class IntentFactory
 
 	public static Intent getNonMessagingBotIntent(String msisdn, Context context)
 	{
+		return(getNonMessagingBotIntent(msisdn,context,null));
+	}
+	
+	public static Intent getNonMessagingBotIntent(String msisdn, Context context,String data)
+	{
 		if (BotUtils.isBot(msisdn))
 		{
 			BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
@@ -853,10 +875,20 @@ public class IntentFactory
 			if (botInfo.isNonMessagingBot())
 			{
 				NonMessagingBotMetadata nonMessagingBotMetadata = new NonMessagingBotMetadata(botInfo.getMetadata());
-				Intent intent = getWebViewActivityIntent(context, "", "");
-				intent.putExtra(WebViewActivity.WEBVIEW_MODE, nonMessagingBotMetadata.isWebUrlMode() ? WebViewActivity.WEB_URL_BOT_MODE : WebViewActivity.MICRO_APP_MODE);
-				intent.putExtra(HikeConstants.MSISDN, msisdn);
-				return intent;
+				if (nonMessagingBotMetadata.isNativeMode())
+				{
+					Intent i = new Intent(context,CocosGamingActivity.class);
+					i.putExtra(HikeConstants.MSISDN, msisdn);
+					i.putExtra(HikeConstants.DATA,data);
+					return i;
+				}
+				else
+				{
+					Intent intent = getWebViewActivityIntent(context, "", "");
+					intent.putExtra(WebViewActivity.WEBVIEW_MODE, nonMessagingBotMetadata.isWebUrlMode() ? WebViewActivity.WEB_URL_BOT_MODE : WebViewActivity.MICRO_APP_MODE);
+					intent.putExtra(HikeConstants.MSISDN, msisdn);
+					return intent;
+				}
 
 			}
 		}
@@ -896,6 +928,13 @@ public class IntentFactory
 	{
 		Intent intent = new Intent(context, ComposeChatActivity.class);
 		intent.putExtra(HikeConstants.Extras.EDIT, true);
+		return intent;
+	}
+
+	public static Intent getComposeChatIntentWithBotDiscovery(Activity context)
+	{
+		Intent intent = getComposeChatIntent(context);
+		intent.putExtra(HikeConstants.Extras.IS_MICROAPP_SHOWCASE_INTENT, true);
 		return intent;
 	}
 
@@ -1145,7 +1184,7 @@ public class IntentFactory
 		Intent intent = new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS);
 		activity.startActivityForResult(intent, 0);
 	}
-	
+
 	public static Intent getAddMembersToExistingGroupIntent(Context context, String mLocalMSISDN)
 	{
 		Intent intent = new Intent(context, ComposeChatActivity.class);

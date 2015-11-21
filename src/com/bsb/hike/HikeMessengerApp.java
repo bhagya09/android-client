@@ -117,6 +117,8 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 
 	public static final String PLATFORM_TOKEN_SETTING = "platformToken";
 
+	public static final String ANONYMOUS_NAME_SETTING = "anonymousName";
+
 	public static final String RESTORE_ACCOUNT_SETTING = "restore";
 
 	public static final String SIGNUP_COMPLETE = "signup_complete";
@@ -997,7 +999,7 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		HikeSharedPreferenceUtil prefs = HikeSharedPreferenceUtil.getInstance();
 		if (prefs.getData(HikeMessengerApp.PLATFORM_UID_SETTING, null) == null && prefs.getData(HikeMessengerApp.PLATFORM_TOKEN_SETTING, null) == null)
 		{
-			PlatformUIDFetch.fetchPlatformUid(HikePlatformConstants.PlatformUIDFetchType.SELF);
+			PlatformUIDFetch.fetchPlatformUid(HikePlatformConstants.PlatformFetchType.SELF);
 		}
 	}
 
@@ -1206,7 +1208,7 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 	
 	public static boolean isSystemKeyboard()
 	{
-		boolean currentKbd = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CURRENT_KEYBOARD, false);
+		boolean currentKbd = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SYSTEM_KEYBOARD_SELECTED, true);
 		Logger.d("keyboard", "Current keyboard : " + currentKbd);
 		return currentKbd;
 	}

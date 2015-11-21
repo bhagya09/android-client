@@ -110,7 +110,7 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 
 	public enum State
 	{
-		MSISDN, ADDRESSBOOK, NAME, PULLING_PIN, PIN, ERROR, PROFILE_IMAGE, GENDER, SCANNING_CONTACTS, PIN_VERIFIED, BACKUP_AVAILABLE, RESTORING_BACKUP, SELECT_LANGUAGE
+		MSISDN, ADDRESSBOOK, NAME, PULLING_PIN, PIN, ERROR, PROFILE_IMAGE, GENDER, SCANNING_CONTACTS, PIN_VERIFIED, BACKUP_AVAILABLE, RESTORING_BACKUP
 	};
 
 	public class StateValue
@@ -434,7 +434,7 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 			String hikeToken = accountInfo.getToken();
 			if (!TextUtils.isEmpty(hikeUID) && !TextUtils.isEmpty(hikeToken))
 			{
-				PlatformUIDFetch.fetchPlatformUid(HikePlatformConstants.PlatformUIDFetchType.SELF);
+				PlatformUIDFetch.fetchPlatformUid(HikePlatformConstants.PlatformFetchType.SELF);
 			}
 			/* msisdn set, yay */
 			publishProgress(new StateValue(State.MSISDN, msisdn));
@@ -734,24 +734,6 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 				e.printStackTrace();
 				Logger.e("SignupTask","Interrupted while waiting for user's choice on restore.");
 				return Boolean.FALSE;
-			}
-		}
-
-		if (!LocalLanguageUtils.isLocalLanguageSelected())
-		{
-			publishProgress(new StateValue(State.SELECT_LANGUAGE,null));
-			synchronized (this)
-			{
-				try
-				{
-					this.wait();
-				}
-				catch (InterruptedException e)
-				{
-					e.printStackTrace();
-					Logger.e("SignupTask", "Interrupted while waiting for user's choice on langauge.");
-					return Boolean.FALSE;
-				}
 			}
 		}
 		Logger.d("SignupTask", "Publishing Token_Created");
