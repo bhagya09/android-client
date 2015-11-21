@@ -228,6 +228,13 @@ public class KeyboardFtue implements HikePubSub.Listener
             return;
         flipper.setDisplayedChild(2);
         flipper.findViewById(R.id.langauage_layout).setOnTouchListener(onSwipeTouchListener);
+        flipper.findViewById(R.id.langauage_layout).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                onLanguageLayoutClick();
+            }
+        });
         resetSwipeAnimation();
     }
 
@@ -571,5 +578,11 @@ public class KeyboardFtue implements HikePubSub.Listener
 			return gestureDetector.onTouchEvent(event);
 		}
 	};
+    public void onLanguageLayoutClick(){
+        trackClickAnalyticEvents(HikeConstants.LogEvent.KEYBOARD_FTUE_COMPLETES);
+
+        updateState(COMPLETE);
+        showNextFtue();
+    }
 
 }
