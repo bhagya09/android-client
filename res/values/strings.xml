@@ -502,6 +502,8 @@
     <string name="confirm_delete_group_msg">Delete and exit \"%1$s\" group?</string>
     <string name="email_chat">Email Chat</string>
     <string name="change_keyboard">Change Keyboard</string>
+    <string name="hike_keyboard">Hike Keyboard</string>
+    <string name="system_keyboard">System Keyboard</string>
     <string name="clear_chat">Clear Chat</string>
     <string name="add_shortcut">Add Shortcut</string>
     <string name="timeline">Timeline</string>

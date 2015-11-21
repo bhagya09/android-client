@@ -574,8 +574,10 @@ public class KeyboardFtue implements HikePubSub.Listener
 
 		public boolean onTouch(View v, MotionEvent event)
 		{
+			if (event != null)
+				return gestureDetector.onTouchEvent(event);
 
-			return gestureDetector.onTouchEvent(event);
+			return false;
 		}
 	};
     public void onLanguageLayoutClick(){

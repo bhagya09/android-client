@@ -2702,6 +2702,10 @@ public class MqttMessagesManager
 			boolean useApacheClient = data.getBoolean(HikeConstants.FT_USE_APACHE_HTTP_CLIENT);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.FT_USE_APACHE_HTTP_CLIENT, useApacheClient);
 		}
+		if (data.has(HikeConstants.CHANGE_KEYBOARD_CHAT_ENABLED))
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CHANGE_KEYBOARD_CHAT_ENABLED, data.optBoolean(HikeConstants.CHANGE_KEYBOARD_CHAT_ENABLED));
+		}
 		if (data.has(HikeConstants.NEW_CHAT_RED_DOT))
 		{
 			boolean shouldShowRedDot = data.optBoolean(HikeConstants.NEW_CHAT_RED_DOT);
