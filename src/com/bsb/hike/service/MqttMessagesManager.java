@@ -2732,6 +2732,14 @@ public class MqttMessagesManager
 			String options = data.getJSONObject(OfflineConstants.HIKE_DIRECT_MENU_OPTIONS).toString();
 			HikeSharedPreferenceUtil.getInstance().saveData(OfflineConstants.HIKE_DIRECT_MENU_OPTIONS, options);
 		}
+		if (data.has(HikeConstants.LOCALIZATION_ENABLED))
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.LOCALIZATION_ENABLED,data.optBoolean(HikeConstants.LOCALIZATION_ENABLED));
+		}
+		if (data.has(HikeConstants.CUSTOM_KEYBOARD_ENABLED))
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CUSTOM_KEYBOARD_ENABLED,data.optBoolean(HikeConstants.CUSTOM_KEYBOARD_ENABLED));
+		}
 		
 		editor.commit();
 		this.pubSub.publish(HikePubSub.UPDATE_OF_MENU_NOTIFICATION, null);

@@ -4261,7 +4261,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 	private void fillPinTextData(StatusViewHolder statusHolder, ConvMessage convMessage, View v)
 	{
 		String name = convMessage.isSent() ?
-				"You" :
+				context.getString(R.string.you) :
 				(conversation instanceof OneToNConversation) ? ((OneToNConversation) conversation).getConvParticipantFirstNameAndSurname(convMessage.getGroupParticipantMsisdn()) : "";
 		statusHolder.dayTextView.setText(context.getString(R.string.xyz_posted_pin, name));
 

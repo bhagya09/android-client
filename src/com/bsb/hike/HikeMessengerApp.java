@@ -1208,9 +1208,22 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 	
 	public static boolean isSystemKeyboard()
 	{
-		boolean currentKbd = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SYSTEM_KEYBOARD_SELECTED, true);
-		Logger.d("keyboard", "Current keyboard : " + currentKbd);
-		return currentKbd;
+		return (!isCustomKeyboardEnabled() || HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SYSTEM_KEYBOARD_SELECTED, true));
+	}
+
+	public static boolean isCustomKeyboardEnabled()
+	{
+		return (
+				// server switch
+				HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CUSTOM_KEYBOARD_ENABLED, false)
+						// If localization is disabled in the app. Custom Keyboard is not to be used.
+						&& isLocalisationEnabled());
+	}
+
+	public static boolean isLocalisationEnabled()
+	{
+		// server switch
+		return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.LOCALIZATION_ENABLED, true);
 	}
 
 	@Override

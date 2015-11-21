@@ -110,7 +110,17 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 		items.add(new SettingsDisplayPojo(getString(R.string.settings_media), R.string.settings_media, R.drawable.ic_auto_download_media_settings));
 		
 		items.add(new SettingsDisplayPojo(getString(R.string.settings_chat), R.string.settings_chat, R.drawable.ic_settings_chat));
-		items.add(new SettingsDisplayPojo(getString(R.string.settings_localization), R.string.settings_localization, R.drawable.ic_settings_languages));
+		if (HikeMessengerApp.isLocalisationEnabled())
+		{
+			if (HikeMessengerApp.isCustomKeyboardEnabled())
+			{
+				items.add(new SettingsDisplayPojo(getString(R.string.settings_localization), R.string.settings_localization, R.drawable.ic_settings_languages));
+			}
+			else
+			{
+				items.add(new SettingsDisplayPojo(getString(R.string.language), R.string.language, R.drawable.ic_settings_languages));
+			}
+		}
 		if (PreferenceManager.getDefaultSharedPreferences(this).getBoolean(HikeConstants.FREE_SMS_PREF, true))
 		{
 			int credits = getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, MODE_PRIVATE).getInt(HikeMessengerApp.SMS_SETTING, 0);
@@ -354,6 +364,7 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 				break;
 
 			case R.string.settings_localization:
+            case R.string.language:
 				IntentFactory.openSettingLocalization(this);
 				break;
 				

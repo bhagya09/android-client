@@ -1146,7 +1146,7 @@ public class IntentFactory
 
 		try
 		{
-			message.append(context.getString(R.string.hike_version) + " " + context.getPackageManager().getPackageInfo(context.getPackageName(), 0).versionName + "\n");
+			message.append("hike Version:" + " " + context.getPackageManager().getPackageInfo(context.getPackageName(), 0).versionName + "\n");
 		}
 		catch (PackageManager.NameNotFoundException e)
 		{
@@ -1154,15 +1154,15 @@ public class IntentFactory
 			e.printStackTrace();
 		}
 
-		message.append(context.getString(R.string.device_name) + " " + Build.MANUFACTURER + " " + Build.MODEL + "\n");
+		message.append("Device name:" + " " + Build.MANUFACTURER + " " + Build.MODEL + "\n");
 
-		message.append(context.getString(R.string.android_version) + " " + Build.VERSION.RELEASE + "\n");
+		message.append("Android version:" + " " + Build.VERSION.RELEASE + "\n");
 
 		String msisdn = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, context.MODE_PRIVATE).getString(HikeMessengerApp.MSISDN_SETTING, "");
-		message.append(context.getString(R.string.msisdn) + " " + msisdn);
+		message.append("Phone No:" + " " + msisdn);
 
 		intent.putExtra(Intent.EXTRA_TEXT, message.toString());
-		intent.putExtra(Intent.EXTRA_SUBJECT, TextUtils.isEmpty(subject) ? context.getString(R.string.feedback_on_hike) : subject);
+		intent.putExtra(Intent.EXTRA_SUBJECT, TextUtils.isEmpty(subject) ? "Feedback on hike for Android" : subject);
 		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		return intent;
 	}
