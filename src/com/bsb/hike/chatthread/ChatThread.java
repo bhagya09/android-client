@@ -70,6 +70,7 @@ import com.bsb.hike.models.Unique;
 import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.modules.kpt.HikeAdaptxtEditTextEventListner;
 import com.bsb.hike.modules.kpt.HikeCustomKeyboard;
+import com.bsb.hike.modules.kpt.HikeAdaptxtKeyboardVisibilityStatusListner;
 import com.bsb.hike.modules.kpt.KptKeyboardManager;
 import com.bsb.hike.modules.kpt.KptUtils;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
@@ -113,7 +114,7 @@ import com.bsb.hike.view.CustomLinearLayout;
 import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 import com.kpt.adaptxt.beta.KPTAddonItem;
 import com.kpt.adaptxt.beta.util.KPTConstants;
-import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtKeyboordVisibilityStatusListner;
+import com.kpt.adaptxt.beta.view.AdaptxtEditText;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -195,7 +196,7 @@ import android.widget.Toast;
 @SuppressLint("ResourceAsColor") public abstract class ChatThread extends SimpleOnGestureListener implements OverflowItemClickListener, View.OnClickListener, ThemePickerListener, ImageParserListener,
 		PickFileListener, StickerPickerListener, AudioRecordListener, LoaderCallbacks<Object>, OnItemLongClickListener, OnTouchListener, OnScrollListener,
 		Listener, ActionModeListener, HikeDialogListener, TextWatcher, OnDismissListener, OnEditorActionListener, OnKeyListener, PopupListener, BackKeyListener,
-		OverflowViewListener, OnSoftKeyboardListener, IStickerPickerRecommendationListener, AdaptxtKeyboordVisibilityStatusListner, IOfflineCallbacks
+		OverflowViewListener, OnSoftKeyboardListener, IStickerPickerRecommendationListener, IOfflineCallbacks
 {
 	private static final String TAG = ChatThread.class.getSimpleName();
 
@@ -720,7 +721,7 @@ import android.widget.Toast;
 	protected void initCustomKeyboard()
 	{	
 		LinearLayout parentView = (LinearLayout) activity.findViewById(R.id.keyboardView_holder);
-		mCustomKeyboard= new HikeCustomKeyboard(activity, parentView, KPTConstants.MULTILINE_LINE_EDITOR, kptEditTextEventListener,ChatThread.this);
+		mCustomKeyboard= new HikeCustomKeyboard(activity, parentView, KPTConstants.MULTILINE_LINE_EDITOR, kptEditTextEventListener, kptKeyboardVisibilityStatusListner);
 		mCustomKeyboard.registerEditText(R.id.msg_compose);
 		mCustomKeyboard.init(mComposeView);
 	}	
@@ -1891,9 +1892,9 @@ import android.widget.Toast;
 	HikeAdaptxtEditTextEventListner kptEditTextEventListener = new HikeAdaptxtEditTextEventListner()
 	{
 		@Override
-		public void onReturnAction(int resId, int arg0)
+		public void onReturnAction(int i, AdaptxtEditText adaptxtEditText)
 		{
-			switch (resId)
+			switch (adaptxtEditText.getId())
 			{
 			case R.id.msg_compose:
 				if (!TextUtils.isEmpty(mComposeView.getText())) {
@@ -1904,6 +1905,57 @@ import android.widget.Toast;
 				searchMessage(false,true);
 				break;
 			}
+		}
+	};
+
+	HikeAdaptxtKeyboardVisibilityStatusListner kptKeyboardVisibilityStatusListner = new HikeAdaptxtKeyboardVisibilityStatusListner()
+	{
+		@Override
+		public void onInputviewVisbility(boolean kptVisible, int height)
+		{
+			if (kptVisible)
+			{
+				KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, height);
+				if (mShareablePopupLayout != null)
+				{
+					mShareablePopupLayout.setCustomKeyBoardHeight(height);
+				}
+				keyboardHeight = height;
+
+				if (activity.getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE)
+				{
+					mComposeView.setMaxLines(1);
+				}
+				else
+				{
+					mComposeView.setMaxLines(4);
+				}
+				onShown();
+			}
+			else
+			{
+				KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, 0);
+				mComposeView.setMaxLines(4);
+			}
+		}
+
+		@Override
+		public void analyticalData(KPTAddonItem kptAddonItem)
+		{
+			KptUtils.generateKeyboardAnalytics(kptAddonItem);
+			StickerSearchManager.getInstance().inputMethodChanged(new Locale(kptAddonItem.getlocaleName()).getISO3Language());
+		}
+
+		@Override
+		public void showGlobeKeyView()
+		{
+			KptUtils.onGlobeKeyPressed(activity, mCustomKeyboard);
+		}
+
+		@Override
+		public void showQuickSettingView()
+		{
+			KptUtils.onGlobeKeyPressed(activity, mCustomKeyboard);
 		}
 	};
 	
@@ -6222,7 +6274,7 @@ import android.widget.Toast;
 		}
 		else
 		{
-			mCustomKeyboard.swtichToKPTKeyboard(mComposeView, KPTConstants.MULTILINE_LINE_EDITOR, null, ChatThread.this);
+			mCustomKeyboard.swtichToKPTKeyboard(mComposeView, KPTConstants.MULTILINE_LINE_EDITOR, null, kptKeyboardVisibilityStatusListner);
 			mCustomKeyboard.registerEditText(R.id.msg_compose);
 			resetSharablePopup();
 			mCustomKeyboard.init(mComposeView);
@@ -6249,61 +6301,6 @@ import android.widget.Toast;
 		return HikeMessengerApp.isSystemKeyboard();
 	}
 
-	@Override
-	public void onInputviewVisbility(boolean kptVisible, int height)
-	{
-		if (kptVisible)
-		{
-			KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, height);
-			if (mShareablePopupLayout != null)
-			{
-				mShareablePopupLayout.setCustomKeyBoardHeight(height);				
-			}
-			keyboardHeight = height;
-			
-			if (activity.getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE)
-			{
-				mComposeView.setMaxLines(1);
-			}
-			else
-			{
-				mComposeView.setMaxLines(4);
-			}
-			onShown();
-		}
-		else
-		{
-			KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, 0);
-			mComposeView.setMaxLines(4);
-		}
-	}
-	
-	@Override
-	public void onInputViewCreated()
-	{
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void analyticalData(KPTAddonItem kptAddonItem)
-	{
-		KptUtils.generateKeyboardAnalytics(kptAddonItem);
-		StickerSearchManager.getInstance().inputMethodChanged(new Locale(kptAddonItem.getlocaleName()).getISO3Language());
-	}
-
-	@Override
-	public void showGlobeKeyView()
-	{
-		KptUtils.onGlobeKeyPressed(activity, mCustomKeyboard);
-	}
-
-	@Override
-	public void showQuickSettingView()
-	{
-		KptUtils.onGlobeKeyPressed(activity, mCustomKeyboard);
-	}
-	
 	/**
 	 * Call this method instead of directly calling {@link ChatThread#onDestroy()}
 	 */
