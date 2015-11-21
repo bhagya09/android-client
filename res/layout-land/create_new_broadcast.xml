@@ -43,6 +43,7 @@
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
         android:textSize="18sp"
+          android:imeOptions="actionDone"
         android:hint="@string/name_broadcast"
         android:layout_gravity="center_horizontal"
         android:background="@drawable/bg_country_picker_selector"
