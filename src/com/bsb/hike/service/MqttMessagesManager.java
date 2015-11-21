@@ -2188,7 +2188,7 @@ public class MqttMessagesManager
 			}
 			
 			if (stickerWidgetJSONObj.has(HikeConstants.ChatHead.DISMISS_COUNT))
-			{	
+			{
 				int dismissCount = stickerWidgetJSONObj.getInt(HikeConstants.ChatHead.DISMISS_COUNT);
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.DISMISS_COUNT, dismissCount);
 			}
@@ -2633,9 +2633,13 @@ public class MqttMessagesManager
 		{
 			Utils.setSharedPrefValue(context, HikeConstants.ENABLE_KNOWN_NUMBER_CARD_PREF, data.optBoolean(HikeConstants.ENABLE_KNOWN_NUMBER_CARD_PREF, true));
 		}
-		if (data.has(StickyCaller.SHOW_FREECALL_VIEW))
+		if (data.has(StickyCaller.SHOW_FREECALL_BUTTON))
 		{
-			HikeSharedPreferenceUtil.getInstance().saveData(StickyCaller.SHOW_FREECALL_VIEW, data.optBoolean(StickyCaller.SHOW_FREECALL_VIEW, true));
+			HikeSharedPreferenceUtil.getInstance().saveData(StickyCaller.SHOW_FREECALL_BUTTON, data.optBoolean(StickyCaller.SHOW_FREECALL_BUTTON, true));
+		}
+		if (data.has(StickyCaller.SHOW_FREEMESSAGE_BUTTON))
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(StickyCaller.SHOW_FREEMESSAGE_BUTTON, data.optBoolean(StickyCaller.SHOW_FREEMESSAGE_BUTTON, true));
 		}
 		if (data.has(HikeConstants.BOT_TABLE_REFRESH))
 		{
