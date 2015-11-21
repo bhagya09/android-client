@@ -620,9 +620,9 @@ public class StickyCaller
 		{
 			stickyCallerView.findViewById(R.id.missed_call_free_divider).setVisibility(View.VISIBLE);
 
-			setFreeCallButton(number, true);
+			setFreeCallButton(number);
 
-			setFreeSmsButton(number, true);
+			setFreeSmsButton(number);
 		}
 		if (MISSED_CALL_TIMINGS != null)
 		{
@@ -665,9 +665,9 @@ public class StickyCaller
 		{
 			setDismissWithVisible();
 
-			setFreeCallButton(number, false);
+			setFreeCallButton(number);
 
-			setFreeSmsButton(number, false);
+			setFreeSmsButton(number);
 
 			setOtherDismissButton();
 
@@ -786,9 +786,9 @@ public class StickyCaller
 				&& (HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.SHOW_FREEMESSAGE_BUTTON, true)
 						|| HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.SHOW_FREECALL_BUTTON, true)))
 		{
-			setFreeCallButton(number, true);
+			setFreeCallButton(number);
 
-			setFreeSmsButton(number, true);
+			setFreeSmsButton(number);
 
 			stickyCallerView.findViewById(R.id.missed_call_free_divider).setVisibility(View.VISIBLE);
 
@@ -825,8 +825,8 @@ public class StickyCaller
 	public static void setOtherDismissButton()
 	{
 
-		if (HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.SHOW_FREEMESSAGE_BUTTON, true)
-				^ HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.SHOW_FREECALL_BUTTON, true))
+		if ((HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.SHOW_FREEMESSAGE_BUTTON, true)
+				^ HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.SHOW_FREECALL_BUTTON, true)) && (CALL_TYPE==OUTGOING || CALL_TYPE == INCOMING))
 		{
 			View callerDismissButtonDivider = stickyCallerView.findViewById(R.id.caller_dismiss_vertical_divider);
 			callerDismissButtonDivider.setVisibility(View.VISIBLE);
@@ -869,9 +869,9 @@ public class StickyCaller
 		{
 			setDismissWithVisible();
 			
-			setFreeCallButton(number, false);
+			setFreeCallButton(number);
 
-			setFreeSmsButton(number, false);
+			setFreeSmsButton(number);
 
 			setOtherDismissButton();
 
@@ -889,10 +889,10 @@ public class StickyCaller
 		saveContact.setOnClickListener(callerClickListener);
 	}
 
-	private static void setFreeSmsButton(String number, boolean isMissed)
+	private static void setFreeSmsButton(String number)
 	{
 		if (HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.SHOW_FREEMESSAGE_BUTTON, true)
-				|| (isMissed && HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.SHOW_FREECALL_BUTTON, true)))
+				|| (CALL_TYPE != INCOMING && CALL_TYPE != OUTGOING && HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.SHOW_FREECALL_BUTTON, true)))
 		{
 			View freeSmsButton = stickyCallerView.findViewById(R.id.caller_free_message);
 			freeSmsButton.setVisibility(View.VISIBLE);
@@ -915,18 +915,30 @@ public class StickyCaller
 
 	private static void setCallDivider()
 	{
-		if (HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.SHOW_FREEMESSAGE_BUTTON, true)
-				&& HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.SHOW_FREECALL_BUTTON, true))
+		if (CALL_TYPE == INCOMING || CALL_TYPE == OUTGOING)
 		{
-			View callerDivider = stickyCallerView.findViewById(R.id.caller_vertical_divider);
-			callerDivider.setVisibility(View.VISIBLE);
+			if (HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.SHOW_FREEMESSAGE_BUTTON, true)
+					&& HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.SHOW_FREECALL_BUTTON, true))
+			{
+				View callerDivider = stickyCallerView.findViewById(R.id.caller_vertical_divider);
+				callerDivider.setVisibility(View.VISIBLE);
+			}
+		}
+		else
+		{
+			if (HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.SHOW_FREEMESSAGE_BUTTON, true)
+					|| HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.SHOW_FREECALL_BUTTON, true))
+			{
+				View callerDivider = stickyCallerView.findViewById(R.id.caller_vertical_divider);
+				callerDivider.setVisibility(View.VISIBLE);
+			}
 		}
 	}
 
-	private static void setFreeCallButton(String number, boolean isMissed)
+	private static void setFreeCallButton(String number)
 	{
 		if (HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.SHOW_FREECALL_BUTTON, true)
-				|| (isMissed && HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.SHOW_FREEMESSAGE_BUTTON, true)))
+				|| (CALL_TYPE!=INCOMING && CALL_TYPE!=OUTGOING && HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.SHOW_FREEMESSAGE_BUTTON, true)))
 		{
 			View freeCallButton = stickyCallerView.findViewById(R.id.caller_free_call);
 			freeCallButton.setVisibility(View.VISIBLE);
