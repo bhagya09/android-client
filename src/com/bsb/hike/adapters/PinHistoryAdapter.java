@@ -186,7 +186,8 @@ public class PinHistoryAdapter extends BaseAdapter implements OnLongClickListene
 			ConvMessage textPin = (ConvMessage) data;
 			if (textPin.isSent())
 			{
-				viewHolder.sender.setText("You, ");
+
+				viewHolder.sender.setText(context.getString(R.string.you) + ", ");
 			}
 			else
 			{
