@@ -76,6 +76,8 @@ public class KeyboardFtue implements HikePubSub.Listener
 
     private int toInstallLanguageCount;
 
+    private boolean isShowing;
+
     public KeyboardFtue()
     {
         mState = HikeSharedPreferenceUtil.getInstance().getData(KEYBOARD_FTUE_STATE,NOT_STARTED);
@@ -135,6 +137,7 @@ public class KeyboardFtue implements HikePubSub.Listener
         if (flipper == null)
             setupFlipper();
 
+        isShowing = true;
         if (mState < COMPLETE && KptKeyboardManager.getInstance(mActivity).getInstalledLanguagesList().size() > KptKeyboardManager.PREINSTALLED_LANGUAGE_COUNT)
             showLanguageUseFtue();
         else if (mState == NOT_STARTED)
@@ -413,10 +416,16 @@ public class KeyboardFtue implements HikePubSub.Listener
         });
     }
 
+    public boolean isShowing()
+    {
+        return isShowing;
+    }
+
     public void destroy()
     {
         if (mInitialised)
         {
+            isShowing = false;
             container.removeAllViews();
             container.invalidate();
             removeFromPubSub();
