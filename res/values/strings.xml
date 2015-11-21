@@ -1232,7 +1232,7 @@
     <string name="pers_notif_message">Update Hike for exciting new features!</string>
 	<string name="close_gps">You can now turn off your location to save battery. Your Hike Direct connection will not get affected.</string>
 	<string name ="gps_not_on">Sorry hike direct wont work if gps not on</string>
-	<string name="switch_on_gps">Please enable location for Hike Direct to work. Press back once you\'re done. </string>
+	<string name="switch_on_gps">Please enable location to use Hike Direct.</string>
 	<string name="gps_settings">SETTING</string>
 	<string name="user_gps_off">Hike Direct cannot work till your location is enabled.</string>
     <string name="no_results_found">No results found</string>
