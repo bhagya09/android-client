@@ -712,6 +712,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			searchMenuItem = menu.findItem(R.id.search);
 			SearchView searchView=(SearchView) MenuItemCompat.getActionView(searchMenuItem);
 			searchView.setOnQueryTextListener(onQueryTextListener);
+			searchView.setQueryHint(getString(R.string.search_hint));
 			searchView.clearFocus();
 			searchET = (AdaptxtEditText) searchView.findViewById(R.id.search_src_text);
 			Utils.setEditTextCursorDrawableColor(searchET,R.drawable.edittextcursorsearch);

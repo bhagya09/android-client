@@ -2966,6 +2966,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 
 			SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchMenuItem);
 			searchView.setOnQueryTextListener(onQueryTextListener);
+			searchView.setQueryHint(getString(R.string.search_hint));
 			searchET = (AdaptxtEditText) searchView.findViewById(R.id.search_src_text);
 			Utils.setEditTextCursorDrawableColor(searchET,R.drawable.edittextcursorsearch);
 			if (!systemKeyboard)
