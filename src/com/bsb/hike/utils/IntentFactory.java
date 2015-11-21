@@ -813,15 +813,21 @@ public class IntentFactory
 		return homeIntent;
 	}
 
+	public static Intent getHomeActivityIntentAsFreshLaunch(Context context)
+	{
+		Intent homeIntent = Intent.makeMainActivity(new ComponentName(context, HomeActivity.class));
+		homeIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+		return homeIntent;
+	}
+
 	public static void relaunchApplication(Context context)
 	{
 		Intent mStartActivity = new Intent(context, HomeActivity.class);
-		mStartActivity.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+		mStartActivity.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
 		int mPendingIntentId = 123456;
 		PendingIntent mPendingIntent = PendingIntent.getActivity(context, mPendingIntentId, mStartActivity, PendingIntent.FLAG_CANCEL_CURRENT);
 		AlarmManager mgr = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
 		mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 100, mPendingIntent);
-		android.os.Process.killProcess(android.os.Process.myPid());
 	}
 
 	public static Intent openInviteFriends(Activity context)

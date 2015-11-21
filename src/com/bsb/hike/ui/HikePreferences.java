@@ -66,6 +66,7 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.graphics.Color;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.preference.ListPreference;
@@ -394,7 +395,11 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 
 	private void restartHomeActivity()
 	{
-		IntentFactory.relaunchApplication(this);
+		if(android.os.Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP){
+			IntentFactory.relaunchApplication(this);
+		}else {
+			startActivity(IntentFactory.getHomeActivityIntentAsFreshLaunch(this));
+		}
 	}
 
 	private void addStealthPrefListeners()
