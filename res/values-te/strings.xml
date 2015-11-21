@@ -51,7 +51,7 @@
     <string name="no_thanks">ఇప్పుడు కాదు</string>
     <string name="call">కాల్‌ చేయండి</string>
     <string name="upload_failed">ఫైలు అప్‌లోడ్ చేయలేకపోయింది నెట్‌వర్క్ సెట్టింగ్‌లు తనిఖీ చేయండి</string>
-    <string name="dnd_msg_gc">%1$S చేరడానికి ప్రతిస్పందించడానికి వేచి ఉన్నది</string>
+    <string name="dnd_msg_gc">%1$s చేరడానికి ప్రతిస్పందించడానికి వేచి ఉన్నది</string>
     <string name="earned_credits">మీరు ఇప్పుడు %1$s ఉచిత SMSలు పొందారు</string>
     <string name="earned_credits_highlight">%1$s ఉచిత SMS</string>
     <string name="no_external_storage">బాహ్య స్టోరేజీ కనుగొనబడలేదు</string>
@@ -60,7 +60,7 @@
     <string name="download_failed_fatal">ఫైలు డౌన్‌లోడ్ చేయలేకపోయింది దయచేసి ఫైలును తిరిగి డౌన్‌లోడ్ చేయండి</string>
     <string name="card_unmount">ఫైల్ యాక్సెస్ చేసుకోలేకపోయింది దయచేసి మీ SD కార్డ్ మౌంట్ చేయండి, తిరిగి ప్రయత్నించండి.</string>
     <string name="not_enough_space">ఫైల్ డౌన్‌లోడ్ చేయడానికి మీ ఫోన్‌లో తగినంత స్థలం లేదు</string>
-    <string name="dnd_one_to_one">%1$s DNDలో ఉన్నారు. %1$S ప్రతిస్పందించడానికి వేచి ఉన్నది</string>
+    <string name="dnd_one_to_one">%1$s DNDలో ఉన్నారు. %1$s ప్రతిస్పందించడానికి వేచి ఉన్నది</string>
     <string name="optin_one_to_one">%1$s ఇప్పుడు hikeని ఇష్టపడ్డారు!</string>
     <string name="download_cancelled">డౌన్‌లోడ్ రద్దు చేయబడింది</string>
     <string name="upload_cancelled">అప్‌లోడ్ రద్దు చేయబడింది</string>
@@ -79,11 +79,11 @@
     <string name="invite_via_sms">SMS ద్వారా ఆహ్వానించు</string>
     <string name="call_me_fail">మీకు కాల్ చేయలేకపోయింది. దయచేసి మళ్లీ ప్రయత్నించండి.</string>
     <string name="calling_you">ఇప్పుడు కాల్ చేస్తోంది...</string>
-    <string name="new_group_message">%1$Sతో గ్రూప్ ఛాట్</string>
-    <string name="new_broadcast_message">%1$Sతో బ్రాడ్‌కాస్ట్ లిస్ట్</string>
+    <string name="new_group_message">%1$sతో గ్రూప్ ఛాట్</string>
+    <string name="new_broadcast_message">%1$sతో బ్రాడ్‌కాస్ట్ లిస్ట్</string>
     <string name="add_to_group_message">%1$s గ్రూపుకు జతచేయబడ్డారు</string>
-    <string name="add_to_broadcast_message">%1$S లిస్ట్‌కు జతచేయబడ్డారు</string>
-    <string name="intro_sms_thread">%1$Sకు 1 ఉచిత SMS పంపు</string>
+    <string name="add_to_broadcast_message">%1$s లిస్ట్‌కు జతచేయబడ్డారు</string>
+    <string name="intro_sms_thread">%1$sకు 1 ఉచిత SMS పంపు</string>
     <string name="hike_hike">hike నుంచి hike</string>
     <string name="free_worldwide">ఉచితం, ప్రపంచవ్యాప్తం!</string>
     <string name="unlimited">అపరిమితం</string>
@@ -165,7 +165,7 @@
     <string name="leave_group_confirm">ఈ గ్రూపును విడిచిపెట్ట్టాలని మీరు అనుకుంటున్నారా?</string>
     <string name="delete_broadcast_confirm">ఈ బ్రాడ్‌కాస్ట్ లిస్టింగ్ మీరు కచ్చితంగా డిలీట్ చేయాలని అనుకుంటున్నారా?</string>
     <string name="remove_confirm">గ్రూపు నుంచి %1$sని మీరు కచ్చితంగా తొలగించాలని అనుకుంటున్నారా?</string>
-    <string name="remove_confirm_broadcast">ఈ లిస్ట్ నుంచి %1$Sను మీరు కచ్చితంగా తొలగించాలని అనుకుంటున్నారా?</string>
+    <string name="remove_confirm_broadcast">ఈ లిస్ట్ నుంచి %1$sను మీరు కచ్చితంగా తొలగించాలని అనుకుంటున్నారా?</string>
     <string name="no">లేదు</string>
     <string name="location_disabled">మీ లొకేషన్ పొందలేరు దయచేసి మీ సెట్టింగ్‌లను తనిఖీ చేయండి.</string>
     <string name="tap_here_invite">ఈ వ్యక్తికి ఆహ్వానించడానికి ఇక్కడ తట్టండి</string>
@@ -205,7 +205,7 @@
     <string name="tap_here_block">ఈ నెంబరు బ్లాక్ చేయడానికి ఇక్కడ తట్టండి.</string>
     <string name="which_friend_invite">మీ స్నేహితులకు ఉచిత SMS ఆహ్వానం పంపు.</string>
     <string name="skip">విడిచిపెట్టండి</string>
-    <string name="start_thread1">%1$Sకు హాయ్ చెప్పండి!</string>
+    <string name="start_thread1">%1$sకు హాయ్ చెప్పండి!</string>
     <string name="start_thread2">hike మీ సందేశం %1$s</string>
     <string name="moods">మూడ్‌లు</string>
     <string name="message_charcter_limit">140</string>
@@ -233,7 +233,7 @@
     <string name="joined_hike_update">hikeలో చేరారు</string>
     <string name="free_hike_sms">ఉచిత hike SMS</string>
     <string name="regular_sms">రెగ్యులర్ SMS</string>
-    <string name="messaging_my_number">%1$S నుంచి సందేశాలు</string>
+    <string name="messaging_my_number">%1$s నుంచి సందేశాలు</string>
     <string name="messaging_hike_number">+918451043280 నుంచి సందేశాలు</string>
     <string name="manage_account">ఖాతా</string>
     <string name="default_client_header">ఏకీకృత ఇన్‌బాక్స్</string>
@@ -254,7 +254,7 @@
     <string name="sent_sticker">మీకు స్టిక్కర్ పంపబడింది</string>
     <string name="start_new_chat">కొత్త ఛాట్ ప్రారంభించు</string>
     <string name="post_new_update">కొత్త అప్‌డేట్ పోస్ట్ చేయి</string>
-    <string name="read_by_names_only">%1$S ద్వారా చదవబడింది</string>
+    <string name="read_by_names_only">%1$s ద్వారా చదవబడింది</string>
     <string name="read_by_names_number">%1$s, %2$d ఇతరాలు ద్వారా చదవబడింది</string>
     <string name="read_by_everyone">అందరూ చదివారు</string>
     <string name="attach">జోడించు</string>
@@ -262,7 +262,7 @@
     <string name="new_broadcast">కొత్త బ్రాడ్‌కాస్ట్</string>
     <string name="broadcast">బ్రాడ్‌కాస్ట్</string>
     <string name="xyz_posted_update">%1$s అప్‌డేట్ పోస్ట్ చేశారు</string>
-    <string name="num_people">%1$S వ్యక్తులు</string>
+    <string name="num_people">%1$s వ్యక్తులు</string>
     <string name="add">జోడించు</string>
     <string name="me_key">నాకు</string>
     <string name="group_name_email">‘‘ గ్రూపు ’’</string>
@@ -305,10 +305,10 @@
     <string name="downloading_string">డౌన్‌లోడింగ్ చేస్తోంది...</string>
     <string name="post">పోస్ట్ చేయండి</string>
     <string name="no_credits">మీ ఉచిత SMSలు అయిపోయాయి., మరికొంత పొందడానికి %1$sని ఆహ్వానించు</string>
-    <string name="ftue_add_prompt_invite">%1$Sని hikeకు ఆహ్వానించు %1$Sను hikeకు ఆహ్వానించు ప్రామాణిక ఆపరేటర్ SMS రేట్లు వర్తించబడతాయి</string>
+    <string name="ftue_add_prompt_invite">%1$sని hikeకు ఆహ్వానించు %1$sను hikeకు ఆహ్వానించు ప్రామాణిక ఆపరేటర్ SMS రేట్లు వర్తించబడతాయి</string>
     <string name="ftue_add_prompt_invite_title">hikeకు ఆహ్వానించు</string>
     <string name="create_group">కొత్త గ్రూపు చాట్</string>
-    <string name="number_confirmation_string">%1$S మీ సభ్యుడా?</string>
+    <string name="number_confirmation_string">%1$s మీ సభ్యుడా?</string>
     <string name="unlink_facebook">Facebook అన్‌లింక్ చేయి</string>
     <string name="unlink_twitter">Twitter అన్‌లింక్ చేయి</string>
     <string name="error_capture_video">వీడియో క్యాప్చర్ చేయడంలో దోషం</string>
@@ -352,7 +352,7 @@
     <string name="file_msg_received">మీకు ఫైలు పంపింది</string>
     <string name="file_msg_sent">ఫైలు</string>
     <string name="copied">కాపీ చేయబడింది</string>
-    <string name="share_with">%1$Sతో పంచుకోవాలా?</string>
+    <string name="share_with">%1$sతో పంచుకోవాలా?</string>
     <string name="no_internet_connection">ఇంటర్నెట్ కనెక్షన్ లేదు</string>
     <string name="num_new_messages">%1$s కొత్త సందేశాలు</string>
     <string name="one_new_message">1 కొత్త సందేశం</string>
@@ -364,7 +364,7 @@
     <string name="wrong_country">చెల్లుబాటుకాని దేశం కోడ్</string>
     <string name="no_internet_msg">ఇంటర్నెట్ కనెక్షన్ లేనట్లుగా\n కనపడుతోంది దానిని ఫిక్స్ చేయడానికి ప్రయత్నించండి మరి\n ముందుకు సాగండి</string>
     <string name="hang_on">హ్యాంగ్ ఆన్....</string>
-    <string name="call_me_for_the_pin">%1$S నాకు కాల్ చేయి</string>
+    <string name="call_me_for_the_pin">%1$s నాకు కాల్ చేయి</string>
     <string name="wrong_pin">క్షమించండి, అది తప్పు PIN.</string>
     <string name="verifying">వెరిఫై చేస్తోంది...</string>
     <string name="pick_one">దానిని ఎంచుకోండి...</string>
@@ -411,7 +411,7 @@
     <string name="minContactInGroupErr">గ్రూప్ చాట్ ప్రారంభించడానికి కనీసం %1$s సభ్యుడు(లు) ఎంచుకోండి</string>
     <string name="minContactInBroadcastErr">కనీసం %1$s కాంటాక్ట్‌లు ఎంచుకోవాలి</string>
     <string name="cannot_select_zero_byte_file">0 బైట్‌ల ఫైలును ఎంచుకోలేరు</string>
-    <string name="addedYouAsFavorite">%1$Sలు ఫేవరెట్‌లకు జోడించబడ్డాయి</string>
+    <string name="addedYouAsFavorite">%1$sలు ఫేవరెట్‌లకు జోడించబడ్డాయి</string>
     <string name="addedYouFrindDescription">
 <![CDATA[ ఇప్పుడు మీరు <font color="#ef554e">Last Seen</font> and <font color="#1da8e8">Status Updates</font> ను %1$s తో పంచుకుంటున్నారు. మీరు అతడికి కూడా ఇదేవిధంగా చేయమని కోరతారా?
 	    ]]>
@@ -664,10 +664,10 @@
     <string name="small_fastest">అతి వేగంగా</string>
     <string name="medium_faster">వేగంగా</string>
     <string name="original_slow">నెమ్మది</string>
-    <string name="forward_to_plural">%1$S కాంటాక్ట్‌లకు సందేశం పంపాలా?</string>
+    <string name="forward_to_plural">%1$s కాంటాక్ట్‌లకు సందేశం పంపాలా?</string>
     <string name="forward_to_singular">1 కాంటాక్ట్‌కు సందేశం పంపాలా?</string>
     <string name="selected_contacts_count_plural">%1$s కాంటాక్ట్‌లు</string>
-    <string name="selected_contacts_count_singular">%1$S కాంటాక్ట్</string>
+    <string name="selected_contacts_count_singular">%1$s కాంటాక్ట్</string>
     <string name="wish_now">ఇప్పుడు విష్ చేయండి</string>
     <string name="messages_sent_succees">సందేశం పంపబడింది</string>
     <string name="content_card_tag">కార్డ్</string>
@@ -774,7 +774,7 @@
     <string name="voip_missed_call_outgoing">మీ కాల్ మిస్ అయింది</string>
     <string name="voip_missed_call_incoming">మీకు మిస్ కాల్ ఉంది</string>
     <string name="voip_call_chat">hike కాల్</string>
-    <string name="voip_call_notification_title">%1$Sతో hike కాల్</string>
+    <string name="voip_call_notification_title">%1$sతో hike కాల్</string>
     <string name="voip_conference_call_notification_title">hike కాన్ఫరెన్స్ కాల్</string>
     <string name="voip_call_notification_text">కాల్ %1$s పురోగతిలో ఉన్నది</string>
     <string name="voip_call">కాల్</string>
@@ -794,7 +794,7 @@
     <string name="voip_conference_network_support">2Gపై కాన్ఫరెన్స్ కాల్ ఏర్పాటు చేయలేరు</string>
     <string name="voip_conference_os_support">మీ ఫోన్ కాన్ఫరెన్స్ కాల్ ఏర్పాటు చేయలేదు</string>
     <string name="voip_conference_host">కాన్ఫరెన్స్ హోస్ట్</string>
-    <string name="voip_conference_not_supported">%1$S కాన్ఫరెన్స్ కాల్స్‌కు మద్దతు ఇవ్వదు</string>
+    <string name="voip_conference_not_supported">%1$s కాన్ఫరెన్స్ కాల్స్‌కు మద్దతు ఇవ్వదు</string>
     <string name="voip_group_conference_confirmation">ఈ గ్రూపులో ఉన్న ప్రతి ్కరితో కాన్ఫరెన్స్ కాల్ ప్రారంభించాలని మీరు అనుకుంటున్నారా?</string>
     <string name="led_color_none_key">None</string>
     <string name="led_color_blue_key">బ్లూ</string>
@@ -886,9 +886,9 @@
     <string name="you_accepted_favorite_request_details">మంచిది! %1$s ఇప్పుడు మీ %2$sను చూడగలరు</string>
     <string name="accepted_your_favorite_request_details">ఇప్పుడు మీరు %1$s\&apos;s %2$sను చూడవచ్చు</string>
     <string name="favorite_confirmed_notification">ఇప్పుడు మీరు %1$s\&apos;s %2$sను చూడవచ్చు</string>
-    <string name="sent_favorite_request_tab">ఇప్పుడు %1$Sను పంచుకుంటున్నారు, ఇదే రకంగా మీరు కూడా చేయాలని అనుకుంటున్నారా?</string>
+    <string name="sent_favorite_request_tab">ఇప్పుడు %1$sను పంచుకుంటున్నారు, ఇదే రకంగా మీరు కూడా చేయాలని అనుకుంటున్నారా?</string>
     <string name="tap_plus_add_favorites">కేవలం ఫేవరెట్‌లు మీ %1$sని చూడగలరు. తెలివిగా ఎంచుకోండి!</string>
-    <string name="add_fav_msg">ఇప్పుడు %1$Sను పంచుకుంటున్నారు, ఇదే రకంగా మీరు కూడా చేయాలని అనుకుంటున్నారా?</string>
+    <string name="add_fav_msg">ఇప్పుడు %1$sను పంచుకుంటున్నారు, ఇదే రకంగా మీరు కూడా చేయాలని అనుకుంటున్నారా?</string>
     <string name="both_ls_status_update">చివరిసారిగా చూసిది, స్టేటస్ అప్‌డేట్‌లు</string>
     <string name="retry_platform_failure">తిరిగి ప్రయత్నించండి</string>
     <string name="platform_error_text">ఏదో తప్పు జరిగింది.</string>
@@ -1014,7 +1014,7 @@
 	<string name="add_members">సభ్యులను జోడించండి</string>
 	<string name="add_members_to_conference">కాన్ఫరెన్స్‌కు జోడించండి</string>
 	<string name="created_group_text">మీరు గ్రూపు చాట్ సృష్టించారు</string>
-	<string name="group_member_added">%1$S జోడించబడింది</string>
+	<string name="group_member_added">%1$s జోడించబడింది</string>
 	<string name="num_members">%1$s సభ్యులు</string>
 	<string name="num_member">%1$s సభ్యుడు</string>
 	<string name="profile_pic_upload_in_background">ప్రొఫైల్ చిత్రం అప్‌లోడ్ చేయడం కొనసాగుతుంది...</string>
@@ -1025,9 +1025,9 @@
 	<string name="now">ఇప్పుడు</string>
 	<string name="sticker_recommend_tip">నీలంరంగు పదాలపై తట్టండి</string>
 	<string name="make_admin">అడ్మిన్ చేయి</string>
-	<string name="admin_updating">%1$Sను ఆల్బమ్‌గా చేస్తోంది</string>
+	<string name="admin_updating">%1$sను ఆల్బమ్‌గా చేస్తోంది</string>
 	<string name="admin_task_error">కనెక్షన్ దోషం: దయచేసి మీ నెట్‌వర్క్ తనిఖీ చేయండి, తిరిగి ప్రయత్నించండి.</string>
-	<string name="group_admin_updated">%1$Sను ఆల్బమ్‌గా చేసింది</string>
+	<string name="group_admin_updated">%1$sను ఆల్బమ్‌గా చేసింది</string>
 	<string name="group_setting_option_only_admin">కేవలం అడ్మిన్‌లు మాత్రమే సభ్యులను జోడించవచ్చు</string>
 	<string name="group_setting_updating">గ్రూపు గోప్యతా సెట్టింగ్‌లు మారుస్తోంది</string>
 	<string name="group_setting_confirmation1">ప్రతి సభ్యుడిని జోడించేందుకు అనుమతించాలా?</string>
@@ -1040,15 +1040,15 @@
 	<string name="ftue_multiadmin_description">ఈ గ్రూపులోని బహుళ సభ్యులతో మీరు మీ అడ్మిన్ రైట్‌లను పంచుకోవచ్చు</string>
 	<string name="unknown_server_error">ఫైలును డౌన్‌లోడ్ చేయలేకపోయింది.</string>
 	<string name="sticker_share_description">www.hike.in</string>
-    <string name="num_notification_sub_text_for_multi_msisdn">%2$S సంభాషణల నుంచి %1$S సందేశాలు</string>
-    <string name="disconnect_warning">%1$Sకు కనెక్ట్ చేయాలా?</string>
+    <string name="num_notification_sub_text_for_multi_msisdn">%2$S సంభాషణల నుంచి %1$s సందేశాలు</string>
+    <string name="disconnect_warning">%1$sకు కనెక్ట్ చేయాలా?</string>
     <string name="connected_warning">%1$s తో మీ కనెక్షన్ ముగుస్తుంది.</string>
-    <string name="connecting_to">%1$Sకు కనెక్ట్ చేయబడుతోంది...</string>
+    <string name="connecting_to">%1$sకు కనెక్ట్ చేయబడుతోంది...</string>
     <string name="offline_animation_second_message">చిట్కా: hike డైరెక్ట్ \n 100 మీటర్ల పరిధిలో పనిచేస్తుంది</string>
     <string name="offline_animation_third_message">దీనికి మామూలు కంటే ఎక్కువ సమయం పడుతుంది. \n hike డైరెక్ట్ పై తట్టమని దయచేసి %1$s \n ని కూడా అడగండి</string>
     <string name="connect">కనెక్ట్ చేయి</string>
 	<string name="sticker_share_popup_activate_toast">స్టిక్కీ యాక్టివేట్ చేయబడింది</string>
-    <string name="cancel_connection">%1$Sతో కనెక్షన్ ప్రయత్నాలు రద్దు చేయబడ్డాయా.</string>
+    <string name="cancel_connection">%1$sతో కనెక్షన్ ప్రయత్నాలు రద్దు చేయబడ్డాయా.</string>
     <string name="cancel_offline_connection">కనెక్షన్ రద్దుచేయి</string>
     <string name="retry_connection">hike డైరెక్ట్ ద్వారా కనెక్ట్ చేయలేకపోయింది\n . మళ్లీ ప్రయత్నించండి?</string>
     <string name="file_attachment_info_offline">యాప్, మీడియా, ఏదైనా సైజుకు అప్‌లోడ్ చేయాల్సిన ఫైళ్లను పంచుకోండి</string>

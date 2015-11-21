@@ -930,8 +930,9 @@ import android.widget.Toast;
 			case R.string.email_chat:
 				overFlowMenuItem.enabled = !isMessageListEmpty;
 				break;
-			case R.string.change_keyboard:
+			case R.string.hike_keyboard:
 				overFlowMenuItem.enabled = !mConversation.isBlocked();
+				overFlowMenuItem.text=getString(isSystemKeyboard() ? R.string.hike_keyboard : R.string.system_keyboard);
 				break;
 			case R.string.hide_chat:
 				overFlowMenuItem.text = getString(StealthModeManager.getInstance().isActive() ? 
@@ -1042,7 +1043,7 @@ import android.widget.Toast;
 	{
 		switch (item.id)
 		{
-		case R.string.change_keyboard:
+		case R.string.hike_keyboard:
 			changeKbdClicked = true;
 			if (isSystemKeyboard() && isKeyboardOpen())
 			{
@@ -1111,14 +1112,31 @@ import android.widget.Toast;
 		};
 		Utils.executeAsyncTask(automateMessages);
 	}
-	
+
+	/**
+	 * //TODO
+	 * Please note here analytics event tag will change if language is changed since you are using
+	 * overflowmenu item 's text as key .This needs to be handled
+	 * @param item
+	 */
 	private void recordOverflowItemClicked(OverFlowMenuItem item)
 	{
 		String ITEM = "item";
+		String analytics = item.text;
+		//To track Analytics event for changing of keyboard even when language is changed since
+		//overflow menu item text was being converted to the local language and analytics key was being changed
+		if (item.text.equalsIgnoreCase(getString(R.string.hike_keyboard)) || item.text.equalsIgnoreCase(getString(R.string.system_keyboard)))
+		{
+			if (isSystemKeyboard())
+				analytics = HikeConstants.HIKE_KEYBOARD;
+			else
+				analytics = HikeConstants.SYSTEM_KEYBOARD;
+
+		}
 		try
 		{
 			JSONObject metadata = new JSONObject();
-			metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.CHAT_OVRFLW_ITEM).put(ITEM, item.text);
+			metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.CHAT_OVRFLW_ITEM).put(ITEM, analytics);
 			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
 		}
 		catch (JSONException e)
@@ -1143,13 +1161,17 @@ import android.widget.Toast;
 		initView();
 	}
 
-	protected OverFlowMenuItem[] getOverFlowMenuItems()
+	protected ArrayList<OverFlowMenuItem> getOverFlowMenuItems()
 	{
-		return new OverFlowMenuItem[] {
-				new OverFlowMenuItem(getString(R.string.hide_chat), 0, 0, R.string.hide_chat),
-				new OverFlowMenuItem(getString(R.string.clear_chat), 0, 0, true, R.string.clear_chat),
-				new OverFlowMenuItem(getString(R.string.email_chat), 0, 0, true, R.string.email_chat),
-				new OverFlowMenuItem(getString(R.string.change_keyboard), 0, 0, R.string.change_keyboard)};
+		ArrayList<OverFlowMenuItem> listOverFlow = new ArrayList<OverFlowMenuItem>();
+		listOverFlow.add(new OverFlowMenuItem(getString(R.string.hide_chat), 0, 0, R.string.hide_chat));
+		listOverFlow.add(new OverFlowMenuItem(getString(R.string.clear_chat), 0, 0, true, R.string.clear_chat));
+		listOverFlow.add(new OverFlowMenuItem(getString(R.string.email_chat), 0, 0, true, R.string.email_chat));
+		if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CHANGE_KEYBOARD_CHAT_ENABLED, true))
+			listOverFlow.add(new OverFlowMenuItem(getString(isSystemKeyboard()?R.string.hike_keyboard:R.string.system_keyboard), 0, 0, R.string.hike_keyboard));
+
+		return listOverFlow;
+
 	}
 
 	protected void showOverflowMenu()
