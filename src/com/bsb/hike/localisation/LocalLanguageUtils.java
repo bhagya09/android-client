@@ -42,5 +42,6 @@ public class LocalLanguageUtils {
         }
         HikeMessengerApp.getInstance().setupLocalLanguage();
         StickerManager.getInstance().resetStickerShopLastUpdateTime();
+        StickerManager.getInstance().resetSignupUpgradeCallPreference();
     }
 }
