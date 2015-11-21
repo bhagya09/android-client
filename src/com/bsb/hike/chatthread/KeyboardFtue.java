@@ -121,7 +121,8 @@ public class KeyboardFtue implements HikePubSub.Listener
         if (!mInitialised)
             return false;
 
-        if (mState < COMPLETE && KptKeyboardManager.getInstance(mActivity).getInstalledLanguagesList().size() > KptKeyboardManager.PREINSTALLED_LANGUAGE_COUNT)
+        if (mState < COMPLETE && KptKeyboardManager.getInstance(mActivity).getInstalledLanguagesList().size() > KptKeyboardManager.PREINSTALLED_LANGUAGE_COUNT
+                && !HikeMessengerApp.isSystemKeyboard())
             return true;
         else if (mState == NOT_STARTED)
             return true;
@@ -138,7 +139,8 @@ public class KeyboardFtue implements HikePubSub.Listener
             setupFlipper();
 
         isShowing = true;
-        if (mState < COMPLETE && KptKeyboardManager.getInstance(mActivity).getInstalledLanguagesList().size() > KptKeyboardManager.PREINSTALLED_LANGUAGE_COUNT)
+        if (mState < COMPLETE && KptKeyboardManager.getInstance(mActivity).getInstalledLanguagesList().size() > KptKeyboardManager.PREINSTALLED_LANGUAGE_COUNT
+                && !HikeMessengerApp.isSystemKeyboard())
             showLanguageUseFtue();
         else if (mState == NOT_STARTED)
             showLanguageSelectionFtue();
