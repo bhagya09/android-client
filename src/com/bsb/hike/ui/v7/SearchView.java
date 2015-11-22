@@ -16,9 +16,7 @@ import android.database.Cursor;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.ResultReceiver;
 import android.speech.RecognizerIntent;
 import android.support.v4.view.KeyEventCompat;
 import android.support.v4.widget.CursorAdapter;
@@ -26,14 +24,10 @@ import android.support.v7.appcompat.R;
 import android.support.v7.view.CollapsibleActionView;
 import android.text.Editable;
 import android.text.InputType;
-import android.text.Spannable;
-import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.text.style.ImageSpan;
 import android.util.AttributeSet;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -46,7 +40,6 @@ import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.AutoCompleteTextView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 import java.lang.reflect.Method;
@@ -247,7 +240,7 @@ public class SearchView extends LinearLayout implements CollapsibleActionView {
         if (maxWidth != -1) {
             setMaxWidth(maxWidth);
         }
-        CharSequence queryHint = "Search...";
+        CharSequence queryHint = context.getString(com.bsb.hike.R.string.search_hint_text);
         if (!TextUtils.isEmpty(queryHint)) {
             setQueryHint(queryHint);
         }

@@ -593,15 +593,15 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		{
 			if (preferenceName == HikeConstants.KEYPRESS_VOL_PREF)
 			{
-				preference.setSummary("Level " + kptSettings.getKeyPressSoundVolume());
+				preference.setSummary(getString(R.string.level)+ " " + kptSettings.getKeyPressSoundVolume());
 			}
 			else if (preferenceName == HikeConstants.KEYPRESS_VIB_DUR_PREF)
 			{
-				preference.setSummary(kptSettings.getKeyPressVibrationDuration() + " ms");
+				preference.setSummary(kptSettings.getKeyPressVibrationDuration() + " " + getString(R.string.milliseconds));
 			}
 			else if (preferenceName == HikeConstants.LONG_PRESS_DUR_PREF)
 			{
-				preference.setSummary(kptSettings.getLongPressDuration() + " ms");
+				preference.setSummary(kptSettings.getLongPressDuration() + " " + getString(R.string.milliseconds));
 			}
 		}
 	}

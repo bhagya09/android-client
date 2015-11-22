@@ -33,7 +33,6 @@ import android.widget.Filter.FilterListener;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.bsb.hike.HikeConstants;
@@ -818,21 +817,21 @@ public class ConversationsAdapter extends BaseAdapter
 						ContactInfo contact = ContactManager.getInstance()
 								.getContact((String) participants.get(0));
 						if (contact != null && contact.getFirstName() != null) {
-							msg = contact.getFirstName()+" "+HikeConstants.IS_TYPING;
+							msg = contact.getFirstName() +" "+ context.getString(R.string.is_typing);
 						}
 						else
 						{
-							msg = participants.get(0) + " " + HikeConstants.IS_TYPING; // Contact can be returned null. In that case we were simply returning is typing... This will return <msisdn>  is typing...
+							msg = participants.get(0) + " " + context.getString(R.string.is_typing); // Contact can be returned null. In that case we were simply returning is typing... This will return <msisdn>  is typing...
 						}
 					} 
 					else if (participants.size() > 1) {
-					    	msg = context.getString(R.string.num_members, (participants.size()))+" "+HikeConstants.ARE_TYPING;
+					    	msg = context.getString(R.string.num_members, (participants.size()))+" "+context.getString(R.string.are_typing);
 					}
 				}
 			}
 			convMessage.setMessage(msg);
 		}else{
-			convMessage.setMessage(HikeConstants.IS_TYPING);
+			convMessage.setMessage(context.getString(R.string.is_typing));
 		}
 		convMessage.setState(State.RECEIVED_UNREAD);
 		return convMessage;
@@ -1043,8 +1042,7 @@ public class ConversationsAdapter extends BaseAdapter
 		{
 			JSONArray participantInfoArray = metadata.getGcjParticipantInfo();
 			
-			String highlight = Utils.getConversationJoinHighlightText(participantInfoArray, (OneToNConvInfo)convInfo, metadata.isNewGroup()&&metadata.getGroupAdder()!=null, context);
-			markedUp = OneToNConversationUtils.getParticipantAddedMessage(message, context, highlight);
+			markedUp = OneToNConversationUtils.getParticipantAddedMessage(message, context, participantInfoArray, (OneToNConvInfo)convInfo, metadata.isNewGroup()&&metadata.getGroupAdder()!=null);
 		}
 		else if (message.getParticipantInfoState() == ParticipantInfoState.CHANGE_ADMIN)
 		{
@@ -1139,9 +1137,7 @@ public class ConversationsAdapter extends BaseAdapter
 
 				String userMsisdn = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).getString(HikeMessengerApp.MSISDN_SETTING, "");
 
-				String participantName = userMsisdn.equals(msisdn) ? context.getString(R.string.you) : ((OneToNConvInfo) convInfo).getConvParticipantName(msisdn);
-				
-				markedUp = OneToNConversationUtils.getConversationNameChangedMessage(convInfo.getMsisdn(), context, participantName);
+				markedUp = OneToNConversationUtils.getConversationNameChangedMessage(msisdn, context);
 			}
 		}
 		else if (message.getParticipantInfoState() == ParticipantInfoState.BLOCK_INTERNATIONAL_SMS)
@@ -1163,7 +1159,7 @@ public class ConversationsAdapter extends BaseAdapter
 				nameString = userMsisdn.equals(msisdn) ? context.getString(R.string.you) : Utils.getFirstName(convInfo.getLabel());
 			}
 
-			markedUp = context.getString(R.string.chat_bg_changed, nameString);
+			markedUp = Utils.createStringWithName(context, msisdn, R.string.you_chat_bg_changed, R.string.chat_bg_changed);
 		}
 		else
 		{
