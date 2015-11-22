@@ -86,6 +86,7 @@ import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
+import com.bsb.hike.modules.kpt.KptKeyboardManager;
 import com.bsb.hike.modules.stickerdownloadmgr.SingleStickerDownloadTask;
 import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
@@ -2735,6 +2736,11 @@ public class MqttMessagesManager
 		if (data.has(HikeConstants.LOCALIZATION_ENABLED))
 		{
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.LOCALIZATION_ENABLED,data.optBoolean(HikeConstants.LOCALIZATION_ENABLED));
+		}
+		if (data.has(HikeConstants.AUTOCORRECT_KEYBOARD_ENABLED))
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.AUTOCORRECT_KEYBOARD_ENABLED, data.optBoolean(HikeConstants.AUTOCORRECT_KEYBOARD_ENABLED));
+			KptKeyboardManager.getInstance(HikeMessengerApp.getInstance().getApplicationContext()).getKptSettings().setAutoCorrectionState(data.optBoolean(HikeConstants.AUTOCORRECT_KEYBOARD_ENABLED) ? 0: 1);
 		}
 		if (data.has(HikeConstants.CUSTOM_KEYBOARD_ENABLED))
 		{

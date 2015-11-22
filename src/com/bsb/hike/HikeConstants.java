@@ -3673,10 +3673,17 @@ public class HikeConstants
 	// Added for switching the Change Keyboard Option in chat thread
 	public static final String CHANGE_KEYBOARD_CHAT_ENABLED = "ckc_e";
 
+	public static final String AUTOCORRECT_KEYBOARD_ENABLED="atk_e";
+	
 	// ============================================================================================= LOCALIZATION SWITCHES
+
+
+	public static final String LANG_LIST_ORDER = "lang_list";
 
 	// Analytics Event key for Change Keyboard ,because externalized string was converted to phone language and analytics key was changin
 	public static final String SYSTEM_KEYBOARD = "System Keyboard";
 
 	public static final String HIKE_KEYBOARD = "Hike Keyboard";
+
+
 }
