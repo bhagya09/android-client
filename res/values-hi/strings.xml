@@ -850,7 +850,7 @@
     <string name="photo_dp_save_error_sub">पुन: प्रयास करने के लिए टैप करें</string>
     <string name="photo_gallery_choose_pic">कोई फोटो चुनें</string>
     <string name="cropping_image">छवि क्रॉप की जा रही है...</string>
-	<string name="home_search_empty_text">\'%1$s\' के लिए आपकी खोज किसी भी संपर्क से मेल नहीं खाती है।</string>
+	<string name="home_search_empty_text">\&apos;%1$s\&apos; के लिए आपकी खोज किसी भी संपर्क से मेल नहीं खाती है।</string>
     <string name="voip_mic_error">माईक चालू करने में असमर्थ। यह कॉल शायद काम न करे।</string>
     <string name="voip_call_failed_frag_subheader">आप फिर भी %1$s से संपर्क कर सकते हैं</string>
     <string name="dismiss_upper_case">खारिज करें</string>

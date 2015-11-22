@@ -850,7 +850,7 @@
     <string name="photo_dp_save_error_sub">पुन्हा प्रयत्न करण्यासाठी टॅप करा</string>
     <string name="photo_gallery_choose_pic">एक फोटो निवडा</string>
     <string name="cropping_image">प्रतिमा कापत आहे..</string>
-	<string name="home_search_empty_text">तुमचा \'%1$s\'साठीचा शोध संपर्कांमधील कोणाशीही जुळत नाही आहे.</string>
+	<string name="home_search_empty_text">तुमचा \&apos;%1$s\&apos; साठीचा शोध संपर्कांमधील कोणाशीही जुळत नाही आहे.</string>
     <string name="voip_mic_error">माइक सुरु करण्यास असमर्थ. हा कॉल कदाचित कार्य करणार नाही.</string>
     <string name="voip_call_failed_frag_subheader">तरीही तुम्ही %1$s शी यासह संपर्क करू शकता</string>
     <string name="dismiss_upper_case">डिसमीस करा</string>

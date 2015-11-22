@@ -850,7 +850,7 @@
     <string name="photo_dp_save_error_sub">വീണ്ടും ശ്രമിക്കാൻ ടാപ്പുചെയ്യുക.</string>
     <string name="photo_gallery_choose_pic">ഒരു ഫോട്ടോ തിരഞ്ഞെടുക്കുക</string>
     <string name="cropping_image">ചിത്രം ക്രോപ്പ് ചെയ്യുന്നു..</string>
-	<string name="home_search_empty_text">\'%1$s\'എന്നതിനായുള്ള തിരയൽ യാതൊരു സമ്പർക്കവുമായും പൊരുത്തപ്പെടുന്നില്ല.</string>
+	<string name="home_search_empty_text">\&apos;%1$s\&apos; എന്നതിനായുള്ള തിരയൽ യാതൊരു സമ്പർക്കവുമായും പൊരുത്തപ്പെടുന്നില്ല.</string>
     <string name="voip_mic_error">മൈക്ക് ആരംഭിക്കാൻ കഴിയില്ല. ഈ കോൾ പ്രവർത്തിച്ചേക്കില്ല.</string>
     <string name="voip_call_failed_frag_subheader">നിങ്ങൾക്ക് ഇപ്പോഴും ഇനിപ്പറയുന്നത് ഉപയോഗിച്ച് %1$s-നെ ബന്ധപ്പെടാം</string>
     <string name="dismiss_upper_case">നിരാകരിക്കുക</string>
