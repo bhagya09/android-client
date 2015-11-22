@@ -108,6 +108,7 @@ public class HomeFtueActivity extends HikeAppStateBaseFragmentActivity {
     private void completeFtue()
     {
         IntentFactory.openHomeActivity(HomeFtueActivity.this, true);
+        this.finish();
     }
 
     private void refreshActionBar() {
