@@ -63,7 +63,7 @@ public class ChatHeadViewManager
 
 	private static final int INITIAL_POS_X = 0;
 
-	private static final int INITIAL_POS_Y = 0;
+	private static final int INITIAL_POS_Y = 200;
 
 	private static List<String> sharablePackageList = new ArrayList<String>();
 
