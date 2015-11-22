@@ -191,7 +191,16 @@ public class StealthModeManager
 
 	public void activate(boolean activate)
 	{
+		int oldState = currentState;
 		currentState = activate ? HikeConstants.STEALTH_ON : HikeConstants.STEALTH_OFF;
+		// Only on state change shall we remove the stealth bounce!!
+		// When the user moves inside stealth mode, then we assume he will read the stealth messages
+		// Similar is the case when the user exits the stealth mode even with unread stealth messages (received while he was inside stealth)
+		// We are making sure that bounce only happens when there are new stealth notifications later
+		if(oldState != currentState)
+		{
+			HikeSharedPreferenceUtil.getInstance().removeData(HikeConstants.STEALTH_INDICATOR_ENABLED);
+		}
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STEALTH_MODE, currentState);
 		HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_MODE_TOGGLED, null);
 	}
