@@ -469,7 +469,7 @@
     <string name="tap_to_hide_stealth_contacts">ചാറ്റുകൾ മറയ്ക്കാൻ</string>
     <string name="tap_text">ടാപ്പുചെയ്യുക</string>
     <string name="reset_stealth_confirmation">മറഞ്ഞിരിക്കുന്ന മോഡ് പുഃനക്രമീകരിക്കുന്നത് എല്ലാ ചാറ്റുകളും ഇല്ലാതാക്കും.\nപുഃനക്രമീകരിക്കണമെന്ന് ഉറപ്പാണോ?</string>
-    <string name="stealth_tap_and_hold_tip">ഒരു ചാറ്റ് \'മറച്ചത്\' ആക്കുന്നതിനായി ചാറ്റ് ടാപ്പുചെയ്ത് പിടിക്കുക.</string>
+    <string name="stealth_tap_and_hold_tip">ഒരു ചാറ്റ് \&apos;മറച്ചത്\&apos; ആക്കുന്നതിനായി ചാറ്റ് ടാപ്പുചെയ്ത് പിടിക്കുക.</string>
     <string name="mark_stealth">ചാറ്റ് മറച്ചതായി അടയാളപ്പെടുത്തുക</string>
     <string name="unmark_stealth">ചാറ്റ് ദൃശ്യമായി അടയാളപ്പെടുത്തുക</string>
     <string name="edit">എഡിറ്റുചെയ്യുക</string>
@@ -524,7 +524,7 @@
     <string name="native_sms_invite_1">എന്നെ hike മെസഞ്ചറിൽ ചേർക്കൂ!\n ഇത് ഇന്ത്യയിൽ ഉണ്ടാക്കിയിട്ടുള്ള ഏക സന്ദേശമയയ്ക്കൽ ആപ്പ് ആണ്! http://hike.in/ സന്ദർശിച്ച് ഇപ്പോൾ സ്വന്തമാക്കുക, ജീവിതം Hike അപ്പ് ചെയ്യുക</string>
     <string name="native_sms_invite_2">ഹായ്! hike മെസഞ്ചർ പരീക്ഷിക്കുക. ഡോക്സും PPT-കളും MP3-കളും മറ്റും അയയ്ക്കുക; ഓരോന്നും 100MB വരെ! http://hike.in/ സന്ദർശിച്ച് ഇപ്പോൾ സ്വന്തമാക്കുക, ജീവിതം Hike അപ്പ് ചെയ്യുക</string>
     <string name="native_sms_invite_3">ഹായ്, hike മെസഞ്ചർ പരീക്ഷിക്കുക. ഇതിൽ അത്ഭുതകരമായ സ്റ്റിക്കറുകളും അതിശയകരമായ ചാറ്റ് തീമുകളും ഉണ്ട്! http://hike.in സന്ദർശിച്ച് ഡൗൺലോഡ് ചെയ്യുക, ജീവിതം Hike അപ് ചെയ്യുക!</string>
-    <string name="native_sms_invite_4">ഹായ്, hike മെസഞ്ചർ പരീക്ഷിക്കുക. തിരഞ്ഞെടുത്ത സുഹൃത്തുക്കൾക്ക് മാത്രം \'അവസാനം കണ്ടത്\'കാണിക്കാൻ ഇത് നിങ്ങളെ അനുവദിക്കുന്നു! http://hike.in സന്ദർശിച്ച് ഡൗൺലോഡ് ചെയ്യുക, ജീവിതം Hike അപ് ചെയ്യുക!</string>
+    <string name="native_sms_invite_4">ഹായ്, hike മെസഞ്ചർ പരീക്ഷിക്കുക. തിരഞ്ഞെടുത്ത സുഹൃത്തുക്കൾക്ക് മാത്രം \&apos;അവസാനം കണ്ടത്\&apos;കാണിക്കാൻ ഇത് നിങ്ങളെ അനുവദിക്കുന്നു! http://hike.in സന്ദർശിച്ച് ഡൗൺലോഡ് ചെയ്യുക, ജീവിതം Hike അപ് ചെയ്യുക!</string>
     <string name="native_sms_invite_5">ഹായ്, hike മെസഞ്ചർ പരീക്ഷിക്കുക. ഇപ്പോൾ നിങ്ങൾക്ക് സ്വകാര്യ ചാറ്റുകൾ മറ്റുള്ളവരിൽ നിന്ന് മറയ്ക്കാം. http://hike.in സന്ദർശിച്ച് ഡൗൺലോഡ് ചെയ്യുക, ജീവിതം Hike അപ് ചെയ്യുക!</string>
     <string name="native_sms_invite_6">ഹായ്, hike മെസഞ്ചർ പരീക്ഷിക്കുക. ഓഫ്‌ലൈനിലുള്ള സുഹൃത്തുക്കളോടും നിങ്ങൾക്കിപ്പോൾ സംസാരിക്കാനാകും. http://hike.in സന്ദർശിച്ച് ഡൗൺലോഡ് ചെയ്യുക, ജീവിതം Hike അപ് ചെയ്യുക!</string>
     <string name="new_chat_tip_msg">കമ്പോസ് ചെയ്യാൻ ടാപ്പുചെയ്യുക</string>
@@ -637,7 +637,7 @@
     <string name="notificationSoundSummary">പുതിയ അറിയിപ്പിനായി ഒരു ശബ്ദം തിരഞ്ഞെടുക്കുക</string>
     <string name="hike_offline_notifications">Hike ഓഫ്‌ലൈൻ</string>
     <string name="h2o_notifications_setting_summary">ഓഫ്‌ലൈൻ സമ്പർക്കത്തിനായി SMS അയയ്ക്കാൻ അറിയിക്കുക.</string>
-    <string name="stealth_info_tip_subtext">പാസ്‌വേഡ് ഉപയോഗിച്ച് ചാറ്റുകൾ മറയ്ക്കുന്നതിനായി \'ഹായ്\'എന്നതിൽ ടാപ്പുചെയ്യുക.</string>
+    <string name="stealth_info_tip_subtext">പാസ്‌വേഡ് ഉപയോഗിച്ച് ചാറ്റുകൾ മറയ്ക്കുന്നതിനായി \&apos;ഹായ്\&apos;എന്നതിൽ ടാപ്പുചെയ്യുക.</string>
     <string name="file_attachment_info">100 MB വരെ ഡോക്ക്. pdf,&amp; മീഡിയ എന്നിവ പങ്കിടുക</string>
     <string name="status_text_notification">ഒരു അപ്‌ഡേറ്റ് %1$s പോസ്റ്റുചെയ്തു</string>
     <string name="shared_files">ഫയലുകൾ</string>
@@ -725,7 +725,7 @@
     <string name="shop_loading_failed_switch_on">മൊബൈൽ ഡാറ്റ അല്ലെങ്കിൽ Wi-Fi ഓണാക്കുക</string>
     <string name="singular_packs">%1$d പാക്ക്</string>
     <string name="singular_stickers">%1$d സ്റ്റിക്കർ</string>
-    <string name="conversation_empty">ചാറ്റ് ആരംഭിക്കാൻ \'<b>പുതിയ സന്ദേശം</b>\'എന്ന ഐക്കണിൽ ടാപ്പുചെയ്യുക</string>
+    <string name="conversation_empty">ചാറ്റ് ആരംഭിക്കാൻ \&apos;<b>പുതിയ സന്ദേശം</b>\&apos;എന്ന ഐക്കണിൽ ടാപ്പുചെയ്യുക</string>
     <string name="pack_visible">സ്റ്റിക്കർ പാലറ്റിൽ ദൃശ്യമാണ്</string>
     <string name="pack_hidden">സ്റ്റിക്കർ പാലറ്റിൽ നിന്നും മറച്ചത്</string>
     <string name="pack_rank">%1$d.</string>
@@ -882,10 +882,10 @@
     <string name="ls_my_contacts_summary">വിലാസ പുസ്തകത്തിലെ സമ്പർക്കങ്ങൾക്കും പ്രിയങ്കരങ്ങൾക്കും അവസാനം കണ്ടത് ദൃശ്യമാണ്</string>
     <string name="ls_favorites_summary">പ്രിയങ്കരങ്ങൾക്ക് മാത്രം അവസാനം കണ്ടത് ദൃശ്യമാണ്</string>
     <string name="ls_everyone_summary">hike-ലെ എല്ലാവർക്കും അവസാനം കണ്ടത് ദൃശ്യമാണ്</string>
-    <string name="ls_nobody_summary">ഓർമ്മിക്കുക: മറ്റാരുടെയും \'അവസാനം കണ്ടത്\' നിങ്ങൾക്ക് കാണാനാകില്ല</string>
+    <string name="ls_nobody_summary">ഓർമ്മിക്കുക: മറ്റാരുടെയും \&apos;അവസാനം കണ്ടത്\&apos; നിങ്ങൾക്ക് കാണാനാകില്ല</string>
     <string name="you_accepted_favorite_request_details">നല്ലത്! %1$s-ന് നിങ്ങളുടെ %2$s കാണാനാകും.</string>
-    <string name="accepted_your_favorite_request_details">നിങ്ങൾക്കിപ്പോൾ %1$s\'s %2$s കാണാനാകും</string>
-    <string name="favorite_confirmed_notification">നിങ്ങൾക്കിപ്പോൾ %1$s\'s %2$s കാണാനാകും</string>
+    <string name="accepted_your_favorite_request_details">നിങ്ങൾക്കിപ്പോൾ %1$s\&apos;s %2$s കാണാനാകും</string>
+    <string name="favorite_confirmed_notification">നിങ്ങൾക്കിപ്പോൾ %1$s\&apos;s %2$s കാണാനാകും</string>
     <string name="sent_favorite_request_tab">ഇപ്പോൾ %1$s പങ്കിടുന്നു. ഇതുപോലെ ചെയ്യാൻ നിങ്ങൾ ഇഷ്ടപ്പെടുന്നോ?</string>
     <string name="tap_plus_add_favorites">പ്രിയങ്കരങ്ങൾക്ക് മാത്രമേ നിങ്ങളുടെ %1$s കാണാനാകൂ. ബുദ്ധിപൂർവ്വം അവയെ തിരഞ്ഞെടുക്കുക.</string>
     <string name="add_fav_msg">ഇപ്പോൾ %1$s പങ്കിടുന്നു. ഇതുപോലെ ചെയ്യാൻ നിങ്ങൾ ഇഷ്ടപ്പെടുന്നോ?</string>
@@ -908,7 +908,7 @@
     <string name="stealth_notification_settings">അറിയിപ്പ് ക്രമീകരണം</string>
     <string name="stealth_reset_settings">കൂടുതൽ ക്രമീകരണം</string>
     <string name="enable_stealth_indicator">ഇൻഡിക്കേറ്റർ</string>
-    <string name="enable_stealth_indicator_body">വായിക്കാത്ത സന്ദേശങ്ങൾക്കായി ഹോം സ്ക്രീനിൽ \'ഹായ്\' ലോഗോ ബൗൺസ് ചെയ്യുക</string>
+    <string name="enable_stealth_indicator_body">വായിക്കാത്ത സന്ദേശങ്ങൾക്കായി ഹോം സ്ക്രീനിൽ \&apos;ഹായ്\&apos; ലോഗോ ബൗൺസ് ചെയ്യുക</string>
     <string name="enable_stealth_notification_body">മറഞ്ഞിരിക്കുന്ന ചാറ്റിൽ സന്ദേശം സ്വീകരിക്കുമ്പോൾ അറിയിക്കുക</string>
     <string name="enable_stealth_notification">അറിയിപ്പ്</string>
     <string name="stealth_msg_draw_an_unlock_pattern">പുതിയ പാസ്‌കോഡ് പാറ്റേൺ വരയ്ക്കുക</string>
