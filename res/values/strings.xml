@@ -73,16 +73,26 @@
     <string name="unlink_facebook_confirmation">Are you sure you want to unlink your facebook account from Hike?</string>
     <string name="unlink_twitter_confirmation">Are you sure you want to unlink your twitter account from Hike?</string>
     <string name="change_group_name">%1$s changed the group name.</string>
+    <string name="you_change_group_name">You changed the group name.</string>
     <string name="change_broadcast_name">%1$s changed the broadcast name.</string>
+    <string name="you_change_broadcast_name">You changed the broadcast name.</string>
     <string name="block_internation_sms">SMS can only be sent to India</string>
     <string name="block_internation_sms_bold_text">India</string>
     <string name="invite_via_sms">Invite via SMS</string>
     <string name="call_me_fail">Unable to call you. Please try again.</string>
     <string name="calling_you">Calling you now...</string>
     <string name="new_group_message">Group Chat with %1$s</string>
+    <string name="new_group_message_2">Group Chat with %1$s and %2$s</string>
+    <string name="new_group_message_multi">Group Chat with %1$s, %2$s and %3$d others</string>
     <string name="new_broadcast_message">Broadcast List with %1$s</string>
-    <string name="add_to_group_message">Added %1$s to the group</string>
+    <string name="new_broadcast_message_2">Broadcast List with %1$s and %2$s</string>
+    <string name="new_broadcast_message_multi">Broadcast List with %1$s, %2$s and %3$d others</string>
+    <string name="add_to_group_message">added %1$s</string>
+    <string name="add_to_group_message_2">added %1$s and %2$s</string>
+    <string name="add_to_group_message_multi">added %1$s, %2$s and %3$d others</string>
     <string name="add_to_broadcast_message">Added %1$s to the list</string>
+    <string name="add_to_broadcast_message_2">Added %1$s and %2$s to the list</string>
+    <string name="add_to_broadcast_message_multi">Added %1$s, %2$s and %3$d others to the list</string>
     <string name="intro_sms_thread">Send %1$s free SMS</string>
     <string name="hike_hike">hike to hike</string>
     <string name="free_worldwide">Free, worldwide!</string>
@@ -170,11 +180,16 @@
     <string name="location_disabled">Cannot fetch your location. Please check your settings.</string>
     <string name="tap_here_invite">Tap here to invite this person</string>
     <string name="change_group_image">%1$s changed the group image.</string>
+    <string name="you_change_group_image">You changed the group image.</string>
     <string name="faq">FAQs</string>
     <string name="gallery">Gallery</string>
     <string name="number_confirm_title">Confirm your number</string>
     <string name="birthday">Birthday</string>
     <string name="anniversary">Anniversary</string>
+    <string name="backup_account">Backup Account</string>
+    <string name="search_hint_text">Search...</string>
+    <string name="is_typing">is typing...</string>
+    <string name="are_typing">are typing...</string>
     <string name="other">Other</string>
     <string name="target_account">Save contact to this account</string>
     <string name="save">Save</string>
@@ -317,6 +332,7 @@
     <string name="select_all">Select all (%1$d)</string>
     <string name="deselect_all">Deselect all (%1$d)</string>
     <string name="chat_bg_changed">%1$s changed the chat theme</string>
+    <string name="you_chat_bg_changed">You changed the chat theme</string>
     <string name="chat_theme">Chat Theme</string>
     <string name="last_seen_today_ct">today, %1$s</string>
     <string name="last_seen_yesterday_ct">yesterday, %1$s</string>
@@ -596,6 +612,7 @@
     <string name="pin_history">Pin History</string>
     <string name="max_pin_unread_counter">9+</string>
     <string name="pin_text_hint">Share something important...</string>
+    <string name="you_posted_pin">You posted a pin</string>
     <string name="xyz_posted_pin">%1$s posted a pin</string>
     <string name="pinHistoryTutorialText">No pins yet</string>
     <string name="incorrect_msisdn_warning">Incorrect Number</string>
@@ -1019,7 +1036,9 @@
 	<string name="add_members">Add Members</string>
 	<string name="add_members_to_conference">Add To Conference</string>
 	<string name="created_group_text">You created the group chat</string>
-	<string name="group_member_added">added %1$s</string>
+	<string name="you_added_group_member">You added %1$s</string>
+	<string name="you_added_as_group_member">%1$s added you</string>
+	<string name="group_member_added">%1$s added %2$s</string>
 	<string name="num_members">%1$d members</string>
 	<string name="num_member">%1$d member</string>
 	<string name="profile_pic_upload_in_background">Profile picture upload will continue..</string>
@@ -1032,7 +1051,9 @@
 	<string name="make_admin">Make Admin</string>
 	<string name="admin_updating">Making %1$s an Admin</string>
 	<string name="admin_task_error">Connection error: Please check your network and try again.</string>
-	<string name="group_admin_updated">made %1$s an Admin</string>
+	<string name="you_updated_group_admin">You made %1$s an Admin</string>
+	<string name="you_updated_as_group_admin">%1$s made you an admin</string>
+	<string name="group_admin_updated">%1$s made %2$s an Admin</string>
 	<string name="group_setting_option_only_admin">Only Admins can add members</string>
 	<string name="group_setting_updating">Changing group privacy settings</string>
 	<string name="group_setting_confirmation1">Allow everyone to add members?</string>
@@ -1280,5 +1301,7 @@
     <string name="user_gps_off">Hike Direct cannot work till your location is enabled.</string>
     <string name="no_results_found">No results found</string>
     <string name="APPLY">APPLY</string>
-
+	<string name="level">Level</string>
+	<string name="milliseconds">ms</string>
+	<string name="and"> and </string>
 </resources>
