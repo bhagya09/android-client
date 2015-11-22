@@ -26,10 +26,10 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
-import com.bsb.hike.chatHead.OnSwipeTouchListener;
 import com.bsb.hike.modules.kpt.KptKeyboardManager;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.OnSwipeTouchListenerFtue;
 import com.kpt.adaptxt.beta.KPTAddonItem;
 
 import java.util.ArrayList;
@@ -562,7 +562,7 @@ public class KeyboardFtue implements HikePubSub.Listener
     }
 
 
-	OnSwipeTouchListener onSwipeTouchListener = new OnSwipeTouchListener(HikeMessengerApp.getInstance().getApplicationContext())
+	OnSwipeTouchListenerFtue onSwipeTouchListener = new OnSwipeTouchListenerFtue(HikeMessengerApp.getInstance().getApplicationContext())
 	{
 		public void onSwipeRight()
 		{
