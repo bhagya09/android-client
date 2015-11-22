@@ -1167,7 +1167,7 @@ import android.widget.Toast;
 		listOverFlow.add(new OverFlowMenuItem(getString(R.string.hide_chat), 0, 0, R.string.hide_chat));
 		listOverFlow.add(new OverFlowMenuItem(getString(R.string.clear_chat), 0, 0, true, R.string.clear_chat));
 		listOverFlow.add(new OverFlowMenuItem(getString(R.string.email_chat), 0, 0, true, R.string.email_chat));
-		if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CHANGE_KEYBOARD_CHAT_ENABLED, true))
+		if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CHANGE_KEYBOARD_CHAT_ENABLED, true) && HikeMessengerApp.isCustomKeyboardEnabled())
 			listOverFlow.add(new OverFlowMenuItem(getString(isSystemKeyboard()?R.string.hike_keyboard:R.string.system_keyboard), 0, 0, R.string.hike_keyboard));
 
 		return listOverFlow;
