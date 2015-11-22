@@ -662,6 +662,7 @@ public class GroupChatThread extends OneToNChatThread
 
 	private void showPinCreateView(String pinText)
 	{
+		removeKeyboardFtueIfShowing();
 		if (mActionMode.whichActionModeIsOn() == PIN_CREATE_ACTION_MODE)
 		{
 			return;

@@ -1629,6 +1629,7 @@ import android.widget.Toast;
 	public boolean onBackPressed()
 	{
 		mShareablePopupLayout.onBackPressed();
+		removeKeyboardFtueIfShowing();
 
 		if(handleImageFragmentBackPressed()){
 			return true;
@@ -1656,7 +1657,6 @@ import android.widget.Toast;
 			return true;
 		}
 		mCustomKeyboard.closeAnyDialogIfShowing();
-		removeKeyboardFtueIfShowing();
 
 		if (mActionMode.isActionModeOn())
 		{
@@ -1831,6 +1831,7 @@ import android.widget.Toast;
 	
 	protected void setupSearchMode(String text)
 	{
+		removeKeyboardFtueIfShowing();
 		searchText = text;
 		if (!sharedPreference.getData(HikeMessengerApp.CT_SEARCH_CLICKED, false))
 		{
@@ -3644,7 +3645,7 @@ import android.widget.Toast;
 		currentFirstVisibleItem = firstVisibleItem;
 	}
 
-	private void removeKeyboardFtueIfShowing()
+	protected void removeKeyboardFtueIfShowing()
 	{
 		if (keyboardFtue.isShowing())
 			keyboardFtue.destroy();
@@ -3656,6 +3657,7 @@ import android.widget.Toast;
 		{
 			activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 			keyboardFtue.showNextFtue();
+			Utils.hideSoftKeyboard(activity, mComposeView);
 		}
 	}
 
@@ -6005,7 +6007,6 @@ import android.widget.Toast;
 
 	protected void showOverlay(String label, String formatString, String overlayBtnText, SpannableString str, int drawableResId, int viewTag)
 	{
-		Utils.hideSoftKeyboard(activity.getApplicationContext(), mComposeView);
 		hideKeyboard();
 
 		View mOverlayLayout = activity.findViewById(R.id.overlay_layout);
@@ -6300,11 +6301,10 @@ import android.widget.Toast;
 
 	private void changeKeyboard(boolean systemKeyboard)
 	{
+		hideKeyboard();
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SYSTEM_KEYBOARD_SELECTED, systemKeyboard);
-		
 		if (systemKeyboard)
 		{
-			hideKptKeyboard();
 			mCustomKeyboard.swtichToDefaultKeyboard(mComposeView);
 			mCustomKeyboard.unregister(R.id.msg_compose);
 			resetSharablePopup();
@@ -6328,7 +6328,6 @@ import android.widget.Toast;
 			setEditTextListeners();
 		}
 		HikeMessengerApp.getPubSub().publish(HikePubSub.KEYBOARD_SWITCHED,null);
-
 		StickerSearchManager.getInstance().inputMethodChanged(StickerSearchUtils.getCurrentLanguageISOCode());
 	}
 	
