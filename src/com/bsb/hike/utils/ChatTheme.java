@@ -566,7 +566,7 @@ public enum ChatTheme
 		@Override
 		public int bubbleColor()
 		{
-			return R.color.bubble_love_floral_kisses_valentines_girly_ipl_blurredlight_love2;
+			return R.color.bubble_rain2; //AND-2793
 		}
 
 		@Override
