@@ -6305,6 +6305,7 @@ import android.widget.Toast;
 		
 		if (systemKeyboard)
 		{
+			removeKeyboardFtueIfShowing();
 			hideKptKeyboard();
 			mCustomKeyboard.swtichToDefaultKeyboard(mComposeView);
 			mCustomKeyboard.unregister(R.id.msg_compose);
