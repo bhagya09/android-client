@@ -1831,6 +1831,7 @@ import android.widget.Toast;
 	
 	protected void setupSearchMode(String text)
 	{
+		removeKeyboardFtueIfShowing();
 		searchText = text;
 		if (!sharedPreference.getData(HikeMessengerApp.CT_SEARCH_CLICKED, false))
 		{
@@ -3644,7 +3645,7 @@ import android.widget.Toast;
 		currentFirstVisibleItem = firstVisibleItem;
 	}
 
-	private void removeKeyboardFtueIfShowing()
+	protected void removeKeyboardFtueIfShowing()
 	{
 		if (keyboardFtue.isShowing())
 			keyboardFtue.destroy();
