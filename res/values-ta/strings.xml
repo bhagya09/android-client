@@ -499,7 +499,7 @@
     <string name="delete_leave">அழித்து விட்டு குரூப்பை விட்டு வெளியேறு</string>
     <string name="broadcast_participant_info"><![CDATA[<font color=\"#848484\"><b>குறிப்பு: </b>இந்த புரோட்காஸ்ட்டை தம் அட்ரெஸ் புக்கில் %1$s உடனுள்ள Hike தொடர்புகள் மட்டுமே பெற்றுக் கொள்வார்கள்.</font>]]></string>
     <string name="confirm_delete_chat_msg">%1$s உடனான சேட்-ஐ அழிக்கவும் </string>
-    <string name="confirm_delete_group_msg">அழித்து விட்டு \'%1$s\'குரூப்பை விட்டு வெளியேறு</string>
+    <string name="confirm_delete_group_msg">அழித்து விட்டு \&apos;%1$s\&apos;குரூப்பை விட்டு வெளியேறு</string>
     <string name="email_chat">சேட்-ஐ ஈமெயில் செய்க</string>
     <string name="change_keyboard">கீபோர்டை மாற்றுக</string>
     <string name="clear_chat">சேட்டை கிளியர் செய்க</string>
