@@ -1629,6 +1629,7 @@ import android.widget.Toast;
 	public boolean onBackPressed()
 	{
 		mShareablePopupLayout.onBackPressed();
+		removeKeyboardFtueIfShowing();
 
 		if(handleImageFragmentBackPressed()){
 			return true;
@@ -1656,7 +1657,6 @@ import android.widget.Toast;
 			return true;
 		}
 		mCustomKeyboard.closeAnyDialogIfShowing();
-		removeKeyboardFtueIfShowing();
 
 		if (mActionMode.isActionModeOn())
 		{
