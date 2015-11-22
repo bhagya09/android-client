@@ -3656,6 +3656,7 @@ import android.widget.Toast;
 		{
 			activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 			keyboardFtue.showNextFtue();
+			Utils.hideSoftKeyboard(activity, mComposeView);
 		}
 	}
 
@@ -6005,7 +6006,6 @@ import android.widget.Toast;
 
 	protected void showOverlay(String label, String formatString, String overlayBtnText, SpannableString str, int drawableResId, int viewTag)
 	{
-		Utils.hideSoftKeyboard(activity.getApplicationContext(), mComposeView);
 		hideKeyboard();
 
 		View mOverlayLayout = activity.findViewById(R.id.overlay_layout);
