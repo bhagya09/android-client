@@ -847,7 +847,7 @@
     <string name="photo_dp_save_error_sub">Toca para intentarlo de nuevo</string>
     <string name="photo_gallery_choose_pic">Selecciona una foto</string>
     <string name="cropping_image">Recortando imagen...</string>
-	<string name="home_search_empty_text">No se ha encontrado ningún resultado para la búsqueda \"%1$s\".</string>
+	<string name="home_search_empty_text">No se ha encontrado ningún resultado para la búsqueda \'%1$s\'.</string>
     <string name="voip_mic_error">No se puede activar el micrófono. Es posible que la llamada no pueda realizarse.</string>
     <string name="voip_call_failed_frag_subheader">Aún así, puedes contactar con %1$s mediante</string>
     <string name="dismiss_upper_case">OCULTAR</string>

@@ -1848,6 +1848,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 						fileHolder.avatarContainer = (ViewGroup) v.findViewById(R.id.avatar_container);
 						fileHolder.messageContainer = (ViewGroup) v.findViewById(R.id.message_container);
 						fileHolder.dayStub = (ViewStub) v.findViewById(R.id.day_stub);
+						fileHolder.senderDetails.getLayoutParams().width = context.getResources().getDisplayMetrics().widthPixels/2;
 						v.setTag(fileHolder);
 					}
 				}
@@ -4236,14 +4237,16 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 
 		if (statusMessage.hasMood())
 		{
-			statusHolder.image.setBackgroundDrawable(null);
-			statusHolder.image.setImageResource(EmoticonConstants.moodMapping.get(statusMessage.getMoodId()));
-			statusHolder.avatarFrame.setVisibility(View.GONE);
+                        // Begin : AND-2433
+		        statusHolder.avatarFrame.setImageResource(EmoticonConstants.moodMapping.get(statusMessage.getMoodId()));
+			statusHolder.avatarFrame.setVisibility(View.VISIBLE);
+			statusHolder.image.setVisibility(View.GONE);
+                        // End : AND-2433
 		}
 		else
 		{
 			setAvatar(conversation.getMsisdn(), statusHolder.image);
-			statusHolder.avatarFrame.setVisibility(View.VISIBLE);
+			statusHolder.avatarFrame.setVisibility(View.GONE); //AND-2433
 		}
 
 		statusHolder.container.setTag(convMessage);
