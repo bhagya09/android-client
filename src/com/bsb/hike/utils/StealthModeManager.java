@@ -9,6 +9,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.Activity;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 
@@ -147,10 +149,25 @@ public class StealthModeManager
 	
 	public void setUp(boolean isSetUp)
 	{
-		 HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STEALTH_MODE_SETUP_DONE, isSetUp);
-		 if(!isSetUp)
-		 {
-			 activate(false);
+		HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STEALTH_MODE_SETUP_DONE, isSetUp);
+
+		if (!isSetUp)
+		{
+			activate(false);
+		}
+		else
+		{
+			 SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(HikeMessengerApp.getInstance().getApplicationContext());
+			 Editor defShrdPrfEdtr = sharedPrefs.edit();
+			 if(!sharedPrefs.contains(HikeConstants.STEALTH_INDICATOR_ENABLED))
+			 {
+				 defShrdPrfEdtr.putBoolean(HikeConstants.STEALTH_INDICATOR_ENABLED, true);
+			 }
+			 if(!sharedPrefs.contains(HikeConstants.STEALTH_NOTIFICATION_ENABLED))
+			 {
+				 defShrdPrfEdtr.putBoolean(HikeConstants.STEALTH_NOTIFICATION_ENABLED, true);
+			 }
+			 defShrdPrfEdtr.commit();
 		}
 		JSONObject metadata = new JSONObject();
 		try
