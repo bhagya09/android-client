@@ -498,8 +498,8 @@
     <string name="add_to_contacts">পরিচিতিসমূহ-এ যোগ করুন</string>
     <string name="delete_leave">গ্রুপ মুছে দিন এবং প্রস্থান করুন</string>
     <string name="broadcast_participant_info"><![CDATA[<font color=\"#848484\"><b>দ্রষ্টব্য: </b>এই ঠিকানা পুস্তিকায় থাকা %1$s পরিচিতিরা কেবল আপনার ব্রডকাস্ট মেসেজ পাবে।</font>]]></string>
-    <string name="confirm_delete_chat_msg">\”%1$S\” এর সঙ্গে চ্যাট মুছবেন? </string>
-    <string name="confirm_delete_group_msg">\”%1$S\” গ্রুপ মুছবেন ও প্রস্থান করবেন?</string>
+    <string name="confirm_delete_chat_msg">\"%1$s\" এর সঙ্গে চ্যাট মুছবেন? </string>
+    <string name="confirm_delete_group_msg">\"%1$s\" গ্রুপ মুছবেন ও প্রস্থান করবেন?</string>
     <string name="email_chat">চ্যাট ইমেল করুন</string>
     <string name="change_keyboard">কীবোর্ড পরিবর্তন করুন</string>
     <string name="clear_chat">চ্যাট সাফ করুন</string>
