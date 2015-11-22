@@ -281,7 +281,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		Logger.d(getClass().getSimpleName(),"onCreate "+this.getClass().getSimpleName());
 		showProductPopup(ProductPopupsConstants.PopupTriggerPoints.HOME_SCREEN.ordinal());
 		
-		if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STEALTH_INDICATOR_ENABLED, false))
+		if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STEALTH_INDICATOR_SHOW_REPEATED, false))
 		{
 			HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_INDICATOR, null);
 		}

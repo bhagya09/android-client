@@ -216,7 +216,7 @@ public class StealthModeManager
 		// We are making sure that bounce only happens when there are new stealth notifications later
 		if(oldState != currentState)
 		{
-			HikeSharedPreferenceUtil.getInstance().removeData(HikeConstants.STEALTH_INDICATOR_ENABLED);
+			HikeSharedPreferenceUtil.getInstance().removeData(HikeConstants.STEALTH_INDICATOR_SHOW_REPEATED);
 		}
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STEALTH_MODE, currentState);
 		HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_MODE_TOGGLED, null);
