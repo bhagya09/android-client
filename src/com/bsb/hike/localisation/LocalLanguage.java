@@ -8,6 +8,7 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.modules.kpt.KptKeyboardManager;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.Logger;
 import com.kpt.adaptxt.beta.KPTAddonItem;
 
 import java.util.ArrayList;
@@ -47,6 +48,8 @@ public class LocalLanguage {
 
     private static ArrayList<LocalLanguage> deviceSupportedHikeList;
 
+    private static boolean sorted=false;
+
     public LocalLanguage(String languageName, String locale) {
         this.name = languageName;
         this.locale = locale;
@@ -85,9 +88,7 @@ public class LocalLanguage {
         return hikeSupportedList;
     }
 
-    public static List<LocalLanguage> getDeviceSupportedHikeLanguages(Context context)
-    {
-        if (deviceSupportedHikeList == null)
+    public static void refreshdeviceSupportedHikeList(Context context){
         {
             ArrayList<KPTAddonItem> deviceSupportedkptLanguages = KptKeyboardManager.getInstance(context).getSupportedLanguagesList();
             HashSet<String> supportedLocaleSet = new HashSet<>();
@@ -104,6 +105,10 @@ public class LocalLanguage {
                     deviceSupportedHikeList.add(item);
             }
         }
+    }
+    public static List<LocalLanguage> getDeviceSupportedHikeLanguages(Context context)
+    {
+        refreshdeviceSupportedHikeList(context);
         return deviceSupportedHikeList;
     }
 

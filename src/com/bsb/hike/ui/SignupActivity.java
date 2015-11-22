@@ -519,6 +519,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 				JSONObject sessionDataObject = HAManager.getInstance().recordAndReturnSessionStart();
 				Utils.sendSessionMQTTPacket(SignupActivity.this, HikeConstants.FOREGROUND, sessionDataObject);
 				Utils.appStateChanged(getApplicationContext(), false, false, false, true, false);
+				LocalLanguageUtils.requestLanguageOrderListFromServer();
 			}
 			else if (mCurrentState != null && mCurrentState.value != null && mCurrentState.value.equals(HikeConstants.CHANGE_NUMBER))
 			{
