@@ -6301,10 +6301,12 @@ import android.widget.Toast;
 
 	private void changeKeyboard(boolean systemKeyboard)
 	{
-		hideKeyboard();
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SYSTEM_KEYBOARD_SELECTED, systemKeyboard);
+		
 		if (systemKeyboard)
 		{
+			removeKeyboardFtueIfShowing();
+			hideKptKeyboard();
 			mCustomKeyboard.swtichToDefaultKeyboard(mComposeView);
 			mCustomKeyboard.unregister(R.id.msg_compose);
 			resetSharablePopup();
@@ -6328,6 +6330,7 @@ import android.widget.Toast;
 			setEditTextListeners();
 		}
 		HikeMessengerApp.getPubSub().publish(HikePubSub.KEYBOARD_SWITCHED,null);
+
 		StickerSearchManager.getInstance().inputMethodChanged(StickerSearchUtils.getCurrentLanguageISOCode());
 	}
 	
