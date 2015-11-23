@@ -1014,7 +1014,7 @@
 	<string name="add_members">सदस्य जोड़ें</string>
 	<string name="add_members_to_conference">कॉन्फ़्रेंस में जोड़ें</string>
 	<string name="created_group_text">आपने ग्रुप चैट बनाया है</string>
-	<string name="group_member_added">%1$s जोड़ा गया</string>
+	<string name="group_member_added">%1$s ने %2$s को जोडा</string>
 	<string name="num_members">%1$d सदस्य</string>
 	<string name="num_member">%1$d सदस्य</string>
 	<string name="profile_pic_upload_in_background">प्रोफ़ाइल चित्र का अपलोड होना जारी रहेगा..</string>
