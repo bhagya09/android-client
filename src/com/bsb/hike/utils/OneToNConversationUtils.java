@@ -129,7 +129,7 @@ public class OneToNConversationUtils
 			SharedPreferences preferences = context.getSharedPreferences(
 					HikeMessengerApp.ACCOUNT_SETTINGS, context.MODE_PRIVATE);
 
-			participantAddedMessage = Utils.createStringWithNames(context, groupAdder, highlight, R.string.you_updated_group_admin, R.string.you_updated_as_group_admin, R.string.group_admin_updated);
+			Utils.createStringWithNames(context, groupAdder, highlight, R.string.you_updated_group_admin, R.string.you_updated_as_group_admin, R.string.group_admin_updated);
 		}
 
 		return participantAddedMessage;
