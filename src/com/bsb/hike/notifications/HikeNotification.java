@@ -53,6 +53,7 @@ import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.Protip;
 import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.notifications.refactor.badge.HikeBadgeCountManager;
 import com.bsb.hike.timeline.model.ActionsDataModel.ActionTypes;
 import com.bsb.hike.timeline.model.ActionsDataModel.ActivityObjectTypes;
 import com.bsb.hike.timeline.model.FeedDataModel;
@@ -83,6 +84,8 @@ public class HikeNotification
 	public static final int FREE_SMS_POPUP_NOTIFICATION_ID = -89;
 
 	public static final int APP_UPDATE_AVAILABLE_ID = -90;
+	
+	public static final int PERSISTENT_NOTIF_ID = -93;
 
 	public static final int STEALTH_NOTIFICATION_ID = -89;
 
@@ -91,6 +94,8 @@ public class HikeNotification
 	public static final int HIKE_TO_OFFLINE_PUSH_NOTIFICATION_ID = -89;
 
 	public static final int VOIP_MISSED_CALL_NOTIFICATION_ID = -89;
+	
+	public static final String NOTIF_ALARM_INTENT = "com.bsb.hike.PERS_NOTIF_ALARM_INTENT";
 
 	// We need a constant notification id for bulk/big text notifications. Since
 	// we are using msisdn for other single notifications, it is safe to use any
@@ -100,6 +105,8 @@ public class HikeNotification
 	public static final int TICKER_TEXT_MAX_LENGHT = 100;
 	
 	public static final int OFFLINE_REQUEST_ID = -91;
+	
+	public static final int NOTIFICATION_PRODUCT_POPUP = -92;
 	// We need a key to pair notification id. This will be used to retrieve notification id on notification dismiss/action.
 	public static final String HIKE_NOTIFICATION_ID_KEY = "hike.notification";
 
@@ -127,15 +134,17 @@ public class HikeNotification
 	private static HikeNotification hikeNotificationInstance=new HikeNotification();
 	
 	private static long lastNotificationPlayedTimeForOneToOne;
+	
+	private static HikeBadgeCountManager mBadgeCountManager;
 
-
+	
 	private HikeNotification()
 	{
 		this.context = HikeMessengerApp.getInstance().getApplicationContext();
 		this.notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 		this.sharedPreferences = context.getSharedPreferences(HikeMessengerApp.STATUS_NOTIFICATION_SETTING, 0);
 		this.hikeNotifMsgStack = HikeNotificationMsgStack.getInstance();
-		
+		this.mBadgeCountManager=new HikeBadgeCountManager();
 
 		if (VIB_DEF == null)
 		{
@@ -329,6 +338,40 @@ public class HikeNotification
 			notifyNotification(notificationId, mBuilder);
 		}
 		// TODO:: we should reset the gaming download message from preferences
+	}
+	
+	public void notifyPersistentUpdate(String notifTitle, String message, String actionText, String laterText, Uri url, Long alarmInterval)
+	{
+		message = (TextUtils.isEmpty(message)) ? context.getString(R.string.pers_notif_message) : message;
+		notifTitle = !TextUtils.isEmpty(notifTitle) ? notifTitle : context.getString(R.string.pers_notif_title);
+		actionText = (TextUtils.isEmpty(actionText)) ? context.getString(R.string.tip_and_notif_update_text) : actionText;
+		laterText = (TextUtils.isEmpty(laterText)) ? context.getString(R.string.tip_and_notif_later_text) : laterText;
+		final int smallIconId = returnSmallIcon();	
+		NotificationCompat.Builder mBuilder = getNotificationBuilder(notifTitle, message, message, null, smallIconId, true, true, false);
+		mBuilder.setAutoCancel(false);
+		mBuilder.setOngoing(true);
+		mBuilder.setStyle(new NotificationCompat.BigTextStyle().bigText(message));
+		HikeSharedPreferenceUtil settingPref = HikeSharedPreferenceUtil.getInstance();
+		settingPref.saveData(HikeConstants.PERSISTENT_NOTIF_MESSAGE, message);
+		settingPref.saveData(HikeConstants.PERSISTENT_NOTIF_TITLE, notifTitle);
+		settingPref.saveData(HikeConstants.PERSISTENT_NOTIF_ACTION, actionText);
+		settingPref.saveData(HikeConstants.PERSISTENT_NOTIF_LATER, laterText);
+		settingPref.saveData(HikeConstants.PERSISTENT_NOTIF_URL, url.toString());
+		settingPref.saveData(HikeConstants.PERSISTENT_NOTIF_ALARM, alarmInterval);
+
+		Intent intent = new Intent(Intent.ACTION_VIEW, url);
+		mBuilder.setContentIntent(PendingIntent.getActivity(context, 0, intent, 0));
+		
+		Intent laterIntent = new Intent(NOTIF_ALARM_INTENT);
+		
+		mBuilder.addAction(R.drawable.ic_clock_later, laterText, PendingIntent.getBroadcast(context, 0, laterIntent, 0))
+				.addAction(R.drawable.ic_downloaded_tick, actionText, PendingIntent.getActivity(context, 0, intent, 0));
+		
+		if (!sharedPreferences.getBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false) && !settingPref.getData(HikeConstants.IS_HIKE_APP_FOREGROUNDED, false))
+		{
+			int notificationId = PERSISTENT_NOTIF_ID;
+			notifyNotification(notificationId, mBuilder);
+		}
 	}
 
 	public void notifyMessage(final ContactInfo contactInfo, final ConvMessage convMsg, boolean isRich, Bitmap bigPictureImage, int notificationType)
@@ -1065,6 +1108,32 @@ public class HikeNotification
 			Logger.e("HikeNotification", "Exception while clearing notification from notication panel", e);
 		}
 	}
+	
+	public void checkAndShowUpdateNotif()
+	{
+		HikeSharedPreferenceUtil settingPref = HikeSharedPreferenceUtil.getInstance();
+		if(settingPref.getData(HikeConstants.SHOULD_SHOW_PERSISTENT_NOTIF, false) && !settingPref.getData(HikeConstants.IS_PERS_NOTIF_ALARM_SET, false))
+		{
+			if(Utils.isUpdateRequired(settingPref.getData(HikeConstants.Extras.LATEST_VERSION, ""), context))
+			{
+				Logger.d(HikeConstants.UPDATE_TIP_AND_PERS_NOTIF_LOG, "Recreating persistent notif for target version:"+settingPref.getData(HikeConstants.Extras.LATEST_VERSION, ""));
+				String message = settingPref.getData(HikeConstants.PERSISTENT_NOTIF_MESSAGE, context.getResources().getString(R.string.pers_notif_message));
+				String title = settingPref.getData(HikeConstants.PERSISTENT_NOTIF_TITLE, context.getResources().getString(R.string.pers_notif_title));
+				String action = settingPref.getData(HikeConstants.PERSISTENT_NOTIF_ACTION, context.getResources().getString(R.string.tip_and_notif_update_text));
+				String later = settingPref.getData(HikeConstants.PERSISTENT_NOTIF_LATER, context.getResources().getString(R.string.tip_and_notif_later_text));
+				Uri url = Uri.parse(settingPref.getData(HikeConstants.PERSISTENT_NOTIF_URL, "market://details?id=" + context.getPackageName()));
+				Long interval = settingPref.getData(HikeConstants.PERSISTENT_NOTIF_ALARM, HikeConstants.PERS_NOTIF_ALARM_DEFAULT);
+				notifyPersistentUpdate(title, message,action, later, url, interval);
+			}
+		}
+		
+	}
+	
+	public void cancelPersistNotif()
+	{
+		Logger.d(HikeConstants.UPDATE_TIP_AND_PERS_NOTIF_LOG, "Removing Persistent Notif.");
+		cancelNotification(PERSISTENT_NOTIF_ID);
+	}
 
 	private void showInboxStyleNotification(final Intent notificationIntent, final int icon, final long timestamp, final int notificationId, final CharSequence text,
 			final String key, final String message, final String msisdn, String subMessage, Drawable argAvatarDrawable, List<SpannableString> inboxLines, boolean shouldNotPlaySound, int retryCount,boolean isSilentNotification)
@@ -1543,7 +1612,7 @@ public class HikeNotification
 	public  void notifyUserAndOpenHomeActivity(String text, String title, boolean shouldNotPlaySound)
 	{
 		Intent intent=Utils.getHomeActivityIntent(context);
-		showBigTextStyleNotification(intent, 0, System.currentTimeMillis(), HikeNotification.HIKE_SUMMARY_NOTIFICATION_ID, title, text,
+		showBigTextStyleNotification(intent, 0, System.currentTimeMillis(), HikeNotification.NOTIFICATION_PRODUCT_POPUP, title, text,
 				title, "", null, null, shouldNotPlaySound, 0);
 	}
 

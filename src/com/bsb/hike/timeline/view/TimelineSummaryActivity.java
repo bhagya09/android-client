@@ -712,10 +712,15 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 		TextView contactStatus = (TextView) contactInfoContainer.findViewById(R.id.contact_status);
 
 		//Get contact info
+		String name = ""; //Safety
 		ContactInfo contactInfo = ContactManager.getInstance().getContact(mStatusMessage.getMsisdn(), true,  false);
 
-		// Check if this guy has a saved name
-		String name = contactInfo.getName();
+		//Temporary fix for AND-3324
+		if(!Utils.isSelfMsisdn(mStatusMessage.getMsisdn()))
+		{
+			// Check if this guy has a saved name
+			name = contactInfo.getName();
+		}
 
 		try
 		{

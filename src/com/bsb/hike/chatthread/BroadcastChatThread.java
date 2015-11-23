@@ -218,7 +218,7 @@ public class BroadcastChatThread extends OneToNChatThread
 		/* the user must have deleted the chat. */
 		Message message = Message.obtain();
 		message.what = SHOW_TOAST;
-		message.arg1 = R.string.invalid_broadcast_list;
+		message.obj = R.string.invalid_broadcast_list;
 		uiHandler.sendMessage(message);
 
 		startHomeActivity();

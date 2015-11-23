@@ -566,6 +566,18 @@ public class ConversationsAdapter extends BaseAdapter
 			{
 				List<List<ConvInfo>> resultList = new ArrayList<List<ConvInfo>>();
 				resultList.add(conversationList);
+
+				boolean stealthInactive = !StealthModeManager.getInstance().isActive();
+				Iterator<ConvInfo> convListIterator = resultList.get(0).iterator();
+				while(convListIterator.hasNext())
+				{
+					ConvInfo conv = convListIterator.next();
+					if(conv.isStealth() && stealthInactive)
+					{
+						convListIterator.remove();
+					}
+				}
+
 				results.values = resultList;
 			}
 			results.count = 1;
@@ -906,7 +918,7 @@ public class ConversationsAdapter extends BaseAdapter
 		boolean isNuxLocked = NUXManager.getInstance().getCurrentState() == NUXConstants.NUX_IS_ACTIVE && NUXManager.getInstance().isContactLocked(message.getMsisdn());
 		unreadIndicator.setVisibility(View.GONE);
 		imgStatus.setVisibility(View.GONE);
-		
+
 		if (!isNuxLocked && (message.getParticipantInfoState() == ParticipantInfoState.VOIP_CALL_SUMMARY ||
 				message.getParticipantInfoState() == ParticipantInfoState.VOIP_MISSED_CALL_INCOMING ||
 						message.getParticipantInfoState() == ParticipantInfoState.VOIP_MISSED_CALL_OUTGOING))
@@ -939,12 +951,17 @@ public class ConversationsAdapter extends BaseAdapter
 			}
 			
 			messageView.setText(messageText);
-			if (message.getState() == ConvMessage.State.RECEIVED_UNREAD && (message.getTypingNotification() == null) && convInfo.getUnreadCount() > 0 && !message.isSent())
+			if (message.getState() == ConvMessage.State.RECEIVED_UNREAD
+					&& (message.getTypingNotification() == null)
+					&& convInfo.getUnreadCount() > 0
+					&& !message.isSent()
+					|| (message.getParticipantInfoState() == ParticipantInfoState.VOIP_CALL_SUMMARY && message.getMetadata() != null && !message.getMetadata().isVoipInitiator() && convInfo
+							.getUnreadCount() > 0))
 			{
-					unreadIndicator.setVisibility(View.VISIBLE);
-					unreadIndicator.setBackgroundResource(R.drawable.ic_messagecounter);
-					String unreadCountString = convInfo.getUnreadCountString();
-					unreadIndicator.setText(unreadCountString);
+				unreadIndicator.setVisibility(View.VISIBLE);
+				unreadIndicator.setBackgroundResource(R.drawable.ic_messagecounter);
+				String unreadCountString = convInfo.getUnreadCountString();
+				unreadIndicator.setText(unreadCountString);
 			}
 
 			imgStatus.setImageResource(imageId);
@@ -954,7 +971,7 @@ public class ConversationsAdapter extends BaseAdapter
 		/*
 		 * If the message is a status message, we only show an indicator if the status of the message is unread.
 		 */
-		else if (isNuxLocked || message.getParticipantInfoState() != ParticipantInfoState.STATUS_MESSAGE || message.getState() == State.RECEIVED_UNREAD)
+		else if (isNuxLocked || convInfo.getUnreadCount() > 0 || message.getState() == State.RECEIVED_UNREAD)
 		{
 
 			if (message.isSent())
@@ -965,12 +982,19 @@ public class ConversationsAdapter extends BaseAdapter
 				setImgStatusPadding(imgStatus, drawableResId);
 			}
 
-			if (message.getState() == ConvMessage.State.RECEIVED_UNREAD && (message.getTypingNotification() == null) && convInfo.getUnreadCount() > 0 && !message.isSent())
+			//AND-3159: updating unread counter, when the last message is a status message but there are some unread messages
+			if (message.getState() == ConvMessage.State.RECEIVED_UNREAD
+					&& (message.getTypingNotification() == null)
+					&& convInfo.getUnreadCount() > 0
+					&& !message.isSent()
+					|| (message.getParticipantInfoState() == ParticipantInfoState.VOIP_CALL_SUMMARY && message.getMetadata() != null && !message.getMetadata().isVoipInitiator() && convInfo
+					.getUnreadCount() > 0) || (message.getParticipantInfoState() == ParticipantInfoState.STATUS_MESSAGE &&
+							message.getMetadata() != null && convInfo.getUnreadCount() > 0))
 			{
-					unreadIndicator.setVisibility(View.VISIBLE);
-					unreadIndicator.setBackgroundResource(R.drawable.ic_messagecounter);
-					String unreadCountString = convInfo.getUnreadCountString();
-					unreadIndicator.setText(unreadCountString);
+				unreadIndicator.setVisibility(View.VISIBLE);
+				unreadIndicator.setBackgroundResource(R.drawable.ic_messagecounter);
+				String unreadCountString = convInfo.getUnreadCountString();
+				unreadIndicator.setText(unreadCountString);
 			}
 			// Using this to differentiate the normal chat and Offline Chat
 			if(isNuxLocked)
@@ -1320,7 +1344,7 @@ public class ConversationsAdapter extends BaseAdapter
 			{
 				conversationsMsisdns.remove(conv.getMsisdn());
 			}
-			if (phoneBookContacts != null && conv.isOnHike() && !conv.isStealth())
+			if (phoneBookContacts != null && conv.isOnHike() && !conv.isStealth() && !BotUtils.isBot(conv.getMsisdn()))
 			{
 				phoneBookContacts.add(getPhoneContactFakeConv(conv));
 			}

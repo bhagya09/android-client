@@ -1,29 +1,18 @@
 package com.bsb.hike.notifications;
 
-import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.app.Activity;
-import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Pair;
 
+import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeConstants.NotificationType;
 import com.bsb.hike.HikeMessengerApp;
@@ -31,18 +20,14 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.MqttConstants;
 import com.bsb.hike.MqttConstants.MQTTConnectionStatus;
-import com.bsb.hike.BitmapModule.HikeBitmapFactory;
+import com.bsb.hike.R;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.db.HikeConversationsDatabase;
-import com.bsb.hike.models.ContactInfo;
+import com.bsb.hike.models.*;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
-import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
-import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
-import com.bsb.hike.models.Protip;
-import com.bsb.hike.models.Sticker;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.timeline.model.FeedDataModel;
@@ -51,10 +36,19 @@ import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
 import com.bsb.hike.timeline.view.TimelineActivity;
 import com.bsb.hike.ui.HomeActivity;
 import com.bsb.hike.ui.PeopleActivity;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.Utils;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.lang.ref.WeakReference;
+import java.util.*;
+import java.util.Map.Entry;
 
 public class ToastListener implements Listener
 {
@@ -72,7 +66,8 @@ public class ToastListener implements Listener
 			HikePubSub.NEW_ACTIVITY, HikePubSub.CONNECTION_STATUS, HikePubSub.FAVORITE_TOGGLED, HikePubSub.TIMELINE_UPDATE_RECIEVED, HikePubSub.BATCH_STATUS_UPDATE_PUSH_RECEIVED,
 			HikePubSub.CANCEL_ALL_STATUS_NOTIFICATIONS, HikePubSub.CANCEL_ALL_NOTIFICATIONS, HikePubSub.PROTIP_ADDED, HikePubSub.UPDATE_PUSH, HikePubSub.APPLICATIONS_PUSH,
 			HikePubSub.SHOW_FREE_INVITE_SMS, HikePubSub.STEALTH_POPUP_WITH_PUSH, HikePubSub.HIKE_TO_OFFLINE_PUSH, HikePubSub.ATOMIC_POPUP_WITH_PUSH,
-			HikePubSub.BULK_MESSAGE_NOTIFICATION, HikePubSub.USER_JOINED_NOTIFICATION,HikePubSub.ACTIVITY_UPDATE_NOTIF};
+			HikePubSub.BULK_MESSAGE_NOTIFICATION, HikePubSub.USER_JOINED_NOTIFICATION,HikePubSub.ACTIVITY_UPDATE_NOTIF, HikePubSub.FLUSH_PERSISTENT_NOTIF,
+			HikePubSub.SHOW_PERSISTENT_NOTIF};
 
 	/**
 	 * Used to check whether NUJ/RUJ message notifications are disabled
@@ -153,6 +148,7 @@ public class ToastListener implements Listener
 				
 				if (((TimelineActivity) activity).isUpdatesFrgamentOnTop())
 				{
+					HikeMessengerApp.getInstance().getPubSub().publish(HikePubSub.BADGE_COUNT_TIMELINE_UPDATE_CHANGED, null);
 					return;
 				}
 			}
@@ -166,6 +162,7 @@ public class ToastListener implements Listener
 			{
 				notificationType = NotificationType.DPUPDATE;
 			}
+			HikeMessengerApp.getInstance().getPubSub().publish(HikePubSub.BADGE_COUNT_TIMELINE_UPDATE_CHANGED, null);
 			toaster.notifyStatusMessage(statusMessage, notificationType);
 		}
 		else if (HikePubSub.ACTIVITY_UPDATE_NOTIF.equals(type))
@@ -307,6 +304,22 @@ public class ToastListener implements Listener
 						context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).getString(HikeConstants.Extras.APPLICATIONSPUSH_MESSAGE, ""), true);
 			}
 
+		}
+		else if(HikePubSub.SHOW_PERSISTENT_NOTIF.equals(type))
+		{
+			Logger.d(HikeConstants.UPDATE_TIP_AND_PERS_NOTIF_LOG, "Creating persistent notification!");
+			HikeSharedPreferenceUtil settingPref = HikeSharedPreferenceUtil.getInstance();
+			toaster.notifyPersistentUpdate(
+					settingPref.getData(HikeConstants.UPDATE_TITLE, context.getResources().getString(R.string.pers_notif_title)),
+					settingPref.getData(HikeConstants.Extras.UPDATE_MESSAGE, context.getResources().getString(R.string.pers_notif_message)),
+					settingPref.getData(HikeConstants.UPDATE_ACTION, context.getResources().getString(R.string.tip_and_notif_update_text)),
+					settingPref.getData(HikeConstants.UPDATE_LATER, context.getResources().getString(R.string.tip_and_notif_later_text)),
+					Uri.parse(settingPref.getData(HikeConstants.Extras.URL, "market://details?id=" + context.getPackageName())),
+					settingPref.getData(HikeConstants.UPDATE_ALARM, HikeConstants.PERS_NOTIF_ALARM_DEFAULT));
+		}
+		else if(HikePubSub.FLUSH_PERSISTENT_NOTIF.equals(type))
+		{
+			toaster.cancelPersistNotif();
 		}
 		else if (HikePubSub.SHOW_FREE_INVITE_SMS.equals(type))
 		{
@@ -597,6 +610,8 @@ public class ToastListener implements Listener
 			// Remove unused references
 			filteredMessageList.clear();
 			filteredMessageList = null;
+			HikeMessengerApp.getPubSub().publish(HikePubSub.BADGE_COUNT_MESSAGE_CHANGED, null);
+			HikeMessengerApp.getPubSub().publish(HikePubSub.BADGE_COUNT_TIMELINE_UPDATE_CHANGED, null);
 		}
 	}
 
@@ -682,5 +697,30 @@ public class ToastListener implements Listener
 		Intent intent = new Intent(context, HomeActivity.class);
 		toaster.showBigTextStyleNotification(intent, 0, System.currentTimeMillis(), HikeNotification.HIKE_SUMMARY_NOTIFICATION_ID, title, text, title, "",
 				null, null, false, 0);
+	}
+
+	/**
+	 * This method is called from @link GeneralEventMessagesManager. It is used to notify a user for events related to a message
+	 *
+	 * @param msisdn
+	 * @param message
+	 * @param forceNotPlaySound
+	 */
+	public void showMessageEventNotification(String msisdn, String message, boolean forceNotPlaySound)
+	{
+		Activity activity = (currentActivity != null) ? currentActivity.get() : null;
+
+		if ((activity instanceof ChatThreadActivity))
+		{
+			String contactNumber = ((ChatThreadActivity) activity).getContactNumber();
+			if (TextUtils.isEmpty(msisdn) || (msisdn.equals(contactNumber)))
+			{
+				Logger.e("ToastListener", "Either the same chat thread was open or the msisdn passed is null");
+				return;
+			}
+		}
+
+		toaster.sendNotificationToChatThread(msisdn, message, forceNotPlaySound);
+
 	}
 }

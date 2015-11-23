@@ -198,16 +198,21 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 	private TextView timelineUpdatesIndicator;
 	
-	/**
-	 * This variable checks whether onSaveInstanceState has been called or not
-	 */
-	private boolean wasOnSavedInstanceCalled = false;
-	
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
 		Logger.d(TAG,"onCreate");
 		super.onCreate(savedInstanceState);
+		
+		if (!isTaskRoot())
+		{
+		    final Intent intent = getIntent();
+		    if (intent.hasCategory(Intent.CATEGORY_LAUNCHER) && Intent.ACTION_MAIN.equals(intent.getAction())) {
+		        Logger.d(TAG, "Main Activity is not the root.  Finishing Main Activity instead of launching.");
+		        finish();
+		        return;       
+		    }
+		}
 
 		if (savedInstanceState != null && savedInstanceState.getBoolean(HikeConstants.Extras.CLEARED_OUT, false)) 
 		{
@@ -354,6 +359,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		{
 			timelineUpdatesIndicator.setVisibility(View.GONE);
 		}
+		HikeMessengerApp.getPubSub().publish(HikePubSub.BADGE_COUNT_TIMELINE_UPDATE_CHANGED, null);
 
 	}
 	
@@ -548,17 +554,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		{
 			mainFragment = new ConversationFragment();
 			
-			// if onSavedInstanceState has been called, we will get an illegal state exception while commiting a fragment transation. 
-			// Hence using commit allowing state loss
-			if (wasOnSavedInstanceCalled)
-			{
-				getSupportFragmentManager().beginTransaction().add(R.id.home_screen, mainFragment, MAIN_FRAGMENT_TAG).commitAllowingStateLoss();
-			}
-			
-			else
-			{
-				getSupportFragmentManager().beginTransaction().add(R.id.home_screen, mainFragment, MAIN_FRAGMENT_TAG).commit();
-			}
+			getSupportFragmentManager().beginTransaction().add(R.id.home_screen, mainFragment, MAIN_FRAGMENT_TAG).commitAllowingStateLoss();
 		}
 	}
 
@@ -773,7 +769,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 					HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOW_TIMELINE_RED_DOT, false);
 					Intent intent = new Intent(HomeActivity.this, TimelineActivity.class);
-					timelineUpdatesIndicator.setVisibility(View.GONE);
 					startActivity(intent);
 				}
 			});
@@ -797,11 +792,10 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 						Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
 					}
 
-					Intent intent = new Intent(HomeActivity.this, ComposeChatActivity.class);
-					intent.putExtra(HikeConstants.Extras.EDIT, true);
-					intent.putExtra(HikeConstants.Extras.IS_MICROAPP_SHOWCASE_INTENT, true);
+					Intent intent = IntentFactory.getComposeChatIntentWithBotDiscovery(HomeActivity.this);
 
 					newConversationIndicator.setVisibility(View.GONE);
+					HikeMessengerApp.getPubSub().publish(HikePubSub.BADGE_COUNT_USER_JOINED, new Integer(0));
 					startActivity(intent);
 				}
 			});
@@ -1220,7 +1214,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	protected void onStart()
 	{
 		Logger.d(getClass().getSimpleName(), "onStart");
-		wasOnSavedInstanceCalled = false;
 		super.onStart();
 		long t1, t2;
 		t1 = System.currentTimeMillis();
@@ -1240,7 +1233,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	protected void onSaveInstanceState(Bundle outState)
 	{
 		Logger.d(TAG,"onsavedInstance");
-		wasOnSavedInstanceCalled = true;
 		outState.putBoolean(HikeConstants.Extras.DEVICE_DETAILS_SENT, deviceDetailsSent);
 		if (dialog != null && dialog.isShowing())
 		{
@@ -1713,7 +1705,10 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		}
 		else if (HikePubSub.PRODUCT_POPUP_RECEIVE_COMPLETE.equals(type))
 		{
-			showProductPopup(ProductPopupsConstants.PopupTriggerPoints.HOME_SCREEN.ordinal());
+			if (isActivityVisible())
+			{
+				showProductPopup(ProductPopupsConstants.PopupTriggerPoints.HOME_SCREEN.ordinal());
+			}
 		}
 	}
 
@@ -1910,10 +1905,18 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		optionsList.add(new OverFlowMenuItem(getString(R.string.new_group), 0, 0, R.string.new_group));
 
 
-		if (Utils.isPhotosEditEnabled())
+		if (OfflineController.getInstance().getConfigurationParamerters().shouldShowHikeDirectOption())
 		{
-			optionsList.add(new OverFlowMenuItem(getString(R.string.home_overflow_new_photo), 0, 0, R.string.home_overflow_new_photo));
+			optionsList.add(new OverFlowMenuItem(getString(R.string.scan_free_hike), 0, 0, R.string.scan_free_hike));
 		}
+		else
+		{
+			if (Utils.isPhotosEditEnabled())
+			{
+				optionsList.add(new OverFlowMenuItem(getString(R.string.home_overflow_new_photo), 0, 0, R.string.home_overflow_new_photo));
+			}
+		}
+		
 		
 		optionsList.add(new OverFlowMenuItem(getString(R.string.invite_friends), 0, 0, R.string.invite_friends));
 	
@@ -1970,6 +1973,10 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 				switch (item.id)
 				{
+				case R.string.scan_free_hike:
+					intent = IntentFactory.getComposeChatActivityIntent(HomeActivity.this);
+					intent.putExtra(HikeConstants.Extras.HIKE_DIRECT_MODE, true);
+					break;
 				case R.string.invite_friends:
 					intent = new Intent(HomeActivity.this, TellAFriend.class);
 					break;

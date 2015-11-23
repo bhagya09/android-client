@@ -94,7 +94,7 @@ public class ProfileImageLoader implements LoaderCallbacks<Boolean>
 			if (file.exists())
 			{
 				BitmapDrawable drawable = HikeMessengerApp.getLruCache().get(mappedId);
-				if (drawable == null)
+				if (true)
 				{
 					Bitmap b = HikeBitmapFactory.scaleDownBitmap(basePath + "/" + fileName, imageSize, imageSize, Bitmap.Config.ARGB_8888,true,false);
 					if (b != null)
