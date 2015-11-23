@@ -5465,12 +5465,12 @@ public class Utils
 				else if (givenCalendar.get(Calendar.YEAR) == currentCalendar.get(Calendar.YEAR))
 				{
 					// Show date in relative format. eg. 2 hours ago, yesterday, 2 days ago etc.
-					return DateUtils.getRelativeTimeSpanString(givenTimeStampInMillis, currentTime, DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_ABBREV_MONTH).toString();
+					return HikeDateUtils.getRelativeTimeSpanString(context, givenTimeStampInMillis, currentTime, DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_ABBREV_MONTH).toString();
 				}
 				else
 				{
 					// Shows date in numeric format
-					return DateUtils.getRelativeTimeSpanString(givenTimeStampInMillis, currentTime, DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_NUMERIC_DATE).toString();
+					return HikeDateUtils.getRelativeTimeSpanString(context, givenTimeStampInMillis, currentTime, DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_NUMERIC_DATE).toString();
 				}
 			}
 			else
@@ -5485,14 +5485,14 @@ public class Utils
 					else
 					{
 						// Show date in MMM dd format eg. Apr 21, May 13 etc.
-						return DateUtils.getRelativeTimeSpanString(givenTimeStampInMillis, currentTime, DateUtils.YEAR_IN_MILLIS,
+						return HikeDateUtils.getRelativeTimeSpanString(context, givenTimeStampInMillis, currentTime, DateUtils.YEAR_IN_MILLIS,
 								DateUtils.FORMAT_ABBREV_MONTH | DateUtils.FORMAT_SHOW_DATE).toString();
 					}
 				}
 				else
 				{
 					// Show date in numeric format
-					return DateUtils.getRelativeTimeSpanString(givenTimeStampInMillis, currentTime, DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_NUMERIC_DATE).toString();
+					return HikeDateUtils.getRelativeTimeSpanString(context, givenTimeStampInMillis, currentTime, DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_NUMERIC_DATE).toString();
 				}
 			}
 		}
