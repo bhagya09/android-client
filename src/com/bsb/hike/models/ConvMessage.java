@@ -1,6 +1,7 @@
 package com.bsb.hike.models;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 import org.json.JSONArray;
@@ -17,10 +18,10 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.models.ContactInfoData.DataType;
-import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.models.Conversation.GroupConversation;
 import com.bsb.hike.models.Conversation.OneToNConversation;
+import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.offline.OfflineConstants;
 import com.bsb.hike.platform.ContentLove;
@@ -36,7 +37,7 @@ import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.CustomMessageTextView.DimentionMatrixHolder;
 import com.bsb.hike.view.CustomMessageTextView.ViewDimentions;
 
-public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique
+public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique, Comparable<ConvMessage>
 
 {
 	private boolean isBlockAddHeader;
@@ -89,6 +90,8 @@ public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique
 	private ViewDimentions viewDimentions;
 	
 	private int notificationType;
+	
+	private long sortingId = -1;
 
 	public String getNameSpace()
 	{
@@ -319,13 +322,14 @@ public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique
         this.mTimestamp = System.currentTimeMillis()/1000;
 		
 	}
-	public ConvMessage(int unreadCount, long timestamp, long msgId)
+	public ConvMessage(int unreadCount, long timestamp, long msgId, long sortingId)
 	{
 		this.unreadCount = unreadCount;
 		this.mTimestamp = timestamp;
 		this.msgID = msgId;
+		this.sortingId = sortingId;
 	}
-	
+
 	public ConvMessage(TypingNotification typingNotification)
 	{
 		this.typingNotification = typingNotification;
@@ -333,39 +337,50 @@ public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique
 
 	public ConvMessage(String message, String msisdn, long timestamp, State msgState)
 	{
-		this(message, msisdn, timestamp, msgState, -1, -1);
+		this(message, msisdn, timestamp, msgState, -1, -1, -1);
 	}
 
-	public ConvMessage(String message, String msisdn, long timestamp, State msgState, long msgid, long mappedMsgId)
+	public ConvMessage(String message, String msisdn, long timestamp, State msgState, long msgid, long mappedMsgId, long sortingId)
 	{
-		this(message, msisdn, timestamp, msgState, msgid, mappedMsgId, null);
+		this(message, msisdn, timestamp, msgState, msgid, mappedMsgId, null, sortingId);
 	}
-
+	
 	public ConvMessage(String message, String msisdn, long timestamp, State msgState, long msgid, long mappedMsgId, String groupParticipantMsisdn)
 	{
-		this(message, msisdn, timestamp, msgState, msgid, mappedMsgId, groupParticipantMsisdn, false,HikeConstants.MESSAGE_TYPE.PLAIN_TEXT);
+		this(message, msisdn, timestamp, msgState, msgid, mappedMsgId, groupParticipantMsisdn, false,HikeConstants.MESSAGE_TYPE.PLAIN_TEXT, -1);
 	}
-	public ConvMessage(String message, String msisdn, long timestamp, State msgState, long msgid, long mappedMsgId, String groupParticipantMsisdn, int type)
+
+	public ConvMessage(String message, String msisdn, long timestamp, State msgState, long msgid, long mappedMsgId, String groupParticipantMsisdn, long sortingId)
 	{
-		this(message, msisdn, timestamp, msgState, msgid, mappedMsgId, groupParticipantMsisdn, false, type);
+		this(message, msisdn, timestamp, msgState, msgid, mappedMsgId, groupParticipantMsisdn, false,HikeConstants.MESSAGE_TYPE.PLAIN_TEXT, sortingId);
 	}
+	public ConvMessage(String message, String msisdn, long timestamp, State msgState, long msgid, long mappedMsgId, String groupParticipantMsisdn, int type, long sortingId)
+	{
+		this(message, msisdn, timestamp, msgState, msgid, mappedMsgId, groupParticipantMsisdn, false, type, sortingId);
+	}
+	
 	public ConvMessage(String message, String msisdn, long timestamp, State msgState, long msgid, long mappedMsgId, String groupParticipantMsisdn, boolean isSMS, int type)
 	{
-		this(message, msisdn, timestamp, msgState, msgid, mappedMsgId, groupParticipantMsisdn, isSMS, ParticipantInfoState.NO_INFO, type,0, "");
+		this(message, msisdn, timestamp, msgState, msgid, mappedMsgId, groupParticipantMsisdn, isSMS, ParticipantInfoState.NO_INFO, type,0, "", -1);
 	}
-	public ConvMessage(String message, String msisdn, long timestamp, State msgState, long msgid, long mappedMsgId, String groupParticipantMsisdn, boolean isSMS, int type,int contentId, String nameSpace)
+	
+	public ConvMessage(String message, String msisdn, long timestamp, State msgState, long msgid, long mappedMsgId, String groupParticipantMsisdn, boolean isSMS, int type, long sortingId)
 	{
-		this(message, msisdn, timestamp, msgState, msgid, mappedMsgId, groupParticipantMsisdn, isSMS, ParticipantInfoState.NO_INFO, type, contentId, nameSpace);
+		this(message, msisdn, timestamp, msgState, msgid, mappedMsgId, groupParticipantMsisdn, isSMS, ParticipantInfoState.NO_INFO, type,0, "", sortingId);
+	}
+	public ConvMessage(String message, String msisdn, long timestamp, State msgState, long msgid, long mappedMsgId, String groupParticipantMsisdn, boolean isSMS, int type,int contentId, String nameSpace, long sortingId)
+	{
+		this(message, msisdn, timestamp, msgState, msgid, mappedMsgId, groupParticipantMsisdn, isSMS, ParticipantInfoState.NO_INFO, type, contentId, nameSpace, sortingId);
 	}
 
 	public ConvMessage(String message, String msisdn, long timestamp, State msgState, long msgid, long mappedMsgId, String groupParticipantMsisdn, boolean isSMS,
-			ParticipantInfoState participantInfoState, int type,int contentId, String nameSpace)
+			ParticipantInfoState participantInfoState, int type,int contentId, String nameSpace, long sortingId)
 	{
-		this(message, msisdn, timestamp, msgState, msgid, mappedMsgId, groupParticipantMsisdn, isSMS, ParticipantInfoState.NO_INFO, type, contentId, nameSpace, null);
+		this(message, msisdn, timestamp, msgState, msgid, mappedMsgId, groupParticipantMsisdn, isSMS, ParticipantInfoState.NO_INFO, type, contentId, nameSpace, null, sortingId);
 	}
 	
 	public ConvMessage(String message, String msisdn, long timestamp, State msgState, long msgid, long mappedMsgId, String groupParticipantMsisdn, boolean isSMS,
-			ParticipantInfoState participantInfoState, int type,int contentId, String nameSpace, JSONObject platformData)
+			ParticipantInfoState participantInfoState, int type,int contentId, String nameSpace, JSONObject platformData, long sortingId)
 	{
 		assert (msisdn != null);
 		this.mMsisdn = msisdn;
@@ -386,6 +401,8 @@ public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique
 		setContentId(contentId);
 		setNameSpace(nameSpace);
 		setPlatformData(platformData);
+		setSortingId(sortingId);
+		
 	}
 	
 	public ConvMessage(ConvMessage other) {
@@ -423,6 +440,7 @@ public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
+		setSortingId(other.sortingId);
 				
 	}
 
@@ -578,7 +596,7 @@ public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique
 			this.mMessage = OneToNConversationUtils.getAdminUpdatedMessage(this, context);
 			break;
 		case GC_SETTING_CHANGE:
-			this.mMessage = OneToNConversationUtils.getAdminUpdatedMessage(this, context);
+			this.mMessage = OneToNConversationUtils.getSettingUpdatedMessage(this, context);
 			break;
 		case GROUP_END:
 			this.mMessage = OneToNConversationUtils.getConversationEndedMessage(conversation.getMsisdn(), context);
@@ -800,7 +818,7 @@ public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique
 	@Override
 	public String toString()
 	{
-		return "ConvMessage [msgID=" + msgID + ", mappedMsgId=" + mappedMsgId + ", mMessage=" + mMessage + ", mMsisdn=" + mMsisdn + ", mTimestamp=" + mTimestamp + ", mIsSent="
+		return "ConvMessage [msgID=" + msgID + ", sortingId=" + sortingId + ", mappedMsgId=" + mappedMsgId + ", mMessage=" + mMessage + ", mMsisdn=" + mMsisdn + ", mTimestamp=" + mTimestamp + ", mIsSent="
 				+ mIsSent + ", mState=" + mState + ", metadata=" + metadata + ", privateData=" + privateData + "]";
 	}
 
@@ -1430,7 +1448,7 @@ public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique
 	@Override
 	public Long getUniqueId()
 	{
-		return getMsgID();
+		return getSortingId();
 	}
 
 	public long getSendTimestamp()
@@ -1472,4 +1490,67 @@ public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique
 	{
 		return getPlatformData().optString(HikeConstants.PLAY_NOTIFICATION).equals(HikeConstants.SILENT);
 	}
+
+	@Override
+	public int compareTo(ConvMessage another)
+	{
+		if (another == null )
+		{
+			return 1;
+		}
+		
+		if (this.equals(another))
+		{
+			return 0;
+		}
+		
+		long other_sortingId = another.sortingId;
+		
+		if (this.sortingId == other_sortingId) 
+		{
+			return (this.msgID < another.msgID) ? -1 : 1;
+		}
+		
+		return (this.sortingId < other_sortingId) ? -1 : 1; 
+			
+	}
+
+	/**
+	 * @return the sortingId
+	 */
+	public long getSortingId()
+	{
+		return sortingId;
+	}
+
+	/**
+	 * @param sortId the sortingId to set
+	 */
+	public void setSortingId(long sortId)
+	{
+		this.sortingId = sortId;
+	}
+	
+	
+	public static class ConvMessageComparator implements Comparator<ConvMessage>
+	{
+		/**
+		 * This comparator reverses the order of the normal comparable
+		 * 
+		 * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
+		 */
+
+		@Override
+		public int compare(ConvMessage lhs, ConvMessage rhs)
+		{
+			if (rhs == null)
+			{
+				return 1;
+			}
+
+			return lhs.compareTo(rhs);
+		}
+
+	}
+
 }

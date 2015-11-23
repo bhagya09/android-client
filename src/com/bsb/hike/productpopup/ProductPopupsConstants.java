@@ -424,7 +424,16 @@ public class ProductPopupsConstants
 				// TODO Auto-generated method stub
 				return "gameActivity";
 			}
+		},
+		OPEN_MICROAPP
+		{
+			@Override
+			public String toString()
+			{
+				return "microapp";
+			}
 		};
+
 		
 		
 	}

@@ -175,11 +175,28 @@ public class ProductJavaScriptBridge extends JavascriptBridge
 			HikeAlarmManager.cancelAlarm(HikeMessengerApp.getInstance().getApplicationContext(), HikeAlarmManager.REQUESTCODE_PRODUCT_POPUP);
 			
 			//clearing the notification once the popup is been addressed
-			NotificationManager notificationManager = (NotificationManager) mHikeDialogFragment.get().getActivity().getSystemService(Context.NOTIFICATION_SERVICE);
+			NotificationManager notificationManager = (NotificationManager) HikeMessengerApp.getInstance().getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
 			if (notificationManager != null)
 				notificationManager.cancel(HikeNotification.NOTIFICATION_PRODUCT_POPUP);
 
 		}
 
+	}
+	
+	public void anonNameSetStatus(final String string)
+	{
+		if (mHandler == null)
+		{
+			return;
+		}
+		mHandler.post(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				mWebView.loadUrl("javascript:anonymousName" + "('" + string + "')");
+			}
+		});
+		
 	}
 }
