@@ -755,7 +755,7 @@ public class Utils
 
 		if (settings.getString(HikeMessengerApp.NAME_SETTING, null) == null)
 		{
-			activity.startActivity(new Intent(activity, SignupActivity.class));
+			IntentFactory.reopenSignupActivity(activity);
 			activity.finish();
 			return true;
 		}
@@ -772,7 +772,7 @@ public class Utils
 			}
 			else
 			{
-				activity.startActivity(new Intent(activity, SignupActivity.class));
+				IntentFactory.reopenSignupActivity(activity);
 				activity.finish();
 				return true;
 			}
@@ -5856,7 +5856,7 @@ public class Utils
 		}
 	}
 
-	private static void sendDeviceDetails(Context context, boolean upgrade, boolean sendBot)
+	public static void sendDeviceDetails(Context context, boolean upgrade, boolean sendBot)
 	{
 		recordDeviceDetails(context);
 		requestAccountInfo(upgrade, sendBot);
@@ -7679,5 +7679,69 @@ public class Utils
 		{
 
 		}
+	}
+	
+	public static String createStringWithName(Context context, String msisdn, int str1, int str2)
+	{
+		String userMsisdn = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).getString(HikeMessengerApp.MSISDN_SETTING, "");
+		if (msisdn.equals(userMsisdn))
+		{
+			return context.getString(str1);
+		}
+		else
+		{
+			return String.format(context.getString(str2), ContactManager.getInstance().getContactInfoFromPhoneNoOrMsisdn(msisdn).getFirstNameAndSurname());
+		}
+	}
+	
+	public static String createStringWithNames(Context context, String msisdn1, String msisdn2, int str1, int str2, int str3)
+	{
+		String userMsisdn = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).getString(HikeMessengerApp.MSISDN_SETTING, "");
+		if (msisdn1.equals(userMsisdn) && !msisdn2.equals(userMsisdn))
+		{
+			return String.format(context.getString(str1), ContactManager.getInstance().getContactInfoFromPhoneNoOrMsisdn(msisdn2).getFirstNameAndSurname());
+		}
+		else if (!msisdn1.equals(userMsisdn) && msisdn2.equals(userMsisdn))
+		{
+			return String.format(context.getString(str2), ContactManager.getInstance().getContactInfoFromPhoneNoOrMsisdn(msisdn1).getFirstNameAndSurname());
+		}
+		else if (!msisdn1.equals(userMsisdn) && !msisdn2.equals(userMsisdn))
+		{
+			return String.format(context.getString(str3), ContactManager.getInstance().getContactInfoFromPhoneNoOrMsisdn(msisdn1).getFirstNameAndSurname(), 
+					ContactManager.getInstance().getContactInfoFromPhoneNoOrMsisdn(msisdn2).getFirstNameAndSurname());
+		}
+		return "";
+	}
+	
+	public static String createStringWithNames(Context context, int str1, int str2, int str3, JSONArray participantInfoArray, OneToNConvInfo convInfo, boolean newGrp)
+	{
+		if (newGrp)
+		{
+			return String.format(context.getString(str1), R.string.you);
+		}
+		
+		JSONObject participant = (JSONObject) participantInfoArray.opt(0);
+		String name1 = convInfo.getConvParticipantName(participant.optString(HikeConstants.MSISDN));
+		
+		if (participantInfoArray.length() == 1)
+		{
+			String str = String.format(context.getString(str1), name1);
+			return str;
+		}
+		else if (participantInfoArray.length() == 2)
+		{
+			JSONObject participant2 = (JSONObject) participantInfoArray.opt(1);
+			String name2 = convInfo.getConvParticipantName(participant2.optString(HikeConstants.MSISDN));
+			String str = String.format(context.getString(str2), name1, name2);
+			return str;
+		}
+		else if (participantInfoArray.length() > 2)
+		{
+			JSONObject participant2 = (JSONObject) participantInfoArray.opt(1);
+			String name2 = convInfo.getConvParticipantName(participant2.optString(HikeConstants.MSISDN));
+			String str = String.format(context.getString(str3), name1, name2, (participantInfoArray.length() - 1));
+			return str;
+		}
+		return "";
 	}
 }

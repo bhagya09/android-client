@@ -662,6 +662,7 @@ public class GroupChatThread extends OneToNChatThread
 
 	private void showPinCreateView(String pinText)
 	{
+		removeKeyboardFtueIfShowing();
 		if (mActionMode.whichActionModeIsOn() == PIN_CREATE_ACTION_MODE)
 		{
 			return;
@@ -1154,17 +1155,5 @@ public class GroupChatThread extends OneToNChatThread
 	protected boolean shouldShowKeyboard()
 	{
 		return ( mActionMode.whichActionModeIsOn() == PIN_CREATE_ACTION_MODE || super.shouldShowKeyboard());
-	}
-
-	@Override
-	public void dismissRemoveDialog() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void showRemoveDialog(RemoveDialogData arg0) {
-		// TODO Auto-generated method stub
-		
 	}
 }

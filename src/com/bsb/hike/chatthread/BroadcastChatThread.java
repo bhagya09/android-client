@@ -226,16 +226,4 @@ public class BroadcastChatThread extends OneToNChatThread
 		
 		super.fetchConversationFailed();
 	}
-
-	@Override
-	public void dismissRemoveDialog() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void showRemoveDialog(RemoveDialogData arg0) {
-		// TODO Auto-generated method stub
-		
-	}
 }

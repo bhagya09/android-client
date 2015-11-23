@@ -24,12 +24,12 @@
                 android:src="@drawable/ic_keyboard_popup_cross" />
 
             <LinearLayout
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_centerInParent="true"
                 android:gravity="center"
                 android:orientation="vertical"
-                android:padding="22dp">
+                android:paddingTop="22dp">
 
                 <ImageView
                     android:layout_width="90dp"
@@ -59,9 +59,12 @@
                 <com.bsb.hike.view.CustomFontButton
                     android:id="@+id/btn_choose_language"
                     style="@style/ButtonCustomDialog"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
+                    android:layout_marginTop="6dp"
+                    android:gravity="center"
+                    android:paddingBottom="20dp"
+                    android:paddingTop="20dp"
                     android:text="@string/CHOOSE_LANGUAGE" />
             </LinearLayout>
         </RelativeLayout>
@@ -164,6 +167,7 @@
                 android:layout_centerHorizontal="true"
                 android:layout_marginBottom="32dp"
                 android:background="@drawable/ic_spacebar"
+                android:gravity="center"
                 android:padding="10dp">
 
 

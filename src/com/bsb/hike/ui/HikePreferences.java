@@ -66,6 +66,7 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.graphics.Color;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.preference.ListPreference;
@@ -179,21 +180,31 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 
 	private void saveKeyboardPref()
 	{
+		if (!HikeMessengerApp.isCustomKeyboardEnabled())
+		{
+			PreferenceCategory keyboardSettings = (PreferenceCategory) getPreferenceScreen().findPreference(HikeConstants.KEYBOARD_SETTING_PREF_CATEGORY);
+			if (keyboardSettings != null)
+			{
+				getPreferenceScreen().removePreference(keyboardSettings);
+				return;
+			}
+		}
+
 		Preference kbdPref = findPreference(HikeConstants.KEYBOARD_PREF);
 		if (kbdPref != null && kbdPref instanceof SwitchPreferenceCompat)
 		{
 			boolean val = HikeMessengerApp.isSystemKeyboard();
 			((SwitchPreferenceCompat) kbdPref).setChecked(!val);
 		}
-		
+
 		ListPreference localLanguagePrf = (ListPreference) findPreference(HikeConstants.LOCAL_LANGUAGE_PREF);
 		if (localLanguagePrf != null && localLanguagePrf instanceof ListPreference)
 		{
 			localLanguagePrf.setValue(LocalLanguageUtils.getApplicationLocalLanguage(HikePreferences.this).getDisplayName());
 		}
-		
+
 		setKeyboardLangSummary();
-		
+
 		setPrefValueFromKpt(HikeConstants.AUTO_CAPITALIZATION_PREF, kptSettings.getAutoCapitalizationState());
 		setPrefValueFromKpt(HikeConstants.AUTO_SPACING_PREF, kptSettings.getAutoSpacingState());
 		setPrefValueFromKpt(HikeConstants.GLIDE_PREF, kptSettings.getGlideState());
@@ -237,7 +248,6 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		IconPreference kbdLanguagePref = (IconPreference) findPreference(HikeConstants.KEYBOARD_LANGUAGE_PREF);
 		if (kbdLanguagePref != null && kbdLanguagePref instanceof IconPreference)
 		{
-			kbdLanguagePref.setDependency(HikeConstants.KEYBOARD_PREF);
 			String summary = new String();
 			ArrayList<KPTAddonItem> langList = KptKeyboardManager.getInstance(HikePreferences.this).getInstalledLanguagesList();
 			for (KPTAddonItem item : langList)
@@ -280,7 +290,6 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		if (preference != null)
 		{
 			Logger.d(getClass().getSimpleName(), preferenceName + " preference not null" + preference.getKey());
-			preference.setDependency(HikeConstants.KEYBOARD_PREF);
 			preference.setOnPreferenceClickListener(this);
 		}
 		else
@@ -394,7 +403,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 
 	private void restartHomeActivity()
 	{
-		startActivity(IntentFactory.getHomeActivityIntentAsFreshLaunch(this));
+		IntentFactory.freshLaunchHomeActivity(getApplicationContext());
 	}
 
 	private void addStealthPrefListeners()
@@ -584,15 +593,15 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		{
 			if (preferenceName == HikeConstants.KEYPRESS_VOL_PREF)
 			{
-				preference.setSummary("Level " + kptSettings.getKeyPressSoundVolume());
+				preference.setSummary(getString(R.string.level)+ " " + kptSettings.getKeyPressSoundVolume());
 			}
 			else if (preferenceName == HikeConstants.KEYPRESS_VIB_DUR_PREF)
 			{
-				preference.setSummary(kptSettings.getKeyPressVibrationDuration() + " ms");
+				preference.setSummary(kptSettings.getKeyPressVibrationDuration() + " " + getString(R.string.milliseconds));
 			}
 			else if (preferenceName == HikeConstants.LONG_PRESS_DUR_PREF)
 			{
-				preference.setSummary(kptSettings.getLongPressDuration() + " ms");
+				preference.setSummary(kptSettings.getLongPressDuration() + " " + getString(R.string.milliseconds));
 			}
 		}
 	}
@@ -1384,7 +1393,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 				stealthConfirmPasswordOnPreferenceChange(preference, newValue);
 				return false;
 			} else if (HikeConstants.KEYBOARD_PREF.equals(preference.getKey())) {
-				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CURRENT_KEYBOARD, !isChecked);
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SYSTEM_KEYBOARD_SELECTED, !isChecked);
 				trackAnalyticEvent(HikeConstants.LogEvent.HIKE_KEYBOARD_ON, isChecked);
 				HikeMessengerApp.getPubSub().publish(HikePubSub.KEYBOARD_SWITCHED, null);
 			} else if (HikeConstants.GLIDE_PREF.equals(preference.getKey())) {

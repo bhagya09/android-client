@@ -4,9 +4,11 @@ import android.content.Context;
 import android.text.TextUtils;
 
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.modules.kpt.KptKeyboardManager;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.Logger;
 import com.kpt.adaptxt.beta.KPTAddonItem;
 
 import java.util.ArrayList;
@@ -21,6 +23,8 @@ public class LocalLanguage {
     private String locale;
 
     private String name;
+
+    public static final LocalLanguage PhoneLangauge = new LocalLanguage(HikeMessengerApp.getInstance().getString(R.string.phone_language), "");
 
     public static final LocalLanguage English = new LocalLanguage("English", "en");
 
@@ -43,6 +47,8 @@ public class LocalLanguage {
     private static ArrayList<LocalLanguage> hikeSupportedList;
 
     private static ArrayList<LocalLanguage> deviceSupportedHikeList;
+
+    private static boolean sorted=false;
 
     public LocalLanguage(String languageName, String locale) {
         this.name = languageName;
@@ -67,7 +73,7 @@ public class LocalLanguage {
         if (hikeSupportedList == null)
         {
             hikeSupportedList = new ArrayList<>();
-            hikeSupportedList.add(new LocalLanguage(context.getString(R.string.system_language), ""));    // system Default
+            hikeSupportedList.add(PhoneLangauge);    // system Default
             hikeSupportedList.add(English);     // English
             hikeSupportedList.add(Hindi);       // Hindi
             hikeSupportedList.add(Bengali);     // Bengali
@@ -82,13 +88,9 @@ public class LocalLanguage {
         return hikeSupportedList;
     }
 
-    public static List<LocalLanguage> getDeviceSupportedHikeLanguages(Context context)
-    {
-        if (deviceSupportedHikeList == null)
+    public static void refreshdeviceSupportedHikeList(Context context){
         {
-            ArrayList<KPTAddonItem> deviceSupportedkptLanguages = new ArrayList<>();
-            deviceSupportedkptLanguages.addAll(KptKeyboardManager.getInstance(context).getInstalledLanguagesList());
-            deviceSupportedkptLanguages.addAll(KptKeyboardManager.getInstance(context).getUninstalledLanguagesList());
+            ArrayList<KPTAddonItem> deviceSupportedkptLanguages = KptKeyboardManager.getInstance(context).getSupportedLanguagesList();
             HashSet<String> supportedLocaleSet = new HashSet<>();
             for (KPTAddonItem item : deviceSupportedkptLanguages)
             {
@@ -103,6 +105,10 @@ public class LocalLanguage {
                     deviceSupportedHikeList.add(item);
             }
         }
+    }
+    public static List<LocalLanguage> getDeviceSupportedHikeLanguages(Context context)
+    {
+        refreshdeviceSupportedHikeList(context);
         return deviceSupportedHikeList;
     }
 

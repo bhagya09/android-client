@@ -8,6 +8,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.Activity;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -61,6 +63,7 @@ import com.bsb.hike.ui.HikeDirectHelpPageActivity;
 import com.bsb.hike.ui.HikeListActivity;
 import com.bsb.hike.ui.HikePreferences;
 import com.bsb.hike.ui.HomeActivity;
+import com.bsb.hike.ui.HomeFtueActivity;
 import com.bsb.hike.ui.LanguageSettingsActivity;
 import com.bsb.hike.ui.NUXInviteActivity;
 import com.bsb.hike.ui.NuxSendCustomMessageActivity;
@@ -782,6 +785,21 @@ public class IntentFactory
 		appContext.startActivity(i);
 	}
 
+	public static void reopenSignupActivity(Context context)
+	{
+		Intent i = new Intent(context, SignupActivity.class);
+		i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		context.startActivity(i);
+	}
+
+	public static void openHomeFtueActivity(Context appContext)
+	{
+		Intent i = new Intent(appContext, HomeFtueActivity.class);
+		i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+		i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		appContext.startActivity(i);
+	}
 	public static void openHomeActivity(Context context, boolean clearTop)
 	{
 		Intent in = new Intent(context, HomeActivity.class);
@@ -791,7 +809,7 @@ public class IntentFactory
 		}
 		context.startActivity(in);
 	}
-	
+
 	/*
 	 * The returned intent will be similar to the one used by android for opening an activity from the Launcher icon
 	 */
@@ -802,11 +820,30 @@ public class IntentFactory
 		return homeIntent;
 	}
 
+	public static void freshLaunchHomeActivity(Context context){
+		if(Utils.isLollipopOrHigher()){
+			context.startActivity(IntentFactory.getHomeActivityIntentAsFreshLaunch(context));
+		}else {
+			relaunchApplicationWithPendingIntent(context);
+		}
+	}
+	/*This will not send FG, BG packet to the server*/
 	public static Intent getHomeActivityIntentAsFreshLaunch(Context context)
 	{
 		Intent homeIntent = Intent.makeMainActivity(new ComponentName(context, HomeActivity.class));
 		homeIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
 		return homeIntent;
+	}
+
+	/*This will not send FG, BG packet to the server*/
+	public static void relaunchApplicationWithPendingIntent(Context context)
+	{
+		Intent mStartActivity = new Intent(context, HomeActivity.class);
+		mStartActivity.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+		int mPendingIntentId = 123456;
+		PendingIntent mPendingIntent = PendingIntent.getActivity(context, mPendingIntentId, mStartActivity, PendingIntent.FLAG_CANCEL_CURRENT);
+		AlarmManager mgr = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
+		mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 100, mPendingIntent);
 	}
 
 	public static Intent openInviteFriends(Activity context)
@@ -1131,7 +1168,7 @@ public class IntentFactory
 
 		try
 		{
-			message.append(context.getString(R.string.hike_version) + " " + context.getPackageManager().getPackageInfo(context.getPackageName(), 0).versionName + "\n");
+			message.append("hike Version:" + " " + context.getPackageManager().getPackageInfo(context.getPackageName(), 0).versionName + "\n");
 		}
 		catch (PackageManager.NameNotFoundException e)
 		{
@@ -1139,15 +1176,15 @@ public class IntentFactory
 			e.printStackTrace();
 		}
 
-		message.append(context.getString(R.string.device_name) + " " + Build.MANUFACTURER + " " + Build.MODEL + "\n");
+		message.append("Device name:" + " " + Build.MANUFACTURER + " " + Build.MODEL + "\n");
 
-		message.append(context.getString(R.string.android_version) + " " + Build.VERSION.RELEASE + "\n");
+		message.append("Android version:" + " " + Build.VERSION.RELEASE + "\n");
 
 		String msisdn = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, context.MODE_PRIVATE).getString(HikeMessengerApp.MSISDN_SETTING, "");
-		message.append(context.getString(R.string.msisdn) + " " + msisdn);
+		message.append("Phone No:" + " " + msisdn);
 
 		intent.putExtra(Intent.EXTRA_TEXT, message.toString());
-		intent.putExtra(Intent.EXTRA_SUBJECT, TextUtils.isEmpty(subject) ? context.getString(R.string.feedback_on_hike) : subject);
+		intent.putExtra(Intent.EXTRA_SUBJECT, TextUtils.isEmpty(subject) ? "Feedback on hike for Android" : subject);
 		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		return intent;
 	}

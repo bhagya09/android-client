@@ -1445,7 +1445,6 @@
     <string name="stealth_msg_enter_pin_to_unlock">ಅನ್‌ಲಾಕ್‌ ಮಾಡಲು PIN ನಮೂದಿಸಿ</string>
     <string name="stealth_msg_enter_pin_to_unlock_in_reset">ಪ್ರಸ್ತುತ PIN ನಮೂದಿಸಿ</string>
     <string name="change_password_from_privacy">ಗೌಪ್ಯ ಮೋಡ್‌ ಸೆಟ್ಟಿಂಗ್‌ಗಳು</string>
-    <string name="search_hint">ಹುಡುಕಾಟ</string>
     <string name="nudge_setting_header">ನಡ್ಜ್ ಮಾಡಲು ಡಬಲ್ ಟ್ಯಾಪ್‌ ಮಾಡಿ</string>
     <string name="nudge_setting_info">ಚಾಟ್‌ ಮಾಡುವ ವೇಳೆ ಡಬಲ್‌ ಟ್ಯಾಪ್‌ ಮಾಡುವ ಮೂಲಕ ನಡ್ಜ್‌ ಕಳುಹಿಸಿ</string>
     <string name="enter_setting_header">ಕಳುಹಿಸಲು ಎಂಟರ್‌ ಕೀ ಒತ್ತಿ</string>

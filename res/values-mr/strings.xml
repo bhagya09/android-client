@@ -469,7 +469,7 @@
     <string name="tap_to_hide_stealth_contacts">चॅट लपवण्यासाठी</string>
     <string name="tap_text">टॅप करा</string>
     <string name="reset_stealth_confirmation">लपवलेला मोड रीसेट केल्याने तुमचे सर्व लपवलेले चॅट हटवले जातील.\nतुम्हाला खात्री आहे?</string>
-    <string name="stealth_tap_and_hold_tip">चॅटला \'लपवलेला\' चिन्हांकित करण्यासाठी त्यावर टॅप करा व धरून ठेवा.</string>
+    <string name="stealth_tap_and_hold_tip">चॅटला \&apos;लपवलेला\&apos; चिन्हांकित करण्यासाठी त्यावर टॅप करा व धरून ठेवा.</string>
     <string name="mark_stealth">चॅटला लपवलेला म्हणून चिन्हांकित करा</string>
     <string name="unmark_stealth">चॅटला दृश्यमान म्हणून चिन्हांकित करा</string>
     <string name="edit">संपादित करा</string>
@@ -524,7 +524,7 @@
     <string name="native_sms_invite_1">अहो, माझ्यासह hike संदेशनामध्ये सहभागी व्हा!\n भारतात बनलेले हे एकमेव संदेशन अॅप आहे! ते आता मिळवा - http://hike.in/ आणि तुमचे जीवन Hike करा</string>
     <string name="native_sms_invite_2">अहो! hike संदेशन वापरून पहा. आता Docs, PPTs, MP3s आणि अधिक पाठवा; प्रत्येकी 100MB पर्यन्त! ते आता मिळवा - http://hike.in/ आणि तुमचे जीवन Hike करा</string>
     <string name="native_sms_invite_3">अहो, hike संदेशन वापरून पहा. यामध्ये आश्चर्यकारक स्टिकर्स आणि अद्भुत चॅट थीम आहेत! डाउनलोड करा - http://hike.in आणि तुमचे जीवन Hike करा!</string>
-    <string name="native_sms_invite_4">अहो, hike संदेशन वापरून पहा. हे तुम्हाला तुमचे \'शेवटचे पाहिले\' फक्त निवडक मित्रांनाच पाहू देते! डाउनलोड करा - http://hike.in आणि तुमचे जीवन Hike करा!</string>
+    <string name="native_sms_invite_4">अहो, hike संदेशन वापरून पहा. हे तुम्हाला तुमचे \&apos;शेवटचे पाहिले\&apos; फक्त निवडक मित्रांनाच पाहू देते! डाउनलोड करा - http://hike.in आणि तुमचे जीवन Hike करा!</string>
     <string name="native_sms_invite_5">अहो, hike संदेशन वापरून पहा. तुम्ही तुमचे खाजगी चॅट आता इतरांपासून लपवू शकता. डाउनलोड करा - http://hike.in आणि तुमचे जीवन Hike करा!</string>
     <string name="native_sms_invite_6">अहो, hike संदेशन वापरून पहा. तुम्ही ऑफलाइन असलेल्या मित्रांसह देखील चॅट करू शकता. डाउनलोड करा - http://hike.in आणि तुमचे जीवन Hike करा!</string>
     <string name="new_chat_tip_msg">तयार करण्यासाठी टॅप करा</string>
@@ -637,7 +637,7 @@
     <string name="notificationSoundSummary">नवीन सूचनापत्रासाठी प्ले करण्याकरीता ध्वनी निवडा</string>
     <string name="hike_offline_notifications">Hike ऑफलाइन</string>
     <string name="h2o_notifications_setting_summary">ऑफलाइन संपर्कासाठी SMS पाठवण्याचे सूचित करा</string>
-    <string name="stealth_info_tip_subtext">संकेतशब्दाने चॅट लपवण्यासाठी \'हाय\' टॅप करा.</string>
+    <string name="stealth_info_tip_subtext">संकेतशब्दाने चॅट लपवण्यासाठी \&apos;हाय\&apos; टॅप करा.</string>
     <string name="file_attachment_info">100 MB पर्यन्त doc, pdf आणि मीडिया सामायिक करा</string>
     <string name="status_text_notification">अद्यतन पोस्ट केले %1$s</string>
     <string name="shared_files">फायली</string>
@@ -725,7 +725,7 @@
     <string name="shop_loading_failed_switch_on">मोबाईल डेटा किंवा वाय-फाय चालू करा</string>
     <string name="singular_packs">%1$d पॅक</string>
     <string name="singular_stickers">%1$d स्टिकर</string>
-    <string name="conversation_empty">चॅट आरंभ करण्यासाठी शीर्षावरील \'<b>नवीन संदेश</b>\' प्रतीकावर\nटॅप करा</string>
+    <string name="conversation_empty">चॅट आरंभ करण्यासाठी शीर्षावरील \&apos;<b>नवीन संदेश</b>\&apos; प्रतीकावर\nटॅप करा</string>
     <string name="pack_visible">स्टिकर पॅलेटमध्ये दृश्यमान</string>
     <string name="pack_hidden">स्टिकर पॅलेटपासून लपवले</string>
     <string name="pack_rank">%1$d.</string>
@@ -850,7 +850,7 @@
     <string name="photo_dp_save_error_sub">पुन्हा प्रयत्न करण्यासाठी टॅप करा</string>
     <string name="photo_gallery_choose_pic">एक फोटो निवडा</string>
     <string name="cropping_image">प्रतिमा कापत आहे..</string>
-	<string name="home_search_empty_text">तुमचा \'%1$s\'साठीचा शोध संपर्कांमधील कोणाशीही जुळत नाही आहे.</string>
+	<string name="home_search_empty_text">तुमचा \&apos;%1$s\&apos; साठीचा शोध संपर्कांमधील कोणाशीही जुळत नाही आहे.</string>
     <string name="voip_mic_error">माइक सुरु करण्यास असमर्थ. हा कॉल कदाचित कार्य करणार नाही.</string>
     <string name="voip_call_failed_frag_subheader">तरीही तुम्ही %1$s शी यासह संपर्क करू शकता</string>
     <string name="dismiss_upper_case">डिसमीस करा</string>
@@ -884,8 +884,8 @@
     <string name="ls_everyone_summary">शेवटचे पाहिले Hike वरील सर्वांना दृश्यमान आहे</string>
     <string name="ls_nobody_summary">लक्षात ठेवा: तुम्ही दुसऱ्या कोणाचे शेवटचे पाहिले पाहण्यास सक्षम नाही राहणार</string>
     <string name="you_accepted_favorite_request_details">अत्त्युत्तम! %1$s आता तुमचे %2$s पाहण्यास सक्षम होईल.</string>
-    <string name="accepted_your_favorite_request_details">तुम्ही आता %1$s\'s चे %2$s पाहू शकाल</string>
-    <string name="favorite_confirmed_notification">तुम्ही आता %1$s\'s चे %2$s पाहू शकाल</string>
+    <string name="accepted_your_favorite_request_details">तुम्ही आता %1$s\&apos;s चे %2$s पाहू शकाल</string>
+    <string name="favorite_confirmed_notification">तुम्ही आता %1$s\&apos;s चे %2$s पाहू शकाल</string>
     <string name="sent_favorite_request_tab">आता %1$s सामायिक करत आहे. तुम्हालाही तसे करायला आवडेल का?</string>
     <string name="tap_plus_add_favorites">केवळ आवडतेच तुमचे %1$s पाहू शकतील. त्यांना हुशारीने निवडा!</string>
     <string name="add_fav_msg">आता %1$s सामायिक करत आहे. तुम्हालाही तसे करायला आवडेल का?</string>
@@ -908,7 +908,7 @@
     <string name="stealth_notification_settings">सूचनापत्र सेटिंग्ज</string>
     <string name="stealth_reset_settings">अतिरिक्त सेटिंग्ज</string>
     <string name="enable_stealth_indicator">दर्शक</string>
-    <string name="enable_stealth_indicator_body">न वाचलेल्या संदेशांसाठी मुखपृष्ठ स्क्रीनवर \' हाय \' लोगो उसळवा</string>
+    <string name="enable_stealth_indicator_body">न वाचलेल्या संदेशांसाठी मुखपृष्ठ स्क्रीनवर \&apos; हाय \&apos; लोगो उसळवा</string>
     <string name="enable_stealth_notification_body">लपवलेल्या चॅटमध्ये संदेश प्राप्त केल्यानंतर सूचित करा</string>
     <string name="enable_stealth_notification">सूचनापत्र</string>
     <string name="stealth_msg_draw_an_unlock_pattern">नवीन संकेतकोड नमुना रेखाटा</string>

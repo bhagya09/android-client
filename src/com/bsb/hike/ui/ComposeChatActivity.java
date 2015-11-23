@@ -1055,9 +1055,14 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			dataString = (String) tag.data;
 		}
 
-		setupMultiSelectActionBar();
-		invalidateOptionsMenu();
-		multiSelectTitle.setText(createBroadcast ? getString(R.string.broadcast_selected, adapter.getCurrentSelection()) : 
+		/* AND-2137:: [Optional]
+		Adding this for optimization - as there is no change from 1st selection to 2nd selection in views,
+		except multiSelectTitle which is updated below anyways */
+		if (adapter.getCurrentSelection() == 1 || selectAllMode ) {
+			setupMultiSelectActionBar();
+			invalidateOptionsMenu();
+		}
+		multiSelectTitle.setText(createBroadcast ? getString(R.string.broadcast_selected, adapter.getCurrentSelection()) :
 				getString(R.string.gallery_num_selected, adapter.getCurrentSelection()));
 		}
 
@@ -1474,13 +1479,15 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		actionBar.setCustomView(multiSelectActionBar);
 		Toolbar parent=(Toolbar)multiSelectActionBar.getParent();
 		parent.setContentInsetsAbsolute(0,0);
-
-		Animation slideIn = AnimationUtils.loadAnimation(this, R.anim.slide_in_left_noalpha);
-		slideIn.setInterpolator(new AccelerateDecelerateInterpolator());
-		slideIn.setDuration(200);
-		closeBtn.startAnimation(slideIn);
-		sendBtn.startAnimation(AnimationUtils.loadAnimation(this, R.anim.scale_in));
-
+		//Begin : AND-2137
+		if(!showingMultiSelectActionBar) {
+			Animation slideIn = AnimationUtils.loadAnimation(this, R.anim.slide_in_left_noalpha);
+			slideIn.setInterpolator(new AccelerateDecelerateInterpolator());
+			slideIn.setDuration(200);
+			closeBtn.startAnimation(slideIn);
+			sendBtn.startAnimation(AnimationUtils.loadAnimation(this, R.anim.scale_in));
+		}
+		//End : AND-2137
 		showingMultiSelectActionBar = true;
 	}
 	
@@ -2966,6 +2973,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 
 			SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchMenuItem);
 			searchView.setOnQueryTextListener(onQueryTextListener);
+			searchView.setQueryHint(getString(R.string.search));
 			searchET = (AdaptxtEditText) searchView.findViewById(R.id.search_src_text);
 			Utils.setEditTextCursorDrawableColor(searchET,R.drawable.edittextcursorsearch);
 			if (!systemKeyboard)
@@ -3035,7 +3043,10 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 	@Override
 	public void onInputviewVisbility(boolean kptVisible, int height)
 	{
-		if (findViewById(R.id.composeChatNewGroupTagET).getVisibility() == View.VISIBLE|| searchET.getVisibility() == View.VISIBLE)
+		// Adding safety null checks for bug: AND-3867. No time to debug. Don't even know why the visibility check is here in first place.
+		// TODO:: debug this
+		if ((findViewById(R.id.composeChatNewGroupTagET) != null && findViewById(R.id.composeChatNewGroupTagET).getVisibility() == View.VISIBLE)
+				|| (searchET != null && searchET.getVisibility() == View.VISIBLE))
 		{
 			if (kptVisible)
 			{
