@@ -60,7 +60,7 @@ public class LocalLanguageUtils {
         HikeMessengerApp.getPubSub().publish(HikePubSub.LOCAL_LANGUAGE_CHANGED,lang);
     }
 
-    public static Locale getDeviceDefault()
+    public static Locale getDeviceDefaultLocale()
     {
         return Locale.getDefault();
     }
