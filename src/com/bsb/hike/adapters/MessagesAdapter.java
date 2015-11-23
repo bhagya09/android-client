@@ -4260,10 +4260,10 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 
 	private void fillPinTextData(StatusViewHolder statusHolder, ConvMessage convMessage, View v)
 	{
-		String msisdn = convMessage.isSent()? context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).getString(HikeMessengerApp.MSISDN_SETTING, "")
-				: ((OneToNConversation) conversation).getConvParticipantFirstNameAndSurname(convMessage.getGroupParticipantMsisdn());
-
-		statusHolder.dayTextView.setText(Utils.createStringWithName(context, msisdn, R.string.you_posted_pin, R.string.xyz_posted_pin));
+		String name = convMessage.isSent() ?
+				context.getString(R.string.you) :
+				(conversation instanceof OneToNConversation) ? ((OneToNConversation) conversation).getConvParticipantFirstNameAndSurname(convMessage.getGroupParticipantMsisdn()) : "";
+		statusHolder.dayTextView.setText(Utils.createStringWithName(context, ((OneToNConversation) conversation).getConvParticipantFirstNameAndSurname(convMessage.getGroupParticipantMsisdn()), R.string.you_posted_pin, R.string.xyz_posted_pin));
 
 		statusHolder.messageInfo.setText(convMessage.getTimestampFormatted(true, context));
 
