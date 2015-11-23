@@ -101,7 +101,7 @@ public class LocalLanguage {
             List<LocalLanguage> hikeList = getHikeSupportedLanguages(context);
             for (LocalLanguage item : hikeList)
             {
-                if (supportedLocaleSet.contains(item.getLocale()) || TextUtils.isEmpty(item.getLocale()))
+                if (supportedLocaleSet.contains(item.getLocale()) || item.getLocale().equals(PhoneLangauge.getLocale()))
                     deviceSupportedHikeList.add(item);
             }
         }

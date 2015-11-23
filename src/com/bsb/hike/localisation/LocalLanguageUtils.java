@@ -34,7 +34,7 @@ public class LocalLanguageUtils {
 
     public static String getApplicationLocalLanguageLocale()
     {
-        return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.LOCAL_LANGUAGE_PREF, "");
+        return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.LOCAL_LANGUAGE_PREF, LocalLanguage.PhoneLangauge.getLocale());
     }
 
     public static LocalLanguage getApplicationLocalLanguage(Context context)
@@ -131,7 +131,7 @@ public class LocalLanguageUtils {
             for (int i = 0; i < list.size(); i++)
             {
                 LocalLanguage item = list.get(i);
-                if ("".equals(item.getLocale()))
+                if (LocalLanguage.PhoneLangauge.getLocale().equals(item.getLocale()))
                 {
                     sortedList.add(list.get(i));
                     visited[i] = true;
