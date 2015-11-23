@@ -80,4 +80,24 @@
                 
         <item>അസുഖം</item>
     </string-array>
+    
+    <array name="photos_actions_titles">
+       <item>പ്രൊഫൈൽ ചിത്രമായി ക്രമീകരിക്കുക</item>
+       <item>സുഹൃത്തുക്കൾക്ക് അയയ്ക്കുക</item>
+       <item>ടൈംലൈനിലേക്ക് പോസ്റ്റുചെയ്യുക</item>
+	</array>
+
+	<array name="call_glowpad_descr">
+       <item>നിരാകരിക്കുക</item>
+       <item>സന്ദേശം</item>
+       <item>കോളെടുക്കുക</item>
+       <item>@null</item>
+   </array>
+   
+   <array name="call_glowpad_directions">
+       <item>വലത്</item>
+       <item>മുകളിൽ</item>
+       <item>ഇടത്</item>
+       <item>@null</item>
+   </array>
 </resources>
