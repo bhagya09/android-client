@@ -218,7 +218,7 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 		ActionBar actionBar = getSupportActionBar();
 		actionBar.setIcon(R.drawable.hike_logo_top_bar);
 		actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
-		actionBar.setBackgroundDrawable(new ColorDrawable(0xD6000000));
+//		actionBar.setBackgroundDrawable(new ColorDrawable(0xD6000000));
 		View actionBarView = LayoutInflater.from(this).inflate(R.layout.compose_action_bar, null);
 
 		actionBarView.findViewById(R.id.seprator).setVisibility(View.GONE);
@@ -229,7 +229,7 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 
 		actionBar.setCustomView(actionBarView);
 		
-		StatusBarColorChanger.setStatusBarColor(TimelineActivity.this, HikeConstants.STATUS_BAR_TIMELINE);
+//		StatusBarColorChanger.setStatusBarColor(TimelineActivity.this, HikeConstants.STATUS_BAR_TIMELINE);
 	}
 
 	private void setupMainFragment(Bundle savedInstanceState)
