@@ -16,7 +16,7 @@
         android:focusable="false"
         android:gravity="center_vertical"
         android:paddingLeft="18dp"
-        android:text="language item"
+        android:text="@string/lang_item"
         android:textColor="#8a000000"
         android:textSize="16dp" />
 

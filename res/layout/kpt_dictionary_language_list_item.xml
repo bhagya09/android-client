@@ -16,7 +16,7 @@
         <com.bsb.hike.view.CustomFontTextView
             android:id="@+id/dictionary_language_name"
             style="@style/SettingsHeaderItemTextView"
-            android:text="English" />
+            android:text="@string/language_summary" />
     </LinearLayout>
 
     <LinearLayout

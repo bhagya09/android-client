@@ -33,12 +33,14 @@ import android.widget.Filter.FilterListener;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.NUXConstants;
 import com.bsb.hike.R;
+import com.bsb.hike.StringUtils;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.bots.BotInfo;
@@ -1042,7 +1044,8 @@ public class ConversationsAdapter extends BaseAdapter
 		{
 			JSONArray participantInfoArray = metadata.getGcjParticipantInfo();
 			
-			markedUp = OneToNConversationUtils.getParticipantAddedMessage(message, context, participantInfoArray, (OneToNConvInfo)convInfo, metadata.isNewGroup()&&metadata.getGroupAdder()!=null);
+			String highlight = Utils.getConversationJoinHighlightText(participantInfoArray, (OneToNConvInfo)convInfo, metadata.isNewGroup()&&metadata.getGroupAdder()!=null, context);
+			markedUp = OneToNConversationUtils.getParticipantAddedMessage(message, context, highlight);
 		}
 		else if (message.getParticipantInfoState() == ParticipantInfoState.CHANGE_ADMIN)
 		{
@@ -1137,7 +1140,9 @@ public class ConversationsAdapter extends BaseAdapter
 
 				String userMsisdn = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).getString(HikeMessengerApp.MSISDN_SETTING, "");
 
-				markedUp = OneToNConversationUtils.getConversationNameChangedMessage(msisdn, context);
+				String participantName = userMsisdn.equals(msisdn) ? context.getString(R.string.you) : ((OneToNConvInfo) convInfo).getConvParticipantName(msisdn);
+				
+				markedUp = OneToNConversationUtils.getConversationNameChangedMessage(convInfo.getMsisdn(), context, participantName);
 			}
 		}
 		else if (message.getParticipantInfoState() == ParticipantInfoState.BLOCK_INTERNATIONAL_SMS)
@@ -1159,7 +1164,7 @@ public class ConversationsAdapter extends BaseAdapter
 				nameString = userMsisdn.equals(msisdn) ? context.getString(R.string.you) : Utils.getFirstName(convInfo.getLabel());
 			}
 
-			markedUp = Utils.createStringWithName(context, msisdn, R.string.you_chat_bg_changed, R.string.chat_bg_changed);
+			markedUp = StringUtils.getYouFormattedString(context, userMsisdn.equals(msisdn), R.string.you_chat_bg_changed, R.string.chat_bg_changed, nameString);
 		}
 		else
 		{

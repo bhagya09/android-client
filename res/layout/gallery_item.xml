@@ -77,7 +77,6 @@
             android:paddingLeft="6dp"
             android:paddingRight="6dp"
             android:singleLine="true"
-            android:text="Test"
             android:textColor="@color/actionbar_text"
             android:textSize="12sp"
             android:visibility="gone" />
@@ -91,7 +90,6 @@
             android:paddingLeft="6dp"
             android:paddingRight="6dp"
             android:singleLine="true"
-            android:text="Test"
             android:textColor="@color/actionbar_text"
             android:textSize="12sp"
             android:visibility="gone" />

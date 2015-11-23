@@ -69,8 +69,10 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
+import com.bsb.hike.StringUtils;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.chatthread.ChatThread;
 import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.dialog.ContactDialog;
@@ -97,8 +99,8 @@ import com.bsb.hike.models.PhonebookContact;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.models.Conversation.BotConversation;
 import com.bsb.hike.models.Conversation.Conversation;
-import com.bsb.hike.models.Conversation.OneToNConvInfo;
 import com.bsb.hike.models.Conversation.OneToNConversation;
+import com.bsb.hike.models.Conversation.OneToOneConversation;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.stickerdownloadmgr.SingleStickerDownloadTask;
 import com.bsb.hike.offline.OfflineConstants;
@@ -2196,9 +2198,11 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				JSONArray participantInfoArray = metadata.getGcjParticipantInfo();
 				TextView participantInfo = (TextView) inflater.inflate(layoutRes, null);
 				
-				String message = OneToNConversationUtils.getParticipantAddedMessage(convMessage, context, participantInfoArray, (OneToNConvInfo) conversation.getConvInfo(), metadata.isNewGroup()&&metadata.getGroupAdder()!=null);
+				String highlight = Utils.getOneToNConversationJoinHighlightText(participantInfoArray, (OneToNConversation) conversation, metadata.isNewGroup()&&metadata.getGroupAdder()!=null, context);
 				
-				setTextAndIconForSystemMessages(participantInfo, message, isDefaultTheme ? R.drawable.ic_joined_chat
+				String message = OneToNConversationUtils.getParticipantAddedMessage(convMessage, context, highlight);
+				
+				setTextAndIconForSystemMessages(participantInfo, Utils.getFormattedParticipantInfo(message, highlight), isDefaultTheme ? R.drawable.ic_joined_chat
 						: R.drawable.ic_joined_chat_custom);
 				((ViewGroup) participantInfoHolder.container).addView(participantInfo);
 			}
@@ -2307,11 +2311,11 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				String message;
 				if (convMessage.getParticipantInfoState() == ParticipantInfoState.CHANGED_GROUP_NAME)
 				{
-					message = OneToNConversationUtils.getConversationNameChangedMessage(msisdn, context);
+					message = OneToNConversationUtils.getConversationNameChangedMessage(conversation.getMsisdn(), context, participantName);
 				}
 				else
 				{
-					message = Utils.createStringWithName(context, msisdn, R.string.you_change_group_image, R.string.change_group_image);
+					message = StringUtils.getYouFormattedString(context, userMsisdn.equals(msisdn), R.string.you_change_group_image, R.string.change_group_image, participantName);
 				}
 
 				TextView mainMessage = (TextView) inflater.inflate(layoutRes, null);
@@ -2468,7 +2472,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 					name = userMsisdn.equals(msisdn) ? context.getString(R.string.you) : Utils.getFirstName(conversation.getLabel());
 				}
 
-				String message = Utils.createStringWithName(context, msisdn, R.string.you_chat_bg_changed, R.string.chat_bg_changed);
+				String message = StringUtils.getYouFormattedString(context, userMsisdn.equals(msisdn), R.string.you_chat_bg_changed, R.string.chat_bg_changed, name);
 
 				setTextAndIconForSystemMessages(mainMessage, Utils.getFormattedParticipantInfo(message, name), isDefaultTheme ? R.drawable.ic_change_theme
 						: R.drawable.ic_change_theme_custom);
@@ -3420,7 +3424,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 					}
 					else
 					{
-						sb.append(context.getString(R.string.and));
+						sb.append(" " + context.getString(R.string.and) + " ");
 					}
 				}
 			}
@@ -4260,10 +4264,11 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 
 	private void fillPinTextData(StatusViewHolder statusHolder, ConvMessage convMessage, View v)
 	{
-		String msisdn = convMessage.isSent()? context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).getString(HikeMessengerApp.MSISDN_SETTING, "")
-				: ((OneToNConversation) conversation).getConvParticipantFirstNameAndSurname(convMessage.getGroupParticipantMsisdn());
-
-		statusHolder.dayTextView.setText(Utils.createStringWithName(context, msisdn, R.string.you_posted_pin, R.string.xyz_posted_pin));
+		String name = convMessage.isSent() ?
+				context.getString(R.string.you) :
+				(conversation instanceof OneToNConversation) ? ((OneToNConversation) conversation).getConvParticipantFirstNameAndSurname(convMessage.getGroupParticipantMsisdn()) : "";
+				
+		statusHolder.dayTextView.setText(StringUtils.getYouFormattedString(context, convMessage.isSent(), R.string.you_xyz_posted_pin, R.string.xyz_posted_pin, name));
 
 		statusHolder.messageInfo.setText(convMessage.getTimestampFormatted(true, context));
 

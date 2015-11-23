@@ -988,11 +988,11 @@ public class Utils
 			JSONObject participant2 = (JSONObject) participantInfoArray.opt(1);
 			String name2 = convInfo.getConvParticipantName(participant2.optString(HikeConstants.MSISDN));
 
-			highlight += " and " + name2;
+			highlight += " " + context.getString(R.string.and)  + " "+ name2;
 		}
 		else if (participantInfoArray.length() > 2)
 		{
-			highlight += " and " + (participantInfoArray.length() - 1) + " others";
+			highlight += " " + context.getString(R.string.and) + " " + (participantInfoArray.length() - 1) + " " + context.getString(R.string.others_smallcase);
 		}
 		return highlight;
 	}
@@ -1011,11 +1011,11 @@ public class Utils
 			JSONObject participant2 = (JSONObject) participantInfoArray.opt(1);
 			String name2 = conversation.getConvParticipantFirstNameAndSurname(participant2.optString(HikeConstants.MSISDN));
 
-			highlight += " and " + name2;
+			highlight += " " + context.getString(R.string.and)  + " "+ name2;
 		}
 		else if (participantInfoArray.length() > 2)
 		{
-			highlight += " and " + (participantInfoArray.length() - 1) + " others";
+			highlight += " " + context.getString(R.string.and) + " " + (participantInfoArray.length() - 1) + " " + context.getString(R.string.others_smallcase);
 		}
 		return highlight;
 	}
@@ -7684,69 +7684,5 @@ public class Utils
 		{
 
 		}
-	}
-	
-	public static String createStringWithName(Context context, String msisdn, int str1, int str2)
-	{
-		String userMsisdn = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).getString(HikeMessengerApp.MSISDN_SETTING, "");
-		if (msisdn.equals(userMsisdn))
-		{
-			return context.getString(str1);
-		}
-		else
-		{
-			return String.format(context.getString(str2), ContactManager.getInstance().getContactInfoFromPhoneNoOrMsisdn(msisdn).getFirstNameAndSurname());
-		}
-	}
-	
-	public static String createStringWithNames(Context context, String msisdn1, String msisdn2, int str1, int str2, int str3)
-	{
-		String userMsisdn = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).getString(HikeMessengerApp.MSISDN_SETTING, "");
-		if (msisdn1.equals(userMsisdn) && !msisdn2.equals(userMsisdn))
-		{
-			return String.format(context.getString(str1), ContactManager.getInstance().getContactInfoFromPhoneNoOrMsisdn(msisdn2).getFirstNameAndSurname());
-		}
-		else if (!msisdn1.equals(userMsisdn) && msisdn2.equals(userMsisdn))
-		{
-			return String.format(context.getString(str2), ContactManager.getInstance().getContactInfoFromPhoneNoOrMsisdn(msisdn1).getFirstNameAndSurname());
-		}
-		else if (!msisdn1.equals(userMsisdn) && !msisdn2.equals(userMsisdn))
-		{
-			return String.format(context.getString(str3), ContactManager.getInstance().getContactInfoFromPhoneNoOrMsisdn(msisdn1).getFirstNameAndSurname(), 
-					ContactManager.getInstance().getContactInfoFromPhoneNoOrMsisdn(msisdn2).getFirstNameAndSurname());
-		}
-		return "";
-	}
-	
-	public static String createStringWithNames(Context context, int str1, int str2, int str3, JSONArray participantInfoArray, OneToNConvInfo convInfo, boolean newGrp)
-	{
-		if (newGrp)
-		{
-			return String.format(context.getString(str1), R.string.you);
-		}
-		
-		JSONObject participant = (JSONObject) participantInfoArray.opt(0);
-		String name1 = convInfo.getConvParticipantName(participant.optString(HikeConstants.MSISDN));
-		
-		if (participantInfoArray.length() == 1)
-		{
-			String str = String.format(context.getString(str1), name1);
-			return str;
-		}
-		else if (participantInfoArray.length() == 2)
-		{
-			JSONObject participant2 = (JSONObject) participantInfoArray.opt(1);
-			String name2 = convInfo.getConvParticipantName(participant2.optString(HikeConstants.MSISDN));
-			String str = String.format(context.getString(str2), name1, name2);
-			return str;
-		}
-		else if (participantInfoArray.length() > 2)
-		{
-			JSONObject participant2 = (JSONObject) participantInfoArray.opt(1);
-			String name2 = convInfo.getConvParticipantName(participant2.optString(HikeConstants.MSISDN));
-			String str = String.format(context.getString(str3), name1, name2, (participantInfoArray.length() - 1));
-			return str;
-		}
-		return "";
 	}
 }

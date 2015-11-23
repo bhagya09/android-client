@@ -58,7 +58,7 @@
                         android:layout_alignBottom="@+id/name"
                         android:layout_alignParentRight="true"
                         android:paddingBottom="2dp"
-                        android:text="2 mins ago"
+                        android:text="@string/two_mins_ago"
                         android:textColor="@color/black"
                         android:textSize="12dp" />
 
@@ -90,7 +90,7 @@
                         android:id="@+id/main_info"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Added you as a friend"
+                        android:text="@string/added_you_friend"
                         android:textColor="@color/black"
                         android:textSize="16dp"
                         android:textStyle="italic" />

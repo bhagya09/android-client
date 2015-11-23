@@ -58,7 +58,7 @@
                     android:layout_alignTop="@id/stealth_passcode_img"
                     android:layout_centerVertical="true"
                     android:layout_toRightOf="@id/stealth_passcode_img"
-                    android:text="Your patterns don’t match. Try again. jla aldfa ld faldf alsdf a"
+                    android:text="@string/alp_42447968_msg_try_again"
                     android:textAppearance="?android:attr/textAppearanceMedium"
                     android:textIsSelectable="false"
                     android:textSize="14dp" />

@@ -31,7 +31,7 @@
             android:shadowDy="0.5"
             android:shadowRadius="0.5"
             android:gravity="center"
-            android:text="Happy"
+            android:text="@string/happy"
             android:textColor="@color/mood_text"
             android:textSize="11sp"
             android:textStyle="bold|italic" />

@@ -26,23 +26,23 @@ public class LocalLanguage {
 
     public static final LocalLanguage PhoneLangauge = new LocalLanguage(HikeMessengerApp.getInstance().getString(R.string.phone_language), "");
 
-    public static final LocalLanguage English = new LocalLanguage("English", "en");
+    public static final LocalLanguage English = new LocalLanguage("English", HikeMessengerApp.getInstance().getString(R.string.english_locale));
 
-    public static final LocalLanguage Hindi = new LocalLanguage("हिन्दी", "hi");
+    public static final LocalLanguage Hindi = new LocalLanguage("हिन्दी", HikeMessengerApp.getInstance().getString(R.string.hindi_locale));
 
-    public static final LocalLanguage Bengali = new LocalLanguage("বাংলা", "bn");
+    public static final LocalLanguage Bengali = new LocalLanguage("বাংলা", HikeMessengerApp.getInstance().getString(R.string.bengali_locale));
 
-    public static final LocalLanguage Marathi = new LocalLanguage("मराठी", "mr");
+    public static final LocalLanguage Marathi = new LocalLanguage("मराठी", HikeMessengerApp.getInstance().getString(R.string.marathi_locale));
 
-    public static final LocalLanguage Gujarati = new LocalLanguage("ગુજરાતી", "gu");
+    public static final LocalLanguage Gujarati = new LocalLanguage("ગુજરાતી", HikeMessengerApp.getInstance().getString(R.string.gujarati_locale));
 
-    public static final LocalLanguage Tamil = new LocalLanguage("தமிழ்", "ta");
+    public static final LocalLanguage Tamil = new LocalLanguage("தமிழ்", HikeMessengerApp.getInstance().getString(R.string.tamil_locale));
 
-    public static final LocalLanguage Telugu = new LocalLanguage("తెలుగు", "te");
+    public static final LocalLanguage Telugu = new LocalLanguage("తెలుగు", HikeMessengerApp.getInstance().getString(R.string.telugu_locale));
 
-    public static final LocalLanguage Kannada = new LocalLanguage("ಕನ್ನಡ", "kn");
+    public static final LocalLanguage Kannada = new LocalLanguage("ಕನ್ನಡ", HikeMessengerApp.getInstance().getString(R.string.kannada_locale));
 
-    public static final LocalLanguage Malayalam = new LocalLanguage("മലയാളം", "ml");
+    public static final LocalLanguage Malayalam = new LocalLanguage("മലയാളം", HikeMessengerApp.getInstance().getString(R.string.malayalam_locale));
 
     private static ArrayList<LocalLanguage> hikeSupportedList;
 

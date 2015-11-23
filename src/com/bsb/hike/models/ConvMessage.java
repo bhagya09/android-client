@@ -16,11 +16,11 @@ import com.bsb.hike.HikeConstants.ConvMessagePacketKeys;
 import com.bsb.hike.HikeConstants.MESSAGE_TYPE;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
+import com.bsb.hike.StringUtils;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.models.ContactInfoData.DataType;
 import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.models.Conversation.GroupConversation;
-import com.bsb.hike.models.Conversation.OneToNConvInfo;
 import com.bsb.hike.models.Conversation.OneToNConversation;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.modules.contactmgr.ContactManager;
@@ -579,7 +579,8 @@ public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique, C
 		{
 		case PARTICIPANT_JOINED:
 			JSONArray arr = metadata.getGcjParticipantInfo();
-			this.mMessage = OneToNConversationUtils.getParticipantAddedMessage(this, context, arr, (OneToNConvInfo) conversation.getConvInfo(), metadata.isNewGroup()&&metadata.getGroupAdder()!=null);
+			String highlight = Utils.getOneToNConversationJoinHighlightText(arr, (OneToNConversation) conversation, metadata.isNewGroup()&&metadata.getGroupAdder()!=null, context);
+			this.mMessage = OneToNConversationUtils.getParticipantAddedMessage(this, context, highlight);
 			break;
 		case PARTICIPANT_LEFT:
 			this.mMessage = OneToNConversationUtils.getParticipantRemovedMessage(conversation.getMsisdn(), context, ((OneToNConversation) conversation).getConvParticipantFirstNameAndSurname(metadata.getMsisdn()));
@@ -647,11 +648,11 @@ public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique, C
 			
 			if (participantInfoState == ParticipantInfoState.CHANGED_GROUP_NAME)
 			{
-				this.mMessage = OneToNConversationUtils.getConversationNameChangedMessage(msisdn, context);
+				this.mMessage = OneToNConversationUtils.getConversationNameChangedMessage(conversation.getMsisdn(), context, participantName);
 			}
 			else
 			{
-				this.mMessage = Utils.createStringWithName(context, msisdn, R.string.you_change_group_image, R.string.change_group_image);
+				this.mMessage = StringUtils.getYouFormattedString(context, userMsisdn.equals(msisdn), R.string.you_change_group_image, R.string.change_group_image, participantName);
 			}
 			break;
 		case BLOCK_INTERNATIONAL_SMS:
@@ -691,7 +692,7 @@ public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique, C
 				{
 					nameString = Utils.getFirstName(conversation.getLabel());
 				}
-				this.mMessage = Utils.createStringWithName(context, metadata.getMsisdn(), R.string.you_chat_bg_changed, R.string.chat_bg_changed);
+				this.mMessage = context.getString(R.string.chat_bg_changed, nameString);
 			}
 			break;
 		case VOIP_MISSED_CALL_INCOMING:
