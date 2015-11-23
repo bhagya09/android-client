@@ -519,11 +519,14 @@ public class StickyCaller
 			stickyCallerFrameHolder.addView(stickyCallerView);
 			windowManager.addView(stickyCallerFrameHolder, callerParams);
 			stickyCallerView.setOnTouchListener(onSwipeTouchListener);
-			if (CALL_TYPE != INCOMING && CALL_TYPE != OUTGOING)
+			if (CALL_TYPE == CLIPBOARD)
 			{
 				removeCallerViewWithDelay(OUTGOING_DELAY);
 			}
-			CALL_TYPE = NONE;
+			if (CALL_TYPE != INCOMING && CALL_TYPE != OUTGOING)
+			{
+				CALL_TYPE = NONE;
+			}
 		}
 		catch (Exception e)
 		{
