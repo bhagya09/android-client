@@ -21,6 +21,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Created by gauravmittal on 20/10/15.
@@ -58,6 +59,12 @@ public class LocalLanguageUtils {
         Utils.sendLocaleToServer(HikeMessengerApp.getInstance());
         HikeMessengerApp.getPubSub().publish(HikePubSub.LOCAL_LANGUAGE_CHANGED,lang);
     }
+
+    public static Locale getDeviceDefaultLocale()
+    {
+        return Locale.getDefault();
+    }
+
     public static void requestLanguageOrderListFromServer()
     {
 
