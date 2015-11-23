@@ -83,10 +83,7 @@ public class OneToNConversationUtils
 						participantAddedMessage = context.getString(
 								R.string.created_group_text, highlight);
 					}else{
-					    participantAddedMessage = adder
-								+ " "
-								+ context.getString(R.string.group_member_added,
-										highlight);
+						participantAddedMessage = String.format(context.getString(R.string.group_member_added), adder, highlight);
 					}
 				
 				}
@@ -99,7 +96,7 @@ public class OneToNConversationUtils
 					String adder = "";
 					if (groupAdder.equalsIgnoreCase(preferences.getString(
 							HikeMessengerApp.MSISDN_SETTING, ""))) {
-						adder = context.getString(R.string.you);
+						participantAddedMessage = String.format(context.getString(R.string.you_group_member_added), highlight);
 					} else {
 						if (groupAdder != null
 								&& groupAdder.trim().length() > 0) {
@@ -109,11 +106,8 @@ public class OneToNConversationUtils
 								adder = contact.getFirstNameAndSurname();
 							}
 						}
+						participantAddedMessage = String.format(context.getString(R.string.group_member_added), adder, highlight);
 					}
-					participantAddedMessage = adder
-							+ " "
-							+ context.getString(R.string.group_member_added,
-									highlight);
 				}
 			}
 		}

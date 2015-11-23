@@ -1028,7 +1028,8 @@
 	<string name="add_members">Add Members</string>
 	<string name="add_members_to_conference">Add To Conference</string>
 	<string name="created_group_text">You created the group chat</string>
-	<string name="group_member_added">added %1$s</string>
+	<string name="group_member_added">%1$s added %2$s</string>
+	<string name="you_group_member_added">You added %1$s</string>
 	<string name="num_members">%1$d members</string>
 	<string name="num_member">%1$d member</string>
 	<string name="profile_pic_upload_in_background">Profile picture upload will continue..</string>
@@ -1293,5 +1294,5 @@
     <string name="no_results_found">No results found</string>
     <string name="APPLY">APPLY</string>
     <string name="and">and</string>
-	
+	<string name="others_smallcase">others</string>
 </resources>
