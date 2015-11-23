@@ -81,4 +81,24 @@
         <item>অসুস্থ</item>
             
     </string-array>
+    
+    <array name="photos_actions_titles">
+       <item>প্রোফাইল ছবি হিসাবে সেট করুন</item>
+       <item>বন্ধুদের পাঠান</item>
+       <item>টাইমলাইনে পোস্ট করুন</item>
+	</array>
+
+	<array name="call_glowpad_descr">
+       <item>খারিজ করুন</item>
+       <item>মেসেজ</item>
+       <item>পিকআপ</item>
+       <item>@null</item>
+   </array>
+   
+   <array name="call_glowpad_directions">
+       <item>ডান</item>
+       <item>শীর্ষ</item>
+       <item>বাম</item>
+       <item>@null</item>
+   </array>
 </resources>
