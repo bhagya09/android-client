@@ -1717,6 +1717,11 @@ private void setupToolBar(int titleRes){
 				{
 					SwitchPreferenceCompat stealthIndicatorEnabled = (SwitchPreferenceCompat)getPreferenceScreen().findPreference(HikeConstants.STEALTH_INDICATOR_ENABLED);
 					boolean newValue = stealthBundle.getBoolean(HikeConstants.STEALTH_INDICATOR_ENABLED);
+					if(!newValue)
+					{
+						HikeSharedPreferenceUtil.getInstance().removeData(HikeConstants.STEALTH_INDICATOR_SHOW_REPEATED);
+						HikeSharedPreferenceUtil.getInstance().removeData(HikeConstants.STEALTH_INDICATOR_SHOW_ONCE);
+					}
 					stealthIndicatorEnabled.setChecked(newValue);
 					metadata.put(HikeConstants.KEY, HikeConstants.STEALTH_INDICATOR_ENABLED);
 					metadata.put(HikeConstants.VALUE, newValue);

@@ -502,6 +502,10 @@ public class HikeConstants
 	public static final String CHANGE_STEALTH_TIMEOUT = "changeStealthTimeout";
 
 	public static final String STEALTH_INDICATOR_ENABLED = "stealthIndicatorEnabled";
+	
+	public static final String STEALTH_INDICATOR_SHOW_REPEATED = "stealthIndicatorShowRepeated";
+	
+	public static final String STEALTH_INDICATOR_SHOW_ONCE = "stealthIndicatorShowOnce";
 
 	public static final String STEALTH_NOTIFICATION_ENABLED = "stealthNotificationEnabled";
 
