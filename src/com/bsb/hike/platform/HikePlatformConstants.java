@@ -294,4 +294,5 @@ public interface HikePlatformConstants
 	public static final String NATASHA_MSISDN = "+hike5+";
 	
 	public static final String CRICKET_HIKE_MSISDN = "+hikecricket+";
+
 }
