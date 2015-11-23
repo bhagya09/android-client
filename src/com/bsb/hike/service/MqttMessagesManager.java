@@ -2716,10 +2716,6 @@ public class MqttMessagesManager
 				HikeMessengerApp.getPubSub().publish(HikePubSub.SHOW_NEW_CHAT_RED_DOT, null);
 			}
 		}
-		if (data.has(HikeConstants.CUSTOM_KEYBOARD_ENABLED))
-		{
-				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CUSTOM_KEYBOARD_ENABLED, data.optBoolean(HikeConstants.CUSTOM_KEYBOARD_ENABLED));
-		}
 		if (data.has(HikeConstants.BADGECOUNTER))
 		{
 			boolean enableBadgeCount = data.getBoolean(HikeConstants.BADGECOUNTER);

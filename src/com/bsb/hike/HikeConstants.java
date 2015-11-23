@@ -3644,8 +3644,6 @@ public class HikeConstants
 
 	public static final String NEW_CHAT_RED_DOT = "nc_dot";
 	
-	public static final String CUSTOM_KEYBOARD_ENABLED = "cust_kbd";
-	
 	public static final String BADGE_COUNT_ENABLED="badgeCountEnabled";
 	
 	public static final String BADGECOUNTER="badgeCounter";
