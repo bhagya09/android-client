@@ -23,6 +23,7 @@ import com.bsb.hike.models.GroupParticipant;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.NotificationPreview;
 import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.SmileyParser;
 import com.bsb.hike.utils.Utils;
@@ -68,7 +69,7 @@ public class HikeNotificationUtils
 			}
 			else
 			{
-				message = Utils.createStringWithName(context, msisdn, R.string.you_chat_bg_changed, R.string.chat_bg_changed);
+				message = context.getString(R.string.chat_bg_changed, contactInfo.getFirstName());
 			}
 		}
 
