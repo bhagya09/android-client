@@ -40,6 +40,7 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.NUXConstants;
 import com.bsb.hike.R;
+import com.bsb.hike.StringUtils;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.bots.BotInfo;
@@ -1163,7 +1164,7 @@ public class ConversationsAdapter extends BaseAdapter
 				nameString = userMsisdn.equals(msisdn) ? context.getString(R.string.you) : Utils.getFirstName(convInfo.getLabel());
 			}
 
-			markedUp = context.getString(R.string.chat_bg_changed, nameString);
+			markedUp = StringUtils.getYouFormattedString(context, userMsisdn.equals(msisdn), R.string.you_chat_bg_changed, R.string.chat_bg_changed, nameString);
 		}
 		else
 		{

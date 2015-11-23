@@ -73,7 +73,9 @@
     <string name="unlink_facebook_confirmation">Are you sure you want to unlink your facebook account from Hike?</string>
     <string name="unlink_twitter_confirmation">Are you sure you want to unlink your twitter account from Hike?</string>
     <string name="change_group_name">%1$s changed the group name.</string>
+    <string name="you_change_group_name">You changed the group name.</string>
     <string name="change_broadcast_name">%1$s changed the broadcast name.</string>
+    <string name="you_change_broadcast_name">You changed the broadcast name.</string>
     <string name="block_internation_sms">SMS can only be sent to India</string>
     <string name="block_internation_sms_bold_text">India</string>
     <string name="invite_via_sms">Invite via SMS</string>
@@ -170,6 +172,7 @@
     <string name="location_disabled">Cannot fetch your location. Please check your settings.</string>
     <string name="tap_here_invite">Tap here to invite this person</string>
     <string name="change_group_image">%1$s changed the group image.</string>
+    <string name="you_change_group_image">You changed the group image.</string>
     <string name="faq">FAQs</string>
     <string name="gallery">Gallery</string>
     <string name="number_confirm_title">Confirm your number</string>
@@ -321,6 +324,7 @@
     <string name="select_all">Select all (%1$d)</string>
     <string name="deselect_all">Deselect all (%1$d)</string>
     <string name="chat_bg_changed">%1$s changed the chat theme</string>
+    <string name="you_chat_bg_changed">You changed the chat theme</string>
     <string name="chat_theme">Chat Theme</string>
     <string name="last_seen_today_ct">today, %1$s</string>
     <string name="last_seen_yesterday_ct">yesterday, %1$s</string>
@@ -601,6 +605,7 @@
     <string name="max_pin_unread_counter">9+</string>
     <string name="pin_text_hint">Share something important...</string>
     <string name="xyz_posted_pin">%1$s posted a pin</string>
+    <string name="you_xyz_posted_pin">You posted a pin</string>
     <string name="pinHistoryTutorialText">No pins yet</string>
     <string name="incorrect_msisdn_warning">Incorrect Number</string>
     <string name="incorrect_msisdn_msg">Please enter the number registered with hike on this phone.</string>
@@ -1036,7 +1041,10 @@
 	<string name="make_admin">Make Admin</string>
 	<string name="admin_updating">Making %1$s an Admin</string>
 	<string name="admin_task_error">Connection error: Please check your network and try again.</string>
-	<string name="group_admin_updated">made %1$s an Admin</string>
+	<string name="group_admin_updated">%1$s made %2$s an Admin</string>
+	<string name="group_admin_updated_you">%1$s made you an Admin</string>
+	<string name="you_updated_group_admin">You made %1$s an Admin</string>
+	
 	<string name="group_setting_option_only_admin">Only Admins can add members</string>
 	<string name="group_setting_updating">Changing group privacy settings</string>
 	<string name="group_setting_confirmation1">Allow everyone to add members?</string>
@@ -1284,5 +1292,6 @@
     <string name="user_gps_off">Hike Direct cannot work till your location is enabled.</string>
     <string name="no_results_found">No results found</string>
     <string name="APPLY">APPLY</string>
+    <string name="and">and</string>
 	
 </resources>
