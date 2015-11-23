@@ -154,6 +154,27 @@ public class ChatHeadUtils
 	    Date resultdate = new Date(System.currentTimeMillis());
 	    return formatter.format(resultdate).replace("am", "AM").replace("pm", "PM");
 	}
+
+	public static String getValidNumber(String number)
+	{
+		String regex = "^(\\s*\\+?(\\d{1,3}\\s?\\-?){3,6}\\s*)$";
+
+		String validNumber = "";
+
+		if (number == null && !number.matches(regex))
+		{
+			return null;
+		}
+
+		for (int var = 0; var < number.length(); var++)
+		{
+			if (Character.isDigit(number.charAt(var)) || (number.charAt(var) == '+'))
+			{
+				validNumber = validNumber + number.charAt(var);
+			}
+		}
+		return validNumber;
+	}
 	
 	public static void getRunningTaskPackage(Context context, ActivityManager activityManager, List<RunningAppProcessInfo> processInfos, Set<String> packageName, int type)
 	{
@@ -615,10 +636,12 @@ public class ChatHeadUtils
 	{
 		if (searchNumber != null && !searchNumber.contains("*") && !searchNumber.contains("#"))
 		{
-			final String number = Utils.normalizeNumber(
-					searchNumber,
-					HikeMessengerApp.getInstance().getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0)
-							.getString(HikeMessengerApp.COUNTRY_CODE, HikeConstants.INDIA_COUNTRY_CODE));
+			final String number = getValidNumber(Utils.normalizeNumber(
+				searchNumber,
+				HikeMessengerApp.getInstance().getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0)
+						.getString(HikeMessengerApp.COUNTRY_CODE, HikeConstants.INDIA_COUNTRY_CODE)));
+			if (number != null)
+			{
 			String contactName = getNameAndAddressFromNumber(context, number);
 			if (contactName != null)
 			{
@@ -649,6 +672,7 @@ public class ChatHeadUtils
 				StickyCaller.showCallerView(number, null, StickyCaller.LOADING, null);
 				requestToken.execute();
 			}
+		}
 		}
 	}
 	

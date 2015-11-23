@@ -24,25 +24,17 @@ public class ClipboardListener implements OnPrimaryClipChangedListener
 		{
 			clipboardText = null;
 		}
-		if (clipboardText != null)
+
+		String number = ChatHeadUtils.getValidNumber(clipboardText);
+
+		if (number != null)
 		{
-			String regex = "^(\\s*\\+?(\\d{1,3}\\s?\\-?){3,6}\\s*)$";
-			if (clipboardText.matches(regex))
+			if (number.length() >= MIN_DIGIT_CONST && number.length() <= MAX_DIGIT_CONST)
 			{
-				String number = "";
-				for (int var = 0; var < clipboardText.length(); var++)
-				{
-					if (Character.isDigit(clipboardText.charAt(var)) || (clipboardText.charAt(var) == '+'))
-					{
-						number = number + clipboardText.charAt(var);
-					}
-				}
-				if (number.length() >= MIN_DIGIT_CONST && number.length() <= MAX_DIGIT_CONST)
-				{
-					StickyCaller.CALL_TYPE = StickyCaller.CLIPBOARD;
-					ChatHeadUtils.postNumberRequest(HikeMessengerApp.getInstance().getApplicationContext(), number);
-				}
+				StickyCaller.CALL_TYPE = StickyCaller.CLIPBOARD;
+				ChatHeadUtils.postNumberRequest(HikeMessengerApp.getInstance().getApplicationContext(), number);
 			}
 		}
+
 	}
 }
