@@ -58,6 +58,8 @@ import com.bsb.hike.filetransfer.FileTransferManager;
 import com.bsb.hike.filetransfer.FileTransferManager.NetworkType;
 import com.bsb.hike.imageHttp.HikeImageDownloader;
 import com.bsb.hike.imageHttp.HikeImageWorker;
+import com.bsb.hike.localisation.LocalLanguage;
+import com.bsb.hike.localisation.LocalLanguageUtils;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.models.ConvMessage;
@@ -2735,7 +2737,10 @@ public class MqttMessagesManager
 		}
 		if (data.has(HikeConstants.LOCALIZATION_ENABLED))
 		{
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.LOCALIZATION_ENABLED,data.optBoolean(HikeConstants.LOCALIZATION_ENABLED));
+			boolean localizationEnabled = data.optBoolean(HikeConstants.LOCALIZATION_ENABLED);
+			if (!localizationEnabled)
+				LocalLanguageUtils.setApplicationLocalLanguage(LocalLanguage.PhoneLangauge);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.LOCALIZATION_ENABLED, localizationEnabled);
 		}
 		if (data.has(HikeConstants.AUTOCORRECT_KEYBOARD_ENABLED))
 		{
