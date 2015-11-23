@@ -15,17 +15,15 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.net.Uri;
 import android.text.TextUtils;
-import android.util.Base64;
 import android.util.SparseArray;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
-import com.bsb.hike.HikePubSub;
 import com.bsb.hike.bots.BotInfo;
+import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.db.DBConstants.HIKE_CONTENT;
 import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.models.WhitelistDomain;
-import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.productpopup.ProductContentModel;
 import com.bsb.hike.productpopup.ProductInfoManager;
@@ -707,9 +705,7 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 			
 			if (!TextUtils.isEmpty(thumbnailString))
 			{
-				ContactManager.getInstance().setIcon(msisdn, Base64.decode(thumbnailString, Base64.DEFAULT), false);
-				HikeMessengerApp.getLruCache().clearIconForMSISDN(msisdn);
-				HikeMessengerApp.getPubSub().publish(HikePubSub.ICON_CHANGED, msisdn);
+				BotUtils.createAndInsertBotDp(msisdn, thumbnailString);
 			}
 
 			return mBotInfo;

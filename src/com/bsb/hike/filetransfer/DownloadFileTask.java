@@ -43,7 +43,7 @@ public class DownloadFileTask extends FileTransferBase
 	private final int DOWNLOAD_CHUNK_SIZE = 4 * 1024;
 
 	protected DownloadFileTask(Handler handler, ConcurrentHashMap<Long, FutureTask<FTResult>> fileTaskMap, Context ctx, File destinationFile, String fileKey, long msgId,
-			HikeFileType hikeFileType, Object userContext, boolean showToast, String token, String uId)
+			HikeFileType hikeFileType, ConvMessage userContext, boolean showToast, String token, String uId)
 	{
 		super(handler, fileTaskMap, ctx, destinationFile, msgId, hikeFileType, token, uId);
 		this.fileKey = fileKey;
@@ -94,7 +94,7 @@ public class DownloadFileTask extends FileTransferBase
 		RandomAccessFile raf = null;
 		try
 		{
-			HikeFile hikeFile = ((ConvMessage)userContext).getMetadata().getHikeFiles().get(0);
+			HikeFile hikeFile = userContext.getMetadata().getHikeFiles().get(0);
 			mUrl = getDownloadURL(hikeFile);
 
 			this.analyticEvents =  FTAnalyticEvents.getAnalyticEvents(FileTransferManager.getInstance(context).getAnalyticFile(hikeFile.getFile(), msgId));
@@ -461,7 +461,7 @@ public class DownloadFileTask extends FileTransferBase
 					context.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(mFile)));
 				}
 				if (HikeFileType.IMAGE == hikeFileType)
-					HikeMessengerApp.getPubSub().publish(HikePubSub.PUSH_FILE_DOWNLOADED, (ConvMessage) userContext);
+					HikeMessengerApp.getPubSub().publish(HikePubSub.PUSH_FILE_DOWNLOADED, userContext);
 			}
 		}
 		else if (result != FTResult.PAUSED) // if no PAUSE
