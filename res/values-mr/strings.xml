@@ -179,7 +179,7 @@
     <string name="target_account">संपर्क या खात्यावर जतन करा</string>
     <string name="save">जतन करा</string>
     <string name="my_profile">माझे प्रोफाईल</string>
-    <string name="updating_status">स्थिती अद्यतनीत करत आहे</string>
+    <string name="updating_status">स्टेटस अद्यतनीत करत आहे</string>
     <string name="send_message">संदेश पाठवा</string>
     <string name="make_call">कॉल करा</string>
     <string name="on_sms">SMS वर</string>
@@ -200,7 +200,7 @@
     <string name="system_health">प्रणाली आरोग्य</string>
     <string name="you">तुम्ही</string>
     <string name="delete_status">अद्यतन हटवा</string>
-    <string name="delete_status_error">तुमचे स्थिती अद्यतन हटवू शकलो नाही. कृपया तुमचे नेटवर्क कनेक्शन तपासा आणि नंतर पुन्हा प्रयत्न करा.</string>
+    <string name="delete_status_error">तुमचे स्टेटस अद्यतन हटवू शकलो नाही. कृपया तुमचे नेटवर्क कनेक्शन तपासा आणि नंतर पुन्हा प्रयत्न करा.</string>
     <string name="deleting_status">अद्यतन हटवत आहे...</string>
     <string name="tap_here_block">हा क्रमांक अवरोधित करण्यासाठी येथे टॅप करा</string>
     <string name="which_friend_invite">तुमच्या मित्रांना एक विनामूल्य SMS आमंत्रण पाठवा.</string>
@@ -211,7 +211,7 @@
     <string name="message_charcter_limit">140</string>
     <string name="changed_profile">प्रोफाईल चित्र बदलले</string>
     <string name="confirmed_friend">हा आता मित्र आहे</string>
-    <string name="update_status_fail">स्थिती अद्यतनीत करू शकलो नाही. कृपया तुमचे नेटवर्क कनेक्शन तपासा आणि नंतर पुन्हा प्रयत्न करा.</string>
+    <string name="update_status_fail">स्टेटस अद्यतनीत करू शकलो नाही. कृपया तुमचे नेटवर्क कनेक्शन तपासा आणि नंतर पुन्हा प्रयत्न करा.</string>
     <string name="file_expire">ही फाइल आता अस्तित्वात नाही.</string>
     <string name="error_setting_profile">तुमची प्रोफाईल प्रतिमा सेट करताना त्रुटी.</string>
     <string name="continue_txt">सुरु ठेवा</string>
@@ -413,7 +413,7 @@
     <string name="cannot_select_zero_byte_file">0 बाइटची फाइल निवडू शकत नाही</string>
     <string name="addedYouAsFavorite">आवडते मध्ये %1$s जोडले</string>
     <string name="addedYouFrindDescription">
-<![CDATA[ तुम्ही आता तुमचे <font color="#ef554e">शेवटचे पाहिले</font> आणि <font color="#1da8e8">स्थिती अद्यतने</font> %1$s सह सामायिक करत आहात. तुम्हाला त्यांनी असेच करावे अशी विनंती करायला आवडेल?
+<![CDATA[ तुम्ही आता तुमचे <font color="#ef554e">शेवटचे पाहिले</font> आणि <font color="#1da8e8">स्टेटस अद्यतने</font> %1$s सह सामायिक करत आहात. तुम्हाला त्यांनी असेच करावे अशी विनंती करायला आवडेल?
 	    ]]>
     </string>
     <string name="ftue_favorite_subtext">आवडते म्हणून जोडा</string>
@@ -426,7 +426,7 @@
     <string name="favorites_ftue_item_label">आवडते जोडा</string>
     <string name="group_chats_upper_case">समूह चॅट</string>
     <string name="max_num_files_reached">%1$s fपेक्षा अधिक फायली सामायिक करू शकत नाही</string>
-    <string name="status_updates_proper_casing">स्थिती अद्यतने</string>
+    <string name="status_updates_proper_casing">स्टेटस अद्यतने</string>
     <string name="CONFIRM">पुष्टी करा</string>
     <string name="CONTINUE">सुरु ठेवा</string>
     <string name="alp_42447968_cmd_forgot_pattern">नमुना विसरलात?</string>
@@ -480,7 +480,7 @@
     <string name="tickSoundTitle">संभाषण टोन</string>
     <string name="tickSoundSummary">येणाऱ्या आणि जाणाऱ्या संदेशांसाठी ध्वनी प्ले करा</string>
     <string name="notificationSoundTitle">सूचनापत्र टोन</string>
-    <string name="status">स्थिती</string>
+    <string name="status">स्टेटस</string>
     <string name="getting_started">आरंभ करत आहे..</string>
     <string name="viewcontact">प्रोफाईल पहा</string>
     <string name="add_to_contacts_existing">वर्तमान संपर्कात जोडा</string>
@@ -506,8 +506,8 @@
     <string name="add_shortcut">शॉर्टकट जोडा</string>
     <string name="timeline">टाइमलाईन</string>
     <string name="add_favorites_upper_case">आवडते जोडा</string>
-    <string name="status_update_tip_header">तुमची स्थिती पोस्ट करा</string>
-    <string name="status_update_tip_msg">स्थिती केवळ आवडत्यांनाच दृश्यमान राहील</string>
+    <string name="status_update_tip_header">तुमचा स्टेटस पोस्ट करा</string>
+    <string name="status_update_tip_msg">स्टेटस केवळ आवडत्यांनाच दृश्यमान राहील</string>
     <string name="new_ui_welcome_tip_header">नवीन hike वर स्वागत असो</string>
     <string name="new_ui_welcome_tip_msg">वापरायला अधिक सोपे आणि आधीपेक्षा अधिक जलद</string>
     <string name="camera">कॅमेरा</string>
@@ -529,11 +529,11 @@
     <string name="native_sms_invite_6">अहो, hike संदेशन वापरून पहा. तुम्ही ऑफलाइन असलेल्या मित्रांसह देखील चॅट करू शकता. डाउनलोड करा - http://hike.in आणि तुमचे जीवन Hike करा!</string>
     <string name="new_chat_tip_msg">तयार करण्यासाठी टॅप करा</string>
     <string name="ftue_status_update_card_header">स्वतःला व्यक्त करा</string>
-    <string name="ftue_status_update_card_msg">स्थिती अद्यतन पोस्ट करण्यासाठी येथे टॅप करा. फक्त तुमचे आवडतेच ते पाहू शकतील.</string>
+    <string name="ftue_status_update_card_msg">स्टेटस अद्यतन पोस्ट करण्यासाठी येथे टॅप करा. फक्त तुमचे आवडतेच ते पाहू शकतील.</string>
     <string name="earn_free_sms">विनामूल्य SMS कमवा</string>
     <string name="email_subject">तुमचे जीवन hike करा</string>
     <string name="ftue_card_header_last_seen">शेवटचे पाहिले</string>
-    <string name="ftue_card_body_last_seen">केवळ आवडतेच तुमचे शेवटचे पाहिले आणि स्थिती अद्यतने पाहू शकतील</string>
+    <string name="ftue_card_body_last_seen">केवळ आवडतेच तुमचे शेवटचे पाहिले आणि स्टेटस अद्यतने पाहू शकतील</string>
     <string name="ftue_card_click_text_last_seen">त्यांना निवडण्यासाठी येथे टॅप करा!</string>
     <string name="ftue_card_header_hike_offline">Hike ऑफलाइन</string>
     <string name="ftue_card_body_hike_offline">मित्रांना ते ऑफलाइन असतानासुद्धा संदेश पाठवा</string>
@@ -601,8 +601,8 @@
     <string name="delete_account_heading_2">तुमचे खाते हटवण्यासाठी, तुमचा क्रमांक प्रविष्ट करा</string>
     <string name="delete_my_account">माझे खाते हटवा</string>
     <string name="hike_extras">पारितोषिके/अतिरिक्त</string>
-    <string name="mute_status_notification_header">स्थिती आणि प्रोफाईल चित्र</string>
-    <string name="mute_status_notification_subtext">आवडत्यांकडील स्थिती आणि प्रोफाईल चित्र अद्यतनांसाठी सूचनापत्रे दर्शवा</string>
+    <string name="mute_status_notification_header">स्टेटस आणि प्रोफाईल चित्र</string>
+    <string name="mute_status_notification_subtext">आवडत्यांकडील स्टेटस आणि प्रोफाईल चित्र अद्यतनांसाठी सूचनापत्रे दर्शवा</string>
     <string name="notifications_contact_join_summary">संपर्क hike मध्ये सामील होतो तेव्हा सूचना द्या</string>
     <string name="set_profile_pic"> Hike प्रोफाईल चित्र</string>
     <string name="confirm_delete_pin_header">PIN हटवा</string>
@@ -889,7 +889,7 @@
     <string name="sent_favorite_request_tab">आता %1$s सामायिक करत आहे. तुम्हालाही तसे करायला आवडेल का?</string>
     <string name="tap_plus_add_favorites">केवळ आवडतेच तुमचे %1$s पाहू शकतील. त्यांना हुशारीने निवडा!</string>
     <string name="add_fav_msg">आता %1$s सामायिक करत आहे. तुम्हालाही तसे करायला आवडेल का?</string>
-    <string name="both_ls_status_update">शेवटचे पाहिले आणि स्थिती अद्यतने</string>
+    <string name="both_ls_status_update">शेवटचे पाहिले आणि स्टेटस अद्यतने</string>
     <string name="retry_platform_failure">पुन्हा प्रयत्न करा</string>
     <string name="platform_error_text">काहीतरी चुकले</string>
     <string name="platform_error_subtext">कृपया तुमचे इंटरनेट कनेक्शन तपासा</string>
@@ -963,7 +963,7 @@
     <string name="content_des_add_photo_gallery_create_group">समूह तयार करताना फोटो जोडा</string>
     <string name="content_des_add_photo_camera_create_group">समूह तयार करताना फोटो घ्या</string>
     <string name="content_des_reset_selected_contacts_create_group">समूह तयार करताना निवडलेल्या संपर्कांची निवड रद्द करा</string>
-    <string name="content_des_choose_smiley_while_chatting">चॅट करताना/स्थिती सेट करताना पाठवण्यासाठी स्मायली निवडा</string>
+    <string name="content_des_choose_smiley_while_chatting">चॅट करताना/स्टेटस सेट करताना पाठवण्यासाठी स्मायली निवडा</string>
     <string name="content_des_choose_sticker_while_chatting">चॅटिंग करताना पाठवण्यासाठी स्टिकर निवडा</string>
     <string name="content_des_send_recorded_audio_text_chatting">चॅटिंग करताना रेकॉर्ड केलेली ध्वनीफित/मजकूर पाठवा</string>
     <string name="content_des_back_button_chatthread_actionbar">चॅट-थ्रेड कृतीबारवरून परत बटण दाबा</string>
@@ -1110,7 +1110,7 @@
     <string name="contacts_sync_no_contacts_found">संकालनासाठी एकही संपर्क नाही</string>
     <string name="cloud_file_error">ही फाइल तुमच्या फोनवर अस्तित्वात नाही. कृपया सामायिक करण्यापूर्वी तिला बाहेरून डाउनलोड करा</string>
     <string name="unknown_file_error">आम्हाला फाइल डिस्कवर सापडली नाही. कृपया पुन्हा प्रयत्न करा</string>
-    <string name="add_to_fav_confirmation">तुम्ही तुमच्या आवडत्यांकडील स्थिती पोस्टना आवड देऊ शकता. तुम्हाला %1$s ला आवडते म्हणून जोडायचे?</string>
+    <string name="add_to_fav_confirmation">तुम्ही तुमच्या आवडत्यांकडील स्टेटस पोस्टना आवड देऊ शकता. तुम्हाला %1$s ला आवडते म्हणून जोडायचे?</string>
     <string name="invite_free_sms">विनामूल्य SMS आमंत्रण</string>
     <string name="sticker_recommend_settings_toast">तुम्ही कधीही सेटिंग्ज &gt; चॅट सेटिंग्जवरून स्टिकर सल्ले सक्षम करू शकता</string>
     <string name="YES">होय</string>
@@ -1119,9 +1119,9 @@
     <string name="disconnecting_offline">कनेक्शन बंद करत आहे</string>
     <string name="sticker_recommend_auto_off_tip_text">स्टिकर सल्ला बंद केला! त्यांना सेटिंग्ज &gt; चॅट सेटिंग्जवरून परत आणा</string>
     <string name="timeline_tab_photo">फोटो</string>
-    <string name="timeline_tab_status">स्थिती</string>
+    <string name="timeline_tab_status">स्टेटस</string>
     <string name="timeline_empty_desc1">टाइमलाईन अद्यतने</string>
-    <string name="timeline_empty_desc2">तुम्ही तुमच्या मित्रांच्या जीवनातील फोटो आणि\nस्थिती अद्यतने येथे पाहू शकता.</string>
+    <string name="timeline_empty_desc2">तुम्ही तुमच्या मित्रांच्या जीवनातील फोटो आणि\nस्टेटस अद्यतने येथे पाहू शकता.</string>
     <string name="CLEAR">साफ करा</string>
     <string name="HIDDEN_MODE">लपवलेला मोड</string>
     <string name="EDIT">संपादित करा</string>

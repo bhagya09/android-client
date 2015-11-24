@@ -316,7 +316,7 @@
     <string name="free_invite_body">SMS வழியாக தோழரை இலவசமாக இன்வைட் செய்யும். கட்டணம் எதுவும் ஆகாது :)</string>
     <string name="select_all">அனைத்தையும் செலெக்ட் செய்யும் (%1$d)</string>
     <string name="deselect_all">அனைத்தையும் டீசெலெக்ட் செய்யும் (%1$d)</string>
-    <string name="chat_bg_changed">%1$s சேட் தீம்-ஐ மாற்றி விட்டார்</string>
+    <string name="chat_bg_changed">%1$s சேட் தீம்-ஐ மாற்றினார்</string>
     <string name="chat_theme">சேட் தீம்</string>
     <string name="last_seen_today_ct">இன்று, %1$s</string>
     <string name="last_seen_yesterday_ct">நேற்று, %1$s</string>
