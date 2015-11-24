@@ -365,6 +365,7 @@ public class PlatformZipDownloader
 								else
 								{
 									PlatformRequestManager.setReadyState(mRequest);
+									PlatformUtils.sendMicroAppServerAnalytics(true, mRequest.getContentData().cardObj.appName, mRequest.getContentData().cardObj.appVersion);
 								}
 								HikeMessengerApp.getPubSub().publish(HikePubSub.DOWNLOAD_PROGRESS, new Pair<String, String>(callbackId, "unzipSuccess"));
 							}

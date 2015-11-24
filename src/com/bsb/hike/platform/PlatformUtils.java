@@ -1441,6 +1441,7 @@ public class PlatformUtils
 
 						}
 					});
+			token.execute();
 		}
 		catch (JSONException e)
 		{
