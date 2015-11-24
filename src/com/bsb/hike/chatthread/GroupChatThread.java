@@ -62,6 +62,7 @@ import android.view.View.OnClickListener;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
 import android.view.animation.AnimationUtils;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -849,6 +850,16 @@ public class GroupChatThread extends OneToNChatThread
 		{
 			mEmoticonPicker.updateET(mComposeView);
 		}
+		mComposeView.setOnClickListener(new OnClickListener()
+		{
+			@Override
+			public void onClick(View v)
+			{
+				if(isSystemKeyboard()){
+				Utils.showSoftKeyboard(mComposeView, InputMethodManager.SHOW_FORCED);
+				}
+			}
+		});
 		mComposeView.requestFocus();
 
 		View mBottomView = activity.findViewById(R.id.bottom_panel);
