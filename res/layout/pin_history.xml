@@ -37,7 +37,6 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentLeft="true"
                 android:layout_marginLeft="15dp"
-                android:text="Kavin"
                 android:textColor="#af9d52"
                 android:textSize="12sp" />
 
@@ -62,7 +61,6 @@
                 android:layout_marginLeft="15dp"
                 android:layout_marginRight="15dp"
                 android:layout_marginTop="0dp"
-                android:text="Mass bunk tomorrow! Let’s all go for a movie at DT Cinema."
                 android:textColor="#45400e"
                 android:textSize="16sp"
                 android:textStyle="italic" />

@@ -80,4 +80,24 @@
                 
         <item>సిక్</item>
     </string-array>
+    
+    <array name="photos_actions_titles">
+       <item>ప్రొఫైల్ చిత్రం వలే ఎంచుకోండి</item>
+       <item>స్నేహితులకు పంపు</item>
+       <item>టైమ్‌లైన్‌లో పోస్ట్ చేయి</item>
+	</array>
+
+	<array name="call_glowpad_descr">
+       <item>డిస్మిస్ చేయి</item>
+       <item>సందేశం</item>
+       <item>పికప్</item>
+       <item>@null</item>
+   </array>
+   
+   <array name="call_glowpad_directions">
+       <item>కుడివైపు</item>
+       <item>పైన</item>
+       <item>ఎడమ</item>
+       <item>@null</item>
+   </array>
 </resources>

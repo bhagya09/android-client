@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
+import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.ColorMatrix;
@@ -292,37 +293,37 @@ public class HikePhotosUtils
 			/**
 			 * @return returns list having complex filters obtained from applying sequence of quality filterson the image
 			 */
-			public static FilterList getHikeEffects()
+			public static FilterList getHikeEffects(Context context)
 			{
 				if (effectfilters == null)
 				{
 					effectfilters = new FilterList();
-					effectfilters.addFilter("ORIGINAL", FilterType.ORIGINAL);
+					effectfilters.addFilter(context.getString(R.string.original_caps), FilterType.ORIGINAL);
 					
 					if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SPECIAL_DAY_TRIGGER, false))
 					{
-						effectfilters.addFilter("TIRANGAA", FilterType.TIRANGAA);
+						effectfilters.addFilter(context.getString(R.string.tirangaa), FilterType.TIRANGAA);
 					}
-					effectfilters.addFilter("MELLOW", FilterType.SOLOMON);
-					effectfilters.addFilter("CHUSKI", FilterType.CLASSIC);
-					effectfilters.addFilter("AZURE", FilterType.NASHVILLE);
-					effectfilters.addFilter("JALEBI", FilterType.JALEBI);
-					effectfilters.addFilter("GULAAL", FilterType.GULAAL);
-					effectfilters.addFilter("X-PRO", FilterType.X_PRO_2);
-					effectfilters.addFilter("HDR", FilterType.HDR);
-					effectfilters.addFilter("APOLLO", FilterType.APOLLO);
-					effectfilters.addFilter("RETRO", FilterType.RETRO);
-					effectfilters.addFilter("PULSAR", FilterType.EARLYBIRD);
-					effectfilters.addFilter("SUNLITT", FilterType.SUNLITT);
-					effectfilters.addFilter("HAZEL", FilterType.BRANNAN);
-					effectfilters.addFilter("LO-FI", FilterType.LO_FI);
-					effectfilters.addFilter("INKED", FilterType.INKWELL);
-					effectfilters.addFilter("MASHAAL", FilterType.KELVIN);
-					effectfilters.addFilter("SHOLAY", FilterType.E1977);
-					effectfilters.addFilter("JUNGLEE", FilterType.JUNGLEE);
-					effectfilters.addFilter("POLAROID", FilterType.POLAROID);
-					effectfilters.addFilter("SEPIA", FilterType.SEPIA);
-					effectfilters.addFilter("GRAYSCALE", FilterType.GRAYSCALE);
+					effectfilters.addFilter(context.getString(R.string.mellow), FilterType.SOLOMON);
+					effectfilters.addFilter(context.getString(R.string.chuski), FilterType.CLASSIC);
+					effectfilters.addFilter(context.getString(R.string.azure), FilterType.NASHVILLE);
+					effectfilters.addFilter(context.getString(R.string.jalebi), FilterType.JALEBI);
+					effectfilters.addFilter(context.getString(R.string.gulaal), FilterType.GULAAL);
+					effectfilters.addFilter(context.getString(R.string.x_pro), FilterType.X_PRO_2);
+					effectfilters.addFilter(context.getString(R.string.hdr), FilterType.HDR);
+					effectfilters.addFilter(context.getString(R.string.apollo), FilterType.APOLLO);
+					effectfilters.addFilter(context.getString(R.string.retro), FilterType.RETRO);
+					effectfilters.addFilter(context.getString(R.string.pulsar), FilterType.EARLYBIRD);
+					effectfilters.addFilter(context.getString(R.string.sunlitt), FilterType.SUNLITT);
+					effectfilters.addFilter(context.getString(R.string.hazel), FilterType.BRANNAN);
+					effectfilters.addFilter(context.getString(R.string.lo_fi), FilterType.LO_FI);
+					effectfilters.addFilter(context.getString(R.string.inked), FilterType.INKWELL);
+					effectfilters.addFilter(context.getString(R.string.mashaal), FilterType.KELVIN);
+					effectfilters.addFilter(context.getString(R.string.sholay), FilterType.E1977);
+					effectfilters.addFilter(context.getString(R.string.junglee), FilterType.JUNGLEE);
+					effectfilters.addFilter(context.getString(R.string.polaroid), FilterType.POLAROID);
+					effectfilters.addFilter(context.getString(R.string.sepia), FilterType.SEPIA);
+					effectfilters.addFilter(context.getString(R.string.grayscale), FilterType.GRAYSCALE);
 				}
 				
 				return effectfilters;

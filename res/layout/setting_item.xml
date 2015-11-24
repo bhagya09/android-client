@@ -30,7 +30,7 @@
 
             <com.bsb.hike.view.CustomFontTextView
                 android:id="@+id/item"
-                android:text="Send a message"
+                android:text="@string/send_message"
                 style="@style/SettingsItemHeader"/>
 
             <com.bsb.hike.view.CustomFontTextView

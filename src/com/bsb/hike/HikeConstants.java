@@ -259,6 +259,10 @@ public class HikeConstants
 
 	public static final String REQUEST_PENDING = "requestpending";
 
+	public static final String CUSTOM_KEYBOARD_LOCALE = "ckbd_locale";
+
+	public static final String DEVICE_LOCALE = "device_locale";
+
 	public static final String LOCALE = "locale";
 
 	public static final String ENABLE_PUSH_BATCHING_STATUS_NOTIFICATIONS = "enablepushbatchingforsu";

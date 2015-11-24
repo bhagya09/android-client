@@ -10,7 +10,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="25dp"
-        android:text="Send a message"
+        android:text="@string/send_message"
         android:textColor="@color/list_item_header"
         android:textSize="14sp"
         android:textStyle="bold|italic" />
