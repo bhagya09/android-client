@@ -77,6 +77,7 @@ import android.preference.PreferenceCategory;
 import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -884,7 +885,13 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		else if (HikeConstants.HELP_FAQS_PREF.equals(preference.getKey()))
 		{
 			Logger.d(getClass().getSimpleName(), "FAQ preference selected");
-			Utils.startWebViewActivity(HikePreferences.this,HikeConstants.HELP_URL,getString(R.string.faq));
+			String localappLang = LocalLanguageUtils.getApplicationLocalLanguageLocale();
+			String helpURL = HikeConstants.HELP_URL;
+			if(!TextUtils.isEmpty(localappLang)) {
+				Uri modifiedURI = Uri.parse(helpURL).buildUpon().appendQueryParameter("locale", localappLang).build();
+				helpURL = modifiedURI.toString();
+			}
+			Utils.startWebViewActivity(HikePreferences.this, helpURL, getString(R.string.faq));
 		}
 		else if (HikeConstants.HELP_TNC_PREF.equals(preference.getKey()))
 		{
