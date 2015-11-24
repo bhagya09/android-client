@@ -278,7 +278,6 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 	@Override
 	protected void onPause()
 	{
-		// TODO Auto-generated method stub
 		super.onPause();
 		if (recyclerAdapter != null)
 		{
@@ -289,7 +288,6 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 	@Override
 	protected void onResume()
 	{
-		// TODO Auto-generated method stub
 		super.onResume();
 		if (recyclerAdapter != null)
 		{
@@ -401,44 +399,7 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 		multiSelectTitle = (TextView) actionBarView.findViewById(R.id.title);
 		multiSelectTitle.setText(getString(R.string.gallery_num_selected, 1));
 
-		sendBtn.setOnClickListener(new OnClickListener()
-		{
-			@Override
-			public void onClick(View v)
-			{
-				deleteJunkTempFiles();
-				
-				Intent intent = getIntent();
-				
-				Bundle bundle = new Bundle();
-				
-				/**
-				 * Setting class loader due class not found exception on GalleryItem whie parcing
-				 * @link : http://stackoverflow.com/questions/28589509/android-e-parcel-class-not-found-when-unmarshalling-only-on-samsung-tab3
-				 * @see : http://stackoverflow.com/questions/13421582/parcelable-inside-bundle-which-is-added-to-parcel
-				 */
-				bundle.setClassLoader(GalleryItem.class.getClassLoader());
-				bundle.putString(HikeConstants.Extras.GALLERY_SELECTION_SINGLE, selectedGalleryItems.get(0).getFilePath());
-				intent.putExtras(bundle);
-								
-				if(selectedGalleryItems.size() == 1 && hasDelegateActivities())
-				{
-					launchNextDelegateActivity(bundle);
-				}
-				else if(!sendResult && isStartedForResult())
-				{
-					//since sendResult is active when we need to send result to selection viewer
-					intent.putParcelableArrayListExtra(HikeConstants.Extras.GALLERY_SELECTIONS, selectedGalleryItems);
-					setGalleryResult(RESULT_OK, intent);
-					finish();
-				}
-				else
-				{
-					intent.putParcelableArrayListExtra(HikeConstants.Extras.GALLERY_SELECTIONS, selectedGalleryItems);
-					sendGalleryIntent(intent);
-				}
-			}
-		});
+		sendBtn.setOnClickListener(sendButtonClickListener);
 
 		closeContainer.setOnClickListener(new OnClickListener()
 		{
@@ -460,6 +421,38 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 		closeBtn.startAnimation(slideIn);
 		sendBtn.startAnimation(AnimationUtils.loadAnimation(this, R.anim.scale_in));
 	}
+
+    OnClickListener sendButtonClickListener = new OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            deleteJunkTempFiles();
+
+            Intent intent = getIntent();
+
+            Bundle bundle = new Bundle();
+
+            /**
+             * Setting class loader due class not found exception on GalleryItem whie parcing
+             * @link : http://stackoverflow.com/questions/28589509/android-e-parcel-class-not-found-when-unmarshalling-only-on-samsung-tab3
+             * @see : http://stackoverflow.com/questions/13421582/parcelable-inside-bundle-which-is-added-to-parcel
+             */
+            bundle.setClassLoader(GalleryItem.class.getClassLoader());
+            bundle.putString(HikeConstants.Extras.GALLERY_SELECTION_SINGLE, selectedGalleryItems.get(0).getFilePath());
+            intent.putExtras(bundle);
+
+            if (hasDelegateActivities()) {
+                launchNextDelegateActivity(bundle);
+            } else if (!sendResult && isStartedForResult()) {
+                //since sendResult is active when we need to send result to selection viewer
+                intent.putParcelableArrayListExtra(HikeConstants.Extras.GALLERY_SELECTIONS, selectedGalleryItems);
+                setGalleryResult(RESULT_OK, intent);
+                finish();
+            } else {
+                intent.putParcelableArrayListExtra(HikeConstants.Extras.GALLERY_SELECTIONS, selectedGalleryItems);
+                sendGalleryIntent(intent);
+            }
+        }
+    };
 
 	private void sendGalleryIntent(Intent intent)
 	{
@@ -572,13 +565,11 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 	}
 	@Override
 	protected void setStatusBarColor(Window window, String color) {
-		// TODO Auto-generated method stub
 		return;
 	}
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu)
 	{
-		// TODO Auto-generated method stub
 		return true ;
 	}
 	
@@ -669,7 +660,6 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 		}
 		else
 		{
-
 			if (multiSelectMode)
 			{
 				int index = selectedGalleryItems.indexOf(galleryItem);
@@ -709,44 +699,9 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 			}
 			else
 			{
-				deleteJunkTempFiles();
-				intent = new Intent();
-				Bundle bundle = new Bundle();
-				
-				ArrayList<GalleryItem> item = new ArrayList<GalleryItem>(1);
-				item.add(galleryItem);
-				
-				File file = new File(item.get(0).getFilePath());
-				if (!file.exists())
-				{
-					Toast.makeText(GalleryActivity.this, getResources().getString(R.string.file_expire), Toast.LENGTH_SHORT).show();
-					return;
-				}
-				
-				/**
-				 * Setting class loader due class not found exception on GalleryItem whie parcing
-				 * @link : http://stackoverflow.com/questions/28589509/android-e-parcel-class-not-found-when-unmarshalling-only-on-samsung-tab3
-				 * @see : http://stackoverflow.com/questions/13421582/parcelable-inside-bundle-which-is-added-to-parcel
-				 */
-				
-				bundle.putString(HikeConstants.Extras.GALLERY_SELECTION_SINGLE, galleryItem.getFilePath());
-				intent.putExtras(bundle);
-				
-				if(hasDelegateActivities())
-				{
-					launchNextDelegateActivity(bundle);
-				}
-				else if (isStartedForResult())
-				{
-					intent.putParcelableArrayListExtra(HikeConstants.Extras.GALLERY_SELECTIONS, item);
-					setGalleryResult(RESULT_OK, intent);
-					finish();
-				}
-				else
-				{
-					intent.putParcelableArrayListExtra(HikeConstants.Extras.GALLERY_SELECTIONS, item);
-					sendGalleryIntent(intent);
-				}
+                selectedGalleryItems.add(galleryItem);
+				sendButtonClickListener.onClick(null);
+                selectedGalleryItems.clear();
 			}
 		}
 	}
