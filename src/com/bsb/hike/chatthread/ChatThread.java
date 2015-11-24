@@ -2077,6 +2077,16 @@ import android.widget.Toast;
 		{
 			mComposeView = (CustomFontEditText) activity.findViewById(R.id.msg_compose);
 			mComposeView.requestFocus();
+			mComposeView.setOnClickListener(new OnClickListener()
+			{
+				@Override
+				public void onClick(View v)
+				{
+					if(isSystemKeyboard()){
+					Utils.showSoftKeyboard(mComposeView, InputMethodManager.SHOW_FORCED);
+					}
+				}
+			});
 			mComposeView.removeTextChangedListener(searchTextWatcher);
 			if (mEmoticonPicker != null)
 			{
