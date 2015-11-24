@@ -1014,7 +1014,6 @@
 	<string name="add_members">સભ્યો ઉમેરો</string>
 	<string name="add_members_to_conference">કૉન્ફરન્સમાં ઉમેરો</string>
 	<string name="created_group_text">તમે ગ્રુપ ચેટ બનાવ્યું</string>
-	<string name="group_member_added">%1$s ને ઉમેરવામાં આવ્યા</string>
 	<string name="num_members">%1$d સભ્યો</string>
 	<string name="num_member">%1$d સભ્ય</string>
 	<string name="profile_pic_upload_in_background">પ્રોફાઇલ ચિત્ર  અપલોડ ચાલુ રહેશે..</string>
@@ -1027,7 +1026,6 @@
 	<string name="make_admin">ઍડમિન  બનાવો</string>
 	<string name="admin_updating">%1$s ને ઍડમિન બનાવવામાં આવી રહ્યા છે</string>
 	<string name="admin_task_error">કનેક્શન એરર: કૃપા કરીને તમારું નેટવર્ક તપાસો અને ફરી પ્રયત્ન કરો.</string>
-	<string name="group_admin_updated">%1$s ને ઍડમિન બનાવવામાં આવ્યા છે</string>
 	<string name="group_setting_option_only_admin">માત્ર ઍડમિન સભ્યો ઉમેરી શકે  છે</string>
 	<string name="group_setting_updating">ગ્રુપ ગોપનીયતા સેટિંગ્સ બદલવામાં આવી રહી છે</string>
 	<string name="group_setting_confirmation1">દરેકને સભ્યો ઉમેરવા માટે પરવાનગી આપવી છે?</string>
@@ -1265,5 +1263,40 @@
 	<string name="switch_on_gps">Hike ડાયરેક્ટ કાર્ય કરવા માટે કૃપા કરીને લોકેશન સક્ષમ કરો. એક વાર તમે પૂર્ણ કરો પછી બૅક દબાવો. </string>
 	<string name="gps_settings">સેટિંગ</string>
 	<string name="user_gps_off">તમારું લોકેશન સક્ષમ હશે નહીં ત્યાં સુધી Hike ડાયરેક્ટ કાર્ય કરી શકશે નહીં.</string>
+    <string name="you_change_group_name">તમે ગ્રુપનું નામ બદલ્યું છે.</string>
+    <string name="you_change_broadcast_name">તમે બ્રોડકાસ્ટ નામ બદલ્યું છે. </string>
+    <string name="new_group_message_2">%1$s અને %2$s સાથે ગ્રુપ ચેટ કરો  </string>
+    <string name="new_group_message_multi">%1$s, %2$s અને %3$d% અન્યો સાથે ગ્રુપ ચેટ કરો</string>
+    <string name="new_broadcast_message_2">%1$s અને %2$s સાથે બ્રોડકાસ્ટ લિસ્ટ </string>
+    <string name="new_broadcast_message_multi">%1$s, %2$s અને %3$d% અન્યો સાથે બ્રોડકાસ્ટ  લિસ્ટ</string>
+    <string name="add_to_broadcast_message_2">%1$s અને %2$s લિસ્ટમાં ઉમેરાયા</string>
+    <string name="add_to_broadcast_message_multi">%1$s, %2$s અને %3$d% અન્યો લિસ્ટમાં ઉમેરાયા </string>
+    <string name="you_change_group_image">તમે ગ્રુપની છબી બદલી છે.   </string>
+    <string name="backup_account">બૅકઅપ અકાઉન્ટ </string>
+    <string name="search_hint_text">સર્ચ કરો...</string>
+    <string name="is_typing">ટાઇપ કરી રહ્યા છે...</string>
+    <string name="are_typing">ટાઇપ કરી રહ્યા છે...</string>
+    <string name="you_chat_bg_changed">તમે ચેટ થીમ બદલી</string>
+    <string name="hike_keyboard">Hike કીબોર્ડ</string>
+    <string name="system_keyboard">સિસ્ટમ કીબોર્ડ</string>
+    <string name="you_posted_pin">જો તમે પિન પોસ્ટ કરી  </string>
+    <string name="voip_hang_up">હેંગ અપ </string>
+    <string name="voip_decline">ના કરો </string>
+    <string name="voip_accept">સ્વીકારો</string>
+    <string name="you_added_group_member">તમે %1$s ને ઉમેર્યા</string>
+    <string name="you_added_as_group_member">%1$s એ તમને ઉમેર્યા </string>
+    <string name="group_member_added">%1$s એ %2$s ને ઉમેર્યા </string>
+    <string name="you_updated_group_admin">તમે %1$s ને ઍડમિન બનાવ્યા   </string>
+    <string name="you_updated_as_group_admin">%1$s એ તમને ઍડમિન બનાવ્યા</string>
+    <string name="group_admin_updated">%1$s એ %2$s ને ઍડમિન બનાવ્યા</string>
+    <string name="no_results_found">કોઈ પરિણામો મળ્યા નથી</string>
+    <string name="APPLY">લાગુ કરો  </string>
+    <string name="level">સ્તર</string>
+    <string name="milliseconds">ms</string>
+    <string name="and"> અને </string>
+    <string name="contact_name">સંપર્ક નામ</string>
+    <string name="mobile">મોબાઇલ</string>
+    <string name="your_contact">તમારો સંપર્ક</string>
+    <string name="english_india">ઇંગ્લિશ (IN)</string>
 	
 </resources>
