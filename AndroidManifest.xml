@@ -3,8 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bsb.hike"
     android:installLocation="auto"
-    android:versionCode="1512"
-    android:versionName="4.0.8.81.23.27.custom_keybaord_SR" >
+    android:versionCode="1515"
+    android:versionName="4.0.8.81.26.2.custom_keybaord_SR" >
 
     <uses-sdk
         android:minSdkVersion="14"
@@ -182,6 +182,12 @@
             android:label="@string/app_label"
             android:launchMode="singleTop"
             android:windowSoftInputMode="adjustPan|stateAlwaysVisible" >
+        </activity>
+        <activity
+            android:name=".ui.HomeFtueActivity"
+            android:label="@string/app_label"
+            android:launchMode="singleTop"
+            android:windowSoftInputMode="adjustPan|stateAlwaysHidden">
         </activity>
         <activity
             android:name=".chatthread.ChatThreadActivity"
@@ -487,6 +493,20 @@
             android:excludeFromRecents="true"
             android:theme="@style/TranslucentBlack" >
         </activity>
+         <!-- CocosGaming Activity -->
+        <activity
+            android:name="com.bsb.hike.platform.CocosGamingActivity"
+            android:process="org.cocos2dx.gameprocess"
+            android:configChanges="orientation"
+            android:launchMode="singleTop"
+            android:exported="true" >
+        </activity>
+        <service android:name="com.bsb.hike.platform.CocosProcessIntentService"
+            android:process="org.cocos2dx.gameprocess"
+            />
+        <service android:name="com.bsb.hike.platform.HikeProcessIntentService"
+            android:process="com.bsb.hike"
+            />
 
         <service android:name=".chatHead.ChatHeadService" 
             android:label="HikeStickeyService"/>
@@ -578,6 +598,12 @@
             android:exported="true" />
         <!-- ag -->
         
+        <receiver
+            android:name="com.bsb.hike.notifications.PersNotifClickReceiver" >
+            <intent-filter>
+                <action android:name="com.bsb.hike.PERS_NOTIF_ALARM_INTENT"/>
+            </intent-filter>
+        </receiver>
         
 </application>
 

@@ -564,10 +564,28 @@ public class AnalyticsConstants
 	public static final String MICRO_APP_EVENT = "micro_app";
 	
 	public static final String EVENT = "event";
+
+	public static final String LOG_FIELD_1 = "fld1";
 	
 	public static final String LOG_FIELD_5 = "fld5";
 	
 	public static final String LOG_FIELD_6 = "fld6";
 
+	public static final String UPDATE_TIP_CLICKED = "utclkd";
+	
+	public static final String INVITE_TIP_CLICKED = "utclkd";
+	
+	public static final String PERSISTENT_NOTIF_CLICKED = "pnclkd";
+	
+	public static final String UPDATE_TIP_DISMISSED = "utdsmd";
+	
+	public static final String INVITE_TIP_DISMISSED = "itdsmd";
+	
+	public static final String UPDATE_INVITE_TIP = "uitip";
+			
 	public static final String FILE_SIZE = "fs";
+
+	public static final String INTERNAL_STORAGE_SPACE = "mem";
+
+	public static final String DISCOVERY_BOT_TAP = "bd_tap";
 }

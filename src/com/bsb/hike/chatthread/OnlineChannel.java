@@ -76,7 +76,6 @@ public class OnlineChannel implements IChannelSelector{
 	@Override
 	public void sendPicasaUriFile(Context applicationContext, Uri uri,
 			HikeFileType hikeFileType, String msisdn, boolean isOnHike) {
-		FileTransferManager.getInstance(applicationContext).uploadFile(uri, hikeFileType, msisdn,isOnHike);
 	}
 
 	@Override
@@ -102,7 +101,6 @@ public class OnlineChannel implements IChannelSelector{
 	@Override
 	public void uploadFile(Context applicationContext, String msisdn, Uri uri,
 			HikeFileType image, boolean isOnHike) {
-		ChatThreadUtils.uploadFile(applicationContext, msisdn, uri, HikeFileType.IMAGE,isOnHike);
 	}
 
 	@Override

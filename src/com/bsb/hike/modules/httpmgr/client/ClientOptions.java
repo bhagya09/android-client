@@ -554,6 +554,7 @@ public class ClientOptions
 		HikeHostNameVerifier hostVerifier = new HikeHostNameVerifier();
 		hostVerifier.setProdHostIps(HttpManager.getProductionHostUris());
 		hostVerifier.setPlatformHostIps(HttpManager.getPlatformProductionHostUris());
+		hostVerifier.setFtHostIps(HttpManager.getFtHostUris());
 		LogFull.d("Connect Timeout : " + connectTimeout + "\n Read timeout : " + readTimeout + "\n Write timeout : " + writeTimeout);
 
 		ClientOptions defaultClientOptions = new ClientOptions.Builder()

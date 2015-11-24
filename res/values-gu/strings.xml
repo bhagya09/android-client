@@ -1445,7 +1445,6 @@
     <string name="stealth_msg_enter_pin_to_unlock">અનલૉક કરવા માટે PIN દાખલ કરો</string>
     <string name="stealth_msg_enter_pin_to_unlock_in_reset">હાલની PIN દાખલ કરો</string>
     <string name="change_password_from_privacy">હિડન મોડ સેટિંગ્સ</string>
-    <string name="search_hint">સર્ચ કરો</string>
     <string name="nudge_setting_header">નજ કરવા માટે બે વાર ટૅપ કરો </string>
     <string name="nudge_setting_info">ચેટિંગ કરતા વખતે બે વાર ટૅપ દ્વારા નજ મોકલો</string>
     <string name="enter_setting_header">એન્ટર કી સેન્ડ છે </string>
