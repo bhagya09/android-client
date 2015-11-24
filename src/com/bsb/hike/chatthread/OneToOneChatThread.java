@@ -1714,12 +1714,12 @@ import com.google.gson.Gson;
 	private boolean shouldShowLocationDialog()
 	{
 		return (Utils.isMarshmallowOrHigher() && OfflineUtils.willConnnectToHotspot(msisdn) && !Utils.isLocationEnabled(activity.getApplicationContext()) && HikeSharedPreferenceUtil
-				.getInstance().getData(HikeConstants.SHOW_GPS_DIALOG, false));
+				.getInstance().getData(HikeConstants.SHOW_GPS_DIALOG, true));
 	}
 
 	private void showLocationCloseDialog()
 	{
-		if (Utils.isMarshmallowOrHigher() && Utils.isLocationEnabled(activity) && HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SHOW_GPS_DIALOG, false))
+		if (Utils.isMarshmallowOrHigher() && Utils.isLocationEnabled(activity) && HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SHOW_GPS_DIALOG, true))
 			sendUIMessage(SHOW_TOAST, 1000, R.string.close_gps);
 	}
 
