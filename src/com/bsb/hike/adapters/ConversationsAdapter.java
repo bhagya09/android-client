@@ -566,6 +566,18 @@ public class ConversationsAdapter extends BaseAdapter
 			{
 				List<List<ConvInfo>> resultList = new ArrayList<List<ConvInfo>>();
 				resultList.add(conversationList);
+
+				boolean stealthInactive = !StealthModeManager.getInstance().isActive();
+				Iterator<ConvInfo> convListIterator = resultList.get(0).iterator();
+				while(convListIterator.hasNext())
+				{
+					ConvInfo conv = convListIterator.next();
+					if(conv.isStealth() && stealthInactive)
+					{
+						convListIterator.remove();
+					}
+				}
+
 				results.values = resultList;
 			}
 			results.count = 1;

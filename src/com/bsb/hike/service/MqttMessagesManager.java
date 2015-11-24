@@ -3391,6 +3391,11 @@ public class MqttMessagesManager
 					this.pubSub.publish(HikePubSub.STEALTH_POPUP_WITH_PUSH, bundle);
 				}
 			}
+			else
+			{
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STEALTH_INDICATOR_SHOW_ONCE, true);
+				HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_INDICATOR, null);
+			}
 		}
 		else if(subType.equals(HikeConstants.HOLI_POPUP))
 		{
