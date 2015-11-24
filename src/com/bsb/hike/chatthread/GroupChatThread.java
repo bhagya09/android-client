@@ -843,12 +843,14 @@ public class GroupChatThread extends OneToNChatThread
 	private void destroyPinCreateView()
 	{
 		// AFTER PIN MODE, we make sure mComposeView is reinitialized to message composer compose
+		mCustomKeyboard.unregister(mComposeView);
 		mComposeView = (CustomFontEditText) activity.findViewById(R.id.msg_compose);
 		if (mEmoticonPicker != null)
 		{
 			mEmoticonPicker.updateET(mComposeView);
 		}
 		mComposeView.requestFocus();
+
 		View mBottomView = activity.findViewById(R.id.bottom_panel);
 		mBottomView.startAnimation(AnimationUtils.loadAnimation(activity.getApplicationContext(), R.anim.down_up_lower_part));
 		mBottomView.setVisibility(View.VISIBLE);
