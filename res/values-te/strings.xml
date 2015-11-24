@@ -1172,7 +1172,7 @@
     <string name="long_press_duration_title">లాంగ్ ప్రెస్ డ్యూరేషన్</string>
     <string name="keypress_sound_vol_title">కీప్రెస్ సౌండ్ వాల్యూం</string>
     <string name="keypress_vib_duration_title">కీప్రెస్ కంపన వ్యవధి</string>
-    <string name="like_count_by_unknow_contacts">%2$s %1$d</string>
+    <string name="like_count_by_unknow_contacts">%2$s స్నేహితులు +%1$d</string>
     <string name="connection_established_inline_msg">hike డైరెక్ట్ కనెక్ట్ చేయబడింది</string>
     <string name="connection_deestablished_inline_msg">hike డైరెక్ట్ డిస్‌కనెక్ట్ చేయబడింది</string>
     <string name="connection_request_inline_msg">hike డైరెక్ట్ అభ్యర్థన మిస్ అయింది</string>
