@@ -111,6 +111,8 @@ public class PlatformContent
      *            the content data
      * @param listener
      *            the listener
+     * @param requestType
+     *            the subtype of micro app
      * @return new request made, use this for cancelling requests
      *
      * @return the content
@@ -154,6 +156,7 @@ public class PlatformContent
      * @param uniqueId - the id which you will get back once templating is finished :  {@link PlatformContentModel#getUniqueId()}
      * @param contentData
      * @param listener
+     * @param requestType
      * @return
      */
     public static PlatformContentRequest getContent(byte requestType,int uniqueId, String contentData, PlatformContentListener<PlatformContentModel> listener)

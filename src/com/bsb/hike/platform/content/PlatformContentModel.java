@@ -3,10 +3,13 @@ package com.bsb.hike.platform.content;
 import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
-import java.util.TreeMap;
 import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.TreeMap;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
@@ -18,9 +21,6 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
 import com.google.gson.annotations.Expose;
 import com.google.gson.reflect.TypeToken;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 /**
  * Content model
@@ -53,11 +53,11 @@ public class PlatformContentModel
 
 	private static PlatformContentModel object = null;
 
-    public static byte HIKE_MICRO_APPS = 1;
+    public static final byte HIKE_MICRO_APPS = 1;
 
-    public static byte ONE_TIME_POPUPS = 2;
+    public static final byte ONE_TIME_POPUPS = 2;
 
-    public static byte HIKE_GAMES = 3;
+    public static final byte NATIVE_APPS = 3;
 
     private byte requestType = HIKE_MICRO_APPS;
 
@@ -170,87 +170,84 @@ public class PlatformContentModel
 	}
 
 
-    /**
-     * Make.
-     *
-     * @param card_data
-     *            the content data
-     * @return the platform content model
-     */
-    public static PlatformContentModel make(int unique,String contentData, byte requestType)
-    {
-        Logger.d(TAG, "making PlatformContentModel");
-        JsonParser parser = new JsonParser();
-        JSONObject json = null;
+	/**
+	 * Make.
+	 *
+	 * @param card_data
+	 *            the content data
+	 * @return the platform content model
+	 */
+	public static PlatformContentModel make(int unique, String contentData, byte requestType)
+	{
+		Logger.d(TAG, "making PlatformContentModel");
+		JsonParser parser = new JsonParser();
+		JSONObject json = null;
 
-        try {
-            json = new JSONObject(contentData);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        JsonObject gsonObj = (JsonObject) parser.parse(contentData);
+		try
+		{
+			json = new JSONObject(contentData);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+		JsonObject gsonObj = (JsonObject) parser.parse(contentData);
 
-        try
-        {
-            JSONObject cardObj = json.optJSONObject("cardObj");
-            String compatibilityMapStr = cardObj.optString(HikePlatformConstants.COMPATIBILITY_MAP);
-            object = new Gson().fromJson(gsonObj, PlatformContentModel.class);
-            object.cardObj.setCompatibilityMap(compatibilityMapStr);
-            if (object.cardObj.getLd() != null)
-            {
-                String basePath = getUnZipPath(requestType);
+		try
+		{
+			JSONObject cardObj = json.optJSONObject("cardObj");
+			String compatibilityMapStr = cardObj.optString(HikePlatformConstants.COMPATIBILITY_MAP);
+			object = new Gson().fromJson(gsonObj, PlatformContentModel.class);
+			object.cardObj.setCompatibilityMap(compatibilityMapStr);
+			if (object.cardObj.getLd() != null)
+			{
+				String basePath = getUnZipPath(requestType);
+				object.cardObj.ld.addProperty(PlatformContentConstants.KEY_TEMPLATE_PATH, PlatformContentConstants.CONTENT_AUTHORITY_BASE + basePath);
+				object.cardObj.ld.addProperty(PlatformContentConstants.MESSAGE_ID, Integer.toString(unique));
+				object.cardObj.ld.addProperty(HikePlatformConstants.PLATFORM_VERSION, HikePlatformConstants.CURRENT_VERSION);
+			}
+		}
+		catch (JsonParseException e)
+		{
+			e.printStackTrace();
+			return null;
+		}
+		catch (IllegalArgumentException iae)
+		{
+			iae.printStackTrace();
+			return null;
+		}
+		catch (Exception e)
+		{
+			// We dont want app to crash, instead safely provide control in onFailure
+			e.printStackTrace();
+			return null;
+		}
 
-                object.cardObj.ld
-                        .addProperty(PlatformContentConstants.KEY_TEMPLATE_PATH, PlatformContentConstants.CONTENT_AUTHORITY_BASE + basePath);
-                object.cardObj.ld.addProperty(PlatformContentConstants.MESSAGE_ID, Integer.toString(unique));
-                object.cardObj.ld.addProperty(HikePlatformConstants.PLATFORM_VERSION, HikePlatformConstants.CURRENT_VERSION);
-
-
-            }
-        }
-        catch (JsonParseException e)
-        {
-            e.printStackTrace();
-            return null;
-        }
-        catch (IllegalArgumentException iae)
-        {
-            iae.printStackTrace();
-            return null;
-        }
-        catch (Exception e)
-        {
-            // We dont want app to crash, instead safely provide control in onFailure
-            e.printStackTrace();
-            return null;
-        }
-
-        return object;
-    }
+		return object;
+	}
 
 
 	private static String getUnZipPath(byte requestType)
 	{
 		int microAppVersionCode = object.cardObj.botVersionCode;
 
-        String microAppName = object.cardObj.appName;
+		String microAppName = object.cardObj.appName;
 
-        String unzipPath = PlatformContentConstants.HIKE_MICRO_APPS;
+		String unzipPath = PlatformContentConstants.HIKE_MICRO_APPS;
 
-        if(requestType == PlatformContentModel.HIKE_MICRO_APPS)
-        {
-            unzipPath += microAppName + File.separator;
-
-            unzipPath += "Version_" + microAppVersionCode + File.separator;
-        }
-        else if(requestType == PlatformContentModel.ONE_TIME_POPUPS)
-        {
-            unzipPath += PlatformContentConstants.HIKE_ONE_TIME_POPUPS + microAppName + File.separator;
-        }
-        else if(requestType == PlatformContentModel.HIKE_GAMES)
-        {
-            unzipPath += PlatformContentConstants.HIKE_GAMES + microAppName + File.separator;
-        }
+		switch (requestType)
+		{
+		case PlatformContentModel.HIKE_MICRO_APPS:
+			unzipPath += microAppName + File.separator + "Version_" + microAppVersionCode + File.separator;
+			break;
+		case PlatformContentModel.ONE_TIME_POPUPS:
+			unzipPath += PlatformContentConstants.HIKE_ONE_TIME_POPUPS + microAppName + File.separator;
+			break;
+		case PlatformContentModel.NATIVE_APPS:
+			unzipPath += PlatformContentConstants.HIKE_GAMES + microAppName + File.separator;
+			break;
+		}
 
 		return unzipPath;
 	}

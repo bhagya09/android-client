@@ -352,7 +352,7 @@ public class PlatformUtils
 
         byte requestType = PlatformContentModel.HIKE_MICRO_APPS;
         if(botMetadata.isNativeMode())
-            requestType = PlatformContentModel.HIKE_GAMES;
+            requestType = PlatformContentModel.NATIVE_APPS;
 
 		PlatformContentRequest rqst = PlatformContentRequest.make(
 				PlatformContentModel.make(botInfo.getMetadata(),requestType), new PlatformContentListener<PlatformContentModel>()
@@ -412,7 +412,7 @@ public class PlatformUtils
 
         if(botMetadata.isNativeMode()) {
             rqst.setRequestType(PlatformContentRequest.HIKE_GAMES);
-            rqst.getContentData().setRequestType(PlatformContentModel.HIKE_GAMES);
+            rqst.getContentData().setRequestType(PlatformContentModel.NATIVE_APPS);
         }
 		downloadAndUnzip(rqst, false,botMetadata.shouldReplace(), botMetadata.getCallbackId(),resumeSupport,botInfo.getMsisdn());
 
