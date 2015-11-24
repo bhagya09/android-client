@@ -1266,12 +1266,6 @@
 	
     <string name="you_change_group_name">நீர் குரூப் பெயரை மாற்றி விட்டீர்.</string>
     <string name="you_change_broadcast_name">நீர் புரோட்காஸ்ட் பெயரை மாற்றி விட்டீர்.</string>
-    <string name="new_group_message_2">%1$s, %2$s உடன் குரூப் சேட்</string>
-    <string name="new_group_message_multi">%1$s, %2$s,%3$d மற்றோருடன் குரூப் சேட்</string>
-    <string name="new_broadcast_message_2">%1$s, %2$s கொண்ட புரோட்காஸ்ட் லிஸ்ட்</string>
-    <string name="new_broadcast_message_multi">%1$s, %2$s,%3$d மற்றோரை கொண்ட புரோட்காஸ்ட் லிஸ்ட்</string>
-    <string name="add_to_broadcast_message_2">லிஸ்ட்டில் %1$s, %2$s -ஐ சேர்த்தாயிற்று</string>
-    <string name="add_to_broadcast_message_multi">லிஸ்ட்டில் %1$s, %2$s, %3$d மற்றோரைச் சேர்த்தாயிற்று</string>
     <string name="you_change_group_image">நீர் குரூப் இமேஜை மாற்றி விட்டீர்.</string>
     <string name="backup_account">பேக்அப் கணக்கு</string>
     <string name="search_hint_text">செர்ச்...</string>
@@ -1298,5 +1292,4 @@
     <string name="contact_name">தொடர்பாளர் பெயர்</string>
     <string name="mobile">மொபைல்</string>
     <string name="your_contact">உங்கள் தொடர்பு</string>
-    <string name="english_india">ஆங்கிலம் (இந்)</string>
 </resources>

@@ -1266,12 +1266,6 @@
 	
     <string name="you_change_group_name">तुम्ही समूह नाव बदलले.</string>
     <string name="you_change_broadcast_name">तुम्ही प्रसारण नाव बदलले.</string>
-    <string name="new_group_message_2">%1$s आणि %2$s सह समूह चॅट</string>
-    <string name="new_group_message_multi">%1$s, %2$s आणि अन्य %3$d सह समूह चॅट</string>
-    <string name="new_broadcast_message_2">%1$s आणि %2$s सह प्रसारण सूची</string>
-    <string name="new_broadcast_message_multi">%1$s, %2$s आणि अन्य %3$d सह प्रसारण सूची</string>
-    <string name="add_to_broadcast_message_2">%1$s आणि %2$s ना सूचीमध्ये जोडले</string>
-    <string name="add_to_broadcast_message_multi">%1$s, %2$s आणि अन्य %3$d ना सूचीमध्ये जोडले</string>
     <string name="you_change_group_image">तुम्ही समूह प्रतिमा बदलली.</string>
     <string name="backup_account">बॅकअप खाते</string>
     <string name="search_hint_text">शोध...</string>
@@ -1298,5 +1292,4 @@
     <string name="contact_name">संपर्क नाव</string>
     <string name="mobile">मोबाईल</string>
     <string name="your_contact">तुमचे संपर्क</string>
-    <string name="english_india">English (IN)</string>
 </resources>

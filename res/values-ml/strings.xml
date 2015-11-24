@@ -1265,12 +1265,6 @@
 
     <string name="you_change_group_name">നിങ്ങൾ ഗ്രൂപ്പിന്റെ പേര് മാറ്റി.</string>
     <string name="you_change_broadcast_name">നിങ്ങൾ ബ്രോഡ്‌കാസ്റ്റ് പേര് മാറ്റി.</string>
-    <string name="new_group_message_2">%1$s, %2$s എന്നിവരുമായുള്ള ഗ്രൂപ്പ് ചാറ്റ്</string>
-    <string name="new_group_message_multi">%1$s, %2$s എന്നിവരും മറ്റ് %3$d പേരും ആയുള്ള ഗ്രൂപ്പ് ചാറ്റ്</string>
-    <string name="new_broadcast_message_2">%1$s, %2$s എന്നിവരുമായുള്ള ബ്രോഡ്കാസ്റ്റ് ലിസ്റ്റ്</string>
-    <string name="new_broadcast_message_multi">%1$s, %2$s എന്നിവരും മറ്റ് %3$d പേരും ആയുള്ള ബ്രോഡ്കാസ്റ്റ് ലിസ്റ്റ്</string>
-    <string name="add_to_broadcast_message_2">%1$s, %2$s എന്നിവരെ ലിസ്റ്റിലേക്ക് ചേർത്തു</string>
-    <string name="add_to_broadcast_message_multi">%1$s, %2$s എന്നിവരെയും മറ്റ് %3$d പേരെയും ലിസ്റ്റിലേക്ക് ചേർത്തു</string>
     <string name="you_change_group_image">നിങ്ങൾ ഗ്രൂപ്പിന്റെ ചിത്രം മാറ്റി.</string>
     <string name="backup_account">അക്കൗണ്ട് ബാക്കപ്പുചെയ്യുക</string>
     <string name="search_hint_text">തിരയുക...</string>
@@ -1298,5 +1292,4 @@
     <string name="contact_name">സമ്പർക്കത്തിന്റെ പേര്</string>
     <string name="mobile">മൊബൈൽ</string>
     <string name="your_contact">നിങ്ങളുടെ സമ്പർക്കം</string>
-    <string name="english_india">ഇംഗ്ലീഷ് (ഇന്ത്യ)</string>
 </resources>

@@ -1264,12 +1264,6 @@
 	<string name="gps_settings">సెట్టింగ్</string>
     <string name="you_change_group_name">మీరు గ్రూపు పేరు మార్చారు.</string>
     <string name="you_change_broadcast_name">మీరు బ్రాడ్‌కాస్ట్ పేరు మార్చారు</string>
-    <string name="new_group_message_2">%1$s మరియు %2$s గ్రూప్ చాట్</string>
-    <string name="new_group_message_multi">%1$s, %2$s మరియు %3$d ఇతరులతో గ్రూప్ చాట్</string>
-    <string name="new_broadcast_message_2">%1$s మరియు %2$sతో బ్రాడ్‌కాస్ట్ లిస్ట్</string>
-    <string name="new_broadcast_message_multi">%1$s, %2$s మరియు %3$d ఇతరులతో బ్రాడ్‌కాస్ట్</string>
-    <string name="add_to_broadcast_message_2">లిస్ట్‌కు %1$s మరియు %2$s జత చేయబడ్డారు.</string>
-    <string name="add_to_broadcast_message_multi">లిస్ట్‌కు %1$s, %2$s మరియు %3$s జత చేయబడ్డారు.</string>
     <string name="you_change_group_image">గ్రూపు ఇమేజ్‌ని మీరు మార్చారు</string>
     <string name="backup_account">బ్యాకప్‌ ఖాతా</string>
     <string name="search_hint_text">సెర్చ్...</string>
@@ -1297,6 +1291,5 @@
     <string name="contact_name">కాంటాక్ట్ పేరు</string>
     <string name="mobile">మొబైల్</string>
     <string name="your_contact">మీ కాంటాక్ట్</string>
-    <string name="english_india">ఇంగ్లిష్ (IN)</string>
-	
+
 </resources>

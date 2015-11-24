@@ -1267,12 +1267,6 @@
 	
     <string name="you_change_group_name">ನೀವು ಗುಂಪು ಹೆಸರು ಬದಲಾಯಿಸಿದ್ದೀರಿ.</string>
     <string name="you_change_broadcast_name">ನೀವು ಪ್ರಸಾರದ ಹೆಸರನ್ನು ಬದಲಾಯಿಸಿದ್ದೀರಿ.</string>
-    <string name="new_group_message_2">%1$s ಮತ್ತು %2$s ಅವರ ಜೊತೆ ಗುಂಪು ಚಾಟ್</string>
-    <string name="new_group_message_multi">%1$s, %2$s ಮತ್ತು %3$d ಇತರರ ಜೊತೆ ಗುಂಪು ಚಾಟ್</string>
-    <string name="new_broadcast_message_2">%1$s ಮತ್ತು %2$s ಅವರ ಜೊತೆಗೆ ಪ್ರಸಾರದ ಪಟ್ಟಿ</string>
-    <string name="new_broadcast_message_multi">%1$s, %2$s ಮತ್ತು %3$d ಇತರರ ಜೊತೆಗೆ ಪ್ರಸಾರದ ಪಟ್ಟಿ</string>
-    <string name="add_to_broadcast_message_2">%1$s ಮತ್ತು %2$s ಅವರನ್ನು ಪಟ್ಟಿಗೆ ಸೇರಿಸಲಾಗಿದೆ</string>
-    <string name="add_to_broadcast_message_multi">%1$s, %2$s ಮತ್ತು %3$d ಇತರರನ್ನು ಪಟ್ಟಿಗೆ ಸೇರಿಸಲಾಗಿದೆ</string>
     <string name="you_change_group_image">ನೀವು ಗುಂಪು ಇಮೇಜ್ ಬದಲಾಯಿಸಿದ್ದೀರಿ.</string>
     <string name="backup_account">ಬ್ಯಾಕಪ್ ಖಾತೆ</string>
     <string name="search_hint_text">ಹುಡುಕಿ...</string>
@@ -1299,5 +1293,4 @@
     <string name="contact_name">ಸಂಪರ್ಕ ಹೆಸರು</string>
     <string name="mobile">ಮೊಬೈಲ್</string>
     <string name="your_contact">ನಿಮ್ಮ ಸಂಪರ್ಕ</string>
-    <string name="english_india">ಇಂಗ್ಲೀಷ್ (IN)</string>
 </resources>
