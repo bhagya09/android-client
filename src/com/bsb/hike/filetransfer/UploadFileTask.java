@@ -567,6 +567,7 @@ public class UploadFileTask extends FileTransferBase
 				JSONArray filesArray = new JSONArray();
 				filesArray.put(hikeFile.serialize());
 				metadata.put(HikeConstants.FILES, filesArray);
+				metadata.put(HikeConstants.CAPTION, caption);
 				((ConvMessage) userContext).setMetadata(metadata);
 			}
 		}
@@ -787,7 +788,7 @@ public class UploadFileTask extends FileTransferBase
 
 			filesArray.put(hikeFile.serialize());
 			metadata.put(HikeConstants.FILES, filesArray);
-			metadata.put(HikeConstants.CAPTION, "thisisatestcaption");
+			metadata.put(HikeConstants.CAPTION, ((ConvMessage) userContext).getMetadata().getCaption());
 
 			if (isMultiMsg)
 			{
