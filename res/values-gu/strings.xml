@@ -1263,14 +1263,10 @@
 	<string name="switch_on_gps">Hike ડાયરેક્ટ કાર્ય કરવા માટે કૃપા કરીને લોકેશન સક્ષમ કરો. એક વાર તમે પૂર્ણ કરો પછી બૅક દબાવો. </string>
 	<string name="gps_settings">સેટિંગ</string>
 	<string name="user_gps_off">તમારું લોકેશન સક્ષમ હશે નહીં ત્યાં સુધી Hike ડાયરેક્ટ કાર્ય કરી શકશે નહીં.</string>
+
     <string name="you_change_group_name">તમે ગ્રુપનું નામ બદલ્યું છે.</string>
     <string name="you_change_broadcast_name">તમે બ્રોડકાસ્ટ નામ બદલ્યું છે. </string>
-    <string name="new_group_message_2">%1$s અને %2$s સાથે ગ્રુપ ચેટ કરો  </string>
-    <string name="new_group_message_multi">%1$s, %2$s અને %3$d% અન્યો સાથે ગ્રુપ ચેટ કરો</string>
-    <string name="new_broadcast_message_2">%1$s અને %2$s સાથે બ્રોડકાસ્ટ લિસ્ટ </string>
-    <string name="new_broadcast_message_multi">%1$s, %2$s અને %3$d% અન્યો સાથે બ્રોડકાસ્ટ  લિસ્ટ</string>
-    <string name="add_to_broadcast_message_2">%1$s અને %2$s લિસ્ટમાં ઉમેરાયા</string>
-    <string name="add_to_broadcast_message_multi">%1$s, %2$s અને %3$d% અન્યો લિસ્ટમાં ઉમેરાયા </string>
+
     <string name="you_change_group_image">તમે ગ્રુપની છબી બદલી છે.   </string>
     <string name="backup_account">બૅકઅપ અકાઉન્ટ </string>
     <string name="search_hint_text">સર્ચ કરો...</string>
