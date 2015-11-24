@@ -951,7 +951,6 @@ public class HttpRequests
 
 		RequestToken requestToken = new JSONObjectRequest.Builder().setUrl(languageListUrl()).setRequestType(Request.REQUEST_TYPE_SHORT).setRequestListener(requestListener)
 				.setResponseOnUIThread(true).build();
-		requestToken.getRequestInterceptors().addFirst("gzip", new GzipRequestInterceptor());
 		return requestToken;
 
 	}
