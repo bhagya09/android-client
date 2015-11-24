@@ -1090,7 +1090,7 @@ public class PlatformUtils
 					packagesJSONArray = new JSONArray(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.PACKAGE_LIST, null));
 					if (packagesJSONArray != null)
 					{
-						ChatHeadUtils.setAllApps(packagesJSONArray, true);
+						ChatHeadUtils.setAllApps(packagesJSONArray, true, false);
 					}
 				}
 				catch (JSONException e)

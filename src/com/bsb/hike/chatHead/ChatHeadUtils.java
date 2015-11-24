@@ -525,20 +525,31 @@ public class ChatHeadUtils
 		ChatHeadViewManager.getInstance(context).resetPosition(ChatHeadConstants.STOPPING_SERVICE_ANIMATION, null);
 	}
 	
-	public static void setAllApps(JSONArray pkgList, boolean toSet)
+	public static void setAllApps(JSONArray pkgList, boolean valueToSet, boolean userDefinedValuePreferred) throws JSONException
 	{
-		try
+		JSONArray newPkgList = new JSONArray();
+		JSONArray storedPkgList = new JSONArray(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.PACKAGE_LIST, "[]"));
+		boolean storedPkgFound;
+		for (int j = 0; j < pkgList.length(); j++)
 		{
-			for (int j = 0; j < pkgList.length(); j++)
+			storedPkgFound = false;
+			JSONObject newPkg = pkgList.getJSONObject(j);
+			for (int i = 0; i< storedPkgList.length(); i++)
 			{
-				pkgList.getJSONObject(j).put(HikeConstants.ChatHead.APP_ENABLE, toSet);
+				JSONObject storedPkg = storedPkgList.getJSONObject(i);
+				if(storedPkg.getString(HikeConstants.ChatHead.PACKAGE_NAME).equals(newPkg.getString(HikeConstants.ChatHead.PACKAGE_NAME)))
+				{
+					storedPkgFound = true;
+					newPkg.put(HikeConstants.ChatHead.APP_ENABLE, storedPkg.getBoolean(HikeConstants.ChatHead.APP_ENABLE));
+				}
 			}
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.PACKAGE_LIST, pkgList.toString());
+			if(!storedPkgFound || !userDefinedValuePreferred)
+			{
+				newPkg.put(HikeConstants.ChatHead.APP_ENABLE, valueToSet);
+			}
+			newPkgList.put(newPkg);
 		}
-		catch (JSONException e)
-		{
-			e.printStackTrace();
-		}
+		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.PACKAGE_LIST, newPkgList.toString());
 
 	}
 	
@@ -591,7 +602,10 @@ public class ChatHeadUtils
 		{
 			sharablePackageList = new JSONArray(settings.getData(HikeConstants.ChatHead.PACKAGE_LIST, CHAT_HEAD_SHARABLE_PACKAGES));
 		}
-		ChatHeadUtils.setAllApps(sharablePackageList, userEnabled);
+		if(stkrWdgtJson.has(HikeConstants.ChatHead.PACKAGE_LIST) || !settings.contains(HikeConstants.ChatHead.PACKAGE_LIST))
+		{
+			ChatHeadUtils.setAllApps(sharablePackageList, userEnabled, true);
+		}
 
 		if (stkrWdgtJson.has(HikeConstants.ChatHead.STICKERS_PER_DAY) || !settings.contains(HikeConstants.ChatHead.STICKERS_PER_DAY))
 		{
