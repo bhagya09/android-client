@@ -69,15 +69,6 @@
         android:paddingTop="20dp"
         android:paddingBottom="20dp" >
 
-        <com.bsb.hike.view.CustomFontTextView
-            android:id="@+id/groups_massegesTextView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:text="@string/group_setting_option_only_admin"
-            android:textSize="16sp"
-            android:textStyle="normal" />
-
         <CheckBox
             android:id="@+id/checkBox"
             android:layout_width="wrap_content"
@@ -87,6 +78,18 @@
             android:layout_centerVertical="true"
             android:clickable="false"
             android:focusable="false" />
+        
+        <com.bsb.hike.view.CustomFontTextView
+            android:id="@+id/groups_massegesTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_alignParentLeft="true"
+            android:layout_toLeftOf="@id/checkBox"
+            android:text="@string/group_setting_option_only_admin"
+            android:textSize="16sp"
+            android:textStyle="normal" />
+        
     </RelativeLayout>
     
     <View   	    
