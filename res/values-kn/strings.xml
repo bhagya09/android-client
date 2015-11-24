@@ -60,7 +60,7 @@
     <string name="download_failed_fatal">ಫೈಲ್ ಡೌನ್‌ಲೋಡ್‌ ಮಾಡಲು ಸಾಧ್ಯವಾಗಿಲ್ಲ. ದಯವಿಟ್ಟು ಫೈಲ್ ಡೌನ್‌ಲೋಡ್‌ ಮಾಡಿ.</string>
     <string name="card_unmount">ಫೈಲ್ ಅಕ್ಸೆಸ್‌ಗೆ ಲಭ್ಯವಿಲ್ಲ. ದಯವಿಟ್ಟು SD ಕಾರ್ಡ್‌ ಮೌಂಟ್‌ ಮಾಡಿ ಮತ್ತು ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.</string>
     <string name="not_enough_space">ಫೈಲ್‌ ಡೌನ್‌ಲೋಡ್‌ ಮಾಡಲು ಸಾಕಷ್ಟು ಸ್ಥಳವನ್ನು ನಿಮ್ಮ ಫೋನ್‌ ಹೊಂದಿಲ್ಲ</string>
-    <string name="dnd_one_to_one">%1$S  DND ಆನ್‌ ಆಗಿದೆ. %1$s ಪ್ರತಿಕ್ರಿಯೆಗೆ ಕಾಯಲಾಗುತ್ತಿದೆ.</string>
+    <string name="dnd_one_to_one">%1$s  DND ಆನ್‌ ಆಗಿದೆ. %1$s ಪ್ರತಿಕ್ರಿಯೆಗೆ ಕಾಯಲಾಗುತ್ತಿದೆ.</string>
     <string name="optin_one_to_one">%1$s ಈಗಷ್ಟೇ hikeಗೆ ಸೇರಿದ್ದಾರೆ!</string>
     <string name="download_cancelled">ಡೌನ್‌ಲೋಡ್‌ ರದ್ದಾಗಿದೆ</string>
     <string name="upload_cancelled">ಅಪ್‌ಲೋಡ್ ರದ್ದಾಗಿದೆ</string>
@@ -79,8 +79,8 @@
     <string name="invite_via_sms">SMS ಮೂಲಕ ಆಹ್ವಾನಿಸಿ</string>
     <string name="call_me_fail">ಕರೆ ಮಾಡಲು ಅಸಾಧ್ಯ. ದಯವಿಟ್ಟು ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.</string>
     <string name="calling_you">ಕರೆ ಮಾಡಲಾಗುತ್ತಿದೆ...</string>
-    <string name="new_group_message">%1$S ಜತೆಗೆ ಗ್ರೂಪ್‌ ಚಾಟ್‌</string>
-    <string name="new_broadcast_message">%1$S ಜತೆಗೆ ಬ್ರಾಡ್‌ಕಾಸ್ಟ್‌ ಪಟ್ಟಿ</string>
+    <string name="new_group_message">%1$s ಜತೆಗೆ ಗ್ರೂಪ್‌ ಚಾಟ್‌</string>
+    <string name="new_broadcast_message">%1$s ಜತೆಗೆ ಬ್ರಾಡ್‌ಕಾಸ್ಟ್‌ ಪಟ್ಟಿ</string>
     <string name="add_to_group_message">%1$s ಅನ್ನು ಗ್ರೂಪ್‌ಗೆ ಸೇರಿಸಲಾಗಿದೆ</string>
     <string name="add_to_broadcast_message">%1$s ಅನ್ನು ಪಟ್ಟಿಗೆ ಸೇರಿಸಲಾಗಿದೆ</string>
     <string name="intro_sms_thread">%1$s ಉಚಿತ SMS ಕಳುಹಿಸಿ</string>
@@ -205,7 +205,7 @@
     <string name="tap_here_block">ಈ ಸಂಖ್ಯೆಯನ್ನು ಬ್ಲಾಕ್ ಮಾಡಲು ಇಲ್ಲಿ ತಟ್ಟಿ</string>
     <string name="which_friend_invite">ನಿಮ್ಮ ಸ್ನೇಹಿತರಿಗೆ ಉಚಿತ SMS ಆಹ್ವಾನವನ್ನು ಕಳುಹಿಸಿ.</string>
     <string name="skip">ಸ್ಕಿಪ್‌ ಮಾಡಿ</string>
-    <string name="start_thread1">%1$S ಗೆ ಹಾಯ್‌ ಎನ್ನಿ!</string>
+    <string name="start_thread1">%1$s ಗೆ ಹಾಯ್‌ ಎನ್ನಿ!</string>
     <string name="start_thread2">Hike ನಲ್ಲಿ %1$s ಸಂದೇಶ ಕಳುಹಿಸಿ</string>
     <string name="moods">ಮೂಡ್‌ಗಳು</string>
     <string name="message_charcter_limit">140</string>
@@ -233,7 +233,7 @@
     <string name="joined_hike_update">Hikeಗೆ ಸೇರಲಾಗಿದೆ</string>
     <string name="free_hike_sms">ಉಚಿತ hike SMS</string>
     <string name="regular_sms">ಸಾಮಾನ್ಯ SMS</string>
-    <string name="messaging_my_number">%1$S ರಿಂದ ಮೆಸೇಜಿಂಗ್‌</string>
+    <string name="messaging_my_number">%1$s ರಿಂದ ಮೆಸೇಜಿಂಗ್‌</string>
     <string name="messaging_hike_number">+918451043280 ರಿಂದ ಮೆಸೇಜಿಂಗ್‌</string>
     <string name="manage_account">ಖಾತೆ</string>
     <string name="default_client_header">ಯೂನಿಫೈಡ್‌ ಇನ್‌ಬಾಕ್ಸ್‌</string>
@@ -254,8 +254,8 @@
     <string name="sent_sticker">ನಿಮಗೆ ಒಂದು ಸ್ಟಿಕರ್‌ ಕಳುಹಿಸಲಾಗಿದೆ</string>
     <string name="start_new_chat">ಹೊಸ ಚಾಟ್‌ ಆರಂಭಿಸಿ</string>
     <string name="post_new_update">ಒಂದು ಹೊಸ ಅಪ್‌ಡೇಟ್‌ ಪೋಸ್ಟ್ ಮಾಡಿ</string>
-    <string name="read_by_names_only">%1$S ಇವರು ನೋಡಿದ್ದಾರೆ</string>
-    <string name="read_by_names_number">%1$S ಮತ್ತು %2$d ಇತರರು ನೋಡಿದ್ದಾರೆ</string>
+    <string name="read_by_names_only">%1$s ಇವರು ನೋಡಿದ್ದಾರೆ</string>
+    <string name="read_by_names_number">%1$s ಮತ್ತು %2$d ಇತರರು ನೋಡಿದ್ದಾರೆ</string>
     <string name="read_by_everyone">ಎಲ್ಲರೂ ನೋಡಿದ್ದಾರೆ</string>
     <string name="attach">ಅಟ್ಯಾಚ್‌</string>
     <string name="new_group">ಹೊಸ ಗ್ರೂಪ್‌</string>
@@ -352,7 +352,7 @@
     <string name="file_msg_received">ನಿಮಗೆ ಒಂದು ಫೈಲ್‌ ಕಳುಹಿಸಲಾಗಿದೆ</string>
     <string name="file_msg_sent">ಫೈಲ್‌</string>
     <string name="copied">ನಕಲು ಮಾಡಲಾಗಿದೆ</string>
-    <string name="share_with">%1$S ನೊಂದಿಗೆ ಹಂಚುವುದೇ??</string>
+    <string name="share_with">%1$s ನೊಂದಿಗೆ ಹಂಚುವುದೇ??</string>
     <string name="no_internet_connection">ಇಂಟರ್ನೆಟ್‌ ಸಂಪರ್ಕವಿಲ್ಲ</string>
     <string name="num_new_messages">%1$s ಹೊಸ ಸಂದೇಶಗಳು</string>
     <string name="one_new_message">1 ಹೊಸ ಸಂದೇಶ</string>
@@ -498,8 +498,8 @@
     <string name="add_to_contacts">ಸಂಪರ್ಕಗಳಿಗೆ ಸೇರಿಸಿ</string>
     <string name="delete_leave">ಗ್ರೂಪ್‌ ಅಳಿಸಿ ಮತ್ತು ಹೊರಬನ್ನಿ</string>
     <string name="broadcast_participant_info"><![CDATA[<font color=\"#848484\"><b>ಟಿಪ್ಪಣಿ: </B>ಅಡ್ರೆಸ್‌ ಬುಕ್‌ನಲ್ಲಿರುವ %1$s ಕೇವಲ hike ಸಂಪರ್ಕಗಳು ಮಾತ್ರ ಬ್ರಾಡ್‌ಕಾಸ್ಟ್‌ ಸ್ವೀಕರಿಸುತ್ತವೆ.</font>]]></string>
-    <string name="confirm_delete_chat_msg">\”%1$S\”ನೊಂದಿಗೆ ಚಾಟ್‌ ಅಳಿಸುವುದೇ? </string>
-    <string name="confirm_delete_group_msg">\”%1$S\” ಗ್ರೂಪ್‌ನಲ್ಲಿ ಅಳಿಸಿ ಹೊರಬರುವುದೇ?</string>
+    <string name="confirm_delete_chat_msg">\”%1$s\”ನೊಂದಿಗೆ ಚಾಟ್‌ ಅಳಿಸುವುದೇ? </string>
+    <string name="confirm_delete_group_msg">\”%1$s\” ಗ್ರೂಪ್‌ನಲ್ಲಿ ಅಳಿಸಿ ಹೊರಬರುವುದೇ?</string>
     <string name="email_chat">ಇಮೇಲ್ ಚಾಟ್‌</string>
     <string name="change_keyboard">ಕೀಬೋರ್ಡ್‌ ಬದಲಿಸಿ</string>
     <string name="clear_chat">ಚಾಟ್‌ ಕ್ಲಿಯರ್ ಮಾಡಿ</string>
@@ -621,7 +621,7 @@
     <string name="shared_cont_pa">ಹಂಚಿಕೊಂಡ ಸಂಪರ್ಕ</string>
     <string name="no_internet_try_again">ಇಂಟರ್ನೆಟ್‌ ಸಂಪರ್ಕವಿಲ್ಲ. ದಯವಿಟ್ಟು ನಂತರ ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.</string>
     <string name="refresh">ರಿಫ್ರೆಷ್‌</string>
-    <string name="user_back_on_hike">%1$S ಇವರು ಹೊಸ hikeನಲ್ಲಿದ್ದಾರೆ! ಹಾಯ್‌ ಎನ್ನಿ!</string>
+    <string name="user_back_on_hike">%1$s ಇವರು ಹೊಸ hikeನಲ್ಲಿದ್ದಾರೆ! ಹಾಯ್‌ ಎನ್ನಿ!</string>
     <string name="joined_hike_new">%1$s ಇವರು ಹೊಸ hikeನಲ್ಲಿದ್ದಾರೆ, ಹಾಯ್‌ ಎನ್ನಿ!</string>
     <string name="joined_hike">%1$s ಇವರು ಹೊಸ hikeನಲ್ಲಿದ್ದಾರೆ, ಹಾಯ್‌ ಎನ್ನಿ!</string>
     <string name="team_hike">hike</string>
@@ -640,7 +640,7 @@
     <string name="h2o_notifications_setting_summary">ಆಫ್‌ಲೈನ್‌ ಸಂಪರ್ಕಕ್ಕೆ SMS ಕಳುಹಿಸಲು ನೋಟಿಫೈ ಮಾಡಿ</string>
     <string name="stealth_info_tip_subtext">ಪಾಸ್‌ವರ್ಡ್‌ನಿಂದ ಚಾಟ್‌ಗಳನ್ನು ಗೌಪ್ಯವಾಗಿಸಲ “ಹಾಯ್‌” ತಟ್ಟಿ.</string>
     <string name="file_attachment_info">100 MB ವರೆಗಿನ doc, pdf ಮತ್ತು ಮೀಡಿಯಾವನ್ನು ಹಂಚಿ</string>
-    <string name="status_text_notification">%1$S ಅಪ್‌ಡೇಟ್‌ ಆಗಿ ಪೋಸ್ಟ್ ಮಾಡಿ</string>
+    <string name="status_text_notification">%1$s ಅಪ್‌ಡೇಟ್‌ ಆಗಿ ಪೋಸ್ಟ್ ಮಾಡಿ</string>
     <string name="shared_files">ಫೈಲ್‌ಗಳು</string>
     <string name="tap_save_contact">ಸಂಪರ್ಕ ಉಳಿಸಿ</string>
     <string name="image_settings_tip_text">ಇಮೇಜ್‌ ಸೆಟ್ಟಿಂಗ್‌ಗಳು</string>
@@ -737,7 +737,7 @@
     <string name="recently_joined_hike">ಇತ್ತೀಚೆಗೆ HIKE ಸೇರಿದ್ದು</string>
     <string name="creating_backup_message">ನಿಮ್ಮ ಖಾತೆಯ ಬ್ಯಾಕ್ಅಪ್‌ ರಚಿಸುವಿಕೆ. ಬೆಳಗ್ಗೆ 3:00 ಗಂಟೆಗೆ ನಿತ್ಯ ಬ್ಯಾಕ್‌ಅಪ್‌ ನಡೆಯುತ್ತದೆ</string>
     <string name="restore">ರಿಸ್ಟೋರ್‌ ಮಾಡಿ</string>
-    <string name="auth_connected_to_hike">%1$S hikeಗೆ ಸಂಪರ್ಕಿತರಾಗಿದ್ದಾರೆ!</string>
+    <string name="auth_connected_to_hike">%1$s hikeಗೆ ಸಂಪರ್ಕಿತರಾಗಿದ್ದಾರೆ!</string>
     <string name="auth_state_connecting">ಸಂಪರ್ಕಿಸಲಾಗುತ್ತಿದೆ...</string>
     <string name="auth_please_wait_connect">ನೀವು ಸಂಪರ್ಕಗೊಳ್ಳುವವರೆಗೆ ದಯವಿಟ್ಟು ಕಾಯಿರಿ...</string>
     <string name="auth_retry">ಮರುಪ್ರಯತ್ನಿಸಿ</string>
@@ -775,7 +775,7 @@
     <string name="voip_missed_call_outgoing">ನಿಮ್ಮ ಮಿಸ್ಡ್‌ ಕರೆ</string>
     <string name="voip_missed_call_incoming">ನೀವು ಮಿಸ್‌ ಮಾಡಿಕೊಂಡ ಕರೆ</string>
     <string name="voip_call_chat">Hike ಕರೆ</string>
-    <string name="voip_call_notification_title">%1$S ರೊಂದಿಗೆ Hike ಕರೆ</string>
+    <string name="voip_call_notification_title">%1$s ರೊಂದಿಗೆ Hike ಕರೆ</string>
     <string name="voip_conference_call_notification_title">Hike ಕಾನ್ಫರೆನ್ಸ್‌ ಕರೆ</string>
     <string name="voip_call_notification_text">ಕರೆ %1$s ಪ್ರಗತಿಯಲ್ಲಿದೆ</string>
     <string name="voip_call">ಕರೆ ಮಾಡಿ</string>
@@ -795,7 +795,7 @@
     <string name="voip_conference_network_support">ಕಾನ್ಫರೆನ್ಸ್‌ ಕರೆಗಳನ್ನು 2Gಯಲ್ಲಿ ನಡೆಸಲಾಗದು.</string>
     <string name="voip_conference_os_support">ನಿಮ್ಮ ಫೋನ್‌ ಕಾನ್ಫರೆನ್ಸ್‌ ಅನ್ನು ಹೋಸ್ಟ್‌ ಮಾಡದು.</string>
     <string name="voip_conference_host">ಕಾನ್ಫರೆನ್ಸ್‌ ಹೋಸ್ಟ್‌</string>
-    <string name="voip_conference_not_supported">%1$S ಇದು ಕಾನ್ಫರೆನ್ಸ್‌ ಕರೆಗಳನ್ನು ಬೆಂಬಲಿಸುವುದಿಲ್ಲ.</string>
+    <string name="voip_conference_not_supported">%1$s ಇದು ಕಾನ್ಫರೆನ್ಸ್‌ ಕರೆಗಳನ್ನು ಬೆಂಬಲಿಸುವುದಿಲ್ಲ.</string>
     <string name="voip_group_conference_confirmation">ಈ ಗ್ರೂಪ್‌ನ ಎಲ್ಲರೊಂದಿಗೂ ಕಾನ್ಫರೆನ್ಸ್‌ ಕರೆಯನ್ನು ಆರಂಭಿಸಲು ನೀವು ಬಯಸುತ್ತೀರಾ?</string>
     <string name="led_color_none_key">ಇಲ್ಲ</string>
     <string name="led_color_blue_key">ನೀಲಿ</string>
@@ -851,7 +851,7 @@
     <string name="photo_dp_save_error_sub">ಮರು ಪ್ರಯತ್ನಿಸಲು ತಟ್ಟಿ</string>
     <string name="photo_gallery_choose_pic">ಫೊಟೋ ಆಯ್ಕೆ ಮಾಡಿ</string>
     <string name="cropping_image">ಚಿತ್ರ ಕ್ರಾಪ್‌ ಮಾಡಲಾಗುತ್ತಿದೆ...</string>
-	<string name="home_search_empty_text">\’%1$S\’ ಗೆ ನಿಮ್ಮ ಹುಡುಕಾಟ ಯಾವುದೇ ಸಂಪರ್ಕಗಳಿಗೆ ಹೊಂದುತ್ತಿಲ್ಲ.</string>
+	<string name="home_search_empty_text">\’%1$s\’ ಗೆ ನಿಮ್ಮ ಹುಡುಕಾಟ ಯಾವುದೇ ಸಂಪರ್ಕಗಳಿಗೆ ಹೊಂದುತ್ತಿಲ್ಲ.</string>
     <string name="voip_mic_error">ಮೈಕ್‌ ಆರಂಬಿಸಲು ಅಸಾಧ್ಯ. ಈ ಕರೆ ಕೆಲಸ ಮಾಡದಿರದು.</string>
     <string name="voip_call_failed_frag_subheader">ನೀವು ಈಗಲೂ %1$s ಸಂಪರ್ಕವನ್ನು ಇವರೊಂದಿಗೆ ಮಾಡಬಹುದು</string>
     <string name="dismiss_upper_case">ವಜಾಗೊಳಿಸಿ</string>
@@ -859,9 +859,9 @@
     <string name="voip_call_failed_message">hike ಸಂದೇಶ</string>
     <string name="voip_call_failed_redial">ರೀಡಯಲ್</string>
     <string name="voip_call_failed_native_call">ಆಪರೇಟರ್‌ ಕರೆ</string>
-    <string name="voip_not_reachable">%1$S ಇದಕ್ಕೆ ಶುಲ್ಕವಿಲ್ಲ</string>
+    <string name="voip_not_reachable">%1$s ಇದಕ್ಕೆ ಶುಲ್ಕವಿಲ್ಲ</string>
     <string name="voip_callee_busy">%1$s ಇವರು ಬ್ಯಸಿ</string>
-    <string name="voip_callee_no_response">%1$S ಇವರು ಪ್ರತಿಕ್ರಿಯಿಸುತ್ತಿಲ್ಲ</string>
+    <string name="voip_callee_no_response">%1$s ಇವರು ಪ್ರತಿಕ್ರಿಯಿಸುತ್ತಿಲ್ಲ</string>
     <string name="voip_incompat_platform">Hike ಕರೆಗಳು ಈ ಸಂಪರ್ಕದ ಫೋನ್‌ನೊಂದಿಗೆ\nಲಭ್ಯವಿಲ್ಲ.</string>
     <string name="voip_older_app">%1$s ಇದು hikeನ ಹಳೆಯ ಆವೃತ್ತಿಯಾಗಿದೆ</string>
     <string name="voip_caller_poor_network">ನೀವು ಅಥವಾ %1$s ಇವರು ಕಳಪೆ ನೆಟ್‌ವರ್ಕ್‌ನಲ್ಲಿದ್ದೀರಿ</string>
@@ -884,12 +884,12 @@
     <string name="ls_favorites_summary">ಕೇವಲ ನಿಮ್ಮ ಫೇವರಿಟ್‌ಗಳಿಗೆ ಮಾತ್ರ ಕೊನೆಯದಾಗಿ ನೋಡಿದ್ದು ಗೋಚರವಾಗುತ್ತದೆ</string>
     <string name="ls_everyone_summary">hikeನಲ್ಲಿರುವ ಎಲ್ಲರಿಗೂ ಕೊನೆಯದಾಗಿ ನೋಡಿದ್ದು ಗೋಚರವಾಗುತ್ತದೆ</string>
     <string name="ls_nobody_summary">ನೆನಪಿಡಿ: ಇತರ ಯಾರದೇ ಕೊನೆಯದಾಗಿ ನೋಡಿದ್ದನ್ನು ನೀವು ನೋಡಲು ಸಾಧ್ಯವಿಲ್ಲ</string>
-    <string name="you_accepted_favorite_request_details">ಉತ್ತಮ! ನಿಮ್ಮ %2$s ಅನ್ನು %1$S ನೋಡಲು ಸಾಧ್ಯವಿದೆ</string>
+    <string name="you_accepted_favorite_request_details">ಉತ್ತಮ! ನಿಮ್ಮ %2$s ಅನ್ನು %1$s ನೋಡಲು ಸಾಧ್ಯವಿದೆ</string>
     <string name="accepted_your_favorite_request_details">ನೀವು ಈಗ %1$s\ರ %2$s ಅನ್ನು ನೋಡಬಹುದು</string>
     <string name="favorite_confirmed_notification">ನೀವು ಈಗ %1$s\ರ %2$s ಅನ್ನು ನೋಡಬಹುದು</string>
-    <string name="sent_favorite_request_tab">%1$S ಈಗ ಹಂಚಿಕೊಳ್ಳುತ್ತಿದ್ದಾರೆ. ನೀವೂ ಅದನ್ನೇ ಮಾಡಲು ಬಯಸುತ್ತೀರಾ?</string>
+    <string name="sent_favorite_request_tab">%1$s ಈಗ ಹಂಚಿಕೊಳ್ಳುತ್ತಿದ್ದಾರೆ. ನೀವೂ ಅದನ್ನೇ ಮಾಡಲು ಬಯಸುತ್ತೀರಾ?</string>
     <string name="tap_plus_add_favorites">ಕೇವಲ ಫೇವರಿಟ್‌ಗಳು ನಿಮ್ಮ %1$s ನೋಡಲು ಸಾಧ್ಯ. ಅವರನ್ನು ಆಯ್ಕೆ ಮಾಡಿ!</string>
-    <string name="add_fav_msg">%1$S ಈಗ ಹಂಚಿಕೊಳ್ಳುತ್ತಿದ್ದಾರೆ. ನೀವೂ ಅದನ್ನೇ ಮಾಡಲು ಬಯಸುತ್ತೀರಾ?</string>
+    <string name="add_fav_msg">%1$s ಈಗ ಹಂಚಿಕೊಳ್ಳುತ್ತಿದ್ದಾರೆ. ನೀವೂ ಅದನ್ನೇ ಮಾಡಲು ಬಯಸುತ್ತೀರಾ?</string>
     <string name="both_ls_status_update">ಕೊನೆಯದಾಗಿ ನೋಡಿದ್ದು ಮತ್ತು ಸ್ಟೇಟಸ್‌ ಅಪ್‌ಡೇಟ್‌ಗಳು</string>
     <string name="retry_platform_failure">ಮರುಪ್ರಯತ್ನಿಸಿ</string>
     <string name="platform_error_text">ಏನೋ ತಪ್ಪಾಗಿದೆ</string>
@@ -1044,12 +1044,12 @@
     <string name="num_notification_sub_text_for_multi_msisdn">%2$s ಸಂಭಾಷಣೆಯಿಂದ %1$s ಸಂದೇಶಗಳು</string>
     <string name="disconnect_warning">%1$s ಜೊತೆಗೆ ಸಂಪರ್ಕಿಸಲು ದಯವಿಟ್ಟು ಕಾಯುವುದೇ?</string>
     <string name="connected_warning">%1$s ಜತೆಗಿನ ನಿಮ್ಮ ಸಂಪರ್ಕ ಮುಕ್ತಾಯವಾಗಲಿದೆ.</string>
-    <string name="connecting_to">%1$Sಗೆ ಸಂಪರ್ಕಿಸಲಾಗುತ್ತಿದೆ...</string>
+    <string name="connecting_to">%1$sಗೆ ಸಂಪರ್ಕಿಸಲಾಗುತ್ತಿದೆ...</string>
     <string name="offline_animation_second_message">ಸಲಹೆ: Hike Direct 100 ಮೀಟರು \nವ್ಯಾಪ್ತಿಯಲ್ಲಿ ಕೆಲಸ ಮಾಡುತ್ತದೆ</string>
     <string name="offline_animation_third_message">ಇದು ಸಾಮಾನ್ಯಕ್ಕಿಂತ ಹೆಚ್ಚು ಸಮಯ ತೆಗೆದುಕೊಳ್ಳುತ್ತಿದೆ. \n hike direct ತಟ್ಟುವಂತೆ ದಯವಿಟ್ಟು\n%1$s ಗು ಹೇಳಿ</string>
     <string name="connect">ಸಂಪರ್ಕಿಸಿ</string>
 	<string name="sticker_share_popup_activate_toast">ಸ್ಟಿಕ್ಕೀ ಈಗ ಸಕ್ರಿಯವಾಗಿದೆ!</string>
-    <string name="cancel_connection">%1$S ಜತೆಗೆ ಸಂಪರ್ಕ ಪ್ರಯತ್ನವನ್ನು ರದ್ದುಗೊಳಿಸುವುದೇ?</string>
+    <string name="cancel_connection">%1$s ಜತೆಗೆ ಸಂಪರ್ಕ ಪ್ರಯತ್ನವನ್ನು ರದ್ದುಗೊಳಿಸುವುದೇ?</string>
     <string name="cancel_offline_connection">ಸಂಪರ್ಕ ರದ್ದುಗೊಳಿಸಿ</string>
     <string name="retry_connection">\n Hike Direct ಗೆ ಸಂಪರ್ಕ ಸಾಧ್ಯವಾಗುತ್ತಿಲ್ಲ. ಮತ್ತೆ ಪ್ರಯತ್ನಿಸುವುದೇ?</string>
     <string name="file_attachment_info_offline">ಯಾವುದೇ ಗಾತ್ರದ ಅಪ್ಲಿಕೇಶನ್‌ , ಮೀಡಿಯಾ, ಫೈಲ್‌ಗಳನ್ನು ಹಂಚಿಕೊಳ್ಳಿ</string>
