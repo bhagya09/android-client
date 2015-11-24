@@ -412,8 +412,8 @@ public class ChatHeadUtils
 
 	public static boolean shouldRunChatHeadServiceForStickey()
 	{
-		boolean enabledForUser = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.CHAT_HEAD_SERVICE, false);
-		boolean permittedToRun = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.CHAT_HEAD_USR_CONTROL, false);
+		boolean enabledForUser = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.ENABLE, false);
+		boolean permittedToRun = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.USER_CONTROL, false);
 		boolean packageListNonEmpty = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.PACKAGE_LIST, null) != null;
 		return enabledForUser && permittedToRun && packageListNonEmpty;
 	}
@@ -544,70 +544,71 @@ public class ChatHeadUtils
 	
 	public static void activateChatHead(JSONObject data) throws JSONException
 	{
-		JSONObject stickerWidgetJSONObj;
+		JSONObject stkrWdgtJson;
+		HikeSharedPreferenceUtil settings = HikeSharedPreferenceUtil.getInstance();
 		
 		if(data == null || !data.has(HikeConstants.ChatHead.STICKER_WIDGET))
 		{
-			stickerWidgetJSONObj = new JSONObject().put(HikeConstants.ChatHead.CHAT_HEAD_USR_CONTROL, CHAT_HEAD_USR_CONTROL_DEFAULT);
+			stkrWdgtJson = new JSONObject().put(HikeConstants.ChatHead.USER_CONTROL, CHAT_HEAD_USR_CONTROL_DEFAULT);
 		}
 		else
 		{
-			stickerWidgetJSONObj = data.getJSONObject(HikeConstants.ChatHead.STICKER_WIDGET);
+			stkrWdgtJson = data.getJSONObject(HikeConstants.ChatHead.STICKER_WIDGET);
 		}
 
-		boolean chatHeadService = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.CHAT_HEAD_SERVICE, CHAT_HEAD_ENABLE_DEFAULT);
-		if(stickerWidgetJSONObj.has(HikeConstants.ChatHead.CHAT_HEAD_SERVICE) || !HikeSharedPreferenceUtil.getInstance().contains(HikeConstants.ChatHead.CHAT_HEAD_SERVICE))
+		boolean chatHeadEnabled = settings.getData(HikeConstants.ChatHead.ENABLE, CHAT_HEAD_ENABLE_DEFAULT);
+		if(stkrWdgtJson.has(HikeConstants.ChatHead.ENABLE) || !settings.contains(HikeConstants.ChatHead.ENABLE))
 		{
-			chatHeadService = stickerWidgetJSONObj.optBoolean(HikeConstants.ChatHead.CHAT_HEAD_SERVICE, chatHeadService);
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.CHAT_HEAD_SERVICE, chatHeadService);
+			chatHeadEnabled = stkrWdgtJson.optBoolean(HikeConstants.ChatHead.ENABLE, chatHeadEnabled);
+			settings.saveData(HikeConstants.ChatHead.ENABLE, chatHeadEnabled);
 		}
 		
-		boolean serviceUserControl = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.CHAT_HEAD_USR_CONTROL, CHAT_HEAD_USR_CONTROL_DEFAULT);
-		if (stickerWidgetJSONObj.has(HikeConstants.ChatHead.CHAT_HEAD_USR_CONTROL) && !HikeSharedPreferenceUtil.getInstance().contains(HikeConstants.ChatHead.CHAT_HEAD_USR_CONTROL))
+		boolean userEnabled = settings.getData(HikeConstants.ChatHead.USER_CONTROL, CHAT_HEAD_USR_CONTROL_DEFAULT);
+		if (stkrWdgtJson.has(HikeConstants.ChatHead.USER_CONTROL) && !settings.contains(HikeConstants.ChatHead.USER_CONTROL))
 		{
-			serviceUserControl = stickerWidgetJSONObj.optBoolean(HikeConstants.ChatHead.CHAT_HEAD_USR_CONTROL, serviceUserControl);
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.CHAT_HEAD_USR_CONTROL, serviceUserControl);
+			userEnabled = stkrWdgtJson.optBoolean(HikeConstants.ChatHead.USER_CONTROL, userEnabled);
+			settings.saveData(HikeConstants.ChatHead.USER_CONTROL, userEnabled);
 		}
 
-		if(chatHeadService)
+		if(chatHeadEnabled)
 		{
-			boolean forceAccessibility = stickerWidgetJSONObj.optBoolean(HikeConstants.ChatHead.FORCE_ACCESSIBILITY, !ChatHeadUtils.willPollingWork());
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.FORCE_ACCESSIBILITY, forceAccessibility);
+			boolean forceAccessibility = stkrWdgtJson.optBoolean(HikeConstants.ChatHead.FORCE_ACCESSIBILITY, !ChatHeadUtils.willPollingWork());
+			settings.saveData(HikeConstants.ChatHead.FORCE_ACCESSIBILITY, forceAccessibility);
 
-			boolean showAccessibility = stickerWidgetJSONObj.optBoolean(HikeConstants.ChatHead.SHOW_ACCESSIBILITY, !ChatHeadUtils.willPollingWork());
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.SHOW_ACCESSIBILITY, showAccessibility);
+			boolean showAccessibility = stkrWdgtJson.optBoolean(HikeConstants.ChatHead.SHOW_ACCESSIBILITY, !ChatHeadUtils.willPollingWork());
+			settings.saveData(HikeConstants.ChatHead.SHOW_ACCESSIBILITY, showAccessibility);
 
-			boolean dontUseAccessibility = stickerWidgetJSONObj.optBoolean(HikeConstants.ChatHead.DONT_USE_ACCESSIBILITY, ChatHeadUtils.willPollingWork());
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.DONT_USE_ACCESSIBILITY, dontUseAccessibility);
+			boolean dontUseAccessibility = stkrWdgtJson.optBoolean(HikeConstants.ChatHead.DONT_USE_ACCESSIBILITY, ChatHeadUtils.willPollingWork());
+			settings.saveData(HikeConstants.ChatHead.DONT_USE_ACCESSIBILITY, dontUseAccessibility);
 		}
 
 		JSONArray sharablePackageList;
-		if (stickerWidgetJSONObj.has(HikeConstants.ChatHead.PACKAGE_LIST))
+		if (stkrWdgtJson.has(HikeConstants.ChatHead.PACKAGE_LIST))
 		{ 
-			sharablePackageList = stickerWidgetJSONObj.optJSONArray(HikeConstants.ChatHead.PACKAGE_LIST);
+			sharablePackageList = stkrWdgtJson.optJSONArray(HikeConstants.ChatHead.PACKAGE_LIST);
 		}
 		else
 		{
-			sharablePackageList = new JSONArray(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.PACKAGE_LIST, CHAT_HEAD_SHARABLE_PACKAGES));
+			sharablePackageList = new JSONArray(settings.getData(HikeConstants.ChatHead.PACKAGE_LIST, CHAT_HEAD_SHARABLE_PACKAGES));
 		}
-		ChatHeadUtils.setAllApps(sharablePackageList, serviceUserControl);
+		ChatHeadUtils.setAllApps(sharablePackageList, userEnabled);
 
-		if (stickerWidgetJSONObj.has(HikeConstants.ChatHead.STICKERS_PER_DAY) || !HikeSharedPreferenceUtil.getInstance().contains(HikeConstants.ChatHead.STICKERS_PER_DAY))
+		if (stkrWdgtJson.has(HikeConstants.ChatHead.STICKERS_PER_DAY) || !settings.contains(HikeConstants.ChatHead.STICKERS_PER_DAY))
 		{
-		    int stickersPerDay = stickerWidgetJSONObj.optInt(HikeConstants.ChatHead.STICKERS_PER_DAY, CHAT_HEAD_STICKERS_PER_DAY);
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.STICKERS_PER_DAY, stickersPerDay);
+		    int stickersPerDay = stkrWdgtJson.optInt(HikeConstants.ChatHead.STICKERS_PER_DAY, CHAT_HEAD_STICKERS_PER_DAY);
+			settings.saveData(HikeConstants.ChatHead.STICKERS_PER_DAY, stickersPerDay);
 		}
-		if (stickerWidgetJSONObj.has(HikeConstants.ChatHead.EXTRA_STICKERS_PER_DAY) || !HikeSharedPreferenceUtil.getInstance().contains(HikeConstants.ChatHead.EXTRA_STICKERS_PER_DAY))
+		if (stkrWdgtJson.has(HikeConstants.ChatHead.EXTRA_STICKERS_PER_DAY) || !settings.contains(HikeConstants.ChatHead.EXTRA_STICKERS_PER_DAY))
 		{
-			int extraStickersPerDay = stickerWidgetJSONObj.optInt(HikeConstants.ChatHead.EXTRA_STICKERS_PER_DAY, CHAT_HEAD_EXTRA_STICKERS_PER_DAY);
+			int extraStickersPerDay = stkrWdgtJson.optInt(HikeConstants.ChatHead.EXTRA_STICKERS_PER_DAY, CHAT_HEAD_EXTRA_STICKERS_PER_DAY);
 			ChatHeadUtils.settingDailySharedPref();
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.EXTRA_STICKERS_PER_DAY, extraStickersPerDay);
+			settings.saveData(HikeConstants.ChatHead.EXTRA_STICKERS_PER_DAY, extraStickersPerDay);
 		}
 		
-		if (stickerWidgetJSONObj.has(HikeConstants.ChatHead.DISMISS_COUNT) || !HikeSharedPreferenceUtil.getInstance().contains(HikeConstants.ChatHead.DISMISS_COUNT))
+		if (stkrWdgtJson.has(HikeConstants.ChatHead.DISMISS_COUNT) || !settings.contains(HikeConstants.ChatHead.DISMISS_COUNT))
 		{	
-			int dismissCount = stickerWidgetJSONObj.optInt(HikeConstants.ChatHead.DISMISS_COUNT, CHAT_HEAD_DISMISS_COUNT);
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.DISMISS_COUNT, dismissCount);
+			int dismissCount = stkrWdgtJson.optInt(HikeConstants.ChatHead.DISMISS_COUNT, CHAT_HEAD_DISMISS_COUNT);
+			settings.saveData(HikeConstants.ChatHead.DISMISS_COUNT, dismissCount);
 		}
 		ChatHeadUtils.startOrStopService(true);
 	
