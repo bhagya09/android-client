@@ -25,6 +25,7 @@ import com.bsb.hike.models.TypingNotification;
 import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.models.Conversation.GroupConversation;
 import com.bsb.hike.models.Conversation.OneToNConversationMetadata;
+import com.bsb.hike.modules.kpt.KptUtils;
 import com.bsb.hike.ui.utils.HashSpanWatcher;
 import com.bsb.hike.utils.EmoticonTextWatcher;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
@@ -867,6 +868,7 @@ public class GroupChatThread extends OneToNChatThread
 		{
 			mShareablePopupLayout.dismiss();
 		}
+		hideKeyboard();
 	}
 	
 	
