@@ -1121,7 +1121,6 @@
     <string name="timeline_tab_photo">Photo</string>
     <string name="timeline_tab_status">Status</string>
     <string name="timeline_empty_desc1">Timeline Updates</string>
-    <string name="timeline_empty_desc2">You can see photos and status updates\nfrom your friends\' lives here.</string>
     <string name="CLEAR">CLEAR</string>
     <string name="HIDDEN_MODE">HIDDEN MODE</string>
     <string name="EDIT">EDIT</string>
@@ -1241,4 +1240,5 @@
 	<string name="try_instead">TRY INSTEAD</string>
 	<string name="sms_card_settings_side_text">On all text messages</string>
 	<string name="sms_card_settings_heading">SMS ID</string>
+    <string name="timeline_empty_desc2">You can see photos and status updates\nfrom your friends here</string>
 </resources>
