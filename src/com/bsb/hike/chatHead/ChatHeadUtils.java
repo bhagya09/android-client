@@ -408,7 +408,8 @@ public class ChatHeadUtils
 	{
 		Context context  = HikeMessengerApp.getInstance().getApplicationContext();
 		final boolean sessionLogEnabled = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SESSION_LOG_TRACKING, false);
-		final boolean canAccessibilityBeUsed = isAccessibilityForcedUponUser() && ( useOfAccessibilittyPermitted() || !isAccessibilityEnabled(context));
+		final boolean serverEndAccessibilityPermitted = useOfAccessibilittyPermitted();
+		final boolean canAccessibilityBeUsed = isAccessibilityForcedUponUser() && ( serverEndAccessibilityPermitted || !isAccessibilityEnabled(context));
 		final boolean startChatHead = shouldRunChatHeadServiceForStickey() && !canAccessibilityBeUsed;
 		
 		Handler uiHandler = new Handler(Looper.getMainLooper());
@@ -418,15 +419,17 @@ public class ChatHeadUtils
 			viewManager = ChatHeadViewManager.getInstance(context);
 		}
 		
-		uiHandler.post(new Runnable()
+		if(jsonChanged || serverEndAccessibilityPermitted)
 		{
-
-			@Override
-			public void run()
+			uiHandler.post(new Runnable()
 			{
-				viewManager.onDestroy();
-			}
-		});
+				@Override
+				public void run()
+				{
+					viewManager.onDestroy();
+				}
+			});
+		}
 		
 		uiHandler.post(new Runnable()
 		{
@@ -450,7 +453,7 @@ public class ChatHeadUtils
 				}}
 		});
 
-		if (useOfAccessibilittyPermitted())
+		if (serverEndAccessibilityPermitted)
 		{
 			uiHandler.post(new Runnable()
 			{
