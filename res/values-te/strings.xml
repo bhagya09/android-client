@@ -1040,7 +1040,7 @@
 	<string name="ftue_multiadmin_description">ఈ గ్రూపులోని బహుళ సభ్యులతో మీరు మీ అడ్మిన్ రైట్‌లను పంచుకోవచ్చు</string>
 	<string name="unknown_server_error">ఫైలును డౌన్‌లోడ్ చేయలేకపోయింది.</string>
 	<string name="sticker_share_description">www.hike.in</string>
-    <string name="num_notification_sub_text_for_multi_msisdn">%2$S సంభాషణల నుంచి %1$s సందేశాలు</string>
+    <string name="num_notification_sub_text_for_multi_msisdn">%2$s సంభాషణల నుంచి %1$s సందేశాలు</string>
     <string name="disconnect_warning">%1$sకు కనెక్ట్ చేయాలా?</string>
     <string name="connected_warning">%1$s తో మీ కనెక్షన్ ముగుస్తుంది.</string>
     <string name="connecting_to">%1$sకు కనెక్ట్ చేయబడుతోంది...</string>
@@ -1172,7 +1172,7 @@
     <string name="long_press_duration_title">లాంగ్ ప్రెస్ డ్యూరేషన్</string>
     <string name="keypress_sound_vol_title">కీప్రెస్ సౌండ్ వాల్యూం</string>
     <string name="keypress_vib_duration_title">కీప్రెస్ కంపన వ్యవధి</string>
-    <string name="like_count_by_unknow_contacts">%2$S %1$D</string>
+    <string name="like_count_by_unknow_contacts">%2$s స్నేహితులు +%1$d</string>
     <string name="connection_established_inline_msg">hike డైరెక్ట్ కనెక్ట్ చేయబడింది</string>
     <string name="connection_deestablished_inline_msg">hike డైరెక్ట్ డిస్‌కనెక్ట్ చేయబడింది</string>
     <string name="connection_request_inline_msg">hike డైరెక్ట్ అభ్యర్థన మిస్ అయింది</string>

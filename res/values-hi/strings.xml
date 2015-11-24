@@ -1014,7 +1014,7 @@
 	<string name="add_members">सदस्य जोड़ें</string>
 	<string name="add_members_to_conference">कॉन्फ़्रेंस में जोड़ें</string>
 	<string name="created_group_text">आपने ग्रुप चैट बनाया है</string>
-	<string name="group_member_added">%1$s जोड़ा गया</string>
+	<string name="group_member_added">%1$s ने %2$s को जोडा</string>
 	<string name="num_members">%1$d सदस्य</string>
 	<string name="num_member">%1$d सदस्य</string>
 	<string name="profile_pic_upload_in_background">प्रोफ़ाइल चित्र का अपलोड होना जारी रहेगा..</string>
@@ -1027,7 +1027,7 @@
 	<string name="make_admin">एडमिन बनाएं</string>
 	<string name="admin_updating">%1$s को एडमिन बना रहे हैं</string>
 	<string name="admin_task_error">कनेक्शन त्रुटि: कृपया अपने नेटवर्क की जांच करें और फिर से प्रयास करें.</string>
-	<string name="group_admin_updated">%1$s को एडमिन बनाया</string>
+	<string name="group_admin_updated">%1$s ने %2$s को एडमिन बनाया</string>
 	<string name="group_setting_option_only_admin">केवल एडमिन ही सदस्य जोड़ सकते हैं</string>
 	<string name="group_setting_updating">ग्रुप प्राइवेसी सेटिंग्स में बदलाव करना</string>
 	<string name="group_setting_confirmation1">हर किसी को सदस्य जोड़ने की अनुमति दें?</string>

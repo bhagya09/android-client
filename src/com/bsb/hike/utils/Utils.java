@@ -109,6 +109,7 @@ import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
+import com.bsb.hike.modules.kpt.KptKeyboardManager;
 import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.service.ConnectionChangeReceiver;
@@ -2989,6 +2990,8 @@ public class Utils
 		{
 			data.put(HikeConstants.LOCALE, LocalLanguageUtils.getApplicationLocalLanguageLocale());
 			data.put(HikeConstants.DEVICE_LOCALE, LocalLanguageUtils.getDeviceDefaultLocale());
+			if (!HikeMessengerApp.isSystemKeyboard())
+				data.put(HikeConstants.CUSTOM_KEYBOARD_LOCALE, KptKeyboardManager.getInstance(context).getCurrentLanguageAddonItem().getlocaleName());
 			data.put(HikeConstants.MESSAGE_ID, Long.toString(System.currentTimeMillis() / 1000));
 
 			object.put(HikeConstants.TYPE, HikeConstants.MqttMessageTypes.ACCOUNT_CONFIG);

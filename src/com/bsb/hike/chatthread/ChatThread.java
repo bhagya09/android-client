@@ -2578,6 +2578,22 @@ import android.widget.Toast;
 		mComposeView.setOnKeyListener(this);
 
 		mComposeView.setSelectAllOnFocus(true);
+
+		mComposeView.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				if (!isSystemKeyboard())
+				{
+					mCustomKeyboard.showCustomKeyboard(mComposeView, true);
+				/*
+				 * This is an approximate height given by kpt until we get keyboard visibility call. The final height is set in onInputViewVisibility().
+				 * This calls is to avoid the seeming delay in appearance of edittext.
+				 */
+					KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, (keyboardHeight == 0) ? mCustomKeyboard.getKeyBoardAndCVHeight() : keyboardHeight);
+					showKeyboardFtueIfReady();
+				}
+			}
+		});
 	}
 
 	/*
@@ -3647,7 +3663,7 @@ import android.widget.Toast;
 
 	protected void removeKeyboardFtueIfShowing()
 	{
-		if (keyboardFtue.isShowing())
+		if (keyboardFtue!=null && keyboardFtue.isShowing())
 			keyboardFtue.destroy();
 	}
 
@@ -3667,16 +3683,7 @@ import android.widget.Toast;
 		switch (v.getId())
 		{
 		case R.id.msg_compose:
-			if (!isSystemKeyboard())
-			{
-				mCustomKeyboard.showCustomKeyboard(mComposeView, true);
-				/*
-				 * This is an approximate height given by kpt until we get keyboard visibility call. The final height is set in onInputViewVisibility().
-				 * This calls is to avoid the seeming delay in appearance of edittext.
-				 */
-				KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, (keyboardHeight == 0) ? mCustomKeyboard.getKeyBoardAndCVHeight() : keyboardHeight);
-				showKeyboardFtueIfReady();
-			}
+
 			if(stickerTagWatcher != null)
 			{
 				stickerTagWatcher.onTouch(v, event);
