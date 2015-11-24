@@ -730,7 +730,16 @@ public class HikeListActivity extends HikeAppStateBaseFragmentActivity implement
 				Utils.sendInvite(msisdn, this);
 				Toast.makeText(this, R.string.invite_sent, Toast.LENGTH_SHORT).show();
 			}
+			setResult(RESULT_OK);
 			finish();
 		}
+	}
+
+
+	@Override
+	public void onBackPressed() {
+		// TODO Auto-generated method stub
+		setResult(RESULT_OK);
+		super.onBackPressed();
 	}
 }

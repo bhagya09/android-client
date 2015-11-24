@@ -29,6 +29,8 @@ public class HttpException extends Exception
 
 	public static final short REASON_CODE_INTERRUPTED_EXCEPTION = 0x11;
 
+	public static final short REASON_CODE_SOCKET_EXCEPTION = 0x12;
+
 	private int errorCode;
 
 	public HttpException(short errorCode)

@@ -73,7 +73,9 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 	
 	private MicroappsListAdapter microappsListAdapter;
 
-	public ComposeChatAdapter(Context context, ListView listView, boolean fetchGroups, boolean fetchRecents, boolean fetchRecentlyJoined, String existingGroupId, String sendingMsisdn, FriendsListFetchedCallback friendsListFetchedCallback, boolean showSMSContacts, boolean showMicroappShowcase)
+    private boolean isContactChooserFilter = false;
+
+    public ComposeChatAdapter(Context context, ListView listView, boolean fetchGroups, boolean fetchRecents, boolean fetchRecentlyJoined, String existingGroupId, String sendingMsisdn, FriendsListFetchedCallback friendsListFetchedCallback, boolean showSMSContacts, boolean showMicroappShowcase,boolean isContactChooserFilter)
 	{
 		super(context, listView, friendsListFetchedCallback, ContactInfo.lastSeenTimeComparatorWithoutFav);
 		selectedPeople = new LinkedHashMap<String, ContactInfo>();
@@ -104,6 +106,7 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 		 * We should show sms contacts section in new compose
 		 */
 		this.showSMSContacts = showSMSContacts;
+        this.isContactChooserFilter = isContactChooserFilter;
 	}
 
 	public void setIsCreatingOrEditingGroup(boolean b)
@@ -266,10 +269,11 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 				if (lastStatusMessage != null)
 				{
 					holder.status.setTextColor(context.getResources().getColor(R.color.list_item_subtext));
+					SmileyParser smileyParser = SmileyParser.getInstance();
 					switch (lastStatusMessage.getStatusMessageType())
 					{
 					case TEXT:
-						holder.status.setText(lastStatusMessage.getText());
+						holder.status.setText(smileyParser.addSmileySpans(lastStatusMessage.getText(), true));
 						if (lastStatusMessage.hasMood())
 						{
 							holder.statusMood.setVisibility(View.VISIBLE);
@@ -288,7 +292,6 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 
 					case IMAGE:
 					case TEXT_IMAGE:
-						SmileyParser smileyParser = SmileyParser.getInstance();
 						if(TextUtils.isEmpty(lastStatusMessage.getText()))
 						{
 							holder.status.setText(lastStatusMessage.getMsisdn());
@@ -318,12 +321,7 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 					holder.status.setText(contactInfo.getMsisdn());
 					holder.statusMood.setVisibility(View.GONE);
 				}
-				if (lastSeenPref && contactInfo.getOffline() == 0 && !showCheckbox)
-				{
-					holder.onlineIndicator.setVisibility(View.VISIBLE);
-					holder.onlineIndicator.setImageResource(R.drawable.ic_online_green_dot);
-				}
-				else
+				if(holder.onlineIndicator != null)
 				{
 					holder.onlineIndicator.setVisibility(View.GONE);
 				}
@@ -517,8 +515,9 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 			friendsListFetchedCallback.listFetched();
 		}
 
-		boolean shouldContinue = makeSetupForCompleteList(filtered);
-		
+		//Fix AND-3408
+		boolean shouldContinue = makeSetupForCompleteList(filtered, firstFetch);
+
 		if (!shouldContinue)
 		{
 			return;
@@ -740,7 +739,7 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 		// to add new section and number for user typed number
 		String text = constraint.toString().trim();
 	
-		if (isIntegers(text))
+		if (isIntegers(text) && !isContactChooserFilter)
 		{
 			newContactsList = new ArrayList<ContactInfo>();
 			ContactInfo section = new ContactInfo(SECTION_ID, null, context.getString(R.string.compose_chat_other_contacts), null);
