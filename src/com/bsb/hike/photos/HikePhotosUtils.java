@@ -298,36 +298,38 @@ public class HikePhotosUtils
 				if (effectfilters == null)
 				{
 					effectfilters = new FilterList();
-					effectfilters.addFilter(context.getString(R.string.original_caps), FilterType.ORIGINAL);
 					
+					String[] filterNameArray = HikeMessengerApp.getInstance().getApplicationContext().getResources().getStringArray(R.array.filter_names);
+					int filterNameIndex = 0;
+					
+                    effectfilters.addFilter(filterNameArray[filterNameIndex], FilterType.ORIGINAL);++filterNameIndex;
 					if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SPECIAL_DAY_TRIGGER, false))
 					{
-						effectfilters.addFilter(context.getString(R.string.tirangaa), FilterType.TIRANGAA);
+						effectfilters.addFilter(filterNameArray[filterNameIndex], FilterType.TIRANGAA);
 					}
-					effectfilters.addFilter(context.getString(R.string.mellow), FilterType.SOLOMON);
-					effectfilters.addFilter(context.getString(R.string.chuski), FilterType.CLASSIC);
-					effectfilters.addFilter(context.getString(R.string.azure), FilterType.NASHVILLE);
-					effectfilters.addFilter(context.getString(R.string.jalebi), FilterType.JALEBI);
-					effectfilters.addFilter(context.getString(R.string.gulaal), FilterType.GULAAL);
-					effectfilters.addFilter(context.getString(R.string.x_pro), FilterType.X_PRO_2);
-					effectfilters.addFilter(context.getString(R.string.hdr), FilterType.HDR);
-					effectfilters.addFilter(context.getString(R.string.apollo), FilterType.APOLLO);
-					effectfilters.addFilter(context.getString(R.string.retro), FilterType.RETRO);
-					effectfilters.addFilter(context.getString(R.string.pulsar), FilterType.EARLYBIRD);
-					effectfilters.addFilter(context.getString(R.string.sunlitt), FilterType.SUNLITT);
-					effectfilters.addFilter(context.getString(R.string.hazel), FilterType.BRANNAN);
-					effectfilters.addFilter(context.getString(R.string.lo_fi), FilterType.LO_FI);
-					effectfilters.addFilter(context.getString(R.string.inked), FilterType.INKWELL);
-					effectfilters.addFilter(context.getString(R.string.mashaal), FilterType.KELVIN);
-					effectfilters.addFilter(context.getString(R.string.sholay), FilterType.E1977);
-					effectfilters.addFilter(context.getString(R.string.junglee), FilterType.JUNGLEE);
-					effectfilters.addFilter(context.getString(R.string.polaroid), FilterType.POLAROID);
-					effectfilters.addFilter(context.getString(R.string.sepia), FilterType.SEPIA);
-					effectfilters.addFilter(context.getString(R.string.grayscale), FilterType.GRAYSCALE);
+					++filterNameIndex;
+					effectfilters.addFilter(filterNameArray[filterNameIndex], FilterType.SOLOMON);++filterNameIndex;
+					effectfilters.addFilter(filterNameArray[filterNameIndex], FilterType.CLASSIC);++filterNameIndex;
+					effectfilters.addFilter(filterNameArray[filterNameIndex], FilterType.NASHVILLE);++filterNameIndex;
+					effectfilters.addFilter(filterNameArray[filterNameIndex], FilterType.JALEBI);++filterNameIndex;
+					effectfilters.addFilter(filterNameArray[filterNameIndex], FilterType.GULAAL);++filterNameIndex;
+					effectfilters.addFilter(filterNameArray[filterNameIndex], FilterType.X_PRO_2);++filterNameIndex;
+					effectfilters.addFilter(filterNameArray[filterNameIndex], FilterType.HDR);++filterNameIndex;
+					effectfilters.addFilter(filterNameArray[filterNameIndex], FilterType.APOLLO);++filterNameIndex;
+					effectfilters.addFilter(filterNameArray[filterNameIndex], FilterType.RETRO);++filterNameIndex;
+					effectfilters.addFilter(filterNameArray[filterNameIndex], FilterType.EARLYBIRD);++filterNameIndex;
+					effectfilters.addFilter(filterNameArray[filterNameIndex], FilterType.SUNLITT);++filterNameIndex;
+					effectfilters.addFilter(filterNameArray[filterNameIndex], FilterType.BRANNAN);++filterNameIndex;
+					effectfilters.addFilter(filterNameArray[filterNameIndex], FilterType.LO_FI);++filterNameIndex;
+					effectfilters.addFilter(filterNameArray[filterNameIndex], FilterType.INKWELL);++filterNameIndex;
+					effectfilters.addFilter(filterNameArray[filterNameIndex], FilterType.KELVIN);++filterNameIndex;
+					effectfilters.addFilter(filterNameArray[filterNameIndex], FilterType.E1977);++filterNameIndex;
+					effectfilters.addFilter(filterNameArray[filterNameIndex], FilterType.JUNGLEE);++filterNameIndex;
+					effectfilters.addFilter(filterNameArray[filterNameIndex], FilterType.POLAROID);++filterNameIndex;
+					effectfilters.addFilter(filterNameArray[filterNameIndex], FilterType.SEPIA);++filterNameIndex;
+					effectfilters.addFilter(filterNameArray[filterNameIndex], FilterType.GRAYSCALE);++filterNameIndex;
 				}
-				
 				return effectfilters;
-
 			}
 
 			/**

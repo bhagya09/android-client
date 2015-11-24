@@ -512,6 +512,10 @@ public class HikeConstants
 	public static final String CHANGE_STEALTH_TIMEOUT = "changeStealthTimeout";
 
 	public static final String STEALTH_INDICATOR_ENABLED = "stealthIndicatorEnabled";
+	
+	public static final String STEALTH_INDICATOR_SHOW_REPEATED = "stealthIndicatorShowRepeated";
+	
+	public static final String STEALTH_INDICATOR_SHOW_ONCE = "stealthIndicatorShowOnce";
 
 	public static final String STEALTH_NOTIFICATION_ENABLED = "stealthNotificationEnabled";
 
@@ -3644,6 +3648,8 @@ public class HikeConstants
 	
 	public static final String ACTIVATE_STICKY_CALLER_PREF = "activateStickyCaller";
 
+	public static final String SMS_CARD_ENABLE_PREF = "smsCardEnablePref"; 
+	
 	public static final String ENABLE_KNOWN_NUMBER_CARD_PREF = "knownContactEnablePref";
 
 	public static final String NEW_CHAT_RED_DOT = "nc_dot";

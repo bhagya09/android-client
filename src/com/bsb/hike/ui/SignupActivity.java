@@ -2273,14 +2273,20 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 				HikeConstants.SIGNUP_PROFILE_IMAGE_DIMENSIONS, Bitmap.Config.RGB_565, true, false);
 
 		mActivityState.profileBitmap = HikeBitmapFactory.getCircularBitmap(tempBitmap);
+		
+		if (mActivityState.profileBitmap == null)
+		{
+			Toast.makeText(getApplicationContext(), R.string.image_failed, Toast.LENGTH_SHORT).show();
+			return;
+		}
+		
 		mIconView.setImageBitmap(mActivityState.profileBitmap);
 		mIconView.setBackgroundResource(R.color.transparent);
 		profilePicCamIcon.setImageResource(R.drawable.ic_edit_group);
 
-		tempBitmap.recycle();
 		tempBitmap = null;
 	}
-
+	
 	@Override
 	public void onEventReceived(String type, Object object)
 	{
