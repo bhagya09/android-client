@@ -95,7 +95,17 @@ public class ChatHeadUtils
 	
 	private static ChatHeadViewManager viewManager;
 	
-	private static final String packageList = "["
+	private static final int CHAT_HEAD_DISMISS_COUNT = 3;
+	
+	private static final int CHAT_HEAD_STICKERS_PER_DAY = 5;
+	
+	private static final int CHAT_HEAD_EXTRA_STICKERS_PER_DAY = 0;
+	
+	private static final boolean CHAT_HEAD_ENABLE_DEFAULT = true;
+	
+	private static final boolean CHAT_HEAD_USR_CONTROL_DEFAULT = true;
+	
+	private static final String CHAT_HEAD_SHARABLE_PACKAGES = "["
 			+ "{\"a\":\"Whatsapp\",\"p\":\"com.whatsapp\"},"
 			+ "{\"a\":\"Viber\",\"p\":\"com.viber.voip\"},"
 			+ "{\"a\":\"Messenger\",\"p\":\"com.facebook.orca\"},"
@@ -558,43 +568,43 @@ public class ChatHeadUtils
 		boolean dontUseAccessibility = stickerWidgetJSONObj.optBoolean(HikeConstants.ChatHead.DONT_USE_ACCESSIBILITY, ChatHeadUtils.willPollingWork());
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.DONT_USE_ACCESSIBILITY, dontUseAccessibility);
 
-		boolean serviceUserControl = stickerWidgetJSONObj.optBoolean(HikeConstants.ChatHead.CHAT_HEAD_USR_CONTROL, true);
+		boolean serviceUserControl = stickerWidgetJSONObj.optBoolean(HikeConstants.ChatHead.CHAT_HEAD_USR_CONTROL, CHAT_HEAD_USR_CONTROL_DEFAULT);
 		if (stickerWidgetJSONObj.has(HikeConstants.ChatHead.PACKAGE_LIST) || !HikeSharedPreferenceUtil.getInstance().contains(HikeConstants.ChatHead.PACKAGE_LIST))
 		{ 
 			JSONArray list =  stickerWidgetJSONObj.optJSONArray(HikeConstants.ChatHead.PACKAGE_LIST);
 			if(list == null)
 			{
-				list = new JSONArray(packageList);
+				list = new JSONArray(CHAT_HEAD_SHARABLE_PACKAGES);
 			}
 			ChatHeadUtils.setAllApps(list, serviceUserControl);
 		}
 		
 		if (stickerWidgetJSONObj.has(HikeConstants.ChatHead.CHAT_HEAD_SERVICE) || !HikeSharedPreferenceUtil.getInstance().contains(HikeConstants.ChatHead.CHAT_HEAD_SERVICE))
 		{	
-			boolean chatHeadService = stickerWidgetJSONObj.optBoolean(HikeConstants.ChatHead.CHAT_HEAD_SERVICE, true);
+			boolean chatHeadService = stickerWidgetJSONObj.optBoolean(HikeConstants.ChatHead.CHAT_HEAD_SERVICE, CHAT_HEAD_ENABLE_DEFAULT);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.CHAT_HEAD_SERVICE, chatHeadService);
 		}
 		if (stickerWidgetJSONObj.has(HikeConstants.ChatHead.CHAT_HEAD_USR_CONTROL) && !HikeSharedPreferenceUtil.getInstance().contains(HikeConstants.ChatHead.CHAT_HEAD_USR_CONTROL))
 		{	
-			boolean chatHeadServiceUserControl = stickerWidgetJSONObj.optBoolean(HikeConstants.ChatHead.CHAT_HEAD_USR_CONTROL, true);
+			boolean chatHeadServiceUserControl = stickerWidgetJSONObj.optBoolean(HikeConstants.ChatHead.CHAT_HEAD_USR_CONTROL, CHAT_HEAD_USR_CONTROL_DEFAULT);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.CHAT_HEAD_USR_CONTROL, chatHeadServiceUserControl);
 			ChatHeadUtils.setShareEnableForAllApps(chatHeadServiceUserControl);
 		}
 		if (stickerWidgetJSONObj.has(HikeConstants.ChatHead.STICKERS_PER_DAY) || !HikeSharedPreferenceUtil.getInstance().contains(HikeConstants.ChatHead.STICKERS_PER_DAY))
 		{
-		    int stickersPerDay = stickerWidgetJSONObj.optInt(HikeConstants.ChatHead.STICKERS_PER_DAY, 10);
+		    int stickersPerDay = stickerWidgetJSONObj.optInt(HikeConstants.ChatHead.STICKERS_PER_DAY, CHAT_HEAD_STICKERS_PER_DAY);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.STICKERS_PER_DAY, stickersPerDay);
 		}
 		if (stickerWidgetJSONObj.has(HikeConstants.ChatHead.EXTRA_STICKERS_PER_DAY) || !HikeSharedPreferenceUtil.getInstance().contains(HikeConstants.ChatHead.EXTRA_STICKERS_PER_DAY))
 		{
-			int extraStickersPerDay = stickerWidgetJSONObj.optInt(HikeConstants.ChatHead.EXTRA_STICKERS_PER_DAY, 5);
+			int extraStickersPerDay = stickerWidgetJSONObj.optInt(HikeConstants.ChatHead.EXTRA_STICKERS_PER_DAY, CHAT_HEAD_EXTRA_STICKERS_PER_DAY);
 			ChatHeadUtils.settingDailySharedPref();
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.EXTRA_STICKERS_PER_DAY, extraStickersPerDay);
 		}
 		
 		if (stickerWidgetJSONObj.has(HikeConstants.ChatHead.DISMISS_COUNT) || !HikeSharedPreferenceUtil.getInstance().contains(HikeConstants.ChatHead.DISMISS_COUNT))
 		{	
-			int dismissCount = stickerWidgetJSONObj.optInt(HikeConstants.ChatHead.DISMISS_COUNT, 5);
+			int dismissCount = stickerWidgetJSONObj.optInt(HikeConstants.ChatHead.DISMISS_COUNT, CHAT_HEAD_DISMISS_COUNT);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.DISMISS_COUNT, dismissCount);
 		}
 		ChatHeadUtils.startOrStopService(true);
