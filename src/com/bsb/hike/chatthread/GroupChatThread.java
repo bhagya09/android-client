@@ -716,6 +716,8 @@ public class GroupChatThread extends OneToNChatThread
 		{
 			mComposeView.setText(pinText);
 			mComposeView.setSelection(pinText.length());
+		}else{
+			mComposeView.setText("");
 		}
 		
 //		activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
