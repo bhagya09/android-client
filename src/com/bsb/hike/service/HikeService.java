@@ -917,15 +917,7 @@ public class HikeService extends Service
      */
     private void scheduleHikeMicroAppsMigrationAlarm()
     {
-        boolean isMicroAppsMigrationDone = false;
-
-        try {
-            isMicroAppsMigrationDone = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.HIKE_CONTENT_MICROAPPS_MIGRATION, false);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        if(!isMicroAppsMigrationDone) {
+        if(!HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.HIKE_CONTENT_MICROAPPS_MIGRATION, false)) {
 
             long scheduleTime = Utils.getTimeInMillis(Calendar.getInstance(), 4, 40, 30, 0);
             // If the scheduled time is in the past
