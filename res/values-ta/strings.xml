@@ -883,7 +883,7 @@
     <string name="ls_favorites_summary">உமது ஃபேவரைட்களுக்கு மட்டுமே ‘கடைசியாகப் பார்த்தது’ விசிபிள் ஆக உள்ளது</string>
     <string name="ls_everyone_summary">Hike-கில் உள்ள எல்லோருக்கும் ‘கடைசியாகப் பார்த்தது’ விசிபிள் ஆக உள்ளது</string>
     <string name="ls_nobody_summary">ஞாபகம் வைத்துக் கொள்ளும்: உம்மால் எவரது ‘கடைசியாகப் பார்த்ததையும்’ பார்க்க இயலாது</string>
-    <string name="you_accepted_favorite_request_details">அற்புதம்! %1$s என்பவரால் இப்போது உமது %2$s-ஐ பார்க்க பார்க்க இயலும்.</string>
+    <string name="you_accepted_favorite_request_details">அற்புதம்! %1$s என்பவரால் இப்போது உமது %2$s-ஐ பார்க்க இயலும்.</string>
     <string name="accepted_your_favorite_request_details">இப்போது உம்மால் %1$s\&apos;s %2$s-ஐ பார்க்க முடியும்</string>
     <string name="favorite_confirmed_notification">இப்போது உம்மால் %1$s\&apos;s %2$s-ஐ பார்க்க முடியும்</string>
     <string name="sent_favorite_request_tab">இவர் %1$s-ஐ ஷேர் செய்கிறார். நீரும் அதையே செய்ய விரும்புகிறீரா?</string>
