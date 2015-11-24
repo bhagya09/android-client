@@ -121,7 +121,7 @@
     <string name="me">मैं</string>
     <string name="gender">लिंग</string>
     <string name="edit_picture">चित्र सम्पादित करें</string>
-    <string name="settings">सेटिंग</string>
+    <string name="settings">सेटिंग्स</string>
     <string name="sms_left">SMS left</string>
     <string name="image_msg_received">आपको फोटो भेजी</string>
     <string name="video_msg_received">आपको वीडियो भेजा</string>
@@ -600,7 +600,7 @@
     <string name="incorrect_msisdn_msg">कृपया hike के साथ पंजीकृत नंबर को इस फ़ोन पर प्रविष्ट करें।</string>
     <string name="delete_account_heading_2">अपना खाता हटाने के लिए अपना नंबर प्रविष्ट करें</string>
     <string name="delete_my_account">मेरा खाता हटाएँ</string>
-    <string name="hike_extras">रिवार्ड/एक्स्ट्रा</string>
+    <string name="hike_extras">रिवार्ड्स/एक्स्ट्रास</string>
     <string name="mute_status_notification_header">स्थिति और प्रोफ़ाइल चित्र</string>
     <string name="mute_status_notification_subtext">स्थिति &amp; और पसंदीदा से प्रोफ़ाइल चित्र अपडेट के लिए सूचनाएं दिखाएं</string>
     <string name="notifications_contact_join_summary">जब कोई संपर्क hike में शामिल हो तो सूचित करें</string>
