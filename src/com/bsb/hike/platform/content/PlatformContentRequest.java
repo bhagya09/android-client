@@ -23,13 +23,13 @@ public class PlatformContentRequest
 
 	private byte mState = STATE_READY;
 
-    public static byte HIKE_MICRO_APPS = 1;
+    public static final byte HIKE_MICRO_APPS = 1;
 
-    public static byte ONE_TIME_POPUPS = 2;
+    public static final byte ONE_TIME_POPUPS = 2;
 
-    public static byte HIKE_GAMES = 3;
+    public static final byte NATIVE_APPS = 3;
 
-    public static byte HIKE_MAPPS = 4;
+    public static final byte HIKE_MAPPS = 4;
 
     private byte requestType = HIKE_MICRO_APPS;
 

@@ -218,6 +218,7 @@ import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.platform.content.PlatformContentConstants;
 import com.bsb.hike.service.ConnectionChangeReceiver;
 import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.tasks.CheckForUpdateTask;
@@ -7474,5 +7475,22 @@ public class Utils
 
 		return megsAvailable;
 	}
+
+    /**
+     * Returns the root folder path for Hike MicroApps <br>
+     * eg : "/data/data/com.bsb.hike/files/Content/HikeMicroApps/"
+     *
+     * @return
+     */
+    public static String getMicroAppContentRootFolder()
+    {
+        File file = new File (PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.HIKE_MICRO_APPS);
+        if (!file.exists())
+        {
+            file.mkdirs();
+        }
+
+        return PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.HIKE_MICRO_APPS ;
+    }
 
 }

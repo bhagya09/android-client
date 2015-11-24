@@ -18,6 +18,7 @@ import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.content.PlatformContent.EventCode;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.Utils;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -130,59 +131,42 @@ public class PlatformZipDownloader
 		stateFilePath=PlatformContentConstants.PLATFORM_CONTENT_DIR+mRequest.getContentData().getId();
 	}
 
-	public  boolean isMicroAppExist()
+	public boolean isMicroAppExist()
 	{
 		try
 		{
-            String unzipPath = PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.HIKE_MICRO_APPS;
-            String microAppName = mRequest.getContentData().getId();
-            int microAppVersion = mRequest.getContentData().getBotVersionCode();
+			String unzipPath = PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.HIKE_MICRO_APPS;
+			String microAppName = mRequest.getContentData().getId();
+			int microAppVersion = mRequest.getContentData().getBotVersionCode();
 
-            // Generate path for the old micro app directory
-            File oldMicroAppFolder = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR, mRequest.getContentData().getId());
+			// Generate path for the old micro app directory
+			File oldMicroAppFolder = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR, mRequest.getContentData().getId());
 
-            if(mRequest.getRequestType() == PlatformContentRequest.HIKE_MICRO_APPS)
-            {
-                // Generate path for the new micro app directory
-                unzipPath += microAppName + File.separator + "Version_" + microAppVersion + File.separator;
-                File newMicroAppPathFolder = new File(unzipPath);
+			if (oldMicroAppFolder.exists())
+				return true;
 
-                if (newMicroAppPathFolder.exists() || oldMicroAppFolder.exists())
-                {
-                    return true;
-                }
-            } else if(mRequest.getRequestType() == PlatformContentRequest.ONE_TIME_POPUPS){
+			switch (mRequest.getRequestType())
+			{
+			case PlatformContentRequest.HIKE_MICRO_APPS:
+				unzipPath += microAppName + File.separator + HikeConstants.Extras.VERSIONING_DIRECTORY_NAME + microAppVersion + File.separator;
+				break;
 
-                unzipPath += PlatformContentConstants.HIKE_ONE_TIME_POPUPS + microAppName + File.separator;
+			case PlatformContentRequest.ONE_TIME_POPUPS:
+				unzipPath += PlatformContentConstants.HIKE_ONE_TIME_POPUPS + microAppName + File.separator;
+				break;
 
-                File newMicroAppPathFolder = new File(unzipPath);
+			case PlatformContentRequest.NATIVE_APPS:
+				unzipPath += PlatformContentConstants.HIKE_GAMES + microAppName + File.separator;
+				break;
 
-                if (newMicroAppPathFolder.exists() || oldMicroAppFolder.exists())
-                {
-                    return true;
-                }
+			case PlatformContentRequest.HIKE_MAPPS:
+				unzipPath += PlatformContentConstants.HIKE_MAPPS + microAppName + File.separator;
+				break;
+			}
 
-            }else if(mRequest.getRequestType() == PlatformContentRequest.HIKE_GAMES){
+			if (new File(unzipPath).exists())
+				return true;
 
-                unzipPath += PlatformContentConstants.HIKE_GAMES + microAppName + File.separator;
-
-                File newMicroAppPathFolder = new File(unzipPath);
-
-                if (newMicroAppPathFolder.exists() || oldMicroAppFolder.exists())
-                {
-                    return true;
-                }
-            }else if(mRequest.getRequestType() == PlatformContentRequest.HIKE_MAPPS){
-
-                unzipPath += PlatformContentConstants.HIKE_MAPPS + microAppName + File.separator;
-
-                File newMicroAppPathFolder = new File(unzipPath);
-
-                if (newMicroAppPathFolder.exists() || oldMicroAppFolder.exists())
-                {
-                    return true;
-                }
-            }
 		}
 		catch (NullPointerException npe)
 		{
@@ -396,77 +380,50 @@ public class PlatformZipDownloader
 	}
 
 	/*
-	 * Method to determine and create intermediate directories for the unzip path
-	 * according to the hierarchical structure determined after the new versioning structure
+	 * Method to determine and create intermediate directories for the unzip path according to the hierarchical structure determined after the new versioning structure
 	 */
 	private String getUnZipPath()
 	{
-		String microAppName = mRequest.getContentData().getId();
+		String unzipPath = (doReplace) ? Utils.getMicroAppContentRootFolder() + PlatformContentConstants.TEMP_DIR_NAME : Utils.getMicroAppContentRootFolder();
 
-		String unzipPath = (doReplace) ? getMicroAppContentRootFolder() + PlatformContentConstants.TEMP_DIR_NAME : getMicroAppContentRootFolder();
-
-		if(mRequest.getRequestType() == PlatformContentRequest.HIKE_MICRO_APPS) {
-
-            // Create directory for micro app if not exists already
-            new File(unzipPath, microAppName).mkdirs();
-
-            // Create directory for this version for specific micro app
-            unzipPath += microAppName + File.separator;
-
-            int microAppVersion = mRequest.getContentData().getBotVersionCode();
-            new File(unzipPath, "Version_" + microAppVersion).mkdirs();
-            unzipPath += "Version_" + microAppVersion + File.separator;
-
-        }else if(mRequest.getRequestType() == PlatformContentRequest.ONE_TIME_POPUPS){
-
-            unzipPath += PlatformContentConstants.HIKE_ONE_TIME_POPUPS;
-
-            // Create directory for micro app if not exists already
-            new File(unzipPath, microAppName).mkdirs();
-
-            // Create directory for this version for specific micro app
-            unzipPath += microAppName + File.separator;
-
-        }else if(mRequest.getRequestType() == PlatformContentRequest.HIKE_GAMES){
-
-            unzipPath += PlatformContentConstants.HIKE_GAMES;
-
-            // Create directory for micro app if not exists already
-            new File(unzipPath, microAppName).mkdirs();
-
-            // Create directory for this version for specific micro app
-            unzipPath += microAppName + File.separator;
-
-        }else if(mRequest.getRequestType() == PlatformContentRequest.HIKE_MAPPS){
-
-            unzipPath += PlatformContentConstants.HIKE_MAPPS;
-
-            // Create directory for micro app if not exists already
-            new File(unzipPath, microAppName).mkdirs();
-
-            // Create directory for this version for specific micro app
-            unzipPath += microAppName + File.separator;
-
-        }
+        // To determine the path for unzipping zip files based on request type
+		switch (mRequest.getRequestType())
+		{
+		case PlatformContentRequest.HIKE_MICRO_APPS:
+			unzipPath = generateCBotUnzipPathForRequestType(unzipPath);
+			int microAppVersion = mRequest.getContentData().getBotVersionCode();
+			new File(unzipPath, HikeConstants.Extras.VERSIONING_DIRECTORY_NAME + microAppVersion).mkdirs();
+			unzipPath += HikeConstants.Extras.VERSIONING_DIRECTORY_NAME + microAppVersion + File.separator;
+			break;
+		case PlatformContentRequest.ONE_TIME_POPUPS:
+			unzipPath += PlatformContentConstants.HIKE_ONE_TIME_POPUPS;
+			unzipPath = generateCBotUnzipPathForRequestType(unzipPath);
+		case PlatformContentRequest.NATIVE_APPS:
+			unzipPath += PlatformContentConstants.HIKE_GAMES;
+			unzipPath = generateCBotUnzipPathForRequestType(unzipPath);
+		case PlatformContentRequest.HIKE_MAPPS:
+			unzipPath += PlatformContentConstants.HIKE_MAPPS;
+			unzipPath = generateCBotUnzipPathForRequestType(unzipPath);
+		}
 
 		return unzipPath;
 	}
 
-    /**
-     * Returns the root folder path for Hike MicroApps <br>
-     * eg : "/data/data/com.bsb.hike/files/Content/HikeMicroApps/"
-     *
-     * @return
-     */
-    private String getMicroAppContentRootFolder()
-    {
-        File file = new File (PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.HIKE_MICRO_APPS);
-        if (!file.exists())
-        {
-            file.mkdirs();
-        }
 
-        return PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.HIKE_MICRO_APPS ;
+    /*
+	 * Method for generating micro app subdirectory and create intermediate directories for the unzip path according to the hierarchical structure determined after the new versioning structure
+	 */
+    private String generateCBotUnzipPathForRequestType(String unzipPath)
+    {
+        String microAppName = mRequest.getContentData().getId();
+
+        // Create directory for micro app if not exists already
+        new File(unzipPath, microAppName).mkdirs();
+
+        // Create directory for this version for specific micro app
+        unzipPath += microAppName + File.separator;
+
+        return unzipPath;
     }
 
 	/*
@@ -475,33 +432,36 @@ public class PlatformZipDownloader
 	private void deleteMicroAppsAsPerCompatibilityMap()
 	{
 		String microAppName = mRequest.getContentData().getId();
-		TreeMap<Integer,Integer> compatibilityMap = mRequest.getContentData().cardObj.compatibilityMap;
+		TreeMap<Integer, Integer> compatibilityMap = mRequest.getContentData().cardObj.compatibilityMap;
 
-        if(compatibilityMap == null || mRequest.getRequestType() != PlatformContentRequest.HIKE_MICRO_APPS)
-            return;
+		if (compatibilityMap == null || mRequest.getRequestType() != PlatformContentRequest.HIKE_MICRO_APPS)
+			return;
 
-        // Micro app version for the current cbot packet
-        int microAppVersion = mRequest.getContentData().getBotVersionCode();
+		// Micro app version for the current cbot packet
+		int microAppVersion = mRequest.getContentData().getBotVersionCode();
 
-        // Logic to determine which unzipped micro apps directories are to be deleted as per compatibility Matrix
-        int hashMapKey = microAppVersion;
+		// Logic to determine which unzipped micro apps directories are to be deleted as per compatibility Matrix
+		int hashMapKey = microAppVersion;
 
-        Set<Integer> keys = compatibilityMap.keySet();
-        for(Integer key: keys){
-            if(key >= hashMapKey) {
-                hashMapKey = key;
-                break;
-            }
-        }
+		Set<Integer> keys = compatibilityMap.keySet();
+		for (Integer key : keys)
+		{
+			if (key >= hashMapKey)
+			{
+				hashMapKey = key;
+				break;
+			}
+		}
 
-        int minSupportedAppVersion = compatibilityMap.get(hashMapKey);
-		String unzipPath = (doReplace) ? getMicroAppContentRootFolder() + PlatformContentConstants.TEMP_DIR_NAME : getMicroAppContentRootFolder();
+		int minSupportedAppVersion = compatibilityMap.get(hashMapKey);
+		String unzipPath = (doReplace) ? Utils.getMicroAppContentRootFolder() + PlatformContentConstants.TEMP_DIR_NAME : Utils.getMicroAppContentRootFolder();
 		unzipPath += microAppName + File.separator;
 
-        // Code to delete micro apps within the compatibility matrix range that is figured above
-		while(minSupportedAppVersion != microAppVersion){
-			String pathToDelete =  unzipPath +  "Version_" + minSupportedAppVersion + File.separator;
-            PlatformUtils.deleteDirectory(pathToDelete);
+		// Code to delete micro apps within the compatibility matrix range that is figured above
+		while (minSupportedAppVersion != microAppVersion)
+		{
+			String pathToDelete = unzipPath + "Version_" + minSupportedAppVersion + File.separator;
+			PlatformUtils.deleteDirectory(pathToDelete);
 			minSupportedAppVersion++;
 		}
 
@@ -514,7 +474,7 @@ public class PlatformZipDownloader
 
 	private void unzipWebFile(String zipFilePath, String unzipLocation, Observer observer)
 	{
-		HikeUnzipFile unzipper = new HikeUnzipFile(zipFilePath, unzipLocation,mRequest.getContentData().getId());
+		HikeUnzipFile unzipper = new HikeUnzipFile(zipFilePath, unzipLocation);
 		unzipper.addObserver(observer);
 		unzipper.unzip();
 	}

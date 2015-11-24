@@ -411,7 +411,7 @@ public class PlatformUtils
 				});
 
         if(botMetadata.isNativeMode()) {
-            rqst.setRequestType(PlatformContentRequest.HIKE_GAMES);
+            rqst.setRequestType(PlatformContentRequest.NATIVE_APPS);
             rqst.getContentData().setRequestType(PlatformContentModel.NATIVE_APPS);
         }
 		downloadAndUnzip(rqst, false,botMetadata.shouldReplace(), botMetadata.getCallbackId(),resumeSupport,botInfo.getMsisdn());

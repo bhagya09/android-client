@@ -118,7 +118,7 @@ class PlatformContentCache
         }else if(content.getRequestType() == PlatformContentRequest.ONE_TIME_POPUPS){
             unzipPath += PlatformContentConstants.HIKE_ONE_TIME_POPUPS;
             unzipPath += microAppName + File.separator;
-        }else if(content.getRequestType() == PlatformContentRequest.HIKE_GAMES){
+        }else if(content.getRequestType() == PlatformContentRequest.NATIVE_APPS){
             unzipPath += PlatformContentConstants.HIKE_GAMES;
             unzipPath += microAppName + File.separator;
         }
