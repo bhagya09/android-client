@@ -1014,7 +1014,6 @@
 	<string name="add_members">உறுப்பினர்களைச் சேர்</string>
 	<string name="add_members_to_conference">கூட்டு அழைப்புடன் சேர்</string>
 	<string name="created_group_text">நீர் குரூப் சேட்டை உருவாக்கினீர்</string>
-	<string name="group_member_added">%1$s-ஐ சேர்த்தீர்கள்</string>
 	<string name="num_members">%1$d உறுப்பினர்கள்</string>
 	<string name="num_member">%1$d உறுப்பினர்</string>
 	<string name="profile_pic_upload_in_background">புரொஃபைல் பிக்சர் அப்லோடு தொடரும்..</string>
@@ -1027,7 +1026,6 @@
 	<string name="make_admin">அட்மின் ஆக்குக</string>
 	<string name="admin_updating">%1$s-ஐ அட்மின் ஆக்குகிறது</string>
 	<string name="admin_task_error">இணைப்புப் பிழை: தயவுசெய்து உம் நெட்வொர்க்கை சரிபார்த்து விட்டு, மீண்டும் முயற்சியும்.</string>
-	<string name="group_admin_updated">%1$s-ஐ அட்மின் ஆக ஆக்கியது</string>
 	<string name="group_setting_option_only_admin">அட்மின்கள் மட்டுமே உறுப்பினர்களைச் சேர்க்க முடியும்</string>
 	<string name="group_setting_updating">குரூப் பிரைவசி செட்டிங்ஸை மாற்றுகிறது</string>
 	<string name="group_setting_confirmation1">ஒவ்வொருவரும் உறுப்பினர்களைச் சேர்த்துக் கொள்ள அனுமதிக்கவா?</string>
@@ -1266,4 +1264,39 @@
 	<string name="gps_settings">செட்டிங்</string>
 	<string name="user_gps_off">உங்களது லொக்கேஷன் எனேபிளாகும் வரை Hike Direct வேலைசெய்ய முடியாது.</string>
 	
+    <string name="you_change_group_name">நீர் குரூப் பெயரை மாற்றி விட்டீர்.</string>
+    <string name="you_change_broadcast_name">நீர் புரோட்காஸ்ட் பெயரை மாற்றி விட்டீர்.</string>
+    <string name="new_group_message_2">%1$s, %2$s உடன் குரூப் சேட்</string>
+    <string name="new_group_message_multi">%1$s, %2$s,%3$d மற்றோருடன் குரூப் சேட்</string>
+    <string name="new_broadcast_message_2">%1$s, %2$s கொண்ட புரோட்காஸ்ட் லிஸ்ட்</string>
+    <string name="new_broadcast_message_multi">%1$s, %2$s,%3$d மற்றோரை கொண்ட புரோட்காஸ்ட் லிஸ்ட்</string>
+    <string name="add_to_broadcast_message_2">லிஸ்ட்டில் %1$s, %2$s -ஐ சேர்த்தாயிற்று</string>
+    <string name="add_to_broadcast_message_multi">லிஸ்ட்டில் %1$s, %2$s, %3$d மற்றோரைச் சேர்த்தாயிற்று</string>
+    <string name="you_change_group_image">நீர் குரூப் இமேஜை மாற்றி விட்டீர்.</string>
+    <string name="backup_account">பேக்அப் கணக்கு</string>
+    <string name="search_hint_text">செர்ச்...</string>
+    <string name="is_typing">டைப் செய்கிறார்...</string>
+    <string name="are_typing">டைப் செய்கிறார்கள்...</string>
+    <string name="you_chat_bg_changed">நீர் சேட் தீம்-ஐ மாற்றி விட்டீர்</string>
+    <string name="hike_keyboard">Hike கீபோர்டு</string>
+    <string name="system_keyboard">சிஸ்டம் கீபோர்டு</string>
+    <string name="you_posted_pin">நீர் ஓர் pin-ஐ போஸ்ட் செய்தீர்</string>
+    <string name="voip_hang_up">ஹேங் அப்</string>
+    <string name="voip_decline">மறுக்கவும்</string>
+    <string name="voip_accept">ஏற்கவும்</string>
+    <string name="you_added_group_member">நீர் %1$s-ஐ சேர்த்தீர்</string>
+    <string name="you_added_as_group_member">%1$s உம்மை சேர்த்தார்</string>
+    <string name="group_member_added">%1$s, %2$s ஐ சேர்த்தார்</string>
+    <string name="you_updated_group_admin">நீர் %1$s-ஐ அட்மின் ஆக ஆக்கினீர்</string>
+    <string name="you_updated_as_group_admin">%1$s உம்மை அட்மின் ஆக ஆக்கினார்</string>
+    <string name="group_admin_updated">%1$s, %2$s-ஐ அட்மின் ஆக ஆக்கினார்</string>
+    <string name="no_results_found">முடிவுகள் எதையும் காணவில்லை</string>
+    <string name="APPLY">பொருத்து </string>
+    <string name="level">நிலை</string>
+    <string name="milliseconds">ms</string>
+    <string name="and"> மற்றும் </string>
+    <string name="contact_name">தொடர்பாளர் பெயர்</string>
+    <string name="mobile">மொபைல்</string>
+    <string name="your_contact">உங்கள் தொடர்பு</string>
+    <string name="english_india">ஆங்கிலம் (இந்)</string>
 </resources>

@@ -1014,7 +1014,6 @@
 	<string name="add_members">সদস্যদের যুক্ত করুন</string>
 	<string name="add_members_to_conference">কনফারেন্সে যোগ করুন</string>
 	<string name="created_group_text">আপনি গ্রুপ চ্যাটটি তৈরি করেছেন</string>
-	<string name="group_member_added">%1$s যোগ করা হয়েছে</string>
 	<string name="num_members">%1$d জন সদস্য</string>
 	<string name="num_member">%1$d জন সদস্য</string>
 	<string name="profile_pic_upload_in_background">প্রোফাইল ছবি আপলোড করা অবিরত থাকবে..</string>
@@ -1027,7 +1026,6 @@
 	<string name="make_admin">অ্যাডমিন করুন</string>
 	<string name="admin_updating">কে %1$s অ্যাডমিন করছে</string>
 	<string name="admin_task_error">সংযোগ ত্রুটি: আপনার নেটওয়ার্ক যাচাই করে আবার চেষ্টা করুন।</string>
-	<string name="group_admin_updated">কে %1$s অ্যাডমিন করেছে</string>
 	<string name="group_setting_option_only_admin">কেবলমাত্র অ্যাডমিনরা সদস্য যোগ করতে পারেন</string>
 	<string name="group_setting_updating">গ্রুপের গোপনীয়তা সেটিংস পরিবর্তন করুন</string>
 	<string name="group_setting_confirmation1">সকলকে সদস্য যোগ করতে অনুমতি দেবেন?</string>
@@ -1264,6 +1262,42 @@
 	<string name="gps_not_on">দুঃখিত হাইক ডায়রেক্ট কাজ করবে না যদি জিপিএস বন্ধ থাকে</string>
 	<string name="switch_on_gps">হাইক ডায়রেক্ট কাজ করার জন্য দয়া করে  অবস্থান সক্ষম করুন। আপনার করা হয়ে গেলে একবার ব্যাক টিপুন। </string>
 	<string name="gps_settings">সেটিং</string>
-	<string name="user_gps_off">হাইক ডায়রেক্ট কাজ করতে পারবে না যতক্ষণ না অবস্থানটি সক্ষম করা হয়।</string>
+    <string name="you_change_group_name">আপনি গ্রুপের নাম পরিবর্তন করেছেন।</string>
+    <string name="you_change_broadcast_name">আপনি ব্রডকাস্টের নাম পরিবর্তন করেছে।</string>
+    <string name="new_group_message_2">%1$s এবং %2$s এর সঙ্গে গ্রুপ চ্যাট</string>
+    <string name="new_group_message_multi">%1$s, %2$s এবং অন্যান্য %3$d জনের সঙ্গে গ্রুপ চ্যাট</string>
+    <string name="new_broadcast_message_2">%1$s এবং %2$s এর সঙ্গে ব্রডকাস্ট তালিকা</string>
+    <string name="new_broadcast_message_multi">%1$s, %2$s এবং অন্যান্য %3$d জনের সঙ্গে ব্রডকাস্ট তালিকা</string>
+    <string name="add_to_broadcast_message_2">তালিকায় %1$s এবং %2$s কে যোগ করা হয়েছে</string>
+    <string name="add_to_broadcast_message_multi">তালিকায় %1$s, %2$s এবং অন্যান্য %3$d জনকে যোগ করা হয়েছে</string>
+    <string name="you_change_group_image">আপনি গ্রুপের ছবি পরিবর্তন করেছেন।</string>
+    <string name="backup_account">অ্যাকাউন্টের ব্যাকআপ নিন</string>
+    <string name="search_hint_text">অনুসন্ধান করুন...</string>
+    <string name="is_typing">টাইপ করছে...</string>
+    <string name="are_typing">টাইপ করছে...</string>
+    <string name="you_chat_bg_changed">আপনি চ্যাটের থিম পরিবর্তন করেছেন।</string>
+    <string name="hike_keyboard">Hike কীবোর্ড</string>
+    <string name="system_keyboard">সিস্টেমের কীবোর্ড</string>
+    <string name="you_posted_pin">আপনি একটি পিন পোস্ট করেছেন</string>
+    <string name="voip_hang_up">কেটে দিন</string>
+    <string name="voip_decline">প্রত্যাখ্যান করুন</string>
+    <string name="voip_accept">স্বীকার করুন</string>
+    <string name="you_added_group_member">আপনি %1$s কে যোগ করেছেন</string>
+    <string name="you_added_as_group_member">%1$s আপনাকে যোগ করেছেন</string>
+    <string name="group_member_added">%1$s %2$s কে যোগ করেছেন</string>
+    <string name="you_updated_group_admin">আপনি %1$s কে অ্যাডমিন করেছেন</string>
+    <string name="you_updated_as_group_admin">%1$s আপনাকে অ্যাডমিন করেছেন</string>
+    <string name="group_admin_updated">%1$s %2$s কে অ্যাডমিন করেছেন</string>
+    <string name="user_gps_off">আপনার অবস্থান সক্ষম না হলে Hike Direct কাজ জরবে না।</string>
+    <string name="no_results_found">কোনো ফলাফল খুঁজে পাওয়া যায়নি</string>
+    <string name="APPLY">প্রয়োগ করুন</string>
+    <string name="level">লেভেল</string>
+    <string name="milliseconds">ms</string>
+    <string name="and"> এবং </string>
+    <string name="contact_name">যোগাযোগকারী ব্যক্তির নাম</string>
+    <string name="mobile">মোবাইল</string>
+    <string name="your_contact">আপনার যোগাযোগের তথ্য</string>
+    <string name="english_india">English (IN)</string>
+
 	
 </resources>
