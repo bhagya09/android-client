@@ -3663,7 +3663,7 @@ import android.widget.Toast;
 
 	protected void removeKeyboardFtueIfShowing()
 	{
-		if (keyboardFtue.isShowing())
+		if (keyboardFtue!=null && keyboardFtue.isShowing())
 			keyboardFtue.destroy();
 	}
 
