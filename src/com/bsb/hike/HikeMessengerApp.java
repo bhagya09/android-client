@@ -72,11 +72,12 @@ import com.bsb.hike.utils.SmileyParser;
 import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
+import android.support.multidex.MultiDexApplication;
 
 //https://github.com/ACRA/acra/wiki/Backends
 @ReportsCrashes(customReportContent = { ReportField.APP_VERSION_CODE, ReportField.APP_VERSION_NAME, ReportField.PHONE_MODEL, ReportField.BRAND, ReportField.PRODUCT,
 		ReportField.ANDROID_VERSION, ReportField.STACK_TRACE, ReportField.USER_APP_START_DATE, ReportField.USER_CRASH_DATE })
-public class HikeMessengerApp extends Application implements HikePubSub.Listener
+public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.Listener
 {
 	public static enum CurrentState
 	{
@@ -112,6 +113,8 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 	public static final String PLATFORM_UID_SETTING = "platformUID";
 
 	public static final String PLATFORM_TOKEN_SETTING = "platformToken";
+
+	public static final String ANONYMOUS_NAME_SETTING = "anonymousName";
 
 	public static final String RESTORE_ACCOUNT_SETTING = "restore";
 
@@ -976,7 +979,7 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 		HikeSharedPreferenceUtil prefs = HikeSharedPreferenceUtil.getInstance();
 		if (prefs.getData(HikeMessengerApp.PLATFORM_UID_SETTING, null) == null && prefs.getData(HikeMessengerApp.PLATFORM_TOKEN_SETTING, null) == null)
 		{
-			PlatformUIDFetch.fetchPlatformUid(HikePlatformConstants.PlatformUIDFetchType.SELF);
+			PlatformUIDFetch.fetchPlatformUid(HikePlatformConstants.PlatformFetchType.SELF);
 		}
 	}
 

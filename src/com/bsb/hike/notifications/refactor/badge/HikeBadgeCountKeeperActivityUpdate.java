@@ -2,6 +2,7 @@ package com.bsb.hike.notifications.refactor.badge;
 
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
+import com.bsb.hike.utils.Utils;
 
 public class HikeBadgeCountKeeperActivityUpdate extends HikeBadgeCountKeeper
 {
@@ -36,9 +37,8 @@ public class HikeBadgeCountKeeperActivityUpdate extends HikeBadgeCountKeeper
 	protected void init()
 	{
 		mlistener = new String[] { HikePubSub.ACTIVITY_FEED_COUNT_CHANGED, HikePubSub.TIMELINE_WIPE, HikePubSub.BADGE_COUNT_ACTIVITY_UPDATE_CHANGED };
-
+		defaultCount=Utils.getNotificationCount(mContext.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0), false, true, false, false);
 	}
-
 	@Override
 	public String getSharedPreferenceTag()
 	{

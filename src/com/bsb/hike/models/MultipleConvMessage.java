@@ -1,43 +1,44 @@
 package com.bsb.hike.models;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.util.Pair;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
+import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.utils.Logger;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MultipleConvMessage
 {
 	
-	private ArrayList<ConvMessage> messageList;
-	private ArrayList<ContactInfo> contactList;
+	private List<ConvMessage> messageList;
+	private List<ContactInfo> contactList;
 	private boolean createChatThread;
 	private String source;
 
-	public ArrayList<ConvMessage> getMessageList()
+	public List<ConvMessage> getMessageList()
 	{
 		return messageList;
 	}
 
-	public void setMessageList(ArrayList<ConvMessage> messageList)
+	public void setMessageList(List<ConvMessage> messageList)
 	{
 		this.messageList = messageList;
 	}
 
-	public ArrayList<ContactInfo> getContactList()
+	public List<ContactInfo> getContactList()
 	{
 		return contactList;
 	}
 
-	public void setContactList(ArrayList<ContactInfo> list)
+	public void setContactList(List<ContactInfo> list)
 	{
 		this.contactList = list;
 	}
@@ -64,21 +65,21 @@ public class MultipleConvMessage
 		return createChatThread;
 	}
 	
-	public MultipleConvMessage(ArrayList<ConvMessage> messageList, ArrayList<ContactInfo> contactList)
+	public MultipleConvMessage(List<ConvMessage> messageList, List<ContactInfo> contactList)
 	{
 		this.messageList = messageList;
 		this.timeStamp = System.currentTimeMillis()/1000;
 		this.contactList = contactList;
 	}
 
-	public MultipleConvMessage(ArrayList<ConvMessage> messageList, ArrayList<ContactInfo> contactList, long timeStamp)
+	public MultipleConvMessage(List<ConvMessage> messageList, List<ContactInfo> contactList, long timeStamp)
 	{
 		this.messageList = messageList;
 		this.timeStamp = timeStamp;
 		this.contactList = contactList;
 	}
 	
-	public MultipleConvMessage(ArrayList<ConvMessage> messageList, ArrayList<ContactInfo> contactList, long timeStamp,boolean createChatThread, String source)
+	public MultipleConvMessage(List<ConvMessage> messageList, List<ContactInfo> contactList, long timeStamp,boolean createChatThread, String source)
 	{
 		this.messageList = messageList;
 		this.timeStamp = timeStamp;
@@ -125,18 +126,15 @@ public class MultipleConvMessage
                     msg.put(HikeConstants.METADATA, convMessage.platformMessageMetadata.getJSON());
                     msg.put(HikeConstants.SUB_TYPE, HikeConstants.ConvMessagePacketKeys.CONTENT_TYPE);
 
-                } else if (convMessage.getMessageType() == HikeConstants.MESSAGE_TYPE.WEB_CONTENT)
+                } else if (convMessage.getMessageType() == HikeConstants.MESSAGE_TYPE.WEB_CONTENT || convMessage.getMessageType() == HikeConstants.MESSAGE_TYPE.FORWARD_WEB_CONTENT)
 				{
-					msg.put(HikeConstants.METADATA, convMessage.webMetadata.getJSON());
+					JSONObject metadata = convMessage.webMetadata.getJSON();
+					metadata.put(HikePlatformConstants.NAMESPACE, convMessage.getNameSpace());
+					metadata.put(HikePlatformConstants.CONTENT_ID, convMessage.getContentId());
+					msg.put(HikeConstants.METADATA, metadata);
 					msg.put(HikeConstants.PLATFORM_PACKET, convMessage.getPlatformData());
-					msg.put(HikeConstants.SUB_TYPE, HikeConstants.ConvMessagePacketKeys.WEB_CONTENT_TYPE);
+					msg.put(HikeConstants.SUB_TYPE, convMessage.getMessageType() == HikeConstants.MESSAGE_TYPE.WEB_CONTENT ? HikeConstants.ConvMessagePacketKeys.WEB_CONTENT_TYPE : HikeConstants.ConvMessagePacketKeys.FORWARD_WEB_CONTENT_TYPE);
 
-				}
-				else if (convMessage.getMessageType() == HikeConstants.MESSAGE_TYPE.FORWARD_WEB_CONTENT)
-				{
-					msg.put(HikeConstants.METADATA, convMessage.webMetadata.getJSON());
-					msg.put(HikeConstants.PLATFORM_PACKET, convMessage.getPlatformData());
-					msg.put(HikeConstants.SUB_TYPE, HikeConstants.ConvMessagePacketKeys.FORWARD_WEB_CONTENT_TYPE);
 				}
 				
 				msgArray.put(msg);
@@ -164,7 +162,7 @@ public class MultipleConvMessage
 	
 	public void sendPubSubForConvScreenMultiMessage()
 	{
-		ArrayList<ConvMessage> convMessages = getMessageList();
+		List<ConvMessage> convMessages = getMessageList();
 		long baseId = ((ConvMessage)convMessages.get(0)).getMsgID();
 		int totalMessages = convMessages.size();
 		ConvMessage lastMessage = convMessages.get(totalMessages-1);

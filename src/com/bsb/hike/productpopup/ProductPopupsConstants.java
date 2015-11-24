@@ -424,7 +424,9 @@ public class ProductPopupsConstants
 				// TODO Auto-generated method stub
 				return "gameActivity";
 			}
-		}, CHAT_THREAD
+		},
+
+		CHAT_THREAD
 		{
 			@Override
 			public String toString()
@@ -432,7 +434,18 @@ public class ProductPopupsConstants
 				// TODO Auto-generated method stub
 				return "chatthread";
 			}
-		}
+
+		},
+
+		OPEN_MICROAPP
+		{
+			@Override
+			public String toString()
+			{
+				return "microapp";
+
+			}
+		};
 		
 		
 	}

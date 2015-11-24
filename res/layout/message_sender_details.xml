@@ -14,7 +14,10 @@
         android:text="Name/Number"
         android:textColor="@color/chat_color"
         android:textSize="14sp"
-        android:textStyle="bold" />
+        android:textStyle="bold"
+        android:ellipsize="end"
+        android:singleLine="true"
+        android:layout_weight="1"/>
 
     <com.bsb.hike.view.CustomFontTextView
         android:id="@+id/sender_unsaved_name"
@@ -25,6 +28,9 @@
         android:text="NAME"
         android:textColor="@color/unsaved_contact_name"
         android:textSize="14sp"
-        android:visibility="gone" />
+        android:visibility="gone"
+        android:singleLine="true"
+        android:ellipsize="end"
+        android:layout_weight="1"/>
 
 </LinearLayout>

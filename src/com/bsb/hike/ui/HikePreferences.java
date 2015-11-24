@@ -249,6 +249,22 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 			}
 		}
 		
+		final SwitchPreferenceCompat smsCardEnablePref = (SwitchPreferenceCompat) getPreferenceScreen().findPreference(HikeConstants.SMS_CARD_ENABLE_PREF);
+		if (smsCardEnablePref != null)
+		{
+			if (HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.SHOW_SMS_CARD_PREF, false))
+			{
+				smsCardEnablePref.setDependency(HikeConstants.ACTIVATE_STICKY_CALLER_PREF);
+				smsCardEnablePref.setOnPreferenceChangeListener(this);
+			}
+			else
+			{
+				getPreferenceScreen().removePreference(smsCardEnablePref);
+			}
+		}
+		
+		
+		
 		final SwitchPreferenceCompat sslPreference = (SwitchPreferenceCompat) getPreferenceScreen().findPreference(HikeConstants.SSL_PREF);
 		if (sslPreference != null)
 		{
@@ -1303,6 +1319,20 @@ private void setupToolBar(int titleRes){
 						AnalyticsConstants.StickyCallerEvents.DEACTIVATE_BUTTON, null);
 			}
 		}
+		else if(HikeConstants.SMS_CARD_ENABLE_PREF.equals(preference.getKey()))
+		{
+			if (isChecked)
+			{
+				HAManager.getInstance().stickyCallerAnalyticsUIEvent(AnalyticsConstants.StickyCallerEvents.SMS_CARD_SETTINGS_TOGGLE, null,
+						AnalyticsConstants.StickyCallerEvents.ACTIVATE_BUTTON, null);
+		
+			}
+			else
+			{
+				HAManager.getInstance().stickyCallerAnalyticsUIEvent(AnalyticsConstants.StickyCallerEvents.SMS_CARD_SETTINGS_TOGGLE, null,
+						AnalyticsConstants.StickyCallerEvents.DEACTIVATE_BUTTON, null);
+			}
+		}
 		else if (HikeConstants.NUJ_NOTIF_BOOLEAN_PREF.equals(preference.getKey()))
 		{			
 			try
@@ -1717,6 +1747,11 @@ private void setupToolBar(int titleRes){
 				{
 					SwitchPreferenceCompat stealthIndicatorEnabled = (SwitchPreferenceCompat)getPreferenceScreen().findPreference(HikeConstants.STEALTH_INDICATOR_ENABLED);
 					boolean newValue = stealthBundle.getBoolean(HikeConstants.STEALTH_INDICATOR_ENABLED);
+					if(!newValue)
+					{
+						HikeSharedPreferenceUtil.getInstance().removeData(HikeConstants.STEALTH_INDICATOR_SHOW_REPEATED);
+						HikeSharedPreferenceUtil.getInstance().removeData(HikeConstants.STEALTH_INDICATOR_SHOW_ONCE);
+					}
 					stealthIndicatorEnabled.setChecked(newValue);
 					metadata.put(HikeConstants.KEY, HikeConstants.STEALTH_INDICATOR_ENABLED);
 					metadata.put(HikeConstants.VALUE, newValue);

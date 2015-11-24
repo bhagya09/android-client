@@ -28,6 +28,7 @@ public class HikeBadgeCountKeeperProductPopUp extends HikeBadgeCountKeeper
 	protected void init()
 	{
 		mlistener = new String[] { HikePubSub.PRODUCT_POPUP_BADGE_COUNT_CHANGED };
+		defaultCount=ProductInfoManager.getInstance().getAllValidPopUp();
 
 	}
 
