@@ -40,6 +40,7 @@ import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.cropimage.CropCompression;
 import com.bsb.hike.cropimage.HikeCropActivity;
+import com.bsb.hike.localisation.LocalLanguageUtils;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.HikeFile;
@@ -393,6 +394,7 @@ public class IntentFactory
 		if (!TextUtils.isEmpty(hikeExtrasUrl))
 		{
 			Uri gamesUri = Utils.getFormedUri(context, hikeExtrasUrl, prefs.getString(HikeMessengerApp.REWARDS_TOKEN, ""));
+			gamesUri = appendLocaleToUri(gamesUri);
 			intent.putExtra(HikeConstants.Extras.URL_TO_LOAD, gamesUri.toString());
 		}
 
@@ -425,6 +427,7 @@ public class IntentFactory
 		if (!TextUtils.isEmpty(rewards_url))
 		{
 			Uri rewardsUri = Utils.getFormedUri(context, rewards_url, prefs.getString(HikeMessengerApp.REWARDS_TOKEN, ""));
+			rewardsUri = appendLocaleToUri(rewardsUri);
 			intent.putExtra(HikeConstants.Extras.URL_TO_LOAD, rewardsUri.toString());
 		}
 
@@ -438,7 +441,15 @@ public class IntentFactory
 
 		return intent;
 	}
-	
+
+	private static Uri appendLocaleToUri(Uri appendTo) {
+		String localappLang = LocalLanguageUtils.getApplicationLocalLanguageLocale();
+		if(!TextUtils.isEmpty(localappLang)){
+			appendTo = appendTo.buildUpon().appendQueryParameter("locale", localappLang).build();
+		}
+		return appendTo;
+	}
+
 	public static Intent getStickerShareWebViewActivityIntent(Context context)
 	{
 		SharedPreferences prefs = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
