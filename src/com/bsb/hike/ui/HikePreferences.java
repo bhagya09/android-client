@@ -66,7 +66,6 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.graphics.Color;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.preference.ListPreference;
@@ -158,6 +157,8 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		{
 			Utils.logEvent(HikePreferences.this, HikeConstants.LogEvent.NOTIFICATION_SCREEN);
 		}
+		
+		addSMSCardEnablePref();
 				
 		addStealthPrefListeners();
 		
@@ -170,6 +171,23 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		tryToSetupSMSPreferencesScreen();
 		setupToolBar(titleRes);
 
+	}
+	
+	private void addSMSCardEnablePref()
+	{
+		final SwitchPreferenceCompat smsCardEnablePref = (SwitchPreferenceCompat) getPreferenceScreen().findPreference(HikeConstants.SMS_CARD_ENABLE_PREF);
+		if (smsCardEnablePref != null)
+		{
+			if (HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.SHOW_SMS_CARD_PREF, false))
+			{
+				smsCardEnablePref.setDependency(HikeConstants.ACTIVATE_STICKY_CALLER_PREF);
+				smsCardEnablePref.setOnPreferenceChangeListener(this);
+			}
+			else
+			{
+				getPreferenceScreen().removePreference(smsCardEnablePref);
+			}
+		}
 	}
 	
 	private void addSeekbarPreferences() {
@@ -1346,7 +1364,22 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 					HAManager.getInstance().stickyCallerAnalyticsUIEvent(AnalyticsConstants.StickyCallerEvents.KNOWN_CARD_SETTINGS_TOGGLE, null,
 							AnalyticsConstants.StickyCallerEvents.DEACTIVATE_BUTTON, null);
 				}
-			} else if (HikeConstants.NUJ_NOTIF_BOOLEAN_PREF.equals(preference.getKey())) {
+			}
+			else if(HikeConstants.SMS_CARD_ENABLE_PREF.equals(preference.getKey()))
+			{
+				if (isChecked)
+				{
+					HAManager.getInstance().stickyCallerAnalyticsUIEvent(AnalyticsConstants.StickyCallerEvents.SMS_CARD_SETTINGS_TOGGLE, null,
+							AnalyticsConstants.StickyCallerEvents.ACTIVATE_BUTTON, null);
+			
+				}
+				else
+				{
+					HAManager.getInstance().stickyCallerAnalyticsUIEvent(AnalyticsConstants.StickyCallerEvents.SMS_CARD_SETTINGS_TOGGLE, null,
+							AnalyticsConstants.StickyCallerEvents.DEACTIVATE_BUTTON, null);
+				}
+			}
+			else if (HikeConstants.NUJ_NOTIF_BOOLEAN_PREF.equals(preference.getKey())) {
 				try {
 					JSONObject metadata = new JSONObject();
 
@@ -1791,6 +1824,11 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 				{
 					SwitchPreferenceCompat stealthIndicatorEnabled = (SwitchPreferenceCompat)getPreferenceScreen().findPreference(HikeConstants.STEALTH_INDICATOR_ENABLED);
 					boolean newValue = stealthBundle.getBoolean(HikeConstants.STEALTH_INDICATOR_ENABLED);
+					if(!newValue)
+					{
+						HikeSharedPreferenceUtil.getInstance().removeData(HikeConstants.STEALTH_INDICATOR_SHOW_REPEATED);
+						HikeSharedPreferenceUtil.getInstance().removeData(HikeConstants.STEALTH_INDICATOR_SHOW_ONCE);
+					}
 					stealthIndicatorEnabled.setChecked(newValue);
 					metadata.put(HikeConstants.KEY, HikeConstants.STEALTH_INDICATOR_ENABLED);
 					metadata.put(HikeConstants.VALUE, newValue);

@@ -567,6 +567,18 @@ public class ConversationsAdapter extends BaseAdapter
 			{
 				List<List<ConvInfo>> resultList = new ArrayList<List<ConvInfo>>();
 				resultList.add(conversationList);
+
+				boolean stealthInactive = !StealthModeManager.getInstance().isActive();
+				Iterator<ConvInfo> convListIterator = resultList.get(0).iterator();
+				while(convListIterator.hasNext())
+				{
+					ConvInfo conv = convListIterator.next();
+					if(conv.isStealth() && stealthInactive)
+					{
+						convListIterator.remove();
+					}
+				}
+
 				results.values = resultList;
 			}
 			results.count = 1;
@@ -960,10 +972,10 @@ public class ConversationsAdapter extends BaseAdapter
 		/*
 		 * If the message is a status message, we only show an indicator if the status of the message is unread.
 		 */
-		else if (isNuxLocked || convInfo.getUnreadCount() > 0 || message.getState() == State.RECEIVED_UNREAD)
+		else if (isNuxLocked || convInfo.getUnreadCount() >= 0 || message.getState() == State.RECEIVED_UNREAD)
 		{
 
-			if (message.isSent())
+			if (message.isSent() && message.getParticipantInfoState() != ParticipantInfoState.STATUS_MESSAGE)
 			{
 				int drawableResId = message.getImageState();
 				imgStatus.setImageResource(drawableResId);
