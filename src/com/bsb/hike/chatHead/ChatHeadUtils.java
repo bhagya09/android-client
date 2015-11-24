@@ -538,7 +538,16 @@ public class ChatHeadUtils
 	
 	public static void activateChatHead(JSONObject data) throws JSONException
 	{
-		JSONObject stickerWidgetJSONObj = data.getJSONObject(HikeConstants.ChatHead.STICKER_WIDGET);
+		JSONObject stickerWidgetJSONObj;
+		
+		if(data == null || !data.has(HikeConstants.ChatHead.STICKER_WIDGET))
+		{
+			stickerWidgetJSONObj = new JSONObject("{}");
+		}
+		else
+		{
+			stickerWidgetJSONObj = data.optJSONObject(HikeConstants.ChatHead.STICKER_WIDGET);
+		}
 			
 		boolean forceAccessibility = stickerWidgetJSONObj.optBoolean(HikeConstants.ChatHead.FORCE_ACCESSIBILITY, !ChatHeadUtils.willPollingWork());
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.FORCE_ACCESSIBILITY, forceAccessibility);
