@@ -1,6 +1,7 @@
 package com.bsb.hike.ui;
 
 import java.io.File;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
 import android.app.ProgressDialog;
@@ -13,7 +14,11 @@ import android.os.Bundle;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
+import android.text.Editable;
+import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.util.Pair;
+import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -22,6 +27,7 @@ import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -43,8 +49,10 @@ import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.filetransfer.FTAnalyticEvents;
+import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.GalleryItem;
 import com.bsb.hike.models.HikeFile.HikeFileType;
+import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.smartImageLoader.GalleryImageLoader;
 import com.bsb.hike.tasks.InitiateMultiFileTransferTask;
@@ -54,6 +62,8 @@ import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
+
+import org.w3c.dom.Text;
 
 public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity implements OnItemClickListener, OnScrollListener, OnPageChangeListener, HikePubSub.Listener
 {
@@ -92,6 +102,9 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 	private boolean editEnabled;
 	
 	private static final String TAG = "GAllerySelectionViewer";
+
+    private SparseArray<String> captions = new SparseArray<>();
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
@@ -238,7 +251,6 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 	@Override
 	protected void onPause()
 	{
-		// TODO Auto-generated method stub
 		super.onPause();
 		if(gridAdapter != null)
 		{
@@ -253,7 +265,6 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 	@Override
 	protected void onResume()
 	{
-		// TODO Auto-generated method stub
 		super.onResume();
 		if(gridAdapter != null)
 		{
@@ -337,21 +348,34 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 					return;
 				}
 				
-				final ArrayList<Pair<String, String>> fileDetails = new ArrayList<Pair<String, String>>(galleryItems.size());
-				long sizeOriginal = 0;
+                final ArrayList<ComposeChatActivity.FileTransferData> ftDataList = new ArrayList<ComposeChatActivity.FileTransferData>(galleryItems.size());
+
+                final String msisdn = getIntent().getStringExtra(HikeConstants.Extras.MSISDN);
+                final boolean onHike = getIntent().getBooleanExtra(HikeConstants.Extras.ON_HIKE, true);
+
+                ArrayList<ContactInfo> list = new ArrayList<ContactInfo>();
+                list.add(ContactManager.getInstance().getContact(msisdn));
+
+                long sizeOriginal = 0;
 				for (int i = 0;i<galleryItems.size();i++)
 				{
 					//Using edited filepath if user has edited the current selection other wise the original
 					String filePath = getFinalFilePathAtPosition(i);
 					
-					fileDetails.add(new Pair<String, String> (filePath, HikeFileType.toString(HikeFileType.IMAGE)));
 					File file = new File(filePath);
 					sizeOriginal += file.length();
-				}
-				
-				final String msisdn = getIntent().getStringExtra(HikeConstants.Extras.MSISDN);
-				final boolean onHike = getIntent().getBooleanExtra(HikeConstants.Extras.ON_HIKE, true);
-				
+
+                    String caption = null;
+                    if(!TextUtils.isEmpty(captions.get(i)))
+                    {
+                        caption = captions.get(i);
+                    }
+
+                    //TODO remove duplicate fileType
+                    ComposeChatActivity.FileTransferData fileTransferData = new ComposeChatActivity.FileTransferData(filePath, null, HikeFileType.IMAGE, HikeFileType.IMAGE.toString(), false, -1, false, list, file,caption);
+                    ftDataList.add(fileTransferData);
+                }
+
 				final Intent intent = IntentFactory.createChatThreadIntentFromMsisdn(GallerySelectionViewer.this, msisdn, false,false);
 				if (!smlDialogShown)
 				{
@@ -366,7 +390,7 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 						@Override
 						public void positiveClicked(HikeDialog hikeDialog)
 						{
-							fileTransferTask = new InitiateMultiFileTransferTask(getApplicationContext(), fileDetails, msisdn, onHike, FTAnalyticEvents.GALLERY_ATTACHEMENT, intent);
+							fileTransferTask = new InitiateMultiFileTransferTask(getApplicationContext(), ftDataList, msisdn, onHike, FTAnalyticEvents.GALLERY_ATTACHEMENT, intent);
 							Utils.executeAsyncTask(fileTransferTask);
 							if(!OfflineUtils.isConnectedToSameMsisdn(msisdn))
 								progressDialog = ProgressDialog.show(GallerySelectionViewer.this, null, getResources().getString(R.string.multi_file_creation));
@@ -378,11 +402,11 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 						{
 							
 						}
-					}, (Object[]) new Long[]{(long)fileDetails.size(), sizeOriginal});
+					}, (Object[]) new Long[]{(long)ftDataList.size(), sizeOriginal});
 				}
 				else
 				{
-					fileTransferTask = new InitiateMultiFileTransferTask(getApplicationContext(), fileDetails, msisdn, onHike, FTAnalyticEvents.GALLERY_ATTACHEMENT, intent);
+					fileTransferTask = new InitiateMultiFileTransferTask(getApplicationContext(), ftDataList, msisdn, onHike, FTAnalyticEvents.GALLERY_ATTACHEMENT, intent);
 					Utils.executeAsyncTask(fileTransferTask);
 					progressDialog = ProgressDialog.show(GallerySelectionViewer.this, null, getResources().getString(R.string.multi_file_creation));
 				}
@@ -524,7 +548,7 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 		}
 
 		@Override
-		public Object instantiateItem(ViewGroup container, int position)
+		public Object instantiateItem(ViewGroup container, final int position)
 		{
 			View page = layoutInflater.inflate(R.layout.gallery_preview_item, container, false);
 
@@ -544,6 +568,31 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 			removeImage.setOnClickListener(removeSelectionClickListener);
 
 			((ViewPager) container).addView(page);
+
+            EditText captionEt = (EditText) page.findViewById(R.id.et_caption);
+            if(!TextUtils.isEmpty(captions.get(position)))
+            {
+                captionEt.setText(captions.get(position));
+            }
+
+            captionEt.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence charSequence, int i, int i2, int i3) {
+
+                }
+
+                @Override
+                public void onTextChanged(CharSequence charSequence, int i, int i2, int i3) {
+
+                }
+
+                @Override
+                public void afterTextChanged(Editable editable) {
+                    captions.put(position,editable.toString());
+                }
+            });
+
+
 			return page;
 		}
 

@@ -28,7 +28,7 @@ public class InitiateMultiFileTransferTask extends AsyncTask<Void, Void, Void>
 {
 	private Context context;
 
-	private ArrayList<Pair<String, String>> fileDetails;
+	private ArrayList<FileTransferData> ftDataList;
 
 	private String msisdn;
 
@@ -38,11 +38,11 @@ public class InitiateMultiFileTransferTask extends AsyncTask<Void, Void, Void>
 	
 	private Intent intent;
 
-	public InitiateMultiFileTransferTask(Context context, ArrayList<Pair<String, String>> fileDetails, String msisdn, boolean onHike, 
+	public InitiateMultiFileTransferTask(Context context, ArrayList<FileTransferData> ftDataList, String msisdn, boolean onHike,
 											int attachementType, Intent intent)
 	{
 		this.context = context.getApplicationContext();
-		this.fileDetails = fileDetails;
+		this.ftDataList = ftDataList;
 		this.msisdn = msisdn;
 		this.onHike = onHike;
 		this.attachementType = attachementType;
@@ -57,9 +57,9 @@ public class InitiateMultiFileTransferTask extends AsyncTask<Void, Void, Void>
 	@Override
 	protected Void doInBackground(Void... params)
 	{
-		for (Pair<String, String> fileDetail : fileDetails)
+		for (FileTransferData ftData : ftDataList)
 		{
-			initiateFileTransferFromIntentData(fileDetail.first, fileDetail.second, null);
+			initiateFileTransferFromIntentData(ftData);
 		}
 		return null;
 	}
@@ -70,22 +70,17 @@ public class InitiateMultiFileTransferTask extends AsyncTask<Void, Void, Void>
 		HikeMessengerApp.getPubSub().publish(HikePubSub.MULTI_FILE_TASK_FINISHED, this.intent);
 	}
 
-	private void initiateFileTransferFromIntentData(String filePath, String fileType, String caption)
+	private void initiateFileTransferFromIntentData(FileTransferData fileTransferData)
 	{
-		HikeFileType hikeFileType = HikeFileType.fromString(fileType, false);
-		
 		if (OfflineUtils.isConnectedToSameMsisdn(msisdn))
 		{
-			File file = new File(filePath);
+			File file = new File(fileTransferData.filePath);
 			if (file.length() == 0)
 			{
 				FTAnalyticEvents.logDevError(FTAnalyticEvents.UPLOAD_INIT_7_2, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "init", "InitiateFileTransferFromIntentData - File length is 0.");
 				return;
 			}
-			ArrayList<ContactInfo> list = new ArrayList<ContactInfo>();
-			list.add(ContactManager.getInstance().getContact(msisdn));
-			FileTransferData fileTransferData = new FileTransferData(filePath, null, hikeFileType, fileType, false, -1, false, list, file);
-			
+
 			ArrayList<FileTransferData> fileTransferList = new ArrayList<FileTransferData>();
 			fileTransferList.add(fileTransferData);
 			OfflineController.getInstance().sendFile(fileTransferList, msisdn);
@@ -93,18 +88,18 @@ public class InitiateMultiFileTransferTask extends AsyncTask<Void, Void, Void>
 		else
 		{
 
-			if (Utils.isPicasaUri(filePath))
+			if (Utils.isPicasaUri(fileTransferData.filePath))
 			{
-				FileTransferManager.getInstance(context).uploadFile(Uri.parse(filePath), hikeFileType, msisdn, onHike);
+				FileTransferManager.getInstance(context).uploadFile(Uri.parse(fileTransferData.filePath), fileTransferData.hikeFileType, msisdn, onHike);
 			}
 			else
 			{
-				File file = new File(filePath);
+				File file = new File(fileTransferData.filePath);
 				if (file.length() == 0)
 				{
 					return;
 				}
-				FileTransferManager.getInstance(context).uploadFile(msisdn, file, null, fileType, hikeFileType, false, false, onHike, -1, attachementType, caption);
+				FileTransferManager.getInstance(context).uploadFile(msisdn, file, null, fileTransferData.fileType, fileTransferData.hikeFileType, false, false, onHike, -1, attachementType, fileTransferData.caption);
 			}
 		}
 	}

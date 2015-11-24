@@ -25,7 +25,7 @@
     </LinearLayout>
 
     <com.bsb.hike.view.CustomFontEditText
-        android:id="@+id/caption"
+        android:id="@+id/et_caption"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignBottom="@+id/album_image"
