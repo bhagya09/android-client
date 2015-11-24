@@ -1014,7 +1014,6 @@
 	<string name="add_members">సభ్యులను జోడించండి</string>
 	<string name="add_members_to_conference">కాన్ఫరెన్స్‌కు జోడించండి</string>
 	<string name="created_group_text">మీరు గ్రూపు చాట్ సృష్టించారు</string>
-	<string name="group_member_added">%1$s జోడించబడింది</string>
 	<string name="num_members">%1$s సభ్యులు</string>
 	<string name="num_member">%1$s సభ్యుడు</string>
 	<string name="profile_pic_upload_in_background">ప్రొఫైల్ చిత్రం అప్‌లోడ్ చేయడం కొనసాగుతుంది...</string>
@@ -1027,7 +1026,6 @@
 	<string name="make_admin">అడ్మిన్ చేయి</string>
 	<string name="admin_updating">%1$sను ఆల్బమ్‌గా చేస్తోంది</string>
 	<string name="admin_task_error">కనెక్షన్ దోషం: దయచేసి మీ నెట్‌వర్క్ తనిఖీ చేయండి, తిరిగి ప్రయత్నించండి.</string>
-	<string name="group_admin_updated">%1$sను ఆల్బమ్‌గా చేసింది</string>
 	<string name="group_setting_option_only_admin">కేవలం అడ్మిన్‌లు మాత్రమే సభ్యులను జోడించవచ్చు</string>
 	<string name="group_setting_updating">గ్రూపు గోప్యతా సెట్టింగ్‌లు మారుస్తోంది</string>
 	<string name="group_setting_confirmation1">ప్రతి సభ్యుడిని జోడించేందుకు అనుమతించాలా?</string>
@@ -1264,16 +1262,12 @@
 	<string name="gps_not_on">క్షమించండి, ఒకవేళ జిపిఎస్ ఆన్ చేయనట్లయితే hike డైరెక్ట్ పనిచేయదు</string>
 	<string name="switch_on_gps">Hike డైరెక్ట్ పనిచేయడం కొరకు దయచేసి స్థలాన్ని ప్రారంభించు మీరు పూర్తి చేసిన బ్యాక్ ప్రెస్ చేయండి. </string>
 	<string name="gps_settings">సెట్టింగ్</string>
-	<string name="user_gps_off">మీ స్థలం ప్రారంభించేంత వరకు hike డైరెక్ట్ పనిచేయదు.</string>
     <string name="you_change_group_name">మీరు గ్రూపు పేరు మార్చారు.</string>
     <string name="you_change_broadcast_name">మీరు బ్రాడ్‌కాస్ట్ పేరు మార్చారు</string>
     <string name="new_group_message_2">%1$s మరియు %2$s గ్రూప్ చాట్</string>
     <string name="new_group_message_multi">%1$s, %2$s మరియు %3$d ఇతరులతో గ్రూప్ చాట్</string>
     <string name="new_broadcast_message_2">%1$s మరియు %2$sతో బ్రాడ్‌కాస్ట్ లిస్ట్</string>
     <string name="new_broadcast_message_multi">%1$s, %2$s మరియు %3$d ఇతరులతో బ్రాడ్‌కాస్ట్</string>
-    <string name="add_to_group_message">%1$s జతచేయబడింది</string>
-    <string name="add_to_group_message_2">%1$s మరియు %2$s జత చేయబడింది</string>
-    <string name="add_to_group_message_multi">%1$s, %2$s మరియు %3$d ఇతరులు జతచేయబడ్డారు</string>
     <string name="add_to_broadcast_message_2">లిస్ట్‌కు %1$s మరియు %2$s జత చేయబడ్డారు.</string>
     <string name="add_to_broadcast_message_multi">లిస్ట్‌కు %1$s, %2$s మరియు %3$s జత చేయబడ్డారు.</string>
     <string name="you_change_group_image">గ్రూపు ఇమేజ్‌ని మీరు మార్చారు</string>
@@ -1294,7 +1288,6 @@
     <string name="you_updated_group_admin">మీరు %1$sను ఎడ్మిన్ చేశారు</string>
     <string name="you_updated_as_group_admin">%1$s మిమ్మల్ని ఎడ్మిన్ చేశారు</string>
     <string name="group_admin_updated">%1$s, %2$sను ఎడ్మిన్ చేశారు</string>
-    <string name="gps_settings">సెట్టింగ్‌</string>
     <string name="user_gps_off">మీ లొకేషన్‌ను ప్రారంభించేంత వరకు కూడా Hike డైరెక్ట్ పనిచేయదు</string>
     <string name="no_results_found">ఎలాంటి ఫలితాలు కనుగొనబడలేదు</string>
     <string name="APPLY">అప్లై</string>
@@ -1305,14 +1298,5 @@
     <string name="mobile">మొబైల్</string>
     <string name="your_contact">మీ కాంటాక్ట్</string>
     <string name="english_india">ఇంగ్లిష్ (IN)</string>
-    <string name="english_locale">en</string>
-    <string name="hindi_locale">hi</string>
-    <string name="bengali_locale">bn</string>
-    <string name="marathi _locale">mr</string>
-    <string name="gujarati_locale">gu</string>
-    <string name="tamil_locale">ta</string>
-    <string name="telugu_locale">te</string>
-    <string name="kannada_locale">kn</string>
-    <string name="malayalam_locale">ml</string>
 	
 </resources>
