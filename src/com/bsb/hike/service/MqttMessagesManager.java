@@ -2146,7 +2146,7 @@ public class MqttMessagesManager
 		}
 		if(data.has(HikeConstants.ChatHead.STICKER_WIDGET) && ChatHeadUtils.checkDeviceFunctionality())
 		{
-			ChatHeadUtils.actOnStickeyJson(data);
+			ChatHeadUtils.activateChatHead(data);
 		}
 		
 		if(data.has(HikeConstants.PROB_NUM_TEXT_MSG))
