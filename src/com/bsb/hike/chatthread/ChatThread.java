@@ -70,6 +70,7 @@ import com.bsb.hike.models.Unique;
 import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.modules.kpt.HikeAdaptxtEditTextEventListner;
 import com.bsb.hike.modules.kpt.HikeCustomKeyboard;
+import com.bsb.hike.modules.kpt.HikeAdaptxtKeyboardVisibilityStatusListner;
 import com.bsb.hike.modules.kpt.KptKeyboardManager;
 import com.bsb.hike.modules.kpt.KptUtils;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
@@ -113,7 +114,7 @@ import com.bsb.hike.view.CustomLinearLayout;
 import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 import com.kpt.adaptxt.beta.KPTAddonItem;
 import com.kpt.adaptxt.beta.util.KPTConstants;
-import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtKeyboordVisibilityStatusListner;
+import com.kpt.adaptxt.beta.view.AdaptxtEditText;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -195,7 +196,7 @@ import android.widget.Toast;
 @SuppressLint("ResourceAsColor") public abstract class ChatThread extends SimpleOnGestureListener implements OverflowItemClickListener, View.OnClickListener, ThemePickerListener, ImageParserListener,
 		PickFileListener, StickerPickerListener, AudioRecordListener, LoaderCallbacks<Object>, OnItemLongClickListener, OnTouchListener, OnScrollListener,
 		Listener, ActionModeListener, HikeDialogListener, TextWatcher, OnDismissListener, OnEditorActionListener, OnKeyListener, PopupListener, BackKeyListener,
-		OverflowViewListener, OnSoftKeyboardListener, IStickerPickerRecommendationListener, AdaptxtKeyboordVisibilityStatusListner, IOfflineCallbacks
+		OverflowViewListener, OnSoftKeyboardListener, IStickerPickerRecommendationListener, IOfflineCallbacks
 {
 	private static final String TAG = ChatThread.class.getSimpleName();
 
@@ -720,7 +721,7 @@ import android.widget.Toast;
 	protected void initCustomKeyboard()
 	{	
 		LinearLayout parentView = (LinearLayout) activity.findViewById(R.id.keyboardView_holder);
-		mCustomKeyboard= new HikeCustomKeyboard(activity, parentView, KPTConstants.MULTILINE_LINE_EDITOR, kptEditTextEventListener,ChatThread.this);
+		mCustomKeyboard= new HikeCustomKeyboard(activity, parentView, KPTConstants.MULTILINE_LINE_EDITOR, kptEditTextEventListener, kptKeyboardVisibilityStatusListner);
 		mCustomKeyboard.registerEditText(R.id.msg_compose);
 		mCustomKeyboard.init(mComposeView);
 	}	
@@ -806,8 +807,19 @@ import android.widget.Toast;
 		{
 			if (state == KeyboardFtue.LANGUAGE_SELECTION_COMPLETE)
 			{
-				mCustomKeyboard.showCustomKeyboard(mComposeView,false);
-				mCustomKeyboard.showCustomKeyboard(mComposeView, true);
+				if (KptKeyboardManager.getInstance(activity).getInstalledLanguagesList().size() > 1)
+				{
+					if (isSystemKeyboard())
+					{
+						changeKeyboard(false);
+					}
+					else
+					{
+						//TODO::doing this because we need to show the arrows on the spacebar. These do not show up otherwise. Forceful hackish refresh
+						mCustomKeyboard.showCustomKeyboard(mComposeView, false);
+						mCustomKeyboard.showCustomKeyboard(mComposeView, true);
+					}
+				}
 			}
 		}
 
@@ -1069,6 +1081,9 @@ import android.widget.Toast;
 		recordOverflowItemClicked(item);
 	}
 	
+	/*
+	 #test code
+	 */
 	private void automateMessages(final int count)
 	{
 		AsyncTask<Void, Void, Void> automateMessages = new AsyncTask<Void, Void, Void>()
@@ -1275,6 +1290,7 @@ import android.widget.Toast;
 		{
 			metadata.put(HikeConstants.LogEvent.KPT, KptKeyboardManager.getInstance(activity).getCurrentLanguageAddonItem().getlocaleName());
 			convMessage.setMetadata(metadata);
+			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
 		} 
 		catch (JSONException e) 
 		{
@@ -1592,8 +1608,7 @@ import android.widget.Toast;
 	{
 		mShareablePopupLayout.onBackPressed();
 
-		if (removeFragment(HikeConstants.IMAGE_FRAGMENT_TAG, true))
-		{
+		if(handleImageFragmentBackPressed()){
 			return true;
 		}
 		
@@ -1619,6 +1634,7 @@ import android.widget.Toast;
 			return true;
 		}
 		mCustomKeyboard.closeAnyDialogIfShowing();
+		removeKeyboardFtueIfShowing();
 
 		if (mActionMode.isActionModeOn())
 		{
@@ -1626,6 +1642,20 @@ import android.widget.Toast;
 			return true;
 		}
 
+		return false;
+	}
+
+	private boolean handleImageFragmentBackPressed(){
+		if (removeFragment(HikeConstants.IMAGE_FRAGMENT_TAG, true))
+		{
+			if(mActionMode.isActionModeOn() && mCustomKeyboard.isCustomKeyboardVisible()){
+				if(mActionMode.whichActionModeIsOn() == this.SEARCH_ACTION_MODE) {
+					mActionMode.finish();
+					setupSearchMode(searchText);
+				}
+			}
+			return true;
+		}
 		return false;
 	}
 	
@@ -1637,8 +1667,7 @@ import android.widget.Toast;
 			return;
 		}
 
-		if (removeFragment(HikeConstants.IMAGE_FRAGMENT_TAG, true))
-		{
+		if(handleImageFragmentBackPressed()){
 			return;
 		}
 
@@ -1826,11 +1855,11 @@ import android.widget.Toast;
 		{
 			hideKptKeyboard();
 		}
+		removeKeyboardFtueIfShowing();
 	}
 
 	private void hideKptKeyboard()
 	{
-		keyboardFtue.destroy();
 		mCustomKeyboard.showCustomKeyboard(mComposeView, false);
 		KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, 0);
 	}
@@ -1871,9 +1900,9 @@ import android.widget.Toast;
 	HikeAdaptxtEditTextEventListner kptEditTextEventListener = new HikeAdaptxtEditTextEventListner()
 	{
 		@Override
-		public void onReturnAction(int resId, int arg0)
+		public void onReturnAction(int i, AdaptxtEditText adaptxtEditText)
 		{
-			switch (resId)
+			switch (adaptxtEditText.getId())
 			{
 			case R.id.msg_compose:
 				if (!TextUtils.isEmpty(mComposeView.getText())) {
@@ -1884,6 +1913,57 @@ import android.widget.Toast;
 				searchMessage(false,true);
 				break;
 			}
+		}
+	};
+
+	HikeAdaptxtKeyboardVisibilityStatusListner kptKeyboardVisibilityStatusListner = new HikeAdaptxtKeyboardVisibilityStatusListner()
+	{
+		@Override
+		public void onInputviewVisbility(boolean kptVisible, int height)
+		{
+			if (kptVisible)
+			{
+				KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, height);
+				if (mShareablePopupLayout != null)
+				{
+					mShareablePopupLayout.setCustomKeyBoardHeight(height);
+				}
+				keyboardHeight = height;
+
+				if (activity.getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE)
+				{
+					mComposeView.setMaxLines(1);
+				}
+				else
+				{
+					mComposeView.setMaxLines(4);
+				}
+				onShown();
+			}
+			else
+			{
+				KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, 0);
+				mComposeView.setMaxLines(4);
+			}
+		}
+
+		@Override
+		public void analyticalData(KPTAddonItem kptAddonItem)
+		{
+			KptUtils.generateKeyboardAnalytics(kptAddonItem);
+			StickerSearchManager.getInstance().inputMethodChanged(new Locale(kptAddonItem.getlocaleName()).getISO3Language());
+		}
+
+		@Override
+		public void showGlobeKeyView()
+		{
+			KptUtils.onGlobeKeyPressed(activity, mCustomKeyboard);
+		}
+
+		@Override
+		public void showQuickSettingView()
+		{
+			KptUtils.onGlobeKeyPressed(activity, mCustomKeyboard);
 		}
 	};
 	
@@ -2347,15 +2427,15 @@ import android.widget.Toast;
 	{
 		int startIndex = getMessagesStartIndex();
 
-		long firstMsgId = messages.get(startIndex).getMsgID();
+		long firstMsgId = messages.get(startIndex).getSortingId();
 		Logger.i(TAG, "inside background thread: loading more messages " + firstMsgId);
 		
 		return loadMoreMessages(messageCountToLoad, firstMsgId, -1);
 	}
 	
-	protected List<ConvMessage> loadMoreMessages(int messageCountToLoad, long maxId, long minId)
+	protected List<ConvMessage> loadMoreMessages(int messageCountToLoad, long maxSortId, long minSortId)
 	{
-		return mConversationDb.getConversationThread(msisdn, messageCountToLoad, mConversation, maxId, minId);
+		return mConversationDb.getConversationThread(msisdn, messageCountToLoad, mConversation, maxSortId, minSortId);
 	}
 
 	protected abstract int getContentView();
@@ -2445,8 +2525,8 @@ import android.widget.Toast;
 	
 	protected boolean shouldShowKeyboard()
 	{
-		return ((mConversation.getMessagesList().isEmpty() && !mConversation.isBlocked() && !keyboardFtue.isReadyForFTUE())
-		|| mActionMode.isActionModeOn());
+		return ((mConversation.getMessagesList().isEmpty() && !mConversation.isBlocked() && !activity.getIntent().getBooleanExtra(HikeConstants.Extras.HIKE_DIRECT_MODE,false) 
+				&& !keyboardFtue.isReadyForFTUE()) || mActionMode.isActionModeOn());
 	}
 
 	/**
@@ -2709,15 +2789,9 @@ import android.widget.Toast;
 
 						HikeFileType hikeFileType = HikeFileType.fromString(fileType, isRecording);
 
-						if (Utils.isPicasaUri(filePath))
-						{
-							channelSelector.sendPicasaUriFile(activity.getApplicationContext(),Uri.parse(filePath), hikeFileType, msisdn, mConversation.isOnHike());
-						}
-						else
-						{
-							channelSelector.sendFile(activity.getApplicationContext(), msisdn, filePath, fileKey, hikeFileType, fileType, isRecording,
+						Logger.d("ChatThread", "isCloudMediaUri" + Utils.isPicasaUri(filePath));
+						channelSelector.sendFile(activity.getApplicationContext(), msisdn, filePath, fileKey, hikeFileType, fileType, isRecording,
 									recordingDuration, true, mConversation.isOnHike(), attachmentType);
-						}
 					}
 					else if (msgExtrasJson.has(HikeConstants.Extras.LATITUDE) && msgExtrasJson.has(HikeConstants.Extras.LONGITUDE)
 							&& msgExtrasJson.has(HikeConstants.Extras.ZOOM_LEVEL))
@@ -3197,7 +3271,7 @@ import android.widget.Toast;
 						ids.addAll(0, MovingList.getIds(msgList));
 						if (position >= 0)
 						{
-							Logger.d("gaurav","found at pos: "+ position + ", id:" + msgList.get(position).getMsgID());
+							Logger.d("gaurav","found at pos: "+ position + ", id:" + msgList.get(position).getSortingId());
 							int start = Math.max(position - HikeConstants.MAX_OLDER_MESSAGES_TO_LOAD_EACH_TIME, 0);
 							int end = Math.min(position + HikeConstants.MAX_OLDER_MESSAGES_TO_LOAD_EACH_TIME, msgList.size()-1);
 							ArrayList<ConvMessage> toBeAddedList = new ArrayList<ConvMessage>(ids.size());
@@ -3217,7 +3291,7 @@ import android.widget.Toast;
 							{
 								loadMessageCount *= 2;
 							}
-							maxId = msgList.get(0).getMsgID();
+							maxId = msgList.get(0).getSortingId();
 						}
 					}
 					if (loaderId == SEARCH_LOOP && position < 0)
@@ -3244,7 +3318,7 @@ import android.widget.Toast;
 						position = messageSearchManager.searchFirstItem(msgList, 0, msgList.size(), chatThread.get().searchText);
 						if (position >= 0)
 						{
-							Logger.d("gaurav","found at pos: "+ position + ", id:" + msgList.get(position).getMsgID());
+							Logger.d("gaurav","found at pos: "+ position + ", id:" + msgList.get(position).getSortingId());
 							count += (position + 1);
 							position = count;
 						}
@@ -3256,7 +3330,7 @@ import android.widget.Toast;
 							{
 								loadMessageCount *= 2;
 							}
-							minId = msgList.get(msgList.size() - 1).getMsgID();
+							minId = msgList.get(msgList.size() - 1).getSortingId();
 							maxIdPosition = Math.min(count + loadMessageCount, msgSize - 1);
 							maxId = chatThread.get().messages.getUniqueId(maxIdPosition);
 						}
@@ -3547,7 +3621,21 @@ import android.widget.Toast;
 		}
 		currentFirstVisibleItem = firstVisibleItem;
 	}
-	
+
+	private void removeKeyboardFtueIfShowing()
+	{
+		if (keyboardFtue.isShowing())
+			keyboardFtue.destroy();
+	}
+
+	private void showKeyboardFtueIfReady()
+	{
+		if (keyboardFtue.isReadyForFTUE())
+		{
+			activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+			keyboardFtue.showNextFtue();
+		}
+	}
 
 	@Override
 	public boolean onTouch(View v, MotionEvent event)
@@ -3563,11 +3651,7 @@ import android.widget.Toast;
 				 * This calls is to avoid the seeming delay in appearance of edittext.
 				 */
 				KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, (keyboardHeight == 0) ? mCustomKeyboard.getKeyBoardAndCVHeight() : keyboardHeight);
-				if (keyboardFtue.isReadyForFTUE())
-				{
-					activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-					keyboardFtue.showNextFtue();
-				}
+				showKeyboardFtueIfReady();
 			}
 			if(stickerTagWatcher != null)
 			{
@@ -3828,6 +3912,26 @@ import android.widget.Toast;
         		sendUIMessage(MESSAGE_SENT, msg);
         	}
         	break;
+			case HikePubSub.GENERAL_EVENT_STATE_CHANGE:
+				ConvMessage eventMessage=(ConvMessage)object;
+				if(eventMessage!=null&&this.msisdn.equals(eventMessage.getMsisdn()))
+				{
+					long messageId = eventMessage.getMsgID();
+					for (int i = messages.size() - 1; i >= 0; i--)
+					{
+						ConvMessage mesg = messages.get(i);
+						if (mesg.getMsgID() == messageId)
+						{
+							messages.get(i).setState(eventMessage.getState());
+							uiHandler.sendEmptyMessage(NOTIFY_DATASET_CHANGED);
+							break;
+						}
+
+					}
+				}
+				break;
+
+
 		default:
 			Logger.e(TAG, "PubSub Registered But Not used : " + type);
 			break;
@@ -5103,6 +5207,7 @@ import android.widget.Toast;
 			if (msg.getState() == ConvMessage.State.RECEIVED_UNREAD)
 			{
 				unreadConvMessages.add(msg);
+				msg.setState(ConvMessage.State.RECEIVED_READ);
 			}
 			else if (msg.getState() == ConvMessage.State.RECEIVED_READ)
 			{
@@ -6168,7 +6273,7 @@ import android.widget.Toast;
 
 	private void changeKeyboard(boolean systemKeyboard)
 	{
-		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CURRENT_KEYBOARD, systemKeyboard);
+		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SYSTEM_KEYBOARD_SELECTED, systemKeyboard);
 		
 		if (systemKeyboard)
 		{
@@ -6182,12 +6287,13 @@ import android.widget.Toast;
 				public void onClick(View v)
 				{
 					Utils.showSoftKeyboard(mComposeView, InputMethodManager.SHOW_FORCED);
+					showKeyboardFtueIfReady();
 				}
 			});
 		}
 		else
 		{
-			mCustomKeyboard.swtichToKPTKeyboard(mComposeView, KPTConstants.MULTILINE_LINE_EDITOR, null, ChatThread.this);
+			mCustomKeyboard.swtichToKPTKeyboard(mComposeView, KPTConstants.MULTILINE_LINE_EDITOR, null, kptKeyboardVisibilityStatusListner);
 			mCustomKeyboard.registerEditText(R.id.msg_compose);
 			resetSharablePopup();
 			mCustomKeyboard.init(mComposeView);
@@ -6214,58 +6320,26 @@ import android.widget.Toast;
 		return HikeMessengerApp.isSystemKeyboard();
 	}
 
-	@Override
-	public void onInputviewVisbility(boolean kptVisible, int height)
+	/**
+	 * Call this method instead of directly calling {@link ChatThread#onDestroy()}
+	 */
+	protected void tryToDestroyChatThread()
 	{
-		if (kptVisible)
+		if (wasAnythingInstantiated())
 		{
-			KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, height);
-			if (mShareablePopupLayout != null)
-			{
-				mShareablePopupLayout.setCustomKeyBoardHeight(height);				
-			}
-			keyboardHeight = height;
-			
-			if (activity.getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE)
-			{
-				mComposeView.setMaxLines(1);
-			}
-			else
-			{
-				mComposeView.setMaxLines(4);
-			}
-			onShown();
-		}
-		else
-		{
-			KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, 0);
-			mComposeView.setMaxLines(4);
+			onDestroy();
 		}
 	}
 	
-	@Override
-	public void onInputViewCreated()
+	/**
+	 * In cases of deleted conversations, the {@link ChatThread#fetchConversation()} returns null and eventually onDestroy is called. Since there are certain objects in onDestroy
+	 * which might not have been instantiated, hence we were getting NPE there. This fixes that.
+	 * 
+	 * @return
+	 */
+	private boolean wasAnythingInstantiated()
 	{
-		// TODO Auto-generated method stub
-		
+		return mConversation != null;
 	}
-
-	@Override
-	public void analyticalData(KPTAddonItem kptAddonItem)
-	{
-		KptUtils.generateKeyboardAnalytics(kptAddonItem);
-		StickerSearchManager.getInstance().inputMethodChanged(new Locale(kptAddonItem.getlocaleName()).getISO3Language());
-	}
-
-	@Override
-	public void showGlobeKeyView()
-	{
-		KptUtils.onGlobeKeyPressed(activity, mCustomKeyboard);
-	}
-
-	@Override
-	public void showQuickSettingView()
-	{
-		KptUtils.onGlobeKeyPressed(activity, mCustomKeyboard);
-	}
+	
 }

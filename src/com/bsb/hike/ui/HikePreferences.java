@@ -394,7 +394,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 
 	private void restartHomeActivity()
 	{
-		startActivity(IntentFactory.getHomeActivityIntentAsFreshLaunch(this));
+		IntentFactory.relaunchApplication(this);
 	}
 
 	private void addStealthPrefListeners()
@@ -1384,7 +1384,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 				stealthConfirmPasswordOnPreferenceChange(preference, newValue);
 				return false;
 			} else if (HikeConstants.KEYBOARD_PREF.equals(preference.getKey())) {
-				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CURRENT_KEYBOARD, !isChecked);
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SYSTEM_KEYBOARD_SELECTED, !isChecked);
 				trackAnalyticEvent(HikeConstants.LogEvent.HIKE_KEYBOARD_ON, isChecked);
 				HikeMessengerApp.getPubSub().publish(HikePubSub.KEYBOARD_SWITCHED, null);
 			} else if (HikeConstants.GLIDE_PREF.equals(preference.getKey())) {

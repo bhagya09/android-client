@@ -5,8 +5,10 @@ import android.text.TextUtils;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.HikePubSub;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.StickerManager;
+import com.bsb.hike.utils.Utils;
 
 /**
  * Created by gauravmittal on 20/10/15.
@@ -43,5 +45,7 @@ public class LocalLanguageUtils {
         HikeMessengerApp.getInstance().setupLocalLanguage();
         StickerManager.getInstance().resetStickerShopLastUpdateTime();
         StickerManager.getInstance().resetSignupUpgradeCallPreference();
+        Utils.sendLocaleToServer(HikeMessengerApp.getInstance());
+        HikeMessengerApp.getPubSub().publish(HikePubSub.LOCAL_LANGUAGE_CHANGED,lang);
     }
 }
