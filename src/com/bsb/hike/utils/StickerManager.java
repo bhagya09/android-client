@@ -2358,6 +2358,7 @@ public class StickerManager
 	{
 		if(Utils.isHoneycombOrHigher())
 		{
+			Logger.d(TAG,"Toggling SR enable status to "+state);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STICKER_RECOMMENDATION_ENABLED, state);
 		}
 	}
