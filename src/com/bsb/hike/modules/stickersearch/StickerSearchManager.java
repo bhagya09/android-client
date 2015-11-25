@@ -388,7 +388,7 @@ public class StickerSearchManager
 				}
 
 				listener.showStickerSearchPopup(results.first.first, results.first.second, results.second);
-				increaseRecommendationStateForCurrentLanguage(onTapOnHighlightWord);
+				increaseRecommendationStateForCurrentLanguage(true);
 			}
 			else
 			{
@@ -447,11 +447,18 @@ public class StickerSearchManager
 		searchEngine.runOnQueryThread(newMessageReceivedTask);
 	}
 
+	/* Determines if auto-popup recommendation condition is favorable */
 	public boolean getFirstContinuousMatchFound()
 	{
 		return this.isFirstPhraseOrWord;
 	}
 
+	/*
+	 * Determines if auto-popup recommendation condition is favorable as well as user selected sticker from auto-popup recommendation.
+	 * getFirstContinuousMatchFound() just tells, if first continuous phrase match is found and auto-popup could be shown.
+	 * And, this method distinguish the case, where user clicked the first continuous phrase matched itself as that
+	 * will be seen as case of tap on highlight word
+	 */
 	public boolean isFromAutoRecommendation()
 	{
 		return (this.isFirstPhraseOrWord && !this.isTappedOnHighLightedWord);
@@ -690,28 +697,35 @@ public class StickerSearchManager
 		}
 	}
 
-	private void increaseRecommendationStateForCurrentLanguage(boolean onTapOnHighlightWord)
+	public void increaseRecommendationStateForCurrentLanguage(boolean isTotalMetrixOrAcceptedMetrix)
 	{
-		PairModified<Integer, Integer> accuracyMetrices;
-		if (onTapOnHighlightWord)
-		{
-			if (this.tapOnHighlightWordClicksPerLanguageMap.containsKey(this.keyboardLanguageISOCode))
-			{
-				accuracyMetrices = this.tapOnHighlightWordClicksPerLanguageMap.get(this.keyboardLanguageISOCode);
-				accuracyMetrices.setFirst(accuracyMetrices.getFirst() + 1);
-			}
-		}
-		else
+		PairModified<Integer, Integer> accuracyMetrices = null;
+		if (isFromAutoRecommendation())
 		{
 			if (this.autoPopupClicksPerLanguageMap.containsKey(this.keyboardLanguageISOCode))
 			{
 				accuracyMetrices = this.autoPopupClicksPerLanguageMap.get(this.keyboardLanguageISOCode);
-				accuracyMetrices.setFirst(accuracyMetrices.getFirst() + 1);
 			}
+		}
+		else
+		{
+			if (this.tapOnHighlightWordClicksPerLanguageMap.containsKey(this.keyboardLanguageISOCode))
+			{
+				accuracyMetrices = this.tapOnHighlightWordClicksPerLanguageMap.get(this.keyboardLanguageISOCode);
+			}
+		}
+
+		if (isTotalMetrixOrAcceptedMetrix && (accuracyMetrices != null))
+		{
+			accuracyMetrices.setFirst(accuracyMetrices.getFirst() + 1);
+		}
+		else
+		{
+			accuracyMetrices.setSecond(accuracyMetrices.getSecond() + 1);
 		}
 	}
 
-	public void sendStickerRecommendationAnalytics()
+	public void sendStickerRecommendationAccuracyAnalytics()
 	{
 		if (StickerManager.getInstance()
 				.sendRecommendationAccuracyAnalytics(new Date().toString(), this.autoPopupClicksPerLanguageMap, this.tapOnHighlightWordClicksPerLanguageMap))
