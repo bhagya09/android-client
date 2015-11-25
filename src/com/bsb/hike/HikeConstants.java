@@ -259,6 +259,10 @@ public class HikeConstants
 
 	public static final String REQUEST_PENDING = "requestpending";
 
+	public static final String CUSTOM_KEYBOARD_LOCALE = "ckbd_locale";
+
+	public static final String DEVICE_LOCALE = "device_locale";
+
 	public static final String LOCALE = "locale";
 
 	public static final String ENABLE_PUSH_BATCHING_STATUS_NOTIFICATIONS = "enablepushbatchingforsu";
@@ -508,6 +512,10 @@ public class HikeConstants
 	public static final String CHANGE_STEALTH_TIMEOUT = "changeStealthTimeout";
 
 	public static final String STEALTH_INDICATOR_ENABLED = "stealthIndicatorEnabled";
+	
+	public static final String STEALTH_INDICATOR_SHOW_REPEATED = "stealthIndicatorShowRepeated";
+	
+	public static final String STEALTH_INDICATOR_SHOW_ONCE = "stealthIndicatorShowOnce";
 
 	public static final String STEALTH_NOTIFICATION_ENABLED = "stealthNotificationEnabled";
 
@@ -609,6 +617,8 @@ public class HikeConstants
 	public static final String NUJ_NOTIF_BOOLEAN_PREF = "hikeNUJNotificationPref";
 
 	public static final String H2O_NOTIF_BOOLEAN_PREF = "hikeOfflineNotificationPref";
+
+	public static final String KEYBOARD_SETTING_PREF_CATEGORY = "keyboardSettingsCategory";
 
 	public static final String KEYBOARD_LANGUAGE_PREF = "kbdLanguagePref";
 
@@ -3305,7 +3315,7 @@ public class HikeConstants
 	public static final int KEYBOARD_CONFIGURATION_NEW = 2;
 
 	public static final String SYSTEM_KEYBOARD_SELECTED = "systemKeyboardSelected";
-	
+
 	public static final String GET = "get";
 
 	public static final String HIKE_FILE_TYPE = "hft";
@@ -3638,6 +3648,8 @@ public class HikeConstants
 	
 	public static final String ACTIVATE_STICKY_CALLER_PREF = "activateStickyCaller";
 
+	public static final String SMS_CARD_ENABLE_PREF = "smsCardEnablePref"; 
+	
 	public static final String ENABLE_KNOWN_NUMBER_CARD_PREF = "knownContactEnablePref";
 
 	public static final String NEW_CHAT_RED_DOT = "nc_dot";
@@ -3661,4 +3673,27 @@ public class HikeConstants
 	public static final float ONE_PERCENT_PROGRESS = 0.01f;
 
 	public static final String FT_USE_APACHE_HTTP_CLIENT = "ft_apache_client";
+
+	// ============================================================================================= LOCALIZATION SWITCHES
+
+	public static final String LOCALIZATION_ENABLED = "local_e";
+
+	public static final String CUSTOM_KEYBOARD_ENABLED = "custom_key_e";
+
+	// Added for switching the Change Keyboard Option in chat thread
+	public static final String CHANGE_KEYBOARD_CHAT_ENABLED = "ckc_e";
+
+	public static final String AUTOCORRECT_KEYBOARD_ENABLED="atk_e";
+	
+	// ============================================================================================= LOCALIZATION SWITCHES
+
+
+	public static final String LANG_LIST_ORDER = "lang_list";
+
+	// Analytics Event key for Change Keyboard ,because externalized string was converted to phone language and analytics key was changin
+	public static final String SYSTEM_KEYBOARD = "System Keyboard";
+
+	public static final String HIKE_KEYBOARD = "Hike Keyboard";
+
+
 }

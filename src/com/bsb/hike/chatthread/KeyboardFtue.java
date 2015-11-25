@@ -26,10 +26,10 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
-import com.bsb.hike.chatHead.OnSwipeTouchListener;
 import com.bsb.hike.modules.kpt.KptKeyboardManager;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.OnSwipeTouchListenerFtue;
 import com.kpt.adaptxt.beta.KPTAddonItem;
 
 import java.util.ArrayList;
@@ -122,7 +122,8 @@ public class KeyboardFtue implements HikePubSub.Listener
             return false;
 
         // Localized keyboard is for india users only. Other users still have setting but do not see the FTUE
-        if (!HikeMessengerApp.isIndianUser())
+        // If custom keyboard is disabled no need to show the FTUE.
+        if (!HikeMessengerApp.isIndianUser() || !HikeMessengerApp.isCustomKeyboardEnabled())
             return false;
 
         if (mState < COMPLETE && KptKeyboardManager.getInstance(mActivity).getInstalledLanguagesList().size() > KptKeyboardManager.PREINSTALLED_LANGUAGE_COUNT
@@ -561,7 +562,7 @@ public class KeyboardFtue implements HikePubSub.Listener
     }
 
 
-	OnSwipeTouchListener onSwipeTouchListener = new OnSwipeTouchListener(HikeMessengerApp.getInstance().getApplicationContext())
+	OnSwipeTouchListenerFtue onSwipeTouchListener = new OnSwipeTouchListenerFtue(HikeMessengerApp.getInstance().getApplicationContext())
 	{
 		public void onSwipeRight()
 		{
@@ -574,8 +575,10 @@ public class KeyboardFtue implements HikePubSub.Listener
 
 		public boolean onTouch(View v, MotionEvent event)
 		{
+			if (event != null)
+				return gestureDetector.onTouchEvent(event);
 
-			return gestureDetector.onTouchEvent(event);
+			return false;
 		}
 	};
     public void onLanguageLayoutClick(){

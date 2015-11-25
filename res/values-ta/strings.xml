@@ -316,7 +316,7 @@
     <string name="free_invite_body">SMS வழியாக தோழரை இலவசமாக இன்வைட் செய்யும். கட்டணம் எதுவும் ஆகாது :)</string>
     <string name="select_all">அனைத்தையும் செலெக்ட் செய்யும் (%1$d)</string>
     <string name="deselect_all">அனைத்தையும் டீசெலெக்ட் செய்யும் (%1$d)</string>
-    <string name="chat_bg_changed">%1$s சேட் தீம்-ஐ மாற்றி விட்டார்</string>
+    <string name="chat_bg_changed">%1$s சேட் தீம்-ஐ மாற்றினார்</string>
     <string name="chat_theme">சேட் தீம்</string>
     <string name="last_seen_today_ct">இன்று, %1$s</string>
     <string name="last_seen_yesterday_ct">நேற்று, %1$s</string>
@@ -499,7 +499,7 @@
     <string name="delete_leave">அழித்து விட்டு குரூப்பை விட்டு வெளியேறு</string>
     <string name="broadcast_participant_info"><![CDATA[<font color=\"#848484\"><b>குறிப்பு: </b>இந்த புரோட்காஸ்ட்டை தம் அட்ரெஸ் புக்கில் %1$s உடனுள்ள Hike தொடர்புகள் மட்டுமே பெற்றுக் கொள்வார்கள்.</font>]]></string>
     <string name="confirm_delete_chat_msg">%1$s உடனான சேட்-ஐ அழிக்கவும் </string>
-    <string name="confirm_delete_group_msg">அழித்து விட்டு \'%1$s\'குரூப்பை விட்டு வெளியேறு</string>
+    <string name="confirm_delete_group_msg">அழித்து விட்டு \&apos;%1$s\&apos;குரூப்பை விட்டு வெளியேறு</string>
     <string name="email_chat">சேட்-ஐ ஈமெயில் செய்க</string>
     <string name="change_keyboard">கீபோர்டை மாற்றுக</string>
     <string name="clear_chat">சேட்டை கிளியர் செய்க</string>
@@ -883,7 +883,7 @@
     <string name="ls_favorites_summary">உமது ஃபேவரைட்களுக்கு மட்டுமே ‘கடைசியாகப் பார்த்தது’ விசிபிள் ஆக உள்ளது</string>
     <string name="ls_everyone_summary">Hike-கில் உள்ள எல்லோருக்கும் ‘கடைசியாகப் பார்த்தது’ விசிபிள் ஆக உள்ளது</string>
     <string name="ls_nobody_summary">ஞாபகம் வைத்துக் கொள்ளும்: உம்மால் எவரது ‘கடைசியாகப் பார்த்ததையும்’ பார்க்க இயலாது</string>
-    <string name="you_accepted_favorite_request_details">அற்புதம்! %1$s என்பவரால் இப்போது உமது %2$s-ஐ பார்க்க பார்க்க இயலும்.</string>
+    <string name="you_accepted_favorite_request_details">அற்புதம்! %1$s என்பவரால் இப்போது உமது %2$s-ஐ பார்க்க இயலும்.</string>
     <string name="accepted_your_favorite_request_details">இப்போது உம்மால் %1$s\&apos;s %2$s-ஐ பார்க்க முடியும்</string>
     <string name="favorite_confirmed_notification">இப்போது உம்மால் %1$s\&apos;s %2$s-ஐ பார்க்க முடியும்</string>
     <string name="sent_favorite_request_tab">இவர் %1$s-ஐ ஷேர் செய்கிறார். நீரும் அதையே செய்ய விரும்புகிறீரா?</string>
@@ -1014,7 +1014,6 @@
 	<string name="add_members">உறுப்பினர்களைச் சேர்</string>
 	<string name="add_members_to_conference">கூட்டு அழைப்புடன் சேர்</string>
 	<string name="created_group_text">நீர் குரூப் சேட்டை உருவாக்கினீர்</string>
-	<string name="group_member_added">%1$s-ஐ சேர்த்தீர்கள்</string>
 	<string name="num_members">%1$d உறுப்பினர்கள்</string>
 	<string name="num_member">%1$d உறுப்பினர்</string>
 	<string name="profile_pic_upload_in_background">புரொஃபைல் பிக்சர் அப்லோடு தொடரும்..</string>
@@ -1027,7 +1026,6 @@
 	<string name="make_admin">அட்மின் ஆக்குக</string>
 	<string name="admin_updating">%1$s-ஐ அட்மின் ஆக்குகிறது</string>
 	<string name="admin_task_error">இணைப்புப் பிழை: தயவுசெய்து உம் நெட்வொர்க்கை சரிபார்த்து விட்டு, மீண்டும் முயற்சியும்.</string>
-	<string name="group_admin_updated">%1$s-ஐ அட்மின் ஆக ஆக்கியது</string>
 	<string name="group_setting_option_only_admin">அட்மின்கள் மட்டுமே உறுப்பினர்களைச் சேர்க்க முடியும்</string>
 	<string name="group_setting_updating">குரூப் பிரைவசி செட்டிங்ஸை மாற்றுகிறது</string>
 	<string name="group_setting_confirmation1">ஒவ்வொருவரும் உறுப்பினர்களைச் சேர்த்துக் கொள்ள அனுமதிக்கவா?</string>
@@ -1266,4 +1264,32 @@
 	<string name="gps_settings">செட்டிங்</string>
 	<string name="user_gps_off">உங்களது லொக்கேஷன் எனேபிளாகும் வரை Hike Direct வேலைசெய்ய முடியாது.</string>
 	
+    <string name="you_change_group_name">நீர் குரூப் பெயரை மாற்றி விட்டீர்.</string>
+    <string name="you_change_broadcast_name">நீர் புரோட்காஸ்ட் பெயரை மாற்றி விட்டீர்.</string>
+    <string name="you_change_group_image">நீர் குரூப் இமேஜை மாற்றி விட்டீர்.</string>
+    <string name="backup_account">பேக்அப் கணக்கு</string>
+    <string name="search_hint_text">செர்ச்...</string>
+    <string name="is_typing">டைப் செய்கிறார்...</string>
+    <string name="are_typing">டைப் செய்கிறார்கள்...</string>
+    <string name="you_chat_bg_changed">நீர் சேட் தீம்-ஐ மாற்றி விட்டீர்</string>
+    <string name="hike_keyboard">Hike கீபோர்டு</string>
+    <string name="system_keyboard">சிஸ்டம் கீபோர்டு</string>
+    <string name="you_xyz_posted_pin">நீர் ஓர் pin-ஐ போஸ்ட் செய்தீர்</string>
+    <string name="voip_hang_up">ஹேங் அப்</string>
+    <string name="voip_decline">மறுக்கவும்</string>
+    <string name="voip_accept">ஏற்கவும்</string>
+    <string name="you_group_member_added">நீர் %1$s-ஐ சேர்த்தீர்</string>
+    <string name="you_added_as_group_member">%1$s உம்மை சேர்த்தார்</string>
+    <string name="group_member_added">%1$s, %2$s ஐ சேர்த்தார்</string>
+    <string name="you_updated_group_admin">நீர் %1$s-ஐ அட்மின் ஆக ஆக்கினீர்</string>
+    <string name="group_admin_updated_you">%1$s உம்மை அட்மின் ஆக ஆக்கினார்</string>
+    <string name="group_admin_updated">%1$s, %2$s-ஐ அட்மின் ஆக ஆக்கினார்</string>
+    <string name="no_results_found">முடிவுகள் எதையும் காணவில்லை</string>
+    <string name="APPLY">பொருத்து </string>
+    <string name="level">நிலை</string>
+    <string name="milliseconds">ms</string>
+    <string name="and"> மற்றும் </string>
+    <string name="contact_name">தொடர்பாளர் பெயர்</string>
+    <string name="mobile">மொபைல்</string>
+    <string name="your_contact">உங்கள் தொடர்பு</string>
 </resources>
