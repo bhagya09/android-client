@@ -164,8 +164,8 @@
     <string name="remove_from_broadcast">புரோட்காஸ்ட் லிஸ்ட்-ல் இருந்து அகற்று</string>
     <string name="leave_group_confirm">நீர் நிச்சயமாகவே இந்த குரூப்பை விட்டு வெளியேறுகிறீரா?</string>
     <string name="delete_broadcast_confirm">நீர் நிச்சயமாகவே இந்த புரோட்காஸ்ட் லிஸ்ட்டை அழிக்க விரும்புகிறீரா?</string>
-    <string name="remove_confirm">நீர் நிச்சயமாகவே %1-ஐ இந்த குரூப்பில் இருந்து அகற்ற விரும்புகிறீரா?</string>
-    <string name="remove_confirm_broadcast">நீர் நிச்சயமாகவே %1-ஐ இந்த லிஸ்ட்டில் இருந்து அகற்ற விரும்புகிறீரா?</string>
+    <string name="remove_confirm">நீர் நிச்சயமாகவே %1$s-ஐ இந்த குரூப்பில் இருந்து அகற்ற விரும்புகிறீரா?</string>
+    <string name="remove_confirm_broadcast">நீர் நிச்சயமாகவே %1$s-ஐ இந்த லிஸ்ட்டில் இருந்து அகற்ற விரும்புகிறீரா?</string>
     <string name="no">இல்லை</string>
     <string name="location_disabled">உம் இருப்பிடத்தைக் கொண்டுவர முடியவில்லை. தயவுசெய்து உம் செட்டிங்ஸை செக் செய்யும்.</string>
     <string name="tap_here_invite">இவரை இன்வைட் செய்வதற்கு இங்கே தட்டும்</string>
