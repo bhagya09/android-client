@@ -607,7 +607,7 @@ public class PlatformUtils
 	
 	public static void downloadAndUnzip(PlatformContentRequest request, boolean isTemplatingEnabled, boolean doReplace, String callbackId, boolean resumeSupported,String msisdn)
 	{
-		PlatformZipDownloader downloader =  new PlatformZipDownloader(request, isTemplatingEnabled, doReplace, callbackId, resumeSupported,msisdn);
+		PlatformZipDownloader downloader = new PlatformZipDownloader.PlatformZipDownloaderBuilder().setArgRequest(request).setIsTemplatingEnabled(isTemplatingEnabled).setDoReplace(doReplace).setCallbackId(callbackId).setResumeSupported(resumeSupported).setMsisdn(msisdn).createPlatformZipDownloader();
 		if (!downloader.isMicroAppExist() || doReplace)
 		{
 			downloader.downloadAndUnzip();

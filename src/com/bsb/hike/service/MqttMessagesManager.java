@@ -31,7 +31,6 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Pair;
-import android.view.Gravity;
 import android.widget.Toast;
 
 import com.bsb.hike.AppConfig;
@@ -760,7 +759,7 @@ public class MqttMessagesManager
 			}
 		});
 
-		PlatformZipDownloader downloader = new PlatformZipDownloader(rqst, false);
+		PlatformZipDownloader downloader = new PlatformZipDownloader.PlatformZipDownloaderBuilder().setArgRequest(rqst).setIsTemplatingEnabled(false).createPlatformZipDownloader();
 		if (!downloader.isMicroAppExist())
 		{
 			downloader.downloadAndUnzip();

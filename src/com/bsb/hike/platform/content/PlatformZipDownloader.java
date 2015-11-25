@@ -40,11 +40,11 @@ public class PlatformZipDownloader
 {
 	private PlatformContentRequest mRequest;
 
-	private boolean isTemplatingEnabled;
+	private boolean isTemplatingEnabled = false;
 	
-	private boolean doReplace;
+	private boolean doReplace = false;
 
-	private String callbackId;
+	private String callbackId = "";
 
 	// This hashmap contains the mapping of callback id and the progress. This makes sure that we reply the microapp with
 	// every 1% of the microapp.
@@ -62,47 +62,72 @@ public class PlatformZipDownloader
 
     private String msisdn;
 
-	
-	/**
-	 * Instantiates a new platform template download task.
-	 *
-	 * @param argRequest: request
-	 * @param  isTemplatingEnabled: whether the app requires templating or not.
-	 */
-	
-	public PlatformZipDownloader(PlatformContentRequest argRequest, boolean isTemplatingEnabled)
-	{
-		this(argRequest, isTemplatingEnabled, false);
-	}
-	
-	public PlatformZipDownloader(PlatformContentRequest argRequest, boolean isTemplatingEnabled,boolean doReplace)
-	{
-		this(argRequest, isTemplatingEnabled, doReplace, null);
-	}
+    // static builder class used here for generating and returning object of Zip Downloading process
+    public static class PlatformZipDownloaderBuilder {
+        private PlatformContentRequest argRequest;
+        private boolean isTemplatingEnabled;
+        private boolean doReplace = false;
+        private String callbackId = "";
+        private boolean resumeSupported = false;
+        private String msisdn = "";
 
-	public PlatformZipDownloader(PlatformContentRequest argRequest, boolean isTemplatingEnabled,boolean doReplace, String callbackId)
-	{
-		// Get ID from content and call http
-		mRequest = argRequest;
-		this.isTemplatingEnabled = isTemplatingEnabled;
-		this.doReplace = doReplace;
-		this.callbackId = callbackId;
-	}
-	
-	public PlatformZipDownloader(PlatformContentRequest argRequest, boolean isTemplatingEnabled,boolean doReplace, String callbackId, boolean resumeSupported,String msisdn)
-	{
-		// Get ID from content and call http
-		this(argRequest, isTemplatingEnabled, doReplace, callbackId);
-		this.resumeSupported = resumeSupported;
-        this.msisdn = msisdn;
-		
-		if (resumeSupported)
-		{
-			setStateFilePath();
-			setStartOffset();
-		}
-	}
-	
+        public PlatformZipDownloaderBuilder setArgRequest(PlatformContentRequest argRequest) {
+            this.argRequest = argRequest;
+            return this;
+        }
+
+        public PlatformZipDownloaderBuilder setIsTemplatingEnabled(boolean isTemplatingEnabled) {
+            this.isTemplatingEnabled = isTemplatingEnabled;
+            return this;
+        }
+
+        public PlatformZipDownloaderBuilder setDoReplace(boolean doReplace) {
+            this.doReplace = doReplace;
+            return this;
+        }
+
+        public PlatformZipDownloaderBuilder setCallbackId(String callbackId) {
+            this.callbackId = callbackId;
+            return this;
+        }
+
+        public PlatformZipDownloaderBuilder setResumeSupported(boolean resumeSupported) {
+            this.resumeSupported = resumeSupported;
+            return this;
+        }
+
+        public PlatformZipDownloaderBuilder setMsisdn(String msisdn) {
+            this.msisdn = msisdn;
+            return this;
+        }
+
+        public PlatformZipDownloader createPlatformZipDownloader() {
+            return new PlatformZipDownloader(this);
+        }
+    }
+
+    /**
+     * Instantiates a new platform template download task.
+     *
+     * @param platformZipDownloaderBuilder
+     */
+    private PlatformZipDownloader(PlatformZipDownloaderBuilder platformZipDownloaderBuilder)
+    {
+        mRequest = platformZipDownloaderBuilder.argRequest;
+        this.isTemplatingEnabled = platformZipDownloaderBuilder.isTemplatingEnabled;
+        this.doReplace = platformZipDownloaderBuilder.doReplace;
+        this.callbackId = platformZipDownloaderBuilder.callbackId;
+        this.resumeSupported = platformZipDownloaderBuilder.resumeSupported;
+        this.msisdn = platformZipDownloaderBuilder.msisdn;
+
+        if (resumeSupported)
+        {
+            setStateFilePath();
+            setStartOffset();
+        }
+    }
+
+
 	private void setStartOffset()
 	{
 		File file = new File(stateFilePath + FileRequestPersistent.STATE_FILE_EXT);
@@ -145,6 +170,7 @@ public class PlatformZipDownloader
 			if (oldMicroAppFolder.exists())
 				return true;
 
+            // Generate unzip path for the given request type
 			switch (mRequest.getRequestType())
 			{
 			case PlatformContentRequest.HIKE_MICRO_APPS:
@@ -398,12 +424,15 @@ public class PlatformZipDownloader
 		case PlatformContentRequest.ONE_TIME_POPUPS:
 			unzipPath += PlatformContentConstants.HIKE_ONE_TIME_POPUPS;
 			unzipPath = generateCBotUnzipPathForRequestType(unzipPath);
+            break;
 		case PlatformContentRequest.NATIVE_APPS:
 			unzipPath += PlatformContentConstants.HIKE_GAMES;
 			unzipPath = generateCBotUnzipPathForRequestType(unzipPath);
+            break;
 		case PlatformContentRequest.HIKE_MAPPS:
 			unzipPath += PlatformContentConstants.HIKE_MAPPS;
 			unzipPath = generateCBotUnzipPathForRequestType(unzipPath);
+            break;
 		}
 
 		return unzipPath;

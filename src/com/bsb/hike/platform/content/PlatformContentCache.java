@@ -9,6 +9,7 @@ import org.json.JSONObject;
 import android.support.v4.util.LruCache;
 import android.text.TextUtils;
 
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.utils.Logger;
 import com.samskivert.mustache.Template;
 
@@ -97,37 +98,37 @@ class PlatformContentCache
 	{
 		Logger.d(TAG, "loading template from disk");
 
-		// if (verifyVersion(content))
-		// {
-		// // Continue loading
-		// }
-		// else
-		// {
-		// return null;
-		// }
-
-
-
-
 		String unzipPath = PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.HIKE_MICRO_APPS;
-        String microAppName = content.getContentData().getId();
+		String microAppName = content.getContentData().getId();
+		int microAppVersion = content.getContentData().getBotVersionCode();
 
-        if(content.getRequestType() == PlatformContentRequest.HIKE_MICRO_APPS) {
-            int microAppVersion = content.getContentData().getBotVersionCode();
-            unzipPath += microAppName + File.separator + "Version_" + microAppVersion + File.separator;
-        }else if(content.getRequestType() == PlatformContentRequest.ONE_TIME_POPUPS){
-            unzipPath += PlatformContentConstants.HIKE_ONE_TIME_POPUPS;
-            unzipPath += microAppName + File.separator;
-        }else if(content.getRequestType() == PlatformContentRequest.NATIVE_APPS){
-            unzipPath += PlatformContentConstants.HIKE_GAMES;
-            unzipPath += microAppName + File.separator;
-        }
+		switch (content.getRequestType())
+		{
+		case PlatformContentRequest.HIKE_MICRO_APPS:
+			unzipPath += microAppName + File.separator + HikeConstants.Extras.VERSIONING_DIRECTORY_NAME + microAppVersion + File.separator;
+			break;
 
-		File file = new File(unzipPath,content.getContentData().getTag());
+		case PlatformContentRequest.ONE_TIME_POPUPS:
+			unzipPath += PlatformContentConstants.HIKE_ONE_TIME_POPUPS + microAppName + File.separator;
+			break;
 
-		if (file.exists()) {
-		}else{
-			 file = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + content.getContentData().getId(), content.getContentData().getTag());
+		case PlatformContentRequest.NATIVE_APPS:
+			unzipPath += PlatformContentConstants.HIKE_GAMES + microAppName + File.separator;
+			break;
+
+		case PlatformContentRequest.HIKE_MAPPS:
+			unzipPath += PlatformContentConstants.HIKE_MAPPS + microAppName + File.separator;
+			break;
+		}
+
+		File file = new File(unzipPath, content.getContentData().getTag());
+
+		if (file.exists())
+		{
+		}
+		else
+		{
+			file = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + content.getContentData().getId(), content.getContentData().getTag());
 		}
 
 		String templateString = PlatformContentUtils.readDataFromFile(file);
