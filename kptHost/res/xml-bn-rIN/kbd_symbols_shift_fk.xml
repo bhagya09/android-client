@@ -38,64 +38,64 @@
         atx:kpt_horizontalGap="0dp"
         atx:kpt_keyWidth="9%p" >
         <Key
-            atx:kpt_codes="2535,2509"
+            atx:kpt_codes="49,2509"
             atx:kpt_horizontalGap="0.5%p"
             atx:kpt_keyEdgeFlags="left"
-            atx:kpt_keyLabel="১"
+            atx:kpt_keyLabel="1"
             atx:kpt_keyLabel2="্"
             atx:kpt_popupCharacters="@string/kpt_alternates_for_one"
             atx:kpt_popupKeyboard="@xml/kbd_popup_template" />
         <Key
-            atx:kpt_codes="2536,2494"
-            atx:kpt_keyLabel="২"
+            atx:kpt_codes="50,2494"
+            atx:kpt_keyLabel="2"
             atx:kpt_keyLabel2="া"
             atx:kpt_popupCharacters="@string/kpt_alternates_for_two"
             atx:kpt_popupKeyboard="@xml/kbd_popup_template" />
         <Key
-            atx:kpt_codes="2537,2495"
-            atx:kpt_keyLabel="৩"
+            atx:kpt_codes="51,2495"
+            atx:kpt_keyLabel="3"
             atx:kpt_keyLabel2="ি"
             atx:kpt_popupCharacters="@string/kpt_alternates_for_three"
             atx:kpt_popupKeyboard="@xml/kbd_popup_template" />
         <Key
-            atx:kpt_codes="2538,2496"
-            atx:kpt_keyLabel="৪"
+            atx:kpt_codes="52,2496"
+            atx:kpt_keyLabel="4"
             atx:kpt_keyLabel2="ী"
             atx:kpt_popupCharacters="@string/kpt_alternates_for_four"
             atx:kpt_popupKeyboard="@xml/kbd_popup_template" />
         <Key
-            atx:kpt_codes="2539,2497"
-            atx:kpt_keyLabel="৫"
+            atx:kpt_codes="53,2497"
+            atx:kpt_keyLabel="5"
             atx:kpt_keyLabel2="ু"
             atx:kpt_popupCharacters="@string/kpt_alternates_for_five"
             atx:kpt_popupKeyboard="@xml/kbd_popup_template" />
         <Key
-            atx:kpt_codes="2540,2498"
-            atx:kpt_keyLabel="৬"
+            atx:kpt_codes="54,2498"
+            atx:kpt_keyLabel="6"
             atx:kpt_keyLabel2="ূ"
             atx:kpt_popupCharacters="@string/kpt_alternates_for_six"
             atx:kpt_popupKeyboard="@xml/kbd_popup_template" />
         <Key
-            atx:kpt_codes="2541,2499"
-            atx:kpt_keyLabel="৭"
+            atx:kpt_codes="55,2499"
+            atx:kpt_keyLabel="7"
             atx:kpt_keyLabel2="ৃ"
             atx:kpt_popupCharacters="@string/kpt_alternates_for_seven"
             atx:kpt_popupKeyboard="@xml/kbd_popup_template" />
         <Key
-            atx:kpt_codes="2542,2503"
-            atx:kpt_keyLabel="৮"
+            atx:kpt_codes="56,2503"
+            atx:kpt_keyLabel="8"
             atx:kpt_keyLabel2="ে"
             atx:kpt_popupCharacters="@string/kpt_alternates_for_eight"
             atx:kpt_popupKeyboard="@xml/kbd_popup_template" />
         <Key
-            atx:kpt_codes="2543,2504"
-            atx:kpt_keyLabel="৯"
+            atx:kpt_codes="57,2504"
+            atx:kpt_keyLabel="9"
             atx:kpt_keyLabel2="ৈ"
             atx:kpt_popupCharacters="@string/kpt_alternates_for_nine"
             atx:kpt_popupKeyboard="@xml/kbd_popup_template" />
         <Key
-            atx:kpt_codes="2534,2507"
-            atx:kpt_keyLabel="০"
+            atx:kpt_codes="48,2507"
+            atx:kpt_keyLabel="0"
             atx:kpt_keyLabel2="ো"
             atx:kpt_popupCharacters="@string/kpt_alternates_for_zero"
             atx:kpt_popupKeyboard="@xml/kbd_popup_template" />

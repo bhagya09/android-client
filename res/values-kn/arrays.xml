@@ -81,4 +81,24 @@
         <item>ಅನಾರೋಗ್ಯ</item>
 
     </string-array>
+    
+    <array name="photos_actions_titles">
+       <item>ಪ್ರೊಫೈಲ್ ಚಿತ್ರವಾಗಿ ಹೊಂದಿಸಿ</item>
+       <item>ಸ್ನೇಹಿತರಿಗೆ ಕಳುಹಿಸಿ</item>
+       <item>ಟೈಮ್‌ಲೈನ್‌ಗೆ ಪೋಸ್ಟ್ ಮಾಡಿ</item>
+	</array>
+
+	<array name="call_glowpad_descr">
+       <item>ವಜಾಗೊಳಿಸಿ</item>
+       <item>ಸಂದೇಶ</item>
+       <item>ಪಿಕಪ್</item>
+       <item>@null</item>
+   </array>
+   
+   <array name="call_glowpad_directions">
+       <item>ಬಲ</item>
+       <item>ಮೇಲ್ಭಾಗ</item>
+       <item>ಎಡ</item>
+       <item>@null</item>
+   </array>
 </resources>

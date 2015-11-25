@@ -851,7 +851,7 @@
     <string name="photo_dp_save_error_sub">ಮರು ಪ್ರಯತ್ನಿಸಲು ತಟ್ಟಿ</string>
     <string name="photo_gallery_choose_pic">ಫೊಟೋ ಆಯ್ಕೆ ಮಾಡಿ</string>
     <string name="cropping_image">ಚಿತ್ರ ಕ್ರಾಪ್‌ ಮಾಡಲಾಗುತ್ತಿದೆ...</string>
-	<string name="home_search_empty_text">\’%1$s\’ ಗೆ ನಿಮ್ಮ ಹುಡುಕಾಟ ಯಾವುದೇ ಸಂಪರ್ಕಗಳಿಗೆ ಹೊಂದುತ್ತಿಲ್ಲ.</string>
+	<string name="home_search_empty_text">\&apos;%1$s\&apos; ಗೆ ನಿಮ್ಮ ಹುಡುಕಾಟ ಯಾವುದೇ ಸಂಪರ್ಕಗಳಿಗೆ ಹೊಂದುತ್ತಿಲ್ಲ.</string>
     <string name="voip_mic_error">ಮೈಕ್‌ ಆರಂಬಿಸಲು ಅಸಾಧ್ಯ. ಈ ಕರೆ ಕೆಲಸ ಮಾಡದಿರದು.</string>
     <string name="voip_call_failed_frag_subheader">ನೀವು ಈಗಲೂ %1$s ಸಂಪರ್ಕವನ್ನು ಇವರೊಂದಿಗೆ ಮಾಡಬಹುದು</string>
     <string name="dismiss_upper_case">ವಜಾಗೊಳಿಸಿ</string>
@@ -1015,7 +1015,6 @@
 	<string name="add_members">ಸದಸ್ಯರನ್ನು ಸೇರಿಸಿ</string>
 	<string name="add_members_to_conference">ಕಾನ್ಫರೆನ್ಸ್‌ಗೆ ಸೇರಿಸಿ</string>
 	<string name="created_group_text">ಗ್ರೂಪ್‌ ಚಾಟ್‌ ಅನ್ನು ನೀವು ರಚಿಸಿದ್ದೀರಿ</string>
-	<string name="group_member_added">ಸೇರಿಸಲಾಗಿದೆ %1$s</string>
 	<string name="num_members">%1$d ಸದಸ್ಯರು</string>
 	<string name="num_member">%1$d ಸದಸ್ಯ</string>
 	<string name="profile_pic_upload_in_background">ಪ್ರೊಫೈಲ್‌ ಚಿತ್ರ ಅಪ್‌ಲೋಡ್‌ ಮಾಡುವಿಕೆ ಮುಂದುವರಿಯುತ್ತದೆ..</string>
@@ -1028,7 +1027,6 @@
 	<string name="make_admin">ಅಡ್ಮಿನ್‌ ಮಾಡಿ</string>
 	<string name="admin_updating">%1$s ಅನ್ನು ಅಡ್ಮಿನ್‌ ಆಗಿ ಮಾಡುವುದು</string>
 	<string name="admin_task_error">ಸಂಪರ್ಕ ದೋಷ: ನಿಮ್ಮ ನೆಟ್‌ವರ್ಕ್‌ ಅನ್ನು ದಯವಿಟ್ಟು ಪರಿಶೀಲಿಸಿ ಮತ್ತು ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.</string>
-	<string name="group_admin_updated">%1$s ಅನ್ನು ಅಡ್ಮಿನ್‌ ಆಗಿ ಮಾಡಲಾಗಿದೆ</string>
 	<string name="group_setting_option_only_admin">ಕೇವಲ ಅಡ್ಮಿನ್‌ಗಳು ಸದಸ್ಯರನ್ನು ಸೇರಿಸಬಹುದಾಗಿದೆ</string>
 	<string name="group_setting_updating">ಗ್ರೂಪ್‌ ಗೌಪ್ಯತೆ ಸೆಟ್ಟಿಂಗ್‌ಗಳನ್ನು ಬದಲಿಸುವುದು</string>
 	<string name="group_setting_confirmation1">ಸದಸ್ಯರನ್ನು ಸೇರಿಸಲು ಎಲ್ಲರಿಗೂ ಅನುಮತಿಸುವುದೇ?</string>
@@ -1267,4 +1265,32 @@
 	<string name="gps_settings">ಸೆಟ್ಟಿಂಗ್‌</string>
 	<string name="user_gps_off">ನಿಮ್ಮ ಲೊಕೇಶನ್‌ ಎನೇಬಲ್‌ ಆಗದ ಹೊರತು Hike Direct ಕೆಲಸ ಮಾಡದು.</string>
 	
+    <string name="you_change_group_name">ನೀವು ಗುಂಪು ಹೆಸರು ಬದಲಾಯಿಸಿದ್ದೀರಿ.</string>
+    <string name="you_change_broadcast_name">ನೀವು ಪ್ರಸಾರದ ಹೆಸರನ್ನು ಬದಲಾಯಿಸಿದ್ದೀರಿ.</string>
+    <string name="you_change_group_image">ನೀವು ಗುಂಪು ಇಮೇಜ್ ಬದಲಾಯಿಸಿದ್ದೀರಿ.</string>
+    <string name="backup_account">ಬ್ಯಾಕಪ್ ಖಾತೆ</string>
+    <string name="search_hint_text">ಹುಡುಕಿ...</string>
+    <string name="is_typing">ಅವರು ಟೈಪ್ ಮಾಡುತ್ತಿದ್ದಾರೆ...</string>
+    <string name="are_typing">ಅವರುಗಳು ಟೈಪ್ ಮಾಡುತ್ತಿದ್ದಾರೆ...</string>
+    <string name="you_chat_bg_changed">ನೀವು ಚಾಟ್ ಹೆಸರನ್ನು ಬದಲಾಯಿಸಿದ್ದೀರಿ</string>
+    <string name="hike_keyboard">Hike ಕೀಬೋರ್ಡ್</string>
+    <string name="system_keyboard">ಸಿಸ್ಟಂ ಕೀಬೋರ್ಡ್</string>
+    <string name="you_xyz_posted_pin">ನೀವು ಪಿನ್ ಪೋಸ್ಟ್ ಮಾಡಿದ್ದೀರಿ</string>
+    <string name="voip_hang_up">ಹ್ಯಾಂಗ್ ಅಪ್</string>
+    <string name="voip_decline">ನಿರಾಕರಿಸಿ</string>
+    <string name="voip_accept">ಒಪ್ಪಿ</string>
+    <string name="you_group_member_added">ನೀವು %1$s ಅವರನ್ನು ಸೇರಿಸಿದ್ದೀರಿ</string>
+    <string name="you_added_as_group_member">%1$s ನಿಮ್ಮನ್ನು ಸೇರಿಸಿದ್ದಾರೆ</string>
+    <string name="group_member_added">%1$s ಅವರು %2$s ಅವರನ್ನು ಸೇರಿಸಿದ್ದಾರೆ</string>
+    <string name="you_updated_group_admin">ನೀವು %1$s ಅವರನ್ನು ಅಡ್ಮಿನ್ ಆಗಿ ಮಾಡಿದ್ದೀರಿ</string>
+    <string name="group_admin_updated_you">%1$s ಅವರು ನಿಮ್ಮನ್ನು ಅಡ್ಮಿನ್ ಆಗಿ ಮಾಡಿದ್ದಾರೆ</string>
+    <string name="group_admin_updated">%1$s ಅವರು %2$s ಅವರನ್ನು ಅಡ್ಮಿನ್ ಆಗಿ ಮಾಡಿದ್ದಾರೆ</string>
+    <string name="no_results_found">ಯಾವುದೇ ಫಲಿತಾಂಶಗಳು ಕಂಡುಬಂದಿಲ್ಲ</string>
+    <string name="APPLY">ಅನ್ವಯಿಸು</string>
+    <string name="level">ಮಟ್ಟ</string>
+    <string name="milliseconds">ಮಿಸೆ</string>
+    <string name="and"> ಮತ್ತು </string>
+    <string name="contact_name">ಸಂಪರ್ಕ ಹೆಸರು</string>
+    <string name="mobile">ಮೊಬೈಲ್</string>
+    <string name="your_contact">ನಿಮ್ಮ ಸಂಪರ್ಕ</string>
 </resources>
