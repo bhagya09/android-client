@@ -492,7 +492,9 @@ public class AnalyticsConstants
 		public static final String MISSED = "miss";
 	
 		public static final String CLIPBOARD = "clip";
-		
+
+		public static final String SMS = "sms";
+
 		public static final String RECEIVED = "rcv";
 		
 		public static final String DIALED = "dial";
