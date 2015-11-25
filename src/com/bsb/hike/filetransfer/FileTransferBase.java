@@ -28,6 +28,7 @@ import android.os.Handler;
 
 import com.bsb.hike.HikeConstants.FTResult;
 import com.bsb.hike.filetransfer.FileTransferManager.NetworkType;
+import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.modules.httpmgr.HttpManager;
 import com.bsb.hike.modules.httpmgr.hikehttp.hostnameverifier.HikeHostNameVerifier;
@@ -85,7 +86,7 @@ public abstract class FileTransferBase implements Callable<FTResult>
 
 	protected int progressPercentage;
 
-	protected Object userContext = null;
+	protected ConvMessage userContext = null;
 
 	protected Context context;
 

@@ -614,12 +614,17 @@ public class FileSelectActivity extends HikeAppStateBaseFragmentActivity impleme
 		currentDir = null;
 		items.clear();
 		String extStorage = Environment.getExternalStorageDirectory().getAbsolutePath();
-		FileListItem ext = new FileListItem();
-		ext.setTitle(getString(!Utils.hasGingerbread() || Environment.isExternalStorageRemovable() ? R.string.sd_card : R.string.internal_storage));
-		ext.setIcon(R.drawable.ic_folder);
-		ext.setSubtitle(getRootSubtitle(extStorage));
-		ext.setFile(Environment.getExternalStorageDirectory());
-		items.add(ext);
+		try {
+			FileListItem ext = new FileListItem();
+			ext.setTitle(getString(!Utils.hasGingerbread() || Environment.isExternalStorageRemovable() ? R.string.sd_card : R.string.internal_storage));
+			ext.setIcon(R.drawable.ic_folder);
+			ext.setSubtitle(getRootSubtitle(extStorage));
+			ext.setFile(Environment.getExternalStorageDirectory());
+			items.add(ext);
+		}
+		catch(Exception e) {
+			Logger.e(getClass().getSimpleName(), "Exception while showing root", e);
+		}
 		try
 		{
 			BufferedReader reader = new BufferedReader(new FileReader("/proc/mounts"));

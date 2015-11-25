@@ -35,6 +35,7 @@ import android.media.AudioTrack;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.media.SoundPool;
+import android.media.audiofx.AutomaticGainControl;
 import android.net.Uri;
 import android.os.Binder;
 import android.os.Bundle;
@@ -56,6 +57,8 @@ import android.widget.Chronometer;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.HikePubSub;
+import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.notifications.HikeNotification;
@@ -63,7 +66,6 @@ import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.voip.VoIPClient.ConnectionMethods;
-import com.bsb.hike.voip.VoIPConstants.CallQuality;
 import com.bsb.hike.voip.VoIPConstants.CallStatus;
 import com.bsb.hike.voip.VoIPDataPacket.BroadcastListItem;
 import com.bsb.hike.voip.VoIPDataPacket.PacketType;
@@ -71,7 +73,8 @@ import com.bsb.hike.voip.VoIPUtils.CallSource;
 import com.bsb.hike.voip.view.VoIPActivity;
 import com.musicg.dsp.Resampler;
 
-public class VoIPService extends Service {
+public class VoIPService extends Service implements Listener
+{
 	
 	private final IBinder myBinder = new LocalBinder();
 	private static final int NOTIFICATION_IDENTIFIER = 10;
@@ -84,8 +87,8 @@ public class VoIPService extends Service {
 	private int minBufSizePlayback, minBufSizeRecording;
 	private AudioTrack audioTrack = null;
 	private static int callId = 0;
-	private NotificationManager notificationManager;
-	private NotificationCompat.Builder builder;
+//	private NotificationManager notificationManager;
+//	private NotificationCompat.Builder builder;
 	private AudioManager audioManager;
 	private int initialAudioMode;
 	private boolean initialSpeakerMode;
@@ -157,6 +160,9 @@ public class VoIPService extends Service {
 	private Chronometer chronometer = null;
 	private String groupChatMsisdn; 
 	private DatagramSocket broadcastSocket = null;
+	
+	// Listener for declining call with a message
+	String pubSubListeners[] = {HikePubSub.REJECT_INCOMING_CALL};
 
 	// Bluetooth 
 	private boolean isBluetoothEnabled = false;
@@ -194,7 +200,7 @@ public class VoIPService extends Service {
 			Logger.d(tag, "Bluetooth onScoAudioConnected()");
 			audioManager.startBluetoothSco();
 			audioManager.setBluetoothScoOn(true);
-			sendHandlerMessage(VoIPConstants.MSG_BLUETOOTH_SHOW);
+			sendMessageToActivity(VoIPConstants.MSG_BLUETOOTH_SHOW);
 		}
 	}
 	
@@ -263,14 +269,14 @@ public class VoIPService extends Service {
 					}).start();
 				}
 					
-				sendHandlerMessage(VoIPConstants.CONNECTION_ESTABLISHED_FIRST_TIME);
+				sendMessageToActivity(VoIPConstants.CONNECTION_ESTABLISHED_FIRST_TIME);
 				break;
 
 			case VoIPConstants.MSG_UPDATE_REMOTE_HOLD:
 				if (client == null)
 					return;
 				client.setCallStatus(!hold && !client.remoteHold ? VoIPConstants.CallStatus.ACTIVE : VoIPConstants.CallStatus.ON_HOLD);
-				sendHandlerMessage(VoIPConstants.MSG_UPDATE_REMOTE_HOLD);
+				sendMessageToActivity(VoIPConstants.MSG_UPDATE_REMOTE_HOLD);
 				break;
 
 			case VoIPConstants.MSG_START_RECORDING_AND_PLAYBACK:
@@ -307,14 +313,7 @@ public class VoIPService extends Service {
 			case VoIPConstants.MSG_UPDATE_SPEAKING:
 				if (hostingConference())
 					sendClientsListToAllClients();
-				sendHandlerMessage(VoIPConstants.MSG_UPDATE_SPEAKING);
-				break;
-				
-			case VoIPConstants.MSG_UPDATE_QUALITY:
-				// Do not show quality if we're hosting a conference
-				if (hostingConference())
-					return;
-				sendHandlerMessage(VoIPConstants.MSG_UPDATE_QUALITY);
+				sendMessageToActivity(VoIPConstants.MSG_UPDATE_SPEAKING);
 				break;
 				
 			case VoIPConstants.MSG_UPDATE_FORCE_MUTE_LAYOUT:
@@ -326,7 +325,6 @@ public class VoIPService extends Service {
 					if (forceMute == true) {
 						setMute(forceMute);
 					} 
-					
 					// Text to speech
 					if (recordingAndPlaybackRunning) {
 						if (forceMute == true) 
@@ -335,12 +333,18 @@ public class VoIPService extends Service {
 							tts.speak(getString(R.string.voip_speech_force_mute_off), TextToSpeech.QUEUE_FLUSH, null);
 					}
 
-					sendHandlerMessage(VoIPConstants.MSG_UPDATE_FORCE_MUTE_LAYOUT);
+					sendMessageToActivity(VoIPConstants.MSG_UPDATE_FORCE_MUTE_LAYOUT);
 				}
+				break;
+				
+			case VoIPConstants.MSG_PARTNER_ANSWER_TIMEOUT:
+				hangUp();
+				sendMessageToActivity(VoIPConstants.MSG_PARTNER_ANSWER_TIMEOUT);
+				break;
 				
 			default:
 				// Pass message to activity through its handler
-				sendHandlerMessage(msg.what);
+				sendMessageToActivity(msg.what);
 				break;
 			}
 			super.handleMessage(msg);
@@ -397,11 +401,14 @@ public class VoIPService extends Service {
 
 		startConnectionTimeoutThread();
 		registerBroadcastReceivers();
+		HikeMessengerApp.getPubSub().addListeners(this, pubSubListeners);
+
 	}
 	
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
+		HikeMessengerApp.getPubSub().removeListeners(this, pubSubListeners);
 		stop();
 		dismissNotification();
 		unregisterBroadcastReceivers();
@@ -424,12 +431,14 @@ public class VoIPService extends Service {
 		
 		int returnInt = super.onStartCommand(intent, flags, startId);
 		
-		// Logger.d(logTag, "VoIPService onStartCommand()");
+		Logger.d(tag, "VoIPService onStartCommand()");
 
 		if (intent == null)
 			return returnInt;
 
 		String action = intent.getStringExtra(VoIPConstants.Extras.ACTION);
+//		Logger.w(tag, "VoIPService onStartCommand() action: " + action);
+		
 		final String msisdn = intent.getStringExtra(VoIPConstants.Extras.MSISDN);
 		if (action == null || action.isEmpty()) {
 			return returnInt;
@@ -442,6 +451,27 @@ public class VoIPService extends Service {
 			client.setPhoneNumber(msisdn);
 		}
 
+		// Notification button messages. 
+		// 1. Call Accept
+		if (action.equals(HikeConstants.MqttMessageTypes.VOIP_MSG_ACCEPT)) {
+			VoIPUtils.closeSystemDialogs(getApplicationContext());
+			sendMessageToActivity(VoIPConstants.MSG_ACCEPT_CALL);
+			restoreActivity();
+			return returnInt;
+		}
+		
+		// 2. Call Decline
+		if (action.equals(HikeConstants.MqttMessageTypes.VOIP_MSG_DECLINE)) {
+			declineIncomingCall();
+			return returnInt;
+		}
+		
+		// 3. Hang Up
+		if (action.equals(HikeConstants.MqttMessageTypes.VOIP_MSG_HANG_UP)) {
+			hangUp();
+			return returnInt;
+		}
+		
 		// Call rejection message
 		if (action.equals(HikeConstants.MqttMessageTypes.VOIP_CALL_CANCELLED)) {
 			Logger.d(tag, "Call cancelled message from: " + msisdn);
@@ -460,7 +490,7 @@ public class VoIPService extends Service {
 				// Send message to voip activity
 				Bundle bundle = new Bundle();
 				bundle.putString(VoIPConstants.PARTNER_NAME, cl.getName());
-				sendHandlerMessage(VoIPConstants.MSG_DOES_NOT_SUPPORT_CONFERENCE, bundle);
+				sendMessageToActivity(VoIPConstants.MSG_DOES_NOT_SUPPORT_CONFERENCE, bundle);
 				cl.hangUp();
 			}
 		}
@@ -482,7 +512,7 @@ public class VoIPService extends Service {
 						// Send message to voip activity
 						Bundle bundle = new Bundle();
 						bundle.putString(VoIPConstants.MSISDN, msisdn);
-						sendHandlerMessage(VoIPConstants.MSG_PARTNER_BUSY, bundle);
+						sendMessageToActivity(VoIPConstants.MSG_PARTNER_BUSY, bundle);
 						removeFromClients(msisdn);
 					}
 				}, VoIPConstants.SERVICE_To_ACTIVITY_ERR_MESSAGE_DELAY);
@@ -502,7 +532,7 @@ public class VoIPService extends Service {
 					removeFromClients(msisdn);
 					final Bundle bundle = new Bundle();
 					bundle.putString(VoIPConstants.MSISDN, msisdn);
-					sendHandlerMessage(VoIPConstants.MSG_PARTNER_INCOMPATIBLE_PLATFORM, bundle);
+					sendMessageToActivity(VoIPConstants.MSG_PARTNER_INCOMPATIBLE_PLATFORM, bundle);
 				}
 			}, VoIPConstants.SERVICE_To_ACTIVITY_ERR_MESSAGE_DELAY);
 		}
@@ -519,7 +549,7 @@ public class VoIPService extends Service {
 					removeFromClients(msisdn);
 					Bundle bundle = new Bundle();
 					bundle.putString(VoIPConstants.MSISDN, msisdn);
-					sendHandlerMessage(VoIPConstants.MSG_PARTNER_UPGRADABLE_PLATFORM, bundle);
+					sendMessageToActivity(VoIPConstants.MSG_PARTNER_UPGRADABLE_PLATFORM, bundle);
 				}
 			}, VoIPConstants.SERVICE_To_ACTIVITY_ERR_MESSAGE_DELAY);
 		}
@@ -665,7 +695,7 @@ public class VoIPService extends Service {
 			if (VoIPUtils.isUserInCall(getApplicationContext())) 
 			{
 				Logger.w(tag, "We are already in a cellular call.");
-				sendHandlerMessage(VoIPConstants.MSG_ALREADY_IN_NATIVE_CALL);
+				sendMessageToActivity(VoIPConstants.MSG_ALREADY_IN_NATIVE_CALL);
 				if (client == null)	// In case of a group call
 					client = new VoIPClient(getApplicationContext(), null);
 				client.sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CONNECTION_FAILED, VoIPConstants.CallFailedCodes.CALLER_IN_NATIVE_CALL);
@@ -743,11 +773,11 @@ public class VoIPService extends Service {
 			
 			// Show activity
 			restoreActivity();
-			sendHandlerMessage(VoIPConstants.MSG_UPDATE_CONTACT_DETAILS);
+			sendMessageToActivity(VoIPConstants.MSG_UPDATE_CONTACT_DETAILS);
 			startBluetooth();
 			
 			if (clients.size() > 1)
-				sendHandlerMessage(VoIPConstants.MSG_UPDATE_FORCE_MUTE_LAYOUT);
+				sendMessageToActivity(VoIPConstants.MSG_UPDATE_FORCE_MUTE_LAYOUT);
 
 		}
 
@@ -937,77 +967,91 @@ public class VoIPService extends Service {
 		}
 	}
 	
+	/**
+	 * This function generates a persistent notification for an 
+	 * on-going VoIP call. Since the hike app dismisses all notifications
+	 * when it comes into the foreground, <b>and</b> we need to have a 
+	 * clock showing how long the VoIP call has been running for, this 
+	 * function must be called periodically (ideally every 1 second). 
+	 */
 	private void showNotification() {
-		
-//		Logger.d(logTag, "Showing notification..");
-		Intent myIntent = new Intent(getApplicationContext(), VoIPActivity.class);
-		myIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-		PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, myIntent, 0);
 
-		if (notificationManager == null)
-			notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-
-		if (builder == null) 
-			builder = new NotificationCompat.Builder(getApplicationContext());
-
+		// Check if we have an existing client
 		VoIPClient client = getClient();
 		if (client == null)
 			return;
-		
-		int callDuration = getCallDuration();
-		String durationString = (callDuration <= 0)? "" : String.format(Locale.getDefault(), " (%02d:%02d)", (callDuration / 60), (callDuration % 60));
 
+		// Generate the title of the notification
 		String title = null;
-		if (client.getName() == null)
+		if (hostingConference())
+			title = getString(R.string.voip_conference_call_notification_title); 
+		else if (client.getName() == null)
 			title = getString(R.string.voip_call_chat);
 		else
 			title = getString(R.string.voip_call_notification_title, client.getName()); 
-		
-		if (hostingConference())
-			title = getString(R.string.voip_conference_call_notification_title); 
-		
+
 		String text = null;
+		NotificationCompat.Builder builder = null;
+
+		// Generate the text and notification builder
 		switch (client.getCallStatus())
 		{
-			case ON_HOLD:
-				text = getString(R.string.voip_on_hold);
-				break;
+		case ON_HOLD:
+			text = getString(R.string.voip_on_hold);
+			builder = new NotificationCompat.Builder(getApplicationContext())
+			.addAction(R.drawable.ic_notifications_dismiss_call, getString(R.string.voip_hang_up), VoIPUtils.getPendingIntentForVoip(getApplicationContext(), 6, HikeConstants.MqttMessageTypes.VOIP_MSG_HANG_UP))
+			.setContentText(text);
+			break;
 
-			case OUTGOING_CONNECTING:
-			case OUTGOING_RINGING:
-				text = getString(R.string.voip_call_summary_outgoing);
-				break;
+		case OUTGOING_CONNECTING:
+		case OUTGOING_RINGING:
+			text = getString(R.string.voip_call_summary_outgoing);
+			builder = new NotificationCompat.Builder(getApplicationContext())
+			.addAction(R.drawable.ic_notifications_dismiss_call, getString(R.string.voip_hang_up), VoIPUtils.getPendingIntentForVoip(getApplicationContext(), 5, HikeConstants.MqttMessageTypes.VOIP_MSG_HANG_UP))
+			.setContentText(text);
+			break;
 
-			case INCOMING_CALL:
-				text = getString(R.string.voip_call_summary_incoming);
-				break;
+		case INCOMING_CALL:
+			text = getString(R.string.voip_call_summary_incoming);
+			builder = new NotificationCompat.Builder(getApplicationContext())
+			.addAction(R.drawable.ic_notifications_accept_call, getString(R.string.voip_accept), VoIPUtils.getPendingIntentForVoip(getApplicationContext(), 2, HikeConstants.MqttMessageTypes.VOIP_MSG_ACCEPT))
+			.addAction(R.drawable.ic_notifications_dismiss_call, getString(R.string.voip_decline), VoIPUtils.getPendingIntentForVoip(getApplicationContext(), 3, HikeConstants.MqttMessageTypes.VOIP_MSG_DECLINE))
+			.setContentText(text);
+			break;
 
-			case ACTIVE:
-			case RECONNECTING:
-			case PARTNER_BUSY:
-			case ENDED:
-				text = getString(R.string.voip_call_notification_text, durationString); 
-				break;
+		case ACTIVE:
+		case RECONNECTING:
+		case PARTNER_BUSY:
+		case ENDED:
+			int callDuration = getCallDuration();
+			String durationString = (callDuration <= 0) ? "" : String.format(Locale.getDefault(), " (%02d:%02d)", (callDuration / 60), (callDuration % 60));
+			text = getString(R.string.voip_call_notification_text, durationString); 
+			builder = new NotificationCompat.Builder(getApplicationContext())
+			.addAction(R.drawable.ic_notifications_dismiss_call, getString(R.string.voip_hang_up), VoIPUtils.getPendingIntentForVoip(getApplicationContext(), 4, HikeConstants.MqttMessageTypes.VOIP_MSG_HANG_UP))
+			.setContentText(text);
+			break;
 
-			case UNINITIALIZED:
-				return;
+		case UNINITIALIZED:
+			return;
 		default:
 			break;
 		}
 
+		Intent myIntent = new Intent(getApplicationContext(), VoIPActivity.class);
+		myIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+		PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, myIntent, 0);
+
 		Notification myNotification = builder
-		.setContentTitle(title)
-		.setContentText(text)
-		.setSmallIcon(HikeNotification.getInstance().returnSmallIcon())
-		.setColor(getResources().getColor(R.color.blue_hike_m))
-		.setContentIntent(pendingIntent)
-		.setOngoing(true)
-		.setAutoCancel(true)
-		.build();
-		
-		notificationManager.notify(null, NOTIFICATION_IDENTIFIER, myNotification);
-		
-//		VoIPUtils.showMemoryUsage(getApplicationContext());
+				.setContentTitle(title)
+				.setSmallIcon(HikeNotification.getInstance().returnSmallIcon())
+				.setColor(getResources().getColor(R.color.blue_hike_m))
+				.setContentIntent(pendingIntent)
+				.setOngoing(true)
+				.setAutoCancel(true)
+				.build();
+
+		NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+		notificationManager.notify(NOTIFICATION_IDENTIFIER, myNotification);
 	}
 
 	private VoIPClient getClient() {
@@ -1027,10 +1071,8 @@ public class VoIPService extends Service {
 
 	public void dismissNotification() {
 		// Dismiss notification
-		if (notificationManager != null) {
-			Logger.d(tag, "Removing notification..");
-			notificationManager.cancel(NOTIFICATION_IDENTIFIER);
-		}
+		Logger.d(tag, "Removing notification..");
+		HikeNotification.getInstance().cancelNotification(NOTIFICATION_IDENTIFIER);
 	}
 	
 	private void initAudioManager() {
@@ -1221,7 +1263,7 @@ public class VoIPService extends Service {
 			bundle.putBoolean(VoIPConstants.IS_CONFERENCE, hostingConference() || clientPartner.isHostingConference);
 		}
 		
-		sendHandlerMessage(VoIPConstants.MSG_SHUTDOWN_ACTIVITY, bundle);
+		sendMessageToActivity(VoIPConstants.MSG_SHUTDOWN_ACTIVITY, bundle);
 
 		synchronized (clients) {
 			for (VoIPClient client : clients.values())
@@ -1345,11 +1387,11 @@ public class VoIPService extends Service {
 		return hostForceMute;
 	}
 	
-	private void sendHandlerMessage(int message) {
-		sendHandlerMessage(message, null);
+	private void sendMessageToActivity(int message) {
+		sendMessageToActivity(message, null);
 	}
 
-	private void sendHandlerMessage(int message, Bundle bundle) {
+	private void sendMessageToActivity(int message, Bundle bundle) {
 		Message msg = Message.obtain();
 		msg.what = message;
 		msg.setData(bundle);
@@ -1361,7 +1403,7 @@ public class VoIPService extends Service {
 		}
 	}
 
-	public void rejectIncomingCall() {
+	public void declineIncomingCall() {
 		
 		final VoIPClient client = getClient();
 		if (client == null) return;
@@ -1423,7 +1465,7 @@ public class VoIPService extends Service {
 		stopFromSoundPool(ringtoneStreamID);
 		isRingingOutgoing = isRingingIncoming = false;
 		playFromSoundPool(SOUND_ACCEPT, false);
-		sendHandlerMessage(VoIPConstants.MSG_AUDIO_START);
+		sendMessageToActivity(VoIPConstants.MSG_AUDIO_START);
 
 		if (recordingAndPlaybackRunning == false) {
 			recordingAndPlaybackRunning = true;
@@ -1436,7 +1478,7 @@ public class VoIPService extends Service {
 		}
 		
 		if (hostingConference()) {
-			sendHandlerMessage(VoIPConstants.MSG_UPDATE_SPEAKING);
+			sendMessageToActivity(VoIPConstants.MSG_UPDATE_SPEAKING);
 			sendClientsListToAllClients();
 		}
 	}
@@ -1510,8 +1552,20 @@ public class VoIPService extends Service {
 				
 				if (recorder == null || recorder.getState() != AudioRecord.STATE_INITIALIZED) {
 					Logger.e(tag, "AudioRecord initialization failed. Mic may not work.");
-					sendHandlerMessage(VoIPConstants.MSG_AUDIORECORD_FAILURE);
+					sendMessageToActivity(VoIPConstants.MSG_AUDIORECORD_FAILURE);
 					return;
+				}
+				
+				// Attach AGC
+				if (Utils.isJellybeanOrHigher()) {
+					if (AutomaticGainControl.isAvailable()) {
+						AutomaticGainControl agc = AutomaticGainControl.create(recorder.getAudioSessionId());
+						if (agc != null) {
+							Logger.w(VoIPConstants.TAG, "Initial AGC status: " + agc.getEnabled());
+							agc.setEnabled(true);
+						}
+					} else
+						Logger.w(tag, "AGC not available.");
 				}
 				
 				// Start processing recorded data
@@ -1758,103 +1812,107 @@ public class VoIPService extends Service {
 			
 			@Override
 			public void run() {
-				android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_URGENT_AUDIO);
+				try {
+					android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_URGENT_AUDIO);
 
-				if (keepRunning) {
+					if (keepRunning) {
 
-					// Retrieve decoded samples from all clients and combine into one for playback
-					VoIPDataPacket finalDecodedSample = null;
-					synchronized (clients) {
-						for (VoIPClient client : clients.values()) {
-							VoIPDataPacket dp = client.getDecodedBuffer();
-							if (dp != null) {
-								if (hostingConference())
-									clientSample.put(client.getPhoneNumber(), dp.getData());
-
-								if (finalDecodedSample == null)
-									finalDecodedSample = dp;
-								else {
-									// We have to combine samples
-									finalDecodedSample.setData(VoIPUtils.addPCMSamples(finalDecodedSample.getData(), dp.getData()));
-								}
-							} 
-						}
-					}
-
-					// Quality tracking, and buffer underrun protection
-					try {
-						if (finalDecodedSample == null) {
-							// Logger.d(logTag, "Decoded samples underrun. Adding silence.");
-							finalDecodedSample = silentPacket;
-						} 
-
-						// Add to our decoded samples queue for playback
-						if (!hold) {
-							if (playbackBuffersQueue.size() < VoIPConstants.MAX_SAMPLES_BUFFER)
-								playbackBuffersQueue.put(finalDecodedSample);
-							else
-								Logger.w(tag, "Playback buffers queue full.");
-						}
-
-					} catch (InterruptedException e) {
-						Logger.e(tag, "InterruptedException while adding playback sample: " + e.toString());
-					}
-
-					// If we are in conference, then add our own recorded signal as well.
-					// Broadcast this signal to all clients, except for the ones that are speaking.
-					// If someone is speaking, we need to send them a custom stream without their voice signal.
-					
-					if (hostingConference()) {
-						VoIPDataPacket dp = processedRecordedSamples.poll();
-						byte[] conferencePCM = null;
-						if (dp != null) {
-							conferencePCM = VoIPUtils.addPCMSamples(finalDecodedSample.getData(), dp.getData());
-							dp.setData(conferencePCM);
-						}
-						else {
-							dp = new VoIPDataPacket(PacketType.AUDIO_PACKET);
-							conferencePCM = finalDecodedSample.getData();	// Host is probably on mute
-							dp.setData(conferencePCM);
-						}
-
-						// This is the broadcast
-						conferenceBroadcastPackets.add(dp);
-
+						// Retrieve decoded samples from all clients and combine into one for playback
+						VoIPDataPacket finalDecodedSample = null;
 						synchronized (clients) {
 							for (VoIPClient client : clients.values()) {
-								if (!client.isSpeaking() || !client.connected)
-									continue;
+								VoIPDataPacket dp = client.getDecodedBuffer();
+								if (dp != null) {
+									if (hostingConference())
+										clientSample.put(client.getPhoneNumber(), dp.getData());
 
-								// Custom streams
-								VoIPDataPacket clientDp = new VoIPDataPacket();
-								byte[] origPCM = clientSample.get(client.getPhoneNumber());
-								byte[] newPCM = null;
-								if (origPCM == null) {
-									newPCM = conferencePCM;
-								} else {
-									newPCM = VoIPUtils.subtractPCMSamples(conferencePCM, origPCM);
-								}
-								clientDp.setData(newPCM);
-								clientDp.setVoice(true);
-								client.addSampleToEncode(clientDp); 
+									if (finalDecodedSample == null)
+										finalDecodedSample = dp;
+									else {
+										// We have to combine samples
+										finalDecodedSample.setData(VoIPUtils.addPCMSamples(finalDecodedSample.getData(), dp.getData()));
+									}
+								} 
 							}
 						}
+
+						// Quality tracking, and buffer underrun protection
+						try {
+							if (finalDecodedSample == null) {
+								// Logger.d(logTag, "Decoded samples underrun. Adding silence.");
+								finalDecodedSample = silentPacket;
+							} 
+
+							// Add to our decoded samples queue for playback
+							if (!hold) {
+								if (playbackBuffersQueue.size() < VoIPConstants.MAX_SAMPLES_BUFFER)
+									playbackBuffersQueue.put(finalDecodedSample);
+								else
+									Logger.w(tag, "Playback buffers queue full.");
+							}
+
+						} catch (InterruptedException e) {
+							Logger.e(tag, "InterruptedException while adding playback sample: " + e.toString());
+						}
+
+						// If we are in conference, then add our own recorded signal as well.
+						// Broadcast this signal to all clients, except for the ones that are speaking.
+						// If someone is speaking, we need to send them a custom stream without their voice signal.
+						
+						if (hostingConference()) {
+							VoIPDataPacket dp = processedRecordedSamples.poll();
+							byte[] conferencePCM = null;
+							if (dp != null) {
+								conferencePCM = VoIPUtils.addPCMSamples(finalDecodedSample.getData(), dp.getData());
+								dp.setData(conferencePCM);
+							}
+							else {
+								dp = new VoIPDataPacket(PacketType.AUDIO_PACKET);
+								conferencePCM = finalDecodedSample.getData();	// Host is probably on mute
+								dp.setData(conferencePCM);
+							}
+
+							// This is the broadcast
+							conferenceBroadcastPackets.add(dp);
+
+							synchronized (clients) {
+								for (VoIPClient client : clients.values()) {
+									if (!client.isSpeaking() || !client.connected)
+										continue;
+
+									// Custom streams
+									VoIPDataPacket clientDp = new VoIPDataPacket();
+									byte[] origPCM = clientSample.get(client.getPhoneNumber());
+									byte[] newPCM = null;
+									if (origPCM == null) {
+										newPCM = conferencePCM;
+									} else {
+										newPCM = VoIPUtils.subtractPCMSamples(conferencePCM, origPCM);
+									}
+									clientDp.setData(newPCM);
+									clientDp.setVoice(true);
+									client.addSampleToEncode(clientDp); 
+								}
+							}
+						} else {
+							// We are in a one-to-one call, 
+							// so just send our recorded stream to the other client.
+							VoIPDataPacket dp = processedRecordedSamples.poll();
+							VoIPClient client = getClient();
+							if (dp != null && client != null)
+								client.addSampleToEncode(dp);
+						}
+
+						if (hostingConference())
+							clientSample.clear();
+
 					} else {
-						// We are in a one-to-one call, 
-						// so just send our recorded stream to the other client.
-						VoIPDataPacket dp = processedRecordedSamples.poll();
-						VoIPClient client = getClient();
-						if (dp != null && client != null)
-							client.addSampleToEncode(dp);
+						Logger.d(tag, "Shutting down decoded samples poller.");
+						scheduledFuture.cancel(true);
+						scheduledExecutorService.shutdownNow();
 					}
-
-					if (hostingConference())
-						clientSample.clear();
-
-				} else {
-					Logger.d(tag, "Shutting down decoded samples poller.");
-					scheduledFuture.cancel(true);
-					scheduledExecutorService.shutdownNow();
+				} catch (Exception e) {
+					Logger.w(tag, "Audio processor exception: " + e.toString());
 				}
 			}
 		}, 0, sleepTime, TimeUnit.MILLISECONDS);
@@ -1972,7 +2030,7 @@ public class VoIPService extends Service {
 		}
 
 		client.setCallStatus(!hold && !client.remoteHold ? VoIPConstants.CallStatus.ACTIVE : VoIPConstants.CallStatus.ON_HOLD);
-		sendHandlerMessage(VoIPConstants.MSG_UPDATE_CALL_BUTTONS);
+		sendMessageToActivity(VoIPConstants.MSG_UPDATE_CALL_BUTTONS);
 		
 		// Send hold status to partner
 		sendHoldStatus();
@@ -2016,12 +2074,6 @@ public class VoIPService extends Service {
 		if (audioManager != null)
 		{
 			audioManager.setSpeakerphoneOn(speaker);
-			
-			// Restart recording because the audio source will change 
-			// depending on whether we're on speakerphone or not. 
-			// Fixes Anirban's Nexus 5 bug where his mic works only on speakerphone.
-			if (isAudioRunning())
-				startRecording();
 		}
 		
 		// If we have swiched off the speaker and a bluetooth headset is connected
@@ -2061,7 +2113,7 @@ public class VoIPService extends Service {
 			ringtoneStreamID = playFromSoundPool(SOUND_INCOMING_RINGTONE, true);
 		}
 	}
-	
+
 	@SuppressWarnings("deprecation")
 	private void playIncomingCallRingtone() {
 
@@ -2069,10 +2121,7 @@ public class VoIPService extends Service {
 		if (client.reconnecting || client.audioStarted || keepRunning == false)
 			return;
 
-		// Close all system dialogs and/or the notification bar
-		Intent closeDiaogs = new Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS);
-		getApplicationContext().sendBroadcast(closeDiaogs);
-		
+		VoIPUtils.closeSystemDialogs(getApplicationContext());
 		synchronized (this) {
 			
 			if (isRingingIncoming == true)
@@ -2121,7 +2170,7 @@ public class VoIPService extends Service {
 		synchronized (this) {
 			// Stop ringtone if playing
 			try {
-				if (ringtone != null && ringtone.isPlaying())
+				if (ringtone != null)
 				{
 					ringtone.stop();
 					ringtone = null;
@@ -2177,20 +2226,6 @@ public class VoIPService extends Service {
 			client.sendAnalyticsEvent(ek, value);
 	}
 	
-	public CallQuality getQuality() {
-		
-		// Hard coded quality if hosting a conference. 
-		// Actual logic will need to be more complicated. 
-		if (hostingConference())
-			return CallQuality.GOOD;
-		
-		VoIPClient client = getClient();
-		if (client != null)
-			return client.getQuality();
-		else
-			return CallQuality.UNKNOWN;
-	}
-
 	public boolean isAudioRunning() {
 		return recordingAndPlaybackRunning;
 	}
@@ -2263,11 +2298,12 @@ public class VoIPService extends Service {
 		return num;
 	}
 	
+	@SuppressWarnings("unchecked")
 	public ArrayList<VoIPClient> getConferenceClients() {
 		if (hostingConference())
 			return new ArrayList<VoIPClient>(clients.values());
 		else {
-			return getClient().clientMsisdns;
+			return (ArrayList<VoIPClient>) getClient().clientMsisdns.clone();
 		}
 	}
 	
@@ -2314,7 +2350,7 @@ public class VoIPService extends Service {
 					
 					@Override
 					public void run() {
-						sendHandlerMessage(VoIPConstants.MSG_UPDATE_CONTACT_DETAILS);
+						sendMessageToActivity(VoIPConstants.MSG_UPDATE_CONTACT_DETAILS);
 						synchronized (clients) {
 
 							try {
@@ -2448,6 +2484,12 @@ public class VoIPService extends Service {
 	public void processErrorIntent(String action, String msisdn) {
 		Logger.w(tag, msisdn + " returned an error message: " + action);
 	}
-	
+
+	@Override
+	public void onEventReceived(String type, Object object) 
+	{
+		if(HikePubSub.REJECT_INCOMING_CALL.equals(type))
+			declineIncomingCall();
+	}
 }
 

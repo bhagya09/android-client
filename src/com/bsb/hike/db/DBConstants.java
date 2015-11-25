@@ -4,7 +4,7 @@ import com.bsb.hike.models.ContactInfo.FavoriteType;
 
 public interface DBConstants
 {
-	public static final int CONVERSATIONS_DATABASE_VERSION = 46;
+	public static final int CONVERSATIONS_DATABASE_VERSION = 47;
 
 	public static final int USERS_DATABASE_VERSION = 17;
 
@@ -463,5 +463,16 @@ public interface DBConstants
 	 * Introduced in ConvDb v44, this column will be used henceforth for sorting the messages pertaining to a single conversation
 	 */
 	public static final String SORTING_ID = "sortingId";
+
+	/**
+	 * Introduced in db version 47, this index is used for optimizing the query for fetching messages from messages table. This index consists of msisdn and sortId
+	 */
+	public static final String SORT_ID_COMPOSITE_IDX = "srtIdx";
+
+	/**
+	 * Introduced in db version 47, this index is used for optimizing the query for fetching max value of sortId from messages table. The max query is used frequently, hence the need for index
+	 */
+
+	public static final String SORT_ID_SINGLE_IDX = "srt_Index";
 	
 }

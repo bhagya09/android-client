@@ -530,7 +530,7 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 						{
 							finishProgress();
 							Bundle bundle = new Bundle();
-							bundle.putString(HikeConstants.Extras.IMAGE_PATH, f.getAbsolutePath());
+							bundle.putString(HikeCropActivity.SOURCE_IMAGE_PATH, f.getAbsolutePath());
 							if(hasDelegateActivities())
 							{
 								launchNextDelegateActivity(bundle);

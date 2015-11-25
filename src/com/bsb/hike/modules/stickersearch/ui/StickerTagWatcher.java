@@ -76,7 +76,7 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 	{
 		Logger.i(TAG, "Initialising sticker tag watcher...");
 
-		MAXIMUM_SEARCH_TEXT_BROKER_LIMIT = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STICKER_TAG_MAXIMUM_SEARCH_TEXT_LIMIT_BROKER,
+		MAXIMUM_SEARCH_TEXT_BROKER_LIMIT = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_TAG_MAXIMUM_SEARCH_TEXT_LIMIT_BROKER,
 				StickerSearchConstants.MAXIMUM_SEARCH_TEXT_BROKER_LIMIT);
 
 		this.activity = activity;

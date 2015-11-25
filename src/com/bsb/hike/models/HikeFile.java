@@ -23,6 +23,7 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.BitmapModule.RecyclingBitmapDrawable;
+import com.bsb.hike.filetransfer.FTAnalyticEvents;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
@@ -194,7 +195,9 @@ public class HikeFile
 	{
 		metadata = new HikeFileMetadata();
 	}
-	
+
+	private int attachmentType = -1;
+
 	public HikeFile(JSONObject fileJSON, boolean isSent)
 	{
 		this();
@@ -231,6 +234,10 @@ public class HikeFile
 		{
 			this.downloadURL = fileJSON.optString(HikeConstants.DOWNLOAD_FILE_URL_KEY);
 		}
+		if(fileJSON.has(FTAnalyticEvents.FT_ATTACHEMENT_TYPE))
+		{
+			this.attachmentType = fileJSON.optInt(FTAnalyticEvents.FT_ATTACHEMENT_TYPE);
+		}
 		// this.file = TextUtils.isEmpty(this.fileKey) ? null : Utils
 		// .getOutputMediaFile(hikeFileType, fileName);
 	}
@@ -248,7 +255,8 @@ public class HikeFile
 		this.img_quality = img_quality;
 	}
 
-	public HikeFile(String fileName, String fileTypeString, String thumbnailString, Bitmap thumbnail, long recordingDuration, String source, long fileSize, boolean isSent, String img_quality)
+	public HikeFile(String fileName, String fileTypeString, String thumbnailString, Bitmap thumbnail, long recordingDuration, String source, long fileSize, boolean isSent,
+			String img_quality, int attachmentType)
 	{
 		this();
 		this.fileName = fileName;
@@ -261,6 +269,7 @@ public class HikeFile
 		this.isSent = isSent;
 		this.fileSize = fileSize;
 		this.img_quality = img_quality;
+		this.attachmentType = attachmentType;
 	}
 
 	public HikeFile(double latitude, double longitude, int zoomLevel, String address, String thumbnailString, Bitmap thumbnail, boolean isSent)
@@ -341,6 +350,10 @@ public class HikeFile
 			}
 			if(this.hikeFileType == HikeFileType.IMAGE && this.img_quality != null){
 				fileJSON.putOpt(HikeConstants.FILE_IMAGE_QUALITY, this.img_quality);
+			}
+			if(attachmentType != -1)
+			{
+				fileJSON.putOpt(FTAnalyticEvents.FT_ATTACHEMENT_TYPE, attachmentType);
 			}
 
 			return fileJSON;
@@ -460,6 +473,11 @@ public class HikeFile
 	public void setRecordingDuration(long recordingDuration)
 	{
 		this.recordingDuration = recordingDuration;
+	}
+
+	public int getAttachementType()
+	{
+		return this.attachmentType;
 	}
 
 	public boolean wasFileDownloaded()

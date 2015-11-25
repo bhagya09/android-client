@@ -1862,6 +1862,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 						fileHolder.avatarContainer = (ViewGroup) v.findViewById(R.id.avatar_container);
 						fileHolder.messageContainer = (ViewGroup) v.findViewById(R.id.message_container);
 						fileHolder.dayStub = (ViewStub) v.findViewById(R.id.day_stub);
+						fileHolder.senderDetails.getLayoutParams().width = context.getResources().getDisplayMetrics().widthPixels/2;
 						v.setTag(fileHolder);
 					}
 				}
@@ -2927,10 +2928,20 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			{
 				if (TextUtils.isEmpty(hikeFile.getFileKey()))
 				{
-					holder.ftAction.setImageResource(retryImage);
-					holder.ftAction.setContentDescription(context.getResources().getString(R.string.content_des_retry_file_download));
-					holder.ftAction.setVisibility(View.VISIBLE);
-					holder.circularProgressBg.setVisibility(View.VISIBLE);
+					if(FileTransferManager.getInstance(context).isFileTaskExist(msgId))
+					{
+						holder.ftAction.setImageResource(0);
+						holder.ftAction.setVisibility(View.VISIBLE);
+						holder.circularProgressBg.setVisibility(View.VISIBLE);
+						showTransferInitialization(holder, hikeFile);
+					}
+					else
+					{
+						holder.ftAction.setImageResource(retryImage);
+						holder.ftAction.setContentDescription(context.getResources().getString(R.string.content_des_retry_file_download));
+						holder.ftAction.setVisibility(View.VISIBLE);
+						holder.circularProgressBg.setVisibility(View.VISIBLE);
+					}
 				}
 				else if ((hikeFile.getHikeFileType() == HikeFileType.VIDEO) && !ext)
 				{
@@ -3560,7 +3571,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 					if ((hikeFile.getHikeFileType() == HikeFileType.LOCATION) || (hikeFile.getHikeFileType() == HikeFileType.CONTACT))
 					{
 						FileTransferManager.getInstance(context)
-								.uploadContactOrLocation(convMessage, (hikeFile.getHikeFileType() == HikeFileType.CONTACT), conversation.isOnHike());
+								.uploadContactOrLocation(convMessage, (hikeFile.getHikeFileType() == HikeFileType.CONTACT));
 					}
 					else
 					{
@@ -3573,7 +3584,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 						}
 						else if (fss.getFTState() != FTState.INITIALIZED)
 						{
-							FileTransferManager.getInstance(context).uploadFile(convMessage, conversation.isOnHike());
+							FileTransferManager.getInstance(context).uploadFile(convMessage, null);
 						}
 					}
 					notifyDataSetChanged();
@@ -4257,14 +4268,16 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 
 		if (statusMessage.hasMood())
 		{
-			statusHolder.image.setBackgroundDrawable(null);
-			statusHolder.image.setImageResource(EmoticonConstants.moodMapping.get(statusMessage.getMoodId()));
-			statusHolder.avatarFrame.setVisibility(View.GONE);
+                        // Begin : AND-2433
+		        statusHolder.avatarFrame.setImageResource(EmoticonConstants.moodMapping.get(statusMessage.getMoodId()));
+			statusHolder.avatarFrame.setVisibility(View.VISIBLE);
+			statusHolder.image.setVisibility(View.GONE);
+                        // End : AND-2433
 		}
 		else
 		{
 			setAvatar(conversation.getMsisdn(), statusHolder.image);
-			statusHolder.avatarFrame.setVisibility(View.VISIBLE);
+			statusHolder.avatarFrame.setVisibility(View.GONE); //AND-2433
 		}
 
 		statusHolder.container.setTag(convMessage);

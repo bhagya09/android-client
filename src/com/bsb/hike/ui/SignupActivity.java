@@ -251,6 +251,14 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 		public int height;
 	}
 
+        /* Empty onNewIntent is created so as to avoid overriding the existing intent of SignupActivity,
+           if we don't do this then SignupActivity will be launched as fresh i.e. requesting msisdn */
+	@Override
+	protected void onNewIntent(Intent intent)
+	{
+
+	}
+
 	@Override
 	public void onCreate(Bundle savedInstanceState)
 	{
@@ -2445,7 +2453,6 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 
 		case HikeConstants.ResultCodes.PHOTOS_REQUEST_CODE:
 			mActivityState.destFilePath = data.getStringExtra(HikeCropActivity.CROPPED_IMAGE_PATH);
-
 			if (mActivityState.destFilePath == null)
 			{
 				Toast.makeText(getApplicationContext(), R.string.error_setting_profile, Toast.LENGTH_SHORT).show();
@@ -2480,14 +2487,20 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 				HikeConstants.SIGNUP_PROFILE_IMAGE_DIMENSIONS, Bitmap.Config.RGB_565, true, false);
 
 		mActivityState.profileBitmap = HikeBitmapFactory.getCircularBitmap(tempBitmap);
+		
+		if (mActivityState.profileBitmap == null)
+		{
+			Toast.makeText(getApplicationContext(), R.string.image_failed, Toast.LENGTH_SHORT).show();
+			return;
+		}
+		
 		mIconView.setImageBitmap(mActivityState.profileBitmap);
 		mIconView.setBackgroundResource(R.color.transparent);
 		profilePicCamIcon.setImageResource(R.drawable.ic_edit_group);
 
-		tempBitmap.recycle();
 		tempBitmap = null;
 	}
-
+	
 	@Override
 	public void onEventReceived(String type, Object object)
 	{

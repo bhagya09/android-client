@@ -39,6 +39,7 @@ import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.validat
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getGroupBaseUrlForLinkSharing;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getBaseCodeGCAcceptUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getBotdiscoveryTableUrl;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.httpNetworkTestUrl;
 import static com.bsb.hike.modules.httpmgr.request.PriorityConstants.PRIORITY_HIGH;
 import static com.bsb.hike.modules.httpmgr.request.Request.REQUEST_TYPE_LONG;
 import static com.bsb.hike.modules.httpmgr.request.Request.REQUEST_TYPE_SHORT;
@@ -62,11 +63,13 @@ import com.bsb.hike.modules.httpmgr.interceptor.IRequestInterceptor;
 import com.bsb.hike.modules.httpmgr.interceptor.IResponseInterceptor;
 import com.bsb.hike.modules.httpmgr.request.ByteArrayRequest;
 import com.bsb.hike.modules.httpmgr.request.FileRequest;
+import com.bsb.hike.modules.httpmgr.request.FileRequestPersistent;
 import com.bsb.hike.modules.httpmgr.request.JSONArrayRequest;
 import com.bsb.hike.modules.httpmgr.request.JSONObjectRequest;
 import com.bsb.hike.modules.httpmgr.request.Request;
 import com.bsb.hike.modules.httpmgr.request.StringRequest;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
+import com.bsb.hike.modules.httpmgr.request.requestbody.ByteArrayBody;
 import com.bsb.hike.modules.httpmgr.request.requestbody.FileBody;
 import com.bsb.hike.modules.httpmgr.request.requestbody.IRequestBody;
 import com.bsb.hike.modules.httpmgr.request.requestbody.JsonBody;
@@ -76,9 +79,9 @@ import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.utils.AccountUtils;
+import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.Utils;
-import com.hike.transporter.utils.Logger;
 import com.squareup.okhttp.Headers;
 import com.squareup.okhttp.MediaType;
 import com.squareup.okhttp.MultipartBuilder;
@@ -270,11 +273,12 @@ public class HttpRequests
 				.setFile(filePath)
 				.setRequestListener(requestListener)
 				.setRetryPolicy(new BasicRetryPolicy(HikePlatformConstants.NUMBER_OF_RETRIES, HikePlatformConstants.RETRY_DELAY, HikePlatformConstants.BACK_OFF_MULTIPLIER))
+				.setHeaders(PlatformUtils.getHeaders())
 				.build();
 		return requestToken;
 	}
 
-	public static RequestToken getPlatformUserIdForFullAddressBookFetchRequest(String url, IRequestListener requestListener, List<Header> headers)
+	public static RequestToken getPlatformFetchRequest(String url, IRequestListener requestListener, List<Header> headers)
 	{
 		RequestToken requestToken = new JSONArrayRequest.Builder()
 				.setUrl(url)
@@ -325,6 +329,21 @@ public class HttpRequests
 				.setRetryPolicy(new BasicRetryPolicy(HikePlatformConstants.NUMBER_OF_RETRIES, HikePlatformConstants.RETRY_DELAY, HikePlatformConstants.BACK_OFF_MULTIPLIER))
 				.setRequestListener(requestListener)
 				.setRequestType(REQUEST_TYPE_SHORT)
+				.build();
+
+		return requestToken;
+	}
+
+	public static RequestToken postAnonymousNameFetchRequest(String url, IRequestListener requestListener, JSONObject json, List<Header> headers)
+	{
+
+		RequestToken requestToken = new JSONObjectRequest.Builder()
+				.setUrl(url)
+				.post(new JsonBody(json))
+				.setRetryPolicy(new BasicRetryPolicy(HikePlatformConstants.NUMBER_OF_RETRIES, HikePlatformConstants.RETRY_DELAY, HikePlatformConstants.BACK_OFF_MULTIPLIER))
+				.setRequestListener(requestListener)
+				.setRequestType(REQUEST_TYPE_SHORT)
+				.setHeaders(headers)
 				.build();
 
 		return requestToken;
@@ -860,5 +879,57 @@ public class HttpRequests
 		
 		return requestToken;
 	}
+	
+	
+	public static RequestToken platformZipDownloadRequestWithResume(String filePath, String stateFilePath, String url, IRequestListener requestListener, long startOffset,float progressDone)
+	{
+		List<Header> headers = new ArrayList<Header>(1);
+		headers.add(new Header(HttpHeaderConstants.RANGE, "bytes=" + startOffset + "-"));
+		RequestToken requestToken = new FileRequestPersistent.Builder()
+				.setUrl(url)
+				.setFile(filePath)
+				.setStateFilePath(stateFilePath)
+				.setRequestListener(requestListener)
+				.setHeaders(headers)
+				.addHeader(PlatformUtils.getHeaders())
+				.setCurrentPointer(startOffset)
+				.setInitialProgress(progressDone)
+				.setRetryPolicy(new BasicRetryPolicy(HikePlatformConstants.NUMBER_OF_RETRIES, HikePlatformConstants.RETRY_DELAY, HikePlatformConstants.BACK_OFF_MULTIPLIER))
+				.build();
+		return requestToken;
+	}
 
+	public static RequestToken uploadFileRequest(byte[] fileBytes, String boundry, IRequestListener requestListener, List<Header> headers, String url)
+	{
+		ByteArrayBody body = new ByteArrayBody("multipart/form-data; boundary=" + boundry, fileBytes);
+
+		RequestToken requestToken = new ByteArrayRequest.Builder()
+				.setUrl(url)
+				.setRequestType(Request.REQUEST_TYPE_LONG)
+				.setRequestListener(requestListener)
+				.addHeader(headers)
+				.post(body)
+				.setAsynchronous(false)
+				.setPriority(PRIORITY_HIGH)
+				.setRetryPolicy(new BasicRetryPolicy(0, 1, 1))
+				.build();
+		return requestToken;
+	}
+
+    /*
+     * this request is just for checking that internet is working but mqtt is unable to connect.
+     * we will send an async http call to server
+     */
+    public static RequestToken httpNetworkTestRequest(int errorCode)
+    {
+        RequestToken requestToken = new JSONObjectRequest.Builder()
+                .setUrl(httpNetworkTestUrl() + "/" + errorCode)
+                .setRequestType(REQUEST_TYPE_SHORT)
+                .setAsynchronous(true)
+                .setPriority(PRIORITY_HIGH)
+                .setRetryPolicy(new BasicRetryPolicy(0, 1, 1))
+                .build();
+        Logger.e("HikeHttpRequests", "Making http call to " + httpNetworkTestUrl().toString() + "/" + errorCode);
+        return requestToken;
+    }
 }

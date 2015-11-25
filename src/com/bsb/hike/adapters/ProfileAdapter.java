@@ -36,6 +36,7 @@ import com.bsb.hike.models.Conversation.BroadcastConversation;
 import com.bsb.hike.models.Conversation.OneToNConversation;
 import com.bsb.hike.models.Conversation.OneToNConversationMetadata;
 import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.offline.OfflineConstants;
 import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.smartImageLoader.IconLoader;
 import com.bsb.hike.smartImageLoader.ProfilePicImageLoader;
@@ -630,8 +631,8 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 				viewHolder.subText.setVisibility(View.GONE);
 			}
 
-			if(!mContactInfo.isOnhike() || !Utils.isVoipActivated(context) ||
-					OfflineUtils.isConnectedToSameMsisdn(mContactInfo.getMsisdn()))
+			if(!mContactInfo.isOnhike() || !Utils.isVoipActivated(context) || 
+					(OfflineUtils.isConnectedToSameMsisdn(mContactInfo.getMsisdn()) && !OfflineUtils.isFeautureAvailable(OfflineConstants.OFFLINE_VERSION_NUMER, OfflineUtils.getConnectedDeviceVersion(), OfflineConstants.VOIP_HIKE_DIRECT)))
 			{
 				viewHolder.phoneIcon.setVisibility(View.GONE);
 			}
