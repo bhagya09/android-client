@@ -82,6 +82,7 @@ import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.filetransfer.FTAnalyticEvents;
 import com.bsb.hike.http.HikeHttpRequest;
+import com.bsb.hike.localisation.LocalLanguageUtils;
 import com.bsb.hike.models.AccountData;
 import com.bsb.hike.models.AccountInfo;
 import com.bsb.hike.models.ContactInfo;
@@ -108,6 +109,7 @@ import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
+import com.bsb.hike.modules.kpt.KptKeyboardManager;
 import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.service.ConnectionChangeReceiver;
@@ -826,7 +828,7 @@ public class Utils
 
 		if (settings.getString(HikeMessengerApp.NAME_SETTING, null) == null)
 		{
-			activity.startActivity(new Intent(activity, SignupActivity.class));
+			IntentFactory.reopenSignupActivity(activity);
 			activity.finish();
 			return true;
 		}
@@ -843,7 +845,7 @@ public class Utils
 			}
 			else
 			{
-				activity.startActivity(new Intent(activity, SignupActivity.class));
+				IntentFactory.reopenSignupActivity(activity);
 				activity.finish();
 				return true;
 			}
@@ -1057,11 +1059,11 @@ public class Utils
 			JSONObject participant2 = (JSONObject) participantInfoArray.opt(1);
 			String name2 = convInfo.getConvParticipantName(participant2.optString(HikeConstants.MSISDN));
 
-			highlight += " and " + name2;
+			highlight += " " + context.getString(R.string.and)  + " "+ name2;
 		}
 		else if (participantInfoArray.length() > 2)
 		{
-			highlight += " and " + (participantInfoArray.length() - 1) + " others";
+			highlight += " " + context.getString(R.string.and) + " " + (participantInfoArray.length() - 1) + " " + context.getString(R.string.others_smallcase);
 		}
 		return highlight;
 	}
@@ -1080,11 +1082,11 @@ public class Utils
 			JSONObject participant2 = (JSONObject) participantInfoArray.opt(1);
 			String name2 = conversation.getConvParticipantFirstNameAndSurname(participant2.optString(HikeConstants.MSISDN));
 
-			highlight += " and " + name2;
+			highlight += " " + context.getString(R.string.and)  + " "+ name2;
 		}
 		else if (participantInfoArray.length() > 2)
 		{
-			highlight += " and " + (participantInfoArray.length() - 1) + " others";
+			highlight += " " + context.getString(R.string.and) + " " + (participantInfoArray.length() - 1) + " " + context.getString(R.string.others_smallcase);
 		}
 		return highlight;
 	}
@@ -3057,7 +3059,10 @@ public class Utils
 
 		try
 		{
-			data.put(HikeConstants.LOCALE, context.getResources().getConfiguration().locale.getLanguage());
+			data.put(HikeConstants.LOCALE, LocalLanguageUtils.getApplicationLocalLanguageLocale());
+			data.put(HikeConstants.DEVICE_LOCALE, LocalLanguageUtils.getDeviceDefaultLocale());
+			if (!HikeMessengerApp.isSystemKeyboard())
+				data.put(HikeConstants.CUSTOM_KEYBOARD_LOCALE, KptKeyboardManager.getInstance(context).getCurrentLanguageAddonItem().getlocaleName());
 			data.put(HikeConstants.MESSAGE_ID, Long.toString(System.currentTimeMillis() / 1000));
 
 			object.put(HikeConstants.TYPE, HikeConstants.MqttMessageTypes.ACCOUNT_CONFIG);
@@ -5534,12 +5539,12 @@ public class Utils
 				else if (givenCalendar.get(Calendar.YEAR) == currentCalendar.get(Calendar.YEAR))
 				{
 					// Show date in relative format. eg. 2 hours ago, yesterday, 2 days ago etc.
-					return DateUtils.getRelativeTimeSpanString(givenTimeStampInMillis, currentTime, DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_ABBREV_MONTH).toString();
+					return HikeDateUtils.getRelativeTimeSpanString(context, givenTimeStampInMillis, currentTime, DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_ABBREV_MONTH).toString();
 				}
 				else
 				{
 					// Shows date in numeric format
-					return DateUtils.getRelativeTimeSpanString(givenTimeStampInMillis, currentTime, DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_NUMERIC_DATE).toString();
+					return HikeDateUtils.getRelativeTimeSpanString(context, givenTimeStampInMillis, currentTime, DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_NUMERIC_DATE).toString();
 				}
 			}
 			else
@@ -5554,14 +5559,14 @@ public class Utils
 					else
 					{
 						// Show date in MMM dd format eg. Apr 21, May 13 etc.
-						return DateUtils.getRelativeTimeSpanString(givenTimeStampInMillis, currentTime, DateUtils.YEAR_IN_MILLIS,
+						return HikeDateUtils.getRelativeTimeSpanString(context, givenTimeStampInMillis, currentTime, DateUtils.YEAR_IN_MILLIS,
 								DateUtils.FORMAT_ABBREV_MONTH | DateUtils.FORMAT_SHOW_DATE).toString();
 					}
 				}
 				else
 				{
 					// Show date in numeric format
-					return DateUtils.getRelativeTimeSpanString(givenTimeStampInMillis, currentTime, DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_NUMERIC_DATE).toString();
+					return HikeDateUtils.getRelativeTimeSpanString(context, givenTimeStampInMillis, currentTime, DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_NUMERIC_DATE).toString();
 				}
 			}
 		}

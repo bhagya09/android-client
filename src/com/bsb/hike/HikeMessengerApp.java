@@ -24,6 +24,7 @@ import com.bsb.hike.chatHead.StickyCaller;
 import com.bsb.hike.db.DbConversationListener;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.db.HikeMqttPersistence;
+import com.bsb.hike.localisation.LocalLanguageUtils;
 import com.bsb.hike.models.TypingNotification;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.HttpManager;
@@ -503,6 +504,8 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 	
 	public static final String UPGRADE_SORTING_ID_FIELD = "upgradeForSortingIdField";
 
+	public static final String UPGRADE_LANG_ORDER = "upgradeLanguageOrder";
+
 	public static final String EXCEPTION_ANALYTIS_ENABLED = "exceptionAnalaticsEnabled";
 
 	public static final String MAX_REPLY_RETRY_NOTIF_COUNT = "maxReplyRetryNotifCount";
@@ -749,6 +752,7 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 
 		setupLocalLanguage();
 		KptKeyboardManager.getInstance(this);
+		LocalLanguageUtils.handleHikeSupportedListOrderChange(this);
 		Utils.setDensityMultiplier(getResources().getDisplayMetrics());
 
 		// first time or failed DB upgrade.
@@ -812,7 +816,7 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		// successfully.
 		if ((settings.getInt(HikeConstants.UPGRADE_AVATAR_CONV_DB, -1) == 1) || settings.getInt(HikeConstants.UPGRADE_MSG_HASH_GROUP_READBY, -1) == 1
 				|| settings.getInt(HikeConstants.UPGRADE_FOR_DATABASE_VERSION_28, -1) == 1 || settings.getInt(StickerManager.MOVED_HARDCODED_STICKERS_TO_SDCARD, 1) == 1
-				|| settings.getInt(StickerManager.UPGRADE_FOR_STICKER_SHOP_VERSION_1, 1) == 1 || settings.getInt(UPGRADE_FOR_SERVER_ID_FIELD, 0) == 1 || settings.getInt(UPGRADE_SORTING_ID_FIELD, 0) == 1 || TEST)
+				|| settings.getInt(StickerManager.UPGRADE_FOR_STICKER_SHOP_VERSION_1, 1) == 1 || settings.getInt(UPGRADE_FOR_SERVER_ID_FIELD, 0) == 1 || settings.getInt(UPGRADE_SORTING_ID_FIELD, 0) == 1 ||settings.getInt(UPGRADE_LANG_ORDER,0)==0|| TEST)
 		{
 			startUpdgradeIntent();
 		}
@@ -1206,9 +1210,22 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 	
 	public static boolean isSystemKeyboard()
 	{
-		boolean currentKbd = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SYSTEM_KEYBOARD_SELECTED, true);
-		Logger.d("keyboard", "Current keyboard : " + currentKbd);
-		return currentKbd;
+		return (!isCustomKeyboardEnabled() || HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SYSTEM_KEYBOARD_SELECTED, true));
+	}
+
+	public static boolean isCustomKeyboardEnabled()
+	{
+		return (
+				// server switch
+				HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CUSTOM_KEYBOARD_ENABLED, true)
+						// If localization is disabled in the app. Custom Keyboard is not to be used.
+						&& isLocalisationEnabled());
+	}
+
+	public static boolean isLocalisationEnabled()
+	{
+		// server switch
+		return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.LOCALIZATION_ENABLED, true);
 	}
 
 	@Override

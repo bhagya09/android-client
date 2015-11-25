@@ -930,8 +930,9 @@ import android.widget.Toast;
 			case R.string.email_chat:
 				overFlowMenuItem.enabled = !isMessageListEmpty;
 				break;
-			case R.string.change_keyboard:
+			case R.string.hike_keyboard:
 				overFlowMenuItem.enabled = !mConversation.isBlocked();
+				overFlowMenuItem.text=getString(isSystemKeyboard() ? R.string.hike_keyboard : R.string.system_keyboard);
 				break;
 			case R.string.hide_chat:
 				overFlowMenuItem.text = getString(StealthModeManager.getInstance().isActive() ? 
@@ -1042,7 +1043,7 @@ import android.widget.Toast;
 	{
 		switch (item.id)
 		{
-		case R.string.change_keyboard:
+		case R.string.hike_keyboard:
 			changeKbdClicked = true;
 			if (isSystemKeyboard() && isKeyboardOpen())
 			{
@@ -1111,14 +1112,31 @@ import android.widget.Toast;
 		};
 		Utils.executeAsyncTask(automateMessages);
 	}
-	
+
+	/**
+	 * //TODO
+	 * Please note here analytics event tag will change if language is changed since you are using
+	 * overflowmenu item 's text as key .This needs to be handled
+	 * @param item
+	 */
 	private void recordOverflowItemClicked(OverFlowMenuItem item)
 	{
 		String ITEM = "item";
+		String analytics = item.text;
+		//To track Analytics event for changing of keyboard even when language is changed since
+		//overflow menu item text was being converted to the local language and analytics key was being changed
+		if (item.text.equalsIgnoreCase(getString(R.string.hike_keyboard)) || item.text.equalsIgnoreCase(getString(R.string.system_keyboard)))
+		{
+			if (isSystemKeyboard())
+				analytics = HikeConstants.HIKE_KEYBOARD;
+			else
+				analytics = HikeConstants.SYSTEM_KEYBOARD;
+
+		}
 		try
 		{
 			JSONObject metadata = new JSONObject();
-			metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.CHAT_OVRFLW_ITEM).put(ITEM, item.text);
+			metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.CHAT_OVRFLW_ITEM).put(ITEM, analytics);
 			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
 		}
 		catch (JSONException e)
@@ -1143,13 +1161,17 @@ import android.widget.Toast;
 		initView();
 	}
 
-	protected OverFlowMenuItem[] getOverFlowMenuItems()
+	protected ArrayList<OverFlowMenuItem> getOverFlowMenuItems()
 	{
-		return new OverFlowMenuItem[] {
-				new OverFlowMenuItem(getString(R.string.hide_chat), 0, 0, R.string.hide_chat),
-				new OverFlowMenuItem(getString(R.string.clear_chat), 0, 0, true, R.string.clear_chat),
-				new OverFlowMenuItem(getString(R.string.email_chat), 0, 0, true, R.string.email_chat),
-				new OverFlowMenuItem(getString(R.string.change_keyboard), 0, 0, R.string.change_keyboard)};
+		ArrayList<OverFlowMenuItem> listOverFlow = new ArrayList<OverFlowMenuItem>();
+		listOverFlow.add(new OverFlowMenuItem(getString(R.string.hide_chat), 0, 0, R.string.hide_chat));
+		listOverFlow.add(new OverFlowMenuItem(getString(R.string.clear_chat), 0, 0, true, R.string.clear_chat));
+		listOverFlow.add(new OverFlowMenuItem(getString(R.string.email_chat), 0, 0, true, R.string.email_chat));
+		if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CHANGE_KEYBOARD_CHAT_ENABLED, true) && HikeMessengerApp.isCustomKeyboardEnabled())
+			listOverFlow.add(new OverFlowMenuItem(getString(isSystemKeyboard()?R.string.hike_keyboard:R.string.system_keyboard), 0, 0, R.string.hike_keyboard));
+
+		return listOverFlow;
+
 	}
 
 	protected void showOverflowMenu()
@@ -1607,6 +1629,7 @@ import android.widget.Toast;
 	public boolean onBackPressed()
 	{
 		mShareablePopupLayout.onBackPressed();
+		removeKeyboardFtueIfShowing();
 
 		if(handleImageFragmentBackPressed()){
 			return true;
@@ -1634,7 +1657,6 @@ import android.widget.Toast;
 			return true;
 		}
 		mCustomKeyboard.closeAnyDialogIfShowing();
-		removeKeyboardFtueIfShowing();
 
 		if (mActionMode.isActionModeOn())
 		{
@@ -1809,6 +1831,7 @@ import android.widget.Toast;
 	
 	protected void setupSearchMode(String text)
 	{
+		removeKeyboardFtueIfShowing();
 		searchText = text;
 		if (!sharedPreference.getData(HikeMessengerApp.CT_SEARCH_CLICKED, false))
 		{
@@ -2054,6 +2077,16 @@ import android.widget.Toast;
 		{
 			mComposeView = (CustomFontEditText) activity.findViewById(R.id.msg_compose);
 			mComposeView.requestFocus();
+			mComposeView.setOnClickListener(new OnClickListener()
+			{
+				@Override
+				public void onClick(View v)
+				{
+					if(isSystemKeyboard()){
+					Utils.showSoftKeyboard(mComposeView, InputMethodManager.SHOW_FORCED);
+					}
+				}
+			});
 			mComposeView.removeTextChangedListener(searchTextWatcher);
 			if (mEmoticonPicker != null)
 			{
@@ -2555,6 +2588,22 @@ import android.widget.Toast;
 		mComposeView.setOnKeyListener(this);
 
 		mComposeView.setSelectAllOnFocus(true);
+
+		mComposeView.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				if (!isSystemKeyboard())
+				{
+					mCustomKeyboard.showCustomKeyboard(mComposeView, true);
+				/*
+				 * This is an approximate height given by kpt until we get keyboard visibility call. The final height is set in onInputViewVisibility().
+				 * This calls is to avoid the seeming delay in appearance of edittext.
+				 */
+					KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, (keyboardHeight == 0) ? mCustomKeyboard.getKeyBoardAndCVHeight() : keyboardHeight);
+					showKeyboardFtueIfReady();
+				}
+			}
+		});
 	}
 
 	/*
@@ -3622,9 +3671,9 @@ import android.widget.Toast;
 		currentFirstVisibleItem = firstVisibleItem;
 	}
 
-	private void removeKeyboardFtueIfShowing()
+	protected void removeKeyboardFtueIfShowing()
 	{
-		if (keyboardFtue.isShowing())
+		if (keyboardFtue!=null && keyboardFtue.isShowing())
 			keyboardFtue.destroy();
 	}
 
@@ -3634,6 +3683,7 @@ import android.widget.Toast;
 		{
 			activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 			keyboardFtue.showNextFtue();
+			Utils.hideSoftKeyboard(activity, mComposeView);
 		}
 	}
 
@@ -3643,16 +3693,7 @@ import android.widget.Toast;
 		switch (v.getId())
 		{
 		case R.id.msg_compose:
-			if (!isSystemKeyboard())
-			{
-				mCustomKeyboard.showCustomKeyboard(mComposeView, true);
-				/*
-				 * This is an approximate height given by kpt until we get keyboard visibility call. The final height is set in onInputViewVisibility().
-				 * This calls is to avoid the seeming delay in appearance of edittext.
-				 */
-				KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, (keyboardHeight == 0) ? mCustomKeyboard.getKeyBoardAndCVHeight() : keyboardHeight);
-				showKeyboardFtueIfReady();
-			}
+
 			if(stickerTagWatcher != null)
 			{
 				stickerTagWatcher.onTouch(v, event);
@@ -5697,9 +5738,14 @@ import android.widget.Toast;
 			mCustomKeyboard.onConfigurationChanged(newConfig);
 			keyboardHeight = 0;
 		}
-		if (mShareablePopupLayout != null && mShareablePopupLayout.isShowing())
+
+		/* AND-3521: calling onConfigurationChange when mShareablePopupLayout is not null,
+		   so that bottomNavBar(width/height) can be updated according to orientation */
+		if (mShareablePopupLayout != null )
 		{
-			mShareablePopupLayout.dismiss();
+			if(mShareablePopupLayout.isShowing()) {
+				mShareablePopupLayout.dismiss();
+			}
 			mShareablePopupLayout.onConfigurationChanged();
 		}
 		
@@ -5978,7 +6024,6 @@ import android.widget.Toast;
 
 	protected void showOverlay(String label, String formatString, String overlayBtnText, SpannableString str, int drawableResId, int viewTag)
 	{
-		Utils.hideSoftKeyboard(activity.getApplicationContext(), mComposeView);
 		hideKeyboard();
 
 		View mOverlayLayout = activity.findViewById(R.id.overlay_layout);
@@ -6277,6 +6322,7 @@ import android.widget.Toast;
 		
 		if (systemKeyboard)
 		{
+			removeKeyboardFtueIfShowing();
 			hideKptKeyboard();
 			mCustomKeyboard.swtichToDefaultKeyboard(mComposeView);
 			mCustomKeyboard.unregister(R.id.msg_compose);

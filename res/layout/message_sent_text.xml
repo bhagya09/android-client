@@ -22,6 +22,7 @@
         android:layout_marginBottom="3dp"
         android:layout_marginRight="@dimen/chat_bubble_edge_spacing"
         android:layout_marginTop="3dp"
+        android:layout_marginLeft="10dp"
         android:background="@drawable/ic_bubble_green_selector"
         android:orientation="vertical"
         android:paddingLeft="12dp"
@@ -33,7 +34,6 @@
             android:layout_height="wrap_content"
             android:gravity="left"
             android:maxWidth="265dp"
-            android:text="This is the message(sent)"
             android:textColor="@color/chat_color"
             android:textSize="16sp" />
     </RelativeLayout>

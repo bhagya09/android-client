@@ -23,6 +23,7 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.MqttConstants;
 import com.bsb.hike.R;
+import com.bsb.hike.StringUtils;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfoData;
@@ -82,10 +83,7 @@ public class OneToNConversationUtils
 						participantAddedMessage = context.getString(
 								R.string.created_group_text, highlight);
 					}else{
-					    participantAddedMessage = adder
-								+ " "
-								+ context.getString(R.string.group_member_added,
-										highlight);
+						participantAddedMessage = String.format(context.getString(R.string.group_member_added), adder, highlight);
 					}
 				
 				}
@@ -98,7 +96,7 @@ public class OneToNConversationUtils
 					String adder = "";
 					if (groupAdder.equalsIgnoreCase(preferences.getString(
 							HikeMessengerApp.MSISDN_SETTING, ""))) {
-						adder = context.getString(R.string.you);
+						participantAddedMessage = String.format(context.getString(R.string.you_group_member_added), highlight);
 					} else {
 						if (groupAdder != null
 								&& groupAdder.trim().length() > 0) {
@@ -108,11 +106,8 @@ public class OneToNConversationUtils
 								adder = contact.getFirstNameAndSurname();
 							}
 						}
+						participantAddedMessage = String.format(context.getString(R.string.group_member_added), adder, highlight);
 					}
-					participantAddedMessage = adder
-							+ " "
-							+ context.getString(R.string.group_member_added,
-									highlight);
 				}
 			}
 		}
@@ -142,22 +137,23 @@ public class OneToNConversationUtils
 			}
 		
 			String adder = "";
-			if (groupAdder.equalsIgnoreCase(preferences.getString(
-					HikeMessengerApp.MSISDN_SETTING, ""))) {
+			if (groupAdder.equalsIgnoreCase(preferences.getString(HikeMessengerApp.MSISDN_SETTING, ""))) {
 				adder = context.getString(R.string.you);
+				participantAddedMessage = context.getString(R.string.you_updated_group_admin, highlight);
 			} else {
 				if (groupAdder != null && groupAdder.trim().length() > 0) {
 					ContactInfo contact = ContactManager.getInstance()
 							.getContact(groupAdder, true, false);
 					if (contact != null) {
 						adder = contact.getFirstNameAndSurname();
+						if(highlight.equalsIgnoreCase(context.getString(R.string.you).toLowerCase())){
+							participantAddedMessage = context.getString(R.string.group_admin_updated_you, adder);
+						}else{
+							participantAddedMessage = context.getString(R.string.group_admin_updated, adder, highlight);
+						}
 					}
 				}
 			}
-			participantAddedMessage = adder
-					+ " "
-					+ context
-							.getString(R.string.group_admin_updated, highlight);
 		}
 
 		return participantAddedMessage;
@@ -186,22 +182,18 @@ public class OneToNConversationUtils
 			}
 		
 			String adder = "";
-			if (groupAdder.equalsIgnoreCase(preferences.getString(
-					HikeMessengerApp.MSISDN_SETTING, ""))) {
-				adder = context.getString(R.string.you);
-				participantAddedMessage =  context
-								.getString(R.string.you_group_settings_updated, highlight);
-			} else {
-				if (groupAdder != null && groupAdder.trim().length() > 0) {
-					ContactInfo contact = ContactManager.getInstance()
-							.getContact(groupAdder, true, false);
-					if (contact != null) {
-						adder = contact.getFirstNameAndSurname();
-						participantAddedMessage = adder
-								+ " "
-								+ context
-										.getString(R.string.group_settings_updated);
-					}
+			//removing the 'You' adder in this case as the mailed chat will be sent to all users in the group
+			if (groupAdder != null && !TextUtils.isEmpty(groupAdder.trim()))
+			{
+				ContactInfo contact = ContactManager.getInstance()
+						.getContact(groupAdder, true, false);
+				if (contact != null) 
+				{
+					adder = contact.getFirstNameAndSurname();
+					participantAddedMessage = adder
+							+ " "
+							+ context
+									.getString(R.string.group_settings_updated);
 				}
 			}
 			
@@ -218,8 +210,16 @@ public class OneToNConversationUtils
 
 	public static String getConversationNameChangedMessage(String msisdn, Context context, String participantName)
 	{
-		String nameChangedMessage = String
-				.format(context.getString(isBroadcastConversation(msisdn) ? R.string.change_broadcast_name : R.string.change_group_name), participantName);
+		String nameChangedMessage;
+		String userMsisdn = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).getString(HikeMessengerApp.MSISDN_SETTING, "");
+		if (isBroadcastConversation(msisdn))
+		{
+			nameChangedMessage = StringUtils.getYouFormattedString(context, userMsisdn.equals(msisdn), R.string.you_change_broadcast_name, R.string.change_broadcast_name, participantName);
+		}
+		else
+		{
+			nameChangedMessage = StringUtils.getYouFormattedString(context, userMsisdn.equals(msisdn), R.string.you_change_group_name, R.string.change_group_name, participantName);
+		}
 		return nameChangedMessage;
 	}
 

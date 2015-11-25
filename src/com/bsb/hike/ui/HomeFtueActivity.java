@@ -52,7 +52,9 @@ public class HomeFtueActivity extends HikeAppStateBaseFragmentActivity {
     public static boolean isFtueToBeShown()
     {
         // Localized keyboard is for india users only. Other users still have setting but do not see the FTUE
-        if (!HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.LOCALIZATION_FTUE_COMPLETE, false) && HikeMessengerApp.isIndianUser())
+        // If custom keyboard is disabled no need to show the FTUE.
+        if (!HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.LOCALIZATION_FTUE_COMPLETE, false) && HikeMessengerApp.isIndianUser()
+                && HikeMessengerApp.isLocalisationEnabled())
         {
             return true;
         }
@@ -106,6 +108,7 @@ public class HomeFtueActivity extends HikeAppStateBaseFragmentActivity {
     private void completeFtue()
     {
         IntentFactory.openHomeActivity(HomeFtueActivity.this, true);
+        this.finish();
     }
 
     private void refreshActionBar() {

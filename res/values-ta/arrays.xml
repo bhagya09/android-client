@@ -80,4 +80,25 @@
                 
         <item>சுகவீனம்</item>
     </string-array>
+    
+    <array name="photos_actions_titles">
+       <item>புரொஃபைல் பிக்சராக செட் செய்க</item>
+       <item>தோழருக்கு அனுப்புக</item>
+       <item>டைம்லைன்-ல் அஞ்சல் செய்க</item>
+	</array>
+
+	<array name="call_glowpad_descr">
+       <item>தள்ளுபடி செய்</item>
+       <item>மெஸ்சேஜ்</item>
+       <item>பிக்அப்</item>
+       <item>@null</item>
+   </array>
+   
+   <array name="call_glowpad_directions">
+       <item>வலது</item>
+       <item>மேல்</item>
+       <item>இடது</item>
+       <item>@null</item>
+   </array>
+   
 </resources>

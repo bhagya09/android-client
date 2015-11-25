@@ -58,6 +58,8 @@ import com.bsb.hike.filetransfer.FileTransferManager;
 import com.bsb.hike.filetransfer.FileTransferManager.NetworkType;
 import com.bsb.hike.imageHttp.HikeImageDownloader;
 import com.bsb.hike.imageHttp.HikeImageWorker;
+import com.bsb.hike.localisation.LocalLanguage;
+import com.bsb.hike.localisation.LocalLanguageUtils;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.models.ConvMessage;
@@ -86,6 +88,7 @@ import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
+import com.bsb.hike.modules.kpt.KptKeyboardManager;
 import com.bsb.hike.modules.stickerdownloadmgr.SingleStickerDownloadTask;
 import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
@@ -2188,7 +2191,7 @@ public class MqttMessagesManager
 			}
 			
 			if (stickerWidgetJSONObj.has(HikeConstants.ChatHead.DISMISS_COUNT))
-			{	
+			{
 				int dismissCount = stickerWidgetJSONObj.getInt(HikeConstants.ChatHead.DISMISS_COUNT);
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.DISMISS_COUNT, dismissCount);
 			}
@@ -2392,11 +2395,8 @@ public class MqttMessagesManager
 		
 		if (data.has(HikeConstants.STICKER_RECOMMENDATION_ENABLED))
 		{
-			if(Utils.isHoneycombOrHigher())
-			{
-				boolean isStickerRecommendationEnabled = data.getBoolean(HikeConstants.STICKER_RECOMMENDATION_ENABLED);
-				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STICKER_RECOMMENDATION_ENABLED, isStickerRecommendationEnabled);
-			}
+			boolean isStickerRecommendationEnabled = data.getBoolean(HikeConstants.STICKER_RECOMMENDATION_ENABLED);
+			StickerManager.getInstance().toggleStickerRecommendation(isStickerRecommendationEnabled);
 		}
 
 		if (data.has(HikeConstants.STICKER_AUTO_RECOMMENDATION_ENABLED))
@@ -2633,9 +2633,26 @@ public class MqttMessagesManager
 		{
 			Utils.setSharedPrefValue(context, HikeConstants.ENABLE_KNOWN_NUMBER_CARD_PREF, data.optBoolean(HikeConstants.ENABLE_KNOWN_NUMBER_CARD_PREF, true));
 		}
-		if (data.has(StickyCaller.SHOW_FREECALL_VIEW))
+		if (data.has(StickyCaller.SHOW_FREECALL_BUTTON))
 		{
-			HikeSharedPreferenceUtil.getInstance().saveData(StickyCaller.SHOW_FREECALL_VIEW, data.optBoolean(StickyCaller.SHOW_FREECALL_VIEW, true));
+			HikeSharedPreferenceUtil.getInstance().saveData(StickyCaller.SHOW_FREECALL_BUTTON, data.optBoolean(StickyCaller.SHOW_FREECALL_BUTTON, true));
+		}
+		if (data.has(StickyCaller.SHOW_FREEMESSAGE_BUTTON))
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(StickyCaller.SHOW_FREEMESSAGE_BUTTON, data.optBoolean(StickyCaller.SHOW_FREEMESSAGE_BUTTON, true));
+		}
+		if(data.has(StickyCaller.SHOW_SMS_CARD_PREF))
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(StickyCaller.SHOW_SMS_CARD_PREF, data.optBoolean(StickyCaller.SHOW_SMS_CARD_PREF, false));
+		}
+		if (data.has(HikeConstants.SMS_CARD_ENABLE_PREF))
+		{
+			Utils.setSharedPrefValue(context, HikeConstants.SMS_CARD_ENABLE_PREF, data.optBoolean(HikeConstants.SMS_CARD_ENABLE_PREF, false));
+		}
+		if (data.has(StickyCaller.ENABLE_CLIPBOARD_CARD))
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(StickyCaller.ENABLE_CLIPBOARD_CARD, data.optBoolean(StickyCaller.ENABLE_CLIPBOARD_CARD, true));
+			ChatHeadUtils.registerOrUnregisterClipboardListener(context);
 		}
 		if (data.has(HikeConstants.BOT_TABLE_REFRESH))
 		{
@@ -2702,6 +2719,10 @@ public class MqttMessagesManager
 			boolean useApacheClient = data.getBoolean(HikeConstants.FT_USE_APACHE_HTTP_CLIENT);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.FT_USE_APACHE_HTTP_CLIENT, useApacheClient);
 		}
+		if (data.has(HikeConstants.CHANGE_KEYBOARD_CHAT_ENABLED))
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CHANGE_KEYBOARD_CHAT_ENABLED, data.optBoolean(HikeConstants.CHANGE_KEYBOARD_CHAT_ENABLED));
+		}
 		if (data.has(HikeConstants.NEW_CHAT_RED_DOT))
 		{
 			boolean shouldShowRedDot = data.optBoolean(HikeConstants.NEW_CHAT_RED_DOT);
@@ -2727,6 +2748,22 @@ public class MqttMessagesManager
 		{
 			String options = data.getJSONObject(OfflineConstants.HIKE_DIRECT_MENU_OPTIONS).toString();
 			HikeSharedPreferenceUtil.getInstance().saveData(OfflineConstants.HIKE_DIRECT_MENU_OPTIONS, options);
+		}
+		if (data.has(HikeConstants.LOCALIZATION_ENABLED))
+		{
+			boolean localizationEnabled = data.optBoolean(HikeConstants.LOCALIZATION_ENABLED);
+			if (!localizationEnabled)
+				LocalLanguageUtils.setApplicationLocalLanguage(LocalLanguage.PhoneLangauge);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.LOCALIZATION_ENABLED, localizationEnabled);
+		}
+		if (data.has(HikeConstants.AUTOCORRECT_KEYBOARD_ENABLED))
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.AUTOCORRECT_KEYBOARD_ENABLED, data.optBoolean(HikeConstants.AUTOCORRECT_KEYBOARD_ENABLED));
+			KptKeyboardManager.getInstance(HikeMessengerApp.getInstance().getApplicationContext()).getKptSettings().setAutoCorrectionState(data.optBoolean(HikeConstants.AUTOCORRECT_KEYBOARD_ENABLED) ? 0: 1);
+		}
+		if (data.has(HikeConstants.CUSTOM_KEYBOARD_ENABLED))
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CUSTOM_KEYBOARD_ENABLED,data.optBoolean(HikeConstants.CUSTOM_KEYBOARD_ENABLED));
 		}
 		
 		editor.commit();
@@ -3373,6 +3410,11 @@ public class MqttMessagesManager
 					bundle.putString(HikeConstants.Extras.STEALTH_PUSH_HEADER, header);
 					this.pubSub.publish(HikePubSub.STEALTH_POPUP_WITH_PUSH, bundle);
 				}
+			}
+			else
+			{
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STEALTH_INDICATOR_SHOW_ONCE, true);
+				HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_INDICATOR, null);
 			}
 		}
 		else if(subType.equals(HikeConstants.HOLI_POPUP))
