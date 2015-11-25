@@ -63,7 +63,7 @@ public class ShareablePopupLayout
 	{
 		if (mKeyboardPopupLayout == null)
 		{
-			if (HikeMessengerApp.keyboardApproach(context))
+			if (HikeMessengerApp.keyboardApproach(context) && HikeMessengerApp.isSystemKeyboard())
 			{
 				mKeyboardPopupLayout = (eatOuterTouchIds == null) ? new KeyboardPopupLayout21(mainView, firstTimeHeight, context, listener, onSoftKeyboardListener)
 						: new KeyboardPopupLayout21(mainView, firstTimeHeight, context, eatOuterTouchIds, listener, onSoftKeyboardListener);
@@ -232,6 +232,17 @@ public class ShareablePopupLayout
 	public void releaseResources()
 	{
 		mKeyboardPopupLayout.releaseResources();
+		
+		if (mViewToDisplay != null)
+			
+		{
+			FrameLayout frameLayout = (FrameLayout) mViewToDisplay.findViewById(R.id.shared_keyboard_parent);
+
+			/**
+			* Removing the residual views, if any
+			*/
+			frameLayout.removeAllViews();			
+		}
 	}
 
 	public boolean onEditTextTouch(View v, MotionEvent event){
@@ -263,5 +274,12 @@ public class ShareablePopupLayout
 		}
 	}
 
-
+	public void setCustomKeyBoardHeight(int height){
+		mKeyboardPopupLayout.setCustomKeyBoardHeight(height);
+	}
+	
+	public void setCustomKeyBoard(boolean isCustomKeyBoard)
+	{
+	  mKeyboardPopupLayout.setCustomKeyBoard(isCustomKeyBoard);
+	}
 }

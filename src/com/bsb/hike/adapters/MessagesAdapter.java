@@ -69,8 +69,11 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
+import com.bsb.hike.StringUtils;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.chatthread.ChatThread;
+import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.dialog.ContactDialog;
 import com.bsb.hike.dialog.HikeDialog;
@@ -2312,7 +2315,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				}
 				else
 				{
-					message = String.format(context.getString(R.string.change_group_image), participantName);
+					message = StringUtils.getYouFormattedString(context, userMsisdn.equals(msisdn), R.string.you_change_group_image, R.string.change_group_image, participantName);
 				}
 
 				TextView mainMessage = (TextView) inflater.inflate(layoutRes, null);
@@ -2469,7 +2472,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 					name = userMsisdn.equals(msisdn) ? context.getString(R.string.you) : Utils.getFirstName(conversation.getLabel());
 				}
 
-				String message = context.getString(R.string.chat_bg_changed, name);
+				String message = StringUtils.getYouFormattedString(context, userMsisdn.equals(msisdn), R.string.you_chat_bg_changed, R.string.chat_bg_changed, name);
 
 				setTextAndIconForSystemMessages(mainMessage, Utils.getFormattedParticipantInfo(message, name), isDefaultTheme ? R.drawable.ic_change_theme
 						: R.drawable.ic_change_theme_custom);
@@ -3421,7 +3424,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 					}
 					else
 					{
-						sb.append(" and ");
+						sb.append(" " + context.getString(R.string.and) + " ");
 					}
 				}
 			}
@@ -3687,6 +3690,9 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				ArrayList<HikeSharedFile> hsf = new ArrayList<HikeSharedFile>();
 				hsf.add(new HikeSharedFile(hikeFile.serialize(), hikeFile.isSent(), convMessage.getMsgID(), convMessage.getMsisdn(), convMessage.getTimestamp(), convMessage
 						.getGroupParticipantMsisdn()));
+				if(mActivity!=null && mActivity instanceof ChatThreadActivity){
+					((ChatThreadActivity)mActivity).hideKeyboard();
+				}
 				PhotoViewerFragment.openPhoto(R.id.ct_parent_rl, context, hsf, true, conversation);
 			}
 			else
@@ -4259,9 +4265,10 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 	private void fillPinTextData(StatusViewHolder statusHolder, ConvMessage convMessage, View v)
 	{
 		String name = convMessage.isSent() ?
-				"You" :
+				context.getString(R.string.you) :
 				(conversation instanceof OneToNConversation) ? ((OneToNConversation) conversation).getConvParticipantFirstNameAndSurname(convMessage.getGroupParticipantMsisdn()) : "";
-		statusHolder.dayTextView.setText(context.getString(R.string.xyz_posted_pin, name));
+				
+		statusHolder.dayTextView.setText(StringUtils.getYouFormattedString(context, convMessage.isSent(), R.string.you_xyz_posted_pin, R.string.xyz_posted_pin, name));
 
 		statusHolder.messageInfo.setText(convMessage.getTimestampFormatted(true, context));
 

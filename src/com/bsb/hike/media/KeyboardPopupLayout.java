@@ -44,6 +44,9 @@ public class KeyboardPopupLayout extends PopUpLayout implements OnDismissListene
 	
 	private boolean mIsPaddingDisabled = false;
 	
+	private boolean isCustomKeyBoard = false;
+	
+	public int customKeyBoardHeight=0;
 
 	/**
 	 * 
@@ -117,10 +120,17 @@ public class KeyboardPopupLayout extends PopUpLayout implements OnDismissListene
 		{
 			if (islandScape)
 			{
-				int maxHeight = mainView.getRootView().getHeight();
-				// giving half height of screen in landscape mode
-				Logger.i("chatthread", "landscape mode is on setting half of screen " + maxHeight);
-				height = (maxHeight) / 2;
+				if (isCustomKeyBoard)
+				{
+					height = customKeyBoardHeight;
+				}
+				else
+				{
+					int maxHeight = mainView.getRootView().getHeight();
+					// giving half height of screen in landscape mode
+					Logger.i("chatthread", "landscape mode is on setting half of screen " + maxHeight);
+					height = (maxHeight) / 2;					
+				}
 			}
 
 			else
@@ -128,7 +138,11 @@ public class KeyboardPopupLayout extends PopUpLayout implements OnDismissListene
 				height = firstTimeHeight;
 			}
 		}
-
+		
+		if (isCustomKeyBoard)
+		{
+			height=customKeyBoardHeight;				
+		}
 		if (popup == null)
 		{
 			initPopUpWindow(LayoutParams.MATCH_PARENT, height, view, context, PopupWindow.INPUT_METHOD_NOT_NEEDED);
@@ -382,6 +396,11 @@ public class KeyboardPopupLayout extends PopUpLayout implements OnDismissListene
 
 	public boolean onEditTextTouch(View v, MotionEvent event)
 	{
+		if (isShowing())
+		{
+			dismiss();
+			return true;
+		}
 		return false;
 	}
 
@@ -516,4 +535,12 @@ public class KeyboardPopupLayout extends PopUpLayout implements OnDismissListene
 		mIsPaddingDisabled = disabled;
 	}
 
+	public void setCustomKeyBoard(boolean isCustomKeyBoard)
+	{
+		this.isCustomKeyBoard = isCustomKeyBoard;
+	}
+	
+	public void setCustomKeyBoardHeight(int height){
+		customKeyBoardHeight=height;
+	}
 }

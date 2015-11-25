@@ -56,6 +56,8 @@ import com.bsb.hike.filetransfer.FileTransferManager;
 import com.bsb.hike.filetransfer.FileTransferManager.NetworkType;
 import com.bsb.hike.imageHttp.HikeImageDownloader;
 import com.bsb.hike.imageHttp.HikeImageWorker;
+import com.bsb.hike.localisation.LocalLanguage;
+import com.bsb.hike.localisation.LocalLanguageUtils;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.models.ConvMessage;
@@ -79,6 +81,12 @@ import com.bsb.hike.models.Conversation.GroupConversation;
 import com.bsb.hike.models.Conversation.OneToNConversation;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.HttpManager;
+import com.bsb.hike.modules.httpmgr.RequestToken;
+import com.bsb.hike.modules.httpmgr.exception.HttpException;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
+import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
+import com.bsb.hike.modules.httpmgr.response.Response;
+import com.bsb.hike.modules.kpt.KptKeyboardManager;
 import com.bsb.hike.modules.stickerdownloadmgr.SingleStickerDownloadTask;
 import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
@@ -2411,12 +2419,12 @@ public class MqttMessagesManager
 		if (data.has(HikeConstants.STICKER_RECOMMENDATION_DOWNLOAD_TAGS))
 		{
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.DEFAULT_TAGS_DOWNLOADED, false);
-			StickerManager.getInstance().downloadDefaultTags(false);
+			StickerManager.getInstance().downloadDefaultTagsFirstTime(false);
 		}
 
 		if (data.has(HikeConstants.STICKER_RECOMMENDATION_CONFIGURATION_DATA))
 		{
-			StickerSearchUtility.saveStickerRecommendationConfiguration(data.getJSONObject(HikeConstants.STICKER_RECOMMENDATION_CONFIGURATION_DATA), editor);
+			StickerSearchUtility.saveStickerRecommendationConfiguration(data.getJSONObject(HikeConstants.STICKER_RECOMMENDATION_CONFIGURATION_DATA));
 		}
 
 		if (data.has(HikeConstants.CHAT_SEARCH_ENABLED))
@@ -2671,6 +2679,10 @@ public class MqttMessagesManager
 			boolean useApacheClient = data.getBoolean(HikeConstants.FT_USE_APACHE_HTTP_CLIENT);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.FT_USE_APACHE_HTTP_CLIENT, useApacheClient);
 		}
+		if (data.has(HikeConstants.CHANGE_KEYBOARD_CHAT_ENABLED))
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CHANGE_KEYBOARD_CHAT_ENABLED, data.optBoolean(HikeConstants.CHANGE_KEYBOARD_CHAT_ENABLED));
+		}
 		if (data.has(HikeConstants.NEW_CHAT_RED_DOT))
 		{
 			boolean shouldShowRedDot = data.optBoolean(HikeConstants.NEW_CHAT_RED_DOT);
@@ -2696,6 +2708,22 @@ public class MqttMessagesManager
 		{
 			String options = data.getJSONObject(OfflineConstants.HIKE_DIRECT_MENU_OPTIONS).toString();
 			HikeSharedPreferenceUtil.getInstance().saveData(OfflineConstants.HIKE_DIRECT_MENU_OPTIONS, options);
+		}
+		if (data.has(HikeConstants.LOCALIZATION_ENABLED))
+		{
+			boolean localizationEnabled = data.optBoolean(HikeConstants.LOCALIZATION_ENABLED);
+			if (!localizationEnabled)
+				LocalLanguageUtils.setApplicationLocalLanguage(LocalLanguage.PhoneLangauge);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.LOCALIZATION_ENABLED, localizationEnabled);
+		}
+		if (data.has(HikeConstants.AUTOCORRECT_KEYBOARD_ENABLED))
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.AUTOCORRECT_KEYBOARD_ENABLED, data.optBoolean(HikeConstants.AUTOCORRECT_KEYBOARD_ENABLED));
+			KptKeyboardManager.getInstance(HikeMessengerApp.getInstance().getApplicationContext()).getKptSettings().setAutoCorrectionState(data.optBoolean(HikeConstants.AUTOCORRECT_KEYBOARD_ENABLED) ? 0: 1);
+		}
+		if (data.has(HikeConstants.CUSTOM_KEYBOARD_ENABLED))
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CUSTOM_KEYBOARD_ENABLED,data.optBoolean(HikeConstants.CUSTOM_KEYBOARD_ENABLED));
 		}
 		
 		editor.commit();
@@ -2968,7 +2996,7 @@ public class MqttMessagesManager
 			/*
 			 * reseting sticker shop update time so that next time we fetch a fresh sicker shop
 			 */
-			HikeSharedPreferenceUtil.getInstance().saveData(StickerManager.LAST_STICKER_SHOP_UPDATE_TIME, 0l);
+			StickerManager.getInstance().resetStickerShopLastUpdateTime();
 			if(showBadge)
 			{
 				HikeSharedPreferenceUtil.getInstance().saveData(StickerManager.SHOW_STICKER_SHOP_BADGE, true);

@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical" >
+
+    <!-- <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="50dip"
+        android:background="#595959">
+        <ImageView
+            android:id="@+id/icon"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:gravity="center_vertical"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/adaptxt_launcher_icon">
+        </ImageView>
+
+        <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="10dp"
+            android:layout_toRightOf="@id/icon"
+            android:gravity="center_vertical"
+            android:layout_centerInParent="true"
+            android:layout_gravity="center_horizontal"
+            android:paddingLeft="5dp"
+            android:text="@string/kpt_ime_language_selection_dialog_title"
+            android:maxLines="1"
+			android:ellipsize="marquee"
+			android:marqueeRepeatLimit="marquee_forever"
+			android:scrollHorizontally="true"
+            android:textSize="18sp"
+            android:textColor="#ffffff" >
+        </TextView>
+    </RelativeLayout> -->
+
+    <LinearLayout
+        android:id="@+id/language_selection_dialog"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:orientation="vertical" >
+
+        <ListView
+            android:id="@+id/language_selection_list_view"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            style="@android:style/Theme.Holo.Dialog"
+             >
+        </ListView>
+
+        <!--  <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:gravity="center" >
+
+            <Button
+                android:id="@+id/language_selction_cancel_btn"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:background="@drawable/btn_keyboard_key"
+                android:text="@string/kpt_alert_dialog_cancel" >
+            </Button>
+        </LinearLayout>  -->
+    </LinearLayout>
+
+</LinearLayout>

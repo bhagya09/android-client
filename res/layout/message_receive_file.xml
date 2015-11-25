@@ -62,7 +62,7 @@
                 android:layout_alignTop="@id/file_thumb"
                 android:gravity="center"
                 android:singleLine="true"
-                android:text=".pdf"
+                android:text="@string/pdf"
                 android:textColor="@color/white"
                 android:textSize="15sp"
                 android:textStyle="bold"

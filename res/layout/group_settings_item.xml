@@ -13,18 +13,6 @@
     android:onClick="onGSCheckboxClicked"
    >
 
-    <com.bsb.hike.view.CustomFontTextView
-        android:id="@+id/groups_massegesTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="4dp"
-        android:layout_marginLeft="10dp"
-        android:layout_marginTop="4dp"
-        android:layout_centerVertical="true"
-        android:textSize="16sp"
-        android:textStyle="normal"
-        android:text="@string/group_setting_option_only_admin" />
-
     <CheckBox
         android:id="@+id/checkBox"
         android:layout_width="wrap_content"
@@ -34,8 +22,21 @@
         android:layout_marginRight="14dp"
         android:button="@drawable/hike_list_item_checkbox"
         android:focusable="false"
-        android:clickable="false"
-  />
+        android:clickable="false" />
+        
+    <com.bsb.hike.view.CustomFontTextView
+        android:id="@+id/groups_massegesTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="4dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="4dp"
+        android:layout_centerVertical="true"
+        android:layout_alignParentLeft="true"
+        android:layout_toLeftOf="@id/checkBox"
+        android:textSize="16sp"
+        android:textStyle="normal"
+        android:text="@string/group_setting_option_only_admin" />
 
 </RelativeLayout>
 

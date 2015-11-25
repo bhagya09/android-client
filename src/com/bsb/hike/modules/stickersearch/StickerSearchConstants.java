@@ -22,6 +22,8 @@ public class StickerSearchConstants
 
 	public static final int STATE_STICKER_DATA_REFRESH = 1;
 
+	public static final int STATE_LANGUAGE_TAGS_DOWNLOAD = 2;
+
 	public static final int DECISION_STATE_NO = 0;
 
 	public static final int DECISION_STATE_YES = 1;
@@ -29,7 +31,7 @@ public class StickerSearchConstants
 	// ========================================================Generic constants for data setup]]
 
 	// Generic constants for periodic tasks====================================================[[
-	public static final int REBALACING_DEFAULT_TIME_HOUR = 4; // 4 a.m. time-stamp
+	public static final int DEFAULT_REBALANCING_TIME_HOUR = 4; // 4 a.m. time-stamp
 
 	public static final long DEFAULT_STICKER_TAG_REFRESH_TIME_INTERVAL = 14 * 24 * 60 * 60 * 1000L; // 14 days period in milliseconds
 
@@ -47,6 +49,8 @@ public class StickerSearchConstants
 	public static final int MAXIMUM_PHRASE_PERMUTATION_SIZE = 4;
 
 	public static final int MINIMUM_AUTO_RECOMMENDATION_REJECTION_PATTERN_COUNT = 1;
+
+	public static final String DEFAULT_KEYBOARD_LANGUAGE_ISO_CODE = "eng";
 
 	// ====================================================Generic constants for searching text]]
 
@@ -107,7 +111,7 @@ public class StickerSearchConstants
 
 	public static final float MINIMUM_MATCH_SCORE_PHRASE_LIMITED = 0.10f;
 
-	public static final float MARGINAL_FULL_SCORE_LATERAL = 0.80f; // marginal full score = 80.00% but not 100% (nothing is perfect till its perfect)
+	public static final float MARGINAL_FULL_SCORE_LATERAL = 0.80f; // marginal full score = 80.00% but not 100% (nothing is perfect until it's being perfect.)
 
 	public static final float DEFAULT_FREQUENCY_VALUE = 0.00f;
 
@@ -124,7 +128,9 @@ public class StickerSearchConstants
 	// Regular expressions=====================================================================[[
 	public static final String REGEX_OR = "\\|\\\\|\\|"; // Regular expression for '|' or '\\|'
 
-	public static final String REGEX_SEPARATORS = " |\n|\t|,|\\.|\\?";
+	public static final String DEFAULT_REGEX_SEPARATORS_LATIN = " |\n|\t|,|\\.|\\?";
+
+	public static final String DEFAULT_REGEX_SEPARATORS_REGIONAL = " |\n|\t|,|\\।|\\?";
 
 	public static final String REGEX_PREDICATE = "\\*";
 
@@ -157,12 +163,16 @@ public class StickerSearchConstants
 
 	public static final String STRING_ASSOCIATOR = " + ";
 
-	public static final String STRING_DISSOCIATOR = ", ";
+	public static final String STRING_DISSOCIATOR = ",";
+
+	public static final Character CHAR_EMPTY = '\0';
 
 	public static final Character CHAR_SPACE = ' ';
 
 	public static final Character CHAR_OR = '|';
 
 	public static final String STRING_DELIMITER = ":";
+
+	public static final String STRING_JOINTER = "_";
 	// =======================================================================Generic constants]]
 }
