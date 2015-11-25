@@ -2404,12 +2404,4 @@ public class StickerManager
 	{
 		HikeSharedPreferenceUtil.getInstance().saveData(StickerManager.STICKERS_SIZE_DOWNLOADED, false);
 	}
-
-	public void toggleStickerRecommendation(boolean state)
-	{
-		if(Utils.isHoneycombOrHigher())
-		{
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STICKER_RECOMMENDATION_ENABLED, state);
-		}
-	}
 }
