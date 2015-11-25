@@ -360,12 +360,12 @@ public class StickerSearchManager
 		}
 	}
 
-	public void onClickToShowRecommendedStickers(int clickPosition, boolean onTouch)
+	public void onClickToShowRecommendedStickers(int clickPosition, boolean onTapOnHighlightWord)
 	{
-		Logger.i(StickerTagWatcher.TAG, "onClickToShowRecommendedStickers(" + clickPosition + ")");
+		Logger.i(StickerTagWatcher.TAG, "onClickToShowRecommendedStickers(" + clickPosition + "," + onTapOnHighlightWord + ")");
 
 		// Do nothing, if it is not because of touch on highlighted word and auto pop-up setting is turned-off
-		if (!onTouch && !showAutoPopupSettingOn)
+		if (!onTapOnHighlightWord && !showAutoPopupSettingOn)
 		{
 			if (listener != null)
 			{
@@ -374,20 +374,21 @@ public class StickerSearchManager
 			return;
 		}
 
-		isTappedOnHighLightedWord = onTouch;
+		isTappedOnHighLightedWord = onTapOnHighlightWord;
 		Pair<Pair<String, String>, ArrayList<Sticker>> results = StickerSearchHostManager.getInstance().onClickToShowRecommendedStickers(clickPosition);
 
 		if (listener != null)
 		{
 			if ((results != null) && (results.second != null))
 			{
-				if (onTouch)
+				if (onTapOnHighlightWord)
 				{
 					listener.setTipSeen(ChatThreadTips.STICKER_RECOMMEND_TIP, true);
 					listener.setTipSeen(ChatThreadTips.STICKER_RECOMMEND_AUTO_OFF_TIP, true);
 				}
 
 				listener.showStickerSearchPopup(results.first.first, results.first.second, results.second);
+				increaseRecommendationStateForCurrentLanguage(onTapOnHighlightWord);
 			}
 			else
 			{
@@ -686,6 +687,27 @@ public class StickerSearchManager
 		if (!this.tapOnHighlightWordClicksPerLanguageMap.containsKey(languageISOCode))
 		{
 			this.tapOnHighlightWordClicksPerLanguageMap.put(languageISOCode, new PairModified<Integer, Integer>(0, 0));
+		}
+	}
+
+	private void increaseRecommendationStateForCurrentLanguage(boolean onTapOnHighlightWord)
+	{
+		PairModified<Integer, Integer> accuracyMetrices;
+		if (onTapOnHighlightWord)
+		{
+			if (this.tapOnHighlightWordClicksPerLanguageMap.containsKey(this.keyboardLanguageISOCode))
+			{
+				accuracyMetrices = this.tapOnHighlightWordClicksPerLanguageMap.get(this.keyboardLanguageISOCode);
+				accuracyMetrices.setFirst(accuracyMetrices.getFirst() + 1);
+			}
+		}
+		else
+		{
+			if (this.autoPopupClicksPerLanguageMap.containsKey(this.keyboardLanguageISOCode))
+			{
+				accuracyMetrices = this.autoPopupClicksPerLanguageMap.get(this.keyboardLanguageISOCode);
+				accuracyMetrices.setFirst(accuracyMetrices.getFirst() + 1);
+			}
 		}
 	}
 
