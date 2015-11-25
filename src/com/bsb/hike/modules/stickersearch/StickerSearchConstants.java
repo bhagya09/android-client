@@ -175,9 +175,4 @@ public class StickerSearchConstants
 
 	public static final String STRING_JOINTER = "_";
 	// =======================================================================Generic constants]]
-	
-	
-	// Threshold number of stickers left below which sticker recommendation will turn on
-	
-	public static final int NUM_STICKERS_THRESHOLD = 50;
 }

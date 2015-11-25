@@ -548,17 +548,8 @@ public enum StickerSearchDataController
 					}
 				}
 
-				int finalSetSize = updateRetrySet.size();
-				
-				// turn on sticker recommendation if number of stickers left in queue is less than threshold value
-				if(finalSetSize < StickerSearchConstants.NUM_STICKERS_THRESHOLD)
-				{
-					Logger.d(TAG, "threshold reached turnig recommendation on");
-					StickerManager.getInstance().toggleStickerRecommendation(true);
-				}
-				
 				Logger.i(TAG, "setupStickerSearchWizard(), Updating tag fetching retry list: " + updateRetrySet);
-				if (finalSetSize > 0)
+				if (updateRetrySet.size() > 0)
 				{
 					StickerManager.getInstance().saveStickerSet(updateRetrySet, state);
 				}

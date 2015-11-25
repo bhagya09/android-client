@@ -2394,12 +2394,14 @@ public class StickerManager
 		
 		return true;
 	}
-	
-	public void toggleStickerRecommendation(boolean state)
+
+	public void resetStickerShopLastUpdateTime()
 	{
-		if(Utils.isHoneycombOrHigher())
-		{
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STICKER_RECOMMENDATION_ENABLED, state);
-		}
+		HikeSharedPreferenceUtil.getInstance().saveData(StickerManager.LAST_STICKER_SHOP_UPDATE_TIME, 0l);
+	}
+
+	public void resetSignupUpgradeCallPreference()
+	{
+		HikeSharedPreferenceUtil.getInstance().saveData(StickerManager.STICKERS_SIZE_DOWNLOADED, false);
 	}
 }
