@@ -691,11 +691,13 @@ public class StickerSearchManager
 
 	public void sendStickerRecommendationAnalytics()
 	{
-		StickerManager.getInstance().sendRecommendationAccuracyAnalytics(new Date().toString(), this.autoPopupClicksPerLanguageMap, this.tapOnHighlightWordClicksPerLanguageMap);
-
-		// Reset all values after sending analytics data logged till now
-		StickerSearchUtility.clearStickerRecommendationAnalyticsDataFromPref();
-		resetRecommendationStateForAnalytics();
+		if (StickerManager.getInstance()
+				.sendRecommendationAccuracyAnalytics(new Date().toString(), this.autoPopupClicksPerLanguageMap, this.tapOnHighlightWordClicksPerLanguageMap))
+		{
+			// Reset all values after sending analytics data logged till now
+			StickerSearchUtility.clearStickerRecommendationAnalyticsDataFromPref();
+			resetRecommendationStateForAnalytics();
+		}
 	}
 
 	public void saveCurrentRecommendationStateForAnalyticsIntoPref()

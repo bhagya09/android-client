@@ -1,5 +1,31 @@
 package com.bsb.hike.utils;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FilenameFilter;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -14,12 +40,12 @@ import android.text.TextUtils;
 import android.util.Pair;
 import android.widget.Toast;
 
-import com.bsb.hike.BitmapModule.BitmapUtils;
-import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
+import com.bsb.hike.BitmapModule.BitmapUtils;
+import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
@@ -43,32 +69,6 @@ import com.bsb.hike.modules.stickersearch.StickerSearchUtils;
 import com.bsb.hike.modules.stickersearch.provider.StickerSearchUtility;
 import com.bsb.hike.smartcache.HikeLruCache;
 import com.bsb.hike.utils.Utils.ExternalStorageState;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.FilenameFilter;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class StickerManager
 {
@@ -2100,7 +2100,7 @@ public class StickerManager
 	 */
 	public void sendStickerButtonClickAnalytics()
 	{
-		long lastStickerButtonClickAnalticsTime = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.LAST_STICKER_BUTTON_CLICK_ANALYTICS_TIME, 0l);
+		long lastStickerButtonClickAnalticsTime = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.LAST_STICKER_BUTTON_CLICK_ANALYTICS_TIME, 0L);
 		long currentTime = System.currentTimeMillis();
 
 		if ((currentTime - lastStickerButtonClickAnalticsTime) >= 24 * 60 * 60 * 1000) // greater than one day
@@ -2117,7 +2117,7 @@ public class StickerManager
 	{
 		try
 		{
-			long lastPackAndOrderingSentTime = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.LAST_STICKER_PACK_AND_ORDERING_SENT_TIME, 0l);
+			long lastPackAndOrderingSentTime = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.LAST_STICKER_PACK_AND_ORDERING_SENT_TIME, 0L);
 			long currentTime = System.currentTimeMillis();
 
 			if ((currentTime - lastPackAndOrderingSentTime) >= 24 * 60 * 60 * 1000) // greater than one day
@@ -2150,6 +2150,7 @@ public class StickerManager
 				metadata.put(HikeConstants.NUMBER_OF_PACKS, stickerCategories.size());
 				metadata.put(HikeConstants.PACK_DATA, stickerPackAndOrderList);
 				metadata.put(HikeConstants.KEYBOARD_LIST, new JSONArray(StickerLanguagesManager.getInstance().getAccumulatedSet(StickerLanguagesManager.DOWNLOADED_LANGUAGE_SET_TYPE, StickerLanguagesManager.DOWNLOADING_LANGUAGE_SET_TYPE)));
+
 				HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, EventPriority.HIGH, metadata);
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.LAST_STICKER_PACK_AND_ORDERING_SENT_TIME, currentTime);
 			}
@@ -2281,68 +2282,80 @@ public class StickerManager
 	}
 
 	/**
-	 * Send sticker search data accuracy summary analytics
+	 * Send sticker search data accuracy summary analytics and return true, if analytics sent
 	 */
-	public void sendRecommendationAccuracyAnalytics(String timeStamp, Map<String, PairModified<Integer, Integer>> autoPopupClicksPerLanguageMap,
+	public boolean sendRecommendationAccuracyAnalytics(String timeStamp, Map<String, PairModified<Integer, Integer>> autoPopupClicksPerLanguageMap,
 			Map<String, PairModified<Integer, Integer>> tapOnHighlightWordClicksPerLanguageMap)
 	{
 		try
 		{
-			Set<String> languages;
-			PairModified<Integer, Integer> totalAndAcceptedRecommendationCountPair;
+			long lastPackAndOrderingSentTime = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.LAST_RECOMMENDATION_ACCURACY_ANALYTICS_SENT_TIME, 0L);
+			long currentTime = System.currentTimeMillis();
 
-			// Build auto-popup data for each language
-			JSONObject autoPopupData;
-			if ((autoPopupClicksPerLanguageMap != null) && (autoPopupClicksPerLanguageMap.size() > 0))
+			if ((currentTime - lastPackAndOrderingSentTime) >= 24 * 60 * 60 * 1000) // greater than one day
 			{
-				languages = autoPopupClicksPerLanguageMap.keySet();
-				autoPopupData = new JSONObject();
+				Set<String> languages;
+				PairModified<Integer, Integer> totalAndAcceptedRecommendationCountPair;
 
-				for (String languageISOCode : languages)
+				// Build auto-popup data for each language
+				JSONObject autoPopupData;
+				if ((autoPopupClicksPerLanguageMap != null) && (autoPopupClicksPerLanguageMap.size() > 0))
 				{
-					totalAndAcceptedRecommendationCountPair = autoPopupClicksPerLanguageMap.get(languageISOCode);
-					autoPopupData.put(languageISOCode, totalAndAcceptedRecommendationCountPair.getFirst() + STRING_DELIMETER + totalAndAcceptedRecommendationCountPair.getSecond());
+					languages = autoPopupClicksPerLanguageMap.keySet();
+					autoPopupData = new JSONObject();
+
+					for (String languageISOCode : languages)
+					{
+						totalAndAcceptedRecommendationCountPair = autoPopupClicksPerLanguageMap.get(languageISOCode);
+						autoPopupData.put(languageISOCode,
+								totalAndAcceptedRecommendationCountPair.getFirst() + STRING_DELIMETER + totalAndAcceptedRecommendationCountPair.getSecond());
+					}
 				}
-			}
-			else
-			{
-				autoPopupData = null;
-			}
-
-			// Build highlight word tapping data for each language
-			JSONObject tapOnHighlightWordData;
-			if ((tapOnHighlightWordClicksPerLanguageMap != null) && (tapOnHighlightWordClicksPerLanguageMap.size() > 0))
-			{
-				languages = tapOnHighlightWordClicksPerLanguageMap.keySet();
-				tapOnHighlightWordData = new JSONObject();
-
-				for (String languageISOCode : languages)
+				else
 				{
-					totalAndAcceptedRecommendationCountPair = tapOnHighlightWordClicksPerLanguageMap.get(languageISOCode);
-					tapOnHighlightWordData.put(languageISOCode,
-							totalAndAcceptedRecommendationCountPair.getFirst() + STRING_DELIMETER + totalAndAcceptedRecommendationCountPair.getSecond());
+					autoPopupData = null;
 				}
-			}
-			else
-			{
-				tapOnHighlightWordData = null;
-			}
 
-			if ((autoPopupData != null) || (tapOnHighlightWordData != null))
-			{
-				JSONObject metadata = new JSONObject();
-				metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.STICKER_RECOMMENDATION_ACCURACY_INDEX_KEY);
-				metadata.put(HikeConstants.STICKER_SEARCH_EVENT_TIME_STAMP, timeStamp);
-				metadata.put(HikeConstants.STICKER_SEARCH_AUTO_POPUP_DATA, autoPopupData);
-				metadata.put(HikeConstants.STICKER_SEARCH_HAIGHLIGHT_WORD_DATA, tapOnHighlightWordData);
+				// Build highlight word tapping data for each language
+				JSONObject tapOnHighlightWordData;
+				if ((tapOnHighlightWordClicksPerLanguageMap != null) && (tapOnHighlightWordClicksPerLanguageMap.size() > 0))
+				{
+					languages = tapOnHighlightWordClicksPerLanguageMap.keySet();
+					tapOnHighlightWordData = new JSONObject();
 
-				HAManager.getInstance().record(AnalyticsConstants.DEV_EVENT, AnalyticsConstants.STICKER_SEARCH_BACKEND, EventPriority.HIGH, metadata);
+					for (String languageISOCode : languages)
+					{
+						totalAndAcceptedRecommendationCountPair = tapOnHighlightWordClicksPerLanguageMap.get(languageISOCode);
+						tapOnHighlightWordData.put(languageISOCode,
+								totalAndAcceptedRecommendationCountPair.getFirst() + STRING_DELIMETER + totalAndAcceptedRecommendationCountPair.getSecond());
+					}
+				}
+				else
+				{
+					tapOnHighlightWordData = null;
+				}
+
+				if ((autoPopupData != null) || (tapOnHighlightWordData != null))
+				{
+					JSONObject metadata = new JSONObject();
+					metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.STICKER_RECOMMENDATION_ACCURACY_INDEX_KEY);
+					metadata.put(HikeConstants.STICKER_SEARCH_EVENT_TIME_STAMP, timeStamp);
+					metadata.put(HikeConstants.STICKER_SEARCH_AUTO_POPUP_DATA, autoPopupData);
+					metadata.put(HikeConstants.STICKER_SEARCH_HAIGHLIGHT_WORD_DATA, tapOnHighlightWordData);
+
+					HAManager.getInstance().record(AnalyticsConstants.DEV_EVENT, AnalyticsConstants.STICKER_SEARCH_BACKEND, EventPriority.HIGH, metadata);
+					return true;
+				}
+
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.LAST_RECOMMENDATION_ACCURACY_ANALYTICS_SENT_TIME, currentTime);
 			}
 		}
 		catch (JSONException e)
 		{
 			Logger.e(AnalyticsConstants.ANALYTICS_TAG, "invalid json", e);
 		}
+
+		return false;
 	}
 
 	/**

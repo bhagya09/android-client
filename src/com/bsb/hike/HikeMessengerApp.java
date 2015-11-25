@@ -546,6 +546,8 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 	public static final String LAST_STICKER_TAG_REFRESH_TIME = "lastStickerTagRefreshTime";
 
 	public static final String LAST_SUCCESSFUL_STICKER_TAG_REFRESH_TIME = "lastSuccessfulStickerTagRefreshTime";
+
+	public static final String LAST_RECOMMENDATION_ACCURACY_ANALYTICS_SENT_TIME = "lastRecommendationAccuracyAnalyticsTime";
 	
 	public static final String STICKER_TAG_REFRESH_PERIOD = "stickerTagRefreshPeriod";
 	
