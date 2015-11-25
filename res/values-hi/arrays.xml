@@ -50,4 +50,25 @@
 		<item>ब्यूटी सैलून</item>		
 		<item>बीमार</item>
 	</string-array>	
+	
+	<array name="photos_actions_titles">
+       <item>प्रोफ़ाइल चित्र के रूप में सेट करें</item>
+       <item>मित्रों को भेजें</item>
+       <item>टाइमलाइन पर पोस्ट करें</item>
+	</array>
+
+	<array name="call_glowpad_descr">
+       <item>खारिज करें</item>
+       <item>संदेश</item>
+       <item>उठाएं</item>
+       <item>@null</item>
+   </array>
+   
+   <array name="call_glowpad_directions">
+       <item>दाएं</item>
+       <item>ऊपर</item>
+       <item>बाएं</item>
+       <item>@null</item>
+   </array>
+   
 </resources>

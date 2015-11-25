@@ -21,11 +21,7 @@ import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.request.FileRequestPersistent;
-import com.bsb.hike.platform.CustomWebView;
-import com.bsb.hike.platform.GpsLocation;
-import com.bsb.hike.platform.HikePlatformConstants;
-import com.bsb.hike.platform.PlatformHelper;
-import com.bsb.hike.platform.PlatformUtils;
+import com.bsb.hike.platform.*;
 import com.bsb.hike.platform.content.PlatformContentConstants;
 import com.bsb.hike.platform.content.PlatformZipDownloader;
 import com.bsb.hike.ui.GalleryActivity;
@@ -192,6 +188,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 			{
 				jsonObject.put(HikePlatformConstants.EXTRA_DATA, extraData);
 			}
+			PlatformUtils.addLocaleToInitJSON(jsonObject);
 
 			mWebView.loadUrl("javascript:init('"+getEncodedDataForJS(jsonObject.toString())+"')");
 		}

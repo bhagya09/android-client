@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+ * Copyright (C) 2008 Esmertec AG.
+ * Copyright (C) 2008 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ -->
+<resources>
+    <string-array name="mood_headings">
+        <item>ಖುಷಿ</item>
+                
+        <item>ದುಃಖ</item>
+                
+        <item>ಪ್ರೀತಿಯಲ್ಲಿ</item>
+                
+        <item>ಆಶ್ಚರ್ಯಕರ</item>
+                
+        <item>ಗೊಂದಲಯುತ</item>
+                
+        <item>ಸಿಟ್ಟು</item>
+                
+        <item>ನಿದ್ರೆ</item>
+                
+        <item>ಹ್ಯಾಂಗೋವರ್</item>
+                
+        <item>ಶೀತ</item>
+                
+        <item>ಅಧ್ಯಯನ</item>
+                
+        <item>ಬ್ಯುಸಿ</item>
+                
+        <item>ಪ್ರೀತಿ</item>
+                
+        <item>ಮಧ್ಯ ಬೆರಳು</item>
+                
+        <item>ಬೂಝಿಂಗ್‌</item>
+                
+        <item>ಸಿನಿಮಾದಲ್ಲಿ</item>
+                
+        <item>ಕೆಫಿಯನೇಟೆಡ್‌</item>
+                
+        <item>ನಿದ್ರೆ ಬಾರದ</item>
+                
+        <item>ಚಾಲನೆ ಮಾಡುತ್ತಿರುವ</item>
+                
+        <item>ಟ್ರಾಫಿಕ್‌ನಲ್ಲಿ ಸಿಲುಕಿಕೊಂಡಿರುವ</item>
+                
+        <item>ವಿಳಂಬವಾಗಿ ಚಲಿಸುತ್ತಿರುವುದು</item>
+                
+        <item>ಶಾಪಿಂಗ್‌</item>
+                
+        <item>ಗೇಮಿಂಗ್‌</item>
+                
+        <item>ಕೋಡಿಂಗ್‌</item>
+                
+        <item>ಟಿವಿ ನೋಡುತ್ತಿರುವ</item>
+                
+        <item>ಸಂಗೀತ</item>
+                
+        <item>ಜೋರಾಗಿ ಪಾರ್ಟಿ ಮಾಡುತ್ತಿರುವುದು</item>
+                
+        <item>ಹಾಡುತ್ತಿರುವುದು</item>
+                
+        <item>ತಿನ್ನುತ್ತಿರುವುದು</item>
+                
+        <item>ಕೆಲಸ ಮಾಡುತ್ತಿರುವುದು</item>
+                
+        <item>ಕುಕಿಂಗ್‌</item>
+                
+        <item>ಬ್ಯೂಟಿ ಸಲೋನ್</item>
+                
+        <item>ಅನಾರೋಗ್ಯ</item>
+
+    </string-array>
+    
+    <array name="photos_actions_titles">
+       <item>ಪ್ರೊಫೈಲ್ ಚಿತ್ರವಾಗಿ ಹೊಂದಿಸಿ</item>
+       <item>ಸ್ನೇಹಿತರಿಗೆ ಕಳುಹಿಸಿ</item>
+       <item>ಟೈಮ್‌ಲೈನ್‌ಗೆ ಪೋಸ್ಟ್ ಮಾಡಿ</item>
+	</array>
+
+	<array name="call_glowpad_descr">
+       <item>ವಜಾಗೊಳಿಸಿ</item>
+       <item>ಸಂದೇಶ</item>
+       <item>ಪಿಕಪ್</item>
+       <item>@null</item>
+   </array>
+   
+   <array name="call_glowpad_directions">
+       <item>ಬಲ</item>
+       <item>ಮೇಲ್ಭಾಗ</item>
+       <item>ಎಡ</item>
+       <item>@null</item>
+   </array>
+</resources>

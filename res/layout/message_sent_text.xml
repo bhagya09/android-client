@@ -34,7 +34,6 @@
             android:layout_height="wrap_content"
             android:gravity="left"
             android:maxWidth="265dp"
-            android:text="This is the message(sent)"
             android:textColor="@color/chat_color"
             android:textSize="16sp" />
     </RelativeLayout>

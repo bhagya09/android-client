@@ -38,7 +38,7 @@
                 android:layout_marginLeft="15dp"
                 android:ellipsize="end"
                 android:maxLines="2"
-                android:text="sample"
+                android:text="@string/sample"
                 android:textColor="@color/black"
                 android:textSize="17sp"
                 android:textStyle="italic" />
