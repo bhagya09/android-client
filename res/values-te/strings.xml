@@ -1264,12 +1264,6 @@
 	<string name="gps_settings">సెట్టింగ్</string>
     <string name="you_change_group_name">మీరు గ్రూపు పేరు మార్చారు.</string>
     <string name="you_change_broadcast_name">మీరు బ్రాడ్‌కాస్ట్ పేరు మార్చారు</string>
-    <string name="new_group_message_2">%1$s మరియు %2$s గ్రూప్ చాట్</string>
-    <string name="new_group_message_multi">%1$s, %2$s మరియు %3$d ఇతరులతో గ్రూప్ చాట్</string>
-    <string name="new_broadcast_message_2">%1$s మరియు %2$sతో బ్రాడ్‌కాస్ట్ లిస్ట్</string>
-    <string name="new_broadcast_message_multi">%1$s, %2$s మరియు %3$d ఇతరులతో బ్రాడ్‌కాస్ట్</string>
-    <string name="add_to_broadcast_message_2">లిస్ట్‌కు %1$s మరియు %2$s జత చేయబడ్డారు.</string>
-    <string name="add_to_broadcast_message_multi">లిస్ట్‌కు %1$s, %2$s మరియు %3$s జత చేయబడ్డారు.</string>
     <string name="you_change_group_image">గ్రూపు ఇమేజ్‌ని మీరు మార్చారు</string>
     <string name="backup_account">బ్యాకప్‌ ఖాతా</string>
     <string name="search_hint_text">సెర్చ్...</string>
@@ -1278,15 +1272,15 @@
     <string name="you_chat_bg_changed">మీరు చాట్ థీమ్ మార్చారు</string>
     <string name="hike_keyboard">Hike కీబోర్డ్ </string>
     <string name="system_keyboard">సిస్టమ్ కీబోర్డ్</string>
-    <string name="you_posted_pin">మీరు ఒక పిన్ పోస్ట్ చేశారు</string>
+    <string name="you_xyz_posted_pin">మీరు ఒక పిన్ పోస్ట్ చేశారు</string>
     <string name="voip_hang_up">హ్యాంగప్</string>
     <string name="voip_decline">నిరాకరించు</string>
     <string name="voip_accept">ఆమోదించు</string>
-    <string name="you_added_group_member">మీరు %1$s జతచేశారు</string>
+    <string name="you_group_member_added">మీరు %1$s జతచేశారు</string>
     <string name="you_added_as_group_member">%1$s మిమ్మల్ని జోడించారు</string>
     <string name="group_member_added">%2$sను %1$s జోడించారు</string>
     <string name="you_updated_group_admin">మీరు %1$sను ఎడ్మిన్ చేశారు</string>
-    <string name="you_updated_as_group_admin">%1$s మిమ్మల్ని ఎడ్మిన్ చేశారు</string>
+    <string name="group_admin_updated_you">%1$s మిమ్మల్ని ఎడ్మిన్ చేశారు</string>
     <string name="group_admin_updated">%1$s, %2$sను ఎడ్మిన్ చేశారు</string>
     <string name="user_gps_off">మీ లొకేషన్‌ను ప్రారంభించేంత వరకు కూడా Hike డైరెక్ట్ పనిచేయదు</string>
     <string name="no_results_found">ఎలాంటి ఫలితాలు కనుగొనబడలేదు</string>
@@ -1297,6 +1291,5 @@
     <string name="contact_name">కాంటాక్ట్ పేరు</string>
     <string name="mobile">మొబైల్</string>
     <string name="your_contact">మీ కాంటాక్ట్</string>
-    <string name="english_india">ఇంగ్లిష్ (IN)</string>
-	
+
 </resources>

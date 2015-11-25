@@ -1265,12 +1265,6 @@
 
     <string name="you_change_group_name">നിങ്ങൾ ഗ്രൂപ്പിന്റെ പേര് മാറ്റി.</string>
     <string name="you_change_broadcast_name">നിങ്ങൾ ബ്രോഡ്‌കാസ്റ്റ് പേര് മാറ്റി.</string>
-    <string name="new_group_message_2">%1$s, %2$s എന്നിവരുമായുള്ള ഗ്രൂപ്പ് ചാറ്റ്</string>
-    <string name="new_group_message_multi">%1$s, %2$s എന്നിവരും മറ്റ് %3$d പേരും ആയുള്ള ഗ്രൂപ്പ് ചാറ്റ്</string>
-    <string name="new_broadcast_message_2">%1$s, %2$s എന്നിവരുമായുള്ള ബ്രോഡ്കാസ്റ്റ് ലിസ്റ്റ്</string>
-    <string name="new_broadcast_message_multi">%1$s, %2$s എന്നിവരും മറ്റ് %3$d പേരും ആയുള്ള ബ്രോഡ്കാസ്റ്റ് ലിസ്റ്റ്</string>
-    <string name="add_to_broadcast_message_2">%1$s, %2$s എന്നിവരെ ലിസ്റ്റിലേക്ക് ചേർത്തു</string>
-    <string name="add_to_broadcast_message_multi">%1$s, %2$s എന്നിവരെയും മറ്റ് %3$d പേരെയും ലിസ്റ്റിലേക്ക് ചേർത്തു</string>
     <string name="you_change_group_image">നിങ്ങൾ ഗ്രൂപ്പിന്റെ ചിത്രം മാറ്റി.</string>
     <string name="backup_account">അക്കൗണ്ട് ബാക്കപ്പുചെയ്യുക</string>
     <string name="search_hint_text">തിരയുക...</string>
@@ -1279,15 +1273,15 @@
     <string name="you_chat_bg_changed">നിങ്ങൾ ചാറ്റ് തീം മാറ്റി</string>
     <string name="hike_keyboard">Hike കീബോർഡ്</string>
     <string name="system_keyboard">സിസ്റ്റം കീബോർഡ്</string>
-    <string name="you_posted_pin">നിങ്ങളൊരു pin പോസ്റ്റുചെയ്തു</string>
+    <string name="you_xyz_posted_pin">നിങ്ങളൊരു pin പോസ്റ്റുചെയ്തു</string>
     <string name="voip_hang_up">വയ്ക്കുക</string>
     <string name="voip_decline">നിരസിക്കുക</string>
     <string name="voip_accept">സ്വീകരിക്കുക</string>
-    <string name="you_added_group_member">നിങ്ങൾ %1$s ചേർത്തു</string>
+    <string name="you_group_member_added">നിങ്ങൾ %1$s ചേർത്തു</string>
     <string name="you_added_as_group_member">%1$s നിങ്ങളെ ചേർത്തു</string>
     <string name="group_member_added">%1$s, %2$s എന്നയാളെ ചേർത്തു</string>
     <string name="you_updated_group_admin">നിങ്ങൾ %1$s എന്ന വ്യക്തിയെ അഡ്മിനാക്കി</string>
-    <string name="you_updated_as_group_admin">%1$s നിങ്ങളെ അഡ്‌മിനാക്കി</string>
+    <string name="group_admin_updated_you">%1$s നിങ്ങളെ അഡ്‌മിനാക്കി</string>
     <string name="group_admin_updated">%1$s, %2$s എന്നയാളെ അഡ്മിനാക്കി</string>
     <string name="user_gps_off">ലൊക്കേഷൻ സജീവമാക്കുന്നത് വരെ Hike Direct പ്രവർത്തിക്കില്ല.</string>
     <string name="no_results_found">ഫലങ്ങളൊന്നും കണ്ടെത്തിയില്ല</string>
@@ -1298,5 +1292,4 @@
     <string name="contact_name">സമ്പർക്കത്തിന്റെ പേര്</string>
     <string name="mobile">മൊബൈൽ</string>
     <string name="your_contact">നിങ്ങളുടെ സമ്പർക്കം</string>
-    <string name="english_india">ഇംഗ്ലീഷ് (ഇന്ത്യ)</string>
 </resources>

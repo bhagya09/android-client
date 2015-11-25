@@ -2077,6 +2077,7 @@ import android.widget.Toast;
 		{
 			mComposeView = (CustomFontEditText) activity.findViewById(R.id.msg_compose);
 			mComposeView.requestFocus();
+			mComposeView.setOnClickListener(mComposeChatOnClickListener);
 			mComposeView.removeTextChangedListener(searchTextWatcher);
 			if (mEmoticonPicker != null)
 			{
@@ -6377,5 +6378,24 @@ import android.widget.Toast;
 	{
 		return mConversation != null;
 	}
-	
+
+	/**
+	 * This will take care of setting onClick issue ID  AND-3924 this is to be set only when we want set on click for Chat compose view
+	 */
+	protected View.OnClickListener mComposeChatOnClickListener = new OnClickListener() {
+		@Override
+		public void onClick(View v) {
+			if(isSystemKeyboard()){
+				Utils.showSoftKeyboard(mComposeView, InputMethodManager.SHOW_FORCED);
+				showKeyboardFtueIfReady();
+			}else{
+				mCustomKeyboard.swtichToKPTKeyboard(mComposeView, KPTConstants.MULTILINE_LINE_EDITOR, null, kptKeyboardVisibilityStatusListner);
+				mCustomKeyboard.registerEditText(R.id.msg_compose);
+				resetSharablePopup();
+				mCustomKeyboard.init(mComposeView);
+				mCustomKeyboard.showCustomKeyboard(mComposeView, true);
+				setEditTextListeners();
+			}
+		}
+	};
 }

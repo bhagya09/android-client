@@ -62,6 +62,7 @@ import android.view.View.OnClickListener;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
 import android.view.animation.AnimationUtils;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -843,12 +844,15 @@ public class GroupChatThread extends OneToNChatThread
 	private void destroyPinCreateView()
 	{
 		// AFTER PIN MODE, we make sure mComposeView is reinitialized to message composer compose
+		mCustomKeyboard.unregister(mComposeView);
 		mComposeView = (CustomFontEditText) activity.findViewById(R.id.msg_compose);
 		if (mEmoticonPicker != null)
 		{
 			mEmoticonPicker.updateET(mComposeView);
 		}
+		mComposeView.setOnClickListener(mComposeChatOnClickListener);
 		mComposeView.requestFocus();
+
 		View mBottomView = activity.findViewById(R.id.bottom_panel);
 		mBottomView.startAnimation(AnimationUtils.loadAnimation(activity.getApplicationContext(), R.anim.down_up_lower_part));
 		mBottomView.setVisibility(View.VISIBLE);

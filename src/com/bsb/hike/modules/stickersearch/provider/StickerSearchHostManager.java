@@ -1523,7 +1523,7 @@ public class StickerSearchHostManager
 					int firstWordMatchIndex = tagWords.indexOf(searchWords.get(0));
 					if (firstWordMatchIndex > -1)
 					{
-						matchCount = matchCount + (MARGINAL_FULL_SCORE_LATERAL / searchWordsCount) / (firstWordMatchIndex + 1);
+						matchCount = matchCount + (MARGINAL_FULL_SCORE_LATERAL / exactWordsCount) / (firstWordMatchIndex + 1);
 					}
 				}
 

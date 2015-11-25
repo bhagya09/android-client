@@ -12,6 +12,7 @@ import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
@@ -56,6 +57,8 @@ public class LocalLanguageUtils {
             HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.LOCAL_LANGUAGE_PREF, lang.getLocale());
         }
         HikeMessengerApp.getInstance().setupLocalLanguage();
+        StickerManager.getInstance().resetStickerShopLastUpdateTime();
+        StickerManager.getInstance().resetSignupUpgradeCallPreference();
         Utils.sendLocaleToServer(HikeMessengerApp.getInstance());
         HikeMessengerApp.getPubSub().publish(HikePubSub.LOCAL_LANGUAGE_CHANGED,lang);
     }
