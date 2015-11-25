@@ -1576,6 +1576,12 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 				data.put(URL_PARAMETER_STRING, params);
 				extraData = data.toString();
 			}
+			else
+			{
+				JSONObject extraDataJson = new JSONObject(extraData);
+				extraDataJson.put(URL_PARAMETER_STRING, params);
+				extraData = extraDataJson.toString();
+			}
 		}
 		catch (JSONException e)
 		{
