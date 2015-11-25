@@ -33,7 +33,7 @@ layout.
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_toRightOf="@id/icon"
-            android:text="Title"
+            android:text="@string/title"
             android:textColor="@color/list_item_header"
             android:textStyle="bold|italic"
             android:textSize="16sp" />
@@ -45,7 +45,7 @@ layout.
             android:layout_alignLeft="@android:id/title"
             android:layout_below="@android:id/title"
             android:maxLines="4"
-            android:text="Summary"
+            android:text="@string/summary"
             android:textColor="@color/description_lightgrey"
             android:textSize="12sp"
             android:textStyle="bold|italic" />

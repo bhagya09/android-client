@@ -1,17 +1,5 @@
 package com.bsb.hike.modules.stickerdownloadmgr;
 
-import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_OUT_OF_SPACE;
-import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests.multiStickerDownloadRequest;
-
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.util.Iterator;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.os.Bundle;
 
 import com.bsb.hike.HikeConstants;
@@ -28,11 +16,24 @@ import com.bsb.hike.modules.httpmgr.request.requestbody.JsonBody;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadSource;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.StickerRequestType;
+import com.bsb.hike.modules.stickersearch.StickerLanguagesManager;
 import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.Iterator;
+
+import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_OUT_OF_SPACE;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests.multiStickerDownloadRequest;
 
 public class MultiStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskResult
 {
@@ -135,6 +136,8 @@ public class MultiStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRes
 					request.put(HikeConstants.RESOLUTION_ID, Utils.getResolutionId());
 					request.put(HikeConstants.NUMBER_OF_STICKERS, getStickerDownloadSize());
 					request.put(HikeConstants.DOWNLOAD_SOURCE, source.getValue());
+					request.put(HikeConstants.KEYBOARD_LIST, new JSONArray(StickerLanguagesManager.getInstance().getAccumulatedSet(StickerLanguagesManager.DOWNLOADED_LANGUAGE_SET_TYPE, StickerLanguagesManager.DOWNLOADING_LANGUAGE_SET_TYPE)));
+
 					Logger.d(TAG, "intercept(), Sticker Download Task Request: " + request.toString());
 
 					IRequestBody body = new JsonBody(request);
@@ -234,6 +237,7 @@ public class MultiStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRes
 						}
 					}
 
+					StickerLanguagesManager.getInstance().checkAndUpdateForbiddenList(data);
 					StickerSearchManager.getInstance().insertStickerTags(data, StickerSearchConstants.STATE_STICKER_DATA_FRESH_INSERT);
 
 					if (totalNumber != 0)

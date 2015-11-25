@@ -15,6 +15,7 @@ import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getStat
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getStatusBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getStickerTagsUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.groupProfileBaseUrl;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.languageListUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.lastSeenUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.multiStickerDownloadUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.postAddressbookBaseUrl;
@@ -89,10 +90,10 @@ import com.squareup.okhttp.RequestBody;
 
 public class HttpRequests
 {
-	public static RequestToken singleStickerDownloadRequest(String requestId, String stickerId, String categoryId, IRequestListener requestListener)
+	public static RequestToken singleStickerDownloadRequest(String requestId, String stickerId, String categoryId, IRequestListener requestListener, String keyboardList)
 	{
 		RequestToken requestToken = new JSONObjectRequest.Builder()
-				.setUrl(singleStickerDownloadBase() + "?catId=" + categoryId + "&stId=" + stickerId + "&resId=" + Utils.getResolutionId())
+				.setUrl(singleStickerDownloadBase() + "?catId=" + categoryId + "&stId=" + stickerId + "&resId=" + Utils.getResolutionId() + "&kbd=" + keyboardList)
 				.setId(requestId)
 				.setRequestListener(requestListener)
 				.setAnalyticsParam(HttpAnalyticsConstants.HTTP_SINGLE_STICKER_DOWNLOAD_ANALYTICS_PARAM)
@@ -144,7 +145,7 @@ public class HttpRequests
 	public static RequestToken StickerShopDownloadRequest(String requestId, int offset, IRequestListener requestListener)
 	{
 		RequestToken requestToken = new JSONObjectRequest.Builder()
-				.setUrl(stickerShopDownloadUrl() + "?offset=" + offset + "&resId=" + Utils.getResolutionId())
+				.setUrl(stickerShopDownloadUrl() + "?offset=" + offset + "&resId=" + Utils.getResolutionId() + "&lang=" + Utils.getCurrentLanguageLocale().getISO3Language())
 				.setId(requestId)
 				.setRequestListener(requestListener)
 				.setRequestType(REQUEST_TYPE_SHORT)
@@ -274,6 +275,18 @@ public class HttpRequests
 				.setRequestListener(requestListener)
 				.setRetryPolicy(new BasicRetryPolicy(HikePlatformConstants.NUMBER_OF_RETRIES, HikePlatformConstants.RETRY_DELAY, HikePlatformConstants.BACK_OFF_MULTIPLIER))
 				.setHeaders(PlatformUtils.getHeaders())
+				.build();
+		return requestToken;
+	}
+
+	public static RequestToken kptLanguageDictionaryZipDownloadRequest(String filePath, String url, IRequestListener requestListener)
+	{
+		RequestToken requestToken = new FileRequest.Builder()
+				.setUrl(url)
+				.setFile(filePath)
+				.setRequestListener(requestListener)
+				.setRequestType(REQUEST_TYPE_LONG)
+				.setPriority(PRIORITY_HIGH)
 				.build();
 		return requestToken;
 	}
@@ -473,11 +486,11 @@ public class HttpRequests
 		return requestToken;
 	}
 	
-	public static RequestToken defaultTagsRequest(String requestId, boolean isSignUp, long lastSuccessfulTagDownloadTime, IRequestListener requestListener)
+	public static RequestToken defaultTagsRequest(String requestId, boolean isSignUp, long lastSuccessfulTagDownloadTime, IRequestListener requestListener, String languages)
 	{
 		RequestToken requestToken = new JSONObjectRequest.Builder()
 					.setId(requestId)
-					.setUrl(getStickerTagsUrl() + "?signup_stickers=" + isSignUp + "&timestamp=" + lastSuccessfulTagDownloadTime)
+					.setUrl(getStickerTagsUrl() + "?signup_stickers=" + isSignUp + "&timestamp=" + lastSuccessfulTagDownloadTime + "&kbd=" + languages)
 					.setRequestListener(requestListener)
 					.setRequestType(REQUEST_TYPE_SHORT)
 					.setPriority(PRIORITY_HIGH)
@@ -932,4 +945,15 @@ public class HttpRequests
         Logger.e("HikeHttpRequests", "Making http call to " + httpNetworkTestUrl().toString() + "/" + errorCode);
         return requestToken;
     }
+
+	public static RequestToken getLanguageListOrderHTTP(IRequestListener requestListener)
+	{
+
+		RequestToken requestToken = new JSONObjectRequest.Builder().setUrl(languageListUrl()).setRequestType(Request.REQUEST_TYPE_SHORT).setRequestListener(requestListener)
+				.setResponseOnUIThread(true).build();
+		return requestToken;
+
+	}
+
+
 }

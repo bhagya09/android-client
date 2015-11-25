@@ -91,7 +91,6 @@
             android:id="@+id/name"
             android:ellipsize="end"
             android:singleLine="true"
-            android:text="Rishabh Sharma" 
             android:layout_centerVertical="true"
             style="@style/SettingsHeaderItemTextView"/>
         
@@ -111,7 +110,6 @@
             android:ellipsize="end"
             android:singleLine="true"
             android:layout_toRightOf="@id/divider"
-            android:text="Rishabh Sharma"
             android:layout_centerVertical="true"
             android:visibility="gone"
             style="@style/SettingsHeaderSubItemTextView" />
