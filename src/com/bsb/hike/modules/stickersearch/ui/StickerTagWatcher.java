@@ -543,6 +543,7 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 		{
 			StickerSearchManager.getInstance().saveOrDeleteAutoPopupTrialState(false);;
 		}
+		StickerSearchManager.getInstance().saveCurrentRecommendationStateForAnalyticsIntoPref();
 		StickerSearchManager.getInstance().removeStickerSearchListener(this);
 
 		fragment = null;

@@ -28,6 +28,7 @@ import com.bsb.hike.modules.stickersearch.tasks.StickerTagInsertTask;
 import com.bsb.hike.modules.stickersearch.ui.StickerTagWatcher;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.PairModified;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 
@@ -35,6 +36,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Set;
@@ -73,9 +75,9 @@ public class StickerSearchManager
 
 	private String keyboardLanguageISOCode;
 
-	private HashMap<String, Pair<Integer, Integer>> autoPopupClicksPerLanguageMap;
+	private HashMap<String, PairModified<Integer, Integer>> autoPopupClicksPerLanguageMap;
 
-	private HashMap<String, Pair<Integer, Integer>> tapOnHighlightWordClicksPerLanguageMap;
+	private HashMap<String, PairModified<Integer, Integer>> tapOnHighlightWordClicksPerLanguageMap;
 
 	private StickerSearchManager()
 	{
@@ -88,10 +90,10 @@ public class StickerSearchManager
 		currentString = null;
 		currentLength = 0;
 
+		// Order of calling following method must not be changed
 		setShowAutoPopupConfiguration();
-
+		setAndResumeRecommendationStateForAnalytics();
 		setNumStickersVisibleAtOneTime(StickerManager.getInstance().getNumColumnsForStickerGrid(HikeMessengerApp.getInstance()));
-
 		setRebalancingAlarmFirstTime();
 	}
 
@@ -130,6 +132,8 @@ public class StickerSearchManager
 	{
 		keyboardLanguageISOCode = currentKeyboardLanguageISOCode;
 		StickerSearchHostManager.getInstance().loadChatProfile(msisdn, isGroupChat, lastMessageTimestamp, keyboardLanguageISOCode);
+
+		setRecommendationStateForLanguage(currentKeyboardLanguageISOCode);
 
 		/*
 		 * LoadChatProfileTask loadChatProfileTask = new LoadChatProfileTask(msisdn, isGroupChat, lastMessageTimestamp); searchEngine.runOnSearchThread(loadChatProfileTask, 0);
@@ -404,7 +408,7 @@ public class StickerSearchManager
 		searchEngine.runOnQueryThread(stickerInsertTask);
 	}
 
-	public void initStickerSearchProiderSetupWizard()
+	public void initStickerSearchProviderSetupWizard()
 	{
 		StickerSearchSetupTask stickerSearchSetupTask = new StickerSearchSetupTask();
 		searchEngine.runOnQueryThread(stickerSearchSetupTask);
@@ -420,6 +424,8 @@ public class StickerSearchManager
 	{
 		InputMethodChangedTask inputMethodChangedTask = new InputMethodChangedTask(languageISOCode);
 		searchEngine.runOnQueryThread(inputMethodChangedTask);
+
+		setRecommendationStateForLanguage(languageISOCode);
 	}
 
 	public void downloadTagsForCurrentLanguage()
@@ -617,6 +623,90 @@ public class StickerSearchManager
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STICKER_AUTO_RECOMMENDATION_CONTINUOUS_REJECTION_COUNT_TILL_NOW, this.rejectionCount);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STICKER_AUTO_RECOMMENDATION_REJECTION_PATTERN_COUNT_TILL_NOW, this.rejectionPatternCount);
 		}
+	}
+
+	private void setAndResumeRecommendationStateForAnalytics()
+	{
+		this.autoPopupClicksPerLanguageMap = new HashMap<String, PairModified<Integer, Integer>>();
+		this.tapOnHighlightWordClicksPerLanguageMap = new HashMap<String, PairModified<Integer, Integer>>();
+
+		HikeSharedPreferenceUtil stickerDataSharedPref = HikeSharedPreferenceUtil.getInstance(HikeStickerSearchBaseConstants.SHARED_PREF_STICKER_DATA);
+		Set<String> languages = stickerDataSharedPref.getDataSet(StickerSearchConstants.KEY_PREF_STICKER_RECOOMENDATION_LANGUAGE_LIST, null);
+		if (!Utils.isEmpty(languages))
+		{
+			PairModified<Integer, Integer> totalAndAcceptedRecommendationCountPairPerLanguage;
+			int totalRecommendationCount;
+			int acceptedClicks;
+
+			for (String languageISOCode : languages)
+			{
+				// Fetch previous auto-popup data for each language
+				totalRecommendationCount = stickerDataSharedPref.getData(
+						StickerSearchUtility.getSharedPrefKeyForRecommendationData(StickerSearchConstants.KEY_PREF_AUTO_POPUP_TOTAL_COUNT_PER_LANGUAGE, languageISOCode), 0);
+				if (totalRecommendationCount > 0)
+				{
+					acceptedClicks = stickerDataSharedPref.getData(
+							StickerSearchUtility.getSharedPrefKeyForRecommendationData(StickerSearchConstants.KEY_PREF_AUTO_POPUP_ACCEPTED_COUNT_PER_LANGUAGE, languageISOCode), 0);
+					totalAndAcceptedRecommendationCountPairPerLanguage = new PairModified<Integer, Integer>(totalRecommendationCount, acceptedClicks);
+
+					this.autoPopupClicksPerLanguageMap.put(languageISOCode, totalAndAcceptedRecommendationCountPairPerLanguage);
+				}
+
+				// Fetch previous highlight word tapping data for each language
+				totalRecommendationCount = stickerDataSharedPref
+						.getData(StickerSearchUtility.getSharedPrefKeyForRecommendationData(StickerSearchConstants.KEY_PREF_TAP_ON_HIGHLIGHT_WORD_TOTAL_COUNT_PER_LANGUAGE,
+								languageISOCode), 0);
+				if (totalRecommendationCount > 0)
+				{
+					acceptedClicks = stickerDataSharedPref.getData(StickerSearchUtility.getSharedPrefKeyForRecommendationData(
+							StickerSearchConstants.KEY_PREF_TAP_ON_HIGHLIGHT_WORD_ACCEPTED_COUNT_PER_LANGUAGE, languageISOCode), 0);
+					totalAndAcceptedRecommendationCountPairPerLanguage = new PairModified<Integer, Integer>(totalRecommendationCount, acceptedClicks);
+
+					this.tapOnHighlightWordClicksPerLanguageMap.put(languageISOCode, totalAndAcceptedRecommendationCountPairPerLanguage);
+				}
+			}
+		}
+	}
+
+	private void resetRecommendationStateForAnalytics()
+	{
+		this.autoPopupClicksPerLanguageMap.clear();
+		this.tapOnHighlightWordClicksPerLanguageMap.clear();
+	}
+
+	private void setRecommendationStateForLanguage(String languageISOCode)
+	{
+		// Initialize auto-popup accuracy collection for current language when auto-pop setting is on
+		if (this.showAutoPopupSettingOn && !this.autoPopupClicksPerLanguageMap.containsKey(languageISOCode))
+		{
+			this.autoPopupClicksPerLanguageMap.put(languageISOCode, new PairModified<Integer, Integer>(0, 0));
+		}
+
+		// Initialize tap on highlight word accuracy collection for current language irrespective of auto-pop setting state
+		if (!this.tapOnHighlightWordClicksPerLanguageMap.containsKey(languageISOCode))
+		{
+			this.tapOnHighlightWordClicksPerLanguageMap.put(languageISOCode, new PairModified<Integer, Integer>(0, 0));
+		}
+	}
+
+	public void sendStickerRecommendationAnalytics()
+	{
+		StickerManager.getInstance().sendRecommendationAccuracyAnalytics(new Date().toString(), this.autoPopupClicksPerLanguageMap, this.tapOnHighlightWordClicksPerLanguageMap);
+
+		// Reset all values after sending analytics data logged till now
+		StickerSearchUtility.clearStickerRecommendationAnalyticsDataFromPref();
+		resetRecommendationStateForAnalytics();
+	}
+
+	public void saveCurrentRecommendationStateForAnalyticsIntoPref()
+	{
+		StickerSearchUtility.saveStickerRecommendationAnalyticsDataIntoPref(this.autoPopupClicksPerLanguageMap, this.tapOnHighlightWordClicksPerLanguageMap);
+
+		// Dereference data, which is no longer needed
+		this.autoPopupClicksPerLanguageMap.clear();
+		this.autoPopupClicksPerLanguageMap = null;
+		this.tapOnHighlightWordClicksPerLanguageMap.clear();
+		this.tapOnHighlightWordClicksPerLanguageMap = null;
 	}
 
 	public void shutdown()

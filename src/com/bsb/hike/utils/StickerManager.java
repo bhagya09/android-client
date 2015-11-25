@@ -2283,13 +2283,13 @@ public class StickerManager
 	/**
 	 * Send sticker search data accuracy summary analytics
 	 */
-	public void sendRecommendationAccuracyAnalytics(String timeStamp, Map<String, Pair<Integer, Integer>> autoPopupClicksPerLanguageMap,
-			Map<String, Pair<Integer, Integer>> tapOnHighlightWordClicksPerLanguageMap)
+	public void sendRecommendationAccuracyAnalytics(String timeStamp, Map<String, PairModified<Integer, Integer>> autoPopupClicksPerLanguageMap,
+			Map<String, PairModified<Integer, Integer>> tapOnHighlightWordClicksPerLanguageMap)
 	{
 		try
 		{
 			Set<String> languages;
-			Pair<Integer, Integer> totalAndAcceptedRecommendationCountPair;
+			PairModified<Integer, Integer> totalAndAcceptedRecommendationCountPair;
 
 			// Build auto-popup data for each language
 			JSONObject autoPopupData;
@@ -2301,7 +2301,7 @@ public class StickerManager
 				for (String languageISOCode : languages)
 				{
 					totalAndAcceptedRecommendationCountPair = autoPopupClicksPerLanguageMap.get(languageISOCode);
-					autoPopupData.put(languageISOCode, totalAndAcceptedRecommendationCountPair.first + STRING_DELIMETER + totalAndAcceptedRecommendationCountPair.second);
+					autoPopupData.put(languageISOCode, totalAndAcceptedRecommendationCountPair.getFirst() + STRING_DELIMETER + totalAndAcceptedRecommendationCountPair.getSecond());
 				}
 			}
 			else
@@ -2319,7 +2319,8 @@ public class StickerManager
 				for (String languageISOCode : languages)
 				{
 					totalAndAcceptedRecommendationCountPair = tapOnHighlightWordClicksPerLanguageMap.get(languageISOCode);
-					tapOnHighlightWordData.put(languageISOCode, totalAndAcceptedRecommendationCountPair.first + STRING_DELIMETER + totalAndAcceptedRecommendationCountPair.second);
+					tapOnHighlightWordData.put(languageISOCode,
+							totalAndAcceptedRecommendationCountPair.getFirst() + STRING_DELIMETER + totalAndAcceptedRecommendationCountPair.getSecond());
 				}
 			}
 			else

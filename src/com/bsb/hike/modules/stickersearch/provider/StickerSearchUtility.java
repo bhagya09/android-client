@@ -29,11 +29,11 @@ import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchBaseConst
 import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchBaseConstants.TIME_CODE;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.PairModified;
 import com.bsb.hike.utils.Utils;
 
 import android.content.SharedPreferences.Editor;
 import android.preference.PreferenceManager;
-import android.util.Pair;
 
 public class StickerSearchUtility
 {
@@ -92,7 +92,8 @@ public class StickerSearchUtility
 								calendar.set(Calendar.SECOND, ss);
 								calendar.set(Calendar.MILLISECOND, SSS);
 
-								stickerDataSharedPref.saveData(settingName, (new SimpleDateFormat(HikeConstants.FORMAT_TIME_OF_THE_DAY, Locale.ENGLISH)).format(calendar.getTime()));
+								stickerDataSharedPref
+										.saveData(settingName, (new SimpleDateFormat(HikeConstants.FORMAT_TIME_OF_THE_DAY, Locale.ENGLISH)).format(calendar.getTime()));
 							}
 							else
 							{
@@ -524,7 +525,7 @@ public class StickerSearchUtility
 	}
 
 	/* Get the key used to save recommendation analytics data in shared preference for given language */
-	private static String getSharedPrefKeyForRecommendationData(String dataKey, String languageISOCode)
+	public static String getSharedPrefKeyForRecommendationData(String dataKey, String languageISOCode)
 	{
 		return (dataKey + StickerSearchConstants.STRING_JOINTER + languageISOCode);
 	}
@@ -577,12 +578,16 @@ public class StickerSearchUtility
 	}
 
 	/* Save recommendation analytics data stored in sticker search shared_pref */
-	public static void saveStickerRecommendationAnalyticsDataIntoPref(Map<String, Pair<Integer, Integer>> autoPopupClicksPerLanguageMap,
-			Map<String, Pair<Integer, Integer>> tapOnHighlightWordClicksPerLanguageMap)
+	public static void saveStickerRecommendationAnalyticsDataIntoPref(Map<String, PairModified<Integer, Integer>> autoPopupClicksPerLanguageMap,
+			Map<String, PairModified<Integer, Integer>> tapOnHighlightWordClicksPerLanguageMap)
 	{
+		// Clear previous data, if any
+		clearStickerRecommendationAnalyticsDataFromPref();
+
 		HikeSharedPreferenceUtil stickerDataSharedPref = HikeSharedPreferenceUtil.getInstance(HikeStickerSearchBaseConstants.SHARED_PREF_STICKER_DATA);
 		HashSet<String> currentLanguages = new HashSet<String>();
-		Pair<Integer, Integer> totalAndAcceptedRecommendationCountPairPerLanguage;
+		PairModified<Integer, Integer> totalAndAcceptedRecommendationCountPairPerLanguage;
+		HashMap<String, Integer> accuracyData = new HashMap<String, Integer>();
 
 		// Save auto-popup data for each language
 		if ((autoPopupClicksPerLanguageMap != null) && (autoPopupClicksPerLanguageMap.size() > 0))
@@ -593,10 +598,11 @@ public class StickerSearchUtility
 			for (String languageISOCode : languages)
 			{
 				totalAndAcceptedRecommendationCountPairPerLanguage = autoPopupClicksPerLanguageMap.get(languageISOCode);
-				stickerDataSharedPref.saveData(getSharedPrefKeyForRecommendationData(StickerSearchConstants.KEY_PREF_AUTO_POPUP_TOTAL_COUNT_PER_LANGUAGE, languageISOCode),
-						totalAndAcceptedRecommendationCountPairPerLanguage.first);
-				stickerDataSharedPref.saveData(getSharedPrefKeyForRecommendationData(StickerSearchConstants.KEY_PREF_AUTO_POPUP_ACCEPTED_COUNT_PER_LANGUAGE, languageISOCode),
-						totalAndAcceptedRecommendationCountPairPerLanguage.second);
+
+				accuracyData.put(getSharedPrefKeyForRecommendationData(StickerSearchConstants.KEY_PREF_AUTO_POPUP_TOTAL_COUNT_PER_LANGUAGE, languageISOCode),
+						totalAndAcceptedRecommendationCountPairPerLanguage.getFirst());
+				accuracyData.put(getSharedPrefKeyForRecommendationData(StickerSearchConstants.KEY_PREF_AUTO_POPUP_ACCEPTED_COUNT_PER_LANGUAGE, languageISOCode),
+						totalAndAcceptedRecommendationCountPairPerLanguage.getSecond());
 			}
 		}
 
@@ -609,16 +615,16 @@ public class StickerSearchUtility
 			for (String languageISOCode : languages)
 			{
 				totalAndAcceptedRecommendationCountPairPerLanguage = tapOnHighlightWordClicksPerLanguageMap.get(languageISOCode);
-				stickerDataSharedPref.saveData(
-						getSharedPrefKeyForRecommendationData(StickerSearchConstants.KEY_PREF_TAP_ON_HIGHLIGHT_WORD_TOTAL_COUNT_PER_LANGUAGE, languageISOCode),
-						totalAndAcceptedRecommendationCountPairPerLanguage.first);
-				stickerDataSharedPref.saveData(
-						getSharedPrefKeyForRecommendationData(StickerSearchConstants.KEY_PREF_TAP_ON_HIGHLIGHT_WORD_ACCEPTED_COUNT_PER_LANGUAGE, languageISOCode),
-						totalAndAcceptedRecommendationCountPairPerLanguage.second);
+
+				accuracyData.put(getSharedPrefKeyForRecommendationData(StickerSearchConstants.KEY_PREF_TAP_ON_HIGHLIGHT_WORD_TOTAL_COUNT_PER_LANGUAGE, languageISOCode),
+						totalAndAcceptedRecommendationCountPairPerLanguage.getFirst());
+				accuracyData.put(getSharedPrefKeyForRecommendationData(StickerSearchConstants.KEY_PREF_TAP_ON_HIGHLIGHT_WORD_ACCEPTED_COUNT_PER_LANGUAGE, languageISOCode),
+						totalAndAcceptedRecommendationCountPairPerLanguage.getSecond());
 			}
 		}
 
 		stickerDataSharedPref.saveDataSet(StickerSearchConstants.KEY_PREF_STICKER_RECOOMENDATION_LANGUAGE_LIST, currentLanguages);
+		stickerDataSharedPref.saveDataMap(accuracyData);
 	}
 
 	/* Clear recommendation analytics data stored in sticker search shared_pref */
