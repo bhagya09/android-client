@@ -72,6 +72,7 @@ import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.TrafficsStatsFile;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
+import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.chatHead.StickyCaller;
 import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.chatthread.ChatThreadUtils;
@@ -4768,9 +4769,39 @@ public class Utils
 		{
 			RunningAppProcessInfo info = i.next();
 
-			if (info.uid == context.getApplicationInfo().uid && info.importance == RunningAppProcessInfo.IMPORTANCE_FOREGROUND)
+			if (info.uid == context.getApplicationInfo().uid && info.importance == RunningAppProcessInfo.IMPORTANCE_FOREGROUND && info.importanceReasonCode == 0)
 			{
-				return true;
+				Field field = null;
+				try
+				{
+					field = RunningAppProcessInfo.class.getDeclaredField("processState");
+				}
+				catch (NoSuchFieldException e)
+				{
+					Logger.d(ChatHeadUtils.class.getSimpleName(), e.toString());
+				}
+
+				if(field != null) {
+
+					Integer state = null;
+					try
+					{
+						state = field.getInt(info);
+					}
+					catch (IllegalAccessException e)
+					{
+						Logger.d(ChatHeadUtils.class.getSimpleName(), e.toString());
+					}
+					catch (IllegalArgumentException e)
+					{
+						Logger.d(ChatHeadUtils.class.getSimpleName(), e.toString());
+					}
+					// its a hidden api and no value is defined
+					if (state != null && state == ChatHeadUtils.PROCESS_STATE_TOP)
+					{
+						return true;
+					}
+				}
 			}
 		}
 		return false;
