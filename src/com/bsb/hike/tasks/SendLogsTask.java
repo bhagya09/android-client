@@ -64,6 +64,7 @@ public class SendLogsTask extends AsyncTask<Void, Void, Void>
 			fos = new FileOutputStream(file);
 
 			int pid = android.os.Process.myPid();
+			int gamePid=getGameProcessid();
 
 			Process process = Runtime.getRuntime().exec("logcat -d -v time");
 
@@ -73,7 +74,7 @@ public class SendLogsTask extends AsyncTask<Void, Void, Void>
 
 			while ((line = bufferedReader.readLine()) != null)
 			{
-				if (line.contains(Integer.toString(pid))||line.contains(Integer.toString(getGameProcessid())))
+				if (line.contains(Integer.toString(pid))||line.contains(Integer.toString(gamePid)))
 				{
 					line += "\n";
 					fos.write(line.getBytes());
