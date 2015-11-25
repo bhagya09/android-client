@@ -850,16 +850,7 @@ public class GroupChatThread extends OneToNChatThread
 		{
 			mEmoticonPicker.updateET(mComposeView);
 		}
-		mComposeView.setOnClickListener(new OnClickListener()
-		{
-			@Override
-			public void onClick(View v)
-			{
-				if(isSystemKeyboard()){
-				Utils.showSoftKeyboard(mComposeView, InputMethodManager.SHOW_FORCED);
-				}
-			}
-		});
+		mComposeView.setOnClickListener(mComposeChatOnClickListener);
 		mComposeView.requestFocus();
 
 		View mBottomView = activity.findViewById(R.id.bottom_panel);
