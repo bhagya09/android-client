@@ -346,6 +346,24 @@ public class PlatformUtils
 				intent.putExtra(HikePlatformConstants.EXTRA_DATA, mmObject.optString(HikePlatformConstants.EXTRA_DATA));
 				context.startActivity(intent);
 			}
+			if (activityName.equals(HIKESCREEN.CHAT_THREAD.toString()))
+			{
+				String msisdn = mmObject.optString("msisdn");
+				if (TextUtils.isEmpty(msisdn))
+				{
+					Logger.e(TAG, "Msisdn is missing in the packet");
+					return;
+				}
+				Intent in = IntentFactory.getIntentForAnyChatThread(context, msisdn, mmObject.optBoolean("isBot"));
+				if (in != null)
+				{
+					context.startActivity(in);
+				}
+				else
+				{
+					Toast.makeText(context, context.getString(R.string.app_not_enabled),Toast.LENGTH_SHORT).show();
+				}
+			}
 		}
 		catch (JSONException e)
 		{
@@ -1065,15 +1083,15 @@ public class PlatformUtils
 			Toast.makeText(context, context.getString(R.string.sticker_share_popup_activate_toast), Toast.LENGTH_LONG).show();
 			if (ChatHeadUtils.checkDeviceFunctionality())
 			{
-				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.CHAT_HEAD_SERVICE, true);
-				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.CHAT_HEAD_USR_CONTROL, true);
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.ENABLE, true);
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.USER_CONTROL, true);
 				JSONArray packagesJSONArray;
 				try
 				{
 					packagesJSONArray = new JSONArray(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.PACKAGE_LIST, null));
 					if (packagesJSONArray != null)
 					{
-						ChatHeadUtils.setAllApps(packagesJSONArray, true);
+						ChatHeadUtils.setAllApps(packagesJSONArray, true, false);
 					}
 				}
 				catch (JSONException e)

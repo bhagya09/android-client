@@ -489,6 +489,8 @@ public class AnalyticsConstants
 		
 		public static final String MISSED = "miss";
 	
+		public static final String CLIPBOARD = "clip";
+		
 		public static final String RECEIVED = "rcv";
 		
 		public static final String DIALED = "dial";
@@ -528,6 +530,8 @@ public class AnalyticsConstants
 		public static final String KNOWN_CARD_SETTINGS_TOGGLE = "knwStgTgl";
 		
 		public static final String WRONG_JSON = "wrngJsn";
+
+		public static final String SMS_CARD_SETTINGS_TOGGLE = "smsStgTgl";
 		
 	}
 	
