@@ -2,6 +2,7 @@ package com.bsb.hike.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
@@ -26,10 +27,28 @@ import com.bsb.hike.utils.Utils;
 public class PeopleActivity extends HikeAppStateBaseFragmentActivity implements Listener
 {
 	FriendsFragment mainFragment;
-	@Override
+
+    public String msisdnList;
+
+    public boolean showFilteredContacts = false;
+
+    private String actionBarTitle;
+
+    @Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
+
+        if(getIntent() != null)
+        {
+            if(getIntent().hasExtra(HikeConstants.Extras.FORWARD_MESSAGE) && getIntent().getBooleanExtra(HikeConstants.Extras.FORWARD_MESSAGE, true))
+            {
+                msisdnList = getIntent().getStringExtra(HikeConstants.Extras.MSISDN);
+                actionBarTitle = getIntent().getStringExtra(HikeConstants.Extras.TITLE);
+                showFilteredContacts = true;
+            }
+        }
+
 		initialisePeopleScreen(savedInstanceState);
 		showProductPopup(ProductPopupsConstants.PopupTriggerPoints.FAVOURITES.ordinal());
 		
@@ -55,7 +74,11 @@ public class PeopleActivity extends HikeAppStateBaseFragmentActivity implements 
 		actionBarView.findViewById(R.id.seprator).setVisibility(View.GONE);
 
 		TextView title = (TextView) actionBarView.findViewById(R.id.title);
-		title.setText(R.string.favorites);
+
+        if(!TextUtils.isEmpty(actionBarTitle))
+            title.setText(actionBarTitle);
+        else
+            title.setText(R.string.favorites);
 
 		actionBar.setCustomView(actionBarView);
 		Toolbar parent=(Toolbar)actionBarView.getParent();

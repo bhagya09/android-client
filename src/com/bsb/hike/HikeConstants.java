@@ -852,7 +852,9 @@ public class HikeConstants
 
 	public static final int PLATFORM_FILE_CHOOSE_REQUEST = 1196;
 
-	public static final int ADD_TO_CONFERENCE_REQUEST = 1196;
+    public static final int PLATFORM_MSISDN_FILTER_DISPLAY_REQUEST = 1197;
+
+    public static final int ADD_TO_CONFERENCE_REQUEST = 1196;
 
 	public static final int FACEBOOK_REQUEST_CODE = 64206;
 
@@ -1818,7 +1820,17 @@ public class HikeConstants
 		public static final String GROUP_CHAT_DP = "group_chat_dp";
 		
 		public static final String IS_MICROAPP_SHOWCASE_INTENT = "microappShowcaseIntent";
-	}
+
+        public static final String IS_CONTACT_CHOOSER_FILTER_INTENT = "contactChooserFilterIntent";
+
+        public static final String LIST = "list";
+
+        public static final String MICRO_APPS_REQUEST_CODE = "microapps_request_code";
+
+        public static final String FUNCTION_ID = "function_id";
+
+        public static final String RESULT_CODE = "result_code";
+    }
 
 	public static final class LogEvent
 	{
