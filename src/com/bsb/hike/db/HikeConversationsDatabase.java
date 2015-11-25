@@ -8146,12 +8146,18 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				String helperData = c.getString(helperDataIdx);
 				int version = c.getInt(versionIdx);
                 TreeMap<Integer,Integer> compatibilityMap = new TreeMap<Integer,Integer>();
+                String compatibilityMapStr = null;
 
                 try {
-                    JSONObject json = new JSONObject(metadata);
-                    JSONObject cardObj = json.optJSONObject("cardObj");
-                    String compatibilityMapStr = cardObj.optString(HikePlatformConstants.COMPATIBILITY_MAP);
-                    compatibilityMap = getCompatibilityMapFromString(compatibilityMapStr);
+                    JSONObject metaDataJson = new JSONObject(metadata);
+                    JSONObject cardObj = metaDataJson.optJSONObject(HikePlatformConstants.CARD_OBJECT);
+
+                    if(cardObj != null)
+                         compatibilityMapStr = cardObj.optString(HikePlatformConstants.COMPATIBILITY_MAP);
+
+                    if(!TextUtils.isEmpty(compatibilityMapStr))
+                        compatibilityMap = getCompatibilityMapFromString(compatibilityMapStr);
+
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }

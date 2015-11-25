@@ -30,7 +30,7 @@ class PlatformContentLoader extends Handler
 
 	/**
 	 * Gets the loader.
-	 * 
+	 *
 	 * @return the loader
 	 */
 	public static PlatformContentLoader getLoader()
@@ -40,7 +40,7 @@ class PlatformContentLoader extends Handler
 
 	/**
 	 * Handle request.
-	 * 
+	 *
 	 * @param platformContentModel
 	 *            the platform content model
 	 * @param listener
@@ -118,9 +118,6 @@ class PlatformContentLoader extends Handler
 
 		Logger.d(TAG, "fetching template from remote");
 
-        // Set the request type to one time popups
-        argContentRequest.setRequestType(PlatformContentRequest.ONE_TIME_POPUPS);
-        argContentRequest.getContentData().setRequestType(PlatformContentModel.ONE_TIME_POPUPS);
 		PlatformUtils.downloadAndUnzip(argContentRequest, true);
 	}
 }

@@ -11,6 +11,7 @@ import java.util.TreeMap;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.utils.Logger;
@@ -134,7 +135,7 @@ public class PlatformContentModel
 
 		try
 		{
-            JSONObject cardObj = json.optJSONObject("cardObj");
+            JSONObject cardObj = json.optJSONObject(HikePlatformConstants.CARD_OBJECT);
             String compatibilityMapStr = cardObj.optString(HikePlatformConstants.COMPATIBILITY_MAP);
             object = new Gson().fromJson(gsonObj, PlatformContentModel.class);
             object.cardObj.setCompatibilityMap(compatibilityMapStr);
@@ -195,7 +196,7 @@ public class PlatformContentModel
 
 		try
 		{
-			JSONObject cardObj = json.optJSONObject("cardObj");
+			JSONObject cardObj = json.optJSONObject(HikePlatformConstants.CARD_OBJECT);
 			String compatibilityMapStr = cardObj.optString(HikePlatformConstants.COMPATIBILITY_MAP);
 			object = new Gson().fromJson(gsonObj, PlatformContentModel.class);
 			object.cardObj.setCompatibilityMap(compatibilityMapStr);
