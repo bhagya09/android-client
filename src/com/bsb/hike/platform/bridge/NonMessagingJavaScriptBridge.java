@@ -4,7 +4,9 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
+import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.Bundle;
 import android.os.Message;
 import android.text.TextUtils;
 import android.webkit.JavascriptInterface;
@@ -1123,12 +1125,34 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	@JavascriptInterface
 	public void getLocation()
 	{
-		GpsLocation gps = GpsLocation.getInstance();
-		gps.getLocation();
+		final GpsLocation gps = GpsLocation.getInstance();
+		gps.getLocation(new LocationListener()
+		{
+			@Override
+			public void onLocationChanged(Location location)
+			{
+				HikeMessengerApp.getPubSub().publish(HikePubSub.LOCATION_AVAILABLE, gps.getLocationManager());
+				gps.removeUpdates(this);
+			}
+
+			@Override
+			public void onProviderDisabled(String provider)
+			{
+			}
+
+			@Override
+			public void onProviderEnabled(String provider)
+			{
+			}
+
+			@Override
+			public void onStatusChanged(String provider, int status, Bundle extras)
+			{
+			}
+		});
 
 	}
 
-	
 	/**
 	 * Added in Platform Version:7
 	 * 
