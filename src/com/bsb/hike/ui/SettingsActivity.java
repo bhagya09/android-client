@@ -132,7 +132,7 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 		}
 		items.add(new SettingsDisplayPojo(getString(R.string.manage_account), R.string.manage_account, R.drawable.ic_account_settings));
 		items.add(new SettingsDisplayPojo(getString(R.string.privacy), R.string.privacy, R.drawable.ic_privacy_settings));
-    	if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.CHAT_HEAD_SERVICE, false) && ChatHeadUtils.areWhitelistedPackagesSharable(this) && ChatHeadUtils.checkDeviceFunctionality())
+    	if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.ENABLE, false) && ChatHeadUtils.areWhitelistedPackagesSharable(this) && ChatHeadUtils.checkDeviceFunctionality())
 		{
 			items.add(new SettingsDisplayPojo(getString(R.string.settings_share_stickers), R.string.settings_share_stickers, R.drawable.settings_icon_sticker_widget));
 		}
