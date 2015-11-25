@@ -10,6 +10,7 @@ import android.support.v4.util.LruCache;
 import android.text.TextUtils;
 
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.utils.Logger;
 import com.samskivert.mustache.Template;
 
@@ -100,23 +101,23 @@ class PlatformContentCache
 
 		String unzipPath = PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.HIKE_MICRO_APPS;
 		String microAppName = content.getContentData().getId();
-		int microAppVersion = content.getContentData().getBotVersionCode();
+		int microAppVersion = content.getContentData().getMappVersionCode();
 
 		switch (content.getRequestType())
 		{
-		case PlatformContentRequest.HIKE_MICRO_APPS:
+		case HikePlatformConstants.PlatformMappRequestType.HIKE_MICRO_APPS:
 			unzipPath += microAppName + File.separator + HikeConstants.Extras.VERSIONING_DIRECTORY_NAME + microAppVersion + File.separator;
 			break;
 
-		case PlatformContentRequest.ONE_TIME_POPUPS:
+		case HikePlatformConstants.PlatformMappRequestType.ONE_TIME_POPUPS:
 			unzipPath += PlatformContentConstants.HIKE_ONE_TIME_POPUPS + microAppName + File.separator;
 			break;
 
-		case PlatformContentRequest.NATIVE_APPS:
+		case HikePlatformConstants.PlatformMappRequestType.NATIVE_APPS:
 			unzipPath += PlatformContentConstants.HIKE_GAMES + microAppName + File.separator;
 			break;
 
-		case PlatformContentRequest.HIKE_MAPPS:
+		case HikePlatformConstants.PlatformMappRequestType.HIKE_MAPPS:
 			unzipPath += PlatformContentConstants.HIKE_MAPPS + microAppName + File.separator;
 			break;
 		}

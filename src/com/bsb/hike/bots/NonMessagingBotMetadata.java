@@ -1,14 +1,14 @@
 package com.bsb.hike.bots;
 
-import com.bsb.hike.media.OverFlowMenuItem;
-import com.bsb.hike.platform.HikePlatformConstants;
-import com.bsb.hike.utils.Logger;
+import java.util.List;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.List;
+import com.bsb.hike.media.OverFlowMenuItem;
+import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.utils.Logger;
 
 
 /**
@@ -34,7 +34,7 @@ public class NonMessagingBotMetadata
 	private JSONObject fwdCardObj;
 	private boolean resumeSupported=false;
 	private JSONArray assoc_mapp;
-    private int botVersionCode;
+    private int mAppVersionCode;
 
 	public NonMessagingBotMetadata(String jsonString)
 	{
@@ -108,12 +108,10 @@ public class NonMessagingBotMetadata
 				setTargetActivity(cardObj.optString(HikePlatformConstants.TARGET_ACTIVITY));
 			}
 
-
-            if (cardObj.has(HikePlatformConstants.BOT_VERSION_CODE))
+            if (cardObj.has(HikePlatformConstants.MAPP_VERSION_CODE))
             {
-                setBotVersionCode(cardObj.optInt(HikePlatformConstants.BOT_VERSION_CODE));
+                setmAppVersionCode(cardObj.optInt(HikePlatformConstants.MAPP_VERSION_CODE));
             }
-
 
 		}
 
@@ -324,11 +322,11 @@ public class NonMessagingBotMetadata
 		return assoc_mapp;
 	}
 
-    public void setBotVersionCode(int botVersionCode) {
-        this.botVersionCode = botVersionCode;
+    public void setmAppVersionCode(int mAppVersionCode) {
+        this.mAppVersionCode = mAppVersionCode;
     }
 
-    public int getBotVersionCode() {
-        return botVersionCode;
+    public int getmAppVersionCode() {
+        return mAppVersionCode;
     }
 }

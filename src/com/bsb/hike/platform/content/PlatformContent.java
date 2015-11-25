@@ -107,12 +107,12 @@ public class PlatformContent
     /**
      * Gets well formed HTML content.
      *
+     * @param requestType
+     *            the subtype of micro app
      * @param contentData
      *            the content data
      * @param listener
      *            the listener
-     * @param requestType
-     *            the subtype of micro app
      * @return new request made, use this for cancelling requests
      *
      * @return the content
@@ -151,35 +151,41 @@ public class PlatformContent
 		}
 	}
 
-    /**
-     *
-     * @param uniqueId - the id which you will get back once templating is finished :  {@link PlatformContentModel#getUniqueId()}
-     * @param contentData
-     * @param listener
-     * @param requestType
-     * @return
-     */
-    public static PlatformContentRequest getContent(byte requestType,int uniqueId, String contentData, PlatformContentListener<PlatformContentModel> listener)
-    {
-        Logger.d("PlatformContent", "Content Dir : " + PlatformContentConstants.PLATFORM_CONTENT_DIR);
-        PlatformContentModel model = PlatformContentModel.make(uniqueId,contentData,requestType);
-        if(model != null) {
-            model.setUniqueId(uniqueId); // GSON issue
-        }
-        PlatformContentRequest request = PlatformContentRequest.make(model, listener);
+	/**
+	 * @param requestType
+	 * @param uniqueId
+	 *            - the id which you will get back once templating is finished : {@link PlatformContentModel#getUniqueId()}
+	 * @param contentData
+	 * @param listener
+	 *
+	 * @return
+	 */
+	public static PlatformContentRequest getContent(byte requestType, int uniqueId, String contentData, PlatformContentListener<PlatformContentModel> listener)
+	{
+		Logger.d("PlatformContent", "Content Dir : " + PlatformContentConstants.PLATFORM_CONTENT_DIR);
+		PlatformContentModel model = PlatformContentModel.make(uniqueId, contentData, requestType);
+		if (model != null)
+		{
+			model.setUniqueId(uniqueId); // GSON issue
+		}
+		PlatformContentRequest request = PlatformContentRequest.make(model, listener);
 
-        if (request != null)
-        {
-            PlatformContentLoader.getLoader().handleRequest(request);
-            return request;
-        }
-        else
-        {
-            Logger.e("PlatformContent", "Incorrect content data");
-            listener.onEventOccured(0,EventCode.INVALID_DATA);
-            return null;
-        }
-    }
+		if (request != null)
+		{
+			// Set the request type in PlatformContentRequest type to request type received in getContent
+            request.setRequestType(requestType);
+            request.getContentData().setRequestType(requestType);
+
+			PlatformContentLoader.getLoader().handleRequest(request);
+			return request;
+		}
+		else
+		{
+			Logger.e("PlatformContent", "Incorrect content data");
+			listener.onEventOccured(0, EventCode.INVALID_DATA);
+			return null;
+		}
+	}
 
 	public static void init(boolean isProduction)
 	{

@@ -11,6 +11,7 @@ import java.util.TreeMap;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.utils.Logger;
@@ -53,13 +54,7 @@ public class PlatformContentModel
 
 	private static PlatformContentModel object = null;
 
-    public static final byte HIKE_MICRO_APPS = 1;
-
-    public static final byte ONE_TIME_POPUPS = 2;
-
-    public static final byte NATIVE_APPS = 3;
-
-    private byte requestType = HIKE_MICRO_APPS;
+    private byte requestType = HikePlatformConstants.PlatformMappRequestType.HIKE_MICRO_APPS;
 
 	/*
 	 * (non-Javadoc)
@@ -134,13 +129,13 @@ public class PlatformContentModel
 
 		try
 		{
-            JSONObject cardObj = json.optJSONObject("cardObj");
+            JSONObject cardObj = json.optJSONObject(HikePlatformConstants.CARD_OBJECT);
             String compatibilityMapStr = cardObj.optString(HikePlatformConstants.COMPATIBILITY_MAP);
             object = new Gson().fromJson(gsonObj, PlatformContentModel.class);
             object.cardObj.setCompatibilityMap(compatibilityMapStr);
 			if (object.cardObj.getLd() != null)
 			{
-				String basePath = getUnZipPath(PlatformContentModel.HIKE_MICRO_APPS);
+				String basePath = getUnZipPath(HikePlatformConstants.PlatformMappRequestType.HIKE_MICRO_APPS);
 
 				object.cardObj.ld
 						.addProperty(PlatformContentConstants.KEY_TEMPLATE_PATH, PlatformContentConstants.CONTENT_AUTHORITY_BASE + basePath);
@@ -195,7 +190,7 @@ public class PlatformContentModel
 
 		try
 		{
-			JSONObject cardObj = json.optJSONObject("cardObj");
+			JSONObject cardObj = json.optJSONObject(HikePlatformConstants.CARD_OBJECT);
 			String compatibilityMapStr = cardObj.optString(HikePlatformConstants.COMPATIBILITY_MAP);
 			object = new Gson().fromJson(gsonObj, PlatformContentModel.class);
 			object.cardObj.setCompatibilityMap(compatibilityMapStr);
@@ -230,7 +225,7 @@ public class PlatformContentModel
 
 	private static String getUnZipPath(byte requestType)
 	{
-		int microAppVersionCode = object.cardObj.botVersionCode;
+		int microAppVersionCode = object.cardObj.mappVersionCode;
 
 		String microAppName = object.cardObj.appName;
 
@@ -238,13 +233,13 @@ public class PlatformContentModel
 
 		switch (requestType)
 		{
-		case PlatformContentModel.HIKE_MICRO_APPS:
-			unzipPath += microAppName + File.separator + "Version_" + microAppVersionCode + File.separator;
+		case HikePlatformConstants.PlatformMappRequestType.HIKE_MICRO_APPS:
+			unzipPath += microAppName + File.separator + HikeConstants.Extras.VERSIONING_DIRECTORY_NAME + microAppVersionCode + File.separator;
 			break;
-		case PlatformContentModel.ONE_TIME_POPUPS:
+		case HikePlatformConstants.PlatformMappRequestType.ONE_TIME_POPUPS:
 			unzipPath += PlatformContentConstants.HIKE_ONE_TIME_POPUPS + microAppName + File.separator;
 			break;
-		case PlatformContentModel.NATIVE_APPS:
+		case HikePlatformConstants.PlatformMappRequestType.NATIVE_APPS:
 			unzipPath += PlatformContentConstants.HIKE_GAMES + microAppName + File.separator;
 			break;
 		}
@@ -346,9 +341,9 @@ public class PlatformContentModel
      *
      * @return the version
      */
-    public int getBotVersionCode()
+    public int getMappVersionCode()
     {
-        return cardObj.botVersionCode;
+        return cardObj.mappVersionCode;
     }
 
 	/**
@@ -472,14 +467,14 @@ public class PlatformContentModel
 			this.appVersion = appVersion;
 		}
 
-        public int getBotVersionCode()
+        public int getMappVersionCode()
         {
-            return botVersionCode;
+            return mappVersionCode;
         }
 
-        public void setBotVersionCode(int botVersionCode)
+        public void setMappVersionCode(int mappVersionCode)
         {
-            this.botVersionCode = botVersionCode;
+            this.mappVersionCode = mappVersionCode;
         }
 
 		public String getLayoutId()
@@ -599,7 +594,7 @@ public class PlatformContentModel
 		public String appVersion;
 
         @Expose
-        public int botVersionCode;
+        public int mappVersionCode;
 
 		@Expose
 		public String layoutId;

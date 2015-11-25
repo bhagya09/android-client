@@ -91,7 +91,6 @@ public interface HikePlatformConstants
 	public static final String ANONYMOUS_NAMES = "anonymousNames";
 	public static final String FORWARD_CARD_OBJECT = "fwdCardObj";
 	public static final String TIMESTAMP = "timestamp";
-    public static final String VERSIONING_CONSTANT = "Version_";
 
 	public static final class PlatformFetchType
 	{
@@ -191,7 +190,7 @@ public interface HikePlatformConstants
 	
 	public static final String TARGET_ACTIVITY = "target_activity";
 
-    public static final String BOT_VERSION_CODE = "bot_version_code";
+    public static final String MAPP_VERSION_CODE = "mapp_version_code";
 	
 	public static final String MIN_PLATFORM = "min_platform";
 
@@ -277,5 +276,16 @@ public interface HikePlatformConstants
 	public static final String GAME_CHANNEL="+hikegames+";
 	
 	final static String RESUME_SUPPORT = "resume_support";
-	
+
+    public static final class PlatformMappRequestType
+    {
+        public static final byte HIKE_MICRO_APPS = 1;
+
+        public static final byte ONE_TIME_POPUPS = 2;
+
+        public static final byte NATIVE_APPS = 3;
+
+        public static final byte HIKE_MAPPS = 4;
+
+    }
 }

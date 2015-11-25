@@ -14,6 +14,7 @@ import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.FileRequestPersistent;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
+import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.content.PlatformContent.EventCode;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
@@ -162,7 +163,7 @@ public class PlatformZipDownloader
 		{
 			String unzipPath = PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.HIKE_MICRO_APPS;
 			String microAppName = mRequest.getContentData().getId();
-			int microAppVersion = mRequest.getContentData().getBotVersionCode();
+			int microAppVersion = mRequest.getContentData().getMappVersionCode();
 
 			// Generate path for the old micro app directory
 			File oldMicroAppFolder = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR, mRequest.getContentData().getId());
@@ -173,19 +174,19 @@ public class PlatformZipDownloader
             // Generate unzip path for the given request type
 			switch (mRequest.getRequestType())
 			{
-			case PlatformContentRequest.HIKE_MICRO_APPS:
+			case HikePlatformConstants.PlatformMappRequestType.HIKE_MICRO_APPS:
 				unzipPath += microAppName + File.separator + HikeConstants.Extras.VERSIONING_DIRECTORY_NAME + microAppVersion + File.separator;
 				break;
 
-			case PlatformContentRequest.ONE_TIME_POPUPS:
+			case HikePlatformConstants.PlatformMappRequestType.ONE_TIME_POPUPS:
 				unzipPath += PlatformContentConstants.HIKE_ONE_TIME_POPUPS + microAppName + File.separator;
 				break;
 
-			case PlatformContentRequest.NATIVE_APPS:
+			case HikePlatformConstants.PlatformMappRequestType.NATIVE_APPS:
 				unzipPath += PlatformContentConstants.HIKE_GAMES + microAppName + File.separator;
 				break;
 
-			case PlatformContentRequest.HIKE_MAPPS:
+			case HikePlatformConstants.PlatformMappRequestType.HIKE_MAPPS:
 				unzipPath += PlatformContentConstants.HIKE_MAPPS + microAppName + File.separator;
 				break;
 			}
@@ -415,21 +416,21 @@ public class PlatformZipDownloader
         // To determine the path for unzipping zip files based on request type
 		switch (mRequest.getRequestType())
 		{
-		case PlatformContentRequest.HIKE_MICRO_APPS:
+		case HikePlatformConstants.PlatformMappRequestType.HIKE_MICRO_APPS:
 			unzipPath = generateCBotUnzipPathForRequestType(unzipPath);
-			int microAppVersion = mRequest.getContentData().getBotVersionCode();
+			int microAppVersion = mRequest.getContentData().getMappVersionCode();
 			new File(unzipPath, HikeConstants.Extras.VERSIONING_DIRECTORY_NAME + microAppVersion).mkdirs();
 			unzipPath += HikeConstants.Extras.VERSIONING_DIRECTORY_NAME + microAppVersion + File.separator;
 			break;
-		case PlatformContentRequest.ONE_TIME_POPUPS:
+		case HikePlatformConstants.PlatformMappRequestType.ONE_TIME_POPUPS:
 			unzipPath += PlatformContentConstants.HIKE_ONE_TIME_POPUPS;
 			unzipPath = generateCBotUnzipPathForRequestType(unzipPath);
             break;
-		case PlatformContentRequest.NATIVE_APPS:
+		case HikePlatformConstants.PlatformMappRequestType.NATIVE_APPS:
 			unzipPath += PlatformContentConstants.HIKE_GAMES;
 			unzipPath = generateCBotUnzipPathForRequestType(unzipPath);
             break;
-		case PlatformContentRequest.HIKE_MAPPS:
+		case HikePlatformConstants.PlatformMappRequestType.HIKE_MAPPS:
 			unzipPath += PlatformContentConstants.HIKE_MAPPS;
 			unzipPath = generateCBotUnzipPathForRequestType(unzipPath);
             break;
@@ -463,11 +464,11 @@ public class PlatformZipDownloader
 		String microAppName = mRequest.getContentData().getId();
 		TreeMap<Integer, Integer> compatibilityMap = mRequest.getContentData().cardObj.compatibilityMap;
 
-		if (compatibilityMap == null || mRequest.getRequestType() != PlatformContentRequest.HIKE_MICRO_APPS)
+		if (compatibilityMap == null || mRequest.getRequestType() != HikePlatformConstants.PlatformMappRequestType.HIKE_MICRO_APPS)
 			return;
 
 		// Micro app version for the current cbot packet
-		int microAppVersion = mRequest.getContentData().getBotVersionCode();
+		int microAppVersion = mRequest.getContentData().getMappVersionCode();
 
 		// Logic to determine which unzipped micro apps directories are to be deleted as per compatibility Matrix
 		int hashMapKey = microAppVersion;
@@ -489,7 +490,7 @@ public class PlatformZipDownloader
 		// Code to delete micro apps within the compatibility matrix range that is figured above
 		while (minSupportedAppVersion != microAppVersion)
 		{
-			String pathToDelete = unzipPath + "Version_" + minSupportedAppVersion + File.separator;
+			String pathToDelete = unzipPath + HikeConstants.Extras.VERSIONING_DIRECTORY_NAME + minSupportedAppVersion + File.separator;
 			PlatformUtils.deleteDirectory(pathToDelete);
 			minSupportedAppVersion++;
 		}

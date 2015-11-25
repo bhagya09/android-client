@@ -1,5 +1,6 @@
 package com.bsb.hike.platform.content;
 
+import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.utils.Logger;
 
 public class PlatformContentRequest
@@ -23,15 +24,7 @@ public class PlatformContentRequest
 
 	private byte mState = STATE_READY;
 
-    public static final byte HIKE_MICRO_APPS = 1;
-
-    public static final byte ONE_TIME_POPUPS = 2;
-
-    public static final byte NATIVE_APPS = 3;
-
-    public static final byte HIKE_MAPPS = 4;
-
-    private byte requestType = HIKE_MICRO_APPS;
+    private byte requestType = HikePlatformConstants.PlatformMappRequestType.HIKE_MICRO_APPS;
 
 
 	private PlatformContentRequest(PlatformContentModel contentData, PlatformContentListener<PlatformContentModel> contentListner)
