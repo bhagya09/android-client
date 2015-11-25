@@ -164,8 +164,8 @@
     <string name="remove_from_broadcast">புரோட்காஸ்ட் லிஸ்ட்-ல் இருந்து அகற்று</string>
     <string name="leave_group_confirm">நீர் நிச்சயமாகவே இந்த குரூப்பை விட்டு வெளியேறுகிறீரா?</string>
     <string name="delete_broadcast_confirm">நீர் நிச்சயமாகவே இந்த புரோட்காஸ்ட் லிஸ்ட்டை அழிக்க விரும்புகிறீரா?</string>
-    <string name="remove_confirm">நீர் நிச்சயமாகவே %1-ஐ இந்த குரூப்பில் இருந்து அகற்ற விரும்புகிறீரா?</string>
-    <string name="remove_confirm_broadcast">நீர் நிச்சயமாகவே %1-ஐ இந்த லிஸ்ட்டில் இருந்து அகற்ற விரும்புகிறீரா?</string>
+    <string name="remove_confirm">நீர் நிச்சயமாகவே %1$s-ஐ இந்த குரூப்பில் இருந்து அகற்ற விரும்புகிறீரா?</string>
+    <string name="remove_confirm_broadcast">நீர் நிச்சயமாகவே %1$s-ஐ இந்த லிஸ்ட்டில் இருந்து அகற்ற விரும்புகிறீரா?</string>
     <string name="no">இல்லை</string>
     <string name="location_disabled">உம் இருப்பிடத்தைக் கொண்டுவர முடியவில்லை. தயவுசெய்து உம் செட்டிங்ஸை செக் செய்யும்.</string>
     <string name="tap_here_invite">இவரை இன்வைட் செய்வதற்கு இங்கே தட்டும்</string>
@@ -1149,7 +1149,7 @@
     <string name="kpt_adv_summary">ஆட்டோ கரெக்ஷன், டச் ஃபீட்பேக் மற்றும் இன்னும் பல</string>
     <string name="keyboard_preference_title">பிரிஃபெரன்ஸ்கள்</string>
     <string name="text_correction_pref_title">உரைத் திருத்தம்</string>
-    <string name="kpt_adv_title">ÓüÈ¢Â</string>
+    <string name="kpt_adv_title">அட்வான்ஸ்டு </string>
     <string name="advanced_keyboard_settings">அட்வான்ஸ்டு செட்டிங்ஸ்</string>
     <string name="private_mode_title">பிரைவேட் மோடு</string>
     <string name="private_mode_summary">பிரைவேட் மோடில் கற்றுக் கொண்ட வார்த்தைகள், பிரைவேட் மோடில் மட்டுமே கிடைக்கும்</string>
