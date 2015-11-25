@@ -1269,9 +1269,9 @@ public class HikeConstants
 	{
 		public static final String STICKER_WIDGET = "stkr_wdgt";
 
-		public static final String CHAT_HEAD_SERVICE = "enable";
+		public static final String ENABLE = "enable";
 
-		public static final String CHAT_HEAD_USR_CONTROL = "usr_ctrl";
+		public static final String USER_CONTROL = "usr_ctrl";
 		
 		public static final String FORCE_ACCESSIBILITY="frc_acsb";
 		

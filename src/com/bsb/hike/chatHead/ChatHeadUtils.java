@@ -4,7 +4,6 @@ import java.lang.reflect.Field;
 import java.sql.Date;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -23,10 +22,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Handler;
 import android.os.Looper;
-import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.provider.ContactsContract;
-import android.provider.ContactsContract.CommonDataKinds.Phone;
 import android.provider.ContactsContract.CommonDataKinds.StructuredPostal;
 import android.provider.ContactsContract.Contacts;
 import android.provider.ContactsContract.Data;
@@ -38,7 +35,6 @@ import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.widget.Toast;
 import android.database.Cursor;
-import android.database.DatabaseUtils;
 import android.net.Uri;
 import android.provider.ContactsContract.PhoneLookup;
 
@@ -98,6 +94,25 @@ public class ChatHeadUtils
 	private static final int MAX_SMS_MSISDN_LENGTH = 13;
 
 	private static ChatHeadViewManager viewManager;
+	
+	private static final int CHAT_HEAD_DISMISS_COUNT = 3;
+	
+	private static final int CHAT_HEAD_STICKERS_PER_DAY = 5;
+	
+	private static final int CHAT_HEAD_EXTRA_STICKERS_PER_DAY = 0;
+	
+	private static final boolean CHAT_HEAD_ENABLE_DEFAULT = true;
+	
+	private static final boolean CHAT_HEAD_USR_CONTROL_DEFAULT = true;
+	
+	private static final String CHAT_HEAD_SHARABLE_PACKAGES = "["
+			+ "{\"a\":\"Whatsapp\",\"p\":\"com.whatsapp\"},"
+			+ "{\"a\":\"Viber\",\"p\":\"com.viber.voip\"},"
+			+ "{\"a\":\"Messenger\",\"p\":\"com.facebook.orca\"},"
+			+ "{\"a\":\"Line\",\"p\":\"jp.naver.line.android\"},"
+			+ "{\"a\":\"Wechat\",\"p\":\"com.tencent.mm\"},"
+			+ "{\"a\":\" Telegram\",\"p\":\"org.telegram.messenger\"}"
+			+ "]";
 
 	/**
 	 * returns the package names of the running processes can be single, all or in tasks packages as per argument
@@ -401,8 +416,8 @@ public class ChatHeadUtils
 
 	public static boolean shouldRunChatHeadServiceForStickey()
 	{
-		boolean enabledForUser = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.CHAT_HEAD_SERVICE, false);
-		boolean permittedToRun = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.CHAT_HEAD_USR_CONTROL, false);
+		boolean enabledForUser = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.ENABLE, false);
+		boolean permittedToRun = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.USER_CONTROL, false);
 		boolean packageListNonEmpty = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.PACKAGE_LIST, null) != null;
 		return enabledForUser && permittedToRun && packageListNonEmpty;
 	}
@@ -514,43 +529,107 @@ public class ChatHeadUtils
 		ChatHeadViewManager.getInstance(context).resetPosition(ChatHeadConstants.STOPPING_SERVICE_ANIMATION, null);
 	}
 	
-	public static void setAllApps(JSONArray pkgList, boolean toSet)
+	public static void setAllApps(JSONArray pkgList, boolean valueToSet, boolean userDefinedValuePreferred) throws JSONException
 	{
-		try
+		JSONArray newPkgList = new JSONArray();
+		JSONArray storedPkgList = new JSONArray(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.PACKAGE_LIST, "[]"));
+		boolean storedPkgFound;
+		for (int j = 0; j < pkgList.length(); j++)
 		{
-			for (int j = 0; j < pkgList.length(); j++)
+			storedPkgFound = false;
+			JSONObject newPkg = pkgList.getJSONObject(j);
+			for (int i = 0; i< storedPkgList.length(); i++)
 			{
-				pkgList.getJSONObject(j).put(HikeConstants.ChatHead.APP_ENABLE, toSet);
+				JSONObject storedPkg = storedPkgList.getJSONObject(i);
+				if(storedPkg.getString(HikeConstants.ChatHead.PACKAGE_NAME).equals(newPkg.getString(HikeConstants.ChatHead.PACKAGE_NAME)))
+				{
+					storedPkgFound = true;
+					newPkg.put(HikeConstants.ChatHead.APP_ENABLE, storedPkg.getBoolean(HikeConstants.ChatHead.APP_ENABLE));
+				}
 			}
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.PACKAGE_LIST, pkgList.toString());
+			if(!storedPkgFound || !userDefinedValuePreferred)
+			{
+				newPkg.put(HikeConstants.ChatHead.APP_ENABLE, valueToSet);
+			}
+			newPkgList.put(newPkg);
 		}
-		catch (JSONException e)
-		{
-			e.printStackTrace();
-		}
+		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.PACKAGE_LIST, newPkgList.toString());
 
 	}
 	
-	public static void setShareEnableForAllApps(boolean enable)
+	public static void activateChatHead(JSONObject data) throws JSONException
 	{
-		JSONArray jsonArray;
-		try
-		{
-			jsonArray = new JSONArray(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.PACKAGE_LIST, ""));
+		JSONObject stkrWdgtJson;
+		HikeSharedPreferenceUtil settings = HikeSharedPreferenceUtil.getInstance();
 		
-		for (int i = 0; i < jsonArray.length(); i++)
+		if(data == null || !data.has(HikeConstants.ChatHead.STICKER_WIDGET))
 		{
-			JSONObject obj = jsonArray.getJSONObject(i);
-			{
-				obj.put(HikeConstants.ChatHead.APP_ENABLE, enable);
-			}
+			stkrWdgtJson = new JSONObject().put(HikeConstants.ChatHead.USER_CONTROL, CHAT_HEAD_USR_CONTROL_DEFAULT);
 		}
-		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.PACKAGE_LIST, jsonArray.toString());
-		}
-		catch (JSONException e)
+		else
 		{
-			e.printStackTrace();
+			stkrWdgtJson = data.getJSONObject(HikeConstants.ChatHead.STICKER_WIDGET);
 		}
+
+		boolean chatHeadEnabled = settings.getData(HikeConstants.ChatHead.ENABLE, CHAT_HEAD_ENABLE_DEFAULT);
+		if(stkrWdgtJson.has(HikeConstants.ChatHead.ENABLE) || !settings.contains(HikeConstants.ChatHead.ENABLE))
+		{
+			chatHeadEnabled = stkrWdgtJson.optBoolean(HikeConstants.ChatHead.ENABLE, chatHeadEnabled);
+			settings.saveData(HikeConstants.ChatHead.ENABLE, chatHeadEnabled);
+		}
+		
+		boolean userEnabled = settings.getData(HikeConstants.ChatHead.USER_CONTROL, CHAT_HEAD_USR_CONTROL_DEFAULT);
+		if (stkrWdgtJson.has(HikeConstants.ChatHead.USER_CONTROL) && !settings.contains(HikeConstants.ChatHead.USER_CONTROL))
+		{
+			userEnabled = stkrWdgtJson.optBoolean(HikeConstants.ChatHead.USER_CONTROL, userEnabled);
+			settings.saveData(HikeConstants.ChatHead.USER_CONTROL, userEnabled);
+		}
+
+		if(chatHeadEnabled)
+		{
+			boolean forceAccessibility = stkrWdgtJson.optBoolean(HikeConstants.ChatHead.FORCE_ACCESSIBILITY, !ChatHeadUtils.willPollingWork());
+			settings.saveData(HikeConstants.ChatHead.FORCE_ACCESSIBILITY, forceAccessibility);
+
+			boolean showAccessibility = stkrWdgtJson.optBoolean(HikeConstants.ChatHead.SHOW_ACCESSIBILITY, !ChatHeadUtils.willPollingWork());
+			settings.saveData(HikeConstants.ChatHead.SHOW_ACCESSIBILITY, showAccessibility);
+
+			boolean dontUseAccessibility = stkrWdgtJson.optBoolean(HikeConstants.ChatHead.DONT_USE_ACCESSIBILITY, ChatHeadUtils.willPollingWork());
+			settings.saveData(HikeConstants.ChatHead.DONT_USE_ACCESSIBILITY, dontUseAccessibility);
+		}
+
+		JSONArray sharablePackageList;
+		if (stkrWdgtJson.has(HikeConstants.ChatHead.PACKAGE_LIST))
+		{ 
+			sharablePackageList = stkrWdgtJson.optJSONArray(HikeConstants.ChatHead.PACKAGE_LIST);
+		}
+		else
+		{
+			sharablePackageList = new JSONArray(settings.getData(HikeConstants.ChatHead.PACKAGE_LIST, CHAT_HEAD_SHARABLE_PACKAGES));
+		}
+		if(stkrWdgtJson.has(HikeConstants.ChatHead.PACKAGE_LIST) || !settings.contains(HikeConstants.ChatHead.PACKAGE_LIST))
+		{
+			ChatHeadUtils.setAllApps(sharablePackageList, userEnabled, true);
+		}
+
+		if (stkrWdgtJson.has(HikeConstants.ChatHead.STICKERS_PER_DAY) || !settings.contains(HikeConstants.ChatHead.STICKERS_PER_DAY))
+		{
+		    int stickersPerDay = stkrWdgtJson.optInt(HikeConstants.ChatHead.STICKERS_PER_DAY, CHAT_HEAD_STICKERS_PER_DAY);
+			settings.saveData(HikeConstants.ChatHead.STICKERS_PER_DAY, stickersPerDay);
+		}
+		if (stkrWdgtJson.has(HikeConstants.ChatHead.EXTRA_STICKERS_PER_DAY) || !settings.contains(HikeConstants.ChatHead.EXTRA_STICKERS_PER_DAY))
+		{
+			int extraStickersPerDay = stkrWdgtJson.optInt(HikeConstants.ChatHead.EXTRA_STICKERS_PER_DAY, CHAT_HEAD_EXTRA_STICKERS_PER_DAY);
+			ChatHeadUtils.settingDailySharedPref();
+			settings.saveData(HikeConstants.ChatHead.EXTRA_STICKERS_PER_DAY, extraStickersPerDay);
+		}
+		
+		if (stkrWdgtJson.has(HikeConstants.ChatHead.DISMISS_COUNT) || !settings.contains(HikeConstants.ChatHead.DISMISS_COUNT))
+		{	
+			int dismissCount = stkrWdgtJson.optInt(HikeConstants.ChatHead.DISMISS_COUNT, CHAT_HEAD_DISMISS_COUNT);
+			settings.saveData(HikeConstants.ChatHead.DISMISS_COUNT, dismissCount);
+		}
+		ChatHeadUtils.startOrStopService(true);
+	
 	}
 
 	public static boolean willPollingWork()
