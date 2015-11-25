@@ -5,9 +5,12 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.List;
 
+import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.utils.Utils;
 
+import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -61,6 +64,7 @@ public class SendLogsTask extends AsyncTask<Void, Void, Void>
 			fos = new FileOutputStream(file);
 
 			int pid = android.os.Process.myPid();
+			int gamePid=getGameProcessid();
 
 			Process process = Runtime.getRuntime().exec("logcat -d -v time");
 
@@ -70,7 +74,7 @@ public class SendLogsTask extends AsyncTask<Void, Void, Void>
 
 			while ((line = bufferedReader.readLine()) != null)
 			{
-				if (line.contains(Integer.toString(pid)))
+				if (line.contains(Integer.toString(pid))||line.contains(Integer.toString(gamePid)))
 				{
 					line += "\n";
 					fos.write(line.getBytes());
@@ -95,5 +99,22 @@ public class SendLogsTask extends AsyncTask<Void, Void, Void>
 		File root = android.os.Environment.getExternalStorageDirectory();
 
 		return new File(root, "myLogs.txt");
+	}
+
+	private int getGameProcessid()
+	{
+		int pid1=-1;
+		ActivityManager activityManager = (ActivityManager) context.getSystemService(context.ACTIVITY_SERVICE);
+		List<ActivityManager.RunningAppProcessInfo> procInfos = activityManager.getRunningAppProcesses();
+		int noOfProcesses=procInfos.size();
+		for (int i = 0; i < noOfProcesses; i++)
+		{
+			if (procInfos.get(i).processName.equals(HikePlatformConstants.GAME_PROCESS))
+			{
+				pid1 = procInfos.get(i).pid;
+
+			}
+		}
+		return pid1;
 	}
 }

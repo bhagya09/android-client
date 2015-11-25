@@ -230,7 +230,7 @@ public class CocosGamingActivity extends Cocos2dxActivity
 			JSONObject jsonObject = new JSONObject();
 			jsonObject.put(GAME_ANALYTICS_KINGDOM, GAME_ANALYTICS_KINGDOM_VALUE);
 			jsonObject.put(GAME_ANALYTICS_PHYLUM, nonMessagingBotMetadata.getAppName());
-			jsonObject.put(GAME_ANALYTICS_CLASS, botInfo.getMsisdn());
+			jsonObject.put(GAME_ANALYTICS_CLASS, msisdn);
 			if (isEngine)
 			{
 				jsonObject.put(GAME_ANALYTICS_ORDER, GAME_ANALYTICS_ENGINE_FAILED);
@@ -346,7 +346,7 @@ public class CocosGamingActivity extends Cocos2dxActivity
 			JSONObject jsonObject = new JSONObject();
 			jsonObject.put(GAME_ANALYTICS_KINGDOM, GAME_ANALYTICS_KINGDOM_VALUE);
 			jsonObject.put(GAME_ANALYTICS_PHYLUM, nonMessagingBotMetadata.getAppName());
-			jsonObject.put(GAME_ANALYTICS_CLASS, botInfo.getMsisdn());
+			jsonObject.put(GAME_ANALYTICS_CLASS, msisdn);
 			jsonObject.put(GAME_ANALYTICS_ORDER, GAME_ANALYTICS_GAME_OPEN);
 			jsonObject.put(GAME_ANALYTICS_FAMILY, String.valueOf(activeDuration));
 			jsonObject.put(GAME_ANALYTICS_GENUS, "");
