@@ -564,6 +564,10 @@ public class StickyCaller
 		{
 			return AnalyticsConstants.StickyCallerEvents.CLIPBOARD;
 		}
+		if (callType == SMS)
+		{
+			return AnalyticsConstants.StickyCallerEvents.SMS;
+		}
 		return null;
 	}
 
