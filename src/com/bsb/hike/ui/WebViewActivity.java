@@ -127,7 +127,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 
 	NonMessagingBotMetadata botMetaData;
 	
-	String msisdn;
+	public static String msisdn;
 
 	int mode;
 	
@@ -480,6 +480,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	protected void onDestroy()
 	{
 		HikeMessengerApp.getPubSub().removeListeners(this, pubsub);
+		msisdn=null;
 		if(webView!=null)
 		{
 			webView.onActivityDestroyed();
@@ -1052,6 +1053,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		{
 			HAManager.getInstance().endChatSession(msisdn);
 		}
+		HikeMessengerApp.getPubSub().publish(HikePubSub.NEW_ACTIVITY, null);
 		webView.onPause();
 	}
 
@@ -1069,6 +1071,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		 * Used to clear notif tray if this is opened from notification
 		 */
 		HikeMessengerApp.getPubSub().publish(HikePubSub.CANCEL_ALL_NOTIFICATIONS, null);
+		HikeMessengerApp.getPubSub().publish(HikePubSub.NEW_ACTIVITY, this);
 		webView.onResume();
 	}
 	
