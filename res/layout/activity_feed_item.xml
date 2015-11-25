@@ -68,7 +68,6 @@
             android:ellipsize="end"
             android:includeFontPadding="false"
             android:singleLine="true"
-            android:text="Lorem Ipsum"
             android:textColor="@color/black_75"
             android:textSize="14sp"
             android:textStyle="bold|italic" />
@@ -80,7 +79,7 @@
             android:layout_marginBottom="3.5dp"
             android:includeFontPadding="false"
             android:maxLines="3"
-            android:text="Added you as a friend"
+            android:text="@string/added_you_friend"
             android:textColor="@color/black_45"
             android:textSize="12sp"
             android:textStyle="normal" />

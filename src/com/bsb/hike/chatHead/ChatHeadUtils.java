@@ -419,7 +419,8 @@ public class ChatHeadUtils
 		boolean enabledForUser = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.ENABLE, false);
 		boolean permittedToRun = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.USER_CONTROL, false);
 		boolean packageListNonEmpty = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.PACKAGE_LIST, null) != null;
-		return enabledForUser && permittedToRun && packageListNonEmpty;
+		boolean notSnoozed = !HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.SNOOZE, false);
+		return enabledForUser && permittedToRun && packageListNonEmpty && notSnoozed;
 	}
 	
 	public static boolean shouldShowAccessibility()
@@ -509,13 +510,7 @@ public class ChatHeadUtils
 			});
 			
 		}
-		if(!startChatHead)
-		{
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.SNOOZE, false);
-			HikeAlarmManager.cancelAlarm(context, HikeAlarmManager.REQUESTCODE_START_STICKER_SHARE_SERVICE); 
-		}
-		
-		
+
 	}
 
 	public static void onClickSetAlarm(Context context, int time)

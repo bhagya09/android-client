@@ -47,6 +47,9 @@ android {
         }
         compile(project(':recyclerview')) {
             exclude module: 'support-v4'
+        } 
+        compile(project(':kpt-host')) {
+            exclude module: 'support-v4'
         }
          compile(project(':transporter-library')) {
             exclude module: 'support-v4'
@@ -106,6 +109,7 @@ android {
         }
         release {
         	minifyEnabled true
+            shrinkResources true
             debuggable false
             proguardFile 'proguard.cfg'
             signingConfig signingConfigs.release

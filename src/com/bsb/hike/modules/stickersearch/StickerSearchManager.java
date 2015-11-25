@@ -1,11 +1,5 @@
 package com.bsb.hike.modules.stickersearch;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Locale;
-
-import org.json.JSONObject;
-
 import android.content.Intent;
 import android.util.Pair;
 
@@ -16,10 +10,13 @@ import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.modules.stickersearch.listeners.IStickerSearchListener;
 import com.bsb.hike.modules.stickersearch.provider.StickerSearchHostManager;
-import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchDatabase;
 import com.bsb.hike.modules.stickersearch.provider.StickerSearchUtility;
+import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchBaseConstants;
+import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchDatabase;
+import com.bsb.hike.modules.stickersearch.tasks.CurrentLanguageTagsDownloadTask;
 import com.bsb.hike.modules.stickersearch.tasks.HighlightAndShowStickerPopupTask;
 import com.bsb.hike.modules.stickersearch.tasks.InitiateStickerTagDownloadTask;
+import com.bsb.hike.modules.stickersearch.tasks.InputMethodChangedTask;
 import com.bsb.hike.modules.stickersearch.tasks.LoadChatProfileTask;
 import com.bsb.hike.modules.stickersearch.tasks.NewMessageReceivedTask;
 import com.bsb.hike.modules.stickersearch.tasks.NewMessageSentTask;
@@ -34,6 +31,13 @@ import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
+
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Locale;
+import java.util.Set;
 
 public class StickerSearchManager
 {
@@ -69,8 +73,8 @@ public class StickerSearchManager
 
 	private StickerSearchManager()
 	{
-		WAIT_TIME_SINGLE_CHARACTER_RECOMMENDATION = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_WAIT_TIME_SINGLE_CHAR_RECOMMENDATION,
-				StickerSearchConstants.WAIT_TIME_SINGLE_CHARACTER_RECOMMENDATION);
+		WAIT_TIME_SINGLE_CHARACTER_RECOMMENDATION = HikeSharedPreferenceUtil.getInstance(HikeStickerSearchBaseConstants.SHARED_PREF_STICKER_DATA).getData(
+				HikeConstants.STICKER_WAIT_TIME_SINGLE_CHAR_RECOMMENDATION, StickerSearchConstants.WAIT_TIME_SINGLE_CHARACTER_RECOMMENDATION);
 
 		searchEngine = new StickerSearchEngine();
 		isFirstPhraseOrWord = false;
@@ -378,9 +382,9 @@ public class StickerSearchManager
 		}
 	}
 
-	public void downloadStickerTags(boolean firstTime, int state)
+	public void downloadStickerTags(boolean firstTime, int state, Set<String> languagesSet)
 	{
-		InitiateStickerTagDownloadTask stickerTagDownloadTask = new InitiateStickerTagDownloadTask(firstTime, state);
+		InitiateStickerTagDownloadTask stickerTagDownloadTask = new InitiateStickerTagDownloadTask(firstTime, state, languagesSet);
 		searchEngine.runOnQueryThread(stickerTagDownloadTask);
 	}
 
@@ -400,6 +404,18 @@ public class StickerSearchManager
 	{
 		RemoveDeletedStickerTagsTask removeDeletedStickerTagsTask = new RemoveDeletedStickerTagsTask();
 		searchEngine.runOnQueryThread(removeDeletedStickerTagsTask);
+	}
+
+	public void inputMethodChanged(String languageISOCode)
+	{
+		InputMethodChangedTask inputMethodChangedTask = new InputMethodChangedTask(languageISOCode);
+		searchEngine.runOnQueryThread(inputMethodChangedTask);
+	}
+
+	public void downloadTagsForCurrentLanguage()
+	{
+		CurrentLanguageTagsDownloadTask currentLanguageTagsDownloadTask = new CurrentLanguageTagsDownloadTask();
+		searchEngine.runOnQueryThread(currentLanguageTagsDownloadTask);
 	}
 
 	public void sentMessage(String prevText, Sticker sticker, String nextText, String currentText)
@@ -442,9 +458,10 @@ public class StickerSearchManager
 
 	public void setRebalancingAlarm()
 	{
-		long scheduleTime = Utils.getTimeInMillis(Calendar.getInstance(Locale.ENGLISH),
-				HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_TAG_REBALANCING_TRIGGER_TIME_STAMP, null),
-				StickerSearchConstants.REBALACING_DEFAULT_TIME_HOUR, 0, 0, 0);
+		long scheduleTime = Utils.getTimeInMillis(
+				Calendar.getInstance(Locale.ENGLISH),
+				HikeSharedPreferenceUtil.getInstance(HikeStickerSearchBaseConstants.SHARED_PREF_STICKER_DATA).getData(HikeConstants.STICKER_TAG_REBALANCING_TRIGGER_TIME_STAMP,
+						null), StickerSearchConstants.DEFAULT_REBALANCING_TIME_HOUR, 0, 0, 0);
 
 		if (scheduleTime < System.currentTimeMillis())
 		{

@@ -239,6 +239,8 @@ public class AnalyticsConstants
 	
 	public static final String STICKER_SEARCH = "stks";
 
+	public static final String STICKER_SEARCH_BACKEND = "ssb";
+
 	public static final class MessageType
 	{
 		public static final String NUDGE = "nudge";
@@ -490,7 +492,9 @@ public class AnalyticsConstants
 		public static final String MISSED = "miss";
 	
 		public static final String CLIPBOARD = "clip";
-		
+
+		public static final String SMS = "sms";
+
 		public static final String RECEIVED = "rcv";
 		
 		public static final String DIALED = "dial";

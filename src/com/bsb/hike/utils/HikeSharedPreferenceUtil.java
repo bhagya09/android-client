@@ -1,15 +1,16 @@
 package com.bsb.hike.utils;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 
 import com.bsb.hike.HikeMessengerApp;
+
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 public class HikeSharedPreferenceUtil
 {
@@ -107,6 +108,10 @@ public class HikeSharedPreferenceUtil
 		return editor.commit();
 	}
 
+	/**
+	 * It was API 11 onwards.
+	 * Instead of this, use of getDataSet(String, Set<String>) in all cases is recommended.
+	 */
 	public synchronized boolean saveStringSet(String key, Set<String> stringSet)
 	{
 		editor.putStringSet(key, stringSet);
@@ -159,9 +164,12 @@ public class HikeSharedPreferenceUtil
 		return hikeSharedPreferences.getString(key, defaultValue);
 	}
 
+	/**
+	 * It was API 11 onwards.
+	 * Instead of this, use of getDataSet(String, Set<String>) in all cases is recommended.
+	 */
 	public synchronized Set<String> getStringSet(String key, Set<String> defaultValues)
 	{
-
 		return hikeSharedPreferences.getStringSet(key, defaultValues);
 	}
 
@@ -219,6 +227,11 @@ public class HikeSharedPreferenceUtil
 	public synchronized long getData(String key, long defaultValue)
 	{
 		return hikeSharedPreferences.getLong(key, defaultValue);
+	}
+
+	public synchronized Map<String, ?> getAllData()
+	{
+		return hikeSharedPreferences.getAll();
 	}
 
 	public synchronized void deleteAllData()
