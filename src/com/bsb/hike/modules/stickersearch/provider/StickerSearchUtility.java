@@ -64,6 +64,13 @@ public class StickerSearchUtility
 
 		if ((json != null) && (json.length() > 0))
 		{
+			int minimumVersionToAcceptConfiguartionData = json.optInt(HikeConstants.STICKER_RECOMMENDATION_CONFIGURATION_MIN_VERSION_TO_APPLY, 0);
+			if (minimumVersionToAcceptConfiguartionData > Utils.getAppVersionCode())
+			{
+				Logger.e(tag, "Proposed sticker recommendation configuration is not applicable for current version of Hike app. It should be updated.");
+				return;
+			}
+
 			HikeSharedPreferenceUtil stickerDataSharedPref = HikeSharedPreferenceUtil.getInstance(HikeStickerSearchBaseConstants.SHARED_PREF_STICKER_DATA);
 			Iterator<String> configSettings = json.keys();
 
