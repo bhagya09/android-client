@@ -1021,7 +1021,9 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		if(headerViewInitialized || profileImageUpdated )
 		{
 			int mBigImageSize = getResources().getDimensionPixelSize(R.dimen.avatar_profile_size);
-			(new IconLoader(this, mBigImageSize)).loadImage(msisdn, profileImage, false, false, true);
+			IconLoader iconLoader = new IconLoader(this, mBigImageSize);
+			iconLoader.setDefaultAvatarIfNoCustomIcon(true);
+			iconLoader.loadImage(msisdn, profileImage, false, false, true);
 		}
 
 		if(headerViewInitialized)

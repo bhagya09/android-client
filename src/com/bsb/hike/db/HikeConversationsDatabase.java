@@ -328,6 +328,10 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 		// to be aware of the users for whom db upgrade should not be done in future to fix AND-704
 		saveCurrentConvDbVersionToPrefs();
+		
+		String sqlIndex = "CREATE UNIQUE INDEX IF NOT EXISTS " + DBConstants.FEED_INDEX + " ON " + DBConstants.FEED_TABLE + " ( " + DBConstants.FEED_ACTION_ID + ", "
+				+ DBConstants.FEED_OBJECT_ID + ", " + DBConstants.FEED_ACTOR + " ) ";
+		db.execSQL(sqlIndex);
 	}
 
 	private void createIndexOverServerIdField(SQLiteDatabase db)
@@ -902,6 +906,23 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			db.execSQL(getMsisdnAndSortingIdIndex()); //This index is for querying the messages table
 			db.execSQL(getSortingIndexQuery()); //This index enables O(1) access for max sort id query, which will be used frequently
 			Logger.d("HikeConversationsDatabase", "Time taken to create indices for sortingId : " + (System.currentTimeMillis() - time));
+		}
+
+		if(oldVersion < 46)
+		{
+			try
+			{
+				String sqlIndex = "CREATE UNIQUE INDEX IF NOT EXISTS " + DBConstants.FEED_INDEX + " ON " + DBConstants.FEED_TABLE + " ( " + DBConstants.FEED_ACTION_ID + ", "
+						+ DBConstants.FEED_OBJECT_ID + ", " + DBConstants.FEED_ACTOR + " ) ";
+				db.execSQL(sqlIndex);
+			}
+			catch (SQLiteException sqe)
+			{
+				db.delete(DBConstants.FEED_TABLE, null, null);
+				String sqlIndex = "CREATE UNIQUE INDEX IF NOT EXISTS " + DBConstants.FEED_INDEX + " ON " + DBConstants.FEED_TABLE + " ( " + DBConstants.FEED_ACTION_ID + ", "
+						+ DBConstants.FEED_OBJECT_ID + ", " + DBConstants.FEED_ACTOR + " ) ";
+				db.execSQL(sqlIndex);
+			}
 		}
 
 	}

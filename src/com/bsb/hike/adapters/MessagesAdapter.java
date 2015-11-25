@@ -232,6 +232,8 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 
 	private static class ImageViewHolder extends FTViewHolder
 	{
+
+		public TextView caption;
 	}
 
 	private static class FileViewHolder extends FTViewHolder
@@ -1378,6 +1380,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 						imageHolder.messageContainer = (ViewGroup) v.findViewById(R.id.message_container);
 						imageHolder.dayStub = (ViewStub) v.findViewById(R.id.day_stub);
 						imageHolder.messageInfoStub = (ViewStub) v.findViewById(R.id.message_info_stub);
+						imageHolder.caption = (TextView) v.findViewById(R.id.caption);
 						v.setTag(imageHolder);
 					}
 				}
@@ -1416,6 +1419,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 						imageHolder.avatarContainer = (ViewGroup) v.findViewById(R.id.avatar_container);
 						imageHolder.messageContainer = (ViewGroup) v.findViewById(R.id.message_container);
 						imageHolder.dayStub = (ViewStub) v.findViewById(R.id.day_stub);
+						imageHolder.caption = (TextView) v.findViewById(R.id.caption);
 						v.setTag(imageHolder);
 					}
 				}
@@ -1506,6 +1510,18 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				imageHolder.fileThumb.setTag(convMessage);
 				imageHolder.fileThumb.setOnClickListener(this);
 				imageHolder.fileThumb.setOnLongClickListener(this);
+
+				// Set caption
+				if (TextUtils.isEmpty(convMessage.getMetadata().getCaption()))
+				{
+					imageHolder.caption.setText(null);
+					imageHolder.caption.setVisibility(View.GONE);
+				}
+				else
+				{
+					imageHolder.caption.setVisibility(View.VISIBLE);
+					imageHolder.caption.setText(convMessage.getMetadata().getCaption());
+				}
 			}
 			else if (viewType == ViewType.LOCATION_SENT || viewType == ViewType.LOCATION_RECEIVE)
 			{
@@ -2685,6 +2701,11 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 	{
 		iconLoader.loadImage(msisdn, imageView, false, true, false);
 	}
+	
+	private void setAvatar(String msisdn, String name, ImageView imageView)
+	{
+		iconLoader.loadImage(msisdn, imageView, false, true, false, name);
+	}
 
 	private void setNudgeImageResource(ChatTheme chatTheme, ImageView iv, boolean isMessageSent)
 	{
@@ -2773,7 +2794,22 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				}
 			}
 			detailHolder.avatarImage.setVisibility(View.VISIBLE);
-			setAvatar(convMessage.getGroupParticipantMsisdn(), detailHolder.avatarImage);
+
+			String name = null;
+			if (conversation instanceof OneToNConversation)
+			{
+				name = ((OneToNConversation) conversation).getConvParticipantFirstNameAndSurname(convMessage.getGroupParticipantMsisdn());
+			}
+
+			if (name != null)
+			{
+				setAvatar(convMessage.getGroupParticipantMsisdn(), name, detailHolder.avatarImage);
+			}
+			else
+			{
+				setAvatar(convMessage.getGroupParticipantMsisdn(), detailHolder.avatarImage);
+			}
+
 			detailHolder.avatarContainer.setVisibility(View.VISIBLE);
 		}
 		else if (detailHolder.avatarContainer != null)

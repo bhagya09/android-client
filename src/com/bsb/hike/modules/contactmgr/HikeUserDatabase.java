@@ -1541,6 +1541,21 @@ class HikeUserDatabase extends SQLiteOpenHelper
 			writeThumbnailToFile(new File(cacheDir, msisdn + ".jpg"), data);
 		}
 	}
+	
+	void setThumbnail(String msisdn, byte[] data)
+	{
+		//TODO Consider merging with setIcon(String msisdn, byte[] data, boolean isProfileImage)
+		HikeMessengerApp.getLruCache().remove(msisdn);
+		ContentValues vals = new ContentValues(2);
+		vals.put(DBConstants.MSISDN, msisdn);
+		vals.put(DBConstants.IMAGE, data);
+		mDb.replace(DBConstants.THUMBNAILS_TABLE, null, vals);
+		
+		String whereClause = DBConstants.MSISDN + "=?"; // msisdn;
+		ContentValues customPhotoFlag = new ContentValues(1);
+		customPhotoFlag.put(DBConstants.HAS_CUSTOM_PHOTO, 1);
+		mDb.update(DBConstants.USERS_TABLE, customPhotoFlag, whereClause, new String[] { msisdn });
+	}
 
 	Drawable getIcon(String msisdn)
 	{

@@ -18,7 +18,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.OvalShape;
 import android.net.Uri;
@@ -26,12 +26,15 @@ import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.provider.MediaStore;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
 import android.telephony.TelephonyManager;
+import android.text.Editable;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.text.style.ForegroundColorSpan;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -846,6 +849,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 		{
 		case R.id.name_layout:
 			enterEditText = (EditText) layout.findViewById(R.id.et_enter_name);
+			enterEditText.addTextChangedListener(nameWatcher);
 			birthdayText = (TextView) layout.findViewById(R.id.birthday);
 			profilePicCamIcon = (ImageView) layout.findViewById(R.id.profile_cam);
 			
@@ -1033,10 +1037,11 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 		}
 
 		initializeViews(nameLayout);
-		
+
 		// Auto fill the name, if possible
 		String ownerName = Utils.getOwnerName(SignupActivity.this);
-		if (!TextUtils.isEmpty(ownerName) && enterEditText != null) {
+		if (!TextUtils.isEmpty(ownerName) && enterEditText != null)
+		{
 			enterEditText.setText(ownerName);
 			try
 			{
@@ -1047,24 +1052,6 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 				Logger.w(getClass().getSimpleName(), "IOOB thrown while setting the name's textbox selection");
 			}
 		}
-
-		/*Session session = Session.getActiveSession();
-		if (session == null)
-		{
-			if (savedInstanceState != null)
-			{
-				session = Session.restoreSession(this, null, statusCallback, savedInstanceState);
-			}
-			if (session == null)
-			{
-				session = new Session(this);
-			}
-			Session.setActiveSession(session);
-			if (session.getState().equals(SessionState.CREATED_TOKEN_LOADED))
-			{
-				session.openForRead(new Session.OpenRequest(this).setCallback(statusCallback));
-			}
-		}*/
 
 		if (!addressBookScanningDone)
 		{
@@ -1083,26 +1070,25 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 
 		if (mActivityState.profileBitmap == null)
 		{
-			BitmapDrawable bd = HikeMessengerApp.getLruCache().getIconFromCache(msisdn);
+			Drawable bd = HikeMessengerApp.getLruCache().getIconFromCache(msisdn);
 			if (bd == null)
 			{
-				bd = HikeMessengerApp.getLruCache().getDefaultAvatar(msisdn, false);
+				if (TextUtils.isEmpty(ownerName))
+				{
+					bd = HikeBitmapFactory.getDefaultTextAvatar(msisdn);
+				}
+				else
+				{
+					bd = HikeBitmapFactory.getDefaultTextAvatar(ownerName);
+				}
 			}
 			mIconView.setImageDrawable(bd);
-			// mIconView.setImageDrawable(IconCacheManager.getInstance()
-			// .getIconForMSISDN(msisdn, true));
 		}
 		else
 		{
 			mIconView.setImageBitmap(mActivityState.profileBitmap);
 		}
 
-		/*if (mActivityState.fbConnected)
-		{
-			Button fbBtn = (Button) findViewById(R.id.connect_fb);
-			fbBtn.setEnabled(false);
-			fbBtn.setText(R.string.connected);
-		}*/
 		nextBtnContainer.setVisibility(View.VISIBLE);
 		setupActionBarTitle();
 	}
@@ -2181,6 +2167,46 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 		}
 	}
 
+	private TextWatcher nameWatcher = new TextWatcher()
+	{
+		String initials = "";
+
+		public void beforeTextChanged(CharSequence s, int start, int count, int after)
+		{
+
+		}
+
+		public void onTextChanged(CharSequence s, int start, int before, int count)
+		{
+
+		}
+
+		public void afterTextChanged(Editable s)
+		{
+			if (s == null)
+				return;
+
+			String newText = s.toString();
+
+			if (TextUtils.isEmpty(newText))
+			{
+
+			}
+
+			String newInitials = HikeBitmapFactory.getNameInitialsForDefaultAv(newText);
+
+			if (!initials.equals(newInitials))
+			{
+				initials = newInitials;
+				if (mActivityState.profileBitmap == null)
+				{
+					Drawable drawable = HikeBitmapFactory.getDefaultTextAvatar(newText);
+					mIconView.setImageDrawable(drawable);
+				}
+			}
+		}
+	};
+
 	@Override
 	public void onStart()
 	{
@@ -2427,17 +2453,17 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 
 		case HikeConstants.ResultCodes.PHOTOS_REQUEST_CODE:
 			mActivityState.destFilePath = data.getStringExtra(HikeCropActivity.CROPPED_IMAGE_PATH);
-			
 			if (mActivityState.destFilePath == null)
 			{
 				Toast.makeText(getApplicationContext(), R.string.error_setting_profile, Toast.LENGTH_SHORT).show();
 				return;
 			}
-			
+
 			setProfileImage();
 			break;
-		case HikeConstants.ResultCodes.SELECT_COUNTRY:	
-			if (resultCode == RESULT_OK) {
+		case HikeConstants.ResultCodes.SELECT_COUNTRY:
+			if (resultCode == RESULT_OK)
+			{
 				String countryName = data.getStringExtra(HikeConstants.Extras.SELECTED_COUNTRY);
 				selectCountry(countryName);
 			}

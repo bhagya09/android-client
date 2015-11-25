@@ -144,6 +144,7 @@ public class ConversationsAdapter extends BaseAdapter
 		iconLoader = new IconLoader(context, mIconImageSize);
 		iconLoader.setImageFadeIn(false);
 		iconLoader.setDefaultAvatarIfNoCustomIcon(true);
+		iconLoader.setDefaultDrawableNull(false);
 		itemsToAnimat = new SparseBooleanArray();
 		contactFilter = new ContactFilter();
 		conversationList = new ArrayList<ConvInfo>();
@@ -971,10 +972,10 @@ public class ConversationsAdapter extends BaseAdapter
 		/*
 		 * If the message is a status message, we only show an indicator if the status of the message is unread.
 		 */
-		else if (isNuxLocked || convInfo.getUnreadCount() > 0 || message.getState() == State.RECEIVED_UNREAD)
+		else if (isNuxLocked || convInfo.getUnreadCount() >= 0 || message.getState() == State.RECEIVED_UNREAD)
 		{
 
-			if (message.isSent())
+			if (message.isSent() && message.getParticipantInfoState() != ParticipantInfoState.STATUS_MESSAGE)
 			{
 				int drawableResId = message.getImageState();
 				imgStatus.setImageResource(drawableResId);
@@ -1260,8 +1261,13 @@ public class ConversationsAdapter extends BaseAdapter
 				}
 				
 				ConvInfo conversationInfo = getItem(indexOfData);
+				
+				if (ContactManager.getInstance().hasIcon(conversationInfo.getMsisdn()))
+				{
+					updateViewsRelatedToAvatar(view,conversationInfo);
+				}
 
-				updateViewsRelatedToAvatar(view,conversationInfo);
+				
 			}
 		}
 		

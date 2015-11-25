@@ -34,7 +34,7 @@ public class VoipProfilePicImageLoader extends ProfilePicImageLoader
 	}
 
 	@Override
-	protected void setDefaultAvatar(ImageView imageView, String data)
+	protected void setDefaultAvatar(ImageView imageView, String data, Object ignored)
 	{
 		RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams)imageView.getLayoutParams();
 		layoutParams.width = defaultAvatarWidth;

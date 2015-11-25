@@ -316,6 +316,12 @@ public class FTMessageBuilder {
 				(int)(builder.sourceFile.length()), true, FTUtils.getImageQuality(), builder.attachement).serialize());
 		JSONObject metadata = new JSONObject();
 		metadata.put(HikeConstants.FILES, files);
+
+		if(!TextUtils.isEmpty(builder.caption))
+		{
+			metadata.put(HikeConstants.CAPTION, builder.caption);
+		}
+
 		return metadata;
 	}
 
@@ -331,6 +337,7 @@ public class FTMessageBuilder {
 		private boolean isRecipientOnHike;
 		private long recordingDuration;
 		private int attachement;
+		private String caption;
 
 		private List<ContactInfo> contactList;
 		private List<ConvMessage> messageList;
@@ -391,6 +398,17 @@ public class FTMessageBuilder {
 		public S setFileType(String fileType)
 		{
 			this.fileType = fileType;
+			return self();
+		}
+
+		/**
+		 * Set caption associated with file
+		 *
+		 * @param argCaption
+		 */
+		public S setCaption(String argCaption)
+		{
+			this.caption = argCaption;
 			return self();
 		}
 

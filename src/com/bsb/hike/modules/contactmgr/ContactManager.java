@@ -778,6 +778,11 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 	 */
 	public ContactInfo getContactInfoFromPhoneNoOrMsisdn(String number)
 	{
+		return getContactInfoFromPhoneNoOrMsisdn(number, true);
+	}
+	
+	public ContactInfo getContactInfoFromPhoneNoOrMsisdn(String number, boolean selfNameAsYou)
+	{
 		ContactInfo contact = persistenceCache.getContactInfoFromPhoneNoOrMsisdn(number);
 		if (null != contact)
 		{
@@ -789,7 +794,7 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 			return contact;
 		}
 		
-		ContactInfo selfContactInfo = Utils.getUserContactInfo(true);
+		ContactInfo selfContactInfo = Utils.getUserContactInfo(selfNameAsYou);
 		if (number.equals(selfContactInfo.getMsisdn()))
 		{
 			contact = selfContactInfo;
@@ -1133,6 +1138,17 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 		return hDb.getIcon(msisdn);
 	}
 
+	/**
+	 * Replaces thumbnail for the given msisdn
+	 * 
+	 * @param msisdn
+	 * @param thumbnail
+	 */
+	public void changeUsersDbThumbnail(String msisdn, byte[] thumbnail)
+	{
+		hDb.setThumbnail(msisdn, thumbnail);
+	}
+	
 	/**
 	 * This method returns a byte array of an icon from the database
 	 * 

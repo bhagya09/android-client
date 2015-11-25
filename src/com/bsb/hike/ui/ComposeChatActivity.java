@@ -1736,7 +1736,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 
 							if (arrayList.size() == 1)
 							{
-								fileTransferTask = new InitiateMultiFileTransferTask(getApplicationContext(), fileDetails, msisdn, onHike, FTAnalyticEvents.OTHER_ATTACHEMENT,
+								fileTransferTask = new InitiateMultiFileTransferTask(getApplicationContext(), fileTransferList, msisdn, onHike, FTAnalyticEvents.OTHER_ATTACHEMENT,
 										intent);
 								Utils.executeAsyncTask(fileTransferTask);
 
@@ -2618,26 +2618,35 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		return recentContacts;
 	}
 	
-	public static class FileTransferData{
-		public String filePath,fileKey,fileType;
-		public HikeFileType hikeFileType;
-		public boolean isRecording,isForwardingFile;
-		public long recordingDuration;
-		public ArrayList<ContactInfo> arrayList;
-		public File file;
-		public FileTransferData(String filePath, String fileKey, HikeFileType hikeFileType, String fileType, boolean isRecording, long recordingDuration,
-				boolean isForwardingFile, ArrayList<ContactInfo> arrayList,File file){
-				this.filePath = filePath;
-				this.fileKey = fileKey;
-				this.hikeFileType = hikeFileType;
-				this.fileType = fileType;
-				this.isRecording = isRecording;
-				this.recordingDuration = recordingDuration;
-				this.arrayList = arrayList;
-				this.file = file;
-			}
-	}
-	private class PreFileTransferAsycntask extends AsyncTask<Void, Void, Void>{
+	public static class FileTransferData {
+        public String filePath, fileKey, fileType;
+        public HikeFileType hikeFileType;
+        public boolean isRecording, isForwardingFile;
+        public long recordingDuration;
+        public ArrayList<ContactInfo> arrayList;
+        public File file;
+        public String caption;
+
+        public FileTransferData(String filePath, String fileKey, HikeFileType hikeFileType, String fileType, boolean isRecording, long recordingDuration,
+                                boolean isForwardingFile, ArrayList<ContactInfo> arrayList, File file) {
+            this(filePath, fileKey, hikeFileType, fileType, isRecording, recordingDuration, isForwardingFile, arrayList, file, null);
+        }
+
+        public FileTransferData(String filePath, String fileKey, HikeFileType hikeFileType, String fileType, boolean isRecording, long recordingDuration,
+                                boolean isForwardingFile, ArrayList<ContactInfo> arrayList, File file, String caption) {
+            this.filePath = filePath;
+            this.fileKey = fileKey;
+            this.hikeFileType = hikeFileType;
+            this.fileType = fileType;
+            this.isRecording = isRecording;
+            this.recordingDuration = recordingDuration;
+            this.arrayList = arrayList;
+            this.file = file;
+            this.caption = caption;
+        }
+    }
+
+    private class PreFileTransferAsycntask extends AsyncTask<Void, Void, Void>{
 		
 		Object arrayList;
 		Intent intent;

@@ -19,6 +19,8 @@ package com.bsb.hike.smartImageLoader;
 import java.lang.ref.WeakReference;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.apache.http.util.TextUtils;
+
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -27,6 +29,7 @@ import android.graphics.Canvas;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.TransitionDrawable;
 import android.os.AsyncTask;
 import android.support.v4.app.FragmentManager;
@@ -38,6 +41,8 @@ import com.bsb.hike.smartcache.HikeLruCache;
 import com.bsb.hike.ui.ProfileActivity;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.customClasses.AsyncTask.MyAsyncTask;
+import com.bsb.hike.view.TextDrawable;
+import com.bsb.hike.view.TextDrawable.Builder;
 
 /**
  * This class wraps up completing some arbitrary long running work when loading a bitmap to an ImageView. It handles things like using a memory and disk cache, running the work in
@@ -139,7 +144,7 @@ public abstract class ImageWorker
 
 		if (setDefaultAvatarInitially)
 		{
-			setDefaultAvatar(imageView, key);
+			setDefaultAvatar(imageView, key, null);
 		}
 		else
 		{
@@ -187,14 +192,21 @@ public abstract class ImageWorker
 				if (idx > 0)
 					key = new String(data.substring(0, idx));
 				
-				setDefaultAvatar(imageView, key);
+				setDefaultAvatar(imageView, key,refObj);
 				sendImageCallback(imageView);
 			}
 			
 		}
 		else if (cancelPotentialWork(key, imageView) && !isFlinging)
 		{
+			final BitmapWorkerTask task = new BitmapWorkerTask(imageView);
+			if (refObj != null)
+			{
+				task.setContextObject(refObj);
+			}
+
 			Bitmap loadingBitmap = mLoadingBitmap;
+			Builder textDrawableBuilder = null;
 
 			/*
 			 * Setting this loading bitmap to prevent the imageView from showing a blank drawable while we try to fetch the actual drawable for the imageView.
@@ -206,15 +218,22 @@ public abstract class ImageWorker
 				{
 					loadingBitmap = ((BitmapDrawable) drawable).getBitmap();
 				}
+				else if (drawable instanceof TextDrawable)
+				{
+					textDrawableBuilder = ((TextDrawable) drawable).getBuilder();
+				}
 			}
 
-			final BitmapWorkerTask task = new BitmapWorkerTask(imageView);
-			if (refObj != null)
+			if (textDrawableBuilder != null)
 			{
-				task.setContextObject(refObj);
+				final AsyncShapeDrawable asyncDrawable = new AsyncShapeDrawable(task, textDrawableBuilder);
+				imageView.setImageDrawable(asyncDrawable);
 			}
-			final AsyncDrawable asyncDrawable = new AsyncDrawable(mResources, loadingBitmap, task);
-			imageView.setImageDrawable(asyncDrawable);
+			else
+			{
+				final AsyncDrawable asyncDrawable = new AsyncDrawable(mResources, loadingBitmap, task);
+				imageView.setImageDrawable(asyncDrawable);
+			}
 
 			// NOTE: This uses a custom version of AsyncTask that has been pulled from the
 			// framework and slightly modified. Refer to the docs at the top of the class
@@ -227,10 +246,17 @@ public abstract class ImageWorker
 	{
 		loadImage(data, imageView, isFlinging, runOnUiThread, setDefaultAvatarInitially, null);
 	}
-	protected void setDefaultAvatar(ImageView imageView, String data)
+	
+	protected void setDefaultAvatar(ImageView imageView, String data, Object refObj)
 	{
-		imageView.setBackgroundDrawable(HikeMessengerApp.getLruCache().getDefaultAvatar(data, setHiResDefaultAvatar));
-		imageView.setImageDrawable(null);
+		if (refObj != null && refObj instanceof String && !TextUtils.isEmpty(((String) refObj)))
+		{
+			imageView.setImageDrawable(HikeBitmapFactory.getDefaultTextAvatar(((String) refObj)));
+		}
+		else
+		{
+			imageView.setImageDrawable(HikeBitmapFactory.getDefaultTextAvatar(data));
+		}
 	}
 
 	/**
@@ -413,6 +439,11 @@ public abstract class ImageWorker
 				final AsyncDrawable asyncDrawable = (AsyncDrawable) drawable;
 				return asyncDrawable.getBitmapWorkerTask();
 			}
+			else if (drawable instanceof AsyncShapeDrawable)
+			{
+				final AsyncShapeDrawable asyncDrawable = (AsyncShapeDrawable) drawable;
+				return asyncDrawable.getBitmapWorkerTask();
+			}
 		}
 		return null;
 	}
@@ -513,7 +544,7 @@ public abstract class ImageWorker
 					if (idx > 0)
 						key = new String(data.substring(0, idx));
 					
-					setDefaultAvatar(imageView, key);
+					setDefaultAvatar(imageView, key,null);
 					sendImageCallback(imageView);
 				}
 				else if (defaultDrawable != null)
@@ -564,6 +595,22 @@ public abstract class ImageWorker
 		public AsyncDrawable(Resources res, Bitmap bitmap, BitmapWorkerTask bitmapWorkerTask)
 		{
 			super(res, bitmap);
+			bitmapWorkerTaskReference = new WeakReference<BitmapWorkerTask>(bitmapWorkerTask);
+		}
+
+		public BitmapWorkerTask getBitmapWorkerTask()
+		{
+			return bitmapWorkerTaskReference.get();
+		}
+	}
+	
+	private static class AsyncShapeDrawable extends TextDrawable
+	{
+		private final WeakReference<BitmapWorkerTask> bitmapWorkerTaskReference;
+
+		public AsyncShapeDrawable(BitmapWorkerTask bitmapWorkerTask, Builder builder)
+		{
+			super(builder);
 			bitmapWorkerTaskReference = new WeakReference<BitmapWorkerTask>(bitmapWorkerTask);
 		}
 

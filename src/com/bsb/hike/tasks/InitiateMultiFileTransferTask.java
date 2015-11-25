@@ -33,21 +33,21 @@ public class InitiateMultiFileTransferTask extends AsyncTask<Void, Void, Void>
 {
 	private Context context;
 
-	private ArrayList<Pair<String, String>> fileDetails;
+	private ArrayList<FileTransferData> ftDataList;
 
 	private String msisdn;
 
 	private boolean onHike;
 
 	private int attachementType;
-	
+
 	private Intent intent;
 
-	public InitiateMultiFileTransferTask(Context context, ArrayList<Pair<String, String>> fileDetails, String msisdn, boolean onHike, 
-											int attachementType, Intent intent)
+	public InitiateMultiFileTransferTask(Context context, ArrayList<FileTransferData> ftDataList, String msisdn, boolean onHike,
+										 int attachementType, Intent intent)
 	{
 		this.context = context.getApplicationContext();
-		this.fileDetails = fileDetails;
+		this.ftDataList = ftDataList;
 		this.msisdn = msisdn;
 		this.onHike = onHike;
 		this.attachementType = attachementType;
@@ -68,66 +68,65 @@ public class InitiateMultiFileTransferTask extends AsyncTask<Void, Void, Void>
 	@Override
 	protected Void doInBackground(Void... params)
 	{
-		for (Pair<String, String> fileDetail : fileDetails)
+		for (FileTransferData ftData : ftDataList)
 		{
-			initiateFileTransferFromIntentData(fileDetail.first, fileDetail.second);
+			initiateFileTransferFromIntentData(ftData);
 		}
 		return null;
 	}
 
-	private void initiateFileTransferFromIntentData(String filePath, String fileType)
+	private void initiateFileTransferFromIntentData(FileTransferData fileTransferData)
 	{
-		HikeFileType hikeFileType = HikeFileType.fromString(fileType, false);
-		
+		HikeFileType hikeFileType = HikeFileType.fromString(fileTransferData.fileType, false);
+
 		if (OfflineUtils.isConnectedToSameMsisdn(msisdn))
 		{
-			File file = new File(filePath);
+			File file = new File(fileTransferData.filePath);
 			if (file.length() == 0)
 			{
 				FTAnalyticEvents.logDevError(FTAnalyticEvents.UPLOAD_INIT_7_2, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "init", "InitiateFileTransferFromIntentData - File length is 0.");
 				return;
 			}
-			ArrayList<ContactInfo> list = new ArrayList<ContactInfo>();
-			list.add(ContactManager.getInstance().getContact(msisdn));
-			FileTransferData fileTransferData = new FileTransferData(filePath, null, hikeFileType, fileType, false, -1, false, list, file);
-			
+
 			ArrayList<FileTransferData> fileTransferList = new ArrayList<FileTransferData>();
 			fileTransferList.add(fileTransferData);
 			OfflineController.getInstance().sendFile(fileTransferList, msisdn);
 		}
 		else
 		{
-			Logger.d("InitiateMultiFileTransferTask", "isCloudMedia" + Utils.isPicasaUri(filePath));
-				File file = new File(filePath);
-				if (file.length() == 0)
+			Logger.d("InitiateMultiFileTransferTask", "isCloudMedia" + Utils.isPicasaUri(fileTransferData.filePath));
+			File file = new File(fileTransferData.filePath);
+			if (file.length() == 0)
+			{
+				FTAnalyticEvents.logDevError(FTAnalyticEvents.UPLOAD_INIT_7_2, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "init", "InitiateFileTransferFromIntentData - File length is 0.");
+				return;
+			}
+			FTMessageBuilder.Builder mBuilder = new FTMessageBuilder.Builder()
+					.setMsisdn(msisdn)
+					.setSourceFile(file)
+					.setFileKey(null)
+					.setFileType(fileTransferData.fileType)
+					.setHikeFileType(hikeFileType)
+					.setRec(false)
+					.setForwardMsg(false)
+					.setRecipientOnHike(onHike)
+					.setRecordingDuration(-1)
+					.setAttachement(attachementType)
+					.setCaption(fileTransferData.caption);
+			List<ConvMessage> ftConvMsgs = mBuilder.buildInSync();
+			Context mContext = HikeMessengerApp.getInstance().getApplicationContext();
+			for (Iterator<ConvMessage> iterator = ftConvMsgs.iterator(); iterator.hasNext();)
+			{
+				ConvMessage convMessage = (ConvMessage) iterator.next();
+				if(hikeFileType == HikeFileType.CONTACT || hikeFileType == HikeFileType.LOCATION)
 				{
-					return;
+					FileTransferManager.getInstance(mContext).uploadContactOrLocation(convMessage, hikeFileType == HikeFileType.CONTACT);
 				}
-				FTMessageBuilder.Builder mBuilder = new FTMessageBuilder.Builder()
-				.setMsisdn(msisdn)
-				.setSourceFile(file)
-				.setFileKey(null)
-				.setFileType(fileType)
-				.setHikeFileType(hikeFileType)
-				.setRec(false)
-				.setForwardMsg(false)
-				.setRecipientOnHike(onHike)
-				.setRecordingDuration(-1)
-				.setAttachement(attachementType);
-				List<ConvMessage> ftConvMsgs = mBuilder.buildInSync();
-				Context mContext = HikeMessengerApp.getInstance().getApplicationContext();
-				for (Iterator<ConvMessage> iterator = ftConvMsgs.iterator(); iterator.hasNext();)
+				else
 				{
-					ConvMessage convMessage = (ConvMessage) iterator.next();
-					if(hikeFileType == HikeFileType.CONTACT || hikeFileType == HikeFileType.LOCATION)
-					{
-						FileTransferManager.getInstance(mContext).uploadContactOrLocation(convMessage, hikeFileType == HikeFileType.CONTACT);
-					}
-					else
-					{
-						FileTransferManager.getInstance(mContext).uploadFile(convMessage, null);
-					}
+					FileTransferManager.getInstance(mContext).uploadFile(convMessage, null);
 				}
+			}
 		}
 	}
 }

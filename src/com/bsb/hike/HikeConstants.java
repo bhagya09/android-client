@@ -66,6 +66,8 @@ public class HikeConstants
 	public static final String SMS_MESSAGE = "sm";
 
 	public static final String PIN_MESSAGE = "pin";
+	
+	public static final String CAPTION = "cap";
 
 	public static final String TIMESTAMP = "ts";
 
@@ -502,6 +504,10 @@ public class HikeConstants
 	public static final String CHANGE_STEALTH_TIMEOUT = "changeStealthTimeout";
 
 	public static final String STEALTH_INDICATOR_ENABLED = "stealthIndicatorEnabled";
+	
+	public static final String STEALTH_INDICATOR_SHOW_REPEATED = "stealthIndicatorShowRepeated";
+	
+	public static final String STEALTH_INDICATOR_SHOW_ONCE = "stealthIndicatorShowOnce";
 
 	public static final String STEALTH_NOTIFICATION_ENABLED = "stealthNotificationEnabled";
 
@@ -3101,6 +3107,9 @@ public class HikeConstants
 	public static int DEFAULT_AVATARS[] = { R.drawable.avatar_bubblegum, R.drawable.avatar_apricot, R.drawable.avatar_carnation, R.drawable.avatar_light_gold,
 			R.drawable.avatar_sky_blue };
 
+	public static int DEFAULT_AVATAR_BG_COLORID[] = { R.color.avatar_color_apricot, R.color.avatar_color_bubblegum, R.color.avatar_color_carnation,
+			R.color.avatar_color_light_gold, R.color.avatar_color_sky_blue };
+
 	public static String DEFAULT_AVATAR_KEYS[] = { "avatar_buggle_gum", "avatar_apricot", "avatar_carnation", "avatar_light_gold", "avatar_sky_blue" };
 
 	public static String IS_GROUP = "isGroup";
@@ -3527,6 +3536,8 @@ public class HikeConstants
 	
 	public static final String ACTIVATE_STICKY_CALLER_PREF = "activateStickyCaller";
 
+	public static final String SMS_CARD_ENABLE_PREF = "smsCardEnablePref"; 
+	
 	public static final String ENABLE_KNOWN_NUMBER_CARD_PREF = "knownContactEnablePref";
 
 	public static final String NEW_CHAT_RED_DOT = "nc_dot";

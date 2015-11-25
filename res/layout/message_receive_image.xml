@@ -44,9 +44,9 @@
             android:id="@+id/placeholder"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@drawable/ic_bubble_white_selector"
             android:layout_marginLeft="1dp"
-            android:layout_marginRight="2dp" >
+            android:layout_marginRight="2dp"
+            android:background="@drawable/ic_bubble_white_selector" >
 
             <com.bsb.hike.ui.utils.RecyclingImageView
                 android:id="@+id/file_thumb"
@@ -89,6 +89,18 @@
                     android:layout_height="40dp"
                     android:layout_centerInParent="true" />
             </RelativeLayout>
+
+            <com.bsb.hike.view.CustomReceiveMessageTextView
+                android:id="@+id/caption"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignLeft="@+id/file_thumb"
+                android:layout_alignRight="@id/file_thumb"
+                android:layout_below="@id/file_thumb"
+                android:gravity="left"
+                android:padding="2dp"
+                android:textColor="@color/chat_color"
+                android:textSize="16sp" />
 
             <include
                 android:layout_width="wrap_content"
