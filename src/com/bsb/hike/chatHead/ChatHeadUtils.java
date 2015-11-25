@@ -92,7 +92,11 @@ public class ChatHeadUtils
 		
 	// replica of hidden constant ActivityManager.PROCESS_STATE_TOP 
 	public static final int PROCESS_STATE_TOP =2;
-	
+
+	private static final int MIN_SMS_MSISDN_LENGTH = 10;
+
+	private static final int MAX_SMS_MSISDN_LENGTH = 13;
+
 	private static ChatHeadViewManager viewManager;
 
 	/**
@@ -161,7 +165,7 @@ public class ChatHeadUtils
 
 		String validNumber = "";
 
-		if (number == null && !number.matches(regex))
+		if (number == null || !number.matches(regex))
 		{
 			return null;
 		}
@@ -862,7 +866,8 @@ public class ChatHeadUtils
 		if (HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.SHOW_STICKY_CALLER, false)
 				&& PreferenceManager.getDefaultSharedPreferences(context).getBoolean(HikeConstants.ACTIVATE_STICKY_CALLER_PREF, false)
 				&& HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.SHOW_SMS_CARD_PREF, false)
-				&& PreferenceManager.getDefaultSharedPreferences(context).getBoolean(HikeConstants.SMS_CARD_ENABLE_PREF, false))
+				&& PreferenceManager.getDefaultSharedPreferences(context).getBoolean(HikeConstants.SMS_CARD_ENABLE_PREF, false)
+				&& number != null && number.length() >= MIN_SMS_MSISDN_LENGTH && number.length() <= MAX_SMS_MSISDN_LENGTH)
 		{
 			StickyCaller.CALL_TYPE = StickyCaller.SMS;
 			postNumberRequest(context, number);
