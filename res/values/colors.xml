@@ -117,6 +117,7 @@
     <color name="bubble_forest_study_sporty_fifa_nature">#dcffa0</color>
     <color name="bubble_green">#ecffcf</color>
     <color name="bubble_love_floral_kisses_valentines_girly_ipl_blurredlight_love2">#feebdd</color>
+    <color name="bubble_rain2">#d9d9d9</color>
     <color name="bubble_night">#91d8fa</color>
     <color name="bubble_owl">#7acdc8</color>
     <color name="bubble_smiley_geometric1_independence">#ffffcd</color>
@@ -167,6 +168,7 @@
     <color name="jellies_btn_pressed">#391b17</color>
     <color name="jellies_btn_normal">#4e251f</color>
     <color name="white_80">#CCFFFFFF</color>
+    <color name="white_75">#BFFFFFFF</color>
     <color name="black_16">#28000000</color>
     <color name="ftue_card_group_click_text">#cf5545</color>
     <color name="ftue_card_invite_click_text">#01b085</color>
@@ -195,6 +197,7 @@
     <color name="erase_key_color">#555555</color>
     <color name="sticker_settings_update_color">#60B141</color>
     <color name="white_100">#FFFFFFFF</color>
+    <color name="blue_action_bar">#039BE5</color>
     <color name="shop_update_details_color">#C4EF94</color>
     <color name="shop_update_invisible_color">#cccccc</color>
     <color name="sticker_pallete_bg_color">#555555</color>
@@ -307,5 +310,9 @@
     <color name="dp_bg_10">#ffa3a3a3</color>
     <color name="dp_bg_11">#ff66d7e3</color>
     <color name="dp_bg_12">#ffffd966</color>
+    <color name="gallery_selection_action_bar">#0f0f0f</color>
+    <color name="update_tip_default">#04c687</color>
+    <color name="update_tip_header_text">#f7f8f9</color>
+    <color name="update_tip_body_text">#e6f7f8f9</color>
 </resources>
 	

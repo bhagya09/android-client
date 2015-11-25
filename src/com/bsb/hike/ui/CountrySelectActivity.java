@@ -27,6 +27,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.Filter;
+import android.widget.Filter.FilterListener;
 import android.widget.TextView;
 
 import com.bsb.hike.HikeConstants;
@@ -36,7 +37,7 @@ import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.view.PinnedSectionListView;
 import com.bsb.hike.view.PinnedSectionListView.PinnedSectionListAdapter;
 
-public class CountrySelectActivity extends HikeAppStateBaseFragmentActivity 
+public class CountrySelectActivity extends HikeAppStateBaseFragmentActivity implements FilterListener
 {
 	public static final String RESULT_COUNTRY_NAME = "resCName";
 
@@ -56,7 +57,11 @@ public class CountrySelectActivity extends HikeAppStateBaseFragmentActivity
 
 	private List<String> sortedCountries = new ArrayList<String>();
 
+	/* a listener for callback after filtering the search results */
+	private FilterListener mFilterListener;
+
 	public ArrayList<Country> searchResult;
+
 
 	public static class Country
 	{
@@ -160,6 +165,7 @@ public class CountrySelectActivity extends HikeAppStateBaseFragmentActivity
 			}
 		});
 
+		mFilterListener = this;
 		filter = new CountryFilter();
 		setupActionBar();
 	}
@@ -479,7 +485,7 @@ public class CountrySelectActivity extends HikeAppStateBaseFragmentActivity
 					listView.setVerticalScrollBarEnabled(true);
 				}
 				searching = true;
-				filter.filter(query);
+				filter.filter(query, mFilterListener);
 			}
 			else
 			{
@@ -501,4 +507,21 @@ public class CountrySelectActivity extends HikeAppStateBaseFragmentActivity
 	public void onBackPressed() {
 		finish();
 	}
+
+	@Override
+	public void onFilterComplete(int count) {
+		View parentView = findViewById(android.R.id.content);
+		TextView emptyStateView = (TextView) parentView.findViewById(android.R.id.empty);
+		if(searchListViewAdapter.isEmpty())
+		{
+			emptyStateView.setText(R.string.no_results_found);
+			emptyStateView.setVisibility(View.VISIBLE);
+		}
+		else if(emptyStateView.getVisibility() == View.VISIBLE)
+		{
+			emptyStateView.setText(R.string.no_hike_contacts);
+			emptyStateView.setVisibility(View.GONE);
+		}
+	}
+
 }

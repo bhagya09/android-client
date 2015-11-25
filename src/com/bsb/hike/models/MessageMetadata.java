@@ -94,6 +94,8 @@ public class MessageMetadata
 
 	private String groupAdder;
 
+	private String caption;
+
 	public int getPinMessage()
 	{
 		return pinMessage;
@@ -213,6 +215,7 @@ public class MessageMetadata
 		}
 		this.isPokeMessage = metadata.optBoolean(HikeConstants.POKE);
 		this.pinMessage  = metadata.optInt(HikeConstants.PIN_MESSAGE);
+		this.setCaption(metadata.optString(HikeConstants.CAPTION));
 		this.json = metadata;
 		if (metadata.has(StickerManager.STICKER_ID))
 		{
@@ -362,5 +365,15 @@ public class MessageMetadata
 			this.json.put(StickerManager.CATEGORY_ID, newCategoryId);
 		}
 		this.sticker.setCategoryId(newCategoryId);
+	}
+
+	public String getCaption()
+	{
+		return caption;
+	}
+
+	public void setCaption(String caption)
+	{
+		this.caption = caption;
 	}
 }

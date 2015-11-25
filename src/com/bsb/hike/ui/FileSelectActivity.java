@@ -46,7 +46,10 @@ import com.bsb.hike.adapters.FileListAdapter;
 import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.filetransfer.FTAnalyticEvents;
 import com.bsb.hike.filetransfer.FileTransferManager;
+import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.FileListItem;
+import com.bsb.hike.models.HikeFile;
+import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.tasks.InitiateMultiFileTransferTask;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.IntentFactory;
@@ -405,7 +408,13 @@ public class FileSelectActivity extends HikeAppStateBaseFragmentActivity impleme
 			@Override
 			public void onClick(View v)
 			{
-				ArrayList<Pair<String, String>> fileDetails = new ArrayList<Pair<String, String>>(listAdapter.getSeletctedFileItems().size());
+                final ArrayList<ComposeChatActivity.FileTransferData> ftDataList = new ArrayList<ComposeChatActivity.FileTransferData>(listAdapter.getSeletctedFileItems().size());
+
+                final String msisdn = getIntent().getStringExtra(HikeConstants.Extras.MSISDN);
+                final boolean onHike = getIntent().getBooleanExtra(HikeConstants.Extras.ON_HIKE, true);
+
+                ArrayList<ContactInfo> list = new ArrayList<ContactInfo>();
+                list.add(ContactManager.getInstance().getContact(msisdn));
 				for (Entry<String, FileListItem> fileDetailEntry : listAdapter.getSeletctedFileItems().entrySet())
 				{
 					FileListItem listItem = fileDetailEntry.getValue();
@@ -413,17 +422,19 @@ public class FileSelectActivity extends HikeAppStateBaseFragmentActivity impleme
 					String filePath = listItem.getFile().getAbsolutePath();
 					String fileType = listItem.getMimeType();
 
-					fileDetails.add(new Pair<String, String>(filePath, fileType));
+                    File file = new File(filePath);
+
+                    //TODO remove duplicate fileType
+                    ComposeChatActivity.FileTransferData fileTransferData = new ComposeChatActivity.FileTransferData(filePath, null, HikeFile.HikeFileType.fromString(fileType), fileType, false, -1, false, list, file);
+                    ftDataList.add(fileTransferData);
 				}
-				String msisdn = getIntent().getStringExtra(HikeConstants.Extras.MSISDN);
 				if (msisdn == null)
 				{
 					throw new IllegalArgumentException("You are not sending msisdn, and yet you expect to send files ?");
 				}
-				boolean onHike = getIntent().getBooleanExtra(HikeConstants.Extras.ON_HIKE, true);
-				
+
 				Intent intent = IntentFactory.createChatThreadIntentFromMsisdn(FileSelectActivity.this, msisdn, false,false);
-				fileTransferTask = new InitiateMultiFileTransferTask(getApplicationContext(), fileDetails, msisdn, onHike, FTAnalyticEvents.FILE_ATTACHEMENT, intent);
+				fileTransferTask = new InitiateMultiFileTransferTask(getApplicationContext(), ftDataList, msisdn, onHike, FTAnalyticEvents.FILE_ATTACHEMENT, intent);
 				Utils.executeAsyncTask(fileTransferTask);
 
 				progressDialog = ProgressDialog.show(FileSelectActivity.this, null, getResources().getString(R.string.multi_file_creation));
@@ -603,12 +614,17 @@ public class FileSelectActivity extends HikeAppStateBaseFragmentActivity impleme
 		currentDir = null;
 		items.clear();
 		String extStorage = Environment.getExternalStorageDirectory().getAbsolutePath();
-		FileListItem ext = new FileListItem();
-		ext.setTitle(getString(!Utils.hasGingerbread() || Environment.isExternalStorageRemovable() ? R.string.sd_card : R.string.internal_storage));
-		ext.setIcon(R.drawable.ic_folder);
-		ext.setSubtitle(getRootSubtitle(extStorage));
-		ext.setFile(Environment.getExternalStorageDirectory());
-		items.add(ext);
+		try {
+			FileListItem ext = new FileListItem();
+			ext.setTitle(getString(!Utils.hasGingerbread() || Environment.isExternalStorageRemovable() ? R.string.sd_card : R.string.internal_storage));
+			ext.setIcon(R.drawable.ic_folder);
+			ext.setSubtitle(getRootSubtitle(extStorage));
+			ext.setFile(Environment.getExternalStorageDirectory());
+			items.add(ext);
+		}
+		catch(Exception e) {
+			Logger.e(getClass().getSimpleName(), "Exception while showing root", e);
+		}
 		try
 		{
 			BufferedReader reader = new BufferedReader(new FileReader("/proc/mounts"));
@@ -672,21 +688,14 @@ public class FileSelectActivity extends HikeAppStateBaseFragmentActivity impleme
 
 	private String getRootSubtitle(String path)
 	{
-		try
-		{
-			StatFs stat = new StatFs(path);
-			long total = (long) stat.getBlockCount() * (long) stat.getBlockSize();
-			long free = (long) stat.getAvailableBlocks() * (long) stat.getBlockSize();
-			if (total == 0)
-			{
-				return "";
-			}
-			return getString(R.string.free_of_total, Utils.formatFileSize(free), Utils.formatFileSize(total));
-		}
-		catch (Exception e)
+		StatFs stat = new StatFs(path);
+		long total = (long) stat.getBlockCount() * (long) stat.getBlockSize();
+		long free = (long) stat.getAvailableBlocks() * (long) stat.getBlockSize();
+		if (total == 0)
 		{
 			return "";
 		}
+		return getString(R.string.free_of_total, Utils.formatFileSize(free), Utils.formatFileSize(total));
 	}
 
 	@Override

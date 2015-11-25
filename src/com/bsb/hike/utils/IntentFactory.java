@@ -38,6 +38,7 @@ import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.cropimage.CropCompression;
 import com.bsb.hike.cropimage.HikeCropActivity;
+import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.HikeFile;
@@ -45,6 +46,7 @@ import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.models.Conversation.ConvInfo;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
+import com.bsb.hike.platform.CocosGamingActivity;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.timeline.view.StatusUpdate;
 import com.bsb.hike.timeline.view.TimelineActivity;
@@ -729,6 +731,14 @@ public class IntentFactory
 		appContext.startActivity(i);
 	}
 
+	public static void reopenSignupActivity(Context context)
+	{
+		Intent i = new Intent(context, SignupActivity.class);
+		i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		context.startActivity(i);
+	}
+
 	public static void openHomeActivity(Context context, boolean clearTop)
 	{
 		Intent in = new Intent(context, HomeActivity.class);
@@ -738,6 +748,7 @@ public class IntentFactory
 		}
 		context.startActivity(in);
 	}
+	
 	/*
 	 * The returned intent will be similar to the one used by android for opening an activity from the Launcher icon
 	 */
@@ -787,6 +798,11 @@ public class IntentFactory
 
 	public static Intent getNonMessagingBotIntent(String msisdn, Context context)
 	{
+		return(getNonMessagingBotIntent(msisdn,context,null));
+	}
+	
+	public static Intent getNonMessagingBotIntent(String msisdn, Context context,String data)
+	{
 		if (BotUtils.isBot(msisdn))
 		{
 			BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
@@ -794,10 +810,20 @@ public class IntentFactory
 			if (botInfo.isNonMessagingBot())
 			{
 				NonMessagingBotMetadata nonMessagingBotMetadata = new NonMessagingBotMetadata(botInfo.getMetadata());
-				Intent intent = getWebViewActivityIntent(context, "", "");
-				intent.putExtra(WebViewActivity.WEBVIEW_MODE, nonMessagingBotMetadata.isWebUrlMode() ? WebViewActivity.WEB_URL_BOT_MODE : WebViewActivity.MICRO_APP_MODE);
-				intent.putExtra(HikeConstants.MSISDN, msisdn);
-				return intent;
+				if (nonMessagingBotMetadata.isNativeMode())
+				{
+					Intent i = new Intent(context,CocosGamingActivity.class);
+					i.putExtra(HikeConstants.MSISDN, msisdn);
+					i.putExtra(HikeConstants.DATA,data);
+					return i;
+				}
+				else
+				{
+					Intent intent = getWebViewActivityIntent(context, "", "");
+					intent.putExtra(WebViewActivity.WEBVIEW_MODE, nonMessagingBotMetadata.isWebUrlMode() ? WebViewActivity.WEB_URL_BOT_MODE : WebViewActivity.MICRO_APP_MODE);
+					intent.putExtra(HikeConstants.MSISDN, msisdn);
+					return intent;
+				}
 
 			}
 		}
@@ -837,6 +863,13 @@ public class IntentFactory
 	{
 		Intent intent = new Intent(context, ComposeChatActivity.class);
 		intent.putExtra(HikeConstants.Extras.EDIT, true);
+		return intent;
+	}
+
+	public static Intent getComposeChatIntentWithBotDiscovery(Activity context)
+	{
+		Intent intent = getComposeChatIntent(context);
+		intent.putExtra(HikeConstants.Extras.IS_MICROAPP_SHOWCASE_INTENT, true);
 		return intent;
 	}
 
@@ -1086,7 +1119,7 @@ public class IntentFactory
 		Intent intent = new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS);
 		activity.startActivityForResult(intent, 0);
 	}
-	
+
 	public static Intent getAddMembersToExistingGroupIntent(Context context, String mLocalMSISDN)
 	{
 		Intent intent = new Intent(context, ComposeChatActivity.class);
@@ -1139,4 +1172,36 @@ public class IntentFactory
 			return IntentFactory.createChatThreadIntentFromMsisdn(context, mBotInfo.getMsisdn(), false, false);
 		}
 	}
+	
+	public static Intent getIntentForAnyChatThread(Context context, String msisdn, boolean isBot)
+	{
+		if (isBot)
+		{
+			return IntentFactory.getIntentForBots(context, msisdn);
+		}
+		else
+		{
+			return IntentFactory.createChatThreadIntentFromMsisdn(context, msisdn, false, false);
+		}
+
+	}
+
+	public static Intent getIntentForBots(Context mContext, String msisdn)
+	{
+		BotInfo mBotInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
+
+		if (mBotInfo == null)
+		{
+			mBotInfo = HikeConversationsDatabase.getInstance().getBotInfoForMsisdn(msisdn);
+		}
+
+		Intent intent = null;
+
+		if (mBotInfo != null && mBotInfo.isNonMessagingBot())
+		{
+			intent = IntentFactory.getNonMessagingBotIntent(msisdn, mContext);
+		}
+		return intent;
+	}
+
 }

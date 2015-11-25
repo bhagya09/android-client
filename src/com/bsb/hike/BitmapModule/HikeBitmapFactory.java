@@ -485,8 +485,41 @@ public class HikeBitmapFactory
 
 	public static Bitmap decodeSampledBitmapFromFile(String filename, int reqWidth, int reqHeight, Bitmap.Config con)
 	{
+		return decodeSampledBitmapFromFile(filename, reqWidth, reqHeight, con, null, false);
+	}
+
+	/**
+	 * 
+	 * Decode and sample down a bitmap from a file to the requested width and height.
+	 * 
+	 * @param filename
+	 *            The full path of the file to decode
+	 * @param reqWidth
+	 *            The requested width of the resulting bitmap
+	 * @param reqHeight
+	 *            The requested height of the resulting bitmap
+	 * @param con
+	 *            Bitmap factory configurations
+	 * @param argOptions
+	 *            Bitmap factory options
+	 * @param fitEqualOrSmall
+	 *            If true, the returned bitmap will be equal or smaller than required width/height
+	 * 
+	 * @return
+	 */
+	public static Bitmap decodeSampledBitmapFromFile(String filename, int reqWidth, int reqHeight, Bitmap.Config con, BitmapFactory.Options argOptions, boolean fitEqualOrSmall)
+	{
 		// First decode with inJustDecodeBounds=true to check dimensions
-		final BitmapFactory.Options options = new BitmapFactory.Options();
+		BitmapFactory.Options options = null;
+
+		if (argOptions == null)
+		{
+			options = new BitmapFactory.Options();
+		}
+		else
+		{
+			options = argOptions;
+		}
 		options.inJustDecodeBounds = true;
 
 		decodeFile(filename, options);
@@ -494,13 +527,14 @@ public class HikeBitmapFactory
 		options.inPreferredConfig = con;
 
 		// Calculate inSampleSize
-		options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
-
-		// If we're running on Honeycomb or newer, try to use inBitmap
-		// if (Utils.hasHoneycomb())
-		// {
-		// addInBitmapOptions(options, cache);
-		// }
+		if (fitEqualOrSmall)
+		{
+			options.inSampleSize = calculateSmallerInSampleSize(options, reqWidth, reqHeight);
+		}
+		else
+		{
+			options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
+		}
 
 		// Decode bitmap with inSampleSize set
 		options.inJustDecodeBounds = false;
@@ -699,7 +733,7 @@ public class HikeBitmapFactory
 	 *            The requested height of the resulting bitmap
 	 * @return The value to be used for inSampleSize
 	 */
-	private static int calculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight)
+	public static int calculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight)
 	{
 		final int height = options.outHeight;
 		final int width = options.outWidth;
@@ -713,7 +747,8 @@ public class HikeBitmapFactory
 
 			// Calculate the largest inSampleSize value that is a power of 2 and keeps both
 			// height and width larger than the requested height and width.
-			while ((halfHeight / inSampleSize) >= reqHeight && (halfWidth / inSampleSize) >= reqWidth)
+			while (((halfHeight / inSampleSize) >= reqHeight && (halfWidth / inSampleSize) >= reqWidth)
+					|| (height/inSampleSize) > 4096 || (width/inSampleSize) > 4096) //OpenGL Surface limitation
 			{
 				inSampleSize *= 2;
 			}
@@ -721,7 +756,33 @@ public class HikeBitmapFactory
 		}
 		return inSampleSize;
 	}
+	
+	/**
+	 * Calculate an inSampleSize for use in a {@link BitmapFactory.Options} object when decoding bitmaps using the decode* methods from {@link BitmapFactory}. This implementation
+	 * calculates the closest inSampleSize that is a power of 2 and will result in the final decoded bitmap having a width and height equal to or smaller than the requested width
+	 * and height.
+	 * 
+	 * @param options
+	 *            An options object with out* params already populated (run through a decode* method with inJustDecodeBounds==true
+	 * @param reqWidth
+	 *            The requested width of the resulting bitmap
+	 * @param reqHeight
+	 *            The requested height of the resulting bitmap
+	 * @return The value to be used for inSampleSize
+	 */
+	public static int calculateSmallerInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight)
+	{
+		final int height = options.outHeight;
+		final int width = options.outWidth;
+		int inSampleSize = 1;
 
+		while ((height / inSampleSize) > reqHeight || (width / inSampleSize) > reqWidth)
+		{
+			inSampleSize *= 2;
+		}
+		return inSampleSize;
+	}
+	
 	/**
 	 * Decode and sample down a bitmap from resources to the requested inSampleSize.
 	 * 

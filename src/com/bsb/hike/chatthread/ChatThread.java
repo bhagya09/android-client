@@ -160,6 +160,7 @@ import com.bsb.hike.ui.utils.StatusBarColorChanger;
 import com.bsb.hike.utils.ChatTheme;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.HikeUiHandler;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.PairModified;
@@ -1568,7 +1569,7 @@ import com.bsb.hike.voip.VoIPConstants;
 	private void startHikeGallery(boolean onHike)
 	{
 		boolean editPic = Utils.isPhotosEditEnabled();
-		int galleryFlags = GalleryActivity.GALLERY_ALLOW_MULTISELECT|GalleryActivity.GALLERY_CATEGORIZE_BY_FOLDERS|GalleryActivity.GALLERY_EDIT_SELECTED_IMAGE;
+		int galleryFlags = GalleryActivity.GALLERY_ALLOW_MULTISELECT|GalleryActivity.GALLERY_CATEGORIZE_BY_FOLDERS;
 		Intent imageIntent = IntentFactory.getHikeGalleryPickerIntent(activity.getApplicationContext(),galleryFlags,null);
 		imageIntent.putExtra(GalleryActivity.START_FOR_RESULT, true);
 		imageIntent.putExtra(HikeConstants.Extras.MSISDN, msisdn);
@@ -2191,15 +2192,15 @@ import com.bsb.hike.voip.VoIPConstants;
 	{
 		int startIndex = getMessagesStartIndex();
 
-		long firstMsgId = messages.get(startIndex).getMsgID();
+		long firstMsgId = messages.get(startIndex).getSortingId();
 		Logger.i(TAG, "inside background thread: loading more messages " + firstMsgId);
 		
 		return loadMoreMessages(messageCountToLoad, firstMsgId, -1);
 	}
 	
-	protected List<ConvMessage> loadMoreMessages(int messageCountToLoad, long maxId, long minId)
+	protected List<ConvMessage> loadMoreMessages(int messageCountToLoad, long maxSortId, long minSortId)
 	{
-		return mConversationDb.getConversationThread(msisdn, messageCountToLoad, mConversation, maxId, minId);
+		return mConversationDb.getConversationThread(msisdn, messageCountToLoad, mConversation, maxSortId, minSortId);
 	}
 
 	protected abstract int getContentView();
@@ -2281,7 +2282,7 @@ import com.bsb.hike.voip.VoIPConstants;
 	
 	protected boolean shouldShowKeyboard()
 	{
-		return mConversation.getMessagesList().isEmpty() && !mConversation.isBlocked();
+		return mConversation.getMessagesList().isEmpty() && !mConversation.isBlocked() && !activity.getIntent().getBooleanExtra(HikeConstants.Extras.HIKE_DIRECT_MODE,false);
 	}
 
 	/**
@@ -2542,15 +2543,9 @@ import com.bsb.hike.voip.VoIPConstants;
 
 						HikeFileType hikeFileType = HikeFileType.fromString(fileType, isRecording);
 
-						if (Utils.isPicasaUri(filePath))
-						{
-							channelSelector.sendPicasaUriFile(activity.getApplicationContext(),Uri.parse(filePath), hikeFileType, msisdn, mConversation.isOnHike());
-						}
-						else
-						{
-							channelSelector.sendFile(activity.getApplicationContext(), msisdn, filePath, fileKey, hikeFileType, fileType, isRecording,
+						Logger.d("ChatThread", "isCloudMediaUri" + Utils.isPicasaUri(filePath));
+						channelSelector.sendFile(activity.getApplicationContext(), msisdn, filePath, fileKey, hikeFileType, fileType, isRecording,
 									recordingDuration, true, mConversation.isOnHike(), attachmentType);
-						}
 					}
 					else if (msgExtrasJson.has(HikeConstants.Extras.LATITUDE) && msgExtrasJson.has(HikeConstants.Extras.LONGITUDE)
 							&& msgExtrasJson.has(HikeConstants.Extras.ZOOM_LEVEL))
@@ -3030,7 +3025,7 @@ import com.bsb.hike.voip.VoIPConstants;
 						ids.addAll(0, MovingList.getIds(msgList));
 						if (position >= 0)
 						{
-							Logger.d("gaurav","found at pos: "+ position + ", id:" + msgList.get(position).getMsgID());
+							Logger.d("gaurav","found at pos: "+ position + ", id:" + msgList.get(position).getSortingId());
 							int start = Math.max(position - HikeConstants.MAX_OLDER_MESSAGES_TO_LOAD_EACH_TIME, 0);
 							int end = Math.min(position + HikeConstants.MAX_OLDER_MESSAGES_TO_LOAD_EACH_TIME, msgList.size()-1);
 							ArrayList<ConvMessage> toBeAddedList = new ArrayList<ConvMessage>(ids.size());
@@ -3050,7 +3045,7 @@ import com.bsb.hike.voip.VoIPConstants;
 							{
 								loadMessageCount *= 2;
 							}
-							maxId = msgList.get(0).getMsgID();
+							maxId = msgList.get(0).getSortingId();
 						}
 					}
 					if (loaderId == SEARCH_LOOP && position < 0)
@@ -3077,7 +3072,7 @@ import com.bsb.hike.voip.VoIPConstants;
 						position = messageSearchManager.searchFirstItem(msgList, 0, msgList.size(), chatThread.get().searchText);
 						if (position >= 0)
 						{
-							Logger.d("gaurav","found at pos: "+ position + ", id:" + msgList.get(position).getMsgID());
+							Logger.d("gaurav","found at pos: "+ position + ", id:" + msgList.get(position).getSortingId());
 							count += (position + 1);
 							position = count;
 						}
@@ -3089,7 +3084,7 @@ import com.bsb.hike.voip.VoIPConstants;
 							{
 								loadMessageCount *= 2;
 							}
-							minId = msgList.get(msgList.size() - 1).getMsgID();
+							minId = msgList.get(msgList.size() - 1).getSortingId();
 							maxIdPosition = Math.min(count + loadMessageCount, msgSize - 1);
 							maxId = chatThread.get().messages.getUniqueId(maxIdPosition);
 						}
@@ -3651,6 +3646,26 @@ import com.bsb.hike.voip.VoIPConstants;
         		sendUIMessage(MESSAGE_SENT, msg);
         	}
         	break;
+			case HikePubSub.GENERAL_EVENT_STATE_CHANGE:
+				ConvMessage eventMessage=(ConvMessage)object;
+				if(eventMessage!=null&&this.msisdn.equals(eventMessage.getMsisdn()))
+				{
+					long messageId = eventMessage.getMsgID();
+					for (int i = messages.size() - 1; i >= 0; i--)
+					{
+						ConvMessage mesg = messages.get(i);
+						if (mesg.getMsgID() == messageId)
+						{
+							messages.get(i).setState(eventMessage.getState());
+							uiHandler.sendEmptyMessage(NOTIFY_DATASET_CHANGED);
+							break;
+						}
+
+					}
+				}
+				break;
+
+
 		default:
 			Logger.e(TAG, "PubSub Registered But Not used : " + type);
 			break;
@@ -4877,6 +4892,7 @@ import com.bsb.hike.voip.VoIPConstants;
 			if (msg.getState() == ConvMessage.State.RECEIVED_UNREAD)
 			{
 				unreadConvMessages.add(msg);
+				msg.setState(ConvMessage.State.RECEIVED_READ);
 			}
 			else if (msg.getState() == ConvMessage.State.RECEIVED_READ)
 			{
@@ -4894,8 +4910,10 @@ import com.bsb.hike.voip.VoIPConstants;
 				// below method marks sms msgs as read
 				setSMSReadInNative();
 			}
-			HikeMessengerApp.getPubSub().publish(HikePubSub.MSG_READ, msisdn);
+		
 			ChatThreadUtils.sendMR(msisdn, unreadConvMessages, readMessageExists,channelSelector);
+			//Moved here so MSG_READ is published after it has been updated in DB
+			HikeMessengerApp.getPubSub().publish(HikePubSub.MSG_READ, msisdn);
 		}
 	}
 	
@@ -5359,10 +5377,14 @@ import com.bsb.hike.voip.VoIPConstants;
 	protected void onConfigurationChanged(Configuration newConfig)
 	{
 		Logger.d(TAG, "newConfig : " + newConfig.toString());
-		
-		if (mShareablePopupLayout != null && mShareablePopupLayout.isShowing())
+
+		/* AND-3521: calling onConfigurationChange when mShareablePopupLayout is not null,
+		   so that bottomNavBar(width/height) can be updated according to orientation */
+		if (mShareablePopupLayout != null )
 		{
-			mShareablePopupLayout.dismiss();
+			if(mShareablePopupLayout.isShowing()) {
+				mShareablePopupLayout.dismiss();
+			}
 			mShareablePopupLayout.onConfigurationChanged();
 		}
 		
@@ -5932,4 +5954,27 @@ import com.bsb.hike.voip.VoIPConstants;
 		hideOverflowMenu();
 		hideThemePicker();
 	}
+	
+	/**
+	 * Call this method instead of directly calling {@link ChatThread#onDestroy()}
+	 */
+	protected void tryToDestroyChatThread()
+	{
+		if (wasAnythingInstantiated())
+		{
+			onDestroy();
+		}
+	}
+	
+	/**
+	 * In cases of deleted conversations, the {@link ChatThread#fetchConversation()} returns null and eventually onDestroy is called. Since there are certain objects in onDestroy
+	 * which might not have been instantiated, hence we were getting NPE there. This fixes that.
+	 * 
+	 * @return
+	 */
+	private boolean wasAnythingInstantiated()
+	{
+		return mConversation != null;
+	}
+	
 }

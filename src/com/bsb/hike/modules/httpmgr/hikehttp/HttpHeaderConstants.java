@@ -17,4 +17,6 @@ public class HttpHeaderConstants
 	
 	public static final String CONTENT_MD5 = "Content-MD5";
 
+	public static final String RANGE = "Range";
+
 }
