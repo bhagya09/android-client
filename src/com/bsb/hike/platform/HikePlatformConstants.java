@@ -191,7 +191,7 @@ public interface HikePlatformConstants
 	
 	public static final String TARGET_ACTIVITY = "target_activity";
 
-    public static final String BOT_VERSION_CODE = "bot_version_code";
+    public static final String MAPP_VERSION_CODE = "mapp_version_code";
 	
 	public static final String MIN_PLATFORM = "min_platform";
 
