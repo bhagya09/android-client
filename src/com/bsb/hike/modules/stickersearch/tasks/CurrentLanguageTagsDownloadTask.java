@@ -18,7 +18,7 @@ public class CurrentLanguageTagsDownloadTask implements  Runnable {
 
     public void downloadCurrentLanguageTags()
     {
-        String currentLanguage = StickerSearchUtils.getCurrentLanguage();
+        String currentLanguage = StickerSearchUtils.getCurrentLanguageISOCode();
         Logger.d(TAG, "current language : " + currentLanguage);
         Logger.d(TAG, "forbidden set : " + StickerLanguagesManager.getInstance().getLanguageSet(StickerLanguagesManager.FORBIDDEN_LANGUAGE_SET_TYPE));
 

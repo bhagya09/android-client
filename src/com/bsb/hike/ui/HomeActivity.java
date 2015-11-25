@@ -90,6 +90,7 @@ import android.util.Pair;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewConfiguration;
@@ -209,28 +210,33 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 	private AdaptxtEditText searchET;
 	
-	/**
-	 * This variable checks whether onSaveInstanceState has been called or not
-	 */
-	private boolean wasOnSavedInstanceCalled = false;
-	
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
 		Logger.d(TAG,"onCreate");
 		super.onCreate(savedInstanceState);
+		
+		if (!isTaskRoot())
+		{
+		    final Intent intent = getIntent();
+		    if (intent.hasCategory(Intent.CATEGORY_LAUNCHER) && Intent.ACTION_MAIN.equals(intent.getAction())) {
+		        Logger.d(TAG, "Main Activity is not the root.  Finishing Main Activity instead of launching.");
+		        finish();
+		        return;       
+		    }
+		}
 
 		if (savedInstanceState != null && savedInstanceState.getBoolean(HikeConstants.Extras.CLEARED_OUT, false)) 
 		{
 
-			Logger.d(TAG," making extra TRUE");
+			Logger.d(TAG, " making extra TRUE");
 			//this means that singleTop activity has been re-spawned after being destroyed 
 			extrasClearedOut = true;
 		}
 		
 		if(extrasClearedOut)
 		{
-			Logger.d(TAG,"clearing all data");
+			Logger.d(TAG, "clearing all data");
 			//removing unwanted EXTRA becoz every time a singleTop activity is re-spawned, 
 			//android system uses the old intent to fire it, and it will contain unwanted extras.
 			getIntent().removeExtra(HikeConstants.STEALTH_MSISDN);
@@ -245,6 +251,13 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		if (Utils.requireAuth(this))
 		{
 			Logger.wtf(TAG, "user is not authenticated. Finishing activity");
+			return;
+		}
+
+		if (HomeFtueActivity.isFtueToBeShown())
+		{
+			IntentFactory.openHomeFtueActivity(HomeActivity.this);
+			this.finish();
 			return;
 		}
 				
@@ -286,6 +299,12 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		}
 		Logger.d(getClass().getSimpleName(),"onCreate "+this.getClass().getSimpleName());
 		showProductPopup(ProductPopupsConstants.PopupTriggerPoints.HOME_SCREEN.ordinal());
+		
+		if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STEALTH_INDICATOR_SHOW_REPEATED, false)
+				|| HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STEALTH_INDICATOR_SHOW_ONCE, false))
+		{
+			HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_INDICATOR, null);
+		}
 		
 	}
 	
@@ -365,6 +384,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		{
 			timelineUpdatesIndicator.setVisibility(View.GONE);
 		}
+		HikeMessengerApp.getPubSub().publish(HikePubSub.BADGE_COUNT_TIMELINE_UPDATE_CHANGED, null);
 
 	}
 	
@@ -561,17 +581,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		{
 			mainFragment = new ConversationFragment();
 			
-			// if onSavedInstanceState has been called, we will get an illegal state exception while commiting a fragment transation. 
-			// Hence using commit allowing state loss
-			if (wasOnSavedInstanceCalled)
-			{
-				getSupportFragmentManager().beginTransaction().add(R.id.home_screen, mainFragment, MAIN_FRAGMENT_TAG).commitAllowingStateLoss();
-			}
-			
-			else
-			{
-				getSupportFragmentManager().beginTransaction().add(R.id.home_screen, mainFragment, MAIN_FRAGMENT_TAG).commit();
-			}
+			getSupportFragmentManager().beginTransaction().add(R.id.home_screen, mainFragment, MAIN_FRAGMENT_TAG).commitAllowingStateLoss();
 		}
 	}
 
@@ -708,6 +718,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			searchMenuItem = menu.findItem(R.id.search);
 			SearchView searchView=(SearchView) MenuItemCompat.getActionView(searchMenuItem);
 			searchView.setOnQueryTextListener(onQueryTextListener);
+			searchView.setQueryHint(getString(R.string.search));
 			searchView.clearFocus();
 			searchET = (AdaptxtEditText) searchView.findViewById(R.id.search_src_text);
 			Utils.setEditTextCursorDrawableColor(searchET,R.drawable.edittextcursorsearch);
@@ -819,11 +830,10 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 						Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
 					}
 
-					Intent intent = new Intent(HomeActivity.this, ComposeChatActivity.class);
-					intent.putExtra(HikeConstants.Extras.EDIT, true);
-					intent.putExtra(HikeConstants.Extras.IS_MICROAPP_SHOWCASE_INTENT, true);
+					Intent intent = IntentFactory.getComposeChatIntentWithBotDiscovery(HomeActivity.this);
 
 					newConversationIndicator.setVisibility(View.GONE);
+					HikeMessengerApp.getPubSub().publish(HikePubSub.BADGE_COUNT_USER_JOINED, new Integer(0));
 					startActivity(intent);
 				}
 			});
@@ -847,12 +857,23 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		return (mCustomKeyboard != null && !KptUtils.isSystemKeyboard()) ? true: false;
 	}
 
+	View.OnTouchListener searchTextOnTouchListener = new View.OnTouchListener()
+	{
+		@Override
+		public boolean onTouch(View v, MotionEvent event) {
+			if (MotionEvent.ACTION_UP == event.getAction()){
+				showKeyboard();
+			}
+			return false;
+		}
+	};
+
 	View.OnFocusChangeListener searchTextFocusChangeListener = new View.OnFocusChangeListener()
 	{
 		@Override
 		public void onFocusChange(View v, boolean hasFocus)
 		{
-			if (!KptUtils.isSystemKeyboard())
+			if (!KptUtils.isSystemKeyboard()&& mCustomKeyboard!=null)
 			{
 				if (hasFocus)
 				{
@@ -902,6 +923,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		}
 		searchET.setOnFocusChangeListener(searchTextFocusChangeListener);
 		searchET.setOnClickListener(searchTextClickChangeListener);
+		searchET.setOnTouchListener(searchTextOnTouchListener);
 	}
 
 	private void resetSearchTextKeyboard()
@@ -1182,10 +1204,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		}
 		super.onResume();
 
-		if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STEALTH_INDICATOR_ENABLED, false))
-		{
-			HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_INDICATOR, null);
-		}
 		checkNShowNetworkError();
 		
 		showSmsOrFreeInvitePopup();
@@ -1346,7 +1364,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	protected void onStart()
 	{
 		Logger.d(getClass().getSimpleName(), "onStart");
-		wasOnSavedInstanceCalled = false;
 		super.onStart();
 		long t1, t2;
 		t1 = System.currentTimeMillis();
@@ -1366,7 +1383,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	protected void onSaveInstanceState(Bundle outState)
 	{
 		Logger.d(TAG,"onsavedInstance");
-		wasOnSavedInstanceCalled = true;
 		outState.putBoolean(HikeConstants.Extras.DEVICE_DETAILS_SENT, deviceDetailsSent);
 		if (dialog != null && dialog.isShowing())
 		{
@@ -1385,9 +1401,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 	private void sendDeviceDetails()
 	{
-		Utils.recordDeviceDetails(HomeActivity.this);
-		Utils.requestAccountInfo(false, false);
-		Utils.sendLocaleToServer(HomeActivity.this);
+		Utils.sendDeviceDetails(HomeActivity.this, false, false);
 		deviceDetailsSent = true;
 	}
 
@@ -1792,7 +1806,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		}
 		else if(HikePubSub.STEALTH_INDICATOR.equals(type))
 		{
-			HikeSharedPreferenceUtil.getInstance().removeData(HikeConstants.STEALTH_INDICATOR_ENABLED);
+			HikeSharedPreferenceUtil.getInstance().removeData(HikeConstants.STEALTH_INDICATOR_SHOW_ONCE);
 			
 			if(StealthModeManager.getInstance().isActive())
 			{
@@ -1843,7 +1857,10 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		}
 		else if (HikePubSub.PRODUCT_POPUP_RECEIVE_COMPLETE.equals(type))
 		{
-			showProductPopup(ProductPopupsConstants.PopupTriggerPoints.HOME_SCREEN.ordinal());
+			if (isActivityVisible())
+			{
+				showProductPopup(ProductPopupsConstants.PopupTriggerPoints.HOME_SCREEN.ordinal());
+			}
 		}
 	}
 
@@ -2040,10 +2057,18 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		optionsList.add(new OverFlowMenuItem(getString(R.string.new_group), 0, 0, R.string.new_group));
 
 
-		if (Utils.isPhotosEditEnabled())
+		if (OfflineController.getInstance().getConfigurationParamerters().shouldShowHikeDirectOption())
 		{
-			optionsList.add(new OverFlowMenuItem(getString(R.string.home_overflow_new_photo), 0, 0, R.string.home_overflow_new_photo));
+			optionsList.add(new OverFlowMenuItem(getString(R.string.scan_free_hike), 0, 0, R.string.scan_free_hike));
 		}
+		else
+		{
+			if (Utils.isPhotosEditEnabled())
+			{
+				optionsList.add(new OverFlowMenuItem(getString(R.string.home_overflow_new_photo), 0, 0, R.string.home_overflow_new_photo));
+			}
+		}
+		
 		
 		optionsList.add(new OverFlowMenuItem(getString(R.string.invite_friends), 0, 0, R.string.invite_friends));
 	
@@ -2100,6 +2125,10 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 				switch (item.id)
 				{
+				case R.string.scan_free_hike:
+					intent = IntentFactory.getComposeChatActivityIntent(HomeActivity.this);
+					intent.putExtra(HikeConstants.Extras.HIKE_DIRECT_MODE, true);
+					break;
 				case R.string.invite_friends:
 					intent = new Intent(HomeActivity.this, TellAFriend.class);
 					break;

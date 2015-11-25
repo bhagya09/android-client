@@ -56,7 +56,7 @@ public class NotificationThread implements Runnable
 
 	public  NotificationThread()
 	{
-		OfflineParameters offlineParameters = new Gson().fromJson(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.OFFLINE, "{}"), OfflineParameters.class);
+		OfflineParameters offlineParameters = OfflineController.getInstance().getConfigurationParamerters();
 		time = offlineParameters.getConnectionTimeout() / 1000;
 	}
 	@Override

@@ -51,6 +51,8 @@ public class HikeConstants
 
 	public static final String SUB_TYPE = "st";
 
+	public static final String BACKGROUND_COLOR = "bgc";
+	
 	public static final String SU_ID = "su_id";
 
 	public static final String SU_ID_LIST = "su_ids";
@@ -69,7 +71,7 @@ public class HikeConstants
 
 	public static final String MESSAGE_ID = "i";
 
-	public static final String EVENT_ID = "i";
+	public static final String EVENT_ID = "ei";
 
 	public static final String METADATA = "md";
 
@@ -256,6 +258,10 @@ public class HikeConstants
 	public static final String TIME_OF_DAY = "timeofday";
 
 	public static final String REQUEST_PENDING = "requestpending";
+
+	public static final String CUSTOM_KEYBOARD_LOCALE = "ckbd_locale";
+
+	public static final String DEVICE_LOCALE = "device_locale";
 
 	public static final String LOCALE = "locale";
 
@@ -506,6 +512,10 @@ public class HikeConstants
 	public static final String CHANGE_STEALTH_TIMEOUT = "changeStealthTimeout";
 
 	public static final String STEALTH_INDICATOR_ENABLED = "stealthIndicatorEnabled";
+	
+	public static final String STEALTH_INDICATOR_SHOW_REPEATED = "stealthIndicatorShowRepeated";
+	
+	public static final String STEALTH_INDICATOR_SHOW_ONCE = "stealthIndicatorShowOnce";
 
 	public static final String STEALTH_NOTIFICATION_ENABLED = "stealthNotificationEnabled";
 
@@ -608,9 +618,13 @@ public class HikeConstants
 
 	public static final String H2O_NOTIF_BOOLEAN_PREF = "hikeOfflineNotificationPref";
 
+	public static final String KEYBOARD_SETTING_PREF_CATEGORY = "keyboardSettingsCategory";
+
 	public static final String KEYBOARD_LANGUAGE_PREF = "kbdLanguagePref";
 
 	public static final String LOCAL_LANGUAGE_PREF = "appLanguagePref";
+
+	public static final String LOCALIZATION_FTUE_COMPLETE = "localizationFtueComplete";
 
 	public static final String KEYBOARD_PREF = "keyboardPref";
 	
@@ -780,6 +794,74 @@ public class HikeConstants
 	public static final int CRITICAL_UPDATE = 1;
 
 	public static final int NO_UPDATE = 0;
+	
+	public static final String INVITE_TIP = "invt";
+	
+	public static final String LABEL = "l" ;
+	
+	public static final String DISMISS = "dms";
+	
+	public static final String PERSISTENT_NOTIFICATION = "pn";
+	
+	public static final String PERSISTENT_NOTIF_ALARM_INTERVAL = "pnai";
+	
+	public static final String UPDATE_TITLE = "updateTitle";
+	
+	public static final String UPDATE_ACTION = "updateAction";
+	
+	public static final String UPDATE_LATER = "updateLater";
+	
+	public static final String UPDATE_ALARM = "updateAlarm";
+	
+	public static final String IS_PERSISTENT_UPDATE_NOTIFICATION = "isPers";
+	
+	public static final String PERSISTENT_NOTIF_MESSAGE = "persNotifMsg";
+	
+	public static final String PERSISTENT_NOTIF_TITLE = "persNotifTitle";
+	
+	public static final String PERSISTENT_NOTIF_ACTION = "persNotifAction";
+	
+	public static final String PERSISTENT_NOTIF_LATER = "persNotifLater";
+	
+	public static final String PERSISTENT_NOTIF_ALARM = "persNotifAlarm";
+	
+	public static final String PERSISTENT_NOTIF_URL = "persNotifUrl";
+	
+	public static final long PERS_NOTIF_ALARM_DEFAULT = 24*60*60;
+	
+	public static final String SHOULD_SHOW_PERSISTENT_NOTIF = "showPersistNotif";
+	
+	public static final String IS_PERS_NOTIF_ALARM_SET = "isPersNotifAlarmSet";
+	
+	public static final String IS_HIKE_APP_FOREGROUNDED = "isHikeAppForegrounded";
+	
+	public static final String UPDATE_TIP_HEADER = "updateTipHeader";
+	
+	public static final String UPDATE_TIP_BODY = "updateTipBody";
+	
+	public static final String UPDATE_TIP_LABEL = "updateTipLabel";
+	
+	public static final String UPDATE_TIP_DISMISS = "updateTipDismiss";
+	
+	public static final String UPDATE_TIP_BG_COLOR = "updateTipBgColor";
+	
+	public static final String INVITE_TIP_HEADER = "inviteTipHeader";
+	
+	public static final String INVITE_TIP_BODY = "inviteTipBody";
+	
+	public static final String INVITE_TIP_LABEL = "inviteTipLabel";
+	
+	public static final String INVITE_TIP_DISMISS = "inviteTipDismiss";
+	
+	public static final String INVITE_TIP_BG_COLOR = "inviteTipBgColor";
+	
+	public static final String SHOW_CRITICAL_UPDATE_TIP = "showCriticalUpdateTip";
+	
+	public static final String SHOW_NORMAL_UPDATE_TIP = "showNormalUpdateTip";
+	
+	public static final String SHOW_INVITE_TIP = "showInviteTip";
+	
+	public static final String UPDATE_TIP_AND_PERS_NOTIF_LOG = "UpdateTipPersistentNotif";
 
 	// More explanation required?
 	public static final int NUM_TIMES_SCREEN_SHOULD_OPEN_BEFORE_TOOL_TIP = 2;
@@ -1687,6 +1769,8 @@ public class HikeConstants
 		public static final String CALL_RATE_BUNDLE = "callRateBundle";
 
 		public static final String CLEARED_OUT = "extrasClearedOut";
+		
+		public static final String HIKE_DIRECT_MODE="hikedirectmode";
 
 		// constants related to sharing Functioanlity
 		public static final class ShareTypes
@@ -2105,6 +2189,8 @@ public class HikeConstants
 		public static final String STICKER_RECOMMENDATION_FTUE2_REJECTION_KEY = "srCrFt2";
 
 		public static final String STICKER_RECOMMENDATION_SELECTION_KEY = "acID";
+
+		public static final String STICKER_RECOMMENDATION_REBALANCING_SUMMERIZATION = "srRS";
 
 		public static final String PACK_DATA_ANALYTIC_EVENT = "pckD";
 
@@ -2658,6 +2744,12 @@ public class HikeConstants
 
 		public static final String VOIP_MSG_TYPE_MISSED_CALL_OUTGOING = "vmco";
 
+		public static final String VOIP_MSG_HANG_UP = "vHangUp";
+
+		public static final String VOIP_MSG_DECLINE = "vDecline";
+
+		public static final String VOIP_MSG_ACCEPT = "vAccept";
+
 		public static final String PRODUCT_POPUP = "productpopup";
 
 		public static final String SESSION = "sess";
@@ -2680,6 +2772,8 @@ public class HikeConstants
 		public static final String MESSAGE_EVENT = "me";
 		
 		public static final String OFFLINE = "offline";
+
+		public static final String GENERAL_EVENT_DR = "dr";
 	}
 
 	
@@ -3220,8 +3314,8 @@ public class HikeConstants
 
 	public static final int KEYBOARD_CONFIGURATION_NEW = 2;
 
-	public static final String CURRENT_KEYBOARD = "currentKeyboard";
-	
+	public static final String SYSTEM_KEYBOARD_SELECTED = "systemKeyboardSelected";
+
 	public static final String GET = "get";
 
 	public static final String HIKE_FILE_TYPE = "hft";
@@ -3406,7 +3500,11 @@ public class HikeConstants
 
 	public static final String STICKER_DATA_MILLI_SECOND = "SSS"; // integer
 
-	public static final String STICKER_TAG_REGEX_SEPARATORS = "strs"; // regular expression
+	public static final String STICKER_TAG_REGEX_SEPARATORS = "strs"; // initial to following 2 keys
+
+	public static final String STICKER_TAG_REGEX_SEPARATORS_LATIN_REGULAR = "lr"; // regular expression for Latin default
+
+	public static final String STICKER_TAG_REGEX_SEPARATORS_REGIONAL_REGULAR = "rr"; // regular expression for Regional default
 
 	public static final String STICKER_DATA_TRENDING = "t";
 
@@ -3484,7 +3582,11 @@ public class HikeConstants
 
 	public static final String STICKER_SEARCH_BASE_THRESHOLD_FORCED_SHRINK_COEFFICIENT = "ssb_tfsc"; // float
 
-	public static final String STICKER_SEARCH_VT_TABLES_LIST = "ss_vtl";
+	public static final String STICKER_SEARCH_REBALANCING_TIME_STAMP = "ts";
+
+	public static final String STICKER_SEARCH_REBALANCING_MEMORY_STATUS = "ms";
+	
+	public static final String STICKER_SEARCH_REBALANCING_ROW_STATUS = "rs";
 
 	// =========================================================================================Constants for sticker search]]
 
@@ -3546,10 +3648,16 @@ public class HikeConstants
 	
 	public static final String ACTIVATE_STICKY_CALLER_PREF = "activateStickyCaller";
 
+	public static final String SMS_CARD_ENABLE_PREF = "smsCardEnablePref"; 
+	
 	public static final String ENABLE_KNOWN_NUMBER_CARD_PREF = "knownContactEnablePref";
 
 	public static final String NEW_CHAT_RED_DOT = "nc_dot";
 	
+	public static final String BADGE_COUNT_ENABLED="badgeCountEnabled";
+	
+	public static final String BADGECOUNTER="badgeCounter";
+
 	public static final int GPS_STATUS_CHANGED = 1197;
 	
 	public static final int GPS_SWITCH_OFF = 1198;
@@ -3561,4 +3669,31 @@ public class HikeConstants
 	public static final String TIMESTAMP_2 = "timestamp";
 
 	public static final String UNKNOWN_KEYBOARDS = "unknown_kbds";
+
+	public static final float ONE_PERCENT_PROGRESS = 0.01f;
+
+	public static final String FT_USE_APACHE_HTTP_CLIENT = "ft_apache_client";
+
+	// ============================================================================================= LOCALIZATION SWITCHES
+
+	public static final String LOCALIZATION_ENABLED = "local_e";
+
+	public static final String CUSTOM_KEYBOARD_ENABLED = "custom_key_e";
+
+	// Added for switching the Change Keyboard Option in chat thread
+	public static final String CHANGE_KEYBOARD_CHAT_ENABLED = "ckc_e";
+
+	public static final String AUTOCORRECT_KEYBOARD_ENABLED="atk_e";
+	
+	// ============================================================================================= LOCALIZATION SWITCHES
+
+
+	public static final String LANG_LIST_ORDER = "lang_list";
+
+	// Analytics Event key for Change Keyboard ,because externalized string was converted to phone language and analytics key was changin
+	public static final String SYSTEM_KEYBOARD = "System Keyboard";
+
+	public static final String HIKE_KEYBOARD = "Hike Keyboard";
+
+
 }

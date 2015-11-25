@@ -15,7 +15,7 @@
 	    	android:title="@string/long_press_duration_title"
 	    	android:key="longPressDurationPref"
 	    	android:defaultValue="300"
-	    	android:text="ms"
+	    	android:text="@string/milliseconds"
 	    	android:max="200"
 	    	android:persistent="true"/>
 	
@@ -23,15 +23,15 @@
 	    	android:title="@string/keypress_sound_vol_title"
 	    	android:key="keyPressVolPref"
 	    	android:defaultValue="3"
-	    	android:text="ms"
+	    	android:text="@string/milliseconds"
 	    	android:max="9"
 	    	android:persistent="true"/>
 	
 	<com.bsb.hike.view.SeekBarPreference
 	    	android:title="@string/keypress_vib_duration_title"
 	    	android:key="keypressVibDurationPref"
-	    	android:defaultValue="3"
-	    	android:text="ms"
+	    	android:defaultValue="10"
+	    	android:text="@string/milliseconds"
 	    	android:max="99"
 	    	android:persistent="true" />
 	

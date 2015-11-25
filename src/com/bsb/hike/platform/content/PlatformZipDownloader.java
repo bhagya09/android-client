@@ -3,19 +3,26 @@ package com.bsb.hike.platform.content;
 import android.text.TextUtils;
 import android.util.Pair;
 
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.bots.BotInfo;
+import com.bsb.hike.bots.BotUtils;
+import com.bsb.hike.bots.NonMessagingBotMetadata;
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
+import com.bsb.hike.modules.httpmgr.request.FileRequestPersistent;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
+import com.bsb.hike.notifications.HikeNotification;
+import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.content.PlatformContent.EventCode;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
-import com.bsb.hike.utils.Utils;
+import com.bsb.hike.utils.Logger;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -41,7 +48,23 @@ public class PlatformZipDownloader
 
 	private String callbackId;
 
-	private HashMap<String,Float> callbackProgress;
+	// This hashmap contains the mapping of callback id and the progress. This makes sure that we reply the microapp with
+	// every 1% of the microapp.
+	private static HashMap<String,Float> callbackProgress = new HashMap<String, Float>();
+
+	//This hashmap contains the mapping of every request that Platform Zip Downloader has initiated. Key is the url
+	// and value is the token.
+	private static HashMap<String, RequestToken> platformRequests= new HashMap<String, RequestToken>();
+	
+	private boolean resumeSupported = false;
+	
+	private int startOffset = 0;
+	
+	private String stateFilePath;
+
+	private  float progress_done=0;
+
+	private String asocCbotMsisdn = "";
 
 
 	/**
@@ -68,9 +91,56 @@ public class PlatformZipDownloader
 		this.isTemplatingEnabled = isTemplatingEnabled;
 		this.doReplace = doReplace;
 		this.callbackId = callbackId;
-		callbackProgress = new HashMap<String, Float>();
 	}
 	
+	public PlatformZipDownloader(PlatformContentRequest argRequest, boolean isTemplatingEnabled,boolean doReplace, String callbackId, boolean resumeSupported,String asocCbot)
+	{
+		// Get ID from content and call http
+		this(argRequest, isTemplatingEnabled, doReplace, callbackId);
+		this.resumeSupported = resumeSupported;
+		
+		if(!TextUtils.isEmpty(asocCbot))
+		{
+			this.asocCbotMsisdn=asocCbot;
+		}
+
+		if (resumeSupported)
+		{
+			setStateFilePath();
+			setStartOffset();
+		}
+	}
+
+
+	private void setStartOffset()
+	{
+		File file = new File(stateFilePath + FileRequestPersistent.STATE_FILE_EXT);
+		if (file.exists())
+		{
+			String data[] = PlatformUtils.readPartialDownloadState(stateFilePath + FileRequestPersistent.STATE_FILE_EXT);
+			if (data.length > 1)
+			{
+				try
+				{
+					startOffset = Integer.parseInt(data[0]);
+					progress_done=Float.parseFloat(data[1]);
+				}
+				catch (NumberFormatException e)
+				{
+					Logger.e("PlatformZipDownloader", "Invalid offset");
+					startOffset=0;
+					e.printStackTrace();
+				}
+			}
+		}
+		
+	}
+
+	private void setStateFilePath()
+	{
+		stateFilePath=PlatformContentConstants.PLATFORM_CONTENT_DIR+mRequest.getContentData().getId();
+	}
+
 	public  boolean isMicroAppExist()
 	{
 		try
@@ -96,22 +166,33 @@ public class PlatformZipDownloader
 	public void downloadAndUnzip()
 	{
 		//When the microapp does not exist, we don't want to replace anything and just unzip the data.
-		if (!isMicroAppExist())
-		{
-			doReplace = false;
-		}
+        if (!isMicroAppExist())
+        {
+            doReplace = false;
+        }
 		// Create temp folder
 		File tempFolder = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.TEMP_DIR_NAME);
 
 		tempFolder.mkdirs();
 		final File zipFile = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.TEMP_DIR_NAME, mRequest.getContentData().getId() + ".zip");
-
-		if (zipFile.exists())
+        //If resume is supported we donot want to delete the zipfile on download failure.
+		if (zipFile.exists()&&!resumeSupported)
 		{
 			unzipMicroApp(zipFile);
 			return;
 		}
 
+
+		// Download zip file from web on given url
+		getZipFromWeb(zipFile);
+
+
+		/*
+		 *  Legacy code flow commented for zips lookup in assets folder added with apk files
+		 *  This flow is not in use now
+		 */
+
+		/*
 		//Check if the zip is present in hike app package
 		AssetsZipMoveTask.AssetZipMovedCallbackCallback mCallback = new AssetsZipMoveTask.AssetZipMovedCallbackCallback()
 		{
@@ -131,7 +212,7 @@ public class PlatformZipDownloader
 		};
 
 		Utils.executeBoolResultAsyncTask(new AssetsZipMoveTask(zipFile, mRequest, mCallback, isTemplatingEnabled));
-
+		*/
 	}
 
 	/**
@@ -139,45 +220,13 @@ public class PlatformZipDownloader
 	 */
 	private void getZipFromWeb(final File zipFile)
 	{
-		RequestToken token = HttpRequests.platformZipDownloadRequest(zipFile.getAbsolutePath(), mRequest.getContentData().getLayout_url(), new IRequestListener()
-		{
-
-			@Override
-			public void onRequestFailure(HttpException httpException)
-			{
-				HikeMessengerApp.getPubSub().publish(HikePubSub.DOWNLOAD_PROGRESS, new Pair<String, String>(callbackId, "downloadFailure"));
-				PlatformRequestManager.failure(mRequest, EventCode.LOW_CONNECTIVITY, isTemplatingEnabled);
-				PlatformRequestManager.getCurrentDownloadingTemplates().remove((Integer) mRequest.getContentData().appHashCode());
-				zipFile.delete();
-			}
-
-			@Override
-			public void onRequestSuccess(Response result)
-			{
-
-				HikeMessengerApp.getPubSub().publish(HikePubSub.DOWNLOAD_PROGRESS, new Pair<String, String>(callbackId, "downloadSuccess"));
-				callbackProgress.remove(callbackId);
-				PlatformRequestManager.getCurrentDownloadingTemplates().remove((Integer)mRequest.getContentData().appHashCode());
-				unzipMicroApp(zipFile);
-			}
-
-			@Override
-			public void onRequestProgressUpdate(float progress)
-			{
-				if (!TextUtils.isEmpty(callbackId))
-				{
-					if (updateProgress(progress))
-					{
-						callbackProgress.put(callbackId, progress);
-						HikeMessengerApp.getPubSub().publish(HikePubSub.DOWNLOAD_PROGRESS, new Pair<String, String>(callbackId, String.valueOf(progress)));
-					}
-				}
-			}
-		});
+		RequestToken token = resumeSupported ? downloadZipWithResume(zipFile, stateFilePath, startOffset) : downloadZip(zipFile);
 
 		if (!token.isRequestRunning())
 		{
 			token.execute();
+			platformRequests.put(mRequest.getContentData().getLayout_url(), token);
+			HikeMessengerApp.getPubSub().publish(HikePubSub.DOWNLOAD_PROGRESS, new Pair<String, String>(callbackId, "downloadStarted"));
 			PlatformRequestManager.getCurrentDownloadingTemplates().add(mRequest.getContentData().appHashCode());
 		}
 
@@ -190,7 +239,7 @@ public class PlatformZipDownloader
 		{
 			lastProgress = callbackProgress.get(callbackId);
 		}
-		return progress - lastProgress >= .1;
+		return progress - lastProgress >= HikeConstants.ONE_PERCENT_PROGRESS;
 	}
 	
 	private boolean replaceDirectories(String tempPath,String originalPath,String unzipPath)
@@ -249,21 +298,14 @@ public class PlatformZipDownloader
 		HikeHandlerUtil mThread;
 		mThread = HikeHandlerUtil.getInstance();
 		mThread.startHandlerThread();
-		if (mThread == null)
-		{
-			mRequest.getListener().onEventOccured(0, EventCode.UNZIP_FAILED);
-			return;
-		}
 
 		mThread.postRunnable(new Runnable()
 		{
-
 			@Override
 			public void run()
 			{
 				if (!zipFile.exists())
 				{
-
 					return;
 				}
 
@@ -279,7 +321,6 @@ public class PlatformZipDownloader
 						{
 
 							long fileSize = zipFile.length();
-
 							if (!(data instanceof Boolean))
 							{
 								return;
@@ -287,6 +328,16 @@ public class PlatformZipDownloader
 							Boolean isSuccess = (Boolean) data;
 							if (isSuccess)
 							{
+								if (!TextUtils.isEmpty(asocCbotMsisdn))
+								{
+									BotInfo botinfo = BotUtils.getBotInfoForBotMsisdn(asocCbotMsisdn);
+									if (botinfo != null)
+									{
+										NonMessagingBotMetadata nonMessagingBotMetadata = new NonMessagingBotMetadata(botinfo.getMetadata());
+										HikeNotification.getInstance().sendNotificationToChatThread(asocCbotMsisdn,
+												nonMessagingBotMetadata.getCardObj().optString(HikePlatformConstants.HIKE_MESSAGE), false);
+									}
+								}
 								if (!isTemplatingEnabled)
 								{
 									if (doReplace)
@@ -297,15 +348,18 @@ public class PlatformZipDownloader
 										if (replace)
 										{
 											mRequest.getListener().onComplete(mRequest.getContentData());
+											PlatformUtils.sendMicroAppServerAnalytics(true, mRequest.getContentData().cardObj.appName, mRequest.getContentData().cardObj.appVersion);
 										}
 										else
 										{
 											mRequest.getListener().onEventOccured(0, EventCode.UNZIP_FAILED);
+											PlatformUtils.sendMicroAppServerAnalytics(false, mRequest.getContentData().cardObj.appName, mRequest.getContentData().cardObj.appVersion);
 										}
 									}
 									else
 									{
 										mRequest.getListener().onComplete(mRequest.getContentData());
+										PlatformUtils.sendMicroAppServerAnalytics(true, mRequest.getContentData().cardObj.appName, mRequest.getContentData().cardObj.appVersion);
 									}
 								}
 								else
@@ -328,17 +382,87 @@ public class PlatformZipDownloader
 				{
 					ise.printStackTrace();
 					PlatformRequestManager.failure(mRequest, EventCode.UNKNOWN, isTemplatingEnabled);
+					PlatformUtils.sendMicroAppServerAnalytics(false, mRequest.getContentData().cardObj.appName, mRequest.getContentData().cardObj.appVersion);
 				}
 			}
 		});
 	}
 
+	public static HashMap<String, RequestToken> getCurrentDownloadingRequests()
+	{
+		return platformRequests;
+	}
 
 	private void unzipWebFile(String zipFilePath, String unzipLocation, Observer observer)
 	{
-		HikeUnzipTask unzipper = new HikeUnzipTask(zipFilePath, unzipLocation);
+		HikeUnzipFile unzipper = new HikeUnzipFile(zipFilePath, unzipLocation);
 		unzipper.addObserver(observer);
 		unzipper.unzip();
+	}
+	
+	private RequestToken downloadZip(final File zipFile)
+	{
+		RequestToken token = HttpRequests.platformZipDownloadRequest(zipFile.getAbsolutePath(), mRequest.getContentData().getLayout_url(),
+				getRequestListenerForDownload(false, null, zipFile));
+
+		return token;
+
+	}
+	
+	private RequestToken downloadZipWithResume(File zipFile, String stateFilePath, long startOffset)
+	{
+		RequestToken token = HttpRequests.platformZipDownloadRequestWithResume(zipFile.getAbsolutePath(), stateFilePath, mRequest.getContentData().getLayout_url(),
+				getRequestListenerForDownload(true, stateFilePath, zipFile), startOffset,progress_done);
+
+		return token;
+
+	}
+	
+	private IRequestListener getRequestListenerForDownload(final boolean resumeSupported, final String statefilePath, final File zipFile)
+	{
+		return new IRequestListener()
+		{
+
+			@Override
+			public void onRequestSuccess(Response result)
+			{
+				if (resumeSupported && !TextUtils.isEmpty(statefilePath))
+				{
+					(new File(statefilePath + FileRequestPersistent.STATE_FILE_EXT)).delete();
+				}
+
+				HikeMessengerApp.getPubSub().publish(HikePubSub.DOWNLOAD_PROGRESS, new Pair<String, String>(callbackId, "downloadSuccess"));
+				callbackProgress.remove(callbackId);
+				platformRequests.remove(mRequest.getContentData().getLayout_url());
+				PlatformRequestManager.getCurrentDownloadingTemplates().remove((Integer) mRequest.getContentData().appHashCode());
+				unzipMicroApp(zipFile);
+			}
+
+			@Override
+			public void onRequestProgressUpdate(float progress)
+			{
+				if (!TextUtils.isEmpty(callbackId))
+				{
+					if (updateProgress(progress))
+					{
+						callbackProgress.put(callbackId, progress);
+						HikeMessengerApp.getPubSub().publish(HikePubSub.DOWNLOAD_PROGRESS, new Pair<String, String>(callbackId, String.valueOf(progress)));
+					}
+				}
+			}
+
+			@Override
+			public void onRequestFailure(HttpException httpException)
+			{
+				callbackProgress.remove(callbackId);
+				platformRequests.remove(mRequest.getContentData().getLayout_url());
+				HikeMessengerApp.getPubSub().publish(HikePubSub.DOWNLOAD_PROGRESS, new Pair<String,String>(callbackId, "downloadFailure"));
+				PlatformRequestManager.failure(mRequest, EventCode.LOW_CONNECTIVITY, isTemplatingEnabled);
+				PlatformRequestManager.getCurrentDownloadingTemplates().remove((Integer) mRequest.getContentData().appHashCode());
+				if (!resumeSupported) //As we would write to the same file on download resume.
+					zipFile.delete();
+			}
+		};
 	}
 
 }

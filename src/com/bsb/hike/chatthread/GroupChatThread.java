@@ -62,6 +62,7 @@ import android.view.View.OnClickListener;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
 import android.view.animation.AnimationUtils;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -476,7 +477,8 @@ public class GroupChatThread extends OneToNChatThread
 				index = index >= 0 ? index : 0;
 				long timeStamp = messages.get(index).getTimestamp();
 				long msgId = messages.get(index).getMsgID();
-				messages.add(index, new ConvMessage(mConversation.getUnreadCount(), timeStamp, msgId));
+				long sortingId = messages.get(index).getSortingId();
+				messages.add(index, new ConvMessage(mConversation.getUnreadCount(), timeStamp, msgId, sortingId));
 			}
 		}
 	}
@@ -661,6 +663,7 @@ public class GroupChatThread extends OneToNChatThread
 
 	private void showPinCreateView(String pinText)
 	{
+		removeKeyboardFtueIfShowing();
 		if (mActionMode.whichActionModeIsOn() == PIN_CREATE_ACTION_MODE)
 		{
 			return;
@@ -714,6 +717,8 @@ public class GroupChatThread extends OneToNChatThread
 		{
 			mComposeView.setText(pinText);
 			mComposeView.setSelection(pinText.length());
+		}else{
+			mComposeView.setText("");
 		}
 		
 //		activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
@@ -839,12 +844,24 @@ public class GroupChatThread extends OneToNChatThread
 	private void destroyPinCreateView()
 	{
 		// AFTER PIN MODE, we make sure mComposeView is reinitialized to message composer compose
+		mCustomKeyboard.unregister(mComposeView);
 		mComposeView = (CustomFontEditText) activity.findViewById(R.id.msg_compose);
 		if (mEmoticonPicker != null)
 		{
 			mEmoticonPicker.updateET(mComposeView);
 		}
+		mComposeView.setOnClickListener(new OnClickListener()
+		{
+			@Override
+			public void onClick(View v)
+			{
+				if(isSystemKeyboard()){
+				Utils.showSoftKeyboard(mComposeView, InputMethodManager.SHOW_FORCED);
+				}
+			}
+		});
 		mComposeView.requestFocus();
+
 		View mBottomView = activity.findViewById(R.id.bottom_panel);
 		mBottomView.startAnimation(AnimationUtils.loadAnimation(activity.getApplicationContext(), R.anim.down_up_lower_part));
 		mBottomView.setVisibility(View.VISIBLE);
@@ -1153,17 +1170,5 @@ public class GroupChatThread extends OneToNChatThread
 	protected boolean shouldShowKeyboard()
 	{
 		return ( mActionMode.whichActionModeIsOn() == PIN_CREATE_ACTION_MODE || super.shouldShowKeyboard());
-	}
-
-	@Override
-	public void dismissRemoveDialog() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void showRemoveDialog(RemoveDialogData arg0) {
-		// TODO Auto-generated method stub
-		
 	}
 }

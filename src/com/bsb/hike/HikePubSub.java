@@ -287,6 +287,10 @@ public class HikePubSub implements Runnable
 	public static final String UPDATE_PUSH = "updatePush";
 
 	public static final String APPLICATIONS_PUSH = "applicationsPush";
+	
+	public static final String FLUSH_PERSISTENT_NOTIF = "flushpn";
+	
+	public static final String SHOW_PERSISTENT_NOTIF = "showPersistentNotif";
 
 	public static final String UPDATE_AVAILABLE = "updateAvailable"; // TODO: get rid of this.
 
@@ -447,6 +451,8 @@ public class HikePubSub implements Runnable
 	public static final String KPT_LANGUAGES_UPDATED = "kptLangUpdated";
 
 	public static final String KPT_LANGUAGES_INSTALLATION_FINISHED = "kptLangInstFin";
+
+	public static final String LOCAL_LANGUAGE_CHANGED = "localLangChange";
 	
 	public static final String LOCATION_AVAILABLE = "locationAvailable";
 
@@ -465,7 +471,37 @@ public class HikePubSub implements Runnable
 	public static final String SHOW_NEW_CHAT_RED_DOT = "showNewChatRedDot";
 
 	public static final String KEYBOARD_SWITCHED = "keyboardSwitched";
+
+	public static final String BADGE_COUNT_CHANGED = "badgeCountChanged";
+
+	public static final String BADGE_COUNT_PRIORITY_CHANGED_TIMELINE = "badgeCountPriorityChangedTimeline";
+
+	public static final String BADGE_COUNT_PRIORITY_CHANGED_MESSAGES = "badgeCountPriorityChangedMessages";
+
+	public static final String BADGE_COUNT_PRIORITY_CHANGED_ACTIVITYUPDATE = "badgeCountPriorityChangedActivityUpdate";
+
+	public static final String BADGE_COUNT_MESSAGE_CHANGED = "badgeCountMessageChanged";
+
+	public static final String BADGE_COUNT_TIMELINE_UPDATE_CHANGED = "badgeCountTimeLineUpdateChanged";
+
+	public static final String BADGE_COUNT_ACTIVITY_UPDATE_CHANGED = "badgeCountActivityUpdateChanged";
+
+	public static final String BADGE_COUNT_RESET = "resetBadgeCount";
 	
+	public static final String ACCOUNT_RESET_OR_DELETE = "accountresetDelete";
+
+	public static final String BADGE_COUNT_UNSEEN_FRIEND_REQUEST_CHANGED = "badgeCountUnseenFriendRequestChanged";
+
+	public static final String BADGE_COUNT_USER_JOINED = "badgeCountUserJoined";
+
+	public static final String PRODUCT_POPUP_BADGE_COUNT_CHANGED = "productpopupBadgeCountChanged";
+	
+	public static final String ANONYMOUS_NAME_SET="anonymousNameSet";
+
+	public static final String GENERAL_EVENT="generalEvent";
+
+	public static final String GENERAL_EVENT_STATE_CHANGE="generalEventStateChanged";
+
 	private final Thread mThread;
 
 	private final BlockingQueue<Operation> mQueue;

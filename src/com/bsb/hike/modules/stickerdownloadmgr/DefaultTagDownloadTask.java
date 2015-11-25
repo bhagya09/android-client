@@ -44,20 +44,24 @@ public class DefaultTagDownloadTask implements IHikeHTTPTask, IHikeHttpTaskResul
 	}
 
 	@Override
-	public void execute() {
+	public void execute()
+	{
+		if (Utils.isEmpty(languages))
+		{
+			return;
+		}
 
-        if (Utils.isEmpty(languages)) {
-            return;
-        }
-        long lastSuccessfulTagDownloadTime = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.LAST_SUCESSFULL_TAGS_DOWNLOAD_TIME, 0L);
-        requestToken = defaultTagsRequest(getRequestId(), isSignUp, lastSuccessfulTagDownloadTime, getResponseListener(), StickerLanguagesManager.getInstance().listToSting(languages));
+		long lastSuccessfulTagDownloadTime = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.LAST_SUCESSFULL_TAGS_DOWNLOAD_TIME, 0L);
+		requestToken = defaultTagsRequest(getRequestId(), isSignUp, lastSuccessfulTagDownloadTime, getResponseListener(),
+				StickerLanguagesManager.getInstance().listToString(languages));
 
-        if (requestToken.isRequestRunning()) {
-            return;
-        }
+		if (requestToken.isRequestRunning())
+		{
+			return;
+		}
 
-        requestToken.execute();
-    }
+		requestToken.execute();
+	}
 
 	private IRequestListener getResponseListener()
 	{

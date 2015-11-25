@@ -29,6 +29,7 @@ import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.filetransfer.FTAnalyticEvents;
+import com.bsb.hike.filetransfer.FTMessageBuilder;
 import com.bsb.hike.filetransfer.FileTransferManager;
 import com.bsb.hike.media.PickContactParser;
 import com.bsb.hike.models.ContactInfo;
@@ -155,6 +156,8 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
     public static final int PICK_CONTACT_MODE = 8;
 
 	public static final int PICK_CONTACT_AND_SEND_MODE = 9;
+	
+	public static final int HIKE_DIRECT_MODE = 10;
 
 	private View multiSelectActionBar, groupChatActionBar;
 
@@ -527,7 +530,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			getSupportActionBar().setDisplayHomeAsUpEnabled(false);
 		}
 		
-		if (composeMode == START_CHAT_MODE)
+		if (composeMode == START_CHAT_MODE||composeMode==HIKE_DIRECT_MODE)
 		{
 			initSearchMenu(menu);
 		}
@@ -604,6 +607,19 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			}
 		}
 		
+		if(item.getItemId()==android.R.id.home)
+		{
+			if (mCustomKeyboard != null && mCustomKeyboard.isCustomKeyboardVisible())
+			{
+				if (tagEditText != null)
+				{
+					mCustomKeyboard.showCustomKeyboard(tagEditText, false);
+				}
+			}
+			onBackPressed();
+			return true;
+		}
+		
 		return super.onOptionsItemSelected(item);
 	}
 	
@@ -678,6 +694,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		
 		switch (composeMode)
 		{
+		case HIKE_DIRECT_MODE:
 		case CREATE_BROADCAST_MODE:
 		case PICK_CONTACT_AND_SEND_MODE:
 		case PICK_CONTACT_MODE:
@@ -700,7 +717,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 
 		originalAdapterLength = adapter.getCount();
 
-		if (this.composeMode != START_CHAT_MODE)
+		if (this.composeMode != START_CHAT_MODE && this.composeMode != HIKE_DIRECT_MODE)
 		{
 			initTagEditText();
 			tagEditText.setVisibility(View.VISIBLE);
@@ -970,7 +987,16 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			}
 			else
 			{
-				Utils.startChatThread(this, contactInfo);
+				if(getIntent().hasExtra(HikeConstants.Extras.HIKE_DIRECT_MODE))
+				{
+					Intent in=IntentFactory.createChatThreadIntentFromContactInfo(this, contactInfo, false, false);
+					in.putExtra(HikeConstants.Extras.HIKE_DIRECT_MODE, true);
+					startActivity(in);
+				}
+				else
+				{
+					Utils.startChatThread(this, contactInfo);
+				}
 				finish();
 			}
 			break;
@@ -1029,9 +1055,14 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			dataString = (String) tag.data;
 		}
 
-		setupMultiSelectActionBar();
-		invalidateOptionsMenu();
-		multiSelectTitle.setText(createBroadcast ? getString(R.string.broadcast_selected, adapter.getCurrentSelection()) : 
+		/* AND-2137:: [Optional]
+		Adding this for optimization - as there is no change from 1st selection to 2nd selection in views,
+		except multiSelectTitle which is updated below anyways */
+		if (adapter.getCurrentSelection() == 1 || selectAllMode ) {
+			setupMultiSelectActionBar();
+			invalidateOptionsMenu();
+		}
+		multiSelectTitle.setText(createBroadcast ? getString(R.string.broadcast_selected, adapter.getCurrentSelection()) :
 				getString(R.string.gallery_num_selected, adapter.getCurrentSelection()));
 		}
 
@@ -1076,6 +1107,10 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		else if(getIntent().hasExtra(HikeConstants.Extras.GROUP_CREATE_BUNDLE) || getIntent().hasExtra(HikeConstants.Extras.EXISTING_GROUP_CHAT))
 		{
 				mode=CREATE_GROUP_MODE;
+		}
+		else if (getIntent().hasExtra(HikeConstants.Extras.HIKE_DIRECT_MODE))
+		{
+			mode = HIKE_DIRECT_MODE;
 		}
 		else if (addToConference) {
 			mode = CREATE_GROUP_MODE;
@@ -1133,6 +1168,12 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			adapter.preSelectContacts(nm.getLockedContacts(), nm.getUnlockedContacts());
 			adapter.setStatusForEmptyContactInfo(R.string.compose_chat_empty_contact_status_group_mode);
 			tagEditText.setHint(R.string.search);
+			break;
+		case HIKE_DIRECT_MODE:
+			tagEditText.clear(false);
+			adapter.clearAllSelection(false);
+			adapter.removeFilter();
+			adapter.setStatusForEmptyContactInfo(R.string.compose_chat_empty_contact_status_chat_mode);
 			break;
 		}
 		if(!nuxIncentiveMode) 
@@ -1302,7 +1343,11 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 
 	private void setTitle()
 	{
-		if(composeMode==PICK_CONTACT_MODE || composeMode == PICK_CONTACT_AND_SEND_MODE)
+		if (composeMode == HIKE_DIRECT_MODE)
+		{
+			title.setText(R.string.scan_free_hike);
+		}
+		else if (composeMode == PICK_CONTACT_MODE || composeMode == PICK_CONTACT_AND_SEND_MODE)
 		{
 			title.setText(R.string.choose_contact);
 		}
@@ -1434,13 +1479,15 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		actionBar.setCustomView(multiSelectActionBar);
 		Toolbar parent=(Toolbar)multiSelectActionBar.getParent();
 		parent.setContentInsetsAbsolute(0,0);
-
-		Animation slideIn = AnimationUtils.loadAnimation(this, R.anim.slide_in_left_noalpha);
-		slideIn.setInterpolator(new AccelerateDecelerateInterpolator());
-		slideIn.setDuration(200);
-		closeBtn.startAnimation(slideIn);
-		sendBtn.startAnimation(AnimationUtils.loadAnimation(this, R.anim.scale_in));
-
+		//Begin : AND-2137
+		if(!showingMultiSelectActionBar) {
+			Animation slideIn = AnimationUtils.loadAnimation(this, R.anim.slide_in_left_noalpha);
+			slideIn.setInterpolator(new AccelerateDecelerateInterpolator());
+			slideIn.setDuration(200);
+			closeBtn.startAnimation(slideIn);
+			sendBtn.startAnimation(AnimationUtils.loadAnimation(this, R.anim.scale_in));
+		}
+		//End : AND-2137
 		showingMultiSelectActionBar = true;
 	}
 	
@@ -1897,35 +1944,26 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 						}
 
 						HikeFileType hikeFileType = HikeFileType.fromString(fileType, isRecording);
-						
-						if (Utils.isPicasaUri(filePath))
+						Logger.d("ComposeChatActivity", "CompChAct : isCloudUri" + Utils.isPicasaUri(filePath));
+						FileTransferData fileData = initialiseFileTransfer(filePath, fileKey, hikeFileType, fileType,
+								isRecording, recordingDuration, true, arrayList);
+						if (fileData != null && fileData.file != null)
 						{
-							FileTransferManager.getInstance(getApplicationContext()).uploadFile(Uri.parse(filePath), hikeFileType, ((ContactInfo)arrayList.get(0)).getMsisdn(), ((ContactInfo)arrayList.get(0)).isOnhike());
-						}
-						else
-						{
-							FileTransferData fileData = initialiseFileTransfer(filePath, fileKey, hikeFileType, fileType, isRecording, recordingDuration, true, arrayList);
-							if (fileData != null && fileData.file != null)
+							if ((HikeConstants.MAX_FILE_SIZE > fileData.file.length()))
 							{
-								if ((HikeConstants.MAX_FILE_SIZE > fileData.file.length()))
+								fileTransferList.add(fileData);
+								offlinefileTransferList.add(fileData);
+							} else {
+								if (offlineContact != null)
 								{
-									fileTransferList.add(fileData);
 									offlinefileTransferList.add(fileData);
 								}
-								else
-								{
-									if (offlineContact != null)
-									{
-										offlinefileTransferList.add(fileData);
-									}
-									FTAnalyticEvents.logDevError(FTAnalyticEvents.UPLOAD_INIT_1_4, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "init",
-											"Compose - InitialiseFileTransfer - Max size reached.");
-									Toast.makeText(getApplicationContext(), R.string.max_file_size, Toast.LENGTH_SHORT).show();
-								}
-
+								FTAnalyticEvents.logDevError(FTAnalyticEvents.UPLOAD_INIT_1_4, 0, FTAnalyticEvents.UPLOAD_FILE_TASK,
+												"init", "Compose - InitialiseFileTransfer - Max size reached.");
+								Toast.makeText(getApplicationContext(), R.string.max_file_size, Toast.LENGTH_SHORT).show();
 							}
+
 						}
-						
 					}
 					else if (msgExtrasJson.has(HikeConstants.Extras.LATITUDE) && msgExtrasJson.has(HikeConstants.Extras.LONGITUDE)
 							&& msgExtrasJson.has(HikeConstants.Extras.ZOOM_LEVEL))
@@ -2659,8 +2697,17 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		if(arrayList.size()==1){
 			newConvIfnotExist = true;
 		}
-		for(ContactInfo contactInfo:arrayList){
-		FileTransferManager.getInstance(getApplicationContext()).uploadLocation(contactInfo.getMsisdn(), latitude, longitude, zoomLevel, ((ContactInfo)arrayList.get(0)).isOnhike(),newConvIfnotExist);
+		for(ContactInfo contactInfo:arrayList)
+		{
+			FTMessageBuilder.Builder msgBuilder = new FTMessageBuilder.Builder()
+			.setMsisdn(contactInfo.getMsisdn())
+			.setLatitude(latitude)
+			.setLongitude(longitude)
+			.setZoomLevel(zoomLevel)
+			.setRecipientOnHike(((ContactInfo)arrayList.get(0)).isOnhike())
+			.setNewConvIfnotExist(newConvIfnotExist)
+			.setHikeFileType(HikeFileType.LOCATION);
+			msgBuilder.build();
 		}
 	}
 	private void initialiseContactTransfer(JSONObject contactJson, ArrayList<ContactInfo>arrayList )
@@ -2736,24 +2783,42 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			progressDialog = ProgressDialog.show(ComposeChatActivity.this, null, message);
 		}
 		@Override
-		protected Void doInBackground(Void... params) {
+		protected Void doInBackground(Void... params)
+		{
 			if(arrayList!=null){
-				if(fileType == FILE_TRANSFER){
+				if(fileType == FILE_TRANSFER)
+				{
 					ArrayList<FileTransferData> files = (ArrayList<FileTransferData>)arrayList;
-			        for(FileTransferData file:files){
-			        	if (Utils.isPicasaUri(file.filePath))
-						{
-							FileTransferManager.getInstance(getApplicationContext()).uploadFile(Uri.parse(file.filePath), file.hikeFileType, file.arrayList, false);
-						}else{
-							FileTransferManager.getInstance(getApplicationContext()).uploadFile(file.arrayList, file.file, file.fileKey, file.fileType, file.hikeFileType, file.isRecording, file.isForwardingFile,
-									((ContactInfo)file.arrayList.get(0)).isOnhike(), file.recordingDuration,  FTAnalyticEvents.OTHER_ATTACHEMENT);
-						 }
-				}}else if(fileType == CONTACT_TRANSFER){
+			        for(FileTransferData file:files)
+			        {
+			        	Logger.d("ComposeChatActivity", "PreFTAsyncTask : isCloudMedia = " + Utils.isPicasaUri(file.filePath));
+						FTMessageBuilder.Builder mBuilder = new FTMessageBuilder.Builder()
+								.setContactList(file.arrayList)
+								.setSourceFile(file.file)
+								.setFileKey(file.fileKey)
+								.setFileType(file.fileType)
+								.setHikeFileType(file.hikeFileType)
+								.setRec(file.isRecording)
+								.setForwardMsg(file.isForwardingFile)
+								.setRecipientOnHike(((ContactInfo) file.arrayList.get(0)).isOnhike())
+								.setRecordingDuration(file.recordingDuration)
+								.setAttachement(FTAnalyticEvents.OTHER_ATTACHEMENT);
+						mBuilder.build();
+			        }
+				}else if(fileType == CONTACT_TRANSFER)
+				{
 					ArrayList<ContactInfo> contactList = (ArrayList<ContactInfo>)arrayList;	
-       			    for(ContactInfo contactInfo:contactList){
-			    	FileTransferManager.getInstance(getApplicationContext()).uploadContact(contactInfo.getMsisdn(), contactJson, (((ContactInfo)contactList.get(0)).isOnhike()), newConvIfnotExist);
+       			    for(ContactInfo contactInfo:contactList)
+       			    {
+						FTMessageBuilder.Builder msgBuilder = new FTMessageBuilder.Builder()
+								.setMsisdn(contactInfo.getMsisdn())
+								.setContactJson(contactJson)
+								.setRecipientOnHike(contactInfo.isOnhike())
+								.setNewConvIfnotExist(newConvIfnotExist)
+								.setHikeFileType(HikeFileType.CONTACT);
+						msgBuilder.build();
+       			    }
 				}
-			}
 		  }
 		
 			return null;
@@ -2908,6 +2973,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 
 			SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchMenuItem);
 			searchView.setOnQueryTextListener(onQueryTextListener);
+			searchView.setQueryHint(getString(R.string.search));
 			searchET = (AdaptxtEditText) searchView.findViewById(R.id.search_src_text);
 			Utils.setEditTextCursorDrawableColor(searchET,R.drawable.edittextcursorsearch);
 			if (!systemKeyboard)
@@ -2933,6 +2999,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 						if (!KptUtils.isSystemKeyboard())
 						{
 							mCustomKeyboard.showCustomKeyboard(searchET, false);
+							KptUtils.updatePadding(ComposeChatActivity.this, R.id.ll_compose, 0);
 							mCustomKeyboard.updateCore();
 						}
 					}
@@ -2976,7 +3043,10 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 	@Override
 	public void onInputviewVisbility(boolean kptVisible, int height)
 	{
-		if (findViewById(R.id.composeChatNewGroupTagET).getVisibility() == View.VISIBLE)
+		// Adding safety null checks for bug: AND-3867. No time to debug. Don't even know why the visibility check is here in first place.
+		// TODO:: debug this
+		if ((findViewById(R.id.composeChatNewGroupTagET) != null && findViewById(R.id.composeChatNewGroupTagET).getVisibility() == View.VISIBLE)
+				|| (searchET != null && searchET.getVisibility() == View.VISIBLE))
 		{
 			if (kptVisible)
 			{

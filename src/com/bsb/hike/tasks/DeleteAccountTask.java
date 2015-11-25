@@ -11,6 +11,7 @@ import android.preference.PreferenceManager;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.HikePubSub;
 import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.db.AccountBackupRestore;
 import com.bsb.hike.db.HikeConversationsDatabase;
@@ -212,8 +213,9 @@ public class DeleteAccountTask implements ActivityCallableTask
 		HikeMessengerApp.getInstance().startUpdgradeIntent();
 
 		finished = true;
-		
+
 		/* clear any toast notifications */
+
 		try
 		{
 			NotificationManager mgr = (NotificationManager) ctx.getSystemService(android.content.Context.NOTIFICATION_SERVICE);
@@ -222,13 +224,13 @@ public class DeleteAccountTask implements ActivityCallableTask
 		catch (SecurityException e)
 		{
 			/**
-			 * some of the users on HTC HTC Desire 626GPLUS dual sim were getting permission denial
-			 * while try to cancel notifications.
+			 * some of the users on HTC HTC Desire 626GPLUS dual sim were getting permission denial while try to cancel notifications.
 			 */
 			Logger.e("DeleteAccountTask", "Exception while canceling notification from DeleteAccountTask", e);
 		}
-		
-		
+
+		// reset badge counters
+		HikeMessengerApp.getPubSub().publish(HikePubSub.ACCOUNT_RESET_OR_DELETE, null);
 		// redirect user to the welcome screen
 		if (listener != null)
 		{

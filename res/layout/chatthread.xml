@@ -126,7 +126,7 @@
                 android:drawablePadding="10dp"
                 android:gravity="center_vertical"
                 android:paddingLeft="13dp"
-                android:text="99 SMS left"
+                android:text="@string/sms_ctr_default_text"
                 android:textColor="@color/actionbar_text"
                 android:textSize="14sp"
                 android:visibility="invisible" />

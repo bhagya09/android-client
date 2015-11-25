@@ -18,11 +18,11 @@ import com.bsb.hike.utils.Utils;
 
 public class FileRequest extends Request<File>
 {
-	private int BUFFER_SIZE = 4 * 1024; // 4Kb
+	protected int BUFFER_SIZE = 4 * 1024; // 4Kb
 
-	private String filePath;
+	protected String filePath;
 
-	private FileRequest(Init<?> init)
+	protected FileRequest(Init<?> init)
 	{
 		super(init);
 		this.filePath = init.filePath;

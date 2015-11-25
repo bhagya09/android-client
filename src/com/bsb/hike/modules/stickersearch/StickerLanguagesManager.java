@@ -115,36 +115,40 @@ public class StickerLanguagesManager {
     }
 
     public void retryDownloadDefaultTagsForLanguages()
-    {
-        Map<String, Boolean> defaultTagLanguageStatusMap = (HashMap<String, Boolean> ) HikeSharedPreferenceUtil.getInstance(HikeMessengerApp.DEFAULT_TAG_DOWNLOAD_LANGUAGES_PREF).getAllData();
-        ArrayList<String> languages = new ArrayList<>();
-        for(String lang : defaultTagLanguageStatusMap.keySet())
-        {
-            if(defaultTagLanguageStatusMap.get(lang) == false) // not downloaded
-            {
-                languages.add(lang);
-            }
-        }
-        StickerManager.getInstance().downloadDefaultTags(false, languages);
-    }
+	{
+		@SuppressWarnings("unchecked")
+		Map<String, Boolean> defaultTagLanguageStatusMap = (HashMap<String, Boolean>) HikeSharedPreferenceUtil.getInstance(HikeMessengerApp.DEFAULT_TAG_DOWNLOAD_LANGUAGES_PREF)
+				.getAllData();
+		ArrayList<String> languages = new ArrayList<>();
+		for (String lang : defaultTagLanguageStatusMap.keySet())
+		{
+			if (defaultTagLanguageStatusMap.get(lang) == false) // not downloaded
+			{
+				languages.add(lang);
+			}
+		}
+		StickerManager.getInstance().downloadDefaultTags(false, languages);
+	}
 
     public void redownloadAllDefaultTagsForLanguages(boolean isSignUp)
-    {
-        Map<String, Boolean> defaultTagLanguageStatusMap = (HashMap<String, Boolean> ) HikeSharedPreferenceUtil.getInstance(HikeMessengerApp.DEFAULT_TAG_DOWNLOAD_LANGUAGES_PREF).getAllData();
-        ArrayList<String> languages = new ArrayList<>();
-        for(String lang : defaultTagLanguageStatusMap.keySet())
-        {
-            HikeSharedPreferenceUtil.getInstance(HikeMessengerApp.DEFAULT_TAG_DOWNLOAD_LANGUAGES_PREF).saveData(lang, false);
-            languages.add(lang);
-        }
-        StickerManager.getInstance().downloadDefaultTags(isSignUp, languages);
-    }
+	{
+		@SuppressWarnings("unchecked")
+		Map<String, Boolean> defaultTagLanguageStatusMap = (HashMap<String, Boolean>) HikeSharedPreferenceUtil.getInstance(HikeMessengerApp.DEFAULT_TAG_DOWNLOAD_LANGUAGES_PREF)
+				.getAllData();
+		ArrayList<String> languages = new ArrayList<>();
+		for (String lang : defaultTagLanguageStatusMap.keySet())
+		{
+			HikeSharedPreferenceUtil.getInstance(HikeMessengerApp.DEFAULT_TAG_DOWNLOAD_LANGUAGES_PREF).saveData(lang, false);
+			languages.add(lang);
+		}
+		StickerManager.getInstance().downloadDefaultTags(isSignUp, languages);
+	}
 
     public void downloadDefaultTagsForLanguage(String language)
     {
         if(!isValidISOLanguage(language) || containsLanguage(FORBIDDEN_LANGUAGE_SET_TYPE, language) ||  HikeSharedPreferenceUtil.getInstance(HikeMessengerApp.DEFAULT_TAG_DOWNLOAD_LANGUAGES_PREF).getData(language, false))
         {
-            Logger.d(TAG, "language : " + language + "  is wrong or forbidden or defaults tags are already downloaded " + this.toString());
+            Logger.d(TAG, "language: " + language + " is wrong or forbidden or defaults tags are already downloaded " + this.toString());
             return ;
         }
         HikeSharedPreferenceUtil.getInstance(HikeMessengerApp.DEFAULT_TAG_DOWNLOAD_LANGUAGES_PREF).saveData(language, false);
@@ -211,11 +215,11 @@ public class StickerLanguagesManager {
             case DOWNLOADING_LANGUAGE_SET_TYPE:
                 return HikeSharedPreferenceUtil.getInstance().getDataSet(HikeMessengerApp.DOWNLOADING_LANGUAGES_SET, new HashSet<String>());
             case DOWNLOADED_LANGUAGE_SET_TYPE:
-                return  HikeSharedPreferenceUtil.getInstance().getDataSet(HikeMessengerApp.DOWNLOADED_LANGUAGES_SET, new HashSet<String>(Collections.singleton(StickerSearchConstants.DEFAULT_KEYBOARD_LANGUAGE)));
+                return  HikeSharedPreferenceUtil.getInstance().getDataSet(HikeMessengerApp.DOWNLOADED_LANGUAGES_SET, new HashSet<String>(Collections.singleton(StickerSearchConstants.DEFAULT_KEYBOARD_LANGUAGE_ISO_CODE)));
             case FORBIDDEN_LANGUAGE_SET_TYPE:
                 return  HikeSharedPreferenceUtil.getInstance().getDataSet(HikeMessengerApp.FORBIDDEN_LANGUAGES_SET, new HashSet<String>());
             default:
-                return HikeSharedPreferenceUtil.getInstance().getDataSet(HikeMessengerApp.DOWNLOADED_LANGUAGES_SET, new HashSet<String>(Collections.singleton(StickerSearchConstants.DEFAULT_KEYBOARD_LANGUAGE)));
+                return HikeSharedPreferenceUtil.getInstance().getDataSet(HikeMessengerApp.DOWNLOADED_LANGUAGES_SET, new HashSet<String>(Collections.singleton(StickerSearchConstants.DEFAULT_KEYBOARD_LANGUAGE_ISO_CODE)));
         }
     }
 
@@ -288,30 +292,40 @@ public class StickerLanguagesManager {
     }
 
     public void clearAllSets()
-    {
-        Logger.d(TAG, "clearing all language sets");
-        HikeSharedPreferenceUtil.getInstance().removeData(HikeMessengerApp.NOT_DOWNLOADED_LANGUAGES_SET);
-        HikeSharedPreferenceUtil.getInstance().removeData(HikeMessengerApp.DOWNLOADING_LANGUAGES_SET);
-        HikeSharedPreferenceUtil.getInstance().removeData(HikeMessengerApp.DOWNLOADED_LANGUAGES_SET);
-        HikeSharedPreferenceUtil.getInstance().removeData(HikeMessengerApp.FORBIDDEN_LANGUAGES_SET);
+	{
+		Logger.d(TAG, "clearing all language sets");
+		HikeSharedPreferenceUtil.getInstance().removeData(HikeMessengerApp.NOT_DOWNLOADED_LANGUAGES_SET);
+		HikeSharedPreferenceUtil.getInstance().removeData(HikeMessengerApp.DOWNLOADING_LANGUAGES_SET);
+		HikeSharedPreferenceUtil.getInstance().removeData(HikeMessengerApp.DOWNLOADED_LANGUAGES_SET);
+		HikeSharedPreferenceUtil.getInstance().removeData(HikeMessengerApp.FORBIDDEN_LANGUAGES_SET);
 
-        Map<String, Boolean> defaultTagLanguageStatusMap = (HashMap<String, Boolean> ) HikeSharedPreferenceUtil.getInstance(HikeMessengerApp.DEFAULT_TAG_DOWNLOAD_LANGUAGES_PREF).getAllData();
-        for(String lang : defaultTagLanguageStatusMap.keySet())
-        {
-            HikeSharedPreferenceUtil.getInstance(HikeMessengerApp.DEFAULT_TAG_DOWNLOAD_LANGUAGES_PREF).removeData(lang);
-        }
-    }
+		@SuppressWarnings("unchecked")
+		Map<String, Boolean> defaultTagLanguageStatusMap = (HashMap<String, Boolean>) HikeSharedPreferenceUtil.getInstance(HikeMessengerApp.DEFAULT_TAG_DOWNLOAD_LANGUAGES_PREF)
+				.getAllData();
+		for (String lang : defaultTagLanguageStatusMap.keySet())
+		{
+			HikeSharedPreferenceUtil.getInstance(HikeMessengerApp.DEFAULT_TAG_DOWNLOAD_LANGUAGES_PREF).removeData(lang);
+		}
+	}
 
-    public String listToSting(Collection<String> languages)
-    {
-        String result = "";
+    public String listToString(Collection<String> languages)
+	{
+		String result = "";
 
-        for(String lang : languages)
-        {
-            result += lang + ",";
-        }
-        return result.substring(0, result.length() -1); // remove last comma
-    }
+		for (String lang : languages)
+		{
+			result += lang + ",";
+		}
+
+		if (result.length() > 0)
+		{
+			return result.substring(0, result.length() - 1); // remove last comma
+		}
+		else
+		{
+			return result;
+		}
+	}
 
     public Set<String> getAccumulatedSet(int... types)
     {

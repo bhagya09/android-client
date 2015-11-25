@@ -35,7 +35,7 @@
                 android:layout_marginTop="15dp"
                 android:layout_weight="1"
                 android:paddingLeft="15dp"
-                android:text="Name"
+                android:text="@string/name"
                 android:textColor="@color/lightblack"
                 android:textSize="16sp" />
 
@@ -46,6 +46,7 @@
                 android:gravity="center_vertical"
                 android:layout_weight="2"
                 android:background="@null"
+                 android:imeOptions="actionDone"
                 android:inputType="textCapWords"
                 atx:charInputMaxLength="@integer/max_length_name"
                 android:maxLength="@integer/max_length_name"
@@ -81,7 +82,7 @@
                     android:layout_marginTop="15dp"
                     android:layout_weight="1"
                     android:paddingLeft="15dp"
-                    android:text="Name"
+                    android:text="@string/name"
                     android:textColor="@color/lightblack"
                     android:textSize="16sp" />
 
@@ -126,7 +127,7 @@
                     android:layout_marginTop="15dp"
                     android:layout_weight="1"
                     android:paddingLeft="15dp"
-                    android:text="Name"
+                    android:text="@string/name"
                     android:textColor="@color/lightblack"
                     android:textSize="16sp" />
 
@@ -137,6 +138,7 @@
                 	android:gravity="center_vertical"
                     android:layout_weight="2"
                     android:background="@null"
+                     android:imeOptions="actionDone"
                     android:inputType="textEmailAddress"
                     android:textColor="@color/subtext"
                     android:textSize="16sp"
@@ -171,7 +173,7 @@
                     android:layout_marginTop="15dp"
                     android:layout_weight="1"
                     android:paddingLeft="15dp"
-                    android:text="Name"
+                    android:text="@string/name"
                     android:textColor="@color/lightblack"
                     android:textSize="16sp" />
 
@@ -238,7 +240,7 @@
                     android:layout_marginTop="15dp"
                     android:layout_weight="1"
                     android:paddingLeft="15dp"
-                    android:text="Name"
+                    android:text="@string/name"
                     android:textColor="@color/lightblack"
                     android:textSize="16sp" />
             </LinearLayout>
