@@ -76,6 +76,7 @@ import android.preference.PreferenceCategory;
 import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -157,6 +158,8 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		{
 			Utils.logEvent(HikePreferences.this, HikeConstants.LogEvent.NOTIFICATION_SCREEN);
 		}
+		
+		addSMSCardEnablePref();
 				
 		addStealthPrefListeners();
 		
@@ -171,6 +174,23 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 
 	}
 	
+	private void addSMSCardEnablePref()
+	{
+		final SwitchPreferenceCompat smsCardEnablePref = (SwitchPreferenceCompat) getPreferenceScreen().findPreference(HikeConstants.SMS_CARD_ENABLE_PREF);
+		if (smsCardEnablePref != null)
+		{
+			if (HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.SHOW_SMS_CARD_PREF, false))
+			{
+				smsCardEnablePref.setDependency(HikeConstants.ACTIVATE_STICKY_CALLER_PREF);
+				smsCardEnablePref.setOnPreferenceChangeListener(this);
+			}
+			else
+			{
+				getPreferenceScreen().removePreference(smsCardEnablePref);
+			}
+		}
+	}
+	
 	private void addSeekbarPreferences() {
 		addOnSeekbarChangeListeners(HikeConstants.LONG_PRESS_DUR_PREF,200);
 		addOnSeekbarChangeListeners(HikeConstants.KEYPRESS_VOL_PREF,1);
@@ -179,21 +199,31 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 
 	private void saveKeyboardPref()
 	{
+		if (!HikeMessengerApp.isCustomKeyboardEnabled())
+		{
+			PreferenceCategory keyboardSettings = (PreferenceCategory) getPreferenceScreen().findPreference(HikeConstants.KEYBOARD_SETTING_PREF_CATEGORY);
+			if (keyboardSettings != null)
+			{
+				getPreferenceScreen().removePreference(keyboardSettings);
+				return;
+			}
+		}
+
 		Preference kbdPref = findPreference(HikeConstants.KEYBOARD_PREF);
 		if (kbdPref != null && kbdPref instanceof SwitchPreferenceCompat)
 		{
 			boolean val = HikeMessengerApp.isSystemKeyboard();
 			((SwitchPreferenceCompat) kbdPref).setChecked(!val);
 		}
-		
+
 		ListPreference localLanguagePrf = (ListPreference) findPreference(HikeConstants.LOCAL_LANGUAGE_PREF);
 		if (localLanguagePrf != null && localLanguagePrf instanceof ListPreference)
 		{
 			localLanguagePrf.setValue(LocalLanguageUtils.getApplicationLocalLanguage(HikePreferences.this).getDisplayName());
 		}
-		
+
 		setKeyboardLangSummary();
-		
+
 		setPrefValueFromKpt(HikeConstants.AUTO_CAPITALIZATION_PREF, kptSettings.getAutoCapitalizationState());
 		setPrefValueFromKpt(HikeConstants.AUTO_SPACING_PREF, kptSettings.getAutoSpacingState());
 		setPrefValueFromKpt(HikeConstants.GLIDE_PREF, kptSettings.getGlideState());
@@ -237,7 +267,6 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		IconPreference kbdLanguagePref = (IconPreference) findPreference(HikeConstants.KEYBOARD_LANGUAGE_PREF);
 		if (kbdLanguagePref != null && kbdLanguagePref instanceof IconPreference)
 		{
-			kbdLanguagePref.setDependency(HikeConstants.KEYBOARD_PREF);
 			String summary = new String();
 			ArrayList<KPTAddonItem> langList = KptKeyboardManager.getInstance(HikePreferences.this).getInstalledLanguagesList();
 			for (KPTAddonItem item : langList)
@@ -280,7 +309,6 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		if (preference != null)
 		{
 			Logger.d(getClass().getSimpleName(), preferenceName + " preference not null" + preference.getKey());
-			preference.setDependency(HikeConstants.KEYBOARD_PREF);
 			preference.setOnPreferenceClickListener(this);
 		}
 		else
@@ -394,7 +422,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 
 	private void restartHomeActivity()
 	{
-		IntentFactory.relaunchApplication(this);
+		IntentFactory.freshLaunchHomeActivity(getApplicationContext());
 	}
 
 	private void addStealthPrefListeners()
@@ -875,7 +903,13 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		else if (HikeConstants.HELP_FAQS_PREF.equals(preference.getKey()))
 		{
 			Logger.d(getClass().getSimpleName(), "FAQ preference selected");
-			Utils.startWebViewActivity(HikePreferences.this,HikeConstants.HELP_URL,getString(R.string.faq));
+			String localappLang = LocalLanguageUtils.getApplicationLocalLanguageLocale();
+			String helpURL = HikeConstants.HELP_URL;
+			if(!TextUtils.isEmpty(localappLang)) {
+				Uri modifiedURI = Uri.parse(helpURL).buildUpon().appendQueryParameter("locale", localappLang).build();
+				helpURL = modifiedURI.toString();
+			}
+			Utils.startWebViewActivity(HikePreferences.this, helpURL, getString(R.string.faq));
 		}
 		else if (HikeConstants.HELP_TNC_PREF.equals(preference.getKey()))
 		{
@@ -1337,7 +1371,22 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 					HAManager.getInstance().stickyCallerAnalyticsUIEvent(AnalyticsConstants.StickyCallerEvents.KNOWN_CARD_SETTINGS_TOGGLE, null,
 							AnalyticsConstants.StickyCallerEvents.DEACTIVATE_BUTTON, null);
 				}
-			} else if (HikeConstants.NUJ_NOTIF_BOOLEAN_PREF.equals(preference.getKey())) {
+			}
+			else if(HikeConstants.SMS_CARD_ENABLE_PREF.equals(preference.getKey()))
+			{
+				if (isChecked)
+				{
+					HAManager.getInstance().stickyCallerAnalyticsUIEvent(AnalyticsConstants.StickyCallerEvents.SMS_CARD_SETTINGS_TOGGLE, null,
+							AnalyticsConstants.StickyCallerEvents.ACTIVATE_BUTTON, null);
+			
+				}
+				else
+				{
+					HAManager.getInstance().stickyCallerAnalyticsUIEvent(AnalyticsConstants.StickyCallerEvents.SMS_CARD_SETTINGS_TOGGLE, null,
+							AnalyticsConstants.StickyCallerEvents.DEACTIVATE_BUTTON, null);
+				}
+			}
+			else if (HikeConstants.NUJ_NOTIF_BOOLEAN_PREF.equals(preference.getKey())) {
 				try {
 					JSONObject metadata = new JSONObject();
 
@@ -1782,6 +1831,11 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 				{
 					SwitchPreferenceCompat stealthIndicatorEnabled = (SwitchPreferenceCompat)getPreferenceScreen().findPreference(HikeConstants.STEALTH_INDICATOR_ENABLED);
 					boolean newValue = stealthBundle.getBoolean(HikeConstants.STEALTH_INDICATOR_ENABLED);
+					if(!newValue)
+					{
+						HikeSharedPreferenceUtil.getInstance().removeData(HikeConstants.STEALTH_INDICATOR_SHOW_REPEATED);
+						HikeSharedPreferenceUtil.getInstance().removeData(HikeConstants.STEALTH_INDICATOR_SHOW_ONCE);
+					}
 					stealthIndicatorEnabled.setChecked(newValue);
 					metadata.put(HikeConstants.KEY, HikeConstants.STEALTH_INDICATOR_ENABLED);
 					metadata.put(HikeConstants.VALUE, newValue);

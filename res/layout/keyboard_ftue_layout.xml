@@ -20,6 +20,7 @@
                 android:layout_height="44dp"
                 android:layout_alignParentRight="true"
                 android:layout_alignParentTop="true"
+                android:contentDescription="image_close"
                 android:scaleType="center"
                 android:src="@drawable/ic_keyboard_popup_cross" />
 
@@ -29,7 +30,6 @@
                 android:layout_centerInParent="true"
                 android:gravity="center"
                 android:orientation="vertical"
-                android:paddingBottom="22dp"
                 android:paddingTop="22dp">
 
                 <ImageView
@@ -42,6 +42,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_margin="12dp"
+                    android:contentDescription="text_regional_language_description"
                     android:text="@string/regional_keyboard"
                     android:textColor="#3d475b"
                     android:textSize="20dp"
@@ -50,6 +51,7 @@
                 <com.bsb.hike.view.CustomFontTextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:contentDescription="text_regional_language"
                     android:gravity="center"
                     android:maxLines="2"
                     android:maxWidth="260dp"
@@ -62,8 +64,11 @@
                     style="@style/ButtonCustomDialog"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
+                    android:layout_marginTop="6dp"
+                    android:contentDescription="button_choose_language"
                     android:gravity="center"
+                    android:paddingBottom="20dp"
+                    android:paddingTop="20dp"
                     android:text="@string/CHOOSE_LANGUAGE" />
             </LinearLayout>
         </RelativeLayout>
@@ -86,6 +91,7 @@
                 <com.bsb.hike.view.CustomFontTextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:contentDescription="text_choose_language"
                     android:text="@string/choose_language"
                     android:textColor="#de000000"
                     android:textSize="20dp"
@@ -98,6 +104,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_weight="1.0"
+                android:contentDescription="list_languages"
                 android:divider="@null"
                 android:listSelector="@drawable/list_item"></ListView>
 
@@ -115,6 +122,7 @@
                     style="@style/ButtonCustomDialog"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:contentDescription="button_negative_cancel"
                     android:text="@string/CANCEL" />
 
                 <com.bsb.hike.view.CustomFontButton
@@ -122,6 +130,7 @@
                     style="@style/ButtonCustomDialog"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:contentDescription="button_positive_apply"
                     android:text="@string/APPLY" />
             </LinearLayout>
 
@@ -166,6 +175,7 @@
                 android:layout_centerHorizontal="true"
                 android:layout_marginBottom="32dp"
                 android:background="@drawable/ic_spacebar"
+                android:contentDescription="view_swipe_detector"
                 android:gravity="center"
                 android:padding="10dp">
 
@@ -196,6 +206,7 @@
                 android:layout_alignLeft="@id/langauage_layout"
                 android:layout_alignTop="@id/langauage_layout"
                 android:layout_marginTop="20dp"
+                android:contentDescription="image_swipe_hand"
                 android:scaleType="center"
                 android:src="@drawable/art_hand_swipe" />
 
@@ -205,6 +216,7 @@
                 android:layout_height="match_parent"
                 android:layout_above="@id/langauage_layout"
                 android:layout_centerHorizontal="true"
+                android:contentDescription="text_swipe_description"
                 android:gravity="center"
                 android:maxWidth="208dp"
                 android:text="@string/keyboad_ftue_swipe"

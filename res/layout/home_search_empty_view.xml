@@ -12,7 +12,7 @@
         android:layout_marginTop="48dp"
         android:gravity="center"
         android:maxWidth="220dp"
-        android:text="Your search for did not match any contacts"
+        android:text="@string/failed_search"
         android:textColor="@color/gray"
         android:textSize="18sp" />
 

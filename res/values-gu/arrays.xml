@@ -80,4 +80,25 @@
                 
         <item>સિક</item>
     </string-array>
+    
+    <array name="photos_actions_titles">
+       <item>પ્રોફાઇલ ચિત્ર તરીકે સેટ કરો</item>
+       <item>મિત્રોને મોકલો</item>
+       <item>ટાઈમ લાઈન પર પોસ્ટ કરો </item>
+	</array>
+
+	<array name="call_glowpad_descr">
+       <item>ડિસમિસ કરો</item>
+       <item>મેસેજ </item>
+       <item>પિકઅપ  </item>
+       <item>@null</item>
+   </array>
+   
+   <array name="call_glowpad_directions">
+       <item>અધિકાર</item>
+       <item>ઉપર</item>
+       <item>ડાબે</item>
+       <item>@null</item>
+   </array>
+   
 </resources>

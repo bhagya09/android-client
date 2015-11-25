@@ -12,7 +12,7 @@
     <string name="forward">फॉरवर्ड</string>
     <string name="copy">कॉपी</string>
     <string name="preferences">प्राथमिकताएं</string>
-    <string name="delete_account_failed">hike couldn\'t delete your account. Please try again.</string>
+    <string name="delete_account_failed">hike couldn\&apos;t delete your account. Please try again.</string>
     <string name="already_hike_user">अच्छी खबर! आपका दोस्त पहले से हाइक पर है!</string>
     <string name="profile_title">प्रोफाइल</string>
     <string name="updating_profile">अपडेटिंग प्रोफाइल</string>
@@ -21,7 +21,7 @@
     <string name="block_title">ब्लॉक</string>
     <string name="unblock_title">अनब्लॉक</string>
     <string name="feedback">फीडबैक</string>
-    <string name="block_overlay_message">You\'ve blocked %1$s.  Unblock and continue hiking.</string>
+    <string name="block_overlay_message">You\&apos;ve blocked %1$s.  Unblock and continue hiking.</string>
     <string name="phone_num">फोन नम्बर</string>
     <string name="pin">पिन</string>
     <string name="name">नाम</string>
@@ -52,7 +52,7 @@
     <string name="call">कॉल</string>
     <string name="upload_failed">फाइल अपलोड नहीं हो सकी। नेटवर्क सेटिंग देखें।</string>
     <string name="dnd_msg_gc">Waiting for %1$s to reply to join in</string>
-    <string name="earned_credits">You\'ve just earned %1$s free SMS</string>
+    <string name="earned_credits">You\&apos;ve just earned %1$s free SMS</string>
     <string name="earned_credits_highlight">%1$s free SMS</string>
     <string name="no_external_storage">बाह्य स्टोरेज नहीं मिला</string>
     <string name="share_file">साझा करें</string>
@@ -121,7 +121,7 @@
     <string name="me">मैं</string>
     <string name="gender">लिंग</string>
     <string name="edit_picture">चित्र सम्पादित करें</string>
-    <string name="settings">सेटिंग</string>
+    <string name="settings">सेटिंग्स</string>
     <string name="sms_left">SMS left</string>
     <string name="image_msg_received">आपको फोटो भेजी</string>
     <string name="video_msg_received">आपको वीडियो भेजा</string>
@@ -149,7 +149,7 @@
     <string name="android_version">एंड्रोइड वर्ज़न:</string>
     <string name="msisdn">फोन नं.:</string>
     <string name="unobfuscated_map_api">AIzaSyBvWmHyGeeDjPkJR1xJnWCnUiWTfwciSLw</string>
-    <string name="invalid_num_signup">That\'s an invalid phone number. Try again.</string>
+    <string name="invalid_num_signup">That\&apos;s an invalid phone number. Try again.</string>
     <string name="verify_pin_signup">Verifying PIN...</string>
     <string name="wrong_num_signup">गलत नम्बर दाखिल कर दिया है? यहाँ टैप करें</string>
     <string name="enter_phone_again_signup">Looks like something went wrong.\nPlease enter your phone # again.</string>
@@ -244,7 +244,7 @@
     <string name="use_hike_for_sms_info">नियमित SMS भेजने के लिए, आपको hike को अपना प्राथमिक SMS इनबॉक्स बनाना होगा।</string>
     <string name="allow">अनुमति दें</string>
     <string name="sms_with_hike">एकीकृत इनबॉक्स</string>
-    <string name="sms_with_hike_info">You can now send and receive regular SMS with hike. To do so, you\'ll need to make hike your primary SMS inbox.</string>
+    <string name="sms_with_hike_info">You can now send and receive regular SMS with hike. To do so, you\&apos;ll need to make hike your primary SMS inbox.</string>
     <string name="last_seen_header">लास्ट सीन दिखाएं</string>
     <string name="invite_sms">एसएमएस से आमंत्रण</string>
     <string name="system_health_error">कृपया सिस्टम हेल्थ देखने के लिए अपने फोन ब्राउजर को सक्षम करें।</string>
@@ -293,7 +293,7 @@
     <string name="feedback_on_hike">एंड्रॉयड के लिए hike पर फी़डबैक</string>
     <string name="feedback_hinttext">हमें फ़ीडबैक दें</string>
     <string name="faq_hinttext">अक्सर पूछे जाने वाले सवाल</string>
-    <string name="blocked_list_hinttext">Manage people you\'ve blocked</string>
+    <string name="blocked_list_hinttext">Manage people you\&apos;ve blocked</string>
     <string name="system_health_hinttext">hike सिस्टम स्थिति देखें</string>
     <string name="app_version">Version %1$s</string>
     <string name="remind">याद दिलाएँ</string>
@@ -304,7 +304,7 @@
     <string name="critical_update_head">महत्वपूर्ण अपडेट अपेक्षित है</string>
     <string name="downloading_string">डाउनलोड हो रहा है...</string>
     <string name="post">पोस्ट</string>
-    <string name="no_credits">You\'ve run out of free SMS. Invite %1$s to get some more!</string>
+    <string name="no_credits">You\&apos;ve run out of free SMS. Invite %1$s to get some more!</string>
     <string name="ftue_add_prompt_invite">Looks like %1$s is not on hike yet! Invite %1$s to hike. Standard operator SMS rates apply.</string>
     <string name="ftue_add_prompt_invite_title">हाइक पर आमंत्रित करे</string>
     <string name="create_group">नई समूह चैट</string>
@@ -359,13 +359,13 @@
     <string name="terms">शर्तें</string>
     <string name="get_started">Get Started</string>
     <string name="got_it">समझ गए</string>
-    <string name="whats_your_number">Hi! What\'s your number?</string>
+    <string name="whats_your_number">Hi! What\&apos;s your number?</string>
     <string name="select_country">देश चुनें</string>
     <string name="wrong_country">अमान्य देश कोड</string>
     <string name="no_internet_msg">Looks like there’s no internet\nconnection! Try fixing it and\nproceed.</string>
     <string name="hang_on">प्रतीक्षा करें...</string>
     <string name="call_me_for_the_pin">Call me %1$s</string>
-    <string name="wrong_pin">Sorry, that\'s a wrong PIN!</string>
+    <string name="wrong_pin">Sorry, that\&apos;s a wrong PIN!</string>
     <string name="verifying">पुष्टि हो रही है...</string>
     <string name="pick_one">कोई एक चुनें...</string>
     <string name="i_am_a_boy">मैं लड़का हूँ</string>
@@ -406,7 +406,7 @@
     <string name="num_unread_messages">%1$s Unread Messages</string>
     <string name="one_unread_message">1 Unread Message</string>
     <string name="invite_friends_confirmation_msg">Would you like to invite %1$s of your friends to hike?</string>
-    <string name="didnt_get_pin">Didn\'t get the PIN, we will call you</string>
+    <string name="didnt_get_pin">Didn\&apos;t get the PIN, we will call you</string>
     <string name="maxContactInBroadcastErr">इस प्रसारण सूची में अधिकतम %1$s संपर्कों की अनुमति है</string>
     <string name="minContactInGroupErr">समूह चैट शुरू करने के लिए न्यूनतम %1$s सदस्य चुनें </string>
     <string name="minContactInBroadcastErr">कम से कम %1$s संपर्कों का चयन किया जाना चाहिए</string>
@@ -426,7 +426,7 @@
     <string name="favorites_ftue_item_label">पसंदीदा जोड़ें</string>
     <string name="group_chats_upper_case">समूह वार्तालाप</string>
     <string name="max_num_files_reached">%1$s से ज़्यादा फ़ाइलें साझा नहीं की जा सकतीं</string>
-    <string name="status_updates_proper_casing">स्थिति अपडेट</string>
+    <string name="status_updates_proper_casing">स्टेटस अपडेट</string>
     <string name="CONFIRM">पुष्टि करें</string>
     <string name="CONTINUE">जारी रखें</string>
     <string name="alp_42447968_cmd_forgot_pattern">पैटर्न भूल गए?</string>
@@ -469,7 +469,7 @@
     <string name="tap_to_hide_stealth_contacts">चैट अदृश्य करने के लिए</string>
     <string name="tap_text">टैप करें</string>
     <string name="reset_stealth_confirmation">Resetting Hidden Mode will delete all your hidden Chats.\nAre you sure?</string>
-    <string name="stealth_tap_and_hold_tip">Tap and hold on a chat to mark a chat \'Hidden\'.</string>
+    <string name="stealth_tap_and_hold_tip">Tap and hold on a chat to mark a chat \&apos;Hidden\&apos;.</string>
     <string name="mark_stealth">Mark Chat as Hidden</string>
     <string name="unmark_stealth">चैट को दृश्य चिह्नित करें</string>
     <string name="edit">Edit</string>
@@ -487,7 +487,7 @@
     <string name="delete_chat">चैट हटाएँ</string>
     <string name="clear_whole_conversation">पूरा वार्तालाप निकालें</string>
     <string name="email_conversations">वार्तालाप ईमेल करें</string>
-    <string name="unlink_account_failed">hike couldn\'t logout your account. Please try again</string>
+    <string name="unlink_account_failed">hike couldn\&apos;t logout your account. Please try again</string>
     <string name="deleting_account">Deleting Account...</string>
     <string name="unlink_hinttext">Clear your messages and profile from this device.</string>
     <string name="unlink_account">Reset Account</string>
@@ -506,8 +506,8 @@
     <string name="add_shortcut">शार्टकट जोड़ें</string>
     <string name="timeline">टाइमलाइन</string>
     <string name="add_favorites_upper_case">पसंदीदा जोड़ें</string>
-    <string name="status_update_tip_header">अपनी स्थिति पोस्ट करें</string>
-    <string name="status_update_tip_msg">स्थिति केवल पसंदीदा को दिखाई देती है</string>
+    <string name="status_update_tip_header">अपना स्टेटस पोस्ट करें</string>
+    <string name="status_update_tip_msg">स्टेटस केवल पसंदीदा को दिखाई देता है</string>
     <string name="new_ui_welcome_tip_header">नए hike में आपका स्वागत है</string>
     <string name="new_ui_welcome_tip_msg">उपयोग करने में आसान और पहले से कहीं ज़्यादा तेज़</string>
     <string name="camera">कैमरा</string>
@@ -524,16 +524,16 @@
     <string name="native_sms_invite_1">हैलो, hike मैसेंजर पर मुझसे जुड़ें!\n यह एकमात्र ऐसा मैसेजिंग ऐप है जो भारत में बना है! इसे अभी प्राप्त करें - http://hike.in/ और अपने जीवन को Hike करें</string>
     <string name="native_sms_invite_2">हैलो! hike मैसेंजर की जाँच करें। अब दस्तावेज़, पॉवर प्वाइंट, एमपी3 तथा और बहुत कुछ भेजें; 100MB तक प्रत्येक! इसे अभी प्राप्त करें - http://hike.in/ और अपने जीवन को Hike करें।</string>
     <string name="native_sms_invite_3">हैलो, hike मैसेंजर की जाँच करें। इसमें अद्भुत स्टिकर हैं व शानदार चैट थीम हैं! डाउनलोड करें - http://hike.in और अपने जीवन को Hike करें!</string>
-    <string name="native_sms_invite_4">हैलो, hike मैसेंजर की जाँच करें। इससे आप अपनी \'पिछली बार दिखे\' स्थिति केवल चुने हुए दोस्तों को दिखा सकते हैं! डाउनलोड करें - http://hike.in और अपने जीवन को Hike करें!</string>
+    <string name="native_sms_invite_4">हैलो, hike मैसेंजर की जाँच करें। इससे आप अपनी \&apos;पिछली बार दिखे\&apos; स्टेटस केवल चुने हुए दोस्तों को दिखा सकते हैं! डाउनलोड करें - http://hike.in और अपने जीवन को Hike करें!</string>
     <string name="native_sms_invite_5">हैलो, hike मैसेंजर की जाँच करें। अब आप अपनी निजी चैट दूसरों से छिपा सकते हैं। डाउनलोड करें  - http://hike.in और अपने जीवन को Hike करें!</string>
     <string name="native_sms_invite_6">हैलो, hike मैसेंजर की जाँच करें। आप उन दोस्तों से भी चैट कर सकते हैं जो ऑफ़लाइन हैं। डाउनलोड करें - http://hike.in और अपने जीवन को Hike करें!</string>
     <string name="new_chat_tip_msg">कंपोज़ करने के लिए टैप करें</string>
     <string name="ftue_status_update_card_header">अपने आप को अभिव्यक्त करें!</string>
-    <string name="ftue_status_update_card_msg">स्थिति अद्यतन पोस्ट करने के लिए यहाँ टैप करें। केवल आपके पसंदीदा उन्हें देख सकते हैं।</string>
+    <string name="ftue_status_update_card_msg">स्टेटस अपडेट पोस्ट करने के लिए यहाँ टैप करें। केवल आपके पसंदीदा उन्हें देख सकते हैं।</string>
     <string name="earn_free_sms">मुफ़्त एसएमएस अर्जित करें</string>
     <string name="email_subject">अपने जीवन में hike लाएँ</string>
     <string name="ftue_card_header_last_seen">लास्ट सीन</string>
-    <string name="ftue_card_body_last_seen">केवल पसंदीदा आपकी पिछली बार दिखे व स्थिति अद्यतन देख सकते हैं</string>
+    <string name="ftue_card_body_last_seen">केवल पसंदीदा आपकी पिछली बार दिखे व स्टेटस अपडेट देख सकते हैं</string>
     <string name="ftue_card_click_text_last_seen">उन्हें चुनने के लिए यहाँ टैप करें!</string>
     <string name="ftue_card_header_hike_offline">hike ऑफ़लाइन</string>
     <string name="ftue_card_body_hike_offline">मित्रों को संदेश भेजें, तब भी जब वे ऑफ़लाइन हों</string>
@@ -600,9 +600,9 @@
     <string name="incorrect_msisdn_msg">कृपया hike के साथ पंजीकृत नंबर को इस फ़ोन पर प्रविष्ट करें।</string>
     <string name="delete_account_heading_2">अपना खाता हटाने के लिए अपना नंबर प्रविष्ट करें</string>
     <string name="delete_my_account">मेरा खाता हटाएँ</string>
-    <string name="hike_extras">रिवार्ड/एक्स्ट्रा</string>
-    <string name="mute_status_notification_header">स्थिति और प्रोफ़ाइल चित्र</string>
-    <string name="mute_status_notification_subtext">स्थिति &amp; और पसंदीदा से प्रोफ़ाइल चित्र अपडेट के लिए सूचनाएं दिखाएं</string>
+    <string name="hike_extras">रिवार्ड्स/एक्स्ट्रास</string>
+    <string name="mute_status_notification_header">स्टेटस और प्रोफ़ाइल चित्र</string>
+    <string name="mute_status_notification_subtext">स्टेटस &amp; और पसंदीदा से प्रोफ़ाइल चित्र अपडेट के लिए सूचनाएं दिखाएं</string>
     <string name="notifications_contact_join_summary">जब कोई संपर्क hike में शामिल हो तो सूचित करें</string>
     <string name="set_profile_pic"> Hike प्रोफ़ाइल चित्र</string>
     <string name="confirm_delete_pin_header">पिन हटाएँ</string>
@@ -637,7 +637,7 @@
     <string name="notificationSoundSummary">नए संदेश के लिए चलाने के लिए ध्वनि चुनें</string>
     <string name="hike_offline_notifications">hike ऑफ़लाइन</string>
     <string name="h2o_notifications_setting_summary">ऑफ़लाइन संपर्क के लिए एसएमएस भेजने के लिए सूचित करें</string>
-    <string name="stealth_info_tip_subtext">पासवर्ड से चैट अदृश्य करने के लिए \'hi\' पर टैप करें।</string>
+    <string name="stealth_info_tip_subtext">पासवर्ड से चैट अदृश्य करने के लिए \&apos;hi\&apos; पर टैप करें।</string>
     <string name="file_attachment_info">100 एमबी तक दस्तावेज़, पीडीएफ़ और मीडिया साझा करें</string>
     <string name="status_text_notification">अपडेट पोस्ट किया %1$s</string>
     <string name="shared_files">फ़ाइलें</string>
@@ -725,7 +725,7 @@
     <string name="shop_loading_failed_switch_on">मोबाइल डेटा या Wi-Fi चालू करें</string>
     <string name="singular_packs">%1$d पैक</string>
     <string name="singular_stickers">%1$d स्टिकर</string>
-    <string name="conversation_empty">चैट शुरू करने के लिए\nशीर्ष पर \'<b>new message</b>\' आइकन पर टैप करें</string>
+    <string name="conversation_empty">चैट शुरू करने के लिए\nशीर्ष पर \&apos;<b>new message</b>\&apos; आइकन पर टैप करें</string>
     <string name="pack_visible">स्टिकर पैलेट में दृश्य</string>
     <string name="pack_hidden">स्टिकर पैलेट से अदृश्य</string>
     <string name="pack_rank">%1$d.</string>
@@ -850,7 +850,7 @@
     <string name="photo_dp_save_error_sub">पुन: प्रयास करने के लिए टैप करें</string>
     <string name="photo_gallery_choose_pic">कोई फोटो चुनें</string>
     <string name="cropping_image">छवि क्रॉप की जा रही है...</string>
-	<string name="home_search_empty_text">\'%1$s\' के लिए आपकी खोज किसी भी संपर्क से मेल नहीं खाती है।</string>
+	<string name="home_search_empty_text">\&apos;%1$s\&apos; के लिए आपकी खोज किसी भी संपर्क से मेल नहीं खाती है।</string>
     <string name="voip_mic_error">माईक चालू करने में असमर्थ। यह कॉल शायद काम न करे।</string>
     <string name="voip_call_failed_frag_subheader">आप फिर भी %1$s से संपर्क कर सकते हैं</string>
     <string name="dismiss_upper_case">खारिज करें</string>
@@ -908,7 +908,7 @@
     <string name="stealth_notification_settings">सूचना के लिए सेटिंग्स</string>
     <string name="stealth_reset_settings">अतिरिक्त सेटिंग्स</string>
     <string name="enable_stealth_indicator">संकेतक</string>
-    <string name="enable_stealth_indicator_body">अपठित संदेशों के लिए होम स्क्रीन पर \'hi\' लोगो बाउंस करें</string>
+    <string name="enable_stealth_indicator_body">अपठित संदेशों के लिए होम स्क्रीन पर \&apos;hi\&apos; लोगो बाउंस करें</string>
     <string name="enable_stealth_notification_body">अदृश्य चैट में संदेश प्राप्त होने पर सूचित करें</string>
     <string name="enable_stealth_notification">अधिसूचना</string>
     <string name="stealth_msg_draw_an_unlock_pattern">नया पासकोड पैटर्न बनाएँ</string>
@@ -1014,7 +1014,7 @@
 	<string name="add_members">सदस्य जोड़ें</string>
 	<string name="add_members_to_conference">कॉन्फ़्रेंस में जोड़ें</string>
 	<string name="created_group_text">आपने ग्रुप चैट बनाया है</string>
-	<string name="group_member_added">%1$s जोड़ा गया</string>
+	<string name="group_member_added">%1$s ने %2$s को जोडा</string>
 	<string name="num_members">%1$d सदस्य</string>
 	<string name="num_member">%1$d सदस्य</string>
 	<string name="profile_pic_upload_in_background">प्रोफ़ाइल चित्र का अपलोड होना जारी रहेगा..</string>
@@ -1027,7 +1027,7 @@
 	<string name="make_admin">एडमिन बनाएं</string>
 	<string name="admin_updating">%1$s को एडमिन बना रहे हैं</string>
 	<string name="admin_task_error">कनेक्शन त्रुटि: कृपया अपने नेटवर्क की जांच करें और फिर से प्रयास करें.</string>
-	<string name="group_admin_updated">%1$s को एडमिन बनाया</string>
+	<string name="group_admin_updated">%1$s ने %2$s को एडमिन बनाया</string>
 	<string name="group_setting_option_only_admin">केवल एडमिन ही सदस्य जोड़ सकते हैं</string>
 	<string name="group_setting_updating">ग्रुप प्राइवेसी सेटिंग्स में बदलाव करना</string>
 	<string name="group_setting_confirmation1">हर किसी को सदस्य जोड़ने की अनुमति दें?</string>
@@ -1240,10 +1240,10 @@
     <string name="take_me_there">मुझे वहाँ ले जाएँ</string>
     <string name="hike_upgrade_string">आपके लिए hike तीव्रतर और बेहतर बनाया जा रहा है\n इसमें कुछ मिनट लग सकते हैं</string>
     <array name="voip_decline_message_texts">
-        <item>Can\'t talk now. What\'s up?</item>
-        <item>I\'ll call you right back</item>
-        <item>I\'ll call you later</item>
-        <item>Can\'t talk now. Call me later?</item>
+        <item>Can\&apos;t talk now. What\&apos;s up?</item>
+        <item>I\&apos;ll call you right back</item>
+        <item>I\&apos;ll call you later</item>
+        <item>Can\&apos;t talk now. Call me later?</item>
     </array>
     <string name="HELP">सहायता</string>
     <string name="sticky_caller_settings">कॉलकर्ता</string>

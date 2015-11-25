@@ -35,7 +35,7 @@
                 android:layout_marginTop="15dp"
                 android:layout_weight="1"
                 android:paddingLeft="15dp"
-                android:text="Name"
+                android:text="@string/name"
                 android:textColor="@color/lightblack"
                 android:textSize="16sp" />
 
@@ -82,7 +82,7 @@
                     android:layout_marginTop="15dp"
                     android:layout_weight="1"
                     android:paddingLeft="15dp"
-                    android:text="Name"
+                    android:text="@string/name"
                     android:textColor="@color/lightblack"
                     android:textSize="16sp" />
 
@@ -127,7 +127,7 @@
                     android:layout_marginTop="15dp"
                     android:layout_weight="1"
                     android:paddingLeft="15dp"
-                    android:text="Name"
+                    android:text="@string/name"
                     android:textColor="@color/lightblack"
                     android:textSize="16sp" />
 
@@ -173,7 +173,7 @@
                     android:layout_marginTop="15dp"
                     android:layout_weight="1"
                     android:paddingLeft="15dp"
-                    android:text="Name"
+                    android:text="@string/name"
                     android:textColor="@color/lightblack"
                     android:textSize="16sp" />
 
@@ -240,7 +240,7 @@
                     android:layout_marginTop="15dp"
                     android:layout_weight="1"
                     android:paddingLeft="15dp"
-                    android:text="Name"
+                    android:text="@string/name"
                     android:textColor="@color/lightblack"
                     android:textSize="16sp" />
             </LinearLayout>

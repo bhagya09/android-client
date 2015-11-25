@@ -850,7 +850,7 @@
     <string name="photo_dp_save_error_sub">తిరిగి ప్రయత్నించడానికి తట్టండి</string>
     <string name="photo_gallery_choose_pic">ఫోటో ఎంచుకో</string>
     <string name="cropping_image">ఇమేజ్‌ల కత్తిరింపు...</string>
-	<string name="home_search_empty_text">\&apos;%1$s\’ కొరకు మీ వెతకడం పై కాంటాక్ట్‌లను జతచేయలేదు</string>
+	<string name="home_search_empty_text">\&apos;%1$s\&apos; కొరకు మీ వెతకడం పై కాంటాక్ట్‌లను జతచేయలేదు</string>
     <string name="voip_mic_error">మైక్ ప్రారంభించలేకపోయింది ఈ కాల్ పని చేయకపోవచ్చు</string>
     <string name="voip_call_failed_frag_subheader">మీరు ఇంకా %1$sని కాంటాక్ట్ చేయవచ్చు</string>
     <string name="dismiss_upper_case">రద్దు చేయి</string>
@@ -1014,7 +1014,6 @@
 	<string name="add_members">సభ్యులను జోడించండి</string>
 	<string name="add_members_to_conference">కాన్ఫరెన్స్‌కు జోడించండి</string>
 	<string name="created_group_text">మీరు గ్రూపు చాట్ సృష్టించారు</string>
-	<string name="group_member_added">%1$s జోడించబడింది</string>
 	<string name="num_members">%1$s సభ్యులు</string>
 	<string name="num_member">%1$s సభ్యుడు</string>
 	<string name="profile_pic_upload_in_background">ప్రొఫైల్ చిత్రం అప్‌లోడ్ చేయడం కొనసాగుతుంది...</string>
@@ -1027,7 +1026,6 @@
 	<string name="make_admin">అడ్మిన్ చేయి</string>
 	<string name="admin_updating">%1$sను ఆల్బమ్‌గా చేస్తోంది</string>
 	<string name="admin_task_error">కనెక్షన్ దోషం: దయచేసి మీ నెట్‌వర్క్ తనిఖీ చేయండి, తిరిగి ప్రయత్నించండి.</string>
-	<string name="group_admin_updated">%1$sను ఆల్బమ్‌గా చేసింది</string>
 	<string name="group_setting_option_only_admin">కేవలం అడ్మిన్‌లు మాత్రమే సభ్యులను జోడించవచ్చు</string>
 	<string name="group_setting_updating">గ్రూపు గోప్యతా సెట్టింగ్‌లు మారుస్తోంది</string>
 	<string name="group_setting_confirmation1">ప్రతి సభ్యుడిని జోడించేందుకు అనుమతించాలా?</string>
@@ -1040,7 +1038,7 @@
 	<string name="ftue_multiadmin_description">ఈ గ్రూపులోని బహుళ సభ్యులతో మీరు మీ అడ్మిన్ రైట్‌లను పంచుకోవచ్చు</string>
 	<string name="unknown_server_error">ఫైలును డౌన్‌లోడ్ చేయలేకపోయింది.</string>
 	<string name="sticker_share_description">www.hike.in</string>
-    <string name="num_notification_sub_text_for_multi_msisdn">%2$S సంభాషణల నుంచి %1$s సందేశాలు</string>
+    <string name="num_notification_sub_text_for_multi_msisdn">%2$s సంభాషణల నుంచి %1$s సందేశాలు</string>
     <string name="disconnect_warning">%1$sకు కనెక్ట్ చేయాలా?</string>
     <string name="connected_warning">%1$s తో మీ కనెక్షన్ ముగుస్తుంది.</string>
     <string name="connecting_to">%1$sకు కనెక్ట్ చేయబడుతోంది...</string>
@@ -1121,7 +1119,7 @@
     <string name="timeline_tab_photo">ఫోటో</string>
     <string name="timeline_tab_status">స్థితి</string>
     <string name="timeline_empty_desc1">టైమ్‌లైన్ అప్‌డేట్‌లు</string>
-    <string name="timeline_empty_desc2">ఇక్కడ ఉండే మీ స్నేహితుల నుంచి మీరు ఫోటోలు,\' స్టేటస్ అప్‌డేట్‌లను పొందవచ్చు.</string>
+    <string name="timeline_empty_desc2">ఇక్కడ ఉండే మీ స్నేహితుల నుంచి మీరు ఫోటోలు,\&apos; స్టేటస్ అప్‌డేట్‌లను పొందవచ్చు.</string>
     <string name="CLEAR">క్లియర్</string>
     <string name="HIDDEN_MODE">దాచిపెట్టబడ్డ మోడ్</string>
     <string name="EDIT">సవరించు</string>
@@ -1172,7 +1170,7 @@
     <string name="long_press_duration_title">లాంగ్ ప్రెస్ డ్యూరేషన్</string>
     <string name="keypress_sound_vol_title">కీప్రెస్ సౌండ్ వాల్యూం</string>
     <string name="keypress_vib_duration_title">కీప్రెస్ కంపన వ్యవధి</string>
-    <string name="like_count_by_unknow_contacts">%2$S %1$D</string>
+    <string name="like_count_by_unknow_contacts">%2$s స్నేహితులు +%1$d</string>
     <string name="connection_established_inline_msg">hike డైరెక్ట్ కనెక్ట్ చేయబడింది</string>
     <string name="connection_deestablished_inline_msg">hike డైరెక్ట్ డిస్‌కనెక్ట్ చేయబడింది</string>
     <string name="connection_request_inline_msg">hike డైరెక్ట్ అభ్యర్థన మిస్ అయింది</string>
@@ -1264,6 +1262,34 @@
 	<string name="gps_not_on">క్షమించండి, ఒకవేళ జిపిఎస్ ఆన్ చేయనట్లయితే hike డైరెక్ట్ పనిచేయదు</string>
 	<string name="switch_on_gps">Hike డైరెక్ట్ పనిచేయడం కొరకు దయచేసి స్థలాన్ని ప్రారంభించు మీరు పూర్తి చేసిన బ్యాక్ ప్రెస్ చేయండి. </string>
 	<string name="gps_settings">సెట్టింగ్</string>
-	<string name="user_gps_off">మీ స్థలం ప్రారంభించేంత వరకు hike డైరెక్ట్ పనిచేయదు.</string>
-	
+    <string name="you_change_group_name">మీరు గ్రూపు పేరు మార్చారు.</string>
+    <string name="you_change_broadcast_name">మీరు బ్రాడ్‌కాస్ట్ పేరు మార్చారు</string>
+    <string name="you_change_group_image">గ్రూపు ఇమేజ్‌ని మీరు మార్చారు</string>
+    <string name="backup_account">బ్యాకప్‌ ఖాతా</string>
+    <string name="search_hint_text">సెర్చ్...</string>
+    <string name="is_typing">టైప్ చేస్తున్నారు..</string>
+    <string name="are_typing">లు టైప్ చేస్తున్నారు...</string>
+    <string name="you_chat_bg_changed">మీరు చాట్ థీమ్ మార్చారు</string>
+    <string name="hike_keyboard">Hike కీబోర్డ్ </string>
+    <string name="system_keyboard">సిస్టమ్ కీబోర్డ్</string>
+    <string name="you_xyz_posted_pin">మీరు ఒక పిన్ పోస్ట్ చేశారు</string>
+    <string name="voip_hang_up">హ్యాంగప్</string>
+    <string name="voip_decline">నిరాకరించు</string>
+    <string name="voip_accept">ఆమోదించు</string>
+    <string name="you_group_member_added">మీరు %1$s జతచేశారు</string>
+    <string name="you_added_as_group_member">%1$s మిమ్మల్ని జోడించారు</string>
+    <string name="group_member_added">%2$sను %1$s జోడించారు</string>
+    <string name="you_updated_group_admin">మీరు %1$sను ఎడ్మిన్ చేశారు</string>
+    <string name="group_admin_updated_you">%1$s మిమ్మల్ని ఎడ్మిన్ చేశారు</string>
+    <string name="group_admin_updated">%1$s, %2$sను ఎడ్మిన్ చేశారు</string>
+    <string name="user_gps_off">మీ లొకేషన్‌ను ప్రారంభించేంత వరకు కూడా Hike డైరెక్ట్ పనిచేయదు</string>
+    <string name="no_results_found">ఎలాంటి ఫలితాలు కనుగొనబడలేదు</string>
+    <string name="APPLY">అప్లై</string>
+    <string name="level">లెవల్</string>
+    <string name="milliseconds">ఎమ్ఎస్</string>
+    <string name="and"> మరియు </string>
+    <string name="contact_name">కాంటాక్ట్ పేరు</string>
+    <string name="mobile">మొబైల్</string>
+    <string name="your_contact">మీ కాంటాక్ట్</string>
+
 </resources>

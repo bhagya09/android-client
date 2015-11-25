@@ -40,7 +40,6 @@
             android:layout_weight="1"
             android:gravity="bottom"
             android:maxLines="1"
-            android:text="Some application"
             android:textColor="@color/standard_black"
             android:textSize="17sp"
             android:textStyle="normal" >
@@ -52,7 +51,7 @@
             android:layout_height="0dp"
             android:layout_weight="1"
             android:maxLines="1"
-            android:text="Since 5th Jan, 2014"
+            android:text="@string/conn_app_since"
             android:textColor="@color/dark_grey_drop_shadow"
             android:textSize="13sp"
             android:textStyle="normal" >

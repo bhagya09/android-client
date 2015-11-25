@@ -300,6 +300,12 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		Logger.d(getClass().getSimpleName(),"onCreate "+this.getClass().getSimpleName());
 		showProductPopup(ProductPopupsConstants.PopupTriggerPoints.HOME_SCREEN.ordinal());
 		
+		if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STEALTH_INDICATOR_SHOW_REPEATED, false)
+				|| HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STEALTH_INDICATOR_SHOW_ONCE, false))
+		{
+			HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_INDICATOR, null);
+		}
+		
 	}
 	
 	@Override
@@ -1198,10 +1204,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		}
 		super.onResume();
 
-		if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STEALTH_INDICATOR_ENABLED, false))
-		{
-			HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_INDICATOR, null);
-		}
 		checkNShowNetworkError();
 		
 		showSmsOrFreeInvitePopup();
@@ -1804,7 +1806,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		}
 		else if(HikePubSub.STEALTH_INDICATOR.equals(type))
 		{
-			HikeSharedPreferenceUtil.getInstance().removeData(HikeConstants.STEALTH_INDICATOR_ENABLED);
+			HikeSharedPreferenceUtil.getInstance().removeData(HikeConstants.STEALTH_INDICATOR_SHOW_ONCE);
 			
 			if(StealthModeManager.getInstance().isActive())
 			{

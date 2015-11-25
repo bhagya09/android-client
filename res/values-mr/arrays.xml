@@ -80,4 +80,25 @@
                 
         <item>आजारी</item>
     </string-array>
+    
+    <array name="photos_actions_titles">
+       <item>प्रोफाईल चित्र म्हणून सेट करा</item>
+       <item>मित्रांना पाठवा</item>
+       <item>टाइमलाईनवर पोस्ट करा</item>
+	</array>
+
+	<array name="call_glowpad_descr">
+       <item>डिसमिस करा</item>
+       <item>संदेश</item>
+       <item>उचला</item>
+       <item>@null</item>
+   </array>
+   
+   <array name="call_glowpad_directions">
+       <item>उजवे</item>
+       <item>शीर्ष</item>
+       <item>डावे</item>
+       <item>@null</item>
+   </array>
+   
 </resources>

@@ -101,10 +101,10 @@
 	<string name="kpt_smiley_secondary_char">ङ</string>
 
 	<!-- Label for "switch to symbols" key.  Must be short to fit on key! -->
-	<string name="kpt_label_symbol_key">१२३#</string>
+	
 
 	<!-- Label for "switch to numeric" key.  Must be short to fit on key! -->
-	<string name="kpt_label_phone_key">१२३</string>
+	
 
 	<!-- Label for "switch to alphabetic" key.  Must be short to fit on key! -->
 	<string name="kpt_label_alpha_key">अ-ज्ञ</string>
