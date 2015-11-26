@@ -293,7 +293,7 @@ public class HikePhotosUtils
 			/**
 			 * @return returns list having complex filters obtained from applying sequence of quality filterson the image
 			 */
-			public static FilterList getHikeEffects()
+			public static FilterList getHikeEffects(Context context)
 			{
 				if (effectfilters == null)
 				{

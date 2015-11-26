@@ -16,6 +16,7 @@ import com.bsb.hike.BitmapModule.BitmapUtils;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.HikeConstants.ImageQuality;
 import com.bsb.hike.models.HikeFile.HikeFileType;
+import com.bsb.hike.smartImageLoader.ImageWorker;
 import com.bsb.hike.utils.Utils;
 
 public class FTUtils {
@@ -52,18 +53,23 @@ public class FTUtils {
 	 */
 	public static Bitmap createImageThumb(File destFile, String fileKey)
 	{
-		Bitmap.Config config = Bitmap.Config.RGB_565;
-		if(Utils.hasJellyBeanMR1()){
-			config = Bitmap.Config.ARGB_8888;
-		}
-		Bitmap thumbnail = HikeBitmapFactory.scaleDownBitmap(destFile.getPath(), HikeConstants.MAX_DIMENSION_THUMBNAIL_PX, HikeConstants.MAX_DIMENSION_THUMBNAIL_PX,
-				config, false, false);
-		thumbnail = Utils.getRotatedBitmap(destFile.getPath(), thumbnail);
-		if (thumbnail == null && !TextUtils.isEmpty(fileKey))
+		Bitmap thumbnail = null;
+		if (!TextUtils.isEmpty(fileKey))
 		{
 			BitmapDrawable bd = HikeMessengerApp.getLruCache().getFileIconFromCache(fileKey);
 			if (bd != null)
-				thumbnail = HikeMessengerApp.getLruCache().getFileIconFromCache(fileKey).getBitmap();
+				thumbnail = ImageWorker.drawableToBitmap(bd);
+		}
+
+		if(thumbnail == null)
+		{
+			Bitmap.Config config = Bitmap.Config.RGB_565;
+			if(Utils.hasJellyBeanMR1()){
+				config = Bitmap.Config.ARGB_8888;
+			}
+			thumbnail = HikeBitmapFactory.scaleDownBitmap(destFile.getPath(), HikeConstants.MAX_DIMENSION_THUMBNAIL_PX, HikeConstants.MAX_DIMENSION_THUMBNAIL_PX,
+					config, false, false);
+			thumbnail = Utils.getRotatedBitmap(destFile.getPath(), thumbnail);
 		}
 		return thumbnail;
 	}
@@ -77,12 +83,16 @@ public class FTUtils {
 	 */
 	public static Bitmap createVideoThumb(File destFile, String fileKey)
 	{
-		Bitmap thumbnail = ThumbnailUtils.createVideoThumbnail(destFile.getPath(), MediaStore.Images.Thumbnails.MICRO_KIND);
-		if (thumbnail == null && !TextUtils.isEmpty(fileKey))
+		Bitmap thumbnail = null;
+		if (!TextUtils.isEmpty(fileKey))
 		{
 			BitmapDrawable bd = HikeMessengerApp.getLruCache().getFileIconFromCache(fileKey);
 			if (bd != null)
-				thumbnail = HikeMessengerApp.getLruCache().getFileIconFromCache(fileKey).getBitmap();
+				thumbnail = ImageWorker.drawableToBitmap(bd);
+		}
+		if(thumbnail == null)
+		{
+			thumbnail = ThumbnailUtils.createVideoThumbnail(destFile.getPath(), MediaStore.Images.Thumbnails.MICRO_KIND);
 		}
 		return thumbnail;
 	}

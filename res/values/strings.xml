@@ -73,7 +73,9 @@
     <string name="unlink_facebook_confirmation">Are you sure you want to unlink your facebook account from Hike?</string>
     <string name="unlink_twitter_confirmation">Are you sure you want to unlink your twitter account from Hike?</string>
     <string name="change_group_name">%1$s changed the group name.</string>
+    <string name="you_change_group_name">You changed the group name.</string>
     <string name="change_broadcast_name">%1$s changed the broadcast name.</string>
+    <string name="you_change_broadcast_name">You changed the broadcast name.</string>
     <string name="block_internation_sms">SMS can only be sent to India</string>
     <string name="block_internation_sms_bold_text">India</string>
     <string name="invite_via_sms">Invite via SMS</string>
@@ -170,11 +172,16 @@
     <string name="location_disabled">Cannot fetch your location. Please check your settings.</string>
     <string name="tap_here_invite">Tap here to invite this person</string>
     <string name="change_group_image">%1$s changed the group image.</string>
+    <string name="you_change_group_image">You changed the group image.</string>
     <string name="faq">FAQs</string>
     <string name="gallery">Gallery</string>
     <string name="number_confirm_title">Confirm your number</string>
     <string name="birthday">Birthday</string>
     <string name="anniversary">Anniversary</string>
+    <string name="backup_account">Backup Account</string>
+    <string name="search_hint_text">Search...</string>
+    <string name="is_typing">is typing...</string>
+    <string name="are_typing">are typing...</string>
     <string name="other">Other</string>
     <string name="target_account">Save contact to this account</string>
     <string name="save">Save</string>
@@ -317,6 +324,7 @@
     <string name="select_all">Select all (%1$d)</string>
     <string name="deselect_all">Deselect all (%1$d)</string>
     <string name="chat_bg_changed">%1$s changed the chat theme</string>
+    <string name="you_chat_bg_changed">You changed the chat theme</string>
     <string name="chat_theme">Chat Theme</string>
     <string name="last_seen_today_ct">today, %1$s</string>
     <string name="last_seen_yesterday_ct">yesterday, %1$s</string>
@@ -501,6 +509,9 @@
     <string name="confirm_delete_chat_msg">Delete chat with \"%1$s\"? </string>
     <string name="confirm_delete_group_msg">Delete and exit \"%1$s\" group?</string>
     <string name="email_chat">Email Chat</string>
+    <string name="change_keyboard">Change Keyboard</string>
+    <string name="hike_keyboard">Hike Keyboard</string>
+    <string name="system_keyboard">System Keyboard</string>
     <string name="clear_chat">Clear Chat</string>
     <string name="add_shortcut">Add Shortcut</string>
     <string name="timeline">Timeline</string>
@@ -594,6 +605,7 @@
     <string name="max_pin_unread_counter">9+</string>
     <string name="pin_text_hint">Share something important...</string>
     <string name="xyz_posted_pin">%1$s posted a pin</string>
+    <string name="you_xyz_posted_pin">You posted a pin</string>
     <string name="pinHistoryTutorialText">No pins yet</string>
     <string name="incorrect_msisdn_warning">Incorrect Number</string>
     <string name="incorrect_msisdn_msg">Please enter the number registered with hike on this phone.</string>
@@ -934,6 +946,8 @@
     <string name="enter_setting_header">Enter key is send</string>
     <string name="enter_setting_info">Pressing enter key will send the message</string>
     <string name="settings_chat">Chat Settings</string>
+    <string name="settings_localization">Language &amp; Input</string>
+    <string name="keyboard_settings_header">KEYBOARD SETTINGS</string>
     <string name="new_line_setting_info">Pressing enter key will add a new line</string>
     <string name="nudge_toast"> Sending nudges has been turned off.\nYou can turn it on in Settings > Chat Settings.</string>
     <string name="select_all_hike">Select all</string>
@@ -1014,7 +1028,8 @@
 	<string name="add_members">Add Members</string>
 	<string name="add_members_to_conference">Add To Conference</string>
 	<string name="created_group_text">You created the group chat</string>
-	<string name="group_member_added">added %1$s</string>
+	<string name="group_member_added">%1$s added %2$s</string>
+	<string name="you_group_member_added">You added %1$s</string>
 	<string name="num_members">%1$d members</string>
 	<string name="num_member">%1$d member</string>
 	<string name="profile_pic_upload_in_background">Profile picture upload will continue..</string>
@@ -1027,7 +1042,10 @@
 	<string name="make_admin">Make Admin</string>
 	<string name="admin_updating">Making %1$s an Admin</string>
 	<string name="admin_task_error">Connection error: Please check your network and try again.</string>
-	<string name="group_admin_updated">made %1$s an Admin</string>
+	<string name="group_admin_updated">%1$s made %2$s an Admin</string>
+	<string name="group_admin_updated_you">%1$s made you an Admin</string>
+	<string name="you_updated_group_admin">You made %1$s an Admin</string>
+	
 	<string name="group_setting_option_only_admin">Only Admins can add members</string>
 	<string name="group_setting_updating">Changing group privacy settings</string>
 	<string name="group_setting_confirmation1">Allow everyone to add members?</string>
@@ -1141,6 +1159,35 @@
     <string name="UNLINK_ACCOUNT">RESET ACCOUNT</string>
     <string name="UNLINK">UNLINK</string>
     <string name="UPDATE_APP">UPDATE</string>
+    <string name="language_summary">English</string>
+    <string name="language">Language</string>
+    <string name="keyboard_summary">Enable/disable Hike keyboard</string>
+    <string name="keyboard_title">Hike Keyboard</string>
+    <string name="glide_summary">Continuous gesture typing</string>
+    <string name="glide_title">Glide</string>
+    <string name="keyboard_preference_title">Preferences</string>
+    <string name="text_correction_pref_title">Text Correction</string>
+    <string name="kpt_adv_title">Advanced</string>
+    <string name="advanced_keyboard_settings">Advanced Settings</string>
+    <string name="private_mode_title">Private Mode</string>
+    <string name="private_mode_summary">Words learned in Private Mode will be available only in Private Mode</string>
+    <string name="auto_correct_title">Auto Correct</string>
+    <string name="auto_correct_summary">Automatically correct mistyped words</string>
+    <string name="auto_caps_summary">Capitalize the first word of each sentence</string>
+    <string name="auto_caps_title">Auto Capitalization</string>
+    <string name="auto_spacing_summary">Add a space at the start of every sentence</string>
+    <string name="auto_spacing_title">Auto Spacing</string>
+    <string name="display_suggestion_title">Display Suggestions</string>
+    <string name="display_suggestion_summary">Display word Suggestion</string>
+    <string name="display_accents_title">Display accents</string>
+    <string name="display_accents_summary">Removes available accents for alphabets</string>
+    <string name="popup_on_keypress_title">Popup on Keypress</string>
+    <string name="sound_on_keypress_title">Sound on keypress</string>
+    <string name="vibrate_on_keypress_title">Vibrate on keypress</string>
+    <string name="delete_all">Delete All</string>
+    <string name="long_press_duration_title">Long Press Duration</string>
+    <string name="keypress_sound_vol_title">Keypress Sound Volume</string>
+    <string name="keypress_vib_duration_title">Keypress Vibration Duration</string>
     <string name="like_count_by_unknow_contacts">+%1$d Friends of %2$s</string>
     <string name ="connection_established_inline_msg">Hike Direct Connected</string>
     <string name ="connection_deestablished_inline_msg">Hike Direct Disconnected</string>
@@ -1219,6 +1266,16 @@
 	<string name="sticky_caller_settings_header">Caller Info</string>
 	<string name="sticky_caller_settings_side_text">Show caller info and free calling/messaging options for all contacts</string>
 	<string name="enable_saved_contact_view_heading">Show for Saved Contacts</string>
+	<string name="enable_saved_contact_view_side_text">Show caller info for saved contacts too</string>
+    <string name="choose_language">Choose Language</string>
+    <string name="choose_language_desciption">Now your favourite messenger in your favourite language</string>
+    <string name="phone_language">Phone Language</string>
+    <string name="regional_keyboard">Regional Keyboard</string>
+    <string name="regional_keyboard_subtext">Now chat in your favourite language with new keyboard</string>
+    <string name="CHOOSE_LANGUAGE">CHOOSE LANGUAGE</string>
+	<string name="apply">Apply</string>
+    <string name="keyboad_ftue_swipe">Swipe to change between your language</string>
+    <string name="setting_up_keyboard">Setting up Keyboard</string>
 	<string name="tip_and_notif_update_text">UPDATE</string>
     <string name="tip_and_notif_later_text">LATER</string>
     <string name="update_tip_header_text">NEW HIKE UPDATE AVAILABLE</string>
@@ -1233,13 +1290,204 @@
 	<string name="switch_on_gps">Please enable location to use Hike Direct.</string>
 	<string name="gps_settings">SETTING</string>
 	<string name="user_gps_off">Hike Direct cannot work till your location is enabled.</string>
+	<string name="app_not_enabled">You don\'t have this app enabled.</string>
     <string name="no_results_found">No results found</string>
+    <string name="APPLY">APPLY</string>
+    <string name="and">and</string>
+	<string name="others_smallcase">others</string>
+	<string name="level">Level</string>
+	<string name="milliseconds">ms</string>
+    <string name="yesterday">yesterday</string>
+    <string name="tomorrow">tomorrow</string>
+    <string name="today">today</string>
+    <!-- This is used to express that something occurred some number of seconds in the past (e.g., 5 seconds ago). -->
+    <plurals name="num_seconds_ago">
+        <item quantity="one">1 second ago</item>
+        <item quantity="other">%d seconds ago</item>
+    </plurals>
+
+    <!-- This is used to express that something occurred some number of minutes in the past (e.g., 5 minutes ago). -->
+    <plurals name="num_minutes_ago">
+        <item quantity="one">1 minute ago</item>
+        <item quantity="other">%d minutes ago</item>
+    </plurals>
+
+    <!-- This is used to express that something occurred some number of hours in the past (e.g., 5 hours ago). -->
+    <plurals name="num_hours_ago">
+        <item quantity="one">1 hour ago</item>
+        <item quantity="other">%d hours ago</item>
+    </plurals>
+
+    <!-- This is used to express that something occurred within the last X days (e.g., Last 7 days). -->
+    <plurals name="last_num_days">
+        <item quantity="other">Last %d days</item>
+    </plurals>
+
+    <!-- This is used to express that something has occurred within the last month -->
+    <string name="last_month">Last month</string>
+
+    <!-- This is used to express that something happened longer ago than the previous options -->
+    <string name="older">Older</string>
+
+    <!-- This is used to express that something occurred some number of days in the past (e.g., 5 days ago). -->
+    <plurals name="num_days_ago">
+        <item quantity="one">yesterday</item>
+        <item quantity="other">%d days ago</item>
+    </plurals>
+
+    <!-- This is used to express that something will occur some number of seconds in the future (e.g., in 5 seconds). -->
+    <plurals name="in_num_seconds">
+        <item quantity="one">in 1 second</item>
+        <item quantity="other">in %d seconds</item>
+    </plurals>
+
+    <!-- This is used to express that something will occur some number of minutes in the future (e.g., in 5 minutes). -->
+    <plurals name="in_num_minutes">
+        <item quantity="one">in 1 minute</item>
+        <item quantity="other">in %d minutes</item>
+    </plurals>
+
+    <!-- This is used to express that something will occur some number of hours in the future (e.g., in 5 hours). -->
+    <plurals name="in_num_hours">
+        <item quantity="one">in 1 hour</item>
+        <item quantity="other">in %d hours</item>
+    </plurals>
+
+    <!-- This is used to express that something will occur some number of days in the future (e.g., in 5 days). -->
+    <plurals name="in_num_days">
+        <item quantity="one">tomorrow</item>
+        <item quantity="other">in %d days</item>
+    </plurals>
+
+    <!-- This is used to express that something occurred some number of abbreviated seconds in the past (e.g., 5 secs ago). -->
+    <plurals name="abbrev_num_seconds_ago">
+        <item quantity="one">1 sec ago</item>
+        <item quantity="other">%d secs ago</item>
+    </plurals>
+
+    <!-- This is used to express that something occurred some number of abbreviated minutes in the past (e.g., 5 mins ago). -->
+    <plurals name="abbrev_num_minutes_ago">
+        <item quantity="one">1 min ago</item>
+        <item quantity="other">%d mins ago</item>
+    </plurals>
+
+    <!-- This is used to express that something occurred some number of abbreviated hours in the past (e.g., 5 hrs ago). -->
+    <plurals name="abbrev_num_hours_ago">
+        <item quantity="one">1 hour ago</item>
+        <item quantity="other">%d hours ago</item>
+    </plurals>
+
+    <!-- This is used to express that something occurred some number of abbreviated days in the past (e.g., 5 days ago). -->
+    <plurals name="abbrev_num_days_ago">
+        <item quantity="one">yesterday</item>
+        <item quantity="other">%d days ago</item>
+    </plurals>
+
+    <!-- This is used to express that something will occur some number of abbreviated seconds in the future (e.g., in 5 secs). -->
+    <plurals name="abbrev_in_num_seconds">
+        <item quantity="one">in 1 sec</item>
+        <item quantity="other">in %d secs</item>
+    </plurals>
+
+    <!-- This is used to express that something will occur some number of abbreviated minutes in the future (e.g., in 5 mins). -->
+    <plurals name="abbrev_in_num_minutes">
+        <item quantity="one">in 1 min</item>
+        <item quantity="other">in %d mins</item>
+    </plurals>
+
+    <!-- This is used to express that something will occur some number of abbreviated hours in the future (e.g., in 5 hrs). -->
+    <plurals name="abbrev_in_num_hours">
+        <item quantity="one">in 1 hour</item>
+        <item quantity="other">in %d hours</item>
+    </plurals>
+
+    <!-- This is used to express that something will occur some number of abbreviated days in the future (e.g., in 5 days). -->
+    <plurals name="abbrev_in_num_days">
+        <item quantity="one">tomorrow</item>
+        <item quantity="other">in %d days</item>
+    </plurals>
+
     <string name="dismiss_button">DISMISS</string>
 	<string name="sms_head">SMS:</string>
 	<string name="try_instead">TRY INSTEAD</string>
 	<string name="sms_card_settings_side_text">On all text messages</string>
 	<string name="sms_card_settings_heading">SMS ID</string>
     <string name="timeline_empty_desc2">You can see photos and status updates\nfrom your friends here</string>
-    <string name="enable_saved_contact_view_side_text">Show info for saved contacts too</string>
 
+    <string name="original_caps">ORIGINAL</string>
+	<string name="tirangaa">TIRANGAA</string>
+	<string name="mellow">MELLOW</string>
+	<string name="chuski">CHUSKI</string>
+	<string name="azure">AZURE</string>
+	<string name="jalebi">JALEBI</string>
+	<string name="gulaal">GULAAL</string>
+	<string name="x_pro">X-PRO</string>
+	<string name="hdr">HDR</string>
+	<string name="apollo">APOLLO</string>
+	<string name="retro">RETRO</string>
+	<string name="pulsar">PULSAR</string>
+	<string name="sunlitt">SUNLITT</string>
+	<string name="hazel">HAZEL</string>
+	<string name="lo_fi">LO-FI</string>
+	<string name="inked">INKED</string>
+	<string name="mashaal">MASHAAL</string>
+	<string name="sholay">SHOLAY</string>
+	<string name="junglee">JUNGLEE</string>
+	<string name="polaroid">POLAROID</string>
+	<string name="sepia">SEPIA</string>
+	<string name="grayscale">GRAYSCALE</string>
+	<string name="team_hike_bot">team hike</string>
+	<string name="emma_bot">Emma from hike</string>
+	<string name="hike_daily_bot">hike daily</string>
+	<string name="natasha_bot">Natasha</string>
+	<string name="cricket_bot">Cricket 2015</string>
+	<string name="hike_support_bot">hike support</string>
+	<string name="games_bot">Games on hike</string>
+	<string name="added_you_friend">Added you as a friend</string>
+	<string name="size">Size</string>
+	<string name="commit_id">Commit Id</string>
+	<string name="branch_name">Branch Name</string>
+	<string name="attachment">Attachment</string>
+	<string name="quiz_adda">Quiz Adda</string>
+	<string name="tiny_mogul_games_inc">Tiny Mogul Games Inc.</string>
+	<string name="sample_section">Sample Section</string>
+	<string name="name_here">Name Here</string>
+	<string name="msisdn_here">MSISDN Here</string>
+	<string name="number">Number</string>
+	<string name="contact_name">Contact Name</string>
+	<string name="mobile">Mobile</string>
+	<string name="your_contact">Your contact</string>
+	<string name="liked_this_photo">Liked this photo</string>
+	<string name="india">India</string>
+	<string name="afghanistan">Afghanistan</string>
+	<string name="title">Title</string>
+	<string name="summary">Summary</string>
+	<string name="tap_here">Tap here to get started!</string>
+	<string name="two_mins_ago">2 mins ago</string>
+	<string name="conference_participant">Conference participant</string>
+	<string name="failed_search">Your search for did not match any contacts</string>
+	<string name="send_one_sms_as">Send 1 SMS as</string>
+	<string name="always_regular">Always</string>
+	<string name="just_once_regular">Just Once</string>
+	<string name="set_as_dp">Set as DP</string>
+	<string name="pdf">.pdf</string>
+	<string name="happy">Happy</string>
+	<string name="sms_ctr_default_text">99 SMS left</string>
+	<string name="conn_app_since">Since 5th Jan, 2014</string>
+	<string name="friends">Friends</string>
+	<string name="photo_like_def_text">0 people(s) like this photo</string>
+	<string name="sample">sample</string>
+	<string name="lang_item">language item</string>
+	<string name="timestamp_msg">This is the timestamp</string>
+	<string name="name_number">Name/Number</string>
+	<string name="name_caps">NAME</string>
+	<string name="english_locale">en</string>
+	<string name="hindi_locale">hi</string>
+	<string name="bengali_locale">bn</string>
+	<string name="marathi_locale">mr</string>
+	<string name="gujarati_locale">gu</string>
+	<string name="tamil_locale">ta</string>
+	<string name="telugu_locale">te</string>
+	<string name="kannada_locale">kn</string>
+	<string name="malayalam_locale">ml</string>
 </resources>

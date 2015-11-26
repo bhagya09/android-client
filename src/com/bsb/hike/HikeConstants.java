@@ -259,6 +259,10 @@ public class HikeConstants
 
 	public static final String REQUEST_PENDING = "requestpending";
 
+	public static final String CUSTOM_KEYBOARD_LOCALE = "ckbd_locale";
+
+	public static final String DEVICE_LOCALE = "device_locale";
+
 	public static final String LOCALE = "locale";
 
 	public static final String ENABLE_PUSH_BATCHING_STATUS_NOTIFICATIONS = "enablepushbatchingforsu";
@@ -477,6 +481,12 @@ public class HikeConstants
 
 	public static final String LAST_SEEN_PREF_LIST = "lastSeenPrefList";
 
+	public static final String LONG_PRESS_DUR_PREF = "longPressDurationPref";
+	
+	public static final String KEYPRESS_VOL_PREF = "keyPressVolPref";
+	
+	public static final String KEYPRESS_VIB_DUR_PREF = "keypressVibDurationPref";
+	
 	public static final String PROFILE_PIC_PREF = "profilePicPref";
 
 	public static final String SEND_ENTER_PREF = "enterSendPref";
@@ -608,6 +618,52 @@ public class HikeConstants
 
 	public static final String H2O_NOTIF_BOOLEAN_PREF = "hikeOfflineNotificationPref";
 
+	public static final String KEYBOARD_SETTING_PREF_CATEGORY = "keyboardSettingsCategory";
+
+	public static final String KEYBOARD_LANGUAGE_PREF = "kbdLanguagePref";
+
+	public static final String LOCAL_LANGUAGE_PREF = "appLanguagePref";
+
+	public static final String LOCALIZATION_FTUE_COMPLETE = "localizationFtueComplete";
+
+	public static final String KEYBOARD_PREF = "keyboardPref";
+	
+	public static final String GLIDE_PREF = "glidePref";
+	
+	public static final String KEYBOARD_PRIMARY_PREF = "keyboardPrimaryPref";
+
+	public static final String TEXT_CORRECTION_PREF = "textCorrectionPref";
+	
+	public static final String KEYBOARD_ADV_PREF = "advancedPref";
+	
+	public static final String KEYBOARD_ADV_PREF_SCREEN = "kptAdvancedPrefScreen";
+	
+	public static final String KEYBOARD_PRIMARY_PREF_SCREEN = "kptPrimaryPrefScreen";
+	
+	public static final String TEXT_CORRECTION_PREF_SCREEN = "textCorrectionPrefScreen";
+	
+	public static final String AUTO_CORRECT_PREF = "autoCorrectPref";
+	
+	public static final String AUTO_CAPITALIZATION_PREF = "autoCapsPref";
+	
+	public static final String AUTO_SPACING_PREF = "autoSpacingPref";
+	
+	public static final String DISPLAY_SUGGESTIONS_PREF = "dispSuggPref";
+	
+	public static final String PRIVATE_MODE_PREF = "privateModePref";
+	
+	public static final String DISPLAY_ACCENTS_PREF = "dispAccentsPref";
+	
+	public static final String POPUP_ON_KEYPRESS_PREF = "popupOnKeypressPref";
+	
+	public static final String SOUND_ON_KEYPRESS_PREF = "soundOnKeypressPref";
+	
+	public static final String VIBRATE_ON_KEYPRESS_PREF = "vibrateOnKeypressPref";
+	
+	public static final String APP_LANGUAGE = "app_language";
+	
+	public static final String KEYBOARD_LANGUAGE = "keyboard_language";
+	
 	public static final String UPGRADE_AVATAR_PROGRESS_USER = "upgradeAvtarProgressUser";
 
 	public static final String UPGRADING = "upgrading";
@@ -1269,9 +1325,9 @@ public class HikeConstants
 	{
 		public static final String STICKER_WIDGET = "stkr_wdgt";
 
-		public static final String CHAT_HEAD_SERVICE = "enable";
+		public static final String ENABLE = "enable";
 
-		public static final String CHAT_HEAD_USR_CONTROL = "usr_ctrl";
+		public static final String USER_CONTROL = "usr_ctrl";
 		
 		public static final String FORCE_ACCESSIBILITY="frc_acsb";
 		
@@ -1534,6 +1590,8 @@ public class HikeConstants
 
 		public static final String FROM_CENTRAL_TIMELINE = "fromCentralTimeline";
 
+		public static final String FROM_DELETE_ACCOUNT = "fromDeleteAccount";
+		
 		public static final String BLOCKED_LIST = "blockedList";
 
 		public static final String NUX1_NUMBERS = "nux1Numbers";
@@ -2132,6 +2190,8 @@ public class HikeConstants
 
 		public static final String STICKER_RECOMMENDATION_SELECTION_KEY = "acID";
 
+		public static final String STICKER_RECOMMENDATION_REBALANCING_SUMMERIZATION = "srRS";
+
 		public static final String PACK_DATA_ANALYTIC_EVENT = "pckD";
 
 		public static final String SEEN_REORDERING_TIP = "seenReorderingTip";
@@ -2428,6 +2488,52 @@ public class HikeConstants
 		public static final String TIMELINE_OVERFLOW_OPTION_MY_PROFILE = "myp";
 		
 		public static final String TIMELINE_OVERFLOW_OPTION_FAV = "fav";
+
+		public static final String AUTO_CAPITALIZATION_ON = "auto_capitalization_on";
+		
+		public static final String AUTO_SPACING_ON = "auto_spacing_on";
+		
+		public static final String GLIDE_ON = "glide_on";
+		
+		public static final String KEYPRESS_SOUND_ON = "keypress_sound_on";
+		
+		public static final String KEYPRESS_POPUP_ON = "keypress_popup_on";
+		
+		public static final String KEYPRESS_VIBRATION_ON = "keypress_vibration_on";
+		
+		public static final String AUTO_CORRECT_ON = "auto_correct_on";
+		
+		public static final String DISPLAY_SUGGESTION_ON = "display_suggestion_on";
+		
+		public static final String PRIVATE_MODE_ON = "private_mode_on";
+		
+		public static final String APP_LANGUAGE_CHANGE_EVENT = "app_language_change_event";
+		
+		public static final String HIKE_KEYBOARD_ON = "hike_keyboard_on";
+		
+		public static final String KEYBOARD_LANGUAGE_DOWNLOAD_EVENT = "keyboard_language_download_event";
+		
+		public static final String LANGUAGE_DOWNLOADING = "language_downloading";
+		
+		public static final String KEYBOARD_LANGUAGE_CHANGED_EVENT = "keyboard_language_changed_event";
+		
+		public static final String APP_LANGUAGE_FTUE = "app_language_ftue";
+		
+		public static final String KEYBOARD_FTUE_INITIATED = "keyboard_ftue_initiated";
+		
+		public static final String KEYBOARD_FTUE_CLOSE_BUTTON = "keyboard_ftue_close_button";
+		
+		public static final String KEYBOARD_FTUE_CHOOSE_LANGUAGE_BUTTON = "keyboard_ftue_choose_language_button";
+		
+		public static final String KEYBOARD_FTUE_LANGUAGE_DOWNLOADED = "keyboard_ftue_language_downloaded";
+		
+		public static final String KEYBOARD_FTUE_CLOSE_LANG_SELECTION = "keyboard_ftue_close_lang_selection";
+		
+		public static final String KEYBOARD_FTUE_INSTALL_SELECTED_LANGUAGES = "keyboard_ftue_install_selected_languages";
+
+		public static final String KEYBOARD_FTUE_COMPLETES = "keyboard_ftue_completes";
+		
+		public static final String KPT = "kpt";
 
 	}
 	public static final class Toast
@@ -3203,13 +3309,15 @@ public class HikeConstants
 	public static final String NOTIFIACTION_DELAY_ONE_TO_ONE = "ont";
 
 	public static final String KEYBOARD_CONFIGURATION = "kc";
-
+	
 	public static final int KEYBOARD_CONFIGURATION_OLD = 1;
 
 	public static final int KEYBOARD_CONFIGURATION_NEW = 2;
 
+	public static final String SYSTEM_KEYBOARD_SELECTED = "systemKeyboardSelected";
+
 	public static final String GET = "get";
-	
+
 	public static final String HIKE_FILE_TYPE = "hft";
 
 	public static final String FTUE_HIKEBOT_MSISDN = "+hike1+";
@@ -3392,7 +3500,11 @@ public class HikeConstants
 
 	public static final String STICKER_DATA_MILLI_SECOND = "SSS"; // integer
 
-	public static final String STICKER_TAG_REGEX_SEPARATORS = "strs"; // regular expression
+	public static final String STICKER_TAG_REGEX_SEPARATORS = "strs"; // initial to following 2 keys
+
+	public static final String STICKER_TAG_REGEX_SEPARATORS_LATIN_REGULAR = "lr"; // regular expression for Latin default
+
+	public static final String STICKER_TAG_REGEX_SEPARATORS_REGIONAL_REGULAR = "rr"; // regular expression for Regional default
 
 	public static final String STICKER_DATA_TRENDING = "t";
 
@@ -3470,6 +3582,12 @@ public class HikeConstants
 
 	public static final String STICKER_SEARCH_BASE_THRESHOLD_FORCED_SHRINK_COEFFICIENT = "ssb_tfsc"; // float
 
+	public static final String STICKER_SEARCH_REBALANCING_TIME_STAMP = "ts";
+
+	public static final String STICKER_SEARCH_REBALANCING_MEMORY_STATUS = "ms";
+	
+	public static final String STICKER_SEARCH_REBALANCING_ROW_STATUS = "rs";
+
 	// =========================================================================================Constants for sticker search]]
 
 	public static final String AG_ENABLED = "agLogs";
@@ -3546,7 +3664,36 @@ public class HikeConstants
 
 	public static final String SHOW_GPS_DIALOG = "gps_dialog_show";
 
+	public static final String KEYBOARD_LIST = "kbd";
+
+	public static final String TIMESTAMP_2 = "timestamp";
+
+	public static final String UNKNOWN_KEYBOARDS = "unknown_kbds";
+
 	public static final float ONE_PERCENT_PROGRESS = 0.01f;
 
 	public static final String FT_USE_APACHE_HTTP_CLIENT = "ft_apache_client";
+
+	// ============================================================================================= LOCALIZATION SWITCHES
+
+	public static final String LOCALIZATION_ENABLED = "local_e";
+
+	public static final String CUSTOM_KEYBOARD_ENABLED = "custom_key_e";
+
+	// Added for switching the Change Keyboard Option in chat thread
+	public static final String CHANGE_KEYBOARD_CHAT_ENABLED = "ckc_e";
+
+	public static final String AUTOCORRECT_KEYBOARD_ENABLED="atk_e";
+	
+	// ============================================================================================= LOCALIZATION SWITCHES
+
+
+	public static final String LANG_LIST_ORDER = "lang_list";
+
+	// Analytics Event key for Change Keyboard ,because externalized string was converted to phone language and analytics key was changin
+	public static final String SYSTEM_KEYBOARD = "System Keyboard";
+
+	public static final String HIKE_KEYBOARD = "Hike Keyboard";
+
+
 }

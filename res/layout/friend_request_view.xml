@@ -51,7 +51,6 @@
 
             <com.bsb.hike.view.CustomFontTextView
                 android:id="@+id/last_seen"
-                android:text="what&apos;s up dude?  I really like cookies.  They taste so good and fresh.  I like pie as well.  I&apos;m so fat"
                 android:layout_marginTop="4dp"
                 style="@style/ListItemSubHeaderTextView"
                 android:singleLine="false" />
