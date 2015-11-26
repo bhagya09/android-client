@@ -541,6 +541,24 @@ public class PhotoViewerFragment extends Fragment implements OnPageChangeListene
 			{
 				//if list is empty close the fragment
 				finish();
+			} else {
+                               updateMenuOptions();
+                        }
+		}
+	}
+
+        /* AND-3736: updating menu when a shared media is deleted from viewer,
+          this is done because onPageSelected is not called a item is removed */
+	private void updateMenuOptions() {
+		if (menu != null && getCurrentSelectedItem()!=null)
+		{
+			if (isEditEnabled  && getCurrentSelectedItem().getHikeFileType().compareTo(HikeFileType.IMAGE) == 0)
+			{
+				menu.findItem(R.id.edit_pic).setVisible(true);
+			}
+			else
+			{
+				menu.findItem(R.id.edit_pic).setVisible(false);
 			}
 		}
 	}
