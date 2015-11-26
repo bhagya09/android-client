@@ -289,29 +289,4 @@
         <item>@color/avatar_color_sky_blue</item>
     </array>
 
-    <array name="filter_names">
-        <item>ORIGINAL</item>
-	    <item>TIRANGAA</item>
-	    <item>MELLOW</item>
-	    <item>CHUSKI</item>
-	    <item>AZURE</item>
-	    <item>JALEBI</item>
-	    <item>GULAAL</item>
-	    <item>X-PRO</item>
-	    <item>HDR</item>
-	    <item>APOLLO</item>
-	    <item>RETRO</item>
-	    <item>PULSAR</item>
-	    <item>SUNLITT</item>
-	    <item>HAZEL</item>
-	    <item>LO-FI</item>
-	    <item>INKED</item>
-	    <item>MASHAAL</item>
-	    <item>SHOLAY</item>
-	    <item>JUNGLEE</item>
-	    <item>POLAROID</item>
-	    <item>SEPIA</item>
-	    <item>GRAYSCALE</item>
-    </array>
-
 </resources>
