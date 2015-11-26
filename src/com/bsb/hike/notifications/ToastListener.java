@@ -163,7 +163,15 @@ public class ToastListener implements Listener
 				notificationType = NotificationType.DPUPDATE;
 			}
 			HikeMessengerApp.getInstance().getPubSub().publish(HikePubSub.BADGE_COUNT_TIMELINE_UPDATE_CHANGED, null);
-			toaster.notifyStatusMessage(statusMessage, notificationType);
+
+			if (StealthModeManager.getInstance().isStealthMsisdn(statusMessage.getMsisdn()) && !StealthModeManager.getInstance().isActive())
+			{
+				this.toaster.notifyStealthMessage(NotificationType.HIDDEN,statusMessage.getMsisdn());
+			}
+			else
+			{
+				toaster.notifyStatusMessage(statusMessage, notificationType);
+			}
 		}
 		else if (HikePubSub.ACTIVITY_UPDATE_NOTIF.equals(type))
 		{
@@ -172,7 +180,14 @@ public class ToastListener implements Listener
 			if (!(activity instanceof TimelineActivity))
 			{
 				FeedDataModel activityFeed = (FeedDataModel) object;
-				toaster.notifyActivityMessage(activityFeed, notificationType);
+				if (StealthModeManager.getInstance().isStealthMsisdn(activityFeed.getActor()) && !StealthModeManager.getInstance().isActive())
+				{
+					this.toaster.notifyStealthMessage(NotificationType.HIDDEN,activityFeed.getActor());
+				}
+				else
+				{
+					toaster.notifyActivityMessage(activityFeed, notificationType);
+				}
 			}
 		}
 		else if (HikePubSub.BATCH_STATUS_UPDATE_PUSH_RECEIVED.equals(type))
