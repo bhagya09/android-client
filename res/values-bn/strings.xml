@@ -1287,10 +1287,126 @@
     <string name="APPLY">প্রয়োগ করুন</string>
     <string name="level">লেভেল</string>
     <string name="milliseconds">ms</string>
-    <string name="and"> এবং </string>
     <string name="contact_name">যোগাযোগকারী ব্যক্তির নাম</string>
     <string name="mobile">মোবাইল</string>
     <string name="your_contact">আপনার যোগাযোগের তথ্য</string>
 
+    <string name="and">এবং</string> 
+    <string name="others_smallcase">অন্যান্য</string>
+
+<!-- The above two string would be used as in Group with Shibu, Niladri and 4 others -->
+
+
+ 	<string name="yesterday">গতকাল</string>
+    <string name="tomorrow">আগামীকাল</string>
+    <string name="today">আজ</string>
+    
+    <!-- This is used to express that something occurred some number of seconds in the past (e.g., 5 seconds ago). -->
+    <plurals name="num_seconds_ago">
+        <item quantity="one">1 সেকেন্ড আগে</item>
+        <item quantity="other">%d সেকেন্ড আগে</item>
+    </plurals>
+
+    <!-- This is used to express that something occurred some number of minutes in the past (e.g., 5 minutes ago). -->
+    <plurals name="num_minutes_ago">
+        <item quantity="one">1 মিনিট আগে</item>
+        <item quantity="other">%d মিনিট আগে</item>
+    </plurals>
+
+    <!-- This is used to express that something occurred some number of hours in the past (e.g., 5 hours ago). -->
+    <plurals name="num_hours_ago">
+        <item quantity="one">1 ঘন্টা আগে</item>
+        <item quantity="other">%d ঘন্টা আগে</item>
+    </plurals>
+
+    <!-- This is used to express that something occurred within the last X days (e.g., Last 7 days). -->
+    <plurals name="last_num_days">
+        <item quantity="other">গত %d দিনের</item>
+    </plurals>
+
+    <!-- This is used to express that something has occurred within the last month -->
+    <string name="last_month">গত মাসের</string>
+
+    <!-- This is used to express that something happened longer ago than the previous options -->
+    <string name="older">পুরানো</string>
+
+    <!-- This is used to express that something occurred some number of days in the past (e.g., 5 days ago). -->
+    <plurals name="num_days_ago">
+        <item quantity="one">গতকাল</item>
+        <item quantity="other">%d দিন আগে</item>
+    </plurals>
+
+    <!-- This is used to express that something will occur some number of seconds in the future (e.g., in 5 seconds). -->
+    <plurals name="in_num_seconds">
+        <item quantity="one">1 সেকেন্ড</item>
+        <item quantity="other">%d সেকেন্ড</item>
+    </plurals>
+
+    <!-- This is used to express that something will occur some number of minutes in the future (e.g., in 5 minutes). -->
+    <plurals name="in_num_minutes">
+        <item quantity="one">in 1 minute</item>
+        <item quantity="other">in %d minutes</item>
+    </plurals>
+
+    <!-- This is used to express that something will occur some number of hours in the future (e.g., in 5 hours). -->
+    <plurals name="in_num_hours">
+        <item quantity="one">1 মিনিটে</item>
+        <item quantity="other">%d মিনিটে</item>
+    </plurals>
+
+    <!-- This is used to express that something will occur some number of days in the future (e.g., in 5 days). -->
+    <plurals name="in_num_days">
+        <item quantity="one">আগামীকাল</item>
+        <item quantity="other">%d দিনে</item>
+    </plurals>
+
+    <!-- This is used to express that something occurred some number of abbreviated seconds in the past (e.g., 5 secs ago). -->
+    <plurals name="abbrev_num_seconds_ago">
+        <item quantity="one">1 সেঃ আগে</item>
+        <item quantity="other">%d সেঃ আগে</item>
+    </plurals>
+
+    <!-- This is used to express that something occurred some number of abbreviated minutes in the past (e.g., 5 mins ago). -->
+    <plurals name="abbrev_num_minutes_ago">
+        <item quantity="one">1 মিঃ আগে</item>
+        <item quantity="other">%d মিঃ আগে</item>
+    </plurals>
+
+    <!-- This is used to express that something occurred some number of abbreviated hours in the past (e.g., 5 hrs ago). -->
+    <plurals name="abbrev_num_hours_ago">
+        <item quantity="one">1 ঘন্টা আগে</item>
+        <item quantity="other">%d ঘন্টা আগে</item>
+    </plurals>
+
+    <!-- This is used to express that something occurred some number of abbreviated days in the past (e.g., 5 days ago). -->
+    <plurals name="abbrev_num_days_ago">
+        <item quantity="one">গতকাল</item>
+        <item quantity="other">%d দিন আগে</item>
+    </plurals>
+
+    <!-- This is used to express that something will occur some number of abbreviated seconds in the future (e.g., in 5 secs). -->
+    <plurals name="abbrev_in_num_seconds">
+        <item quantity="one">1 সেকেন্ডে</item>
+        <item quantity="other">%d সেকেন্ডে</item>
+    </plurals>
+
+    <!-- This is used to express that something will occur some number of abbreviated minutes in the future (e.g., in 5 mins). -->
+    <plurals name="abbrev_in_num_minutes">
+        <item quantity="one">1 মিনিটে</item>
+        <item quantity="other">%d মিনিটে</item>
+    </plurals>
+
+    <!-- This is used to express that something will occur some number of abbreviated hours in the future (e.g., in 5 hrs). -->
+    <plurals name="abbrev_in_num_hours">
+        <item quantity="one">1 ঘন্টায়</item>
+        <item quantity="other">%d ঘন্টায়</item>
+    </plurals>
+
+    <!-- This is used to express that something will occur some number of abbreviated days in the future (e.g., in 5 days). -->
+    <plurals name="abbrev_in_num_days">
+        <item quantity="one">আগামীকাল</item>
+        <item quantity="other">%d দিনে</item>
+    </plurals>
+    
 	
 </resources>
