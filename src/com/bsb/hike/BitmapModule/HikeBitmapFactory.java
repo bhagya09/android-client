@@ -1402,7 +1402,7 @@ public class HikeBitmapFactory
 
 		if (contactName == null)
 		{
-			return "#";
+			contactName = msisdn;
 		}
 
 		String[] nameArray = contactName.trim().split(" ");
