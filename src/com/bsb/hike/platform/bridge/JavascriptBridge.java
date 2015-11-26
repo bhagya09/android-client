@@ -96,6 +96,8 @@ public abstract class JavascriptBridge
 	public static final int PICK_CONTACT_AND_SEND_REQUEST = 2;
 	
 	protected static final int CLOSE_WEB_VIEW = 3;
+
+	boolean sendIntentData = false;
 	
 	public JavascriptBridge(Activity activity, CustomWebView mWebView)
 	{
@@ -988,6 +990,12 @@ public abstract class JavascriptBridge
 
 	public void sendMicroappIntentData(String data)
 	{
+		if (sendIntentData)
+		{
+			return;
+		}
+
+		sendIntentData = true;
 		mWebView.loadUrl("javascript:intentData(" + "'" + getEncodedDataForJS(data) + "')");
 	}
 
