@@ -84,7 +84,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 	private List<StatusMessage> statusMessages;
 
 	private String[] pubSubListeners = { HikePubSub.TIMELINE_UPDATE_RECIEVED, HikePubSub.LARGER_UPDATE_IMAGE_DOWNLOADED, HikePubSub.PROTIP_ADDED, HikePubSub.ICON_CHANGED,
-			HikePubSub.ACTIVITY_UPDATE, HikePubSub.TIMELINE_WIPE, HikePubSub.TIMELINE_FTUE_LIST_UPDATE,HikePubSub.HIKE_JOIN_TIME_OBTAINED, HikePubSub.USER_JOIN_TIME_OBTAINED };
+			HikePubSub.ACTIVITY_UPDATE, HikePubSub.TIMELINE_WIPE, HikePubSub.TIMELINE_FTUE_LIST_UPDATE,HikePubSub.HIKE_JOIN_TIME_OBTAINED, HikePubSub.USER_JOIN_TIME_OBTAINED, HikePubSub.CLOSE_CURRENT_STEALTH_CHAT };
 	
 	private String[] friendMsisdns = new String[]{};
 
@@ -601,6 +601,34 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 			ContactManager.getInstance().getContact(mMsisdnArray.get(0), true, true, false).setHikeJoinTime(hikeJoinTime);
 
 			notifyVisibleItems();
+		}
+		else if (HikePubSub.CLOSE_CURRENT_STEALTH_CHAT.equals(type))
+		{
+			if (isAdded() && getActivity() != null && !Utils.isEmpty(statusMessages))
+			{
+				getActivity().runOnUiThread(new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						boolean shouldRefresh = false;
+						for(int i = statusMessages.size(); i > 0 ; i--)
+						{
+							StatusMessage statusMessage = statusMessages.get(i);
+							if(StealthModeManager.getInstance().isStealthMsisdn(statusMessage.getMsisdn()))
+							{
+								statusMessages.remove(i);
+								shouldRefresh = true;
+							}
+						}
+
+						if(shouldRefresh)
+						{
+							timelineCardsAdapter.notifyDataSetChanged();
+						}
+					}
+				});
+			}
 		}
 	}
 

@@ -30,7 +30,7 @@ public class ActivityFeedFragment extends Fragment implements Listener
 
 	private ActivityFeedCursorAdapter activityFeedCardAdapter;
 
-	private String[] pubSubListeners = { HikePubSub.ICON_CHANGED, HikePubSub.ACTIVITY_UPDATE };
+	private String[] pubSubListeners = { HikePubSub.ICON_CHANGED, HikePubSub.ACTIVITY_UPDATE, HikePubSub.CLOSE_CURRENT_STEALTH_CHAT };
 
 	private RecyclerView mActivityFeedRecyclerView;
 
@@ -119,6 +119,10 @@ public class ActivityFeedFragment extends Fragment implements Listener
 		else if (HikePubSub.ACTIVITY_UPDATE.equals(type))
 		{
 			Logger.d(HikeConstants.TIMELINE_LOGS, "inside AFF, revc pubsub ACTIVITY_UPDATE");
+			executeActivityFeedFetchTask();
+		}
+		else if (HikePubSub.CLOSE_CURRENT_STEALTH_CHAT.equals(type))
+		{
 			executeActivityFeedFetchTask();
 		}
 	}
