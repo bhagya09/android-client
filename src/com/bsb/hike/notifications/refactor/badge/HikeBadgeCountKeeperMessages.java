@@ -12,8 +12,7 @@ public class HikeBadgeCountKeeperMessages extends HikeBadgeCountKeeper
 	@Override
 	public void onEventReceived(String type, Object object)
 	{
-		
-		setCount(HikeConversationsDatabase.getInstance().getTotalUnreadMessagesConversation(false));
+		setCount(HikeConversationsDatabase.getInstance().getTotalUnreadMessagesConversationBadgeCounter(false));
 		super.onEventReceived(type, object);
 		HikeMessengerApp.getPubSub().publish(HikePubSub.BADGE_COUNT_CHANGED, null);
 	}
@@ -23,7 +22,7 @@ public class HikeBadgeCountKeeperMessages extends HikeBadgeCountKeeper
 	{
 		// TODO Auto-generated method stub
 		mlistener = new String[] { HikePubSub.BULK_MESSAGE_NOTIFICATION, HikePubSub.MESSAGE_RECEIVED, HikePubSub.MSG_READ, HikePubSub.BADGE_COUNT_MESSAGE_CHANGED ,HikePubSub.CONVERSATION_DELETED,HikePubSub.NEW_CONVERSATION,HikePubSub.STEALTH_CONVERSATION_MARKED,HikePubSub.STEALTH_CONVERSATION_UNMARKED};
-		defaultCount=HikeConversationsDatabase.getInstance().getTotalUnreadMessagesConversation(false);
+		defaultCount=HikeConversationsDatabase.getInstance().getTotalUnreadMessagesConversationBadgeCounter(false);
 	}
 
 	@Override
