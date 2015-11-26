@@ -33,9 +33,11 @@ import com.bsb.hike.modules.stickerdownloadmgr.StickerPalleteImageDownloadTask;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadSource;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadType;
 import com.bsb.hike.notifications.HikeNotification;
+import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.platform.content.PlatformContent.EventCode;
 import com.bsb.hike.platform.content.PlatformContentModel;
+import com.bsb.hike.platform.content.PlatformContentRequest;
 import com.bsb.hike.productpopup.ProductPopupsConstants.PopupStateEnum;
 import com.bsb.hike.productpopup.ProductPopupsConstants.PopupTriggerPoints;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
@@ -213,7 +215,7 @@ public class ProductInfoManager
 	public void parseAndShowPopup(final ProductContentModel productContentModel, final IActivityPopup iShowPopup)
 	{
 
-		PlatformContent.getContent(PlatformContentModel.ONE_TIME_POPUPS,productContentModel.toJSONString(), new PopupContentListener(productContentModel, iShowPopup)
+		PlatformContent.getContent(HikePlatformConstants.PlatformMappRequestType.ONE_TIME_POPUPS,productContentModel.toJSONString(), new PopupContentListener(productContentModel, iShowPopup)
 		{
 			ProductContentModel productContentModel = null;
 

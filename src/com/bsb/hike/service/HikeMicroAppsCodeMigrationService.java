@@ -35,26 +35,9 @@ public class HikeMicroAppsCodeMigrationService extends IntentService
 		super("HikeMicroAppsCodeMigrationService");
 	}
 
-	public HikeMicroAppsCodeMigrationService(String name)
-	{
-		super("HikeMicroAppsCodeMigrationService");
-	}
-
 	@Override
 	protected void onHandleIntent(Intent intent)
 	{
-
-		/**
-		 * if the service is restarted then a null intent is returned
-		 * 
-		 * http://developer.android.com/reference/android/app/IntentService.html#onStartCommand(android.content.Intent,%20int,%20int)
-		 */
-		if (intent == null)
-		{
-			return;
-		}
-		else
-		{
 			String mappingJsonString = Utils.loadJSONFromAsset(this, microAppMigrationMappingFile);
 
 			// stop the code execution and returns if migration mapping file is not found
@@ -135,7 +118,6 @@ public class HikeMicroAppsCodeMigrationService extends IntentService
 
 				HikeAlarmManager.setAlarm(getApplicationContext(), scheduleTime, HikeAlarmManager.REQUEST_CODE_MICROAPPS_MIGRATION, false);
 			}
-		}
 	}
 
 	/*
