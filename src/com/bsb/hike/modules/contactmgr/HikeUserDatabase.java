@@ -42,12 +42,14 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.bots.BotUtils;
+import com.bsb.hike.chatHead.CallerContentModel;
 import com.bsb.hike.db.DBConstants;
 import com.bsb.hike.db.DbException;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.models.FtueContactsData;
 import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.platform.HikeUser;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
@@ -116,6 +118,9 @@ class HikeUserDatabase extends SQLiteOpenHelper
 		create = "CREATE TABLE IF NOT EXISTS " + DBConstants.FAVORITES_TABLE + " ( " + DBConstants.MSISDN + " TEXT PRIMARY KEY, " + DBConstants.FAVORITE_TYPE + " INTEGER" + " ) ";
 		db.execSQL(create);
 
+		create = getHikeCallerTable();
+		db.execSQL(create);
+
 		create = "CREATE INDEX IF NOT EXISTS " + DBConstants.USER_INDEX + " ON " + DBConstants.USERS_TABLE + " (" + DBConstants.MSISDN + ")";
 		db.execSQL(create);
 
@@ -124,6 +129,7 @@ class HikeUserDatabase extends SQLiteOpenHelper
 
 		create = "CREATE INDEX IF NOT EXISTS " + DBConstants.FAVORITE_INDEX + " ON " + DBConstants.FAVORITES_TABLE + " (" + DBConstants.MSISDN + ")";
 		db.execSQL(create);
+
 	}
 
 	@Override
@@ -265,6 +271,44 @@ class HikeUserDatabase extends SQLiteOpenHelper
 			editor.putInt(HikePlatformConstants.PLATFORM_UID_FOR_ADDRESS_BOOK_FETCH, HikePlatformConstants.MAKE_HTTP_CALL);
 			editor.commit();
 		}
+		if (oldVersion < 18)
+		{
+			db.execSQL(getHikeCallerTable());
+		}
+
+	}
+
+	private String getHikeCallerTable()
+	{
+
+		String hikeCallerTable = DBConstants.CREATE_TABLE + DBConstants.HIKE_USER.HIKE_CALLER_TABLE + " (" + DBConstants.MSISDN + " TEXT PRIMARY KEY , " + DBConstants.NAME
+				+ " TEXT NOT NULL, " + DBConstants.HIKE_USER.LOCATION + " TEXT, " + DBConstants.HIKE_USER.IS_ON_HIKE + " INTEGER DEFAULT 0, " + DBConstants.HIKE_USER.IS_SPAM + " INTEGER DEFAULT 0, "
+				+ DBConstants.HIKE_USER.IS_BLOCK + " INTEGER DEFAULT 0," + DBConstants.HIKE_USER.SPAM_COUNT + " INTEGER DEFAULT 0," + DBConstants.HIKE_USER.CREATION_TIME + " INTEGER, " + DBConstants.HIKE_USER.ON_HIKE_TIME + " INTEGER" + ")";
+
+		return hikeCallerTable;
+	}
+
+	public CallerContentModel getCallerContentModelFromMsisdn(String msisdn)
+	{
+		Cursor cursor = mDb.query(DBConstants.HIKE_USER.HIKE_CALLER_TABLE, null, DBConstants.MSISDN + "=? ", new String[] { msisdn }, null, null, null, "1");
+		try
+		{
+			cursor.moveToFirst();
+			CallerContentModel callerContentModel = new CallerContentModel();
+			callerContentModel.setBlock((cursor.getInt(cursor.getColumnIndex(DBConstants.HIKE_USER.IS_BLOCK)) == 1) ? true : false);
+			callerContentModel.setFullName(cursor.getString(cursor.getColumnIndex(DBConstants.NAME)));
+			callerContentModel.setIsOnHike((cursor.getInt(cursor.getColumnIndex(DBConstants.HIKE_USER.IS_ON_HIKE)) == 1) ? true : false);
+			callerContentModel.setIsSpam((cursor.getInt(cursor.getColumnIndex(DBConstants.HIKE_USER.IS_SPAM)) == 1) ? true : false);
+			callerContentModel.setLocation(cursor.getString(cursor.getColumnIndex(DBConstants.HIKE_USER.LOCATION)));
+			callerContentModel.setSpamCount(cursor.getInt(cursor.getColumnIndex(DBConstants.HIKE_USER.SPAM_COUNT)));
+			callerContentModel.setMsisdn(cursor.getString(cursor.getColumnIndex(DBConstants.MSISDN)));
+
+			return callerContentModel;
+		}
+		catch (Exception e)
+		{
+			return null;
+		}
 	}
 
 	void addContacts(List<ContactInfo> contacts, boolean isFirstSync) throws DbException
@@ -382,6 +426,43 @@ class HikeUserDatabase extends SQLiteOpenHelper
 			}
 			db.endTransaction();
 		}
+	}
+
+
+	public void insertIntoCallerTable(CallerContentModel callerContentModel)
+	{
+		if (callerContentModel != null && callerContentModel.getMsisdn() != null && callerContentModel.getFullName() != null)
+		{
+			ContentValues cv = new ContentValues();
+			cv.put(DBConstants.NAME, callerContentModel.getFullName());
+			cv.put(DBConstants.HIKE_USER.LOCATION, callerContentModel.getLocation());
+			cv.put(DBConstants.MSISDN, callerContentModel.getMsisdn());
+			cv.put(DBConstants.HIKE_USER.IS_ON_HIKE, callerContentModel.getIsOnHike() ? 1 : 0);
+			cv.put(DBConstants.HIKE_USER.IS_SPAM, callerContentModel.isSpam() ? 1 : 0);
+			cv.put(DBConstants.HIKE_USER.CREATION_TIME, System.currentTimeMillis());
+			cv.put(DBConstants.HIKE_USER.ON_HIKE_TIME, System.currentTimeMillis());
+			cv.put(DBConstants.HIKE_USER.SPAM_COUNT, callerContentModel.getSpamCount());
+			mDb.insertWithOnConflict(DBConstants.HIKE_USER.HIKE_CALLER_TABLE, null, cv, SQLiteDatabase.CONFLICT_REPLACE);
+		}
+	}
+
+	public void updateCallerTable(CallerContentModel callerContentModel)
+	{
+		if (callerContentModel != null && callerContentModel.getMsisdn() != null)
+		{
+			ContentValues cv = new ContentValues();
+			cv.put(DBConstants.HIKE_USER.IS_ON_HIKE, callerContentModel.getIsOnHike());
+			cv.put(DBConstants.HIKE_USER.LOCATION, callerContentModel.getLocation());
+			cv.put(DBConstants.HIKE_USER.IS_SPAM, callerContentModel.isSpam());
+			cv.put(DBConstants.HIKE_USER.SPAM_COUNT, callerContentModel.getSpamCount());
+			cv.put(DBConstants.HIKE_USER.ON_HIKE_TIME, System.currentTimeMillis());
+			mDb.update(DBConstants.HIKE_USER.HIKE_CALLER_TABLE, cv, DBConstants.MSISDN + "=? ",new String[] {callerContentModel.getMsisdn()}, SQLiteDatabase.CONFLICT_IGNORE);
+		}
+	}
+
+	public void deleteFromCallerTable(String msisdn)
+	{
+		mDb.delete(DBConstants.HIKE_USER.HIKE_CALLER_TABLE, DBConstants.MSISDN + "=? ", new String[]{msisdn});
 	}
 
 	void addBlockList(List<String> msisdns) throws DbException

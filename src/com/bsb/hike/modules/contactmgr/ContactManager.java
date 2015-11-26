@@ -38,6 +38,7 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
+import com.bsb.hike.chatHead.CallerContentModel;
 import com.bsb.hike.db.DBConstants;
 import com.bsb.hike.db.DbException;
 import com.bsb.hike.db.HikeConversationsDatabase;
@@ -2394,5 +2395,25 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 	public String getImagePathForThumbnail(String msisdn)
 	{
 		return hDb.getImagePathForThumbnail(msisdn);
+	}
+
+	public void deleteFromCallerTable(String msisdn)
+	{
+		HikeUserDatabase.getInstance().deleteFromCallerTable(msisdn);
+	}
+
+	public void updateCallerTable(CallerContentModel callerContentModel)
+	{
+		HikeUserDatabase.getInstance().updateCallerTable(callerContentModel);
+	}
+
+	public void insertIntoCallerTable(CallerContentModel callerContentModel)
+	{
+		HikeUserDatabase.getInstance().insertIntoCallerTable(callerContentModel);
+	}
+
+	public CallerContentModel getCallerContentModelFromMsisdn(String msisdn)
+	{
+		return HikeUserDatabase.getInstance().getCallerContentModelFromMsisdn(msisdn);
 	}
 }
