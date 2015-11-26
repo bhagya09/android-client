@@ -3539,6 +3539,10 @@ public class MqttMessagesManager
 						{
 							generateNotification(body, destination, silent, rearrangeChat, updateUnreadCount);
 						}
+
+						//to update the badge counter
+						HikeMessengerApp.getPubSub().publish(HikePubSub.BADGE_COUNT_MESSAGE_CHANGED, null);
+
 						String notifData = metadata.optString(HikePlatformConstants.NOTIF_DATA);
 						if (!TextUtils.isEmpty(notifData))
 						{
