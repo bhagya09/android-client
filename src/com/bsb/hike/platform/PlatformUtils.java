@@ -377,6 +377,7 @@ public class PlatformUtils
 		if (botMetadata.isNativeMode())
 			requestType = HikePlatformConstants.PlatformMappRequestType.NATIVE_APPS;
 
+
 		PlatformContentRequest rqst = PlatformContentRequest.make(PlatformContentModel.make(botInfo.getMetadata(), requestType),
 				new PlatformContentListener<PlatformContentModel>()
 				{
