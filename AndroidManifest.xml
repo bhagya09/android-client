@@ -4,8 +4,8 @@
     package="com.bsb.hike"
     android:installLocation="auto"
 
-    android:versionCode="1528"
-    android:versionName="4.0.8.81.29.8.custom_keybaord_SR" >
+    android:versionCode="1529"
+    android:versionName="4.0.8.81.29.9.custom_keybaord_SR" >
     <uses-sdk
         android:minSdkVersion="14"
         android:targetSdkVersion="17"/>
