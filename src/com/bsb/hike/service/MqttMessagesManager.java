@@ -91,6 +91,7 @@ import com.bsb.hike.modules.stickerdownloadmgr.SingleStickerDownloadTask;
 import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
 import com.bsb.hike.modules.stickersearch.provider.StickerSearchUtility;
+import com.bsb.hike.modules.stickersearch.ui.StickerTagWatcher;
 import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.offline.OfflineConstants;
 import com.bsb.hike.offline.OfflineController;
@@ -2353,6 +2354,7 @@ public class MqttMessagesManager
 		if (data.has(HikeConstants.STICKER_RECOMMENDATION_ENABLED))
 		{
 			boolean isStickerRecommendationEnabled = data.getBoolean(HikeConstants.STICKER_RECOMMENDATION_ENABLED);
+			Logger.d(StickerTagWatcher.TAG, "received sticker recommendation server side packet, value : " + isStickerRecommendationEnabled);
 			StickerManager.getInstance().toggleStickerRecommendation(isStickerRecommendationEnabled);
 		}
 
