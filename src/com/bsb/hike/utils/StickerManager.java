@@ -2395,6 +2395,13 @@ public class StickerManager
 		return true;
 	}
 
+	public void toggleStickerRecommendation(boolean state) {
+		if (Utils.isHoneycombOrHigher()) {
+			Logger.d(TAG, "Toggling SR enable status to " + state);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STICKER_RECOMMENDATION_ENABLED, state);
+		}
+	}
+
 	public void resetStickerShopLastUpdateTime()
 	{
 		HikeSharedPreferenceUtil.getInstance().saveData(StickerManager.LAST_STICKER_SHOP_UPDATE_TIME, 0l);
