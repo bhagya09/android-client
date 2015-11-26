@@ -51,7 +51,10 @@ public class HikeUnzipFile extends Observable
 	 */
 	private boolean unZipFromSourceToDestination(String... params)
 	{
-		String filePath = params[0];
+        if(params.length < 2)
+            return false;
+
+        String filePath = params[0];
 		String destinationPath = params[1];
 
 		File archive = new File(filePath);

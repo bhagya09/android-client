@@ -9,9 +9,11 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.TreeMap;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -81,6 +83,8 @@ import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 /**
  * @author piyush
@@ -372,13 +376,7 @@ public class PlatformUtils
 	 */
 	public static void downloadZipForNonMessagingBot(final BotInfo botInfo, final boolean enableBot, final String botChatTheme, final String notifType, NonMessagingBotMetadata botMetadata, boolean resumeSupport)
 	{
-
-		byte requestType = HikePlatformConstants.PlatformMappRequestType.HIKE_MICRO_APPS;
-		if (botMetadata.isNativeMode())
-			requestType = HikePlatformConstants.PlatformMappRequestType.NATIVE_APPS;
-
-
-		PlatformContentRequest rqst = PlatformContentRequest.make(PlatformContentModel.make(botInfo.getMetadata(), requestType),
+		PlatformContentRequest rqst = PlatformContentRequest.make(PlatformContentModel.make(botInfo.getMetadata(), botInfo.getRequestType()),
 				new PlatformContentListener<PlatformContentModel>()
 				{
 
@@ -434,8 +432,8 @@ public class PlatformUtils
 					}
 				});
 
-		rqst.setRequestType(requestType);
-		rqst.getContentData().setRequestType(requestType);
+		rqst.setRequestType(botInfo.getRequestType());
+		rqst.getContentData().setRequestType(botInfo.getRequestType());
 
 		downloadAndUnzip(rqst, false, botMetadata.shouldReplace(), botMetadata.getCallbackId(), resumeSupport, botInfo.getMsisdn());
 	}
@@ -629,7 +627,7 @@ public class PlatformUtils
 	
 	public static void downloadAndUnzip(PlatformContentRequest request, boolean isTemplatingEnabled, boolean doReplace, String callbackId, boolean resumeSupported,String msisdn)
 	{
-		PlatformZipDownloader downloader = new PlatformZipDownloader.PlatformZipDownloaderBuilder().setArgRequest(request).setIsTemplatingEnabled(isTemplatingEnabled).setDoReplace(doReplace).setCallbackId(callbackId).setResumeSupported(resumeSupported).setMsisdn(msisdn).createPlatformZipDownloader();
+		PlatformZipDownloader downloader = new PlatformZipDownloader.Builder().setArgRequest(request).setIsTemplatingEnabled(isTemplatingEnabled).setDoReplace(doReplace).setCallbackId(callbackId).setResumeSupported(resumeSupported).setMsisdn(msisdn).createPlatformZipDownloader();
 		if (!downloader.isMicroAppExist() || doReplace)
 		{
 			downloader.downloadAndUnzip();
@@ -1367,4 +1365,59 @@ public class PlatformUtils
 		return new Header("Range", "bytes=" + startOffset + "-");
 	}
 
+    /*
+     * Code to append unzip path based on request type for micro app unzip process
+     */
+    public static String generateMappUnZipPathForBotRequestType(byte requestType,String unzipPath,String microAppName,int microAppVersion)
+    {
+        // Generate unzip path for the given request type
+        switch (requestType)
+        {
+            case HikePlatformConstants.PlatformMappRequestType.HIKE_MICRO_APPS:
+                unzipPath += microAppName + File.separator + HikeConstants.Extras.VERSIONING_DIRECTORY_NAME + microAppVersion + File.separator;
+                break;
+
+            case HikePlatformConstants.PlatformMappRequestType.ONE_TIME_POPUPS:
+                unzipPath += PlatformContentConstants.HIKE_ONE_TIME_POPUPS + microAppName + File.separator;
+                break;
+
+            case HikePlatformConstants.PlatformMappRequestType.NATIVE_APPS:
+                unzipPath += PlatformContentConstants.HIKE_GAMES + microAppName + File.separator;
+                break;
+
+            case HikePlatformConstants.PlatformMappRequestType.HIKE_MAPPS:
+                unzipPath += PlatformContentConstants.HIKE_MAPPS + microAppName + File.separator;
+                break;
+        }
+
+        return unzipPath;
+    }
+
+    /**
+     * Returns the root folder path for Hike MicroApps <br>
+     * eg : "/data/data/com.bsb.hike/files/Content/HikeMicroApps/"
+     *
+     * @return
+     */
+    public static String getMicroAppContentRootFolder()
+    {
+        File file = new File (PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.HIKE_MICRO_APPS);
+        if (!file.exists())
+        {
+            file.mkdirs();
+        }
+
+        return PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.HIKE_MICRO_APPS ;
+    }
+
+    /*
+     * Code to generate Compatibility matrix TreeMap from json
+     */
+    public static TreeMap<Integer,Integer> getCompatibilityMapFromString(String json)
+    {
+        Gson gson = new Gson();
+        Type stringStringMap = new TypeToken<TreeMap<Integer, Integer>>(){}.getType();
+        TreeMap<Integer,Integer> map = gson.fromJson(json, stringStringMap);
+        return map;
+    }
 }

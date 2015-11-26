@@ -919,7 +919,7 @@ public class HikeService extends Service
     {
         if(!HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.HIKE_CONTENT_MICROAPPS_MIGRATION, false)) {
 
-            long scheduleTime = Utils.getTimeInMillis(Calendar.getInstance(), 4, 40, 30, 0);
+            long scheduleTime = Utils.getTimeInMillis(Calendar.getInstance(), 4, 50, 30, 0);
             // If the scheduled time is in the past
             // Scheduled time is increased by 24 hours i.e. same time next day.
             if (scheduleTime < System.currentTimeMillis())

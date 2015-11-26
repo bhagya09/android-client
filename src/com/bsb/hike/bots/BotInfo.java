@@ -48,6 +48,8 @@ public class BotInfo extends ConvInfo implements Cloneable
 	private int updatedVersion;
 
     private TreeMap<Integer,Integer> compatibilityMap;
+
+    private byte requestType;
 	
 	public static abstract class InitBuilder<P extends InitBuilder<P>> extends ConvInfo.InitBuilder<P>
 	{
@@ -56,6 +58,8 @@ public class BotInfo extends ConvInfo implements Cloneable
 		private String namespace;
 
 		private String metadata, configData, notifData, helperData, botDescription;
+
+        private byte requestType = HikePlatformConstants.PlatformMappRequestType.HIKE_MICRO_APPS;
 
         private TreeMap<Integer,Integer> compatibilityMap;
 
@@ -141,6 +145,12 @@ public class BotInfo extends ConvInfo implements Cloneable
 			this.botDescription = description;
 			return getSelfObject();
 		}
+
+        public P setRequestType(byte requestType)
+        {
+            this.requestType = requestType;
+            return getSelfObject();
+        }
 
 		@Override
 		public BotInfo build()
@@ -505,6 +515,20 @@ public class BotInfo extends ConvInfo implements Cloneable
     public void setCompatibilityMap(TreeMap<Integer,Integer> compatibilityMap)
     {
         this.compatibilityMap = compatibilityMap;
+    }
+
+    /**
+     * @return the requestType
+     */
+    public byte getRequestType(){ return requestType; }
+
+    /**
+     * @param requestType
+     *            the requestType to set
+     */
+    public void setRequestType(byte requestType)
+    {
+        this.requestType = requestType;
     }
 
 	@Override

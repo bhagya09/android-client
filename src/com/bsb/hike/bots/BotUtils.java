@@ -31,8 +31,6 @@ import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -40,7 +38,6 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
@@ -332,16 +329,6 @@ public class BotUtils
 			boolean enableBot = jsonObj.optBoolean(HikePlatformConstants.ENABLE_BOT);
 			NonMessagingBotMetadata botMetadata = new NonMessagingBotMetadata(botInfo.getMetadata());
 
-            JSONObject mdJsonObject = jsonObj.optJSONObject(HikePlatformConstants.METADATA);
-            JSONObject cardObjectJson = mdJsonObject.optJSONObject(HikePlatformConstants.CARD_OBJECT);
-            JSONObject compatibilityMapJson = cardObjectJson.optJSONObject(HikePlatformConstants.COMPATIBILITY_MAP);
-
-            if (compatibilityMapJson != null)
-            {
-                TreeMap<Integer, Integer> compatibilityMap = getCompatibilityMapFromString(compatibilityMapJson.toString());
-                botInfo.setCompatibilityMap(compatibilityMap);
-            }
-
             if (botMetadata.isMicroAppMode())
 			{
 				PlatformUtils.downloadZipForNonMessagingBot(botInfo, enableBot, botChatTheme, notifType, botMetadata, botMetadata.isResumeSupported());
@@ -352,9 +339,9 @@ public class BotUtils
 			}
 			else if (botMetadata.isNativeMode())
 			{
+                botInfo.setRequestType(HikePlatformConstants.PlatformMappRequestType.NATIVE_APPS);
 				PlatformUtils.downloadZipForNonMessagingBot(botInfo, enableBot, botChatTheme, notifType, botMetadata, botMetadata.isResumeSupported());
 			}
-
 		}
 
 		Logger.d("create bot", "It takes " + String.valueOf(System.currentTimeMillis() - startTime) + "msecs");
@@ -446,6 +433,19 @@ public class BotUtils
 			}
 
 		}
+
+        if (jsonObj.has(HikePlatformConstants.METADATA))
+        {
+            JSONObject mdJsonObject = jsonObj.optJSONObject(HikePlatformConstants.METADATA);
+            JSONObject cardObjectJson = mdJsonObject.optJSONObject(HikePlatformConstants.CARD_OBJECT);
+            JSONObject compatibilityMapJson = cardObjectJson.optJSONObject(HikePlatformConstants.COMPATIBILITY_MAP);
+
+            if (compatibilityMapJson != null)
+            {
+                TreeMap<Integer, Integer> compatibilityMap = PlatformUtils.getCompatibilityMapFromString(compatibilityMapJson.toString());
+                botInfo.setCompatibilityMap(compatibilityMap);
+            }
+        }
 
 		return botInfo;
 	}
@@ -858,17 +858,4 @@ public class BotUtils
 		Logger.v(TAG, "File does not exist for : " + botMsisdn + " Maybe it's not a bot");
 		return null;
 	}
-
-    /*
-     * Code to generate Compatibility matrix TreeMap from json
-     */
-    private static TreeMap<Integer,Integer> getCompatibilityMapFromString(String json)
-    {
-        Gson gson = new Gson();
-        Type stringStringMap = new TypeToken<TreeMap<Integer, Integer>>(){}.getType();
-        TreeMap<Integer,Integer> map = gson.fromJson(json, stringStringMap);
-        return map;
-    }
-	
-
 }

@@ -7476,21 +7476,4 @@ public class Utils
 		return megsAvailable;
 	}
 
-    /**
-     * Returns the root folder path for Hike MicroApps <br>
-     * eg : "/data/data/com.bsb.hike/files/Content/HikeMicroApps/"
-     *
-     * @return
-     */
-    public static String getMicroAppContentRootFolder()
-    {
-        File file = new File (PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.HIKE_MICRO_APPS);
-        if (!file.exists())
-        {
-            file.mkdirs();
-        }
-
-        return PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.HIKE_MICRO_APPS ;
-    }
-
 }

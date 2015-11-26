@@ -70,7 +70,7 @@ public class HikeMicroAppsCodeMigrationService extends IntentService
 							continue;
 
 						int version = msisdnMigrationMap.get(microAppName);
-						String unzipPath = Utils.getMicroAppContentRootFolder();
+						String unzipPath = PlatformUtils.getMicroAppContentRootFolder();
 						// Create directory for micro app if not exists already
 						new File(unzipPath, microAppName).mkdirs();
 
@@ -111,7 +111,7 @@ public class HikeMicroAppsCodeMigrationService extends IntentService
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.HIKE_CONTENT_MICROAPPS_MIGRATION, true);
 			else
 			{
-				long scheduleTime = Utils.getTimeInMillis(Calendar.getInstance(), 4, 40, 30, 0);
+				long scheduleTime = Utils.getTimeInMillis(Calendar.getInstance(), 4, 50, 30, 0);
 				// If the scheduled time is in the past.
 				// Scheduled time is increased by 24 hours i.e. same time next day.
 				scheduleTime += 24 * 60 * 60 * 1000;

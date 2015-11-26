@@ -80,14 +80,11 @@ import com.bsb.hike.utils.PairModified;
 import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -8156,7 +8153,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
                          compatibilityMapStr = cardObj.optString(HikePlatformConstants.COMPATIBILITY_MAP);
 
                     if(!TextUtils.isEmpty(compatibilityMapStr))
-                        compatibilityMap = getCompatibilityMapFromString(compatibilityMapStr);
+                        compatibilityMap = PlatformUtils.getCompatibilityMapFromString(compatibilityMapStr);
 
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -8699,16 +8696,5 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 	{
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.CONV_DB_VERSION_PREF, DBConstants.CONVERSATIONS_DATABASE_VERSION);
 	}
-
-    /*
-     * Code to generate Compatibility matrix TreeMap from json
-     */
-    private TreeMap<Integer,Integer> getCompatibilityMapFromString(String json)
-    {
-        Gson gson = new Gson();
-        Type stringStringMap = new TypeToken<TreeMap<Integer, Integer>>(){}.getType();
-        TreeMap<Integer,Integer> map = gson.fromJson(json, stringStringMap);
-        return map;
-    }
 
 }

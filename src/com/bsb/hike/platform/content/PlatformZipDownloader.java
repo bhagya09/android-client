@@ -19,7 +19,6 @@ import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.content.PlatformContent.EventCode;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.Logger;
-import com.bsb.hike.utils.Utils;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -64,7 +63,7 @@ public class PlatformZipDownloader
     private String msisdn;
 
     // static builder class used here for generating and returning object of Zip Downloading process
-    public static class PlatformZipDownloaderBuilder {
+    public static class Builder {
         private PlatformContentRequest argRequest;
         private boolean isTemplatingEnabled;
         private boolean doReplace = false;
@@ -72,32 +71,32 @@ public class PlatformZipDownloader
         private boolean resumeSupported = false;
         private String msisdn = "";
 
-        public PlatformZipDownloaderBuilder setArgRequest(PlatformContentRequest argRequest) {
+        public Builder setArgRequest(PlatformContentRequest argRequest) {
             this.argRequest = argRequest;
             return this;
         }
 
-        public PlatformZipDownloaderBuilder setIsTemplatingEnabled(boolean isTemplatingEnabled) {
+        public Builder setIsTemplatingEnabled(boolean isTemplatingEnabled) {
             this.isTemplatingEnabled = isTemplatingEnabled;
             return this;
         }
 
-        public PlatformZipDownloaderBuilder setDoReplace(boolean doReplace) {
+        public Builder setDoReplace(boolean doReplace) {
             this.doReplace = doReplace;
             return this;
         }
 
-        public PlatformZipDownloaderBuilder setCallbackId(String callbackId) {
+        public Builder setCallbackId(String callbackId) {
             this.callbackId = callbackId;
             return this;
         }
 
-        public PlatformZipDownloaderBuilder setResumeSupported(boolean resumeSupported) {
+        public Builder setResumeSupported(boolean resumeSupported) {
             this.resumeSupported = resumeSupported;
             return this;
         }
 
-        public PlatformZipDownloaderBuilder setMsisdn(String msisdn) {
+        public Builder setMsisdn(String msisdn) {
             this.msisdn = msisdn;
             return this;
         }
@@ -110,16 +109,16 @@ public class PlatformZipDownloader
     /**
      * Instantiates a new platform template download task.
      *
-     * @param platformZipDownloaderBuilder
+     * @param builder
      */
-    private PlatformZipDownloader(PlatformZipDownloaderBuilder platformZipDownloaderBuilder)
+    private PlatformZipDownloader(Builder builder)
     {
-        mRequest = platformZipDownloaderBuilder.argRequest;
-        this.isTemplatingEnabled = platformZipDownloaderBuilder.isTemplatingEnabled;
-        this.doReplace = platformZipDownloaderBuilder.doReplace;
-        this.callbackId = platformZipDownloaderBuilder.callbackId;
-        this.resumeSupported = platformZipDownloaderBuilder.resumeSupported;
-        this.msisdn = platformZipDownloaderBuilder.msisdn;
+        mRequest = builder.argRequest;
+        this.isTemplatingEnabled = builder.isTemplatingEnabled;
+        this.doReplace = builder.doReplace;
+        this.callbackId = builder.callbackId;
+        this.resumeSupported = builder.resumeSupported;
+        this.msisdn = builder.msisdn;
 
         if (resumeSupported)
         {
@@ -166,30 +165,13 @@ public class PlatformZipDownloader
 			int microAppVersion = mRequest.getContentData().getMappVersionCode();
 
 			// Generate path for the old micro app directory
-			File oldMicroAppFolder = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR, mRequest.getContentData().getId());
+			File oldMicroAppFolder = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR, microAppName);
 
 			if (oldMicroAppFolder.exists())
 				return true;
 
-            // Generate unzip path for the given request type
-			switch (mRequest.getRequestType())
-			{
-			case HikePlatformConstants.PlatformMappRequestType.HIKE_MICRO_APPS:
-				unzipPath += microAppName + File.separator + HikeConstants.Extras.VERSIONING_DIRECTORY_NAME + microAppVersion + File.separator;
-				break;
-
-			case HikePlatformConstants.PlatformMappRequestType.ONE_TIME_POPUPS:
-				unzipPath += PlatformContentConstants.HIKE_ONE_TIME_POPUPS + microAppName + File.separator;
-				break;
-
-			case HikePlatformConstants.PlatformMappRequestType.NATIVE_APPS:
-				unzipPath += PlatformContentConstants.HIKE_GAMES + microAppName + File.separator;
-				break;
-
-			case HikePlatformConstants.PlatformMappRequestType.HIKE_MAPPS:
-				unzipPath += PlatformContentConstants.HIKE_MAPPS + microAppName + File.separator;
-				break;
-			}
+            // Generate unzip path
+            unzipPath = PlatformUtils.generateMappUnZipPathForBotRequestType(mRequest.getRequestType(),unzipPath,microAppName,microAppVersion);
 
 			if (new File(unzipPath).exists())
 				return true;
@@ -197,7 +179,8 @@ public class PlatformZipDownloader
 		}
 		catch (NullPointerException npe)
 		{
-			npe.printStackTrace();
+			Logger.e("PlatformZipDownloader isMicroAppExist",npe.toString());
+            npe.printStackTrace();
 		}
 
 		return false;
@@ -411,7 +394,7 @@ public class PlatformZipDownloader
 	 */
 	private String getUnZipPath()
 	{
-		String unzipPath = (doReplace) ? Utils.getMicroAppContentRootFolder() + PlatformContentConstants.TEMP_DIR_NAME : Utils.getMicroAppContentRootFolder();
+		String unzipPath = (doReplace) ? PlatformUtils.getMicroAppContentRootFolder() + PlatformContentConstants.TEMP_DIR_NAME : PlatformUtils.getMicroAppContentRootFolder();
 
         // To determine the path for unzipping zip files based on request type
 		switch (mRequest.getRequestType())
@@ -461,7 +444,7 @@ public class PlatformZipDownloader
 	 */
 	private void deleteMicroAppsAsPerCompatibilityMap()
 	{
-		String microAppName = mRequest.getContentData().getId();
+        String microAppName = mRequest.getContentData().getId();
 		TreeMap<Integer, Integer> compatibilityMap = mRequest.getContentData().cardObj.compatibilityMap;
 
 		if (compatibilityMap == null || mRequest.getRequestType() != HikePlatformConstants.PlatformMappRequestType.HIKE_MICRO_APPS)
@@ -484,7 +467,7 @@ public class PlatformZipDownloader
 		}
 
 		int minSupportedAppVersion = compatibilityMap.get(hashMapKey);
-		String unzipPath = (doReplace) ? Utils.getMicroAppContentRootFolder() + PlatformContentConstants.TEMP_DIR_NAME : Utils.getMicroAppContentRootFolder();
+		String unzipPath = (doReplace) ? PlatformUtils.getMicroAppContentRootFolder() + PlatformContentConstants.TEMP_DIR_NAME : PlatformUtils.getMicroAppContentRootFolder();
 		unzipPath += microAppName + File.separator;
 
 		// Code to delete micro apps within the compatibility matrix range that is figured above
