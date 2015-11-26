@@ -1786,31 +1786,36 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 	/**
 	 * @return count of unreadActivity Feed
 	 */
-	public int getUnreadActivityFeedCount()
-	{
+	public int getUnreadActivityFeedCount() {
 		String where = DBConstants.READ + " = 0 ";
 		int rowID = -1;
-		
+
 		Cursor cursor = mDb.query(DBConstants.FEED_TABLE, null, where, null, null, null, null);
 
-		if(cursor != null)
-		{
+		if (cursor != null) {
 			rowID = cursor.getCount();
 		}
+
 		return rowID;
 	}
 	
-	public boolean isAnyFeedEntryPresent()
-	{
-		String count = "SELECT count(*) FROM " + DBConstants.FEED_TABLE;
-		Cursor mcursor = mDb.rawQuery(count, null);
-		if(mcursor != null && mcursor.moveToFirst())
+	public boolean isAnyFeedEntryPresent() {
+		String count = "SELECT * FROM " + DBConstants.FEED_TABLE;
+		Cursor cursor = mDb.rawQuery(count, null);
+		if (cursor != null && cursor.moveToFirst())
 		{
-			int icount = mcursor.getInt(0);
-			if(icount > 0)
-			{
-				return true;
-			}
+			int columnIndex = cursor.getColumnIndex(DBConstants.FEED_ACTOR);
+			do {
+				String msisdn = cursor.getString(columnIndex);
+				if(StealthModeManager.getInstance().isStealthMsisdn(msisdn) && !StealthModeManager.getInstance().isActive())
+				{
+					continue;
+				}
+				else
+				{
+					return true;
+				}
+			} while (cursor.moveToNext());
 		}
 		return false;
 	}
@@ -1893,19 +1898,63 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		return isComplete;
 	}
 	
-	/**
-	 * 
-	 * @param currentPage 
-	 * @return
-	 */
-	public Cursor getActivityFeedsCursor()
+	public Cursor getActivityFeedsCursor(String[] msisdnList)
 	{
-		 String selectQuery = "SELECT  * FROM " + FEED_TABLE + " ft, "
+		StringBuilder msisdnSelection = null;
+		if (msisdnList != null)
+		{
+			msisdnSelection = new StringBuilder("(");
+			for (String msisdn : msisdnList)
+			{
+				msisdnSelection.append(DatabaseUtils.sqlEscapeString(msisdn) + ",");
+			}
+			msisdnSelection.replace(msisdnSelection.lastIndexOf(","), msisdnSelection.length(), ")");
+		}
+
+		StringBuilder selectQuery = new StringBuilder("SELECT  * FROM " + FEED_TABLE + " ft, "
 		            + STATUS_TABLE + " st " + " WHERE ft." + FEED_OBJECT_ID
-		            + " = " + "st." + STATUS_MAPPED_ID + " AND ft." 
-		            + FEED_OBJECT_TYPE + " = '" +  ActivityObjectTypes.STATUS_UPDATE.getTypeString()
-		            + "' ORDER BY ft." + FEED_TS + " DESC";
-		 return mDb.rawQuery(selectQuery, null);
+		            + " = " + "st." + STATUS_MAPPED_ID + " AND ft."
+		            + FEED_OBJECT_TYPE + " = '" +  ActivityObjectTypes.STATUS_UPDATE.getTypeString()+"'");
+
+		if (!TextUtils.isEmpty(msisdnSelection))
+		{
+			selectQuery.append(" AND "+"ft."+FEED_ACTOR + " IN " + msisdnSelection.toString());
+		}
+
+		selectQuery.append(" ORDER BY ft." + FEED_TS + " DESC");
+
+		return mDb.rawQuery(selectQuery.toString(), null);
+	}
+
+	public static String[] getTimelineFriendsMsisdn(String userMsisdn)
+	{
+		List<ContactInfo> friendsList = ContactManager.getInstance().getContactsOfFavoriteType(ContactInfo.FavoriteType.FRIEND, HikeConstants.BOTH_VALUE, userMsisdn);
+
+		Logger.d(HikeConstants.TIMELINE_LOGS, "list of friends from CM before filter" + friendsList);
+
+		ArrayList<String> msisdnList = new ArrayList<String>();
+
+		for (ContactInfo contactInfo : friendsList)
+		{
+			if (TextUtils.isEmpty(contactInfo.getMsisdn()))
+			{
+				continue;
+			}
+
+			if(StealthModeManager.getInstance().isStealthMsisdn(contactInfo.getMsisdn()) && !StealthModeManager.getInstance().isActive())
+			{
+				continue;
+			}
+
+			msisdnList.add(contactInfo.getMsisdn());
+		}
+
+		msisdnList.add(userMsisdn);
+
+		String[] friendMsisdns = new String[msisdnList.size()];
+		msisdnList.toArray(friendMsisdns);
+		Logger.d(HikeConstants.TIMELINE_LOGS, "list of friends after filter whose SU we are fetching " + friendMsisdns);
+		return friendMsisdns;
 	}
 	
 	/**

@@ -693,32 +693,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 			}
 			else
 			{
-				List<ContactInfo> friendsList = ContactManager.getInstance().getContactsOfFavoriteType(FavoriteType.FRIEND, HikeConstants.BOTH_VALUE, userMsisdn);
-
-				Logger.d(HikeConstants.TIMELINE_LOGS, "list of friends from CM before filter" + friendsList);
-				
-				ArrayList<String> msisdnList = new ArrayList<String>();
-
-				for (ContactInfo contactInfo : friendsList)
-				{
-					if (TextUtils.isEmpty(contactInfo.getMsisdn()))
-					{
-						continue;
-					}
-					
-					if(StealthModeManager.getInstance().isStealthMsisdn(contactInfo.getMsisdn()) && !StealthModeManager.getInstance().isActive())
-					{
-						continue;
-					}
-					
-					msisdnList.add(contactInfo.getMsisdn());
-				}
-
-				msisdnList.add(userMsisdn);
-
-				friendMsisdns = new String[msisdnList.size()];
-				msisdnList.toArray(friendMsisdns);
-				Logger.d(HikeConstants.TIMELINE_LOGS, "list of friends after filter whose SU we are fetching " + friendMsisdns);
+				friendMsisdns = HikeConversationsDatabase.getTimelineFriendsMsisdn(userMsisdn);
 			}
 
 			List<StatusMessage> statusMessages = null;

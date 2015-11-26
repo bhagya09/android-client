@@ -129,7 +129,8 @@ public class ActivityFeedFragment extends Fragment implements Listener
 		@Override
 		protected Cursor doInBackground(Void... params)
 		{
-			return HikeConversationsDatabase.getInstance().getActivityFeedsCursor();
+			String[] msisdnList = HikeConversationsDatabase.getInstance().getTimelineFriendsMsisdn(HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.MSISDN_SETTING,""));
+			return HikeConversationsDatabase.getInstance().getActivityFeedsCursor(msisdnList);
 		}
 
 		@Override
