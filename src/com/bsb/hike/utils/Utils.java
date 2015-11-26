@@ -4771,6 +4771,11 @@ public class Utils
 
 			if (info.uid == context.getApplicationInfo().uid && info.importance == RunningAppProcessInfo.IMPORTANCE_FOREGROUND && info.importanceReasonCode == 0)
 			{
+				if(!Utils.isKitkatOrHigher())
+				{
+					return true;
+				}
+				
 				Field field = null;
 				try
 				{
