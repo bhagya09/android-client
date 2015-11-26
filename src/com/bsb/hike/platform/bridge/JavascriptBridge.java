@@ -5,7 +5,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.lang.ref.WeakReference;
-import java.net.URISyntaxException;
+import java.net.HttpURLConnection;
 import java.net.URLEncoder;
 
 import org.json.JSONException;
@@ -21,7 +21,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
-import android.provider.Settings;
 import android.text.Html;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -47,14 +46,17 @@ import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
+import com.bsb.hike.modules.httpmgr.request.FileRequestPersistent;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
+import com.bsb.hike.platform.CocosGamingActivity;
 import com.bsb.hike.platform.CustomWebView;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.IFileUploadListener;
+import com.bsb.hike.platform.NativeBridge;
 import com.bsb.hike.platform.PlatformHelper;
+import com.bsb.hike.platform.PlatformUIDFetch;
 import com.bsb.hike.platform.PlatformUtils;
-import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.platform.content.PlatformContentConstants;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.ui.ComposeChatActivity;
@@ -94,6 +96,8 @@ public abstract class JavascriptBridge
 	public static final int PICK_CONTACT_AND_SEND_REQUEST = 2;
 	
 	protected static final int CLOSE_WEB_VIEW = 3;
+
+	boolean sendIntentData = false;
 	
 	public JavascriptBridge(Activity activity, CustomWebView mWebView)
 	{
@@ -664,12 +668,11 @@ public abstract class JavascriptBridge
 			@Override
 			public void run()
 			{
-				if(!mWebView.isWebViewDestroyed())
+				if (!mWebView.isWebViewDestroyed())
 				{
-					Logger.d(tag,"Inside call back to js with id "+ id );
+					Logger.d(tag, "Inside call back to js with id " + id);
 					mWebView.loadUrl("javascript:callbackFromNative" + "('" + id + "','" + getEncodedDataForJS(value) + "')");
-				}
-				else
+				} else
 				{
 					Logger.e(tag, "CallBackToJs>>WebView not showing");
 				}
@@ -987,6 +990,12 @@ public abstract class JavascriptBridge
 
 	public void sendMicroappIntentData(String data)
 	{
+		if (sendIntentData)
+		{
+			return;
+		}
+
+		sendIntentData = true;
 		mWebView.loadUrl("javascript:intentData(" + "'" + getEncodedDataForJS(data) + "')");
 	}
 
@@ -1017,6 +1026,10 @@ public abstract class JavascriptBridge
 				failure.put(HikePlatformConstants.STATUS, HikePlatformConstants.FAILURE);
 				failure.put(HikePlatformConstants.ERROR_MESSAGE, httpException.getMessage());
 				failure.put(HikePlatformConstants.STATUS_CODE, httpException.getErrorCode());
+				if(httpException.getErrorCode()== HttpURLConnection.HTTP_UNAUTHORIZED);
+				{
+					PlatformUIDFetch.fetchPlatformUid(HikePlatformConstants.PlatformFetchType.SELF);
+				}
 			}
 			catch (JSONException e)
 			{
@@ -1138,7 +1151,7 @@ public abstract class JavascriptBridge
 	
 	public void sendSharedMessage(String cardObject, String hikeMessage, String sharedData, BotInfo mBotInfo)
 	{
-		PlatformHelper.sendSharedMessage(cardObject, hikeMessage, sharedData, mBotInfo, weakActivity.get(),JavascriptBridge.this.hashCode());
+		PlatformHelper.sendSharedMessage(cardObject, hikeMessage, sharedData, mBotInfo, weakActivity.get(), JavascriptBridge.this.hashCode());
 	}
 
 	/**
@@ -1255,6 +1268,131 @@ public abstract class JavascriptBridge
 
 			HikeDialogFactory.showDialog(mContext, HikeDialogFactory.MICROAPP_DIALOG, nativeDialogListener, title, message, positiveBtn, negativeBtn);
 		}
+	}
+	/**
+	 * Added in Platform Version 9. Call this function to set anon name
+	 * @param name
+	 */
+	@JavascriptInterface
+	public void setAnonName(String name)
+	{
+		if(!TextUtils.isEmpty(name))
+		{
+			PlatformUIDFetch.fetchPlatformUid(HikePlatformConstants.PlatformFetchType.SELF_ANONYMOUS_NAME, name);
+		}
+	}
+	/**
+	 * Added in Platform Version 9. Call this function to get anon name if exists,else will return null string.
+	 * @param id
+	 */
+	@JavascriptInterface
+	public void getAnonName(String id)
+	{
+		String anonName=HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.ANONYMOUS_NAME_SETTING,"");
+		callbackToJS(id, anonName);
+	}
+	
+
+	/**
+	 * Platform Version 9
+	 * This method is used to show a native popup with a WebView rendered within it.
+	 * contentData must have cardObj. Inside cardObj, ld must be present and should be a JSONObject.
+	 * @param contentData
+	 */
+	@JavascriptInterface
+	public void showPopup(final String contentData)
+	{
+		mHandler.post(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				PlatformHelper.showPopup(contentData, weakActivity.get());
+			}
+		});
+	}
+	/**
+	 * Platform Version 9
+	 * Call this method to get the status of app download
+	 * @param id
+	 * @param app The app name
+	 * returns progress
+	 * returns empty string if download not yet started
+	 */
+	@JavascriptInterface
+	public void readPartialDownloadState(String id,String app)
+	{
+		String filePath=PlatformContentConstants.PLATFORM_CONTENT_DIR+app+FileRequestPersistent.STATE_FILE_EXT;
+		String data[]=PlatformUtils.readPartialDownloadState(filePath);
+		if(data==null||data.length<2||TextUtils.isEmpty(data[1]))
+		{
+			callbackToJS(id,"");
+			return;
+		}
+		callbackToJS(id, data[1]);
+	}
+	/**
+	 * Platform Version 9
+	 * Call this method to check if a bot exists
+	 * @param id
+	 * @param msisdn
+	 * Returns true/false string
+	 */
+	@JavascriptInterface
+	public void isBotExist(String id,String msisdn)
+	{
+		BotInfo botinfo=BotUtils.getBotInfoForBotMsisdn(msisdn);
+		if(botinfo!=null)
+			callbackToJS(id,"true");
+		else
+			callbackToJS(id,"false");
+	}
+	
+	/**
+	 * Call this method to provide a callback to the game with the appropriate response.
+	 *
+	 * @param callId
+	 * @param response
+	 */
+	@JavascriptInterface
+	public void nativePlatformCallback(String callId, String response)
+	{
+		NativeBridge nativeBridge = (NativeBridge) CocosGamingActivity.getNativeBridge();
+		if (nativeBridge != null)
+		{
+			nativeBridge.platformCallback(callId, response);
+		}
+
+	}
+	/**
+	 * Platform Version 9
+	 * Call this method to decrease the unread counter.
+	 * @param msisdn whose unread count has to be modified.
+	 */
+	@JavascriptInterface
+	public void resetUnreadCounter(String msisdn)
+	{
+		BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
+		if (botInfo==null)
+			return;
+		Utils.resetUnreadCounterForConversation(botInfo);
+		botInfo.setUnreadCount(0);
+
+	}
+	/**
+	 * Platform Version 9
+	 * This function is made  to know whether a microapp exists.
+	 * @param id: the id of the function that native will call to call the js .
+	 * @param mapp: the name of the mapp.
+	 */
+	@JavascriptInterface
+	public void isMicroappExist(String id, String mapp)
+	{
+		File file = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + mapp);
+		if (file.exists())
+			callbackToJS(id, "true");
+		else
+			callbackToJS(id, "false");
 	}
 
 }

@@ -177,7 +177,7 @@ public class OfflineUtils
 
 	public static ConvMessage createOfflineInlineConvMessage(String msisdn, String message, String type)
 	{
-		ConvMessage convMessage = Utils.makeConvMessage(msisdn, message, true, State.RECEIVED_READ);
+		ConvMessage convMessage = Utils.makeConvMessage(msisdn, message, true, State.RECEIVED_UNREAD);
 		try
 		{
 			JSONObject metaData = new JSONObject();
@@ -718,7 +718,7 @@ public class OfflineUtils
 			data.put(HikeConstants.TYPE,HikeConstants.GeneralEventMessagesTypes.OFFLINE);
 		    data.put(HikeConstants.SUB_TYPE, HikeConstants.OFFLINE_MESSAGE_REQUEST);
 			data.put(HikeConstants.TIMESTAMP,System.currentTimeMillis() / 1000);
-			OfflineParameters offlineParameters = new Gson().fromJson(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.OFFLINE, "{}"), OfflineParameters.class);
+			OfflineParameters offlineParameters = OfflineController.getInstance().getConfigurationParamerters();
 			data.put(OfflineConstants.TIMEOUT,offlineParameters.getConnectionTimeout());
 			message.put(HikeConstants.TO, targetMsisdn);
 			message.put(HikeConstants.TYPE, HikeConstants.MqttMessageTypes.GENERAL_EVENT_PACKET_ZERO);
@@ -755,8 +755,7 @@ public class OfflineUtils
 		try
 		{
 			msisdn = packet.getString(HikeConstants.FROM);
-			OfflineParameters offlineParameters = new Gson().fromJson(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.OFFLINE, "{}"), OfflineParameters.class);
-			
+			OfflineParameters offlineParameters = OfflineController.getInstance().getConfigurationParamerters();
 			if(TextUtils.isEmpty(msisdn)||isConnectedToSameMsisdn(msisdn)|| isConnectingToSameMsisdn(msisdn) || !offlineParameters.isOfflineEnabled())
 			{
 				return;
@@ -785,7 +784,7 @@ public class OfflineUtils
 
 				HikeNotification.getInstance().showBigTextStyleNotification(intent, hikeNotifMsgStack.getNotificationIcon(), System.currentTimeMillis() / 1000,
 						HikeNotification.OFFLINE_REQUEST_ID, context.getString(R.string.incoming_hike_direct_request), contactFirstName,
-						context.getString(R.string.hike_direct_request), msisdn, null, avatarDrawable, true, 0, actions);
+						context.getString(R.string.hike_direct_request), msisdn, null, avatarDrawable, false, 0, actions);
 			}
 			OfflineController.getInstance().handleOfflineRequest(packet);
 
@@ -964,6 +963,57 @@ public class OfflineUtils
 			return true;
 		}
 		return false;
+
+	}
+	
+	public static void handleUnsupportedPeer(Context context, JSONObject packet)
+	{
+	
+		try
+		{
+			String msisdn = packet.getString(HikeConstants.FROM);
+			
+			if(OfflineUtils.isConnectingToSameMsisdn(msisdn))
+			{
+				JSONObject data  =  packet.optJSONObject(HikeConstants.DATA);
+				if(data!=null)
+				{
+					String errorMessage = data.getString(HikeConstants.HIKE_MESSAGE);
+					OfflineController.getInstance().shutdown(new OfflineException(OfflineException.UNSUPPORTED_PEER,errorMessage));
+				}
+				
+			}
+			
+		}
+		catch (JSONException e)
+		{
+			Logger.e(TAG, "JsonException while handling hike direct peer unsupported packet");
+		}
+		
+	}
+
+	public static void handleUpgradablePeer(Context context, JSONObject packet)
+	{
+		try
+		{
+			String msisdn = packet.getString(HikeConstants.FROM);
+			
+			if(OfflineUtils.isConnectingToSameMsisdn(msisdn))
+			{
+				JSONObject data  =  packet.optJSONObject(HikeConstants.DATA);
+				if(data!=null)
+				{
+					String errorMessage = data.getString(HikeConstants.HIKE_MESSAGE);
+					OfflineController.getInstance().shutdown(new OfflineException(OfflineException.UPGRADABLE_UNSUPPORTED_PEER,errorMessage));
+				}
+				
+			}
+			
+		}
+		catch (JSONException e)
+		{
+			Logger.e(TAG, "JsonException while handling hike direct peer upgrade packet");
+		}
 	}
 }
 	

@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="240dip"
+    android:background="@android:color/darker_gray"
+    android:id="@+id/deleteparent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical" >
+		<TextView android:id="@+id/del_word_title"
+		    android:background="@android:color/black"
+		    android:layout_width="fill_parent"
+		    android:layout_height="wrap_content"
+		    android:textSize="18sp"
+		    android:gravity="center"
+		    android:text="Title"
+		    android:paddingBottom="15dp"
+		    android:paddingTop="15dp"/> 
+		<TextView android:id="@+id/del_word_insert"
+		    android:layout_width="fill_parent"
+		    android:layout_height="wrap_content"
+		    android:background="@android:color/white"
+		    android:textSize="18sp"
+		    android:gravity="center"
+		    android:textColor="@android:color/black"
+		    android:text="@string/kpt_UI_STRING_POPUP_ITEMS_4_7003"
+		    android:paddingBottom="15dp"
+		    android:textColorHighlight="@android:color/white"
+		    android:paddingTop="15dp"
+		    android:clickable="true"/>
+		
+		<View android:layout_gravity="center_horizontal"
+			  android:layout_width="fill_parent" 
+		      android:layout_height="1dp"
+		      android:background="#C0C0C0" />
+		
+		<TextView android:id="@+id/del_word_deleteword"
+		    android:background="@android:color/white"
+		    android:layout_width="fill_parent"
+		    android:layout_height="wrap_content"
+		    android:textSize="18sp"
+		    android:gravity="center"
+		    android:textColor="@android:color/black"
+		    android:text="@string/kpt_UI_STRING_POPUP_ITEMS_5_7003"
+		    android:paddingBottom="15dp"
+		    android:textColorHighlight="@android:color/white"
+		    android:paddingTop="15dp"
+		    android:clickable="true"/>   
+		    
+		<View android:layout_gravity="center_horizontal"
+			  android:layout_width="fill_parent" 
+		      android:layout_height="1dp"
+		      android:background="#C0C0C0" />
+		
+		<TextView android:id="@+id/word_meaning"
+		    android:background="@android:color/white"
+		    android:layout_width="fill_parent"
+		    android:layout_height="wrap_content"
+		    android:textSize="18sp"
+		    android:gravity="center"
+		    android:textColor="@android:color/black"
+		    android:paddingBottom="15dp"
+		    android:textColorHighlight="@android:color/white"
+		    android:paddingTop="15dp"
+		    android:clickable="true"/>
+		    
+		<Button android:layout_width="wrap_content"
+		    	android:layout_height="wrap_content"
+		    	android:layout_gravity="center"
+		    	android:text="@string/kpt_alert_dialog_cancel"
+		    	android:id="@+id/del_cancel"
+		    	android:clickable="true"/>
+</LinearLayout>

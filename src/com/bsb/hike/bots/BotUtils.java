@@ -1,8 +1,8 @@
 package com.bsb.hike.bots;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.text.TextUtils;
-import android.util.Base64;
 
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.HikeConstants;
@@ -15,6 +15,7 @@ import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
+import com.bsb.hike.models.Conversation.BotConversation;
 import com.bsb.hike.models.Conversation.ConvInfo;
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.modules.contactmgr.ContactManager;
@@ -24,6 +25,7 @@ import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.notifications.HikeNotification;
+import com.bsb.hike.notifications.ToastListener;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.content.PlatformContentConstants;
@@ -36,6 +38,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -68,31 +72,31 @@ public class BotUtils
 	 * adding default bots to bot hashmap. The config is set using {@link com.bsb.hike.bots.MessagingBotConfiguration}, where every bit is set according to the requirement
 	 * https://docs.google.com/spreadsheets/d/1hTrC9GdGRXrpAt9gnFnZACiTz2Th8aUIzVB5hrlD_4Y/edit#gid=0
 	 */
-	public static Map<String, BotInfo> getDefaultHardCodedBotInfoObjects()
+	public static Map<String, BotInfo> getDefaultHardCodedBotInfoObjects(Context context)
 	{
 		Map<String, BotInfo> botsMap = new HashMap<String, BotInfo>();
 
-		BotInfo teamHike = new BotInfo.HikeBotBuilder("+hike+").setConvName("team hike").setConfig(4527).build();
+		BotInfo teamHike = new BotInfo.HikeBotBuilder(HikePlatformConstants.TEAM_HIKE_MSISDN).setConvName(context.getString(R.string.team_hike_bot)).setConfig(4527).build();
 
-		BotInfo emmaBot = new BotInfo.HikeBotBuilder("+hike1+").setConvName("Emma from hike").setConfig(2069487).build();
+		BotInfo emmaBot = new BotInfo.HikeBotBuilder(HikePlatformConstants.EMMA_BOT_MSISDN).setConvName(context.getString(R.string.emma_bot)).setConfig(2069487).build();
 
-		BotInfo gamesOnHike = new BotInfo.HikeBotBuilder("+hike2+").setConvName("Games on hike").setConfig(21487).build();
+		BotInfo gamesOnHike = new BotInfo.HikeBotBuilder(HikePlatformConstants.GAMES_HIKE_MSISDN).setConvName(context.getString(R.string.games_bot)).setConfig(21487).build();
 
-		BotInfo hikeDaily = new BotInfo.HikeBotBuilder("+hike3+").setConvName("hike daily").setConfig(2069487).build();
+		BotInfo hikeDaily = new BotInfo.HikeBotBuilder(HikePlatformConstants.HIKE_DAILY_MSISDN).setConvName(context.getString(R.string.hike_daily_bot)).setConfig(2069487).build();
 
-		BotInfo hikeSupport = new BotInfo.HikeBotBuilder("+hike4+").setConvName("hike support").setConfig(2069487).build();
+		BotInfo hikeSupport = new BotInfo.HikeBotBuilder(HikePlatformConstants.HIKE_SUPPORT_MSISDN).setConvName(context.getString(R.string.hike_support_bot)).setConfig(2069487).build();
 
-		BotInfo natasha = new BotInfo.HikeBotBuilder("+hike5+").setConvName("Natasha").setConfig(2069487).build();
+		BotInfo natasha = new BotInfo.HikeBotBuilder(HikePlatformConstants.NATASHA_MSISDN).setConvName(context.getString(R.string.natasha_bot)).setConfig(2069487).build();
 
-		BotInfo cricketBot = new BotInfo.HikeBotBuilder("+hikecricket+").setConvName("Cricket 2015").setConfig(21487).build();
+		BotInfo cricketBot = new BotInfo.HikeBotBuilder(HikePlatformConstants.CRICKET_HIKE_MSISDN).setConvName(context.getString(R.string.cricket_bot)).setConfig(21487).build();
 
-		botsMap.put("+hike+", teamHike);
-		botsMap.put("+hike1+", emmaBot);
-		botsMap.put("+hike2+", gamesOnHike);
-		botsMap.put("+hike3+", hikeDaily);
-		botsMap.put("+hike4+", hikeSupport);
-		botsMap.put("+hike5+", natasha);
-		botsMap.put("+hikecricket+", cricketBot);
+		botsMap.put(HikePlatformConstants.TEAM_HIKE_MSISDN, teamHike);
+		botsMap.put(HikePlatformConstants.EMMA_BOT_MSISDN, emmaBot);
+		botsMap.put(HikePlatformConstants.GAMES_HIKE_MSISDN, gamesOnHike);
+		botsMap.put(HikePlatformConstants.HIKE_DAILY_MSISDN, hikeDaily);
+		botsMap.put(HikePlatformConstants.HIKE_SUPPORT_MSISDN, hikeSupport);
+		botsMap.put(HikePlatformConstants.NATASHA_MSISDN, natasha);
+		botsMap.put(HikePlatformConstants.CRICKET_HIKE_MSISDN, cricketBot);
 
 		return botsMap;
 	}
@@ -103,19 +107,19 @@ public class BotUtils
 	 */
 	public static void addDefaultBotsToDB(Context context)
 	{
-		defaultBotEntry("+hike+", "team hike", null, HikeBitmapFactory.getBase64ForDrawable(R.drawable.hiketeam, context.getApplicationContext()), 4527, false, context);
+		defaultBotEntry(HikePlatformConstants.TEAM_HIKE_MSISDN, context.getString(R.string.team_hike_bot), null, HikeBitmapFactory.getBase64ForDrawable(R.drawable.hiketeam, context.getApplicationContext()), 4527, false, context);
 
-		defaultBotEntry("+hike1+", "Emma from hike", null, null, 2069487, true, context);
+		defaultBotEntry(HikePlatformConstants.EMMA_BOT_MSISDN, context.getString(R.string.emma_bot), null, null, 2069487, true, context);
 
-		defaultBotEntry("+hike2+", "Games on hike", null, null, 21487, false, context);
+		defaultBotEntry(HikePlatformConstants.GAMES_HIKE_MSISDN, context.getString(R.string.games_bot), null, null, 21487, false, context);
 
-		defaultBotEntry("+hike3+", "hike daily", null, HikeBitmapFactory.getBase64ForDrawable(R.drawable.hikedaily, context.getApplicationContext()), 21487, false, context);
+		defaultBotEntry(HikePlatformConstants.HIKE_DAILY_MSISDN, context.getString(R.string.hike_daily_bot), null, HikeBitmapFactory.getBase64ForDrawable(R.drawable.hikedaily, context.getApplicationContext()), 21487, false, context);
 
-		defaultBotEntry("+hike4+", "hike support", null, null, 2069487, true, context);
+		defaultBotEntry(HikePlatformConstants.HIKE_SUPPORT_MSISDN, context.getString(R.string.hike_support_bot), null, null, 2069487, true, context);
 
-		defaultBotEntry("+hike5+", "Natasha", null, HikeBitmapFactory.getBase64ForDrawable(R.drawable.natasha, context.getApplicationContext()), 2069487, true, context);
+		defaultBotEntry(HikePlatformConstants.NATASHA_MSISDN, context.getString(R.string.natasha_bot), null, HikeBitmapFactory.getBase64ForDrawable(R.drawable.natasha, context.getApplicationContext()), 2069487, true, context);
 
-		defaultBotEntry("+hikecricket+", "Cricket 2015", HikePlatformConstants.CRICKET_CHAT_THEME_ID,
+		defaultBotEntry(HikePlatformConstants.CRICKET_HIKE_MSISDN, context.getString(R.string.cricket_bot), HikePlatformConstants.CRICKET_CHAT_THEME_ID,
 				HikeBitmapFactory.getBase64ForDrawable(R.drawable.cric_icon, context.getApplicationContext()), 21487, false, context);
 	}
 
@@ -310,11 +314,9 @@ public class BotUtils
 		
 		if (!TextUtils.isEmpty(thumbnailString))
 		{
-			ContactManager.getInstance().setIcon(msisdn, Base64.decode(thumbnailString, Base64.DEFAULT), false);
-			HikeMessengerApp.getLruCache().clearIconForMSISDN(msisdn);
-			HikeMessengerApp.getPubSub().publish(HikePubSub.ICON_CHANGED, msisdn);
+			BotUtils.createAndInsertBotDp(msisdn, thumbnailString);
 		}
-
+		
 		String botChatTheme = jsonObj.optString(HikeConstants.BOT_CHAT_THEME);
 		BotInfo botInfo = null;
 		if (type.equals(HikeConstants.MESSAGING_BOT))
@@ -329,7 +331,7 @@ public class BotUtils
 			NonMessagingBotMetadata botMetadata = new NonMessagingBotMetadata(botInfo.getMetadata());
 			if (botMetadata.isMicroAppMode())
 			{
-				PlatformUtils.downloadZipForNonMessagingBot(botInfo, enableBot, botChatTheme, notifType, botMetadata);
+				PlatformUtils.downloadZipForNonMessagingBot(botInfo, enableBot, botChatTheme, notifType, botMetadata, botMetadata.isResumeSupported());
 			}
 			else if (botMetadata.isWebUrlMode())
 			{
@@ -337,7 +339,7 @@ public class BotUtils
 			}
 			else if (botMetadata.isNativeMode())
 			{
-				PlatformUtils.botCreationSuccessHandling(botInfo, enableBot, botChatTheme, notifType);
+				PlatformUtils.downloadZipForNonMessagingBot(botInfo, enableBot, botChatTheme, notifType, botMetadata, botMetadata.isResumeSupported());
 			}
 
 		}
@@ -512,11 +514,11 @@ public class BotUtils
 		HikeMessengerApp.getPubSub().publish(HikePubSub.BOT_CREATED, botInfo);
 		
 		/**
-		 * Notification will be played only if enable bot is true and notifType is Silent/Loud
+		 * Notification will be played only if notifType is Silent/Loud
 		 */
-		if (enableBot && (!HikeConstants.OFF.equals(notifType)))
+		if (!HikeConstants.OFF.equals(notifType))
 		{
-			HikeNotification.getInstance().notifyStringMessage(msisdn, botInfo.getLastMessageText(), notifType.equals(HikeConstants.SILENT), NotificationType.OTHER);
+			ToastListener.getInstance().showBotDownloadNotification(msisdn, botInfo.getLastMessageText(),notifType.equals(HikeConstants.SILENT));
 		}
 	}
 	
@@ -591,7 +593,7 @@ public class BotUtils
 	}
 	
 	/**
-	 * This method makes a HTTP Post Call to fetch avatar of a bot if it is not present in the HikeUserDb
+	 * This method makes a HTTP Post Call to fetch avatar of a bot if it is not present in the HikeUserDb / Local Storage
 	 */
 	public static void fetchBotIcons()
 	{
@@ -605,7 +607,7 @@ public class BotUtils
 				Logger.i(TAG, "Checking for bot icons");
 				for (final BotInfo mBotInfo : HikeMessengerApp.hikeBotInfoMap.values())
 				{
-					if (mBotInfo.isConvPresent() && !ContactManager.getInstance().hasIcon(mBotInfo.getMsisdn()))
+					if (mBotInfo.isConvPresent() && !isBotDpPresent(mBotInfo.getMsisdn()))
 					{
 						Logger.i(TAG, "Making icon request for " + mBotInfo.getMsisdn() + mBotInfo.getConversationName());
 						RequestToken botRequestToken = HttpRequests.getAvatarForBots(mBotInfo.getMsisdn(), new IRequestListener()
@@ -618,9 +620,7 @@ public class BotUtils
 								Logger.i(TAG, "Bot icon request successful for " + mBotInfo.getMsisdn());
 								if (response != null && response.length > 0)
 								{
-									ContactManager.getInstance().setIcon(mBotInfo.getMsisdn(), response, false);
-									HikeMessengerApp.getLruCache().clearIconForMSISDN(mBotInfo.getMsisdn());
-									HikeMessengerApp.getPubSub().publish(HikePubSub.ICON_CHANGED, mBotInfo.getMsisdn());
+									BotUtils.createAndInsertBotDp(mBotInfo.getMsisdn(), response);
 								}
 
 							}
@@ -760,14 +760,111 @@ public class BotUtils
 	/**
 	 * Unblock the bot and add to the conversation list.
 	 * @param botInfo
+	 * @param origin : From where the unblocking has been triggered. Example : Overflow menu, bot discovery etc.
 	 */
-	public static void unblockBotIfBlocked(BotInfo botInfo)
+	public static void unblockBotIfBlocked(BotInfo botInfo, String origin)
 	{
 		if (botInfo.isBlocked())
 		{
 			botInfo.setBlocked(false);
 			HikeMessengerApp.getPubSub().publish(HikePubSub.UNBLOCK_USER, botInfo.getMsisdn());
+			BotConversation.analyticsForBots(botInfo.getMsisdn(), HikePlatformConstants.BOT_UNBLOCK_CHAT, origin, AnalyticsConstants.CLICK_EVENT, null);
 		}
 	}
+	
+	/**
+	 * Utility method for persisting a Bot's DP. Note : This method should be the central place for handling bot dp's in a single place. If DP is persisted without calling this
+	 * method, the results might be catastrophic
+	 */
+	public static void createAndInsertBotDp(String msisdn, byte[] imageData)
+	{
+
+		File botDpPath = new File(getBotThumbnailRootFolder() + msisdn);
+
+		// Save Icon to file
+		try
+		{
+			Utils.saveByteArrayToFile(botDpPath, imageData);
+			HikeMessengerApp.getLruCache().clearIconForMSISDN(msisdn);
+			HikeMessengerApp.getPubSub().publish(HikePubSub.ICON_CHANGED, msisdn);
+
+		}
+
+		catch (IOException e)
+		{
+			Logger.e(TAG, "Unable to save dp for bot with msisdn : " + msisdn + " Error : " + e.toString());
+		}
+
+	}
+	
+	/**
+	 * Utility method for persisting a Bot's DP. Note : This method should be the central place for handling bot dp's in a single place. If DP is persisted without calling this
+	 * method, the results might be catastrophic
+	 */
+	public static void createAndInsertBotDp(String msisdn, String imageData)
+	{
+		File botDpPath = new File(getBotThumbnailRootFolder() + msisdn);
+
+		try
+		{
+			Utils.saveBase64StringToFile(botDpPath, imageData);
+			HikeMessengerApp.getLruCache().clearIconForMSISDN(msisdn);
+			HikeMessengerApp.getPubSub().publish(HikePubSub.ICON_CHANGED, msisdn);
+		}
+		catch (IOException e)
+		{
+			Logger.e(TAG, "Unable to save dp for bot with msisdn : " + msisdn + " Error : " + e.toString());
+		}
+		
+	}	
+	
+	
+	/**
+	 * Returns the root folder path for bot thumbnails <br>
+	 * eg : "/data/data/com.bsb.hike/files/Content/DP/"
+	 * 
+	 * @return
+	 */
+	private static String getBotThumbnailRootFolder()
+	{
+		File file = new File (PlatformContentConstants.PLATFORM_CONTENT_DIR + "DP");
+		if (!file.exists())
+		{
+			file.mkdirs();
+		}
+		
+		return PlatformContentConstants.PLATFORM_CONTENT_DIR + "DP" + File.separator;
+	}
+	
+	public static Bitmap getBotDp(String botMsisdn)
+	{
+		File file = new File (BotUtils.getBotThumbnailRootFolder() + botMsisdn);
+		if (file.exists())
+		{
+			return HikeBitmapFactory.decodeFile(BotUtils.getBotThumbnailRootFolder() + botMsisdn);
+		}
+
+		Logger.v(TAG, "File does not exist for : " + botMsisdn + " Maybe it's not a bot");
+		return null;
+	}
+
+	/**
+	 * Utility method to check whether a bot DP Exists either with the ContactManager or on the Disk.
+	 *
+	 * @param msisdn
+	 * @return
+	 */
+	private static boolean isBotDpPresent(String msisdn)
+	{
+		File botDpFile = new File(getBotThumbnailRootFolder() + msisdn);
+
+		if (!botDpFile.exists())
+		{
+			//Possibly the Bot DP exists in the HikeUserDb
+			return ContactManager.getInstance().hasIcon(msisdn);
+		}
+		return true;
+	}
+	
 
 }

@@ -55,6 +55,80 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.bsb.hike.BuildConfig;
+import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeConstants.FTResult;
+import com.bsb.hike.HikeConstants.ImageQuality;
+import com.bsb.hike.HikeConstants.SMSSyncState;
+import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.HikeMessengerApp.CurrentState;
+import com.bsb.hike.HikePubSub;
+import com.bsb.hike.MqttConstants;
+import com.bsb.hike.R;
+import com.bsb.hike.BitmapModule.BitmapUtils;
+import com.bsb.hike.BitmapModule.HikeBitmapFactory;
+import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.analytics.TrafficsStatsFile;
+import com.bsb.hike.bots.BotInfo;
+import com.bsb.hike.bots.BotUtils;
+import com.bsb.hike.chatHead.StickyCaller;
+import com.bsb.hike.chatthread.ChatThreadActivity;
+import com.bsb.hike.chatthread.ChatThreadUtils;
+import com.bsb.hike.db.HikeConversationsDatabase;
+import com.bsb.hike.dialog.CustomAlertDialog;
+import com.bsb.hike.dialog.HikeDialog;
+import com.bsb.hike.dialog.HikeDialogFactory;
+import com.bsb.hike.dialog.HikeDialogListener;
+import com.bsb.hike.filetransfer.FTAnalyticEvents;
+import com.bsb.hike.http.HikeHttpRequest;
+import com.bsb.hike.localisation.LocalLanguageUtils;
+import com.bsb.hike.models.AccountData;
+import com.bsb.hike.models.AccountInfo;
+import com.bsb.hike.models.ContactInfo;
+import com.bsb.hike.models.ContactInfo.FavoriteType;
+import com.bsb.hike.models.ContactInfoData;
+import com.bsb.hike.models.ContactInfoData.DataType;
+import com.bsb.hike.models.ConvMessage;
+import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
+import com.bsb.hike.models.ConvMessage.State;
+import com.bsb.hike.models.FtueContactsData;
+import com.bsb.hike.models.GroupParticipant;
+import com.bsb.hike.models.HikeFile;
+import com.bsb.hike.models.HikeFile.HikeFileType;
+import com.bsb.hike.models.HikeHandlerUtil;
+import com.bsb.hike.models.Conversation.ConvInfo;
+import com.bsb.hike.models.Conversation.Conversation;
+import com.bsb.hike.models.Conversation.GroupConversation;
+import com.bsb.hike.models.Conversation.OneToNConvInfo;
+import com.bsb.hike.models.Conversation.OneToNConversation;
+import com.bsb.hike.models.utils.JSONSerializable;
+import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.modules.httpmgr.RequestToken;
+import com.bsb.hike.modules.httpmgr.exception.HttpException;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
+import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
+import com.bsb.hike.modules.httpmgr.response.Response;
+import com.bsb.hike.modules.kpt.KptKeyboardManager;
+import com.bsb.hike.notifications.HikeNotification;
+import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.service.ConnectionChangeReceiver;
+import com.bsb.hike.service.HikeMqttManagerNew;
+import com.bsb.hike.tasks.CheckForUpdateTask;
+import com.bsb.hike.tasks.SignupTask;
+import com.bsb.hike.tasks.StatusUpdateTask;
+import com.bsb.hike.timeline.model.StatusMessage;
+import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
+import com.bsb.hike.timeline.view.TimelineActivity;
+import com.bsb.hike.ui.HikePreferences;
+import com.bsb.hike.ui.HomeActivity;
+import com.bsb.hike.ui.PeopleActivity;
+import com.bsb.hike.ui.SignupActivity;
+import com.bsb.hike.ui.WebViewActivity;
+import com.bsb.hike.ui.WelcomeActivity;
+import com.bsb.hike.voip.VoIPUtils;
+import com.google.android.gms.maps.model.LatLng;
+
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.accounts.AuthenticatorDescription;
@@ -113,6 +187,7 @@ import android.os.AsyncTask;
 import android.os.BatteryManager;
 import android.os.Build;
 import android.os.Environment;
+import android.os.Message;
 import android.os.PowerManager;
 import android.os.RemoteException;
 import android.os.StatFs;
@@ -163,6 +238,8 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bsb.hike.BitmapModule.BitmapUtils;
+import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.BuildConfig;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeConstants.FTResult;
@@ -173,8 +250,6 @@ import com.bsb.hike.HikeMessengerApp.CurrentState;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.MqttConstants;
 import com.bsb.hike.R;
-import com.bsb.hike.BitmapModule.BitmapUtils;
-import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.TrafficsStatsFile;
@@ -190,6 +265,7 @@ import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.filetransfer.FTAnalyticEvents;
 import com.bsb.hike.http.HikeHttpRequest;
+import com.bsb.hike.localisation.LocalLanguageUtils;
 import com.bsb.hike.models.AccountData;
 import com.bsb.hike.models.AccountInfo;
 import com.bsb.hike.models.ContactInfo;
@@ -199,16 +275,16 @@ import com.bsb.hike.models.ContactInfoData.DataType;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
 import com.bsb.hike.models.ConvMessage.State;
-import com.bsb.hike.models.FtueContactsData;
-import com.bsb.hike.models.GroupParticipant;
-import com.bsb.hike.models.HikeFile;
-import com.bsb.hike.models.HikeFile.HikeFileType;
-import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.models.Conversation.ConvInfo;
 import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.models.Conversation.GroupConversation;
 import com.bsb.hike.models.Conversation.OneToNConvInfo;
 import com.bsb.hike.models.Conversation.OneToNConversation;
+import com.bsb.hike.models.FtueContactsData;
+import com.bsb.hike.models.GroupParticipant;
+import com.bsb.hike.models.HikeFile;
+import com.bsb.hike.models.HikeFile.HikeFileType;
+import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.models.utils.JSONSerializable;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.RequestToken;
@@ -234,6 +310,7 @@ import com.bsb.hike.ui.WebViewActivity;
 import com.bsb.hike.ui.WelcomeActivity;
 import com.bsb.hike.voip.VoIPUtils;
 import com.google.android.gms.maps.model.LatLng;
+import com.bsb.hike.offline.OfflineUtils;
 
 public class Utils
 {
@@ -751,7 +828,7 @@ public class Utils
 
 		if (settings.getString(HikeMessengerApp.NAME_SETTING, null) == null)
 		{
-			activity.startActivity(new Intent(activity, SignupActivity.class));
+			IntentFactory.reopenSignupActivity(activity);
 			activity.finish();
 			return true;
 		}
@@ -768,7 +845,7 @@ public class Utils
 			}
 			else
 			{
-				activity.startActivity(new Intent(activity, SignupActivity.class));
+				IntentFactory.reopenSignupActivity(activity);
 				activity.finish();
 				return true;
 			}
@@ -982,11 +1059,11 @@ public class Utils
 			JSONObject participant2 = (JSONObject) participantInfoArray.opt(1);
 			String name2 = convInfo.getConvParticipantName(participant2.optString(HikeConstants.MSISDN));
 
-			highlight += " and " + name2;
+			highlight += " " + context.getString(R.string.and)  + " "+ name2;
 		}
 		else if (participantInfoArray.length() > 2)
 		{
-			highlight += " and " + (participantInfoArray.length() - 1) + " others";
+			highlight += " " + context.getString(R.string.and) + " " + (participantInfoArray.length() - 1) + " " + context.getString(R.string.others_smallcase);
 		}
 		return highlight;
 	}
@@ -1005,11 +1082,11 @@ public class Utils
 			JSONObject participant2 = (JSONObject) participantInfoArray.opt(1);
 			String name2 = conversation.getConvParticipantFirstNameAndSurname(participant2.optString(HikeConstants.MSISDN));
 
-			highlight += " and " + name2;
+			highlight += " " + context.getString(R.string.and)  + " "+ name2;
 		}
 		else if (participantInfoArray.length() > 2)
 		{
-			highlight += " and " + (participantInfoArray.length() - 1) + " others";
+			highlight += " " + context.getString(R.string.and) + " " + (participantInfoArray.length() - 1) + " " + context.getString(R.string.others_smallcase);
 		}
 		return highlight;
 	}
@@ -2982,7 +3059,10 @@ public class Utils
 
 		try
 		{
-			data.put(HikeConstants.LOCALE, context.getResources().getConfiguration().locale.getLanguage());
+			data.put(HikeConstants.LOCALE, LocalLanguageUtils.getApplicationLocalLanguageLocale());
+			data.put(HikeConstants.DEVICE_LOCALE, LocalLanguageUtils.getDeviceDefaultLocale());
+			if (!HikeMessengerApp.isSystemKeyboard())
+				data.put(HikeConstants.CUSTOM_KEYBOARD_LOCALE, KptKeyboardManager.getInstance(context).getCurrentLanguageAddonItem().getlocaleName());
 			data.put(HikeConstants.MESSAGE_ID, Long.toString(System.currentTimeMillis() / 1000));
 
 			object.put(HikeConstants.TYPE, HikeConstants.MqttMessageTypes.ACCOUNT_CONFIG);
@@ -3188,7 +3268,10 @@ public class Utils
 				 */
 				data.put(HikeConstants.BULK_LAST_SEEN, false);
 				object.put(HikeConstants.DATA, data);
-
+				
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.IS_HIKE_APP_FOREGROUNDED, true);
+				Logger.d(HikeConstants.UPDATE_TIP_AND_PERS_NOTIF_LOG, "Hike has come to foreground. Calling cancel persistent notif");
+				HikeNotification.getInstance().cancelPersistNotif();
 				HikeMessengerApp.getPubSub().publish(HikePubSub.APP_FOREGROUNDED, null);
 				if (toLog)
 				{
@@ -3204,6 +3287,9 @@ public class Utils
 				{
 					JSONObject sessionDataObject = HAManager.getInstance().recordAndReturnSessionEnd();
 					sendSessionMQTTPacket(context, HikeConstants.BACKGROUND, sessionDataObject);
+					HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.IS_HIKE_APP_FOREGROUNDED, false);
+					Logger.d(HikeConstants.UPDATE_TIP_AND_PERS_NOTIF_LOG, "Hike has moved to background. Calling show persistent notif");
+					HikeNotification.getInstance().checkAndShowUpdateNotif();
 				}
 			}
 			else
@@ -3925,6 +4011,7 @@ public class Utils
 		if (conv instanceof BotInfo && ((BotInfo) conv).isNonMessagingBot())
 		{
 			shortcutIntent = IntentFactory.getNonMessagingBotIntent(conv.getMsisdn(), activity);
+			shortcutIntent.putExtra(HikePlatformConstants.IS_SHORTCUT, true);
 		}
 
 		else
@@ -3964,7 +4051,7 @@ public class Utils
 			return;
 		}
 
-		if (!isUserOnline(context))
+		if (!isUserOnline(context) && !OfflineUtils.isConnectedToSameMsisdn(mContactNumber))
 		{
 			Toast.makeText(context, context.getString(R.string.voip_offline_error), Toast.LENGTH_SHORT).show();
 			return;
@@ -5452,12 +5539,12 @@ public class Utils
 				else if (givenCalendar.get(Calendar.YEAR) == currentCalendar.get(Calendar.YEAR))
 				{
 					// Show date in relative format. eg. 2 hours ago, yesterday, 2 days ago etc.
-					return DateUtils.getRelativeTimeSpanString(givenTimeStampInMillis, currentTime, DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_ABBREV_MONTH).toString();
+					return HikeDateUtils.getRelativeTimeSpanString(context, givenTimeStampInMillis, currentTime, DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_ABBREV_MONTH).toString();
 				}
 				else
 				{
 					// Shows date in numeric format
-					return DateUtils.getRelativeTimeSpanString(givenTimeStampInMillis, currentTime, DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_NUMERIC_DATE).toString();
+					return HikeDateUtils.getRelativeTimeSpanString(context, givenTimeStampInMillis, currentTime, DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_NUMERIC_DATE).toString();
 				}
 			}
 			else
@@ -5472,14 +5559,14 @@ public class Utils
 					else
 					{
 						// Show date in MMM dd format eg. Apr 21, May 13 etc.
-						return DateUtils.getRelativeTimeSpanString(givenTimeStampInMillis, currentTime, DateUtils.YEAR_IN_MILLIS,
+						return HikeDateUtils.getRelativeTimeSpanString(context, givenTimeStampInMillis, currentTime, DateUtils.YEAR_IN_MILLIS,
 								DateUtils.FORMAT_ABBREV_MONTH | DateUtils.FORMAT_SHOW_DATE).toString();
 					}
 				}
 				else
 				{
 					// Show date in numeric format
-					return DateUtils.getRelativeTimeSpanString(givenTimeStampInMillis, currentTime, DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_NUMERIC_DATE).toString();
+					return HikeDateUtils.getRelativeTimeSpanString(context, givenTimeStampInMillis, currentTime, DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_NUMERIC_DATE).toString();
 				}
 			}
 		}
@@ -5845,7 +5932,7 @@ public class Utils
 		}
 	}
 
-	private static void sendDeviceDetails(Context context, boolean upgrade, boolean sendBot)
+	public static void sendDeviceDetails(Context context, boolean upgrade, boolean sendBot)
 	{
 		recordDeviceDetails(context);
 		requestAccountInfo(upgrade, sendBot);
@@ -5872,12 +5959,19 @@ public class Utils
 	/**
 	 * Get time in millisecond from given time-stamp represented in format HH:mm:ss.SSS
 	 * 
-	 * @param Calendar
-	 *            calendar instance to be checked
+	 * @param calendar
+	 *            Instance of calendar to be checked
 	 * @param timeStamp
-	 *            time-stamp to be parsed
-	 * @param default_ii
-	 *            time elements like hour, minute, second and millisecond
+	 *            Parseable time-stamp as string value
+	 * @param default_hh
+	 *            Default hour element as integer value
+	 * @param default_mm
+	 *            Default minute element as integer value
+	 * @param default_ss
+	 *            Default second element as integer value
+	 * @param default_SSS
+	 *            Default element milliSecond element as integer value
+	 * @return System-level clock value represented by long value.
 	 * @author Ved Prakash Singh [ved@hike.in]
 	 */
 	public static long getTimeInMillis(Calendar calendar, String timeStamp, int default_hh, int default_mm, int default_ss, int default_SSS)
@@ -6073,14 +6167,19 @@ public class Utils
 
 		if (isIceCreamOrHigher() && context != null)
 		{
-			Cursor c = context.getContentResolver().query(ContactsContract.Profile.CONTENT_URI, null, null, null, null);
-			if (c != null)
+			try
 			{
-				if (c.moveToFirst())
-				{
-					name = c.getString(c.getColumnIndex(ContactsContract.Profile.DISPLAY_NAME));
+				Cursor c = context.getContentResolver().query(ContactsContract.Profile.CONTENT_URI, null, null, null, null);
+				if (c != null) {
+					if (c.moveToFirst()) {
+						name = c.getString(c.getColumnIndex(ContactsContract.Profile.DISPLAY_NAME));
+					}
+					c.close();
 				}
-				c.close();
+			}
+			catch (SecurityException e)
+			{
+				Logger.e("Utils", "Security exception while trying to getOwnerName");
 			}
 		}
 
@@ -7048,8 +7147,6 @@ public class Utils
 	/**
 	 * Determine whether supplied module is being tested.
 	 *
-	 * @param String
-	 *            module name to be simulated
 	 * @param moduleName
 	 *            String name of the module being analysed
 	 * @return True, if test mode is enabled for given module. False, otherwise.
@@ -7143,12 +7240,6 @@ public class Utils
 	}
 
 	/**
-	 * Determine whether a table exists.
-	 * 
-	 * @param SQLiteDatabase
-	 *            instance of databse containing such table
-	 * @param String
-	 *            table name to be checked
 	 * Determine whether databse recognized by given instance contains given table or not.
 	 * 
 	 * @param db
@@ -7375,6 +7466,17 @@ public class Utils
 
 		return url;
 	}
+
+	public static String getCommaSeperatedStringFromArray(String[] array)
+	{
+		StringBuilder sb = new StringBuilder();
+		sb.append(array[0]);
+		for (int i = 1; i < array.length; i++) {
+			sb.append(", ");
+			sb.append(array[i]);
+		}
+		return sb.toString();
+	}
 	
 	public static String getNewImagePostFilePath()
 	{
@@ -7408,8 +7510,15 @@ public class Utils
 	/**
 	 * Determine whether a time-stamp represents correct clock time of a day.
 	 * 
-	 * @param HH_mm_ss_SSS
-	 *            time elements of the day
+	 * @param HH
+	 *            Hour element of the day
+	 * @param mm
+	 *            Minute element of the day
+	 * @param ss
+	 *            Second element of the day
+	 * @param SSS
+	 *            MilliSecond element of the day
+	 * @return True, if given combination represents valid time of the day in 24 hours format. False, otherwise.
 	 * @author Ved Prakash Singh [ved@hike.in]
 	 */
 	public static boolean isValidTimeStampOfTheDay(int HH, int mm, int ss, int SSS)
@@ -7441,11 +7550,11 @@ public class Utils
 	 * Get differential time logging upto nano second considering maximum significant time unit reference as second.
 	 * 
 	 * @param start
-	 *            start time of operation as long value
+	 *            Start time of operation as long value
 	 * @param end
-	 *            end time of operation as long value
+	 *            End time of operation as long value
 	 * @param precisionOfTimeUnitInSecond
-	 *            count of precision points in time unit per second for start and end parameters
+	 *            Count of precision points in time unit per second for start and end parameters
 	 * @return Human-readable string of time logging.
 	 * @author Ved Prakash Singh [ved@hike.in]
 	 */
@@ -7518,7 +7627,76 @@ public class Utils
 
 		return timeLogBuilder.toString();
 	}
-	
+
+	/**
+	 * Call this method to find the total size of a folder
+	 * @param folder
+	 * @return size of the folder in bytes
+	 */
+	public static long folderSize(File folder)
+	{
+		long length = 0;
+		for (File file : folder.listFiles()) {
+			if (file.isFile())
+				length += file.length();
+			else
+				length += folderSize(file);
+		}
+		return length;
+	}
+
+	/**
+	 * Call this method to get the total available internal storage space
+	 * @return
+	 */
+	public static double getFreeInternalStorage()
+	{
+		double internalSpace = 0.0;
+
+		StatFs stat = new StatFs(Environment.getDataDirectory().getPath());
+		if (isJELLY_BEAN_MR2OrHigher())
+		{
+			internalSpace = (double) stat.getBlockSizeLong() * (double) stat.getAvailableBlocksLong();
+		}
+		else
+		{
+			internalSpace = (double) stat.getBlockSize() * (double) stat.getAvailableBlocks();
+		}
+		double megsAvailable = internalSpace / (1024 * 1024);
+
+		return megsAvailable;
+	}
+
+	/**
+	 * Utility method to rearrange chat and update the unread counter if needed
+	 *
+	 * @param destination
+	 *            : Msisdn
+	 * @param rearrangeChat
+	 *            : Whether to shift the chat up or not
+	 * @param updateUnreadCount
+	 *            : Whether to update the unread counter or not
+	 */
+	public static void rearrangeChat(String destination, boolean rearrangeChat, boolean updateUnreadCount)
+	{
+		if (updateUnreadCount)
+		{
+			HikeConversationsDatabase convDb = HikeConversationsDatabase.getInstance();
+			convDb.incrementUnreadCounter(destination);
+			int unreadCount = convDb.getConvUnreadCount(destination);
+			Message ms = Message.obtain();
+			ms.arg1 = unreadCount;
+			ms.obj = destination;
+			HikeMessengerApp.getPubSub().publish(HikePubSub.CONV_UNREAD_COUNT_MODIFIED, ms);
+		}
+
+		if (rearrangeChat)
+		{
+			Pair<String, Long> pair = new Pair<String, Long>(destination, System.currentTimeMillis() / 1000);
+			HikeMessengerApp.getPubSub().publish(HikePubSub.CONVERSATION_TS_UPDATED, pair);
+		}
+	}
+
 	public static boolean isLocationEnabled(Context context)
 	{
 		LocationManager locManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
@@ -7564,4 +7742,30 @@ public class Utils
 		return isAndroidDataStorageDir;
 	}
 
+	public static void setEditTextCursorDrawableColor(EditText editText, int drawables)
+	{
+		// http://stackoverflow.com/questions/11554078/set-textcursordrawable-programatically
+		try
+		{
+			Field fCursorDrawableRes = TextView.class.getDeclaredField("mCursorDrawableRes");
+			fCursorDrawableRes.setAccessible(true);
+			fCursorDrawableRes.set(editText, drawables);
+		}
+		catch (Throwable ignored)
+		{
+
+		}
+	}
+
+	public static Locale getCurrentLanguageLocale()
+	{
+		if (LocalLanguageUtils.isLocalLanguageSelected())
+		{
+			return new Locale(LocalLanguageUtils.getApplicationLocalLanguageLocale());
+		}
+		else
+		{
+			return Locale.getDefault();
+		}
+	}
 }

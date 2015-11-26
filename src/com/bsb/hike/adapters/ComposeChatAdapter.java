@@ -1,12 +1,5 @@
 package com.bsb.hike.adapters;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
 import android.content.Context;
 import android.preference.PreferenceManager;
 import android.support.v7.widget.LinearLayoutManager;
@@ -33,15 +26,11 @@ import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.smartImageLoader.IconLoader;
 import com.bsb.hike.tasks.FetchFriendsTask;
 import com.bsb.hike.timeline.model.StatusMessage;
-import com.bsb.hike.utils.EmoticonConstants;
-import com.bsb.hike.utils.HikeSharedPreferenceUtil;
-import com.bsb.hike.utils.NUXManager;
-import com.bsb.hike.utils.OneToNConversationUtils;
-import com.bsb.hike.utils.SmileyParser;
-import com.bsb.hike.utils.Utils;
+import com.bsb.hike.utils.*;
 import com.bsb.hike.utils.Utils.WhichScreen;
 import com.bsb.hike.view.PinnedSectionListView.PinnedSectionListAdapter;
-import com.hike.transporter.utils.Logger;
+
+import java.util.*;
 
 public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionListAdapter
 {
@@ -277,10 +266,11 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 				if (lastStatusMessage != null)
 				{
 					holder.status.setTextColor(context.getResources().getColor(R.color.list_item_subtext));
+					SmileyParser smileyParser = SmileyParser.getInstance();
 					switch (lastStatusMessage.getStatusMessageType())
 					{
 					case TEXT:
-						holder.status.setText(lastStatusMessage.getText());
+						holder.status.setText(smileyParser.addSmileySpans(lastStatusMessage.getText(), true));
 						if (lastStatusMessage.hasMood())
 						{
 							holder.statusMood.setVisibility(View.VISIBLE);
@@ -299,7 +289,6 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 
 					case IMAGE:
 					case TEXT_IMAGE:
-						SmileyParser smileyParser = SmileyParser.getInstance();
 						if(TextUtils.isEmpty(lastStatusMessage.getText()))
 						{
 							holder.status.setText(lastStatusMessage.getMsisdn());
@@ -329,12 +318,7 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 					holder.status.setText(contactInfo.getMsisdn());
 					holder.statusMood.setVisibility(View.GONE);
 				}
-				if (lastSeenPref && contactInfo.getOffline() == 0 && !showCheckbox)
-				{
-					holder.onlineIndicator.setVisibility(View.VISIBLE);
-					holder.onlineIndicator.setImageResource(R.drawable.ic_online_green_dot);
-				}
-				else
+				if(holder.onlineIndicator != null)
 				{
 					holder.onlineIndicator.setVisibility(View.GONE);
 				}
@@ -528,8 +512,9 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 			friendsListFetchedCallback.listFetched();
 		}
 
-		boolean shouldContinue = makeSetupForCompleteList(filtered);
-		
+		//Fix AND-3408
+		boolean shouldContinue = makeSetupForCompleteList(filtered, firstFetch);
+
 		if (!shouldContinue)
 		{
 			return;
@@ -931,7 +916,7 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 		{
 			return;
 		}
-		
+
 		if (filteredmicroAppShowcaseList != null)
 		{
 			filteredmicroAppShowcaseList.clear();

@@ -182,4 +182,21 @@ public class ProductJavaScriptBridge extends JavascriptBridge
 		}
 
 	}
+	
+	public void anonNameSetStatus(final String string)
+	{
+		if (mHandler == null)
+		{
+			return;
+		}
+		mHandler.post(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				mWebView.loadUrl("javascript:anonymousName" + "('" + string + "')");
+			}
+		});
+		
+	}
 }

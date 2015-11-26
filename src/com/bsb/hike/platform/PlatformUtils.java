@@ -1,18 +1,9 @@
 package com.bsb.hike.platform;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
-import android.util.Pair;
-
-import com.bsb.hike.bots.NonMessagingBotMetadata;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -26,60 +17,53 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.Activity;
+import android.app.ActivityManager;
+import android.app.ActivityManager.RunningAppProcessInfo;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
-import android.preference.PreferenceManager;
 import android.text.TextUtils;
+import android.util.Pair;
 import android.webkit.MimeTypeMap;
 import android.widget.Toast;
 
-import com.bsb.hike.HikeConstants;
-import com.bsb.hike.HikeMessengerApp;
-import com.bsb.hike.HikePubSub;
-import com.bsb.hike.R;
+import com.bsb.hike.*;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
+import com.bsb.hike.bots.NonMessagingBotMetadata;
 import com.bsb.hike.chatHead.ChatHeadUtils;
-import com.bsb.hike.chatHead.StickyCaller;
+import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.db.HikeConversationsDatabase;
-import com.bsb.hike.models.ContactInfo;
-import com.bsb.hike.models.ConvMessage;
-import com.bsb.hike.models.HikeHandlerUtil;
-import com.bsb.hike.models.MessageEvent;
-import com.bsb.hike.models.StickerCategory;
+import com.bsb.hike.localisation.LocalLanguageUtils;
+import com.bsb.hike.models.*;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.Header;
+import com.bsb.hike.modules.httpmgr.RequestToken;
+import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpHeaderConstants;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
+import com.bsb.hike.modules.httpmgr.request.FileRequestPersistent;
+import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
+import com.bsb.hike.modules.httpmgr.response.Response;
+import com.bsb.hike.modules.kpt.KptKeyboardManager;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadSource;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadType;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerPalleteImageDownloadTask;
-import com.bsb.hike.platform.content.PlatformContent;
-import com.bsb.hike.platform.content.PlatformContentConstants;
-import com.bsb.hike.platform.content.PlatformContentListener;
-import com.bsb.hike.platform.content.PlatformContentModel;
-import com.bsb.hike.platform.content.PlatformContentRequest;
-import com.bsb.hike.platform.content.PlatformZipDownloader;
+import com.bsb.hike.platform.content.*;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.productpopup.ProductPopupsConstants.HIKESCREEN;
+import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.timeline.view.StatusUpdate;
 import com.bsb.hike.ui.CreateNewGroupOrBroadcastActivity;
 import com.bsb.hike.ui.HikeListActivity;
 import com.bsb.hike.ui.HomeActivity;
 import com.bsb.hike.ui.TellAFriend;
-import com.bsb.hike.utils.AccountUtils;
-import com.bsb.hike.utils.HikeAnalyticsEvent;
-import com.bsb.hike.utils.HikeSharedPreferenceUtil;
-import com.bsb.hike.utils.IntentFactory;
-import com.bsb.hike.utils.Logger;
-import com.bsb.hike.utils.StickerManager;
-import com.bsb.hike.utils.Utils;
+import com.bsb.hike.utils.*;
 
 /**
  * @author piyush
@@ -235,7 +219,14 @@ public class PlatformUtils
 			}
 			if (activityName.equals(HIKESCREEN.COMPOSE_CHAT.toString()))
 			{
-				context.startActivity(IntentFactory.getComposeChatIntent(context));
+				if (mmObject.optBoolean(AnalyticsConstants.BOT_DISCOVERY, false))
+				{
+					context.startActivity(IntentFactory.getComposeChatIntentWithBotDiscovery(context));
+				}
+				else
+				{
+					context.startActivity(IntentFactory.getComposeChatIntent(context));
+				}
 			}
 			if (activityName.equals(HIKESCREEN.INVITE_SMS.toString()))
 			{
@@ -335,11 +326,50 @@ public class PlatformUtils
 			}
 			if (activityName.equals(HIKESCREEN.GAME_ACTIVITY.toString()))
 			{
-				IntentFactory.openIntentForGameActivity(context);
+				String extraData;
+				String msisdn = mmObject.optString(HikeConstants.MSISDN);
+				extraData=mmObject.optString(HikeConstants.DATA);
+				Intent i=IntentFactory.getNonMessagingBotIntent(msisdn,context,extraData);
+				if (context != null)
+				{
+					if (!(getLastGame().equals(msisdn)))
+					{
+						killProcess(context, HikePlatformConstants.GAME_PROCESS);
+						Logger.d(TAG, "process killed");
+					}
+					HikeContentDatabase.getInstance().putInContentCache(HikePlatformConstants.LAST_GAME,
+							BotUtils.getBotInfoForBotMsisdn(HikePlatformConstants.GAME_CHANNEL).getNamespace(), msisdn);
+					context.startActivity(i);
+				}
+			}
+			if (activityName.equals(HIKESCREEN.OPEN_MICROAPP.toString()))
+			{
+				Intent intent = IntentFactory.getNonMessagingBotIntent(mmObject.getString(HikeConstants.MSISDN), context);
+				intent.putExtra(HikePlatformConstants.EXTRA_DATA, mmObject.optString(HikePlatformConstants.EXTRA_DATA));
+				context.startActivity(intent);
+			}
+			if (activityName.equals(HIKESCREEN.CHAT_THREAD.toString()))
+			{
+				String msisdn = mmObject.optString("msisdn");
+				if (TextUtils.isEmpty(msisdn))
+				{
+					Logger.e(TAG, "Msisdn is missing in the packet");
+					return;
+				}
+				Intent in = IntentFactory.getIntentForAnyChatThread(context, msisdn, mmObject.optBoolean("isBot"));
+				if (in != null)
+				{
+					context.startActivity(in);
+				}
+				else
+				{
+					Toast.makeText(context, context.getString(R.string.app_not_enabled),Toast.LENGTH_SHORT).show();
+				}
 			}
 		}
 		catch (JSONException e)
 		{
+			Logger.e(TAG, "JSONException in openActivity : "+e.getMessage());
 			e.printStackTrace();
 		}
 		catch (ActivityNotFoundException e)
@@ -355,7 +385,7 @@ public class PlatformUtils
 	 * @param botInfo
 	 * @param enableBot
 	 */
-	public static void downloadZipForNonMessagingBot(final BotInfo botInfo, final boolean enableBot, final String botChatTheme, final String notifType, NonMessagingBotMetadata botMetadata)
+	public static void downloadZipForNonMessagingBot(final BotInfo botInfo, final boolean enableBot, final String botChatTheme, final String notifType, NonMessagingBotMetadata botMetadata, boolean resumeSupport)
 	{
 		PlatformContentRequest rqst = PlatformContentRequest.make(
 				PlatformContentModel.make(botInfo.getMetadata()), new PlatformContentListener<PlatformContentModel>()
@@ -393,8 +423,8 @@ public class PlatformUtils
 								if (zipFileSize > 0)
 								{
 									json.put(AnalyticsConstants.FILE_SIZE, String.valueOf(zipFileSize));
-									json.put(HikePlatformConstants.NETWORK_TYPE, Integer.toString(Utils.getNetworkType(HikeMessengerApp.getInstance().getApplicationContext())));
 								}
+								json.put(AnalyticsConstants.INTERNAL_STORAGE_SPACE, String.valueOf(Utils.getFreeInternalStorage()) + " MB");
 								createBotAnalytics(HikePlatformConstants.BOT_CREATION_FAILED, botInfo, json);
 								createBotMqttAnalytics(HikePlatformConstants.BOT_CREATION_FAILED_MQTT, botInfo, json);
 							}
@@ -413,13 +443,13 @@ public class PlatformUtils
 					}
 				});
 
-		downloadAndUnzip(rqst, false,botMetadata.shouldReplace(), botMetadata.getCallbackId());
+		downloadAndUnzip(rqst, false,botMetadata.shouldReplace(), botMetadata.getCallbackId(),resumeSupport);
 
 	}
 
 	public static void botCreationSuccessHandling(BotInfo botInfo, boolean enableBot, String botChatTheme, String notifType)
 	{
-		enableBot(botInfo, enableBot);
+		enableBot(botInfo, enableBot,true);
 		BotUtils.updateBotParamsInDb(botChatTheme, botInfo, enableBot, notifType);
 		createBotAnalytics(HikePlatformConstants.BOT_CREATED, botInfo);
 		createBotMqttAnalytics(HikePlatformConstants.BOT_CREATED_MQTT, botInfo);
@@ -481,11 +511,12 @@ public class PlatformUtils
 		}
 	}
 
-	public static void enableBot(BotInfo botInfo, boolean enableBot)
+	public static void enableBot(BotInfo botInfo, boolean enableBot,boolean increaseUnread)
 	{
 		if (enableBot && botInfo.isNonMessagingBot())
 		{
 			HikeConversationsDatabase.getInstance().addNonMessagingBotconversation(botInfo);
+			Utils.rearrangeChat(botInfo.getMsisdn(),true,increaseUnread);
 		}
 	}
 
@@ -540,18 +571,19 @@ public class PlatformUtils
 						}
 						else
 						{
-							if (fileLength > 0)
+							try
 							{
-								try
+								if (fileLength > 0)
 								{
 									jsonObject.put(AnalyticsConstants.FILE_SIZE, String.valueOf(fileLength));
-									jsonObject.put(HikePlatformConstants.NETWORK_TYPE, Integer.toString(Utils.getNetworkType(HikeMessengerApp.getInstance().getApplicationContext())));
 								}
-								catch (JSONException e)
-								{
-									Logger.e(TAG, "JSONException " +e.getMessage());
-								}
+								jsonObject.put(AnalyticsConstants.INTERNAL_STORAGE_SPACE, String.valueOf(Utils.getFreeInternalStorage()) + " MB");
 							}
+							catch (JSONException e)
+							{
+								Logger.e(TAG, "JSONException " +e.getMessage());
+							}
+
 							microappDownloadAnalytics(HikePlatformConstants.MICROAPP_DOWNLOAD_FAILED, platformContentModel, jsonObject);
 							Logger.wtf(TAG, "microapp download packet failed.Because it is" + event.toString());
 						}
@@ -565,7 +597,9 @@ public class PlatformUtils
 				});
 				boolean doReplace = downloadData.optBoolean(HikePlatformConstants.REPLACE_MICROAPP_VERSION);
 				String callbackId = downloadData.optString(HikePlatformConstants.CALLBACK_ID);
-				downloadAndUnzip(rqst, false,doReplace, callbackId);
+				boolean resumeSupported=downloadData.optBoolean(HikePlatformConstants.RESUME_SUPPORTED);
+				String assoc_cbot=downloadData.optString(HikePlatformConstants.ASSOCIATE_CBOT,"");
+				downloadAndUnzip(rqst, false,doReplace, callbackId,resumeSupported,assoc_cbot);
 
 	}
 
@@ -603,10 +637,14 @@ public class PlatformUtils
 		downloadAndUnzip(request, isTemplatingEnabled, false);
 	}
 
-	public static void downloadAndUnzip(PlatformContentRequest request, boolean isTemplatingEnabled, boolean doReplace, String callbackId)
+	public static void downloadAndUnzip(PlatformContentRequest request, boolean isTemplatingEnabled, boolean doReplace, String callbackId, boolean resumeSupported)
 	{
-
-		PlatformZipDownloader downloader =  new PlatformZipDownloader(request, isTemplatingEnabled, doReplace, callbackId);
+		downloadAndUnzip(request, isTemplatingEnabled, doReplace,callbackId,resumeSupported,"");
+	}
+	
+	public static void downloadAndUnzip(PlatformContentRequest request, boolean isTemplatingEnabled, boolean doReplace, String callbackId, boolean resumeSupported,String assocCbot)
+	{
+		PlatformZipDownloader downloader =  new PlatformZipDownloader(request, isTemplatingEnabled, doReplace, callbackId, resumeSupported,assocCbot);
 		if (!downloader.isMicroAppExist() || doReplace)
 		{
 			downloader.downloadAndUnzip();
@@ -615,6 +653,11 @@ public class PlatformUtils
 		{
 			request.getListener().onEventOccured(request.getContentData()!=null ? request.getContentData().getUniqueId() : 0,PlatformContent.EventCode.ALREADY_DOWNLOADED);
 		}
+	}
+
+	public static void downloadAndUnzip(PlatformContentRequest request, boolean isTemplatingEnabled, boolean doReplace, String callbackId)
+	{
+		downloadAndUnzip(request, isTemplatingEnabled, doReplace, callbackId, false);
 	}
 
 	/**
@@ -725,6 +768,17 @@ public class PlatformUtils
 		try
 		{
 			post.setHeader("Content-Type", "multipart/form-data; boundary=" + BOUNDARY);
+
+			HikeSharedPreferenceUtil mpref = HikeSharedPreferenceUtil.getInstance();
+			String platformUID = mpref.getData(HikeMessengerApp.PLATFORM_UID_SETTING, null);
+			String platformToken = mpref.getData(HikeMessengerApp.PLATFORM_TOKEN_SETTING, null);
+			if (!TextUtils.isEmpty(platformToken) && !TextUtils.isEmpty(platformUID))
+			{
+				post.addHeader(HttpHeaderConstants.COOKIE_HEADER_NAME,
+						HikePlatformConstants.PLATFORM_TOKEN + "=" + platformToken + "; " +
+								HikePlatformConstants.PLATFORM_USER_ID + "=" + platformUID);
+			}
+
 			post.setEntity(new ByteArrayEntity(fileBytes));
 			HttpResponse response = client.execute(post);
 			Logger.d("FileUpload", response.toString());
@@ -750,6 +804,7 @@ public class PlatformUtils
 		}
 		return res;
 	}
+
 	/*
 	 * gets the boundary message for the file path
 	 */
@@ -1030,15 +1085,15 @@ public class PlatformUtils
 			Toast.makeText(context, context.getString(R.string.sticker_share_popup_activate_toast), Toast.LENGTH_LONG).show();
 			if (ChatHeadUtils.checkDeviceFunctionality())
 			{
-				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.CHAT_HEAD_SERVICE, true);
-				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.CHAT_HEAD_USR_CONTROL, true);
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.ENABLE, true);
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.USER_CONTROL, true);
 				JSONArray packagesJSONArray;
 				try
 				{
 					packagesJSONArray = new JSONArray(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.PACKAGE_LIST, null));
 					if (packagesJSONArray != null)
 					{
-						ChatHeadUtils.setAllApps(packagesJSONArray, true);
+						ChatHeadUtils.setAllApps(packagesJSONArray, true, false);
 					}
 				}
 				catch (JSONException e)
@@ -1266,5 +1321,162 @@ public class PlatformUtils
 		}
 		return json.toString();
 	}
+	
+	/**
+	 * Returns a String array, which contains the following values :<br>
+	 * [ <total-downloaded-bytes> , <progress> , <original downloaded file path>, <url from which it was downloaded> ]
+	 * 
+	 * @param filePath
+	 * @return
+	 */
+	public static String[] readPartialDownloadState(String filePath)
+	{
+		String[] data = new String[4];
+		int i = 0;
+		BufferedReader reader = null;
+		try
+		{
+			reader = new BufferedReader(new FileReader(filePath));
+			String line;
 
+			while ((line = reader.readLine()) != null)
+			{
+				data[i] = line.split(FileRequestPersistent.FILE_DELIMETER)[1];
+				i++;
+			}
+		}
+		catch (FileNotFoundException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		catch (IOException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		finally
+		{
+			if (reader != null)
+			{
+				Utils.closeStreams(reader);
+			}
+		}
+
+		return data;
+	}
+	
+	public static String getLastGame()
+	{
+		return HikeContentDatabase.getInstance().getFromContentCache(HikePlatformConstants.LAST_GAME,BotUtils.getBotInfoForBotMsisdn(HikePlatformConstants.GAME_CHANNEL).getNamespace());
+	}
+	public static void killProcess(Activity context,String process)
+	{
+		if (context != null)
+		{
+			ActivityManager activityManager = (ActivityManager) context.getSystemService(context.ACTIVITY_SERVICE);
+			List<RunningAppProcessInfo> procInfos = activityManager.getRunningAppProcesses();
+			for (int i = 0; i < procInfos.size(); i++)
+			{
+				if (procInfos.get(i).processName.equals(process))
+				{
+					int pid = procInfos.get(i).pid;
+					android.os.Process.killProcess(pid);
+
+				}
+			}
+		}
+	}
+
+	public static Header getDownloadRangeHeader(long startOffset)
+	{
+		return new Header("Range", "bytes=" + startOffset + "-");
+	}
+
+	/**
+	 * Utility method to send a delivery report for Event related messages via the general event framework. The packet structure is as follows : <br>
+	 * {“t” : “ge1”, “d”: { “t” : “dr”, “d”:”155”}, “to” : "9717xxxxx" }
+	 * 
+	 * @param mappedEventId
+	 * @param receiverMsisdn
+	 */
+	public static void sendGeneralEventDeliveryReport(long mappedEventId, String receiverMsisdn)
+	{
+
+		JSONObject jObj = new JSONObject();
+		JSONObject data = new JSONObject();
+		try
+		{
+
+			jObj.put(HikeConstants.TYPE, HikeConstants.MqttMessageTypes.GENERAL_EVENT_QOS_ONE);
+			jObj.put(HikeConstants.TO, receiverMsisdn);
+
+			data.put(HikeConstants.TYPE, HikeConstants.GeneralEventMessagesTypes.GENERAL_EVENT_DR);
+			data.put(HikePlatformConstants.EVENT_DATA, mappedEventId);
+
+			jObj.put(HikeConstants.DATA, data);
+			HikeMqttManagerNew.getInstance().sendMessage(jObj, MqttConstants.MQTT_QOS_ONE);
+		}
+
+		catch (JSONException e)
+		{
+			Logger.e(TAG, "JSON Exception while sending DR packet for normal event" + e.toString());
+		}
+	}
+
+	/**
+	 * Utility method to send microapp download success or failure analytics
+	 * @param success
+	 * @param appName
+	 * @param appVersion
+	 */
+	public static void sendMicroAppServerAnalytics(boolean success, String appName, String appVersion)
+	{
+		try
+		{
+			JSONObject body = new JSONObject();
+			body.put(HikePlatformConstants.APP_NAME, appName);
+			body.put(HikePlatformConstants.APP_VERSION, appVersion);
+
+			RequestToken token = HttpRequests.microAppPostRequest(
+					HttpRequestConstants.getMicroAppLoggingUrl(success), body,
+					new IRequestListener()
+					{
+						@Override
+						public void onRequestFailure(HttpException httpException)
+						{
+
+						}
+
+						@Override
+						public void onRequestSuccess(Response result)
+						{
+
+						}
+
+						@Override
+						public void onRequestProgressUpdate(float progress)
+						{
+
+						}
+					});
+			token.execute();
+		}
+		catch (JSONException e)
+		{
+			Logger.e(TAG, "Exception occured while sending microapp analytics : " + e.toString());
+		}
+
+	}
+
+	public static void addLocaleToInitJSON(JSONObject jsonObject) throws JSONException
+	{
+		jsonObject.put(HikeConstants.LOCALE, LocalLanguageUtils.getApplicationLocalLanguageLocale());
+		jsonObject.put(HikeConstants.DEVICE_LOCALE, LocalLanguageUtils.getDeviceDefaultLocale());
+		if (!HikeMessengerApp.isSystemKeyboard())
+			jsonObject.put(HikeConstants.CUSTOM_KEYBOARD_LOCALE, KptKeyboardManager.getInstance(HikeMessengerApp.getInstance().getApplicationContext())
+					.getCurrentLanguageAddonItem().getlocaleName());
+
+	}
 }

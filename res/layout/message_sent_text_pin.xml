@@ -33,7 +33,6 @@
             android:layout_height="wrap_content"
             android:gravity="left"
             android:maxWidth="265dp"
-            android:text="This is the message(sent)"
             android:textColor="@color/chat_color"
             android:textSize="16sp" />
     </RelativeLayout>
@@ -47,12 +46,13 @@
         android:layout_marginRight="14dp"
         layout="@layout/message_time_status" />
 
-    <include
+    <View
+        android:id="@+id/selected_state_overlay"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:layout_alignBottom="@id/message_container"
         android:layout_below="@id/day_container"
-        layout="@layout/message_overlay" />
+        android:layout_alignWithParentIfMissing="true" />
 
     <ViewStub
         android:id="@+id/message_info_stub"
