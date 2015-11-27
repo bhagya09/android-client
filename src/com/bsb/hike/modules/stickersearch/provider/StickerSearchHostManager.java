@@ -80,7 +80,7 @@ public class StickerSearchHostManager
 
 	private TIME_CODE mMomentCode = StickerSearchUtility.getMomentCode();
 
-	private String mKeyboardlanguageISOCode;
+	private String mKeyboardLanguageISOCode;
 
 	private String mCurrentText;
 
@@ -122,7 +122,7 @@ public class StickerSearchHostManager
 
 		HikeSharedPreferenceUtil stickerDataSharedPref = HikeSharedPreferenceUtil.getInstance(HikeStickerSearchBaseConstants.SHARED_PREF_STICKER_DATA);
 
-		REGEX_SEPARATORS = StickerSearchUtility.getSeparatorsRegex(mKeyboardlanguageISOCode);
+		REGEX_SEPARATORS = StickerSearchUtility.getSeparatorsRegex(mKeyboardLanguageISOCode);
 
 		SEPARATOR_CHARS = (HashSet<Character>) StickerSearchUtility.getSeparatorChars(REGEX_SEPARATORS);
 
@@ -180,9 +180,9 @@ public class StickerSearchHostManager
 	/*
 	 * Call this method just after choosing any contact to chat (while opening chat-thread) to load the history of that contact (either a person or a group)
 	 */
-	public void loadChatProfile(String contactId, boolean isGroupChat, long lastMessageTimestamp, String keyboardlanguageISOCode)
+	public void loadChatProfile(String contactId, boolean isGroupChat, long lastMessageTimestamp, String keyboardLanguageISOCode)
 	{
-		Logger.i(TAG, "loadChatProfile(" + contactId + ", " + isGroupChat + "," + lastMessageTimestamp + ", " + keyboardlanguageISOCode + ")");
+		Logger.i(TAG, "loadChatProfile(" + contactId + ", " + isGroupChat + ", " + lastMessageTimestamp + ", " + keyboardLanguageISOCode + ")");
 
 		synchronized (sHostOperateLock)
 		{
@@ -209,9 +209,9 @@ public class StickerSearchHostManager
 		mCurrentTextSignificantLength = 0;
 		mCurrentText = null;
 		mMomentCode = StickerSearchUtility.getMomentCode();
-		mKeyboardlanguageISOCode = keyboardlanguageISOCode;
+		mKeyboardLanguageISOCode = keyboardLanguageISOCode;
 
-		REGEX_SEPARATORS = StickerSearchUtility.getSeparatorsRegex(mKeyboardlanguageISOCode);
+		REGEX_SEPARATORS = StickerSearchUtility.getSeparatorsRegex(mKeyboardLanguageISOCode);
 		SEPARATOR_CHARS = (HashSet<Character>) StickerSearchUtility.getSeparatorChars(REGEX_SEPARATORS);
 	}
 
@@ -815,9 +815,9 @@ public class StickerSearchHostManager
 	{
 		Logger.i(TAG, "onInputMethodChanged(" + languageISOCode + ")");
 
-		mKeyboardlanguageISOCode = languageISOCode;
+		mKeyboardLanguageISOCode = languageISOCode;
 
-		REGEX_SEPARATORS = StickerSearchUtility.getSeparatorsRegex(mKeyboardlanguageISOCode);
+		REGEX_SEPARATORS = StickerSearchUtility.getSeparatorsRegex(mKeyboardLanguageISOCode);
 		SEPARATOR_CHARS = (HashSet<Character>) StickerSearchUtility.getSeparatorChars(REGEX_SEPARATORS);
 	}
 

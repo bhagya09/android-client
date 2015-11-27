@@ -34,7 +34,6 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.util.Pair;
@@ -306,7 +305,6 @@ public class StickerManager
 			settings.edit().putBoolean(StickerManager.STICKER_FOLDER_NAMES_UPGRADE_DONE, true).commit();
 		}
 
-		SharedPreferences preferenceManager = PreferenceManager.getDefaultSharedPreferences(context);
 		setupStickerCategoryList(settings);
 
 		if (!settings.getBoolean(StickerManager.ADD_NO_MEDIA_FILE_FOR_STICKERS, false))
@@ -2289,10 +2287,10 @@ public class StickerManager
 	{
 		try
 		{
-			long lastPackAndOrderingSentTime = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.LAST_RECOMMENDATION_ACCURACY_ANALYTICS_SENT_TIME, 0L);
+			long lastAccuracyMatricesSentTime = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.LAST_RECOMMENDATION_ACCURACY_ANALYTICS_SENT_TIME, 0L);
 			long currentTime = System.currentTimeMillis();
 
-			if ((currentTime - lastPackAndOrderingSentTime) >= 24 * 60 * 60 * 1000) // greater than one day
+			if ((currentTime - lastAccuracyMatricesSentTime) >= 24 * 60 * 60 * 1000) // greater than one day
 			{
 				Set<String> languages;
 				PairModified<Integer, Integer> totalAndAcceptedRecommendationCountPair;

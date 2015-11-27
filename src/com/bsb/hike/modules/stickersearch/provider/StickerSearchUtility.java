@@ -538,14 +538,14 @@ public class StickerSearchUtility
 	}
 
 	/* Get combined regular expression for all separators applicable to language argument */
-	public static String getSeparatorsRegex(String keyboardlanguageISOCode)
+	public static String getSeparatorsRegex(String keyboardLanguageISOCode)
 	{
 		String separatorsRegex;
 		HikeSharedPreferenceUtil stickerDataSharedPref = HikeSharedPreferenceUtil.getInstance(HikeStickerSearchBaseConstants.SHARED_PREF_STICKER_DATA);
 
-		if (!Utils.isBlank(keyboardlanguageISOCode) && !keyboardlanguageISOCode.startsWith(StickerSearchConstants.DEFAULT_KEYBOARD_LANGUAGE_ISO_CODE))
+		if (!Utils.isBlank(keyboardLanguageISOCode) && !keyboardLanguageISOCode.startsWith(StickerSearchConstants.DEFAULT_KEYBOARD_LANGUAGE_ISO_CODE))
 		{
-			separatorsRegex = stickerDataSharedPref.getData(getSharedPrefKeyForSeparatorsRegex(keyboardlanguageISOCode), null);
+			separatorsRegex = stickerDataSharedPref.getData(getSharedPrefKeyForSeparatorsRegex(keyboardLanguageISOCode), null);
 
 			if (separatorsRegex == null)
 			{
