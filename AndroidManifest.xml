@@ -3,9 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bsb.hike"
     android:installLocation="auto"
-
-    android:versionCode="1532"
-    android:versionName="4.0.8.81.34" >
+    android:versionCode="1533"
+    android:versionName="4.0.8.81.35" >
     <uses-sdk
         android:minSdkVersion="14"
         android:targetSdkVersion="17"/>
@@ -315,12 +314,6 @@
             android:screenOrientation="portrait"
             android:exported="true"
             android:configChanges="orientation|keyboardHidden|screenSize" >
-        </activity>
-        <activity
-            android:name=".ui.FtueCardsActivity"
-            android:label="@string/app_label"
-            android:launchMode="singleTop"
-            android:theme="@style/NoTitleBar" >
         </activity>
         <activity
             android:name="com.bsb.hike.ui.NUXInviteActivity"

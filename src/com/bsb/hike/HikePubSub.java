@@ -502,6 +502,8 @@ public class HikePubSub implements Runnable
 
 	public static final String GENERAL_EVENT_STATE_CHANGE="generalEventStateChanged";
 
+	public static final String CONVINFO_UPDATED ="convInfoUpdated";
+
 	private final Thread mThread;
 
 	private final BlockingQueue<Operation> mQueue;
