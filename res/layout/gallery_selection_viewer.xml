@@ -30,4 +30,37 @@
         android:layout_alignWithParentIfMissing="true"
         android:layout_below="@id/tipContainerTop" />
 
+    <ImageButton
+        android:id="@+id/ib_crop"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="35dp"
+        android:layout_marginRight="10dp"
+        android:layout_above="@+id/selection_grid"
+        android:layout_alignParentRight="true"
+        android:src="@drawable/ic_crop"
+        android:background="@drawable/translucent_circular_btn"/>
+
+    <ImageButton
+        android:id="@+id/ib_edit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:layout_marginRight="10dp"
+        android:src="@drawable/ic_filter"
+        android:layout_above="@+id/ib_crop"
+        android:layout_alignParentRight="true"
+        android:background="@drawable/translucent_circular_btn"/>
+
+    <ImageButton
+        android:id="@+id/ib_remove"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:src="@drawable/ic_trash"
+        android:layout_marginRight="10dp"
+        android:layout_above="@+id/ib_edit"
+        android:layout_alignParentRight="true"
+        android:background="@drawable/translucent_circular_btn"/>
+
 </RelativeLayout>

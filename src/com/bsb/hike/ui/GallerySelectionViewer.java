@@ -56,6 +56,7 @@ import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.smartImageLoader.GalleryImageLoader;
 import com.bsb.hike.tasks.InitiateMultiFileTransferTask;
+import com.bsb.hike.ui.utils.StatusBarColorChanger;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
@@ -319,8 +320,8 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 		
 		if(editEnabled)
 		{
-			actionsView.setVisibility(View.VISIBLE);
-			actionBarView.findViewById(R.id.seprator).setVisibility(View.VISIBLE);
+			actionsView.setVisibility(View.INVISIBLE);
+			actionBarView.findViewById(R.id.seprator).setVisibility(View.INVISIBLE);
 			actionBarView.findViewById(R.id.seprator).setAlpha(0.2f);
 			actionsView.setOnClickListener(new OnClickListener()
 			{
@@ -418,6 +419,7 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 		parent.setContentInsetsAbsolute(0,0);
 		
 		actionBar.setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.gallery_selection_action_bar)));
+		StatusBarColorChanger.setStatusBarColor(getWindow(),HikeConstants.STATUS_BAR_TRANSPARENT);
 	}
 	
 	private void editSelectedImage()
@@ -576,21 +578,21 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
             }
 
             captionEt.addTextChangedListener(new TextWatcher() {
-                @Override
-                public void beforeTextChanged(CharSequence charSequence, int i, int i2, int i3) {
+				@Override
+				public void beforeTextChanged(CharSequence charSequence, int i, int i2, int i3) {
 
-                }
+				}
 
-                @Override
-                public void onTextChanged(CharSequence charSequence, int i, int i2, int i3) {
+				@Override
+				public void onTextChanged(CharSequence charSequence, int i, int i2, int i3) {
 
-                }
+				}
 
-                @Override
-                public void afterTextChanged(Editable editable) {
-                    captions.put(position,editable.toString());
-                }
-            });
+				@Override
+				public void afterTextChanged(Editable editable) {
+					captions.put(position, editable.toString());
+				}
+			});
 
 
 			return page;
