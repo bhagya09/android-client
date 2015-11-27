@@ -4370,8 +4370,10 @@ import android.widget.Toast;
 
 	public void onResume()
 	{
-		tryToDismissAnyOpenPanels();
-
+		if (shouldShowKeyboard())
+		{
+			tryToDismissAnyOpenPanels();
+		}
 		showKeyboardIfRequired();
 
 		isActivityVisible = true;

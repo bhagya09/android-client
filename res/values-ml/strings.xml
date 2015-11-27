@@ -641,7 +641,7 @@
     <string name="file_attachment_info">100 MB വരെ ഡോക്ക്. pdf,&amp; മീഡിയ എന്നിവ പങ്കിടുക</string>
     <string name="status_text_notification">ഒരു അപ്‌ഡേറ്റ് %1$s പോസ്റ്റുചെയ്തു</string>
     <string name="shared_files">ഫയലുകൾ</string>
-    <string name="tap_save_contact">സമ്പർക്കത്തെ സംരക്ഷിക്കുക</string>
+    <string name="tap_save_contact">സമ്പർക്കത്തെ\nസംരക്ഷിക്കുക</string>
     <string name="image_settings_tip_text">ചിത്ര ക്രമീകരണം</string>
     <string name="image_settings_tip_subtext">സാധാരണം. മികച്ചത്. കംപ്രസ്സ് ചെയ്യാനാകാത്ത വലുപ്പം</string>
     <string name="settings_media">മാധ്യമം</string>
@@ -651,7 +651,7 @@
     <string name="image_quality_send">അയയ്ക്കുക</string>
     <string name="image_quality_prefs">ചിത്ര നിലവാരം</string>
     <string name="no_media">ഫോട്ടോകളും വീഡിയോകളും ഇവിടെ പ്രദർശിപ്പിക്കും</string>
-    <string name="add_fav">പ്രിയങ്കരങ്ങൾ ചേർക്കുക</string>
+    <string name="add_fav">പ്രിയങ്കരങ്ങൾ\nചേർക്കുക</string>
     <string name="no_file">ഫയലുകളും pin-കളും ഇവിടെ പ്രദർശിപ്പിക്കും</string>
     <string name="no_file_broadcast">ഫയലുകൾ ഇവിടെ പ്രദർശിപ്പിക്കും</string>
     <string name="no_file_profile">ഫയലുകൾ ഇവിടെ പ്രദർശിപ്പിക്കും</string>

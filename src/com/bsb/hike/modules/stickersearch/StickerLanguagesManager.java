@@ -21,6 +21,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.MissingResourceException;
 import java.util.Set;
 
 /**
@@ -269,7 +270,11 @@ public class StickerLanguagesManager {
         ISO_LANGUAGES = new HashSet<>(LOCALES_SET.size());
         for(Locale locale : LOCALES_SET)
         {
-            ISO_LANGUAGES.add(locale.getISO3Language());
+            try {
+                ISO_LANGUAGES.add(locale.getISO3Language());
+            }catch (MissingResourceException e) {
+                Logger.e(TAG, "missing local language code for locale : " + locale);
+            }
         }
     }
 
