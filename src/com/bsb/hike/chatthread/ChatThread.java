@@ -4370,8 +4370,6 @@ import android.widget.Toast;
 
 	public void onResume()
 	{
-		tryToDismissAnyOpenPanels();
-
 		showKeyboardIfRequired();
 
 		isActivityVisible = true;
@@ -4444,6 +4442,7 @@ import android.widget.Toast;
 	{
 		if (shouldShowKeyboard())
 		{
+			tryToDismissAnyOpenPanels();
 			showKeyboard();
 		}
 		else
@@ -4491,6 +4490,8 @@ import android.widget.Toast;
 		hideThemePicker();
 		
 		hideOverflowMenu();
+
+		clearActionBarViews();
 		
 		hideDialog();
 		
@@ -4536,6 +4537,16 @@ import android.widget.Toast;
 		if (mActionBar != null && mActionBar.isOverflowMenuShowing())
 		{
 			mActionBar.dismissOverflowMenu();
+		}
+	}
+
+	/**
+	 * Do not call this method freely! Use it at your own risk!
+	 */
+	private void clearActionBarViews()
+	{
+		if (mActionBar != null)
+		{
 			mActionBar.resetView();
 		}
 	}
