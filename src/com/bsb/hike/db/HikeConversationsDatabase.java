@@ -5024,8 +5024,13 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 	{
 		return getStatusMessages(timelineUpdatesOnly, -1, -1, msisdnList);
 	}
-	
+
 	public List<StatusMessage> getStatusMessages(boolean timelineUpdatesOnly, int limit, int[] types)
+	{
+		return getStatusMessages(timelineUpdatesOnly,limit,types,false);
+	}
+
+	public List<StatusMessage> getStatusMessages(boolean timelineUpdatesOnly, int limit, int[] types, boolean getOnlyStealthStatus)
 	{
 		if (types == null || types.length == 0)
 		{
@@ -5081,6 +5086,14 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			while (c.moveToNext())
 			{
 				String msisdn = c.getString(msisdnIdx);
+
+				if(getOnlyStealthStatus)
+				{
+					if(!StealthModeManager.getInstance().isStealthMsisdn(msisdn))
+					{
+						continue;
+					}
+				}
 
 				StatusMessage statusMessage = new StatusMessage(c.getLong(idIdx), c.getString(mappedIdIdx), msisdn, null, c.getString(textIdx),
 						StatusMessageType.values()[c.getInt(typeIdx)], c.getLong(tsIdx), c.getInt(moodIdIdx), c.getInt(timeOfDayIdx), c.getString(fileKeyIdx));
@@ -7063,6 +7076,19 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			{
 				c.close();
 			}
+		}
+	}
+
+	public void deleteActivityFeedForMsisdn(List<String> stealthMsisdns)
+	{
+		if(Utils.isEmpty(stealthMsisdns))
+		{
+			return;
+		}
+
+		for(String msisdn: stealthMsisdns)
+		{
+			mDb.delete(DBConstants.FEED_TABLE, DBConstants.FEED_ACTOR + "=?", new String[] {msisdn});
 		}
 	}
 
