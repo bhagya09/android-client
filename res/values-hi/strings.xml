@@ -1265,5 +1265,5 @@
 	<string name="switch_on_gps">कृपया स्थान सक्षम करें ताकि Hike Direct काम कर सके। काम पूरा हो जाने पर वापस दबाएँ। </string>
 	<string name="gps_settings">सेटिंग</string>
 	<string name="user_gps_off">जब तक आपका स्थान सक्षम नहीं होगा तब तक Hike Direct काम नहीं कर सकता।</string>
-	
+    <string name="timeline_ftue_desc">टाइमलाइन आप और आपके दोस्तों के लिए अपने विशेष पल बांटने का एक स्थान है । आपके कुछ दोस्त पहले से ही इसका प्रयोग कर रहे हैं ।</string>
 </resources>
