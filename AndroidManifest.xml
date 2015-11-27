@@ -228,10 +228,6 @@
                 <data android:mimeType="image/*" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".cropimage.CropImage"
-            android:configChanges="orientation|screenSize|screenLayout"
-            android:theme="@style/AppTheme.Home.PhotoEditor" />
         
         <activity
             android:name=".cropimage.HikeCropActivity"
@@ -320,12 +316,6 @@
             android:screenOrientation="portrait"
             android:exported="true"
             android:configChanges="orientation|keyboardHidden|screenSize" >
-        </activity>
-        <activity
-            android:name=".ui.FtueCardsActivity"
-            android:label="@string/app_label"
-            android:launchMode="singleTop"
-            android:theme="@style/NoTitleBar" >
         </activity>
         <activity
             android:name="com.bsb.hike.ui.NUXInviteActivity"
