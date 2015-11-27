@@ -1441,15 +1441,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 		boolean increaseUnreadCount = Boolean.valueOf(increaseUnread);
 		if (enableBot)
 		{
-			if (HikeConversationsDatabase.getInstance().isConversationExist(msisdn))
-			{
-				Utils.rearrangeChat(msisdn, true, increaseUnreadCount);
-			}
-
-			else
-			{
 				PlatformUtils.enableBot(botInfo, true, increaseUnreadCount);
-			}
 		}
 		else
 		{

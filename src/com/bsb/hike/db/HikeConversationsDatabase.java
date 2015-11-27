@@ -8157,6 +8157,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 	 */
 	public void addNonMessagingBotconversation(BotInfo botInfo)
 	{
+		boolean isChatExist=isConversationExist(botInfo.getMsisdn());
 		ConvMessage convMessage = Utils.makeConvMessage(botInfo.getMsisdn(), botInfo.getLastMessageText(), true, State.RECEIVED_UNREAD);
 
 		ContentValues contentValues = new ContentValues();
@@ -8178,7 +8179,16 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			botInfo.setLastConversationMsg(convMessage);
 			botInfo.setUnreadCount(1);  // inOrder to show 1+ on conv screen, we need to have some unread counter
 			botInfo.setConvPresent(true); //In Order to indicate the presence of bot in the conv table
-			HikeMessengerApp.getPubSub().publish(HikePubSub.NEW_CONVERSATION, botInfo);
+
+			//If the chat thread already exists and we need only to change the convInfo,we would not want the listeners on new chat created to be fired,like badge counter.
+			if (isChatExist)
+			{
+				HikeMessengerApp.getPubSub().publish(HikePubSub.CONVINFO_UPDATED,botInfo);
+			}
+			else
+			{
+				HikeMessengerApp.getPubSub().publish(HikePubSub.NEW_CONVERSATION, botInfo);
+			}
 		}
 
 	}
