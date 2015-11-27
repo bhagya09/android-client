@@ -1121,7 +1121,7 @@
     <string name="DELETE">हटाएँ</string>
     <string name= "disconnecting_offline">कनेक्शन बंद करना</string>
     <string name="sticker_recommend_auto_off_tip_text">स्टिकर सुझाव बंद हो गया! सेटिंग्स > चैट सेटिंग्स से उन्हें वापस लाएं</string>
-    <string name="timeline_tab_photo">फ़ोन</string>
+    <string name="timeline_tab_photo">फ़ोटो</string>
     <string name="timeline_tab_status">स्टेटस</string>
     <string name="timeline_empty_desc1">टाइमलाइन अपडेट्स</string>
     <string name="timeline_empty_desc2">आप अपने मित्रों के जीवन से जुड़ी फ़ोटो और स्टेटस अपडेट्स\nयहां देख सकते हैं।</string>
