@@ -1271,7 +1271,7 @@
     <string name="search_hint_text">செர்ச்...</string>
     <string name="is_typing">டைப் செய்கிறார்...</string>
     <string name="are_typing">டைப் செய்கிறார்கள்...</string>
-    <string name="you_chat_bg_changed">நீர் சேட் தீம்-ஐ மாற்றி விட்டீர்</string>
+    <string name="you_chat_bg_changed">நீங்கள் குரூப் பெயரை மாற்றி விட்டீர்</string>
     <string name="hike_keyboard">Hike கீபோர்டு</string>
     <string name="system_keyboard">சிஸ்டம் கீபோர்டு</string>
     <string name="you_xyz_posted_pin">நீர் ஓர் pin-ஐ போஸ்ட் செய்தீர்</string>
@@ -1288,8 +1288,124 @@
     <string name="APPLY">பொருத்து </string>
     <string name="level">நிலை</string>
     <string name="milliseconds">ms</string>
-    <string name="and"> மற்றும் </string>
     <string name="contact_name">தொடர்பாளர் பெயர்</string>
     <string name="mobile">மொபைல்</string>
     <string name="your_contact">உங்கள் தொடர்பு</string>
+    <string name="and">மற்றும்</string> 
+    <string name="others_smallcase">மற்றவை</string>
+
+<!-- The above two string would be used as in Group with Shibu, Niladri and 4 others -->
+
+
+ 	<string name="yesterday">நேற்று</string>
+    <string name="tomorrow">நாளை</string>
+    <string name="today">இன்று</string>
+    
+    <!-- This is used to express that something occurred some number of seconds in the past (e.g., 5 seconds ago). -->
+    <plurals name="num_seconds_ago">
+        <item quantity="one">1 நொடிக்கு முன்</item>
+        <item quantity="other">%d வினாடிகளுக்கு மு‎ன்</item>
+    </plurals>
+
+    <!-- This is used to express that something occurred some number of minutes in the past (e.g., 5 minutes ago). -->
+    <plurals name="num_minutes_ago">
+        <item quantity="one">1 நிமிடத்திற்கு மு‎ன்</item>
+        <item quantity="other">%d நிமிடங்களுக்கு மு‎ன்</item>
+    </plurals>
+
+    <!-- This is used to express that something occurred some number of hours in the past (e.g., 5 hours ago). -->
+    <plurals name="num_hours_ago">
+        <item quantity="one">1 மணிக்கு முன்</item>
+        <item quantity="other">%d மணிகளுக்கு மு‎ன்</item>
+    </plurals>
+
+    <!-- This is used to express that something occurred within the last X days (e.g., Last 7 days). -->
+    <plurals name="last_num_days">
+        <item quantity="other">கடந்த %d நாட்கள்</item>
+    </plurals>
+
+    <!-- This is used to express that something has occurred within the last month -->
+    <string name="last_month">கடந்த மாதம்</string>
+
+    <!-- This is used to express that something happened longer ago than the previous options -->
+    <string name="older">பழையது</string>
+
+    <!-- This is used to express that something occurred some number of days in the past (e.g., 5 days ago). -->
+    <plurals name="num_days_ago">
+        <item quantity="one">நேற்று</item>
+        <item quantity="other">%d நாட்களுக்கு மு‎ன்</item>
+    </plurals>
+
+    <!-- This is used to express that something will occur some number of seconds in the future (e.g., in 5 seconds). -->
+    <plurals name="in_num_seconds">
+        <item quantity="one">1 நொடியில்</item>
+        <item quantity="other">%d நொடிகளில்</item>
+    </plurals>
+
+    <!-- This is used to express that something will occur some number of minutes in the future (e.g., in 5 minutes). -->
+    <plurals name="in_num_minutes">
+        <item quantity="one">1 நிமிடத்தில்</item>
+        <item quantity="other">%d நிமிடங்களில்</item>
+    </plurals>
+
+    <!-- This is used to express that something will occur some number of hours in the future (e.g., in 5 hours). -->
+    <plurals name="in_num_hours">
+        <item quantity="one">1 மணி நேரத்தில்</item>
+        <item quantity="other">%d மணிகளில்</item>
+    </plurals>
+
+    <!-- This is used to express that something will occur some number of days in the future (e.g., in 5 days). -->
+    <plurals name="in_num_days">
+        <item quantity="one">நாளை</item>
+        <item quantity="other">%d நாட்களில்</item>
+    </plurals>
+
+    <!-- This is used to express that something occurred some number of abbreviated seconds in the past (e.g., 5 secs ago). -->
+    <plurals name="abbrev_num_seconds_ago">
+        <item quantity="one">1 நொடிக்கு முன்</item>
+        <item quantity="other">%d நொடி. மு‎ன்</item>
+    </plurals>
+
+    <!-- This is used to express that something occurred some number of abbreviated minutes in the past (e.g., 5 mins ago). -->
+    <plurals name="abbrev_num_minutes_ago">
+        <item quantity="one">1 நிமி. முன்</item>
+        <item quantity="other">%d நிமி. மு‎ன்</item>
+    </plurals>
+
+    <!-- This is used to express that something occurred some number of abbreviated hours in the past (e.g., 5 hrs ago). -->
+    <plurals name="abbrev_num_hours_ago">
+        <item quantity="one">1 மணிக்கு முன்</item>
+        <item quantity="other">%d மணிகளுக்கு மு‎ன்</item>
+    </plurals>
+
+    <!-- This is used to express that something occurred some number of abbreviated days in the past (e.g., 5 days ago). -->
+    <plurals name="abbrev_num_days_ago">
+        <item quantity="one">நேற்று</item>
+        <item quantity="other">%d நாட்களுக்கு மு‎ன்</item>
+    </plurals>
+
+    <!-- This is used to express that something will occur some number of abbreviated seconds in the future (e.g., in 5 secs). -->
+    <plurals name="abbrev_in_num_seconds">
+        <item quantity="one">1 நொடியில்</item>
+        <item quantity="other">%d நொடிகளில்</item>
+    </plurals>
+
+    <!-- This is used to express that something will occur some number of abbreviated minutes in the future (e.g., in 5 mins). -->
+    <plurals name="abbrev_in_num_minutes">
+        <item quantity="one">1 நிமி. இல்</item>
+        <item quantity="other">%d நிமி. இல்</item>
+    </plurals>
+
+    <!-- This is used to express that something will occur some number of abbreviated hours in the future (e.g., in 5 hrs). -->
+    <plurals name="abbrev_in_num_hours">
+        <item quantity="one">1 மணி நேரத்தில்</item>
+        <item quantity="other">%d மணிகளில்</item>
+    </plurals>
+
+    <!-- This is used to express that something will occur some number of abbreviated days in the future (e.g., in 5 days). -->
+    <plurals name="abbrev_in_num_days">
+        <item quantity="one">நாளை</item>
+        <item quantity="other">%d நாட்களில்</item>
+    </plurals>
+    
 </resources>

@@ -1287,9 +1287,125 @@
     <string name="APPLY">అప్లై</string>
     <string name="level">లెవల్</string>
     <string name="milliseconds">ఎమ్ఎస్</string>
-    <string name="and"> మరియు </string>
     <string name="contact_name">కాంటాక్ట్ పేరు</string>
     <string name="mobile">మొబైల్</string>
     <string name="your_contact">మీ కాంటాక్ట్</string>
+    <string name="and">మరియు</string> 
+    <string name="others_smallcase">ఇతరాలు</string>
+
+<!-- The above two string would be used as in Group with Shibu, Niladri and 4 others -->
+
+
+ 	<string name="yesterday">నిన్న</string>
+    <string name="tomorrow">రేపు</string>
+    <string name="today">ఇవాళ</string>
+    
+    <!-- This is used to express that something occurred some number of seconds in the past (e.g., 5 seconds ago). -->
+    <plurals name="num_seconds_ago">
+        <item quantity="one">1 సెకను క్రితం</item>
+        <item quantity="other">%d సెకండ్ల క్రితం</item>
+    </plurals>
+
+    <!-- This is used to express that something occurred some number of minutes in the past (e.g., 5 minutes ago). -->
+    <plurals name="num_minutes_ago">
+        <item quantity="one">1 నిమిషం క్రితం</item>
+        <item quantity="other">%D నిమిషాల క్రితం</item>
+    </plurals>
+
+    <!-- This is used to express that something occurred some number of hours in the past (e.g., 5 hours ago). -->
+    <plurals name="num_hours_ago">
+        <item quantity="one">1 గంట క్రితం</item>
+        <item quantity="other">%d గంటల క్రితం</item>
+    </plurals>
+
+    <!-- This is used to express that something occurred within the last X days (e.g., Last 7 days). -->
+    <plurals name="last_num_days">
+        <item quantity="other">చివరి %d రోజులు</item>
+    </plurals>
+
+    <!-- This is used to express that something has occurred within the last month -->
+    <string name="last_month">చివరి నెల</string>
+
+    <!-- This is used to express that something happened longer ago than the previous options -->
+    <string name="older">పాతది</string>
+
+    <!-- This is used to express that something occurred some number of days in the past (e.g., 5 days ago). -->
+    <plurals name="num_days_ago">
+        <item quantity="one">నిన్న</item>
+        <item quantity="other">%d రోజుల క్రితం</item>
+    </plurals>
+
+    <!-- This is used to express that something will occur some number of seconds in the future (e.g., in 5 seconds). -->
+    <plurals name="in_num_seconds">
+        <item quantity="one">1 సెకనులో</item>
+        <item quantity="other">%d సెకండ్లలో</item>
+    </plurals>
+
+    <!-- This is used to express that something will occur some number of minutes in the future (e.g., in 5 minutes). -->
+    <plurals name="in_num_minutes">
+        <item quantity="one">1 నిమిషంలో</item>
+        <item quantity="other">%d నిమిషాల్లో</item>
+    </plurals>
+
+    <!-- This is used to express that something will occur some number of hours in the future (e.g., in 5 hours). -->
+    <plurals name="in_num_hours">
+        <item quantity="one">1 గంటలో</item>
+        <item quantity="other">%d గంటల్లో</item>
+    </plurals>
+
+    <!-- This is used to express that something will occur some number of days in the future (e.g., in 5 days). -->
+    <plurals name="in_num_days">
+        <item quantity="one">రేపు</item>
+        <item quantity="other">%d రోజుల్లో</item>
+    </plurals>
+
+    <!-- This is used to express that something occurred some number of abbreviated seconds in the past (e.g., 5 secs ago). -->
+    <plurals name="abbrev_num_seconds_ago">
+        <item quantity="one">1 సెకను క్రితం</item>
+        <item quantity="other">%d సెకండ్ల క్రితం</item>
+    </plurals>
+
+    <!-- This is used to express that something occurred some number of abbreviated minutes in the past (e.g., 5 mins ago). -->
+    <plurals name="abbrev_num_minutes_ago">
+        <item quantity="one">1 నిమిషం క్రితం</item>
+        <item quantity="other">%d నిమిషాల క్రితం</item>
+    </plurals>
+
+    <!-- This is used to express that something occurred some number of abbreviated hours in the past (e.g., 5 hrs ago). -->
+    <plurals name="abbrev_num_hours_ago">
+        <item quantity="one">1 గంట క్రితం</item>
+        <item quantity="other">%d గంటల క్రితం</item>
+    </plurals>
+
+    <!-- This is used to express that something occurred some number of abbreviated days in the past (e.g., 5 days ago). -->
+    <plurals name="abbrev_num_days_ago">
+        <item quantity="one">నిన్న</item>
+        <item quantity="other">%d రోజుల క్రితం</item>
+    </plurals>
+
+    <!-- This is used to express that something will occur some number of abbreviated seconds in the future (e.g., in 5 secs). -->
+    <plurals name="abbrev_in_num_seconds">
+        <item quantity="one">1 సెకనులో</item>
+        <item quantity="other">%d సెకండ్లలో</item>
+    </plurals>
+
+    <!-- This is used to express that something will occur some number of abbreviated minutes in the future (e.g., in 5 mins). -->
+    <plurals name="abbrev_in_num_minutes">
+        <item quantity="one">1 నిమిషంలో</item>
+        <item quantity="other">%d నిమిషాల్లో</item>
+    </plurals>
+
+    <!-- This is used to express that something will occur some number of abbreviated hours in the future (e.g., in 5 hrs). -->
+    <plurals name="abbrev_in_num_hours">
+        <item quantity="one">1 గంటలో</item>
+        <item quantity="other">%d గంటల్లో</item>
+    </plurals>
+
+    <!-- This is used to express that something will occur some number of abbreviated days in the future (e.g., in 5 days). -->
+    <plurals name="abbrev_in_num_days">
+        <item quantity="one">రేపు</item>
+        <item quantity="other">%d రోజుల్లో</item>
+    </plurals>
+    
 
 </resources>
