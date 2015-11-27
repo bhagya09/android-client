@@ -211,9 +211,12 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 	private AdaptxtEditText searchET;
 	
+	private long time;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
+		time = System.currentTimeMillis();
 		Logger.d(TAG,"onCreate");
 		super.onCreate(savedInstanceState);
 		
@@ -1216,6 +1219,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		{
 			acceptGroupMembershipConfirmation(getIntent());
 		}
+		Logger.d(HikeConstants.APP_OPENING_BENCHMARK, "Time taken between onCreate and onResume of HomeActivity = " + (System.currentTimeMillis() - time));
 	}
 
 	private void showKeyboard()
