@@ -9,6 +9,7 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.NonMessagingBotMetadata;
 import com.bsb.hike.models.HikeAlarmManager;
+import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.content.PlatformContentConstants;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
@@ -76,8 +77,8 @@ public class HikeMicroAppsCodeMigrationService extends IntentService
 
 						// Create directory for this version for specific micro app
 						unzipPath += microAppName + File.separator;
-						new File(unzipPath, HikeConstants.Extras.VERSIONING_DIRECTORY_NAME + version).mkdirs();
-						unzipPath += HikeConstants.Extras.VERSIONING_DIRECTORY_NAME + version + File.separator;
+						new File(unzipPath, HikePlatformConstants.VERSIONING_DIRECTORY_NAME + version).mkdirs();
+						unzipPath += HikePlatformConstants.VERSIONING_DIRECTORY_NAME + version + File.separator;
 
 						// File instance for destination file directory path
 						File newFilePath = new File(unzipPath);

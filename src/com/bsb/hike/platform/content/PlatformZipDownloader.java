@@ -62,6 +62,8 @@ public class PlatformZipDownloader
 
     private String msisdn;
 
+    private boolean isDeletionReqBasedOnCompatibilityMap = false;
+
     // static builder class used here for generating and returning object of Zip Downloading process
     public static class Builder {
         private PlatformContentRequest argRequest;
@@ -70,6 +72,7 @@ public class PlatformZipDownloader
         private String callbackId = "";
         private boolean resumeSupported = false;
         private String msisdn = "";
+        private boolean isDeletionReqBasedOnCompatibilityMap = false;
 
         public Builder setArgRequest(PlatformContentRequest argRequest) {
             this.argRequest = argRequest;
@@ -98,6 +101,11 @@ public class PlatformZipDownloader
 
         public Builder setMsisdn(String msisdn) {
             this.msisdn = msisdn;
+            return this;
+        }
+
+        public Builder setMappDeletionBooleanByCompatibilityMap(boolean isDeletionReqBasedOnCompatibilityMap) {
+            this.isDeletionReqBasedOnCompatibilityMap = isDeletionReqBasedOnCompatibilityMap;
             return this;
         }
 
@@ -161,7 +169,7 @@ public class PlatformZipDownloader
 		try
 		{
 			String unzipPath = PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.HIKE_MICRO_APPS;
-			String microAppName = mRequest.getContentData().getId();
+			String microAppName = mRequest.getContentData().cardObj.getMicroApp();
 			int microAppVersion = mRequest.getContentData().getMappVersionCode();
 
 			// Generate path for the old micro app directory
@@ -368,7 +376,10 @@ public class PlatformZipDownloader
 									PlatformRequestManager.setReadyState(mRequest);
 								}
 								HikeMessengerApp.getPubSub().publish(HikePubSub.DOWNLOAD_PROGRESS, new Pair<String, String>(callbackId, "unzipSuccess"));
-								deleteMicroAppsAsPerCompatibilityMap();
+
+                                // Delete previous version micro apps after checking from compatibility matrix if isDeletionReqBasedOnCompatibilityMap flag is set
+                                if(isDeletionReqBasedOnCompatibilityMap)
+                                    deleteMicroAppsAsPerCompatibilityMap();
 							}
 							else
 							{
@@ -402,8 +413,8 @@ public class PlatformZipDownloader
 		case HikePlatformConstants.PlatformMappRequestType.HIKE_MICRO_APPS:
 			unzipPath = generateCBotUnzipPathForRequestType(unzipPath);
 			int microAppVersion = mRequest.getContentData().getMappVersionCode();
-			new File(unzipPath, HikeConstants.Extras.VERSIONING_DIRECTORY_NAME + microAppVersion).mkdirs();
-			unzipPath += HikeConstants.Extras.VERSIONING_DIRECTORY_NAME + microAppVersion + File.separator;
+			new File(unzipPath, HikePlatformConstants.VERSIONING_DIRECTORY_NAME + microAppVersion).mkdirs();
+			unzipPath += HikePlatformConstants.VERSIONING_DIRECTORY_NAME + microAppVersion + File.separator;
 			break;
 		case HikePlatformConstants.PlatformMappRequestType.ONE_TIME_POPUPS:
 			unzipPath += PlatformContentConstants.HIKE_ONE_TIME_POPUPS;
@@ -428,10 +439,14 @@ public class PlatformZipDownloader
 	 */
     private String generateCBotUnzipPathForRequestType(String unzipPath)
     {
-        String microAppName = mRequest.getContentData().getId();
+        String microAppName = mRequest.getContentData().cardObj.getMicroApp();
 
         // Create directory for micro app if not exists already
-        new File(unzipPath, microAppName).mkdirs();
+        try {
+            new File(unzipPath, microAppName).mkdirs();
+        } catch (NullPointerException npe) {
+            npe.printStackTrace();
+        }
 
         // Create directory for this version for specific micro app
         unzipPath += microAppName + File.separator;
@@ -440,12 +455,12 @@ public class PlatformZipDownloader
     }
 
 	/*
-	 * Method to delete unzipped code as per the compatibility map
+	 * Method to delete unzipped code as per based on the compatibility map
 	 */
 	private void deleteMicroAppsAsPerCompatibilityMap()
 	{
         String microAppName = mRequest.getContentData().getId();
-		TreeMap<Integer, Integer> compatibilityMap = mRequest.getContentData().cardObj.compatibilityMap;
+		TreeMap<Integer, Integer> compatibilityMap = mRequest.getContentData().cardObj.getCompatibilityMap();
 
 		if (compatibilityMap == null || mRequest.getRequestType() != HikePlatformConstants.PlatformMappRequestType.HIKE_MICRO_APPS)
 			return;
@@ -473,7 +488,7 @@ public class PlatformZipDownloader
 		// Code to delete micro apps within the compatibility matrix range that is figured above
 		while (minSupportedAppVersion != microAppVersion)
 		{
-			String pathToDelete = unzipPath + HikeConstants.Extras.VERSIONING_DIRECTORY_NAME + minSupportedAppVersion + File.separator;
+			String pathToDelete = unzipPath + HikePlatformConstants.VERSIONING_DIRECTORY_NAME + minSupportedAppVersion + File.separator;
 			PlatformUtils.deleteDirectory(pathToDelete);
 			minSupportedAppVersion++;
 		}

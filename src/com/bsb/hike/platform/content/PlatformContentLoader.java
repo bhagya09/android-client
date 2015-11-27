@@ -50,6 +50,10 @@ class PlatformContentLoader extends Handler
 	{
 		Logger.d(TAG, "handling request");
 
+        // Stop the flow and return from here in case any exception occurred and contentData becomes null
+        if(argContentRequest.getContentData() == null)
+            return;
+
 		PlatformContentModel formedContent = PlatformContentCache.getFormedContent(argContentRequest);
 
 		if (formedContent != null)

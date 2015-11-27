@@ -101,7 +101,7 @@ class PlatformContentCache
 		Logger.d(TAG, "loading template from disk");
 
 		String unzipPath = PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.HIKE_MICRO_APPS;
-		String microAppName = content.getContentData().getId();
+		String microAppName = content.getContentData().cardObj.getMicroApp();
 		int microAppVersion = content.getContentData().getMappVersionCode();
 
         unzipPath = PlatformUtils.generateMappUnZipPathForBotRequestType(content.getRequestType(),unzipPath,microAppName,microAppVersion);

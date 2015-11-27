@@ -24,11 +24,11 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
+import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.tasks.SignupTask;
 import com.bsb.hike.tasks.SignupTask.StateValue;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
-import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
@@ -142,7 +142,10 @@ public class WelcomeActivity extends HikeAppStateBaseFragmentActivity implements
 
 		SharedPreferences sharedPreferences = getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, MODE_PRIVATE);
 		boolean production = !sharedPreferences.getBoolean(HikeMessengerApp.PRODUCTION, true);
-		
+        /*
+         * Change Platform content storage path based on change of is production variable
+         */
+        PlatformContent.init(production);
 		Editor editor = getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, MODE_PRIVATE).edit();
 		editor.putBoolean(HikeMessengerApp.PRODUCTION, production);
 		editor.putInt(HikeMessengerApp.PRODUCTION_HOST_TOGGLE, production ? AccountUtils._PRODUCTION_HOST : AccountUtils._STAGING_HOST);

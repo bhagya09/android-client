@@ -277,6 +277,8 @@ public interface HikePlatformConstants
 	
 	final static String RESUME_SUPPORT = "resume_support";
 
+    public static final String VERSIONING_DIRECTORY_NAME = "Version_";
+
     public static final class PlatformMappRequestType
     {
         public static final byte HIKE_MICRO_APPS = 1;

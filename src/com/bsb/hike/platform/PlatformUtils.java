@@ -432,6 +432,10 @@ public class PlatformUtils
 					}
 				});
 
+        // Stop the flow and return from here in case any exception occurred and contentData becomes null
+        if(rqst.getContentData() == null)
+            return;
+
 		rqst.setRequestType(botInfo.getRequestType());
 		rqst.getContentData().setRequestType(botInfo.getRequestType());
 
@@ -512,7 +516,9 @@ public class PlatformUtils
 
 	/**
 	 * download the microapp, can be used by nonmessaging as well as messaging only to download and unzip the app.
-	 * @param downloadData: the data used to download microapp from ac packet to download the app.
+	 * 
+	 * @param downloadData
+	 *            : the data used to download microapp from ac packet to download the app.
 	 */
 	public static void downloadZipFromPacket(final JSONObject downloadData)
 	{
@@ -522,73 +528,76 @@ public class PlatformUtils
 		}
 
 		final PlatformContentModel platformContentModel = PlatformContentModel.make(downloadData.toString());
-		PlatformContentRequest rqst = PlatformContentRequest.make(
-				platformContentModel, new PlatformContentListener<PlatformContentModel>()
+		PlatformContentRequest rqst = PlatformContentRequest.make(platformContentModel, new PlatformContentListener<PlatformContentModel>()
+		{
+			long fileLength = 0;
+
+			@Override
+			public void onComplete(PlatformContentModel content)
+			{
+				microappDownloadAnalytics(HikePlatformConstants.MICROAPP_DOWNLOADED, content);
+				Logger.d(TAG, "microapp download packet success.");
+			}
+
+			@Override
+			public void onEventOccured(int uniqueId, PlatformContent.EventCode event)
+			{
+
+				if (event == PlatformContent.EventCode.DOWNLOADING || event == PlatformContent.EventCode.LOADED)
 				{
-					long fileLength = 0;
+					// do nothing
+					return;
+				}
 
-					@Override
-					public void onComplete(PlatformContentModel content)
+				JSONObject jsonObject = new JSONObject();
+				try
+				{
+					jsonObject.put(HikePlatformConstants.ERROR_CODE, event.toString());
+				}
+				catch (JSONException e)
+				{
+					e.printStackTrace();
+				}
+
+				if (event == PlatformContent.EventCode.ALREADY_DOWNLOADED)
+				{
+					microappDownloadAnalytics(HikePlatformConstants.MICROAPP_DOWNLOADED, platformContentModel, jsonObject);
+					Logger.d(TAG, "microapp already exists.");
+				}
+				else
+				{
+					try
 					{
-						microappDownloadAnalytics(HikePlatformConstants.MICROAPP_DOWNLOADED, content);
-						Logger.d(TAG, "microapp download packet success.");
+						if (fileLength > 0)
+						{
+							jsonObject.put(AnalyticsConstants.FILE_SIZE, String.valueOf(fileLength));
+						}
+						jsonObject.put(AnalyticsConstants.INTERNAL_STORAGE_SPACE, String.valueOf(Utils.getFreeInternalStorage()) + " MB");
+					}
+					catch (JSONException e)
+					{
+						Logger.e(TAG, "JSONException " + e.getMessage());
 					}
 
-					@Override
-					public void onEventOccured(int uniqueId,PlatformContent.EventCode event)
-					{
+					microappDownloadAnalytics(HikePlatformConstants.MICROAPP_DOWNLOAD_FAILED, platformContentModel, jsonObject);
+					Logger.wtf(TAG, "microapp download packet failed.Because it is" + event.toString());
+				}
+			}
 
-						if (event == PlatformContent.EventCode.DOWNLOADING || event == PlatformContent.EventCode.LOADED)
-						{
-							//do nothing
-							return;
-						}
+			@Override
+			public void downloadedContentLength(long length)
+			{
+				fileLength = length;
+			}
+		});
 
-						JSONObject jsonObject = new JSONObject();
-						try
-						{
-							jsonObject.put(HikePlatformConstants.ERROR_CODE, event.toString());
-						}
-						catch (JSONException e)
-						{
-							e.printStackTrace();
-						}
+        // Stop the flow and return from here in case any exception occurred and contentData becomes null
+        if(rqst.getContentData() == null)
+            return;
 
-						if (event == PlatformContent.EventCode.ALREADY_DOWNLOADED)
-						{
-							microappDownloadAnalytics(HikePlatformConstants.MICROAPP_DOWNLOADED, platformContentModel, jsonObject);
-							Logger.d(TAG, "microapp already exists.");
-						}
-						else
-						{
-							try
-							{
-								if (fileLength > 0)
-								{
-									jsonObject.put(AnalyticsConstants.FILE_SIZE, String.valueOf(fileLength));
-								}
-								jsonObject.put(AnalyticsConstants.INTERNAL_STORAGE_SPACE, String.valueOf(Utils.getFreeInternalStorage()) + " MB");
-							}
-							catch (JSONException e)
-							{
-								Logger.e(TAG, "JSONException " +e.getMessage());
-							}
-
-							microappDownloadAnalytics(HikePlatformConstants.MICROAPP_DOWNLOAD_FAILED, platformContentModel, jsonObject);
-							Logger.wtf(TAG, "microapp download packet failed.Because it is" + event.toString());
-						}
-					}
-
-					@Override
-					public void downloadedContentLength(long length)
-					{
-						fileLength = length;
-					}
-				});
-				boolean doReplace = downloadData.optBoolean(HikePlatformConstants.REPLACE_MICROAPP_VERSION);
-				String callbackId = downloadData.optString(HikePlatformConstants.CALLBACK_ID);
-				downloadAndUnzip(rqst, false,doReplace, callbackId);
-
+		boolean doReplace = downloadData.optBoolean(HikePlatformConstants.REPLACE_MICROAPP_VERSION);
+		String callbackId = downloadData.optString(HikePlatformConstants.CALLBACK_ID);
+		downloadAndUnzip(rqst, false, doReplace, callbackId);
 	}
 
 	private static void microappDownloadAnalytics(String key, PlatformContentModel content)
@@ -627,7 +636,17 @@ public class PlatformUtils
 	
 	public static void downloadAndUnzip(PlatformContentRequest request, boolean isTemplatingEnabled, boolean doReplace, String callbackId, boolean resumeSupported,String msisdn)
 	{
-		PlatformZipDownloader downloader = new PlatformZipDownloader.Builder().setArgRequest(request).setIsTemplatingEnabled(isTemplatingEnabled).setDoReplace(doReplace).setCallbackId(callbackId).setResumeSupported(resumeSupported).setMsisdn(msisdn).createPlatformZipDownloader();
+		PlatformZipDownloader downloader = new
+                PlatformZipDownloader.Builder().
+                setArgRequest(request).
+                setIsTemplatingEnabled(isTemplatingEnabled).
+                setDoReplace(doReplace).
+                setCallbackId(callbackId).
+                setResumeSupported(resumeSupported).
+                setMsisdn(msisdn).
+                setMappDeletionBooleanByCompatibilityMap(true).
+                createPlatformZipDownloader();
+
 		if (!downloader.isMicroAppExist() || doReplace)
 		{
 			downloader.downloadAndUnzip();
@@ -1374,7 +1393,7 @@ public class PlatformUtils
         switch (requestType)
         {
             case HikePlatformConstants.PlatformMappRequestType.HIKE_MICRO_APPS:
-                unzipPath += microAppName + File.separator + HikeConstants.Extras.VERSIONING_DIRECTORY_NAME + microAppVersion + File.separator;
+                unzipPath += microAppName + File.separator + HikePlatformConstants.VERSIONING_DIRECTORY_NAME + microAppVersion + File.separator;
                 break;
 
             case HikePlatformConstants.PlatformMappRequestType.ONE_TIME_POPUPS:

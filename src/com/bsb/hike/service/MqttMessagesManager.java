@@ -13,7 +13,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import android.os.Looper;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -25,6 +24,7 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
@@ -61,6 +61,10 @@ import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
 import com.bsb.hike.models.ConvMessage.State;
+import com.bsb.hike.models.Conversation.BroadcastConversation;
+import com.bsb.hike.models.Conversation.Conversation;
+import com.bsb.hike.models.Conversation.GroupConversation;
+import com.bsb.hike.models.Conversation.OneToNConversation;
 import com.bsb.hike.models.GroupTypingNotification;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
@@ -72,10 +76,6 @@ import com.bsb.hike.models.Sticker;
 import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.models.TypingNotification;
 import com.bsb.hike.models.WhitelistDomain;
-import com.bsb.hike.models.Conversation.BroadcastConversation;
-import com.bsb.hike.models.Conversation.Conversation;
-import com.bsb.hike.models.Conversation.GroupConversation;
-import com.bsb.hike.models.Conversation.OneToNConversation;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.HttpManager;
 import com.bsb.hike.modules.httpmgr.RequestToken;
@@ -759,7 +759,11 @@ public class MqttMessagesManager
 			}
 		});
 
-		PlatformZipDownloader downloader = new PlatformZipDownloader.PlatformZipDownloaderBuilder().setArgRequest(rqst).setIsTemplatingEnabled(false).createPlatformZipDownloader();
+        // Stop the flow and return from here in case any exception occurred and contentData becomes null
+        if(rqst.getContentData() == null)
+            return;
+
+		PlatformZipDownloader downloader = new PlatformZipDownloader.Builder().setArgRequest(rqst).setIsTemplatingEnabled(false).createPlatformZipDownloader();
 		if (!downloader.isMicroAppExist())
 		{
 			downloader.downloadAndUnzip();

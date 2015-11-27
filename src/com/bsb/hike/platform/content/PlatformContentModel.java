@@ -13,6 +13,7 @@ import org.json.JSONObject;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.utils.Logger;
 import com.google.gson.Gson;
@@ -135,7 +136,10 @@ public class PlatformContentModel
             object.cardObj.setCompatibilityMap(compatibilityMapStr);
 			if (object.cardObj.getLd() != null)
 			{
-				String basePath = getUnZipPath(HikePlatformConstants.PlatformMappRequestType.HIKE_MICRO_APPS);
+                int microAppVersionCode = object.cardObj.getMappVersionCode();
+                String microApp = object.cardObj.getMicroApp();
+                String unzipPath = PlatformContentConstants.HIKE_MICRO_APPS;
+                String basePath = PlatformUtils.generateMappUnZipPathForBotRequestType(HikePlatformConstants.PlatformMappRequestType.HIKE_MICRO_APPS,unzipPath,microApp,microAppVersionCode);
 
 				object.cardObj.ld
 						.addProperty(PlatformContentConstants.KEY_TEMPLATE_PATH, PlatformContentConstants.CONTENT_AUTHORITY_BASE + basePath);
@@ -196,8 +200,12 @@ public class PlatformContentModel
 			object.cardObj.setCompatibilityMap(compatibilityMapStr);
 			if (object.cardObj.getLd() != null)
 			{
-				String basePath = getUnZipPath(requestType);
-				object.cardObj.ld.addProperty(PlatformContentConstants.KEY_TEMPLATE_PATH, PlatformContentConstants.CONTENT_AUTHORITY_BASE + basePath);
+                int microAppVersionCode = object.cardObj.getMappVersionCode();
+                String microApp = object.cardObj.getMicroApp();
+                String unzipPath = PlatformContentConstants.HIKE_MICRO_APPS;
+                String basePath = PlatformUtils.generateMappUnZipPathForBotRequestType(requestType,unzipPath,microApp,microAppVersionCode);
+
+                object.cardObj.ld.addProperty(PlatformContentConstants.KEY_TEMPLATE_PATH, PlatformContentConstants.CONTENT_AUTHORITY_BASE + basePath);
 				object.cardObj.ld.addProperty(PlatformContentConstants.MESSAGE_ID, Integer.toString(unique));
 				object.cardObj.ld.addProperty(HikePlatformConstants.PLATFORM_VERSION, HikePlatformConstants.CURRENT_VERSION);
 			}
@@ -220,31 +228,6 @@ public class PlatformContentModel
 		}
 
 		return object;
-	}
-
-
-	private static String getUnZipPath(byte requestType)
-	{
-		int microAppVersionCode = object.cardObj.mappVersionCode;
-
-		String microAppName = object.cardObj.appName;
-
-		String unzipPath = PlatformContentConstants.HIKE_MICRO_APPS;
-
-		switch (requestType)
-		{
-		case HikePlatformConstants.PlatformMappRequestType.HIKE_MICRO_APPS:
-			unzipPath += microAppName + File.separator + HikeConstants.Extras.VERSIONING_DIRECTORY_NAME + microAppVersionCode + File.separator;
-			break;
-		case HikePlatformConstants.PlatformMappRequestType.ONE_TIME_POPUPS:
-			unzipPath += PlatformContentConstants.HIKE_ONE_TIME_POPUPS + microAppName + File.separator;
-			break;
-		case HikePlatformConstants.PlatformMappRequestType.NATIVE_APPS:
-			unzipPath += PlatformContentConstants.HIKE_GAMES + microAppName + File.separator;
-			break;
-		}
-
-		return unzipPath;
 	}
 
 	public static String getForwardData(String originalData)
@@ -552,7 +535,7 @@ public class PlatformContentModel
 			this.compatibilityMap = getMapFromString(compatibilityMapStr);
 		}
 
-		public TreeMap<Integer,Integer> getCompatibilityMap(JsonObject hd)
+		public TreeMap<Integer,Integer> getCompatibilityMap()
 		{
 			return compatibilityMap;
 		}
@@ -562,8 +545,8 @@ public class PlatformContentModel
 		 */
 		private TreeMap<Integer,Integer> getMapFromString(String json){
 			Gson gson = new Gson();
-			Type stringStringMap = new TypeToken<TreeMap<Integer, Integer>>(){}.getType();
-			TreeMap<Integer,Integer> map = gson.fromJson(json, stringStringMap);
+			Type treeMap = new TypeToken<TreeMap<Integer, Integer>>(){}.getType();
+			TreeMap<Integer,Integer> map = gson.fromJson(json, treeMap);
 			return map;
 		}
 
@@ -585,6 +568,16 @@ public class PlatformContentModel
 		public void setnotifText(String notifText)
 		{
 			this.notifText = notifText;
+		}
+
+		public String getMicroApp()
+		{
+			return microApp;
+		}
+
+		public void setMicroApp(String microApp)
+		{
+			this.microApp = microApp;
 		}
 		
 		@Expose
@@ -637,6 +630,9 @@ public class PlatformContentModel
 
         @Expose
         public String appMarketVersion;
+
+        @Expose
+        public String microApp;
 
 	}
 
