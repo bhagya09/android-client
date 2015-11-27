@@ -5,7 +5,7 @@
     android:installLocation="auto"
 
     android:versionCode="1532"
-    android:versionName="4.0.8.81.34" >
+    android:versionName="4.0.8.81.34.media" >
     <uses-sdk
         android:minSdkVersion="14"
         android:targetSdkVersion="17"/>
