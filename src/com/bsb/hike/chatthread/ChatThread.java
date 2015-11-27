@@ -2550,7 +2550,12 @@ import android.widget.Toast;
 	protected boolean shouldShowKeyboard()
 	{
 		return ((mConversation.getMessagesList().isEmpty() && !mConversation.isBlocked() && !activity.getIntent().getBooleanExtra(HikeConstants.Extras.HIKE_DIRECT_MODE,false) 
-				&& !keyboardFtue.isReadyForFTUE()) || (mActionMode.whichActionModeIsOn() == SEARCH_ACTION_MODE));
+				&& !keyboardFtue.isReadyForFTUE()) || shouldShowKeyboardInActionMode());
+	}
+	
+	protected boolean shouldShowKeyboardInActionMode()
+	{
+		return (mActionMode.whichActionModeIsOn() == SEARCH_ACTION_MODE);
 	}
 
 	/**
