@@ -376,6 +376,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		{
 			final LocalLanguage localLanguage = LocalLanguageUtils.getApplicationLocalLanguage(HikePreferences.this);
 			languagePref.setSummary(localLanguage.getDisplayName());
+			languagePref.setNegativeButtonText(R.string.cancel);
 			CharSequence entries[] = new String[localLanguage.getDeviceSupportedHikeLanguages(HikePreferences.this).size()];
 			int i=0;
 			for (LocalLanguage language : localLanguage.getDeviceSupportedHikeLanguages(HikePreferences.this))
