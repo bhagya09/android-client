@@ -1314,6 +1314,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 			HikeMessengerApp.getPubSub().publish(HikePubSub.DELETE_THIS_CONVERSATION, convInfo);
 		}
 		StealthModeManager.getInstance().clearStealthMsisdn();
+		StealthModeManager.getInstance().clearStealthTimeline();
 	}
 
 	private void resetStealthPreferences()
