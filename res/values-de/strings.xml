@@ -474,6 +474,12 @@
     <string name="vib_default_key">Standard</string>
     <string name="vib_short_key">Kurz</string>
     <string name="vib_long_key">Lang</string>
+
+    <string name="vib_off">Aus</string>
+    <string name="vib_default">Standard</string>
+    <string name="vib_short">Kurz</string>
+    <string name="vib_long">Lang</string>
+
     <string name="tickSoundTitle">Unterhaltungstöne</string>
     <string name="tickSoundSummary">Klang für eingehende und ausgehende Nachrichten abspielen</string>
     <string name="notificationSoundTitle">Benachrichtigungstöne</string>

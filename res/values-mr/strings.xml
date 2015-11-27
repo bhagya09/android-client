@@ -477,6 +477,12 @@
     <string name="vib_default_key">डीफॉल्ट</string>
     <string name="vib_short_key">आखूड</string>
     <string name="vib_long_key">दीर्घ</string>
+
+    <string name="vib_off">बंद</string>
+    <string name="vib_default">डीफॉल्ट</string>
+    <string name="vib_short">आखूड</string>
+    <string name="vib_long">दीर्घ</string>
+
     <string name="tickSoundTitle">संभाषण टोन</string>
     <string name="tickSoundSummary">येणाऱ्या आणि जाणाऱ्या संदेशांसाठी ध्वनी प्ले करा</string>
     <string name="notificationSoundTitle">सूचनापत्र टोन</string>

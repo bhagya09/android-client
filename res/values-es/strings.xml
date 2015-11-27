@@ -477,6 +477,12 @@
     <string name="vib_default_key">Predeterminado</string>
     <string name="vib_short_key">Corto</string>
     <string name="vib_long_key">Largo</string>
+
+    <string name="vib_off">Apagado</string>
+    <string name="vib_default">Predeterminado</string>
+    <string name="vib_short">Corto</string>
+    <string name="vib_long">Largo</string>
+
     <string name="tickSoundTitle">Tonos de conversación</string>
     <string name="tickSoundSummary">Emitir sonido al recibir o enviar mensajes</string>
     <string name="notificationSoundTitle">Tonos de notificación</string>

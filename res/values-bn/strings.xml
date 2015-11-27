@@ -477,6 +477,12 @@
     <string name="vib_default_key">ডিফল্ট</string>
     <string name="vib_short_key">ছোট</string>
     <string name="vib_long_key">দীর্ঘ</string>
+
+    <string name="vib_off">বন্ধ</string>
+    <string name="vib_default">ডিফল্ট</string>
+    <string name="vib_short">ছোট</string>
+    <string name="vib_long">দীর্ঘ</string>
+
     <string name="tickSoundTitle">কথোপকথনের ভঙ্গি</string>
     <string name="tickSoundSummary">মেসেজ আসা ও যাওয়ার জন্য শব্দ প্লে করুন</string>
     <string name="notificationSoundTitle">বিজ্ঞপ্তির টোন</string>

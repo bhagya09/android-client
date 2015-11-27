@@ -478,6 +478,12 @@
     <string name="vib_default_key">Par défaut</string>
     <string name="vib_short_key">Court</string>
     <string name="vib_long_key">Long</string>
+
+    <string name="vib_off">Non</string>
+    <string name="vib_default">Par défaut</string>
+    <string name="vib_short">Court</string>
+    <string name="vib_long">Long</string>
+
     <string name="tickSoundTitle">Sons de conversation</string>
     <string name="tickSoundSummary">Émet un son pour les messages entrants et sortants</string>
     <string name="notificationSoundTitle">Sons de notifications</string>
