@@ -641,7 +641,7 @@
     <string name="file_attachment_info">100 MB വരെ ഡോക്ക്. pdf,&amp; മീഡിയ എന്നിവ പങ്കിടുക</string>
     <string name="status_text_notification">ഒരു അപ്‌ഡേറ്റ് %1$s പോസ്റ്റുചെയ്തു</string>
     <string name="shared_files">ഫയലുകൾ</string>
-    <string name="tap_save_contact">സമ്പർക്കത്തെ സംരക്ഷിക്കുക</string>
+    <string name="tap_save_contact">സമ്പർക്കത്തെ\nസംരക്ഷിക്കുക</string>
     <string name="image_settings_tip_text">ചിത്ര ക്രമീകരണം</string>
     <string name="image_settings_tip_subtext">സാധാരണം. മികച്ചത്. കംപ്രസ്സ് ചെയ്യാനാകാത്ത വലുപ്പം</string>
     <string name="settings_media">മാധ്യമം</string>
@@ -651,7 +651,7 @@
     <string name="image_quality_send">അയയ്ക്കുക</string>
     <string name="image_quality_prefs">ചിത്ര നിലവാരം</string>
     <string name="no_media">ഫോട്ടോകളും വീഡിയോകളും ഇവിടെ പ്രദർശിപ്പിക്കും</string>
-    <string name="add_fav">പ്രിയങ്കരങ്ങൾ ചേർക്കുക</string>
+    <string name="add_fav">പ്രിയങ്കരങ്ങൾ\nചേർക്കുക</string>
     <string name="no_file">ഫയലുകളും pin-കളും ഇവിടെ പ്രദർശിപ്പിക്കും</string>
     <string name="no_file_broadcast">ഫയലുകൾ ഇവിടെ പ്രദർശിപ്പിക്കും</string>
     <string name="no_file_profile">ഫയലുകൾ ഇവിടെ പ്രദർശിപ്പിക്കും</string>
@@ -1288,8 +1288,124 @@
     <string name="APPLY">പ്രയോഗിക്കുക</string>
     <string name="level">നില</string>
     <string name="milliseconds">എംഎസ്</string>
-    <string name="and"> ഒപ്പം </string>
     <string name="contact_name">സമ്പർക്കത്തിന്റെ പേര്</string>
     <string name="mobile">മൊബൈൽ</string>
     <string name="your_contact">നിങ്ങളുടെ സമ്പർക്കം</string>
+    <string name="and">ഒപ്പം</string> 
+    <string name="others_smallcase">മറ്റുള്ളവർ</string>
+
+<!-- The above two string would be used as in Group with Shibu, Niladri and 4 others -->
+
+
+ 	<string name="yesterday">ഇന്നലെ</string>
+    <string name="tomorrow">നാളെ</string>
+    <string name="today">ഇന്ന്</string>
+    
+    <!-- This is used to express that something occurred some number of seconds in the past (e.g., 5 seconds ago). -->
+    <plurals name="num_seconds_ago">
+        <item quantity="one">1 സെക്കൻഡ് മുമ്പ്</item>
+        <item quantity="other">%d സെക്കൻഡ് മുമ്പ്</item>
+    </plurals>
+
+    <!-- This is used to express that something occurred some number of minutes in the past (e.g., 5 minutes ago). -->
+    <plurals name="num_minutes_ago">
+        <item quantity="one">1 മിനിറ്റ് മുമ്പ്</item>
+        <item quantity="other">%d മിനിറ്റ് മുമ്പ്</item>
+    </plurals>
+
+    <!-- This is used to express that something occurred some number of hours in the past (e.g., 5 hours ago). -->
+    <plurals name="num_hours_ago">
+        <item quantity="one">1 മണിക്കൂർ മുമ്പ്</item>
+        <item quantity="other">%d മണിക്കൂർ മുമ്പ്</item>
+    </plurals>
+
+    <!-- This is used to express that something occurred within the last X days (e.g., Last 7 days). -->
+    <plurals name="last_num_days">
+        <item quantity="other">കഴിഞ്ഞ %d ദിവസം</item>
+    </plurals>
+
+    <!-- This is used to express that something has occurred within the last month -->
+    <string name="last_month">കഴിഞ്ഞ മാസം</string>
+
+    <!-- This is used to express that something happened longer ago than the previous options -->
+    <string name="older">പഴയത്</string>
+
+    <!-- This is used to express that something occurred some number of days in the past (e.g., 5 days ago). -->
+    <plurals name="num_days_ago">
+        <item quantity="one">ഇന്നലെ</item>
+        <item quantity="other">%d ദിവസം മുമ്പ്</item>
+    </plurals>
+
+    <!-- This is used to express that something will occur some number of seconds in the future (e.g., in 5 seconds). -->
+    <plurals name="in_num_seconds">
+        <item quantity="one">1 സെക്കൻഡിൽ</item>
+        <item quantity="other">%d സെക്കൻഡിൽ</item>
+    </plurals>
+
+    <!-- This is used to express that something will occur some number of minutes in the future (e.g., in 5 minutes). -->
+    <plurals name="in_num_minutes">
+        <item quantity="one">1 മിനിറ്റിൽ</item>
+        <item quantity="other">%d മിനിറ്റിൽ</item>
+    </plurals>
+
+    <!-- This is used to express that something will occur some number of hours in the future (e.g., in 5 hours). -->
+    <plurals name="in_num_hours">
+        <item quantity="one">1 മണിക്കൂറിൽ</item>
+        <item quantity="other">%d മണിക്കൂറിൽ</item>
+    </plurals>
+
+    <!-- This is used to express that something will occur some number of days in the future (e.g., in 5 days). -->
+    <plurals name="in_num_days">
+        <item quantity="one">നാളെ</item>
+        <item quantity="other">%d ദിവസത്തിൽ</item>
+    </plurals>
+
+    <!-- This is used to express that something occurred some number of abbreviated seconds in the past (e.g., 5 secs ago). -->
+    <plurals name="abbrev_num_seconds_ago">
+        <item quantity="one">1 സെക്കൻഡ് മുമ്പ്</item>
+        <item quantity="other">%d സെക്കൻഡ് മുമ്പ്</item>
+    </plurals>
+
+    <!-- This is used to express that something occurred some number of abbreviated minutes in the past (e.g., 5 mins ago). -->
+    <plurals name="abbrev_num_minutes_ago">
+        <item quantity="one">1 മിനിറ്റ് മുമ്പ്</item>
+        <item quantity="other">%d മിനിറ്റ് മുമ്പ്</item>
+    </plurals>
+
+    <!-- This is used to express that something occurred some number of abbreviated hours in the past (e.g., 5 hrs ago). -->
+    <plurals name="abbrev_num_hours_ago">
+        <item quantity="one">1 മണിക്കൂർ മുമ്പ്</item>
+        <item quantity="other">%d മണിക്കൂർ മുമ്പ്</item>
+    </plurals>
+
+    <!-- This is used to express that something occurred some number of abbreviated days in the past (e.g., 5 days ago). -->
+    <plurals name="abbrev_num_days_ago">
+        <item quantity="one">ഇന്നലെ</item>
+        <item quantity="other">%d ദിവസം മുമ്പ്</item>
+    </plurals>
+
+    <!-- This is used to express that something will occur some number of abbreviated seconds in the future (e.g., in 5 secs). -->
+    <plurals name="abbrev_in_num_seconds">
+        <item quantity="one">1 സെക്കൻഡിൽ</item>
+        <item quantity="other">%d സെക്കൻഡിൽ</item>
+    </plurals>
+
+    <!-- This is used to express that something will occur some number of abbreviated minutes in the future (e.g., in 5 mins). -->
+    <plurals name="abbrev_in_num_minutes">
+        <item quantity="one">1 മിനിറ്റിൽ</item>
+        <item quantity="other">%d മിനിറ്റിൽ</item>
+    </plurals>
+
+    <!-- This is used to express that something will occur some number of abbreviated hours in the future (e.g., in 5 hrs). -->
+    <plurals name="abbrev_in_num_hours">
+        <item quantity="one">1 മണിക്കൂറിൽ</item>
+        <item quantity="other">%d മണിക്കൂറിൽ</item>
+    </plurals>
+
+    <!-- This is used to express that something will occur some number of abbreviated days in the future (e.g., in 5 days). -->
+    <plurals name="abbrev_in_num_days">
+        <item quantity="one">നാളെ</item>
+        <item quantity="other">%d ദിവസത്തിൽ</item>
+    </plurals>
+    
 </resources>
