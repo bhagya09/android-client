@@ -4,8 +4,8 @@
     package="com.bsb.hike"
     android:installLocation="auto"
 
-    android:versionCode="1530"
-    android:versionName="4.0.8.81.32.1.sr_client_enable" >
+    android:versionCode="1532"
+    android:versionName="4.0.8.81.34" >
     <uses-sdk
         android:minSdkVersion="14"
         android:targetSdkVersion="17"/>
