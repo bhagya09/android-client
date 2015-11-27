@@ -14,32 +14,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.app.Dialog;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
-import android.os.AsyncTask;
-import android.os.Bundle;
-import android.support.v7.app.ActionBar;
-import android.support.v7.widget.Toolbar;
-import android.util.Pair;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.view.ViewGroup;
-import android.view.WindowManager;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
-import android.widget.CompoundButton.OnCheckedChangeListener;
-import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.ListView;
-import android.widget.TextView;
-import android.widget.Toast;
-
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
@@ -56,6 +30,8 @@ import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.modules.kpt.HikeCustomKeyboard;
+import com.bsb.hike.modules.kpt.KptUtils;
 import com.bsb.hike.offline.OfflineController;
 import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
@@ -63,8 +39,39 @@ import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
+import com.bsb.hike.view.CustomFontEditText;
+import com.kpt.adaptxt.beta.KPTAddonItem;
+import com.kpt.adaptxt.beta.RemoveDialogData;
+import com.kpt.adaptxt.beta.util.KPTConstants;
+import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtKeyboordVisibilityStatusListner;
 
-public class HikeListActivity extends HikeAppStateBaseFragmentActivity implements OnItemClickListener
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
+import android.content.res.Configuration;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.support.v7.app.ActionBar;
+import android.support.v7.widget.Toolbar;
+import android.util.Pair;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.Toast;
+
+public class HikeListActivity extends HikeAppStateBaseFragmentActivity implements OnItemClickListener, 
+		AdaptxtKeyboordVisibilityStatusListner
 {
 
 	private enum Type
@@ -76,7 +83,7 @@ public class HikeListActivity extends HikeAppStateBaseFragmentActivity implement
 
 	private ListView listView;
 
-	private EditText input;
+	private CustomFontEditText input;
 
 	// Set of msisdns of the already blocked/invited users
 	private Set<String> selectedContacts;
@@ -97,6 +104,10 @@ public class HikeListActivity extends HikeAppStateBaseFragmentActivity implement
 	private TextView title;
 
 	private ImageView backIcon;
+	
+	private HikeCustomKeyboard mCustomKeyboard;
+	
+	private boolean systemKeyboard;
 
 	List<Pair<AtomicBoolean, ContactInfo>> firstSectionList;
 
@@ -125,7 +136,7 @@ public class HikeListActivity extends HikeAppStateBaseFragmentActivity implement
 		selectedContacts = new HashSet<String>();
 
 		listView = (ListView) findViewById(R.id.contact_list);
-		input = (EditText) findViewById(R.id.input_number);
+		input = (CustomFontEditText) findViewById(R.id.input_number);
 
 		listView.setTextFilterEnabled(true);
 		listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
@@ -133,6 +144,12 @@ public class HikeListActivity extends HikeAppStateBaseFragmentActivity implement
 
 		findViewById(android.R.id.empty).setVisibility(View.GONE);
 
+		systemKeyboard = HikeMessengerApp.isSystemKeyboard();
+		if (!systemKeyboard)
+		{
+			initCustomKeyboard();
+		}
+		
 		switch (type)
 		{
 		case BLOCK:
@@ -149,6 +166,28 @@ public class HikeListActivity extends HikeAppStateBaseFragmentActivity implement
 		showProductPopup(ProductPopupsConstants.PopupTriggerPoints.INVITE_SMS.ordinal());
 	}
 
+	private void initCustomKeyboard()
+	{
+		View keyboardView = (LinearLayout) findViewById(R.id.keyboardView_holder);
+		mCustomKeyboard = new HikeCustomKeyboard(HikeListActivity.this, keyboardView, KPTConstants.MULTILINE_LINE_EDITOR, null, HikeListActivity.this);
+		mCustomKeyboard.registerEditText(R.id.input_number);
+		mCustomKeyboard.init(input);
+		input.setOnClickListener(new OnClickListener()
+		{
+			
+			@Override
+			public void onClick(View v)
+			{
+				if (mCustomKeyboard.isCustomKeyboardVisible())
+				{
+					return;
+				}
+				mCustomKeyboard.showCustomKeyboard(input, true);
+				KptUtils.updatePadding(HikeListActivity.this, R.id.hike_list_parent_layout, mCustomKeyboard.getKeyBoardAndCVHeight());
+			}
+		});
+	}
+	
 	private void init()
 	{
 		if (type != Type.BLOCK)
@@ -478,8 +517,9 @@ public class HikeListActivity extends HikeAppStateBaseFragmentActivity implement
 	@Override
 	protected void onPause()
 	{
-		// TODO Auto-generated method stub
 		super.onPause();
+		KptUtils.pauseKeyboardResources(mCustomKeyboard, input);
+		KptUtils.updatePadding(HikeListActivity.this, R.id.hike_list_parent_layout, 0);
 		if(adapter != null)
 		{
 			adapter.getIconLoader().setExitTasksEarly(true);
@@ -497,9 +537,11 @@ public class HikeListActivity extends HikeAppStateBaseFragmentActivity implement
 			adapter.notifyDataSetChanged();
 		}
 	}
+	
 	@Override
 	protected void onDestroy()
 	{
+		KptUtils.destroyKeyboardResources(mCustomKeyboard, R.id.input_number);
 		super.onDestroy();
 	}
 
@@ -735,11 +777,77 @@ public class HikeListActivity extends HikeAppStateBaseFragmentActivity implement
 		}
 	}
 
+	@Override
+	public void analyticalData(KPTAddonItem kptAddonItem)
+	{
+		KptUtils.generateKeyboardAnalytics(kptAddonItem);
+	}
 
 	@Override
-	public void onBackPressed() {
+	public void onInputViewCreated()
+	{
 		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onInputviewVisbility(boolean kptVisible, int height)
+	{
+		if (kptVisible)
+		{
+			KptUtils.updatePadding(HikeListActivity.this, R.id.hike_list_parent_layout, height);
+		}
+		else
+		{
+			KptUtils.updatePadding(HikeListActivity.this, R.id.hike_list_parent_layout, 0);
+		}
+	}
+
+	@Override
+	public void showGlobeKeyView()
+	{
+		KptUtils.onGlobeKeyPressed(HikeListActivity.this, mCustomKeyboard);
+	}
+
+	@Override
+	public void showQuickSettingView()
+	{
+		KptUtils.onGlobeKeyPressed(HikeListActivity.this, mCustomKeyboard);
+	}
+
+	@Override
+	public void onBackPressed()
+	{
+		if (mCustomKeyboard != null && mCustomKeyboard.isCustomKeyboardVisible())
+		{
+			mCustomKeyboard.showCustomKeyboard(input, false);
+			KptUtils.updatePadding(HikeListActivity.this, R.id.hike_list_parent_layout, 0);
+			return;
+		}
 		setResult(RESULT_OK);
 		super.onBackPressed();
 	}
+	
+	@Override
+	public void onConfigurationChanged(Configuration newConfig)
+	{
+		if (mCustomKeyboard != null)
+		{
+			mCustomKeyboard.onConfigurationChanged(newConfig);			
+		}
+		super.onConfigurationChanged(newConfig);
+	}
+
+	@Override
+	public void dismissRemoveDialog() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void showRemoveDialog(RemoveDialogData arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

@@ -432,6 +432,7 @@ public class UploadFileTask extends FileTransferBase
 			metadata.put(HikeConstants.FILES, filesArray);
 			metadata.put(HikeConstants.CAPTION, ((ConvMessage) userContext).getMetadata().getCaption());
 
+			_state = FTState.COMPLETED;
 			if (isMultiMsg)
 			{
 				long ts = System.currentTimeMillis() / 1000;
@@ -473,7 +474,6 @@ public class UploadFileTask extends FileTransferBase
 			}
 			deleteStateFile();
 			Utils.addFileName(hikeFile.getFileName(), hikeFile.getFileKey());
-			_state = FTState.COMPLETED;
 		}
 		catch (MalformedURLException e)
 		{

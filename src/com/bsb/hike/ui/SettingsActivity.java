@@ -111,6 +111,17 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 		items.add(new SettingsDisplayPojo(getString(R.string.settings_media), R.string.settings_media, R.drawable.ic_auto_download_media_settings));
 		
 		items.add(new SettingsDisplayPojo(getString(R.string.settings_chat), R.string.settings_chat, R.drawable.ic_settings_chat));
+		if (HikeMessengerApp.isLocalisationEnabled())
+		{
+			if (HikeMessengerApp.isCustomKeyboardEnabled())
+			{
+				items.add(new SettingsDisplayPojo(getString(R.string.settings_localization), R.string.settings_localization, R.drawable.ic_settings_languages));
+			}
+			else
+			{
+				items.add(new SettingsDisplayPojo(getString(R.string.language), R.string.language, R.drawable.ic_settings_languages));
+			}
+		}
 		if (PreferenceManager.getDefaultSharedPreferences(this).getBoolean(HikeConstants.FREE_SMS_PREF, true))
 		{
 			int credits = getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, MODE_PRIVATE).getInt(HikeMessengerApp.SMS_SETTING, 0);
@@ -133,7 +144,7 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 		}
 		items.add(new SettingsDisplayPojo(getString(R.string.manage_account), R.string.manage_account, R.drawable.ic_account_settings));
 		items.add(new SettingsDisplayPojo(getString(R.string.privacy), R.string.privacy, R.drawable.ic_privacy_settings));
-    	if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.CHAT_HEAD_SERVICE, false) && ChatHeadUtils.areWhitelistedPackagesSharable(this) && ChatHeadUtils.checkDeviceFunctionality())
+    	if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.ENABLE, false) && ChatHeadUtils.areWhitelistedPackagesSharable(this) && ChatHeadUtils.checkDeviceFunctionality())
 		{
 			items.add(new SettingsDisplayPojo(getString(R.string.settings_share_stickers), R.string.settings_share_stickers, R.drawable.settings_icon_sticker_widget));
 		}
@@ -353,6 +364,11 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 				IntentFactory.openSettingChat(this);
 				break;
 
+			case R.string.settings_localization:
+            case R.string.language:
+				IntentFactory.openSettingLocalization(this);
+				break;
+				
 			case R.string.sms_with_settings:
 			case R.string.sms:
 				IntentFactory.openSettingSMS(this);

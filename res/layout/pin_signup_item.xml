@@ -78,7 +78,7 @@
         android:drawableLeft="@drawable/ic_pin"
         android:hint="@string/pin"
         android:imeOptions="actionDone"
-        android:inputType="number"
+        android:inputType="phone"
         android:singleLine="true"
         android:textSize="18sp"
         android:visibility="visible"

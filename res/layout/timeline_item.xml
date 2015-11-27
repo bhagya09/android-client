@@ -202,7 +202,7 @@
                 android:layout_marginTop="1dp"
                 android:background="@null"
                 android:includeFontPadding="false"
-                android:text="Like"
+                android:text="@string/like_this"
                 android:textColor="#3D000000"
                 android:textSize="14sp"
                 android:textStyle="normal" />

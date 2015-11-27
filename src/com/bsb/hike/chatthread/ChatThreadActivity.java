@@ -388,4 +388,11 @@ public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
 		//Nothing to be done with status bar
 		return;
 	}
+	
+	public void hideKeyboard() {
+		if(chatThread!=null){
+			chatThread.hideKeyboard();
+		}
+		return;
+	}
 }

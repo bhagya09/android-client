@@ -40,7 +40,6 @@
         android:layout_marginRight="16dp"
         android:layout_marginTop="24dp"
         android:background="@color/white"
-        android:text="Your caption here!Your caption here!Your caption here!Your caption here!Your caption here!"
         android:textColor="@android:color/white"
         android:textSize="16sp"
         android:textStyle="normal" />
@@ -70,7 +69,6 @@
             android:maxLines="2"
             android:padding="10dp"
             android:scrollbars="vertical"
-            android:text="Your caption here!"
             android:textColor="@android:color/white"
             android:textSize="14sp"
             android:textStyle="normal" />
@@ -111,7 +109,7 @@
                 android:layout_height="match_parent"
                 android:layout_gravity="center"
                 android:gravity="center_vertical"
-                android:text="0 people(s) like this photo"
+                android:text="@string/photo_like_def_text"
                 android:textColor="#B3FFFFFF"
                 android:textSize="14dp"
                 android:textStyle="normal" />

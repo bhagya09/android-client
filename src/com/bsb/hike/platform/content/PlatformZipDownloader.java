@@ -1,5 +1,15 @@
 package com.bsb.hike.platform.content;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.util.HashMap;
+import java.util.Observable;
+import java.util.Observer;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.text.TextUtils;
 import android.util.Pair;
 
@@ -18,20 +28,12 @@ import com.bsb.hike.modules.httpmgr.request.FileRequestPersistent;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.notifications.HikeNotification;
+import com.bsb.hike.notifications.ToastListener;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.content.PlatformContent.EventCode;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.Logger;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Observable;
-import java.util.Observer;
 
 /**
  * Download and store template. First
@@ -334,7 +336,7 @@ public class PlatformZipDownloader
 									if (botinfo != null)
 									{
 										NonMessagingBotMetadata nonMessagingBotMetadata = new NonMessagingBotMetadata(botinfo.getMetadata());
-										HikeNotification.getInstance().sendNotificationToChatThread(asocCbotMsisdn,
+										ToastListener.getInstance().showBotDownloadNotification(asocCbotMsisdn,
 												nonMessagingBotMetadata.getCardObj().optString(HikePlatformConstants.HIKE_MESSAGE), false);
 									}
 								}
@@ -365,6 +367,7 @@ public class PlatformZipDownloader
 								else
 								{
 									PlatformRequestManager.setReadyState(mRequest);
+									PlatformUtils.sendMicroAppServerAnalytics(true, mRequest.getContentData().cardObj.appName, mRequest.getContentData().cardObj.appVersion);
 								}
 								HikeMessengerApp.getPubSub().publish(HikePubSub.DOWNLOAD_PROGRESS, new Pair<String, String>(callbackId, "unzipSuccess"));
 							}
@@ -426,6 +429,23 @@ public class PlatformZipDownloader
 			@Override
 			public void onRequestSuccess(Response result)
 			{
+				if(!resumeSupported)
+				{
+					JSONObject json = new JSONObject();
+					try
+					{
+						json.putOpt(AnalyticsConstants.EVENT_KEY,AnalyticsConstants.FILE_DOWNLOADED);
+						json.putOpt(AnalyticsConstants.FILE_SIZE, zipFile.length());
+						json.putOpt(AnalyticsConstants.APP_NAME, mRequest.getContentData().getId());
+						json.putOpt(AnalyticsConstants.RESULT_CODE,result.getStatusCode());
+					} catch (JSONException e)
+					{
+						e.printStackTrace();
+					}
+
+					HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.MICRO_APP_REPLACED, json);
+				}
+
 				if (resumeSupported && !TextUtils.isEmpty(statefilePath))
 				{
 					(new File(statefilePath + FileRequestPersistent.STATE_FILE_EXT)).delete();
