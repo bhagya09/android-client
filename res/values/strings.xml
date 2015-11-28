@@ -1490,4 +1490,5 @@
 	<string name="telugu_locale">te</string>
 	<string name="kannada_locale">kn</string>
 	<string name="malayalam_locale">ml</string>
+    <string name="made_with_love_in_india">Made with :love: in India</string>
 </resources>
