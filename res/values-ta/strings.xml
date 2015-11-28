@@ -1297,11 +1297,13 @@
     <string name="contact_name">தொடர்பாளர் பெயர்</string>
     <string name="mobile">மொபைல்</string>
     <string name="your_contact">உங்கள் தொடர்பு</string>
-    <string name="and">மற்றும்</string> 
+    <string name="and">மற்றும்</string>
     <string name="others_smallcase">மற்றவை</string>
     <string name="made_with_love_in_india"> :love: உடன் இந்தியாவில் தயாரித்தது</string>
+    <string name="timeline_ftue_desc">காலக்கெடு நீங்கள் மற்றும் நண்பர்கள் தருணங்களை பகிர்ந்து கொள்ள ஒரு இடம். நீங்கள் ஏற்கனவே அவர்களின் காலக்கெடு தகவல்களுக்கு ஒரு சில நண்பர்கள் கிடைத்துவிட்டது!</string>
 
-<!-- The above two string would be used as in Group with Shibu, Niladri and 4 others -->
+
+    <!-- The above two string would be used as in Group with Shibu, Niladri and 4 others -->
 
 
  	<string name="yesterday">நேற்று</string>
@@ -1415,4 +1417,5 @@
         <item quantity="other">%d நாட்களில்</item>
     </plurals>
     
+
 </resources>

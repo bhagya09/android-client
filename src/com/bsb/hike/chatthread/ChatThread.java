@@ -152,6 +152,8 @@ import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.text.style.CharacterStyle;
+import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
 import android.util.Pair;
 import android.view.GestureDetector;
@@ -2018,6 +2020,13 @@ import android.widget.Toast;
 					activity.findViewById(R.id.search_clear_btn).setVisibility(View.VISIBLE);
 				}
 			}
+			//AND-3276 Begin
+			if (!TextUtils.isEmpty(s.toString())) {
+				CharacterStyle[] spansToRemove = s.getSpans(0, s.length(), ForegroundColorSpan.class);
+				for (int i = 0; i < spansToRemove.length; i++)
+					s.removeSpan(spansToRemove[i]);
+			}
+			//AND-3276 End
 			searchText = s.toString().toLowerCase();
 			mAdapter.setSearchText(searchText);
 			mAdapter.notifyDataSetChanged();
@@ -4451,6 +4460,7 @@ import android.widget.Toast;
 	{
 		if (shouldShowKeyboard())
 		{
+			tryToDismissAnyOpenPanels();
 			showKeyboard();
 		}
 		else
@@ -4498,6 +4508,8 @@ import android.widget.Toast;
 		hideThemePicker();
 		
 		hideOverflowMenu();
+
+		clearActionBarViews();
 		
 		hideDialog();
 		
@@ -4543,6 +4555,16 @@ import android.widget.Toast;
 		if (mActionBar != null && mActionBar.isOverflowMenuShowing())
 		{
 			mActionBar.dismissOverflowMenu();
+		}
+	}
+
+	/**
+	 * Do not call this method freely! Use it at your own risk!
+	 */
+	private void clearActionBarViews()
+	{
+		if (mActionBar != null)
+		{
 			mActionBar.resetView();
 		}
 	}
