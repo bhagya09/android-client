@@ -810,6 +810,10 @@ public class MqttMessagesManager
 		{
 			convMessage.setMessage(context.getString(R.string.sent_sticker));
 		}
+        if (convMessage.getMetadata().isPokeMessage())
+        {
+            convMessage.setMessage(context.getString(R.string.poke_msg));
+        }
 		/*
 		 * Need to rename every audio recording to a unique name since the ios client is sending every file with the same name.
 		 */
