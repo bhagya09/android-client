@@ -21,7 +21,7 @@
     <string name="block_title">பிளாக் செய்க</string>
     <string name="unblock_title">அன் பிளாக் செய்க</string>
     <string name="feedback">தங்களது கருத்தை தெரிவிக்கவும் </string>
-    <string name="block_overlay_message">பிளாக் செய்துள்ளீர். அன் பிளாக் செய்து தொடர்ந்து hike செய்யும்.</string>
+    <string name="block_overlay_message">நீர் %1$s-ஐ பிளாக் செய்துள்ளீர். அன் பிளாக் செய்து தொடர்ந்து hike செய்யும்.</string>
     <string name="phone_num">ஃபோன் எண்</string>
     <string name="pin">குறியீடு</string>
     <string name="name">பெயர்</string>
@@ -30,9 +30,9 @@
     <string name="edit_profile">புரொஃபைலை எடிட் செய்க</string>
     <string name="no_sd_card">தயவுசெய்து SD கார்டை பொருத்தவும்</string>
     <string name="invalid_email">ஈமெயில் அட்ரெஸ் தவறானது</string>
-    <string name="joined_conversation">குரூப் சேட்டில் சேர்ந்திருக்கிறார்!</string>
-    <string name="left_conversation">குரூப் சேட்டிலிருந்து வெளியேறி விட்டார்.</string>
-    <string name="removed_from_broadcast">புரோட்காஸ்ட் லிஸ்ட்டிலிருந்து அகற்றியாகிற்று</string>
+    <string name="joined_conversation">%1$s குரூப் சேட்டில் சேர்ந்திருக்கிறார்!</string>
+    <string name="left_conversation">%1$s குரூப் சேட்டிலிருந்து வெளியேறி விட்டார்.</string>
+    <string name="removed_from_broadcast">%1$s -ஐ புரோட்காஸ்ட் லிஸ்ட்டிலிருந்து அகற்றியாகிற்று</string>
     <string name="leave_group">குரூப்பை விட்டு வெளியேறினார்</string>
     <string name="delete_broadcast">புரோட்காஸ்ட்டை அழி</string>
     <string name="group_chat_end">இந்த குரூப் சாட் முடிவடைந்தது.</string>
@@ -1280,14 +1280,14 @@
     <string name="you_chat_bg_changed">நீவீர்  சேட் தீம்-ஐ மாற்றி விட்டீர்</string>
     <string name="hike_keyboard">Hike கீபோர்டு</string>
     <string name="system_keyboard">சிஸ்டம் கீபோர்டு</string>
-    <string name="you_xyz_posted_pin">நீர் ஓர் pin-ஐ போஸ்ட் செய்தீர்</string>
+    <string name="you_xyz_posted_pin">நீவீர்  ஓர் pin-ஐ போஸ்ட் செய்தீர்</string>
     <string name="voip_hang_up">ஹேங் அப்</string>
     <string name="voip_decline">மறுக்கவும்</string>
     <string name="voip_accept">ஏற்கவும்</string>
-    <string name="you_group_member_added">நீர் %1$s-ஐ சேர்த்தீர்</string>
+    <string name="you_group_member_added">நீவீர்  %1$s-ஐ சேர்த்தீர்</string>
     <string name="you_added_as_group_member">%1$s உம்மை சேர்த்தார்</string>
     <string name="group_member_added">%1$s, %2$s ஐ சேர்த்தார்</string>
-    <string name="you_updated_group_admin">நீர் %1$s-ஐ அட்மின் ஆக ஆக்கினீர்</string>
+    <string name="you_updated_group_admin">நீவீர்  %1$s-ஐ அட்மின் ஆக ஆக்கினீர்</string>
     <string name="group_admin_updated_you">%1$s உம்மை அட்மின் ஆக ஆக்கினார்</string>
     <string name="group_admin_updated">%1$s, %2$s-ஐ அட்மின் ஆக ஆக்கினார்</string>
     <string name="no_results_found">முடிவுகள் எதையும் காணவில்லை</string>
@@ -1297,7 +1297,7 @@
     <string name="contact_name">தொடர்பாளர் பெயர்</string>
     <string name="mobile">மொபைல்</string>
     <string name="your_contact">உங்கள் தொடர்பு</string>
-    <string name="and">மற்றும்</string> 
+    <string name="and">மற்று் </string>
     <string name="others_smallcase">மற்றவை</string>
     <string name="made_with_love_in_india"> :love: உடன் இந்தியாவில் தயாரித்தது</string>
 
