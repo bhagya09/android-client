@@ -10,7 +10,11 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
+import android.text.Editable;
+import android.text.Spannable;
+import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
+import android.text.style.ImageSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -97,6 +101,8 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 			this.drawableResId = drawableResId;
 		}
 	}
+
+	private static final float SCALE_FACTOR = 0.6f;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState)
@@ -232,6 +238,7 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 
 				case VERSION:
 					TextView appVersion = (TextView) convertView.findViewById(R.id.app_version);
+					TextView withLove = (TextView) convertView.findViewById(R.id.with_love);
 
 					if (AppConfig.ALLOW_STAGING_TOGGLE)
 					{
@@ -251,6 +258,17 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 					{
 						appVersion.setText("");
 					}
+
+					//Made with Love In India
+					String madeWithLove = getString(R.string.made_with_love_in_india);
+					int heartStartIndex = madeWithLove.indexOf(':');
+					int heartLastIndex = madeWithLove.lastIndexOf(':') + 1;
+					Editable editable = new SpannableStringBuilder(madeWithLove);
+					Drawable heart = getResources().getDrawable(R.drawable.symbols177);
+					heart.setBounds(0, 0, (int) (SCALE_FACTOR * heart.getIntrinsicWidth()), (int) (SCALE_FACTOR * heart.getIntrinsicHeight()));
+					editable.setSpan(new ImageSpan(heart), heartStartIndex, heartLastIndex, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+					withLove.setText(editable);
+
 					break;
 
 				}
