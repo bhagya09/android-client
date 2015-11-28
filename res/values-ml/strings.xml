@@ -306,7 +306,7 @@
     <string name="post">പോസ്റ്റ്</string>
     <string name="no_credits">സൗജന്യ SMS തീർന്നു. കൂടുതൽ നേടുന്നതിനായി %1$s-നെ ക്ഷണിക്കുക!</string>
     <string name="ftue_add_prompt_invite">hike-ൽ %1$s ഇല്ല എന്ന് തോന്നുന്നു! hike-ലേക്ക് %1$s-നെ ക്ഷണിക്കുക. അടിസ്ഥാന ഓപ്പറേറ്റർ SMS നിരക്കുകൾ ബാധകം.</string>
-    <string name="ftue_add_prompt_invite_title">hike-ലേക്ക് ക്ഷണിക്കുക</string>
+    <string name="ftue_add_prompt_invite_title">hike-ലേക്ക്\nക്ഷണിക്കുക</string>
     <string name="create_group">പുതിയ ഗ്രൂപ്പ് ചാറ്റ്</string>
     <string name="number_confirmation_string">%1$s നിങ്ങളുടെ നമ്പറാണോ?</string>
     <string name="unlink_facebook">Facebook അൺലിങ്കുചെയ്യുക</string>
@@ -647,7 +647,7 @@
     <string name="file_attachment_info">100 MB വരെ ഡോക്ക്. pdf,&amp; മീഡിയ എന്നിവ പങ്കിടുക</string>
     <string name="status_text_notification">ഒരു അപ്‌ഡേറ്റ് %1$s പോസ്റ്റുചെയ്തു</string>
     <string name="shared_files">ഫയലുകൾ</string>
-    <string name="tap_save_contact">കോണ്ടാക്ട് സംരക്ഷിക്കുക</string>
+    <string name="tap_save_contact">കോണ്ടാക്ട്\nസംരക്ഷിക്കുക</string>
     <string name="image_settings_tip_text">ചിത്ര സെറ്റിംഗ്സ് </string>
     <string name="image_settings_tip_subtext">സാധാരണം. മികച്ചത്. കംപ്രസ്സ് ചെയ്യാനാകാത്ത വലുപ്പം</string>
     <string name="settings_media">മാധ്യമം</string>
@@ -657,7 +657,7 @@
     <string name="image_quality_send">അയയ്ക്കുക</string>
     <string name="image_quality_prefs">ചിത്ര നിലവാരം</string>
     <string name="no_media">ഫോട്ടോകളും വീഡിയോകളും ഇവിടെ പ്രദർശിപ്പിക്കും</string>
-    <string name="add_fav">ഫേവറേറ്റായി  ചേർക്കുക</string>
+    <string name="add_fav">ഫേവറേറ്റായി\nചേർക്കുക</string>
     <string name="no_file">ഫയലുകളും pin-കളും ഇവിടെ പ്രദർശിപ്പിക്കും</string>
     <string name="no_file_broadcast">ഫയലുകൾ ഇവിടെ പ്രദർശിപ്പിക്കും</string>
     <string name="no_file_profile">ഫയലുകൾ ഇവിടെ പ്രദർശിപ്പിക്കും</string>
