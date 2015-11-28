@@ -1298,11 +1298,11 @@
     <string name="contact_name">સંપર્ક નામ</string>
     <string name="mobile">મોબાઇલ</string>
     <string name="your_contact">તમારો સંપર્ક</string>
-    
+
      <string name="and">અને</string> 
     <string name="others_smallcase">અન્યો</string>
     <string name="made_with_love_in_india">ભારતમાં :love: સાથે તૈયાર થયેલ</string>
-
+    <string name="timeline_ftue_desc"> ટાઈમલાઈન તમે અને તમારા મિત્રો ખાસ ક્ષણો શેર કરવા માટે એક સ્થળ છે. તમે પહેલાથી જ તેમના ટાઈમલાઈન પર પોસ્ટ થોડા મિત્રો મળી છે!</string>
 <!-- The above two string would be used as in Group with Shibu, Niladri and 4 others -->
 
 
@@ -1416,5 +1416,6 @@
         <item quantity="one">આવતી કાલે</item>
         <item quantity="other">%d દિવસોમાં</item>
     </plurals>
+
 
 </resources>

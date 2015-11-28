@@ -1298,9 +1298,10 @@
     <string name="contact_name">ಸಂಪರ್ಕ ಹೆಸರು</string>
     <string name="mobile">ಮೊಬೈಲ್</string>
     <string name="your_contact">ನಿಮ್ಮ ಸಂಪರ್ಕ</string>
-    <string name="and">ಮತ್ತು</string> 
+    <string name="and">ಮತ್ತು</string>
     <string name="others_smallcase">ಇತರರು</string>
     <string name="made_with_love_in_india">ಭಾರತದಲ್ಲಿ :love: ಜೊತೆಗೆ ಮಾಡಲಾಗಿದೆ</string>
+    <string name="timeline_ftue_desc">ಟೈಮ್ಲೈನ್ ನೀವು ಮತ್ತು ಸ್ನೇಹಿತರು ವಿಶೇಷ ಕ್ಷಣಗಳನ್ನು ಹಂಚಿಕೊಳ್ಳಲು ಒಂದು ಸ್ಥಳವಾಗಿದೆ. ನೀವು ಈಗಾಗಲೇ ತಮ್ಮ ವೇಳಾಪಟ್ಟಿಯಲ್ಲಿ ಪೋಸ್ಟ್ ಕೆಲವು ಸ್ನೇಹಿತರು ಪಡೆದಿರುವಿರಿ!</string>
 
 <!-- The above two string would be used as in Group with Shibu, Niladri and 4 others -->
 
@@ -1416,4 +1417,5 @@
         <item quantity="other">%d ದಿನಗಳಲ್ಲಿ</item>
     </plurals>
     
+
 </resources>
