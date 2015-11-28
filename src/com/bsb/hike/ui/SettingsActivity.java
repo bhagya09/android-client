@@ -264,8 +264,8 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 					int heartStartIndex = madeWithLove.indexOf(':');
 					int heartLastIndex = madeWithLove.lastIndexOf(':') + 1;
 					Editable editable = new SpannableStringBuilder(madeWithLove);
-					Drawable heart = getResources().getDrawable(R.drawable.symbols177);
-					heart.setBounds(0, 0, (int) (SCALE_FACTOR * heart.getIntrinsicWidth()), (int) (SCALE_FACTOR * heart.getIntrinsicHeight()));
+					Drawable heart = getResources().getDrawable(R.drawable.ic_settings_loved);
+					heart.setBounds(0, 0, heart.getIntrinsicWidth(), heart.getIntrinsicHeight());
 					editable.setSpan(new ImageSpan(heart), heartStartIndex, heartLastIndex, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 					withLove.setText(editable);
 
