@@ -3,7 +3,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bsb.hike"
     android:installLocation="auto"
-
     android:versionCode="1533"
     android:versionName="4.0.8.81.35" >
     <uses-sdk
@@ -228,7 +227,6 @@
                 <data android:mimeType="image/*" />
             </intent-filter>
         </activity>
-        
         <activity
             android:name=".cropimage.HikeCropActivity"
             android:theme="@style/AppTheme.Home.PhotoEditor" />

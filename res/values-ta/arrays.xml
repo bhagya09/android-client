@@ -100,5 +100,28 @@
        <item>இடது</item>
        <item>@null</item>
    </array>
-   
+    <array name="filter_names">
+        <item>ஒரிஜினல்</item>
+        <item>திறங்க</item>
+        <item>மெல்லோ</item>
+        <item>சுஸ்கி</item>
+        <item>அஸூர்</item>
+        <item>ஜலேபி</item>
+        <item>குலால்</item>
+        <item>எக்ஸ்-புரோ</item>
+        <item>ஹெச்டிஆர்</item>
+        <item>அப்போலோ</item>
+        <item>ரெட்ரோ</item>
+        <item>பல்சர்</item>
+        <item>சன்லிட்</item>
+        <item>ஹஸெல்</item>
+        <item>லோ-ஃபை</item>
+        <item> இங்க்டு </item>
+        <item>மஷால்</item>
+        <item>ஷோலே</item>
+        <item>ஜங்லி</item>
+        <item>போலராய்டு</item>
+        <item>செபியா</item>
+        <item>கிரே ஸ்கேல்</item>
+    </array>
 </resources>
