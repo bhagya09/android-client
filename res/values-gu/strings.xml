@@ -477,12 +477,6 @@
     <string name="vib_default_key">ડિફૉલ્ટ</string>
     <string name="vib_short_key">ટૂંકા</string>
     <string name="vib_long_key">લાંબા</string>
-
-    <string name="vib_off">ઑફ</string>
-    <string name="vib_default">ડિફૉલ્ટ</string>
-    <string name="vib_short">ટૂંકા</string>
-    <string name="vib_long">લાંબા</string>
-
     <string name="tickSoundTitle">વાર્તાલાપ ટોન્સ</string>
     <string name="tickSoundSummary">ઇનકમીંગ અને આઉટગોઇંગ મેસેજ માટે અવાજ પ્લે કરો</string>
     <string name="notificationSoundTitle">સૂચનાઓ સંબંધિત ટોન્સ</string>

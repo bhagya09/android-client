@@ -477,12 +477,6 @@
     <string name="vib_default_key">ಡೀಫಾಲ್ಟ್‌</string>
     <string name="vib_short_key">ಸಣ್ಣ</string>
     <string name="vib_long_key">ಉದ್ದ</string>
-
-    <string name="vib_off">ಆಫ್‌</string>
-    <string name="vib_default">ಡೀಫಾಲ್ಟ್‌</string>
-    <string name="vib_short">ಸಣ್ಣ</string>
-    <string name="vib_long">ಉದ್ದ</string>
-
     <string name="tickSoundTitle">ಸಂಭಾಷಣೆ ಟೋನ್‌ಗಳು</string>
     <string name="tickSoundSummary">ಒಳಬರುವ ಮತ್ತು ಹೊರಹೋಗುವ ಸಂದೇಶಗಳಿಗೆ ಧ್ವನಿ ಪ್ಲೇ ಮಾಡಿ</string>
     <string name="notificationSoundTitle">ನೊಟಿಫಿಕೇಶನ್ ಟೋನ್‌ಗಳು</string>

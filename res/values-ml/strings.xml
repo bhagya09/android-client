@@ -477,12 +477,6 @@
     <string name="vib_default_key">ഡിഫോൾട്ട്</string>
     <string name="vib_short_key">ചെറുത്</string>
     <string name="vib_long_key">നീളമുള്ള</string>
-
-    <string name="vib_off">ഓഫാക്കുക</string>
-    <string name="vib_default">ഡിഫോൾട്ട്</string>
-    <string name="vib_short">ചെറുത്</string>
-    <string name="vib_long">നീളമുള്ള</string>
-
     <string name="tickSoundTitle">സംഭാഷണ ടോണുകൾ</string>
     <string name="tickSoundSummary">ഇൻകമിംഗ്, ഔട്ട്‌ഗോയിംഗ് സന്ദേശങ്ങൾക്ക് ശബ്ദം പ്ലേ ചെയ്യുക</string>
     <string name="notificationSoundTitle">അറിയിപ്പ് ടോണുകൾ</string>
