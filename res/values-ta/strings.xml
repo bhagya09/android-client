@@ -111,7 +111,7 @@
     <string name="privacy">தனியுரிமை</string>
     <string name="notifications">நோட்டிஃபிக்கேஷன்கள்</string>
     <string name="favorites">ஃபேவரைட்கள்</string>
-    <string name="invite_friends">நண்பரை இன்வைட் செய்க</string>
+    <string name="invite_friends">நண்பர்களை அழைக்க</string>
     <string name="downloading">ஃபைலை பதிவிறக்கம் செய்க...</string>
     <string name="hike">Hike</string>
     <string name="group_profile">குரூப் தகவல்</string>
@@ -129,10 +129,10 @@
     <string name="location_msg_received">லொக்கேஷனை ஷேர் செய்துள்ளார்</string>
     <string name="contact_msg_received">தொடர்பு ஷேர் செய்துள்ளார்</string>
     <string name="image_msg_sent">ஃபோட்டோ அனுப்பபட்டது</string>
-    <string name="video_msg_sent">வீடியோ அனுப்பபட்டது</string>
-    <string name="audio_msg_sent">ஆடியோ அனுப்பபட்டது</string>
-    <string name="location_msg_sent">லொக்கேஷன் அனுப்பபட்டது</string>
-    <string name="contact_msg_sent">தொடர்புஎண் அனுப்பபட்டது </string>
+    <string name="video_msg_sent">வீடியோ</string>
+    <string name="audio_msg_sent">ஆடியோ</string>
+    <string name="location_msg_sent">இருப்பிடம்</string>
+    <string name="contact_msg_sent">தொடர்பு</string>
     <string name="audio_recording_msg_sent">வாய்ஸ் மெஸ்சேஜ் அனுப்பபட்டது</string>
     <string name="unknown_msg">அன்சப்போர்ட்டட் ஃபைல்</string>
     <string name="error_download">இமேஜை பதிவிறக்கம்செய்கையில் எரர்</string>
@@ -1294,8 +1294,7 @@
     <string name="and">மற்று் </string>
     <string name="others_smallcase">மற்றவை</string>
     <string name="made_with_love_in_india"> :love: உடன் இந்தியாவில் தயாரித்தது</string>
-    <string name="timeline_ftue_desc">காலக்கெடு நீங்கள் மற்றும் நண்பர்கள் தருணங்களை பகிர்ந்து கொள்ள ஒரு இடம். நீங்கள் ஏற்கனவே அவர்களின் காலக்கெடு தகவல்களுக்கு ஒரு சில நண்பர்கள் கிடைத்துவிட்டது!</string>
-
+    <string name="timeline_ftue_desc">டைம்லைன் நீங்கள் மற்றும் நண்பர்கள் தருணங்களை பகிர்ந்து கொள்ள ஒரு இடம்.தங்களது சில நண்பர்கள் ஏற்கனவே அவர்களின் டைம்லைன்-இல் பதிவு செய்துகொண்டு இருகிறார்கள்!</string>
 
     <!-- The above two string would be used as in Group with Shibu, Niladri and 4 others -->
 
