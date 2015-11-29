@@ -7,12 +7,12 @@
     <string name="deleteconversations">બધા વાર્તાલાપ ડિલીટ કરો</string>
     <string name="send">મોકલો</string>
     <string name="delete">ડિલીટ કરો</string>
-    <string name="cancel">કૅન્સલ કરો</string>
+    <string name="cancel">રદ કરો</string>
     <string name="delete_all_question">તમને ખાતરી છે કે તમે તમારા બધા વાર્તાલાપને ડિલીટ કરવા માંગો છો ?</string>
     <string name="forward">ફૉર્વર્ડ કરો</string>
     <string name="copy">કૉપિ કરો</string>
     <string name="preferences">પસંદગીઓ</string>
-    <string name="delete_account_failed">Hike દ્વારા તમારું અકાઉન્ટ ડિલીટ કરી શકાયું નથી કૃપા કરીને ફરી પ્રયત્ન કરો.</string>
+    <string name="delete_account_failed">Hike તમારું અકાઉન્ટ ડિલીટ કરી શકાયું નથી કૃપા કરીને ફરી પ્રયત્ન કરો.</string>
     <string name="already_hike_user">સારા સમાચાર! તમારો મિત્ર પહેલેથી જ Hike પર છે!</string>
     <string name="profile_title">પ્રોફાઇલ</string>
     <string name="updating_profile">પ્રોફાઇલ અપડેટ થઈ રહ્યું છે</string>
@@ -30,7 +30,7 @@
     <string name="edit_profile">પ્રોફાઇલ એડિટ કરો</string>
     <string name="no_sd_card">કૃપા કરીને એક SD કાર્ડ દાખલ કરો</string>
     <string name="invalid_email">અમાન્ય ઇમેઇલ અડ્રેસ</string>
-    <string name="joined_conversation">%1$s ગ્રુપ ચેટને જોડાયા!</string>
+    <string name="joined_conversation">%1$s ગ્રુપ ચેટ માં જોડાયા!</string>
     <string name="left_conversation">%1$s ગ્રુપ ચેટને છોડી દીધી.</string>
     <string name="removed_from_broadcast">%1$s ને બ્રોડકાસ્ટ લિસ્ટમાંથી દૂર કરવામાં આવ્યા</string>
     <string name="leave_group">ગ્રુપ છોડો</string>
@@ -39,7 +39,7 @@
     <string name="broadcast_list_end">આ બ્રોડકાસ્ટ લિસ્ટ સમાપ્ત થયું છે.</string>
     <string name="group_info">ગ્રુપ માહિતી</string>
     <string name="broadcast_info">બ્રોડકાસ્ટ માહિતી</string>
-    <string name="done">થઈ ગયું છે</string>
+    <string name="done">થઈ ગયું</string>
     <string name="group_chat">ગ્રુપ ચેટ</string>
     <string name="add_group">ગ્રુપમાં ઉમેરો</string>
     <string name="add_broadcast">બ્રોડકાસ્ટ લિસ્ટમાં ઉમેરો</string>
@@ -62,8 +62,8 @@
     <string name="not_enough_space">તમારા ફોનમાં ફાઈલ ડાઉનલોડ કરવા માટે પૂરતી જગ્યા નથી</string>
     <string name="dnd_one_to_one">%1$s DND પર છે. %1$s ના જવાબ આપવા માટે રાહ જોઈ રહયા છીએ.</string>
     <string name="optin_one_to_one">%1$s એ હમણાં જ Hike પર પસંદગી ઉતારી છે</string>
-    <string name="download_cancelled">ડાઉનલોડ કૅન્સલ થયું છે</string>
-    <string name="upload_cancelled">અપલોડ કૅન્સલ થયું છે</string>
+    <string name="download_cancelled">ડાઉનલોડ રદ થયું છે</string>
+    <string name="upload_cancelled">અપલોડ રદ થયું છે</string>
     <string name="share">શેર કરો</string>
     <string name="preview">પ્રીવ્યૂ કરો</string>
     <string name="error_recording">ઑડિઓ રેકૉર્ડ કરી શકાયો નથી.</string>
@@ -156,7 +156,7 @@
     <string name="try_again_signup">ફરી થી પ્રયત્ન કરો</string>
     <string name="almost_there_signup">લગભગ પૂરું થયું છે...</string>
     <string name="tap_here_signup">અહીં ટૅપ કરો</string>
-    <string name="nudge">નજ કરો</string>
+    <string name="nudge">નજ</string>
     <string name="nudge_info">તમારા મિત્રને નજ કરવા માટે \nચેટ પર ગમે ત્યાં બે વાર ટૅપ કરો.</string>
     <string name="led_notification">LED સૂચના</string>
     <string name="led_notification_info">નવા મેસેજ પર LED ફ્લૅશ કરો</string>
@@ -353,7 +353,7 @@
     <string name="file_msg_sent">ફાઇલ</string>
     <string name="copied">કૉપિ થઈ ગયું</string>
     <string name="share_with">%1$s સાથે શેર કરવું છે?</string>
-    <string name="no_internet_connection">કોઈ ઇન્ટરનેટ કનેક્શન નથી</string>
+    <string name="no_internet_connection">ઇન્ટરનેટ કનેક્શન નથી</string>
     <string name="num_new_messages">%1$s નવા મેસેજીસ</string>
     <string name="one_new_message">1 નવો મેસેજ</string>
     <string name="terms">શરતો</string>
@@ -362,17 +362,17 @@
     <string name="whats_your_number">હાઈ! તમારો નંબર શું છે?</string>
     <string name="select_country">કન્ટ્રી સિલેક્ટ કરો</string>
     <string name="wrong_country">અમાન્ય કન્ટ્રી કોડ</string>
-    <string name="no_internet_msg">લાગે છે કે કોઈ ઇન્ટરનેટ\n કનેક્શન નથી! તેને ઉકેલવાનો પ્રયત્ન કરો અને \nઆગળ વધો.</string>
+    <string name="no_internet_msg">લાગે છે કે ઇન્ટરનેટ\n કનેક્શન નથી! તેને ઉકેલવાનો પ્રયત્ન કરો અને \nઆગળ વધો.</string>
     <string name="hang_on">થોભો...</string>
     <string name="call_me_for_the_pin">%1$s મને કૉલ કરો</string>
     <string name="wrong_pin">માફ કરશો, તે ખોટો PIN છે!</string>
     <string name="verifying">પ્રમાણિત થઈ રહ્યું છે...</string>
     <string name="pick_one">એક પસંદ કરો...</string>
-    <string name="i_am_a_boy">હું એક છોકરો છું</string>
-    <string name="i_am_a_girl">હું એક છોકરી છું</string>
+    <string name="i_am_a_boy">હું છોકરો છું</string>
+    <string name="i_am_a_girl">હું છોકરી છું</string>
     <string name="about_you">તમારા વિષે</string>
     <string name="tell_us_more">અમને વધુ જણાવો</string>
-    <string name="how_young_are_you">તમે કેટલા યુવાન છો?</string>
+    <string name="how_young_are_you">તમે કેટલા વર્ષ ના છો?</string>
     <string name="your_name">તમારું નામ</string>
     <string name="contacts_synced">સંપર્કો સિંક થઈ ગયા</string>
     <string name="add_friends_listview_header">"Hike પર તમારા %1$s સંપર્કો છે. સરસ!" </string>
@@ -401,12 +401,12 @@
     <string name="verified">પ્રમાણિત થયેલું</string>
     <string name="sent_txt">મોકલ્યું</string>
     <string name="delivered_txt">ડીલીવર થયું</string>
-    <string name="read_txt">વાંચો</string>
+    <string name="read_txt">વાંચ્યુ</string>
     <string name="no_hike_contacts">કોઈ Hike સંપર્કો નહીં</string>
     <string name="num_unread_messages">%1$s ન વાંચેલા મેસેજ</string>
     <string name="one_unread_message">1 ન વાંચેલો મેસેજ</string>
     <string name="invite_friends_confirmation_msg">તમારા મિત્રોમાંથી %1$s ને શું તમારે આમંત્રિત કરવા છે?</string>
-    <string name="didnt_get_pin">શું તમને PIN મળી ન હતી, અમે તમને કૉલ કરીશું</string>
+    <string name="didnt_get_pin">શું તમને PIN મળી નથી, અમે તમને કૉલ કરીશું</string>
     <string name="maxContactInBroadcastErr">આ બ્રોડકાસ્ટ લિસ્ટમાં વધુ માં વધુ %1$s સંપર્કો માટે પરવાનગી છે</string>
     <string name="minContactInGroupErr">એક ગ્રુપ ચેટ શરૂ કરવા માટે ઓછામાં ઓછા %1$s સભ્ય(સભ્યો) સિલેક્ટ કરો</string>
     <string name="minContactInBroadcastErr">ઓછામાં ઓછા %1$s સભ્ય(સભ્યો) સિલેક્ટ થવા અનિવાર્ય છે</string>
@@ -454,7 +454,7 @@
     <string name="reset_complete_stealth_header">હિડન મોડને ફરી સેટ કરો</string>
     <string name="reset_complete_stealth_info">તમારો પાસવર્ડ ભૂલી ગયા છો? હિડન મોડને ફરી સેટ કરો. બધી હિડન ચેટ ડિલીટ થઈ જશે</string>
     <string name="initiate_reset_stealth_header">હિડન મોડને ફરી સેટ કરો.</string>
-    <string name="initiate_reset_stealth_body">હિડન મોડ 30 મિનિટમાં ફરી સેટ થશે. બધી હિડન ચેટ ડિલીટ થઈ જશે! ચાલુ રહેવું છે?</string>
+    <string name="initiate_reset_stealth_body">હિડન મોડ 30 મિનિટમાં ફરી સેટ થશે. બધી હિડન ચેટ ડિલીટ થઈ જશે! કરવુ છે?</string>
     <string name="resetting_complete_stealth_header">હિડન મોડ ફરી સેટ થઈ રહ્યો છે</string>
     <string name="resetting_complete_stealth_info">કૅન્સલ કરવા માટે ટૅપ કરો.</string>
     <string name="reset_stealth_tip">
@@ -485,7 +485,7 @@
     <string name="viewcontact">પ્રોફાઇલ જુઓ</string>
     <string name="add_to_contacts_existing">હાલના સંપર્કમાં ઉમેરો</string>
     <string name="delete_chat">ચેટ ડિલીટ કરો</string>
-    <string name="clear_whole_conversation">પૂર્ણ વાર્તાલાપ ક્લીયર કરો સ્પષ્ટ સમગ્ર વાતચીત</string>
+    <string name="clear_whole_conversation">પૂર્ણ વાર્તાલાપ ક્લીયર કરો</string>
     <string name="email_conversations">વાર્તાલાપ ઇમેઇલ કરો</string>
     <string name="unlink_account_failed">Hike દ્વારા તમારું અકાઉન્ટ લૉગઆઉટ થઈ શક્યું નથી. ફરી પ્રયત્ન કરો</string>
     <string name="deleting_account">અકાઉન્ટ ડિલીટ થઈ રહ્યું છે...</string>
@@ -560,12 +560,12 @@
     <string name="profile_pic_header">પ્રોફાઇલ ચિત્ર</string>
     <string name="profile_pic_display_info">ફક્ત તમારા ફેવરિટ્સને બતાવો</string>
     <string name="undelivered_sms_setting_remember">મારી પસંદગી સેવ કરવામાં આવી છે</string>
-    <string name="send_sms_sticker_msg">તમને એક સ્ટીકર મોકલવામાં આવ્યું છે</string>
-    <string name="send_sms_img_msg">તમે એક છબી મોકલવામાં આવી છે</string>
-    <string name="send_sms_video_msg">તમને એક વિડિઓ મોકલવામાં આવ્યો છે</string>
+    <string name="send_sms_sticker_msg">તમને એક સ્ટીકર મોકલ્યો છે</string>
+    <string name="send_sms_img_msg">તમે એક છબી મોકલ્યો છે</string>
+    <string name="send_sms_video_msg">તમને એક વિડિઓ મોકલ્યો છે</string>
     <string name="send_sms_location_msg">તેમનું/તેણીનું સ્થાન શેર કર્યું છે </string>
-    <string name="send_sms_contact_msg">એક સંપર્કને શેર કરવામાં આવ્યો છે</string>
-    <string name="send_sms_audio_msg">તમે એક ઑડિઓ મોકલવામાં આવ્યો છે</string>
+    <string name="send_sms_contact_msg">એક સંપર્કને શેર કર્યું છે</string>
+    <string name="send_sms_audio_msg">તમે એક ઑડિઓ મોકલ્યો છે</string>
     <string name="free_hike_sms_subtext">%1$d બાકી છે</string>
     <string name="free_hike_sms_subtext_diabled">%1$d બાકી છે. મફત SMS કમાવવા માટે વધુ Hike કરો</string>
     <string name="carrier_charges_apply">વાહક શુલ્ક લાગુ</string>
@@ -611,20 +611,20 @@
     <string name="confirm_delete_pins">શું તમે ચોક્કસ છો કે તમારે આ %1$s pins ડિલીટ કરવી છે?</string>
     <string name="add_btn">ઉમેરો</string>
     <string name="not_now">અત્યારે નહીં</string>
-    <string name="shared_med">શેર કરેલ મીડિયા</string>
+    <string name="shared_med">શેર કરેલી મીડિયા</string>
     <string name="pins">Pins (પિન્સ)</string>
     <string name="groups">ગ્રુપ્સ</string>
     <string name="members">સભ્યો</string>
     <string name="recipients">પ્રાપ્તકર્તાઓ</string>
     <string name="phone_pa">ફોન</string>
-    <string name="shared_cont_pa">શેર કરેલ સામગ્રી</string>
+    <string name="shared_cont_pa">શેર કરેલી સામગ્રી</string>
     <string name="no_internet_try_again">કોઈ ઇન્ટરનેટ કનેક્શન નથી. કૃપા કરીને પછી ફરી થી પ્રયત્ન કરો.</string>
     <string name="refresh">રિફ્રેશ કરો</string>
     <string name="user_back_on_hike">%1$s પૂર્ણપણે નવા Hike પર છે! હાઈ કહો!</string>
     <string name="joined_hike_new">%1$s હવે Hike પર છે, હાઈ કહો</string>
     <string name="joined_hike">%1$s હવે Hike પર છે, હાઈ કહો</string>
     <string name="team_hike">Hike</string>
-    <string name="add_people">એક સભ્ય ઉમેરો</string>
+    <string name="add_people">સભ્ય ઉમેરો</string>
     <string name="add_recipients">પ્રાપ્તકર્તાઓ ઉમેરો</string>
     <string name="stealth_info_tip_header">હિડન મોડ</string>
     <string name="file_missing_caps">ફાઇલ ગુમ છે</string>
@@ -661,8 +661,8 @@
     <string name="new_chat_compose_hint">નામ અથવા નંબર દ્વારા સર્ચ કરો</string>
     <string name="pin_notif_text">Pin પોસ્ટ કરવામાં આવ્યો છે</string>
     <string name="welcome_to">માં સ્વાગત છે</string>
-    <string name="small_fastest">વધુ ઝડપી</string>
-    <string name="medium_faster">ઝડપી</string>
+    <string name="small_fastest">બઉ તેજ</string>
+    <string name="medium_faster">તેજ</string>
     <string name="original_slow">ધીમું</string>
     <string name="forward_to_plural">%1$s સંપર્કોને મેસેજ મોકલવો છે?</string>
     <string name="forward_to_singular">1 સંપર્કને મેસેજ મોકલવો છે?</string>
@@ -721,7 +721,7 @@
     <string name="shop_download_failed_out_of_space">અપૂરતી મેમરી</string>
     <string name="shop_loading_state">સ્ટીકર લોડ થઈ રહ્યા છે</string>
     <string name="shop_loading_state_subtext">કૃપા કરીને રાહ જુઓ...</string>
-    <string name="shop_loading_failed_no_internet">કોઈ ઇન્ટરનેટ કનેક્શન નથી</string>
+    <string name="shop_loading_failed_no_internet">ઇન્ટરનેટ કનેક્શન નથી</string>
     <string name="shop_loading_failed_switch_on">મોબાઇલ ડૅટા અથવા વાઈ-ફાઈ (Wi-Fi) પર જાવ</string>
     <string name="singular_packs">%1$d પૅક</string>
     <string name="singular_stickers">%1$d સ્ટીકર</string>
@@ -733,7 +733,7 @@
     <string name="zero_sms_hint">0 મફત SMS બાકી...</string>
     <string name="pin_self">તમે</string>
     <string name="some_error">કંઈ એરર થઈ છે!</string>
-    <string name="recently_joined_hike">હાલમાં Hike પર જોડાયા</string>
+    <string name="recently_joined_hike">હમણાં Hike પર જોડાયા</string>
     <string name="creating_backup_message">તમારા અકાઉન્ટની બૅકઅપ બનાવાઈ રહી છે. દૈનિક બૅકઅપ સવારે 3:00 વાગે થાય છે</string>
     <string name="restore">રિસ્ટોર (પુનઃસ્થાપિત) કરો</string>
     <string name="auth_connected_to_hike">%1$s Hike પર જોડાયેલા છે!</string>
@@ -772,7 +772,7 @@
     <string name="voip_call_summary_incoming">ઇનકમિંગ કૉલ</string>
     <string name="voip_call_summary_outgoing">આઉટગોઇંગ કૉલ</string>
     <string name="voip_missed_call_outgoing">તમારા કૉલ ચૂકી જવાયો</string>
-    <string name="voip_missed_call_incoming">તમે કૉલ ચૂકી ગયા</string>
+    <string name="voip_missed_call_incoming">તમે કૉલ મિસ કર્યો</string>
     <string name="voip_call_chat">Hike કૉલ</string>
     <string name="voip_call_notification_title">%1$s સાથે Hike કૉલ</string>
     <string name="voip_conference_call_notification_title">Hike કૉન્ફરન્સ કૉલ</string>
@@ -837,7 +837,7 @@
     <string name="check_delete_from_timeline">ફેવરિટ્સની ટાઈમલાઈન માંથી ડિલીટ કરો</string>
     <string name="edit_photo">ફોટો એડિટ કરો</string>
     <string name="removing_dp">ચિત્ર કાઢવામાં આવી રહ્યું છે.</string>
-    <string name="voip_missed_call_notif">મિસ્ડ કૉલ</string>
+    <string name="voip_missed_call_notif">ચૂકી કોલ</string>
     <string name="voip_missed_call_action">પાછો કૉલ કરો</string>
     <string name="voip_missed_call_message">મેસેજ</string>
     <string name="empty_email">ઈમેઈલ કરવા માટે આ વાર્તાલાપમાં તમારી પાસે કોઈ મેસેજીસ નથી.</string>
@@ -909,9 +909,9 @@
     <string name="stealth_reset_settings">વધારાની સેટિંગ્સ</string>
     <string name="enable_stealth_indicator">સૂચક</string>
     <string name="enable_stealth_indicator_body">ન વાંચેલા સંદેશાઓ માટે હોમ સ્ક્રીન પર \&apos;હાઈ\&apos; લોગો બાઉન્સ કરો</string>
-    <string name="enable_stealth_notification_body">એક હિડન ચેટમાં એક સંદેશ પ્રાપ્ત થતા સૂચિત કરો</string>
+    <string name="enable_stealth_notification_body">હિડન ચેટમાં એક સંદેશ પ્રાપ્ત થતા સૂચિત કરો</string>
     <string name="enable_stealth_notification">સૂચના</string>
-    <string name="stealth_msg_draw_an_unlock_pattern">નવી પાસકોડ પૅટર્ન ડ્રો કરો</string>
+    <string name="stealth_msg_draw_an_unlock_pattern">નવો પાસકોડ પૅટર્ન ડ્રો કરો</string>
     <string name="stealth_msg_enter_an_unlock_pin">તમારી નવી 4 અંકની PIN દાખલ કરો</string>
     <string name="stealth_msg_redraw_pattern_to_confirm">તમારી પૅટર્નની ખાતરી કરો</string>
     <string name="stealth_msg_reenter_pin_to_confirm">તમારા PIN ની પુષ્ટિ કરો</string>
@@ -919,7 +919,7 @@
     <string name="hide_chat">ચેટ હાઇડ કરો</string>
     <string name="mark_hidden">હિડન માર્ક કરો</string>
     <string name="mark_visible">વિઝિબલ માર્ક કરો</string>
-    <string name="stealth_set_pin">અથવા એક નંબર PIN સેટ કરો</string>
+    <string name="stealth_set_pin">અથવા નંબર PIN સેટ કરો</string>
     <string name="stealth_set_pattern">અથવા એક પૅટર્ન સેટ કરો</string>
     <string name="stealth_msg_pin_recorded">PIN રેકોર્ડે થઈ છે</string>
     <string name="stealth_msg_your_new_unlock_pin">તમારી નવી અનલોક PIN</string>
@@ -988,7 +988,7 @@
 	<string name="confirm_delete_block_msg">શું તમે \"%1$s\" ને બ્લૉક કરવા અને ડિલીટ કરવા માંગો છો? </string>
 	<string name="confirm_delete_non_messaging">શું તમે \"%1$s\" ને ડિલીટ કરવા માંગો છો? </string>
 	<string name="scan_free_hike">હાઈક ડાયરેક્ટ</string>
-	<string name="connection_established">હાઈક ડાયરેક્ટ જોડાયું છે</string>
+	<string name="connection_established">હાઈક ડાયરેક્ટ જોડાયલૂ છે</string>
 	<string name="awaiting_response">પ્રતિભાવની રાહ જોવાઈ રહી છે</string>
 	<string name="disconnect_offline">ડિસકનેક્ટ કરો</string>
 	<string name="files_not_received">કેટલીક ફાઇલો ડિસ્કનેક્શનને કારણે પ્રાપ્ત કરી શકાઈ નથી</string>
@@ -1289,9 +1289,127 @@
     <string name="APPLY">લાગુ કરો  </string>
     <string name="level">સ્તર</string>
     <string name="milliseconds">ms</string>
-    <string name="and"> અને </string>
     <string name="contact_name">સંપર્ક નામ</string>
     <string name="mobile">મોબાઇલ</string>
     <string name="your_contact">તમારો સંપર્ક</string>
+
+     <string name="and">અને</string> 
+    <string name="others_smallcase">અન્યો</string>
+    <string name="made_with_love_in_india">ભારતમાં :love: સાથે તૈયાર થયેલ</string>
     <string name="timeline_ftue_desc"> ટાઈમલાઈન તમે અને તમારા મિત્રો ખાસ ક્ષણો શેર કરવા માટે એક સ્થળ છે. તમે પહેલાથી જ તેમના ટાઈમલાઈન પર પોસ્ટ થોડા મિત્રો મળી છે!</string>
+<!-- The above two string would be used as in Group with Shibu, Niladri and 4 others -->
+
+
+ 	<string name="yesterday">ગઇ કાલે</string>
+    <string name="tomorrow">આવતી કાલે</string>
+    <string name="today">આજે</string>
+    
+    <!-- This is used to express that something occurred some number of seconds in the past (e.g., 5 seconds ago). -->
+    <plurals name="num_seconds_ago">
+        <item quantity="one">1 સેકંડ પહેલા</item>
+        <item quantity="other">%d સેકંડ પહેલા</item>
+    </plurals>
+
+    <!-- This is used to express that something occurred some number of minutes in the past (e.g., 5 minutes ago). -->
+    <plurals name="num_minutes_ago">
+        <item quantity="one">1 મિનિટ પહેલા</item>
+        <item quantity="other">%d મિનિટ પહેલા</item>
+    </plurals>
+
+    <!-- This is used to express that something occurred some number of hours in the past (e.g., 5 hours ago). -->
+    <plurals name="num_hours_ago">
+        <item quantity="one">1 કલાક પહેલા</item>
+        <item quantity="other">%d કલાક પહેલા</item>
+    </plurals>
+
+    <!-- This is used to express that something occurred within the last X days (e.g., Last 7 days). -->
+    <plurals name="last_num_days">
+        <item quantity="other">છેલ્લા %d દિવસો </item>
+    </plurals>
+
+    <!-- This is used to express that something has occurred within the last month -->
+    <string name="last_month">ગયા મહિને</string>
+
+    <!-- This is used to express that something happened longer ago than the previous options -->
+    <string name="older">વધુ જૂનું </string>
+
+    <!-- This is used to express that something occurred some number of days in the past (e.g., 5 days ago). -->
+    <plurals name="num_days_ago">
+        <item quantity="one">ગઇ કાલે</item>
+        <item quantity="other">%d દિવસો પહેલા</item>
+    </plurals>
+
+    <!-- This is used to express that something will occur some number of seconds in the future (e.g., in 5 seconds). -->
+    <plurals name="in_num_seconds">
+        <item quantity="one">1 સેકંડમાં</item>
+        <item quantity="other">%d સેકંડમાં</item>
+    </plurals>
+
+    <!-- This is used to express that something will occur some number of minutes in the future (e.g., in 5 minutes). -->
+    <plurals name="in_num_minutes">
+        <item quantity="one">1 મિનિટમાં </item>
+        <item quantity="other">%d મિનિટમાં </item>
+    </plurals>
+
+    <!-- This is used to express that something will occur some number of hours in the future (e.g., in 5 hours). -->
+    <plurals name="in_num_hours">
+        <item quantity="one">1 કલાકમાં</item>
+        <item quantity="other">%d કલાકમાં</item>
+    </plurals>
+
+    <!-- This is used to express that something will occur some number of days in the future (e.g., in 5 days). -->
+    <plurals name="in_num_days">
+        <item quantity="one">આવતી કાલે</item>
+        <item quantity="other">%d દિવસોમાં</item>
+    </plurals>
+
+    <!-- This is used to express that something occurred some number of abbreviated seconds in the past (e.g., 5 secs ago). -->
+    <plurals name="abbrev_num_seconds_ago">
+        <item quantity="one">1 સેકંડ પહેલા</item>
+        <item quantity="other">%d સેકંડ પહેલા</item>
+    </plurals>
+
+    <!-- This is used to express that something occurred some number of abbreviated minutes in the past (e.g., 5 mins ago). -->
+    <plurals name="abbrev_num_minutes_ago">
+        <item quantity="one">1 મિનિટ પહેલા</item>
+        <item quantity="other">%d મિનિટ પહેલા</item>
+    </plurals>
+
+    <!-- This is used to express that something occurred some number of abbreviated hours in the past (e.g., 5 hrs ago). -->
+    <plurals name="abbrev_num_hours_ago">
+        <item quantity="one">1 કલાક પહેલા</item>
+        <item quantity="other">%d કલાક પહેલા</item>
+    </plurals>
+
+    <!-- This is used to express that something occurred some number of abbreviated days in the past (e.g., 5 days ago). -->
+    <plurals name="abbrev_num_days_ago">
+        <item quantity="one">ગઇ કાલે</item>
+        <item quantity="other">%d દિવસો પહેલા</item>
+    </plurals>
+
+    <!-- This is used to express that something will occur some number of abbreviated seconds in the future (e.g., in 5 secs). -->
+    <plurals name="abbrev_in_num_seconds">
+        <item quantity="one">1 સેકંડમાં</item>
+        <item quantity="other">%d સેકંડમાં </item>
+    </plurals>
+
+    <!-- This is used to express that something will occur some number of abbreviated minutes in the future (e.g., in 5 mins). -->
+    <plurals name="abbrev_in_num_minutes">
+        <item quantity="one">1 મિનિટમાં</item>
+        <item quantity="other">%d મિનિટમાં </item>
+    </plurals>
+
+    <!-- This is used to express that something will occur some number of abbreviated hours in the future (e.g., in 5 hrs). -->
+    <plurals name="abbrev_in_num_hours">
+        <item quantity="one">1 કલાકમાં</item>
+        <item quantity="other">%d કલાકમાં</item>
+    </plurals>
+
+    <!-- This is used to express that something will occur some number of abbreviated days in the future (e.g., in 5 days). -->
+    <plurals name="abbrev_in_num_days">
+        <item quantity="one">આવતી કાલે</item>
+        <item quantity="other">%d દિવસોમાં</item>
+    </plurals>
+
+
 </resources>

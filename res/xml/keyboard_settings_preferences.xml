@@ -10,7 +10,7 @@
 
     <PreferenceCategory
         android:key="keyboardSettingsCategory"
-        android:layout="@layout/settings_section_header"
+        android:layout="@layout/settings_section_header_key_set"
         android:orderingFromXml="true"
         android:selectable="false"
         android:title="@string/keyboard_settings_header">

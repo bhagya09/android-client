@@ -376,6 +376,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		{
 			final LocalLanguage localLanguage = LocalLanguageUtils.getApplicationLocalLanguage(HikePreferences.this);
 			languagePref.setSummary(localLanguage.getDisplayName());
+			languagePref.setNegativeButtonText(R.string.cancel);
 			CharSequence entries[] = new String[localLanguage.getDeviceSupportedHikeLanguages(HikePreferences.this).size()];
 			int i=0;
 			for (LocalLanguage language : localLanguage.getDeviceSupportedHikeLanguages(HikePreferences.this))
@@ -1643,7 +1644,13 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 			@Override
 			public boolean onPreferenceChange(Preference preference, Object newValue)
 			{
-				preference.setTitle(getString(R.string.vibrate) + ": " + (newValue.toString()));
+				//AND-3843 Begin
+				ListPreference  preferenceVib= (ListPreference) preference;
+				int index = preferenceVib.findIndexOfValue(newValue.toString());
+				if (index >= 0) {
+					preference.setTitle(getString(R.string.vibrate) + ": " + preferenceVib.getEntries()[index]);
+				}
+				//AND-3843 End
 				try
 				{
 					Vibrator vibrator = (Vibrator) getApplicationContext().getSystemService(Context.VIBRATOR_SERVICE);
@@ -1668,7 +1675,12 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 				return true;
 			}
 		});
-		lp.setTitle(lp.getTitle() + ": " + lp.getValue());
+                //AND-3843 Begin
+		if(TextUtils.isEmpty(lp.getEntry())){
+			lp.setValueIndex(1); // 1= DEFAULT, which is default mentioned in notifications_preferences.xml
+		}
+		lp.setTitle(lp.getTitle() + ": " + lp.getEntry());
+                //AND-3843 End
 		lp.setNegativeButtonText(R.string.CANCEL);
 		
 		ListPreference ledPref = (ListPreference) getPreferenceScreen().findPreference(HikeConstants.COLOR_LED_PREF);
