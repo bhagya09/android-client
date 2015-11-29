@@ -810,7 +810,7 @@ public class MqttMessagesManager
 		{
 			convMessage.setMessage(context.getString(R.string.sent_sticker));
 		}
-        if (convMessage.getMetadata().isPokeMessage())
+        if (convMessage.getMetadata() != null && convMessage.getMetadata().isPokeMessage())
         {
             convMessage.setMessage(context.getString(R.string.poke_msg));
         }
