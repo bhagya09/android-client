@@ -477,12 +477,6 @@
     <string name="vib_default_key">డిఫాల్ట్</string>
     <string name="vib_short_key">చిన్న</string>
     <string name="vib_long_key">పొడవైన</string>
-
-    <string name="vib_off">ఆఫ్ చేయి</string>
-    <string name="vib_default">డిఫాల్ట్</string>
-    <string name="vib_short">షార్ట్</string>
-    <string name="vib_long">పొడవైన</string>
-
     <string name="tickSoundTitle">సంభాషణల టోన్‌లు</string>
     <string name="tickSoundSummary">ఇన్‌కమింగ్, అవుట్‌గోయింగ్ సందేశాల కొరకు సౌండ్లను ప్లే చేయండి</string>
     <string name="notificationSoundTitle">నోటిఫికేషన్‌ టోన్‌లు</string>

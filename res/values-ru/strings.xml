@@ -471,12 +471,6 @@
     <string name="vib_default_key">По умолчанию</string>
     <string name="vib_short_key">Короткий</string>
     <string name="vib_long_key">Длинный</string>
-
-    <string name="vib_off">Выкл.</string>
-    <string name="vib_default">По умолчанию</string>
-    <string name="vib_short">Короткий</string>
-    <string name="vib_long">Длинный</string>
-
     <string name="tickSoundTitle">Сигналы разговоров</string>
     <string name="tickSoundSummary">Воспроизводить мелодию при входящих и исходящих сообщениях</string>
     <string name="notificationSoundTitle">Сигналы уведомления</string>

@@ -477,12 +477,6 @@
     <string name="vib_default_key">டீஃபால்ட்</string>
     <string name="vib_short_key">குறுகலான</string>
     <string name="vib_long_key">நீளமான</string>
-
-    <string name="vib_off">ஆஃப்</string>
-    <string name="vib_default">டீஃபால்ட்</string>
-    <string name="vib_short">குறுகலான</string>
-    <string name="vib_long">நீளமான</string>
-
     <string name="tickSoundTitle">உரையாடல் டோன்கள்</string>
     <string name="tickSoundSummary">இன்கமிங் மற்றும் அவுட்கோயிங் மெஸ்சேஜ்களுக்கு சவுண்ட் பிளே செய்யும்</string>
     <string name="notificationSoundTitle">நோட்டிஃபிக்கேஷன் டோன்கள்</string>

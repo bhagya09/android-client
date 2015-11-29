@@ -477,12 +477,6 @@
     <string name="vib_default_key">Padrão</string>
     <string name="vib_short_key">Curto</string>
     <string name="vib_long_key">Longo</string>
-
-    <string name="vib_off">Desligado</string>
-    <string name="vib_default">Padrão</string>
-    <string name="vib_short">Curto</string>
-    <string name="vib_long">Longo</string>
-
     <string name="tickSoundTitle">Tons de conversa</string>
     <string name="tickSoundSummary">Reproduzir som ao receber e enviar mensagens</string>
     <string name="notificationSoundTitle">Tons de notificação</string>
