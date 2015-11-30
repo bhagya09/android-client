@@ -5,11 +5,15 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.List;
 
+import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.utils.Utils;
 
+import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
 
@@ -61,6 +65,8 @@ public class SendLogsTask extends AsyncTask<Void, Void, Void>
 			fos = new FileOutputStream(file);
 
 			int pid = android.os.Process.myPid();
+			SharedPreferences settings = context.getSharedPreferences(HikePlatformConstants.GAME_PROCESS, context.MODE_MULTI_PROCESS);
+			int gamePid= settings.getInt(HikePlatformConstants.GAME_PROCESS, -1);
 
 			Process process = Runtime.getRuntime().exec("logcat -d -v time");
 
@@ -70,7 +76,7 @@ public class SendLogsTask extends AsyncTask<Void, Void, Void>
 
 			while ((line = bufferedReader.readLine()) != null)
 			{
-				if (line.contains(Integer.toString(pid)))
+				if (line.contains(Integer.toString(pid))||line.contains(Integer.toString(gamePid)))
 				{
 					line += "\n";
 					fos.write(line.getBytes());
@@ -96,4 +102,5 @@ public class SendLogsTask extends AsyncTask<Void, Void, Void>
 
 		return new File(root, "myLogs.txt");
 	}
+
 }

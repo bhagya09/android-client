@@ -16,7 +16,9 @@
 
 package com.haibison.android.lockpattern.util;
 
-import android.app.Dialog;
+import com.bsb.hike.BuildConfig;
+import com.bsb.hike.utils.Utils;
+
 import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.Resources;
@@ -25,9 +27,9 @@ import android.util.Log;
 import android.util.TypedValue;
 import android.view.ViewGroup.LayoutParams;
 import android.view.Window;
-
-import com.bsb.hike.BuildConfig;
-import com.bsb.hike.utils.Utils;
+import android.view.WindowManager;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 
 /**
  * UI utilities.
@@ -156,9 +158,9 @@ public class UI {
      * @param dialog
      *            the dialog.
      */
-    public static void adjustDialogSizeForLargeScreens(Dialog dialog) {
-        adjustDialogSizeForLargeScreens(dialog.getWindow());
-    }// adjustDialogSizeForLargeScreens()
+//    public static void adjustDialogSizeForLargeScreens(Dialog dialog) {
+//        adjustDialogSizeForLargeScreens(dialog.getWindow());
+//    }// adjustDialogSizeForLargeScreens()
 
     /**
      * Uses a fixed size for {@code dialogWindow} in large screens.
@@ -166,25 +168,30 @@ public class UI {
      * @param dialogWindow
      *            the window <i>of the dialog</i>.
      */
-    public static void adjustDialogSizeForLargeScreens(Window dialogWindow) {
+    public static void adjustDialogSizeForLargeScreens(Window dialogWindow, LinearLayout linearLayout) {
         if (BuildConfig.DEBUG)
             Log.d(CLASSNAME, "adjustDialogSizeForLargeScreens()");
 
 //        if (!dialogWindow.isFloating())
 //            return;
 //
-        final ScreenSize screenSize = ScreenSize.getCurrent(dialogWindow
-                .getContext());
-//        switch (screenSize) {
-//        case LARGE:
-//        case XLARGE:
-//            break;
-//        default:
-//            return;
-//        }
+		Context context = dialogWindow.getContext();
+		final ScreenSize screenSize = ScreenSize.getCurrent(context);
+		// switch (screenSize) {
+		// case LARGE:
+		// case XLARGE:
+		// break;
+		// default:
+		// return;
+		// }
 
-        final DisplayMetrics metrics = dialogWindow.getContext().getResources()
-                .getDisplayMetrics();
+		final DisplayMetrics metrics = dialogWindow.getContext().getResources().getDisplayMetrics();
+		if (Utils.isLollipopOrHigher() && context.getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE)
+		{
+			WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+			wm.getDefaultDisplay().getRealMetrics(metrics);
+
+		}
         final boolean isPortrait = metrics.widthPixels < metrics.heightPixels;
 
         int width = metrics.widthPixels;// dialogWindow.getDecorView().getWidth();
@@ -193,6 +200,8 @@ public class UI {
             Log.d(CLASSNAME,
                     String.format("width = %,d | height = %,d", width, height));
 
+        dialogWindow.setLayout(width, height);
+        
         width = (int) (width * (isPortrait ? screenSize.fixedWidthMinor
                 : screenSize.fixedWidthMajor));
         height = (int) (height * (isPortrait ? screenSize.fixedHeightMajor
@@ -205,7 +214,13 @@ public class UI {
         if (BuildConfig.DEBUG)
             Log.d(CLASSNAME, String.format(
                     "NEW >>> width = %,d | height = %,d", width, height));
-        dialogWindow.setLayout(width, height);
+        RelativeLayout.LayoutParams lp = (android.widget.RelativeLayout.LayoutParams)linearLayout.getLayoutParams();
+        if (lp != null)
+        {
+        	lp.width = width;
+        	lp.height = height;
+        }
+        linearLayout.setLayoutParams(lp);
     }// adjustDialogSizeForLargeScreens()
 
     /**

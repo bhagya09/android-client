@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+ * Copyright (C) 2008 Esmertec AG.
+ * Copyright (C) 2008 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ -->
+<resources>
+    <string-array name="mood_headings">
+        <item>હૅપી</item>
+                
+        <item>સેડ</item>
+                
+        <item>ઈન લવ</item>
+                
+        <item>સરપ્રાઈઝ્ડ</item>
+                
+        <item>કન્ફ્યૂઝ્ડ</item>
+                
+        <item>એંગ્રિ</item>
+                
+        <item>સ્લીપિ</item>
+                
+        <item>હંગઓવર</item>
+                
+        <item>ચિલીંગ</item>
+                
+        <item>સ્ટડીઈંગ</item>
+                
+        <item>બિઝી</item>
+                
+        <item>લવ</item>
+                
+        <item>મિડલ ફિંગર</item>
+                
+        <item>બૂઝીંગ</item>
+                
+        <item>ઈન અ મુવી</item>
+                
+        <item>કૅફિનેટેડ</item>
+                
+        <item>ઇન્સોમ્નિઆક</item>
+                
+        <item>ડ્રાઇવિંગ</item>
+                
+        <item>સ્ટક ઈન ટ્રાફિક</item>
+                
+        <item>રનિંગ લેટ</item>
+                
+        <item>શૉપિંગ</item>
+                
+        <item>ગેમિંગ</item>
+                
+        <item>કોડિંગ</item>
+                
+        <item>વૉચિંગ ટીવી</item>
+                
+        <item>મ્યૂઝિક</item>
+                
+        <item>પાર્ટીઈંગ હાર્ડ</item>
+                
+        <item>સિંગિંગ</item>
+                
+        <item>ઈટિંગ</item>
+                
+        <item>વર્કિંગ આઉટ</item>
+                
+        <item>કૂકિંગ</item>
+                
+        <item>બ્યૂટિ સલૂન</item>
+                
+        <item>સિક</item>
+    </string-array>
+    
+    <array name="photos_actions_titles">
+       <item>પ્રોફાઇલ ચિત્ર તરીકે સેટ કરો</item>
+       <item>મિત્રોને મોકલો</item>
+       <item>ટાઈમ લાઈન પર પોસ્ટ કરો </item>
+	</array>
+
+	<array name="call_glowpad_descr">
+       <item>ડિસમિસ કરો</item>
+       <item>મેસેજ </item>
+       <item>પિકઅપ  </item>
+       <item>@null</item>
+   </array>
+   
+   <array name="call_glowpad_directions">
+       <item>અધિકાર</item>
+       <item>ઉપર</item>
+       <item>ડાબે</item>
+       <item>@null</item>
+   </array>
+
+    <array name="filter_names">
+        <item>ઓરીજિનલ</item>
+        <item>તિરંગા</item>
+        <item>મેલો</item>
+        <item>ચુસ્કી</item>
+        <item>એઝયૉર</item>
+        <item>જલેબી</item>
+        <item>ગુલાલ</item>
+        <item>એક્સ-પ્રો</item>
+        <item>એચડીઆર</item>
+        <item>એપોલો</item>
+        <item>રેટ્રો</item>
+        <item>પલ્સર</item>
+        <item>સનલીટટ</item>
+        <item>હેઝલ</item>
+        <item>લો-ફાય</item>
+        <item>ઇન્ક્ડ</item>
+        <item> મશાલ </item>
+        <item>શોલે</item>
+        <item>જંગલી</item>
+        <item>પોલરોઇડ</item>
+        <item>સેપીયા </item>
+        <item>ગ્રેસ્કેલ</item>
+    </array>
+</resources>
