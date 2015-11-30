@@ -2689,7 +2689,7 @@ import android.widget.Toast;
 
 	protected void sendPoke()
 	{
-		ConvMessage convMessage = Utils.makeConvMessage(msisdn, getString(R.string.poke_msg), mConversation.isOnHike());
+		ConvMessage convMessage = Utils.makeConvMessage(msisdn, getString(R.string.poke_msg_english_only), mConversation.isOnHike());
 		ChatThreadUtils.setPokeMetadata(convMessage);
 		sendMessage(convMessage);
 	}
