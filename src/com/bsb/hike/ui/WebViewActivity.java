@@ -120,7 +120,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 
 	NonMessagingBotMetadata botMetaData;
 	
-	public static String msisdn;
+	public static String msisdn = "";
 
 	int mode;
 	

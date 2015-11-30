@@ -70,5 +70,30 @@
        <item>बाएं</item>
        <item>@null</item>
    </array>
+	<array name="filter_names">
+		<item>ओरिज्नल</item>
+		<item>तिरंगा</item>
+		<item>मेलो</item>
+		<item>चुस्की</item>
+		<item>एज़्यॉर</item>
+		<item>जलेबी</item>
+		<item>गुलाल</item>
+		<item>एक्स-प्रो</item>
+		<item>एच.डी.आर</item>
+		<item>अपोलो</item>
+		<item>रेट्रो</item>
+		<item>पल्सर</item>
+		<item>सनलिट</item>
+		<item>हेज़ल</item>
+		<item>लो-फ़ाई</item>
+		<item>इंक्ड</item>
+		<item>मशाल</item>
+		<item>शोले</item>
+		<item>जंगली</item>
+		<item>पोलरॉयड</item>
+		<item>सेपिया</item>
+		<item>ग्रेस्केल</item>
+	</array>
+
    
 </resources>

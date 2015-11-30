@@ -179,7 +179,7 @@
     <string name="target_account">संपर्क या खात्यावर जतन करा</string>
     <string name="save">जतन करा</string>
     <string name="my_profile">माझे प्रोफाईल</string>
-    <string name="updating_status">स्टेटस अद्यतनीत करत आहे</string>
+    <string name="updating_status">स्थिती अद्यतनीत करत आहे</string>
     <string name="send_message">संदेश पाठवा</string>
     <string name="make_call">कॉल करा</string>
     <string name="on_sms">SMS वर</string>
@@ -200,7 +200,7 @@
     <string name="system_health">प्रणाली आरोग्य</string>
     <string name="you">तुम्ही</string>
     <string name="delete_status">अद्यतन हटवा</string>
-    <string name="delete_status_error">तुमचे स्टेटस अद्यतन हटवू शकलो नाही. कृपया तुमचे नेटवर्क कनेक्शन तपासा आणि नंतर पुन्हा प्रयत्न करा.</string>
+    <string name="delete_status_error">तुमचे स्थिती अद्यतन हटवू शकलो नाही. कृपया तुमचे नेटवर्क कनेक्शन तपासा आणि नंतर पुन्हा प्रयत्न करा.</string>
     <string name="deleting_status">अद्यतन हटवत आहे...</string>
     <string name="tap_here_block">हा क्रमांक अवरोधित करण्यासाठी येथे टॅप करा</string>
     <string name="which_friend_invite">तुमच्या मित्रांना एक विनामूल्य SMS आमंत्रण पाठवा.</string>
@@ -211,7 +211,7 @@
     <string name="message_charcter_limit">140</string>
     <string name="changed_profile">प्रोफाईल चित्र बदलले</string>
     <string name="confirmed_friend">हा आता मित्र आहे</string>
-    <string name="update_status_fail">स्टेटस अद्यतनीत करू शकलो नाही. कृपया तुमचे नेटवर्क कनेक्शन तपासा आणि नंतर पुन्हा प्रयत्न करा.</string>
+    <string name="update_status_fail">स्थिती अद्यतनीत करू शकलो नाही. कृपया तुमचे नेटवर्क कनेक्शन तपासा आणि नंतर पुन्हा प्रयत्न करा.</string>
     <string name="file_expire">ही फाइल आता अस्तित्वात नाही.</string>
     <string name="error_setting_profile">तुमची प्रोफाईल प्रतिमा सेट करताना त्रुटी.</string>
     <string name="continue_txt">सुरु ठेवा</string>
@@ -305,7 +305,7 @@
     <string name="downloading_string">डाउनलोड करत आहे...</string>
     <string name="post">पोस्ट करा</string>
     <string name="no_credits">तुमचे विनामूल्य SMS संपले. अधिक मिळवण्यासाठी %1$s ना आमंत्रित करा!</string>
-    <string name="ftue_add_prompt_invite">%1$s अजून hike वर नाही असे दिसते! %1$s ना hike वर आमंत्रित कर. मानक ऑपरेटर SMS दर लागू.</string>
+    <string name="ftue_add_prompt_invite">%1$s अजून hike वर नाही असे दिसते! %1$s ना hike वर आमंत्रित करा. मानक ऑपरेटर SMS दर लागू.</string>
     <string name="ftue_add_prompt_invite_title">hike वर येण्यासाठी आमंत्रण द्या</string>
     <string name="create_group">नवीन समूह चॅट</string>
     <string name="number_confirmation_string">%1$s हा तुमचा क्रमांक आहे का?</string>
@@ -413,7 +413,7 @@
     <string name="cannot_select_zero_byte_file">0 बाइटची फाइल निवडू शकत नाही</string>
     <string name="addedYouAsFavorite">आवडते मध्ये %1$s जोडले</string>
     <string name="addedYouFrindDescription">
-<![CDATA[ तुम्ही आता तुमचे <font color="#ef554e">शेवटचे पाहिले</font> आणि <font color="#1da8e8">स्टेटस अद्यतने</font> %1$s सह सामायिक करत आहात. तुम्हाला त्यांनी असेच करावे अशी विनंती करायला आवडेल?
+<![CDATA[ तुम्ही आता तुमचे <font color="#ef554e">शेवटचे पाहिले</font> आणि <font color="#1da8e8">स्थिती अद्यतने</font> %1$s सह सामायिक करत आहात. तुम्हाला त्यांनी असेच करावे अशी विनंती करायला आवडेल?
 	    ]]>
     </string>
     <string name="ftue_favorite_subtext">आवडते म्हणून जोडा</string>
@@ -422,11 +422,11 @@
     <string name="add_as_favorite_notification">%1$s नी तुम्हाला आवडते म्हणून जोडले</string>
     <string name="add_as_favorite_notification_line">तुम्हाला आवडते म्हणून जोडले</string>
     <string name="favorites_upper_case">आवडते</string>
-    <string name="ftue_favorites_tap_dismiss_favorite_suggest">आवडते सूचना डिसमीस करण्यासाठी येथे टॅप करा</string>
+    <string name="ftue_favorites_tap_dismiss_favorite_suggest">आवडते सूचना बंद करण्यासाठी येथे टॅप करा</string>
     <string name="favorites_ftue_item_label">आवडते जोडा</string>
     <string name="group_chats_upper_case">समूह चॅट</string>
     <string name="max_num_files_reached">%1$s fपेक्षा अधिक फायली सामायिक करू शकत नाही</string>
-    <string name="status_updates_proper_casing">स्टेटस अद्यतने</string>
+    <string name="status_updates_proper_casing">स्थिती अद्यतने</string>
     <string name="CONFIRM">पुष्टी करा</string>
     <string name="CONTINUE">सुरु ठेवा</string>
     <string name="alp_42447968_cmd_forgot_pattern">नमुना विसरलात?</string>
@@ -480,7 +480,7 @@
     <string name="tickSoundTitle">संभाषण टोन</string>
     <string name="tickSoundSummary">येणाऱ्या आणि जाणाऱ्या संदेशांसाठी ध्वनी प्ले करा</string>
     <string name="notificationSoundTitle">सूचनापत्र टोन</string>
-    <string name="status">स्टेटस</string>
+    <string name="status">स्थिती</string>
     <string name="getting_started">आरंभ करत आहे..</string>
     <string name="viewcontact">प्रोफाईल पहा</string>
     <string name="add_to_contacts_existing">वर्तमान संपर्कात जोडा</string>
@@ -506,13 +506,13 @@
     <string name="add_shortcut">शॉर्टकट जोडा</string>
     <string name="timeline">टाइमलाईन</string>
     <string name="add_favorites_upper_case">आवडते जोडा</string>
-    <string name="status_update_tip_header">तुमचा स्टेटस पोस्ट करा</string>
-    <string name="status_update_tip_msg">स्टेटस केवळ आवडत्यांनाच दृश्यमान राहील</string>
+    <string name="status_update_tip_header">तुमची स्थिती पोस्ट करा</string>
+    <string name="status_update_tip_msg">स्थिती केवळ आवडत्यांनाच दृश्यमान राहील</string>
     <string name="new_ui_welcome_tip_header">नवीन hike वर स्वागत असो</string>
     <string name="new_ui_welcome_tip_msg">वापरायला अधिक सोपे आणि आधीपेक्षा अधिक जलद</string>
     <string name="camera">कॅमेरा</string>
     <string name="sticker_tip_msg">स्टिकर्स पाहण्यासाठी टॅप करा.</string>
-    <string name="ftue_hike_contact_card_header">अहो, तुमच्या ओळखीचे %1$d लोक hike वर आहेत. चॅटिंग आरंभ करा!</string>
+    <string name="ftue_hike_contact_card_header">तुमच्या ओळखीचे %1$d लोक hike वर आहेत. चॅटिंग सुरू करा!</string>
     <string name="see_all_upper_caps">सर्व पहा</string>
     <string name="welcome_to_hike">Hike वर तुमचे स्वागत आहे</string>
     <string name="ftue_welcome_card_msg">Hike अद्भुत गोष्टींनी भरलेले आहे ज्या आम्हाला तुम्हाला दाखवायला आवडतील.</string>
@@ -524,16 +524,16 @@
     <string name="native_sms_invite_1">अहो, माझ्यासह hike संदेशनामध्ये सहभागी व्हा!\n भारतात बनलेले हे एकमेव संदेशन अॅप आहे! ते आता मिळवा - http://hike.in/ आणि तुमचे जीवन Hike करा</string>
     <string name="native_sms_invite_2">अहो! hike संदेशन वापरून पहा. आता Docs, PPTs, MP3s आणि अधिक पाठवा; प्रत्येकी 100MB पर्यन्त! ते आता मिळवा - http://hike.in/ आणि तुमचे जीवन Hike करा</string>
     <string name="native_sms_invite_3">अहो, hike संदेशन वापरून पहा. यामध्ये आश्चर्यकारक स्टिकर्स आणि अद्भुत चॅट थीम आहेत! डाउनलोड करा - http://hike.in आणि तुमचे जीवन Hike करा!</string>
-    <string name="native_sms_invite_4">अहो, hike संदेशन वापरून पहा. हे तुम्हाला तुमचे \&apos;शेवटचे पाहिले\&apos; फक्त निवडक मित्रांनाच पाहू देते! डाउनलोड करा - http://hike.in आणि तुमचे जीवन Hike करा!</string>
+    <string name="native_sms_invite_4">अहो, hike संदेशन वापरून पहा. हे तुम्हाला तुमचे \'शेवटचे पाहिले\' फक्त निवडक मित्रांनाच पाहू देते! डाउनलोड करा - http://hike.in आणि तुमचे जीवन Hike करा!</string>
     <string name="native_sms_invite_5">अहो, hike संदेशन वापरून पहा. तुम्ही तुमचे खाजगी चॅट आता इतरांपासून लपवू शकता. डाउनलोड करा - http://hike.in आणि तुमचे जीवन Hike करा!</string>
     <string name="native_sms_invite_6">अहो, hike संदेशन वापरून पहा. तुम्ही ऑफलाइन असलेल्या मित्रांसह देखील चॅट करू शकता. डाउनलोड करा - http://hike.in आणि तुमचे जीवन Hike करा!</string>
     <string name="new_chat_tip_msg">तयार करण्यासाठी टॅप करा</string>
     <string name="ftue_status_update_card_header">स्वतःला व्यक्त करा</string>
-    <string name="ftue_status_update_card_msg">स्टेटस अद्यतन पोस्ट करण्यासाठी येथे टॅप करा. फक्त तुमचे आवडतेच ते पाहू शकतील.</string>
+    <string name="ftue_status_update_card_msg">स्थिती अद्यतन पोस्ट करण्यासाठी येथे टॅप करा. फक्त तुमचे आवडतेच ते पाहू शकतील.</string>
     <string name="earn_free_sms">विनामूल्य SMS कमवा</string>
     <string name="email_subject">तुमचे जीवन hike करा</string>
     <string name="ftue_card_header_last_seen">शेवटचे पाहिले</string>
-    <string name="ftue_card_body_last_seen">केवळ आवडतेच तुमचे शेवटचे पाहिले आणि स्टेटस अद्यतने पाहू शकतील</string>
+    <string name="ftue_card_body_last_seen">केवळ आवडतेच तुमचे शेवटचे पाहिले आणि स्थिती अद्यतने पाहू शकतील</string>
     <string name="ftue_card_click_text_last_seen">त्यांना निवडण्यासाठी येथे टॅप करा!</string>
     <string name="ftue_card_header_hike_offline">Hike ऑफलाइन</string>
     <string name="ftue_card_body_hike_offline">मित्रांना ते ऑफलाइन असतानासुद्धा संदेश पाठवा</string>
@@ -601,8 +601,8 @@
     <string name="delete_account_heading_2">तुमचे खाते हटवण्यासाठी, तुमचा क्रमांक प्रविष्ट करा</string>
     <string name="delete_my_account">माझे खाते हटवा</string>
     <string name="hike_extras">पारितोषिके/अतिरिक्त</string>
-    <string name="mute_status_notification_header">स्टेटस आणि प्रोफाईल चित्र</string>
-    <string name="mute_status_notification_subtext">आवडत्यांकडील स्टेटस आणि प्रोफाईल चित्र अद्यतनांसाठी सूचनापत्रे दर्शवा</string>
+    <string name="mute_status_notification_header">स्थिती आणि प्रोफाईल चित्र</string>
+    <string name="mute_status_notification_subtext">आवडत्यांकडील स्थिती आणि प्रोफाईल चित्र अद्यतनांसाठी सूचनापत्रे दर्शवा</string>
     <string name="notifications_contact_join_summary">संपर्क hike मध्ये सामील होतो तेव्हा सूचना द्या</string>
     <string name="set_profile_pic"> Hike प्रोफाईल चित्र</string>
     <string name="confirm_delete_pin_header">PIN हटवा</string>
@@ -637,7 +637,7 @@
     <string name="notificationSoundSummary">नवीन सूचनापत्रासाठी प्ले करण्याकरीता ध्वनी निवडा</string>
     <string name="hike_offline_notifications">Hike ऑफलाइन</string>
     <string name="h2o_notifications_setting_summary">ऑफलाइन संपर्कासाठी SMS पाठवण्याचे सूचित करा</string>
-    <string name="stealth_info_tip_subtext">संकेतशब्दाने चॅट लपवण्यासाठी \&apos;हाय\&apos; टॅप करा.</string>
+    <string name="stealth_info_tip_subtext">संकेतशब्दाने चॅट लपवण्यासाठी \'हाय\' टॅप करा.</string>
     <string name="file_attachment_info">100 MB पर्यन्त doc, pdf आणि मीडिया सामायिक करा</string>
     <string name="status_text_notification">अद्यतन पोस्ट केले %1$s</string>
     <string name="shared_files">फायली</string>
@@ -721,11 +721,11 @@
     <string name="shop_download_failed_out_of_space">अपुरी मेमरी</string>
     <string name="shop_loading_state">स्टिकर्स लोड करत आहे</string>
     <string name="shop_loading_state_subtext">कृपया प्रतीक्षा करा ...</string>
-    <string name="shop_loading_failed_no_internet">कोणतेही इंटरनेट कनेक्शन नाही</string>
+    <string name="shop_loading_failed_no_internet">इंटरनेट कनेक्शन नाही</string>
     <string name="shop_loading_failed_switch_on">मोबाईल डेटा किंवा वाय-फाय चालू करा</string>
     <string name="singular_packs">%1$d पॅक</string>
     <string name="singular_stickers">%1$d स्टिकर</string>
-    <string name="conversation_empty">चॅट आरंभ करण्यासाठी शीर्षावरील \&apos;<b>नवीन संदेश</b>\&apos; प्रतीकावर\nटॅप करा</string>
+    <string name="conversation_empty">चॅट आरंभ करण्यासाठी शीर्षावरील \'<b>नवीन संदेश</b>\' प्रतीकावर\nटॅप करा</string>
     <string name="pack_visible">स्टिकर पॅलेटमध्ये दृश्यमान</string>
     <string name="pack_hidden">स्टिकर पॅलेटपासून लपवले</string>
     <string name="pack_rank">%1$d.</string>
@@ -884,12 +884,12 @@
     <string name="ls_everyone_summary">शेवटचे पाहिले Hike वरील सर्वांना दृश्यमान आहे</string>
     <string name="ls_nobody_summary">लक्षात ठेवा: तुम्ही दुसऱ्या कोणाचे शेवटचे पाहिले पाहण्यास सक्षम नाही राहणार</string>
     <string name="you_accepted_favorite_request_details">अत्त्युत्तम! %1$s आता तुमचे %2$s पाहण्यास सक्षम होईल.</string>
-    <string name="accepted_your_favorite_request_details">तुम्ही आता %1$s\&apos;s चे %2$s पाहू शकाल</string>
-    <string name="favorite_confirmed_notification">तुम्ही आता %1$s\&apos;s चे %2$s पाहू शकाल</string>
+    <string name="accepted_your_favorite_request_details">तुम्ही आता %1$s\'s चे %2$s पाहू शकाल</string>
+    <string name="favorite_confirmed_notification">तुम्ही आता %1$s\'s चे %2$s पाहू शकाल</string>
     <string name="sent_favorite_request_tab">आता %1$s सामायिक करत आहे. तुम्हालाही तसे करायला आवडेल का?</string>
     <string name="tap_plus_add_favorites">केवळ आवडतेच तुमचे %1$s पाहू शकतील. त्यांना हुशारीने निवडा!</string>
     <string name="add_fav_msg">आता %1$s सामायिक करत आहे. तुम्हालाही तसे करायला आवडेल का?</string>
-    <string name="both_ls_status_update">शेवटचे पाहिले आणि स्टेटस अद्यतने</string>
+    <string name="both_ls_status_update">शेवटचे पाहिले आणि स्थिती अद्यतने</string>
     <string name="retry_platform_failure">पुन्हा प्रयत्न करा</string>
     <string name="platform_error_text">काहीतरी चुकले</string>
     <string name="platform_error_subtext">कृपया तुमचे इंटरनेट कनेक्शन तपासा</string>
@@ -908,7 +908,7 @@
     <string name="stealth_notification_settings">सूचनापत्र सेटिंग्ज</string>
     <string name="stealth_reset_settings">अतिरिक्त सेटिंग्ज</string>
     <string name="enable_stealth_indicator">दर्शक</string>
-    <string name="enable_stealth_indicator_body">न वाचलेल्या संदेशांसाठी मुखपृष्ठ स्क्रीनवर \&apos; हाय \&apos; लोगो उसळवा</string>
+    <string name="enable_stealth_indicator_body">न वाचलेल्या संदेशांसाठी मुखपृष्ठ स्क्रीनवर \' हाय \' लोगो उसळवा</string>
     <string name="enable_stealth_notification_body">लपवलेल्या चॅटमध्ये संदेश प्राप्त केल्यानंतर सूचित करा</string>
     <string name="enable_stealth_notification">सूचनापत्र</string>
     <string name="stealth_msg_draw_an_unlock_pattern">नवीन संकेतकोड नमुना रेखाटा</string>
@@ -963,7 +963,7 @@
     <string name="content_des_add_photo_gallery_create_group">समूह तयार करताना फोटो जोडा</string>
     <string name="content_des_add_photo_camera_create_group">समूह तयार करताना फोटो घ्या</string>
     <string name="content_des_reset_selected_contacts_create_group">समूह तयार करताना निवडलेल्या संपर्कांची निवड रद्द करा</string>
-    <string name="content_des_choose_smiley_while_chatting">चॅट करताना/स्टेटस सेट करताना पाठवण्यासाठी स्मायली निवडा</string>
+    <string name="content_des_choose_smiley_while_chatting">चॅट करताना/स्थिती सेट करताना पाठवण्यासाठी स्मायली निवडा</string>
     <string name="content_des_choose_sticker_while_chatting">चॅटिंग करताना पाठवण्यासाठी स्टिकर निवडा</string>
     <string name="content_des_send_recorded_audio_text_chatting">चॅटिंग करताना रेकॉर्ड केलेली ध्वनीफित/मजकूर पाठवा</string>
     <string name="content_des_back_button_chatthread_actionbar">चॅट-थ्रेड कृतीबारवरून परत बटण दाबा</string>
@@ -1071,8 +1071,8 @@
 	<string name="add_mood">मनःस्थिती</string>
     <string name="sticker_reorder_setting_info">स्टिकर पॅलेटवरून पॅक पुनर्क्रमित करा/लपवा</string>
     <string name="sticker_reorder_setting_header">स्टिकर पॅक क्रम बदला</string>
-    <string name="sticker_recommendation_autopopup_setting_info">I प्रकार म्हणून स्टिकर स्वयंचलितरित्या प्रदर्शित करा</string>
-	<string name="sticker_recommendation_autopopup_setting_header">स्वयं सूचना स्टिकर्स</string>
+    <string name="sticker_recommendation_autopopup_setting_info">प्रकार म्हणून स्टिकर स्वयंचलितरित्या प्रदर्शित करा</string>
+	<string name="sticker_recommendation_autopopup_setting_header">स्वयं सूचित स्टिकर्स</string>
 	<string name="sticker_recommend_ftue_heading">स्टिकर सल्ला</string>
 	<string name="tap_on_sticker_to_send">पाठवण्यासाठी स्टिकरवर टॅप करा</string>
 	<string name="download_from_shop">अधिक चांगल्या सल्ल्यासाठी अधिक स्टिकर्स डाउनलोड करा</string>
@@ -1108,7 +1108,7 @@
     <string name="contacts_sync_no_contacts_found">संकालनासाठी एकही संपर्क नाही</string>
     <string name="cloud_file_error">ही फाइल तुमच्या फोनवर अस्तित्वात नाही. कृपया सामायिक करण्यापूर्वी तिला बाहेरून डाउनलोड करा</string>
     <string name="unknown_file_error">आम्हाला फाइल डिस्कवर सापडली नाही. कृपया पुन्हा प्रयत्न करा</string>
-    <string name="add_to_fav_confirmation">तुम्ही तुमच्या आवडत्यांकडील स्टेटस पोस्टना आवड देऊ शकता. तुम्हाला %1$s ला आवडते म्हणून जोडायचे?</string>
+    <string name="add_to_fav_confirmation">तुम्ही तुमच्या आवडत्यांकडील स्थिती पोस्टना आवड देऊ शकता. तुम्हाला %1$s ला आवडते म्हणून जोडायचे?</string>
     <string name="invite_free_sms">विनामूल्य SMS आमंत्रण</string>
     <string name="sticker_recommend_settings_toast">तुम्ही कधीही सेटिंग्ज &gt; चॅट सेटिंग्जवरून स्टिकर सल्ले सक्षम करू शकता</string>
     <string name="YES">होय</string>
@@ -1117,9 +1117,9 @@
     <string name="disconnecting_offline">कनेक्शन बंद करत आहे</string>
     <string name="sticker_recommend_auto_off_tip_text">स्टिकर सल्ला बंद केला! त्यांना सेटिंग्ज &gt; चॅट सेटिंग्जवरून परत आणा</string>
     <string name="timeline_tab_photo">फोटो</string>
-    <string name="timeline_tab_status">स्टेटस</string>
+    <string name="timeline_tab_status">स्थिती</string>
     <string name="timeline_empty_desc1">टाइमलाईन अद्यतने</string>
-    <string name="timeline_empty_desc2">तुम्ही तुमच्या मित्रांच्या जीवनातील फोटो आणि\nस्टेटस अद्यतने येथे पाहू शकता.</string>
+    <string name="timeline_empty_desc2">तुम्ही तुमच्या मित्रांच्या जीवनातील फोटो आणि\nस्थिती अद्यतने येथे पाहू शकता.</string>
     <string name="CLEAR">साफ करा</string>
     <string name="HIDDEN_MODE">लपवलेला मोड</string>
     <string name="EDIT">संपादित करा</string>
@@ -1171,14 +1171,14 @@
     <string name="keypress_sound_vol_title">कीप्रेस आवाज व्हॉल्यूम</string>
     <string name="keypress_vib_duration_title">कीप्रेस कंपन कालावधी</string>
     <string name="like_count_by_unknow_contacts">%2$s पैकी +%1$d मित्र</string>
-    <string name="connection_established_inline_msg">Hike Direct कनेक्ट केले</string>
-    <string name="connection_deestablished_inline_msg">Hike Direct डिस्कनेक्ट केले</string>
+    <string name="connection_established_inline_msg">Hike Direct कनेक्ट झाले</string>
+    <string name="connection_deestablished_inline_msg">Hike Direct डिस्कनेक्ट झाले</string>
     <string name="connection_request_inline_msg">Hike Direct विनंती हुकली</string>
     <string name="hike_direct_info">Hike Direct तुमचा डेटा संपलेला असला तरीही तुमच्या मित्रांशी जोडलेले राहण्याचा एक नवीन मार्ग आहे. ते तुम्हाला जवळपासच्या मित्रांना संदेश पाठवू आणि फायली सामायिक करू देते ते ही अगदी विनामूल्य. कोणतीही फाइल आकार मर्यादा नाही आणि तुम्ही चित्रपट, व्हिडिओ, संगीत, अॅप्स आणि तुम्हाला वाटते ते काहीही पाठवू शकता ते ही अगदी विनामूल्य.</string>
     <string name="how_hike_direct_works">Hike Direct कसे कार्य करते?</string>
     <string name="condition_one">नियम 1:तुमचा मित्र तुमच्यापासून 100 मीटरच्या आत असला पाहिजे. अर्थातच तुम्ही जितके जवळ असाल कनेक्शन तितकेच चांगले राहील!</string>
     <string name="condition_two">नियम 2: कनेक्शन सुरु करण्यासाठी, तुमच्या मित्रालासुद्धा तुमच्या चॅटवरून Hike Direct पर्यायावर टॅप करायला सांगा.</string>
-    <string name="offline_group_query">Hike Direct समूह चॅटसाठी सुद्धा उपयोगी आहे ?</string>
+    <string name="offline_group_query">Hike Direct समूह चॅटसाठी सुद्धा उपयोगी आहे</string>
     <string name="offline_group_answer">सध्यातरी, Hike Direct 1:1 चॅटसाठी कार्य करते.  ते समूह चॅटसाठी काम करत नाही. या जागेवरील अद्यतनांसाठी संपर्कात रहा.</string>
     <string name="hike_direct_help">Hike Direct मदत</string>
     <string name="something_went_wrong">काहीतरी चुकले. कृपया काही वेळाने पुन्हा प्रयत्न करा</string>
@@ -1238,31 +1238,31 @@
     <string name="take_me_there">मला तेथे न्या</string>
     <string name="hike_upgrade_string">तुमच्यासाठी hike अधिक जलद आणि अधिक चांगले बनवत आहोत\n ह्याला काही मिनिटे लागू शकतात</string>
     <array name="voip_decline_message_texts">
-        <item>आता बोलू शकत नाही. कसे काय?</item>
+        <item>सध्या बोलू शकत नाही. काय चाल्लय?</item>
         <item>मी तुम्हाला लगेच कॉल करेल</item>
         <item>मी तुम्हाला नंतर कॉल करेल</item>
-        <item>आता बोलू शकत नाही. मला नंतर कॉल कराल?</item>
+        <item>सध्या बोलू शकत नाही. मला नंतर कॉल कराल?</item>
     </array>
     <string name="HELP">मदत</string>
     <string name="sticky_caller_settings">कॉलर</string>
 	<string name="sticky_caller_settings_header">कॉलर माहिती</string>
 	<string name="sticky_caller_settings_side_text">सर्व संपर्कांसाठी कॉलर माहिती आणि विनामूल्य कॉलिंग/संदेशन पर्याय दर्शवा</string>
 	<string name="enable_saved_contact_view_heading">जतन केलेल्या संपर्कांसाठी दर्शवा</string>
-	<string name="enable_saved_contact_view_side_text">कॉलर माहिती जतन केलेल्या संपर्कांसाठीसुद्धा दर्शवा</string>
+	<string name="enable_saved_contact_view_side_text">जतन केलेल्या संपर्कांसाठीसुद्धा कॉलर माहिती दर्शवा</string>
     <string name="choose_language">भाषा निवडा</string>
-    <string name="choose_language_desciption">आपले आवडते संदेशन आता आपल्या भाषेमध्ये</string>
-    <string name="system_language">प्रणाली भाषा</string>
+    <string name="choose_language_desciption">आपले आवडते संदेशन आता आपल्या भाषेत</string>
+    <string name="system_language">मूळ भाषा</string>
     <string name="regional_keyboard">क्षेत्रिय कीबोर्ड</string>
-    <string name="regional_keyboard_subtext">आता नवीन कीबोर्डसह आपल्या आवडत्या भाषेमध्ये चॅट करा</string>
+    <string name="regional_keyboard_subtext">आता नवीन कीबोर्डसह आपल्या आवडत्या भाषेत चॅट करा</string>
     <string name="CHOOSE_LANGUAGE">भाषा निवडा</string>
 	<string name="apply">लागू करा</string>
-    <string name="keyboad_ftue_swipe">आपल्या भाषेमध्ये बदल करण्यासाठी स्वाइप करा</string>
+    <string name="keyboad_ftue_swipe">आपल्या भाषेत बदल करण्यासाठी स्वाइप करा</string>
     <string name="setting_up_keyboard">कीबोर्ड सेट करणे</string>
-	<string name="close_gps">बॅटरी वाचवण्यासाठी तु्म्ही आता तुमचे स्थान बंद करू शकता. आपले Hike Direct कनेक्शन प्रभावीत होणार नाही.</string>
+	<string name="close_gps">बॅटरी वाचवण्यासाठी तुम्ही आता तुमचे स्थान बंद करू शकता. आपले Hike Direct कनेक्शन प्रभावीत होणार नाही.</string>
 	<string name="gps_not_on">माफ करा, GPS चालू नसताना Hike Direct काम करणार नाही</string>
-	<string name="switch_on_gps">कृपया Hike Direct कार्यरत करण्यासाठी स्थान सक्षम करा. आपले झाल्यावर मागे दाबा. </string>
+	<string name="switch_on_gps">कृपया Hike Direct कार्यरत करण्यासाठी स्थान सक्षम करा. हे झाल्यावर मागे दाबा. </string>
 	<string name="gps_settings">सेटिंग</string>
-	<string name="user_gps_off">आपले स्थान सक्षम करेपर्यन्त Hike Direct काम करणार नाही.</string>
+	<string name="user_gps_off">आपले स्थान सक्षम करेपर्यंत Hike Direct काम करणार नाही.</string>
 	
     <string name="you_change_group_name">तुम्ही समूह नाव बदलले.</string>
     <string name="you_change_broadcast_name">तुम्ही प्रसारण नाव बदलले.</string>
@@ -1288,8 +1288,126 @@
     <string name="APPLY">लागू करा</string>
     <string name="level">स्तर</string>
     <string name="milliseconds">ms</string>
-    <string name="and"> आणि </string>
     <string name="contact_name">संपर्क नाव</string>
     <string name="mobile">मोबाईल</string>
     <string name="your_contact">तुमचे संपर्क</string>
+    <string name="made_with_love_in_india">भारतामध्ये :love: प्रेमाने बनवलेला</string>
+
+    <string name="and">आणी</string>
+    <string name="others_smallcase">इतर</string>
+    <string name="timeline_ftue_desc">टाइमलाईन हे आपल्यासाठी आणि मित्रांसाठी विशेष क्षण शेअर करण्यासाठी एक ठिकाण आहे. टाइमलाईन वर आधीच आपले मित्र पोस्ट सुद्धा करीत आहेत !</string>
+
+    <!-- The above two string would be used as in Group with Shibu, Niladri and 4 others -->
+
+
+    <string name="yesterday">काल</string>
+    <string name="tomorrow">उद्या</string>
+    <string name="today">आज</string>
+    <!-- This is used to express that something occurred some number of seconds in the past (e.g., 5 seconds ago). -->
+    <plurals name="num_seconds_ago">
+        <item quantity="one">1 सेकंदपूर्वी</item>
+        <item quantity="other">%d सेकंदांपूर्वी</item>
+    </plurals>
+
+    <!-- This is used to express that something occurred some number of minutes in the past (e.g., 5 minutes ago). -->
+    <plurals name="num_minutes_ago">
+        <item quantity="one">1 मिनिटापूर्वी</item>
+        <item quantity="other">%d मिनिटांपूर्वी</item>
+    </plurals>
+
+    <!-- This is used to express that something occurred some number of hours in the past (e.g., 5 hours ago). -->
+    <plurals name="num_hours_ago">
+        <item quantity="one">1 तासापूर्वी</item>
+        <item quantity="other">%d तासांपूर्वी</item>
+    </plurals>
+
+    <!-- This is used to express that something occurred within the last X days (e.g., Last 7 days). -->
+    <plurals name="last_num_days">
+        <item quantity="other">गॆलॆ %d दिवस</item>
+    </plurals>
+
+    <!-- This is used to express that something has occurred within the last month -->
+    <string name="last_month">गॆल्या 5 महीना</string>
+
+    <!-- This is used to express that something happened longer ago than the previous options -->
+    <string name="older">जुने</string>
+
+    <!-- This is used to express that something occurred some number of days in the past (e.g., 5 days ago). -->
+    <plurals name="num_days_ago">
+        <item quantity="one">काल</item>
+        <item quantity="other">%d दिवसांपूर्वी</item>
+    </plurals>
+
+    <!-- This is used to express that something will occur some number of seconds in the future (e.g., in 5 seconds). -->
+    <plurals name="in_num_seconds">
+        <item quantity="one">1 सेकंदात</item>
+        <item quantity="other">%d सेकंदात</item>
+    </plurals>
+
+    <!-- This is used to express that something will occur some number of minutes in the future (e.g., in 5 minutes). -->
+    <plurals name="in_num_minutes">
+        <item quantity="one">1 मिनिटात</item>
+        <item quantity="other">%d मिनिटात</item>
+    </plurals>
+
+    <!-- This is used to express that something will occur some number of hours in the future (e.g., in 5 hours). -->
+    <plurals name="in_num_hours">
+        <item quantity="one">1 तासात</item>
+        <item quantity="other">%d तासात</item>
+    </plurals>
+
+    <!-- This is used to express that something will occur some number of days in the future (e.g., in 5 days). -->
+    <plurals name="in_num_days">
+        <item quantity="one">उद्या</item>
+        <item quantity="other">%d दिवसांत</item>
+    </plurals>
+
+    <!-- This is used to express that something occurred some number of abbreviated seconds in the past (e.g., 5 secs ago). -->
+    <plurals name="abbrev_num_seconds_ago">
+        <item quantity="one">1 सेकंदपूर्वी</item>
+        <item quantity="other">%d सेकंदांपूर्वी</item>
+    </plurals>
+
+    <!-- This is used to express that something occurred some number of abbreviated minutes in the past (e.g., 5 mins ago). -->
+    <plurals name="abbrev_num_minutes_ago">
+        <item quantity="one">1 मिनिटापूर्वी</item>
+        <item quantity="other">%d मिनिटांपूर्वी</item>
+    </plurals>
+
+    <!-- This is used to express that something occurred some number of abbreviated hours in the past (e.g., 5 hrs ago). -->
+    <plurals name="abbrev_num_hours_ago">
+        <item quantity="one">1 तासापूर्वी</item>
+        <item quantity="other">%d तासांपूर्वी</item>
+    </plurals>
+
+    <!-- This is used to express that something occurred some number of abbreviated days in the past (e.g., 5 days ago). -->
+    <plurals name="abbrev_num_days_ago">
+        <item quantity="one">काल</item>
+        <item quantity="other">%d दिवसांपूर्वी</item>
+    </plurals>
+
+    <!-- This is used to express that something will occur some number of abbreviated seconds in the future (e.g., in 5 secs). -->
+    <plurals name="abbrev_in_num_seconds">
+        <item quantity="one">1 सेकंदात</item>
+        <item quantity="other">%d सेकंदात</item>
+    </plurals>
+
+    <!-- This is used to express that something will occur some number of abbreviated minutes in the future (e.g., in 5 mins). -->
+    <plurals name="abbrev_in_num_minutes">
+        <item quantity="one">1 मिनिटात</item>
+        <item quantity="other">%d मिनिटात</item>
+    </plurals>
+
+    <!-- This is used to express that something will occur some number of abbreviated hours in the future (e.g., in 5 hrs). -->
+    <plurals name="abbrev_in_num_hours">
+        <item quantity="one">1 तासात</item>
+        <item quantity="other">%d तासात</item>
+    </plurals>
+
+    <!-- This is used to express that something will occur some number of abbreviated days in the future (e.g., in 5 days). -->
+    <plurals name="abbrev_in_num_days">
+        <item quantity="one">उद्या</item>
+        <item quantity="other">%d दिवसांत</item>
+    </plurals>
+
 </resources>
