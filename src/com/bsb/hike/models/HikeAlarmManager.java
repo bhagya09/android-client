@@ -1,28 +1,17 @@
 package com.bsb.hike.models;
 
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Handler;
 
 import com.bsb.hike.HikeConstants;
-import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.AnalyticsSender;
-import com.bsb.hike.analytics.HAManager;
-import com.bsb.hike.analytics.HAManager.EventPriority;
-import com.bsb.hike.chatHead.ChatHeadService;
 import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.db.AccountBackupRestore;
 import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
 import com.bsb.hike.notifications.HikeNotification;
-import com.bsb.hike.notifications.HikeNotificationMsgStack;
-import com.bsb.hike.offline.OfflineManager;
 import com.bsb.hike.platform.PlatformAlarmManager;
 import com.bsb.hike.productpopup.NotificationContentModel;
 import com.bsb.hike.productpopup.ProductInfoManager;
@@ -83,8 +72,10 @@ public class HikeAlarmManager
 	public static final int REQUESTCODE_START_STICKER_SHARE_SERVICE = 4573;
 	
 	public static final int REQUEST_CODE_STICKER_RECOMMENDATION_BALANCING = 4574;
+	
+	public static final int REQUESTCODE_UPDATE_PERSISTENT_NOTIF = 4575;
 
-    public static final int REQUEST_CODE_MICROAPPS_MIGRATION = 4575;
+    public static final int REQUEST_CODE_MICROAPPS_MIGRATION = 4576;
 
 	// ******************************************************//
 	
@@ -322,6 +313,12 @@ public class HikeAlarmManager
             Intent migrationIntent = new Intent(context, HikeMicroAppsCodeMigrationService.class);
             context.startService(migrationIntent);
              break;
+		case HikeAlarmManager.REQUESTCODE_UPDATE_PERSISTENT_NOTIF:
+			Logger.d(HikeConstants.UPDATE_TIP_AND_PERS_NOTIF_LOG, "PersNotifAlarm interval over. Processing persistent notif.");
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.IS_PERS_NOTIF_ALARM_SET, false);
+			HikeNotification.getInstance().checkAndShowUpdateNotif();
+			break;
+
 		default:
 			PlatformAlarmManager.processTasks(intent, context);
 			break;
@@ -392,7 +389,11 @@ public class HikeAlarmManager
             Intent migrationIntent = new Intent(context, HikeMicroAppsCodeMigrationService.class);
             context.startService(migrationIntent);
             break;
-			
+		case HikeAlarmManager.REQUESTCODE_UPDATE_PERSISTENT_NOTIF:
+			Logger.d(HikeConstants.UPDATE_TIP_AND_PERS_NOTIF_LOG, "PersNotifAlarm interval over and alarm expired. Processing persistent notif.");
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.IS_PERS_NOTIF_ALARM_SET, false);
+			HikeNotification.getInstance().checkAndShowUpdateNotif();
+			break;
 		default:
 			PlatformAlarmManager.processTasks(intent, context);
 			break;

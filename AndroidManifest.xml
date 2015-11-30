@@ -3,9 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bsb.hike"
     android:installLocation="auto"
-    android:versionCode="1471"
-    android:versionName="4.0.7.82.25.2.hike_platform_internal" >
-    
+    android:versionCode="1528"
+    android:versionName="4.0.8.81.31" >
     <uses-sdk
         android:minSdkVersion="14"
         android:targetSdkVersion="17"/>
@@ -60,7 +59,21 @@
     <uses-permission android:name="android.permission.READ_SYNC_STATS" />
     <uses-permission android:name="android.permission.USE_CREDENTIALS" />
     <uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS" />
-    
+      <!--for Samsung Badger-->
+    <uses-permission android:name="com.sec.android.provider.badge.permission.READ"/>
+    <uses-permission android:name="com.sec.android.provider.badge.permission.WRITE"/>
+    <!--     for htc -->
+    <uses-permission android:name="com.htc.launcher.permission.READ_SETTINGS"/>
+    <uses-permission android:name="com.htc.launcher.permission.UPDATE_SHORTCUT"/>
+
+<!--     for sony -->
+    <uses-permission android:name="com.sonyericsson.home.permission.BROADCAST_BADGE"/>
+
+<!--     for apex -->
+    <uses-permission android:name="com.anddoes.launcher.permission.UPDATE_COUNT"/>
+
+<!--     for solid -->
+    <uses-permission android:name="com.majeur.launcher.permission.UPDATE_BADGE"/>
     
     <!-- C2DM -->
     <permission
@@ -107,7 +120,7 @@
         android:label="@string/app_name"
         android:largeHeap="true"
         android:logo="@drawable/hike_logo_top_bar"
-        tools:replace="android:allowBackup"
+        tools:replace="android:name,android:allowBackup"
         android:theme="@style/AppTheme" >
         <uses-library
             android:name="com.google.android.maps"
@@ -133,22 +146,6 @@
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-                <!-- Accepts URIs that begin with "http://hike.in/” -->
-                <data
-                    android:host="hike.in"
-                    android:pathPrefix="/"
-                    android:scheme="http" />
-                <!-- Accepts URIs that begin with "https://hike.in/” -->
-                <data
-                    android:host="hike.in"
-                    android:pathPrefix="/"
-                    android:scheme="https" />
             </intent-filter>
         </activity>
 
@@ -184,6 +181,12 @@
             android:label="@string/app_label"
             android:launchMode="singleTop"
             android:windowSoftInputMode="adjustPan|stateAlwaysVisible" >
+        </activity>
+        <activity
+            android:name=".ui.HomeFtueActivity"
+            android:label="@string/app_label"
+            android:launchMode="singleTop"
+            android:windowSoftInputMode="adjustPan|stateAlwaysHidden">
         </activity>
         <activity
             android:name=".chatthread.ChatThreadActivity"
@@ -248,6 +251,8 @@
         <activity
             android:name=".ui.TellAFriend"
             android:launchMode="singleTop" >
+        </activity>
+        <activity android:name=".ui.LanguageSettingsActivity" >
         </activity>
         <activity android:name=".ui.SettingsActivity" 
                   android:configChanges="orientation|screenSize">            
@@ -362,7 +367,8 @@
             android:name="com.haibison.android.lockpattern.LockPatternActivity"
             android:configChanges="orientation|screenSize|keyboard|keyboardHidden"
             android:screenOrientation="user"
-            android:theme="@style/LockPatternTheme" />
+            android:theme="@style/LockPatternTheme"
+            android:windowSoftInputMode="adjustPan|stateUnspecified" />
          <activity
             android:name=".ui.ServerHostChangeActivity"
             android:configChanges="orientation|keyboardHidden|screenSize" 
@@ -379,6 +385,28 @@
             android:name=".ui.HikeDirectHelpPageActivity"
             android:label="@string/app_label"
          >
+        </activity>
+        <activity
+            android:name=".ui.LinkDispatcherActivity"
+            android:launchMode="singleInstance"
+            android:noHistory="true"
+            android:theme="@style/Transparent" >
+             <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <!-- Accepts URIs that begin with "http://hike.in/” -->
+                <data
+                    android:host="hike.in"
+                    android:pathPrefix="/"
+                    android:scheme="http" />
+                <!-- Accepts URIs that begin with "https://hike.in/” -->
+                <data
+                    android:host="hike.in"
+                    android:pathPrefix="/"
+                    android:scheme="https" />
+            </intent-filter>
         </activity>
          
         <receiver
@@ -469,8 +497,15 @@
             android:name="com.bsb.hike.platform.CocosGamingActivity"
             android:process="org.cocos2dx.gameprocess"
             android:configChanges="orientation"
+            android:launchMode="singleTop"
             android:exported="true" >
         </activity>
+        <service android:name="com.bsb.hike.platform.CocosProcessIntentService"
+            android:process="org.cocos2dx.gameprocess"
+            />
+        <service android:name="com.bsb.hike.platform.HikeProcessIntentService"
+            android:process="com.bsb.hike"
+            />
 
         <service android:name=".chatHead.ChatHeadService" 
             android:label="HikeStickeyService"/>
@@ -564,6 +599,12 @@
             android:exported="true" />
         <!-- ag -->
         
+        <receiver
+            android:name="com.bsb.hike.notifications.PersNotifClickReceiver" >
+            <intent-filter>
+                <action android:name="com.bsb.hike.PERS_NOTIF_ALARM_INTENT"/>
+            </intent-filter>
+        </receiver>
         
 </application>
 

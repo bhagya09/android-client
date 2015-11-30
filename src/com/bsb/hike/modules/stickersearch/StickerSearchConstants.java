@@ -12,7 +12,7 @@ public class StickerSearchConstants
 	public static final int SCROLL_SPEED_PER_DIP = 500;
 
 	public static final int SHOW_SCROLL_FTUE_COUNT = 2;
-	
+
 	public static final int SCROLL_TIME = 500;
 
 	// ================================================================Generic constants for UI]]
@@ -22,13 +22,19 @@ public class StickerSearchConstants
 
 	public static final int STATE_STICKER_DATA_REFRESH = 1;
 
+	public static final int STATE_LANGUAGE_TAGS_DOWNLOAD = 2;
+
+	public static final int DECISION_STATE_NO = 0;
+
+	public static final int DECISION_STATE_YES = 1;
+
 	// ========================================================Generic constants for data setup]]
 
 	// Generic constants for periodic tasks====================================================[[
-	public static final int REBALACING_DEFAULT_TIME = 4; // 4 a.m.
+	public static final int DEFAULT_REBALANCING_TIME_HOUR = 4; // 4 a.m. time-stamp
 
-	public static final long DEFAULT_STICKER_TAG_REFRESH_PERIOD = 14 * 24 * 60 * 60 * 1000L; // 14 days period in milliseconds
-	
+	public static final long DEFAULT_STICKER_TAG_REFRESH_TIME_INTERVAL = 14 * 24 * 60 * 60 * 1000L; // 14 days period in milliseconds
+
 	// ====================================================Generic constants for periodic tasks]]
 
 	// Generic constants for searching text====================================================[[
@@ -43,6 +49,8 @@ public class StickerSearchConstants
 	public static final int MAXIMUM_PHRASE_PERMUTATION_SIZE = 4;
 
 	public static final int MINIMUM_AUTO_RECOMMENDATION_REJECTION_PATTERN_COUNT = 1;
+
+	public static final String DEFAULT_KEYBOARD_LANGUAGE_ISO_CODE = "eng";
 
 	// ====================================================Generic constants for searching text]]
 
@@ -79,13 +87,13 @@ public class StickerSearchConstants
 	// Constants used for calculating score====================================================[[
 	public static final float LIMIT_EXACT_MATCH = 0.70f; // 70 percent
 
-	public static final float WEITAGE_MATCH_LATERAL = 0.30f;
+	public static final float WEIGHTAGE_MATCH_LATERAL = 0.30f;
 
-	public static final float WEITAGE_EXACT_MATCH = 0.32f;
+	public static final float WEIGHTAGE_EXACT_MATCH = 0.32f;
 
-	public static final float WEITAGE_FREQUENCY = 0.28f;
+	public static final float WEIGHTAGE_FREQUENCY = 0.28f;
 
-	public static final float WEITAGE_CONTEXT_MOMENT = 0.10f;
+	public static final float WEIGHTAGE_CONTEXT_MOMENT = 0.10f;
 
 	public static final float RATIO_TRENDING_FREQUENCY = 0.59f;
 
@@ -103,7 +111,7 @@ public class StickerSearchConstants
 
 	public static final float MINIMUM_MATCH_SCORE_PHRASE_LIMITED = 0.10f;
 
-	public static final float MARGINAL_FULL_SCORE_LATERAL = 0.80f; // marginal full score = 80.00% but not 100% (nothing is perfect till its perfect)
+	public static final float MARGINAL_FULL_SCORE_LATERAL = 0.80f; // marginal full score = 80.00% but not 100% (nothing is perfect until it's being perfect.)
 
 	public static final float DEFAULT_FREQUENCY_VALUE = 0.00f;
 
@@ -118,6 +126,12 @@ public class StickerSearchConstants
 	// ====================================================Constants used for calculating score]]
 
 	// Regular expressions=====================================================================[[
+	public static final String REGEX_OR = "\\|\\\\|\\|"; // Regular expression for '|' or '\\|'
+
+	public static final String DEFAULT_REGEX_SEPARATORS_LATIN = " |\n|\t|,|\\.|\\?";
+
+	public static final String DEFAULT_REGEX_SEPARATORS_REGIONAL = " |\n|\t|,|\\।|\\?";
+
 	public static final String REGEX_PREDICATE = "\\*";
 
 	public static final String REGEX_SINGLE_OR_PREDICATE = "\'|\\*";
@@ -129,6 +143,8 @@ public class StickerSearchConstants
 	// =====================================================================Regular expressions]]
 
 	// Generic constants=======================================================================[[
+	public static final String STRING_HEX_CHAR_OR = "x7C"; // Hexadecimal code of '|'
+
 	public static final String STRING_EMPTY = "";
 
 	public static final String STRING_SPACE = " ";
@@ -147,8 +163,16 @@ public class StickerSearchConstants
 
 	public static final String STRING_ASSOCIATOR = " + ";
 
-	public static final String STRING_DISSOCIATOR = ", ";
+	public static final String STRING_DISSOCIATOR = ",";
+
+	public static final Character CHAR_EMPTY = '\0';
+
+	public static final Character CHAR_SPACE = ' ';
+
+	public static final Character CHAR_OR = '|';
 
 	public static final String STRING_DELIMITER = ":";
+
+	public static final String STRING_JOINTER = "_";
 	// =======================================================================Generic constants]]
 }

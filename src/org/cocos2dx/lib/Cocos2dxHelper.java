@@ -43,6 +43,7 @@ import android.util.DisplayMetrics;
 import android.view.Display;
 import android.view.WindowManager;
 
+import com.bsb.hike.platform.CocosGamingActivity;
 import com.bsb.hike.utils.Logger;
 import com.chukong.cocosplay.client.CocosPlayClient;
 
@@ -70,6 +71,7 @@ public class Cocos2dxHelper {
 	private static Set<OnActivityResultListener> onActivityResultListeners = new LinkedHashSet<OnActivityResultListener>();
 	private static Vibrator sVibrateService = null;
 	
+	private static CocosGamingActivity cocosGamingActivity = null;
 	// ===========================================================
 	// Constructors
 	// ===========================================================
@@ -110,7 +112,7 @@ public class Cocos2dxHelper {
 		}
 	}
 
-	public static void initDuplicate(final Activity activity, String appId,String appPath) {
+	public static void initDuplicate(final CocosGamingActivity activity, String appId,String appPath) {
 		if (!sInited) {
 			final ApplicationInfo applicationInfo = activity.getApplicationInfo();
 
@@ -134,7 +136,8 @@ public class Cocos2dxHelper {
 
 			Cocos2dxBitmap.setContext(activity);
 			sActivity = activity;
-
+			cocosGamingActivity = activity;
+			
 			sInited = true;
 
 		}
@@ -338,6 +341,9 @@ public class Cocos2dxHelper {
 	}
 
 	public static void terminateProcess() {
+		if(cocosGamingActivity != null) {
+			cocosGamingActivity.sendGameOpenAnalytics();
+		}
 		Logger.d("Cocos2dxHelper", "Terminating Process : " + android.os.Process.myPid());
 		android.os.Process.killProcess(android.os.Process.myPid());
 	}

@@ -8,6 +8,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.Activity;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -36,7 +38,10 @@ import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.chatHead.StickerShareSettings;
 import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.chatthread.ChatThreadUtils;
-import com.bsb.hike.cropimage.CropImage;
+import com.bsb.hike.cropimage.CropCompression;
+import com.bsb.hike.cropimage.HikeCropActivity;
+import com.bsb.hike.localisation.LocalLanguageUtils;
+import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.HikeFile;
@@ -60,6 +65,8 @@ import com.bsb.hike.ui.HikeDirectHelpPageActivity;
 import com.bsb.hike.ui.HikeListActivity;
 import com.bsb.hike.ui.HikePreferences;
 import com.bsb.hike.ui.HomeActivity;
+import com.bsb.hike.ui.HomeFtueActivity;
+import com.bsb.hike.ui.LanguageSettingsActivity;
 import com.bsb.hike.ui.NUXInviteActivity;
 import com.bsb.hike.ui.NuxSendCustomMessageActivity;
 import com.bsb.hike.ui.PeopleActivity;
@@ -79,11 +86,32 @@ import com.bsb.hike.voip.VoIPUtils;
 import com.bsb.hike.voip.view.CallRateActivity;
 import com.bsb.hike.voip.view.VoIPActivity;
 
+import android.app.Activity;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.net.Uri;
+import android.os.Build;
+import android.os.Bundle;
+import android.os.Message;
+import android.provider.ContactsContract.Contacts;
+import android.provider.MediaStore;
+import android.provider.Settings;
+import android.text.TextUtils;
+import android.widget.Toast;
+
 public class IntentFactory
 {
 	public static void openSetting(Context context)
 	{
 		context.startActivity(new Intent(context, SettingsActivity.class));
+	}
+
+	public static void openKeyboardLanguageSetting(Context context)
+	{
+		context.startActivity(new Intent(context, LanguageSettingsActivity.class));
 	}
 
 	public static void openSettingNotification(Context context)
@@ -272,6 +300,14 @@ public class IntentFactory
 		context.startActivity(intent);
 	}
 	
+	public static void openSettingLocalization(Context context)
+	{
+		Intent intent = new Intent(context, HikePreferences.class);
+		intent.putExtra(HikeConstants.Extras.PREF, R.xml.keyboard_settings_preferences);
+		intent.putExtra(HikeConstants.Extras.TITLE, R.string.settings_localization);
+		context.startActivity(intent);
+	}
+
 	public static void openStickyCallerSettings(Context context, boolean isFromOutside)
 	{
 		Intent intent = new Intent(context, HikePreferences.class);
@@ -287,8 +323,30 @@ public class IntentFactory
 		}
 	}
 	
+	public static Intent getIntentForKeyboardAdvSettings(Context context)
+	{
+		Intent intent = new Intent(context, HikePreferences.class);
+		intent.putExtra(HikeConstants.Extras.PREF, R.xml.kpt_advanced_preferences);
+		intent.putExtra(HikeConstants.Extras.TITLE, R.string.advanced_keyboard_settings);
+		return intent;
+	}
 	
-
+	public static Intent getIntentForKeyboardPrimarySettings(Context context)
+	{
+		Intent intent = new Intent(context, HikePreferences.class);
+		intent.putExtra(HikeConstants.Extras.PREF, R.xml.keyboard_preferences);
+		intent.putExtra(HikeConstants.Extras.TITLE, R.string.keyboard_preference_title);
+		return intent;
+	}
+	
+	public static Intent getIntentForTextCorrectionSettings(Context context)
+	{
+		Intent intent = new Intent(context, HikePreferences.class);
+		intent.putExtra(HikeConstants.Extras.PREF, R.xml.text_correction_preferences);
+		intent.putExtra(HikeConstants.Extras.TITLE, R.string.text_correction_pref_title);
+		return intent;
+	}
+	
 	public static void openInviteSMS(Context context)
 	{
 		context.startActivity(new Intent(context, HikeListActivity.class));
@@ -337,6 +395,7 @@ public class IntentFactory
 		if (!TextUtils.isEmpty(hikeExtrasUrl))
 		{
 			Uri gamesUri = Utils.getFormedUri(context, hikeExtrasUrl, prefs.getString(HikeMessengerApp.REWARDS_TOKEN, ""));
+			gamesUri = appendLocaleToUri(gamesUri);
 			intent.putExtra(HikeConstants.Extras.URL_TO_LOAD, gamesUri.toString());
 		}
 
@@ -369,6 +428,7 @@ public class IntentFactory
 		if (!TextUtils.isEmpty(rewards_url))
 		{
 			Uri rewardsUri = Utils.getFormedUri(context, rewards_url, prefs.getString(HikeMessengerApp.REWARDS_TOKEN, ""));
+			rewardsUri = appendLocaleToUri(rewardsUri);
 			intent.putExtra(HikeConstants.Extras.URL_TO_LOAD, rewardsUri.toString());
 		}
 
@@ -382,7 +442,15 @@ public class IntentFactory
 
 		return intent;
 	}
-	
+
+	private static Uri appendLocaleToUri(Uri appendTo) {
+		String localappLang = LocalLanguageUtils.getApplicationLocalLanguageLocale();
+		if(!TextUtils.isEmpty(localappLang)){
+			appendTo = appendTo.buildUpon().appendQueryParameter("locale", localappLang).build();
+		}
+		return appendTo;
+	}
+
 	public static Intent getStickerShareWebViewActivityIntent(Context context)
 	{
 		SharedPreferences prefs = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
@@ -686,7 +754,8 @@ public class IntentFactory
 		
 		if(cropImage)
 		{
-			destIntents.add(IntentFactory.getCropActivityIntent(context, null, outputDestination, true,80, false));
+			CropCompression compression = new CropCompression().maxWidth(640).maxHeight(640).quality(80);
+			destIntents.add(IntentFactory.getCropActivityIntent(context, null, outputDestination, compression));
 		}
 		
 		if(destIntents.size()>0)
@@ -728,6 +797,21 @@ public class IntentFactory
 		appContext.startActivity(i);
 	}
 
+	public static void reopenSignupActivity(Context context)
+	{
+		Intent i = new Intent(context, SignupActivity.class);
+		i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		context.startActivity(i);
+	}
+
+	public static void openHomeFtueActivity(Context appContext)
+	{
+		Intent i = new Intent(appContext, HomeFtueActivity.class);
+		i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+		i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		appContext.startActivity(i);
+	}
 	public static void openHomeActivity(Context context, boolean clearTop)
 	{
 		Intent in = new Intent(context, HomeActivity.class);
@@ -737,6 +821,7 @@ public class IntentFactory
 		}
 		context.startActivity(in);
 	}
+
 	/*
 	 * The returned intent will be similar to the one used by android for opening an activity from the Launcher icon
 	 */
@@ -745,6 +830,32 @@ public class IntentFactory
 		Intent homeIntent = Intent.makeMainActivity(new ComponentName(context, HomeActivity.class));
 		homeIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		return homeIntent;
+	}
+
+	public static void freshLaunchHomeActivity(Context context){
+		if(Utils.isLollipopOrHigher()){
+			context.startActivity(IntentFactory.getHomeActivityIntentAsFreshLaunch(context));
+		}else {
+			relaunchApplicationWithPendingIntent(context);
+		}
+	}
+	/*This will not send FG, BG packet to the server*/
+	public static Intent getHomeActivityIntentAsFreshLaunch(Context context)
+	{
+		Intent homeIntent = Intent.makeMainActivity(new ComponentName(context, HomeActivity.class));
+		homeIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+		return homeIntent;
+	}
+
+	/*This will not send FG, BG packet to the server*/
+	public static void relaunchApplicationWithPendingIntent(Context context)
+	{
+		Intent mStartActivity = new Intent(context, HomeActivity.class);
+		mStartActivity.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+		int mPendingIntentId = 123456;
+		PendingIntent mPendingIntent = PendingIntent.getActivity(context, mPendingIntentId, mStartActivity, PendingIntent.FLAG_CANCEL_CURRENT);
+		AlarmManager mgr = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
+		mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 100, mPendingIntent);
 	}
 
 	public static Intent openInviteFriends(Activity context)
@@ -851,6 +962,13 @@ public class IntentFactory
 	{
 		Intent intent = new Intent(context, ComposeChatActivity.class);
 		intent.putExtra(HikeConstants.Extras.EDIT, true);
+		return intent;
+	}
+
+	public static Intent getComposeChatIntentWithBotDiscovery(Activity context)
+	{
+		Intent intent = getComposeChatIntent(context);
+		intent.putExtra(HikeConstants.Extras.IS_MICROAPP_SHOWCASE_INTENT, true);
 		return intent;
 	}
 
@@ -1002,19 +1120,18 @@ public class IntentFactory
 		startShareImageIntent(mimeType, imagePath, null);
 	}
 	
-	public static Intent getCropActivityIntent(Context context, String path, String destPath, boolean preventScaling, int quality,boolean circleHighlight)
+	public static Intent getCropActivityIntent(Context argActivity, String argPath, String argDestPath, CropCompression argCropCompression)
 	{
-		/* Crop the image */
-		Intent intent = new Intent(context, CropImage.class);
-		intent.putExtra(MediaStore.EXTRA_OUTPUT, destPath);
-		intent.putExtra(HikeConstants.Extras.IMAGE_PATH, path);
-		intent.putExtra(HikeConstants.Extras.CIRCLE_HIGHLIGHT, circleHighlight);
-		intent.putExtra(HikeConstants.Extras.SCALE, false);
-		intent.putExtra(HikeConstants.Extras.RETURN_CROP_RESULT_TO_FILE, preventScaling);
-		intent.putExtra(HikeConstants.Extras.ASPECT_X, 1);
-		intent.putExtra(HikeConstants.Extras.ASPECT_Y, 1);
-		intent.putExtra(HikeConstants.Extras.JPEG_COMPRESSION_QUALITY, quality);
-		return intent;
+		Intent cropIntent = new Intent(argActivity, HikeCropActivity.class);
+		cropIntent.putExtra(HikeCropActivity.CROPPED_IMAGE_PATH, argDestPath);
+		cropIntent.putExtra(HikeCropActivity.SOURCE_IMAGE_PATH, argPath);
+		
+		//https://code.google.com/p/android/issues/detail?id=6822
+		Bundle cropCompBundle = new Bundle();
+		cropCompBundle.putParcelable(HikeCropActivity.CROP_COMPRESSION, argCropCompression);
+		
+		cropIntent.putExtra(HikeCropActivity.CROP_COMPRESSION, cropCompBundle);
+		return cropIntent;
 	}
 
 	public static Intent getApkSelectionActivityIntent(Context context) 
@@ -1063,7 +1180,7 @@ public class IntentFactory
 
 		try
 		{
-			message.append(context.getString(R.string.hike_version) + " " + context.getPackageManager().getPackageInfo(context.getPackageName(), 0).versionName + "\n");
+			message.append("hike Version:" + " " + context.getPackageManager().getPackageInfo(context.getPackageName(), 0).versionName + "\n");
 		}
 		catch (PackageManager.NameNotFoundException e)
 		{
@@ -1071,15 +1188,15 @@ public class IntentFactory
 			e.printStackTrace();
 		}
 
-		message.append(context.getString(R.string.device_name) + " " + Build.MANUFACTURER + " " + Build.MODEL + "\n");
+		message.append("Device name:" + " " + Build.MANUFACTURER + " " + Build.MODEL + "\n");
 
-		message.append(context.getString(R.string.android_version) + " " + Build.VERSION.RELEASE + "\n");
+		message.append("Android version:" + " " + Build.VERSION.RELEASE + "\n");
 
 		String msisdn = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, context.MODE_PRIVATE).getString(HikeMessengerApp.MSISDN_SETTING, "");
-		message.append(context.getString(R.string.msisdn) + " " + msisdn);
+		message.append("Phone No:" + " " + msisdn);
 
 		intent.putExtra(Intent.EXTRA_TEXT, message.toString());
-		intent.putExtra(Intent.EXTRA_SUBJECT, TextUtils.isEmpty(subject) ? context.getString(R.string.feedback_on_hike) : subject);
+		intent.putExtra(Intent.EXTRA_SUBJECT, TextUtils.isEmpty(subject) ? "Feedback on hike for Android" : subject);
 		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		return intent;
 	}
@@ -1154,4 +1271,36 @@ public class IntentFactory
 			return IntentFactory.createChatThreadIntentFromMsisdn(context, mBotInfo.getMsisdn(), false, false);
 		}
 	}
+	
+	public static Intent getIntentForAnyChatThread(Context context, String msisdn, boolean isBot)
+	{
+		if (isBot)
+		{
+			return IntentFactory.getIntentForBots(context, msisdn);
+		}
+		else
+		{
+			return IntentFactory.createChatThreadIntentFromMsisdn(context, msisdn, false, false);
+		}
+
+	}
+
+	public static Intent getIntentForBots(Context mContext, String msisdn)
+	{
+		BotInfo mBotInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
+
+		if (mBotInfo == null)
+		{
+			mBotInfo = HikeConversationsDatabase.getInstance().getBotInfoForMsisdn(msisdn);
+		}
+
+		Intent intent = null;
+
+		if (mBotInfo != null && mBotInfo.isNonMessagingBot())
+		{
+			intent = IntentFactory.getNonMessagingBotIntent(msisdn, mContext);
+		}
+		return intent;
+	}
+
 }

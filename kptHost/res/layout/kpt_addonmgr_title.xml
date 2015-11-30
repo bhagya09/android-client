@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout android:id="@+id/widget0"
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_height="wrap_content"
+	android:layout_width="fill_parent">
+
+
+	<TextView android:id="@+id/title_trial" android:layout_width="wrap_content"
+		android:layout_height="wrap_content" android:text="@string/kpt_UI_STRING_HEADER_4"
+		android:textColor="#ffffffff" android:textSize="15sp" />
+		
+		
+</RelativeLayout>

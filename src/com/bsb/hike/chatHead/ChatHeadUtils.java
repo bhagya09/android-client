@@ -4,7 +4,6 @@ import java.lang.reflect.Field;
 import java.sql.Date;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -17,15 +16,14 @@ import org.json.JSONObject;
 import android.app.ActivityManager;
 import android.app.ActivityManager.RunningAppProcessInfo;
 import android.app.ActivityManager.RunningTaskInfo;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Handler;
 import android.os.Looper;
-import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.provider.ContactsContract;
-import android.provider.ContactsContract.CommonDataKinds.Phone;
 import android.provider.ContactsContract.CommonDataKinds.StructuredPostal;
 import android.provider.ContactsContract.Contacts;
 import android.provider.ContactsContract.Data;
@@ -37,7 +35,6 @@ import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.widget.Toast;
 import android.database.Cursor;
-import android.database.DatabaseUtils;
 import android.net.Uri;
 import android.provider.ContactsContract.PhoneLookup;
 
@@ -45,6 +42,8 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.modules.httpmgr.RequestToken;
@@ -59,6 +58,7 @@ import com.bsb.hike.voip.VoIPUtils.CallSource;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.google.gson.JsonSyntaxException;
 
 public class ChatHeadUtils
 {
@@ -80,14 +80,39 @@ public class ChatHeadUtils
 	
 	private static OutgoingCallReceiver outgoingCallReceiver;
 	
+	private static ClipboardListener clipboardListener;
+	
 	private static final int HTTP_CALL_RETRY_DELAY = 2000; 
 	
 	private static final int HTTP_CALL_RETRY_MULTIPLIER = 1;
 		
 	// replica of hidden constant ActivityManager.PROCESS_STATE_TOP 
 	public static final int PROCESS_STATE_TOP =2;
-	
+
+	private static final int MIN_SMS_MSISDN_LENGTH = 10;
+
+	private static final int MAX_SMS_MSISDN_LENGTH = 13;
+
 	private static ChatHeadViewManager viewManager;
+	
+	private static final int CHAT_HEAD_DISMISS_COUNT = 3;
+	
+	private static final int CHAT_HEAD_STICKERS_PER_DAY = 5;
+	
+	private static final int CHAT_HEAD_EXTRA_STICKERS_PER_DAY = 0;
+	
+	private static final boolean CHAT_HEAD_ENABLE_DEFAULT = true;
+	
+	private static final boolean CHAT_HEAD_USR_CONTROL_DEFAULT = true;
+	
+	private static final String CHAT_HEAD_SHARABLE_PACKAGES = "["
+			+ "{\"a\":\"Whatsapp\",\"p\":\"com.whatsapp\"},"
+			+ "{\"a\":\"Viber\",\"p\":\"com.viber.voip\"},"
+			+ "{\"a\":\"Messenger\",\"p\":\"com.facebook.orca\"},"
+			+ "{\"a\":\"Line\",\"p\":\"jp.naver.line.android\"},"
+			+ "{\"a\":\"Wechat\",\"p\":\"com.tencent.mm\"},"
+			+ "{\"a\":\" Telegram\",\"p\":\"org.telegram.messenger\"}"
+			+ "]";
 
 	/**
 	 * returns the package names of the running processes can be single, all or in tasks packages as per argument
@@ -147,6 +172,27 @@ public class ChatHeadUtils
 	    SimpleDateFormat formatter = new SimpleDateFormat(" 'on' MMM dd 'at' hh:mm aaa");
 	    Date resultdate = new Date(System.currentTimeMillis());
 	    return formatter.format(resultdate).replace("am", "AM").replace("pm", "PM");
+	}
+
+	public static String getValidNumber(String number)
+	{
+		String regex = "^(\\s*\\+?(\\d{1,3}\\s?\\-?){3,6}\\s*)$";
+
+		String validNumber = "";
+
+		if (number == null || !number.matches(regex))
+		{
+			return null;
+		}
+
+		for (int var = 0; var < number.length(); var++)
+		{
+			if (Character.isDigit(number.charAt(var)) || (number.charAt(var) == '+'))
+			{
+				validNumber = validNumber + number.charAt(var);
+			}
+		}
+		return validNumber;
 	}
 	
 	public static void getRunningTaskPackage(Context context, ActivityManager activityManager, List<RunningAppProcessInfo> processInfos, Set<String> packageName, int type)
@@ -269,10 +315,29 @@ public class ChatHeadUtils
 	{
 		if (result != null)
 		{
-			JsonParser parser = new JsonParser();
-			JsonObject callerDetails = (JsonObject) parser.parse(result);
-			CallerContentModel callerContentModel = new Gson().fromJson(callerDetails, CallerContentModel.class);
-			return callerContentModel;
+			try
+			{
+				JsonParser parser = new JsonParser();
+				JsonObject callerDetails = (JsonObject) parser.parse(result);
+				CallerContentModel callerContentModel = new Gson().fromJson(callerDetails, CallerContentModel.class);
+				return callerContentModel;
+			}
+			catch (JsonSyntaxException e)
+			{
+				Logger.d(TAG, "Json Syntax Exception" + e);
+				JSONObject metadata = new JSONObject();
+				try
+				{
+					metadata.put(HikeConstants.EVENT_TYPE, AnalyticsConstants.StickyCallerEvents.STICKY_CALLER);
+					metadata.put(HikeConstants.EVENT_KEY, AnalyticsConstants.StickyCallerEvents.WRONG_JSON);
+					metadata.put(AnalyticsConstants.StickyCallerEvents.WRONG_JSON, result);
+					HAManager.getInstance().record(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.ERROR_EVENT, EventPriority.HIGH, metadata);
+				}
+				catch (JSONException e1)
+				{
+					Logger.d(TAG, "Failure while making anaytics JSON for wrong JSON syntax");
+				}
+			}
 		}
 		return null;
 	}
@@ -351,10 +416,11 @@ public class ChatHeadUtils
 
 	public static boolean shouldRunChatHeadServiceForStickey()
 	{
-		boolean enabledForUser = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.CHAT_HEAD_SERVICE, false);
-		boolean permittedToRun = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.CHAT_HEAD_USR_CONTROL, false);
+		boolean enabledForUser = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.ENABLE, false);
+		boolean permittedToRun = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.USER_CONTROL, false);
 		boolean packageListNonEmpty = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.PACKAGE_LIST, null) != null;
-		return enabledForUser && permittedToRun && packageListNonEmpty;
+		boolean notSnoozed = !HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.SNOOZE, false);
+		return enabledForUser && permittedToRun && packageListNonEmpty && notSnoozed;
 	}
 	
 	public static boolean shouldShowAccessibility()
@@ -386,7 +452,8 @@ public class ChatHeadUtils
 	{
 		Context context  = HikeMessengerApp.getInstance().getApplicationContext();
 		final boolean sessionLogEnabled = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SESSION_LOG_TRACKING, false);
-		final boolean canAccessibilityBeUsed = isAccessibilityForcedUponUser() && ( useOfAccessibilittyPermitted() || !isAccessibilityEnabled(context));
+		final boolean serverEndAccessibilityPermitted = useOfAccessibilittyPermitted();
+		final boolean canAccessibilityBeUsed = isAccessibilityForcedUponUser() && ( serverEndAccessibilityPermitted || !isAccessibilityEnabled(context));
 		final boolean startChatHead = shouldRunChatHeadServiceForStickey() && !canAccessibilityBeUsed;
 		
 		Handler uiHandler = new Handler(Looper.getMainLooper());
@@ -396,15 +463,17 @@ public class ChatHeadUtils
 			viewManager = ChatHeadViewManager.getInstance(context);
 		}
 		
-		uiHandler.post(new Runnable()
+		if(jsonChanged || serverEndAccessibilityPermitted)
 		{
-
-			@Override
-			public void run()
+			uiHandler.post(new Runnable()
 			{
-				viewManager.onDestroy();
-			}
-		});
+				@Override
+				public void run()
+				{
+					viewManager.onDestroy();
+				}
+			});
+		}
 		
 		uiHandler.post(new Runnable()
 		{
@@ -428,7 +497,7 @@ public class ChatHeadUtils
 				}}
 		});
 
-		if (useOfAccessibilittyPermitted())
+		if (serverEndAccessibilityPermitted)
 		{
 			uiHandler.post(new Runnable()
 			{
@@ -441,13 +510,7 @@ public class ChatHeadUtils
 			});
 			
 		}
-		if(!startChatHead)
-		{
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.SNOOZE, false);
-			HikeAlarmManager.cancelAlarm(context, HikeAlarmManager.REQUESTCODE_START_STICKER_SHARE_SERVICE); 
-		}
-		
-		
+
 	}
 
 	public static void onClickSetAlarm(Context context, int time)
@@ -461,43 +524,107 @@ public class ChatHeadUtils
 		ChatHeadViewManager.getInstance(context).resetPosition(ChatHeadConstants.STOPPING_SERVICE_ANIMATION, null);
 	}
 	
-	public static void setAllApps(JSONArray pkgList, boolean toSet)
+	public static void setAllApps(JSONArray pkgList, boolean valueToSet, boolean userDefinedValuePreferred) throws JSONException
 	{
-		try
+		JSONArray newPkgList = new JSONArray();
+		JSONArray storedPkgList = new JSONArray(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.PACKAGE_LIST, "[]"));
+		boolean storedPkgFound;
+		for (int j = 0; j < pkgList.length(); j++)
 		{
-			for (int j = 0; j < pkgList.length(); j++)
+			storedPkgFound = false;
+			JSONObject newPkg = pkgList.getJSONObject(j);
+			for (int i = 0; i< storedPkgList.length(); i++)
 			{
-				pkgList.getJSONObject(j).put(HikeConstants.ChatHead.APP_ENABLE, toSet);
+				JSONObject storedPkg = storedPkgList.getJSONObject(i);
+				if(storedPkg.getString(HikeConstants.ChatHead.PACKAGE_NAME).equals(newPkg.getString(HikeConstants.ChatHead.PACKAGE_NAME)))
+				{
+					storedPkgFound = true;
+					newPkg.put(HikeConstants.ChatHead.APP_ENABLE, storedPkg.getBoolean(HikeConstants.ChatHead.APP_ENABLE));
+				}
 			}
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.PACKAGE_LIST, pkgList.toString());
+			if(!storedPkgFound || !userDefinedValuePreferred)
+			{
+				newPkg.put(HikeConstants.ChatHead.APP_ENABLE, valueToSet);
+			}
+			newPkgList.put(newPkg);
 		}
-		catch (JSONException e)
-		{
-			e.printStackTrace();
-		}
+		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.PACKAGE_LIST, newPkgList.toString());
 
 	}
 	
-	public static void setShareEnableForAllApps(boolean enable)
+	public static void activateChatHead(JSONObject data) throws JSONException
 	{
-		JSONArray jsonArray;
-		try
-		{
-			jsonArray = new JSONArray(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.PACKAGE_LIST, ""));
+		JSONObject stkrWdgtJson;
+		HikeSharedPreferenceUtil settings = HikeSharedPreferenceUtil.getInstance();
 		
-		for (int i = 0; i < jsonArray.length(); i++)
+		if(data == null || !data.has(HikeConstants.ChatHead.STICKER_WIDGET))
 		{
-			JSONObject obj = jsonArray.getJSONObject(i);
-			{
-				obj.put(HikeConstants.ChatHead.APP_ENABLE, enable);
-			}
+			stkrWdgtJson = new JSONObject().put(HikeConstants.ChatHead.USER_CONTROL, CHAT_HEAD_USR_CONTROL_DEFAULT);
 		}
-		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.PACKAGE_LIST, jsonArray.toString());
-		}
-		catch (JSONException e)
+		else
 		{
-			e.printStackTrace();
+			stkrWdgtJson = data.getJSONObject(HikeConstants.ChatHead.STICKER_WIDGET);
 		}
+
+		boolean chatHeadEnabled = settings.getData(HikeConstants.ChatHead.ENABLE, CHAT_HEAD_ENABLE_DEFAULT);
+		if(stkrWdgtJson.has(HikeConstants.ChatHead.ENABLE) || !settings.contains(HikeConstants.ChatHead.ENABLE))
+		{
+			chatHeadEnabled = stkrWdgtJson.optBoolean(HikeConstants.ChatHead.ENABLE, chatHeadEnabled);
+			settings.saveData(HikeConstants.ChatHead.ENABLE, chatHeadEnabled);
+		}
+		
+		boolean userEnabled = settings.getData(HikeConstants.ChatHead.USER_CONTROL, CHAT_HEAD_USR_CONTROL_DEFAULT);
+		if (stkrWdgtJson.has(HikeConstants.ChatHead.USER_CONTROL) && !settings.contains(HikeConstants.ChatHead.USER_CONTROL))
+		{
+			userEnabled = stkrWdgtJson.optBoolean(HikeConstants.ChatHead.USER_CONTROL, userEnabled);
+			settings.saveData(HikeConstants.ChatHead.USER_CONTROL, userEnabled);
+		}
+
+		if(chatHeadEnabled)
+		{
+			boolean forceAccessibility = stkrWdgtJson.optBoolean(HikeConstants.ChatHead.FORCE_ACCESSIBILITY, !ChatHeadUtils.willPollingWork());
+			settings.saveData(HikeConstants.ChatHead.FORCE_ACCESSIBILITY, forceAccessibility);
+
+			boolean showAccessibility = stkrWdgtJson.optBoolean(HikeConstants.ChatHead.SHOW_ACCESSIBILITY, !ChatHeadUtils.willPollingWork());
+			settings.saveData(HikeConstants.ChatHead.SHOW_ACCESSIBILITY, showAccessibility);
+
+			boolean dontUseAccessibility = stkrWdgtJson.optBoolean(HikeConstants.ChatHead.DONT_USE_ACCESSIBILITY, ChatHeadUtils.willPollingWork());
+			settings.saveData(HikeConstants.ChatHead.DONT_USE_ACCESSIBILITY, dontUseAccessibility);
+		}
+
+		JSONArray sharablePackageList;
+		if (stkrWdgtJson.has(HikeConstants.ChatHead.PACKAGE_LIST))
+		{ 
+			sharablePackageList = stkrWdgtJson.optJSONArray(HikeConstants.ChatHead.PACKAGE_LIST);
+		}
+		else
+		{
+			sharablePackageList = new JSONArray(settings.getData(HikeConstants.ChatHead.PACKAGE_LIST, CHAT_HEAD_SHARABLE_PACKAGES));
+		}
+		if(stkrWdgtJson.has(HikeConstants.ChatHead.PACKAGE_LIST) || !settings.contains(HikeConstants.ChatHead.PACKAGE_LIST))
+		{
+			ChatHeadUtils.setAllApps(sharablePackageList, userEnabled, true);
+		}
+
+		if (stkrWdgtJson.has(HikeConstants.ChatHead.STICKERS_PER_DAY) || !settings.contains(HikeConstants.ChatHead.STICKERS_PER_DAY))
+		{
+		    int stickersPerDay = stkrWdgtJson.optInt(HikeConstants.ChatHead.STICKERS_PER_DAY, CHAT_HEAD_STICKERS_PER_DAY);
+			settings.saveData(HikeConstants.ChatHead.STICKERS_PER_DAY, stickersPerDay);
+		}
+		if (stkrWdgtJson.has(HikeConstants.ChatHead.EXTRA_STICKERS_PER_DAY) || !settings.contains(HikeConstants.ChatHead.EXTRA_STICKERS_PER_DAY))
+		{
+			int extraStickersPerDay = stkrWdgtJson.optInt(HikeConstants.ChatHead.EXTRA_STICKERS_PER_DAY, CHAT_HEAD_EXTRA_STICKERS_PER_DAY);
+			ChatHeadUtils.settingDailySharedPref();
+			settings.saveData(HikeConstants.ChatHead.EXTRA_STICKERS_PER_DAY, extraStickersPerDay);
+		}
+		
+		if (stkrWdgtJson.has(HikeConstants.ChatHead.DISMISS_COUNT) || !settings.contains(HikeConstants.ChatHead.DISMISS_COUNT))
+		{	
+			int dismissCount = stkrWdgtJson.optInt(HikeConstants.ChatHead.DISMISS_COUNT, CHAT_HEAD_DISMISS_COUNT);
+			settings.saveData(HikeConstants.ChatHead.DISMISS_COUNT, dismissCount);
+		}
+		ChatHeadUtils.startOrStopService(true);
+	
 	}
 
 	public static boolean willPollingWork()
@@ -590,10 +717,12 @@ public class ChatHeadUtils
 	{
 		if (searchNumber != null && !searchNumber.contains("*") && !searchNumber.contains("#"))
 		{
-			final String number = Utils.normalizeNumber(
-					searchNumber,
-					HikeMessengerApp.getInstance().getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0)
-							.getString(HikeMessengerApp.COUNTRY_CODE, HikeConstants.INDIA_COUNTRY_CODE));
+			final String number = getValidNumber(Utils.normalizeNumber(
+				searchNumber,
+				HikeMessengerApp.getInstance().getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0)
+						.getString(HikeMessengerApp.COUNTRY_CODE, HikeConstants.INDIA_COUNTRY_CODE)));
+			if (number != null)
+			{
 			String contactName = getNameAndAddressFromNumber(context, number);
 			if (contactName != null)
 			{
@@ -625,6 +754,7 @@ public class ChatHeadUtils
 				requestToken.execute();
 			}
 		}
+		}
 	}
 	
 	public static void registerCallReceiver()
@@ -633,6 +763,8 @@ public class ChatHeadUtils
 		if (HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.SHOW_STICKY_CALLER, false)
 				&& PreferenceManager.getDefaultSharedPreferences(context).getBoolean(HikeConstants.ACTIVATE_STICKY_CALLER_PREF, false))
 		{
+			registerOrUnregisterClipboardListener(context);
+
 			HikeHandlerUtil.getInstance().postRunnable(new Runnable()
 			{
 				// putting code inside runnable to make it run on UI thread.
@@ -656,23 +788,82 @@ public class ChatHeadUtils
 
 		}
 	}
-	
-	public static void unregisterCallReceiver()
+
+
+	public static void registerOrUnregisterClipboardListener(final Context context)
 	{
-		Context context = HikeMessengerApp.getInstance();
-		if (incomingCallReceiver != null)
+		if (HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.ENABLE_CLIPBOARD_CARD, true))
 		{
-			TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
-			telephonyManager.listen(incomingCallReceiver, PhoneStateListener.LISTEN_NONE);
-			incomingCallReceiver = null;
+			HikeHandlerUtil.getInstance().postRunnable(new Runnable()
+			{
+				// putting code inside runnable to make it run on UI thread.
+				@Override
+				public void run()
+				{
+
+					if (clipboardListener == null)
+					{
+						clipboardListener = new ClipboardListener();
+						ClipboardManager clipBoard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+						clipBoard.addPrimaryClipChangedListener(clipboardListener);
+					}
+				}
+			});
+		}
+		else
+		{
+			unregisterClipboardListener(context);
 		}
 
-		if (outgoingCallReceiver != null)
+	}
+
+	public static void unregisterClipboardListener(final Context context)
+	{
+		HikeHandlerUtil.getInstance().postRunnable(new Runnable()
 		{
-			context.unregisterReceiver(outgoingCallReceiver);
-			outgoingCallReceiver = null;
-		}
-		StickyCaller.removeCallerView();
+			// putting code inside runnable to make it run on UI thread.
+			@Override
+			public void run()
+			{
+				if (clipboardListener != null)
+				{
+					ClipboardManager clipBoard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+					clipBoard.removePrimaryClipChangedListener(clipboardListener);
+					clipboardListener = null;
+				}
+			}
+		});
+
+	}
+
+	public static void unregisterCallReceiver()
+	{
+		final Context context = HikeMessengerApp.getInstance();
+
+		unregisterClipboardListener(context);
+
+		HikeHandlerUtil.getInstance().postRunnable(new Runnable()
+		{
+			// putting code inside runnable to make it run on UI thread.
+			@Override
+			public void run()
+			{
+
+				if (incomingCallReceiver != null)
+				{
+					TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+					telephonyManager.listen(incomingCallReceiver, PhoneStateListener.LISTEN_NONE);
+					incomingCallReceiver = null;
+				}
+
+				if (outgoingCallReceiver != null)
+				{
+					context.unregisterReceiver(outgoingCallReceiver);
+					outgoingCallReceiver = null;
+				}
+				StickyCaller.removeCallerView();
+			}
+		});
 	}
 	
 	public static void onCallClickedFromCallerCard(Context context, String callCurrentNumber, CallSource hikeStickyCaller)
@@ -702,14 +893,17 @@ public class ChatHeadUtils
 			{
 				CallerContentModel callerContentModel = getCallerContentModelObject(HikeSharedPreferenceUtil.getInstance(HikeConstants.CALLER_SHARED_PREF).getData(
 						callCurrentNumber, null));
-				isOnHike = callerContentModel.getIsOnHike();
-				if (callerContentModel.getFirstName() != null)
+				if(callerContentModel != null)
 				{
-					callerName = callerContentModel.getFirstName();
-				}
-				else if (callerContentModel.getLastName() != null)
-				{
-					callerName = callerContentModel.getLastName();
+					isOnHike = callerContentModel.getIsOnHike();
+					if (callerContentModel.getFirstName() != null)
+					{
+						callerName = callerContentModel.getFirstName();
+					}
+					else if (callerContentModel.getLastName() != null)
+					{
+						callerName = callerContentModel.getLastName();
+					}
 				}
 			}
 			catch (Exception e)
@@ -738,6 +932,20 @@ public class ChatHeadUtils
 		TaskStackBuilder.create(context)
 			.addNextIntent(IntentFactory.getHomeActivityIntentAsLauncher(context))
 			.addNextIntent(openingIntent).startActivities();
+	}
+
+	public static void showCallerCard(String number)
+	{
+		Context context = HikeMessengerApp.getInstance().getApplicationContext();
+		if (HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.SHOW_STICKY_CALLER, false)
+				&& PreferenceManager.getDefaultSharedPreferences(context).getBoolean(HikeConstants.ACTIVATE_STICKY_CALLER_PREF, false)
+				&& HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.SHOW_SMS_CARD_PREF, false)
+				&& PreferenceManager.getDefaultSharedPreferences(context).getBoolean(HikeConstants.SMS_CARD_ENABLE_PREF, false)
+				&& number != null && number.length() >= MIN_SMS_MSISDN_LENGTH && number.length() <= MAX_SMS_MSISDN_LENGTH)
+		{
+			StickyCaller.CALL_TYPE = StickyCaller.SMS;
+			postNumberRequest(context, number);
+		}
 	}
 
 }

@@ -56,7 +56,7 @@ public class NotificationThread implements Runnable
 
 	public  NotificationThread()
 	{
-		OfflineParameters offlineParameters = new Gson().fromJson(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.OFFLINE, "{}"), OfflineParameters.class);
+		OfflineParameters offlineParameters = OfflineController.getInstance().getConfigurationParamerters();
 		time = offlineParameters.getConnectionTimeout() / 1000;
 	}
 	@Override
@@ -163,10 +163,7 @@ public class NotificationThread implements Runnable
 	public void cancelNotification()
 	{
 		Context context = HikeMessengerApp.getInstance().getApplicationContext();
-		if (notificationManager == null)
-			notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-
-		notificationManager.cancel(OfflineConstants.NOTIFICATION_IDENTIFIER);
+		HikeNotification.getInstance().cancelNotification(OfflineConstants.NOTIFICATION_IDENTIFIER);
 	}
 
 }

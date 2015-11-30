@@ -41,6 +41,7 @@ import com.bsb.hike.ui.ComposeChatActivity.FileTransferData;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.google.ads.AdRequest.ErrorCode;
+import com.google.gson.Gson;
 import com.hike.transporter.TException;
 import com.hike.transporter.Transporter;
 import com.hike.transporter.models.SenderConsignment;
@@ -67,6 +68,8 @@ public class OfflineController
 
 	private volatile OFFLINE_STATE offlineState = OFFLINE_STATE.NOT_CONNECTED;
 
+	private OfflineParameters offlineParamerterPojo = new Gson().fromJson(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.OFFLINE, "{}"), OfflineParameters.class);
+	
 	private Handler mHandler = new Handler(HikeHandlerUtil.getInstance().getLooper())
 	{
 		public void handleMessage(android.os.Message msg)
@@ -119,8 +122,7 @@ public class OfflineController
 	public void removeConnectionRequest()
 	{
 		mHandler.removeMessages(OfflineConstants.HandlerConstants.REMOVE_CONNECT_REQUEST);
-		NotificationManager notificationManager = (NotificationManager) HikeMessengerApp.getInstance().getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
-		notificationManager.cancel(HikeNotification.OFFLINE_REQUEST_ID);
+		HikeNotification.getInstance().cancelNotification(HikeNotification.OFFLINE_REQUEST_ID);
 		HikeSharedPreferenceUtil.getInstance().removeData(OfflineConstants.DIRECT_REQUEST_DATA);
 		HikeMessengerApp.getPubSub().publish(HikePubSub.ON_OFFLINE_REQUEST, null);
 	}
@@ -181,9 +183,8 @@ public class OfflineController
 
 	public void sendAudioFile(String filePath, long duration, String msisdn)
 	{
-		SenderConsignment audioConsignment = hikeConverter.getFileConsignment(filePath, null, HikeFileType.AUDIO_RECORDING, HikeConstants.VOICE_MESSAGE_CONTENT_TYPE, true,
+		hikeConverter.buildFileConsignment(filePath, null, HikeFileType.AUDIO_RECORDING, HikeConstants.VOICE_MESSAGE_CONTENT_TYPE, true,
 				duration, FTAnalyticEvents.AUDIO_ATTACHEMENT, msisdn, null);
-		offlineManager.sendConsignment(audioConsignment);
 	}
 
 	// currently using for sharing files...
@@ -197,9 +198,8 @@ public class OfflineController
 				apkLabel = fileData.file.getName();
 			}
 
-			SenderConsignment fileConsignment = hikeConverter.getFileConsignment(fileData.filePath, fileData.fileKey, fileData.hikeFileType, fileData.fileType,
+			hikeConverter.buildFileConsignment(fileData.filePath, fileData.fileKey, fileData.hikeFileType, fileData.fileType,
 					fileData.isRecording, fileData.recordingDuration, FTAnalyticEvents.OTHER_ATTACHEMENT, msisdn, apkLabel);
-			offlineManager.sendConsignment(fileConsignment);
 		}
 	}
 
@@ -241,9 +241,8 @@ public class OfflineController
 			}
 			else
 			{
-				SenderConsignment fileConsignment = hikeConverter.getFileConsignment(filePath, fileKey, hikeFileType, fileType, isRecording, recordingDuration, attachmentType,
+				hikeConverter.buildFileConsignment(filePath, fileKey, hikeFileType, fileType, isRecording, recordingDuration, attachmentType,
 						msisdn, null);
-				offlineManager.sendConsignment(fileConsignment);
 			}
 		}
 		catch (JSONException e)
@@ -269,9 +268,8 @@ public class OfflineController
 				}
 				else
 				{
-					SenderConsignment fileConsignment = hikeConverter.getFileConsignment(filePath, null, hikeFileType, fileType, false, -1, FTAnalyticEvents.OTHER_ATTACHEMENT,
+					hikeConverter.buildFileConsignment(filePath, null, hikeFileType, fileType, false, -1, FTAnalyticEvents.OTHER_ATTACHEMENT,
 							msisdn, null);
-					offlineManager.sendConsignment(fileConsignment);
 				}
 
 			}
@@ -306,9 +304,8 @@ public class OfflineController
 			}
 			else
 			{
-				SenderConsignment fileConsignment = hikeConverter.getFileConsignment(filePath, fileKey, hikeFileType, fileType, isRecording, recordingDuration, attachmentType,
+				hikeConverter.buildFileConsignment(filePath, fileKey, hikeFileType, fileType, isRecording, recordingDuration, attachmentType,
 						msisdn, null);
-				offlineManager.sendConsignment(fileConsignment);
 			}
 
 		}
@@ -317,9 +314,8 @@ public class OfflineController
 
 	public void sendApps(String filePath, String mime, String apkLabel, String msisdn)
 	{
-		SenderConsignment appConsignment = hikeConverter.getFileConsignment(filePath, null, HikeFileType.APK, mime, false, (long) -1, FTAnalyticEvents.APK_ATTACHMENT, msisdn,
+		hikeConverter.buildFileConsignment(filePath, null, HikeFileType.APK, mime, false, (long) -1, FTAnalyticEvents.APK_ATTACHMENT, msisdn,
 				apkLabel);
-		offlineManager.sendConsignment(appConsignment);
 	}
 
 	public boolean isConnected()
@@ -342,23 +338,18 @@ public class OfflineController
 
 	public void sendAudio(String filePath, String msisdn)
 	{
-		SenderConsignment audioConsignment = hikeConverter
-				.getFileConsignment(filePath, null, HikeFileType.AUDIO, null, false, -1, FTAnalyticEvents.AUDIO_ATTACHEMENT, msisdn, null);
-		offlineManager.sendConsignment(audioConsignment);
+		hikeConverter.buildFileConsignment(filePath, null, HikeFileType.AUDIO, null, false, -1, FTAnalyticEvents.AUDIO_ATTACHEMENT, msisdn, null);
 	}
 
 	public void sendVideo(String filePath, String msisdn)
 	{
-		SenderConsignment videoConsignment = hikeConverter
-				.getFileConsignment(filePath, null, HikeFileType.VIDEO, null, false, -1, FTAnalyticEvents.VIDEO_ATTACHEMENT, msisdn, null);
-		offlineManager.sendConsignment(videoConsignment);
+		hikeConverter.buildFileConsignment(filePath, null, HikeFileType.VIDEO, null, false, -1, FTAnalyticEvents.VIDEO_ATTACHEMENT, msisdn, null);
 	}
 
 	public void sendImage(String imagePath, String msisdn, int attachementType)
 	{
-		SenderConsignment imageConsignment = hikeConverter.getFileConsignment(imagePath, null, HikeFileType.IMAGE, null, false, -1, FTAnalyticEvents.CAMERA_ATTACHEMENT, msisdn,
+	   hikeConverter.buildFileConsignment(imagePath, null, HikeFileType.IMAGE, null, false, -1, FTAnalyticEvents.CAMERA_ATTACHEMENT, msisdn,
 				null);
-		offlineManager.sendConsignment(imageConsignment);
 	}
 
 	public void createHotspot(String msisdn)
@@ -405,9 +396,8 @@ public class OfflineController
 	public void sendfile(String filePath, String fileKey, HikeFileType hikeFileType, String fileType, boolean isRecording, long recordingDuration, int attachmentType,
 			String msisdn, String apkLabel)
 	{
-		SenderConsignment fileConsignment = hikeConverter.getFileConsignment(filePath, fileKey, hikeFileType, fileType, isRecording, recordingDuration, attachmentType, msisdn,
+		hikeConverter.buildFileConsignment(filePath, fileKey, hikeFileType, fileType, isRecording, recordingDuration, attachmentType, msisdn,
 				apkLabel);
-		offlineManager.sendConsignment(fileConsignment);
 	}
 
 	public void onDisconnect(TException e)
@@ -604,7 +594,7 @@ public class OfflineController
 		
 		HikeConversationsDatabase.getInstance().addConversationMessages(convMessage, true);
 		HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_RECEIVED, convMessage);
-		offlineManager.sendConnectedCallback();
+		//offlineManager.sendConnectedCallback();
 		long connectionId = System.currentTimeMillis();
 		OfflineSessionTracking.getInstance().setConnectionId(connectionId);
 		
@@ -696,4 +686,29 @@ public class OfflineController
 		return offlineManager.getConnectedClientInfo();
 	}
 
+	public void sendConsignment(SenderConsignment senderConsignment)
+	{
+		if (senderConsignment == null)
+			return;
+		offlineManager.sendConsignment(senderConsignment);
+	}
+
+	public void sendConnectedCallback()
+	{
+		offlineManager.sendConnectedCallback();
+	}
+	
+	public OfflineParameters getConfigurationParamerters()
+	{
+		return offlineParamerterPojo;
+	}
+	
+	public void setConfiguration(String configuration)
+	{
+		if (TextUtils.isEmpty(configuration))
+		{
+			return;
+		}
+		offlineParamerterPojo = new Gson().fromJson(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.OFFLINE, configuration), OfflineParameters.class);
+	}
 }

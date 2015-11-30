@@ -29,6 +29,8 @@ import javax.microedition.khronos.egl.EGLDisplay;
 
 import org.cocos2dx.lib.Cocos2dxHelper.Cocos2dxHelperListener;
 
+import com.bsb.hike.utils.CocosAppStateBaseFragmentActivity;
+import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.Logger;
 import com.chukong.cocosplay.client.CocosPlayClient;
 
@@ -48,7 +50,7 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.opengl.GLSurfaceView;
 
-public abstract class Cocos2dxActivity extends Activity implements Cocos2dxHelperListener {
+public abstract class Cocos2dxActivity extends CocosAppStateBaseFragmentActivity implements Cocos2dxHelperListener {
     // ===========================================================
     // Constants
     // ===========================================================

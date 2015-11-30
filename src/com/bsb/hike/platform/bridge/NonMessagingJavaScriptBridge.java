@@ -1,11 +1,5 @@
 package com.bsb.hike.platform.bridge;
 
-import java.io.File;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -27,11 +21,7 @@ import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.request.FileRequestPersistent;
-import com.bsb.hike.platform.CustomWebView;
-import com.bsb.hike.platform.GpsLocation;
-import com.bsb.hike.platform.HikePlatformConstants;
-import com.bsb.hike.platform.PlatformHelper;
-import com.bsb.hike.platform.PlatformUtils;
+import com.bsb.hike.platform.*;
 import com.bsb.hike.platform.content.PlatformContentConstants;
 import com.bsb.hike.platform.content.PlatformZipDownloader;
 import com.bsb.hike.ui.GalleryActivity;
@@ -40,8 +30,11 @@ import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.io.File;
 
 /**
  * API bridge that connects the javascript to the non-messaging Native environment. Make the instance of this class and add it as the
@@ -70,6 +63,8 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	private static final String TAG  = "NonMessagingJavaScriptBridge";
 	
 	private IBridgeCallback mCallback;
+
+	private String extraData; // Any extra miscellaneous data received in the intent.
 	
 	public NonMessagingJavaScriptBridge(Activity activity, CustomWebView mWebView, BotInfo botInfo, IBridgeCallback callback)
 	{
@@ -189,7 +184,12 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 			jsonObject.put(HikePlatformConstants.BOT_VERSION, mBotInfo.getVersion());
 			jsonObject.put(HikePlatformConstants.ASSOCIATE_MAPP,botMetadata.getAsocmapp());
 
-			
+			if (!TextUtils.isEmpty(extraData))
+			{
+				jsonObject.put(HikePlatformConstants.EXTRA_DATA, extraData);
+			}
+			PlatformUtils.addLocaleToInitJSON(jsonObject);
+
 			mWebView.loadUrl("javascript:init('"+getEncodedDataForJS(jsonObject.toString())+"')");
 		}
 		catch (JSONException e)
@@ -482,7 +482,15 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 			if (mCallback != null)
 			{
 				String[] params = (String[]) msg.obj;
-				mCallback.openFullPageWithTitle(params[1], params[0]); // Url, Title
+				// checking for interceptUrl JSON String
+				if (params[2] != null)
+				{
+					mCallback.openFullPageWithTitle(params[1], params[0], params[2]); // Url, title, interceptUrlJson
+				}
+				else
+				{
+					mCallback.openFullPageWithTitle(params[1], params[0]); // Url, Title
+				}
 			}
 			break;
 		case CHANGE_ACTION_BAR_TITLE:
@@ -529,14 +537,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	@Override
 	public void openFullPage(final String title, final String url)
 	{
-		if (TextUtils.isEmpty(title))
-		{
-			sendMessageToUiThread(OPEN_FULL_PAGE, url);
-		}
-		else
-		{
-			sendMessageToUiThread(OPEN_FULL_PAGE_WITH_TITLE, new String[] { title, url });
-		}
+		openFullPage(title, url, null);
 	}
 	
 	/**
@@ -603,35 +604,17 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	{
 		//do nothing
 	}
-	@JavascriptInterface
-	public void chooseFile(final String id)
-	{	
-		Logger.d("FileUpload","input Id chooseFile is "+ id);
 
-		
-	
-		if (null == mHandler)
-		{
-			Logger.e("FileUpload", "mHandler is null");
-			return;
-		}
-		
-		
-		mHandler.post(new Runnable()
-		{
-			@Override
-			public void run()
-			{	Context weakActivityRef=weakActivity.get();
-				if (weakActivityRef != null)
-				{	
-					int galleryFlags =GalleryActivity.GALLERY_CATEGORIZE_BY_FOLDERS|GalleryActivity.GALLERY_DISPLAY_CAMERA_ITEM;
-					Intent galleryPickerIntent = IntentFactory.getHikeGalleryPickerIntent(weakActivityRef, galleryFlags,null);
-					galleryPickerIntent.putExtra(GalleryActivity.START_FOR_RESULT, true);
-					galleryPickerIntent.putExtra(HikeConstants.CALLBACK_ID,id);
-					((WebViewActivity) weakActivityRef). startActivityForResult(galleryPickerIntent, HikeConstants.PLATFORM_FILE_CHOOSE_REQUEST);
-					}
-			}
-		});
+	/**
+	 * Platform Version 3
+	 * Call this method to show the gallery view and select a file.
+	 * This method will not show the camera item in the gallery view.
+	 * @param id
+	 */
+	@JavascriptInterface
+	public void chooseFile(String id)
+	{	
+		chooseFile(id, "false");
 	}
 	/**
 	 * Platform Version 3
@@ -919,7 +902,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	 * @param messageHash : the message hash that determines the uniqueness of the card message, to which the data is being sent.
 	 * @param eventData   : the stringified json data to be sent. It should contain the following things :
 	 *                       "cd" : card data, "increase_unread" : true/false, "notification" : the string to be notified to the user,
-	 *                       "notification_sound" : true/ false, play sound or not.
+	 *                       "notification_sound" : true/ false, play sound or not, "rearrange_chat":true/false.
 	 */
 	@JavascriptInterface
 	public void sendNormalEvent(String messageHash, String eventData)
@@ -1124,23 +1107,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	@JavascriptInterface
 	public void enableBot(String msisdn, String enable)
 	{
-
-		if (!BotUtils.isSpecialBot(mBotInfo) || !BotUtils.isBot(msisdn))
-		{
-			return;
-		}
-
-		BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
-
-		boolean enableBot = Boolean.valueOf(enable);
-		if (enableBot)
-		{
-			PlatformUtils.enableBot(botInfo, true);
-		}
-		else
-		{
-			BotUtils.deleteBotConversation(msisdn, false);
-		}
+		enableBot(msisdn,enable,false);
 	}
 	/**
 	 * Added in Platform Version:7
@@ -1290,7 +1257,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	}
 	
 	/**
-	 * Platform Version 8
+	 * Platform Version 9
 	 * This function is made for a bot to know whether its directory exists.
 	 * @param id: the id of the function that native will call to call the js .
 	 */
@@ -1304,28 +1271,9 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 		else
 			callbackToJS(id, "false");
 	}
-	/**
-	 * Platform Version 8
-	 * This function is made for a special bot to know whether a microapp exists.
-	 * @param id: the id of the function that native will call to call the js .
-	 * @param mapp: the name of the mapp.
-	 */
-	@JavascriptInterface
-	public void isMicroappExist(String id, String mapp)
-	{
-		if (!BotUtils.isSpecialBot(mBotInfo))
-		{
-			return;
-		}
-		File file = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + mapp);
-		if (file.exists())
-			callbackToJS(id, "true");
-		else
-			callbackToJS(id, "false");
-	}
 
 	/**
-	 * Platform Version 8
+	 * Platform Version 9
 	 * This function is made for the special Shared bot that has the information about some other bots as well, and acts as a channel for them.
 	 * Call this method to cancel the request that the Bot has initiated to do some http /https call.
 	 * @param functionId : the id of the function that native will call to call the js .
@@ -1351,7 +1299,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 		}
 	}
 	/**
-	 * Platform Version 8
+	 * Platform Version 9
 	 * Call this method to remove resume for an app
 	 */
 	@JavascriptInterface
@@ -1365,24 +1313,9 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 			file.delete();
 		}
 	}
+
 	/**
-	 * Platform Version 8
-	 * Call this method to decrease the unread counter.
-	 * Can only be called by special bots..
-	 * @param msisdn whose unread count has to be modified.
-	 */
-	@JavascriptInterface
-	public void resetUnreadCounter(String msisdn)
-	{
-		BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
-		if (!BotUtils.isSpecialBot(mBotInfo)||botInfo==null)
-			return;
-		Utils.resetUnreadCounterForConversation(botInfo);
-		mBotInfo.setUnreadCount(0);
-		
-	}
-	/**
-	 * Platform Version 8
+	 * Platform Version 9
 	 * Call this method to delete a bot and remove its files
 	 * Can only be called by special bots
 	 * @param msisdn
@@ -1409,7 +1342,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 		BotUtils.deleteBot(msisdn);
 	}
 	/**
-	 * Platform Version 8
+	 * Platform Version 9
 	 * Call this method to know if download request is currently running
 	 * Can only be called by special bots
 	 * @param url
@@ -1432,6 +1365,125 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 		else
 		{
 			callbackToJS(functionId, "false");
+		}
+	}
+
+	/**
+	 * Platform Version 9
+	 * Call this method to open the gallery view to select a file.
+	 * @param id
+	 * @param displayCameraItem : Whether or not to display the camera item in the gallery view.
+	 */
+	@JavascriptInterface
+	public void chooseFile(final String id, final String displayCameraItem)
+	{
+		Logger.d("FileUpload","input Id chooseFile is "+ id);
+
+		if (null == mHandler)
+		{
+			Logger.e("FileUpload", "mHandler is null");
+			return;
+		}
+
+		mHandler.post(new Runnable()
+		{
+			@Override
+			public void run()
+			{	Context weakActivityRef=weakActivity.get();
+				if (weakActivityRef != null)
+				{
+					int galleryFlags;
+					if (Boolean.valueOf(displayCameraItem))
+					{
+						galleryFlags = GalleryActivity.GALLERY_CATEGORIZE_BY_FOLDERS | GalleryActivity.GALLERY_DISPLAY_CAMERA_ITEM;
+					}
+					else
+					{
+						galleryFlags = GalleryActivity.GALLERY_CATEGORIZE_BY_FOLDERS;
+					}
+					Intent galleryPickerIntent = IntentFactory.getHikeGalleryPickerIntent(weakActivityRef, galleryFlags,null);
+					galleryPickerIntent.putExtra(GalleryActivity.START_FOR_RESULT, true);
+					galleryPickerIntent.putExtra(HikeConstants.CALLBACK_ID,id);
+					((WebViewActivity) weakActivityRef). startActivityForResult(galleryPickerIntent, HikeConstants.PLATFORM_FILE_CHOOSE_REQUEST);
+				}
+			}
+		});
+	}
+
+	/**
+	 * Platform bridge Version 8
+	 * Call this function to open a full page webView within hike. Calling this function will create full page with action bar
+	 * color specified by server, js injected to remove unwanted features from the full page, and URLs defined by the interceptUrlJson
+	 * will be intercepted when they start loading.
+	 * @param title
+	 *            : the title on the action bar.
+	 * @param url
+	 *            : the url that will be loaded.
+	 * @param interceptUrlJson
+	 * 			  : the JSON String that contains the interception URL and type.
+	 * 			    If a loading url contains the String value of the "url" field, it will be intercepted.
+	 * 			    eg - {"icpt_url":[{"url":"ndtv","type":1},{"url":"techinsider.com","type":1}]}
+	 * 			    URL http://www.ndtv.com/news?txId=1234&authId=12345&key1=val1&key2=val2
+	 * 			    will be intercepted and parameter String ?txId=1234&authId=12345&key1=val1&key2=val2 will be returned to the microapp
+	 * 			    in the urlIntercepted method.
+	 *
+	 * 			    Type 1 : Closes the current WebView and opens the microapp that invoked it, with the URL parameters from the
+	 * 			    		 intercepted URL.
+	 */
+	@JavascriptInterface
+	public void openFullPage(String title, String url, String interceptUrlJson)
+	{
+		if (TextUtils.isEmpty(title))
+		{
+			sendMessageToUiThread(OPEN_FULL_PAGE, url);
+		}
+		else if (TextUtils.isEmpty(interceptUrlJson))
+		{
+			sendMessageToUiThread(OPEN_FULL_PAGE_WITH_TITLE, new String[] { title, url, null });
+		}
+		else
+		{
+			sendMessageToUiThread(OPEN_FULL_PAGE_WITH_TITLE, new String[] { title, url, interceptUrlJson });
+		}
+	}
+
+	public void urlIntercepted(String urlParams)
+	{
+		mWebView.loadUrl("javascript:urlIntercepted('" + urlParams + "')");
+	}
+
+	public void setExtraData(String data)
+	{
+		this.extraData = data;
+	}
+
+	/**
+	 * Platform Version 9
+	 * This function is made for the special Shared bot that has the information about some other bots as well, and acts as a channel for them.
+	 * Call this method to enable/disable bot. Enable means to show the bot in the conv list and disable is vice versa.
+	 * @param msisdn :the msisdn of the bot.
+	 * @param enable : send true to enable the bot in Conversation Fragment and false to disable.
+	 * @param increaseUnread
+	 */
+	@JavascriptInterface
+	public void enableBot(String msisdn, String enable,Boolean increaseUnread)
+	{
+
+		if (!BotUtils.isSpecialBot(mBotInfo) || !BotUtils.isBot(msisdn))
+		{
+			return;
+		}
+
+		BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
+
+		boolean enableBot = Boolean.valueOf(enable);
+		if (enableBot)
+		{
+			PlatformUtils.enableBot(botInfo, true,increaseUnread);
+		}
+		else
+		{
+			BotUtils.deleteBotConversation(msisdn, false);
 		}
 	}
 }

@@ -75,7 +75,6 @@ public class HikeUnzipFile extends Observable
 		}
 		catch (Exception e)
 		{
-			Logger.e(TAG, "Error while extracting file " + archive, e);
 			return false;
 		}
 

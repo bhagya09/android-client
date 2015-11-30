@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="#000000">
+       <LinearLayout 
+        android:id="@+id/linearLayout1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/kpt_tab_mini_header"
+        android:padding="10dp" >
+
+        <Button
+            android:id="@+id/enableView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.6"
+            android:text="@string/kpt_UI_STRING_AMGR_4_ENABLE"
+            android:textColor="@color/kpt_selected_tab"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:background="@color/kpt_transparent"
+             />
+        
+
+        <Button
+            android:id="@+id/priorityView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.4"
+            android:text="@string/kpt_UI_STRING_AMGR_6"
+            android:textColor="@color/kpt_unselected_tab"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:layout_gravity="center"
+             android:gravity="center"
+             android:background="@color/kpt_transparent" />
+    </LinearLayout> 
+    
+      
+      
+<android.support.v4.view.ViewPager
+    android:layout_width="match_parent" 
+    android:layout_height="match_parent" 
+    android:id="@+id/tabPager">
+    
+    
+    </android.support.v4.view.ViewPager>
+</LinearLayout>

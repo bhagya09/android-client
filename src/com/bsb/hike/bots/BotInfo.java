@@ -422,10 +422,10 @@ public class BotInfo extends ConvInfo implements Cloneable
 	@Override
 	public String getUnreadCountString()
 	{
-		MessagingBotMetadata messagingBotMetadata = new MessagingBotMetadata(getMetadata());
 		if (isMessagingBot())
-		{   
-			// it will show the hard coded unread count sent from the server  
+		{
+			MessagingBotMetadata messagingBotMetadata = new MessagingBotMetadata(getMetadata());
+			// it will show the hard coded unread count sent from the server
 			if (!messagingBotMetadata.getUnreadCountShowType().equals(BotUtils.SHOW_UNREAD_COUNT_ACTUAL))
 			{
 				return messagingBotMetadata.getUnreadCountShowType();

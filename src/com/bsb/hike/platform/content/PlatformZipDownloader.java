@@ -7,6 +7,9 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.bots.BotInfo;
+import com.bsb.hike.bots.BotUtils;
+import com.bsb.hike.bots.NonMessagingBotMetadata;
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
@@ -14,6 +17,7 @@ import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.FileRequestPersistent;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
+import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.content.PlatformContent.EventCode;
@@ -30,6 +34,7 @@ import java.util.Observable;
 import java.util.Observer;
 import java.util.Set;
 import java.util.TreeMap;
+
 
 /**
  * Download and store template. First
@@ -60,9 +65,11 @@ public class PlatformZipDownloader
 	
 	private String stateFilePath;
 
-    private String msisdn;
-
     private boolean isDeletionReqBasedOnCompatibilityMap = false;
+
+    private String asocCbotMsisdn = "";
+
+    private  float progress_done=0;
 
     // static builder class used here for generating and returning object of Zip Downloading process
     public static class Builder {
@@ -71,7 +78,7 @@ public class PlatformZipDownloader
         private boolean doReplace = false;
         private String callbackId = "";
         private boolean resumeSupported = false;
-        private String msisdn = "";
+        private String assocCbotMsisdn = "";
         private boolean isDeletionReqBasedOnCompatibilityMap = false;
 
         public Builder setArgRequest(PlatformContentRequest argRequest) {
@@ -99,8 +106,8 @@ public class PlatformZipDownloader
             return this;
         }
 
-        public Builder setMsisdn(String msisdn) {
-            this.msisdn = msisdn;
+        public Builder setAssocCbotMsisdn(String assocCbotMsisdn) {
+            this.assocCbotMsisdn = assocCbotMsisdn;
             return this;
         }
 
@@ -126,7 +133,7 @@ public class PlatformZipDownloader
         this.doReplace = builder.doReplace;
         this.callbackId = builder.callbackId;
         this.resumeSupported = builder.resumeSupported;
-        this.msisdn = builder.msisdn;
+        this.asocCbotMsisdn = builder.assocCbotMsisdn;
 
         if (resumeSupported)
         {
@@ -136,17 +143,62 @@ public class PlatformZipDownloader
     }
 
 
-	private void setStartOffset()
+	/**
+	 * Instantiates a new platform template download task.
+	 *
+	 * @param argRequest: request
+	 * @param  isTemplatingEnabled: whether the app requires templating or not.
+	 */
+	
+	public PlatformZipDownloader(PlatformContentRequest argRequest, boolean isTemplatingEnabled)
+	{
+		this(argRequest, isTemplatingEnabled, false);
+	}
+	
+	public PlatformZipDownloader(PlatformContentRequest argRequest, boolean isTemplatingEnabled,boolean doReplace)
+	{
+		this(argRequest, isTemplatingEnabled, doReplace, null);
+	}
+
+	public PlatformZipDownloader(PlatformContentRequest argRequest, boolean isTemplatingEnabled,boolean doReplace, String callbackId)
+	{
+		// Get ID from content and call http
+		mRequest = argRequest;
+		this.isTemplatingEnabled = isTemplatingEnabled;
+		this.doReplace = doReplace;
+		this.callbackId = callbackId;
+	}
+	
+	public PlatformZipDownloader(PlatformContentRequest argRequest, boolean isTemplatingEnabled,boolean doReplace, String callbackId, boolean resumeSupported,String asocCbot)
+	{
+		// Get ID from content and call http
+		this(argRequest, isTemplatingEnabled, doReplace, callbackId);
+		this.resumeSupported = resumeSupported;
+		
+		if(!TextUtils.isEmpty(asocCbot))
+		{
+			this.asocCbotMsisdn=asocCbot;
+		}
+
+		if (resumeSupported)
+		{
+			setStateFilePath();
+			setStartOffset();
+		}
+	}
+
+    private void setStartOffset()
 	{
 		File file = new File(stateFilePath + FileRequestPersistent.STATE_FILE_EXT);
 		if (file.exists())
 		{
 			String data[] = PlatformUtils.readPartialDownloadState(stateFilePath + FileRequestPersistent.STATE_FILE_EXT);
-			if (data.length > 0)
+			if (data.length > 1)
 			{
 				try
 				{
 					startOffset = Integer.parseInt(data[0]);
+					progress_done=Float.parseFloat(data[1]);
 				}
 				catch (NumberFormatException e)
 				{
@@ -208,7 +260,8 @@ public class PlatformZipDownloader
 
 		File zipFile = getZipPath();
 
-		if (zipFile.exists())
+        //If resume is supported we donot want to delete the zipfile on download failure.
+		if (zipFile.exists()&&!resumeSupported)
 		{
 			unzipMicroApp(zipFile);
 			return;
@@ -316,14 +369,9 @@ public class PlatformZipDownloader
 		HikeHandlerUtil mThread;
 		mThread = HikeHandlerUtil.getInstance();
 		mThread.startHandlerThread();
-		if (mThread == null)
-		{
-			mRequest.getListener().onEventOccured(0, EventCode.UNZIP_FAILED);
-			return;
-		}
+
 		mThread.postRunnable(new Runnable()
 		{
-
 			@Override
 			public void run()
 			{
@@ -350,6 +398,16 @@ public class PlatformZipDownloader
 							Boolean isSuccess = (Boolean) data;
 							if (isSuccess)
 							{
+								if (!TextUtils.isEmpty(asocCbotMsisdn))
+								{
+									BotInfo botinfo = BotUtils.getBotInfoForBotMsisdn(asocCbotMsisdn);
+									if (botinfo != null)
+									{
+										NonMessagingBotMetadata nonMessagingBotMetadata = new NonMessagingBotMetadata(botinfo.getMetadata());
+										HikeNotification.getInstance().sendNotificationToChatThread(asocCbotMsisdn,
+												nonMessagingBotMetadata.getCardObj().optString(HikePlatformConstants.HIKE_MESSAGE), false);
+									}
+								}
 								if (!isTemplatingEnabled)
 								{
 									if (doReplace)
@@ -360,26 +418,31 @@ public class PlatformZipDownloader
 										if (replace)
 										{
 											mRequest.getListener().onComplete(mRequest.getContentData());
+											PlatformUtils.sendMicroAppServerAnalytics(true, mRequest.getContentData().cardObj.appName, mRequest.getContentData().cardObj.appVersion);
 										}
 										else
 										{
 											mRequest.getListener().onEventOccured(0, EventCode.UNZIP_FAILED);
+											PlatformUtils.sendMicroAppServerAnalytics(false, mRequest.getContentData().cardObj.appName, mRequest.getContentData().cardObj.appVersion);
 										}
 									}
 									else
 									{
 										mRequest.getListener().onComplete(mRequest.getContentData());
+										PlatformUtils.sendMicroAppServerAnalytics(true, mRequest.getContentData().cardObj.appName, mRequest.getContentData().cardObj.appVersion);
 									}
 								}
 								else
 								{
 									PlatformRequestManager.setReadyState(mRequest);
+                                    PlatformUtils.sendMicroAppServerAnalytics(true, mRequest.getContentData().cardObj.appName, mRequest.getContentData().cardObj.appVersion);
 								}
 								HikeMessengerApp.getPubSub().publish(HikePubSub.DOWNLOAD_PROGRESS, new Pair<String, String>(callbackId, "unzipSuccess"));
 
                                 // Delete previous version micro apps after checking from compatibility matrix if isDeletionReqBasedOnCompatibilityMap flag is set
                                 if(isDeletionReqBasedOnCompatibilityMap)
                                     deleteMicroAppsAsPerCompatibilityMap();
+
 							}
 							else
 							{
@@ -395,6 +458,7 @@ public class PlatformZipDownloader
 				{
 					ise.printStackTrace();
 					PlatformRequestManager.failure(mRequest, EventCode.UNKNOWN, isTemplatingEnabled);
+					PlatformUtils.sendMicroAppServerAnalytics(false, mRequest.getContentData().cardObj.appName, mRequest.getContentData().cardObj.appVersion);
 				}
 			}
 		});
@@ -519,7 +583,7 @@ public class PlatformZipDownloader
 	private RequestToken downloadZipWithResume(File zipFile, String stateFilePath, long startOffset)
 	{
 		RequestToken token = HttpRequests.platformZipDownloadRequestWithResume(zipFile.getAbsolutePath(), stateFilePath, mRequest.getContentData().getLayout_url(),
-				getRequestListenerForDownload(true, stateFilePath, zipFile), startOffset);
+				getRequestListenerForDownload(true, stateFilePath, zipFile), startOffset,progress_done);
 
 		return token;
 
@@ -533,6 +597,23 @@ public class PlatformZipDownloader
 			@Override
 			public void onRequestSuccess(Response result)
 			{
+				if(!resumeSupported)
+				{
+					JSONObject json = new JSONObject();
+					try
+					{
+						json.putOpt(AnalyticsConstants.EVENT_KEY,AnalyticsConstants.FILE_DOWNLOADED);
+						json.putOpt(AnalyticsConstants.FILE_SIZE, zipFile.length());
+						json.putOpt(AnalyticsConstants.APP_NAME, mRequest.getContentData().getId());
+						json.putOpt(AnalyticsConstants.RESULT_CODE,result.getStatusCode());
+					} catch (JSONException e)
+					{
+						e.printStackTrace();
+					}
+
+					HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.MICRO_APP_REPLACED, json);
+				}
+
 				if (resumeSupported && !TextUtils.isEmpty(statefilePath))
 				{
 					(new File(statefilePath + FileRequestPersistent.STATE_FILE_EXT)).delete();
@@ -563,10 +644,11 @@ public class PlatformZipDownloader
 			{
 				callbackProgress.remove(callbackId);
 				platformRequests.remove(mRequest.getContentData().getLayout_url());
-				HikeMessengerApp.getPubSub().publish(HikePubSub.DOWNLOAD_PROGRESS, new Pair<String, String>(callbackId, "downloadFailure"));
+				HikeMessengerApp.getPubSub().publish(HikePubSub.DOWNLOAD_PROGRESS, new Pair<String,String>(callbackId, "downloadFailure"));
 				PlatformRequestManager.failure(mRequest, EventCode.LOW_CONNECTIVITY, isTemplatingEnabled);
 				PlatformRequestManager.getCurrentDownloadingTemplates().remove((Integer) mRequest.getContentData().appHashCode());
-				zipFile.delete();
+				if (!resumeSupported) //As we would write to the same file on download resume.
+					zipFile.delete();
 			}
 		};
 	}

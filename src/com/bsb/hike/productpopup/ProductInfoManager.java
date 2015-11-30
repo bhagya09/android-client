@@ -142,6 +142,7 @@ public class ProductInfoManager
 		{
 			iShowPopup.onFailure();
 		}
+		HikeMessengerApp.getPubSub().publish(HikePubSub.BADGE_COUNT_CHANGED, null);
 	}
 
 	/**
@@ -179,10 +180,11 @@ public class ProductInfoManager
 						mmSparseArray.get(triggerPoint).removeAll(mmArrayList);
 
 					Logger.d("ProductPopup", "End deleting" + mmArrayList.toString());
+					HikeMessengerApp.getPubSub().publish(HikePubSub.PRODUCT_POPUP_BADGE_COUNT_CHANGED, null);
 				}
 			}
 		});
-
+		
 	}
 	
 	public static void recordPopupEvent(String appName, String pid, boolean isFullScreen, String type)
@@ -285,8 +287,9 @@ public class ProductInfoManager
 					HikeMessengerApp.getPubSub().publish(HikePubSub.PRODUCT_POPUP_RECEIVE_COMPLETE, null);
                     recordPopupEvent(productContentModel.getAppName(), productContentModel.getPid(), productContentModel.isFullScreen(), HikeConstants.DOWNLOAD);
 				}
+					HikeMessengerApp.getPubSub().publish(HikePubSub.PRODUCT_POPUP_BADGE_COUNT_CHANGED, null);
 			}
-
+				
 		});
 
 	}
@@ -444,10 +447,39 @@ public class ProductInfoManager
 	{
 		HikeContentDatabase.getInstance().deleteAllPopupsFromDatabase();
 		clearPopupStack();
+		HikeMessengerApp.getPubSub().publish(HikePubSub.PRODUCT_POPUP_BADGE_COUNT_CHANGED, null);
 	}
 	
 	private void clearPopupStack()
 	{
 		mmSparseArray.clear();
+	}
+	
+	public int getAllValidPopUp()
+	{
+		long presentTime = System.currentTimeMillis();
+		int countValidPopUps = 0;
+
+		ProductPopupsConstants.PopupTriggerPoints[] triggerPoints = ProductPopupsConstants.PopupTriggerPoints.values();
+		for (int i = 0; i < triggerPoints.length; i++)
+		{
+			ArrayList<ProductContentModel> mmArray = mmSparseArray.get(triggerPoints[i].ordinal());
+			if (mmArray != null&&!mmArray.isEmpty())
+			{
+				Collections.sort(mmArray, ProductContentModel.ProductContentStartTimeComp);
+				for (ProductContentModel productContentModel : mmArray)
+				{
+					if (productContentModel.getStarttime() <= presentTime && productContentModel.getEndtime() >= presentTime)
+					{
+
+						countValidPopUps++;
+
+						break;
+
+					}
+				}
+			}
+		}
+		return countValidPopUps;
 	}
 }

@@ -32,6 +32,7 @@ import com.bsb.hike.bots.NonMessagingBotMetadata;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.platform.content.PlatformContentConstants;
+import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.chukong.cocosplay.client.CocosPlayClient;
 
@@ -45,7 +46,7 @@ public class CocosGamingActivity extends Cocos2dxActivity
 {
 	private static Context context;
 
-	private String TAG = getClass().getCanonicalName();
+	protected String TAG = getClass().getCanonicalName();
 
 	private boolean isPortrait;
 
@@ -61,6 +62,26 @@ public class CocosGamingActivity extends Cocos2dxActivity
 
 	private static String platform_content_dir;
 
+	private long openTimestamp = 0;
+
+	private long activeDuration = 0;
+	
+	private final String GAME_ANALYTICS_KINGDOM = "ek";
+	private final String GAME_ANALYTICS_PHYLUM = "ep";
+	private final String GAME_ANALYTICS_CLASS = "ec";
+	private final String GAME_ANALYTICS_ORDER = "eo";
+	private final String GAME_ANALYTICS_FAMILY = "ef";
+	private final String GAME_ANALYTICS_GENUS = "eg";
+	private final String GAME_ANALYTICS_SPECIES = "es";
+	private final String GAME_ANALYTICS_T = "et";
+	private final String GAME_ANALYTICS_U = "eu";
+	private final String GAME_ANALYTICS_V = "ev";
+	
+	private final String GAME_ANALYTICS_KINGDOM_VALUE = "act_game";
+	private final String GAME_ANALYTICS_ENGINE_FAILED = "engine_load_failed";
+	private final String GAME_ANALYTICS_GAME_FAILED = "game_load_failed";
+	private final String GAME_ANALYTICS_GAME_OPEN = "game_open";
+
 	@Override
 	public void onPostCreate(Bundle savedInstanceState, PersistableBundle persistentState)
 	{
@@ -70,7 +91,12 @@ public class CocosGamingActivity extends Cocos2dxActivity
 
 	public void onCreate(Bundle savedInstanceState)
 	{
+		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+		getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+		requestWindowFeature(Window.FEATURE_NO_TITLE);
+		this.setVolumeControlStream(AudioManager.STREAM_MUSIC);
 		super.onCreateDuplicate(savedInstanceState);
+		getSupportActionBar().hide();
 		context = CocosGamingActivity.this;
 		msisdn = getIntent().getStringExtra(HikeConstants.MSISDN);
 		platform_content_dir = PlatformContentConstants.PLATFORM_CONTENT_DIR;
@@ -87,11 +113,6 @@ public class CocosGamingActivity extends Cocos2dxActivity
 		HikeConversationsDatabase.getInstance().updateLastMessageStateAndCount(msisdn, ConvMessage.State.RECEIVED_READ.ordinal());
 		botInfo.setUnreadCount(0);
 		nonMessagingBotMetadata = new NonMessagingBotMetadata(botInfo.getMetadata());
-
-		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-		getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-		requestWindowFeature(Window.FEATURE_NO_TITLE);
-		this.setVolumeControlStream(AudioManager.STREAM_MUSIC);
 
 		botConfig = null == botInfo.getConfigData() ? new NonMessagingBotConfiguration(botInfo.getConfiguration()) : new NonMessagingBotConfiguration(botInfo.getConfiguration(),
 				botInfo.getConfigData());
@@ -117,47 +138,40 @@ public class CocosGamingActivity extends Cocos2dxActivity
 		}
 
 		loadGame();
-
 	}
 
 	public void loadGame()
 	{
 		CocosPlayClient.init(CocosGamingActivity.this, false);
-		// TODO do not hard code the path of the game engine. Please change this
-		try
+		String cocosEnginePath = null;
+		String cocosGamePath = null;
+
+		if (nonMessagingBotMetadata != null)
 		{
-			if (nonMessagingBotMetadata != null)
+			JSONArray mapps = nonMessagingBotMetadata.getAsocmapp();
+			if (mapps != null)
 			{
-				JSONArray mapps = nonMessagingBotMetadata.getAsocmapp();
-				if (mapps != null)
+				for (int i = 0; i < mapps.length(); i++)
 				{
-					for (int i = 0; i < mapps.length(); i++)
+					JSONObject json = new JSONObject();
+					try
 					{
-						JSONObject json = new JSONObject();
-						try
-						{
-							json = mapps.getJSONObject(i);
-						} catch (JSONException e)
-						{
-							e.printStackTrace();
-						}
-						String appName = json.optString(HikeConstants.NAME);
-						System.load(platform_content_dir + PlatformContentConstants.HIKE_MICRO_APPS +PlatformContentConstants.HIKE_MAPPS + appName + "/libcocos2d.so");
-
+						json = mapps.getJSONObject(i);
 					}
-				}
-					System.load(getAppBasePath() + "libcocos2dcpp.so"); // loading the game
-			}
+					catch (JSONException e)
+					{
+						e.printStackTrace();
+					}
+					String appName = json.optString(HikeConstants.NAME);
+					cocosEnginePath = platform_content_dir + appName + "/libcocos2d.so";
 
+				}
+			}
+			cocosGamePath = getAppBasePath() + "libcocos2dcpp.so";
 		}
-		catch (UnsatisfiedLinkError e)
-		{
-			e.printStackTrace();
-			Logger.e(TAG, "Game Engine not Found");
-			Toast.makeText(getApplicationContext(), R.string.some_error, Toast.LENGTH_SHORT).show();
-			finish();
-			Cocos2dxHelper.terminateProcess();
-		}
+
+		loadSoFile(cocosEnginePath, true);
+		loadSoFile(cocosGamePath, false);
 
 		CocosGamingActivity.sContext = this;
 		CocosGamingActivity.this.mHandler = new Cocos2dxHandler(CocosGamingActivity.this);
@@ -177,6 +191,69 @@ public class CocosGamingActivity extends Cocos2dxActivity
 
 	}
 
+	private void loadSoFile(String path, boolean isEngine)
+	{
+		try
+		{
+			System.load(path);
+		}
+		catch (UnsatisfiedLinkError e)
+		{
+			e.printStackTrace();
+
+			if (isEngine)
+			{
+				Logger.e(TAG, "Game Engine load failed");
+			}
+			else
+			{
+				Logger.e(TAG, "Game load failed");
+			}
+			nativeBridge.logAnalytics("true", "gaming", getErrorJson(isEngine).toString());
+			Toast.makeText(getApplicationContext(), R.string.some_error, Toast.LENGTH_SHORT).show();
+			String parentMsisdn = nonMessagingBotMetadata.getParentMsisdn();
+			if (parentMsisdn != null && parentMsisdn.length() > 0)
+			{
+				Intent intent = IntentFactory.getNonMessagingBotIntent(parentMsisdn, this);
+				startActivity(intent);
+			}
+			finish();
+			Cocos2dxHelper.terminateProcess();
+			return;
+		}
+	}
+
+	private JSONObject getErrorJson(boolean isEngine)
+	{
+		try
+		{
+			JSONObject jsonObject = new JSONObject();
+			jsonObject.put(GAME_ANALYTICS_KINGDOM, GAME_ANALYTICS_KINGDOM_VALUE);
+			jsonObject.put(GAME_ANALYTICS_PHYLUM, nonMessagingBotMetadata.getAppName());
+			jsonObject.put(GAME_ANALYTICS_CLASS, msisdn);
+			if (isEngine)
+			{
+				jsonObject.put(GAME_ANALYTICS_ORDER, GAME_ANALYTICS_ENGINE_FAILED);
+			}
+			else
+			{
+				jsonObject.put(GAME_ANALYTICS_ORDER, GAME_ANALYTICS_GAME_FAILED);
+			}
+			jsonObject.put(GAME_ANALYTICS_FAMILY, "");
+			jsonObject.put(GAME_ANALYTICS_GENUS, "");
+			jsonObject.put(GAME_ANALYTICS_SPECIES, "");
+			jsonObject.put(GAME_ANALYTICS_T, "");
+			jsonObject.put(GAME_ANALYTICS_U, "");
+			jsonObject.put(GAME_ANALYTICS_V, "");
+			return jsonObject;
+		}
+		catch (JSONException e1)
+		{
+			e1.printStackTrace();
+		}
+		return null;
+	}
+
 	public static Object getNativeBridge()
 	{
 		return nativeBridge;
@@ -186,7 +263,6 @@ public class CocosGamingActivity extends Cocos2dxActivity
 	{
 		return botInfo;
 	}
-
 
 	public static native void platformCallback(String callID, String response);
 
@@ -233,15 +309,58 @@ public class CocosGamingActivity extends Cocos2dxActivity
 	@Override
 	protected void onResume()
 	{
-		HAManager.getInstance().startChatSession(msisdn);
+		Logger.d(TAG, "onResume()");
 		super.onResume();
+		HAManager.getInstance().startChatSession(msisdn);
+		openTimestamp = System.currentTimeMillis();
 	}
 
 	@Override
 	protected void onPause()
 	{
-		HAManager.getInstance().endChatSession(msisdn);
+		Logger.d(TAG, "onPause()");
 		super.onPause();
+		HAManager.getInstance().endChatSession(msisdn);
+		activeDuration = activeDuration + (System.currentTimeMillis() - openTimestamp);
+	}
+
+	@Override
+	protected void onDestroy()
+	{
+		sendGameOpenAnalytics();
+		onHandlerDestroy();
+		super.onDestroy();
+	}
+
+	public void sendGameOpenAnalytics()
+	{
+		activeDuration = activeDuration + (System.currentTimeMillis() - openTimestamp);
+		Logger.d(TAG, "Active duration : " + activeDuration);
+		nativeBridge.logAnalytics("true", "gaming", getGameOpenAnalyticsJson().toString());
+	}
+
+	private JSONObject getGameOpenAnalyticsJson()
+	{
+		try
+		{
+			JSONObject jsonObject = new JSONObject();
+			jsonObject.put(GAME_ANALYTICS_KINGDOM, GAME_ANALYTICS_KINGDOM_VALUE);
+			jsonObject.put(GAME_ANALYTICS_PHYLUM, nonMessagingBotMetadata.getAppName());
+			jsonObject.put(GAME_ANALYTICS_CLASS, msisdn);
+			jsonObject.put(GAME_ANALYTICS_ORDER, GAME_ANALYTICS_GAME_OPEN);
+			jsonObject.put(GAME_ANALYTICS_FAMILY, String.valueOf(activeDuration));
+			jsonObject.put(GAME_ANALYTICS_GENUS, "");
+			jsonObject.put(GAME_ANALYTICS_SPECIES, "");
+			jsonObject.put(GAME_ANALYTICS_T, "");
+			jsonObject.put(GAME_ANALYTICS_U, "");
+			jsonObject.put(GAME_ANALYTICS_V, "");
+			return jsonObject;
+		}
+		catch (JSONException e1)
+		{
+			e1.printStackTrace();
+		}
+		return null;
 	}
 
 	/**

@@ -25,6 +25,7 @@ import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
+import com.kpt.adaptxt.beta.RemoveDialogData;
 
 /**
  * @author piyush
@@ -218,7 +219,7 @@ public class BroadcastChatThread extends OneToNChatThread
 		/* the user must have deleted the chat. */
 		Message message = Message.obtain();
 		message.what = SHOW_TOAST;
-		message.arg1 = R.string.invalid_broadcast_list;
+		message.obj = R.string.invalid_broadcast_list;
 		uiHandler.sendMessage(message);
 
 		startHomeActivity();
