@@ -325,7 +325,7 @@ public class StickerSearchUtility
 							float local = (float) frequencyRatioData.getDouble(HikeConstants.STICKER_DATA_LOCAL);
 							float global = (float) frequencyRatioData.getDouble(HikeConstants.STICKER_DATA_GLOBAL);
 
-							if (isValidFraction(trending) && isValidFraction(local) && isValidFraction(global) && (local > trending) && (global > local)
+							if (isValidFraction(trending) && isValidFraction(local) && isValidFraction(global) && (trending > local) && (local > global)
 									&& ((trending + local + global) == 1.00f))
 							{
 								stickerDataSharedPref.saveData(HikeConstants.STICKER_FREQUENCY_RATIO_TRENDING, trending);
