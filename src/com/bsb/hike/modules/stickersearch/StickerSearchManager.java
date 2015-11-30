@@ -1,5 +1,14 @@
 package com.bsb.hike.modules.stickersearch;
 
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Set;
+
+import org.json.JSONObject;
+
 import android.content.Intent;
 import android.util.Pair;
 
@@ -31,15 +40,6 @@ import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.PairModified;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
-
-import org.json.JSONObject;
-
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Set;
 
 public class StickerSearchManager
 {
@@ -90,7 +90,6 @@ public class StickerSearchManager
 		currentString = null;
 		currentLength = 0;
 
-		// Order of calling following method must not be changed
 		setShowAutoPopupConfiguration();
 		setAndResumeRecommendationStateForAnalytics();
 		setNumStickersVisibleAtOneTime(StickerManager.getInstance().getNumColumnsForStickerGrid(HikeMessengerApp.getInstance()));
