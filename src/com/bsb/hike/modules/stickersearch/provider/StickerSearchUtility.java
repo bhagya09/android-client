@@ -592,8 +592,8 @@ public class StickerSearchUtility
 		clearStickerRecommendationAnalyticsDataFromPref();
 
 		HikeSharedPreferenceUtil stickerDataSharedPref = HikeSharedPreferenceUtil.getInstance(HikeStickerSearchBaseConstants.SHARED_PREF_STICKER_DATA);
-		HashSet<String> currentLanguages = new HashSet<String>();
 		PairModified<Integer, Integer> totalAndAcceptedRecommendationCountPairPerLanguage;
+		HashSet<String> currentLanguages = new HashSet<String>();
 		HashMap<String, Integer> accuracyData = new HashMap<String, Integer>();
 
 		// Save auto-popup data for each language
@@ -630,8 +630,11 @@ public class StickerSearchUtility
 			}
 		}
 
-		stickerDataSharedPref.saveDataSet(StickerSearchConstants.KEY_PREF_STICKER_RECOOMENDATION_LANGUAGE_LIST, currentLanguages);
-		stickerDataSharedPref.saveDataMap(accuracyData);
+		if (accuracyData.size() > 0)
+		{
+			stickerDataSharedPref.saveDataSet(StickerSearchConstants.KEY_PREF_STICKER_RECOOMENDATION_LANGUAGE_LIST, currentLanguages);
+			stickerDataSharedPref.saveDataMap(accuracyData);
+		}
 	}
 
 	/* Clear recommendation analytics data stored in sticker search shared_pref */

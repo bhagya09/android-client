@@ -456,8 +456,8 @@ public class StickerSearchManager
 	/*
 	 * Determines if auto-popup recommendation condition is favorable as well as user selected sticker from auto-popup recommendation.
 	 * getFirstContinuousMatchFound() just tells, if first continuous phrase match is found and auto-popup could be shown.
-	 * And, this method distinguish the case, where user clicked the first continuous phrase matched itself as that
-	 * will be seen as case of tap on highlight word
+	 * And, this method distinguishes the case, where user clicked the first continuous phrase matched itself in compose box as that
+	 * will be seen as case of tap on highlight word.
 	 */
 	public boolean isFromAutoRecommendation()
 	{
