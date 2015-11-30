@@ -136,7 +136,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 			HikePubSub.MULTI_MESSAGE_DB_INSERTED, HikePubSub.SERVER_RECEIVED_MULTI_MSG, HikePubSub.MUTE_CONVERSATION_TOGGLED, HikePubSub.CONV_UNREAD_COUNT_MODIFIED,
 			HikePubSub.CONVERSATION_TS_UPDATED, HikePubSub.PARTICIPANT_JOINED_ONETONCONV, HikePubSub.PARTICIPANT_LEFT_ONETONCONV, HikePubSub.BLOCK_USER, HikePubSub.UNBLOCK_USER,
 			HikePubSub.MUTE_BOT, HikePubSub.CONVERSATION_DELETED, HikePubSub.DELETE_THIS_CONVERSATION, HikePubSub.ONETONCONV_NAME_CHANGED, HikePubSub.STEALTH_CONVERSATION_MARKED,
-			HikePubSub.STEALTH_CONVERSATION_UNMARKED, HikePubSub.UPDATE_LAST_MSG_STATE, HikePubSub.OFFLINE_MESSAGE_SENT, HikePubSub.ON_OFFLINE_REQUEST,HikePubSub.GENERAL_EVENT };
+			HikePubSub.STEALTH_CONVERSATION_UNMARKED, HikePubSub.UPDATE_LAST_MSG_STATE, HikePubSub.OFFLINE_MESSAGE_SENT, HikePubSub.ON_OFFLINE_REQUEST,HikePubSub.GENERAL_EVENT,HikePubSub.GENERAL_EVENT_STATE_CHANGE,HikePubSub.CONVINFO_UPDATED};
 
 	private ConversationsAdapter mAdapter;
 
@@ -3085,6 +3085,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 				final ConvInfo convInfo = mConversationsByMSISDN.get(message.getMsisdn());
 				if (convInfo != null)
 				{
+					convInfo.setLastConversationMsg(message);
 					final ConvMessage convMsg = convInfo.getLastConversationMsg();
 					if (convMsg != null)
 					{
@@ -3106,6 +3107,32 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 				}
 
 
+			}
+		}
+		else if(HikePubSub.CONVINFO_UPDATED.equals(type))
+		{
+			final ConvInfo convInfo = (ConvInfo)object;
+			if (convInfo != null)
+			{
+				mConversationsByMSISDN.put(convInfo.getMsisdn(),convInfo);
+				final ConvMessage convMsg = convInfo.getLastConversationMsg();
+				if (convMsg != null)
+				{
+					getActivity().runOnUiThread(new Runnable()
+					{
+						@Override
+						public void run()
+						{
+							View parentView = getListView().getChildAt(
+									displayedConversations.indexOf(convInfo) - getListView().getFirstVisiblePosition() + getOffsetForListHeader());
+
+							if (parentView != null)
+							{
+								mAdapter.updateViewsRelatedToLastMessage(parentView, convMsg, convInfo);
+							}
+						}
+					});
+				}
 			}
 		}
 	}

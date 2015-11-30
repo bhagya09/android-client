@@ -76,7 +76,6 @@ import com.bsb.hike.modules.kpt.KptUtils;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
 import com.bsb.hike.modules.stickersearch.StickerSearchUtils;
 import com.bsb.hike.modules.stickersearch.listeners.IStickerPickerRecommendationListener;
-import com.bsb.hike.modules.stickersearch.provider.StickerSearchHostManager;
 import com.bsb.hike.modules.stickersearch.ui.StickerTagWatcher;
 import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.offline.IOfflineCallbacks;
@@ -152,6 +151,8 @@ import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.text.style.CharacterStyle;
+import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
 import android.util.Pair;
 import android.view.GestureDetector;
@@ -1808,8 +1809,8 @@ import android.widget.Toast;
 		stickerTagWatcher = (stickerTagWatcher != null) ? (stickerTagWatcher) : (new StickerTagWatcher(activity, this, mComposeView, getResources().getColor(
 				R.color.sticker_recommend_highlight_text)));
 
-		StickerSearchHostManager.getInstance().loadChatProfile(msisdn, !ChatThreadUtils.getChatThreadType(msisdn).equals(HikeConstants.Extras.ONE_TO_ONE_CHAT_THREAD),
-				activity.getLastMessageTimeStamp());
+		StickerSearchManager.getInstance().loadChatProfile(msisdn, !ChatThreadUtils.getChatThreadType(msisdn).equals(HikeConstants.Extras.ONE_TO_ONE_CHAT_THREAD),
+				activity.getLastMessageTimeStamp(), StickerSearchUtils.getCurrentLanguageISOCode());
 
 		mComposeView.addTextChangedListener(stickerTagWatcher);
 	}
@@ -2018,6 +2019,13 @@ import android.widget.Toast;
 					activity.findViewById(R.id.search_clear_btn).setVisibility(View.VISIBLE);
 				}
 			}
+			//AND-3276 Begin
+			if (!TextUtils.isEmpty(s.toString())) {
+				CharacterStyle[] spansToRemove = s.getSpans(0, s.length(), ForegroundColorSpan.class);
+				for (int i = 0; i < spansToRemove.length; i++)
+					s.removeSpan(spansToRemove[i]);
+			}
+			//AND-3276 End
 			searchText = s.toString().toLowerCase();
 			mAdapter.setSearchText(searchText);
 			mAdapter.notifyDataSetChanged();
@@ -2077,16 +2085,7 @@ import android.widget.Toast;
 		{
 			mComposeView = (CustomFontEditText) activity.findViewById(R.id.msg_compose);
 			mComposeView.requestFocus();
-			mComposeView.setOnClickListener(new OnClickListener()
-			{
-				@Override
-				public void onClick(View v)
-				{
-					if(isSystemKeyboard()){
-					Utils.showSoftKeyboard(mComposeView, InputMethodManager.SHOW_FORCED);
-					}
-				}
-			});
+			mComposeView.setOnClickListener(mComposeChatOnClickListener);
 			mComposeView.removeTextChangedListener(searchTextWatcher);
 			if (mEmoticonPicker != null)
 			{
@@ -2559,7 +2558,12 @@ import android.widget.Toast;
 	protected boolean shouldShowKeyboard()
 	{
 		return ((mConversation.getMessagesList().isEmpty() && !mConversation.isBlocked() && !activity.getIntent().getBooleanExtra(HikeConstants.Extras.HIKE_DIRECT_MODE,false) 
-				&& !keyboardFtue.isReadyForFTUE()) || mActionMode.isActionModeOn());
+				&& !keyboardFtue.isReadyForFTUE()) || shouldShowKeyboardInActionMode());
+	}
+	
+	protected boolean shouldShowKeyboardInActionMode()
+	{
+		return (mActionMode.whichActionModeIsOn() == SEARCH_ACTION_MODE);
 	}
 
 	/**
@@ -4206,7 +4210,7 @@ import android.widget.Toast;
 				HikePubSub.CHAT_BACKGROUND_CHANGED, HikePubSub.CLOSE_CURRENT_STEALTH_CHAT, HikePubSub.ClOSE_PHOTO_VIEWER_FRAGMENT, HikePubSub.STICKER_CATEGORY_MAP_UPDATED,
 				HikePubSub.UPDATE_NETWORK_STATE, HikePubSub.BULK_MESSAGE_RECEIVED, HikePubSub.MULTI_MESSAGE_DB_INSERTED, HikePubSub.BLOCK_USER, HikePubSub.UNBLOCK_USER, HikePubSub.MUTE_CONVERSATION_TOGGLED, HikePubSub.SHARED_WHATSAPP, 
 				HikePubSub.STEALTH_CONVERSATION_MARKED, HikePubSub.STEALTH_CONVERSATION_UNMARKED, HikePubSub.BULK_MESSAGE_DELIVERED_READ, HikePubSub.STICKER_RECOMMEND_PREFERENCE_CHANGED, HikePubSub.ENTER_TO_SEND_SETTINGS_CHANGED, HikePubSub.NUDGE_SETTINGS_CHANGED,
-				HikePubSub.UPDATE_THREAD};
+				HikePubSub.UPDATE_THREAD,HikePubSub.GENERAL_EVENT_STATE_CHANGE};
 
 		/**
 		 * Array of pubSub listeners we get from {@link OneToOneChatThread} or {@link GroupChatThread}
@@ -4379,8 +4383,10 @@ import android.widget.Toast;
 
 	public void onResume()
 	{
-		tryToDismissAnyOpenPanels();
-
+		if (shouldShowKeyboard())
+		{
+			tryToDismissAnyOpenPanels();
+		}
 		showKeyboardIfRequired();
 
 		isActivityVisible = true;
@@ -4453,6 +4459,7 @@ import android.widget.Toast;
 	{
 		if (shouldShowKeyboard())
 		{
+			tryToDismissAnyOpenPanels();
 			showKeyboard();
 		}
 		else
@@ -4500,6 +4507,8 @@ import android.widget.Toast;
 		hideThemePicker();
 		
 		hideOverflowMenu();
+
+		clearActionBarViews();
 		
 		hideDialog();
 		
@@ -4545,6 +4554,16 @@ import android.widget.Toast;
 		if (mActionBar != null && mActionBar.isOverflowMenuShowing())
 		{
 			mActionBar.dismissOverflowMenu();
+		}
+	}
+
+	/**
+	 * Do not call this method freely! Use it at your own risk!
+	 */
+	private void clearActionBarViews()
+	{
+		if (mActionBar != null)
+		{
 			mActionBar.resetView();
 		}
 	}
@@ -6387,5 +6406,24 @@ import android.widget.Toast;
 	{
 		return mConversation != null;
 	}
-	
+
+	/**
+	 * This will take care of setting onClick issue ID  AND-3924 this is to be set only when we want set on click for Chat compose view
+	 */
+	protected View.OnClickListener mComposeChatOnClickListener = new OnClickListener() {
+		@Override
+		public void onClick(View v) {
+			if(isSystemKeyboard()){
+				Utils.showSoftKeyboard(mComposeView, InputMethodManager.SHOW_FORCED);
+				showKeyboardFtueIfReady();
+			}else{
+				mCustomKeyboard.swtichToKPTKeyboard(mComposeView, KPTConstants.MULTILINE_LINE_EDITOR, null, kptKeyboardVisibilityStatusListner);
+				mCustomKeyboard.registerEditText(R.id.msg_compose);
+				resetSharablePopup();
+				mCustomKeyboard.init(mComposeView);
+				mCustomKeyboard.showCustomKeyboard(mComposeView, true);
+				setEditTextListeners();
+			}
+		}
+	};
 }

@@ -4,7 +4,7 @@
     <string name="app_name">hike</string>
     <string name="app_label">&#160;hike</string>
     <string name="invite">ಓರ್ವ ಸ್ನೇಹಿತನಿಗೆ ಹೇಳಿ</string>
-    <string name="deleteconversations">ಎಲ್ಲ ಸಂಭಾಷಣೆಗಳನ್ನೂ ಅಳಿಸಿ</string>
+    <string name="deleteconversations"> ಸಂಭಾಷಣೆಗಳನ್ನೂ ಅಳಿಸಿ</string>
     <string name="send">ಕಳುಹಿಸಿ</string>
     <string name="delete">ಅಳಿಸು</string>
     <string name="cancel">ರದ್ದು</string>
@@ -13,7 +13,7 @@
     <string name="copy">ನಕಲು</string>
     <string name="preferences">ಆದ್ಯತೆಗಳು</string>
     <string name="delete_account_failed">ನಿಮ್ಮ ಖಾತೆಯನ್ನು hike ಅಳಿಸಲು ಅಸಾಧ್ಯ. ದಯವಿಟ್ಟು ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.</string>
-    <string name="already_hike_user">ಖುಷಿಯ ಸುದ್ದಿ! ನಿಮ್ಮ ಸ್ನೇಹಿತರು ಈಗಾಲೇ hike ನಲ್ಲಿ ಇದ್ದಾರೆ!</string>
+    <string name="already_hike_user">ಸಿಹಿ ಸುದ್ದಿ! ನಿಮ್ಮ ಸ್ನೇಹಿತರು ಈಗಾಲೇ hike ನಲ್ಲಿ ಇದ್ದಾರೆ!</string>
     <string name="profile_title">ಪ್ರೊಫೈಲ್‌</string>
     <string name="updating_profile">ಪ್ರೊಫೈಲ್‌ ಅಪ್‌ಡೇಟ್‌ ಮಾಡಲಾಗುತ್ತಿದೆ</string>
     <string name="update_profile_failed">ಪ್ರೊಫೈಲ್‌ ಅಪ್‌ಡೇಟ್‌ ಮಾಡಲಾಗುತ್ತಿಲ್ಲ</string>
@@ -29,21 +29,21 @@
     <string name="invite_now">ಈಗ ಆಹ್ವಾನಿಸಿ</string>
     <string name="edit_profile">ಪ್ರೊಫೈಲ್ ತಿದ್ದಿ</string>
     <string name="no_sd_card">ದಯವಿಟ್ಟು ಒಂದು SD ಕಾರ್ಡ್‌ ಸೇರಿಸಿ</string>
-    <string name="invalid_email">ಅಮಾನ್ಯ ಇಮೇಲ್‌ ವಿಳಾಸ</string>
+    <string name="invalid_email">ತಪ್ಪಾದ ಇಮೇಲ್‌ ವಿಳಾಸ</string>
     <string name="joined_conversation">ಗ್ರೂಪ್‌ ಚಾಟ್‌ಗೆ %1$s ಸೇರಿದ್ದಾರೆ!</string>
-    <string name="left_conversation">%1$s ಗ್ರೂಪ್‌ ಚಾಟ್‌ ತೊರೆದಿದ್ದಾರೆ</string>
+    <string name="left_conversation">%1$s ಗ್ರೂಪ್‌ ಚಾಟ್‌ ಬಿಟ್ಟುಹೋಗಿದ್ದಾರೆ</string>
     <string name="removed_from_broadcast">ಬ್ರಾಡ್‌ಕಾಸ್ಟ್‌ ಪಟ್ಟಿನಿಂದ %1$s ತೆಗೆಯಲಾಗಿದೆ</string>
-    <string name="leave_group">ಗ್ರೂಪ್‌ ತೊರೆಯಿರಿ</string>
+    <string name="leave_group">ಗ್ರೂಪಿಂದ ಹೊರಗೆಹೋಗಿ</string>
     <string name="delete_broadcast">ಬ್ರಾಡ್‌ಕಾಸ್ಟ್‌ ಡಿಲೀಟ್‌ ಮಾಡಿ</string>
     <string name="group_chat_end">ಈ ಗ್ರೂಪ್‌ ಚಾಟ್‌ ಮುಕ್ತಾಯವಾಗಿದೆ.</string>
     <string name="broadcast_list_end">ಈ ಬ್ರಾಡ್‌ಕಾಸ್ಟ್‌ ಪಟ್ಟಿ ಮುಕ್ತಾಯವಾಗಿದೆ.</string>
     <string name="group_info">ಗ್ರೂಪ್‌ ಮಾಹಿತಿ</string>
     <string name="broadcast_info">ಬ್ರಾಡ್‌ಕಾಸ್ಟ್‌ ಮಾಹಿತಿ</string>
-    <string name="done">ಮಾಡಲಾಗಿದೆ</string>
+    <string name="done">ಸರಿ</string>
     <string name="group_chat">ಗ್ರೂಪ್‌ ಚಾಟ್‌</string>
     <string name="add_group">ಗ್ರೂಪ್‌ಗೆ ಸೇರಿಸಿ</string>
     <string name="add_broadcast">ಬ್ರಾಡ್‌ಕಾಸ್ಟ್‌ ಪಟ್ಟಿಗೆ ಸೇರಿ</string>
-    <string name="sms_alert_text">ನೀವು ಇನ್ನು ನಿಮ್ಮ ಎಲ್ಲ SMSಗಳನ್ನು hikeನಲ್ಲಿ ಸ್ವೀಕರಿಸಬಹುದು. ಈ ಫೀಚರನ್ನು ಆನ್‌ ಮಾಡಲು ಕೆಳಗೆ ತಟ್ಟಿ.</string>
+    <string name="sms_alert_text">ನೀವು ಇನ್ನು ನಿಮ್ಮ ಎಲ್ಲ SMSಗಳನ್ನು hikeನಲ್ಲಿ ಸ್ವೀಕರಿಸಬಹುದು. ಈ ಫೀಚರನ್ನು ಆನ್‌ ಮಾಡಲು ಕೆಳಗೆ ಒತ್ತಿ.</string>
     <string name="sms">SMS</string>
     <string name="turn_on">ಆನ್‌ ಮಾಡಿ</string>
     <string name="block_owner">ಗ್ರೂಪ್‌ ಮಾಲೀಕರನ್ನು ಬ್ಲಾಕ್ ಮಾಡಿ</string>
@@ -54,7 +54,7 @@
     <string name="dnd_msg_gc">ಸೇರಲು %1$s ಪ್ರತಿಕ್ರಿಯೆಗಾಗಿ ಕಾಯಲಾಗುತ್ತದೆ</string>
     <string name="earned_credits">ನೀವು %1$s ಉಚಿತ SMS ಗಳಿಸಿದ್ದೀರಿ</string>
     <string name="earned_credits_highlight">%1$s ಉಚಿತ SMS</string>
-    <string name="no_external_storage">ಬಾಹ್ಯ ಸಂಗ್ರಹ‌ ಕಂಡುಬಂದಿಲ್ಲ</string>
+    <string name="no_external_storage">ಫೋನಿನಲ್ಲಿ ಜಾಗವಿಲ್ಲ</string>
     <string name="share_file">ಹಂಚಿ</string>
     <string name="download_failed">ಫೈಲ್ ಡೌನ್‌ಲೋಡ್‌ ಮಾಡಲು ಸಾಧ್ಯವಾಗಿಲ್ಲ. ನೆಟ್‌ವರ್ಕ್‌ ಸೆಟ್ಟಿಂಗ್ಸ್‌ ಚೆಕ್‌ ಮಾಡಿ</string>
     <string name="download_failed_fatal">ಫೈಲ್ ಡೌನ್‌ಲೋಡ್‌ ಮಾಡಲು ಸಾಧ್ಯವಾಗಿಲ್ಲ. ದಯವಿಟ್ಟು ಫೈಲ್ ಡೌನ್‌ಲೋಡ್‌ ಮಾಡಿ.</string>
@@ -65,21 +65,21 @@
     <string name="download_cancelled">ಡೌನ್‌ಲೋಡ್‌ ರದ್ದಾಗಿದೆ</string>
     <string name="upload_cancelled">ಅಪ್‌ಲೋಡ್ ರದ್ದಾಗಿದೆ</string>
     <string name="share">ಹಂಚಿ</string>
-    <string name="preview">ಪ್ರಿವ್ಯೂ</string>
+    <string name="preview">ಒಮ್ಮೆ ನೋಡಿ</string>
     <string name="error_recording">ಆಡಿಯೋ ರೆಕಾರ್ಡ್‌ ಮಾಡಲು ಅಸಾಧ್ಯ.</string>
     <string name="rewards">ರಿವಾರ್ಡ್‌ಗಳು</string>
     <string name="help">ಸಹಾಯ</string>
     <string name="update_app">ಅಪ್‌ಡೇಟ್‌</string>
-    <string name="unlink_facebook_confirmation">Hike ನಿಂದ ನಿಮ್ಮ ಫೇಸ್‌ಬುಕ್‌ ಖಾತೆಯನ್ನು ಅನ್‌ಲಿಂಕ್‌ ಮಾಡಲು ನೀವು ಖಚಿತವಾಗಿಯೂ ಬಯಸಿದ್ದೀರಾ?</string>
+    <string name="unlink_facebook_confirmation">Hike ನಿಂದ ನಿಮ್ಮ ಫೇಸ್‌ಬುಕ್‌ ಖಾತೆಯನ್ನು ಅನ್‌ಲಿಂಕ್‌ ಮಾಡಲು ನೀವು  ಬಯಸಿದ್ದೀರಾ?</string>
     <string name="unlink_twitter_confirmation">Hike ನಿಂದ ನಿಮ್ಮ ಟ್ವಿಟರ್‌‌ ಖಾತೆ ಅನ್‌ಲಿಂಕ್‌ ಮಾಡಲು  ಖಚಿತವಾಗಿ ಬಯಸಿದ್ದೀರಾ?</string>
     <string name="change_group_name">ಗ್ರೂಪ್ ಹೆಸರನ್ನು %1$s ಬದಲಿಸಿದ್ದಾರೆ.</string>
     <string name="change_broadcast_name">ಬ್ರಾಡ್‌ಕಾಸ್ಟ್‌ ಹೆಸರನ್ನು %1$s ಬದಲಿಸಿದ್ದಾರೆ.</string>
-    <string name="block_internation_sms">SMS ಅನ್ನು ಭಾರತಕ್ಕೆ ಮಾತ್ರ ಕಳುಹಿಸಬಹುದಾಗಿದೆ</string>
+    <string name="block_internation_sms">SMS ಅನ್ನು ಭಾರತಕ್ಕೆ ಮಾತ್ರ ಕಳುಹಿಸಬಹುದು</string>
     <string name="block_internation_sms_bold_text">ಭಾರತ</string>
     <string name="invite_via_sms">SMS ಮೂಲಕ ಆಹ್ವಾನಿಸಿ</string>
     <string name="call_me_fail">ಕರೆ ಮಾಡಲು ಅಸಾಧ್ಯ. ದಯವಿಟ್ಟು ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.</string>
     <string name="calling_you">ಕರೆ ಮಾಡಲಾಗುತ್ತಿದೆ...</string>
-    <string name="new_group_message">%1$s ಜತೆಗೆ ಗ್ರೂಪ್‌ ಚಾಟ್‌</string>
+    <string name="new_group_message">%1$s ನಿಂದ ಗ್ರೂಪ್‌ ಮೆಸೇಜ್</string>
     <string name="new_broadcast_message">%1$s ಜತೆಗೆ ಬ್ರಾಡ್‌ಕಾಸ್ಟ್‌ ಪಟ್ಟಿ</string>
     <string name="add_to_group_message">%1$s ಅನ್ನು ಗ್ರೂಪ್‌ಗೆ ಸೇರಿಸಲಾಗಿದೆ</string>
     <string name="add_to_broadcast_message">%1$s ಅನ್ನು ಪಟ್ಟಿಗೆ ಸೇರಿಸಲಾಗಿದೆ</string>
@@ -89,12 +89,12 @@
     <string name="unlimited">ಅನಿಯಮಿತ</string>
     <string name="connected">ಸಂಪರ್ಕಿತ</string>
     <string name="max_file_size">ಗರಿಷ್ಠ ಫೈಲ್‌ ಗಾತ್ರವು 100 MB ಇರಬಹುದು</string>
-    <string name="unable_to_read">ಫೈಲ್‌ವನ್ನು ಓದಲು ಅಸಾಧ್ಯ</string>
+    <string name="unable_to_read">ಫೈಲ್‌ಅನ್ನು ಓದಲು ಅಸಾಧ್ಯ</string>
     <string name="share_location">ಸ್ಥಳವನ್ನು ಆಯ್ಕೆ ಮಾಡಿ</string>
     <string name="group_mute">ಈ ಸಂಭಾಷಣೆಯನ್ನು ಮ್ಯೂಟ್‌ ಮಾಡಲಾಗಿದೆ.</string>
     <string name="poke_msg">ನಡ್ಜ್‌!</string>
-    <string name="block_user">ಈ ಬಳಕೆದಾರರನ್ನು ಬ್ಲಾಕ್‌ ಮಾಡಿ</string>
-    <string name="unblock_user">ಈ ಬಳಕೆದಾರರನ್ನು ಅನ್‌ಬ್ಲಾಕ್‌ ಮಾಡಿ</string>
+    <string name="block_user">ಇವರನ್ನು ಬ್ಲಾಕ್‌ ಮಾಡಿ</string>
+    <string name="unblock_user">ಇವರನ್ನು ಅನ್‌ಬ್ಲಾಕ್‌ ಮಾಡಿ</string>
     <string name="email">ಇಮೇಲ್‌</string>
     <string name="share_via_other">ಇತರೆ ಮೂಲಕ ಹಂಚಿ</string>
     <string name="gps_disabled">ನಿಮ್ಮ ಸ್ಥಳದ ನಿಖರತೆ ಗುರುತಿಸುವಿಕೆಗಾಗಿ GPS ಸಕ್ರಿಯಗೊಳಿಸಿ.</string>
@@ -119,14 +119,14 @@
     <string name="group_name">ಗ್ರೂಪ್‌ ಹೆಸರು</string>
     <string name="participants">ಭಾಗವಹಿಸುವವರು</string>
     <string name="me">ನಾನು</string>
-    <string name="gender">ಜೆಂಡರ್‌</string>
+    <string name="gender">ಲಿಂಗ</string>
     <string name="edit_picture">ಚಿತ್ರ ತಿದ್ದುಪಡಿ ಮಾಡಿ</string>
     <string name="settings">ಸೆಟ್ಟಿಂಗ್ಸ್‌</string>
     <string name="sms_left">ಬಾಕಿ ಇರುವ SMS</string>
     <string name="image_msg_received">ನಿಮಗೆ ಒಂದು ಫೋಟೋ ಕಳುಹಿಸಲಾಗಿದೆ</string>
     <string name="video_msg_received">ನಿಮಗೆ ಒಂದು ವಿಡಿಯೋ ಕಳುಹಿಸಲಾಗಿದೆ</string>
     <string name="audio_msg_received">ನಿಮಗೆ ಒಂದು ಆಡಿಯೋ ಫೈಲ್‌ ಕಳುಹಿಸಲಾಗಿದೆ</string>
-    <string name="location_msg_received">ಹಂಚಲಾದ ಸ್ಥಳ</string>
+    <string name="location_msg_received">ಸ್ಥಳದ ಮಾಹಿತಿ ಕಳುಹಿಸಲಾಗಿದೆ</string>
     <string name="contact_msg_received">ಒಂದು ಸಂಪರ್ಕ ಹಂಚಲಾಗಿದೆ</string>
     <string name="image_msg_sent">ಫೊಟೋ</string>
     <string name="video_msg_sent">ವಿಡಿಯೋ</string>
@@ -134,7 +134,7 @@
     <string name="location_msg_sent">ಸ್ಥಳ</string>
     <string name="contact_msg_sent">ಸಂಪರ್ಕ</string>
     <string name="audio_recording_msg_sent">ಧ್ವನಿ ಸಂದೇಶ</string>
-    <string name="unknown_msg">ಬೆಂಬಲಿಸದ ಫೈಲ್‌</string>
+    <string name="unknown_msg">ಅಪರಿಚಿತ ಫೈಲ್‌</string>
     <string name="error_download">ಚಿತ್ರ ಡೌನ್‌ಲೋಡ್‌ ಮಾಡುವಲ್ಲಿ ದೋಷ</string>
     <string name="downloading_image">ಚಿತ್ರ ಡೌನ್‌ಲೋಡ್‌ ಮಾಡಲಾಗುತ್ತಿದೆ...</string>
     <string name="invite_1">ಆಹ್ವಾನಿಸಿ</string>
@@ -151,11 +151,11 @@
     <string name="unobfuscated_map_api">AIzaSyBvWmHyGeeDjPkJR1xJnWCnUiWTfwciSLw</string>
     <string name="invalid_num_signup">ಅದು ಅಮಾನ್ಯ ದೂರವಾಣಿ ಸಂಖ್ಯೆ. ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.</string>
     <string name="verify_pin_signup">PIN ಪರಿಶೀಲಿಸುವುದು...</string>
-    <string name="wrong_num_signup">ತಪ್ಪು ನಂಬರ್ ನಮೂದಿಸಿದಿರೇ? ಇಲ್ಲಿ ತಟ್ಟಿ</string>
+    <string name="wrong_num_signup">ತಪ್ಪು ನಂಬರ್ ಆದಲ್ಲಿ? ಇಲ್ಲಿ ಒತ್ತಿ</string>
     <string name="enter_phone_again_signup">ಏನೋ ತಪ್ಪಾಗಿದೆ ಎಂಬಂತೆ ಕಾಣುತ್ತಿದೆ. ದಯವಿಟ್ಟು ಮತ್ತೆ ನಿಮ್ಮ ಫೋನ್‌ ನಂಬರನ್ನು # ನಮೂದಿಸಿ</string>
     <string name="try_again_signup">ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ</string>
     <string name="almost_there_signup">ಸಮೀಪದಲ್ಲೇ ಇದ್ದೀರಿ...</string>
-    <string name="tap_here_signup">ಇಲ್ಲಿ ತಟ್ಟಿ</string>
+    <string name="tap_here_signup">ಇಲ್ಲಿ ಒತ್ತಿ</string>
     <string name="nudge">ನಡ್ಜ್‌</string>
     <string name="nudge_info">ನಿಮ್ಮ ಸ್ನೇಹಿತರನ್ನು ನಡ್ಜ್‌ ಮಾಡಲು ಚಾಟ್‌ನ ಎಲ್ಲಾದರೂ ಡಬಲ್‌ ಟ್ಯಾಪ್‌ ಮಾಡಿ.</string>
     <string name="led_notification">LED ನೊಟಿಫಿಕೇಶನ್‌</string>
@@ -168,7 +168,7 @@
     <string name="remove_confirm_broadcast">%1$s ಅನ್ನು ಈ ಪಟ್ಟಿಯಿಂದ ತೆಗೆಯಲು ನೀವು ನಿಜವಾಗಿಯೂ ಬಯಸಿದ್ದೀರಾ?</string>
     <string name="no">ಇಲ್ಲ</string>
     <string name="location_disabled">ನಿಮ್ಮ ಸ್ಥಳವನ್ನು ಪಡೆಯಲು ಸಾಧ್ಯವಾಗಿಲ್ಲ. ನಿಮ್ಮ ಸೆಟ್ಟಿಂಗ್‌ಗಳನ್ನು ದಯವಿಟ್ಟು ಚೆಕ್‌ ಮಾಡಿ.</string>
-    <string name="tap_here_invite">ಈ ವ್ಯಕ್ತಿಯನ್ನು ಆಹ್ವಾನಿಸಲು ಇಲ್ಲಿ ತಟ್ಟಿ</string>
+    <string name="tap_here_invite">ಈ ವ್ಯಕ್ತಿಯನ್ನು ಆಹ್ವಾನಿಸಲು ಇಲ್ಲಿ ಒತ್ತಿ</string>
     <string name="change_group_image">ಗ್ರೂಪ್‌ ಚಿತ್ರವನ್ನು %1$s ಬದಲಿಸಿದ್ದಾರೆ.</string>
     <string name="faq">ಆಗಾಗ್ಗೆ ಕೇಳಲಾದ ಪ್ರಶ್ನೆಗಳು</string>
     <string name="gallery">ಗ್ಯಾಲರಿ</string>
@@ -329,7 +329,7 @@
     <string name="shortcut_created">ಶಾರ್ಟ್‌ಕಟ್‌ ರಚಿಸಲಾಗಿದೆ</string>
     <string name="device">ಸಾಧನ</string>
     <string name="valentine_nudge_header">ಪ್ರೀತಿ ಹಂಚಿ!</string>
-    <string name="valentine_nudge_body">ಹೃದಯವನ್ನು ಕಳುಹಿಸಲು ಸಂಭಾಷಣೆಯ ಮೇಲೆ ಎರಡು ಬಾರಿ ತಟ್ಟಿ!</string>
+    <string name="valentine_nudge_body">ಹೃದಯವನ್ನು ಕಳುಹಿಸಲು ಸಂಭಾಷಣೆಯ ಮೇಲೆ ಎರಡು ಬಾರಿ ಒತ್ತಿ!</string>
     <string name="valentine_nudge_button">ಅದ್ಭುತ</string>
     <string name="confirm_delete_msg_header">ಸಂದೇಶ ಅಳಿಸಿ</string>
     <string name="confirm_delete_msgs_header">ಸಂದೇಶಗಳನ್ನು ಅಳಿಸಿ.</string>
@@ -387,8 +387,8 @@
     <string name="name_group">ಗ್ರೂಪ್‌ನ ಹೆಸರು</string>
     <string name="name_broadcast">ಬ್ರಾಡ್‌ಕಾಸ್ಟ್‌ ಹೆಸರು</string>
     <string name="num_contacts">%1$s ಸಂಪರ್ಕಗಳು</string>
-    <string name="compose_chat_empty_contact_status_group_mode">ಸಂಖ್ಯೆಯನ್ನು ಸೇರಿಸಲು ತಟ್ಟಿ</string>
-    <string name="compose_chat_empty_contact_status_chat_mode">ಚಾಟ್‌ ಆರಂಭಿಸಲು ತಟ್ಟಿ</string>
+    <string name="compose_chat_empty_contact_status_group_mode">ಸಂಖ್ಯೆಯನ್ನು ಸೇರಿಸಲು ಒತ್ತಿ</string>
+    <string name="compose_chat_empty_contact_status_chat_mode">ಚಾಟ್‌ ಆರಂಭಿಸಲು ಒತ್ತಿ</string>
     <string name="tap_hold_multi_select">ಹಲವು ಫೈಲ್‌ಗಳನ್ನು ಆಯ್ಕೆ ಮಾಡಲು ತಟ್ಟಿ ಮತ್ತು ಹಿಡಿದುಕೊಳ್ಳಿ</string>
     <string name="free_hike_to_sms">ಉಚಿತ hike ನಿಂದ SMS</string>
     <string name="confirm_delete_msg">ಈ ಸಂದೇಶವನ್ನು ಅಳಿಸಲು ನೀವು ಖಚಿತವಾಗಿ ಬಯಸಿದ್ದೀರಾ?</string>
@@ -422,7 +422,7 @@
     <string name="add_as_favorite_notification">ಫೇವರಿಟ್‌ಆಗಿ %1$s ಸೇರಿಸಲಾಗಿದೆ</string>
     <string name="add_as_favorite_notification_line">ನಿಮ್ಮನ್ನು ಫೇವರಿಟ್‌ ಆಗಿ ಸೇರಿಸಲಾಗಿದೆ</string>
     <string name="favorites_upper_case">ಫೇವರಿಟ್‌ಗಳು</string>
-    <string name="ftue_favorites_tap_dismiss_favorite_suggest">ಫೇವರಿಟ್‌ ಸಲಹೆಗಳನ್ನು ವಜಾಗೊಳಿಸಲು ಇಲ್ಲಿ ತಟ್ಟಿ</string>
+    <string name="ftue_favorites_tap_dismiss_favorite_suggest">ಫೇವರಿಟ್‌ ಸಲಹೆಗಳನ್ನು ವಜಾಗೊಳಿಸಲು ಇಲ್ಲಿ ಒತ್ತಿ</string>
     <string name="favorites_ftue_item_label">ಫೇವರಿಟ್‌ಗಳನ್ನು ಸೇರಿಸಿ</string>
     <string name="group_chats_upper_case">ಗ್ರೂಪ್‌ ಚಾಟ್‌ಗಳು</string>
     <string name="max_num_files_reached">%1$s ಫೈಲ್‌ಗಳಿಗಿಂತ ಹೆಚ್ಚನ್ನು ಹಂಚಿಕೊಳ್ಳಲಾಗದು</string>
@@ -456,18 +456,18 @@
     <string name="initiate_reset_stealth_header">ಗುಪ್ತ ಮೋಡ್‌ ರಿಸೆಟ್‌ ಮಾಡಿ</string>
     <string name="initiate_reset_stealth_body">ಗುಪ್ತ‌ ಮೋಡ್‌ ಅನ್ನು 30 ನಿಮಿಷಗಳಲ್ಲಿ ರಿಸೆಟ್‌ ಮಾಡಲಾಗುತ್ತದೆ. ಎಲ್ಲ ಗುಪ್ತ‌ ಚಾಟ್‌ಗಳು ಅಳಿಸಲ್ಪಡುತ್ತವೆ! ಮುಂದುವರಿಯುವುದೇ?</string>
     <string name="resetting_complete_stealth_header">ಗುಪ್ತ ಮೋಡ್‌ ರಿಸೆಟ್‌ ಮಾಡಲಾಗುತ್ತಿದೆ</string>
-    <string name="resetting_complete_stealth_info">ರದ್ದತಿಗೆ ತಟ್ಟಿ.</string>
+    <string name="resetting_complete_stealth_info">ರದ್ದತಿಗೆ ಒತ್ತಿ.</string>
     <string name="reset_stealth_tip">
 <![CDATA[ <b> ಎಲ್ಲ ಗುಪ್ತ ಚಾಟ್‌ಗಳನ್ನು %1$s ನಿಮಿಷಗಳಲ್ಲಿ ಅಳಿಸಲಾಗುತ್ತದೆ </b> 
 	    ]]>
     </string>
     <string name="tap_to_reset_stealth_tip">
-<![CDATA[ <b> ಗುಪ್ತ ಮೋಡ್‌ ಅನ್ನು ಈಗ ರಿಸೆಟ್‌ ಮಾಡಲು ಇಲ್ಲಿ ತಟ್ಟಿ! </b> 
+<![CDATA[ <b> ಗುಪ್ತ ಮೋಡ್‌ ಅನ್ನು ಈಗ ರಿಸೆಟ್‌ ಮಾಡಲು ಇಲ್ಲಿ ಒತ್ತಿ! </b>
 	    ]]>
     </string>
         <string name="tap_to_reveal_stealth_contacts">ಚಾಟ್‌ಗಳನ್ನು ಅನಾವರಣಗೊಳಿಸಲು</string> 
     <string name="tap_to_hide_stealth_contacts">ಚಾಟ್‌ಗಳನ್ನು ಗೌಪ್ಯವಾಗಿಸಲು</string>
-    <string name="tap_text">ತಟ್ಟಿ</string>
+    <string name="tap_text">ಒತ್ತಿ</string>
     <string name="reset_stealth_confirmation">ಗುಪ್ತ ಮೋಡ್‌ ಅನ್ನು ರಿಸೆಟ್‌ ಮಾಡುವುದರಿಂದ ನಿಮ್ಮ ಎಲ್ಲ ಗುಪ್ತ ಚಾಟ್‌ಗಳು ಅಳಿಸುತ್ತವೆ.\nಖಚಿತವಾಗಿದೆಯೇ?</string>
     <string name="stealth_tap_and_hold_tip">ಚಾಟ್‌ ಅನ್ನು ‘ಗೌಪ್ಯ’ವಾಗಿಸಲು ತಟ್ಟಿ ಮತ್ತು ಹಿಡಿದುಕೊಳ್ಳಿ.</string>
     <string name="mark_stealth">ಚಾಟ್‌ಅನ್ನು ಗೌಪ್ಯ ಎಂದು ಗುರುತಿಸಿ</string>
@@ -511,7 +511,7 @@
     <string name="new_ui_welcome_tip_header">ಹೊಸ hikeಗೆ ಸ್ವಾಗತ</string>
     <string name="new_ui_welcome_tip_msg">ಬಳಕೆಗೆ ಸುಲಭ ಮತ್ತು ಹಿಂದೆಂದಿಗಿಂತಲೂ ವೇಗ</string>
     <string name="camera">ಕ್ಯಾಮೆರಾ</string>
-    <string name="sticker_tip_msg">ಸ್ಟಿಕರ್‌ಗಳನ್ನು ನೋಡಲು ತಟ್ಟಿ.</string>
+    <string name="sticker_tip_msg">ಸ್ಟಿಕರ್‌ಗಳನ್ನು ನೋಡಲು ಒತ್ತಿ.</string>
     <string name="ftue_hike_contact_card_header">ಹಾಯ್‌, ನೀವು ತಿಳಿದಿರುವ %1$d ಜನರು hike ನಲ್ಲಿದ್ದಾರೆ. ಚಾಟ್‌ ಮಾಡಲು ಆರಂಭಿಸಿ!</string>
     <string name="see_all_upper_caps">ಎಲ್ಲವನ್ನೂ ನೋಡಿ</string>
     <string name="welcome_to_hike">Hikeಗೆ ಸ್ವಾಗತ</string>
@@ -1251,10 +1251,10 @@
 	<string name="enable_saved_contact_view_heading">ಉಳಿಸಿದ ಸಂಪರ್ಕಗಳಿಗೆ ತೋರಿಸಿ</string>
 	<string name="enable_saved_contact_view_side_text">ಉಳಿಸಿದ ಸಂಪರ್ಕಗಳಿಗೂ ಕಾಲರ್ ಮಾಹಿತಿ ತೋರಿಸಿ</string>
     <string name="choose_language">ಭಾಷೆ ಆಯ್ಕೆ ಮಾಡಿ</string>
-    <string name="choose_language_desciption">ಈಗ ನಿಮ್ಮ ಇಷ್ಟದ ಮೆಸೆಂಜರ್ ನಿಮ್ಮ ಇಷ್ಟ ಭಾಷೆಯಲ್ಲಿ</string>
+    <string name="choose_language_desciption">ಈಗ ನಿಮ್ಮ ಇಷ್ಟದ ಮೆಸೆಂಜರ್ ನಿಮ್ಮ ಇಷ್ಟವಾದ ಭಾಷೆಯಲ್ಲಿ</string>
     <string name="system_language">ಸಿಸ್ಟಂ ಭಾಷೆ</string>
     <string name="regional_keyboard">ಪ್ರಾದೇಶಿಕ ಕೀಬೋರ್ಡ್‌</string>
-    <string name="regional_keyboard_subtext">ಹೊಸ ಕೀಬೋರ್ಡ್‌ನೊಂದಿಗೆ ನಿಮ್ಮ ಇಷ್ಟದ ಭಾಷೆಯಲ್ಲಿ ಚಾಟ್‌ ಮಾಡಿ</string>
+    <string name="regional_keyboard_subtext">ಹೊಸ ಕೀಬೋರ್ಡ್‌ನೊಂದಿಗೆ ನಿಮ್ಮ ಇಷ್ಟವಾದ ಭಾಷೆಯಲ್ಲಿ ಚಾಟ್‌ ಮಾಡಿ</string>
     <string name="CHOOSE_LANGUAGE">ಭಾಷೆ ಆಯ್ಕೆ ಮಾಡಿ</string>
 	<string name="apply">ಅನ್ವಯಿಸಿ</string>
     <string name="keyboad_ftue_swipe">ನಿಮ್ಮ ಭಾಷೆಯಲ್ಲಿನ ಬದಲಾವಣೆಗಾಗಿ ಸ್ವೈಪ್‌ ಮಾಡಿ</string>
@@ -1289,8 +1289,127 @@
     <string name="APPLY">ಅನ್ವಯಿಸು</string>
     <string name="level">ಮಟ್ಟ</string>
     <string name="milliseconds">ಮಿಸೆ</string>
-    <string name="and"> ಮತ್ತು </string>
     <string name="contact_name">ಸಂಪರ್ಕ ಹೆಸರು</string>
     <string name="mobile">ಮೊಬೈಲ್</string>
     <string name="your_contact">ನಿಮ್ಮ ಸಂಪರ್ಕ</string>
+    <string name="and">ಮತ್ತು</string>
+    <string name="others_smallcase">ಇತರರು</string>
+    <string name="made_with_love_in_india">ಭಾರತದಲ್ಲಿ :love: ಜೊತೆಗೆ ಮಾಡಲಾಗಿದೆ</string>
+    <string name="timeline_ftue_desc">ಟೈಮ್ಲೈನ್ ನೀವು ಮತ್ತು ಸ್ನೇಹಿತರು ವಿಶೇಷ ಕ್ಷಣಗಳನ್ನು ಹಂಚಿಕೊಳ್ಳಲು ಒಂದು ಸ್ಥಳವಾಗಿದೆ. ನೀವು ಈಗಾಗಲೇ ತಮ್ಮ ವೇಳಾಪಟ್ಟಿಯಲ್ಲಿ ಪೋಸ್ಟ್ ಕೆಲವು ಸ್ನೇಹಿತರು ಪಡೆದಿರುವಿರಿ!</string>
+
+<!-- The above two string would be used as in Group with Shibu, Niladri and 4 others -->
+
+
+ 	<string name="yesterday">ನಿನ್ನೆ</string>
+    <string name="tomorrow">ನಾಳೆ</string>
+    <string name="today">ಇಂದು</string>
+    
+    <!-- This is used to express that something occurred some number of seconds in the past (e.g., 5 seconds ago). -->
+    <plurals name="num_seconds_ago">
+        <item quantity="one">1 ಸೆಕೆಂಡಿನ ಮೊದಲು</item>
+        <item quantity="other">%d ಸೆಕೆಂಡುಗಳ ಮೊದಲು</item>
+    </plurals>
+
+    <!-- This is used to express that something occurred some number of minutes in the past (e.g., 5 minutes ago). -->
+    <plurals name="num_minutes_ago">
+        <item quantity="one">1 ನಿಮಿಷದ ಮೊದಲು</item>
+        <item quantity="other">%d ನಿಮಿಷಗಳ ಮೊದಲು</item>
+    </plurals>
+
+    <!-- This is used to express that something occurred some number of hours in the past (e.g., 5 hours ago). -->
+    <plurals name="num_hours_ago">
+        <item quantity="one">1 ಗಂಟೆಯ ಮೊದಲು</item>
+        <item quantity="other">%d ಗಂಟೆಗಳ ಮೊದಲು</item>
+    </plurals>
+
+    <!-- This is used to express that something occurred within the last X days (e.g., Last 7 days). -->
+    <plurals name="last_num_days">
+        <item quantity="other">ಕಳೆದ %d ದಿನಗಳು</item>
+    </plurals>
+
+    <!-- This is used to express that something has occurred within the last month -->
+    <string name="last_month">ಕಳೆದ ತಿಂಗಳು</string>
+
+    <!-- This is used to express that something happened longer ago than the previous options -->
+    <string name="older">ಹಳೆಯದು</string>
+
+    <!-- This is used to express that something occurred some number of days in the past (e.g., 5 days ago). -->
+    <plurals name="num_days_ago">
+        <item quantity="one">ನಿನ್ನೆ</item>
+        <item quantity="other">%d ದಿನಗಳ ಮೊದಲು</item>
+    </plurals>
+
+    <!-- This is used to express that something will occur some number of seconds in the future (e.g., in 5 seconds). -->
+    <plurals name="in_num_seconds">
+        <item quantity="one">1 ಸೆಕೆಂಡಿನಲ್ಲಿ</item>
+        <item quantity="other">%d ಸೆಕೆಂಡುಗಳಲ್ಲಿ</item>
+    </plurals>
+
+    <!-- This is used to express that something will occur some number of minutes in the future (e.g., in 5 minutes). -->
+    <plurals name="in_num_minutes">
+        <item quantity="one">1 ನಿಮಿಷದಲ್ಲಿ</item>
+        <item quantity="other">%d ನಿಮಿಷಗಳಲ್ಲಿ</item>
+    </plurals>
+
+    <!-- This is used to express that something will occur some number of hours in the future (e.g., in 5 hours). -->
+    <plurals name="in_num_hours">
+        <item quantity="one">1 ಗಂಟೆಯಲ್ಲಿ</item>
+        <item quantity="other">%d ಗಂಟೆಗಳಲ್ಲಿ</item>
+    </plurals>
+
+    <!-- This is used to express that something will occur some number of days in the future (e.g., in 5 days). -->
+    <plurals name="in_num_days">
+        <item quantity="one">ನಾಳೆ</item>
+        <item quantity="other">%d ದಿನಗಳಲ್ಲಿ</item>
+    </plurals>
+
+    <!-- This is used to express that something occurred some number of abbreviated seconds in the past (e.g., 5 secs ago). -->
+    <plurals name="abbrev_num_seconds_ago">
+        <item quantity="one">1 ಸೆಕೆ ಮೊದಲು</item>
+        <item quantity="other">%d ಸೆಕೆಗಳ ಮೊದಲು</item>
+    </plurals>
+
+    <!-- This is used to express that something occurred some number of abbreviated minutes in the past (e.g., 5 mins ago). -->
+    <plurals name="abbrev_num_minutes_ago">
+        <item quantity="one">1 ನಿಮಿ ಮೊದಲು</item>
+        <item quantity="other">%d ನಿಮಿಗಳ ಮೊದಲು</item>
+    </plurals>
+
+    <!-- This is used to express that something occurred some number of abbreviated hours in the past (e.g., 5 hrs ago). -->
+    <plurals name="abbrev_num_hours_ago">
+        <item quantity="one">1 ಗಂಟೆ ಮೊದಲು</item>
+        <item quantity="other">%d ಗಂಟೆಗಳ ಮೊದಲು</item>
+    </plurals>
+
+    <!-- This is used to express that something occurred some number of abbreviated days in the past (e.g., 5 days ago). -->
+    <plurals name="abbrev_num_days_ago">
+        <item quantity="one">ನಿನ್ನೆ</item>
+        <item quantity="other">%d ದಿನಗಳ ಮೊದಲು</item>
+    </plurals>
+
+    <!-- This is used to express that something will occur some number of abbreviated seconds in the future (e.g., in 5 secs). -->
+    <plurals name="abbrev_in_num_seconds">
+        <item quantity="one">1 ಸೆಕೆಯಲ್ಲಿ</item>
+        <item quantity="other">%d ಸೆಕೆಗಳಲ್ಲಿ</item>
+    </plurals>
+
+    <!-- This is used to express that something will occur some number of abbreviated minutes in the future (e.g., in 5 mins). -->
+    <plurals name="abbrev_in_num_minutes">
+        <item quantity="one">1 ನಿಮಿನಲ್ಲಿ</item>
+        <item quantity="other">%d ನಿಮಿಗಳಲ್ಲಿ</item>
+    </plurals>
+
+    <!-- This is used to express that something will occur some number of abbreviated hours in the future (e.g., in 5 hrs). -->
+    <plurals name="abbrev_in_num_hours">
+        <item quantity="one">1 ಗಂಟೆಯಲ್ಲಿ</item>
+        <item quantity="other">%d ಗಂಟೆಗಳಲ್ಲಿ</item>
+    </plurals>
+
+    <!-- This is used to express that something will occur some number of abbreviated days in the future (e.g., in 5 days). -->
+    <plurals name="abbrev_in_num_days">
+        <item quantity="one">ನಾಳೆ</item>
+        <item quantity="other">%d ದಿನಗಳಲ್ಲಿ</item>
+    </plurals>
+    
+
 </resources>

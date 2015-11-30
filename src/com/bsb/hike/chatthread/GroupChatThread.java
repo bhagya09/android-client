@@ -25,6 +25,7 @@ import com.bsb.hike.models.TypingNotification;
 import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.models.Conversation.GroupConversation;
 import com.bsb.hike.models.Conversation.OneToNConversationMetadata;
+import com.bsb.hike.modules.kpt.KptUtils;
 import com.bsb.hike.ui.utils.HashSpanWatcher;
 import com.bsb.hike.utils.EmoticonTextWatcher;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
@@ -850,16 +851,7 @@ public class GroupChatThread extends OneToNChatThread
 		{
 			mEmoticonPicker.updateET(mComposeView);
 		}
-		mComposeView.setOnClickListener(new OnClickListener()
-		{
-			@Override
-			public void onClick(View v)
-			{
-				if(isSystemKeyboard()){
-				Utils.showSoftKeyboard(mComposeView, InputMethodManager.SHOW_FORCED);
-				}
-			}
-		});
+		mComposeView.setOnClickListener(mComposeChatOnClickListener);
 		mComposeView.requestFocus();
 
 		View mBottomView = activity.findViewById(R.id.bottom_panel);
@@ -880,6 +872,7 @@ public class GroupChatThread extends OneToNChatThread
 		{
 			mShareablePopupLayout.dismiss();
 		}
+		hideKeyboard();
 	}
 	
 	
@@ -1167,8 +1160,9 @@ public class GroupChatThread extends OneToNChatThread
 		}
 		super.destroySearchMode();
 	}
-	protected boolean shouldShowKeyboard()
-	{
-		return ( mActionMode.whichActionModeIsOn() == PIN_CREATE_ACTION_MODE || super.shouldShowKeyboard());
+	
+	@Override
+	protected boolean shouldShowKeyboardInActionMode() {
+		return (super.shouldShowKeyboardInActionMode() || mActionMode.whichActionModeIsOn() == PIN_CREATE_ACTION_MODE);
 	}
 }

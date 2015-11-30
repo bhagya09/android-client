@@ -2392,6 +2392,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 	{
 		
 		mPubSub.publish(HikePubSub.MESSAGE_SENT, convMessage);
+		mPubSub.publish(HikePubSub.UPDATE_THREAD, convMessage);
 		
 	}
 	

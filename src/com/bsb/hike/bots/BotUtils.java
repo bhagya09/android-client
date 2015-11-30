@@ -25,6 +25,7 @@ import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.notifications.HikeNotification;
+import com.bsb.hike.notifications.ToastListener;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.content.PlatformContentConstants;
@@ -85,7 +86,7 @@ public class BotUtils
 
 		BotInfo hikeSupport = new BotInfo.HikeBotBuilder(HikePlatformConstants.HIKE_SUPPORT_MSISDN).setConvName(context.getString(R.string.hike_support_bot)).setConfig(2069487).build();
 
-		BotInfo natasha = new BotInfo.HikeBotBuilder(HikePlatformConstants.NATASHA_MSISDN).setConvName(context.getString(R.string.natasha_bot)).setConfig(2069487).build();
+		BotInfo natasha = new BotInfo.HikeBotBuilder(HikePlatformConstants.NATASHA_MSISDN).setConvName(context.getString(R.string.natasha_bot)).setConfig(2070511).build();
 
 		BotInfo cricketBot = new BotInfo.HikeBotBuilder(HikePlatformConstants.CRICKET_HIKE_MSISDN).setConvName(context.getString(R.string.cricket_bot)).setConfig(21487).build();
 
@@ -116,7 +117,7 @@ public class BotUtils
 
 		defaultBotEntry(HikePlatformConstants.HIKE_SUPPORT_MSISDN, context.getString(R.string.hike_support_bot), null, null, 2069487, true, context);
 
-		defaultBotEntry(HikePlatformConstants.NATASHA_MSISDN, context.getString(R.string.natasha_bot), null, HikeBitmapFactory.getBase64ForDrawable(R.drawable.natasha, context.getApplicationContext()), 2069487, true, context);
+		defaultBotEntry(HikePlatformConstants.NATASHA_MSISDN, context.getString(R.string.natasha_bot), null, HikeBitmapFactory.getBase64ForDrawable(R.drawable.natasha, context.getApplicationContext()), 2070511, true, context);
 
 		defaultBotEntry(HikePlatformConstants.CRICKET_HIKE_MSISDN, context.getString(R.string.cricket_bot), HikePlatformConstants.CRICKET_CHAT_THEME_ID,
 				HikeBitmapFactory.getBase64ForDrawable(R.drawable.cric_icon, context.getApplicationContext()), 21487, false, context);
@@ -517,7 +518,7 @@ public class BotUtils
 		 */
 		if (!HikeConstants.OFF.equals(notifType))
 		{
-			HikeNotification.getInstance().notifyStringMessage(msisdn, botInfo.getLastMessageText(), notifType.equals(HikeConstants.SILENT), NotificationType.OTHER);
+			ToastListener.getInstance().showBotDownloadNotification(msisdn, botInfo.getLastMessageText(),notifType.equals(HikeConstants.SILENT));
 		}
 	}
 	

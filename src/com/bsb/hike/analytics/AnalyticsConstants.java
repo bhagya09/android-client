@@ -11,6 +11,10 @@ public class AnalyticsConstants
 	
 	/** one day in seconds */
 	public static final int DAY_IN_SECONDS = 24 * 60 * 60;
+	public static final Object PARTIAL_FILE_DOWNLOADED ="partialFileDownloaded" ;
+
+	public static final Object FILE_DOWNLOADED ="FileDownloaded" ;
+	public static final String RESULT_CODE = "resultCode";
 
 	/** Default maximum size per file in kilobytes */ 
 	public static long MAX_FILE_SIZE = 200; // 200KB
@@ -490,7 +494,9 @@ public class AnalyticsConstants
 		public static final String MISSED = "miss";
 	
 		public static final String CLIPBOARD = "clip";
-		
+
+		public static final String SMS = "sms";
+
 		public static final String RECEIVED = "rcv";
 		
 		public static final String DIALED = "dial";

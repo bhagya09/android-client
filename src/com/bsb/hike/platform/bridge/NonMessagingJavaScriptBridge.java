@@ -1110,23 +1110,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	@JavascriptInterface
 	public void enableBot(String msisdn, String enable)
 	{
-
-		if (!BotUtils.isSpecialBot(mBotInfo) || !BotUtils.isBot(msisdn))
-		{
-			return;
-		}
-
-		BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
-
-		boolean enableBot = Boolean.valueOf(enable);
-		if (enableBot)
-		{
-			PlatformUtils.enableBot(botInfo, true);
-		}
-		else
-		{
-			BotUtils.deleteBotConversation(msisdn, false);
-		}
+		enableBot(msisdn,enable, Boolean.toString(false));
 	}
 	/**
 	 * Added in Platform Version:7
@@ -1434,4 +1418,34 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 		this.extraData = data;
 	}
 
+	/**
+	 * Platform Version 9
+	 * This function is made for the special Shared bot that has the information about some other bots as well, and acts as a channel for them.
+	 * Call this method to enable/disable bot. Enable means to show the bot in the conv list and disable is vice versa.
+	 * @param msisdn :the msisdn of the bot.
+	 * @param enable : send true to enable the bot in Conversation Fragment and false to disable.
+	 * @param increaseUnread
+	 */
+	@JavascriptInterface
+	public void enableBot(String msisdn, String enable, String increaseUnread)
+	{
+
+		if (!BotUtils.isSpecialBot(mBotInfo) || !BotUtils.isBot(msisdn))
+		{
+			return;
+		}
+
+		BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
+
+		boolean enableBot = Boolean.valueOf(enable);
+		boolean increaseUnreadCount = Boolean.valueOf(increaseUnread);
+		if (enableBot)
+		{
+				PlatformUtils.enableBot(botInfo, true, increaseUnreadCount);
+		}
+		else
+		{
+			BotUtils.deleteBotConversation(msisdn, false);
+		}
+	}
 }
