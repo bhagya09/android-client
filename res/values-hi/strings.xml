@@ -127,7 +127,7 @@
     <string name="audio_msg_received">आपको ऑडियो फ़ाइल भेजी</string>
     <string name="location_msg_received">स्थान शेयर किया</string>
     <string name="contact_msg_received">संपर्क शेयर किया</string>
-    <string name="image_msg_sent">फ़ोन</string>
+    <string name="image_msg_sent">फ़ोटो</string>
     <string name="video_msg_sent">वीडियो</string>
     <string name="audio_msg_sent">ऑडियो</string>
     <string name="location_msg_sent">स्थान</string>
