@@ -2166,9 +2166,11 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 
 	public void onGroupNameEditClick(View v)
 	{
+		if(!showingGroupEdit){
 		View parent = (View) v.getParent();
 		initCustomKeyboard(parent);
 		setGroupNameFields(parent);
+		}
 	}
 	
 	public void onBlockGroupOwnerClicked(View v)
