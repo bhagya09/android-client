@@ -40,6 +40,7 @@ public class CallerContentModel
 
 	private boolean is_block;
 
+    private long updation_time, creation_time;
 
 	public String getLastName()
 	{
@@ -166,5 +167,25 @@ public class CallerContentModel
 	public void setFullName(String full_name)
 	{
 		this.full_name = full_name;
+	}
+
+	public void setUpdationTime(long updation_time)
+	{
+		this.updation_time = updation_time;
+	}
+
+	public void setCreationTime(long creation_time)
+	{
+		this.creation_time = creation_time;
+	}
+
+	public long getUpdationTime()
+	{
+		return updation_time;
+	}
+
+	public long getCreationTime()
+	{
+		return creation_time;
 	}
 }
