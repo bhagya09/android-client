@@ -115,9 +115,6 @@ public class StickerSearchConstants
 
 	public static final float DEFAULT_FREQUENCY_VALUE = 0.00f;
 
-	public static final int MAXIMUM_ACCEPTED_SPECTRUM_SCORING_SIZE = 3; // this value is based on average length of tag words, but this doesn't guarantee to give correct results in
-																		// 100% cases.
-
 	public static final int FREQUENCY_DIVISION_SLOT_PER_STICKER_TRENDING = 0;
 
 	public static final int FREQUENCY_DIVISION_SLOT_PER_STICKER_LOCAL = 1;
