@@ -1481,15 +1481,10 @@
 	<string name="timestamp_msg">This is the timestamp</string>
 	<string name="name_number">Name/Number</string>
 	<string name="name_caps">NAME</string>
-	<string name="english_locale">en</string>
-	<string name="hindi_locale">hi</string>
-	<string name="bengali_locale">bn</string>
-	<string name="marathi_locale">mr</string>
-	<string name="gujarati_locale">gu</string>
-	<string name="tamil_locale">ta</string>
-	<string name="telugu_locale">te</string>
-	<string name="kannada_locale">kn</string>
-	<string name="malayalam_locale">ml</string>
+
     <string name="made_with_love_in_india">Made with :love: in India</string>
     <string name="timeline_ftue_desc">Timeline is a place for you and friends to share special moments. You\'ve already got few friends posting on their timeline!</string>
+    <string name="sticker">Sticker</string>
+
+
 </resources>
