@@ -306,7 +306,7 @@
     <string name="post">போஸ்ட்</string>
     <string name="no_credits">உமது இலவச SMS தீர்ந்து போய் விட்டது. இன்னும் கூடுதலாகப் பெற %1$s இன்வைட் செய்யும்!</string>
     <string name="ftue_add_prompt_invite">%1$s இன்னமும் Hike-கில் இல்லை என்பது போலத் தோன்றுகிறது! %1$s-ஐ Hike-கிற்கு இன்வைட் செய்க. எப்போதும் போன்ற ஆபரேட்டர் SMS கட்டண விகிதம் பொருந்தும்.</string>
-    <string name="ftue_add_prompt_invite_title">Hike-கிற்கு இன்வைட்செய்க</string>
+    <string name="ftue_add_prompt_invite_title">Hike-கிற்கு\nஇன்வைட்செய்க</string>
     <string name="create_group">புதிய குரூப் சேட்</string>
     <string name="number_confirmation_string">%1$s உன் எண்ணா?</string>
     <string name="unlink_facebook">facebook -ஐ அன்லிங்க் செய்க</string>
@@ -641,7 +641,7 @@
     <string name="file_attachment_info">100 MB வரை doc, pdf &amp; media ஷேர் செய்க</string>
     <string name="status_text_notification">அப்டேட் ஒன்றை போஸ்ட் செய்திருக்கிறார் %1$s</string>
     <string name="shared_files">ஃபைல்கள்</string>
-    <string name="tap_save_contact">தொடர்பை சேவ் செய்க</string>
+    <string name="tap_save_contact">தொடர்பை\nசேவ் செய்க</string>
     <string name="image_settings_tip_text">இமேஜ் செட்டிங்ஸ்</string>
     <string name="image_settings_tip_subtext">நார்மல். பெட்டர். கம்ப்ரெஸ் செய்யாத அளவு</string>
     <string name="settings_media">ஊடகம்</string>
@@ -651,7 +651,7 @@
     <string name="image_quality_send">அனுப்புக</string>
     <string name="image_quality_prefs">இமேஜ் தரம்</string>
     <string name="no_media">ஃபோட்டோஸ் மற்றும் வீடியோஸை இங்கே காண்பியும்</string>
-    <string name="add_fav">ஃபேவரைட்ஸோடு சேர்ப்பீர்</string>
+    <string name="add_fav">ஃபேவரைட்ஸோடு\nசேர்ப்பீர்</string>
     <string name="no_file">இங்கே ஃபைல்ஸ் pins-ஐ காண்பிக்கிறது</string>
     <string name="no_file_broadcast">இங்கே ஃபைல்ஸ் காண்பிக்கிறது</string>
     <string name="no_file_profile">இங்கே ஃபைல்ஸ் காண்பிக்கிறது</string>
@@ -1294,7 +1294,7 @@
     <string name="and">மற்றும் </string>
     <string name="others_smallcase">நபர்களுடன்</string>
     <string name="made_with_love_in_india"> :love: உடன் இந்தியாவில் தயாரித்தது</string>
-    <string name="timeline_ftue_desc">டைம்லைன் நீங்கள் மற்றும் நண்பர்கள் தருணங்களை பகிர்ந்து கொள்ள ஒரு இடம்.தங்களது சில நண்பர்கள் ஏற்கனவே அவர்களின் டைம்லைன்-இல் பதிவு செய்துகொண்டு இருகிறார்கள்!</string>
+    <string name="timeline_ftue_desc">டைம்லைன் உங்கள் தருணங்களை உங்கள் நண்பர்களிடம் பகிர்ந்து கொள்ள உதவும். டைம்லைன்-ஐ முயற்சி செய் !</string>
 
     <!-- The above two string would be used as in Group with Shibu, Niladri and 4 others -->
 
