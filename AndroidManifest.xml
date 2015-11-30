@@ -283,6 +283,7 @@
             android:theme="@style/AppTheme.Home.PhotoEditor" >
         </activity>
         <activity android:name=".ui.GallerySelectionViewer"
+            android:windowSoftInputMode="adjustPan"
             android:screenOrientation="portrait">
         </activity>
         <activity android:name=".ui.CountrySelectActivity" >
