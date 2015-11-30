@@ -1,9 +1,19 @@
 package com.bsb.hike.platform;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.TreeMap;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -18,7 +28,6 @@ import org.json.JSONObject;
 
 import android.app.Activity;
 import android.app.ActivityManager;
-import android.app.ActivityManager.RunningAppProcessInfo;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
@@ -30,7 +39,11 @@ import android.util.Pair;
 import android.webkit.MimeTypeMap;
 import android.widget.Toast;
 
-import com.bsb.hike.*;
+import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.HikePubSub;
+import com.bsb.hike.MqttConstants;
+import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
@@ -39,7 +52,11 @@ import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.localisation.LocalLanguageUtils;
-import com.bsb.hike.models.*;
+import com.bsb.hike.models.ContactInfo;
+import com.bsb.hike.models.ConvMessage;
+import com.bsb.hike.models.HikeHandlerUtil;
+import com.bsb.hike.models.MessageEvent;
+import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.Header;
 import com.bsb.hike.modules.httpmgr.RequestToken;
@@ -51,10 +68,14 @@ import com.bsb.hike.modules.httpmgr.request.FileRequestPersistent;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.modules.kpt.KptKeyboardManager;
-import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadSource;
-import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadType;
+import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerPalleteImageDownloadTask;
-import com.bsb.hike.platform.content.*;
+import com.bsb.hike.platform.content.PlatformContent;
+import com.bsb.hike.platform.content.PlatformContentConstants;
+import com.bsb.hike.platform.content.PlatformContentListener;
+import com.bsb.hike.platform.content.PlatformContentModel;
+import com.bsb.hike.platform.content.PlatformContentRequest;
+import com.bsb.hike.platform.content.PlatformZipDownloader;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.productpopup.ProductPopupsConstants.HIKESCREEN;
 import com.bsb.hike.service.HikeMqttManagerNew;
@@ -63,7 +84,16 @@ import com.bsb.hike.ui.CreateNewGroupOrBroadcastActivity;
 import com.bsb.hike.ui.HikeListActivity;
 import com.bsb.hike.ui.HomeActivity;
 import com.bsb.hike.ui.TellAFriend;
-import com.bsb.hike.utils.*;
+import com.bsb.hike.utils.AccountUtils;
+import com.bsb.hike.utils.HikeAnalyticsEvent;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.IntentFactory;
+import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.StickerManager;
+import com.bsb.hike.utils.Utils;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
 
 /**
  * @author piyush
@@ -387,8 +417,8 @@ public class PlatformUtils
 	 */
 	public static void downloadZipForNonMessagingBot(final BotInfo botInfo, final boolean enableBot, final String botChatTheme, final String notifType, NonMessagingBotMetadata botMetadata, boolean resumeSupport)
 	{
-		PlatformContentRequest rqst = PlatformContentRequest.make(
-				PlatformContentModel.make(botInfo.getMetadata()), new PlatformContentListener<PlatformContentModel>()
+		PlatformContentRequest rqst = PlatformContentRequest.make(PlatformContentModel.make(botInfo.getMetadata(), botInfo.getRequestType()),
+				new PlatformContentListener<PlatformContentModel>()
 				{
 
 					long zipFileSize = 0;
@@ -401,11 +431,11 @@ public class PlatformUtils
 					}
 
 					@Override
-					public void onEventOccured(int uniqueCode,PlatformContent.EventCode event)
+					public void onEventOccured(int uniqueCode, PlatformContent.EventCode event)
 					{
 						if (event == PlatformContent.EventCode.DOWNLOADING || event == PlatformContent.EventCode.LOADED)
 						{
-							//do nothing
+							// do nothing
 							return;
 						}
 						else if (event == PlatformContent.EventCode.ALREADY_DOWNLOADED)
@@ -443,8 +473,14 @@ public class PlatformUtils
 					}
 				});
 
-		downloadAndUnzip(rqst, false,botMetadata.shouldReplace(), botMetadata.getCallbackId(),resumeSupport);
+        // Stop the flow and return from here in case any exception occurred and contentData becomes null
+        if(rqst.getContentData() == null)
+            return;
 
+		rqst.setRequestType(botInfo.getRequestType());
+		rqst.getContentData().setRequestType(botInfo.getRequestType());
+
+		downloadAndUnzip(rqst, false, botMetadata.shouldReplace(), botMetadata.getCallbackId(), resumeSupport, botInfo.getMsisdn());
 	}
 
 	public static void botCreationSuccessHandling(BotInfo botInfo, boolean enableBot, String botChatTheme, String notifType)
@@ -522,7 +558,9 @@ public class PlatformUtils
 
 	/**
 	 * download the microapp, can be used by nonmessaging as well as messaging only to download and unzip the app.
-	 * @param downloadData: the data used to download microapp from ac packet to download the app.
+	 * 
+	 * @param downloadData
+	 *            : the data used to download microapp from ac packet to download the app.
 	 */
 	public static void downloadZipFromPacket(final JSONObject downloadData)
 	{
@@ -532,76 +570,81 @@ public class PlatformUtils
 		}
 
 		final PlatformContentModel platformContentModel = PlatformContentModel.make(downloadData.toString());
-		PlatformContentRequest rqst = PlatformContentRequest.make(
-				platformContentModel, new PlatformContentListener<PlatformContentModel>()
+		PlatformContentRequest rqst = PlatformContentRequest.make(platformContentModel, new PlatformContentListener<PlatformContentModel>()
+		{
+			long fileLength = 0;
+
+			@Override
+			public void onComplete(PlatformContentModel content)
+			{
+				microappDownloadAnalytics(HikePlatformConstants.MICROAPP_DOWNLOADED, content);
+				Logger.d(TAG, "microapp download packet success.");
+			}
+
+			@Override
+			public void onEventOccured(int uniqueId, PlatformContent.EventCode event)
+			{
+
+				if (event == PlatformContent.EventCode.DOWNLOADING || event == PlatformContent.EventCode.LOADED)
 				{
-					long fileLength = 0;
+					// do nothing
+					return;
+				}
 
-					@Override
-					public void onComplete(PlatformContentModel content)
+				JSONObject jsonObject = new JSONObject();
+				try
+				{
+					jsonObject.put(HikePlatformConstants.ERROR_CODE, event.toString());
+				}
+				catch (JSONException e)
+				{
+					e.printStackTrace();
+				}
+
+				if (event == PlatformContent.EventCode.ALREADY_DOWNLOADED)
+				{
+					microappDownloadAnalytics(HikePlatformConstants.MICROAPP_DOWNLOADED, platformContentModel, jsonObject);
+					Logger.d(TAG, "microapp already exists.");
+				}
+				else
+				{
+					try
 					{
-						microappDownloadAnalytics(HikePlatformConstants.MICROAPP_DOWNLOADED, content);
-						Logger.d(TAG, "microapp download packet success.");
+						if (fileLength > 0)
+						{
+							jsonObject.put(AnalyticsConstants.FILE_SIZE, String.valueOf(fileLength));
+						}
+						jsonObject.put(AnalyticsConstants.INTERNAL_STORAGE_SPACE, String.valueOf(Utils.getFreeInternalStorage()) + " MB");
+					}
+					catch (JSONException e)
+					{
+						Logger.e(TAG, "JSONException " + e.getMessage());
 					}
 
-					@Override
-					public void onEventOccured(int uniqueId,PlatformContent.EventCode event)
-					{
 
-						if (event == PlatformContent.EventCode.DOWNLOADING || event == PlatformContent.EventCode.LOADED)
-						{
-							//do nothing
-							return;
-						}
+					microappDownloadAnalytics(HikePlatformConstants.MICROAPP_DOWNLOAD_FAILED, platformContentModel, jsonObject);
+					Logger.wtf(TAG, "microapp download packet failed.Because it is" + event.toString());
+				}
+			}
 
-						JSONObject jsonObject = new JSONObject();
-						try
-						{
-							jsonObject.put(HikePlatformConstants.ERROR_CODE, event.toString());
-						}
-						catch (JSONException e)
-						{
-							e.printStackTrace();
-						}
+			@Override
+			public void downloadedContentLength(long length)
+			{
+				fileLength = length;
+			}
+		});
 
-						if (event == PlatformContent.EventCode.ALREADY_DOWNLOADED)
-						{
-							microappDownloadAnalytics(HikePlatformConstants.MICROAPP_DOWNLOADED, platformContentModel, jsonObject);
-							Logger.d(TAG, "microapp already exists.");
-						}
-						else
-						{
-							try
-							{
-								if (fileLength > 0)
-								{
-									jsonObject.put(AnalyticsConstants.FILE_SIZE, String.valueOf(fileLength));
-								}
-								jsonObject.put(AnalyticsConstants.INTERNAL_STORAGE_SPACE, String.valueOf(Utils.getFreeInternalStorage()) + " MB");
-							}
-							catch (JSONException e)
-							{
-								Logger.e(TAG, "JSONException " +e.getMessage());
-							}
 
-							microappDownloadAnalytics(HikePlatformConstants.MICROAPP_DOWNLOAD_FAILED, platformContentModel, jsonObject);
-							Logger.wtf(TAG, "microapp download packet failed.Because it is" + event.toString());
-						}
-					}
+        // Stop the flow and return from here in case any exception occurred and contentData becomes null
+        if(rqst.getContentData() == null)
+            return;
 
-					@Override
-					public void downloadedContentLength(long length)
-					{
-						fileLength = length;
-					}
-				});
-				boolean doReplace = downloadData.optBoolean(HikePlatformConstants.REPLACE_MICROAPP_VERSION);
-				String callbackId = downloadData.optString(HikePlatformConstants.CALLBACK_ID);
-				boolean resumeSupported=downloadData.optBoolean(HikePlatformConstants.RESUME_SUPPORTED);
-				String assoc_cbot=downloadData.optString(HikePlatformConstants.ASSOCIATE_CBOT,"");
-				downloadAndUnzip(rqst, false,doReplace, callbackId,resumeSupported,assoc_cbot);
-
-	}
+		boolean doReplace = downloadData.optBoolean(HikePlatformConstants.REPLACE_MICROAPP_VERSION);
+		String callbackId = downloadData.optString(HikePlatformConstants.CALLBACK_ID);
+        boolean resumeSupported=downloadData.optBoolean(HikePlatformConstants.RESUME_SUPPORTED);
+        String assoc_cbot=downloadData.optString(HikePlatformConstants.ASSOCIATE_CBOT,"");
+        downloadAndUnzip(rqst, false,doReplace, callbackId,resumeSupported,assoc_cbot);
+    }
 
 	private static void microappDownloadAnalytics(String key, PlatformContentModel content)
 	{
@@ -637,14 +680,24 @@ public class PlatformUtils
 		downloadAndUnzip(request, isTemplatingEnabled, false);
 	}
 
-	public static void downloadAndUnzip(PlatformContentRequest request, boolean isTemplatingEnabled, boolean doReplace, String callbackId, boolean resumeSupported)
-	{
-		downloadAndUnzip(request, isTemplatingEnabled, doReplace,callbackId,resumeSupported,"");
-	}
-	
+    public static void downloadAndUnzip(PlatformContentRequest request, boolean isTemplatingEnabled, boolean doReplace, String callbackId, boolean resumeSupported)
+    {
+        downloadAndUnzip(request, isTemplatingEnabled, doReplace,callbackId,resumeSupported,"");
+    }
+
+
 	public static void downloadAndUnzip(PlatformContentRequest request, boolean isTemplatingEnabled, boolean doReplace, String callbackId, boolean resumeSupported,String assocCbot)
 	{
-		PlatformZipDownloader downloader =  new PlatformZipDownloader(request, isTemplatingEnabled, doReplace, callbackId, resumeSupported,assocCbot);
+        PlatformZipDownloader downloader = new
+                PlatformZipDownloader.Builder().
+                setArgRequest(request).
+                setIsTemplatingEnabled(isTemplatingEnabled).
+                setDoReplace(doReplace).
+                setCallbackId(callbackId).
+                setResumeSupported(resumeSupported).
+                setAssocCbotMsisdn(assocCbot).
+                setMappDeletionBooleanByCompatibilityMap(true).
+                createPlatformZipDownloader();
 		if (!downloader.isMicroAppExist() || doReplace)
 		{
 			downloader.downloadAndUnzip();
@@ -657,7 +710,7 @@ public class PlatformUtils
 
 	public static void downloadAndUnzip(PlatformContentRequest request, boolean isTemplatingEnabled, boolean doReplace, String callbackId)
 	{
-		downloadAndUnzip(request, isTemplatingEnabled, doReplace, callbackId, false);
+		downloadAndUnzip(request, isTemplatingEnabled, doReplace, callbackId, false,"");
 	}
 
 	/**
@@ -1073,7 +1126,7 @@ public class PlatformUtils
 	{
 		StickerPalleteImageDownloadTask stickerPalleteImageDownloadTask = new StickerPalleteImageDownloadTask(category.getCategoryId());
 		stickerPalleteImageDownloadTask.execute();
-		StickerManager.getInstance().initialiseDownloadStickerTask(category, DownloadSource.POPUP, DownloadType.NEW_CATEGORY, HikeMessengerApp.getInstance().getApplicationContext());
+		StickerManager.getInstance().initialiseDownloadStickerTask(category, StickerConstants.DownloadSource.POPUP, StickerConstants.DownloadType.NEW_CATEGORY, HikeMessengerApp.getInstance().getApplicationContext());
 
 	}
 	
@@ -1376,7 +1429,7 @@ public class PlatformUtils
 		if (context != null)
 		{
 			ActivityManager activityManager = (ActivityManager) context.getSystemService(context.ACTIVITY_SERVICE);
-			List<RunningAppProcessInfo> procInfos = activityManager.getRunningAppProcesses();
+			List<ActivityManager.RunningAppProcessInfo> procInfos = activityManager.getRunningAppProcesses();
 			for (int i = 0; i < procInfos.size(); i++)
 			{
 				if (procInfos.get(i).processName.equals(process))
@@ -1393,6 +1446,62 @@ public class PlatformUtils
 	{
 		return new Header("Range", "bytes=" + startOffset + "-");
 	}
+
+    /*
+     * Code to append unzip path based on request type for micro app unzip process
+     */
+    public static String generateMappUnZipPathForBotRequestType(byte requestType,String unzipPath,String microAppName,int microAppVersion)
+    {
+        // Generate unzip path for the given request type
+        switch (requestType)
+        {
+            case HikePlatformConstants.PlatformMappRequestType.HIKE_MICRO_APPS:
+                unzipPath += microAppName + File.separator + HikePlatformConstants.VERSIONING_DIRECTORY_NAME + microAppVersion + File.separator;
+                break;
+
+            case HikePlatformConstants.PlatformMappRequestType.ONE_TIME_POPUPS:
+                unzipPath += PlatformContentConstants.HIKE_ONE_TIME_POPUPS + microAppName + File.separator;
+                break;
+
+            case HikePlatformConstants.PlatformMappRequestType.NATIVE_APPS:
+                unzipPath += PlatformContentConstants.HIKE_GAMES + microAppName + File.separator;
+                break;
+
+            case HikePlatformConstants.PlatformMappRequestType.HIKE_MAPPS:
+                unzipPath += PlatformContentConstants.HIKE_MAPPS + microAppName + File.separator;
+                break;
+        }
+
+        return unzipPath;
+    }
+
+    /**
+     * Returns the root folder path for Hike MicroApps <br>
+     * eg : "/data/data/com.bsb.hike/files/Content/HikeMicroApps/"
+     *
+     * @return
+     */
+    public static String getMicroAppContentRootFolder()
+    {
+        File file = new File (PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.HIKE_MICRO_APPS);
+        if (!file.exists())
+        {
+            file.mkdirs();
+        }
+
+        return PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.HIKE_MICRO_APPS ;
+    }
+
+    /*
+     * Code to generate Compatibility matrix TreeMap from json
+     */
+    public static TreeMap<Integer,Integer> getCompatibilityMapFromString(String json)
+    {
+        Gson gson = new Gson();
+        Type stringStringMap = new TypeToken<TreeMap<Integer, Integer>>(){}.getType();
+        TreeMap<Integer,Integer> map = gson.fromJson(json, stringStringMap);
+        return map;
+    }
 
 	/**
 	 * Utility method to send a delivery report for Event related messages via the general event framework. The packet structure is as follows : <br>

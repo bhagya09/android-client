@@ -1,22 +1,28 @@
 package com.bsb.hike.productpopup;
 
-import java.util.Comparator;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.platform.content.PlatformContentModel;
-import com.bsb.hike.utils.Logger;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-import static com.bsb.hike.productpopup.ProductPopupsConstants.*;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.Comparator;
+
+import static com.bsb.hike.productpopup.ProductPopupsConstants.END_TIME;
+import static com.bsb.hike.productpopup.ProductPopupsConstants.IS_CANCELLABLE;
+import static com.bsb.hike.productpopup.ProductPopupsConstants.IS_FULL_SCREEN;
+import static com.bsb.hike.productpopup.ProductPopupsConstants.PUSH_TIME;
+import static com.bsb.hike.productpopup.ProductPopupsConstants.PopupTriggerPoints;
+import static com.bsb.hike.productpopup.ProductPopupsConstants.PushTypeEnum;
+import static com.bsb.hike.productpopup.ProductPopupsConstants.START_TIME;
+import static com.bsb.hike.productpopup.ProductPopupsConstants.TRIGGER_POINT;
 
 public class ProductContentModel implements Parcelable
 {
@@ -111,6 +117,11 @@ public class ProductContentModel implements Parcelable
 	{
 		return mmContentModel.cardObj.getAppVersion();
 	}
+
+    public int getMappVersionCode()
+    {
+        return mmContentModel.cardObj.getMappVersionCode();
+    }
 
 	public String getLayoutId()
 	{

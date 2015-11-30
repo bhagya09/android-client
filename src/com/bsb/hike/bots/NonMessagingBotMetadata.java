@@ -6,7 +6,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.bsb.hike.HikeConstants;
 import com.bsb.hike.media.OverFlowMenuItem;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.utils.Logger;
@@ -35,6 +34,7 @@ public class NonMessagingBotMetadata
 	private JSONObject fwdCardObj;
 	private boolean resumeSupported=false;
 	private JSONArray assoc_mapp;
+    private int mAppVersionCode;
 
 	public NonMessagingBotMetadata(String jsonString)
 	{
@@ -107,6 +107,11 @@ public class NonMessagingBotMetadata
 			{
 				setTargetActivity(cardObj.optString(HikePlatformConstants.TARGET_ACTIVITY));
 			}
+
+            if (cardObj.has(HikePlatformConstants.MAPP_VERSION_CODE))
+            {
+                setmAppVersionCode(cardObj.optInt(HikePlatformConstants.MAPP_VERSION_CODE));
+            }
 
 		}
 
@@ -317,4 +322,11 @@ public class NonMessagingBotMetadata
 		return assoc_mapp;
 	}
 
+    public void setmAppVersionCode(int mAppVersionCode) {
+        this.mAppVersionCode = mAppVersionCode;
+    }
+
+    public int getmAppVersionCode() {
+        return mAppVersionCode;
+    }
 }

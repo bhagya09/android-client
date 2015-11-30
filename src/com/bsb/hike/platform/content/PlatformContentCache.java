@@ -9,6 +9,9 @@ import org.json.JSONObject;
 import android.support.v4.util.LruCache;
 import android.text.TextUtils;
 
+import com.bsb.hike.HikeConstants;
+import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.utils.Logger;
 import com.samskivert.mustache.Template;
 
@@ -97,16 +100,19 @@ class PlatformContentCache
 	{
 		Logger.d(TAG, "loading template from disk");
 
-		// if (verifyVersion(content))
-		// {
-		// // Continue loading
-		// }
-		// else
-		// {
-		// return null;
-		// }
+		String unzipPath = PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.HIKE_MICRO_APPS;
+		String microAppName = content.getContentData().cardObj.getMicroApp();
+		int microAppVersion = content.getContentData().getMappVersionCode();
 
-		File file = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + content.getContentData().getId(), content.getContentData().getTag());
+        unzipPath = PlatformUtils.generateMappUnZipPathForBotRequestType(content.getRequestType(),unzipPath,microAppName,microAppVersion);
+
+		File file = new File(unzipPath, content.getContentData().getTag());
+
+        // If file is not found in the newer structured hierarchy directory path, then look for file in the older content directory path used before versioning
+        if (!file.exists())
+		{
+			file = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + content.getContentData().getId(), content.getContentData().getTag());
+		}
 
 		String templateString = PlatformContentUtils.readDataFromFile(file);
 

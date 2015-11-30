@@ -2,11 +2,18 @@ package com.bsb.hike.platform.content;
 
 import java.io.File;
 import java.lang.reflect.Field;
+import java.lang.reflect.Type;
 import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.TreeMap;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.utils.Logger;
 import com.google.gson.Gson;
@@ -15,6 +22,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
 import com.google.gson.annotations.Expose;
+import com.google.gson.reflect.TypeToken;
 
 /**
  * Content model
@@ -31,7 +39,6 @@ public class PlatformContentModel
 	private String formedData;
 
 	private int mHash = -1;
-
 	private int mTemplateHash = -1;
 
 	@Expose
@@ -45,6 +52,11 @@ public class PlatformContentModel
 	private int uniqueId;
 
 	public String target_platform;
+
+	private static PlatformContentModel object = null;
+
+    private byte requestType = HikePlatformConstants.PlatformMappRequestType.HIKE_MICRO_APPS;
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -91,6 +103,11 @@ public class PlatformContentModel
 	public static PlatformContentModel make(String contentData){
 		return make(0, contentData);
 	}
+
+    public static PlatformContentModel make(String contentData,byte requestType){
+        return make(0, contentData,requestType);
+    }
+
 	/**
 	 * Make.
 	 * 
@@ -102,15 +119,93 @@ public class PlatformContentModel
 	{
 		Logger.d(TAG, "making PlatformContentModel");
 		JsonParser parser = new JsonParser();
-		JsonObject jsonObj = (JsonObject) parser.parse(contentData);
-		PlatformContentModel object = null;
+		JSONObject json = null;
+
+        try {
+			json = new JSONObject(contentData);
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		JsonObject gsonObj = (JsonObject) parser.parse(contentData);
+
 		try
 		{
-			object = new Gson().fromJson(jsonObj, PlatformContentModel.class);
+            JSONObject cardObj = json.optJSONObject(HikePlatformConstants.CARD_OBJECT);
+            String compatibilityMapStr = cardObj.optString(HikePlatformConstants.COMPATIBILITY_MAP);
+            object = new Gson().fromJson(gsonObj, PlatformContentModel.class);
+            object.cardObj.setCompatibilityMap(compatibilityMapStr);
 			if (object.cardObj.getLd() != null)
 			{
+                int microAppVersionCode = object.cardObj.getMappVersionCode();
+                String microApp = object.cardObj.getMicroApp();
+                String unzipPath = PlatformContentConstants.HIKE_MICRO_APPS;
+                String basePath = PlatformUtils.generateMappUnZipPathForBotRequestType(HikePlatformConstants.PlatformMappRequestType.HIKE_MICRO_APPS,unzipPath,microApp,microAppVersionCode);
+
 				object.cardObj.ld
-						.addProperty(PlatformContentConstants.KEY_TEMPLATE_PATH, PlatformContentConstants.CONTENT_AUTHORITY_BASE + object.cardObj.appName + File.separator);
+						.addProperty(PlatformContentConstants.KEY_TEMPLATE_PATH, PlatformContentConstants.CONTENT_AUTHORITY_BASE + basePath);
+				object.cardObj.ld.addProperty(PlatformContentConstants.MESSAGE_ID, Integer.toString(unique));
+				object.cardObj.ld.addProperty(HikePlatformConstants.PLATFORM_VERSION, HikePlatformConstants.CURRENT_VERSION);
+
+			}
+		}
+		catch (JsonParseException e)
+		{
+			e.printStackTrace();
+			return null;
+		}
+		catch (IllegalArgumentException iae)
+		{
+			iae.printStackTrace();
+			return null;
+		}
+		catch (Exception e)
+		{
+			// We dont want app to crash, instead safely provide control in onFailure
+			e.printStackTrace();
+			return null;
+		}
+
+		return object;
+	}
+
+
+	/**
+	 * Make.
+	 *
+	 * @param card_data
+	 *            the content data
+	 * @return the platform content model
+	 */
+	public static PlatformContentModel make(int unique, String contentData, byte requestType)
+	{
+		Logger.d(TAG, "making PlatformContentModel");
+		JsonParser parser = new JsonParser();
+		JSONObject json = null;
+
+		try
+		{
+			json = new JSONObject(contentData);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+		JsonObject gsonObj = (JsonObject) parser.parse(contentData);
+
+		try
+		{
+			JSONObject cardObj = json.optJSONObject(HikePlatformConstants.CARD_OBJECT);
+			String compatibilityMapStr = cardObj.optString(HikePlatformConstants.COMPATIBILITY_MAP);
+			object = new Gson().fromJson(gsonObj, PlatformContentModel.class);
+			object.cardObj.setCompatibilityMap(compatibilityMapStr);
+			if (object.cardObj.getLd() != null)
+			{
+                int microAppVersionCode = object.cardObj.getMappVersionCode();
+                String microApp = object.cardObj.getMicroApp();
+                String unzipPath = PlatformContentConstants.HIKE_MICRO_APPS;
+                String basePath = PlatformUtils.generateMappUnZipPathForBotRequestType(requestType,unzipPath,microApp,microAppVersionCode);
+
+                object.cardObj.ld.addProperty(PlatformContentConstants.KEY_TEMPLATE_PATH, PlatformContentConstants.CONTENT_AUTHORITY_BASE + basePath);
 				object.cardObj.ld.addProperty(PlatformContentConstants.MESSAGE_ID, Integer.toString(unique));
 				object.cardObj.ld.addProperty(HikePlatformConstants.PLATFORM_VERSION, HikePlatformConstants.CURRENT_VERSION);
 			}
@@ -224,6 +319,16 @@ public class PlatformContentModel
 		return cardObj.appVersion;
 	}
 
+    /**
+     * Gets the version.
+     *
+     * @return the version
+     */
+    public int getMappVersionCode()
+    {
+        return cardObj.mappVersionCode;
+    }
+
 	/**
 	 * Gets the content data.
 	 * 
@@ -314,7 +419,15 @@ public class PlatformContentModel
 		return cardObj.appPackage;
 	}
 
-	public class PlatformCardObjectModel
+    public byte getRequestType() {
+        return requestType;
+    }
+
+    public void setRequestType(byte requestType) {
+        this.requestType = requestType;
+    }
+
+    public class PlatformCardObjectModel
 	{
 
 		public String getAppName()
@@ -336,6 +449,16 @@ public class PlatformContentModel
 		{
 			this.appVersion = appVersion;
 		}
+
+        public int getMappVersionCode()
+        {
+            return mappVersionCode;
+        }
+
+        public void setMappVersionCode(int mappVersionCode)
+        {
+            this.mappVersionCode = mappVersionCode;
+        }
 
 		public String getLayoutId()
 		{
@@ -407,6 +530,26 @@ public class PlatformContentModel
 			this.hd = hd;
 		}
 
+		public void setCompatibilityMap(String compatibilityMapStr)
+		{
+			this.compatibilityMap = getMapFromString(compatibilityMapStr);
+		}
+
+		public TreeMap<Integer,Integer> getCompatibilityMap()
+		{
+			return compatibilityMap;
+		}
+
+		/*
+		 * Code to generate Compatibility matrix TreeMap from json
+		 */
+		private TreeMap<Integer,Integer> getMapFromString(String json){
+			Gson gson = new Gson();
+			Type treeMap = new TypeToken<TreeMap<Integer, Integer>>(){}.getType();
+			TreeMap<Integer,Integer> map = gson.fromJson(json, treeMap);
+			return map;
+		}
+
 		public String getH()
 		{
 			return h;
@@ -426,12 +569,25 @@ public class PlatformContentModel
 		{
 			this.notifText = notifText;
 		}
+
+		public String getMicroApp()
+		{
+			return microApp;
+		}
+
+		public void setMicroApp(String microApp)
+		{
+			this.microApp = microApp;
+		}
 		
 		@Expose
 		public String appName;
 
 		@Expose
 		public String appVersion;
+
+        @Expose
+        public int mappVersionCode;
 
 		@Expose
 		public String layoutId;
@@ -468,6 +624,15 @@ public class PlatformContentModel
 
 		@Expose
 		public Boolean lpd;
+
+		@Expose
+		public TreeMap<Integer,Integer> compatibilityMap;
+
+        @Expose
+        public String appMarketVersion;
+
+        @Expose
+        public String microApp;
 
 	}
 

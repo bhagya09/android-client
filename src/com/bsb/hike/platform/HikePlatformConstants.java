@@ -83,6 +83,7 @@ public interface HikePlatformConstants
 	public static final String REQUEST_CODE = "request_code";
 	public static final String REPLACE_MICROAPP_VERSION = "replace";
 	public static final String BOT_VERSION = "version";
+	public static final String COMPATIBILITY_MAP = "cm";
 	public static final String CALLBACK_ID = "callback_id";
 	public static final String PLATFORM_UIDS = "platformUids";
 	public static final String ANONYMOUS_NAME = "anonymousName";
@@ -191,6 +192,8 @@ public interface HikePlatformConstants
 	public static final String TARGET_PLATFORM = "target_platform";
 	
 	public static final String TARGET_ACTIVITY = "target_activity";
+
+    public static final String MAPP_VERSION_CODE = "mapp_version_code";
 	
 	public static final String MIN_PLATFORM = "min_platform";
 
@@ -276,6 +279,20 @@ public interface HikePlatformConstants
 	public static final String GAME_CHANNEL="+hikegames+";
 	
 	final static String RESUME_SUPPORT = "resume_support";
+
+    public static final String VERSIONING_DIRECTORY_NAME = "Version_";
+
+    public static final class PlatformMappRequestType
+    {
+        public static final byte HIKE_MICRO_APPS = 1;
+
+        public static final byte ONE_TIME_POPUPS = 2;
+
+        public static final byte NATIVE_APPS = 3;
+
+        public static final byte HIKE_MAPPS = 4;
+
+    }
 
 	public static final String IS_SHORTCUT = "is_shortcut";
 

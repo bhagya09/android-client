@@ -42,6 +42,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * This class is for utility methods of bots
@@ -329,7 +330,8 @@ public class BotUtils
 			botInfo = getBotInfoForNonMessagingBots(jsonObj, msisdn);
 			boolean enableBot = jsonObj.optBoolean(HikePlatformConstants.ENABLE_BOT);
 			NonMessagingBotMetadata botMetadata = new NonMessagingBotMetadata(botInfo.getMetadata());
-			if (botMetadata.isMicroAppMode())
+
+            if (botMetadata.isMicroAppMode())
 			{
 				PlatformUtils.downloadZipForNonMessagingBot(botInfo, enableBot, botChatTheme, notifType, botMetadata, botMetadata.isResumeSupported());
 			}
@@ -339,9 +341,9 @@ public class BotUtils
 			}
 			else if (botMetadata.isNativeMode())
 			{
+                botInfo.setRequestType(HikePlatformConstants.PlatformMappRequestType.NATIVE_APPS);
 				PlatformUtils.downloadZipForNonMessagingBot(botInfo, enableBot, botChatTheme, notifType, botMetadata, botMetadata.isResumeSupported());
 			}
-
 		}
 
 		Logger.d("create bot", "It takes " + String.valueOf(System.currentTimeMillis() - startTime) + "msecs");
@@ -433,6 +435,19 @@ public class BotUtils
 			}
 
 		}
+
+        if (jsonObj.has(HikePlatformConstants.METADATA))
+        {
+            JSONObject mdJsonObject = jsonObj.optJSONObject(HikePlatformConstants.METADATA);
+            JSONObject cardObjectJson = mdJsonObject.optJSONObject(HikePlatformConstants.CARD_OBJECT);
+            JSONObject compatibilityMapJson = cardObjectJson.optJSONObject(HikePlatformConstants.COMPATIBILITY_MAP);
+
+            if (compatibilityMapJson != null)
+            {
+                TreeMap<Integer, Integer> compatibilityMap = PlatformUtils.getCompatibilityMapFromString(compatibilityMapJson.toString());
+                botInfo.setCompatibilityMap(compatibilityMap);
+            }
+        }
 
 		return botInfo;
 	}
@@ -866,5 +881,4 @@ public class BotUtils
 		return true;
 	}
 	
-
 }

@@ -107,6 +107,8 @@ public class HikeConstants
 
 	public static final String BOT_CHAT_THEME = "bg_id";
 
+	public static final String BOT_COMPATIBILITY_MAP = "compatibility_map";
+
 	public static final String IS_RECEIVE_ENABLED_IN_BOT = "rec_enable";
 
 	public static final String NEW_USER = "nu";
@@ -667,6 +669,8 @@ public class HikeConstants
 	public static final String UPGRADE_AVATAR_PROGRESS_USER = "upgradeAvtarProgressUser";
 
 	public static final String UPGRADING = "upgrading";
+
+    public static final String HIKE_CONTENT_MICROAPPS_MIGRATION = "hikeMicroAppsMigration";
 
 	public static final String UPGRADE_MSG_HASH_GROUP_READBY = "upgradeMsgHashGroupReadby";
 

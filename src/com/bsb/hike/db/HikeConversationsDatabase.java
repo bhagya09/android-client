@@ -1,22 +1,5 @@
 package com.bsb.hike.db;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences.Editor;
@@ -35,11 +18,11 @@ import android.util.Base64;
 import android.util.Pair;
 import android.util.SparseArray;
 
+import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
-import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.bots.BotInfo;
@@ -51,16 +34,6 @@ import com.bsb.hike.models.ConvMessage.ConvMessageComparator;
 import com.bsb.hike.models.ConvMessage.OriginType;
 import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
 import com.bsb.hike.models.ConvMessage.State;
-import com.bsb.hike.models.CustomStickerCategory;
-import com.bsb.hike.models.FileListItem;
-import com.bsb.hike.models.GroupParticipant;
-import com.bsb.hike.models.HikeFile;
-import com.bsb.hike.models.HikeFile.HikeFileType;
-import com.bsb.hike.models.HikeSharedFile;
-import com.bsb.hike.models.MessageEvent;
-import com.bsb.hike.models.MessageMetadata;
-import com.bsb.hike.models.Protip;
-import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.models.Conversation.BotConversation;
 import com.bsb.hike.models.Conversation.BroadcastConversation;
 import com.bsb.hike.models.Conversation.ConvInfo;
@@ -71,6 +44,16 @@ import com.bsb.hike.models.Conversation.OneToNConvInfo;
 import com.bsb.hike.models.Conversation.OneToNConversation;
 import com.bsb.hike.models.Conversation.OneToNConversationMetadata;
 import com.bsb.hike.models.Conversation.OneToOneConversation;
+import com.bsb.hike.models.CustomStickerCategory;
+import com.bsb.hike.models.FileListItem;
+import com.bsb.hike.models.GroupParticipant;
+import com.bsb.hike.models.HikeFile;
+import com.bsb.hike.models.HikeFile.HikeFileType;
+import com.bsb.hike.models.HikeSharedFile;
+import com.bsb.hike.models.MessageEvent;
+import com.bsb.hike.models.MessageMetadata;
+import com.bsb.hike.models.Protip;
+import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.contactmgr.ConversationMsisdns;
 import com.bsb.hike.modules.contactmgr.GroupDetails;
@@ -97,6 +80,24 @@ import com.bsb.hike.utils.PairModified;
 import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.TreeMap;
 
 public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBConstants, HIKE_CONV_DB
 {
@@ -306,10 +307,9 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				+ HIKE_CONTENT.NAMESPACE + " TEXT, "         //namespace of a bot for caching purpose.
 				+ HIKE_CONTENT.NOTIF_DATA + " TEXT, "       //notif data used for notifications pertaining to the microapp
 				+ HIKE_CONTENT.HELPER_DATA + " TEXT DEFAULT '{}', "  //helper data
-				+ HIKE_CONTENT.BOT_VERSION + " INTEGER DEFAULT 0"   //bot version for bot upgrade scenario
+				+ HIKE_CONTENT.BOT_VERSION + " INTEGER DEFAULT 0 "   //bot version for bot upgrade scenario
 				+ ")";
 		db.execSQL(sql);
-
 		sql = getActionsTableCreateQuery();
 		db.execSQL(sql);
 		
@@ -2997,7 +2997,6 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		values.put(HIKE_CONTENT.HELPER_DATA, botInfo.getHelperData());
 		values.put(HIKE_CONTENT.BOT_VERSION, botInfo.getVersion());
 		mDb.insertWithOnConflict(DBConstants.BOT_TABLE, null, values, SQLiteDatabase.CONFLICT_REPLACE);
-		
 	}
 
 	public boolean isBotMuted(String msisdn)
@@ -7383,8 +7382,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		contentValues.put(DBConstants.IS_VISIBLE, stickerCategory.isVisible());
 		contentValues.put(DBConstants.CATEGORY_INDEX, stickerCategory.getCategoryIndex());
 
-		mDb.insertWithOnConflict(DBConstants.STICKER_CATEGORIES_TABLE, null, contentValues,
-				SQLiteDatabase.CONFLICT_REPLACE);
+		mDb.insertWithOnConflict(DBConstants.STICKER_CATEGORIES_TABLE, null, contentValues,SQLiteDatabase.CONFLICT_REPLACE);
 	}
 
 	/*
@@ -8137,8 +8135,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		contentValues.put(DBConstants.MSG_STATUS, convMessage.getState().ordinal());
 		contentValues.put(DBConstants.LAST_MESSAGE_TIMESTAMP, convMessage.getTimestamp());
 
-		mDb.updateWithOnConflict(DBConstants.CONVERSATIONS_TABLE, contentValues, MSISDN + "=?",
-				new String[]{msisdn}, SQLiteDatabase.CONFLICT_REPLACE);
+		mDb.updateWithOnConflict(DBConstants.CONVERSATIONS_TABLE, contentValues, MSISDN + "=?", new String[]{msisdn}, SQLiteDatabase.CONFLICT_REPLACE);
 	}
 	
 	/**
@@ -8186,8 +8183,25 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				String notifData = c.getString(notifDataIdx);
 				String helperData = c.getString(helperDataIdx);
 				int version = c.getInt(versionIdx);
-				BotInfo botInfo = new BotInfo.HikeBotBuilder(msisdn).setConvName(name).setConfig(config).setType(botType).setMetadata(metadata).setIsMute(mute == 1)
-						.setNamespace(namespace).setConfigData(configData).setHelperData(helperData).setNotifData(notifData).setVersion(version).build();
+                TreeMap<Integer,Integer> compatibilityMap = new TreeMap<Integer,Integer>();
+                String compatibilityMapStr = null;
+
+                try {
+                    JSONObject metaDataJson = new JSONObject(metadata);
+                    JSONObject cardObj = metaDataJson.optJSONObject(HikePlatformConstants.CARD_OBJECT);
+
+                    if(cardObj != null)
+                         compatibilityMapStr = cardObj.optString(HikePlatformConstants.COMPATIBILITY_MAP);
+
+                    if(!TextUtils.isEmpty(compatibilityMapStr))
+                        compatibilityMap = PlatformUtils.getCompatibilityMapFromString(compatibilityMapStr);
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                BotInfo botInfo = new BotInfo.HikeBotBuilder(msisdn).setConvName(name).setConfig(config).setType(botType).setMetadata(metadata).setIsMute(mute == 1)
+						.setNamespace(namespace).setConfigData(configData).setHelperData(helperData).setNotifData(notifData).setVersion(version).setCompatibilityMap(compatibilityMap).build();
 				
 				botInfo.setBlocked(ContactManager.getInstance().isBlocked(msisdn));
 				return botInfo;
@@ -8509,7 +8523,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 		//Add object type (su,card, channel)
 		selection.append(" AND " + DBConstants.ACTION_OBJECT_TYPE + " = " +
-				DatabaseUtils.sqlEscapeString(objectType));
+                DatabaseUtils.sqlEscapeString(objectType));
 
 		Cursor c = null;
 		try
@@ -8760,7 +8774,6 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 	{
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.CONV_DB_VERSION_PREF, DBConstants.CONVERSATIONS_DATABASE_VERSION);
 	}
-
 
 	/**
 	 * This does only for the last message values for convmessage.I t return convmessage only with fields reqd for last message.

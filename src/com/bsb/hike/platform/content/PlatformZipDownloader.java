@@ -32,6 +32,9 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.Set;
+import java.util.TreeMap;
+
 
 /**
  * Download and store template. First
@@ -42,11 +45,11 @@ public class PlatformZipDownloader
 {
 	private PlatformContentRequest mRequest;
 
-	private boolean isTemplatingEnabled;
+	private boolean isTemplatingEnabled = false;
 	
-	private boolean doReplace;
+	private boolean doReplace = false;
 
-	private String callbackId;
+	private String callbackId = "";
 
 	// This hashmap contains the mapping of callback id and the progress. This makes sure that we reply the microapp with
 	// every 1% of the microapp.
@@ -62,9 +65,82 @@ public class PlatformZipDownloader
 	
 	private String stateFilePath;
 
-	private  float progress_done=0;
+    private boolean isDeletionReqBasedOnCompatibilityMap = false;
 
-	private String asocCbotMsisdn = "";
+    private String asocCbotMsisdn = "";
+
+    private  float progress_done=0;
+
+    // static builder class used here for generating and returning object of Zip Downloading process
+    public static class Builder {
+        private PlatformContentRequest argRequest;
+        private boolean isTemplatingEnabled;
+        private boolean doReplace = false;
+        private String callbackId = "";
+        private boolean resumeSupported = false;
+        private String assocCbotMsisdn = "";
+        private boolean isDeletionReqBasedOnCompatibilityMap = false;
+
+        public Builder setArgRequest(PlatformContentRequest argRequest) {
+            this.argRequest = argRequest;
+            return this;
+        }
+
+        public Builder setIsTemplatingEnabled(boolean isTemplatingEnabled) {
+            this.isTemplatingEnabled = isTemplatingEnabled;
+            return this;
+        }
+
+        public Builder setDoReplace(boolean doReplace) {
+            this.doReplace = doReplace;
+            return this;
+        }
+
+        public Builder setCallbackId(String callbackId) {
+            this.callbackId = callbackId;
+            return this;
+        }
+
+        public Builder setResumeSupported(boolean resumeSupported) {
+            this.resumeSupported = resumeSupported;
+            return this;
+        }
+
+        public Builder setAssocCbotMsisdn(String assocCbotMsisdn) {
+            this.assocCbotMsisdn = assocCbotMsisdn;
+            return this;
+        }
+
+        public Builder setMappDeletionBooleanByCompatibilityMap(boolean isDeletionReqBasedOnCompatibilityMap) {
+            this.isDeletionReqBasedOnCompatibilityMap = isDeletionReqBasedOnCompatibilityMap;
+            return this;
+        }
+
+        public PlatformZipDownloader createPlatformZipDownloader() {
+            return new PlatformZipDownloader(this);
+        }
+    }
+
+    /**
+     * Instantiates a new platform template download task.
+     *
+     * @param builder
+     */
+    private PlatformZipDownloader(Builder builder)
+    {
+        mRequest = builder.argRequest;
+        this.isTemplatingEnabled = builder.isTemplatingEnabled;
+        this.doReplace = builder.doReplace;
+        this.callbackId = builder.callbackId;
+        this.resumeSupported = builder.resumeSupported;
+        this.asocCbotMsisdn = builder.assocCbotMsisdn;
+
+        if (resumeSupported)
+        {
+            setStateFilePath();
+            setStartOffset();
+        }
+    }
 
 
 	/**
@@ -111,8 +187,7 @@ public class PlatformZipDownloader
 		}
 	}
 
-
-	private void setStartOffset()
+    private void setStartOffset()
 	{
 		File file = new File(stateFilePath + FileRequestPersistent.STATE_FILE_EXT);
 		if (file.exists())
@@ -141,21 +216,33 @@ public class PlatformZipDownloader
 		stateFilePath=PlatformContentConstants.PLATFORM_CONTENT_DIR+mRequest.getContentData().getId();
 	}
 
-	public  boolean isMicroAppExist()
+	public boolean isMicroAppExist()
 	{
 		try
 		{
-			File microAppFolder = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR, mRequest.getContentData().getId());
-			if (microAppFolder.exists())
-			{
+			String unzipPath = PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.HIKE_MICRO_APPS;
+			String microAppName = mRequest.getContentData().cardObj.getMicroApp();
+			int microAppVersion = mRequest.getContentData().getMappVersionCode();
+
+			// Generate path for the old micro app directory
+			File oldMicroAppFolder = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR, microAppName);
+
+			if (oldMicroAppFolder.exists())
 				return true;
-			}
+
+            // Generate unzip path
+            unzipPath = PlatformUtils.generateMappUnZipPathForBotRequestType(mRequest.getRequestType(),unzipPath,microAppName,microAppVersion);
+
+			if (new File(unzipPath).exists())
+				return true;
+
 		}
 		catch (NullPointerException npe)
 		{
-			npe.printStackTrace();
+			Logger.e("PlatformZipDownloader isMicroAppExist",npe.toString());
+            npe.printStackTrace();
 		}
-		
+
 		return false;
 	}
 
@@ -170,11 +257,9 @@ public class PlatformZipDownloader
         {
             doReplace = false;
         }
-		// Create temp folder
-		File tempFolder = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.TEMP_DIR_NAME);
 
-		tempFolder.mkdirs();
-		final File zipFile = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.TEMP_DIR_NAME, mRequest.getContentData().getId() + ".zip");
+		File zipFile = getZipPath();
+
         //If resume is supported we donot want to delete the zipfile on download failure.
 		if (zipFile.exists()&&!resumeSupported)
 		{
@@ -182,39 +267,25 @@ public class PlatformZipDownloader
 			return;
 		}
 
-
 		// Download zip file from web on given url
 		getZipFromWeb(zipFile);
-
-
-		/*
-		 *  Legacy code flow commented for zips lookup in assets folder added with apk files
-		 *  This flow is not in use now
-		 */
-
-		/*
-		//Check if the zip is present in hike app package
-		AssetsZipMoveTask.AssetZipMovedCallbackCallback mCallback = new AssetsZipMoveTask.AssetZipMovedCallbackCallback()
-		{
-
-			@Override
-			public void assetZipMoved(boolean hasMoved)
-			{
-				if (hasMoved)
-				{
-					unzipMicroApp(zipFile);
-				}
-				else
-				{
-					getZipFromWeb(zipFile);
-				}
-			}
-		};
-
-		Utils.executeBoolResultAsyncTask(new AssetsZipMoveTask(zipFile, mRequest, mCallback, isTemplatingEnabled));
-		*/
 	}
 
+
+	/*
+	 * Method to get path to store zip files
+	 */
+	private File getZipPath()
+	{
+		// Create temp folder
+		File tempFolder = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.TEMP_DIR_NAME);
+
+		tempFolder.mkdirs();
+		final File zipFile = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.TEMP_DIR_NAME, mRequest.getContentData().getId() + ".zip");
+
+		return zipFile;
+	}
+	
 	/**
 	 * download the zip from web using 3 retries. On success, will unzip the folder.
 	 */
@@ -309,8 +380,7 @@ public class PlatformZipDownloader
 					return;
 				}
 
-				final String unzipPath = (doReplace) ? PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.TEMP_DIR_NAME
-						: PlatformContentConstants.PLATFORM_CONTENT_DIR;
+				final String unzipPath = getUnZipPath();
 
 				try
 				{
@@ -365,9 +435,14 @@ public class PlatformZipDownloader
 								else
 								{
 									PlatformRequestManager.setReadyState(mRequest);
-									PlatformUtils.sendMicroAppServerAnalytics(true, mRequest.getContentData().cardObj.appName, mRequest.getContentData().cardObj.appVersion);
+                                    PlatformUtils.sendMicroAppServerAnalytics(true, mRequest.getContentData().cardObj.appName, mRequest.getContentData().cardObj.appVersion);
 								}
 								HikeMessengerApp.getPubSub().publish(HikePubSub.DOWNLOAD_PROGRESS, new Pair<String, String>(callbackId, "unzipSuccess"));
+
+                                // Delete previous version micro apps after checking from compatibility matrix if isDeletionReqBasedOnCompatibilityMap flag is set
+                                if(isDeletionReqBasedOnCompatibilityMap)
+                                    deleteMicroAppsAsPerCompatibilityMap();
+
 							}
 							else
 							{
@@ -387,6 +462,101 @@ public class PlatformZipDownloader
 				}
 			}
 		});
+	}
+
+	/*
+	 * Method to determine and create intermediate directories for the unzip path according to the hierarchical structure determined after the new versioning structure
+	 */
+	private String getUnZipPath()
+	{
+		String unzipPath = (doReplace) ? PlatformUtils.getMicroAppContentRootFolder() + PlatformContentConstants.TEMP_DIR_NAME : PlatformUtils.getMicroAppContentRootFolder();
+
+        // To determine the path for unzipping zip files based on request type
+		switch (mRequest.getRequestType())
+		{
+		case HikePlatformConstants.PlatformMappRequestType.HIKE_MICRO_APPS:
+			unzipPath = generateCBotUnzipPathForRequestType(unzipPath);
+			int microAppVersion = mRequest.getContentData().getMappVersionCode();
+			new File(unzipPath, HikePlatformConstants.VERSIONING_DIRECTORY_NAME + microAppVersion).mkdirs();
+			unzipPath += HikePlatformConstants.VERSIONING_DIRECTORY_NAME + microAppVersion + File.separator;
+			break;
+		case HikePlatformConstants.PlatformMappRequestType.ONE_TIME_POPUPS:
+			unzipPath += PlatformContentConstants.HIKE_ONE_TIME_POPUPS;
+			unzipPath = generateCBotUnzipPathForRequestType(unzipPath);
+            break;
+		case HikePlatformConstants.PlatformMappRequestType.NATIVE_APPS:
+			unzipPath += PlatformContentConstants.HIKE_GAMES;
+			unzipPath = generateCBotUnzipPathForRequestType(unzipPath);
+            break;
+		case HikePlatformConstants.PlatformMappRequestType.HIKE_MAPPS:
+			unzipPath += PlatformContentConstants.HIKE_MAPPS;
+			unzipPath = generateCBotUnzipPathForRequestType(unzipPath);
+            break;
+		}
+
+		return unzipPath;
+	}
+
+
+    /*
+	 * Method for generating micro app subdirectory and create intermediate directories for the unzip path according to the hierarchical structure determined after the new versioning structure
+	 */
+    private String generateCBotUnzipPathForRequestType(String unzipPath)
+    {
+        String microAppName = mRequest.getContentData().cardObj.getMicroApp();
+
+        // Create directory for micro app if not exists already
+        try {
+            new File(unzipPath, microAppName).mkdirs();
+        } catch (NullPointerException npe) {
+            npe.printStackTrace();
+        }
+
+        // Create directory for this version for specific micro app
+        unzipPath += microAppName + File.separator;
+
+        return unzipPath;
+    }
+
+	/*
+	 * Method to delete unzipped code as per based on the compatibility map
+	 */
+	private void deleteMicroAppsAsPerCompatibilityMap()
+	{
+        String microAppName = mRequest.getContentData().getId();
+		TreeMap<Integer, Integer> compatibilityMap = mRequest.getContentData().cardObj.getCompatibilityMap();
+
+		if (compatibilityMap == null || mRequest.getRequestType() != HikePlatformConstants.PlatformMappRequestType.HIKE_MICRO_APPS)
+			return;
+
+		// Micro app version for the current cbot packet
+		int microAppVersion = mRequest.getContentData().getMappVersionCode();
+
+		// Logic to determine which unzipped micro apps directories are to be deleted as per compatibility Matrix
+		int hashMapKey = microAppVersion;
+
+		Set<Integer> keys = compatibilityMap.keySet();
+		for (Integer key : keys)
+		{
+			if (key >= hashMapKey)
+			{
+				hashMapKey = key;
+				break;
+			}
+		}
+
+		int minSupportedAppVersion = compatibilityMap.get(hashMapKey);
+		String unzipPath = (doReplace) ? PlatformUtils.getMicroAppContentRootFolder() + PlatformContentConstants.TEMP_DIR_NAME : PlatformUtils.getMicroAppContentRootFolder();
+		unzipPath += microAppName + File.separator;
+
+		// Code to delete micro apps within the compatibility matrix range that is figured above
+		while (minSupportedAppVersion != microAppVersion)
+		{
+			String pathToDelete = unzipPath + HikePlatformConstants.VERSIONING_DIRECTORY_NAME + minSupportedAppVersion + File.separator;
+			PlatformUtils.deleteDirectory(pathToDelete);
+			minSupportedAppVersion++;
+		}
+
 	}
 
 	public static HashMap<String, RequestToken> getCurrentDownloadingRequests()
