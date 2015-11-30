@@ -32,6 +32,7 @@ import com.bsb.hike.models.Conversation.ConversationTip;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
 import com.bsb.hike.modules.kpt.KptKeyboardManager;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
+import com.bsb.hike.offline.OfflineController;
 import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.tasks.ActivityCallableTask;
 import com.bsb.hike.tasks.BackupAccountTask;
@@ -398,6 +399,10 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 						{
 							LocalLanguageUtils.setApplicationLocalLanguage(language);
 							languagePref.setSummary(language.getDisplayName());
+							//AND-3956 Begin: resetting offline parameters on language change
+							String offlineParams = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.OFFLINE, "{}");
+							OfflineController.getInstance().setConfiguration(offlineParams);
+							//AND-3956 End
 							restartHomeActivity();
 						}
 					}
