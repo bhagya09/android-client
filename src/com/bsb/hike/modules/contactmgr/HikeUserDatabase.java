@@ -43,6 +43,7 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.chatHead.CallerContentModel;
+import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.db.DBConstants;
 import com.bsb.hike.db.DbException;
 import com.bsb.hike.models.ContactInfo;
@@ -295,13 +296,24 @@ class HikeUserDatabase extends SQLiteOpenHelper
 		{
 			cursor.moveToFirst();
 			CallerContentModel callerContentModel = new CallerContentModel();
-			callerContentModel.setBlock((cursor.getInt(cursor.getColumnIndex(DBConstants.HIKE_USER.IS_BLOCK)) == 1) ? true : false);
+			callerContentModel
+					.setBlock((!cursor.isNull(cursor.getColumnIndex(DBConstants.HIKE_USER.IS_BLOCK)) && (cursor.getInt(cursor.getColumnIndex(DBConstants.HIKE_USER.IS_BLOCK)) == 1))
+							? true : false);
 			callerContentModel.setFullName(cursor.getString(cursor.getColumnIndex(DBConstants.NAME)));
-			callerContentModel.setIsOnHike((cursor.getInt(cursor.getColumnIndex(DBConstants.HIKE_USER.IS_ON_HIKE)) == 1) ? true : false);
-			callerContentModel.setIsSpam((cursor.getInt(cursor.getColumnIndex(DBConstants.HIKE_USER.IS_SPAM)) == 1) ? true : false);
+			callerContentModel.setIsOnHike(
+					(!cursor.isNull(cursor.getColumnIndex(DBConstants.HIKE_USER.IS_ON_HIKE)) && (cursor.getInt(cursor.getColumnIndex(DBConstants.HIKE_USER.IS_ON_HIKE)) == 1))
+							? true : false);
+			callerContentModel
+					.setIsSpam((!cursor.isNull(cursor.getColumnIndex(DBConstants.HIKE_USER.IS_SPAM)) && (cursor.getInt(cursor.getColumnIndex(DBConstants.HIKE_USER.IS_SPAM)) == 1))
+							? true : false);
 			callerContentModel.setLocation(cursor.getString(cursor.getColumnIndex(DBConstants.HIKE_USER.LOCATION)));
-			callerContentModel.setSpamCount(cursor.getInt(cursor.getColumnIndex(DBConstants.HIKE_USER.SPAM_COUNT)));
+			callerContentModel.setSpamCount(
+					!cursor.isNull(cursor.getColumnIndex(DBConstants.HIKE_USER.SPAM_COUNT)) ? cursor.getInt(cursor.getColumnIndex(DBConstants.HIKE_USER.SPAM_COUNT)) : 0);
 			callerContentModel.setMsisdn(cursor.getString(cursor.getColumnIndex(DBConstants.MSISDN)));
+			callerContentModel.setCreationTime(
+					!cursor.isNull(cursor.getColumnIndex(DBConstants.HIKE_USER.CREATION_TIME)) ? cursor.getLong(cursor.getColumnIndex(DBConstants.HIKE_USER.CREATION_TIME)) : 0);
+			callerContentModel.setUpdationTime(
+					!cursor.isNull(cursor.getColumnIndex(DBConstants.HIKE_USER.ON_HIKE_TIME)) ? cursor.getLong(cursor.getColumnIndex(DBConstants.HIKE_USER.ON_HIKE_TIME)) : 0);
 
 			return callerContentModel;
 		}
@@ -429,7 +441,7 @@ class HikeUserDatabase extends SQLiteOpenHelper
 	}
 
 
-	public void insertIntoCallerTable(CallerContentModel callerContentModel)
+	public void insertIntoCallerTable(CallerContentModel callerContentModel, boolean isCompleteData)
 	{
 		if (callerContentModel != null && callerContentModel.getMsisdn() != null && callerContentModel.getFullName() != null)
 		{
@@ -440,7 +452,6 @@ class HikeUserDatabase extends SQLiteOpenHelper
 			cv.put(DBConstants.HIKE_USER.IS_ON_HIKE, callerContentModel.getIsOnHike() ? 1 : 0);
 			cv.put(DBConstants.HIKE_USER.IS_SPAM, callerContentModel.isSpam() ? 1 : 0);
 			cv.put(DBConstants.HIKE_USER.CREATION_TIME, System.currentTimeMillis());
-			cv.put(DBConstants.HIKE_USER.ON_HIKE_TIME, System.currentTimeMillis());
 			cv.put(DBConstants.HIKE_USER.SPAM_COUNT, callerContentModel.getSpamCount());
 			mDb.insertWithOnConflict(DBConstants.HIKE_USER.HIKE_CALLER_TABLE, null, cv, SQLiteDatabase.CONFLICT_REPLACE);
 		}
@@ -456,7 +467,19 @@ class HikeUserDatabase extends SQLiteOpenHelper
 			cv.put(DBConstants.HIKE_USER.IS_SPAM, callerContentModel.isSpam());
 			cv.put(DBConstants.HIKE_USER.SPAM_COUNT, callerContentModel.getSpamCount());
 			cv.put(DBConstants.HIKE_USER.ON_HIKE_TIME, System.currentTimeMillis());
-			mDb.update(DBConstants.HIKE_USER.HIKE_CALLER_TABLE, cv, DBConstants.MSISDN + "=? ",new String[] {callerContentModel.getMsisdn()}, SQLiteDatabase.CONFLICT_IGNORE);
+			if (callerContentModel.getFullName() != null)
+			{
+				cv.put(DBConstants.HIKE_USER.CREATION_TIME, System.currentTimeMillis());
+				if (ChatHeadUtils.getNameFromNumber(mContext, callerContentModel.getMsisdn())  == null)
+				{
+					cv.put(DBConstants.NAME, callerContentModel.getFullName());
+				}
+			}
+			int noOfRow = mDb.update(DBConstants.HIKE_USER.HIKE_CALLER_TABLE, cv, DBConstants.MSISDN + "=? ", new String[] { callerContentModel.getMsisdn() });
+			if (noOfRow == 0 && callerContentModel.getFullName() != null)
+			{
+				insertIntoCallerTable(callerContentModel, true);
+			}
 		}
 	}
 

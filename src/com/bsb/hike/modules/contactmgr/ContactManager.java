@@ -2407,9 +2407,9 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 		HikeUserDatabase.getInstance().updateCallerTable(callerContentModel);
 	}
 
-	public void insertIntoCallerTable(CallerContentModel callerContentModel)
+	public void insertIntoCallerTable(CallerContentModel callerContentModel, boolean isCompleteData)
 	{
-		HikeUserDatabase.getInstance().insertIntoCallerTable(callerContentModel);
+		HikeUserDatabase.getInstance().insertIntoCallerTable(callerContentModel, isCompleteData);
 	}
 
 	public CallerContentModel getCallerContentModelFromMsisdn(String msisdn)
