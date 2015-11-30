@@ -434,10 +434,11 @@ public class PlatformZipDownloader
 					JSONObject json = new JSONObject();
 					try
 					{
-						json.putOpt(AnalyticsConstants.EVENT_KEY,AnalyticsConstants.FILE_DOWNLOADED);
-						json.putOpt(AnalyticsConstants.FILE_SIZE, zipFile.length());
-						json.putOpt(AnalyticsConstants.APP_NAME, mRequest.getContentData().getId());
-						json.putOpt(AnalyticsConstants.RESULT_CODE,result.getStatusCode());
+						json.putOpt(AnalyticsConstants.EVENT_KEY,AnalyticsConstants.MICRO_APP_EVENT);
+						json.putOpt(AnalyticsConstants.EVENT,AnalyticsConstants.FILE_DOWNLOADED);
+						json.putOpt(AnalyticsConstants.LOG_FIELD_6, zipFile.length());
+						json.putOpt(AnalyticsConstants.LOG_FIELD_1, mRequest.getContentData().getId());
+						json.putOpt(AnalyticsConstants.LOG_FIELD_5,result.getStatusCode());
 					} catch (JSONException e)
 					{
 						e.printStackTrace();
