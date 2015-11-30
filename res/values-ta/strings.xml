@@ -79,7 +79,7 @@
     <string name="invite_via_sms">SMS வழியாக இன்வைட் செய்க</string>
     <string name="call_me_fail">உம்மை அழைக்க இயலவில்லை. தயவுசெய்து மீண்டும் முயற்சிக்க.</string>
     <string name="calling_you">இப்போது உம்மை அழைக்கிறோம்...</string>
-    <string name="new_group_message">%1$s புதிய குரூப் சேட்</string>
+    <string name="new_group_message">%1$s குரூப் சேட்</string>
     <string name="new_broadcast_message">%1$s புதிய புரோட்காஸ்ட் லிஸ்ட்</string>
     <string name="add_to_group_message">குரூப்பிற்கு %1$s -ஐ சேர்த்திருக்கிறது</string>
     <string name="add_to_broadcast_message">லிஸ்ட்டுக்கு %1$s -ஐ சேர்த்திருக்கிறது</string>
@@ -404,7 +404,7 @@
     <string name="read_txt">படித்தாயிற்று</string>
     <string name="no_hike_contacts">Hike தொடர்புகள் ஏதுமில்லை</string>
     <string name="num_unread_messages">%1$s படிக்க தவறிய  மெஸ்சேஜ்கள்</string>
-    <string name="one_unread_message">1 படிக்க தவறிய  மெஸ்சேஜ்</string>
+    <string name="one_unread_message">1 படிக்க தவறிய மெசேஜ்</string>
     <string name="invite_friends_confirmation_msg">உன நண்பர்களில்  %1$s பேரை Hike-கிற்கு இன்வைட் செய்ய விரும்புகிறீரா?</string>
     <string name="didnt_get_pin">PIN வரவில்லையா, நாம் உம்மை அழைப்போம்</string>
     <string name="maxContactInBroadcastErr">இந்த புரோட்காஸ்ட் லிஸ்டில் அதிகபட்சம் %1$s தொடர்புகளை அனுமதிக்கிறோம்</string>
@@ -1066,7 +1066,7 @@
 	<string name="favourites">ஃபேவரைட்கள்</string>
 	<string name="clear_timeline_dialog">நீவீர்  உண்மையிலேயே உன் டைம்லைனை கிளியர் செய்துவிட விரும்புகிறீரா?</string>
 	<string name="liked_it">லைக் செய்திருக்கிறார்</string>
-	<string name="status_hint">நீவீர்  என்ன செய்து கொண்டிருக்கிறீர்கள்?</string>
+	<string name="status_hint">நீர் என்ன செய்து கொண்டிருக்கிறீர்கள்?</string>
 	<string name="status_hint_image">இந்த ஃபோட்டோ குறித்த ஏதோவொன்று</string>
 	<string name="add_mood">மனநிலை</string>
     <string name="sticker_reorder_setting_info">ஸ்டிக்கர் பேல்லெட்டில் இருந்து பேக்குகளை ரீஅரேஞ்சு /ஹைடு செய்க</string>
@@ -1291,8 +1291,8 @@
     <string name="contact_name">தொடர்பாளர் பெயர்</string>
     <string name="mobile">மொபைல்</string>
     <string name="your_contact">உங்கள் தொடர்பு</string>
-    <string name="and">மற்று் </string>
-    <string name="others_smallcase">மற்றவை</string>
+    <string name="and">மற்றும் </string>
+    <string name="others_smallcase">நபர்களுடன்</string>
     <string name="made_with_love_in_india"> :love: உடன் இந்தியாவில் தயாரித்தது</string>
     <string name="timeline_ftue_desc">டைம்லைன் நீங்கள் மற்றும் நண்பர்கள் தருணங்களை பகிர்ந்து கொள்ள ஒரு இடம்.தங்களது சில நண்பர்கள் ஏற்கனவே அவர்களின் டைம்லைன்-இல் பதிவு செய்துகொண்டு இருகிறார்கள்!</string>
 
@@ -1318,7 +1318,7 @@
     <!-- This is used to express that something occurred some number of hours in the past (e.g., 5 hours ago). -->
     <plurals name="num_hours_ago">
         <item quantity="one">1 மணிக்கு முன்</item>
-        <item quantity="other">%d மணிகளுக்கு மு‎ன்</item>
+        <item quantity="other">%d மணி நேரம் முன்பு</item>
     </plurals>
 
     <!-- This is used to express that something occurred within the last X days (e.g., Last 7 days). -->
@@ -1377,7 +1377,7 @@
     <!-- This is used to express that something occurred some number of abbreviated hours in the past (e.g., 5 hrs ago). -->
     <plurals name="abbrev_num_hours_ago">
         <item quantity="one">1 மணிக்கு முன்</item>
-        <item quantity="other">%d மணிகளுக்கு மு‎ன்</item>
+        <item quantity="other">%d மணி நேரம் முன்பு</item>
     </plurals>
 
     <!-- This is used to express that something occurred some number of abbreviated days in the past (e.g., 5 days ago). -->
