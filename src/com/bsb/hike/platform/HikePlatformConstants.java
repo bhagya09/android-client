@@ -287,4 +287,10 @@ public interface HikePlatformConstants
 	}
 
 	public static final String EXTRA_DATA = "extra_data";
+
+	public static final String RECURRING_LOCATION = "rec_loc";
+
+	public static final String RECURRING_LOCATION_END_TIME = "loc_end_time";
+
+	public static final String TIME_INTERVAL = "interval";
 }

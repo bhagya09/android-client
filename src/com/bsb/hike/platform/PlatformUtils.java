@@ -23,8 +23,10 @@ import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
+import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
+import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Pair;
 import android.webkit.MimeTypeMap;
@@ -1448,6 +1450,68 @@ public class PlatformUtils
 			Logger.e(TAG, "Exception occured while sending microapp analytics : " + e.toString());
 		}
 
+	}
+
+	public static void requestRecurringLocationUpdates(JSONObject json)
+	{
+		long duration = json.optInt(HikePlatformConstants.DURATION, 0);
+		final long interval = json.optInt(HikePlatformConstants.TIME_INTERVAL, 0);
+
+		// Checking if a request is already running
+		if (HikeSharedPreferenceUtil.getInstance().getData(HikePlatformConstants.RECURRING_LOCATION_END_TIME, -1L) >= 0L && interval >= 0)
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(HikePlatformConstants.RECURRING_LOCATION_END_TIME, System.currentTimeMillis() + duration);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikePlatformConstants.TIME_INTERVAL, interval);
+			return;
+		}
+
+		Logger.i(TAG, "Starting recurring location updates at time : "+ System.currentTimeMillis() + ". Duration : "+duration+" Interval : "+interval);
+
+		final GpsLocation gps = GpsLocation.getInstance();
+
+		gps.requestRecurringLocation(new LocationListener()
+		{
+			@Override
+			public void onLocationChanged(Location location)
+			{
+				Logger.i(TAG, "Location available : "+location.getLatitude()+" , "+location.getLongitude() + " Source : "+location.getProvider());
+				locationAnalytics(location);
+				if (HikeSharedPreferenceUtil.getInstance().getData(HikePlatformConstants.RECURRING_LOCATION_END_TIME, -1L) < location.getTime() + interval)
+				{
+					Logger.i(TAG, "Stopping recurring location updates at time : " + System.currentTimeMillis());
+					gps.removeUpdates(this);
+					HikeSharedPreferenceUtil.getInstance().removeData(HikePlatformConstants.RECURRING_LOCATION_END_TIME);
+				}
+			}
+
+			@Override
+			public void onStatusChanged(String provider, int status, Bundle extras)
+			{
+
+			}
+
+			@Override
+			public void onProviderEnabled(String provider)
+			{
+
+			}
+
+			@Override
+			public void onProviderDisabled(String provider)
+			{
+
+			}
+		}, interval, duration);
+	}
+
+	public static void sendLocationLogs(Location location)
+	{
+		sendLocationLogs(location, false);
+	}
+
+	public static void sendLocationLogs(Location location, boolean isLastLog)
+	{
+		//TODO Send location logs to server
 	}
 
 }
