@@ -2115,6 +2115,9 @@ public class StickerManager
 	{
 		try
 		{
+			/* TO DO
+			 * Unification of all events, which needs to run only once in a day
+			 */
 			long lastPackAndOrderingSentTime = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.LAST_STICKER_PACK_AND_ORDERING_SENT_TIME, 0L);
 			long currentTime = System.currentTimeMillis();
 
@@ -2287,6 +2290,9 @@ public class StickerManager
 	{
 		try
 		{
+			/* TO DO
+			 * Unification of all events, which needs to run only once in a day
+			 */
 			long lastAccuracyMatricesSentTime = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.LAST_RECOMMENDATION_ACCURACY_ANALYTICS_SENT_TIME, 0L);
 			long currentTime = System.currentTimeMillis();
 
