@@ -4913,10 +4913,11 @@ import android.widget.Toast;
 					{
 						deleteMsgs.add(convMessage);
 					}
-					else if (convMessage.getMsgID() > msgId)
-					{
-						break;
-					}
+					//As now messages get reordered in case of game cards.
+//					else if (convMessage.getMsgID() > msgId)
+//					{
+//						break;
+//					}
 				}
 			}
 		}
