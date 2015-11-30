@@ -548,17 +548,17 @@ public enum StickerSearchDataController
 					}
 				}
 
-				int finalSetSize = updateRetrySet.size();
-				
-				// turn on sticker recommendation if number of stickers left in queue is less than threshold value
-				if(finalSetSize < StickerSearchConstants.THRESHOLD_NUM_STICKERS)
+				int remainingSetSize = updateRetrySet.size();
+
+				// Turn on sticker recommendation, if number of stickers left in queue is less than threshold value
+				if (remainingSetSize < StickerSearchConstants.THRESHOLD_NUM_STICKERS)
 				{
-					Logger.d(TAG, "threshold reached turnig recommendation on");
+					Logger.d(TAG, "setupStickerSearchWizard(), Turnig recommendation on after threshold is crossed.");
 					StickerManager.getInstance().toggleStickerRecommendation(true);
 				}
-				
+
 				Logger.i(TAG, "setupStickerSearchWizard(), Updating tag fetching retry list: " + updateRetrySet);
-				if (finalSetSize > 0)
+				if (remainingSetSize > 0)
 				{
 					StickerManager.getInstance().saveStickerSet(updateRetrySet, state);
 				}
