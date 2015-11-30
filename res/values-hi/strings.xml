@@ -1293,10 +1293,8 @@
      <string name="and">और</string> 
     <string name="others_smallcase">अन्य</string>
     <string name="made_with_love_in_india">भारत में :love: के साथ निर्मित</string>
-    <string name="timeline_ftue_desc">टाइमलाइन आप और आपके दोस्तों के लिए अपने विशेष पल बांटने का एक स्थान है । आपके कुछ दोस्त पहले से ही इसका प्रयोग कर रहे हैं ।</string>
-
-<!-- The above two string would be used as in Group with Shibu, Niladri and 4 others -->
-
+    <string name="timeline_ftue_desc">टाइमलाइन आप और आपके दोस्तों के लिए अपने विशेष पल बांटने का एक स्थान है । आपके कुछ दोस्त पहले से ही इसका प्रयोग कर रहे हैं !</string>
+    <string name="sticker">स्टिकर</string>
 
  	<string name="yesterday">कल</string>
     <string name="tomorrow">कल</string>
