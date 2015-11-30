@@ -66,12 +66,12 @@ import com.bsb.hike.utils.Utils;
 
 import org.w3c.dom.Text;
 
-public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity implements OnItemClickListener, OnScrollListener, OnPageChangeListener, HikePubSub.Listener
+public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity implements OnItemClickListener, OnScrollListener, OnPageChangeListener, HikePubSub.Listener, View.OnClickListener
 {
 	public static final String FROM_DEVICE_GALLERY_SHARE = "from_gallery_share";
-	
+
 	public static final String EDIT_IMAGES_LIST = "edit_images_list";
-	
+
 	public static final int MULTI_EDIT_REQUEST_CODE = 12309;
 
 	private GalleryAdapter gridAdapter;
@@ -85,23 +85,23 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 	private ArrayList<GalleryItem> galleryItems;
 
 	private ArrayList<GalleryItem> galleryGridItems;
-	
+
 	private ArrayList<String> editedImages;
 
 	private volatile InitiateMultiFileTransferTask fileTransferTask;
 
 	private ProgressDialog progressDialog;
-	
+
 	private View closeSMLtipView = null;
-	
+
 	private int totalSelections;
 
 	private boolean smlDialogShown = false;
-	
+
 	private boolean forGalleryShare ;
-	
+
 	private boolean editEnabled;
-	
+
 	private static final String TAG = "GAllerySelectionViewer";
 
     private SparseArray<String> captions = new SparseArray<>();
@@ -120,9 +120,9 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 		}
 
 		editEnabled = Utils.isPhotosEditEnabled();
-		
+
 		Bundle data = null;
-		
+
 		if(savedInstanceState == null)
 		{
 			data = getIntent().getExtras();
@@ -131,7 +131,7 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 		{
 			data = savedInstanceState;
 		}
-		
+
 		if(data == null || !data.containsKey(HikeConstants.Extras.GALLERY_SELECTIONS))
 		{
 			//To Do : Display appropriate toast
@@ -139,9 +139,9 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 			GallerySelectionViewer.this.finish();
 			return;
 		}
-		
+
 		forGalleryShare = getIntent().getBooleanExtra(FROM_DEVICE_GALLERY_SHARE, false);
-		
+
 		galleryItems = data.getParcelableArrayList(HikeConstants.Extras.GALLERY_SELECTIONS);
 		totalSelections = galleryItems.size();
 
@@ -151,10 +151,10 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 		if(editEnabled && (data.containsKey(EDIT_IMAGES_LIST)))
 		{
 			editedImages = data.getStringArrayList(EDIT_IMAGES_LIST);
-				
+
 			initiateEditMode();
 		}
-		
+
 		/*
 		 * Added one for the extra null item.
 		 */
@@ -186,7 +186,7 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 			params.height = getResources().getDimensionPixelSize(R.dimen.gallery_selected_grid_height);
 			selectedGrid.setLayoutParams(params);
 		}
-		
+
 		selectedGrid.setNumColumns(numColumns);
 		selectedGrid.setAdapter(gridAdapter);
 		selectedGrid.setOnScrollListener(this);
@@ -201,7 +201,7 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 
 		showTipIfRequired();
 	}
-	
+
 	private void initiateEditMode()
 	{
 		if(editedImages == null)
@@ -233,22 +233,22 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 		intent.putExtra(HikeConstants.Extras.SELECTED_BUCKET, getIntent().getParcelableExtra(HikeConstants.Extras.SELECTED_BUCKET));
 		intent.putExtra(HikeConstants.Extras.MSISDN, getIntent().getStringExtra(HikeConstants.Extras.MSISDN));
 		intent.putExtra(HikeConstants.Extras.ON_HIKE, getIntent().getBooleanExtra(HikeConstants.Extras.ON_HIKE, true));
-		
+
 		if(getIntent().getBooleanExtra(GalleryActivity.START_FOR_RESULT, false))
 		{
 			intent.putExtra(GalleryActivity.START_FOR_RESULT, true);
 		}
-		
+
 		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-		
+
 		if(editEnabled && haveImagesBeenEdited())
 		{
 			intent.putStringArrayListExtra(EDIT_IMAGES_LIST, editedImages);
 		}
-		
+
 		startActivity(intent);
 	}
-	
+
 	@Override
 	protected void onPause()
 	{
@@ -262,7 +262,7 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 			pagerAdapter.getGalleryImageLoader().setExitTasksEarly(true);
 		}
 	}
-	
+
 	@Override
 	protected void onResume()
 	{
@@ -278,8 +278,8 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 			pagerAdapter.notifyDataSetChanged();
 		}
 	}
-	
-	
+
+
 	@Override
 	protected void onStop()
 	{
@@ -312,12 +312,12 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 		View doneBtn = actionBarView.findViewById(R.id.done_container);
 		TextView postText = (TextView) actionBarView.findViewById(R.id.post_btn);
 		View actionsView = actionBarView.findViewById(R.id.actionsView);
-		
+
 		doneBtn.setVisibility(View.VISIBLE);
 		postText.setText(R.string.send);
-		
+
 		title.setText(R.string.preview);
-		
+
 		if(editEnabled)
 		{
 			actionsView.setVisibility(View.INVISIBLE);
@@ -325,7 +325,7 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 			actionBarView.findViewById(R.id.seprator).setAlpha(0.2f);
 			actionsView.setOnClickListener(new OnClickListener()
 			{
-				
+
 				@Override
 				public void onClick(View v)
 				{
@@ -333,7 +333,7 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 				}
 			});
 		}
-		
+
 		doneBtn.setOnClickListener(new OnClickListener()
 		{
 
@@ -348,7 +348,7 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 					GallerySelectionViewer.this.finish();
 					return;
 				}
-				
+
                 final ArrayList<ComposeChatActivity.FileTransferData> ftDataList = new ArrayList<ComposeChatActivity.FileTransferData>(galleryItems.size());
 
                 final String msisdn = getIntent().getStringExtra(HikeConstants.Extras.MSISDN);
@@ -362,7 +362,7 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 				{
 					//Using edited filepath if user has edited the current selection other wise the original
 					String filePath = getFinalFilePathAtPosition(i);
-					
+
 					File file = new File(filePath);
 					sizeOriginal += file.length();
 
@@ -401,7 +401,7 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 						@Override
 						public void neutralClicked(HikeDialog hikeDialog)
 						{
-							
+
 						}
 					}, (Object[]) new Long[]{(long)ftDataList.size(), sizeOriginal});
 				}
@@ -413,19 +413,19 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 				}
 			}
 		});
-		
+
 		actionBar.setCustomView(actionBarView);
 		Toolbar parent=(Toolbar)actionBarView.getParent();
 		parent.setContentInsetsAbsolute(0,0);
-		
+
 		actionBar.setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.gallery_selection_action_bar)));
 		StatusBarColorChanger.setStatusBarColor(getWindow(),HikeConstants.STATUS_BAR_TRANSPARENT);
 	}
-	
+
 	private void editSelectedImage()
 	{
 		int currPos = selectedPager.getCurrentItem();
-		
+
 		//Using edited filepath if user has edited the current selection other wise the original also writing over the edited file if the user is editing an already edited image
 		String selectedFilePath = getFinalFilePathAtPosition(currPos);
 		String destinationFilePath = isIndexEdited(currPos)?selectedFilePath:null;
@@ -491,16 +491,34 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 	private void setSelection(int position)
 	{
 		int scrollPos = position;
-		
+
 		if(position >= galleryItems.size() )
 		{
 			position = galleryItems.size() - 1;
 		}
-		
+
 		gridAdapter.setSelectedItemPosition(position);
 		selectedPager.setCurrentItem(position);
-		
+
 		selectedGrid.smoothScrollToPosition(scrollPos);
+	}
+
+	@Override
+	public void onClick(View view) {
+		switch (view.getId())
+		{
+			case R.id.ib_crop:
+
+				break;
+			case R.id.ib_edit:
+				editSelectedImage();
+				break;
+			case R.id.ib_remove:
+                removeSelectionClickListener.onClick(null);
+				break;
+			default:
+				break;
+		}
 	}
 
 	private class GalleryPagerAdapter extends PagerAdapter
@@ -554,20 +572,13 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 		{
 			View page = layoutInflater.inflate(R.layout.gallery_preview_item, container, false);
 
-			ImageButton removeImage = (ImageButton) page.findViewById(R.id.remove_selection);
-
 			ImageView galleryImageView = (ImageView) page.findViewById(R.id.album_image);
 			galleryImageView.setScaleType(ScaleType.FIT_CENTER);
 
 			//Using edited filepath if user has edited the current selection other wise the original
 			String filePath = new String(getFinalFilePathAtPosition(position));
-			
+
 			galleryImageLoader.loadImage(GalleryImageLoader.GALLERY_KEY_PREFIX + filePath, galleryImageView, false, true);
-
-			setupButtonSpacing(galleryImageView, removeImage);
-
-			removeImage.setTag(position);
-			removeImage.setOnClickListener(removeSelectionClickListener);
 
 			((ViewPager) container).addView(page);
 
@@ -598,36 +609,6 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 			return page;
 		}
 
-		private void setupButtonSpacing(ImageView galleryImageView, ImageButton removeImage)
-		{
-			Drawable drawable = galleryImageView.getDrawable();
-			if (drawable == null)
-			{
-				return;
-			}
-
-			int drawableHeight = drawable.getIntrinsicHeight();
-			int drawableWidth = drawable.getIntrinsicWidth();
-
-			int imageWidth;
-			int imageHeight;
-
-			if (viewerHeight / drawableHeight <= viewerWidth / drawableWidth)
-			{
-				imageWidth = drawableWidth * viewerHeight / drawableHeight;
-				imageHeight = viewerHeight;
-			}
-			else
-			{
-				imageHeight = drawableHeight * viewerWidth / drawableWidth;
-				imageWidth = viewerWidth;
-			}
-
-			LayoutParams layoutParams = (LayoutParams) removeImage.getLayoutParams();
-			layoutParams.leftMargin = imageWidth;
-			layoutParams.bottomMargin = imageHeight/2;
-		}
-		
 		public GalleryImageLoader getGalleryImageLoader()
 		{
 			return galleryImageLoader;
@@ -640,16 +621,16 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 		@Override
 		public void onClick(View v)
 		{
-			int postion = (Integer) v.getTag();
-			galleryItems.remove(postion);
-			galleryGridItems.remove(postion);
+			int position = selectedPager.getCurrentItem();
+			galleryItems.remove(position);
+			galleryGridItems.remove(position);
 			if(editedImages!=null)
 			{
-				if(isIndexEdited(postion))
+				if(isIndexEdited(position))
 				{
-					Utils.deleteFile(getApplicationContext(), editedImages.get(postion), HikeFileType.IMAGE);
+					Utils.deleteFile(getApplicationContext(), editedImages.get(position), HikeFileType.IMAGE);
 				}
-				editedImages.remove(postion);
+				editedImages.remove(position);
 			}
 			gridAdapter.notifyDataSetChanged();
 			pagerAdapter.notifyDataSetChanged();
@@ -666,7 +647,7 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 				}
 			}
 
-			GallerySelectionViewer.this.selectedPager.setCurrentItem(postion == 0 ? 0 : postion - 1);
+			GallerySelectionViewer.this.selectedPager.setCurrentItem(position == 0 ? 0 : position - 1);
 		}
 	};
 
@@ -678,7 +659,7 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 		if (HikePubSub.MULTI_FILE_TASK_FINISHED.equals(type))
 		{
 			fileTransferTask = null;
-			
+
 			final Intent intent = (Intent) object;
 
 			runOnUiThread(new Runnable()
@@ -692,15 +673,15 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 						progressDialog.dismiss();
 						progressDialog = null;
 					}
-					
+
 					startActivity(intent);
 					finish();
-					
+
 				}
 			});
 		}
 	}
-	
+
 	private void showTipIfRequired()
 	{
 		final HikeSharedPreferenceUtil pref = HikeSharedPreferenceUtil.getInstance();
@@ -727,8 +708,8 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 			((LinearLayout) findViewById(R.id.tipContainerTop)).addView(view, 0);
 		}
 	}
-	
-	
+
+
 
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
@@ -739,25 +720,25 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 		}
 		super.onSaveInstanceState(outState);
 	}
-	
+
 	@Override
 	public void onBackPressed() {
 		if(haveImagesBeenEdited())
 		{
 				HikeDialog confirmUndo = HikeDialogFactory.showDialog(this, HikeDialogFactory.UNDO_MULTI_EDIT_CHANGES_DIALOG, new HikeDialogListener() {
-				
+
 					@Override
 					public void positiveClicked(HikeDialog hikeDialog) {
-						
+
 						Utils.deleteFiles(getApplicationContext(), editedImages, HikeFileType.IMAGE);
 						hikeDialog.dismiss();
-						GallerySelectionViewer.super.onBackPressed();	
+						GallerySelectionViewer.super.onBackPressed();
 					}
-					
+
 					@Override
 					public void neutralClicked(HikeDialog hikeDialog) {
 					}
-					
+
 					@Override
 					public void negativeClicked(HikeDialog hikeDialog) {
 						hikeDialog.dismiss();
@@ -768,16 +749,16 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 		{
 			super.onBackPressed();
 		}
-		
+
 	}
-	
+
 	private boolean haveImagesBeenEdited()
 	{
 		if(editedImages == null || editedImages.isEmpty())
 		{
 			return false;
 		}
-		
+
 		for (int i = 0;i<editedImages.size();i++)
 		{
 			if(editedImages.get(i)!=null)
@@ -785,7 +766,7 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 				return true;
 			}
 		}
-		
+
 		return false;
 	}
 
@@ -798,9 +779,9 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 			switch(requestCode)
 			{
 			case HikeConstants.ResultCodes.PHOTOS_REQUEST_CODE:
-				
+
 				int currPos = selectedPager.getCurrentItem();
-				
+
 				//Using edited filepath if user has edited the current selection as previous path other wise the original
 				if(isIndexEdited(currPos))
 				{
@@ -808,12 +789,12 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 					HikeMessengerApp.getLruCache().removeItemForKey(GalleryImageLoader.GALLERY_KEY_PREFIX + editedImages.get(currPos));
 				}
 				String editedFilePath = data.getStringExtra(HikeConstants.Extras.IMAGE_PATH);
-				
+
 				if(editedImages == null)
 				{
 					initiateEditMode();
 				}
-				
+
 				editedImages.set(currPos,editedFilePath);
 				galleryGridItems.get(currPos).setFilePath(editedFilePath);
 				gridAdapter.notifyDataSetChanged();
@@ -822,7 +803,7 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 			}
 		}
 	}
-	
+
 	private ArrayList<Uri> getSelectedFilesAsUri()
 	{
 		ArrayList<Uri> selectedUris = new ArrayList<Uri>(galleryItems.size());
@@ -830,35 +811,35 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 		{
 			//Using edited filepath if user has edited the current selection other wise the original
 			String filePath = getFinalFilePathAtPosition(i);
-			
+
 			File file = new File(filePath);
 			selectedUris.add(Uri.fromFile(file));
 		}
-		
+
 		return selectedUris;
-		
+
 	}
-	
+
 	private boolean isIndexEdited(int index)
 	{
 		if(!editEnabled || editedImages == null || editedImages.isEmpty())
 		{
 			return false;
 		}
-		
+
 		if(index >= editedImages.size())
 		{
 			return false;
 		}
-		
+
 		return (editedImages.get(index) != null);
-		
+
 	}
-	
+
 	private String getFinalFilePathAtPosition(int position)
 	{
 		String filePath = isIndexEdited(position)?editedImages.get(position):galleryItems.get(position).getFilePath();
 		return filePath;
 	}
-	
+
 }
