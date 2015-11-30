@@ -131,7 +131,7 @@
     <string name="image_msg_sent">ஃபோட்டோ அனுப்பபட்டது</string>
     <string name="video_msg_sent">வீடியோ</string>
     <string name="audio_msg_sent">ஆடியோ</string>
-    <string name="location_msg_sent">இருப்பிடம்</string>
+    <string name="location_msg_sent">இடம்</string>
     <string name="contact_msg_sent">தொடர்பு</string>
     <string name="audio_recording_msg_sent">வாய்ஸ் மெஸ்சேஜ் அனுப்பபட்டது</string>
     <string name="unknown_msg">அன்சப்போர்ட்டட் ஃபைல்</string>
