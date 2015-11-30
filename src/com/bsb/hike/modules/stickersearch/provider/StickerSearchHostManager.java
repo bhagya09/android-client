@@ -1471,7 +1471,7 @@ public class StickerSearchHostManager
 
 			int searchWordsCount = searchWords.size();
 			int exactWordsCount = tagWords.size();
-			float matchCount = 0;
+			float matchCount = 0.0f;
 			float localScore;
 
 			for (int indexInSearchKey = 0; indexInSearchKey < searchWordsCount; indexInSearchKey++)
@@ -1500,39 +1500,38 @@ public class StickerSearchHostManager
 				}
 			}
 
-			if (searchWordsCount > exactWordsCount)
+			// Apply spectra-full match prioritization before final scoring
+			int maxIndexBound = Math.max(searchWordsCount, exactWordsCount);
+			if (matchCount < maxIndexBound)
 			{
-				// Apply first word full match prioritization before final scoring
-				if (matchCount < searchWordsCount)
-				{
-					int firstWordMatchIndex = tagWords.indexOf(searchWords.get(0));
-					if (firstWordMatchIndex > -1)
-					{
-						matchCount = matchCount + (MARGINAL_FULL_SCORE_LATERAL / searchWordsCount) / (firstWordMatchIndex + 1);
-					}
-				}
-
-				result = Math.min(1.00f, (matchCount / searchWordsCount));
+				matchCount = matchCount + computeAnalogousSpectrelScore(tagWords, searchWords, StickerSearchUtility.getFirstOrderMoment(searchWordsCount, exactWordsCount));
 			}
-			else
-			{
-				// Apply first word full match prioritization before final scoring
-				if (matchCount < exactWordsCount)
-				{
-					int firstWordMatchIndex = tagWords.indexOf(searchWords.get(0));
-					if (firstWordMatchIndex > -1)
-					{
-						matchCount = matchCount + (MARGINAL_FULL_SCORE_LATERAL / exactWordsCount) / (firstWordMatchIndex + 1);
-					}
-				}
-
-				result = Math.min(1.00f, (matchCount / exactWordsCount));
-			}
+			result = Math.min(1.00f, (matchCount / maxIndexBound));
 
 			sCacheForLocalAnalogousScore.put(cacheKey, result);
 		}
 
 		return result;
+	}
+
+	private float computeAnalogousSpectrelScore(ArrayList<String> tagWords, ArrayList<String> searchWords, int maximumPossibleSpectrumSpreading)
+	{
+		int wordMatchIndex;
+		float specificSpectrumWidth;
+		float matchCount = 0.0f;
+		int spectrumLimit = Math.min(StickerSearchConstants.MAXIMUM_ACCEPTED_SPECTRUM_SCORING_SIZE, searchWords.size());
+
+		for (int i = 0; i < spectrumLimit; i++)
+		{
+			wordMatchIndex = tagWords.indexOf(searchWords.get(i));
+			if (wordMatchIndex > -1)
+			{
+				specificSpectrumWidth = MARGINAL_FULL_SCORE_LATERAL / (i + 1);
+				matchCount = matchCount + (specificSpectrumWidth / 3) / (wordMatchIndex + 1);
+			}
+		}
+
+		return matchCount;
 	}
 
 	public void clearTransientResources()
