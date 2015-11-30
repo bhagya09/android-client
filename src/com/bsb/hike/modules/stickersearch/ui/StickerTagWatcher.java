@@ -371,7 +371,7 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 			StickerSearchManager.getInstance().resetOrStartFreshTrialForAutoPopupTurnOff(false);
 		}
 
-		StickerSearchManager.getInstance().increaseRecommendationStateForCurrentLanguage(false);
+		StickerSearchManager.getInstance().increaseRecommendationAcceptedMatrixForCurrentLanguage();
 
 		if (dismissAndClear)
 		{

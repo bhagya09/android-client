@@ -57,7 +57,7 @@ public class StickerSearchManager
 
 	private boolean isFirstPhraseOrWord;
 
-	private boolean isTappedOnHighLightedWord;
+	private boolean isTappedInsideComposeBox;
 
 	private int numStickersVisibleAtOneTime;
 
@@ -86,7 +86,7 @@ public class StickerSearchManager
 
 		searchEngine = new StickerSearchEngine();
 		isFirstPhraseOrWord = false;
-		isTappedOnHighLightedWord = false;
+		isTappedInsideComposeBox = false;
 		currentString = null;
 		currentLength = 0;
 
@@ -155,7 +155,7 @@ public class StickerSearchManager
 		boolean isLastShownPopupWasAutoSuggestion = isFromAutoRecommendation();
 
 		isFirstPhraseOrWord = false;
-		isTappedOnHighLightedWord = false;
+		isTappedInsideComposeBox = false;
 		Pair<CharSequence, int[][]> result = StickerSearchHostManager.getInstance().onTextChange(s, start, before, count);
 
 		HighlightAndShowStickerPopupTask highlightAndShowtask = new HighlightAndShowStickerPopupTask(result, isLastShownPopupWasAutoSuggestion);
@@ -359,12 +359,12 @@ public class StickerSearchManager
 		}
 	}
 
-	public void onClickToShowRecommendedStickers(int clickPosition, boolean onTapOnHighlightWord)
+	public void onClickToShowRecommendedStickers(int clickPosition, boolean onTappedInsideComposeBox)
 	{
-		Logger.i(StickerTagWatcher.TAG, "onClickToShowRecommendedStickers(" + clickPosition + "," + onTapOnHighlightWord + ")");
+		Logger.i(StickerTagWatcher.TAG, "onClickToShowRecommendedStickers(" + clickPosition + "," + onTappedInsideComposeBox + ")");
 
 		// Do nothing, if it is not because of touch on highlighted word and auto pop-up setting is turned-off
-		if (!onTapOnHighlightWord && !showAutoPopupSettingOn)
+		if (!onTappedInsideComposeBox && !showAutoPopupSettingOn)
 		{
 			if (listener != null)
 			{
@@ -373,21 +373,22 @@ public class StickerSearchManager
 			return;
 		}
 
-		isTappedOnHighLightedWord = onTapOnHighlightWord;
+		isTappedInsideComposeBox = onTappedInsideComposeBox;
 		Pair<Pair<String, String>, ArrayList<Sticker>> results = StickerSearchHostManager.getInstance().onClickToShowRecommendedStickers(clickPosition);
 
 		if (listener != null)
 		{
 			if ((results != null) && (results.second != null))
 			{
-				if (onTapOnHighlightWord)
+				// If search results are positive and user clicked on some word in compose box, that means user tapped on highlighted word
+				if (onTappedInsideComposeBox)
 				{
 					listener.setTipSeen(ChatThreadTips.STICKER_RECOMMEND_TIP, true);
 					listener.setTipSeen(ChatThreadTips.STICKER_RECOMMEND_AUTO_OFF_TIP, true);
 				}
 
 				listener.showStickerSearchPopup(results.first.first, results.first.second, results.second);
-				increaseRecommendationStateForCurrentLanguage(true);
+				increaseRecommendationTotalMatrixForCurrentLanguage();
 			}
 			else
 			{
@@ -460,7 +461,7 @@ public class StickerSearchManager
 	 */
 	public boolean isFromAutoRecommendation()
 	{
-		return (this.isFirstPhraseOrWord && !this.isTappedOnHighLightedWord);
+		return (this.isFirstPhraseOrWord && !this.isTappedInsideComposeBox);
 	}
 
 	public boolean isAutoPoupTrialRunning()
@@ -696,29 +697,37 @@ public class StickerSearchManager
 		}
 	}
 
-	public void increaseRecommendationStateForCurrentLanguage(boolean isTotalMetrixOrAcceptedMetrix)
+	public void increaseRecommendationTotalMatrixForCurrentLanguage()
 	{
 		PairModified<Integer, Integer> accuracyMetrices = null;
 		if (isFromAutoRecommendation())
 		{
-			if (this.autoPopupClicksPerLanguageMap.containsKey(this.keyboardLanguageISOCode))
-			{
-				accuracyMetrices = this.autoPopupClicksPerLanguageMap.get(this.keyboardLanguageISOCode);
-			}
+			accuracyMetrices = this.autoPopupClicksPerLanguageMap.get(this.keyboardLanguageISOCode);
 		}
 		else
 		{
-			if (this.tapOnHighlightWordClicksPerLanguageMap.containsKey(this.keyboardLanguageISOCode))
-			{
-				accuracyMetrices = this.tapOnHighlightWordClicksPerLanguageMap.get(this.keyboardLanguageISOCode);
-			}
+			accuracyMetrices = this.tapOnHighlightWordClicksPerLanguageMap.get(this.keyboardLanguageISOCode);
 		}
 
-		if (isTotalMetrixOrAcceptedMetrix && (accuracyMetrices != null))
+		if (accuracyMetrices != null)
 		{
 			accuracyMetrices.setFirst(accuracyMetrices.getFirst() + 1);
 		}
+	}
+
+	public void increaseRecommendationAcceptedMatrixForCurrentLanguage()
+	{
+		PairModified<Integer, Integer> accuracyMetrices = null;
+		if (isFromAutoRecommendation())
+		{
+			accuracyMetrices = this.autoPopupClicksPerLanguageMap.get(this.keyboardLanguageISOCode);
+		}
 		else
+		{
+			accuracyMetrices = this.tapOnHighlightWordClicksPerLanguageMap.get(this.keyboardLanguageISOCode);
+		}
+
+		if (accuracyMetrices != null)
 		{
 			accuracyMetrices.setSecond(accuracyMetrices.getSecond() + 1);
 		}
