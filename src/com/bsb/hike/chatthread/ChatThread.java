@@ -3957,32 +3957,16 @@ import android.widget.Toast;
         		sendUIMessage(MESSAGE_SENT, msg);
         	}
         	break;
-			case HikePubSub.GENERAL_EVENT_STATE_CHANGE:
-				ConvMessage eventMessage=(ConvMessage)object;
-				if(eventMessage!=null&&this.msisdn.equals(eventMessage.getMsisdn()))
-				{
-					long messageId = eventMessage.getMsgID();
-					for (int i = messages.size() - 1; i >= 0; i--)
-					{
-						ConvMessage mesg = messages.get(i);
-						if (mesg.getMsgID() == messageId)
-						{
-							messages.get(i).setState(eventMessage.getState());
-							uiHandler.sendEmptyMessage(NOTIFY_DATASET_CHANGED);
-							break;
-						}
-
-					}
-				}
-				break;
-
+		case HikePubSub.GENERAL_EVENT_STATE_CHANGE:
+			onGeneralEventStateChange(object);
+			break;
 
 		default:
 			Logger.e(TAG, "PubSub Registered But Not used : " + type);
 			break;
 		}
 	}
-	
+
 	private void onNudgeSettingsChnaged()
 	{
 		_doubleTapPref = PreferenceManager.getDefaultSharedPreferences(activity.getApplicationContext()).getBoolean(HikeConstants.DOUBLE_TAP_PREF, true);
@@ -4928,10 +4912,11 @@ import android.widget.Toast;
 					{
 						deleteMsgs.add(convMessage);
 					}
-					else if (convMessage.getMsgID() > msgId)
-					{
-						break;
-					}
+					//As now messages get reordered in case of game cards.
+//					else if (convMessage.getMsgID() > msgId)
+//					{
+//						break;
+//					}
 				}
 			}
 		}
@@ -6426,4 +6411,27 @@ import android.widget.Toast;
 			}
 		}
 	};
+
+	/**
+	 * This method changes the state of a ConvMessage after a general event is sent or received
+	 * @param object
+	 */
+	private void onGeneralEventStateChange(Object object)
+	{
+		ConvMessage eventMessage=(ConvMessage)object;
+		if(eventMessage!=null&&this.msisdn.equals(eventMessage.getMsisdn()))
+		{
+			long messageId = eventMessage.getMsgID();
+			for (int i = messages.size() - 1; i >= 0; i--)
+			{
+				ConvMessage mesg = messages.get(i);
+				if (mesg.getMsgID() == messageId)
+				{
+					mesg.setStateForced(eventMessage.getState());
+					uiHandler.sendEmptyMessage(NOTIFY_DATASET_CHANGED);
+					break;
+				}
+			}
+		}
+	}
 }
