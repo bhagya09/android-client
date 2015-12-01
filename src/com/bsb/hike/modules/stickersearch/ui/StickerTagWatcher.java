@@ -360,9 +360,9 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 	}
 
 	@Override
-	public void stickerSelected(String word, String phrase, Sticker sticker, int selectedIndex, int size, String source, boolean dismissAndClear)
+	public void stickerSelected(String word, String phrase, Sticker sticker, int selectedIndex, int recommendedListSize, String source, boolean dismissAndClear)
 	{
-		Logger.v(TAG, "stickerSelected(" + word + ", " + phrase + ", " + sticker + ", " + selectedIndex + ")");
+		Logger.v(TAG, "stickerSelected(" + word + ", " + phrase + ", " + sticker + ", " + selectedIndex + "," + recommendedListSize + "," + source + "," + dismissAndClear + ")");
 
 		sendSticker(sticker, source, dismissAndClear);
 
@@ -370,6 +370,8 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 		{
 			StickerSearchManager.getInstance().resetOrStartFreshTrialForAutoPopupTurnOff(false);
 		}
+
+		StickerSearchManager.getInstance().increaseRecommendationAcceptedMatrixForCurrentLanguage();
 
 		if (dismissAndClear)
 		{
@@ -395,7 +397,7 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 		}
 
 		// Send analytics
-		StickerManager.getInstance().sendRecommendationSelectionAnalytics(source, sticker.getStickerId(), sticker.getCategoryId(), (selectedIndex + 1), size,
+		StickerManager.getInstance().sendRecommendationSelectionAnalytics(source, sticker.getStickerId(), sticker.getCategoryId(), (selectedIndex + 1), recommendedListSize,
 				StickerSearchManager.getInstance().getNumStickersVisibleAtOneTime(), word, phrase);
 	}
 
@@ -543,6 +545,7 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 		{
 			StickerSearchManager.getInstance().saveOrDeleteAutoPopupTrialState(false);;
 		}
+		StickerSearchManager.getInstance().saveCurrentRecommendationStateForAnalyticsIntoPref();
 		StickerSearchManager.getInstance().removeStickerSearchListener(this);
 
 		fragment = null;

@@ -1553,4 +1553,17 @@ public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique, C
 
 	}
 
+	/**
+	 * Used to forcefully set the state of the ConvMessage. This is used by General Events since we need to change the state of messages from sent to received and vice versa.
+	 *
+	 * @param state
+	 */
+	public void setStateForced(State state)
+	{
+		if (state != null)
+		{
+			mState = state;
+		}
+	}
+
 }
