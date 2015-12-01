@@ -76,7 +76,6 @@ import com.bsb.hike.modules.kpt.KptUtils;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
 import com.bsb.hike.modules.stickersearch.StickerSearchUtils;
 import com.bsb.hike.modules.stickersearch.listeners.IStickerPickerRecommendationListener;
-import com.bsb.hike.modules.stickersearch.provider.StickerSearchHostManager;
 import com.bsb.hike.modules.stickersearch.ui.StickerTagWatcher;
 import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.offline.IOfflineCallbacks;
@@ -1810,8 +1809,8 @@ import android.widget.Toast;
 		stickerTagWatcher = (stickerTagWatcher != null) ? (stickerTagWatcher) : (new StickerTagWatcher(activity, this, mComposeView, getResources().getColor(
 				R.color.sticker_recommend_highlight_text)));
 
-		StickerSearchHostManager.getInstance().loadChatProfile(msisdn, !ChatThreadUtils.getChatThreadType(msisdn).equals(HikeConstants.Extras.ONE_TO_ONE_CHAT_THREAD),
-				activity.getLastMessageTimeStamp());
+		StickerSearchManager.getInstance().loadChatProfile(msisdn, !ChatThreadUtils.getChatThreadType(msisdn).equals(HikeConstants.Extras.ONE_TO_ONE_CHAT_THREAD),
+				activity.getLastMessageTimeStamp(), StickerSearchUtils.getCurrentLanguageISOCode());
 
 		mComposeView.addTextChangedListener(stickerTagWatcher);
 	}
@@ -3958,32 +3957,16 @@ import android.widget.Toast;
         		sendUIMessage(MESSAGE_SENT, msg);
         	}
         	break;
-			case HikePubSub.GENERAL_EVENT_STATE_CHANGE:
-				ConvMessage eventMessage=(ConvMessage)object;
-				if(eventMessage!=null&&this.msisdn.equals(eventMessage.getMsisdn()))
-				{
-					long messageId = eventMessage.getMsgID();
-					for (int i = messages.size() - 1; i >= 0; i--)
-					{
-						ConvMessage mesg = messages.get(i);
-						if (mesg.getMsgID() == messageId)
-						{
-							messages.get(i).setState(eventMessage.getState());
-							uiHandler.sendEmptyMessage(NOTIFY_DATASET_CHANGED);
-							break;
-						}
-
-					}
-				}
-				break;
-
+		case HikePubSub.GENERAL_EVENT_STATE_CHANGE:
+			onGeneralEventStateChange(object);
+			break;
 
 		default:
 			Logger.e(TAG, "PubSub Registered But Not used : " + type);
 			break;
 		}
 	}
-	
+
 	private void onNudgeSettingsChnaged()
 	{
 		_doubleTapPref = PreferenceManager.getDefaultSharedPreferences(activity.getApplicationContext()).getBoolean(HikeConstants.DOUBLE_TAP_PREF, true);
@@ -4929,10 +4912,11 @@ import android.widget.Toast;
 					{
 						deleteMsgs.add(convMessage);
 					}
-					else if (convMessage.getMsgID() > msgId)
-					{
-						break;
-					}
+					//As now messages get reordered in case of game cards.
+//					else if (convMessage.getMsgID() > msgId)
+//					{
+//						break;
+//					}
 				}
 			}
 		}
@@ -6429,16 +6413,35 @@ import android.widget.Toast;
 		}
 	};
 
-	public void hideKeyboardIfNeeded()
-	{
-		if (KptUtils.isSystemKeyboard())
-		{
+
+	public void hideKeyboardIfNeeded() {
+		if (KptUtils.isSystemKeyboard()) {
 			Utils.hideSoftKeyboard(activity, mComposeView);
-		}
-		else if (mCustomKeyboard != null && mCustomKeyboard.isCustomKeyboardVisible() && (mShareablePopupLayout == null || !mShareablePopupLayout.isShowing()))
-		{
+		} else if (mCustomKeyboard != null && mCustomKeyboard.isCustomKeyboardVisible() && (mShareablePopupLayout == null || !mShareablePopupLayout.isShowing())) {
 			hideKptKeyboard();
 		}
 		removeKeyboardFtueIfShowing();
+	}
+	/**
+	 * This method changes the state of a ConvMessage after a general event is sent or received
+	 * @param object
+	 */
+	private void onGeneralEventStateChange(Object object)
+	{
+		ConvMessage eventMessage=(ConvMessage)object;
+		if(eventMessage!=null&&this.msisdn.equals(eventMessage.getMsisdn()))
+		{
+			long messageId = eventMessage.getMsgID();
+			for (int i = messages.size() - 1; i >= 0; i--)
+			{
+				ConvMessage mesg = messages.get(i);
+				if (mesg.getMsgID() == messageId)
+				{
+					mesg.setStateForced(eventMessage.getState());
+					uiHandler.sendEmptyMessage(NOTIFY_DATASET_CHANGED);
+					break;
+				}
+			}
+		}
 	}
 }
