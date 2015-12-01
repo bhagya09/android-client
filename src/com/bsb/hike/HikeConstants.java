@@ -874,7 +874,7 @@ public class HikeConstants
 
 	public static final int MAX_CHAR_IN_NAME = 20;
 
-	public static final int MAX_CONTACTS_IN_GROUP = 500;
+	public static final int MAX_CONTACTS_IN_GROUP = 1000;
 
 	public static final int MAX_CONTACTS_IN_BROADCAST = 500;
 
