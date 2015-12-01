@@ -1480,8 +1480,6 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 			return;
 		}
 
-		interceptUrl = interceptUrl.toLowerCase();
-
 		for (String url : this.interceptUrlMap.keySet())
 		{
 			if (interceptUrl.contains(url))
