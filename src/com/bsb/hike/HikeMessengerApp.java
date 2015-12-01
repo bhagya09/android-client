@@ -546,6 +546,8 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 	public static final String LAST_STICKER_TAG_REFRESH_TIME = "lastStickerTagRefreshTime";
 
 	public static final String LAST_SUCCESSFUL_STICKER_TAG_REFRESH_TIME = "lastSuccessfulStickerTagRefreshTime";
+
+	public static final String LAST_RECOMMENDATION_ACCURACY_ANALYTICS_SENT_TIME = "lastRecommendationAccuracyAnalyticsTime";
 	
 	public static final String STICKER_TAG_REFRESH_PERIOD = "stickerTagRefreshPeriod";
 	
@@ -936,8 +938,7 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 	private void initImportantAppComponents(SharedPreferences prefs)
 	{
 		// we're basically banking on the fact here that init() would be
-		// succeeded by the
-		// onUpgrade() calls being triggered in the respective databases.
+		// succeeded by the onUpgrade() calls being triggered in the respective databases.
 		HikeConversationsDatabase.init(this);
 
 		initHikeLruCache(getApplicationContext());
@@ -975,7 +976,8 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 
 		ChatHeadUtils.startOrStopService(false);
 
-		StickerSearchManager.getInstance().initStickerSearchProiderSetupWizard();
+		StickerSearchManager.getInstance().initStickerSearchProviderSetupWizard();
+		StickerSearchManager.getInstance().sendStickerRecommendationAccuracyAnalytics();
 		
 		// Moving the shared pref stored in account prefs to the default prefs.
 		// This is done because previously we were saving shared pref for caller in accountutils but now using default settings prefs

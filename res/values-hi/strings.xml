@@ -775,7 +775,7 @@
     <string name="voip_call_notification_title">%1$s के साथ Hike कॉल</string>
     <string name="voip_conference_call_notification_title">Hike कॉन्फ़्रेंस कॉल</string>
     <string name="voip_call_notification_text">कॉल चालू है %1$s</string>
-    <string name="voip_call">कॉल करें</string>
+    <string name="voip_call">कॉल</string>
     <string name="voip_call_ended">कॉल समाप्त</string>
     <string name="voip_on_hold">होल्ड पर</string>
     <string name="voip_incoming">&#8230;आ रही है</string>
@@ -1236,10 +1236,10 @@
     <string name="take_me_there">मुझे वहां ले चलें</string>
     <string name="hike_upgrade_string">hike आपके लिए तेज़ और बेहतर बन रहा है\n इसमें कुछ समय लग सकता है</string>
     <array name="voip_decline_message_texts">
-        <item>अभी बात नहीं हो सकती। कृपया काम बता दें?</item>
-        <item>कुछ देर में आपको कॉल करते हैं</item>
-        <item>आपके साथ बाद में कॉल करते हैं</item>
-        <item>अभी बात नहीं हो सकती। मुझे बाद में कॉल करें?</item>
+        <item>अभी बात नहीं हो सकती। कृपया hike करें।</item>
+        <item>5 मिनट में बात करते हैं। </item>
+        <item>थोड़ी देर बाद करते हैं।</item>
+        <item>अभी बात नहीं हो सकती। थोड़ी देर बाद में कॉल करें।</item>
     </array>
     <string name="HELP">सहायता</string>
     <string name="sticky_caller_settings">कॉलर सेटिंग्स</string>
