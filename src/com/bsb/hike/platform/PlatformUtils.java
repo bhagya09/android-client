@@ -1504,9 +1504,28 @@ public class PlatformUtils
 		}, interval, duration);
 	}
 
-	public static void sendLocationLogs(Location location)
+	/**
+	 * Method to send log location updates to analytics.
+	 * @param location
+     */
+	public static void locationAnalytics(Location location)
 	{
-		sendLocationLogs(location, false);
+		JSONObject json = new JSONObject();
+		double latitude = location.getLatitude();
+		double longitude = location.getLongitude();
+		String provider = location.getProvider();
+
+		try
+		{
+			json.put(HikeConstants.LATITUDE, latitude);
+			json.put(HikeConstants.LONGITUDE, longitude);
+			json.put(HikeConstants.LOCATION_PROIVDER, provider);
+		} catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+
+		HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.USER_LOCATION, json);
 	}
 
 	public static void sendLocationLogs(Location location, boolean isLastLog)
