@@ -3111,28 +3111,34 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 		}
 		else if(HikePubSub.CONVINFO_UPDATED.equals(type))
 		{
-			final ConvInfo convInfo = (ConvInfo)object;
-			if (convInfo != null)
+			if (isAdded())
 			{
-				mConversationsByMSISDN.put(convInfo.getMsisdn(),convInfo);
-				final ConvMessage convMsg = convInfo.getLastConversationMsg();
-				if (convMsg != null)
+				final ConvMessage message = (ConvMessage) object;
+				final ConvInfo convInfo = mConversationsByMSISDN.get(message.getMsisdn());
+				if (convInfo != null)
 				{
-					getActivity().runOnUiThread(new Runnable()
+					convInfo.setLastConversationMsg(message);
+					final ConvMessage convMsg = convInfo.getLastConversationMsg();
+					if (convMsg != null)
 					{
-						@Override
-						public void run()
+						getActivity().runOnUiThread(new Runnable()
 						{
-							View parentView = getListView().getChildAt(
-									displayedConversations.indexOf(convInfo) - getListView().getFirstVisiblePosition() + getOffsetForListHeader());
-
-							if (parentView != null)
+							@Override
+							public void run()
 							{
-								mAdapter.updateViewsRelatedToLastMessage(parentView, convMsg, convInfo);
+								View parentView = getListView().getChildAt(
+										displayedConversations.indexOf(convInfo) - getListView().getFirstVisiblePosition() + getOffsetForListHeader());
+
+								if (parentView != null)
+								{
+									mAdapter.updateViewsRelatedToLastMessage(parentView, convMsg, convInfo);
+								}
 							}
-						}
-					});
+						});
+					}
 				}
+
+
 			}
 		}
 	}
