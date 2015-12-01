@@ -793,7 +793,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 
 		else if (type.equals(HikePubSub.MESSAGE_EVENT_RECEIVED))
 		{
-			if (mode != MICRO_APP_MODE || mode != WEB_URL_BOT_MODE) //We need it only Micro App mode as of now.
+			if (mode != MICRO_APP_MODE && mode != WEB_URL_BOT_MODE) //We need it only Micro App mode as of now.
 			{
 				return;
 			}
@@ -827,7 +827,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		}
 		else if (type.equals(HikePubSub.LOCATION_AVAILABLE))
 		{
-			if (mode != MICRO_APP_MODE || mode != WEB_URL_BOT_MODE) //We need it only Micro App mode as of now.
+			if (mode != MICRO_APP_MODE && mode != WEB_URL_BOT_MODE) //We need it only Micro App mode as of now.
 			{
 				return;
 			}
@@ -848,14 +848,14 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		}
 		else if (type.equals(HikePubSub.DOWNLOAD_PROGRESS))
 		{
-			if (mode != MICRO_APP_MODE || mode != WEB_URL_BOT_MODE) //We need it only Micro App mode as of now.
+			if (mode != MICRO_APP_MODE && mode != WEB_URL_BOT_MODE) //We need it only Micro App mode as of now.
 			{
 				return;
 			}
 
 			if (object instanceof Pair<?,?>)
 			{
-				if (null != msisdn && (msisdn.equals(botInfo.getMsisdn())|| msisdn.equals(botMetaData.getParentMsisdn())))
+				if (null != mmBridge && null != msisdn && (msisdn.equals(botInfo.getMsisdn())|| msisdn.equals(botMetaData.getParentMsisdn())))
 				{
 					Pair<String, String> callback = (Pair<String, String>) object;
 					mmBridge.downloadStatus(callback.first, callback.second);
@@ -863,7 +863,6 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 
 			}
 		}
-
 
 	}
 
