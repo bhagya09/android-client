@@ -1528,9 +1528,27 @@ public class PlatformUtils
 		HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.USER_LOCATION, json);
 	}
 
-	public static void sendLocationLogs(Location location, boolean isLastLog)
+	public static void resumeLoggingLocationIfRequired()
 	{
-		//TODO Send location logs to server
+		long endTime = HikeSharedPreferenceUtil.getInstance().getData(HikePlatformConstants.RECURRING_LOCATION_END_TIME, -1L);
+		HikeSharedPreferenceUtil.getInstance().removeData(HikePlatformConstants.RECURRING_LOCATION_END_TIME);
+		if (endTime >= 0 && System.currentTimeMillis() < endTime)
+		{
+			Logger.i("PlatformUtils", "Resuming location updates");
+			JSONObject json = new JSONObject();
+			try
+			{
+				json.put(HikePlatformConstants.DURATION, endTime - System.currentTimeMillis());
+				json.put(HikePlatformConstants.TIME_INTERVAL, HikeSharedPreferenceUtil.getInstance().getData(HikePlatformConstants.TIME_INTERVAL, 0L));
+
+				PlatformUtils.requestRecurringLocationUpdates(json);
+			} catch (JSONException e)
+			{
+				Logger.e("PlatformUtils", "JSONException in resumeLoggingLocationIfRequired : "+e.getMessage());
+				e.printStackTrace();
+			}
+
+		}
 	}
 
 }
