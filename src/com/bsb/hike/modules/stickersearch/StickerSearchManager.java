@@ -747,19 +747,19 @@ public class StickerSearchManager
 	public void saveCurrentRecommendationStateForAnalyticsIntoPref()
 	{
 		StickerSearchUtility.saveStickerRecommendationAnalyticsDataIntoPref(this.autoPopupClicksPerLanguageMap, this.tapOnHighlightWordClicksPerLanguageMap);
+	}
+
+	public void shutdown()
+	{
+		searchEngine.shutDown();
+		searchEngine = null;
 
 		// Dereference data, which is no longer needed
 		this.autoPopupClicksPerLanguageMap.clear();
 		this.autoPopupClicksPerLanguageMap = null;
 		this.tapOnHighlightWordClicksPerLanguageMap.clear();
 		this.tapOnHighlightWordClicksPerLanguageMap = null;
-	}
 
-	public void shutdown()
-	{
-		searchEngine.shutDown();
-
-		searchEngine = null;
 		_instance = null;
 	}
 }
