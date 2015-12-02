@@ -113,9 +113,9 @@ public final class SeekBarPreference extends DialogPreference implements
 		TextView titleView = (TextView) view.findViewById(android.R.id.title);
 		titleView.setTextAppearance(mContext, R.style.SettingsHeaderItemTextView);
 		titleView.setTypeface(prefFont.normal);
-		RelativeLayout.LayoutParams llp = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-		llp.setMargins(10, 0, 0, 0); // llp.setMargins(left, top, right, bottom);
-		titleView.setLayoutParams(llp);
+		RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+		params.setMargins(10, 0, 0, 0); // llp.setMargins(left, top, right, bottom);
+		titleView.setLayoutParams(params);
 
 		TextView summaryView = (TextView) view.findViewById(android.R.id.summary);
 		summaryView.setTextAppearance(mContext, R.style.ListItemSubHeaderTextView);
