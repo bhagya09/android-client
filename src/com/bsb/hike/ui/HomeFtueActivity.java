@@ -193,7 +193,7 @@ public class HomeFtueActivity extends HikeAppStateBaseFragmentActivity {
                                 try {
                                     JSONObject metadata = new JSONObject();
                                     metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.APP_LANGUAGE_FTUE);
-                                    metadata.put(HikeConstants.KEYBOARD_LANGUAGE, selectedLocalLanguage.getDisplayName());
+                                    metadata.put(HikeConstants.KEYBOARD_LANGUAGE_CHANGE, selectedLocalLanguage.getDisplayName());
                                     HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
                                 } catch (JSONException e) {
                                     Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json : " + selectedLocalLanguage.getDisplayName() + "\n" + e);
