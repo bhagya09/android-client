@@ -3109,7 +3109,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 
 			}
 		}
-		else if(HikePubSub.LASTMSG_UPDATED.equals(type))
+		else if (HikePubSub.LASTMSG_UPDATED.equals(type))
 		{
 			if (isAdded())
 			{
@@ -3126,8 +3126,8 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 							@Override
 							public void run()
 							{
-								View parentView = getListView().getChildAt(
-										displayedConversations.indexOf(convInfo) - getListView().getFirstVisiblePosition() + getOffsetForListHeader());
+								View parentView = getListView()
+										.getChildAt(displayedConversations.indexOf(convInfo) - getListView().getFirstVisiblePosition() + getOffsetForListHeader());
 
 								if (parentView != null)
 								{
@@ -3138,9 +3138,9 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 					}
 				}
 
-
 			}
 		}
+
 	}
 
 	protected void handleUIMessage(Message msg)
@@ -3528,7 +3528,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 		}
 		else
 		{
-			// for cases when list view is null or index is -1 (stealth chats that are not displayes)
+			// for cases when list view is null or index is -1 (stealth chats that are not displayed)
 			if (!wasViewSetup() || newIndex < 0)
 			{
 				return;

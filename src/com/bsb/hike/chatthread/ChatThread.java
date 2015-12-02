@@ -3958,7 +3958,8 @@ import android.widget.Toast;
         	}
         	break;
 		case HikePubSub.GENERAL_EVENT_STATE_CHANGE:
-			onGeneralEventStateChange(object);
+			//TODO Proper handling in next release. It is safe to comment this out for now.
+			//onGeneralEventStateChange(object);
 			break;
 
 		default:
