@@ -448,7 +448,12 @@ public class CropImageView extends FrameLayout {
         mDegreesRotated = mDegreesRotated % 360;
     }
 
-	private void setScaleType(ImageView.ScaleType scaleType) {
+    public int getDegreesRotated()
+    {
+        return mDegreesRotated;
+    }
+
+    private void setScaleType(ImageView.ScaleType scaleType) {
 		mScaleType = scaleType;
 		if (mImageView != null) mImageView.setScaleType(mScaleType);
 	}
@@ -466,6 +471,22 @@ public class CropImageView extends FrameLayout {
         setImageResource(mImageResource);
         mCropOverlayView = (CropOverlayView) v.findViewById(R.id.CropOverlayView);
         mCropOverlayView.setInitialAttributeValues(mGuidelines, mFixAspectRatio, mAspectRatioX, mAspectRatioY);
+    }
+
+    public void showCropOverlay()
+    {
+        if(mCropOverlayView!=null)
+        {
+            mCropOverlayView.setVisibility(View.VISIBLE);
+        }
+    }
+
+    public void hideCropOverlay()
+    {
+        if(mCropOverlayView!=null)
+        {
+            mCropOverlayView.setVisibility(View.INVISIBLE);
+        }
     }
 
     /**

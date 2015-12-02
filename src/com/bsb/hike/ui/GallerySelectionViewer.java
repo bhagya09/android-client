@@ -1,23 +1,23 @@
 package com.bsb.hike.ui;
 
 import java.io.File;
-import java.lang.ref.WeakReference;
+import java.io.IOException;
 import java.util.ArrayList;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
-import android.graphics.Color;
+import android.graphics.Bitmap;
 import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
+import android.support.v7.app.ActionBar;
+import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.util.Pair;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -31,27 +31,26 @@ import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
-import android.widget.ImageView.ScaleType;
 import android.widget.LinearLayout;
-import android.widget.LinearLayout.LayoutParams;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import android.support.v7.app.ActionBar;
-import android.support.v7.widget.Toolbar;
-
+import com.bsb.hike.BitmapModule.BitmapUtils;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.adapters.GalleryAdapter;
+import com.bsb.hike.cropimage.HikeCropActivity;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.filetransfer.FTAnalyticEvents;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.GalleryItem;
+import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
+import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.smartImageLoader.GalleryImageLoader;
@@ -60,11 +59,11 @@ import com.bsb.hike.ui.utils.StatusBarColorChanger;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.HikeUiHandler;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
-
-import org.w3c.dom.Text;
+import com.edmodo.cropper.CropImageView;
 
 public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity implements OnItemClickListener, OnScrollListener, OnPageChangeListener, HikePubSub.Listener, View.OnClickListener
 {
@@ -104,7 +103,21 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 
 	private static final String TAG = "GAllerySelectionViewer";
 
-    private SparseArray<String> captions = new SparseArray<>();
+	private SparseArray<String> captions = new SparseArray<>();
+
+	private boolean isInCropMode;
+
+	private View cropPanel;
+
+	private ImageButton btnRemove, btnEdit, btnCrop;
+
+	private View doneBtn;
+
+	private String TAG_CROP_IV = "cropimageview";
+
+	private String TAG_CAPTION_ET = "captionet";
+
+	private String TAG_CAPTION_LINE = "capline";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -173,6 +186,11 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 		selectedGrid = (GridView) findViewById(R.id.selection_grid);
 		selectedPager = (ViewPager) findViewById(R.id.selection_pager);
 
+		btnCrop = (ImageButton)findViewById(R.id.ib_crop);
+		btnEdit = (ImageButton)findViewById(R.id.ib_edit);
+		btnRemove = (ImageButton) findViewById(R.id.ib_remove);
+		cropPanel = findViewById(R.id.crop_actions_panel);
+
 		int sizeOfImage = getResources().getDimensionPixelSize(R.dimen.gallery_selection_item_size);
 
 		int numColumns = Utils.getNumColumnsForGallery(getResources(), sizeOfImage);
@@ -185,6 +203,10 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 			RelativeLayout.LayoutParams params =  (android.widget.RelativeLayout.LayoutParams) selectedGrid.getLayoutParams();
 			params.height = getResources().getDimensionPixelSize(R.dimen.gallery_selected_grid_height);
 			selectedGrid.setLayoutParams(params);
+
+			RelativeLayout.LayoutParams cropParams =  (android.widget.RelativeLayout.LayoutParams) cropPanel.getLayoutParams();
+			cropParams.height = getResources().getDimensionPixelSize(R.dimen.gallery_selected_grid_height);
+			cropPanel.setLayoutParams(cropParams);
 		}
 
 		selectedGrid.setNumColumns(numColumns);
@@ -309,7 +331,7 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 		View actionBarView = LayoutInflater.from(this).inflate(R.layout.compose_action_bar, null);
 
 		TextView title = (TextView) actionBarView.findViewById(R.id.title);
-		View doneBtn = actionBarView.findViewById(R.id.done_container);
+		doneBtn = actionBarView.findViewById(R.id.done_container);
 		TextView postText = (TextView) actionBarView.findViewById(R.id.post_btn);
 		View actionsView = actionBarView.findViewById(R.id.actionsView);
 
@@ -325,7 +347,6 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 			actionBarView.findViewById(R.id.seprator).setAlpha(0.2f);
 			actionsView.setOnClickListener(new OnClickListener()
 			{
-
 				@Override
 				public void onClick(View v)
 				{
@@ -336,7 +357,6 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 
 		doneBtn.setOnClickListener(new OnClickListener()
 		{
-
 			@Override
 			public void onClick(View v)
 			{
@@ -505,10 +525,11 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 
 	@Override
 	public void onClick(View view) {
+		CropImageView cropImageView = (CropImageView) selectedPager.findViewWithTag(TAG_CROP_IV + selectedPager.getCurrentItem());
 		switch (view.getId())
 		{
 			case R.id.ib_crop:
-
+				setCropViewVisibility(true);
 				break;
 			case R.id.ib_edit:
 				editSelectedImage();
@@ -516,9 +537,73 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 			case R.id.ib_remove:
                 removeSelectionClickListener.onClick(null);
 				break;
-			default:
+			case R.id.rotate:
+				cropImageView.rotateImage(90);
 				break;
+			case R.id.cancel:
+				int rotation = cropImageView.getDegreesRotated();
+				if(rotation != 0)
+				{
+					cropImageView.rotateImage(-1*rotation);
+				}
+
+			setCropViewVisibility(false);
+			break;
+		case R.id.accept:
+			Bitmap croppedImage = cropImageView.getCroppedImage();
+			int currPos = selectedPager.getCurrentItem();
+			String destinationFileHandle = PictureEditer.getEditImageSaveDirectory(true) + File.separator + Utils.getUniqueFilename(HikeFileType.IMAGE);
+			try
+			{
+				BitmapUtils.saveBitmapToFile(new File(destinationFileHandle), croppedImage, Bitmap.CompressFormat.JPEG, 85);
+
+				if(editedImages == null)
+				{
+					initiateEditMode();
+				}
+				editedImages.set(currPos, destinationFileHandle);
+				galleryGridItems.get(currPos).setFilePath(destinationFileHandle);
+				setCropViewVisibility(false);
+				gridAdapter.notifyDataSetChanged();
+				pagerAdapter.notifyDataSetChanged();
+			}
+			catch (IOException e)
+			{
+				e.printStackTrace();
+			}
+			break;
+		default:
+			break;
 		}
+	}
+
+	private void setCropViewVisibility(boolean enableCrop)
+	{
+		isInCropMode = enableCrop;
+
+		float animateDirection = enableCrop ? 1f : -1f;
+
+		btnRemove.animate().translationXBy(200f * animateDirection);
+		btnEdit.animate().setStartDelay(50).translationXBy(200f * animateDirection);
+		btnCrop.animate().setStartDelay(100).translationXBy(200f * animateDirection);
+
+		selectedGrid.animate().translationYBy(galleryGridItems.size() > 4 ? 600f * animateDirection : 300f * animateDirection);
+		cropPanel.setVisibility(enableCrop ? View.VISIBLE : View.GONE);
+
+		CropImageView cropImageView = (CropImageView) selectedPager.findViewWithTag(TAG_CROP_IV+selectedPager.getCurrentItem());
+		if (enableCrop)
+		{
+			cropImageView.showCropOverlay();
+		}
+		else
+		{
+			cropImageView.hideCropOverlay();
+		}
+
+		selectedPager.findViewWithTag(TAG_CAPTION_ET + selectedPager.getCurrentItem()).setVisibility(enableCrop ? View.GONE : View.VISIBLE);
+		selectedPager.findViewWithTag(TAG_CAPTION_LINE + selectedPager.getCurrentItem()).setVisibility(enableCrop ? View.GONE : View.VISIBLE);
+
+		doneBtn.setVisibility(enableCrop ? View.GONE : View.VISIBLE);
 	}
 
 	private class GalleryPagerAdapter extends PagerAdapter
@@ -568,25 +653,47 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 		}
 
 		@Override
-		public Object instantiateItem(ViewGroup container, final int position)
+		public View instantiateItem(ViewGroup container, final int position)
 		{
 			View page = layoutInflater.inflate(R.layout.gallery_preview_item, container, false);
 
-			ImageView galleryImageView = (ImageView) page.findViewById(R.id.album_image);
-			galleryImageView.setScaleType(ScaleType.FIT_CENTER);
+			final CropImageView galleryImageView = (CropImageView) page.findViewById(R.id.cropimageview);
+//			galleryImageView.setScaleType(ScaleType.FIT_CENTER);
 
-			//Using edited filepath if user has edited the current selection other wise the original
-			String filePath = new String(getFinalFilePathAtPosition(position));
+			galleryImageView.setTag(TAG_CROP_IV+position);
 
-			galleryImageLoader.loadImage(GalleryImageLoader.GALLERY_KEY_PREFIX + filePath, galleryImageView, false, true);
+			// Using edited filepath if user has edited the current selection other wise the original
+			final String filePath = new String(getFinalFilePathAtPosition(position));
+
+			HikeHandlerUtil.getInstance().postRunnable(new Runnable()
+			{
+				@Override
+				public void run()
+				{
+					final Bitmap bmp = galleryImageLoader.processBitmap(GalleryImageLoader.GALLERY_KEY_PREFIX + filePath);
+
+					runOnUiThread(new Runnable()
+					{
+						@Override
+						public void run()
+						{
+							galleryImageView.setImageBitmap(bmp);
+							galleryImageView.hideCropOverlay();
+						}
+					});
+				}
+			});
 
 			((ViewPager) container).addView(page);
 
             EditText captionEt = (EditText) page.findViewById(R.id.et_caption);
+			captionEt.setTag(TAG_CAPTION_ET+position);
             if(!TextUtils.isEmpty(captions.get(position)))
             {
                 captionEt.setText(captions.get(position));
             }
+
+			page.findViewById(R.id.caption_underline).setTag(TAG_CAPTION_LINE+position);
 
             captionEt.addTextChangedListener(new TextWatcher() {
 				@Override
@@ -723,6 +830,13 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 
 	@Override
 	public void onBackPressed() {
+
+		if(isInCropMode)
+		{
+			setCropViewVisibility(false);
+			return;
+		}
+
 		if(haveImagesBeenEdited())
 		{
 				HikeDialog confirmUndo = HikeDialogFactory.showDialog(this, HikeDialogFactory.UNDO_MULTI_EDIT_CHANGES_DIALOG, new HikeDialogListener() {

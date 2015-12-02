@@ -184,6 +184,7 @@ public class HikeCropActivity extends HikeAppStateBaseFragmentActivity
 
 	}
 
+	//TODO make generic utility method
 	private void onCropped(Bitmap argBmp)
 	{
 		try
@@ -191,6 +192,11 @@ public class HikeCropActivity extends HikeAppStateBaseFragmentActivity
 			if (mCropCompression != null)
 			{
 				argBmp = scale(argBmp, mCropCompression.getWidth(), mCropCompression.getHeight());
+			}
+
+			if(argBmp == null)
+			{
+				onCropFailed();
 			}
 
 			BitmapUtils.saveBitmapToFile(new File(mCropImagePath), argBmp, CompressFormat.JPEG, mCropCompression == null ? 85 : mCropCompression.getQuality());
@@ -242,7 +248,7 @@ public class HikeCropActivity extends HikeAppStateBaseFragmentActivity
 		return true;
 	}
 	
-	private Bitmap scale(Bitmap argBmp, final float maxWidth, final float maxHeight)
+	public static Bitmap scale(Bitmap argBmp, final float maxWidth, final float maxHeight)
 	{
 		Matrix scaleTransformation = null;
 		
@@ -295,7 +301,7 @@ public class HikeCropActivity extends HikeAppStateBaseFragmentActivity
 		catch (OutOfMemoryError exception)
 		{
 			exception.printStackTrace();
-			onCropFailed();
+			return null;
 		}
 		
 		return scaledBitmap;
