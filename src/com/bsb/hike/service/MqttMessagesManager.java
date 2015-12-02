@@ -3359,8 +3359,12 @@ public class MqttMessagesManager
 			String header = data.optString(HikeConstants.HEADER, context.getString(R.string.stealth_unread_tip_header));
 			String body = data.optString(HikeConstants.BODY, context.getString(R.string.stealth_unread_tip_message));
 
-			if (!TextUtils.isEmpty(header) && !TextUtils.isEmpty(body))
+			if(data.optBoolean(HikeConstants.ANIMATE, false))
 			{
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STEALTH_INDICATOR_SHOW_ONCE, true);
+				HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_INDICATOR, null);
+			}
+			else if (!TextUtils.isEmpty(header) && !TextUtils.isEmpty(body)) {
 				Editor editor = settings.edit();
 				editor.putString(HikeMessengerApp.STEALTH_UNREAD_TIP_HEADER, header);
 				editor.putString(HikeMessengerApp.STEALTH_UNREAD_TIP_MESSAGE, body);
@@ -3375,11 +3379,6 @@ public class MqttMessagesManager
 					bundle.putString(HikeConstants.Extras.STEALTH_PUSH_HEADER, header);
 					this.pubSub.publish(HikePubSub.STEALTH_POPUP_WITH_PUSH, bundle);
 				}
-			}
-			else
-			{
-				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STEALTH_INDICATOR_SHOW_ONCE, true);
-				HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_INDICATOR, null);
 			}
 		}
 		else if(subType.equals(HikeConstants.HOLI_POPUP))
