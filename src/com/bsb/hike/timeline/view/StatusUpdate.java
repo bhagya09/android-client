@@ -735,7 +735,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		JSONObject metadata = new JSONObject();
 		try 
 		{
-			metadata.put(HikeConstants.LogEvent.KPT, KptKeyboardManager.getInstance(StatusUpdate.this).getCurrentLanguageAddonItem().getlocaleName());
+			metadata.put(HikeConstants.KEYBOARD_LANGUAGE, KptKeyboardManager.getInstance(StatusUpdate.this).getCurrentLanguageAddonItem().getlocaleName());
 			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
 		} 
 		catch (JSONException e) 

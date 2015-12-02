@@ -660,10 +660,6 @@ public class HikeConstants
 	
 	public static final String VIBRATE_ON_KEYPRESS_PREF = "vibrateOnKeypressPref";
 	
-	public static final String APP_LANGUAGE = "app_language";
-	
-	public static final String KEYBOARD_LANGUAGE = "keyboard_language";
-	
 	public static final String UPGRADE_AVATAR_PROGRESS_USER = "upgradeAvtarProgressUser";
 
 	public static final String UPGRADING = "upgrading";
@@ -3702,6 +3698,13 @@ public class HikeConstants
 	public static final String SYSTEM_KEYBOARD = "System Keyboard";
 
 	public static final String HIKE_KEYBOARD = "Hike Keyboard";
+
+	public static final String PHONE_LANGUAGE = "ph_l";
+
+	public static final String APP_LANGUAGE = "ap_l";
+
+	public static final String KEYBOARD_LANGUAGE = "kb_l";
+
 
 
 }
