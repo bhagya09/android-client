@@ -740,6 +740,8 @@ import android.widget.Toast;
 			}
 			else if ((mComposeView.getInputType() & InputType.TYPE_TEXT_FLAG_MULTI_LINE) == InputType.TYPE_TEXT_FLAG_MULTI_LINE)
 			{
+				mComposeView.setInputType(mComposeView.getInputType()
+						^ InputType.TYPE_TEXT_FLAG_MULTI_LINE);
 				mComposeView.setImeOptions(EditorInfo.IME_ACTION_SEND);
 			}
 			mComposeView.setHorizontallyScrolling(false);		
