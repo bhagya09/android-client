@@ -30,6 +30,7 @@ import com.bsb.hike.modules.stickersearch.listeners.IStickerPickerRecommendation
 import com.bsb.hike.modules.stickersearch.listeners.IStickerRecommendFragmentListener;
 import com.bsb.hike.modules.stickersearch.listeners.IStickerSearchListener;
 import com.bsb.hike.modules.stickersearch.provider.StickerSearchHostManager;
+import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchBaseConstants;
 import com.bsb.hike.modules.stickersearch.ui.colorspan.ColorSpanPool;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
@@ -76,15 +77,15 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 	{
 		Logger.i(TAG, "Initialising sticker tag watcher...");
 
-		MAXIMUM_SEARCH_TEXT_BROKER_LIMIT = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_TAG_MAXIMUM_SEARCH_TEXT_LIMIT_BROKER,
-				StickerSearchConstants.MAXIMUM_SEARCH_TEXT_BROKER_LIMIT);
+		MAXIMUM_SEARCH_TEXT_BROKER_LIMIT = HikeSharedPreferenceUtil.getInstance(HikeStickerSearchBaseConstants.SHARED_PREF_STICKER_DATA).getData(
+				HikeConstants.STICKER_TAG_MAXIMUM_SEARCH_TEXT_LIMIT_BROKER, StickerSearchConstants.MAXIMUM_SEARCH_TEXT_BROKER_LIMIT);
 
 		this.activity = activity;
 		this.editText = editText;
 		this.color = color;
 		this.chatthread = chathread;
 		this.stickerPickerListener = (IStickerPickerRecommendationListener) chathread;
-		getColorSpanPool(); // initialise colorSpanPool;
+		getColorSpanPool(); // initialize colorSpanPool;
 		this.count = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STICKER_RECOMMEND_SCROLL_FTUE_COUNT, SHOW_SCROLL_FTUE_COUNT);
 		this.shownStickerRecommendFtue = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.SHOWN_STICKER_RECOMMEND_FTUE, false);
 		this.shownStickerRecommendFtueTip = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.SHOWN_STICKER_RECOMMEND_TIP, false);
@@ -359,9 +360,9 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 	}
 
 	@Override
-	public void stickerSelected(String word, String phrase, Sticker sticker, int selectedIndex, int size, String source, boolean dismissAndClear)
+	public void stickerSelected(String word, String phrase, Sticker sticker, int selectedIndex, int recommendedListSize, String source, boolean dismissAndClear)
 	{
-		Logger.v(TAG, "stickerSelected(" + word + ", " + phrase + ", " + sticker + ", " + selectedIndex + ")");
+		Logger.v(TAG, "stickerSelected(" + word + ", " + phrase + ", " + sticker + ", " + selectedIndex + "," + recommendedListSize + "," + source + "," + dismissAndClear + ")");
 
 		sendSticker(sticker, source, dismissAndClear);
 
@@ -369,6 +370,8 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 		{
 			StickerSearchManager.getInstance().resetOrStartFreshTrialForAutoPopupTurnOff(false);
 		}
+
+		StickerSearchManager.getInstance().increaseRecommendationAcceptedMatrixForCurrentLanguage();
 
 		if (dismissAndClear)
 		{
@@ -394,7 +397,7 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 		}
 
 		// Send analytics
-		StickerManager.getInstance().sendRecommendationSelectionAnalytics(source, sticker.getStickerId(), sticker.getCategoryId(), (selectedIndex + 1), size,
+		StickerManager.getInstance().sendRecommendationSelectionAnalytics(source, sticker.getStickerId(), sticker.getCategoryId(), (selectedIndex + 1), recommendedListSize,
 				StickerSearchManager.getInstance().getNumStickersVisibleAtOneTime(), word, phrase);
 	}
 
@@ -542,6 +545,7 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 		{
 			StickerSearchManager.getInstance().saveOrDeleteAutoPopupTrialState(false);;
 		}
+		StickerSearchManager.getInstance().saveCurrentRecommendationStateForAnalyticsIntoPref();
 		StickerSearchManager.getInstance().removeStickerSearchListener(this);
 
 		fragment = null;

@@ -85,6 +85,7 @@ public class StickerSignupUpgradeDownloadTask implements IHikeHTTPTask, IHikeHtt
 			{
 				postObject.put(StickerManager.CATEGORY_IDS, categoryList);
 				postObject.put("resId", Utils.getResolutionId());
+				postObject.put("lang", Utils.getCurrentLanguageLocale().getISO3Language());
 				return postObject;
 			}
 			Logger.e(TAG, "Sticker download failed null or empty category list");

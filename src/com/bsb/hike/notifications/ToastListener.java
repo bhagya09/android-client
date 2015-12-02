@@ -21,7 +21,9 @@ import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.MqttConstants;
 import com.bsb.hike.MqttConstants.MQTTConnectionStatus;
 import com.bsb.hike.R;
+import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
+import com.bsb.hike.bots.NonMessagingBotMetadata;
 import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.*;
@@ -36,6 +38,7 @@ import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
 import com.bsb.hike.timeline.view.TimelineActivity;
 import com.bsb.hike.ui.HomeActivity;
 import com.bsb.hike.ui.PeopleActivity;
+import com.bsb.hike.ui.WebViewActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.OneToNConversationUtils;
@@ -723,4 +726,26 @@ public class ToastListener implements Listener
 		toaster.sendNotificationToChatThread(msisdn, message, forceNotPlaySound);
 
 	}
+
+	public void showBotDownloadNotification(String msisdn, String message, boolean forceNotPlaySound)
+	{
+		Activity activity = (currentActivity != null) ? currentActivity.get() : null;
+
+		if ((activity instanceof WebViewActivity))
+		{
+			String activityMsisdn=((WebViewActivity) activity).msisdn;
+			BotInfo botInfo=BotUtils.getBotInfoForBotMsisdn(msisdn);
+			NonMessagingBotMetadata nmData=new NonMessagingBotMetadata(botInfo.getMetadata());
+			if (TextUtils.isEmpty(msisdn) || TextUtils.isEmpty(activityMsisdn)|| botInfo==null ||nmData==null ||  (activityMsisdn.equals(nmData.getParentMsisdn())))
+			{
+				Logger.e("ToastListener", "Either the parent bot was open or the msisdn passed is null or botinfo is null");
+				return;
+			}
+		}
+
+		toaster.sendNotificationToChatThread(msisdn, message, forceNotPlaySound);
+
+	}
+
+
 }

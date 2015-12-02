@@ -38,6 +38,7 @@ import com.bsb.hike.bots.NonMessagingBotMetadata;
 import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.db.HikeConversationsDatabase;
+import com.bsb.hike.localisation.LocalLanguageUtils;
 import com.bsb.hike.models.*;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.Header;
@@ -49,6 +50,7 @@ import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.FileRequestPersistent;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
+import com.bsb.hike.modules.kpt.KptKeyboardManager;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadSource;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadType;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerPalleteImageDownloadTask;
@@ -346,6 +348,24 @@ public class PlatformUtils
 				intent.putExtra(HikePlatformConstants.EXTRA_DATA, mmObject.optString(HikePlatformConstants.EXTRA_DATA));
 				context.startActivity(intent);
 			}
+			if (activityName.equals(HIKESCREEN.CHAT_THREAD.toString()))
+			{
+				String msisdn = mmObject.optString("msisdn");
+				if (TextUtils.isEmpty(msisdn))
+				{
+					Logger.e(TAG, "Msisdn is missing in the packet");
+					return;
+				}
+				Intent in = IntentFactory.getIntentForAnyChatThread(context, msisdn, mmObject.optBoolean("isBot"));
+				if (in != null)
+				{
+					context.startActivity(in);
+				}
+				else
+				{
+					Toast.makeText(context, context.getString(R.string.app_not_enabled),Toast.LENGTH_SHORT).show();
+				}
+			}
 		}
 		catch (JSONException e)
 		{
@@ -429,7 +449,7 @@ public class PlatformUtils
 
 	public static void botCreationSuccessHandling(BotInfo botInfo, boolean enableBot, String botChatTheme, String notifType)
 	{
-		enableBot(botInfo, enableBot);
+		enableBot(botInfo, enableBot,true);
 		BotUtils.updateBotParamsInDb(botChatTheme, botInfo, enableBot, notifType);
 		createBotAnalytics(HikePlatformConstants.BOT_CREATED, botInfo);
 		createBotMqttAnalytics(HikePlatformConstants.BOT_CREATED_MQTT, botInfo);
@@ -491,11 +511,12 @@ public class PlatformUtils
 		}
 	}
 
-	public static void enableBot(BotInfo botInfo, boolean enableBot)
+	public static void enableBot(BotInfo botInfo, boolean enableBot,boolean increaseUnread)
 	{
 		if (enableBot && botInfo.isNonMessagingBot())
 		{
 			HikeConversationsDatabase.getInstance().addNonMessagingBotconversation(botInfo);
+			Utils.rearrangeChat(botInfo.getMsisdn(),true,increaseUnread);
 		}
 	}
 
@@ -1064,15 +1085,15 @@ public class PlatformUtils
 			Toast.makeText(context, context.getString(R.string.sticker_share_popup_activate_toast), Toast.LENGTH_LONG).show();
 			if (ChatHeadUtils.checkDeviceFunctionality())
 			{
-				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.CHAT_HEAD_SERVICE, true);
-				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.CHAT_HEAD_USR_CONTROL, true);
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.ENABLE, true);
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.USER_CONTROL, true);
 				JSONArray packagesJSONArray;
 				try
 				{
 					packagesJSONArray = new JSONArray(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.PACKAGE_LIST, null));
 					if (packagesJSONArray != null)
 					{
-						ChatHeadUtils.setAllApps(packagesJSONArray, true);
+						ChatHeadUtils.setAllApps(packagesJSONArray, true, false);
 					}
 				}
 				catch (JSONException e)
@@ -1440,6 +1461,7 @@ public class PlatformUtils
 
 						}
 					});
+			token.execute();
 		}
 		catch (JSONException e)
 		{
@@ -1448,4 +1470,13 @@ public class PlatformUtils
 
 	}
 
+	public static void addLocaleToInitJSON(JSONObject jsonObject) throws JSONException
+	{
+		jsonObject.put(HikeConstants.LOCALE, LocalLanguageUtils.getApplicationLocalLanguageLocale());
+		jsonObject.put(HikeConstants.DEVICE_LOCALE, LocalLanguageUtils.getDeviceDefaultLocale());
+		if (!HikeMessengerApp.isSystemKeyboard())
+			jsonObject.put(HikeConstants.CUSTOM_KEYBOARD_LOCALE, KptKeyboardManager.getInstance(HikeMessengerApp.getInstance().getApplicationContext())
+					.getCurrentLanguageAddonItem().getlocaleName());
+
+	}
 }

@@ -427,6 +427,7 @@ public class UploadFileTask extends FileTransferBase
 			filesArray.put(hikeFile.serialize());
 			metadata.put(HikeConstants.FILES, filesArray);
 
+			_state = FTState.COMPLETED;
 			if (isMultiMsg)
 			{
 				long ts = System.currentTimeMillis() / 1000;
@@ -468,7 +469,6 @@ public class UploadFileTask extends FileTransferBase
 			}
 			deleteStateFile();
 			Utils.addFileName(hikeFile.getFileName(), hikeFile.getFileKey());
-			_state = FTState.COMPLETED;
 		}
 		catch (MalformedURLException e)
 		{

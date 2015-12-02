@@ -65,6 +65,7 @@ import com.bsb.hike.utils.*;
 import com.bsb.hike.utils.LastSeenScheduler.LastSeenFetchedCallback;
 import com.bsb.hike.voip.VoIPUtils;
 import com.google.gson.Gson;
+import com.kpt.adaptxt.beta.RemoveDialogData;
 
 /**
  * <!-- begin-user-doc --> <!-- end-user-doc -->
@@ -1714,12 +1715,12 @@ import com.google.gson.Gson;
 	private boolean shouldShowLocationDialog()
 	{
 		return (Utils.isMarshmallowOrHigher() && OfflineUtils.willConnnectToHotspot(msisdn) && !Utils.isLocationEnabled(activity.getApplicationContext()) && HikeSharedPreferenceUtil
-				.getInstance().getData(HikeConstants.SHOW_GPS_DIALOG, false));
+				.getInstance().getData(HikeConstants.SHOW_GPS_DIALOG, true));
 	}
 
 	private void showLocationCloseDialog()
 	{
-		if (Utils.isMarshmallowOrHigher() && Utils.isLocationEnabled(activity) && HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SHOW_GPS_DIALOG, false))
+		if (Utils.isMarshmallowOrHigher() && Utils.isLocationEnabled(activity) && HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SHOW_GPS_DIALOG, true))
 			sendUIMessage(SHOW_TOAST, 1000, R.string.close_gps);
 	}
 
@@ -3501,7 +3502,7 @@ import com.google.gson.Gson;
 		
 		super.onPreNewIntent();
 	}
-	
+
 	private void showLocationDialog()
 	{
 		if (alert != null && alert.isShowing())

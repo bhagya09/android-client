@@ -120,7 +120,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 
 	NonMessagingBotMetadata botMetaData;
 	
-	String msisdn;
+	public static String msisdn = "";
 
 	int mode;
 	
@@ -457,6 +457,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	protected void onDestroy()
 	{
 		HikeMessengerApp.getPubSub().removeListeners(this, pubsub);
+		msisdn=null;
 		if(webView!=null)
 		{
 			webView.onActivityDestroyed();
@@ -774,6 +775,11 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 			if (object instanceof BotInfo)
 			{
 				BotInfo botInfo = (BotInfo) object;
+				if (botInfo == null)
+				{
+					return;
+				}
+
 				if (botInfo.getMsisdn().equals(msisdn))
 				{
 					String notifData = botInfo.getNotifData();
@@ -787,6 +793,10 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 
 		else if (type.equals(HikePubSub.MESSAGE_EVENT_RECEIVED))
 		{
+			if (mode != MICRO_APP_MODE && mode != WEB_URL_BOT_MODE) //We need it only Micro App mode as of now.
+			{
+				return;
+			}
 
 			if (object instanceof MessageEvent)
 			{
@@ -817,6 +827,11 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		}
 		else if (type.equals(HikePubSub.LOCATION_AVAILABLE))
 		{
+			if (mode != MICRO_APP_MODE && mode != WEB_URL_BOT_MODE) //We need it only Micro App mode as of now.
+			{
+				return;
+			}
+
 			LocationManager locationManager = (LocationManager) object;
 			Location location = null;
 			if (locationManager != null)
@@ -833,9 +848,14 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		}
 		else if (type.equals(HikePubSub.DOWNLOAD_PROGRESS))
 		{
+			if (mode != MICRO_APP_MODE && mode != WEB_URL_BOT_MODE) //We need it only Micro App mode as of now.
+			{
+				return;
+			}
+
 			if (object instanceof Pair<?,?>)
 			{
-				if (null != msisdn && (msisdn.equals(botInfo.getMsisdn())|| msisdn.equals(botMetaData.getParentMsisdn())))
+				if (null != mmBridge && null != msisdn && BotUtils.isSpecialBot(botInfo) && (msisdn.equals(botInfo.getMsisdn())|| msisdn.equals(botMetaData.getParentMsisdn())))
 				{
 					Pair<String, String> callback = (Pair<String, String>) object;
 					mmBridge.downloadStatus(callback.first, callback.second);
@@ -843,7 +863,6 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 
 			}
 		}
-
 
 	}
 
@@ -1004,6 +1023,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		{
 			HAManager.getInstance().endChatSession(msisdn);
 		}
+		HikeMessengerApp.getPubSub().publish(HikePubSub.NEW_ACTIVITY, null);
 		webView.onPause();
 	}
 
@@ -1021,6 +1041,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		 * Used to clear notif tray if this is opened from notification
 		 */
 		HikeMessengerApp.getPubSub().publish(HikePubSub.CANCEL_ALL_NOTIFICATIONS, null);
+		HikeMessengerApp.getPubSub().publish(HikePubSub.NEW_ACTIVITY, this);
 		webView.onResume();
 	}
 	

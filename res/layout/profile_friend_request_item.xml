@@ -94,7 +94,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
-                android:text="Added you as a friend"
+                android:text="@string/added_you_friend"
                 android:textColor="@color/updates_text"
                 android:textSize="16sp"
                 android:textStyle="italic" />
