@@ -45,7 +45,6 @@ import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
-import com.google.gson.Gson;
 import com.hike.transporter.utils.TConstants.ERRORCODES;
 
 /**
@@ -177,7 +176,7 @@ public class OfflineUtils
 
 	public static ConvMessage createOfflineInlineConvMessage(String msisdn, String message, String type)
 	{
-		ConvMessage convMessage = Utils.makeConvMessage(msisdn, message, true, State.RECEIVED_READ);
+		ConvMessage convMessage = Utils.makeConvMessage(msisdn, message, true, State.RECEIVED_UNREAD);
 		try
 		{
 			JSONObject metaData = new JSONObject();
@@ -637,7 +636,7 @@ public class OfflineUtils
 		try
 		{
 			object.put(HikeConstants.TYPE, OfflineConstants.INFO_PKT);
-			object.put(HikeConstants.VERSION,Utils.getAppVersion());
+			object.put(HikeConstants.VERSION,Utils.getAppVersionName());
 			object.put(OfflineConstants.OFFLINE_VERSION,OfflineConstants.OFFLINE_VERSION_NUMER);
 			object.put(HikeConstants.RESOLUTION_ID, Utils.getResolutionId());
 			object.put(OfflineConstants.CONNECTION_ID, connectID);

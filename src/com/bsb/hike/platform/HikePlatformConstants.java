@@ -278,5 +278,21 @@ public interface HikePlatformConstants
 	final static String RESUME_SUPPORT = "resume_support";
 
 	public static final String IS_SHORTCUT = "is_shortcut";
+
+	public static final String EXTRA_DATA = "extra_data";
 	
+	public static final String TEAM_HIKE_MSISDN = "+hike+";
+	
+	public static final String EMMA_BOT_MSISDN = "+hike1+";
+	
+	public static final String GAMES_HIKE_MSISDN = "+hike2+";
+	
+	public static final String HIKE_DAILY_MSISDN = "+hike3+";
+	
+	public static final String HIKE_SUPPORT_MSISDN = "+hike4+";
+	
+	public static final String NATASHA_MSISDN = "+hike5+";
+	
+	public static final String CRICKET_HIKE_MSISDN = "+hikecricket+";
+
 }

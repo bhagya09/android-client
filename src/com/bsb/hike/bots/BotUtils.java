@@ -25,6 +25,7 @@ import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.notifications.HikeNotification;
+import com.bsb.hike.notifications.ToastListener;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.content.PlatformContentConstants;
@@ -71,31 +72,31 @@ public class BotUtils
 	 * adding default bots to bot hashmap. The config is set using {@link com.bsb.hike.bots.MessagingBotConfiguration}, where every bit is set according to the requirement
 	 * https://docs.google.com/spreadsheets/d/1hTrC9GdGRXrpAt9gnFnZACiTz2Th8aUIzVB5hrlD_4Y/edit#gid=0
 	 */
-	public static Map<String, BotInfo> getDefaultHardCodedBotInfoObjects()
+	public static Map<String, BotInfo> getDefaultHardCodedBotInfoObjects(Context context)
 	{
 		Map<String, BotInfo> botsMap = new HashMap<String, BotInfo>();
 
-		BotInfo teamHike = new BotInfo.HikeBotBuilder("+hike+").setConvName("team hike").setConfig(4527).build();
+		BotInfo teamHike = new BotInfo.HikeBotBuilder(HikePlatformConstants.TEAM_HIKE_MSISDN).setConvName(context.getString(R.string.team_hike_bot)).setConfig(4527).build();
 
-		BotInfo emmaBot = new BotInfo.HikeBotBuilder("+hike1+").setConvName("Emma from hike").setConfig(2069487).build();
+		BotInfo emmaBot = new BotInfo.HikeBotBuilder(HikePlatformConstants.EMMA_BOT_MSISDN).setConvName(context.getString(R.string.emma_bot)).setConfig(2069487).build();
 
-		BotInfo gamesOnHike = new BotInfo.HikeBotBuilder("+hike2+").setConvName("Games on hike").setConfig(21487).build();
+		BotInfo gamesOnHike = new BotInfo.HikeBotBuilder(HikePlatformConstants.GAMES_HIKE_MSISDN).setConvName(context.getString(R.string.games_bot)).setConfig(21487).build();
 
-		BotInfo hikeDaily = new BotInfo.HikeBotBuilder("+hike3+").setConvName("hike daily").setConfig(2069487).build();
+		BotInfo hikeDaily = new BotInfo.HikeBotBuilder(HikePlatformConstants.HIKE_DAILY_MSISDN).setConvName(context.getString(R.string.hike_daily_bot)).setConfig(2069487).build();
 
-		BotInfo hikeSupport = new BotInfo.HikeBotBuilder("+hike4+").setConvName("hike support").setConfig(2069487).build();
+		BotInfo hikeSupport = new BotInfo.HikeBotBuilder(HikePlatformConstants.HIKE_SUPPORT_MSISDN).setConvName(context.getString(R.string.hike_support_bot)).setConfig(2069487).build();
 
-		BotInfo natasha = new BotInfo.HikeBotBuilder("+hike5+").setConvName("Natasha").setConfig(2069487).build();
+		BotInfo natasha = new BotInfo.HikeBotBuilder(HikePlatformConstants.NATASHA_MSISDN).setConvName(context.getString(R.string.natasha_bot)).setConfig(2070511).build();
 
-		BotInfo cricketBot = new BotInfo.HikeBotBuilder("+hikecricket+").setConvName("Cricket 2015").setConfig(21487).build();
+		BotInfo cricketBot = new BotInfo.HikeBotBuilder(HikePlatformConstants.CRICKET_HIKE_MSISDN).setConvName(context.getString(R.string.cricket_bot)).setConfig(21487).build();
 
-		botsMap.put("+hike+", teamHike);
-		botsMap.put("+hike1+", emmaBot);
-		botsMap.put("+hike2+", gamesOnHike);
-		botsMap.put("+hike3+", hikeDaily);
-		botsMap.put("+hike4+", hikeSupport);
-		botsMap.put("+hike5+", natasha);
-		botsMap.put("+hikecricket+", cricketBot);
+		botsMap.put(HikePlatformConstants.TEAM_HIKE_MSISDN, teamHike);
+		botsMap.put(HikePlatformConstants.EMMA_BOT_MSISDN, emmaBot);
+		botsMap.put(HikePlatformConstants.GAMES_HIKE_MSISDN, gamesOnHike);
+		botsMap.put(HikePlatformConstants.HIKE_DAILY_MSISDN, hikeDaily);
+		botsMap.put(HikePlatformConstants.HIKE_SUPPORT_MSISDN, hikeSupport);
+		botsMap.put(HikePlatformConstants.NATASHA_MSISDN, natasha);
+		botsMap.put(HikePlatformConstants.CRICKET_HIKE_MSISDN, cricketBot);
 
 		return botsMap;
 	}
@@ -106,19 +107,19 @@ public class BotUtils
 	 */
 	public static void addDefaultBotsToDB(Context context)
 	{
-		defaultBotEntry("+hike+", "team hike", null, HikeBitmapFactory.getBase64ForDrawable(R.drawable.hiketeam, context.getApplicationContext()), 4527, false, context);
+		defaultBotEntry(HikePlatformConstants.TEAM_HIKE_MSISDN, context.getString(R.string.team_hike_bot), null, HikeBitmapFactory.getBase64ForDrawable(R.drawable.hiketeam, context.getApplicationContext()), 4527, false, context);
 
-		defaultBotEntry("+hike1+", "Emma from hike", null, null, 2069487, true, context);
+		defaultBotEntry(HikePlatformConstants.EMMA_BOT_MSISDN, context.getString(R.string.emma_bot), null, null, 2069487, true, context);
 
-		defaultBotEntry("+hike2+", "Games on hike", null, null, 21487, false, context);
+		defaultBotEntry(HikePlatformConstants.GAMES_HIKE_MSISDN, context.getString(R.string.games_bot), null, null, 21487, false, context);
 
-		defaultBotEntry("+hike3+", "hike daily", null, HikeBitmapFactory.getBase64ForDrawable(R.drawable.hikedaily, context.getApplicationContext()), 21487, false, context);
+		defaultBotEntry(HikePlatformConstants.HIKE_DAILY_MSISDN, context.getString(R.string.hike_daily_bot), null, HikeBitmapFactory.getBase64ForDrawable(R.drawable.hikedaily, context.getApplicationContext()), 21487, false, context);
 
-		defaultBotEntry("+hike4+", "hike support", null, null, 2069487, true, context);
+		defaultBotEntry(HikePlatformConstants.HIKE_SUPPORT_MSISDN, context.getString(R.string.hike_support_bot), null, null, 2069487, true, context);
 
-		defaultBotEntry("+hike5+", "Natasha", null, HikeBitmapFactory.getBase64ForDrawable(R.drawable.natasha, context.getApplicationContext()), 2069487, true, context);
+		defaultBotEntry(HikePlatformConstants.NATASHA_MSISDN, context.getString(R.string.natasha_bot), null, HikeBitmapFactory.getBase64ForDrawable(R.drawable.natasha, context.getApplicationContext()), 2070511, true, context);
 
-		defaultBotEntry("+hikecricket+", "Cricket 2015", HikePlatformConstants.CRICKET_CHAT_THEME_ID,
+		defaultBotEntry(HikePlatformConstants.CRICKET_HIKE_MSISDN, context.getString(R.string.cricket_bot), HikePlatformConstants.CRICKET_CHAT_THEME_ID,
 				HikeBitmapFactory.getBase64ForDrawable(R.drawable.cric_icon, context.getApplicationContext()), 21487, false, context);
 	}
 
@@ -517,7 +518,7 @@ public class BotUtils
 		 */
 		if (!HikeConstants.OFF.equals(notifType))
 		{
-			HikeNotification.getInstance().notifyStringMessage(msisdn, botInfo.getLastMessageText(), notifType.equals(HikeConstants.SILENT), NotificationType.OTHER);
+			ToastListener.getInstance().showBotDownloadNotification(msisdn, botInfo.getLastMessageText(),notifType.equals(HikeConstants.SILENT));
 		}
 	}
 	

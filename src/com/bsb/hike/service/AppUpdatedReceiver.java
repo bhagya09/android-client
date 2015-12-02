@@ -1,5 +1,6 @@
 package com.bsb.hike.service;
 
+import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -10,8 +11,12 @@ import android.preference.PreferenceManager;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
+import com.bsb.hike.models.Conversation.ConversationTip;
+import com.bsb.hike.notifications.HikeNotification;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
+import com.kpt.adaptxt.beta.util.KPTConstants;
 
 /**
  * @author Rishabh This receiver is used to notify that the app has been updated.
@@ -28,6 +33,11 @@ public class AppUpdatedReceiver extends BroadcastReceiver
 
 			final SharedPreferences prefs = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
 
+
+			Intent intentKpt = new Intent();
+			intentKpt.setAction(KPTConstants.ACTION_BASE_PACKAGE_REPLACED);
+			context.sendBroadcast(intentKpt);
+			
 			/*
 			 * If the user has not signed up yet, don't do anything.
 			 */
@@ -50,6 +60,14 @@ public class AppUpdatedReceiver extends BroadcastReceiver
 				editor.remove(HikeMessengerApp.NUM_TIMES_HOME_SCREEN);
 				editor.remove(HikeConstants.Extras.URL);
 				editor.commit();
+				
+				//Removing Upgrade tips, persistent notifications
+				Logger.d(HikeConstants.UPDATE_TIP_AND_PERS_NOTIF_LOG, "Flushing update tips and persistent notifs.");
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOULD_SHOW_PERSISTENT_NOTIF, false);
+				HikeNotification.getInstance().cancelPersistNotif();
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOW_NORMAL_UPDATE_TIP, false);
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOW_CRITICAL_UPDATE_TIP, false);
+				HikeMessengerApp.getPubSub().publish(HikePubSub.REMOVE_TIP, ConversationTip.UPDATE_CRITICAL_TIP);
 			}
 			/*
 			 * This will happen for builds older than 1.1.15

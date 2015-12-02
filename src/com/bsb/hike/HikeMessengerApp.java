@@ -1,30 +1,5 @@
 package com.bsb.hike;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URL;
-import java.net.URLEncoder;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicBoolean;
-
-import com.bsb.hike.notifications.HikeNotification;
-import com.bsb.hike.platform.content.PlatformContentConstants;
-
-import org.acra.ACRA;
-import org.acra.ErrorReporter;
-import org.acra.ReportField;
-import org.acra.annotation.ReportsCrashes;
-import org.acra.collector.CrashReportData;
-import org.acra.sender.HttpSender;
-import org.acra.sender.ReportSender;
-import org.acra.sender.ReportSenderException;
-import org.acra.util.HttpRequest;
-
-import android.app.Application;
-import android.app.NotificationManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -32,13 +7,16 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.support.multidex.MultiDex;
+import android.support.multidex.MultiDexApplication;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Pair;
 import android.widget.Toast;
 
-import com.bsb.hike.ag.NetworkAgModule;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.chatHead.ChatHeadUtils;
@@ -46,17 +24,21 @@ import com.bsb.hike.chatHead.StickyCaller;
 import com.bsb.hike.db.DbConversationListener;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.db.HikeMqttPersistence;
+import com.bsb.hike.localisation.LocalLanguageUtils;
 import com.bsb.hike.models.TypingNotification;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.HttpManager;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
+import com.bsb.hike.modules.kpt.KptKeyboardManager;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
+import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.notifications.HikeNotificationUtils;
 import com.bsb.hike.notifications.ToastListener;
 import com.bsb.hike.offline.OfflineConstants;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUIDFetch;
 import com.bsb.hike.platform.content.PlatformContent;
+import com.bsb.hike.platform.content.PlatformContentConstants;
 import com.bsb.hike.productpopup.ProductInfoManager;
 import com.bsb.hike.service.HikeService;
 import com.bsb.hike.service.RegisterToGCMTrigger;
@@ -72,11 +54,32 @@ import com.bsb.hike.utils.SmileyParser;
 import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
+import com.kpt.adaptxt.beta.core.coreservice.KPTCoreEngineImpl;
+
+import org.acra.ACRA;
+import org.acra.ErrorReporter;
+import org.acra.ReportField;
+import org.acra.annotation.ReportsCrashes;
+import org.acra.collector.CrashReportData;
+import org.acra.sender.HttpSender;
+import org.acra.sender.ReportSender;
+import org.acra.sender.ReportSenderException;
+import org.acra.util.HttpRequest;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 //https://github.com/ACRA/acra/wiki/Backends
 @ReportsCrashes(customReportContent = { ReportField.APP_VERSION_CODE, ReportField.APP_VERSION_NAME, ReportField.PHONE_MODEL, ReportField.BRAND, ReportField.PRODUCT,
 		ReportField.ANDROID_VERSION, ReportField.STACK_TRACE, ReportField.USER_APP_START_DATE, ReportField.USER_CRASH_DATE })
-public class HikeMessengerApp extends Application implements HikePubSub.Listener
+public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.Listener
 {
 	public static enum CurrentState
 	{
@@ -501,6 +504,8 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 	
 	public static final String UPGRADE_SORTING_ID_FIELD = "upgradeForSortingIdField";
 
+	public static final String UPGRADE_LANG_ORDER = "upgradeLanguageOrder";
+
 	public static final String EXCEPTION_ANALYTIS_ENABLED = "exceptionAnalaticsEnabled";
 
 	public static final String MAX_REPLY_RETRY_NOTIF_COUNT = "maxReplyRetryNotifCount";
@@ -524,6 +529,8 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 	
 	public static final String STICKER_REFRESH_SET = "stickerRefreshSet";
 
+    public static final String STICKER_SET_FOR_LANGUAGE = "stickerSetForLanguage";
+
 	public static final String SHOWN_STICKER_RECOMMEND_TIP = "shownStickerRecommendTip";
 
 	public static final String SHOWN_STICKER_RECOMMEND_AUTOPOPUP_OFF_TIP = "shownStickerRecommendAutoPopupOffTip";
@@ -539,12 +546,26 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 	public static final String LAST_STICKER_TAG_REFRESH_TIME = "lastStickerTagRefreshTime";
 
 	public static final String LAST_SUCCESSFUL_STICKER_TAG_REFRESH_TIME = "lastSuccessfulStickerTagRefreshTime";
+
+	public static final String LAST_RECOMMENDATION_ACCURACY_ANALYTICS_SENT_TIME = "lastRecommendationAccuracyAnalyticsTime";
 	
 	public static final String STICKER_TAG_REFRESH_PERIOD = "stickerTagRefreshPeriod";
 	
 	public static final String SHOWN_STICKER_RECOMMEND_FTUE = "shownStickerRecommendationFtue";
 
 	public static final String LAST_SUCESSFULL_TAGS_DOWNLOAD_TIME = "lastSuccessfulTagsDownloadTime";
+
+    public static final String NOT_DOWNLOADED_LANGUAGES_SET = "notDownloadedLanguagesSet";
+
+    public static final String DOWNLOADING_LANGUAGES_SET = "downloadingLanguagesSet";
+
+	public static final String DOWNLOADED_LANGUAGES_SET = "downloadedLanguagesSet";
+
+	public static final String FORBIDDEN_LANGUAGES_SET = "forbiddenLanguagesSet";
+
+    public static final String DEFAULT_TAG_DOWNLOAD_LANGUAGES_PREF = "defaultTagDownloadLanguagePref";
+
+
 
 	// =========================================================================================Constants for sticker search]]
 
@@ -711,6 +732,7 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 
 	public void onCreate()
 	{
+		KPTCoreEngineImpl.atxAssestCopyFromAppInfo(this, getFilesDir().getAbsolutePath(), getAssets());
 		SharedPreferences settings = getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
 		token = settings.getString(HikeMessengerApp.TOKEN_SETTING, null);
 		msisdn = settings.getString(HikeMessengerApp.MSISDN_SETTING, null);
@@ -730,6 +752,9 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 
 		_instance = this;
 
+		setupLocalLanguage();
+		KptKeyboardManager.getInstance(this);
+		LocalLanguageUtils.handleHikeSupportedListOrderChange(this);
 		Utils.setDensityMultiplier(getResources().getDisplayMetrics());
 
 		// first time or failed DB upgrade.
@@ -793,7 +818,7 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 		// successfully.
 		if ((settings.getInt(HikeConstants.UPGRADE_AVATAR_CONV_DB, -1) == 1) || settings.getInt(HikeConstants.UPGRADE_MSG_HASH_GROUP_READBY, -1) == 1
 				|| settings.getInt(HikeConstants.UPGRADE_FOR_DATABASE_VERSION_28, -1) == 1 || settings.getInt(StickerManager.MOVED_HARDCODED_STICKERS_TO_SDCARD, 1) == 1
-				|| settings.getInt(StickerManager.UPGRADE_FOR_STICKER_SHOP_VERSION_1, 1) == 1 || settings.getInt(UPGRADE_FOR_SERVER_ID_FIELD, 0) == 1 || settings.getInt(UPGRADE_SORTING_ID_FIELD, 0) == 1 || TEST)
+				|| settings.getInt(StickerManager.UPGRADE_FOR_STICKER_SHOP_VERSION_1, 1) == 1 || settings.getInt(UPGRADE_FOR_SERVER_ID_FIELD, 0) == 1 || settings.getInt(UPGRADE_SORTING_ID_FIELD, 0) == 1 ||settings.getInt(UPGRADE_LANG_ORDER,0)==0|| TEST)
 		{
 			startUpdgradeIntent();
 		}
@@ -904,17 +929,16 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 	
 		StickerManager.getInstance().sendStickerPackAndOrderListForAnalytics();
 		StickerManager.getInstance().refreshTagData();
-		
+
 		bottomNavBarHeightPortrait = Utils.getBottomNavBarHeight(getApplicationContext());
 		bottomNavBarWidthLandscape = Utils.getBottomNavBarWidth(getApplicationContext());
-		
+
 	}
 
 	private void initImportantAppComponents(SharedPreferences prefs)
 	{
 		// we're basically banking on the fact here that init() would be
-		// succeeded by the
-		// onUpgrade() calls being triggered in the respective databases.
+		// succeeded by the onUpgrade() calls being triggered in the respective databases.
 		HikeConversationsDatabase.init(this);
 
 		initHikeLruCache(getApplicationContext());
@@ -952,7 +976,8 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 
 		ChatHeadUtils.startOrStopService(false);
 
-		StickerSearchManager.getInstance().initStickerSearchProiderSetupWizard();
+		StickerSearchManager.getInstance().initStickerSearchProviderSetupWizard();
+		StickerSearchManager.getInstance().sendStickerRecommendationAccuracyAnalytics();
 		
 		// Moving the shared pref stored in account prefs to the default prefs.
 		// This is done because previously we were saving shared pref for caller in accountutils but now using default settings prefs
@@ -1183,5 +1208,46 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 	{// server side switch
 		int kc = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.KEYBOARD_CONFIGURATION, HikeConstants.KEYBOARD_CONFIGURATION_NEW);
 		return kc == HikeConstants.KEYBOARD_CONFIGURATION_NEW;
+	}
+	
+	public static boolean isSystemKeyboard()
+	{
+		return (!isCustomKeyboardEnabled() || HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SYSTEM_KEYBOARD_SELECTED, true));
+	}
+
+	public static boolean isCustomKeyboardEnabled()
+	{
+		return (
+				// server switch
+				HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CUSTOM_KEYBOARD_ENABLED, true)
+						// If localization is disabled in the app. Custom Keyboard is not to be used.
+						&& isLocalisationEnabled());
+	}
+
+	public static boolean isLocalisationEnabled()
+	{
+		// server switch
+		return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.LOCALIZATION_ENABLED, true);
+	}
+
+	@Override
+	public void onConfigurationChanged(Configuration newConfig)
+	{
+		super.onConfigurationChanged(newConfig);
+		setupLocalLanguage();
+	}
+
+	public void setupLocalLanguage()
+	{
+		Resources res = getApplicationContext().getResources();
+		Configuration config = res.getConfiguration();
+		config.locale = Utils.getCurrentLanguageLocale();
+		res.updateConfiguration(config, res.getDisplayMetrics());
+	}
+	
+	@Override
+	protected void attachBaseContext(Context base) {
+		super.attachBaseContext(base);
+		MultiDex.install(this);
 	}
 }

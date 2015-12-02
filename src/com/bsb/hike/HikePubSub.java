@@ -287,6 +287,10 @@ public class HikePubSub implements Runnable
 	public static final String UPDATE_PUSH = "updatePush";
 
 	public static final String APPLICATIONS_PUSH = "applicationsPush";
+	
+	public static final String FLUSH_PERSISTENT_NOTIF = "flushpn";
+	
+	public static final String SHOW_PERSISTENT_NOTIF = "showPersistentNotif";
 
 	public static final String UPDATE_AVAILABLE = "updateAvailable"; // TODO: get rid of this.
 
@@ -443,6 +447,12 @@ public class HikePubSub implements Runnable
 	public static final String ON_OFFLINE_REQUEST = "on_offline_request";
 	
 	public static final String PLATFORM_CARD_EVENT_SENT = "platformCardEventSent";
+
+	public static final String KPT_LANGUAGES_UPDATED = "kptLangUpdated";
+
+	public static final String KPT_LANGUAGES_INSTALLATION_FINISHED = "kptLangInstFin";
+
+	public static final String LOCAL_LANGUAGE_CHANGED = "localLangChange";
 	
 	public static final String LOCATION_AVAILABLE = "locationAvailable";
 
@@ -459,6 +469,8 @@ public class HikePubSub implements Runnable
 	public static final String BOT_CREATED = "botCreated";
 
 	public static final String SHOW_NEW_CHAT_RED_DOT = "showNewChatRedDot";
+
+	public static final String KEYBOARD_SWITCHED = "keyboardSwitched";
 
 	public static final String BADGE_COUNT_CHANGED = "badgeCountChanged";
 
@@ -489,6 +501,8 @@ public class HikePubSub implements Runnable
 	public static final String GENERAL_EVENT="generalEvent";
 
 	public static final String GENERAL_EVENT_STATE_CHANGE="generalEventStateChanged";
+
+	public static final String CONVINFO_UPDATED ="convInfoUpdated";
 
 	private final Thread mThread;
 

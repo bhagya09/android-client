@@ -2173,7 +2173,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 	 *            -- list of messages to be added to database
 	 * @return <li><b>true</b> if messages successfully added to database</li> <li><b>false</b> if messages are not inserted to database possibly due to duplicate</li>
 	 */
-	public boolean addConversations(List<ConvMessage> convMessages, ArrayList<ContactInfo> contacts,boolean createConvIfNotExist)
+	public boolean addConversations(List<ConvMessage> convMessages, List<ContactInfo> contacts,boolean createConvIfNotExist)
 	{
         SQLiteStatement insertStatement = getSqLiteStatementToInsertIntoMessagesTable(createConvIfNotExist);
 
@@ -7183,6 +7183,66 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 		return unreadMessages;
 	}
+
+	/**
+	 * This method calculates the unread count of messages for conversations. This count is used by the
+	 * badge counter to update the count of unread message. The method getTotalUnreadMessagesConversation
+	 * is not used because for bots like news and games, the unread count stored in the DB is not
+	 * reflected exactly on the badgecounter
+	 * @param includeStealth
+	 * @return unreadMessages count for conversations for badge counter
+	 */
+	public int getTotalUnreadMessagesConversationBadgeCounter(boolean includeStealth)
+	{
+		int unreadMessages = 0;
+		Cursor c = null;
+
+		try
+		{
+			String selection = null;
+			String[] args = null;
+			if (!includeStealth)
+			{
+				selection = DBConstants.IS_STEALTH + " = ?";
+				args = new String[] { "0" };
+			}
+
+			c = mDb.query(DBConstants.CONVERSATIONS_TABLE, new String[] { DBConstants.UNREAD_COUNT, DBConstants.MSISDN }, selection, args, null, null, null);
+
+			if (c!=null && c.moveToFirst())
+			{
+				final int unreadMessageColumn = c.getColumnIndex(DBConstants.UNREAD_COUNT);
+				final int msisdnColumn = c.getColumnIndex(DBConstants.MSISDN);
+
+				do
+				{
+					int dbUnreadCount = c.getInt(unreadMessageColumn);
+					String msisdn = c.getString(msisdnColumn);
+					if (msisdn!=null && BotUtils.isBot(msisdn))
+					{
+
+						BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
+						if (botInfo.isNonMessagingBot() && dbUnreadCount > 0)
+						{
+							dbUnreadCount = 1;
+						}
+					}
+					unreadMessages += dbUnreadCount;
+				}
+				while (c.moveToNext());
+			}
+		}
+		finally
+		{
+			if (c != null)
+			{
+				c.close();
+			}
+		}
+
+		return unreadMessages;
+	}
+
 	public HashMap<String, ContentValues> getCurrentStickerDataMapping(String tableName)
 	{
 		HashMap<String, ContentValues> result = new HashMap<String, ContentValues>();
@@ -8097,6 +8157,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 	 */
 	public void addNonMessagingBotconversation(BotInfo botInfo)
 	{
+		boolean isChatExist=isConversationExist(botInfo.getMsisdn());
 		ConvMessage convMessage = Utils.makeConvMessage(botInfo.getMsisdn(), botInfo.getLastMessageText(), true, State.RECEIVED_UNREAD);
 
 		ContentValues contentValues = new ContentValues();
@@ -8118,7 +8179,16 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			botInfo.setLastConversationMsg(convMessage);
 			botInfo.setUnreadCount(1);  // inOrder to show 1+ on conv screen, we need to have some unread counter
 			botInfo.setConvPresent(true); //In Order to indicate the presence of bot in the conv table
-			HikeMessengerApp.getPubSub().publish(HikePubSub.NEW_CONVERSATION, botInfo);
+
+			//If the chat thread already exists and we need only to change the convInfo,we would not want the listeners on new chat created to be fired,like badge counter.
+			if (isChatExist)
+			{
+				HikeMessengerApp.getPubSub().publish(HikePubSub.CONVINFO_UPDATED,botInfo);
+			}
+			else
+			{
+				HikeMessengerApp.getPubSub().publish(HikePubSub.NEW_CONVERSATION, botInfo);
+			}
 		}
 
 	}

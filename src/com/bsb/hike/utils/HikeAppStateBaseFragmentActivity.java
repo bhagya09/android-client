@@ -4,6 +4,8 @@ import android.app.NotificationManager;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -21,6 +23,7 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
 import com.bsb.hike.filetransfer.FTAnalyticEvents;
+import com.bsb.hike.localisation.LocalLanguageUtils;
 import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.productpopup.DialogPojo;
@@ -30,6 +33,8 @@ import com.bsb.hike.productpopup.ProductContentModel;
 import com.bsb.hike.productpopup.ProductInfoManager;
 import com.bsb.hike.ui.HikeBaseActivity;
 import com.bsb.hike.utils.HikeUiHandler.IHandlerCallback;
+
+import java.util.Locale;
 
 public class HikeAppStateBaseFragmentActivity extends HikeBaseActivity implements Listener,IHandlerCallback
 {
@@ -42,6 +47,7 @@ public class HikeAppStateBaseFragmentActivity extends HikeBaseActivity implement
 	
 	protected HikeUiHandler uiHandler = new HikeUiHandler (this);
 	
+	private boolean isActivityVisible = false;
 	/**
 	 * 
 	 * @param msg
@@ -73,12 +79,12 @@ public class HikeAppStateBaseFragmentActivity extends HikeBaseActivity implement
 	{
 		HikeAppStateUtils.onCreate(this);
 		super.onCreate(savedInstanceState);
-
 	}
 
 	@Override
 	protected void onResume()
 	{
+		isActivityVisible = true;
 		HikeAppStateUtils.onResume(this);
 		HikeAlarmManager.cancelAlarm(HikeAppStateBaseFragmentActivity.this, HikeAlarmManager.REQUESTCODE_RETRY_LOCAL_NOTIFICATION);
 		super.onResume();
@@ -124,6 +130,7 @@ public class HikeAppStateBaseFragmentActivity extends HikeBaseActivity implement
 	@Override
 	protected void onPause()
 	{
+		isActivityVisible = false;
 		HikeAppStateUtils.onPause(this);
 		super.onPause();
 	}
@@ -342,6 +349,11 @@ public class HikeAppStateBaseFragmentActivity extends HikeBaseActivity implement
 			break;
 		}
 
+	}
+	
+	protected boolean isActivityVisible()
+	{
+		return isActivityVisible;
 	}
 
 }

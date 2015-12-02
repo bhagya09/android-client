@@ -3,6 +3,11 @@ gen/
 build/
 **/.idea
 .settings/
+facebook-android-sdk/facebook/TestApp/
+proguard/
+local.properties
+.gradle/
+*/build/
 **/*.iml
 .gradle/
 proguard/

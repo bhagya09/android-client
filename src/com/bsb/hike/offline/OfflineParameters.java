@@ -18,7 +18,7 @@ import com.google.gson.annotations.Expose;
 public class OfflineParameters
 {
 	@Expose
-	boolean feature = false;
+	boolean feature = true;
 
 	@Expose
 	int gtto = 20000;  // 20 sec
@@ -27,7 +27,7 @@ public class OfflineParameters
 	int scrto = 60000*2; //2 min
 	
 	@Expose
-	int connto = 60000; //1 min 
+	int connto = 90000; //1.5 min 
 	
 	@Expose
 	int portno = OfflineConstants.PORT_PING;
@@ -37,15 +37,6 @@ public class OfflineParameters
 	
 	@Expose
 	int wifionwaittimes = 40; //sleep=500-->totoal time =20sec
-	
-	@Expose
-	String strOnTime0=null;
-	
-	@Expose
-	String strOnTime8=null;
-	
-	@Expose
-	String strOnTime18=null;
 
 	public boolean isOfflineEnabled()
 	{
@@ -84,29 +75,17 @@ public class OfflineParameters
 	
 	public String getInitialString()
 	{
-		if (TextUtils.isEmpty(strOnTime0))
-		{
-			strOnTime0 = HikeMessengerApp.getInstance().getString((R.string.connecting_to));
-		}
-		return strOnTime0;
+		return HikeMessengerApp.getInstance().getString((R.string.connecting_to));
 	}
 	
 	public String getStringOnTime8Sec()
 	{
-		if (TextUtils.isEmpty(strOnTime8))
-		{
-			strOnTime8 = HikeMessengerApp.getInstance().getString(R.string.offline_animation_second_message);
-		}
-		return strOnTime8;
+		return HikeMessengerApp.getInstance().getString(R.string.offline_animation_second_message);
 	}
 	
 	public String getStringonTime18Sec()
 	{
-		if (TextUtils.isEmpty(strOnTime18))
-		{
-			strOnTime18 = HikeMessengerApp.getInstance().getString(R.string.offline_animation_third_message);
-		}
-		return strOnTime18;
+		return HikeMessengerApp.getInstance().getString(R.string.offline_animation_third_message);
 	}
 	
 	public boolean shouldShowHikeDirectOption()

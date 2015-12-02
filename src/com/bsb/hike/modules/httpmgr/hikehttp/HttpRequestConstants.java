@@ -345,7 +345,10 @@ public class HttpRequestConstants
 	{
 		return BASE_URL + BASE_V1 + "/pin-call";
 	}
-	
+	public static String languageListUrl()
+	{
+		return BASE_URL + BASE_V1 + "/lang_list";
+	}
 	public static String getMorestickersUrl()
 	{
 		return BASE_URL+STICKER_SHARE_PATH ;
@@ -391,6 +394,11 @@ public class HttpRequestConstants
 		}
 	}
 
+	public static String getLanguageDictionaryBaseUrl()
+	{
+		return BASE_URL + BASE_V1 + "/dict/";
+	}
+	
 	public static String getHikeCallerUrl()
 	{
 		if (isProduction)
@@ -416,4 +424,15 @@ public class HttpRequestConstants
 			return HTTPS + QA_CONTENT + suffix ;
 		}
 	}
+    public static String httpNetworkTestUrl()
+    {
+        if (isProduction)
+        {
+            return HTTP + "ping.im.hike.in" + BASE_V1 + "/android";
+        }
+        else
+        {
+            return HTTP + STAGING_API  + BASE_V1 + "/android";
+        }
+    }
 }

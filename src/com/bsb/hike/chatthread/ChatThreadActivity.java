@@ -184,12 +184,15 @@ public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
 		else
 		{
 			setIntent(intent);
-			chatThread.dismissResidualAcitonMode();
-			chatThread.takeActionBasedOnIntent();
-			/**
-			 * Scrolling to bottom in case same chat is opened from onNewIntent
-			 */
-			chatThread.scrollToEnd();
+			if(chatThread != null)
+			{
+				chatThread.dismissResidualAcitonMode();
+				chatThread.takeActionBasedOnIntent();
+				/**
+				 * Scrolling to bottom in case same chat is opened from onNewIntent
+				 */
+				chatThread.scrollToEnd();
+			}
 		}
 	}
 	
@@ -386,6 +389,13 @@ public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
 	protected void setStatusBarColor(Window window, String color) {
 		// TODO Auto-generated method stub
 		//Nothing to be done with status bar
+		return;
+	}
+	
+	public void hideKeyboard() {
+		if(chatThread!=null){
+			chatThread.hideKeyboard();
+		}
 		return;
 	}
 }

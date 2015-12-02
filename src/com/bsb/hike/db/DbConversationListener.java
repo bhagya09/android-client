@@ -426,6 +426,7 @@ public class DbConversationListener implements Listener
 		{
 			String msisdn = (String) object;
 			mConversationDb.clearConversation(msisdn);
+			HikeMessengerApp.getPubSub().publish(HikePubSub.BADGE_COUNT_MESSAGE_CHANGED, null);
 		}
 		else if (HikePubSub.UPDATE_PIN_METADATA.equals(type))
 		{
@@ -520,9 +521,8 @@ public class DbConversationListener implements Listener
 					data.put(HikeConstants.MESSAGE_ID,messageId);
 					jObj.put(HikeConstants.DATA, data);
 					HikeMqttManagerNew.getInstance().sendMessage(jObj, MqttConstants.MQTT_QOS_ONE);
-					boolean increaseUnreadCount = data.optBoolean(HikePlatformConstants.INCREASE_UNREAD);
 					boolean rearrangeChat = data.optBoolean(HikePlatformConstants.REARRANGE_CHAT);
-					Utils.rearrangeChat(messageEvent.getMsisdn(), rearrangeChat, increaseUnreadCount);
+					Utils.rearrangeChat(messageEvent.getMsisdn(), rearrangeChat, false);
 				}
 
 				catch (JSONException e)

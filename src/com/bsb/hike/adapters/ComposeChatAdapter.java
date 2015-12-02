@@ -266,10 +266,11 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 				if (lastStatusMessage != null)
 				{
 					holder.status.setTextColor(context.getResources().getColor(R.color.list_item_subtext));
+					SmileyParser smileyParser = SmileyParser.getInstance();
 					switch (lastStatusMessage.getStatusMessageType())
 					{
 					case TEXT:
-						holder.status.setText(lastStatusMessage.getText());
+						holder.status.setText(smileyParser.addSmileySpans(lastStatusMessage.getText(), true));
 						if (lastStatusMessage.hasMood())
 						{
 							holder.statusMood.setVisibility(View.VISIBLE);
@@ -288,7 +289,6 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 
 					case IMAGE:
 					case TEXT_IMAGE:
-						SmileyParser smileyParser = SmileyParser.getInstance();
 						if(TextUtils.isEmpty(lastStatusMessage.getText()))
 						{
 							holder.status.setText(lastStatusMessage.getMsisdn());
@@ -318,12 +318,7 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 					holder.status.setText(contactInfo.getMsisdn());
 					holder.statusMood.setVisibility(View.GONE);
 				}
-				if (lastSeenPref && contactInfo.getOffline() == 0 && !showCheckbox)
-				{
-					holder.onlineIndicator.setVisibility(View.VISIBLE);
-					holder.onlineIndicator.setImageResource(R.drawable.ic_online_green_dot);
-				}
-				else
+				if(holder.onlineIndicator != null)
 				{
 					holder.onlineIndicator.setVisibility(View.GONE);
 				}
@@ -517,8 +512,9 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 			friendsListFetchedCallback.listFetched();
 		}
 
-		boolean shouldContinue = makeSetupForCompleteList(filtered);
-		
+		//Fix AND-3408
+		boolean shouldContinue = makeSetupForCompleteList(filtered, firstFetch);
+
 		if (!shouldContinue)
 		{
 			return;

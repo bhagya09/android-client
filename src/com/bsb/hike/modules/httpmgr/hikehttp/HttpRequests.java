@@ -15,6 +15,7 @@ import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getStat
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getStatusBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getStickerTagsUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.groupProfileBaseUrl;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.languageListUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.lastSeenUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.multiStickerDownloadUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.postAddressbookBaseUrl;
@@ -39,6 +40,7 @@ import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.validat
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getGroupBaseUrlForLinkSharing;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getBaseCodeGCAcceptUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getBotdiscoveryTableUrl;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.httpNetworkTestUrl;
 import static com.bsb.hike.modules.httpmgr.request.PriorityConstants.PRIORITY_HIGH;
 import static com.bsb.hike.modules.httpmgr.request.Request.REQUEST_TYPE_LONG;
 import static com.bsb.hike.modules.httpmgr.request.Request.REQUEST_TYPE_SHORT;
@@ -68,6 +70,7 @@ import com.bsb.hike.modules.httpmgr.request.JSONObjectRequest;
 import com.bsb.hike.modules.httpmgr.request.Request;
 import com.bsb.hike.modules.httpmgr.request.StringRequest;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
+import com.bsb.hike.modules.httpmgr.request.requestbody.ByteArrayBody;
 import com.bsb.hike.modules.httpmgr.request.requestbody.FileBody;
 import com.bsb.hike.modules.httpmgr.request.requestbody.IRequestBody;
 import com.bsb.hike.modules.httpmgr.request.requestbody.JsonBody;
@@ -77,9 +80,9 @@ import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.utils.AccountUtils;
+import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.Utils;
-import com.hike.transporter.utils.Logger;
 import com.squareup.okhttp.Headers;
 import com.squareup.okhttp.MediaType;
 import com.squareup.okhttp.MultipartBuilder;
@@ -87,10 +90,10 @@ import com.squareup.okhttp.RequestBody;
 
 public class HttpRequests
 {
-	public static RequestToken singleStickerDownloadRequest(String requestId, String stickerId, String categoryId, IRequestListener requestListener)
+	public static RequestToken singleStickerDownloadRequest(String requestId, String stickerId, String categoryId, IRequestListener requestListener, String keyboardList)
 	{
 		RequestToken requestToken = new JSONObjectRequest.Builder()
-				.setUrl(singleStickerDownloadBase() + "?catId=" + categoryId + "&stId=" + stickerId + "&resId=" + Utils.getResolutionId())
+				.setUrl(singleStickerDownloadBase() + "?catId=" + categoryId + "&stId=" + stickerId + "&resId=" + Utils.getResolutionId() + "&kbd=" + keyboardList)
 				.setId(requestId)
 				.setRequestListener(requestListener)
 				.setAnalyticsParam(HttpAnalyticsConstants.HTTP_SINGLE_STICKER_DOWNLOAD_ANALYTICS_PARAM)
@@ -142,7 +145,7 @@ public class HttpRequests
 	public static RequestToken StickerShopDownloadRequest(String requestId, int offset, IRequestListener requestListener)
 	{
 		RequestToken requestToken = new JSONObjectRequest.Builder()
-				.setUrl(stickerShopDownloadUrl() + "?offset=" + offset + "&resId=" + Utils.getResolutionId())
+				.setUrl(stickerShopDownloadUrl() + "?offset=" + offset + "&resId=" + Utils.getResolutionId() + "&lang=" + Utils.getCurrentLanguageLocale().getISO3Language())
 				.setId(requestId)
 				.setRequestListener(requestListener)
 				.setRequestType(REQUEST_TYPE_SHORT)
@@ -272,6 +275,18 @@ public class HttpRequests
 				.setRequestListener(requestListener)
 				.setRetryPolicy(new BasicRetryPolicy(HikePlatformConstants.NUMBER_OF_RETRIES, HikePlatformConstants.RETRY_DELAY, HikePlatformConstants.BACK_OFF_MULTIPLIER))
 				.setHeaders(PlatformUtils.getHeaders())
+				.build();
+		return requestToken;
+	}
+
+	public static RequestToken kptLanguageDictionaryZipDownloadRequest(String filePath, String url, IRequestListener requestListener)
+	{
+		RequestToken requestToken = new FileRequest.Builder()
+				.setUrl(url)
+				.setFile(filePath)
+				.setRequestListener(requestListener)
+				.setRequestType(REQUEST_TYPE_LONG)
+				.setPriority(PRIORITY_HIGH)
 				.build();
 		return requestToken;
 	}
@@ -471,11 +486,11 @@ public class HttpRequests
 		return requestToken;
 	}
 	
-	public static RequestToken defaultTagsRequest(String requestId, boolean isSignUp, long lastSuccessfulTagDownloadTime, IRequestListener requestListener)
+	public static RequestToken defaultTagsRequest(String requestId, boolean isSignUp, long lastSuccessfulTagDownloadTime, IRequestListener requestListener, String languages)
 	{
 		RequestToken requestToken = new JSONObjectRequest.Builder()
 					.setId(requestId)
-					.setUrl(getStickerTagsUrl() + "?signup_stickers=" + isSignUp + "&timestamp=" + lastSuccessfulTagDownloadTime)
+					.setUrl(getStickerTagsUrl() + "?signup_stickers=" + isSignUp + "&timestamp=" + lastSuccessfulTagDownloadTime + "&kbd=" + languages)
 					.setRequestListener(requestListener)
 					.setRequestType(REQUEST_TYPE_SHORT)
 					.setPriority(PRIORITY_HIGH)
@@ -896,5 +911,49 @@ public class HttpRequests
 				.build();
 		return requestToken;
 	}
+
+	public static RequestToken uploadFileRequest(byte[] fileBytes, String boundry, IRequestListener requestListener, List<Header> headers, String url)
+	{
+		ByteArrayBody body = new ByteArrayBody("multipart/form-data; boundary=" + boundry, fileBytes);
+
+		RequestToken requestToken = new ByteArrayRequest.Builder()
+				.setUrl(url)
+				.setRequestType(Request.REQUEST_TYPE_LONG)
+				.setRequestListener(requestListener)
+				.addHeader(headers)
+				.post(body)
+				.setAsynchronous(false)
+				.setPriority(PRIORITY_HIGH)
+				.setRetryPolicy(new BasicRetryPolicy(0, 1, 1))
+				.build();
+		return requestToken;
+	}
+
+    /*
+     * this request is just for checking that internet is working but mqtt is unable to connect.
+     * we will send an async http call to server
+     */
+    public static RequestToken httpNetworkTestRequest(int errorCode)
+    {
+        RequestToken requestToken = new JSONObjectRequest.Builder()
+                .setUrl(httpNetworkTestUrl() + "/" + errorCode)
+                .setRequestType(REQUEST_TYPE_SHORT)
+                .setAsynchronous(true)
+                .setPriority(PRIORITY_HIGH)
+                .setRetryPolicy(new BasicRetryPolicy(0, 1, 1))
+                .build();
+        Logger.e("HikeHttpRequests", "Making http call to " + httpNetworkTestUrl().toString() + "/" + errorCode);
+        return requestToken;
+    }
+
+	public static RequestToken getLanguageListOrderHTTP(IRequestListener requestListener)
+	{
+
+		RequestToken requestToken = new JSONObjectRequest.Builder().setUrl(languageListUrl()).setRequestType(Request.REQUEST_TYPE_SHORT).setRequestListener(requestListener)
+				.setResponseOnUIThread(true).build();
+		return requestToken;
+
+	}
+
 
 }

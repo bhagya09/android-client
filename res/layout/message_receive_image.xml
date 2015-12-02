@@ -101,11 +101,14 @@
         </RelativeLayout>
     </LinearLayout>
 
-    <include
+    <View
+        android:id="@+id/selected_state_overlay"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:layout_alignBottom="@id/message_container"
         android:layout_below="@id/day_container"
-        layout="@layout/message_overlay" />
+        android:layout_alignWithParentIfMissing="true"
+        />
+
 
 </RelativeLayout>
