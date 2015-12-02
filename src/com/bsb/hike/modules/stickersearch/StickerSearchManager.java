@@ -1,5 +1,14 @@
 package com.bsb.hike.modules.stickersearch;
 
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Set;
+
+import org.json.JSONObject;
+
 import android.content.Intent;
 import android.util.Pair;
 
@@ -17,7 +26,6 @@ import com.bsb.hike.modules.stickersearch.tasks.CurrentLanguageTagsDownloadTask;
 import com.bsb.hike.modules.stickersearch.tasks.HighlightAndShowStickerPopupTask;
 import com.bsb.hike.modules.stickersearch.tasks.InitiateStickerTagDownloadTask;
 import com.bsb.hike.modules.stickersearch.tasks.InputMethodChangedTask;
-import com.bsb.hike.modules.stickersearch.tasks.LoadChatProfileTask;
 import com.bsb.hike.modules.stickersearch.tasks.NewMessageReceivedTask;
 import com.bsb.hike.modules.stickersearch.tasks.NewMessageSentTask;
 import com.bsb.hike.modules.stickersearch.tasks.RebalancingTask;
@@ -29,15 +37,9 @@ import com.bsb.hike.modules.stickersearch.tasks.StickerTagInsertTask;
 import com.bsb.hike.modules.stickersearch.ui.StickerTagWatcher;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.PairModified;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
-
-import org.json.JSONObject;
-
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Locale;
-import java.util.Set;
 
 public class StickerSearchManager
 {
@@ -55,7 +57,7 @@ public class StickerSearchManager
 
 	private boolean isFirstPhraseOrWord;
 
-	private boolean isTappedOnHighLightedWord;
+	private boolean isTappedInsideComposeBox;
 
 	private int numStickersVisibleAtOneTime;
 
@@ -71,6 +73,12 @@ public class StickerSearchManager
 
 	private int trialCountForAutoPopupTurnOff;
 
+	private String keyboardLanguageISOCode;
+
+	private HashMap<String, PairModified<Integer, Integer>> autoPopupClicksPerLanguageMap;
+
+	private HashMap<String, PairModified<Integer, Integer>> tapOnHighlightWordClicksPerLanguageMap;
+
 	private StickerSearchManager()
 	{
 		WAIT_TIME_SINGLE_CHARACTER_RECOMMENDATION = HikeSharedPreferenceUtil.getInstance(HikeStickerSearchBaseConstants.SHARED_PREF_STICKER_DATA).getData(
@@ -78,14 +86,13 @@ public class StickerSearchManager
 
 		searchEngine = new StickerSearchEngine();
 		isFirstPhraseOrWord = false;
-		isTappedOnHighLightedWord = false;
+		isTappedInsideComposeBox = false;
 		currentString = null;
 		currentLength = 0;
 
 		setShowAutoPopupConfiguration();
-
+		setAndResumeRecommendationStateForAnalytics();
 		setNumStickersVisibleAtOneTime(StickerManager.getInstance().getNumColumnsForStickerGrid(HikeMessengerApp.getInstance()));
-
 		setRebalancingAlarmFirstTime();
 	}
 
@@ -120,10 +127,16 @@ public class StickerSearchManager
 		this.listener = null;
 	}
 
-	public void loadChatProfile(String msidn, boolean isGroupChat, long lastMessageTimestamp)
+	public void loadChatProfile(String msisdn, boolean isGroupChat, long lastMessageTimestamp, String currentKeyboardLanguageISOCode)
 	{
-		LoadChatProfileTask loadChatProfileTask = new LoadChatProfileTask(msidn, isGroupChat, lastMessageTimestamp);
-		searchEngine.runOnSearchThread(loadChatProfileTask, 0);
+		keyboardLanguageISOCode = currentKeyboardLanguageISOCode;
+		StickerSearchHostManager.getInstance().loadChatProfile(msisdn, isGroupChat, lastMessageTimestamp, keyboardLanguageISOCode);
+
+		setRecommendationStateForLanguage(currentKeyboardLanguageISOCode);
+
+		/*
+		 * LoadChatProfileTask loadChatProfileTask = new LoadChatProfileTask(msisdn, isGroupChat, lastMessageTimestamp); searchEngine.runOnSearchThread(loadChatProfileTask, 0);
+		 */
 	}
 
 	public void onTextChanged(CharSequence s, int start, int before, int count)
@@ -142,7 +155,7 @@ public class StickerSearchManager
 		boolean isLastShownPopupWasAutoSuggestion = isFromAutoRecommendation();
 
 		isFirstPhraseOrWord = false;
-		isTappedOnHighLightedWord = false;
+		isTappedInsideComposeBox = false;
 		Pair<CharSequence, int[][]> result = StickerSearchHostManager.getInstance().onTextChange(s, start, before, count);
 
 		HighlightAndShowStickerPopupTask highlightAndShowtask = new HighlightAndShowStickerPopupTask(result, isLastShownPopupWasAutoSuggestion);
@@ -346,12 +359,12 @@ public class StickerSearchManager
 		}
 	}
 
-	public void onClickToShowRecommendedStickers(int clickPosition, boolean onTouch)
+	public void onClickToShowRecommendedStickers(int clickPosition, boolean onTappedInsideComposeBox)
 	{
-		Logger.i(StickerTagWatcher.TAG, "onClickToShowRecommendedStickers(" + clickPosition + ")");
+		Logger.i(StickerTagWatcher.TAG, "onClickToShowRecommendedStickers(" + clickPosition + "," + onTappedInsideComposeBox + ")");
 
 		// Do nothing, if it is not because of touch on highlighted word and auto pop-up setting is turned-off
-		if (!onTouch && !showAutoPopupSettingOn)
+		if (!onTappedInsideComposeBox && !showAutoPopupSettingOn)
 		{
 			if (listener != null)
 			{
@@ -360,20 +373,22 @@ public class StickerSearchManager
 			return;
 		}
 
-		isTappedOnHighLightedWord = onTouch;
+		isTappedInsideComposeBox = onTappedInsideComposeBox;
 		Pair<Pair<String, String>, ArrayList<Sticker>> results = StickerSearchHostManager.getInstance().onClickToShowRecommendedStickers(clickPosition);
 
 		if (listener != null)
 		{
 			if ((results != null) && (results.second != null))
 			{
-				if (onTouch)
+				// If search results are positive and user clicked on some word in compose box, that means user tapped on highlighted word
+				if (onTappedInsideComposeBox)
 				{
 					listener.setTipSeen(ChatThreadTips.STICKER_RECOMMEND_TIP, true);
 					listener.setTipSeen(ChatThreadTips.STICKER_RECOMMEND_AUTO_OFF_TIP, true);
 				}
 
 				listener.showStickerSearchPopup(results.first.first, results.first.second, results.second);
+				increaseRecommendationTotalMatrixForCurrentLanguage();
 			}
 			else
 			{
@@ -394,7 +409,7 @@ public class StickerSearchManager
 		searchEngine.runOnQueryThread(stickerInsertTask);
 	}
 
-	public void initStickerSearchProiderSetupWizard()
+	public void initStickerSearchProviderSetupWizard()
 	{
 		StickerSearchSetupTask stickerSearchSetupTask = new StickerSearchSetupTask();
 		searchEngine.runOnQueryThread(stickerSearchSetupTask);
@@ -410,6 +425,8 @@ public class StickerSearchManager
 	{
 		InputMethodChangedTask inputMethodChangedTask = new InputMethodChangedTask(languageISOCode);
 		searchEngine.runOnQueryThread(inputMethodChangedTask);
+
+		setRecommendationStateForLanguage(languageISOCode);
 	}
 
 	public void downloadTagsForCurrentLanguage()
@@ -430,14 +447,21 @@ public class StickerSearchManager
 		searchEngine.runOnQueryThread(newMessageReceivedTask);
 	}
 
+	/* Determines if auto-popup recommendation condition is favorable */
 	public boolean getFirstContinuousMatchFound()
 	{
 		return this.isFirstPhraseOrWord;
 	}
 
+	/*
+	 * Determines if auto-popup recommendation condition is favorable as well as user selected sticker from auto-popup recommendation.
+	 * getFirstContinuousMatchFound() just tells, if first continuous phrase match is found and auto-popup could be shown.
+	 * And, this method distinguishes the case, where user clicked the first continuous phrase matched itself in compose box as that
+	 * will be seen as case of tap on highlight word.
+	 */
 	public boolean isFromAutoRecommendation()
 	{
-		return (this.isFirstPhraseOrWord && !this.isTappedOnHighLightedWord);
+		return (this.isFirstPhraseOrWord && !this.isTappedInsideComposeBox);
 	}
 
 	public boolean isAutoPoupTrialRunning()
@@ -609,11 +633,133 @@ public class StickerSearchManager
 		}
 	}
 
+	private void setAndResumeRecommendationStateForAnalytics()
+	{
+		this.autoPopupClicksPerLanguageMap = new HashMap<String, PairModified<Integer, Integer>>();
+		this.tapOnHighlightWordClicksPerLanguageMap = new HashMap<String, PairModified<Integer, Integer>>();
+
+		HikeSharedPreferenceUtil stickerDataSharedPref = HikeSharedPreferenceUtil.getInstance(HikeStickerSearchBaseConstants.SHARED_PREF_STICKER_DATA);
+		Set<String> languages = stickerDataSharedPref.getDataSet(StickerSearchConstants.KEY_PREF_STICKER_RECOOMENDATION_LANGUAGE_LIST, null);
+		if (!Utils.isEmpty(languages))
+		{
+			PairModified<Integer, Integer> totalAndAcceptedRecommendationCountPairPerLanguage;
+			int totalRecommendationCount;
+			int acceptedClicks;
+
+			for (String languageISOCode : languages)
+			{
+				// Fetch previous auto-popup data for each language
+				totalRecommendationCount = stickerDataSharedPref.getData(
+						StickerSearchUtility.getSharedPrefKeyForRecommendationData(StickerSearchConstants.KEY_PREF_AUTO_POPUP_TOTAL_COUNT_PER_LANGUAGE, languageISOCode), 0);
+				if (totalRecommendationCount > 0)
+				{
+					acceptedClicks = stickerDataSharedPref.getData(
+							StickerSearchUtility.getSharedPrefKeyForRecommendationData(StickerSearchConstants.KEY_PREF_AUTO_POPUP_ACCEPTED_COUNT_PER_LANGUAGE, languageISOCode), 0);
+					totalAndAcceptedRecommendationCountPairPerLanguage = new PairModified<Integer, Integer>(totalRecommendationCount, acceptedClicks);
+
+					this.autoPopupClicksPerLanguageMap.put(languageISOCode, totalAndAcceptedRecommendationCountPairPerLanguage);
+				}
+
+				// Fetch previous highlight word tapping data for each language
+				totalRecommendationCount = stickerDataSharedPref
+						.getData(StickerSearchUtility.getSharedPrefKeyForRecommendationData(StickerSearchConstants.KEY_PREF_TAP_ON_HIGHLIGHT_WORD_TOTAL_COUNT_PER_LANGUAGE,
+								languageISOCode), 0);
+				if (totalRecommendationCount > 0)
+				{
+					acceptedClicks = stickerDataSharedPref.getData(StickerSearchUtility.getSharedPrefKeyForRecommendationData(
+							StickerSearchConstants.KEY_PREF_TAP_ON_HIGHLIGHT_WORD_ACCEPTED_COUNT_PER_LANGUAGE, languageISOCode), 0);
+					totalAndAcceptedRecommendationCountPairPerLanguage = new PairModified<Integer, Integer>(totalRecommendationCount, acceptedClicks);
+
+					this.tapOnHighlightWordClicksPerLanguageMap.put(languageISOCode, totalAndAcceptedRecommendationCountPairPerLanguage);
+				}
+			}
+		}
+	}
+
+	private void resetRecommendationStateForAnalytics()
+	{
+		this.autoPopupClicksPerLanguageMap.clear();
+		this.tapOnHighlightWordClicksPerLanguageMap.clear();
+	}
+
+	private void setRecommendationStateForLanguage(String languageISOCode)
+	{
+		// Initialize auto-popup accuracy collection for current language when auto-pop setting is on
+		if (this.showAutoPopupSettingOn && !this.autoPopupClicksPerLanguageMap.containsKey(languageISOCode))
+		{
+			this.autoPopupClicksPerLanguageMap.put(languageISOCode, new PairModified<Integer, Integer>(0, 0));
+		}
+
+		// Initialize tap on highlight word accuracy collection for current language irrespective of auto-pop setting state
+		if (!this.tapOnHighlightWordClicksPerLanguageMap.containsKey(languageISOCode))
+		{
+			this.tapOnHighlightWordClicksPerLanguageMap.put(languageISOCode, new PairModified<Integer, Integer>(0, 0));
+		}
+	}
+
+	public void increaseRecommendationTotalMatrixForCurrentLanguage()
+	{
+		PairModified<Integer, Integer> accuracyMetrices = null;
+		if (isFromAutoRecommendation())
+		{
+			accuracyMetrices = this.autoPopupClicksPerLanguageMap.get(this.keyboardLanguageISOCode);
+		}
+		else
+		{
+			accuracyMetrices = this.tapOnHighlightWordClicksPerLanguageMap.get(this.keyboardLanguageISOCode);
+		}
+
+		if (accuracyMetrices != null)
+		{
+			accuracyMetrices.setFirst(accuracyMetrices.getFirst() + 1);
+		}
+	}
+
+	public void increaseRecommendationAcceptedMatrixForCurrentLanguage()
+	{
+		PairModified<Integer, Integer> accuracyMetrices = null;
+		if (isFromAutoRecommendation())
+		{
+			accuracyMetrices = this.autoPopupClicksPerLanguageMap.get(this.keyboardLanguageISOCode);
+		}
+		else
+		{
+			accuracyMetrices = this.tapOnHighlightWordClicksPerLanguageMap.get(this.keyboardLanguageISOCode);
+		}
+
+		if (accuracyMetrices != null)
+		{
+			accuracyMetrices.setSecond(accuracyMetrices.getSecond() + 1);
+		}
+	}
+
+	public void sendStickerRecommendationAccuracyAnalytics()
+	{
+		if (StickerManager.getInstance()
+				.sendRecommendationAccuracyAnalytics(new Date().toString(), this.autoPopupClicksPerLanguageMap, this.tapOnHighlightWordClicksPerLanguageMap))
+		{
+			// Reset all values after sending analytics data logged till now
+			StickerSearchUtility.clearStickerRecommendationAnalyticsDataFromPref();
+			resetRecommendationStateForAnalytics();
+		}
+	}
+
+	public void saveCurrentRecommendationStateForAnalyticsIntoPref()
+	{
+		StickerSearchUtility.saveStickerRecommendationAnalyticsDataIntoPref(this.autoPopupClicksPerLanguageMap, this.tapOnHighlightWordClicksPerLanguageMap);
+	}
+
 	public void shutdown()
 	{
 		searchEngine.shutDown();
-
 		searchEngine = null;
+
+		// Dereference data, which is no longer needed
+		this.autoPopupClicksPerLanguageMap.clear();
+		this.autoPopupClicksPerLanguageMap = null;
+		this.tapOnHighlightWordClicksPerLanguageMap.clear();
+		this.tapOnHighlightWordClicksPerLanguageMap = null;
+
 		_instance = null;
 	}
 }

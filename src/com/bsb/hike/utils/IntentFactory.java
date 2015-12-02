@@ -812,6 +812,14 @@ public class IntentFactory
 		i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 		appContext.startActivity(i);
 	}
+
+	public static void openHomeActivity(Context context)
+	{
+		Intent in = new Intent(context, HomeActivity.class);
+		in.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+		context.startActivity(in);
+	}
+
 	public static void openHomeActivity(Context context, boolean clearTop)
 	{
 		Intent in = new Intent(context, HomeActivity.class);

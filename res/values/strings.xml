@@ -1490,4 +1490,6 @@
 	<string name="telugu_locale">te</string>
 	<string name="kannada_locale">kn</string>
 	<string name="malayalam_locale">ml</string>
+    <string name="made_with_love_in_india">Made with :love: in India</string>
+    <string name="timeline_ftue_desc">Timeline is a place for you and friends to share special moments. You\'ve already got few friends posting on their timeline!</string>
 </resources>

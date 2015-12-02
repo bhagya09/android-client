@@ -3,66 +3,66 @@
 
     <string name="app_name">hike</string>
     <string name="app_label">&#160;hike</string>
-    <string name="invite">தோழரிடம் சொல்வீர்</string>
+    <string name="invite">நண்பரிடம் சொல்வீர்</string>
     <string name="deleteconversations">அனைத்து உரையாடலையும் அழி</string>
     <string name="send">அனுப்பு</string>
     <string name="delete">அழிக்கவும்</string>
     <string name="cancel">கேன்செல் செய்க</string>
-    <string name="delete_all_question">நிச்சயமாகவே உம் உரையாடல் அனைத்தையும் அழிக்க விரும்புகிறீரா?</string>
-    <string name="forward">ஃபார்வேர்டு</string>
-    <string name="copy">நகலெடு</string>
+    <string name="delete_all_question">உரையாடல் அனைத்தையும் அழிக்க விரும்புகிறீரா?</string>
+    <string name="forward">ஃபார்வேர்டு செய்க</string>
+    <string name="copy">காபி செய்க</string>
     <string name="preferences">பிரிஃபெரன்ஸ்கள்</string>
-    <string name="delete_account_failed">உம் அக்கவுண்டை hike அழிக்க முடியவில்லை. தயவுசெய்து மீண்டும் முயற்சி.</string>
-    <string name="already_hike_user">நல்ல செய்தி! உமது தோழர் ஏற்கெனவே hike-ல் இருக்கிறார்!</string>
+    <string name="delete_account_failed">உன் அக்கவுண்டை hike அழிக்க முடியவில்லை. தயவுசெய்து மீண்டும் முயற்சி செய்க.</string>
+    <string name="already_hike_user">நல்ல செய்தி! உமது நண்பர் ஏற்கெனவே hike-ல் இருக்கிறார்!</string>
     <string name="profile_title">புரொஃபைல்</string>
-    <string name="updating_profile">புரொஃபைலை அப்டேட் செய்கிறது</string>
+    <string name="updating_profile">புரொஃபைலை அப்டேட் செய்க</string>
     <string name="update_profile_failed">புரொஃபைலை அப்டேட் செய்ய முடியவில்லை</string>
     <string name="image_failed">இமேஜை ஒப்பன் செய்ய இயலவில்லை</string>
     <string name="block_title">பிளாக் செய்க</string>
     <string name="unblock_title">அன் பிளாக் செய்க</string>
-    <string name="feedback">ஃபீட்பேக்</string>
+    <string name="feedback">தங்களது கருத்தை தெரிவிக்கவும் </string>
     <string name="block_overlay_message">நீர் %1$s-ஐ பிளாக் செய்துள்ளீர். அன் பிளாக் செய்து தொடர்ந்து hike செய்யும்.</string>
     <string name="phone_num">ஃபோன் எண்</string>
-    <string name="pin">தபால் குறியீடு</string>
+    <string name="pin">குறியீடு</string>
     <string name="name">பெயர்</string>
     <string name="terms_privacy">விதிகள் மற்றும் தனியுரிமை</string>
-    <string name="invite_now">இப்போது இன்வைட் செய்க</string>
-    <string name="edit_profile">புரொஃபைலை எடிட் செய்</string>
-    <string name="no_sd_card">தயவுசெய்து SD கார்டை செருகு</string>
-    <string name="invalid_email">ஈமெயில் அட்ரெஸ் செல்லாது</string>
+    <string name="invite_now">இப்போது இன்வைட் செய்யவும்</string>
+    <string name="edit_profile">புரொஃபைலை எடிட் செய்க</string>
+    <string name="no_sd_card">தயவுசெய்து SD கார்டை பொருத்தவும்</string>
+    <string name="invalid_email">ஈமெயில் அட்ரெஸ் தவறானது</string>
     <string name="joined_conversation">%1$s குரூப் சேட்டில் சேர்ந்திருக்கிறார்!</string>
     <string name="left_conversation">%1$s குரூப் சேட்டிலிருந்து வெளியேறி விட்டார்.</string>
     <string name="removed_from_broadcast">%1$s -ஐ புரோட்காஸ்ட் லிஸ்ட்டிலிருந்து அகற்றியாகிற்று</string>
-    <string name="leave_group">குரூப்பை விட்டு வெளியேறு</string>
+    <string name="leave_group">குரூப்பை விட்டு வெளியேறினார்</string>
     <string name="delete_broadcast">புரோட்காஸ்ட்டை அழி</string>
     <string name="group_chat_end">இந்த குரூப் சாட் முடிவடைந்தது.</string>
     <string name="broadcast_list_end">இந்த புரோட்காஸ்ட் லிஸ்ட் முடிவடைந்தது.</string>
     <string name="group_info">குரூப் தகவல்</string>
     <string name="broadcast_info">புரோட்காஸ்ட் இன்ஃபோ</string>
-    <string name="done">ஆயிற்று</string>
+    <string name="done">முடிந்தது</string>
     <string name="group_chat">குரூப் சேட்</string>
     <string name="add_group">குரூப்பில் சேர்</string>
     <string name="add_broadcast">புரோட்காஸ்ட் லிஸ்டில் சேர்</string>
-    <string name="sms_alert_text">இப்போது  SMS அனைத்தையும் Hike-கிலேயே பெற்றுக் கொள்ள முடியும். இந்த ஃபீச்சரை ஆன் செய்ய கீழே தட்டுக.</string>
+    <string name="sms_alert_text">இப்போது  SMS அனைத்தையும் Hike-கிலேயே பெற்றுக் கொள்ள முடியும். இதை ஆன் செய்ய கீழே தட்டுக.</string>
     <string name="sms">SMS</string>
     <string name="turn_on">ஆன் செய்க</string>
     <string name="block_owner">குரூப் ஓனரை பிளாக் செய்க</string>
     <string name="unblock_owner">குரூப் ஓனரை அன்பிளாக் செய்க</string>
-    <string name="no_thanks">இப்போதல்ல</string>
-    <string name="call">அழையும்</string>
+    <string name="no_thanks">இப்பொது வேண்டாம்</string>
+    <string name="call">அழைக்கவும்</string>
     <string name="upload_failed">ஃபைலை அப்லோடு செய்ய முடியவில்லை. நெட்வொர்க் செட்டிங்ஸை செக் செய்க.</string>
     <string name="dnd_msg_gc">ஜாயின் செய்ய, %1$s பதிலுக்காகக் காத்துக் கொண்டிருக்கிறது</string>
-    <string name="earned_credits">நீர் சற்றுமுன் %1$s இலவச SMS சம்பாதித்துள்ளீர்</string>
+    <string name="earned_credits">சற்றுமுன் %1$s இலவச SMS பெற்றுளீர்  </string>
     <string name="earned_credits_highlight">%1$s இலவச SMS</string>
     <string name="no_external_storage">எக்ஸ்டெர்னல் ஸ்டோரேஜைக் காணவில்லை</string>
     <string name="share_file">ஷேர் செய்க</string>
-    <string name="download_failed">ஃபைலை டவுன்லோடு செய்ய முடியவில்லை. நெட்வொர்க் செட்டிங்ஸை செக் செய்க.</string>
-    <string name="download_failed_fatal">ஃபைலை டவுன்லோடு செய்ய முடியவில்லை. தயவுசெய்து ஃபைலை ரீடவுன்லோடு செய்க.</string>
-    <string name="card_unmount">ஃபைல் இன் ஆக்செஸ்சிபிள். தயவுசெய்து SD கார்டை மவுண்ட் செய்து, மறுபடியும் முயற்சிக்க.</string>
-    <string name="not_enough_space">ஃபைலை டவுன்லோடு செய்யப் போதுமான ஸ்பேஸ் ஃபோனில் இல்லை</string>
+    <string name="download_failed">ஃபைலை பதிவிறக்கம்செய்ய முடியவில்லை. நெட்வொர்க் செட்டிங்ஸை செக் செய்க.</string>
+    <string name="download_failed_fatal">ஃபைலை பதிவிறக்கம்செய்ய முடியவில்லை. தயவுசெய்து ஃபைலை ரீபதிவிறக்கம்செய்க.</string>
+    <string name="card_unmount">ஃபைல் இன் ஆக்செஸ்சிபிள். தயவுசெய்து SD கார்டை பொருத்தி , மறுபடியும் முயற்சிக்க.</string>
+    <string name="not_enough_space">ஃபைலை பதிவிறக்கம்செய்யப் போதுமான இடம் ஃபோனில் இல்லை</string>
     <string name="dnd_one_to_one">%1$s DND-யில் இருக்கிறார். %1$s ரிப்ளை செய்யக் காத்திருக்கிறது.</string>
     <string name="optin_one_to_one">%1$s இப்போது தான் Hike-கிற்கு ஆப்ட்-இன் செய்திருக்கிறார்!</string>
-    <string name="download_cancelled">டவுன்லோடு கேன்சல் ஆகிவிட்டது</string>
+    <string name="download_cancelled">பதிவிறக்கம்கேன்சல் ஆகிவிட்டது</string>
     <string name="upload_cancelled">அப்லோடு கேன்சல் ஆகிவிட்டது</string>
     <string name="share">ஷேர் செய்க</string>
     <string name="preview">பிரிவியூ</string>
@@ -70,17 +70,17 @@
     <string name="rewards">ரிவார்டுகள்</string>
     <string name="help">உதவி</string>
     <string name="update_app">அப்டேட் செய்க</string>
-    <string name="unlink_facebook_confirmation">நீர் உண்மையில்\nஉம் facebook அக்கவுண்டை Hike-லிருந்து அன்லிங்க் செய்ய விரும்புகிறீரா?</string>
-    <string name="unlink_twitter_confirmation">நீர் உண்மையில்\nஉம் டிவிட்டர் அக்கவுண்டை Hike-லிருந்து அன்லிங்க் செய்ய விரும்புகிறீரா?</string>
-    <string name="change_group_name">%1$s குரூப் பெயரை மாற்றி விட்டார்.</string>
-    <string name="change_broadcast_name">%1$s புரோட்காஸ்ட் பெயரை மாற்றி விட்டார்.</string>
+    <string name="unlink_facebook_confirmation">நீவீர்  உண்மையில்\nஉன் facebook அக்கவுண்டை Hike-லிருந்து அன்லிங்க் செய்ய விரும்புகிறீரா?</string>
+    <string name="unlink_twitter_confirmation">நீவீர்  உண்மையில்\nஉன் டிவிட்டர் அக்கவுண்டை Hike-லிருந்து அன்லிங்க் செய்ய விரும்புகிறீரா?</string>
+    <string name="change_group_name">%1$s குரூப் பெயரை மாற்ற .</string>
+    <string name="change_broadcast_name">%1$s புரோட்காஸ்ட் பெயரை மாற்ற .</string>
     <string name="block_internation_sms">இந்தியாவிற்கு மட்டுமே இலவச SMS அனுப்பலாம்</string>
     <string name="block_internation_sms_bold_text">இந்தியா</string>
     <string name="invite_via_sms">SMS வழியாக இன்வைட் செய்க</string>
     <string name="call_me_fail">உம்மை அழைக்க இயலவில்லை. தயவுசெய்து மீண்டும் முயற்சிக்க.</string>
     <string name="calling_you">இப்போது உம்மை அழைக்கிறோம்...</string>
-    <string name="new_group_message">%1$s உடன் குரூப் சேட்</string>
-    <string name="new_broadcast_message">%1$s உடன் புரோட்காஸ்ட் லிஸ்ட்</string>
+    <string name="new_group_message">%1$s புதிய குரூப் சேட்</string>
+    <string name="new_broadcast_message">%1$s புதிய புரோட்காஸ்ட் லிஸ்ட்</string>
     <string name="add_to_group_message">குரூப்பிற்கு %1$s -ஐ சேர்த்திருக்கிறது</string>
     <string name="add_to_broadcast_message">லிஸ்ட்டுக்கு %1$s -ஐ சேர்த்திருக்கிறது</string>
     <string name="intro_sms_thread">%1$s -க்கு இலவச SMS அனுப்புக</string>
@@ -93,88 +93,88 @@
     <string name="share_location">லொக்கேஷனை செலெக்ட் செய்க</string>
     <string name="group_mute">இந்த உரையாடலை மியூட் செய்திருக்கிறது.</string>
     <string name="poke_msg">நட்ஜ்!</string>
-    <string name="block_user">இந்த யூஸரை பிளாக் செய்க</string>
-    <string name="unblock_user">இந்த யூஸரை அன்பிளாக் செய்க</string>
+    <string name="block_user">இந்த நபரை பிளாக் செய்க</string>
+    <string name="unblock_user">இந்த நபரை அன்பிளாக் செய்க</string>
     <string name="email">ஈமெயில்</string>
     <string name="share_via_other">மற்றவற்றின் வழியாக ஷேர் செய்க</string>
-    <string name="gps_disabled">உம் துல்லிய லொக்கேஷனுக்கு GPS எனேபிள் செய்க.</string>
+    <string name="gps_disabled">உன் துல்லிய லொக்கேஷனுக்கு GPS எனேபிள் செய்க.</string>
     <string name="vibrate">வைப்ரேட்</string>
     <string name="vibrate_msg">புதிய மெஸ்சேஜில் வைப்ரேட்</string>
     <string name="free_sms_msg">இந்தியாவிற்கு இலவச SMS அனுப்ப ஆன் செய்க</string>
-    <string name="auto_download_media">மீடியாவை ஆட்டோ டவுன்லோடு செய்க</string>
-    <string name="md_auto_download_media">மீடியாவை ஆட்டோ டவுன்லோடு செய்க : மொபைல்</string>
-    <string name="wf_auto_download_media">மீடியாவை ஆட்டோ டவுன்லோடு செய்க : WI-FI</string>
-    <string name="auto_download_image_title">படம்</string>
-    <string name="auto_download_video_title">வீடியோ</string>
-    <string name="auto_download_audio_title">ஆடியோ</string>
+    <string name="auto_download_media">மீடியாவை ஆட்டோ பதிவிறக்கம்செய்க</string>
+    <string name="md_auto_download_media">மீடியாவை ஆட்டோ பதிவிறக்கம் செய்க : மொபைல்</string>
+    <string name="wf_auto_download_media">மீடியாவை ஆட்டோ பதிவிறக்கம் செய்க : WI-FI</string>
+    <string name="auto_download_image_title"> இமேஜை ஆட்டோ பதிவிறக்கம் செய்க</string>
+    <string name="auto_download_video_title">வீடியோ ஆட்டோ பதிவிறக்கம் செய்க</string>
+    <string name="auto_download_audio_title">ஆடியோ ஆட்டோ பதிவிறக்கம் செய்க</string>
     <string name="delete_account">அக்கவுண்டை அழிக்கவும்</string>
-    <string name="privacy">அந்தரங்கம்</string>
+    <string name="privacy">தனியுரிமை</string>
     <string name="notifications">நோட்டிஃபிக்கேஷன்கள்</string>
     <string name="favorites">ஃபேவரைட்கள்</string>
-    <string name="invite_friends">தோழரை இன்வைட் செய்க</string>
-    <string name="downloading">ஃபைலை டவுன்லோடு செய்க...</string>
+    <string name="invite_friends">நண்பர்களை அழைக்க</string>
+    <string name="downloading">ஃபைலை பதிவிறக்கம் செய்க...</string>
     <string name="hike">Hike</string>
     <string name="group_profile">குரூப் தகவல்</string>
     <string name="broadcast_profile">புரோட்காஸ்ட் லிஸ்ட் இன்ஃபோ</string>
     <string name="group_name">குரூப் பெயர்</string>
     <string name="participants">பங்கேற்பாளர்கள்</string>
-    <string name="me">எனக்கு</string>
+    <string name="me">நான்</string>
     <string name="gender">பாலினம்</string>
     <string name="edit_picture">படத்தை எடிட் செய்க</string>
     <string name="settings">செட்டிங்ஸ்</string>
     <string name="sms_left">விடுபட்ட SMS</string>
-    <string name="image_msg_received">உமக்கு ஃபோட்டோ ஒன்றை அனுப்பியுள்ளார்</string>
-    <string name="video_msg_received">உமக்கு வீடியோ ஒன்றை அனுப்பியுள்ளார்</string>
-    <string name="audio_msg_received">உமக்கு ஆடியோ ஃபைல் ஒன்றை அனுப்பியுள்ளார்</string>
+    <string name="image_msg_received">ஃபோட்டோ ஒன்றை அனுப்பியுள்ளார்</string>
+    <string name="video_msg_received">வீடியோ ஒன்றை அனுப்பியுள்ளார்</string>
+    <string name="audio_msg_received">ஆடியோ ஃபைல் ஒன்றை அனுப்பியுள்ளார்</string>
     <string name="location_msg_received">லொக்கேஷனை ஷேர் செய்துள்ளார்</string>
     <string name="contact_msg_received">தொடர்பு ஷேர் செய்துள்ளார்</string>
-    <string name="image_msg_sent">ஃபோட்டோ</string>
+    <string name="image_msg_sent">ஃபோட்டோ அனுப்பபட்டது</string>
     <string name="video_msg_sent">வீடியோ</string>
     <string name="audio_msg_sent">ஆடியோ</string>
-    <string name="location_msg_sent">லொக்கேஷன்</string>
+    <string name="location_msg_sent">இருப்பிடம்</string>
     <string name="contact_msg_sent">தொடர்பு</string>
-    <string name="audio_recording_msg_sent">வாய்ஸ் மெஸ்சேஜ்</string>
+    <string name="audio_recording_msg_sent">வாய்ஸ் மெஸ்சேஜ் அனுப்பபட்டது</string>
     <string name="unknown_msg">அன்சப்போர்ட்டட் ஃபைல்</string>
-    <string name="error_download">இமேஜை டவுன்லோடு செய்கையில் எரர்</string>
-    <string name="downloading_image">இமேஜ் டவுன்லோடு ஆகிறது…</string>
+    <string name="error_download">இமேஜை பதிவிறக்கம்செய்கையில் எரர்</string>
+    <string name="downloading_image">இமேஜ் பதிவிறக்கம் ஆகிறது…</string>
     <string name="invite_1">இன்வைட்</string>
-    <string name="invalid_group_chat">குரூப் சேட் இல்லை</string>
+    <string name="invalid_group_chat">குரூப் சேட்</string>
     <string name="invalid_broadcast_list">புரோட்காஸ்ட் லிஸ்ட் இல்லை</string>
-    <string name="error_capture">இமேஜை கேப்சர் செய்வதில் எரர்</string>
-    <string name="select_invite_contacts">நீர் இன்வைட் செய்ய விரும்புகிற தொடர்புகளைத் தேர்ந்தெடும்</string>
+    <string name="error_capture">இமேஜை எடுப்பதில் தவறு ஏற்பட்டது </string>
+    <string name="select_invite_contacts">நீவீர்  இன்வைட் செய்ய விரும்புகிற தொடர்புகளைத் தேர்தெடுக்கவும்</string>
     <string name="invites_sent">இன்வைட்கள் அனுப்பியாகிற்று</string>
-    <string name="select_location">ஷேர் செய்ய லொக்கேஷனை தேர்ந்தெடும்</string>
+    <string name="select_location">ஷேர் செய்ய லொக்கேஷன தேர்ந்தெடுக்கவும் </string>
     <string name="hike_version">Hike வெர்ஷன்:</string>
     <string name="device_name">டிவைஸ் பெயர்:</string>
     <string name="android_version">ஆன்ராய்டு வெர்ஷன்:</string>
-    <string name="msisdn">ஃபோன் எண்:</string>
+    <string name="msisdn">MSISDN எண்:</string>
     <string name="unobfuscated_map_api">AIzaSyBvWmHyGeeDjPkJR1xJnWCnUiWTfwciSLw</string>
-    <string name="invalid_num_signup">இது செல்லாத ஃபோன் எண். மறுபடியும் முயற்சியும்</string>
+    <string name="invalid_num_signup">இது தவறான ஃபோன் எண். மறுபடியும் முயற்சியும்</string>
     <string name="verify_pin_signup">PIN சரிபார்க்கிறது...</string>
-    <string name="wrong_num_signup">ராங் நம்பர் எண்டர் செய்தீரா? இங்கே டேப் செய்க</string>
+    <string name="wrong_num_signup">தவறான நம்பர் எண்டர் செய்தீரா? இங்கே டேப் செய்க</string>
     <string name="enter_phone_again_signup">ஏதோ தவறாகியதாகத் தோன்றுகிறது.\nதயவுசெய்து உமது ஃபோன் எண்ணை மறுபடியும் எண்டர் செய்வீர்.</string>
-    <string name="try_again_signup">மீண்டும் முயற்சி</string>
+    <string name="try_again_signup">மீண்டும் முயற்சி செய்க</string>
     <string name="almost_there_signup">கிட்டத்தட்ட அங்கே…</string>
-    <string name="tap_here_signup">இங்கே டேப் செய்க</string>
+    <string name="tap_here_signup">இங்கே அழுத்தவும் </string>
     <string name="nudge">நட்ஜ்</string>
-    <string name="nudge_info">உம் தோழரை நட்ஜ் செய்ய சேட்-டில் எங்கேனும் \nஓரிடத்தில் இருமுறை தட்டுக.</string>
+    <string name="nudge_info">உன் நண்பரை நட்ஜ் செய்ய சேட்-டில் எங்கேனும் \nஓரிடத்தில் இருமுறை தட்டுக.</string>
     <string name="led_notification">LED நோட்டிஃபிக்கேஷன்</string>
     <string name="led_notification_info">புதிய மெஸ்சேஜில் LED–ஐ ஃப்ளாஷ் செய்க</string>
     <string name="remove_from_group">குரூப்-லிருந்து அகற்று</string>
     <string name="remove_from_broadcast">புரோட்காஸ்ட் லிஸ்ட்-ல் இருந்து அகற்று</string>
-    <string name="leave_group_confirm">நீர் நிச்சயமாகவே இந்த குரூப்பை விட்டு வெளியேறுகிறீரா?</string>
-    <string name="delete_broadcast_confirm">நீர் நிச்சயமாகவே இந்த புரோட்காஸ்ட் லிஸ்ட்டை அழிக்க விரும்புகிறீரா?</string>
-    <string name="remove_confirm">நீர் நிச்சயமாகவே %1$s-ஐ இந்த குரூப்பில் இருந்து அகற்ற விரும்புகிறீரா?</string>
-    <string name="remove_confirm_broadcast">நீர் நிச்சயமாகவே %1$s-ஐ இந்த லிஸ்ட்டில் இருந்து அகற்ற விரும்புகிறீரா?</string>
+    <string name="leave_group_confirm">நிச்சயமாகவே இந்த குரூப்பை விட்டு வெளியேறுகிறீரா?</string>
+    <string name="delete_broadcast_confirm">நிச்சயமாகவே இந்த புரோட்காஸ்ட் லிஸ்ட்டை அழிக்க விரும்புகிறீரா?</string>
+    <string name="remove_confirm">நிச்சயமாகவே %1-ஐ இந்த குரூப்பில் இருந்து அகற்ற விரும்புகிறீரா?</string>
+    <string name="remove_confirm_broadcast">நிச்சயமாகவே %1-ஐ இந்த லிஸ்ட்டில் இருந்து அகற்ற விரும்புகிறீரா?</string>
     <string name="no">இல்லை</string>
-    <string name="location_disabled">உம் இருப்பிடத்தைக் கொண்டுவர முடியவில்லை. தயவுசெய்து உம் செட்டிங்ஸை செக் செய்யும்.</string>
-    <string name="tap_here_invite">இவரை இன்வைட் செய்வதற்கு இங்கே தட்டும்</string>
+    <string name="location_disabled">உன் லொக்கேஷன கொண்டுவர முடியவில்லை. தயவுசெய்து உன் செட்டிங்ஸை செக் செய்யும்.</string>
+    <string name="tap_here_invite">இவரை இன்வைட் செய்வதற்கு இங்கே அழுத்தவும் </string>
     <string name="change_group_image">%1$s குரூப் இமேஜை மாற்றி விட்டார்.</string>
     <string name="faq">அடிக்கடிக் கேட்கும் கேள்விகள்</string>
     <string name="gallery">கேலரி</string>
-    <string name="number_confirm_title">உம் எண்ணை உறுதி செய்யும்</string>
+    <string name="number_confirm_title">உன் எண்ணை உறுதி செய்யும்</string>
     <string name="birthday">பிறந்தநாள்</string>
-    <string name="anniversary">ஆண்டுவிழா</string>
+    <string name="anniversary">திருமணநாள் </string>
     <string name="other">மற்றவை</string>
     <string name="target_account">தொடர்பினை இந்த அக்கவுண்ட்டில் சேவ் செய்க</string>
     <string name="save">சேவ் செய்க</string>
@@ -186,38 +186,38 @@
     <string name="confirm">உறுதி செய்க</string>
     <string name="free_sms_txt">இலவச SMS</string>
     <string name="blocked_list">பிளாக் செய்த லிஸ்ட்</string>
-    <string name="accepted_friend_request">ஒரு தோழராக கன்ஃபர்ம் செய்க</string>
+    <string name="accepted_friend_request">நண்பராக்க கன்ஃபர்ம் செய்க</string>
     <string name="mute_group">குரூப்பை மியூட் செய்</string>
     <string name="unmute_group">குரூப்பை அன்மியூட் செய்</string>
     <string name="account">அக்கவுண்ட்</string>
-    <string name="enter_num">தயவுசெய்து உம் ஃபோன் எண்ணைப் பதிவு செய்யும்</string>
+    <string name="enter_num">தயவுசெய்து உன் ஃபோன் எண்ணைப் பதிவு செய்யும்</string>
     <string name="enter_pin">தயவுசெய்து PIN-ஐ எண்டர் செய்க</string>
-    <string name="enter_name">தயவுசெய்து உம் பெயரை எண்டர் செய்க</string>
+    <string name="enter_name">தயவுசெய்து உன் பெயரை எண்டர் செய்க</string>
     <string name="ssl">128-bit SSL</string>
     <string name="ssl_info">வை-ஃபை மட்டும்</string>
     <string name="contact_saved">தொடர்பைச் சேமித்தாயிற்று</string>
     <string name="contact_not_saved">தொடர்பை சேவ் செய்ய முடியவில்லை</string>
     <string name="system_health">சிஸ்டம் ஹெல்த்</string>
-    <string name="you">நீர்</string>
+    <string name="you">நீவீர் </string>
     <string name="delete_status">அப்டேட்டை அழிக்கவும்</string>
-    <string name="delete_status_error">உம் ஸ்டேட்டஸ் அப்டேட்டை அழிக்க முடியவில்லை. தயவுசெய்து உம் நெட்வொர்க் கனெக்க்ஷனை சரிபார்த்து, மீண்டும் முயற்சியும்.</string>
+    <string name="delete_status_error">உன் ஸ்டேட்டஸ் அப்டேட்டை அழிக்க முடியவில்லை. தயவுசெய்து உன் நெட்வொர்க் கனெக்க்ஷனை சரிபார்த்து, மீண்டும் முயற்சியும்.</string>
     <string name="deleting_status">அப்டேட்டை அழிக்கிறது...</string>
     <string name="tap_here_block">இந்த எண்ணை பிளாக் செய்வதற்கு இங்கே தட்டும்</string>
-    <string name="which_friend_invite">உம் தோழருக்கு ஒரு இலவச SMS இன்வைட்-ஐ அனுப்பும்.</string>
+    <string name="which_friend_invite"> நண்பருக்கு ஒரு இலவச SMS இன்வைட்-ஐ அனுப்பும்.</string>
     <string name="skip">ஸ்கிப்</string>
     <string name="start_thread1">%1$s-க்கு ஹாய் சொல்லும்!</string>
     <string name="start_thread2">%1$s -க்கு Hike-கில் மெஸ்சேஜ் அனுப்பும்</string>
     <string name="moods">மூட்ஸ்</string>
     <string name="message_charcter_limit">140</string>
     <string name="changed_profile">புரொஃபைல் படத்தை மாற்றிவிட்டார்</string>
-    <string name="confirmed_friend">இப்போது இவர் ஒரு தோழர்</string>
-    <string name="update_status_fail">ஸ்டேட்டஸை அப்டேட் செய்ய முடியவில்லை. தயவுசெய்து உம் நெட்வொர்க் கனெக்க்ஷனை சரிபார்த்து விட்டு மீண்டும் முயற்சியும்.</string>
-    <string name="file_expire">இந்த ஃபைல் இல்லவே இல்லை.</string>
-    <string name="error_setting_profile">உம் புரொஃபைல் இமேஜை செட் செய்வதில் எரர்.</string>
+    <string name="confirmed_friend">இப்போது இவர் உங்கள் நண்பராக உறுதி செய்துள்ளீர் </string>
+    <string name="update_status_fail">ஸ்டேட்டஸை அப்டேட் செய்ய முடியவில்லை. தயவுசெய்து உன் நெட்வொர்க் கனெக்க்ஷனை சரிபார்த்து விட்டு மீண்டும் முயற்சியும்.</string>
+    <string name="file_expire">இந்த ஃபைல் காலாவதி ஆகிவிட்டது.</string>
+    <string name="error_setting_profile">உன் புரொஃபைல் இமேஜை செட் செய்வதில் எரர்.</string>
     <string name="continue_txt">தொடர்க</string>
     <string name="import_sms">SMS இம்ப்போர்ட் செய்க</string>
     <string name="import_sms_info">ஏற்கெனவே இருக்கிற உமது மெஸ்சேஜ்களை Hike-கிற்குள் இம்ப்போர்ட் செய்ய விரும்புகிறீரா?</string>
-    <string name="importing_sms_info">உம் மெஸ்சேஜ்களை Hike-கிற்குள் நாம் இம்போர்ட் செய்து தர நொடிப்பொழுது தாரும்.</string>
+    <string name="importing_sms_info">உன் மெஸ்சேஜ்களை Hike-கிற்குள் நாம் இம்போர்ட் செய்து தர நொடிப்பொழுது தாரும்.</string>
     <string name="stickers">ஸ்டிக்கர்கள்</string>
     <string name="download">டவுன்லோடு</string>
     <string name="hold_talk">பிடித்துக் கொண்டே பேசுக</string>
@@ -226,11 +226,11 @@
     <string name="last_seen_more">கடைசியாகப் பார்த்தது %1$s மணிக்கு</string>
     <string name="last_seen_while_ago">கடைசியாகப் பார்த்தது சற்று நேரத்திற்கு முன்</string>
     <string name="online">ஆன்லைன்</string>
-    <string name="moods_tip">அழகிய \&apos;மூடு\&apos; :) ஒன்றினை அட்டாச் செய்ய இங்கே கிளிக் செய்யும்</string>
+    <string name="moods_tip">அழகிய மூடு :) ஒன்றினை மாற்றம் செய்ய இங்கே கிளிக் செய்யும்</string>
     <string name="dismiss">டிஸ்மிஸ்</string>
     <string name="group">குரூப்</string>
     <string name="posting_update">போஸ்டிங்...</string>
-    <string name="joined_hike_update">Hike-கில் சேர்ந்தாயிற்று</string>
+    <string name="joined_hike_update">Hike-ல் சேர்ந்தாயிற்று</string>
     <string name="free_hike_sms">இலவச Hike SMS</string>
     <string name="regular_sms">ரெகுலர் SMS</string>
     <string name="messaging_my_number">%1$s-ல் இருந்து மெஸ்சேஜிங்</string>
@@ -239,16 +239,16 @@
     <string name="default_client_header">யூனிஃபைடு இன்பாக்ஸ்</string>
     <string name="default_client_info">Hike-கிற்குள் ரெகுலர் SMS-ஐ பெறு</string>
     <string name="native_header">ரெகுலர் SMS வழியாக அனுப்புக</string>
-    <string name="native_info">நீர் இப்போது Hike வழியாக ரெகுலர் SMS களை அனுப்புவீர்கள். ஆபரேட்டர் கட்டண விகிதம் பொருந்தும்.</string>
+    <string name="native_info">நீவீர்  இப்போது Hike வழியாக ரெகுலர் SMS களை அனுப்புவீர்கள். ஆபரேட்டர் கட்டண விகிதம் பொருந்தும்.</string>
     <string name="use_hike_for_sms">யூனிஃபைடு இன்பாக்ஸ்</string>
-    <string name="use_hike_for_sms_info">ரெகுலர் SMS ஒன்றை அனுப்ப, நீர் Hike-கை உம் பிரைமரி SMS இன்பாக்ஸாக்க வேண்டும்</string>
+    <string name="use_hike_for_sms_info">ரெகுலர் SMS ஒன்றை அனுப்ப, நீவீர்  Hike-கை உன் பிரைமரி SMS இன்பாக்ஸாக்க வேண்டும்</string>
     <string name="allow">அனுமதி</string>
     <string name="sms_with_hike">யூனிஃபைடு இன்பாக்ஸ்</string>
-    <string name="sms_with_hike_info">நீர் இப்போது Hike மூலமாக ரெகுலர் SMS களை அனுப்பவும், பெறவும் முடியும். அப்படிச் செய்வதற்கு, நீர் Hike-கை உம் பிரைமரி SMS இன்பாக்ஸாக்க வேண்டியுள்ளது.</string>
+    <string name="sms_with_hike_info">நீவீர்  இப்போது Hike மூலமாக ரெகுலர் SMS களை அனுப்பவும், பெறவும் முடியும். அப்படிச் செய்வதற்கு, நீவீர்  Hike-கை உன் பிரைமரி SMS இன்பாக்ஸாக்க வேண்டியுள்ளது.</string>
     <string name="last_seen_header">கடைசியாகப் பார்த்ததைக் காண்பி</string>
     <string name="invite_sms">SMS-ல் இன்வைட் செய்க</string>
-    <string name="system_health_error">சிஸ்டம் ஹெல்த்தை வியூ செய்வதற்கு உம் ஃபோன் பிரவுசரை தயவுசெய்து எனேபிள் செய்யும்</string>
-    <string name="email_error">மேற்கொண்டு செல்வதற்கு, உம் டிவைஸில் ஈமெயில் அப்ளிக்கேஷன் ஒன்று இன்ஸ்டால் ஆகியிருப்பது Hike-கிற்கு அவசியமாகிறது</string>
+    <string name="system_health_error">சிஸ்டம் ஹெல்த்தை வியூ செய்வதற்கு உன் ஃபோன் பிரவுசரை தயவுசெய்து எனேபிள் செய்யும்</string>
+    <string name="email_error">மேற்கொண்டு செல்வதற்கு, உன் டிவைஸில் ஈமெயில் அப்ளிக்கேஷன் ஒன்று இன்ஸ்டால் ஆகியிருப்பது Hike-கிற்கு அவசியமாகிறது</string>
     <string name="added_as_hike_friend_info">நீரும் அதையே செய்ய விரும்புகிறீரா?</string>
     <string name="audio_recording_msg_received">உமக்கு ஒரு வாய்ஸ் மெஸ்சேஜ் அனுப்பியுள்ளார்</string>
     <string name="sent_sticker">உமக்கு ஸ்டிக்கர் ஒன்றை அனுப்பியுள்ளார்</string>
@@ -270,7 +270,7 @@
     <string name="file_transfer_of_type">ஃபைல் டிரான்ஸ்ஃபர் வகை</string>
     <string name="chat_backup_">" சேட் பேக்அப்_ "</string>
     <string name="backup_of_conversation_with_prefix">" உடன் கொண்ட உரையாடலை பேக்அப் செய்க: "</string>
-    <string name="email_your_conversation">உம் உரையாடலை ஈமெயில் செய்க</string>
+    <string name="email_your_conversation">உன் உரையாடலை ஈமெயில் செய்க</string>
     <string name="exporting_conversations_prefix">உரையாடல்களை எஸ்போர்ட் செய்கிறது...</string>
     <string name="attached_is_the_conversation_backup_string">இணைத்துள்ளதே உரையாடல் பேக்அப்..</string>
     <string name="new_chat">புதிய சேட்</string>
@@ -283,17 +283,17 @@
     <string name="edit_broadcast_name">புரோட்காஸ்ட் பெயரை எடிட் செய்க</string>
     <string name="unfriend">அன்ஃப்ரெண்ட்</string>
     <string name="tap_to_save">தொடர்பினை சேவ் செய்கத் தட்டும்</string>
-    <string name="last_seen_tip_friends">உம்மைக் கடைசியாக எப்போது பார்த்தோம் என்பதை உம் தோழர் மட்டுமே பார்க்க முடியும்</string>
+    <string name="last_seen_tip_friends">உம்மைக் கடைசியாக எப்போது பார்த்தோம் என்பதை உன் நண்பர்  மட்டுமே பார்க்க முடியும்</string>
     <string name="last_seen_yesterday_group_participant">நேற்று</string>
     <string name="invite_friends_hike">தோழரை Hike-கிற்கு இன்வைட் செய்யும்</string>
     <string name="hike_contacts">Hike-கில் உள்ளவர்கள்</string>
     <string name="sms_contacts">SMS தொடர்புகள்</string>
-    <string name="invite_subtext">உம் SMS இன்வைட் வாயிலாக Hike-கில் சேர்க்கிற ஒவ்வொரு தோழருக்கும் கூடுதலாக இலவச SMS பெறும்.</string>
+    <string name="invite_subtext">உன் SMS இன்வைட் வாயிலாக Hike-கில் சேர்க்கிற ஒவ்வொரு தோழருக்கும் கூடுதலாக இலவச SMS பெறும்.</string>
     <string name="india_only">இந்தியாவிற்கு மட்டுமே இலவச SMS அனுப்ப முடியும்.</string>
     <string name="feedback_on_hike">ஆன்ராய்டுக்கான Hike குறித்த ஃபீட்பேக்</string>
     <string name="feedback_hinttext">எங்களுக்கு ஃபீட்பேக் கொடும்</string>
     <string name="faq_hinttext">அடிக்கடி கேட்கும் கேள்விகள்</string>
-    <string name="blocked_list_hinttext">நீர் பிளாக் செய்தவர்களை மேனேஜ் செய்வீர்</string>
+    <string name="blocked_list_hinttext">நீவீர்  பிளாக் செய்தவர்களை மேனேஜ் செய்வீர்</string>
     <string name="system_health_hinttext">Hike- சிஸ்டம் ஸ்டேட்டஸைப் பாரும்</string>
     <string name="app_version">வெர்ஷன் %1$s</string>
     <string name="remind">நினைவூட்டு</string>
@@ -302,29 +302,29 @@
     <string name="view_profile">புரொஃபைலைப் பார்வையிடு</string>
     <string name="normal_update_head">முக்கியமான அப்டேட் கிடைக்கிறது</string>
     <string name="critical_update_head">அதிமுக்கியமான அப்டேட் அவசியம்</string>
-    <string name="downloading_string">டவுன்லோடு ஆகிறது...</string>
+    <string name="downloading_string">பதிவிறக்கம்ஆகிறது...</string>
     <string name="post">போஸ்ட்</string>
     <string name="no_credits">உமது இலவச SMS தீர்ந்து போய் விட்டது. இன்னும் கூடுதலாகப் பெற %1$s இன்வைட் செய்யும்!</string>
     <string name="ftue_add_prompt_invite">%1$s இன்னமும் Hike-கில் இல்லை என்பது போலத் தோன்றுகிறது! %1$s-ஐ Hike-கிற்கு இன்வைட் செய்க. எப்போதும் போன்ற ஆபரேட்டர் SMS கட்டண விகிதம் பொருந்தும்.</string>
     <string name="ftue_add_prompt_invite_title">Hike-கிற்கு இன்வைட்செய்க</string>
     <string name="create_group">புதிய குரூப் சேட்</string>
-    <string name="number_confirmation_string">%1$s உம் எண்ணா?</string>
+    <string name="number_confirmation_string">%1$s உன் எண்ணா?</string>
     <string name="unlink_facebook">facebook -ஐ அன்லிங்க் செய்க</string>
     <string name="unlink_twitter">டிவிட்டர் -ஐ அன்லிங்க் செய்க</string>
     <string name="error_capture_video">வீடியோ கேப்சர் செய்வதில் எரர்</string>
     <string name="free_invite_header">இலவச SMS இன்வைட்</string>
-    <string name="free_invite_body">SMS வழியாக தோழரை இலவசமாக இன்வைட் செய்யும். கட்டணம் எதுவும் ஆகாது :)</string>
+    <string name="free_invite_body">SMS வழியாக நண்பரை இலவசமாக இன்வைட் செய்யும். கட்டணம் எதுவும் ஆகாது :)</string>
     <string name="select_all">அனைத்தையும் செலெக்ட் செய்யும் (%1$d)</string>
     <string name="deselect_all">அனைத்தையும் டீசெலெக்ட் செய்யும் (%1$d)</string>
-    <string name="chat_bg_changed">%1$s சேட் தீம்-ஐ மாற்றினார்</string>
+    <string name="chat_bg_changed">%1$s சேட் தீம்-ஐ மாற்றி விட்டார்</string>
     <string name="chat_theme">சேட் தீம்</string>
     <string name="last_seen_today_ct">இன்று, %1$s</string>
     <string name="last_seen_yesterday_ct">நேற்று, %1$s</string>
     <string name="last_seen_more_ct">%1$s</string>
     <string name="last_seen_while_ago_ct">சற்று நேரத்திற்கு முன்</string>
-    <string name="chat_theme_tip">உமக்கும் உம் தோழருக்குமான சேட் தீம் மாறும்</string>
+    <string name="chat_theme_tip">உமக்கும் உன் நண்பருக்குமான  சேட் தீம் மாறும்</string>
     <string name="chat_theme_tip_group">இந்த குரூப்பிற்கான சேட் தீம் மாறும்</string>
-    <string name="not_enough_space_profile_pic">புரொஃபைல் பிக்சரை செட் செய்ய இயலவில்லை, தயவுசெய்து உம் கார்டில் கொஞ்சம் இடத்தைக் காலி செய்து விட்டு, மறுபடியும் முயற்சியும்</string>
+    <string name="not_enough_space_profile_pic">புரொஃபைல் பிக்சரை செட் செய்ய இயலவில்லை, தயவுசெய்து உன் கார்டில் கொஞ்சம் இடத்தைக் காலி செய்து விட்டு, மறுபடியும் முயற்சியும்</string>
     <string name="are_you_sure">உனக்கு நிச்சயமாகத் தெரியுமா?</string>
     <string name="shortcut_created">ஷார்ட்கட் உருவாக்கியாற்று</string>
     <string name="device">டிவைஸ்</string>
@@ -359,7 +359,7 @@
     <string name="terms">விதிகள்</string>
     <string name="get_started">துவங்குவீர்</string>
     <string name="got_it">புரிந்தது</string>
-    <string name="whats_your_number">ஹை! உம் எண் என்ன?</string>
+    <string name="whats_your_number">ஹை! உன் எண் என்ன?</string>
     <string name="select_country">நாட்டினைத் தேர்ந்தெடும்</string>
     <string name="wrong_country">செல்லாத நாட்டுக் குறியீடு</string>
     <string name="no_internet_msg">இணைய\nஇணைப்பு இல்லாதது போல் தோன்றுகிறது! அதனை சரிசெய்ய முயற்சித்து விட்டு மேற்கொண்டு செல்லும்.</string>
@@ -372,15 +372,15 @@
     <string name="i_am_a_girl">நான் ஒரு சிறுமி</string>
     <string name="about_you">உம்மைப் பற்றி</string>
     <string name="tell_us_more">எங்களுக்கு இன்னும் கொஞ்சம் சொல்லும்</string>
-    <string name="how_young_are_you">நீர் எவ்வளவு இளமையானவர்?</string>
-    <string name="your_name">உம் பெயர்</string>
+    <string name="how_young_are_you">நீவீர்  எவ்வளவு இளமையானவர்?</string>
+    <string name="your_name">உன் பெயர்</string>
     <string name="contacts_synced">தொடர்புகள் சிங்க் ஆகிவிட்டன</string>
-    <string name="add_friends_listview_header">" நீர் %1$s தொடர்புகளை Hike-கில் பெற்று விட்டீர்கள். அருமை! "</string>
+    <string name="add_friends_listview_header">" நீவீர்  %1$s தொடர்புகளை Hike-கில் பெற்று விட்டீர்கள். அருமை! "</string>
     <string name="recommended_contacts_section">சிபாரிசு செய்த தொடர்புகள்</string>
     <string name="add_count_btn">சேர்(%1$s)</string>
     <string name="all_contacts">அனைத்து தொடர்புகள்</string>
     <string name="blocked_contacts">பிளாக் செய்த தொடர்புகள்</string>
-    <string name="more_hike_more_earn">நீர் எவ்வளவு அதிகமாக Hike உபயோகிக்கிறீர்களோ, அவ்வளவு அதிகமாக நீர் பலன் சம்பாதிக்கிறீர்கள்!</string>
+    <string name="more_hike_more_earn">நீவீர்  எவ்வளவு அதிகமாக Hike உபயோகிக்கிறீர்களோ, அவ்வளவு அதிகமாக நீவீர்  பலன் சம்பாதிக்கிறீர்கள்!</string>
     <string name="compose_chat_heading">புதிய குரூப் ஒன்றை கிரியேட் செய்யும்</string>
     <string name="compose_chat_other_contacts">மற்ற தொடர்புகள்</string>
     <string name="compose_chat_action_bar_title">புதிய சேட்</string>
@@ -391,21 +391,21 @@
     <string name="compose_chat_empty_contact_status_chat_mode">சேட்-ஐ துவக்கத் தட்டும்</string>
     <string name="tap_hold_multi_select">பல்வேறு ஃபைல்களை செலெக்ட் செய்வதற்கு தட்டி, பிடித்துக் கொள்ளும்</string>
     <string name="free_hike_to_sms">இலவச Hike டூ SMS</string>
-    <string name="confirm_delete_msg">நீர் நிச்சயமாகவே இந்த மெஸ்சேஜை அழிக்க விரும்புகிறீரா?</string>
-    <string name="confirm_delete_msgs">நீர் நிச்சயமாகவே இந்த %1$s மெஸ்சேஜ்களை அழிக்க விரும்புகிறீரா?</string>
-    <string name="confirm_clear_conversation">இந்த உரையாடலில் உள்ள மெஸ்சேஜ்கள் அனைத்தையும் காலியாக்க நீர் உறுதியாக விரும்புகிறீரா?</string>
+    <string name="confirm_delete_msg">நீவீர்  நிச்சயமாகவே இந்த மெஸ்சேஜை அழிக்க விரும்புகிறீரா?</string>
+    <string name="confirm_delete_msgs">நீவீர்  நிச்சயமாகவே இந்த %1$s மெஸ்சேஜ்களை அழிக்க விரும்புகிறீரா?</string>
+    <string name="confirm_clear_conversation">இந்த உரையாடலில் உள்ள மெஸ்சேஜ்கள் அனைத்தையும் காலியாக்க நீவீர்  உறுதியாக விரும்புகிறீரா?</string>
     <string name="enter_pin_signup">தயவுசெய்து SMS வழியாக நாம் அனுப்பிய 4 இலக்க PIN-ஐ எண்டர் செய்யும்.</string>
-    <string name="scanning_your_contacts">உம் தொடர்புகளை ஸ்கேன் செய்கிறது…</string>
-    <string name="setting_profile">உம் புரொஃபைலை செட் அப் செய்கிறது…</string>
+    <string name="scanning_your_contacts">உன் தொடர்புகளை ஸ்கேன் செய்கிறது…</string>
+    <string name="setting_profile">உன் புரொஃபைலை செட் அப் செய்கிறது…</string>
     <string name="you_are_all_set">உமக்கு எல்லாம் செட் ஆகி விட்டது…</string>
     <string name="verified">சரிபார்க்கப்பட்டது</string>
     <string name="sent_txt">அனுப்பியவை</string>
     <string name="delivered_txt">கொடுத்தாகி விட்டது</string>
     <string name="read_txt">படித்தாயிற்று</string>
     <string name="no_hike_contacts">Hike தொடர்புகள் ஏதுமில்லை</string>
-    <string name="num_unread_messages">%1$s அன்ரெட் மெஸ்சேஜ்கள்</string>
-    <string name="one_unread_message">1 அன்ரெட் மெஸ்சேஜ்</string>
-    <string name="invite_friends_confirmation_msg">உம் தோழரில் %1$s பேரை Hike-கிற்கு இன்வைட் செய்ய விரும்புகிறீரா?</string>
+    <string name="num_unread_messages">%1$s படிக்க தவறிய  மெஸ்சேஜ்கள்</string>
+    <string name="one_unread_message">1 படிக்க தவறிய  மெஸ்சேஜ்</string>
+    <string name="invite_friends_confirmation_msg">உன நண்பர்களில்  %1$s பேரை Hike-கிற்கு இன்வைட் செய்ய விரும்புகிறீரா?</string>
     <string name="didnt_get_pin">PIN வரவில்லையா, நாம் உம்மை அழைப்போம்</string>
     <string name="maxContactInBroadcastErr">இந்த புரோட்காஸ்ட் லிஸ்டில் அதிகபட்சம் %1$s தொடர்புகளை அனுமதிக்கிறோம்</string>
     <string name="minContactInGroupErr">குரூப் சேட் ஒன்றைத் துவக்க குறைந்தபட்சம் %1$s மெம்பர்களைத் தேர்ந்தெடும்</string>
@@ -413,7 +413,7 @@
     <string name="cannot_select_zero_byte_file">0 பைட் ஃபைலைத் தேர்ந்தெடுக்க முடியாது</string>
     <string name="addedYouAsFavorite">%1$s -ஐ ஃபேவரைட்களுடன் சேர்த்திருக்கிறது</string>
     <string name="addedYouFrindDescription">
-<![CDATA[ நீர் இப்போது உமது <font color="#ef554e">கடைசியாகப் பார்த்தது</font> மற்றும் <font color="#1da8e8">ஸ்டேட்டஸ் அப்டேட்களை</font> %1$s உடன் ஷேர் செய்கிறீர்கள். நீர் அவரும் அவ்வாறு சேர் செய்யுமாறு வேண்டுகோள் விடுக்க விரும்புகிறீரா?
+<![CDATA[ நீவீர்  இப்போது உமது <font color="#ef554e">கடைசியாகப் பார்த்தது</font> மற்றும் <font color="#1da8e8">ஸ்டேட்டஸ் அப்டேட்களை</font> %1$s உடன் ஷேர் செய்கிறீர்கள். நீவீர்  அவரும் அவ்வாறு சேர் செய்யுமாறு வேண்டுகோள் விடுக்க விரும்புகிறீரா?
 	    ]]>
     </string>
     <string name="ftue_favorite_subtext">ஒரு ஃபேவரைட் ஆக ஆட் செய்க</string>
@@ -438,8 +438,8 @@
     <string name="alp_42447968_msg_draw_pattern_to_unlock">அன்லாக் செய்ய பேட்டர்னை வரைக</string>
     <string name="alp_42447968_msg_pattern_recorded">பேட்டர்ன் பதிவு செய்தாயிற்று</string>
     <string name="alp_42447968_msg_release_finger_when_done">முடிந்ததும் விரலை எடுத்து விடும்</string>
-    <string name="alp_42447968_msg_try_again">உம் பேட்டர்ன்கள் பொருந்தவில்லை. மறுபடியும் முயற்சியும்</string>
-    <string name="alp_42447968_msg_your_new_unlock_pattern">உம் புதிய திறக்கும் பேட்டர்ன்</string>
+    <string name="alp_42447968_msg_try_again">உன் பேட்டர்ன்கள் பொருந்தவில்லை. மறுபடியும் முயற்சியும்</string>
+    <string name="alp_42447968_msg_your_new_unlock_pattern">உன் புதிய திறக்கும் பேட்டர்ன்</string>
     <string name="alp_42447968_msg_draw_pattern_to_unlock_in_reset">ஏற்கெனவே உள்ள பேட்டர்ன்களை வரையும்</string>
     <string name="alp_42447968_msg_redraw_new_pattern_confirm">உறுதி செய்ய புதிய பேட்டர்னை மறுபடியும் வரைக</string>
 
@@ -451,14 +451,14 @@
     <string name="stealth_notification_message">உமக்கு ஓர் புதிய நோட்டிஃபிக்கேஷன் இருக்கிறது</string>
     <string name="stealth_notification_messages">உமக்குப் புதிய நோட்டிஃபிக்கேஷன்கள் இருக்கின்றன</string>
     <string name="retry">மீண்டும் முயற்சி செய்க</string>
-    <string name="reset_complete_stealth_header">ஹிட்டன் மோடை ரீசெட் செய்யும்</string>
-    <string name="reset_complete_stealth_info">உம் கடவுச்சொல்லை மறந்தீரா? ஹிட்டன் மோடை ரீசெட் செய்யும். அனைத்து ஹிட்டன் சேட்களையும் அழித்தாகிவிடும்.</string>
+    <string name="reset_complete_stealth_header">மறைக்கப்பட்ட மோடை ரீசெட் செய்யும்</string>
+    <string name="reset_complete_stealth_info">உன் கடவுச்சொல்லை மறந்தீரா? மறைக்கப்பட்ட மோடை ரீசெட் செய்யும். அனைத்து மறைக்கப்பட்ட சேட்களையும் அழித்தாகிவிடும்.</string>
     <string name="initiate_reset_stealth_header">ஹிட்டென் மோடை ரீசெட் செய்யும்</string>
-    <string name="initiate_reset_stealth_body">ஹிட்டன் மோடு 30 நிமிடங்களில் ரீசெட் ஆகி விடும். அனைத்து ஹிட்டன் சேட்களையும் அழித்தாகிவிடும்! தொடரவா?</string>
+    <string name="initiate_reset_stealth_body">மறைக்கப்பட்ட மோடு 30 நிமிடங்களில் ரீசெட் ஆகி விடும். அனைத்து மறைக்கப்பட்ட சேட்களையும் அழித்தாகிவிடும்! தொடரவா?</string>
     <string name="resetting_complete_stealth_header">ஹிட்டென் மோடை ரீசெட் செய்கிறது</string>
     <string name="resetting_complete_stealth_info">கேன்செல் செய்யத் தட்டவும்.</string>
     <string name="reset_stealth_tip">
-<![CDATA[ <b> %1$s நிமிடங்களில் அனைத்து ஹிட்டன் சேட்களும் அழிந்துவிடும் </b> 
+<![CDATA[ <b> %1$s நிமிடங்களில் அனைத்து மறைக்கப்பட்ட சேட்களும் அழிந்துவிடும் </b> 
 	    ]]>
     </string>
     <string name="tap_to_reset_stealth_tip">
@@ -468,9 +468,9 @@
         <string name="tap_to_reveal_stealth_contacts">சேட்களை ரிவீல் செய்ய</string> 
     <string name="tap_to_hide_stealth_contacts">சேட்களை ஹைடு செய்ய</string>
     <string name="tap_text">தட்டு</string>
-    <string name="reset_stealth_confirmation">ஹிட்டன் மோடை ரீசெட் செய்வது, உமது அனைத்து சேட்களையும் அழித்துவிடும்.\nரீசெட் செய்யட்டுமா?</string>
+    <string name="reset_stealth_confirmation">மறைக்கப்பட்ட மோடை ரீசெட் செய்வது, உமது அனைத்து சேட்களையும் அழித்துவிடும்.\nரீசெட் செய்யட்டுமா?</string>
     <string name="stealth_tap_and_hold_tip">சேட் ஒன்றை \’ஹிட்டன்\’ என மார்க் செய்ய அதன் மீது தட்டி, பிடித்துக் கொள்ளும்.</string>
-    <string name="mark_stealth">சேட்-ஐ ஹிட்டன் என மார்க் செய்க</string>
+    <string name="mark_stealth">சேட்-ஐ மறைக்கப்பட்ட என மார்க் செய்க</string>
     <string name="unmark_stealth">சேட்-ஐ விசிபிள் என மார்க் செய்க</string>
     <string name="edit">எடிட் செய்க</string>
     <string name="vib_off_key">ஆஃப்</string>
@@ -487,26 +487,26 @@
     <string name="delete_chat">சேட்-ஐ அழிக்கவும்</string>
     <string name="clear_whole_conversation">முழு உரையாடலையும் கிளியர் செய்</string>
     <string name="email_conversations">உரையாடலை ஈமெயில் செய்</string>
-    <string name="unlink_account_failed">Hike உம் அக்கவுண்டை லாக் அவுட் செய்ய முடியவில்லை. தயவுசெய்து மீண்டும் முயற்சியும்</string>
+    <string name="unlink_account_failed">Hike உன் அக்கவுண்டை லாக் அவுட் செய்ய முடியவில்லை. தயவுசெய்து மீண்டும் முயற்சியும்</string>
     <string name="deleting_account">அக்கவுண்டை அழிக்கிறது...</string>
-    <string name="unlink_hinttext">இந்த டிவைஸில் இருந்து உம் மெஸ்சேஜையும், புரொஃபைலையும் கிளியர் செய்க.</string>
+    <string name="unlink_hinttext">இந்த டிவைஸில் இருந்து உன் மெஸ்சேஜையும், புரொஃபைலையும் கிளியர் செய்க.</string>
     <string name="unlink_account">அக்கவுண்ட் ரீசெட் செய்க</string>
-    <string name="delete_account_msg">உம் Hike அக்கவுண்டை அழிக்கவும்.</string>
-    <string name="unlink_confirmation">நீர் உண்மையிலேயே\nஉம் அக்கவுண்டை ரீசெட் செய்துவிட விரும்புகிறீரா?</string>
+    <string name="delete_account_msg">உன் Hike அக்கவுண்டை அழிக்கவும்.</string>
+    <string name="unlink_confirmation">நீவீர்  உண்மையிலேயே\nஉன் அக்கவுண்டை ரீசெட் செய்துவிட விரும்புகிறீரா?</string>
     <string name="unlinking_account">ரீசெட் ஆகிறது...</string>
     <string name="shortcut">உரையாடல் ஷார்ட்கட்டை சேர்</string>
     <string name="add_to_contacts">தொடர்புகளுடன் சேர்</string>
     <string name="delete_leave">அழித்து விட்டு குரூப்பை விட்டு வெளியேறு</string>
     <string name="broadcast_participant_info"><![CDATA[<font color=\"#848484\"><b>குறிப்பு: </b>இந்த புரோட்காஸ்ட்டை தம் அட்ரெஸ் புக்கில் %1$s உடனுள்ள Hike தொடர்புகள் மட்டுமே பெற்றுக் கொள்வார்கள்.</font>]]></string>
     <string name="confirm_delete_chat_msg">%1$s உடனான சேட்-ஐ அழிக்கவும் </string>
-    <string name="confirm_delete_group_msg">அழித்து விட்டு \&apos;%1$s\&apos;குரூப்பை விட்டு வெளியேறு</string>
+    <string name="confirm_delete_group_msg">அழித்து விட்டு \'%1$s\'குரூப்பை விட்டு வெளியேறு</string>
     <string name="email_chat">சேட்-ஐ ஈமெயில் செய்க</string>
     <string name="change_keyboard">கீபோர்டை மாற்றுக</string>
     <string name="clear_chat">சேட்டை கிளியர் செய்க</string>
     <string name="add_shortcut">ஷார்ட்கட்டை ஆட் செய்க</string>
     <string name="timeline">டைம்லைன்</string>
     <string name="add_favorites_upper_case">ஃபேவரைட்களை ஆட் செய்யும்</string>
-    <string name="status_update_tip_header">உம் ஸ்டேட்டஸ்-ஐ போஸ்ட் செய்யும்</string>
+    <string name="status_update_tip_header">உன் ஸ்டேட்டஸ்-ஐ போஸ்ட் செய்யும்</string>
     <string name="status_update_tip_msg">ஃபேவரைட்களுக்கு மட்டுமே ஸ்டேட்டஸ் விசிபிள் ஆக இருக்கிறது</string>
     <string name="new_ui_welcome_tip_header">புதிய Hike-கிற்கு வரவேற்கிறோம்</string>
     <string name="new_ui_welcome_tip_msg">முன்னை விட உபயோகிப்பதற்கு எளிதானது அதோடு வேகமானது</string>
@@ -516,34 +516,34 @@
     <string name="see_all_upper_caps">அனைத்தையும் பார்க்கவும்</string>
     <string name="welcome_to_hike">Hike-கிற்கு வரவேற்கிறோம்</string>
     <string name="ftue_welcome_card_msg">Hike, நாம் உமக்குக் காண்பிக்க விரும்புகிற அசத்தல் நிறைந்ததாகும்.</string>
-    <string name="ftue_hidden_mode_card_msg">உம் பிரைவேட் சேட்-களை ஹிட்டன் என மார்க் செய்து விட்டு, அவற்றை பாஸ்கோடு உடன் ஆக்சஸ் செய்யும்.</string>
+    <string name="ftue_hidden_mode_card_msg">உன் பிரைவேட் சேட்-களை மறைக்கப்பட்ட என மார்க் செய்து விட்டு, அவற்றை பாஸ்கோடு உடன் ஆக்சஸ் செய்யும்.</string>
     <string name="hike_offline">Hike ஆஃப்லைன்</string>
     <string name="new_chat_tip_header">சேட் ஒன்றை துவக்கும்</string>
-    <string name="recent_empty_string">நீர் அடிக்கடி உபயோகிக்கிற ஸ்டிக்கர்ஸ் இங்கே தெரியும்</string>
-    <string name="recent_icon_text">நீர் அடிக்கடி உபயோகிக்கிற எமோஷன்ஸ் இங்கே தெரியும்</string>
-    <string name="native_sms_invite_1">ஹேய், Hike மெஸ்செஞ்சரில் என்னோடு சேரும்!\n இது தான் இந்தியாவில் தயாரான ஒரே மெஸ்சேஜிங் app ஆகும்! இப்போதே இதனைப் பெறும் - http://hike.in/ அதோடு உம் வாழ்வை Hike up ஆக்கும்</string>
-    <string name="native_sms_invite_2">ஹேய்! Hike மெஸ்செஞ்சரை செக் அவுட் செய்யும். இப்போது ஒவ்வொன்றும் 100MB வரையான Docs, PPTs, MP3s மற்றும் இன்னும் பலவற்றை அனுப்பும். இப்போதே இதனைப் பெறும் - http://hike.in/ அதோடு உம் வாழ்வை Hike up ஆக்கும்</string>
-    <string name="native_sms_invite_3">ஹேய், Hike மெஸ்செஞ்சரை செக் அவுட் செய்யும். இதில் ஆச்சரியமான ஸ்டிக்கர்களும், அசத்தும் சேட் தீம்களும் இருக்கின்றன! டவுன்லோடு செய்ய - http://hike.in அதோடு உம் வாழ்வை Hike அப் ஆக்கும்!</string>
-    <string name="native_sms_invite_4">ஹேய், Hike மெஸ்செஞ்சரை செக் அவுட் செய்யும். இது, குறிப்பிட்ட தோழருக்கு மட்டுமே உமது \’கடைசியாகப் பார்த்தது\’-ஐக் காண்பிக்க வழி செய்கிறது! டவுன்லோடு செய்ய - http://hike.in அதோடு உம் வாழ்வை Hike அப் ஆக்கும்!</string>
-    <string name="native_sms_invite_5">ஹேய், Hike மெஸ்செஞ்சரை செக் அவுட் செய்யும். இப்போது நீர் உமது பிரைவேட் சேட்களை மற்றவரிடமிருந்து ஹைடு செய்து கொள்ளலாம். டவுன்லோடு செய்ய - http://hike.in அதோடு உம் வாழ்வை Hike அப் ஆக்கும்!</string>
-    <string name="native_sms_invite_6">ஹேய், Hike மெஸ்செஞ்சரை செக் அவுட் செய்யும். நீர், ஆஃப்லைன் ஆக இருக்கிற தோழரோடும் கூட சேட் செய்யலாம். டவுன்லோடு செய்ய - http://hike.in அதோடு உம் வாழ்வை Hike அப் ஆக்கும்!</string>
+    <string name="recent_empty_string">நீவீர்  அடிக்கடி உபயோகிக்கிற ஸ்டிக்கர்ஸ் இங்கே தெரியும்</string>
+    <string name="recent_icon_text">நீவீர்  அடிக்கடி உபயோகிக்கிற எமோஷன்ஸ் இங்கே தெரியும்</string>
+    <string name="native_sms_invite_1">ஹேய், Hike மெஸ்செஞ்சரில் என்னோடு சேரும்!\n இது தான் இந்தியாவில் தயாரான ஒரே மெஸ்சேஜிங் app ஆகும்! இப்போதே இதனைப் பெறும் - http://hike.in/ அதோடு உன் வாழ்வை Hike up ஆக்கும்</string>
+    <string name="native_sms_invite_2">ஹேய்! Hike மெஸ்செஞ்சரை செக் அவுட் செய்யும். இப்போது ஒவ்வொன்றும் 100MB வரையான Docs, PPTs, MP3s மற்றும் இன்னும் பலவற்றை அனுப்பும். இப்போதே இதனைப் பெறும் - http://hike.in/ அதோடு உன் வாழ்வை Hike up ஆக்கும்</string>
+    <string name="native_sms_invite_3">ஹேய், Hike மெஸ்செஞ்சரை செக் அவுட் செய்யும். இதில் ஆச்சரியமான ஸ்டிக்கர்களும், அசத்தும் சேட் தீம்களும் இருக்கின்றன! பதிவிறக்கம்செய்ய - http://hike.in அதோடு உன் வாழ்வை Hike அப் ஆக்கும்!</string>
+    <string name="native_sms_invite_4">ஹேய், Hike மெஸ்செஞ்சரை செக் அவுட் செய்யும். இது, குறிப்பிட்ட தோழருக்கு மட்டுமே உமது \’கடைசியாகப் பார்த்தது\’-ஐக் காண்பிக்க வழி செய்கிறது! பதிவிறக்கம்செய்ய - http://hike.in அதோடு உன் வாழ்வை Hike அப் ஆக்கும்!</string>
+    <string name="native_sms_invite_5">ஹேய், Hike மெஸ்செஞ்சரை செக் அவுட் செய்யும். இப்போது நீவீர்  உமது பிரைவேட் சேட்களை மற்றவரிடமிருந்து ஹைடு செய்து கொள்ளலாம். பதிவிறக்கம்செய்ய - http://hike.in அதோடு உன் வாழ்வை Hike அப் ஆக்கும்!</string>
+    <string name="native_sms_invite_6">ஹேய், Hike மெஸ்செஞ்சரை செக் அவுட் செய்யும். நீவீர் , ஆஃப்லைன் ஆக இருக்கிற தோழரோடும் கூட சேட் செய்யலாம். பதிவிறக்கம்செய்ய - http://hike.in அதோடு உன் வாழ்வை Hike அப் ஆக்கும்!</string>
     <string name="new_chat_tip_msg">கம்போஸ் செய்யத் தட்டும்</string>
     <string name="ftue_status_update_card_header">உம்மை நீங்களே எக்ஸ்பிரெஸ் செய்யும்</string>
-    <string name="ftue_status_update_card_msg">ஸ்டேட்டஸ் அப்டேட்டை போஸ்ட் செய்ய இங்கே தட்டும். உம் ஃபேவரைட்ஸ் மட்டுமே அவற்றைப் பார்க்க முடியும்.</string>
-    <string name="earn_free_sms">இலவச SMS-களைப் சம்பாதியும்</string>
-    <string name="email_subject">உம் Hike அப் செய்யும்</string>
+    <string name="ftue_status_update_card_msg">ஸ்டேட்டஸ் அப்டேட்டை போஸ்ட் செய்ய இங்கே தட்டும். உன் ஃபேவரைட்ஸ் மட்டுமே அவற்றைப் பார்க்க முடியும்.</string>
+    <string name="earn_free_sms">இலவச SMS-களைப் பெறுக</string>
+    <string name="email_subject">உன் Hike அப் செய்யும்</string>
     <string name="ftue_card_header_last_seen">கடைசியாகப் பார்த்தது</string>
-    <string name="ftue_card_body_last_seen">ஃபேவரைட்கள் மட்டுமே உம் \&apos;கடைசியாகப் பார்த்ததையும்\&apos;, \&apos;ஸ்டேட்டஸ் அப்டேட்களையும்\&apos;, பார்க்க முடியும்</string>
+    <string name="ftue_card_body_last_seen">ஃபேவரைட்கள் மட்டுமே உன் கடைசியாகப் பார்த்ததையும் ஸ்டேட்டஸ் அப்டேட்களையும் பார்க்க முடியும்</string>
     <string name="ftue_card_click_text_last_seen">அவற்றைத் தேர்ந்தெடுக்க இங்கே தட்டும்!</string>
     <string name="ftue_card_header_hike_offline">Hike ஆஃப்லைன்</string>
-    <string name="ftue_card_body_hike_offline">தோழர் ஆஃப்லைன் ஆக இருக்கும் போதும் கூட அவருக்கு மெஸ்சேஜ் அனுப்பும்</string>
+    <string name="ftue_card_body_hike_offline">நண்பர்  ஆஃப்லைன் ஆக இருக்கும் போதும் கூட அவருக்கு மெஸ்சேஜ் அனுப்பும்</string>
     <string name="ftue_card_click_text_hike_offline">இது மேஜிக் போன்று வேலை செய்கிறது!</string>
     <string name="ftue_card_header_sticker">ஸ்டிக்கர்கள்</string>
     <string name="ftue_card_body_sticker">வார்த்தைகளால் வெளிப்படுத்த முடியா\’த போது, அதனை ஒரு ஸ்டிக்கர் கொண்டு சொல்லும்</string>
     <string name="ftue_card_click_text_sticker">அவை உமக்குப் பிடிக்கும்!</string>
-    <string name="ftue_card_sep">Hike-கில் நீர் ஆச்சரியமான காரியம்மைச் செய்ய முடியும்</string>
+    <string name="ftue_card_sep">Hike-கில் நீவீர்  ஆச்சரியமான காரியம்மைச் செய்ய முடியும்</string>
     <string name="change_stealth_password">பாஸ்வேர்டை மாற்றும்</string>
-    <string name="change_stealth_password_body">உம் ஹிட்டன் மோடு பாஸ்வேர்டை மாற்றும். அதே போல பேட்டர்ன் மற்றும் PIN ஆகியவற்றுக்கு இடையே மாற்றும்.</string>
+    <string name="change_stealth_password_body">உன் மறைக்கப்பட்ட மோடு பாஸ்வேர்டை மாற்றும். அதே போல பேட்டர்ன் மற்றும் PIN ஆகியவற்றுக்கு இடையே மாற்றும்.</string>
     <string name="invited">இன்வைட் செய்தாயிற்று</string>
     <string name="invite_more">இன்னும் அதிகம் பேரை இன்வைட் செய்க</string>
     <string name="invite_sent">இன்வைட் அனுப்பியாயிற்று</string>
@@ -558,7 +558,7 @@
     <string name="hike_to_offline_text">மெஸ்சேஜ்களை SMS இலவச ஆக அனுப்புக</string>
     <string name="invite_with_watsapp">WhatsApp</string>
     <string name="profile_pic_header">புரொஃபைல் பிக்சர்</string>
-    <string name="profile_pic_display_info">உம் ஃபேவரைட்களை மட்டும் காண்பியும்</string>
+    <string name="profile_pic_display_info">உன் ஃபேவரைட்களை மட்டும் காண்பியும்</string>
     <string name="undelivered_sms_setting_remember">மை பிரிஃபெரன்ஸ் சேவ் ஆகி விட்டது</string>
     <string name="send_sms_sticker_msg">உமக்கு ஸ்டிக்கர் ஒன்றை அனுப்பியுள்ளார்</string>
     <string name="send_sms_img_msg">உமக்கு இமேஜ் ஒன்றை அனுப்பியுள்ளார்</string>
@@ -587,7 +587,7 @@
     <string name="ftue_card_click_invite">இப்போதே இன்வைட் செய்யத் துவங்குவீர்!</string>
     <string name="send_sms_file_msg">உமக்கு ஒரு ஃபைல் அனுப்பியுள்ளார்</string>
     <string name="select_all_confirmation_header">அனைவரையும் இன்வைட் செய்க</string>
-    <string name="select_all_confirmation_msg">%1$d தொடர்புகளுக்கு Hike டவுன்லோடு செய்ய இன்வைட் அனுப்புக</string>
+    <string name="select_all_confirmation_msg">%1$d தொடர்புகளுக்கு Hike பதிவிறக்கம்செய்ய இன்வைட் அனுப்புக</string>
     <string name="hike_offline_caps">Hike ஆஃப்லைன்</string>
 
     <string name="create_pin">Pin உருவாக்குக</string>
@@ -598,7 +598,7 @@
     <string name="pinHistoryTutorialText">இதுவரைக்கும் pins ஏதுமில்லை</string>
     <string name="incorrect_msisdn_warning">சரியல்லாத எண்</string>
     <string name="incorrect_msisdn_msg">தயவுசெய்து இந்த ஃபோனில் Hike-ல் ரெஜிஸ்டர் செய்துள்ள எண்ணைப் பதிவு செய்வீர்.</string>
-    <string name="delete_account_heading_2">உம் அக்கவுண்ட்டை அழிக்க, உம் எண்ணை எண்டர் செய்வீர்</string>
+    <string name="delete_account_heading_2">உன் அக்கவுண்ட்டை அழிக்க, உன் எண்ணை எண்டர் செய்வீர்</string>
     <string name="delete_my_account">என் அக்கவுண்டை அழிப்பீர்</string>
     <string name="hike_extras">ரிவார்ட்ஸ்/எக்ஸ்ட்ராஸ்</string>
     <string name="mute_status_notification_header">ஸ்டேட்டஸ் மற்றும் புரொஃபைல் பிக்சர்</string>
@@ -606,9 +606,9 @@
     <string name="notifications_contact_join_summary">தொடர்பு நபர் ஒருவர் Hike-கில் சேரும் போது நோட்டிஃபை செய்க</string>
     <string name="set_profile_pic"> Hike புரொஃபைல் பிக்சர்</string>
     <string name="confirm_delete_pin_header">pin-ஐ அழிக்கவும்</string>
-    <string name="confirm_delete_pin">நீர் நிச்சயமாகவே இந்த pin-ஐ அழிக்க விரும்புகிறீரா?</string>
+    <string name="confirm_delete_pin">நீவீர்  நிச்சயமாகவே இந்த pin-ஐ அழிக்க விரும்புகிறீரா?</string>
     <string name="confirm_delete_pins_header">pin-களை அழிக்கவும்</string>
-    <string name="confirm_delete_pins">நீர் நிச்சயமாகவே இந்த %1$s pin-களை அழிக்க விரும்புகிறீரா?</string>
+    <string name="confirm_delete_pins">நீவீர்  நிச்சயமாகவே இந்த %1$s pin-களை அழிக்க விரும்புகிறீரா?</string>
     <string name="add_btn">ஆட் செய்யும்</string>
     <string name="not_now">இப்போதல்ல</string>
     <string name="shared_med">ஷேர் செய்த மீடியா</string>
@@ -626,7 +626,7 @@
     <string name="team_hike">Hike</string>
     <string name="add_people">மெம்பர் ஒருவரை சேர்</string>
     <string name="add_recipients">பெறுபவர்களை சேர்</string>
-    <string name="stealth_info_tip_header">ஹிட்டன் மோடு</string>
+    <string name="stealth_info_tip_header">மறைக்கப்பட்ட மோடு</string>
     <string name="file_missing_caps">ஃபைல் விடுபட்டுள்ளது</string>
     <string name="status_profile_pic_notification">புரொஃபைல் படத்தை மாற்றிவிட்டார்</string>
     <string name="group_admin">நிர்வாகி</string>
@@ -652,13 +652,13 @@
     <string name="image_quality_prefs">இமேஜ் தரம்</string>
     <string name="no_media">ஃபோட்டோஸ் மற்றும் வீடியோஸை இங்கே காண்பியும்</string>
     <string name="add_fav">ஃபேவரைட்ஸோடு சேர்ப்பீர்</string>
-    <string name="no_file">இங்கே ஃபைல்ஸ் &amp; pins-ஐ காண்பிக்கிறது</string>
+    <string name="no_file">இங்கே ஃபைல்ஸ் pins-ஐ காண்பிக்கிறது</string>
     <string name="no_file_broadcast">இங்கே ஃபைல்ஸ் காண்பிக்கிறது</string>
     <string name="no_file_profile">இங்கே ஃபைல்ஸ் காண்பிக்கிறது</string>
     <string name="notifications_contact_join_title">Hike-கில் சேர்கிற தொடர்புகள்</string>
     <string name="share_with_names_numbers">%1$s மற்றும் %2$d மற்றவரோ ஷேர் செய்க</string>
     <string name="recent_chats">சமீபத்திய சாட்-கள்</string>
-    <string name="new_chat_compose_hint">பெயர் அல்லது எண் வாரியாக செர்ச் செய்க</string>
+    <string name="new_chat_compose_hint">பெயர் அல்லது எண் வாரியாக தேடுதல்  செய்க</string>
     <string name="pin_notif_text">pin போஸ்ட் செய்துள்ளார்</string>
     <string name="welcome_to">வரவேற்கிறோம்</string>
     <string name="small_fastest">வேகமானது</string>
@@ -674,7 +674,7 @@
     <string name="content_card_title_tag">T1</string>
     <string name="content_card_subtitle_tag">T2</string>
     <string name="content_card_action_tag">T3</string>
-    <string name="auth_title">உம் Hike அக்கவுண்ட் உபயோகிக்க நீர் %1$s \n என்பவரை அங்கீகரிக்க விரும்புகிறீரா?</string>
+    <string name="auth_title">உன் Hike அக்கவுண்ட் உபயோகிக்க நீவீர்  %1$s \n என்பவரை அங்கீகரிக்க விரும்புகிறீரா?</string>
     <string name="auth_cd_app_logo">பயன்பாட்டு ஐக்கான்</string>
     <string name="auth_app_access_to">%1$s அணுகல் பெறுவது:</string>
     <string name="auth_your_public_profile">அடிப்படைத் தகவல்கள்</string>
@@ -691,7 +691,7 @@
     <string name="update_all">அனைத்தையும் அப்டேட் செய்க</string>
     <string name="RETRY">மீண்டும் முயற்சி செய்க</string>
     <string name="see_them">ஆயிற்று</string>
-    <string name="drag_tip_text">உம் ஸ்டிக்கர் பேக்ஸ்-ஐ ரீஆர்டர் செய்ய ஒரு பேக்-ஐத் தட்டி, அப்படியே பிடித்துக் கொள்ளும்</string>
+    <string name="drag_tip_text">உன் ஸ்டிக்கர் பேக்ஸ்-ஐ ரீஆர்டர் செய்ய ஒரு பேக்-ஐத் தட்டி, அப்படியே பிடித்துக் கொள்ளும்</string>
     <string name="CANCEL">கேன்செல் செய்க</string>
     <string name="n_more">இன்னும் %1$d</string>
     <string name="n_stickers">%1$d ஸ்டிக்கர்ஸ்</string>
@@ -699,13 +699,13 @@
     <string name="restore_account">ரீஸ்டோர் அக்கவுண்ட்</string>
     <string name="account_backup">அக்கவுண்ட் பேக்அப்</string>
     <string name="backup_found">கண்டுள்ள பேக்அப்</string>
-    <string name="backup_found_hint">உம் அக்கவுண்ட்டை ரெஸ்டோர் செய்ய விரும்புகிறீரா?</string>
+    <string name="backup_found_hint">உன் அக்கவுண்ட்டை ரெஸ்டோர் செய்ய விரும்புகிறீரா?</string>
     <string name="restoring...">ரெஸ்டோர் செய்கிறது...</string>
     <string name="restoring..._hint">தயவுசெய்து காத்திரும், இதற்கு கொஞ்சம் நேரமாகலாம்</string>
     <string name="restored">ரெஸ்டோர் ஆகிவிட்டது</string>
-    <string name="restored_hint">உம் அக்கவுண்ட் மற்றும் மெஸ்சேஜ்கள்</string>
+    <string name="restored_hint">உன் அக்கவுண்ட் மற்றும் மெஸ்சேஜ்கள்</string>
     <string name="restore_error">ஏதோ தவறாகிப் போய்விட்டது</string>
-    <string name="restore_error_hint">நீர் மறுபடியும் முயற்சிக்க விரும்புகிறீரா?</string>
+    <string name="restore_error_hint">நீவீர்  மறுபடியும் முயற்சிக்க விரும்புகிறீரா?</string>
     <string name="out_of_space">மெமரி போதவில்லை</string>
     <string name="backup_successful">பேக்அப் வெற்றிகரமாக கிரியேட் ஆகி விட்டது</string>
     <string name="backup_failed">பேக்அப் தோல்வியடைந்து விட்டது</string>
@@ -714,10 +714,10 @@
     <string name="n_packs">%1$d பேக்குகள்</string>
     <string name="update_all_fail_string">ஹிட்டென் பேக்குகளை உம்மால் அப்டேட் செய்ய முடியாது.</string>
     <string name="great_job">கிரேட் ஜாப்</string>
-    <string name="downloading_stk">டவுன்லோடு செய்கிறது</string>
+    <string name="downloading_stk">பதிவிறக்கம்செய்கிறது</string>
     <string name="update_sticker">அப்டேட் கிடைக்கிறது</string>
     <string name="text_empty_error">டெக்ஸ்ட் காலியாக இருக்க முடியாது!</string>
-    <string name="shop_download_failed">டவுன்லோடு தோல்வியடைந்தது. மறுபடியும் முயற்சிக்கத் தட்டும்.</string>
+    <string name="shop_download_failed">பதிவிறக்கம்தோல்வியடைந்தது. மறுபடியும் முயற்சிக்கத் தட்டும்.</string>
     <string name="shop_download_failed_out_of_space">மெமரி போதவில்லை</string>
     <string name="shop_loading_state">ஸ்டிக்கர்களை லோட் செய்கிறது</string>
     <string name="shop_loading_state_subtext">தயவுசெய்து காத்திருக்கவும் ...</string>
@@ -725,16 +725,16 @@
     <string name="shop_loading_failed_switch_on">மொபைல் டேட்டா அல்லது வை-ஃபை-யை ஆன் செய்யும்</string>
     <string name="singular_packs">%1$d பேக்</string>
     <string name="singular_stickers">%1$d ஸ்டிக்கர்</string>
-    <string name="conversation_empty">சேட் ஒன்றைத் துவக்க உச்சியில் உள்ள \&apos;<b>புதிய மெஸ்சேஜ்</b>\&apos; ஐக்கானைத் தட்டும்</string>
+    <string name="conversation_empty">சேட் ஒன்றைத் துவக்க உச்சியில் உள்ள \' <b>புதிய மெஸ்சேஜ்</b>\' ஐக்கானைத் தட்டும்</string>
     <string name="pack_visible">ஸ்டிக்கர் பேல்லேட்டில் விசிபிள் ஆக உள்ளது</string>
-    <string name="pack_hidden">ஸ்டிக்கர் பேல்லெடில் ஹிட்டன் ஆக உள்ளது</string>
+    <string name="pack_hidden">ஸ்டிக்கர் பேல்லெடில் மறைக்கப்பட்ட ஆக உள்ளது</string>
     <string name="pack_rank">%1$d.</string>
     <string name="error_pick_location">லொக்கேஷனை பிக் செய்கையில் எரர்</string>
     <string name="zero_sms_hint">0 இலவச SMS-கள் மீதமுள்ளன...</string>
-    <string name="pin_self">நீர்</string>
+    <string name="pin_self">நீவீர் </string>
     <string name="some_error">ஏதோவொரு எரர் ஏற்பட்டிருக்கிறது!</string>
     <string name="recently_joined_hike">Hike-கில் சமீபத்தில் சேர்ந்துள்ளார்</string>
-    <string name="creating_backup_message">உம் அக்கவுண்ட்டின் பேக்அப் ஒன்றை கிரியேட் செய்கிறது அன்றாட பேக்அப் காலை 3:00 மணிக்கு நேர்கிறது</string>
+    <string name="creating_backup_message">உன் அக்கவுண்ட்டின் பேக்அப் ஒன்றை கிரியேட் செய்கிறது அன்றாட பேக்அப் காலை 3:00 மணிக்கு நேர்கிறது</string>
     <string name="restore">ரெஸ்டோர்</string>
     <string name="auth_connected_to_hike">%1$s பேர் Hike-கோடு இணைந்துள்ளார்கள்!</string>
     <string name="auth_state_connecting">இணைக்கிறது...</string>
@@ -745,15 +745,15 @@
     <string name="install_description">ஹேய், நான் விளையாட் வருகிற இந்த வாய்பிளக்கச் செய்யும் கேமை விளையாடிப் பார்!</string>
     <string name="connected_apps_to_hike"> %1$s app-கள் Hike-கோடு இணைந்துள்ளன</string>
     <string name="connected_app_to_hike">1 app Hike-கோடு இணைந்துள்ளது</string>
-    <string name="confirm_disconnect_app">உரிய பலன்களை நீர் பெறாமல் போய்விடுவீர்கள்</string>
-    <string name="send_sticker_joy">இந்த ஸ்டிக்கர் கொண்டுள்ள உம் தோழரை வாழ்த்தும்</string>
+    <string name="confirm_disconnect_app">உரிய பலன்களை நீவீர்  பெறாமல் போய்விடுவீர்கள்</string>
+    <string name="send_sticker_joy">இந்த ஸ்டிக்கர் கொண்டுள்ள உன் தோழரை வாழ்த்தும்</string>
     <string name="nux_invitefrnds_skip">ஸ்கிப்</string>
     <string name="nux_invitefrnds_reward">ஸ்டிக்கர்கள் கொண்டு இன்னும் அதிகம் சொல்லும்!</string>
-    <string name="nux_invitefrnds_objective">ஸ்டிக்கர்கள் கொண்டு இன்னும் அதிகம் எக்ஸ்பிரெஸ் செய்து, உம் மிகச் சிறந்த தோழரோடு சேட் செய்யும்!</string>
+    <string name="nux_invitefrnds_objective">ஸ்டிக்கர்கள் கொண்டு இன்னும் அதிகம் எக்ஸ்பிரெஸ் செய்து, உன் மிகச் சிறந்த தோழரோடு சேட் செய்யும்!</string>
     <string name="nux_invitefrnds_buttext">சேட் செய்யத் துவங்கும்</string>
     <string name="tap_to_claim">இன்னும் அதிகம் பாரும்</string>
     <string name="reward_card_success">அற்புதம்! இன்னும் அதிகம் அசத்தும் ஸ்டிக்கர்களுக்கு இப்போது ஸ்டிக்கர் ஷாப்பினை செக் அவுட் செய்யும்!</string>
-    <string name="reward_card_objective">உம் தோழரோடு சேட் செய்து, எமது வாய்பிளக்கச் செய்யும் ஸ்டிக்கர்களை உபயோகியும்!</string>
+    <string name="reward_card_objective">உன் தோழரோடு சேட் செய்து, எமது வாய்பிளக்கச் செய்யும் ஸ்டிக்கர்களை உபயோகியும்!</string>
     <string name="details_text">இன்னும் அதிகம் பாரும்</string>
     <string name="status_text">%1$d/%2$d</string>
     <string name="chat_waiting_text">நிலுவையில் உள்ளது!</string>
@@ -765,13 +765,13 @@
     <string name="custom_message_hint"></string>
     <string name="nux_select_friends_1">உமது மிகச் சிறந்த தோழரைத் தேர்ந்தெடும்</string>
     <string name="nux_select_friends_2">இன்னும் %d பிக் செய்யும்</string>
-    <string name="nux_select_friends_3">எல்லாம் தயார், நீர் போகலாம்!</string>
+    <string name="nux_select_friends_3">எல்லாம் தயார், நீவீர்  போகலாம்!</string>
     <string name="nux_send_message">மெஸ்சேஜ் ஒன்றை அனுப்பு</string>
     <string name="nux_select_friends_reconame">சிபாரிசு செய்யப்படுகிறது</string>
     <string name="nux_select_friends_nextbut">நெக்ஸ்ட்</string>
     <string name="voip_call_summary_incoming">உள்வரும் அழைப்பு</string>
     <string name="voip_call_summary_outgoing">வெளிச்செல்லும் அழைப்பு</string>
-    <string name="voip_missed_call_outgoing">உம் அழைப்பை எடுக்க முடியாமல் போய் விட்டது</string>
+    <string name="voip_missed_call_outgoing">உன் அழைப்பை எடுக்க முடியாமல் போய் விட்டது</string>
     <string name="voip_missed_call_incoming">ஓர் அழைப்பை எடுக்காமல் போய் விட்டீர்கள்</string>
     <string name="voip_call_chat">Hike அழைப்பு</string>
     <string name="voip_call_notification_title">%1$s உடன் Hike அழைப்பு</string>
@@ -788,11 +788,11 @@
     <string name="voip_conference_label">கூட்டு அழைப்பு</string>
     <string name="voip_conference_waiting_for_participants_info">கூட்டு அழைப்புத் தகவலுக்காகக் காத்திருக்கிறது...</string>
     <string name="hike_calls">Hike அழைப்புகள்</string>
-    <string name="voip_intro_popup_msg">நீர் இப்போது அனைத்து Hike தோழரையும் அழைக்கலாம்!</string>
+    <string name="voip_intro_popup_msg">நீவீர்  இப்போது அனைத்து Hike தோழரையும் அழைக்கலாம்!</string>
     <string name="voip_intro_popup_btn">வாய்பிளக்கச் செய்தது</string>
     <string name="voip_group_too_large">கூட்டு அழைப்புப் பங்கேற்பாளர்களின் அதிகபட்ச எண்ணிக்கை %1$s.</string>
     <string name="voip_conference_network_support">2G-ல் கூட்டு அழைப்புகளை ஹாஸ்ட் செய்ய முடியாது.</string>
-    <string name="voip_conference_os_support">உம் ஃபோனால் ஒரு கூட்டு அழைப்பை ஹாஸ்ட் செய்ய முடியாது.</string>
+    <string name="voip_conference_os_support">உன் ஃபோனால் ஒரு கூட்டு அழைப்பை ஹாஸ்ட் செய்ய முடியாது.</string>
     <string name="voip_conference_host">கூட்டு அழைப்பு ஹாஸ்ட்</string>
     <string name="voip_conference_not_supported">%1$s கூட்டு அழைப்புகளை சப்போர்ட் செய்வதில்லை.</string>
     <string name="voip_group_conference_confirmation">இந்த குரூப்பில் உள்ள ஒவ்வொருவரோடும் கூட்டு அழைப்பு ஒன்றைத் துவங்க விரும்புகிறீரா?</string>
@@ -805,7 +805,7 @@
     <string name="led_color_yellow_key">மஞ்சள்</string>
     <string name="led_color_purple_key">செந்நீல நிறம்</string>
     <string name="ringtone_loader">ஏற்றிக் கொண்டிருக்கிறது...</string>
-    <string name="call_rate_heading">உம் அழைப்பை தரவரிசை இடும்</string>
+    <string name="call_rate_heading">உன் அழைப்பை தரவரிசை இடும்</string>
     <string name="call_rate_subheading">உமது சென்ற அழைப்பின் தரம் எவ்வாறு இருந்தது என்பதை தெரிந்து கொள்வதற்கு எங்களுக்கு ஆசையாக இருக்கிறது</string>
     <string name="call_rate_not_now">இப்போதல்ல</string>
     <string name="call_rate_submit">சமர்ப்பியும்</string>
@@ -818,7 +818,7 @@
 <![CDATA[ Hike மெஸ்சஞ்சரை பெறும் <font color="#57dcf9">http://get.hike.in</font>
 	    ]]>
     </string>
-    <string name="cardShareCaption">http://get.hike.in -யில் Hike மெஸ்செஞ்சரை டவுன்லோடு செய்யும்</string>
+    <string name="cardShareCaption">http://get.hike.in -யில் Hike மெஸ்செஞ்சரை பதிவிறக்கம்செய்யும்</string>
     <string name="cardShareHeading">Hike-கில் இருக்கிற வேடிக்கைகள் அனைத்தையும் காணாமல் போய்விடாதீர்கள் !</string>
     <string name="voip_call_issues_header">பிரச்சினைகள் குறித்து எங்களிடம் சொல்லும்</string>
     <string name="voip_call_issues_subheader">உரிய ஆப்ஷன்களை செலெக்ட் செய்யும்</string>
@@ -829,14 +829,14 @@
     <string name="voip_issue_drop">கால் டிராப்</string>
     <string name="voip_issue_network">நெட்வொர்க் பிரச்சினை</string>
     <string name="voip_issue_delay">வாய்ஸ் டிலே</string>
-    <string name="voip_call_issues_submit_toast">உம் ஃபீட்பேக்கை சமர்ப்பித்தாயிற்று</string>
+    <string name="voip_call_issues_submit_toast">உன் ஃபீட்பேக்கை சமர்ப்பித்தாயிற்று</string>
     <string name="video_compress">வீடியோ கம்ப்ரெஷன்</string>
     <string name="send_compress_video">கம்ப்ரெஸ்டு வீடியோவை அனுப்புக</string>
     <string name="remove_photo">ஃபோட்டோவை அகற்றுக</string>
-    <string name="confirm_remove_photo">நீர் உண்மையாகவே ஃபோட்டோவை அகற்றிவிட விரும்புகிறீரா?</string>
+    <string name="confirm_remove_photo">நீவீர்  உண்மையாகவே ஃபோட்டோவை அகற்றிவிட விரும்புகிறீரா?</string>
     <string name="check_delete_from_timeline">ஃபேவரைட்களின் டைம்லைனில் இருந்து அழிக்கவும்</string>
     <string name="edit_photo">ஃபோட்டோவை எடிட் செய்க</string>
-    <string name="removing_dp">பிக்சரை அகற்றுகிறது...</string>
+    <string name="removing_dp">profile பிக்சரை அகற்றுகிறது...</string>
     <string name="voip_missed_call_notif">மிஸ்டு கால்</string>
     <string name="voip_missed_call_action">கால் பேக்</string>
     <string name="voip_missed_call_message">மெஸ்சேஜ்</string>
@@ -850,7 +850,7 @@
     <string name="photo_dp_save_error_sub">மறுபடியும் முயற்சிக்கத் தட்டும்</string>
     <string name="photo_gallery_choose_pic">ஃபோட்டோ ஒன்றைத் தேர்ந்தெடும்</string>
     <string name="cropping_image">இமேஜை கிராப் செய்கிறது..</string>
-	<string name="home_search_empty_text">\&apos;%1$s\&apos;-க்கான உமது தேடலுக்கு எந்த தொடர்புகளும் பொருந்தவில்லை.</string>
+	<string name="home_search_empty_text">\'%1$s\'-க்கான உமது தேடலுக்கு எந்த தொடர்புகளும் பொருந்தவில்லை.</string>
     <string name="voip_mic_error">மைக்-ஐ ஸ்டார்ட் செய்ய முடியவில்லை. இந்த அழைப்பு வேலை செய்யாது.</string>
     <string name="voip_call_failed_frag_subheader">உம்மால் இப்போதும் உடன் %1$s தொடர்பு கொள்ள முடியும்</string>
     <string name="dismiss_upper_case">டிஸ்மிஸ்</string>
@@ -868,9 +868,9 @@
     <string name="voip_conf_mute_all_off">அனைத்தையும் மியூட் செய்க</string>
     <string name="voip_conf_mute_all_on">அனைத்தையும் மியூட் செய்வதை கேன்செல் செய்க</string>
     <string name="voip_speech_force_mute_on">ஹாஸ்ட் எல்லோரையும் மியூட் செய்து வைத்திருக்கிறார்</string>
-    <string name="voip_speech_force_mute_off">நீர் இப்போது அன்மியூட் செய்யலாம்</string>
+    <string name="voip_speech_force_mute_off">நீவீர்  இப்போது அன்மியூட் செய்யலாம்</string>
     <string name="nux_expired">இச்செயல்பாடு காலாவதியாகி விட்டது</string>
-    <string name="nux_completed">நீர் ஏற்கெனவே இச்செயல்பாட்டினைச் செய்து முடித்து விட்டீர்கள்.</string>
+    <string name="nux_completed">நீவீர்  ஏற்கெனவே இச்செயல்பாட்டினைச் செய்து முடித்து விட்டீர்கள்.</string>
     <string name="holi">ஹோலி வாழ்த்துக்கள்</string>
 	<string name="privacy_settings">அந்தரங்க அமைவுகள்</string>
     <string name="manage_list">லிஸ்டுகளை மேலாண்மை செய்</string>
@@ -883,38 +883,38 @@
     <string name="ls_favorites_summary">உமது ஃபேவரைட்களுக்கு மட்டுமே ‘கடைசியாகப் பார்த்தது’ விசிபிள் ஆக உள்ளது</string>
     <string name="ls_everyone_summary">Hike-கில் உள்ள எல்லோருக்கும் ‘கடைசியாகப் பார்த்தது’ விசிபிள் ஆக உள்ளது</string>
     <string name="ls_nobody_summary">ஞாபகம் வைத்துக் கொள்ளும்: உம்மால் எவரது ‘கடைசியாகப் பார்த்ததையும்’ பார்க்க இயலாது</string>
-    <string name="you_accepted_favorite_request_details">அற்புதம்! %1$s என்பவரால் இப்போது உமது %2$s-ஐ பார்க்க இயலும்.</string>
-    <string name="accepted_your_favorite_request_details">இப்போது உம்மால் %1$s\&apos;s %2$s-ஐ பார்க்க முடியும்</string>
-    <string name="favorite_confirmed_notification">இப்போது உம்மால் %1$s\&apos;s %2$s-ஐ பார்க்க முடியும்</string>
+    <string name="you_accepted_favorite_request_details">அற்புதம்! %1$s என்பவரால் இப்போது உமது %2$s-ஐ பார்க்க பார்க்க இயலும்.</string>
+    <string name="accepted_your_favorite_request_details">இப்போது உம்மால் %1$s\'s %2$s-ஐ பார்க்க முடியும்</string>
+    <string name="favorite_confirmed_notification">இப்போது உம்மால் %1$s\'s %2$s-ஐ பார்க்க முடியும்</string>
     <string name="sent_favorite_request_tab">இவர் %1$s-ஐ ஷேர் செய்கிறார். நீரும் அதையே செய்ய விரும்புகிறீரா?</string>
     <string name="tap_plus_add_favorites">உமது %1$s-ஐ ஃபேவரைட்கள் மட்டுமே பார்க்க முடியும். அவரைப் புத்திசாலித்தனமாகத் தேர்ந்தெடும்</string>
     <string name="add_fav_msg">இவர் %1$s-ஐ ஷேர் செய்கிறார். நீரும் அதையே செய்ய விரும்புகிறீரா?</string>
     <string name="both_ls_status_update">கடைசியாகப் பார்த்தது மற்றும் ஸ்டேட்டஸ் அப்டேட்கள்</string>
     <string name="retry_platform_failure">மீண்டும் முயற்சி செய்க</string>
     <string name="platform_error_text">ஏதோ தவறாகிப் போய்விட்டது</string>
-    <string name="platform_error_subtext">உம் இணைய இணைப்பைச் சரிபார்க்கவும்</string>
-    <string name="added_in_broadcast">நீர் ஏற்கெனவே இந்தத் தொடர்பை புரோட்காஸ்ட் லிஸ்டில் சேர்த்து விட்டீர்கள்</string>
+    <string name="platform_error_subtext">உன் இணைய இணைப்பைச் சரிபார்க்கவும்</string>
+    <string name="added_in_broadcast">நீவீர்  ஏற்கெனவே இந்தத் தொடர்பை புரோட்காஸ்ட் லிஸ்டில் சேர்த்து விட்டீர்கள்</string>
     <string name="enter_valid_group_name">குரூப் பெயர் காலியாக இருக்க முடியாது</string>
     <string name="enter_valid_broadcast_name">புரோட்காஸ்ட் பெயர் காலியாக இருக்க முடியாது</string>
     <string name="doodle_error_message">டூடுலை சேவ் செய்ய முடியவில்லை!\nதயவுசெய்து மீண்டும் முயற்சிக்கவும்</string>
     <string name="photos_oom_save">இமேஜை சேவ் செய்ய முடியவில்லை!\nதயவுசெய்து மீண்டும் முயற்சிக்கவும்</string>
     <string name="photos_oom_load">இமேஜை லோடு செய்ய இயலவில்லை</string>
     <string name="photos_oom_retry">மீண்டும் முயற்சியும்</string>
-    <string name="stealth_mode_title">ஹிட்டன் மோடு</string>
-    <string name="stealth_mode_title_body">ஹிட்டன் மோடு செட்டிங்ஸ்</string>
+    <string name="stealth_mode_title">மறைக்கப்பட்ட மோடு</string>
+    <string name="stealth_mode_title_body">மறைக்கப்பட்ட மோடு செட்டிங்ஸ்</string>
     <string name="change_stealth_timeout">பாஸ்வேர்டு வேண்டுமெனக் கேட்கவும்</string>
     <string name="change_stealth_timeout_body">குறிப்பிட்ட நேரத்திற்குப் பிறகு மட்டும் மறுபடியும் பாஸ்வேர்டு கேட்கவும்</string>
     <string name="stealth_password_settings">பாஸ்வேர்டு செட்டிங்ஸ்</string>
     <string name="stealth_notification_settings">நோட்டிஃபிக்கேஷன் செட்டிங்ஸ்</string>
     <string name="stealth_reset_settings">எக்ஸ்ட்ரா செட்டிங்ஸ்</string>
     <string name="enable_stealth_indicator">இண்டிக்கேட்டர்</string>
-    <string name="enable_stealth_indicator_body">அன்ரெட் மெஸ்சேஜ்களுக்கு, ஹோம் ஸ்க்ரீனில் \’ஹை’\ லோகோவை பவுன்ஸ் செய்க</string>
-    <string name="enable_stealth_notification_body">ஹிட்டன் சேட் ஒன்றில் மெஸ்சேஜ் ஒன்றை ரிசீவ் செய்கையில் நோட்டிஃபை செய்க</string>
+    <string name="enable_stealth_indicator_body">படிக்க தவறிய  மெஸ்சேஜ்களுக்கு, ஹோம் ஸ்க்ரீனில் \’ஹை’\ லோகோவை பவுன்ஸ் செய்க</string>
+    <string name="enable_stealth_notification_body">மறைக்கப்பட்ட சேட் ஒன்றில் மெஸ்சேஜ் ஒன்றை ரிசீவ் செய்கையில் நோட்டிஃபை செய்க</string>
     <string name="enable_stealth_notification">நோட்டிஃபிக்கேஷன்</string>
     <string name="stealth_msg_draw_an_unlock_pattern">புதிய பாஸ்கோடு பேட்டர்னை வரைக</string>
     <string name="stealth_msg_enter_an_unlock_pin">உமது புதிய 4 இலக்க PIN-ஐ எண்டர் செய்க</string>
-    <string name="stealth_msg_redraw_pattern_to_confirm">உம் பேட்டர்னை உறுதி செய்யும்</string>
-    <string name="stealth_msg_reenter_pin_to_confirm">உம் PIN-ஐ உறுதி செய்யும்</string>
+    <string name="stealth_msg_redraw_pattern_to_confirm">உன் பேட்டர்னை உறுதி செய்யும்</string>
+    <string name="stealth_msg_reenter_pin_to_confirm">உன் PIN-ஐ உறுதி செய்யும்</string>
     <string name="stealth_enter_4_digits">உமது புதிய 4 இலக்க PIN-ஐ கம்ப்ளீட் செய்க</string>
     <string name="hide_chat">சேட்டை ஹைடு செய்க</string>
     <string name="mark_hidden">ஹிட்டனை மார்க் செய்க</string>
@@ -926,7 +926,7 @@
     <string name="stealth_msg_try_pin_again">உமது PIN-கள் பொருந்தவில்லை. மறுபடியும் முயற்சியும்</string>
     <string name="stealth_msg_enter_pin_to_unlock">அன்லாக் செய்வதற்கு PIN-ஐ எண்டர் செய்யும்</string>
     <string name="stealth_msg_enter_pin_to_unlock_in_reset">ஏற்கெனவே உள்ள PIN-ஐ எண்டர் செய்யும்</string>
-    <string name="change_password_from_privacy">ஹிட்டன் மோடு செட்டிங்ஸ்</string>
+    <string name="change_password_from_privacy">மறைக்கப்பட்ட மோடு செட்டிங்ஸ்</string>
     <string name="nudge_setting_header">நட்ஜ் செய்வதற்கு இருமுறை தட்டும்</string>
     <string name="nudge_setting_info">சேட் செய்யும் வேளையில் இருமுறை தட்டுவதன் மூலம் ஒரு நட்ஜ்-ஐ அனுப்பும்</string>
     <string name="enter_setting_header">எண்டர் சாவி தான் அனுப்பு</string>
@@ -935,7 +935,7 @@
     <string name="settings_localization">மொழி &amp; உள்ளீடு</string>
     <string name="keyboard_settings_header">கீபோர்டு செட்டிங்ஸ்</string>
     <string name="new_line_setting_info">எண்டர் சாவியை அழுத்துவது புதிய வரியை சேர்க்கும்</string>
-    <string name="nudge_toast"> நட்ஜ்களை அனுப்புவதை ஆஃப் செய்துள்ளார்கள்.\nநீர் அதனை செட்டிங்ஸ்&gt;சேட் செட்டிங்ஸில் ஆன் செய்து கொள்ள முடியும்.</string>
+    <string name="nudge_toast"> நட்ஜ்களை அனுப்புவதை ஆஃப் செய்துள்ளார்கள்.\nநீவீர்  அதனை செட்டிங்ஸ் > சேட் செட்டிங்ஸில் ஆன் செய்து கொள்ள முடியும்.</string>
     <string name="select_all_hike">அனைத்தும் தேர்வுசெய்</string>
     <string name="unselect_all_hike">அனைத்தும் தேர்வு நீக்கு</string>
     <string name="searching">தேடுகிறது...</string>
@@ -972,21 +972,21 @@
     <string name="content_des_typing_notification_chatting">சேட் செய்கையில் பயனருக்குத் தகவல்களை டைப் செய்கிறார்</string>
     <string name="content_des_typing_notification_received">பயனருக்கு பெற்றுக் கொண்ட நோட்டிஃபிக்கேஷனை டைப் செய்கிறார்</string>
 	<string name="content_des_send_message_button">மெஸ்சேஜை அனுப்புவதற்குப் பொத்தானை அழுத்துக</string>
-    <string name="content_des_block_overlay_message">நீர் இந்தப் பயனரை பிளாக் செய்துள்ளீர்கள். அன்பிளாக் செய்து விட்டு, Hike செய்யத் தொடரும்</string>
+    <string name="content_des_block_overlay_message">நீவீர்  இந்தப் பயனரை பிளாக் செய்துள்ளீர்கள். அன்பிளாக் செய்து விட்டு, Hike செய்யத் தொடரும்</string>
     <string name="content_des_user_profile_detail_user_phone_number">பயனரின் ஃபோன் எண்</string>
     <string name="content_des_user_profile_detail_edit_profile_pic">புரொஃபைல் படத்தை மாற்றுக</string>
     <string name="content_des_user_invitation_on_hike">Hike-கில் உள்ள தொடர்பை இன்வைட் செய்யும்</string>
-    <string name="content_des_pause_file_download">ஃபைல் டவுன்லோடு செய்வதை நிறுத்தி வையும்</string>
-    <string name="content_des_download_file">ஃபைலை டவுன்லோடு செய்க</string>
-    <string name="content_des_retry_file_download">ஃபைல் டவுன்லோடு செய்வதை மறுபடியும் முயற்சியும்</string>
+    <string name="content_des_pause_file_download">ஃபைல் பதிவிறக்கம்செய்வதை நிறுத்தி வையும்</string>
+    <string name="content_des_download_file">ஃபைலை பதிவிறக்கம்செய்க</string>
+    <string name="content_des_retry_file_download">ஃபைல் பதிவிறக்கம்செய்வதை மறுபடியும் முயற்சியும்</string>
 	<string name="activity_not_found">இந்தச் செயல்பாட்டைக் கையாள முடிகிற app எதையும் காணவில்லை</string>
 	<string name="apps">அப்ளிக்கேஷன்கள்</string>
 	<string name="edit_photos">புதிய ஃபோட்டோ</string>
 	<string name="multi_contact_creation">அனுப்பிக்கொண்டிருக்கிறது...</string>
 	<string name="only_photos_edit">இமேஜ் ஃபார்மேட் சப்போர்ட் ஆவதில்லை</string>
 	<string name="delete_block">பிளாக் செய்து அழிக்கவும்</string>
-	<string name="confirm_delete_block_msg">நீர் \"%1$s\"-ஐ அழித்து, பிளாக் செய்ய விரும்புகிறீரா? </string>
-	<string name="confirm_delete_non_messaging">நீர் \"%1$s\"-ஐ அழிக்க விரும்புகிறீரா? </string>
+	<string name="confirm_delete_block_msg">நீவீர்  \"%1$s\"-ஐ அழித்து, பிளாக் செய்ய விரும்புகிறீரா? </string>
+	<string name="confirm_delete_non_messaging">நீவீர்  \"%1$s\"-ஐ அழிக்க விரும்புகிறீரா? </string>
 	<string name="scan_free_hike">Hike Direct</string>
 	<string name="connection_established">Hike Direct இணைந்துள்ளது</string>
 	<string name="awaiting_response">பதிலுக்காகக் காத்திருக்கிறோம்</string>
@@ -1000,7 +1000,7 @@
 	<string name="sticker_recommendation_setting_header">ஸ்டிக்கர் சஜ்ஜஷன்கள்</string>
 	<string name="stickers_sent_today">%1$d/%2$d ஸ்டிக்கர்களை இன்று அனுப்பியுள்ளீர்</string>
 	<string name="disable_from_hike_settings">Hike செட்டிங்ஸில் இருந்து நிரந்தரமாக டிஸேபிள் செய்யும்</string>
-	<string name="total_sticker_sent">கடந்த %2$d நாட்களில் நீர் %1$d ஸ்டிக்கர்களை அனுப்பியுள்ளீர்</string>
+	<string name="total_sticker_sent">கடந்த %2$d நாட்களில் நீவீர்  %1$d ஸ்டிக்கர்களை அனுப்பியுள்ளீர்</string>
 	<string name="disable_button">டிஸேபிள்</string>
     <string name="get_more_stickers_button">இன்னும் அதிக ஸ்டிக்கர்களைப் பெறும்</string>
     <string name="open_hike_button">Hike-கைத் திறவும்</string>
@@ -1013,7 +1013,7 @@
     <string name="more_stickers">இன்னும் அதிக ஸ்டிக்கர்கள்</string>
 	<string name="add_members">உறுப்பினர்களைச் சேர்</string>
 	<string name="add_members_to_conference">கூட்டு அழைப்புடன் சேர்</string>
-	<string name="created_group_text">நீர் குரூப் சேட்டை உருவாக்கினீர்</string>
+	<string name="created_group_text">நீவீர்  குரூப் சேட்டை உருவாக்கினீர்</string>
 	<string name="num_members">%1$d உறுப்பினர்கள்</string>
 	<string name="num_member">%1$d உறுப்பினர்</string>
 	<string name="profile_pic_upload_in_background">புரொஃபைல் பிக்சர் அப்லோடு தொடரும்..</string>
@@ -1025,22 +1025,22 @@
 	<string name="sticker_recommend_tip">நீலநிற வார்த்தைகளில் தட்டும்</string>
 	<string name="make_admin">அட்மின் ஆக்குக</string>
 	<string name="admin_updating">%1$s-ஐ அட்மின் ஆக்குகிறது</string>
-	<string name="admin_task_error">இணைப்புப் பிழை: தயவுசெய்து உம் நெட்வொர்க்கை சரிபார்த்து விட்டு, மீண்டும் முயற்சியும்.</string>
+	<string name="admin_task_error">இணைப்புப் பிழை: தயவுசெய்து உன் நெட்வொர்க்கை சரிபார்த்து விட்டு, மீண்டும் முயற்சியும்.</string>
 	<string name="group_setting_option_only_admin">அட்மின்கள் மட்டுமே உறுப்பினர்களைச் சேர்க்க முடியும்</string>
 	<string name="group_setting_updating">குரூப் பிரைவசி செட்டிங்ஸை மாற்றுகிறது</string>
 	<string name="group_setting_confirmation1">ஒவ்வொருவரும் உறுப்பினர்களைச் சேர்த்துக் கொள்ள அனுமதிக்கவா?</string>
 	<string name="group_setting_confirmation2">அட்மின் மட்டுமே உறுப்பினர்களைச் சேர்த்துக் கொள்ள அனுமதிக்கவா?</string>
 	<string name="group_rights_info">இந்த குரூப்பில் அட்மின்கள் மட்டுமே உறுப்பினர்களைச் சேர்க்க முடியும்</string>
-	<string name="sms_admin_toast">உம்மால் SMS பயனர்களோடு உம் அட்மின் உரிமைகளை ஷேர் செய்து கொள்ள முடியாது</string>
+	<string name="sms_admin_toast">உம்மால் SMS பயனர்களோடு உன் அட்மின் உரிமைகளை ஷேர் செய்து கொள்ள முடியாது</string>
 	<string name="group_settings_updated">குரூப் செட்டிங்ஸை மாற்றி விட்டார்</string>
-	<string name="you_group_settings_updated">நீர் குரூப் செட்டிங்ஸை மாற்றி விட்டீர்கள்</string>
+	<string name="you_group_settings_updated">நீவீர்  குரூப் செட்டிங்ஸை மாற்றி விட்டீர்கள்</string>
 	<string name="ftue_multiadmin_header">மல்டிபிள் அட்மின்கள்</string>
 	<string name="ftue_multiadmin_description">இப்போது உமது அட்மின் ரைட்களை, இந்த குரூப்பின் மல்டிபிள் மெம்பர்களோடு ஷேர் செய்யும்</string>
-	<string name="unknown_server_error">ஃபைலை டவுன்லோடு செய்ய இயலவில்லை.</string>
+	<string name="unknown_server_error">ஃபைலை பதிவிறக்கம்செய்ய இயலவில்லை.</string>
 	<string name="sticker_share_description">www.hike.in</string>
     <string name="num_notification_sub_text_for_multi_msisdn">%2$s உரையாடல்களில் இருந்து %1$s மெஸ்சேஜ்கள்</string>
     <string name="disconnect_warning">%1$s உடன் இணைக்கவா?</string>
-    <string name="connected_warning">%1$s உடனான உம் இணைப்பு முடிந்துவிடும்.</string>
+    <string name="connected_warning">%1$s உடனான உன் இணைப்பு முடிந்துவிடும்.</string>
     <string name="connecting_to">%1$s உடன் இணைக்கிறது...</string>
     <string name="offline_animation_second_message">உதவிக்குறிப்பு: Hike Direct \n 100 மீட்டர்கள் சுற்றளவிற்குள் வேலை செய்கிறது</string>
     <string name="offline_animation_third_message">வழக்கத்தை விட அதிக நேரம் எடுக்கிறது. \n %1$s-ஐ \n Hike டைரெக்டிலும் தட்டுமாறு சொல்லும்</string>
@@ -1051,22 +1051,22 @@
     <string name="retry_connection">Hike Direct வழியாக இணைக்க முடியவில்லை.மறுபடியும் முயற்சிக்கவா?</string>
     <string name="file_attachment_info_offline">எந்த அளவு வரையுமான ஏபீகே, மீடியா, ஃபைல்களை ஷேர் செய்க</string>
 	<string name="actionbar_activity_feed_title">செயல்பாடு</string>
-	<string name="photo_like_text">உம் ஃபோட்டோவை லைக் செய்திருக்கிறார்</string>
-	<string name="dp_like_text">உம் புரொஃபைல் ஃபோட்டோவை லைக் செய்திருக்கிறார்</string>
+	<string name="photo_like_text">உன் ஃபோட்டோவை லைக் செய்திருக்கிறார்</string>
+	<string name="dp_like_text">உன் புரொஃபைல் ஃபோட்டோவை லைக் செய்திருக்கிறார்</string>
 	<string name="liked_this_post">இந்த போஸ்ட்டை லைக் செய்திருக்கிறார்</string>
-	<string name="liked_your_post">உம் போஸ்ட்டை லைக் செய்திருக்கிறார்</string>
+	<string name="liked_your_post">உன் போஸ்ட்டை லைக் செய்திருக்கிறார்</string>
 	<string name="activity_feed_actionbar_title">ஆக்டிவிட்டி ஃபீட்</string>
 	<string name="posted_photo">ஒரு ஃபோட்டோவை போஸ்ட் செய்திருக்கிறார்</string>
 	<string name="love_failed">இணையம் இல்லை. தயவுசெய்து சிறிது நேரத்திற்குப் பிறகு முயற்சியும்.</string>
 	<string name="delete_post">போஸ்ட்டை அழிக்கவும்</string>
 	<string name="message_person">மெஸ்சேஜ் %1$s</string>
-	<string name="delete_status_confirmation">நீர் நிச்சயமாகவே இந்த அப்டேட்டை அழிக்க விரும்புகிறீரா?</string>
-	<string name="delete_status_timeline_confirmation">இது, உம் போஸ்ட்டை உமது மற்றும் உம் தோழரது டைம்லைனில் இருந்து அழித்துவிடும்</string>
+	<string name="delete_status_confirmation">நீவீர்  நிச்சயமாகவே இந்த அப்டேட்டை அழிக்க விரும்புகிறீரா?</string>
+	<string name="delete_status_timeline_confirmation">இது, உன் போஸ்ட்டை உமது மற்றும் உன் தோழரது டைம்லைனில் இருந்து அழித்துவிடும்</string>
 	<string name="clear_timeline">டைம்லைனை கிளியர் செய்க</string>
 	<string name="favourites">ஃபேவரைட்கள்</string>
-	<string name="clear_timeline_dialog">நீர் உண்மையிலேயே உம் டைம்லைனை கிளியர் செய்துவிட விரும்புகிறீரா?</string>
+	<string name="clear_timeline_dialog">நீவீர்  உண்மையிலேயே உன் டைம்லைனை கிளியர் செய்துவிட விரும்புகிறீரா?</string>
 	<string name="liked_it">லைக் செய்திருக்கிறார்</string>
-	<string name="status_hint">நீர் என்ன செய்து கொண்டிருக்கிறீர்கள்?</string>
+	<string name="status_hint">நீவீர்  என்ன செய்து கொண்டிருக்கிறீர்கள்?</string>
 	<string name="status_hint_image">இந்த ஃபோட்டோ குறித்த ஏதோவொன்று</string>
 	<string name="add_mood">மனநிலை</string>
     <string name="sticker_reorder_setting_info">ஸ்டிக்கர் பேல்லெட்டில் இருந்து பேக்குகளை ரீஅரேஞ்சு /ஹைடு செய்க</string>
@@ -1075,7 +1075,7 @@
 	<string name="sticker_recommendation_autopopup_setting_header">ஆட்டோ சஜ்ஜஸ்ட் ஸ்டிக்கர்ஸ்</string>
 	<string name="sticker_recommend_ftue_heading">ஸ்டிக்கர் சஜ்ஜஷன்கள்</string>
 	<string name="tap_on_sticker_to_send">அனுப்புவதற்கு ஸ்டிக்கரில் தட்டுக</string>
-	<string name="download_from_shop">இன்னும் சிறப்பான ஆலோசனைகளுக்கு இன்னும் அதிக ஸ்டிக்கர்களை டவுன்லோடு செய்க</string>
+	<string name="download_from_shop">இன்னும் சிறப்பான ஆலோசனைகளுக்கு இன்னும் அதிக ஸ்டிக்கர்களை பதிவிறக்கம்செய்க</string>
     <string name="more">அதிகளவு</string>
 	<string name="task_already_running">டாஸ்க் ஏற்கெனவே ஓடிக்கொண்டிருக்கிறது</string>
     <string name="sticker_share_popup_not_activate_toast">உங்களிடம் சப்போர்ட்டர் app-கள் எதுவும் இல்லை</string>
@@ -1088,7 +1088,7 @@
     <string name="timeline_ftue_show_me">எனக்குக் காண்பி</string>
     <string name="timeline_add_as_fav">ஃபேவரைட் ஆக ஆட் செய்க</string>
     <string name="timeline_welldone">அருமை!</string>
-    <string name="timeline_ftueexit_desc">உம் ஃபேவரைட்டுகளின் லிஸ்டுக்கு நீஙகள் அதிகம் பேர்களை ஆட் செய்து விட்டீர்கள். அவர்களால், நீர் போஸ்ட் செய்கிற மொமெண்ட்களைப் பார்க்க இயலும்.</string>
+    <string name="timeline_ftueexit_desc">உன் ஃபேவரைட்டுகளின் லிஸ்டுக்கு நீஙகள் அதிகம் பேர்களை ஆட் செய்து விட்டீர்கள். அவர்களால், நீவீர்  போஸ்ட் செய்கிற மொமெண்ட்களைப் பார்க்க இயலும்.</string>
     <string name="timeline_ftueexit_btn">புரிந்தது</string>
     <string name="notif_posted_photo">ஒரு ஃபோட்டோவை போஸ்ட் செய்திருக்கிறார்</string>
     <string name="photo_actions_header">அற்புதமாகத் தோன்றுகிறது! -க்கு, இந்த ஃபோட்டோவை உபயோகிக்கவும்,</string>
@@ -1097,8 +1097,8 @@
     <string name="sms_credits_with_settings">இலவச SMS: %1$d</string>
     <string name="free_hike_2_sms_india">இந்தியாவிற்கு மட்டும் இலவசம்</string>
     <string name="invite_friends_earn_rewards">தோழரை Hike-கிற்கு இன்வைட் செய்து ரிவார்டுகளைப் சம்பாதியும்</string>
-    <string name="your_referral_code">உம் <b>ரெஃபரல்</b> கோடு</string>
-    <string name="share_referral_code">உம் ரெஃபெரல் கோடை எங்கும் ஷேர் செய்து, உம் இன்வைட் வழியாக சேர்கிற ஒவ்வொரு தோழருக்கும் ரிவார்டுகளை சம்பாதியும்</string>
+    <string name="your_referral_code">உன் <b>ரெஃபரல்</b> கோடு</string>
+    <string name="share_referral_code">உன் ரெஃபெரல் கோடை எங்கும் ஷேர் செய்து, உன் இன்வைட் வழியாக சேர்கிற ஒவ்வொரு தோழருக்கும் ரிவார்டுகளை சம்பாதியும்</string>
     <string name="copied_to_clipboard">கிளிப்போர்டுக்கு காப்பி செய்தாயிற்று.</string>
     <string name="multi_edit_undo_warning">அனைத்து இமேஜ் எடிட்டிங் மாற்றம்மையும் டிஸ்கார்டு செய்துவிடவா?</string>
     <string name="multi_edit_undo_warning_header">மாற்றம்மை டிஸ்கார்டு செய்துவிடவா?</string>
@@ -1106,31 +1106,31 @@
     <string name="goto_timeline">டைம்லைனுக்கு செல்க.</string>
     <string name="contacts_sync_error">"தொடர்புகள் சிங்க்" தோல்வியடைந்து விட்டது. தயவுசெய்து மீண்டும் முயற்சியும்</string>
     <string name="contacts_sync_no_contacts_found">சிங்க் செய்வதற்குத் தொடர்புகள் எதுவுமில்லை</string>
-    <string name="cloud_file_error">உம் ஃபோனில் இந்தக் ஃபைல் இருக்கவில்லை. தயவுசெய்து, ஷேர் செய்வதற்கு முன் இதனை எக்ஸ்டெர்னலாக டவுன்லோடு செய்யும்</string>
+    <string name="cloud_file_error">உன் ஃபோனில் இந்தக் ஃபைல் இருக்கவில்லை. தயவுசெய்து, ஷேர் செய்வதற்கு முன் இதனை எக்ஸ்டெர்னலாக பதிவிறக்கம்செய்யும்</string>
     <string name="unknown_file_error">எங்களால் டிஸ்கில் இந்த ஃபைலை லொக்கேட் செய்ய முடியவில்லை. தயவுசெய்து மீண்டும் முயற்சியும்</string>
-    <string name="add_to_fav_confirmation">உம் ஃபேவரைட்கள் போஸ்ட் செய்யும் ஸ்டேட்டஸை நீர் லைக் செய்ய முடியும். நீர் %1$s-ஐ ஒரு ஃபேவரைட் ஆக சேர்க்க விரும்புகிறீரா?</string>
+    <string name="add_to_fav_confirmation">உன் ஃபேவரைட்கள் போஸ்ட் செய்யும் ஸ்டேட்டஸை நீவீர்  லைக் செய்ய முடியும். நீவீர்  %1$s-ஐ ஒரு ஃபேவரைட் ஆக சேர்க்க விரும்புகிறீரா?</string>
     <string name="invite_free_sms">இலவச SMS இன்வைட்</string>
-    <string name="sticker_recommend_settings_toast">உம்மால் எந்த நேரத்திலும், செட்டிங்ஸ்&gt;சேட் செட்டிங்ஸில் இருந்து ஸ்டிக்கர் சஜ்ஜஷன்களை எனேபிள் செய்ய முடியும்</string>
+    <string name="sticker_recommend_settings_toast">உம்மால் எந்த நேரத்திலும், செட்டிங்ஸ் > சேட் செட்டிங்ஸில் இருந்து ஸ்டிக்கர் சஜ்ஜஷன்களை எனேபிள் செய்ய முடியும்</string>
     <string name="YES">ஆம்</string>
     <string name="NO">இல்லை</string>
     <string name="DELETE">அழிக்கவும்</string>
     <string name="disconnecting_offline">கனெக்ஷனை குளோஸ் செய்கிறது</string>
-    <string name="sticker_recommend_auto_off_tip_text">ஸ்டிக்கர் சஜ்ஜஷன்கள் ஆஃப் ஆகியுள்ளது! அவரை செட்டிங்ஸ்&gt; சேட் செட்டிங்ஸில் இருந்து திரும்பப் பெறுக</string>
+    <string name="sticker_recommend_auto_off_tip_text">ஸ்டிக்கர் சஜ்ஜஷன்கள் ஆஃப் ஆகியுள்ளது! அவரை செட்டிங்ஸ் > சேட் செட்டிங்ஸில் இருந்து திரும்பப் பெறுக</string>
     <string name="timeline_tab_photo">ஃபோட்டோ</string>
     <string name="timeline_tab_status">ஸ்டேட்டஸ்</string>
     <string name="timeline_empty_desc1">டைம்லைன் அப்டேட்கள்</string>
-    <string name="timeline_empty_desc2">உமது தோழரது வாழ்விலிருந்து வரும் ஃபோட்டோஸ் &amp; ஸ்டேட்டஸ் அப்டேட்ஸை உம்மால் இங்கே பார்க்க முடியும்.</string>
+    <string name="timeline_empty_desc2">உமது தோழரது வாழ்விலிருந்து வரும் ஃபோட்டோஸ் \' ஸ்டேட்டஸ் அப்டேட்ஸை உம்மால் இங்கே பார்க்க முடியும்.</string>
     <string name="CLEAR">கிளியர் செய்க</string>
-    <string name="HIDDEN_MODE">ஹிட்டன் மோடு</string>
+    <string name="HIDDEN_MODE">மறைக்கப்பட்ட மோடு</string>
     <string name="EDIT">எடிட் செய்க</string>
     <string name="ALLOW">அனுமதி</string>
     <string name="pref_message_settings">மெஸ்சேஜ் செட்டிங்ஸ்</string>
     <string name="pref_sticker_settings">ஸ்டிக்கர் செட்டிங்ஸ்</string>
-    <string name="delete_account_heading">உம் அக்கவுண்டை அழிக்கிறது</string>
-    <string name="delete_account_description">இது, உம் மெஸ்சேஜ்கள், பேக்அப், இலவச SMS, மற்றும் Hike ரிவார்ட்ஸ் எதையும் அழித்துவிடும்</string>
+    <string name="delete_account_heading">உன் அக்கவுண்டை அழிக்கிறது</string>
+    <string name="delete_account_description">இது, உன் மெஸ்சேஜ்கள், பேக்அப், இலவச SMS, மற்றும் Hike ரிவார்ட்ஸ் எதையும் அழித்துவிடும்</string>
     <string name="no_places_found">இடம் எதையும் காணவில்லை</string>
     <string name="SAVE">சேவ் செய்க</string>
-    <string name="already_connected_offline">நீர் இணைந்திருக்கவில்லை தயவுசெய்து இணைத்து, மறுபடியும் முயற்சியும்</string>
+    <string name="already_connected_offline">நீவீர்  இணைந்திருக்கவில்லை தயவுசெய்து இணைத்து, மறுபடியும் முயற்சியும்</string>
     <string name="not_enough_space_receiver">பெறுபவரிடம் போதுமான அளவு மெமரி இல்லை</string>
     <string name="no_sdcard_receiver">பெறுபவரிடம் SD கார்டு இல்லை</string>
     <string name="receiver_cannot_receive">பெறுபவரால் ஃபைலைப் பெற முடியாது</string>
@@ -1159,7 +1159,7 @@
     <string name="auto_caps_title">ஆட்டோ கேப்பிட்டலைசேஷன்</string>
     <string name="auto_spacing_summary">ஒவ்வொரு வாக்கிய ஆரம்பத்திலும் இடைவெளி சேர்</string>
     <string name="auto_spacing_title">ஆட்டோ ஸ்பேசிங்</string>
-    <string name="display_suggestion_title">சஜ்ஜஷன்களை டிஸ்பிளே செய்க</string>
+    <string name="display_suggestion_title">கருத்துகளை டிஸ்பிளே செய்க</string>
     <string name="display_suggestion_summary">வேர்டு சஜ்ஜஷன்களை டிஸ்பிளே செய்க</string>
     <string name="display_accents_title">அக்ஸெண்ட்களை டிஸ்பிளே செய்க</string>
     <string name="display_accents_summary">ஆல்ஃப்பெட்களுக்கு கிடைக்கிற அக்ஸெண்ட்களை அகற்றுகிறது</string>
@@ -1170,14 +1170,14 @@
     <string name="long_press_duration_title">லாங் பிரெஸ் கால அளவு</string>
     <string name="keypress_sound_vol_title">கீபிரெஸ் சவுண்டு வால்யூம்</string>
     <string name="keypress_vib_duration_title">கீபிரெஸ் வைப்ரேஷன் கால அளவு</string>
-    <string name="like_count_by_unknow_contacts">+%1$d தோழர் / %2$s</string>
+    <string name="like_count_by_unknow_contacts">+%1$d நண்பர்  / %2$s</string>
     <string name="connection_established_inline_msg">Hike Direct இணைந்துள்ளது</string>
     <string name="connection_deestablished_inline_msg">Hike Direct துண்டிப்பானது</string>
     <string name="connection_request_inline_msg">Hike Direct வேண்டுகோள் விடுபட்டது</string>
-    <string name="hike_direct_info">Hike Direct என்பது உம்மிடம் டேட்டா இல்லாமல் போய் விடும் போதும் உம் தோழரிடம் தொடர்ந்து இணைந்திருப்பதற்கான புதிய வழி. இது, உமக்கு அருகில் உள்ள தோழருக்கு, முற்றிலும் இல்வசமாக மெஸ்சேஜ்களை அனுபுவதற்கும், ஃபைல்களை ஷேர் செய்வதற்கும் உமக்கு வழி செய்து தருகிறது. ஃபைல் சைஸ் வரம்பு எதுவும் இல்லை அதோடு உம்மால் மூவிகள், வீடியோக்கள், மியூசிக், app-கள் மற்றும் நீர் விரும்புகிற எதையும் இலவசமாக அனுப்ப முடியும்.</string>
+    <string name="hike_direct_info">Hike Direct என்பது உம்மிடம் டேட்டா இல்லாமல் போய் விடும் போதும் உன் தோழரிடம் தொடர்ந்து இணைந்திருப்பதற்கான புதிய வழி. இது, உமக்கு அருகில் உள்ள தோழருக்கு, முற்றிலும் இல்வசமாக மெஸ்சேஜ்களை அனுபுவதற்கும், ஃபைல்களை ஷேர் செய்வதற்கும் உமக்கு வழி செய்து தருகிறது. ஃபைல் சைஸ் வரம்பு எதுவும் இல்லை அதோடு உம்மால் மூவிகள், வீடியோக்கள், மியூசிக், app-கள் மற்றும் நீவீர்  விரும்புகிற எதையும் இலவசமாக அனுப்ப முடியும்.</string>
     <string name="how_hike_direct_works">Hike Direct எவ்விதமாக வேலை செய்கிறது?</string>
-    <string name="condition_one">நிபந்தனை 1: உமது தோழர் உங்களிடமிருந்து 100 மீட்டர்களுக்குள் இருக்கிறார். உள்ளபடி, எவ்வளவு அருகில் இருக்கிறாரோ அவ்வளவு சிறப்பாக இணைப்பு இருக்கிறது!</string>
-    <string name="condition_two">நிபந்தனை 2: ஒரு இணைப்பைத் துவக்குவதற்கு, உம் சேட்டில் இருந்து Hike Direct ஆப்ஷனில் தட்டும்படி உம் தோழரிடமும் சொல்லும்.</string>
+    <string name="condition_one">நிபந்தனை 1: உமது நண்பர்  உங்களிடமிருந்து 100 மீட்டர்களுக்குள் இருக்கிறார். உள்ளபடி, எவ்வளவு அருகில் இருக்கிறாரோ அவ்வளவு சிறப்பாக இணைப்பு இருக்கிறது!</string>
+    <string name="condition_two">நிபந்தனை 2: ஒரு இணைப்பைத் துவக்குவதற்கு, உன் சேட்டில் இருந்து Hike Direct ஆப்ஷனில் தட்டும்படி உன் தோழரிடமும் சொல்லும்.</string>
     <string name="offline_group_query">Hike Direct குரூப் சேட்களிலும் நன்றாக வேலை செய்கிறதா?</string>
     <string name="offline_group_answer">இப்போதைக்கு, Hike Direct 1:1 சேட்களில் மட்டுமே வேலை செய்கிறது.  இது குரூப் சேட்களுக்கு வேலை செய்வதில்லை. இந்த இடத்தில் அப்டேட்களுக்காக டியூன் செய்து காத்திரும்.</string>
     <string name="hike_direct_help">Hike Direct உதவி</string>
@@ -1187,9 +1187,9 @@
 	<string name="show_accessibility_tip_text">இந்த ஃபீச்சருக்கு அக்சஸபிளிட்டி செர்வீஸ்கள் எனேபிள் ஆகியிருப்பது Hike-கிற்கு அவசியம். தயவுசெய்து இங்கே தட்டி, Hike-கை செலெக்ட் செய்யும்</string>
 	<string name="accessibility_dialog_text">இந்த ஃபீச்சருக்கு அக்சஸபிளிட்டி செர்வீஸ் எனேபிள் ஆகியிருப்பது Hike-கிற்கு அவசியம். எனேபிளை தட்டி, Hike-கை செலெக்ட் செய்யும்</string>
 	<string name="accessbility">அக்சஸபிளிட்டி</string>
-    <string name="email_body">நான் இப்போது புதிய Hike மெஸ்ஸெஞ்சரை டவுன்லோடு செய்திருக்கிறேன். வாட்ஸ் app-ல் இருந்து என்னவொரு பெரிய மாற்றம்!\n\nஇதில் ஆச்சரியமூட்டிம் ஸ்டிக்கர்கள் இருக்கின்றன, எனது சேட்களை ஹைடு செய்வதற்கான வசதியும், சில உண்மையிலேயே கூலான சேட் தீம்ஸ். \n\nஅதனை இப்போது: http://get.hike.in/$invite_token -ல் இருந்து டவுன்லோடு செய்யும்</string>
-    <string name="watsapp_invitation">ஹேய், இந்தியாவில் தயாரான ஒரே மெஸ்சேஜிங் app-ஆன Hike-கில் என்னோடு சேரும்! இது உம் சேட்-களை ஹைட் செய்ய, தோழர் ஆஃப்லைன் ஆக இருக்கும் போது அவர்களுக்கு மெஸ்சேஜ்களை அனுப்ப, அதோடு அசத்தும் ஸ்டிக்கர்களை அனுப்ப உமக்கு வழி செய்து தருகிறது. \n\nஅதோடு சில வகை ஃபைல்களை ஷேர் செய்யவும் செய்யும் - docs, சாங்க்ஸ், மூவீஸ் போன்றவை, ஒவ்வொன்றும் 100MB வரை - டவுன்லோடு: http://get.hike.in/</string>
-    <string name="invite_share_message">ஹேய், Hike மெஸ்செஞ்சரை செக் அவுட் செய்யும். இதில் நமது மொழியில் வாய்பிளக்கச் செய்யும் ஸ்டிக்கர்களைக் கொண்டுள்ளது! இந்தியாவில் தயாரான ஒரே மெஸ்சேஜிங் app-ல் சேரும்- டவுன்லோடு செய்யும் http://hike.in/$invite_token</string>
+    <string name="email_body">நான் இப்போது புதிய Hike மெஸ்ஸெஞ்சரை பதிவிறக்கம்செய்திருக்கிறேன். வாட்ஸ் app-ல் இருந்து என்னவொரு பெரிய மாற்றம்!\n\nஇதில் ஆச்சரியமூட்டிம் ஸ்டிக்கர்கள் இருக்கின்றன, எனது சேட்களை ஹைடு செய்வதற்கான வசதியும், சில உண்மையிலேயே கூலான சேட் தீம்ஸ். \n\nஅதனை இப்போது: http://get.hike.in/$invite_token -ல் இருந்து பதிவிறக்கம்செய்யும்</string>
+    <string name="watsapp_invitation">ஹேய், இந்தியாவில் தயாரான ஒரே மெஸ்சேஜிங் app-ஆன Hike-கில் என்னோடு சேரும்! இது உன் சேட்-களை ஹைட் செய்ய, நண்பர்  ஆஃப்லைன் ஆக இருக்கும் போது அவர்களுக்கு மெஸ்சேஜ்களை அனுப்ப, அதோடு அசத்தும் ஸ்டிக்கர்களை அனுப்ப உமக்கு வழி செய்து தருகிறது. \n\nஅதோடு சில வகை ஃபைல்களை ஷேர் செய்யவும் செய்யும் - docs, சாங்க்ஸ், மூவீஸ் போன்றவை, ஒவ்வொன்றும் 100MB வரை - டவுன்லோடு: http://get.hike.in/</string>
+    <string name="invite_share_message">ஹேய், Hike மெஸ்செஞ்சரை செக் அவுட் செய்யும். இதில் நமது மொழியில் வாய்பிளக்கச் செய்யும் ஸ்டிக்கர்களைக் கொண்டுள்ளது! இந்தியாவில் தயாரான ஒரே மெஸ்சேஜிங் app-ல் சேரும்- பதிவிறக்கம்செய்யும் http://hike.in/$invite_token</string>
     <string name="offline_request_cancelled"> %1$s உமது Hike Direct கனெக்க்ஷன் வேண்டுகோளை கேன்செல் செய்து விட்டார்.\nதயவுசெய்து பிற்பாடு முயற்சியும்.</string>
     <string name="incoming_hike_direct_request">இன்கமிங் Hike Direct வேண்டுகோள்</string>
     <string name="hike_direct_request">Hike Direct வழியாக இணைய முயற்சிக்கிறார்.</string>
@@ -1210,10 +1210,10 @@
     <string name="add_via_hike">Hike வழியாக ஆட் செய்யும்</string>
     <string name="link_share_wa_msg">கீழுள்ள லிங்க்கை ஷேர் செய்து, இப்போது உம்மால் WA-வில் இருக்கிற குரூப் மற்றும் தொடர்புகளில் இருந்து $groupname குரூப்பிற்கு உறுப்பினர்களைச் சேர்க்க முடியும்.</string>
     <string name="link_share_others_msg">கீழுள்ள லிங்க்கை ஷேர் செய்து, இப்போது உம்மால் மற்ற app-களில் இருக்கிற குரூப் மற்றும் தொடர்புகளில் இருந்து $groupname குரூப்பிற்கு உறுப்பினர்களைச் சேர்க்க முடியும்.</string>
-    <string name="link_share_network_error">ஹேய், நீர் ஆஃப்லைன் ஆக இருக்கிறீர், தயவுசெய்து இணையத்தை இணையும்.</string>
+    <string name="link_share_network_error">ஹேய், நீவீர்  ஆஃப்லைன் ஆக இருக்கிறீர், தயவுசெய்து இணையத்தை இணையும்.</string>
     <string name="link_share_error_invitee_account_deleted">உங்களை இன்வைட் செய்தவர் தனது அக்கவுண்டை அழித்து விட்டார்.</string>
-    <string name="link_share_error_already_group_member">நீர் ஏற்கெனவே இந்த குரூப்பில் இருக்கிறீர்.</string>
-    <string name="link_share_error_invalid_link">நீர் கிளிக் செய்த லிங்க் சரியானதாக தோன்றவில்லை. தயவுசெய்து சோதிக்க.</string>
+    <string name="link_share_error_already_group_member">நீவீர்  ஏற்கெனவே இந்த குரூப்பில் இருக்கிறீர்.</string>
+    <string name="link_share_error_invalid_link">நீவீர்  கிளிக் செய்த லிங்க் சரியானதாக தோன்றவில்லை. தயவுசெய்து சோதிக்க.</string>
     <string name="link_share_error_group_deleted">இந்த குரூப்பை அழித்து விட்டார்கள்.</string>
     <string name="link_share_error_person_not_in_group">உங்களை இன்வைட் செய்தவர் குரூப்பில் இல்லை.</string>
     <string name="link_share_error_default">ஏதோ எரர் நேர்ந்திருக்கிறது!</string>
@@ -1222,7 +1222,7 @@
     <string name="max_file_size_offline">hike direct-கான அதிகபட்ச ஃபைல் சைஸ் 2 GB</string>
 	<string name="net_not_connected">HikeCaller , வை-ஃபை அல்லது 3G/4G மட்டுமே வேலை செய்கிறது.</string>
 	<string name="okay">சரி</string>
-    <string name="getting_mapp_shortly">வாழ்த்துக்கள்! நீர் விரைவில் உம் சேட் ஸ்க்ரீனில் %1$s-ஐப் பார்ப்பீர்கள்</string>
+    <string name="getting_mapp_shortly">வாழ்த்துக்கள்! நீவீர்  விரைவில் உன் சேட் ஸ்க்ரீனில் %1$s-ஐப் பார்ப்பீர்கள்</string>
     <string name="hike_apps">HIKE-கில் உள்ள app-கள்</string>
     <string name="caller_invited_to_join">உங்களோடு அழைப்பொன்றில் இணைவதற்காக %1$s-ஐ இன்வைட் செய்திருக்கிறீர்கள்.</string>
     <string name="caller_error_403">ஏதோ எரர் நேர்திருக்கிறது.</string>
@@ -1264,32 +1264,151 @@
 	<string name="gps_settings">செட்டிங்</string>
 	<string name="user_gps_off">உங்களது லொக்கேஷன் எனேபிளாகும் வரை Hike Direct வேலைசெய்ய முடியாது.</string>
 	
-    <string name="you_change_group_name">நீர் குரூப் பெயரை மாற்றி விட்டீர்.</string>
-    <string name="you_change_broadcast_name">நீர் புரோட்காஸ்ட் பெயரை மாற்றி விட்டீர்.</string>
-    <string name="you_change_group_image">நீர் குரூப் இமேஜை மாற்றி விட்டீர்.</string>
+    <string name="you_change_group_name">நீவீர்  குரூப் பெயரை மாற்றி விட்டீர்.</string>
+    <string name="you_change_broadcast_name">நீவீர்  புரோட்காஸ்ட் பெயரை மாற்றி விட்டீர்.</string>
+    <string name="you_change_group_image">நீவீர்  குரூப் இமேஜை மாற்றி விட்டீர்.</string>
     <string name="backup_account">பேக்அப் கணக்கு</string>
-    <string name="search_hint_text">செர்ச்...</string>
+    <string name="search_hint_text">தேடுதல் ...</string>
     <string name="is_typing">டைப் செய்கிறார்...</string>
     <string name="are_typing">டைப் செய்கிறார்கள்...</string>
-    <string name="you_chat_bg_changed">நீர் சேட் தீம்-ஐ மாற்றி விட்டீர்</string>
+    <string name="you_chat_bg_changed">நீவீர்  சேட் தீம்-ஐ மாற்றி விட்டீர்</string>
     <string name="hike_keyboard">Hike கீபோர்டு</string>
     <string name="system_keyboard">சிஸ்டம் கீபோர்டு</string>
-    <string name="you_xyz_posted_pin">நீர் ஓர் pin-ஐ போஸ்ட் செய்தீர்</string>
+    <string name="you_xyz_posted_pin">நீவீர்  ஓர் pin-ஐ போஸ்ட் செய்தீர்</string>
     <string name="voip_hang_up">ஹேங் அப்</string>
     <string name="voip_decline">மறுக்கவும்</string>
     <string name="voip_accept">ஏற்கவும்</string>
-    <string name="you_group_member_added">நீர் %1$s-ஐ சேர்த்தீர்</string>
+    <string name="you_group_member_added">நீவீர்  %1$s-ஐ சேர்த்தீர்</string>
     <string name="you_added_as_group_member">%1$s உம்மை சேர்த்தார்</string>
     <string name="group_member_added">%1$s, %2$s ஐ சேர்த்தார்</string>
-    <string name="you_updated_group_admin">நீர் %1$s-ஐ அட்மின் ஆக ஆக்கினீர்</string>
+    <string name="you_updated_group_admin">நீவீர்  %1$s-ஐ அட்மின் ஆக ஆக்கினீர்</string>
     <string name="group_admin_updated_you">%1$s உம்மை அட்மின் ஆக ஆக்கினார்</string>
     <string name="group_admin_updated">%1$s, %2$s-ஐ அட்மின் ஆக ஆக்கினார்</string>
     <string name="no_results_found">முடிவுகள் எதையும் காணவில்லை</string>
     <string name="APPLY">பொருத்து </string>
     <string name="level">நிலை</string>
     <string name="milliseconds">ms</string>
-    <string name="and"> மற்றும் </string>
     <string name="contact_name">தொடர்பாளர் பெயர்</string>
     <string name="mobile">மொபைல்</string>
     <string name="your_contact">உங்கள் தொடர்பு</string>
+    <string name="and">மற்று் </string>
+    <string name="others_smallcase">மற்றவை</string>
+    <string name="made_with_love_in_india"> :love: உடன் இந்தியாவில் தயாரித்தது</string>
+    <string name="timeline_ftue_desc">டைம்லைன் நீங்கள் மற்றும் நண்பர்கள் தருணங்களை பகிர்ந்து கொள்ள ஒரு இடம்.தங்களது சில நண்பர்கள் ஏற்கனவே அவர்களின் டைம்லைன்-இல் பதிவு செய்துகொண்டு இருகிறார்கள்!</string>
+
+    <!-- The above two string would be used as in Group with Shibu, Niladri and 4 others -->
+
+
+ 	<string name="yesterday">நேற்று</string>
+    <string name="tomorrow">நாளை</string>
+    <string name="today">இன்று</string>
+    
+    <!-- This is used to express that something occurred some number of seconds in the past (e.g., 5 seconds ago). -->
+    <plurals name="num_seconds_ago">
+        <item quantity="one">1 நொடிக்கு முன்</item>
+        <item quantity="other">%d வினாடிகளுக்கு மு‎ன்</item>
+    </plurals>
+
+    <!-- This is used to express that something occurred some number of minutes in the past (e.g., 5 minutes ago). -->
+    <plurals name="num_minutes_ago">
+        <item quantity="one">1 நிமிடத்திற்கு மு‎ன்</item>
+        <item quantity="other">%d நிமிடங்களுக்கு மு‎ன்</item>
+    </plurals>
+
+    <!-- This is used to express that something occurred some number of hours in the past (e.g., 5 hours ago). -->
+    <plurals name="num_hours_ago">
+        <item quantity="one">1 மணிக்கு முன்</item>
+        <item quantity="other">%d மணிகளுக்கு மு‎ன்</item>
+    </plurals>
+
+    <!-- This is used to express that something occurred within the last X days (e.g., Last 7 days). -->
+    <plurals name="last_num_days">
+        <item quantity="other">கடந்த %d நாட்கள்</item>
+    </plurals>
+
+    <!-- This is used to express that something has occurred within the last month -->
+    <string name="last_month">கடந்த மாதம்</string>
+
+    <!-- This is used to express that something happened longer ago than the previous options -->
+    <string name="older">பழையது</string>
+
+    <!-- This is used to express that something occurred some number of days in the past (e.g., 5 days ago). -->
+    <plurals name="num_days_ago">
+        <item quantity="one">நேற்று</item>
+        <item quantity="other">%d நாட்களுக்கு மு‎ன்</item>
+    </plurals>
+
+    <!-- This is used to express that something will occur some number of seconds in the future (e.g., in 5 seconds). -->
+    <plurals name="in_num_seconds">
+        <item quantity="one">1 நொடியில்</item>
+        <item quantity="other">%d நொடிகளில்</item>
+    </plurals>
+
+    <!-- This is used to express that something will occur some number of minutes in the future (e.g., in 5 minutes). -->
+    <plurals name="in_num_minutes">
+        <item quantity="one">1 நிமிடத்தில்</item>
+        <item quantity="other">%d நிமிடங்களில்</item>
+    </plurals>
+
+    <!-- This is used to express that something will occur some number of hours in the future (e.g., in 5 hours). -->
+    <plurals name="in_num_hours">
+        <item quantity="one">1 மணி நேரத்தில்</item>
+        <item quantity="other">%d மணிகளில்</item>
+    </plurals>
+
+    <!-- This is used to express that something will occur some number of days in the future (e.g., in 5 days). -->
+    <plurals name="in_num_days">
+        <item quantity="one">நாளை</item>
+        <item quantity="other">%d நாட்களில்</item>
+    </plurals>
+
+    <!-- This is used to express that something occurred some number of abbreviated seconds in the past (e.g., 5 secs ago). -->
+    <plurals name="abbrev_num_seconds_ago">
+        <item quantity="one">1 நொடிக்கு முன்</item>
+        <item quantity="other">%d நொடி. மு‎ன்</item>
+    </plurals>
+
+    <!-- This is used to express that something occurred some number of abbreviated minutes in the past (e.g., 5 mins ago). -->
+    <plurals name="abbrev_num_minutes_ago">
+        <item quantity="one">1 நிமி. முன்</item>
+        <item quantity="other">%d நிமி. மு‎ன்</item>
+    </plurals>
+
+    <!-- This is used to express that something occurred some number of abbreviated hours in the past (e.g., 5 hrs ago). -->
+    <plurals name="abbrev_num_hours_ago">
+        <item quantity="one">1 மணிக்கு முன்</item>
+        <item quantity="other">%d மணிகளுக்கு மு‎ன்</item>
+    </plurals>
+
+    <!-- This is used to express that something occurred some number of abbreviated days in the past (e.g., 5 days ago). -->
+    <plurals name="abbrev_num_days_ago">
+        <item quantity="one">நேற்று</item>
+        <item quantity="other">%d நாட்களுக்கு மு‎ன்</item>
+    </plurals>
+
+    <!-- This is used to express that something will occur some number of abbreviated seconds in the future (e.g., in 5 secs). -->
+    <plurals name="abbrev_in_num_seconds">
+        <item quantity="one">1 நொடியில்</item>
+        <item quantity="other">%d நொடிகளில்</item>
+    </plurals>
+
+    <!-- This is used to express that something will occur some number of abbreviated minutes in the future (e.g., in 5 mins). -->
+    <plurals name="abbrev_in_num_minutes">
+        <item quantity="one">1 நிமி. இல்</item>
+        <item quantity="other">%d நிமி. இல்</item>
+    </plurals>
+
+    <!-- This is used to express that something will occur some number of abbreviated hours in the future (e.g., in 5 hrs). -->
+    <plurals name="abbrev_in_num_hours">
+        <item quantity="one">1 மணி நேரத்தில்</item>
+        <item quantity="other">%d மணிகளில்</item>
+    </plurals>
+
+    <!-- This is used to express that something will occur some number of abbreviated days in the future (e.g., in 5 days). -->
+    <plurals name="abbrev_in_num_days">
+        <item quantity="one">நாளை</item>
+        <item quantity="other">%d நாட்களில்</item>
+    </plurals>
+    
+
 </resources>

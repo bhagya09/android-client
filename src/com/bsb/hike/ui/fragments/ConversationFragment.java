@@ -3123,13 +3123,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 						@Override
 						public void run()
 						{
-							View parentView = getListView().getChildAt(
-									displayedConversations.indexOf(convInfo) - getListView().getFirstVisiblePosition() + getOffsetForListHeader());
-
-							if (parentView != null)
-							{
-								mAdapter.updateViewsRelatedToLastMessage(parentView, convMsg, convInfo);
-							}
+							sortAndUpdateTheView(convInfo, convMsg, false);
 						}
 					});
 				}
@@ -3522,7 +3516,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 		}
 		else
 		{
-			// for cases when list view is null or index is -1 (stealth chats that are not displayes)
+			// for cases when list view is null or index is -1 (stealth chats that are not displayed)
 			if (!wasViewSetup() || newIndex < 0)
 			{
 				return;
