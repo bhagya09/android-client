@@ -8,13 +8,13 @@ import android.content.Context;
 
 import com.bsb.hike.badger.shortcutbadger.ShortcutBadger;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.HikePubSub.Listener;
-import com.hike.transporter.utils.Logger;
 
 public class HikeBadgeCountManager implements Listener
 {

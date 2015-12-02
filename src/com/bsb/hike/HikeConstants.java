@@ -2202,6 +2202,8 @@ public class HikeConstants
 
 		public static final String STICKER_RECOMMENDATION_SELECTION_KEY = "acID";
 
+		public static final String STICKER_RECOMMENDATION_ACCURACY_INDEX_KEY = "srAI";
+
 		public static final String STICKER_RECOMMENDATION_REBALANCING_SUMMERIZATION = "srRS";
 
 		public static final String PACK_DATA_ANALYTIC_EVENT = "pckD";
@@ -3502,6 +3504,8 @@ public class HikeConstants
 
 	public static final String STICKER_RECOMMENDATION_CONFIGURATION_DATA = "srcd"; // container key for all of following keys of this block
 
+	public static final String STICKER_RECOMMENDATION_CONFIGURATION_MIN_VERSION_TO_APPLY = "srcdvm"; // minimum version (code), with which application will accept configuration data
+
 	public static final String STICKER_TAG_REBALANCING_TRIGGER_TIME_STAMP = "strtt"; // container key for following 4 keys
 
 	public static final String STICKER_DATA_HOUR = "HH"; // integer
@@ -3594,7 +3598,11 @@ public class HikeConstants
 
 	public static final String STICKER_SEARCH_BASE_THRESHOLD_FORCED_SHRINK_COEFFICIENT = "ssb_tfsc"; // float
 
-	public static final String STICKER_SEARCH_REBALANCING_TIME_STAMP = "ts";
+	public static final String STICKER_SEARCH_EVENT_TIME_STAMP = "ts";
+
+	public static final String STICKER_SEARCH_AUTO_POPUP_DATA = "ad";
+
+	public static final String STICKER_SEARCH_HAIGHLIGHT_WORD_DATA = "hd";
 
 	public static final String STICKER_SEARCH_REBALANCING_MEMORY_STATUS = "ms";
 	

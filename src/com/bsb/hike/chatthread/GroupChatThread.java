@@ -1160,8 +1160,9 @@ public class GroupChatThread extends OneToNChatThread
 		}
 		super.destroySearchMode();
 	}
-	protected boolean shouldShowKeyboard()
-	{
-		return ( mActionMode.whichActionModeIsOn() == PIN_CREATE_ACTION_MODE || super.shouldShowKeyboard());
+	
+	@Override
+	protected boolean shouldShowKeyboardInActionMode() {
+		return (super.shouldShowKeyboardInActionMode() || mActionMode.whichActionModeIsOn() == PIN_CREATE_ACTION_MODE);
 	}
 }

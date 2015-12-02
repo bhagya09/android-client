@@ -18,6 +18,7 @@ import com.bsb.hike.modules.httpmgr.request.FileRequestPersistent;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.notifications.HikeNotification;
+import com.bsb.hike.notifications.ToastListener;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.content.PlatformContent.EventCode;
@@ -334,7 +335,7 @@ public class PlatformZipDownloader
 									if (botinfo != null)
 									{
 										NonMessagingBotMetadata nonMessagingBotMetadata = new NonMessagingBotMetadata(botinfo.getMetadata());
-										HikeNotification.getInstance().sendNotificationToChatThread(asocCbotMsisdn,
+										ToastListener.getInstance().showBotDownloadNotification(asocCbotMsisdn,
 												nonMessagingBotMetadata.getCardObj().optString(HikePlatformConstants.HIKE_MESSAGE), false);
 									}
 								}
@@ -432,10 +433,11 @@ public class PlatformZipDownloader
 					JSONObject json = new JSONObject();
 					try
 					{
-						json.putOpt(AnalyticsConstants.EVENT_KEY,AnalyticsConstants.FILE_DOWNLOADED);
-						json.putOpt(AnalyticsConstants.FILE_SIZE, zipFile.length());
-						json.putOpt(AnalyticsConstants.APP_NAME, mRequest.getContentData().getId());
-						json.putOpt(AnalyticsConstants.RESULT_CODE,result.getStatusCode());
+						json.putOpt(AnalyticsConstants.EVENT_KEY,AnalyticsConstants.MICRO_APP_EVENT);
+						json.putOpt(AnalyticsConstants.EVENT,AnalyticsConstants.FILE_DOWNLOADED);
+						json.putOpt(AnalyticsConstants.LOG_FIELD_6, zipFile.length());
+						json.putOpt(AnalyticsConstants.LOG_FIELD_1, mRequest.getContentData().getId());
+						json.putOpt(AnalyticsConstants.LOG_FIELD_5,result.getStatusCode());
 					} catch (JSONException e)
 					{
 						e.printStackTrace();
@@ -475,6 +477,7 @@ public class PlatformZipDownloader
 				callbackProgress.remove(callbackId);
 				platformRequests.remove(mRequest.getContentData().getLayout_url());
 				HikeMessengerApp.getPubSub().publish(HikePubSub.DOWNLOAD_PROGRESS, new Pair<String,String>(callbackId, "downloadFailure"));
+				PlatformUtils.sendMicroAppServerAnalytics(false, mRequest.getContentData().cardObj.appName, mRequest.getContentData().cardObj.appVersion);
 				PlatformRequestManager.failure(mRequest, EventCode.LOW_CONNECTIVITY, isTemplatingEnabled);
 				PlatformRequestManager.getCurrentDownloadingTemplates().remove((Integer) mRequest.getContentData().appHashCode());
 				if (!resumeSupported) //As we would write to the same file on download resume.

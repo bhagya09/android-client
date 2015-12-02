@@ -30,6 +30,7 @@ import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.modules.kpt.HikeAdaptxtEditTextEventListner;
 import com.bsb.hike.modules.kpt.HikeCustomKeyboard;
 import com.bsb.hike.modules.kpt.KptUtils;
 import com.bsb.hike.offline.OfflineController;
@@ -43,6 +44,7 @@ import com.bsb.hike.view.CustomFontEditText;
 import com.kpt.adaptxt.beta.KPTAddonItem;
 import com.kpt.adaptxt.beta.RemoveDialogData;
 import com.kpt.adaptxt.beta.util.KPTConstants;
+import com.kpt.adaptxt.beta.view.AdaptxtEditText;
 import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtKeyboordVisibilityStatusListner;
 
 import android.content.Intent;
@@ -169,7 +171,7 @@ public class HikeListActivity extends HikeAppStateBaseFragmentActivity implement
 	private void initCustomKeyboard()
 	{
 		View keyboardView = (LinearLayout) findViewById(R.id.keyboardView_holder);
-		mCustomKeyboard = new HikeCustomKeyboard(HikeListActivity.this, keyboardView, KPTConstants.MULTILINE_LINE_EDITOR, null, HikeListActivity.this);
+		mCustomKeyboard = new HikeCustomKeyboard(HikeListActivity.this, keyboardView, KPTConstants.MULTILINE_LINE_EDITOR, kptEditTextEventListener, HikeListActivity.this);
 		mCustomKeyboard.registerEditText(R.id.input_number);
 		mCustomKeyboard.init(input);
 		input.setOnClickListener(new OnClickListener()
@@ -187,7 +189,14 @@ public class HikeListActivity extends HikeAppStateBaseFragmentActivity implement
 			}
 		});
 	}
-	
+	HikeAdaptxtEditTextEventListner kptEditTextEventListener = new HikeAdaptxtEditTextEventListner()
+	{
+		@Override
+		public void onReturnAction(int i, AdaptxtEditText adaptxtEditText)
+		{
+			mCustomKeyboard.showCustomKeyboard(input, false);
+		}
+	};
 	private void init()
 	{
 		if (type != Type.BLOCK)
