@@ -1527,7 +1527,7 @@ public class StickerSearchHostManager
 			if (wordMatchIndex > -1)
 			{
 				specificSpectrumWidth = MARGINAL_FULL_SCORE_LATERAL / (i + 1);
-				matchCount = matchCount + (specificSpectrumWidth / 3) / (wordMatchIndex + 1);
+				matchCount = matchCount + (specificSpectrumWidth / maximumPossibleSpectrumSpreading) / (wordMatchIndex + 1);
 			}
 		}
 
