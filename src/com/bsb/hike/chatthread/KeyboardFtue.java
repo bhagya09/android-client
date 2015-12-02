@@ -173,6 +173,8 @@ public class KeyboardFtue implements HikePubSub.Listener
             public void onClick(View v) {
                 skipLanguageSelection();
                 trackClickAnalyticEvents(HikeConstants.LogEvent.KEYBOARD_FTUE_CLOSE_BUTTON);
+
+                Toast.makeText(HikeMessengerApp.getInstance().getApplicationContext(),R.string.language_ftue_complete_message,Toast.LENGTH_SHORT).show();
             }
         });
         flipper.findViewById(R.id.btn_choose_language).setOnClickListener(new View.OnClickListener() {

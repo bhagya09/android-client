@@ -1316,9 +1316,11 @@ import android.widget.Toast;
 		JSONObject metadata = new JSONObject();
 		try 
 		{
-			metadata.put(HikeConstants.LogEvent.KPT, KptKeyboardManager.getInstance(activity).getCurrentLanguageAddonItem().getlocaleName());
-			convMessage.setMetadata(metadata);
-			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
+			if(!isSystemKeyboard()) {
+				metadata.put(HikeConstants.KEYBOARD_LANGUAGE, KptKeyboardManager.getInstance(activity).getCurrentLanguageAddonItem().getlocaleName());
+				convMessage.setfromCustomKeyboard(true);
+				convMessage.setMetadata(metadata);
+			}
 		} 
 		catch (JSONException e) 
 		{
