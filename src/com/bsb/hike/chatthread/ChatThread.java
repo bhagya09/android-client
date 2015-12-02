@@ -76,7 +76,6 @@ import com.bsb.hike.modules.kpt.KptUtils;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
 import com.bsb.hike.modules.stickersearch.StickerSearchUtils;
 import com.bsb.hike.modules.stickersearch.listeners.IStickerPickerRecommendationListener;
-import com.bsb.hike.modules.stickersearch.provider.StickerSearchHostManager;
 import com.bsb.hike.modules.stickersearch.ui.StickerTagWatcher;
 import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.offline.IOfflineCallbacks;
@@ -152,6 +151,8 @@ import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.text.style.CharacterStyle;
+import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
 import android.util.Pair;
 import android.view.GestureDetector;
@@ -1808,8 +1809,8 @@ import android.widget.Toast;
 		stickerTagWatcher = (stickerTagWatcher != null) ? (stickerTagWatcher) : (new StickerTagWatcher(activity, this, mComposeView, getResources().getColor(
 				R.color.sticker_recommend_highlight_text)));
 
-		StickerSearchHostManager.getInstance().loadChatProfile(msisdn, !ChatThreadUtils.getChatThreadType(msisdn).equals(HikeConstants.Extras.ONE_TO_ONE_CHAT_THREAD),
-				activity.getLastMessageTimeStamp());
+		StickerSearchManager.getInstance().loadChatProfile(msisdn, !ChatThreadUtils.getChatThreadType(msisdn).equals(HikeConstants.Extras.ONE_TO_ONE_CHAT_THREAD),
+				activity.getLastMessageTimeStamp(), StickerSearchUtils.getCurrentLanguageISOCode());
 
 		mComposeView.addTextChangedListener(stickerTagWatcher);
 	}
@@ -2018,6 +2019,13 @@ import android.widget.Toast;
 					activity.findViewById(R.id.search_clear_btn).setVisibility(View.VISIBLE);
 				}
 			}
+			//AND-3276 Begin
+			if (!TextUtils.isEmpty(s.toString())) {
+				CharacterStyle[] spansToRemove = s.getSpans(0, s.length(), ForegroundColorSpan.class);
+				for (int i = 0; i < spansToRemove.length; i++)
+					s.removeSpan(spansToRemove[i]);
+			}
+			//AND-3276 End
 			searchText = s.toString().toLowerCase();
 			mAdapter.setSearchText(searchText);
 			mAdapter.notifyDataSetChanged();
@@ -2550,7 +2558,12 @@ import android.widget.Toast;
 	protected boolean shouldShowKeyboard()
 	{
 		return ((mConversation.getMessagesList().isEmpty() && !mConversation.isBlocked() && !activity.getIntent().getBooleanExtra(HikeConstants.Extras.HIKE_DIRECT_MODE,false) 
-				&& !keyboardFtue.isReadyForFTUE()) || mActionMode.isActionModeOn());
+				&& !keyboardFtue.isReadyForFTUE()) || shouldShowKeyboardInActionMode());
+	}
+	
+	protected boolean shouldShowKeyboardInActionMode()
+	{
+		return (mActionMode.whichActionModeIsOn() == SEARCH_ACTION_MODE);
 	}
 
 	/**
@@ -2675,7 +2688,7 @@ import android.widget.Toast;
 
 	protected void sendPoke()
 	{
-		ConvMessage convMessage = Utils.makeConvMessage(msisdn, getString(R.string.poke_msg), mConversation.isOnHike());
+		ConvMessage convMessage = Utils.makeConvMessage(msisdn, getString(R.string.poke_msg_english_only), mConversation.isOnHike());
 		ChatThreadUtils.setPokeMetadata(convMessage);
 		sendMessage(convMessage);
 	}
@@ -3944,32 +3957,17 @@ import android.widget.Toast;
         		sendUIMessage(MESSAGE_SENT, msg);
         	}
         	break;
-			case HikePubSub.GENERAL_EVENT_STATE_CHANGE:
-				ConvMessage eventMessage=(ConvMessage)object;
-				if(eventMessage!=null&&this.msisdn.equals(eventMessage.getMsisdn()))
-				{
-					long messageId = eventMessage.getMsgID();
-					for (int i = messages.size() - 1; i >= 0; i--)
-					{
-						ConvMessage mesg = messages.get(i);
-						if (mesg.getMsgID() == messageId)
-						{
-							messages.get(i).setState(eventMessage.getState());
-							uiHandler.sendEmptyMessage(NOTIFY_DATASET_CHANGED);
-							break;
-						}
-
-					}
-				}
-				break;
-
+		case HikePubSub.GENERAL_EVENT_STATE_CHANGE:
+			//TODO Proper handling in next release. It is safe to comment this out for now.
+			//onGeneralEventStateChange(object);
+			break;
 
 		default:
 			Logger.e(TAG, "PubSub Registered But Not used : " + type);
 			break;
 		}
 	}
-	
+
 	private void onNudgeSettingsChnaged()
 	{
 		_doubleTapPref = PreferenceManager.getDefaultSharedPreferences(activity.getApplicationContext()).getBoolean(HikeConstants.DOUBLE_TAP_PREF, true);
@@ -4370,8 +4368,10 @@ import android.widget.Toast;
 
 	public void onResume()
 	{
-		tryToDismissAnyOpenPanels();
-
+		if (shouldShowKeyboard())
+		{
+			tryToDismissAnyOpenPanels();
+		}
 		showKeyboardIfRequired();
 
 		isActivityVisible = true;
@@ -4444,6 +4444,7 @@ import android.widget.Toast;
 	{
 		if (shouldShowKeyboard())
 		{
+			tryToDismissAnyOpenPanels();
 			showKeyboard();
 		}
 		else
@@ -4491,6 +4492,8 @@ import android.widget.Toast;
 		hideThemePicker();
 		
 		hideOverflowMenu();
+
+		clearActionBarViews();
 		
 		hideDialog();
 		
@@ -4536,6 +4539,16 @@ import android.widget.Toast;
 		if (mActionBar != null && mActionBar.isOverflowMenuShowing())
 		{
 			mActionBar.dismissOverflowMenu();
+		}
+	}
+
+	/**
+	 * Do not call this method freely! Use it at your own risk!
+	 */
+	private void clearActionBarViews()
+	{
+		if (mActionBar != null)
+		{
 			mActionBar.resetView();
 		}
 	}
@@ -4900,10 +4913,11 @@ import android.widget.Toast;
 					{
 						deleteMsgs.add(convMessage);
 					}
-					else if (convMessage.getMsgID() > msgId)
-					{
-						break;
-					}
+					//As now messages get reordered in case of game cards.
+//					else if (convMessage.getMsgID() > msgId)
+//					{
+//						break;
+//					}
 				}
 			}
 		}
@@ -6220,9 +6234,10 @@ import android.widget.Toast;
 	protected void showThemePicker(int footerTextId)
 	{
 		/**
-		 * Hiding soft keyboard
+		 * //TODO::Hiding KeyboardIfNeeded while showing themepicker
 		 */
-		hideKeyboard();
+		//Hiding the Kpt Keyboard updates the padding to 0 hence Message enter box is not shown if shareable pop is showing 
+		hideKeyboardIfNeeded();
 		setUpThemePicker();
 		themePicker.showThemePicker(activity.findViewById(R.id.attachment_anchor), currentTheme,footerTextId, activity.getResources().getConfiguration().orientation);
 	}
@@ -6398,4 +6413,36 @@ import android.widget.Toast;
 			}
 		}
 	};
+
+
+	public void hideKeyboardIfNeeded() {
+		if (KptUtils.isSystemKeyboard()) {
+			Utils.hideSoftKeyboard(activity, mComposeView);
+		} else if (mCustomKeyboard != null && mCustomKeyboard.isCustomKeyboardVisible() && (mShareablePopupLayout == null || !mShareablePopupLayout.isShowing())) {
+			hideKptKeyboard();
+		}
+		removeKeyboardFtueIfShowing();
+	}
+	/**
+	 * This method changes the state of a ConvMessage after a general event is sent or received
+	 * @param object
+	 */
+	private void onGeneralEventStateChange(Object object)
+	{
+		ConvMessage eventMessage=(ConvMessage)object;
+		if(eventMessage!=null&&this.msisdn.equals(eventMessage.getMsisdn()))
+		{
+			long messageId = eventMessage.getMsgID();
+			for (int i = messages.size() - 1; i >= 0; i--)
+			{
+				ConvMessage mesg = messages.get(i);
+				if (mesg.getMsgID() == messageId)
+				{
+					mesg.setStateForced(eventMessage.getState());
+					uiHandler.sendEmptyMessage(NOTIFY_DATASET_CHANGED);
+					break;
+				}
+			}
+		}
+	}
 }

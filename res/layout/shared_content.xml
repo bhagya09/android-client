@@ -25,6 +25,7 @@
             android:layout_marginLeft="24dp"
             android:contentDescription="Empty State"
             android:gravity="center_vertical"
+            android:layout_marginRight="16dp"
             style="@style/BaseStyleTextView"
             android:text="@string/no_file"
             android:textColor="@color/mid_gray"

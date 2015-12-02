@@ -174,5 +174,22 @@ public class StickerSearchConstants
 	public static final String STRING_DELIMITER = ":";
 
 	public static final String STRING_JOINTER = "_";
+
 	// =======================================================================Generic constants]]
+
+	// Constants used in shared_pref of sticker search data====================================[[
+	public static final String KEY_PREF_STICKER_RECOOMENDATION_LANGUAGE_LIST = "srll";
+
+	public static final String KEY_PREF_AUTO_POPUP_TOTAL_COUNT_PER_LANGUAGE = "aptc";
+
+	public static final String KEY_PREF_AUTO_POPUP_ACCEPTED_COUNT_PER_LANGUAGE = "apac";
+
+	public static final String KEY_PREF_TAP_ON_HIGHLIGHT_WORD_TOTAL_COUNT_PER_LANGUAGE = "thtc";
+
+	public static final String KEY_PREF_TAP_ON_HIGHLIGHT_WORD_ACCEPTED_COUNT_PER_LANGUAGE = "thac";
+
+	// ====================================Constants used in shared_pref of sticker search data]]
+
+	// Threshold number of stickers left, below which sticker recommendation will be turned on by default
+	public static final int THRESHOLD_NUM_STICKERS = 50;
 }

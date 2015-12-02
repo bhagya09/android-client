@@ -32,6 +32,7 @@ import com.bsb.hike.models.Conversation.ConversationTip;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
 import com.bsb.hike.modules.kpt.KptKeyboardManager;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
+import com.bsb.hike.offline.OfflineController;
 import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.tasks.ActivityCallableTask;
 import com.bsb.hike.tasks.BackupAccountTask;
@@ -376,6 +377,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		{
 			final LocalLanguage localLanguage = LocalLanguageUtils.getApplicationLocalLanguage(HikePreferences.this);
 			languagePref.setSummary(localLanguage.getDisplayName());
+			languagePref.setNegativeButtonText(R.string.cancel);
 			CharSequence entries[] = new String[localLanguage.getDeviceSupportedHikeLanguages(HikePreferences.this).size()];
 			int i=0;
 			for (LocalLanguage language : localLanguage.getDeviceSupportedHikeLanguages(HikePreferences.this))
@@ -397,6 +399,10 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 						{
 							LocalLanguageUtils.setApplicationLocalLanguage(language);
 							languagePref.setSummary(language.getDisplayName());
+							//AND-3956 Begin: resetting offline parameters on language change
+							String offlineParams = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.OFFLINE, "{}");
+							OfflineController.getInstance().setConfiguration(offlineParams);
+							//AND-3956 End
 							restartHomeActivity();
 						}
 					}
@@ -1643,7 +1649,13 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 			@Override
 			public boolean onPreferenceChange(Preference preference, Object newValue)
 			{
-				preference.setTitle(getString(R.string.vibrate) + ": " + (newValue.toString()));
+				//AND-3843 Begin
+				ListPreference  preferenceVib= (ListPreference) preference;
+				int index = preferenceVib.findIndexOfValue(newValue.toString());
+				if (index >= 0) {
+					preference.setTitle(getString(R.string.vibrate) + ": " + preferenceVib.getEntries()[index]);
+				}
+				//AND-3843 End
 				try
 				{
 					Vibrator vibrator = (Vibrator) getApplicationContext().getSystemService(Context.VIBRATOR_SERVICE);
@@ -1668,7 +1680,12 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 				return true;
 			}
 		});
-		lp.setTitle(lp.getTitle() + ": " + lp.getValue());
+                //AND-3843 Begin
+		if(TextUtils.isEmpty(lp.getEntry())){
+			lp.setValueIndex(1); // 1= DEFAULT, which is default mentioned in notifications_preferences.xml
+		}
+		lp.setTitle(lp.getTitle() + ": " + lp.getEntry());
+                //AND-3843 End
 		lp.setNegativeButtonText(R.string.CANCEL);
 		
 		ListPreference ledPref = (ListPreference) getPreferenceScreen().findPreference(HikeConstants.COLOR_LED_PREF);

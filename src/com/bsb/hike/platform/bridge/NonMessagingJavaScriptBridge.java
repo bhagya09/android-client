@@ -1107,7 +1107,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	@JavascriptInterface
 	public void enableBot(String msisdn, String enable)
 	{
-		enableBot(msisdn,enable,false);
+		enableBot(msisdn,enable, Boolean.toString(false));
 	}
 	/**
 	 * Added in Platform Version:7
@@ -1466,7 +1466,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	 * @param increaseUnread
 	 */
 	@JavascriptInterface
-	public void enableBot(String msisdn, String enable,Boolean increaseUnread)
+	public void enableBot(String msisdn, String enable, String increaseUnread)
 	{
 
 		if (!BotUtils.isSpecialBot(mBotInfo) || !BotUtils.isBot(msisdn))
@@ -1477,9 +1477,10 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 		BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
 
 		boolean enableBot = Boolean.valueOf(enable);
+		boolean increaseUnreadCount = Boolean.valueOf(increaseUnread);
 		if (enableBot)
 		{
-			PlatformUtils.enableBot(botInfo, true,increaseUnread);
+				PlatformUtils.enableBot(botInfo, true, increaseUnreadCount);
 		}
 		else
 		{

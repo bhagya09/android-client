@@ -91,6 +91,7 @@ import com.bsb.hike.modules.stickerdownloadmgr.SingleStickerDownloadTask;
 import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
 import com.bsb.hike.modules.stickersearch.provider.StickerSearchUtility;
+import com.bsb.hike.modules.stickersearch.ui.StickerTagWatcher;
 import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.offline.OfflineConstants;
 import com.bsb.hike.offline.OfflineController;
@@ -809,6 +810,12 @@ public class MqttMessagesManager
 		{
 			convMessage.setMessage(context.getString(R.string.sent_sticker));
 		}
+		//AND-3843 begin
+        if (convMessage.getMetadata() != null && convMessage.getMetadata().isPokeMessage())
+        {
+            convMessage.setMessage(context.getString(R.string.poke_msg));
+        }
+		//AND-3843 End
 		/*
 		 * Need to rename every audio recording to a unique name since the ios client is sending every file with the same name.
 		 */
@@ -2352,11 +2359,9 @@ public class MqttMessagesManager
 		
 		if (data.has(HikeConstants.STICKER_RECOMMENDATION_ENABLED))
 		{
-			if(Utils.isHoneycombOrHigher())
-			{
-				boolean isStickerRecommendationEnabled = data.getBoolean(HikeConstants.STICKER_RECOMMENDATION_ENABLED);
-				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STICKER_RECOMMENDATION_ENABLED, isStickerRecommendationEnabled);
-			}
+			boolean isStickerRecommendationEnabled = data.getBoolean(HikeConstants.STICKER_RECOMMENDATION_ENABLED);
+			Logger.d(StickerTagWatcher.TAG, "received sticker recommendation server side packet, value : " + isStickerRecommendationEnabled);
+			StickerManager.getInstance().toggleStickerRecommendation(isStickerRecommendationEnabled);
 		}
 
 		if (data.has(HikeConstants.STICKER_AUTO_RECOMMENDATION_ENABLED))
@@ -3539,6 +3544,10 @@ public class MqttMessagesManager
 						{
 							generateNotification(body, destination, silent, rearrangeChat, updateUnreadCount);
 						}
+
+						//to update the badge counter
+						HikeMessengerApp.getPubSub().publish(HikePubSub.BADGE_COUNT_MESSAGE_CHANGED, null);
+
 						String notifData = metadata.optString(HikePlatformConstants.NOTIF_DATA);
 						if (!TextUtils.isEmpty(notifData))
 						{
