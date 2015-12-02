@@ -4699,10 +4699,6 @@ public class Utils
 
 			if (info.uid == context.getApplicationInfo().uid && info.importance == RunningAppProcessInfo.IMPORTANCE_FOREGROUND && info.importanceReasonCode == 0)
 			{
-				if(!Utils.isKitkatOrHigher())
-				{
-					return true;
-				}
 				
 				Field field = null;
 				try
@@ -4711,7 +4707,8 @@ public class Utils
 				}
 				catch (NoSuchFieldException e)
 				{
-					Logger.d(ChatHeadUtils.class.getSimpleName(), e.toString());
+					Logger.d(ChatHeadUtils.class.getSimpleName(), "processState field not found");
+					return true;
 				}
 
 				if(field != null) {
@@ -4723,11 +4720,13 @@ public class Utils
 					}
 					catch (IllegalAccessException e)
 					{
-						Logger.d(ChatHeadUtils.class.getSimpleName(), e.toString());
+						Logger.d(ChatHeadUtils.class.getSimpleName(), "illegal access of processState" );
+						return true;
 					}
 					catch (IllegalArgumentException e)
 					{
-						Logger.d(ChatHeadUtils.class.getSimpleName(), e.toString());
+						Logger.d(ChatHeadUtils.class.getSimpleName(), "illegal argument of processState");
+						return true;
 					}
 					// its a hidden api and no value is defined
 					if (state != null && state == ChatHeadUtils.PROCESS_STATE_TOP)
