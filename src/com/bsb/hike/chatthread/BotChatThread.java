@@ -1,11 +1,5 @@
 package com.bsb.hike.chatthread;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.support.v4.view.MenuItemCompat;
 import android.util.Pair;
 import android.view.Menu;
@@ -30,6 +24,12 @@ import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.view.CustomFontButton;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This class is a barebones skeleton for Bot chat thread. This is still Work in progress.
@@ -449,5 +449,13 @@ public class BotChatThread extends OneToOneChatThread
 			PlatformUtils.recordBotOpenViaNotification(msisdn);
 		}
 	}
-	
+
+	/**
+	 * Returning here since we do not want to show the h20 tip here.
+	 */
+	@Override
+	public void scheduleH20Tip()
+	{
+		return;
+	}
 }

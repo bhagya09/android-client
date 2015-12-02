@@ -2337,7 +2337,7 @@ import com.kpt.adaptxt.beta.RemoveDialogData;
 	 * Used for scheduling the H20 Tip after sending a message
 	 * 
 	 */
-	private void scheduleH20Tip()
+	public void scheduleH20Tip()
 	{
 		/**
 		 * If the msisdn is international, then don't show tip
