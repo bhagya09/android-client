@@ -1296,8 +1296,10 @@
      <string name="and">અને</string> 
     <string name="others_smallcase">અન્યો</string>
     <string name="made_with_love_in_india">ભારતમાં :love: સાથે તૈયાર થયેલ</string>
-    <string name="timeline_ftue_desc"> ટાઈમલાઈન તમે અને તમારા મિત્રો ખાસ ક્ષણો શેર કરવા માટે એક સ્થળ છે. તમે પહેલાથી જ તેમના ટાઈમલાઈન પર પોસ્ટ થોડા મિત્રો મળી છે!</string>
-<!-- The above two string would be used as in Group with Shibu, Niladri and 4 others -->
+    <string name="timeline_ftue_desc">ટાઇમલાઇન, તમે અને તમારા મિત્રોના ખાસ ક્ષણો શેર કરવા માટે એક સ્થળ છે. તમારા થોડા મિત્રો પેહલા થી પોતાના ટાઇમલાઇન પર પોસ્ટ કરે છે!</string>
+    <string name="sticker">સ્ટીકર</string>
+
+    <!-- The above two string would be used as in Group with Shibu, Niladri and 4 others -->
 
 
  	<string name="yesterday">ગઇ કાલે</string>

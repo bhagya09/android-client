@@ -1293,11 +1293,9 @@
     <string name="your_contact">നിങ്ങളുടെ സമ്പർക്കം</string>
     <string name="and">ഒപ്പം</string>
     <string name="others_smallcase">മറ്റുള്ളവർ</string>
-    <string name="made_with_love_in_india">:love: ല്‍ ഇന്ത്യയില്‍ സൃഷ്ടിക്കപ്പെട്ടത്</string>
-    <string name="timeline_ftue_desc">ടൈംലൈൻ നിങ്ങളെ സുഹൃത്തുക്കളും പ്രത്യേക നിമിഷങ്ങൾ പങ്കിടാൻ ഒരു സ്ഥലം ആണ്. നിങ്ങൾ ഇതിനകം അവരുടെ സമയപരിധിയിൽ പോസ്റ്റ്ചെയ്യുമ്പോൾ കുറച്ച് സുഹൃത്തുക്കൾ കിട്ടി!</string>
-
-<!-- The above two string would be used as in Group with Shibu, Niladri and 4 others -->
-
+    <string name="made_with_love_in_india">ഇന്ത്യയിൽ :love:-ത്തോടെ നിർമ്മിച്ചത്‌</string>
+    <string name="timeline_ftue_desc">നിങ്ങൾക്കും നിങ്ങളുടെ തിരെഞ്ഞെടുത്ത ഫ്രണ്ട്‌സിനും പ്രത്യേക നിമിഷങ്ങൾ പങ്കുവക്കുവാൻ ഉള്ള സ്ഥലം ആണ് ടൈംലൈൻ!</string>
+    <string name="sticker">സ്റ്റിക്കർ</string>
 
  	<string name="yesterday">ഇന്നലെ</string>
     <string name="tomorrow">നാളെ</string>

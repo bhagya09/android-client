@@ -638,7 +638,7 @@
     <string name="notificationSoundSummary">ಹೊಸ ನೊಟಿಫಿಕೇಶನ್‌ಗೆ ಪ್ಲೇ ಮಾಡಲು ಧ್ವನಿ ಆಯ್ಕೆ ಮಾಡಿ</string>
     <string name="hike_offline_notifications">Hike ಆಫ್‌ಲೈನ್‌</string>
     <string name="h2o_notifications_setting_summary">ಆಫ್‌ಲೈನ್‌ ಸಂಪರ್ಕಕ್ಕೆ SMS ಕಳುಹಿಸಲು ನೋಟಿಫೈ ಮಾಡಿ</string>
-    <string name="stealth_info_tip_subtext">ಪಾಸ್‌ವರ್ಡ್‌ನಿಂದ ಚಾಟ್‌ಗಳನ್ನು ಗೌಪ್ಯವಾಗಿಸಲ “ಹಾಯ್‌” ತಟ್ಟಿ.</string>
+    <string name="stealth_info_tip_subtext">ಪಾಸ್‌ವರ್ಡ್‌ನಿಂದ ಚಾಟ್‌ಗಳನ್ನು ಗೊಪ್ಯವಾಗಿಸಲು “ಹಾಯ್‌” ತಟ್ಟಿ.</string>
     <string name="file_attachment_info">100 MB ವರೆಗಿನ doc, pdf ಮತ್ತು ಮೀಡಿಯಾವನ್ನು ಹಂಚಿ</string>
     <string name="status_text_notification">%1$s ಅಪ್‌ಡೇಟ್‌ ಆಗಿ ಪೋಸ್ಟ್ ಮಾಡಿ</string>
     <string name="shared_files">ಫೈಲ್‌ಗಳು</string>
@@ -920,7 +920,7 @@
     <string name="hide_chat">ಚಾಟ್‌ ಗೌಪ್ಯವಾಗಿಸಿ</string>
     <string name="mark_hidden">ಗೌಪ್ಯ ಎಂದು ಗುರುತಿಸಿ</string>
     <string name="mark_visible">ಗೋಚರ ಎಂದು ಗುರುತಿಸಿ</string>
-    <string name="stealth_set_pin">ಅತವಾ ಸಂಖ್ಯೆಯ PIN ಹೊಂದಿಸಿ</string>
+    <string name="stealth_set_pin">ಅಥವಾ ಸಂಖ್ಯೆಯ PIN ಹೊಂದಿಸಿ</string>
     <string name="stealth_set_pattern">ಅಥವಾ ಪ್ಯಾಟರ್ನ್‌ ಹೊಂದಿಸಿ</string>
     <string name="stealth_msg_pin_recorded">PIN ರೆಕಾರ್ಡ್‌ ಮಾಡಲಾಗಿದೆ</string>
     <string name="stealth_msg_your_new_unlock_pin">ನಿಮ್ಮ ಹೊಸ ಅನ್‌ಲಾಕ್‌ PIN</string>
@@ -1295,9 +1295,10 @@
     <string name="and">ಮತ್ತು</string>
     <string name="others_smallcase">ಇತರರು</string>
     <string name="made_with_love_in_india">ಭಾರತದಲ್ಲಿ :love: ಜೊತೆಗೆ ಮಾಡಲಾಗಿದೆ</string>
-    <string name="timeline_ftue_desc">ಟೈಮ್ಲೈನ್ ನೀವು ಮತ್ತು ಸ್ನೇಹಿತರು ವಿಶೇಷ ಕ್ಷಣಗಳನ್ನು ಹಂಚಿಕೊಳ್ಳಲು ಒಂದು ಸ್ಥಳವಾಗಿದೆ. ನೀವು ಈಗಾಗಲೇ ತಮ್ಮ ವೇಳಾಪಟ್ಟಿಯಲ್ಲಿ ಪೋಸ್ಟ್ ಕೆಲವು ಸ್ನೇಹಿತರು ಪಡೆದಿರುವಿರಿ!</string>
+    <string name="timeline_ftue_desc">ನಿಮ್ಮ ನೆಚ್ಚಿನ ಕ್ಷಣಗಳನ್ನು  ಟೈಮ್ ಲೈನಿನಲ್ಲಿ  ನಿಮ್ಮ ಸ್ನೇಹಿತರೊಂದಿಗೆ ಹಂಚಿರಿ! ನಿಮ್ಮ ಸ್ನೇಹಿತರು ಈಗಾಗಲೇ ಅವರ ಚಿತ್ರಗಳನ್ನು ಟೈಮ್ ಲೈನಿನಲ್ಲಿ ಪೋಸ್ಟ್  ಮಾಡಿದ್ದಾರೆ !</string>
+    <string name="sticker">ಸ್ಟಿಕರ್</string>
 
-<!-- The above two string would be used as in Group with Shibu, Niladri and 4 others -->
+    <!-- The above two string would be used as in Group with Shibu, Niladri and 4 others -->
 
 
  	<string name="yesterday">ನಿನ್ನೆ</string>

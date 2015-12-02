@@ -127,7 +127,7 @@
     <string name="audio_msg_received">आपको ऑडियो फ़ाइल भेजी</string>
     <string name="location_msg_received">स्थान शेयर किया</string>
     <string name="contact_msg_received">संपर्क शेयर किया</string>
-    <string name="image_msg_sent">फ़ोन</string>
+    <string name="image_msg_sent">फ़ोटो</string>
     <string name="video_msg_sent">वीडियो</string>
     <string name="audio_msg_sent">ऑडियो</string>
     <string name="location_msg_sent">स्थान</string>
@@ -775,7 +775,7 @@
     <string name="voip_call_notification_title">%1$s के साथ Hike कॉल</string>
     <string name="voip_conference_call_notification_title">Hike कॉन्फ़्रेंस कॉल</string>
     <string name="voip_call_notification_text">कॉल चालू है %1$s</string>
-    <string name="voip_call">कॉल करें</string>
+    <string name="voip_call">कॉल</string>
     <string name="voip_call_ended">कॉल समाप्त</string>
     <string name="voip_on_hold">होल्ड पर</string>
     <string name="voip_incoming">&#8230;आ रही है</string>
@@ -1236,10 +1236,10 @@
     <string name="take_me_there">मुझे वहां ले चलें</string>
     <string name="hike_upgrade_string">hike आपके लिए तेज़ और बेहतर बन रहा है\n इसमें कुछ समय लग सकता है</string>
     <array name="voip_decline_message_texts">
-        <item>अभी बात नहीं हो सकती। कृपया काम बता दें?</item>
-        <item>कुछ देर में आपको कॉल करते हैं</item>
-        <item>आपके साथ बाद में कॉल करते हैं</item>
-        <item>अभी बात नहीं हो सकती। मुझे बाद में कॉल करें?</item>
+        <item>अभी बात नहीं हो सकती। कृपया hike करें।</item>
+        <item>5 मिनट में बात करते हैं। </item>
+        <item>थोड़ी देर बाद करते हैं।</item>
+        <item>अभी बात नहीं हो सकती। थोड़ी देर बाद में कॉल करें।</item>
     </array>
     <string name="HELP">सहायता</string>
     <string name="sticky_caller_settings">कॉलर सेटिंग्स</string>
@@ -1292,11 +1292,9 @@
 	
      <string name="and">और</string> 
     <string name="others_smallcase">अन्य</string>
-    <string name="made_with_love_in_india">भारत में :love: के साथ निर्मित </string>
-    <string name="timeline_ftue_desc">टाइमलाइन आप और आपके दोस्तों के लिए अपने विशेष पल बांटने का एक स्थान है । आपके कुछ दोस्त पहले से ही इसका प्रयोग कर रहे हैं ।</string>
-
-<!-- The above two string would be used as in Group with Shibu, Niladri and 4 others -->
-
+    <string name="made_with_love_in_india">भारत में :love: के साथ निर्मित</string>
+    <string name="timeline_ftue_desc">टाइमलाइन आप और आपके दोस्तों के लिए अपने विशेष पल बांटने का एक स्थान है । आपके कुछ दोस्त पहले से ही इसका प्रयोग कर रहे हैं !</string>
+    <string name="sticker">स्टिकर</string>
 
  	<string name="yesterday">कल</string>
     <string name="tomorrow">कल</string>

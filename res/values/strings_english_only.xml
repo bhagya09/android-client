@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- DO NOT TRANSLATE  -->
+    <string name="poke_msg_english_only">Nudge!</string>
+
+    <string name="english_locale">en</string>
+    <string name="hindi_locale">hi</string>
+    <string name="bengali_locale">bn</string>
+    <string name="marathi_locale">mr</string>
+    <string name="gujarati_locale">gu</string>
+    <string name="tamil_locale">ta</string>
+    <string name="telugu_locale">te</string>
+    <string name="kannada_locale">kn</string>
+    <string name="malayalam_locale">ml</string>
+</resources>

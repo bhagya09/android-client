@@ -2688,7 +2688,7 @@ import android.widget.Toast;
 
 	protected void sendPoke()
 	{
-		ConvMessage convMessage = Utils.makeConvMessage(msisdn, getString(R.string.poke_msg), mConversation.isOnHike());
+		ConvMessage convMessage = Utils.makeConvMessage(msisdn, getString(R.string.poke_msg_english_only), mConversation.isOnHike());
 		ChatThreadUtils.setPokeMetadata(convMessage);
 		sendMessage(convMessage);
 	}
@@ -6234,9 +6234,10 @@ import android.widget.Toast;
 	protected void showThemePicker(int footerTextId)
 	{
 		/**
-		 * Hiding soft keyboard
+		 * //TODO::Hiding KeyboardIfNeeded while showing themepicker
 		 */
-		hideKeyboard();
+		//Hiding the Kpt Keyboard updates the padding to 0 hence Message enter box is not shown if shareable pop is showing 
+		hideKeyboardIfNeeded();
 		setUpThemePicker();
 		themePicker.showThemePicker(activity.findViewById(R.id.attachment_anchor), currentTheme,footerTextId, activity.getResources().getConfiguration().orientation);
 	}
@@ -6413,6 +6414,15 @@ import android.widget.Toast;
 		}
 	};
 
+
+	public void hideKeyboardIfNeeded() {
+		if (KptUtils.isSystemKeyboard()) {
+			Utils.hideSoftKeyboard(activity, mComposeView);
+		} else if (mCustomKeyboard != null && mCustomKeyboard.isCustomKeyboardVisible() && (mShareablePopupLayout == null || !mShareablePopupLayout.isShowing())) {
+			hideKptKeyboard();
+		}
+		removeKeyboardFtueIfShowing();
+	}
 	/**
 	 * This method changes the state of a ConvMessage after a general event is sent or received
 	 * @param object
