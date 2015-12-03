@@ -271,7 +271,7 @@ public class StickerLanguagesManager {
     {
         ISO_LANGUAGES = new HashSet<>(LOCALES_SET.size());
 
-        ArrayList<String> kptList = new ArrayList<String>();
+        ArrayList<String> kptList = new ArrayList<String>( KptKeyboardManager.getInstance(HikeMessengerApp.getInstance().getApplicationContext()).getSupportedLanguagesList().size());
 
         for(KPTAddonItem item : KptKeyboardManager.getInstance(HikeMessengerApp.getInstance().getApplicationContext()).getSupportedLanguagesList())
         {
