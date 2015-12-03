@@ -1297,6 +1297,8 @@
     <string name="made_with_love_in_india">ಭಾರತದಲ್ಲಿ :love: ಜೊತೆಗೆ ಮಾಡಲಾಗಿದೆ</string>
     <string name="timeline_ftue_desc">ನಿಮ್ಮ ನೆಚ್ಚಿನ ಕ್ಷಣಗಳನ್ನು  ಟೈಮ್ ಲೈನಿನಲ್ಲಿ  ನಿಮ್ಮ ಸ್ನೇಹಿತರೊಂದಿಗೆ ಹಂಚಿರಿ! ನಿಮ್ಮ ಸ್ನೇಹಿತರು ಈಗಾಗಲೇ ಅವರ ಚಿತ್ರಗಳನ್ನು ಟೈಮ್ ಲೈನಿನಲ್ಲಿ ಪೋಸ್ಟ್  ಮಾಡಿದ್ದಾರೆ !</string>
     <string name="sticker">ಸ್ಟಿಕರ್</string>
+    <string name="stealth_unread_tip_header">ಚಾಟ್ ಹೈಡ್ ಮಾಡಿ!</string>
+    <string name="stealth_unread_tip_message">ಚಾಟ್ ಹೈಡ್ ಮಾಡಲು \&apos;hi\&apos; ಒತ್ತಿ</string>
 
     <!-- The above two string would be used as in Group with Shibu, Niladri and 4 others -->
 
