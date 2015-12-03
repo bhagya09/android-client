@@ -3707,5 +3707,7 @@ public class HikeConstants
 
 	public static final String HIKE_KEYBOARD = "Hike Keyboard";
 
+	public static final String LANG_ARRAY = "lan_array";
+
 
 }
