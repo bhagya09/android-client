@@ -651,7 +651,7 @@
     <string name="image_quality_send">அனுப்புக</string>
     <string name="image_quality_prefs">இமேஜ் தரம்</string>
     <string name="no_media">ஃபோட்டோஸ் மற்றும் வீடியோஸை இங்கே காண்பியும்</string>
-    <string name="add_fav">ஃபேவரைட்ஸோடு\nசேர்ப்பீர்</string>
+    <string name="add_fav">ஃபேவரைட்-\nஇல் சேர்ப்பீர்</string>
     <string name="no_file">இங்கே ஃபைல்ஸ் pins-ஐ காண்பிக்கிறது</string>
     <string name="no_file_broadcast">இங்கே ஃபைல்ஸ் காண்பிக்கிறது</string>
     <string name="no_file_profile">இங்கே ஃபைல்ஸ் காண்பிக்கிறது</string>
