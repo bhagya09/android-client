@@ -1301,6 +1301,8 @@
     <string name="made_with_love_in_india">ভারতকে :love: রেখে তৈরি</string>
     <string name="timeline_ftue_desc">টাইমলাইন আপনার ও আপনার বন্ধুদের বিশেষ মুহূর্ত শেয়ার করার জায়গা.  আপনার কিছু বন্ধুরা ইতিমধ্যে টাইমলাইনে পোস্ট করেছে!</string>
     <string name="sticker">স্টিকার</string>
+    <string name="stealth_unread_tip_message">চ্যাট হাইড করুন hi আলতো টিপে</string>
+    <string name="stealth_unread_tip_header">চ্যাট হাইড করুন</string>
 
     <!-- The above two string would be used as in Group with Shibu, Niladri and 4 others -->
 

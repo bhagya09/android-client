@@ -535,6 +535,8 @@ public class HikeConstants
 
 	public static final String BODY = "b";
 
+	public static final String ANIMATE = "anm";
+
 	public static final String MESSAGES = "msgs";
 
 	public static final String FILE_IMAGE_QUALITY = "img_quality";
@@ -3707,7 +3709,7 @@ public class HikeConstants
 
 	public static final String APP_LANGUAGE = "ap_l";
 
-	public static final String KEYBOARD_LANGUAGE = "kb_l";
+	public static final String KEYBOARD_LANGUAGE = "z";
 
 
 

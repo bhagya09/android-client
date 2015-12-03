@@ -2,11 +2,13 @@ package com.bsb.hike.modules.stickersearch;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.modules.kpt.KptKeyboardManager;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 import com.google.gson.Gson;
+import com.kpt.adaptxt.beta.KPTAddonItem;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -392,6 +394,23 @@ public class StickerLanguagesManager {
             }
         }
         return languages;
+    }
+
+    public List<String> getUnsupportedLanguagesCollection()
+    {
+        List<KPTAddonItem> unsupportedItems = KptKeyboardManager.getInstance(HikeMessengerApp.getInstance()).getUnsupportedLanguagesList();
+        if(Utils.isEmpty(unsupportedItems))
+        {
+            return null;
+        }
+
+        List<String> unsupportedLanguages = new ArrayList<>(unsupportedItems.size());
+        for(KPTAddonItem addOnItem : unsupportedItems)
+        {
+            unsupportedLanguages.add(new Locale(addOnItem.getlocaleName()).getISO3Language());
+        }
+
+        return unsupportedLanguages;
     }
 }
 
