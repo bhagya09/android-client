@@ -5,6 +5,8 @@ import android.animation.Animator.AnimatorListener;
 import android.animation.TimeInterpolator;
 import android.content.Context;
 import android.graphics.PixelFormat;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -36,11 +38,11 @@ import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.voip.VoIPUtils;
+import com.edmodo.cropper.cropwindow.handle.Handle;
 
-public class StickyCaller
-{
+public class StickyCaller {
 	private static final String TAG = "StickyCaller";
-	
+
 	private static LinearLayout stickyCallerView;
 
 	private static WindowManager windowManager;
@@ -56,19 +58,21 @@ public class StickyCaller
 	public static final short SUCCESS = 2;
 
 	public static final short ALREADY_SAVED = 3;
-	
+
+	public static final short UPDATE  = 4;
+
 	public static short CALL_TYPE = NONE;
-	
+
 	public static final short INCOMING = 1;
-	
+
 	public static final short OUTGOING = 2;
-	
+
 	public static final short MISSED = 3;
 
 	public static final short CLIPBOARD = 4;
 
 	public static final short SMS = 5;
-	
+
 	public static String callCurrentNumber = null;
 
 	public static final String SHOW_STICKY_CALLER = "showStickyCaller";
@@ -78,9 +82,9 @@ public class StickyCaller
 	public static final String CALLER_Y_PARAMS_OLD = "callerYParams";
 
 	private static final long CALLER_DELAY = 2000;
-	
+
 	public static final int OUTGOING_DELAY = 12000;
-	
+
 	public static final int INCOMING_DELAY = 2000;
 
 	public static final String SMS_BODY = "sms_body";
@@ -94,258 +98,218 @@ public class StickyCaller
 	public static final String ENABLE_CLIPBOARD_CARD = "enblClipCard";
 
 	public static final String SHOW_SMS_CARD_PREF = "showSmsCardPref";
-	
+
 	private static final String INDIA = "India";
 
 	public static final String NAME = "name";
-	
+
 	public static final String ADDRESS = "address";
-	
+
 	public static String MISSED_CALL_TIMINGS;
 
 	public static boolean toCall = false;
 
-    private static boolean horizontalMovementDetected = false;
-    
-    private static boolean verticalMovementDetected = false;
-    
-    private static int statusBarHeight;
-    
-    public static String sms;
-    
-	public static Runnable removeViewRunnable = new Runnable()
-	{
+	private static boolean horizontalMovementDetected = false;
+
+	private static boolean verticalMovementDetected = false;
+
+	private static int statusBarHeight;
+
+	public static String sms;
+
+	public static Runnable removeViewRunnable = new Runnable() {
 
 		@Override
-		public void run()
-		{
-			if (CALL_TYPE != MISSED)
-			{
+		public void run() {
+			if (CALL_TYPE != MISSED) {
 				removeCallerView();
 			}
 		}
 
 	};
-	
-	private static void removeViewCallBacks()
-	{
-		HikeHandlerUtil mThread = HikeHandlerUtil.getInstance();
-		try
-		{
-			mThread.removeRunnable(removeViewRunnable);
-		}
-		catch (Exception e)
-		{
-			Logger.d(TAG,"exceptionRemoveViewCallbacks");
-		}
-	}
 
 	static LayoutParams callerParams = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, LayoutParams.TYPE_SYSTEM_ERROR, LayoutParams.FLAG_NOT_FOCUSABLE
 			, PixelFormat.TRANSLUCENT);
 
-	private static void actionMove(Context context, int initialX, int initialY, float initialTouchX, float initialTouchY, MotionEvent event)
-	{
-		if ((ChatHeadLayout.getOverlayView() == null || !ChatHeadLayout.getOverlayView().isShown()) && stickyCallerFrameHolder != null && stickyCallerView != null) 
-		{
+	private static void actionMove(Context context, int initialX, int initialY, float initialTouchX, float initialTouchY, MotionEvent event) {
+		if ((ChatHeadLayout.getOverlayView() == null || !ChatHeadLayout.getOverlayView().isShown()) && stickyCallerFrameHolder != null && stickyCallerView != null) {
 			float XaxisMovement = event.getRawX() - initialTouchX;
 			float YaxisMovement = event.getRawY() - initialTouchY;
-			float wanderableTouchDistance =  (float)ViewConfiguration.get(context).getScaledTouchSlop();
-			Logger.d(TAG,"check : " + XaxisMovement + " > " + wanderableTouchDistance);
-			if(!(horizontalMovementDetected || verticalMovementDetected))
-			{
-				horizontalMovementDetected = Math.abs(XaxisMovement) >  wanderableTouchDistance;
+			float wanderableTouchDistance = (float) ViewConfiguration.get(context).getScaledTouchSlop();
+			Logger.d(TAG, "check : " + XaxisMovement + " > " + wanderableTouchDistance);
+			if (!(horizontalMovementDetected || verticalMovementDetected)) {
+				horizontalMovementDetected = Math.abs(XaxisMovement) > wanderableTouchDistance;
 				verticalMovementDetected = Math.abs(YaxisMovement) > wanderableTouchDistance;
 			}
 
-			if (verticalMovementDetected)
-			{
+			if (verticalMovementDetected) {
 				int actualYmovement = (int) (YaxisMovement + ((float) initialY));
-				if (actualYmovement < 0)
-				{
+				if (actualYmovement < 0) {
 					callerParams.y = 0;
-				}
-				else if (actualYmovement > statusBarHeight - stickyCallerView.getHeight())
-				{
+				} else if (actualYmovement > statusBarHeight - stickyCallerView.getHeight()) {
 					callerParams.y = statusBarHeight - stickyCallerView.getHeight();
-				}
-				else
-				{
+				} else {
 					callerParams.y = actualYmovement;
 				}
-				try
-				{
+				try {
 					windowManager.updateViewLayout(stickyCallerFrameHolder, callerParams);
-				}
-				catch(Exception e)
-				{
+				} catch (Exception e) {
 					Logger.d(TAG, "Exception on updating view ");
 				}
 			}
 
-			
-			if (horizontalMovementDetected)
-			{
+
+			if (horizontalMovementDetected) {
 				float linearHorizontalAlpha = Math.max(0.0f, Math.min(1.0f, 1.0f - (Math.abs(XaxisMovement) / ((float) context.getResources().getDisplayMetrics().widthPixels))));
 				Logger.d(TAG, "setting alpha as : " + linearHorizontalAlpha);
 				stickyCallerView.setAlpha(linearHorizontalAlpha);
 				stickyCallerView.setTranslationX(XaxisMovement);
 			}
-			
+
 		}
 		return;
 	}
 
 	public static void removeCallerView()
 	{
-		try
+		Handler uiHandler = new Handler(Looper.getMainLooper());
+		if (uiHandler != null)
 		{
-			removeViewCallBacks();
-			windowManager.removeView(stickyCallerFrameHolder);
-			HikeSharedPreferenceUtil.getInstance().saveData(CALLER_Y_PARAMS, callerParams.y);
-			stickyCallerView = null;
-		}
-		catch (Exception e)
-		{
-			Logger.d("Sticky Caller", "Removing Caller View");
+			uiHandler.removeCallbacks(removeViewRunnable);
+			uiHandler.post(new Runnable()
+			{
+				@Override
+				public void run()
+				{
+					try
+					{
+						windowManager.removeView(stickyCallerFrameHolder);
+						HikeSharedPreferenceUtil.getInstance().saveData(CALLER_Y_PARAMS, callerParams.y);
+						stickyCallerView = null;
+					}
+					catch (Exception e)
+					{
+						Logger.d("Sticky Caller", "Removing Caller View");
+					}
+
+				}
+			});
 		}
 	}
-	
-	public static void removeCallerViewWithDelay(int delay)
-	{
-		HikeHandlerUtil mThread = HikeHandlerUtil.getInstance();
-		mThread.startHandlerThread();
-		if (mThread != null)
-		{
-			mThread.postRunnableWithDelay(removeViewRunnable, delay);
+
+	public static void removeCallerViewWithDelay(int delay) {
+		Handler uiHandler = new Handler(Looper.getMainLooper());
+		if (uiHandler != null) {
+			uiHandler.postDelayed(removeViewRunnable, delay);
 		}
 
 	}
 
-	static View.OnTouchListener onTouchListener = new View.OnTouchListener()
-	{
+	static View.OnTouchListener onTouchListener = new View.OnTouchListener() {
 		int initialX, initialY;
 
 		float initialTouchX, initialTouchY;
 
 		@Override
-		public boolean onTouch(View v, MotionEvent event)
-		{
-			VelocityTracker exitSpeedTracker =  VelocityTracker.obtain();
+		public boolean onTouch(View v, MotionEvent event) {
+			VelocityTracker exitSpeedTracker = VelocityTracker.obtain();
 			Context ctx = HikeMessengerApp.getInstance().getApplicationContext();
 			statusBarHeight = Utils.getDeviceHeight() - ChatThreadUtils.getStatusBarHeight(ctx);
-			
-			switch (event.getAction())
-			{   
-			case MotionEvent.ACTION_OUTSIDE:
-				removeCallerView();
-				break;
-			case MotionEvent.ACTION_DOWN:
-				initialX = callerParams.x;
-				initialY = callerParams.y;
-				
-				  if (stickyCallerView != null && initialY > statusBarHeight - stickyCallerView.getHeight()) {
-                      initialY = statusBarHeight - stickyCallerView.getHeight();
-                  } 
-				initialTouchX = event.getRawX();
-				initialTouchY = event.getRawY();
-				break;
-			case MotionEvent.ACTION_UP:
-				if(horizontalMovementDetected && stickyCallerView!=null)
-				{
-					exitSpeedTracker.computeCurrentVelocity(1000);
-					float exitSpeed = exitSpeedTracker.getXVelocity();
-					if ((Math.abs(exitSpeed) <= Utils.densityMultiplier * 400.0f || Math.abs(initialTouchX - event.getRawX()) <= Utils.densityMultiplier * 25.0f)
-							&& Math.abs(stickyCallerView.getTranslationX()) < ((float) (Utils.getDeviceWidth() / 2)))
-					{
-						Logger.d("UmangK", "dismissing" + "0");
-						actionOnMotionUpEvent(0);
-					}
-					else
-					{
-						float Xmove = 0.0f;
-						if (Math.abs(stickyCallerView.getTranslationX()) >= ((float) (Utils.getDeviceWidth() / 2)))
-						{
-							Xmove = stickyCallerView.getTranslationX();
-						}
-						Logger.d("UmangK", "" + ((int) Math.copySign((float) Utils.getDeviceWidth(), Xmove)));
-						actionOnMotionUpEvent((int) Math.copySign((float) Utils.getDeviceWidth(), Xmove));
-					}
-					  
-					
-					horizontalMovementDetected = false;
-				}
-				verticalMovementDetected = false;
 
-				break;
-			case MotionEvent.ACTION_MOVE:
-				actionMove(HikeMessengerApp.getInstance(), initialX, initialY, initialTouchX, initialTouchY, event);
-				break;
+			switch (event.getAction()) {
+				case MotionEvent.ACTION_OUTSIDE:
+					removeCallerView();
+					break;
+				case MotionEvent.ACTION_DOWN:
+					initialX = callerParams.x;
+					initialY = callerParams.y;
+
+					if (stickyCallerView != null && initialY > statusBarHeight - stickyCallerView.getHeight()) {
+						initialY = statusBarHeight - stickyCallerView.getHeight();
+					}
+					initialTouchX = event.getRawX();
+					initialTouchY = event.getRawY();
+					break;
+				case MotionEvent.ACTION_UP:
+					if (horizontalMovementDetected && stickyCallerView != null) {
+						exitSpeedTracker.computeCurrentVelocity(1000);
+						float exitSpeed = exitSpeedTracker.getXVelocity();
+						if ((Math.abs(exitSpeed) <= Utils.densityMultiplier * 400.0f || Math.abs(initialTouchX - event.getRawX()) <= Utils.densityMultiplier * 25.0f)
+								&& Math.abs(stickyCallerView.getTranslationX()) < ((float) (Utils.getDeviceWidth() / 2))) {
+							Logger.d("UmangK", "dismissing" + "0");
+							actionOnMotionUpEvent(0);
+						} else {
+							float Xmove = 0.0f;
+							if (Math.abs(stickyCallerView.getTranslationX()) >= ((float) (Utils.getDeviceWidth() / 2))) {
+								Xmove = stickyCallerView.getTranslationX();
+							}
+							Logger.d("UmangK", "" + ((int) Math.copySign((float) Utils.getDeviceWidth(), Xmove)));
+							actionOnMotionUpEvent((int) Math.copySign((float) Utils.getDeviceWidth(), Xmove));
+						}
+
+
+						horizontalMovementDetected = false;
+					}
+					verticalMovementDetected = false;
+
+					break;
+				case MotionEvent.ACTION_MOVE:
+					actionMove(HikeMessengerApp.getInstance(), initialX, initialY, initialTouchX, initialTouchY, event);
+					break;
 			}
 			return true;
 		}
 	};
-	
-	private static void actionOnMotionUpEvent(final int movedOnXaxis)
-	{
+
+	private static void actionOnMotionUpEvent(final int movedOnXaxis) {
 		TimeInterpolator accelerateDecelerateInterpolator;
 		float alpha = 0.0f;
-		if (movedOnXaxis == 0)
-		{
+		if (movedOnXaxis == 0) {
 			alpha = 1.0f;
 			accelerateDecelerateInterpolator = new AccelerateDecelerateInterpolator();
-		}
-		else
-		{
+		} else {
 			accelerateDecelerateInterpolator = new AccelerateInterpolator();
-			if (movedOnXaxis == (-1 * Utils.getDeviceWidth()) || movedOnXaxis == Utils.getDeviceWidth())
-			{
+			if (movedOnXaxis == (-1 * Utils.getDeviceWidth()) || movedOnXaxis == Utils.getDeviceWidth()) {
 				Logger.d("UmangK", "may not dismiss");
 			}
 		}
-		stickyCallerView.animate().translationX((float) movedOnXaxis).alpha(alpha).setDuration(500L).setInterpolator(accelerateDecelerateInterpolator).setListener(new AnimatorListener()
-		{
-			
+		stickyCallerView.animate().translationX((float) movedOnXaxis).alpha(alpha).setDuration(500L).setInterpolator(accelerateDecelerateInterpolator).setListener(new AnimatorListener() {
+
 			@Override
-			public void onAnimationStart(Animator animation)
-			{
+			public void onAnimationStart(Animator animation) {
 				// TODO Auto-generated method stub
-				
+
 			}
-			
+
 			@Override
-			public void onAnimationRepeat(Animator animation)
-			{
+			public void onAnimationRepeat(Animator animation) {
 				// TODO Auto-generated method stub
-				
+
 			}
-			
+
 			@Override
-			public void onAnimationEnd(Animator animation)
-			{
-				if(movedOnXaxis != 0)
-				{
-					Logger.d(TAG,"making caller gone");
+			public void onAnimationEnd(Animator animation) {
+				if (movedOnXaxis != 0) {
+					Logger.d(TAG, "making caller gone");
 					stickyCallerFrameHolder.setVisibility(View.GONE);
 				}
 			}
-			
+
 			@Override
-			public void onAnimationCancel(Animator animation)
-			{
+			public void onAnimationCancel(Animator animation) {
 				// TODO Auto-generated method stub
-				
+
 			}
 		});
 	}
-	
-	
+
+
 	public static void showCallerViewWithDelay(final String number, final CallerContentModel callerContentModel, final short type, final String source)
 	{
-		HikeHandlerUtil mThread = HikeHandlerUtil.getInstance();
-		mThread.startHandlerThread();
-		if (mThread != null)
+		Handler uiHandler = new Handler(Looper.getMainLooper());
+		if (uiHandler != null)
 		{
-			mThread.postRunnableWithDelay(new Runnable()
+			uiHandler.postDelayed(new Runnable()
 			{
 
 				@Override
@@ -356,75 +320,62 @@ public class StickyCaller
 
 			}, CALLER_DELAY);
 		}
+
 	}
-	
-	
-	
-	
-	public static void showCallerView(String number, CallerContentModel callerContentModel, short type, String source)
-	{
+
+	public static void showCallerView(String number, CallerContentModel callerContentModel, short type, String source) {
 		final Context context = HikeMessengerApp.getInstance().getApplicationContext();
 		windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
-		callerParams.flags = LayoutParams.FLAG_LAYOUT_NO_LIMITS | LayoutParams.FLAG_NOT_FOCUSABLE ;
-		callerParams.gravity =Gravity.CENTER;
-		try
-		{
+		callerParams.flags = LayoutParams.FLAG_LAYOUT_NO_LIMITS | LayoutParams.FLAG_NOT_FOCUSABLE;
+		callerParams.gravity = Gravity.CENTER;
+		try {
 			windowManager.removeView(stickyCallerFrameHolder);
-		}
-		catch (Exception e)
-		{
+		} catch (Exception e) {
 			Logger.d(TAG, "error in adding caller view");
 		}
-		if (CALL_TYPE == INCOMING || CALL_TYPE == OUTGOING)
-		{
-			switch (type)
-			{
-			case ALREADY_SAVED:
-				HAManager.getInstance().stickyCallerAnalyticsNonUIEvent(getCallEventFromCallType(CALL_TYPE), AnalyticsConstants.StickyCallerEvents.KNOWN, number, AnalyticsConstants.StickyCallerEvents.SUCCESS, source);
-				settingLayoutDataSuccess(context, number, callerContentModel, true);
-				break;
+		if (CALL_TYPE == INCOMING || CALL_TYPE == OUTGOING) {
+			switch (type) {
+				case ALREADY_SAVED:
+					HAManager.getInstance().stickyCallerAnalyticsNonUIEvent(getCallEventFromCallType(CALL_TYPE), AnalyticsConstants.StickyCallerEvents.KNOWN, number, AnalyticsConstants.StickyCallerEvents.SUCCESS, source);
+					settingLayoutDataSuccess(context, number, callerContentModel, true);
+					break;
 
-			case LOADING:
-				settingLayoutDataLoading(context, number);
-				break;
-			case SUCCESS:
-				HAManager.getInstance().stickyCallerAnalyticsNonUIEvent(getCallEventFromCallType(CALL_TYPE), AnalyticsConstants.StickyCallerEvents.UNKNOWN, number, AnalyticsConstants.StickyCallerEvents.SUCCESS, source);
-				settingLayoutDataSuccess(context, number, callerContentModel, false);
-				break;
+				case LOADING:
+					settingLayoutDataLoading(context, number);
+					break;
 
-			case FAILURE:
-				settingLayoutDataFailure(context, number);
-				break;
+				case SUCCESS:
+					HAManager.getInstance().stickyCallerAnalyticsNonUIEvent(getCallEventFromCallType(CALL_TYPE), AnalyticsConstants.StickyCallerEvents.UNKNOWN, number, AnalyticsConstants.StickyCallerEvents.SUCCESS, source);
+					settingLayoutDataSuccess(context, number, callerContentModel, false);
+					break;
+
+				case FAILURE:
+					settingLayoutDataFailure(context, number);
+					break;
 			}
-		}
-		else if (CALL_TYPE == MISSED || CALL_TYPE == CLIPBOARD || CALL_TYPE == SMS)
-		{
-			switch (type)
-			{
-			case ALREADY_SAVED:
-				HAManager.getInstance().stickyCallerAnalyticsNonUIEvent(getCallEventFromCallType(CALL_TYPE), AnalyticsConstants.StickyCallerEvents.KNOWN, number,
-						AnalyticsConstants.StickyCallerEvents.SUCCESS, source);
-				settingLayoutDataSuccess(context, number, callerContentModel, true);
-				if (CALL_TYPE == SMS)
-				{
-					showSmsView();
-				}
-				break;
+		} else if (CALL_TYPE == MISSED || CALL_TYPE == CLIPBOARD || CALL_TYPE == SMS) {
+			switch (type) {
+				case ALREADY_SAVED:
+					HAManager.getInstance().stickyCallerAnalyticsNonUIEvent(getCallEventFromCallType(CALL_TYPE), AnalyticsConstants.StickyCallerEvents.KNOWN, number,
+							AnalyticsConstants.StickyCallerEvents.SUCCESS, source);
+					settingLayoutDataSuccess(context, number, callerContentModel, true);
+					if (CALL_TYPE == SMS) {
+						showSmsView();
+					}
+					break;
 
-			case SUCCESS:
-				HAManager.getInstance().stickyCallerAnalyticsNonUIEvent(getCallEventFromCallType(CALL_TYPE), AnalyticsConstants.StickyCallerEvents.UNKNOWN, number,
-						AnalyticsConstants.StickyCallerEvents.SUCCESS, source);
-				settingLayoutDataSuccess(context, number, callerContentModel, false);
-				if (CALL_TYPE == SMS)
-				{
-					showSmsView();
-				}
-				break;
+				case SUCCESS:
+					HAManager.getInstance().stickyCallerAnalyticsNonUIEvent(getCallEventFromCallType(CALL_TYPE), AnalyticsConstants.StickyCallerEvents.UNKNOWN, number,
+							AnalyticsConstants.StickyCallerEvents.SUCCESS, source);
+					settingLayoutDataSuccess(context, number, callerContentModel, false);
+					if (CALL_TYPE == SMS) {
+						showSmsView();
+					}
+					break;
 			}
 		}
 		setCallerParams();
-		try
-		{
+		try {
 			stickyCallerFrameHolder = new FrameLayout(context);
 			stickyCallerFrameHolder.setOnKeyListener(
 					new View.OnKeyListener() {
@@ -439,21 +390,16 @@ public class StickyCaller
 			stickyCallerFrameHolder.addView(stickyCallerView);
 			windowManager.addView(stickyCallerFrameHolder, callerParams);
 			stickyCallerView.setOnTouchListener(onTouchListener);
-			if (CALL_TYPE == CLIPBOARD)
-			{
+			if (CALL_TYPE == CLIPBOARD) {
 				removeCallerViewWithDelay(OUTGOING_DELAY);
 			}
-		}
-		catch (Exception e)
-		{
+		} catch (Exception e) {
 			Logger.d(TAG, "error in adding caller view");
 		}
 	}
 
-	private static void showSmsView()
-	{
-		if (StickyCaller.sms != null)
-		{
+	private static void showSmsView() {
+		if (StickyCaller.sms != null) {
 			stickyCallerView.findViewById(R.id.caller_sms_head).setVisibility(View.VISIBLE);
 			TextView smsText = (TextView) stickyCallerView.findViewById(R.id.caller_sms_text);
 			smsText.setVisibility(View.VISIBLE);
@@ -462,40 +408,32 @@ public class StickyCaller
 
 	}
 
-	public static String getCallEventFromCallType(short callType)
-	{
-		if (callType == INCOMING)
-		{
+	public static String getCallEventFromCallType(short callType) {
+		if (callType == INCOMING) {
 			return AnalyticsConstants.StickyCallerEvents.RECEIVED;
 		}
-		if (callType == MISSED)
-		{
+		if (callType == MISSED) {
 			return AnalyticsConstants.StickyCallerEvents.MISSED;
 		}
-		if (callType == OUTGOING)
-		{
+		if (callType == OUTGOING) {
 			return AnalyticsConstants.StickyCallerEvents.DIALED;
 		}
-		if (callType == CLIPBOARD)
-		{
+		if (callType == CLIPBOARD) {
 			return AnalyticsConstants.StickyCallerEvents.CLIPBOARD;
 		}
-		if (callType == SMS)
-		{
+		if (callType == SMS) {
 			return AnalyticsConstants.StickyCallerEvents.SMS;
 		}
 		return null;
 	}
 
-	private static void setValueOnID(int id, String value)
-	{
+	private static void setValueOnID(int id, String value) {
 		TextView callerNumber = (TextView) (stickyCallerView.findViewById(id));
 		callerNumber.setVisibility(View.VISIBLE);
 		callerNumber.setText(value);
 	}
-	
-	private static void setBasicClickListener(String number)
-	{
+
+	private static void setBasicClickListener(String number) {
 		View callerSettingsButton = stickyCallerView.findViewById(R.id.caller_settings_button);
 		callerSettingsButton.setTag(number);
 		callerSettingsButton.setOnClickListener(callerClickListener);
@@ -504,23 +442,20 @@ public class StickyCaller
 		callerCloseButton.setOnClickListener(callerClickListener);
 	}
 
-	private static void setCallerParams()
-	{
+	private static void setCallerParams() {
 		callerParams.gravity = Gravity.TOP | Gravity.LEFT;
-		callerParams.y = HikeSharedPreferenceUtil.getInstance().getData(CALLER_Y_PARAMS, (int)(130f * Utils.densityMultiplier));
+		callerParams.y = HikeSharedPreferenceUtil.getInstance().getData(CALLER_Y_PARAMS, (int) (130f * Utils.densityMultiplier));
 		callerParams.x = 0;
 		callerParams.alpha = 1.0f;
 	}
 
-	private static void setShowResponse(String text)
-	{
-		TextView fetchingData = (TextView)stickyCallerView.findViewById(R.id.show_response);
+	private static void setShowResponse(String text) {
+		TextView fetchingData = (TextView) stickyCallerView.findViewById(R.id.show_response);
 		fetchingData.setVisibility(View.VISIBLE);
 		fetchingData.setText(text);
 	}
-	
-	private static void settingLayoutDataLoading(Context context, String number)
-	{
+
+	private static void settingLayoutDataLoading(Context context, String number) {
 		LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		stickyCallerView = (LinearLayout) inflater.inflate(R.layout.caller_layout, null);
 		setBasicClickListener(number);
@@ -531,16 +466,40 @@ public class StickyCaller
 		hikeCallerlogo.startAnimation(myFadeInAnimation);
 	}
 
-	private static void settingLayoutDataSuccess(Context context, String number, CallerContentModel callerContentModel, boolean isSaved)
-	{
-		if (CALL_TYPE == MISSED)
-		{
+
+	private static void settingLayoutDataSuccess(Context context, String number, CallerContentModel callerContentModel, boolean isSaved) {
+		if (CALL_TYPE == MISSED) {
 			settingMissedCallLayoutDataSuccess(context, number, callerContentModel, isSaved);
-		}
-		else
-		{
+		} else {
 			settingOtherCallLayoutDataSuccess(context, number, callerContentModel);
 		}
+	}
+
+	public static void updateLayoutData(final CallerContentModel callerContentModel)
+	{
+		Handler uiHandler = new Handler(Looper.getMainLooper());
+		if (uiHandler != null)
+		{
+			uiHandler.post(new Runnable() {
+
+				@Override
+				public void run() {
+					if (stickyCallerView != null && callerContentModel != null && stickyCallerView.isShown()
+							&& ((TextView) stickyCallerView.findViewById(R.id.caller_number)).getText().equals(callerContentModel.getMsisdn())) {
+						if (callerContentModel.getFullName() != null
+								&& ((TextView) stickyCallerView.findViewById(R.id.caller_name)).getText().equals(callerContentModel.getFullName())) {
+							setValueOnID(R.id.caller_name, callerContentModel.getFullName());
+						}
+
+						if (callerContentModel.getLocation() != null
+								&& ((TextView) stickyCallerView.findViewById(R.id.caller_location)).getText().equals(callerContentModel.getFullName())) {
+							setValueOnID(R.id.caller_location, callerContentModel.getLocation());
+						}
+					}
+				}
+			});
+		}
+
 	}
 
 	private static void settingMissedCallLayoutDataSuccess(Context context, String number, CallerContentModel callerContentModel, boolean isSaved)

@@ -453,6 +453,7 @@ class HikeUserDatabase extends SQLiteOpenHelper
 			cv.put(DBConstants.HIKE_USER.IS_SPAM, callerContentModel.isSpam() ? 1 : 0);
 			cv.put(DBConstants.HIKE_USER.CREATION_TIME, System.currentTimeMillis());
 			cv.put(DBConstants.HIKE_USER.SPAM_COUNT, callerContentModel.getSpamCount());
+			cv.put(DBConstants.HIKE_USER.ON_HIKE_TIME, isCompleteData ? System.currentTimeMillis() : 0);
 			mDb.insertWithOnConflict(DBConstants.HIKE_USER.HIKE_CALLER_TABLE, null, cv, SQLiteDatabase.CONFLICT_REPLACE);
 		}
 	}
