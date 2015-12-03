@@ -53,7 +53,7 @@ public class PlatformZipDownloader
 	// every 1% of the microapp.
 	private static HashMap<String,Float> callbackProgress = new HashMap<String, Float>();
 
-	//This hashmap contains the mapping of every request that Platform Zip Downloader has initiated. Key is the url
+	//This hashmap contains the mapping of every request that Platform Zip Downloader has initiated. Key is the appName
 	// and value is the token.
 	private static HashMap<String, RequestToken> platformRequests= new HashMap<String, RequestToken>();
 	
@@ -226,7 +226,7 @@ public class PlatformZipDownloader
 		if (!token.isRequestRunning())
 		{
 			token.execute();
-			platformRequests.put(mRequest.getContentData().getLayout_url(), token);
+			platformRequests.put(mRequest.getContentData().getId(), token);
 			HikeMessengerApp.getPubSub().publish(HikePubSub.DOWNLOAD_PROGRESS, new Pair<String, String>(callbackId, "downloadStarted"));
 			PlatformRequestManager.getCurrentDownloadingTemplates().add(mRequest.getContentData().appHashCode());
 		}
@@ -453,7 +453,7 @@ public class PlatformZipDownloader
 
 				HikeMessengerApp.getPubSub().publish(HikePubSub.DOWNLOAD_PROGRESS, new Pair<String, String>(callbackId, "downloadSuccess"));
 				callbackProgress.remove(callbackId);
-				platformRequests.remove(mRequest.getContentData().getLayout_url());
+				platformRequests.remove(mRequest.getContentData().getId());
 				PlatformRequestManager.getCurrentDownloadingTemplates().remove((Integer) mRequest.getContentData().appHashCode());
 				unzipMicroApp(zipFile);
 			}
@@ -475,7 +475,7 @@ public class PlatformZipDownloader
 			public void onRequestFailure(HttpException httpException)
 			{
 				callbackProgress.remove(callbackId);
-				platformRequests.remove(mRequest.getContentData().getLayout_url());
+				platformRequests.remove(mRequest.getContentData().getId());
 				HikeMessengerApp.getPubSub().publish(HikePubSub.DOWNLOAD_PROGRESS, new Pair<String,String>(callbackId, "downloadFailure"));
 				PlatformUtils.sendMicroAppServerAnalytics(false, mRequest.getContentData().cardObj.appName, mRequest.getContentData().cardObj.appVersion);
 				PlatformRequestManager.failure(mRequest, EventCode.LOW_CONNECTIVITY, isTemplatingEnabled);
