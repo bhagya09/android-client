@@ -1064,7 +1064,7 @@
 	<string name="delete_status_timeline_confirmation">இது, உன் போஸ்ட்டை உமது மற்றும் உன் தோழரது டைம்லைனில் இருந்து அழித்துவிடும்</string>
 	<string name="clear_timeline">டைம்லைனை கிளியர் செய்க</string>
 	<string name="favourites">ஃபேவரைட்கள்</string>
-	<string name="clear_timeline_dialog">நீவீர்  உண்மையிலேயே உன் டைம்லைனை கிளியர் செய்துவிட விரும்புகிறீரா?</string>
+	<string name="clear_timeline_dialog">நீர் உங்கள் டைம்லைனை கிளியர் செய்துவிட விரும்புகிறீரா?</string>
 	<string name="liked_it">லைக் செய்திருக்கிறார்</string>
 	<string name="status_hint">நீர் என்ன செய்து கொண்டிருக்கிறீர்கள்?</string>
 	<string name="status_hint_image">இந்த ஃபோட்டோ குறித்த ஏதோவொன்று</string>
@@ -1264,14 +1264,14 @@
 	<string name="gps_settings">செட்டிங்</string>
 	<string name="user_gps_off">உங்களது லொக்கேஷன் எனேபிளாகும் வரை Hike Direct வேலைசெய்ய முடியாது.</string>
 	
-    <string name="you_change_group_name">நீவீர்  குரூப் பெயரை மாற்றி விட்டீர்.</string>
+    <string name="you_change_group_name">நீர் குரூப் பெயரை மாற்றி விட்டீர்.</string>
     <string name="you_change_broadcast_name">நீவீர்  புரோட்காஸ்ட் பெயரை மாற்றி விட்டீர்.</string>
-    <string name="you_change_group_image">நீவீர்  குரூப் இமேஜை மாற்றி விட்டீர்.</string>
+    <string name="you_change_group_image">நீர் குரூப் இமேஜை மாற்றி விட்டீர்.</string>
     <string name="backup_account">பேக்அப் கணக்கு</string>
     <string name="search_hint_text">தேடுதல் ...</string>
     <string name="is_typing">டைப் செய்கிறார்...</string>
     <string name="are_typing">டைப் செய்கிறார்கள்...</string>
-    <string name="you_chat_bg_changed">நீவீர்  சேட் தீம்-ஐ மாற்றி விட்டீர்</string>
+    <string name="you_chat_bg_changed">நீர் செட் தீம் ஐ மாற்றி விட்டீர்</string>
     <string name="hike_keyboard">Hike கீபோர்டு</string>
     <string name="system_keyboard">சிஸ்டம் கீபோர்டு</string>
     <string name="you_xyz_posted_pin">நீவீர்  ஓர் pin-ஐ போஸ்ட் செய்தீர்</string>
