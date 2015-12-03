@@ -751,7 +751,7 @@ public abstract class JavascriptBridge
 			{
 				if (!mWebView.isWebViewDestroyed())
 				{
-					if (android.os.Build.VERSION.SDK_INT >= 18)
+					if (android.os.Build.VERSION.SDK_INT > 18)
 					{
 						Logger.d(tag, "Inside call back to js with id " + id);
 						mWebView.evaluateJavascript("javascript:callbackFromNative" + "('" + id + "','" + getEncodedDataForJS(value) + "')", new ValueCallback<String>()
