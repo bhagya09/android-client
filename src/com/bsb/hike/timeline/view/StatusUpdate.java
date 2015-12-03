@@ -712,6 +712,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		try
 		{
 			mActivityTask.task = new StatusUpdateTask(status, mActivityTask.moodId, mImagePath);
+			if(!HikeMessengerApp.isSystemKeyboard())
 			addLanguageAnalytics();
 		}
 		catch (IOException e)
@@ -732,6 +733,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 
 	protected void addLanguageAnalytics()
 	{
+
 		JSONObject metadata = new JSONObject();
 		try 
 		{

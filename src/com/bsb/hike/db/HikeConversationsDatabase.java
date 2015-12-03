@@ -8183,7 +8183,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			//If the chat thread already exists and we need only to change the convInfo,we would not want the listeners on new chat created to be fired,like badge counter.
 			if (isChatExist)
 			{
-				HikeMessengerApp.getPubSub().publish(HikePubSub.CONVINFO_UPDATED,botInfo);
+				HikeMessengerApp.getPubSub().publish(HikePubSub.LASTMSG_UPDATED,botInfo.getLastConversationMsg());
 			}
 			else
 			{
