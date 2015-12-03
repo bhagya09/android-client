@@ -2515,6 +2515,8 @@ public class HikeConstants
 		
 		public static final String KEYBOARD_LANGUAGE_DOWNLOAD_EVENT = "kbd_lng_dl";
 		
+		public static final String KEYBOARD_LANGUAGE_DOWNLOAD_ERROR = "kbd_lng_dl_err";
+		
 		public static final String LANGUAGE_DOWNLOADING = "lng";
 		
 		public static final String KEYBOARD_LANGUAGE_CHANGED_EVENT = "kbd_lng_cng";
