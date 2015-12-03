@@ -1161,6 +1161,7 @@
     <string name="UPDATE_APP">UPDATE</string>
     <string name="language_summary">English</string>
     <string name="language">Language</string>
+    <string name="app_language">App Language</string>
     <string name="keyboard_summary">Enable/disable Hike keyboard</string>
     <string name="keyboard_title">Hike Keyboard</string>
     <string name="glide_summary">Continuous gesture typing</string>
@@ -1487,4 +1488,6 @@
     <string name="stealth_unread_tip_header">Hide your chats!</string>
     <string name="stealth_unread_tip_message">Hide your chats by tapping on \'hi\'</string>
     <string name="sticker">Sticker</string>
+    <string name="language_ftue_complete_message">You can change the keyboard language from \nSettings->Language &amp; Input anytime</string>
+
 </resources>
