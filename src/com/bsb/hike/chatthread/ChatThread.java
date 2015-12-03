@@ -1051,15 +1051,17 @@ import android.widget.Toast;
 		{
 		case R.string.hike_keyboard:
 			changeKbdClicked = true;
+			recordKeyboardChangeEvent(item,isSystemKeyboard());
 			if (isSystemKeyboard() && isKeyboardOpen())
 			{
-				Utils.hideSoftKeyboard(activity, mComposeView);	
+				Utils.hideSoftKeyboard(activity, mComposeView);
 			}
 			else
 			{
 				onHidden();
 			}
-			break;
+
+			return;
 		case R.string.clear_chat:
 			showClearConversationDialog();
 			break;
@@ -1127,22 +1129,15 @@ import android.widget.Toast;
 	 */
 	private void recordOverflowItemClicked(OverFlowMenuItem item)
 	{
-		String ITEM = "item";
-		String analytics = item.text;
-		//To track Analytics event for changing of keyboard even when language is changed since
-		//overflow menu item text was being converted to the local language and analytics key was being changed
-		if (item.text.equalsIgnoreCase(getString(R.string.hike_keyboard)) || item.text.equalsIgnoreCase(getString(R.string.system_keyboard)))
-		{
-			if (isSystemKeyboard())
-				analytics = HikeConstants.HIKE_KEYBOARD;
-			else
-				analytics = HikeConstants.SYSTEM_KEYBOARD;
 
-		}
+		recordOverflowItemClicked(item.text);
+	}
+    private void recordOverflowItemClicked(String itemText){
+		String ITEM = "item";
 		try
 		{
 			JSONObject metadata = new JSONObject();
-			metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.CHAT_OVRFLW_ITEM).put(ITEM, analytics);
+			metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.CHAT_OVRFLW_ITEM).put(ITEM, itemText);
 			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
 		}
 		catch (JSONException e)
@@ -1150,7 +1145,22 @@ import android.widget.Toast;
 			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
 		}
 	}
+	protected void recordKeyboardChangeEvent(OverFlowMenuItem item, boolean systemKeyboardClicked)
+	{
 
+		// To track Analytics event for changing of keyboard even when language is changed since
+		// overflow menu item text was being converted to the local language and analytics key was being changed
+		if (item.text.equalsIgnoreCase(getString(R.string.hike_keyboard)) || item.text.equalsIgnoreCase(getString(R.string.system_keyboard)))
+		{
+			String analytics="";
+			if (systemKeyboardClicked)
+				analytics = HikeConstants.HIKE_KEYBOARD;
+			else
+				analytics = HikeConstants.SYSTEM_KEYBOARD;
+			recordOverflowItemClicked(analytics);
+		}
+
+	}
 	protected String getString(int stringId)
 	{
 		return activity.getString(stringId);
