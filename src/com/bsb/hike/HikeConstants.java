@@ -3715,6 +3715,7 @@ public class HikeConstants
 
 	public static final String KEYBOARD_LANGUAGE = "z";
 
+	public static final String LANG_ARRAY = "lan_array";
 
 
 }

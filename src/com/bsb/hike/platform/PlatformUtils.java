@@ -1479,4 +1479,25 @@ public class PlatformUtils
 					.getCurrentLanguageAddonItem().getlocaleName());
 
 	}
+
+	public static String getNotifBody(JSONObject jsonObj)
+	{
+		if (jsonObj.has(HikeConstants.LANG_ARRAY))
+		{
+			try
+			{
+				JSONObject langJSON = Utils.getDataBasedOnAppLanguage(jsonObj.getJSONArray(HikeConstants.LANG_ARRAY).toString());
+				if (langJSON != null)
+				{
+					return langJSON.optString(HikeConstants.BODY);
+				}
+			}
+			catch (JSONException e)
+			{
+				e.printStackTrace();
+			}
+		}
+
+		return jsonObj.optString(HikeConstants.BODY);
+	}
 }
