@@ -2509,8 +2509,6 @@ public class HikeConstants
 		
 		public static final String PRIVATE_MODE_ON = "prvt_mod";
 		
-		public static final String APP_LANGUAGE_CHANGE_EVENT = "app_lng_cng";
-		
 		public static final String HIKE_KEYBOARD_ON = "hike_kbd";
 		
 		public static final String KEYBOARD_LANGUAGE_DOWNLOAD_EVENT = "kbd_lng_dl";
