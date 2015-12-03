@@ -1061,8 +1061,8 @@
     <string name="num_notification_sub_text_for_multi_msisdn">%1$s messages from %2$s conversations</string>
     <string name="disconnect_warning">Connect with %1$s?</string>
     <string name="connected_warning">Your connection with %1$s will end.</string>
-    <string name="connecting_to">Connecting to %1$s...</string>
-    <string name="offline_animation_second_message">Tip: Hike Direct works within a \n 100 metres radius</string>
+    <string name="connecting_to">Connecting to %1$s.Your friend should be within 100 m.</string>
+    <string name="offline_animation_second_message">This may take a while. Please wait.</string>
     <string name="offline_animation_third_message">It is taking longer than usual. \n Please ask %1$s to \n tap on hike direct as well</string>
     <string name="connect">Connect</string>
 	<string name="sticker_share_popup_activate_toast">Stickey has now been activated!</string>
