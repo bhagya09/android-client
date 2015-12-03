@@ -53,13 +53,9 @@ public class StickyCaller {
 
 	public static final short FAILURE = 0;
 
-	public static final short LOADING = 1;
-
 	public static final short SUCCESS = 2;
 
-	public static final short ALREADY_SAVED = 3;
-
-	public static final short UPDATE  = 4;
+	public static final short ALREADY_SAVED = 1;
 
 	public static short CALL_TYPE = NONE;
 
@@ -340,10 +336,6 @@ public class StickyCaller {
 					settingLayoutDataSuccess(context, number, callerContentModel, true);
 					break;
 
-				case LOADING:
-					settingLayoutDataLoading(context, number);
-					break;
-
 				case SUCCESS:
 					HAManager.getInstance().stickyCallerAnalyticsNonUIEvent(getCallEventFromCallType(CALL_TYPE), AnalyticsConstants.StickyCallerEvents.UNKNOWN, number, AnalyticsConstants.StickyCallerEvents.SUCCESS, source);
 					settingLayoutDataSuccess(context, number, callerContentModel, false);
@@ -454,18 +446,6 @@ public class StickyCaller {
 		fetchingData.setVisibility(View.VISIBLE);
 		fetchingData.setText(text);
 	}
-
-	private static void settingLayoutDataLoading(Context context, String number) {
-		LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		stickyCallerView = (LinearLayout) inflater.inflate(R.layout.caller_layout, null);
-		setBasicClickListener(number);
-		setShowResponse(context.getString(R.string.getting_details));
-		View hikeCallerlogo = stickyCallerView.findViewById(R.id.hike_caller_logo);
-		hikeCallerlogo.setVisibility(View.VISIBLE);
-		Animation myFadeInAnimation = AnimationUtils.loadAnimation(context, R.drawable.blink_animation);
-		hikeCallerlogo.startAnimation(myFadeInAnimation);
-	}
-
 
 	private static void settingLayoutDataSuccess(Context context, String number, CallerContentModel callerContentModel, boolean isSaved) {
 		if (CALL_TYPE == MISSED) {
