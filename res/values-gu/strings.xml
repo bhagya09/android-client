@@ -1298,6 +1298,8 @@
     <string name="made_with_love_in_india">ભારતમાં :love: સાથે તૈયાર થયેલ</string>
     <string name="timeline_ftue_desc">ટાઇમલાઇન, તમે અને તમારા મિત્રોના ખાસ ક્ષણો શેર કરવા માટે એક સ્થળ છે. તમારા થોડા મિત્રો પેહલા થી પોતાના ટાઇમલાઇન પર પોસ્ટ કરે છે!</string>
     <string name="sticker">સ્ટીકર</string>
+    <string name="stealth_unread_tip_header">તમારી ચેટ્સ હાઇડ કરો!</string>
+    <string name="stealth_unread_tip_message">ચેટ હાઈડ કરવા માટે  ‘hi’ પર ટૅપ કરો</string>
 
     <!-- The above two string would be used as in Group with Shibu, Niladri and 4 others -->
 

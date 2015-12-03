@@ -1296,6 +1296,8 @@
     <string name="made_with_love_in_india">இந்தியாவில் தயாரித்தது :love: உடன்</string>
     <string name="timeline_ftue_desc">டைம்லைன் உங்கள் தருணங்களை உங்கள் நண்பர்களிடம் பகிர்ந்து கொள்ள உதவும். டைம்லைன்-ஐ முயற்சி செய் !</string>
     <string name="sticker">ஸ்டிக்கர்</string>
+    <string name="stealth_unread_tip_header">உங்கள் சேட்-ஐ ஹைடு செய்க!</string>
+    <string name="stealth_unread_tip_message">உங்கள் சேட்-ஐ ஹைடு செய்ய  \hi\ தட்டும்</string>
 
  	<string name="yesterday">நேற்று</string>
     <string name="tomorrow">நாளை</string>
