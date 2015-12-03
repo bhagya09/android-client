@@ -767,7 +767,7 @@
     <string name="nux_send_message">संदेश भेजें</string>
     <string name="nux_select_friends_reconame">सजेस्टेड</string>
     <string name="nux_select_friends_nextbut">आगे</string>
-    <string name="voip_call_summary_incoming">कॉल आ रही है</string>
+    <string name="voip_call_summary_incoming">इनक्मिंग कॉल</string>
     <string name="voip_call_summary_outgoing">कॉल जा रही है</string>
     <string name="voip_missed_call_outgoing">आपकी कॉल मिस हो गई</string>
     <string name="voip_missed_call_incoming">आपसे एक कॉल मिस हो गई</string>
@@ -793,7 +793,7 @@
     <string name="voip_conference_os_support">आपका फ़ोन कोई कॉन्फ़्रेंस होस्ट नहीं कर सकता।</string>
     <string name="voip_conference_host">कॉन्फ़्रेंस होस्ट</string>
     <string name="voip_conference_not_supported">%1$s कॉन्फ़्रेंस कॉल्स का समर्थन नहीं करता।</string>
-    <string name="voip_group_conference_confirmation">क्या आप इस समूह में सभी लोगों के साथ कोई कॉन्फ़्रेंस कॉल शुरू करना चाहते हैं?</string>
+    <string name="voip_group_conference_confirmation">क्या आप इस समूह में सभी लोगों के साथ कॉन्फ़्रेंस कॉल शुरू करना चाहते हैं?</string>
     <string name="led_color_none_key">कोई नहीं</string>
     <string name="led_color_blue_key">नीला</string>
     <string name="led_color_cyan_key">सियान</string>
@@ -863,7 +863,7 @@
     <string name="voip_older_app">%1$s के पास hike का पुराना संस्करण है</string>
     <string name="voip_caller_poor_network">आप या %1$s खराब नेटवर्क पर हैं</string>
     <string name="voip_error_force_mute">होस्ट ने सभी को म्यूट कर रखा है</string>
-    <string name="voip_conf_mute_all_off">सभी म्यूट करें</string>
+    <string name="voip_conf_mute_all_off">सभी को म्यूट करें</string>
     <string name="voip_conf_mute_all_on">सभी म्यूट, रद्द करें</string>
     <string name="voip_speech_force_mute_on">होस्ट ने सभी को म्यूट कर रखा है</string>
     <string name="voip_speech_force_mute_off">आप अब अनम्यूट कर सकते हैं</string>
