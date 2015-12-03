@@ -1197,6 +1197,11 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 
     private void sendHttpNetworkTestRequest(int errorCode)
     {
+        if(!HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.HTTP_NETWORK_CHECK_CALL, false))
+        {
+            return;
+        }
+
         RequestToken requestToken =  HttpRequests.httpNetworkTestRequest(errorCode);
         requestToken.execute();
     }
