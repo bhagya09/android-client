@@ -130,11 +130,13 @@ public abstract class OneToNConversation extends Conversation
 	public void setConversationParticipantList(List<PairModified<GroupParticipant, String>> participantList)
 	{
 		this.conversationParticipantList = new HashMap<String, PairModified<GroupParticipant, String>>();
+		Logger.d("##Rashmi ##setConversationParticipantList:   ",participantList.size()+"");
 		for (PairModified<GroupParticipant, String> convParticipant : participantList)
 		{
 			String msisdn = convParticipant.getFirst().getContactInfo().getMsisdn();
 			this.conversationParticipantList.put(msisdn, convParticipant);
 		}
+		Logger.d("##Rashmi ##conversationParticipantList:   ",conversationParticipantList.size()+"");
 	}
 
 	public PairModified<GroupParticipant, String> getConversationParticipant(String msisdn)

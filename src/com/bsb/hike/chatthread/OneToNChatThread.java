@@ -280,6 +280,7 @@ public abstract class OneToNChatThread extends ChatThread implements HashTagMode
 		switch (msg.what)
 		{
 		case PARTICIPANT_JOINED_OR_LEFT_CONVERSATION:
+			Logger.d("##Rashmi ##handleUIMessage","");
 			showActiveConversationMemberCount();
 			break;
 		case GROUP_REVIVED:
@@ -343,7 +344,7 @@ public abstract class OneToNChatThread extends ChatThread implements HashTagMode
 		}
 
 		setLabel(mConversation.getLabel());
-
+		Logger.d("##Rashmi ##setupDefaultActionBar",firstInflation+" : "+ mConversation.getLabel());
 		showActiveConversationMemberCount();
 	}
 
@@ -355,6 +356,7 @@ public abstract class OneToNChatThread extends ChatThread implements HashTagMode
 	protected void showActiveConversationMemberCount()
 	{
 		int numActivePeople = oneToNConversation.getParticipantListSize();
+		Logger.d("##Rashmi ##Group Active Member count: ", numActivePeople+"");
 		
 		TextView memberCountTextView = (TextView) mActionBarView.findViewById(R.id.contact_status);
 
@@ -478,6 +480,7 @@ public abstract class OneToNChatThread extends ChatThread implements HashTagMode
 		/**
 		 * Received message for current open chatThread
 		 */
+		Logger.d("##Rashmi ##onParticipantJoinedOrLeftGroup","");
 		if (shouldProcessPubSubEvent(object)) // Defensive check
 		{
 			ContactManager conMgr = ContactManager.getInstance();
