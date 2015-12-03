@@ -1289,6 +1289,8 @@
     <string name="contact_name">संपर्क नाम</string>
     <string name="mobile">मोबाइल</string>
     <string name="your_contact">आपका संपर्क</string>
+    <string name="stealth_unread_tip_header">अपनी चैट्स छुपाएं</string>
+    <string name="stealth_unread_tip_message">चैट्स छुपाने हेतु \'hi\' पर टैप करें</string>
 	
      <string name="and">और</string> 
     <string name="others_smallcase">अन्य</string>

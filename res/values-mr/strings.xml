@@ -1297,6 +1297,8 @@
     <string name="others_smallcase">इतर</string>
     <string name="timeline_ftue_desc">टाइमलाईन हे आपल्यासाठी आणि मित्रांसाठी विशेष क्षण शेअर करण्यासाठी एक ठिकाण आहे. टाइमलाईन वर आधीच आपले मित्र पोस्ट सुद्धा करीत आहेत !</string>
     <string name="sticker">स्टिकर</string>
+    <string name="stealth_unread_tip_header">संभाषण लपवा</string>
+    <string name="stealth_unread_tip_message">संभाषण लपवण्यासाठी hi दाबा .</string>
 
     <!-- The above two string would be used as in Group with Shibu, Niladri and 4 others -->
 
