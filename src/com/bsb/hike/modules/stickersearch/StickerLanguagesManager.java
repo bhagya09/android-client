@@ -48,11 +48,8 @@ public class StickerLanguagesManager {
 
     public static final short FORBIDDEN_LANGUAGE_SET_TYPE = 3;
 
-    private Map<String, String> localLanguagesMap;
-
     private StickerLanguagesManager()
     {
-        initialiseLocalLanguagesMap();
         initialiseIsoLanguages();
     }
 
@@ -253,20 +250,6 @@ public class StickerLanguagesManager {
         return resultSet;
     }
 
-    private void initialiseLocalLanguagesMap() {
-
-        localLanguagesMap = new HashMap<>();
-        localLanguagesMap.put("English", "eng");
-        localLanguagesMap.put("हिन्दी", "hin");
-        localLanguagesMap.put("বাংলা", "ben");
-        localLanguagesMap.put("मराठी", "mar");
-        localLanguagesMap.put("ગુજરાતી", "guj");
-        localLanguagesMap.put("தமிழ்", "tam");
-        localLanguagesMap.put("తెలుగు", "tel");
-        localLanguagesMap.put("ಕನ್ನಡ", "kan");
-        localLanguagesMap.put("മലയാളം", "mal");
-    }
-
     private void initialiseIsoLanguages()
     {
         ISO_LANGUAGES = new HashSet<>(LOCALES_SET.size());
@@ -292,9 +275,6 @@ public class StickerLanguagesManager {
             }
         }
 
-    public String getLanguageCode(String language)
-    {
-        return localLanguagesMap.get(language);
     }
 
     public String toString()
