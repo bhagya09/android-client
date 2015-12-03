@@ -3703,7 +3703,7 @@ public class HikeConstants
 
 	public static final String APP_LANGUAGE = "ap_l";
 
-	public static final String KEYBOARD_LANGUAGE = "kb_l";
+	public static final String KEYBOARD_LANGUAGE = "z";
 
 
 
