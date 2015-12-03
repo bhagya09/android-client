@@ -2730,6 +2730,11 @@ public class MqttMessagesManager
 		{
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CUSTOM_KEYBOARD_ENABLED,data.optBoolean(HikeConstants.CUSTOM_KEYBOARD_ENABLED));
 		}
+        if (data.has(HikeConstants.HTTP_NETWORK_CHECK_CALL))
+        {
+            boolean enable = data.getBoolean(HikeConstants.HTTP_NETWORK_CHECK_CALL);
+            HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.HTTP_NETWORK_CHECK_CALL, enable);
+        }
 		
 		editor.commit();
 		this.pubSub.publish(HikePubSub.UPDATE_OF_MENU_NOTIFICATION, null);
