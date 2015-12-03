@@ -1495,7 +1495,6 @@ public class PlatformUtils
 			catch (JSONException e)
 			{
 				e.printStackTrace();
-				return "";
 			}
 		}
 
