@@ -2990,10 +2990,15 @@ public class Utils
 
 			data.put(HikeConstants.PHONE_LANGUAGE, LocalLanguageUtils.getDeviceDefaultLocale());
 			//Getting APP Language
-			data.put(HikeConstants.APP_LANGUAGE, LocalLanguageUtils.getApplicationLocalLanguageLocale());
-			if(!HikeMessengerApp.isSystemKeyboard())
-				data.put(HikeConstants.KEYBOARD_LANGUAGE, KptKeyboardManager.getInstance(context).getCurrentLanguageAddonItem().getlocaleName());
+			String appLocale = LocalLanguageUtils.getApplicationLocalLanguageLocale();
 
+			data.put(HikeConstants.APP_LANGUAGE, appLocale);
+			String keyBoardLang;
+			if (!HikeMessengerApp.isSystemKeyboard())
+				keyBoardLang = KptKeyboardManager.getInstance(context).getCurrentLanguageAddonItem().getlocaleName();
+			else
+				keyBoardLang = "";
+			data.put(HikeConstants.KEYBOARD_LANGUAGE, keyBoardLang);
 			mqttLanguageAnalytic.put(HikeConstants.DATA,data);
 			mqttLanguageAnalytic.put(HikeConstants.TYPE,HikeConstants.MqttMessageTypes.ACCOUNT_CONFIG);
 			HikeMqttManagerNew.getInstance().sendMessage(mqttLanguageAnalytic, MqttConstants.MQTT_QOS_ONE);
