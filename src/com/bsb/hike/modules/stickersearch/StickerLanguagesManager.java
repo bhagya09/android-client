@@ -28,6 +28,7 @@ import java.util.Set;
 
 /**
  * Created by anubhavgupta on 28/10/15.
+ * Modified : 3/12/15
  */
 public class StickerLanguagesManager {
 
