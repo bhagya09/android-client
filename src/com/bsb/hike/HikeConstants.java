@@ -730,6 +730,8 @@ public class HikeConstants
 	
 	public static final String TOGGLE = "toggle";
 
+    public static final String HTTP_NETWORK_CHECK_CALL = "httpNetworkCheckCall";
+
 	public class InviteSection
 	{
 		public static final String INVITE_SECTION = "invite_section";
