@@ -26,7 +26,7 @@ public class FitXImageView extends RecyclingImageView
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec)
 	{
 		Drawable d = getDrawable();
-		if (d != null)
+		if (d != null && d.getIntrinsicHeight()!=0 && d.getIntrinsicWidth()!=0)
 		{
 			int w = MeasureSpec.getSize(widthMeasureSpec);
 			int h = w * d.getIntrinsicHeight() / d.getIntrinsicWidth();
