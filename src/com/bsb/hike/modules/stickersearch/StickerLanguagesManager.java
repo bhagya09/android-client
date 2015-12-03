@@ -270,15 +270,27 @@ public class StickerLanguagesManager {
     private void initialiseIsoLanguages()
     {
         ISO_LANGUAGES = new HashSet<>(LOCALES_SET.size());
-        for(Locale locale : LOCALES_SET)
+
+        ArrayList<String> kptList = new ArrayList<String>();
+
+        for(KPTAddonItem item : KptKeyboardManager.getInstance(HikeMessengerApp.getInstance().getApplicationContext()).getSupportedLanguagesList())
         {
+            kptList.add(new Locale(item.getlocaleName()).getISO3Language());
+        }
+
+        ISO_LANGUAGES.addAll(kptList);
+
+        for (Locale locale : LOCALES_SET) {
             try {
-                ISO_LANGUAGES.add(locale.getISO3Language());
-            }catch (MissingResourceException e) {
+                String currLang = locale.getISO3Language();
+                if(!kptList.contains(currLang))
+                {
+                    ISO_LANGUAGES.add(currLang);
+                }
+            } catch (MissingResourceException e) {
                 Logger.e(TAG, "missing local language code for locale : " + locale);
             }
         }
-    }
 
     public String getLanguageCode(String language)
     {
@@ -378,6 +390,7 @@ public class StickerLanguagesManager {
     }
 
     public static boolean isValidISOLanguage(String s) {
+
         return ISO_LANGUAGES.contains(s);
     }
 
