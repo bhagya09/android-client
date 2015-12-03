@@ -3506,7 +3506,7 @@ public class MqttMessagesManager
 			if (lastNotifPacket != hash)
 			{
 				lastNotifPacket = hash;
-				String body = data.optString(HikeConstants.BODY);
+				String body = PlatformUtils.getNotifBody(data);
 				String destination = data.optString("u");
 				boolean silent = data.optBoolean(HikeConstants.SILENT, true);
 				boolean rearrangeChat = data.optBoolean(HikeConstants.REARRANGE_CHAT,false);
