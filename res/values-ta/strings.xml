@@ -496,7 +496,7 @@
     <string name="unlinking_account">ரீசெட் ஆகிறது...</string>
     <string name="shortcut">உரையாடல் ஷார்ட்கட்டை சேர்</string>
     <string name="add_to_contacts">தொடர்புகளுடன் சேர்</string>
-    <string name="delete_leave">அழித்து விட்டு குரூப்பை விட்டு வெளியேறு</string>
+    <string name="delete_leave">ഡിലീറ്റിന്റെ ഒപ്പം ഗ്രൂപ്പ്‌ എക്സിറ്റ്</string>
     <string name="broadcast_participant_info"><![CDATA[<font color=\"#848484\"><b>குறிப்பு: </b>இந்த புரோட்காஸ்ட்டை தம் அட்ரெஸ் புக்கில் %1$s உடனுள்ள Hike தொடர்புகள் மட்டுமே பெற்றுக் கொள்வார்கள்.</font>]]></string>
     <string name="confirm_delete_chat_msg">%1$s உடனான சேட்-ஐ அழிக்கவும் </string>
     <string name="confirm_delete_group_msg">அழித்து விட்டு \'%1$s\'குரூப்பை விட்டு வெளியேறு</string>
@@ -651,7 +651,7 @@
     <string name="image_quality_send">அனுப்புக</string>
     <string name="image_quality_prefs">இமேஜ் தரம்</string>
     <string name="no_media">ஃபோட்டோஸ் மற்றும் வீடியோஸை இங்கே காண்பியும்</string>
-    <string name="add_fav">ஃபேவரைட்ஸோடு\nசேர்ப்பீர்</string>
+    <string name="add_fav">ஃபேவரைட்-\nஇல் சேர்ப்பீர்</string>
     <string name="no_file">இங்கே ஃபைல்ஸ் pins-ஐ காண்பிக்கிறது</string>
     <string name="no_file_broadcast">இங்கே ஃபைல்ஸ் காண்பிக்கிறது</string>
     <string name="no_file_profile">இங்கே ஃபைல்ஸ் காண்பிக்கிறது</string>
@@ -1296,6 +1296,8 @@
     <string name="made_with_love_in_india">இந்தியாவில் தயாரித்தது :love: உடன்</string>
     <string name="timeline_ftue_desc">டைம்லைன் உங்கள் தருணங்களை உங்கள் நண்பர்களிடம் பகிர்ந்து கொள்ள உதவும். டைம்லைன்-ஐ முயற்சி செய் !</string>
     <string name="sticker">ஸ்டிக்கர்</string>
+    <string name="stealth_unread_tip_header">உங்கள் சேட்-ஐ ஹைடு செய்க!</string>
+    <string name="stealth_unread_tip_message">உங்கள் சேட்-ஐ ஹைடு செய்ய  \hi\ தட்டும்</string>
 
  	<string name="yesterday">நேற்று</string>
     <string name="tomorrow">நாளை</string>

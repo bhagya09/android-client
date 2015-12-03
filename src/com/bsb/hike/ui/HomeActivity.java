@@ -742,7 +742,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 					{
 						hiButton.clearAnimation();
 					}
-					
+
 					return true;
 			}
 

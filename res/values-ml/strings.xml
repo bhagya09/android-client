@@ -1296,6 +1296,8 @@
     <string name="made_with_love_in_india">ഇന്ത്യയിൽ :love:-ത്തോടെ നിർമ്മിച്ചത്‌</string>
     <string name="timeline_ftue_desc">നിങ്ങൾക്കും നിങ്ങളുടെ തിരെഞ്ഞെടുത്ത ഫ്രണ്ട്‌സിനും പ്രത്യേക നിമിഷങ്ങൾ പങ്കുവക്കുവാൻ ഉള്ള സ്ഥലം ആണ് ടൈംലൈൻ!</string>
     <string name="sticker">സ്റ്റിക്കർ</string>
+    <string name="stealth_unread_tip_header">നിങ്ങളുടെ ചാറ്റുകൾ മറയ്ക്കാം!</string>
+    <string name="stealth_unread_tip_message">നിങ്ങളുടെ ചാറ്റുകൾ മറയ്ക്കാൻ \'hi\' ടാപ്പുചെയ്യുക</string>
 
  	<string name="yesterday">ഇന്നലെ</string>
     <string name="tomorrow">നാളെ</string>

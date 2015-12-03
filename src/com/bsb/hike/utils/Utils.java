@@ -359,7 +359,7 @@ public class Utils
 	{
 		Intent intent = new Intent(Intent.ACTION_CALL);
 		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-		intent.setData(Uri.parse("tel:"+ number));
+		intent.setData(Uri.parse("tel:" + number));
 		try
 		{
 			HikeMessengerApp.getInstance().startActivity(intent);
@@ -2061,7 +2061,7 @@ public class Utils
 		
 		int convMessageStateOrdinal = convMessage.getState().ordinal();
 
-		Logger.d("BugRef","Ordinal state of our ConvMessage is "+convMessageStateOrdinal);
+		Logger.d("BugRef", "Ordinal state of our ConvMessage is " + convMessageStateOrdinal);
 		if (convMessageStateOrdinal <= maxStatusOrdinal && convMessageStateOrdinal >= minStatusOrdinal)
 		{
 			return true;
@@ -2982,27 +2982,32 @@ public class Utils
 
 	public static void sendLocaleToServer(Context context)
 	{
-		JSONObject object = new JSONObject();
-		JSONObject data = new JSONObject();
+		try {
+			JSONObject mqttLanguageAnalytic = new JSONObject();
 
-		try
-		{
-			data.put(HikeConstants.LOCALE, LocalLanguageUtils.getApplicationLocalLanguageLocale());
-			data.put(HikeConstants.DEVICE_LOCALE, LocalLanguageUtils.getDeviceDefaultLocale());
+			JSONObject data = new JSONObject();
+
+			data.put(HikeConstants.PHONE_LANGUAGE, LocalLanguageUtils.getDeviceDefaultLocale());
+			//Getting APP Language
+			String appLocale = LocalLanguageUtils.getApplicationLocalLanguageLocale();
+
+			data.put(HikeConstants.APP_LANGUAGE, appLocale);
+			String keyBoardLang;
 			if (!HikeMessengerApp.isSystemKeyboard())
-				data.put(HikeConstants.CUSTOM_KEYBOARD_LOCALE, KptKeyboardManager.getInstance(context).getCurrentLanguageAddonItem().getlocaleName());
-			data.put(HikeConstants.MESSAGE_ID, Long.toString(System.currentTimeMillis() / 1000));
+				keyBoardLang = KptKeyboardManager.getInstance(context).getCurrentLanguageAddonItem().getlocaleName();
+			else
+				keyBoardLang = "";
+			data.put(HikeConstants.KEYBOARD_LANGUAGE, keyBoardLang);
+			mqttLanguageAnalytic.put(HikeConstants.DATA,data);
+			mqttLanguageAnalytic.put(HikeConstants.TYPE,HikeConstants.MqttMessageTypes.ACCOUNT_CONFIG);
+			HikeMqttManagerNew.getInstance().sendMessage(mqttLanguageAnalytic, MqttConstants.MQTT_QOS_ONE);
 
-			object.put(HikeConstants.TYPE, HikeConstants.MqttMessageTypes.ACCOUNT_CONFIG);
-			object.put(HikeConstants.DATA, data);
 
-			HikeMqttManagerNew.getInstance().sendMessage(object, MqttConstants.MQTT_QOS_ONE);
-		}
-		catch (JSONException e)
-		{
-			Logger.w("Locale", "Invalid JSON", e);
+		}catch (JSONException e){
+
 		}
 	}
+
 
 	public static void setReceiveSmsSetting(Context context, boolean value)
 	{
@@ -4698,10 +4703,6 @@ public class Utils
 
 			if (info.uid == context.getApplicationInfo().uid && info.importance == RunningAppProcessInfo.IMPORTANCE_FOREGROUND && info.importanceReasonCode == 0)
 			{
-				if(!Utils.isKitkatOrHigher())
-				{
-					return true;
-				}
 				
 				Field field = null;
 				try
@@ -4710,7 +4711,8 @@ public class Utils
 				}
 				catch (NoSuchFieldException e)
 				{
-					Logger.d(ChatHeadUtils.class.getSimpleName(), e.toString());
+					Logger.d(ChatHeadUtils.class.getSimpleName(), "processState field not found");
+					return true;
 				}
 
 				if(field != null) {
@@ -4722,11 +4724,13 @@ public class Utils
 					}
 					catch (IllegalAccessException e)
 					{
-						Logger.d(ChatHeadUtils.class.getSimpleName(), e.toString());
+						Logger.d(ChatHeadUtils.class.getSimpleName(), "illegal access of processState" );
+						return true;
 					}
 					catch (IllegalArgumentException e)
 					{
-						Logger.d(ChatHeadUtils.class.getSimpleName(), e.toString());
+						Logger.d(ChatHeadUtils.class.getSimpleName(), "illegal argument of processState");
+						return true;
 					}
 					// its a hidden api and no value is defined
 					if (state != null && state == ChatHeadUtils.PROCESS_STATE_TOP)

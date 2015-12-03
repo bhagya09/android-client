@@ -1190,7 +1190,7 @@ public class ConversationsAdapter extends BaseAdapter
 			}
 
 			//AND-3843 begin
-			if(message.isStickerMessage())
+			if(message.isStickerMessage() && message.isSent())
 			{
 				msg = context.getString(R.string.sticker);
 			}

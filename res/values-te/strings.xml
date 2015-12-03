@@ -1294,6 +1294,8 @@
     <string name="made_with_love_in_india">భారతదేశంలో :love: తో తయారు చేయబడింది</string>
     <string name="timeline_ftue_desc">టైమ్లైనో మీరూ, మీ మిత్రులు మీ విశేషమైన క్షణాలని పంచుకోవచ్చు. ఇప్పటికే మీ కొందరు మిత్రులు టైమ్లైనో పంచుకోవడం మొదలు పెట్టారు!</string>
     <string name="sticker">స్టిక్కర్</string>
+    <string name="stealth_unread_tip_header">మీ చాట్లను దాచిపెట్టండి!</string>
+    <string name="stealth_unread_tip_message">\'hi\' పై టాప్ చేసి, మీ చాట్లను దాచిపెట్టండి.</string>
 
 <!-- The above two string would be used as in Group with Shibu, Niladri and 4 others -->
 
