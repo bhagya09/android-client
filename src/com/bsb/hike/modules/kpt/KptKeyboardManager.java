@@ -256,31 +256,6 @@ public class KptKeyboardManager implements AdaptxtSettingsRegisterListener
 		{
 			loadInstalledLanguage(addOnItem);
 		}
-		// this is just for kesting
-		else
-		{
-			if (mLanguagesWaitingQueue == null)
-				mLanguagesWaitingQueue = new ArrayList<KPTAddonItem>();
-			kptSettings.unInstallAdaptxtAddon(addOnItem, new AdaptxtAddonUnInstallationListner() {
-				@Override
-				public void onUnInstallationStarted(String arg0) {
-					Logger.d(TAG, "onUnInstallationStarted: " + arg0);
-					// TODO Auto-generated method stub
-				}
-
-				@Override
-				public void onUnInstallationError(String arg0) {
-					Logger.d(TAG, "onUnInstallationError: " + arg0);
-					processComplete();
-				}
-
-				@Override
-				public void onUnInstallationEnded(String arg0) {
-					Logger.d(TAG, "onUnInstallationEnded: " + arg0);
-					processComplete();
-				}
-			});
-		}
 
 		notifyAllOfLanguageUpdate();
 	}

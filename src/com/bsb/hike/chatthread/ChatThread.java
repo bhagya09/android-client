@@ -735,12 +735,17 @@ import android.widget.Toast;
 					activity.getApplicationContext()).getBoolean(
 					HikeConstants.SEND_ENTER_PREF, false))
 			{
+				mComposeView.setInputType(mComposeView.getInputType()| InputType.TYPE_TEXT_FLAG_MULTI_LINE);
 				mComposeView.setImeOptions(EditorInfo.IME_ACTION_UNSPECIFIED);
 			}
 			else if ((mComposeView.getInputType() & InputType.TYPE_TEXT_FLAG_MULTI_LINE) == InputType.TYPE_TEXT_FLAG_MULTI_LINE)
 			{
+				mComposeView.setInputType(mComposeView.getInputType()
+						^ InputType.TYPE_TEXT_FLAG_MULTI_LINE);
 				mComposeView.setImeOptions(EditorInfo.IME_ACTION_SEND);
 			}
+			mComposeView.setHorizontallyScrolling(false);		
+		    mComposeView.setMaxLines(4);
 
 		}
 	}
@@ -1311,9 +1316,11 @@ import android.widget.Toast;
 		JSONObject metadata = new JSONObject();
 		try 
 		{
-			metadata.put(HikeConstants.LogEvent.KPT, KptKeyboardManager.getInstance(activity).getCurrentLanguageAddonItem().getlocaleName());
-			convMessage.setMetadata(metadata);
-			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
+			if(!isSystemKeyboard()) {
+				metadata.put(HikeConstants.KEYBOARD_LANGUAGE, KptKeyboardManager.getInstance(activity).getCurrentLanguageAddonItem().getlocaleName());
+				convMessage.setfromCustomKeyboard(true);
+				convMessage.setMetadata(metadata);
+			}
 		} 
 		catch (JSONException e) 
 		{
@@ -3958,7 +3965,8 @@ import android.widget.Toast;
         	}
         	break;
 		case HikePubSub.GENERAL_EVENT_STATE_CHANGE:
-			onGeneralEventStateChange(object);
+			//TODO Proper handling in next release. It is safe to comment this out for now.
+			//onGeneralEventStateChange(object);
 			break;
 
 		default:
