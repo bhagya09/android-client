@@ -21,7 +21,7 @@
     <string name="block_title">ब्लॉक करें</string>
     <string name="unblock_title">अनब्लॉक करें</string>
     <string name="feedback">फ़ीडबैक</string>
-    <string name="block_overlay_message">आपने %1$s को ब्लॉक किया है। अनब्लॉक करें और hike करेंें।</string>
+    <string name="block_overlay_message">आपने %1$s को ब्लॉक किया है। अनब्लॉक करें और hike करें।</string>
     <string name="phone_num">फ़ोन नंबर</string>
     <string name="pin">पिन</string>
     <string name="name">नाम</string>
@@ -970,7 +970,7 @@
     <string name="content_des_typing_notification_chatting">चैटिंग करते हुए संपर्क के लिए टाइपिंग जानकारी</string>
     <string name="content_des_typing_notification_received">संपर्क को प्राप्त हुई टाइपिंग सूचना</string> 
 	<string name="content_des_send_message_button">संदेश भेजने के लिए बटन दबाएँ</string>
-    <string name="content_des_block_overlay_message">आपने इस संपर्क को ब्लॉक किया है। अनब्लॉक कर के चैट करेंें।</string>
+    <string name="content_des_block_overlay_message">आपने इस संपर्क को ब्लॉक किया है। अनब्लॉक कर के चैट करें।</string>
     <string name="content_des_user_profile_detail_user_phone_number">संपर्क का फ़ोन नंबर</string>
     <string name="content_des_user_profile_detail_edit_profile_pic">प्रोफ़ाइल फ़ोटो बदलें</string>
     <string name="content_des_user_invitation_on_hike">संपर्कों को Hike पर आमंत्रित करें</string>
