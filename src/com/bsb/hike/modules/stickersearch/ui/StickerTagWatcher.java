@@ -576,13 +576,13 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 	{
 		if (isStickerRecommendationPopupShowing())
 		{
-			if (fragmentFtue != null)
+			if (fragmentFtue != null && fragmentFtue.isVisible())
 			{
 				StickerRecommendationFtueFragment stickerRecommendationFtueFragment = (StickerRecommendationFtueFragment) fragmentFtue;
 				StickerManager.getInstance().sendRecommendationRejectionAnalyticsFtue(stickerRecommendationFtueFragment.isFtueScreen1Visible(), StickerManager.REJECT_FROM_IGNORE,
 						stickerRecommendationFtueFragment.getTappedWord(), stickerRecommendationFtueFragment.getTaggedPhrase());
 			}
-			else if (fragment != null)
+			else if (fragment != null && fragment.isVisible())
 			{
 				StickerRecommendationFragment stickerRecommendationFragment = (StickerRecommendationFragment) fragment;
 				StickerManager.getInstance().sendRecommendationRejectionAnalytics(StickerSearchManager.getInstance().isFromAutoRecommendation(), StickerManager.REJECT_FROM_IGNORE,
