@@ -110,7 +110,7 @@ public class HomeFtueActivity extends HikeAppStateBaseFragmentActivity {
     private void completeFtue()
     {
         IntentFactory.openHomeActivity(HomeFtueActivity.this);
-        this.finish();
+        //Not calling finish since it updates activity state as back pressed and then onResume is not handled 
     }
 
     private void refreshActionBar() {
