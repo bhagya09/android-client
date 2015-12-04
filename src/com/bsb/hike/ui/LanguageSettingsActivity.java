@@ -102,7 +102,7 @@ public class LanguageSettingsActivity extends ChangeProfileImageBaseActivity imp
 			{
 				JSONObject metadata = new JSONObject();
 				metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.KEYBOARD_LANGUAGE_DOWNLOAD_EVENT);
-				metadata.put(HikeConstants.LogEvent.LANGUAGE_DOWNLOADING, item.getDisplayName());
+				metadata.put(HikeConstants.LogEvent.LANGUAGE_DOWNLOADING, item.getlocaleName());
 				HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
 			}
 			catch(JSONException e)
