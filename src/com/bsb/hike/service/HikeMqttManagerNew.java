@@ -836,21 +836,22 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 				 * blocking the mqtt thread, so that no other operation takes place till disconnects completes or timeout This will wait for max 1 secs
 				 */
 				mqtt.disconnectForcibly(QUIESCE_TIME_MILLS, DISCONNECT_TIMEOUT);
-				handleDisconnect(reconnect);
 			}
 		}
 		catch (MqttException e)
 		{
 			// we dont need to handle MQTT exception here as we reconnect depends on reconnect var
 			e.printStackTrace();
-			handleDisconnect(reconnect);
 		}
 		catch (Exception e)
 		{
 			e.printStackTrace();
-			handleDisconnect(reconnect);
 		}
-	}
+        finally
+        {
+            handleDisconnect(reconnect);
+        }
+    }
 
 	private void handleDisconnect(boolean reconnect)
 	{
