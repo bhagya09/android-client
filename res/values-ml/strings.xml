@@ -1409,6 +1409,9 @@
         <item quantity="one">നാളെ</item>
         <item quantity="other">%d ദിവസത്തിൽ</item>
     </plurals>
-    
+
+    <string name="dismiss_button">ഡിസ്മിസ്സ്‌ </string>
+    <string name="try_instead">ഇത് പരീക്ഷിക്കു</string>
+    <string name="sms_card_settings_side_text">എല്ലാ സന്ദേശങ്ങൾ ന്</string>
 
 </resources>
