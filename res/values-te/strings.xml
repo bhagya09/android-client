@@ -1299,7 +1299,7 @@
 
 <!-- The above two string would be used as in Group with Shibu, Niladri and 4 others -->
 
-
+    <string name="CLEAR">క్లియర్</string>
  	<string name="yesterday">నిన్న</string>
     <string name="tomorrow">రేపు</string>
     <string name="today">ఇవాళ</string>
