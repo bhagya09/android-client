@@ -1066,7 +1066,7 @@
 	<string name="favourites">आवडते</string>
 	<string name="clear_timeline_dialog">तुम्हाला तुमची टाइमलाईन खात्रीपूर्वक साफ करायची आहे?</string>
 	<string name="liked_it">लाइक केला</string>
-	<string name="status_hint">तुम्ही काय आहात?</string>
+	<string name="status_hint">कस काय, काय चाललेय ?</string>
 	<string name="status_hint_image">या फोटोविषयी काही</string>
 	<string name="add_mood">मूड</string>
     <string name="sticker_reorder_setting_info">स्टिकर पॅलेटवरून पॅक पुनर्क्रमित करा/लपवा</string>
