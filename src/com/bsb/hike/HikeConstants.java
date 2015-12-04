@@ -3444,6 +3444,8 @@ public class HikeConstants
 
 	public static final String KEYBOARD_HEIGHT = "keyBoardHeight";
 
+	public static final String RECOMMENDATION_SOURCE = "srs";
+
 	public static final String TAGGED_PHRASE = "tg";
 
 	public static final String TAP_WORD = "tap";

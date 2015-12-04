@@ -279,7 +279,9 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 	{
 		Logger.d(TAG, "result first : " + result.first);
 		if (fragmentFtue != null)
-			Logger.d(TAG, "is visible  : " + fragmentFtue.isVisible());
+		{
+			Logger.d(TAG, "FTUE is visible: " + fragmentFtue.isVisible());
+		}
 		Logger.d(TAG, "shown ftue : " + shownStickerRecommendFtue);
 
 		if (!result.first || (fragmentFtue != null && fragmentFtue.isVisible() && !shownStickerRecommendFtue))
@@ -406,17 +408,18 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 	{
 		dismissStickerSearchPopup();
 
-		// Send analytics
+		// Send rejection analytics, if user clicks on cross
+		String recommendationSource = (StickerSearchManager.getInstance().isFromAutoRecommendation() ? StickerManager.FROM_AUTO_RECOMMENDATION_PANEL
+				: StickerManager.FROM_BLUE_TAP_RECOMMENDATION_PANEL);
 		if (ftue && (fragmentFtue != null))
 		{
 			StickerRecommendationFtueFragment stickerRecommendationFtueFragment = (StickerRecommendationFtueFragment) fragmentFtue;
-			StickerManager.getInstance().sendRecommendationRejectionAnalyticsFtue(stickerRecommendationFtueFragment.isFtueScreen1Visible(), StickerManager.REJECT_FROM_CROSS, word,
-					phrase);
+			StickerManager.getInstance().sendRecommendationRejectionAnalyticsFtue(stickerRecommendationFtueFragment.isFtueScreen1Visible(), recommendationSource,
+					StickerManager.REJECT_FROM_CROSS, word, phrase);
 		}
 		else
 		{
-			StickerManager.getInstance().sendRecommendationRejectionAnalytics(StickerSearchManager.getInstance().isFromAutoRecommendation(), StickerManager.REJECT_FROM_CROSS,
-					word, phrase);
+			StickerManager.getInstance().sendRecommendationRejectionAnalytics(recommendationSource, StickerManager.REJECT_FROM_CROSS, word, phrase);
 		}
 
 		if (StickerSearchManager.getInstance().isAutoPoupTrialRunning() && StickerSearchManager.getInstance().isFromAutoRecommendation())
@@ -576,16 +579,19 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 	{
 		if (isStickerRecommendationPopupShowing())
 		{
+			// Send rejection analytics, if user don't click on cross but send text itself by ignoring recommendation
+			String recommendationSource = (StickerSearchManager.getInstance().isFromAutoRecommendation() ? StickerManager.FROM_AUTO_RECOMMENDATION_PANEL
+					: StickerManager.FROM_BLUE_TAP_RECOMMENDATION_PANEL);
 			if (fragmentFtue != null && fragmentFtue.isVisible())
 			{
 				StickerRecommendationFtueFragment stickerRecommendationFtueFragment = (StickerRecommendationFtueFragment) fragmentFtue;
-				StickerManager.getInstance().sendRecommendationRejectionAnalyticsFtue(stickerRecommendationFtueFragment.isFtueScreen1Visible(), StickerManager.REJECT_FROM_IGNORE,
-						stickerRecommendationFtueFragment.getTappedWord(), stickerRecommendationFtueFragment.getTaggedPhrase());
+				StickerManager.getInstance().sendRecommendationRejectionAnalyticsFtue(stickerRecommendationFtueFragment.isFtueScreen1Visible(), recommendationSource,
+						StickerManager.REJECT_FROM_IGNORE, stickerRecommendationFtueFragment.getTappedWord(), stickerRecommendationFtueFragment.getTaggedPhrase());
 			}
 			else if (fragment != null && fragment.isVisible())
 			{
 				StickerRecommendationFragment stickerRecommendationFragment = (StickerRecommendationFragment) fragment;
-				StickerManager.getInstance().sendRecommendationRejectionAnalytics(StickerSearchManager.getInstance().isFromAutoRecommendation(), StickerManager.REJECT_FROM_IGNORE,
+				StickerManager.getInstance().sendRecommendationRejectionAnalytics(recommendationSource, StickerManager.REJECT_FROM_IGNORE,
 						stickerRecommendationFragment.getTappedWord(), stickerRecommendationFragment.getTaggedPhrase());
 			}
 
