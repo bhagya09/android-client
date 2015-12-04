@@ -1410,4 +1410,7 @@
         <item quantity="other">%d दिनों में</item>
     </plurals>
 
+    <string name="dismiss_button">खारिज करें</string>
+    <string name="try_instead">ये आज़माएँ</string>
+    <string name="sms_card_settings_side_text">सारे संदेशों पर</string>
 </resources>

@@ -1410,5 +1410,7 @@
         <item quantity="other">%d நாட்களில்</item>
     </plurals>
     
-
+    <string name="dismiss_button">அகற்று</string>
+    <string name="try_instead">இதை முயற்சி செய்</string>
+    <string name="sms_card_settings_side_text">அணைத்து மெசேஜ்களிலும்</string>
 </resources>

@@ -1415,5 +1415,7 @@
         <item quantity="other">%d દિવસોમાં</item>
     </plurals>
 
-
+    <string name="dismiss_button">રદ કરો</string>
+    <string name="try_instead">તેના બદલે, ટ્રાઇ કરો</string>
+    <string name="sms_card_settings_side_text">બધા ટેક્સ્ટ મેસેજસ પર</string>
 </resources>
