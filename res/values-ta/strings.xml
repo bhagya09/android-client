@@ -496,7 +496,7 @@
     <string name="unlinking_account">ரீசெட் ஆகிறது...</string>
     <string name="shortcut">உரையாடல் ஷார்ட்கட்டை சேர்</string>
     <string name="add_to_contacts">தொடர்புகளுடன் சேர்</string>
-    <string name="delete_leave">குழுவை அழித்து விட்டு வெளியேறு</string>
+    <string name="delete_leave">அழித்து விட்டு வெளியேறு</string>
     <string name="broadcast_participant_info"><![CDATA[<font color=\"#848484\"><b>குறிப்பு: </b>இந்த புரோட்காஸ்ட்டை தம் அட்ரெஸ் புக்கில் %1$s உடனுள்ள Hike தொடர்புகள் மட்டுமே பெற்றுக் கொள்வார்கள்.</font>]]></string>
     <string name="confirm_delete_chat_msg">%1$s உடனான சேட்-ஐ அழிக்கவும் </string>
     <string name="confirm_delete_group_msg">அழித்து விட்டு \'%1$s\'குழுவை விட்டு வெளியேறு</string>
