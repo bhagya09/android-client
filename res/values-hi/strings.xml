@@ -767,8 +767,8 @@
     <string name="nux_send_message">संदेश भेजें</string>
     <string name="nux_select_friends_reconame">सजेस्टेड</string>
     <string name="nux_select_friends_nextbut">आगे</string>
-    <string name="voip_call_summary_incoming">इनक्मिंग कॉल</string>
-    <string name="voip_call_summary_outgoing">कॉल जा रही है</string>
+    <string name="voip_call_summary_incoming">इनकमिंग कॉल</string>
+    <string name="voip_call_summary_outgoing">आउटगोइंग कॉल</string>
     <string name="voip_missed_call_outgoing">आपकी कॉल मिस हो गई</string>
     <string name="voip_missed_call_incoming">आपने एक कॉल मिस करी</string>
     <string name="voip_call_chat">Hike कॉल</string>
