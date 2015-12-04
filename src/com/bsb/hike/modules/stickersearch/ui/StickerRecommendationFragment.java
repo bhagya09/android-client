@@ -245,5 +245,4 @@ public class StickerRecommendationFragment extends Fragment implements Listener
 	{
 		return phrase;
 	}
-
 }
