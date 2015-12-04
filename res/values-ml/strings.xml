@@ -1137,7 +1137,7 @@
     <string name="add_member_menu">അംഗത്തെ ചേർക്കുക</string>
     <string name="JUST_ONCE">ഒരിക്കൽ മാത്രം</string>
     <string name="ALWAYS">എല്ലായ്പ്പോഴും</string>
-    <string name="UNLINK_ACCOUNT">അക്കൗണ്ട് പുനഃക്രമീകരിക്കുക</string>
+    <string name="UNLINK_ACCOUNT">റീസെറ്റ്</string>
     <string name="UNLINK">അൺലിങ്കുചെയ്യുക</string>
     <string name="UPDATE_APP">അപ്‌ഡേറ്റ് ചെയ്യുക</string>
     <string name="language_summary">ഇംഗ്ലീഷ്</string>
