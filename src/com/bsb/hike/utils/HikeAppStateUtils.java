@@ -5,6 +5,7 @@ import android.app.Activity;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikeMessengerApp.CurrentState;
 import com.bsb.hike.ui.HomeActivity;
+import com.bsb.hike.ui.HomeFtueActivity;
 import com.bsb.hike.ui.NUXInviteActivity;
 
 public class HikeAppStateUtils
@@ -114,7 +115,7 @@ public class HikeAppStateUtils
 	private static void handlePauseOrStop(Activity activity)
 	{
 		if ((HikeMessengerApp.currentState == CurrentState.BACK_PRESSED) && (activity instanceof HomeActivity
-				|| activity instanceof NUXInviteActivity))
+				|| activity instanceof NUXInviteActivity||activity instanceof HomeFtueActivity))
 		{
 			Logger.d(TAG + activity.getClass().getSimpleName(), "App was closed");
 			HikeMessengerApp.currentState = CurrentState.CLOSED;
