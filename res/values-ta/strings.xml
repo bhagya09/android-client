@@ -485,7 +485,7 @@
     <string name="viewcontact">புரோஃபைலை பார்வையிடு</string>
     <string name="add_to_contacts_existing">ஏற்கெனவே உள்ள தொடர்பில் சேர்</string>
     <string name="delete_chat">சேட்-ஐ அழிக்கவும்</string>
-    <string name="clear_whole_conversation">முழு உரையாடலையும் கிளியர் செய்</string>
+    <string name="clear_whole_conversation">உரையாடலை கிளியர் செய்</string>
     <string name="email_conversations">உரையாடலை ஈமெயில் செய்</string>
     <string name="unlink_account_failed">Hike உன் அக்கவுண்டை லாக் அவுட் செய்ய முடியவில்லை. தயவுசெய்து மீண்டும் முயற்சியும்</string>
     <string name="deleting_account">அக்கவுண்டை அழிக்கிறது...</string>
