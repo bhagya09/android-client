@@ -496,7 +496,7 @@
     <string name="unlinking_account">റീസെറ്റ് ചെയ്യുന്നു</string>
     <string name="shortcut">സംഭാഷണ ഷോര്‍ട്ട് കട്ട് ചേര്‍ക്കുക</string>
     <string name="add_to_contacts">കോണ്ടാക്ട്സിലേക്ക് ചേർക്കുക</string>
-    <string name="delete_leave">ഗ്രൂപ്പ്‌ ഡിലീറ്റ് ചെയ്യുകയും, വിടുകയും ചെയ്യുക</string>
+    <string name="delete_leave">ഡിലീറ്റിന്റെ ഒപ്പം ഗ്രൂപ്പ്‌ എക്സിറ്റ്</string>
     <string name="broadcast_participant_info"><![CDATA[<font color=\"#848484\"><b>കുറിപ്പ്: </b>അഡ്രസ്‌ ബുക്കിൽ %1$s-മൊത്തുള്ള hike കോണ്ടാക്ട്സ് മാത്രമേ ഈ ബ്രോഡ്‌കാസ്റ്റ് സ്വീകരിക്കൂ.</font>]]></string>
     <string name="confirm_delete_chat_msg">\"%1$s\" എന്ന വ്യക്തിയുമായുള്ള ചാറ്റ് ഇല്ലാതാക്കണോ? </string>
     <string name="confirm_delete_group_msg">\"%1$s\"എന്ന ഗ്രൂപ്പ് ഇല്ലാതാക്കുകയും അതിൽനിന്ന് പുറത്തുകടക്കുകയും വേണോ?</string>
@@ -936,7 +936,7 @@
     <string name="keyboard_settings_header">കീബോർഡ് സെറ്റിംഗ്സ് </string>
     <string name="new_line_setting_info">എന്റർ കീ അമർത്തുന്നത് പുതിയ ലൈൻ ചേർക്കും</string>
     <string name="nudge_toast"> നഡ്ജുകൾ അയയ്ക്കുന്നത് ഓഫാക്കിയിരിക്കുന്നു.\nസെറ്റിംഗ് > ചാറ്റ് സെറ്റിംഗ് എന്നതിൽ നിങ്ങൾക്കിത് ഓണാക്കാവുന്നതാണ്.</string>
-    <string name="select_all_hike">എല്ലാവരെയും തിരഞ്ഞെടുക്കുക</string>
+    <string name="select_all_hike">എല്ലാം തിരഞ്ഞെടുക്കുക</string>
     <string name="unselect_all_hike">എല്ലാവരുടെയും തിരഞ്ഞെടുത്തത് മാറ്റുക</string>
     <string name="searching">തിരയുന്നു...</string>
     <string name="sticker_share_caption">ഡൗൺലോഡ് ചെയ്യുക: http://hike.in</string>
