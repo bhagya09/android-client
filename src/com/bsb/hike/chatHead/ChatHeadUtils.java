@@ -739,6 +739,15 @@ public class ChatHeadUtils
 				.getString(HikeMessengerApp.COUNTRY_CODE, HikeConstants.INDIA_COUNTRY_CODE)));
 		if (number != null)
 		{
+			CallerContentModel contentModel = ContactManager.getInstance().getCallerContentModelFromMsisdn(number);
+			if (contentModel != null && contentModel.isBlock())
+			{
+				if (StickyCaller.CALL_TYPE == StickyCaller.INCOMING || StickyCaller.CALL_TYPE == StickyCaller.MISSED)
+				{
+					Utils.killCall();
+					return;
+				}
+			}
 			String contactName = getNameFromNumber(context, number);
 			if (contactName != null)
 			{

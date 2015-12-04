@@ -32,6 +32,7 @@ import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.models.HikeHandlerUtil;
+import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
@@ -39,6 +40,7 @@ import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.voip.VoIPUtils;
 import com.edmodo.cropper.cropwindow.handle.Handle;
+import com.squareup.okhttp.internal.Util;
 
 public class StickyCaller {
 	private static final String TAG = "StickyCaller";
@@ -172,19 +174,14 @@ public class StickyCaller {
 		if (uiHandler != null)
 		{
 			uiHandler.removeCallbacks(removeViewRunnable);
-			uiHandler.post(new Runnable()
-			{
+			uiHandler.post(new Runnable() {
 				@Override
-				public void run()
-				{
-					try
-					{
+				public void run() {
+					try {
 						windowManager.removeView(stickyCallerFrameHolder);
 						HikeSharedPreferenceUtil.getInstance().saveData(CALLER_Y_PARAMS, callerParams.y);
 						stickyCallerView = null;
-					}
-					catch (Exception e)
-					{
+					} catch (Exception e) {
 						Logger.d("Sticky Caller", "Removing Caller View");
 					}
 
@@ -532,6 +529,25 @@ public class StickyCaller {
 		{
 			((TextView) stickyCallerView.findViewById(R.id.missed_call_time)).setText(context.getString(R.string.voip_missed_call_notif) + MISSED_CALL_TIMINGS);
 		}
+		
+			setBlockContactButton(number);
+		
+	}
+
+	private static void setBlockContactButton(String msisdn)
+	{
+		if (CALL_TYPE == INCOMING || CALL_TYPE == MISSED)
+		{
+			if (ContactManager.getInstance().getCallerContentModelFromMsisdn(msisdn) != null)
+			{
+				View callerBlockButtonDivider = stickyCallerView.findViewById(R.id.block_contact_divider);
+				callerBlockButtonDivider.setVisibility(View.VISIBLE);
+				View callBlockButton = stickyCallerView.findViewById(R.id.block_contact);
+				callBlockButton.setVisibility(View.VISIBLE);
+				callBlockButton.setTag(msisdn);
+				callBlockButton.setOnClickListener(callerClickListener);
+			}
+		}
 	}
 
 	public static void setOtherDismissButton()
@@ -585,6 +601,8 @@ public class StickyCaller {
 
 			setCallDivider();
 		}
+
+		setBlockContactButton(number);
 	}
 	
 	
@@ -736,7 +754,12 @@ public class StickyCaller {
 				IntentFactory.openStickyCallerSettings(HikeMessengerApp.getInstance().getApplicationContext(), true);
 				break;
 			case R.id.caller_close_button:
-				HAManager.getInstance().stickyCallerAnalyticsUIEvent(AnalyticsConstants.StickyCallerEvents.CLOSE_BUTTON, getPhoneNumberFromTag(v), AnalyticsConstants.StickyCallerEvents.CARD, getCallEventFromCallType(CALL_TYPE));
+				HAManager.getInstance().stickyCallerAnalyticsUIEvent(AnalyticsConstants.StickyCallerEvents.CLOSE_BUTTON, getPhoneNumberFromTag(v),
+						AnalyticsConstants.StickyCallerEvents.CARD, getCallEventFromCallType(CALL_TYPE));
+				break;
+			case R.id.block_contact:
+                ContactManager.getInstance().updateBlockStatusIntoCallerTable(v.getTag().toString(), true);
+				Utils.killCall();
 				break;
 			}
 		}

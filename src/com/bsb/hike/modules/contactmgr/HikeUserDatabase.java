@@ -458,6 +458,15 @@ class HikeUserDatabase extends SQLiteOpenHelper
 		}
 	}
 
+	public void updateBlockStatusIntoCallerTable(String msisdn, boolean isCompleteData)
+	{
+		if (msisdn != null)
+		{
+			ContentValues cv = new ContentValues();
+			cv.put(DBConstants.HIKE_USER.IS_BLOCK, isCompleteData);
+			mDb.update(DBConstants.HIKE_USER.HIKE_CALLER_TABLE, cv, DBConstants.MSISDN + "=? ", new String[]{msisdn});
+		}
+	}
 	public void updateCallerTable(CallerContentModel callerContentModel)
 	{
 		if (callerContentModel != null && callerContentModel.getMsisdn() != null)

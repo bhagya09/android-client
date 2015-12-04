@@ -2416,4 +2416,11 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 	{
 		return HikeUserDatabase.getInstance().getCallerContentModelFromMsisdn(msisdn);
 	}
+
+	public void updateBlockStatusIntoCallerTable(String msisdn, boolean isCompleteData)
+	{
+		HikeUserDatabase.getInstance().updateBlockStatusIntoCallerTable(msisdn, isCompleteData);
+	}
+
 }
+
