@@ -264,8 +264,15 @@ public class BotChatThread extends OneToOneChatThread
 		{
 			list.add(new OverFlowMenuItem(getString(R.string.email_chat), 0, 0, R.string.email_chat));
 		}
-
-
+		
+		if (configuration.isHikeKeyboardInOverflowMenuEnabled())
+		{
+			if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CHANGE_KEYBOARD_CHAT_ENABLED, true) && HikeMessengerApp.isCustomKeyboardEnabled())
+			{
+				list.add(new OverFlowMenuItem(getString(isSystemKeyboard()?R.string.hike_keyboard:R.string.system_keyboard), 0, 0, R.string.hike_keyboard));
+			}
+		}
+		
 		return list;
 	}
 
