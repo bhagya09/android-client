@@ -1490,4 +1490,14 @@
     <string name="sticker">Sticker</string>
     <string name="language_ftue_complete_message">You can change the keyboard language from \nSettings->Language &amp; Input anytime</string>
 
+    <string name="unsupported_langs_toast">Your Phone do not support %1$s language</string>
+    <string name="bengali">Bengali</string>
+    <string name="gujarati">Gujarati</string>
+    <string name="hindi">Hindi</string>
+    <string name="kannada">Kannada</string>
+    <string name="marathi">Marathi</string>
+    <string name="malyalam">Malayalam</string>
+    <string name="tamil">Tamil</string>
+    <string name="telugu">Telugu</string>
+    <string name="english">English</string>
 </resources>

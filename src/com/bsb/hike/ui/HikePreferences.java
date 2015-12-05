@@ -390,7 +390,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 			languagePref.setEntryValues(entries);
 			languagePref.setOnPreferenceChangeListener(new OnPreferenceChangeListener()
 			{
-				
+
 				@Override
 				public boolean onPreferenceChange(Preference preference, Object newValue)
 				{
@@ -407,13 +407,25 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 							restartHomeActivity();
 						}
 					}
-					
+
 //					tracking app language change event
 					Utils.sendLocaleToServer(getApplicationContext());
-					
+
 					return true;
 				}
 			});
+			//AND-4046 Begin
+			languagePref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+				@Override
+				public boolean onPreferenceClick(Preference preference) {
+					String unsupportedLanguages = LocalLanguage.getUnsupportedLocaleToastText(HikePreferences.this);
+					if (!TextUtils.isEmpty(unsupportedLanguages)) {
+						Toast.makeText(HikePreferences.this, unsupportedLanguages, Toast.LENGTH_LONG).show();
+					}
+					return false;
+				}
+			});
+			//AND-4046 End
 		}
 	}
 
