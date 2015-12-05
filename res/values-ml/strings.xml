@@ -937,7 +937,7 @@
     <string name="new_line_setting_info">എന്റർ കീ അമർത്തുന്നത് പുതിയ ലൈൻ ചേർക്കും</string>
     <string name="nudge_toast"> നഡ്ജുകൾ അയയ്ക്കുന്നത് ഓഫാക്കിയിരിക്കുന്നു.\nസെറ്റിംഗ് > ചാറ്റ് സെറ്റിംഗ് എന്നതിൽ നിങ്ങൾക്കിത് ഓണാക്കാവുന്നതാണ്.</string>
     <string name="select_all_hike">എല്ലാം തിരഞ്ഞെടുക്കുക</string>
-    <string name="unselect_all_hike">എല്ലാവരുടെയും തിരഞ്ഞെടുത്തത് മാറ്റുക</string>
+    <string name="unselect_all_hike">തിരഞ്ഞെടുത്തത് മാറ്റുക</string>
     <string name="searching">തിരയുന്നു...</string>
     <string name="sticker_share_caption">ഡൗൺലോഡ് ചെയ്യുക: http://hike.in</string>
     <string name="text_share_heading">- hike വഴി അയച്ചു</string>
