@@ -1417,4 +1417,5 @@
     <string name="try_instead">दुसरा पर्याय</string>
     <string name="sms_card_settings_side_text">सगळ्या मेसेगेस करिता</string>
 
+<string name="unsupported_langs_toast">आपला फोन %1$s भाषा दाखवण्यास असमर्थ आहे</string>
 </resources>
