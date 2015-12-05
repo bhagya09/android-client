@@ -7,7 +7,7 @@ package com.bsb.hike.utils;
 import com.bsb.hike.utils.Logger;
 
 import android.content.Context;
-import android.view.GestureDetector;
+import android.support.v4.view.GestureDetectorCompat;
 import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.MotionEvent;
 import android.view.View;
@@ -15,10 +15,10 @@ import android.view.View.OnTouchListener;
 
 public class OnSwipeTouchListenerFtue implements OnTouchListener {
 
-    protected final GestureDetector gestureDetector;
+    protected final GestureDetectorCompat gestureDetector;
 
     public OnSwipeTouchListenerFtue(Context ctx) {
-        gestureDetector = new GestureDetector(ctx, new GestureListener());
+        gestureDetector = new GestureDetectorCompat(ctx, new GestureListener());
     }
 
     private final class GestureListener extends SimpleOnGestureListener {
