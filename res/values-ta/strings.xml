@@ -1170,7 +1170,7 @@
     <string name="long_press_duration_title">லாங் பிரெஸ் கால அளவு</string>
     <string name="keypress_sound_vol_title">கீபிரெஸ் சவுண்டு வால்யூம்</string>
     <string name="keypress_vib_duration_title">கீபிரெஸ் வைப்ரேஷன் கால அளவு</string>
-    <string name="like_count_by_unknow_contacts">+%1$d நண்பர்  / %2$s</string>
+    <string name="like_count_by_unknow_contacts">+%1$d நண்பர் %2$s</string>
     <string name="connection_established_inline_msg">Hike டைரக்ட் இணைந்துள்ளது</string>
     <string name="connection_deestablished_inline_msg">Hike டைரக்ட் துண்டிப்பானது</string>
     <string name="connection_request_inline_msg">Hike டைரக்ட் வேண்டுகோள் விடுபட்டது</string>

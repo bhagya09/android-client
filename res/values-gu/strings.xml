@@ -1170,7 +1170,7 @@
     <string name="long_press_duration_title">લાંબા પ્રેસ ડ્યૂરેશન</string>
     <string name="keypress_sound_vol_title">કીપ્રેસ સાઉન્ડ વોલ્યુમ</string>
     <string name="keypress_vib_duration_title">કીપ્રેસ વાઇબ્રેશન ડ્યૂરેશન</string>
-    <string name="like_count_by_unknow_contacts">%2$સ ના +%1$d મિત્રો</string>
+    <string name="like_count_by_unknow_contacts">%2$s સ ના +%1$d મિત્રો</string>
     <string name="connection_established_inline_msg">Hike ડાયરેક્ટ કનેક્ટેડ</string>
     <string name="connection_deestablished_inline_msg">Hike ડાયરેક્ટ ડિસ્કનેક્ટેડ</string>
     <string name="connection_request_inline_msg">Hike ડાયરેક્ટ રિક્વેસ્ટ મિસ્ડ</string>
