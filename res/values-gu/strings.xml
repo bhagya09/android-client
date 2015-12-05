@@ -987,13 +987,13 @@
 	<string name="delete_block">બ્લૉક કરો અને ડિલીટ કરો</string>
 	<string name="confirm_delete_block_msg">શું તમે \"%1$s\" ને બ્લૉક કરવા અને ડિલીટ કરવા માંગો છો? </string>
 	<string name="confirm_delete_non_messaging">શું તમે \"%1$s\" ને ડિલીટ કરવા માંગો છો? </string>
-	<string name="scan_free_hike">હાઈક ડાયરેક્ટ</string>
-	<string name="connection_established">હાઈક ડાયરેક્ટ જોડાયલૂ છે</string>
+	<string name="scan_free_hike">Hike ડાયરેક્ટ</string>
+	<string name="connection_established">Hike ડાયરેક્ટ જોડાયલૂ છે</string>
 	<string name="awaiting_response">પ્રતિભાવની રાહ જોવાઈ રહી છે</string>
 	<string name="disconnect_offline">ડિસકનેક્ટ કરો</string>
 	<string name="files_not_received">કેટલીક ફાઇલો ડિસ્કનેક્શનને કારણે પ્રાપ્ત કરી શકાઈ નથી</string>
 	<string name="share_application">ઍપ્લિકેશન્સ શેર કરો</string>
-	<string name="free_hike_connection">હાઈક ડાયરેક્ટ જોડાયું છે</string>
+	<string name="free_hike_connection">Hike ડાયરેક્ટ જોડાયું છે</string>
 	<string name="scan_free_hike_connection">સાથે જોડાવા માટે અહીં ટૅપ કરો <![CDATA[<b>%1$s</b>]]> Hike  ડાયરેક્ટ મારફતે</string>
 	<string name="could_not_post_pic">ચિત્ર પોસ્ટ કરવામાં અક્ષમ છે. કૃપા કરીને ફરી થી  પ્રયત્ન કરો</string>
 	<string name="sticker_recommendation_setting_info">સલાહ માટે બ્લુ શબ્દો પર ટૅપ કરો</string>
@@ -1042,8 +1042,8 @@
     <string name="disconnect_warning">%1$s સાથે કનેક્ટ થવું છે?</string>
     <string name="connected_warning">તમારું %1$s સાથેનું  કનેક્શન સમાપ્ત થશે.</string>
     <string name="connecting_to">%1$s સાથે કનેક્ટ થઇ રહ્યા છો...</string>
-    <string name="offline_animation_second_message">ટીપ: હાઈક ડાયરેક્ટ \n 100 મીટર રેડીયસની  અંદર કામ કરે છે</string>
-    <string name="offline_animation_third_message">તે સામાન્ય કરતાં લાંબો સમય લઈ રહ્યું છે. \n  કૃપા કરીને %1$s ને હાઈક ડાયરેક્ટ પર પણ \n ટૅપ કરવા કહો</string>
+    <string name="offline_animation_second_message">ટીપ: Hike ડાયરેક્ટ \n 100 મીટર રેડીયસની  અંદર કામ કરે છે</string>
+    <string name="offline_animation_third_message">તે સામાન્ય કરતાં લાંબો સમય લઈ રહ્યું છે. \n  કૃપા કરીને %1$s ને Hike ડાયરેક્ટ પર પણ \n ટૅપ કરવા કહો</string>
     <string name="connect">કનેક્ટ થાવ</string>
 	<string name="sticker_share_popup_activate_toast">સ્ટીકી હવે સક્રિય કરી દેવામાં આવી છે!</string>
     <string name="cancel_connection">%1$s સાથેનો કનેક્શનનો પ્રયત્ન કૅન્સલ કરવો છે?</string>

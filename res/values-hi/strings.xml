@@ -23,7 +23,7 @@
     <string name="feedback">फ़ीडबैक</string>
     <string name="block_overlay_message">आपने %1$s को ब्लॉक किया है। अनब्लॉक करें और hike करें।</string>
     <string name="phone_num">फ़ोन नंबर</string>
-    <string name="pin">पिन</string>
+    <string name="pin">PIN</string>
     <string name="name">नाम</string>
     <string name="terms_privacy">शर्तें और गोपनीयता</string>
     <string name="invite_now">अभी आमंत्रित करें</string>
@@ -149,7 +149,7 @@
     <string name="msisdn">फ़ोन नं.:</string>
     <string name="unobfuscated_map_api">AIzaSyBvWmHyGeeDjPkJR1xJnWCnUiWTfwciSLw</string>
     <string name="invalid_num_signup">यह एक अमान्य फ़ोन नंबर है। पुन: प्रयास करें।</string>
-    <string name="verify_pin_signup">पिन की पुष्टि हो रही है...</string>
+    <string name="verify_pin_signup">PIN की पुष्टि हो रही है...</string>
     <string name="wrong_num_signup">गलत नंबर दर्ज कर दिया? यहाँ टैप करें</string>
     <string name="enter_phone_again_signup">क्या आपने गलत फ़ोन नंबर डाला है?\nकृपया अपना फ़ोन # पुन: दर्ज करें।</string>
     <string name="try_again_signup">पुन: प्रयास करें</string>
@@ -190,7 +190,7 @@
     <string name="unmute_group">ग्रूप को अनम्यूट करें</string>
     <string name="account">अकाउंट</string>
     <string name="enter_num">कृपया अपना फ़ोन नंबर दर्ज करें</string>
-    <string name="enter_pin">कृपया पिन दर्ज करें</string>
+    <string name="enter_pin">कृपया PIN दर्ज करें</string>
     <string name="enter_name">कृपया अपना नाम दर्ज करें</string>
     <string name="ssl">128-बिट SSL</string>
     <string name="ssl_info">केवल वाई-फ़ाई</string>
@@ -364,7 +364,7 @@
     <string name="no_internet_msg">लगता है कोई इंटरनेट\nकनेक्शन नहीं है! उसे ठीक करें और\nआगे बढ़ें।</string>
     <string name="hang_on">बस कुछ देर और...</string>
     <string name="call_me_for_the_pin">%1$s मुझे कॉल करें</string>
-    <string name="wrong_pin">माफ़ कीजिए, यह गलत पिन है!</string>
+    <string name="wrong_pin">माफ़ कीजिए, यह गलत PIN है!</string>
     <string name="verifying">चैक‍ कर रहा है...</string>
     <string name="pick_one">कोई एक चुनें...</string>
     <string name="i_am_a_boy">मैं एक लड़का हूँ</string>
@@ -393,7 +393,7 @@
     <string name="confirm_delete_msg">क्या आप वाकई इस संदेश को हटाना चाहते हैं?</string>
     <string name="confirm_delete_msgs">क्या आप वाकई इन %1$s संदेशों को हटाना चाहते हैं?</string>
     <string name="confirm_clear_conversation">क्या आप वाकई इस चैट में सभी संदेशों को हटाना चाहते हैं?</string>
-    <string name="enter_pin_signup">कृपया 4 अंकों का पिन दर्ज करें जो हमने आपको SMS के द्वारा भेजा था।</string>
+    <string name="enter_pin_signup">कृपया 4 अंकों का PIN दर्ज करें जो हमने आपको SMS के द्वारा भेजा था।</string>
     <string name="scanning_your_contacts">आपके संपर्क स्कैन हो रहे हैं...</string>
     <string name="setting_profile">आपकी प्रोफाइल सेट हो रही हैं...</string>
     <string name="you_are_all_set">सब कुछ तैयार हैं...</string>
@@ -405,7 +405,7 @@
     <string name="num_unread_messages">%1$s अपठित संदेश</string>
     <string name="one_unread_message">1 अपठित संदेश</string>
     <string name="invite_friends_confirmation_msg">क्या आप अपने %1$s मित्रों को hike पर आमंत्रित करना चाहते हैं?</string>
-    <string name="didnt_get_pin">पिन नहीं मिला, हम आपको कॉल कर सकते हैं</string>
+    <string name="didnt_get_pin">PIN नहीं मिला, हम आपको कॉल कर सकते हैं</string>
     <string name="maxContactInBroadcastErr">प्रसारण सूची में अधिकतम %1$s संपर्कों की अनुमति है</string>
     <string name="minContactInGroupErr">ग्रूप चैट प्रारंभ करने के लिए कम से कम %1$s सदस्य चुनें</string>
     <string name="minContactInBroadcastErr">कम से कम %1$s संपर्क चुने जाने चाहिए</string>
@@ -542,7 +542,7 @@
     <string name="ftue_card_click_text_sticker">आपको ज़रूर पसंद आएँगे!</string>
     <string name="ftue_card_sep">मज़ेदार चीज़ें जो आप hike पर कर सकते हैं</string>
     <string name="change_stealth_password">पासवर्ड बदलें</string>
-    <string name="change_stealth_password_body">अपना गुप्त मोड पासवर्ड बदलें। पैटर्न व पिन भी बदलें।</string>
+    <string name="change_stealth_password_body">अपना गुप्त मोड पासवर्ड बदलें। आप पैटर्न और PIN के बीच चुन सकते हैं ।</string>
     <string name="invited">आमंत्रित</string>
     <string name="invite_more">और आमंत्रित करें</string>
     <string name="invite_sent">आमंत्रण भेजा गया</string>
