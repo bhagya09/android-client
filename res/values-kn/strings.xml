@@ -1313,6 +1313,8 @@
     <string name="tomorrow">ನಾಳೆ</string>
     <string name="today">ಇಂದು</string>
     
+<string name="unsupported_langs_toast">ನಿಮ್ಮ ಫೋನ್ %1$s ಅನ್ನು ಬೆಂಬಲಿಸುವುದಿಲ್ಲ</string>
+
     <!-- This is used to express that something occurred some number of seconds in the past (e.g., 5 seconds ago). -->
     <plurals name="num_seconds_ago">
         <item quantity="one">1 ಸೆಕೆಂಡಿನ ಮೊದಲು</item>
