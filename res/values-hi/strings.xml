@@ -197,7 +197,7 @@
     <string name="contact_saved">संपर्क सेव हो गया</string>
     <string name="contact_not_saved">संपर्क सेव नहीं हो सका</string>
     <string name="system_health">सिस्टम की स्थिति</string>
-    <string name="you">आप</string>
+    <string name="you">आपने</string>
     <string name="delete_status">स्टेटस हटाएँ</string>
     <string name="delete_status_error">आपका स्टेटस नहीं हट सका। कृपया अपना नेटवर्क कनेक्शन जाँचें और बाद में पुन: प्रयास करें।</string>
     <string name="deleting_status">अपडेट हट रहा है...</string>
