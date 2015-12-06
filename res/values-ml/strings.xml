@@ -170,7 +170,7 @@
     <string name="location_disabled">ലൊക്കേഷൻ ലഭ്യമാക്കാനായില്ല. സെറ്റിംഗ്സ് പരിശോധിക്കുക.</string>
     <string name="tap_here_invite">ഈ വ്യക്തിയെ ക്ഷണിക്കുന്നതിനായി ഇവിടെ ടാപ്പുചെയ്യുക</string>
     <string name="change_group_image">%1$s ഗ്രൂപ്പിന്റെ ചിത്രം മാറ്റി.</string>
-    <string name="faq">FAQ</string>
+    <string name="faq">പതിവ് ചോദ്യങ്ങൾ</string>
     <string name="gallery">ഗ്യാലറി</string>
     <string name="number_confirm_title">നമ്പർ സ്ഥിരീകരിക്കുക</string>
     <string name="birthday">പിറന്നാൾ</string>
@@ -292,7 +292,7 @@
     <string name="india_only">സൗജന്യ SMS ഇന്ത്യയിലേക്ക് മാത്രമേ അയക്കാനാകൂ.</string>
     <string name="feedback_on_hike">Android-നായുള്ള hike-മായി ബന്ധപ്പെട്ട ഫീഡ്ബാക്ക്</string>
     <string name="feedback_hinttext">ഞങ്ങൾക്ക് ഫീഡ്ബാക്ക് നൽകുക</string>
-    <string name="faq_hinttext">FAQ</string>
+    <string name="faq_hinttext">പതിവ് ചോദ്യങ്ങൾ ചോദിച്ചു</string>
     <string name="blocked_list_hinttext">നിങ്ങൾ ബ്ലോക്കുചെയ്തിട്ടുള്ള ആളുകളെ മാനേജുചെയ്യുക</string>
     <string name="system_health_hinttext">hike സിസ്റ്റം സ്റ്റാറ്റസ് കാണുക</string>
     <string name="app_version">പതിപ്പ് %1$s</string>
@@ -953,7 +953,7 @@
     <string name="group_creation">എന്ന തീയതിയിൽ സൃഷ്ടിച്ചത് </string>
     <string name="ls_change_failed">ലാസ്റ്റ് സീൻ അപ്ഡേറ്റ് പരാജയം!</string>
     <string name="terms_conditions_hint">വ്യവസ്ഥകളും നിബന്ധനകളും</string>
-    <string name="terms_conditions_title">T &amp; C</string>
+    <string name="terms_conditions_title">ടി &amp; സി</string>
     <string name="content_des_message_send_rec_read_status">സന്ദേശം അയച്ചു അല്ലെങ്കിൽ സ്റ്റാറ്റസ് ശേഷിക്കുന്നു</string>
     <string name="content_des_message_clock_state">സന്ദേശം അയച്ചട്ടില്ല</string>
     <string name="content_des_message_double_tick_state">സ്വീകർത്താവിലേക്ക് സന്ദേശം അയച്ചു</string>

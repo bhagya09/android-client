@@ -953,7 +953,7 @@
     <string name="group_creation">रोजी तयार केले </string>
     <string name="ls_change_failed">शेवटचे पाहिले अद्यतन अयशस्वी!</string>
     <string name="terms_conditions_hint">अटी आणि नियम</string>
-    <string name="terms_conditions_title">T &amp; C</string>
+    <string name="terms_conditions_title">टी &amp; सी</string>
     <string name="content_des_message_send_rec_read_status">संदेश पाठवा किंवा प्रलंबित स्टेटस</string>
     <string name="content_des_message_clock_state">संदेश पाठवला नाही</string>
     <string name="content_des_message_double_tick_state">प्राप्तकर्त्याला संदेश वितरित केला</string>

@@ -953,7 +953,7 @@
     <string name="group_creation">પર બનાવવામાં આવ્યુ છે </string>
     <string name="ls_change_failed">છેલ્લા જોવાયાનું અપડેટ નિષ્ફળ ગયું!</string>
     <string name="terms_conditions_hint">નિયમો અને શરતો</string>
-    <string name="terms_conditions_title">T &amp; C (ટી એન્ડ સી)</string>
+    <string name="terms_conditions_title">ટી એન્ડ સી</string>
     <string name="content_des_message_send_rec_read_status">મેસેજ મોકલો અથવા પેન્ડીંગ સ્ટેટસ</string>
     <string name="content_des_message_clock_state">મેસેજ મોકલાયો નથી</string>
     <string name="content_des_message_double_tick_state">પ્રાપ્તકર્તાને મેસેજ ડિલીવર થયો છે</string>
