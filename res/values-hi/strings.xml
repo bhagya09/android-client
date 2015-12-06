@@ -770,7 +770,7 @@
     <string name="voip_call_summary_incoming">इनकमिंग कॉल</string>
     <string name="voip_call_summary_outgoing">आउटगोइंग कॉल</string>
     <string name="voip_missed_call_outgoing">आपकी कॉल मिस हो गई</string>
-    <string name="voip_missed_call_incoming">आपने एक कॉल मिस करी</string>
+    <string name="voip_missed_call_incoming">आपने एक कॉल मिस की</string>
     <string name="voip_call_chat">Hike कॉल</string>
     <string name="voip_call_notification_title">%1$s के साथ Hike कॉल</string>
     <string name="voip_conference_call_notification_title">Hike कॉन्फ़्रेंस कॉल</string>
