@@ -1142,6 +1142,7 @@
     <string name="UPDATE_APP">আপডেট</string>
     <string name="language_summary">বাংলা</string>
     <string name="language">ভাষা</string>
+    <string name="app_language">অ্যাপ্লিকেশন ভাষা</string>
     <string name="keyboard_summary">Hike কীবোর্ড সক্ষম/অক্ষম করুন</string>
     <string name="keyboard_title">Hike কীবোর্ড</string>
     <string name="glide_summary">একটানা ইঙ্গিত টাইপিং</string>

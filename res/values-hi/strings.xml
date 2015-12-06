@@ -1140,6 +1140,7 @@
     <string name="UPDATE_APP">अपडेट करें</string>
     <string name="language_summary">अंग्रेज़ी</string>
     <string name="language">भाषा</string>
+    <string name="app_language">ऐप भाषा</string>
     <string name="keyboard_summary">Hike कीबोर्ड दिखाएँ/हटायें</string>
     <string name="keyboard_title">Hike कीबोर्ड</string>
     <string name="glide_summary">सतत जेस्चर टाइपिंग</string>

@@ -1142,6 +1142,7 @@
     <string name="UPDATE_APP">अद्यतनीत करा</string>
     <string name="language_summary">English</string>
     <string name="language">भाषा</string>
+    <string name="app_language">अॅप भाषा</string>
     <string name="keyboard_summary">Hike कीबोर्ड सक्षम/अक्षम करा</string>
     <string name="keyboard_title">Hike कीबोर्ड</string>
     <string name="glide_summary">निरंतर जेश्चर टायपिंग</string>

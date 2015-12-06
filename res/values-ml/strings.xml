@@ -1142,6 +1142,7 @@
     <string name="UPDATE_APP">അപ്‌ഡേറ്റ് ചെയ്യുക</string>
     <string name="language_summary">ഇംഗ്ലീഷ്</string>
     <string name="language">ഭാഷ</string>
+    <string name="app_language">അപ്ലിക്കേഷൻ ഭാഷാ</string>
     <string name="keyboard_summary">Hike കീബോർഡ് പ്രാപ്തമാക്കുക/അപ്രാപ്തമാക്കുക</string>
     <string name="keyboard_title">Hike കീബോർഡ്</string>
     <string name="glide_summary">തുടർച്ചയായ ഗെസ്ച്വർ ടൈപ്പിംഗ്</string>

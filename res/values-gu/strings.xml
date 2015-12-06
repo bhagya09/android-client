@@ -1142,6 +1142,7 @@
     <string name="UPDATE_APP">અપડેટ કરો</string>
     <string name="language_summary">English</string>
     <string name="language">ભાષા</string>
+    <string name="app_language">એપ્લિકેશન ભાષા</string>
     <string name="keyboard_summary">Hike કીબોર્ડ સક્ષમ/અક્ષમ કરો</string>
     <string name="keyboard_title">Hike કીબોર્ડ</string>
     <string name="glide_summary">સતત હાવભાવ ટાઇપિંગ</string>

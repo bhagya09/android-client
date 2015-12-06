@@ -1141,6 +1141,7 @@
     <string name="UPDATE_APP">అప్‌డేట్ చేయి</string>
     <string name="language_summary">ఇంగ్లిష్</string>
     <string name="language">భాష</string>
+    <string name="app_language">అనువర్తనం భాష</string>
     <string name="keyboard_summary">hike కీబోర్డు ఎనేబుల్/డిసేబుల్ చేయండి</string>
     <string name="keyboard_title">hike కీబోర్డు</string>
     <string name="glide_summary">నిరంతర సంజ్ఞ టైపింగ్</string>
