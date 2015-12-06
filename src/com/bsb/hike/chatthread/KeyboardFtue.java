@@ -369,7 +369,7 @@ public class KeyboardFtue implements HikePubSub.Listener
         		{
         			JSONObject metadata = new JSONObject();
         			metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.KEYBOARD_FTUE_LANGUAGE_DOWNLOADED);
-        			metadata.put(HikeConstants.KEYBOARD_LANGUAGE_CHANGE, item.getDisplayName());
+        			metadata.put(HikeConstants.KEYBOARD_LANGUAGE_CHANGE, item.getlocaleName());
         			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
         		}
         		catch(JSONException e)

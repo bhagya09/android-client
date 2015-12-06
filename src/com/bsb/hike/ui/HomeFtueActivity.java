@@ -5,12 +5,14 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.ViewFlipper;
 
 import com.bsb.hike.HikeConstants;
@@ -110,7 +112,7 @@ public class HomeFtueActivity extends HikeAppStateBaseFragmentActivity {
     private void completeFtue()
     {
         IntentFactory.openHomeActivity(HomeFtueActivity.this);
-        this.finish();
+        //Not calling finish since it updates activity state as back pressed and then onResume is not handled 
     }
 
     private void refreshActionBar() {
@@ -160,7 +162,12 @@ public class HomeFtueActivity extends HikeAppStateBaseFragmentActivity {
     }
     private void showLocalizationFtue() {
         flipper.setDisplayedChild(LOCALIZATION);
-
+        //AND-4046 Begin
+        String unsupportedLanguages = LocalLanguage.getUnsupportedLocaleToastText(this);
+        if (!TextUtils.isEmpty(unsupportedLanguages)) {
+            Toast.makeText(this, unsupportedLanguages, Toast.LENGTH_LONG).show();
+        }
+        //AND-4046 End
         final TextView languageText = (TextView) flipper.findViewById(R.id.txt_lang);
 
         if (LocalLanguageUtils.isLocalLanguageSelected())
