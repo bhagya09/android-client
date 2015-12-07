@@ -1252,7 +1252,8 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				videoHolder.fileThumb.setImageResource(0);
 
 				boolean isUnknown = ContactManager.getInstance().isUnknownContact(conversation.getMsisdn());
-				showThumbnail = ((convMessage.isSent()) || (conversation instanceof OneToNConversation) || !isUnknown || (hikeFile.wasFileDownloaded())||  convMessage.isOfflineMessage());
+				boolean isBot = BotUtils.isBot(conversation.getMsisdn());
+				showThumbnail = ((convMessage.isSent()) || (conversation instanceof OneToNConversation) || !isUnknown || (hikeFile.wasFileDownloaded())||  convMessage.isOfflineMessage() || isBot);
 			
 				if (hikeFile.getThumbnail() == null && !TextUtils.isEmpty(hikeFile.getFileKey()))
 				{
