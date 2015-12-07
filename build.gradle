@@ -19,7 +19,7 @@ android {
         minSdkVersion 14
         renderscriptTargetApi 18
         renderscriptSupportModeEnabled true
-        targetSdkVersion 17
+        targetSdkVersion 23
         multiDexEnabled = true
     }
     lintOptions {
