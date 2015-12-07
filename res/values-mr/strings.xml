@@ -929,7 +929,7 @@
     <string name="change_password_from_privacy">गोपनीय मोड सेटिंग्ज</string>
     <string name="nudge_setting_header">कोपरखळी मारण्यासाठी दोनदा टॅप करा</string>
     <string name="nudge_setting_info">चॅटिंग करताना दोनदा टॅप करून एक कोपरखळी पाठवा</string>
-    <string name="enter_setting_header">Enter की पाठवली</string>
+    <string name="enter_setting_header">एंटर की पाठवली</string>
     <string name="enter_setting_info">एंटर की दाबल्याने संदेश पाठवला जाईल</string>
     <string name="settings_chat">चॅट सेटिंग्ज</string>
     <string name="settings_localization">भाषा आणि इनपुट</string>
