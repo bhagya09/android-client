@@ -333,7 +333,7 @@
     <string name="confirm_delete_msg_header">संदेश हटाएँ</string>
     <string name="confirm_delete_msgs_header">संदेश हटाएँ।</string>
     <string name="selected_count">%1$s चुने गए</string>
-    <string name="clear_conversation">सारे संदेश हटायेंें</string>
+    <string name="clear_conversation">सारे संदेश हटायें</string>
     <string name="gallery_num_selected">%1$d चुने गए</string>
     <string name="broadcast_selected">%1$s/500 चुने गए</string>
     <string name="select_file">फ़ाइल चुनें</string>
@@ -915,8 +915,8 @@
     <string name="stealth_msg_reenter_pin_to_confirm">अपने पिन की पुष्टि करें</string>
     <string name="stealth_enter_4_digits">अपना 4 अंकों का पिन पूरा करें</string>
     <string name="hide_chat">चैट छुपाएँ</string>
-    <string name="mark_hidden">छुपा देंें</string>
-    <string name="mark_visible">प्रकट करेंें</string>
+    <string name="mark_hidden">छुपा दें</string>
+    <string name="mark_visible">प्रकट करें</string>
     <string name="stealth_set_pin">या एक नंबर पिन सेट करें</string>
     <string name="stealth_set_pattern">या एक पैटर्न सेट करें</string>
     <string name="stealth_msg_pin_recorded">पिन रिकॉर्ड किया गया</string>
