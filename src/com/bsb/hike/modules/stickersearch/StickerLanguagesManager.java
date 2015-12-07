@@ -255,26 +255,16 @@ public class StickerLanguagesManager {
     {
         ISO_LANGUAGES = new HashSet<>(LOCALES_SET.size());
 
-        ArrayList<String> kptList = new ArrayList<String>( KptKeyboardManager.getInstance(HikeMessengerApp.getInstance().getApplicationContext()).getSupportedLanguagesList().size());
-
-        for(KPTAddonItem item : KptKeyboardManager.getInstance(HikeMessengerApp.getInstance().getApplicationContext()).getSupportedLanguagesList())
-        {
-            kptList.add(new Locale(item.getlocaleName()).getISO3Language());
-        }
-
-        ISO_LANGUAGES.addAll(kptList);
-
         for (Locale locale : LOCALES_SET) {
             try {
                 String currLang = locale.getISO3Language();
-                if(!kptList.contains(currLang))
-                {
-                    ISO_LANGUAGES.add(currLang);
-                }
+                ISO_LANGUAGES.add(currLang);
             } catch (MissingResourceException e) {
                 Logger.e(TAG, "missing local language code for locale : " + locale);
             }
         }
+
+        Logger.d(TAG, "initialising valid languages collection, valid languages :  " + ISO_LANGUAGES);
 
     }
 
@@ -371,7 +361,6 @@ public class StickerLanguagesManager {
     }
 
     public static boolean isValidISOLanguage(String s) {
-
         return ISO_LANGUAGES.contains(s);
     }
 
@@ -405,6 +394,19 @@ public class StickerLanguagesManager {
         }
 
         return unsupportedLanguages;
+    }
+
+    public void addKptSupportedLanguages()
+    {
+        ArrayList<String> kptList = new ArrayList<String>( KptKeyboardManager.getInstance(HikeMessengerApp.getInstance().getApplicationContext()).getSupportedLanguagesList().size());
+
+        for(KPTAddonItem item : KptKeyboardManager.getInstance(HikeMessengerApp.getInstance().getApplicationContext()).getSupportedLanguagesList())
+        {
+            kptList.add(new Locale(item.getlocaleName()).getISO3Language());
+        }
+
+        Logger.d(TAG, "kpt list of languages : " + kptList);
+        ISO_LANGUAGES.addAll(kptList);
     }
 }
 
