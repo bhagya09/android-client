@@ -162,6 +162,8 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 
 	private String urlParams;
 
+	private long time;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
@@ -173,6 +175,8 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 			super.onCreate(savedInstanceState);
 			return;
 		}
+
+		time=System.currentTimeMillis();
 
 		allowLoc = getIntent().getBooleanExtra(HikeConstants.Extras.WEBVIEW_ALLOW_LOCATION, false);
 
@@ -756,6 +760,19 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 			{
 				if(null != content)
 				{
+					JSONObject json = new JSONObject();
+					try
+					{
+						json.putOpt(AnalyticsConstants.EVENT_KEY,AnalyticsConstants.MICRO_APP_EVENT);
+						json.putOpt(AnalyticsConstants.EVENT,AnalyticsConstants.MICRO_APP_LOADED);
+						json.putOpt(AnalyticsConstants.LOG_FIELD_6,(System.currentTimeMillis()-time));
+						json.putOpt(AnalyticsConstants.BOT_MSISDN,msisdn);
+					} catch (JSONException e)
+					{
+						e.printStackTrace();
+					}
+
+					HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.MICRO_APP_EVENT, json);
 					webView.loadMicroAppData(content.getFormedData());
 				}
 			}
