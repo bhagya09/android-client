@@ -951,7 +951,7 @@
     <string name="group_creation">ग्रूप निर्माण तिथि </string>
     <string name="ls_change_failed">आखिरी बार देखा समय का अपडेट फेल!</string>
     <string name="terms_conditions_hint">नियम व शर्तें</string>
-    <string name="terms_conditions_title">T &amp; C</string>
+    <string name="terms_conditions_title">टी एंड सी</string>
     <string name="content_des_message_send_rec_read_status">संदेश के जाने या प्रतीक्षा में रहने का स्टेटस</string>    
     <string name="content_des_message_clock_state">संदेश नहीं भेजा गया</string>
     <string name="content_des_message_double_tick_state">संदेश डिलिवर कर दिया गया</string>
@@ -1140,6 +1140,7 @@
     <string name="UPDATE_APP">अपडेट करें</string>
     <string name="language_summary">अंग्रेज़ी</string>
     <string name="language">भाषा</string>
+    <string name="app_language">ऐप भाषा</string>
     <string name="keyboard_summary">Hike कीबोर्ड दिखाएँ/हटायें</string>
     <string name="keyboard_title">Hike कीबोर्ड</string>
     <string name="glide_summary">सतत जेस्चर टाइपिंग</string>

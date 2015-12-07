@@ -1150,6 +1150,7 @@
     <string name="UPDATE_APP">ಅಪ್‌ಡೇಟ್‌</string>
     <string name="language_summary">ಇಂಗ್ಲಿಷ್‌</string>
     <string name="language">ಭಾಷೆ</string>
+    <string name="app_language">ಅಪ್ಲಿಕೇಶನ್ ಭಾಷೆ</string>
     <string name="keyboard_summary">hike ಕೀಬೋರ್ಡ‌ ಸಕ್ರಿಯ/ನಿಷ್ಕ್ರಿಯ ಮಾಡಿ</string>
     <string name="keyboard_title">hike ಕೀಬೋರ್ಡ</string>
     <string name="glide_summary">ನಿರಂತರ ಗೆಶ್ಚರ್ ಟೈಪಿಂಗ್</string>
