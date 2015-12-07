@@ -33,6 +33,11 @@ public class Header implements Comparable<Header>
 		return value;
 	}
 
+	public void setValue(String val)
+	{
+		this.value = val;
+	}
+
 	@Override
 	public boolean equals(Object other)
 	{
