@@ -361,18 +361,6 @@ public class StickerLanguagesManager {
     }
 
     public static boolean isValidISOLanguage(String s) {
-
-
-        ArrayList<String> kptList = new ArrayList<String>( KptKeyboardManager.getInstance(HikeMessengerApp.getInstance().getApplicationContext()).getSupportedLanguagesList().size());
-
-        for(KPTAddonItem item : KptKeyboardManager.getInstance(HikeMessengerApp.getInstance().getApplicationContext()).getSupportedLanguagesList())
-        {
-            kptList.add(new Locale(item.getlocaleName()).getISO3Language());
-        }
-
-        Logger.d(TAG, "kpt list of languages : " + kptList);
-        ISO_LANGUAGES.addAll(kptList);
-
         return ISO_LANGUAGES.contains(s);
     }
 
@@ -406,6 +394,19 @@ public class StickerLanguagesManager {
         }
 
         return unsupportedLanguages;
+    }
+
+    public void addKptSupportedLanguages()
+    {
+        ArrayList<String> kptList = new ArrayList<String>( KptKeyboardManager.getInstance(HikeMessengerApp.getInstance().getApplicationContext()).getSupportedLanguagesList().size());
+
+        for(KPTAddonItem item : KptKeyboardManager.getInstance(HikeMessengerApp.getInstance().getApplicationContext()).getSupportedLanguagesList())
+        {
+            kptList.add(new Locale(item.getlocaleName()).getISO3Language());
+        }
+
+        Logger.d(TAG, "kpt list of languages : " + kptList);
+        ISO_LANGUAGES.addAll(kptList);
     }
 }
 
