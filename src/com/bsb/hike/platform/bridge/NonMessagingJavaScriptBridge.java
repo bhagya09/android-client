@@ -188,6 +188,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 			{
 				jsonObject.put(HikePlatformConstants.EXTRA_DATA, extraData);
 			}
+
 			PlatformUtils.addLocaleToInitJSON(jsonObject);
 
 			mWebView.loadUrl("javascript:init('"+getEncodedDataForJS(jsonObject.toString())+"')");

@@ -1,10 +1,5 @@
 package com.bsb.hike.productpopup;
 
-import java.util.Comparator;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
@@ -12,11 +7,24 @@ import android.text.TextUtils;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.platform.content.PlatformContentModel;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.Utils;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-import static com.bsb.hike.productpopup.ProductPopupsConstants.*;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.Comparator;
+
+import static com.bsb.hike.productpopup.ProductPopupsConstants.END_TIME;
+import static com.bsb.hike.productpopup.ProductPopupsConstants.IS_CANCELLABLE;
+import static com.bsb.hike.productpopup.ProductPopupsConstants.IS_FULL_SCREEN;
+import static com.bsb.hike.productpopup.ProductPopupsConstants.PUSH_TIME;
+import static com.bsb.hike.productpopup.ProductPopupsConstants.PopupTriggerPoints;
+import static com.bsb.hike.productpopup.ProductPopupsConstants.PushTypeEnum;
+import static com.bsb.hike.productpopup.ProductPopupsConstants.START_TIME;
+import static com.bsb.hike.productpopup.ProductPopupsConstants.TRIGGER_POINT;
 
 public class ProductContentModel implements Parcelable
 {
@@ -43,11 +51,12 @@ public class ProductContentModel implements Parcelable
 	private String pid;
 	
 	private PopupConfiguration popupConfiguration;
+
+	JSONObject notificationData=null;
 	
 	private int config;
 
-	private ProductContentModel(JSONObject contentData)
-	{
+	private ProductContentModel(JSONObject contentData) {
 		this.mmContentModel = PlatformContentModel.make(contentData.toString());
 
 		starttime = contentData.optLong(START_TIME, 0l);
@@ -59,6 +68,15 @@ public class ProductContentModel implements Parcelable
 		pid = mmContentModel.getPid();
 		config = contentData.optInt(HikeConstants.CONFIGURATION, 0);
 		popupConfiguration = new PopupConfiguration(config);
+
+
+		Logger.d("productpopup", "Notification language data is " + mmContentModel.getLanguageData());
+
+		if (mmContentModel.getLanguageData() != null) {
+			notificationData = Utils.getDataBasedOnAppLanguage(new Gson().toJson(mmContentModel.getLanguageData()));
+
+			Logger.d("productpopup", notificationData == null ? "data is null" : notificationData.toString());
+		}
 
 	}
 
@@ -134,9 +152,17 @@ public class ProductContentModel implements Parcelable
 		return false;
 	}
 
-	public String getUser()
-	{
-		return mmContentModel.cardObj.getUser();
+	public String getUser() {
+		String title = null;
+		if (notificationData != null) {
+			title = notificationData.optString(HikeConstants.NOTIFICATION_TITLE);
+			if (TextUtils.isEmpty(title)) {
+				title = mmContentModel.cardObj.getUser();
+			}
+		} else {
+			title = mmContentModel.cardObj.getUser();
+		}
+		return title;
 	}
 
 	public JsonObject getLd()
@@ -159,9 +185,17 @@ public class ProductContentModel implements Parcelable
 		this.formedData = compiledData;
 	}
 
-	public String getNotifTitle()
-	{
-		return mmContentModel.cardObj.getnotifText();
+	public String getNotifTitle() {
+		String notifText = null;
+		if (notificationData != null) {
+			notifText = notificationData.optString(HikeConstants.NOTIFICATION_TEXT);
+			if (TextUtils.isEmpty(notifText)) {
+				notifText = mmContentModel.cardObj.getnotifText();
+			}
+		} else {
+			notifText = mmContentModel.cardObj.getnotifText();
+		}
+		return notifText;
 	}
 
 	/**

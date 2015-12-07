@@ -331,7 +331,7 @@
                             android:background="@null"
                             android:gravity="center_vertical"
                             android:imeOptions="actionSend"
-                            android:inputType="text|textAutoCorrect|textCapSentences|textMultiLine"
+                            android:inputType="text|textAutoCorrect|textCapSentences"
                             android:lineSpacingExtra="1dp"
                             atx:charInputMaxLength="@integer/max_length_message"
                             android:maxLength="@integer/max_length_message"

@@ -1397,11 +1397,9 @@ public abstract class JavascriptBridge
 	@JavascriptInterface
 	public void showPopup(final String contentData)
 	{
-		mHandler.post(new Runnable()
-		{
+		mHandler.post(new Runnable() {
 			@Override
-			public void run()
-			{
+			public void run() {
 				PlatformHelper.showPopup(contentData, weakActivity.get());
 			}
 		});
@@ -1488,6 +1486,17 @@ public abstract class JavascriptBridge
 			callbackToJS(id, "true");
 		else
 			callbackToJS(id, "false");
+	}
+
+	/**
+	 * Platform Version 9
+	 *
+	 * This function is called to request Init in case of productpopup apps
+	 */
+	@JavascriptInterface
+	public void requestInit()
+	{
+
 	}
 
 }

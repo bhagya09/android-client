@@ -5,12 +5,14 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.ViewFlipper;
 
 import com.bsb.hike.HikeConstants;
@@ -21,10 +23,12 @@ import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.localisation.LocalLanguage;
 import com.bsb.hike.localisation.LocalLanguageUtils;
 import com.bsb.hike.modules.kpt.KptKeyboardManager;
+import com.bsb.hike.modules.kpt.KptUtils;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.Utils;
 import com.kpt.adaptxt.beta.KPTAddonItem;
 
 import org.json.JSONException;
@@ -108,7 +112,7 @@ public class HomeFtueActivity extends HikeAppStateBaseFragmentActivity {
     private void completeFtue()
     {
         IntentFactory.openHomeActivity(HomeFtueActivity.this);
-        this.finish();
+        //Not calling finish since it updates activity state as back pressed and then onResume is not handled 
     }
 
     private void refreshActionBar() {
@@ -158,7 +162,12 @@ public class HomeFtueActivity extends HikeAppStateBaseFragmentActivity {
     }
     private void showLocalizationFtue() {
         flipper.setDisplayedChild(LOCALIZATION);
-
+        //AND-4046 Begin
+        String unsupportedLanguages = LocalLanguage.getUnsupportedLocaleToastText(this);
+        if (!TextUtils.isEmpty(unsupportedLanguages)) {
+            Toast.makeText(this, unsupportedLanguages, Toast.LENGTH_LONG).show();
+        }
+        //AND-4046 End
         final TextView languageText = (TextView) flipper.findViewById(R.id.txt_lang);
 
         if (LocalLanguageUtils.isLocalLanguageSelected())
@@ -188,17 +197,7 @@ public class HomeFtueActivity extends HikeAppStateBaseFragmentActivity {
                                 selectedLocalLanguage = list.get(which);
                                 languageText.setText(selectedLocalLanguage.getDisplayName());
                                 LocalLanguageUtils.setApplicationLocalLanguage(selectedLocalLanguage);
-
-                                //	tracking the app language selected by the user in ftue
-                                try {
-                                    JSONObject metadata = new JSONObject();
-                                    metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.APP_LANGUAGE_FTUE);
-                                    metadata.put(HikeConstants.KEYBOARD_LANGUAGE, selectedLocalLanguage.getDisplayName());
-                                    HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
-                                } catch (JSONException e) {
-                                    Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json : " + selectedLocalLanguage.getDisplayName() + "\n" + e);
-                                }
-
+                                Utils.sendLocaleToServer(HomeFtueActivity.this);
                                 // Relaunching the Activity
                                 IntentFactory.openHomeFtueActivity(HomeFtueActivity.this);
                             }
