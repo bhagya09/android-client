@@ -472,6 +472,7 @@ public class StickyCaller {
 								&& ((TextView) stickyCallerView.findViewById(R.id.caller_location)).getText().equals(callerContentModel.getFullName())) {
 							setValueOnID(R.id.caller_location, callerContentModel.getLocation());
 						}
+						setSpam(callerContentModel);
 					}
 				}
 			});
@@ -531,14 +532,31 @@ public class StickyCaller {
 		}
 		
 			setBlockContactButton(number);
+
+			setSpam(callerContentModel);
 		
+	}
+
+	private static void setSpam(CallerContentModel callerContentModel) {
+
+		String spamString = "";
+		if (callerContentModel != null)
+		{
+			if(callerContentModel.isSpam() && callerContentModel.getSpamCount()>0)
+			{
+				spamString = "("+HikeMessengerApp.getInstance().getApplicationContext().getString(R.string.spam)+"-"+callerContentModel.getSpamCount()+")";
+			}
+			TextView spam = (TextView)stickyCallerView.findViewById(R.id.spam);
+			spam.setVisibility(View.VISIBLE);
+			spam.setText(spamString);
+		}
 	}
 
 	private static void setBlockContactButton(String msisdn)
 	{
 		if (CALL_TYPE == INCOMING || CALL_TYPE == MISSED)
 		{
-			if (ContactManager.getInstance().getCallerContentModelFromMsisdn(msisdn) != null)
+			if (msisdn != null && ContactManager.getInstance().getCallerContentModelFromMsisdn(msisdn) != null)
 			{
 				View callerBlockButtonDivider = stickyCallerView.findViewById(R.id.block_contact_divider);
 				callerBlockButtonDivider.setVisibility(View.VISIBLE);
@@ -603,6 +621,8 @@ public class StickyCaller {
 		}
 
 		setBlockContactButton(number);
+
+		setSpam(callerContentModel);
 	}
 	
 	
