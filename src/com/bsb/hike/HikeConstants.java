@@ -727,7 +727,11 @@ public class HikeConstants
 	public static final String BROADCAST_ID_PREFIX = "b:";
 
 	public static final String AVATAR = "avatar";
-	
+	public static final String LANGUAGE = "lan";
+
+	public static final String NOTIFICATION_TITLE = "notifTitle";
+	public static final String NOTIFICATION_TEXT = "notifText";
+
 	public static final String TOGGLE = "toggle";
 
     public static final String HTTP_NETWORK_CHECK_CALL = "httpNetworkCheckCall";
@@ -3715,6 +3719,7 @@ public class HikeConstants
 
 	public static final String KEYBOARD_LANGUAGE = "z";
 
+	public static final String LANG_ARRAY = "lan_array";
 
 
 }

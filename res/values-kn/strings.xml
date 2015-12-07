@@ -991,15 +991,15 @@
     <string name="delete_block">ಬ್ಲಾಕ್‌ ಮಾಡಿ ಮತ್ತು ಅಳಿಸಿ</string>
     <string name="confirm_delete_block_msg">ನೀವು \”%1$s\” ಅಳಿಸಲು ಮತ್ತು ಬ್ಲಾಕ್‌ ಮಾಡಲು ಬಯಸುತ್ತೀರಾ? </string>
     <string name="confirm_delete_non_messaging">ನೀವು \”%1$s\” ಅಳಿಸಲು ಬಯಸುತ್ತೀರಾ? </string>
-    <string name="scan_free_hike">hike Direct</string>
-    <string name="connection_established">hike Direct ಸಂಪರ್ಕಿತಗೊಂಡಿದೆ</string>
+    <string name="scan_free_hike">Hike ಡೈರೆಕ್ಟ್</string>
+    <string name="connection_established">Hike ಡೈರೆಕ್ಟ್ ಸಂಪರ್ಕಿತಗೊಂಡಿದೆ</string>
     <string name="awaiting_response">ಪ್ರತಿಕ್ರಿಯೆ ನಿರೀಕ್ಷಿಸಲಾಗುತ್ತದೆ</string>
     <string name="disconnect_offline">ಸಂಪರ್ಕಕಡಿತ</string>
     <string name="files_not_received">ಸಂಪರ್ಕ ಕಡಿತದಿಂದಾಗಿ ಕೆಲವು ಫೈಲ್‌ಗಳನ್ನು ಸ್ವೀಕರಿಸಲಾಗಿಲ್ಲ</string>
     <string name="share_application">ಅಪ್ಲಿಕೇಶನ್‌ಗಳನ್ನು ಹಂಚಿಕೊಳ್ಳಿ</string>
-    <string name="free_hike_connection">hike Direct ಸಂಪರ್ಕಿತಗೊಂಡಿದೆ</string>
+    <string name="free_hike_connection">Hike ಡೈರೆಕ್ಟ್ ಸಂಪರ್ಕಿತಗೊಂಡಿದೆ</string>
     <string name="scan_free_hike_connection">ಸಂಪರ್ಕಿಸಲು ಇಲ್ಲಿ ತಟ್ಟಿ 
-        <![CDATA[<b>%1$s</b>]]> hike Direct ಮೂಲಕ
+        <![CDATA[<b>%1$s</b>]]> Hike ಡೈರೆಕ್ಟ್ ಮೂಲಕ
     </string>
     <string name="could_not_post_pic">ಚಿತ್ರ ಪೋಸ್ಟ್ ಮಾಡಲು ಅಸಾಧ್ಯ. ದಯವಿಟ್ಟು ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ</string>
     <string name="sticker_recommendation_setting_info">ಸಲಹೆಗಳಿಗಾಗಿ ನೀಲಿ ಶಬ್ದಗಳ ಮೇಲೆ ತಟ್ಟಿ</string>
@@ -1048,13 +1048,13 @@
     <string name="disconnect_warning">%1$s ಜೊತೆಗೆ ಸಂಪರ್ಕಿಸಲು ದಯವಿಟ್ಟು ಕಾಯುವುದೇ?</string>
     <string name="connected_warning">%1$s ಜತೆಗಿನ ನಿಮ್ಮ ಸಂಪರ್ಕ ಮುಕ್ತಾಯವಾಗಲಿದೆ.</string>
     <string name="connecting_to">%1$sಗೆ ಸಂಪರ್ಕಿಸಲಾಗುತ್ತಿದೆ...</string>
-    <string name="offline_animation_second_message">ಸಲಹೆ: hike Direct 100 ಮೀಟರು \nವ್ಯಾಪ್ತಿಯಲ್ಲಿ ಕೆಲಸ ಮಾಡುತ್ತದೆ</string>
-    <string name="offline_animation_third_message">ಇದು ಸಾಮಾನ್ಯಕ್ಕಿಂತ ಹೆಚ್ಚು ಸಮಯ ತೆಗೆದುಕೊಳ್ಳುತ್ತಿದೆ. \n hike direct ತಟ್ಟುವಂತೆ ದಯವಿಟ್ಟು\n%1$s ಗು ಹೇಳಿ</string>
+    <string name="offline_animation_second_message">ಸಲಹೆ: Hike ಡೈರೆಕ್ಟ್ 100 ಮೀಟರು \nವ್ಯಾಪ್ತಿಯಲ್ಲಿ ಕೆಲಸ ಮಾಡುತ್ತದೆ</string>
+    <string name="offline_animation_third_message">ಇದು ಸಾಮಾನ್ಯಕ್ಕಿಂತ ಹೆಚ್ಚು ಸಮಯ ತೆಗೆದುಕೊಳ್ಳುತ್ತಿದೆ. \n Hike ಡೈರೆಕ್ಟ್ ತಟ್ಟುವಂತೆ ದಯವಿಟ್ಟು\n%1$s ಗು ಹೇಳಿ</string>
     <string name="connect">ಸಂಪರ್ಕಿಸಿ</string>
     <string name="sticker_share_popup_activate_toast">ಸ್ಟಿಕ್ಕೀ ಈಗ ಸಕ್ರಿಯವಾಗಿದೆ!</string>
     <string name="cancel_connection">%1$s ಜತೆಗೆ ಸಂಪರ್ಕ ಪ್ರಯತ್ನವನ್ನು ರದ್ದುಗೊಳಿಸುವುದೇ?</string>
     <string name="cancel_offline_connection">ಸಂಪರ್ಕ ರದ್ದುಗೊಳಿಸಿ</string>
-    <string name="retry_connection">\n hike Direct ಗೆ ಸಂಪರ್ಕ ಸಾಧ್ಯವಾಗುತ್ತಿಲ್ಲ. ಮತ್ತೆ ಪ್ರಯತ್ನಿಸುವುದೇ?</string>
+    <string name="retry_connection">\n Hike ಡೈರೆಕ್ಟ್ ಗೆ ಸಂಪರ್ಕ ಸಾಧ್ಯವಾಗುತ್ತಿಲ್ಲ. ಮತ್ತೆ ಪ್ರಯತ್ನಿಸುವುದೇ?</string>
     <string name="file_attachment_info_offline">ಯಾವುದೇ ಗಾತ್ರದ ಅಪ್ಲಿಕೇಶನ್‌ , ಮೀಡಿಯಾ, ಫೈಲ್‌ಗಳನ್ನು ಹಂಚಿಕೊಳ್ಳಿ</string>
     <string name="actionbar_activity_feed_title">ಚಟುವಟಿಕೆ</string>
     <string name="photo_like_text">ನಿಮ್ಮ ಫೊಟೋವನ್ನು ಲೈಕ್‌ ಮಾಡಿದ್ದಾರೆ</string>
@@ -1179,16 +1179,16 @@
     <string name="keypress_sound_vol_title">ಕೀಪ್ರೆಸ್‌ ಧ್ವನಿ ವಾಲ್ಯೂಮ್‌</string>
     <string name="keypress_vib_duration_title">ಕೀಪ್ರೆಸ್‌ ವೈಬ್ರೇಶನ್‌ ಅವಧಿ</string>
     <string name="like_count_by_unknow_contacts">%2$s ರ ಸ್ನೇಹಿತರ +%1$d</string>
-    <string name="connection_established_inline_msg">hike Direct ಸಂಪರ್ಕಿತಗೊಂಡಿದೆ</string>
-    <string name="connection_deestablished_inline_msg">hike Direct ಸಂಪರ್ಕ ಕಡಿತಗೊಂಡಿದೆ</string>
-    <string name="connection_request_inline_msg">hike Direct ಮನವಿ ಮಿಸ್‌ ಆಗಿದೆ</string>
-    <string name="hike_direct_info">ನಿಮ್ಮ ಡಾಟಾ ಖಾಲಿಯಾದಾಗಲೂ ನಿಮ್ಮ ಸ್ನೇಹಿತರೊಂದಿಗೆ ಸಂಪರ್ಕದಲ್ಲಿರಲು hike Direct ಹೊಸ ವಿಧಾನವಾಗಿದೆ. ಇದು ನಿಮಗೆ ಸಂದೇಶಗಳನ್ನು ಫೈಲ್‌ಗಳನ್ನು ನಿಮ್ಮ ಸಮೀಪದಲ್ಲಿರುವ ಸ್ನೇಹಿತರಿಗೆ ಉಚಿತವಾಗಿ ಹಂಚಲು ಅನುಮತಿಸುತ್ತದೆ. ಫೈಲ್‌ ಗಾತ್ರ ಮಿತಿಯಿಲ್ಲ ಮತ್ತು ನೀವು ಸಿನಿಮಾಗಳು, ವಿಡಿಯೋಗಳು, ಸಂಗೀತ, ಆಪ್‌ಗಳು ಮತ್ತು ಏನನ್ನಾದರೂ ಸಂಪೂರ್ಣ ಉಚಿತವಾಗಿ ಕಳುಹಿಸಬಹುದಾಗಿದೆ.</string>
-    <string name="how_hike_direct_works">hike Direct ಹೇಗೆ ಕೆಲಸ ಮಾಡುತ್ತದೆ?</string>
+    <string name="connection_established_inline_msg">Hike ಡೈರೆಕ್ಟ್ ಸಂಪರ್ಕಿತಗೊಂಡಿದೆ</string>
+    <string name="connection_deestablished_inline_msg">Hike ಡೈರೆಕ್ಟ್ ಸಂಪರ್ಕ ಕಡಿತಗೊಂಡಿದೆ</string>
+    <string name="connection_request_inline_msg">Hike ಡೈರೆಕ್ಟ್ ಮನವಿ ಮಿಸ್‌ ಆಗಿದೆ</string>
+    <string name="hike_direct_info">ನಿಮ್ಮ ಡಾಟಾ ಖಾಲಿಯಾದಾಗಲೂ ನಿಮ್ಮ ಸ್ನೇಹಿತರೊಂದಿಗೆ ಸಂಪರ್ಕದಲ್ಲಿರಲು Hike ಡೈರೆಕ್ಟ್ ಹೊಸ ವಿಧಾನವಾಗಿದೆ. ಇದು ನಿಮಗೆ ಸಂದೇಶಗಳನ್ನು ಫೈಲ್‌ಗಳನ್ನು ನಿಮ್ಮ ಸಮೀಪದಲ್ಲಿರುವ ಸ್ನೇಹಿತರಿಗೆ ಉಚಿತವಾಗಿ ಹಂಚಲು ಅನುಮತಿಸುತ್ತದೆ. ಫೈಲ್‌ ಗಾತ್ರ ಮಿತಿಯಿಲ್ಲ ಮತ್ತು ನೀವು ಸಿನಿಮಾಗಳು, ವಿಡಿಯೋಗಳು, ಸಂಗೀತ, ಆಪ್‌ಗಳು ಮತ್ತು ಏನನ್ನಾದರೂ ಸಂಪೂರ್ಣ ಉಚಿತವಾಗಿ ಕಳುಹಿಸಬಹುದಾಗಿದೆ.</string>
+    <string name="how_hike_direct_works">Hike ಡೈರೆಕ್ಟ್ ಹೇಗೆ ಕೆಲಸ ಮಾಡುತ್ತದೆ?</string>
     <string name="condition_one">ಷರತ್ತು 1: ನಿಮ್ಮಿಂದ ನಿಮ್ಮ ಸ್ನೇಹಿತರು 100 ಮೀಟರುಗಳ ದೂರದಲ್ಲಿ ಇರಬೇಕು. ಖಂಡಿತವಾಗಿಯೂ, ನೀವು ಸನಿಹದಲ್ಲಿದ್ದಷ್ಟೂ ಸಂಪರ್ಕ ಉತ್ತಮವಾಗಿರುತ್ತದೆ!</string>
-    <string name="condition_two">ಷರತ್ತು 2: ಸಂಭಾಷಣೆ ಆರಂಭಿಸಲು, hike Direct ಆಪ್ಷನ್‌ ಮೇಲೆ ತಟ್ಟುವಂತೆ ನಿಮ್ಮ ಸ್ನೇಹಿತರಿಗೂ ಹೇಳಿ.</string>
-    <string name="offline_group_query">hike Direct ಗ್ರೂಪ್ ಚಾಟ್‌ಗಳಿಗೂ ಕೆಲಸ ಮಾಡುತ್ತದೆಯೇ?</string>
-    <string name="offline_group_answer">ಸದ್ಯಕ್ಕೆ, hike Direct ಕೇವಲ 1:1 ಚಾಟ್‌ಗಳಿಗೆ ಕೆಲಸ ಮಾಡುತ್ತದೆ.  ಇದು ಗ್ರೂಪ್‌ ಚಾಟ್‌ಗಳಿಗೆ ಕೆಲಸ ಮಾಡುವುದಿಲ್ಲ. ಈ ಜಾಗದಲ್ಲಿ ಅಪ್‌ಡೇಟ್‌ಗಳಿಗಾಗಿ ಕಾಯಿರಿ.</string>
-    <string name="hike_direct_help">hike Direct ಸಹಾಯ</string>
+    <string name="condition_two">ಷರತ್ತು 2: ಸಂಭಾಷಣೆ ಆರಂಭಿಸಲು, Hike ಡೈರೆಕ್ಟ್ ಆಪ್ಷನ್‌ ಮೇಲೆ ತಟ್ಟುವಂತೆ ನಿಮ್ಮ ಸ್ನೇಹಿತರಿಗೂ ಹೇಳಿ.</string>
+    <string name="offline_group_query">Hike ಡೈರೆಕ್ಟ್ ಗ್ರೂಪ್ ಚಾಟ್‌ಗಳಿಗೂ ಕೆಲಸ ಮಾಡುತ್ತದೆಯೇ?</string>
+    <string name="offline_group_answer">ಸದ್ಯಕ್ಕೆ, Hike ಡೈರೆಕ್ಟ್ ಕೇವಲ 1:1 ಚಾಟ್‌ಗಳಿಗೆ ಕೆಲಸ ಮಾಡುತ್ತದೆ.  ಇದು ಗ್ರೂಪ್‌ ಚಾಟ್‌ಗಳಿಗೆ ಕೆಲಸ ಮಾಡುವುದಿಲ್ಲ. ಈ ಜಾಗದಲ್ಲಿ ಅಪ್‌ಡೇಟ್‌ಗಳಿಗಾಗಿ ಕಾಯಿರಿ.</string>
+    <string name="hike_direct_help">Hike ಡೈರೆಕ್ಟ್ ಸಹಾಯ</string>
     <string name="something_went_wrong">ಏನೋ ತಪ್ಪಾಗಿದೆ. ದಯವಿಟ್ಟು ಸ್ವಲ್ಪ ಸಮಯದ ನಂತರ ಪ್ರಯತ್ನಿಸಿ</string>
     <string name="ENABLE">ಸಕ್ರಿಯ</string>
     <string name="accessibility_settings_system_text">ಮೆಸೇಜಿಂಗ್‌ ಆಪ್‌ಗಳಲ್ಲಿ ಸ್ಟಿಕರ್‌ಗಳನ್ನು ಹಂಚುವುದು ಸೇರಿದಂತೆ hike ಸ್ಟಿಕಿ ಹಲವು ವಿಶೇಷಣಗಳನ್ನು ಒದಗಿಸುತ್ತದೆ. ದಯವಿಟ್ಟು ಸಕ್ರಿಯಗೊಳಿಸಿ ಮತ್ತು ಇದನ್ನು ಆನ್‌ ಮಾಡಿ.</string>
@@ -1198,9 +1198,9 @@
     <string name="email_body">ನಾನು ಈಗಷ್ಟೇ hike ಮೆಸೆಂಜರ್‌ಅನ್ನು ಡೌನ್‌ಲೋಡ್‌ ಮಾಡಿದ್ದೇನೆ. ವಾಟ್ಸಾಪ್‌ಗಿಂತ ಎಂಥಾ ದೊಡ್ಡ ಬದಲಾವಣೆ!\n\nಇದರಲ್ಲಿ ಅದ್ಭುತ ಸ್ಟಿಕರ್‌ಗಳು, ನನ್ನ ಚಾಟ್‌ಗಳನ್ನು ಗೌಪ್ಯವಾಗಿಸುವ ಮತ್ತು ಕೆಲವು ನಿಜವಾಗಿಯೂ ಉತ್ತಮವಾಗಿ ಚಾಟ್‌ ಥೀಮ್‌ಗಳಿವೆ. http://get.hike.in/$invite_token ಇಲ್ಲಿಂದ ಡೌನ್‌ಲೋಡ್‌ ಮಾಡಿ</string>
     <string name="watsapp_invitation">ಹೇಯ್‌, hikeನಲ್ಲಿ ನನ್ನ ಜತೆ ಸೇರಿ, ಇದು ಭಾರತದಲ್ಲಿ ರೂಪಿಸಿದ ಏಕೈಕ ಮೆಸೇಜಿಂಗ್‌ ಆಪ್‌ ಆಗಿದೆ! ಇದು ನಿಮಗೆ ಚಾಟ್‌ಗಳನ್ನು ಗೌಪ್ಯವಾಗಿಸಲು, ಸ್ನೇಹಿತರು ಆಫ್‌ಲೈನ್‌ನಲ್ಲಿದ್ದಾಗಲೂ ಸಂದೇಶಗಳನ್ನು ಕಳುಹಿಸಲು ಮತ್ತು ಅಮೋಘ ಸ್ಟಿಕರ್‌ಗಳನ್ನು ಕಳುಹಿಸಲು ಅನುವು ಮಾಡುತ್ತದೆ. \n\nತಲಾ 100MB ಇರುವ ನಿಮ್ಮ ಎಲ್ಲ ಫೈಲ್‌ಗಳಾದ - docs, ಹಾಡುಗಳು, ಸಿನಿಮಾಗಳು ಇತ್ಯಾದಿಯನ್ನು ಹಂಚುತ್ತದೆ - ಡೌನ್‌ಲೋಡ್‌: http://get.hike.in/</string>
     <string name="invite_share_message">ಹಾಯ್‌, hike ಮೆಸೆಂಜರ್‌ ನೋಡಿ. ನಿಮ್ಮ ಭಾಷೆಯಲ್ಲಿ ಇದು ಅಮೋಘ ಸ್ಟಿಕರ್‌ಗಳನ್ನು ಒಳಗೊಂಡಿದೆ! ಭಾರತದಲ್ಲಿ ಮಾಡಿದ ಏಕೈಕ ಮೆಸೇಜಿಂಗ್‌ ಆಪ್‌ಗೆ ಸೇರಿ - ಡೌನ್‌ಲೋಡ್‌ at http://hike.in/$invite_token</string>
-    <string name="offline_request_cancelled"> ನಿಮ್ಮ hike Direct ಸಂಪರ್ಕ ಮನವಿಯನ್ನು %1$s ರದ್ದುಗೊಳಿಸಿದ್ದಾರೆ.\nದಯವಿಟ್ಟು ನಂತರ ಪ್ರಯತ್ನಿಸಿ.</string>
-    <string name="incoming_hike_direct_request">ಒಳಬರುವ hike Direct ಮನವಿ</string>
-    <string name="hike_direct_request">hike Direct ಮೂಲಕ ಸಂಪರ್ಕ ಪಡೆಯಲು ಯತ್ನಿಸುತ್ತಿದೆ.</string>
+    <string name="offline_request_cancelled"> ನಿಮ್ಮ Hike ಡೈರೆಕ್ಟ್ ಸಂಪರ್ಕ ಮನವಿಯನ್ನು %1$s ರದ್ದುಗೊಳಿಸಿದ್ದಾರೆ.\nದಯವಿಟ್ಟು ನಂತರ ಪ್ರಯತ್ನಿಸಿ.</string>
+    <string name="incoming_hike_direct_request">ಒಳಬರುವ Hike ಡೈರೆಕ್ಟ್ ಮನವಿ</string>
+    <string name="hike_direct_request">Hike ಡೈರೆಕ್ಟ್ ಮೂಲಕ ಸಂಪರ್ಕ ಪಡೆಯಲು ಯತ್ನಿಸುತ್ತಿದೆ.</string>
     <string name="low_battery_msg">ನಿಮ್ಮ ಸಾಧನವು ಬ್ಯಾಟರಿ ಕಡಿಮೆ ಇರುವಂತೆ ರನ್‌ ಆಗುತ್ತಿದೆ. ಮೆಸೇಜ್‌ ಮಾಡುವುದು ಮತ್ತು ಫೈಲ್‌ಗಳ ಕಳುಹಿಸುವುದು ಹಾಗೂ ಸ್ವೀಕರಿಸುವುದು ನಿಧಾನವಾಗಬಹುದು.</string>
     <string name="offline_connection_problem">ಓಹ್‌! ಸಮಸ್ಯೆಯನ್ನು ಎದುರಿಸುತ್ತಿದ್ದೀರಾ?\nದಯವಿಟ್ಟು ನಂತರ ಪ್ರಯತ್ನಿಸಿ.</string>
     <string name="turn_on_connection">ಮೊಬೈಲ್ ಡಾಟಾ ಅಥವಾ Wi-Fi ಆನ್‌ ಮಾಡಿ</string>
@@ -1209,7 +1209,7 @@
     <string name="action_no_network">ದಯವಿಟ್ಟು ನೆಟ್‌ವರ್ಕ್‌ ಚೆಕ್‌ ಮಾಡಿ</string>
     <string name="timeline_transition_anim">timeline_image_transit</string>
     <string name="home_overflow_new_photo">ಹೊಸ ಫೊಟೋ</string>
-    <string name="upgrade_for_larger_files">ಈ ಫೈಲ್‌ವನ್ನು ಸ್ವೀಕರಿಸಲು %1$s ಅಪ್‌ಗ್ರೇಡ್‌ ಮಾಡಬೇಕಿದೆ. ಈಗ hike Direct ಮೂಲಕ hike ನ ಇತ್ತೀಚಿನ ಆವೃತ್ತಿಯನ್ನು ಹಂಚಿಕೊಳ್ಳಿ.</string>
+    <string name="upgrade_for_larger_files">ಈ ಫೈಲ್‌ವನ್ನು ಸ್ವೀಕರಿಸಲು %1$s ಅಪ್‌ಗ್ರೇಡ್‌ ಮಾಡಬೇಕಿದೆ. ಈಗ Hike ಡೈರೆಕ್ಟ್ ಮೂಲಕ hike ನ ಇತ್ತೀಚಿನ ಆವೃತ್ತಿಯನ್ನು ಹಂಚಿಕೊಳ್ಳಿ.</string>
     <string name="group_participant_info">ನೀವು ಗುಂಪಿಗೆ 500 ಸದಸ್ಯರವರೆಗೆ ಸೇರಿಸಬಹುದಾಗಿದೆ</string>
     <string name="maxContactInGroupErr">ಗರಿಷ್ಠ %1$s ಸದಸ್ಯರನ್ನು ಸೇರಿಸಬಹುದು</string>
     <string name="added_in_group">ಈ ಸಂಪರ್ಕ ಈಗಾಗಲೇ ಸದಸ್ಯರಾಗಿದ್ದಾರೆ</string>
@@ -1227,7 +1227,7 @@
     <string name="link_share_error_default">ಕೆಲವು ಸಂದೇಶ ಕಂಡುಬಂದಿದೆ!</string>
     <string name="wa_group">ವಾಟ್ಸ್‌ಆಪ್‌ ಗುಂಪು‌</string>
     <string name="opening_app">ಆಪ್‌ ತೆರೆಯಲಾಗುತ್ತಿದೆ</string>
-    <string name="max_file_size_offline">hike direct ಗೆ ಗರಿಷ್ಠ ಫೈಲ್‌ ಗಾತ್ರವು 2 GB ಆಗಿದೆ</string>
+    <string name="max_file_size_offline">Hike ಡೈರೆಕ್ಟ್ ಗೆ ಗರಿಷ್ಠ ಫೈಲ್‌ ಗಾತ್ರವು 2 GB ಆಗಿದೆ</string>
     <string name="net_not_connected">Wi-Fi ಅಥವಾ 3G/4G ಯಲ್ಲಿ ಮಾತ್ರ hikeCaller ಕೆಲಸ ಮಾಡುತ್ತದೆ</string>
     <string name="okay">ಓಕೆ</string>
     <string name="getting_mapp_shortly">ಧನ್ಯವಾದರಗಳು! ನಿಮ್ಮ ನಿಮ್ಮ ಚಾಟ್‌ ತೆರೆಯ ಮೇಲೆ ಶೀಘ್ರದಲ್ಲೇ %1$s ನೋಡಲಿದ್ದೀರಿ</string>
@@ -1266,11 +1266,11 @@
     <string name="apply">ಅನ್ವಯಿಸಿ</string>
     <string name="keyboad_ftue_swipe">ನಿಮ್ಮ ಭಾಷೆಯಲ್ಲಿನ ಬದಲಾವಣೆಗಾಗಿ ಸ್ವೈಪ್‌ ಮಾಡಿ</string>
     <string name="setting_up_keyboard">ಕೀಬೋರ್ಡ‌ ಸೆಟ್‌ ಅಪ್‌ ಮಾಡುವುದು</string>
-    <string name="close_gps">ಬ್ಯಾಟರಿ ಉಳಿಸಲು ನೀವು ನಿಮ್ಮ ಸ್ಥಳವನ್ನು ಆಫ್‌ ಮಾಡಬಹುದಾಗಿದೆ. ನಿಮ್ಮ hike Direct ಸಂಪರ್ಕದ ಮೇಲೆ ಪರಿಣಾಮ ಬೀರುವುದಿಲ್ಲ.</string>
-    <string name="gps_not_on">ಕ್ಷಮಿಸಿ ಜಿಪಿಎಸ್‌ ಆನ್‌ ಆಗಿಲ್ಲದಿದ್ದರೆ hike Direct ಕೆಲಸ ಮಾಡುವುದಿಲ್ಲ</string>
-    <string name="switch_on_gps">ಕೆಲಸ ಮಾಡಲು hike Directಗೆ ಸ್ಥಳವನ್ನು ದಯವಿಟ್ಟು ಎನೇಬಲ್‌ ಮಾಡಿ. ಮುಗಿದ ನಂತರ ಬ್ಯಾಕ್‌ ಒತ್ತಿ. </string>
+    <string name="close_gps">ಬ್ಯಾಟರಿ ಉಳಿಸಲು ನೀವು ನಿಮ್ಮ ಸ್ಥಳವನ್ನು ಆಫ್‌ ಮಾಡಬಹುದಾಗಿದೆ. ನಿಮ್ಮ Hike ಡೈರೆಕ್ಟ್ ಸಂಪರ್ಕದ ಮೇಲೆ ಪರಿಣಾಮ ಬೀರುವುದಿಲ್ಲ.</string>
+    <string name="gps_not_on">ಕ್ಷಮಿಸಿ ಜಿಪಿಎಸ್‌ ಆನ್‌ ಆಗಿಲ್ಲದಿದ್ದರೆ Hike ಡೈರೆಕ್ಟ್ ಕೆಲಸ ಮಾಡುವುದಿಲ್ಲ</string>
+    <string name="switch_on_gps">ಕೆಲಸ ಮಾಡಲು Hike ಡೈರೆಕ್ಟ್ಗೆ ಸ್ಥಳವನ್ನು ದಯವಿಟ್ಟು ಎನೇಬಲ್‌ ಮಾಡಿ. ಮುಗಿದ ನಂತರ ಬ್ಯಾಕ್‌ ಒತ್ತಿ. </string>
     <string name="gps_settings">ಸೆಟ್ಟಿಂಗ್‌</string>
-    <string name="user_gps_off">ನಿಮ್ಮ ಸ್ಥಳ‌ ಎನೇಬಲ್‌ ಆಗದ ಹೊರತು hike Direct ಕೆಲಸ ಮಾಡದು.</string>
+    <string name="user_gps_off">ನಿಮ್ಮ ಸ್ಥಳ‌ ಎನೇಬಲ್‌ ಆಗದ ಹೊರತು Hike ಡೈರೆಕ್ಟ್ ಕೆಲಸ ಮಾಡದು.</string>
     <string name="you_change_group_name">ನೀವು ಗುಂಪು ಹೆಸರು ಬದಲಾಯಿಸಿದ್ದೀರಿ.</string>
     <string name="you_change_broadcast_name">ನೀವು ಪ್ರಸಾರದ ಹೆಸರನ್ನು ಬದಲಾಯಿಸಿದ್ದೀರಿ.</string>
     <string name="you_change_group_image">ನೀವು ಗುಂಪು ಇಮೇಜ್ ಬದಲಾಯಿಸಿದ್ದೀರಿ.</string>
@@ -1313,6 +1313,8 @@
     <string name="tomorrow">ನಾಳೆ</string>
     <string name="today">ಇಂದು</string>
     
+<string name="unsupported_langs_toast">ನಿಮ್ಮ ಫೋನ್ %1$s ಅನ್ನು ಬೆಂಬಲಿಸುವುದಿಲ್ಲ</string>
+
     <!-- This is used to express that something occurred some number of seconds in the past (e.g., 5 seconds ago). -->
     <plurals name="num_seconds_ago">
         <item quantity="one">1 ಸೆಕೆಂಡಿನ ಮೊದಲು</item>
