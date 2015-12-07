@@ -8702,8 +8702,6 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		boolean result = false;
 		try
 		{
-			mDb.beginTransaction();
-
 			long startTime = System.currentTimeMillis();
 
 			String updateStatement = "UPDATE " + DBConstants.MESSAGES_TABLE + " SET " + DBConstants.SORTING_ID + " = " + DBConstants.MESSAGE_ID;
@@ -8714,19 +8712,13 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			analyticsForUpgradeSortId(numRows, timeTaken);
 			Logger.d("HikeConversationsDatabase", " ServerId db upgrade time : " + timeTaken);
 
-			mDb.setTransactionSuccessful();
 			result = true;
 		}
 
 		catch (Exception e)
 		{
 			Logger.e("HikeConversationsDatabase", "Got an exception while upgrading for sorting id field : ", e);
-			e.printStackTrace();
 			result = false;
-		}
-		finally
-		{
-			mDb.endTransaction();
 		}
 
 		return result;
