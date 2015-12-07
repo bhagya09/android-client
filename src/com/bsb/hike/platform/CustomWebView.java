@@ -199,7 +199,7 @@ public class CustomWebView extends WebView
 	@Override
 	public void loadUrl(String url)
 	{
-		if (android.os.Build.VERSION.SDK_INT > 18 && url.startsWith("javascript"))
+		if (Utils.isKitkatOrHigher() && url.startsWith("javascript"))
 		{
 			evaluateJavascript(Utils.appendTokenInURL(url), new ValueCallback<String>()
 			{
