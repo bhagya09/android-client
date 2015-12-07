@@ -29,6 +29,7 @@ import android.view.animation.Animation;
 import android.view.animation.Transformation;
 import android.webkit.JavascriptInterface;
 import android.webkit.MimeTypeMap;
+import android.webkit.ValueCallback;
 import android.webkit.WebView;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -750,8 +751,22 @@ public abstract class JavascriptBridge
 			{
 				if (!mWebView.isWebViewDestroyed())
 				{
-					Logger.d(tag, "Inside call back to js with id " + id);
-					mWebView.loadUrl("javascript:callbackFromNative" + "('" + id + "','" + getEncodedDataForJS(value) + "')");
+					if (Utils.isKitkatOrHigher())
+					{
+						Logger.d(tag, "Inside call back to js with id " + id);
+						mWebView.evaluateJavascript("javascript:callbackFromNative" + "('" + id + "','" + getEncodedDataForJS(value) + "')", new ValueCallback<String>()
+						{
+							@Override
+							public void onReceiveValue(String value)
+							{
+								Logger.d("JavascriptBridge",value);
+							}
+						});
+					}
+					else
+					{
+						mWebView.loadUrl("javascript:callbackFromNative" + "('" + id + "','" + getEncodedDataForJS(value) + "')");
+					}
 				} else
 				{
 					Logger.e(tag, "CallBackToJs>>WebView not showing");

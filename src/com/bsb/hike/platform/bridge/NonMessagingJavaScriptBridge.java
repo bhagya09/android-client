@@ -1273,21 +1273,21 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	}
 
 	/**
-	 * Platform Version 9
+	 * Platform Version 10
 	 * This function is made for the special Shared bot that has the information about some other bots as well, and acts as a channel for them.
 	 * Call this method to cancel the request that the Bot has initiated to do some http /https call.
 	 * @param functionId : the id of the function that native will call to call the js .
-	 * @param url: the url of the call that needs to be cancelled.
+	 * @param appName: the appname of the call that needs to be cancelled.
 	 */
 	@JavascriptInterface
-	public void cancelRequest(String functionId, String url)
+	public void cancelRequest(String functionId, String appName)
 	{
 		if (!BotUtils.isSpecialBot(mBotInfo))
 		{
 			callbackToJS(functionId, "false");
 			return;
 		}
-		RequestToken token = PlatformZipDownloader.getCurrentDownloadingRequests().get(url);
+		RequestToken token = PlatformZipDownloader.getCurrentDownloadingRequests().get(appName);
 		if (null != token)
 		{
 			callbackToJS(functionId, "true");
@@ -1345,19 +1345,19 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	 * Platform Version 9
 	 * Call this method to know if download request is currently running
 	 * Can only be called by special bots
-	 * @param url
+	 * @param appName
 	 * @param functionId
 	 * return true/false
 	 */
 	@JavascriptInterface
-	public void isRequestRunning(String functionId,String url)
+	public void isRequestRunning(String functionId,String appName)
 	{
 		if (!BotUtils.isSpecialBot(mBotInfo))
 		{
 			callbackToJS(functionId, "false");
 			return;
 		}
-		RequestToken token = PlatformZipDownloader.getCurrentDownloadingRequests().get(url);
+		RequestToken token = PlatformZipDownloader.getCurrentDownloadingRequests().get(appName);
 		if (null != token&& token.isRequestRunning())
 		{
 			callbackToJS(functionId, "true");
