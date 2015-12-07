@@ -6,6 +6,7 @@ import android.content.Context;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.view.View;
+import android.webkit.ValueCallback;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 
@@ -198,7 +199,21 @@ public class CustomWebView extends WebView
 	@Override
 	public void loadUrl(String url)
 	{
-		super.loadUrl(Utils.appendTokenInURL(url));
+		if (Utils.isKitkatOrHigher() && url.startsWith("javascript"))
+		{
+			evaluateJavascript(Utils.appendTokenInURL(url), new ValueCallback<String>()
+			{
+				@Override
+				public void onReceiveValue(String value)
+				{
+					Logger.d("CustomWebView", value);
+				}
+			});
+		}
+		else
+		{
+			super.loadUrl(Utils.appendTokenInURL(url));
+		}
 	}
 
 	public boolean isWebViewShowing()
