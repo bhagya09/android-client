@@ -230,7 +230,7 @@
     <string name="dismiss">খারিজ করুন</string>
     <string name="group">গ্রুপ</string>
     <string name="posting_update">পোস্ট করা হচ্ছে...</string>
-    <string name="joined_hike_update">Hike এ যোগ দিয়েছেন</string>
+    <string name="joined_hike_update">hike এ যোগ দিয়েছেন</string>
     <string name="free_hike_sms">ফ্রি hike SMS</string>
     <string name="regular_sms">নিয়মিত SMS</string>
     <string name="messaging_my_number">%1$s এর থেকে মেসেজিং</string>
