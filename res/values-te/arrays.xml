@@ -100,4 +100,29 @@
        <item>ఎడమ</item>
        <item>@null</item>
    </array>
+
+    <array name="filter_names">
+        <item>ఒరిజినల్</item>
+        <item>తిరంగా</item>
+        <item>മെലോ</item>
+        <item>ചുസ്കി</item>
+        <item>അസൂർ</item>
+        <item> ജിലേബി </item>
+        <item>ഗുലാല്‍</item>
+        <item>എക്സ്-പ്രോ</item>
+        <item>എച്ച്ഡിആര്‍</item>
+        <item>അപ്പോളോ</item>
+        <item>റിട്രോ</item>
+        <item>പള്‍സര്‍</item>
+        <item>സണ്‍ലിറ്റ്</item>
+        <item>ഹേസൽ</item>
+        <item>ലോ-ഫൈ</item>
+        <item>ഇങ്കട്</item>
+        <item> മഷാല്‍ </item>
+        <item>ഷോലെ</item>
+        <item>ജംഗ്ലി</item>
+        <item>പോളറോയിഡ്</item>
+        <item>സെപിയ</item>
+        <item>ഗ്രേസ്കേൽ</item>
+    </array>
 </resources>

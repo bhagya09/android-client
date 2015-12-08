@@ -16,6 +16,8 @@ import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.db.AccountBackupRestore;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.filetransfer.FileTransferManager;
+import com.bsb.hike.localisation.LocalLanguage;
+import com.bsb.hike.localisation.LocalLanguageUtils;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.RequestToken;
@@ -202,7 +204,8 @@ public class DeleteAccountTask implements ActivityCallableTask
 		{
 			OfflineController.getInstance().shutdownProcess(new OfflineException(OfflineException.USER_DISCONNECTED));
 		}
-		
+		//Resetting to use Phone Language as default
+		LocalLanguageUtils.setApplicationLocalLanguage(new LocalLanguage("Phone Language",LocalLanguage.PhoneLangauge.getLocale()));
 		clearAppData();
 		Logger.d("DeleteAccountTask", "account deleted");
 
@@ -211,6 +214,7 @@ public class DeleteAccountTask implements ActivityCallableTask
 		 * but in this case onCreate won't be called and user can complete signup.
 		 */
 		HikeMessengerApp.getInstance().startUpdgradeIntent();
+
 
 		finished = true;
 

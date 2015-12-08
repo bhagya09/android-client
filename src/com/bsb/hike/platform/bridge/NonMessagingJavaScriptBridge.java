@@ -192,6 +192,11 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 			jsonObject.put(HikePlatformConstants.BOT_VERSION, mBotInfo.getVersion());
 			jsonObject.put(HikePlatformConstants.ASSOCIATE_MAPP,botMetadata.getAsocmapp());
 
+			if (!TextUtils.isEmpty(extraData))
+			{
+				jsonObject.put(HikePlatformConstants.EXTRA_DATA, extraData);
+			}
+
 			PlatformUtils.addLocaleToInitJSON(jsonObject);
 
 			mWebView.loadUrl("javascript:init('"+getEncodedDataForJS(jsonObject.toString())+"')");
@@ -1441,15 +1446,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 		boolean increaseUnreadCount = Boolean.valueOf(increaseUnread);
 		if (enableBot)
 		{
-			if (HikeConversationsDatabase.getInstance().isConversationExist(msisdn))
-			{
-				Utils.rearrangeChat(msisdn, true, increaseUnreadCount);
-			}
-
-			else
-			{
 				PlatformUtils.enableBot(botInfo, true, increaseUnreadCount);
-			}
 		}
 		else
 		{

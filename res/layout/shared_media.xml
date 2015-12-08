@@ -26,6 +26,7 @@
             style="@style/BaseStyleTextView"
             android:gravity="center_vertical"
             android:text="@string/no_media"
+            android:layout_marginRight="16dp"
             android:textColor="@color/mid_gray"
             android:textSize="16sp"
             android:visibility="gone" />

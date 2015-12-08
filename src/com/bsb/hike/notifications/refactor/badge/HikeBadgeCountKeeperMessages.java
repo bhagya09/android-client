@@ -23,7 +23,7 @@ public class HikeBadgeCountKeeperMessages extends HikeBadgeCountKeeper
 		// TODO Auto-generated method stub
 		mlistener = new String[] { HikePubSub.BULK_MESSAGE_NOTIFICATION, HikePubSub.MESSAGE_RECEIVED, HikePubSub.MSG_READ, HikePubSub.BADGE_COUNT_MESSAGE_CHANGED,
 				HikePubSub.CONVERSATION_DELETED, HikePubSub.NEW_CONVERSATION, HikePubSub.STEALTH_CONVERSATION_MARKED, HikePubSub.STEALTH_CONVERSATION_UNMARKED,
-				HikePubSub.MESSAGE_EVENT_RECEIVED };
+				HikePubSub.MESSAGE_EVENT_RECEIVED, HikePubSub.UPDATE_LAST_MSG_STATE };
 		defaultCount=HikeConversationsDatabase.getInstance().getTotalUnreadMessagesConversationBadgeCounter(false);
 	}
 

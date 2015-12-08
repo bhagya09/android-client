@@ -1189,6 +1189,18 @@ public class ConversationsAdapter extends BaseAdapter
 			{
 				msg = "";
 			}
+
+			//AND-3843 begin
+			if(message.isStickerMessage() && message.isSent())
+			{
+				msg = context.getString(R.string.sticker);
+			}
+			if(message.getMetadata() != null && message.getMetadata().isPokeMessage())
+			{
+				msg = context.getString(R.string.poke_msg);
+			}
+			//AND-3843 End
+
 			markedUp = msg.substring(0, Math.min(msg.length(), HikeConstants.MAX_MESSAGE_PREVIEW_LENGTH));
 			// For showing the name of the contact that sent the message in
 			// a group chat

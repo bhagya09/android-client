@@ -8253,6 +8253,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 	 */
 	public void addNonMessagingBotconversation(BotInfo botInfo)
 	{
+		boolean isChatExist=isConversationExist(botInfo.getMsisdn());
 		ConvMessage convMessage = Utils.makeConvMessage(botInfo.getMsisdn(), botInfo.getLastMessageText(), true, State.RECEIVED_UNREAD);
 
 		ContentValues contentValues = new ContentValues();
@@ -8274,7 +8275,16 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			botInfo.setLastConversationMsg(convMessage);
 			botInfo.setUnreadCount(1);  // inOrder to show 1+ on conv screen, we need to have some unread counter
 			botInfo.setConvPresent(true); //In Order to indicate the presence of bot in the conv table
-			HikeMessengerApp.getPubSub().publish(HikePubSub.NEW_CONVERSATION, botInfo);
+
+			//If the chat thread already exists and we need only to change the convInfo,we would not want the listeners on new chat created to be fired,like badge counter.
+			if (isChatExist)
+			{
+				HikeMessengerApp.getPubSub().publish(HikePubSub.LASTMSG_UPDATED,botInfo.getLastConversationMsg());
+			}
+			else
+			{
+				HikeMessengerApp.getPubSub().publish(HikePubSub.NEW_CONVERSATION, botInfo);
+			}
 		}
 
 	}
@@ -8788,8 +8798,6 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		boolean result = false;
 		try
 		{
-			mDb.beginTransaction();
-
 			long startTime = System.currentTimeMillis();
 
 			String updateStatement = "UPDATE " + DBConstants.MESSAGES_TABLE + " SET " + DBConstants.SORTING_ID + " = " + DBConstants.MESSAGE_ID;
@@ -8800,19 +8808,13 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			analyticsForUpgradeSortId(numRows, timeTaken);
 			Logger.d("HikeConversationsDatabase", " ServerId db upgrade time : " + timeTaken);
 
-			mDb.setTransactionSuccessful();
 			result = true;
 		}
 
 		catch (Exception e)
 		{
 			Logger.e("HikeConversationsDatabase", "Got an exception while upgrading for sorting id field : ", e);
-			e.printStackTrace();
 			result = false;
-		}
-		finally
-		{
-			mDb.endTransaction();
 		}
 
 		return result;
