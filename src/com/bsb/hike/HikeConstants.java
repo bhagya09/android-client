@@ -3721,5 +3721,7 @@ public class HikeConstants
 
 	public static final String LANG_ARRAY = "lan_array";
 
+	public static final String UNSUPPORTED_LANG_TOAST_SHOWN = "uns_lang_toast_shown";
+
 
 }
