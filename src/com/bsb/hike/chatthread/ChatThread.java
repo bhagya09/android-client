@@ -735,12 +735,17 @@ import android.widget.Toast;
 					activity.getApplicationContext()).getBoolean(
 					HikeConstants.SEND_ENTER_PREF, false))
 			{
+				mComposeView.setInputType(mComposeView.getInputType()| InputType.TYPE_TEXT_FLAG_MULTI_LINE);
 				mComposeView.setImeOptions(EditorInfo.IME_ACTION_UNSPECIFIED);
 			}
 			else if ((mComposeView.getInputType() & InputType.TYPE_TEXT_FLAG_MULTI_LINE) == InputType.TYPE_TEXT_FLAG_MULTI_LINE)
 			{
+				mComposeView.setInputType(mComposeView.getInputType()
+						^ InputType.TYPE_TEXT_FLAG_MULTI_LINE);
 				mComposeView.setImeOptions(EditorInfo.IME_ACTION_SEND);
 			}
+			mComposeView.setHorizontallyScrolling(false);		
+		    mComposeView.setMaxLines(4);
 
 		}
 	}
@@ -1046,15 +1051,17 @@ import android.widget.Toast;
 		{
 		case R.string.hike_keyboard:
 			changeKbdClicked = true;
+			recordKeyboardChangeEvent(item,isSystemKeyboard());
 			if (isSystemKeyboard() && isKeyboardOpen())
 			{
-				Utils.hideSoftKeyboard(activity, mComposeView);	
+				Utils.hideSoftKeyboard(activity, mComposeView);
 			}
 			else
 			{
 				onHidden();
 			}
-			break;
+
+			return;
 		case R.string.clear_chat:
 			showClearConversationDialog();
 			break;
@@ -1122,22 +1129,15 @@ import android.widget.Toast;
 	 */
 	private void recordOverflowItemClicked(OverFlowMenuItem item)
 	{
-		String ITEM = "item";
-		String analytics = item.text;
-		//To track Analytics event for changing of keyboard even when language is changed since
-		//overflow menu item text was being converted to the local language and analytics key was being changed
-		if (item.text.equalsIgnoreCase(getString(R.string.hike_keyboard)) || item.text.equalsIgnoreCase(getString(R.string.system_keyboard)))
-		{
-			if (isSystemKeyboard())
-				analytics = HikeConstants.HIKE_KEYBOARD;
-			else
-				analytics = HikeConstants.SYSTEM_KEYBOARD;
 
-		}
+		recordOverflowItemClicked(item.text);
+	}
+    private void recordOverflowItemClicked(String itemText){
+		String ITEM = "item";
 		try
 		{
 			JSONObject metadata = new JSONObject();
-			metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.CHAT_OVRFLW_ITEM).put(ITEM, analytics);
+			metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.CHAT_OVRFLW_ITEM).put(ITEM, itemText);
 			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
 		}
 		catch (JSONException e)
@@ -1145,7 +1145,22 @@ import android.widget.Toast;
 			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
 		}
 	}
+	protected void recordKeyboardChangeEvent(OverFlowMenuItem item, boolean systemKeyboardClicked)
+	{
 
+		// To track Analytics event for changing of keyboard even when language is changed since
+		// overflow menu item text was being converted to the local language and analytics key was being changed
+		if (item.text.equalsIgnoreCase(getString(R.string.hike_keyboard)) || item.text.equalsIgnoreCase(getString(R.string.system_keyboard)))
+		{
+			String analytics="";
+			if (systemKeyboardClicked)
+				analytics = HikeConstants.HIKE_KEYBOARD;
+			else
+				analytics = HikeConstants.SYSTEM_KEYBOARD;
+			recordOverflowItemClicked(analytics);
+		}
+
+	}
 	protected String getString(int stringId)
 	{
 		return activity.getString(stringId);
@@ -1311,9 +1326,11 @@ import android.widget.Toast;
 		JSONObject metadata = new JSONObject();
 		try 
 		{
-			metadata.put(HikeConstants.LogEvent.KPT, KptKeyboardManager.getInstance(activity).getCurrentLanguageAddonItem().getlocaleName());
-			convMessage.setMetadata(metadata);
-			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
+			if(!isSystemKeyboard()) {
+				metadata.put(HikeConstants.KEYBOARD_LANGUAGE, KptKeyboardManager.getInstance(activity).getCurrentLanguageAddonItem().getlocaleName());
+				convMessage.setfromCustomKeyboard(true);
+				convMessage.setMetadata(metadata);
+			}
 		} 
 		catch (JSONException e) 
 		{
@@ -2688,7 +2705,7 @@ import android.widget.Toast;
 
 	protected void sendPoke()
 	{
-		ConvMessage convMessage = Utils.makeConvMessage(msisdn, getString(R.string.poke_msg), mConversation.isOnHike());
+		ConvMessage convMessage = Utils.makeConvMessage(msisdn, getString(R.string.poke_msg_english_only), mConversation.isOnHike());
 		ChatThreadUtils.setPokeMetadata(convMessage);
 		sendMessage(convMessage);
 	}
@@ -6234,9 +6251,10 @@ import android.widget.Toast;
 	protected void showThemePicker(int footerTextId)
 	{
 		/**
-		 * Hiding soft keyboard
+		 * //TODO::Hiding KeyboardIfNeeded while showing themepicker
 		 */
-		hideKeyboard();
+		//Hiding the Kpt Keyboard updates the padding to 0 hence Message enter box is not shown if shareable pop is showing 
+		hideKeyboardIfNeeded();
 		setUpThemePicker();
 		themePicker.showThemePicker(activity.findViewById(R.id.attachment_anchor), currentTheme,footerTextId, activity.getResources().getConfiguration().orientation);
 	}
@@ -6413,6 +6431,15 @@ import android.widget.Toast;
 		}
 	};
 
+
+	public void hideKeyboardIfNeeded() {
+		if (KptUtils.isSystemKeyboard()) {
+			Utils.hideSoftKeyboard(activity, mComposeView);
+		} else if (mCustomKeyboard != null && mCustomKeyboard.isCustomKeyboardVisible() && (mShareablePopupLayout == null || !mShareablePopupLayout.isShowing())) {
+			hideKptKeyboard();
+		}
+		removeKeyboardFtueIfShowing();
+	}
 	/**
 	 * This method changes the state of a ConvMessage after a general event is sent or received
 	 * @param object

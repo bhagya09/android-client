@@ -16,7 +16,6 @@
         android:drawablePadding="8dp"
         android:ellipsize="end"
         android:gravity="center"
-        android:singleLine="true"
         android:text="@string/ftue_favorites_tap_dismiss_favorite_suggest"
         android:textColor="@color/list_item_subtext"
         android:textSize="12sp"

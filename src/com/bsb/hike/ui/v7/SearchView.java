@@ -26,6 +26,8 @@ import android.text.Editable;
 import android.text.InputType;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.text.style.CharacterStyle;
+import android.text.style.ForegroundColorSpan;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -1409,6 +1411,13 @@ public class SearchView extends LinearLayout implements CollapsibleActionView {
             SearchView.this.onTextChanged(s);
         }
         public void afterTextChanged(Editable s) {
+            //AND-3276 Begin
+            if (!TextUtils.isEmpty(s.toString())) {
+                CharacterStyle[] spansToRemove = s.getSpans(0, s.length(), ForegroundColorSpan.class);
+                for (int i = 0; i < spansToRemove.length; i++)
+                    s.removeSpan(spansToRemove[i]);
+            }
+            //AND-3276 End
         }
     };
     /**
