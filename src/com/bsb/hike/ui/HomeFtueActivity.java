@@ -177,12 +177,6 @@ public class HomeFtueActivity extends HikeAppStateBaseFragmentActivity {
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        //AND-4069 Begin
-                        String unsupportedLanguages = LocalLanguage.getUnsupportedLocaleToastText(HomeFtueActivity.this);
-                        if (!TextUtils.isEmpty(unsupportedLanguages)) {
-                            Toast.makeText(HomeFtueActivity.this, unsupportedLanguages, Toast.LENGTH_LONG).show();
-                        }
-                        //AND-4069 End
                         final ArrayList<LocalLanguage> list = new ArrayList<>(LocalLanguage.getDeviceSupportedHikeLanguages(HomeFtueActivity.this));
                         AlertDialog.Builder builder = new AlertDialog.Builder(HomeFtueActivity.this);
                         ListAdapter adapter = new ArrayAdapter<>(HomeFtueActivity.this, R.layout.alert_item, R.id.item, list);
