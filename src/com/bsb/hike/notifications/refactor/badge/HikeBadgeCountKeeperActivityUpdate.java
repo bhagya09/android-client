@@ -18,7 +18,7 @@ public class HikeBadgeCountKeeperActivityUpdate extends HikeBadgeCountKeeper
 			if (object instanceof Integer)
 			{
 				Integer count = (Integer) object;
-				setCount(count);
+				setCount(Math.max(0,count));
 
 			}
 		}

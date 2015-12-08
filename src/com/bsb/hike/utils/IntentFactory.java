@@ -805,6 +805,16 @@ public class IntentFactory
 		context.startActivity(i);
 	}
 
+	//AND-3999 Begin - Flickering observed on FTUE launch
+	public static void freshLaunchHomeFtueActivity(Context appContext)
+	{
+		Intent i = new Intent(appContext, HomeFtueActivity.class);
+		i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		appContext.startActivity(i);
+	}
+	//AND-3999 End
+
 	public static void openHomeFtueActivity(Context appContext)
 	{
 		Intent i = new Intent(appContext, HomeFtueActivity.class);
@@ -812,6 +822,14 @@ public class IntentFactory
 		i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 		appContext.startActivity(i);
 	}
+
+	public static void openHomeActivity(Context context)
+	{
+		Intent in = new Intent(context, HomeActivity.class);
+		in.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+		context.startActivity(in);
+	}
+
 	public static void openHomeActivity(Context context, boolean clearTop)
 	{
 		Intent in = new Intent(context, HomeActivity.class);

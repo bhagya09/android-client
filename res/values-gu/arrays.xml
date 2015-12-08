@@ -100,5 +100,29 @@
        <item>ડાબે</item>
        <item>@null</item>
    </array>
-   
+
+    <array name="filter_names">
+        <item>ઓરીજિનલ</item>
+        <item>તિરંગા</item>
+        <item>મેલો</item>
+        <item>ચુસ્કી</item>
+        <item>એઝયૉર</item>
+        <item>જલેબી</item>
+        <item>ગુલાલ</item>
+        <item>એક્સ-પ્રો</item>
+        <item>એચડીઆર</item>
+        <item>એપોલો</item>
+        <item>રેટ્રો</item>
+        <item>પલ્સર</item>
+        <item>સનલીટટ</item>
+        <item>હેઝલ</item>
+        <item>લો-ફાય</item>
+        <item>ઇન્ક્ડ</item>
+        <item> મશાલ </item>
+        <item>શોલે</item>
+        <item>જંગલી</item>
+        <item>પોલરોઇડ</item>
+        <item>સેપીયા </item>
+        <item>ગ્રેસ્કેલ</item>
+    </array>
 </resources>

@@ -86,7 +86,7 @@ public class BotUtils
 
 		BotInfo hikeSupport = new BotInfo.HikeBotBuilder(HikePlatformConstants.HIKE_SUPPORT_MSISDN).setConvName(context.getString(R.string.hike_support_bot)).setConfig(2069487).build();
 
-		BotInfo natasha = new BotInfo.HikeBotBuilder(HikePlatformConstants.NATASHA_MSISDN).setConvName(context.getString(R.string.natasha_bot)).setConfig(2069487).build();
+		BotInfo natasha = new BotInfo.HikeBotBuilder(HikePlatformConstants.NATASHA_MSISDN).setConvName(context.getString(R.string.natasha_bot)).setConfig(35624943).build();
 
 		BotInfo cricketBot = new BotInfo.HikeBotBuilder(HikePlatformConstants.CRICKET_HIKE_MSISDN).setConvName(context.getString(R.string.cricket_bot)).setConfig(21487).build();
 
@@ -117,7 +117,7 @@ public class BotUtils
 
 		defaultBotEntry(HikePlatformConstants.HIKE_SUPPORT_MSISDN, context.getString(R.string.hike_support_bot), null, null, 2069487, true, context);
 
-		defaultBotEntry(HikePlatformConstants.NATASHA_MSISDN, context.getString(R.string.natasha_bot), null, HikeBitmapFactory.getBase64ForDrawable(R.drawable.natasha, context.getApplicationContext()), 2069487, true, context);
+		defaultBotEntry(HikePlatformConstants.NATASHA_MSISDN, context.getString(R.string.natasha_bot), null, HikeBitmapFactory.getBase64ForDrawable(R.drawable.natasha, context.getApplicationContext()), 35624943, true, context);
 
 		defaultBotEntry(HikePlatformConstants.CRICKET_HIKE_MSISDN, context.getString(R.string.cricket_bot), HikePlatformConstants.CRICKET_CHAT_THEME_ID,
 				HikeBitmapFactory.getBase64ForDrawable(R.drawable.cric_icon, context.getApplicationContext()), 21487, false, context);
