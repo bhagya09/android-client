@@ -1283,6 +1283,7 @@
     <string name="voip_decline">প্রত্যাখ্যান করুন</string>
     <string name="voip_accept">স্বীকার করুন</string>
     <string name="you_added_group_member">আপনি %1$s কে যোগ করেছেন</string>
+    <string name="you_group_member_added">আপনি %1$s কে যোগ করেছেন</string>
     <string name="you_added_as_group_member">%1$s আপনাকে যোগ করেছেন</string>
     <string name="group_member_added">%1$s %2$s কে যোগ করেছেন</string>
     <string name="you_updated_group_admin">আপনি %1$s কে গ্রুপ অ্যাডমিন করেছেন</string>
