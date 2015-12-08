@@ -188,8 +188,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		{
 			e.printStackTrace();
 		}
-
-		HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.MICRO_APP_EVENT, json);
+		Utils.sendLogEvent(json, AnalyticsConstants.NON_UI_EVENT, null);
 
 		allowLoc = getIntent().getBooleanExtra(HikeConstants.Extras.WEBVIEW_ALLOW_LOCATION, false);
 
@@ -785,7 +784,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 						e.printStackTrace();
 					}
 
-					HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.MICRO_APP_EVENT, json);
+					Utils.sendLogEvent(json, AnalyticsConstants.NON_UI_EVENT, null);
 					webView.loadMicroAppData(content.getFormedData());
 				}
 			}
