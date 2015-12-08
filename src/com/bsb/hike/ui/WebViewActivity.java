@@ -162,7 +162,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 
 	private String urlParams;
 
-	private long time;
+	private static long time;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -176,7 +176,20 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 			return;
 		}
 
+
 		time=System.currentTimeMillis();
+		JSONObject json = new JSONObject();
+		try
+		{
+			json.putOpt(AnalyticsConstants.EVENT_KEY,AnalyticsConstants.MICRO_APP_EVENT);
+			json.putOpt(AnalyticsConstants.EVENT,AnalyticsConstants.MICRO_APP_OPENED);
+			json.putOpt(AnalyticsConstants.BOT_MSISDN,msisdn);
+		} catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+
+		HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.MICRO_APP_EVENT, json);
 
 		allowLoc = getIntent().getBooleanExtra(HikeConstants.Extras.WEBVIEW_ALLOW_LOCATION, false);
 
