@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
 
     <string name="app_name">hike</string>
@@ -637,7 +637,7 @@
     <string name="notificationSoundSummary">ಹೊಸ ಸೂಚನೆಗೆ ಪ್ಲೇ ಮಾಡಲು ಧ್ವನಿ ಆಯ್ಕೆ ಮಾಡಿ</string>
     <string name="hike_offline_notifications">hike ಆಫ್‌ಲೈನ್‌</string>
     <string name="h2o_notifications_setting_summary">ಆಫ್‌ಲೈನ್‌ ಸಂಪರ್ಕಕ್ಕೆ SMS ಕಳುಹಿಸಲು ನೋಟಿಫೈ ಮಾಡಿ</string>
-    <string name="stealth_info_tip_subtext">ಪಾಸ್‌ವರ್ಡ್‌ನಿಂದ ಚಾಟ್‌ಗಳನ್ನು ಗೊಪ್ಯವಾಗಿಸಲು “ಹಾಯ್‌” ತಟ್ಟಿ.</string>
+    <string name="stealth_info_tip_subtext">ಪಾಸ್‌ವರ್ಡ್‌ನಿಂದ ಚಾಟ್‌ಗಳನ್ನು ಗೊಪ್ಯವಾಗಿಸಲು \&apos;hi\&apos; ತಟ್ಟಿ.</string>
     <string name="file_attachment_info">100 MB ವರೆಗಿನ doc, pdf ಮತ್ತು ಮೀಡಿಯಾವನ್ನು ಹಂಚಿ</string>
     <string name="status_text_notification">%1$s ಅಪ್‌ಡೇಟ್‌ ಆಗಿ ಪೋಸ್ಟ್ ಮಾಡಿ</string>
     <string name="shared_files">ಫೈಲ್‌ಗಳು</string>
