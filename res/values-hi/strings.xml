@@ -542,7 +542,7 @@
     <string name="ftue_card_click_text_sticker">आपको ज़रूर पसंद आएँगे!</string>
     <string name="ftue_card_sep">मज़ेदार चीज़ें जो आप hike पर कर सकते हैं</string>
     <string name="change_stealth_password">पासवर्ड बदलें</string>
-    <string name="change_stealth_password_body">अपना गुप्त मोड पासवर्ड बदलें। आप पैटर्न और PIN के बीच चुन सकते हैं ।</string>
+    <string name="change_stealth_password_body">अपने गुप्त मोड का पासवर्ड बदलें। आप पैटर्न और PIN के बीच चुन सकते हैं ।</string>
     <string name="invited">आमंत्रित</string>
     <string name="invite_more">और आमंत्रित करें</string>
     <string name="invite_sent">आमंत्रण भेजा गया</string>
