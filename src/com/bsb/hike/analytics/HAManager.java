@@ -712,18 +712,18 @@ public class HAManager
 		}
 	}
 	
-	public void updateTipAnalyticsUIEvent(String eventType)
+	public void updateTipAndNotifAnalyticEvent(String eventType, String eventKey, String eventContext)
 	{
 		JSONObject metadata = new JSONObject();
 		try
 		{
 			metadata.put(HikeConstants.EVENT_TYPE, eventType);
-			metadata.put(HikeConstants.EVENT_KEY, AnalyticsConstants.UPDATE_INVITE_TIP);
-			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, EventPriority.HIGH, metadata);
+			metadata.put(HikeConstants.EVENT_KEY, eventKey);
+			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, eventContext, EventPriority.HIGH, metadata);
 		}
 		catch (JSONException e)
 		{
-			Logger.d(HikeConstants.UPDATE_TIP_AND_PERS_NOTIF_LOG, "invite tip analytics json exception");
+			Logger.d(HikeConstants.UPDATE_TIP_AND_PERS_NOTIF_LOG, "update tip/notif analytics json exception");
 		}
 	}
 	
