@@ -24,6 +24,7 @@ import com.bsb.hike.modules.httpmgr.request.FileRequestPersistent;
 import com.bsb.hike.platform.*;
 import com.bsb.hike.platform.content.PlatformContentConstants;
 import com.bsb.hike.platform.content.PlatformZipDownloader;
+import com.bsb.hike.tasks.SendLogsTask;
 import com.bsb.hike.ui.GalleryActivity;
 import com.bsb.hike.ui.WebViewActivity;
 import com.bsb.hike.utils.IntentFactory;
@@ -1487,5 +1488,20 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 		{
 			BotUtils.deleteBotConversation(msisdn, false);
 		}
+	}
+	/**
+	 * Platform Version 10
+	 *This function allows for a bot to send logs after it has been enabled
+	 */
+	@JavascriptInterface
+	public void sendLogs()
+	{
+		Activity mContext = weakActivity.get();
+		if(mContext==null)
+		{
+			return;
+		}
+		SendLogsTask logsTask = new SendLogsTask(mContext);
+		Utils.executeAsyncTask(logsTask);
 	}
 }
