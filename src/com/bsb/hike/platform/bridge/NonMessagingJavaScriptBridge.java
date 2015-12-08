@@ -13,6 +13,7 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.adapters.ConversationsAdapter;
+import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.bots.NonMessagingBotConfiguration;
@@ -27,6 +28,7 @@ import com.bsb.hike.platform.content.PlatformZipDownloader;
 import com.bsb.hike.tasks.SendLogsTask;
 import com.bsb.hike.ui.GalleryActivity;
 import com.bsb.hike.ui.WebViewActivity;
+import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
@@ -1504,4 +1506,38 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 		SendLogsTask logsTask = new SendLogsTask(mContext);
 		Utils.executeAsyncTask(logsTask);
 	}
+	/**
+	 * Platform Version 10
+	 *This function allows for a bot to send analytics via mqtt
+	 */
+	@JavascriptInterface
+	public void logAnalyticsMq(String json,String isUI)
+	{
+		JSONObject jsonObject=null;
+		if(TextUtils.isEmpty(json)||TextUtils.isEmpty(isUI))
+		{
+			return;
+		}
+		try
+		{
+			jsonObject=new JSONObject(json);
+			jsonObject.put(AnalyticsConstants.BOT_MSISDN, mBotInfo.getMsisdn());
+			jsonObject.put(AnalyticsConstants.BOT_NAME, mBotInfo.getConversationName());
+		} catch (JSONException e)
+		{
+			e.printStackTrace();
+			return;
+		}
+		if (Boolean.valueOf(isUI))
+		{
+			Utils.sendLogEvent(jsonObject,AnalyticsConstants.MICROAPP_UI_EVENT, null);
+		}
+		else
+		{
+			Utils.sendLogEvent(jsonObject, AnalyticsConstants.MICROAPP_NON_UI_EVENT, null);
+		}
+
+
+	}
+
 }
