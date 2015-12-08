@@ -953,7 +953,7 @@
     <string name="group_creation">પર બનાવવામાં આવ્યુ છે </string>
     <string name="ls_change_failed">છેલ્લા જોવાયાનું અપડેટ નિષ્ફળ ગયું!</string>
     <string name="terms_conditions_hint">નિયમો અને શરતો</string>
-    <string name="terms_conditions_title">T &amp; C (ટી એન્ડ સી)</string>
+    <string name="terms_conditions_title">ટી એન્ડ સી</string>
     <string name="content_des_message_send_rec_read_status">મેસેજ મોકલો અથવા પેન્ડીંગ સ્ટેટસ</string>
     <string name="content_des_message_clock_state">મેસેજ મોકલાયો નથી</string>
     <string name="content_des_message_double_tick_state">પ્રાપ્તકર્તાને મેસેજ ડિલીવર થયો છે</string>
@@ -1142,6 +1142,7 @@
     <string name="UPDATE_APP">અપડેટ કરો</string>
     <string name="language_summary">English</string>
     <string name="language">ભાષા</string>
+    <string name="app_language">એપ્લિકેશન ભાષા</string>
     <string name="keyboard_summary">Hike કીબોર્ડ સક્ષમ/અક્ષમ કરો</string>
     <string name="keyboard_title">Hike કીબોર્ડ</string>
     <string name="glide_summary">સતત હાવભાવ ટાઇપિંગ</string>

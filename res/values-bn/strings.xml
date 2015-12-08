@@ -170,7 +170,7 @@
     <string name="location_disabled">আপনার অবস্থান জানা যাবে না। আপনার সেটিংস যাচাই করুন।</string>
     <string name="tap_here_invite">এই ব্যক্তিকে আমন্ত্রণ করতে এখানে আলতো চাপুন</string>
     <string name="change_group_image">%1$s গ্রুপের ছবিটি পরিবর্তন করেছে।</string>
-    <string name="faq">FAQs</string>
+    <string name="faq">প্রায়শই জিজ্ঞাসিত প্রশ্নাবলী</string>
     <string name="gallery">গ্যালারী</string>
     <string name="number_confirm_title">আপনার নম্বর নিশ্চিত করুন</string>
     <string name="birthday">জন্মদিন</string>
@@ -230,7 +230,7 @@
     <string name="dismiss">খারিজ করুন</string>
     <string name="group">গ্রুপ</string>
     <string name="posting_update">পোস্ট করা হচ্ছে...</string>
-    <string name="joined_hike_update">Hike এ যোগ দিয়েছেন</string>
+    <string name="joined_hike_update">hike এ যোগ দিয়েছেন</string>
     <string name="free_hike_sms">ফ্রি hike SMS</string>
     <string name="regular_sms">নিয়মিত SMS</string>
     <string name="messaging_my_number">%1$s এর থেকে মেসেজিং</string>
@@ -1142,6 +1142,7 @@
     <string name="UPDATE_APP">আপডেট</string>
     <string name="language_summary">বাংলা</string>
     <string name="language">ভাষা</string>
+    <string name="app_language">অ্যাপ্লিকেশন ভাষা</string>
     <string name="keyboard_summary">Hike কীবোর্ড সক্ষম/অক্ষম করুন</string>
     <string name="keyboard_title">Hike কীবোর্ড</string>
     <string name="glide_summary">একটানা ইঙ্গিত টাইপিং</string>
