@@ -4,9 +4,9 @@
     <string name="app_name">hike</string>
     <string name="app_label">&#160;hike</string>
     <string name="invite">मित्र को बताएँ</string>
-    <string name="deleteconversations">सभी वार्तालाप हटाएँ</string>
+    <string name="deleteconversations">सभी वार्तालाप हटायें</string>
     <string name="send">भेजें</string>
-    <string name="delete">हटाएँ</string>
+    <string name="delete">हटायें</string>
     <string name="cancel">रद्द करें</string>
     <string name="delete_all_question">क्या आप वाकई सभी वार्तालाप हटाना चाहते हैं?</string>
     <string name="forward">फ़ॉरवर्ड करें</string>
@@ -34,7 +34,7 @@
     <string name="left_conversation">%1$s ने ग्रूप चैट छोड़ दी।</string>
     <string name="removed_from_broadcast">%1$s प्रसारण सूची से निकाल दिया गया है</string>
     <string name="leave_group">ग्रूप छोड़ें</string>
-    <string name="delete_broadcast">प्रसारण हटाएँ</string>
+    <string name="delete_broadcast">प्रसारण हटायें</string>
     <string name="group_chat_end">यह ग्रूप चैट समाप्त हो गई है।</string>
     <string name="broadcast_list_end">यह प्रसारण सूची समाप्त हो गई है।</string>
     <string name="group_info">ग्रूप की जानकारी</string>
@@ -106,7 +106,7 @@
     <string name="auto_download_image_title">फोटो</string>
     <string name="auto_download_video_title">वीडियो</string>
     <string name="auto_download_audio_title">ऑडियो</string>
-    <string name="delete_account">अकाउंट हटाएँ</string>
+    <string name="delete_account">अकाउंट हटायें</string>
     <string name="privacy">गोपनीयता</string>
     <string name="notifications">सूचनाएं</string>
     <string name="favorites">फ़ेवरिट</string>
@@ -197,8 +197,8 @@
     <string name="contact_saved">संपर्क सेव हो गया</string>
     <string name="contact_not_saved">संपर्क सेव नहीं हो सका</string>
     <string name="system_health">सिस्टम की स्थिति</string>
-    <string name="you">आपने</string>
-    <string name="delete_status">स्टेटस हटाएँ</string>
+    <string name="you">आप</string>
+    <string name="delete_status">स्टेटस हटायें</string>
     <string name="delete_status_error">आपका स्टेटस नहीं हट सका। कृपया अपना नेटवर्क कनेक्शन जाँचें और बाद में पुन: प्रयास करें।</string>
     <string name="deleting_status">अपडेट हट रहा है...</string>
     <string name="tap_here_block">इस नंबर को ब्लॉक करने के लिए यहाँ टैप करें</string>
@@ -314,7 +314,7 @@
     <string name="free_invite_header">मुफ़्त SMS आमंत्रण</string>
     <string name="free_invite_body">अब SMS द्वारा मित्रों को मुफ़्त में आमंत्रित करें। कोई शुल्क लागू नहीं :)</string>
     <string name="select_all">सभी चुनें (%1$d)</string>
-    <string name="deselect_all">सभी का चयन हटाएँ (%1$d)</string>
+    <string name="deselect_all">सभी का चयन हटायें (%1$d)</string>
     <string name="chat_bg_changed">%1$s ने चैट थीम बदली</string>
     <string name="chat_theme">चैट थीम</string>
     <string name="last_seen_today_ct">आज, %1$s</string>
@@ -330,14 +330,14 @@
     <string name="valentine_nudge_header">प्रेम शेयर करें!</string>
     <string name="valentine_nudge_body">दिल भेजने के लिए चैट पर डबल टैप करें!</string>
     <string name="valentine_nudge_button">शानदार</string>
-    <string name="confirm_delete_msg_header">संदेश हटाएँ</string>
-    <string name="confirm_delete_msgs_header">संदेश हटाएँ।</string>
+    <string name="confirm_delete_msg_header">संदेश हटायें</string>
+    <string name="confirm_delete_msgs_header">संदेश हटायें।</string>
     <string name="selected_count">%1$s चुने गए</string>
     <string name="clear_conversation">सारे संदेश हटायें</string>
     <string name="gallery_num_selected">%1$d चुने गए</string>
     <string name="broadcast_selected">%1$s/500 चुने गए</string>
     <string name="select_file">फ़ाइल चुनें</string>
-    <string name="free_of_total">%2$s में से %1$s मुफ़्त</string>
+    <string name="free_of_total">%2$s में से %1$s खाली है</string>
     <string name="unknown_error">अज्ञात एरर</string>
     <string name="access_error">एक्सेस एरर</string>
     <string name="no_files">कोई फ़ाइल नहीं</string>
@@ -436,7 +436,7 @@
     <string name="alp_42447968_lockscreen_access_pattern_start">पैटर्न शुरू किया गया</string>
     <string name="alp_42447968_msg_draw_pattern_to_unlock">अनलॉक करने के लिए पैटर्न बनाएँ</string>
     <string name="alp_42447968_msg_pattern_recorded">पैटर्न रिकॉर्ड किया गया</string>
-    <string name="alp_42447968_msg_release_finger_when_done">पूरा होने पर उंगली हटाएँ</string>
+    <string name="alp_42447968_msg_release_finger_when_done">पूरा होने पर उंगली हटायें</string>
     <string name="alp_42447968_msg_try_again">आपके पैटर्न मेल नहीं खाते। पुन: प्रयास करें।</string>
     <string name="alp_42447968_msg_your_new_unlock_pattern">आपका नया अनलॉक पैटर्न</string>
     <string name="alp_42447968_msg_draw_pattern_to_unlock_in_reset">मौजूदा पैटर्न बनाएँ</string>
@@ -464,13 +464,13 @@
 <![CDATA[ <b> गुप्त मोड अभी रीसेट करने के लिए यहाँ टैप करें! </b> 
 	    ]]>
     </string>
-        <string name="tap_to_reveal_stealth_contacts">चैट्स प्रकट करने के लिए</string> 
+        <string name="tap_to_reveal_stealth_contacts">चैट्स दिखाने के लिए</string> 
     <string name="tap_to_hide_stealth_contacts">चैट्स छुपाने के लिए</string>
     <string name="tap_text">टैप करें</string>
     <string name="reset_stealth_confirmation">गुप्त मोड रीसेट करने पर आपकी सभी छुपी हुई चैट्स हटा दी जाएँगी।\nक्या आप वाकई ऐसा करना चाहते हैं?</string>
     <string name="stealth_tap_and_hold_tip">किसी चैट को \'छुपी हुई\' करने के लिए उसे टैप करके रखें।</string>
     <string name="mark_stealth">चैट को छुपी हुई करें</string>
-    <string name="unmark_stealth">चैट को प्रकट करें</string>
+    <string name="unmark_stealth">चैट दिखायें</string>
     <string name="edit">एडिट करें</string>
     <string name="vib_off_key">बंद</string>
     <string name="vib_default_key">डिफ़ॉल्ट</string>
@@ -483,22 +483,22 @@
     <string name="getting_started">शुरू हो रहा है..</string>
     <string name="viewcontact">प्रोफ़ाइल देखें</string>
     <string name="add_to_contacts_existing">मौजूदा संपर्क में जोड़ें</string>
-    <string name="delete_chat">चैट हटाएँ</string>
+    <string name="delete_chat">चैट हटायें</string>
     <string name="clear_whole_conversation">सारे संदेश हटायें</string>
     <string name="email_conversations">चैट ईमेल करें</string>
     <string name="unlink_account_failed">hike आपके खाते को लॉगआउट नहीं कर सका। कृपया पुन: प्रयास करें</string>
     <string name="deleting_account">अकाउंट हटा रहे हैंै...</string>
     <string name="unlink_hinttext">इस डिवाइस से अपने संदेश और प्रोफ़ाइल साफ़ हटायें।</string>
     <string name="unlink_account">अकाउंट रीसेट करें</string>
-    <string name="delete_account_msg">अपना Hike अकाउंट हटाएँ।</string>
+    <string name="delete_account_msg">अपना Hike अकाउंट हटायें।</string>
     <string name="unlink_confirmation">क्या आप वाकई अपना अकाउंट रीसेट करना चाहते हैं?</string>
     <string name="unlinking_account">रीसेट हो रहा है...</string>
     <string name="shortcut">चैट शॉर्टकट बनाऐं</string>
     <string name="add_to_contacts">संपर्क में जोड़ें</string>
-    <string name="delete_leave">हटाएँ और ग्रूप से बाहर निकलें</string>
+    <string name="delete_leave">हटायें और ग्रूप से बाहर निकलें</string>
     <string name="broadcast_participant_info"><![CDATA[<font color=\"#848484\"><b>नोट: </b>यह प्रसारण केवल उन्ही hike संपर्कों को प्राप्त होगा जिनके फ़ोन में %1$s होगा।</font>]]></string>
-    <string name="confirm_delete_chat_msg">\"%1$s\" के साथ चैट हटाएँ? </string>
-    <string name="confirm_delete_group_msg">हटाएँ और \"%1$s\" ग्रूप से बाहर निकलें?</string>
+    <string name="confirm_delete_chat_msg">\"%1$s\" के साथ चैट हटायें? </string>
+    <string name="confirm_delete_group_msg">हटायें और \"%1$s\" ग्रूप से बाहर निकलें?</string>
     <string name="email_chat">चैट ईमेल करें</string>
     <string name="change_keyboard">कीबोर्ड बदलें</string>
     <string name="clear_chat">चैट साफ़ करें</string>
@@ -597,15 +597,15 @@
     <string name="incorrect_msisdn_warning">गलत नंबर</string>
     <string name="incorrect_msisdn_msg">कृपया इस फ़ोन पर hike के साथ रजिस्टर्ड नंबर दर्ज करें।</string>
     <string name="delete_account_heading_2">अपना अकाउंट हटाने के लिए, अपना नंबर दर्ज करें</string>
-    <string name="delete_my_account">मेरा अकाउंट हटाएँ</string>
+    <string name="delete_my_account">मेरा अकाउंट हटायें</string>
     <string name="hike_extras">ईनाम/अतिरिक्त</string>
     <string name="mute_status_notification_header">स्टेटस और प्रोफ़ाइल फ़ोटो</string>
     <string name="mute_status_notification_subtext">पसंदीदा की स्टेटस और प्रोफ़ाइल फ़ोटो अपडेट्स सूचनाएं दिखाएं</string>
     <string name="notifications_contact_join_summary">hike से कोई संपर्क जुड़ने पर सूचित करें</string>
     <string name="set_profile_pic"> Hike प्रोफ़ाइल फ़ोटो</string>
-    <string name="confirm_delete_pin_header">पिन हटाएँ</string>
+    <string name="confirm_delete_pin_header">पिन हटायें</string>
     <string name="confirm_delete_pin">क्या आप वाकई इस पिन को हटाना चाहते हैं?</string>
-    <string name="confirm_delete_pins_header">पिन हटाएँ</string>
+    <string name="confirm_delete_pins_header">पिन हटायें</string>
     <string name="confirm_delete_pins">क्या आप वाकई इन %1$s पिन को हटाना चाहते हैं?</string>
     <string name="add_btn">जोड़ें</string>
     <string name="not_now">अभी नहीं</string>
@@ -630,7 +630,7 @@
     <string name="group_admin">एडमिन</string>
     <string name="sms_group_member">पेंडिंग</string>
     <string name="favorite_request_pending">फ़ेवरिट के रूप में जोड़ा गया</string>
-    <string name="delete_media_from_sdcard">फ़ोन से मीडिया हटाएँ</string>
+    <string name="delete_media_from_sdcard">फ़ोन से मीडिया हटायें</string>
     <string name="unable_to_open">माफ़ कीजिए, यह फ़ाइल मौजूद नहीं है</string>
     <string name="notificationSoundSummary">नई सूचना पर चलाने के लिए ऑडियो चुनें</string>
     <string name="hike_offline_notifications">Hike ऑफ़लाइन</string>
@@ -695,7 +695,7 @@
     <string name="n_stickers">%1$d स्टिकर्स</string>
     <string name="last_backup">पिछला बैकअप</string>
     <string name="restore_account">अकाउंट रिस्टोर करें</string>
-    <string name="account_backup">खाते का बैकअप</string>
+    <string name="account_backup">अकाउंट बैकअप</string>
     <string name="backup_found">बैकअप मिला</string>
     <string name="backup_found_hint">क्या आप अकाउंट रिस्टोर करना चाहते हैं?</string>
     <string name="restoring...">रिस्टोर हो रहा है...</string>
@@ -732,7 +732,7 @@
     <string name="pin_self">आप</string>
     <string name="some_error">कुछ गड़बड़ हुई!</string>
     <string name="recently_joined_hike">हाल ही में HIKE से जुड़े</string>
-    <string name="creating_backup_message">आपके खाते का बैकअप बना रहा है। बैकअप रोज़ाना सुबह 3:00 बजे लिया जाते हैं</string>
+    <string name="creating_backup_message">आपके अकाउंट का बैकअप बन रहा है। बैकअप रोज़ाना सुबह 3:00 बजे लिया जाता है</string>
     <string name="restore">रिस्टोर करें</string>
     <string name="auth_connected_to_hike">%1$s ने hike से कनेक्ट किया!</string>
     <string name="auth_state_connecting">कनेक्ट हो रहा है...</string>
@@ -830,9 +830,9 @@
     <string name="voip_call_issues_submit_toast">आपका फ़ीडबैक सबमिट कर दिया गया है</string>
     <string name="video_compress">वीडियो कम्प्रेशन</string>
     <string name="send_compress_video">कंप्रेस्ड वीडियो भेजें</string>
-    <string name="remove_photo">फ़ोटो हटाएँ</string>
+    <string name="remove_photo">फ़ोटो हटायें</string>
     <string name="confirm_remove_photo">क्या आप वाकई फ़ोटो हटाना चाहते हैं?</string>
-    <string name="check_delete_from_timeline">फ़ेवरिट की टाइमलाइन से हटाएँ</string>
+    <string name="check_delete_from_timeline">फ़ेवरिट की टाइमलाइन से हटायें</string>
     <string name="edit_photo">फ़ोटो एडिट करें</string>
     <string name="removing_dp">फ़ोटो हट रहा है...</string>
     <string name="voip_missed_call_notif">मिस कॉल</string>
@@ -881,7 +881,7 @@
     <string name="ls_favorites_summary">आखिरी बार देखा समय, केवल आपके फ़ेवरिट को दिखेगा</string>
     <string name="ls_everyone_summary">आखिरी बार देखा समय, hike पर सभी को दिखेगा</string>
     <string name="ls_nobody_summary">याद रखें: आप भी किसी का आखिरी बार देखा समय नहीं देख सकेंगे</string>
-    <string name="you_accepted_favorite_request_details">बहुत अच्छे! %1$s अब आपका %2$s देख सकेगा।</string>
+    <string name="you_accepted_favorite_request_details">बहुत अच्छे! %1$s अब आपका %2$s देख सकते हैं।</string>
     <string name="accepted_your_favorite_request_details">अब आप %1$s का %2$s देख सकते हैं</string>
     <string name="favorite_confirmed_notification">अब आप %1$s का %2$s देख सकते हैं</string>
     <string name="sent_favorite_request_tab">अब %1$s शेयर कर रहे हैं। क्या आप भी ऐसा करना चाहते हैं?</string>
@@ -906,7 +906,7 @@
     <string name="stealth_notification_settings">सूचना सेटिंग्स</string>
     <string name="stealth_reset_settings">अतिरिक्त सेटिंग्स</string>
     <string name="enable_stealth_indicator">संकेतक</string>
-    <string name="enable_stealth_indicator_body">अपठित संदेशों के लिए होम स्क्रीन पर \'hi\' लोगो को उछालेंें</string>
+    <string name="enable_stealth_indicator_body">अपठित संदेशों के लिए होम स्क्रीन पर \'hi\' लोगो को उछालें</string>
     <string name="enable_stealth_notification_body">छुपी हुई चैट में संदेश प्राप्त होने पर सूचित करें</string>
     <string name="enable_stealth_notification">सूचना</string>
     <string name="stealth_msg_draw_an_unlock_pattern">नया पासकोड पैटर्न बनाएँ</string>
@@ -935,7 +935,7 @@
     <string name="new_line_setting_info">एंटर कुंजी दबाने से नई लाइन जोड़ दी जाएगी</string>
     <string name="nudge_toast"> नज भेजना बंद है।\nआप सेटिंग्स > चैट सेटिंग्स में उसे चालू कर सकते हैं।</string>
     <string name="select_all_hike">सभी चुनें</string>
-    <string name="unselect_all_hike">सभी का चयन हटाएँ</string>
+    <string name="unselect_all_hike">सभी का चयन हटायें</string>
     <string name="searching">खोज रहा है...</string>
     <string name="sticker_share_caption">डाउनलोड करें: http://hike.in</string>
     <string name="text_share_heading">- hike द्वारा भेजा गया</string>
@@ -960,7 +960,7 @@
     <string name="content_des_restore_if_backup_found">रिस्टोर करें (बैकअप पाया गया)</string>
     <string name="content_des_add_photo_gallery_create_group">ग्रूप बनाते हुए फ़ोटो लगाएँ</string>
     <string name="content_des_add_photo_camera_create_group">ग्रूप बनाते हुए कैमरे से फ़ोटो लें</string>
-    <string name="content_des_reset_selected_contacts_create_group">ग्रूप बनाते हुए चयनित संपर्कों का चयन हटाएँ</string>
+    <string name="content_des_reset_selected_contacts_create_group">ग्रूप बनाते हुए चयनित संपर्कों का चयन हटायें</string>
     <string name="content_des_choose_smiley_while_chatting">चैटिंग/स्टेटस अपडेट करते हुए भेजने के लिए स्माइली चुनें</string>
     <string name="content_des_choose_sticker_while_chatting">चैटिंग करते हुए भेजने के लिए स्टिकर चुनें</string>
     <string name="content_des_send_recorded_audio_text_chatting">चैटिंग करते हुए रिकॉर्ड किया गया ऑडियो/टेक्स्ट भेजें</string>
@@ -982,7 +982,7 @@
 	<string name="edit_photos">नई फ़ोटो</string>
 	<string name="multi_contact_creation">भेज रहा है...</string>
 	<string name="only_photos_edit">फ़ोटो फॉर्मेट समर्थित नहीं</string>
-	<string name="delete_block">ब्लॉक करें व हटाएँ</string>
+	<string name="delete_block">ब्लॉक करें व हटायें</string>
 	<string name="confirm_delete_block_msg">क्या आप \"%1$s\" को हटाना व ब्लॉक करना चाहते हैं? </string>
 	<string name="confirm_delete_non_messaging">क्या आप \"%1$s\" को हटाना चाहते हैं? </string>
 	<string name="scan_free_hike">Hike डायरेक्ट</string>
@@ -1051,7 +1051,7 @@
     <string name="actionbar_activity_feed_title">एक्टिविटी</string>
 	<string name="photo_like_text">आपकी फ़ोटो लाइक की</string>
 	<string name="dp_like_text">आपकी प्रोफ़ाइल फ़ोटो लाइक की</string>
-	<string name="liked_this_post">इस पोस्ट को लाइक किया</string>
+	<string name="liked_this_post">ने इस पोस्ट को लाइक किया</string>
 	<string name="liked_your_post">आपकी पोस्ट को लाइक किया</string>
 	<string name="activity_feed_actionbar_title">एक्टिविटी फ़ीड</string>
 	<string name="posted_photo">एक फ़ोटो पोस्ट की</string>
@@ -1111,7 +1111,7 @@
     <string name="sticker_recommend_settings_toast">आप सेटिंग्स > चैट सेटिंग्स से किसी भी समय स्टिकर सुझाव बंद कर सकते हैं</string>
     <string name="YES">हाँ</string>
     <string name="NO">नहीं</string>
-    <string name="DELETE">हटाएँ</string>
+    <string name="DELETE">हटायें</string>
     <string name= "disconnecting_offline">कनेक्शन बंद कर रहे हैं</string>
     <string name="sticker_recommend_auto_off_tip_text">स्टिकर सुझाव बंद हो गया! सेटिंग्स > चैट सेटिंग्स से उन्हें वापस लाएं</string>
     <string name="timeline_tab_photo">फ़ोटो</string>
@@ -1124,7 +1124,7 @@
     <string name="ALLOW">अनुमति दें</string>
     <string name="pref_message_settings">संदेश सेटिंग्स</string>
     <string name="pref_sticker_settings">स्टिकर सेटिंग्स</string>
-    <string name="delete_account_heading">अपना अकाउंट हटाएँ</string>
+    <string name="delete_account_heading">अपना अकाउंट हटायें</string>
     <string name="delete_account_description">इससे आपके सभी संदेश, बैकअप, मुफ़्त SMS और सभी hike ईनाम हट जाएंगे</string>
     <string name="no_places_found">कोई स्थान नहीं मिला</string>
     <string name="SAVE">सेव करें</string>
