@@ -285,6 +285,8 @@
     <color name="nowhere_theme_status_bar_color">#565c54</color>
     <color name="guitar_theme_status_bar_color">#0c0505</color>
     <color name="swivel_theme_status_bar_color">#5e1643</color>
+    <color name="purpleflower_theme_status_bar_color">#28203D</color>
+    <color name="christmas_theme_status_bar_color">#1E131C</color>
     <color name="avatar_color_bubblegum">#ff77b8</color>
     <color name="avatar_color_apricot">#ffa96f</color>
     <color name="avatar_color_carnation">#ff7687</color>
