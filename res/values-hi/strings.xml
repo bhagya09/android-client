@@ -914,7 +914,7 @@
     <string name="stealth_msg_redraw_pattern_to_confirm">अपने पैटर्न की पुष्टि करें</string>
     <string name="stealth_msg_reenter_pin_to_confirm">अपने पिन की पुष्टि करें</string>
     <string name="stealth_enter_4_digits">अपना 4 अंकों का पिन पूरा करें</string>
-    <string name="hide_chat">चैट छुपाएँ</string>
+    <string name="hide_chat">चैट छुपायें</string>
     <string name="mark_hidden">छुपा दें</string>
     <string name="mark_visible">दिखायें</string>
     <string name="stealth_set_pin">या एक नंबर पिन सेट करें</string>
