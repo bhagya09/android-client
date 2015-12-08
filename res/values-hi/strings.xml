@@ -928,11 +928,11 @@
     <string name="nudge_setting_header">नज करने के लिए डबल टैप करें</string>
     <string name="nudge_setting_info">चैट करते हुए डबल टैप द्वारा एक नज भेजें</string>
     <string name="enter_setting_header">एंटर कुंजी से भेजें</string>
-    <string name="enter_setting_info">enter कुंजी दबाने से संदेश भेज दिया जाएगा</string>
+    <string name="enter_setting_info">एंटर कुंजी दबाने से संदेश भेज दिया जाएगा</string>
     <string name="settings_chat">चैट सेटिंग्स</string>
     <string name="settings_localization">भाषा और इनपुट</string>
     <string name="keyboard_settings_header">कीबोर्ड सेटिंग्स</string>
-    <string name="new_line_setting_info">enter कुंजी दबाने से नई लाइन जोड़ दी जाएगी</string>
+    <string name="new_line_setting_info">एंटर कुंजी दबाने से नई लाइन जोड़ दी जाएगी</string>
     <string name="nudge_toast"> नज भेजना बंद है।\nआप सेटिंग्स > चैट सेटिंग्स में उसे चालू कर सकते हैं।</string>
     <string name="select_all_hike">सभी चुनें</string>
     <string name="unselect_all_hike">सभी का चयन हटाएँ</string>
