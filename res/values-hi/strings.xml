@@ -916,7 +916,7 @@
     <string name="stealth_enter_4_digits">अपना 4 अंकों का पिन पूरा करें</string>
     <string name="hide_chat">चैट छुपाएँ</string>
     <string name="mark_hidden">छुपा दें</string>
-    <string name="mark_visible">प्रकट करें</string>
+    <string name="mark_visible">दिखायें</string>
     <string name="stealth_set_pin">या एक नंबर पिन सेट करें</string>
     <string name="stealth_set_pattern">या एक पैटर्न सेट करें</string>
     <string name="stealth_msg_pin_recorded">पिन रिकॉर्ड किया गया</string>
