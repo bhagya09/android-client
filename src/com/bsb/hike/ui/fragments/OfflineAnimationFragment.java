@@ -704,6 +704,10 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 		case COULD_NOT_CONNECT:
 		case REQUEST_CANCEL:
 		case SHUTDOWN:
+			if(!isAdded())
+			{
+				return;
+			}
 			fragmentView.post(new Runnable()
 			{
 				@Override
