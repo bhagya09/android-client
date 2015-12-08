@@ -162,12 +162,6 @@ public class HomeFtueActivity extends HikeAppStateBaseFragmentActivity {
     }
     private void showLocalizationFtue() {
         flipper.setDisplayedChild(LOCALIZATION);
-        //AND-4046 Begin
-        String unsupportedLanguages = LocalLanguage.getUnsupportedLocaleToastText(this);
-        if (!TextUtils.isEmpty(unsupportedLanguages)) {
-            Toast.makeText(this, unsupportedLanguages, Toast.LENGTH_LONG).show();
-        }
-        //AND-4046 End
         final TextView languageText = (TextView) flipper.findViewById(R.id.txt_lang);
 
         if (LocalLanguageUtils.isLocalLanguageSelected())
@@ -185,6 +179,12 @@ public class HomeFtueActivity extends HikeAppStateBaseFragmentActivity {
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
+                        //AND-4069 Begin
+                        String unsupportedLanguages = LocalLanguage.getUnsupportedLocaleToastText(HomeFtueActivity.this);
+                        if (!TextUtils.isEmpty(unsupportedLanguages)) {
+                            Toast.makeText(HomeFtueActivity.this, unsupportedLanguages, Toast.LENGTH_LONG).show();
+                        }
+                        //AND-4069 End
                         final ArrayList<LocalLanguage> list = new ArrayList<>(LocalLanguage.getDeviceSupportedHikeLanguages(HomeFtueActivity.this));
                         AlertDialog.Builder builder = new AlertDialog.Builder(HomeFtueActivity.this);
                         ListAdapter adapter = new ArrayAdapter<>(HomeFtueActivity.this, R.layout.alert_item, R.id.item, list);
