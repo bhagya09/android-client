@@ -635,7 +635,7 @@
     <string name="delete_media_from_sdcard">ఫోన్ నుంచి మీడియా తొలగించండి</string>
     <string name="unable_to_open">క్షమించండి, ఈ ఫైలు ఉనికిలో లేదు.</string>
     <string name="notificationSoundSummary">కొత్త నోటిఫికేషన్ కొరకు ప్లే చేయడానికి సౌండ్ ఎంచుకోండి</string>
-    <string name="hike_offline_notifications">hike ఆఫ్‌లైన్</string>
+    <string name="hike_offline_notifications">Hike ఆఫ్‌లైన్</string>
     <string name="h2o_notifications_setting_summary">ఆఫ్‌లైన్ కాంటాక్ట్కు SMS పంపడానికి నోటిఫై చేయి</string>
     <string name="stealth_info_tip_subtext">పాస్‌వర్డ్‌తో చాట్‌లు దాచిపెట్టడానికి \'hi\'పై తట్టండి.</string>
     <string name="file_attachment_info">100 MB వరకు డాక్యుమెంట్, పిడిఎఫ్, మీడియాను పంచుకోండి</string>
