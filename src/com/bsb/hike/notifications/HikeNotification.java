@@ -97,6 +97,8 @@ public class HikeNotification
 	
 	public static final String NOTIF_ALARM_INTENT = "com.bsb.hike.PERS_NOTIF_ALARM_INTENT";
 
+    public static final String NOTIF_URL_INTENT = "com.bsb.hike.PERS_NOTIF_URL_INTENT";
+
 	// We need a constant notification id for bulk/big text notifications. Since
 	// we are using msisdn for other single notifications, it is safe to use any
 	// number <= 99
@@ -359,13 +361,15 @@ public class HikeNotification
 		settingPref.saveData(HikeConstants.PERSISTENT_NOTIF_URL, url.toString());
 		settingPref.saveData(HikeConstants.PERSISTENT_NOTIF_ALARM, alarmInterval);
 
-		Intent intent = new Intent(Intent.ACTION_VIEW, url);
-		mBuilder.setContentIntent(PendingIntent.getActivity(context, 0, intent, 0));
+		Intent intent = new Intent(NOTIF_URL_INTENT);
+        intent.putExtra(HikeConstants.PERSISTENT_NOTIF_URL, url.toString());
+        PendingIntent openUrl = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+		mBuilder.setContentIntent(openUrl);
 		
 		Intent laterIntent = new Intent(NOTIF_ALARM_INTENT);
 		
-		mBuilder.addAction(R.drawable.ic_clock_later, laterText, PendingIntent.getBroadcast(context, 0, laterIntent, 0))
-				.addAction(R.drawable.ic_downloaded_tick, actionText, PendingIntent.getActivity(context, 0, intent, 0));
+		mBuilder.addAction(R.drawable.ic_clock_later, laterText, PendingIntent.getBroadcast(context, 0, laterIntent, PendingIntent.FLAG_UPDATE_CURRENT))
+				.addAction(R.drawable.ic_downloaded_tick, actionText, openUrl);
 		
 		if (!sharedPreferences.getBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false) && !settingPref.getData(HikeConstants.IS_HIKE_APP_FOREGROUNDED, false))
 		{
@@ -1131,7 +1135,7 @@ public class HikeNotification
 	
 	public void cancelPersistNotif()
 	{
-		Logger.d(HikeConstants.UPDATE_TIP_AND_PERS_NOTIF_LOG, "Removing Persistent Notif.");
+		Logger.d(HikeConstants.UPDATE_TIP_AND_PERS_NOTIF_LOG, "Remove persistent notif called");
 		cancelNotification(PERSISTENT_NOTIF_ID);
 	}
 
