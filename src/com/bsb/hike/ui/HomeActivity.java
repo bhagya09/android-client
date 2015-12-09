@@ -256,7 +256,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 		if (HomeFtueActivity.isFtueToBeShown())
 		{
-			IntentFactory.openHomeFtueActivity(HomeActivity.this);
+			IntentFactory.freshLaunchHomeFtueActivity(HomeActivity.this);
 			this.finish();
 			return;
 		}
@@ -742,7 +742,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 					{
 						hiButton.clearAnimation();
 					}
-					
+
 					return true;
 			}
 

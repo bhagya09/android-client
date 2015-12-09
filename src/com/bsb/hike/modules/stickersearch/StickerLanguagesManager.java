@@ -28,6 +28,7 @@ import java.util.Set;
 
 /**
  * Created by anubhavgupta on 28/10/15.
+ * Modified : 3/12/15
  */
 public class StickerLanguagesManager {
 
@@ -48,11 +49,8 @@ public class StickerLanguagesManager {
 
     public static final short FORBIDDEN_LANGUAGE_SET_TYPE = 3;
 
-    private Map<String, String> localLanguagesMap;
-
     private StickerLanguagesManager()
     {
-        initialiseLocalLanguagesMap();
         initialiseIsoLanguages();
     }
 
@@ -253,36 +251,21 @@ public class StickerLanguagesManager {
         return resultSet;
     }
 
-    private void initialiseLocalLanguagesMap() {
-
-        localLanguagesMap = new HashMap<>();
-        localLanguagesMap.put("English", "eng");
-        localLanguagesMap.put("हिन्दी", "hin");
-        localLanguagesMap.put("বাংলা", "ben");
-        localLanguagesMap.put("मराठी", "mar");
-        localLanguagesMap.put("ગુજરાતી", "guj");
-        localLanguagesMap.put("தமிழ்", "tam");
-        localLanguagesMap.put("తెలుగు", "tel");
-        localLanguagesMap.put("ಕನ್ನಡ", "kan");
-        localLanguagesMap.put("മലയാളം", "mal");
-    }
-
     private void initialiseIsoLanguages()
     {
         ISO_LANGUAGES = new HashSet<>(LOCALES_SET.size());
-        for(Locale locale : LOCALES_SET)
-        {
+
+        for (Locale locale : LOCALES_SET) {
             try {
-                ISO_LANGUAGES.add(locale.getISO3Language());
-            }catch (MissingResourceException e) {
+                String currLang = locale.getISO3Language();
+                ISO_LANGUAGES.add(currLang);
+            } catch (MissingResourceException e) {
                 Logger.e(TAG, "missing local language code for locale : " + locale);
             }
         }
-    }
 
-    public String getLanguageCode(String language)
-    {
-        return localLanguagesMap.get(language);
+        Logger.d(TAG, "initialising valid languages collection, valid languages :  " + ISO_LANGUAGES);
+
     }
 
     public String toString()
@@ -411,6 +394,19 @@ public class StickerLanguagesManager {
         }
 
         return unsupportedLanguages;
+    }
+
+    public void addKptSupportedLanguages()
+    {
+        ArrayList<String> kptList = new ArrayList<String>( KptKeyboardManager.getInstance(HikeMessengerApp.getInstance().getApplicationContext()).getSupportedLanguagesList().size());
+
+        for(KPTAddonItem item : KptKeyboardManager.getInstance(HikeMessengerApp.getInstance().getApplicationContext()).getSupportedLanguagesList())
+        {
+            kptList.add(new Locale(item.getlocaleName()).getISO3Language());
+        }
+
+        Logger.d(TAG, "kpt list of languages : " + kptList);
+        ISO_LANGUAGES.addAll(kptList);
     }
 }
 
