@@ -637,7 +637,7 @@
     <string name="notificationSoundSummary">নতুন বিজ্ঞপ্তির জন্য প্লে করতে শব্দ নির্বাচন করুন</string>
     <string name="hike_offline_notifications">Hike অফলাইন</string>
     <string name="h2o_notifications_setting_summary">অফলাইন যোগাযোগর জন্য SMS পাঠানোর বিজ্ঞপ্তি দিন</string>
-    <string name="stealth_info_tip_subtext">পাসওয়ার্ড সহ চ্যাট লুকাতে \’হাই \’ আলতো চাপুন।</string>
+    <string name="stealth_info_tip_subtext">পাসওয়ার্ড সহ চ্যাট লুকাতে \'hi\' আলতো চাপুন।</string>
     <string name="file_attachment_info">ডক, pdf &amp; মিডিয়া 100 MB পর্যন্ত শেয়ার করুন</string>
     <string name="status_text_notification">একটি আপডেট পোস্ট করা হয়েছে %1$s</string>
     <string name="shared_files">ফাইলস্</string>
@@ -1283,6 +1283,7 @@
     <string name="voip_decline">প্রত্যাখ্যান করুন</string>
     <string name="voip_accept">স্বীকার করুন</string>
     <string name="you_added_group_member">আপনি %1$s কে যোগ করেছেন</string>
+    <string name="you_group_member_added">আপনি %1$s কে যোগ করেছেন</string>
     <string name="you_added_as_group_member">%1$s আপনাকে যোগ করেছেন</string>
     <string name="group_member_added">%1$s %2$s কে যোগ করেছেন</string>
     <string name="you_updated_group_admin">আপনি %1$s কে গ্রুপ অ্যাডমিন করেছেন</string>
@@ -1302,7 +1303,7 @@
     <string name="made_with_love_in_india">ভারতকে :love: রেখে তৈরি</string>
     <string name="timeline_ftue_desc">টাইমলাইন আপনার ও আপনার বন্ধুদের বিশেষ মুহূর্ত শেয়ার করার জায়গা.  আপনার কিছু বন্ধুরা ইতিমধ্যে টাইমলাইনে পোস্ট করেছে!</string>
     <string name="sticker">স্টিকার</string>
-    <string name="stealth_unread_tip_message">চ্যাট হাইড করুন hi আলতো টিপে</string>
+    <string name="stealth_unread_tip_message">চ্যাট হাইড করুন \’hi\’ আলতো টিপে</string>
     <string name="stealth_unread_tip_header">চ্যাট হাইড করুন</string>
 
     <!-- The above two string would be used as in Group with Shibu, Niladri and 4 others -->
