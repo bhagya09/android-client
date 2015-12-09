@@ -3222,7 +3222,6 @@ public class Utils
 				object.put(HikeConstants.DATA, data);
 				
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.IS_HIKE_APP_FOREGROUNDED, true);
-				Logger.d(HikeConstants.UPDATE_TIP_AND_PERS_NOTIF_LOG, "Hike has come to foreground. Calling cancel persistent notif");
 				HikeNotification.getInstance().cancelPersistNotif();
 				HikeMessengerApp.getPubSub().publish(HikePubSub.APP_FOREGROUNDED, null);
 				if (toLog)
@@ -3240,7 +3239,6 @@ public class Utils
 					JSONObject sessionDataObject = HAManager.getInstance().recordAndReturnSessionEnd();
 					sendSessionMQTTPacket(context, HikeConstants.BACKGROUND, sessionDataObject);
 					HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.IS_HIKE_APP_FOREGROUNDED, false);
-					Logger.d(HikeConstants.UPDATE_TIP_AND_PERS_NOTIF_LOG, "Hike has moved to background. Calling show persistent notif");
 					HikeNotification.getInstance().checkAndShowUpdateNotif();
 				}
 			}
@@ -4720,7 +4718,7 @@ public class Utils
 		{
 			RunningAppProcessInfo info = i.next();
 
-			if (info.uid == context.getApplicationInfo().uid && info.importance == RunningAppProcessInfo.IMPORTANCE_FOREGROUND && info.importanceReasonCode == 0)
+			if (!TextUtils.isEmpty(info.processName) && info.processName.equals(context.getApplicationInfo().processName) && info.importance == RunningAppProcessInfo.IMPORTANCE_FOREGROUND && info.importanceReasonCode == 0)
 			{
 				
 				Field field = null;

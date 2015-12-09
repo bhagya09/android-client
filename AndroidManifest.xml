@@ -3,8 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bsb.hike"
     android:installLocation="auto"
-    android:versionCode="1549"
-    android:versionName="4.0.8.81.46" >
+    android:versionCode="1552"
+    android:versionName="4.0.8.81.49" >
 
     <uses-sdk
         android:minSdkVersion="14"
@@ -591,6 +591,9 @@
             android:name="com.bsb.hike.notifications.PersNotifClickReceiver" >
             <intent-filter>
                 <action android:name="com.bsb.hike.PERS_NOTIF_ALARM_INTENT"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="com.bsb.hike.PERS_NOTIF_URL_INTENT"/>
             </intent-filter>
         </receiver>
         
