@@ -1154,21 +1154,19 @@ public class Utils
 	//Sol: making the highlight text extend to the end of the word.
 	public static CharSequence getFormattedParticipantInfo(String info, String textToHighlight)
 	{
-		if (!info.contains(textToHighlight))
+		if (!info.contains(textToHighlight) || TextUtils.isEmpty(textToHighlight))
 			return info;
+
 		SpannableStringBuilder ssb = new SpannableStringBuilder(info);
 		int index = info.indexOf(textToHighlight);
-		int wordEndIndex = getNextSpaceIndex(info.substring(index + textToHighlight.length()));
+
+		int wordEndIndex = info.substring(index + textToHighlight.length()).indexOf(" ");
 		int highlightLen = (wordEndIndex == -1) ? textToHighlight.length() : textToHighlight.length()+ wordEndIndex;
 		ssb.setSpan(new StyleSpan(Typeface.BOLD), info.indexOf(textToHighlight), info.indexOf(textToHighlight) + highlightLen, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 
 		return ssb;
 	}
 
-
-	private static int getNextSpaceIndex(String info){
-		return info.indexOf(" ");
-	}
 
 	/**
 	 * Used for preventing the cursor from being shown initially on the text box in touch screen devices. On touching the text box the cursor becomes visible
