@@ -1168,7 +1168,7 @@
     <string name="delete_all">सभी हटाएं</string>
     <string name="long_press_duration_title">लंबा दबाने की अवधि</string>
     <string name="keypress_sound_vol_title">की-प्रेस ध्वनि वॉल्यूम</string>
-    <string name="keypress_vib_duration_title">की-प्रेस वाईब्रटे अवधि</string>
+    <string name="keypress_vib_duration_title">की-प्रेस वाइब्रेट अवधि</string>
     <string name="like_count_by_unknow_contacts">%2$s के +%1$d मित्र</string>
     <string name ="connection_established_inline_msg">Hike डायरेक्ट कनेक्टेड</string>
     <string name ="connection_deestablished_inline_msg">Hike डायरेक्ट डिस्कनेक्टेड</string>
