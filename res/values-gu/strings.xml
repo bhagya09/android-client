@@ -637,7 +637,7 @@
     <string name="notificationSoundSummary">નવી સૂચના માટે પ્લે કરવા ધ્વનિ પસંદ કરો</string>
     <string name="hike_offline_notifications">ઑફલાઇન Hike કરો</string>
     <string name="h2o_notifications_setting_summary">ઑફલાઇન સંપર્ક માટે SMS મોકલવા માટે સૂચિત કરો</string>
-    <string name="stealth_info_tip_subtext">પાસવર્ડ સાથેની ચેટને હાઈડ કરવા માટે \&apos;હાઈ\’ ટૅપ કરો.</string>
+    <string name="stealth_info_tip_subtext">પાસવર્ડ સાથેની ચેટને હાઈડ કરવા માટે \&apos;hi\&apos; ટૅપ કરો.</string>
     <string name="file_attachment_info">100 MB સુધીના doc, pdf અને મીડિયા શેર કરો</string>
     <string name="status_text_notification">%1$s દ્વારા અપડેટ પોસ્ટ થયું છે</string>
     <string name="shared_files">ફાઇલો</string>
@@ -1300,7 +1300,7 @@
     <string name="timeline_ftue_desc">ટાઇમલાઇન, તમે અને તમારા મિત્રોના ખાસ ક્ષણો શેર કરવા માટે એક સ્થળ છે. તમારા થોડા મિત્રો પેહલા થી પોતાના ટાઇમલાઇન પર પોસ્ટ કરે છે!</string>
     <string name="sticker">સ્ટીકર</string>
     <string name="stealth_unread_tip_header">તમારી ચેટ્સ હાઇડ કરો!</string>
-    <string name="stealth_unread_tip_message">ચેટ હાઈડ કરવા માટે  ‘hi’ પર ટૅપ કરો</string>
+    <string name="stealth_unread_tip_message">ચેટ હાઈડ કરવા માટે \&apos;hi\&apos; પર ટૅપ કરો</string>
 
     <!-- The above two string would be used as in Group with Shibu, Niladri and 4 others -->
 
@@ -1420,4 +1420,5 @@
     <string name="try_instead">તેના બદલે, ટ્રાઇ કરો</string>
     <string name="sms_card_settings_side_text">બધા ટેક્સ્ટ મેસેજસ પર</string>
 <string name="unsupported_langs_toast">તમારો ફોન %1$s ભાષા સપોર્ટ નથી કરતો</string>
+    <string name="unsupported_language_toast_msg">તમારો ફોન આ ભાષા સપોર્ટ નથી કરતો</string>
 </resources>

@@ -230,7 +230,7 @@
     <string name="dismiss">डिसमीस करा</string>
     <string name="group">समूह</string>
     <string name="posting_update">पोस्ट करत आहे...</string>
-    <string name="joined_hike_update">Hike मध्ये सहभागी झाले</string>
+    <string name="joined_hike_update">hike मध्ये सहभागी झाले</string>
     <string name="free_hike_sms">फ्री hike SMS</string>
     <string name="regular_sms">नियमित SMS</string>
     <string name="messaging_my_number">%1$s कडून संदेशन</string>
@@ -637,7 +637,7 @@
     <string name="notificationSoundSummary">नवीन सूचना पत्रक चालू  करण्याकरीता ध्वनी निवडा</string>
     <string name="hike_offline_notifications">Hike ऑफलाइन</string>
     <string name="h2o_notifications_setting_summary">ऑफलाइन संपर्कासाठी SMS पाठवण्याचे सूचित करा</string>
-    <string name="stealth_info_tip_subtext">संकेतशब्दाने चॅट लपवण्यासाठी \'हाय\' टॅप करा.</string>
+    <string name="stealth_info_tip_subtext">संकेतशब्दाने चॅट लपवण्यासाठी \’hi\’ टॅप करा.</string>
     <string name="file_attachment_info">100 MB पर्यन्त doc, pdf आणि मीडिया पाठवा</string>
     <string name="status_text_notification">अद्यतन पोस्ट केले %1$s</string>
     <string name="shared_files">फाइल</string>
@@ -1419,4 +1419,5 @@
     <string name="sms_card_settings_side_text">सगळ्या मेसेगेस करिता</string>
 
 <string name="unsupported_langs_toast">आपला फोन %1$s भाषा दाखवण्यास असमर्थ आहे</string>
+    <string name="unsupported_language_toast_msg">आपला फोन ही भाषा स्विकारत नाही</string>
 </resources>

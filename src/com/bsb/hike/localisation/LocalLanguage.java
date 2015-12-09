@@ -155,7 +155,7 @@ public class LocalLanguage {
         for(int i=0; i < deviceUnSupportedList.size(); i++){
             LocalLanguage language = deviceUnSupportedList.get(i);
             //Below code gets the resource id for the localized name of language missing
-            int resID = getResourceID(language.getLocale());
+            int resID = LocalLanguageUtils.getCurrentLocaleDisplayNameResourceID(language.getLocale());
             unsupportedLanguages = unsupportedLanguages + context.getString(resID);
             if( i != size -1){
                 unsupportedLanguages += ", ";
@@ -169,29 +169,6 @@ public class LocalLanguage {
             unsupportedLanguages = preAnd + postAnd;
         }
         return String.format(context.getString(R.string.unsupported_langs_toast),unsupportedLanguages);
-    }
-
-    private static int getResourceID(String locale){
-        switch (locale){
-            case "bn":
-                return R.string.bengali;
-            case "gu":
-                return R.string.gujarati;
-            case "hi":
-                return R.string.hindi;
-            case "kn":
-                return R.string.kannada;
-            case "ml":
-                return R.string.malyalam;
-            case "mr":
-                return R.string.marathi;
-            case "ta":
-                return R.string.tamil;
-            case "te":
-                return R.string.telugu;
-            default:
-                return R.string.english;
-        }
     }
     //AND-4046 End
 }
