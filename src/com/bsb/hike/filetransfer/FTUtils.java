@@ -7,6 +7,7 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.media.ThumbnailUtils;
+import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.text.TextUtils;
@@ -18,6 +19,7 @@ import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.HikeConstants.ImageQuality;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.smartImageLoader.ImageWorker;
+import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
 public class FTUtils {
@@ -140,6 +142,65 @@ public class FTUtils {
 		}
 		return imageQuality;
 	}
+
+	private static String HIKE_TEMP_DIR_NAME = "hikeTmp";
+
+	/**
+	 * Returns temp directory File object. Can return null if some error occurs while creating temp directory
+	 *
+	 * @param context
+	 * @return
+	 */
+	public static File getHikeTempDir(Context context)
+	{
+		File hikeDir = context.getExternalFilesDir(null);
+		if (hikeDir == null)
+		{
+			FTAnalyticEvents.logDevError(FTAnalyticEvents.UNABLE_TO_CREATE_HIKE_TEMP_DIR, 0, FTAnalyticEvents.UPLOAD_FILE_TASK + ":" + FTAnalyticEvents.DOWNLOAD_FILE_TASK, "File",
+					"Hike dir is null when external storage state is - " + Environment.getExternalStorageState());
+			return null;
+		}
+		File hikeTempDir = new File(hikeDir, HIKE_TEMP_DIR_NAME);
+		if (hikeTempDir != null && !hikeTempDir.exists())
+		{
+			if (!hikeTempDir.mkdirs())
+			{
+				Logger.d("FileTransferManager", "failed to create directory");
+				FTAnalyticEvents.logDevError(FTAnalyticEvents.UNABLE_TO_CREATE_HIKE_TEMP_DIR, 0, FTAnalyticEvents.UPLOAD_FILE_TASK + ":" + FTAnalyticEvents.DOWNLOAD_FILE_TASK,
+						"File", "Unable to create Hike temp dir when external storage state is - " + Environment.getExternalStorageState());
+				return null;
+			}
+		}
+		return hikeTempDir;
+	}
+
+	/**
+	 * This will be used when user deletes account or unlink account
+	 *
+	 * @param ctx
+	 */
+	public static void deleteAllFTRFiles(Context ctx)
+	{
+		File hikeTempDir = getHikeTempDir(ctx);
+		if (hikeTempDir != null && hikeTempDir.listFiles() != null)
+		{
+			for (File f : hikeTempDir.listFiles())
+			{
+				if (f != null)
+				{
+					try
+					{
+						f.delete();
+					}
+					catch (Exception e)
+					{
+						Logger.e("FtUtils", "Exception while deleting state file : ", e);
+					}
+				}
+			}
+		}
+	}
+
 	/**
 	 * Fetches the type of internet connection the device is using
 	 *
@@ -166,5 +227,31 @@ public class FTUtils {
 		default:
 			return FileTransferManager.NetworkType.TWO_G;
 		}
+	}
+
+	public static String getNetworkTypeString(Context context)
+	{
+		String netTypeString = "n";
+		switch (getNetworkType(context))
+		{
+		case NO_NETWORK:
+			netTypeString = "n";
+			break;
+		case TWO_G:
+			netTypeString = "2g";
+			break;
+		case THREE_G:
+			netTypeString = "3g";
+			break;
+		case FOUR_G:
+			netTypeString = "4g";
+			break;
+		case WIFI:
+			netTypeString = "wifi";
+			break;
+		default:
+			break;
+		}
+		return netTypeString;
 	}
 }
