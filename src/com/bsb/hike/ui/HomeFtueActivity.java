@@ -5,14 +5,12 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListAdapter;
 import android.widget.TextView;
-import android.widget.Toast;
 import android.widget.ViewFlipper;
 
 import com.bsb.hike.HikeConstants;
@@ -179,12 +177,6 @@ public class HomeFtueActivity extends HikeAppStateBaseFragmentActivity {
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        //AND-4069 Begin
-                        String unsupportedLanguages = LocalLanguage.getUnsupportedLocaleToastText(HomeFtueActivity.this);
-                        if (!TextUtils.isEmpty(unsupportedLanguages)) {
-                            Toast.makeText(HomeFtueActivity.this, unsupportedLanguages, Toast.LENGTH_LONG).show();
-                        }
-                        //AND-4069 End
                         final ArrayList<LocalLanguage> list = new ArrayList<>(LocalLanguage.getDeviceSupportedHikeLanguages(HomeFtueActivity.this));
                         AlertDialog.Builder builder = new AlertDialog.Builder(HomeFtueActivity.this);
                         ListAdapter adapter = new ArrayAdapter<>(HomeFtueActivity.this, R.layout.alert_item, R.id.item, list);
