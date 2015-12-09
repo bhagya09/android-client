@@ -517,7 +517,7 @@
     <string name="welcome_to_hike">hikeకు స్వాగతం</string>
     <string name="ftue_welcome_card_msg">hikeలో అద్భుతమైన విషయాలు ఎన్నో ఉన్నాయి, మేం వాటిని మీకు చూపించాలని అనుకుంటున్నాం.</string>
     <string name="ftue_hidden_mode_card_msg">మీ హిడెన్ చాట్‌లను దాచిపెట్టబడిన వాటిగా మార్క్ చేయండి, వాటిని పాస్‌కోడ్‌తో యాక్సెస్ చేసుకోండి.</string>
-    <string name="hike_offline">hike ఆఫ్‌లైన్</string>
+    <string name="hike_offline">Hike ఆఫ్‌లైన్</string>
     <string name="new_chat_tip_header">చాట్ ప్రారంభించండి</string>
     <string name="recent_empty_string">మీరు తరచుగా ఉపయోగించే స్టిక్కర్లు ఇక్కడ చూపించబడతాయి.</string>
     <string name="recent_icon_text">మీరు తరచుగా ఉపయోగించే ఎమాటికన్‌లు ఇక్కడ చూపించబడతాయి.</string>
@@ -635,7 +635,7 @@
     <string name="delete_media_from_sdcard">ఫోన్ నుంచి మీడియా తొలగించండి</string>
     <string name="unable_to_open">క్షమించండి, ఈ ఫైలు ఉనికిలో లేదు.</string>
     <string name="notificationSoundSummary">కొత్త నోటిఫికేషన్ కొరకు ప్లే చేయడానికి సౌండ్ ఎంచుకోండి</string>
-    <string name="hike_offline_notifications">hike ఆఫ్‌లైన్</string>
+    <string name="hike_offline_notifications">Hike ఆఫ్‌లైన్</string>
     <string name="h2o_notifications_setting_summary">ఆఫ్‌లైన్ కాంటాక్ట్కు SMS పంపడానికి నోటిఫై చేయి</string>
     <string name="stealth_info_tip_subtext">పాస్‌వర్డ్‌తో చాట్‌లు దాచిపెట్టడానికి \'hi\'పై తట్టండి.</string>
     <string name="file_attachment_info">100 MB వరకు డాక్యుమెంట్, పిడిఎఫ్, మీడియాను పంచుకోండి</string>
@@ -1141,6 +1141,7 @@
     <string name="UPDATE_APP">అప్‌డేట్ చేయి</string>
     <string name="language_summary">ఇంగ్లిష్</string>
     <string name="language">భాష</string>
+    <string name="app_language">అనువర్తనం భాష</string>
     <string name="keyboard_summary">hike కీబోర్డు ఎనేబుల్/డిసేబుల్ చేయండి</string>
     <string name="keyboard_title">hike కీబోర్డు</string>
     <string name="glide_summary">నిరంతర సంజ్ఞ టైపింగ్</string>
@@ -1415,5 +1416,5 @@
     <string name="try_instead">బదులుగా ప్రయత్నించండి</string>
     <string name="sms_card_settings_side_text">అన్ని టెక్స్ట్ సందేశాల పై</string>
 <string name="unsupported_langs_toast">మీ ఫోన్ %1$s భాషనీ సపోర్ట్ చెయ్యదు </string>
-
+    <string name="unsupported_language_toast_msg">మీ ఫోన్ ఈ భాషని సపోర్ట్ చెయ్యదు</string>
 </resources>
