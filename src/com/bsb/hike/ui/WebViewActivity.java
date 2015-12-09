@@ -178,17 +178,6 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 
 
 		time=System.currentTimeMillis();
-		JSONObject json = new JSONObject();
-		try
-		{
-			json.putOpt(AnalyticsConstants.EVENT_KEY,AnalyticsConstants.MICRO_APP_EVENT);
-			json.putOpt(AnalyticsConstants.EVENT,AnalyticsConstants.MICRO_APP_OPENED);
-			json.putOpt(AnalyticsConstants.BOT_MSISDN,msisdn);
-		} catch (JSONException e)
-		{
-			e.printStackTrace();
-		}
-		Utils.sendLogEvent(json, AnalyticsConstants.NON_UI_EVENT, null);
 
 		allowLoc = getIntent().getBooleanExtra(HikeConstants.Extras.WEBVIEW_ALLOW_LOCATION, false);
 
@@ -209,6 +198,17 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		if (mode == MICRO_APP_MODE || mode == WEB_URL_BOT_MODE)
 		{
 			initMsisdn();
+			JSONObject json = new JSONObject();
+			try
+			{
+				json.putOpt(AnalyticsConstants.EVENT_KEY,AnalyticsConstants.MICRO_APP_EVENT);
+				json.putOpt(AnalyticsConstants.EVENT,AnalyticsConstants.MICRO_APP_OPENED);
+				json.putOpt(AnalyticsConstants.BOT_MSISDN,msisdn);
+			} catch (JSONException e)
+			{
+				e.printStackTrace();
+			}
+			Utils.sendLogEvent(json, AnalyticsConstants.NON_UI_EVENT, null);
 			if (filterNonMessagingBot(msisdn))
 			{
 				initBot();
