@@ -130,7 +130,7 @@ public class StickerSearchUtility
 							while (languages.hasNext())
 							{
 								String languageISOCode = languages.next();
-								String regex = json.getString(languageISOCode);
+								String regex = separatorsData.getString(languageISOCode);
 								if (isValidSeparatorsRegex(regex))
 								{
 									stickerDataSharedPref.saveData(getSharedPrefKeyForSeparatorsRegex(languageISOCode), regex);
