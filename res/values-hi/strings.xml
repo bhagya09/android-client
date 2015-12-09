@@ -197,7 +197,7 @@
     <string name="contact_saved">संपर्क सेव हो गया</string>
     <string name="contact_not_saved">संपर्क सेव नहीं हो सका</string>
     <string name="system_health">सिस्टम की स्थिति</string>
-    <string name="you">आपने</string>
+    <string name="you">आप</string>
     <string name="delete_status">स्टेटस हटाएँ</string>
     <string name="delete_status_error">आपका स्टेटस नहीं हट सका। कृपया अपना नेटवर्क कनेक्शन जाँचें और बाद में पुन: प्रयास करें।</string>
     <string name="deleting_status">अपडेट हट रहा है...</string>
@@ -1278,10 +1278,10 @@
     <string name="voip_accept">स्वीकारें</string>
     <string name="you_group_member_added">आपने %1$s को जोड़ा</string>
     <string name="you_added_as_group_member">%1$s ने आपको जोड़ा</string>
-    <string name="group_member_added">%1$s ने %2$s को जोड़ा</string>
+    <string name="group_member_added">%1$s ने %2$sको जोड़ा</string>
     <string name="you_updated_group_admin">आपने %1$s को ऐडमिन बनाया</string>
     <string name="group_admin_updated_you">%1$s ने आपको ऐडमिन बनाया</string>
-    <string name="group_admin_updated">%1$s ने %2$s को ऐडमिन बनाया</string>
+    <string name="group_admin_updated">%1$s ने %2$sको ऐडमिन बनाया</string>
     <string name="gps_settings">सेटिंग</string>
     <string name="no_results_found">कोई परिणाम नहीं मिले</string>
     <string name="APPLY">लागू करें</string>

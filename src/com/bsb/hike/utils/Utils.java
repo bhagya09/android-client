@@ -1140,13 +1140,34 @@ public class Utils
 		Utils.displayHeightPixels = displayMetrics.heightPixels;
 	}
 
+//	public static CharSequence getFormattedParticipantInfo(String info, String textToHighlight)
+//	{
+//		if (!info.contains(textToHighlight))
+//			return info;
+//		SpannableStringBuilder ssb = new SpannableStringBuilder(info);
+//		ssb.setSpan(new StyleSpan(Typeface.BOLD), info.indexOf(textToHighlight), info.indexOf(textToHighlight) + textToHighlight.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+//		return ssb;
+//	}
+
+	//AND-4036, Extending the high light to the next space.
+	//Problem: only "aap" is getting highlighted in the "aapko" / "aapne" since the highlighted text is "aap"
+	//Sol: making the highlight text extend to the end of the word.
 	public static CharSequence getFormattedParticipantInfo(String info, String textToHighlight)
 	{
 		if (!info.contains(textToHighlight))
 			return info;
 		SpannableStringBuilder ssb = new SpannableStringBuilder(info);
-		ssb.setSpan(new StyleSpan(Typeface.BOLD), info.indexOf(textToHighlight), info.indexOf(textToHighlight) + textToHighlight.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+		int index = info.indexOf(textToHighlight);
+		int wordEndIndex = getNextSpaceIndex(info.substring(index + textToHighlight.length()));
+		int highlightLen = (wordEndIndex == -1) ? textToHighlight.length() : textToHighlight.length()+ wordEndIndex;
+		ssb.setSpan(new StyleSpan(Typeface.BOLD), info.indexOf(textToHighlight), info.indexOf(textToHighlight) + highlightLen, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+
 		return ssb;
+	}
+
+
+	private static int getNextSpaceIndex(String info){
+		return info.indexOf(" ");
 	}
 
 	/**
