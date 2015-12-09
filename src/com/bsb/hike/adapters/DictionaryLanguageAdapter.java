@@ -11,6 +11,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.bsb.hike.R;
+import com.bsb.hike.localisation.LocalLanguageUtils;
 import com.bsb.hike.modules.kpt.KptKeyboardManager;
 import com.bsb.hike.modules.kpt.KptKeyboardManager.LanguageDictionarySatus;
 import com.kpt.adaptxt.beta.KPTAddonItem;
@@ -59,7 +60,14 @@ public class DictionaryLanguageAdapter extends ArrayAdapter<KPTAddonItem> {
 
         viewHolder.dictionaryLanguageName.setText(item.getDisplayName());
         LanguageDictionarySatus status = KptKeyboardManager.getInstance(mContext).getDictionaryLanguageStatus(item);
-        if (status == LanguageDictionarySatus.PROCESSING || status == LanguageDictionarySatus.IN_QUEUE)
+        if (status == LanguageDictionarySatus.UNSUPPORTED)
+        {
+            String locale = item.getlocaleName().substring(0, item.getlocaleName().indexOf("-"));
+            viewHolder.dictionaryLanguageName.setText(LocalLanguageUtils.getCurrentLocaleDisplayNameResourceID(locale));
+            viewHolder.progressBar.setVisibility(View.GONE);
+            viewHolder.dictionayStatus.setVisibility(View.GONE);
+        }
+        else if (status == LanguageDictionarySatus.PROCESSING || status == LanguageDictionarySatus.IN_QUEUE)
         {
             viewHolder.progressBar.setVisibility(View.VISIBLE);
             viewHolder.dictionayStatus.setVisibility(View.GONE);
