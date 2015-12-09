@@ -16,6 +16,9 @@
 
 package com.bsb.hike.modules.diskcache;
 
+import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.Utils;
+
 import java.io.Closeable;
 import java.io.EOFException;
 import java.io.File;
@@ -32,9 +35,6 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import com.bsb.hike.utils.Logger;
-import com.bsb.hike.utils.Utils;
 
 import okio.Buffer;
 import okio.BufferedSink;
@@ -255,7 +255,7 @@ public final class DiskLruCache implements Closeable
 	 * @param maxSize
 	 *            the maximum number of bytes this cache should use to store
 	 */
-	public static DiskLruCache create(File directory, int appVersion, int valueCount, long maxSize)
+	public static DiskLruCache create(File directory, int appVersion, int valueCount, long maxSize, Executor executor)
 	{
 		if (maxSize <= 0)
 		{
@@ -266,10 +266,12 @@ public final class DiskLruCache implements Closeable
 			throw new IllegalArgumentException("valueCount <= 0");
 		}
 
-		// Use a single background thread to evict entries.
-		Executor executor = new ThreadPoolExecutor(0, 1, 60L, TimeUnit.SECONDS,
-				new LinkedBlockingQueue<Runnable>(), Utils.threadFactory("DiskLruCache", true));
-
+		if(executor == null)
+		{
+			// Use a single background thread to evict entries.
+			executor = new ThreadPoolExecutor(0, 1, 60L, TimeUnit.SECONDS,
+					new LinkedBlockingQueue<Runnable>(), Utils.threadFactory("DiskLruCache", true));
+		}
 		return new DiskLruCache(directory, appVersion, valueCount, maxSize, executor);
 	}
 

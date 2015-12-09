@@ -5,13 +5,17 @@ import com.bsb.hike.modules.diskcache.request.CacheRequest;
 import com.bsb.hike.modules.diskcache.response.CacheResponse;
 import com.bsb.hike.modules.httpmgr.Header;
 import com.bsb.hike.utils.Logger;
-import com.squareup.okhttp.internal.DiskLruCache;
-import com.squareup.okhttp.internal.Util;
+import com.bsb.hike.utils.Utils;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.Executor;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import okio.BufferedSink;
 import okio.BufferedSource;
@@ -30,6 +34,8 @@ public final class Cache
 	private static final int ENTRY_BODY = 1;
 
 	private static final int ENTRY_COUNT = 2;
+
+	private static final int CLEANUP_THRESHOLD = 10;   // if there is less than 10% space available in disk cache do a clean up of outlived entries
 	
 	final InternalCache internalCache = new InternalCache()
 	{
@@ -59,13 +65,33 @@ public final class Cache
 		}
 	};
 
+	private final Runnable cleanupRunnable = new Runnable()
+	{
+		public void run()
+		{
+			if(cache == null)
+			{
+				return;
+			}
+
+			cleanUpOutLivedEntries();
+		}
+	};
+
 	private final DiskLruCache cache;
+
+	/** Used to run 'cleanupRunnable' for cleaning up outlived entries and journal rebuilds. */
+	private final Executor executor;
 
 	public Cache(File directory, long maxSize)
 	{
 		synchronized (Cache.this)
 		{
-			cache = DiskLruCache.create(directory, VERSION, ENTRY_COUNT, maxSize);
+			// Use a single background thread to evict entries.
+			executor = new ThreadPoolExecutor(0, 1, 60L, TimeUnit.SECONDS,
+					new LinkedBlockingQueue<Runnable>(), Utils.threadFactory("DiskLruCache", true));
+
+			cache = DiskLruCache.create(directory, VERSION, ENTRY_COUNT, maxSize, executor);
 		}
 	}
 
@@ -149,6 +175,7 @@ public final class Cache
 			}
 			entry.writeTo(editor);
 			editor.commit();
+			checkAndDoCleanUp();
 			return true;
 		}
 		catch (IOException e)
@@ -267,6 +294,60 @@ public final class Cache
 		}
 		catch (IOException ignored)
 		{
+		}
+	}
+
+	private void checkAndDoCleanUp()
+	{
+		if (cache == null)
+		{
+			return ;
+		}
+
+		try
+		{
+			long cacheSize = cache.size();
+			long cacheMaxSize = cache.getMaxSize();
+
+			if(((cacheMaxSize - cacheSize)/(double) cacheMaxSize) < CLEANUP_THRESHOLD)
+			{
+				executor.execute(cleanupRunnable);
+			}
+		}
+		catch (IOException e)
+		{
+			Logger.e(TAG, "Exception during cleanup ", e);
+		}
+
+	}
+
+	private void cleanUpOutLivedEntries()
+	{
+		try
+		{
+			Iterator<DiskLruCache.Snapshot> iterator = cache.snapshots();
+
+			while (iterator.hasNext())
+			{
+				DiskLruCache.Snapshot snapshot = iterator.next();
+				try
+				{
+					Entry entry = new Entry(snapshot.getSource(ENTRY_METADATA));
+					if(entry.isExpired())
+					{
+						iterator.remove();
+					}
+				}
+				catch (IOException e)
+				{
+					Logger.e(TAG, "IO Exception in get ", e);
+					Util.closeQuietly(snapshot);
+				}
+			}
+		}
+		catch (IOException ex)
+		{
+			Logger.e(TAG, "Exception in cleanup ", ex); // log and ignore exception
 		}
 	}
 
