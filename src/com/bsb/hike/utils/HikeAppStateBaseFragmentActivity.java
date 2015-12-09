@@ -159,7 +159,7 @@ public class HikeAppStateBaseFragmentActivity extends HikeBaseActivity implement
 		 * Technically, it's a new activity but not attached to hike's process. A flag was added in the intent for the CocosProcess to deal with it.
 		 */
 		if (intent != null && intent.getBooleanExtra(HikeConstants.FORCE_BG, false) &&
-				HikeMessengerApp.currentState == CurrentState.RESUMED)
+				(HikeMessengerApp.currentState == CurrentState.RESUMED || HikeMessengerApp.currentState == CurrentState.OPENED))
 		{
 			// Don't change the current state
 		}
