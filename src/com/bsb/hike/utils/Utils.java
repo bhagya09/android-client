@@ -978,7 +978,7 @@ public class Utils
 	{
 		if (newGrp)
 		{
-			return context.getString(R.string.you).toLowerCase();
+			return context.getString(R.string.you);
 		}
 		JSONObject participant = (JSONObject) participantInfoArray.opt(0);
 		String highlight = convInfo.getConvParticipantName(participant.optString(HikeConstants.MSISDN));
@@ -1000,7 +1000,7 @@ public class Utils
 	{
 		if (newGrp)
 		{
-			return context.getString(R.string.you).toLowerCase();
+			return context.getString(R.string.you);
 		}
 		JSONObject participant = (JSONObject) participantInfoArray.opt(0);
 		String highlight = conversation.getConvParticipantFirstNameAndSurname(participant.optString(HikeConstants.MSISDN));
@@ -7781,7 +7781,7 @@ public class Utils
 		}
 		catch(JSONException e)
 		{
-			Logger.e("productpopup","JSON Exception in JSON Array language");
+			Logger.e("productpopup", "JSON Exception in JSON Array language");
 		}
 		return null;
 	}

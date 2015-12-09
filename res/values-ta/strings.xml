@@ -953,7 +953,7 @@
     <string name="group_creation">உருவாக்கிய தேதி </string>
     <string name="ls_change_failed">‘கடைசியாகப் பார்த்தது’ அப்டேட் தோல்வியடைந்து விட்டது!</string>
     <string name="terms_conditions_hint">விதிகள் மற்றும் நிபந்தனைகள்</string>
-    <string name="terms_conditions_title">T &amp; C</string>
+    <string name="terms_conditions_title">டி &amp; சி</string>
     <string name="content_des_message_send_rec_read_status">மெஸ்சேஜ் அனுப்பிய அல்லது பெண்டிங் ஸ்டேட்டஸ்</string>
     <string name="content_des_message_clock_state">மெஸ்சேஜ் அனுப்பவில்லை</string>
     <string name="content_des_message_double_tick_state">பெறுபவருக்கு மெஸ்சேஜைக் கொடுத்தாயிற்று</string>
@@ -1142,6 +1142,7 @@
     <string name="UPDATE_APP">அப்டேட் செய்க</string>
     <string name="language_summary">English</string>
     <string name="language">மொழி</string>
+    <string name="app_language">பயன்பாட்டை மொழி</string>
     <string name="keyboard_summary">Hike கீபோர்டை எனேபிள்/டிஸேபிள் செய்க</string>
     <string name="keyboard_title">Hike கீபோர்டு</string>
     <string name="glide_summary">தொடர் சைகை டைப்பிங்</string>

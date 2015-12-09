@@ -668,6 +668,12 @@ public class StickerSearchUtility
 		return ((source != null) && (source.length() > offset)) ? source.substring(0, (int) (source.length() * predictionRatio + 0.50f)) : source;
 	}
 
+	/* Get ceiling first order moment of 2 numbers */
+	public static int getFirstOrderMoment(int first, int second)
+	{
+		return (int) ((float) (first + second) / 2 + 0.50f);
+	}
+
 	/* Determine if given character is special character */
 	public static boolean isSpecialCharacterForLatin(char c)
 	{
