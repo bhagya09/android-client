@@ -1415,4 +1415,5 @@
     <string name="try_instead">ये आज़माएँ</string>
     <string name="sms_card_settings_side_text">सारे संदेशों पर</string>
 <string name="unsupported_langs_toast">आपका फ़ोन %1$s  भाषाएँ दिखाने मैं असमर्थ है</string>
+    <string name="unsupported_language_toast_msg">आपका फ़ोन इस भाषा को दिखाने में असमर्थ है।</string>
 </resources>
