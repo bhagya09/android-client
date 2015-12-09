@@ -388,16 +388,12 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 			}
 			languagePref.setEntries(entries);
 			languagePref.setEntryValues(entries);
-			languagePref.setOnPreferenceChangeListener(new OnPreferenceChangeListener()
-			{
+			languagePref.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
 
 				@Override
-				public boolean onPreferenceChange(Preference preference, Object newValue)
-				{
-					for (LocalLanguage language : localLanguage.getDeviceSupportedHikeLanguages(HikePreferences.this))
-					{
-						if (language.getDisplayName().equalsIgnoreCase((String) newValue))
-						{
+				public boolean onPreferenceChange(Preference preference, Object newValue) {
+					for (LocalLanguage language : localLanguage.getDeviceSupportedHikeLanguages(HikePreferences.this)) {
+						if (language.getDisplayName().equalsIgnoreCase((String) newValue)) {
 							LocalLanguageUtils.setApplicationLocalLanguage(language);
 							languagePref.setSummary(language.getDisplayName());
 							//AND-3956 Begin: resetting offline parameters on language change
@@ -418,9 +414,14 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 			languagePref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
 				@Override
 				public boolean onPreferenceClick(Preference preference) {
-					String unsupportedLanguages = LocalLanguage.getUnsupportedLocaleToastText(HikePreferences.this);
-					if (!TextUtils.isEmpty(unsupportedLanguages)) {
-						Toast.makeText(HikePreferences.this, unsupportedLanguages, Toast.LENGTH_LONG).show();
+					if (!HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.UNSUPPORTED_LANG_TOAST_SHOWN, false))
+					{
+						String unsupportedLanguages = LocalLanguage.getUnsupportedLocaleToastText(HikePreferences.this);
+						if (!TextUtils.isEmpty(unsupportedLanguages))
+						{
+							Toast.makeText(HikePreferences.this, unsupportedLanguages, Toast.LENGTH_LONG).show();
+						}
+						HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.UNSUPPORTED_LANG_TOAST_SHOWN, true);
 					}
 					return false;
 				}
