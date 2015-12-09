@@ -5,13 +5,11 @@ import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_I
 import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_MALFORMED_URL;
 import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_NO_NETWORK;
 import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_RESPONSE_PARSING_ERROR;
+import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_SOCKET_EXCEPTION;
 import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_SOCKET_TIMEOUT;
 import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_UNEXPECTED_ERROR;
 import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_UNKNOWN_HOST_EXCEPTION;
-import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_SOCKET_EXCEPTION;
-import static java.net.HttpURLConnection.HTTP_FORBIDDEN;
 import static java.net.HttpURLConnection.HTTP_LENGTH_REQUIRED;
-import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -23,6 +21,7 @@ import java.util.UUID;
 
 import org.apache.http.conn.ConnectTimeoutException;
 
+import com.bsb.hike.filetransfer.FileTransferBase.FTState;
 import com.bsb.hike.modules.httpmgr.DefaultHeaders;
 import com.bsb.hike.modules.httpmgr.HttpUtils;
 import com.bsb.hike.modules.httpmgr.analytics.HttpAnalyticsConstants;
@@ -39,6 +38,7 @@ import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.modules.httpmgr.response.ResponseBody;
 import com.bsb.hike.modules.httpmgr.retry.BasicRetryPolicy;
 import com.bsb.hike.utils.Utils;
+import com.hike.transporter.interfaces.IRetryPolicy;
 
 /**
  * This class is responsible for submitting the {@link Request} to the {@link HttpEngine} for engine and decides whether to execute the request asynchronously or synchronously
@@ -233,7 +233,7 @@ public class RequestExecuter
 			/** Logging request for analytics */
 			HttpAnalyticsLogger.logHttpRequest(trackId, request.getUrl(), request.getMethod(), request.getAnalyticsParam());
 
-			response = client.execute(request);
+			response = request.executeRequest(client);
 			if (response.getStatusCode() < 200 || response.getStatusCode() > 299)
 			{
 				throw new IOException();
@@ -296,27 +296,37 @@ public class RequestExecuter
 		}
 		catch (Throwable ex)
 		{
-			HttpAnalyticsLogger.logResponseReceived(trackId, request.getUrl(), REASON_CODE_UNEXPECTED_ERROR, request.getMethod(), request.getAnalyticsParam(), Utils.getStackTrace(ex));
+			HttpAnalyticsLogger.logResponseReceived(trackId, request.getUrl(), REASON_CODE_UNEXPECTED_ERROR, request.getMethod(), request.getAnalyticsParam(),
+					Utils.getStackTrace(ex));
 			handleException(ex, REASON_CODE_UNEXPECTED_ERROR);
 		}
 	}
 
 	private void notifyResponseToRequestRunner()
 	{
-		ResponseBody<?> body = response.getBody();
-		if (null == body || null == body.getContent())
+		if (request.getState() != null && request.getState().getFTState() == FTState.PAUSED)
 		{
-			LogFull.d("null response for  " + request.getUrl());
-			HttpAnalyticsLogger.logResponseReceived(trackId, request.getUrl(), REASON_CODE_RESPONSE_PARSING_ERROR, request.getMethod(), request.getAnalyticsParam());
-			listener.onResponse(null, new HttpException(REASON_CODE_RESPONSE_PARSING_ERROR, "response parsing error"));
+			LogFull.d("removing reuqest");
+			RequestProcessor.removeRequest(request);
+			LogFull.d("removed reuqest");
 		}
 		else
 		{
-			LogFull.d("positive response for : " + request.getUrl());
-			// positive response
-			HttpAnalyticsLogger.logSuccessfullResponseReceived(trackId, request.getUrl(), response.getStatusCode(), request.getMethod(), request.getAnalyticsParam());
-			listener.onResponse(response, null);
-		}	
+			ResponseBody<?> body = response.getBody();
+			if (null == body || null == body.getContent())
+			{
+				LogFull.d("null response for  " + request.getUrl());
+				HttpAnalyticsLogger.logResponseReceived(trackId, request.getUrl(), REASON_CODE_RESPONSE_PARSING_ERROR, request.getMethod(), request.getAnalyticsParam());
+				listener.onResponse(null, new HttpException(REASON_CODE_RESPONSE_PARSING_ERROR, "response parsing error"));
+			}
+			else
+			{
+				LogFull.d("positive response for : " + request.getUrl());
+				// positive response
+				HttpAnalyticsLogger.logSuccessfullResponseReceived(trackId, request.getUrl(), response.getStatusCode(), request.getMethod(), request.getAnalyticsParam());
+				listener.onResponse(response, null);
+			}
+		}
 	}
 
 	/**
