@@ -463,8 +463,8 @@
         <![CDATA[ <b> ಮುಚ್ಚಿಟ್ಟ ಮೋಡ್‌ ಅನ್ನು ಈಗ ರಿಸೆಟ್‌ ಮಾಡಲು ಇಲ್ಲಿ ಒತ್ತಿ! </b>
         ]]>
     </string>
-    <string name="tap_to_reveal_stealth_contacts">ಚಾಟ್‌ಗಳನ್ನು ಅನಾವರಣಗೊಳಿಸಲು</string>
-    <string name="tap_to_hide_stealth_contacts">ಚಾಟ್‌ಗಳನ್ನು ಮುಚ್ಚಿಡಲು</string>
+    <string name="tap_to_reveal_stealth_contacts">ಚಾಟ್ಗಳು ಬಹಿರಂಗಪಡಿಸಲು \&apos;hi\&apos; ಟಾಪ್ ಮಾಡಿ</string>
+    <string name="tap_to_hide_stealth_contacts">ಚಾಟ್ಗಳು ಮರೆಮಾಡಲು \&apos;hi\&apos; ಟಾಪ್ ಮಾಡಿ</string>
     <string name="tap_text">ಒತ್ತಿ</string>
     <string name="reset_stealth_confirmation">ಮುಚ್ಚಿಟ್ಟ ಮೋಡ್‌ ಅನ್ನು ರಿಸೆಟ್‌ ಮಾಡುವುದರಿಂದ ನಿಮ್ಮ ಎಲ್ಲ ಗುಪ್ತ ಚಾಟ್‌ಗಳು ಅಳಿಸುತ್ತವೆ.\nಖಚಿತವಾಗಿದೆಯೇ?</string>
     <string name="stealth_tap_and_hold_tip">ಚಾಟ್‌ ಅನ್ನು ‘ಮುಚ್ಚಿಡಲು’ ತಟ್ಟಿ ಮತ್ತು ಹಿಡಿದುಕೊಳ್ಳಿ.</string>

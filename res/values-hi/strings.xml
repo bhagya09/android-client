@@ -464,8 +464,8 @@
 <![CDATA[ <b> गुप्त मोड अभी रीसेट करने के लिए यहाँ टैप करें! </b> 
 	    ]]>
     </string>
-        <string name="tap_to_reveal_stealth_contacts">चैट्स दिखाने के लिए</string> 
-    <string name="tap_to_hide_stealth_contacts">चैट्स छुपाने के लिए</string>
+    <string name="tap_to_reveal_stealth_contacts">चैट्स दिखाने के लिए \'hi\' पर टैप करें</string>
+    <string name="tap_to_hide_stealth_contacts">चैट्स छुपाने के लिए \'hi\' पर टैप करें</string>
     <string name="tap_text">टैप करें</string>
     <string name="reset_stealth_confirmation">गुप्त मोड रीसेट करने पर आपकी सभी छुपी हुई चैट्स हटा दी जाएँगी।\nक्या आप वाकई ऐसा करना चाहते हैं?</string>
     <string name="stealth_tap_and_hold_tip">किसी चैट को \'छुपी हुई\' करने के लिए उसे टैप करके रखें।</string>
