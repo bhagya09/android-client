@@ -896,7 +896,7 @@ import android.widget.Toast;
 
 	private void showOverflowMenuIndicatorIfRequired()
 	{
-		if (showOverflowMenuKeyboardIndicatorIfRequired()) {}
+		showOverflowMenuKeyboardIndicatorIfRequired();
 	}
 
 	private boolean showOverflowMenuKeyboardIndicatorIfRequired()
