@@ -23,7 +23,8 @@
     <string name="feedback">ಫೀಡ್‌ಬ್ಯಾಕ್‌</string>
     <string name="block_overlay_message">ನೀವು %1$s ಬ್ಲಾಕ್‌ ಮಾಡಿದ್ದೀರಿ, ಅನ್‌ಬ್ಲಾಕ್‌ ಮಾಡಿ ಮತ್ತು ಹೈಕಿಂಗ್‌ ಮುಂದುವರಿಸಿ.</string>
     <string name="phone_num">ಫೋನ್‌ ನಂಬರ್‌</string>
-    <string name="pin">PIN</string>
+    <string name="pin">ಪಿನ್</string>
+    <string name="pin_signup">PIN</string>
     <string name="name">ಹೆಸರು</string>
     <string name="terms_privacy">ನಿಯಮಗಳು ಮತ್ತು ಏಕಾಂತತೆ</string>
     <string name="invite_now">ಈಗ ಆಹ್ವಾನಿಸಿ</string>

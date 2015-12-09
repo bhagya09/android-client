@@ -24,6 +24,7 @@
     <string name="block_overlay_message">You\'ve blocked %1$s.  Unblock and continue hiking.</string>
     <string name="phone_num">Phone Number</string>
     <string name="pin">PIN</string>
+    <string name="pin_signup">PIN</string>
     <string name="name">Name</string>
     <string name="terms_privacy">Terms and Privacy</string>
     <string name="invite_now">Invite now</string>
