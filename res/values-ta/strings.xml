@@ -230,7 +230,7 @@
     <string name="dismiss">டிஸ்மிஸ்</string>
     <string name="group">குழு</string>
     <string name="posting_update">போஸ்டிங்...</string>
-    <string name="joined_hike_update">Hike-ல் சேர்ந்தாயிற்று</string>
+    <string name="joined_hike_update">hike-ல் சேர்ந்தாயிற்று</string>
     <string name="free_hike_sms">இலவச Hike SMS</string>
     <string name="regular_sms">ரெகுலர் SMS</string>
     <string name="messaging_my_number">%1$s-ல் இருந்து மெஸ்சேஜிங்</string>
