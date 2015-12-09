@@ -16,6 +16,7 @@ import com.bsb.hike.modules.httpmgr.log.LogFull;
 import com.bsb.hike.modules.httpmgr.log.LogHttp;
 import com.bsb.hike.modules.httpmgr.request.Request;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
+import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 
 /**
@@ -78,6 +79,7 @@ public class HttpManager
 	{
 		setProductionHostUris();
 		setPlatformProductionHostUris();
+		setFtHostUris();
 	}
 
 	public static void setProductionHostUris()
@@ -164,8 +166,44 @@ public class HttpManager
 		return ftHostUris;
 	}
 
-	public static void setFtHostUris(List<String> ftHostUris) {
-		HttpManager.ftHostUris = ftHostUris;
+	public static void setFtHostUris()
+	{
+		ftHostUris = new ArrayList<>();
+		String ipString = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.FT_HOST_IPS, "");
+		JSONArray ipArray = null;
+
+		try
+		{
+			ipArray = new JSONArray(ipString);
+		}
+		catch (JSONException e)
+		{
+			LogFull.d("Exception while parsing = " + e);
+			e.printStackTrace();
+		}
+
+		if (null != ipArray && ipArray.length() > 0)
+		{
+			int len = ipArray.length();
+
+			ftHostUris.add(AccountUtils.PRODUCTION_FT_HOST);
+			for (int i = 0; i < len; i++)
+			{
+				if (ipArray.optString(i) != null)
+				{
+					LogFull.d("FT host api[" + i + "] = " + ipArray.optString(i));
+					ftHostUris.add(ipArray.optString(i));
+				}
+			}
+		}
+		else
+		{
+			ftHostUris.add(AccountUtils.PRODUCTION_FT_HOST);
+			ftHostUris.add("54.169.191.114");
+			ftHostUris.add("54.169.191.115");
+			ftHostUris.add("54.169.191.116");
+			ftHostUris.add("54.169.191.113");
+		}
 	}
 
 	/**

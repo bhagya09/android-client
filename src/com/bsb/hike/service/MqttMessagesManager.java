@@ -52,6 +52,7 @@ import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.chatHead.StickyCaller;
 import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.db.HikeConversationsDatabase;
+import com.bsb.hike.filetransfer.FTUtils;
 import com.bsb.hike.filetransfer.FileTransferManager;
 import com.bsb.hike.filetransfer.FileTransferManager.NetworkType;
 import com.bsb.hike.imageHttp.HikeImageDownloader;
@@ -959,7 +960,7 @@ public class MqttMessagesManager
 		if (convMessage.isFileTransferMessage() && (!TextUtils.isEmpty(name)) && (manager.isConvExists(msisdn)))
 		{
 			HikeFile hikeFile = convMessage.getMetadata().getHikeFiles().get(0);
-			NetworkType networkType = FileTransferManager.getInstance(context).getNetworkType();
+			NetworkType networkType = FTUtils.getNetworkType(context);
 			if (hikeFile.getHikeFileType() == HikeFileType.IMAGE)
 			{
 				if ((networkType == NetworkType.WIFI && appPrefs.getBoolean(HikeConstants.WF_AUTO_DOWNLOAD_IMAGE_PREF, true))
@@ -2335,7 +2336,7 @@ public class MqttMessagesManager
 		{
 			String ftHostIps = data.getString(HikeConstants.FT_HOST_IPS);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.FT_HOST_IPS, ftHostIps);
-			FileTransferManager.getInstance(context).setFThostURIs();
+			HttpManager.setFtHostUris();
 		}
 		if (data.has(HikeConstants.HTTP_HOST_IPS))
 		{
