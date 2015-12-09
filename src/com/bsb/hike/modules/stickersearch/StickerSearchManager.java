@@ -699,7 +699,7 @@ public class StickerSearchManager
 		}
 	}
 
-	public void increaseRecommendationTotalMatrixForCurrentLanguage()
+	private void increaseRecommendationTotalMatrixForCurrentLanguage()
 	{
 		PairModified<Integer, Integer> accuracyMetrices = null;
 		if (isFromAutoRecommendation())

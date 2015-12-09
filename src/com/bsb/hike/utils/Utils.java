@@ -7781,7 +7781,7 @@ public class Utils
 		}
 		catch(JSONException e)
 		{
-			Logger.e("productpopup","JSON Exception in JSON Array language");
+			Logger.e("productpopup", "JSON Exception in JSON Array language");
 		}
 		return null;
 	}
