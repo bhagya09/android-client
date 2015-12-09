@@ -9,6 +9,20 @@ import com.bsb.hike.filetransfer.FileTransferBase.FTState;
 
 public class FileSavedState implements Serializable
 {
+	public static final String CURRENT_STATE = "currentState";
+
+	public static final String TOTAL_SIZE = "totalSize";
+
+	public static final String TRANSFERRED_SIZE = "transferredSize";
+
+	public static final String SESSION_ID = "sessionId";
+
+	public static final String FILE_KEY = "fileKey";
+
+	public static final String ANIMATED_PROGRESS = "animatedProgress";
+
+	public static final String RESPONSE_JSON = "responseJSON";
+
 	/**
 	 * 
 	 */
@@ -23,7 +37,7 @@ public class FileSavedState implements Serializable
 	private String _sessionId;
 
 	private String _responseJson;
-	
+
 	private String _fileKey;
 
 	private int _animatedProgress;
@@ -59,7 +73,7 @@ public class FileSavedState implements Serializable
 	{
 		_currentState = FTState.NOT_STARTED;
 	}
-	
+
 	public FileSavedState(FTState state, String mFileKey, int animatedProgress)
 	{
 		_currentState = state;
@@ -72,9 +86,24 @@ public class FileSavedState implements Serializable
 		return _totalSize;
 	}
 
+	public void setTotalSize(long s)
+	{
+		_totalSize = s;
+	}
+
+	public void setAnimatedProgress(int s)
+	{
+		_animatedProgress = s;
+	}
+
 	public long getTransferredSize()
 	{
 		return _transferredSize;
+	}
+
+	public void setTransferredSize(long s)
+	{
+		_transferredSize = s;
 	}
 
 	public int getAnimatedProgress()
@@ -87,11 +116,16 @@ public class FileSavedState implements Serializable
 		return _currentState;
 	}
 
+	public void setFTState(FTState ftstate)
+	{
+		_currentState = ftstate;
+	}
+
 	public String getSessionId()
 	{
 		return _sessionId;
 	}
-	
+
 	public String getFileKey()
 	{
 		return _fileKey;
@@ -122,5 +156,37 @@ public class FileSavedState implements Serializable
 		String s = super.toString() + " " + _currentState + " " + _transferredSize + "/" + _totalSize;
 		return s;
 	}
-	
+
+	public static FileSavedState getFileSavedStateFromJSON(JSONObject json)
+	{
+		FileSavedState state = new FileSavedState();
+		state._currentState = FTState.values()[json.optInt(CURRENT_STATE)];
+		state._totalSize = json.optLong(TOTAL_SIZE);
+		state._transferredSize = json.optLong(TRANSFERRED_SIZE);
+		state._sessionId = json.optString(SESSION_ID);
+		state._responseJson = json.optString(RESPONSE_JSON);
+		state._fileKey = json.optString(FILE_KEY);
+		state._animatedProgress = json.optInt(ANIMATED_PROGRESS);
+		return state;
+	}
+
+	public JSONObject toJSON()
+	{
+		JSONObject json = new JSONObject();
+		try
+		{
+			json.put(CURRENT_STATE, _currentState.ordinal());
+			json.put(TOTAL_SIZE, _totalSize);
+			json.put(TRANSFERRED_SIZE, _transferredSize);
+			json.put(SESSION_ID, _sessionId);
+			json.put(RESPONSE_JSON, _responseJson);
+			json.put(FILE_KEY, _fileKey);
+			json.put(ANIMATED_PROGRESS, _animatedProgress);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+		return json;
+	}
 }
