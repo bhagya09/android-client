@@ -467,7 +467,6 @@
     </string>
     <string name="tap_to_reveal_stealth_contacts">ചാറ്റുകൾ വെളിപ്പെടുത്തുവാൻ \&apos;hi\&apos; ടാപ്പ്‌ ചെയ്യുക</string>
     <string name="tap_to_hide_stealth_contacts">ചാറ്റുകൾ മറക്കുവാൻ \&apos;hi\&apos; ടാപ്പ്‌ ചെയ്യുക </string>
-    <string name="tap_text">ടാപ്പുചെയ്യുക</string>
     <string name="reset_stealth_confirmation">ഹിഡന്‍ മോഡ് റീസെറ്റ് ചെയ്യുന്നത് നിങ്ങളുടെ എല്ലാ ഹിഡന്‍ ചാറ്റുകളും ഡിലീറ്റ് ചെയ്യുന്നതാണ്.\nനിങ്ങള്‍ക്ക് തീര്‍ച്ചയാണോ?</string>
     <string name="stealth_tap_and_hold_tip">ഒരു ചാറ്റ് \'മറച്ചത്\' ആക്കുന്നതിനായി ചാറ്റ് ടാപ്പുചെയ്ത് പിടിക്കുക.</string>
     <string name="mark_stealth">ചാറ്റ് മറച്ചതായി അടയാളപ്പെടുത്തുക</string>

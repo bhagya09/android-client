@@ -467,7 +467,6 @@
     </string>
     <string name="tap_to_reveal_stealth_contacts">சசேட் பார்க்க \'hi\' அழுத்தவும்</string>
     <string name="tap_to_hide_stealth_contacts">சசேட் மறைக்க \'hi\' அழுத்தவும்</string>
-    <string name="tap_text">தட்டு</string>
     <string name="reset_stealth_confirmation">மறைக்கப்பட்ட மோடை ரீசெட் செய்வது, உமது அனைத்து சேட்களையும் அழித்துவிடும்.\nரீசெட் செய்யட்டுமா?</string>
     <string name="stealth_tap_and_hold_tip">சேட் ஒன்றை \’ஹிட்டன்\’ என மார்க் செய்ய அதன் மீது தட்டி, பிடித்துக் கொள்ளும்.</string>
     <string name="mark_stealth">சேட்-ஐ மறைக்கப்பட்ட என மார்க் செய்க</string>
