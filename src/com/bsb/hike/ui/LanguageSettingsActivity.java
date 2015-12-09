@@ -9,6 +9,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
@@ -25,6 +26,7 @@ import com.bsb.hike.R;
 import com.bsb.hike.adapters.DictionaryLanguageAdapter;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.localisation.LocalLanguage;
 import com.bsb.hike.modules.kpt.KptKeyboardManager;
 import com.bsb.hike.utils.ChangeProfileImageBaseActivity;
 import com.bsb.hike.utils.Logger;
@@ -79,7 +81,17 @@ public class LanguageSettingsActivity extends ChangeProfileImageBaseActivity imp
 		langList.setAdapter(addonItemAdapter);
 		langList.setOnItemClickListener(this);
 		refreshLanguageList();
+		showUnsupportedLangToast();
 	}
+
+	//AND-4046 Begin
+	private void showUnsupportedLangToast() {
+		String unsupportedLanguages = LocalLanguage.getUnsupportedLocaleToastText(this);
+		if (!TextUtils.isEmpty(unsupportedLanguages)) {
+			Toast.makeText(this, unsupportedLanguages, Toast.LENGTH_LONG).show();
+		}
+	}
+	//AND-4046 End
 
 	private void refreshLanguageList()
 	{
@@ -102,7 +114,7 @@ public class LanguageSettingsActivity extends ChangeProfileImageBaseActivity imp
 			{
 				JSONObject metadata = new JSONObject();
 				metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.KEYBOARD_LANGUAGE_DOWNLOAD_EVENT);
-				metadata.put(HikeConstants.LogEvent.LANGUAGE_DOWNLOADING, item.getDisplayName());
+				metadata.put(HikeConstants.LogEvent.LANGUAGE_DOWNLOADING, item.getlocaleName());
 				HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
 			}
 			catch(JSONException e)
