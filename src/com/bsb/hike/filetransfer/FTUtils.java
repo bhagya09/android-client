@@ -2,6 +2,7 @@ package com.bsb.hike.filetransfer;
 
 import java.io.File;
 
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
@@ -138,5 +139,32 @@ public class FTUtils {
 			break;
 		}
 		return imageQuality;
+	}
+	/**
+	 * Fetches the type of internet connection the device is using
+	 *
+	 * @param context
+	 * @return
+	 */
+	public static FileTransferManager.NetworkType getNetworkType(Context context)
+	{
+		int networkType = Utils.getNetworkType(context);
+		switch (networkType)
+		{
+		case -1:
+			return FileTransferManager.NetworkType.NO_NETWORK;
+		case 0:
+			return FileTransferManager.NetworkType.TWO_G;
+		case 1:
+			return FileTransferManager.NetworkType.WIFI;
+		case 2:
+			return FileTransferManager.NetworkType.TWO_G;
+		case 3:
+			return FileTransferManager.NetworkType.THREE_G;
+		case 4:
+			return FileTransferManager.NetworkType.FOUR_G;
+		default:
+			return FileTransferManager.NetworkType.TWO_G;
+		}
 	}
 }
