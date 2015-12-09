@@ -1415,5 +1415,6 @@
     <string name="try_instead">ഇത് പരീക്ഷിക്കു</string>
     <string name="sms_card_settings_side_text">എല്ലാ സന്ദേശങ്ങൾ ന്</string>
 <string name="unsupported_langs_toast">നിങ്ങളുടെ ഫോണ് %1$s ഭാഷ സപ്പോ ട്ട് ചെയ്യുന്നില്ല</string>
+    <string name="unsupported_language_toast_msg">നിങ്ങളുടെ ഫോൺ ഈ ഭാഷ പിന്തുണക്കുന്നില്ല</string>
 
 </resources>

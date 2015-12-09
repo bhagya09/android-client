@@ -1419,4 +1419,5 @@
     <string name="sms_card_settings_side_text">सगळ्या मेसेगेस करिता</string>
 
 <string name="unsupported_langs_toast">आपला फोन %1$s भाषा दाखवण्यास असमर्थ आहे</string>
+    <string name="unsupported_language_toast_msg">आपला फोन ही भाषा स्विकारत नाही</string>
 </resources>

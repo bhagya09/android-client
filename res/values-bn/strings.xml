@@ -1423,5 +1423,7 @@
     <string name="dismiss_button">খারিজ</string>
     <string name="try_instead">পরিবর্তে চেষ্টা</string>
     <string name="sms_card_settings_side_text">সমস্ত টেক্সট বার্তা</string>
-<string name="unsupported_langs_toast">আপনার ফোন %1$s  ভাষা দেখানো তে ব্যর্থ</string>
+
+<string name="unsupported_langs_toast">আপনার ফোন %1$s  ভাষা দেখানো তে ব্যর্থ</string>
+    <string name="unsupported_language_toast_msg">আপনার ফোন এই ভাষা স্বীকার করে না</string>
 </resources>

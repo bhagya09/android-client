@@ -1422,6 +1422,7 @@
         <item quantity="one">ನಾಳೆ</item>
         <item quantity="other">%d ದಿನಗಳಲ್ಲಿ</item>
     </plurals>
-    
+
+    <string name="unsupported_language_toast_msg">ನಿಮ್ಮ ಫೋನ್ ಈ ಭಾಷೆಯನ್ನು ಬೆಂಬಲಿಸುವುದಿಲ್ಲ</string>
 
 </resources>
