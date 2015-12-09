@@ -907,7 +907,7 @@
     <string name="stealth_notification_settings">सूचना सेटिंग्स</string>
     <string name="stealth_reset_settings">अतिरिक्त सेटिंग्स</string>
     <string name="enable_stealth_indicator">संकेतक</string>
-    <string name="enable_stealth_indicator_body">अपठित संदेशों के लिए होम स्क्रीन पर \'hi\' लोगो को उछालें</string>
+    <string name="enable_stealth_indicator_body">अपठित संदेशों के लिए होम स्क्रीन पर \'hi\' लोगो पर टैप करें</string>
     <string name="enable_stealth_notification_body">छुपी हुई चैट में संदेश प्राप्त होने पर सूचित करें</string>
     <string name="enable_stealth_notification">सूचना</string>
     <string name="stealth_msg_draw_an_unlock_pattern">नया पासकोड पैटर्न बनाएँ</string>
