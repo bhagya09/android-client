@@ -623,11 +623,19 @@ import android.widget.Toast;
 		StickerManager.getInstance().checkAndDownLoadStickerData();
 		mShareablePopupLayout.setCustomKeyBoardHeight((keyboardHeight == 0) ? mCustomKeyboard.getKeyBoardAndCVHeight() : keyboardHeight);
 		mShareablePopupLayout.setCustomKeyBoard(!isSystemKeyboard());
+		// if the localization ftue is not yet done with the download and install(and then change keyboard), dont let it change the keyboard now.
+		// chat thread has its own change keyboard mechanism. External change keyboard calls messes up with chat thread
+		removeLocalisationFtueKeyboardDownloadCallback();
 		if (isSystemKeyboard())
 		{
 			changeKeyboard(isSystemKeyboard());
 		}
 		StickerSearchManager.getInstance().downloadTagsForCurrentLanguage();
+	}
+
+	private void removeLocalisationFtueKeyboardDownloadCallback()
+	{
+		KptKeyboardManager.getInstance(activity).setInstallListener(null);
 	}
 	
 	/**
