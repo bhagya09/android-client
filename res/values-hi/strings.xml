@@ -1025,7 +1025,7 @@
 	<string name="admin_updating">%1$s को ऐडमिन बना रहे हैं</string>
 	<string name="admin_task_error">कनेक्‍शन एरर: कृपया अपना नेटवर्क कनेक्शन जाँचें और पुन: प्रयास करें।</string>
 	<string name="group_setting_option_only_admin">केवल ऐडमिन ही सदस्यों को जोड़ सकते हैं</string>
-	<string name="group_setting_updating">ग्रूप गोपनीयता सेटिंग्स बदल रहे हैं</string>
+	<string name="group_setting_updating">ग्रूप गोपनीयता सेटिंग्स बदल रही है</string>
 	<string name="group_setting_confirmation1">सभी को सदस्य जोड़ने की अनुमति दें?</string>
 	<string name="group_setting_confirmation2">केवल ऐडमिन को सदस्य जोड़ने की अनुमति दें?</string>
 	<string name="group_rights_info">इस ग्रूप में केवल ऐडमिन ही सदस्य जोड़ सकते हैं</string>
