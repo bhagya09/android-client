@@ -162,7 +162,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 
 	private String urlParams;
 
-	private static long time;
+	private  long time;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
