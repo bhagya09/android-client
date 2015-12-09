@@ -466,9 +466,8 @@
 <![CDATA[ <b> गुप्त मोड आता रीसेट करण्यासाठी येथे टॅप करा! </b> 
 	    ]]>
     </string>
-        <string name="tap_to_reveal_stealth_contacts">चॅट उघड करण्यासाठी</string> 
-    <string name="tap_to_hide_stealth_contacts">चॅट लपवण्यासाठी</string>
-    <string name="tap_text">टॅप करा</string>
+    <string name="tap_to_reveal_stealth_contacts">संवाद दिसण्याकरीता \'hi\' दाबा.</string>
+    <string name="tap_to_hide_stealth_contacts">संवाद लपवण्याकरीता \'hi\' दाबा.</string>
     <string name="reset_stealth_confirmation">गुप्त मोड रीसेट केल्याने तुमचे सर्व लपवलेले चॅट हटवले जातील.\nतुम्हाला खात्री आहे?</string>
     <string name="stealth_tap_and_hold_tip">चॅटला \&apos;गुप्त\&apos; चिन्हांकित करण्यासाठी त्यावर टॅप करा व धरून ठेवा.</string>
     <string name="mark_stealth">चॅटला गुप्त म्हणून चिन्हांकित करा</string>

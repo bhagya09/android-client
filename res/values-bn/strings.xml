@@ -466,9 +466,8 @@
 <![CDATA[ <b> এখনই লুকানো মোড রিসেট করতে এখানে আলতো চাপুন! </b>
 	    ]]>
     </string>
-    <string name="tap_to_reveal_stealth_contacts">চ্যাট প্রকাশ করা</string>
-    <string name="tap_to_hide_stealth_contacts">চ্যাট লুকান</string>
-    <string name="tap_text">ট্যাপ করুন</string>
+    <string name="tap_to_reveal_stealth_contacts">চ্যাট প্রকাশ করতে \'hi\' আলতো টিপুন</string>
+    <string name="tap_to_hide_stealth_contacts">চ্যাট  লুকোতে \'hi\' আলতো টিপুন</string>
     <string name="reset_stealth_confirmation">লুকানো মোড রিসেট করলে আপনার সমস্ত লুকানো চ্যাট মুছে যাবে।\nআপনি কি নিশ্চিত?</string>
     <string name="stealth_tap_and_hold_tip">কোনো চ্যাটকে \’লুকানো\’ হিসেবে চিহ্নিত করতে আলতো চেপে ধরে থাকুন।</string>
     <string name="mark_stealth">চ্যাট লুকানো হিসেবে চিহ্নিত করুন</string>

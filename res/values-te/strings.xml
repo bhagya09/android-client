@@ -466,9 +466,8 @@
 <![CDATA[ <b> దాచిపెట్టబడ్డ హిడెన్ మోడ్‌ను ఇప్పుడు రీసెట్ చేయడానికి ఇక్కడ తట్టండి! </b> 
 	    ]]>
     </string>
-        <string name="tap_to_reveal_stealth_contacts">చాట్‌లను కనపర్చడానికి</string> 
-    <string name="tap_to_hide_stealth_contacts">చాట్‌లను దాయడానికి</string>
-    <string name="tap_text">తట్టండి</string>
+    <string name="tap_to_reveal_stealth_contacts">హిడెన్ చాట్లు చూపించడానికి \'hi\' తట్టండి</string>
+    <string name="tap_to_hide_stealth_contacts">హిడెన్ చాట్లు దాచిపెట్టడానికి \'hi\' తట్టండి</string>
     <string name="reset_stealth_confirmation">హిడెన్ మోడ్ రీసెట్ చేయడం వల్ల మీరు దాచిపెట్టిన చాట్‌లు తొలగించబడతాయి. \n మీరు కచ్చితంగా చేయాలని అనుకుంటున్నారా?</string>
     <string name="stealth_tap_and_hold_tip">చాట్ ని \'హిడెన్\' చేయడానికి దాని  పై తట్టి, పట్టుకోండి.</string>
     <string name="mark_stealth">చాట్ దాచిపెట్టండి</string>
