@@ -1691,8 +1691,13 @@ import android.widget.Toast;
 
 	public boolean onBackPressed()
 	{
+		boolean backPressedConsumed = false;
 		mShareablePopupLayout.onBackPressed();
-		removeKeyboardFtueIfShowing();
+
+		// check if back pressed can be consumed by keyboardftue. Its not supposed to return from here as other objects are also using it.
+		// Prospect: there can be more requirements where you need share this callback with others instead of consuming it alone.
+		// Ex boolean backConsumedByXyzPopup.
+		boolean backConsumedByKeyboardFtue = removeKeyboardFtueIfShowing();
 
 		if(handleImageFragmentBackPressed()){
 			return true;
@@ -1727,7 +1732,10 @@ import android.widget.Toast;
 			return true;
 		}
 
-		return false;
+		// there can be an 'OR' among all the backConsumptions.
+		// Ex: backPressedConsumed = (backConsumedByKeyboardFtue || backConsumedByXyzPopup)
+		backPressedConsumed = backConsumedByKeyboardFtue;
+		return backPressedConsumed;
 	}
 
 	private boolean handleImageFragmentBackPressed(){
@@ -3737,10 +3745,14 @@ import android.widget.Toast;
 		currentFirstVisibleItem = firstVisibleItem;
 	}
 
-	protected void removeKeyboardFtueIfShowing()
+	protected boolean removeKeyboardFtueIfShowing()
 	{
 		if (keyboardFtue!=null && keyboardFtue.isShowing())
+		{
 			keyboardFtue.destroy();
+			return true;
+		}
+		return false;
 	}
 
 	private void showKeyboardFtueIfReady()
