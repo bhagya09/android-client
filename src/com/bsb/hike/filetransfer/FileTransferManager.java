@@ -1,95 +1,28 @@
 package com.bsb.hike.filetransfer;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.lang.Thread.State;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map.Entry;
-import java.util.Random;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.FutureTask;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.RejectedExecutionException;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-
-import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.SharedPreferences;
-import android.net.ConnectivityManager;
-import android.os.Environment;
-import android.os.Handler;
-import android.text.TextUtils;
+import android.util.Log;
 import android.widget.Toast;
 
-import com.bsb.hike.HikeConstants;
-import com.bsb.hike.HikeConstants.FTResult;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.filetransfer.FileTransferBase.FTState;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
-import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
-import com.bsb.hike.modules.contactmgr.ContactManager;
-import com.bsb.hike.modules.httpmgr.HttpManager;
-import com.bsb.hike.offline.OfflineConstants;
-import com.bsb.hike.offline.OfflineUtils;
-import com.bsb.hike.utils.AccountUtils;
-import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
-import com.bsb.hike.utils.Utils;
 
-/* 
- * This manager will manage the upload and download (File Transfers).
- * A general thread pool is maintained which will be used for both downloads and uploads.
- * The manager will run on main thread hence an executor is used to delegate task to thread pool threads.
+/**
+ * 
  */
-public class FileTransferManager extends BroadcastReceiver
+public class FileTransferManager
 {
-	private final Context context;
-
-	private final ConcurrentHashMap<Long, FutureTask<FTResult>> fileTaskMap;
-
-	private String HIKE_TEMP_DIR_NAME = "hikeTmp";
-
-	// Constant variables
-	private final int CPU_COUNT = Runtime.getRuntime().availableProcessors();
-
-	private final int MAXIMUM_POOL_SIZE = CPU_COUNT * 2 + 1;
-
-	private final short KEEP_ALIVE_TIME = 60; // in seconds
-
-	private static int minChunkSize = 8 * 1024;
-
-	private static int maxChunkSize = 128 * 1024;
-	
-	private final int taskLimit;
-	
-	private final int TASK_OVERFLOW_LIMIT = 90;
-
-	private final ExecutorService pool;
-
-	private static volatile FileTransferManager _instance = null;
-
-	private SharedPreferences settings;
-
-	private final Handler handler;
-
 	public static String FT_CANCEL = "ft_cancel";
 
 	public static String READ_FAIL = "read_fail";
@@ -98,9 +31,17 @@ public class FileTransferManager extends BroadcastReceiver
 
 	public static String UNABLE_TO_DOWNLOAD = "unable_to_download";
 
-	private List<String> ftHostURIs = null;
-
 	public static final int FAKE_PROGRESS_DURATION = 8 * 1000;
+
+	private final Context context;
+
+	private final ConcurrentHashMap<Long, FileTransferBase> fileTaskMap;
+
+	private final int taskLimit;
+
+	private final int TASK_OVERFLOW_LIMIT = 90;
+
+	private static volatile FileTransferManager _instance = null;
 
 	public enum NetworkType
 	{
@@ -178,99 +119,24 @@ public class FileTransferManager extends BroadcastReceiver
 		public abstract int getMaxChunkSize();
 
 		public abstract int getMinChunkSize();
-	};
-
-	private class MyThreadFactory implements ThreadFactory
-	{
-		private final AtomicInteger threadNumber = new AtomicInteger(1);
-
-		@Override
-		public Thread newThread(Runnable r)
-		{
-			int threadCount = threadNumber.getAndIncrement();
-			Thread t = new Thread(r);
-			// This approach reduces resource competition between the Runnable object's thread and the UI thread.
-			t.setPriority(android.os.Process.THREAD_PRIORITY_MORE_FAVORABLE + android.os.Process.THREAD_PRIORITY_BACKGROUND);
-			t.setName("FT Thread-" + threadCount);
-			Logger.d(getClass().getSimpleName(), "Running FT thread : " + t.getName());
-			return t;
-		}
 	}
 
-	private class MyFutureTask extends FutureTask<FTResult>
-	{
-		private FileTransferBase task;
-
-		public MyFutureTask(FileTransferBase callable)
-		{
-			super(callable);
-			this.task = callable;
-		}
-
-		private FileTransferBase getTask()
-		{
-			return task;
-		}
-
-		@Override
-		public void run()
-		{
-			Logger.d(getClass().getSimpleName(), "TimeCheck: Starting time : " + System.currentTimeMillis());
-			super.run();
-		}
-
-		@Override
-		protected void done()
-		{
-			super.done();
-			FTResult result = FTResult.UPLOAD_FAILED;
-			try
-			{
-				result = this.get();
-			}
-			catch (InterruptedException e)
-			{
-				e.printStackTrace();
-			}
-			catch (ExecutionException e)
-			{
-				e.printStackTrace();
-			}
-
-			if(task._state == FTState.COMPLETED)
-			{
-				HikeFile hikefile = ((ConvMessage) task.userContext).getMetadata().getHikeFiles().get(0);
-				FTAnalyticEvents analyticEvent = FTAnalyticEvents.getAnalyticEvents(getAnalyticFile(hikefile.getFile(), task.msgId));
-				String network = analyticEvent.mNetwork + "/" + getNetworkTypeString();
-				analyticEvent.sendFTSuccessFailureEvent(network, hikefile.getFileSize(), FTAnalyticEvents.FT_SUCCESS);
-				deleteLogFile(task.msgId, hikefile.getFile());
-			}
-			if (task instanceof DownloadFileTask)
-				((DownloadFileTask) task).postExecute(result);
-			else if (task instanceof UploadFileTask)
-				((UploadFileTask) task).postExecute(result);
-			else
-				((UploadContactOrLocationTask) task).postExecute(result);
-
-			Logger.d(getClass().getSimpleName(), "TimeCheck: Exiting  time : " + System.currentTimeMillis());
-		}
-	}
-
+    /**
+     *
+     * @param ctx
+     */
 	private FileTransferManager(Context ctx)
 	{
-		BlockingQueue<Runnable> workQueue = new LinkedBlockingQueue<Runnable>();
-		fileTaskMap = new ConcurrentHashMap<Long, FutureTask<FTResult>>();
-		// here choosing TimeUnit in seconds as minutes are added after api level 9
-		pool = new ThreadPoolExecutor(2, MAXIMUM_POOL_SIZE, KEEP_ALIVE_TIME, TimeUnit.SECONDS, workQueue, new MyThreadFactory());
 		context = ctx;
-		handler = new Handler(context.getMainLooper());
-		IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
-		context.registerReceiver(this, filter);
 		taskLimit = context.getResources().getInteger(R.integer.ft_limit);
-		setFThostURIs();
+		fileTaskMap = new ConcurrentHashMap<>();
 	}
-	
 
+    /**
+     *
+     * @param context
+     * @return
+     */
 	public static FileTransferManager getInstance(Context context)
 	{
 		if (_instance == null)
@@ -284,122 +150,230 @@ public class FileTransferManager extends BroadcastReceiver
 		return _instance;
 	}
 
+    /**
+     *
+     * @param msgId
+     * @return
+     */
 	public boolean isFileTaskExist(long msgId)
 	{
 		return fileTaskMap.containsKey(msgId);
 	}
 
-	public ConvMessage getMessage(long msgId)
-	{
-		FutureTask<FTResult> obj = fileTaskMap.get(msgId);
-		if (obj != null)
-		{
-			Object msg = ((MyFutureTask) obj).getTask().getUserContext();
-			if (msg != null)
-			{
-				return ((ConvMessage) msg);
-			}
-		}
-		return null;
-	}
-
-	public void downloadFile(File destinationFile, String fileKey, long msgId, HikeFileType hikeFileType, ConvMessage userContext, boolean showToast)
-	{
-		if (isFileTaskExist(msgId)){
-			validateFilePauseState(msgId);
-			return;
-		}
-		if(taskOverflowLimitAchieved())
-			return;
-		
-		settings = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
-		String token = settings.getString(HikeMessengerApp.TOKEN_SETTING, null);
-		String uId = settings.getString(HikeMessengerApp.UID_SETTING, null);
-		DownloadFileTask task = new DownloadFileTask(handler, fileTaskMap, context, destinationFile, fileKey, msgId, hikeFileType, userContext, showToast, token, uId);
-		try
-		{
-			MyFutureTask ft = new MyFutureTask(task);
-			fileTaskMap.put(msgId, ft);
-			pool.execute(ft); // this future is used to cancel pause the task
-		}
-		catch (RejectedExecutionException rjEx)
-		{
-			// handle this properly
-		}
-
-	}
-
-	public void uploadFile(ConvMessage convMessage, String fileKey)
-	{
-		if (isFileTaskExist(convMessage.getMsgID())){
-			validateFilePauseState(convMessage.getMsgID());
-			return;
-		}
-		if(taskOverflowLimitAchieved())
-			return;
-		
-		settings = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
-		String token = settings.getString(HikeMessengerApp.TOKEN_SETTING, null);
-		String uId = settings.getString(HikeMessengerApp.UID_SETTING, null);
-		UploadFileTask task = new UploadFileTask(handler, fileTaskMap, context, token, uId, convMessage, fileKey);
-		MyFutureTask ft = new MyFutureTask(task);
-		task.setFutureTask(ft);
-		pool.execute(ft);
-	}
-
-	public void uploadFile(List<ContactInfo> contactList, List<ConvMessage> messageList, String fileKey)
-	{
-		ConvMessage convMessage = messageList.get(0);
-		if (isFileTaskExist(convMessage.getMsgID())){
-			validateFilePauseState(convMessage.getMsgID());
-			return;
-		}
-		if(taskOverflowLimitAchieved())
-			return;
-		
-		settings = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
-		String token = settings.getString(HikeMessengerApp.TOKEN_SETTING, null);
-		String uId = settings.getString(HikeMessengerApp.UID_SETTING, null);
-		UploadFileTask task = new UploadFileTask(handler, fileTaskMap, context, token, uId, contactList, messageList, fileKey);
-		MyFutureTask ft = new MyFutureTask(task);
-		task.setFutureTask(ft);
-		pool.execute(ft);
-	}
-	
-	public void uploadContactOrLocation(ConvMessage convMessage, boolean uploadingContact)
-	{
-		if (isFileTaskExist(convMessage.getMsgID())){
-			validateFilePauseState(convMessage.getMsgID());
-			return;
-		}
-		if(taskOverflowLimitAchieved())
-			return;
-		
-		settings = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
-		String token = settings.getString(HikeMessengerApp.TOKEN_SETTING, null);
-		String uId = settings.getString(HikeMessengerApp.UID_SETTING, null);
-		UploadContactOrLocationTask task = new UploadContactOrLocationTask(handler, fileTaskMap, context, convMessage, uploadingContact, token, uId);
-		MyFutureTask ft = new MyFutureTask(task);
-		task.setFutureTask(ft);
-		pool.execute(ft);
-	}
-
-	public void removeTask(long msgId)
+    /**
+     *
+     * @param msgId
+     */
+	void removeTask(long msgId)
 	{
 		fileTaskMap.remove(msgId);
 	}
 
-	/*
-	 * This function will close down the executor service, and usually be called after unlink or delete account
-	 */
-	public void shutDownAll()
+    /**
+     *
+     * @return
+     */
+	public int getTaskLimit()
 	{
-		fileTaskMap.clear();
-		pool.shutdown();
-		deleteAllFTRFiles();
-		_instance = null;
+		return taskLimit;
 	}
 
+    /**
+     *
+     * @return
+     */
+	public int remainingTransfers()
+	{
+		if (taskLimit > fileTaskMap.size())
+		{
+			return (taskLimit - fileTaskMap.size());
+		}
+		return 0;
+	}
+
+    /**
+     *
+     * @return
+     */
+	public boolean taskOverflowLimitAchieved()
+	{
+		if (fileTaskMap.size() >= TASK_OVERFLOW_LIMIT)
+		{
+			return true;
+		}
+		return false;
+	}
+
+    /**
+     *
+     * @param msgId
+     * @return
+     */
+	public ConvMessage getMessage(long msgId)
+	{
+		FileTransferBase ftb = fileTaskMap.get(msgId);
+		if (ftb != null)
+		{
+			Object userContext = ftb.getUserContext();
+			if (userContext instanceof ConvMessage)
+				return (ConvMessage) userContext;
+		}
+		return null;
+	}
+
+    /**
+     *
+     * @param destinationFile
+     * @param fileKey
+     * @param msgId
+     * @param hikeFileType
+     * @param userContext
+     * @param showToast
+     */
+	public void downloadFile(File destinationFile, String fileKey, long msgId, HikeFileType hikeFileType, ConvMessage userContext, boolean showToast)
+	{
+		if (destinationFile.exists())
+		{
+			// TODO
+			return;
+		}
+
+		if (!isFileTaskExist(msgId) && taskOverflowLimitAchieved())
+		{
+			return;
+		}
+
+		if (isFileTaskExist(msgId))
+		{
+			DownloadFileTask task = (DownloadFileTask) fileTaskMap.get(msgId);
+			task.download();
+			return;
+		}
+
+		File tempDownloadedFile;
+		try
+		{
+			/*
+			 * Changes done to fix the issue where some users are getting FileNotFoundEXception while creating file.
+			 */
+			File dir = FTUtils.getHikeTempDir(context);
+			if (!dir.exists())
+			{
+				if (!dir.mkdirs())
+				{
+					Logger.d("DownloadFileTask", "failed to create directory");
+					Toast.makeText(context, R.string.no_sd_card, Toast.LENGTH_SHORT).show();
+					return;
+				}
+			}
+			tempDownloadedFile = new File(dir, destinationFile.getName() + ".part");
+			if (!tempDownloadedFile.exists())
+				tempDownloadedFile.createNewFile();
+		}
+		catch (NullPointerException e)
+		{
+			FTAnalyticEvents.logDevException(FTAnalyticEvents.DOWNLOAD_INIT_1_1, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "file", "NO_SD_CARD : ", e);
+			Toast.makeText(context, R.string.no_sd_card, Toast.LENGTH_SHORT).show();
+			return;
+		}
+		catch (IOException e)
+		{
+			FTAnalyticEvents.logDevException(FTAnalyticEvents.DOWNLOAD_INIT_1_2, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "file", "NO_SD_CARD : ", e);
+			Logger.d("DownloadFileTask", "Failed to create File. " + e);
+			Toast.makeText(context, R.string.no_sd_card, Toast.LENGTH_SHORT).show();
+			return;
+		}
+
+		DownloadFileTask task = new DownloadFileTask(context, tempDownloadedFile, destinationFile, fileKey, msgId, hikeFileType, userContext);
+		fileTaskMap.put(msgId, task);
+		task.download();
+	}
+
+    /**
+     *
+     * @param convMessage
+     * @param fileKey
+     */
+	public void uploadFile(ConvMessage convMessage, String fileKey)
+    {
+		if (isFileTaskExist(convMessage.getMsgID()))
+		{
+			UploadFileTask task = (UploadFileTask) fileTaskMap.get(convMessage.getMsgID());
+			task.upload();
+			return;
+		}
+        // TODO
+		// validateFilePauseState(convMessage.getMsgID());
+		// return;
+		// }
+		//
+
+		if (!isFileTaskExist(convMessage.getMsgID()) && taskOverflowLimitAchieved())
+		{
+			return;
+		}
+
+		UploadFileTask task = new UploadFileTask(context, convMessage, fileKey);
+		fileTaskMap.put(convMessage.getMsgID(), task);
+		task.startFileUploadProcess();
+	}
+
+    /**
+     *
+     * @param contactList
+     * @param messageList
+     * @param fileKey
+     */
+	public void uploadFile(List<ContactInfo> contactList, List<ConvMessage> messageList, String fileKey)
+	{
+		ConvMessage convMessage = messageList.get(0);
+		// TODO if (isFileTaskExist(convMessage.getMsgID())){
+		// validateFilePauseState(convMessage.getMsgID());
+		// return;
+		// }
+
+		if (!isFileTaskExist(convMessage.getMsgID()) && taskOverflowLimitAchieved())
+		{
+			return;
+		}
+
+		UploadFileTask task = new UploadFileTask(context, contactList, messageList, fileKey);
+		for (ConvMessage msg : messageList)
+		{
+			fileTaskMap.put(msg.getMsgID(), task);
+		}
+		task.startFileUploadProcess();
+	}
+
+    /**
+     *
+     * @param convMessage
+     * @param uploadingContact
+     */
+	public void uploadContactOrLocation(ConvMessage convMessage, boolean uploadingContact)
+	{
+		// TODO
+		// if (isFileTaskExist(convMessage.getMsgID())){
+		// validateFilePauseState(convMessage.getMsgID());
+		// return;
+		// }
+		if (!isFileTaskExist(convMessage.getMsgID()) && taskOverflowLimitAchieved())
+		{
+			return;
+		}
+
+		UploadContactOrLocationTask task = new UploadContactOrLocationTask(context, convMessage, uploadingContact);
+		fileTaskMap.put(convMessage.getMsgID(), task);
+		task.execute();
+	}
+
+    /**
+     *
+     * @param msgId
+     * @param mFile
+     * @param sent
+     * @param fileSize
+     */
 	public void cancelTask(long msgId, File mFile, boolean sent, long fileSize)
 	{
 		FileSavedState fss;
@@ -410,358 +384,215 @@ public class FileTransferManager extends BroadcastReceiver
 
 		if (fss.getFTState() == FTState.IN_PROGRESS || fss.getFTState() == FTState.PAUSED || fss.getFTState() == FTState.INITIALIZED)
 		{
-			FutureTask<FTResult> obj = fileTaskMap.get(msgId);
+			FileTransferBase obj = fileTaskMap.get(msgId);
 			if (obj != null)
 			{
-				((MyFutureTask) obj).getTask().setState(FTState.CANCELLED);
+				obj.cancel();
 			}
 			Logger.d(getClass().getSimpleName(), "deleting state file" + msgId);
 			deleteStateFile(msgId, mFile);
 			if (!sent)
 			{
 				Logger.d(getClass().getSimpleName(), "deleting tempFile" + msgId);
-				File tempDownloadedFile = new File(getHikeTempDir(), mFile.getName() + ".part");
+				File tempDownloadedFile = new File(FTUtils.getHikeTempDir(context), mFile.getName() + ".part");
 				if (tempDownloadedFile != null && tempDownloadedFile.exists())
 					tempDownloadedFile.delete();
 
 			}
-			FTAnalyticEvents analyticEvent = FTAnalyticEvents.getAnalyticEvents(getAnalyticFile(mFile, msgId));
-			String network = analyticEvent.mNetwork + "/" + getNetworkTypeString();
-			analyticEvent.sendFTSuccessFailureEvent(network, fileSize, FTAnalyticEvents.FT_FAILED);
+			// TODO
+			//FTAnalyticEvents analyticEvent = FTAnalyticEvents.getAnalyticEvents(getAnalyticFile(mFile, msgId));
+			//String network = analyticEvent.mNetwork + "/" + getNetworkTypeString();
+			//analyticEvent.sendFTSuccessFailureEvent(network, fileSize, FTAnalyticEvents.FT_FAILED);
 			deleteLogFile(msgId, mFile);
 		}
 	}
 
+    /**
+     *
+     * @param msgId
+     */
 	public void pauseTask(long msgId)
 	{
-		FutureTask<FTResult> obj = fileTaskMap.get(msgId);
+		FileTransferBase obj = fileTaskMap.get(msgId);
 		if (obj != null)
 		{
-			FileTransferBase task = ((MyFutureTask) obj).getTask();
-			task.setPausedProgress(task._bytesTransferred);
-			task.setState(FTState.PAUSED);
+			obj.pause();
 			HikeMessengerApp.getPubSub().publish(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED, null);
-			task.analyticEvents.mPauseCount += 1;
-			Logger.d(getClass().getSimpleName(), "pausing the task....");
 		}
 	}
 
-	// this will be used when user deletes corresponding chat bubble
-	public void deleteStateFile(long msgId, File mFile)
+	/**
+	 * This will be used when user deletes corresponding chat bubble
+	 *
+	 * @param msgId
+	 * @param mFile
+	 */
+	private void deleteStateFile(long msgId, File mFile)
 	{
-		String fName = mFile.getName() + ".bin." + msgId;
-		File f = new File(getHikeTempDir(), fName);
-		if (f != null)
-			f.delete();
+		// TODO
 	}
 
-	// this will be used when user deletes corresponding chat bubble
-	public void deleteLogFile(long msgId, File mFile)
+	/**
+	 * This will be used when user deletes corresponding chat bubble
+	 *
+	 * @param msgId
+	 * @param mFile
+	 */
+	private void deleteLogFile(long msgId, File mFile)
 	{
 		String fName = mFile.getName() + ".log." + msgId;
-		File f = new File(getHikeTempDir(), fName);
+		File f = new File(FTUtils.getHikeTempDir(context), fName);
 		if (f != null)
 			f.delete();
 	}
 
-	// this will be used when user deletes account or unlink account
-	public void deleteAllFTRFiles()
+	/**
+	 * This function will close down the executor service, and usually be called after unlink or delete account
+	 */
+	public void shutDownAll()
 	{
-		if (getHikeTempDir() != null && getHikeTempDir().listFiles() != null)
-			for (File f : getHikeTempDir().listFiles())
-			{
-				if (f != null)
-				{
-					try
-					{
-						f.delete();
-					}
-					catch (Exception e)
-					{
-						Logger.e(getClass().getSimpleName(), "Exception while deleting state file : ", e);
-					}
-				}
-			}
+		fileTaskMap.clear();
+		FTUtils.deleteAllFTRFiles(context);
+		_instance = null;
 	}
 
-	// this function gives the state of downloading for a file
+    /**
+     * This function gives the state of downloading for a file
+     *
+     * @param msgId
+     * @param mFile
+     * @return
+     */
 	public FileSavedState getDownloadFileState(long msgId, File mFile)
 	{
 		if (isFileTaskExist(msgId))
 		{
-			FutureTask<FTResult> obj = fileTaskMap.get(msgId);
+			FileTransferBase obj = fileTaskMap.get(msgId);
 			if (obj != null)
 			{
-				return new FileSavedState(((MyFutureTask) obj).getTask()._state, ((MyFutureTask) obj).getTask()._totalSize, ((MyFutureTask) obj).getTask()._bytesTransferred, 
-						((MyFutureTask) obj).getTask().animatedProgress);
+				return obj.getFileSavedState();
+			}
+			return new FileSavedState(FTState.IN_PROGRESS, 0, 0, 0);
+		}
+		else
+		{
+			if (mFile == null)
+			{
+				// TODO // @GM only for now. Has to be handled properly
+				return new FileSavedState();
+			}
+
+			FileSavedState fss = null;
+			if (mFile.exists())
+			{
+				fss = new FileSavedState(FTState.COMPLETED, 100, 100, 100);
 			}
 			else
 			{
-				return new FileSavedState(FTState.IN_PROGRESS, 0, 0, 0);
+				// TODO get filesaved state from task http manager
+				// if (fss.getAnimatedProgress() > 0)
+				// setAnimatedProgress(fss.getAnimatedProgress(), msgId);
 			}
-		}
-		else
-			return getDownloadFileState(mFile, msgId);
-	}
-
-	/*
-	 * here mFile is the file provided by the caller (original file) null : represents unhandled error and should be handled accordingly
-	 */
-	public FileSavedState getDownloadFileState(File mFile, long msgId)
-	{
-		if (mFile == null) // @GM only for now. Has to be handled properly
-			return new FileSavedState();
-
-		FileSavedState fss = null;
-		if (mFile.exists())
-		{
-			fss = new FileSavedState(FTState.COMPLETED, 100, 100, 100);
-		}
-		else
-		{
-			FileInputStream fileIn = null;
-			ObjectInputStream in = null;
-			try
-			{
-				String fName = mFile.getName() + ".bin." + msgId;
-				File f = new File(getHikeTempDir(), fName);
-				if (!f.exists())
-					return new FileSavedState();
-				fileIn = new FileInputStream(f);
-				in = new ObjectInputStream(fileIn);
-				fss = (FileSavedState) in.readObject();
-				if(fss.getAnimatedProgress() > 0)
-					setAnimatedProgress(fss.getAnimatedProgress(), msgId);
-			}
-			catch (IOException i)
-			{
-				i.printStackTrace();
-				FTAnalyticEvents.logDevException(FTAnalyticEvents.FT_STATE_READ_FAIL, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "File", "Reading download state failed", i);
-			}
-			catch (ClassNotFoundException e)
-			{
-				FTAnalyticEvents.logDevException(FTAnalyticEvents.FT_STATE_READ_FAIL, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "File", "Reading download state failed", e);
-				e.printStackTrace();
-			}
-			catch (Exception e)
-			{
-				e.printStackTrace();
-				Logger.e(getClass().getSimpleName(), "Exception while reading state file : ", e);
-				FTAnalyticEvents.logDevException(FTAnalyticEvents.FT_STATE_READ_FAIL, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "File", "Reading download state failed", e);
-			}
-			finally
-			{
-				Utils.closeStreams(in, fileIn);
-			}
-		}
-		return fss != null ? fss : new FileSavedState();
-	}
-
-	public void setAnimatedProgress(int animatedProgress, long msgId)
-	{
-		if (isFileTaskExist(msgId))
-		{
-			FutureTask<FTResult> obj = fileTaskMap.get(msgId);
-			if (obj != null)
-			{
-				((MyFutureTask) obj).getTask().animatedProgress = animatedProgress;
-			}
+			return fss != null ? fss : new FileSavedState();
 		}
 	}
 
-	public int getAnimatedProgress(long msgId)
-	{
-		if (isFileTaskExist(msgId))
-		{
-			FutureTask<FTResult> obj = fileTaskMap.get(msgId);
-			if (obj != null)
-			{
-				return ((MyFutureTask) obj).getTask().animatedProgress;
-			}
-		}
-		return 0;
-	}
-
-	// this function gives the state of uploading for a file
+    /**
+     * This function gives the state of uploading for a file
+     *
+     * @param msgId
+     * @param mFile
+     * @return
+     */
 	public FileSavedState getUploadFileState(long msgId, File mFile)
 	{
 		Logger.d(getClass().getSimpleName(), "Returning state for message ID : " + msgId);
 		if (isFileTaskExist(msgId))
 		{
-			FutureTask<FTResult> obj = fileTaskMap.get(msgId);
+			FileTransferBase obj = fileTaskMap.get(msgId);
 			if (obj != null)
 			{
-				Logger.d(getClass().getSimpleName(), "Returning: " + ((MyFutureTask) obj).getTask()._state.toString());
-				return new FileSavedState(((MyFutureTask) obj).getTask()._state, ((MyFutureTask) obj).getTask()._totalSize, ((MyFutureTask) obj).getTask()._bytesTransferred, 
-						((MyFutureTask) obj).getTask().animatedProgress);
+				return obj.getFileSavedState();
 			}
-			else
-			{
-				Logger.d(getClass().getSimpleName(), "Returning: in_prog");
-				return new FileSavedState(FTState.IN_PROGRESS, 0, 0, 0);
-			}
+			return new FileSavedState(FTState.IN_PROGRESS, 0, 0, 0);
 		}
 		else
-			return getUploadFileState(mFile, msgId);
-	}
-
-	public FileSavedState getUploadFileState(File mFile, long msgId)
-	{
-		Logger.d(getClass().getSimpleName(), "Returning from second call");
-		if (mFile == null) // @GM only for now. Has to be handled properly
-			return new FileSavedState();
-
-		FileSavedState fss = null;
-		FileInputStream fileIn = null;
-		ObjectInputStream in = null;
-		try
 		{
-			String fName = mFile.getName() + ".bin." + msgId;
-			Logger.d(getClass().getSimpleName(), fName);
-			File f = new File(getHikeTempDir(), fName);
-			if (!f.exists())
-			{
-				return new FileSavedState();
-			}
-			fileIn = new FileInputStream(f);
-			in = new ObjectInputStream(fileIn);
-			fss = (FileSavedState) in.readObject();
-			if(fss.getAnimatedProgress() > 0)
-				setAnimatedProgress(fss.getAnimatedProgress(), msgId);
-		}
-		catch (IOException i)
-		{
-			i.printStackTrace();
-			FTAnalyticEvents.logDevException(FTAnalyticEvents.FT_STATE_READ_FAIL, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "File", "Reading upload state failed", i);
-		}
-		catch (ClassNotFoundException e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			FTAnalyticEvents.logDevException(FTAnalyticEvents.FT_STATE_READ_FAIL, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "File", "Reading upload state failed", e);
-		}
-		catch (Exception e)
-		{
-			e.printStackTrace();
-			Logger.e(getClass().getSimpleName(), "Exception while reading state file : ", e);
-			FTAnalyticEvents.logDevException(FTAnalyticEvents.FT_STATE_READ_FAIL, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "File", "Reading upload state failed", e);
-		}
-		finally
-		{
-			Utils.closeStreams(in, fileIn);
-		}
-		return fss != null ? fss : new FileSavedState();
-
-	}
-
-	// Fetches the type of internet connection the device is using
-	public NetworkType getNetworkType()
-	{
-		
-		int networkType = Utils.getNetworkType(context);
-		
-		switch (networkType)
-		{
-		case -1 :
-			return NetworkType.NO_NETWORK;
-		case 0: 
-			return NetworkType.TWO_G;
-		case 1: 
-			return NetworkType.WIFI;
-		case 2: 
-			return NetworkType.TWO_G;
-		case 3: 
-			return NetworkType.THREE_G;
-		case 4: 
-			return NetworkType.FOUR_G;
-		default:
-			return NetworkType.TWO_G;
+			// TODO
+			// Logger.d(getClass().getSimpleName(), "Returning from second call");
+			// if (mFile == null) // @GM only for now. Has to be handled properly
+			// return new FileSavedState();
+			//
+			FileSavedState fss = null;
+			// FileInputStream fileIn = null;
+			// ObjectInputStream in = null;
+			// try
+			// {
+			// String fName = mFile.getName() + ".bin." + msgId;
+			// Logger.d(getClass().getSimpleName(), fName);
+			// File f = new File(getHikeTempDir(), fName);
+			// if (!f.exists())
+			// {
+			// return new FileSavedState();
+			// }
+			// fileIn = new FileInputStream(f);
+			// in = new ObjectInputStream(fileIn);
+			// fss = (FileSavedState) in.readObject();
+			// if (fss.getAnimatedProgress() > 0)
+			// setAnimatedProgress(fss.getAnimatedProgress(), msgId);
+			// }
+			// catch (IOException i)
+			// {
+			// i.printStackTrace();
+			// FTAnalyticEvents.logDevException(FTAnalyticEvents.FT_STATE_READ_FAIL, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "File", "Reading upload state failed", i);
+			// }
+			// catch (ClassNotFoundException e)
+			// {
+			// // TODO Auto-generated catch block
+			// e.printStackTrace();
+			// FTAnalyticEvents.logDevException(FTAnalyticEvents.FT_STATE_READ_FAIL, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "File", "Reading upload state failed", e);
+			// }
+			// catch (Exception e)
+			// {
+			// e.printStackTrace();
+			// Logger.e(getClass().getSimpleName(), "Exception while reading state file : ", e);
+			// FTAnalyticEvents.logDevException(FTAnalyticEvents.FT_STATE_READ_FAIL, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "File", "Reading upload state failed", e);
+			// }
+			// finally
+			// {
+			// Utils.closeStreams(in, fileIn);
+			// }
+			return fss != null ? fss : new FileSavedState();
 		}
 	}
 
-	private void setChunkSize(NetworkType networkType)
-	{
-		maxChunkSize = networkType.getMaxChunkSize();
-		minChunkSize = networkType.getMinChunkSize();
-	}
-
-	private void resumeAllTasks()
-	{
-		for (Entry<Long, FutureTask<FTResult>> entry : fileTaskMap.entrySet())
-		{
-			if (entry != null)
-			{
-				FutureTask<FTResult> obj = entry.getValue();
-				if (obj != null)
-				{
-					Thread t = ((MyFutureTask) obj).getTask().getThread();
-					if (t != null)
-					{
-						if (t.getState() == State.TIMED_WAITING)
-						{
-							Logger.d(getClass().getSimpleName(), "interrupting the task: " + t.toString());
-							t.interrupt();
-						}
-					}
-				}
-			}
-
-		}
-	}
-
-	public int getMaxChunkSize()
-	{
-		return maxChunkSize;
-	}
-
-	public int getMinChunkSize()
-	{
-		return minChunkSize;
-	}
-
-	public File getHikeTempDir()
-	{
-		File hikeDir = context.getExternalFilesDir(null);
-		if(hikeDir == null)
-		{
-			FTAnalyticEvents.logDevError(FTAnalyticEvents.UNABLE_TO_CREATE_HIKE_TEMP_DIR, 0, FTAnalyticEvents.UPLOAD_FILE_TASK + ":" + FTAnalyticEvents.DOWNLOAD_FILE_TASK,
-					"File", "Hike dir is null when external storage state is - " + Environment.getExternalStorageState());
-			return null;
-		}
-		File hikeTempDir = new File(hikeDir, HIKE_TEMP_DIR_NAME);
-		if(hikeTempDir != null && !hikeTempDir.exists())
-		{
-			if (!hikeTempDir.mkdirs())
-			{
-				Logger.d("FileTransferManager", "failed to create directory");
-				FTAnalyticEvents.logDevError(FTAnalyticEvents.UNABLE_TO_CREATE_HIKE_TEMP_DIR, 0, FTAnalyticEvents.UPLOAD_FILE_TASK + ":" + FTAnalyticEvents.DOWNLOAD_FILE_TASK,
-						"File", "Unable to create Hike temp dir when external storage state is - " + Environment.getExternalStorageState());
-				return null;
-			}
-		}
-		return hikeTempDir;
-	}
-
-	/**
-	 * caller should handle the 0 return value
-	 * */
-
+    /**
+     * Caller should handle the 0 return value
+     *
+     * @param msgId
+     * @param mFile
+     * @param sent
+     * @return
+     */
 	public int getFTProgress(long msgId, File mFile, boolean sent)
 	{
+		// TODO get file saved state from http manager request token
 		FileSavedState fss;
 		if (isFileTaskExist(msgId))
 		{
-			FutureTask<FTResult> obj = fileTaskMap.get(msgId);
+			FileTransferBase obj = fileTaskMap.get(msgId);
 			if (obj != null)
 			{
-				return ((MyFutureTask) obj).getTask().progressPercentage;
+				int pr = obj.getProgressPercentage();
+				Log.d("FTM", "progress : " + pr);
+				return pr;
 			}
 		}
 
 		if (sent)
-			fss = getUploadFileState(mFile, msgId);
+			fss = getUploadFileState(msgId, mFile);
 		else
-			fss = getDownloadFileState(mFile, msgId);
+			fss = getDownloadFileState(msgId, mFile);
 
 		if (fss.getFTState() == FTState.IN_PROGRESS || fss.getFTState() == FTState.PAUSED || fss.getFTState() == FTState.ERROR)
 		{
@@ -784,160 +615,56 @@ public class FileTransferManager extends BroadcastReceiver
 			return 0;
 	}
 
+    /**
+     *
+     * @param msgId
+     * @return
+     */
 	public int getChunkSize(long msgId)
 	{
 		if (isFileTaskExist(msgId))
 		{
-			FutureTask<FTResult> obj = fileTaskMap.get(msgId);
+			FileTransferBase obj = fileTaskMap.get(msgId);
 			if (obj != null)
 			{
-				return ((MyFutureTask) obj).getTask().chunkSize;
+				return obj.getChunkSize();
 			}
 		}
 		return 0;
 	}
 
-	@Override
-	public void onReceive(Context context, Intent intent)
+    /**
+     *
+     * @param animatedProgress
+     * @param msgId
+     */
+	public void setAnimatedProgress(int animatedProgress, long msgId)
 	{
-		if (intent.getAction().equals(ConnectivityManager.CONNECTIVITY_ACTION))
+		if (isFileTaskExist(msgId))
 		{
-			Logger.d(getClass().getSimpleName(), "Connectivity Change Occured");
-			// if network available then proceed
-			if (Utils.isUserOnline(context))
+			FileTransferBase obj = fileTaskMap.get(msgId);
+			if (obj != null)
 			{
-				NetworkType networkType = getNetworkType();
-				setChunkSize(networkType);
-				resumeAllTasks();
+				obj.setAnimatedProgress(animatedProgress);
 			}
 		}
 	}
-	
-	public int remainingTransfers()
-	{
-		if(taskLimit > fileTaskMap.size())
-			return (taskLimit - fileTaskMap.size());
-		else
-			return 0;
-	}
 
-	public int getTaskLimit()
+    /**
+     *
+     * @param msgId
+     * @return
+     */
+	public int getAnimatedProgress(long msgId)
 	{
-		return taskLimit;
-	}
-
-	public boolean taskOverflowLimitAchieved()
-	{
-		if(fileTaskMap.size() >= TASK_OVERFLOW_LIMIT)
-			return true;
-		else
-			return false;
-	}
-	
-	private void validateFilePauseState(long msgId){
-		FutureTask<FTResult> obj = fileTaskMap.get(msgId);
-		if (obj != null)
+		if (isFileTaskExist(msgId))
 		{
-			FileTransferBase task = ((MyFutureTask) obj).getTask();
-			if(task.getPausedProgress() == task._bytesTransferred && task._state == FTState.PAUSED){
-				task.setState(FTState.IN_PROGRESS);
-				HikeMessengerApp.getPubSub().publish(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED, null);
-			}
-		}
-	}
-	
-	public File getAnalyticFile(File file, long  msgId)
-	{
-		return new File(FileTransferManager.getInstance(context).getHikeTempDir(), file.getName() + ".log." + msgId);
-	}
-
-	public String getNetworkTypeString()
-	{
-		String netTypeString = "n";
-		switch (getNetworkType())
-		{
-			case NO_NETWORK:
-				netTypeString = "n";
-				break;
-			case TWO_G:
-				netTypeString = "2g";
-				break;
-			case THREE_G:
-				netTypeString = "3g";
-				break;
-			case FOUR_G:
-				netTypeString = "4g";
-				break;
-			case WIFI:
-				netTypeString = "wifi";
-				break;
-			default:
-				break;
-		}
-		return netTypeString;
-	}
-
-	public void setFThostURIs()
-	{
-		String ipString = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.FT_HOST_IPS, "");
-		JSONArray ipArray = null;
-
-		try
-		{
-			ipArray = new JSONArray(ipString);
-		}
-		catch (JSONException e)
-		{
-			Logger.d("UploadFileTask", "Exception while parsing = " + e);
-			e.printStackTrace();
-		}
-
-		if (null != ipArray && ipArray.length() > 0)
-		{
-			ftHostURIs = new ArrayList<String>(ipArray.length() + 1);
-			int len = ipArray.length();
-
-			ftHostURIs.add(AccountUtils.PRODUCTION_FT_HOST);
-			for (int i = 0; i < len; i++)
+			FileTransferBase obj = fileTaskMap.get(msgId);
+			if (obj != null)
 			{
-				if (ipArray.optString(i) != null)
-				{
-					Logger.d("UploadFileTask", "FT host api[" + i + "] = " + ipArray.optString(i));
-					ftHostURIs.add(ipArray.optString(i));
-				}
+				return obj.getAnimatedProgress();
 			}
 		}
-		else
-		{
-			ftHostURIs = new ArrayList<String>(9);
-
-			ftHostURIs.add(AccountUtils.PRODUCTION_FT_HOST);
-			ftHostURIs.add("54.169.191.114");
-			ftHostURIs.add("54.169.191.115");
-			ftHostURIs.add("54.169.191.116");
-			ftHostURIs.add("54.169.191.113");
-		}
-		HttpManager.setFtHostUris(ftHostURIs);
-	}
-
-	public String getHost()
-	{
-		String host = AccountUtils.PRODUCTION_FT_HOST;
-		if(ftHostURIs != null)
-		{
-			Random random = new Random();
-			int index = random.nextInt(ftHostURIs.size() - 1) + 1;
-			host = ftHostURIs.get(index);
-		}
-		return host;
-	}
-
-	/**
-	 * Returns FT fallback Host
-	 * @return List<String>
-	 */
-	public List<String> getFTHostUris()
-	{
-		return this.ftHostURIs;
+		return 0;
 	}
 }

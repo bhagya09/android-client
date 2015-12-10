@@ -63,8 +63,11 @@ import com.bsb.hike.modules.httpmgr.interceptor.GzipRequestInterceptor;
 import com.bsb.hike.modules.httpmgr.interceptor.IRequestInterceptor;
 import com.bsb.hike.modules.httpmgr.interceptor.IResponseInterceptor;
 import com.bsb.hike.modules.httpmgr.request.ByteArrayRequest;
+import com.bsb.hike.modules.httpmgr.request.FileDownloadRequest;
 import com.bsb.hike.modules.httpmgr.request.FileRequest;
 import com.bsb.hike.modules.httpmgr.request.FileRequestPersistent;
+import com.bsb.hike.modules.httpmgr.request.FileUploadRequest;
+import com.bsb.hike.modules.httpmgr.request.IGetChunkSize;
 import com.bsb.hike.modules.httpmgr.request.JSONArrayRequest;
 import com.bsb.hike.modules.httpmgr.request.JSONObjectRequest;
 import com.bsb.hike.modules.httpmgr.request.Request;
@@ -955,5 +958,72 @@ public class HttpRequests
 
 	}
 
+	public static RequestToken downloadFile(String destFilePath, String url, long msgId, IRequestListener requestListener, IGetChunkSize chunkSizePolicy)
+	{
+		RequestToken token = new FileDownloadRequest.Builder()
+				.setUrl(url)
+				.setRequestListener(requestListener)
+				.addHeader(new Header("Accept-Encoding", "musixmatch"))
+				.setFile(destFilePath)
+				.setChunkSizePolicy(chunkSizePolicy)
+				.setId(String.valueOf(msgId))
+				.build();
+		return token;
+	}
+	
+	public static RequestToken uploadFile(String filePath, long msgId, IRequestListener requestListener, IGetChunkSize chunkSizePolicy)
+	{
+		RequestToken requestToken = new FileUploadRequest.Builder()
+				.setUrl(AccountUtils.fileTransferBase + "/user/pft/")
+				.setId(String.valueOf(msgId))
+				.setRequestType(Request.REQUEST_TYPE_LONG)
+				.setChunkSizePolicy(chunkSizePolicy)
+				.setRequestListener(requestListener)
+				.setFile(filePath)
+				.build();
+		return requestToken;
+	}
+	
+	public static RequestToken validateFileKey(String fileKey, IRequestListener requestListener)
+	{
+		RequestToken requestToken = new ByteArrayRequest.Builder()
+				.setUrl(AccountUtils.fileTransferBaseDownloadUrl + fileKey)
+				.setRequestType(Request.REQUEST_TYPE_SHORT)
+				.setRequestListener(requestListener)
+				.head()
+				.setRetryPolicy(new BasicRetryPolicy(3, 0, 1))
+				.build();
+		return requestToken;
+	}
 
+	public static RequestToken verifyMd5(String fileMd5, IRequestListener requestListener)
+	{
+		RequestToken requestToken = new ByteArrayRequest.Builder()
+				.setUrl(AccountUtils.fastFileUploadUrl + fileMd5)
+				.setRequestType(REQUEST_TYPE_SHORT)
+				.setRequestListener(requestListener)
+				.head()
+				.setRetryPolicy(new BasicRetryPolicy(3, 0, 1))
+				.build();
+		return requestToken;
+	}
+
+	public static RequestToken uploadContactOrLocation(String filePath, String fileName, JSONObject json, String fileType, IRequestListener requestListener)
+	{
+		List<Header> headers = new ArrayList<>();
+		headers.add(new Header("Content-Name", fileName));
+		headers.add(new Header("Content-Type", TextUtils.isEmpty(fileType) ? "" : fileType));
+		headers.add(new Header("X-Thumbnail-Required", "0"));
+		
+		JsonBody body = new JsonBody(json);
+		
+ 		RequestToken requestToken = new JSONObjectRequest.Builder()
+				.setUrl(AccountUtils.fileTransferBase + "/user/ft")
+				.setRequestType(Request.REQUEST_TYPE_SHORT)
+				.setRequestListener(requestListener)
+				.addHeader(headers)
+				.put(body)
+				.build();
+		return requestToken;
+	}
 }
