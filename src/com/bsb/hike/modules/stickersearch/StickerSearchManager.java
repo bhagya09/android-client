@@ -129,10 +129,10 @@ public class StickerSearchManager
 
 	public void loadChatProfile(String msisdn, boolean isGroupChat, long lastMessageTimestamp, String currentKeyboardLanguageISOCode)
 	{
-		keyboardLanguageISOCode = currentKeyboardLanguageISOCode;
-		StickerSearchHostManager.getInstance().loadChatProfile(msisdn, isGroupChat, lastMessageTimestamp, keyboardLanguageISOCode);
+		this.keyboardLanguageISOCode = currentKeyboardLanguageISOCode;
+		StickerSearchHostManager.getInstance().loadChatProfile(msisdn, isGroupChat, lastMessageTimestamp, this.keyboardLanguageISOCode);
 
-		setRecommendationStateForLanguage(currentKeyboardLanguageISOCode);
+		setRecommendationStateForLanguage(this.keyboardLanguageISOCode);
 
 		/*
 		 * LoadChatProfileTask loadChatProfileTask = new LoadChatProfileTask(msisdn, isGroupChat, lastMessageTimestamp); searchEngine.runOnSearchThread(loadChatProfileTask, 0);
@@ -423,10 +423,12 @@ public class StickerSearchManager
 
 	public void inputMethodChanged(String languageISOCode)
 	{
-		InputMethodChangedTask inputMethodChangedTask = new InputMethodChangedTask(languageISOCode);
+		this.keyboardLanguageISOCode = languageISOCode;
+
+		InputMethodChangedTask inputMethodChangedTask = new InputMethodChangedTask(this.keyboardLanguageISOCode);
 		searchEngine.runOnQueryThread(inputMethodChangedTask);
 
-		setRecommendationStateForLanguage(languageISOCode);
+		setRecommendationStateForLanguage(this.keyboardLanguageISOCode);
 	}
 
 	public void downloadTagsForCurrentLanguage()

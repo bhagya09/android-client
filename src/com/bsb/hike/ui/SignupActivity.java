@@ -441,7 +441,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 		}
 		else if (displayedChild == PIN)
 		{
-			mActionBarTitle.setText(R.string.pin);
+			mActionBarTitle.setText(R.string.pin_signup);
 		}
 		else if (displayedChild == NAME)
 		{

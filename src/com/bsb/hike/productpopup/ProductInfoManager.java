@@ -464,10 +464,10 @@ public class ProductInfoManager
 			ArrayList<ProductContentModel> mmArray = mmSparseArray.get(triggerPoints[i].ordinal());
 			if (mmArray != null&&!mmArray.isEmpty())
 			{
-				Collections.sort(mmArray, ProductContentModel.ProductContentStartTimeComp);
+				
 				for (ProductContentModel productContentModel : mmArray)
 				{
-					if (productContentModel.getStarttime() <= presentTime && productContentModel.getEndtime() >= presentTime)
+					if (productContentModel!=null&&productContentModel.getStarttime() <= presentTime && productContentModel.getEndtime() >= presentTime)
 					{
 
 						countValidPopUps++;
