@@ -2380,11 +2380,11 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 
 
 	public void setParticipantAdmin(String groupId, String msisdn) {
-		transientCache.updateGroupParticipantDetail(groupId,msisdn);
+		transientCache.updateGroupParticipantDetail(groupId, msisdn);
 	}
 	
 	public void updateAdminState(String msisdn) {
-		transientCache.updateContactDetailInAllGroups( msisdn);
+		transientCache.updateContactDetailInAllGroups(msisdn);
 	}
 	
 	/**
@@ -2417,10 +2417,14 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 		return HikeUserDatabase.getInstance().getCallerContentModelFromMsisdn(msisdn);
 	}
 
-	public void updateBlockStatusIntoCallerTable(String msisdn, boolean isCompleteData)
+	public Cursor getCallerBlockContactCursor()
 	{
-		HikeUserDatabase.getInstance().updateBlockStatusIntoCallerTable(msisdn, isCompleteData);
+		return HikeUserDatabase.getInstance().getCallerBlockContactCursor();
 	}
 
+	public void  updateBlockStatusIntoCallerTable(String msisdn, int isBlock)
+	{
+		HikeUserDatabase.getInstance().updateBlockStatusIntoCallerTable(msisdn, isBlock);
+	}
 }
 

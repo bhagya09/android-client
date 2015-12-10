@@ -32,6 +32,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteStatement;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
+import android.provider.BaseColumns;
 import android.provider.ContactsContract.CommonDataKinds.Phone;
 import android.text.TextUtils;
 import android.util.Base64;
@@ -282,7 +283,7 @@ class HikeUserDatabase extends SQLiteOpenHelper
 	private String getHikeCallerTable()
 	{
 
-		String hikeCallerTable = DBConstants.CREATE_TABLE + DBConstants.HIKE_USER.HIKE_CALLER_TABLE + " (" + DBConstants.MSISDN + " TEXT PRIMARY KEY , " + DBConstants.NAME
+		String hikeCallerTable = DBConstants.CREATE_TABLE + DBConstants.HIKE_USER.HIKE_CALLER_TABLE + " (" + BaseColumns._ID + " INTEGER , " + DBConstants.MSISDN + " TEXT PRIMARY KEY , " + DBConstants.NAME
 				+ " TEXT NOT NULL, " + DBConstants.HIKE_USER.LOCATION + " TEXT, " + DBConstants.HIKE_USER.IS_ON_HIKE + " INTEGER DEFAULT 0, " + DBConstants.HIKE_USER.IS_SPAM + " INTEGER DEFAULT 0, "
 				+ DBConstants.HIKE_USER.IS_BLOCK + " INTEGER DEFAULT 0," + DBConstants.HIKE_USER.SPAM_COUNT + " INTEGER DEFAULT 0," + DBConstants.HIKE_USER.CREATION_TIME + " INTEGER, " + DBConstants.HIKE_USER.ON_HIKE_TIME + " INTEGER" + ")";
 
@@ -321,6 +322,14 @@ class HikeUserDatabase extends SQLiteOpenHelper
 		{
 			return null;
 		}
+	}
+
+	public Cursor getCallerBlockContactCursor()
+	{
+
+		Cursor cursor =  mDb.query(DBConstants.HIKE_USER.HIKE_CALLER_TABLE, new String[]{DBConstants.MSISDN, DBConstants.NAME, DBConstants.HIKE_USER.IS_BLOCK, BaseColumns._ID}, DBConstants.HIKE_USER.IS_BLOCK + "=? ", new String[] {"1"}, null, null, DBConstants.NAME + " ASC", null);
+		cursor.moveToFirst();
+		return cursor;
 	}
 
 	void addContacts(List<ContactInfo> contacts, boolean isFirstSync) throws DbException
@@ -458,15 +467,6 @@ class HikeUserDatabase extends SQLiteOpenHelper
 		}
 	}
 
-	public void updateBlockStatusIntoCallerTable(String msisdn, boolean isCompleteData)
-	{
-		if (msisdn != null)
-		{
-			ContentValues cv = new ContentValues();
-			cv.put(DBConstants.HIKE_USER.IS_BLOCK, isCompleteData);
-			mDb.update(DBConstants.HIKE_USER.HIKE_CALLER_TABLE, cv, DBConstants.MSISDN + "=? ", new String[]{msisdn});
-		}
-	}
 	public void updateCallerTable(CallerContentModel callerContentModel)
 	{
 		if (callerContentModel != null && callerContentModel.getMsisdn() != null)
@@ -490,6 +490,16 @@ class HikeUserDatabase extends SQLiteOpenHelper
 			{
 				insertIntoCallerTable(callerContentModel, true);
 			}
+		}
+	}
+
+	public void updateBlockStatusIntoCallerTable(String msisdn, int isBlock)
+	{
+		if (msisdn != null)
+		{
+			ContentValues cv = new ContentValues();
+			cv.put(DBConstants.HIKE_USER.IS_BLOCK, isBlock);
+			mDb.update(DBConstants.HIKE_USER.HIKE_CALLER_TABLE, cv, DBConstants.MSISDN + "=? ", new String[] { msisdn });
 		}
 	}
 
