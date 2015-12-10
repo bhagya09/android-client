@@ -1,7 +1,5 @@
 package com.bsb.hike.media;
 
-import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
-import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_OPEN;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
@@ -25,6 +23,9 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
+
+import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
+import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_OPEN;
 
 public class KeyboardPopupLayout extends PopUpLayout implements OnDismissListener
 {
@@ -394,12 +395,11 @@ public class KeyboardPopupLayout extends PopUpLayout implements OnDismissListene
 		this.mListener = listener;
 	}
 
-	public boolean onEditTextTouch(View v, MotionEvent event)
-	{
-		if (isShowing())
-		{
-			dismiss();
-			return true;
+	public boolean onEditTextTouch(View v, MotionEvent event) {
+		if (event.getAction() == MotionEvent.ACTION_UP) {
+			if (isShowing()) {
+				dismiss();
+			}
 		}
 		return false;
 	}
