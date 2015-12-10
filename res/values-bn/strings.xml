@@ -1427,4 +1427,6 @@
 
 <string name="unsupported_langs_toast">আপনার ফোন %1$s  ভাষা দেখানো তে ব্যর্থ</string>
     <string name="unsupported_language_toast_msg">আপনার ফোন এই ভাষা স্বীকার করে না</string>
+    <string name="language_ftue_complete_message">আপনার ভাষা বদলাতে পারেন\n সেটিংস -> ভাষা &amp; ইনপুট গিয়ে</string>
+    
 </resources>

@@ -1417,4 +1417,6 @@
     <string name="sms_card_settings_side_text">అన్ని టెక్స్ట్ సందేశాల పై</string>
 <string name="unsupported_langs_toast">మీ ఫోన్ %1$s భాషనీ సపోర్ట్ చెయ్యదు </string>
     <string name="unsupported_language_toast_msg">మీ ఫోన్ ఈ భాషని సపోర్ట్ చెయ్యదు</string>
+    <string name="language_ftue_complete_message">మీరు కీబోర్డ్ భాష, \nసెట్టింగ్స్ -> భాష మరియు ఇన్పుట్ లో నుంచి ఎప్పుడైనా మార్చవచ్చు</string>
+    
 </resources>

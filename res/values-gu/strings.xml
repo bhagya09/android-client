@@ -1421,4 +1421,5 @@
     <string name="sms_card_settings_side_text">બધા ટેક્સ્ટ મેસેજસ પર</string>
 <string name="unsupported_langs_toast">તમારો ફોન %1$s ભાષા સપોર્ટ નથી કરતો</string>
     <string name="unsupported_language_toast_msg">તમારો ફોન આ ભાષા સપોર્ટ નથી કરતો</string>
+    <string name="language_ftue_complete_message">તમે તમારી કીબોર્ડ ભાષા \nસેટ્ટિંગ્સ -> ભાષા અને ઈનપુટ થી ગમે ત્યારે બદલી શકો ચો</string>
 </resources>
