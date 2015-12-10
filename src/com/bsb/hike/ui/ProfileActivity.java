@@ -3662,7 +3662,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 	@Override
 	public void analyticalData(KPTAddonItem kptAddonItem)
 	{
-		KptUtils.generateKeyboardAnalytics(kptAddonItem);
+		KptUtils.generateKeyboardAnalytics(ProfileActivity.this, kptAddonItem);
 	}
 
 	@Override

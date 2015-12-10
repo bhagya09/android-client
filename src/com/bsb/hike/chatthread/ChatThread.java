@@ -1991,7 +1991,7 @@ import android.widget.Toast;
 		@Override
 		public void analyticalData(KPTAddonItem kptAddonItem)
 		{
-			KptUtils.generateKeyboardAnalytics(kptAddonItem);
+			KptUtils.generateKeyboardAnalytics(activity, kptAddonItem);
 			StickerSearchManager.getInstance().inputMethodChanged(new Locale(kptAddonItem.getlocaleName()).getISO3Language());
 		}
 

@@ -233,7 +233,7 @@ public class PeopleActivity extends HikeAppStateBaseFragmentActivity implements 
 	@Override
 	public void analyticalData(KPTAddonItem kptAddonItem)
 	{
-		KptUtils.generateKeyboardAnalytics(kptAddonItem);
+		KptUtils.generateKeyboardAnalytics(PeopleActivity.this, kptAddonItem);
 	}
 
 	@Override

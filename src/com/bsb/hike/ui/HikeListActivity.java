@@ -789,7 +789,7 @@ public class HikeListActivity extends HikeAppStateBaseFragmentActivity implement
 	@Override
 	public void analyticalData(KPTAddonItem kptAddonItem)
 	{
-		KptUtils.generateKeyboardAnalytics(kptAddonItem);
+		KptUtils.generateKeyboardAnalytics(HikeListActivity.this, kptAddonItem);
 	}
 
 	@Override

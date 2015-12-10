@@ -2475,7 +2475,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	@Override
 	public void analyticalData(KPTAddonItem kptAddonItem)
 	{
-		KptUtils.generateKeyboardAnalytics(kptAddonItem);
+		KptUtils.generateKeyboardAnalytics(HomeActivity.this, kptAddonItem);
 	}
 
 	@Override
