@@ -635,7 +635,7 @@ import android.widget.Toast;
 
 	private void removeLocalisationFtueKeyboardDownloadCallback()
 	{
-		KptKeyboardManager.getInstance(activity).setInstallListener(null);
+		KptKeyboardManager.getInstance().setInstallListener(null);
 	}
 	
 	/**
