@@ -1489,8 +1489,14 @@
     <string name="stealth_unread_tip_message">Hide your chats by tapping on \'hi\'</string>
     <string name="sticker">Sticker</string>
     <string name="language_ftue_complete_message">You can change the keyboard language from \nSettings->Language &amp; Input anytime</string>
-    <string name="block_contact">BLOCK CONTACT</string>
+    <string name="block_contact">Block Contact</string>
     <string name="spam">SPAM</string>
+    <string name="caller_manage_list">MANAGE LIST</string>
+    <string name="caller_blocked_list_hinttext">Manage your blocked Caller contacts.</string>
+    <string name="block_contact_sure">Are you sure you want to block %1$s ? All calls will be automatically disconnected.</string>
+    <string name="unblock_contact_sure">Are you sure you want to unblock %1$s ? You’ll start receiving calls from this contact!</string>
+    <string name="unblock_contact">Unblock Contact</string>
+    <string name="caller_empty_view">You’ve not blocked anyone on Hike Caller.</string>
 
     <string name="unsupported_langs_toast">Your Phone does not support %1$s</string>
     <string name="unsupported_language_toast_msg">Your phone does not support this language</string>
