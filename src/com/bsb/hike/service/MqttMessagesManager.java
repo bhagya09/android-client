@@ -2721,7 +2721,7 @@ public class MqttMessagesManager
 		if (data.has(HikeConstants.AUTOCORRECT_KEYBOARD_ENABLED))
 		{
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.AUTOCORRECT_KEYBOARD_ENABLED, data.optBoolean(HikeConstants.AUTOCORRECT_KEYBOARD_ENABLED));
-			KptKeyboardManager.getInstance(HikeMessengerApp.getInstance().getApplicationContext()).getKptSettings().setAutoCorrectionState(data.optBoolean(HikeConstants.AUTOCORRECT_KEYBOARD_ENABLED) ? 0: 1);
+			KptKeyboardManager.getInstance().getKptSettings().setAutoCorrectionState(data.optBoolean(HikeConstants.AUTOCORRECT_KEYBOARD_ENABLED) ? 0: 1);
 		}
 		if (data.has(HikeConstants.CUSTOM_KEYBOARD_ENABLED))
 		{

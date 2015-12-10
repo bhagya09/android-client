@@ -466,9 +466,8 @@
 <![CDATA[ <b> હિડન મોડને ફરી સેટ કરવા માટે અહીં ટૅપ કરો! </b> 
 	    ]]>
     </string>
-        <string name="tap_to_reveal_stealth_contacts">ચેટ પ્રગટ કરવા માટે</string> 
-    <string name="tap_to_hide_stealth_contacts">ચેટ હાઈડ કરવા માટે</string>
-    <string name="tap_text">ટૅપ કરો</string>
+    <string name="tap_to_reveal_stealth_contacts">ચૅટ પ્રકટ  કરવા માટે \&apos;hi\&apos; પર ટૅપ કરો</string>
+    <string name="tap_to_hide_stealth_contacts">ચૅટ હાઇડ કરવા માટે \&apos;hi\&apos; પર ટૅપ કરો </string>
     <string name="reset_stealth_confirmation">હિડીન મોડ ફરી સેટ કરવાથી તમારા બધી હિડીન ચેટ ડિલીટ થઈ જશે. \n શું તમે ચોક્કસ છો?</string>
     <string name="stealth_tap_and_hold_tip">ચેટને \&apos;હિડીન\&apos; માર્ક કરવા માટે ટૅપ કરો અને હોલ્ડ કરો.</string>
     <string name="mark_stealth">ચેટ હિડીન તરીકે માર્ક કરો</string>
@@ -1422,4 +1421,5 @@
     <string name="sms_card_settings_side_text">બધા ટેક્સ્ટ મેસેજસ પર</string>
 <string name="unsupported_langs_toast">તમારો ફોન %1$s ભાષા સપોર્ટ નથી કરતો</string>
     <string name="unsupported_language_toast_msg">તમારો ફોન આ ભાષા સપોર્ટ નથી કરતો</string>
+    <string name="language_ftue_complete_message">તમે તમારી કીબોર્ડ ભાષા \nસેટ્ટિંગ્સ -> ભાષા અને ઈનપુટ થી ગમે ત્યારે બદલી શકો ચો</string>
 </resources>

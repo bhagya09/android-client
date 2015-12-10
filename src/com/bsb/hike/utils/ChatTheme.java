@@ -3367,6 +3367,198 @@ public enum ChatTheme
 			return R.color.floral_theme_status_bar_color;
 		}
 
+	},
+
+	PURPLE_FLOWER
+	{
+
+		@Override
+		public String bgId()
+		{
+			return "44";
+		}
+
+		@Override
+		public int headerBgResId()
+		{
+			return R.drawable.bg_header_transparent_2x;
+		}
+
+		@Override
+		public int previewResId()
+		{
+			return R.drawable.ic_ct_purpleflower_preview;
+		}
+
+		@Override
+		public int bgResId()
+		{
+			return R.drawable.bg_ct_purpleflower;
+		}
+
+		@Override
+		public int bubbleResId()
+		{
+			return R.drawable.ic_bubble_blue;
+		}
+
+		@Override
+		public boolean isTiled()
+		{
+			return false;
+		}
+
+		@Override
+		public int sentNudgeResId()
+		{
+			return R.drawable.ic_nudge_sent_purpleflower;
+		}
+
+		@Override
+		public boolean isAnimated()
+		{
+			return false;
+		}
+
+		@Override
+		public int receivedNudgeResId()
+		{
+			return R.drawable.ic_nudge_receive_purpleflower;
+		}
+
+		@Override
+		public int inLineUpdateBGResId()
+		{
+			return R.drawable.bg_status_chat_thread_custom_theme;
+		}
+
+		@Override
+		public int bubbleColor()
+		{
+			return R.color.bubble_blue;
+		}
+
+		@Override
+		public int smsToggleBgRes()
+		{
+			return R.drawable.bg_sms_toggle_custom_theme;
+		}
+
+		@Override
+		public int multiSelectBubbleColor()
+		{
+			return R.color.light_black_transparent;
+		}
+
+		@Override
+		public int offlineMsgTextColor()
+		{
+			return R.color.white;
+		}
+
+		@Override
+		public int statusBarColor()
+		{
+			// TODO Auto-generated method stub
+			return R.color.purpleflower_theme_status_bar_color;
+		}
+
+	},
+
+	CHRISTMAS
+	{
+
+		@Override
+		public String bgId()
+		{
+			return "43";
+		}
+
+		@Override
+		public int headerBgResId()
+		{
+			return R.drawable.bg_header_transparent_2x;
+		}
+
+		@Override
+		public int previewResId()
+		{
+			return R.drawable.ic_ct_christmas_preview;
+		}
+
+		@Override
+		public int bgResId()
+		{
+			return R.drawable.bg_ct_christmas;
+		}
+
+		@Override
+		public int bubbleResId()
+		{
+			return R.drawable.ic_bubble_blue;
+		}
+
+		@Override
+		public boolean isTiled()
+		{
+			return false;
+		}
+
+		@Override
+		public int sentNudgeResId()
+		{
+			return R.drawable.ic_nudge_sent_christmas;
+		}
+
+		@Override
+		public boolean isAnimated()
+		{
+			return false;
+		}
+
+		@Override
+		public int receivedNudgeResId()
+		{
+			return R.drawable.ic_nudge_receive_christmas;
+		}
+
+		@Override
+		public int inLineUpdateBGResId()
+		{
+			return R.drawable.bg_status_chat_thread_custom_theme;
+		}
+
+		@Override
+		public int bubbleColor()
+		{
+			return R.color.bubble_blue;
+		}
+
+		@Override
+		public int smsToggleBgRes()
+		{
+			return R.drawable.bg_sms_toggle_custom_theme;
+		}
+
+		@Override
+		public int multiSelectBubbleColor()
+		{
+			return R.color.light_black_transparent;
+		}
+
+		@Override
+		public int offlineMsgTextColor()
+		{
+			return R.color.white;
+		}
+
+		@Override
+		public int statusBarColor()
+		{
+			// TODO Auto-generated method stub
+			return R.color.christmas_theme_status_bar_color;
+		}
+
 	};
 
 	public abstract String bgId();
@@ -3427,9 +3619,9 @@ public enum ChatTheme
 	public static ChatTheme[] FTUE_THEMES = { STARRY, BEACH, FOREST };
 	
 	/*This stores the order of themes in which they will they will be displayed. Whenever another theme is added update this as well.
-	 The current order followed is [0,41,42,36,37,38,30,25,28,21,23,20,40,32,22,29,26,8,1,39,24,14,31,18,17,10,2,4,9,13,15,11,7,3]
+	 The current order followed is [0,43,44,41,42,36,37,38,30,25,28,21,23,20,40,32,22,29,26,8,1,39,24,14,31,18,17,10,2,4,9,13,15,11,7,3]
 	*/
-	public static ChatTheme[] THEME_PICKER = { DEFAULT, TRACK, COFFEEBEAN, SLEEPINGDOG, PEACOCKGLORY, NOWHERE, GUITAR, SWIVEL,
+	public static ChatTheme[] THEME_PICKER = { DEFAULT, CHRISTMAS, PURPLE_FLOWER, TRACK, COFFEEBEAN, SLEEPINGDOG, PEACOCKGLORY, NOWHERE, GUITAR, SWIVEL,
 			FRIENDS, NIGHT_PATTERN, OWL, VALENTINES_2, LOVE_2, HIKIN_COUPLE, NIGHT, RAIN2, BEACH_2, CREEPY, LOVE, INDEPENDENCE,
 			SPRING, KISSES, MR_RIGHT, VALENTINES, STUDY, FLORAL, CHATTY, STARRY, CELEBRATION, TECHY, BEACH, FOREST, SMILEY, GIRLY };
 	

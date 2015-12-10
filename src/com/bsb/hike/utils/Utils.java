@@ -3000,7 +3000,7 @@ public class Utils
 		imm.toggleSoftInput(InputMethodManager.SHOW_IMPLICIT, InputMethodManager.HIDE_IMPLICIT_ONLY);
 	}
 
-	public static void sendLocaleToServer(Context context)
+	public static void sendLocaleToServer()
 	{
 		try {
 			JSONObject mqttLanguageAnalytic = new JSONObject();
@@ -3014,7 +3014,7 @@ public class Utils
 			data.put(HikeConstants.APP_LANGUAGE, appLocale);
 			String keyBoardLang;
 			if (!HikeMessengerApp.isSystemKeyboard())
-				keyBoardLang = KptKeyboardManager.getInstance(context).getCurrentLanguageAddonItem().getlocaleName();
+				keyBoardLang = KptKeyboardManager.getInstance().getCurrentLanguageAddonItem().getlocaleName();
 			else
 				keyBoardLang = "";
 			data.put(HikeConstants.KEYBOARD_LANGUAGE, keyBoardLang);
@@ -5921,7 +5921,7 @@ public class Utils
 	{
 		recordDeviceDetails(context);
 		requestAccountInfo(upgrade, sendBot);
-		sendLocaleToServer(context);
+		sendLocaleToServer();
 	}
 
 	/**

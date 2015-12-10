@@ -48,7 +48,7 @@ public class LanguageSettingsActivity extends ChangeProfileImageBaseActivity imp
 		mContext = this;
 		setupLanguageList();
 		addToPubSub();
-		KptKeyboardManager.getInstance(mContext).setInstallListener(this);
+		KptKeyboardManager.getInstance().setInstallListener(this);
 	}
 
 	private void setupActionBar()
@@ -84,8 +84,8 @@ public class LanguageSettingsActivity extends ChangeProfileImageBaseActivity imp
 	private void refreshLanguageList()
 	{
 		addonItems.clear();
-		addonItems.addAll(KptKeyboardManager.getInstance(this).getSupportedLanguagesList());
-		addonItems.addAll(KptKeyboardManager.getInstance(this).getUnsupportedLanguagesList());
+		addonItems.addAll(KptKeyboardManager.getInstance().getSupportedLanguagesList());
+		addonItems.addAll(KptKeyboardManager.getInstance().getUnsupportedLanguagesList());
 		addonItemAdapter.notifyDataSetChanged();
 	}
 
@@ -93,10 +93,10 @@ public class LanguageSettingsActivity extends ChangeProfileImageBaseActivity imp
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id)
 	{
 		KPTAddonItem item = addonItemAdapter.getItem(position);
-		KptKeyboardManager.LanguageDictionarySatus status = KptKeyboardManager.getInstance(LanguageSettingsActivity.this).getDictionaryLanguageStatus(item);
+		KptKeyboardManager.LanguageDictionarySatus status = KptKeyboardManager.getInstance().getDictionaryLanguageStatus(item);
 		if (status == KptKeyboardManager.LanguageDictionarySatus.UNINSTALLED)
 		{
-			KptKeyboardManager.getInstance(mContext).downloadAndInstallLanguage(item);
+			KptKeyboardManager.getInstance().downloadAndInstallLanguage(item);
 			
 //			tracking keyboard language download event
 			try
@@ -113,11 +113,11 @@ public class LanguageSettingsActivity extends ChangeProfileImageBaseActivity imp
 		}
 		else if (status == KptKeyboardManager.LanguageDictionarySatus.INSTALLED_LOADED)
 		{
-			KptKeyboardManager.getInstance(mContext).unloadInstalledLanguage(item);
+			KptKeyboardManager.getInstance().unloadInstalledLanguage(item);
 		}
 		else if (status == KptKeyboardManager.LanguageDictionarySatus.INSTALLED_UNLOADED)
 		{
-			KptKeyboardManager.getInstance(mContext).loadInstalledLanguage(item);
+			KptKeyboardManager.getInstance().loadInstalledLanguage(item);
 		}
 		else if (status == KptKeyboardManager.LanguageDictionarySatus.UNSUPPORTED)
 		{
@@ -165,6 +165,6 @@ public class LanguageSettingsActivity extends ChangeProfileImageBaseActivity imp
 	protected void onDestroy()
 	{
 		super.onDestroy();
-		KptKeyboardManager.getInstance(mContext).setInstallListener(null);
+		KptKeyboardManager.getInstance().setInstallListener(null);
 	}
 }

@@ -59,10 +59,11 @@ public class LocalLanguageUtils {
             } else {
                 HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.LOCAL_LANGUAGE_PREF, lang.getLocale());
             }
+
             HikeMessengerApp.getInstance().setupLocalLanguage();
             StickerManager.getInstance().resetStickerShopLastUpdateTime();
             StickerManager.getInstance().resetSignupUpgradeCallPreference();
-            Utils.sendLocaleToServer(HikeMessengerApp.getInstance());
+            Utils.sendLocaleToServer();
             HikeMessengerApp.getPubSub().publish(HikePubSub.LOCAL_LANGUAGE_CHANGED,lang);
             return true;
         }

@@ -635,7 +635,7 @@ import android.widget.Toast;
 
 	private void removeLocalisationFtueKeyboardDownloadCallback()
 	{
-		KptKeyboardManager.getInstance(activity).setInstallListener(null);
+		KptKeyboardManager.getInstance().setInstallListener(null);
 	}
 	
 	/**
@@ -821,7 +821,7 @@ import android.widget.Toast;
 		{
 			if (state == KeyboardFtue.LANGUAGE_SELECTION_COMPLETE)
 			{
-				if (KptKeyboardManager.getInstance(activity).getInstalledLanguagesList().size() > 1)
+				if (KptKeyboardManager.getInstance().getInstalledLanguagesList().size() > 1)
 				{
 					if (isSystemKeyboard())
 					{
@@ -1372,7 +1372,7 @@ import android.widget.Toast;
 		try 
 		{
 			if(!isSystemKeyboard()) {
-				metadata.put(HikeConstants.KEYBOARD_LANGUAGE, KptKeyboardManager.getInstance(activity).getCurrentLanguageAddonItem().getlocaleName());
+				metadata.put(HikeConstants.KEYBOARD_LANGUAGE, KptKeyboardManager.getInstance().getCurrentLanguageAddonItem().getlocaleName());
 				convMessage.setfromCustomKeyboard(true);
 				convMessage.setMetadata(metadata);
 			}
