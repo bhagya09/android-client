@@ -4,6 +4,7 @@ import android.animation.Animator;
 import android.animation.Animator.AnimatorListener;
 import android.animation.TimeInterpolator;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.PixelFormat;
 import android.os.Handler;
 import android.os.Looper;
@@ -19,28 +20,22 @@ import android.view.WindowManager;
 import android.view.WindowManager.LayoutParams;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.AccelerateInterpolator;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.chatthread.ChatThreadUtils;
-import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.modules.contactmgr.ContactManager;
-import com.bsb.hike.modules.httpmgr.exception.HttpException;
+import com.bsb.hike.ui.BlockCallerActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.voip.VoIPUtils;
-import com.edmodo.cropper.cropwindow.handle.Handle;
-import com.squareup.okhttp.internal.Util;
 
 public class StickyCaller {
 	private static final String TAG = "StickyCaller";
@@ -100,8 +95,6 @@ public class StickyCaller {
 	private static final String INDIA = "India";
 
 	public static final String NAME = "name";
-
-	public static final String ADDRESS = "address";
 
 	public static String MISSED_CALL_TIMINGS;
 
@@ -778,7 +771,14 @@ public class StickyCaller {
 						AnalyticsConstants.StickyCallerEvents.CARD, getCallEventFromCallType(CALL_TYPE));
 				break;
 			case R.id.block_contact:
-                ContactManager.getInstance().updateBlockStatusIntoCallerTable(v.getTag().toString(), true);
+				Intent intent = new Intent(HikeMessengerApp.getInstance().getApplicationContext(), BlockCallerActivity.class);
+				CallerContentModel contentModel = ContactManager.getInstance().getCallerContentModelFromMsisdn(v.getTag().toString());
+				if (v.getTag() != null && contentModel != null && contentModel.getFullName() != null)
+				{
+					intent.putExtra(HikeConstants.MSISDN, v.getTag().toString());
+					intent.putExtra(HikeConstants.NAME, contentModel.getFullName());
+				}
+				ChatHeadUtils.insertHomeActivitBeforeStarting(intent);
 				Utils.killCall();
 				break;
 			}
