@@ -23,7 +23,8 @@
     <string name="feedback">ಫೀಡ್‌ಬ್ಯಾಕ್‌</string>
     <string name="block_overlay_message">ನೀವು %1$s ಬ್ಲಾಕ್‌ ಮಾಡಿದ್ದೀರಿ, ಅನ್‌ಬ್ಲಾಕ್‌ ಮಾಡಿ ಮತ್ತು ಹೈಕಿಂಗ್‌ ಮುಂದುವರಿಸಿ.</string>
     <string name="phone_num">ಫೋನ್‌ ನಂಬರ್‌</string>
-    <string name="pin">PIN</string>
+    <string name="pin">ಪಿನ್</string>
+    <string name="pin_signup">PIN</string>
     <string name="name">ಹೆಸರು</string>
     <string name="terms_privacy">ನಿಯಮಗಳು ಮತ್ತು ಏಕಾಂತತೆ</string>
     <string name="invite_now">ಈಗ ಆಹ್ವಾನಿಸಿ</string>
@@ -463,9 +464,8 @@
         <![CDATA[ <b> ಮುಚ್ಚಿಟ್ಟ ಮೋಡ್‌ ಅನ್ನು ಈಗ ರಿಸೆಟ್‌ ಮಾಡಲು ಇಲ್ಲಿ ಒತ್ತಿ! </b>
         ]]>
     </string>
-    <string name="tap_to_reveal_stealth_contacts">ಚಾಟ್‌ಗಳನ್ನು ಅನಾವರಣಗೊಳಿಸಲು</string>
-    <string name="tap_to_hide_stealth_contacts">ಚಾಟ್‌ಗಳನ್ನು ಮುಚ್ಚಿಡಲು</string>
-    <string name="tap_text">ಒತ್ತಿ</string>
+    <string name="tap_to_reveal_stealth_contacts">ಚಾಟ್ಗಳು ಬಹಿರಂಗಪಡಿಸಲು \&apos;hi\&apos; ಟಾಪ್ ಮಾಡಿ</string>
+    <string name="tap_to_hide_stealth_contacts">ಚಾಟ್ಗಳು ಮರೆಮಾಡಲು \&apos;hi\&apos; ಟಾಪ್ ಮಾಡಿ</string>
     <string name="reset_stealth_confirmation">ಮುಚ್ಚಿಟ್ಟ ಮೋಡ್‌ ಅನ್ನು ರಿಸೆಟ್‌ ಮಾಡುವುದರಿಂದ ನಿಮ್ಮ ಎಲ್ಲ ಗುಪ್ತ ಚಾಟ್‌ಗಳು ಅಳಿಸುತ್ತವೆ.\nಖಚಿತವಾಗಿದೆಯೇ?</string>
     <string name="stealth_tap_and_hold_tip">ಚಾಟ್‌ ಅನ್ನು ‘ಮುಚ್ಚಿಡಲು’ ತಟ್ಟಿ ಮತ್ತು ಹಿಡಿದುಕೊಳ್ಳಿ.</string>
     <string name="mark_stealth">ಚಾಟ್‌ಅನ್ನು ಮುಚ್ಚಿಡಲು ಗುರುತಿಸಿ</string>

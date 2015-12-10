@@ -76,7 +76,7 @@
         android:drawablePadding="12dp"
         android:layout_marginTop="12dp"
         android:drawableLeft="@drawable/ic_pin"
-        android:hint="@string/pin"
+        android:hint="@string/pin_signup"
         android:imeOptions="actionDone"
         android:inputType="number"
         android:singleLine="true"
