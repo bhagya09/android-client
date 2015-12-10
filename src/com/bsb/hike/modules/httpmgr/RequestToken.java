@@ -2,10 +2,13 @@ package com.bsb.hike.modules.httpmgr;
 
 import java.util.List;
 
+import com.bsb.hike.filetransfer.FileSavedState;
+import com.bsb.hike.filetransfer.FileTransferBase.FTState;
 import com.bsb.hike.modules.httpmgr.client.ClientOptions;
 import com.bsb.hike.modules.httpmgr.interceptor.IRequestInterceptor;
 import com.bsb.hike.modules.httpmgr.interceptor.IResponseInterceptor;
 import com.bsb.hike.modules.httpmgr.interceptor.Pipeline;
+import com.bsb.hike.modules.httpmgr.log.LogFull;
 import com.bsb.hike.modules.httpmgr.request.Request;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.request.requestbody.IRequestBody;
@@ -30,7 +33,23 @@ public class RequestToken
 	 */
 	public void execute()
 	{
-		HttpManager.getInstance().addRequest(request);
+		FileSavedState fss = request.getState();
+		if (!isRequestRunning())
+		{
+			if (fss != null)
+				fss.setFTState(FTState.INITIALIZED);
+			HttpManager.getInstance().addRequest(request);
+		}
+		else
+		{
+			if (fss != null)
+				fss.setFTState(FTState.IN_PROGRESS);
+		}
+	}
+
+	public void pause()
+	{
+		request.getState().setFTState(FTState.PAUSED);
 	}
 
 	/**
@@ -40,7 +59,18 @@ public class RequestToken
 	 */
 	public void execute(ClientOptions options)
 	{
-		HttpManager.getInstance().addRequest(request, options);
+		FileSavedState fss = request.getState();
+		if (!isRequestRunning())
+		{
+			if (fss != null)
+				fss.setFTState(FTState.INITIALIZED);
+			HttpManager.getInstance().addRequest(request, options);
+		}
+		else
+		{
+			if (fss != null)
+				fss.setFTState(FTState.IN_PROGRESS);
+		}
 	}
 
 	/**
@@ -99,5 +129,10 @@ public class RequestToken
 	public IRequestBody getRequestBody()
 	{
 		return request.getBody();
+	}
+
+	public FileSavedState getState()
+	{
+		return request.getState();
 	}
 }

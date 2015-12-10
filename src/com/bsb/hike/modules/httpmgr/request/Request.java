@@ -206,6 +206,13 @@ public abstract class Request<T> implements IRequestFacade
 		return state;
 	}
 
+	protected void saveStateInDB(FileSavedState fss)
+	{
+		HttpRequestState state = new HttpRequestState(this.getId());
+		state.setMetadata(fss.toJSON());
+		HttpRequestStateDB.getInstance().insertOrReplaceRequestState(state);
+	}
+
 	public void setState(FileSavedState state) {
 		this.state = state;
 	}
