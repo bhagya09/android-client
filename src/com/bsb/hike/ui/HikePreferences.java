@@ -403,10 +403,6 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 							restartHomeActivity();
 						}
 					}
-
-//					tracking app language change event
-					Utils.sendLocaleToServer(getApplicationContext());
-
 					return true;
 				}
 			});
