@@ -607,6 +607,15 @@ public class HikeService extends Service
 					{
 						String backupToken = response.optString("backup_token");
 						editor.putString(HikeMessengerApp.BACKUP_TOKEN_SETTING, backupToken);
+
+						if (response.has(HikeConstants.LOCALIZATION_ENABLED))
+						{
+							Utils.setLocalizationEnable(response.optBoolean(HikeConstants.LOCALIZATION_ENABLED));
+						}
+						if (response.has(HikeConstants.CUSTOM_KEYBOARD_ENABLED))
+						{
+							Utils.setCustomKeyboardEnable(response.optBoolean(HikeConstants.CUSTOM_KEYBOARD_ENABLED));
+						}
 					}
 					editor.commit();
 				}

@@ -137,6 +137,7 @@ import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.filetransfer.FTAnalyticEvents;
 import com.bsb.hike.http.HikeHttpRequest;
+import com.bsb.hike.localisation.LocalLanguage;
 import com.bsb.hike.localisation.LocalLanguageUtils;
 import com.bsb.hike.models.AccountData;
 import com.bsb.hike.models.AccountInfo;
@@ -7801,5 +7802,17 @@ public class Utils
 			Logger.e("productpopup","JSON Exception in JSON Array language");
 		}
 		return null;
+	}
+
+	public static void setLocalizationEnable(boolean enable)
+	{
+		if (!enable)
+			LocalLanguageUtils.setApplicationLocalLanguage(LocalLanguage.PhoneLangauge);
+		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.LOCALIZATION_ENABLED, enable);
+	}
+
+	public static void setCustomKeyboardEnable(boolean enable)
+	{
+		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CUSTOM_KEYBOARD_ENABLED, enable);
 	}
 }
