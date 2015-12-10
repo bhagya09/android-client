@@ -4,9 +4,12 @@ import android.content.Context;
 import android.os.Environment;
 import android.text.TextUtils;
 
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
+import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.filetransfer.FTAnalyticEvents;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
@@ -28,6 +31,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ConcurrentHashMap;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class KptKeyboardManager implements AdaptxtSettingsRegisterListener
 {
@@ -256,31 +262,6 @@ public class KptKeyboardManager implements AdaptxtSettingsRegisterListener
 		{
 			loadInstalledLanguage(addOnItem);
 		}
-		// this is just for kesting
-		else
-		{
-			if (mLanguagesWaitingQueue == null)
-				mLanguagesWaitingQueue = new ArrayList<KPTAddonItem>();
-			kptSettings.unInstallAdaptxtAddon(addOnItem, new AdaptxtAddonUnInstallationListner() {
-				@Override
-				public void onUnInstallationStarted(String arg0) {
-					Logger.d(TAG, "onUnInstallationStarted: " + arg0);
-					// TODO Auto-generated method stub
-				}
-
-				@Override
-				public void onUnInstallationError(String arg0) {
-					Logger.d(TAG, "onUnInstallationError: " + arg0);
-					processComplete();
-				}
-
-				@Override
-				public void onUnInstallationEnded(String arg0) {
-					Logger.d(TAG, "onUnInstallationEnded: " + arg0);
-					processComplete();
-				}
-			});
-		}
 
 		notifyAllOfLanguageUpdate();
 	}
@@ -342,6 +323,18 @@ public class KptKeyboardManager implements AdaptxtSettingsRegisterListener
 						httpException.printStackTrace();
 						processComplete();
 						handleError(addOnItem, context.getString(R.string.download_failed));
+						
+						try
+				     	{
+			     			JSONObject metadata = new JSONObject();
+			     			metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.KEYBOARD_LANGUAGE_DOWNLOAD_ERROR);
+			     			metadata.put(HikeConstants.KEYBOARD_LANGUAGE_CHANGE, addOnItem.getlocaleName());
+			     			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
+				     	}
+			     		catch(JSONException e)
+			     		{
+			     			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json : " + e);
+			     		}
 					}
 
 					@Override
@@ -423,6 +416,7 @@ public class KptKeyboardManager implements AdaptxtSettingsRegisterListener
 		Logger.d(TAG,"coreEngineStatus callback: " + status);
 		kptCoreEngineStatus = status;
 		fetchKptLanguagesAndUpdate();
+		StickerLanguagesManager.getInstance().addKptSupportedLanguages();
 	}
 
 	@Override

@@ -9,6 +9,7 @@ import com.bsb.hike.R;
 import com.bsb.hike.modules.kpt.KptKeyboardManager;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.Utils;
 import com.kpt.adaptxt.beta.KPTAddonItem;
 
 import java.util.ArrayList;
@@ -47,6 +48,8 @@ public class LocalLanguage {
     private static ArrayList<LocalLanguage> hikeSupportedList;
 
     private static ArrayList<LocalLanguage> deviceSupportedHikeList;
+
+    private static ArrayList<LocalLanguage> deviceUnSupportedList = null;
 
     private static boolean sorted=false;
 
@@ -112,4 +115,83 @@ public class LocalLanguage {
         return deviceSupportedHikeList;
     }
 
+    //AND-4046 Begin:
+    public static void setupUnsupportedLanguages(Context context)
+    {
+        if(deviceUnSupportedList != null){
+            return;
+        }
+        List<KPTAddonItem> unsupportedItems = KptKeyboardManager.getInstance(HikeMessengerApp.getInstance()).getUnsupportedLanguagesList();
+        if(Utils.isEmpty(unsupportedItems))
+        {
+            return;
+        }
+        HashSet<String> unsupportedLocaleSet = new HashSet<>();
+        for (KPTAddonItem item : unsupportedItems)
+        {
+            unsupportedLocaleSet.add(item.getlocaleName().substring(0,item.getlocaleName().indexOf("-")));
+        }
+
+        deviceUnSupportedList = new ArrayList<>();
+        List<LocalLanguage> hikeList = LocalLanguage.getHikeSupportedLanguages(context);
+        for (LocalLanguage item : hikeList)
+        {
+            if (unsupportedLocaleSet.contains(item.getLocale())) {
+                deviceUnSupportedList.add(item);
+            }
+        }
+    }
+
+    public static String getUnsupportedLocaleToastText(Context context){
+        if(deviceUnSupportedList == null){
+            setupUnsupportedLanguages(context);
+        }
+        if(Utils.isEmpty(deviceUnSupportedList)){
+            return null;
+        }
+        String unsupportedLanguages="";
+
+        int size = deviceUnSupportedList.size();
+        for(int i=0; i < deviceUnSupportedList.size(); i++){
+            LocalLanguage language = deviceUnSupportedList.get(i);
+            //Below code gets the resource id for the localized name of language missing
+            int resID = getResourceID(language.getLocale());
+            unsupportedLanguages = unsupportedLanguages + context.getString(resID);
+            if( i != size -1){
+                unsupportedLanguages += ", ";
+            }
+        }
+        int index = unsupportedLanguages.lastIndexOf(",");
+        if(index != -1){
+            String preAnd = unsupportedLanguages.substring(0,index);
+            preAnd = preAnd + " " + context.getString(R.string.and);
+            String postAnd = unsupportedLanguages.substring(index+1, unsupportedLanguages.length());
+            unsupportedLanguages = preAnd + postAnd;
+        }
+        return String.format(context.getString(R.string.unsupported_langs_toast),unsupportedLanguages);
+    }
+
+    private static int getResourceID(String locale){
+        switch (locale){
+            case "bn":
+                return R.string.bengali;
+            case "gu":
+                return R.string.gujarati;
+            case "hi":
+                return R.string.hindi;
+            case "kn":
+                return R.string.kannada;
+            case "ml":
+                return R.string.malyalam;
+            case "mr":
+                return R.string.marathi;
+            case "ta":
+                return R.string.tamil;
+            case "te":
+                return R.string.telugu;
+            default:
+                return R.string.english;
+        }
+    }
+    //AND-4046 End
 }

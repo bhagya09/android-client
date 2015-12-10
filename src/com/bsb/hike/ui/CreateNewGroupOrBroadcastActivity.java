@@ -14,6 +14,7 @@ import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.modules.kpt.HikeAdaptxtEditTextEventListner;
 import com.bsb.hike.modules.kpt.HikeCustomKeyboard;
 import com.bsb.hike.modules.kpt.KptUtils;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
@@ -26,6 +27,7 @@ import com.bsb.hike.view.CustomFontEditText;
 import com.kpt.adaptxt.beta.KPTAddonItem;
 import com.kpt.adaptxt.beta.RemoveDialogData;
 import com.kpt.adaptxt.beta.util.KPTConstants;
+import com.kpt.adaptxt.beta.view.AdaptxtEditText;
 import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtKeyboordVisibilityStatusListner;
 
 import android.content.Intent;
@@ -159,12 +161,19 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 	{
 		LinearLayout viewHolder = (LinearLayout) findViewById(R.id.keyboardView_holder);
 		mCustomKeyboard = new HikeCustomKeyboard(this, viewHolder,
-				KPTConstants.MULTILINE_LINE_EDITOR, null,CreateNewGroupOrBroadcastActivity.this);
+				KPTConstants.MULTILINE_LINE_EDITOR, kptEditTextEventListener,CreateNewGroupOrBroadcastActivity.this);
 		mCustomKeyboard.registerEditText((convType == ConvType.GROUP) ? R.id.group_name : R.id.broadcast_name);
 		mCustomKeyboard.init(convName);
 		convName.setOnClickListener(this);
 	}
-
+	HikeAdaptxtEditTextEventListner kptEditTextEventListener = new HikeAdaptxtEditTextEventListner()
+	{
+		@Override
+		public void onReturnAction(int i, AdaptxtEditText adaptxtEditText)
+		{
+			mCustomKeyboard.showCustomKeyboard(convName, false);
+		}
+	};
 	/**
 	 * This method sets the OneToNConversation type to be handled
 	 */

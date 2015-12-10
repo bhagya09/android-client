@@ -380,8 +380,13 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity implem
              * Use this hook instead of onBackPressed(), because onBackPressed()
              * is not available in API 4.
              */
-            finishWithNegativeResult(RESULT_FAILED);
-            return true;
+            /* AND-3947: aligning the behavior to that of system keyboard and hence
+             * let onBackPressed handle the backpress when custom keyboard is visible */
+            if(mCustomKeyboard != null && !mCustomKeyboard.isCustomKeyboardVisible()) {
+                finishWithNegativeResult(RESULT_FAILED);
+                return true;
+            }
+
         }
 
         return super.onKeyDown(keyCode, event);

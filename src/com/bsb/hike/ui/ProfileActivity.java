@@ -505,12 +505,16 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			if (profileType == ProfileType.USER_PROFILE_EDIT){
 				if (mCustomKeyboard.isCustomKeyboardVisible())
 				{
-					if(mEmailEdit.hasFocus()){
+					if(mEmailEdit!=null && mEmailEdit.hasFocus()){
 						mCustomKeyboard.showCustomKeyboard(mEmailEdit, false);
-					}else if(mNameEdit.hasFocus()){
+					}else if(mNameEdit!=null &&mNameEdit.hasFocus()){
 						mCustomKeyboard.showCustomKeyboard(mNameEdit, false);
 					}
 					
+				}
+			}else if(profileType == ProfileType.GROUP_INFO){
+				if(showingGroupEdit){
+					mCustomKeyboard.showCustomKeyboard(mNameEdit, false);
 				}
 			}
 		}

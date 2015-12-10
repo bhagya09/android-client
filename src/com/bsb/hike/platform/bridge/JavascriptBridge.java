@@ -29,6 +29,7 @@ import android.view.animation.Animation;
 import android.view.animation.Transformation;
 import android.webkit.JavascriptInterface;
 import android.webkit.MimeTypeMap;
+import android.webkit.ValueCallback;
 import android.webkit.WebView;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -107,6 +108,8 @@ public abstract class JavascriptBridge
 	
 	protected static final int CLOSE_WEB_VIEW = 3;
 
+	boolean sendIntentData = false;
+	
 	public JavascriptBridge(Activity activity, CustomWebView mWebView)
 	{
 		this.mWebView = mWebView;
@@ -748,8 +751,22 @@ public abstract class JavascriptBridge
 			{
 				if (!mWebView.isWebViewDestroyed())
 				{
-					Logger.d(tag, "Inside call back to js with id " + id);
-					mWebView.loadUrl("javascript:callbackFromNative" + "('" + id + "','" + getEncodedDataForJS(value) + "')");
+					if (Utils.isKitkatOrHigher())
+					{
+						Logger.d(tag, "Inside call back to js with id " + id);
+						mWebView.evaluateJavascript("javascript:callbackFromNative" + "('" + id + "','" + getEncodedDataForJS(value) + "')", new ValueCallback<String>()
+						{
+							@Override
+							public void onReceiveValue(String value)
+							{
+								Logger.d("JavascriptBridge",value);
+							}
+						});
+					}
+					else
+					{
+						mWebView.loadUrl("javascript:callbackFromNative" + "('" + id + "','" + getEncodedDataForJS(value) + "')");
+					}
 				} else
 				{
 					Logger.e(tag, "CallBackToJs>>WebView not showing");
@@ -1068,6 +1085,12 @@ public abstract class JavascriptBridge
 
 	public void sendMicroappIntentData(String data)
 	{
+		if (sendIntentData)
+		{
+			return;
+		}
+
+		sendIntentData = true;
 		mWebView.loadUrl("javascript:intentData(" + "'" + getEncodedDataForJS(data) + "')");
 	}
 
@@ -1374,11 +1397,9 @@ public abstract class JavascriptBridge
 	@JavascriptInterface
 	public void showPopup(final String contentData)
 	{
-		mHandler.post(new Runnable()
-		{
+		mHandler.post(new Runnable() {
 			@Override
-			public void run()
-			{
+			public void run() {
 				PlatformHelper.showPopup(contentData, weakActivity.get());
 			}
 		});
@@ -1465,6 +1486,17 @@ public abstract class JavascriptBridge
 			callbackToJS(id, "true");
 		else
 			callbackToJS(id, "false");
+	}
+
+	/**
+	 * Platform Version 9
+	 *
+	 * This function is called to request Init in case of productpopup apps
+	 */
+	@JavascriptInterface
+	public void requestInit()
+	{
+
 	}
 
 }

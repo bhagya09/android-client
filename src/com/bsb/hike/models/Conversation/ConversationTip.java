@@ -165,8 +165,8 @@ public class ConversationTip implements OnClickListener
 
 		case STEALTH_UNREAD_TIP:
 			v = inflater.inflate(R.layout.stealth_unread_tip, null, false);
-			String headerTxt = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STEALTH_UNREAD_TIP_HEADER, "");
-			String msgTxt = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STEALTH_UNREAD_TIP_MESSAGE, "");
+			String headerTxt = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STEALTH_UNREAD_TIP_HEADER, context.getString(R.string.stealth_unread_tip_header));
+			String msgTxt = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STEALTH_UNREAD_TIP_MESSAGE, context.getString(R.string.stealth_unread_tip_message));
 			((TextView) v.findViewById(R.id.tip_header)).setText(headerTxt);
 			((TextView) v.findViewById(R.id.tip_msg)).setText(msgTxt);
 			v.findViewById(R.id.close_tip).setOnClickListener(this);

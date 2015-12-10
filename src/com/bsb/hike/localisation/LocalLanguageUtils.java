@@ -51,6 +51,7 @@ public class LocalLanguageUtils {
 
     synchronized public static void setApplicationLocalLanguage(LocalLanguage lang)
     {
+        Logger.d("productpopup","New Language is "+lang.getLocale());
         if (TextUtils.isEmpty(lang.getLocale())) {
             HikeSharedPreferenceUtil.getInstance().removeData(HikeConstants.LOCAL_LANGUAGE_PREF);
         } else {

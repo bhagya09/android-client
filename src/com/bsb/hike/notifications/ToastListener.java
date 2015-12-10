@@ -736,7 +736,7 @@ public class ToastListener implements Listener
 			String activityMsisdn=((WebViewActivity) activity).msisdn;
 			BotInfo botInfo=BotUtils.getBotInfoForBotMsisdn(msisdn);
 			NonMessagingBotMetadata nmData=new NonMessagingBotMetadata(botInfo.getMetadata());
-			if (TextUtils.isEmpty(msisdn) || botInfo==null ||nmData==null ||  (activityMsisdn.equals(nmData.getParentMsisdn())))
+			if (TextUtils.isEmpty(msisdn) || TextUtils.isEmpty(activityMsisdn)|| botInfo==null ||nmData==null ||  (activityMsisdn.equals(nmData.getParentMsisdn())))
 			{
 				Logger.e("ToastListener", "Either the parent bot was open or the msisdn passed is null or botinfo is null");
 				return;

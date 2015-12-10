@@ -39,7 +39,7 @@
             android:layout_alignParentBottom="true"
             android:drawableLeft="@drawable/ic_birthday_common"
             android:hint="@string/how_young_are_you"
-            android:inputType="phone"
+            android:inputType="number"
             android:maxLength="2" />
     </RelativeLayout>
 

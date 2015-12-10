@@ -127,7 +127,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 
 	NonMessagingBotMetadata botMetaData;
 	
-	public static String msisdn;
+	public static String msisdn = "";
 
 	int mode;
 	
@@ -162,6 +162,8 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 
 	private String urlParams;
 
+	private  long time;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
@@ -173,6 +175,9 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 			super.onCreate(savedInstanceState);
 			return;
 		}
+
+
+		time=System.currentTimeMillis();
 
 		allowLoc = getIntent().getBooleanExtra(HikeConstants.Extras.WEBVIEW_ALLOW_LOCATION, false);
 
@@ -193,6 +198,17 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		if (mode == MICRO_APP_MODE || mode == WEB_URL_BOT_MODE)
 		{
 			initMsisdn();
+			JSONObject json = new JSONObject();
+			try
+			{
+				json.putOpt(AnalyticsConstants.EVENT_KEY,AnalyticsConstants.MICRO_APP_EVENT);
+				json.putOpt(AnalyticsConstants.EVENT,AnalyticsConstants.MICRO_APP_OPENED);
+				json.putOpt(AnalyticsConstants.BOT_MSISDN,msisdn);
+			} catch (JSONException e)
+			{
+				e.printStackTrace();
+			}
+			Utils.sendLogEvent(json, AnalyticsConstants.NON_UI_EVENT, null);
 			if (filterNonMessagingBot(msisdn))
 			{
 				initBot();
@@ -756,6 +772,19 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 			{
 				if(null != content)
 				{
+					JSONObject json = new JSONObject();
+					try
+					{
+						json.putOpt(AnalyticsConstants.EVENT_KEY,AnalyticsConstants.MICRO_APP_EVENT);
+						json.putOpt(AnalyticsConstants.EVENT,AnalyticsConstants.MICRO_APP_LOADED);
+						json.putOpt(AnalyticsConstants.LOG_FIELD_6,(System.currentTimeMillis()-time));
+						json.putOpt(AnalyticsConstants.BOT_MSISDN,msisdn);
+					} catch (JSONException e)
+					{
+						e.printStackTrace();
+					}
+
+					Utils.sendLogEvent(json, AnalyticsConstants.NON_UI_EVENT, null);
 					webView.loadMicroAppData(content.getFormedData());
 				}
 			}
@@ -798,6 +827,11 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 			if (object instanceof BotInfo)
 			{
 				BotInfo botInfo = (BotInfo) object;
+				if (botInfo == null)
+				{
+					return;
+				}
+
 				if (botInfo.getMsisdn().equals(msisdn))
 				{
 					String notifData = botInfo.getNotifData();
@@ -811,6 +845,10 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 
 		else if (type.equals(HikePubSub.MESSAGE_EVENT_RECEIVED))
 		{
+			if (mode != MICRO_APP_MODE && mode != WEB_URL_BOT_MODE) //We need it only Micro App mode as of now.
+			{
+				return;
+			}
 
 			if (object instanceof MessageEvent)
 			{
@@ -841,6 +879,11 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		}
 		else if (type.equals(HikePubSub.LOCATION_AVAILABLE))
 		{
+			if (mode != MICRO_APP_MODE && mode != WEB_URL_BOT_MODE) //We need it only Micro App mode as of now.
+			{
+				return;
+			}
+
 			LocationManager locationManager = (LocationManager) object;
 			Location location = null;
 			if (locationManager != null)
@@ -857,9 +900,14 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		}
 		else if (type.equals(HikePubSub.DOWNLOAD_PROGRESS))
 		{
+			if (mode != MICRO_APP_MODE && mode != WEB_URL_BOT_MODE) //We need it only Micro App mode as of now.
+			{
+				return;
+			}
+
 			if (object instanceof Pair<?,?>)
 			{
-				if (null != msisdn && (msisdn.equals(botInfo.getMsisdn())|| msisdn.equals(botMetaData.getParentMsisdn())))
+				if (null != mmBridge && null != msisdn && BotUtils.isSpecialBot(botInfo) && (msisdn.equals(botInfo.getMsisdn())|| msisdn.equals(botMetaData.getParentMsisdn())))
 				{
 					Pair<String, String> callback = (Pair<String, String>) object;
 					mmBridge.downloadStatus(callback.first, callback.second);
@@ -867,7 +915,6 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 
 			}
 		}
-
 
 	}
 
@@ -1479,8 +1526,6 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 			Logger.i(tag, "URL " + interceptUrl + " not intercepted.");
 			return;
 		}
-
-		interceptUrl = interceptUrl.toLowerCase();
 
 		for (String url : this.interceptUrlMap.keySet())
 		{

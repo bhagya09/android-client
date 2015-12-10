@@ -101,4 +101,28 @@
        <item>বাম</item>
        <item>@null</item>
    </array>
+    <array name="filter_names">
+        <item>ওরিজিন্যাল</item>
+        <item>ত্রিবর্ণ</item>
+        <item>মেলো</item>
+        <item>চুস্কি</item>
+        <item>আজুরি</item>
+        <item>জালেবি</item>
+        <item>গুলাল</item>
+        <item>এক্স-প্রো</item>
+        <item>এইচডিআর</item>
+        <item>এপোলো</item>
+        <item>রিট্রো</item>
+        <item>পালসার</item>
+        <item>সানলিট</item>
+        <item>হাজেল</item>
+        <item>লো-ফী</item>
+        <item>ইঙ্কড</item>
+        <item>মশাল</item>
+        <item>শোলে</item>
+        <item>জঙ্গলী</item>
+        <item>পোলারয়েড</item>
+        <item>সেপিয়া</item>
+        <item>গ্রেস্কেল</item>
+    </array>
 </resources>

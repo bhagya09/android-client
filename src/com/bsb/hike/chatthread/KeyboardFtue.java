@@ -173,6 +173,8 @@ public class KeyboardFtue implements HikePubSub.Listener
             public void onClick(View v) {
                 skipLanguageSelection();
                 trackClickAnalyticEvents(HikeConstants.LogEvent.KEYBOARD_FTUE_CLOSE_BUTTON);
+
+                Toast.makeText(HikeMessengerApp.getInstance().getApplicationContext(),R.string.language_ftue_complete_message,Toast.LENGTH_SHORT).show();
             }
         });
         flipper.findViewById(R.id.btn_choose_language).setOnClickListener(new View.OnClickListener() {
@@ -367,7 +369,7 @@ public class KeyboardFtue implements HikePubSub.Listener
         		{
         			JSONObject metadata = new JSONObject();
         			metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.KEYBOARD_FTUE_LANGUAGE_DOWNLOADED);
-        			metadata.put(HikeConstants.KEYBOARD_LANGUAGE, item.getDisplayName());
+        			metadata.put(HikeConstants.KEYBOARD_LANGUAGE_CHANGE, item.getlocaleName());
         			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
         		}
         		catch(JSONException e)

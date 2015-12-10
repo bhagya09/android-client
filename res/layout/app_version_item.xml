@@ -68,12 +68,18 @@
         android:textColor="#3d475b"
         android:textSize="12sp" />
 
-    <ImageView
+    <com.bsb.hike.view.CustomFontTextView
         android:id="@+id/with_love"
+        android:layout_marginBottom="24dp"
+        android:layout_marginTop="8dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="36dp"
-        android:layout_marginTop="8dp"
-        android:src="@drawable/with_love" />
+        android:fontFamily="Roboto-Regular"
+        android:text="@string/app_version"
+        style="@style/BaseStyleTextView"
+        android:gravity="center"
+        android:textStyle="normal"
+        android:textColor="#3d475b"
+        android:textSize="14sp" />
 
 </LinearLayout>
