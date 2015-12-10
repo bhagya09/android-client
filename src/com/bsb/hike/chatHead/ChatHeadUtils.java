@@ -25,10 +25,6 @@ import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
 import android.preference.PreferenceManager;
-import android.provider.ContactsContract;
-import android.provider.ContactsContract.CommonDataKinds.StructuredPostal;
-import android.provider.ContactsContract.Contacts;
-import android.provider.ContactsContract.Data;
 import android.provider.ContactsContract.PhoneLookup;
 import android.provider.Settings;
 import android.provider.Settings.SettingNotFoundException;
@@ -84,9 +80,9 @@ public class ChatHeadUtils
 	
 	private static ClipboardListener clipboardListener;
 	
-	private static final int HTTP_CALL_RETRY_DELAY = 2000; 
+	public static final int HTTP_CALL_RETRY_DELAY = 2000;
 	
-	private static final int HTTP_CALL_RETRY_MULTIPLIER = 1;
+	public static final int HTTP_CALL_RETRY_MULTIPLIER = 1;
 		
 	// replica of hidden constant ActivityManager.PROCESS_STATE_TOP 
 	public static final int PROCESS_STATE_TOP =2;
@@ -728,8 +724,8 @@ public class ChatHeadUtils
 		{
 			iRequestListener = new CallListener();
 		}
-		RequestToken requestToken = HttpRequests.postNumberAndGetCallerDetails(HttpRequestConstants.getHikeCallerUrl(), json, iRequestListener, HTTP_CALL_RETRY_DELAY,
-				HTTP_CALL_RETRY_MULTIPLIER);
+		RequestToken requestToken = HttpRequests.postCallerMsisdn(HttpRequestConstants.getHikeCallerUrl(), json, iRequestListener, HTTP_CALL_RETRY_DELAY,
+				HTTP_CALL_RETRY_MULTIPLIER, true);
 		requestToken.execute();
 	}
 
