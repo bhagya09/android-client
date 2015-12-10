@@ -2716,10 +2716,7 @@ public class MqttMessagesManager
 		}
 		if (data.has(HikeConstants.LOCALIZATION_ENABLED))
 		{
-			boolean localizationEnabled = data.optBoolean(HikeConstants.LOCALIZATION_ENABLED);
-			if (!localizationEnabled)
-				LocalLanguageUtils.setApplicationLocalLanguage(LocalLanguage.PhoneLangauge);
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.LOCALIZATION_ENABLED, localizationEnabled);
+			Utils.setLocalizationEnable(data.optBoolean(HikeConstants.LOCALIZATION_ENABLED));
 		}
 		if (data.has(HikeConstants.AUTOCORRECT_KEYBOARD_ENABLED))
 		{
@@ -2728,7 +2725,7 @@ public class MqttMessagesManager
 		}
 		if (data.has(HikeConstants.CUSTOM_KEYBOARD_ENABLED))
 		{
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CUSTOM_KEYBOARD_ENABLED,data.optBoolean(HikeConstants.CUSTOM_KEYBOARD_ENABLED));
+			Utils.setCustomKeyboardEnable(data.optBoolean(HikeConstants.CUSTOM_KEYBOARD_ENABLED));
 		}
         if (data.has(HikeConstants.HTTP_NETWORK_CHECK_CALL))
         {
