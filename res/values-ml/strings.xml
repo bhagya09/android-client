@@ -23,7 +23,8 @@
     <string name="feedback">ഫീഡ്‌ബാക്ക്</string>
     <string name="block_overlay_message">നിങ്ങൾ %1$s എന്ന വ്യക്തിയെ ബ്ലോക്കുചെയ്തു. അൺബ്ലോക്കുചെയ്ത്, ഹൈക്കിംഗ് തുടരുക.</string>
     <string name="phone_num">ഫോൺ നമ്പർ</string>
-    <string name="pin">PIN</string>
+    <string name="pin">പിന്</string>
+    <string name="pin_signup">PIN</string>
     <string name="name">പേര്</string>
     <string name="terms_privacy">വ്യവസ്ഥകളും സ്വകാര്യതയും</string>
     <string name="invite_now">ഇപ്പോൾ ക്ഷണിക്കുക</string>
@@ -170,7 +171,7 @@
     <string name="location_disabled">ലൊക്കേഷൻ ലഭ്യമാക്കാനായില്ല. സെറ്റിംഗ്സ് പരിശോധിക്കുക.</string>
     <string name="tap_here_invite">ഈ വ്യക്തിയെ ക്ഷണിക്കുന്നതിനായി ഇവിടെ ടാപ്പുചെയ്യുക</string>
     <string name="change_group_image">%1$s ഗ്രൂപ്പിന്റെ ചിത്രം മാറ്റി.</string>
-    <string name="faq">FAQ</string>
+    <string name="faq">പതിവ് ചോദ്യങ്ങൾ</string>
     <string name="gallery">ഗ്യാലറി</string>
     <string name="number_confirm_title">നമ്പർ സ്ഥിരീകരിക്കുക</string>
     <string name="birthday">പിറന്നാൾ</string>
@@ -292,7 +293,7 @@
     <string name="india_only">സൗജന്യ SMS ഇന്ത്യയിലേക്ക് മാത്രമേ അയക്കാനാകൂ.</string>
     <string name="feedback_on_hike">Android-നായുള്ള hike-മായി ബന്ധപ്പെട്ട ഫീഡ്ബാക്ക്</string>
     <string name="feedback_hinttext">ഞങ്ങൾക്ക് ഫീഡ്ബാക്ക് നൽകുക</string>
-    <string name="faq_hinttext">FAQ</string>
+    <string name="faq_hinttext">പതിവ് ചോദ്യങ്ങൾ ചോദിച്ചു</string>
     <string name="blocked_list_hinttext">നിങ്ങൾ ബ്ലോക്കുചെയ്തിട്ടുള്ള ആളുകളെ മാനേജുചെയ്യുക</string>
     <string name="system_health_hinttext">hike സിസ്റ്റം സ്റ്റാറ്റസ് കാണുക</string>
     <string name="app_version">പതിപ്പ് %1$s</string>
@@ -465,9 +466,8 @@
 <![CDATA[ <b> ഹിഡൻ മോഡ് ഇപ്പോൾ റീസെറ്റ് ചെയ്യുവാൻ  ഇവിടെ ടാപ്പുചെയ്യുക! </b> 
 	    ]]>
     </string>
-        <string name="tap_to_reveal_stealth_contacts">ചാറ്റുകൾ വെളിപ്പെടുത്താൻ</string> 
-    <string name="tap_to_hide_stealth_contacts">ചാറ്റുകൾ മറയ്ക്കാൻ</string>
-    <string name="tap_text">ടാപ്പുചെയ്യുക</string>
+    <string name="tap_to_reveal_stealth_contacts">ചാറ്റുകൾ വെളിപ്പെടുത്തുവാൻ \&apos;hi\&apos; ടാപ്പ്‌ ചെയ്യുക</string>
+    <string name="tap_to_hide_stealth_contacts">ചാറ്റുകൾ മറക്കുവാൻ \&apos;hi\&apos; ടാപ്പ്‌ ചെയ്യുക </string>
     <string name="reset_stealth_confirmation">ഹിഡന്‍ മോഡ് റീസെറ്റ് ചെയ്യുന്നത് നിങ്ങളുടെ എല്ലാ ഹിഡന്‍ ചാറ്റുകളും ഡിലീറ്റ് ചെയ്യുന്നതാണ്.\nനിങ്ങള്‍ക്ക് തീര്‍ച്ചയാണോ?</string>
     <string name="stealth_tap_and_hold_tip">ഒരു ചാറ്റ് \'മറച്ചത്\' ആക്കുന്നതിനായി ചാറ്റ് ടാപ്പുചെയ്ത് പിടിക്കുക.</string>
     <string name="mark_stealth">ചാറ്റ് മറച്ചതായി അടയാളപ്പെടുത്തുക</string>
@@ -590,12 +590,12 @@
     <string name="select_all_confirmation_msg">%1$d കോണ്ടാക്ട് hike ഡൗൺലോഡ് ചെയ്യാൻ ക്ഷണം അയയ്ക്കണോ?</string>
     <string name="hike_offline_caps">Hike ഓഫ്‌ലൈൻ</string>
 
-    <string name="create_pin">Pin സൃഷ്ടിക്കുക</string>
-    <string name="pin_history">Pin ചരിത്രം</string>
+    <string name="create_pin">പിന് സൃഷ്ടിക്കുക</string>
+    <string name="pin_history">പിന് ചരിത്രം</string>
     <string name="max_pin_unread_counter">9+</string>
     <string name="pin_text_hint">പ്രധാനപ്പെട്ട എന്തെങ്കിലും പങ്കിടുക...</string>
-    <string name="xyz_posted_pin">%1$s pin പോസ്റ്റുചെയ്തു</string>
-    <string name="pinHistoryTutorialText">ഇതുവരെ pin-കൾ ഒന്നും ഇല്ല</string>
+    <string name="xyz_posted_pin">%1$s പിന് പോസ്റ്റുചെയ്തു</string>
+    <string name="pinHistoryTutorialText">ഇതുവരെ പിന്-കൾ ഒന്നും ഇല്ല</string>
     <string name="incorrect_msisdn_warning">തെറ്റായ നമ്പർ</string>
     <string name="incorrect_msisdn_msg">ഈ ഫോണിൽ hike-മായി രജിസ്റ്റർ ചെയ്തിട്ടുള്ള നമ്പർ നൽകുക.</string>
     <string name="delete_account_heading_2">അക്കൗണ്ട് ഇല്ലാതാക്കാൻ, നിങ്ങളുടെ നമ്പർ നൽകുക</string>
@@ -605,14 +605,14 @@
     <string name="mute_status_notification_subtext">സ്റ്റാറ്റസിനായുള്ള അറിയിപ്പുകളും ഫേവറേറ്റിൽ നിന്ന് പ്രൊഫൈൽ ചിത്ര അപ്ഡേറ്റുകളും കാണിക്കുക</string>
     <string name="notifications_contact_join_summary">ഒരു കൊണ്ടാക്ട്  hike-ൽ ചേരുമ്പോൾ അറിയിക്കുക</string>
     <string name="set_profile_pic"> Hike പ്രൊഫൈൽ ചിത്രം</string>
-    <string name="confirm_delete_pin_header">PIN ഇല്ലാതാക്കുക</string>
-    <string name="confirm_delete_pin">ഈ PIN ഇല്ലാതാക്കണമെന്ന് ഉറപ്പാണോ?</string>
-    <string name="confirm_delete_pins_header">PIN-കൾ ഇല്ലാതാക്കുക</string>
-    <string name="confirm_delete_pins">ഈ %1$s PIN-കൾ ഇല്ലാതാക്കണമെന്ന് ഉറപ്പാണോ?</string>
+    <string name="confirm_delete_pin_header">പിന് ഇല്ലാതാക്കുക</string>
+    <string name="confirm_delete_pin">ഈ പിന് ഇല്ലാതാക്കണമെന്ന് ഉറപ്പാണോ?</string>
+    <string name="confirm_delete_pins_header">പിന്-കൾ ഇല്ലാതാക്കുക</string>
+    <string name="confirm_delete_pins">ഈ %1$s പിന്-കൾ ഇല്ലാതാക്കണമെന്ന് ഉറപ്പാണോ?</string>
     <string name="add_btn">ചേർക്കുക</string>
     <string name="not_now">ഇപ്പോൾ വേണ്ട</string>
     <string name="shared_med">പങ്കിട്ട മീഡിയ</string>
-    <string name="pins">Pin-കൾ</string>
+    <string name="pins">പിന്-കൾ</string>
     <string name="groups">ഗ്രൂപ്പുകൾ</string>
     <string name="members">അംഗങ്ങൾ</string>
     <string name="recipients">സ്വീകർത്താക്കൾ</string>
@@ -652,14 +652,14 @@
     <string name="image_quality_prefs">ചിത്ര നിലവാരം</string>
     <string name="no_media">ഫോട്ടോകളും വീഡിയോകളും ഇവിടെ പ്രദർശിപ്പിക്കും</string>
     <string name="add_fav">ഫേവറേറ്റായി\nചേർക്കുക</string>
-    <string name="no_file">ഫയലുകളും pin-കളും ഇവിടെ പ്രദർശിപ്പിക്കും</string>
+    <string name="no_file">ഫയലുകളും പിന്-കളും ഇവിടെ പ്രദർശിപ്പിക്കും</string>
     <string name="no_file_broadcast">ഫയലുകൾ ഇവിടെ പ്രദർശിപ്പിക്കും</string>
     <string name="no_file_profile">ഫയലുകൾ ഇവിടെ പ്രദർശിപ്പിക്കും</string>
     <string name="notifications_contact_join_title">കൊണ്ടാക്ട്  hike-ൽ ചേരുന്നു</string>
     <string name="share_with_names_numbers">മറ്റുള്ളവർക്ക് %1$s,%2$d പങ്കിടണോ?</string>
     <string name="recent_chats">നിലവിലെ ചാറ്റുകൾ</string>
     <string name="new_chat_compose_hint">പേര് അല്ലെങ്കിൽ നമ്പർ പ്രകാരം തിരയുക</string>
-    <string name="pin_notif_text">ഒരു pin പോസ്റ്റുചെയ്തു</string>
+    <string name="pin_notif_text">ഒരു പിന് പോസ്റ്റുചെയ്തു</string>
     <string name="welcome_to">എന്നതിലേക്ക് സ്വാഗതം</string>
     <string name="small_fastest">വേഗതയേറിയ</string>
     <string name="medium_faster">വേഗത</string>
@@ -953,7 +953,7 @@
     <string name="group_creation">എന്ന തീയതിയിൽ സൃഷ്ടിച്ചത് </string>
     <string name="ls_change_failed">ലാസ്റ്റ് സീൻ അപ്ഡേറ്റ് പരാജയം!</string>
     <string name="terms_conditions_hint">വ്യവസ്ഥകളും നിബന്ധനകളും</string>
-    <string name="terms_conditions_title">T &amp; C</string>
+    <string name="terms_conditions_title">ടി &amp; സി</string>
     <string name="content_des_message_send_rec_read_status">സന്ദേശം അയച്ചു അല്ലെങ്കിൽ സ്റ്റാറ്റസ് ശേഷിക്കുന്നു</string>
     <string name="content_des_message_clock_state">സന്ദേശം അയച്ചട്ടില്ല</string>
     <string name="content_des_message_double_tick_state">സ്വീകർത്താവിലേക്ക് സന്ദേശം അയച്ചു</string>
@@ -1142,6 +1142,7 @@
     <string name="UPDATE_APP">അപ്‌ഡേറ്റ് ചെയ്യുക</string>
     <string name="language_summary">ഇംഗ്ലീഷ്</string>
     <string name="language">ഭാഷ</string>
+    <string name="app_language">അപ്ലിക്കേഷൻ ഭാഷാ</string>
     <string name="keyboard_summary">Hike കീബോർഡ് പ്രാപ്തമാക്കുക/അപ്രാപ്തമാക്കുക</string>
     <string name="keyboard_title">Hike കീബോർഡ്</string>
     <string name="glide_summary">തുടർച്ചയായ ഗെസ്ച്വർ ടൈപ്പിംഗ്</string>
@@ -1273,7 +1274,7 @@
     <string name="you_chat_bg_changed">നിങ്ങൾ ചാറ്റ് തീം മാറ്റി</string>
     <string name="hike_keyboard">Hike കീബോർഡ്</string>
     <string name="system_keyboard">സിസ്റ്റം കീബോർഡ്</string>
-    <string name="you_xyz_posted_pin">നിങ്ങളൊരു pin പോസ്റ്റുചെയ്തു</string>
+    <string name="you_xyz_posted_pin">നിങ്ങളൊരു പിന് പോസ്റ്റുചെയ്തു</string>
     <string name="voip_hang_up">വയ്ക്കുക</string>
     <string name="voip_decline">നിരസിക്കുക</string>
     <string name="voip_accept">സ്വീകരിക്കുക</string>
@@ -1414,5 +1415,8 @@
     <string name="try_instead">ഇത് പരീക്ഷിക്കു</string>
     <string name="sms_card_settings_side_text">എല്ലാ സന്ദേശങ്ങൾ ന്</string>
 <string name="unsupported_langs_toast">നിങ്ങളുടെ ഫോണ് %1$s ഭാഷ സപ്പോ ട്ട് ചെയ്യുന്നില്ല</string>
+    <string name="unsupported_language_toast_msg">നിങ്ങളുടെ ഫോൺ ഈ ഭാഷ പിന്തുണക്കുന്നില്ല</string>
+    <string name="language_ftue_complete_message">കീബോർഡിന്റെ ഭാഷ മാറ്റുവാൻ \n സെറ്റിംഗ്സ് -> ഭാഷയും &amp; ഈൻപുട്ടും</string>
+    
 
 </resources>
