@@ -455,7 +455,7 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 	@Override
 	public void analyticalData(KPTAddonItem kptAddonItem)
 	{
-		KptUtils.generateKeyboardAnalytics(CreateNewGroupOrBroadcastActivity.this, kptAddonItem);
+		KptUtils.generateKeyboardAnalytics(kptAddonItem);
 	}
 
 	@Override

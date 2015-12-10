@@ -366,7 +366,7 @@ public class DeleteAccount extends HikeAppStateBaseFragmentActivity implements D
 	@Override
 	public void analyticalData(KPTAddonItem kptAddonItem)
 	{
-		KptUtils.generateKeyboardAnalytics(DeleteAccount.this, kptAddonItem);
+		KptUtils.generateKeyboardAnalytics(kptAddonItem);
 	}
 
 	@Override

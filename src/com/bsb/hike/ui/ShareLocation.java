@@ -1015,7 +1015,7 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 	@Override
 	public void analyticalData(KPTAddonItem kptAddonItem)
 	{
-		KptUtils.generateKeyboardAnalytics(ShareLocation.this, kptAddonItem);
+		KptUtils.generateKeyboardAnalytics(kptAddonItem);
 	}
 
 	@Override
