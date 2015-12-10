@@ -85,6 +85,7 @@ public class LanguageSettingsActivity extends ChangeProfileImageBaseActivity imp
 	{
 		addonItems.clear();
 		addonItems.addAll(KptKeyboardManager.getInstance(this).getSupportedLanguagesList());
+		addonItems.addAll(KptKeyboardManager.getInstance(this).getUnsupportedLanguagesList());
 		addonItemAdapter.notifyDataSetChanged();
 	}
 
@@ -102,7 +103,7 @@ public class LanguageSettingsActivity extends ChangeProfileImageBaseActivity imp
 			{
 				JSONObject metadata = new JSONObject();
 				metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.KEYBOARD_LANGUAGE_DOWNLOAD_EVENT);
-				metadata.put(HikeConstants.LogEvent.LANGUAGE_DOWNLOADING, item.getDisplayName());
+				metadata.put(HikeConstants.LogEvent.LANGUAGE_DOWNLOADING, item.getlocaleName());
 				HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
 			}
 			catch(JSONException e)
@@ -117,6 +118,10 @@ public class LanguageSettingsActivity extends ChangeProfileImageBaseActivity imp
 		else if (status == KptKeyboardManager.LanguageDictionarySatus.INSTALLED_UNLOADED)
 		{
 			KptKeyboardManager.getInstance(mContext).loadInstalledLanguage(item);
+		}
+		else if (status == KptKeyboardManager.LanguageDictionarySatus.UNSUPPORTED)
+		{
+			Toast.makeText(mContext, R.string.unsupported_language_toast_msg, Toast.LENGTH_SHORT).show();
 		}
 	}
 

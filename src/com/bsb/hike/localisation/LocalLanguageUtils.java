@@ -6,6 +6,7 @@ import android.text.TextUtils;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
+import com.bsb.hike.R;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
@@ -51,6 +52,7 @@ public class LocalLanguageUtils {
 
     synchronized public static void setApplicationLocalLanguage(LocalLanguage lang)
     {
+        Logger.d("productpopup","New Language is "+lang.getLocale());
         if (TextUtils.isEmpty(lang.getLocale())) {
             HikeSharedPreferenceUtil.getInstance().removeData(HikeConstants.LOCAL_LANGUAGE_PREF);
         } else {
@@ -177,5 +179,28 @@ public class LocalLanguageUtils {
 
         }
 
+    }
+
+    public static int getCurrentLocaleDisplayNameResourceID(String locale){
+        switch (locale){
+            case "bn":
+                return R.string.bengali;
+            case "gu":
+                return R.string.gujarati;
+            case "hi":
+                return R.string.hindi;
+            case "kn":
+                return R.string.kannada;
+            case "ml":
+                return R.string.malyalam;
+            case "mr":
+                return R.string.marathi;
+            case "ta":
+                return R.string.tamil;
+            case "te":
+                return R.string.telugu;
+            default:
+                return R.string.english;
+        }
     }
 }

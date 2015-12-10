@@ -8169,6 +8169,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		contentValues.put(DBConstants.LAST_MESSAGE_TIMESTAMP, convMessage.getTimestamp());
 		contentValues.put(DBConstants.SORTING_TIMESTAMP, convMessage.getTimestamp());
 		contentValues.put(DBConstants.MESSAGE_ID, convMessage.getMsgID());
+		contentValues.put(DBConstants.IS_STEALTH, StealthModeManager.getInstance().isStealthMsisdn(botInfo.getMsisdn()));
 		contentValues.put(DBConstants.UNREAD_COUNT, 1); // inOrder to show 1+ on conv screen, we need to have some unread counter
 
 		/**
@@ -8179,11 +8180,11 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			botInfo.setLastConversationMsg(convMessage);
 			botInfo.setUnreadCount(1);  // inOrder to show 1+ on conv screen, we need to have some unread counter
 			botInfo.setConvPresent(true); //In Order to indicate the presence of bot in the conv table
-
+			botInfo.setStealth(StealthModeManager.getInstance().isStealthMsisdn(botInfo.getMsisdn()));
 			//If the chat thread already exists and we need only to change the convInfo,we would not want the listeners on new chat created to be fired,like badge counter.
 			if (isChatExist)
 			{
-				HikeMessengerApp.getPubSub().publish(HikePubSub.CONVINFO_UPDATED,botInfo);
+				HikeMessengerApp.getPubSub().publish(HikePubSub.LASTMSG_UPDATED,botInfo.getLastConversationMsg());
 			}
 			else
 			{
@@ -8702,8 +8703,6 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		boolean result = false;
 		try
 		{
-			mDb.beginTransaction();
-
 			long startTime = System.currentTimeMillis();
 
 			String updateStatement = "UPDATE " + DBConstants.MESSAGES_TABLE + " SET " + DBConstants.SORTING_ID + " = " + DBConstants.MESSAGE_ID;
@@ -8714,19 +8713,13 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			analyticsForUpgradeSortId(numRows, timeTaken);
 			Logger.d("HikeConversationsDatabase", " ServerId db upgrade time : " + timeTaken);
 
-			mDb.setTransactionSuccessful();
 			result = true;
 		}
 
 		catch (Exception e)
 		{
 			Logger.e("HikeConversationsDatabase", "Got an exception while upgrading for sorting id field : ", e);
-			e.printStackTrace();
 			result = false;
-		}
-		finally
-		{
-			mDb.endTransaction();
 		}
 
 		return result;

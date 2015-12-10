@@ -23,33 +23,14 @@
             android:src="@drawable/ftue_up_arrow_left" />
 
         <com.bsb.hike.view.CustomFontTextView
-            android:id="@+id/tap_text"
-            style="@style/TipText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:layout_toRightOf="@id/arrow_pointer"
-            android:paddingBottom="22.5dp"
-            android:paddingTop="22.5dp"
-            android:text="@string/tap_text" />
-
-        <ImageView
-            android:id="@+id/hi_icon"
-            android:layout_width="15dp"
-            android:layout_height="15dp"
-            android:layout_marginTop="30dp"
-            android:layout_marginLeft="7dp"
-            android:layout_toRightOf="@id/tap_text"
-            android:src="@drawable/ic_hike_logo_stealth" />
-        
-        <com.bsb.hike.view.CustomFontTextView
             android:id="@+id/tip_text"
             style="@style/TipText"
             android:layout_marginLeft="7dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
-            android:layout_toRightOf="@id/hi_icon"
+            android:layout_toRightOf="@id/arrow_pointer"
+            android:layout_toLeftOf="@id/close_divider"
             android:paddingBottom="22.5dp"
             android:paddingTop="22.5dp"
             android:text="@string/tap_to_hide_stealth_contacts" />
