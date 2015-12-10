@@ -589,7 +589,7 @@ public class CountrySelectActivity extends HikeAppStateBaseFragmentActivity impl
 	@Override
 	public void analyticalData(KPTAddonItem kptAddonItem)
 	{
-		KptUtils.generateKeyboardAnalytics(CountrySelectActivity.this, kptAddonItem);
+		KptUtils.generateKeyboardAnalytics(kptAddonItem);
 	}
 
 	@Override

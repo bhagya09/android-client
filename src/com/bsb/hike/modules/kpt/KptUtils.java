@@ -33,7 +33,7 @@ public class KptUtils
 		
 	}
 	
-	public static void generateKeyboardAnalytics(Activity activity, KPTAddonItem item)
+	public static void generateKeyboardAnalytics(KPTAddonItem item)
 	{
 //		tracking keyboard language change event
 		try
@@ -42,7 +42,7 @@ public class KptUtils
 			metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.KEYBOARD_LANGUAGE_CHANGED_EVENT);
 			metadata.put(HikeConstants.KEYBOARD_LANGUAGE_CHANGE, item.getlocaleName());
 			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
-			Utils.sendLocaleToServer(activity);
+			Utils.sendLocaleToServer();
 		}
 		catch(JSONException e)
 		{

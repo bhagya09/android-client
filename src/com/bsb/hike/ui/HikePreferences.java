@@ -142,7 +142,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
        if (preferences == R.xml.keyboard_settings_preferences && titleRes == R.string.settings_localization || preferences == R.xml.kpt_advanced_preferences
     		   || preferences == R.xml.keyboard_preferences || preferences == R.xml.text_correction_preferences)
 		{
-			kptSettings = KptKeyboardManager.getInstance(getApplicationContext()).getKptSettings();
+			kptSettings = KptKeyboardManager.getInstance().getKptSettings();
 			saveKeyboardPref();
 		}
 
@@ -270,10 +270,10 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		if (kbdLanguagePref != null && kbdLanguagePref instanceof IconPreference)
 		{
 			String summary = new String();
-			ArrayList<KPTAddonItem> langList = KptKeyboardManager.getInstance(HikePreferences.this).getInstalledLanguagesList();
+			ArrayList<KPTAddonItem> langList = KptKeyboardManager.getInstance().getInstalledLanguagesList();
 			for (KPTAddonItem item : langList)
 			{
-				if (KptKeyboardManager.getInstance(HikePreferences.this).getDictionaryLanguageStatus(item) == KptKeyboardManager.LanguageDictionarySatus.INSTALLED_LOADED)
+				if (KptKeyboardManager.getInstance().getDictionaryLanguageStatus(item) == KptKeyboardManager.LanguageDictionarySatus.INSTALLED_LOADED)
 				{
 					summary += item.getDisplayName();
 					summary += ", ";

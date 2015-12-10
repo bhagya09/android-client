@@ -137,22 +137,22 @@ public class HomeFtueActivity extends HikeAppStateBaseFragmentActivity {
                 // download and install language only if custem language selected is not English
                 if (!selectedLocalLanguage.getLocale().equals(LocalLanguage.English.getLocale()))
                 {
-                    KptKeyboardManager.getInstance(HomeFtueActivity.this).setInstallListener(
+                    KptKeyboardManager.getInstance().setInstallListener(
                             new KptKeyboardManager.KptLanguageInstallListener() {
                                 @Override
                                 public void onError(KPTAddonItem item, String message) {
-                                    KptKeyboardManager.getInstance(HomeFtueActivity.this).setInstallListener(null);
+                                    KptKeyboardManager.getInstance().setInstallListener(null);
                                 }
 
                                 @Override
                                 public void onSuccess(KPTAddonItem item) {
                                     // change keyboard to custom keyboard if the language selected is successfully downloaded
                                     HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SYSTEM_KEYBOARD_SELECTED, false);
-                                    KptKeyboardManager.getInstance(HomeFtueActivity.this).setInstallListener(null);
+                                    KptKeyboardManager.getInstance().setInstallListener(null);
                                 }
                             }
                     );
-                    KptKeyboardManager.getInstance(HomeFtueActivity.this).downloadAndInstallLanguage(selectedLocalLanguage.getLocale());
+                    KptKeyboardManager.getInstance().downloadAndInstallLanguage(selectedLocalLanguage.getLocale());
                 }
             }
             showNextFtue();
@@ -189,7 +189,7 @@ public class HomeFtueActivity extends HikeAppStateBaseFragmentActivity {
                                 selectedLocalLanguage = list.get(which);
                                 languageText.setText(selectedLocalLanguage.getDisplayName());
                                 LocalLanguageUtils.setApplicationLocalLanguage(selectedLocalLanguage);
-                                Utils.sendLocaleToServer(HomeFtueActivity.this);
+                                Utils.sendLocaleToServer();
                                 // Relaunching the Activity
                                 IntentFactory.openHomeFtueActivity(HomeFtueActivity.this);
                             }

@@ -61,7 +61,7 @@ public class LocalLanguageUtils {
         HikeMessengerApp.getInstance().setupLocalLanguage();
         StickerManager.getInstance().resetStickerShopLastUpdateTime();
         StickerManager.getInstance().resetSignupUpgradeCallPreference();
-        Utils.sendLocaleToServer(HikeMessengerApp.getInstance());
+        Utils.sendLocaleToServer();
         HikeMessengerApp.getPubSub().publish(HikePubSub.LOCAL_LANGUAGE_CHANGED,lang);
     }
 

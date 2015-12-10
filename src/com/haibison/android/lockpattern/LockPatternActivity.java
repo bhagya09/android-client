@@ -1421,7 +1421,7 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity implem
     @Override
     public void analyticalData(KPTAddonItem kptAddonItem)
     {
-        KptUtils.generateKeyboardAnalytics(LockPatternActivity.this, kptAddonItem);
+        KptUtils.generateKeyboardAnalytics(kptAddonItem);
     }
 
 	@Override

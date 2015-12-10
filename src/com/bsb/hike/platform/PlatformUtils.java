@@ -1475,7 +1475,7 @@ public class PlatformUtils
 		jsonObject.put(HikeConstants.LOCALE, LocalLanguageUtils.getApplicationLocalLanguageLocale());
 		jsonObject.put(HikeConstants.DEVICE_LOCALE, LocalLanguageUtils.getDeviceDefaultLocale());
 		if (!HikeMessengerApp.isSystemKeyboard())
-			jsonObject.put(HikeConstants.CUSTOM_KEYBOARD_LOCALE, KptKeyboardManager.getInstance(HikeMessengerApp.getInstance().getApplicationContext())
+			jsonObject.put(HikeConstants.CUSTOM_KEYBOARD_LOCALE, KptKeyboardManager.getInstance()
 					.getCurrentLanguageAddonItem().getlocaleName());
 
 	}
