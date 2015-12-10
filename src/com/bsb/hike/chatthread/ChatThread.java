@@ -623,11 +623,19 @@ import android.widget.Toast;
 		StickerManager.getInstance().checkAndDownLoadStickerData();
 		mShareablePopupLayout.setCustomKeyBoardHeight((keyboardHeight == 0) ? mCustomKeyboard.getKeyBoardAndCVHeight() : keyboardHeight);
 		mShareablePopupLayout.setCustomKeyBoard(!isSystemKeyboard());
+		// if the localization ftue is not yet done with the download and install(and then change keyboard), dont let it change the keyboard now.
+		// chat thread has its own change keyboard mechanism. External change keyboard calls messes up with chat thread
+		removeLocalisationFtueKeyboardDownloadCallback();
 		if (isSystemKeyboard())
 		{
 			changeKeyboard(isSystemKeyboard());
 		}
 		StickerSearchManager.getInstance().downloadTagsForCurrentLanguage();
+	}
+
+	private void removeLocalisationFtueKeyboardDownloadCallback()
+	{
+		KptKeyboardManager.getInstance(activity).setInstallListener(null);
 	}
 	
 	/**
@@ -880,11 +888,36 @@ import android.widget.Toast;
 			// overflow is common between all, one to one and group
 			MenuItemCompat.getActionView(menu.findItem(R.id.overflow_menu)).setOnClickListener(this);
 			mActionBar.setOverflowViewListener(this);
+			showOverflowMenuIndicatorIfRequired();
 			return true;
 		}
 		return false;
 	}
 
+	private void showOverflowMenuIndicatorIfRequired()
+	{
+		showOverflowMenuKeyboardIndicatorIfRequired();
+	}
+
+	private boolean showOverflowMenuKeyboardIndicatorIfRequired()
+	{
+		// Show keyboard change discoverability option if:
+		// - already the indicator is not in use
+		// - keyboard ftue will not be shown in this session
+		// - it has not been shown before
+		// - if keyboard option is not yet used
+		// - if custom keyboard is enabled in the app
+		if (!mActionBar.isOverflowMenuIndicatorInUse() && !keyboardFtue.isReadyForFTUE()
+				&& !HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CT_OVRFLW_KEYBOARD_INDICATOR_SHOWN, false)
+				&& !HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CT_OVRFLW_KEYBOARD_CLICKED, false)
+				&& HikeMessengerApp.isCustomKeyboardEnabled())
+		{
+			mActionBar.updateOverflowMenuIndicatorImage(R.drawable.ic_red_dot_overflow_key, false);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CT_OVRFLW_KEYBOARD_INDICATOR_SHOWN, true);
+			return true;
+		}
+		return false;
+	}
 	public boolean onPrepareOptionsMenu(Menu menu)
 	{
 		return false;
@@ -937,18 +970,26 @@ import android.widget.Toast;
 				overFlowMenuItem.enabled = !isMessageListEmpty;
 				break;
 			case R.string.hike_keyboard:
+				if (! sharedPreference.getData(HikeConstants.CT_OVRFLW_KEYBOARD_CLICKED, false))
+				{
+					overFlowMenuItem.drawableId = R.drawable.ic_red_dot_overflow_item_key;
+				}
+				else
+				{
+					overFlowMenuItem.drawableId = 0;
+				}
 				overFlowMenuItem.enabled = !mConversation.isBlocked();
 				overFlowMenuItem.text=getString(isSystemKeyboard() ? R.string.hike_keyboard : R.string.system_keyboard);
 				break;
 			case R.string.hide_chat:
-				overFlowMenuItem.text = getString(StealthModeManager.getInstance().isActive() ? 
+				overFlowMenuItem.text = getString(StealthModeManager.getInstance().isActive() ?
 						(mConversation.isStealth() ? R.string.mark_visible : R.string.mark_hidden)
 						: R.string.hide_chat);
 				break;
 			}
 		}
 	}
-	
+
 	protected boolean isMessageListEmpty()
 	{
 		boolean isMessageListEmpty = messages.isEmpty();
@@ -1027,7 +1068,7 @@ import android.widget.Toast;
 			if (data != null)
 			{
 				ArrayList<ApplicationInfo> results = data.getParcelableArrayListExtra(OfflineConstants.APK_SELECTION_RESULTS);
-				
+
 				for(ApplicationInfo apk: results)
 				{
 					String filePath = apk.sourceDir;
@@ -1051,6 +1092,10 @@ import android.widget.Toast;
 		{
 		case R.string.hike_keyboard:
 			changeKbdClicked = true;
+			if (!sharedPreference.getData(HikeConstants.CT_OVRFLW_KEYBOARD_CLICKED, false))
+			{
+				sharedPreference.saveData(HikeConstants.CT_OVRFLW_KEYBOARD_CLICKED, true);
+			}
 			recordKeyboardChangeEvent(item,isSystemKeyboard());
 			if (isSystemKeyboard() && isKeyboardOpen())
 			{
@@ -1077,19 +1122,19 @@ import android.widget.Toast;
 			break;
 		case R.string.hide_chat:
 			StealthModeManager.getInstance().toggleConversation(msisdn, !mConversation.isStealth(), activity);
-			//exiting chat thread 
+			//exiting chat thread
 			if(!StealthModeManager.getInstance().isActive())
 			{
 				activity.closeChatThread(msisdn);
 			}
-			
+
 			break;
 		default:
 			break;
 		}
 		recordOverflowItemClicked(item);
 	}
-	
+
 	/*
 	 #test code
 	 */
@@ -1106,7 +1151,7 @@ import android.widget.Toast;
 					ConvMessage convMessage = Utils.makeConvMessage(msisdn, "Message No. " + i, mConversation.isOnHike());
 					HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_SENT, convMessage);
 					try
-					{							
+					{
 						Thread.sleep(20);
 					}
 					catch (InterruptedException e)
@@ -1116,7 +1161,7 @@ import android.widget.Toast;
 				}
 				return null;
 			}
-			
+
 		};
 		Utils.executeAsyncTask(automateMessages);
 	}
@@ -1646,8 +1691,13 @@ import android.widget.Toast;
 
 	public boolean onBackPressed()
 	{
+		boolean backPressedConsumed = false;
 		mShareablePopupLayout.onBackPressed();
-		removeKeyboardFtueIfShowing();
+
+		// check if back pressed can be consumed by keyboardftue. Its not supposed to return from here as other objects are also using it.
+		// Prospect: there can be more requirements where you need share this callback with others instead of consuming it alone.
+		// Ex boolean backConsumedByXyzPopup.
+		boolean backConsumedByKeyboardFtue = removeKeyboardFtueIfShowing();
 
 		if(handleImageFragmentBackPressed()){
 			return true;
@@ -1682,7 +1732,10 @@ import android.widget.Toast;
 			return true;
 		}
 
-		return false;
+		// there can be an 'OR' among all the backConsumptions.
+		// Ex: backPressedConsumed = (backConsumedByKeyboardFtue || backConsumedByXyzPopup)
+		backPressedConsumed = backConsumedByKeyboardFtue;
+		return backPressedConsumed;
 	}
 
 	private boolean handleImageFragmentBackPressed(){
@@ -3692,10 +3745,14 @@ import android.widget.Toast;
 		currentFirstVisibleItem = firstVisibleItem;
 	}
 
-	protected void removeKeyboardFtueIfShowing()
+	protected boolean removeKeyboardFtueIfShowing()
 	{
 		if (keyboardFtue!=null && keyboardFtue.isShowing())
+		{
 			keyboardFtue.destroy();
+			return true;
+		}
+		return false;
 	}
 
 	private void showKeyboardFtueIfReady()
