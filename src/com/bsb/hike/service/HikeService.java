@@ -618,6 +618,7 @@ public class HikeService extends Service
 						}
 					}
 					editor.commit();
+					Logger.d("HTTP", "Successfully updated account. response:" + response);
 				}
 
 				@Override
