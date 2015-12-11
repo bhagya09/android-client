@@ -906,7 +906,7 @@
     <string name="stealth_notification_settings">सूचना सेटिंग्स</string>
     <string name="stealth_reset_settings">अतिरिक्त सेटिंग्स</string>
     <string name="enable_stealth_indicator">संकेतक</string>
-    <string name="enable_stealth_indicator_body">अपठित संदेशों के लिए होम स्क्रीन पर \'hi\' लोगो पर टैप करें</string>
+    <string name="enable_stealth_indicator_body">अपठित संदेशों के लिए होम स्क्रीन पर \'hi\' लोगो को बाउंस करें</string>
     <string name="enable_stealth_notification_body">छुपी हुई चैट में संदेश प्राप्त होने पर सूचित करें</string>
     <string name="enable_stealth_notification">सूचना</string>
     <string name="stealth_msg_draw_an_unlock_pattern">नया पासकोड पैटर्न बनाएँ</string>
@@ -1256,7 +1256,7 @@
     <string name="CHOOSE_LANGUAGE">भाषा चुनें</string>
 	<string name="apply">लागू करें</string>
     <string name="keyboad_ftue_swipe">अपनी भाषाओं के बीच बदलने के लिए स्वाइप करें</string>
-    <string name="setting_up_keyboard">कीबोर्ड सेट करना</string>
+    <string name="setting_up_keyboard">कीबोर्ड सेट हो रहा है</string>
 	<string name="close_gps">अब आप बैटरी बचाने के लिए अपने स्थान को बंद कर सकते हैं। आपका Hike डायरेक्ट कनेक्शन प्रभावित नहीं होगा।</string>
 	<string name="gps_not_on">क्षमा करें जीपीएस चालू नहीं होने पर hike डायरेक्ट काम नहीं करेगा</string>
 	<string name="switch_on_gps">कृपया Hike डायरेक्ट के चलने के लिए स्थान को सक्षम करें। </string>
