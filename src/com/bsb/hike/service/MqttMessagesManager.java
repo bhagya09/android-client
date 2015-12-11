@@ -2716,19 +2716,16 @@ public class MqttMessagesManager
 		}
 		if (data.has(HikeConstants.LOCALIZATION_ENABLED))
 		{
-			boolean localizationEnabled = data.optBoolean(HikeConstants.LOCALIZATION_ENABLED);
-			if (!localizationEnabled)
-				LocalLanguageUtils.setApplicationLocalLanguage(LocalLanguage.PhoneLangauge);
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.LOCALIZATION_ENABLED, localizationEnabled);
+			Utils.setLocalizationEnable(data.optBoolean(HikeConstants.LOCALIZATION_ENABLED));
 		}
 		if (data.has(HikeConstants.AUTOCORRECT_KEYBOARD_ENABLED))
 		{
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.AUTOCORRECT_KEYBOARD_ENABLED, data.optBoolean(HikeConstants.AUTOCORRECT_KEYBOARD_ENABLED));
-			KptKeyboardManager.getInstance(HikeMessengerApp.getInstance().getApplicationContext()).getKptSettings().setAutoCorrectionState(data.optBoolean(HikeConstants.AUTOCORRECT_KEYBOARD_ENABLED) ? 0: 1);
+			KptKeyboardManager.getInstance().getKptSettings().setAutoCorrectionState(data.optBoolean(HikeConstants.AUTOCORRECT_KEYBOARD_ENABLED) ? 0: 1);
 		}
 		if (data.has(HikeConstants.CUSTOM_KEYBOARD_ENABLED))
 		{
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CUSTOM_KEYBOARD_ENABLED,data.optBoolean(HikeConstants.CUSTOM_KEYBOARD_ENABLED));
+			Utils.setCustomKeyboardEnable(data.optBoolean(HikeConstants.CUSTOM_KEYBOARD_ENABLED));
 		}
         if (data.has(HikeConstants.HTTP_NETWORK_CHECK_CALL))
         {
@@ -3510,7 +3507,7 @@ public class MqttMessagesManager
 			if (lastNotifPacket != hash)
 			{
 				lastNotifPacket = hash;
-				String body = data.optString(HikeConstants.BODY);
+				String body = PlatformUtils.getNotifBody(data);
 				String destination = data.optString("u");
 				boolean silent = data.optBoolean(HikeConstants.SILENT, true);
 				boolean rearrangeChat = data.optBoolean(HikeConstants.REARRANGE_CHAT,false);

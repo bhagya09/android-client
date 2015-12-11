@@ -1475,8 +1475,29 @@ public class PlatformUtils
 		jsonObject.put(HikeConstants.LOCALE, LocalLanguageUtils.getApplicationLocalLanguageLocale());
 		jsonObject.put(HikeConstants.DEVICE_LOCALE, LocalLanguageUtils.getDeviceDefaultLocale());
 		if (!HikeMessengerApp.isSystemKeyboard())
-			jsonObject.put(HikeConstants.CUSTOM_KEYBOARD_LOCALE, KptKeyboardManager.getInstance(HikeMessengerApp.getInstance().getApplicationContext())
+			jsonObject.put(HikeConstants.CUSTOM_KEYBOARD_LOCALE, KptKeyboardManager.getInstance()
 					.getCurrentLanguageAddonItem().getlocaleName());
 
+	}
+
+	public static String getNotifBody(JSONObject jsonObj)
+	{
+		if (jsonObj.has(HikeConstants.LANG_ARRAY))
+		{
+			try
+			{
+				JSONObject langJSON = Utils.getDataBasedOnAppLanguage(jsonObj.getJSONArray(HikeConstants.LANG_ARRAY).toString());
+				if (langJSON != null)
+				{
+					return langJSON.optString(HikeConstants.BODY);
+				}
+			}
+			catch (JSONException e)
+			{
+				e.printStackTrace();
+			}
+		}
+
+		return jsonObj.optString(HikeConstants.BODY);
 	}
 }

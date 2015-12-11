@@ -95,14 +95,14 @@ public class KptKeyboardManager implements AdaptxtSettingsRegisterListener
 		Logger.d(TAG,"Initialization complete.");
 	}
 
-	public static KptKeyboardManager getInstance(Context context)
+	public static KptKeyboardManager getInstance()
 	{
 		if (_instance == null)
 		{
 			synchronized (KptKeyboardManager.class)
 			{
 				if (_instance == null)
-					_instance = new KptKeyboardManager(context.getApplicationContext());
+					_instance = new KptKeyboardManager(HikeMessengerApp.getInstance().getApplicationContext());
 			}
 		}
 		return _instance;
@@ -416,6 +416,7 @@ public class KptKeyboardManager implements AdaptxtSettingsRegisterListener
 		Logger.d(TAG,"coreEngineStatus callback: " + status);
 		kptCoreEngineStatus = status;
 		fetchKptLanguagesAndUpdate();
+		StickerLanguagesManager.getInstance().addKptSupportedLanguages();
 	}
 
 	@Override

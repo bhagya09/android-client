@@ -192,6 +192,11 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 			jsonObject.put(HikePlatformConstants.BOT_VERSION, mBotInfo.getVersion());
 			jsonObject.put(HikePlatformConstants.ASSOCIATE_MAPP,botMetadata.getAsocmapp());
 
+			if (!TextUtils.isEmpty(extraData))
+			{
+				jsonObject.put(HikePlatformConstants.EXTRA_DATA, extraData);
+			}
+
 			PlatformUtils.addLocaleToInitJSON(jsonObject);
 
 			mWebView.loadUrl("javascript:init('"+getEncodedDataForJS(jsonObject.toString())+"')");
