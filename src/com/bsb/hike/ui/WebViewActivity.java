@@ -496,7 +496,6 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	protected void onDestroy()
 	{
 		HikeMessengerApp.getPubSub().removeListeners(this, pubsub);
-		msisdn=null;
 		if(webView!=null)
 		{
 			webView.onActivityDestroyed();
@@ -1061,7 +1060,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		intent.putExtra(FULL_SCREEN_AB_COLOR, color == -1 ? botConfig.getActionBarColor() : color);
 		int sb_color = botConfig.getSecondaryStatusBarColor();
 		intent.putExtra(FULL_SCREEN_SB_COLOR, sb_color == -1 ? botConfig.getStatusBarColor() : sb_color);
-		if (this.msisdn != null)
+		if (!TextUtils.isEmpty(msisdn))
 		{
 			intent.putExtra(CALLING_MSISDN, msisdn);
 		}
