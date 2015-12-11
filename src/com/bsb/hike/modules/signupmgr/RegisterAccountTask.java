@@ -96,7 +96,7 @@ public class RegisterAccountTask
 					Utils.setCustomKeyboardEnable(response.optBoolean(HikeConstants.CUSTOM_KEYBOARD_ENABLED));
 				}
 
-				Logger.d("HTTP", "Successfully created account token:" + token + "msisdn: " + msisdn + " uid: " + uid + "backup_token: " + backupToken);
+				Logger.d("HTTP", "Successfully created account. response:" + response);
 
 				resultAccountInfo = new AccountInfo.Builder()
 						.setToken(token)
