@@ -214,9 +214,9 @@ public class ClientOptions
 
 		private ConnectionPool connectionPool;
 
-		private boolean followSslRedirects;
+		private boolean followSslRedirects = true;
 
-		private boolean followRedirects;
+		private boolean followRedirects = true;
 
 		private Dispatcher dispatcher;
 

@@ -32,7 +32,7 @@
         	android:layout_marginRight="7dp"
         	android:layout_alignParentTop="true"
         	android:layout_centerHorizontal="true"
-        	android:text="This is the timestamp"
+        	android:text="@string/timestamp_msg"
         	android:textSize="12sp"
         	android:textColor="@color/list_item_header"
         	android:textStyle="bold|italic" />
@@ -195,7 +195,7 @@
 	                    android:layout_marginTop="17dp"
 	                    android:gravity="center"
 	                    android:singleLine="true"
-	                    android:text=".pdf"
+	                    android:text="@string/pdf"
 	                    android:textColor="@color/white"
 	                    android:textSize="15sp"
 	                    android:textStyle="bold"

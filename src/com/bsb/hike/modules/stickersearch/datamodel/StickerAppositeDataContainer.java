@@ -46,14 +46,14 @@ public class StickerAppositeDataContainer implements Comparable<StickerAppositeD
 
 	private float mRecommendationScore;
 
-	private ArrayList<Float> mFrequencies;
+	private ArrayList<Float> mOverallFrequencies;
 
 	public StickerAppositeDataContainer(String stickerCode, String tag, String overallFrequencyFunction, int exactMatchOrder, int momentCode, int stickerAvailability)
 	{
 		mStickerCode = stickerCode;
 		mTag = tag;
 		mOverallFrequencyFunction = overallFrequencyFunction;
-		mFrequencies = StickerSearchUtility.getIndividualNumericValues(mOverallFrequencyFunction, StickerSearchConstants.FREQUENCY_DIVISION_SLOT_PER_STICKER_COUNT, Float.class);
+		mOverallFrequencies = StickerSearchUtility.getIndividualNumericValues(mOverallFrequencyFunction, StickerSearchConstants.FREQUENCY_DIVISION_SLOT_PER_STICKER_COUNT, Float.class);
 		mExactMatchOrder = exactMatchOrder;
 		mMomentCode = momentCode;
 		mStickerAvailability = stickerAvailability;
@@ -139,9 +139,9 @@ public class StickerAppositeDataContainer implements Comparable<StickerAppositeD
 
 	public float getTrendingFrequency()
 	{
-		if (mFrequencies.size() > StickerSearchConstants.FREQUENCY_DIVISION_SLOT_PER_STICKER_TRENDING)
+		if (mOverallFrequencies.size() > StickerSearchConstants.FREQUENCY_DIVISION_SLOT_PER_STICKER_TRENDING)
 		{
-			return mFrequencies.get(StickerSearchConstants.FREQUENCY_DIVISION_SLOT_PER_STICKER_TRENDING);
+			return mOverallFrequencies.get(StickerSearchConstants.FREQUENCY_DIVISION_SLOT_PER_STICKER_TRENDING);
 		}
 		else
 		{
@@ -151,9 +151,9 @@ public class StickerAppositeDataContainer implements Comparable<StickerAppositeD
 
 	public float getLocalFrequency()
 	{
-		if (mFrequencies.size() > StickerSearchConstants.FREQUENCY_DIVISION_SLOT_PER_STICKER_LOCAL)
+		if (mOverallFrequencies.size() > StickerSearchConstants.FREQUENCY_DIVISION_SLOT_PER_STICKER_LOCAL)
 		{
-			return mFrequencies.get(StickerSearchConstants.FREQUENCY_DIVISION_SLOT_PER_STICKER_LOCAL);
+			return mOverallFrequencies.get(StickerSearchConstants.FREQUENCY_DIVISION_SLOT_PER_STICKER_LOCAL);
 		}
 		else
 		{
@@ -163,9 +163,9 @@ public class StickerAppositeDataContainer implements Comparable<StickerAppositeD
 
 	public float getGlobalFrequency()
 	{
-		if (mFrequencies.size() > StickerSearchConstants.FREQUENCY_DIVISION_SLOT_PER_STICKER_GLOBAL)
+		if (mOverallFrequencies.size() > StickerSearchConstants.FREQUENCY_DIVISION_SLOT_PER_STICKER_GLOBAL)
 		{
-			return mFrequencies.get(StickerSearchConstants.FREQUENCY_DIVISION_SLOT_PER_STICKER_GLOBAL);
+			return mOverallFrequencies.get(StickerSearchConstants.FREQUENCY_DIVISION_SLOT_PER_STICKER_GLOBAL);
 		}
 		else
 		{
@@ -222,7 +222,7 @@ public class StickerAppositeDataContainer implements Comparable<StickerAppositeD
 		result = prime * result + ((mTag == null) ? 0 : mTag.hashCode());
 		result = prime * result + ((mStickerCode == null) ? 0 : mStickerCode.hashCode());
 		result = prime * result + ((mFestivals == null) ? 0 : mFestivals.hashCode());
-		result = prime * result + ((mFrequencies == null) ? 0 : mFrequencies.hashCode());
+		result = prime * result + ((mOverallFrequencies == null) ? 0 : mOverallFrequencies.hashCode());
 		result = prime * result + ((mLanguageFunction == null) ? 0 : mLanguageFunction.hashCode());
 		result = prime * result + ((mOverallFrequencyFunction == null) ? 0 : mOverallFrequencyFunction.hashCode());
 		result = prime * result + ((mStateFunction == null) ? 0 : mStateFunction.hashCode());
@@ -255,7 +255,7 @@ public class StickerAppositeDataContainer implements Comparable<StickerAppositeD
 		StickerAppositeDataContainer other = (StickerAppositeDataContainer) obj;
 
 		/* Compare in order of raw data types to derived data types i.e. comparison must be done earlier for those data types, which takes low comparison-processing time */
-		/* Like order cab be: Numeric types ---> Strings ---> Collections of numeric values ---> Collections of Strings or, derived classes */
+		/* Like order can be: Numeric types ---> Strings ---> Collections of numeric values ---> Collections of Strings or, derived classes and so on */
 		if (mAge != other.mAge)
 		{
 			return false;
@@ -312,14 +312,14 @@ public class StickerAppositeDataContainer implements Comparable<StickerAppositeD
 			return false;
 		}
 
-		if (mFrequencies == null)
+		if (mOverallFrequencies == null)
 		{
-			if (other.mFrequencies != null)
+			if (other.mOverallFrequencies != null)
 			{
 				return false;
 			}
 		}
-		else if (!mFrequencies.equals(other.mFrequencies))
+		else if (!mOverallFrequencies.equals(other.mOverallFrequencies))
 		{
 			return false;
 		}

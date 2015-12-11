@@ -18,7 +18,7 @@ import com.google.gson.annotations.Expose;
 public class OfflineParameters
 {
 	@Expose
-	boolean feature = false;
+	boolean feature = true;
 
 	@Expose
 	int gtto = 20000;  // 20 sec
@@ -27,7 +27,7 @@ public class OfflineParameters
 	int scrto = 60000*2; //2 min
 	
 	@Expose
-	int connto = 60000; //1 min 
+	int connto = 90000; //1.5 min 
 	
 	@Expose
 	int portno = OfflineConstants.PORT_PING;

@@ -126,6 +126,7 @@ import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.TrafficsStatsFile;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
+import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.chatHead.StickyCaller;
 import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.chatthread.ChatThreadUtils;
@@ -136,6 +137,7 @@ import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.filetransfer.FTAnalyticEvents;
 import com.bsb.hike.http.HikeHttpRequest;
+import com.bsb.hike.localisation.LocalLanguageUtils;
 import com.bsb.hike.models.AccountData;
 import com.bsb.hike.models.AccountInfo;
 import com.bsb.hike.models.ContactInfo;
@@ -162,6 +164,7 @@ import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
+import com.bsb.hike.modules.kpt.KptKeyboardManager;
 import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.platform.HikePlatformConstants;
@@ -356,7 +359,7 @@ public class Utils
 	{
 		Intent intent = new Intent(Intent.ACTION_CALL);
 		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-		intent.setData(Uri.parse("tel:"+ number));
+		intent.setData(Uri.parse("tel:" + number));
 		try
 		{
 			HikeMessengerApp.getInstance().startActivity(intent);
@@ -984,11 +987,11 @@ public class Utils
 			JSONObject participant2 = (JSONObject) participantInfoArray.opt(1);
 			String name2 = convInfo.getConvParticipantName(participant2.optString(HikeConstants.MSISDN));
 
-			highlight += " and " + name2;
+			highlight += " " + context.getString(R.string.and)  + " "+ name2;
 		}
 		else if (participantInfoArray.length() > 2)
 		{
-			highlight += " and " + (participantInfoArray.length() - 1) + " others";
+			highlight += " " + context.getString(R.string.and) + " " + (participantInfoArray.length() - 1) + " " + context.getString(R.string.others_smallcase);
 		}
 		return highlight;
 	}
@@ -1007,11 +1010,11 @@ public class Utils
 			JSONObject participant2 = (JSONObject) participantInfoArray.opt(1);
 			String name2 = conversation.getConvParticipantFirstNameAndSurname(participant2.optString(HikeConstants.MSISDN));
 
-			highlight += " and " + name2;
+			highlight += " " + context.getString(R.string.and)  + " "+ name2;
 		}
 		else if (participantInfoArray.length() > 2)
 		{
-			highlight += " and " + (participantInfoArray.length() - 1) + " others";
+			highlight += " " + context.getString(R.string.and) + " " + (participantInfoArray.length() - 1) + " " + context.getString(R.string.others_smallcase);
 		}
 		return highlight;
 	}
@@ -2058,7 +2061,7 @@ public class Utils
 		
 		int convMessageStateOrdinal = convMessage.getState().ordinal();
 
-		Logger.d("BugRef","Ordinal state of our ConvMessage is "+convMessageStateOrdinal);
+		Logger.d("BugRef", "Ordinal state of our ConvMessage is " + convMessageStateOrdinal);
 		if (convMessageStateOrdinal <= maxStatusOrdinal && convMessageStateOrdinal >= minStatusOrdinal)
 		{
 			return true;
@@ -2979,24 +2982,32 @@ public class Utils
 
 	public static void sendLocaleToServer(Context context)
 	{
-		JSONObject object = new JSONObject();
-		JSONObject data = new JSONObject();
+		try {
+			JSONObject mqttLanguageAnalytic = new JSONObject();
 
-		try
-		{
-			data.put(HikeConstants.LOCALE, context.getResources().getConfiguration().locale.getLanguage());
-			data.put(HikeConstants.MESSAGE_ID, Long.toString(System.currentTimeMillis() / 1000));
+			JSONObject data = new JSONObject();
 
-			object.put(HikeConstants.TYPE, HikeConstants.MqttMessageTypes.ACCOUNT_CONFIG);
-			object.put(HikeConstants.DATA, data);
+			data.put(HikeConstants.PHONE_LANGUAGE, LocalLanguageUtils.getDeviceDefaultLocale());
+			//Getting APP Language
+			String appLocale = LocalLanguageUtils.getApplicationLocalLanguageLocale();
 
-			HikeMqttManagerNew.getInstance().sendMessage(object, MqttConstants.MQTT_QOS_ONE);
-		}
-		catch (JSONException e)
-		{
-			Logger.w("Locale", "Invalid JSON", e);
+			data.put(HikeConstants.APP_LANGUAGE, appLocale);
+			String keyBoardLang;
+			if (!HikeMessengerApp.isSystemKeyboard())
+				keyBoardLang = KptKeyboardManager.getInstance(context).getCurrentLanguageAddonItem().getlocaleName();
+			else
+				keyBoardLang = "";
+			data.put(HikeConstants.KEYBOARD_LANGUAGE, keyBoardLang);
+			mqttLanguageAnalytic.put(HikeConstants.DATA,data);
+			mqttLanguageAnalytic.put(HikeConstants.TYPE,HikeConstants.MqttMessageTypes.ACCOUNT_CONFIG);
+			HikeMqttManagerNew.getInstance().sendMessage(mqttLanguageAnalytic, MqttConstants.MQTT_QOS_ONE);
+
+
+		}catch (JSONException e){
+
 		}
 	}
+
 
 	public static void setReceiveSmsSetting(Context context, boolean value)
 	{
@@ -4690,9 +4701,43 @@ public class Utils
 		{
 			RunningAppProcessInfo info = i.next();
 
-			if (info.uid == context.getApplicationInfo().uid && info.importance == RunningAppProcessInfo.IMPORTANCE_FOREGROUND)
+			if (info.uid == context.getApplicationInfo().uid && info.importance == RunningAppProcessInfo.IMPORTANCE_FOREGROUND && info.importanceReasonCode == 0)
 			{
-				return true;
+				
+				Field field = null;
+				try
+				{
+					field = RunningAppProcessInfo.class.getDeclaredField("processState");
+				}
+				catch (NoSuchFieldException e)
+				{
+					Logger.d(ChatHeadUtils.class.getSimpleName(), "processState field not found");
+					return true;
+				}
+
+				if(field != null) {
+
+					Integer state = null;
+					try
+					{
+						state = field.getInt(info);
+					}
+					catch (IllegalAccessException e)
+					{
+						Logger.d(ChatHeadUtils.class.getSimpleName(), "illegal access of processState" );
+						return true;
+					}
+					catch (IllegalArgumentException e)
+					{
+						Logger.d(ChatHeadUtils.class.getSimpleName(), "illegal argument of processState");
+						return true;
+					}
+					// its a hidden api and no value is defined
+					if (state != null && state == ChatHeadUtils.PROCESS_STATE_TOP)
+					{
+						return true;
+					}
+				}
 			}
 		}
 		return false;
@@ -5461,12 +5506,12 @@ public class Utils
 				else if (givenCalendar.get(Calendar.YEAR) == currentCalendar.get(Calendar.YEAR))
 				{
 					// Show date in relative format. eg. 2 hours ago, yesterday, 2 days ago etc.
-					return DateUtils.getRelativeTimeSpanString(givenTimeStampInMillis, currentTime, DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_ABBREV_MONTH).toString();
+					return HikeDateUtils.getRelativeTimeSpanString(context, givenTimeStampInMillis, currentTime, DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_ABBREV_MONTH).toString();
 				}
 				else
 				{
 					// Shows date in numeric format
-					return DateUtils.getRelativeTimeSpanString(givenTimeStampInMillis, currentTime, DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_NUMERIC_DATE).toString();
+					return HikeDateUtils.getRelativeTimeSpanString(context, givenTimeStampInMillis, currentTime, DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_NUMERIC_DATE).toString();
 				}
 			}
 			else
@@ -5481,14 +5526,14 @@ public class Utils
 					else
 					{
 						// Show date in MMM dd format eg. Apr 21, May 13 etc.
-						return DateUtils.getRelativeTimeSpanString(givenTimeStampInMillis, currentTime, DateUtils.YEAR_IN_MILLIS,
+						return HikeDateUtils.getRelativeTimeSpanString(context, givenTimeStampInMillis, currentTime, DateUtils.YEAR_IN_MILLIS,
 								DateUtils.FORMAT_ABBREV_MONTH | DateUtils.FORMAT_SHOW_DATE).toString();
 					}
 				}
 				else
 				{
 					// Show date in numeric format
-					return DateUtils.getRelativeTimeSpanString(givenTimeStampInMillis, currentTime, DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_NUMERIC_DATE).toString();
+					return HikeDateUtils.getRelativeTimeSpanString(context, givenTimeStampInMillis, currentTime, DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_NUMERIC_DATE).toString();
 				}
 			}
 		}
@@ -5854,7 +5899,7 @@ public class Utils
 		}
 	}
 
-	private static void sendDeviceDetails(Context context, boolean upgrade, boolean sendBot)
+	public static void sendDeviceDetails(Context context, boolean upgrade, boolean sendBot)
 	{
 		recordDeviceDetails(context);
 		requestAccountInfo(upgrade, sendBot);
@@ -5881,12 +5926,19 @@ public class Utils
 	/**
 	 * Get time in millisecond from given time-stamp represented in format HH:mm:ss.SSS
 	 * 
-	 * @param Calendar
-	 *            calendar instance to be checked
+	 * @param calendar
+	 *            Instance of calendar to be checked
 	 * @param timeStamp
-	 *            time-stamp to be parsed
-	 * @param default_ii
-	 *            time elements like hour, minute, second and millisecond
+	 *            Parseable time-stamp as string value
+	 * @param default_hh
+	 *            Default hour element as integer value
+	 * @param default_mm
+	 *            Default minute element as integer value
+	 * @param default_ss
+	 *            Default second element as integer value
+	 * @param default_SSS
+	 *            Default element milliSecond element as integer value
+	 * @return System-level clock value represented by long value.
 	 * @author Ved Prakash Singh [ved@hike.in]
 	 */
 	public static long getTimeInMillis(Calendar calendar, String timeStamp, int default_hh, int default_mm, int default_ss, int default_SSS)
@@ -7062,8 +7114,6 @@ public class Utils
 	/**
 	 * Determine whether supplied module is being tested.
 	 *
-	 * @param String
-	 *            module name to be simulated
 	 * @param moduleName
 	 *            String name of the module being analysed
 	 * @return True, if test mode is enabled for given module. False, otherwise.
@@ -7157,12 +7207,6 @@ public class Utils
 	}
 
 	/**
-	 * Determine whether a table exists.
-	 * 
-	 * @param SQLiteDatabase
-	 *            instance of databse containing such table
-	 * @param String
-	 *            table name to be checked
 	 * Determine whether databse recognized by given instance contains given table or not.
 	 * 
 	 * @param db
@@ -7252,21 +7296,38 @@ public class Utils
 		}
 	}
 	
-	public static String getAppVersion()
+	public static String getAppVersionName()
 	{
-		String appVersion = "";
+		String appVersionName = "";
 		try
 		{
-			appVersion = HikeMessengerApp.getInstance().getApplicationContext().getPackageManager()
+			appVersionName = HikeMessengerApp.getInstance().getApplicationContext().getPackageManager()
 					.getPackageInfo(HikeMessengerApp.getInstance().getApplicationContext().getPackageName(), 0).versionName;
 		}
 		catch (NameNotFoundException e)
 		{
 			e.printStackTrace();
 		}
-		return appVersion;
+
+		return appVersionName;
 	}
-	
+
+	public static int getAppVersionCode()
+	{
+		int appVersionCode = Integer.MIN_VALUE;
+		try
+		{
+			appVersionCode = HikeMessengerApp.getInstance().getApplicationContext().getPackageManager()
+					.getPackageInfo(HikeMessengerApp.getInstance().getApplicationContext().getPackageName(), 0).versionCode;
+		}
+		catch (NameNotFoundException e)
+		{
+			e.printStackTrace();
+		}
+
+		return appVersionCode;
+	}
+
 	public static boolean showContactsUpdates(ContactInfo contactInfo)
 	{
 		return ((contactInfo.getFavoriteType() == FavoriteType.FRIEND) || (contactInfo.getFavoriteType() == FavoriteType.REQUEST_RECEIVED) || (contactInfo.getFavoriteType() == FavoriteType.REQUEST_RECEIVED_REJECTED)) && (contactInfo.isOnhike());
@@ -7433,8 +7494,15 @@ public class Utils
 	/**
 	 * Determine whether a time-stamp represents correct clock time of a day.
 	 * 
-	 * @param HH_mm_ss_SSS
-	 *            time elements of the day
+	 * @param HH
+	 *            Hour element of the day
+	 * @param mm
+	 *            Minute element of the day
+	 * @param ss
+	 *            Second element of the day
+	 * @param SSS
+	 *            MilliSecond element of the day
+	 * @return True, if given combination represents valid time of the day in 24 hours format. False, otherwise.
 	 * @author Ved Prakash Singh [ved@hike.in]
 	 */
 	public static boolean isValidTimeStampOfTheDay(int HH, int mm, int ss, int SSS)
@@ -7466,11 +7534,11 @@ public class Utils
 	 * Get differential time logging upto nano second considering maximum significant time unit reference as second.
 	 * 
 	 * @param start
-	 *            start time of operation as long value
+	 *            Start time of operation as long value
 	 * @param end
-	 *            end time of operation as long value
+	 *            End time of operation as long value
 	 * @param precisionOfTimeUnitInSecond
-	 *            count of precision points in time unit per second for start and end parameters
+	 *            Count of precision points in time unit per second for start and end parameters
 	 * @return Human-readable string of time logging.
 	 * @author Ved Prakash Singh [ved@hike.in]
 	 */
@@ -7613,7 +7681,6 @@ public class Utils
 		}
 	}
 
-
 	public static boolean isLocationEnabled(Context context)
 	{
 		LocationManager locManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
@@ -7681,4 +7748,63 @@ public class Utils
         return result.toString();
     }
 
+	public static void setEditTextCursorDrawableColor(EditText editText, int drawables)
+	{
+		// http://stackoverflow.com/questions/11554078/set-textcursordrawable-programatically
+		try
+		{
+			Field fCursorDrawableRes = TextView.class.getDeclaredField("mCursorDrawableRes");
+			fCursorDrawableRes.setAccessible(true);
+			fCursorDrawableRes.set(editText, drawables);
+		}
+		catch (Throwable ignored)
+		{
+
+		}
+	}
+
+	public static Locale getCurrentLanguageLocale()
+	{
+		if (LocalLanguageUtils.isLocalLanguageSelected())
+		{
+			return new Locale(LocalLanguageUtils.getApplicationLocalLanguageLocale());
+		}
+		else
+		{
+			return Locale.getDefault();
+		}
+	}
+
+	public static JSONObject getDataBasedOnAppLanguage(String json){
+
+		if (TextUtils.isEmpty(json)) {
+			return null;
+		}
+		try {
+
+
+			JSONArray array = new JSONArray(json);
+
+			if (array == null || array.length() <= 0) {
+				return null;
+			}
+
+			String deviceLocale = LocalLanguageUtils.getApplicationLocalLanguageLocale();
+
+			JSONObject data = null;
+
+			for (int i = 0; i < array.length(); i++) {
+				data = array.getJSONObject(i);
+
+				if (data.optString(HikeConstants.LANGUAGE).equalsIgnoreCase(deviceLocale)) {
+					return data.getJSONObject(HikeConstants.DATA);
+				}
+			}
+		}
+		catch(JSONException e)
+		{
+			Logger.e("productpopup","JSON Exception in JSON Array language");
+		}
+		return null;
+	}
 }

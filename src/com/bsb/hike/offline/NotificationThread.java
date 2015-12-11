@@ -112,7 +112,7 @@ public class NotificationThread implements Runnable
 
 		String durationString = (time == 0) ? "" : String.format(Locale.getDefault(), " (%02d:%02d)", (time / 60), (time % 60));
 
-		String text = "Awaiting Response " + durationString;
+		String text = context.getResources().getString(R.string.awaiting_response) + " " + durationString;
 
 		if (TextUtils.isEmpty(contactFirstName))
 		{

@@ -1,19 +1,26 @@
 package com.bsb.hike.modules.stickersearch;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import android.content.Context;
 import android.util.Pair;
+import android.view.inputmethod.InputMethodManager;
+import android.view.inputmethod.InputMethodSubtype;
 import android.widget.TextView;
 
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.models.Sticker;
+import com.bsb.hike.modules.kpt.KptKeyboardManager;
+import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
 public class StickerSearchUtils
 {
+	public static final String TAG = StickerSearchUtils.class.getSimpleName();
+
 	// http://stackoverflow.com/questions/11601139/determining-which-word-is-clicked-in-an-android-textview
 	public static int getOffsetForPosition(TextView textView, float x, float y)
 	{
@@ -102,5 +109,34 @@ public class StickerSearchUtils
 		}
 
 		return resultList;
+	}
+
+    /***
+     * @return current keyboard language in ISO 639-2/T format
+     */
+	public static String getCurrentLanguageISOCode()
+	{
+		if (!HikeMessengerApp.isSystemKeyboard())
+		{
+			return new Locale(KptKeyboardManager.getInstance(HikeMessengerApp.getInstance()).getCurrentLanguageAddonItem().getlocaleName()).getISO3Language();
+		}
+
+		try
+		{
+			InputMethodSubtype inputMethodSubtype = ((InputMethodManager) HikeMessengerApp.getInstance().getSystemService(Context.INPUT_METHOD_SERVICE))
+					.getCurrentInputMethodSubtype();
+
+			Locale currentLocale = new Locale(inputMethodSubtype.getLocale());
+
+			Logger.d(TAG, "Current language is " + currentLocale.toString());
+
+			return currentLocale.getISO3Language();
+		}
+		catch (Exception e)
+		{
+			Logger.e(TAG, "Exception in getting current language: ", e);
+		}
+
+		return StickerSearchConstants.DEFAULT_KEYBOARD_LANGUAGE_ISO_CODE;
 	}
 }

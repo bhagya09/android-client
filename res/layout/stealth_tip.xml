@@ -50,6 +50,7 @@
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
             android:layout_toRightOf="@id/hi_icon"
+            android:layout_toLeftOf="@id/close_divider"
             android:paddingBottom="22.5dp"
             android:paddingTop="22.5dp"
             android:text="@string/tap_to_hide_stealth_contacts" />

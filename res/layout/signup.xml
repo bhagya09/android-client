@@ -27,6 +27,8 @@
 
         <include layout="@layout/restoring_backup" />
 
+
+
         <ProgressBar
             android:id="@+id/loading_progress"
             android:layout_width="25dp"

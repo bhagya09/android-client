@@ -6,6 +6,7 @@ import org.apache.http.util.TextUtils;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Bitmap.Config;
 import android.media.ExifInterface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -13,6 +14,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.photos.HikePhotosUtils;
@@ -41,6 +43,8 @@ public class HikeCropFragment extends Fragment
 	private HikeCropListener mListener;
 
 	private String mSourceImagePath;
+	
+	private final int SIZE_MODIFIER = 300;
 
 	public static HikeCropFragment getInstance(HikeCropListener listener, String sourceImagePath)
 	{
@@ -86,12 +90,10 @@ public class HikeCropFragment extends Fragment
 		
 		options.inDither = true;
 		
-		options.inPreferredConfig = Bitmap.Config.ARGB_8888;
-		
 		options.inPreferQualityOverSpeed = true;
 		
 		// Load bitmap
-		Bitmap sourceBitmap = HikeBitmapFactory.decodeFile(mSourceImagePath, options);
+		Bitmap sourceBitmap = HikeBitmapFactory.decodeSampledBitmapFromFile(mSourceImagePath, (HikeConstants.HikePhotos.MAX_IMAGE_DIMEN + SIZE_MODIFIER), (HikeConstants.HikePhotos.MAX_IMAGE_DIMEN + SIZE_MODIFIER), Config.ARGB_8888, options, true);
 
 		if (sourceBitmap == null)
 		{

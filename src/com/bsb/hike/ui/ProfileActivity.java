@@ -13,6 +13,77 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.HikePubSub;
+import com.bsb.hike.HikePubSub.Listener;
+import com.bsb.hike.MqttConstants;
+import com.bsb.hike.R;
+import com.bsb.hike.adapters.ProfileAdapter;
+import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.AnalyticsConstants.ProfileImageActions;
+import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.bots.BotUtils;
+import com.bsb.hike.db.HikeConversationsDatabase;
+import com.bsb.hike.dialog.CustomAlertDialog;
+import com.bsb.hike.dialog.HikeDialog;
+import com.bsb.hike.dialog.HikeDialogFactory;
+import com.bsb.hike.dialog.HikeDialogListener;
+import com.bsb.hike.http.HikeHttpRequest;
+import com.bsb.hike.http.HikeHttpRequest.RequestType;
+import com.bsb.hike.models.ContactInfo;
+import com.bsb.hike.models.ContactInfo.FavoriteType;
+import com.bsb.hike.models.ConvMessage;
+import com.bsb.hike.models.GroupParticipant;
+import com.bsb.hike.models.HikeSharedFile;
+import com.bsb.hike.models.ImageViewerInfo;
+import com.bsb.hike.models.ProfileItem;
+import com.bsb.hike.models.ProfileItem.ProfileStatusItem;
+import com.bsb.hike.models.Conversation.BroadcastConversation;
+import com.bsb.hike.models.Conversation.Conversation;
+import com.bsb.hike.models.Conversation.GroupConversation;
+import com.bsb.hike.models.Conversation.OneToNConversation;
+import com.bsb.hike.models.Conversation.OneToNConversationMetadata;
+import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.modules.httpmgr.RequestToken;
+import com.bsb.hike.modules.httpmgr.exception.HttpException;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
+import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
+import com.bsb.hike.modules.httpmgr.response.Response;
+import com.bsb.hike.modules.kpt.HikeAdaptxtEditTextEventListner;
+import com.bsb.hike.modules.kpt.HikeCustomKeyboard;
+import com.bsb.hike.modules.kpt.KptUtils;
+import com.bsb.hike.offline.OfflineUtils;
+import com.bsb.hike.productpopup.ProductPopupsConstants;
+import com.bsb.hike.service.HikeMqttManagerNew;
+import com.bsb.hike.smartImageLoader.IconLoader;
+import com.bsb.hike.tasks.FinishableEvent;
+import com.bsb.hike.tasks.GetHikeJoinTimeTask;
+import com.bsb.hike.tasks.HikeHTTPTask;
+import com.bsb.hike.timeline.model.StatusMessage;
+import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
+import com.bsb.hike.timeline.view.StatusUpdate;
+import com.bsb.hike.timeline.view.UpdatesFragment;
+import com.bsb.hike.ui.fragments.ImageViewerFragment;
+import com.bsb.hike.ui.fragments.PhotoViewerFragment;
+import com.bsb.hike.ui.utils.StatusBarColorChanger;
+import com.bsb.hike.utils.ChangeProfileImageBaseActivity;
+import com.bsb.hike.utils.EmoticonConstants;
+import com.bsb.hike.utils.IntentFactory;
+import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.OneToNConversationUtils;
+import com.bsb.hike.utils.PairModified;
+import com.bsb.hike.utils.SmileyParser;
+import com.bsb.hike.utils.StealthModeManager;
+import com.bsb.hike.utils.Utils;
+import com.bsb.hike.view.CustomFontEditText;
+import com.bsb.hike.voip.VoIPUtils;
+import com.kpt.adaptxt.beta.KPTAddonItem;
+import com.kpt.adaptxt.beta.RemoveDialogData;
+import com.kpt.adaptxt.beta.util.KPTConstants;
+import com.kpt.adaptxt.beta.view.AdaptxtEditText;
+import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtKeyboordVisibilityStatusListner;
+
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
@@ -42,7 +113,6 @@ import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
-import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
@@ -64,76 +134,13 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.bsb.hike.HikeConstants;
-import com.bsb.hike.HikeMessengerApp;
-import com.bsb.hike.HikePubSub;
-import com.bsb.hike.HikePubSub.Listener;
-import com.bsb.hike.MqttConstants;
-import com.bsb.hike.R;
-import com.bsb.hike.adapters.ProfileAdapter;
-import com.bsb.hike.analytics.AnalyticsConstants;
-import com.bsb.hike.analytics.AnalyticsConstants.ProfileImageActions;
-import com.bsb.hike.analytics.HAManager;
-import com.bsb.hike.bots.BotUtils;
-import com.bsb.hike.db.HikeConversationsDatabase;
-import com.bsb.hike.dialog.CustomAlertDialog;
-import com.bsb.hike.dialog.HikeDialog;
-import com.bsb.hike.dialog.HikeDialogFactory;
-import com.bsb.hike.dialog.HikeDialogListener;
-import com.bsb.hike.http.HikeHttpRequest;
-import com.bsb.hike.http.HikeHttpRequest.RequestType;
-import com.bsb.hike.imageHttp.HikeImageUploader;
-import com.bsb.hike.models.ContactInfo;
-import com.bsb.hike.models.ContactInfo.FavoriteType;
-import com.bsb.hike.models.ConvMessage;
-import com.bsb.hike.models.GroupParticipant;
-import com.bsb.hike.models.HikeSharedFile;
-import com.bsb.hike.models.ImageViewerInfo;
-import com.bsb.hike.models.ProfileItem;
-import com.bsb.hike.models.ProfileItem.ProfileStatusItem;
-import com.bsb.hike.models.Conversation.BroadcastConversation;
-import com.bsb.hike.models.Conversation.Conversation;
-import com.bsb.hike.models.Conversation.GroupConversation;
-import com.bsb.hike.models.Conversation.OneToNConversation;
-import com.bsb.hike.models.Conversation.OneToNConversationMetadata;
-import com.bsb.hike.modules.contactmgr.ContactManager;
-import com.bsb.hike.modules.httpmgr.RequestToken;
-import com.bsb.hike.modules.httpmgr.exception.HttpException;
-import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
-import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
-import com.bsb.hike.modules.httpmgr.response.Response;
-import com.bsb.hike.offline.OfflineUtils;
-import com.bsb.hike.productpopup.ProductPopupsConstants;
-import com.bsb.hike.service.HikeMqttManagerNew;
-import com.bsb.hike.smartImageLoader.IconLoader;
-import com.bsb.hike.tasks.DownloadImageTask;
-import com.bsb.hike.tasks.FinishableEvent;
-import com.bsb.hike.tasks.GetHikeJoinTimeTask;
-import com.bsb.hike.tasks.HikeHTTPTask;
-import com.bsb.hike.timeline.model.StatusMessage;
-import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
-import com.bsb.hike.timeline.view.StatusUpdate;
-import com.bsb.hike.timeline.view.UpdatesFragment;
-import com.bsb.hike.ui.fragments.ImageViewerFragment;
-import com.bsb.hike.ui.fragments.PhotoViewerFragment;
-import com.bsb.hike.ui.utils.StatusBarColorChanger;
-import com.bsb.hike.utils.ChangeProfileImageBaseActivity;
-import com.bsb.hike.utils.EmoticonConstants;
-import com.bsb.hike.utils.HikeSharedPreferenceUtil;
-import com.bsb.hike.utils.IntentFactory;
-import com.bsb.hike.utils.Logger;
-import com.bsb.hike.utils.OneToNConversationUtils;
-import com.bsb.hike.utils.PairModified;
-import com.bsb.hike.utils.SmileyParser;
-import com.bsb.hike.utils.StealthModeManager;
-import com.bsb.hike.utils.Utils;
-import com.bsb.hike.view.CustomFontEditText;
-import com.bsb.hike.voip.VoIPUtils;
-
 public class ProfileActivity extends ChangeProfileImageBaseActivity implements FinishableEvent, Listener, OnLongClickListener, OnItemLongClickListener, OnScrollListener,
-		View.OnClickListener
+		View.OnClickListener, AdaptxtKeyboordVisibilityStatusListner
 {
-
+	private HikeCustomKeyboard mCustomKeyboard;
+	
+	private boolean systemKeyboard;
+	
 	class ProfileActivityState extends ChangeProfileImageActivityState
 	{
 		public String deleteStatusId;
@@ -163,7 +170,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 
 	private TextView mName;
 	
-	private EditText mNameEdit;
+	private CustomFontEditText mNameEdit;
 
 	private View currentSelection;
 
@@ -177,7 +184,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 
 	private boolean isBackPressed = false;
 
-	private EditText mEmailEdit;
+	private CustomFontEditText mEmailEdit;
 
 	private String emailTxt;
 
@@ -303,6 +310,11 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 				profileAdapter.getSharedFileImageLoader().setExitTasksEarly(true);
 			}
 		}
+		if (mNameEdit != null)
+		{
+			Utils.hideSoftKeyboard(getApplicationContext(), mNameEdit);			
+		}
+		KptUtils.pauseKeyboardResources(mCustomKeyboard);
 	}
 	
 	@Override
@@ -347,6 +359,8 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		{
 			HikeMessengerApp.getPubSub().removeListeners(this, profilEditPubSubListeners);
 		}
+		
+		KptUtils.destroyKeyboardResources(mCustomKeyboard, R.id.name_edit, R.id.name_input, R.id.email_input);
 	}
 
 	@Override
@@ -387,9 +401,14 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			mActivityState = new ProfileActivityState();
 		}
 
+		systemKeyboard = HikeMessengerApp.isSystemKeyboard();
+
 		if (getIntent().hasExtra(HikeConstants.Extras.EXISTING_GROUP_CHAT) || getIntent().hasExtra(HikeConstants.Extras.EXISTING_BROADCAST_LIST))
 		{
 			setContentView(R.layout.profile);
+
+			addCustomKeyboard();
+			
 			this.profileType = getIntent().hasExtra(HikeConstants.Extras.EXISTING_GROUP_CHAT) ? ProfileType.GROUP_INFO : ProfileType.BROADCAST_INFO;
 			setupGroupAndBroadcastProfileScreen();
 			HikeMessengerApp.getPubSub().addListeners(this, groupInfoPubSubListeners);
@@ -397,6 +416,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		else if (getIntent().hasExtra(HikeConstants.Extras.CONTACT_INFO))
 		{
 			setContentView(R.layout.profile);
+
 			this.profileType = ProfileType.CONTACT_INFO;
 			setupContactProfileScreen();
 			HikeMessengerApp.getPubSub().addListeners(this, contactInfoPubSubListeners);
@@ -405,6 +425,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		{
 			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 			setContentView(R.layout.profile);
+
 			View parent = findViewById(R.id.parent_layout);
 			getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 			parent.setBackgroundColor(getResources().getColor(R.color.standerd_background));
@@ -428,6 +449,9 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			{
 				// set pubsub listeners
 				setContentView(R.layout.profile_edit);
+
+				addCustomKeyboard();
+				
 				this.profileType = ProfileType.USER_PROFILE_EDIT;
 				setupEditScreen();
 				HikeMessengerApp.getPubSub().addListeners(this, profilEditPubSubListeners);
@@ -437,6 +461,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			{
 				setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 				setContentView(R.layout.profile);
+
 				View parent = findViewById(R.id.parent_layout);
 				getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 				parent.setBackgroundColor(getResources().getColor(R.color.standerd_background)); //Changing background color form white for self profile
@@ -448,10 +473,6 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 				triggerPointPopup=ProductPopupsConstants.PopupTriggerPoints.PROFILE_PHOTO.ordinal();
 				StatusBarColorChanger.setStatusBarColor(getWindow(), Color.BLACK);
 			}
-		}
-		if (mActivityState.groupEditDialogShowing)
-		{
-			onEditGroupNameClick(null);
 		}
 		
 		setupActionBar();
@@ -468,6 +489,47 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		
 	}
 
+	private void addCustomKeyboard()
+	{
+		if (!systemKeyboard)
+		{
+			LinearLayout viewHolder = (LinearLayout) findViewById(R.id.keyboardView_holder);
+			mCustomKeyboard= new HikeCustomKeyboard(this, viewHolder, KPTConstants.MULTILINE_LINE_EDITOR, kptEditTextEventListener, ProfileActivity.this);
+		}
+	}
+	HikeAdaptxtEditTextEventListner kptEditTextEventListener = new HikeAdaptxtEditTextEventListner()
+	{
+		@Override
+		public void onReturnAction(int i, AdaptxtEditText adaptxtEditText)
+		{
+			if (profileType == ProfileType.USER_PROFILE_EDIT){
+				if (mCustomKeyboard.isCustomKeyboardVisible())
+				{
+					if(mEmailEdit!=null && mEmailEdit.hasFocus()){
+						mCustomKeyboard.showCustomKeyboard(mEmailEdit, false);
+					}else if(mNameEdit!=null &&mNameEdit.hasFocus()){
+						mCustomKeyboard.showCustomKeyboard(mNameEdit, false);
+					}
+					
+				}
+			}else if(profileType == ProfileType.GROUP_INFO){
+				if(showingGroupEdit){
+					mCustomKeyboard.showCustomKeyboard(mNameEdit, false);
+				}
+			}
+		}
+	};
+	private void initCustomKeyboard(View parent)
+	{
+		if (!systemKeyboard)
+		{
+			ViewGroup parentView = (ViewGroup) parent.getParent();
+			mNameEdit = (CustomFontEditText) parentView.findViewById(R.id.name_edit);
+			mCustomKeyboard.registerEditText(R.id.name_edit);
+			mCustomKeyboard.init(mNameEdit);
+		}
+	}
+	
 	private void setGroupNameFields(View parent)
 	{
 		showingGroupEdit = true;
@@ -479,10 +541,30 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		mNameEdit.requestFocus();
 		mNameEdit.setText(oneToNConversation.getLabel());
 		mNameEdit.setSelection(mNameEdit.getText().toString().length());
-		Utils.showSoftKeyboard(getApplicationContext(), mNameEdit);
+		mNameEdit.setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				showKeyboard();
+				
+			}
+		});
+		showKeyboard();
 		setupGroupNameEditActionBar();
 	}
 
+	private void showKeyboard()
+	{
+		if (!systemKeyboard&&!mCustomKeyboard.isCustomKeyboardVisible())
+		{
+			mCustomKeyboard.showCustomKeyboard(mNameEdit, true);
+			KptUtils.updatePadding(ProfileActivity.this, R.id.parent_layout, mCustomKeyboard.getKeyBoardAndCVHeight());
+		}else if (KptUtils.isSystemKeyboard())
+		{
+			Utils.showSoftKeyboard(mNameEdit, InputMethodManager.SHOW_FORCED);
+		}
+	}
+	
 	private void setupActionBar()
 	{
 		ActionBar actionBar = getSupportActionBar();
@@ -558,7 +640,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 					return;
 				}
 				saveChanges();
-				Utils.hideSoftKeyboard(ProfileActivity.this, mNameEdit);
+				hideKeyboard();
 				showingGroupEdit = false;
 				mName.setText(groupName);
 				mName.setVisibility(View.VISIBLE);
@@ -582,13 +664,27 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		invalidateOptionsMenu();
 	}
 
+	private void hideKeyboard()
+	{
+		if (systemKeyboard)
+		{
+			Utils.hideSoftKeyboard(ProfileActivity.this, mNameEdit);
+		}
+		else
+		{
+			mCustomKeyboard.showCustomKeyboard(mNameEdit, false);
+			KptUtils.updatePadding(ProfileActivity.this, R.id.edit_profile, 0);
+			KptUtils.updatePadding(ProfileActivity.this, R.id.parent_layout, 0);
+		}
+	}
+	
 	public void closeGroupNameEdit()
 	{
 		if(showingGroupEdit)
 		{
 			showingGroupEdit = false;
 			mActivityState.edittedGroupName = null;
-			Utils.hideSoftKeyboard(ProfileActivity.this, mNameEdit);
+			hideKeyboard();
 			mName.setText(oneToNConversation.getLabel());
 			mName.setVisibility(View.VISIBLE);
 			mNameEdit.setVisibility(View.GONE);
@@ -611,6 +707,11 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 				profileAdapter.getSharedFileImageLoader().setExitTasksEarly(false);
 			}
 			profileAdapter.notifyDataSetChanged();
+		}
+		
+		if (showingGroupEdit)
+		{
+			showKeyboard();
 		}
 	}
 
@@ -747,7 +848,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			break;
 		case android.R.id.home:
 			Utils.hideSoftKeyboard(getApplicationContext(), getWindow().getDecorView().getRootView());
-			onBackPressed();
+			backPressed(true);
 			return true;
 
 		}
@@ -1320,9 +1421,69 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		ViewGroup gender = (ViewGroup) findViewById(R.id.gender);
 		ViewGroup picture = (ViewGroup) findViewById(R.id.photo);
 
-		mNameEdit = (EditText) name.findViewById(R.id.name_input);
-		mEmailEdit = (EditText) email.findViewById(R.id.email_input);
+		mNameEdit = (CustomFontEditText) name.findViewById(R.id.name_input);
+		mEmailEdit = (CustomFontEditText) email.findViewById(R.id.email_input);
 
+		if (!systemKeyboard)
+		{
+			mCustomKeyboard.registerEditText(R.id.name_input);
+			mCustomKeyboard.registerEditText(R.id.email_input);
+			mCustomKeyboard.init(mNameEdit);
+			mNameEdit.setOnClickListener(new View.OnClickListener()
+			{
+				
+				@Override
+				public void onClick(View v)
+				{
+					if (!mCustomKeyboard.isCustomKeyboardVisible())
+					{
+						mCustomKeyboard.showCustomKeyboard(mNameEdit, true);
+					}
+					
+					
+				}
+			});
+			mEmailEdit.setOnFocusChangeListener(new View.OnFocusChangeListener()
+			{
+				
+				@Override
+				public void onFocusChange(View v, boolean hasFocus)
+				{
+					if (mCustomKeyboard.isCustomKeyboardVisible())
+					{
+						mCustomKeyboard.showCustomKeyboard(mEmailEdit, false);
+					}
+					mCustomKeyboard.showCustomKeyboard(mEmailEdit, true);					
+				}
+			});
+			mNameEdit.setOnClickListener(new OnClickListener()
+			{
+				
+				@Override
+				public void onClick(View v)
+				{
+					if (mCustomKeyboard.isCustomKeyboardVisible())
+					{
+						mCustomKeyboard.showCustomKeyboard(mNameEdit, false);
+					}
+					mCustomKeyboard.showCustomKeyboard(mNameEdit, true);
+				}
+			});
+			mEmailEdit.setOnClickListener(new OnClickListener()
+			{
+				
+				@Override
+				public void onClick(View v)
+				{
+					if (mCustomKeyboard.isCustomKeyboardVisible())
+					{
+						mCustomKeyboard.showCustomKeyboard(mEmailEdit, false);
+					}
+					mCustomKeyboard.showCustomKeyboard(mEmailEdit, true);
+				}
+			});
+		}
+		
 		((TextView) name.findViewById(R.id.name_edit_field)).setText(R.string.name);
 		((TextView) phone.findViewById(R.id.phone_edit_field)).setText(R.string.phone_num);
 		((TextView) email.findViewById(R.id.email_edit_field)).setText(R.string.email);
@@ -1528,8 +1689,26 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		mActivityState.genderType = mActivityState.genderType == 0 ? lastSavedGender : mActivityState.genderType;
 	}
 
+	@Override
 	public void onBackPressed()
 	{
+		backPressed(false);
+	}
+	
+	private void backPressed(boolean actionBarBackPressed)
+	{
+		if (!actionBarBackPressed)
+		{
+			if (mCustomKeyboard != null && mCustomKeyboard.isCustomKeyboardVisible())
+			{
+				mCustomKeyboard.showCustomKeyboard(mNameEdit, false);
+				mCustomKeyboard.showCustomKeyboard(mEmailEdit, false);
+				KptUtils.updatePadding(ProfileActivity.this, R.id.edit_profile, 0);
+				KptUtils.updatePadding(ProfileActivity.this, R.id.parent_layout, 0);
+				return;
+			}
+		}
+		
 		if(showingGroupEdit)
 		{
 			closeGroupNameEdit();
@@ -1972,67 +2151,6 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		HikeMessengerApp.getPubSub().publish(HikePubSub.FAVORITE_TOGGLED, favoriteToggle);
 	}
 
-	public void onEditGroupNameClick(View v)
-	{
-		InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
-		imm.showSoftInput(mNameEdit, InputMethodManager.SHOW_IMPLICIT);
-
-		mActivityState.groupEditDialogShowing = true;
-
-		groupEditDialog = new Dialog(this, R.style.Theme_CustomDialog_Keyboard);
-		groupEditDialog.setContentView(R.layout.group_name_change_dialog);
-
-		TextView header = (TextView) groupEditDialog.findViewById(R.id.header);
-
-		if (this.profileType == ProfileType.BROADCAST_INFO)
-		{
-			header.setText(R.string.edit_broadcast_name);
-		}
-		else
-		{
-			header.setText(R.string.edit_group_name);
-		}
-		mNameEdit = (EditText) groupEditDialog.findViewById(R.id.group_name_edit);
-		mNameEdit.setText(TextUtils.isEmpty(mActivityState.edittedGroupName) ? oneToNConversation.getLabel() : mActivityState.edittedGroupName);
-		mNameEdit.setSelection(mNameEdit.length());
-
-		Button okBtn = (Button) groupEditDialog.findViewById(R.id.btn_ok);
-		Button cancelBtn = (Button) groupEditDialog.findViewById(R.id.btn_cancel);
-
-		cancelBtn.setOnClickListener(new View.OnClickListener()
-		{
-
-			@Override
-			public void onClick(View v)
-			{
-				groupEditDialog.dismiss();
-				mActivityState.groupEditDialogShowing = false;
-				mActivityState.edittedGroupName = null;
-			}
-		});
-
-		okBtn.setOnClickListener(new View.OnClickListener()
-		{
-
-			@Override
-			public void onClick(View v)
-			{
-				String groupName = mNameEdit.getText().toString();
-				if (TextUtils.isEmpty(groupName.trim()))
-				{
-					showNameCanNotBeEmptyToast();
-				}
-				Utils.hideSoftKeyboard(ProfileActivity.this, mNameEdit);
-				saveChanges();
-				mActivityState.groupEditDialogShowing = false;
-				groupEditDialog.cancel();
-				groupEditDialog.dismiss();
-			}
-		});
-
-		groupEditDialog.show();
-	}
-	
 	private void showNameCanNotBeEmptyToast()
 	{
 		int toastStringResId = R.string.enter_valid_group_name; 
@@ -2049,6 +2167,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 	public void onGroupNameEditClick(View v)
 	{
 		View parent = (View) v.getParent();
+		initCustomKeyboard(parent);
 		setGroupNameFields(parent);
 	}
 	
@@ -3538,5 +3657,57 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 	{
 		this.mLocalMSISDN = msisdn;
 		super.setLocalMsisdn(mLocalMSISDN);
+	}
+
+	@Override
+	public void analyticalData(KPTAddonItem kptAddonItem)
+	{
+		KptUtils.generateKeyboardAnalytics(kptAddonItem);
+	}
+
+	@Override
+	public void onInputViewCreated()
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onInputviewVisbility(boolean kptVisible, int height)
+	{
+		if (kptVisible)
+		{
+			KptUtils.updatePadding(ProfileActivity.this, R.id.edit_profile, height);
+			KptUtils.updatePadding(ProfileActivity.this, R.id.parent_layout, height);
+		}
+		else
+		{
+			KptUtils.updatePadding(ProfileActivity.this, R.id.edit_profile, 0);
+			KptUtils.updatePadding(ProfileActivity.this, R.id.parent_layout, 0);
+		}
+	}
+
+	@Override
+	public void showGlobeKeyView()
+	{
+		KptUtils.onGlobeKeyPressed(ProfileActivity.this, mCustomKeyboard);
+	}
+
+	@Override
+	public void showQuickSettingView()
+	{
+		KptUtils.onGlobeKeyPressed(ProfileActivity.this, mCustomKeyboard);
+	}
+
+	@Override
+	public void dismissRemoveDialog() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void showRemoveDialog(RemoveDialogData arg0) {
+		// TODO Auto-generated method stub
+		
 	}
 }

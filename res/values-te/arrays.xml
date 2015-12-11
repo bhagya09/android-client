@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+ * Copyright (C) 2008 Esmertec AG.
+ * Copyright (C) 2008 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ -->
+<resources>
+    <string-array name="mood_headings">
+        <item>సంతోషం</item>
+                
+        <item>విచారం</item>
+                
+        <item>ప్రేమలో</item>
+                
+        <item>ఆశ్చర్యపడటం</item>
+                
+        <item>గందరగోళానికి గురికావడం</item>
+                
+        <item>కోపం</item>
+                
+        <item>నిద్రమత్తు</item>
+                
+        <item>హ్యాంగోవర్</item>
+                
+        <item>చిల్లింగ్</item>
+                
+        <item>చదువుకోవడం</item>
+                
+        <item>బిజీ</item>
+                
+        <item>ప్రేమ</item>
+                
+        <item>మధ్య వేలు</item>
+                
+        <item>బూజింగ్</item>
+                
+        <item>సినిమా హాల్లో</item>
+                
+        <item>క్యాఫినేటెడ్</item>
+                
+        <item>నిద్రరాకపోవడం</item>
+                
+        <item>డ్రైవింగ్</item>
+                
+        <item>ట్రాఫిక్‌లో చిక్కుకుపోవడం</item>
+                
+        <item>ఆలస్యంగా నడవడటం</item>
+                
+        <item>షాపింగ్</item>
+                
+        <item>గేమింగ్</item>
+                
+        <item>కోడింగ్</item>
+                
+        <item>TV చూడటం</item>
+                
+        <item>సంగీతం</item>
+                
+        <item>గట్టిగా పార్టీ చేసుకోవడం</item>
+                
+        <item>పాడటం</item>
+                
+        <item>తినడం</item>
+                
+        <item>బయట పని చేయడం</item>
+                
+        <item>వండటం</item>
+                
+        <item>బ్యూటీ సెలూన్</item>
+                
+        <item>సిక్</item>
+    </string-array>
+    
+    <array name="photos_actions_titles">
+       <item>ప్రొఫైల్ చిత్రం వలే ఎంచుకోండి</item>
+       <item>స్నేహితులకు పంపు</item>
+       <item>టైమ్‌లైన్‌లో పోస్ట్ చేయి</item>
+	</array>
+
+	<array name="call_glowpad_descr">
+       <item>డిస్మిస్ చేయి</item>
+       <item>సందేశం</item>
+       <item>పికప్</item>
+       <item>@null</item>
+   </array>
+   
+   <array name="call_glowpad_directions">
+       <item>కుడివైపు</item>
+       <item>పైన</item>
+       <item>ఎడమ</item>
+       <item>@null</item>
+   </array>
+
+    <array name="filter_names">
+        <item>ఒరిజినల్</item>
+        <item>తిరంగా</item>
+        <item>മെലോ</item>
+        <item>ചുസ്കി</item>
+        <item>അസൂർ</item>
+        <item> ജിലേബി </item>
+        <item>ഗുലാല്‍</item>
+        <item>എക്സ്-പ്രോ</item>
+        <item>എച്ച്ഡിആര്‍</item>
+        <item>അപ്പോളോ</item>
+        <item>റിട്രോ</item>
+        <item>പള്‍സര്‍</item>
+        <item>സണ്‍ലിറ്റ്</item>
+        <item>ഹേസൽ</item>
+        <item>ലോ-ഫൈ</item>
+        <item>ഇങ്കട്</item>
+        <item> മഷാല്‍ </item>
+        <item>ഷോലെ</item>
+        <item>ജംഗ്ലി</item>
+        <item>പോളറോയിഡ്</item>
+        <item>സെപിയ</item>
+        <item>ഗ്രേസ്കേൽ</item>
+    </array>
+</resources>

@@ -16,6 +16,7 @@ import com.bsb.hike.HikeConstants.ConvMessagePacketKeys;
 import com.bsb.hike.HikeConstants.MESSAGE_TYPE;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
+import com.bsb.hike.StringUtils;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.models.ContactInfoData.DataType;
 import com.bsb.hike.models.Conversation.Conversation;
@@ -92,6 +93,8 @@ public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique, C
 	private int notificationType;
 	
 	private long sortingId = -1;
+
+	private boolean fromCustomKeyboard=false;
 
 	public String getNameSpace()
 	{
@@ -651,7 +654,7 @@ public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique, C
 			}
 			else
 			{
-				this.mMessage = String.format(context.getString(R.string.change_group_image), participantName);
+				this.mMessage = StringUtils.getYouFormattedString(context, userMsisdn.equals(msisdn), R.string.you_change_group_image, R.string.change_group_image, participantName);
 			}
 			break;
 		case BLOCK_INTERNATIONAL_SMS:
@@ -692,7 +695,6 @@ public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique, C
 					nameString = Utils.getFirstName(conversation.getLabel());
 				}
 				this.mMessage = context.getString(R.string.chat_bg_changed, nameString);
-				;
 			}
 			break;
 		case VOIP_MISSED_CALL_INCOMING:
@@ -907,6 +909,8 @@ public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique, C
 					else if (metadata.isPokeMessage())
 					{
 						data.put(HikeConstants.POKE, true);
+					}else if(fromCustomKeyboard()){
+						data.put(HikeConstants.METADATA, md);
 					}
 				}
 				
@@ -1386,7 +1390,12 @@ public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique, C
 	{
 		this.messageOriginType = messageOriginType;
 	}
-
+	public void setfromCustomKeyboard(boolean fromCustomKeyboard){
+		this.fromCustomKeyboard=fromCustomKeyboard;
+	}
+	public boolean fromCustomKeyboard(){
+		return fromCustomKeyboard;
+	}
 	public long getServerId()
 	{
 		if(isBroadcastMessage() && !isBroadcastConversation())
@@ -1551,6 +1560,19 @@ public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique, C
 			return lhs.compareTo(rhs);
 		}
 
+	}
+
+	/**
+	 * Used to forcefully set the state of the ConvMessage. This is used by General Events since we need to change the state of messages from sent to received and vice versa.
+	 *
+	 * @param state
+	 */
+	public void setStateForced(State state)
+	{
+		if (state != null)
+		{
+			mState = state;
+		}
 	}
 
 }

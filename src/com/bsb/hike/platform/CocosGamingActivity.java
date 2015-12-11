@@ -13,6 +13,7 @@ import org.json.JSONObject;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.media.AudioManager;
 import android.os.Bundle;
@@ -98,6 +99,9 @@ public class CocosGamingActivity extends Cocos2dxActivity
 		super.onCreateDuplicate(savedInstanceState);
 		getSupportActionBar().hide();
 		context = CocosGamingActivity.this;
+		SharedPreferences settings = getSharedPreferences(HikePlatformConstants.GAME_PROCESS, context.MODE_MULTI_PROCESS);
+		settings.edit().putInt(HikePlatformConstants.GAME_PROCESS,android.os.Process.myPid()).commit();
+
 		msisdn = getIntent().getStringExtra(HikeConstants.MSISDN);
 		platform_content_dir = PlatformContentConstants.PLATFORM_CONTENT_DIR;
 		botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);

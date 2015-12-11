@@ -1,20 +1,23 @@
 package com.bsb.hike.platform.content;
 
-import java.io.File;
-import java.lang.reflect.Field;
-import java.util.Iterator;
-import java.util.Map.Entry;
-import java.util.Set;
-
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.utils.Logger;
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
 import com.google.gson.annotations.Expose;
+
+import org.json.JSONArray;
+
+import java.io.File;
+import java.lang.reflect.Field;
+import java.util.Iterator;
+import java.util.Map.Entry;
+import java.util.Set;
 
 /**
  * Content model
@@ -303,6 +306,11 @@ public class PlatformContentModel
 		}
 	}
 
+	public JsonArray getLanguageData()
+	{
+		return cardObj.lan_array;
+	}
+
 	@Override
 	public String toString()
 	{
@@ -468,6 +476,9 @@ public class PlatformContentModel
 
 		@Expose
 		public Boolean lpd;
+
+		@Expose
+		public JsonArray lan_array;
 
 	}
 

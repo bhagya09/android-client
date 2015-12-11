@@ -19,7 +19,7 @@ android {
         minSdkVersion 14
         renderscriptTargetApi 18
         renderscriptSupportModeEnabled true
-        targetSdkVersion 17
+        targetSdkVersion 22
         multiDexEnabled = true
     }
     lintOptions {
@@ -46,6 +46,9 @@ android {
             exclude module: 'support-v4'
         }
         compile(project(':recyclerview')) {
+            exclude module: 'support-v4'
+        } 
+        compile(project(':kpt-host')) {
             exclude module: 'support-v4'
         }
          compile(project(':transporter-library')) {
@@ -106,6 +109,7 @@ android {
         }
         release {
         	minifyEnabled true
+            shrinkResources true
             debuggable false
             proguardFile 'proguard.cfg'
             signingConfig signingConfigs.release

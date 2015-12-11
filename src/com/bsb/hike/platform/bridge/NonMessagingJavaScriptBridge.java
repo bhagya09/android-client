@@ -15,6 +15,7 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.adapters.ConversationsAdapter;
+import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.bots.NonMessagingBotConfiguration;
@@ -23,15 +24,13 @@ import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.request.FileRequestPersistent;
-import com.bsb.hike.platform.CustomWebView;
-import com.bsb.hike.platform.GpsLocation;
-import com.bsb.hike.platform.HikePlatformConstants;
-import com.bsb.hike.platform.PlatformHelper;
-import com.bsb.hike.platform.PlatformUtils;
+import com.bsb.hike.platform.*;
 import com.bsb.hike.platform.content.PlatformContentConstants;
 import com.bsb.hike.platform.content.PlatformZipDownloader;
+import com.bsb.hike.tasks.SendLogsTask;
 import com.bsb.hike.ui.GalleryActivity;
 import com.bsb.hike.ui.WebViewActivity;
+import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
@@ -194,6 +193,8 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 			{
 				jsonObject.put(HikePlatformConstants.EXTRA_DATA, extraData);
 			}
+
+			PlatformUtils.addLocaleToInitJSON(jsonObject);
 
 			mWebView.loadUrl("javascript:init('"+getEncodedDataForJS(jsonObject.toString())+"')");
 		}
@@ -1112,7 +1113,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	@JavascriptInterface
 	public void enableBot(String msisdn, String enable)
 	{
-		enableBot(msisdn,enable,false);
+		enableBot(msisdn,enable, Boolean.toString(false));
 	}
 	/**
 	 * Added in Platform Version:7
@@ -1300,21 +1301,21 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	}
 
 	/**
-	 * Platform Version 9
+	 * Platform Version 10
 	 * This function is made for the special Shared bot that has the information about some other bots as well, and acts as a channel for them.
 	 * Call this method to cancel the request that the Bot has initiated to do some http /https call.
 	 * @param functionId : the id of the function that native will call to call the js .
-	 * @param url: the url of the call that needs to be cancelled.
+	 * @param appName: the appname of the call that needs to be cancelled.
 	 */
 	@JavascriptInterface
-	public void cancelRequest(String functionId, String url)
+	public void cancelRequest(String functionId, String appName)
 	{
 		if (!BotUtils.isSpecialBot(mBotInfo))
 		{
 			callbackToJS(functionId, "false");
 			return;
 		}
-		RequestToken token = PlatformZipDownloader.getCurrentDownloadingRequests().get(url);
+		RequestToken token = PlatformZipDownloader.getCurrentDownloadingRequests().get(appName);
 		if (null != token)
 		{
 			callbackToJS(functionId, "true");
@@ -1372,19 +1373,19 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	 * Platform Version 9
 	 * Call this method to know if download request is currently running
 	 * Can only be called by special bots
-	 * @param url
+	 * @param appName
 	 * @param functionId
 	 * return true/false
 	 */
 	@JavascriptInterface
-	public void isRequestRunning(String functionId,String url)
+	public void isRequestRunning(String functionId,String appName)
 	{
 		if (!BotUtils.isSpecialBot(mBotInfo))
 		{
 			callbackToJS(functionId, "false");
 			return;
 		}
-		RequestToken token = PlatformZipDownloader.getCurrentDownloadingRequests().get(url);
+		RequestToken token = PlatformZipDownloader.getCurrentDownloadingRequests().get(appName);
 		if (null != token&& token.isRequestRunning())
 		{
 			callbackToJS(functionId, "true");
@@ -1438,36 +1439,6 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	}
 
 	/**
-	 * Platform Version 9
-	 * This function is made for the special Shared bot that has the information about some other bots as well, and acts as a channel for them.
-	 * Call this method to enable/disable bot. Enable means to show the bot in the conv list and disable is vice versa.
-	 * @param msisdn :the msisdn of the bot.
-	 * @param enable : send true to enable the bot in Conversation Fragment and false to disable.
-	 * @param increaseUnread
-	 */
-	@JavascriptInterface
-	public void enableBot(String msisdn, String enable,Boolean increaseUnread)
-	{
-
-		if (!BotUtils.isSpecialBot(mBotInfo) || !BotUtils.isBot(msisdn))
-		{
-			return;
-		}
-
-		BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
-
-		boolean enableBot = Boolean.valueOf(enable);
-		if (enableBot)
-		{
-			PlatformUtils.enableBot(botInfo, true,increaseUnread);
-		}
-		else
-		{
-			BotUtils.deleteBotConversation(msisdn, false);
-		}
-	}
-
-	/**
 	 * Platform bridge Version 8
 	 * Call this function to open a full page webView within hike. Calling this function will create full page with action bar
 	 * color specified by server, js injected to remove unwanted features from the full page, and URLs defined by the interceptUrlJson
@@ -1512,6 +1483,85 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	public void setExtraData(String data)
 	{
 		this.extraData = data;
+	}
+
+	/**
+	 * Platform Version 9
+	 * This function is made for the special Shared bot that has the information about some other bots as well, and acts as a channel for them.
+	 * Call this method to enable/disable bot. Enable means to show the bot in the conv list and disable is vice versa.
+	 * @param msisdn :the msisdn of the bot.
+	 * @param enable : send true to enable the bot in Conversation Fragment and false to disable.
+	 * @param increaseUnread
+	 */
+	@JavascriptInterface
+	public void enableBot(String msisdn, String enable, String increaseUnread)
+	{
+
+		if (!BotUtils.isSpecialBot(mBotInfo) || !BotUtils.isBot(msisdn))
+		{
+			return;
+		}
+
+		BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
+
+		boolean enableBot = Boolean.valueOf(enable);
+		boolean increaseUnreadCount = Boolean.valueOf(increaseUnread);
+		if (enableBot)
+		{
+				PlatformUtils.enableBot(botInfo, true, increaseUnreadCount);
+		}
+		else
+		{
+			BotUtils.deleteBotConversation(msisdn, false);
+		}
+	}
+	/**
+	 * Platform Version 10
+	 *This function allows for a bot to send logs after it has been enabled
+	 */
+	@JavascriptInterface
+	public void sendLogs()
+	{
+		Activity mContext = weakActivity.get();
+		if(mContext==null)
+		{
+			return;
+		}
+		SendLogsTask logsTask = new SendLogsTask(mContext);
+		Utils.executeAsyncTask(logsTask);
+	}
+	/**
+	 * Platform Version 10
+	 *This function allows for a bot to send analytics via mqtt
+	 */
+	@JavascriptInterface
+	public void logAnalyticsMq(String json,String isUI)
+	{
+		JSONObject jsonObject=null;
+		if(TextUtils.isEmpty(json)||TextUtils.isEmpty(isUI))
+		{
+			return;
+		}
+		try
+		{
+			jsonObject=new JSONObject(json);
+			jsonObject.put(AnalyticsConstants.BOT_MSISDN, mBotInfo.getMsisdn());
+			jsonObject.put(AnalyticsConstants.BOT_NAME, mBotInfo.getConversationName());
+		} catch (JSONException e)
+		{
+			e.printStackTrace();
+			return;
+		}
+		if (Boolean.valueOf(isUI))
+		{
+			Utils.sendLogEvent(jsonObject,AnalyticsConstants.MICROAPP_UI_EVENT, null);
+		}
+		else
+		{
+			Utils.sendLogEvent(jsonObject, AnalyticsConstants.MICROAPP_NON_UI_EVENT, null);
+		}
+
+
 	}
 
 }

@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -26,7 +27,9 @@ import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
 import com.bsb.hike.modules.stickersearch.datamodel.Word;
 import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchBaseConstants;
 import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchBaseConstants.TIME_CODE;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.PairModified;
 import com.bsb.hike.utils.Utils;
 
 import android.content.SharedPreferences.Editor;
@@ -55,12 +58,20 @@ public class StickerSearchUtility
 	}
 
 	/* Save the configuration settings received from server for sticker recommendation */
-	public static void saveStickerRecommendationConfiguration(JSONObject json, Editor editor)
+	public static void saveStickerRecommendationConfiguration(JSONObject json)
 	{
 		final String tag = "StickerRecommendationConfiguration";
 
-		if ((json != null) && (json.length() > 0) && (editor != null))
+		if ((json != null) && (json.length() > 0))
 		{
+			int minimumVersionToAcceptConfiguartionData = json.optInt(HikeConstants.STICKER_RECOMMENDATION_CONFIGURATION_MIN_VERSION_TO_APPLY, 0);
+			if (minimumVersionToAcceptConfiguartionData > Utils.getAppVersionCode())
+			{
+				Logger.e(tag, "Proposed sticker recommendation configuration is not applicable for current version of Hike app. It should be updated.");
+				return;
+			}
+
+			HikeSharedPreferenceUtil stickerDataSharedPref = HikeSharedPreferenceUtil.getInstance(HikeStickerSearchBaseConstants.SHARED_PREF_STICKER_DATA);
 			Iterator<String> configSettings = json.keys();
 
 			while (configSettings.hasNext())
@@ -88,7 +99,8 @@ public class StickerSearchUtility
 								calendar.set(Calendar.SECOND, ss);
 								calendar.set(Calendar.MILLISECOND, SSS);
 
-								editor.putString(settingName, (new SimpleDateFormat(HikeConstants.FORMAT_TIME_OF_THE_DAY, Locale.ENGLISH)).format(calendar.getTime()));
+								stickerDataSharedPref
+										.saveData(settingName, (new SimpleDateFormat(HikeConstants.FORMAT_TIME_OF_THE_DAY, Locale.ENGLISH)).format(calendar.getTime()));
 							}
 							else
 							{
@@ -109,14 +121,29 @@ public class StickerSearchUtility
 				{
 					try
 					{
-						String regex = json.getString(settingName);
-						if (isValidSeparatorsRegex(regex))
+						JSONObject separatorsData = json.getJSONObject(settingName);
+
+						if (separatorsData != null)
 						{
-							editor.putString(settingName, regex);
+							Iterator<String> languages = separatorsData.keys();
+
+							while (languages.hasNext())
+							{
+								String languageISOCode = languages.next();
+								String regex = json.getString(languageISOCode);
+								if (isValidSeparatorsRegex(regex))
+								{
+									stickerDataSharedPref.saveData(getSharedPrefKeyForSeparatorsRegex(languageISOCode), regex);
+								}
+								else
+								{
+									Logger.e(tag, "Invalid separators regex for language: " + languageISOCode);
+								}
+							}
 						}
 						else
 						{
-							Logger.e(tag, "Invalid combination of data for '" + settingName + "' key...");
+							Logger.e(tag, "Empty data for '" + settingName + "' key.");
 						}
 					}
 					catch (JSONException e)
@@ -138,9 +165,9 @@ public class StickerSearchUtility
 
 							if ((trending > 0) && (local > trending) && (global > local))
 							{
-								editor.putLong(HikeConstants.STICKER_TAG_SUMMERY_INTERVAL_TRENDING, trending);
-								editor.putLong(HikeConstants.STICKER_TAG_SUMMERY_INTERVAL_LOCAL, local);
-								editor.putLong(HikeConstants.STICKER_TAG_SUMMERY_INTERVAL_GLOBAL, global);
+								stickerDataSharedPref.saveData(HikeConstants.STICKER_TAG_SUMMERY_INTERVAL_TRENDING, trending);
+								stickerDataSharedPref.saveData(HikeConstants.STICKER_TAG_SUMMERY_INTERVAL_LOCAL, local);
+								stickerDataSharedPref.saveData(HikeConstants.STICKER_TAG_SUMMERY_INTERVAL_GLOBAL, global);
 							}
 							else
 							{
@@ -171,9 +198,9 @@ public class StickerSearchUtility
 
 							if ((trending > 0) && (local > trending) && (global > local))
 							{
-								editor.putFloat(HikeConstants.STICKER_TAG_MAX_FREQUENCY_TRENDING, trending);
-								editor.putFloat(HikeConstants.STICKER_TAG_MAX_FREQUENCY_LOCAL, local);
-								editor.putFloat(HikeConstants.STICKER_TAG_MAX_FREQUENCY_GLOBAL, global);
+								stickerDataSharedPref.saveData(HikeConstants.STICKER_TAG_MAX_FREQUENCY_TRENDING, trending);
+								stickerDataSharedPref.saveData(HikeConstants.STICKER_TAG_MAX_FREQUENCY_LOCAL, local);
+								stickerDataSharedPref.saveData(HikeConstants.STICKER_TAG_MAX_FREQUENCY_GLOBAL, global);
 							}
 							else
 							{
@@ -206,10 +233,10 @@ public class StickerSearchUtility
 							if (isValidFraction(wLateral) && isValidFraction(wExactMatch) && isValidFraction(wFrequency) && isValidFraction(wContextMoment)
 									&& ((wLateral + wExactMatch + wFrequency + wContextMoment) == 1.00f))
 							{
-								editor.putFloat(HikeConstants.STICKER_SCORE_WEIGHTAGE_MATCH_LATERAL, wLateral);
-								editor.putFloat(HikeConstants.STICKER_SCORE_WEIGHTAGE_EXACT_MATCH, wExactMatch);
-								editor.putFloat(HikeConstants.STICKER_SCORE_WEIGHTAGE_FREQUENCY, wFrequency);
-								editor.putFloat(HikeConstants.STICKER_SCORE_WEIGHTAGE_CONTEXT_MOMENT, wContextMoment);
+								stickerDataSharedPref.saveData(HikeConstants.STICKER_SCORE_WEIGHTAGE_MATCH_LATERAL, wLateral);
+								stickerDataSharedPref.saveData(HikeConstants.STICKER_SCORE_WEIGHTAGE_EXACT_MATCH, wExactMatch);
+								stickerDataSharedPref.saveData(HikeConstants.STICKER_SCORE_WEIGHTAGE_FREQUENCY, wFrequency);
+								stickerDataSharedPref.saveData(HikeConstants.STICKER_SCORE_WEIGHTAGE_CONTEXT_MOMENT, wContextMoment);
 							}
 							else
 							{
@@ -234,7 +261,7 @@ public class StickerSearchUtility
 
 						if (isValidReq(exactMatchMinReq))
 						{
-							editor.putFloat(settingName, exactMatchMinReq);
+							stickerDataSharedPref.saveData(settingName, exactMatchMinReq);
 						}
 						else
 						{
@@ -254,7 +281,7 @@ public class StickerSearchUtility
 
 						if (isValidReq(marginalFullMatchReq))
 						{
-							editor.putFloat(settingName, marginalFullMatchReq);
+							stickerDataSharedPref.saveData(settingName, marginalFullMatchReq);
 						}
 						else
 						{
@@ -274,7 +301,7 @@ public class StickerSearchUtility
 
 						if (isValidReq(autoCorrectionReq))
 						{
-							editor.putFloat(settingName, autoCorrectionReq);
+							stickerDataSharedPref.saveData(settingName, autoCorrectionReq);
 						}
 						else
 						{
@@ -298,12 +325,12 @@ public class StickerSearchUtility
 							float local = (float) frequencyRatioData.getDouble(HikeConstants.STICKER_DATA_LOCAL);
 							float global = (float) frequencyRatioData.getDouble(HikeConstants.STICKER_DATA_GLOBAL);
 
-							if (isValidFraction(trending) && isValidFraction(local) && isValidFraction(global) && (local > trending) && (global > local)
+							if (isValidFraction(trending) && isValidFraction(local) && isValidFraction(global) && (trending > local) && (local > global)
 									&& ((trending + local + global) == 1.00f))
 							{
-								editor.putFloat(HikeConstants.STICKER_FREQUENCY_RATIO_TRENDING, trending);
-								editor.putFloat(HikeConstants.STICKER_FREQUENCY_RATIO_LOCAL, local);
-								editor.putFloat(HikeConstants.STICKER_FREQUENCY_RATIO_GLOBAL, global);
+								stickerDataSharedPref.saveData(HikeConstants.STICKER_FREQUENCY_RATIO_TRENDING, trending);
+								stickerDataSharedPref.saveData(HikeConstants.STICKER_FREQUENCY_RATIO_LOCAL, local);
+								stickerDataSharedPref.saveData(HikeConstants.STICKER_FREQUENCY_RATIO_GLOBAL, global);
 							}
 							else
 							{
@@ -335,10 +362,10 @@ public class StickerSearchUtility
 
 							if ((textLimit > 0) && (textBrokerLimit >= textLimit) && (permutationSize >= 1) && (minAutoCorrectionLength >= 1))
 							{
-								editor.putInt(HikeConstants.STICKER_TAG_MAXIMUM_SEARCH_TEXT_LIMIT, textLimit);
-								editor.putInt(HikeConstants.STICKER_TAG_MAXIMUM_SEARCH_TEXT_LIMIT_BROKER, textBrokerLimit);
-								editor.putInt(HikeConstants.STIKCER_TAG_MAXIMUM_SEARCH_PHRASE_PERMUTATION_SIZE, permutationSize);
-								editor.putInt(HikeConstants.STICKER_TAG_MINIMUM_SEARCH_WORD_LENGTH_FOR_AUTO_CORRECTION, minAutoCorrectionLength);
+								stickerDataSharedPref.saveData(HikeConstants.STICKER_TAG_MAXIMUM_SEARCH_TEXT_LIMIT, textLimit);
+								stickerDataSharedPref.saveData(HikeConstants.STICKER_TAG_MAXIMUM_SEARCH_TEXT_LIMIT_BROKER, textBrokerLimit);
+								stickerDataSharedPref.saveData(HikeConstants.STIKCER_TAG_MAXIMUM_SEARCH_PHRASE_PERMUTATION_SIZE, permutationSize);
+								stickerDataSharedPref.saveData(HikeConstants.STICKER_TAG_MINIMUM_SEARCH_WORD_LENGTH_FOR_AUTO_CORRECTION, minAutoCorrectionLength);
 							}
 							else
 							{
@@ -368,8 +395,8 @@ public class StickerSearchUtility
 
 							if (isValidReq(selectionRatio) && (selectionLimit >= 1))
 							{
-								editor.putFloat(HikeConstants.STICKER_TAG_MAXIMUM_SELECTION_RATIO_PER_SEARCH, selectionRatio);
-								editor.putInt(HikeConstants.STICKER_TAG_MAXIMUM_SELECTION_PER_STICKER, selectionLimit);
+								stickerDataSharedPref.saveData(HikeConstants.STICKER_TAG_MAXIMUM_SELECTION_RATIO_PER_SEARCH, selectionRatio);
+								stickerDataSharedPref.saveData(HikeConstants.STICKER_TAG_MAXIMUM_SELECTION_PER_STICKER, selectionLimit);
 							}
 							else
 							{
@@ -391,7 +418,7 @@ public class StickerSearchUtility
 					try
 					{
 						int retryOption = json.getInt(settingName);
-						editor.putInt(settingName, retryOption);
+						stickerDataSharedPref.saveData(settingName, retryOption);
 					}
 					catch (JSONException e)
 					{
@@ -406,7 +433,7 @@ public class StickerSearchUtility
 
 						if (recommendationDelay >= 0)
 						{
-							editor.putInt(settingName, recommendationDelay);
+							stickerDataSharedPref.saveData(settingName, recommendationDelay);
 						}
 					}
 					catch (JSONException e)
@@ -429,10 +456,10 @@ public class StickerSearchUtility
 
 							if ((ptCapacity > 0) && isValidReq(ptThresholdCapacity) && isValidReq(dbExpansionCoefficient) && isValidReq(dbForcedShrinkCoefficient))
 							{
-								editor.putInt(HikeConstants.STICKER_SEARCH_BASE_MAXIMUM_PRIMARY_TABLE_CAPACITY, ptCapacity);
-								editor.putFloat(HikeConstants.STICKER_SEARCH_BASE_THRESHOLD_PRIMARY_TABLE_CAPACITY_FRACTION, ptThresholdCapacity);
-								editor.putFloat(HikeConstants.STICKER_SEARCH_BASE_THRESHOLD_EXPANSION_COEFFICIENT, dbExpansionCoefficient);
-								editor.putFloat(HikeConstants.STICKER_SEARCH_BASE_THRESHOLD_FORCED_SHRINK_COEFFICIENT, dbForcedShrinkCoefficient);
+								stickerDataSharedPref.saveData(HikeConstants.STICKER_SEARCH_BASE_MAXIMUM_PRIMARY_TABLE_CAPACITY, ptCapacity);
+								stickerDataSharedPref.saveData(HikeConstants.STICKER_SEARCH_BASE_THRESHOLD_PRIMARY_TABLE_CAPACITY_FRACTION, ptThresholdCapacity);
+								stickerDataSharedPref.saveData(HikeConstants.STICKER_SEARCH_BASE_THRESHOLD_EXPANSION_COEFFICIENT, dbExpansionCoefficient);
+								stickerDataSharedPref.saveData(HikeConstants.STICKER_SEARCH_BASE_THRESHOLD_FORCED_SHRINK_COEFFICIENT, dbForcedShrinkCoefficient);
 							}
 							else
 							{
@@ -457,7 +484,7 @@ public class StickerSearchUtility
 		}
 		else
 		{
-			Logger.e(tag, "Invalid json data to save sticker recommendation configuration through editor: " + editor);
+			Logger.e(tag, "Invalid json data to save sticker recommendation configuration.");
 		}
 	}
 
@@ -498,6 +525,43 @@ public class StickerSearchUtility
 		return isValidSeparators;
 	}
 
+	/* Get the key used to save separators regex string in shared preference for given language */
+	private static String getSharedPrefKeyForSeparatorsRegex(String languageISOCode)
+	{
+		return (HikeConstants.STICKER_TAG_REGEX_SEPARATORS + StickerSearchConstants.STRING_JOINTER + languageISOCode);
+	}
+
+	/* Get the key used to save recommendation analytics data in shared preference for given language */
+	public static String getSharedPrefKeyForRecommendationData(String dataKey, String languageISOCode)
+	{
+		return (dataKey + StickerSearchConstants.STRING_JOINTER + languageISOCode);
+	}
+
+	/* Get combined regular expression for all separators applicable to language argument */
+	public static String getSeparatorsRegex(String keyboardLanguageISOCode)
+	{
+		String separatorsRegex;
+		HikeSharedPreferenceUtil stickerDataSharedPref = HikeSharedPreferenceUtil.getInstance(HikeStickerSearchBaseConstants.SHARED_PREF_STICKER_DATA);
+
+		if (!Utils.isBlank(keyboardLanguageISOCode) && !keyboardLanguageISOCode.startsWith(StickerSearchConstants.DEFAULT_KEYBOARD_LANGUAGE_ISO_CODE))
+		{
+			separatorsRegex = stickerDataSharedPref.getData(getSharedPrefKeyForSeparatorsRegex(keyboardLanguageISOCode), null);
+
+			if (separatorsRegex == null)
+			{
+				separatorsRegex = stickerDataSharedPref.getData(getSharedPrefKeyForSeparatorsRegex(HikeConstants.STICKER_TAG_REGEX_SEPARATORS_REGIONAL_REGULAR),
+						StickerSearchConstants.DEFAULT_REGEX_SEPARATORS_REGIONAL);
+			}
+		}
+		else
+		{
+			separatorsRegex = stickerDataSharedPref.getData(getSharedPrefKeyForSeparatorsRegex(HikeConstants.STICKER_TAG_REGEX_SEPARATORS_LATIN_REGULAR),
+					StickerSearchConstants.DEFAULT_REGEX_SEPARATORS_LATIN);
+		}
+
+		return separatorsRegex;
+	}
+
 	/* Get list of unique separator characters in the given regular expression */
 	public static Set<Character> getSeparatorChars(String regex)
 	{
@@ -520,6 +584,84 @@ public class StickerSearchUtility
 		return chars;
 	}
 
+	/* Save recommendation analytics data stored in sticker search shared_pref */
+	public static void saveStickerRecommendationAnalyticsDataIntoPref(Map<String, PairModified<Integer, Integer>> autoPopupClicksPerLanguageMap,
+			Map<String, PairModified<Integer, Integer>> tapOnHighlightWordClicksPerLanguageMap)
+	{
+		// Clear previous data, if any
+		clearStickerRecommendationAnalyticsDataFromPref();
+
+		HikeSharedPreferenceUtil stickerDataSharedPref = HikeSharedPreferenceUtil.getInstance(HikeStickerSearchBaseConstants.SHARED_PREF_STICKER_DATA);
+		PairModified<Integer, Integer> totalAndAcceptedRecommendationCountPairPerLanguage;
+		HashSet<String> currentLanguages = new HashSet<String>();
+		HashMap<String, Integer> accuracyData = new HashMap<String, Integer>();
+
+		// Save auto-popup data for each language
+		if ((autoPopupClicksPerLanguageMap != null) && (autoPopupClicksPerLanguageMap.size() > 0))
+		{
+			Set<String> languages = autoPopupClicksPerLanguageMap.keySet();
+			currentLanguages.addAll(languages);
+
+			for (String languageISOCode : languages)
+			{
+				totalAndAcceptedRecommendationCountPairPerLanguage = autoPopupClicksPerLanguageMap.get(languageISOCode);
+
+				accuracyData.put(getSharedPrefKeyForRecommendationData(StickerSearchConstants.KEY_PREF_AUTO_POPUP_TOTAL_COUNT_PER_LANGUAGE, languageISOCode),
+						totalAndAcceptedRecommendationCountPairPerLanguage.getFirst());
+				accuracyData.put(getSharedPrefKeyForRecommendationData(StickerSearchConstants.KEY_PREF_AUTO_POPUP_ACCEPTED_COUNT_PER_LANGUAGE, languageISOCode),
+						totalAndAcceptedRecommendationCountPairPerLanguage.getSecond());
+			}
+		}
+
+		// Save highlight word tapping data for each language
+		if ((tapOnHighlightWordClicksPerLanguageMap != null) && (tapOnHighlightWordClicksPerLanguageMap.size() > 0))
+		{
+			Set<String> languages = tapOnHighlightWordClicksPerLanguageMap.keySet();
+			currentLanguages.addAll(languages);
+
+			for (String languageISOCode : languages)
+			{
+				totalAndAcceptedRecommendationCountPairPerLanguage = tapOnHighlightWordClicksPerLanguageMap.get(languageISOCode);
+
+				accuracyData.put(getSharedPrefKeyForRecommendationData(StickerSearchConstants.KEY_PREF_TAP_ON_HIGHLIGHT_WORD_TOTAL_COUNT_PER_LANGUAGE, languageISOCode),
+						totalAndAcceptedRecommendationCountPairPerLanguage.getFirst());
+				accuracyData.put(getSharedPrefKeyForRecommendationData(StickerSearchConstants.KEY_PREF_TAP_ON_HIGHLIGHT_WORD_ACCEPTED_COUNT_PER_LANGUAGE, languageISOCode),
+						totalAndAcceptedRecommendationCountPairPerLanguage.getSecond());
+			}
+		}
+
+		if (accuracyData.size() > 0)
+		{
+			stickerDataSharedPref.saveDataSet(StickerSearchConstants.KEY_PREF_STICKER_RECOOMENDATION_LANGUAGE_LIST, currentLanguages);
+			stickerDataSharedPref.saveDataMap(accuracyData);
+		}
+	}
+
+	/* Clear recommendation analytics data stored in sticker search shared_pref */
+	public static void clearStickerRecommendationAnalyticsDataFromPref()
+	{
+		HikeSharedPreferenceUtil stickerDataSharedPref = HikeSharedPreferenceUtil.getInstance(HikeStickerSearchBaseConstants.SHARED_PREF_STICKER_DATA);
+		Set<String> languages = stickerDataSharedPref.getDataSet(StickerSearchConstants.KEY_PREF_STICKER_RECOOMENDATION_LANGUAGE_LIST, null);
+		if (!Utils.isEmpty(languages))
+		{
+			HashSet<String> removingKeys = new HashSet<String>();
+			for (String languageISOCode : languages)
+			{
+				removingKeys.add(getSharedPrefKeyForRecommendationData(StickerSearchConstants.KEY_PREF_AUTO_POPUP_TOTAL_COUNT_PER_LANGUAGE, languageISOCode));
+				removingKeys.add(getSharedPrefKeyForRecommendationData(StickerSearchConstants.KEY_PREF_AUTO_POPUP_ACCEPTED_COUNT_PER_LANGUAGE, languageISOCode));
+				removingKeys.add(getSharedPrefKeyForRecommendationData(StickerSearchConstants.KEY_PREF_TAP_ON_HIGHLIGHT_WORD_TOTAL_COUNT_PER_LANGUAGE, languageISOCode));
+				removingKeys.add(getSharedPrefKeyForRecommendationData(StickerSearchConstants.KEY_PREF_TAP_ON_HIGHLIGHT_WORD_ACCEPTED_COUNT_PER_LANGUAGE, languageISOCode));
+			}
+
+			removingKeys.add(StickerSearchConstants.KEY_PREF_STICKER_RECOOMENDATION_LANGUAGE_LIST);
+			stickerDataSharedPref.removeData(removingKeys);
+		}
+		else
+		{
+			stickerDataSharedPref.removeData(StickerSearchConstants.KEY_PREF_STICKER_RECOOMENDATION_LANGUAGE_LIST);
+		}
+	}
+
 	/* Get string for predictive search */
 	public static String getPredictiveSubString(String source, int offset, float predictionRatio)
 	{
@@ -527,9 +669,9 @@ public class StickerSearchUtility
 	}
 
 	/* Determine if given character is special character */
-	public static boolean isSpecialCharacter(char c)
+	public static boolean isSpecialCharacterForLatin(char c)
 	{
-		return ((c >= 'A') && (c <= 'Z')) || ((c >= 'a') && (c <= 'z')) || ((c >= '0') && (c <= '9')) || (c == ' ') || (c == '\t') || (c == '\n');
+		return ((int) c < 256) && !(((c >= 'A') && (c <= 'Z')) || ((c >= 'a') && (c <= 'z')));
 	}
 
 	/* Check if given word is of smiley's type */
@@ -560,11 +702,11 @@ public class StickerSearchUtility
 			char[] letters = str.toCharArray();
 
 			// First, check if word is starting from special character
-			if ((letters.length > 0) && !(StickerSearchUtility.isSpecialCharacter(letters[0])))
+			if ((letters.length > 0) && !(StickerSearchUtility.isSpecialCharacterForLatin(letters[0])))
 			{
 				for (char c : letters)
 				{
-					if (!StickerSearchUtility.isSpecialCharacter(c))
+					if (!StickerSearchUtility.isSpecialCharacterForLatin(c))
 					{
 						outputBuilder.append(c);
 					}
@@ -858,26 +1000,47 @@ public class StickerSearchUtility
 	}
 
 	/* Get syntax string (a part of SQL query) while applying multiple conditions using 'AND' operator */
-	public static String getSQLiteDatabaseMultipleConditionsWithANDSyntax(String[] columnsInvolvedInCondition)
+	public static String getSQLiteDatabaseMultipleConditionsWithANDSyntax(String[] columnsInvolvedInCondition, int[] isCheckingForNullOrNonNULLValueOrBoth)
 	{
 		StringBuilder sb;
 
-		if ((columnsInvolvedInCondition != null) && (columnsInvolvedInCondition.length > 0))
+		if ((columnsInvolvedInCondition != null) && (columnsInvolvedInCondition.length > 0) && (isCheckingForNullOrNonNULLValueOrBoth != null)
+				&& (isCheckingForNullOrNonNULLValueOrBoth.length == columnsInvolvedInCondition.length))
 		{
 			sb = new StringBuilder();
-			int lengthBeforeLastCondition = columnsInvolvedInCondition.length - 1;
-			int i = 0;
+			int lengthBeforeLastElement = columnsInvolvedInCondition.length - 1;
 
-			for (; i < lengthBeforeLastCondition; i++)
+			for (int i = 0; i < columnsInvolvedInCondition.length; i++)
 			{
-				sb.append(columnsInvolvedInCondition[i]);
-				sb.append(HikeStickerSearchBaseConstants.SYNTAX_SINGLE_PARAMETER_CHECK);
-				sb.append(HikeStickerSearchBaseConstants.SYNTAX_AND_NEXT);
-			}
+				if (isCheckingForNullOrNonNULLValueOrBoth[i] == HikeStickerSearchBaseConstants.SQLITE_NULL_CHECK)
+				{
+					sb.append(columnsInvolvedInCondition[i]);
+					sb.append(HikeStickerSearchBaseConstants.SYNTAX_SINGLE_PARAMETER_UNSIGNED_CHECK);
+					sb.append(HikeStickerSearchBaseConstants.SYNTAX_NULL);
+				}
+				else if (isCheckingForNullOrNonNULLValueOrBoth[i] == HikeStickerSearchBaseConstants.SQLITE_NON_NULL_CHECK)
+				{
+					sb.append(columnsInvolvedInCondition[i]);
+					sb.append(HikeStickerSearchBaseConstants.SYNTAX_SINGLE_PARAMETER_CHECK);
+				}
+				else
+				{
+					sb.append(HikeStickerSearchBaseConstants.SYNTAX_BRACKET_OPEN);
+					sb.append(columnsInvolvedInCondition[i]);
+					sb.append(HikeStickerSearchBaseConstants.SYNTAX_SINGLE_PARAMETER_UNSIGNED_CHECK);
+					sb.append(HikeStickerSearchBaseConstants.SYNTAX_NULL);
+					sb.append(HikeStickerSearchBaseConstants.SYNTAX_OR_NEXT);
+					sb.append(columnsInvolvedInCondition[i]);
+					sb.append(HikeStickerSearchBaseConstants.SYNTAX_SINGLE_PARAMETER_CHECK);
+					sb.append(HikeStickerSearchBaseConstants.SYNTAX_BRACKET_CLOSE);
+				}
 
-			// Add last element syntax in sub-condition
-			sb.append(columnsInvolvedInCondition[i]);
-			sb.append(HikeStickerSearchBaseConstants.SYNTAX_SINGLE_PARAMETER_CHECK);
+				// Do not add ' AND ' separator after last element syntax in sub-condition
+				if (i != lengthBeforeLastElement)
+				{
+					sb.append(HikeStickerSearchBaseConstants.SYNTAX_AND_NEXT);
+				}
+			}
 		}
 		else
 		{

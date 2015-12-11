@@ -61,7 +61,7 @@ public class HikeCropActivity extends HikeAppStateBaseFragmentActivity
 {
 	private static final String TAG = "HikeCropActivity";
 
-	public static final String SOURCE_IMAGE_PATH = "SrcIMGP";
+	public static final String SOURCE_IMAGE_PATH = "image-path";
 
 	public static final String CROPPED_IMAGE_PATH = "CropIMGP";
 	
