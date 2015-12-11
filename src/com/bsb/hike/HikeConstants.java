@@ -165,6 +165,8 @@ public class HikeConstants
 
 	public static final String LONGITUDE = "long";
 
+	public static final String LOCATION_PROIVDER = "provider";
+
 	public static final String ZOOM_LEVEL = "zoom";
 
 	public static final String ADDRESS = "add";
