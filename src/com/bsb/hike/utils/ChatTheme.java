@@ -3465,9 +3465,7 @@ public enum ChatTheme
 
 	},
 
-	CHRISTMAS
-	{
-
+	CHRISTMAS {
 		@Override
 		public String bgId()
 		{
