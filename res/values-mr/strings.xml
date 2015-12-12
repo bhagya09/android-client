@@ -1421,5 +1421,7 @@
 <string name="unsupported_langs_toast">आपला फोन %1$s भाषा दाखवण्यास असमर्थ आहे</string>
     <string name="unsupported_language_toast_msg">आपला फोन ही भाषा स्विकारत नाही</string>
     <string name="language_ftue_complete_message">किबोर्ड ची भाषा कधीही बदलण्याकरिता \nसेटींग्स -> भाषा आणि इनपुट</string>
+    <string name="error_message_upgrade_peer"> माफ करा. हा संपर्क hike च्या जुन्या आवृत्ति वर आहे. यांच्याकडे hike डाइरेक्ट नाही आहे.</string>
+    <string name="error_message_unsupported_peer">माफ करा. hike डाइरेक्ट ने तुम्ही फक्त एंड्राइड फोन शी जोडू शकता.</string>
     
 </resources>
