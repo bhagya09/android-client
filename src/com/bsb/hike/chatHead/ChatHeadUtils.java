@@ -113,6 +113,8 @@ public class ChatHeadUtils
 
 	private static final long ONE_DAY = 86400000L;
 
+	public static String msisdn;
+
 
 	private static final String CHAT_HEAD_SHARABLE_PACKAGES = "["
 			+ "{\"a\":\"Whatsapp\",\"p\":\"com.whatsapp\"},"
@@ -735,12 +737,14 @@ public class ChatHeadUtils
 				.getString(HikeMessengerApp.COUNTRY_CODE, HikeConstants.INDIA_COUNTRY_CODE)));
 		if (number != null)
 		{
+			msisdn = number;
 			CallerContentModel contentModel = ContactManager.getInstance().getCallerContentModelFromMsisdn(number);
 			if (contentModel != null && contentModel.isBlock())
 			{
 				if (StickyCaller.CALL_TYPE == StickyCaller.INCOMING || StickyCaller.CALL_TYPE == StickyCaller.MISSED)
 				{
 					Utils.killCall();
+					StickyCaller.CALL_TYPE = StickyCaller.NONE;
 					return;
 				}
 			}

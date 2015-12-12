@@ -66,6 +66,10 @@ public class StickyCaller {
 
 	public static final short SMS = 5;
 
+	public static final short AFTER_INCOMING_UNKNOWN = 6;
+
+	public static final short AFTER_OUTGOING_UNKNOWN = 7;
+
 	public static String callCurrentNumber = null;
 
 	public static final String SHOW_STICKY_CALLER = "showStickyCaller";
@@ -84,9 +88,7 @@ public class StickyCaller {
 
 	public static final String SHOW_KNOWN_NUMBER_CARD = "showKnownCardPref";
 
-	public static final String SHOW_FREECALL_BUTTON = "showFreeCall";
-
-	public static final String SHOW_FREEMESSAGE_BUTTON = "showFreeMsg";
+	public static final String SHOW_FREEVIEW_BUTTONS = "showFreeViewButton";
 
 	public static final String ENABLE_CLIPBOARD_CARD = "enblClipCard";
 
@@ -148,7 +150,6 @@ public class StickyCaller {
 					Logger.d(TAG, "Exception on updating view ");
 				}
 			}
-
 
 			if (horizontalMovementDetected) {
 				float linearHorizontalAlpha = Math.max(0.0f, Math.min(1.0f, 1.0f - (Math.abs(XaxisMovement) / ((float) context.getResources().getDisplayMetrics().widthPixels))));
@@ -309,55 +310,45 @@ public class StickyCaller {
 
 	}
 
-	public static void showCallerView(String number, CallerContentModel callerContentModel, short type, String source) {
+	public static void showCallerView(String number, CallerContentModel callerContentModel, short type, String source)
+	{
 		final Context context = HikeMessengerApp.getInstance().getApplicationContext();
 		windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
 		callerParams.flags = LayoutParams.FLAG_LAYOUT_NO_LIMITS | LayoutParams.FLAG_NOT_FOCUSABLE;
 		callerParams.gravity = Gravity.CENTER;
-		try {
+		try
+		{
 			windowManager.removeView(stickyCallerFrameHolder);
-		} catch (Exception e) {
+		}
+		catch (Exception e)
+		{
 			Logger.d(TAG, "error in adding caller view");
 		}
-		if (CALL_TYPE == INCOMING || CALL_TYPE == OUTGOING) {
-			switch (type) {
-				case ALREADY_SAVED:
-					HAManager.getInstance().stickyCallerAnalyticsNonUIEvent(getCallEventFromCallType(CALL_TYPE), AnalyticsConstants.StickyCallerEvents.KNOWN, number, AnalyticsConstants.StickyCallerEvents.SUCCESS, source);
-					settingLayoutDataSuccess(context, number, callerContentModel, true);
-					break;
+		switch (type)
+		{
+		case ALREADY_SAVED:
+			HAManager.getInstance().stickyCallerAnalyticsNonUIEvent(getCallEventFromCallType(CALL_TYPE), AnalyticsConstants.StickyCallerEvents.KNOWN, number,
+					AnalyticsConstants.StickyCallerEvents.SUCCESS, source);
+			settingLayoutDataSuccess(context, number, callerContentModel, true);
+			break;
 
-				case SUCCESS:
-					HAManager.getInstance().stickyCallerAnalyticsNonUIEvent(getCallEventFromCallType(CALL_TYPE), AnalyticsConstants.StickyCallerEvents.UNKNOWN, number, AnalyticsConstants.StickyCallerEvents.SUCCESS, source);
-					settingLayoutDataSuccess(context, number, callerContentModel, false);
-					break;
+		case SUCCESS:
+			HAManager.getInstance().stickyCallerAnalyticsNonUIEvent(getCallEventFromCallType(CALL_TYPE), AnalyticsConstants.StickyCallerEvents.UNKNOWN, number,
+					AnalyticsConstants.StickyCallerEvents.SUCCESS, source);
+			settingLayoutDataSuccess(context, number, callerContentModel, false);
+			break;
 
-				case FAILURE:
-					settingLayoutDataFailure(context, number);
-					break;
+		case FAILURE:
+			if (CALL_TYPE == INCOMING || CALL_TYPE == OUTGOING)
+			{
+				settingLayoutDataFailure(context, number);
 			}
-		} else if (CALL_TYPE == MISSED || CALL_TYPE == CLIPBOARD || CALL_TYPE == SMS) {
-			switch (type) {
-				case ALREADY_SAVED:
-					HAManager.getInstance().stickyCallerAnalyticsNonUIEvent(getCallEventFromCallType(CALL_TYPE), AnalyticsConstants.StickyCallerEvents.KNOWN, number,
-							AnalyticsConstants.StickyCallerEvents.SUCCESS, source);
-					settingLayoutDataSuccess(context, number, callerContentModel, true);
-					if (CALL_TYPE == SMS) {
-						showSmsView();
-					}
-					break;
-
-				case SUCCESS:
-					HAManager.getInstance().stickyCallerAnalyticsNonUIEvent(getCallEventFromCallType(CALL_TYPE), AnalyticsConstants.StickyCallerEvents.UNKNOWN, number,
-							AnalyticsConstants.StickyCallerEvents.SUCCESS, source);
-					settingLayoutDataSuccess(context, number, callerContentModel, false);
-					if (CALL_TYPE == SMS) {
-						showSmsView();
-					}
-					break;
-			}
+			break;
 		}
+
 		setCallerParams();
-		try {
+		try
+		{
 			stickyCallerFrameHolder = new FrameLayout(context);
 			stickyCallerFrameHolder.setOnKeyListener(
 					new View.OnKeyListener() {
@@ -372,16 +363,20 @@ public class StickyCaller {
 			stickyCallerFrameHolder.addView(stickyCallerView);
 			windowManager.addView(stickyCallerFrameHolder, callerParams);
 			stickyCallerView.setOnTouchListener(onTouchListener);
-			if (CALL_TYPE == CLIPBOARD) {
+			if (CALL_TYPE == CLIPBOARD)
+			{
 				removeCallerViewWithDelay(OUTGOING_DELAY);
 			}
-		} catch (Exception e) {
+		}
+		catch (Exception e)
+		{
 			Logger.d(TAG, "error in adding caller view");
 		}
 	}
 
 	private static void showSmsView() {
 		if (StickyCaller.sms != null) {
+			stickyCallerView.findViewById(R.id.sms_divider).setVisibility(View.VISIBLE);
 			stickyCallerView.findViewById(R.id.caller_sms_head).setVisibility(View.VISIBLE);
 			TextView smsText = (TextView) stickyCallerView.findViewById(R.id.caller_sms_text);
 			smsText.setVisibility(View.VISIBLE);
@@ -437,11 +432,15 @@ public class StickyCaller {
 		fetchingData.setText(text);
 	}
 
-	private static void settingLayoutDataSuccess(Context context, String number, CallerContentModel callerContentModel, boolean isSaved) {
-		if (CALL_TYPE == MISSED) {
-			settingMissedCallLayoutDataSuccess(context, number, callerContentModel, isSaved);
-		} else {
+	private static void settingLayoutDataSuccess(Context context, String number, CallerContentModel callerContentModel, boolean isSaved)
+	{
+		if (CALL_TYPE == INCOMING || CALL_TYPE == OUTGOING)
+		{
 			settingOtherCallLayoutDataSuccess(context, number, callerContentModel);
+		}
+		else
+		{
+			settingMissedCallLayoutDataSuccess(context, number, callerContentModel, isSaved);
 		}
 	}
 
@@ -481,7 +480,8 @@ public class StickyCaller {
 		callerParams.gravity = Gravity.BOTTOM;
 		setBasicClickListener(number);
 		boolean showSaveContactDivider = false;
-		if (callerContentModel != null && callerContentModel.getMsisdn() != null)
+		boolean toShowBlockDivider = false;
+			if (callerContentModel != null && callerContentModel.getMsisdn() != null)
 		{
 			setValueOnID(R.id.caller_number, callerContentModel.getMsisdn());
 		}
@@ -504,8 +504,7 @@ public class StickyCaller {
 			setValueOnID(R.id.caller_location, INDIA);
 		}
 		if (((callerContentModel != null && callerContentModel.getIsOnHike()) || (Utils.isIndianMobileNumber(number)))
-				&& (HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.SHOW_FREEMESSAGE_BUTTON, true)
-						|| HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.SHOW_FREECALL_BUTTON, true)))
+				&& HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.SHOW_FREEVIEW_BUTTONS, true))
 		{
 			setFreeCallButton(number);
 
@@ -517,42 +516,52 @@ public class StickyCaller {
 			{
 				stickyCallerView.findViewById(R.id.missed_call_save_contact_divider).setVisibility(View.VISIBLE);
 			}
+
+			toShowBlockDivider = true;
 		}
 
-		if (MISSED_CALL_TIMINGS != null)
+		if (!isSaved)
 		{
-			((TextView) stickyCallerView.findViewById(R.id.missed_call_time)).setText(context.getString(R.string.voip_missed_call_notif) + MISSED_CALL_TIMINGS);
+			toShowBlockDivider = true;
 		}
-		
-			setBlockContactButton(number);
 
-			setSpam(callerContentModel);
-		
+		if ( CALL_TYPE == MISSED && MISSED_CALL_TIMINGS != null)
+		{
+			TextView missedCallText = ((TextView) stickyCallerView.findViewById(R.id.missed_call_time));
+			missedCallText.setText(context.getString(R.string.voip_missed_call_notif) + MISSED_CALL_TIMINGS);
+			missedCallText.setVisibility(View.VISIBLE);
+		}
+
+		if (CALL_TYPE == SMS)
+		{
+			showSmsView();
+		}
+
+		setBlockContactButton(number, toShowBlockDivider);
+
+		setSpam(callerContentModel);
 	}
 
-	private static void setSpam(CallerContentModel callerContentModel) {
-
-		String spamString = "";
-		if (callerContentModel != null)
-		{
-			if(callerContentModel.isSpam() && callerContentModel.getSpamCount()>0)
-			{
-				spamString = "("+HikeMessengerApp.getInstance().getApplicationContext().getString(R.string.spam)+"-"+callerContentModel.getSpamCount()+")";
-			}
-			TextView spam = (TextView)stickyCallerView.findViewById(R.id.spam);
-			spam.setVisibility(View.VISIBLE);
-			spam.setText(spamString);
-		}
-	}
-
-	private static void setBlockContactButton(String msisdn)
+	private static void setSpam(CallerContentModel callerContentModel)
 	{
-		if (CALL_TYPE == INCOMING || CALL_TYPE == MISSED)
+		if (callerContentModel.isSpam())
+		{
+			TextView spam = (TextView) stickyCallerView.findViewById(R.id.spam);
+			spam.setVisibility(View.VISIBLE);
+		}
+	}
+
+	private static void setBlockContactButton(String msisdn, boolean isIndianOrhikeNo)
+	{
+		if (CALL_TYPE == INCOMING || CALL_TYPE == MISSED || CALL_TYPE == AFTER_INCOMING_UNKNOWN || CALL_TYPE == AFTER_OUTGOING_UNKNOWN)
 		{
 			if (msisdn != null && ContactManager.getInstance().getCallerContentModelFromMsisdn(msisdn) != null)
 			{
-				View callerBlockButtonDivider = stickyCallerView.findViewById(R.id.block_contact_divider);
-				callerBlockButtonDivider.setVisibility(View.VISIBLE);
+				if (HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.SHOW_FREEVIEW_BUTTONS, true) || isIndianOrhikeNo)
+				{
+					View callerBlockButtonDivider = stickyCallerView.findViewById(R.id.block_contact_divider);
+					callerBlockButtonDivider.setVisibility(View.VISIBLE);
+				}
 				View callBlockButton = stickyCallerView.findViewById(R.id.block_contact);
 				callBlockButton.setVisibility(View.VISIBLE);
 				callBlockButton.setTag(msisdn);
@@ -561,24 +570,14 @@ public class StickyCaller {
 		}
 	}
 
-	public static void setOtherDismissButton()
-	{
-
-		if ((HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.SHOW_FREEMESSAGE_BUTTON, true)
-				^ HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.SHOW_FREECALL_BUTTON, true)) && (CALL_TYPE==OUTGOING || CALL_TYPE == INCOMING))
-		{
-			View callerDismissButtonDivider = stickyCallerView.findViewById(R.id.caller_dismiss_vertical_divider);
-			callerDismissButtonDivider.setVisibility(View.VISIBLE);
-			View callDismissButton = stickyCallerView.findViewById(R.id.caller_dismiss_button);
-			callDismissButton.setVisibility(View.VISIBLE);
-			callDismissButton.setOnClickListener(callerClickListener);
-		}
-	}
-	
 	private static void settingOtherCallLayoutDataSuccess(Context context, String number, CallerContentModel callerContentModel)
 	{
+		boolean isIndianOrhikeNo = false ;
 		LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		stickyCallerView = (LinearLayout) inflater.inflate(R.layout.caller_layout, null);
+		if (CALL_TYPE == INCOMING || CALL_TYPE == OUTGOING)
+		{
+			stickyCallerView = (LinearLayout) inflater.inflate(R.layout.caller_layout, null);
+		}
 		setBasicClickListener(number);
 		if (callerContentModel != null && callerContentModel.getMsisdn()!= null)
 		{
@@ -602,18 +601,13 @@ public class StickyCaller {
 		}
 		if (callerContentModel != null && (callerContentModel.getIsOnHike() || Utils.isIndianMobileNumber(number)))
 		{
-			setDismissWithVisible();
-			
-			setFreeCallButton(number);
+			isIndianOrhikeNo = true;
 
 			setFreeSmsButton(number);
-
-			setOtherDismissButton();
-
-			setCallDivider();
 		}
+		setDismissWithVisible(isIndianOrhikeNo);
 
-		setBlockContactButton(number);
+		setBlockContactButton(number, isIndianOrhikeNo);
 
 		setSpam(callerContentModel);
 	}
@@ -633,8 +627,7 @@ public class StickyCaller {
 
 	private static void setFreeSmsButton(String number)
 	{
-		if (HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.SHOW_FREEMESSAGE_BUTTON, true)
-				|| (CALL_TYPE != INCOMING && CALL_TYPE != OUTGOING && HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.SHOW_FREECALL_BUTTON, true)))
+		if (HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.SHOW_FREEVIEW_BUTTONS, true))
 		{
 			View freeSmsButton = stickyCallerView.findViewById(R.id.caller_free_message);
 			freeSmsButton.setVisibility(View.VISIBLE);
@@ -643,65 +636,26 @@ public class StickyCaller {
 		}
 	}
 
-	private static void setFreeMessageDivider(String number)
-	{
-		if (HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.SHOW_FREEMESSAGE_BUTTON, true)
-				&& HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.SHOW_FREECALL_BUTTON, true))
-		{
-			View callerDivider = stickyCallerView.findViewById(R.id.caller_free_message);
-			callerDivider.setVisibility(View.VISIBLE);
-			callerDivider.setTag(number);
-			callerDivider.setOnClickListener(callerClickListener);
-		}
-	}
-
-	private static void setCallDivider()
-	{
-		if (CALL_TYPE == INCOMING || CALL_TYPE == OUTGOING)
-		{
-			if (HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.SHOW_FREEMESSAGE_BUTTON, true)
-					&& HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.SHOW_FREECALL_BUTTON, true))
-			{
-				View callerDivider = stickyCallerView.findViewById(R.id.caller_vertical_divider);
-				callerDivider.setVisibility(View.VISIBLE);
-			}
-		}
-		else
-		{
-			if (HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.SHOW_FREEMESSAGE_BUTTON, true)
-					|| HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.SHOW_FREECALL_BUTTON, true))
-			{
-				View callerDivider = stickyCallerView.findViewById(R.id.caller_vertical_divider);
-				callerDivider.setVisibility(View.VISIBLE);
-			}
-		}
-	}
-
 	private static void setFreeCallButton(String number)
 	{
-		if (HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.SHOW_FREECALL_BUTTON, true)
-				|| (CALL_TYPE!=INCOMING && CALL_TYPE!=OUTGOING && HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.SHOW_FREEMESSAGE_BUTTON, true)))
+		if (HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.SHOW_FREEVIEW_BUTTONS, true))
 		{
 			View freeCallButton = stickyCallerView.findViewById(R.id.caller_free_call);
 			freeCallButton.setVisibility(View.VISIBLE);
 			freeCallButton.setTag(number);
 			freeCallButton.setOnClickListener(callerClickListener);
+			View callerDivider = stickyCallerView.findViewById(R.id.missed_call_free_divider);
+			callerDivider.setVisibility(View.VISIBLE);
 		}
 	}
 	
-	private static void setDismissWithVisible()
+	private static void setDismissWithVisible(boolean isIndianOrHikeNo)
 	{
-		Context context = HikeMessengerApp.getInstance().getApplicationContext();
-		if (HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.SHOW_FREECALL_BUTTON, true)
-				|| HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.SHOW_FREEMESSAGE_BUTTON, true))
+		if (CALL_TYPE != OUTGOING || (HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.SHOW_FREEVIEW_BUTTONS, true) && isIndianOrHikeNo))
 		{
-			TextView freeCallButton = (TextView)stickyCallerView.findViewById(R.id.caller_dismiss_with);
+			TextView freeCallButton = (TextView) stickyCallerView.findViewById(R.id.caller_dismiss_with);
 			freeCallButton.setVisibility(View.VISIBLE);
 			stickyCallerView.findViewById(R.id.caller_free_layout).setVisibility(View.VISIBLE);
-			if (CALL_TYPE != INCOMING)
-			{
-				freeCallButton.setText(context.getString(R.string.try_instead));
-			}
 		}
 	}
 
@@ -754,7 +708,7 @@ public class StickyCaller {
 				break;
 			case R.id.missed_call_save_contact:
 				HAManager.getInstance().stickyCallerAnalyticsUIEvent(AnalyticsConstants.StickyCallerEvents.SAVE_CONTACT, getPhoneNumberFromTag(v), AnalyticsConstants.StickyCallerEvents.CARD, getCallEventFromCallType(CALL_TYPE));
-				CallerContentModel callerContentModel = ChatHeadUtils.getCallerContentModelObject(HikeSharedPreferenceUtil.getInstance(HikeConstants.CALLER_SHARED_PREF).getData(getPhoneNumberFromTag(v), null));
+				CallerContentModel callerContentModel =  ContactManager.getInstance().getCallerContentModelFromMsisdn(v.getTag().toString());
 				if (v.getTag() != null && callerContentModel != null && callerContentModel.getFullName() != null)
 				{
 					Utils.killCall();

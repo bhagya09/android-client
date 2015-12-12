@@ -53,13 +53,22 @@ public class IncomingCallReceiver extends PhoneStateListener
 
 		case TelephonyManager.CALL_STATE_IDLE:
 			StickyCaller.removeCallerView();
-			StickyCaller.CALL_TYPE = StickyCaller.NONE; 
 			// missed call block
 			if (ring == true && callReceived == false)
 			{   
 				StickyCaller.CALL_TYPE = StickyCaller.MISSED; 
 				StickyCaller.MISSED_CALL_TIMINGS = ChatHeadUtils.getdateFromSystemTime();
-				ChatHeadUtils.postNumberRequest(HikeMessengerApp.getInstance(), StickyCaller.callCurrentNumber);
+				ChatHeadUtils.postNumberRequest(HikeMessengerApp.getInstance(), ChatHeadUtils.msisdn);
+			}
+			if (StickyCaller.CALL_TYPE == StickyCaller.INCOMING && ChatHeadUtils.getNameFromNumber(HikeMessengerApp.getInstance().getApplicationContext(), ChatHeadUtils.msisdn) == null)
+			{
+				StickyCaller.CALL_TYPE = StickyCaller.AFTER_INCOMING_UNKNOWN;
+				ChatHeadUtils.postNumberRequest(HikeMessengerApp.getInstance(), ChatHeadUtils.msisdn);
+			}
+			if (StickyCaller.CALL_TYPE == StickyCaller.OUTGOING && ChatHeadUtils.getNameFromNumber(HikeMessengerApp.getInstance().getApplicationContext(), ChatHeadUtils.msisdn) == null)
+			{
+				StickyCaller.CALL_TYPE = StickyCaller.AFTER_OUTGOING_UNKNOWN;
+				ChatHeadUtils.postNumberRequest(HikeMessengerApp.getInstance(), ChatHeadUtils.msisdn);
 			}
 			
 			if (StickyCaller.toCall && StickyCaller.callCurrentNumber !=  null)

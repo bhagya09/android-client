@@ -3,13 +3,6 @@
     android:layout_height="wrap_content"
     android:orientation="vertical" >
 
-    <ProgressBar
-        style="?android:attr/progressBarStyleSmall"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/progressBar2"
-        android:layout_gravity="right" />
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -83,19 +76,11 @@
                 </LinearLayout>
             </RelativeLayout>
 
-            <View
-                android:layout_width="wrap_content"
-                android:layout_height="0.5dp"
-                android:layout_marginLeft="68dp"
-                android:layout_marginRight="16dp"
-                android:layout_marginTop="13dp"
-                android:background="@color/home_screen_list_divider" />
-
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="68dp"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="2dp"
                 android:orientation="horizontal">
 
                 <com.bsb.hike.view.CustomFontTextView
@@ -113,7 +98,7 @@
                     android:layout_height="wrap_content"
                     android:textColor="@color/block_contact"
                     android:textSize="14sp"
-                    android:text="dfghjkl;"
+                    android:text="@string/spam"
                     android:visibility="gone" />
 
             </LinearLayout>
@@ -125,7 +110,43 @@
                 android:layout_marginLeft="68dp"
                 android:layout_marginTop="4dp"
                 android:textColor="@color/conv_item_last_msg_color"
+                android:visibility="gone"
                 android:textSize="12sp" />
+
+
+            <View
+                android:id="@+id/sms_divider"
+                android:layout_width="wrap_content"
+                android:layout_height="0.5dp"
+                android:layout_marginLeft="68dp"
+                android:layout_marginRight="16dp"
+                android:layout_marginTop="13dp"
+                android:background="@color/home_screen_list_divider"
+                android:visibility="gone" />
+
+            <com.bsb.hike.view.CustomFontTextView
+                android:id="@+id/caller_sms_head"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="68dp"
+                android:layout_marginRight="16dp"
+                android:layout_marginTop="8dp"
+                android:text="@string/sms_head"
+                android:textColor="@color/caller_free_call"
+                android:textSize="14sp"
+                android:visibility="gone" />
+
+            <com.bsb.hike.view.CustomFontTextView
+                android:id="@+id/caller_sms_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="68dp"
+                android:layout_marginRight="16dp"
+                android:layout_marginTop="4dp"
+                android:text="@string/sms_head"
+                android:textColor="@color/timestampcolor"
+                android:textSize="13sp"
+                android:visibility="gone" />
 
             <View
                 android:layout_width="wrap_content"
@@ -268,8 +289,8 @@
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="3dp"
                     android:gravity="center"
-                    android:text="@string/block_contact"
-                    android:textColor="@color/block_contact"
+                    android:text="@string/block_contact_caps"
+                    android:textColor="@color/caller_free_call"
                     android:textSize="13sp" />
             </LinearLayout>
             <View

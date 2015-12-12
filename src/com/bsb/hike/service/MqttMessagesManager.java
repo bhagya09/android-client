@@ -2598,15 +2598,15 @@ public class MqttMessagesManager
 		{
 			Utils.setSharedPrefValue(context, HikeConstants.ENABLE_KNOWN_NUMBER_CARD_PREF, data.optBoolean(HikeConstants.ENABLE_KNOWN_NUMBER_CARD_PREF, true));
 		}
-		if (data.has(StickyCaller.SHOW_FREECALL_BUTTON))
+		if (data.has(StickyCaller.SHOW_FREEVIEW_BUTTONS))
 		{
-			HikeSharedPreferenceUtil.getInstance().saveData(StickyCaller.SHOW_FREECALL_BUTTON, data.optBoolean(StickyCaller.SHOW_FREECALL_BUTTON, true));
+			HikeSharedPreferenceUtil.getInstance().saveData(StickyCaller.SHOW_FREEVIEW_BUTTONS, data.optBoolean(StickyCaller.SHOW_FREEVIEW_BUTTONS, true));
 		}
-		if (data.has(StickyCaller.SHOW_FREEMESSAGE_BUTTON))
+/*		if (data.has(StickyCaller.SHOW_FREEMESSAGE_BUTTON))
 		{
 			HikeSharedPreferenceUtil.getInstance().saveData(StickyCaller.SHOW_FREEMESSAGE_BUTTON, data.optBoolean(StickyCaller.SHOW_FREEMESSAGE_BUTTON, true));
 		}
-		if(data.has(StickyCaller.SHOW_SMS_CARD_PREF))
+*/		if(data.has(StickyCaller.SHOW_SMS_CARD_PREF))
 		{
 			HikeSharedPreferenceUtil.getInstance().saveData(StickyCaller.SHOW_SMS_CARD_PREF, data.optBoolean(StickyCaller.SHOW_SMS_CARD_PREF, false));
 		}
