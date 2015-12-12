@@ -751,21 +751,24 @@ public class ChatHeadUtils
 			String contactName = getNameFromNumber(context, number);
 			if (contactName != null)
 			{
-				CallerContentModel callerContentModel = ContactManager.getInstance().getCallerContentModelFromMsisdn(number);
-				if (callerContentModel != null)
+				if (PreferenceManager.getDefaultSharedPreferences(context).getBoolean(HikeConstants.ENABLE_KNOWN_NUMBER_CARD_PREF, true))
 				{
-					callerContentModel.setFullName(contactName);
+					CallerContentModel callerContentModel = ContactManager.getInstance().getCallerContentModelFromMsisdn(number);
+					if (callerContentModel != null)
+					{
+						callerContentModel.setFullName(contactName);
+					}
+					else
+					{
+						callerContentModel = new CallerContentModel();
+						callerContentModel.setFullName(contactName);
+						callerContentModel.setMsisdn(number);
+						callerContentModel.setIsOnHike(Utils.isOnHike(number));
+						ContactManager.getInstance().insertIntoCallerTable(callerContentModel, false);
+					}
+					callerServerCall(number, true, callerContentModel);
+					StickyCaller.showCallerViewWithDelay(number, callerContentModel, StickyCaller.ALREADY_SAVED, AnalyticsConstants.StickyCallerEvents.ALREADY_SAVED);
 				}
-				else
-				{
-					callerContentModel = new CallerContentModel();
-					callerContentModel.setFullName(contactName);
-					callerContentModel.setMsisdn(number);
-					callerContentModel.setIsOnHike(Utils.isOnHike(number));
-					ContactManager.getInstance().insertIntoCallerTable(callerContentModel, false);
-				}
-				callerServerCall(number, true, callerContentModel);
-				StickyCaller.showCallerViewWithDelay(number, callerContentModel, StickyCaller.ALREADY_SAVED, AnalyticsConstants.StickyCallerEvents.ALREADY_SAVED);
 			}
 			else
 			{
