@@ -777,7 +777,7 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		_instance = this;
 
 		setupLocalLanguage();
-		KptKeyboardManager.getInstance(this);
+		KptKeyboardManager.getInstance();
 		LocalLanguageUtils.handleHikeSupportedListOrderChange(this);
 		Utils.setDensityMultiplier(getResources().getDisplayMetrics());
 
