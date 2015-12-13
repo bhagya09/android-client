@@ -8169,6 +8169,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		contentValues.put(DBConstants.LAST_MESSAGE_TIMESTAMP, convMessage.getTimestamp());
 		contentValues.put(DBConstants.SORTING_TIMESTAMP, convMessage.getTimestamp());
 		contentValues.put(DBConstants.MESSAGE_ID, convMessage.getMsgID());
+		contentValues.put(DBConstants.IS_STEALTH, StealthModeManager.getInstance().isStealthMsisdn(botInfo.getMsisdn()));
 		contentValues.put(DBConstants.UNREAD_COUNT, 1); // inOrder to show 1+ on conv screen, we need to have some unread counter
 
 		/**
@@ -8179,7 +8180,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			botInfo.setLastConversationMsg(convMessage);
 			botInfo.setUnreadCount(1);  // inOrder to show 1+ on conv screen, we need to have some unread counter
 			botInfo.setConvPresent(true); //In Order to indicate the presence of bot in the conv table
-
+			botInfo.setStealth(StealthModeManager.getInstance().isStealthMsisdn(botInfo.getMsisdn()));
 			//If the chat thread already exists and we need only to change the convInfo,we would not want the listeners on new chat created to be fired,like badge counter.
 			if (isChatExist)
 			{
