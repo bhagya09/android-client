@@ -113,8 +113,10 @@ public class StickyCaller {
 	public static Runnable removeViewRunnable = new Runnable() {
 
 		@Override
-		public void run() {
-			if (CALL_TYPE != MISSED) {
+		public void run()
+		{
+			if (CALL_TYPE != MISSED && CALL_TYPE != SMS && CALL_TYPE != AFTER_INCOMING_UNKNOWN || CALL_TYPE != AFTER_OUTGOING_UNKNOWN)
+			{
 				removeCallerView();
 			}
 		}
