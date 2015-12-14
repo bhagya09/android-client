@@ -794,23 +794,30 @@ public class ChatHeadUtils
 		{
 			registerOrUnregisterClipboardListener(context);
 
-			HikeHandlerUtil.getInstance().postRunnable(new Runnable() {
-				// putting code inside runnable to make it run on UI thread.
-				@Override
-				public void run() {
-					if (incomingCallReceiver == null) {
-						incomingCallReceiver = new IncomingCallReceiver();
-						TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
-						telephonyManager.listen(incomingCallReceiver, PhoneStateListener.LISTEN_CALL_STATE);
+			Handler uiHandler = new Handler(HikeMessengerApp.getInstance().getApplicationContext().getMainLooper());
+			if (uiHandler != null)
+			{
+				uiHandler.post(new Runnable()
+				{
+					// putting code inside runnable to make it run on UI thread.
+					@Override
+					public void run()
+					{
+						if (incomingCallReceiver == null)
+						{
+							incomingCallReceiver = new IncomingCallReceiver();
+							TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+							telephonyManager.listen(incomingCallReceiver, PhoneStateListener.LISTEN_CALL_STATE);
+						}
+						if (outgoingCallReceiver == null)
+						{
+							outgoingCallReceiver = new OutgoingCallReceiver();
+							IntentFilter intentFilter = new IntentFilter(Intent.ACTION_NEW_OUTGOING_CALL);
+							context.registerReceiver(outgoingCallReceiver, intentFilter);
+						}
 					}
-					if (outgoingCallReceiver == null) {
-						outgoingCallReceiver = new OutgoingCallReceiver();
-						IntentFilter intentFilter = new IntentFilter(Intent.ACTION_NEW_OUTGOING_CALL);
-						context.registerReceiver(outgoingCallReceiver, intentFilter);
-					}
-				}
-			});
-
+				});
+			}
 		}
 	}
 
@@ -819,21 +826,25 @@ public class ChatHeadUtils
 	{
 		if (HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.ENABLE_CLIPBOARD_CARD, true))
 		{
-			HikeHandlerUtil.getInstance().postRunnable(new Runnable()
+			Handler uiHandler = new Handler(HikeMessengerApp.getInstance().getApplicationContext().getMainLooper());
+			if (uiHandler != null)
 			{
-				// putting code inside runnable to make it run on UI thread.
-				@Override
-				public void run()
+				uiHandler.post(new Runnable()
 				{
-
-					if (clipboardListener == null)
+					// putting code inside runnable to make it run on UI thread.
+					@Override
+					public void run()
 					{
-						clipboardListener = new ClipboardListener();
-						ClipboardManager clipBoard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
-						clipBoard.addPrimaryClipChangedListener(clipboardListener);
+
+						if (clipboardListener == null)
+						{
+							clipboardListener = new ClipboardListener();
+							ClipboardManager clipBoard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+							clipBoard.addPrimaryClipChangedListener(clipboardListener);
+						}
 					}
-				}
-			});
+				});
+			}
 		}
 		else
 		{
@@ -844,21 +855,24 @@ public class ChatHeadUtils
 
 	public static void unregisterClipboardListener(final Context context)
 	{
-		HikeHandlerUtil.getInstance().postRunnable(new Runnable()
+		Handler uiHandler = new Handler(HikeMessengerApp.getInstance().getApplicationContext().getMainLooper());
+		if (uiHandler != null)
 		{
-			// putting code inside runnable to make it run on UI thread.
-			@Override
-			public void run()
+			uiHandler.post(new Runnable()
 			{
-				if (clipboardListener != null)
+				// putting code inside runnable to make it run on UI thread.
+				@Override
+				public void run()
 				{
-					ClipboardManager clipBoard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
-					clipBoard.removePrimaryClipChangedListener(clipboardListener);
-					clipboardListener = null;
+					if (clipboardListener != null)
+					{
+						ClipboardManager clipBoard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+						clipBoard.removePrimaryClipChangedListener(clipboardListener);
+						clipboardListener = null;
+					}
 				}
-			}
-		});
-
+			});
+		}
 	}
 
 	public static void unregisterCallReceiver()
@@ -866,29 +880,33 @@ public class ChatHeadUtils
 		final Context context = HikeMessengerApp.getInstance();
 
 		unregisterClipboardListener(context);
-
-		HikeHandlerUtil.getInstance().postRunnable(new Runnable()
+		
+		Handler uiHandler = new Handler(HikeMessengerApp.getInstance().getApplicationContext().getMainLooper());
+		if (uiHandler != null)
 		{
-			// putting code inside runnable to make it run on UI thread.
-			@Override
-			public void run()
+			uiHandler.post(new Runnable()
 			{
-
-				if (incomingCallReceiver != null)
+				// putting code inside runnable to make it run on UI thread.
+				@Override
+				public void run()
 				{
-					TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
-					telephonyManager.listen(incomingCallReceiver, PhoneStateListener.LISTEN_NONE);
-					incomingCallReceiver = null;
-				}
 
-				if (outgoingCallReceiver != null)
-				{
-					context.unregisterReceiver(outgoingCallReceiver);
-					outgoingCallReceiver = null;
+					if (incomingCallReceiver != null)
+					{
+						TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+						telephonyManager.listen(incomingCallReceiver, PhoneStateListener.LISTEN_NONE);
+						incomingCallReceiver = null;
+					}
+
+					if (outgoingCallReceiver != null)
+					{
+						context.unregisterReceiver(outgoingCallReceiver);
+						outgoingCallReceiver = null;
+					}
+					StickyCaller.removeCallerView();
 				}
-				StickyCaller.removeCallerView();
-			}
-		});
+			});
+		}
 	}
 
 	public static void onCallClickedFromCallerCard(Context context, String callCurrentNumber, CallSource hikeStickyCaller)
