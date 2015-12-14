@@ -142,6 +142,10 @@ public class HikeDialogFactory
 	
 	public static final int MAPP_DOWNLOAD_DIALOG = 47;
 
+	public static final int CALLER_BLOCK_CONTACT_DIALOG = 48;
+
+	public static final int CALLER_UNBLOCK_CONTACT_DIALOG = 49;
+
 	public static HikeDialog showDialog(Context context, int whichDialog, Object... data)
 	{
 		return showDialog(context, whichDialog, null, data);
@@ -232,10 +236,34 @@ public class HikeDialogFactory
 			return showMicroAppDialog(dialogId,context,listener,data);
 		case MAPP_DOWNLOAD_DIALOG:
 			return showMicroappDownloadDialog(dialogId, context, listener, data);
+		case CALLER_BLOCK_CONTACT_DIALOG:
+		case CALLER_UNBLOCK_CONTACT_DIALOG:
+			return showBlockContactDialog(context, dialogId, listener, data);
 		}
 		return null;
 	}
-	
+
+	private static HikeDialog showBlockContactDialog(Context context, int dialogId, HikeDialogListener listener, Object... data)
+	{
+		final CustomAlertDialog blockConfirmDialog = new CustomAlertDialog(context, dialogId);
+		switch (dialogId)
+		{
+		case CALLER_BLOCK_CONTACT_DIALOG:
+			blockConfirmDialog.setMessage(String.format(context.getString(R.string.block_contact_sure), (String) data[0]));
+			blockConfirmDialog.setTitle(context.getString(R.string.block_contact));
+			break;
+		case CALLER_UNBLOCK_CONTACT_DIALOG:
+			blockConfirmDialog.setMessage(String.format(context.getString(R.string.unblock_contact_sure), (String) data[0]));
+			blockConfirmDialog.setTitle(context.getString(R.string.unblock_contact));
+			break;
+		}
+		blockConfirmDialog.setPositiveButton(R.string.dialog_btn_yes, listener);
+		blockConfirmDialog.setNegativeButton(R.string.dialog_btn_no, listener);
+		blockConfirmDialog.setCancelable(false);
+		blockConfirmDialog.show();
+		return blockConfirmDialog;
+	}
+
 	public static <T> HikeDialog showDialog(Context context, int dialogId, T data1, HikeDialogListener listener, Object... data2)
 	{
 		switch (dialogId)

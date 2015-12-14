@@ -324,8 +324,8 @@ public class HttpRequests
 
 		return requestToken;
 	}
-	
-	public static RequestToken postNumberAndGetCallerDetails(String url,JSONObject json, IRequestListener requestListener, int delay, int multiplier)
+
+	public static RequestToken postCallerMsisdn(String url, JSONObject json, IRequestListener requestListener, int delay, int multiplier, boolean responseOnUiThread)
 	{		
 		JsonBody body = new JsonBody(json);
 		RequestToken requestToken = new JSONObjectRequest.Builder()
@@ -334,7 +334,7 @@ public class HttpRequests
 				.setRetryPolicy(new BasicRetryPolicy(HikePlatformConstants.NUMBER_OF_RETRIES, delay, multiplier))
 				.setRequestListener(requestListener)
 				.setRequestType(REQUEST_TYPE_SHORT)
-				.setResponseOnUIThread(true)
+				.setResponseOnUIThread(responseOnUiThread)
 				.build();
 
 		return requestToken;

@@ -56,8 +56,6 @@ import com.bsb.hike.filetransfer.FileTransferManager;
 import com.bsb.hike.filetransfer.FileTransferManager.NetworkType;
 import com.bsb.hike.imageHttp.HikeImageDownloader;
 import com.bsb.hike.imageHttp.HikeImageWorker;
-import com.bsb.hike.localisation.LocalLanguage;
-import com.bsb.hike.localisation.LocalLanguageUtils;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.models.ConvMessage;
@@ -81,11 +79,6 @@ import com.bsb.hike.models.Conversation.GroupConversation;
 import com.bsb.hike.models.Conversation.OneToNConversation;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.HttpManager;
-import com.bsb.hike.modules.httpmgr.RequestToken;
-import com.bsb.hike.modules.httpmgr.exception.HttpException;
-import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
-import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
-import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.modules.kpt.KptKeyboardManager;
 import com.bsb.hike.modules.stickerdownloadmgr.SingleStickerDownloadTask;
 import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
@@ -2598,13 +2591,9 @@ public class MqttMessagesManager
 		{
 			Utils.setSharedPrefValue(context, HikeConstants.ENABLE_KNOWN_NUMBER_CARD_PREF, data.optBoolean(HikeConstants.ENABLE_KNOWN_NUMBER_CARD_PREF, true));
 		}
-		if (data.has(StickyCaller.SHOW_FREECALL_BUTTON))
+		if (data.has(StickyCaller.SHOW_FREEVIEW))
 		{
-			HikeSharedPreferenceUtil.getInstance().saveData(StickyCaller.SHOW_FREECALL_BUTTON, data.optBoolean(StickyCaller.SHOW_FREECALL_BUTTON, true));
-		}
-		if (data.has(StickyCaller.SHOW_FREEMESSAGE_BUTTON))
-		{
-			HikeSharedPreferenceUtil.getInstance().saveData(StickyCaller.SHOW_FREEMESSAGE_BUTTON, data.optBoolean(StickyCaller.SHOW_FREEMESSAGE_BUTTON, true));
+			HikeSharedPreferenceUtil.getInstance().saveData(StickyCaller.SHOW_FREEVIEW, data.optBoolean(StickyCaller.SHOW_FREEVIEW, true));
 		}
 		if(data.has(StickyCaller.SHOW_SMS_CARD_PREF))
 		{

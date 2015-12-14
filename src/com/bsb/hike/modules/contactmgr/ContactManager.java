@@ -38,6 +38,7 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
+import com.bsb.hike.chatHead.CallerContentModel;
 import com.bsb.hike.db.DBConstants;
 import com.bsb.hike.db.DbException;
 import com.bsb.hike.db.HikeConversationsDatabase;
@@ -2379,11 +2380,11 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 
 
 	public void setParticipantAdmin(String groupId, String msisdn) {
-		transientCache.updateGroupParticipantDetail(groupId,msisdn);
+		transientCache.updateGroupParticipantDetail(groupId, msisdn);
 	}
 	
 	public void updateAdminState(String msisdn) {
-		transientCache.updateContactDetailInAllGroups( msisdn);
+		transientCache.updateContactDetailInAllGroups(msisdn);
 	}
 	
 	/**
@@ -2395,4 +2396,30 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 	{
 		return hDb.getImagePathForThumbnail(msisdn);
 	}
+
+	public void updateCallerTable(CallerContentModel callerContentModel)
+	{
+		HikeUserDatabase.getInstance().updateCallerTable(callerContentModel);
+	}
+
+	public void insertIntoCallerTable(CallerContentModel callerContentModel, boolean isCompleteData)
+	{
+		HikeUserDatabase.getInstance().insertIntoCallerTable(callerContentModel, isCompleteData);
+	}
+
+	public CallerContentModel getCallerContentModelFromMsisdn(String msisdn)
+	{
+		return HikeUserDatabase.getInstance().getCallerContentModelFromMsisdn(msisdn);
+	}
+
+	public Cursor getCallerBlockContactCursor()
+	{
+		return HikeUserDatabase.getInstance().getCallerBlockContactCursor();
+	}
+
+	public int updateBlockStatusIntoCallerTable(String msisdn, int isBlock)
+	{
+		return HikeUserDatabase.getInstance().updateBlockStatusIntoCallerTable(msisdn, isBlock);
+	}
 }
+

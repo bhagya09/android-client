@@ -737,6 +737,8 @@ public class HikeConstants
     public static final String HTTP_NETWORK_CHECK_CALL = "httpNetworkCheckCall";
 	public static final String FORCE_BG = "force_bg";
 
+	public static final String CALLER_BLOKED_LIST_PREF = "callerBlockedList";
+
 	public class InviteSection
 	{
 		public static final String INVITE_SECTION = "invite_section";
@@ -3652,6 +3654,8 @@ public class HikeConstants
 	public static final String SHARE_LINK_URL_FOR_GC = "share_link_url";
 
 	public static final String CALLER_SHARED_PREF = "caller_shared_pref";
+
+	public static final String IS_BLOCK = "is_block";
 
 	public static final String BOT_TABLE_REFRESH = "btr";
 	
