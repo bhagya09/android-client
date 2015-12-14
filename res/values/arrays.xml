@@ -300,6 +300,7 @@
         <item>@color/dp_bg_9</item>
         <item>@color/dp_bg_10</item>
         <item>@color/dp_bg_11</item>
+        <item>@color/dp_bg_12</item>
     </array>
 
 </resources>
