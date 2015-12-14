@@ -737,7 +737,6 @@ public class HikeConstants
 	public static final String TOGGLE = "toggle";
 
     public static final String HTTP_NETWORK_CHECK_CALL = "httpNetworkCheckCall";
-	public static final String FORCE_BG = "force_bg";
 
 	public class InviteSection
 	{
