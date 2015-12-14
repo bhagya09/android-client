@@ -1,5 +1,7 @@
 package com.bsb.hike.chatHead;
 
+import android.text.TextUtils;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 import com.bsb.hike.utils.Logger;
@@ -77,7 +79,7 @@ public class CallerContentModel
 
 	public String getFullName()
 	{
-		if (full_name != null)
+		if (!TextUtils.isEmpty(full_name))
 		{
 			return  full_name;
 		}
@@ -86,20 +88,22 @@ public class CallerContentModel
 
 		String lastName = getLastName();
 
-		if (firstName == null && lastName == null)
+		if (TextUtils.isEmpty(firstName) && TextUtils.isEmpty(lastName))
 		{
 			return null;
 		}
 
 		String name = "";
-		if (firstName != null)
+
+		if (!TextUtils.isEmpty(firstName))
 		{
 			name = firstName + " ";
 		}
-		if (lastName != null)
+		if (!TextUtils.isEmpty(lastName))
 		{
 			name = name + lastName;
 		}
+
 		return name;
 	}
 

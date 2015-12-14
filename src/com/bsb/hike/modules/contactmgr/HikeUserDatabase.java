@@ -493,19 +493,15 @@ class HikeUserDatabase extends SQLiteOpenHelper
 		}
 	}
 
-	public void updateBlockStatusIntoCallerTable(String msisdn, int isBlock)
+	public int updateBlockStatusIntoCallerTable(String msisdn, int isBlock)
 	{
 		if (msisdn != null)
 		{
 			ContentValues cv = new ContentValues();
 			cv.put(DBConstants.HIKE_USER.IS_BLOCK, isBlock);
-			mDb.update(DBConstants.HIKE_USER.HIKE_CALLER_TABLE, cv, DBConstants.MSISDN + "=? ", new String[] { msisdn });
+			return mDb.update(DBConstants.HIKE_USER.HIKE_CALLER_TABLE, cv, DBConstants.MSISDN + "=? ", new String[] { msisdn });
 		}
-	}
-
-	public void deleteFromCallerTable(String msisdn)
-	{
-		mDb.delete(DBConstants.HIKE_USER.HIKE_CALLER_TABLE, DBConstants.MSISDN + "=? ", new String[]{msisdn});
+		return 0;
 	}
 
 	void addBlockList(List<String> msisdns) throws DbException

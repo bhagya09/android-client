@@ -15,6 +15,7 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.db.DBConstants;
 import com.bsb.hike.smartImageLoader.IconLoader;
+import com.bsb.hike.ui.BlockCallerActivity;
 import com.bsb.hike.utils.Logger;
 
 /**
@@ -32,6 +33,7 @@ public class BlockCallerListAdapter extends RecyclerViewCursorAdapter<BlockCalle
 	private int mIconImageSize;
 
 	private View.OnClickListener onClickListener;
+
 
 	class ViewHolder extends RecyclerView.ViewHolder
 	{
@@ -77,7 +79,7 @@ public class BlockCallerListAdapter extends RecyclerViewCursorAdapter<BlockCalle
 			viewHolder.msisdn.setText(msisdn);
 			viewHolder.checkBox.setVisibility(View.VISIBLE);
 			viewHolder.checkBox.setButtonDrawable(R.drawable.block_button);
-			if (cursor.getInt(cursor.getColumnIndex(DBConstants.HIKE_USER.IS_BLOCK)) == 1)
+			if (cursor.getInt(cursor.getColumnIndex(DBConstants.HIKE_USER.IS_BLOCK)) == BlockCallerActivity.BLOCKED_TRUE)
 			{
 				viewHolder.checkBox.setChecked(true);
 			}

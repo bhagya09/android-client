@@ -51,6 +51,13 @@ public class BlockCallerActivity extends HikeAppStateBaseFragmentActivity implem
 
 	private String msisdn;
 
+	public static final int BLOCKED_FALSE = 0;
+
+	public static final int BLOCKED_TRUE = 1;
+
+	private View emptyView;
+
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
@@ -58,6 +65,9 @@ public class BlockCallerActivity extends HikeAppStateBaseFragmentActivity implem
 		setContentView(R.layout.block_contact_settings);
 
 		setupActionBar();
+
+		//Msisdn is sent on the block contact from card so this will make sure to show the dialog and once dialog is shown we will remove the extra so that
+		// again the dialog is not shown
 		if (getIntent().hasExtra(HikeConstants.MSISDN) && getIntent().getStringExtra(HikeConstants.MSISDN) != null)
 		{
 			msisdn = getIntent().getStringExtra(HikeConstants.MSISDN);
@@ -71,6 +81,8 @@ public class BlockCallerActivity extends HikeAppStateBaseFragmentActivity implem
 		mCallerBlockListRecyclerView.setLayoutManager(mLayoutManager);
 		FetchBlockCallerListTask fetchBlockCallerListTask = new FetchBlockCallerListTask();
 		fetchBlockCallerListTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+		emptyView = findViewById(R.id.block_activity_empty_view);
+
 	}
 
 	@Override
@@ -84,11 +96,11 @@ public class BlockCallerActivity extends HikeAppStateBaseFragmentActivity implem
 
 		if (hikeDialog.getId() == HikeDialogFactory.CALLER_BLOCK_CONTACT_DIALOG)
 		{
-			ContactManager.getInstance().updateBlockStatusIntoCallerTable(msisdn, 1);
+			ContactManager.getInstance().updateBlockStatusIntoCallerTable(msisdn, BLOCKED_TRUE);
 		}
 		else
 		{
-			ContactManager.getInstance().updateBlockStatusIntoCallerTable(msisdn, 0);
+			ContactManager.getInstance().updateBlockStatusIntoCallerTable(msisdn, BLOCKED_FALSE);
 		}
 		FetchBlockCallerListTask fetchBlockCallerListTask = new FetchBlockCallerListTask();
 		fetchBlockCallerListTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
@@ -114,6 +126,13 @@ public class BlockCallerActivity extends HikeAppStateBaseFragmentActivity implem
 	}
 
 
+
+	private void isEmptyViewVisible(boolean isEmptyView)
+	{
+		emptyView.setVisibility(isEmptyView? View.VISIBLE: View.GONE);
+		mCallerBlockListRecyclerView.setVisibility(isEmptyView? View.GONE: View.VISIBLE);
+	}
+
 	private class FetchBlockCallerListTask extends AsyncTask<Void, Void, Cursor>
 	{
 
@@ -131,10 +150,9 @@ public class BlockCallerActivity extends HikeAppStateBaseFragmentActivity implem
 		@Override
 		protected void onPostExecute(final Cursor result)
 		{
-			if (result != null && result.getCount() >=1)
+			if (result != null && result.getCount() >= 1)
 			{
-				findViewById(R.id.block_activity_empty_view).setVisibility(View.GONE);
-				mCallerBlockListRecyclerView.setVisibility(View.VISIBLE);
+				isEmptyViewVisible(false);
 				if (blockCallerAdapter == null)
 				{
 					blockCallerAdapter = new BlockCallerListAdapter(result, BlockCallerActivity.this, 0);
@@ -147,8 +165,7 @@ public class BlockCallerActivity extends HikeAppStateBaseFragmentActivity implem
 			}
 			else
 			{
-					findViewById(R.id.block_activity_empty_view).setVisibility(View.VISIBLE);
-					mCallerBlockListRecyclerView.setVisibility(View.GONE);
+				isEmptyViewVisible(true);
 			}
 		}
 	}

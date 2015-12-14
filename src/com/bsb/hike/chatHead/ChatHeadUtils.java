@@ -109,9 +109,9 @@ public class ChatHeadUtils
 
 	private static final String PARAMS = "params";
 
-	private static final long ONE_MONTH = 2592000000L;
+	private static final long ONE_MONTH = (long)(30 * 24 * 60 * 60 * 1000);
 
-	private static final long ONE_DAY = 86400000L;
+	private static final long ONE_DAY = (long)(24 * 60 * 60 * 1000);
 
 	public static String msisdn;
 
