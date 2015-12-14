@@ -15,6 +15,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.text.Spannable;
 import android.text.SpannableString;
@@ -768,7 +769,10 @@ public class ConversationsAdapter extends BaseAdapter
 
 		if (OneToNConversationUtils.isBroadcastConversation(convInfo.getMsisdn()))
 		{
-				contactView.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
+				Drawable broadcastDrawable = context.getDrawable(R.drawable.ic_broad_sm);
+				broadcastDrawable.setAlpha(230);
+				contactView.setCompoundDrawablesWithIntrinsicBounds(broadcastDrawable, null, null, null);
+				contactView.setCompoundDrawablePadding(context.getResources().getDimensionPixelOffset(R.dimen.home_list_header_drawable_padding));
 		}
 		else if (OneToNConversationUtils.isGroupConversation(convInfo.getMsisdn()))
 		{
