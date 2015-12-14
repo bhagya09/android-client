@@ -166,7 +166,7 @@ public class StickyCaller {
 
 	public static void removeCallerView()
 	{
-		Handler uiHandler = new Handler(Looper.getMainLooper());
+		Handler uiHandler = new Handler(HikeMessengerApp.getInstance().getApplicationContext().getMainLooper());
 		if (uiHandler != null)
 		{
 			uiHandler.removeCallbacks(removeViewRunnable);
@@ -187,7 +187,7 @@ public class StickyCaller {
 	}
 
 	public static void removeCallerViewWithDelay(int delay) {
-		Handler uiHandler = new Handler(Looper.getMainLooper());
+		Handler uiHandler = new Handler(HikeMessengerApp.getInstance().getApplicationContext().getMainLooper());
 		if (uiHandler != null) {
 			uiHandler.postDelayed(removeViewRunnable, delay);
 		}
@@ -295,7 +295,7 @@ public class StickyCaller {
 
 	public static void showCallerViewWithDelay(final String number, final CallerContentModel callerContentModel, final short type, final String source)
 	{
-		Handler uiHandler = new Handler(Looper.getMainLooper());
+		Handler uiHandler = new Handler(HikeMessengerApp.getInstance().getApplicationContext().getMainLooper());
 		if (uiHandler != null)
 		{
 			uiHandler.postDelayed(new Runnable()
@@ -448,7 +448,7 @@ public class StickyCaller {
 
 	public static void updateLayoutData(final CallerContentModel callerContentModel)
 	{
-		Handler uiHandler = new Handler(Looper.getMainLooper());
+		Handler uiHandler = new Handler(HikeMessengerApp.getInstance().getApplicationContext().getMainLooper());
 		if (uiHandler != null)
 		{
 			uiHandler.post(new Runnable() {
