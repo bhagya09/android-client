@@ -208,12 +208,10 @@ public abstract class ImageWorker
 			Bitmap loadingBitmap = mLoadingBitmap;
 			Builder textDrawableBuilder = null;
 
-			/*
-			 * Setting this loading bitmap to prevent the imageView from showing a blank drawable while we try to fetch the actual drawable for the imageView.
-			 */
-			if (setDefaultAvatarInitially)
+			Drawable drawable = imageView.getDrawable();
+			
+			if (drawable != null)
 			{
-				Drawable drawable = imageView.getDrawable();
 				if (drawable instanceof BitmapDrawable)
 				{
 					loadingBitmap = ((BitmapDrawable) drawable).getBitmap();
