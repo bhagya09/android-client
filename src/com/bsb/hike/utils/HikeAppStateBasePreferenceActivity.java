@@ -1,12 +1,12 @@
 package com.bsb.hike.utils;
 
-import com.bsb.hike.HikeConstants;
-import com.bsb.hike.ui.utils.StatusBarColorChanger;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
 import android.view.Window;
+
+import com.bsb.hike.HikeConstants;
+import com.bsb.hike.ui.utils.StatusBarColorChanger;
 
 //Use real Action Bar here not the support one https://www.grokkingandroid.com/migrating-actionbarsherlock-actionbarcompat/
 public abstract class HikeAppStateBasePreferenceActivity extends PreferenceActivity
@@ -71,7 +71,7 @@ public abstract class HikeAppStateBasePreferenceActivity extends PreferenceActiv
 	@Override
 	public void startActivityForResult(Intent intent, int requestCode)
 	{
-		HikeAppStateUtils.startActivityForResult(this);
+		HikeAppStateUtils.startActivityForResult(intent, this);
 		super.startActivityForResult(intent, requestCode);
 	}
 

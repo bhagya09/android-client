@@ -785,7 +785,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 	protected void onResume()
 	{
 		// TODO Auto-generated method stub
-		if(composeMode != CREATE_GROUP_MODE && composeMode != CREATE_BROADCAST_MODE){
+		if(composeMode != CREATE_GROUP_MODE && composeMode != CREATE_BROADCAST_MODE && composeMode != MULTIPLE_FWD){
 			if (!KptUtils.isSystemKeyboard())
 			{
 				if (mCustomKeyboard != null &&findViewById(R.id.composeChatNewGroupTagET).getVisibility()==View.VISIBLE&& tagEditText != null)

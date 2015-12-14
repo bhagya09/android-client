@@ -241,6 +241,8 @@ public class ConversationTip implements OnClickListener
 				((LinearLayout) v.findViewById(R.id.tip_lower)).setBackgroundColor(Color.parseColor(tipBgColor));
 			}			
 			v.findViewById(R.id.all_content).setOnClickListener(this);
+            HAManager.getInstance().updateTipAndNotifAnalyticEvent(AnalyticsConstants.UPDATE_INVITE_TIP,
+                    AnalyticsConstants.UPDATE_TIP_SHOWN, AnalyticsConstants.VIEW_EVENT);
 			return v;
 		case INVITE_TIP:
 			v = inflater.inflate(R.layout.update_tip, null, false);
@@ -264,6 +266,8 @@ public class ConversationTip implements OnClickListener
 			close_tip.setVisibility(View.VISIBLE);
 			close_tip.setOnClickListener(this);
 			v.findViewById(R.id.all_content).setOnClickListener(this);
+            HAManager.getInstance().updateTipAndNotifAnalyticEvent(AnalyticsConstants.UPDATE_INVITE_TIP,
+                    AnalyticsConstants.INVITE_TIP_SHOWN, AnalyticsConstants.VIEW_EVENT);
 			return v;
 		default:
 			tipType = NO_TIP;

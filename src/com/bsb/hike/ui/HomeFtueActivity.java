@@ -5,14 +5,12 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListAdapter;
 import android.widget.TextView;
-import android.widget.Toast;
 import android.widget.ViewFlipper;
 
 import com.bsb.hike.HikeConstants;
@@ -139,22 +137,22 @@ public class HomeFtueActivity extends HikeAppStateBaseFragmentActivity {
                 // download and install language only if custem language selected is not English
                 if (!selectedLocalLanguage.getLocale().equals(LocalLanguage.English.getLocale()))
                 {
-                    KptKeyboardManager.getInstance(HomeFtueActivity.this).setInstallListener(
+                    KptKeyboardManager.getInstance().setInstallListener(
                             new KptKeyboardManager.KptLanguageInstallListener() {
                                 @Override
                                 public void onError(KPTAddonItem item, String message) {
-                                    KptKeyboardManager.getInstance(HomeFtueActivity.this).setInstallListener(null);
+                                    KptKeyboardManager.getInstance().setInstallListener(null);
                                 }
 
                                 @Override
                                 public void onSuccess(KPTAddonItem item) {
                                     // change keyboard to custom keyboard if the language selected is successfully downloaded
                                     HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SYSTEM_KEYBOARD_SELECTED, false);
-                                    KptKeyboardManager.getInstance(HomeFtueActivity.this).setInstallListener(null);
+                                    KptKeyboardManager.getInstance().setInstallListener(null);
                                 }
                             }
                     );
-                    KptKeyboardManager.getInstance(HomeFtueActivity.this).downloadAndInstallLanguage(selectedLocalLanguage.getLocale());
+                    KptKeyboardManager.getInstance().downloadAndInstallLanguage(selectedLocalLanguage.getLocale());
                 }
             }
             showNextFtue();
@@ -162,12 +160,6 @@ public class HomeFtueActivity extends HikeAppStateBaseFragmentActivity {
     }
     private void showLocalizationFtue() {
         flipper.setDisplayedChild(LOCALIZATION);
-        //AND-4046 Begin
-        String unsupportedLanguages = LocalLanguage.getUnsupportedLocaleToastText(this);
-        if (!TextUtils.isEmpty(unsupportedLanguages)) {
-            Toast.makeText(this, unsupportedLanguages, Toast.LENGTH_LONG).show();
-        }
-        //AND-4046 End
         final TextView languageText = (TextView) flipper.findViewById(R.id.txt_lang);
 
         if (LocalLanguageUtils.isLocalLanguageSelected())
@@ -197,7 +189,7 @@ public class HomeFtueActivity extends HikeAppStateBaseFragmentActivity {
                                 selectedLocalLanguage = list.get(which);
                                 languageText.setText(selectedLocalLanguage.getDisplayName());
                                 LocalLanguageUtils.setApplicationLocalLanguage(selectedLocalLanguage);
-                                Utils.sendLocaleToServer(HomeFtueActivity.this);
+                                Utils.sendLocaleToServer();
                                 // Relaunching the Activity
                                 IntentFactory.openHomeFtueActivity(HomeFtueActivity.this);
                             }
