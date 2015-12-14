@@ -540,7 +540,7 @@ public class StickyCaller {
 			showSmsView();
 		}
 
-		setBlockContactButton(number, toShowBlockDivider);
+		setBlockContactButton(number, toShowBlockDivider, callerContentModel);
 
 		setSpam(callerContentModel);
 	}
@@ -554,11 +554,11 @@ public class StickyCaller {
 		}
 	}
 
-	private static void setBlockContactButton(String msisdn, boolean isIndianOrhikeNo)
+	private static void setBlockContactButton(String msisdn, boolean isIndianOrhikeNo, CallerContentModel callerContentModel)
 	{
 		if (CALL_TYPE == INCOMING || CALL_TYPE == MISSED || CALL_TYPE == AFTER_INCOMING_UNKNOWN || CALL_TYPE == AFTER_OUTGOING_UNKNOWN)
 		{
-			if (msisdn != null && ContactManager.getInstance().getCallerContentModelFromMsisdn(msisdn) != null)
+			if (msisdn != null && callerContentModel != null && !callerContentModel.isBlock())
 			{
 				if (HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.SHOW_FREEVIEW, true) || isIndianOrhikeNo)
 				{
@@ -610,7 +610,7 @@ public class StickyCaller {
 		}
 		setDismissWithVisible(isIndianOrhikeNo);
 
-		setBlockContactButton(number, isIndianOrhikeNo);
+		setBlockContactButton(number, isIndianOrhikeNo, callerContentModel);
 
 		setSpam(callerContentModel);
 	}
