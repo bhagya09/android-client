@@ -705,6 +705,7 @@ public class StickyCaller {
 				if (v.getTag() != null)
 				{
 					IncomingCallReceiver.callReceived = true;
+					CALL_TYPE = NONE;
 					Utils.killCall();
 					Utils.sendFreeSms(getPhoneNumberFromTag(v));
 				}
@@ -736,6 +737,8 @@ public class StickyCaller {
 					intent.putExtra(HikeConstants.NAME, contentModel.getFullName());
 				}
 				ChatHeadUtils.insertHomeActivitBeforeStarting(intent);
+				IncomingCallReceiver.callReceived = true;
+				CALL_TYPE = NONE;
 				Utils.killCall();
 				break;
 			}
