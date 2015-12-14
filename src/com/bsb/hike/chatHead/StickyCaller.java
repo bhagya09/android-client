@@ -116,7 +116,7 @@ public class StickyCaller {
 		public void run()
 		{
 			//this will ensure that the remove caller view is not called for the following cards on callback
-			if (CALL_TYPE != MISSED && CALL_TYPE != SMS && CALL_TYPE != AFTER_INCOMING_UNKNOWN || CALL_TYPE != AFTER_OUTGOING_UNKNOWN)
+			if (CALL_TYPE != MISSED && CALL_TYPE != SMS && CALL_TYPE != AFTER_INCOMING_UNKNOWN && CALL_TYPE != AFTER_OUTGOING_UNKNOWN)
 			{
 				removeCallerView();
 			}
