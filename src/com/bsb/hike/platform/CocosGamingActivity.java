@@ -317,6 +317,7 @@ public class CocosGamingActivity extends Cocos2dxActivity
 		super.onResume();
 		HAManager.getInstance().startChatSession(msisdn);
 		openTimestamp = System.currentTimeMillis();
+		nativeBridge.sendAppState(true);
 	}
 
 	@Override
@@ -326,11 +327,13 @@ public class CocosGamingActivity extends Cocos2dxActivity
 		super.onPause();
 		HAManager.getInstance().endChatSession(msisdn);
 		activeDuration = activeDuration + (System.currentTimeMillis() - openTimestamp);
+		nativeBridge.sendAppState(false);
 	}
 
 	@Override
 	protected void onDestroy()
 	{
+		nativeBridge.sendAppState(false);
 		sendGameOpenAnalytics();
 		onHandlerDestroy();
 		super.onDestroy();

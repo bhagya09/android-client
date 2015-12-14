@@ -6,18 +6,23 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
 import android.text.TextUtils;
 import android.util.Log;
 import android.webkit.JavascriptInterface;
 
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.MqttConstants;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
+import com.bsb.hike.models.AppState;
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.models.LogAnalyticsEvent;
 import com.bsb.hike.models.NormalEvent;
+import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Utils;
 import com.hike.transporter.utils.Logger;
@@ -624,6 +629,36 @@ public class NativeBridge
 	public void eventReceived(String eventData)
 	{
 		platformCallback(ON_EVENT_RECEIVE, eventData);
+	}
+
+	public void sendAppState( boolean isForeGround)
+	{
+		JSONObject object = new JSONObject();
+
+		try
+		{
+			object.put(HikeConstants.TYPE, HikeConstants.MqttMessageTypes.APP_STATE);
+			if (isForeGround)
+			{
+				object.put(HikeConstants.SUB_TYPE, HikeConstants.FOREGROUND);
+			}
+			else
+			{
+				object.put(HikeConstants.SUB_TYPE, HikeConstants.BACKGROUND);
+			}
+			JSONObject data = new JSONObject();
+			data.put(HikeConstants.BULK_LAST_SEEN, false);
+			object.put(HikeConstants.DATA, data);
+
+		}
+		catch (JSONException e)
+		{
+			com.bsb.hike.utils.Logger.w("AppState", "Invalid json", e);
+		}
+		AppState appState = new AppState(object.toString());
+		Intent hikeProcessIntentService = new Intent(activity, HikeProcessIntentService.class);
+		hikeProcessIntentService.putExtra(HikeProcessIntentService.SEND_APP_STATE, appState);
+		activity.startService(hikeProcessIntentService);
 	}
 
 }
