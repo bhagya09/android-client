@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
 
     <string name="app_name">hike</string>
@@ -23,7 +23,8 @@
     <string name="feedback">ಫೀಡ್‌ಬ್ಯಾಕ್‌</string>
     <string name="block_overlay_message">ನೀವು %1$s ಬ್ಲಾಕ್‌ ಮಾಡಿದ್ದೀರಿ, ಅನ್‌ಬ್ಲಾಕ್‌ ಮಾಡಿ ಮತ್ತು ಹೈಕಿಂಗ್‌ ಮುಂದುವರಿಸಿ.</string>
     <string name="phone_num">ಫೋನ್‌ ನಂಬರ್‌</string>
-    <string name="pin">PIN</string>
+    <string name="pin">ಪಿನ್</string>
+    <string name="pin_signup">PIN</string>
     <string name="name">ಹೆಸರು</string>
     <string name="terms_privacy">ನಿಯಮಗಳು ಮತ್ತು ಏಕಾಂತತೆ</string>
     <string name="invite_now">ಈಗ ಆಹ್ವಾನಿಸಿ</string>
@@ -463,9 +464,8 @@
         <![CDATA[ <b> ಮುಚ್ಚಿಟ್ಟ ಮೋಡ್‌ ಅನ್ನು ಈಗ ರಿಸೆಟ್‌ ಮಾಡಲು ಇಲ್ಲಿ ಒತ್ತಿ! </b>
         ]]>
     </string>
-    <string name="tap_to_reveal_stealth_contacts">ಚಾಟ್‌ಗಳನ್ನು ಅನಾವರಣಗೊಳಿಸಲು</string>
-    <string name="tap_to_hide_stealth_contacts">ಚಾಟ್‌ಗಳನ್ನು ಮುಚ್ಚಿಡಲು</string>
-    <string name="tap_text">ಒತ್ತಿ</string>
+    <string name="tap_to_reveal_stealth_contacts">ಚಾಟ್ಗಳು ಬಹಿರಂಗಪಡಿಸಲು \&apos;hi\&apos; ಟಾಪ್ ಮಾಡಿ</string>
+    <string name="tap_to_hide_stealth_contacts">ಚಾಟ್ಗಳು ಮರೆಮಾಡಲು \&apos;hi\&apos; ಟಾಪ್ ಮಾಡಿ</string>
     <string name="reset_stealth_confirmation">ಮುಚ್ಚಿಟ್ಟ ಮೋಡ್‌ ಅನ್ನು ರಿಸೆಟ್‌ ಮಾಡುವುದರಿಂದ ನಿಮ್ಮ ಎಲ್ಲ ಗುಪ್ತ ಚಾಟ್‌ಗಳು ಅಳಿಸುತ್ತವೆ.\nಖಚಿತವಾಗಿದೆಯೇ?</string>
     <string name="stealth_tap_and_hold_tip">ಚಾಟ್‌ ಅನ್ನು ‘ಮುಚ್ಚಿಡಲು’ ತಟ್ಟಿ ಮತ್ತು ಹಿಡಿದುಕೊಳ್ಳಿ.</string>
     <string name="mark_stealth">ಚಾಟ್‌ಅನ್ನು ಮುಚ್ಚಿಡಲು ಗುರುತಿಸಿ</string>
@@ -637,7 +637,7 @@
     <string name="notificationSoundSummary">ಹೊಸ ಸೂಚನೆಗೆ ಪ್ಲೇ ಮಾಡಲು ಧ್ವನಿ ಆಯ್ಕೆ ಮಾಡಿ</string>
     <string name="hike_offline_notifications">Hike ಆಫ್‌ಲೈನ್‌</string>
     <string name="h2o_notifications_setting_summary">ಆಫ್‌ಲೈನ್‌ ಸಂಪರ್ಕಕ್ಕೆ SMS ಕಳುಹಿಸಲು ನೋಟಿಫೈ ಮಾಡಿ</string>
-    <string name="stealth_info_tip_subtext">ಪಾಸ್‌ವರ್ಡ್‌ನಿಂದ ಚಾಟ್‌ಗಳನ್ನು ಗೊಪ್ಯವಾಗಿಸಲು “ಹಾಯ್‌” ತಟ್ಟಿ.</string>
+    <string name="stealth_info_tip_subtext">ಪಾಸ್‌ವರ್ಡ್‌ನಿಂದ ಚಾಟ್‌ಗಳನ್ನು ಗೊಪ್ಯವಾಗಿಸಲು \&apos;hi\&apos; ತಟ್ಟಿ.</string>
     <string name="file_attachment_info">100 MB ವರೆಗಿನ doc, pdf ಮತ್ತು ಮೀಡಿಯಾವನ್ನು ಹಂಚಿ</string>
     <string name="status_text_notification">%1$s ಅಪ್‌ಡೇಟ್‌ ಆಗಿ ಪೋಸ್ಟ್ ಮಾಡಿ</string>
     <string name="shared_files">ಫೈಲ್‌ಗಳು</string>
@@ -1422,6 +1422,10 @@
         <item quantity="one">ನಾಳೆ</item>
         <item quantity="other">%d ದಿನಗಳಲ್ಲಿ</item>
     </plurals>
-    
+
+    <string name="unsupported_language_toast_msg">ನಿಮ್ಮ ಫೋನ್ ಈ ಭಾಷೆಯನ್ನು ಬೆಂಬಲಿಸುವುದಿಲ್ಲ</string>
+    <string name="language_ftue_complete_message">ಕೀಬೋರ್ಡ ಭಾಷೆ ಬದಲಿಸಲು \nಸೆಟ್ಟಿಂಗ್ಸ -> ಭಾಷೆ &amp; ಇನ್ಪುಟ್ ಗೆ ಹೋಗಿ</string>
+    <string name="error_message_upgrade_peer"> ಕ್ಷಮಿಸಿ, ಕನೆಕ್ಟ್ ಮಾಡಲು ಆಗಲಿಲ್ಲ. ನಿಮ್ಮ ಮಿತ್ರ Hike ನೇರ ಹೊಂದಿರುವ  Hikeನ ಹೊಸ ಆವೃತ್ತಿ ಬಳಸುತ್ತಿಲ್ಲ.</string>
+    <string name="error_message_unsupported_peer">ಕ್ಷಮಿಸಿ, ಕನೆಕ್ಟ್ ಮಾಡಲು ಆಗಲಿಲ್ಲ.  Hike ಡೈರೆಕ್ಟ್ ಸದ್ಯಕ್ಕೆ ಕೇವಲ ಆಂಡ್ರಾಯ್ಡ್‌ ಫೋನ್ಗಳಲ್ಲಿ ಲಭ್ಯವಿದೆ.</string>
 
 </resources>

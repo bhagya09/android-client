@@ -281,12 +281,25 @@
 	    <item>GRAYSCALE</item>
     </array>
 
-    <array name="dp_bg">
+    <array name="dp_bg2">
         <item>@color/avatar_color_apricot</item>
         <item>@color/avatar_color_bubblegum</item>
         <item>@color/avatar_color_carnation</item>
         <item>@color/avatar_color_light_gold</item>
         <item>@color/avatar_color_sky_blue</item>
+    </array>
+
+    <array name="dp_bg">
+        <item>@color/dp_bg_1</item>
+        <item>@color/dp_bg_2</item>
+        <item>@color/dp_bg_3</item>
+        <item>@color/dp_bg_5</item>
+        <item>@color/dp_bg_6</item>
+        <item>@color/dp_bg_7</item>
+        <item>@color/dp_bg_8</item>
+        <item>@color/dp_bg_9</item>
+        <item>@color/dp_bg_10</item>
+        <item>@color/dp_bg_11</item>
     </array>
 
 </resources>

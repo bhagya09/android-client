@@ -34,6 +34,7 @@ import android.widget.ImageView.ScaleType;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
@@ -797,7 +798,7 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 		Drawable drawable = HikeMessengerApp.getLruCache().getIconFromCache(mStatusMessage.getMsisdn());
 		if (drawable == null)
 		{
-			drawable = HikeMessengerApp.getLruCache().getDefaultAvatar(mStatusMessage.getMsisdn(), false);
+			drawable = HikeBitmapFactory.getDefaultTextAvatar(mStatusMessage.getMsisdn());
 		}
 
 		avatar.setScaleType(ScaleType.FIT_CENTER);

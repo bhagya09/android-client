@@ -295,50 +295,6 @@ public class HikeLruCache extends LruCache<String, BitmapDrawable>
 			return b;
 	}
 	
-	
-	public BitmapDrawable getDefaultAvatar(String msisdn)
-	{
-		return getDefaultAvatar(msisdn, false);
-	}
-	
-	public BitmapDrawable getDefaultAvatar(String msisdn, boolean hiRes)
-	{
-		if(hiRes)
-		{
-			return HikeBitmapFactory.getDefaultAvatar(mResources, msisdn, hiRes);
-		}
-		else
-		{
-			String cacheKey = getDefaultAvatarKey(msisdn);
-
-			BitmapDrawable bd = get(cacheKey);
-
-			if (bd == null)
-			{
-				bd = HikeBitmapFactory.getDefaultAvatar(mResources, msisdn, hiRes);
-				putInCache(cacheKey, bd);
-			}
-			return bd;
-		}
-	}
-	
-	private String getDefaultAvatarKey(String msisdn)
-	{
-		int index = BitmapUtils.iconHash(msisdn) % (HikeConstants.DEFAULT_AVATAR_KEYS.length);
-		
-		String key = HikeConstants.DEFAULT_AVATAR_KEYS[index];
-		if(OneToNConversationUtils.isBroadcastConversation(msisdn))
-		{
-			key += HikeConstants.IS_BROADCAST;
-		}
-		else if(OneToNConversationUtils.isGroupConversation(msisdn))
-		{
-			key += HikeConstants.IS_GROUP;
-		}
-		
-		return key;
-	}
-
 	public BitmapDrawable getFileIconFromCache(String key)
 	{
 		BitmapDrawable b = get(key);

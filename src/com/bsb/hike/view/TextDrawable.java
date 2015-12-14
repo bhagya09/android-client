@@ -71,7 +71,7 @@ public class TextDrawable extends ShapeDrawable
 		textPaint.setStyle(Paint.Style.FILL);
 		if (typeface == null)
 		{
-			typeface = Typeface.createFromAsset(HikeMessengerApp.getInstance().getApplicationContext().getAssets(), "fonts/Roboto-Regular.ttf");
+			typeface = Typeface.createFromAsset(HikeMessengerApp.getInstance().getApplicationContext().getAssets(), "fonts/Roboto-Light.ttf");
 		}
 		textPaint.setTypeface(typeface);
 		textPaint.setAlpha(235);
@@ -130,7 +130,7 @@ public class TextDrawable extends ShapeDrawable
 		// draw text
 		int width = this.width < 0 ? r.width() : this.width;
 		int height = this.height < 0 ? r.height() : this.height;
-		int fontSize = (int) (this.fontSize < 0 ? (Math.min(width, height) * 1f / 2.5f) : this.fontSize);
+		int fontSize = (int) (this.fontSize < 0 ? (Math.min(width, height) * 1f / 1.7f) : this.fontSize);
 		textPaint.setTextSize(fontSize);
 		getPaint().setShader(gradient);
 		super.draw(canvas);

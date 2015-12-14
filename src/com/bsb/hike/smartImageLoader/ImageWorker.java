@@ -29,7 +29,6 @@ import android.graphics.Canvas;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.TransitionDrawable;
 import android.os.AsyncTask;
 import android.support.v4.app.FragmentManager;
@@ -69,13 +68,13 @@ public abstract class ImageWorker
 	private boolean setDefaultAvatarIfNoCustomIcon = false;
 
 	private boolean setHiResDefaultAvatar = false;
-	
+
 	private boolean setDefaultDrawableNull = true;
-	
+
 	protected boolean cachingEnabled = true;
-	
-	protected SuccessfulImageLoadingListener successfulImageLoadingListener;
-	
+
+	protected ImageLoaderListener imageLoaderListener;
+
 	/*
 	 * This case is currently being used in very specific scenerio of
 	 * media viewer files for which we could not create thumbnails(ex. tif images)
@@ -96,7 +95,7 @@ public abstract class ImageWorker
 	 * Load an image specified by the data parameter into an ImageView (override {@link ImageWorker#processBitmap(Object)} to define the processing logic). A memory and disk cache
 	 * will be used if an {@link ImageCache} has been added using {@link ImageWorker#addImageCache(FragmentManager, ImageCache.ImageCacheParams)}. If the image is found in the
 	 * memory cache, it is set immediately, otherwise an {@link AsyncTask} will be created to asynchronously load the bitmap.
-	 * 
+	 *
 	 * @param data
 	 *            The URL of the image to download.
 	 * @param imageView
@@ -139,21 +138,22 @@ public abstract class ImageWorker
 		{
 			return;
 		}
-		
+
 		BitmapDrawable value = null;
 
 		if (setDefaultAvatarInitially)
 		{
-			setDefaultAvatar(imageView, key, null);
+			setDefaultAvatar(imageView, key, refObj);
 		}
 		else
 		{
-			if(setDefaultDrawableNull){
+			if(setDefaultDrawableNull)
+			{
 				imageView.setImageDrawable(null);
 				imageView.setBackgroundDrawable(null);
 			}
 		}
-		
+
 		if (mImageCache != null)
 		{
 			value = mImageCache.get(key);
@@ -169,8 +169,8 @@ public abstract class ImageWorker
 			Logger.d(TAG, key + " Bitmap found in cache and is not recycled.");
 			// Bitmap found in memory cache
 			imageView.setImageDrawable(value);
-			
-			sendImageCallback(imageView);
+
+			sendImageCallback(imageView , true);
 		}
 		else if (runOnUiThread)
 		{
@@ -183,7 +183,7 @@ public abstract class ImageWorker
 					mImageCache.putInCache(key, bd);
 				}
 				imageView.setImageDrawable(bd);
-				sendImageCallback(imageView);
+				sendImageCallback(imageView,true);
 			}
 			else if (b == null && setDefaultAvatarIfNoCustomIcon)
 			{
@@ -191,11 +191,11 @@ public abstract class ImageWorker
 				int idx = data.lastIndexOf(ProfileActivity.PROFILE_PIC_SUFFIX);
 				if (idx > 0)
 					key = new String(data.substring(0, idx));
-				
+
 				setDefaultAvatar(imageView, key,refObj);
-				sendImageCallback(imageView);
+				sendImageCallback(imageView,true);
 			}
-			
+
 		}
 		else if (cancelPotentialWork(key, imageView) && !isFlinging)
 		{
@@ -208,12 +208,10 @@ public abstract class ImageWorker
 			Bitmap loadingBitmap = mLoadingBitmap;
 			Builder textDrawableBuilder = null;
 
-			/*
-			 * Setting this loading bitmap to prevent the imageView from showing a blank drawable while we try to fetch the actual drawable for the imageView.
-			 */
-			if (setDefaultAvatarInitially)
+			Drawable drawable = imageView.getDrawable();
+			
+			if (drawable != null)
 			{
-				Drawable drawable = imageView.getDrawable();
 				if (drawable instanceof BitmapDrawable)
 				{
 					loadingBitmap = ((BitmapDrawable) drawable).getBitmap();
@@ -246,7 +244,7 @@ public abstract class ImageWorker
 	{
 		loadImage(data, imageView, isFlinging, runOnUiThread, setDefaultAvatarInitially, null);
 	}
-	
+
 	protected void setDefaultAvatar(ImageView imageView, String data, Object refObj)
 	{
 		if (refObj != null && refObj instanceof String && !TextUtils.isEmpty(((String) refObj)))
@@ -261,7 +259,7 @@ public abstract class ImageWorker
 
 	/**
 	 * Flag which denotes whether the background was already set and should not be set by this worker.
-	 * 
+	 *
 	 * @param b
 	 */
 	public void setDontSetBackground(boolean b)
@@ -535,7 +533,7 @@ public abstract class ImageWorker
 				if (value != null)
 				{
 					setImageDrawable(imageView, value);
-					sendImageCallback(imageView);
+					sendImageCallback(imageView, true);
 				}
 				else if (setDefaultAvatarIfNoCustomIcon)
 				{
@@ -543,9 +541,9 @@ public abstract class ImageWorker
 					int idx = data.lastIndexOf(ProfileActivity.PROFILE_PIC_SUFFIX);
 					if (idx > 0)
 						key = new String(data.substring(0, idx));
-					
+
 					setDefaultAvatar(imageView, key,null);
-					sendImageCallback(imageView);
+					sendImageCallback(imageView, true);
 				}
 				else if (defaultDrawable != null)
 				{
@@ -554,8 +552,12 @@ public abstract class ImageWorker
 					 * media viewer files for which we could not create thumbnails(ex. tif images)
 					 */
 					setImageDrawable(imageView, defaultDrawable);
-					sendImageCallback(imageView);
+					sendImageCallback(imageView,true);
 					imageView.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
+				}
+				else
+				{
+					sendImageCallback(imageView, false);
 				}
 
 			}
@@ -664,49 +666,55 @@ public abstract class ImageWorker
 	{
 		return this.mImageCache;
 	}
-	
+
 	public static Bitmap drawableToBitmap (Drawable drawable) {
 	    if (drawable instanceof BitmapDrawable) {
 	        return ((BitmapDrawable)drawable).getBitmap();
 	    }
 
 	    Bitmap bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(), Config.ARGB_8888);
-	    Canvas canvas = new Canvas(bitmap); 
+	    Canvas canvas = new Canvas(bitmap);
 	    drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
 	    drawable.draw(canvas);
 
 	    return bitmap;
 	}
-	
+
 	public void setCachingEnabled(boolean enableCache)
 	{
 		this.cachingEnabled = enableCache;
 	}
-	
+
 	public boolean isCachingEnabled()
 	{
 		return cachingEnabled;
 	}
-	
-	public interface SuccessfulImageLoadingListener{
-		
-		public void onSuccessfulImageLoaded(ImageView imageView);
+
+	public interface ImageLoaderListener {
+
+		public void onImageWorkSuccess(ImageView imageView);
+
+		public void onImageWorkFailed(ImageView imageView);
 	}
-	
-	public void setSuccessfulImageLoadingListener(SuccessfulImageLoadingListener successfulImageLoadingListener)
+
+	public void setImageLoaderListener(ImageLoaderListener imageLoaderListener)
 	{
-		this.successfulImageLoadingListener = successfulImageLoadingListener;
+		this.imageLoaderListener = imageLoaderListener;
 	}
-	
+
 	/**
 	 * This is the call back to listener after image is loaded into ImageView
 	 * @param imageView
 	 */
-	private void sendImageCallback(ImageView imageView)
+	private void sendImageCallback(ImageView imageView, boolean success)
 	{
-		if(successfulImageLoadingListener != null)
+		if(imageLoaderListener != null && success)
 		{
-			successfulImageLoadingListener.onSuccessfulImageLoaded(imageView);
+			imageLoaderListener.onImageWorkSuccess(imageView);
+		}
+		else if(imageLoaderListener != null && !success)
+		{
+			imageLoaderListener.onImageWorkFailed(imageView);
 		}
 	}
 }

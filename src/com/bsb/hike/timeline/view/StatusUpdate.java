@@ -266,7 +266,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 
 		String selfMsisdn = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.MSISDN_SETTING, null);
 
-		avatar.setImageDrawable(HikeMessengerApp.getLruCache().getDefaultAvatar(selfMsisdn, false));
+		avatar.setImageDrawable(HikeBitmapFactory.getDefaultTextAvatar(selfMsisdn));
 
 		mIconImageLoader.loadImage(selfMsisdn, avatar, false, true, false);
 
@@ -737,7 +737,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		JSONObject metadata = new JSONObject();
 		try 
 		{
-			metadata.put(HikeConstants.KEYBOARD_LANGUAGE, KptKeyboardManager.getInstance(StatusUpdate.this).getCurrentLanguageAddonItem().getlocaleName());
+			metadata.put(HikeConstants.KEYBOARD_LANGUAGE, KptKeyboardManager.getInstance().getCurrentLanguageAddonItem().getlocaleName());
 			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
 		} 
 		catch (JSONException e) 

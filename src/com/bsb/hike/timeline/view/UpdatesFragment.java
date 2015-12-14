@@ -612,7 +612,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 					public void run()
 					{
 						boolean shouldRefresh = false;
-						for(int i = statusMessages.size(); i > 0 ; i--)
+						for(int i = statusMessages.size() - 1; i >= 0 ; i--)
 						{
 							StatusMessage statusMessage = statusMessages.get(i);
 							if(StealthModeManager.getInstance().isStealthMsisdn(statusMessage.getMsisdn()))
