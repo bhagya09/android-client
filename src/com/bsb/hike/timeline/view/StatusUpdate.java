@@ -266,7 +266,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 
 		String selfMsisdn = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.MSISDN_SETTING, null);
 
-		avatar.setImageDrawable(HikeMessengerApp.getLruCache().getDefaultAvatar(selfMsisdn, false));
+		avatar.setImageDrawable(HikeBitmapFactory.getDefaultTextAvatar(selfMsisdn));
 
 		mIconImageLoader.loadImage(selfMsisdn, avatar, false, true, false);
 

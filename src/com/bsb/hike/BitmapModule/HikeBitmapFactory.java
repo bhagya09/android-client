@@ -1320,30 +1320,13 @@ public class HikeBitmapFactory
 		
 		return calculateInSampleSize(options, reqWidth, reqHeight);
 	}
-	public static BitmapDrawable getDefaultAvatar(Resources res, String msisdn, boolean hiRes)
-	{
-	
-		int index = BitmapUtils.iconHash(msisdn) % (HikeConstants.DEFAULT_AVATAR_KEYS.length);
 
-		int defaultAvatarResId = HikeConstants.DEFAULT_AVATARS[index]; 
-		
-		Drawable layers[] = new Drawable[2];
-		layers[0] = res.getDrawable(defaultAvatarResId);
-		layers[1] = res.getDrawable(getDefaultAvatarIconResId(msisdn, hiRes));
-		
-		LayerDrawable ld = new LayerDrawable(layers);
-		ld.setId(0, 0);
-		ld.setId(1, 1);
-		ld.setDrawableByLayerId(0, layers[0]);
-		ld.setDrawableByLayerId(1, layers[1]);
-		
-		Bitmap bmp = drawableToBitmap(ld);
-		
-		BitmapDrawable bd = getBitmapDrawable(res, bmp);
-		return bd;
-	}
-	
 	public static Drawable getDefaultTextAvatar(String text)
+	{
+		return getDefaultTextAvatar(text, -1);
+	}
+
+	public static Drawable getDefaultTextAvatar(String text, int fontSize)
 	{
 		TypedArray bgColorArray = Utils.getDefaultAvatarBG();
 
@@ -1358,7 +1341,14 @@ public class HikeBitmapFactory
 
 		int bgColor = bgColorArray.getColor(index, 0);
 
-		return TextDrawable.builder().buildRound(initials, bgColor);
+		if (fontSize != -1)
+		{
+			return TextDrawable.builder().beginConfig().fontSize(fontSize).endConfig().buildRound(initials, bgColor);
+		}
+		else
+		{
+			return TextDrawable.builder().buildRound(initials, bgColor);
+		}
 	}
 	
 	private static TextDrawable getRandomHashTextDrawable()
