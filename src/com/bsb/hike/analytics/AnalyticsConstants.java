@@ -581,21 +581,29 @@ public class AnalyticsConstants
 	
 	public static final String LOG_FIELD_6 = "fld6";
 
-	public static final String UPDATE_TIP_CLICKED = "utclkd";
+	public static final String UPDATE_TIP_CLICKED = "ugtClk";
 	
-	public static final String INVITE_TIP_CLICKED = "utclkd";
+	public static final String INVITE_TIP_CLICKED = "ivtClk";
 	
-	public static final String PERSISTENT_NOTIF_CLICKED = "pnclkd";
+	public static final String PERSISTENT_NOTIF_CLICKED = "ugPnClk";
 	
-	public static final String UPDATE_TIP_DISMISSED = "utdsmd";
+	public static final String UPDATE_TIP_DISMISSED = "ugtDsm";
 	
-	public static final String INVITE_TIP_DISMISSED = "itdsmd";
-	
-	public static final String UPDATE_INVITE_TIP = "uitip";
+	public static final String INVITE_TIP_DISMISSED = "ivtDsm";
+
+	public static final String UPDATE_INVITE_TIP = "ugIvTp";
+
+    public static final String UPDATE_TIP_SHOWN = "ugtShw";
+
+    public static final String INVITE_TIP_SHOWN = "ivtShw";
+
+    public static final String UPDATE_PERSISTENT_NOTIF = "ugPnNtf";
 			
 	public static final String FILE_SIZE = "fs";
 
 	public static final String INTERNAL_STORAGE_SPACE = "mem";
 
 	public static final String DISCOVERY_BOT_TAP = "bd_tap";
+
+	public static final String USER_LOCATION = "location";
 }

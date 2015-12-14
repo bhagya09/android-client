@@ -23,8 +23,10 @@ import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
+import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
+import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Pair;
 import android.webkit.MimeTypeMap;
@@ -1470,12 +1472,111 @@ public class PlatformUtils
 
 	}
 
+	public static void requestRecurringLocationUpdates(JSONObject json)
+	{
+		long duration = json.optInt(HikePlatformConstants.DURATION, 0);
+		final long interval = json.optInt(HikePlatformConstants.TIME_INTERVAL, 0);
+
+		// Checking if a request is already running
+		if (HikeSharedPreferenceUtil.getInstance().getData(HikePlatformConstants.RECURRING_LOCATION_END_TIME, -1L) >= 0L && interval >= 0)
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(HikePlatformConstants.RECURRING_LOCATION_END_TIME, System.currentTimeMillis() + duration);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikePlatformConstants.TIME_INTERVAL, interval);
+			return;
+		}
+
+		Logger.i(TAG, "Starting recurring location updates at time : "+ System.currentTimeMillis() + ". Duration : "+duration+" Interval : "+interval);
+
+		final GpsLocation gps = GpsLocation.getInstance();
+
+		gps.requestRecurringLocation(new LocationListener()
+		{
+			@Override
+			public void onLocationChanged(Location location)
+			{
+				Logger.i(TAG, "Location available : "+location.getLatitude()+" , "+location.getLongitude() + " Source : "+location.getProvider());
+				locationAnalytics(location);
+				if (HikeSharedPreferenceUtil.getInstance().getData(HikePlatformConstants.RECURRING_LOCATION_END_TIME, -1L) < location.getTime() + interval)
+				{
+					Logger.i(TAG, "Stopping recurring location updates at time : " + System.currentTimeMillis());
+					gps.removeUpdates(this);
+					HikeSharedPreferenceUtil.getInstance().removeData(HikePlatformConstants.RECURRING_LOCATION_END_TIME);
+				}
+			}
+
+			@Override
+			public void onStatusChanged(String provider, int status, Bundle extras)
+			{
+
+			}
+
+			@Override
+			public void onProviderEnabled(String provider)
+			{
+
+			}
+
+			@Override
+			public void onProviderDisabled(String provider)
+			{
+
+			}
+		}, interval, duration);
+	}
+
+	/**
+	 * Method to send log location updates to analytics.
+	 * @param location
+     */
+	public static void locationAnalytics(Location location)
+	{
+		JSONObject json = new JSONObject();
+		double latitude = location.getLatitude();
+		double longitude = location.getLongitude();
+		String provider = location.getProvider();
+
+		try
+		{
+			json.put(HikeConstants.LATITUDE, latitude);
+			json.put(HikeConstants.LONGITUDE, longitude);
+			json.put(HikeConstants.LOCATION_PROIVDER, provider);
+		} catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+
+		HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.USER_LOCATION, json);
+	}
+
+	public static void resumeLoggingLocationIfRequired()
+	{
+		long endTime = HikeSharedPreferenceUtil.getInstance().getData(HikePlatformConstants.RECURRING_LOCATION_END_TIME, -1L);
+		HikeSharedPreferenceUtil.getInstance().removeData(HikePlatformConstants.RECURRING_LOCATION_END_TIME);
+		if (endTime >= 0 && System.currentTimeMillis() < endTime)
+		{
+			Logger.i("PlatformUtils", "Resuming location updates");
+			JSONObject json = new JSONObject();
+			try
+			{
+				json.put(HikePlatformConstants.DURATION, endTime - System.currentTimeMillis());
+				json.put(HikePlatformConstants.TIME_INTERVAL, HikeSharedPreferenceUtil.getInstance().getData(HikePlatformConstants.TIME_INTERVAL, 0L));
+
+				PlatformUtils.requestRecurringLocationUpdates(json);
+			} catch (JSONException e)
+			{
+				Logger.e("PlatformUtils", "JSONException in resumeLoggingLocationIfRequired : "+e.getMessage());
+				e.printStackTrace();
+			}
+
+		}
+	}
+
 	public static void addLocaleToInitJSON(JSONObject jsonObject) throws JSONException
 	{
 		jsonObject.put(HikeConstants.LOCALE, LocalLanguageUtils.getApplicationLocalLanguageLocale());
 		jsonObject.put(HikeConstants.DEVICE_LOCALE, LocalLanguageUtils.getDeviceDefaultLocale());
 		if (!HikeMessengerApp.isSystemKeyboard())
-			jsonObject.put(HikeConstants.CUSTOM_KEYBOARD_LOCALE, KptKeyboardManager.getInstance(HikeMessengerApp.getInstance().getApplicationContext())
+			jsonObject.put(HikeConstants.CUSTOM_KEYBOARD_LOCALE, KptKeyboardManager.getInstance()
 					.getCurrentLanguageAddonItem().getlocaleName());
 
 	}
