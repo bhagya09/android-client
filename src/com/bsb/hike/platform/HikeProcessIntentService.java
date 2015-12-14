@@ -72,7 +72,17 @@ public class HikeProcessIntentService extends IntentService
 					case SEND_APP_STATE:
 						if( bundleData.getParcelable(SEND_APP_STATE) instanceof AppState)
 						{
-							sendAppState(bundleData);
+							AppState appState = bundleData.getParcelable(SEND_APP_STATE);
+							JSONObject jsonObject=null;
+							try
+							{
+								jsonObject = new JSONObject(appState.json);
+								sendAppState(jsonObject);
+							}
+							catch(JSONException e)
+							{
+								//TODO
+							}
 						} else
 						{
 							Logger.e(TAG, "Data passed is not parcelable");
@@ -106,13 +116,10 @@ public class HikeProcessIntentService extends IntentService
 			PlatformHelper.logAnalytics(logAnalyticsEvent.isUI, logAnalyticsEvent.subType, logAnalyticsEvent.json, logAnalyticsEvent.botMsisdn, logAnalyticsEvent.botName);
 		}
 	}
-	private void sendAppState(Bundle bundleData)
+	private void sendAppState(JSONObject jsonObject)
 	{
-		AppState appState = bundleData.getParcelable(SEND_APP_STATE);
-		JSONObject jsonObject=null;
 		try
 		{
-			jsonObject=new JSONObject(appState.json);
 			JSONObject data=jsonObject.getJSONObject(HikeConstants.DATA);
 			String isForeGround=data.optString(HikeConstants.SUB_TYPE);
 			if(Boolean.valueOf(isForeGround))

@@ -333,6 +333,7 @@ public class CocosGamingActivity extends Cocos2dxActivity
 	@Override
 	protected void onDestroy()
 	{
+		nativeBridge.sendAppState(false);
 		sendGameOpenAnalytics();
 		onHandlerDestroy();
 		super.onDestroy();

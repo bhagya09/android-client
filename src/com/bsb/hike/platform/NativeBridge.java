@@ -646,6 +646,9 @@ public class NativeBridge
 			{
 				object.put(HikeConstants.SUB_TYPE, HikeConstants.BACKGROUND);
 			}
+			JSONObject data = new JSONObject();
+			data.put(HikeConstants.BULK_LAST_SEEN, false);
+			object.put(HikeConstants.DATA, data);
 
 		}
 		catch (JSONException e)
