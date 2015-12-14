@@ -77,7 +77,6 @@ public class BlockCallerListAdapter extends RecyclerViewCursorAdapter<BlockCalle
 			viewHolder.name.setText(cursor.getString(cursor.getColumnIndex(DBConstants.NAME)));
 			String msisdn = cursor.getString(cursor.getColumnIndex(DBConstants.MSISDN));
 			viewHolder.msisdn.setText(msisdn);
-			viewHolder.checkBox.setVisibility(View.VISIBLE);
 			viewHolder.checkBox.setButtonDrawable(R.drawable.block_button);
 			if (cursor.getInt(cursor.getColumnIndex(DBConstants.HIKE_USER.IS_BLOCK)) == BlockCallerActivity.BLOCKED_TRUE)
 			{
@@ -102,7 +101,7 @@ public class BlockCallerListAdapter extends RecyclerViewCursorAdapter<BlockCalle
 	public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType)
 	{
 		View convertView;
-		convertView = mInflater.inflate(R.layout.hike_list_item, parent, false);
+		convertView = mInflater.inflate(R.layout.hike_list_item_caller, parent, false);
 		return new ViewHolder(convertView);
 	}
 
