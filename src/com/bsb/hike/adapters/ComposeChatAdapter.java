@@ -924,5 +924,13 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 			microappsListAdapter.notifyDataSetChanged();
 		}
 	}
+
+	public void onBotCreated(Object data)
+	{
+		if (microappsListAdapter != null)
+		{
+			microappsListAdapter.onBotCreated(data);
+		}
+	}
 	
 }
