@@ -897,6 +897,8 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 			Intent intent = new Intent(HikePreferences.this, BlockCallerActivity.class);
 			intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 			startActivity(intent);
+			HAManager.getInstance().stickyCallerAnalyticsUIEvent(AnalyticsConstants.StickyCallerEvents.BLOCK_LIST, null,
+					AnalyticsConstants.StickyCallerEvents.CALLER_SETTINGS_BUTTON, null);
 		}
 		else if (HikeConstants.SYSTEM_HEALTH_PREF.equals(preference.getKey()))
 		{
