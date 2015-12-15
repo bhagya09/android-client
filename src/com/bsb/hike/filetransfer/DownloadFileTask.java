@@ -130,9 +130,8 @@ public class DownloadFileTask extends FileTransferBase
 		if (!isFileMoved) // if failed
 		{
 			Logger.d(getClass().getSimpleName(), "FT failed");
-			// error();
 			// FTAnalyticEvents.logDevError(FTAnalyticEvents.DOWNLOAD_RENAME_FILE, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "file", "READ_FAIL");
-			// TODO check what to do here?? return FTResult.READ_FAIL;
+			Toast.makeText(context, R.string.download_failed, Toast.LENGTH_SHORT).show();
 		}
 		else
 		{
@@ -206,7 +205,6 @@ public class DownloadFileTask extends FileTransferBase
 			}
 		}
 		// TODO
-		// result == FTResult.FAILED_UNRECOVERABLE ? R.string.download_failed_fatal
 		// result == FTResult.CARD_UNMOUNT ? R.string.card_unmount
 
 		if (mFile != null)
