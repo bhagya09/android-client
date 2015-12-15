@@ -41,7 +41,7 @@ public class DownloadFileTask extends FileTransferBase
 
 	public void download()
 	{
-		IRequestListener downlaodFileRequestListener = getDownloadRequestListener();
+		IRequestListener downloadFileRequestListener = getDownloadRequestListener();
 
 		String downLoadUrl = null;
 		if (userContext != null)
@@ -60,7 +60,7 @@ public class DownloadFileTask extends FileTransferBase
 
 		if (requestToken == null)
 		{
-			requestToken = HttpRequests.downloadFile(tempDownloadedFile.getAbsolutePath(), downLoadUrl, msgId, downlaodFileRequestListener, chunkSizePolicy);
+			requestToken = HttpRequests.downloadFile(tempDownloadedFile.getAbsolutePath(), downLoadUrl, msgId, downloadFileRequestListener, chunkSizePolicy);
 		}
 		requestToken.execute();
 	}
