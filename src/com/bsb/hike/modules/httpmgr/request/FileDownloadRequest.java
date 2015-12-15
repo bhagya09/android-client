@@ -4,8 +4,11 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+
+import com.bsb.hike.filetransfer.DownloadFileTask;
 import com.bsb.hike.filetransfer.FileSavedState;
 import com.bsb.hike.filetransfer.FileTransferBase.FTState;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpHeaderConstants;
 import com.bsb.hike.modules.httpmgr.log.LogFull;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.client.IClient;
@@ -71,14 +74,13 @@ public class FileDownloadRequest extends Request<File>
 	@Override
 	public Response executeRequest(IClient client) throws Throwable
 	{
-		// adding range header
 		start = new File(filePath).length();
 		if (this.getState() == null)
 		{
 			FileSavedState fst = new FileSavedState(FTState.IN_PROGRESS, 0, start, 0);
 			this.setState(fst);
 		}
-		this.replaceOrAddHeader("Range", "bytes=" + start + "-");
+		this.replaceOrAddHeader(HttpHeaderConstants.RANGE, "bytes=" + start + "-");
 		LogFull.d("download range start : " + start);
 		return client.execute(this);
 	}
@@ -92,9 +94,9 @@ public class FileDownloadRequest extends Request<File>
 		{
 			if (contentLength > Utils.getFreeSpace())
 			{
-				// TODO check this case
-				throw new IOException("FILE TOO LARGE");
+				throw new IOException(DownloadFileTask.FILE_TOO_LARGE_ERROR_MESSAGE);
 			}
+
 			file = new File(filePath);
 			fos = new FileOutputStream(file, true);
 
@@ -144,8 +146,6 @@ public class FileDownloadRequest extends Request<File>
 				state.setTransferredSize(transferredSize);
 				saveStateInDB(state);
 			}
-
-			LogFull.d("file length after while : " + new File(filePath).length());
 			fos.flush();
 			fos.getFD().sync();
 			return file;
