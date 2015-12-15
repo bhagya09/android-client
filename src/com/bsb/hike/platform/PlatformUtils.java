@@ -1480,9 +1480,10 @@ public class PlatformUtils
 		// Checking if a request is already running
 		if (HikeSharedPreferenceUtil.getInstance().getData(HikePlatformConstants.RECURRING_LOCATION_END_TIME, -1L) >= 0L && interval >= 0)
 		{
+			if (HikeSharedPreferenceUtil.getInstance().getData(HikePlatformConstants.RECURRING_LOCATION_END_TIME, -1L) >= System.currentTimeMillis() + duration)
+				return;
 			HikeSharedPreferenceUtil.getInstance().saveData(HikePlatformConstants.RECURRING_LOCATION_END_TIME, System.currentTimeMillis() + duration);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikePlatformConstants.TIME_INTERVAL, interval);
-			return;
 		}
 
 		Logger.i(TAG, "Starting recurring location updates at time : "+ System.currentTimeMillis() + ". Duration : "+duration+" Interval : "+interval);
