@@ -291,27 +291,23 @@ public class FileTransferManager
      * @param fileKey
      */
 	public void uploadFile(ConvMessage convMessage, String fileKey)
-    {
+	{
 		if (isFileTaskExist(convMessage.getMsgID()))
 		{
 			UploadFileTask task = (UploadFileTask) fileTaskMap.get(convMessage.getMsgID());
 			task.upload();
-			return;
 		}
-        // TODO
-		// validateFilePauseState(convMessage.getMsgID());
-		// return;
-		// }
-		//
-
-		if (!isFileTaskExist(convMessage.getMsgID()) && taskOverflowLimitAchieved())
+		else
 		{
-			return;
-		}
+			if (taskOverflowLimitAchieved())
+			{
+				return;
+			}
 
-		UploadFileTask task = new UploadFileTask(context, convMessage, fileKey);
-		fileTaskMap.put(convMessage.getMsgID(), task);
-		task.startFileUploadProcess();
+			UploadFileTask task = new UploadFileTask(context, convMessage, fileKey);
+			fileTaskMap.put(convMessage.getMsgID(), task);
+			task.startFileUploadProcess();
+		}
 	}
 
     /**
@@ -323,22 +319,25 @@ public class FileTransferManager
 	public void uploadFile(List<ContactInfo> contactList, List<ConvMessage> messageList, String fileKey)
 	{
 		ConvMessage convMessage = messageList.get(0);
-		// TODO if (isFileTaskExist(convMessage.getMsgID())){
-		// validateFilePauseState(convMessage.getMsgID());
-		// return;
-		// }
-
-		if (!isFileTaskExist(convMessage.getMsgID()) && taskOverflowLimitAchieved())
+		if (isFileTaskExist(convMessage.getMsgID()))
 		{
-			return;
+			UploadFileTask task = (UploadFileTask) fileTaskMap.get(convMessage.getMsgID());
+			task.upload();
 		}
-
-		UploadFileTask task = new UploadFileTask(context, contactList, messageList, fileKey);
-		for (ConvMessage msg : messageList)
+		else
 		{
-			fileTaskMap.put(msg.getMsgID(), task);
+			if (taskOverflowLimitAchieved())
+			{
+				return;
+			}
+
+			UploadFileTask task = new UploadFileTask(context, contactList, messageList, fileKey);
+			for (ConvMessage msg : messageList)
+			{
+				fileTaskMap.put(msg.getMsgID(), task);
+			}
+			task.startFileUploadProcess();
 		}
-		task.startFileUploadProcess();
 	}
 
     /**
@@ -348,19 +347,22 @@ public class FileTransferManager
      */
 	public void uploadContactOrLocation(ConvMessage convMessage, boolean uploadingContact)
 	{
-		// TODO
-		// if (isFileTaskExist(convMessage.getMsgID())){
-		// validateFilePauseState(convMessage.getMsgID());
-		// return;
-		// }
-		if (!isFileTaskExist(convMessage.getMsgID()) && taskOverflowLimitAchieved())
+		if (isFileTaskExist(convMessage.getMsgID()))
 		{
-			return;
+			UploadContactOrLocationTask task = (UploadContactOrLocationTask) fileTaskMap.get(convMessage.getMsgID());
+			task.execute();
 		}
+		else
+		{
+			if (taskOverflowLimitAchieved())
+			{
+				return;
+			}
 
-		UploadContactOrLocationTask task = new UploadContactOrLocationTask(context, convMessage, uploadingContact);
-		fileTaskMap.put(convMessage.getMsgID(), task);
-		task.execute();
+			UploadContactOrLocationTask task = new UploadContactOrLocationTask(context, convMessage, uploadingContact);
+			fileTaskMap.put(convMessage.getMsgID(), task);
+			task.execute();
+		}
 	}
 
     /**
