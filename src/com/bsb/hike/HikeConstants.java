@@ -3728,4 +3728,6 @@ public class HikeConstants
 
 	public static final String CT_OVRFLW_KEYBOARD_CLICKED = "ct_ovrflw_keyboard_clicked";
 
+	public static final String CUSTOM_KEYBOARD_SUPPORTED = "custom_key_supported";
+
 }
