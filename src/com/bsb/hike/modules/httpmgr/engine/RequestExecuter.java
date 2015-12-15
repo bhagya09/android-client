@@ -38,11 +38,10 @@ import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.modules.httpmgr.response.ResponseBody;
 import com.bsb.hike.modules.httpmgr.retry.BasicRetryPolicy;
 import com.bsb.hike.utils.Utils;
-import com.hike.transporter.interfaces.IRetryPolicy;
 
 /**
  * This class is responsible for submitting the {@link Request} to the {@link HttpEngine} for engine and decides whether to execute the request asynchronously or synchronously
- * based on request parameters. Also handle exceptions and retries based on {@link IRetryPolicy} set in the request object
+ * based on request parameters. Also handle exceptions and retries based on {@link BasicRetryPolicy} set in the request object
  * 
  * @author sidharth
  * 
@@ -306,9 +305,9 @@ public class RequestExecuter
 	{
 		if (request.getState() != null && request.getState().getFTState() == FTState.PAUSED)
 		{
-			LogFull.d("removing reuqest");
+			LogFull.d("removing request");
 			RequestProcessor.removeRequest(request);
-			LogFull.d("removed reuqest");
+			LogFull.d("removed request");
 		}
 		else
 		{
@@ -330,7 +329,7 @@ public class RequestExecuter
 	}
 
 	/**
-	 * Handles the exception that occurs while executing the request, and in case of {@link IOException} handle retries based on {@link IRetryPolicy}
+	 * Handles the exception that occurs while executing the request, and in case of {@link IOException} handle retries based on {@link BasicRetryPolicy}
 	 * 
 	 * @param ex
 	 */
@@ -341,7 +340,7 @@ public class RequestExecuter
 	}
 
 	/**
-	 * Handles the retries of the request based on {@link IRetryPolicy}
+	 * Handles the retries of the request based on {@link BasicRetryPolicy}
 	 * 
 	 * @param ex
 	 */

@@ -228,30 +228,4 @@ public class FTUtils {
 			return FileTransferManager.NetworkType.TWO_G;
 		}
 	}
-
-	public static String getNetworkTypeString(Context context)
-	{
-		String netTypeString = "n";
-		switch (getNetworkType(context))
-		{
-		case NO_NETWORK:
-			netTypeString = "n";
-			break;
-		case TWO_G:
-			netTypeString = "2g";
-			break;
-		case THREE_G:
-			netTypeString = "3g";
-			break;
-		case FOUR_G:
-			netTypeString = "4g";
-			break;
-		case WIFI:
-			netTypeString = "wifi";
-			break;
-		default:
-			break;
-		}
-		return netTypeString;
-	}
 }
