@@ -418,7 +418,7 @@ public abstract class Request<T> implements IRequestFacade
 		this.headers.add(header);
 	}
 
-	public void replaceHeader(String name, String value)
+	public void replaceOrAddHeader(String name, String value)
 	{
 		if (TextUtils.isEmpty(name) || TextUtils.isEmpty(value))
 		{

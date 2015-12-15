@@ -7,8 +7,6 @@ import java.io.InputStream;
 import com.bsb.hike.filetransfer.FileSavedState;
 import com.bsb.hike.filetransfer.FileTransferBase.FTState;
 import com.bsb.hike.modules.httpmgr.log.LogFull;
-import com.bsb.hike.modules.httpmgr.requeststate.HttpRequestState;
-import com.bsb.hike.modules.httpmgr.requeststate.HttpRequestStateDB;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.client.IClient;
 import com.bsb.hike.modules.httpmgr.response.Response;
@@ -80,7 +78,7 @@ public class FileDownloadRequest extends Request<File>
 			FileSavedState fst = new FileSavedState(FTState.IN_PROGRESS, 0, start, 0);
 			this.setState(fst);
 		}
-		this.replaceHeader("Range", "bytes=" + start + "-");
+		this.replaceOrAddHeader("Range", "bytes=" + start + "-");
 		LogFull.d("download range start : " + start);
 		return client.execute(this);
 	}
