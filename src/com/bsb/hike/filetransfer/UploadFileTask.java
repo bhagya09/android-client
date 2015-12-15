@@ -1,16 +1,5 @@
 package com.bsb.hike.filetransfer;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.Uri;
@@ -20,15 +9,10 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.bsb.hike.HikeConstants;
-import static com.bsb.hike.HikeConstants.IMAGE_QUALITY;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.db.HikeConversationsDatabase;
-import com.bsb.hike.filetransfer.FTAnalyticEvents;
-import com.bsb.hike.filetransfer.FileSavedState;
-import com.bsb.hike.filetransfer.FileTransferBase;
-import com.bsb.hike.filetransfer.FileTransferManager;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.GroupParticipant;
@@ -51,6 +35,17 @@ import com.bsb.hike.utils.Utils;
 import com.bsb.hike.video.HikeVideoCompressor;
 import com.bsb.hike.video.VideoUtilities;
 import com.bsb.hike.video.VideoUtilities.VideoEditedInfo;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.util.ArrayList;
+import java.util.List;
 
 public class UploadFileTask extends FileTransferBase
 {
@@ -87,16 +82,18 @@ public class UploadFileTask extends FileTransferBase
 		super(ctx, null, -1, null);
 		this.userContext = convMessage;
 		if (userContext != null)
-			this.msgId = userContext.getMsgID();
-		this.fileKey = fileKey;
-		HikeFile hikeFile = userContext.getMetadata().getHikeFiles().get(0);
-		if (!TextUtils.isEmpty(hikeFile.getSourceFilePath()))
 		{
-			if (hikeFile.getSourceFilePath().startsWith(HikeConstants.PICASA_PREFIX))
+			this.msgId = userContext.getMsgID();
+			HikeFile hikeFile = userContext.getMetadata().getHikeFiles().get(0);
+			if (!TextUtils.isEmpty(hikeFile.getSourceFilePath()))
 			{
-				this.picasaUri = Uri.parse(hikeFile.getSourceFilePath().substring(HikeConstants.PICASA_PREFIX.length()));
+				if (hikeFile.getSourceFilePath().startsWith(HikeConstants.PICASA_PREFIX))
+				{
+					this.picasaUri = Uri.parse(hikeFile.getSourceFilePath().substring(HikeConstants.PICASA_PREFIX.length()));
+				}
 			}
 		}
+		this.fileKey = fileKey;
 	}
 
 	public UploadFileTask(Context ctx, List<ContactInfo> contactList, List<ConvMessage> messageList, String fileKey)
