@@ -232,61 +232,57 @@ public class FileTransferManager
      */
 	public void downloadFile(File destinationFile, String fileKey, long msgId, HikeFileType hikeFileType, ConvMessage userContext, boolean showToast)
 	{
-		if (destinationFile.exists())
-		{
-			// TODO
-			return;
-		}
-
-		if (!isFileTaskExist(msgId) && taskOverflowLimitAchieved())
-		{
-			return;
-		}
-
+		DownloadFileTask downloadFileTask;
 		if (isFileTaskExist(msgId))
 		{
-			DownloadFileTask task = (DownloadFileTask) fileTaskMap.get(msgId);
-			task.download();
-			return;
+			downloadFileTask = (DownloadFileTask) fileTaskMap.get(msgId);
 		}
-
-		File tempDownloadedFile;
-		try
+		else
 		{
-			/*
-			 * Changes done to fix the issue where some users are getting FileNotFoundEXception while creating file.
-			 */
-			File dir = FTUtils.getHikeTempDir(context);
-			if (!dir.exists())
+			if (taskOverflowLimitAchieved())
 			{
-				if (!dir.mkdirs())
-				{
-					Logger.d("DownloadFileTask", "failed to create directory");
-					Toast.makeText(context, R.string.no_sd_card, Toast.LENGTH_SHORT).show();
-					return;
-				}
+				return;
 			}
-			tempDownloadedFile = new File(dir, destinationFile.getName() + ".part");
-			if (!tempDownloadedFile.exists())
-				tempDownloadedFile.createNewFile();
-		}
-		catch (NullPointerException e)
-		{
-			FTAnalyticEvents.logDevException(FTAnalyticEvents.DOWNLOAD_INIT_1_1, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "file", "NO_SD_CARD : ", e);
-			Toast.makeText(context, R.string.no_sd_card, Toast.LENGTH_SHORT).show();
-			return;
-		}
-		catch (IOException e)
-		{
-			FTAnalyticEvents.logDevException(FTAnalyticEvents.DOWNLOAD_INIT_1_2, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "file", "NO_SD_CARD : ", e);
-			Logger.d("DownloadFileTask", "Failed to create File. " + e);
-			Toast.makeText(context, R.string.no_sd_card, Toast.LENGTH_SHORT).show();
-			return;
+
+			File tempDownloadedFile;
+			try
+			{
+				/*
+				 * Changes done to fix the issue where some users are getting FileNotFoundEXception while creating file.
+				 */
+				File dir = FTUtils.getHikeTempDir(context);
+				if (!dir.exists())
+				{
+					if (!dir.mkdirs())
+					{
+						Logger.d("DownloadFileTask", "failed to create directory");
+						Toast.makeText(context, R.string.no_sd_card, Toast.LENGTH_SHORT).show();
+						return;
+					}
+				}
+				tempDownloadedFile = new File(dir, destinationFile.getName() + ".part");
+				if (!tempDownloadedFile.exists())
+					tempDownloadedFile.createNewFile();
+			}
+			catch (NullPointerException e)
+			{
+				FTAnalyticEvents.logDevException(FTAnalyticEvents.DOWNLOAD_INIT_1_1, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "file", "NO_SD_CARD : ", e);
+				Toast.makeText(context, R.string.no_sd_card, Toast.LENGTH_SHORT).show();
+				return;
+			}
+			catch (IOException e)
+			{
+				FTAnalyticEvents.logDevException(FTAnalyticEvents.DOWNLOAD_INIT_1_2, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "file", "NO_SD_CARD : ", e);
+				Logger.d("DownloadFileTask", "Failed to create File. " + e);
+				Toast.makeText(context, R.string.no_sd_card, Toast.LENGTH_SHORT).show();
+				return;
+			}
+
+			downloadFileTask = new DownloadFileTask(context, tempDownloadedFile, destinationFile, fileKey, msgId, hikeFileType, userContext);
+			fileTaskMap.put(msgId, downloadFileTask);
 		}
 
-		DownloadFileTask task = new DownloadFileTask(context, tempDownloadedFile, destinationFile, fileKey, msgId, hikeFileType, userContext);
-		fileTaskMap.put(msgId, task);
-		task.download();
+		downloadFileTask.download();
 	}
 
     /**
