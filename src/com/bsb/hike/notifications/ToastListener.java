@@ -742,7 +742,7 @@ public class ToastListener implements Listener
 				return;
 			}
 		}
-		else
+		else //Suppressing game notifs if already playing a game as game switch is not possible
 		{
 			BotInfo botInfo=BotUtils.getBotInfoForBotMsisdn(msisdn);
 			if(botInfo==null)
