@@ -1535,7 +1535,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	 *This function allows for a bot to send analytics via mqtt
 	 */
 	@JavascriptInterface
-	public void logAnalyticsMq(String json,String isUI)
+	public void logAnalyticsMq(String isUI, String subType, String json)
 	{
 		JSONObject jsonObject=null;
 		if(TextUtils.isEmpty(json)||TextUtils.isEmpty(isUI))
@@ -1547,6 +1547,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 			jsonObject=new JSONObject(json);
 			jsonObject.put(AnalyticsConstants.BOT_MSISDN, mBotInfo.getMsisdn());
 			jsonObject.put(AnalyticsConstants.BOT_NAME, mBotInfo.getConversationName());
+			jsonObject.put(AnalyticsConstants.SUB_TYPE,subType);
 		} catch (JSONException e)
 		{
 			e.printStackTrace();
