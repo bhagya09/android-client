@@ -742,6 +742,24 @@ public class ToastListener implements Listener
 				return;
 			}
 		}
+		else
+		{
+			BotInfo botInfo=BotUtils.getBotInfoForBotMsisdn(msisdn);
+			if(botInfo==null)
+				return;
+			NonMessagingBotMetadata nmData=new NonMessagingBotMetadata(botInfo.getMetadata());
+			if(nmData==null)
+				return;
+			if(nmData.isNativeMode())
+			{
+				SharedPreferences settings = context.getSharedPreferences(HikePlatformConstants.GAME_PROCESS, context.MODE_MULTI_PROCESS);
+				boolean gameActive = settings.getBoolean(HikePlatformConstants.GAME_ACTIVE, false);
+				if(gameActive)
+				{
+					return;
+				}
+			}
+		}
 
 		toaster.sendNotificationToChatThread(msisdn, message, forceNotPlaySound);
 

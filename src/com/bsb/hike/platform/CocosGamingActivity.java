@@ -82,6 +82,7 @@ public class CocosGamingActivity extends Cocos2dxActivity
 	private final String GAME_ANALYTICS_ENGINE_FAILED = "engine_load_failed";
 	private final String GAME_ANALYTICS_GAME_FAILED = "game_load_failed";
 	private final String GAME_ANALYTICS_GAME_OPEN = "game_open";
+	SharedPreferences settings;
 
 	@Override
 	public void onPostCreate(Bundle savedInstanceState, PersistableBundle persistentState)
@@ -99,7 +100,7 @@ public class CocosGamingActivity extends Cocos2dxActivity
 		super.onCreateDuplicate(savedInstanceState);
 		getSupportActionBar().hide();
 		context = CocosGamingActivity.this;
-		SharedPreferences settings = getSharedPreferences(HikePlatformConstants.GAME_PROCESS, context.MODE_MULTI_PROCESS);
+		settings = getSharedPreferences(HikePlatformConstants.GAME_PROCESS, context.MODE_MULTI_PROCESS);
 		settings.edit().putInt(HikePlatformConstants.GAME_PROCESS,android.os.Process.myPid()).commit();
 
 		msisdn = getIntent().getStringExtra(HikeConstants.MSISDN);
@@ -318,6 +319,7 @@ public class CocosGamingActivity extends Cocos2dxActivity
 		HAManager.getInstance().startChatSession(msisdn);
 		openTimestamp = System.currentTimeMillis();
 		nativeBridge.sendAppState(true);
+		settings.edit().putBoolean(HikePlatformConstants.GAME_ACTIVE, true).commit();
 	}
 
 	@Override
@@ -328,12 +330,14 @@ public class CocosGamingActivity extends Cocos2dxActivity
 		HAManager.getInstance().endChatSession(msisdn);
 		activeDuration = activeDuration + (System.currentTimeMillis() - openTimestamp);
 		nativeBridge.sendAppState(false);
+		settings.edit().putBoolean(HikePlatformConstants.GAME_ACTIVE,false).commit();
 	}
 
 	@Override
 	protected void onDestroy()
 	{
 		nativeBridge.sendAppState(false);
+		settings.edit().putBoolean(HikePlatformConstants.GAME_ACTIVE,false).commit();
 		sendGameOpenAnalytics();
 		onHandlerDestroy();
 		super.onDestroy();
