@@ -34,6 +34,10 @@ public class UpdateCallListener implements IRequestListener
 			}
 			StickyCaller.updateLayoutData(callerContentModel);
 		}
+		else
+		{
+			Logger.d(TAG, "update call failure");
+		}
 	}
 
 	@Override
@@ -45,6 +49,6 @@ public class UpdateCallListener implements IRequestListener
 	@Override
 	public void onRequestFailure(HttpException httpException)
 	{
-
+		Logger.d(TAG, "request failure update call failure");
 	}
 }

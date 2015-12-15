@@ -18,6 +18,8 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
 import com.bsb.hike.adapters.BlockCallerListAdapter;
+import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.chatHead.StickyCaller;
 import com.bsb.hike.dialog.HikeDialog;
@@ -89,6 +91,10 @@ public class BlockCallerActivity extends HikeAppStateBaseFragmentActivity implem
 	public void negativeClicked(HikeDialog hikeDialog) {
 
 		hikeDialog.dismiss();
+		HAManager.getInstance().stickyCallerAnalyticsUIEvent(AnalyticsConstants.StickyCallerEvents.NEGATIVE_CLICKED, msisdn,
+				hikeDialog.getId() == HikeDialogFactory.CALLER_BLOCK_CONTACT_DIALOG ? AnalyticsConstants.StickyCallerEvents.BLOCK_DIALOG
+						: AnalyticsConstants.StickyCallerEvents.UNBLOCK_DIALOG,
+				null);
 	}
 
 	@Override
@@ -118,6 +124,10 @@ public class BlockCallerActivity extends HikeAppStateBaseFragmentActivity implem
 		{
 			Logger.d("JSON Exception" , "Caller Block Server Call");
 		}
+		HAManager.getInstance().stickyCallerAnalyticsUIEvent(AnalyticsConstants.StickyCallerEvents.POSITIVE_CLICKED, msisdn,
+				hikeDialog.getId() == HikeDialogFactory.CALLER_BLOCK_CONTACT_DIALOG ? AnalyticsConstants.StickyCallerEvents.BLOCK_DIALOG
+						: AnalyticsConstants.StickyCallerEvents.UNBLOCK_DIALOG,
+				null);
 	}
 
 	@Override

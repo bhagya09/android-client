@@ -389,20 +389,30 @@ public class StickyCaller {
 	}
 
 	public static String getCallEventFromCallType(short callType) {
-		if (callType == INCOMING) {
-			return AnalyticsConstants.StickyCallerEvents.RECEIVED;
-		}
-		if (callType == MISSED) {
-			return AnalyticsConstants.StickyCallerEvents.MISSED;
-		}
-		if (callType == OUTGOING) {
-			return AnalyticsConstants.StickyCallerEvents.DIALED;
-		}
-		if (callType == CLIPBOARD) {
-			return AnalyticsConstants.StickyCallerEvents.CLIPBOARD;
-		}
-		if (callType == SMS) {
-			return AnalyticsConstants.StickyCallerEvents.SMS;
+
+		switch (callType)
+		{
+			case INCOMING:
+				return AnalyticsConstants.StickyCallerEvents.RECEIVED;
+
+			case MISSED:
+				return AnalyticsConstants.StickyCallerEvents.MISSED;
+
+			case OUTGOING:
+				return AnalyticsConstants.StickyCallerEvents.DIALED;
+
+			case CLIPBOARD:
+				return AnalyticsConstants.StickyCallerEvents.CLIPBOARD;
+
+			case SMS:
+				return AnalyticsConstants.StickyCallerEvents.SMS;
+
+			case AFTER_INCOMING_UNKNOWN:
+				return AnalyticsConstants.StickyCallerEvents.AFTER_INCOMING_UNKNOWN;
+
+			case AFTER_OUTGOING_UNKNOWN:
+				return AnalyticsConstants.StickyCallerEvents.AFTER_OUTGOING_UNKNOWN;
+
 		}
 		return null;
 	}
@@ -740,6 +750,9 @@ public class StickyCaller {
 				IncomingCallReceiver.callReceived = true;
 				CALL_TYPE = NONE;
 				Utils.killCall();
+				HAManager.getInstance().stickyCallerAnalyticsUIEvent(AnalyticsConstants.StickyCallerEvents.BLOCK, getPhoneNumberFromTag(v),
+						AnalyticsConstants.StickyCallerEvents.CARD, getCallEventFromCallType(CALL_TYPE));
+
 				break;
 			}
 		}
