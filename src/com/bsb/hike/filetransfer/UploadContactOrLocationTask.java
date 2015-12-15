@@ -38,6 +38,8 @@ import com.google.android.gms.maps.model.LatLng;
 
 public class UploadContactOrLocationTask extends FileTransferBase
 {
+	private static final String TAG = "UploadContactOrLocationTask";
+
 	private static final String STATIC_MAP_UNFORMATTED_URL = "http://maps.googleapis.com/maps/api/staticmap?center=%1$f,%2$f&zoom=%3$d&size=%4$dx%4$d&markers=size:mid|color:red|%1$f,%2$f&sensor=false";
 
 	private double latitude;
@@ -98,7 +100,8 @@ public class UploadContactOrLocationTask extends FileTransferBase
 		}
 		catch (Exception ex)
 		{
-            // TODO
+			Logger.e(TAG, "exception occurred ", ex);
+			Toast.makeText(context, R.string.upload_failed, Toast.LENGTH_SHORT).show();
 		}
 
 	}
