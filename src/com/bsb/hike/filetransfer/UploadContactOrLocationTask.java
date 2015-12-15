@@ -103,6 +103,14 @@ public class UploadContactOrLocationTask extends FileTransferBase
 
 	}
 
+	public void upload()
+	{
+		if (requestToken != null)
+		{
+			requestToken.execute();
+		}
+	}
+
 	private IRequestListener getUploadContactorLocationRequestListener()
 	{
 		return new IRequestListener()
