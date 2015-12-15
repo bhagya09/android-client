@@ -57,6 +57,7 @@ import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getBase
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getBotdiscoveryTableUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getDeleteAvatarBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getDeleteStatusBaseUrl;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getFastFileUploadBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getGroupBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getGroupBaseUrlForLinkSharing;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getHikeJoinTimeBaseUrl;
@@ -64,6 +65,9 @@ import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getPost
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getStaticAvatarBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getStatusBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getStickerTagsUrl;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getUploadContactOrLocationBaseUrl;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getUploadFileBaseUrl;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getValidateFileKeyBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.groupProfileBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.httpNetworkTestUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.languageListUrl;
@@ -981,7 +985,7 @@ public class HttpRequests
 	public static RequestToken uploadFile(String filePath, long msgId, IRequestListener requestListener, IGetChunkSize chunkSizePolicy)
 	{
 		RequestToken requestToken = new FileUploadRequest.Builder()
-				.setUrl(AccountUtils.fileTransferBase + "/user/pft/")
+				.setUrl(getUploadFileBaseUrl())
 				.setId(String.valueOf(msgId))
 				.setRequestType(Request.REQUEST_TYPE_LONG)
 				.setChunkSizePolicy(chunkSizePolicy)
@@ -994,7 +998,7 @@ public class HttpRequests
 	public static RequestToken validateFileKey(String fileKey, IRequestListener requestListener)
 	{
 		RequestToken requestToken = new ByteArrayRequest.Builder()
-				.setUrl(AccountUtils.fileTransferBaseDownloadUrl + fileKey)
+				.setUrl(getValidateFileKeyBaseUrl() + fileKey)
 				.setRequestType(Request.REQUEST_TYPE_SHORT)
 				.setRequestListener(requestListener)
 				.head()
@@ -1006,7 +1010,7 @@ public class HttpRequests
 	public static RequestToken verifyMd5(String fileMd5, IRequestListener requestListener)
 	{
 		RequestToken requestToken = new ByteArrayRequest.Builder()
-				.setUrl(AccountUtils.fastFileUploadUrl + fileMd5)
+				.setUrl(getFastFileUploadBaseUrl() + fileMd5)
 				.setRequestType(REQUEST_TYPE_SHORT)
 				.setRequestListener(requestListener)
 				.head()
@@ -1025,7 +1029,7 @@ public class HttpRequests
 		JsonBody body = new JsonBody(json);
 		
  		RequestToken requestToken = new JSONObjectRequest.Builder()
-				.setUrl(AccountUtils.fileTransferBase + "/user/ft")
+				.setUrl(getUploadContactOrLocationBaseUrl())
 				.setRequestType(Request.REQUEST_TYPE_SHORT)
 				.setRequestListener(requestListener)
 				.addHeader(headers)

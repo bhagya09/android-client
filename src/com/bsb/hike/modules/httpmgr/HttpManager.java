@@ -11,12 +11,12 @@ import com.bsb.hike.modules.httpmgr.client.ClientOptions;
 import com.bsb.hike.modules.httpmgr.engine.HttpEngine;
 import com.bsb.hike.modules.httpmgr.engine.RequestListenerNotifier;
 import com.bsb.hike.modules.httpmgr.engine.RequestProcessor;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
 import com.bsb.hike.modules.httpmgr.log.HttpLogger;
 import com.bsb.hike.modules.httpmgr.log.LogFull;
 import com.bsb.hike.modules.httpmgr.log.LogHttp;
 import com.bsb.hike.modules.httpmgr.request.Request;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
-import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 
 /**
@@ -186,7 +186,7 @@ public class HttpManager
 		{
 			int len = ipArray.length();
 
-			ftHostUris.add(AccountUtils.PRODUCTION_FT_HOST);
+			ftHostUris.add(HttpRequestConstants.FT_PRODUCTION_API);
 			for (int i = 0; i < len; i++)
 			{
 				if (ipArray.optString(i) != null)
@@ -198,7 +198,7 @@ public class HttpManager
 		}
 		else
 		{
-			ftHostUris.add(AccountUtils.PRODUCTION_FT_HOST);
+			ftHostUris.add(HttpRequestConstants.FT_PRODUCTION_API);
 			ftHostUris.add("54.169.191.114");
 			ftHostUris.add("54.169.191.115");
 			ftHostUris.add("54.169.191.116");
