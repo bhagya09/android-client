@@ -666,7 +666,7 @@ public class StickyCaller {
 	{
 		if (CALL_TYPE != OUTGOING || (HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.SHOW_FREEVIEW, true) && isIndianOrHikeNo))
 		{
-			TextView freeCallButton = (TextView) stickyCallerView.findViewById(R.id.caller_dismiss_with);
+			View freeCallButton = stickyCallerView.findViewById(R.id.caller_dismiss_with);
 			freeCallButton.setVisibility(View.VISIBLE);
 			stickyCallerView.findViewById(R.id.caller_free_layout).setVisibility(View.VISIBLE);
 		}
