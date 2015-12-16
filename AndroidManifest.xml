@@ -3,8 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bsb.hike"
     android:installLocation="auto"
-    android:versionCode="1562"
-    android:versionName="4.1.0.3.1.custom_keyboard_ir" >
+    android:versionCode="1563"
+    android:versionName="4.1.0.3.2.custom_keyboard_ir" >
 
     <uses-sdk
         android:minSdkVersion="14"
