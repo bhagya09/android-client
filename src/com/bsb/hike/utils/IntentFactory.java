@@ -2,6 +2,7 @@ package com.bsb.hike.utils;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -44,6 +45,7 @@ import com.bsb.hike.localisation.LocalLanguageUtils;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
+import com.bsb.hike.models.GalleryItem;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.Sticker;
@@ -59,6 +61,7 @@ import com.bsb.hike.ui.ConnectedAppsActivity;
 import com.bsb.hike.ui.CreateNewGroupOrBroadcastActivity;
 import com.bsb.hike.ui.FileSelectActivity;
 import com.bsb.hike.ui.GalleryActivity;
+import com.bsb.hike.ui.GallerySelectionViewer;
 import com.bsb.hike.ui.HikeAuthActivity;
 import com.bsb.hike.ui.HikeBaseActivity;
 import com.bsb.hike.ui.HikeDirectHelpPageActivity;
@@ -726,6 +729,14 @@ public class IntentFactory
 		intent.setAction(Intent.ACTION_SEND_MULTIPLE);
 		intent.setType(HikeFileType.toString(type));
 		return intent;
+	}
+
+	public static Intent getImageSelectionIntent(Context argContext, List<GalleryItem> argSelectedImages,boolean fromDeviceGallery)
+	{
+		Intent multiIntent = new Intent(argContext,GallerySelectionViewer.class);
+		multiIntent.putParcelableArrayListExtra(HikeConstants.Extras.GALLERY_SELECTIONS, new ArrayList(argSelectedImages));
+		multiIntent.putExtra(GallerySelectionViewer.FROM_DEVICE_GALLERY_SHARE, fromDeviceGallery);
+		return multiIntent;
 	}
 
 	public static Intent getHikeGalleryPickerIntent(Context context, int flags,String outputDestination)
