@@ -710,7 +710,8 @@ import android.widget.Toast;
 	{
 		mComposeView = (CustomFontEditText) activity.findViewById(R.id.msg_compose);
 
-		initCustomKeyboard();
+		if (!isSystemKeyboard())
+			initCustomKeyboard();
 		
 		audioRecordView = new AudioRecordView(activity, this);
 
@@ -4445,6 +4446,7 @@ import android.widget.Toast;
 
 	public void onResume()
 	{
+		KptUtils.resumeKeyboard(mCustomKeyboard);
 		if (shouldShowKeyboard())
 		{
 			tryToDismissAnyOpenPanels();

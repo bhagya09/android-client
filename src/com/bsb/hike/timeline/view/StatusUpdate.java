@@ -352,6 +352,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 	protected void onResume()
 	{
 		super.onResume();
+		KptUtils.resumeKeyboard(mCustomKeyboard);
 		showKeyboard(false);
 		isForeground = true;
 		if (statusImage != null && statusImage.getDrawable() != null)

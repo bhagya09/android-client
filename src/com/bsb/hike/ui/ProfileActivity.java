@@ -696,6 +696,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 	protected void onResume()
 	{
 		super.onResume();
+		KptUtils.resumeKeyboard(mCustomKeyboard);
 		if (profileAdapter != null)
 		{
 			profileAdapter.getTimelineImageLoader().setExitTasksEarly(false);
