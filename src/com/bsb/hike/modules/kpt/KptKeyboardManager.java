@@ -423,7 +423,7 @@ public class KptKeyboardManager implements AdaptxtSettingsRegisterListener
 	@Override
 	public void onInitializationError(int errorCode)
 	{
-		Utils.setCustomKeyboardSupported(true);
+		Utils.setCustomKeyboardSupported(false);
 		logKeyboardInitializationError();
 	}
 
