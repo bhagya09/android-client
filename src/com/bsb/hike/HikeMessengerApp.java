@@ -752,9 +752,7 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 
 		_instance = this;
 
-		setupLocalLanguage();
-		KptKeyboardManager.getInstance();
-		LocalLanguageUtils.handleHikeSupportedListOrderChange(this);
+		setupAppLocalization();
 		Utils.setDensityMultiplier(getResources().getDisplayMetrics());
 
 		// first time or failed DB upgrade.
@@ -1242,6 +1240,15 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 	{
 		// server switch
 		return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.LOCALIZATION_ENABLED, true);
+	}
+
+	private void setupAppLocalization()
+	{
+		setupLocalLanguage();
+		// initialized keyboard manager only if its enabled.
+		if (isCustomKeyboardEnabled())
+			KptKeyboardManager.getInstance();
+		LocalLanguageUtils.handleHikeSupportedListOrderChange(this);
 	}
 
 	@Override
