@@ -233,6 +233,11 @@ public class ToastListener implements Listener
 				{
 					return;
 				}
+
+				if (StealthModeManager.getInstance().isStealthMsisdn(statusMessage.getMsisdn()))
+				{
+					return;
+				}
 				
 				if (statusMessage.getStatusMessageType() == StatusMessageType.IMAGE || statusMessage.getStatusMessageType() == StatusMessageType.TEXT_IMAGE)
 				{
