@@ -259,7 +259,7 @@ public class HikeDialogFactory
 		}
 		blockConfirmDialog.setPositiveButton(R.string.dialog_btn_yes, listener);
 		blockConfirmDialog.setNegativeButton(R.string.dialog_btn_no, listener);
-		blockConfirmDialog.setCancelable(false);
+		blockConfirmDialog.setCancelable(true);
 		blockConfirmDialog.show();
 		return blockConfirmDialog;
 	}
