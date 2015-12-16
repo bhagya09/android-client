@@ -32,6 +32,7 @@ import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.timeline.model.ActionsDataModel;
 import com.bsb.hike.timeline.model.FeedDataModel;
 import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
@@ -185,7 +186,10 @@ public class ToastListener implements Listener
 				FeedDataModel activityFeed = (FeedDataModel) object;
 				if (StealthModeManager.getInstance().isStealthMsisdn(activityFeed.getActor()) && !StealthModeManager.getInstance().isActive())
 				{
-					this.toaster.notifyStealthMessage(NotificationType.HIDDEN,activityFeed.getActor());
+					if (activityFeed.getActionType() == ActionsDataModel.ActionTypes.LIKE)
+					{
+						this.toaster.notifyStealthMessage(NotificationType.HIDDEN, activityFeed.getActor());
+					}
 				}
 				else
 				{
