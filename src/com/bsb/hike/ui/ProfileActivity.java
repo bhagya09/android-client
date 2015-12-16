@@ -320,7 +320,6 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 	@Override
 	protected void onDestroy()
 	{
-		super.onDestroy();
 		if (mDialog != null)
 		{
 			mDialog.dismiss();
@@ -361,6 +360,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		}
 		
 		KptUtils.destroyKeyboardResources(mCustomKeyboard, R.id.name_edit, R.id.name_input, R.id.email_input);
+		super.onDestroy();
 	}
 
 	@Override

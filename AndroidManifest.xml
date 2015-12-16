@@ -4,7 +4,7 @@
     package="com.bsb.hike"
     android:installLocation="auto"
     android:versionCode="1564"
-    android:versionName="4.1.0.5" >
+    android:versionName="4.1.0.5.1.custom_keyboard_ir" >
 
     <uses-sdk
         android:minSdkVersion="14"
