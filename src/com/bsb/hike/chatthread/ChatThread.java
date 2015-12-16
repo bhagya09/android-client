@@ -4445,6 +4445,7 @@ import android.widget.Toast;
 
 	public void onResume()
 	{
+		KptUtils.resumeKeyboard(mCustomKeyboard);
 		if (shouldShowKeyboard())
 		{
 			tryToDismissAnyOpenPanels();
