@@ -516,6 +516,14 @@ public class HikeConstants
 	public static final String STEALTH_INDICATOR_ENABLED = "stealthIndicatorEnabled";
 	
 	public static final String STEALTH_INDICATOR_SHOW_REPEATED = "stealthIndicatorShowRepeated";
+
+	public static final String STEALTH_INDICATOR_ANIM_ON_RESUME = "stealthIndicatorAnimOnResume";
+
+	public static final int STEALTH_INDICATOR_RESUME_EXPIRED = -1;
+
+	public static final int STEALTH_INDICATOR_RESUME_ACTIVE = 1;
+
+	public static final int STEALTH_INDICATOR_RESUME_RESET = 0;
 	
 	public static final String STEALTH_INDICATOR_SHOW_ONCE = "stealthIndicatorShowOnce";
 

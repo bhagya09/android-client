@@ -1788,15 +1788,34 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 	 */
 	public int getUnreadActivityFeedCount() {
 		String where = DBConstants.READ + " = 0 ";
-		int rowID = -1;
+		int count = -1;
 
 		Cursor cursor = mDb.query(DBConstants.FEED_TABLE, null, where, null, null, null, null);
 
-		if (cursor != null) {
-			rowID = cursor.getCount();
+		if (cursor != null && cursor.moveToFirst())
+		{
+			int columnIndex = cursor.getColumnIndex(DBConstants.FEED_ACTOR);
+			do {
+				String msisdn = cursor.getString(columnIndex);
+				if(StealthModeManager.getInstance().isStealthMsisdn(msisdn) && !StealthModeManager.getInstance().isActive())
+				{
+					continue;
+				}
+				else
+				{
+					if(count == -1)
+					{
+						count = 1;
+					}
+					else
+					{
+						++count;
+					}
+				}
+			} while (cursor.moveToNext());
 		}
 
-		return rowID;
+		return count;
 	}
 	
 	public boolean isAnyFeedEntryPresent() {

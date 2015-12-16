@@ -170,6 +170,8 @@ public class ToastListener implements Listener
 
 			if (StealthModeManager.getInstance().isStealthMsisdn(statusMessage.getMsisdn()) && !StealthModeManager.getInstance().isActive())
 			{
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STEALTH_INDICATOR_SHOW_ONCE, true);
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STEALTH_INDICATOR_ANIM_ON_RESUME, HikeConstants.STEALTH_INDICATOR_RESUME_EXPIRED);
 				this.toaster.notifyStealthMessage(NotificationType.HIDDEN,statusMessage.getMsisdn());
 			}
 			else
@@ -188,6 +190,8 @@ public class ToastListener implements Listener
 				{
 					if (activityFeed.getActionType() == ActionsDataModel.ActionTypes.LIKE)
 					{
+						HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STEALTH_INDICATOR_SHOW_ONCE, true);
+						HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STEALTH_INDICATOR_ANIM_ON_RESUME, HikeConstants.STEALTH_INDICATOR_RESUME_EXPIRED);
 						this.toaster.notifyStealthMessage(NotificationType.HIDDEN, activityFeed.getActor());
 					}
 				}
