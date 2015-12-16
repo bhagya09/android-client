@@ -2546,6 +2546,8 @@ public class HikeConstants
 		
 		public static final String KPT = "kpt";
 
+		public static final String KEYBOARD_INIT_ERROR = "kbd_init_err";
+
 	}
 	public static final class Toast
 	{

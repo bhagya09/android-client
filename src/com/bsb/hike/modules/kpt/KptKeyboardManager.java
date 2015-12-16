@@ -20,6 +20,7 @@ import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.modules.stickersearch.StickerLanguagesManager;
 import com.bsb.hike.platform.content.HikeUnzipFile;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.Utils;
 import com.kpt.adaptxt.beta.AdaptxtSettingsRegisterListener;
 import com.kpt.adaptxt.beta.KPTAdaptxtAddonSettings;
 import com.kpt.adaptxt.beta.KPTAdaptxtAddonSettings.AdaptxtAddonInstallationListner;
@@ -420,6 +421,13 @@ public class KptKeyboardManager implements AdaptxtSettingsRegisterListener
 	}
 
 	@Override
+	public void onInitializationError(int errorCode)
+	{
+		Utils.setCustomKeyboardSupported(false);
+		logKeyboardInitializationError();
+	}
+
+	@Override
 	public void coreEngineService()
 	{
 		Logger.d(TAG,"coreEngineService callback");
@@ -432,5 +440,19 @@ public class KptKeyboardManager implements AdaptxtSettingsRegisterListener
 			return kptSettings;
 		}
 		return null;
+	}
+
+	private void logKeyboardInitializationError()
+	{
+		try
+		{
+			JSONObject metadata = new JSONObject();
+			metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.KEYBOARD_INIT_ERROR);
+			HAManager.getInstance().record(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.ERROR_EVENT, metadata);
+		}
+		catch(JSONException e)
+		{
+			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json : " + e);
+		}
 	}
 }
