@@ -1212,10 +1212,10 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 	
 	public static boolean isSystemKeyboard()
 	{
-		return (!isCustomKeyboardEnabled() || HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SYSTEM_KEYBOARD_SELECTED, true));
+		return (!isCustomKeyboardUsable() || HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SYSTEM_KEYBOARD_SELECTED, true));
 	}
 
-	public static boolean isCustomKeyboardEnabled()
+	public static boolean isCustomKeyboardUsable()
 	{
 		return (
 				// server switch
