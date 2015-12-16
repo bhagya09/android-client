@@ -20,6 +20,7 @@ import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.modules.stickersearch.StickerLanguagesManager;
 import com.bsb.hike.platform.content.HikeUnzipFile;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.Utils;
 import com.kpt.adaptxt.beta.AdaptxtSettingsRegisterListener;
 import com.kpt.adaptxt.beta.KPTAdaptxtAddonSettings;
 import com.kpt.adaptxt.beta.KPTAdaptxtAddonSettings.AdaptxtAddonInstallationListner;
@@ -417,6 +418,12 @@ public class KptKeyboardManager implements AdaptxtSettingsRegisterListener
 		kptCoreEngineStatus = status;
 		fetchKptLanguagesAndUpdate();
 		StickerLanguagesManager.getInstance().addKptSupportedLanguages();
+	}
+
+	@Override
+	public void onInitializationError(int errorCode)
+	{
+		
 	}
 
 	@Override
