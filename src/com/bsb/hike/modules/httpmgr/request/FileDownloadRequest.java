@@ -128,6 +128,7 @@ public class FileDownloadRequest extends Request<File>
 				if (len == -1)
 				{
 					state.setFTState(FTState.COMPLETED);
+					saveStateInDB(state);
 					break;
 				}
 
