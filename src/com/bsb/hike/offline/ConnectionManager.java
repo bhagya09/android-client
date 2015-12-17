@@ -16,6 +16,10 @@ import android.net.wifi.WifiManager;
 import android.os.Looper;
 import android.text.TextUtils;
 
+import com.bsb.hike.HikeConstants;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.google.gson.Gson;
+import com.google.gson.JsonParser;
 import com.hike.transporter.utils.Logger;
 
 /**
@@ -102,7 +106,9 @@ public class ConnectionManager
 		}
 		// We are trying to switch on user's wifi
 		int attempts = 0;
-		while (!wifiManager.isWifiEnabled() && attempts < OfflineConstants.WIFI_RETRY_COUNT)
+		int MAX_TRIES = OfflineController.getInstance().getConfigurationParamerters().getMaxWifiwaitTime();
+		Logger.d(TAG,"Number of reties for swtictching on wifi is   "+MAX_TRIES);
+		while (!wifiManager.isWifiEnabled() && attempts < MAX_TRIES)
 		{
 			try
 			{
@@ -609,7 +615,6 @@ public class ConnectionManager
 				Logger.d(TAG, "currentssid is " + currentSsid + "and ssid is " + ssid);
 				if (currentSsid.equals(ssid))
 				{
-
 					Logger.d("OfflineManager", "Disconnecting existing ssid. Current ssid is  " + currentSsid + " Ssid in list is  " + wifiConfiguration.SSID);
 					wifiManager.disconnect();
 					boolean status = wifiManager.enableNetwork(wifiConfiguration.networkId, true);
@@ -695,6 +700,8 @@ public class ConnectionManager
 	{
 		String host = OfflineUtils.getIPFromMac(null);
 		int tries = 0;
+		int MAX_TRIES = OfflineController.getInstance().getConfigurationParamerters().getMaxTryForIpExtraction();
+		Logger.d(TAG,"Number of reties is for getting host address is  "+MAX_TRIES);
 		while (TextUtils.isEmpty(host))
 		{
 			try
@@ -707,7 +714,7 @@ public class ConnectionManager
 			}
 			host = OfflineUtils.getIPFromMac(null);
 			tries++;
-			if (tries > 150)
+			if (tries > MAX_TRIES)
 				break;
 		}
 		Logger.d(TAG, "No. of tries is: " + tries);

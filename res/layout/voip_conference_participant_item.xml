@@ -33,7 +33,7 @@
 	        android:ellipsize="end"
 	        android:gravity="left"
 	        android:singleLine="true"
-	        android:text="Conference participant"
+	        android:text="@string/conference_participant"
 	        android:textColor="@color/white"
 	        android:textSize="16sp"
 	        android:textStyle="italic|bold" />

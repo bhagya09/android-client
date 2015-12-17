@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+ * Copyright (C) 2008 Esmertec AG.
+ * Copyright (C) 2008 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ -->
+<resources>
+    <string-array name="mood_headings">
+        <item>സന്തോഷം</item>
+                
+        <item>ദുഃഖം</item>
+                
+        <item>പ്രണയത്തിൽ</item>
+                
+        <item>അത്ഭുതം</item>
+                
+        <item>ആശയക്കുഴപ്പം</item>
+                
+        <item>കോപം</item>
+                
+        <item>ഉറക്കംതോന്നൽ</item>
+                
+        <item>ഹേംഗോവർ</item>
+                
+        <item>തണുപ്പ്</item>
+                
+        <item>പഠിക്കുന്നു</item>
+                
+        <item>തിരക്കിൽ</item>
+                
+        <item>പ്രണയം</item>
+                
+        <item>നടുവിരൽ</item>
+                
+        <item>മദ്യപിക്കുന്നു</item>
+                
+        <item>സിനിമ കാണുന്നു</item>
+                
+        <item>കാപ്പി കുടിക്കുന്നു</item>
+                
+        <item>ഉറക്കമില്ല</item>
+                
+        <item>ഡ്രൈവുചെയ്യുന്നു</item>
+                
+        <item>ട്രാഫിക്കിൽ പെട്ടു</item>
+                
+        <item>താമസിച്ചു</item>
+                
+        <item>ഷോപ്പുചെയ്യുന്നു</item>
+                
+        <item>ഗെയിം കളിക്കുന്നു</item>
+                
+        <item>കോഡുചെയ്യുന്നു</item>
+                
+        <item>ടിവി കാണുന്നു</item>
+                
+        <item>സംഗീതം</item>
+                
+        <item>അടിപൊളി പാർട്ടി</item>
+                
+        <item>പാടുന്നു</item>
+                
+        <item>ഭക്ഷണം കഴിക്കുന്നു</item>
+                
+        <item>വ്യായാമം ചെയ്യുന്നു</item>
+                
+        <item>പാചകം ചെയ്യുന്നു</item>
+                
+        <item>ബ്യൂട്ടി സലൂൺ</item>
+                
+        <item>അസുഖം</item>
+    </string-array>
+    
+    <array name="photos_actions_titles">
+       <item>പ്രൊഫൈൽ ചിത്രമായി ക്രമീകരിക്കുക</item>
+       <item>സുഹൃത്തുക്കൾക്ക് അയയ്ക്കുക</item>
+       <item>ടൈംലൈനിലേക്ക് പോസ്റ്റുചെയ്യുക</item>
+	</array>
+
+	<array name="call_glowpad_descr">
+       <item>നിരാകരിക്കുക</item>
+       <item>സന്ദേശം</item>
+       <item>കോളെടുക്കുക</item>
+       <item>@null</item>
+   </array>
+   
+   <array name="call_glowpad_directions">
+       <item>വലത്</item>
+       <item>മുകളിൽ</item>
+       <item>ഇടത്</item>
+       <item>@null</item>
+   </array>
+    <array name="filter_names">
+        <item> ഒറിജിനല്‍ </item>
+        <item>തിരംഗ</item>
+        <item> മെലോ </item>
+        <item>ചുസ്കി</item>
+        <item>അസൂർ</item>
+        <item>ജിലേബി</item>
+        <item>ഗുലാല്‍</item>
+        <item>എക്സ്-പ്രോ</item>
+        <item>എച്ച്ഡിആര്‍</item>
+        <item>അപ്പോളോ</item>
+        <item>റിട്രോ</item>
+        <item>പള്‍സര്‍</item>
+        <item>സണ്‍ലിറ്റ്</item>
+        <item>ഹേസൽ</item>
+        <item>ലോ-ഫൈ</item>
+        <item> ഇങ്കട് </item>
+        <item>മഷാല്‍</item>
+        <item>ഷോലെ</item>
+        <item>ജംഗ്ലി</item>
+        <item>പോളറോയിഡ്</item>
+        <item> സെപിയ </item>
+        <item>ഗ്രേസ്കേൽ</item>
+    </array>
+</resources>

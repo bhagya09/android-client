@@ -11,12 +11,15 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
+import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
+import com.bsb.hike.models.Conversation.BotConversation;
+import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
@@ -24,6 +27,7 @@ import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.smartImageLoader.IconLoader;
+import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Utils;
 import com.hike.transporter.utils.Logger;
@@ -80,8 +84,10 @@ public class MicroappsListAdapter extends RecyclerView.Adapter<MicroappsListAdap
 		{
 			return;
 		}
-		
+
 		BotInfo mBotInfo = microappsList.get((int)v.getTag());
+
+		analyticsForDiscoveryBotTap(mBotInfo.getConversationName());
 		
 		boolean userHasBot = BotUtils.isBot(mBotInfo.getMsisdn());
 		
@@ -99,7 +105,7 @@ public class MicroappsListAdapter extends RecyclerView.Adapter<MicroappsListAdap
 		
 		if (mBotInfo != null && mBotInfo.isNonMessagingBot())
 		{
-			BotUtils.unblockBotIfBlocked(mBotInfo);
+			BotUtils.unblockBotIfBlocked(mBotInfo, AnalyticsConstants.BOT_DISCOVERY);
 			if (!HikeConversationsDatabase.getInstance().isConversationExist(mBotInfo.getMsisdn()))
 			{
 				HikeMessengerApp.getPubSub().publish(HikePubSub.ADD_NM_BOT_CONVERSATION, mBotInfo);
@@ -116,7 +122,7 @@ public class MicroappsListAdapter extends RecyclerView.Adapter<MicroappsListAdap
 			}
 			else
 			{
-				BotUtils.unblockBotIfBlocked(mBotInfo);
+				BotUtils.unblockBotIfBlocked(mBotInfo, AnalyticsConstants.BOT_DISCOVERY);
 				openBot(mBotInfo);
 			}
 		}
@@ -239,8 +245,17 @@ public class MicroappsListAdapter extends RecyclerView.Adapter<MicroappsListAdap
 			@Override
 			public void positiveClicked(HikeDialog hikeDialog) {
 
-				if (BotUtils.isBot(mBotInfo.getMsisdn())) {
-					BotUtils.unblockBotIfBlocked(BotUtils.getBotInfoForBotMsisdn(mBotInfo.getMsisdn()));
+				if (BotUtils.isBot(mBotInfo.getMsisdn()))
+				{
+					BotUtils.unblockBotIfBlocked(BotUtils.getBotInfoForBotMsisdn(mBotInfo.getMsisdn()), AnalyticsConstants.BOT_DISCOVERY);
+				}
+				/**
+				 * On resetting account, a previously blocked microapp will remain blocked.
+				 * So we're checking if that msisdn is blocked before we initiate the bot download.
+				 */
+				else if (ContactManager.getInstance().isBlocked(mBotInfo.getMsisdn()))
+				{
+					ContactManager.getInstance().unblock(mBotInfo.getMsisdn());
 				}
 
 				initiateBotDownload(mBotInfo.getMsisdn());
@@ -306,6 +321,22 @@ public class MicroappsListAdapter extends RecyclerView.Adapter<MicroappsListAdap
 			}
 			break;
 		}
+	}
+
+	private void analyticsForDiscoveryBotTap(String botName)
+	{
+		JSONObject json = new JSONObject();
+		try
+		{
+			json.put(AnalyticsConstants.EVENT_KEY, AnalyticsConstants.MICRO_APP_EVENT);
+			json.put(AnalyticsConstants.EVENT, AnalyticsConstants.DISCOVERY_BOT_TAP);
+			json.put(AnalyticsConstants.LOG_FIELD_1, botName);
+		}
+		catch (JSONException e)
+		{
+			Logger.e(TAG, "JSON Exception in analyticsForDiscoveryBotTap "+e.getMessage());
+		}
+		HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.BOT_DISCOVERY, json);
 	}
 	
 }

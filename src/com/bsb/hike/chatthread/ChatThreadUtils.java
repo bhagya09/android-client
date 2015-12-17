@@ -40,7 +40,9 @@ import com.bsb.hike.analytics.MsgRelLogManager;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.filetransfer.FTAnalyticEvents;
+import com.bsb.hike.filetransfer.FTMessageBuilder;
 import com.bsb.hike.filetransfer.FileTransferManager;
+import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
 import com.bsb.hike.models.HikeFile.HikeFileType;
@@ -195,12 +197,6 @@ public class ChatThreadUtils
 		initialiseFileTransfer(context, msisdn, filePath, null, fileType, null, false, -1, false, isConvOnHike, attachmentType);
 	}
 	
-	protected static void uploadFile(Context context, String msisdn, Uri uri, HikeFileType fileType, boolean isConvOnHike)
-	{
-		Logger.i(TAG, "upload file , uri " + uri + " filetype " + fileType);
-		FileTransferManager.getInstance(context).uploadFile(uri, fileType, msisdn, isConvOnHike);
-	}
-
 	protected static void initiateFileTransferFromIntentData(Context context, String msisdn, String fileType, String filePath, boolean convOnHike, int attachmentType)
 	{
 		initiateFileTransferFromIntentData(context, msisdn, fileType, filePath, null, false, -1, convOnHike, attachmentType);
@@ -213,14 +209,8 @@ public class ChatThreadUtils
 
 		Logger.d(TAG, "Forwarding file- Type:" + fileType + " Path: " + filePath);
 
-		if (Utils.isPicasaUri(filePath))
-		{
-			FileTransferManager.getInstance(context).uploadFile(Uri.parse(filePath), hikeFileType, msisdn, convOnHike);
-		}
-		else
-		{
-			initialiseFileTransfer(context, msisdn, filePath, fileKey, hikeFileType, fileType, isRecording, recordingDuration, true, convOnHike, attachmentType);
-		}
+		Logger.d("Suyash", "ChThUtil : isCloudMediaUri" + Utils.isPicasaUri(filePath));
+		initialiseFileTransfer(context, msisdn, filePath, fileKey, hikeFileType, fileType, isRecording, recordingDuration, true, convOnHike, attachmentType);
 	}
 
 	protected static void initialiseFileTransfer(Context context, String msisdn, String filePath, String fileKey, HikeFileType hikeFileType, String fileType, boolean isRecording,
@@ -242,7 +232,19 @@ public class ChatThreadUtils
 			FTAnalyticEvents.logDevError(FTAnalyticEvents.UPLOAD_INIT_1_3, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "init", "InitialiseFileTransfer - Max size limit reached.");
 			return;
 		}
-		FileTransferManager.getInstance(context).uploadFile(msisdn, file, fileKey, fileType, hikeFileType, isRecording, isForwardingFile, convOnHike, recordingDuration, attachmentType);
+		FTMessageBuilder.Builder mBuilder = new FTMessageBuilder.Builder()
+				.setMsisdn(msisdn)
+				.setSourceFile(file)
+				.setFileKey(fileKey)
+				.setFileType(fileType)
+				.setHikeFileType(hikeFileType)
+				.setRec(isRecording)
+				.setForwardMsg(isForwardingFile)
+				.setRecipientOnHike(convOnHike)
+				.setRecordingDuration(recordingDuration)
+				.setAttachement(attachmentType);
+		mBuilder.build();
+				
 	}
 
 	protected static void onShareFile(Context context, String msisdn, Intent intent, boolean isConvOnHike)
@@ -294,13 +296,27 @@ public class ChatThreadUtils
 
 	protected static void initialiseLocationTransfer(Context context, String msisdn, double latitude, double longitude, int zoomLevel, boolean convOnHike, boolean newConvIfnotExist)
 	{
-		FileTransferManager.getInstance(context).uploadLocation(msisdn, latitude, longitude, zoomLevel, convOnHike,newConvIfnotExist);
+		FTMessageBuilder.Builder msgBuilder = new FTMessageBuilder.Builder()
+		.setMsisdn(msisdn)
+		.setLatitude(latitude)
+		.setLongitude(longitude)
+		.setZoomLevel(zoomLevel)
+		.setRecipientOnHike(convOnHike)
+		.setNewConvIfnotExist(newConvIfnotExist)
+		.setHikeFileType(HikeFileType.LOCATION);
+		msgBuilder.build();
 	}
 
 	protected static void initialiseContactTransfer(Context context, String msisdn, JSONObject contactJson, boolean convOnHike)
 	{
 		Logger.i(TAG, "initiate contact transfer " + contactJson.toString());
-		FileTransferManager.getInstance(context).uploadContact(msisdn, contactJson, convOnHike, true);
+		FTMessageBuilder.Builder msgBuilder = new FTMessageBuilder.Builder()
+			.setMsisdn(msisdn)
+			.setContactJson(contactJson)
+			.setRecipientOnHike(convOnHike)
+			.setNewConvIfnotExist(true)
+			.setHikeFileType(HikeFileType.CONTACT);
+			msgBuilder.build();
 	}
 
 	protected static int incrementDecrementMsgsCount(int var, boolean isMsgSelected)

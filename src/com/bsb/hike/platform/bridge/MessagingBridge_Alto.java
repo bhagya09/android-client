@@ -8,6 +8,7 @@ import android.text.TextUtils;
 import android.webkit.JavascriptInterface;
 import android.widget.BaseAdapter;
 
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.adapters.ConversationsAdapter;
@@ -792,21 +793,8 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 	@JavascriptInterface
 	public void enableParentBot(String enable)
 	{
+		enableParentBot(enable,false);
 
-		if (!BotUtils.isBot(message.webMetadata.getParentMsisdn()))
-		{
-			return;
-		}
-		BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(message.webMetadata.getParentMsisdn());
-		boolean enableBot = Boolean.valueOf(enable);
-		if (enableBot)
-		{
-			PlatformUtils.enableBot(botInfo, true);
-		}
-		else
-		{
-			BotUtils.deleteBotConversation(botInfo.getMsisdn(), false);
-		}
 	}
 
 	/**
@@ -850,17 +838,44 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 	 * Platform Version 7
 	 * Call this function to get the parent bot version.
 	 * @param id: the id of the function that native will call to call the js .
+	 * returns -1 if bot not exists
 	 */
 	@JavascriptInterface
 	public void getParentBotVersion(String id)
 	{
 		if (!BotUtils.isBot(message.webMetadata.getParentMsisdn()))
 		{
+			callbackToJS(id,"-1");
 			return;
 		}
 
 		BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(message.webMetadata.getParentMsisdn());
 		callbackToJS(id, String.valueOf(botInfo.getVersion()));
+	}
+	/**
+	 * Platform Version 9
+	 * Call this method to enable/disable bot. Enable means to show the bot in the conv list and disable is vice versa.
+	 * @param enable : the id of the function that native will call to call the js .
+	 * @param increaseUnread : boolean
+	 */
+	@JavascriptInterface
+	public void enableParentBot(String enable,Boolean increaseUnread)
+	{
+
+		if (!BotUtils.isBot(message.webMetadata.getParentMsisdn()))
+		{
+			return;
+		}
+		BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(message.webMetadata.getParentMsisdn());
+		boolean enableBot = Boolean.valueOf(enable);
+		if (enableBot)
+		{
+			PlatformUtils.enableBot(botInfo, true,increaseUnread);
+		}
+		else
+		{
+			BotUtils.deleteBotConversation(botInfo.getMsisdn(), false);
+		}
 	}
 
 }

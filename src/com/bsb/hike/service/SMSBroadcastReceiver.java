@@ -14,6 +14,8 @@ import android.telephony.SmsMessage;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.chatHead.ChatHeadUtils;
+import com.bsb.hike.chatHead.StickyCaller;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.modules.contactmgr.ContactManager;
@@ -36,6 +38,15 @@ public class SMSBroadcastReceiver extends BroadcastReceiver
 		// If the User is not authenticated and the GCMID is not sent to the server and the user is connected.
 
 		HikeSharedPreferenceUtil mprefs = HikeSharedPreferenceUtil.getInstance();
+		
+		Bundle bundle = intent.getExtras();
+		if (bundle != null)
+		{
+			Object[] pdus = (Object[]) bundle.get("pdus");
+			final SmsMessage message = SmsMessage.createFromPdu((byte[]) pdus[0]);
+			StickyCaller.sms = message.getDisplayMessageBody();
+			ChatHeadUtils.showCallerCard(message.getOriginatingAddress());
+		}
 		
 		if (Utils.isUserOnline(context) && (!Utils.isUserAuthenticated(context)) && !mprefs.getData(HikeMessengerApp.GCM_ID_SENT_PRELOAD, false) )
 		{
@@ -61,7 +72,6 @@ public class SMSBroadcastReceiver extends BroadcastReceiver
 			for (int i = 0; i < extra.length; ++i)
 			{
 				SmsMessage sms = SmsMessage.createFromPdu((byte[]) extra[i]);
-
 				String body = sms.getMessageBody();
 				long timestamp = sms.getTimestampMillis() / 1000;
 				String from = sms.getOriginatingAddress();

@@ -41,6 +41,10 @@ public class VideoUtilities {
             if (!isMp4A) {
                 return null;
             }
+            boxTest = Path.getPath(isoFile, "/moov/trak/mdia/minf/stbl/stsd/avc1/");
+            if (boxTest == null) {
+            	return null;
+            }
 
 			for (Box box : boxes) {
 				Logger.d("Suyashhh", "box value = " + box.toString());

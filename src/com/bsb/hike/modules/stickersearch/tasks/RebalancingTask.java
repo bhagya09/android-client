@@ -24,16 +24,15 @@ public class RebalancingTask implements Runnable
 	public void run()
 	{
 		Logger.d(TAG, "Rebalancing started.");
-		
+
 		result = StickerSearchDataController.startRebalancing();
 		HikeAlarmManager.deleteAlarmFromDatabase(intent);
 
 		if (result)
 		{
-			StickerSearchManager.getInstance().setAlarm();
+			StickerSearchManager.getInstance().setRebalancingAlarm();
 		}
-		
-		Logger.d(TAG, "rebalancing completed with result : " + result);
-	}
 
+		Logger.d(TAG, "Rebalancing completed with result: " + result);
+	}
 }

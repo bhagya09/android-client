@@ -16,6 +16,7 @@
 -->
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:atx="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:id="@+id/parentView"
@@ -57,7 +58,7 @@
                     android:layout_alignTop="@id/stealth_passcode_img"
                     android:layout_centerVertical="true"
                     android:layout_toRightOf="@id/stealth_passcode_img"
-                    android:text="Your patterns don’t match. Try again. jla aldfa ld faldf alsdf a"
+                    android:text="@string/alp_42447968_msg_try_again"
                     android:textAppearance="?android:attr/textAppearanceMedium"
                     android:textIsSelectable="false"
                     android:textSize="14dp" />
@@ -87,13 +88,13 @@
                 android:layout_height="wrap_content"
 				android:layout_gravity="center"
                 android:layout_marginBottom="18dp"
-                android:password="true"
                 android:background="@drawable/bg_stealth_pin"
                 android:ellipsize="start"
                 android:focusable="true"
                 android:gravity="center|center_vertical|center_horizontal"
-                android:inputType="numberPassword"
+                android:inputType="phone"
                 android:maxLength="4"
+                atx:charInputMaxLength="4"
                 android:maxLines="1"
                 android:minEms="8"
                 android:paddingTop="9dp"

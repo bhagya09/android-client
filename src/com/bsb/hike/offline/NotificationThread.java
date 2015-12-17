@@ -56,7 +56,7 @@ public class NotificationThread implements Runnable
 
 	public  NotificationThread()
 	{
-		OfflineParameters offlineParameters = new Gson().fromJson(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.OFFLINE, "{}"), OfflineParameters.class);
+		OfflineParameters offlineParameters = OfflineController.getInstance().getConfigurationParamerters();
 		time = offlineParameters.getConnectionTimeout() / 1000;
 	}
 	@Override
@@ -112,7 +112,7 @@ public class NotificationThread implements Runnable
 
 		String durationString = (time == 0) ? "" : String.format(Locale.getDefault(), " (%02d:%02d)", (time / 60), (time % 60));
 
-		String text = "Awaiting Response " + durationString;
+		String text = context.getResources().getString(R.string.awaiting_response) + " " + durationString;
 
 		if (TextUtils.isEmpty(contactFirstName))
 		{

@@ -65,6 +65,7 @@ public class ActivityFeedFragment extends Fragment implements Listener
 	{
 		super.onResume();
 		HikeMessengerApp.getPubSub().publish(HikePubSub.UNSEEN_STATUS_COUNT_CHANGED, null);
+		HikeMessengerApp.getPubSub().publish(HikePubSub.BADGE_COUNT_ACTIVITY_UPDATE_CHANGED, new Integer(0));
 	}
 
 	@Override

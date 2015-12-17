@@ -8,12 +8,14 @@ import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_R
 import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_SOCKET_TIMEOUT;
 import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_UNEXPECTED_ERROR;
 import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_UNKNOWN_HOST_EXCEPTION;
+import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_SOCKET_EXCEPTION;
 import static java.net.HttpURLConnection.HTTP_FORBIDDEN;
 import static java.net.HttpURLConnection.HTTP_LENGTH_REQUIRED;
 import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.Iterator;
@@ -260,6 +262,11 @@ public class RequestExecuter
 		{
 			HttpAnalyticsLogger.logResponseReceived(trackId, request.getUrl(), REASON_CODE_UNKNOWN_HOST_EXCEPTION, request.getMethod(), request.getAnalyticsParam());
 			handleRetry(ex, REASON_CODE_UNKNOWN_HOST_EXCEPTION);
+		}
+		catch (SocketException ex)
+		{
+			HttpAnalyticsLogger.logResponseReceived(trackId, request.getUrl(), REASON_CODE_SOCKET_EXCEPTION, request.getMethod(), request.getAnalyticsParam());
+			handleRetry(ex, REASON_CODE_SOCKET_EXCEPTION);
 		}
 		catch (IOException ex)
 		{

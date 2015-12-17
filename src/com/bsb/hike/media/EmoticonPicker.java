@@ -459,4 +459,21 @@ public class EmoticonPicker implements ShareablePopup, EmoticonPickerListener, O
 	{
 		this.useStatusUpdateList = shouldUse;
 	}
+	
+	public void setCustomKeyBoardHeight(int height){
+		mPopUpLayout.setCustomKeyBoardHeight(height);
+	}
+	
+	public void setCustomKeyBoard(boolean isCustomKeyBoard)
+	{
+	  mPopUpLayout.setCustomKeyBoard(isCustomKeyBoard);
+	}
+	
+	public void setBottomPadding(int bottomPadding)
+	{
+		if (mPopUpLayout != null)
+		{
+			mPopUpLayout.setOriginalBottomPadding(bottomPadding);
+		}
+	}
 }

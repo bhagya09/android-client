@@ -134,7 +134,7 @@ public final class PreviewFragment extends Fragment
 		}
 		layout.invalidate();
 		HikePhotosUtils.FilterTools.setSelectedColor(HikePhotosUtils.DoodleColors[0]);
-		HikePhotosUtils.FilterTools.setSelectedFilter(FilterList.getHikeEffects().filters.get(0));
+		HikePhotosUtils.FilterTools.setSelectedFilter(FilterList.getHikeEffects(HikeMessengerApp.getInstance().getApplicationContext()).filters.get(0));
 		return layout;
 	}
 
@@ -162,7 +162,7 @@ public final class PreviewFragment extends Fragment
 			switch (menuType)
 			{
 			case MenuType.EFFECTS_TYPE:
-				count = FilterList.getHikeEffects().filters.size();
+				count = FilterList.getHikeEffects(mContext).filters.size();
 				break;
 			case MenuType.DOODLE_TYPE:
 				count = HikePhotosUtils.DoodleColors.length;
@@ -209,7 +209,7 @@ public final class PreviewFragment extends Fragment
 				{
 					convertView = LayoutInflater.from(mContext).inflate(R.layout.filter_preview_item, parent, false);
 				}
-				FilterList myFilters = FilterList.getHikeEffects();
+				FilterList myFilters = FilterList.getHikeEffects(mContext);
 				String filterName = myFilters.names.get(position);
 				Object tagFilterName = convertView.getTag();
 				if (tagFilterName != null && ((String) tagFilterName).equals(filterName))

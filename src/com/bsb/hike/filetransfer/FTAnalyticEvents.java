@@ -176,6 +176,8 @@ public class FTAnalyticEvents
 
 	public static final String UNABLE_TO_CREATE_HIKE_TEMP_DIR = "unable_to_hike_temp_dir";
 
+	public static final String UNABLE_TO_CREATE_LANG_DIC_DIR = "unable_to_create_lang_dic_dir";
+
 	public static final String BAD_RESUME_LENGTH = "bad_resume_len";
 
 	public static final String JSON_PARSING_ISSUE = "json_parsing_issue";
