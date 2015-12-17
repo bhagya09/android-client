@@ -728,14 +728,22 @@ import android.widget.Toast;
 		setupStickerSearch();
 	}
 
-	protected void initCustomKeyboard()
-	{	
+	protected void bindCustomKeyboard()
+	{
+		if(mCustomKeyboard!=null)
+		{
+			return;
+		}
 		LinearLayout parentView = (LinearLayout) activity.findViewById(R.id.keyboardView_holder);
 		mCustomKeyboard= new HikeCustomKeyboard(activity, parentView, KPTConstants.MULTILINE_LINE_EDITOR, kptEditTextEventListener, kptKeyboardVisibilityStatusListner);
+	}
+
+	protected void initCustomKeyboard()
+	{
+		bindCustomKeyboard();
 		registerCustomKeyboardEditText(R.id.msg_compose);
 		mCustomKeyboard.init(mComposeView);
-	}	
-		
+	}
 	private void defineEnterAction() {
 		
 		if (mComposeView != null) {
@@ -6424,6 +6432,7 @@ import android.widget.Toast;
 		}
 		else
 		{
+			bindCustomKeyboard();
 			mCustomKeyboard.swtichToKPTKeyboard(mComposeView, KPTConstants.MULTILINE_LINE_EDITOR, null, kptKeyboardVisibilityStatusListner);
 			registerCustomKeyboardEditText(R.id.msg_compose);
 			resetSharablePopup();
