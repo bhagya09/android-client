@@ -423,6 +423,7 @@ public class KptKeyboardManager implements AdaptxtSettingsRegisterListener
 	@Override
 	public void onInitializationError(int errorCode)
 	{
+		Logger.d("KptDebug","init error. time: "  + System.currentTimeMillis());
 		Utils.setCustomKeyboardSupported(false);
 		logKeyboardInitializationError();
 	}
