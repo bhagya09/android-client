@@ -74,10 +74,13 @@ public class RequestToken
 	}
 
 	/**
-	 * Cancels the requestF
+	 * Cancels the request
 	 */
 	public void cancel()
 	{
+		FileSavedState fss = request.getState();
+		if (fss != null)
+			fss.setFTState(FTState.CANCELLED);
 		HttpManager.getInstance().cancel(request);
 	}
 
