@@ -416,6 +416,7 @@ public class KptKeyboardManager implements AdaptxtSettingsRegisterListener
 	{
 		Logger.d(TAG,"coreEngineStatus callback: " + status);
 		kptCoreEngineStatus = status;
+		Utils.setCustomKeyboardSupported(true);
 		fetchKptLanguagesAndUpdate();
 		StickerLanguagesManager.getInstance().addKptSupportedLanguages();
 	}
@@ -423,6 +424,7 @@ public class KptKeyboardManager implements AdaptxtSettingsRegisterListener
 	@Override
 	public void onInitializationError(int errorCode)
 	{
+		Logger.d("KptDebug","init error. time: "  + System.currentTimeMillis());
 		Utils.setCustomKeyboardSupported(false);
 		logKeyboardInitializationError();
 	}
