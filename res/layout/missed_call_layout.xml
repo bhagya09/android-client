@@ -32,16 +32,16 @@
 
                 <com.bsb.hike.ui.utils.RecyclingImageView
                     android:id="@+id/caller_close_button"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
                     android:layout_alignParentRight="true"
                     android:scaleType="centerInside"
                     android:src="@drawable/close_icon" />
 
                 <com.bsb.hike.ui.utils.RecyclingImageView
                     android:id="@+id/caller_settings_button"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
                     android:layout_marginLeft="4dp"
                     android:layout_marginRight="12dp"
                     android:layout_toLeftOf="@id/caller_close_button"

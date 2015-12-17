@@ -72,11 +72,15 @@ public class BlockCallerActivity extends HikeAppStateBaseFragmentActivity implem
 		// again the dialog is not shown
 		if (getIntent().hasExtra(HikeConstants.MSISDN) && getIntent().getStringExtra(HikeConstants.MSISDN) != null)
 		{
-			msisdn = getIntent().getStringExtra(HikeConstants.MSISDN);
-			HikeDialogFactory.showDialog(this, HikeDialogFactory.CALLER_BLOCK_CONTACT_DIALOG, this, getIntent().getStringExtra(HikeConstants.NAME));
-			getIntent().removeExtra(HikeConstants.MSISDN);
-			getIntent().removeExtra(HikeConstants.NAME);
+			if (savedInstanceState == null || !savedInstanceState.getBoolean(HikeConstants.Extras.CLEARED_OUT, false))
+			{
+				msisdn = getIntent().getStringExtra(HikeConstants.MSISDN);
+				HikeDialogFactory.showDialog(this, HikeDialogFactory.CALLER_BLOCK_CONTACT_DIALOG, this, getIntent().getStringExtra(HikeConstants.NAME));
+				getIntent().removeExtra(HikeConstants.MSISDN);
+				getIntent().removeExtra(HikeConstants.NAME);
+			}
 		}
+
 		mCallerBlockListRecyclerView = (RecyclerView) findViewById(R.id.blockContactRecycleView);
 		mCallerBlockListRecyclerView.setVisibility(View.GONE);
 		mLayoutManager = new LinearLayoutManager(this);
@@ -191,6 +195,14 @@ public class BlockCallerActivity extends HikeAppStateBaseFragmentActivity implem
 		TextView title = (TextView) actionBarView.findViewById(R.id.title);
 		title.setText(R.string.blocked_list);
 		actionBar.setCustomView(actionBarView);
+	}
+
+	protected void onSaveInstanceState(Bundle outState)
+	{
+		// first saving my state, so the bundle wont be empty.
+		// http://code.google.com/p/android/issues/detail?id=19917
+		outState.putBoolean(HikeConstants.Extras.CLEARED_OUT, true);
+		super.onSaveInstanceState(outState);
 	}
 
 	@Override
