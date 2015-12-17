@@ -17,6 +17,7 @@ import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.modules.httpmgr.Header;
+import com.bsb.hike.modules.httpmgr.HttpManager;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
@@ -31,6 +32,8 @@ public class DownloadFileTask extends FileTransferBase
 
 	private File tempDownloadedFile;
 
+	private String downLoadUrl;
+
 	public DownloadFileTask(Context ctx, File tempFile, File destinationFile, String fileKey, long msgId, HikeFileType hikeFileType, ConvMessage userContext)
 	{
 		super(ctx, destinationFile, msgId, hikeFileType);
@@ -43,7 +46,7 @@ public class DownloadFileTask extends FileTransferBase
 	{
 		IRequestListener downloadFileRequestListener = getDownloadRequestListener();
 
-		String downLoadUrl = null;
+		downLoadUrl = null;
 		if (userContext != null)
 		{
 			ConvMessage msg = (ConvMessage) userContext;
@@ -77,7 +80,7 @@ public class DownloadFileTask extends FileTransferBase
 				for (Header h : result.getHeaders())
 				{
 					String name = h.getName();
-					if (name.equals(ETAG))
+					if (ETAG.equals(name))
 					{
 						md5Hash = h.getValue();
 					}
@@ -146,7 +149,7 @@ public class DownloadFileTask extends FileTransferBase
 			{
 				e.printStackTrace();
 			}
-			// deleteStateFile();
+			HttpManager.getInstance().deleteRequestStateFromDB(downLoadUrl, String.valueOf(msgId));
 		}
 
 		if (mFile != null)
@@ -184,8 +187,7 @@ public class DownloadFileTask extends FileTransferBase
 			{
 				case HttpException.REASON_CODE_CANCELLATION:
 					deleteTempFile();
-					// TODO
-					// deleteStateFile();
+					HttpManager.getInstance().deleteRequestStateFromDB(downLoadUrl, String.valueOf(msgId));
 					// FTAnalyticEvents.logDevError(FTAnalyticEvents.DOWNLOAD_STATE_CHANGE, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "state", "CANCELLED");
 					Toast.makeText(context, R.string.download_cancelled, Toast.LENGTH_SHORT).show();
 				case HttpException.REASON_CODE_MALFORMED_URL:

@@ -22,8 +22,10 @@ import com.bsb.hike.models.MessageMetadata;
 import com.bsb.hike.models.MultipleConvMessage;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.Header;
+import com.bsb.hike.modules.httpmgr.HttpManager;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
@@ -56,8 +58,6 @@ public class UploadFileTask extends FileTransferBase
 	private long msgId;
 
 	private String fileKey;
-
-	private Context context;
 
 	protected int fileSize;
 
@@ -215,7 +215,7 @@ public class UploadFileTask extends FileTransferBase
 		{
 			HikeFile hikeFile = userContext.getMetadata().getHikeFiles().get(0);
 			FileSavedState fst = FileTransferManager.getInstance(context).getUploadFileState(msgId, hikeFile.getFile());
-			// TODO deleteStateFile();
+			HttpManager.getInstance().deleteRequestStateFromDB(HttpRequestConstants.getUploadFileBaseUrl(), String.valueOf(msgId));
 			if (fst != null && !TextUtils.isEmpty(fst.getFileKey()))
 			{
 				fileKey = fst.getFileKey();
@@ -476,9 +476,7 @@ public class UploadFileTask extends FileTransferBase
 				}
 				catch (JSONException ex)
 				{
-					int c = 0;
-					c++;
-					Logger.d("http", " ex :" + ex + c);
+					Logger.e("UploadFileTask", " ex :" , ex);
 				}
 			}
 
@@ -617,7 +615,7 @@ public class UploadFileTask extends FileTransferBase
 			// Message sent from here will contain file key and also message_id ==> this is actually being sent to the server.
 			HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_SENT, convMessageObject);
 		}
-		// TODO deleteStateFile();
+		HttpManager.getInstance().deleteRequestStateFromDB(HttpRequestConstants.getUploadFileBaseUrl(), String.valueOf(msgId));
 		Utils.addFileName(hikeFile.getFileName(), hikeFile.getFileKey());
 	}
 

@@ -161,12 +161,6 @@ public class FileTransferBase
 
 	public void cancel()
 	{
-		// TODO set state to cancelled in db
 		requestToken.cancel();
 	}
-
-	// protected void deleteStateFile()
-	// {
-	// deleteStateFile(stateFile);
-	// }
 }

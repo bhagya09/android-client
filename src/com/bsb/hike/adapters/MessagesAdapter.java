@@ -1020,7 +1020,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				}
 				else
 				{
-					fss = FileTransferManager.getInstance(context).getDownloadFileState(convMessage.getMsgID(), file);
+					fss = FileTransferManager.getInstance(context).getDownloadFileState(convMessage.getMsgID(), hikeFile);
 				}
 			}
 			boolean showThumbnail = false;
@@ -2978,7 +2978,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 
 	private void showTransferProgress(FTViewHolder holder, FileSavedState fss, long msgId, HikeFile hikeFile, boolean isSent)
 	{
-		int progress = FileTransferManager.getInstance(context).getFTProgress(msgId, hikeFile.getFile(), isSent);
+		int progress = FileTransferManager.getInstance(context).getFTProgress(msgId, hikeFile, isSent);
 		int chunkSize = FileTransferManager.getInstance(context).getChunkSize(msgId);
 		int fakeProgress = FileTransferManager.getInstance(context).getAnimatedProgress(msgId);
 		if(fakeProgress == 0)
@@ -3581,7 +3581,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				}
 				else
 				{
-					FileSavedState fss = FileTransferManager.getInstance(context).getDownloadFileState(convMessage.getMsgID(), receivedFile);
+					FileSavedState fss = FileTransferManager.getInstance(context).getDownloadFileState(convMessage.getMsgID(), hikeFile);
 
 					Logger.d(getClass().getSimpleName(), fss.getFTState().toString());
 

@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 import android.content.Context;
+import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -15,7 +16,11 @@ import com.bsb.hike.R;
 import com.bsb.hike.filetransfer.FileTransferBase.FTState;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
+import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
+import com.bsb.hike.modules.httpmgr.HttpManager;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
+import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.Logger;
 
 /**
@@ -368,17 +373,18 @@ public class FileTransferManager
     /**
      *
      * @param msgId
-     * @param mFile
+     * @param hikeFile
      * @param sent
      * @param fileSize
      */
-	public void cancelTask(long msgId, File mFile, boolean sent, long fileSize)
+	public void cancelTask(long msgId, HikeFile hikeFile, boolean sent, long fileSize)
 	{
+		File mFile = hikeFile.getFile();
 		FileSavedState fss;
 		if (sent)
 			fss = getUploadFileState(msgId, mFile);
 		else
-			fss = getDownloadFileState(msgId, mFile);
+			fss = getDownloadFileState(msgId, hikeFile);
 
 		if (fss.getFTState() == FTState.IN_PROGRESS || fss.getFTState() == FTState.PAUSED || fss.getFTState() == FTState.INITIALIZED)
 		{
@@ -427,7 +433,7 @@ public class FileTransferManager
 	 */
 	private void deleteStateFile(long msgId, File mFile)
 	{
-		// TODO
+		HttpManager.getInstance().deleteRequestStateFromDB(HttpRequestConstants.getUploadFileBaseUrl(), String.valueOf(msgId));
 	}
 
 	/**
@@ -458,10 +464,10 @@ public class FileTransferManager
      * This function gives the state of downloading for a file
      *
      * @param msgId
-     * @param mFile
+     * @param hikeFile
      * @return
      */
-	public FileSavedState getDownloadFileState(long msgId, File mFile)
+	public FileSavedState getDownloadFileState(long msgId, HikeFile hikeFile)
 	{
 		if (isFileTaskExist(msgId))
 		{
@@ -474,9 +480,10 @@ public class FileTransferManager
 		}
 		else
 		{
+			File mFile = hikeFile.getFile();
 			if (mFile == null)
 			{
-				// TODO // @GM only for now. Has to be handled properly
+				// @GM only for now. Has to be handled properly
 				return new FileSavedState();
 			}
 
@@ -487,9 +494,22 @@ public class FileTransferManager
 			}
 			else
 			{
-				// TODO get filesaved state from task http manager
-				// if (fss.getAnimatedProgress() > 0)
-				// setAnimatedProgress(fss.getAnimatedProgress(), msgId);
+				String downLoadUrl = null;
+				String fileKey = null;
+				if (hikeFile != null)
+				{
+					downLoadUrl = hikeFile.getDownloadURL();
+					fileKey = hikeFile.getFileKey();
+				}
+				if (TextUtils.isEmpty(downLoadUrl))
+				{
+					downLoadUrl = AccountUtils.fileTransferBaseDownloadUrl + fileKey;
+				}
+				fss = HttpManager.getInstance().getRequestStateFromDB(downLoadUrl, String.valueOf(msgId));
+				if (fss == null)
+				{
+					fss = new FileSavedState();
+				}
 			}
 			return fss != null ? fss : new FileSavedState();
 		}
@@ -516,50 +536,15 @@ public class FileTransferManager
 		}
 		else
 		{
-			// TODO
-			// Logger.d(getClass().getSimpleName(), "Returning from second call");
-			// if (mFile == null) // @GM only for now. Has to be handled properly
-			// return new FileSavedState();
-			//
-			FileSavedState fss = null;
-			// FileInputStream fileIn = null;
-			// ObjectInputStream in = null;
-			// try
-			// {
-			// String fName = mFile.getName() + ".bin." + msgId;
-			// Logger.d(getClass().getSimpleName(), fName);
-			// File f = new File(getHikeTempDir(), fName);
-			// if (!f.exists())
-			// {
-			// return new FileSavedState();
-			// }
-			// fileIn = new FileInputStream(f);
-			// in = new ObjectInputStream(fileIn);
-			// fss = (FileSavedState) in.readObject();
-			// if (fss.getAnimatedProgress() > 0)
-			// setAnimatedProgress(fss.getAnimatedProgress(), msgId);
-			// }
-			// catch (IOException i)
-			// {
-			// i.printStackTrace();
-			// FTAnalyticEvents.logDevException(FTAnalyticEvents.FT_STATE_READ_FAIL, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "File", "Reading upload state failed", i);
-			// }
-			// catch (ClassNotFoundException e)
-			// {
-			// // TODO Auto-generated catch block
-			// e.printStackTrace();
-			// FTAnalyticEvents.logDevException(FTAnalyticEvents.FT_STATE_READ_FAIL, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "File", "Reading upload state failed", e);
-			// }
-			// catch (Exception e)
-			// {
-			// e.printStackTrace();
-			// Logger.e(getClass().getSimpleName(), "Exception while reading state file : ", e);
-			// FTAnalyticEvents.logDevException(FTAnalyticEvents.FT_STATE_READ_FAIL, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "File", "Reading upload state failed", e);
-			// }
-			// finally
-			// {
-			// Utils.closeStreams(in, fileIn);
-			// }
+			if (mFile == null) // @GM only for now. Has to be handled properly
+			{
+				return new FileSavedState();
+			}
+			FileSavedState fss = HttpManager.getInstance().getRequestStateFromDB(HttpRequestConstants.getUploadFileBaseUrl(), String.valueOf(msgId));
+			if (fss == null)
+			{
+				fss = new FileSavedState();
+			}
 			return fss != null ? fss : new FileSavedState();
 		}
 	}
@@ -568,13 +553,12 @@ public class FileTransferManager
      * Caller should handle the 0 return value
      *
      * @param msgId
-     * @param mFile
+     * @param hikeFile
      * @param sent
      * @return
      */
-	public int getFTProgress(long msgId, File mFile, boolean sent)
+	public int getFTProgress(long msgId, HikeFile hikeFile, boolean sent)
 	{
-		// TODO get file saved state from http manager request token
 		FileSavedState fss;
 		if (isFileTaskExist(msgId))
 		{
@@ -587,10 +571,11 @@ public class FileTransferManager
 			}
 		}
 
+		File mFile = hikeFile.getFile();
 		if (sent)
 			fss = getUploadFileState(msgId, mFile);
 		else
-			fss = getDownloadFileState(msgId, mFile);
+			fss = getDownloadFileState(msgId, hikeFile);
 
 		if (fss.getFTState() == FTState.IN_PROGRESS || fss.getFTState() == FTState.PAUSED || fss.getFTState() == FTState.ERROR)
 		{
