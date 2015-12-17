@@ -1094,6 +1094,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	protected void onPause()
 	{
 		super.onPause();
+		msisdn=null;
 		//Logging MicroApp Screen closing for bot case
 		if (mode == MICRO_APP_MODE || mode == WEB_URL_BOT_MODE)
 		{
@@ -1107,6 +1108,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	protected void onResume()
 	{
 		super.onResume();
+		initMsisdn();
 		//Logging MicroApp Screen opening for bot case
 		if (mode == MICRO_APP_MODE || mode == WEB_URL_BOT_MODE)
 		{
