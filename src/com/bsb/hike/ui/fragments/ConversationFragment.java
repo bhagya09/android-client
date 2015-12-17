@@ -2988,6 +2988,8 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 					ConvInfo convInfo = mConversationsByMSISDN.get(mMsisdn);
 					// If this convInfo is coming from the memory map, then we do not need to set mute here, WebViewActivity has already taken care of that.
 					// If the source is not memory map, then we're in trouble.
+					BotInfo botinfo=BotUtils.getBotInfoForBotMsisdn(mMsisdn); // Taking out of trouble hopefully.
+					convInfo.setMute(botinfo.isMute());
 					if (convInfo != null)
 					{
 						View parentView = getParenViewForConversation(convInfo);
