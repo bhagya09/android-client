@@ -416,6 +416,7 @@ public class KptKeyboardManager implements AdaptxtSettingsRegisterListener
 	{
 		Logger.d(TAG,"coreEngineStatus callback: " + status);
 		kptCoreEngineStatus = status;
+		Utils.setCustomKeyboardSupported(true);
 		fetchKptLanguagesAndUpdate();
 		StickerLanguagesManager.getInstance().addKptSupportedLanguages();
 	}
