@@ -51,6 +51,8 @@ import java.util.List;
 
 public class UploadFileTask extends FileTransferBase
 {
+	private static final String TAG = "UploadFileTask";
+
 	private String fileType;
 
 	private ConvMessage userContext;
@@ -133,7 +135,7 @@ public class UploadFileTask extends FileTransferBase
 					}
 					catch (Exception e)
 					{
-						e.printStackTrace();
+						Logger.e(TAG, "exception while reading file size from validate file key request success", e);
 						fileSize = 0;
 					}
 				}
@@ -141,7 +143,6 @@ public class UploadFileTask extends FileTransferBase
 				try
 				{
 					initFileUpload(true);
-					verifyMd5(selectedFile);
 				}
 				catch (FileTransferCancelledException e)
 				{
@@ -197,8 +198,6 @@ public class UploadFileTask extends FileTransferBase
 					{
 						e.printStackTrace();
 					}
-
-					verifyMd5(selectedFile);
 				}
 				else
 				{
@@ -225,7 +224,6 @@ public class UploadFileTask extends FileTransferBase
 				try
 				{
 					initFileUpload(false);
-					verifyMd5(selectedFile);
 				}
 				catch (Exception e)
 				{
@@ -382,32 +380,23 @@ public class UploadFileTask extends FileTransferBase
 		hikeFileType = hikeFile.getHikeFileType();
 
 		ConvMessage msg = userContext;
-		// TODO stateFile = getStateFile(msg);
+		// todo analytics
 		// File lofFile = FileTransferManager.getInstance(context).getAnalyticFile(msg.getMetadata().getHikeFiles().get(0).getFile(), msg.getMsgID());
 		// this.analyticEvents = FTAnalyticEvents.getAnalyticEvents(lofFile);
 		Logger.d(getClass().getSimpleName(), "Upload state bin file :: " + fileName + ".bin." + userContext.getMsgID());
 
 		if (userContext.getMetadata().getHikeFiles().get(0).getFileSize() > HikeConstants.MAX_FILE_SIZE)
 		{
-			// TODO
-			// return FTResult.FILE_SIZE_EXCEEDING;
+			Toast.makeText(context, R.string.max_file_size, Toast.LENGTH_SHORT).show();
+			return;
 		}
+
+		verifyMd5(selectedFile);
 	}
 
 	public void startFileUploadProcess()
 	{
-		try
-		{
-			validateFileKey();
-		}
-		catch (Exception e)
-		{
-			// TODO
-			// Logger.e(getClass().getSimpleName(), "Exception", e);
-			// saveStateOnNoInternet();
-			// FTAnalyticEvents.logDevException(FTAnalyticEvents.UPLOAD_FK_VALIDATION, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "http", "UPLOAD_FAILED - ", e);
-			// return FTResult.UPLOAD_FAILED;
-		}
+		validateFileKey();
 	}
 
 	private String getImageQuality()
