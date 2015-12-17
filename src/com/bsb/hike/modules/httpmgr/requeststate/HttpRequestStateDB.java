@@ -33,8 +33,6 @@ public class HttpRequestStateDB extends SQLiteOpenHelper
 
 	private SQLiteDatabase mDb;
 
-	private SQLiteDatabase mReadDb;
-
 	private Context mContext;
 
 	/**
@@ -47,7 +45,6 @@ public class HttpRequestStateDB extends SQLiteOpenHelper
 		super(context, HTTP_REQUEST_STATE_DATABASE_NAME, null, HTTP_REQUEST_STATE_DATABASE_VERSION);
 		this.mContext = context;
 		mDb = getWritableDatabase();
-		mReadDb = getReadableDatabase();
 	}
 
 	/**
@@ -123,7 +120,7 @@ public class HttpRequestStateDB extends SQLiteOpenHelper
 		Cursor c = null;
 		try
 		{
-			c = mReadDb.query(HTTP_REQUEST_STATE_TABLE, null, REQUEST_ID + "=?", new String[] { requestId }, null, null, null);
+			c = mDb.query(HTTP_REQUEST_STATE_TABLE, null, REQUEST_ID + "=?", new String[] { requestId }, null, null, null);
 			HttpRequestState state = null;
 			if (c.moveToFirst())
 			{
