@@ -421,6 +421,13 @@ public class KptKeyboardManager implements AdaptxtSettingsRegisterListener
 		StickerLanguagesManager.getInstance().addKptSupportedLanguages();
 	}
 
+	/*
+	This callback is sent by kpt is case its not supported on the device.
+	This will set keyboard supported flag to false. And in such case keyboard(kpt code) is not to be used anywhere.
+	This assumption here is the this callback will be received within 20ms of initialization KPTAdaptxtAddonSettings in the constructor here.
+	This is required because if the keyboard is not supported then we should know it before the time other classes(Activities) use it as
+	the we assume keyboard is supported by default.
+	 */
 	@Override
 	public void onInitializationError(int errorCode)
 	{
