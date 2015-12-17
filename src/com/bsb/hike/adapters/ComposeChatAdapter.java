@@ -441,11 +441,17 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 			convertView = LayoutInflater.from(context).inflate(R.layout.microapps_horizontal_view, null);
 			holder = new ViewHolder();
 			holder.recyclerView = (RecyclerView) convertView.findViewById(R.id.mapps_list);
-			microappsListAdapter = new MicroappsListAdapter(context, filteredmicroAppShowcaseList, iconloader);
+
+			if (microappsListAdapter == null)
+			{
+				microappsListAdapter = new MicroappsListAdapter(context, filteredmicroAppShowcaseList, iconloader);
+			}
+
 			holder.recyclerView.setAdapter(microappsListAdapter);
-			LinearLayoutManager layoutManager = new LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false);
-	        holder.recyclerView.setLayoutManager(layoutManager);
-	        holder.recyclerView.setOverScrollMode(View.OVER_SCROLL_NEVER);
+			LinearLayoutManager layoutManager = new LinearLayoutManager(context.getApplicationContext(), LinearLayoutManager.HORIZONTAL, false);
+			holder.recyclerView.setLayoutManager(layoutManager);
+			holder.recyclerView.setOverScrollMode(View.OVER_SCROLL_NEVER);
+
 			convertView.setTag(holder);
 			break;
 		default:
@@ -925,6 +931,14 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 			filteredmicroAppShowcaseList.clear();
 			filteredmicroAppShowcaseList.addAll(microappShowcaseList);
 			microappsListAdapter.notifyDataSetChanged();
+		}
+	}
+
+	public void onBotCreated(Object data)
+	{
+		if (microappsListAdapter != null)
+		{
+			microappsListAdapter.onBotCreated(data);
 		}
 	}
 	

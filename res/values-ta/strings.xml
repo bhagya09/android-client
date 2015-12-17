@@ -34,7 +34,7 @@
     <string name="joined_conversation">%1$s குழு சேட்டில் சேர்ந்திருக்கிறார்!</string>
     <string name="left_conversation">%1$s குழு சேட்டிலிருந்து வெளியேறி விட்டார்.</string>
     <string name="removed_from_broadcast">%1$s -ஐ புரோட்காஸ்ட் லிஸ்ட்டிலிருந்து அகற்றியாகிற்று</string>
-    <string name="leave_group">குழுபை விட்டு வெளியேறினார்</string>
+    <string name="leave_group">குழுவை விட்டு வெளியேறினார்</string>
     <string name="delete_broadcast">புரோட்காஸ்ட்டை அழி</string>
     <string name="group_chat_end">இந்த குழு சாட் முடிவடைந்தது.</string>
     <string name="broadcast_list_end">இந்த புரோட்காஸ்ட் லிஸ்ட் முடிவடைந்தது.</string>
