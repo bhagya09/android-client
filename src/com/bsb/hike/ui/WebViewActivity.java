@@ -127,7 +127,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 
 	NonMessagingBotMetadata botMetaData;
 	
-	public static String msisdn = "";
+	public  String msisdn = "";
 
 	int mode;
 	
@@ -1633,5 +1633,9 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 			e.printStackTrace();
 		}
 
+	}
+	public String getMsisdn()
+	{
+		return  msisdn;
 	}
 }
