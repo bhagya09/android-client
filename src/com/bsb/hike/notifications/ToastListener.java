@@ -733,7 +733,7 @@ public class ToastListener implements Listener
 
 		if ((activity instanceof WebViewActivity))
 		{
-			String activityMsisdn=((WebViewActivity) activity).getMsisdn();
+			String activityMsisdn=((WebViewActivity) activity).msisdn;
 			BotInfo botInfo=BotUtils.getBotInfoForBotMsisdn(msisdn);
 			NonMessagingBotMetadata nmData=new NonMessagingBotMetadata(botInfo.getMetadata());
 			if (TextUtils.isEmpty(msisdn) || TextUtils.isEmpty(activityMsisdn)|| botInfo==null ||nmData==null ||  (activityMsisdn.equals(nmData.getParentMsisdn())))
