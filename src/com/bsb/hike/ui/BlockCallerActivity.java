@@ -120,7 +120,7 @@ public class BlockCallerActivity extends HikeAppStateBaseFragmentActivity implem
 			JSONObject json = new JSONObject();
 			json.put(HikeConstants.MSISDN, msisdn);
 			json.put(HikeConstants.IS_BLOCK, (hikeDialog.getId() == HikeDialogFactory.CALLER_BLOCK_CONTACT_DIALOG) ? 1 : 0);
-			RequestToken requestToken = HttpRequests.postCallerMsisdn(HttpRequestConstants.getHikeCallerUrl(), json, null, ChatHeadUtils.HTTP_CALL_RETRY_DELAY,
+			RequestToken requestToken = HttpRequests.postCallerMsisdn(HttpRequestConstants.getHikeCallerBlockUrl(), json, null, ChatHeadUtils.HTTP_CALL_RETRY_DELAY,
 					ChatHeadUtils.HTTP_CALL_RETRY_MULTIPLIER, false);
 			requestToken.execute();
 		}
