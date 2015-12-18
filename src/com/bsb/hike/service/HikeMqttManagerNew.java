@@ -1377,6 +1377,7 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 			break;
 		default:
 			Logger.e(TAG, "In Default : " + e.getMessage());
+			handleOtherException();
 			mqttConnStatus = MQTTConnectionStatus.NOT_CONNECTED;
 			connectOnMqttThread(getConnRetryTime());
 			sendAnalyticsEvent(e, MqttConstants.EXCEPTION_DEFAULT);
