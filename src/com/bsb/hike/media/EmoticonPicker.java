@@ -468,4 +468,12 @@ public class EmoticonPicker implements ShareablePopup, EmoticonPickerListener, O
 	{
 	  mPopUpLayout.setCustomKeyBoard(isCustomKeyBoard);
 	}
+	
+	public void setBottomPadding(int bottomPadding)
+	{
+		if (mPopUpLayout != null)
+		{
+			mPopUpLayout.setOriginalBottomPadding(bottomPadding);
+		}
+	}
 }

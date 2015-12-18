@@ -184,12 +184,15 @@ public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
 		else
 		{
 			setIntent(intent);
-			chatThread.dismissResidualAcitonMode();
-			chatThread.takeActionBasedOnIntent();
-			/**
-			 * Scrolling to bottom in case same chat is opened from onNewIntent
-			 */
-			chatThread.scrollToEnd();
+			if(chatThread != null)
+			{
+				chatThread.dismissResidualAcitonMode();
+				chatThread.takeActionBasedOnIntent();
+				/**
+				 * Scrolling to bottom in case same chat is opened from onNewIntent
+				 */
+				chatThread.scrollToEnd();
+			}
 		}
 	}
 	

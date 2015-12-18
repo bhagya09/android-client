@@ -11,11 +11,13 @@ import android.animation.Animator.AnimatorListener;
 import android.animation.TimeInterpolator;
 import android.animation.ValueAnimator;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.PixelFormat;
 import android.net.Uri;
 import android.sax.StartElementListener;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
@@ -516,6 +518,16 @@ public class StickyCaller
 		try
 		{
 			stickyCallerFrameHolder = new FrameLayout(context);
+			stickyCallerFrameHolder.setOnKeyListener(
+					new View.OnKeyListener() {
+						@Override
+						public boolean onKey(View v, int keyCode, KeyEvent event) {
+							removeCallerView();
+							return false;
+						}
+					}
+			);
+			stickyCallerFrameHolder.setFocusableInTouchMode(true);
 			stickyCallerFrameHolder.addView(stickyCallerView);
 			windowManager.addView(stickyCallerFrameHolder, callerParams);
 			stickyCallerView.setOnTouchListener(onSwipeTouchListener);

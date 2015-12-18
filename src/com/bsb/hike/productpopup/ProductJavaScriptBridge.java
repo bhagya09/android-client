@@ -1,11 +1,5 @@
 package com.bsb.hike.productpopup;
 
-import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.app.Activity;
 import android.app.NotificationManager;
 import android.content.Context;
@@ -19,14 +13,20 @@ import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.notifications.HikeNotification;
-import com.bsb.hike.offline.OfflineConstants;
 import com.bsb.hike.platform.CustomWebView;
+import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.bridge.JavascriptBridge;
 import com.bsb.hike.productpopup.ProductPopupsConstants.HIKESCREEN;
 import com.bsb.hike.productpopup.ProductPopupsConstants.PopUpAction;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 
 public class ProductJavaScriptBridge extends JavascriptBridge
 {
@@ -198,5 +198,26 @@ public class ProductJavaScriptBridge extends JavascriptBridge
 			}
 		});
 		
+	}
+
+	/**
+	 * Platform Version 9
+	 *
+	 * This function is called to request Init in case of productpopup apps
+	 */
+	@Override
+	@JavascriptInterface
+	public void requestInit() {
+		super.requestInit();
+		Logger.d("RequestInit","Request Init called");
+		JSONObject object = new JSONObject();
+		try {
+			PlatformUtils.addLocaleToInitJSON(object);
+			getInitJson(object, null);
+			mWebView.loadUrl("javascript:init('" + getEncodedDataForJS(object.toString()) + "')");
+			Logger.d("RequestInit",(object.toString()));
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
 	}
 }

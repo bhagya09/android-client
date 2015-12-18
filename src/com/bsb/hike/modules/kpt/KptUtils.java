@@ -13,6 +13,7 @@ import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.Utils;
 import com.kpt.adaptxt.beta.CustomKeyboard;
 import com.kpt.adaptxt.beta.KPTAddonItem;
 import com.kpt.adaptxt.beta.view.AdaptxtEditText;
@@ -39,8 +40,9 @@ public class KptUtils
 		{
 			JSONObject metadata = new JSONObject();
 			metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.KEYBOARD_LANGUAGE_CHANGED_EVENT);
-			metadata.put(HikeConstants.KEYBOARD_LANGUAGE, item.getlocaleName());
+			metadata.put(HikeConstants.KEYBOARD_LANGUAGE_CHANGE, item.getlocaleName());
 			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
+			Utils.sendLocaleToServer();
 		}
 		catch(JSONException e)
 		{

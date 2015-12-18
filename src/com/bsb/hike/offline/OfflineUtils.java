@@ -45,7 +45,6 @@ import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
-import com.google.gson.Gson;
 import com.hike.transporter.utils.TConstants.ERRORCODES;
 
 /**
@@ -637,7 +636,7 @@ public class OfflineUtils
 		try
 		{
 			object.put(HikeConstants.TYPE, OfflineConstants.INFO_PKT);
-			object.put(HikeConstants.VERSION,Utils.getAppVersion());
+			object.put(HikeConstants.VERSION,Utils.getAppVersionName());
 			object.put(OfflineConstants.OFFLINE_VERSION,OfflineConstants.OFFLINE_VERSION_NUMER);
 			object.put(HikeConstants.RESOLUTION_ID, Utils.getResolutionId());
 			object.put(OfflineConstants.CONNECTION_ID, connectID);
@@ -978,7 +977,9 @@ public class OfflineUtils
 				JSONObject data  =  packet.optJSONObject(HikeConstants.DATA);
 				if(data!=null)
 				{
-					String errorMessage = data.getString(HikeConstants.HIKE_MESSAGE);
+					//String errorMessage = data.getString(HikeConstants.HIKE_MESSAGE);
+					//AND-4022. Making error message local, since server
+					String errorMessage = context.getString(R.string.error_message_unsupported_peer);
 					OfflineController.getInstance().shutdown(new OfflineException(OfflineException.UNSUPPORTED_PEER,errorMessage));
 				}
 				
@@ -1003,7 +1004,9 @@ public class OfflineUtils
 				JSONObject data  =  packet.optJSONObject(HikeConstants.DATA);
 				if(data!=null)
 				{
-					String errorMessage = data.getString(HikeConstants.HIKE_MESSAGE);
+					//String errorMessage = data.getString(HikeConstants.HIKE_MESSAGE);
+					//AND-4022. Making error message local, since server
+					String errorMessage = context.getString(R.string.error_message_upgrade_peer);
 					OfflineController.getInstance().shutdown(new OfflineException(OfflineException.UPGRADABLE_UNSUPPORTED_PEER,errorMessage));
 				}
 				

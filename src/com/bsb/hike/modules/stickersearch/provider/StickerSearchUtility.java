@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -28,6 +29,7 @@ import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchBaseConst
 import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchBaseConstants.TIME_CODE;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.PairModified;
 import com.bsb.hike.utils.Utils;
 
 import android.content.SharedPreferences.Editor;
@@ -62,6 +64,13 @@ public class StickerSearchUtility
 
 		if ((json != null) && (json.length() > 0))
 		{
+			int minimumVersionToAcceptConfiguartionData = json.optInt(HikeConstants.STICKER_RECOMMENDATION_CONFIGURATION_MIN_VERSION_TO_APPLY, 0);
+			if (minimumVersionToAcceptConfiguartionData > Utils.getAppVersionCode())
+			{
+				Logger.e(tag, "Proposed sticker recommendation configuration is not applicable for current version of Hike app. It should be updated.");
+				return;
+			}
+
 			HikeSharedPreferenceUtil stickerDataSharedPref = HikeSharedPreferenceUtil.getInstance(HikeStickerSearchBaseConstants.SHARED_PREF_STICKER_DATA);
 			Iterator<String> configSettings = json.keys();
 
@@ -90,7 +99,8 @@ public class StickerSearchUtility
 								calendar.set(Calendar.SECOND, ss);
 								calendar.set(Calendar.MILLISECOND, SSS);
 
-								stickerDataSharedPref.saveData(settingName, (new SimpleDateFormat(HikeConstants.FORMAT_TIME_OF_THE_DAY, Locale.ENGLISH)).format(calendar.getTime()));
+								stickerDataSharedPref
+										.saveData(settingName, (new SimpleDateFormat(HikeConstants.FORMAT_TIME_OF_THE_DAY, Locale.ENGLISH)).format(calendar.getTime()));
 							}
 							else
 							{
@@ -315,7 +325,7 @@ public class StickerSearchUtility
 							float local = (float) frequencyRatioData.getDouble(HikeConstants.STICKER_DATA_LOCAL);
 							float global = (float) frequencyRatioData.getDouble(HikeConstants.STICKER_DATA_GLOBAL);
 
-							if (isValidFraction(trending) && isValidFraction(local) && isValidFraction(global) && (local > trending) && (global > local)
+							if (isValidFraction(trending) && isValidFraction(local) && isValidFraction(global) && (trending > local) && (local > global)
 									&& ((trending + local + global) == 1.00f))
 							{
 								stickerDataSharedPref.saveData(HikeConstants.STICKER_FREQUENCY_RATIO_TRENDING, trending);
@@ -521,15 +531,21 @@ public class StickerSearchUtility
 		return (HikeConstants.STICKER_TAG_REGEX_SEPARATORS + StickerSearchConstants.STRING_JOINTER + languageISOCode);
 	}
 
+	/* Get the key used to save recommendation analytics data in shared preference for given language */
+	public static String getSharedPrefKeyForRecommendationData(String dataKey, String languageISOCode)
+	{
+		return (dataKey + StickerSearchConstants.STRING_JOINTER + languageISOCode);
+	}
+
 	/* Get combined regular expression for all separators applicable to language argument */
-	public static String getSeparatorsRegex(String keyboardlanguageISOCode)
+	public static String getSeparatorsRegex(String keyboardLanguageISOCode)
 	{
 		String separatorsRegex;
 		HikeSharedPreferenceUtil stickerDataSharedPref = HikeSharedPreferenceUtil.getInstance(HikeStickerSearchBaseConstants.SHARED_PREF_STICKER_DATA);
 
-		if (!Utils.isBlank(keyboardlanguageISOCode) && !keyboardlanguageISOCode.startsWith(StickerSearchConstants.DEFAULT_KEYBOARD_LANGUAGE_ISO_CODE))
+		if (!Utils.isBlank(keyboardLanguageISOCode) && !keyboardLanguageISOCode.startsWith(StickerSearchConstants.DEFAULT_KEYBOARD_LANGUAGE_ISO_CODE))
 		{
-			separatorsRegex = stickerDataSharedPref.getData(getSharedPrefKeyForSeparatorsRegex(keyboardlanguageISOCode), null);
+			separatorsRegex = stickerDataSharedPref.getData(getSharedPrefKeyForSeparatorsRegex(keyboardLanguageISOCode), null);
 
 			if (separatorsRegex == null)
 			{
@@ -566,6 +582,84 @@ public class StickerSearchUtility
 		}
 
 		return chars;
+	}
+
+	/* Save recommendation analytics data stored in sticker search shared_pref */
+	public static void saveStickerRecommendationAnalyticsDataIntoPref(Map<String, PairModified<Integer, Integer>> autoPopupClicksPerLanguageMap,
+			Map<String, PairModified<Integer, Integer>> tapOnHighlightWordClicksPerLanguageMap)
+	{
+		// Clear previous data, if any
+		clearStickerRecommendationAnalyticsDataFromPref();
+
+		HikeSharedPreferenceUtil stickerDataSharedPref = HikeSharedPreferenceUtil.getInstance(HikeStickerSearchBaseConstants.SHARED_PREF_STICKER_DATA);
+		PairModified<Integer, Integer> totalAndAcceptedRecommendationCountPairPerLanguage;
+		HashSet<String> currentLanguages = new HashSet<String>();
+		HashMap<String, Integer> accuracyData = new HashMap<String, Integer>();
+
+		// Save auto-popup data for each language
+		if ((autoPopupClicksPerLanguageMap != null) && (autoPopupClicksPerLanguageMap.size() > 0))
+		{
+			Set<String> languages = autoPopupClicksPerLanguageMap.keySet();
+			currentLanguages.addAll(languages);
+
+			for (String languageISOCode : languages)
+			{
+				totalAndAcceptedRecommendationCountPairPerLanguage = autoPopupClicksPerLanguageMap.get(languageISOCode);
+
+				accuracyData.put(getSharedPrefKeyForRecommendationData(StickerSearchConstants.KEY_PREF_AUTO_POPUP_TOTAL_COUNT_PER_LANGUAGE, languageISOCode),
+						totalAndAcceptedRecommendationCountPairPerLanguage.getFirst());
+				accuracyData.put(getSharedPrefKeyForRecommendationData(StickerSearchConstants.KEY_PREF_AUTO_POPUP_ACCEPTED_COUNT_PER_LANGUAGE, languageISOCode),
+						totalAndAcceptedRecommendationCountPairPerLanguage.getSecond());
+			}
+		}
+
+		// Save highlight word tapping data for each language
+		if ((tapOnHighlightWordClicksPerLanguageMap != null) && (tapOnHighlightWordClicksPerLanguageMap.size() > 0))
+		{
+			Set<String> languages = tapOnHighlightWordClicksPerLanguageMap.keySet();
+			currentLanguages.addAll(languages);
+
+			for (String languageISOCode : languages)
+			{
+				totalAndAcceptedRecommendationCountPairPerLanguage = tapOnHighlightWordClicksPerLanguageMap.get(languageISOCode);
+
+				accuracyData.put(getSharedPrefKeyForRecommendationData(StickerSearchConstants.KEY_PREF_TAP_ON_HIGHLIGHT_WORD_TOTAL_COUNT_PER_LANGUAGE, languageISOCode),
+						totalAndAcceptedRecommendationCountPairPerLanguage.getFirst());
+				accuracyData.put(getSharedPrefKeyForRecommendationData(StickerSearchConstants.KEY_PREF_TAP_ON_HIGHLIGHT_WORD_ACCEPTED_COUNT_PER_LANGUAGE, languageISOCode),
+						totalAndAcceptedRecommendationCountPairPerLanguage.getSecond());
+			}
+		}
+
+		if (accuracyData.size() > 0)
+		{
+			stickerDataSharedPref.saveDataSet(StickerSearchConstants.KEY_PREF_STICKER_RECOOMENDATION_LANGUAGE_LIST, currentLanguages);
+			stickerDataSharedPref.saveDataMap(accuracyData);
+		}
+	}
+
+	/* Clear recommendation analytics data stored in sticker search shared_pref */
+	public static void clearStickerRecommendationAnalyticsDataFromPref()
+	{
+		HikeSharedPreferenceUtil stickerDataSharedPref = HikeSharedPreferenceUtil.getInstance(HikeStickerSearchBaseConstants.SHARED_PREF_STICKER_DATA);
+		Set<String> languages = stickerDataSharedPref.getDataSet(StickerSearchConstants.KEY_PREF_STICKER_RECOOMENDATION_LANGUAGE_LIST, null);
+		if (!Utils.isEmpty(languages))
+		{
+			HashSet<String> removingKeys = new HashSet<String>();
+			for (String languageISOCode : languages)
+			{
+				removingKeys.add(getSharedPrefKeyForRecommendationData(StickerSearchConstants.KEY_PREF_AUTO_POPUP_TOTAL_COUNT_PER_LANGUAGE, languageISOCode));
+				removingKeys.add(getSharedPrefKeyForRecommendationData(StickerSearchConstants.KEY_PREF_AUTO_POPUP_ACCEPTED_COUNT_PER_LANGUAGE, languageISOCode));
+				removingKeys.add(getSharedPrefKeyForRecommendationData(StickerSearchConstants.KEY_PREF_TAP_ON_HIGHLIGHT_WORD_TOTAL_COUNT_PER_LANGUAGE, languageISOCode));
+				removingKeys.add(getSharedPrefKeyForRecommendationData(StickerSearchConstants.KEY_PREF_TAP_ON_HIGHLIGHT_WORD_ACCEPTED_COUNT_PER_LANGUAGE, languageISOCode));
+			}
+
+			removingKeys.add(StickerSearchConstants.KEY_PREF_STICKER_RECOOMENDATION_LANGUAGE_LIST);
+			stickerDataSharedPref.removeData(removingKeys);
+		}
+		else
+		{
+			stickerDataSharedPref.removeData(StickerSearchConstants.KEY_PREF_STICKER_RECOOMENDATION_LANGUAGE_LIST);
+		}
 	}
 
 	/* Get string for predictive search */

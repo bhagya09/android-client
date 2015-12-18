@@ -810,10 +810,12 @@ public class MqttMessagesManager
 		{
 			convMessage.setMessage(context.getString(R.string.sent_sticker));
 		}
+		//AND-3843 begin
         if (convMessage.getMetadata() != null && convMessage.getMetadata().isPokeMessage())
         {
             convMessage.setMessage(context.getString(R.string.poke_msg));
         }
+		//AND-3843 End
 		/*
 		 * Need to rename every audio recording to a unique name since the ios client is sending every file with the same name.
 		 */
@@ -2714,20 +2716,22 @@ public class MqttMessagesManager
 		}
 		if (data.has(HikeConstants.LOCALIZATION_ENABLED))
 		{
-			boolean localizationEnabled = data.optBoolean(HikeConstants.LOCALIZATION_ENABLED);
-			if (!localizationEnabled)
-				LocalLanguageUtils.setApplicationLocalLanguage(LocalLanguage.PhoneLangauge);
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.LOCALIZATION_ENABLED, localizationEnabled);
+			Utils.setLocalizationEnable(data.optBoolean(HikeConstants.LOCALIZATION_ENABLED));
 		}
 		if (data.has(HikeConstants.AUTOCORRECT_KEYBOARD_ENABLED))
 		{
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.AUTOCORRECT_KEYBOARD_ENABLED, data.optBoolean(HikeConstants.AUTOCORRECT_KEYBOARD_ENABLED));
-			KptKeyboardManager.getInstance(HikeMessengerApp.getInstance().getApplicationContext()).getKptSettings().setAutoCorrectionState(data.optBoolean(HikeConstants.AUTOCORRECT_KEYBOARD_ENABLED) ? 0: 1);
+			KptKeyboardManager.getInstance().getKptSettings().setAutoCorrectionState(data.optBoolean(HikeConstants.AUTOCORRECT_KEYBOARD_ENABLED) ? 0: 1);
 		}
 		if (data.has(HikeConstants.CUSTOM_KEYBOARD_ENABLED))
 		{
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CUSTOM_KEYBOARD_ENABLED,data.optBoolean(HikeConstants.CUSTOM_KEYBOARD_ENABLED));
+			Utils.setCustomKeyboardEnable(data.optBoolean(HikeConstants.CUSTOM_KEYBOARD_ENABLED));
 		}
+        if (data.has(HikeConstants.HTTP_NETWORK_CHECK_CALL))
+        {
+            boolean enable = data.getBoolean(HikeConstants.HTTP_NETWORK_CHECK_CALL);
+            HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.HTTP_NETWORK_CHECK_CALL, enable);
+        }
 		
 		editor.commit();
 		this.pubSub.publish(HikePubSub.UPDATE_OF_MENU_NOTIFICATION, null);
@@ -3354,14 +3358,18 @@ public class MqttMessagesManager
 				return; // empty packet id : ignore this packet
 			}
 
-			String header = data.optString(HikeConstants.HEADER);
-			String body = data.optString(HikeConstants.BODY);
+			String header = data.optString(HikeConstants.HEADER, context.getString(R.string.stealth_unread_tip_header));
+			String body = data.optString(HikeConstants.BODY, context.getString(R.string.stealth_unread_tip_message));
 
-			if (!TextUtils.isEmpty(header) && !TextUtils.isEmpty(body))
+			if(data.optBoolean(HikeConstants.ANIMATE, false))
 			{
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STEALTH_INDICATOR_SHOW_ONCE, true);
+				HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_INDICATOR, null);
+			}
+			else if (!TextUtils.isEmpty(header) && !TextUtils.isEmpty(body)) {
 				Editor editor = settings.edit();
-				editor.putString(HikeMessengerApp.STEALTH_UNREAD_TIP_HEADER, data.optString(HikeConstants.HEADER));
-				editor.putString(HikeMessengerApp.STEALTH_UNREAD_TIP_MESSAGE, data.optString(HikeConstants.BODY));
+				editor.putString(HikeMessengerApp.STEALTH_UNREAD_TIP_HEADER, header);
+				editor.putString(HikeMessengerApp.STEALTH_UNREAD_TIP_MESSAGE, body);
 				editor.putBoolean(HikeMessengerApp.SHOW_STEALTH_UNREAD_TIP, true);
 				editor.putString(HikeMessengerApp.LAST_STEALTH_POPUP_ID, id);
 				editor.commit();
@@ -3373,11 +3381,6 @@ public class MqttMessagesManager
 					bundle.putString(HikeConstants.Extras.STEALTH_PUSH_HEADER, header);
 					this.pubSub.publish(HikePubSub.STEALTH_POPUP_WITH_PUSH, bundle);
 				}
-			}
-			else
-			{
-				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STEALTH_INDICATOR_SHOW_ONCE, true);
-				HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_INDICATOR, null);
 			}
 		}
 		else if(subType.equals(HikeConstants.HOLI_POPUP))
@@ -3504,7 +3507,7 @@ public class MqttMessagesManager
 			if (lastNotifPacket != hash)
 			{
 				lastNotifPacket = hash;
-				String body = data.optString(HikeConstants.BODY);
+				String body = PlatformUtils.getNotifBody(data);
 				String destination = data.optString("u");
 				boolean silent = data.optBoolean(HikeConstants.SILENT, true);
 				boolean rearrangeChat = data.optBoolean(HikeConstants.REARRANGE_CHAT,false);

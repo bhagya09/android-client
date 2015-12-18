@@ -457,7 +457,6 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	protected void onDestroy()
 	{
 		HikeMessengerApp.getPubSub().removeListeners(this, pubsub);
-		msisdn=null;
 		if(webView!=null)
 		{
 			webView.onActivityDestroyed();
@@ -775,6 +774,11 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 			if (object instanceof BotInfo)
 			{
 				BotInfo botInfo = (BotInfo) object;
+				if (botInfo == null)
+				{
+					return;
+				}
+
 				if (botInfo.getMsisdn().equals(msisdn))
 				{
 					String notifData = botInfo.getNotifData();
@@ -788,6 +792,10 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 
 		else if (type.equals(HikePubSub.MESSAGE_EVENT_RECEIVED))
 		{
+			if (mode != MICRO_APP_MODE && mode != WEB_URL_BOT_MODE) //We need it only Micro App mode as of now.
+			{
+				return;
+			}
 
 			if (object instanceof MessageEvent)
 			{
@@ -818,6 +826,11 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		}
 		else if (type.equals(HikePubSub.LOCATION_AVAILABLE))
 		{
+			if (mode != MICRO_APP_MODE && mode != WEB_URL_BOT_MODE) //We need it only Micro App mode as of now.
+			{
+				return;
+			}
+
 			LocationManager locationManager = (LocationManager) object;
 			Location location = null;
 			if (locationManager != null)
@@ -834,9 +847,14 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		}
 		else if (type.equals(HikePubSub.DOWNLOAD_PROGRESS))
 		{
+			if (mode != MICRO_APP_MODE && mode != WEB_URL_BOT_MODE) //We need it only Micro App mode as of now.
+			{
+				return;
+			}
+
 			if (object instanceof Pair<?,?>)
 			{
-				if (null != msisdn && (msisdn.equals(botInfo.getMsisdn())|| msisdn.equals(botMetaData.getParentMsisdn())))
+				if (null != mmBridge && null != msisdn && BotUtils.isSpecialBot(botInfo) && (msisdn.equals(botInfo.getMsisdn())|| msisdn.equals(botMetaData.getParentMsisdn())))
 				{
 					Pair<String, String> callback = (Pair<String, String>) object;
 					mmBridge.downloadStatus(callback.first, callback.second);
@@ -844,7 +862,6 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 
 			}
 		}
-
 
 	}
 
@@ -1000,6 +1017,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	protected void onPause()
 	{
 		super.onPause();
+		msisdn=null;
 		//Logging MicroApp Screen closing for bot case
 		if (mode == MICRO_APP_MODE || mode == WEB_URL_BOT_MODE)
 		{
@@ -1013,6 +1031,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	protected void onResume()
 	{
 		super.onResume();
+		initMsisdn();
 		//Logging MicroApp Screen opening for bot case
 		if (mode == MICRO_APP_MODE || mode == WEB_URL_BOT_MODE)
 		{

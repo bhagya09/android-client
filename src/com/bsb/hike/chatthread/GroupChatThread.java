@@ -1107,6 +1107,7 @@ public class GroupChatThread extends OneToNChatThread
 			{
 			case R.string.create_pin:
 			case R.string.group_profile:
+			case R.string.hike_keyboard:
 			case R.string.chat_theme:
 				overFlowMenuItem.enabled = !checkForDeadOrBlocked();
 				break;
