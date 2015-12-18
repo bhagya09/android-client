@@ -1,15 +1,5 @@
 package com.bsb.hike.platform.content;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.util.HashMap;
-import java.util.Observable;
-import java.util.Observer;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.text.TextUtils;
 import android.util.Pair;
 
@@ -35,6 +25,15 @@ import com.bsb.hike.platform.content.PlatformContent.EventCode;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.Logger;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Observable;
+import java.util.Observer;
+
 /**
  * Download and store template. First
  *
@@ -54,7 +53,7 @@ public class PlatformZipDownloader
 	// every 1% of the microapp.
 	private static HashMap<String,Float> callbackProgress = new HashMap<String, Float>();
 
-	//This hashmap contains the mapping of every request that Platform Zip Downloader has initiated. Key is the url
+	//This hashmap contains the mapping of every request that Platform Zip Downloader has initiated. Key is the appName
 	// and value is the token.
 	private static HashMap<String, RequestToken> platformRequests= new HashMap<String, RequestToken>();
 	
@@ -227,7 +226,7 @@ public class PlatformZipDownloader
 		if (!token.isRequestRunning())
 		{
 			token.execute();
-			platformRequests.put(mRequest.getContentData().getLayout_url(), token);
+			platformRequests.put(mRequest.getContentData().getId(), token);
 			HikeMessengerApp.getPubSub().publish(HikePubSub.DOWNLOAD_PROGRESS, new Pair<String, String>(callbackId, "downloadStarted"));
 			PlatformRequestManager.getCurrentDownloadingTemplates().add(mRequest.getContentData().appHashCode());
 		}
@@ -454,7 +453,7 @@ public class PlatformZipDownloader
 
 				HikeMessengerApp.getPubSub().publish(HikePubSub.DOWNLOAD_PROGRESS, new Pair<String, String>(callbackId, "downloadSuccess"));
 				callbackProgress.remove(callbackId);
-				platformRequests.remove(mRequest.getContentData().getLayout_url());
+				platformRequests.remove(mRequest.getContentData().getId());
 				PlatformRequestManager.getCurrentDownloadingTemplates().remove((Integer) mRequest.getContentData().appHashCode());
 				unzipMicroApp(zipFile);
 			}
@@ -476,7 +475,7 @@ public class PlatformZipDownloader
 			public void onRequestFailure(HttpException httpException)
 			{
 				callbackProgress.remove(callbackId);
-				platformRequests.remove(mRequest.getContentData().getLayout_url());
+				platformRequests.remove(mRequest.getContentData().getId());
 				HikeMessengerApp.getPubSub().publish(HikePubSub.DOWNLOAD_PROGRESS, new Pair<String,String>(callbackId, "downloadFailure"));
 				PlatformUtils.sendMicroAppServerAnalytics(false, mRequest.getContentData().cardObj.appName, mRequest.getContentData().cardObj.appVersion);
 				PlatformRequestManager.failure(mRequest, EventCode.LOW_CONNECTIVITY, isTemplatingEnabled);

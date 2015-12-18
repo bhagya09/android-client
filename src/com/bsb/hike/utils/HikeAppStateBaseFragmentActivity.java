@@ -153,21 +153,8 @@ public class HikeAppStateBaseFragmentActivity extends HikeBaseActivity implement
 	@Override
 	public void startActivityFromFragment(Fragment fragment, Intent intent, int requestCode)
 	{
-		/**
-		 * Begin Changeset for AND-4071.
-		 * Logic is : When we were starting intent for a separate PROCESS, i.e. : CocosProcess, we want hike's process to send BG Packet and not treat it as a new activity.
-		 * Technically, it's a new activity but not attached to hike's process. A flag was added in the intent for the CocosProcess to deal with it.
-		 */
-		if (intent != null && intent.getBooleanExtra(HikeConstants.FORCE_BG, false) &&
-				(HikeMessengerApp.currentState == CurrentState.RESUMED || HikeMessengerApp.currentState == CurrentState.OPENED))
-		{
-			// Don't change the current state
-		}
-		else
-		{
-			HikeMessengerApp.currentState = CurrentState.NEW_ACTIVITY;
-		}
 
+		HikeMessengerApp.currentState = CurrentState.NEW_ACTIVITY;
 		try
 		{
 			super.startActivityFromFragment(fragment, intent, requestCode);
@@ -182,7 +169,7 @@ public class HikeAppStateBaseFragmentActivity extends HikeBaseActivity implement
 	@Override
 	public void startActivityForResult(Intent intent, int requestCode)
 	{
-		HikeAppStateUtils.startActivityForResult(intent, this);
+		HikeAppStateUtils.startActivityForResult(this);
 		try
 		{
 			super.startActivityForResult(intent, requestCode);
