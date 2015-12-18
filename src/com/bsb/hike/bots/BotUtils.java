@@ -40,7 +40,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.TreeMap;
 
 /**
  * This class is for utility methods of bots
@@ -439,16 +438,16 @@ public class BotUtils
         {
             JSONObject mdJsonObject = jsonObj.optJSONObject(HikePlatformConstants.METADATA);
             JSONObject cardObjectJson = mdJsonObject.optJSONObject(HikePlatformConstants.CARD_OBJECT);
-            JSONObject compatibilityMapJson = cardObjectJson.optJSONObject(HikePlatformConstants.COMPATIBILITY_MAP);
+            int mAppVersionCode = cardObjectJson.optInt(HikePlatformConstants.MAPP_VERSION_CODE);
 
-            if (compatibilityMapJson != null)
+            if (mAppVersionCode > 0)
             {
-                TreeMap<Integer, Integer> compatibilityMap = PlatformUtils.getCompatibilityMapFromString(compatibilityMapJson.toString());
-                botInfo.setCompatibilityMap(compatibilityMap);
+                botInfo.setMAppVersionCode(mAppVersionCode);
             }
         }
 
-		return botInfo;
+
+        return botInfo;
 	}
 
 	private static BotInfo getBotInfoFormessagingBots(JSONObject jsonObj, String msisdn)

@@ -97,7 +97,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.TreeMap;
 
 public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBConstants, HIKE_CONV_DB
 {
@@ -307,7 +306,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				+ HIKE_CONTENT.NAMESPACE + " TEXT, "         //namespace of a bot for caching purpose.
 				+ HIKE_CONTENT.NOTIF_DATA + " TEXT, "       //notif data used for notifications pertaining to the microapp
 				+ HIKE_CONTENT.HELPER_DATA + " TEXT DEFAULT '{}', "  //helper data
-				+ HIKE_CONTENT.BOT_VERSION + " INTEGER DEFAULT 0 "   //bot version for bot upgrade scenario
+				+ HIKE_CONTENT.BOT_VERSION + " INTEGER DEFAULT 0"   //bot version for bot upgrade scenario
 				+ ")";
 		db.execSQL(sql);
 		sql = getActionsTableCreateQuery();
@@ -8253,25 +8252,9 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				String notifData = c.getString(notifDataIdx);
 				String helperData = c.getString(helperDataIdx);
 				int version = c.getInt(versionIdx);
-                TreeMap<Integer,Integer> compatibilityMap = new TreeMap<Integer,Integer>();
-                String compatibilityMapStr = null;
-
-                try {
-                    JSONObject metaDataJson = new JSONObject(metadata);
-                    JSONObject cardObj = metaDataJson.optJSONObject(HikePlatformConstants.CARD_OBJECT);
-
-                    if(cardObj != null)
-                         compatibilityMapStr = cardObj.optString(HikePlatformConstants.COMPATIBILITY_MAP);
-
-                    if(!TextUtils.isEmpty(compatibilityMapStr))
-                        compatibilityMap = PlatformUtils.getCompatibilityMapFromString(compatibilityMapStr);
-
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
 
                 BotInfo botInfo = new BotInfo.HikeBotBuilder(msisdn).setConvName(name).setConfig(config).setType(botType).setMetadata(metadata).setIsMute(mute == 1)
-						.setNamespace(namespace).setConfigData(configData).setHelperData(helperData).setNotifData(notifData).setVersion(version).setCompatibilityMap(compatibilityMap).build();
+						.setNamespace(namespace).setConfigData(configData).setHelperData(helperData).setNotifData(notifData).setVersion(version).build();
 				
 				botInfo.setBlocked(ContactManager.getInstance().isBlocked(msisdn));
 				return botInfo;

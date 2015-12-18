@@ -1,16 +1,5 @@
 package com.bsb.hike.platform.content;
 
-import java.io.File;
-import java.lang.reflect.Field;
-import java.lang.reflect.Type;
-import java.util.Iterator;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.TreeMap;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
@@ -22,11 +11,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
 import com.google.gson.annotations.Expose;
-import com.google.gson.reflect.TypeToken;
 
-import org.json.JSONArray;
-
-import java.io.File;
 import java.lang.reflect.Field;
 import java.util.Iterator;
 import java.util.Map.Entry;
@@ -64,6 +49,8 @@ public class PlatformContentModel
 	private static PlatformContentModel object = null;
 
     private byte requestType = HikePlatformConstants.PlatformMappRequestType.HIKE_MICRO_APPS;
+
+    private String msisdn = "";
 
 	/*
 	 * (non-Javadoc)
@@ -127,27 +114,16 @@ public class PlatformContentModel
 	{
 		Logger.d(TAG, "making PlatformContentModel");
 		JsonParser parser = new JsonParser();
-		JSONObject json = null;
-
-        try {
-			json = new JSONObject(contentData);
-		} catch (JSONException e) {
-			e.printStackTrace();
-		}
 		JsonObject gsonObj = (JsonObject) parser.parse(contentData);
 
 		try
 		{
-            JSONObject cardObj = json.optJSONObject(HikePlatformConstants.CARD_OBJECT);
-            String compatibilityMapStr = cardObj.optString(HikePlatformConstants.COMPATIBILITY_MAP);
             object = new Gson().fromJson(gsonObj, PlatformContentModel.class);
-            object.cardObj.setCompatibilityMap(compatibilityMapStr);
 			if (object.cardObj.getLd() != null)
 			{
-                int microAppVersionCode = object.cardObj.getMappVersionCode();
-                String microApp = object.cardObj.getMicroApp();
+                String microApp = object.cardObj.getAppName();
                 String unzipPath = PlatformContentConstants.HIKE_MICRO_APPS;
-                String basePath = PlatformUtils.generateMappUnZipPathForBotRequestType(HikePlatformConstants.PlatformMappRequestType.HIKE_MICRO_APPS,unzipPath,microApp,microAppVersionCode);
+                String basePath = PlatformUtils.generateMappUnZipPathForBotRequestType(HikePlatformConstants.PlatformMappRequestType.HIKE_MICRO_APPS,unzipPath,microApp);
 
 				object.cardObj.ld
 						.addProperty(PlatformContentConstants.KEY_TEMPLATE_PATH, PlatformContentConstants.CONTENT_AUTHORITY_BASE + basePath);
@@ -188,30 +164,16 @@ public class PlatformContentModel
 	{
 		Logger.d(TAG, "making PlatformContentModel");
 		JsonParser parser = new JsonParser();
-		JSONObject json = null;
-
-		try
-		{
-			json = new JSONObject(contentData);
-		}
-		catch (JSONException e)
-		{
-			e.printStackTrace();
-		}
 		JsonObject gsonObj = (JsonObject) parser.parse(contentData);
 
 		try
 		{
-			JSONObject cardObj = json.optJSONObject(HikePlatformConstants.CARD_OBJECT);
-			String compatibilityMapStr = cardObj.optString(HikePlatformConstants.COMPATIBILITY_MAP);
 			object = new Gson().fromJson(gsonObj, PlatformContentModel.class);
-			object.cardObj.setCompatibilityMap(compatibilityMapStr);
 			if (object.cardObj.getLd() != null)
 			{
-                int microAppVersionCode = object.cardObj.getMappVersionCode();
-                String microApp = object.cardObj.getMicroApp();
+                String microApp = object.cardObj.getAppName();
                 String unzipPath = PlatformContentConstants.HIKE_MICRO_APPS;
-                String basePath = PlatformUtils.generateMappUnZipPathForBotRequestType(requestType,unzipPath,microApp,microAppVersionCode);
+                String basePath = PlatformUtils.generateMappUnZipPathForBotRequestType(requestType,unzipPath,microApp);
 
                 object.cardObj.ld.addProperty(PlatformContentConstants.KEY_TEMPLATE_PATH, PlatformContentConstants.CONTENT_AUTHORITY_BASE + basePath);
 				object.cardObj.ld.addProperty(PlatformContentConstants.MESSAGE_ID, Integer.toString(unique));
@@ -440,6 +402,14 @@ public class PlatformContentModel
         this.requestType = requestType;
     }
 
+    public String getMsisdn() {
+        return msisdn;
+    }
+
+    public void setMsisdn(String msisdn) {
+        this.msisdn = msisdn;
+    }
+
     public class PlatformCardObjectModel
 	{
 
@@ -543,26 +513,6 @@ public class PlatformContentModel
 			this.hd = hd;
 		}
 
-		public void setCompatibilityMap(String compatibilityMapStr)
-		{
-			this.compatibilityMap = getMapFromString(compatibilityMapStr);
-		}
-
-		public TreeMap<Integer,Integer> getCompatibilityMap()
-		{
-			return compatibilityMap;
-		}
-
-		/*
-		 * Code to generate Compatibility matrix TreeMap from json
-		 */
-		private TreeMap<Integer,Integer> getMapFromString(String json){
-			Gson gson = new Gson();
-			Type treeMap = new TypeToken<TreeMap<Integer, Integer>>(){}.getType();
-			TreeMap<Integer,Integer> map = gson.fromJson(json, treeMap);
-			return map;
-		}
-
 		public String getH()
 		{
 			return h;
@@ -583,16 +533,6 @@ public class PlatformContentModel
 			this.notifText = notifText;
 		}
 
-		public String getMicroApp()
-		{
-			return microApp;
-		}
-
-		public void setMicroApp(String microApp)
-		{
-			this.microApp = microApp;
-		}
-		
 		@Expose
 		public String appName;
 
@@ -638,14 +578,8 @@ public class PlatformContentModel
 		@Expose
 		public Boolean lpd;
 
-		@Expose
-		public TreeMap<Integer,Integer> compatibilityMap;
-
         @Expose
         public String appMarketVersion;
-
-        @Expose
-        public String microApp;
 
         @Expose
 		public JsonArray lan_array;

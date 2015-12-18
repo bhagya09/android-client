@@ -435,4 +435,18 @@ public class HttpRequestConstants
             return HTTP + STAGING_API  + BASE_V1 + "/android";
         }
     }
+    /*
+     * Method to fetch latest micro app from server for forward card case
+     */
+    public static String getLatestMicroAppDownloadUrl()
+    {
+        if (isProduction)
+        {
+            return HTTP + "qa-content.hike.in/mapps/api/v1/apps/latest.json";
+        }
+        else
+        {
+            return HTTP + "qa-content.hike.in/mapps/api/v1/apps/latest.json";
+        }
+    }
 }

@@ -374,13 +374,13 @@ public class CocosGamingActivity extends Cocos2dxActivity
 	 */
 	public static String getExternalPath()
 	{
-		String path = platform_content_dir + PlatformContentConstants.HIKE_MICRO_APPS + PlatformContentConstants.HIKE_GAMES + nonMessagingBotMetadata.getAppName() + File.separator + HikePlatformConstants.VERSIONING_DIRECTORY_NAME + nonMessagingBotMetadata.getmAppVersionCode();
+		String path = platform_content_dir + PlatformContentConstants.HIKE_MICRO_APPS + PlatformContentConstants.HIKE_GAMES + nonMessagingBotMetadata.getAppName() + File.separator;
 		return path + File.separator + "assets/";
 	}
 
 	public String getAppBasePath()
 	{
-        String path = platform_content_dir + PlatformContentConstants.HIKE_MICRO_APPS + PlatformContentConstants.HIKE_GAMES + nonMessagingBotMetadata.getAppName() + File.separator + HikePlatformConstants.VERSIONING_DIRECTORY_NAME + nonMessagingBotMetadata.getmAppVersionCode();
+        String path = platform_content_dir + PlatformContentConstants.HIKE_MICRO_APPS + PlatformContentConstants.HIKE_GAMES + nonMessagingBotMetadata.getAppName() + File.separator;
 
         return path + File.separator;
 	}

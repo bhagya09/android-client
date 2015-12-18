@@ -107,8 +107,6 @@ public class HikeConstants
 
 	public static final String BOT_CHAT_THEME = "bg_id";
 
-	public static final String BOT_COMPATIBILITY_MAP = "compatibility_map";
-
 	public static final String IS_RECEIVE_ENABLED_IN_BOT = "rec_enable";
 
 	public static final String NEW_USER = "nu";
