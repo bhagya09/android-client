@@ -2595,6 +2595,11 @@ public class MqttMessagesManager
 		{
 			HikeSharedPreferenceUtil.getInstance().saveData(StickyCaller.SHOW_FREEVIEW, data.optBoolean(StickyCaller.SHOW_FREEVIEW, true));
 		}
+
+		if (data.has(StickyCaller.SHOW_FREECALL))
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(StickyCaller.SHOW_FREECALL, data.optBoolean(StickyCaller.SHOW_FREECALL, true));
+		}
 		if(data.has(StickyCaller.SHOW_SMS_CARD_PREF))
 		{
 			HikeSharedPreferenceUtil.getInstance().saveData(StickyCaller.SHOW_SMS_CARD_PREF, data.optBoolean(StickyCaller.SHOW_SMS_CARD_PREF, false));
