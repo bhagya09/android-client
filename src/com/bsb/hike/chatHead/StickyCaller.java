@@ -90,6 +90,8 @@ public class StickyCaller {
 
 	public static final String SHOW_FREEVIEW = "showFreeView";
 
+	public static final String SHOW_FREECALL = "showFreeCall";
+
 	public static final String ENABLE_CLIPBOARD_CARD = "enblClipCard";
 
 	public static final String SHOW_SMS_CARD_PREF = "showSmsCardPref";
@@ -651,7 +653,7 @@ public class StickyCaller {
 
 	private static void setFreeCallButton(String number)
 	{
-		if (HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.SHOW_FREEVIEW, true))
+		if (HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.SHOW_FREEVIEW, true) && HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.SHOW_FREECALL, true))
 		{
 			View freeCallButton = stickyCallerView.findViewById(R.id.caller_free_call);
 			freeCallButton.setVisibility(View.VISIBLE);
