@@ -967,7 +967,16 @@ public abstract class JavascriptBridge
 			JSONObject jsonObject = new JSONObject(data);
 			String url = jsonObject.optString(HikePlatformConstants.URL);
 			String params = jsonObject.optString(HikePlatformConstants.PARAMS);
-			RequestToken token = HttpRequests.microAppPostRequest(url, new JSONObject(params), new PlatformMicroAppRequestListener(functionId));
+			JSONObject json;
+			if(TextUtils.isEmpty(params))
+			{
+				json=null;
+			}
+			else
+			{
+				json=new JSONObject(params);
+			}
+			RequestToken token = HttpRequests.microAppPostRequest(url, json, new PlatformMicroAppRequestListener(functionId));
 			if (!token.isRequestRunning())
 			{
 				token.execute();
