@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.graphics.PixelFormat;
 import android.os.Handler;
 import android.os.Looper;
+import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -89,6 +90,8 @@ public class StickyCaller {
 	public static final String SHOW_KNOWN_NUMBER_CARD = "showKnownCardPref";
 
 	public static final String SHOW_FREEVIEW = "showFreeView";
+
+	public static final String SHOW_FREECALL = "showFreeCall";
 
 	public static final String ENABLE_CLIPBOARD_CARD = "enblClipCard";
 
@@ -494,21 +497,21 @@ public class StickyCaller {
 		setBasicClickListener(number);
 		boolean showSaveContactDivider = false;
 		boolean toShowBlockDivider = false;
-			if (callerContentModel != null && callerContentModel.getMsisdn() != null)
+			if (callerContentModel != null && !TextUtils.isEmpty(callerContentModel.getMsisdn()))
 		{
 			setValueOnID(R.id.caller_number, callerContentModel.getMsisdn());
 		}
-		else if (number != null)
+		else if (!TextUtils.isEmpty(number))
 		{
 			setValueOnID(R.id.caller_number, number);
 		}
-		if (callerContentModel != null && callerContentModel.getFullName() != null)
+		if (callerContentModel != null && !TextUtils.isEmpty(callerContentModel.getFullName()))
 		{
 			setValueOnID(R.id.caller_name, callerContentModel.getFullName());
 			setSaveContactClickListener(number, isSaved);
 			showSaveContactDivider = true;
 		}
-		if (callerContentModel != null && callerContentModel.getLocation() != null)
+		if (callerContentModel != null && !TextUtils.isEmpty(callerContentModel.getLocation()))
 		{
 			setValueOnID(R.id.caller_location, callerContentModel.getLocation());
 		}
@@ -592,19 +595,19 @@ public class StickyCaller {
 			stickyCallerView = (LinearLayout) inflater.inflate(R.layout.caller_layout, null);
 		}
 		setBasicClickListener(number);
-		if (callerContentModel != null && callerContentModel.getMsisdn()!= null)
+		if (callerContentModel != null && !TextUtils.isEmpty(callerContentModel.getMsisdn()))
 		{
 			setValueOnID(R.id.caller_number, callerContentModel.getMsisdn());
 		}
-		else if (number != null)
+		else if (!TextUtils.isEmpty(number))
 		{ 
 			setValueOnID(R.id.caller_number, number);
 		}
-		if (callerContentModel != null && callerContentModel.getFullName() != null)
+		if (callerContentModel != null && !TextUtils.isEmpty(callerContentModel.getFullName()))
 		{
 			setValueOnID(R.id.caller_name, callerContentModel.getFullName());
 		}
-		if (callerContentModel != null && callerContentModel.getLocation() != null)
+		if (callerContentModel != null && !TextUtils.isEmpty(callerContentModel.getLocation()))
 		{
 			setValueOnID(R.id.caller_location, callerContentModel.getLocation());
 		}
@@ -651,7 +654,7 @@ public class StickyCaller {
 
 	private static void setFreeCallButton(String number)
 	{
-		if (HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.SHOW_FREEVIEW, true))
+		if (HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.SHOW_FREEVIEW, true) && HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.SHOW_FREECALL, true))
 		{
 			View freeCallButton = stickyCallerView.findViewById(R.id.caller_free_call);
 			freeCallButton.setVisibility(View.VISIBLE);
