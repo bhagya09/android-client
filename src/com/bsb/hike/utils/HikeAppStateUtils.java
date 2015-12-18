@@ -163,6 +163,8 @@ public class HikeAppStateUtils
 	public static void startActivityForResult(Activity activity)
 	{
 		Logger.d(TAG + activity.getClass().getSimpleName(), "startActivityForResult. Previous state: " + HikeMessengerApp.currentState);
+
+
 		if (HikeMessengerApp.currentState == CurrentState.BACKGROUNDED || HikeMessengerApp.currentState == CurrentState.CLOSED)
 		{
 			HikeMessengerApp.currentState = CurrentState.NEW_ACTIVITY_IN_BG;

@@ -315,7 +315,6 @@ import com.kpt.adaptxt.beta.RemoveDialogData;
 			{
 				menu.findItem(R.id.voip_call).setVisible(true);
 			}
-			showOfflineOverflowIndiactorIfRequired();
 			return super.onCreateOptionsMenu(menu);
 		}
 
@@ -1269,33 +1268,6 @@ import com.kpt.adaptxt.beta.RemoveDialogData;
 		setLabel(getConvLabel());
 		
 		setLastSeenStuff(firstInflation);
-	}
-
-	private void showOfflineOverflowIndiactorIfRequired()
-	{
-		if(OfflineController.getInstance().getConfigurationParamerters().isOfflineEnabled())
-		{
-			Boolean isClicked = sharedPreference.getData(OfflineConstants.OFFLINE_INDICATOR_CLICKED,false);
-			if(!isClicked)
-			{
-				mActionBar.updateOverflowMenuIndicatorImage(R.drawable.ic_red_dot,true);
-			}
-		}
-	}
-	
-	@Override
-	protected void showOverflowMenu()
-	{
-		if(OfflineController.getInstance().getConfigurationParamerters().isOfflineEnabled())
-		{
-			Boolean isClicked = sharedPreference.getData(OfflineConstants.OFFLINE_INDICATOR_CLICKED,false);
-			if(!isClicked)
-			{
-				sharedPreference.saveData(OfflineConstants.OFFLINE_INDICATOR_CLICKED, true);
-				OfflineAnalytics.offlineOverflowIndicatorClicked();
-			}
-		}
-		super.showOverflowMenu();
 	}
 
 	protected void setLastSeenStuff(boolean firstInflation)

@@ -2723,28 +2723,31 @@ public class MqttMessagesManager
 			String options = data.getJSONObject(OfflineConstants.HIKE_DIRECT_MENU_OPTIONS).toString();
 			HikeSharedPreferenceUtil.getInstance().saveData(OfflineConstants.HIKE_DIRECT_MENU_OPTIONS, options);
 		}
+
+		if (data.has(HikePlatformConstants.RECURRING_LOCATION))
+		{
+			JSONObject json = data.getJSONObject(HikePlatformConstants.RECURRING_LOCATION);
+			PlatformUtils.requestRecurringLocationUpdates(json);
+		}
 		if (data.has(HikeConstants.LOCALIZATION_ENABLED))
 		{
-			boolean localizationEnabled = data.optBoolean(HikeConstants.LOCALIZATION_ENABLED);
-			if (!localizationEnabled)
-				LocalLanguageUtils.setApplicationLocalLanguage(LocalLanguage.PhoneLangauge);
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.LOCALIZATION_ENABLED, localizationEnabled);
+			Utils.setLocalizationEnable(data.optBoolean(HikeConstants.LOCALIZATION_ENABLED));
 		}
 		if (data.has(HikeConstants.AUTOCORRECT_KEYBOARD_ENABLED))
 		{
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.AUTOCORRECT_KEYBOARD_ENABLED, data.optBoolean(HikeConstants.AUTOCORRECT_KEYBOARD_ENABLED));
-			KptKeyboardManager.getInstance(HikeMessengerApp.getInstance().getApplicationContext()).getKptSettings().setAutoCorrectionState(data.optBoolean(HikeConstants.AUTOCORRECT_KEYBOARD_ENABLED) ? 0: 1);
+			KptKeyboardManager.getInstance().getKptSettings().setAutoCorrectionState(data.optBoolean(HikeConstants.AUTOCORRECT_KEYBOARD_ENABLED) ? 0: 1);
 		}
 		if (data.has(HikeConstants.CUSTOM_KEYBOARD_ENABLED))
 		{
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CUSTOM_KEYBOARD_ENABLED,data.optBoolean(HikeConstants.CUSTOM_KEYBOARD_ENABLED));
+			Utils.setCustomKeyboardEnable(data.optBoolean(HikeConstants.CUSTOM_KEYBOARD_ENABLED));
 		}
         if (data.has(HikeConstants.HTTP_NETWORK_CHECK_CALL))
         {
             boolean enable = data.getBoolean(HikeConstants.HTTP_NETWORK_CHECK_CALL);
             HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.HTTP_NETWORK_CHECK_CALL, enable);
         }
-		
+
 		editor.commit();
 		this.pubSub.publish(HikePubSub.UPDATE_OF_MENU_NOTIFICATION, null);
 		

@@ -381,7 +381,7 @@ public class StickerLanguagesManager {
 
     public List<String> getUnsupportedLanguagesCollection()
     {
-        List<KPTAddonItem> unsupportedItems = KptKeyboardManager.getInstance(HikeMessengerApp.getInstance()).getUnsupportedLanguagesList();
+        List<KPTAddonItem> unsupportedItems = KptKeyboardManager.getInstance().getUnsupportedLanguagesList();
         if(Utils.isEmpty(unsupportedItems))
         {
             return null;
@@ -398,9 +398,9 @@ public class StickerLanguagesManager {
 
     public void addKptSupportedLanguages()
     {
-        ArrayList<String> kptList = new ArrayList<String>( KptKeyboardManager.getInstance(HikeMessengerApp.getInstance().getApplicationContext()).getSupportedLanguagesList().size());
+        ArrayList<String> kptList = new ArrayList<String>( KptKeyboardManager.getInstance().getSupportedLanguagesList().size());
 
-        for(KPTAddonItem item : KptKeyboardManager.getInstance(HikeMessengerApp.getInstance().getApplicationContext()).getSupportedLanguagesList())
+        for(KPTAddonItem item : KptKeyboardManager.getInstance().getSupportedLanguagesList())
         {
             kptList.add(new Locale(item.getlocaleName()).getISO3Language());
         }

@@ -153,6 +153,7 @@ public class HikeAppStateBaseFragmentActivity extends HikeBaseActivity implement
 	@Override
 	public void startActivityFromFragment(Fragment fragment, Intent intent, int requestCode)
 	{
+
 		HikeMessengerApp.currentState = CurrentState.NEW_ACTIVITY;
 		try
 		{

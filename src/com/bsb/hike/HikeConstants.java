@@ -165,6 +165,8 @@ public class HikeConstants
 
 	public static final String LONGITUDE = "long";
 
+	public static final String LOCATION_PROIVDER = "provider";
+
 	public static final String ZOOM_LEVEL = "zoom";
 
 	public static final String ADDRESS = "add";
@@ -3735,5 +3737,10 @@ public class HikeConstants
 
 	public static final String LANG_ARRAY = "lan_array";
 
+	public static final String UNSUPPORTED_LANG_TOAST_SHOWN = "uns_lang_toast_shown";
+
+	public static final String CT_OVRFLW_KEYBOARD_INDICATOR_SHOWN = "ct_ovrflw_keyboard_indicator_shown";
+
+	public static final String CT_OVRFLW_KEYBOARD_CLICKED = "ct_ovrflw_keyboard_clicked";
 
 }

@@ -6,9 +6,19 @@ import android.app.IntentService;
 import android.content.Intent;
 import android.os.Bundle;
 
+import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.HikePubSub;
+import com.bsb.hike.MqttConstants;
+import com.bsb.hike.models.AppState;
 import com.bsb.hike.models.LogAnalyticsEvent;
 import com.bsb.hike.models.NormalEvent;
+import com.bsb.hike.service.HikeMqttManagerNew;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 /**
  * Created by sagar on 30/10/15.
@@ -20,6 +30,8 @@ public class HikeProcessIntentService extends IntentService
 	public static final String SEND_NORMAL_EVENT_DATA = "sendNormalEventData";
 
 	public static final String LOG_ANALYTICS_EVENT_DATA = "logAnalyticsEventData";
+
+	public static final String SEND_APP_STATE = "sendAppState";
 
 	public HikeProcessIntentService()
 	{
@@ -57,6 +69,25 @@ public class HikeProcessIntentService extends IntentService
 						Logger.e(TAG, "Data passed to LOG_ANALYTICS_EVENT_DATA is not instance of LogAnalyticsEvent");
 					}
 					break;
+					case SEND_APP_STATE:
+						if( bundleData.getParcelable(SEND_APP_STATE) instanceof AppState)
+						{
+							AppState appState = bundleData.getParcelable(SEND_APP_STATE);
+							JSONObject jsonObject=null;
+							try
+							{
+								jsonObject = new JSONObject(appState.json);
+								sendAppState(jsonObject);
+							}
+							catch(JSONException e)
+							{
+								//TODO
+							}
+						} else
+						{
+							Logger.e(TAG, "Data passed is not parcelable");
+						}
+						break;
 
 				}
 
@@ -83,6 +114,31 @@ public class HikeProcessIntentService extends IntentService
 		if (logAnalyticsEvent != null)
 		{
 			PlatformHelper.logAnalytics(logAnalyticsEvent.isUI, logAnalyticsEvent.subType, logAnalyticsEvent.json, logAnalyticsEvent.botMsisdn, logAnalyticsEvent.botName);
+		}
+	}
+	private void sendAppState(JSONObject jsonObject)
+	{
+		try
+		{
+			JSONObject data=jsonObject.getJSONObject(HikeConstants.DATA);
+			String isForeGround=data.optString(HikeConstants.SUB_TYPE);
+			if(Boolean.valueOf(isForeGround))
+			{
+				HikeMessengerApp.getPubSub().publish(HikePubSub.APP_FOREGROUNDED, null);
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.IS_HIKE_APP_FOREGROUNDED, true);
+
+			}
+			else
+			{
+				HikeMessengerApp.getPubSub().publish(HikePubSub.APP_BACKGROUNDED, null);
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.IS_HIKE_APP_FOREGROUNDED, false);
+
+
+			}
+			HikeMqttManagerNew.getInstance().sendMessage(jsonObject, MqttConstants.MQTT_QOS_ZERO);
+		} catch (JSONException e)
+		{
+			e.printStackTrace();
 		}
 	}
 }

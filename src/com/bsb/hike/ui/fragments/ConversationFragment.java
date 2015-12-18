@@ -2988,6 +2988,8 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 					ConvInfo convInfo = mConversationsByMSISDN.get(mMsisdn);
 					// If this convInfo is coming from the memory map, then we do not need to set mute here, WebViewActivity has already taken care of that.
 					// If the source is not memory map, then we're in trouble.
+					BotInfo botinfo=BotUtils.getBotInfoForBotMsisdn(mMsisdn); // Taking out of trouble hopefully.
+					convInfo.setMute(botinfo.isMute());
 					if (convInfo != null)
 					{
 						View parentView = getParenViewForConversation(convInfo);
@@ -3744,7 +3746,8 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 			break;
 		case ConversationTip.UPDATE_NORMAL_TIP:
 			Logger.d(HikeConstants.UPDATE_TIP_AND_PERS_NOTIF_LOG, "Removing normal update tip");
-			HAManager.getInstance().updateTipAnalyticsUIEvent(AnalyticsConstants.UPDATE_TIP_DISMISSED);
+            HAManager.getInstance().updateTipAndNotifAnalyticEvent(AnalyticsConstants.UPDATE_INVITE_TIP,
+                    AnalyticsConstants.UPDATE_TIP_DISMISSED, AnalyticsConstants.CLICK_EVENT);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOW_NORMAL_UPDATE_TIP, false);
 			break;
 		case ConversationTip.UPDATE_CRITICAL_TIP:
@@ -3753,7 +3756,8 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 			break;
 		case ConversationTip.INVITE_TIP:
 			Logger.d(HikeConstants.UPDATE_TIP_AND_PERS_NOTIF_LOG, "Removing invite tip");
-			HAManager.getInstance().updateTipAnalyticsUIEvent(AnalyticsConstants.INVITE_TIP_DISMISSED);
+            HAManager.getInstance().updateTipAndNotifAnalyticEvent(AnalyticsConstants.UPDATE_INVITE_TIP,
+                    AnalyticsConstants.INVITE_TIP_DISMISSED, AnalyticsConstants.CLICK_EVENT);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOW_INVITE_TIP, false);
 			break;
 		case ConversationTip.RESET_STEALTH_TIP:
@@ -3884,7 +3888,8 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 			case ConversationTip.UPDATE_CRITICAL_TIP:
 			case ConversationTip.UPDATE_NORMAL_TIP:
 				Logger.d(HikeConstants.UPDATE_TIP_AND_PERS_NOTIF_LOG, "Processing update tip click.");
-				HAManager.getInstance().updateTipAnalyticsUIEvent(AnalyticsConstants.UPDATE_TIP_CLICKED);
+				HAManager.getInstance().updateTipAndNotifAnalyticEvent(AnalyticsConstants.UPDATE_INVITE_TIP,
+                        AnalyticsConstants.UPDATE_TIP_CLICKED, AnalyticsConstants.CLICK_EVENT);
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOW_NORMAL_UPDATE_TIP, false);
 				Uri url = Uri.parse(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.Extras.URL, "market://details?id=com.bsb.hike"));
 				Intent openUrl = new Intent(Intent.ACTION_VIEW, url);
@@ -3893,7 +3898,8 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 				break;
 			case ConversationTip.INVITE_TIP:
 				Logger.d(HikeConstants.UPDATE_TIP_AND_PERS_NOTIF_LOG, "Processing invite tip click.");
-				HAManager.getInstance().updateTipAnalyticsUIEvent(AnalyticsConstants.INVITE_TIP_CLICKED);
+                HAManager.getInstance().updateTipAndNotifAnalyticEvent(AnalyticsConstants.UPDATE_INVITE_TIP,
+                        AnalyticsConstants.INVITE_TIP_CLICKED, AnalyticsConstants.CLICK_EVENT);
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOW_INVITE_TIP, false);
 				Intent sendInvite = new Intent(getContext(), HikeListActivity.class);
 				startActivityForResult(sendInvite, ConversationTip.REQUEST_CODE_SEND_INVITE);
