@@ -13,7 +13,7 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="10dp"
         android:layout_marginLeft="9dp"
-        android:text="Sample Section"
+        android:text="@string/sample_section"
         android:textColor="@color/blue_hike" />
 
     <View

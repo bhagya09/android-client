@@ -1,14 +1,5 @@
 package com.bsb.hike.tasks;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import android.content.Context;
 import android.os.AsyncTask;
 import android.text.TextUtils;
@@ -25,11 +16,9 @@ import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.models.GroupParticipant;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.timeline.model.StatusMessage;
-import com.bsb.hike.utils.Logger;
-import com.bsb.hike.utils.NUXManager;
-import com.bsb.hike.utils.PairModified;
-import com.bsb.hike.utils.StealthModeManager;
-import com.bsb.hike.utils.Utils;
+import com.bsb.hike.utils.*;
+
+import java.util.*;
 
 public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 {
@@ -376,6 +365,10 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 			{
 				removeContactsFromList(smsTaskList, groupParticipants);
 			}
+			if(fetchRecentlyJoined)
+			{
+				removeContactsFromList(recentlyJoinedTaskList, groupParticipants);
+			}
 
 			for (PairModified<GroupParticipant,String> groupParticipant : groupParticipants.values())
 			{
@@ -405,7 +398,6 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 				filteredMicroAppShowcaseList.clear();
 				filteredMicroAppShowcaseList.addAll(microappShowcaseList);
 			}
-
 		}
 		
 		Logger.d("TestQuery", "total time: " + (System.currentTimeMillis() - startTime));

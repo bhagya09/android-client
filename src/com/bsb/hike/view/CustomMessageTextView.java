@@ -111,6 +111,8 @@ public abstract class CustomMessageTextView extends CustomFontTextView
 					layoutWidth = linesMaxWidth;
 				}
 
+				/*In some copy pasted messages, the layoutWidth increases beyond the maximumWidth available and hence the text truncates.*/
+				layoutWidth = Math.min(layoutWidth,  MeasureSpec.getSize(widthMeasureSpec));
 				this.setMeasuredDimension(layoutWidth, layoutHeight);
 				if (lines > 10)
 				{

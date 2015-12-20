@@ -8,7 +8,6 @@
     android:paddingLeft="6dp"
     android:paddingRight="10dp"
     android:paddingTop="3dp"
-    android:text="Sample Text"
     android:textColor="@color/list_item_header"
     android:textSize="14sp"
     android:textStyle="bold|italic" />

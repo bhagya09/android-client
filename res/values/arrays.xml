@@ -236,19 +236,19 @@
 	
 	<array name="call_glowpad_drawables">
         <item>@drawable/ic_item_call_pick</item>
-        <item>@null</item>
+        <item>@drawable/ic_item_decline_message</item>
         <item>@drawable/ic_item_call_hang</item>
         <item>@null</item>
     </array>
     <array name="call_glowpad_descr">
         <item>dismiss</item>
-        <item>@null</item>
-        <item>snooze</item>
+        <item>message</item>
+        <item>pickup</item>
         <item>@null</item>
     </array>
     <array name="call_glowpad_directions">
         <item>right</item>
-        <item>@null</item>
+        <item>top</item>
         <item>left</item>
         <item>@null</item>
     </array>
@@ -256,6 +256,30 @@
         <item>Set as profile picture</item>
         <item>Send to friends</item>
         <item>Post to timeline</item>
+    </array>
+     <array name="filter_names">
+        <item>ORIGINAL</item>
+	    <item>TIRANGAA</item>
+	    <item>MELLOW</item>
+	    <item>CHUSKI</item>
+	    <item>AZURE</item>
+	    <item>JALEBI</item>
+	    <item>GULAAL</item>
+	    <item>X-PRO</item>
+	    <item>HDR</item>
+	    <item>APOLLO</item>
+	    <item>RETRO</item>
+	    <item>PULSAR</item>
+	    <item>SUNLITT</item>
+	    <item>HAZEL</item>
+	    <item>LO-FI</item>
+	    <item>INKED</item>
+	    <item>MASHAAL</item>
+	    <item>SHOLAY</item>
+	    <item>JUNGLEE</item>
+	    <item>POLAROID</item>
+	    <item>SEPIA</item>
+	    <item>GRAYSCALE</item>
     </array>
 
 </resources>

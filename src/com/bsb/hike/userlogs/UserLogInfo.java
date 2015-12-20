@@ -14,6 +14,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.app.KeyguardManager;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
@@ -657,6 +658,8 @@ public class UserLogInfo {
 		{
 			return;
 		}
+		KeyguardManager kgMgr = (KeyguardManager) HikeMessengerApp.getInstance().getApplicationContext().getSystemService(Context.KEYGUARD_SERVICE);
+		boolean lockScreenShowing = kgMgr.inKeyguardRestrictedInputMode();
 		long currentTime = System.currentTimeMillis();
 		if(foregroundAppsStartTimeMap == null)
 		{
@@ -671,14 +674,17 @@ public class UserLogInfo {
 			foregroundAppsStartTimeMap.clear();
 			for(String packageName : currentForegroundApps)
 			{
-				foregroundAppsStartTimeMap.put(packageName, currentTime);
+				if(!lockScreenShowing)
+				{
+					foregroundAppsStartTimeMap.put(packageName, currentTime);
+				}
 			}
 		}
 		else if (nextStep == STOP)
 		{
 			for(String app : foregroundAppsStartTimeMap.keySet())
 			{
-				recordASession(app, System.currentTimeMillis());
+				recordASession(app, foregroundAppsStartTimeMap.get(app));
 			}
 			foregroundAppsStartTimeMap.clear();
 		}
@@ -687,7 +693,7 @@ public class UserLogInfo {
 			savedForegroundApps.addAll(currentForegroundApps);
 			for(String app : savedForegroundApps)
 			{
-				if(currentForegroundApps.contains(app) && !foregroundAppsStartTimeMap.containsKey(app))
+				if(currentForegroundApps.contains(app) && !foregroundAppsStartTimeMap.containsKey(app) && !lockScreenShowing)
 				{
 					// foregrounded app here
 					foregroundAppsStartTimeMap.put(app, System.currentTimeMillis());

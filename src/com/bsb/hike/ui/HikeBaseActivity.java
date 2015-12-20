@@ -13,6 +13,7 @@ import android.view.MenuItem;
 import android.view.Window;
 
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.productpopup.ProductContentModel;
 import com.bsb.hike.ui.utils.StatusBarColorChanger;
 import com.bsb.hike.utils.Logger;
 
@@ -213,5 +214,10 @@ public abstract class HikeBaseActivity extends AppCompatActivity
 	}
 	protected void setStatusBarColor(Window window,String color){
 		StatusBarColorChanger.setStatusBarColor(window, color);
+	}
+
+	public void showPopupDialog(ProductContentModel mmModel)
+	{
+		//Do Nothing
 	}
 }

@@ -26,13 +26,13 @@ layout.
         <com.bsb.hike.view.CustomFontTextView
             android:id="@+android:id/title"
             style="@style/SettingsHeaderItemTextView"
-            android:text="Title" />
+            android:text="@string/title" />
 
         <com.bsb.hike.view.CustomFontTextView
             android:id="@+android:id/summary"
             style="@style/SettingsHeaderSubItemTextView"
             android:maxLines="4"
-            android:text="Summary" />
+            android:text="@string/summary" />
     </LinearLayout>
 
     <!-- Preference should place its actual preference widget here. -->

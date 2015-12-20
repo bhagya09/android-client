@@ -36,7 +36,7 @@
                 android:id="@+id/timestamp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="2 mins ago"
+                android:text="@string/two_mins_ago"
                 android:textColor="@color/timestampcolor"
                 android:layout_alignParentRight="true"
                 android:textSize="12sp"
@@ -73,7 +73,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
-                android:text="Added you as a friend"
+                android:text="@string/added_you_friend"
                 android:textColor="@color/updates_text"
                 android:textSize="16sp"
                 android:textStyle="italic" />
@@ -123,7 +123,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
-                android:text="Added you as a friend"
+                android:text="@string/added_you_friend"
                 android:textColor="@color/updates_text"
                 android:textSize="16sp"
                 android:textStyle="italic" />

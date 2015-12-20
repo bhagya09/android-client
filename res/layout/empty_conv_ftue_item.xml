@@ -33,7 +33,7 @@
                 android:id="@+id/card_txt_header"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Hidden Mode"
+                android:text="@string/stealth_mode_title"
                 android:textColor="#333333"
                 android:textSize="@dimen/ftue_card_header"
                 android:textStyle="italic" />
@@ -53,7 +53,7 @@
                 android:layout_height="wrap_content"
                 android:paddingBottom="7dp"
                 android:paddingTop="7dp"
-                android:text="Tap here to get started!"
+                android:text="@string/tap_here"
                 android:textColor="#959595"
                 android:textSize="@dimen/ftue_card_click_text"
                 android:textStyle="normal" />

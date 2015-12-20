@@ -78,7 +78,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="left"
-                        android:text="Quiz Adda"
+                        android:text="@string/quiz_adda"
                         android:textColor="@color/standard_black"
                         android:textSize="17sp"
                         android:textStyle="italic" >
@@ -89,7 +89,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="left"
-                        android:text="Tiny Mogul Games Inc."
+                        android:text="@string/tiny_mogul_games_inc"
                         android:textColor="@color/dark_grey_drop_shadow"
                         android:textSize="13sp" >
                     </com.bsb.hike.view.CustomFontTextView>

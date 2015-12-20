@@ -61,19 +61,25 @@ public class PlatformUidFetchTask implements IHikeHTTPTask
 		RequestToken token = null;
 		switch (fetchType)
 		{
-		case HikePlatformConstants.PlatformUIDFetchType.SELF:
-			Logger.d(HikePlatformConstants.PLATFORM_UID_FETCH_TAG, "request to fetch platform uid for " + fetchType + " with url " + url);
+		case HikePlatformConstants.PlatformFetchType.SELF:
+			Logger.d(HikePlatformConstants.FETCH_TAG, "request to fetch platform uid for " + fetchType + " with url " + url);
 			token = HttpRequests.postPlatformUserIdFetchRequest(url, new PlatformUIDRequestListener(fetchType));
 			break;
 
-		case HikePlatformConstants.PlatformUIDFetchType.PARTIAL_ADDRESS_BOOK:
-			Logger.d(HikePlatformConstants.PLATFORM_UID_FETCH_TAG, "request to fetch platform uid for " + fetchType + " with url " + url + " for the msisdns " + postParams);
+		case HikePlatformConstants.PlatformFetchType.SELF_ANONYMOUS_NAME:
+			Logger.d(HikePlatformConstants.FETCH_TAG, "request to fetch platform anonymous name for " + fetchType + " with url " + url);
+			token = HttpRequests.postAnonymousNameFetchRequest(url, new PlatformUIDRequestListener(fetchType), postParams, headerList);
+			break;
+
+		case HikePlatformConstants.PlatformFetchType.PARTIAL_ADDRESS_BOOK:
+			Logger.d(HikePlatformConstants.FETCH_TAG, "request to fetch platform uid for " + fetchType + " with url " + url + " for the msisdns " + postParams);
 			token = HttpRequests.postPlatformUserIdForPartialAddressBookFetchRequest(url, postParams, new PlatformUIDRequestListener(fetchType), headerList);
 			break;
 
-		case HikePlatformConstants.PlatformUIDFetchType.FULL_ADDRESS_BOOK:
-			Logger.d(HikePlatformConstants.PLATFORM_UID_FETCH_TAG, "request to fetch platform uid for " + fetchType + " with url " + url);
-			token = HttpRequests.getPlatformUserIdForFullAddressBookFetchRequest(url, new PlatformUIDRequestListener(fetchType), headerList);
+		case HikePlatformConstants.PlatformFetchType.FULL_ADDRESS_BOOK:
+		case HikePlatformConstants.PlatformFetchType.OTHER_ANONYMOUS_NAME:
+			Logger.d(HikePlatformConstants.FETCH_TAG, "request to fetch platform uid for " + fetchType + " with url " + url);
+			token = HttpRequests.getPlatformFetchRequest(url, new PlatformUIDRequestListener(fetchType), headerList);
 			break;
 		}
 		if (!token.isRequestRunning())

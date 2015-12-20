@@ -244,7 +244,7 @@ public class StickerShareSettings extends HikeAppStateBaseFragmentActivity
 		}
 		
 		selectAllCheckbox.setChecked(areAllItemsCheckedOrUnchecked(true));
-		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.CHAT_HEAD_USR_CONTROL, !areAllItemsCheckedOrUnchecked(false));
+		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.USER_CONTROL, !areAllItemsCheckedOrUnchecked(false));
 		listAdapter.notifyDataSetChanged();
 		savingUserPref();
 	}
@@ -253,7 +253,7 @@ public class StickerShareSettings extends HikeAppStateBaseFragmentActivity
 	{
 		selectAllCheckbox.setChecked(false);
 		forceToggleAllListItems(true);
-		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.CHAT_HEAD_USR_CONTROL, false);
+		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.USER_CONTROL, false);
 		listAdapter.notifyDataSetChanged();
 		savingUserPref();
 	}
