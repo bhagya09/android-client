@@ -50,7 +50,7 @@
             android:id="@+id/number"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Number"
+            android:text="@string/number"
             android:textColor="@color/subtext"
             android:textSize="13sp"
             android:textStyle="italic" />

@@ -87,7 +87,16 @@ public class RegisterAccountTask
 				int all_invitee_joined = response.optInt(HikeConstants.ALL_INVITEE_JOINED_2);
 				String country_code = response.optString("country_code");
 
-				Logger.d("HTTP", "Successfully created account token:" + token + "msisdn: " + msisdn + " uid: " + uid + "backup_token: " + backupToken);
+				if (response.has(HikeConstants.LOCALIZATION_ENABLED))
+				{
+					Utils.setLocalizationEnable(response.optBoolean(HikeConstants.LOCALIZATION_ENABLED));
+				}
+				if (response.has(HikeConstants.CUSTOM_KEYBOARD_ENABLED))
+				{
+					Utils.setCustomKeyboardEnable(response.optBoolean(HikeConstants.CUSTOM_KEYBOARD_ENABLED));
+				}
+
+				Logger.d("HTTP", "Successfully created account. response:" + response);
 
 				resultAccountInfo = new AccountInfo.Builder()
 						.setToken(token)

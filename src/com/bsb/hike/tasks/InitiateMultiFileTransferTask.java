@@ -2,6 +2,8 @@ package com.bsb.hike.tasks;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 import android.content.Context;
 import android.content.Intent;
@@ -12,9 +14,11 @@ import android.util.Pair;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.filetransfer.FTAnalyticEvents;
+import com.bsb.hike.filetransfer.FTMessageBuilder;
 import com.bsb.hike.filetransfer.FileTransferManager;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfoData;
+import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.offline.HikeConverter;
@@ -22,6 +26,7 @@ import com.bsb.hike.offline.OfflineController;
 import com.bsb.hike.offline.OfflineManager;
 import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.ui.ComposeChatActivity.FileTransferData;
+import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
 public class InitiateMultiFileTransferTask extends AsyncTask<Void, Void, Void>
@@ -55,6 +60,12 @@ public class InitiateMultiFileTransferTask extends AsyncTask<Void, Void, Void>
 	}
 
 	@Override
+	protected void onPostExecute(Void result)
+	{
+		HikeMessengerApp.getPubSub().publish(HikePubSub.MULTI_FILE_TASK_FINISHED, this.intent);
+	}
+
+	@Override
 	protected Void doInBackground(Void... params)
 	{
 		for (Pair<String, String> fileDetail : fileDetails)
@@ -62,12 +73,6 @@ public class InitiateMultiFileTransferTask extends AsyncTask<Void, Void, Void>
 			initiateFileTransferFromIntentData(fileDetail.first, fileDetail.second);
 		}
 		return null;
-	}
-
-	@Override
-	protected void onPostExecute(Void result)
-	{
-		HikeMessengerApp.getPubSub().publish(HikePubSub.MULTI_FILE_TASK_FINISHED, this.intent);
 	}
 
 	private void initiateFileTransferFromIntentData(String filePath, String fileType)
@@ -92,20 +97,37 @@ public class InitiateMultiFileTransferTask extends AsyncTask<Void, Void, Void>
 		}
 		else
 		{
-
-			if (Utils.isPicasaUri(filePath))
-			{
-				FileTransferManager.getInstance(context).uploadFile(Uri.parse(filePath), hikeFileType, msisdn, onHike);
-			}
-			else
-			{
+			Logger.d("InitiateMultiFileTransferTask", "isCloudMedia" + Utils.isPicasaUri(filePath));
 				File file = new File(filePath);
 				if (file.length() == 0)
 				{
 					return;
 				}
-				FileTransferManager.getInstance(context).uploadFile(msisdn, file, null, fileType, hikeFileType, false, false, onHike, -1, attachementType);
-			}
+				FTMessageBuilder.Builder mBuilder = new FTMessageBuilder.Builder()
+				.setMsisdn(msisdn)
+				.setSourceFile(file)
+				.setFileKey(null)
+				.setFileType(fileType)
+				.setHikeFileType(hikeFileType)
+				.setRec(false)
+				.setForwardMsg(false)
+				.setRecipientOnHike(onHike)
+				.setRecordingDuration(-1)
+				.setAttachement(attachementType);
+				List<ConvMessage> ftConvMsgs = mBuilder.buildInSync();
+				Context mContext = HikeMessengerApp.getInstance().getApplicationContext();
+				for (Iterator<ConvMessage> iterator = ftConvMsgs.iterator(); iterator.hasNext();)
+				{
+					ConvMessage convMessage = (ConvMessage) iterator.next();
+					if(hikeFileType == HikeFileType.CONTACT || hikeFileType == HikeFileType.LOCATION)
+					{
+						FileTransferManager.getInstance(mContext).uploadContactOrLocation(convMessage, hikeFileType == HikeFileType.CONTACT);
+					}
+					else
+					{
+						FileTransferManager.getInstance(mContext).uploadFile(convMessage, null);
+					}
+				}
 		}
 	}
 }

@@ -50,6 +50,8 @@ public class MessagingBotConfiguration extends BotConfiguration
 		public static byte VIEW_PROFILE = 11;
 
 		public static byte SEARCH = 23;
+		
+		public static byte HIKE_KEYBOARD = 25;
 	}
 
 
@@ -123,6 +125,11 @@ public class MessagingBotConfiguration extends BotConfiguration
 	public boolean isEmailChatInOverflowMenuEnabled()
 	{
 		return isBitSet(OverflowMenu.EMAIL_CHAT);
+	}
+	
+	public boolean isHikeKeyboardInOverflowMenuEnabled()
+	{
+		return isBitSet(OverflowMenu.HIKE_KEYBOARD);
 	}
 
 	public boolean isClearChatInOverflowMenuEnabled()

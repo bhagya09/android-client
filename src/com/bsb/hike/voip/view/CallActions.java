@@ -2,7 +2,9 @@ package com.bsb.hike.voip.view;
 
 public interface CallActions 
 {
-	public void acceptCall();
+	public void onAcceptCall();
 
-	public void declineCall();
+	public void onDeclineCall();
+
+	public void onMessage();
 }

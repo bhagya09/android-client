@@ -64,10 +64,8 @@ import com.bsb.hike.media.OverFlowMenuItem;
 import com.bsb.hike.media.OverFlowMenuLayout.OverflowViewListener;
 import com.bsb.hike.media.OverflowItemClickListener;
 import com.bsb.hike.media.TagPicker.TagOnClickListener;
-import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.MessageEvent;
 import com.bsb.hike.models.WhitelistDomain;
-import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.platform.CustomWebView;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUtils;
@@ -122,7 +120,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 
 	NonMessagingBotMetadata botMetaData;
 	
-	String msisdn;
+	public static String msisdn = "";
 
 	int mode;
 	
@@ -142,6 +140,11 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 
 	private String microappData;
 
+	private boolean isShortcut = false;
+
+	// Miscellaneous data received in the intent.
+	private String extraData;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
@@ -158,8 +161,12 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		allowLoc = getIntent().getBooleanExtra(HikeConstants.Extras.WEBVIEW_ALLOW_LOCATION, false);
 
 		microappData = getIntent().getStringExtra(HikePlatformConstants.MICROAPP_DATA);
+
+		isShortcut = getIntent().getBooleanExtra(HikePlatformConstants.IS_SHORTCUT, false);
 		
 		setMode(getIntent().getIntExtra(WEBVIEW_MODE, WEB_URL_MODE));
+
+		extraData = getIntent().getStringExtra(HikePlatformConstants.EXTRA_DATA);
 
 		if (mode == MICRO_APP_MODE || mode == WEB_URL_BOT_MODE)
 		{
@@ -389,6 +396,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		setupMicroAppActionBar();
 		setupNavBar();
 		setupTagPicker();
+		deliverExtraDataToMicroapp(extraData);
 		loadMicroApp();
 		checkAndBlockOrientation();
 		resetNotificationCounter();
@@ -575,6 +583,11 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 					mmBridge.onUpPressed();
 					return true;
 				}
+				else if (isShortcut)
+				{
+					Intent intent = IntentFactory.getHomeActivityIntent(this);
+					startActivity(intent);
+				}
 			}
 			this.finish();
 			return true;
@@ -735,13 +748,17 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 				mmBridge.onBackPressed();
 				return;
 			}
+			else if (isShortcut)
+			{
+				Intent intent = IntentFactory.getHomeActivityIntent(this);
+				startActivity(intent);
+			}
 		}
 
 		if ((mode == WEB_URL_MODE || mode == SERVER_CONTROLLED_WEB_URL_MODE) && webView.canGoBack())
 		{
 			webView.goBack();
 		}
-		
 		else
 		{
 			super.onBackPressed();
@@ -757,6 +774,11 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 			if (object instanceof BotInfo)
 			{
 				BotInfo botInfo = (BotInfo) object;
+				if (botInfo == null)
+				{
+					return;
+				}
+
 				if (botInfo.getMsisdn().equals(msisdn))
 				{
 					String notifData = botInfo.getNotifData();
@@ -770,6 +792,10 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 
 		else if (type.equals(HikePubSub.MESSAGE_EVENT_RECEIVED))
 		{
+			if (mode != MICRO_APP_MODE && mode != WEB_URL_BOT_MODE) //We need it only Micro App mode as of now.
+			{
+				return;
+			}
 
 			if (object instanceof MessageEvent)
 			{
@@ -800,6 +826,11 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		}
 		else if (type.equals(HikePubSub.LOCATION_AVAILABLE))
 		{
+			if (mode != MICRO_APP_MODE && mode != WEB_URL_BOT_MODE) //We need it only Micro App mode as of now.
+			{
+				return;
+			}
+
 			LocationManager locationManager = (LocationManager) object;
 			Location location = null;
 			if (locationManager != null)
@@ -816,9 +847,14 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		}
 		else if (type.equals(HikePubSub.DOWNLOAD_PROGRESS))
 		{
+			if (mode != MICRO_APP_MODE && mode != WEB_URL_BOT_MODE) //We need it only Micro App mode as of now.
+			{
+				return;
+			}
+
 			if (object instanceof Pair<?,?>)
 			{
-				if (null != msisdn && (msisdn.equals(botInfo.getMsisdn())|| msisdn.equals(botMetaData.getParentMsisdn())))
+				if (null != mmBridge && null != msisdn && BotUtils.isSpecialBot(botInfo) && (msisdn.equals(botInfo.getMsisdn())|| msisdn.equals(botMetaData.getParentMsisdn())))
 				{
 					Pair<String, String> callback = (Pair<String, String>) object;
 					mmBridge.downloadStatus(callback.first, callback.second);
@@ -826,7 +862,6 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 
 			}
 		}
-
 
 	}
 
@@ -982,11 +1017,13 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	protected void onPause()
 	{
 		super.onPause();
+		msisdn=null;
 		//Logging MicroApp Screen closing for bot case
 		if (mode == MICRO_APP_MODE || mode == WEB_URL_BOT_MODE)
 		{
 			HAManager.getInstance().endChatSession(msisdn);
 		}
+		HikeMessengerApp.getPubSub().publish(HikePubSub.NEW_ACTIVITY, null);
 		webView.onPause();
 	}
 
@@ -994,6 +1031,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	protected void onResume()
 	{
 		super.onResume();
+		initMsisdn();
 		//Logging MicroApp Screen opening for bot case
 		if (mode == MICRO_APP_MODE || mode == WEB_URL_BOT_MODE)
 		{
@@ -1004,6 +1042,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		 * Used to clear notif tray if this is opened from notification
 		 */
 		HikeMessengerApp.getPubSub().publish(HikePubSub.CANCEL_ALL_NOTIFICATIONS, null);
+		HikeMessengerApp.getPubSub().publish(HikePubSub.NEW_ACTIVITY, this);
 		webView.onResume();
 	}
 	
@@ -1361,5 +1400,12 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		}
 	}
 
-
+	// Method to pass extra miscellaneous data from the intent to the microapp.
+	private void deliverExtraDataToMicroapp(String data)
+	{
+		if (mmBridge != null)
+		{
+			mmBridge.setExtraData(data);
+		}
+	}
 }

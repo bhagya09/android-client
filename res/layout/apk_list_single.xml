@@ -54,7 +54,7 @@
            android:id="@+id/apk_size"
            android:layout_width="wrap_content"
            android:layout_height="wrap_content"
-           android:text="Size"
+           android:text="@string/size"
            android:textColor="@color/lightblack"
            android:textSize="12sp" >
            </com.bsb.hike.view.CustomFontTextView>

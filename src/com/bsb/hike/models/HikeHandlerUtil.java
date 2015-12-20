@@ -13,6 +13,8 @@ public class HikeHandlerUtil
 
 	HandlerThread mHandlerThread = null;
 
+	private String mHandlerThreadName = "HikeHandlerUtil";
+
 	/**
 	 * 
 	 * @author himanshu
@@ -24,6 +26,12 @@ public class HikeHandlerUtil
 
 	private HikeHandlerUtil()
 	{
+		startHandlerThread();
+	}
+
+	protected HikeHandlerUtil(String name)
+	{
+		mHandlerThreadName = name;
 		startHandlerThread();
 	}
 
@@ -39,7 +47,7 @@ public class HikeHandlerUtil
 	{
 		if (mHandler == null || mHandlerThread == null || !mHandlerThread.isAlive())
 		{
-			mHandlerThread = new HandlerThread("HikeHandlerUtil");
+			mHandlerThread = new HandlerThread(mHandlerThreadName);
 			mHandlerThread.start();
 			mHandler = new Handler(mHandlerThread.getLooper());
 

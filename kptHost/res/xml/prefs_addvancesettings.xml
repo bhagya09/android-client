@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:atx="http://schemas.android.com/apk/res-auto" 
+    android:key="advance_settings"
+        android:summary="@string/kpt_UI_STRING_MENUITEM_DESC_2_110"
+        android:title="@string/kpt_UI_STRING_MENUITEM_2_110" 
+        android:icon="@drawable/kpt_advanced_setting">
+ <PreferenceCategory android:title="@string/kpt_layout_category_title" >
+           
+            <com.kpt.adaptxt.beta.settings.KBDListPreference
+                android:defaultValue="0"
+                android:dialogTitle="@string/kpt_potrait_default"
+                android:ellipsize="marquee"
+                android:entries="@array/kpt_keyboard_types"
+                android:entryValues="@array/kpt_keyboard_type_values"
+                android:key="layout_portrait"
+                android:summary="@string/kpt_UI_STRING_SETTINGS_SITEM_14"
+                android:title="@string/kpt_potrait_default" />
+            
+        <!--     <com.kpt.adaptxt.beta.settings.KBDListPreference
+                android:defaultValue="0"
+                android:dialogTitle="@string/kpt_landscape_default"
+                android:ellipsize="marquee"
+                android:entries="@array/kpt_keyboard_types"
+                android:entryValues="@array/kpt_keyboard_type_values"
+                android:key="layout_landscape"
+                android:summary="@string/kpt_UI_STRING_SETTINGS_SITEM_15"
+                android:title="@string/kpt_choose_layout_landscape" /> -->
+        </PreferenceCategory>
+        
+    
+  <PreferenceCategory android:title="@string/kpt_UI_STRING_MENUITEM_1_300" >
+    	<com.kpt.adaptxt.beta.settings.WrappingCheckBoxPreference
+            android:defaultValue="true"
+            android:ellipsize="marquee"
+            android:key="auto_capitalization"
+            android:persistent="true"
+            android:summary="@string/kpt_UI_STRING_MENUITEM_DESC_1_110"
+            android:title="@string/kpt_UI_STRING_MENUITEM_1_110" />
+        
+        <com.kpt.adaptxt.beta.settings.WrappingCheckBoxPreference
+            android:defaultValue="true"
+            android:ellipsize="marquee"
+            android:key="auto_spacing"
+            android:persistent="true"
+            android:summary="@string/kpt_UI_STRING_MENU_ITEM_DESC_1_300"
+            android:title="@string/kpt_UI_STRING_MENU_ITEM_1_300" />
+        
+        <com.kpt.adaptxt.beta.settings.WrappingCheckBoxPreference
+            android:defaultValue="true"
+            android:ellipsize="marquee"
+            android:key="enable_suggestonbar"
+            android:persistent="true"
+            android:summary="@string/kpt_UI_STRING_MENU_ITEM_DESC_2_300"
+            android:title="@string/kpt_UI_STRING_MENU_ITEM_2_300" />
+       <!--  <com.kpt.adaptxt.beta.settings.WrappingCheckBoxPreference
+            android:defaultValue="true"
+            android:ellipsize="marquee"
+            android:key="autocorrection"
+            android:persistent="true"
+            android:summary="@string/kpt_UI_STRING_SETTINGS_SITEM_6"
+            android:title="@string/kpt_autocorrect_misspelts" />
+
+        <ListPreference
+            android:defaultValue="1"
+            android:dependency="autocorrection"
+            android:dialogTitle="@string/kpt_autocorrect_dialog_header"
+            android:ellipsize="marquee"
+            android:entries="@array/kpt_ac_misspelts_entires"
+            android:entryValues="@array/kpt_ac_misspelts_values"
+            android:key="autocorrection_mode"
+            android:summary="@string/kpt_UI_STRING_SETTINGS_SITEM_7"
+            android:title="@string/kpt_autocorrect_misspelts_mode" />
+        
+        <com.kpt.adaptxt.beta.settings.HideXiAccDialogPreference
+            android:dialogLayout="@layout/themes_layout"
+           	android:dependency="autocorrection"
+            android:title="@string/kpt_UI_STRING_SETTINGS_ITEM_1_300" 
+            android:summary="@string/kpt_UI_STRING_SETTINGS_ITEM_DESC_1_300"/> -->
+       <!--  
+           <CheckBoxPreference
+            android:defaultValue="true"
+            android:ellipsize="marquee"
+            android:key="punctutionprediction"
+            android:persistent="true"
+            android:summary="@string/kpt_UI_STRING_MENU_ITEM_DESC_13_300"
+            android:title="@string/kpt_UI_STRING_MENU_ITEM_13_300" />  -->
+            
+        <com.kpt.adaptxt.beta.settings.WrappingCheckBoxPreference
+            android:defaultValue="true"
+            android:ellipsize="marquee"
+            android:key="Display_Accents"
+            android:persistent="true"
+            android:summary="@string/kpt_UI_STRING_SETTINGS_SITEM_8"
+            android:title="@string/kpt_display_accents" />
+        
+        <com.kpt.adaptxt.beta.settings.WrappingCheckBoxPreference
+            android:defaultValue="true"
+            android:ellipsize="marquee"
+            android:key="popup_on"
+            android:persistent="true"
+            android:title="@string/kpt_UI_STRING_POPUP_ITEM_2_110" />
+        
+       <com.kpt.adaptxt.beta.settings.PopupDurationDialogPreferance
+               
+                android:key="popup_mode"
+               android:dependency="popup_on"
+                android:title="@string/kpt_UI_STRING_MENU_ITEM_5_300"
+                android:summary="@string/kpt_UI_STRING_MENU_ITEM_DESC_5_300"
+                 />
+        
+        <com.kpt.adaptxt.beta.settings.WrappingCheckBoxPreference
+            android:defaultValue="false"
+            android:ellipsize="marquee"
+            android:key="sound_on"
+            android:persistent="true"
+            android:title="@string/kpt_sound_on_keypress" />
+        
+        <com.kpt.adaptxt.beta.settings.SoundVolumeDialogPreferance
+               
+                android:key="theme_mode"
+               android:dependency="sound_on"
+                android:title="@string/kpt_UI_STRING_MENU_ITEM_3_300"
+                android:summary="@string/kpt_UI_STRING_MENU_ITEM_DESC_3_300"
+                 />
+        
+        <com.kpt.adaptxt.beta.settings.WrappingCheckBoxPreference
+            android:defaultValue="false"
+            android:ellipsize="marquee"
+            android:key="vibrate_on"
+            android:persistent="true"
+            android:title="@string/kpt_vibrate_on_keypress" />
+        
+          <com.kpt.adaptxt.beta.settings.VibrationDurationDialogPreferance
+               
+                android:key="vibration_mode"
+               android:dependency="vibrate_on"
+                android:title="@string/kpt_UI_STRING_MENU_ITEM_4_300"
+                android:summary="@string/kpt_UI_STRING_MENU_ITEM_DESC_4_300"
+                 />
+
+    
+        </PreferenceCategory>
+        
+    
+</PreferenceScreen>

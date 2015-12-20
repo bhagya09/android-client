@@ -847,7 +847,7 @@
     <string name="photo_dp_save_error_sub">Toque para tentar novamente</string>
     <string name="photo_gallery_choose_pic">Escolha uma foto</string>
     <string name="cropping_image">Recortando imagem...</string>
-	<string name="home_search_empty_text">Sua busca de %1$s não encontrou nenhum contato.</string>
+	<string name="home_search_empty_text">Sua busca de \'%1$s\' não encontrou nenhum contato.</string>
     <string name="voip_mic_error">Impossível acessar microfone. Esta ligação pode não funcionar.</string>
     <string name="voip_call_failed_frag_subheader">Você ainda pode contatar %1$s com um </string>
     <string name="dismiss_upper_case">DISPENSAR</string>

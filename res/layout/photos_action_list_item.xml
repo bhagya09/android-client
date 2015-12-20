@@ -28,7 +28,7 @@
             android:layout_weight="1"
             android:gravity="bottom"
             android:maxLines="1"
-            android:text="Set as DP"
+            android:text="@string/set_as_dp"
             android:textColor="#3d3d3d"
             android:textSize="16sp"
             android:textStyle="normal" >

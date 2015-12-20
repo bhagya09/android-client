@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    android:orientation="vertical">
+
+    <ImageView
+        android:layout_width="88dp"
+        android:layout_height="104dp"
+        android:background="@drawable/ic_languages"
+        android:contentDescription="image_local_ftue"
+        android:paddingBottom="36dp"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:paddingTop="26dp" />
+
+    <com.bsb.hike.view.CustomFontTextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="28dp"
+        android:contentDescription="text_choose_language"
+        android:text="@string/choose_language"
+        android:textColor="@color/caller_free_call"
+        android:textSize="20sp"
+        android:textStyle="bold|italic" />
+
+    <com.bsb.hike.view.CustomFontTextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:contentDescription="text_choose_language_description"
+        android:gravity="center"
+        android:maxWidth="240dp"
+        android:text="@string/choose_language_desciption"
+        android:textColor="@color/settings_text_subheader_color"
+        android:textSize="16sp" />
+
+    <LinearLayout
+        android:id="@+id/lang_select"
+        android:layout_width="240dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="52dp"
+        android:background="@drawable/bg_fill_country_selector"
+        android:contentDescription="view_current_language_selector"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="10dp">
+
+        <com.bsb.hike.view.CustomFontTextView
+            android:id="@+id/txt_lang"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1.0"
+            android:contentDescription="text_current_language"
+            android:text="English (IN)"
+            android:textColor="@color/black_60"
+            android:textSize="16sp" />
+
+    </LinearLayout>
+</LinearLayout>

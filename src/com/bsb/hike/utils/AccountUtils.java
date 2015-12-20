@@ -127,7 +127,7 @@ public class AccountUtils
 	public static final String FILE_TRANSFER_DOWNLOAD_BASE = "/user/ft/";
 
 	public static String fileTransferBaseDownloadUrl = fileTransferBase + FILE_TRANSFER_DOWNLOAD_BASE;
-	
+
 	public static String fastFileUploadUrl = fileTransferBase + FILE_TRANSFER_DOWNLOAD_BASE + "ffu/";
 
 	public static String partialfileTransferBaseUrl = base + "/user/pft";
@@ -531,7 +531,7 @@ public class AccountUtils
 
 		if (msisdnForMissingPlatformUID != null && msisdnForMissingPlatformUID.size()>0)
 		{
-			PlatformUIDFetch.fetchPlatformUid(HikePlatformConstants.PlatformUIDFetchType.PARTIAL_ADDRESS_BOOK, msisdnForMissingPlatformUID.toArray(new String[] { }));
+			PlatformUIDFetch.fetchPlatformUid(HikePlatformConstants.PlatformFetchType.PARTIAL_ADDRESS_BOOK, msisdnForMissingPlatformUID.toArray(new String[] { }));
 		}
 
 		String encoded = data.toString();

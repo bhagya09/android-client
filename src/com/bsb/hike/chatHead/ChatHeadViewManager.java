@@ -63,7 +63,7 @@ public class ChatHeadViewManager
 
 	private static final int INITIAL_POS_X = 0;
 
-	private static final int INITIAL_POS_Y = 0;
+	private static final int INITIAL_POS_Y = 200;
 
 	private static List<String> sharablePackageList = new ArrayList<String>();
 
@@ -247,7 +247,14 @@ public class ChatHeadViewManager
 			Logger.d("MotionEvent", "scrolled");
 			try
 			{
-				windowManager.addView(closeHead, closeHeadParams);
+				if (closeHead.isShown())
+				{
+					windowManager.updateViewLayout(closeHead, closeHeadParams);
+				}
+				else
+				{
+					windowManager.addView(closeHead, closeHeadParams);
+				}
 			}
 			catch (Exception e)
 			{
@@ -335,19 +342,22 @@ public class ChatHeadViewManager
 			public void onAnimationEnd(Animator animation)
 			{
 				chatHead.setOnTouchListener(chatHeadOnTouchListener);
-
-				switch (flag)
+				if(closeHead.isShown())
 				{
-				case ChatHeadConstants.REMAINING_ANIMATION:
-					savedPosX = chatHeadParams.x;
-					savedPosY = chatHeadParams.y;
 					try
 					{
 						windowManager.removeView(closeHead);
 					}
 					catch (Exception e) {
-						// TODO: handle exception
+						Logger.d(TAG, "close head remove exception");
 					}
+				}
+				
+				switch (flag)
+				{
+				case ChatHeadConstants.REMAINING_ANIMATION:
+					savedPosX = chatHeadParams.x;
+					savedPosY = chatHeadParams.y;
 					break;
 				case ChatHeadConstants.CREATING_CHAT_HEAD_ACTIVITY_ANIMATION:
 //					if (!ChatHeadUtils.getRunningAppPackage(ChatHeadUtils.GET_TOP_MOST_SINGLE_PROCESS).contains(sharableActivePackage))

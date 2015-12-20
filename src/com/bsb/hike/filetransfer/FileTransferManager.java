@@ -23,7 +23,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -31,7 +30,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
-import android.net.Uri;
 import android.os.Environment;
 import android.os.Handler;
 import android.text.TextUtils;
@@ -48,9 +46,8 @@ import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.modules.httpmgr.HttpManager;
 import com.bsb.hike.offline.OfflineConstants;
-import com.bsb.hike.offline.OfflineController;
-import com.bsb.hike.offline.OfflineManager;
 import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
@@ -306,7 +303,7 @@ public class FileTransferManager extends BroadcastReceiver
 		return null;
 	}
 
-	public void downloadFile(File destinationFile, String fileKey, long msgId, HikeFileType hikeFileType, Object userContext, boolean showToast)
+	public void downloadFile(File destinationFile, String fileKey, long msgId, HikeFileType hikeFileType, ConvMessage userContext, boolean showToast)
 	{
 		if (isFileTaskExist(msgId)){
 			validateFilePauseState(msgId);
@@ -332,41 +329,7 @@ public class FileTransferManager extends BroadcastReceiver
 
 	}
 
-	public void uploadFile(String msisdn, File sourceFile, String fileKey, String fileType, HikeFileType hikeFileType, boolean isRec, boolean isForwardMsg, boolean isRecipientOnHike,
-			long recordingDuration, int attachement)
-	{
-		if(taskOverflowLimitAchieved())
-			return;
-		
-		settings = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
-		String token = settings.getString(HikeMessengerApp.TOKEN_SETTING, null);
-		String uId = settings.getString(HikeMessengerApp.UID_SETTING, null);
-		UploadFileTask task = new UploadFileTask(handler, fileTaskMap, context, token, uId, msisdn, sourceFile, fileKey, fileType, hikeFileType, isRec, isForwardMsg, isRecipientOnHike,
-				recordingDuration, attachement);
-		// UploadFileTask task = new UploadFileTask(handler, fileTaskMap, context, token, uId, convMessage, isRecipientOnHike);
-		MyFutureTask ft = new MyFutureTask(task);
-		task.setFutureTask(ft);
-		pool.execute(ft);
-	}
-	
-	public void uploadFile(ArrayList<ContactInfo> contactList, File sourceFile, String fileKey, String fileType, HikeFileType hikeFileType, boolean isRec, boolean isForwardMsg, boolean isRecipientOnHike,
-			long recordingDuration, int attachement)
-	{
-		if(taskOverflowLimitAchieved())
-			return;
-		
-		settings = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
-		String token = settings.getString(HikeMessengerApp.TOKEN_SETTING, null);
-		String uId = settings.getString(HikeMessengerApp.UID_SETTING, null);
-		UploadFileTask task = new UploadFileTask(handler, fileTaskMap, context, token, uId, contactList, sourceFile, fileKey, fileType, hikeFileType, isRec, isForwardMsg, isRecipientOnHike,
-				recordingDuration, attachement);
-		// UploadFileTask task = new UploadFileTask(handler, fileTaskMap, context, token, uId, convMessage, isRecipientOnHike);
-		MyFutureTask ft = new MyFutureTask(task);
-		task.setFutureTask(ft);
-		pool.execute(ft);
-	}
-
-	public void uploadFile(ConvMessage convMessage, boolean isRecipientOnHike)
+	public void uploadFile(ConvMessage convMessage, String fileKey)
 	{
 		if (isFileTaskExist(convMessage.getMsgID())){
 			validateFilePauseState(convMessage.getMsgID());
@@ -378,103 +341,32 @@ public class FileTransferManager extends BroadcastReceiver
 		settings = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
 		String token = settings.getString(HikeMessengerApp.TOKEN_SETTING, null);
 		String uId = settings.getString(HikeMessengerApp.UID_SETTING, null);
-		UploadFileTask task = new UploadFileTask(handler, fileTaskMap, context, token, uId, convMessage, isRecipientOnHike);
+		UploadFileTask task = new UploadFileTask(handler, fileTaskMap, context, token, uId, convMessage, fileKey);
 		MyFutureTask ft = new MyFutureTask(task);
 		task.setFutureTask(ft);
 		pool.execute(ft);
 	}
 
-	public void uploadFile(Uri picasaUri, HikeFileType hikeFileType, String msisdn, boolean isRecipientOnHike)
+	public void uploadFile(List<ContactInfo> contactList, List<ConvMessage> messageList, String fileKey)
 	{
-		if(taskOverflowLimitAchieved())
+		ConvMessage convMessage = messageList.get(0);
+		if (isFileTaskExist(convMessage.getMsgID())){
+			validateFilePauseState(convMessage.getMsgID());
 			return;
-		
-		settings = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
-		String token = settings.getString(HikeMessengerApp.TOKEN_SETTING, null);
-		String uId = settings.getString(HikeMessengerApp.UID_SETTING, null);
-		UploadFileTask task = new UploadFileTask(handler, fileTaskMap, context, token, uId, picasaUri, hikeFileType, msisdn, isRecipientOnHike, FTAnalyticEvents.OTHER_ATTACHEMENT);
-		MyFutureTask ft = new MyFutureTask(task);
-		task.setFutureTask(ft);
-		pool.execute(ft);
-	}
-	
-	public void uploadFile(Uri picasaUri, HikeFileType hikeFileType, List<ContactInfo> msisdnList, boolean isRecipientOnHike)
-	{
-		if(taskOverflowLimitAchieved())
-			return;
-		
-		settings = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
-		String token = settings.getString(HikeMessengerApp.TOKEN_SETTING, null);
-		String uId = settings.getString(HikeMessengerApp.UID_SETTING, null);
-		UploadFileTask task = new UploadFileTask(handler, fileTaskMap, context, token, uId, picasaUri, hikeFileType, msisdnList, isRecipientOnHike, FTAnalyticEvents.OTHER_ATTACHEMENT);
-		MyFutureTask ft = new MyFutureTask(task);
-		task.setFutureTask(ft);
-		pool.execute(ft);
-	}
-	
-	public ConvMessage uploadOfflineFile(String msisdn, File sourceFile, String fileKey, String fileType, HikeFileType hikeFileType, boolean isRec,
-			long recordingDuration, int attachment, String fileName)
-	{
-		/*Checking file transfer limit version
-		 * For V1 it was INT_MAX
-		 * For V2 and above no limit is applied 
-		 */
-		
-		if(sourceFile.length()>Integer.MAX_VALUE)
-		{
-			if(!OfflineUtils.isFeautureAvailable(OfflineConstants.OFFLINE_VERSION_NUMER,
-					OfflineUtils.getConnectedDeviceVersion(),OfflineConstants.UNLIMITED_FT_VERSION))
-			{
-				ContactInfo contactInfo  = ContactManager.getInstance().getContact(msisdn);
-				String name  = msisdn;
-				if(contactInfo!=null && !TextUtils.isEmpty(contactInfo.getFirstNameAndSurname()))
-				{
-					name = contactInfo.getFirstNameAndSurname();
-				}
-				HikeMessengerApp.getInstance().showToast(context.getString(R.string.upgrade_for_larger_files,name), Toast.LENGTH_LONG);
-				return null;
-			}
 		}
-		
-		settings = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
-		String token = settings.getString(HikeMessengerApp.TOKEN_SETTING, null);
-		String uId = settings.getString(HikeMessengerApp.UID_SETTING, null);
-		UploadFileTask task = new UploadFileTask(handler, fileTaskMap, context, token, uId, msisdn, sourceFile, fileKey, fileType, hikeFileType, isRec,
-				recordingDuration, attachment,fileName);
-		ConvMessage convMessage = ((ConvMessage)task.getUserContext());
-		return convMessage;
-   }
-	
-
-	public void uploadLocation(String msisdn, double latitude, double longitude, int zoomLevel, boolean isRecipientOnhike, boolean newConvIfnotExist)
-	{
 		if(taskOverflowLimitAchieved())
 			return;
 		
 		settings = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
 		String token = settings.getString(HikeMessengerApp.TOKEN_SETTING, null);
 		String uId = settings.getString(HikeMessengerApp.UID_SETTING, null);
-		UploadContactOrLocationTask task = new UploadContactOrLocationTask(handler, fileTaskMap, context, msisdn, latitude, longitude, zoomLevel, isRecipientOnhike, token, uId,newConvIfnotExist);
-		MyFutureTask ft = new MyFutureTask(task);
-		task.setFutureTask(ft);
-		pool.execute(ft);
-	}
-
-	public void uploadContact(String msisdn, JSONObject contactJson, boolean isRecipientOnhike, boolean newConvIfnotExist)
-	{
-		if(taskOverflowLimitAchieved())
-			return;
-		
-		settings = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
-		String token = settings.getString(HikeMessengerApp.TOKEN_SETTING, null);
-		String uId = settings.getString(HikeMessengerApp.UID_SETTING, null);
-		UploadContactOrLocationTask task = new UploadContactOrLocationTask(handler, fileTaskMap, context, msisdn, contactJson, isRecipientOnhike, token, uId, newConvIfnotExist);
+		UploadFileTask task = new UploadFileTask(handler, fileTaskMap, context, token, uId, contactList, messageList, fileKey);
 		MyFutureTask ft = new MyFutureTask(task);
 		task.setFutureTask(ft);
 		pool.execute(ft);
 	}
 	
-	public void uploadContactOrLocation(ConvMessage convMessage, boolean uploadingContact, boolean isRecipientOnhike)
+	public void uploadContactOrLocation(ConvMessage convMessage, boolean uploadingContact)
 	{
 		if (isFileTaskExist(convMessage.getMsgID())){
 			validateFilePauseState(convMessage.getMsgID());
@@ -486,7 +378,7 @@ public class FileTransferManager extends BroadcastReceiver
 		settings = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
 		String token = settings.getString(HikeMessengerApp.TOKEN_SETTING, null);
 		String uId = settings.getString(HikeMessengerApp.UID_SETTING, null);
-		UploadContactOrLocationTask task = new UploadContactOrLocationTask(handler, fileTaskMap, context, convMessage, uploadingContact, isRecipientOnhike, token, uId);
+		UploadContactOrLocationTask task = new UploadContactOrLocationTask(handler, fileTaskMap, context, convMessage, uploadingContact, token, uId);
 		MyFutureTask ft = new MyFutureTask(task);
 		task.setFutureTask(ft);
 		pool.execute(ft);
@@ -1025,6 +917,7 @@ public class FileTransferManager extends BroadcastReceiver
 			ftHostURIs.add("54.169.191.116");
 			ftHostURIs.add("54.169.191.113");
 		}
+		HttpManager.setFtHostUris(ftHostURIs);
 	}
 
 	public String getHost()

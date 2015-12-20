@@ -1,10 +1,8 @@
 package com.bsb.hike.modules.stickersearch.tasks;
 
-import org.json.JSONObject;
-
-import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
 import com.bsb.hike.modules.stickersearch.provider.StickerSearchDataController;
-import com.bsb.hike.utils.Logger;
+
+import org.json.JSONObject;
 
 public class StickerTagInsertTask implements Runnable
 {
@@ -21,13 +19,6 @@ public class StickerTagInsertTask implements Runnable
 	@Override
 	public void run()
 	{
-		if ((state == StickerSearchConstants.STATE_STICKER_DATA_FRESH_INSERT) || (state == StickerSearchConstants.STATE_STICKER_DATA_REFRESH))
-		{
-			StickerSearchDataController.getInstance().setupStickerSearchWizard(data, state);
-		}
-		else
-		{
-			Logger.d(StickerTagInsertTask.class.getSimpleName(), "Unknown trail of data setup.");
-		}
+		StickerSearchDataController.getInstance().setupStickerSearchWizard(data, state);
 	}
 }

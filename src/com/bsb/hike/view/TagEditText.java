@@ -8,6 +8,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.bsb.hike.R;
+import com.bsb.hike.ui.utils.SpanUtil;
+import com.bsb.hike.utils.Logger;
+import com.kpt.adaptxt.beta.view.AdaptxtEditText;
+
 import android.content.Context;
 import android.text.Editable;
 import android.text.Spannable;
@@ -16,13 +21,8 @@ import android.text.style.ImageSpan;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.KeyEvent;
-import android.widget.EditText;
 
-import com.bsb.hike.R;
-import com.bsb.hike.ui.utils.SpanUtil;
-import com.bsb.hike.utils.Logger;
-
-public class TagEditText extends EditText
+public class TagEditText extends AdaptxtEditText
 {
 	private static final String TOKEN = "!`!";
 

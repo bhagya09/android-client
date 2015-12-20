@@ -66,7 +66,6 @@
                         android:layout_height="wrap_content"
                         android:ellipsize="end"
                         android:singleLine="true"
-                        android:text="Atul M"
                         android:background="@null"
                         android:textColor="#B8000000"
                         android:textSize="14sp"
@@ -77,7 +76,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:background="@null"
-                        android:text="2 mins ago"
+                        android:text="@string/two_mins_ago"
                         android:layout_marginBottom="1dp"
                         android:textColor="@color/black_25"
                         android:textSize="12sp" />
@@ -104,7 +103,7 @@
                     android:paddingTop="13dp"
                     android:includeFontPadding="false" 
                     android:maxLines="20"
-                    android:text="Added you as a friend"
+                    android:text="@string/added_you_friend"
                     android:textColor="@color/black_60"
                     android:textSize="15sp" />
 
@@ -114,7 +113,6 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="5dp"
                     android:background="@null"
-                    android:text="I just added you aas  a firend . do the same?"
                     android:textColor="@color/list_item_subtext"
                     android:textSize="14sp"
                     android:textStyle="italic"
@@ -212,7 +210,7 @@
                     android:layout_gravity="center_vertical"
                     android:layout_marginTop="1dp"
                     android:includeFontPadding="false" 
-                    android:text="Like"
+                    android:text="@string/like_this"
                     android:textColor="#3D000000"
                     android:textSize="14sp"
                     android:textStyle="normal" />

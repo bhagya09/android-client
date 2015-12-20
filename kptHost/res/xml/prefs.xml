@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     Copyright (C) 2008 The Android Open Source Project Licensed under the 
+	Apache License, Version 2.0 (the "License"); you may not use this file except 
+	in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 
+	Unless required by applicable law or agreed to in writing, software distributed 
+	under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES 
+	OR CONDITIONS OF ANY KIND, either express or implied. See the License for 
+	the specific language governing permissions and limitations under the License.
+-->
+
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:atx="http://schemas.android.com/apk/res-auto"
+    android:key="kpt_english_ime_settings"
+    android:title="@string/kpt_english_ime_settings" >
+    
+   <!--  <com.kpt.adaptxt.beta.settings.IconPreferenceScreen
+        android:singleLine="true"
+        android:key="pro_upgrade"
+        android:title="@string/kpt_UI_STRING_SETTINGS_ITEM_2_300" 
+        android:summary="@string/kpt_UI_STRING_SETTINGS_ITEM_DESC_2_300"
+        atx:kpt_kptIcon="@drawable/upgrade_full_version">
+        <intent android:action="com.kpt.adaptxt.beta.settings.AdaptxtTrailUpgrade" />
+    </com.kpt.adaptxt.beta.settings.IconPreferenceScreen> -->
+
+    <!-- <com.kpt.adaptxt.beta.settings.IconPreferenceScreen
+        android:singleLine="true"
+        android:key="add_on_mgr"
+        android:summary="@string/kpt_UI_STRING_MENU_ITEM_DESC_14_300"
+        android:title="@string/kpt_UI_STRING_MENUITEMS_1" 
+        atx:kpt_kptIcon="@drawable/addon_manager">
+        <intent android:action="com.kpt.adaptxt.beta.settings.KPTAddonManager" />
+    </com.kpt.adaptxt.beta.settings.IconPreferenceScreen> -->
+    
+   <!--  <com.kpt.adaptxt.beta.settings.IconPreferenceScreen
+        android:key="Learn"
+        android:summary="@string/kpt_UI_STRING_SETTINGS_SITEM_3"
+        android:title="@string/kpt_learn_key" 
+        atx:kpt_kptIcon="@drawable/personalize_suggestions">
+         <intent android:action="com.kpt.adaptxt.beta.settings.KPTPersonalizeSuggestions" />          
+    </com.kpt.adaptxt.beta.settings.IconPreferenceScreen> -->
+    
+    <com.kpt.adaptxt.beta.settings.IconPreferenceScreen
+        android:key="glide_layout"
+        android:title="@string/kpt_UI_STRING_SETTINGS_ITEM_1_220"
+        android:summary="@string/kpt_UI_STRING_SETTINGS_ITEM_DESC_1_220" 
+        atx:kpt_kptIcon="@drawable/kpt_glide_settings_icon">
+       <intent android:action="com.kpt.adaptxt.beta.settings.KPTGlideSettings.hike" />
+    </com.kpt.adaptxt.beta.settings.IconPreferenceScreen>
+    
+   <!--  <com.kpt.adaptxt.beta.settings.IconPreferenceScreen
+            android:key="KBCustomization"
+            android:title="@string/kpt_UI_STRING_MENUITEM_1_200"
+            atx:kpt_kptIcon="@drawable/keyboard_customization" /> -->
+    
+    <com.kpt.adaptxt.beta.settings.IconPreferenceScreen
+        android:key="advance_settings"
+        android:summary="@string/kpt_UI_STRING_MENU_ITEM_DESC_15_300"
+        android:title="@string/kpt_UI_STRING_MENUITEM_2_110" 
+        atx:kpt_kptIcon="@drawable/kpt_advanced_setting">
+       <intent android:action="com.kpt.adaptxt.beta.settings.KPTPrefsAdvSettings.hike" />
+    </com.kpt.adaptxt.beta.settings.IconPreferenceScreen>
+    
+  <!--   <com.kpt.adaptxt.beta.settings.IconPreferenceScreen
+        android:key="Adaptxt_Help"
+        android:summary="@string/kpt_UI_STRING_MENUITEM_DESC_3_110"
+        android:title="@string/kpt_Help"
+        atx:kpt_kptIcon="@drawable/help" >
+     <intent android:action="com.kpt.adaptxt.beta.settings.KPTPrefsHelp" />
+    </com.kpt.adaptxt.beta.settings.IconPreferenceScreen>
+   
+    <com.kpt.adaptxt.beta.settings.IconPreferenceScreen
+        android:key="Adaptxt_recommend"
+        android:summary="@string/share_summary"
+        android:title="@string/kpt_UI_STRING_MENUITEM_3_110" 
+        atx:kpt_kptIcon="@drawable/recommend">
+        <intent android:action="com.kpt.adaptxt.beta.settings.KPTPrefsRecommend" />
+    </com.kpt.adaptxt.beta.settings.IconPreferenceScreen>
+
+    <com.kpt.adaptxt.beta.settings.IconPreferenceScreen
+        android:key="latestversion"
+        android:summary="@string/kpt_UI_STRING_SETTINGS_SITEM_10"
+        android:title="@string/kpt_pref_latestVersion" 
+        atx:kpt_kptIcon="@drawable/latest_updates">
+    </com.kpt.adaptxt.beta.settings.IconPreferenceScreen> -->
+
+</PreferenceScreen>

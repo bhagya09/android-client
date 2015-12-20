@@ -21,6 +21,7 @@ import android.widget.RemoteViews;
 import android.widget.Toast;
 
 import com.bsb.hike.R;
+import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.ui.HomeActivity;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.Logger;
@@ -132,7 +133,7 @@ public class DownloadAndInstallUpdateAsyncTask extends AsyncTask<Void, Integer, 
 	@Override
 	protected void onPostExecute(Boolean result)
 	{
-		notificationManager.cancel(notificationId);
+		HikeNotification.getInstance().cancelNotification(notificationId);
 		if (result)
 		{
 			Intent intent = new Intent(Intent.ACTION_VIEW);

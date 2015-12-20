@@ -49,6 +49,7 @@ public class ImageParser
 			
 			String capturedFilepath = null;
 
+			//TODO Make a single constant for all these
 			if (data != null && data.getAction() == HikeConstants.HikePhotos.PHOTOS_ACTION_CODE)
 			{
 				capturedFilepath = data.getStringExtra(HikeConstants.Extras.IMAGE_PATH);

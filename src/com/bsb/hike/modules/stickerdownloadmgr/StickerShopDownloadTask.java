@@ -92,7 +92,8 @@ public class StickerShopDownloadTask implements IHikeHTTPTask, IHikeHttpTaskResu
 						doOnFailure(null);
 						return;
 					}
-					
+
+					Logger.d(TAG, "Sticker shop downloaod result : " + resultData);
 					doOnSuccess(resultData);
 				}
 				catch (Exception e)

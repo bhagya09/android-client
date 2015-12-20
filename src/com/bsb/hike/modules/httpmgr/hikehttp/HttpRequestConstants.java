@@ -73,6 +73,8 @@ public class HttpRequestConstants
 	
 	private static final String QA_CONTENT = "qa-content.hike.in";
 
+	private static final String ANONYMOUS_NAME = "/anonymousName";
+
 	private static final String STAGING_HIKECALLER_API = "http://52.76.46.27:5000/name";
 	
 	private static final String PRODUCTION_HIKECALLER_API = "https://caller.hike.in/name";
@@ -343,7 +345,10 @@ public class HttpRequestConstants
 	{
 		return BASE_URL + BASE_V1 + "/pin-call";
 	}
-	
+	public static String languageListUrl()
+	{
+		return BASE_URL + BASE_V1 + "/lang_list";
+	}
 	public static String getMorestickersUrl()
 	{
 		return BASE_URL+STICKER_SHARE_PATH ;
@@ -352,6 +357,11 @@ public class HttpRequestConstants
 	public static String getDeleteAvatarBaseUrl()
 	{
 		return BASE_URL + BASE_V1 + BASE_ACCOUNT + "/avatar-delete";
+	}
+
+	public static String getAnonymousNameFetchUrl()
+	{
+		return BASE_PLATFORM_URL + BASE_USER + BASE_V1 + ANONYMOUS_NAME;
 	}
 	
 	public static String getGroupBaseUrlForLinkSharing()
@@ -384,6 +394,11 @@ public class HttpRequestConstants
 		}
 	}
 
+	public static String getLanguageDictionaryBaseUrl()
+	{
+		return BASE_URL + BASE_V1 + "/dict/";
+	}
+	
 	public static String getHikeCallerUrl()
 	{
 		if (isProduction)
@@ -395,4 +410,29 @@ public class HttpRequestConstants
 			return STAGING_HIKECALLER_API;
 		}
 	}
+
+	public static String getMicroAppLoggingUrl(boolean isSuccess)
+	{
+		String suffix = "/mapps/api" + BASE_V1 + "/apps/ack/" + (isSuccess ? "success" : "failure");
+
+		if (isProduction)
+		{
+			return HTTPS + "mapps." + PLATFORM_PRODUCTION_API + suffix;
+		}
+		else
+		{
+			return HTTPS + QA_CONTENT + suffix ;
+		}
+	}
+    public static String httpNetworkTestUrl()
+    {
+        if (isProduction)
+        {
+            return HTTP + "ping.im.hike.in" + BASE_V1 + "/android";
+        }
+        else
+        {
+            return HTTP + STAGING_API  + BASE_V1 + "/android";
+        }
+    }
 }
