@@ -201,6 +201,8 @@ import android.widget.Toast;
 {
 	private static final String TAG = ChatThread.class.getSimpleName();
 
+	protected static final String KEYBOARD_HIDDEN_BEHIND_POPUP = "keyboardHidden";
+
 	protected static final int FETCH_CONV = 1;
 
 	protected static final int LOAD_MORE_MESSAGES = 2;
@@ -339,6 +341,8 @@ import android.widget.Toast;
 	private int unreadMessageCount = 0;
 
 	protected CustomFontEditText mComposeView;
+
+	protected LinearLayout keyboardParentView;
 
 	private GestureDetector mGestureDetector;
 
@@ -710,6 +714,8 @@ import android.widget.Toast;
 	{
 		mComposeView = (CustomFontEditText) activity.findViewById(R.id.msg_compose);
 
+		keyboardParentView = (LinearLayout) activity.findViewById(R.id.keyboardView_holder);
+
 		if (!isSystemKeyboard())
 			initCustomKeyboard();
 		
@@ -734,8 +740,7 @@ import android.widget.Toast;
 		{
 			return;
 		}
-		LinearLayout parentView = (LinearLayout) activity.findViewById(R.id.keyboardView_holder);
-		mCustomKeyboard= new HikeCustomKeyboard(activity, parentView, KPTConstants.MULTILINE_LINE_EDITOR, kptEditTextEventListener, kptKeyboardVisibilityStatusListner);
+		mCustomKeyboard= new HikeCustomKeyboard(activity, keyboardParentView, KPTConstants.MULTILINE_LINE_EDITOR, kptEditTextEventListener, kptKeyboardVisibilityStatusListner);
 	}
 
 	protected void initCustomKeyboard()
@@ -1465,6 +1470,7 @@ import android.widget.Toast;
 		if (mShareablePopupLayout.togglePopup(mStickerPicker, activity.getResources().getConfiguration().orientation))
 		{
 			activity.showProductPopup(ProductPopupsConstants.PopupTriggerPoints.STKBUT_BUT.ordinal());
+			hideKeyboardViewBehindPopup();
 		}
 		
 		else 
@@ -1542,6 +1548,10 @@ import android.widget.Toast;
 				setEmoticonButtonSelected(false);
 				Toast.makeText(activity.getApplicationContext(), R.string.some_error, Toast.LENGTH_SHORT).show();
 			}
+		}
+		else
+		{
+			hideKeyboardViewBehindPopup();
 		}
 		
 		Logger.v(TAG, "Time taken to open emoticon pallete : " + (System.currentTimeMillis() - time));
@@ -1719,6 +1729,7 @@ import android.widget.Toast;
 		
 		if (mShareablePopupLayout.isShowing())
 		{
+			hideKptKeyboard();
 			mShareablePopupLayout.dismiss();
 			return true;
 		}
@@ -5827,6 +5838,7 @@ import android.widget.Toast;
 		Logger.d(TAG, "newConfig : " + newConfig.toString());
 		if (mCustomKeyboard != null)
 		{
+			unhideKeyboardViewBehindPopup();
 			mCustomKeyboard.onConfigurationChanged(newConfig);
 			keyboardHeight = 0;
 		}
@@ -5978,14 +5990,35 @@ import android.widget.Toast;
 			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
 		}
 	}
+
+	private void unhideKeyboardViewBehindPopup()
+	{
+		if (keyboardParentView.getVisibility() == View.INVISIBLE)
+			keyboardParentView.setVisibility(View.VISIBLE);
+		updateKeyboardParentViewTag(null);
+	}
+
+	private void hideKeyboardViewBehindPopup()
+	{
+		if (keyboardParentView.getVisibility() != View.GONE)
+		{
+			keyboardParentView.setVisibility(View.INVISIBLE);
+			updateKeyboardParentViewTag(KEYBOARD_HIDDEN_BEHIND_POPUP);
+		}
+	}
+
+	private void updateKeyboardParentViewTag(String s)
+	{
+		keyboardParentView.setTag(s);
+	}
 	
 	@Override
 	public void onPopupDismiss()
 	{
-		if (isCustomKeyboardVisible())
-		{
+		if (isCustomKeyboardVisible() || keyboardParentView.getTag() != null) {
 			KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, (keyboardHeight == 0) ? getKeyBoardAndCVHeight() : keyboardHeight);
 		}
+		updateKeyboardParentViewTag(null);
 		Logger.i(TAG, "onPopup Dismiss");
 		if(activity.findViewById(R.id.sticker_btn).isSelected())
 		{
@@ -6542,13 +6575,19 @@ import android.widget.Toast;
 	protected void showCustomKeyboard(View view)
 	{
 		if (mCustomKeyboard != null)
+		{
 			mCustomKeyboard.showCustomKeyboard(view, true);
+			updateKeyboardParentViewTag(null);
+		}
 	}
 
 	protected void hideCustomKeyboard(View view)
 	{
 		if (mCustomKeyboard != null)
+		{
 			mCustomKeyboard.showCustomKeyboard(view, false);
+			updateKeyboardParentViewTag(null);
+		}
 	}
 
 	protected void registerCustomKeyboardEditText(int resId)
