@@ -912,11 +912,14 @@ import android.widget.Toast;
 	{
 		// Show keyboard change discoverability option if:
 		// - already the indicator is not in use
+		// - user is Indian
 		// - keyboard ftue will not be shown in this session
 		// - it has not been shown before
 		// - if keyboard option is not yet used
 		// - if custom keyboard is enabled in the app
-		if (!mActionBar.isOverflowMenuIndicatorInUse() && !keyboardFtue.isReadyForFTUE()
+		if (!mActionBar.isOverflowMenuIndicatorInUse()
+				&& HikeMessengerApp.isIndianUser()
+				&& !keyboardFtue.isReadyForFTUE()
 				&& !HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CT_OVRFLW_KEYBOARD_INDICATOR_SHOWN, false)
 				&& !HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CT_OVRFLW_KEYBOARD_CLICKED, false)
 				&& HikeMessengerApp.isCustomKeyboardUsable())
@@ -979,7 +982,8 @@ import android.widget.Toast;
 				overFlowMenuItem.enabled = !isMessageListEmpty;
 				break;
 			case R.string.hike_keyboard:
-				if (! sharedPreference.getData(HikeConstants.CT_OVRFLW_KEYBOARD_CLICKED, false))
+				if (!sharedPreference.getData(HikeConstants.CT_OVRFLW_KEYBOARD_CLICKED, false)
+						&& HikeMessengerApp.isIndianUser())
 				{
 					overFlowMenuItem.drawableId = R.drawable.ic_red_dot_overflow_item_key;
 				}
