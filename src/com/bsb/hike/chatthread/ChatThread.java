@@ -819,7 +819,7 @@ import android.widget.Toast;
 
 	private void initKeyboardFtue()
 	{
-		if (!keyboardFtue.isFTUEComplete())
+		if (keyboardFtue.shouldShowFTUE())
 			keyboardFtue.init(activity, (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE),(ViewGroup)activity.findViewById(R.id.keyboard_ftue_container),keyboardFTUEdestroyedListener);
 	}
 
