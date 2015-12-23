@@ -6019,7 +6019,8 @@ import android.widget.Toast;
 	@Override
 	public void onPopupDismiss()
 	{
-		if (isCustomKeyboardVisible() || keyboardParentView.getTag() != null) {
+		if (isCustomKeyboardVisible() ||
+				(keyboardParentView.getTag() != null && KEYBOARD_HIDDEN_BEHIND_POPUP.equals(keyboardParentView.getTag()))) {
 			KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, (keyboardHeight == 0) ? getKeyBoardAndCVHeight() : keyboardHeight);
 		}
 		updateKeyboardParentViewTag(null);
