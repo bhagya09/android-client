@@ -1,12 +1,5 @@
 package com.bsb.hike.models;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.text.TextUtils;
 
 import com.bsb.hike.models.utils.JSONSerializable;
@@ -14,6 +7,13 @@ import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.tasks.GetHikeJoinTimeTask;
 import com.bsb.hike.utils.LastSeenComparator;
 import com.bsb.hike.utils.Utils;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class ContactInfo implements JSONSerializable, Comparable<ContactInfo>
 {
@@ -564,7 +564,8 @@ public class ContactInfo implements JSONSerializable, Comparable<ContactInfo>
 		JSONObject json = new JSONObject();
 		json.put("name", getNameOrMsisdn());
 		json.put(HikePlatformConstants.PLATFORM_USER_ID,this.platformId);
-		return json;
+        json.put(HikePlatformConstants.MSISDN, getMsisdn());
+        return json;
 	}
 
 	public static LastSeenComparator lastSeenTimeComparator = new LastSeenComparator(true);

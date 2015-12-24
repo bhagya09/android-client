@@ -72,7 +72,7 @@ public abstract class HikeAppStateBaseActivity extends Activity
 	@Override
 	public void startActivityForResult(Intent intent, int requestCode)
 	{
-		HikeAppStateUtils.startActivityForResult(intent, this);
+		HikeAppStateUtils.startActivityForResult(this);
 		super.startActivityForResult(intent, requestCode);
 	}
 
