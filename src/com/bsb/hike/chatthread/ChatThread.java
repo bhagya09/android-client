@@ -1476,8 +1476,7 @@ import android.widget.Toast;
 			activity.showProductPopup(ProductPopupsConstants.PopupTriggerPoints.STKBUT_BUT.ordinal());
 			hideKeyboardViewBehindPopup();
 		}
-		
-		else 
+		else
 		{
 			if (!retryToInflateStickers())
 			{
@@ -1485,6 +1484,11 @@ import android.widget.Toast;
 				Toast.makeText(activity.getApplicationContext(), R.string.some_error, Toast.LENGTH_SHORT).show();
 			}
 		}
+
+		if (mShareablePopupLayout.isShowing())
+			hideKeyboardViewBehindPopup();
+		else
+			unhideKeyboardViewBehindPopup();
 		Logger.v(TAG, "Time taken to open sticker pallete : " + (System.currentTimeMillis() - time));
 	}
 	
@@ -1553,11 +1557,10 @@ import android.widget.Toast;
 				Toast.makeText(activity.getApplicationContext(), R.string.some_error, Toast.LENGTH_SHORT).show();
 			}
 		}
-		else
-		{
+		if (mShareablePopupLayout.isShowing())
 			hideKeyboardViewBehindPopup();
-		}
-		
+		else
+			unhideKeyboardViewBehindPopup();
 		Logger.v(TAG, "Time taken to open emoticon pallete : " + (System.currentTimeMillis() - time));
 	}
 
