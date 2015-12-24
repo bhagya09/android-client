@@ -431,6 +431,11 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 			
 			final StatusMessage statusMessage = (StatusMessage) object;
 
+			if (StealthModeManager.getInstance().isStealthMsisdn(statusMessage.getMsisdn()) && !StealthModeManager.getInstance().isActive())
+			{
+				return;
+			}
+
 			// If not showing profile, lets add new message
 			if (mShowProfileHeader)
 			{

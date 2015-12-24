@@ -1788,15 +1788,34 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 	 */
 	public int getUnreadActivityFeedCount() {
 		String where = DBConstants.READ + " = 0 ";
-		int rowID = -1;
+		int count = -1;
 
 		Cursor cursor = mDb.query(DBConstants.FEED_TABLE, null, where, null, null, null, null);
 
-		if (cursor != null) {
-			rowID = cursor.getCount();
+		if (cursor != null && cursor.moveToFirst())
+		{
+			int columnIndex = cursor.getColumnIndex(DBConstants.FEED_ACTOR);
+			do {
+				String msisdn = cursor.getString(columnIndex);
+				if(StealthModeManager.getInstance().isStealthMsisdn(msisdn) && !StealthModeManager.getInstance().isActive())
+				{
+					continue;
+				}
+				else
+				{
+					if(count == -1)
+					{
+						count = 1;
+					}
+					else
+					{
+						++count;
+					}
+				}
+			} while (cursor.moveToNext());
 		}
 
-		return rowID;
+		return count;
 	}
 	
 	public boolean isAnyFeedEntryPresent() {
@@ -7303,17 +7322,19 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				args = new String[] { "0" };
 			}
 
-			c = mDb.query(DBConstants.CONVERSATIONS_TABLE, new String[] { DBConstants.UNREAD_COUNT, DBConstants.MSISDN }, selection, args, null, null, null);
+			c = mDb.query(DBConstants.CONVERSATIONS_TABLE, new String[] { DBConstants.UNREAD_COUNT, DBConstants.MSISDN ,DBConstants.MSG_STATUS}, selection, args, null, null, null);
 
 			if (c!=null && c.moveToFirst())
 			{
 				final int unreadMessageColumn = c.getColumnIndex(DBConstants.UNREAD_COUNT);
 				final int msisdnColumn = c.getColumnIndex(DBConstants.MSISDN);
+				final int msgstateColumnIndex=c.getColumnIndex(DBConstants.MSG_STATUS);
 
 				do
 				{
 					int dbUnreadCount = c.getInt(unreadMessageColumn);
 					String msisdn = c.getString(msisdnColumn);
+					int msgState=c.getInt(msgstateColumnIndex);
 					if (msisdn!=null && BotUtils.isBot(msisdn))
 					{
 
@@ -7323,6 +7344,8 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 							dbUnreadCount = 1;
 						}
 					}
+					if(msgState< State.RECEIVED_UNREAD.ordinal())
+						dbUnreadCount=0;
 					unreadMessages += dbUnreadCount;
 				}
 				while (c.moveToNext());

@@ -677,7 +677,7 @@ public class GroupChatThread extends OneToNChatThread
 		mComposeView = (CustomFontEditText) content.findViewById(R.id.messageedittext);
 		if (isSystemKeyboard())
 		{
-			mCustomKeyboard.unregister(R.id.messageedittext);
+			unregisterCustomKeyboardEditText(R.id.messageedittext);
 		}
 		else
 		{
@@ -845,7 +845,7 @@ public class GroupChatThread extends OneToNChatThread
 	private void destroyPinCreateView()
 	{
 		// AFTER PIN MODE, we make sure mComposeView is reinitialized to message composer compose
-		mCustomKeyboard.unregister(mComposeView);
+		unregisterCustomKeyboardEditText(R.id.messageedittext);
 		mComposeView = (CustomFontEditText) activity.findViewById(R.id.msg_compose);
 		if (mEmoticonPicker != null)
 		{

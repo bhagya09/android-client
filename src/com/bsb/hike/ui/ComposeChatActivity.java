@@ -200,7 +200,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 	private LastSeenScheduler lastSeenScheduler;
 
 	private String[] hikePubSubListeners = { HikePubSub.MULTI_FILE_TASK_FINISHED, HikePubSub.APP_FOREGROUNDED, HikePubSub.LAST_SEEN_TIME_UPDATED,
-			HikePubSub.LAST_SEEN_TIME_BULK_UPDATED, HikePubSub.CONTACT_SYNC_STARTED, HikePubSub.CONTACT_SYNCED };
+			HikePubSub.LAST_SEEN_TIME_BULK_UPDATED, HikePubSub.CONTACT_SYNC_STARTED, HikePubSub.CONTACT_SYNCED, HikePubSub.BOT_CREATED };
 
 	private int previousFirstVisibleItem;
 
@@ -831,6 +831,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 	protected void onResume()
 	{
 		// TODO Auto-generated method stub
+		KptUtils.resumeKeyboard(mCustomKeyboard);
 		if(composeMode != CREATE_GROUP_MODE && composeMode != CREATE_BROADCAST_MODE && composeMode != MULTIPLE_FWD){
 			if (!KptUtils.isSystemKeyboard())
 			{
@@ -2565,6 +2566,14 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 
 			});
 		}
+
+		else if (HikePubSub.BOT_CREATED.equals(type))
+		{
+			if (adapter != null)
+			{
+				adapter.onBotCreated(object);
+			}
+		}
 	}
 
 	private void showProgressBarContactsSync(int value)
@@ -3000,33 +3009,6 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		{
 			searchMenuItem.setVisible(true);
 
-			MenuItemCompat.setOnActionExpandListener(searchMenuItem, new MenuItemCompat.OnActionExpandListener()
-			{
-
-				@Override
-				public boolean onMenuItemActionExpand(MenuItem item)
-				{
-					if (adapter != null)
-					{
-						adapter.setSearchModeOn(true);
-					}
-					return true;
-				}
-
-				@Override
-				public boolean onMenuItemActionCollapse(MenuItem item)
-				{
-
-					if (adapter != null)
-					{
-						adapter.setSearchModeOn(false);
-						adapter.refreshBots();
-					}
-
-					return true;
-				}
-			});
-
 			SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchMenuItem);
 			searchView.setOnQueryTextListener(onQueryTextListener);
 			searchView.setQueryHint(getString(R.string.search));
@@ -3067,13 +3049,23 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 				@Override
 				public boolean onMenuItemActionCollapse(MenuItem arg0)
 				{
-					adapter.removeFilter();
+					if (adapter != null)
+					{
+						adapter.setSearchModeOn(false);
+						adapter.refreshBots();
+						adapter.removeFilter();
+					}
+
 					return true;
 				}
 
 				@Override
 				public boolean onMenuItemActionExpand(MenuItem arg0)
 				{
+					if (adapter != null)
+					{
+						adapter.setSearchModeOn(true);
+					}
 					return true;
 				}
 				

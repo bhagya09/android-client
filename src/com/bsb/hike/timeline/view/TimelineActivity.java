@@ -59,6 +59,7 @@ import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.Utils;
 
 public class TimelineActivity extends HikeAppStateBaseFragmentActivity implements Listener
@@ -568,6 +569,19 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 	{
 		super.onPause();
 		HikeMessengerApp.getPubSub().publish(HikePubSub.NEW_ACTIVITY, null);
+
+		if(isFinishing())
+		{
+			boolean hasFeed = HikeConversationsDatabase.getInstance().isAnyFeedEntryPresent();
+			int feedCount = Utils.getNotificationCount(getApplicationContext().getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0), false, true, false, false);
+
+			if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STEALTH_INDICATOR_ANIM_ON_RESUME, HikeConstants.STEALTH_INDICATOR_RESUME_EXPIRED) == HikeConstants.STEALTH_INDICATOR_RESUME_RESET
+					&&!StealthModeManager.getInstance().isActive()
+					&& (feedCount > 0 && !hasFeed))
+			{
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STEALTH_INDICATOR_ANIM_ON_RESUME, HikeConstants.STEALTH_INDICATOR_RESUME_ACTIVE);
+			}
+		}
 	}
 
 	@Override
