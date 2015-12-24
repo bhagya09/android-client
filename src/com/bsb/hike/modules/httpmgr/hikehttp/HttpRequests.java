@@ -954,16 +954,16 @@ public class HttpRequests
      * this request is just for checking that internet is working but mqtt is unable to connect.
      * we will send an async http call to server
      */
-    public static RequestToken httpNetworkTestRequest(int errorCode)
+    public static RequestToken httpNetworkTestRequest(int errorCode, int port)
     {
         RequestToken requestToken = new JSONObjectRequest.Builder()
-                .setUrl(httpNetworkTestUrl() + "/" + errorCode)
+                .setUrl(httpNetworkTestUrl() + "/" + errorCode+ "?port="+port)
                 .setRequestType(REQUEST_TYPE_SHORT)
                 .setAsynchronous(true)
                 .setPriority(PRIORITY_HIGH)
                 .setRetryPolicy(new BasicRetryPolicy(0, 1, 1))
                 .build();
-        Logger.e("HikeHttpRequests", "Making http call to " + httpNetworkTestUrl().toString() + "/" + errorCode);
+        Logger.e("HikeHttpRequests", "Making http call to " + httpNetworkTestUrl().toString() + "/" + errorCode + "?port="+port);
         return requestToken;
     }
 

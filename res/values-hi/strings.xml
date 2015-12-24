@@ -618,9 +618,9 @@
     <string name="shared_cont_pa">शेयर्ड कंटेंट</string>
     <string name="no_internet_try_again">इंटरनेट कनेक्शन नहीं है। कृपया बाद में पुन: प्रयास करें।</string>
     <string name="refresh">रिफ्रेश करें</string>
-    <string name="user_back_on_hike">%1$s बिल्कुल नए hike पर है! hi कहें!</string>
-    <string name="joined_hike_new">%1$s अब बिल्कुल नए hike पर है, hi कहें</string>
-    <string name="joined_hike">%1$s अब बिल्कुल नए hike पर है, hi कहें</string>
+    <string name="user_back_on_hike">%1$s hike पर नए हैं! hi कहें!</string>
+    <string name="joined_hike_new">%1$s hike पर नए हैं! hi कहें!</string>
+    <string name="joined_hike">%1$s hike पर नए हैं! hi कहें!</string>
     <string name="team_hike">hike</string>
     <string name="add_people">सदस्य जोड़ें</string>
     <string name="add_recipients">संपर्क जोड़ें</string>
@@ -1271,7 +1271,7 @@
     <string name="are_typing">लिख रहे हैं...</string>
     <string name="you_chat_bg_changed">आपने चैट थीम बदल दिया</string>
     <string name="hike_keyboard">Hike कीबोर्ड</string>
-    <string name="system_keyboard">सिस्टम कीबोर्ड</string>
+    <string name="system_keyboard">फ़ोन कीबोर्ड</string>
     <string name="you_xyz_posted_pin">आपने एक पिन पोस्ट किया</string>
     <string name="voip_hang_up">बंद कर दें</string>
     <string name="voip_decline">अस्वीकारें</string>
