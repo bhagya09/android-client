@@ -17,6 +17,7 @@ import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.ShapeDrawable;
@@ -63,6 +64,7 @@ import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
 
+import com.bsb.hike.BitmapModule.BitmapUtils;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
@@ -214,6 +216,8 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 	private ViewProperties sdCardProp;
 	
 	private boolean restoreInitialized = false;
+
+	private int defAvBgColor;
 
 	private class ActivityState
 	{
@@ -1065,6 +1069,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 		}
 
 		String msisdn = accountPrefs.getString(HikeMessengerApp.MSISDN_SETTING, null);
+
 		if (TextUtils.isEmpty(msisdn))
 		{
 			Utils.logEvent(SignupActivity.this, HikeConstants.LogEvent.SIGNUP_ERROR);
@@ -1074,6 +1079,12 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 			return;
 		}
 
+		TypedArray bgColorArray = Utils.getDefaultAvatarBG();
+
+		int index = BitmapUtils.iconHash(msisdn) % (bgColorArray.length());
+
+		defAvBgColor = bgColorArray.getColor(index, 0);
+
 		if (mActivityState.profileBitmap == null)
 		{
 			Drawable bd = HikeMessengerApp.getLruCache().getIconFromCache(msisdn);
@@ -1081,11 +1092,11 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 			{
 				if (TextUtils.isEmpty(ownerName))
 				{
-					bd = HikeBitmapFactory.getDefaultTextAvatar(msisdn);
+					bd = HikeBitmapFactory.getDefaultTextAvatar(msisdn, -1, defAvBgColor);
 				}
 				else
 				{
-					bd = HikeBitmapFactory.getDefaultTextAvatar(ownerName);
+					bd = HikeBitmapFactory.getDefaultTextAvatar(ownerName,-1,defAvBgColor);
 				}
 			}
 			mIconView.setImageDrawable(bd);
@@ -2170,8 +2181,6 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 
 	private TextWatcher nameWatcher = new TextWatcher()
 	{
-		String initials = "";
-
 		public void beforeTextChanged(CharSequence s, int start, int count, int after)
 		{
 
@@ -2184,27 +2193,22 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 
 		public void afterTextChanged(Editable s)
 		{
-			if (s == null)
+			if (s == null || mActivityState.profileBitmap != null)
+			{
 				return;
+			}
 
 			String newText = s.toString();
 
-			if (TextUtils.isEmpty(newText))
+			if (newText == null || TextUtils.isEmpty(newText.trim()))
 			{
-
+				Drawable drawable = HikeBitmapFactory.getRandomHashTextDrawable(defAvBgColor);
+				mIconView.setImageDrawable(drawable);
+				return;
 			}
 
-			String newInitials = HikeBitmapFactory.getNameInitialsForDefaultAv(newText);
-
-			if (!initials.equals(newInitials))
-			{
-				initials = newInitials;
-				if (mActivityState.profileBitmap == null)
-				{
-					Drawable drawable = HikeBitmapFactory.getDefaultTextAvatar(newText);
-					mIconView.setImageDrawable(drawable);
-				}
-			}
+			Drawable drawable = HikeBitmapFactory.getDefaultTextAvatar(newText,-1,defAvBgColor);
+			mIconView.setImageDrawable(drawable);
 		}
 	};
 

@@ -1,46 +1,34 @@
 
 package com.bsb.hike.ui;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBar;
-
-import com.bsb.hike.modules.kpt.HikeCustomKeyboard;
-import com.bsb.hike.modules.kpt.KptUtils;
-import com.bsb.hike.ui.v7.SearchView;
-import com.bsb.hike.ui.v7.SearchView.OnQueryTextListener;
-
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.Filter;
-import android.widget.LinearLayout;
 import android.widget.Filter.FilterListener;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.adapters.SectionedBaseAdapter;
+import com.bsb.hike.modules.kpt.HikeCustomKeyboard;
+import com.bsb.hike.modules.kpt.KptUtils;
+import com.bsb.hike.ui.v7.SearchView;
+import com.bsb.hike.ui.v7.SearchView.OnQueryTextListener;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
-import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.PinnedSectionListView;
 import com.bsb.hike.view.PinnedSectionListView.PinnedSectionListAdapter;
@@ -49,6 +37,14 @@ import com.kpt.adaptxt.beta.RemoveDialogData;
 import com.kpt.adaptxt.beta.util.KPTConstants;
 import com.kpt.adaptxt.beta.view.AdaptxtEditText;
 import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtKeyboordVisibilityStatusListner;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
 
 public class CountrySelectActivity extends HikeAppStateBaseFragmentActivity implements AdaptxtKeyboordVisibilityStatusListner, FilterListener
 {
@@ -99,7 +95,7 @@ public class CountrySelectActivity extends HikeAppStateBaseFragmentActivity impl
 		if(getIntent().hasExtra(HikeConstants.Extras.FROM_DELETE_ACCOUNT)){
 			customKeyboardRequired  = true;
 		}
-		
+		customKeyboardRequired = customKeyboardRequired && !HikeMessengerApp.isSystemKeyboard();
 		try
 		{
 			BufferedReader reader = new BufferedReader(new InputStreamReader(getResources().getAssets().open("countries.txt")));
@@ -210,11 +206,11 @@ public class CountrySelectActivity extends HikeAppStateBaseFragmentActivity impl
 			if(searchET!=null){
 			if (customKeyboardRequired)
 			{
-				if (KptUtils.isSystemKeyboard())
+				if (KptUtils.isSystemKeyboard()||mCustomKeyboard==null)
 				{
 					Utils.showSoftKeyboard(getApplicationContext(), searchET);
 				}
-				else if (mCustomKeyboard != null)
+				else
 				{
 					mCustomKeyboard.showCustomKeyboard(searchET, true);
 				}
@@ -651,4 +647,9 @@ public class CountrySelectActivity extends HikeAppStateBaseFragmentActivity impl
 		}
 	}
 
+	@Override
+	protected void onDestroy() {
+		KptUtils.destroyKeyboardResources(mCustomKeyboard,R.id.search_src_text);
+		super.onDestroy();
+	}
 }

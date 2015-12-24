@@ -118,6 +118,6 @@ class PlatformContentLoader extends Handler
 
 		Logger.d(TAG, "fetching template from remote");
 
-		PlatformUtils.downloadAndUnzip(argContentRequest, true);
+		PlatformUtils.downloadAndUnzip(argContentRequest, true, true);
 	}
 }

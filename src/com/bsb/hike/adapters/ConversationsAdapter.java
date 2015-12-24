@@ -17,6 +17,7 @@ import org.json.JSONObject;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
+import android.support.v4.content.ContextCompat;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.TextUtils;
@@ -769,10 +770,10 @@ public class ConversationsAdapter extends BaseAdapter
 
 		if (OneToNConversationUtils.isBroadcastConversation(convInfo.getMsisdn()))
 		{
-				Drawable broadcastDrawable = context.getDrawable(R.drawable.ic_broad_sm);
-				broadcastDrawable.setAlpha(230);
-				contactView.setCompoundDrawablesWithIntrinsicBounds(broadcastDrawable, null, null, null);
-				contactView.setCompoundDrawablePadding(context.getResources().getDimensionPixelOffset(R.dimen.home_list_header_drawable_padding));
+			Drawable broadcastDrawable = ContextCompat.getDrawable(context, R.drawable.ic_broad_sm);
+			broadcastDrawable.setAlpha(230);
+			contactView.setCompoundDrawablesWithIntrinsicBounds(broadcastDrawable, null, null, null);
+			contactView.setCompoundDrawablePadding(context.getResources().getDimensionPixelOffset(R.dimen.home_list_header_drawable_padding));
 		}
 		else if (OneToNConversationUtils.isGroupConversation(convInfo.getMsisdn()))
 		{

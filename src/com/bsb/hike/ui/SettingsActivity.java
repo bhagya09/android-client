@@ -119,7 +119,7 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 		items.add(new SettingsDisplayPojo(getString(R.string.settings_chat), R.string.settings_chat, R.drawable.ic_settings_chat));
 		if (HikeMessengerApp.isLocalisationEnabled())
 		{
-			if (HikeMessengerApp.isCustomKeyboardEnabled())
+			if (HikeMessengerApp.isCustomKeyboardUsable())
 			{
 				items.add(new SettingsDisplayPojo(getString(R.string.settings_localization), R.string.settings_localization, R.drawable.ic_settings_languages));
 			}
