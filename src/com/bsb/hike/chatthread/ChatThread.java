@@ -1981,10 +1981,7 @@ import android.widget.Toast;
 
 	private void hideKptKeyboard()
 	{
-		if (!isSystemKeyboard())
-		{
-			hideCustomKeyboard(mComposeView);
-		}
+		hideCustomKeyboard(mComposeView);
 		KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, 0);
 	}
 
@@ -6026,7 +6023,7 @@ import android.widget.Toast;
 				(keyboardParentView.getTag() != null && KEYBOARD_HIDDEN_BEHIND_POPUP.equals(keyboardParentView.getTag()))) {
 			KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, (keyboardHeight == 0) ? getKeyBoardAndCVHeight() : keyboardHeight);
 		}
-		updateKeyboardParentViewTag(null);
+		unhideKeyboardViewBehindPopup();
 		Logger.i(TAG, "onPopup Dismiss");
 		if(activity.findViewById(R.id.sticker_btn).isSelected())
 		{
@@ -6457,6 +6454,7 @@ import android.widget.Toast;
 		if (systemKeyboard)
 		{
 			removeKeyboardFtueIfShowing();
+			unhideKeyboardViewBehindPopup();
 			hideKptKeyboard();
 			swtichCustomKeyboardToDefaultKeyboard(mComposeView);
 			unregisterCustomKeyboardEditText(R.id.msg_compose);
