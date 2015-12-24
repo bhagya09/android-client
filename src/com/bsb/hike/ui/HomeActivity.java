@@ -1199,6 +1199,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	protected void onResume()
 	{
 		Logger.d(TAG,"onResume");
+		KptUtils.resumeKeyboard(mCustomKeyboard);
 		if (searchMenuItem != null && searchMenuItem.isActionViewExpanded())
 		{
 			showKeyboard();

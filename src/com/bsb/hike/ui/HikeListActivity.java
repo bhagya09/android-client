@@ -540,6 +540,7 @@ public class HikeListActivity extends HikeAppStateBaseFragmentActivity implement
 	{
 		// TODO Auto-generated method stub
 		super.onResume();
+		KptUtils.resumeKeyboard(mCustomKeyboard);
 		if(adapter != null)
 		{
 			adapter.getIconLoader().setExitTasksEarly(false);
