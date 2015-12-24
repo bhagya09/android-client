@@ -932,7 +932,10 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 				{
 					try
 					{
-						
+						if(previousHostInfo != null)
+						{
+						    previousHostInfo.increaseExceptionCount();
+						}
 						MqttException exception = (MqttException) value;
 						handleMqttException(exception, true);
 					}
