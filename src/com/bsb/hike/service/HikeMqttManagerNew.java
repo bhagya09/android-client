@@ -898,6 +898,12 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 				{
 					try
 					{
+						if(previousHostInfo!=null && previousHostInfo.getExceptionCount() > 6)
+						{
+							//-1 implies connect success
+							sendHttpNetworkTestRequest(-1);
+						}
+
 						pushConnect = false;
 						retryCount = 0;
 						fastReconnect = 0;
