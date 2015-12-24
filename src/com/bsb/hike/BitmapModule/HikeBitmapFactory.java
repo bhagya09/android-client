@@ -1388,7 +1388,9 @@ public class HikeBitmapFactory
 
 		String initials = "";
 
-		String contactName = ContactManager.getInstance().getName(msisdn, true);
+		ContactInfo contactInfo = ContactManager.getInstance().getContact(msisdn,true,true,false);
+
+		String contactName = contactInfo.getNameOrMsisdn();
 
 		if (contactName == null)
 		{
