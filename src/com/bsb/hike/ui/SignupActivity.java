@@ -2170,8 +2170,6 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 
 	private TextWatcher nameWatcher = new TextWatcher()
 	{
-		String initials = "";
-
 		public void beforeTextChanged(CharSequence s, int start, int count, int after)
 		{
 
@@ -2184,27 +2182,23 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 
 		public void afterTextChanged(Editable s)
 		{
-			if (s == null)
+			if (s == null || mActivityState.profileBitmap != null)
+			{
 				return;
+			}
 
 			String newText = s.toString();
 
-			if (TextUtils.isEmpty(newText))
+			if (newText == null || TextUtils.isEmpty(newText.trim()))
 			{
-
+				Drawable drawable = HikeBitmapFactory.getRandomHashTextDrawable();
+				mIconView.setImageDrawable(drawable);
+				return;
 			}
 
 			String newInitials = HikeBitmapFactory.getNameInitialsForDefaultAv(newText);
-
-			if (!initials.equals(newInitials))
-			{
-				initials = newInitials;
-				if (mActivityState.profileBitmap == null)
-				{
-					Drawable drawable = HikeBitmapFactory.getDefaultTextAvatar(newText);
-					mIconView.setImageDrawable(drawable);
-				}
-			}
+			Drawable drawable = HikeBitmapFactory.getDefaultTextAvatar(newInitials);
+			mIconView.setImageDrawable(drawable);
 		}
 	};
 

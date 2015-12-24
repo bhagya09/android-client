@@ -1351,7 +1351,7 @@ public class HikeBitmapFactory
 		}
 	}
 	
-	private static TextDrawable getRandomHashTextDrawable()
+	public static TextDrawable getRandomHashTextDrawable()
 	{
 		TypedArray bgColorArray = Utils.getDefaultAvatarBG();
 
