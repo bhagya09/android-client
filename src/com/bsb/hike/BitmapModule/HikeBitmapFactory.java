@@ -1381,7 +1381,7 @@ public class HikeBitmapFactory
 	@SuppressWarnings("unused")
 	public static String getNameInitialsForDefaultAv(String msisdn)
 	{
-		if (TextUtils.isEmpty(msisdn))
+		if (TextUtils.isEmpty(msisdn.trim()))
 		{
 			return "#";
 		}
