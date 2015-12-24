@@ -940,7 +940,7 @@ public class HttpRequests
      * this request is just for checking that internet is working but mqtt is unable to connect.
      * we will send an async http call to server
      */
-    public static RequestToken httpNetworkTestRequest(int errorCode, int port, int networkType)
+    public static RequestToken httpNetworkTestRequest(int errorCode, int port, int networkType, int exceptionCount)
     {
         int isForeground = -1;
         if(HikeMessengerApp.getInstance() != null)
@@ -948,7 +948,7 @@ public class HttpRequests
             isForeground = Utils.isAppForeground(HikeMessengerApp.getInstance())? 1 : 0;
         }
 
-        String url = httpNetworkTestUrl() + "/" + errorCode+ "?port="+port +"&net="+networkType+"&fg="+isForeground;
+        String url = httpNetworkTestUrl() + "/" + errorCode+ "?port="+port +"&net="+networkType+"&fg="+isForeground+"&ec="+exceptionCount;
         RequestToken requestToken = new JSONObjectRequest.Builder()
                 .setUrl(url)
                 .setRequestType(REQUEST_TYPE_SHORT)
