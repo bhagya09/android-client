@@ -1202,7 +1202,8 @@ public class HikeMqttManagerNew extends BroadcastReceiver
             return;
         }
 
-        RequestToken requestToken =  HttpRequests.httpNetworkTestRequest(errorCode);
+        int port = previousHostInfo != null ? previousHostInfo.getPort() : 0;
+        RequestToken requestToken =  HttpRequests.httpNetworkTestRequest(errorCode, port);
         requestToken.execute();
     }
 	private void handleMqttException(MqttException e, boolean reConnect)
@@ -1377,6 +1378,7 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 			break;
 		default:
 			Logger.e(TAG, "In Default : " + e.getMessage());
+			handleOtherException();
 			mqttConnStatus = MQTTConnectionStatus.NOT_CONNECTED;
 			connectOnMqttThread(getConnRetryTime());
 			sendAnalyticsEvent(e, MqttConstants.EXCEPTION_DEFAULT);

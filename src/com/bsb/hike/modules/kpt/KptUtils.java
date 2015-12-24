@@ -82,6 +82,20 @@ public class KptUtils
 			mCustomKeyboard.onPause();
 		}
 	}
+
+	// Adding on resume call on Dec 16, 2015
+	// Kpt team just realised that this callback is important to them.
+	// They tried to fix issues: AND-4160 && AND-4159
+	// Which resulted in another issue: suggestions not working in first chat thread launch.
+	// For fixing this issue we need to make onResume call on kpt keyboard.
+	// So we are placing onResume call on every activity we have made on the onPause call.
+	public static void resumeKeyboard(CustomKeyboard mCustomKeyboard)
+	{
+		if (mCustomKeyboard != null)
+		{
+			mCustomKeyboard.onResume();
+		}
+	}
 	
 	public static final void updatePadding(Activity activity, int resourceView, int bottomPadding)
 	{
