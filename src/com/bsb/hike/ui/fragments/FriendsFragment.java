@@ -1,9 +1,5 @@
 package com.bsb.hike.ui.fragments;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -35,13 +31,21 @@ import com.bsb.hike.adapters.FriendsAdapter.ViewType;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.tasks.ConvertToJsonArrayTask;
 import com.bsb.hike.ui.CreateNewGroupOrBroadcastActivity;
+import com.bsb.hike.ui.PeopleActivity;
 import com.bsb.hike.ui.TellAFriend;
 import com.bsb.hike.utils.LastSeenScheduler;
 import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.Utils;
 
-public class FriendsFragment extends ListFragment implements Listener, OnItemLongClickListener, OnScrollListener
+import org.json.JSONArray;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+public class FriendsFragment extends ListFragment implements Listener, OnItemLongClickListener, OnScrollListener,ConvertToJsonArrayTask.ConvertToJsonArrayCallback
 {
 
 	private FriendsAdapter friendsAdapter;
@@ -62,6 +66,8 @@ public class FriendsFragment extends ListFragment implements Listener, OnItemLon
 
 	private long previousEventTime;
 
+    public String msisdnList = "";
+
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
 	{
@@ -69,8 +75,22 @@ public class FriendsFragment extends ListFragment implements Listener, OnItemLon
 
 		ListView friendsList = (ListView) parent.findViewById(android.R.id.list);
 
-		friendsAdapter = new FriendsAdapter(getActivity(), friendsList, friendsListFetchedCallback, ContactInfo.lastSeenTimeComparator);
-		friendsAdapter.setLoadingView(parent.findViewById(R.id.spinner));
+		if (getActivity() instanceof PeopleActivity)
+		{
+
+			if (((PeopleActivity) getActivity()).showFilteredContacts)
+			{
+				msisdnList = ((PeopleActivity) getActivity()).msisdnList;
+				friendsAdapter = new FriendsAdapter(getActivity(), friendsList, friendsListFetchedCallback, ContactInfo.lastSeenTimeComparator, ((PeopleActivity) getActivity()).showFilteredContacts, msisdnList);
+			}
+			else
+			{
+				friendsAdapter = new FriendsAdapter(getActivity(), friendsList, friendsListFetchedCallback, ContactInfo.lastSeenTimeComparator);
+			}
+
+		}
+
+        friendsAdapter.setLoadingView(parent.findViewById(R.id.spinner));
 		friendsAdapter.setEmptyView(parent.findViewById(R.id.noResultView));
 
 		friendsList.setAdapter(friendsAdapter);
@@ -138,8 +158,19 @@ public class FriendsFragment extends ListFragment implements Listener, OnItemLon
 	public void onListItemClick(ListView l, View v, int position, long id)
 	{
 		ContactInfo contactInfo = friendsAdapter.getItem(position);
+        ArrayList<ContactInfo> contactInfos = new ArrayList<>(1);
 
-		if (FriendsAdapter.SECTION_ID.equals(contactInfo.getId()) || FriendsAdapter.EMPTY_ID.equals(contactInfo.getId()))
+
+        if(getActivity() instanceof PeopleActivity && ((PeopleActivity)getActivity()).showFilteredContacts)
+        {
+            contactInfos.add(contactInfo);
+            ConvertToJsonArrayTask task = new ConvertToJsonArrayTask(this,contactInfos,true);
+            Utils.executeJSONArrayResultTask(task);
+            return;
+        }
+
+
+        if (FriendsAdapter.SECTION_ID.equals(contactInfo.getId()) || FriendsAdapter.EMPTY_ID.equals(contactInfo.getId()))
 		{
 			return;
 		}
@@ -589,4 +620,13 @@ public class FriendsFragment extends ListFragment implements Listener, OnItemLon
 	{
 		friendsAdapter.setIsListFlinging(velocity > HikeConstants.MAX_VELOCITY_FOR_LOADING_IMAGES_SMALL && scrollState == OnScrollListener.SCROLL_STATE_FLING);
 	}
+
+    @Override
+    public void onCallBack(JSONArray array) {
+        Intent intent = getActivity().getIntent();
+        intent.putExtra(HikeConstants.HIKE_CONTACT_PICKER_RESULT, array == null ? "" : array.toString());
+        intent.putExtra(HikeConstants.Extras.FUNCTION_ID,getActivity().getIntent().getStringExtra(HikeConstants.Extras.FUNCTION_ID));
+        getActivity().setResult(getActivity().RESULT_OK, intent);
+        getActivity().finish();
+    }
 }

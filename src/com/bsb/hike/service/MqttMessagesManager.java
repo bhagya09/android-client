@@ -2707,6 +2707,12 @@ public class MqttMessagesManager
 			String options = data.getJSONObject(OfflineConstants.HIKE_DIRECT_MENU_OPTIONS).toString();
 			HikeSharedPreferenceUtil.getInstance().saveData(OfflineConstants.HIKE_DIRECT_MENU_OPTIONS, options);
 		}
+
+		if (data.has(HikePlatformConstants.RECURRING_LOCATION))
+		{
+			JSONObject json = data.getJSONObject(HikePlatformConstants.RECURRING_LOCATION);
+			PlatformUtils.requestRecurringLocationUpdates(json);
+		}
 		if (data.has(HikeConstants.LOCALIZATION_ENABLED))
 		{
 			Utils.setLocalizationEnable(data.optBoolean(HikeConstants.LOCALIZATION_ENABLED));
@@ -2725,7 +2731,7 @@ public class MqttMessagesManager
             boolean enable = data.getBoolean(HikeConstants.HTTP_NETWORK_CHECK_CALL);
             HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.HTTP_NETWORK_CHECK_CALL, enable);
         }
-		
+
 		editor.commit();
 		this.pubSub.publish(HikePubSub.UPDATE_OF_MENU_NOTIFICATION, null);
 		

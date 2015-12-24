@@ -4,6 +4,7 @@
 package com.bsb.hike.modules.contactmgr;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -796,6 +797,59 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 		}
 		
 		return contact;
+	}
+
+
+    /**
+     * The parameter <code>number</code> would be array of Phone numbers and array of msisdn, so this method returns {@link List<ContactInfo>} object in which either Phone number matches number or
+     * msisdn matches number.
+     *
+     * @param
+     * @return
+     */
+	public List<ContactInfo> getContactInfoListForMsisdnFilter(String msisdnList)
+	{
+
+		List<String> msisdns = new ArrayList<String>(Arrays.asList(msisdnList.split(",")));
+
+		List<ContactInfo> contactInfoList = new ArrayList<>();
+
+		// Traversing and checking in both persistent and transient cache for msisdns list
+		Iterator<String> it = msisdns.iterator();
+		while (it.hasNext())
+		{
+			String number = it.next();
+			if (!TextUtils.isEmpty(number))
+			{
+				ContactInfo contact = persistenceCache.getContactInfoFromPhoneNoOrMsisdn(number);
+				if (null != contact)
+				{
+					contactInfoList.add(contact);
+					it.remove();
+				}
+				else
+				{
+					contact = transientCache.getContactInfoFromPhoneNoOrMsisdn(number);
+					if (null != contact)
+					{
+						contactInfoList.add(contact);
+						it.remove();
+					}
+				}
+			}
+		}
+
+		List contactsInfoListFromDbCall = new ArrayList();
+
+		if (msisdns.size() > 0)
+		{
+			contactsInfoListFromDbCall = transientCache.getContactListFromDb(msisdns);
+		}
+
+		if (contactsInfoListFromDbCall != null)
+			contactInfoList.addAll(contactsInfoListFromDbCall);
+
+		return contactInfoList;
 	}
 
 	@Override
