@@ -1203,7 +1203,8 @@ public class HikeMqttManagerNew extends BroadcastReceiver
         }
 
         int port = previousHostInfo != null ? previousHostInfo.getPort() : 0;
-        RequestToken requestToken =  HttpRequests.httpNetworkTestRequest(errorCode, port);
+        int networkType = previousNetInfo != null ? previousNetInfo.getNetworkType() : -1;
+        RequestToken requestToken =  HttpRequests.httpNetworkTestRequest(errorCode, port, networkType);
         requestToken.execute();
     }
 	private void handleMqttException(MqttException e, boolean reConnect)
