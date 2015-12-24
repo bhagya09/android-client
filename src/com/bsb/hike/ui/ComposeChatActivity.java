@@ -353,29 +353,79 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			
 			if (savedInstanceState == null && Intent.ACTION_SEND.equals(getIntent().getAction()) ) 
 			{
-				if(HikeFileType.fromString(getIntent().getType()).compareTo(HikeFileType.IMAGE)==0 && Utils.isPhotosEditEnabled()) 
+				if(HikeFileType.fromString(getIntent().getType()).compareTo(HikeFileType.IMAGE)==0)
 				{ 
-					String filePath = Utils.getAbsolutePathFromUri((Uri) getIntent().getParcelableExtra(Intent.EXTRA_STREAM), getApplicationContext(),true);
-					if(filePath != null)
-						startActivityForResult(IntentFactory.getPictureEditorActivityIntent(getApplicationContext(), filePath, true, null, false),HikeConstants.ResultCodes.PHOTOS_REQUEST_CODE);
+					String filePath = Utils.getAbsolutePathFromUri((Uri) getIntent().getParcelableExtra(Intent.EXTRA_STREAM), getApplicationContext(), true);
+					ArrayList<String> filePathArrayList = new ArrayList<String>();
+					filePathArrayList.add(filePath);
+					ArrayList<GalleryItem> selectedImages = GalleryItem.getGalleryItemsFromFilepaths(filePathArrayList);
+					if((selectedImages!=null))
+					{
+						Intent multiIntent = IntentFactory.getImageSelectionIntent(getApplicationContext(),selectedImages,true);
+						startActivityForResult(multiIntent,GallerySelectionViewer.MULTI_EDIT_REQUEST_CODE);
+					}
 				}
 			} 
-			
 			else if(savedInstanceState == null && Intent.ACTION_SEND_MULTIPLE.equals(getIntent().getAction()))
 			{
-				
 				ArrayList<Uri> imageUris = getIntent().getParcelableArrayListExtra(Intent.EXTRA_STREAM);
 				ArrayList<GalleryItem> selectedImages = GalleryItem.getGalleryItemsFromFilepaths(imageUris);
-				if((selectedImages!=null) && Utils.isPhotosEditEnabled()) 
+				if((selectedImages!=null))
 				{
-					Intent multiIntent = new Intent(getApplicationContext(),GallerySelectionViewer.class);
-					multiIntent.putParcelableArrayListExtra(HikeConstants.Extras.GALLERY_SELECTIONS, selectedImages);
-					multiIntent.putExtra(GallerySelectionViewer.FROM_DEVICE_GALLERY_SHARE, true);
-					startActivityForResult(multiIntent,GallerySelectionViewer.MULTI_EDIT_REQUEST_CODE);
+					Intent multiIntent = IntentFactory.getImageSelectionIntent(getApplicationContext(),selectedImages,true);
+					startActivityForResult(multiIntent, GallerySelectionViewer.MULTI_EDIT_REQUEST_CODE);
 				}
 			}
 			
 			isForwardingMessage = true;
+		}
+		else if (isForwardingMessage)
+		{
+			if (getIntent().hasExtra(HikeConstants.Extras.MULTIPLE_MSG_OBJECT))
+			{
+				boolean allImages = true;
+				ArrayList<String> imageFilePathArray = new ArrayList<String>();
+
+				String jsonString = getIntent().getStringExtra(HikeConstants.Extras.MULTIPLE_MSG_OBJECT);
+				try
+				{
+					JSONArray multipleMsgFwdArray = new JSONArray(jsonString);
+
+					for (int i = 0; i < multipleMsgFwdArray.length(); i++)
+					{
+						JSONObject msgExtrasJson = (JSONObject) multipleMsgFwdArray.get(i);
+
+						if (msgExtrasJson.has(HikeConstants.Extras.FILE_PATH))
+						{
+							String filePath = msgExtrasJson.getString(HikeConstants.Extras.FILE_PATH);
+							//TODO check for recording
+							if(HikeFileType.fromFilePath(filePath, false).compareTo(HikeFileType.IMAGE) != 0)
+							{
+								allImages = false;
+								break;
+							}
+							else
+							{
+								imageFilePathArray.add(filePath);
+							}
+						}
+					}
+				}
+				catch (JSONException e)
+				{
+					e.printStackTrace();
+				}
+
+				if(allImages)
+				{
+					ArrayList<GalleryItem> selectedImages = GalleryItem.getGalleryItemsFromFilepaths(imageFilePathArray);
+					if((selectedImages!=null))
+					{
+						Intent multiIntent = IntentFactory.getImageSelectionIntent(getApplicationContext(),selectedImages,true);
+						startActivityForResult(multiIntent, GallerySelectionViewer.MULTI_EDIT_REQUEST_CODE);
+					}
+				}
+			}
 		}
 
 		if(nuxIncentiveMode){
@@ -390,8 +440,6 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		
 		mPubSub = HikeMessengerApp.getPubSub();
 		mPubSub.addListeners(this, hikePubSubListeners);
-		
-		
 	}
 
 	private void initCustomKeyboard()
@@ -754,8 +802,6 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		{
 			showProductPopup(triggerPointForPopup);
 		}
-
-		
 	}
 
 	private void initTagEditText()
