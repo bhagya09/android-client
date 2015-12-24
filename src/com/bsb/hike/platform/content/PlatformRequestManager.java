@@ -1,13 +1,16 @@
 package com.bsb.hike.platform.content;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-
 import android.os.Handler;
 import android.os.Looper;
 
 import com.bsb.hike.platform.content.PlatformContent.EventCode;
+import com.bsb.hike.platform.ContentModules.PlatformContentRequest;
 import com.bsb.hike.utils.Logger;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+
+import static com.bsb.hike.platform.ContentModules.PlatformContentLoader.getLoader;
 
 public class PlatformRequestManager
 {
@@ -51,7 +54,7 @@ public class PlatformRequestManager
 	 */
 	public static void addRequest(final PlatformContentRequest argRequest)
 	{
-		PlatformContentLoader.getLoader().post(new Runnable()
+		getLoader().post(new Runnable()
 		{
 			@Override
 			public void run()
@@ -98,7 +101,7 @@ public class PlatformRequestManager
 
 			if (nextRequest != null)
 			{
-				PlatformContentLoader.getLoader().loadData(nextRequest);
+				getLoader().loadData(nextRequest);
 			}
 		}
 
@@ -130,7 +133,7 @@ public class PlatformRequestManager
 
 	public static synchronized void setReadyState(final PlatformContentRequest argRequest)
 	{
-		PlatformContentLoader.getLoader().post(new Runnable()
+		getLoader().post(new Runnable()
 		{
 			@Override
 			public void run()
@@ -144,7 +147,7 @@ public class PlatformRequestManager
 	public static void remove(final PlatformContentRequest argRequest)
 	{
 
-		PlatformContentLoader.getLoader().post(new Runnable()
+		getLoader().post(new Runnable()
 		{
 			@Override
 			public void run()
@@ -181,7 +184,7 @@ public class PlatformRequestManager
 
 	public static void reportFailure(final PlatformContentRequest argRequest, final EventCode error)
 	{
-		PlatformContentLoader.getLoader().post(new Runnable()
+		getLoader().post(new Runnable()
 		{
 			@Override
 			public void run()
@@ -250,7 +253,7 @@ public class PlatformRequestManager
 	
 	public static void onDestroy()
 	{
-		PlatformContentLoader.getLoader().post(new Runnable()
+		getLoader().post(new Runnable()
 		{
 			@Override
 			public void run()

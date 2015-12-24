@@ -62,6 +62,7 @@ import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.ui.ComposeChatActivity;
 import com.bsb.hike.ui.fragments.ShareLinkFragment;
 import com.bsb.hike.utils.AccountUtils;
+import com.bsb.hike.utils.CustomAnnotation.DoNotObfuscate;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
@@ -78,7 +79,7 @@ import com.bsb.hike.utils.Utils;
  */
 
 
-
+@DoNotObfuscate
 public abstract class JavascriptBridge
 {
 	protected CustomWebView mWebView;
