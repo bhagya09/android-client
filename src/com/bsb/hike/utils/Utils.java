@@ -4538,21 +4538,17 @@ public class Utils
 
 		if (isPin || drawable == null)
 		{
-			Drawable background = context.getResources().getDrawable(BitmapUtils.getDefaultAvatarResourceId(msisdn, false));
-
-			Drawable iconDrawable = null;
-
 			if (isPin)
 			{
-				iconDrawable = context.getResources().getDrawable(R.drawable.ic_pin_notification);
+				Drawable background = context.getResources().getDrawable(BitmapUtils.getDefaultAvatarResourceId(msisdn, false));
+				Drawable iconDrawable = context.getResources().getDrawable(R.drawable.ic_pin_notification);
+				drawable = new LayerDrawable(new Drawable[] { background, iconDrawable });
 			}
 			else
 			{
-				iconDrawable = context.getResources().getDrawable(
-						OneToNConversationUtils.isBroadcastConversation(msisdn) ? R.drawable.ic_default_avatar_broadcast
-								: (OneToNConversationUtils.isGroupConversation(msisdn) ? R.drawable.ic_default_avatar_group : R.drawable.ic_default_avatar));
+				drawable = HikeBitmapFactory.getDefaultTextAvatar(msisdn);
 			}
-			drawable = new LayerDrawable(new Drawable[] { background, iconDrawable });
+
 		}
 		return drawable;
 	}
