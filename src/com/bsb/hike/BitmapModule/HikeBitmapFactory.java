@@ -36,8 +36,10 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.models.ContactInfo;
+import com.bsb.hike.models.Conversation.OneToNConversation;
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.modules.contactmgr.GroupDetails;
 import com.bsb.hike.photos.HikePhotosListener;
 import com.bsb.hike.photos.HikePhotosUtils;
 import com.bsb.hike.smartcache.HikeLruCache;
@@ -46,6 +48,8 @@ import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.TextDrawable;
+
+import org.w3c.dom.Text;
 
 public class HikeBitmapFactory
 {
@@ -1328,8 +1332,11 @@ public class HikeBitmapFactory
 
 	public static Drawable getDefaultTextAvatar(String text, int fontSize)
 	{
-		TypedArray bgColorArray = Utils.getDefaultAvatarBG();
+		return getDefaultTextAvatar(text,fontSize,-1);
+	}
 
+	public static Drawable getDefaultTextAvatar(String text, int fontSize, int argBgColor)
+	{
 		if (TextUtils.isEmpty(text))
 		{
 			return getRandomHashTextDrawable();
@@ -1337,9 +1344,16 @@ public class HikeBitmapFactory
 
 		String initials = getNameInitialsForDefaultAv(text);
 
-		int index = BitmapUtils.iconHash(text) % (bgColorArray.length());
+		int bgColor = argBgColor;
 
-		int bgColor = bgColorArray.getColor(index, 0);
+		if (bgColor == -1)
+		{
+			TypedArray bgColorArray = Utils.getDefaultAvatarBG();
+
+			int index = BitmapUtils.iconHash(text) % (bgColorArray.length());
+
+			bgColor = bgColorArray.getColor(index, 0);
+		}
 
 		if (fontSize != -1)
 		{
@@ -1353,9 +1367,19 @@ public class HikeBitmapFactory
 	
 	public static TextDrawable getRandomHashTextDrawable()
 	{
-		TypedArray bgColorArray = Utils.getDefaultAvatarBG();
+		return getRandomHashTextDrawable(-1);
+	}
 
-		int bgColor = bgColorArray.getColor(new Random().nextInt(bgColorArray.length()), 0);
+	public static TextDrawable getRandomHashTextDrawable(int argBgColor)
+	{
+		int bgColor = argBgColor;
+
+		if (argBgColor == -1)
+		{
+			TypedArray bgColorArray = Utils.getDefaultAvatarBG();
+
+			bgColor = bgColorArray.getColor(new Random().nextInt(bgColorArray.length()), 0);
+		}
 
 		return TextDrawable.builder().buildRound("#", bgColor);
 	}
@@ -1386,20 +1410,43 @@ public class HikeBitmapFactory
 			return "#";
 		}
 
-		String initials = "";
+		String contactName = msisdn;
 
-		ContactInfo contactInfo = ContactManager.getInstance().getContact(msisdn,true,true,false);
-
-		String contactName = contactInfo.getNameOrMsisdn();
-
-		if (contactName == null)
+		if (OneToNConversationUtils.isOneToNConversation(msisdn) && ContactManager.getInstance().getGroupDetails(msisdn) != null)
 		{
-			contactName = msisdn;
+			GroupDetails groupDetails = ContactManager.getInstance().getGroupDetails(msisdn);
+
+			contactName = groupDetails.getGroupName();
+		}
+		else
+		{
+			ContactInfo contactInfo = ContactManager.getInstance().getContact(msisdn, true, true, false);
+
+			contactName = contactInfo.getName();
+
+			if (contactName == null)
+			{
+				if (ContactManager.getInstance().getSelfMsisdn().equals(msisdn))
+				{
+					contactName = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.NAME_SETTING, msisdn);
+				}
+				else
+				{
+					contactName = msisdn;
+				}
+			}
+		}
+
+		if (contactName == null || TextUtils.isEmpty(contactName.trim()))
+		{
+			return "#";
 		}
 
 		String[] nameArray = contactName.trim().split(" ");
 
 		char first = nameArray[0].charAt(0);
+
+		String initials = "";
 
 		if (Character.isLetter(first))
 		{

@@ -32,6 +32,7 @@ import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtKeyboordVisibilityStatus
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.graphics.drawable.Drawable;
@@ -75,7 +76,9 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 	private TextView postText;
 
 	private Bitmap groupBitmap;
-	
+
+	private int defAvBgColor;
+
 	/**
 	 * @author anubansal
 	 *
@@ -132,6 +135,12 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 					break;
 			}
 			setConversationId(conversationId);
+
+			TypedArray bgColorArray = Utils.getDefaultAvatarBG();
+
+			int index = BitmapUtils.iconHash(conversationId) % (bgColorArray.length());
+
+			defAvBgColor = bgColorArray.getColor(index, 0);
 		}
 
 		Object object = getLastCustomNonConfigurationInstance();
@@ -144,11 +153,11 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 		{
 			if (convType == ConvType.BROADCAST)
 			{
-				((ImageView) findViewById(R.id.broadcast_profile_image)).setImageDrawable(HikeBitmapFactory.getRandomHashTextDrawable());
+				((ImageView) findViewById(R.id.broadcast_profile_image)).setImageDrawable(HikeBitmapFactory.getRandomHashTextDrawable(defAvBgColor));
 			}
 			else if (convType == ConvType.GROUP)
 			{
-				convImage.setImageDrawable(HikeBitmapFactory.getRandomHashTextDrawable());
+				convImage.setImageDrawable(HikeBitmapFactory.getRandomHashTextDrawable(defAvBgColor));
 			}
 		}
 		
@@ -228,13 +237,12 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 
 					if (newText == null || TextUtils.isEmpty(newText.trim()))
 					{
-						Drawable drawable = HikeBitmapFactory.getRandomHashTextDrawable();
+						Drawable drawable = HikeBitmapFactory.getRandomHashTextDrawable(defAvBgColor);
 						convImage.setImageDrawable(drawable);
 						return;
 					}
 
-					String newInitials = HikeBitmapFactory.getNameInitialsForDefaultAv(newText);
-					Drawable drawable = HikeBitmapFactory.getDefaultTextAvatar(newInitials);
+					Drawable drawable = HikeBitmapFactory.getDefaultTextAvatar(newText, -1, defAvBgColor);
 					convImage.setImageDrawable(drawable);
 				}
 			});
@@ -280,13 +288,12 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 
 					if (newText == null || TextUtils.isEmpty(newText.trim()))
 					{
-						Drawable drawable = HikeBitmapFactory.getRandomHashTextDrawable();
+						Drawable drawable = HikeBitmapFactory.getRandomHashTextDrawable(defAvBgColor);
 						convImage.setImageDrawable(drawable);
 						return;
 					}
 
-					String newInitials = HikeBitmapFactory.getNameInitialsForDefaultAv(newText);
-					Drawable drawable = HikeBitmapFactory.getDefaultTextAvatar(newInitials);
+					Drawable drawable = HikeBitmapFactory.getDefaultTextAvatar(newText, -1, defAvBgColor);
 					convImage.setImageDrawable(drawable);
 				}
 			});
