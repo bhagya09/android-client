@@ -245,6 +245,8 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 	private boolean thumbnailsRequired= false;
 	
 	private boolean hasMicroappShowcaseIntent = false;
+
+	private boolean hasImageToShare;
 	 
 	@Override
 	public void onCreate(Bundle savedInstanceState)
@@ -363,6 +365,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 					{
 						Intent multiIntent = IntentFactory.getImageSelectionIntent(getApplicationContext(),selectedImages,true);
 						startActivityForResult(multiIntent,GallerySelectionViewer.MULTI_EDIT_REQUEST_CODE);
+						hasImageToShare = true;
 					}
 				}
 			} 
@@ -374,6 +377,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 				{
 					Intent multiIntent = IntentFactory.getImageSelectionIntent(getApplicationContext(),selectedImages,true);
 					startActivityForResult(multiIntent, GallerySelectionViewer.MULTI_EDIT_REQUEST_CODE);
+					hasImageToShare = true;
 				}
 			}
 			
@@ -407,6 +411,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 							else
 							{
 								imageFilePathArray.add(filePath);
+								hasImageToShare = true;
 							}
 						}
 					}
@@ -747,11 +752,11 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		case PICK_CONTACT_AND_SEND_MODE:
 		case PICK_CONTACT_MODE:
 			//We do not show sms contacts in broadcast mode
-			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage, (isForwardingMessage && !isSharingFile), fetchRecentlyJoined, existingGroupOrBroadcastId, sendingMsisdn, friendsListFetchedCallback, false, false);
+			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage, (isForwardingMessage && !isSharingFile), fetchRecentlyJoined, existingGroupOrBroadcastId, sendingMsisdn, friendsListFetchedCallback, false, false,hasImageToShare);
 			break;
 		case CREATE_GROUP_MODE:
 		default:
-			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage, (isForwardingMessage || isSharingFile), fetchRecentlyJoined, existingGroupOrBroadcastId, sendingMsisdn, friendsListFetchedCallback, true, (showMicroappShowcase && hasMicroappShowcaseIntent));
+			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage, (isForwardingMessage || isSharingFile), fetchRecentlyJoined, existingGroupOrBroadcastId, sendingMsisdn, friendsListFetchedCallback, true, (showMicroappShowcase && hasMicroappShowcaseIntent),hasImageToShare);
 			break;
 		}
 

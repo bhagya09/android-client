@@ -1,7 +1,11 @@
 package com.bsb.hike.adapters;
 
 import android.content.Context;
+import android.content.Intent;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.LayerDrawable;
 import android.preference.PreferenceManager;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
@@ -22,13 +26,16 @@ import com.bsb.hike.NUXConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
+import com.bsb.hike.models.HikeFeature;
 import com.bsb.hike.models.NuxSelectFriends;
 import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.photos.HikePhotosUtils;
 import com.bsb.hike.smartImageLoader.IconLoader;
 import com.bsb.hike.tasks.FetchFriendsTask;
 import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.utils.EmoticonConstants;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.NUXManager;
 import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.SmileyParser;
@@ -45,6 +52,8 @@ import java.util.Map;
 
 public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionListAdapter
 {
+
+	private final boolean showTimeline;
 
 	private Map<String, ContactInfo> selectedPeople;
 
@@ -84,7 +93,7 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 	
 	private MicroappsListAdapter microappsListAdapter;
 
-	public ComposeChatAdapter(Context context, ListView listView, boolean fetchGroups, boolean fetchRecents, boolean fetchRecentlyJoined, String existingGroupId, String sendingMsisdn, FriendsListFetchedCallback friendsListFetchedCallback, boolean showSMSContacts, boolean showMicroappShowcase)
+	public ComposeChatAdapter(Context context, ListView listView, boolean fetchGroups, boolean fetchRecents, boolean fetchRecentlyJoined, String existingGroupId, String sendingMsisdn, FriendsListFetchedCallback friendsListFetchedCallback, boolean showSMSContacts, boolean showMicroappShowcase, boolean showTimeline)
 	{
 		super(context, listView, friendsListFetchedCallback, ContactInfo.lastSeenTimeComparatorWithoutFav);
 		selectedPeople = new LinkedHashMap<String, ContactInfo>();
@@ -115,6 +124,7 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 		 * We should show sms contacts section in new compose
 		 */
 		this.showSMSContacts = showSMSContacts;
+		this.showTimeline = showTimeline;
 	}
 
 	public void setIsCreatingOrEditingGroup(boolean b)
@@ -175,7 +185,6 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent)
 	{
-		// TODO Auto-generated method stub
 		ViewType viewType = ViewType.values()[getItemViewType(position)];
 
 		ContactInfo contactInfo = null;
@@ -184,7 +193,6 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 		if (convertView == null)
 		{
 			convertView = inflateView(viewType, parent);
-
 		}
 
 		contactInfo = getItem(position);
@@ -212,8 +220,9 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 				case CONTACT_SMS_NUM:
 					tv.setCompoundDrawablesWithIntrinsicBounds(context.getResources().getDrawable(R.drawable.ic_section_header_sms_contact), null, null, null);
 					break;
-					
+
 				case APPS_ON_HIKE:
+				case HIKE_FEATURES_ID:
 					tv.setCompoundDrawablesWithIntrinsicBounds(context.getResources().getDrawable(R.drawable.ic_section_header_hike_apps), null, null, null);
 					break;
 				}
@@ -225,6 +234,25 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 				tv.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
 			}
 
+		}
+		else if (viewType == ViewType.HIKE_FEATURES)
+		{
+			holder = (ViewHolder) convertView.getTag();
+			HikeFeature hikeFeature = (HikeFeature)contactInfo;
+			holder.name.setText(hikeFeature.getName());
+			holder.checkbox.setVisibility(hikeFeature.isShowCheckBox() ? View.VISIBLE : View.GONE);
+			holder.status.setText(hikeFeature.getDescription());
+
+			Drawable timelineLogoDrawable = ContextCompat.getDrawable(context, hikeFeature.getIconDrawable());
+			Drawable otherFeaturesDrawable = ContextCompat.getDrawable(context, R.drawable.other_features_bg);
+
+			holder.userImage.setImageDrawable(timelineLogoDrawable);
+
+			int paddingPx = HikePhotosUtils.dpToPx(10);
+
+			holder.userImage.setPadding(paddingPx,paddingPx,paddingPx,paddingPx);
+
+			holder.userImage.setBackground(otherFeaturesDrawable);
 		}
 		else if (viewType == ViewType.EXTRA)
 		{
@@ -238,7 +266,6 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 				microappsListAdapter.notifyDataSetChanged();
 			}
 		}
-		
 		else
 		{
 			holder = (ViewHolder) convertView.getTag();
@@ -535,6 +562,16 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 		if (!shouldContinue)
 		{
 			return;
+		}
+
+		if(showTimeline)
+		{
+			ContactInfo otherFeaturesSection = new ContactInfo(SECTION_ID, "1", context.getResources().getString(R.string.you).toUpperCase(), HIKE_FEATURES_ID);
+			ContactInfo timelineListItem = new HikeFeature(context.getResources().getString(R.string.timeline),R.drawable.ic_timeline,context.getResources().getString(R.string.timeline_short_desc), true, new Intent());
+			timelineListItem.setId(HIKE_FEATURES_ID);
+			timelineListItem.setPhoneNum(HIKE_FEATURES_ID);
+			completeList.add(otherFeaturesSection);
+			completeList.add(timelineListItem);
 		}
 		
 		if (showMicroappShowcase && filteredmicroAppShowcaseList != null)

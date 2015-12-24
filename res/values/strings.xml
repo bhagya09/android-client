@@ -1503,4 +1503,5 @@
     <string name="tamil">Tamil</string>
     <string name="telugu">Telugu</string>
     <string name="english">English</string>
+    <string name="timeline_short_desc">Share your moments with friends</string>
 </resources>
