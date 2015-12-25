@@ -35,7 +35,7 @@ public class RemoveDeletedStickerTagsTask implements Runnable
 	{
 		if (removalType == StickerSearchConstants.REMOVAL_BY_EXCLUSION_IN_EXISTING_STCIKERS)
 		{
-			infoSet = removeTagsByExclusionOfExistingStickersFromAllStickers();
+			infoSet = getExistingStickers();
 		}
 
 		if (infoSet == null)
@@ -46,7 +46,7 @@ public class RemoveDeletedStickerTagsTask implements Runnable
 		StickerSearchDataController.getInstance().updateStickerList(infoSet, removalType);
 	}
 
-	private Set<String> removeTagsByExclusionOfExistingStickersFromAllStickers()
+	private Set<String> getExistingStickers()
 	{
 		// If there is no external storage, do not delete any tags. In this case, we don't show any recommendation.
 		if (!Utils.isUserSignedUp(HikeMessengerApp.getInstance(), false) || (Utils.getExternalStorageState() == ExternalStorageState.NONE))

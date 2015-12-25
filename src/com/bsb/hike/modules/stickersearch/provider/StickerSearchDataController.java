@@ -608,7 +608,7 @@ public enum StickerSearchDataController
 				switch (type)
 				{
 				case StickerSearchConstants.REMOVAL_BY_CATEGORY_DELETED: // List of categories deleted
-					
+					HikeStickerSearchDatabase.getInstance().removeTagsForDeletedCategories(infoSet);
 					break;
 
 				case StickerSearchConstants.REMOVAL_BY_STICKER_DELETED: // List of stickers deleted

@@ -1252,9 +1252,10 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		{
 			if (c != null)
 			{
+				int stickerInfoIndex = c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_RECOGNIZER_CODE);
 				while (c.moveToNext())
 				{
-					removedStickerInfoSet.add(c.getString(c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_RECOGNIZER_CODE)));
+					removedStickerInfoSet.add(c.getString(stickerInfoIndex));
 				}
 
 				c.close();
@@ -1265,6 +1266,56 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 
 		// Exclude the available stickers from all stickers to get deleted stickers
 		removedStickerInfoSet.removeAll(existingStickerInfoSet);
+
+		removeTagsForDeletedStickers(removedStickerInfoSet);
+	}
+
+	public void removeTagsForDeletedCategories(Set<String> deletedCategorySet)
+	{
+		if (Utils.isEmpty(deletedCategorySet))
+		{
+			return;
+		}
+
+		Iterator<String> iterator = deletedCategorySet.iterator();
+		int lengthBeforeLastElement = deletedCategorySet.size() - 1;
+		StringBuilder sb = new StringBuilder();
+		String stickerInfoPrefix;
+		for (int i = 0; iterator.hasNext(); i++)
+		{
+			stickerInfoPrefix = iterator.next() + StickerManager.STRING_DELIMETER;
+			sb.append(HikeStickerSearchBaseConstants.STICKER_RECOGNIZER_CODE + " LIKE '" + stickerInfoPrefix + "%'");
+
+			// Do not add ' OR ' separator after last element syntax in sub-condition
+			if (i != lengthBeforeLastElement)
+			{
+				sb.append(HikeStickerSearchBaseConstants.SYNTAX_OR_NEXT);
+			}
+		}
+		
+		HashSet<String> removedStickerInfoSet = new HashSet<String>();
+		Cursor c = null;
+		try
+		{
+			String whereConditionToGetRemovedStickers = sb.toString();
+			c = mDb.query(true, HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING, new String[] { HikeStickerSearchBaseConstants.STICKER_RECOGNIZER_CODE },
+					whereConditionToGetRemovedStickers, null, null, null, null, null);
+		}
+		finally
+		{
+			if (c != null)
+			{
+				int stickerInfoIndex = c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_RECOGNIZER_CODE);
+				while (c.moveToNext())
+				{
+					removedStickerInfoSet.add(c.getString(stickerInfoIndex));
+				}
+
+				c.close();
+				c = null;
+			}
+			SQLiteDatabase.releaseMemory();
+		}
 
 		removeTagsForDeletedStickers(removedStickerInfoSet);
 	}
@@ -1280,6 +1331,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		Iterator<String> iterator = deletedStickerInfoSet.iterator();
 		String[] args = new String[deletedStickerInfoSet.size()];
 		Cursor c = null;
+		String whereConditionForGivenStickers;
 
 		for (int i = 0; iterator.hasNext(); i++)
 		{
@@ -1295,10 +1347,12 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 
 			try
 			{
-				c = mDb.query(HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING, null,
-						HikeStickerSearchBaseConstants.STICKER_RECOGNIZER_CODE + HikeStickerSearchBaseConstants.SYNTAX_IN + HikeStickerSearchBaseConstants.SYNTAX_BRACKET_OPEN
-								+ StickerSearchUtility.getSQLiteDatabaseMultipleParametersSyntax(count) + HikeStickerSearchBaseConstants.SYNTAX_BRACKET_CLOSE,
-						Arrays.copyOfRange(args, j, indexLimit), null, null, null);
+				whereConditionForGivenStickers = HikeStickerSearchBaseConstants.STICKER_RECOGNIZER_CODE + HikeStickerSearchBaseConstants.SYNTAX_IN
+						+ HikeStickerSearchBaseConstants.SYNTAX_BRACKET_OPEN + StickerSearchUtility.getSQLiteDatabaseMultipleParametersSyntax(count)
+						+ HikeStickerSearchBaseConstants.SYNTAX_BRACKET_CLOSE;
+
+				c = mDb.query(HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING, null, whereConditionForGivenStickers, Arrays.copyOfRange(args, j, indexLimit), null, null,
+						null);
 			}
 			finally
 			{

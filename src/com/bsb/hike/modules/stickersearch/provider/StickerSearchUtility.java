@@ -1041,7 +1041,7 @@ public class StickerSearchUtility
 					sb.append(HikeStickerSearchBaseConstants.SYNTAX_BRACKET_CLOSE);
 				}
 
-				// Do not add ' AND ' separator after last element syntax in sub-condition
+				// Do not add ' AND ' separator after sub-condition syntax of last element
 				if (i != lengthBeforeLastElement)
 				{
 					sb.append(HikeStickerSearchBaseConstants.SYNTAX_AND_NEXT);
