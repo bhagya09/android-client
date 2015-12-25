@@ -597,15 +597,31 @@ public enum StickerSearchDataController
 		}
 	}
 
-	public void updateStickerList(Set<String> stickerInfoSet)
+	public void updateStickerList(Set<String> infoSet, int type)
 	{
-		Logger.i(TAG, "updateStickerList(" + stickerInfoSet + ")");
+		Logger.i(TAG, "updateStickerList(" + infoSet + ")");
 
 		if (Utils.isHoneycombOrHigher())
 		{
 			synchronized (StickerSearchDataController.class)
 			{
-				HikeStickerSearchDatabase.getInstance().disableTagsForDeletedStickers(stickerInfoSet);
+				switch (type)
+				{
+				case StickerSearchConstants.REMOVAL_BY_CATEGORY_DELETED: // List of categories deleted
+					
+					break;
+
+				case StickerSearchConstants.REMOVAL_BY_STICKER_DELETED: // List of stickers deleted
+					HikeStickerSearchDatabase.getInstance().removeTagsForDeletedStickers(infoSet);
+					break;
+
+				case StickerSearchConstants.REMOVAL_BY_EXCLUSION_IN_EXISTING_STCIKERS: // List of current existing stickers
+					HikeStickerSearchDatabase.getInstance().removeTagsForNonExistingStickers(infoSet);
+					break;
+
+				default:
+					Logger.e(TAG, "updateStickerList(), Unknown request type.");
+				}
 			}
 		}
 		else

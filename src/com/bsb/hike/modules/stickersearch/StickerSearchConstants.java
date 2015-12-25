@@ -195,4 +195,12 @@ public class StickerSearchConstants
 
 	// Threshold number of stickers left, below which sticker recommendation will be turned on by default
 	public static final int THRESHOLD_NUM_STICKERS = 50;
+
+	// Constants used for removing tags for given stickers/ stickers excluded in currently available stickers=================[[
+	public static final int REMOVAL_BY_CATEGORY_DELETED = 0;
+
+	public static final int REMOVAL_BY_STICKER_DELETED = 1;
+
+	public static final int REMOVAL_BY_EXCLUSION_IN_EXISTING_STCIKERS = 2;
+	// =================Constants used for removing tags for given stickers/ stickers excluded in currently available stickers]]
 }
