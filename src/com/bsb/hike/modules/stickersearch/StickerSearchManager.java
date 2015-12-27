@@ -415,9 +415,9 @@ public class StickerSearchManager
 		searchEngine.runOnQueryThread(stickerSearchSetupTask);
 	}
 
-	public void removeDeletedStickerTags()
+	public void removeDeletedStickerTags(Set<String> infoSet, int removalType)
 	{
-		RemoveDeletedStickerTagsTask removeDeletedStickerTagsTask = new RemoveDeletedStickerTagsTask();
+		RemoveDeletedStickerTagsTask removeDeletedStickerTagsTask = new RemoveDeletedStickerTagsTask(infoSet, removalType);
 		searchEngine.runOnQueryThread(removeDeletedStickerTagsTask);
 	}
 

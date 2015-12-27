@@ -356,7 +356,6 @@ public class StickerManager
 
 	public Map<String, StickerCategory> getStickerCategoryMap()
 	{
-		// TODO Auto-generated method stub
 		return stickerCategoriesMap;
 	}
 
@@ -518,10 +517,9 @@ public class StickerManager
 		}
 		Sticker st = new Sticker(categoryId, stickerId);
 		removeStickerFromCustomCategory(st);
-
 	}
 
-	public void removeStickerFromCustomCategory(Sticker st)
+	private void removeStickerFromCustomCategory(Sticker st)
 	{
 		for (StickerCategory category : stickerCategoriesMap.values())
 		{
@@ -2451,7 +2449,6 @@ public class StickerManager
 
             case StickerSearchConstants.STATE_LANGUAGE_TAGS_DOWNLOAD:
                 HikeSharedPreferenceUtil.getInstance().removeData(HikeMessengerApp.STICKER_SET_FOR_LANGUAGE);
-
         }
 	}
 	

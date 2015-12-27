@@ -81,11 +81,6 @@ import com.bsb.hike.models.Conversation.GroupConversation;
 import com.bsb.hike.models.Conversation.OneToNConversation;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.HttpManager;
-import com.bsb.hike.modules.httpmgr.RequestToken;
-import com.bsb.hike.modules.httpmgr.exception.HttpException;
-import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
-import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
-import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.modules.kpt.KptKeyboardManager;
 import com.bsb.hike.modules.stickerdownloadmgr.SingleStickerDownloadTask;
 import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
@@ -2983,14 +2978,21 @@ public class MqttMessagesManager
 			if (HikeConstants.REMOVE_CATEGORY.equals(subType))
 			{
 				StickerManager.getInstance().removeCategory(categoryId);
+
+				// Remove tags being used for sticker search w.r.t. deleted sticker category here
+				Set<String> removedCategorySet = new HashSet<String>();
+				removedCategorySet.add(categoryId);
+				StickerSearchManager.getInstance().removeDeletedStickerTags(removedCategorySet, StickerSearchConstants.REMOVAL_BY_CATEGORY_DELETED);
 			}
 			else
 			{
 				JSONArray stickerIds = data.getJSONArray(HikeConstants.STICKER_IDS);
+				Set<String> removedStickerSet = new HashSet<String>();
 
 				for (int i = 0; i < stickerIds.length(); i++)
 				{
 					StickerManager.getInstance().removeSticker(categoryId, stickerIds.getString(i));
+					removedStickerSet.add(StickerManager.getInstance().getStickerSetString(stickerIds.getString(i), categoryId));
 				}
 				int stickerCount = data.optInt(HikeConstants.COUNT, -1);
 				int categorySize = data.optInt(HikeConstants.UPDATED_SIZE, -1);
@@ -2998,6 +3000,9 @@ public class MqttMessagesManager
 				 * We should not update updateAvailable field in this case
 				 */
 				StickerManager.getInstance().updateStickerCategoryData(categoryId, null, stickerCount, categorySize);
+
+				// Remove tags being used for sticker search w.r.t. deleted stickers here
+				StickerSearchManager.getInstance().removeDeletedStickerTags(removedStickerSet, StickerSearchConstants.REMOVAL_BY_STICKER_DELETED);
 			}
 		}
 		else if (HikeConstants.SHOP.equals(subType))
