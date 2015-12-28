@@ -285,7 +285,7 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 
 	private boolean initClientConfig(String namespace) 
 	{
-		OfflineParameters offlineParameters = new Gson().fromJson(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.OFFLINE, "{}"), OfflineParameters.class);
+		OfflineParameters offlineParameters = OfflineController.getInstance().getConfigurationParamerters();
 		Logger.d(TAG, "Initialising client config!");
 		topics = new ArrayList<Topic>();
 		Topic textTopic = new Topic(OfflineConstants.TEXT_TOPIC);
@@ -340,7 +340,7 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 
 	private void initServerConfig(String namespace) 
 	{
-		OfflineParameters offlineParameters = new Gson().fromJson(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.OFFLINE, "{}"), OfflineParameters.class);
+		OfflineParameters offlineParameters = OfflineController.getInstance().getConfigurationParamerters();
 		topics  =  new ArrayList<Topic>();
 		Topic textTopic = new Topic(OfflineConstants.TEXT_TOPIC);
 		Topic fileTopic =  new Topic(OfflineConstants.FILE_TOPIC);
@@ -367,8 +367,7 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 		Message endTries = Message.obtain();
 		endTries.what = OfflineConstants.HandlerConstants.REMOVE_CONNECT_MESSAGE;
 		endTries.obj = msisdn;
-		OfflineParameters offlineParameters = new Gson().fromJson(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.OFFLINE, "{}"), OfflineParameters.class);
-		
+		OfflineParameters offlineParameters = OfflineController.getInstance().getConfigurationParamerters();
 		startNotificationThread();
 		connectionManager.updateNetworkId();
 		if (myMsisdn.compareTo(msisdn) > 0)

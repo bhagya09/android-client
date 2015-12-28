@@ -1,27 +1,27 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical" >
+    android:orientation="vertical">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
-        android:background="@drawable/shadow_overflow" >
+        android:background="@drawable/shadow_overflow">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="@drawable/over_flow_rounded"
-            android:orientation="vertical" >
+            android:orientation="vertical">
 
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="11dp"
                 android:layout_marginRight="16dp"
-                android:layout_marginTop="16dp" >
+                android:layout_marginTop="16dp">
 
                 <com.bsb.hike.ui.utils.RecyclingImageView
                     android:id="@+id/hike_caller_logo"
@@ -54,7 +54,7 @@
                     android:layout_marginLeft="12dp"
                     android:layout_toLeftOf="@id/caller_settings_button"
                     android:layout_toRightOf="@id/hike_caller_logo"
-                    android:orientation="vertical" >
+                    android:orientation="vertical">
 
                     <com.bsb.hike.view.CustomFontTextView
                         android:id="@+id/caller_name"
@@ -100,6 +100,28 @@
             </RelativeLayout>
 
             <com.bsb.hike.view.CustomFontTextView
+                android:id="@+id/caller_sms_head"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="16dp"
+                android:text="@string/sms_head"
+                android:textColor="@color/subtext"
+                android:textSize="14sp"
+                android:visibility="gone" />
+
+            <com.bsb.hike.view.CustomFontTextView
+                android:id="@+id/caller_sms_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:layout_marginLeft="16dp"
+                android:layout_marginTop="4dp"
+                android:text="@string/sms_head"
+                android:textColor="@color/timestampcolor"
+                android:textSize="13sp"
+                android:visibility="gone" />
+
+            <com.bsb.hike.view.CustomFontTextView
                 android:id="@+id/caller_dismiss_with"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -115,16 +137,17 @@
                 android:layout_height="46dp"
                 android:gravity="center"
                 android:orientation="horizontal"
-                android:visibility="gone" >
+                android:visibility="gone">
 
                 <LinearLayout
                     android:id="@+id/caller_free_call"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0px"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:gravity="center"
                     android:orientation="horizontal"
-                    android:paddingRight="18dp" >
+                    android:paddingRight="18dp"
+                    android:visibility="gone">
 
                     <com.bsb.hike.ui.utils.RecyclingImageView
                         android:layout_width="wrap_content"
@@ -142,20 +165,23 @@
                 </LinearLayout>
 
                 <View
+                    android:id="@+id/caller_vertical_divider"
                     android:layout_width="0.5dp"
                     android:layout_height="16dp"
                     android:layout_gravity="center"
                     android:layout_weight="0"
-                    android:background="@color/home_screen_list_divider" />
+                    android:background="@color/home_screen_list_divider"
+                    android:visibility="gone" />
 
                 <LinearLayout
                     android:id="@+id/caller_free_message"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0px"
                     android:layout_height="match_parent"
                     android:layout_gravity="center"
                     android:layout_weight="1"
                     android:gravity="center"
-                    android:orientation="horizontal" >
+                    android:orientation="horizontal"
+                    android:visibility="gone">
 
                     <com.bsb.hike.ui.utils.RecyclingImageView
                         android:layout_width="wrap_content"
@@ -168,6 +194,41 @@
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="8dp"
                         android:text="@string/free_message"
+                        android:textColor="@color/caller_free_call"
+                        android:textSize="13sp" />
+                </LinearLayout>
+
+                <View
+                    android:id="@+id/caller_dismiss_vertical_divider"
+                    android:layout_width="0.5dp"
+                    android:layout_height="16dp"
+                    android:layout_gravity="center"
+                    android:layout_weight="0"
+                    android:background="@color/home_screen_list_divider"
+                    android:visibility="gone" />
+
+
+                <LinearLayout
+                    android:id="@+id/caller_dismiss_button"
+                    android:layout_width="0px"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    android:visibility="gone">
+
+                    <com.bsb.hike.ui.utils.RecyclingImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:scaleType="centerInside"
+                        android:src="@drawable/caller_dismiss_button_cross" />
+
+                    <com.bsb.hike.view.CustomFontTextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="8dp"
+                        android:text="@string/dismiss_button"
                         android:textColor="@color/caller_free_call"
                         android:textSize="13sp" />
                 </LinearLayout>

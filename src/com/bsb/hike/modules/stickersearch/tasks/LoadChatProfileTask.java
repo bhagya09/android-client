@@ -1,6 +1,5 @@
 package com.bsb.hike.modules.stickersearch.tasks;
 
-import com.bsb.hike.modules.stickersearch.StickerSearchManager;
 import com.bsb.hike.modules.stickersearch.provider.StickerSearchHostManager;
 
 public class LoadChatProfileTask implements Runnable
@@ -11,16 +10,19 @@ public class LoadChatProfileTask implements Runnable
 
 	private long lastMessageTimestamp;
 
-	public LoadChatProfileTask(String msidn, boolean isGroupChat, long lastMessageTimestamp)
+	private String keyboardLanguageISOCode;
+
+	public LoadChatProfileTask(String msidn, boolean isGroupChat, long lastMessageTimestamp, String keyboardLanguageISOCode)
 	{
 		this.contactId = msidn;
 		this.isGroupChat = isGroupChat;
 		this.lastMessageTimestamp = lastMessageTimestamp;
+		this.keyboardLanguageISOCode = keyboardLanguageISOCode;
 	}
 
 	@Override
 	public void run()
 	{
-		StickerSearchHostManager.getInstance().loadChatProfile(contactId, isGroupChat, lastMessageTimestamp);
+		StickerSearchHostManager.getInstance().loadChatProfile(contactId, isGroupChat, lastMessageTimestamp, keyboardLanguageISOCode);
 	}
 }

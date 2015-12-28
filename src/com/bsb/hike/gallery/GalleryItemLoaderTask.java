@@ -57,8 +57,6 @@ public class GalleryItemLoaderTask extends AsyncTask<Void, Void, Void>{
 
 	private final String HIKE_IMAGES = "hike";
 
-	private final String ANDROID_DATA_STORAGE_DIR_SUFFIX = "/Android/data/";
-
 	private final String TAG = "GalleryItemLoaderTask";
 	
 	public GalleryItemLoaderTask(GalleryItemLoaderImp listener, boolean isInsideAlbum, boolean enableCameraPick) {
@@ -163,8 +161,7 @@ public class GalleryItemLoaderTask extends AsyncTask<Void, Void, Void>{
 							String filePath = cursor.getString(dataIdx);
 							String fileName = cursor.getString(nameIdx);
 							String bucketId = cursor.getString(bucketIdIdx);
-							boolean isAndroidDataStorageDir = filePath.startsWith(Environment.getExternalStorageDirectory() + ANDROID_DATA_STORAGE_DIR_SUFFIX);
-							if(TextUtils.isEmpty(filePath) || TextUtils.isEmpty(fileName) || TextUtils.isEmpty(bucketId) || isImageEdited(filePath) || isAndroidDataStorageDir)
+							if(TextUtils.isEmpty(filePath) || TextUtils.isEmpty(fileName) || TextUtils.isEmpty(bucketId) || isImageEdited(filePath) || Utils.isAndroidDataStorageDir(filePath))
 							{
 								continue;
 							}

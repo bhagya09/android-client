@@ -1,59 +1,5 @@
 package com.bsb.hike.utils;
 
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.Closeable;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.io.UnsupportedEncodingException;
-import java.lang.reflect.Field;
-import java.net.URI;
-import java.net.URL;
-import java.nio.CharBuffer;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Random;
-import java.util.Set;
-import java.util.StringTokenizer;
-import java.util.concurrent.RejectedExecutionHandler;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.jar.JarFile;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.zip.GZIPInputStream;
-
-import org.apache.http.NameValuePair;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.accounts.AuthenticatorDescription;
@@ -112,6 +58,7 @@ import android.os.AsyncTask;
 import android.os.BatteryManager;
 import android.os.Build;
 import android.os.Environment;
+import android.os.Message;
 import android.os.PowerManager;
 import android.os.RemoteException;
 import android.os.StatFs;
@@ -162,6 +109,8 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bsb.hike.BitmapModule.BitmapUtils;
+import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.BuildConfig;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeConstants.FTResult;
@@ -172,18 +121,15 @@ import com.bsb.hike.HikeMessengerApp.CurrentState;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.MqttConstants;
 import com.bsb.hike.R;
-import com.bsb.hike.BitmapModule.BitmapUtils;
-import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.TrafficsStatsFile;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
-import com.bsb.hike.chatHead.CallerContentModel;
+import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.chatHead.StickyCaller;
 import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.chatthread.ChatThreadUtils;
-import com.bsb.hike.cropimage.CropImage;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.dialog.CustomAlertDialog;
 import com.bsb.hike.dialog.HikeDialog;
@@ -191,6 +137,8 @@ import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.filetransfer.FTAnalyticEvents;
 import com.bsb.hike.http.HikeHttpRequest;
+import com.bsb.hike.localisation.LocalLanguage;
+import com.bsb.hike.localisation.LocalLanguageUtils;
 import com.bsb.hike.models.AccountData;
 import com.bsb.hike.models.AccountInfo;
 import com.bsb.hike.models.ContactInfo;
@@ -200,16 +148,16 @@ import com.bsb.hike.models.ContactInfoData.DataType;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
 import com.bsb.hike.models.ConvMessage.State;
-import com.bsb.hike.models.FtueContactsData;
-import com.bsb.hike.models.GroupParticipant;
-import com.bsb.hike.models.HikeFile;
-import com.bsb.hike.models.HikeFile.HikeFileType;
-import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.models.Conversation.ConvInfo;
 import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.models.Conversation.GroupConversation;
 import com.bsb.hike.models.Conversation.OneToNConvInfo;
 import com.bsb.hike.models.Conversation.OneToNConversation;
+import com.bsb.hike.models.FtueContactsData;
+import com.bsb.hike.models.GroupParticipant;
+import com.bsb.hike.models.HikeFile;
+import com.bsb.hike.models.HikeFile.HikeFileType;
+import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.models.utils.JSONSerializable;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.RequestToken;
@@ -217,7 +165,9 @@ import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
+import com.bsb.hike.modules.kpt.KptKeyboardManager;
 import com.bsb.hike.notifications.HikeNotification;
+import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.service.ConnectionChangeReceiver;
 import com.bsb.hike.service.HikeMqttManagerNew;
@@ -234,11 +184,62 @@ import com.bsb.hike.ui.SignupActivity;
 import com.bsb.hike.ui.WebViewActivity;
 import com.bsb.hike.ui.WelcomeActivity;
 import com.bsb.hike.voip.VoIPUtils;
-import com.bsb.hike.voip.VoIPUtils.CallSource;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+
+import org.apache.http.NameValuePair;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.Closeable;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Field;
+import java.net.URI;
+import java.net.URL;
+import java.nio.CharBuffer;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Random;
+import java.util.Set;
+import java.util.StringTokenizer;
+import java.util.concurrent.RejectedExecutionHandler;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.jar.JarFile;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.zip.GZIPInputStream;
 
 public class Utils
 {
@@ -289,9 +290,9 @@ public class Utils
 	public static float densityMultiplier = 1.0f;
 
 	public static int densityDpi;
-	
+
 	public static int displayWidthPixels;
-	
+
 	public static int displayHeightPixels;
 
 	private static final String defaultCountryName = "India";
@@ -300,6 +301,8 @@ public class Utils
 	 * copied from {@link android.telephony.TelephonyManager}
 	 */
 	private static final int NETWORK_TYPE_GSM = 16;
+
+	private final static String ANDROID_DATA_STORAGE_DIR_SUFFIX = "/Android/data/";
 
 	static
 	{
@@ -357,7 +360,7 @@ public class Utils
 	{
 		Intent intent = new Intent(Intent.ACTION_CALL);
 		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-		intent.setData(Uri.parse("tel:"+ number));
+		intent.setData(Uri.parse("tel:" + number));
 		try
 		{
 			HikeMessengerApp.getInstance().startActivity(intent);
@@ -723,7 +726,7 @@ public class Utils
 		editor.putInt(HikeMessengerApp.INVITED_JOINED, accountInfo.getAllInviteeJoined());
 		editor.putString(HikeMessengerApp.COUNTRY_CODE, accountInfo.getCountryCode());
 		editor.commit();
-		
+
 		/*
 		 * Just after pin validation we need to set self msisdn field in ContactManager
 		 */
@@ -754,7 +757,7 @@ public class Utils
 
 		if (settings.getString(HikeMessengerApp.NAME_SETTING, null) == null)
 		{
-			activity.startActivity(new Intent(activity, SignupActivity.class));
+			IntentFactory.reopenSignupActivity(activity);
 			activity.finish();
 			return true;
 		}
@@ -771,7 +774,7 @@ public class Utils
 			}
 			else
 			{
-				activity.startActivity(new Intent(activity, SignupActivity.class));
+				IntentFactory.reopenSignupActivity(activity);
 				activity.finish();
 				return true;
 			}
@@ -976,7 +979,7 @@ public class Utils
 	{
 		if (newGrp)
 		{
-			return context.getString(R.string.you).toLowerCase();
+			return context.getString(R.string.you);
 		}
 		JSONObject participant = (JSONObject) participantInfoArray.opt(0);
 		String highlight = convInfo.getConvParticipantName(participant.optString(HikeConstants.MSISDN));
@@ -985,11 +988,11 @@ public class Utils
 			JSONObject participant2 = (JSONObject) participantInfoArray.opt(1);
 			String name2 = convInfo.getConvParticipantName(participant2.optString(HikeConstants.MSISDN));
 
-			highlight += " and " + name2;
+			highlight += " " + context.getString(R.string.and)  + " "+ name2;
 		}
 		else if (participantInfoArray.length() > 2)
 		{
-			highlight += " and " + (participantInfoArray.length() - 1) + " others";
+			highlight += " " + context.getString(R.string.and) + " " + (participantInfoArray.length() - 1) + " " + context.getString(R.string.others_smallcase);
 		}
 		return highlight;
 	}
@@ -998,7 +1001,7 @@ public class Utils
 	{
 		if (newGrp)
 		{
-			return context.getString(R.string.you).toLowerCase();
+			return context.getString(R.string.you);
 		}
 		JSONObject participant = (JSONObject) participantInfoArray.opt(0);
 		String highlight = conversation.getConvParticipantFirstNameAndSurname(participant.optString(HikeConstants.MSISDN));
@@ -1008,11 +1011,11 @@ public class Utils
 			JSONObject participant2 = (JSONObject) participantInfoArray.opt(1);
 			String name2 = conversation.getConvParticipantFirstNameAndSurname(participant2.optString(HikeConstants.MSISDN));
 
-			highlight += " and " + name2;
+			highlight += " " + context.getString(R.string.and)  + " "+ name2;
 		}
 		else if (participantInfoArray.length() > 2)
 		{
-			highlight += " and " + (participantInfoArray.length() - 1) + " others";
+			highlight += " " + context.getString(R.string.and) + " " + (participantInfoArray.length() - 1) + " " + context.getString(R.string.others_smallcase);
 		}
 		return highlight;
 	}
@@ -1035,7 +1038,6 @@ public class Utils
 		return deviceId;
 	}
 
-	
 	public static void recordDeviceDetails(Context context)
 	{
 		try
@@ -1139,14 +1141,33 @@ public class Utils
 		Utils.displayHeightPixels = displayMetrics.heightPixels;
 	}
 
+//	public static CharSequence getFormattedParticipantInfo(String info, String textToHighlight)
+//	{
+//		if (!info.contains(textToHighlight))
+//			return info;
+//		SpannableStringBuilder ssb = new SpannableStringBuilder(info);
+//		ssb.setSpan(new StyleSpan(Typeface.BOLD), info.indexOf(textToHighlight), info.indexOf(textToHighlight) + textToHighlight.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+//		return ssb;
+//	}
+
+	//AND-4036, Extending the high light to the next space.
+	//Problem: only "aap" is getting highlighted in the "aapko" / "aapne" since the highlighted text is "aap"
+	//Sol: making the highlight text extend to the end of the word.
 	public static CharSequence getFormattedParticipantInfo(String info, String textToHighlight)
 	{
-		if (!info.contains(textToHighlight))
+		if (!info.contains(textToHighlight) || TextUtils.isEmpty(textToHighlight))
 			return info;
+
 		SpannableStringBuilder ssb = new SpannableStringBuilder(info);
-		ssb.setSpan(new StyleSpan(Typeface.BOLD), info.indexOf(textToHighlight), info.indexOf(textToHighlight) + textToHighlight.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+		int index = info.indexOf(textToHighlight);
+
+		int wordEndIndex = info.substring(index + textToHighlight.length()).indexOf(" ");
+		int highlightLen = (wordEndIndex == -1) ? textToHighlight.length() : textToHighlight.length()+ wordEndIndex;
+		ssb.setSpan(new StyleSpan(Typeface.BOLD), info.indexOf(textToHighlight), info.indexOf(textToHighlight) + highlightLen, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+
 		return ssb;
 	}
+
 
 	/**
 	 * Used for preventing the cursor from being shown initially on the text box in touch screen devices. On touching the text box the cursor becomes visible
@@ -1186,9 +1207,9 @@ public class Utils
 	 */
 	public static ContactInfo getUserContactInfo(SharedPreferences prefs, boolean showNameAsYou)
 	{
-	
+
 		String myMsisdn = prefs.getString(HikeMessengerApp.MSISDN_SETTING, null);
-		
+
 		long userJoinTime = prefs.getLong(HikeMessengerApp.USER_JOIN_TIME, 0);
 
 		String myName;
@@ -1568,10 +1589,10 @@ public class Utils
 			if (cursor != null)
 				cursor.close();
 		}
-		
+
 		try
 		{
-			if(result == null && isKitkatOrHigher() && DocumentsContract.isDocumentUri(mContext, uri))
+			if (result == null && isKitkatOrHigher() && DocumentsContract.isDocumentUri(mContext, uri))
 			{
 				result = getPathFromDocumentedUri(uri, mContext);
 			}
@@ -1882,7 +1903,6 @@ public class Utils
 
 	public static void resetImageQuality(SharedPreferences appPrefs)
 	{
-		// TODO Auto-generated method stub
 		final Editor editor = appPrefs.edit();
 		editor.putInt(HikeConstants.IMAGE_QUALITY, ImageQuality.QUALITY_DEFAULT);
 		editor.commit();
@@ -1917,6 +1937,7 @@ public class Utils
 				return 90;
 			}
 		}
+
 		return 0;
 	}
 
@@ -2060,7 +2081,7 @@ public class Utils
 		
 		int convMessageStateOrdinal = convMessage.getState().ordinal();
 
-		Logger.d("BugRef","Ordinal state of our ConvMessage is "+convMessageStateOrdinal);
+		Logger.d("BugRef", "Ordinal state of our ConvMessage is " + convMessageStateOrdinal);
 		if (convMessageStateOrdinal <= maxStatusOrdinal && convMessageStateOrdinal >= minStatusOrdinal)
 		{
 			return true;
@@ -2399,12 +2420,15 @@ public class Utils
 		{
 			return null;
 		}
+
 		FileInputStream fileInputStream = null;
 		JSONObject currentFiles = null;
+		BufferedReader reader = null;
+
 		try
 		{
 			fileInputStream = new FileInputStream(hikeFileList);
-			BufferedReader reader = new BufferedReader(new InputStreamReader(fileInputStream));
+			reader = new BufferedReader(new InputStreamReader(fileInputStream));
 
 			StringBuilder builder = new StringBuilder();
 			CharBuffer target = CharBuffer.allocate(10000);
@@ -2437,8 +2461,9 @@ public class Utils
 		}
 		finally
 		{
-			closeStreams(fileInputStream);
+			closeStreams(fileInputStream, reader);
 		}
+
 		return currentFiles;
 	}
 
@@ -2654,18 +2679,18 @@ public class Utils
 		return getTempProfileImageFileName(msisdn, false);
 	}
 
-	public static String getTempProfileImageFileName(String msisdn,boolean useTimeStamp)
+	public static String getTempProfileImageFileName(String msisdn, boolean useTimeStamp)
 	{
 		String suffix = "_tmp.jpg";
-		
-		if(useTimeStamp)
+
+		if (useTimeStamp)
 		{
-			suffix = Long.toString(System.currentTimeMillis())+suffix;
+			suffix = Long.toString(System.currentTimeMillis()) + suffix;
 		}
-		
-		return getValidFileNameForMsisdn(msisdn) +suffix;
+
+		return getValidFileNameForMsisdn(msisdn) + suffix;
 	}
-	
+
 	public static String getProfileImageFileName(String msisdn)
 	{
 		return getValidFileNameForMsisdn(msisdn) + ".jpg";
@@ -2685,12 +2710,12 @@ public class Utils
 
 	public static boolean renameFiles(String newFilePath, String oldFilePath)
 	{
-		Logger.d(Utils.class.getSimpleName(), "inside renameUniqueTempProfileImage "+ newFilePath + ", "+ oldFilePath);
-		if(!TextUtils.isEmpty(oldFilePath) && !TextUtils.isEmpty(newFilePath))
+		Logger.d(Utils.class.getSimpleName(), "inside renameUniqueTempProfileImage " + newFilePath + ", " + oldFilePath);
+		if (!TextUtils.isEmpty(oldFilePath) && !TextUtils.isEmpty(newFilePath))
 		{
 			File tempFile = new File(oldFilePath);
 			File newFile = new File(newFilePath);
-			if(tempFile.exists())
+			if (tempFile.exists())
 			{
 				return tempFile.renameTo(newFile);
 			}
@@ -2698,18 +2723,18 @@ public class Utils
 		}
 		else
 		{
-			Logger.d(Utils.class.getSimpleName(), "inside renameUniqueTempProfileImage, file name empty "+ newFilePath + ", "+ oldFilePath);
+			Logger.d(Utils.class.getSimpleName(), "inside renameUniqueTempProfileImage, file name empty " + newFilePath + ", " + oldFilePath);
 			return false;
 		}
 	}
 
 	public static boolean removeFile(String tmpFilePath)
 	{
-		if(!TextUtils.isEmpty(tmpFilePath))
+		if (!TextUtils.isEmpty(tmpFilePath))
 		{
-			Logger.d(Utils.class.getSimpleName(), "inside removeUniqueTempProfileImage "+ tmpFilePath);
+			Logger.d(Utils.class.getSimpleName(), "inside removeUniqueTempProfileImage " + tmpFilePath);
 			File file = new File(tmpFilePath);
-			if(file.exists())
+			if (file.exists())
 			{
 				return file.delete();
 			}
@@ -2717,11 +2742,11 @@ public class Utils
 		}
 		else
 		{
-			Logger.d(Utils.class.getSimpleName(), "inside removeUniqueTempProfileImage, empty file "+ tmpFilePath);
+			Logger.d(Utils.class.getSimpleName(), "inside removeUniqueTempProfileImage, empty file " + tmpFilePath);
 			return false;
 		}
 	}
-	
+
 	public static void vibrateNudgeReceived(Context context)
 	{
 		String VIB_OFF = context.getResources().getString(R.string.vib_off);
@@ -2773,20 +2798,6 @@ public class Utils
 	public static String getHashedDeviceId(String deviceId) throws NoSuchAlgorithmException, UnsupportedEncodingException
 	{
 		return "and:" + SHA1(deviceId);
-	}
-
-	public static void startCropActivity(Activity activity, String path, String destPath)
-	{
-		/* Crop the image */
-		Intent intent = new Intent(activity, CropImage.class);
-		intent.putExtra(MediaStore.EXTRA_OUTPUT, destPath);
-		intent.putExtra(HikeConstants.Extras.IMAGE_PATH, path);
-		intent.putExtra(HikeConstants.Extras.SCALE, true);
-		intent.putExtra(HikeConstants.Extras.OUTPUT_X, HikeConstants.MAX_DIMENSION_LOW_FULL_SIZE_PX);
-		intent.putExtra(HikeConstants.Extras.OUTPUT_Y, HikeConstants.MAX_DIMENSION_LOW_FULL_SIZE_PX);
-		intent.putExtra(HikeConstants.Extras.ASPECT_X, 1);
-		intent.putExtra(HikeConstants.Extras.ASPECT_Y, 1);
-		activity.startActivityForResult(intent, HikeConstants.CROP_RESULT);
 	}
 
 	public static long getContactId(Context context, long rawContactId)
@@ -2899,9 +2910,42 @@ public class Utils
 		return true;
 	}
 	
+	/**
+	 * Get unseen status, user-status and friend request count,
+	 * 
+	 * @param accountPrefs
+	 *            Account settings shared preference
+	 * @param countUsersStatus
+	 *            Whether to include user status count in the total
+	 * @param countUsersActivity
+	 *            Whether to include user activity count in the total
+	 * @param countUnseenStatus
+	 *            Whether to include unseen status count in the total
+	 * @param friendRequestCount
+	 *            Whether to include friend request count in the total
+	 * @return
+	 */
+	public static int getNotificationCount(SharedPreferences accountPrefs, boolean countUsersStatus, boolean countUserActivity,boolean countUnseenStatus,boolean friendRequestCount)
+	{
+		int notificationCount = 0;
+		if (countUnseenStatus)
+		notificationCount += accountPrefs.getInt(HikeMessengerApp.UNSEEN_STATUS_COUNT, 0);
+		if (countUserActivity)
+			notificationCount += accountPrefs.getInt(HikeMessengerApp.USER_TIMELINE_ACTIVITY_COUNT, 0);
+		if (countUsersStatus)
+		{
+			notificationCount += accountPrefs.getInt(HikeMessengerApp.UNSEEN_USER_STATUS_COUNT, 0);
+		}
+		if (friendRequestCount)
+		{
+		int frCount = accountPrefs.getInt(HikeMessengerApp.FRIEND_REQ_COUNT, 0);
+		notificationCount += frCount;
+		}
+		return notificationCount;
+	}
 
 	/**
-	 * Get unseen status, user-status and friend request count
+	 * Get unseen status, user-status and friend request count,includes activity count as well
 	 * 
 	 * @param accountPrefs
 	 *            Account settings shared preference
@@ -2911,20 +2955,8 @@ public class Utils
 	 */
 	public static int getNotificationCount(SharedPreferences accountPrefs, boolean countUsersStatus)
 	{
-		int notificationCount = 0;
-
-		notificationCount += accountPrefs.getInt(HikeMessengerApp.UNSEEN_STATUS_COUNT, 0);
-		notificationCount += accountPrefs.getInt(HikeMessengerApp.USER_TIMELINE_ACTIVITY_COUNT, 0);
-		if (countUsersStatus)
-		{
-			notificationCount += accountPrefs.getInt(HikeMessengerApp.UNSEEN_USER_STATUS_COUNT, 0);
-		}
-
-		int frCount = accountPrefs.getInt(HikeMessengerApp.FRIEND_REQ_COUNT, 0);
-		notificationCount += frCount;
-		return notificationCount;
+		return getNotificationCount(accountPrefs, countUsersStatus, true,true,true);
 	}
-
 	/*
 	 * This method returns whether the device is an mdpi or ldpi device. The assumption is that these devices are low end and hence a DB call may block the UI on those devices.
 	 */
@@ -2961,33 +2993,41 @@ public class Utils
 		InputMethodManager imm = (InputMethodManager) v.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
 		imm.showSoftInput(v, flags);
 	}
-	
+
 	public static void toggleSoftKeyboard(Context context)
 	{
 		InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
 		imm.toggleSoftInput(InputMethodManager.SHOW_IMPLICIT, InputMethodManager.HIDE_IMPLICIT_ONLY);
 	}
 
-	public static void sendLocaleToServer(Context context)
+	public static void sendLocaleToServer()
 	{
-		JSONObject object = new JSONObject();
-		JSONObject data = new JSONObject();
+		try {
+			JSONObject mqttLanguageAnalytic = new JSONObject();
 
-		try
-		{
-			data.put(HikeConstants.LOCALE, context.getResources().getConfiguration().locale.getLanguage());
-			data.put(HikeConstants.MESSAGE_ID, Long.toString(System.currentTimeMillis() / 1000));
+			JSONObject data = new JSONObject();
 
-			object.put(HikeConstants.TYPE, HikeConstants.MqttMessageTypes.ACCOUNT_CONFIG);
-			object.put(HikeConstants.DATA, data);
+			data.put(HikeConstants.PHONE_LANGUAGE, LocalLanguageUtils.getDeviceDefaultLocale());
+			//Getting APP Language
+			String appLocale = LocalLanguageUtils.getApplicationLocalLanguageLocale();
 
-			HikeMqttManagerNew.getInstance().sendMessage(object, MqttConstants.MQTT_QOS_ONE);
-		}
-		catch (JSONException e)
-		{
-			Logger.w("Locale", "Invalid JSON", e);
+			data.put(HikeConstants.APP_LANGUAGE, appLocale);
+			String keyBoardLang;
+			if (!HikeMessengerApp.isSystemKeyboard())
+				keyBoardLang = KptKeyboardManager.getInstance().getCurrentLanguageAddonItem().getlocaleName();
+			else
+				keyBoardLang = "";
+			data.put(HikeConstants.KEYBOARD_LANGUAGE, keyBoardLang);
+			mqttLanguageAnalytic.put(HikeConstants.DATA,data);
+			mqttLanguageAnalytic.put(HikeConstants.TYPE,HikeConstants.MqttMessageTypes.ACCOUNT_CONFIG);
+			HikeMqttManagerNew.getInstance().sendMessage(mqttLanguageAnalytic, MqttConstants.MQTT_QOS_ONE);
+
+
+		}catch (JSONException e){
+
 		}
 	}
+
 
 	public static void setReceiveSmsSetting(Context context, boolean value)
 	{
@@ -3181,7 +3221,9 @@ public class Utils
 				 */
 				data.put(HikeConstants.BULK_LAST_SEEN, false);
 				object.put(HikeConstants.DATA, data);
-
+				
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.IS_HIKE_APP_FOREGROUNDED, true);
+				HikeNotification.getInstance().cancelPersistNotif();
 				HikeMessengerApp.getPubSub().publish(HikePubSub.APP_FOREGROUNDED, null);
 				if (toLog)
 				{
@@ -3197,6 +3239,8 @@ public class Utils
 				{
 					JSONObject sessionDataObject = HAManager.getInstance().recordAndReturnSessionEnd();
 					sendSessionMQTTPacket(context, HikeConstants.BACKGROUND, sessionDataObject);
+					HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.IS_HIKE_APP_FOREGROUNDED, false);
+					HikeNotification.getInstance().checkAndShowUpdateNotif();
 				}
 			}
 			else
@@ -3493,14 +3537,14 @@ public class Utils
 		}
 		file.delete();
 	}
-	
-	public static void deleteFile(Context context,String filename,HikeFileType type)
+
+	public static void deleteFile(Context context, String filename, HikeFileType type)
 	{
-		if(TextUtils.isEmpty(filename))
+		if (TextUtils.isEmpty(filename))
 		{
 			return;
 		}
-		
+
 		HikeFile temp = new HikeFile(new File(filename).getName(), HikeFileType.toString(type), null, null, 0, false, null);
 		temp.delete(context);
 	}
@@ -3918,6 +3962,7 @@ public class Utils
 		if (conv instanceof BotInfo && ((BotInfo) conv).isNonMessagingBot())
 		{
 			shortcutIntent = IntentFactory.getNonMessagingBotIntent(conv.getMsisdn(), activity);
+			shortcutIntent.putExtra(HikePlatformConstants.IS_SHORTCUT, true);
 		}
 
 		else
@@ -3957,7 +4002,7 @@ public class Utils
 			return;
 		}
 
-		if (!isUserOnline(context))
+		if (!isUserOnline(context) && !OfflineUtils.isConnectedToSameMsisdn(mContactNumber))
 		{
 			Toast.makeText(context, context.getString(R.string.voip_offline_error), Toast.LENGTH_SHORT).show();
 			return;
@@ -4571,24 +4616,20 @@ public class Utils
 			return;
 		}
 
-		HikeDialogFactory.showDialog(context, HikeDialogFactory.FAVORITE_ADDED_DIALOG, new HikeDialogListener()
-		{
+		HikeDialogFactory.showDialog(context, HikeDialogFactory.FAVORITE_ADDED_DIALOG, new HikeDialogListener() {
 
 			@Override
-			public void positiveClicked(HikeDialog hikeDialog)
-			{
+			public void positiveClicked(HikeDialog hikeDialog) {
 				hikeDialog.dismiss();
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.SHOWN_ADD_FAVORITE_TIP, true);
 			}
 
 			@Override
-			public void neutralClicked(HikeDialog hikeDialog)
-			{
+			public void neutralClicked(HikeDialog hikeDialog) {
 			}
 
 			@Override
-			public void negativeClicked(HikeDialog hikeDialog)
-			{
+			public void negativeClicked(HikeDialog hikeDialog) {
 				hikeDialog.dismiss();
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.SHOWN_ADD_FAVORITE_TIP, true);
 			}
@@ -4674,9 +4715,43 @@ public class Utils
 		{
 			RunningAppProcessInfo info = i.next();
 
-			if (info.uid == context.getApplicationInfo().uid && info.importance == RunningAppProcessInfo.IMPORTANCE_FOREGROUND)
+			if (!TextUtils.isEmpty(info.processName) && info.processName.equals(context.getApplicationInfo().processName) && info.importance == RunningAppProcessInfo.IMPORTANCE_FOREGROUND && info.importanceReasonCode == 0)
 			{
-				return true;
+				
+				Field field = null;
+				try
+				{
+					field = RunningAppProcessInfo.class.getDeclaredField("processState");
+				}
+				catch (NoSuchFieldException e)
+				{
+					Logger.d(ChatHeadUtils.class.getSimpleName(), "processState field not found");
+					return true;
+				}
+
+				if(field != null) {
+
+					Integer state = null;
+					try
+					{
+						state = field.getInt(info);
+					}
+					catch (IllegalAccessException e)
+					{
+						Logger.d(ChatHeadUtils.class.getSimpleName(), "illegal access of processState" );
+						return true;
+					}
+					catch (IllegalArgumentException e)
+					{
+						Logger.d(ChatHeadUtils.class.getSimpleName(), "illegal argument of processState");
+						return true;
+					}
+					// its a hidden api and no value is defined
+					if (state != null && state == ChatHeadUtils.PROCESS_STATE_TOP)
+					{
+						return true;
+					}
+				}
 			}
 		}
 		return false;
@@ -5445,12 +5520,12 @@ public class Utils
 				else if (givenCalendar.get(Calendar.YEAR) == currentCalendar.get(Calendar.YEAR))
 				{
 					// Show date in relative format. eg. 2 hours ago, yesterday, 2 days ago etc.
-					return DateUtils.getRelativeTimeSpanString(givenTimeStampInMillis, currentTime, DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_ABBREV_MONTH).toString();
+					return HikeDateUtils.getRelativeTimeSpanString(context, givenTimeStampInMillis, currentTime, DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_ABBREV_MONTH).toString();
 				}
 				else
 				{
 					// Shows date in numeric format
-					return DateUtils.getRelativeTimeSpanString(givenTimeStampInMillis, currentTime, DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_NUMERIC_DATE).toString();
+					return HikeDateUtils.getRelativeTimeSpanString(context, givenTimeStampInMillis, currentTime, DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_NUMERIC_DATE).toString();
 				}
 			}
 			else
@@ -5465,14 +5540,14 @@ public class Utils
 					else
 					{
 						// Show date in MMM dd format eg. Apr 21, May 13 etc.
-						return DateUtils.getRelativeTimeSpanString(givenTimeStampInMillis, currentTime, DateUtils.YEAR_IN_MILLIS,
+						return HikeDateUtils.getRelativeTimeSpanString(context, givenTimeStampInMillis, currentTime, DateUtils.YEAR_IN_MILLIS,
 								DateUtils.FORMAT_ABBREV_MONTH | DateUtils.FORMAT_SHOW_DATE).toString();
 					}
 				}
 				else
 				{
 					// Show date in numeric format
-					return DateUtils.getRelativeTimeSpanString(givenTimeStampInMillis, currentTime, DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_NUMERIC_DATE).toString();
+					return HikeDateUtils.getRelativeTimeSpanString(context, givenTimeStampInMillis, currentTime, DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_NUMERIC_DATE).toString();
 				}
 			}
 		}
@@ -5838,11 +5913,11 @@ public class Utils
 		}
 	}
 
-	private static void sendDeviceDetails(Context context, boolean upgrade, boolean sendBot)
+	public static void sendDeviceDetails(Context context, boolean upgrade, boolean sendBot)
 	{
 		recordDeviceDetails(context);
 		requestAccountInfo(upgrade, sendBot);
-		sendLocaleToServer(context);
+		sendLocaleToServer();
 	}
 
 	/**
@@ -5858,7 +5933,54 @@ public class Utils
 		calendar.set(Calendar.MINUTE, minutes);
 		calendar.set(Calendar.SECOND, seconds);
 		calendar.set(Calendar.MILLISECOND, milliseconds);
+
 		return calendar.getTimeInMillis();
+	}
+
+	/**
+	 * Get time in millisecond from given time-stamp represented in format HH:mm:ss.SSS
+	 * 
+	 * @param calendar
+	 *            Instance of calendar to be checked
+	 * @param timeStamp
+	 *            Parseable time-stamp as string value
+	 * @param default_hh
+	 *            Default hour element as integer value
+	 * @param default_mm
+	 *            Default minute element as integer value
+	 * @param default_ss
+	 *            Default second element as integer value
+	 * @param default_SSS
+	 *            Default element milliSecond element as integer value
+	 * @return System-level clock value represented by long value.
+	 * @author Ved Prakash Singh [ved@hike.in]
+	 */
+	public static long getTimeInMillis(Calendar calendar, String timeStamp, int default_hh, int default_mm, int default_ss, int default_SSS)
+	{
+		if (!isBlank(timeStamp))
+		{
+			try
+			{
+				int date = calendar.get(Calendar.DATE);
+				int month = calendar.get(Calendar.MONTH);
+				int year = calendar.get(Calendar.YEAR);
+
+				calendar.setTime((new SimpleDateFormat(HikeConstants.FORMAT_TIME_OF_THE_DAY, Locale.ENGLISH)).parse(timeStamp));
+
+				// Preserve supplied date from calendar instance, so that only time elements of a day are set from given time-stamp
+				calendar.set(Calendar.DATE, date);
+				calendar.set(Calendar.MONTH, month);
+				calendar.set(Calendar.YEAR, year);
+
+				return calendar.getTimeInMillis();
+			}
+			catch (ParseException e)
+			{
+				Logger.e("TimeStampParsing", "Error while parsing given time-stamp string...", e);
+			}
+		}
+
+		return getTimeInMillis(calendar, default_hh, default_mm, default_ss, default_SSS);
 	}
 
 	public static void disableNetworkListner(Context context)
@@ -6026,14 +6148,19 @@ public class Utils
 
 		if (isIceCreamOrHigher() && context != null)
 		{
-			Cursor c = context.getContentResolver().query(ContactsContract.Profile.CONTENT_URI, null, null, null, null);
-			if (c != null)
+			try
 			{
-				if (c.moveToFirst())
-				{
-					name = c.getString(c.getColumnIndex(ContactsContract.Profile.DISPLAY_NAME));
+				Cursor c = context.getContentResolver().query(ContactsContract.Profile.CONTENT_URI, null, null, null, null);
+				if (c != null) {
+					if (c.moveToFirst()) {
+						name = c.getString(c.getColumnIndex(ContactsContract.Profile.DISPLAY_NAME));
+					}
+					c.close();
 				}
-				c.close();
+			}
+			catch (SecurityException e)
+			{
+				Logger.e("Utils", "Security exception while trying to getOwnerName");
 			}
 		}
 
@@ -6579,11 +6706,15 @@ public class Utils
 			result = false;
 			Logger.e("Utils", "1Failed due to - " + e1.getMessage());
 			FTAnalyticEvents.logDevException(FTAnalyticEvents.DOWNLOAD_RENAME_FILE, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "File", "1.Exception on moving file", e1);
-		} catch (Exception e2) {
+		}
+		catch (Exception e2)
+		{
 			result = false;
 			Logger.e("Utils", "2Failed due to - " + e2.getMessage());
 			FTAnalyticEvents.logDevException(FTAnalyticEvents.DOWNLOAD_RENAME_FILE, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "File", "2.Exception on moving file", e2);
-		} finally {
+		}
+		finally
+		{
 			closeStreams(in, out);
 		}
 		return result;
@@ -6749,7 +6880,7 @@ public class Utils
 
 	/**
 	 * Determine whether supplied String is actually empty or not.
-	 * 
+	 *
 	 * @param s
 	 *            String to be checked
 	 * @return True, if string contains only white spaces or it is empty. False, if string containes at least one non-white space character.
@@ -6991,16 +7122,12 @@ public class Utils
 	 */
 	public static <S, T extends Iterable<S>> boolean isEmpty(T argument)
 	{
-		if (argument == null || !argument.iterator().hasNext())
-		{
-			return true;
-		}
-		return false;
+		return (argument == null) || !argument.iterator().hasNext();
 	}
 
 	/**
 	 * Determine whether supplied module is being tested.
-	 * 
+	 *
 	 * @param moduleName
 	 *            String name of the module being analysed
 	 * @return True, if test mode is enabled for given module. False, otherwise.
@@ -7012,7 +7139,7 @@ public class Utils
 
 		if (BuildConfig.DEBUG && (getExternalStorageState() != ExternalStorageState.NONE))
 		{
-			String testFolderName = HikeMessengerApp.getInstance().getPackageName() + "_test_9274563810";
+			String testFolderName = HikeMessengerApp.getInstance().getPackageName() + "_test_" + HikeConstants.APP_TEST_UID;
 			File root = new File(Environment.getExternalStorageDirectory().getAbsolutePath());
 			File listRootFile[] = root.listFiles();
 
@@ -7070,7 +7197,7 @@ public class Utils
 
 	}
 
-	public static boolean ifColumnExistsInTable(SQLiteDatabase db, String tableName, String givenColumnName)
+	public static boolean isColumnExistsInTable(SQLiteDatabase db, String tableName, String givenColumnName)
 	{
 		if (db != null)
 		{
@@ -7082,14 +7209,14 @@ public class Utils
 					String columnName = cursor.getString(1);
 					if (givenColumnName.equals(columnName))
 					{
-						Logger.e("Utils", "ifColumnExistsInTable : " + givenColumnName + " column exists in " + tableName + " table");
+						Logger.e("ColumnExistsCheck", givenColumnName + " column exists in " + tableName + " table.");
 						return true;
 					}
 				}
 			}
 		}
 
-		Logger.w("Utils", "ifColumnExistsInTable : " + givenColumnName + " does not column exists in " + tableName + " table");
+		Logger.w("ColumnExistsCheck", givenColumnName + " column does not exist in " + tableName + " table.");
 		return false;
 	}
 
@@ -7183,26 +7310,43 @@ public class Utils
 		}
 	}
 	
-	public static String getAppVersion()
+	public static String getAppVersionName()
 	{
-		String appVersion = "";
+		String appVersionName = "";
 		try
 		{
-			appVersion = HikeMessengerApp.getInstance().getApplicationContext().getPackageManager()
+			appVersionName = HikeMessengerApp.getInstance().getApplicationContext().getPackageManager()
 					.getPackageInfo(HikeMessengerApp.getInstance().getApplicationContext().getPackageName(), 0).versionName;
 		}
 		catch (NameNotFoundException e)
 		{
 			e.printStackTrace();
 		}
-		return appVersion;
+
+		return appVersionName;
 	}
-	
+
+	public static int getAppVersionCode()
+	{
+		int appVersionCode = Integer.MIN_VALUE;
+		try
+		{
+			appVersionCode = HikeMessengerApp.getInstance().getApplicationContext().getPackageManager()
+					.getPackageInfo(HikeMessengerApp.getInstance().getApplicationContext().getPackageName(), 0).versionCode;
+		}
+		catch (NameNotFoundException e)
+		{
+			e.printStackTrace();
+		}
+
+		return appVersionCode;
+	}
+
 	public static boolean showContactsUpdates(ContactInfo contactInfo)
 	{
 		return ((contactInfo.getFavoriteType() == FavoriteType.FRIEND) || (contactInfo.getFavoriteType() == FavoriteType.REQUEST_RECEIVED) || (contactInfo.getFavoriteType() == FavoriteType.REQUEST_RECEIVED_REJECTED)) && (contactInfo.isOnhike());
 	}
-	
+
 	public static int getUnreadCounterBadgeWidth(Context context, String unreadCount)
 	{
 		switch (unreadCount.length())
@@ -7277,6 +7421,7 @@ public class Utils
 			Logger.e("Utils", "postStatusUpdate : status = null/empty, moodId < 0 & imageFilePath = null conditions hold together. Returning.");
 			return;
 		}
+
 		try
 		{
 			StatusUpdateTask task = new StatusUpdateTask(status, moodId, imageFilePath);
@@ -7319,6 +7464,17 @@ public class Utils
 
 		return url;
 	}
+
+	public static String getCommaSeperatedStringFromArray(String[] array)
+	{
+		StringBuilder sb = new StringBuilder();
+		sb.append(array[0]);
+		for (int i = 1; i < array.length; i++) {
+			sb.append(", ");
+			sb.append(array[i]);
+		}
+		return sb.toString();
+	}
 	
 	public static String getNewImagePostFilePath()
 	{
@@ -7345,19 +7501,58 @@ public class Utils
 		{
 			return true;
 		}
+
 		return false;
 	}
 
+	/**
+	 * Determine whether a time-stamp represents correct clock time of a day.
+	 * 
+	 * @param HH
+	 *            Hour element of the day
+	 * @param mm
+	 *            Minute element of the day
+	 * @param ss
+	 *            Second element of the day
+	 * @param SSS
+	 *            MilliSecond element of the day
+	 * @return True, if given combination represents valid time of the day in 24 hours format. False, otherwise.
+	 * @author Ved Prakash Singh [ved@hike.in]
+	 */
+	public static boolean isValidTimeStampOfTheDay(int HH, int mm, int ss, int SSS)
+	{
+		if ((HH < 0) || (HH >= 24))
+		{
+			return false;
+		}
+
+		if ((mm < 0) || (mm >= 60))
+		{
+			return false;
+		}
+
+		if ((ss < 0) || (ss >= 60))
+		{
+			return false;
+		}
+
+		if ((SSS < 0) || (SSS >= 1000))
+		{
+			return false;
+		}
+
+		return true;
+	}
 
 	/**
 	 * Get differential time logging upto nano second considering maximum significant time unit reference as second.
 	 * 
 	 * @param start
-	 *            start time of operation as long value
+	 *            Start time of operation as long value
 	 * @param end
-	 *            end time of operation as long value
+	 *            End time of operation as long value
 	 * @param precisionOfTimeUnitInSecond
-	 *            count of precision points in time unit per second
+	 *            Count of precision points in time unit per second for start and end parameters
 	 * @return Human-readable string of time logging.
 	 * @author Ved Prakash Singh [ved@hike.in]
 	 */
@@ -7431,7 +7626,75 @@ public class Utils
 		return timeLogBuilder.toString();
 	}
 
-	
+	/**
+	 * Call this method to find the total size of a folder
+	 * @param folder
+	 * @return size of the folder in bytes
+	 */
+	public static long folderSize(File folder)
+	{
+		long length = 0;
+		for (File file : folder.listFiles()) {
+			if (file.isFile())
+				length += file.length();
+			else
+				length += folderSize(file);
+		}
+		return length;
+	}
+
+	/**
+	 * Call this method to get the total available internal storage space
+	 * @return
+	 */
+	public static double getFreeInternalStorage()
+	{
+		double internalSpace = 0.0;
+
+		StatFs stat = new StatFs(Environment.getDataDirectory().getPath());
+		if (isJELLY_BEAN_MR2OrHigher())
+		{
+			internalSpace = (double) stat.getBlockSizeLong() * (double) stat.getAvailableBlocksLong();
+		}
+		else
+		{
+			internalSpace = (double) stat.getBlockSize() * (double) stat.getAvailableBlocks();
+		}
+		double megsAvailable = internalSpace / (1024 * 1024);
+
+		return megsAvailable;
+	}
+
+	/**
+	 * Utility method to rearrange chat and update the unread counter if needed
+	 *
+	 * @param destination
+	 *            : Msisdn
+	 * @param rearrangeChat
+	 *            : Whether to shift the chat up or not
+	 * @param updateUnreadCount
+	 *            : Whether to update the unread counter or not
+	 */
+	public static void rearrangeChat(String destination, boolean rearrangeChat, boolean updateUnreadCount)
+	{
+		if (updateUnreadCount)
+		{
+			HikeConversationsDatabase convDb = HikeConversationsDatabase.getInstance();
+			convDb.incrementUnreadCounter(destination);
+			int unreadCount = convDb.getConvUnreadCount(destination);
+			Message ms = Message.obtain();
+			ms.arg1 = unreadCount;
+			ms.obj = destination;
+			HikeMessengerApp.getPubSub().publish(HikePubSub.CONV_UNREAD_COUNT_MODIFIED, ms);
+		}
+
+		if (rearrangeChat)
+		{
+			Pair<String, Long> pair = new Pair<String, Long>(destination, System.currentTimeMillis() / 1000);
+			HikeMessengerApp.getPubSub().publish(HikePubSub.CONVERSATION_TS_UPDATED, pair);
+		}
+	}
+
 	public static boolean isLocationEnabled(Context context)
 	{
 		LocationManager locManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
@@ -7458,5 +7721,99 @@ public class Utils
 	public static boolean isMarshmallowOrHigher()
 	{
 		return Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1;
+	}
+	/**
+	 * returns true if the filePath starts with android data storage directory path
+	 * @param filePath
+	 */
+	public static boolean isAndroidDataStorageDir(String filePath)
+	{
+		boolean isAndroidDataStorageDir = false;
+		if(TextUtils.isEmpty(filePath))
+		{
+			isAndroidDataStorageDir =  false;
+		}
+		else if(getExternalStorageState() == ExternalStorageState.WRITEABLE)
+		{
+			isAndroidDataStorageDir = filePath.startsWith(Environment.getExternalStorageDirectory() + ANDROID_DATA_STORAGE_DIR_SUFFIX);
+		}
+		return isAndroidDataStorageDir;
+	}
+
+	public static void setEditTextCursorDrawableColor(EditText editText, int drawables)
+	{
+		// http://stackoverflow.com/questions/11554078/set-textcursordrawable-programatically
+		try
+		{
+			Field fCursorDrawableRes = TextView.class.getDeclaredField("mCursorDrawableRes");
+			fCursorDrawableRes.setAccessible(true);
+			fCursorDrawableRes.set(editText, drawables);
+		}
+		catch (Throwable ignored)
+		{
+
+		}
+	}
+
+	public static Locale getCurrentLanguageLocale()
+	{
+		if (LocalLanguageUtils.isLocalLanguageSelected())
+		{
+			return new Locale(LocalLanguageUtils.getApplicationLocalLanguageLocale());
+		}
+		else
+		{
+			return Locale.getDefault();
+		}
+	}
+
+	public static JSONObject getDataBasedOnAppLanguage(String json){
+
+		if (TextUtils.isEmpty(json)) {
+			return null;
+		}
+		try {
+
+
+			JSONArray array = new JSONArray(json);
+
+			if (array == null || array.length() <= 0) {
+				return null;
+			}
+
+			String deviceLocale = LocalLanguageUtils.getApplicationLocalLanguageLocale();
+
+			JSONObject data = null;
+
+			for (int i = 0; i < array.length(); i++) {
+				data = array.getJSONObject(i);
+
+				if (data.optString(HikeConstants.LANGUAGE).equalsIgnoreCase(deviceLocale)) {
+					return data.getJSONObject(HikeConstants.DATA);
+				}
+			}
+		}
+		catch(JSONException e)
+		{
+			Logger.e("productpopup","JSON Exception in JSON Array language");
+		}
+		return null;
+	}
+
+	public static void setLocalizationEnable(boolean enable)
+	{
+		if (!enable)
+			LocalLanguageUtils.setApplicationLocalLanguage(LocalLanguage.PhoneLangauge);
+		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.LOCALIZATION_ENABLED, enable);
+	}
+
+	public static void setCustomKeyboardEnable(boolean enable)
+	{
+		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CUSTOM_KEYBOARD_ENABLED, enable);
+	}
+
+	public static void setCustomKeyboardSupported(boolean supported)
+	{
+		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CUSTOM_KEYBOARD_SUPPORTED, supported);
 	}
 }

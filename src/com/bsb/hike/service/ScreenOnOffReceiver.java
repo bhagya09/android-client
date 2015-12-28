@@ -1,6 +1,7 @@
 package com.bsb.hike.service;
 
 import com.bsb.hike.chatHead.ChatHeadUtils;
+import com.bsb.hike.userlogs.UserLogInfo;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
@@ -25,6 +26,7 @@ public class ScreenOnOffReceiver extends BroadcastReceiver
 		}
 		else if (intent.getAction().equals(Intent.ACTION_SCREEN_OFF))
 		{
+			UserLogInfo.recordSessionInfo(ChatHeadUtils.getRunningAppPackage(ChatHeadUtils.GET_TOP_MOST_SINGLE_PROCESS), UserLogInfo.STOP);
 			ChatHeadUtils.stopService();
 		}
 	}

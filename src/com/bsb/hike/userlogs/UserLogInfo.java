@@ -2,7 +2,6 @@ package com.bsb.hike.userlogs;
 
 import java.io.File;
 import java.io.IOException;
-import java.sql.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -15,10 +14,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.app.Activity;
-import android.app.ActivityManager;
-import android.app.ActivityManager.RunningAppProcessInfo;
-import android.content.ComponentName;
+import android.app.KeyguardManager;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
@@ -31,17 +27,14 @@ import android.location.LocationManager;
 import android.net.Uri;
 import android.provider.CallLog;
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.bsb.hike.GCMIntentService;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
-import com.bsb.hike.R.string;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.chatHead.ChatHeadUtils;
-import com.bsb.hike.cropimage.Util;
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
@@ -665,6 +658,8 @@ public class UserLogInfo {
 		{
 			return;
 		}
+		KeyguardManager kgMgr = (KeyguardManager) HikeMessengerApp.getInstance().getApplicationContext().getSystemService(Context.KEYGUARD_SERVICE);
+		boolean lockScreenShowing = kgMgr.inKeyguardRestrictedInputMode();
 		long currentTime = System.currentTimeMillis();
 		if(foregroundAppsStartTimeMap == null)
 		{
@@ -679,14 +674,17 @@ public class UserLogInfo {
 			foregroundAppsStartTimeMap.clear();
 			for(String packageName : currentForegroundApps)
 			{
-				foregroundAppsStartTimeMap.put(packageName, currentTime);
+				if(!lockScreenShowing)
+				{
+					foregroundAppsStartTimeMap.put(packageName, currentTime);
+				}
 			}
 		}
 		else if (nextStep == STOP)
 		{
 			for(String app : foregroundAppsStartTimeMap.keySet())
 			{
-				recordASession(app, System.currentTimeMillis());
+				recordASession(app, foregroundAppsStartTimeMap.get(app));
 			}
 			foregroundAppsStartTimeMap.clear();
 		}
@@ -695,7 +693,7 @@ public class UserLogInfo {
 			savedForegroundApps.addAll(currentForegroundApps);
 			for(String app : savedForegroundApps)
 			{
-				if(currentForegroundApps.contains(app) && !foregroundAppsStartTimeMap.containsKey(app))
+				if(currentForegroundApps.contains(app) && !foregroundAppsStartTimeMap.containsKey(app) && !lockScreenShowing)
 				{
 					// foregrounded app here
 					foregroundAppsStartTimeMap.put(app, System.currentTimeMillis());

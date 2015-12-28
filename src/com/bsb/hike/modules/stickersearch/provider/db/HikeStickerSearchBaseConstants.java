@@ -8,12 +8,14 @@ package com.bsb.hike.modules.stickersearch.provider.db;
 
 public class HikeStickerSearchBaseConstants
 {
-	public static final int STICKERS_SEARCH_DATABASE_VERSION = 2;
+	public static final int STICKERS_SEARCH_DATABASE_VERSION = 3;
 
 	public static final String DATABASE_HIKE_STICKER_SEARCH = "hike_sticker_search_base";
 
 	// Version history for DATABASE_HIKE_STICKER_SEARCH==============================================[[
 	public static final int VERSION_STICKER_TAG_MAPPING_INDEX_ADDED = 2;
+
+	public static final int VERSION_STICKER_REGIONAL_TAG_MAPPING_ADDED = 3;
 
 	// ==============================================Version history for DATABASE_HIKE_STICKER_SEARCH]]
 
@@ -83,6 +85,8 @@ public class HikeStickerSearchBaseConstants
 
 	public static final String STICKER_STATE_FUNCTION_OF_FREQUENCY = "frequencyAsStateFunction";
 
+	public static final String STICKER_TAG_LANGUAGE = "stickerTagLanguage";
+
 	public static final String STICKER_REGION_FUNCTION_OF_FREQUENCY = "frequencyAsRegionFunction";
 
 	public static final String STICKER_OVERALL_FREQUENCY_FOR_TAG = "totalFrequencyForTag";
@@ -109,6 +113,8 @@ public class HikeStickerSearchBaseConstants
 
 	public static final String STICKER_AVAILABILITY = "stickerAvailability";
 
+	public static final String STICKER_TAG_KEYBOARD_ISO = "stickerTagKeyboardISO";
+
 	public static final String STICKER_TAG_MAPPING_INDEX = "stickerTagMappingIndex";
 
 	// Table: TABLE_TAG_SEARCH_*X, where *X is dynamically changeable variable
@@ -120,6 +126,14 @@ public class HikeStickerSearchBaseConstants
 	public static final int SQLITE_FIRST_INTEGER_ROW_ID = 1;
 
 	public static final int SQLITE_LIMIT_VARIABLE_NUMBER = 500;
+
+	public static final int SQLITE_MAX_LIMIT_VARIABLE_NUMBER = 900;
+
+	public static final int SQLITE_NULL_CHECK = 0;
+
+	public static final int SQLITE_NON_NULL_CHECK = 1;
+
+	public static final int SQLITE_NULL_OR_NON_NULL_CHECK = 2;
 
 	public static final String SYNTAX_PRIMARY_KEY = " INTEGER PRIMARY KEY, ";
 
@@ -163,6 +177,10 @@ public class HikeStickerSearchBaseConstants
 
 	public static final String SYNTAX_SINGLE_PARAMETER_CHECK = "=?";
 
+	public static final String SYNTAX_SINGLE_PARAMETER_UNSIGNED_CHECK = " IS ";
+
+	public static final String SYNTAX_NULL = "NULL";
+
 	public static final String SYNTAX_AND_NEXT = " AND ";
 
 	public static final String SYNTAX_OR_NEXT = " OR ";
@@ -203,7 +221,7 @@ public class HikeStickerSearchBaseConstants
 	// ======================================================================Decision constants]]
 
 	// Constants used in shared_pref or system_db==============================================[[
-	public static final String SHARED_PREF_STICKER_DATA = "hike_sticker_tag_data";
+	public static final String SHARED_PREF_STICKER_DATA = "hike_sticker_search_data";
 
 	public static final String KEY_PREF_USER_ID = "hike_user_id";
 
@@ -224,6 +242,8 @@ public class HikeStickerSearchBaseConstants
 	public static final String KEY_PREF_LAST_LOCAL_SUMMERIZATION_TIME = "last_local_summerization_time";
 
 	public static final String KEY_PREF_LAST_GLOBAL_SUMMERIZATION_TIME = "last_global_summerization_time";
+
+	public static final String KEY_PREF_STICKER_SEARCH_VT_TABLES_LIST = "virtualTableList";
 
 	// ==============================================Constants used in shared_pref or system_db]]
 
@@ -297,11 +317,17 @@ public class HikeStickerSearchBaseConstants
 
 	// =============================================Constants used for indexing of sticker data]]
 
+	// Default virtual tables prefixes
+	public static final String DEFAULT_VT_TABLE_LIST = "ABCDEFGHIJKLMNOPQRSTUVWXYZ\0";
+
 	// Default story
 	public static final String DEFAULT_STORY = "generic";
 
 	// Default theme
 	public static final String DEFAULT_THEME_TAG = "GENERIC";
+
+	// Default script
+	public static final String DEFAULT_STICKER_TAG_SCRIPT_ISO_CODE = "Latn";
 
 	// States used for Sticker-Tag relation and recommendations================================[[
 	public static enum STATE_CATEGORY

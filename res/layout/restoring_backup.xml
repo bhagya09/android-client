@@ -19,7 +19,7 @@
             style="@style/SignupHeader"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Restoring..."
+            android:text="@string/restoring..."
             android:textSize="24dp" />
 
         <com.bsb.hike.view.CustomFontTextView
@@ -27,7 +27,7 @@
             style="@style/SignupHeader"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="please wait, this may take a while"
+            android:text="@string/restoring..._hint"
             android:textColor="@color/black_45"
             android:textSize="15dp" />
 

@@ -1739,6 +1739,18 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 				contactNames.put(id, name);
 			}
 		}
+		catch (SecurityException e)
+		{
+			/**
+			 * currently some one plus one users are getting this exception on 5.1. we haven't found
+			 * any particular reason how it can happen. putting a catch block for the same.
+			 *
+			 * In future, when our target sdk version is 23 and user denies contacts permission
+			 * to hike. then we would get a security exception here, if we try to access contacts.
+			 */
+
+			Logger.e("ContactUtils", "Exception while querying contacts to name projection", e);
+		}
 		finally
 		{
 			if (contacts != null)
@@ -1784,6 +1796,14 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 					}
 				}
 			}
+		}
+		catch (SecurityException e)
+		{
+			/**
+			 * similar reason here as above security exception.
+			 */
+
+			Logger.e("ContactUtils", "Exception while querying phone numbers", e);
 		}
 		finally
 		{
@@ -1834,6 +1854,14 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 				}
 			}
 		}
+		catch (SecurityException e)
+		{
+			/**
+			 * similar reason here as above security exception.
+			 */
+
+			Logger.e("ContactUtils", "Exception while querying sim contacts", e);
+		}
 		catch (Exception e)
 		{
 			Logger.w("ContactUtils", "Expection while querying for sim contacts", e);
@@ -1873,14 +1901,12 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 	public Pair<String, Map<String, Long>> getRecentNumbers(Context context, int limit)
 	{
 		Cursor c = null;
+		Map<String, Long> recentlyContactedNumbers = new HashMap<String, Long>();
+		StringBuilder sb = new StringBuilder("");
 		try
 		{
 			String sortBy = limit > -1 ? Phone.LAST_TIME_CONTACTED + " DESC LIMIT " + limit : null;
 			c = context.getContentResolver().query(Phone.CONTENT_URI, new String[] { Phone.NUMBER, Phone.LAST_TIME_CONTACTED }, null, null, sortBy);
-
-			Map<String, Long> recentlyContactedNumbers = new HashMap<String, Long>();
-
-			StringBuilder sb = null;
 
 			if (c != null && c.getCount() > 0)
 			{
@@ -1918,7 +1944,11 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 				sb = new StringBuilder("()");
 			}
 
-			return new Pair<String, Map<String, Long>>(sb.toString(), recentlyContactedNumbers);
+
+		}
+		catch (SecurityException e)
+		{
+			Logger.e("ContactUtils", "Exception getRecentNumbers", e);
 		}
 		finally
 		{
@@ -1927,6 +1957,8 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 				c.close();
 			}
 		}
+
+		return new Pair<String, Map<String, Long>>(sb.toString(), recentlyContactedNumbers);
 	}
 
 	/**
@@ -1943,6 +1975,8 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 		Cursor phoneContactsCursor = null;
 		Cursor otherContactsCursor = null;
 
+		Map<String, Integer> mostContactedNumbers = new HashMap<String, Integer>();
+		StringBuilder sb = new StringBuilder("");
 		try
 		{
 			String[] projection = new String[] { ContactsContract.RawContacts.CONTACT_ID };
@@ -1975,9 +2009,6 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 			String newSelection = greenblueContactIds != null ? (Phone.CONTACT_ID + " IN " + greenblueContactIds.toString()) : null;
 
 			phoneContactsCursor = context.getContentResolver().query(Phone.CONTENT_URI, newProjection, newSelection, null, Phone.TIMES_CONTACTED + " DESC LIMIT " + limit);
-
-			Map<String, Integer> mostContactedNumbers = new HashMap<String, Integer>();
-			StringBuilder sb = null;
 
 			if ((phoneContactsCursor != null) && (phoneContactsCursor.getCount() > 0))
 			{
@@ -2024,8 +2055,10 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 				sb.replace(sb.length() - 1, sb.length(), ")");
 			}
 
-			return new Pair<String, Map<String, Integer>>(sb.toString(), mostContactedNumbers);
-
+		}
+		catch (SecurityException e)
+		{
+			Logger.e("ContactUtils", "Exception getMostContactedContacts", e);
 		}
 		finally
 		{
@@ -2042,6 +2075,7 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 				otherContactsCursor.close();
 			}
 		}
+		return new Pair<String, Map<String, Integer>>(sb.toString(), mostContactedNumbers);
 	}
 
 	public List<ContactInfo> getAllConversationContactsSorted(boolean removeNewOrReturningUsers, boolean fetchGroups)
@@ -2213,6 +2247,10 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 				}
 			}
 
+		}
+		catch (SecurityException e)
+		{
+			Logger.e("ContactUtils", "Exception setGreenBlueStatus", e);
 		}
 		finally
 		{

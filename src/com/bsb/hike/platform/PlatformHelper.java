@@ -3,6 +3,12 @@ package com.bsb.hike.platform;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.app.Activity;
+import android.content.Intent;
+import android.os.Handler;
+import android.text.TextUtils;
+import android.util.Log;
+
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.analytics.AnalyticsConstants;
@@ -13,16 +19,15 @@ import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.platform.bridge.JavascriptBridge;
 import com.bsb.hike.platform.content.PlatformContent;
+import com.bsb.hike.productpopup.IActivityPopup;
+import com.bsb.hike.productpopup.ProductContentModel;
+import com.bsb.hike.productpopup.ProductInfoManager;
 import com.bsb.hike.ui.ComposeChatActivity;
+import com.bsb.hike.ui.HikeBaseActivity;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
-
-import android.app.Activity;
-import android.content.Intent;
-import android.os.Handler;
-import android.text.TextUtils;
-import android.util.Log;
+import com.bsb.hike.utils.Utils;
 
 public class PlatformHelper
 {
@@ -53,6 +58,34 @@ public class PlatformHelper
 			JSONObject jsonObject = new JSONObject(json);
 			jsonObject.put(AnalyticsConstants.BOT_MSISDN, mBotInfo.getMsisdn());
 			jsonObject.put(AnalyticsConstants.BOT_NAME, mBotInfo.getConversationName());
+			if (Boolean.valueOf(isUI))
+			{
+				HikeAnalyticsEvent.analyticsForNonMessagingBots(AnalyticsConstants.MICROAPP_UI_EVENT, subType, jsonObject);
+			}
+			else
+			{
+				HikeAnalyticsEvent.analyticsForNonMessagingBots(AnalyticsConstants.MICROAPP_NON_UI_EVENT, subType, jsonObject);
+			}
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+		catch (NullPointerException e)
+		{
+			e.printStackTrace();
+		}
+	}
+
+	// Function to log Analytics
+	public static void logAnalytics(String isUI, String subType, String json, String botMsisdn, String botName)
+	{
+
+		try
+		{
+			JSONObject jsonObject = new JSONObject(json);
+			jsonObject.put(AnalyticsConstants.BOT_MSISDN, botMsisdn);
+			jsonObject.put(AnalyticsConstants.BOT_NAME, botName);
 			if (Boolean.valueOf(isUI))
 			{
 				HikeAnalyticsEvent.analyticsForNonMessagingBots(AnalyticsConstants.MICROAPP_UI_EVENT, subType, jsonObject);
@@ -117,7 +150,7 @@ public class PlatformHelper
 		PlatformUtils.sendPlatformMessageEvent(eventData, messageHash, namespace);
 	}
 
-	public static void sendSharedMessage(String cardObject, String hikeMessage, String sharedData, BotInfo mBotInfo, final Activity activity,int hashcode)
+	public static void sendSharedMessage(String cardObject, String hikeMessage, String sharedData, BotInfo mBotInfo, final Activity activity, int hashcode)
 	{
 		if (TextUtils.isEmpty(cardObject) || TextUtils.isEmpty(hikeMessage))
 		{
@@ -148,7 +181,6 @@ public class PlatformHelper
 			message.setPlatformData(sharedDataJson);
 			message.setNameSpace(mBotInfo.getNamespace());
 			pickContactAndSend(message, activity, hashcode);
-				
 
 		}
 		catch (JSONException e)
@@ -157,10 +189,10 @@ public class PlatformHelper
 			e.printStackTrace();
 		}
 	}
-	
+
 	public static void sendSharedMessage(String cardObject, String hikeMessage, String sharedData, BotInfo mBotInfo, final Activity activity)
 	{
-		sendSharedMessage(sharedData, sharedData, sharedData, mBotInfo, activity, -1);
+		sendSharedMessage(cardObject, hikeMessage, sharedData, mBotInfo, activity, -1);
 	}
 
 	public static String getAllEventsForMessageHash(String messageHash, String namespace)
@@ -186,18 +218,18 @@ public class PlatformHelper
 		return messageData;
 	}
 
-	public static void pickContactAndSend(ConvMessage message, final Activity activity,int hashcode)
+	public static void pickContactAndSend(ConvMessage message, final Activity activity, int hashcode)
 	{
 		if (activity != null)
 		{
 			final Intent intent = IntentFactory.getForwardIntentForConvMessage(activity, message, PlatformContent.getForwardCardData(message.webMetadata.JSONtoString()), false);
 			intent.putExtra(HikeConstants.Extras.COMPOSE_MODE, ComposeChatActivity.PICK_CONTACT_AND_SEND_MODE);
-			if (hashcode<0)
+			if (hashcode < 0)
 				intent.putExtra(JavascriptBridge.tag, hashcode);
 			intent.putExtra(HikePlatformConstants.REQUEST_CODE, JavascriptBridge.PICK_CONTACT_AND_SEND_REQUEST);
 			intent.putExtra(HikeConstants.Extras.THUMBNAILS_REQUIRED, true);
 			activity.startActivityForResult(intent, HikeConstants.PLATFORM_REQUEST);
-			
+
 		}
 	}
 
@@ -217,7 +249,8 @@ public class PlatformHelper
 			{
 				if (mContext != null)
 				{
-					final Intent intent = IntentFactory.getForwardIntentForConvMessage(mContext, message, PlatformContent.getForwardCardData(message.webMetadata.JSONtoString()), true);
+					final Intent intent = IntentFactory.getForwardIntentForConvMessage(mContext, message, PlatformContent.getForwardCardData(message.webMetadata.JSONtoString()),
+							true);
 					mContext.startActivity(intent);
 				}
 				else
@@ -228,4 +261,118 @@ public class PlatformHelper
 		});
 	}
 
+	public static void deleteEvent(String eventId)
+	{
+		if (TextUtils.isEmpty(eventId))
+		{
+			Logger.e(TAG, "event can't be deleted as the event id is " + eventId);
+			return;
+		}
+		HikeConversationsDatabase.getInstance().deleteEvent(eventId);
+	}
+
+	public static void deleteAllEventsForMessage(String messageHash)
+	{
+		if (TextUtils.isEmpty(messageHash))
+		{
+			Logger.e(TAG, "the events corresponding to the message hash can't be deleted as the message hash is " + messageHash);
+			return;
+		}
+		HikeConversationsDatabase.getInstance().deleteAllEventsForMessage(messageHash);
+	}
+
+	public static void postStatusUpdate(String status, String moodId, String imageFilePath)
+	{
+		int mood;
+
+		try
+		{
+			mood = Integer.parseInt(moodId);
+		}
+		catch (NumberFormatException e)
+		{
+			Logger.e(TAG, "moodId to postStatusUpdate should be a number.");
+			mood = -1;
+		}
+
+		Utils.postStatusUpdate(status, mood, imageFilePath);
+
+	}
+
+	public static void showPopup(String contentData, Activity activity)
+	{
+		final HikeBaseActivity hikeBaseActivity;
+		if (TextUtils.isEmpty(contentData) || activity == null)
+		{
+			Logger.e(TAG, "Either activity or contentData to showPopup is null. Returning.");
+			return;
+		}
+		if (activity instanceof HikeBaseActivity)
+		{
+			hikeBaseActivity = (HikeBaseActivity) activity;
+		}
+		else
+		{
+			Logger.e(TAG, "Activity passed to showPopup is not subclass of HikeAppStateBaseFragmentActivity. Returning.");
+			return;
+		}
+		try
+		{
+			JSONObject data = new JSONObject(contentData);
+			if (!checkContentData(data))
+			{
+				return;
+			}
+			final ProductContentModel mmModel = ProductContentModel.makeProductContentModel(data);
+			ProductInfoManager.getInstance().parseAndShowPopup(mmModel, new IActivityPopup()
+			{
+				@Override
+				public void onSuccess(ProductContentModel productContentModel)
+				{
+					hikeBaseActivity.showPopupDialog(mmModel);
+				}
+
+				@Override
+				public void onFailure()
+				{
+					Logger.e(TAG, "Failure occured when opening popup.");
+				}
+			});
+
+		} catch (JSONException e)
+		{
+			Logger.e(TAG, "JSONException in showPopup : " + e.getMessage());
+			e.printStackTrace();
+		}
+	}
+
+	public static boolean checkContentData(JSONObject data) throws JSONException
+	{
+		if (data.has(HikePlatformConstants.CARD_OBJECT))
+		{
+			JSONObject cardObj = data.optJSONObject(HikePlatformConstants.CARD_OBJECT);
+			if (cardObj == null)
+			{
+				Logger.e(TAG, "cardObj is null in contentData. Returning.");
+				return false;
+			}
+			if (!cardObj.has(HikePlatformConstants.LAYOUT_DATA))
+			{
+				cardObj.put(HikePlatformConstants.LAYOUT_DATA, new JSONObject());
+			}
+			else
+			{
+				if (!(cardObj.get(HikePlatformConstants.LAYOUT_DATA) instanceof JSONObject))
+				{
+					cardObj.put(HikePlatformConstants.LAYOUT_DATA, new JSONObject());
+				}
+			}
+		}
+		else
+		{
+			Logger.e(TAG, "cardObj not present in contentData. Returning.");
+			return false;
+		}
+		return true;
+	}
 }

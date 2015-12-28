@@ -11,10 +11,13 @@ import android.preference.PreferenceManager;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.HikePubSub;
 import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.db.AccountBackupRestore;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.filetransfer.FileTransferManager;
+import com.bsb.hike.localisation.LocalLanguage;
+import com.bsb.hike.localisation.LocalLanguageUtils;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.RequestToken;
@@ -201,7 +204,8 @@ public class DeleteAccountTask implements ActivityCallableTask
 		{
 			OfflineController.getInstance().shutdownProcess(new OfflineException(OfflineException.USER_DISCONNECTED));
 		}
-		
+		//Resetting to use Phone Language as default
+		LocalLanguageUtils.setApplicationLocalLanguage(new LocalLanguage("Phone Language",LocalLanguage.PhoneLangauge.getLocale()));
 		clearAppData();
 		Logger.d("DeleteAccountTask", "account deleted");
 
@@ -211,13 +215,26 @@ public class DeleteAccountTask implements ActivityCallableTask
 		 */
 		HikeMessengerApp.getInstance().startUpdgradeIntent();
 
+
 		finished = true;
-		
+
 		/* clear any toast notifications */
-		NotificationManager mgr = (NotificationManager) ctx.getSystemService(android.content.Context.NOTIFICATION_SERVICE);
-		mgr.cancelAll();
-		
-		
+
+		try
+		{
+			NotificationManager mgr = (NotificationManager) ctx.getSystemService(android.content.Context.NOTIFICATION_SERVICE);
+			mgr.cancelAll();
+		}
+		catch (SecurityException e)
+		{
+			/**
+			 * some of the users on HTC HTC Desire 626GPLUS dual sim were getting permission denial while try to cancel notifications.
+			 */
+			Logger.e("DeleteAccountTask", "Exception while canceling notification from DeleteAccountTask", e);
+		}
+
+		// reset badge counters
+		HikeMessengerApp.getPubSub().publish(HikePubSub.ACCOUNT_RESET_OR_DELETE, null);
 		// redirect user to the welcome screen
 		if (listener != null)
 		{

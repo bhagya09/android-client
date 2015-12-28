@@ -36,7 +36,7 @@
             style="@style/TitleTextStyleCustomDialog"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Contact Name"
+            android:text="@string/contact_name"
             android:gravity="center_vertical" />
         
     </LinearLayout>
