@@ -1278,7 +1278,7 @@
     <string name="are_typing">টাইপ করছে...</string>
     <string name="you_chat_bg_changed">আপনি চ্যাটের থিম পরিবর্তন করেছেন।</string>
     <string name="hike_keyboard">Hike কীবোর্ড</string>
-    <string name="system_keyboard">সিস্টেমের কীবোর্ড</string>
+    <string name="system_keyboard">ফোন কীবোর্ড</string>
     <string name="you_posted_pin">আপনি একটি পিন পোস্ট করেছেন</string>
     <string name="voip_hang_up">কেটে দিন</string>
     <string name="voip_decline">প্রত্যাখ্যান করুন</string>
@@ -1428,5 +1428,7 @@
 <string name="unsupported_langs_toast">আপনার ফোন %1$s  ভাষা দেখানো তে ব্যর্থ</string>
     <string name="unsupported_language_toast_msg">আপনার ফোন এই ভাষা স্বীকার করে না</string>
     <string name="language_ftue_complete_message">আপনার ভাষা বদলাতে পারেন\n সেটিংস -> ভাষা &amp; ইনপুট গিয়ে</string>
+    <string name="error_message_upgrade_peer">যোগাযোগ সম্ভব না হওয়ায় দুঃখিত। আপনার বন্ধুর Hike -এর সংস্করণে Hike ডাইরেক্ট নেই।</string>
+    <string name="error_message_unsupported_peer">যোগাযোগ সম্ভব না হওয়ায় দুঃখিত। Hike ডাইরেক্ট আপাতত কেবলমাত্র অ্যান্ড্রয়েড ফোনের সাথে চলে।</string>
     
 </resources>

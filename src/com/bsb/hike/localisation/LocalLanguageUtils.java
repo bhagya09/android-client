@@ -50,19 +50,24 @@ public class LocalLanguageUtils {
         return null;
     }
 
-    synchronized public static void setApplicationLocalLanguage(LocalLanguage lang)
+    synchronized public static boolean setApplicationLocalLanguage(LocalLanguage lang)
     {
-        Logger.d("productpopup","New Language is "+lang.getLocale());
-        if (TextUtils.isEmpty(lang.getLocale())) {
-            HikeSharedPreferenceUtil.getInstance().removeData(HikeConstants.LOCAL_LANGUAGE_PREF);
-        } else {
-            HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.LOCAL_LANGUAGE_PREF, lang.getLocale());
+        if (HikeMessengerApp.isLocalisationEnabled())
+        {
+            if (TextUtils.isEmpty(lang.getLocale())) {
+                HikeSharedPreferenceUtil.getInstance().removeData(HikeConstants.LOCAL_LANGUAGE_PREF);
+            } else {
+                HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.LOCAL_LANGUAGE_PREF, lang.getLocale());
+            }
+
+            HikeMessengerApp.getInstance().setupLocalLanguage();
+            StickerManager.getInstance().resetStickerShopLastUpdateTime();
+            StickerManager.getInstance().resetSignupUpgradeCallPreference();
+            Utils.sendLocaleToServer();
+            HikeMessengerApp.getPubSub().publish(HikePubSub.LOCAL_LANGUAGE_CHANGED,lang);
+            return true;
         }
-        HikeMessengerApp.getInstance().setupLocalLanguage();
-        StickerManager.getInstance().resetStickerShopLastUpdateTime();
-        StickerManager.getInstance().resetSignupUpgradeCallPreference();
-        Utils.sendLocaleToServer();
-        HikeMessengerApp.getPubSub().publish(HikePubSub.LOCAL_LANGUAGE_CHANGED,lang);
+        return false;
     }
 
     public static Locale getDeviceDefaultLocale()

@@ -825,6 +825,8 @@ public class VoIPClient  {
 						// Call not answered yet?
 						sendMessageToService(VoIPConstants.MSG_PARTNER_ANSWER_TIMEOUT);
 						sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_PARTNER_ANSWER_TIMEOUT);
+						VoIPDataPacket dp = new VoIPDataPacket(PacketType.END_CALL);
+						sendPacket(dp, true);
 						// Sleep for a little bit before destroying this object
 						// since the call failure screen will need its info. 
 						Thread.sleep(500);

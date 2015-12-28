@@ -39,6 +39,7 @@ public class LanguageSettingsActivity extends ChangeProfileImageBaseActivity imp
 
 	ArrayList<KPTAddonItem> addonItems;
 
+	private String[] mPubSubListeners = new String[] { HikePubSub.KPT_LANGUAGES_UPDATED };
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
@@ -67,7 +68,6 @@ public class LanguageSettingsActivity extends ChangeProfileImageBaseActivity imp
 
 	protected void addToPubSub()
 	{
-		String[] mPubSubListeners = new String[] { HikePubSub.KPT_LANGUAGES_UPDATED };
 		HikeMessengerApp.getPubSub().addListeners(this, mPubSubListeners);
 	}
 
@@ -164,7 +164,14 @@ public class LanguageSettingsActivity extends ChangeProfileImageBaseActivity imp
 	@Override
 	protected void onDestroy()
 	{
-		super.onDestroy();
 		KptKeyboardManager.getInstance().setInstallListener(null);
+		// Mempry leak pub sub no destroyed
+		removePubSubs();
+		super.onDestroy();
+	}
+
+	public void removePubSubs()
+	{
+		HikeMessengerApp.getPubSub().removeListeners(this, mPubSubListeners);
 	}
 }

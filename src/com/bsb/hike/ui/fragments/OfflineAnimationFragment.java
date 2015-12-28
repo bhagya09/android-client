@@ -708,7 +708,7 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 			{
 				return;
 			}
-			fragmentView.post(new Runnable()
+			uiHandler.post(new Runnable()
 			{
 				@Override
 				public void run()

@@ -137,6 +137,7 @@ import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.filetransfer.FTAnalyticEvents;
 import com.bsb.hike.http.HikeHttpRequest;
+import com.bsb.hike.localisation.LocalLanguage;
 import com.bsb.hike.localisation.LocalLanguageUtils;
 import com.bsb.hike.models.AccountData;
 import com.bsb.hike.models.AccountInfo;
@@ -4615,24 +4616,20 @@ public class Utils
 			return;
 		}
 
-		HikeDialogFactory.showDialog(context, HikeDialogFactory.FAVORITE_ADDED_DIALOG, new HikeDialogListener()
-		{
+		HikeDialogFactory.showDialog(context, HikeDialogFactory.FAVORITE_ADDED_DIALOG, new HikeDialogListener() {
 
 			@Override
-			public void positiveClicked(HikeDialog hikeDialog)
-			{
+			public void positiveClicked(HikeDialog hikeDialog) {
 				hikeDialog.dismiss();
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.SHOWN_ADD_FAVORITE_TIP, true);
 			}
 
 			@Override
-			public void neutralClicked(HikeDialog hikeDialog)
-			{
+			public void neutralClicked(HikeDialog hikeDialog) {
 			}
 
 			@Override
-			public void negativeClicked(HikeDialog hikeDialog)
-			{
+			public void negativeClicked(HikeDialog hikeDialog) {
 				hikeDialog.dismiss();
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.SHOWN_ADD_FAVORITE_TIP, true);
 			}
@@ -7801,5 +7798,22 @@ public class Utils
 			Logger.e("productpopup","JSON Exception in JSON Array language");
 		}
 		return null;
+	}
+
+	public static void setLocalizationEnable(boolean enable)
+	{
+		if (!enable)
+			LocalLanguageUtils.setApplicationLocalLanguage(LocalLanguage.PhoneLangauge);
+		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.LOCALIZATION_ENABLED, enable);
+	}
+
+	public static void setCustomKeyboardEnable(boolean enable)
+	{
+		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CUSTOM_KEYBOARD_ENABLED, enable);
+	}
+
+	public static void setCustomKeyboardSupported(boolean supported)
+	{
+		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CUSTOM_KEYBOARD_SUPPORTED, supported);
 	}
 }
