@@ -41,7 +41,7 @@ import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
-import com.bsb.hike.models.HikeFeature;
+import com.bsb.hike.models.HikeFeatureInfo;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.smartImageLoader.IconLoader;
 import com.bsb.hike.tasks.FetchFriendsTask;
@@ -60,7 +60,7 @@ import com.bsb.hike.view.PinnedSectionListView.PinnedSectionListAdapter;
 public class FriendsAdapter extends BaseAdapter implements OnClickListener, PinnedSectionListAdapter
 {
 
-	private final ArrayList<HikeFeature> filteredHikeOtherFeaturesList;
+	private final ArrayList<HikeFeatureInfo> filteredHikeOtherFeaturesList;
 
 	public static interface FriendsListFetchedCallback
 	{
@@ -167,7 +167,7 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 	
 	protected List<BotInfo> filteredmicroAppShowcaseList;
 
-	protected List<HikeFeature> hikeOtherFeaturesList;
+	protected List<HikeFeatureInfo> hikeOtherFeaturesList;
 	
 	protected int originalMicroAppCount = 0;
 
@@ -239,8 +239,8 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 		nuxRecommendedList = new ArrayList<ContactInfo>(0);
 		microappShowcaseList = new ArrayList<BotInfo>(0);
 		filteredmicroAppShowcaseList = new ArrayList<BotInfo>(0);
-		hikeOtherFeaturesList = new ArrayList<HikeFeature>(0);
-		filteredHikeOtherFeaturesList = new ArrayList<HikeFeature>(0);
+		hikeOtherFeaturesList = new ArrayList<HikeFeatureInfo>(0);
+		filteredHikeOtherFeaturesList = new ArrayList<HikeFeatureInfo>(0);
 		
 		friendsStealthList = new ArrayList<ContactInfo>(0);
 		hikeStealthContactsList = new ArrayList<ContactInfo>(0);

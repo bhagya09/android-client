@@ -3,7 +3,6 @@ package com.bsb.hike.adapters;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.LayerDrawable;
 import android.preference.PreferenceManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
@@ -26,7 +25,7 @@ import com.bsb.hike.NUXConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
-import com.bsb.hike.models.HikeFeature;
+import com.bsb.hike.models.HikeFeatureInfo;
 import com.bsb.hike.models.NuxSelectFriends;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.photos.HikePhotosUtils;
@@ -35,7 +34,6 @@ import com.bsb.hike.tasks.FetchFriendsTask;
 import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.utils.EmoticonConstants;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
-import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.NUXManager;
 import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.SmileyParser;
@@ -238,12 +236,11 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 		else if (viewType == ViewType.HIKE_FEATURES)
 		{
 			holder = (ViewHolder) convertView.getTag();
-			HikeFeature hikeFeature = (HikeFeature)contactInfo;
-			holder.name.setText(hikeFeature.getName());
-			holder.checkbox.setVisibility(hikeFeature.isShowCheckBox() ? View.VISIBLE : View.GONE);
-			holder.status.setText(hikeFeature.getDescription());
+			HikeFeatureInfo hikeFeatureInfo = (HikeFeatureInfo)contactInfo;
+			holder.name.setText(hikeFeatureInfo.getName());
+			holder.status.setText(hikeFeatureInfo.getDescription());
 
-			Drawable timelineLogoDrawable = ContextCompat.getDrawable(context, hikeFeature.getIconDrawable());
+			Drawable timelineLogoDrawable = ContextCompat.getDrawable(context, hikeFeatureInfo.getIconDrawable());
 			Drawable otherFeaturesDrawable = ContextCompat.getDrawable(context, R.drawable.other_features_bg);
 
 			holder.userImage.setImageDrawable(timelineLogoDrawable);
@@ -253,6 +250,25 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 			holder.userImage.setPadding(paddingPx,paddingPx,paddingPx,paddingPx);
 
 			holder.userImage.setBackground(otherFeaturesDrawable);
+
+
+			if (hikeFeatureInfo.isShowCheckBox())
+			{
+				holder.checkbox.setVisibility(View.VISIBLE);
+				if (selectedPeople.containsKey(contactInfo.getMsisdn()))
+				{
+
+					holder.checkbox.setChecked(true);
+				}
+				else
+				{
+					holder.checkbox.setChecked(false);
+				}
+			}
+			else
+			{
+				holder.checkbox.setVisibility(View.GONE);
+			}
 		}
 		else if (viewType == ViewType.EXTRA)
 		{
@@ -567,9 +583,10 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 		if(showTimeline)
 		{
 			ContactInfo otherFeaturesSection = new ContactInfo(SECTION_ID, "1", context.getResources().getString(R.string.you).toUpperCase(), HIKE_FEATURES_ID);
-			ContactInfo timelineListItem = new HikeFeature(context.getResources().getString(R.string.timeline),R.drawable.ic_timeline,context.getResources().getString(R.string.timeline_short_desc), true, new Intent());
+			ContactInfo timelineListItem = new HikeFeatureInfo(context.getResources().getString(R.string.timeline),R.drawable.ic_timeline,context.getResources().getString(R.string.timeline_short_desc), true, new Intent());
 			timelineListItem.setId(HIKE_FEATURES_ID);
-			timelineListItem.setPhoneNum(HIKE_FEATURES_ID);
+			timelineListItem.setPhoneNum(HIKE_FEATURES_TIMELINE_ID);
+			timelineListItem.setName(context.getString(R.string.timeline));
 			completeList.add(otherFeaturesSection);
 			completeList.add(timelineListItem);
 		}

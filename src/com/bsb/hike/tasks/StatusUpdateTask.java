@@ -39,6 +39,16 @@ public class StatusUpdateTask implements IHikeHTTPTask
 
 	private String imageFilePath;
 
+	public static final int TASK_IDLE = 0;
+
+	public static final int TASK_RUNNING = 1;
+
+	public static final int TASK_SUCCESS = 2;
+
+	public static final int TASK_FAILED = 3;
+
+	private int taskStatus = TASK_IDLE;
+
 	public StatusUpdateTask(String status, int argMoodId, String imageFilePath) throws IOException
 	{
 		this.status = status;
@@ -93,25 +103,25 @@ public class StatusUpdateTask implements IHikeHTTPTask
 				String mappedId = data.optString(HikeConstants.STATUS_ID);
 				String text = data.optString(HikeConstants.STATUS_MESSAGE);
 				int moodId = data.optInt(HikeConstants.MOOD) - 1;
-				
+
 				int timeOfDay = data.optInt(HikeConstants.TIME_OF_DAY);
 				String msisdn = preferences.getString(HikeMessengerApp.MSISDN_SETTING, "");
 				String name = preferences.getString(HikeMessengerApp.NAME_SETTING, "");
 				long time = (long) System.currentTimeMillis() / 1000;
-				
+
 				final String iconBase64 = data.optString(HikeConstants.THUMBNAIL);
-				
+
 				final String fileKey = data.optString(HikeConstants.SU_IMAGE_KEY);
-				
+
 				StatusMessageType suType = getStatusMessageType(text, imageFilePath);
-				
-				if(suType == StatusMessageType.TEXT_IMAGE || suType == StatusMessageType.IMAGE)
+
+				if (suType == StatusMessageType.TEXT_IMAGE || suType == StatusMessageType.IMAGE)
 				{
 					// TODO Support all image formats (same code is present in ChangeProfileImageBaseActivity)
 					String destFilePath = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT + "/" + mappedId + ".jpg";
 
 					Utils.copyFile(imageFilePath, destFilePath);
-					
+
 					HikeHandlerUtil.getInstance().postRunnableWithDelay(new Runnable()
 					{
 						@Override
@@ -122,8 +132,8 @@ public class StatusUpdateTask implements IHikeHTTPTask
 						}
 					}, 0);
 				}
-				
-				StatusMessage statusMessage = new StatusMessage(0, mappedId, msisdn, name, text, suType, time, moodId, timeOfDay,fileKey);
+
+				StatusMessage statusMessage = new StatusMessage(0, mappedId, msisdn, name, text, suType, time, moodId, timeOfDay, fileKey);
 				HikeConversationsDatabase.getInstance().addStatusMessage(statusMessage, true);
 				int unseenUserStatusCount = preferences.getInt(HikeMessengerApp.UNSEEN_USER_STATUS_COUNT, 0);
 				Editor editor = preferences.edit();
@@ -142,6 +152,7 @@ public class StatusUpdateTask implements IHikeHTTPTask
 					HikeMessengerApp.getPubSub().publish(HikePubSub.TIMELINE_UPDATE_RECIEVED, statusMessage);
 				}
 				HikeMessengerApp.getPubSub().publish(HikePubSub.STATUS_POST_REQUEST_DONE, true);
+				taskStatus = TASK_SUCCESS;
 			}
 
 			private StatusMessageType getStatusMessageType(String text, String imageFilePath)
@@ -192,10 +203,11 @@ public class StatusUpdateTask implements IHikeHTTPTask
 			{
 				Logger.e(getClass().getSimpleName(), " post status request failed : " + httpException.getMessage());
 				HikeMessengerApp.getPubSub().publish(HikePubSub.STATUS_POST_REQUEST_DONE, false);
+				taskStatus = TASK_FAILED;
 			}
 		};
 	}
-	
+
 	private int getTimeOfDay()
 	{
 		int hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
@@ -208,5 +220,14 @@ public class StatusUpdateTask implements IHikeHTTPTask
 			return 2;
 		}
 		return 3;
+	}
+
+	public int getTaskStatus()
+	{
+		if(token.isRequestRunning())
+		{
+			return TASK_RUNNING;
+		}
+		return taskStatus;
 	}
 }

@@ -9,7 +9,7 @@ import android.content.Intent;
 /**
  * Currently ComposeChatActivity Adapter is tightly bound to ContactInfo Objects only. Hence extending this until ComposeChatActivity is not refactored.
  */
-public class HikeFeature extends ContactInfo
+public class HikeFeatureInfo extends ContactInfo
 {
 	private Intent mFireIntent;
 
@@ -21,12 +21,12 @@ public class HikeFeature extends ContactInfo
 
 	private boolean mShowCheckBox;
 
-	public HikeFeature()
+	public HikeFeatureInfo()
 	{
 
 	}
 
-	public HikeFeature(String name, int iconDrawable, String description, boolean showCheckBox, Intent fireIntent)
+	public HikeFeatureInfo(String name, int iconDrawable, String description, boolean showCheckBox, Intent fireIntent)
 	{
 		mName = name;
 		mIconDrawable = iconDrawable;

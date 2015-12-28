@@ -27,6 +27,9 @@ public class DialogUtils
 
 	public static String getForwardConfirmationText(Context context, ArrayList<ContactInfo> arrayList, boolean forwarding)
 	{
+
+		boolean postToTimeline = false;
+
 		// multi forward case
 		if (forwarding)
 		{
