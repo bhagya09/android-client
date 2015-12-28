@@ -1096,7 +1096,7 @@
     <string name="photo_actions_header">அற்புதமாகத் தோன்றுகிறது! -க்கு, இந்த ஃபோட்டோவை உபயோகிக்கவும்,</string>
     <string name="profile_header_subtext">புரொஃபைல் ஃபோட்டோ ஒவ்வொருவருக்கும் விசிபிள் ஆக இருக்கிறது</string>
     <string name="sms_with_settings">SMS செட்டிங்ஸ்</string>
-    <string name="sms_credits_with_settings">இலவச SMS: %1$d</string>
+    <string name="sms_credits_with_settings">இலவச SMS: %1$s</string>
     <string name="free_hike_2_sms_india">இந்தியாவிற்கு மட்டும் இலவசம்</string>
     <string name="invite_friends_earn_rewards">தோழரை Hike-கிற்கு இன்வைட் செய்து ரிவார்டுகளைப் சம்பாதியும்</string>
     <string name="your_referral_code">உன் <b>ரெஃபரல்</b> கோடு</string>
