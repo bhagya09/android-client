@@ -738,8 +738,8 @@ public class ChatHeadUtils
 		if (number != null)
 		{
 			msisdn = number;
-			CallerContentModel contentModel = ContactManager.getInstance().getCallerContentModelFromMsisdn(number);
-			if (contentModel != null && contentModel.isBlock())
+			CallerContentModel callerContentModel = ContactManager.getInstance().getCallerContentModelFromMsisdn(number);
+			if (callerContentModel != null && callerContentModel.isBlock())
 			{
 				if (StickyCaller.CALL_TYPE == StickyCaller.INCOMING || StickyCaller.CALL_TYPE == StickyCaller.MISSED)
 				{
@@ -753,7 +753,6 @@ public class ChatHeadUtils
 			{
 				if (PreferenceManager.getDefaultSharedPreferences(context).getBoolean(HikeConstants.ENABLE_KNOWN_NUMBER_CARD_PREF, true))
 				{
-					CallerContentModel callerContentModel = ContactManager.getInstance().getCallerContentModelFromMsisdn(number);
 					if (callerContentModel != null)
 					{
 						callerContentModel.setFullName(contactName);
@@ -772,7 +771,6 @@ public class ChatHeadUtils
 			}
 			else
 			{
-				CallerContentModel callerContentModel = ContactManager.getInstance().getCallerContentModelFromMsisdn(number);
 				if (callerContentModel != null)
 				{
 					callerServerCall(number, true, callerContentModel);
