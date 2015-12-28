@@ -333,11 +333,6 @@ public class VoIPService extends Service implements Listener
 				}
 				break;
 				
-			case VoIPConstants.MSG_PARTNER_ANSWER_TIMEOUT:
-				hangUp();
-				sendMessageToActivity(VoIPConstants.MSG_PARTNER_ANSWER_TIMEOUT);
-				break;
-				
 			default:
 				// Pass message to activity through its handler
 				sendMessageToActivity(msg.what);

@@ -2192,7 +2192,7 @@ public class StickerManager
 	}
 
 	/**
-	 * Send recommendation autopopup settings state analytics
+	 * Send recommendation auto-popup settings state analytics
 	 */
 	public void sendRecommendationAutopopupSettingsStateAnalytics(String source, boolean state)
 	{
@@ -2214,13 +2214,14 @@ public class StickerManager
 	/**
 	 * Send recommendation rejection analytics
 	 */
-	public void sendRecommendationRejectionAnalytics(boolean autoPopup, String rejectionSource, String tappedWord, String taggedPhrase)
+	public void sendRecommendationRejectionAnalytics(String recommendationSource, String rejectionSource, String tappedWord, String taggedPhrase)
 	{
 		try
 		{
 			JSONObject metadata = new JSONObject();
 			metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.STICKER_RECOMMENDATION_REJECTION_KEY);
 			metadata.put(HikeConstants.SOURCE, rejectionSource);
+			metadata.put(HikeConstants.RECOMMENDATION_SOURCE, recommendationSource);
 			metadata.put(HikeConstants.TAGGED_PHRASE, taggedPhrase);
 			metadata.put(HikeConstants.TAP_WORD, tappedWord);
 			metadata.put(HikeConstants.KEYBOARD_LIST, StickerSearchUtils.getCurrentLanguageISOCode());
@@ -2234,15 +2235,16 @@ public class StickerManager
 	}
 
 	/**
-	 * Send recommendation rejection analytics
+	 * Send recommendation rejection analytics from FTUE
 	 */
-	public void sendRecommendationRejectionAnalyticsFtue(boolean firstFtueVisible, String rejectionSource, String tappedWord, String taggedPhrase)
+	public void sendRecommendationRejectionAnalyticsFtue(boolean firstFtueVisible, String recommendationSource, String rejectionSource, String tappedWord, String taggedPhrase)
 	{
 		try
 		{
 			JSONObject metadata = new JSONObject();
 			metadata.put(HikeConstants.EVENT_KEY, (firstFtueVisible ? HikeConstants.LogEvent.STICKER_RECOMMENDATION_FTUE1_REJECTION_KEY
 					: HikeConstants.LogEvent.STICKER_RECOMMENDATION_FTUE2_REJECTION_KEY));
+			metadata.put(HikeConstants.RECOMMENDATION_SOURCE, recommendationSource);
 			metadata.put(HikeConstants.SOURCE, rejectionSource);
 			metadata.put(HikeConstants.TAGGED_PHRASE, taggedPhrase);
 			metadata.put(HikeConstants.TAP_WORD, tappedWord);

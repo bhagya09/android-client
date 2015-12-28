@@ -186,8 +186,6 @@ public class OfflineConstants
 	
 	public static final int NOTIFICATION_IDENTIFIER = -101;
 
-	public static final String OFFLINE_INDICATOR_CLICKED = "offline_indicator_clicked";
-	
 	public static final class AnalyticsConstants
 	{
 		public static final String EVENT_TYPE_OFFLINE = "hdir";

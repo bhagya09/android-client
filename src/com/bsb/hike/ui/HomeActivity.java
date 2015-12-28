@@ -256,7 +256,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 		if (HomeFtueActivity.isFtueToBeShown())
 		{
-			IntentFactory.openHomeFtueActivity(HomeActivity.this);
+			IntentFactory.freshLaunchHomeFtueActivity(HomeActivity.this);
 			this.finish();
 			return;
 		}
@@ -742,7 +742,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 					{
 						hiButton.clearAnimation();
 					}
-					
+
 					return true;
 			}
 
@@ -1198,6 +1198,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	protected void onResume()
 	{
 		Logger.d(TAG,"onResume");
+		KptUtils.resumeKeyboard(mCustomKeyboard);
 		if (searchMenuItem != null && searchMenuItem.isActionViewExpanded())
 		{
 			showKeyboard();

@@ -11,6 +11,8 @@ public class ClipboardListener implements OnPrimaryClipChangedListener
 
 	private int MAX_DIGIT_CONST = 13;
 
+	private  String oldNumber = "";
+
 	public void onPrimaryClipChanged()
 	{
 		String clipboardText;
@@ -27,10 +29,11 @@ public class ClipboardListener implements OnPrimaryClipChangedListener
 
 		String number = ChatHeadUtils.getValidNumber(clipboardText);
 
-		if (number != null)
+		if (number != null && !number.equals(oldNumber))
 		{
 			if (number.length() >= MIN_DIGIT_CONST && number.length() <= MAX_DIGIT_CONST)
 			{
+				oldNumber= number;
 				StickyCaller.CALL_TYPE = StickyCaller.CLIPBOARD;
 				ChatHeadUtils.postNumberRequest(HikeMessengerApp.getInstance().getApplicationContext(), number);
 			}

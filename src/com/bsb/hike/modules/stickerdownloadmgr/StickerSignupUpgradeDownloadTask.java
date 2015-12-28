@@ -15,10 +15,14 @@ import com.bsb.hike.modules.httpmgr.hikehttp.IHikeHttpTaskResult;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.StickerRequestType;
+import com.bsb.hike.modules.stickersearch.StickerLanguagesManager;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
+
+
+import java.util.List;
 
 public class StickerSignupUpgradeDownloadTask implements IHikeHTTPTask, IHikeHttpTaskResult
 {
@@ -78,6 +82,8 @@ public class StickerSignupUpgradeDownloadTask implements IHikeHTTPTask, IHikeHtt
 	private JSONObject getPostObject(JSONArray categoryList)
 	{
 		JSONObject postObject = new JSONObject();
+
+		List<String> unSupportedLanguages = StickerLanguagesManager.getInstance().getUnsupportedLanguagesCollection();
 		
 		try
 		{
@@ -86,6 +92,10 @@ public class StickerSignupUpgradeDownloadTask implements IHikeHTTPTask, IHikeHtt
 				postObject.put(StickerManager.CATEGORY_IDS, categoryList);
 				postObject.put("resId", Utils.getResolutionId());
 				postObject.put("lang", Utils.getCurrentLanguageLocale().getISO3Language());
+				if(!Utils.isEmpty(unSupportedLanguages))
+				{
+					postObject.put("unknown_langs", new JSONArray(unSupportedLanguages));
+				}
 				return postObject;
 			}
 			Logger.e(TAG, "Sticker download failed null or empty category list");
