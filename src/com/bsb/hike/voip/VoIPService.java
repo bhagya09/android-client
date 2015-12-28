@@ -1016,8 +1016,22 @@ public class VoIPService extends Service implements Listener
 		case PARTNER_BUSY:
 		case ENDED:
 			int callDuration = getCallDuration();
-			String durationString = (callDuration <= 0) ? "" : String.format(Locale.getDefault(), " (%02d:%02d)", (callDuration / 60), (callDuration % 60));
-			text = getString(R.string.voip_call_notification_text, durationString); 
+			String durationString = "";
+
+			if (callDuration <= 0)
+				durationString = "";
+			else if (callDuration < 60 * 60)	// Do not need to display hours
+				durationString = String.format(Locale.getDefault(), " (%02d:%02d)", (callDuration / 60), (callDuration % 60));
+			else {
+				// Need to display hours
+				int hours = callDuration / 3600;
+				int mins = (callDuration - hours * 3600) / 60;
+				int seconds = callDuration % 60;
+				durationString = String.format(Locale.getDefault(), " (%02d:%02d:%02d)", hours, mins, seconds);
+			}
+
+
+			text = getString(R.string.voip_call_notification_text, durationString);
 			builder = new NotificationCompat.Builder(getApplicationContext())
 			.addAction(R.drawable.ic_notifications_dismiss_call, getString(R.string.voip_hang_up), VoIPUtils.getPendingIntentForVoip(getApplicationContext(), 4, HikeConstants.MqttMessageTypes.VOIP_MSG_HANG_UP))
 			.setContentText(text);
