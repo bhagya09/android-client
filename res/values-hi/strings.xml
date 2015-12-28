@@ -1092,7 +1092,7 @@
     <string name="photo_actions_header">बेहतरीन फोटो! इस को,</string>
     <string name="profile_header_subtext">प्रोफ़ाइल फ़ोटो सभी को दिखेगी</string>
     <string name="sms_with_settings">SMS सेटिंग्स</string>
-    <string name="sms_credits_with_settings">मुफ़्त SMS: %1$d</string>
+    <string name="sms_credits_with_settings">मुफ़्त SMS: %1$s</string>
     <string name="free_hike_2_sms_india">केवल भारत में मुफ़्त</string>
     <string name="invite_friends_earn_rewards">मित्रों को hike पर आमंत्रित करें और ईनाम पाएं</string>
     <string name="your_referral_code">आपका <b>रेफ़रल</b> कोड</string>
