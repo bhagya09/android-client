@@ -3784,7 +3784,7 @@ import android.widget.Toast;
 
 	private void showKeyboardFtueIfReady()
 	{
-		if (keyboardFtue.isReadyForFTUE())
+		if (keyboardFtue.isReadyForFTUE() && !mActionMode.isActionModeOn())
 		{
 			activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 			keyboardFtue.showNextFtue();
@@ -6023,7 +6023,7 @@ import android.widget.Toast;
 				(keyboardParentView.getTag() != null && KEYBOARD_HIDDEN_BEHIND_POPUP.equals(keyboardParentView.getTag()))) {
 			KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, (keyboardHeight == 0) ? getKeyBoardAndCVHeight() : keyboardHeight);
 		}
-		unhideKeyboardViewBehindPopup();
+		updateKeyboardParentViewTag(null);
 		Logger.i(TAG, "onPopup Dismiss");
 		if(activity.findViewById(R.id.sticker_btn).isSelected())
 		{
