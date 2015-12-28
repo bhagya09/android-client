@@ -3784,7 +3784,7 @@ import android.widget.Toast;
 
 	private void showKeyboardFtueIfReady()
 	{
-		if (keyboardFtue.isReadyForFTUE())
+		if (keyboardFtue.isReadyForFTUE() && !mActionMode.isActionModeOn())
 		{
 			activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 			keyboardFtue.showNextFtue();
