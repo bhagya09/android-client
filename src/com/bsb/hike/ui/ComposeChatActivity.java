@@ -1,6 +1,7 @@
 package com.bsb.hike.ui;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -10,6 +11,54 @@ import java.util.Set;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
+import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
+import android.database.Cursor;
+import android.net.Uri;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.preference.PreferenceManager;
+import android.provider.ContactsContract.Data;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v4.view.MenuItemCompat;
+import android.support.v7.app.ActionBar;
+import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
+import android.util.Pair;
+import android.view.ActionMode;
+import android.view.KeyEvent;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.ViewGroup;
+import android.view.ViewStub;
+import android.view.ViewTreeObserver.OnGlobalLayoutListener;
+import android.view.WindowManager;
+import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.view.inputmethod.InputMethodManager;
+import android.webkit.MimeTypeMap;
+import android.widget.AbsListView;
+import android.widget.AbsListView.OnScrollListener;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.LinearLayout;
+import android.widget.ListView;
+import android.widget.ProgressBar;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeConstants.MESSAGE_TYPE;
@@ -37,7 +86,9 @@ import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.ConvMessage.OriginType;
 import com.bsb.hike.models.GalleryItem;
+import com.bsb.hike.models.HikeFeatureInfo;
 import com.bsb.hike.models.HikeFile.HikeFileType;
+import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.models.MultipleConvMessage;
 import com.bsb.hike.models.PhonebookContact;
 import com.bsb.hike.models.Sticker;
@@ -54,6 +105,9 @@ import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.service.HikeService;
 import com.bsb.hike.tasks.InitiateMultiFileTransferTask;
+import com.bsb.hike.tasks.MultipleStatusUpdateTask;
+import com.bsb.hike.tasks.StatusUpdateTask;
+import com.bsb.hike.timeline.view.TimelineActivity;
 import com.bsb.hike.ui.v7.SearchView;
 import com.bsb.hike.ui.v7.SearchView.OnQueryTextListener;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
@@ -71,62 +125,11 @@ import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.TagEditText;
 import com.bsb.hike.view.TagEditText.Tag;
 import com.bsb.hike.view.TagEditText.TagEditorListener;
-import com.kpt.adaptxt.beta.CustomKeyboard;
 import com.kpt.adaptxt.beta.KPTAddonItem;
 import com.kpt.adaptxt.beta.RemoveDialogData;
 import com.kpt.adaptxt.beta.util.KPTConstants;
 import com.kpt.adaptxt.beta.view.AdaptxtEditText;
-import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtEditTextEventListner;
 import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtKeyboordVisibilityStatusListner;
-
-import android.app.ProgressDialog;
-import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
-import android.content.pm.ActivityInfo;
-import android.content.res.Configuration;
-import android.database.Cursor;
-import android.net.Uri;
-import android.os.AsyncTask;
-import android.os.Bundle;
-import android.preference.PreferenceManager;
-import android.provider.ContactsContract.Data;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v4.view.MenuItemCompat;
-import android.support.v7.app.ActionBar;
-import android.view.ActionMode;
-import android.support.v7.widget.Toolbar;
-import android.text.TextUtils;
-import android.util.Pair;
-import android.view.KeyEvent;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.MotionEvent;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.view.ViewGroup;
-import android.view.ViewStub;
-import android.view.ViewTreeObserver.OnGlobalLayoutListener;
-import android.view.WindowManager;
-import android.view.animation.AccelerateDecelerateInterpolator;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
-import android.view.inputmethod.InputMethodManager;
-import android.webkit.MimeTypeMap;
-import android.widget.AbsListView;
-import android.widget.AbsListView.OnScrollListener;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
-import android.widget.LinearLayout;
-import android.widget.ListView;
-import android.widget.ProgressBar;
-import android.widget.TextView;
-import android.widget.Toast;
 
 public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implements TagEditorListener, OnItemClickListener, HikePubSub.Listener, OnScrollListener,
 		AdaptxtKeyboordVisibilityStatusListner
@@ -245,7 +248,11 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 	private boolean thumbnailsRequired= false;
 	
 	private boolean hasMicroappShowcaseIntent = false;
-	 
+
+	private ArrayList<String> imagesToShare = new ArrayList<String>();
+
+	private boolean allImages;
+
 	@Override
 	public void onCreate(Bundle savedInstanceState)
 	{
@@ -350,8 +357,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		if ((Intent.ACTION_SEND.equals(getIntent().getAction()) || Intent.ACTION_SENDTO.equals(getIntent().getAction())
 				|| Intent.ACTION_SEND_MULTIPLE.equals(getIntent().getAction())))
 		{
-			
-			if (savedInstanceState == null && Intent.ACTION_SEND.equals(getIntent().getAction()) ) 
+			if (savedInstanceState == null && Intent.ACTION_SEND.equals(getIntent().getAction()) )
 			{
 				if(HikeFileType.fromString(getIntent().getType()).compareTo(HikeFileType.IMAGE)==0)
 				{ 
@@ -363,6 +369,13 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 					{
 						Intent multiIntent = IntentFactory.getImageSelectionIntent(getApplicationContext(),selectedImages,true);
 						startActivityForResult(multiIntent,GallerySelectionViewer.MULTI_EDIT_REQUEST_CODE);
+
+						//Got images to share
+						//Keep references to images (these will need to be shared via hike features (timeline,etc)
+						for(GalleryItem item:selectedImages)
+						{
+							imagesToShare.add(item.getFilePath());
+						}
 					}
 				}
 			} 
@@ -374,6 +387,12 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 				{
 					Intent multiIntent = IntentFactory.getImageSelectionIntent(getApplicationContext(),selectedImages,true);
 					startActivityForResult(multiIntent, GallerySelectionViewer.MULTI_EDIT_REQUEST_CODE);
+					//Got images to share
+					//Keep references to images (these will need to be shared via hike features (timeline,etc)
+					for(GalleryItem item:selectedImages)
+					{
+						imagesToShare.add(item.getFilePath());
+					}
 				}
 			}
 			
@@ -383,7 +402,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		{
 			if (getIntent().hasExtra(HikeConstants.Extras.MULTIPLE_MSG_OBJECT))
 			{
-				boolean allImages = true;
+				allImages = true;
 				ArrayList<String> imageFilePathArray = new ArrayList<String>();
 
 				String jsonString = getIntent().getStringExtra(HikeConstants.Extras.MULTIPLE_MSG_OBJECT);
@@ -402,10 +421,10 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 							if(HikeFileType.fromFilePath(filePath, false).compareTo(HikeFileType.IMAGE) != 0)
 							{
 								allImages = false;
-								break;
 							}
 							else
 							{
+								imagesToShare.add(filePath);
 								imageFilePathArray.add(filePath);
 							}
 						}
@@ -497,29 +516,28 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 	 public void setListnerToRootView(){
 	    final View activityRootView = getWindow().getDecorView().findViewById(R.id.ll_compose); 
 	    activityRootView.getViewTreeObserver().addOnGlobalLayoutListener(new OnGlobalLayoutListener() {
-	        @Override
-	        public void onGlobalLayout() {
+			@Override
+			public void onGlobalLayout() {
 
-	            int heightDiff = activityRootView.getRootView().getHeight() - activityRootView.getHeight();
-	            if (heightDiff > 100 ) { // 99% of the time the height diff will be due to a keyboard.
+				int heightDiff = activityRootView.getRootView().getHeight() - activityRootView.getHeight();
+				if (heightDiff > 100) { // 99% of the time the height diff will be due to a keyboard.
 
-	                if(isOpened == false){
+					if (isOpened == false) {
 						FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
 						ft.hide(newFragment);
 						ft.commit();
-	                }
-	                isOpened = true;
-	            }else if(isOpened == true){
-	                isOpened = false;
+					}
+					isOpened = true;
+				} else if (isOpened == true) {
+					isOpened = false;
 					FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-					if (tagEditText.getText().toString().length() == 0)
-					{
+					if (tagEditText.getText().toString().length() == 0) {
 						ft.show(newFragment);
 						ft.commit();
 					}
 				}
 			}
-	    });
+		});
 	}
 	 
 	
@@ -528,7 +546,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 	{
 		super.onSaveInstanceState(outState);
 		outState.putBoolean(HikeConstants.Extras.DEVICE_DETAILS_SENT, deviceDetailsSent);
-		outState.putStringArrayList(HikeConstants.Extras.BROADCAST_RECIPIENTS, (ArrayList<String>)adapter.getAllSelectedContactsMsisdns());
+		outState.putStringArrayList(HikeConstants.Extras.BROADCAST_RECIPIENTS, (ArrayList<String>) adapter.getAllSelectedContactsMsisdns());
 	}
 	
 	@Override
@@ -747,11 +765,11 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		case PICK_CONTACT_AND_SEND_MODE:
 		case PICK_CONTACT_MODE:
 			//We do not show sms contacts in broadcast mode
-			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage, (isForwardingMessage && !isSharingFile), fetchRecentlyJoined, existingGroupOrBroadcastId, sendingMsisdn, friendsListFetchedCallback, false, false);
+			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage, (isForwardingMessage && !isSharingFile), fetchRecentlyJoined, existingGroupOrBroadcastId, sendingMsisdn, friendsListFetchedCallback, false, false,(!imagesToShare.isEmpty()));
 			break;
 		case CREATE_GROUP_MODE:
 		default:
-			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage, (isForwardingMessage || isSharingFile), fetchRecentlyJoined, existingGroupOrBroadcastId, sendingMsisdn, friendsListFetchedCallback, true, (showMicroappShowcase && hasMicroappShowcaseIntent));
+			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage, (isForwardingMessage || isSharingFile), fetchRecentlyJoined, existingGroupOrBroadcastId, sendingMsisdn, friendsListFetchedCallback, true, (showMicroappShowcase && hasMicroappShowcaseIntent),(!imagesToShare.isEmpty()));
 			break;
 		}
 
@@ -1062,7 +1080,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		}
 		int selected = adapter.getSelectedContactCount();
 		if(selected>0){
-		toggleTag(getString(selected==1 ? R.string.selected_contacts_count_singular : R.string.selected_contacts_count_plural,selected), SELECT_ALL_MSISDN, SELECT_ALL_MSISDN);
+		toggleTag(getString(selected == 1 ? R.string.selected_contacts_count_singular : R.string.selected_contacts_count_plural, selected), SELECT_ALL_MSISDN, SELECT_ALL_MSISDN);
 		}else{
 			((CheckBox)findViewById(R.id.select_all_cb)).setChecked(false); // very rare case
 		}
@@ -1086,8 +1104,8 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		}
 		else
 		{
-			multiSelectTitle.setText(createBroadcast ? getString(R.string.broadcast_selected, adapter.getCurrentSelection()) : 
-				getString(R.string.gallery_num_selected, adapter.getCurrentSelection()));
+			multiSelectTitle.setText(createBroadcast ? getString(R.string.broadcast_selected, adapter.getCurrentSelection()) :
+					getString(R.string.gallery_num_selected, adapter.getCurrentSelection()));
 		}
 	}
 
@@ -1244,17 +1262,15 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		final TextView tv = (TextView) selectAllCont.findViewById(R.id.select_all_text);
 		CheckBox cb = (CheckBox) selectAllCont.findViewById(R.id.select_all_cb);
 		cb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-			
+
 			@Override
 			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-				if(isChecked){
+				if (isChecked) {
 					// call adapter select all
 					selectAllMode = true;
 					tv.setText(getString(R.string.unselect_all_hike));
-					if (composeMode == CREATE_BROADCAST_MODE)
-					{
-						if (adapter.getOnHikeContactsCount() > HikeConstants.MAX_CONTACTS_IN_BROADCAST)
-						{
+					if (composeMode == CREATE_BROADCAST_MODE) {
+						if (adapter.getOnHikeContactsCount() > HikeConstants.MAX_CONTACTS_IN_BROADCAST) {
 							showToast(getString(R.string.maxContactInBroadcastErr, HikeConstants.MAX_CONTACTS_IN_BROADCAST));
 							tv.setText(getString(R.string.select_all_hike));
 							buttonView.setChecked(false);
@@ -1264,9 +1280,9 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 					adapter.selectAllContacts(true);
 					tagEditText.clear(false);
 					int selected = adapter.getCurrentSelection();
-					toggleTag( getString(selected <=1 ? R.string.selected_contacts_count_singular : R.string.selected_contacts_count_plural,selected), SELECT_ALL_MSISDN, SELECT_ALL_MSISDN);
-					
-				}else{
+					toggleTag(getString(selected <= 1 ? R.string.selected_contacts_count_singular : R.string.selected_contacts_count_plural, selected), SELECT_ALL_MSISDN, SELECT_ALL_MSISDN);
+
+				} else {
 					// call adapter unselect all
 					selectAllMode = false;
 					tv.setText(getString(R.string.select_all_hike));
@@ -1274,9 +1290,9 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 					tagEditText.clear(true);
 					setActionBar();
 					invalidateOptionsMenu();
-					
+
 				}
-				
+
 			}
 		});
 		
@@ -1321,14 +1337,17 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 					
 				case GallerySelectionViewer.MULTI_EDIT_REQUEST_CODE:
 					ArrayList<Uri> imageUris = data.getParcelableArrayListExtra(HikeConstants.IMAGE_PATHS);
-					if(imageUris != null)
-					{
-						Intent intent = getIntent();
-						intent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, imageUris);
-						setIntent(intent);
-					}
-					else
-					{
+					if (imageUris != null && !imageUris.isEmpty()) {
+						if (imageUris.size() > 1) {
+							Intent intent = getIntent();
+							intent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, imageUris);
+							setIntent(intent);
+						} else {
+							Intent intent = getIntent();
+							intent.putExtra(Intent.EXTRA_STREAM, imageUris.get(0));
+							setIntent(intent);
+						}
+					} else {
 						onError();
 					}
 					break;
@@ -1465,7 +1484,26 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			{
 				if (isForwardingMessage||isSharingFile)
 				{
-					forwardConfirmation(adapter.getAllSelectedContacts());
+					ArrayList<ContactInfo> recepientList = adapter.getAllSelectedContacts();
+
+					if(recepientList.size() == 1 && imagesToShare.size() == 1)
+					{
+						//No need to show confirmation since we are opening statusupdate activity
+						if(recepientList.get(0) instanceof HikeFeatureInfo)
+						{
+							if (composeMode == PICK_CONTACT_AND_SEND_MODE)
+							{
+								onSendContactAndPick(recepientList);
+							}
+							else
+							{
+								forwardMultipleMessages(recepientList);
+							}
+							return;
+						}
+					}
+
+					forwardConfirmation(recepientList);
 				}
 				else if (addToConference) {
 					sendAddToConferenceResult();
@@ -1557,7 +1595,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		for (ContactInfo contact : adapter.getAllSelectedContacts()) {
 			contacts.add(contact.getMsisdn());
 		}
-		
+
 		intent.putStringArrayListExtra(HikeConstants.HIKE_CONTACT_PICKER_RESULT_FOR_CONFERENCE, contacts);
 		setResult(RESULT_OK, intent);
 		this.finish();
@@ -1677,81 +1715,171 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 	private void forwardMultipleMessages(ArrayList<ContactInfo> arrayList)
 	{
 		Intent presentIntent = getIntent();
-		if(isSharingFile){
-	        
+		if (isSharingFile)
+		{
 			try
 			{
 				JSONObject metadata = new JSONObject();
-				if(selectAllMode){
+				if (selectAllMode)
+				{
 					metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.SELECT_ALL_SHARE);
-				}else{
+				}
+				else
+				{
 					metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.CONFIRM_SHARE);
 				}
 				metadata.put(AnalyticsConstants.SELECTED_USER_COUNT_SHARE, arrayList.size());
 				HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
 			}
-			catch(JSONException e)
+			catch (JSONException e)
 			{
 				Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
 			}
-			
+
 			Intent intent = null;
-			if (arrayList.size() == 1) {
-				intent = IntentFactory.createChatThreadIntentFromContactInfo(this, arrayList.get(0), true, false);
-			} else {
+			if (arrayList.size() == 1)
+			{
+				ContactInfo contactInfo = arrayList.get(0);
+				if(contactInfo instanceof HikeFeatureInfo)
+				{
+					HikeFeatureInfo hikeFeatureInfo = (HikeFeatureInfo)contactInfo;
+					if(hikeFeatureInfo.getPhoneNum() == ComposeChatAdapter.HIKE_FEATURES_TIMELINE_ID)
+					{
+						if(imagesToShare.size() == 1)
+						{
+							intent = IntentFactory.getPostStatusUpdateIntent(this, imagesToShare.get(0));
+							intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+							startActivity(intent);
+							finish();
+							return;
+						}
+						else
+						{
+							postImagesToShareOnTimeline(true);
+							return;
+						}
+					}
+				}
+				else
+				{
+					intent = IntentFactory.createChatThreadIntentFromContactInfo(this, arrayList.get(0), true, false);
+				}
+			}
+			else
+			{
+				// Scan through selected contacts. See if there are images to be posted on Timeline.
+				HikeFeatureInfo hikefeatureInfo = getTimelineHikeFeatureInfoFromArray(arrayList);
+				if(hikefeatureInfo !=null)
+				{
+					arrayList.remove(hikefeatureInfo);
+					postImagesToShareOnTimeline(false);
+				}
+
+				if(arrayList.size() == 1)
+				{
+					forwardMultipleMessages(arrayList);
+					return;
+				}
+
 				intent = Utils.getHomeActivityIntent(this);
 			}
 			intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 			arrayList = forwardMessageAsPerType(presentIntent, intent, arrayList);
 
-	        /*
-	         * If the intent action is ACTION_SEND_MULTIPLE then we don't need to start the activity here
-	         * since we start an async task for initiating the file upload and an activity is started when
-	         * that async task finishes execution.
-	         * 
-	         * If size of arraylist is zero, it means the only contact was an offline contact and has been 
-	         * removed from the arrayList, thus size is zero.
-	         */
-		 	if ((!Intent.ACTION_SEND_MULTIPLE.equals(presentIntent.getAction())&&arrayList.size()<=1) || 
-		 			(arrayList.size()==0))
-	        {
-	        	startActivity(intent);
-	        	finish();
-	        }
+			/*
+			 * If the intent action is ACTION_SEND_MULTIPLE then we don't need to start the activity here since we start an async task for initiating the file upload and an
+			 * activity is started when that async task finishes execution.
+			 * 
+			 * If size of arraylist is zero, it means the only contact was an offline contact and has been removed from the arrayList, thus size is zero.
+			 */
+			if ((!Intent.ACTION_SEND_MULTIPLE.equals(presentIntent.getAction()) && arrayList.size() <= 1) || (arrayList.size() == 0))
+			{
+				startActivity(intent);
+				finish();
+			}
 		}
 		else
 		{
 			try
 			{
 				JSONObject metadata = new JSONObject();
-				if(selectAllMode){
+				if (selectAllMode)
+				{
 					metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.SELECT_ALL_HIKE_CONTACTS);
-				}else{
+				}
+				else
+				{
 					metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.CONFIRM_FORWARD);
 				}
 				metadata.put(AnalyticsConstants.SELECTED_USER_COUNT_FWD, arrayList.size());
 				HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
 			}
-			catch(JSONException e)
+			catch (JSONException e)
 			{
 				Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
 			}
 
 			// forwarding it is
 			Intent intent = null;
-			if(arrayList.size()==1)
+			if (arrayList.size() == 1)
 			{
-				// forwarding to 1 is special case , we want to create conversation if does not exist and land to recipient
-				intent = IntentFactory.createChatThreadIntentFromMsisdn(this, arrayList.get(0).getMsisdn(), false, false);
-				intent.putExtras(presentIntent);
-				intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-				startActivity(intent);
-				finish();
+				ContactInfo contactInfo = arrayList.get(0);
+				if(contactInfo instanceof HikeFeatureInfo)
+				{
+					HikeFeatureInfo hikeFeatureInfo = (HikeFeatureInfo)contactInfo;
+					if(hikeFeatureInfo.getPhoneNum() == ComposeChatAdapter.HIKE_FEATURES_TIMELINE_ID)
+					{
+
+						if(!allImages)
+						{
+							Toast.makeText(ComposeChatActivity.this, R.string.timeline_post_multimsg, Toast.LENGTH_SHORT).show();
+						}
+
+						if(imagesToShare.size() == 1)
+						{
+							intent = IntentFactory.getPostStatusUpdateIntent(this, imagesToShare.get(0));
+							intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+							startActivity(intent);
+							finish();
+							return;
+						}
+						else
+						{
+							postImagesToShareOnTimeline(true);
+							return;
+						}
+					}
+				}
+				else
+				{
+					// forwarding to 1 is special case , we want to create conversation if does not exist and land to recipient
+					intent = IntentFactory.createChatThreadIntentFromMsisdn(this, arrayList.get(0).getMsisdn(), false, false);
+					intent.putExtras(presentIntent);
+					intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+					startActivity(intent);
+					finish();
+				}
 			}
 			else
 			{
+
+				// Scan through selected contacts. See if there are images to be posted on Timeline.
+				HikeFeatureInfo hikefeatureInfo = getTimelineHikeFeatureInfoFromArray(arrayList);
+				if(hikefeatureInfo !=null)
+				{
+					arrayList.remove(hikefeatureInfo);
+					postImagesToShareOnTimeline(false);
+				}
+
+				if(arrayList.size() == 1)
+				{
+					forwardMultipleMessages(arrayList);
+					return;
+				}
+
 				// multi forward to multi people
-				if(presentIntent.hasExtra(HikeConstants.Extras.PREV_MSISDN)){
+				if (presentIntent.hasExtra(HikeConstants.Extras.PREV_MSISDN))
+				{
 					// open chat thread from where we initiated
 					String id = presentIntent.getStringExtra(HikeConstants.Extras.PREV_MSISDN);
 					if (BotUtils.isBot(id))
@@ -1774,9 +1902,11 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 				}
 				else
 				{
-					//home activity
+					// home activity
 					intent = Utils.getHomeActivityIntent(this);
 				}
+
+
 				if (intent != null)
 				{
 					intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -1785,6 +1915,89 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			}
 		}
 	}
+
+	public static HikeFeatureInfo getTimelineHikeFeatureInfoFromArray(ArrayList<ContactInfo> argContactInfoList)
+	{
+		for (ContactInfo contactInfo : argContactInfoList)
+		{
+			if (contactInfo instanceof HikeFeatureInfo)
+			{
+				HikeFeatureInfo hikeFeatureInfo = (HikeFeatureInfo) contactInfo;
+				if (hikeFeatureInfo.getPhoneNum() == ComposeChatAdapter.HIKE_FEATURES_TIMELINE_ID)
+				{
+					return hikeFeatureInfo;
+				}
+			}
+		}
+		return null;
+	}
+
+	private void postImagesToShareOnTimeline(final boolean foreground) {
+		final ArrayList<StatusUpdateTask> statusUpdateTasks = new ArrayList<StatusUpdateTask>();
+		for (String imageFilePath : imagesToShare) {
+			try {
+				statusUpdateTasks.add(new StatusUpdateTask(null, -1, imageFilePath));
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		if (!statusUpdateTasks.isEmpty()) {
+			HikeHandlerUtil.getInstance().postRunnable(new Runnable() {
+				@Override
+				public void run() {
+					new MultipleStatusUpdateTask(statusUpdateTasks, new MultipleStatusUpdateTask.MultiSUTaskListener() {
+						@Override
+						public void onSuccess() {
+							if (foreground) {
+								ComposeChatActivity.this.runOnUiThread(new Runnable() {
+									@Override
+									public void run() {
+										Intent intent = new Intent(ComposeChatActivity.this, TimelineActivity.class);
+										intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+										startActivity(intent);
+										finish();
+										return;
+									}
+								});
+
+							}
+						}
+
+						@Override
+						public void onFailed() {
+							ComposeChatActivity.this.runOnUiThread(new Runnable() {
+								@Override
+								public void run() {
+									Toast.makeText(HikeMessengerApp.getInstance(), R.string.multiple_su_post_failed, Toast.LENGTH_SHORT).show();
+								}
+							});
+
+						}
+
+						@Override
+						public void onTimeout() {
+							if (foreground) {
+								ComposeChatActivity.this.runOnUiThread(new Runnable() {
+									@Override
+									public void run() {
+										Toast.makeText(HikeMessengerApp.getInstance(), R.string.timeline_post_timeout, Toast.LENGTH_SHORT).show();
+										Intent intent = IntentFactory.getHomeActivityIntent(ComposeChatActivity.this);
+										intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+										startActivity(intent);
+										finish();
+										return;
+									}
+								});
+
+							}
+						}
+					}, foreground, ComposeChatActivity.this).execute();
+				}
+			});
+
+		}
+	}
+
 
 	private ArrayList<ContactInfo> forwardMessageAsPerType(Intent presentIntent, final Intent intent, ArrayList<ContactInfo> arrayList)
 	{
