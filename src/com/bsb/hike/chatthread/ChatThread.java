@@ -6257,6 +6257,10 @@ import android.widget.Toast;
 		{
 			Utils.logEvent(activity.getApplicationContext(), HikeConstants.LogEvent.MENU_BLOCK);
 			showBlockOverlay(getBlockedUserLabel());
+			if (mShareablePopupLayout.isShowing())
+			{
+				mShareablePopupLayout.dismiss();
+			}
 		}
 
 		else
