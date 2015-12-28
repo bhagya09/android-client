@@ -1983,7 +1983,7 @@ public class VoIPClient  {
 		if (!connected)
 			return null;
 
-		printDecodedQueue();
+//		printDecodedQueue();
 		
 		// Introduce an artificial lag if there is packet loss
 		if (decodedBuffersQueue.size() < minimumDecodedQueueSize &&

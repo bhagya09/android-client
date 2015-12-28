@@ -239,9 +239,6 @@ public class VoipCallFragment extends Fragment implements CallActions
 					setupForceMuteLayout();
 				}
 				break;
-			case VoIPConstants.MSG_ACCEPT_CALL:
-				onAcceptCall();
-				break;
 			default:
 				super.handleMessage(msg);
 			}
@@ -279,9 +276,15 @@ public class VoipCallFragment extends Fragment implements CallActions
 	{
 		Logger.d(tag, "VoipCallFragment onResume, Binding to service..");
 		// Calling start service as well so an activity unbind doesn't cause the service to stop
-		getActivity().startService(new Intent(getActivity(), VoIPService.class));
-		Intent intent = new Intent(getActivity(), VoIPService.class);
-		getActivity().bindService(intent, myConnection, Context.BIND_AUTO_CREATE);
+
+		if (isBound) {
+			connectMessenger();
+		} else {
+			getActivity().startService(new Intent(getActivity(), VoIPService.class));
+			Intent intent = new Intent(getActivity(), VoIPService.class);
+			getActivity().bindService(intent, myConnection, Context.BIND_AUTO_CREATE);
+		}
+
 		initProximityWakelock();
 		updateCallStatus();
 		super.onResume();
@@ -510,6 +513,9 @@ public class VoipCallFragment extends Fragment implements CallActions
 		setContactDetails();
 		showActiveCallButtons();
 
+		if (callActionsView != null)
+			callActionsView.setVisibility(View.GONE);
+
 		// Get hold status from service if activity was destroyed
 		updateCallStatus();
 
@@ -522,8 +528,7 @@ public class VoipCallFragment extends Fragment implements CallActions
 		Logger.d(tag, "Accepted call, starting audio...");
 		if (voipService != null) {
 			voipService.acceptIncomingCall();
-			callActionsView.setVisibility(View.GONE);
-			showActiveCallButtons();
+			setupActiveCallLayout();
 		}
 	}
 

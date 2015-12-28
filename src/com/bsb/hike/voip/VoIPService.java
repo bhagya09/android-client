@@ -446,7 +446,7 @@ public class VoIPService extends Service implements Listener
 		// 1. Call Accept
 		if (action.equals(HikeConstants.MqttMessageTypes.VOIP_MSG_ACCEPT)) {
 			VoIPUtils.closeSystemDialogs(getApplicationContext());
-			sendMessageToActivity(VoIPConstants.MSG_ACCEPT_CALL);
+			acceptIncomingCall();
 			restoreActivity();
 			return returnInt;
 		}
