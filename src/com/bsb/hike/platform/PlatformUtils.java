@@ -56,6 +56,7 @@ import com.bsb.hike.modules.kpt.KptKeyboardManager;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadSource;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadType;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerPalleteImageDownloadTask;
+import com.bsb.hike.platform.ContentModules.*;
 import com.bsb.hike.platform.content.*;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.productpopup.ProductPopupsConstants.HIKESCREEN;
@@ -390,7 +391,8 @@ public class PlatformUtils
 	public static void downloadZipForNonMessagingBot(final BotInfo botInfo, final boolean enableBot, final String botChatTheme, final String notifType, NonMessagingBotMetadata botMetadata, boolean resumeSupport)
 	{
 		PlatformContentRequest rqst = PlatformContentRequest.make(
-				PlatformContentModel.make(botInfo.getMetadata()), new PlatformContentListener<PlatformContentModel>()
+				PlatformContentModel
+						.make(botInfo.getMetadata()), new PlatformContentListener<PlatformContentModel>()
 				{
 
 					long zipFileSize = 0;

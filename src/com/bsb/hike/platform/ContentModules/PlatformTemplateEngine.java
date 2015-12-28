@@ -1,6 +1,4 @@
-package com.bsb.hike.platform.content;
-
-import java.util.HashMap;
+package com.bsb.hike.platform.ContentModules;
 
 import com.bsb.hike.utils.Logger;
 import com.google.gson.Gson;
@@ -9,6 +7,8 @@ import com.samskivert.mustache.Mustache;
 import com.samskivert.mustache.Mustache.Compiler;
 import com.samskivert.mustache.MustacheException;
 import com.samskivert.mustache.Template;
+
+import java.util.HashMap;
 
 class PlatformTemplateEngine
 {
