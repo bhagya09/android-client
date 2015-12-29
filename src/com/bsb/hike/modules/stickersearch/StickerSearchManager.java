@@ -361,7 +361,7 @@ public class StickerSearchManager
 
 	public void onClickToShowRecommendedStickers(int clickPosition, boolean onTappedInsideComposeBox)
 	{
-		Logger.i(StickerTagWatcher.TAG, "onClickToShowRecommendedStickers(" + clickPosition + "," + onTappedInsideComposeBox + ")");
+		Logger.i(StickerTagWatcher.TAG, "onClickToShowRecommendedStickers(" + clickPosition + ", " + onTappedInsideComposeBox + ")");
 
 		// Do nothing, if it is not because of touch on highlighted word and auto pop-up setting is turned-off
 		if (!onTappedInsideComposeBox && !showAutoPopupSettingOn)
