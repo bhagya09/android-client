@@ -822,21 +822,17 @@ public class VoIPClient  {
 				try {
 					Thread.sleep(VoIPConstants.TIMEOUT_PARTNER_ANSWER);
 					if (!isAudioRunning()) {
+						// Edge case error fixing. If the call went into reconnection
+						// before it was answered, then normally no outgoing missed call
+						// would appear in our chat thread since we aren't connected.
+						// Hence, make it appear as if we ARE connected, so the missed call appears.
+						connected = true;
+
 						// Call not answered yet?
 						sendMessageToService(VoIPConstants.MSG_PARTNER_ANSWER_TIMEOUT);
 						sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_PARTNER_ANSWER_TIMEOUT);
 						VoIPDataPacket dp = new VoIPDataPacket(PacketType.END_CALL);
 						sendPacket(dp, true);
-						// Sleep for a little bit before destroying this object
-						// since the call failure screen will need its info. 
-						Thread.sleep(500);
-
-						// Edge case error fixing. If the call went into reconnection
-						// before it was answered, then normally no outgoing missed call
-						// would appear in our chat thread since we aren't connected.
-						// Hence, make it appear as if we ARE connected, so the missed call appears. 
-						connected = true;
-						stop();
 					}
 				} catch (InterruptedException e) {
 					// Do nothing, all is good
@@ -1983,7 +1979,7 @@ public class VoIPClient  {
 		if (!connected)
 			return null;
 
-		printDecodedQueue();
+//		printDecodedQueue();
 		
 		// Introduce an artificial lag if there is packet loss
 		if (decodedBuffersQueue.size() < minimumDecodedQueueSize &&
