@@ -10,7 +10,9 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
+import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.Bundle;
 import android.os.Message;
 import android.text.TextUtils;
 import android.webkit.JavascriptInterface;
@@ -19,30 +21,25 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.adapters.ConversationsAdapter;
+import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.bots.NonMessagingBotConfiguration;
 import com.bsb.hike.bots.NonMessagingBotMetadata;
 import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.db.HikeConversationsDatabase;
-import com.bsb.hike.localisation.LocalLanguageUtils;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.request.FileRequestPersistent;
-import com.bsb.hike.platform.CustomWebView;
-import com.bsb.hike.platform.GpsLocation;
-import com.bsb.hike.platform.HikePlatformConstants;
-import com.bsb.hike.platform.PlatformHelper;
-import com.bsb.hike.platform.PlatformUtils;
+import com.bsb.hike.platform.*;
 import com.bsb.hike.platform.content.PlatformContentConstants;
 import com.bsb.hike.platform.content.PlatformZipDownloader;
+import com.bsb.hike.tasks.SendLogsTask;
 import com.bsb.hike.ui.GalleryActivity;
 import com.bsb.hike.ui.WebViewActivity;
+import com.bsb.hike.utils.CustomAnnotation.DoNotObfuscate;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 /**
  * API bridge that connects the javascript to the non-messaging Native environment. Make the instance of this class and add it as the
@@ -52,6 +49,7 @@ import org.json.JSONObject;
  * Platform Bridge Version Start = 1
  * Platform Bridge Version End = ~
  */
+@DoNotObfuscate
 public class NonMessagingJavaScriptBridge extends JavascriptBridge
 {
 	private static final int OPEN_FULL_PAGE_WITH_TITLE = 111;
@@ -491,7 +489,15 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 			if (mCallback != null)
 			{
 				String[] params = (String[]) msg.obj;
-				mCallback.openFullPageWithTitle(params[1], params[0]); // Url, Title
+				// checking for interceptUrl JSON String
+				if (params[2] != null)
+				{
+					mCallback.openFullPageWithTitle(params[1], params[0], params[2]); // Url, title, interceptUrlJson
+				}
+				else
+				{
+					mCallback.openFullPageWithTitle(params[1], params[0]); // Url, Title
+				}
 			}
 			break;
 		case CHANGE_ACTION_BAR_TITLE:
@@ -538,14 +544,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	@Override
 	public void openFullPage(final String title, final String url)
 	{
-		if (TextUtils.isEmpty(title))
-		{
-			sendMessageToUiThread(OPEN_FULL_PAGE, url);
-		}
-		else
-		{
-			sendMessageToUiThread(OPEN_FULL_PAGE_WITH_TITLE, new String[] { title, url });
-		}
+		openFullPage(title, url, null);
 	}
 	
 	/**
@@ -1128,12 +1127,34 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	@JavascriptInterface
 	public void getLocation()
 	{
-		GpsLocation gps = GpsLocation.getInstance();
-		gps.getLocation();
+		final GpsLocation gps = GpsLocation.getInstance();
+		gps.getLocation(new LocationListener()
+		{
+			@Override
+			public void onLocationChanged(Location location)
+			{
+				HikeMessengerApp.getPubSub().publish(HikePubSub.LOCATION_AVAILABLE, gps.getLocationManager());
+				gps.removeUpdates(this);
+			}
+
+			@Override
+			public void onProviderDisabled(String provider)
+			{
+			}
+
+			@Override
+			public void onProviderEnabled(String provider)
+			{
+			}
+
+			@Override
+			public void onStatusChanged(String provider, int status, Bundle extras)
+			{
+			}
+		});
 
 	}
 
-	
 	/**
 	 * Added in Platform Version:7
 	 * 
@@ -1281,21 +1302,21 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	}
 
 	/**
-	 * Platform Version 9
+	 * Platform Version 10
 	 * This function is made for the special Shared bot that has the information about some other bots as well, and acts as a channel for them.
 	 * Call this method to cancel the request that the Bot has initiated to do some http /https call.
 	 * @param functionId : the id of the function that native will call to call the js .
-	 * @param url: the url of the call that needs to be cancelled.
+	 * @param appName: the appname of the call that needs to be cancelled.
 	 */
 	@JavascriptInterface
-	public void cancelRequest(String functionId, String url)
+	public void cancelRequest(String functionId, String appName)
 	{
 		if (!BotUtils.isSpecialBot(mBotInfo))
 		{
 			callbackToJS(functionId, "false");
 			return;
 		}
-		RequestToken token = PlatformZipDownloader.getCurrentDownloadingRequests().get(url);
+		RequestToken token = PlatformZipDownloader.getCurrentDownloadingRequests().get(appName);
 		if (null != token)
 		{
 			callbackToJS(functionId, "true");
@@ -1353,19 +1374,19 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	 * Platform Version 9
 	 * Call this method to know if download request is currently running
 	 * Can only be called by special bots
-	 * @param url
+	 * @param appName
 	 * @param functionId
 	 * return true/false
 	 */
 	@JavascriptInterface
-	public void isRequestRunning(String functionId,String url)
+	public void isRequestRunning(String functionId,String appName)
 	{
 		if (!BotUtils.isSpecialBot(mBotInfo))
 		{
 			callbackToJS(functionId, "false");
 			return;
 		}
-		RequestToken token = PlatformZipDownloader.getCurrentDownloadingRequests().get(url);
+		RequestToken token = PlatformZipDownloader.getCurrentDownloadingRequests().get(appName);
 		if (null != token&& token.isRequestRunning())
 		{
 			callbackToJS(functionId, "true");
@@ -1418,6 +1439,48 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 		});
 	}
 
+	/**
+	 * Platform bridge Version 8
+	 * Call this function to open a full page webView within hike. Calling this function will create full page with action bar
+	 * color specified by server, js injected to remove unwanted features from the full page, and URLs defined by the interceptUrlJson
+	 * will be intercepted when they start loading.
+	 * @param title
+	 *            : the title on the action bar.
+	 * @param url
+	 *            : the url that will be loaded.
+	 * @param interceptUrlJson
+	 * 			  : the JSON String that contains the interception URL and type.
+	 * 			    If a loading url contains the String value of the "url" field, it will be intercepted.
+	 * 			    eg - {"icpt_url":[{"url":"ndtv","type":1},{"url":"techinsider.com","type":1}]}
+	 * 			    URL http://www.ndtv.com/news?txId=1234&authId=12345&key1=val1&key2=val2
+	 * 			    will be intercepted and parameter String ?txId=1234&authId=12345&key1=val1&key2=val2 will be returned to the microapp
+	 * 			    in the urlIntercepted method.
+	 *
+	 * 			    Type 1 : Closes the current WebView and opens the microapp that invoked it, with the URL parameters from the
+	 * 			    		 intercepted URL.
+	 */
+	@JavascriptInterface
+	public void openFullPage(String title, String url, String interceptUrlJson)
+	{
+		if (TextUtils.isEmpty(title))
+		{
+			sendMessageToUiThread(OPEN_FULL_PAGE, url);
+		}
+		else if (TextUtils.isEmpty(interceptUrlJson))
+		{
+			sendMessageToUiThread(OPEN_FULL_PAGE_WITH_TITLE, new String[] { title, url, null });
+		}
+		else
+		{
+			sendMessageToUiThread(OPEN_FULL_PAGE_WITH_TITLE, new String[] { title, url, interceptUrlJson });
+		}
+	}
+
+	public void urlIntercepted(String urlParams)
+	{
+		mWebView.loadUrl("javascript:urlIntercepted('" + urlParams + "')");
+	}
+
 	public void setExtraData(String data)
 	{
 		this.extraData = data;
@@ -1453,4 +1516,54 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 			BotUtils.deleteBotConversation(msisdn, false);
 		}
 	}
+	/**
+	 * Platform Version 10
+	 *This function allows for a bot to send logs after it has been enabled
+	 */
+	@JavascriptInterface
+	public void sendLogs()
+	{
+		Activity mContext = weakActivity.get();
+		if(mContext==null)
+		{
+			return;
+		}
+		SendLogsTask logsTask = new SendLogsTask(mContext);
+		Utils.executeAsyncTask(logsTask);
+	}
+	/**
+	 * Platform Version 10
+	 *This function allows for a bot to send analytics via mqtt
+	 */
+	@JavascriptInterface
+	public void logAnalyticsMq(String isUI, String subType, String json)
+	{
+		JSONObject jsonObject=null;
+		if(TextUtils.isEmpty(json)||TextUtils.isEmpty(isUI))
+		{
+			return;
+		}
+		try
+		{
+			jsonObject=new JSONObject(json);
+			jsonObject.put(AnalyticsConstants.BOT_MSISDN, mBotInfo.getMsisdn());
+			jsonObject.put(AnalyticsConstants.BOT_NAME, mBotInfo.getConversationName());
+			jsonObject.put(AnalyticsConstants.SUB_TYPE,subType);
+		} catch (JSONException e)
+		{
+			e.printStackTrace();
+			return;
+		}
+		if (Boolean.valueOf(isUI))
+		{
+			Utils.sendLogEvent(jsonObject,AnalyticsConstants.MICROAPP_UI_EVENT, null);
+		}
+		else
+		{
+			Utils.sendLogEvent(jsonObject, AnalyticsConstants.MICROAPP_NON_UI_EVENT, null);
+		}
+
+
+	}
+
 }

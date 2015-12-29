@@ -1,5 +1,14 @@
 package com.bsb.hike.service;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.*;
+import java.util.Map.Entry;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -50,9 +59,14 @@ import com.bsb.hike.modules.stickersearch.ui.StickerTagWatcher;
 import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.offline.OfflineConstants;
 import com.bsb.hike.offline.OfflineController;
+import com.bsb.hike.platform.ContentModules.PlatformContentListener;
+import com.bsb.hike.platform.ContentModules.PlatformContentModel;
+import com.bsb.hike.platform.ContentModules.PlatformContentRequest;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUtils;
-import com.bsb.hike.platform.content.*;
+import com.bsb.hike.platform.content.PlatformContent;
+import com.bsb.hike.platform.content.PlatformContentConstants;
+import com.bsb.hike.platform.content.PlatformZipDownloader;
 import com.bsb.hike.productpopup.ProductInfoManager;
 import com.bsb.hike.tasks.PostAddressBookTask;
 import com.bsb.hike.timeline.TimelineActionsManager;
@@ -65,15 +79,6 @@ import com.bsb.hike.userlogs.UserLogInfo;
 import com.bsb.hike.utils.*;
 import com.bsb.hike.voip.VoIPConstants;
 import com.bsb.hike.voip.VoIPUtils;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.*;
-import java.util.Map.Entry;
 
 /**
  * 
@@ -2660,6 +2665,12 @@ public class MqttMessagesManager
 			String options = data.getJSONObject(OfflineConstants.HIKE_DIRECT_MENU_OPTIONS).toString();
 			HikeSharedPreferenceUtil.getInstance().saveData(OfflineConstants.HIKE_DIRECT_MENU_OPTIONS, options);
 		}
+
+		if (data.has(HikePlatformConstants.RECURRING_LOCATION))
+		{
+			JSONObject json = data.getJSONObject(HikePlatformConstants.RECURRING_LOCATION);
+			PlatformUtils.requestRecurringLocationUpdates(json);
+		}
 		if (data.has(HikeConstants.LOCALIZATION_ENABLED))
 		{
 			Utils.setLocalizationEnable(data.optBoolean(HikeConstants.LOCALIZATION_ENABLED));
@@ -2678,7 +2689,7 @@ public class MqttMessagesManager
             boolean enable = data.getBoolean(HikeConstants.HTTP_NETWORK_CHECK_CALL);
             HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.HTTP_NETWORK_CHECK_CALL, enable);
         }
-		
+
 		editor.commit();
 		this.pubSub.publish(HikePubSub.UPDATE_OF_MENU_NOTIFICATION, null);
 		

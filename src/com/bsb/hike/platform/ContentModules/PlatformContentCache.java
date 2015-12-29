@@ -1,4 +1,4 @@
-package com.bsb.hike.platform.content;
+package com.bsb.hike.platform.ContentModules;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -9,6 +9,9 @@ import org.json.JSONObject;
 import android.support.v4.util.LruCache;
 import android.text.TextUtils;
 
+import com.bsb.hike.platform.content.PlatformContent;
+import com.bsb.hike.platform.content.PlatformContentConstants;
+import com.bsb.hike.platform.content.PlatformRequestManager;
 import com.bsb.hike.utils.Logger;
 import com.samskivert.mustache.Template;
 
@@ -106,7 +109,8 @@ class PlatformContentCache
 		// return null;
 		// }
 
-		File file = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + content.getContentData().getId(), content.getContentData().getTag());
+		File file = new File(
+				PlatformContentConstants.PLATFORM_CONTENT_DIR + content.getContentData().getId(), content.getContentData().getTag());
 
 		String templateString = PlatformContentUtils.readDataFromFile(file);
 

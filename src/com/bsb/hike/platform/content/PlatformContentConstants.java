@@ -1,8 +1,8 @@
 package com.bsb.hike.platform.content;
 
-import java.io.File;
-
 import android.os.Environment;
+
+import java.io.File;
 
 /**
  * Constants

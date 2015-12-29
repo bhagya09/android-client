@@ -5,7 +5,7 @@ import android.os.Parcelable;
 import android.text.TextUtils;
 
 import com.bsb.hike.HikeConstants;
-import com.bsb.hike.platform.content.PlatformContentModel;
+import com.bsb.hike.platform.ContentModules.PlatformContentModel;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 import com.google.gson.Gson;
