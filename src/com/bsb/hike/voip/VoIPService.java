@@ -781,7 +781,7 @@ public class VoIPService extends Service implements Listener
 	private void restoreActivity() {
 		Logger.d(tag, "Restoring activity..");
 		Intent i = new Intent(getApplicationContext(), VoIPActivity.class);
-		i.putExtra(VoIPConstants.Extras.REMOVE_FAILED_FRAGMENT, true);
+		i.putExtra(VoIPConstants.Extras.REMOVE_FRAGMENTS, true);
 		i.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
 		startActivity(i);
 	}

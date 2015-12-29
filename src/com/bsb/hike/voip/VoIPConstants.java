@@ -260,7 +260,7 @@ public class VoIPConstants {
 		
 		public static final String CONFERENCE = "conf";
 		
-		public static final String REMOVE_FAILED_FRAGMENT = "removeFailedFrag";
+		public static final String REMOVE_FRAGMENTS = "removeFailedFrag";
 		
 		public static final String STATUS = "st";
 		
