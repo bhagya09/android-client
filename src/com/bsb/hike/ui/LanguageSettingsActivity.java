@@ -9,7 +9,6 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
@@ -26,7 +25,6 @@ import com.bsb.hike.R;
 import com.bsb.hike.adapters.DictionaryLanguageAdapter;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
-import com.bsb.hike.localisation.LocalLanguage;
 import com.bsb.hike.modules.kpt.KptKeyboardManager;
 import com.bsb.hike.utils.ChangeProfileImageBaseActivity;
 import com.bsb.hike.utils.Logger;
@@ -41,6 +39,7 @@ public class LanguageSettingsActivity extends ChangeProfileImageBaseActivity imp
 
 	ArrayList<KPTAddonItem> addonItems;
 
+	private String[] mPubSubListeners = new String[] { HikePubSub.KPT_LANGUAGES_UPDATED };
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
@@ -50,7 +49,7 @@ public class LanguageSettingsActivity extends ChangeProfileImageBaseActivity imp
 		mContext = this;
 		setupLanguageList();
 		addToPubSub();
-		KptKeyboardManager.getInstance(mContext).setInstallListener(this);
+		KptKeyboardManager.getInstance().setInstallListener(this);
 	}
 
 	private void setupActionBar()
@@ -69,7 +68,6 @@ public class LanguageSettingsActivity extends ChangeProfileImageBaseActivity imp
 
 	protected void addToPubSub()
 	{
-		String[] mPubSubListeners = new String[] { HikePubSub.KPT_LANGUAGES_UPDATED };
 		HikeMessengerApp.getPubSub().addListeners(this, mPubSubListeners);
 	}
 
@@ -81,22 +79,13 @@ public class LanguageSettingsActivity extends ChangeProfileImageBaseActivity imp
 		langList.setAdapter(addonItemAdapter);
 		langList.setOnItemClickListener(this);
 		refreshLanguageList();
-		showUnsupportedLangToast();
 	}
-
-	//AND-4046 Begin
-	private void showUnsupportedLangToast() {
-		String unsupportedLanguages = LocalLanguage.getUnsupportedLocaleToastText(this);
-		if (!TextUtils.isEmpty(unsupportedLanguages)) {
-			Toast.makeText(this, unsupportedLanguages, Toast.LENGTH_LONG).show();
-		}
-	}
-	//AND-4046 End
 
 	private void refreshLanguageList()
 	{
 		addonItems.clear();
-		addonItems.addAll(KptKeyboardManager.getInstance(this).getSupportedLanguagesList());
+		addonItems.addAll(KptKeyboardManager.getInstance().getSupportedLanguagesList());
+		addonItems.addAll(KptKeyboardManager.getInstance().getUnsupportedLanguagesList());
 		addonItemAdapter.notifyDataSetChanged();
 	}
 
@@ -104,10 +93,10 @@ public class LanguageSettingsActivity extends ChangeProfileImageBaseActivity imp
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id)
 	{
 		KPTAddonItem item = addonItemAdapter.getItem(position);
-		KptKeyboardManager.LanguageDictionarySatus status = KptKeyboardManager.getInstance(LanguageSettingsActivity.this).getDictionaryLanguageStatus(item);
+		KptKeyboardManager.LanguageDictionarySatus status = KptKeyboardManager.getInstance().getDictionaryLanguageStatus(item);
 		if (status == KptKeyboardManager.LanguageDictionarySatus.UNINSTALLED)
 		{
-			KptKeyboardManager.getInstance(mContext).downloadAndInstallLanguage(item);
+			KptKeyboardManager.getInstance().downloadAndInstallLanguage(item);
 			
 //			tracking keyboard language download event
 			try
@@ -124,11 +113,15 @@ public class LanguageSettingsActivity extends ChangeProfileImageBaseActivity imp
 		}
 		else if (status == KptKeyboardManager.LanguageDictionarySatus.INSTALLED_LOADED)
 		{
-			KptKeyboardManager.getInstance(mContext).unloadInstalledLanguage(item);
+			KptKeyboardManager.getInstance().unloadInstalledLanguage(item);
 		}
 		else if (status == KptKeyboardManager.LanguageDictionarySatus.INSTALLED_UNLOADED)
 		{
-			KptKeyboardManager.getInstance(mContext).loadInstalledLanguage(item);
+			KptKeyboardManager.getInstance().loadInstalledLanguage(item);
+		}
+		else if (status == KptKeyboardManager.LanguageDictionarySatus.UNSUPPORTED)
+		{
+			Toast.makeText(mContext, R.string.unsupported_language_toast_msg, Toast.LENGTH_SHORT).show();
 		}
 	}
 
@@ -171,7 +164,14 @@ public class LanguageSettingsActivity extends ChangeProfileImageBaseActivity imp
 	@Override
 	protected void onDestroy()
 	{
+		KptKeyboardManager.getInstance().setInstallListener(null);
+		// Mempry leak pub sub no destroyed
+		removePubSubs();
 		super.onDestroy();
-		KptKeyboardManager.getInstance(mContext).setInstallListener(null);
+	}
+
+	public void removePubSubs()
+	{
+		HikeMessengerApp.getPubSub().removeListeners(this, mPubSubListeners);
 	}
 }

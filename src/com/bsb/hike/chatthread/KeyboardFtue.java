@@ -123,10 +123,10 @@ public class KeyboardFtue implements HikePubSub.Listener
 
         // Localized keyboard is for india users only. Other users still have setting but do not see the FTUE
         // If custom keyboard is disabled no need to show the FTUE.
-        if (!HikeMessengerApp.isIndianUser() || !HikeMessengerApp.isCustomKeyboardEnabled())
+        if (!HikeMessengerApp.isIndianUser() || !HikeMessengerApp.isCustomKeyboardUsable())
             return false;
 
-        if (mState < COMPLETE && KptKeyboardManager.getInstance(mActivity).getInstalledLanguagesList().size() > KptKeyboardManager.PREINSTALLED_LANGUAGE_COUNT
+        if (mState < COMPLETE && KptKeyboardManager.getInstance().getInstalledLanguagesList().size() > KptKeyboardManager.PREINSTALLED_LANGUAGE_COUNT
                 && !HikeMessengerApp.isSystemKeyboard())
             return true;
         else if (mState == NOT_STARTED)
@@ -144,7 +144,7 @@ public class KeyboardFtue implements HikePubSub.Listener
             setupFlipper();
 
         isShowing = true;
-        if (mState < COMPLETE && KptKeyboardManager.getInstance(mActivity).getInstalledLanguagesList().size() > KptKeyboardManager.PREINSTALLED_LANGUAGE_COUNT
+        if (mState < COMPLETE && KptKeyboardManager.getInstance().getInstalledLanguagesList().size() > KptKeyboardManager.PREINSTALLED_LANGUAGE_COUNT
                 && !HikeMessengerApp.isSystemKeyboard())
             showLanguageUseFtue();
         else if (mState == NOT_STARTED)
@@ -300,7 +300,7 @@ public class KeyboardFtue implements HikePubSub.Listener
     {
         if (flipper != null)
         {
-            Byte keyboardManagerState = KptKeyboardManager.getInstance(mActivity).getCurrentState();
+            Byte keyboardManagerState = KptKeyboardManager.getInstance().getCurrentState();
             if (keyboardManagerState == KptKeyboardManager.WAITING)
             {
                 flipper.findViewById(R.id.action_panel).setVisibility(View.VISIBLE);
@@ -329,8 +329,8 @@ public class KeyboardFtue implements HikePubSub.Listener
         if (addonItems != null)
         {
             addonItems.clear();
-            addonItems.addAll(KptKeyboardManager.getInstance(mActivity).getInstalledLanguagesList());
-            addonItems.addAll(KptKeyboardManager.getInstance(mActivity).getUninstalledLanguagesList());
+            addonItems.addAll(KptKeyboardManager.getInstance().getInstalledLanguagesList());
+            addonItems.addAll(KptKeyboardManager.getInstance().getUninstalledLanguagesList());
             addonItemAdapter.notifyDataSetChanged();
         }
     }
@@ -356,13 +356,13 @@ public class KeyboardFtue implements HikePubSub.Listener
 
     private void installSelectedLangauges()
     {
-        originallyInstalledLanguageCount = KptKeyboardManager.getInstance(mActivity).getInstalledLanguagesList().size();
+        originallyInstalledLanguageCount = KptKeyboardManager.getInstance().getInstalledLanguagesList().size();
         toInstallLanguageCount = addonItemAdapter.getSelectedItems().size();
         if (toInstallLanguageCount > 0)
         {
             for (KPTAddonItem item : addonItemAdapter.getSelectedItems())
             {
-                KptKeyboardManager.getInstance(mActivity).downloadAndInstallLanguage(item);
+                KptKeyboardManager.getInstance().downloadAndInstallLanguage(item);
                 
 //                tracking download of each language in ftue
                 try
@@ -386,7 +386,7 @@ public class KeyboardFtue implements HikePubSub.Listener
 
     private void onInstallationComplete()
     {
-        if (KptKeyboardManager.getInstance(mActivity).getInstalledLanguagesList().size()
+        if (KptKeyboardManager.getInstance().getInstalledLanguagesList().size()
                 >= (originallyInstalledLanguageCount + toInstallLanguageCount))
         {
             onInstallationSuccess();
@@ -509,7 +509,7 @@ public class KeyboardFtue implements HikePubSub.Listener
             }
 
             viewHolder.checkBoxItem.setText(item.getDisplayName());
-            KptKeyboardManager.LanguageDictionarySatus status = KptKeyboardManager.getInstance(mContext).getDictionaryLanguageStatus(item);
+            KptKeyboardManager.LanguageDictionarySatus status = KptKeyboardManager.getInstance().getDictionaryLanguageStatus(item);
             if (status == KptKeyboardManager.LanguageDictionarySatus.INSTALLED_LOADED
                     || status == KptKeyboardManager.LanguageDictionarySatus.PROCESSING
                     || status == KptKeyboardManager.LanguageDictionarySatus.IN_QUEUE
@@ -522,7 +522,7 @@ public class KeyboardFtue implements HikePubSub.Listener
                 viewHolder.checkBoxItem.setChecked(false);
             }
 
-            if(KptKeyboardManager.getInstance(mContext).getCurrentState() != KptKeyboardManager.WAITING || status == KptKeyboardManager.LanguageDictionarySatus.INSTALLED_LOADED
+            if(KptKeyboardManager.getInstance().getCurrentState() != KptKeyboardManager.WAITING || status == KptKeyboardManager.LanguageDictionarySatus.INSTALLED_LOADED
                     || status == KptKeyboardManager.LanguageDictionarySatus.INSTALLED_UNLOADED)
             {
                 viewHolder.checkBoxItem.setEnabled(false);

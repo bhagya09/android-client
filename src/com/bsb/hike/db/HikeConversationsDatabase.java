@@ -7207,17 +7207,19 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				args = new String[] { "0" };
 			}
 
-			c = mDb.query(DBConstants.CONVERSATIONS_TABLE, new String[] { DBConstants.UNREAD_COUNT, DBConstants.MSISDN }, selection, args, null, null, null);
+			c = mDb.query(DBConstants.CONVERSATIONS_TABLE, new String[] { DBConstants.UNREAD_COUNT, DBConstants.MSISDN ,DBConstants.MSG_STATUS}, selection, args, null, null, null);
 
 			if (c!=null && c.moveToFirst())
 			{
 				final int unreadMessageColumn = c.getColumnIndex(DBConstants.UNREAD_COUNT);
 				final int msisdnColumn = c.getColumnIndex(DBConstants.MSISDN);
+				final int msgstateColumnIndex=c.getColumnIndex(DBConstants.MSG_STATUS);
 
 				do
 				{
 					int dbUnreadCount = c.getInt(unreadMessageColumn);
 					String msisdn = c.getString(msisdnColumn);
+					int msgState=c.getInt(msgstateColumnIndex);
 					if (msisdn!=null && BotUtils.isBot(msisdn))
 					{
 
@@ -7227,6 +7229,8 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 							dbUnreadCount = 1;
 						}
 					}
+					if(msgState< State.RECEIVED_UNREAD.ordinal())
+						dbUnreadCount=0;
 					unreadMessages += dbUnreadCount;
 				}
 				while (c.moveToNext());
@@ -8169,6 +8173,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		contentValues.put(DBConstants.LAST_MESSAGE_TIMESTAMP, convMessage.getTimestamp());
 		contentValues.put(DBConstants.SORTING_TIMESTAMP, convMessage.getTimestamp());
 		contentValues.put(DBConstants.MESSAGE_ID, convMessage.getMsgID());
+		contentValues.put(DBConstants.IS_STEALTH, StealthModeManager.getInstance().isStealthMsisdn(botInfo.getMsisdn()));
 		contentValues.put(DBConstants.UNREAD_COUNT, 1); // inOrder to show 1+ on conv screen, we need to have some unread counter
 
 		/**
@@ -8179,7 +8184,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			botInfo.setLastConversationMsg(convMessage);
 			botInfo.setUnreadCount(1);  // inOrder to show 1+ on conv screen, we need to have some unread counter
 			botInfo.setConvPresent(true); //In Order to indicate the presence of bot in the conv table
-
+			botInfo.setStealth(StealthModeManager.getInstance().isStealthMsisdn(botInfo.getMsisdn()));
 			//If the chat thread already exists and we need only to change the convInfo,we would not want the listeners on new chat created to be fired,like badge counter.
 			if (isChatExist)
 			{

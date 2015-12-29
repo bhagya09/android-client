@@ -20,6 +20,7 @@ import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.modules.stickersearch.StickerLanguagesManager;
 import com.bsb.hike.platform.content.HikeUnzipFile;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.Utils;
 import com.kpt.adaptxt.beta.AdaptxtSettingsRegisterListener;
 import com.kpt.adaptxt.beta.KPTAdaptxtAddonSettings;
 import com.kpt.adaptxt.beta.KPTAdaptxtAddonSettings.AdaptxtAddonInstallationListner;
@@ -95,14 +96,14 @@ public class KptKeyboardManager implements AdaptxtSettingsRegisterListener
 		Logger.d(TAG,"Initialization complete.");
 	}
 
-	public static KptKeyboardManager getInstance(Context context)
+	public static KptKeyboardManager getInstance()
 	{
 		if (_instance == null)
 		{
 			synchronized (KptKeyboardManager.class)
 			{
 				if (_instance == null)
-					_instance = new KptKeyboardManager(context.getApplicationContext());
+					_instance = new KptKeyboardManager(HikeMessengerApp.getInstance().getApplicationContext());
 			}
 		}
 		return _instance;
@@ -415,8 +416,24 @@ public class KptKeyboardManager implements AdaptxtSettingsRegisterListener
 	{
 		Logger.d(TAG,"coreEngineStatus callback: " + status);
 		kptCoreEngineStatus = status;
+		Utils.setCustomKeyboardSupported(true);
 		fetchKptLanguagesAndUpdate();
 		StickerLanguagesManager.getInstance().addKptSupportedLanguages();
+	}
+
+	/*
+	This callback is sent by kpt is case its not supported on the device.
+	This will set keyboard supported flag to false. And in such case keyboard(kpt code) is not to be used anywhere.
+	This assumption here is the this callback will be received within 20ms of initialization KPTAdaptxtAddonSettings in the constructor here.
+	This is required because if the keyboard is not supported then we should know it before the time other classes(Activities) use it as
+	the we assume keyboard is supported by default.
+	 */
+	@Override
+	public void onInitializationError(int errorCode)
+	{
+		Logger.d("KptDebug","init error. time: "  + System.currentTimeMillis());
+		Utils.setCustomKeyboardSupported(false);
+		logKeyboardInitializationError();
 	}
 
 	@Override
@@ -432,5 +449,19 @@ public class KptKeyboardManager implements AdaptxtSettingsRegisterListener
 			return kptSettings;
 		}
 		return null;
+	}
+
+	private void logKeyboardInitializationError()
+	{
+		try
+		{
+			JSONObject metadata = new JSONObject();
+			metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.KEYBOARD_INIT_ERROR);
+			HAManager.getInstance().record(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.ERROR_EVENT, metadata);
+		}
+		catch(JSONException e)
+		{
+			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json : " + e);
+		}
 	}
 }

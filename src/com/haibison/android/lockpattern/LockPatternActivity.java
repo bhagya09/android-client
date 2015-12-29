@@ -1513,8 +1513,15 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity implem
 		KptUtils.pauseKeyboardResources(mCustomKeyboard, mLockPinView);
 		super.onPause();
 	}
-	
-	@Override
+
+    @Override
+    protected void onResume()
+    {
+        super.onResume();
+        KptUtils.resumeKeyboard(mCustomKeyboard);
+    }
+
+    @Override
 	public void onBackPressed()
 	{
 		if (mCustomKeyboard != null && mCustomKeyboard.isCustomKeyboardVisible())
