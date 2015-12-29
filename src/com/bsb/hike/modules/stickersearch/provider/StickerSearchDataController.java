@@ -157,7 +157,8 @@ public enum StickerSearchDataController
 						String catgrsType = catgrs.next();
 						if ("catgrs".equals(catgrsType))
 						{
-							tagDataWithScript.add(new Pair<String, JSONObject>(HikeStickerSearchBaseConstants.DEFAULT_STICKER_TAG_SCRIPT_ISO_CODE, tagData.optJSONObject("catgrs")));
+							tagDataWithScript
+									.add(new Pair<String, JSONObject>(HikeStickerSearchBaseConstants.DEFAULT_STICKER_TAG_SCRIPT_ISO_CODE, tagData.optJSONObject("catgrs")));
 						}
 						else if ("catgrs_loc".equals(catgrsType))
 						{
@@ -586,14 +587,14 @@ public enum StickerSearchDataController
 
 	private void takeDecisionOnState(int state)
 	{
-		switch(state)
+		switch (state)
 		{
-			case StickerSearchConstants.STATE_STICKER_DATA_REFRESH:
-				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.LAST_SUCCESSFUL_STICKER_TAG_REFRESH_TIME, System.currentTimeMillis());
-				break;
-			case StickerSearchConstants.STATE_LANGUAGE_TAGS_DOWNLOAD:
-				StickerLanguagesManager.getInstance().downloadTagsForNextLanguage();
-				break;
+		case StickerSearchConstants.STATE_STICKER_DATA_REFRESH:
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.LAST_SUCCESSFUL_STICKER_TAG_REFRESH_TIME, System.currentTimeMillis());
+			break;
+		case StickerSearchConstants.STATE_LANGUAGE_TAGS_DOWNLOAD:
+			StickerLanguagesManager.getInstance().downloadTagsForNextLanguage();
+			break;
 		}
 	}
 
