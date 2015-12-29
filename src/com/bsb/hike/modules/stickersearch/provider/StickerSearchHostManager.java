@@ -1242,15 +1242,17 @@ public class StickerSearchHostManager
 		if (!Utils.isEmpty(cachedStickerData))
 		{
 			String plainSearchKey = rawSearchKey.replaceAll(StickerSearchConstants.REGEX_SINGLE_OR_PREDICATE, StickerSearchConstants.STRING_EMPTY);
+			// Using unique key for storing ordered stickers for same phrase or word, so that predictive search and exact search could be distinguished.
+			String cacheKey = plainSearchKey + StickerSearchConstants.STRING_PREDICATE + minimumMatchingScore;
 
-			if (sCacheForLocalOrderedStickers.containsKey(plainSearchKey))
+			if (sCacheForLocalOrderedStickers.containsKey(cacheKey))
 			{
-				stickers = sCacheForLocalOrderedStickers.get(plainSearchKey);
+				stickers = sCacheForLocalOrderedStickers.get(cacheKey);
 			}
 			else
 			{
 				stickers = computeOrderingAndGetStickers(plainSearchKey, cachedStickerData, minimumMatchingScore);
-				sCacheForLocalOrderedStickers.put(plainSearchKey, stickers);
+				sCacheForLocalOrderedStickers.put(cacheKey, stickers);
 			}
 		}
 
