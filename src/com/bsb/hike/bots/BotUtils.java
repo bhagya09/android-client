@@ -80,7 +80,7 @@ public class BotUtils
 
 		BotInfo gamesOnHike = new BotInfo.HikeBotBuilder(HikePlatformConstants.GAMES_HIKE_MSISDN).setConvName(context.getString(R.string.games_bot)).setConfig(21487).build();
 
-		BotInfo hikeDaily = new BotInfo.HikeBotBuilder(HikePlatformConstants.HIKE_DAILY_MSISDN).setConvName(context.getString(R.string.hike_daily_bot)).setConfig(2069487).build();
+		BotInfo hikeDaily = new BotInfo.HikeBotBuilder(HikePlatformConstants.HIKE_DAILY_MSISDN).setConvName(context.getString(R.string.hike_daily_bot)).setConfig(22511).build();
 
 		BotInfo hikeSupport = new BotInfo.HikeBotBuilder(HikePlatformConstants.HIKE_SUPPORT_MSISDN).setConvName(context.getString(R.string.hike_support_bot)).setConfig(2069487).build();
 
@@ -111,7 +111,7 @@ public class BotUtils
 
 		defaultBotEntry(HikePlatformConstants.GAMES_HIKE_MSISDN, context.getString(R.string.games_bot), null, null, 21487, false, context);
 
-		defaultBotEntry(HikePlatformConstants.HIKE_DAILY_MSISDN, context.getString(R.string.hike_daily_bot), null, HikeBitmapFactory.getBase64ForDrawable(R.drawable.hikedaily, context.getApplicationContext()), 21487, false, context);
+		defaultBotEntry(HikePlatformConstants.HIKE_DAILY_MSISDN, context.getString(R.string.hike_daily_bot), null, HikeBitmapFactory.getBase64ForDrawable(R.drawable.hikedaily, context.getApplicationContext()), 22511, false, context);
 
 		defaultBotEntry(HikePlatformConstants.HIKE_SUPPORT_MSISDN, context.getString(R.string.hike_support_bot), null, null, 2069487, true, context);
 
