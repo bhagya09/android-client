@@ -1,7 +1,9 @@
 package com.bsb.hike.utils;
 
 import android.app.Activity;
+import android.content.Intent;
 
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikeMessengerApp.CurrentState;
 import com.bsb.hike.ui.HomeActivity;
@@ -160,9 +162,25 @@ public class HikeAppStateUtils
 		}
 	}
 
-	public static void startActivityForResult(Activity activity)
+	public static void startActivityForResult(Intent intent, Activity activity)
 	{
 		Logger.d(TAG + activity.getClass().getSimpleName(), "startActivityForResult. Previous state: " + HikeMessengerApp.currentState);
+
+		/**
+		 * Begin Changeset for AND-4071.
+		 * Logic is : When we were starting intent for a separate PROCESS, i.e. : CocosProcess, we want hike's process to send BG Packet and not treat it as a new activity.
+		 * Technically, it's a new activity but not attached to hike's process. A flag was added in the intent for the CocosProcess to deal with it.
+		 */
+		if (intent != null && intent.getBooleanExtra(HikeConstants.FORCE_BG, false) &&
+				(HikeMessengerApp.currentState == CurrentState.RESUMED || HikeMessengerApp.currentState == CurrentState.OPENED))
+		{
+			return;
+		}
+
+		/**
+		 * Changeset ends for AND-4071
+		 */
+
 		if (HikeMessengerApp.currentState == CurrentState.BACKGROUNDED || HikeMessengerApp.currentState == CurrentState.CLOSED)
 		{
 			HikeMessengerApp.currentState = CurrentState.NEW_ACTIVITY_IN_BG;
