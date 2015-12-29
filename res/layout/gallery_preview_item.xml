@@ -12,7 +12,7 @@
         android:layout_above="@id/crop_navigation"
         android:layout_gravity="center"
         android:background="#000000"
-        custom:fixAspectRatio="true"
+        custom:fixAspectRatio="false"
         custom:guidelines="on"
         custom:scaleType="fitCenter"
         custom:imageResource="@drawable/bg_ct_beach_2" />
