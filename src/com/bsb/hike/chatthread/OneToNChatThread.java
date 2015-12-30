@@ -356,6 +356,7 @@ public abstract class OneToNChatThread extends ChatThread implements HashTagMode
 	protected void showActiveConversationMemberCount()
 	{
 		int numActivePeople = oneToNConversation.getParticipantListSize();
+		Logger.d("##Rashmi ##Group Active Member count: Thread :   ",Thread.currentThread().getName()+"");
 		Logger.d("##Rashmi ##Group Active Member count: ", numActivePeople+"");
 		
 		TextView memberCountTextView = (TextView) mActionBarView.findViewById(R.id.contact_status);
