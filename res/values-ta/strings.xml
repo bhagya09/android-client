@@ -456,8 +456,6 @@
     <string name="reset_complete_stealth_info">உன் கடவுச்சொல்லை மறந்தீரா? மறைக்கப்பட்ட மோடை ரீசெட் செய்யும். அனைத்து மறைக்கப்பட்ட சேட்களையும் அழித்தாகிவிடும்.</string>
     <string name="initiate_reset_stealth_header">ஹிட்டென் மோடை ரீசெட் செய்யும்</string>
     <string name="initiate_reset_stealth_body">மறைக்கப்பட்ட மோடு 30 நிமிடங்களில் ரீசெட் ஆகி விடும். அணைத்து மறைக்கப்பட்ட சேட்களும் அழிந்துவிடும் ! தொடரவா ?</string>
-    அழித்தாகிவிடும்
-    அழித்துவிடும்
     <string name="resetting_complete_stealth_header">ஹிட்டென் மோடை ரீசெட் செய்கிறது</string>
     <string name="resetting_complete_stealth_info">கேன்செல் செய்யத் தட்டவும்.</string>
     <string name="reset_stealth_tip">
