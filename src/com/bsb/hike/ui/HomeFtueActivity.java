@@ -154,7 +154,7 @@ public class HomeFtueActivity extends HikeAppStateBaseFragmentActivity {
                                 }
                             }
                     );
-                    KptKeyboardManager.getInstance().downloadAndInstallLanguage(selectedLocalLanguage.getLocale());
+                    KptKeyboardManager.getInstance().downloadAndInstallLanguage(selectedLocalLanguage.getLocale(), HikeConstants.KEYBOARD_LANG_DWNLD_APP_FTUE);
                 }
             }
             showNextFtue();

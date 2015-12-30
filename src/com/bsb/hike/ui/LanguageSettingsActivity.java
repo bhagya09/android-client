@@ -96,20 +96,8 @@ public class LanguageSettingsActivity extends ChangeProfileImageBaseActivity imp
 		KptKeyboardManager.LanguageDictionarySatus status = KptKeyboardManager.getInstance().getDictionaryLanguageStatus(item);
 		if (status == KptKeyboardManager.LanguageDictionarySatus.UNINSTALLED)
 		{
-			KptKeyboardManager.getInstance().downloadAndInstallLanguage(item);
+			KptKeyboardManager.getInstance().downloadAndInstallLanguage(item, HikeConstants.KEYBOARD_LANG_DWNLD_SETTINGS);
 			
-//			tracking keyboard language download event
-			try
-			{
-				JSONObject metadata = new JSONObject();
-				metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.KEYBOARD_LANGUAGE_DOWNLOAD_EVENT);
-				metadata.put(HikeConstants.LogEvent.LANGUAGE_DOWNLOADING, item.getlocaleName());
-				HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
-			}
-			catch(JSONException e)
-			{
-				Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json : " + item.getDisplayName() + "\n" + e);
-			}
 		}
 		else if (status == KptKeyboardManager.LanguageDictionarySatus.INSTALLED_LOADED)
 		{

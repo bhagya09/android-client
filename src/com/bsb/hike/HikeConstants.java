@@ -264,6 +264,12 @@ public class HikeConstants
 	public static final String DEVICE_LOCALE = "device_locale";
 
 	public static final String LOCALE = "locale";
+	
+	public static final String KEYBOARD_LANG_DWNLD_APP_FTUE = "app_ftue";
+	
+	public static final String KEYBOARD_LANG_DWNLD_KBD_FTUE = "kbd_ftue";
+	
+	public static final String KEYBOARD_LANG_DWNLD_SETTINGS = "settings";
 
 	public static final String ENABLE_PUSH_BATCHING_STATUS_NOTIFICATIONS = "enablepushbatchingforsu";
 
@@ -2547,6 +2553,8 @@ public class HikeConstants
 		public static final String KPT = "kpt";
 
 		public static final String KEYBOARD_INIT_ERROR = "kbd_init_err";
+
+		public static final String LANGUAGE_DOWNLOAD_SOURCE = "lng_dl_src";
 
 	}
 	public static final class Toast

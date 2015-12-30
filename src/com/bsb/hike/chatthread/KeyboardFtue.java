@@ -365,7 +365,7 @@ public class KeyboardFtue implements HikePubSub.Listener
         {
             for (KPTAddonItem item : addonItemAdapter.getSelectedItems())
             {
-                KptKeyboardManager.getInstance().downloadAndInstallLanguage(item);
+                KptKeyboardManager.getInstance().downloadAndInstallLanguage(item, HikeConstants.KEYBOARD_LANG_DWNLD_KBD_FTUE);
                 
 //                tracking download of each language in ftue
                 try

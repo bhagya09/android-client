@@ -76,7 +76,7 @@ public class KptKeyboardManager implements AdaptxtSettingsRegisterListener
 	KptLanguageInstallListener mInstallListener;
 
 	private volatile Byte mState = WAITING;
-
+	
 	public enum LanguageDictionarySatus
 	{
 		INSTALLED_LOADED, INSTALLED_UNLOADED, UNINSTALLED, UNSUPPORTED, PROCESSING, IN_QUEUE
@@ -227,7 +227,7 @@ public class KptKeyboardManager implements AdaptxtSettingsRegisterListener
 		HikeMessengerApp.getPubSub().publish(HikePubSub.KPT_LANGUAGES_UPDATED, null);
 	}
 
-	public void downloadAndInstallLanguage(String locale)
+	public void downloadAndInstallLanguage(String locale, String source)
 	{
 		if (TextUtils.isEmpty(locale))
 		{
@@ -237,14 +237,14 @@ public class KptKeyboardManager implements AdaptxtSettingsRegisterListener
 		{
 			if (item.getlocaleName().substring(0,item.getlocaleName().indexOf("-")).equals(locale))
 			{
-				downloadAndInstallLanguage(item);
+				downloadAndInstallLanguage(item, source);
 				return;
 			}
 		}
 
 	}
 
-	public void downloadAndInstallLanguage(KPTAddonItem addOnItem)
+	public void downloadAndInstallLanguage(KPTAddonItem addOnItem, String source)
 	{
 		StickerLanguagesManager.getInstance().downloadTagsForLanguage(new Locale(addOnItem.getlocaleName()).getISO3Language());
 		StickerLanguagesManager.getInstance().downloadDefaultTagsForLanguage(new Locale(addOnItem.getlocaleName()).getISO3Language());
@@ -258,6 +258,8 @@ public class KptKeyboardManager implements AdaptxtSettingsRegisterListener
 			languageStatusMap.put(addOnItem.getDisplayName(), LanguageDictionarySatus.IN_QUEUE);
 			if (mState == WAITING)
 				startProcessing();
+			
+			sendEventForLanguageDownload(addOnItem, source);
 		}
 		else if (languageStatusMap.get(addOnItem.getDisplayName()) == LanguageDictionarySatus.INSTALLED_UNLOADED)
 		{
@@ -267,6 +269,23 @@ public class KptKeyboardManager implements AdaptxtSettingsRegisterListener
 		notifyAllOfLanguageUpdate();
 	}
 
+	private void sendEventForLanguageDownload(KPTAddonItem addOnItem, String source)
+	{
+//		tracking keyboard language download event
+		try
+		{
+			JSONObject metadata = new JSONObject();
+			metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.KEYBOARD_LANGUAGE_DOWNLOAD_EVENT);
+			metadata.put(HikeConstants.LogEvent.LANGUAGE_DOWNLOADING, addOnItem.getlocaleName());
+			metadata.put(HikeConstants.LogEvent.LANGUAGE_DOWNLOAD_SOURCE, source);
+			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
+		}
+		catch(JSONException e)
+		{
+			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json : " + addOnItem.getDisplayName() + "\n" + e);
+		}
+	}
+	
 	public void loadInstalledLanguage(KPTAddonItem addOnItem)
 	{
 		kptSettings.loadDictionary(addOnItem);
