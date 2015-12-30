@@ -28,6 +28,7 @@ import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.modules.kpt.KptKeyboardManager;
 import com.bsb.hike.utils.ChangeProfileImageBaseActivity;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.Utils;
 import com.kpt.adaptxt.beta.KPTAddonItem;
 
 public class LanguageSettingsActivity extends ChangeProfileImageBaseActivity implements Listener, OnItemClickListener, KptKeyboardManager.KptLanguageInstallListener
@@ -38,6 +39,8 @@ public class LanguageSettingsActivity extends ChangeProfileImageBaseActivity imp
 	DictionaryLanguageAdapter addonItemAdapter;
 
 	ArrayList<KPTAddonItem> addonItems;
+	
+	KPTAddonItem oldLanguage;
 
 	private String[] mPubSubListeners = new String[] { HikePubSub.KPT_LANGUAGES_UPDATED };
 	@Override
@@ -50,6 +53,7 @@ public class LanguageSettingsActivity extends ChangeProfileImageBaseActivity imp
 		setupLanguageList();
 		addToPubSub();
 		KptKeyboardManager.getInstance().setInstallListener(this);
+		oldLanguage = KptKeyboardManager.getInstance().getCurrentLanguageAddonItem();
 	}
 
 	private void setupActionBar()
@@ -155,6 +159,25 @@ public class LanguageSettingsActivity extends ChangeProfileImageBaseActivity imp
 		KptKeyboardManager.getInstance().setInstallListener(null);
 		// Mempry leak pub sub no destroyed
 		removePubSubs();
+		
+		KPTAddonItem newLanguage = KptKeyboardManager.getInstance().getCurrentLanguageAddonItem();
+		if (oldLanguage != newLanguage)
+		{
+//			tracking keyboard language change event
+			try
+			{
+				JSONObject metadata = new JSONObject();
+				metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.KEYBOARD_LANGUAGE_CHANGED_EVENT);
+				metadata.put(HikeConstants.KEYBOARD_LANGUAGE_CHANGE, newLanguage.getlocaleName());
+				metadata.put(HikeConstants.KEYBOARD_LANGUAGE_CHANGE_SOURCE, HikeConstants.KEYBOARD_LANG_CHANGE_SETTINGS);
+				HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
+				Utils.sendLocaleToServer();
+			}
+			catch(JSONException e)
+			{
+				Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json : " + newLanguage.getDisplayName() + "\n" + e);
+			}
+		}
 		super.onDestroy();
 	}
 
