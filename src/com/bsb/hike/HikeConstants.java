@@ -2548,6 +2548,8 @@ public class HikeConstants
 
 		public static final String KEYBOARD_INIT_ERROR = "kbd_init_err";
 
+		public static final String HIKE_DIRECT_OVRFL_CLK = "hike_dir";
+
 	}
 	public static final class Toast
 	{
