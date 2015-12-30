@@ -2560,6 +2560,12 @@ public class HikeConstants
 
 		public static final String LANGUAGE_DOWNLOAD_SOURCE = "lng_dl_src";
 
+		public static final String KEYBOARD_LANGUAGE_UNLOADED_EVENT = "lng_ul";
+		
+		public static final String KEYBOARD_LANGUAGE_LOADED_EVENT = "lng_l";
+		
+		public static final String KEYBOARD_LANGUAGE_UNSUPPORTED_EVENT = "lng_uns";
+
 	}
 	public static final class Toast
 	{

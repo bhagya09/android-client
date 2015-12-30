@@ -106,17 +106,35 @@ public class LanguageSettingsActivity extends ChangeProfileImageBaseActivity imp
 		else if (status == KptKeyboardManager.LanguageDictionarySatus.INSTALLED_LOADED)
 		{
 			KptKeyboardManager.getInstance().unloadInstalledLanguage(item);
+			sendAnalyticEvent(item, HikeConstants.LogEvent.KEYBOARD_LANGUAGE_UNLOADED_EVENT);
 		}
 		else if (status == KptKeyboardManager.LanguageDictionarySatus.INSTALLED_UNLOADED)
 		{
 			KptKeyboardManager.getInstance().loadInstalledLanguage(item);
+			sendAnalyticEvent(item, HikeConstants.LogEvent.KEYBOARD_LANGUAGE_LOADED_EVENT);
 		}
 		else if (status == KptKeyboardManager.LanguageDictionarySatus.UNSUPPORTED)
 		{
 			Toast.makeText(mContext, R.string.unsupported_language_toast_msg, Toast.LENGTH_SHORT).show();
+			sendAnalyticEvent(item, HikeConstants.LogEvent.KEYBOARD_LANGUAGE_UNSUPPORTED_EVENT);
 		}
 	}
 
+	private void sendAnalyticEvent(KPTAddonItem item, String event) 
+	{
+		try
+		{
+			JSONObject metadata = new JSONObject();
+			metadata.put(HikeConstants.EVENT_KEY, event);
+			metadata.put(HikeConstants.KEYBOARD_LANGUAGE_CHANGE, item.getlocaleName());
+			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
+		}
+		catch(JSONException e)
+		{
+			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json : " + item.getDisplayName() + "\n" + e);
+		}
+	}
+	
 	@Override
 	public void onEventReceived(String type, Object object)
 	{
