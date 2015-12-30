@@ -1124,11 +1124,15 @@ public class VoIPService extends Service implements Listener
 			}
 		};
 		
-		int result = audioManager.requestAudioFocus(mOnAudioFocusChangeListener, AudioManager.STREAM_VOICE_CALL, AudioManager.AUDIOFOCUS_GAIN_TRANSIENT);
-		if (result != AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
-			Logger.w(tag, "Unable to gain audio focus. result: " + result);
-		} else
-			Logger.d(tag, "Received audio focus.");
+		try {
+			int result = audioManager.requestAudioFocus(mOnAudioFocusChangeListener, AudioManager.STREAM_VOICE_CALL, AudioManager.AUDIOFOCUS_GAIN_TRANSIENT);
+			if (result != AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
+				Logger.w(tag, "Unable to gain audio focus. result: " + result);
+			} else
+				Logger.d(tag, "Received audio focus.");
+		} catch (SecurityException e) {
+			Logger.e(tag, "Security exception while requesting audio focus: " + e.toString());
+		}
 	}
 	
 	private void releaseAudioManager() {
