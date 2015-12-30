@@ -352,6 +352,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 	protected void onResume()
 	{
 		super.onResume();
+		KptUtils.resumeKeyboard(mCustomKeyboard);
 		showKeyboard(false);
 		isForeground = true;
 		if (statusImage != null && statusImage.getDrawable() != null)
@@ -902,12 +903,13 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		 * let GC pick up any instance of this activity. So whenever this activity gets destroyed its instance doesn't get cleared from heap.
 		 */
 		HikeMessengerApp.getPubSub().removeListeners(this, pubsubListeners);
-		super.onDestroy();
+
 		if (progressDialog != null)
 		{
 			progressDialog.dismiss();
 			progressDialog = null;
 		}
+		super.onDestroy();
 		
 	}
 

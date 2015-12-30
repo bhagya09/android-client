@@ -455,7 +455,7 @@
     <string name="reset_complete_stealth_header">மறைக்கப்பட்ட மோடை ரீசெட் செய்யும்</string>
     <string name="reset_complete_stealth_info">உன் கடவுச்சொல்லை மறந்தீரா? மறைக்கப்பட்ட மோடை ரீசெட் செய்யும். அனைத்து மறைக்கப்பட்ட சேட்களையும் அழித்தாகிவிடும்.</string>
     <string name="initiate_reset_stealth_header">ஹிட்டென் மோடை ரீசெட் செய்யும்</string>
-    <string name="initiate_reset_stealth_body">மறைக்கப்பட்ட மோடு 30 நிமிடங்களில் ரீசெட் ஆகி விடும். அனைத்து மறைக்கப்பட்ட சேட்களையும் அழிந்துவிடும்! தொடரவா?</string>
+    <string name="initiate_reset_stealth_body">மறைக்கப்பட்ட மோடு 30 நிமிடங்களில் ரீசெட் ஆகி விடும். அணைத்து மறைக்கப்பட்ட சேட்களும் அழிந்துவிடும் ! தொடரவா ?</string>
     அழித்தாகிவிடும்
     அழித்துவிடும்
     <string name="resetting_complete_stealth_header">ஹிட்டென் மோடை ரீசெட் செய்கிறது</string>
@@ -1276,7 +1276,7 @@
     <string name="are_typing">டைப் செய்கிறார்கள்...</string>
     <string name="you_chat_bg_changed">நீங்கள் சேட் தீம்-ஐ மாற்றி விட்டீர்</string>
     <string name="hike_keyboard">Hike கீபோர்டு</string>
-    <string name="system_keyboard">சிஸ்டம் கீபோர்டு</string>
+    <string name="system_keyboard">போன் கீபோர்டு</string>
     <string name="you_xyz_posted_pin">நீங்கள் ஓர் பின்-ஐ போஸ்ட் செய்தீர்</string>
     <string name="voip_hang_up">ஹேங் அப்</string>
     <string name="voip_decline">மறுக்கவும்</string>
