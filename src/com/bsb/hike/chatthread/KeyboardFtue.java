@@ -366,19 +366,6 @@ public class KeyboardFtue implements HikePubSub.Listener
             for (KPTAddonItem item : addonItemAdapter.getSelectedItems())
             {
                 KptKeyboardManager.getInstance().downloadAndInstallLanguage(item, HikeConstants.KEYBOARD_LANG_DWNLD_KBD_FTUE);
-                
-//                tracking download of each language in ftue
-                try
-        		{
-        			JSONObject metadata = new JSONObject();
-        			metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.KEYBOARD_FTUE_LANGUAGE_DOWNLOADED);
-        			metadata.put(HikeConstants.KEYBOARD_LANGUAGE_CHANGE, item.getlocaleName());
-        			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
-        		}
-        		catch(JSONException e)
-        		{
-        			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json : " + e);
-        		}
             }
         }
         else

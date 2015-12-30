@@ -2542,8 +2542,6 @@ public class HikeConstants
 		
 		public static final String KEYBOARD_FTUE_CHOOSE_LANGUAGE_BUTTON = "kbd_ftue_chg_lng";
 		
-		public static final String KEYBOARD_FTUE_LANGUAGE_DOWNLOADED = "kbd_ftue_lng_dl";
-		
 		public static final String KEYBOARD_FTUE_CLOSE_LANG_SELECTION = "kbd_ftue_clos_lang";
 		
 		public static final String KEYBOARD_FTUE_INSTALL_SELECTED_LANGUAGES = "kbd_ftue_inst";
