@@ -12,7 +12,9 @@ import android.view.WindowManager;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
@@ -31,7 +33,7 @@ public class CustomWebView extends WebView
 
 	private boolean isDestroyed = false;
 
-	private static boolean applyWhiteScreenFix = false;
+	private static boolean applyWhiteScreenFix = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.WHITE_SCREEN_FIX, false);
 
 	private String javaScriptInterface;
 
@@ -371,6 +373,11 @@ public class CustomWebView extends WebView
 			// Nothing
 		}
 		return null;
+	}
+
+	public static void setApplyWhiteScreenFix(boolean enable)
+	{
+		applyWhiteScreenFix = enable;
 	}
 
 }

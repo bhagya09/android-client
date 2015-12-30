@@ -3730,4 +3730,6 @@ public class HikeConstants
 
 	public static final String CUSTOM_KEYBOARD_SUPPORTED = "custom_key_supported";
 
+	public static final String WHITE_SCREEN_FIX = "w_s_f";
+
 }

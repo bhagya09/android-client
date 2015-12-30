@@ -58,6 +58,7 @@ import com.bsb.hike.modules.stickersearch.ui.StickerTagWatcher;
 import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.offline.OfflineConstants;
 import com.bsb.hike.offline.OfflineController;
+import com.bsb.hike.platform.CustomWebView;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.content.*;
@@ -2662,7 +2663,14 @@ public class MqttMessagesManager
             boolean enable = data.getBoolean(HikeConstants.HTTP_NETWORK_CHECK_CALL);
             HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.HTTP_NETWORK_CHECK_CALL, enable);
         }
-		
+
+		if (data.has(HikeConstants.WHITE_SCREEN_FIX))
+		{
+			boolean enableWhiteScreenFix = data.getBoolean(HikeConstants.WHITE_SCREEN_FIX);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.WHITE_SCREEN_FIX, enableWhiteScreenFix);
+			CustomWebView.setApplyWhiteScreenFix(enableWhiteScreenFix);
+		}
+
 		editor.commit();
 		this.pubSub.publish(HikePubSub.UPDATE_OF_MENU_NOTIFICATION, null);
 		
