@@ -20,33 +20,6 @@
             android:configChanges="keyboardHidden|orientation"
             android:label="@string/kpt_UI_STRING_APP_TITLE" >
         </activity>
-       <!--  <activity
-            android:name="com.kpt.adaptxt.beta.settings.KPTAddonsListActivity"
-            android:configChanges="keyboardHidden|orientation"
-            android:label="Addon Enabler1" >
-        </activity> -->
-        <activity
-            android:name="com.kpt.adaptxt.beta.settings.KPTPrefsAdvSettings"
-            android:configChanges="keyboardHidden|orientation|screenSize"
-            android:theme="@style/Adaptxtprefstyle" >
-            <intent-filter>
-                <action android:name="com.kpt.adaptxt.beta.settings.KPTPrefsAdvSettings.hike" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
-       <!--  <activity
-            android:name="com.kpt.adaptxt.beta.settings.KPTAddonManager"
-            android:configChanges="keyboardHidden|orientation"
-            android:label="@string/kpt_UI_STRING_HEADER_4"
-            android:launchMode="singleTop" >
-            <intent-filter>
-                <action android:name="com.kpt.adaptxt.beta.settings.KPTAddonManager" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity> -->
-
         <service
             android:name="com.kpt.adaptxt.beta.core.coreservice.KPTCoreService"
             android:enabled="true" >
@@ -70,48 +43,6 @@
             </intent-filter>
         </receiver>
 
-        <activity
-            android:name="com.kpt.adaptxt.beta.settings.KPTATRListview"
-            android:configChanges="keyboardHidden|orientation"
-            android:label="@string/kpt_UI_STRING_MENUITEM_DESC_2_7003"
-            android:launchMode="singleInstance" >
-        </activity>
-        <activity
-            android:name="com.kpt.adaptxt.beta.settings.KPTAddATRShortcut"
-            android:configChanges="keyboardHidden|orientation"
-            android:label="@string/kpt_UI_STRING_HEADER_2_7003"
-            android:launchMode="singleTop"
-            android:noHistory="true"
-            android:windowSoftInputMode="stateVisible|adjustPan" />
-        <activity
-            android:name="com.kpt.adaptxt.beta.settings.KPTGlideSettings"
-            android:theme="@style/Adaptxtprefstyle" >
-            <intent-filter>
-                <action android:name="com.kpt.adaptxt.beta.settings.KPTGlideSettings.hike" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
-       <!--  <activity android:name="com.kpt.adaptxt.beta.glide.KPTGlideCustomGesturesActivity"
-            android:screenOrientation="portrait"
-      	    android:label="@string/kpt_UI_STRING_SETTINGS_ITEM_2_220">
-			 <intent-filter>
-				<action android:name="com.kpt.adaptxt.beta.glide.KPTGlideCustomGesturesActivity" />
-				<category android:name="android.intent.category.DEFAULT" />
-			</intent-filter>
-		</activity> -->
-        <!-- <activity
-            android:name="com.kpt.adaptxt.beta.settings.AddonDownloadActivity"
-            android:configChanges="orientation"
-            android:label="@string/kpt_UI_STRING_APP_TITLE_1_300" >
-            <intent-filter>
-                <action android:name="android.intent.action.SEARCH" />
-            </intent-filter>
-
-            <meta-data
-                android:name="android.app.default_searchable"
-                android:value="com.kpt.adaptxt.beta.settings.AddonDownloadActivity" />
-        </activity> -->
     </application>
 
     <uses-permission android:name="android.permission.WAKE_LOCK" />
