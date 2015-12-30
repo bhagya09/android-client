@@ -3611,8 +3611,6 @@ public class HikeConstants
 
 	// =========================================================================================Constants for sticker search]]
 
-	public static final String AG_ENABLED = "agLogs";
-	
 	public static final String PLATFORM_PACKET = "pt";
 	
 	public static final String TAG = "Tag";
