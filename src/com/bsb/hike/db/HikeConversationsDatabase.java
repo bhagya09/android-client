@@ -6242,6 +6242,9 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				{
 					Logger.v("BOT", "Putting Bot Info in hashmap " + botInfo.toString());
 					HikeMessengerApp.hikeBotInfoMap.put(msisdn, botInfo);
+					// Putting the fake bot contact in contact manager as well here
+					ContactInfo contact = new ContactInfo(msisdn, msisdn, botInfo.getConversationName(), msisdn);
+					ContactManager.getInstance().updateContacts(contact);
 				}
 				
 				else
