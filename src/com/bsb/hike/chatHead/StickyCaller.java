@@ -439,7 +439,7 @@ public class StickyCaller
 					showCallerView(number, result, type, source);
 				}
 
-			}, CALLER_DELAY);
+			}, type == LOADING ? 0 : CALLER_DELAY);
 		}
 	}
 	
