@@ -4001,6 +4001,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			mediaPlayer.pause();
 			setTimer();
 			setFileBtnResource();
+			sensorManager.unregisterListener(VoiceMessagePlayer.this);
 		}
 
 		public void resumePlayer()
@@ -4014,6 +4015,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			mediaPlayer.start();
 			handler.post(updateTimer);
 			setFileBtnResource();
+			sensorManager.registerListener(VoiceMessagePlayer.this, proximitySensor, SensorManager.SENSOR_DELAY_NORMAL);
 		}
 
 		public void resetPlayer()
