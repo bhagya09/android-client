@@ -898,6 +898,12 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 				{
 					try
 					{
+						if(previousHostInfo!=null && previousHostInfo.getExceptionCount() > 6)
+						{
+							//-1 implies connect success
+							sendHttpNetworkTestRequest(-1);
+						}
+
 						pushConnect = false;
 						retryCount = 0;
 						fastReconnect = 0;
@@ -932,7 +938,10 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 				{
 					try
 					{
-						
+						if(previousHostInfo != null)
+						{
+						    previousHostInfo.increaseExceptionCount();
+						}
 						MqttException exception = (MqttException) value;
 						handleMqttException(exception, true);
 					}
@@ -1203,7 +1212,9 @@ public class HikeMqttManagerNew extends BroadcastReceiver
         }
 
         int port = previousHostInfo != null ? previousHostInfo.getPort() : 0;
-        RequestToken requestToken =  HttpRequests.httpNetworkTestRequest(errorCode, port);
+        int networkType = previousNetInfo != null ? previousNetInfo.getNetworkType() : -1;
+        int exceptionCount = previousHostInfo != null ? previousHostInfo.getExceptionCount() : -1;
+        RequestToken requestToken =  HttpRequests.httpNetworkTestRequest(errorCode, port, networkType, exceptionCount);
         requestToken.execute();
     }
 	private void handleMqttException(MqttException e, boolean reConnect)
