@@ -708,12 +708,8 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
                 mAppVersionCode = cardObjectJson.optInt(HikePlatformConstants.MAPP_VERSION_CODE);
             }
 
-			BotInfo mBotInfo = new BotInfo.HikeBotBuilder(msisdn).setConvName(name).description(description).setType(botType).setUpdateVersion(latestVersion).build();
+			BotInfo mBotInfo = new BotInfo.HikeBotBuilder(msisdn).setConvName(name).description(description).setType(botType).setUpdateVersion(latestVersion).setMAppVersionCode(mAppVersionCode).build();
 
-            if (mAppVersionCode > 0)
-            {
-                mBotInfo.setMAppVersionCode(mAppVersionCode);
-            }
 
 			String thumbnailString = botJSON.optString(HikePlatformConstants.BOT_DP, "");
 			

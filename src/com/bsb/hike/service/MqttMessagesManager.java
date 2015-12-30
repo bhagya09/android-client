@@ -688,11 +688,11 @@ public class MqttMessagesManager
                 if (mdata.has(HikePlatformConstants.CARD_OBJECT)) {
                     JSONObject cardObj = mdata.optJSONObject(HikePlatformConstants.CARD_OBJECT);
                     if (cardObj.has(HikePlatformConstants.MAPP_VERSION_CODE)) {
-                        requestedMAppVersionCode = (cardObj.optInt(HikePlatformConstants.MAPP_VERSION_CODE));
+                        requestedMAppVersionCode = cardObj.optInt(HikePlatformConstants.MAPP_VERSION_CODE);
                     }
                 }
 
-                if (mdata.has(HikePlatformConstants.MICRO_APP_MSISDN) && !TextUtils.isEmpty(microAppMsisdn)) {
+                if (mdata.has(HikePlatformConstants.MICRO_APP_MSISDN) && !TextUtils.isEmpty(mdata.optString(HikePlatformConstants.MICRO_APP_MSISDN))) {
                     microAppMsisdn = mdata.optString(HikePlatformConstants.MICRO_APP_MSISDN);
 
                     // Get info about currently active cbot
