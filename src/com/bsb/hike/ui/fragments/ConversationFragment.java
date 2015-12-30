@@ -2555,7 +2555,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 			}
 			// since getActivity() can be made null by the UI thread,
 			// hence we are posting on uiHandler, instead of using runOnUiThread on the activity
-			sendUIMessage(STEALTH_CONVERSATION_TOGGLE, null);
+			sendUIMessage(STEALTH_CONVERSATION_TOGGLE, -1);
 		}
 		else if (HikePubSub.REMOVE_TIP.equals(type))
 		{
@@ -3153,7 +3153,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 				OfflineController.getInstance().connectAsPerMsisdn((String)msg.obj);
 				break;
 			case STEALTH_CONVERSATION_TOGGLE:
-				changeConversationsVisibility(-1);
+				changeConversationsVisibility((int)msg.obj);
 				break;
 		}
 	}
