@@ -629,12 +629,7 @@ public class ChatHeadUtils
 		Set<String> currentPoll = ChatHeadUtils.getRunningAppPackage(ChatHeadUtils.GET_ALL_RUNNING_PROCESSES);
 		return currentPoll != null && !currentPoll.isEmpty() && !(currentPoll.size() == 1 && currentPoll.contains(HikeMessengerApp.getInstance().getPackageName()));
 	}
-	
-	public static boolean checkDeviceFunctionality()
-	{
-		return Utils.isIceCreamOrHigher();
-	}
-	
+
 	public static String getNameAndAddressFromNumber(Context context, String number)
 	{
 		if (number != null)
