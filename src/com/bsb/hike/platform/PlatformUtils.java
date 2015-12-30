@@ -35,6 +35,7 @@ import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.util.Pair;
 import android.webkit.MimeTypeMap;
 import android.widget.Toast;
@@ -102,6 +103,8 @@ public class PlatformUtils
 	private static final String TAG = "PlatformUtils";
 
 	private static final String BOUNDARY = "----------V2ymHFg03ehbqgZCaKO6jy";
+
+    private static final String APPS = "apps";
 
 	/**
 	 * 
@@ -1699,4 +1702,58 @@ public class PlatformUtils
 
 		return jsonObj.optString(HikeConstants.BODY);
 	}
+
+    /*
+     * method to make a post call to server with necessary params requesting for initiating cbot
+     */
+    public static void initiateCBotDownload(final String msisdn,boolean isBotEnabled)
+    {
+        // Json to send to install.json on server requesting for micro app download
+        JSONObject json = new JSONObject();
+
+        try
+        {
+            // Json object to create adding params to micro app requesting json
+            JSONObject paramsJsonObject = new JSONObject();
+            paramsJsonObject.put("enable_bot",isBotEnabled);
+
+            // Json object containing all the information required for one micro app
+            JSONObject appsJsonObject = new JSONObject();
+            appsJsonObject.put("name",msisdn);
+            appsJsonObject.put("params",paramsJsonObject);
+
+            // Put apps JsonObject in the final json
+            json.put(APPS, appsJsonObject);
+        }
+        catch (JSONException e)
+        {
+            Log.d("Json Exception :: ",e.toString());
+        }
+
+        // Code for micro app request to the server
+        RequestToken token = HttpRequests.microAppPostRequest(HttpRequestConstants.getBotDownloadUrlV2(), json, new IRequestListener()
+        {
+
+            @Override
+            public void onRequestSuccess(Response result)
+            {
+                Logger.d(TAG, "Bot download request success for " + msisdn);
+            }
+
+            @Override
+            public void onRequestProgressUpdate(float progress)
+            {
+            }
+
+            @Override
+            public void onRequestFailure(HttpException httpException)
+            {
+                Logger.v(TAG, "Bot download request failure for " + msisdn);
+            }
+        });
+        if (!token.isRequestRunning())
+        {
+            token.execute();
+        }
+    }
 }

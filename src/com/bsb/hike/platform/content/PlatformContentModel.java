@@ -52,6 +52,8 @@ public class PlatformContentModel
 
     private String msisdn = "";
 
+    private String microAppMsisdn = "";
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -410,6 +412,14 @@ public class PlatformContentModel
         this.msisdn = msisdn;
     }
 
+    public String getMicroAppMsisdn() {
+        return microAppMsisdn;
+    }
+
+    public void setMicroAppMsisdn(String microAppMsisdn) {
+        this.microAppMsisdn = microAppMsisdn;
+    }
+
     public class PlatformCardObjectModel
 	{
 
@@ -533,6 +543,16 @@ public class PlatformContentModel
 			this.notifText = notifText;
 		}
 
+        public String getMicroAppMsisdn()
+        {
+            return microAppMsisdn;
+        }
+
+        public void setMicroAppMsisdn(String microAppMsisdn)
+        {
+            this.microAppMsisdn = microAppMsisdn;
+        }
+
 		@Expose
 		public String appName;
 
@@ -580,6 +600,9 @@ public class PlatformContentModel
 
         @Expose
         public String appMarketVersion;
+
+        @Expose
+        public String microAppMsisdn;
 
         @Expose
 		public JsonArray lan_array;

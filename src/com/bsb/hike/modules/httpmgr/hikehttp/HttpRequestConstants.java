@@ -436,17 +436,19 @@ public class HttpRequestConstants
         }
     }
     /*
-     * Method to fetch latest micro app from server for forward card case
+     * Async Method to fetch latest micro app from server for forward card case
      */
-    public static String getLatestMicroAppDownloadUrl()
+    public static String getBotDownloadUrlV2()
     {
+        String suffix = "/mapps/api" + BASE_V2 + "/apps/install.json";
+
         if (isProduction)
         {
-            return HTTP + "qa-content.hike.in/mapps/api/v1/apps/latest.json";
+            return HTTPS + "mapps." + PLATFORM_PRODUCTION_API + suffix;
         }
         else
         {
-            return HTTP + "qa-content.hike.in/mapps/api/v1/apps/latest.json";
+            return HTTPS + QA_CONTENT + suffix ;
         }
     }
 }

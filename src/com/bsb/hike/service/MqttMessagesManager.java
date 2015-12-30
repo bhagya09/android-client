@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import android.os.Looper;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -25,11 +24,12 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.os.Handler;
-
+import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.util.Base64;
+import android.util.Log;
 import android.util.Pair;
 import android.widget.Toast;
 
@@ -56,8 +56,6 @@ import com.bsb.hike.filetransfer.FileTransferManager;
 import com.bsb.hike.filetransfer.FileTransferManager.NetworkType;
 import com.bsb.hike.imageHttp.HikeImageDownloader;
 import com.bsb.hike.imageHttp.HikeImageWorker;
-import com.bsb.hike.localisation.LocalLanguage;
-import com.bsb.hike.localisation.LocalLanguageUtils;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.models.ConvMessage;
@@ -65,6 +63,7 @@ import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
 import com.bsb.hike.models.ConvMessage.State;
 import com.bsb.hike.models.Conversation.BroadcastConversation;
 import com.bsb.hike.models.Conversation.Conversation;
+import com.bsb.hike.models.Conversation.ConversationTip;
 import com.bsb.hike.models.Conversation.GroupConversation;
 import com.bsb.hike.models.Conversation.OneToNConversation;
 import com.bsb.hike.models.GroupTypingNotification;
@@ -78,16 +77,11 @@ import com.bsb.hike.models.Sticker;
 import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.models.TypingNotification;
 import com.bsb.hike.models.WhitelistDomain;
-
-import com.bsb.hike.models.Conversation.BroadcastConversation;
-import com.bsb.hike.models.Conversation.Conversation;
-import com.bsb.hike.models.Conversation.ConversationTip;
-import com.bsb.hike.models.Conversation.GroupConversation;
-import com.bsb.hike.models.Conversation.OneToNConversation;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.HttpManager;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
@@ -173,8 +167,10 @@ public class MqttMessagesManager
 	private static int lastNotifPacket;
 	
 	private static final String DP_DOWNLOAD_TAG = "dp_download";
-	
-	private MqttMessagesManager(Context context)
+
+    private String TAG = "MqttMessagesManager";
+
+    private MqttMessagesManager(Context context)
 	{
 		Logger.d(getClass().getSimpleName(), "initialising MqttMessagesManager");
 		this.convDb = HikeConversationsDatabase.getInstance();
@@ -674,14 +670,46 @@ public class MqttMessagesManager
 		
 		//Logs for Msg Reliability
 		MsgRelLogManager.logMsgRelEvent(convMessage, MsgRelEventType.RECEIVER_MQTT_RECVS_SENT_MSG);
-
 		if (ContactManager.getInstance().isBlocked(convMessage.getMsisdn()))
 		{
 			//discard message since the conversation is blocked
 			return;
 		}
 
-		if (convMessage.getMessageType() == HikeConstants.MESSAGE_TYPE.WEB_CONTENT)
+        // Added logic here for forward card web view case for micro apps versioning
+		if (convMessage.getMessageType() == HikeConstants.MESSAGE_TYPE.FORWARD_WEB_CONTENT)
+		{
+            String microAppMsisdn = "";
+            int requestedMAppVersionCode = 0;
+            int currentBotInfoMAppVersionCode = 0;
+            JSONObject data = jsonObj.getJSONObject(HikeConstants.DATA);
+            if (data.has(HikeConstants.METADATA)) {
+                JSONObject mdata = data.getJSONObject(HikeConstants.METADATA);
+                if (mdata.has(HikePlatformConstants.CARD_OBJECT)) {
+                    JSONObject cardObj = mdata.optJSONObject(HikePlatformConstants.CARD_OBJECT);
+                    if (cardObj.has(HikePlatformConstants.MAPP_VERSION_CODE)) {
+                        requestedMAppVersionCode = cardObj.optInt(HikePlatformConstants.MAPP_VERSION_CODE);
+                    }
+                }
+
+                if (mdata.has(HikePlatformConstants.MICRO_APP_MSISDN) && !TextUtils.isEmpty(mdata.optString(HikePlatformConstants.MICRO_APP_MSISDN))) {
+                    microAppMsisdn = mdata.optString(HikePlatformConstants.MICRO_APP_MSISDN);
+
+                    // Get info about currently active cbot
+                    boolean isBotEnabled = BotUtils.isBot(microAppMsisdn);
+                    BotInfo currentBotInfo = BotUtils.getBotInfoForBotMsisdn(microAppMsisdn);
+
+                    if(currentBotInfo != null)
+                        currentBotInfoMAppVersionCode = currentBotInfo.getMAppVersionCode();
+
+                    // Make request to initiate cbot only if requested cbot version code is greater than current cbot version code
+                    if(requestedMAppVersionCode >  currentBotInfoMAppVersionCode)
+                        PlatformUtils.initiateCBotDownload(microAppMsisdn, isBotEnabled);
+                }
+            }
+            saveMessage(convMessage);
+		}
+		else if (convMessage.getMessageType() == HikeConstants.MESSAGE_TYPE.WEB_CONTENT)
 		{
 			downloadZipForPlatformMessage(convMessage);
 		}

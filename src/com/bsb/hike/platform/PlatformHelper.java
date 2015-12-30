@@ -1,8 +1,5 @@
 package com.bsb.hike.platform;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Handler;
@@ -28,6 +25,9 @@ import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class PlatformHelper
 {
@@ -131,6 +131,8 @@ public class PlatformHelper
 			webMetadata.put(HikePlatformConstants.TARGET_PLATFORM, metadata.getTargetPlatform());
 			webMetadata.put(HikePlatformConstants.CARD_OBJECT, cardObj);
 			webMetadata.put(HikePlatformConstants.FORWARD_CARD_OBJECT, metadata.getFwdCardObj());
+            webMetadata.put(HikePlatformConstants.MAPP_VERSION_CODE, metadata.getmAppVersionCode());
+            webMetadata.put(HikePlatformConstants.MICRO_APP_MSISDN,mBotInfo.getMsisdn());
 			ConvMessage message = PlatformUtils.getConvMessageFromJSON(webMetadata, hikeMessage, mBotInfo.getMsisdn());
 			message.setNameSpace(mBotInfo.getNamespace());
 			if (message != null)

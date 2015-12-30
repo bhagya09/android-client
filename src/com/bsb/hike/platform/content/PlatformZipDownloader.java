@@ -412,39 +412,27 @@ public class PlatformZipDownloader
 		});
 	}
 
-    /*
-     * Method to make a synchronous call to server for forward card scenario to fetch latest micro app or trigger a cbot based on device compatibility
-     */
-    private String syncLatestMicroAppUrlFromServer(boolean scenario) {
-
-        if(scenario)
-            return "https://s3-ap-southeast-1.amazonaws.com/platform-qa-segments/micro-apps/newsapp/newsv101.zip";
-
-        return "";
-
-    }
-
-    /*
-     * Method to determine and create intermediate directories for the unzip path according to the hierarchical structure determined after the new versioning structure
-     */
+	/*
+	 * Method to determine and create intermediate directories for the unzip path according to the hierarchical structure determined after the new versioning structure
+	 */
 	private String getUnZipPath()
 	{
 		String unzipPath = PlatformUtils.getMicroAppContentRootFolder() + PlatformContentConstants.TEMP_DIR_NAME + File.separator;
 
-        // To determine the path for unzipping zip files based on request type
+		// To determine the path for unzipping zip files based on request type
 		switch (mRequest.getRequestType())
 		{
 		case HikePlatformConstants.PlatformMappRequestType.HIKE_MICRO_APPS:
 			break;
 		case HikePlatformConstants.PlatformMappRequestType.ONE_TIME_POPUPS:
 			unzipPath += PlatformContentConstants.HIKE_ONE_TIME_POPUPS;
-            break;
+			break;
 		case HikePlatformConstants.PlatformMappRequestType.NATIVE_APPS:
 			unzipPath += PlatformContentConstants.HIKE_GAMES;
-            break;
+			break;
 		case HikePlatformConstants.PlatformMappRequestType.HIKE_MAPPS:
 			unzipPath += PlatformContentConstants.HIKE_MAPPS;
-            break;
+			break;
 		}
 
 		return unzipPath;

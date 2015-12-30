@@ -263,6 +263,8 @@ public interface HikePlatformConstants
 	public static final String BOT_LATEST_VERSION = "latest_version";
 	
 	public static final String MSISDN = "msisdn";
+
+    public static final String MICRO_APP_MSISDN = "microAppMsisdn";
 	
 	public static final String BOT_NAME = "name";
 	
