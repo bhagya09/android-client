@@ -399,7 +399,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 				// Delete fixed table: TABLE_STICKER_TAG_MAPPING
 				mDb.delete(HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING, null, null);
 
-				// Delete fixed table: TABLE_STICKER_TAG_MAPPING
+				// Delete fixed table: TABLE_STICKER_TAG_ENTITY
 				mDb.delete(HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_ENTITY, null, null);
 			}
 			SQLiteDatabase.releaseMemory();
