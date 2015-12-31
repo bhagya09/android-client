@@ -24,6 +24,8 @@ public class StickerSearchConstants
 
 	public static final int STATE_LANGUAGE_TAGS_DOWNLOAD = 2;
 
+	public static final int STATE_UNDOWNLOADED_TAGS_DOWNLOAD = 3;
+
 	public static final int DECISION_STATE_NO = 0;
 
 	public static final int DECISION_STATE_YES = 1;

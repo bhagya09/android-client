@@ -764,4 +764,9 @@ public class StickerSearchManager
 
 		_instance = null;
 	}
+
+	public void downloadUndownloadedTags()
+	{
+		StickerSearchManager.getInstance().downloadStickerTags(true, StickerSearchConstants.STATE_UNDOWNLOADED_TAGS_DOWNLOAD, StickerLanguagesManager.getInstance().getLanguageSet(StickerLanguagesManager.DOWNLOADING_LANGUAGE_SET_TYPE));
+	}
 }

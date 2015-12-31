@@ -78,8 +78,16 @@ public class InitiateStickerTagDownloadTask implements Runnable
 			}
 			return ;
 		}
-		
-		StickerTagDownloadTask stickerTagDownloadTask = new StickerTagDownloadTask(stickerSet, state, languagesSet);
-		stickerTagDownloadTask.execute();
+		if(state == StickerSearchConstants.STATE_UNDOWNLOADED_TAGS_DOWNLOAD)
+		{
+			UndownloadedTagsDownloadTask task = new UndownloadedTagsDownloadTask(stickerSet,languagesSet);
+			task.execute();
+		}
+		else
+		{
+			StickerTagDownloadTask stickerTagDownloadTask = new StickerTagDownloadTask(stickerSet, state, languagesSet);
+			stickerTagDownloadTask.execute();
+		}
+
 	}
 }

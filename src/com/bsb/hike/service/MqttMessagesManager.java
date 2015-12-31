@@ -1217,7 +1217,7 @@ public class MqttMessagesManager
 	 * 
 	 * <p>
 	 * In group conversation since we receive mr for messages sent by others also we have to first check whether the list of ids present in mr belongs to our conversation or not. <br>
-	 * We call {@link HikeConversationsDatabase#getMrIdForGroup(String, long[])} passing groupId and ids as arguments.</br> It will return max id from list if it belongs to this
+	 * We call {@link HikeConversationsDatabase #getMrIdForGroup(String, long[])} passing groupId and ids as arguments.</br> It will return max id from list if it belongs to this
 	 * conversation else it will return -1.
 	 * <li>if id returned is less than that already present in first field we simply return</li>
 	 * <li>if equals we have to participant msisdn to set</li>
@@ -2719,17 +2719,21 @@ public class MqttMessagesManager
 		if (data.has(HikeConstants.AUTOCORRECT_KEYBOARD_ENABLED))
 		{
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.AUTOCORRECT_KEYBOARD_ENABLED, data.optBoolean(HikeConstants.AUTOCORRECT_KEYBOARD_ENABLED));
-			KptKeyboardManager.getInstance(HikeMessengerApp.getInstance().getApplicationContext()).getKptSettings().setAutoCorrectionState(data.optBoolean(HikeConstants.AUTOCORRECT_KEYBOARD_ENABLED) ? 0: 1);
+			KptKeyboardManager.getInstance(HikeMessengerApp.getInstance().getApplicationContext()).getKptSettings().setAutoCorrectionState(data.optBoolean(HikeConstants.AUTOCORRECT_KEYBOARD_ENABLED) ? 0 : 1);
 		}
 		if (data.has(HikeConstants.CUSTOM_KEYBOARD_ENABLED))
 		{
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CUSTOM_KEYBOARD_ENABLED,data.optBoolean(HikeConstants.CUSTOM_KEYBOARD_ENABLED));
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CUSTOM_KEYBOARD_ENABLED, data.optBoolean(HikeConstants.CUSTOM_KEYBOARD_ENABLED));
 		}
         if (data.has(HikeConstants.HTTP_NETWORK_CHECK_CALL))
         {
             boolean enable = data.getBoolean(HikeConstants.HTTP_NETWORK_CHECK_CALL);
             HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.HTTP_NETWORK_CHECK_CALL, enable);
         }
+		if(data.has(HikeConstants.STICKER_UNDOWNLOADED_TAG_TRIGGER))
+		{
+			StickerSearchManager.getInstance().downloadUndownloadedTags();
+		}
 		
 		editor.commit();
 		this.pubSub.publish(HikePubSub.UPDATE_OF_MENU_NOTIFICATION, null);

@@ -961,5 +961,22 @@ public class HttpRequests
 
 	}
 
+	public static RequestToken getUndownloadedTagsRequest(String requestId,IRequestListener requestListener, JSONObject json )
+	{
+		JsonBody body = new JsonBody(json);
+
+		RequestToken requestToken = new JSONObjectRequest.Builder()
+				.setId(requestId)
+				.setUrl(getStickerTagsUrl())
+				.setRequestListener(requestListener)
+				.setRequestType(REQUEST_TYPE_LONG)
+				.post(body)
+				.setPriority(PRIORITY_HIGH)
+				.build();
+
+		requestToken.getRequestInterceptors().addLast("gzip", new GzipRequestInterceptor());
+		return requestToken;
+	}
+
 
 }
