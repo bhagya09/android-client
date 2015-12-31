@@ -2566,7 +2566,9 @@ public class HikeConstants
 		
 		public static final String KEYBOARD_LANGUAGE_UNSUPPORTED_EVENT = "lng_uns";
 
+		public static final String APP_LANGUAGE_DIALOG_OPEN_EVENT = "app_lng_dlg";
 	}
+
 	public static final class Toast
 	{
 		public static final String TOAST_MESSAGE = "t_msg";
