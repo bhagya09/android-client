@@ -10,6 +10,8 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.modules.kpt.KptKeyboardManager;
+import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchBaseConstants;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 
@@ -138,5 +140,42 @@ public class StickerSearchUtils
 		}
 
 		return StickerSearchConstants.DEFAULT_KEYBOARD_LANGUAGE_ISO_CODE;
+	}
+
+	public static int getTagCacheLimit(int tagType)
+	{
+		HikeSharedPreferenceUtil prefs = HikeSharedPreferenceUtil.getInstance();
+
+		if (prefs == null)
+		{
+			return StickerSearchConstants.DEFAULT_STICKER_CACHE_LIMIT;
+		}
+
+
+		switch(tagType)
+		{
+			case StickerSearchConstants.STATE_UNDOWNLOADED_TAGS_DOWNLOAD:
+				return prefs.getData(HikeStickerSearchBaseConstants.KEY_PREF_UNDOWNLOADED_CACHE_LIMIT, StickerSearchConstants.DEFAULT_STICKER_CACHE_LIMIT);
+		}
+
+		return StickerSearchConstants.DEFAULT_STICKER_CACHE_LIMIT;
+	}
+
+	public static int getUndownloadedTagsCount()
+	{
+		HikeSharedPreferenceUtil prefs = HikeSharedPreferenceUtil.getInstance();
+
+		if (prefs == null)
+		{
+			return StickerSearchConstants.DEFAULT_STICKER_CACHE_LIMIT;
+		}
+
+
+		return prefs.getData(HikeStickerSearchBaseConstants.KEY_PREF_UNDOWNLOADED_TAG_COUNT, 0);
+	}
+
+	public static boolean tagCacheLimitReached(int tagType)
+	{
+		return getUndownloadedTagsCount() - getTagCacheLimit( tagType)>0;
 	}
 }

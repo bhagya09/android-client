@@ -245,6 +245,10 @@ public class HikeStickerSearchBaseConstants
 
 	public static final String KEY_PREF_STICKER_SEARCH_VT_TABLES_LIST = "virtualTableList";
 
+	public static final String KEY_PREF_UNDOWNLOADED_CACHE_LIMIT = "ud_t_c_l";
+
+	public static final String KEY_PREF_UNDOWNLOADED_TAG_COUNT= "ud_t_c";
+
 	// ==============================================Constants used in shared_pref or system_db]]
 
 	// Constants used for coding of time moments===============================================[[

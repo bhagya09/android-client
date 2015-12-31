@@ -205,4 +205,6 @@ public class StickerSearchConstants
 
 	public static final int REMOVAL_BY_EXCLUSION_IN_EXISTING_STCIKERS = 2;
 	// =================Constants used for removing tags for given stickers/ stickers excluded in currently available stickers]]
+
+	public static final int DEFAULT_STICKER_CACHE_LIMIT = 100;
 }
