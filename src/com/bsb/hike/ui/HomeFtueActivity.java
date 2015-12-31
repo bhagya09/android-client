@@ -69,9 +69,23 @@ public class HomeFtueActivity extends HikeAppStateBaseFragmentActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.home_ftue);
         setUpView();
+        SendLogsForAppLangFtueShown();
         showNextFtue();
     }
 
+    private void SendLogsForAppLangFtueShown()
+    {
+    	try
+		{
+			JSONObject metadata = new JSONObject();
+			metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.APP_LANGUAGE_FTUE_SHOWN_EVENT);
+			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
+		}
+		catch(JSONException e)
+		{
+			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json : " + e);
+		}
+    }
 
     private void setUpView() {
         setupActionBar();
