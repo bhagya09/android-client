@@ -33,7 +33,7 @@ public class CustomWebView extends WebView
 
 	private boolean isDestroyed = false;
 
-	private static boolean applyWhiteScreenFix = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.WHITE_SCREEN_FIX, false);
+	private static boolean applyWhiteScreenFix = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.WHITE_SCREEN_FIX, true);
 
 	private String javaScriptInterface;
 
