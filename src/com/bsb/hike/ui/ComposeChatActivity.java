@@ -2614,6 +2614,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 						CheckBox cb = (CheckBox) selectAllCont.findViewById(R.id.select_all_cb);
 						cb.setChecked(true);
 						selectAllMode=true;
+						getIntent().putExtra(HikeConstants.Extras.SELECT_ALL_INITIALLY, false);
 					}
 				}
 			}
