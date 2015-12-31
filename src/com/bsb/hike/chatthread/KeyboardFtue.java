@@ -211,6 +211,7 @@ public class KeyboardFtue implements HikePubSub.Listener
         flipper.setDisplayedChild(1);
         refreshActionPanel();
         setupLanguageList();
+        trackClickAnalyticEvents(HikeConstants.LogEvent.KEYBOARD_FTUE_LANG_LIST_SCREEN);
         flipper.findViewById(R.id.btn_negative).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -233,6 +234,7 @@ public class KeyboardFtue implements HikePubSub.Listener
         if (flipper.getDisplayedChild() == 2)
             return;
         flipper.setDisplayedChild(2);
+        trackClickAnalyticEvents(HikeConstants.LogEvent.KEYBOARD_FTUE_SWIPE_SCREEN);
         flipper.findViewById(R.id.langauage_layout).setOnTouchListener(onSwipeTouchListener);
         flipper.findViewById(R.id.langauage_layout).setOnClickListener(new View.OnClickListener() {
             @Override

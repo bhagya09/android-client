@@ -2569,6 +2569,10 @@ public class HikeConstants
 		public static final String APP_LANGUAGE_DIALOG_OPEN_EVENT = "app_lng_dlg";
 		
 		public static final String APP_LANGUAGE_FTUE_SHOWN_EVENT = "app_lng_ftue";
+		
+		public static final String KEYBOARD_FTUE_LANG_LIST_SCREEN = "kbd_ftue_sc_2";
+		
+		public static final String KEYBOARD_FTUE_SWIPE_SCREEN = "kbd_ftue_sc_3";
 	}
 
 	public static final class Toast
