@@ -206,7 +206,7 @@ public class HomeFtueActivity extends HikeAppStateBaseFragmentActivity {
                                 }
                                 selectedLocalLanguage = list.get(which);
                                 languageText.setText(selectedLocalLanguage.getDisplayName());
-                                LocalLanguageUtils.setApplicationLocalLanguage(selectedLocalLanguage);
+                                LocalLanguageUtils.setApplicationLocalLanguage(selectedLocalLanguage, HikeConstants.APP_LANG_CHANGED_FTUE);
                                 Utils.sendLocaleToServer();
                                 // Relaunching the Activity
                                 IntentFactory.openHomeFtueActivity(HomeFtueActivity.this);

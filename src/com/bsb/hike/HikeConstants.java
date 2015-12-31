@@ -2573,6 +2573,8 @@ public class HikeConstants
 		public static final String KEYBOARD_FTUE_LANG_LIST_SCREEN = "kbd_ftue_sc_2";
 		
 		public static final String KEYBOARD_FTUE_SWIPE_SCREEN = "kbd_ftue_sc_3";
+		
+		public static final String APP_LANGUAGE_CHANGED_EVENT = "ap_l_chg";
 	}
 
 	public static final class Toast
@@ -3745,7 +3747,7 @@ public class HikeConstants
 	public static final String PHONE_LANGUAGE = "ph_l";
 
 	public static final String APP_LANGUAGE = "ap_l";
-
+	
 	public static final String KEYBOARD_LANGUAGE = "z";
 
 	public static final String LANG_ARRAY = "lan_array";
@@ -3757,5 +3759,15 @@ public class HikeConstants
 	public static final String CT_OVRFLW_KEYBOARD_CLICKED = "ct_ovrflw_keyboard_clicked";
 
 	public static final String CUSTOM_KEYBOARD_SUPPORTED = "custom_key_supported";
+
+	public static final String APP_LANGUAGE_CHANGE_SOURCE = "ap_l_s";
+
+	public static final String APP_LANG_CHANGED_DEL_ACC = "d_a";
+	
+	public static final String APP_LANG_CHANGED_SETTINGS = "stg";
+	
+	public static final String APP_LANG_CHANGED_FTUE = "ap_f";
+	
+	public static final String APP_LANG_CHANGED_SERVER_SWITCH = "serv";
 
 }
