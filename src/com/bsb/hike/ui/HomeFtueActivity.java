@@ -171,9 +171,25 @@ public class HomeFtueActivity extends HikeAppStateBaseFragmentActivity {
                     KptKeyboardManager.getInstance().downloadAndInstallLanguage(selectedLocalLanguage.getLocale(), HikeConstants.KEYBOARD_LANG_DWNLD_APP_FTUE);
                 }
             }
+            addAnalyticsForDoneButton();
             showNextFtue();
         }
     }
+    
+    private void addAnalyticsForDoneButton() {
+    	try
+		{
+			JSONObject metadata = new JSONObject();
+			metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.APP_FTUE_DONE_BTN);
+			metadata.put(HikeConstants.APP_LANGUAGE, LocalLanguageUtils.getApplicationLocalLanguageLocale());
+			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
+		}
+		catch(JSONException e)
+		{
+			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json : " + e);
+		}
+    }
+    
     private void showLocalizationFtue() {
         flipper.setDisplayedChild(LOCALIZATION);
         final TextView languageText = (TextView) flipper.findViewById(R.id.txt_lang);

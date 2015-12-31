@@ -2575,6 +2575,8 @@ public class HikeConstants
 		public static final String KEYBOARD_FTUE_SWIPE_SCREEN = "kbd_ftue_sc_3";
 		
 		public static final String APP_LANGUAGE_CHANGED_EVENT = "ap_l_chg";
+
+		public static final Object APP_FTUE_DONE_BTN = "ap_ft_d";
 	}
 
 	public static final class Toast
