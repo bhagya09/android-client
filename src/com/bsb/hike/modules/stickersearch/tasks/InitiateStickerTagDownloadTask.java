@@ -3,6 +3,7 @@ package com.bsb.hike.modules.stickersearch.tasks;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerTagDownloadTask;
+import com.bsb.hike.modules.stickerdownloadmgr.UndownloadedTagsDownloadTask;
 import com.bsb.hike.modules.stickersearch.StickerLanguagesManager;
 import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
 import com.bsb.hike.utils.Logger;

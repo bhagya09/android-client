@@ -6,18 +6,6 @@
 
 package com.bsb.hike.modules.stickersearch.provider.db;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Random;
-import java.util.Set;
-
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -30,14 +18,28 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
+import com.bsb.hike.modules.stickersearch.StickerSearchUtils;
 import com.bsb.hike.modules.stickersearch.datamodel.StickerAppositeDataContainer;
 import com.bsb.hike.modules.stickersearch.datamodel.StickerTagDataContainer;
 import com.bsb.hike.modules.stickersearch.provider.StickerSearchUtility;
+import com.bsb.hike.tasks.GetHikeJoinTimeTask;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.utils.Utils.ExecutionDurationLogger;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Random;
+import java.util.Set;
 
 public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 {
@@ -434,6 +436,22 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 
 		HikeSharedPreferenceUtil.getInstance(HikeStickerSearchBaseConstants.SHARED_PREF_STICKER_DATA).removeData(
 				HikeStickerSearchBaseConstants.KEY_PREF_STICKER_SEARCH_VT_TABLES_LIST);
+	}
+
+	public void insertStickerTagData(Map<String, ArrayList<String>> packStoryData, ArrayList<StickerTagDataContainer> stickersTagData,int state)
+	{
+		switch(state)
+		{
+			case StickerSearchConstants.STATE_UNDOWNLOADED_TAGS_DOWNLOAD:
+				break;
+
+			case StickerSearchConstants.STATE_STICKER_DATA_REFRESH:
+			case StickerSearchConstants.STATE_LANGUAGE_TAGS_DOWNLOAD:
+			default:
+				insertStickerTagData(packStoryData,stickersTagData);
+				break;
+
+		}
 	}
 
 	public void insertStickerTagData(Map<String, ArrayList<String>> packStoryData, ArrayList<StickerTagDataContainer> stickersTagData)
@@ -2120,5 +2138,48 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		}
 
 		return true;
+	}
+
+	public ArrayList<StickerAppositeDataContainer> getUndownloadedStickersList()
+	{
+
+		Cursor c = null;
+
+		ArrayList<StickerAppositeDataContainer> resultSet = new ArrayList<>()
+
+		try
+		{
+			c = mDb.query(HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING, new String[] { HikeStickerSearchBaseConstants.STICKER_RECOGNIZER_CODE,
+					HikeStickerSearchBaseConstants.STICKER_ATTRIBUTE_AGE,
+					HikeStickerSearchBaseConstants.STICKER_OVERALL_FREQUENCY }, null, null, null, null, HikeStickerSearchBaseConstants.STICKER_ATTRIBUTE_AGE
+					+ HikeStickerSearchBaseConstants.SYNTAX_DESCENDING, String.valueOf(StickerSearchUtils.getTagCacheLimit(StickerSearchConstants.STATE_UNDOWNLOADED_TAGS_DOWNLOAD)));
+
+			int rowCount = (c == null) ? 0 : c.getCount();
+
+			if (rowCount > 0)
+			{
+				int stickerIdIndex = c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_RECOGNIZER_CODE);
+				int ageIndex = c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_ATTRIBUTE_AGE);
+				int compositeFrequencyIndex = c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_OVERALL_FREQUENCY);
+
+				while (c.moveToNext())
+				{
+
+					String stickerCode = c.getString(stickerIdIndex);
+					int stickertagAge = c.getInt(ageIndex);
+
+					StickerAppositeDataContainer temp = new StickerAppositeDataContainer()
+				}
+			}
+		}
+		finally
+		{
+			if (c != null)
+			{
+				c.close();
+				c = null;
+			}
+			SQLiteDatabase.releaseMemory();
+		}
 	}
 }
