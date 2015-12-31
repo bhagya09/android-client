@@ -3470,6 +3470,8 @@ public class HikeConstants
 
 	public static final String STICKER_AUTO_RECOMMENDATION_REJECTION_PATTERN_COUNT_TILL_NOW = "sarrpct"; // integer
 
+	public static final String STICKER_UNDOWNLOADED_TAG_TRIGGER = "sudtt";
+
 	public static final String CHAT_SEARCH_ENABLED = "cts_e";
 
 	public static final String CALLBACK_ID = "callbackid";
