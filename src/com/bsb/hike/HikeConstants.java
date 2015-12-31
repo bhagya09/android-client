@@ -2548,6 +2548,8 @@ public class HikeConstants
 
 		public static final String KEYBOARD_INIT_ERROR = "kbd_init_err";
 
+		public static final String HIKE_DIRECT_OVRFL_CLK = "hike_dir";
+
 	}
 	public static final class Toast
 	{
@@ -3611,8 +3613,6 @@ public class HikeConstants
 
 	// =========================================================================================Constants for sticker search]]
 
-	public static final String AG_ENABLED = "agLogs";
-	
 	public static final String PLATFORM_PACKET = "pt";
 	
 	public static final String TAG = "Tag";
