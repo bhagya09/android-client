@@ -480,6 +480,18 @@ public final class DiskLruCache implements Closeable
 		}
 	}
 
+	public synchronized boolean isKeyExists(String key) throws IOException
+	{
+		initialize();
+
+		checkNotClosed();
+		validateKey(key);
+		Entry entry = lruEntries.get(key);
+		if (entry == null || !entry.readable)
+			return false;
+		return true;
+	}
+
 	/**
 	 * Returns a snapshot of the entry named {@code key}, or null if it doesn't exist is not currently readable. If a value is returned, it is moved to the head of the LRU queue.
 	 */
