@@ -77,7 +77,7 @@ public class InitiateMultiFileTransferTask extends AsyncTask<Void, Void, Void>
 
 	private void initiateFileTransferFromIntentData(FileTransferData fileTransferData)
 	{
-		HikeFileType hikeFileType = HikeFileType.fromString(fileTransferData.fileType, false);
+		HikeFileType hikeFileType = HikeFileType.fromString(fileTransferData.fileType.toLowerCase(), false);
 
 		if (OfflineUtils.isConnectedToSameMsisdn(msisdn))
 		{
