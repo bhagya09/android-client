@@ -38,6 +38,8 @@ public class HostInfo
 	List<Integer> serverPorts = null;
 
 	private ConnectExceptions exceptionOnConnect = ConnectExceptions.NO_EXCEPTION;
+
+    private int exceptionCount = 0;
 	
 	public HostInfo(HostInfo previousHostInfo, List<String> serverURIs, List<Integer> serverPorts)
 	{
@@ -54,6 +56,8 @@ public class HostInfo
 		//We need to do it when port is decided for the host
 		setConnectTimeOut(previousHostInfo, this.getPort(), isSslOn);
 		setProtocol(this.getPort());
+
+        setExceptionCount(previousHostInfo);
 	}
 
 	private int getConnectRetryCount()
@@ -336,5 +340,23 @@ public class HostInfo
 		return " Protocol : "+protocol + " Host : " + host + " Port : "+ port + " connectTimeOut : " + connectTimeOut 
 				+ " connectRetryCount : "+ connectRetryCount  + " exceptionOnConnect : "+exceptionOnConnect;
 	}
+
+    private void setExceptionCount(HostInfo previousHostInfo)
+    {
+        if(previousHostInfo != null)
+        {
+            this.exceptionCount = previousHostInfo.getExceptionCount();
+        }
+    }
+
+    public int getExceptionCount()
+    {
+        return exceptionCount;
+    }
+
+    public void increaseExceptionCount()
+    {
+        exceptionCount++;
+    }
 
 }

@@ -3,8 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bsb.hike"
     android:installLocation="auto"
-    android:versionCode="1570"
-    android:versionName="4.1.0" >
+    android:versionCode="1574"
+    android:versionName="4.1.0.23" >
 
     <uses-sdk
         android:minSdkVersion="14"
@@ -553,50 +553,7 @@
                 <action android:name="com.bsb.cancel" />
             </intent-filter>
         </receiver>
-        
-        <!-- ag starts -->
-        <receiver
-            android:name="jp.co.agoop.networkconnectivity.lib.service.AlarmReceiver"
-            android:exported="false" >
 
-            <!-- Weight setting -->
-            <meta-data
-                android:name="weight"
-                android:value="970" />
-
-            <intent-filter>
-                <action android:name="jp.co.agoop.networkconnectivity.ACT_START_ALARM" />
-            </intent-filter>
-        </receiver>
-        
-        <receiver
-            android:name=".ag.NetworkAgModule">
-		    <intent-filter>
-		        <action android:name="android.intent.action.BOOT_COMPLETED" />
-		    </intent-filter>
-		    <intent-filter>
-		        <action android:name="android.intent.action.PACKAGE_REPLACED" />
-		        <data android:scheme="package" />
-		    </intent-filter>
-        </receiver>
-        
-        <!-- ContentProvider -->
-        <provider
-            android:name="com.bsb.hike.ag.NetworkAgProvider"
-            android:authorities="@string/ag_authority"
-            android:exported="true" />
-        <!-- ag -->
-        
-        <receiver
-            android:name="com.bsb.hike.notifications.PersNotifClickReceiver" >
-            <intent-filter>
-                <action android:name="com.bsb.hike.PERS_NOTIF_ALARM_INTENT"/>
-            </intent-filter>
-            <intent-filter>
-                <action android:name="com.bsb.hike.PERS_NOTIF_URL_INTENT"/>
-            </intent-filter>
-        </receiver>
-        
 </application>
 
 </manifest>
