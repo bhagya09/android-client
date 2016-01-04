@@ -14,8 +14,7 @@
         android:background="#000000"
         custom:fixAspectRatio="false"
         custom:guidelines="on"
-        custom:scaleType="fitCenter"
-        custom:imageResource="@drawable/bg_ct_beach_2" />
+        custom:scaleType="fitCenter" />
 
     <com.bsb.hike.view.CustomFontEditText
         android:id="@+id/et_caption"
