@@ -1783,6 +1783,7 @@ import android.widget.Toast;
 	{
 		if (mShareablePopupLayout.isShowing())
 		{
+			unhideKeyboardViewBehindPopup();
 			mShareablePopupLayout.dismiss();
 			return;
 		}
