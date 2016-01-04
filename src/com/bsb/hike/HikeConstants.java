@@ -2561,6 +2561,8 @@ public class HikeConstants
 
 		public static final String KEYBOARD_INIT_ERROR = "kbd_init_err";
 
+		public static final String HIKE_DIRECT_OVRFL_CLK = "hike_dir";
+
 	}
 	public static final class Toast
 	{
@@ -3624,8 +3626,6 @@ public class HikeConstants
 
 	// =========================================================================================Constants for sticker search]]
 
-	public static final String AG_ENABLED = "agLogs";
-	
 	public static final String PLATFORM_PACKET = "pt";
 	
 	public static final String TAG = "Tag";
@@ -3744,5 +3744,7 @@ public class HikeConstants
 	public static final String CT_OVRFLW_KEYBOARD_CLICKED = "ct_ovrflw_keyboard_clicked";
 
 	public static final String CUSTOM_KEYBOARD_SUPPORTED = "custom_key_supported";
+
+	public static final String WHITE_SCREEN_FIX = "w_s_f";
 
 }
