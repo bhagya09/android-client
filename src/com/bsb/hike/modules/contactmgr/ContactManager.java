@@ -1282,7 +1282,6 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 		if (null != allMsisdns)
 		{
 			// at least one msisdn is required to run this in query
-			Logger.d("##Rashmi ##allMsisdns.size():   ",allMsisdns.size()+"");
 			if (fetchParticipants && allMsisdns.size() > 0)
 			{
 				List<ContactInfo> list = new ArrayList<ContactInfo>();
@@ -1349,7 +1348,6 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 			transientCache.insertGroupParticipants(groupId, groupParticipantsMap);
 
 		List<PairModified<GroupParticipant, String>> groupParticipantsList = new ArrayList<PairModified<GroupParticipant, String>>(groupParticipantsMap.values());
-		Logger.d("##Rashmi ##groupParticipantsList:   ",groupParticipantsList.size()+"");
 		return groupParticipantsList;
 	}
 
