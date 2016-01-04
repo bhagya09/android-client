@@ -11,6 +11,8 @@ import java.io.File;
 import java.util.List;
 
 /**
+ * This class mimics {@link android.database.DefaultDatabaseErrorHandler} which can't be extended because it's a final class.
+ *
  * /** Default class used to define the actions to take when the database corruption is reported by sqlite.
  * <p>
  * An application can specify an implementation of {@link DatabaseErrorHandler} on the following:
