@@ -459,6 +459,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		HikeMessengerApp.getPubSub().removeListeners(this, pubsub);
 		if(webView!=null)
 		{
+			webView.stopLoading();
 			webView.onActivityDestroyed();
 		}
 		
@@ -733,7 +734,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 			@Override
 			public void onComplete(PlatformContentModel content)
 			{
-				if(null != content)
+				if(null != webView && null != content)
 				{
 					webView.loadMicroAppData(content.getFormedData());
 				}
