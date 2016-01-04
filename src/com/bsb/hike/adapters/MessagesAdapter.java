@@ -3931,6 +3931,8 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 
 		private Sensor proximitySensor;
 
+		private boolean proximitySensorExists;
+
 		private AudioManager audioManager;
 
 		private float proximitySensorMaxRange;
@@ -3945,7 +3947,13 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			initialAudioMode = audioManager.getMode();
 			sensorManager = (SensorManager) mActivity.getSystemService(Context.SENSOR_SERVICE);
 			proximitySensor = sensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
-			proximitySensorMaxRange = proximitySensor.getMaximumRange();
+
+			if (proximitySensor == null) {
+				proximitySensorExists = false;
+			} else {
+				proximitySensorExists = true;
+				proximitySensorMaxRange = proximitySensor.getMaximumRange();
+			}
 		}
 
 		public void playMessage(HikeFile hikeFile)
@@ -3965,7 +3973,6 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 
 				setFileBtnResource();
 
-				sensorManager.registerListener(VoiceMessagePlayer.this, proximitySensor, SensorManager.SENSOR_DELAY_NORMAL);
 				mediaPlayer.setOnCompletionListener(new OnCompletionListener()
 				{
 					@Override
@@ -3975,6 +3982,9 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 					}
 				});
 				handler.post(updateTimer);
+
+				if (proximitySensorExists)
+					sensorManager.registerListener(VoiceMessagePlayer.this, proximitySensor, SensorManager.SENSOR_DELAY_NORMAL);
 			}
 			catch (IllegalArgumentException e)
 			{
@@ -4001,7 +4011,8 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			mediaPlayer.pause();
 			setTimer();
 			setFileBtnResource();
-			sensorManager.unregisterListener(VoiceMessagePlayer.this);
+			if (proximitySensorExists)
+				sensorManager.unregisterListener(VoiceMessagePlayer.this);
 		}
 
 		public void resumePlayer()
@@ -4015,7 +4026,9 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			mediaPlayer.start();
 			handler.post(updateTimer);
 			setFileBtnResource();
-			sensorManager.registerListener(VoiceMessagePlayer.this, proximitySensor, SensorManager.SENSOR_DELAY_NORMAL);
+
+			if (proximitySensorExists)
+				sensorManager.registerListener(VoiceMessagePlayer.this, proximitySensor, SensorManager.SENSOR_DELAY_NORMAL);
 		}
 
 		public void resetPlayer()
@@ -4037,7 +4050,8 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			durationTxt = null;
 			durationProgress = null;
 
-			sensorManager.unregisterListener(VoiceMessagePlayer.this);
+			if (proximitySensorExists)
+				sensorManager.unregisterListener(VoiceMessagePlayer.this);
 			audioManager.setMode(initialAudioMode);
 		}
 
