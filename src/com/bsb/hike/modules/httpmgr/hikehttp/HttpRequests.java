@@ -1007,15 +1007,17 @@ public class HttpRequests
 		return requestToken;
 	}
 
-	public static RequestToken verifyMd5(String fileMd5, IRequestListener requestListener)
+	public static RequestToken verifyMd5(long msgId, IRequestListener requestListener, IRequestInterceptor initFileUploadInterceptor)
 	{
 		RequestToken requestToken = new ByteArrayRequest.Builder()
-				.setUrl(getFastFileUploadBaseUrl() + fileMd5)
+				.setUrl(getFastFileUploadBaseUrl())  // url is changed in interceptor processing as we calculate md5 of file in interceptor
+				.setId(String.valueOf(msgId))
 				.setRequestType(REQUEST_TYPE_SHORT)
 				.setRequestListener(requestListener)
 				.head()
 				.setRetryPolicy(new BasicRetryPolicy(3, 0, 1))
 				.build();
+		requestToken.getRequestInterceptors().addFirst("initFileUpload", initFileUploadInterceptor);
 		return requestToken;
 	}
 

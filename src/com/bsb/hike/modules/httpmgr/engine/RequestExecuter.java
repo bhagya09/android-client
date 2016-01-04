@@ -86,10 +86,14 @@ public class RequestExecuter
 	private void preProcess()
 	{
 		LogFull.d("Pre-processing started for " + request.toString());
-		RequestFacade requestFacade = new RequestFacade(request);
-		Iterator<IRequestInterceptor> iterator = requestFacade.getRequestInterceptors().iterator();
-		RequestInterceptorChain chain = new RequestInterceptorChain(iterator, requestFacade);
-		chain.proceed();
+		try {
+			RequestFacade requestFacade = new RequestFacade(request);
+			Iterator<IRequestInterceptor> iterator = requestFacade.getRequestInterceptors().iterator();
+			RequestInterceptorChain chain = new RequestInterceptorChain(iterator, requestFacade);
+			chain.proceed();
+		} catch (Exception ex) {
+			listener.onResponse(null, new HttpException(ex)); // sending failure
+		}
 		/**
 		 * This is to handle the case in which one of interceptor in the pipeline do not chain.proceed() then we have to clear request and response objects and also remove this
 		 * request from map
@@ -394,7 +398,7 @@ public class RequestExecuter
 		}
 
 		@Override
-		public void proceed()
+		public void proceed() throws Exception
 		{
 			if (iterator.hasNext())
 			{

@@ -27,6 +27,7 @@ import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
+import com.bsb.hike.modules.httpmgr.interceptor.IRequestInterceptor;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.utils.FileTransferCancelledException;
@@ -46,8 +47,11 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getFastFileUploadBaseUrl;
 
 public class UploadFileTask extends FileTransferBase
 {
@@ -140,37 +144,7 @@ public class UploadFileTask extends FileTransferBase
 					}
 				}
 
-				try
-				{
-					initFileUpload(true);
-				}
-				catch (FileTransferCancelledException e)
-				{
-					e.printStackTrace();
-					// FTAnalyticEvents.logDevException(FTAnalyticEvents.UPLOAD_FILE_OPERATION, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "file", "UPLOAD_FAILED - ", e);
-					Toast.makeText(context, R.string.upload_failed, Toast.LENGTH_SHORT).show();
-				}
-				catch (FileNotFoundException e)
-				{
-					e.printStackTrace();
-					// FTAnalyticEvents.logDevException(FTAnalyticEvents.UPLOAD_FILE_OPERATION, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "file", "UPLOAD_FAILED - ", e);
-					Toast.makeText(context, R.string.card_unmount, Toast.LENGTH_SHORT).show();
-				}
-				catch (Exception e)
-				{
-					e.printStackTrace();
-					Logger.e(getClass().getSimpleName(), "Exception", e);
-					if (FileTransferManager.READ_FAIL.equals(e.getMessage()))
-					{
-						// FTAnalyticEvents.logDevException(FTAnalyticEvents.UPLOAD_FILE_OPERATION, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "file", "READ_FAIL - ", e);
-						Toast.makeText(context, R.string.unable_to_read, Toast.LENGTH_SHORT).show();
-					}
-					else if (FileTransferManager.UNABLE_TO_DOWNLOAD.equals(e.getMessage()))
-					{
-						// FTAnalyticEvents.logDevException(FTAnalyticEvents.UPLOAD_FILE_OPERATION, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "file", "DOWNLOAD_FAILED - ", e);
-						Toast.makeText(context, R.string.download_failed, Toast.LENGTH_SHORT).show();
-					}
-				}
+				verifyMd5(true);
 			}
 
 			@Override
@@ -186,17 +160,30 @@ public class UploadFileTask extends FileTransferBase
 				if (httpException.getErrorCode() % 100 > 0)
 				{
 					fileKey = null;
-					try
+					verifyMd5(false);
+				}
+				else if (httpException.getCause() instanceof FileTransferCancelledException)
+				{
+					// FTAnalyticEvents.logDevException(FTAnalyticEvents.UPLOAD_FILE_OPERATION, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "file", "UPLOAD_FAILED - ", e);
+					Toast.makeText(context, R.string.upload_failed, Toast.LENGTH_SHORT).show();
+				}
+				else if (httpException.getCause() instanceof FileNotFoundException)
+				{
+					// FTAnalyticEvents.logDevException(FTAnalyticEvents.UPLOAD_FILE_OPERATION, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "file", "UPLOAD_FAILED - ", e);
+					Toast.makeText(context, R.string.card_unmount, Toast.LENGTH_SHORT).show();
+				}
+				else if (httpException.getCause() instanceof Exception)
+				{
+					Throwable throwable = httpException.getCause();
+					if (FileTransferManager.READ_FAIL.equals(throwable.getMessage()))
 					{
-						initFileUpload(false);
+						// FTAnalyticEvents.logDevException(FTAnalyticEvents.UPLOAD_FILE_OPERATION, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "file", "READ_FAIL - ", e);
+						Toast.makeText(context, R.string.unable_to_read, Toast.LENGTH_SHORT).show();
 					}
-					catch (FileTransferCancelledException e)
+					else if (FileTransferManager.UNABLE_TO_DOWNLOAD.equals(throwable.getMessage()))
 					{
-						e.printStackTrace();
-					}
-					catch (Exception e)
-					{
-						e.printStackTrace();
+						// FTAnalyticEvents.logDevException(FTAnalyticEvents.UPLOAD_FILE_OPERATION, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "file", "DOWNLOAD_FAILED - ", e);
+						Toast.makeText(context, R.string.download_failed, Toast.LENGTH_SHORT).show();
 					}
 				}
 				else
@@ -221,14 +208,7 @@ public class UploadFileTask extends FileTransferBase
 			}
 			else
 			{
-				try
-				{
-					initFileUpload(false);
-				}
-				catch (Exception e)
-				{
-					e.printStackTrace();
-				}
+				verifyMd5(false);
 				return;
 			}
 		}
@@ -390,8 +370,6 @@ public class UploadFileTask extends FileTransferBase
 			Toast.makeText(context, R.string.max_file_size, Toast.LENGTH_SHORT).show();
 			return;
 		}
-
-		verifyMd5(selectedFile);
 	}
 
 	public void startFileUploadProcess()
@@ -419,15 +397,29 @@ public class UploadFileTask extends FileTransferBase
 		return imageQuality;
 	}
 
-	public void verifyMd5(final File sourceFile)
+	private IRequestInterceptor getInitFileUploadInterceptor(final boolean isFileKeyValid) 
 	{
-		String fileMD5 = Utils.fileToMD5(sourceFile.getAbsolutePath());
-		RequestToken token = HttpRequests.verifyMd5(fileMD5, new IRequestListener()
+		return new IRequestInterceptor()
+		{
+			@Override
+			public void intercept(Chain chain) throws Exception
+			{
+				initFileUpload(isFileKeyValid);
+				String fileMd5 = Utils.fileToMD5(selectedFile.getAbsolutePath());
+				chain.getRequestFacade().setUrl(new URL(getFastFileUploadBaseUrl() + fileMd5));
+				chain.proceed();
+			}
+		};
+	}
+
+	public void verifyMd5(final boolean isFileKeyValid)
+	{
+		RequestToken token = HttpRequests.verifyMd5(msgId, new IRequestListener()
 		{
 			@Override
 			public void onRequestFailure(HttpException httpException)
 			{
-				uploadFile(sourceFile);
+				uploadFile(selectedFile);
 			}
 
 			@Override
@@ -474,7 +466,7 @@ public class UploadFileTask extends FileTransferBase
 			{
 
 			}
-		});
+		}, getInitFileUploadInterceptor(isFileKeyValid));
 		token.execute();
 	}
 
