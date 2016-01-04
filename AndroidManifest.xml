@@ -6,9 +6,11 @@
     android:versionCode="1574"
     android:versionName="4.1.0.4.hike_platform_internal" >
 
+
     <uses-sdk
         android:minSdkVersion="14"
-        android:targetSdkVersion="17"/>
+        android:targetSdkVersion="17"
+        tools:overrideLibrary = "android.support.customtabs"/>
 
     <permission
         android:name="com.bsb.hike.ui.permission.MAPS_RECEIVE"
