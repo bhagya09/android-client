@@ -35,6 +35,7 @@ import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.db.DBConstants.HIKE_CONV_DB;
+import com.bsb.hike.db.DatabaseErrorHandlers.ConversationDatabaseErrorHandler;
 import com.bsb.hike.models.*;
 import com.bsb.hike.models.ConvMessage.ConvMessageComparator;
 import com.bsb.hike.models.ConvMessage.OriginType;
@@ -83,7 +84,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 	private HikeConversationsDatabase(Context context)
 	{
-		super(context, DBConstants.CONVERSATIONS_DATABASE_NAME, null, DBConstants.CONVERSATIONS_DATABASE_VERSION);
+		super(context, DBConstants.CONVERSATIONS_DATABASE_NAME, null, DBConstants.CONVERSATIONS_DATABASE_VERSION, new ConversationDatabaseErrorHandler());
 		mDb = getWritableDatabase();
 	}
 	
