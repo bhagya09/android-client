@@ -1783,6 +1783,7 @@ import android.widget.Toast;
 	{
 		if (mShareablePopupLayout.isShowing())
 		{
+			unhideKeyboardViewBehindPopup();
 			mShareablePopupLayout.dismiss();
 			return;
 		}
@@ -1972,7 +1973,7 @@ import android.widget.Toast;
 		if(KptUtils.isSystemKeyboard()){
 			Utils.hideSoftKeyboard(activity, mComposeView);
 		}
-		else if (mCustomKeyboard!=null && isCustomKeyboardVisible())
+		else if (mCustomKeyboard!=null)
 		{
 			hideKptKeyboard();
 		}
@@ -4452,6 +4453,8 @@ import android.widget.Toast;
 
 	public void onPause()
 	{
+		unhideKeyboardViewBehindPopup();
+
 		pauseKeyboardResources();
 		
 		Utils.hideSoftKeyboard(activity, mComposeView);
