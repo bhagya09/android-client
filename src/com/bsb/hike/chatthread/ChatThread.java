@@ -4,6 +4,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
 import java.io.File;
 import java.lang.ref.WeakReference;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -60,6 +61,7 @@ import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
 import com.bsb.hike.models.ConvMessage.State;
+import com.bsb.hike.models.GalleryItem;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.MovingList;
@@ -1025,22 +1027,14 @@ import android.widget.Toast;
 		switch (requestCode)
 		{
 		case AttachmentPicker.CAMERA:
-			if(!Utils.isPhotosEditEnabled())
-			{
-				ImageParser.parseResult(activity, resultCode, data, this, true);
-			}
-			else
-			{
-				String filename = Utils.getCameraResultFile();
-				if(filename!=null)
-				{
-					activity.startActivityForResult(IntentFactory.getPictureEditorActivityIntent(activity, filename, false, filename, false), AttachmentPicker.EDITOR);
-				}
-				else
-				{
-					imageParseFailed();
-				}
-			}
+
+			String filename = Utils.getCameraResultFile();
+			ArrayList<String> filePathArrays = new ArrayList<String>();
+			filePathArrays.add(filename);
+			ArrayList<GalleryItem> galleryItemArrayList = GalleryItem.getGalleryItemsFromFilepaths(filePathArrays);
+
+			Intent selectionIntent = IntentFactory.getImageSelectionIntent(activity, galleryItemArrayList, true);
+			activity.startActivityForResult(selectionIntent, AttachmentPicker.GALLERY);
 			break;
 		case AttachmentPicker.AUDIO:
 		case AttachmentPicker.VIDEO:
