@@ -1973,7 +1973,7 @@ import android.widget.Toast;
 		if(KptUtils.isSystemKeyboard()){
 			Utils.hideSoftKeyboard(activity, mComposeView);
 		}
-		else if (mCustomKeyboard!=null && isCustomKeyboardVisible())
+		else if (mCustomKeyboard!=null)
 		{
 			hideKptKeyboard();
 		}
