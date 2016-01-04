@@ -543,13 +543,13 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 		{
 			runOnUiThread(new Runnable()
 			{
-
 				@Override
 				public void run()
 				{
 					String name = getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, MODE_PRIVATE).getString(HikeMessengerApp.NAME_SETTING, contactInfo.getNameOrMsisdn());
 					contactInfo.setName(name);
 					setNameInHeader(nameView);
+					addProfileImgInHeader();
 				}
 			});
 		}
