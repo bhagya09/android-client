@@ -349,7 +349,6 @@ public class KptKeyboardManager implements AdaptxtSettingsRegisterListener
 			     			JSONObject metadata = new JSONObject();
 			     			metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.KEYBOARD_LANGUAGE_DOWNLOAD_ERROR);
 			     			metadata.put(HikeConstants.KEYBOARD_LANGUAGE_CHANGE, addOnItem.getlocaleName());
-			     			metadata.put(HikeConstants.LogEvent.LANGUAGE_DOWNLOAD_SOURCE, source);
 			     			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
 				     	}
 			     		catch(JSONException e)
