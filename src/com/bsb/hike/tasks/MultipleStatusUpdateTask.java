@@ -97,8 +97,8 @@ public class MultipleStatusUpdateTask implements IHikeHTTPTask, HikePubSub.Liste
 							mWeakActivity.get().runOnUiThread(new Runnable() {
 								@Override
 								public void run() {
-									dismissProgressDialog();
 									mListener.onTimeout();
+									detachCallbacks();
 								}
 							});
 						}
@@ -106,6 +106,7 @@ public class MultipleStatusUpdateTask implements IHikeHTTPTask, HikePubSub.Liste
 						{
 							progressDialog = null;
 							mListener.onTimeout();
+							detachCallbacks();
 						}
 					}
 				}
