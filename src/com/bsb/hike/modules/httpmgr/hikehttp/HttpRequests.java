@@ -3,6 +3,7 @@ package com.bsb.hike.modules.httpmgr.hikehttp;
 import android.text.TextUtils;
 
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.modules.httpmgr.Header;
 import com.bsb.hike.modules.httpmgr.HttpUtils;
 import com.bsb.hike.modules.httpmgr.RequestToken;
@@ -954,16 +955,23 @@ public class HttpRequests
      * this request is just for checking that internet is working but mqtt is unable to connect.
      * we will send an async http call to server
      */
-    public static RequestToken httpNetworkTestRequest(int errorCode, int port)
+    public static RequestToken httpNetworkTestRequest(int errorCode, int port, int networkType, int exceptionCount)
     {
+        int isForeground = -1;
+        if(HikeMessengerApp.getInstance() != null)
+        {
+            isForeground = Utils.isAppForeground(HikeMessengerApp.getInstance())? 1 : 0;
+        }
+
+        String url = httpNetworkTestUrl() + "/" + errorCode+ "?port="+port +"&net="+networkType+"&fg="+isForeground+"&ec="+exceptionCount;
         RequestToken requestToken = new JSONObjectRequest.Builder()
-                .setUrl(httpNetworkTestUrl() + "/" + errorCode+ "?port="+port)
+                .setUrl(url)
                 .setRequestType(REQUEST_TYPE_SHORT)
                 .setAsynchronous(true)
                 .setPriority(PRIORITY_HIGH)
                 .setRetryPolicy(new BasicRetryPolicy(0, 1, 1))
                 .build();
-        Logger.e("HikeHttpRequests", "Making http call to " + httpNetworkTestUrl().toString() + "/" + errorCode + "?port="+port);
+        Logger.e("HikeHttpRequests", "Making http call to " + url);
         return requestToken;
     }
 
