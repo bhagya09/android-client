@@ -92,7 +92,21 @@ public class MultipleStatusUpdateTask implements IHikeHTTPTask, HikePubSub.Liste
 				{
 					if (mListener != null)
 					{
-						mListener.onTimeout();
+						if(mWeakActivity!=null && mWeakActivity.get()!=null)
+						{
+							mWeakActivity.get().runOnUiThread(new Runnable() {
+								@Override
+								public void run() {
+									dismissProgressDialog();
+									mListener.onTimeout();
+								}
+							});
+						}
+						else
+						{
+							progressDialog = null;
+							mListener.onTimeout();
+						}
 					}
 				}
 			};
