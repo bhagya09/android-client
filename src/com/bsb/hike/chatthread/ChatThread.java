@@ -4453,6 +4453,8 @@ import android.widget.Toast;
 
 	public void onPause()
 	{
+		unhideKeyboardViewBehindPopup();
+
 		pauseKeyboardResources();
 		
 		Utils.hideSoftKeyboard(activity, mComposeView);
