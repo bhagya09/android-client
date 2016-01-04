@@ -277,10 +277,6 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 		{
 			gridAdapter.getGalleryImageLoader().setExitTasksEarly(true);
 		}
-		if(pagerAdapter != null)
-		{
-			pagerAdapter.getGalleryImageLoader().setExitTasksEarly(true);
-		}
 	}
 
 	@Override
@@ -291,11 +287,6 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 		{
 			gridAdapter.getGalleryImageLoader().setExitTasksEarly(false);
 			gridAdapter.notifyDataSetChanged();
-		}
-		if(pagerAdapter != null)
-		{
-			pagerAdapter.getGalleryImageLoader().setExitTasksEarly(false);
-			pagerAdapter.notifyDataSetChanged();
 		}
 	}
 
