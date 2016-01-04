@@ -41,25 +41,23 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.adapters.GalleryAdapter;
-import com.bsb.hike.cropimage.HikeCropActivity;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.filetransfer.FTAnalyticEvents;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.GalleryItem;
-import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.smartImageLoader.GalleryImageLoader;
+import com.bsb.hike.smartImageLoader.GalleryPagerImageLoader;
 import com.bsb.hike.tasks.InitiateMultiFileTransferTask;
 import com.bsb.hike.ui.utils.StatusBarColorChanger;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
-import com.bsb.hike.utils.HikeUiHandler;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
@@ -214,7 +212,7 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 		selectedGrid.setOnScrollListener(this);
 		selectedGrid.setOnItemClickListener(this);
 
-		pagerAdapter = new GalleryPagerAdapter(imgSize);
+		pagerAdapter = new GalleryPagerAdapter();
 		selectedPager.setAdapter(pagerAdapter);
 		selectedPager.setOnPageChangeListener(this);
 
@@ -610,22 +608,12 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 	{
 		LayoutInflater layoutInflater;
 
-		GalleryImageLoader galleryImageLoader;
+		GalleryPagerImageLoader galleryPagerImageLoader;
 
-		int viewerHeight;
-
-		int viewerWidth;
-
-		public GalleryPagerAdapter(int size_image)
+		public GalleryPagerAdapter()
 		{
 			layoutInflater = LayoutInflater.from(GallerySelectionViewer.this);
-			galleryImageLoader = new GalleryImageLoader(GallerySelectionViewer.this, size_image);
-
-			int padding = 2 * getResources().getDimensionPixelSize(R.dimen.gallery_selection_padding);
-
-			viewerWidth = getResources().getDisplayMetrics().widthPixels - padding;
-			viewerHeight = getResources().getDisplayMetrics().heightPixels - getResources().getDimensionPixelSize(R.dimen.st__action_bar_default_height)
-					- getResources().getDimensionPixelSize(R.dimen.notification_bar_height) - getResources().getDimensionPixelSize(R.dimen.gallery_selected_grid_height) - padding;
+			galleryPagerImageLoader = new GalleryPagerImageLoader();
 		}
 
 		@Override
@@ -670,7 +658,7 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 				@Override
 				public void run()
 				{
-					final Bitmap bmp = galleryImageLoader.processBitmap(GalleryImageLoader.GALLERY_KEY_PREFIX + filePath);
+					final Bitmap bmp = galleryPagerImageLoader.processBitmap(filePath);
 
 					runOnUiThread(new Runnable()
 					{
@@ -716,9 +704,9 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 			return page;
 		}
 
-		public GalleryImageLoader getGalleryImageLoader()
+		public GalleryPagerImageLoader getGalleryImageLoader()
 		{
-			return galleryImageLoader;
+			return galleryPagerImageLoader;
 		}
 	}
 

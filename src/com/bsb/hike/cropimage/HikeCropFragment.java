@@ -44,7 +44,7 @@ public class HikeCropFragment extends Fragment
 
 	private String mSourceImagePath;
 	
-	private final int SIZE_MODIFIER = 300;
+	public static final int SIZE_MODIFIER = 300;
 
 	public static HikeCropFragment getInstance(HikeCropListener listener, String sourceImagePath)
 	{
