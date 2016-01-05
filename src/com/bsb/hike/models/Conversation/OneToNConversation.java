@@ -13,6 +13,8 @@ import org.json.JSONObject;
 import android.text.TextUtils;
 
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.HikePubSub;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.GroupParticipant;
@@ -127,17 +129,15 @@ public abstract class OneToNConversation extends Conversation
 		this.conversationParticipantList = participantList;
 	}
 
-	synchronized public void setConversationParticipantList(List<PairModified<GroupParticipant, String>> participantList)
+	public void setConversationParticipantList(List<PairModified<GroupParticipant, String>> participantList)
 	{
 		this.conversationParticipantList = new HashMap<String, PairModified<GroupParticipant, String>>();
-		Logger.d("##Rashmi ##setConversationParticipantList:   ",participantList.size()+"");
-		Logger.d("##Rashmi ##setConversationParticipantList: Thread :   ",Thread.currentThread().getName()+"");
 		for (PairModified<GroupParticipant, String> convParticipant : participantList)
 		{
 			String msisdn = convParticipant.getFirst().getContactInfo().getMsisdn();
 			this.conversationParticipantList.put(msisdn, convParticipant);
 		}
-		Logger.d("##Rashmi ##conversationParticipantList:   ",conversationParticipantList.size()+"");
+		HikeMessengerApp.getPubSub().publish(HikePubSub.UPDATE_MEMBER_COUNT, conversationParticipantList.size());
 	}
 
 	public PairModified<GroupParticipant, String> getConversationParticipant(String msisdn)

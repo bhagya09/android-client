@@ -264,6 +264,16 @@ public abstract class OneToNChatThread extends ChatThread implements HashTagMode
 		case HikePubSub.ONETONCONV_NAME_CHANGED:
 			onConversationNameChanged((String) object);
 			break;
+		case HikePubSub.UPDATE_MEMBER_COUNT:
+			activity.runOnUiThread(new Runnable()
+			{
+				@Override
+				public void run()
+				{
+					showActiveConversationMemberCount();
+				}
+			});
+			break;
 		default:
 			Logger.d(TAG, "Did not find any matching PubSub event in Group ChatThread. Calling super class' onEventReceived");
 			super.onEventReceived(type, object);
@@ -354,8 +364,6 @@ public abstract class OneToNChatThread extends ChatThread implements HashTagMode
 	protected void showActiveConversationMemberCount()
 	{
 		int numActivePeople = oneToNConversation.getParticipantListSize();
-		Logger.d("##Rashmi ##Group Active Member count: Thread :   ",Thread.currentThread().getName()+"");
-		Logger.d("##Rashmi ##Group Active Member count: ", numActivePeople+"");
 		
 		TextView memberCountTextView = (TextView) mActionBarView.findViewById(R.id.contact_status);
 
