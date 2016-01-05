@@ -6599,6 +6599,8 @@ import android.widget.Toast;
 		if (mCustomKeyboard != null)
 		{
 			mCustomKeyboard.showCustomKeyboard(view, false);
+			if (keyboardParentView.getVisibility() == View.INVISIBLE)
+				keyboardParentView.setVisibility(View.GONE);
 			updateKeyboardParentViewTag(null);
 		}
 	}
