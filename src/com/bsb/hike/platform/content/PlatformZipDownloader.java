@@ -233,7 +233,7 @@ public class PlatformZipDownloader
 	private File getZipPath()
 	{
 		// Create temp folder
-		File tempFolder = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.TEMP_DIR_NAME);
+        File tempFolder = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.TEMP_DIR_NAME);
 
 		tempFolder.mkdirs();
 		final File zipFile = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.TEMP_DIR_NAME, mRequest.getContentData().getId() + ".zip");
@@ -368,28 +368,28 @@ public class PlatformZipDownloader
 												nonMessagingBotMetadata.getCardObj().optString(HikePlatformConstants.HIKE_MESSAGE), false);
 									}
 								}
-								if (!isTemplatingEnabled)
+
+								String filePath = PlatformUtils.generateMappUnZipPathForBotRequestType(mRequest.getRequestType(), PlatformUtils.getMicroAppContentRootFolder(),
+										mRequest.getContentData().cardObj.getAppName());
+								String tempPath = filePath.substring(0, filePath.length() - 1) + "_temp";
+								String originalPath = filePath.substring(0, filePath.length() - 1);
+								boolean replace = replaceDirectories(tempPath, originalPath, unzipPath);
+								if (replace)
 								{
-                                        String filePath = PlatformUtils.generateMappUnZipPathForBotRequestType(mRequest.getRequestType(),PlatformUtils.getMicroAppContentRootFolder(),mRequest.getContentData().cardObj.getAppName());
-										String tempPath = filePath.substring(0,filePath.length()-1) + "_temp";
-										String originalPath = filePath.substring(0,filePath.length()-1);
-										boolean replace = replaceDirectories(tempPath, originalPath, unzipPath);
-										if (replace)
-										{
-											mRequest.getListener().onComplete(mRequest.getContentData());
-											PlatformUtils.sendMicroAppServerAnalytics(true, mRequest.getContentData().cardObj.appName, mRequest.getContentData().cardObj.appVersion);
-										}
-										else
-										{
-											mRequest.getListener().onEventOccured(0, EventCode.UNZIP_FAILED);
-											PlatformUtils.sendMicroAppServerAnalytics(false, mRequest.getContentData().cardObj.appName, mRequest.getContentData().cardObj.appVersion);
-										}
+									mRequest.getListener().onComplete(mRequest.getContentData());
+									PlatformUtils.sendMicroAppServerAnalytics(true, mRequest.getContentData().cardObj.appName, mRequest.getContentData().cardObj.appVersion);
 								}
 								else
 								{
-									PlatformRequestManager.setReadyState(mRequest);
-                                    PlatformUtils.sendMicroAppServerAnalytics(true, mRequest.getContentData().cardObj.appName, mRequest.getContentData().cardObj.appVersion);
+									mRequest.getListener().onEventOccured(0, EventCode.UNZIP_FAILED);
+									PlatformUtils.sendMicroAppServerAnalytics(false, mRequest.getContentData().cardObj.appName, mRequest.getContentData().cardObj.appVersion);
 								}
+
+                                if(isTemplatingEnabled)
+                                {
+                                    PlatformRequestManager.setReadyState(mRequest);
+                                    PlatformUtils.sendMicroAppServerAnalytics(true, mRequest.getContentData().cardObj.appName, mRequest.getContentData().cardObj.appVersion);
+                                }
 								HikeMessengerApp.getPubSub().publish(HikePubSub.DOWNLOAD_PROGRESS, new Pair<String, String>(callbackId, "unzipSuccess"));
 							}
 							else

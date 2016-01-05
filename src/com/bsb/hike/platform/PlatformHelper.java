@@ -131,9 +131,14 @@ public class PlatformHelper
 			webMetadata.put(HikePlatformConstants.TARGET_PLATFORM, metadata.getTargetPlatform());
 			webMetadata.put(HikePlatformConstants.CARD_OBJECT, cardObj);
 			webMetadata.put(HikePlatformConstants.FORWARD_CARD_OBJECT, metadata.getFwdCardObj());
+
+            /*
+             *  Adding these fields for determining compatibility and making async call to server on recipient (Code added in versioning release)
+             */
             webMetadata.put(HikePlatformConstants.MAPP_VERSION_CODE, metadata.getmAppVersionCode());
-            webMetadata.put(HikePlatformConstants.MICRO_APP_MSISDN,mBotInfo.getMsisdn());
-			ConvMessage message = PlatformUtils.getConvMessageFromJSON(webMetadata, hikeMessage, mBotInfo.getMsisdn());
+            webMetadata.put(HikePlatformConstants.BOT_MSISDN,mBotInfo.getMsisdn());
+
+            ConvMessage message = PlatformUtils.getConvMessageFromJSON(webMetadata, hikeMessage, mBotInfo.getMsisdn());
 			message.setNameSpace(mBotInfo.getNamespace());
 			if (message != null)
 			{

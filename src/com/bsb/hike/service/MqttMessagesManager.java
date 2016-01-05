@@ -29,7 +29,6 @@ import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.util.Base64;
-import android.util.Log;
 import android.util.Pair;
 import android.widget.Toast;
 
@@ -79,12 +78,6 @@ import com.bsb.hike.models.TypingNotification;
 import com.bsb.hike.models.WhitelistDomain;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.HttpManager;
-import com.bsb.hike.modules.httpmgr.RequestToken;
-import com.bsb.hike.modules.httpmgr.exception.HttpException;
-import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
-import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
-import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
-import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.modules.kpt.KptKeyboardManager;
 import com.bsb.hike.modules.stickerdownloadmgr.SingleStickerDownloadTask;
 import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
@@ -692,8 +685,8 @@ public class MqttMessagesManager
                     }
                 }
 
-                if (mdata.has(HikePlatformConstants.MICRO_APP_MSISDN) && !TextUtils.isEmpty(mdata.optString(HikePlatformConstants.MICRO_APP_MSISDN))) {
-                    microAppMsisdn = mdata.optString(HikePlatformConstants.MICRO_APP_MSISDN);
+                if (mdata.has(HikePlatformConstants.BOT_MSISDN) && !TextUtils.isEmpty(mdata.optString(HikePlatformConstants.BOT_MSISDN))) {
+                    microAppMsisdn = mdata.optString(HikePlatformConstants.BOT_MSISDN);
 
                     // Get info about currently active cbot
                     boolean isBotEnabled = BotUtils.isBot(microAppMsisdn);
@@ -1918,7 +1911,6 @@ public class MqttMessagesManager
 
 		/*
 		 * WebView names and their respective urls for Rewards and Hike Extras will be controlled by server  
-		 * 		 
 		 */
 		// Hike Extras
 		if (data.has(HikeConstants.HIKE_EXTRAS_NAME))

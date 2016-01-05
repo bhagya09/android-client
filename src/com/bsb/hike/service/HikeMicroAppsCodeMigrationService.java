@@ -2,14 +2,12 @@ package com.bsb.hike.service;
 
 import android.app.IntentService;
 import android.content.Intent;
-import android.text.TextUtils;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.NonMessagingBotMetadata;
 import com.bsb.hike.models.HikeAlarmManager;
-import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.content.PlatformContentConstants;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
@@ -28,7 +26,6 @@ import java.util.Map;
  */
 public class HikeMicroAppsCodeMigrationService extends IntentService
 {
-
 	private final String microAppMigrationMappingFile = "microAppsMigrationMapping";
 
 	public HikeMicroAppsCodeMigrationService()
@@ -39,86 +36,68 @@ public class HikeMicroAppsCodeMigrationService extends IntentService
 	@Override
 	protected void onHandleIntent(Intent intent)
 	{
-			String mappingJsonString = Utils.loadJSONFromAsset(this, microAppMigrationMappingFile);
+		boolean isSuccessfullyMigrated = true;
+		HashMap<String, Boolean> mapForMigratedApps = new HashMap<String, Boolean>();
 
-			// stop the code execution and returns if migration mapping file is not found
-			if (TextUtils.isEmpty(mappingJsonString))
-				return;
+		/*
+		 * Iterating and doing the migration over the key set of hikeBotInfoMap currently present in BotTable
+		 */
+		for (Map.Entry<String, BotInfo> entry : HikeMessengerApp.hikeBotInfoMap.entrySet())
+		{
+			NonMessagingBotMetadata botMetadata = new NonMessagingBotMetadata(entry.getValue().getMetadata());
+			mapForMigratedApps.put(entry.getKey(), false);
 
-			HashMap<String, HashMap<String, Integer>> migrationMap = getMapFromString(mappingJsonString);
-			boolean isSuccessfullyMigrated = true;
-			HashMap<String, Boolean> mapForMigratedApps = new HashMap<String, Boolean>();
-
-			/*
-			 * Iterating and doing the migration over the key set of hikeBotInfoMap currently present in BotTable
-			 */
-			for (Map.Entry<String, BotInfo> entry : HikeMessengerApp.hikeBotInfoMap.entrySet())
+			if (entry.getValue().isNonMessagingBot())
 			{
-				if (!migrationMap.containsKey(entry.getKey()))
-					continue;
-
-				HashMap<String, Integer> msisdnMigrationMap = migrationMap.get(entry.getKey());
-				NonMessagingBotMetadata botMetadata = new NonMessagingBotMetadata(entry.getValue().getMetadata());
-				mapForMigratedApps.put(entry.getKey(), false);
-
-				if (entry.getValue().isNonMessagingBot())
+				try
 				{
-					try
-					{
-						String microAppName = botMetadata.getAppName();
+					// Generate file instance for destination file directory path that would be used after versioning release
+					String unzipPath = PlatformUtils.getMicroAppContentRootFolder();
 
-						if (!msisdnMigrationMap.containsKey(microAppName))
-							continue;
+					String botName = entry.getValue().getConversationName();
+					unzipPath += botName;
 
-						int version = msisdnMigrationMap.get(microAppName);
-						String unzipPath = PlatformUtils.getMicroAppContentRootFolder();
-						// Create directory for micro app if not exists already
-						new File(unzipPath, microAppName).mkdirs();
+					File newFilePath = new File(unzipPath);
 
-						// Create directory for this version for specific micro app
-						unzipPath += microAppName + File.separator;
-						new File(unzipPath, HikePlatformConstants.VERSIONING_DIRECTORY_NAME + version).mkdirs();
-						unzipPath += HikePlatformConstants.VERSIONING_DIRECTORY_NAME + version + File.separator;
+					// File instance for source file directory path that was in use before versioning release
+					String microAppName = botMetadata.getAppName();
+					File originalFile = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + microAppName);
 
-						// File instance for destination file directory path
-						File newFilePath = new File(unzipPath);
+					// Copy from source to destination
+					boolean isCopied = PlatformUtils.copyDirectoryTo(originalFile, newFilePath);
+					if (isCopied)
+						mapForMigratedApps.put(entry.getKey(), true);
 
-						// File instance for source file directory path
-						File originalFile = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + microAppName);
-
-						// Copy from source to destination
-						boolean isCopied = PlatformUtils.copyDirectoryTo(originalFile, newFilePath);
-						if (isCopied)
-							mapForMigratedApps.put(entry.getKey(), true);
-
-					}
-					catch (Exception e)
-					{
-						e.printStackTrace();
-					}
+				}
+				catch (Exception e)
+				{
+					e.printStackTrace();
 				}
 			}
-
-			for (Map.Entry<String, Boolean> entry : mapForMigratedApps.entrySet())
+		}
+		for (Map.Entry<String, Boolean> entry : mapForMigratedApps.entrySet())
+		{
+			if (!entry.getValue())
 			{
-				if (!entry.getValue())
-				{
-					isSuccessfullyMigrated = false;
-					break;
-				}
+				isSuccessfullyMigrated = false;
+				break;
 			}
+		}
 
-			if (isSuccessfullyMigrated)
-				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.HIKE_CONTENT_MICROAPPS_MIGRATION, true);
-			else
-			{
-				long scheduleTime = Utils.getTimeInMillis(Calendar.getInstance(), 4, 50, 30, 0);
-				// If the scheduled time is in the past.
-				// Scheduled time is increased by 24 hours i.e. same time next day.
-				scheduleTime += 24 * 60 * 60 * 1000;
+        /*
+         * Check if migration is not successful because of any scenario, set migration alarm again for next day
+         */
+		if (isSuccessfullyMigrated)
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.HIKE_CONTENT_MICROAPPS_MIGRATION, true);
+		else
+		{
+			long scheduleTime = Utils.getTimeInMillis(Calendar.getInstance(), 4, 50, 30, 0);
+			// If the scheduled time is in the past.
+			// Scheduled time is increased by 24 hours i.e. same time next day.
+			scheduleTime += 24 * 60 * 60 * 1000;
 
-				HikeAlarmManager.setAlarm(getApplicationContext(), scheduleTime, HikeAlarmManager.REQUEST_CODE_MICROAPPS_MIGRATION, false);
-			}
+			HikeAlarmManager.setAlarm(getApplicationContext(), scheduleTime, HikeAlarmManager.REQUEST_CODE_MICROAPPS_MIGRATION, false);
+		}
 	}
 
 	/*

@@ -157,6 +157,7 @@ public interface HikePlatformConstants
 	public static final String BOT_CREATION_FAILED_MQTT = "cbot_err_m";
 	public static final String MICROAPP_DOWNLOADED = "mapp";
 	public static final String MICROAPP_DOWNLOAD_FAILED = "mapp_err";
+    public static final String NAME = "name";
 
 	public static final String PLATFORM_BRIDGE_NAME = "PlatformBridge";
 
@@ -264,7 +265,7 @@ public interface HikePlatformConstants
 	
 	public static final String MSISDN = "msisdn";
 
-    public static final String MICRO_APP_MSISDN = "microAppMsisdn";
+    public static final String BOT_MSISDN = "botMsisdn";
 	
 	public static final String BOT_NAME = "name";
 	

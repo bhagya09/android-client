@@ -438,7 +438,7 @@ public class BotUtils
         {
             JSONObject mdJsonObject = jsonObj.optJSONObject(HikePlatformConstants.METADATA);
             JSONObject cardObjectJson = mdJsonObject.optJSONObject(HikePlatformConstants.CARD_OBJECT);
-            int mAppVersionCode = cardObjectJson.optInt(HikePlatformConstants.MAPP_VERSION_CODE);
+            int mAppVersionCode = cardObjectJson.optInt(HikePlatformConstants.MAPP_VERSION_CODE,-1);
 
             if (mAppVersionCode > 0)
             {

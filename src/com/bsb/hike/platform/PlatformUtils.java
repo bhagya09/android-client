@@ -35,7 +35,6 @@ import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
 import android.util.Pair;
 import android.webkit.MimeTypeMap;
 import android.widget.Toast;
@@ -480,7 +479,10 @@ public class PlatformUtils
 
 		// Stop the flow and return from here in case any exception occurred and contentData becomes null
 		if (rqst.getContentData() == null)
-			return;
+		{
+			Logger.e(TAG,"Stop the micro app download flow for incorrect request");
+            return;
+		}
 
 		rqst.setRequestType(botInfo.getRequestType());
 		rqst.getContentData().setRequestType(botInfo.getRequestType());
@@ -563,7 +565,7 @@ public class PlatformUtils
 	}
 
 	/**
-	 * download the microapp, can be used by nonmessaging as well as messaging only to download and unzip the app.
+	 * Method used download the microapp for mapp packet flow, can be used by nonmessaging as well as messaging only to download and unzip the app.
 	 * 
 	 * @param downloadData
 	 *            : the data used to download microapp from ac packet to download the app.
@@ -575,7 +577,7 @@ public class PlatformUtils
 			return;
 		}
 
-		final PlatformContentModel platformContentModel = PlatformContentModel.make(downloadData.toString());
+		final PlatformContentModel platformContentModel = PlatformContentModel.make(downloadData.toString(),HikePlatformConstants.PlatformMappRequestType.HIKE_MAPPS);
 		PlatformContentRequest rqst = PlatformContentRequest.make(platformContentModel, new PlatformContentListener<PlatformContentModel>()
 		{
 			long fileLength = 0;
@@ -640,8 +642,15 @@ public class PlatformUtils
 		});
 
 		// Stop the flow and return from here in case any exception occurred and contentData becomes null
-		if (rqst.getContentData() == null)
-			return;
+        if (rqst.getContentData() == null)
+        {
+            Logger.e(TAG,"Stop the micro app download flow for incorrect request");
+            return;
+        }
+
+        // As this flow is there for MAPP flow, setting the request type to Hike Mapps
+        rqst.setRequestType(HikePlatformConstants.PlatformMappRequestType.HIKE_MAPPS);
+        rqst.getContentData().setRequestType(HikePlatformConstants.PlatformMappRequestType.HIKE_MAPPS);
 
 		boolean doReplace = downloadData.optBoolean(HikePlatformConstants.REPLACE_MICROAPP_VERSION);
 		String callbackId = downloadData.optString(HikePlatformConstants.CALLBACK_ID);
@@ -1704,7 +1713,17 @@ public class PlatformUtils
 	}
 
     /*
-     * method to make a post call to server with necessary params requesting for initiating cbot
+     * Method to make a post call to server with necessary params requesting for initiating Cbot
+     * Sample Json to be sent in network call ::
+     * {
+                  "apps":
+                    {
+                      "name": "hikenews",
+                      "params": {
+                        "enable_bot":true,
+                        "notif": "silent"
+                      }
+                 }
      */
     public static void initiateCBotDownload(final String msisdn,boolean isBotEnabled)
     {
@@ -1715,19 +1734,19 @@ public class PlatformUtils
         {
             // Json object to create adding params to micro app requesting json
             JSONObject paramsJsonObject = new JSONObject();
-            paramsJsonObject.put("enable_bot",isBotEnabled);
+            paramsJsonObject.put(HikePlatformConstants.ENABLE_BOT,isBotEnabled);
 
             // Json object containing all the information required for one micro app
             JSONObject appsJsonObject = new JSONObject();
-            appsJsonObject.put("name",msisdn);
-            appsJsonObject.put("params",paramsJsonObject);
+            appsJsonObject.put(HikePlatformConstants.NAME,msisdn);
+            appsJsonObject.put(HikePlatformConstants.PARAMS,paramsJsonObject);
 
             // Put apps JsonObject in the final json
             json.put(APPS, appsJsonObject);
         }
         catch (JSONException e)
         {
-            Log.d("Json Exception :: ",e.toString());
+            Logger.d("Json Exception :: ",e.toString());
         }
 
         // Code for micro app request to the server

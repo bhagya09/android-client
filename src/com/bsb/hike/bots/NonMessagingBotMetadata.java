@@ -1,14 +1,16 @@
 package com.bsb.hike.bots;
 
-import java.util.List;
+import com.bsb.hike.media.OverFlowMenuItem;
+import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.platform.content.PlatformContentConstants;
+import com.bsb.hike.utils.Logger;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.bsb.hike.media.OverFlowMenuItem;
-import com.bsb.hike.platform.HikePlatformConstants;
-import com.bsb.hike.utils.Logger;
+import java.io.File;
+import java.util.List;
 
 
 /**
@@ -329,4 +331,33 @@ public class NonMessagingBotMetadata
     public int getmAppVersionCode() {
         return mAppVersionCode;
     }
+
+    /*
+     * Method to retrieve unzipped micro app stored file path for this bot. (For default case, this method returns file path for micro app mode)
+     */
+	public String getBotFilePath()
+	{
+        switch (nonMessagingBotType)
+		{
+		case HikePlatformConstants.MICROAPP_MODE:
+			return PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.HIKE_MICRO_APPS + getAppName();
+		case HikePlatformConstants.NATIVE_MODE:
+            // If file is not found in the newer structured hierarchy directory path, then look for file in the older content directory path used before versioning
+            String microAppPath = PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.HIKE_MICRO_APPS + PlatformContentConstants.HIKE_GAMES + getAppName();
+            File file = new File(microAppPath);
+
+            if(file.exists())
+            {
+                return PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.HIKE_MICRO_APPS + PlatformContentConstants.HIKE_GAMES + getAppName();
+            }
+            else
+            {
+                return PlatformContentConstants.PLATFORM_CONTENT_DIR + getAppName();
+            }
+		default:
+            return PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.HIKE_MICRO_APPS + getAppName();
+		}
+
+	}
+
 }
