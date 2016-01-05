@@ -2690,6 +2690,12 @@ public class MqttMessagesManager
             HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.HTTP_NETWORK_CHECK_CALL, enable);
         }
 
+		if(data.has(HikePlatformConstants.CUSTOM_TABS))
+		{
+			boolean enable=data.getBoolean(HikePlatformConstants.CUSTOM_TABS);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikePlatformConstants.CUSTOM_TABS, enable);
+		}
+
 		editor.commit();
 		this.pubSub.publish(HikePubSub.UPDATE_OF_MENU_NOTIFICATION, null);
 		
