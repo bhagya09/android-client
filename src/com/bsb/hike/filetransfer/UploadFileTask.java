@@ -201,10 +201,10 @@ public class UploadFileTask extends FileTransferBase
 		{
 			HikeFile hikeFile = userContext.getMetadata().getHikeFiles().get(0);
 			FileSavedState fst = FileTransferManager.getInstance(context).getUploadFileState(msgId, hikeFile.getFile());
-			HttpManager.getInstance().deleteRequestStateFromDB(HttpRequestConstants.getUploadFileBaseUrl(), String.valueOf(msgId));
 			if (fst != null && !TextUtils.isEmpty(fst.getFileKey()))
 			{
 				fileKey = fst.getFileKey();
+				HttpManager.getInstance().deleteRequestStateFromDB(HttpRequestConstants.getUploadFileBaseUrl(), String.valueOf(msgId));
 			}
 			else
 			{
