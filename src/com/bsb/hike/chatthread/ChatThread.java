@@ -625,8 +625,7 @@ import android.widget.Toast;
 		fetchConversation(false);
 		uiHandler.sendEmptyMessage(SET_WINDOW_BG);
 		StickerManager.getInstance().checkAndDownLoadStickerData();
-		mShareablePopupLayout.setCustomKeyBoardHeight((keyboardHeight == 0) ? getKeyBoardAndCVHeight() : keyboardHeight);
-		mShareablePopupLayout.setCustomKeyBoard(!isSystemKeyboard());
+		mShareablePopupLayout.setCustomKeyBoard(!isSystemKeyboard(), (keyboardHeight == 0) ? getKeyBoardAndCVHeight() : keyboardHeight);
 		// if the localization ftue is not yet done with the download and install(and then change keyboard), dont let it change the keyboard now.
 		// chat thread has its own change keyboard mechanism. External change keyboard calls messes up with chat thread
 		removeLocalisationFtueKeyboardDownloadCallback();
@@ -802,6 +801,8 @@ import android.widget.Toast;
 			{
 				mShareablePopupLayout.setWindowSystemBarBgFlag(Utils.isWindowFlagEnabled(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS, activity.getWindow()));
 			}
+			
+			mShareablePopupLayout.setCustomKeyBoard(!isSystemKeyboard(), (keyboardHeight == 0) ? getKeyBoardAndCVHeight() : keyboardHeight);
 		}
 
 		else
@@ -1290,7 +1291,6 @@ import android.widget.Toast;
 			showOverflowMenu();
 			break;
 		case R.id.sticker_btn:
-			mShareablePopupLayout.setCustomKeyBoardHeight((keyboardHeight == 0) ? getKeyBoardAndCVHeight() : keyboardHeight);
 			if (mShareablePopupLayout.isBusyInOperations())
 			{//  previous task is running don't accept this event
 				return;
@@ -6129,7 +6129,7 @@ import android.widget.Toast;
 		if (changeKbdClicked == true)
 		{
 			changeKeyboard(!isSystemKeyboard());
-			mShareablePopupLayout.setCustomKeyBoard(isSystemKeyboard());
+			mShareablePopupLayout.setCustomKeyBoard(!isSystemKeyboard(), (keyboardHeight == 0) ? getKeyBoardAndCVHeight() : keyboardHeight);
 			changeKbdClicked = false;
 		}
 	}
