@@ -205,9 +205,8 @@ public class FileUploadRequest extends Request<JSONObject>
 				if (end == (length - 1) && response != null)
 				{
 					// upload successful
-					// setState(STATE.COMPLETED);
 					getState().setFTState(FTState.COMPLETED);
-					HttpRequestStateDB.getInstance().deleteState(this.getId());
+					saveStateInDB(getState());
 					publishProgress((float) bytesTransferred / length);
 					break;
 				}
@@ -219,7 +218,9 @@ public class FileUploadRequest extends Request<JSONObject>
 				bytesTransferred += chunkSize;
 				// this.setState(new FileSavedState(FTState.IN_PROGRESS, (long) length, bytesTransferred, X_SESSION_ID, null, 0));
 				this.getState().setTransferredSize(bytesTransferred);
-				saveStateInDB(getState());
+				FileSavedState fss = new FileSavedState(getState());
+				fss.setFTState(FTState.ERROR);
+				saveStateInDB(fss);
 
 				// calculate chunk size again
 				chunkSize = chunkSizePolicy.getChunkSize();

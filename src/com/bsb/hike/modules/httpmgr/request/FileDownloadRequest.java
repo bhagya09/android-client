@@ -145,7 +145,9 @@ public class FileDownloadRequest extends Request<File>
 				fos.write(buffer, 0, byteRead);
 				transferredSize += byteRead;
 				state.setTransferredSize(transferredSize);
-				saveStateInDB(state);
+				FileSavedState fss = new FileSavedState(state);
+				fss.setFTState(FTState.ERROR);
+				saveStateInDB(fss);
 			}
 			fos.flush();
 			fos.getFD().sync();

@@ -131,7 +131,7 @@ public class FileTransferBase
 	{
 		if (requestToken == null)
 		{
-			return new FileSavedState(FTState.INITIALIZED, 0, 0, 0);
+			return new FileSavedState();
 		}
 		return requestToken.getState();
 	}

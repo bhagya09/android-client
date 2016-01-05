@@ -81,6 +81,17 @@ public class FileSavedState implements Serializable
 		_animatedProgress = animatedProgress;
 	}
 
+	public FileSavedState(FileSavedState fss)
+	{
+		_currentState = fss._currentState;
+		_totalSize = fss._totalSize;
+		_transferredSize = fss._transferredSize;
+		_sessionId = fss._sessionId;
+		_responseJson = fss._responseJson;
+		_fileKey = fss._fileKey;
+		_animatedProgress = fss._animatedProgress;
+	}
+
 	public long getTotalSize()
 	{
 		return _totalSize;
