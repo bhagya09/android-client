@@ -352,6 +352,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 	protected void onResume()
 	{
 		super.onResume();
+		KptUtils.resumeKeyboard(mCustomKeyboard);
 		showKeyboard(false);
 		isForeground = true;
 		if (statusImage != null && statusImage.getDrawable() != null)
@@ -483,6 +484,9 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		else
 		{
 			showEmoticonPicker();
+			//while using custom keyboard Photos/Mood layout remain at bottom because we are hiding the keyboard so we need to update the padding
+			if (!systemKeyboard)
+				KptUtils.updatePadding(StatusUpdate.this, R.id.parent_layout, (keyboardHeight == 0) ? mCustomKeyboard.getKeyBoardAndCVHeight() : keyboardHeight);
 		}
 	}
 	
@@ -775,7 +779,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 					addItemsLayout.setLayoutParams(p);
 				}
 			}
-		}, 300); // TODO Remove hack. Use Shareable popup layout
+		}, mActivityTask.keyboardShowing ? 300 : 0); // TODO Remove hack. Use Shareable popup layout
 
 		boolean portrait = getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT;
 		int columns = portrait ? 4 : 6;
@@ -899,12 +903,13 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		 * let GC pick up any instance of this activity. So whenever this activity gets destroyed its instance doesn't get cleared from heap.
 		 */
 		HikeMessengerApp.getPubSub().removeListeners(this, pubsubListeners);
-		super.onDestroy();
+
 		if (progressDialog != null)
 		{
 			progressDialog.dismiss();
 			progressDialog = null;
 		}
+		super.onDestroy();
 		
 	}
 

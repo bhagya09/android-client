@@ -457,9 +457,9 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	protected void onDestroy()
 	{
 		HikeMessengerApp.getPubSub().removeListeners(this, pubsub);
-		msisdn=null;
 		if(webView!=null)
 		{
+			webView.stopLoading();
 			webView.onActivityDestroyed();
 		}
 		
@@ -468,6 +468,9 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 			mActionBar.releseResources();
 			mActionBar = null;
 		}
+
+		mmBridge = null;
+		webView = null;
 		super.onDestroy();
 	}
 
@@ -731,7 +734,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 			@Override
 			public void onComplete(PlatformContentModel content)
 			{
-				if(null != content)
+				if(null != webView && null != content)
 				{
 					webView.loadMicroAppData(content.getFormedData());
 				}
@@ -1018,19 +1021,21 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	protected void onPause()
 	{
 		super.onPause();
+		msisdn=null;
 		//Logging MicroApp Screen closing for bot case
 		if (mode == MICRO_APP_MODE || mode == WEB_URL_BOT_MODE)
 		{
 			HAManager.getInstance().endChatSession(msisdn);
 		}
 		HikeMessengerApp.getPubSub().publish(HikePubSub.NEW_ACTIVITY, null);
-		webView.onPause();
+		webView.onPaused();
 	}
 
 	@Override
 	protected void onResume()
 	{
 		super.onResume();
+		initMsisdn();
 		//Logging MicroApp Screen opening for bot case
 		if (mode == MICRO_APP_MODE || mode == WEB_URL_BOT_MODE)
 		{
@@ -1042,7 +1047,9 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		 */
 		HikeMessengerApp.getPubSub().publish(HikePubSub.CANCEL_ALL_NOTIFICATIONS, null);
 		HikeMessengerApp.getPubSub().publish(HikePubSub.NEW_ACTIVITY, this);
-		webView.onResume();
+		webView.onResumed();
+
+
 	}
 	
 	@Override
@@ -1150,7 +1157,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 			{
 				try
 				{
-					view.getContext().startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
+					startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
 				}
 				catch (ActivityNotFoundException e)
 				{

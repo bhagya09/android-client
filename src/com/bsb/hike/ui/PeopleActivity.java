@@ -3,21 +3,16 @@ package com.bsb.hike.ui;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.MotionEvent;
-import android.view.View;
-import android.widget.LinearLayout;
-import android.widget.TextView;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBar;
+import android.support.v7.widget.Toolbar;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.inputmethod.InputMethodManager;
-
-import com.bsb.hike.ui.v7.SearchView;
-import com.bsb.hike.ui.v7.SearchView.OnQueryTextListener;
-
-import android.support.v7.widget.Toolbar;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
@@ -28,8 +23,9 @@ import com.bsb.hike.modules.kpt.HikeCustomKeyboard;
 import com.bsb.hike.modules.kpt.KptUtils;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.ui.fragments.FriendsFragment;
+import com.bsb.hike.ui.v7.SearchView;
+import com.bsb.hike.ui.v7.SearchView.OnQueryTextListener;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
-import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Utils;
 import com.kpt.adaptxt.beta.KPTAddonItem;
 import com.kpt.adaptxt.beta.RemoveDialogData;
@@ -42,6 +38,8 @@ public class PeopleActivity extends HikeAppStateBaseFragmentActivity implements 
 	FriendsFragment mainFragment;
 	private HikeCustomKeyboard mCustomKeyboard;
 	private AdaptxtEditText searchET;
+	private MenuItem searchMenuItem;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
@@ -56,28 +54,15 @@ public class PeopleActivity extends HikeAppStateBaseFragmentActivity implements 
 
 		setContentView(R.layout.home);
 		LinearLayout viewHolder = (LinearLayout) findViewById(R.id.keyboardView_holder);
-		mCustomKeyboard = new HikeCustomKeyboard(PeopleActivity.this, viewHolder,
-				KPTConstants.MULTILINE_LINE_EDITOR, null,
-				PeopleActivity.this);
+		if (!HikeMessengerApp.isSystemKeyboard()) {
+			mCustomKeyboard = new HikeCustomKeyboard(PeopleActivity.this, viewHolder,
+					KPTConstants.MULTILINE_LINE_EDITOR, null,
+					PeopleActivity.this);
+		}
 		setupMainFragment(savedInstanceState);
 		setupActionBar();
 	}
 	
-	protected void showKeyboard()
-	{
-		if(searchET!=null){
-			if (HikeMessengerApp.isSystemKeyboard())
-			{
-				Utils.showSoftKeyboard(getApplicationContext(), searchET);
-			}
-			else
-			{
-				mCustomKeyboard.showCustomKeyboard(searchET, true);
-			}
-		}
-	}
-
-
 	private void setupActionBar()
 	{
 		ActionBar actionBar = getSupportActionBar();
@@ -94,7 +79,7 @@ public class PeopleActivity extends HikeAppStateBaseFragmentActivity implements 
 
 		actionBar.setCustomView(actionBarView);
 		Toolbar parent=(Toolbar)actionBarView.getParent();
-		parent.setContentInsetsAbsolute(0,0);
+		parent.setContentInsetsAbsolute(0, 0);
 	}
 
 
@@ -115,7 +100,7 @@ public class PeopleActivity extends HikeAppStateBaseFragmentActivity implements 
 	public boolean onCreateOptionsMenu(Menu menu)
 	{
 		getMenuInflater().inflate(R.menu.country_select_menu, menu);
-		MenuItem searchMenuItem = menu.findItem(R.id.search);
+		 searchMenuItem = menu.findItem(R.id.search);
 		final SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchMenuItem);
 		searchView.clearFocus();
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -130,14 +115,23 @@ public class PeopleActivity extends HikeAppStateBaseFragmentActivity implements 
 
 			@Override
 			public void onFocusChange(View v, boolean hasFocus) {
-				if(hasFocus){
-					if (KptUtils.isSystemKeyboard())
+				if (!KptUtils.isSystemKeyboard()&& mCustomKeyboard!=null)
+				{
+					if (hasFocus)
 					{
-						Utils.showSoftKeyboard(searchET, InputMethodManager.SHOW_FORCED);
+						mCustomKeyboard.showCustomKeyboard(v, true);
 					}
 					else
 					{
-						mCustomKeyboard.showCustomKeyboard(searchET, true);
+						mCustomKeyboard.showCustomKeyboard(v, false);
+						mCustomKeyboard.updateCore();
+					}
+				}
+				else
+				{
+					if (hasFocus)
+					{
+						Utils.toggleSoftKeyboard(PeopleActivity.this.getApplicationContext());
 					}
 				}
 			}
@@ -157,10 +151,10 @@ public class PeopleActivity extends HikeAppStateBaseFragmentActivity implements 
 			public boolean onMenuItemActionCollapse(MenuItem item)
 			{
 				searchView.setQuery("", true);
-				if (mCustomKeyboard.isCustomKeyboardVisible())
-				{
-					mCustomKeyboard.showCustomKeyboard(searchET, false); 
+				if (mCustomKeyboard != null && mCustomKeyboard.isCustomKeyboardVisible()) {
+					mCustomKeyboard.showCustomKeyboard(searchET, false);
 				}
+
 				return true;
 			}
 		});
@@ -201,7 +195,16 @@ public class PeopleActivity extends HikeAppStateBaseFragmentActivity implements 
 			intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 			startActivity(intent);
 		}
-		
+		// if custom keyboard is showing close it
+		if (mCustomKeyboard != null && mCustomKeyboard.isCustomKeyboardVisible()) {
+			mCustomKeyboard.showCustomKeyboard(searchET, false);
+			return;
+		}
+		//close action mode
+		if (searchMenuItem != null && searchMenuItem.isActionViewExpanded()) {
+			searchMenuItem.collapseActionView();
+			return;
+		}
 		super.onBackPressed();
 	}
 
@@ -282,4 +285,10 @@ public class PeopleActivity extends HikeAppStateBaseFragmentActivity implements 
 		super.onConfigurationChanged(newConfig);
 	}
 
+	@Override
+	protected void onDestroy() {
+
+		KptUtils.destroyKeyboardResources(mCustomKeyboard, R.id.search_src_text);
+			super.onDestroy();
+	}
 }
