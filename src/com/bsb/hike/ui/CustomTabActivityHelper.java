@@ -83,11 +83,12 @@ public class CustomTabActivityHelper
 	 */
 	public void unbindCustomTabsService(Activity activity)
 	{
+		mClient = null;
+		mCustomTabsSession = null;
 		if (mConnection == null)
 			return;
 		activity.unbindService(mConnection);
-		mClient = null;
-		mCustomTabsSession = null;
+
 	}
 
 	/**
