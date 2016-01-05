@@ -26,6 +26,8 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.MqttConstants;
 import com.bsb.hike.R;
+import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
@@ -1016,6 +1018,20 @@ public class OfflineUtils
 		catch (JSONException e)
 		{
 			Logger.e(TAG, "JsonException while handling hike direct peer upgrade packet");
+		}
+	}
+
+	public static void recordHikeDirectOverFlowClicked()
+	{
+		try
+		{
+			JSONObject metaData = new JSONObject();
+			metaData.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.HIKE_DIRECT_OVRFL_CLK);
+			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, HAManager.EventPriority.HIGH, metaData);
+		}
+		catch(JSONException e)
+		{
+			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
 		}
 	}
 }

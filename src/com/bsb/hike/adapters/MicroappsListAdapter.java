@@ -1,15 +1,21 @@
 package com.bsb.hike.adapters;
 
-import java.util.List;
-import java.util.Objects;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import android.app.Activity;
+import android.content.Context;
+import android.content.pm.ActivityInfo;
+import android.support.v4.widget.DrawerLayout.LayoutParams;
+import android.support.v7.widget.RecyclerView;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
-import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.bots.BotInfo;
@@ -18,7 +24,6 @@ import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
-import com.bsb.hike.models.Conversation.BotConversation;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
@@ -32,23 +37,13 @@ import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Utils;
 import com.hike.transporter.utils.Logger;
 
-import android.app.Activity;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.DialogInterface.OnDismissListener;
-import android.content.pm.ActivityInfo;
-import android.support.v4.widget.DrawerLayout.LayoutParams;
-import android.support.v7.widget.RecyclerView;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.TextView;
-import android.widget.Toast;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
-public class MicroappsListAdapter extends RecyclerView.Adapter<MicroappsListAdapter.ViewHolder> implements OnClickListener, Listener
+import java.util.List;
+
+public class MicroappsListAdapter extends RecyclerView.Adapter<MicroappsListAdapter.ViewHolder> implements OnClickListener
 {
 	Context mContext;
 
@@ -64,17 +59,12 @@ public class MicroappsListAdapter extends RecyclerView.Adapter<MicroappsListAdap
 	
 	private HikeDialog dialog;
 	
-	private String[] pubSubListeners;
-
 	public MicroappsListAdapter(Context context, List<BotInfo> botsList, IconLoader iconLoader)
 	{
 		this.mContext = context;
 		this.microappsList = botsList;
 		this.iconLoader = iconLoader;
 		onClickListener = this;
-		
-		pubSubListeners = new String[]{ HikePubSub.BOT_CREATED };
-		HikeMessengerApp.getPubSub().addListeners(this, pubSubListeners);
 	}
 
 	@Override
@@ -288,41 +278,12 @@ public class MicroappsListAdapter extends RecyclerView.Adapter<MicroappsListAdap
 
 	public void releaseResources()
 	{
-		removePubSubListeners();
 		if (dialog != null)
 		{
 			dialog.dismiss();
 		}
 	}
 	
-	public void removePubSubListeners()
-	{
-		if (pubSubListeners != null)
-		{
-			HikeMessengerApp.getPubSub().removeListeners(this, pubSubListeners);
-		}
-	}
-
-	@Override
-	public void onEventReceived(String type, Object object)
-	{
-		switch (type)
-		{
-		case HikePubSub.BOT_CREATED:
-			String msisdn = ((BotInfo)object).getMsisdn();
-			Logger.i(TAG, "Bot created : "+msisdn);
-			if (dialog != null)
-			{
-				dialog.dismiss();
-				if (dialog.data instanceof String && msisdn.equals((String)dialog.data))
-				{
-					openBot((BotInfo)object);
-				}
-			}
-			break;
-		}
-	}
-
 	private void analyticsForDiscoveryBotTap(String botName)
 	{
 		JSONObject json = new JSONObject();
@@ -337,6 +298,27 @@ public class MicroappsListAdapter extends RecyclerView.Adapter<MicroappsListAdap
 			Logger.e(TAG, "JSON Exception in analyticsForDiscoveryBotTap "+e.getMessage());
 		}
 		HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.BOT_DISCOVERY, json);
+	}
+
+	public void onBotCreated(Object data)
+	{
+		if (data == null || (!(data instanceof BotInfo)))
+		{
+			return;
+		}
+
+		BotInfo botInfo = (BotInfo) data;
+
+		String msisdn = botInfo.getMsisdn();
+		Logger.i(TAG, "Bot created : " + msisdn);
+		if (dialog != null)
+		{
+			dialog.dismiss();
+			if (dialog.data instanceof String && msisdn.equals((String) dialog.data))
+			{
+				openBot(botInfo);
+			}
+		}
 	}
 	
 }

@@ -1,48 +1,5 @@
 package com.bsb.hike.ui;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.HashMap;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import com.bsb.hike.HikeConstants;
-import com.bsb.hike.HikeMessengerApp;
-import com.bsb.hike.R;
-import com.bsb.hike.BitmapModule.BitmapUtils;
-import com.bsb.hike.BitmapModule.HikeBitmapFactory;
-import com.bsb.hike.dialog.HikeDialog;
-import com.bsb.hike.dialog.HikeDialogFactory;
-import com.bsb.hike.dialog.HikeDialogListener;
-import com.bsb.hike.modules.kpt.HikeCustomKeyboard;
-import com.bsb.hike.modules.kpt.KptUtils;
-import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
-import com.bsb.hike.utils.Logger;
-import com.bsb.hike.utils.Utils;
-import com.bsb.hike.view.CustomFontEditText;
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GooglePlayServicesClient.ConnectionCallbacks;
-import com.google.android.gms.common.GooglePlayServicesClient.OnConnectionFailedListener;
-import com.google.android.gms.common.GooglePlayServicesUtil;
-import com.google.android.gms.location.LocationClient;
-import com.google.android.gms.location.LocationListener;
-import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.CameraPosition;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
-import com.kpt.adaptxt.beta.KPTAddonItem;
-import com.kpt.adaptxt.beta.RemoveDialogData;
-import com.kpt.adaptxt.beta.util.KPTConstants;
-import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtKeyboordVisibilityStatusListner;
-
 import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Context;
@@ -76,6 +33,49 @@ import android.widget.ListView;
 import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.bsb.hike.BitmapModule.BitmapUtils;
+import com.bsb.hike.BitmapModule.HikeBitmapFactory;
+import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.R;
+import com.bsb.hike.dialog.HikeDialog;
+import com.bsb.hike.dialog.HikeDialogFactory;
+import com.bsb.hike.dialog.HikeDialogListener;
+import com.bsb.hike.modules.kpt.HikeCustomKeyboard;
+import com.bsb.hike.modules.kpt.KptUtils;
+import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
+import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.Utils;
+import com.bsb.hike.view.CustomFontEditText;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesClient.ConnectionCallbacks;
+import com.google.android.gms.common.GooglePlayServicesClient.OnConnectionFailedListener;
+import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.android.gms.location.LocationClient;
+import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
+import com.kpt.adaptxt.beta.KPTAddonItem;
+import com.kpt.adaptxt.beta.RemoveDialogData;
+import com.kpt.adaptxt.beta.util.KPTConstants;
+import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtKeyboordVisibilityStatusListner;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 public class ShareLocation extends HikeAppStateBaseFragmentActivity implements ConnectionCallbacks, OnConnectionFailedListener, LocationListener, AdaptxtKeyboordVisibilityStatusListner
 {
@@ -188,15 +188,15 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 		{ // Google Play Services are available
 
 			setContentView(R.layout.share_location);
+			searchET = (CustomFontEditText)findViewById(R.id.search);
 			if (!isSystemKeyboard())
 			{
-				LinearLayout viewHolder = (LinearLayout) findViewById(R.id.keyboardView_holder);
-				mCustomKeyboard = new HikeCustomKeyboard(ShareLocation.this, viewHolder,KPTConstants.MULTILINE_LINE_EDITOR, null, ShareLocation.this);			
+				initCustomKeyboard();
 			}
 			gpsDialogShown = savedInstanceState != null && savedInstanceState.getBoolean(HikeConstants.Extras.GPS_DIALOG_SHOWN);
 			listview = (ListView) findViewById(R.id.itemListView);
 			list = new ArrayList<ItemDetails>();
-			initCustomKeyboard();
+
 			adapter = new ItemListBaseAdapter(this, list);
 			listview.setAdapter(adapter);
 			listview.setOnItemClickListener(new AdapterView.OnItemClickListener()
@@ -248,7 +248,20 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 				searchStr = savedInstanceState.getString(HikeConstants.Extras.HTTP_SEARCH_STR);
 				executeTask(new GetPlaces(), searchStr);
 			}
+			searchET.setOnClickListener(new View.OnClickListener() {
 
+				@Override
+				public void onClick(View v) {
+					if (isSystemKeyboard())
+					{
+						Utils.showSoftKeyboard(searchET, InputMethodManager.SHOW_FORCED);
+					}
+					else
+					{
+						mCustomKeyboard.showCustomKeyboard(searchET, true);
+					}
+				}
+			});
 		}
 
 		Button fullScreenButton = (Button) findViewById(R.id.full_screen_button);
@@ -353,7 +366,7 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 
 		actionBar.setCustomView(actionBarView);
 		Toolbar parent=(Toolbar)actionBarView.getParent();
-		parent.setContentInsetsAbsolute(0,0);
+		parent.setContentInsetsAbsolute(0, 0);
 
 		init();
 	}
@@ -370,11 +383,12 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 	@Override
 	protected void onDestroy()
 	{
-		super.onDestroy();
 		if (mLocationClient != null)
 		{
 			mLocationClient.disconnect();
 		}
+		KptUtils.destroyKeyboardResources(mCustomKeyboard,R.id.search);
+		super.onDestroy();
 	}
 
 	@Override
@@ -893,26 +907,11 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 	{	
 		LinearLayout parentView = (LinearLayout)findViewById(R.id.keyboardView_holder);
 		mCustomKeyboard= new HikeCustomKeyboard(this, parentView,KPTConstants.MULTILINE_LINE_EDITOR, null,ShareLocation.this);
-		searchET = (CustomFontEditText)findViewById(R.id.search);
 		if (!KptUtils.isSystemKeyboard())
 		{
     		mCustomKeyboard.registerEditText(R.id.search);
     		mCustomKeyboard.init(searchET);
 		}
-		searchET.setOnClickListener(new View.OnClickListener() {
-			
-			@Override
-			public void onClick(View v) {
-				if (KptUtils.isSystemKeyboard())
-				{
-					Utils.showSoftKeyboard(searchET, InputMethodManager.SHOW_FORCED);
-				}
-				else
-				{
-					mCustomKeyboard.showCustomKeyboard(searchET, true);
-				}	 			
-			}
-		});
 	}
 	private void updateLocationAddress(final double lat, final double lng, final Marker userMarker)
 	{
