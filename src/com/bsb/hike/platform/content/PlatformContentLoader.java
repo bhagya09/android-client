@@ -30,7 +30,7 @@ class PlatformContentLoader extends Handler
 
 	/**
 	 * Gets the loader.
-	 * 
+	 *
 	 * @return the loader
 	 */
 	public static PlatformContentLoader getLoader()
@@ -40,7 +40,7 @@ class PlatformContentLoader extends Handler
 
 	/**
 	 * Handle request.
-	 * 
+	 *
 	 * @param platformContentModel
 	 *            the platform content model
 	 * @param listener
@@ -49,6 +49,10 @@ class PlatformContentLoader extends Handler
 	public void handleRequest(final PlatformContentRequest argContentRequest)
 	{
 		Logger.d(TAG, "handling request");
+
+        // Stop the flow and return from here in case any exception occurred and contentData becomes null
+        if(argContentRequest.getContentData() == null)
+            return;
 
 		PlatformContentModel formedContent = PlatformContentCache.getFormedContent(argContentRequest);
 

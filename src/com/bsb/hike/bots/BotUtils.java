@@ -6,7 +6,6 @@ import android.text.TextUtils;
 
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.HikeConstants;
-import com.bsb.hike.HikeConstants.NotificationType;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikeMessengerApp.CurrentState;
 import com.bsb.hike.HikePubSub;
@@ -24,7 +23,6 @@ import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
-import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.notifications.ToastListener;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUtils;
@@ -329,9 +327,11 @@ public class BotUtils
 			botInfo = getBotInfoForNonMessagingBots(jsonObj, msisdn);
 			boolean enableBot = jsonObj.optBoolean(HikePlatformConstants.ENABLE_BOT);
 			NonMessagingBotMetadata botMetadata = new NonMessagingBotMetadata(botInfo.getMetadata());
-			if (botMetadata.isMicroAppMode())
+
+            if (botMetadata.isMicroAppMode())
 			{
-				PlatformUtils.downloadZipForNonMessagingBot(botInfo, enableBot, botChatTheme, notifType, botMetadata, botMetadata.isResumeSupported());
+                botInfo.setRequestType(HikePlatformConstants.PlatformMappRequestType.HIKE_MICRO_APPS);
+                PlatformUtils.downloadZipForNonMessagingBot(botInfo, enableBot, botChatTheme, notifType, botMetadata, botMetadata.isResumeSupported());
 			}
 			else if (botMetadata.isWebUrlMode())
 			{
@@ -339,9 +339,9 @@ public class BotUtils
 			}
 			else if (botMetadata.isNativeMode())
 			{
+                botInfo.setRequestType(HikePlatformConstants.PlatformMappRequestType.NATIVE_APPS);
 				PlatformUtils.downloadZipForNonMessagingBot(botInfo, enableBot, botChatTheme, notifType, botMetadata, botMetadata.isResumeSupported());
 			}
-
 		}
 
 		Logger.d("create bot", "It takes " + String.valueOf(System.currentTimeMillis() - startTime) + "msecs");
@@ -434,7 +434,20 @@ public class BotUtils
 
 		}
 
-		return botInfo;
+        if (jsonObj.has(HikePlatformConstants.METADATA))
+        {
+            JSONObject mdJsonObject = jsonObj.optJSONObject(HikePlatformConstants.METADATA);
+            JSONObject cardObjectJson = mdJsonObject.optJSONObject(HikePlatformConstants.CARD_OBJECT);
+            int mAppVersionCode = cardObjectJson.optInt(HikePlatformConstants.MAPP_VERSION_CODE,-1);
+
+            if (mAppVersionCode > 0)
+            {
+                botInfo.setMAppVersionCode(mAppVersionCode);
+            }
+        }
+
+
+        return botInfo;
 	}
 
 	private static BotInfo getBotInfoFormessagingBots(JSONObject jsonObj, String msisdn)
@@ -866,5 +879,4 @@ public class BotUtils
 		return true;
 	}
 	
-
 }

@@ -670,6 +670,8 @@ public class HikeConstants
 
 	public static final String UPGRADING = "upgrading";
 
+    public static final String HIKE_CONTENT_MICROAPPS_MIGRATION = "hikeMicroAppsMigration";
+
 	public static final String UPGRADE_MSG_HASH_GROUP_READBY = "upgradeMsgHashGroupReadby";
 
 	public static final String UPGRADE_FOR_DATABASE_VERSION_28 = "upgradeForDatabaseVersion28";

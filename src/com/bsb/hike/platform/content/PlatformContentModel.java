@@ -1,6 +1,7 @@
 package com.bsb.hike.platform.content;
 
 import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.utils.Logger;
 import com.google.gson.Gson;
@@ -11,9 +12,6 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
 import com.google.gson.annotations.Expose;
 
-import org.json.JSONArray;
-
-import java.io.File;
 import java.lang.reflect.Field;
 import java.util.Iterator;
 import java.util.Map.Entry;
@@ -34,7 +32,6 @@ public class PlatformContentModel
 	private String formedData;
 
 	private int mHash = -1;
-
 	private int mTemplateHash = -1;
 
 	@Expose
@@ -48,6 +45,15 @@ public class PlatformContentModel
 	private int uniqueId;
 
 	public String target_platform;
+
+	private static PlatformContentModel object = null;
+
+    private byte requestType = HikePlatformConstants.PlatformMappRequestType.HIKE_MICRO_APPS;
+
+    private String msisdn = "";
+
+    private String botMsisdn = "";
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -94,6 +100,11 @@ public class PlatformContentModel
 	public static PlatformContentModel make(String contentData){
 		return make(0, contentData);
 	}
+
+    public static PlatformContentModel make(String contentData,byte requestType){
+        return make(0, contentData,requestType);
+    }
+
 	/**
 	 * Make.
 	 * 
@@ -105,15 +116,68 @@ public class PlatformContentModel
 	{
 		Logger.d(TAG, "making PlatformContentModel");
 		JsonParser parser = new JsonParser();
-		JsonObject jsonObj = (JsonObject) parser.parse(contentData);
-		PlatformContentModel object = null;
+		JsonObject gsonObj = (JsonObject) parser.parse(contentData);
+
 		try
 		{
-			object = new Gson().fromJson(jsonObj, PlatformContentModel.class);
+            object = new Gson().fromJson(gsonObj, PlatformContentModel.class);
 			if (object.cardObj.getLd() != null)
 			{
+                String microApp = object.cardObj.getAppName();
+                String unzipPath = PlatformContentConstants.HIKE_MICRO_APPS;
+                String basePath = PlatformUtils.generateMappUnZipPathForBotRequestType(HikePlatformConstants.PlatformMappRequestType.HIKE_MICRO_APPS,unzipPath,microApp);
+
 				object.cardObj.ld
-						.addProperty(PlatformContentConstants.KEY_TEMPLATE_PATH, PlatformContentConstants.CONTENT_AUTHORITY_BASE + object.cardObj.appName + File.separator);
+						.addProperty(PlatformContentConstants.KEY_TEMPLATE_PATH, PlatformContentConstants.CONTENT_AUTHORITY_BASE + basePath);
+				object.cardObj.ld.addProperty(PlatformContentConstants.MESSAGE_ID, Integer.toString(unique));
+				object.cardObj.ld.addProperty(HikePlatformConstants.PLATFORM_VERSION, HikePlatformConstants.CURRENT_VERSION);
+
+			}
+		}
+		catch (JsonParseException e)
+		{
+			e.printStackTrace();
+			return null;
+		}
+		catch (IllegalArgumentException iae)
+		{
+			iae.printStackTrace();
+			return null;
+		}
+		catch (Exception e)
+		{
+			// We dont want app to crash, instead safely provide control in onFailure
+			e.printStackTrace();
+			return null;
+		}
+
+		return object;
+	}
+
+
+	/**
+	 * Make.
+	 *
+	 * @param card_data
+	 *            the content data
+	 * @return the platform content model
+	 */
+	public static PlatformContentModel make(int unique, String contentData, byte requestType)
+	{
+		Logger.d(TAG, "making PlatformContentModel");
+		JsonParser parser = new JsonParser();
+		JsonObject gsonObj = (JsonObject) parser.parse(contentData);
+
+		try
+		{
+			object = new Gson().fromJson(gsonObj, PlatformContentModel.class);
+			if (object.cardObj.getLd() != null)
+			{
+                String microApp = object.cardObj.getAppName();
+                String unzipPath = PlatformContentConstants.HIKE_MICRO_APPS;
+                String basePath = PlatformUtils.generateMappUnZipPathForBotRequestType(requestType,unzipPath,microApp);
+
+                object.cardObj.ld.addProperty(PlatformContentConstants.KEY_TEMPLATE_PATH, PlatformContentConstants.CONTENT_AUTHORITY_BASE + basePath);
 				object.cardObj.ld.addProperty(PlatformContentConstants.MESSAGE_ID, Integer.toString(unique));
 				object.cardObj.ld.addProperty(HikePlatformConstants.PLATFORM_VERSION, HikePlatformConstants.CURRENT_VERSION);
 			}
@@ -227,6 +291,16 @@ public class PlatformContentModel
 		return cardObj.appVersion;
 	}
 
+    /**
+     * Gets the version.
+     *
+     * @return the version
+     */
+    public int getMappVersionCode()
+    {
+        return cardObj.mappVersionCode;
+    }
+
 	/**
 	 * Gets the content data.
 	 * 
@@ -322,7 +396,31 @@ public class PlatformContentModel
 		return cardObj.appPackage;
 	}
 
-	public class PlatformCardObjectModel
+    public byte getRequestType() {
+        return requestType;
+    }
+
+    public void setRequestType(byte requestType) {
+        this.requestType = requestType;
+    }
+
+    public String getMsisdn() {
+        return msisdn;
+    }
+
+    public void setMsisdn(String msisdn) {
+        this.msisdn = msisdn;
+    }
+
+    public String getBotMsisdn() {
+        return botMsisdn;
+    }
+
+    public void setBotMsisdn(String botMsisdn) {
+        this.botMsisdn = botMsisdn;
+    }
+
+    public class PlatformCardObjectModel
 	{
 
 		public String getAppName()
@@ -344,6 +442,16 @@ public class PlatformContentModel
 		{
 			this.appVersion = appVersion;
 		}
+
+        public int getMappVersionCode()
+        {
+            return mappVersionCode;
+        }
+
+        public void setMappVersionCode(int mappVersionCode)
+        {
+            this.mappVersionCode = mappVersionCode;
+        }
 
 		public String getLayoutId()
 		{
@@ -434,12 +542,25 @@ public class PlatformContentModel
 		{
 			this.notifText = notifText;
 		}
-		
+
+        public String getBotMsisdn()
+        {
+            return botMsisdn;
+        }
+
+        public void setBotMsisdn(String botMsisdn)
+        {
+            this.botMsisdn = botMsisdn;
+        }
+
 		@Expose
 		public String appName;
 
 		@Expose
 		public String appVersion;
+
+        @Expose
+        public int mappVersionCode;
 
 		@Expose
 		public String layoutId;
@@ -477,7 +598,13 @@ public class PlatformContentModel
 		@Expose
 		public Boolean lpd;
 
-		@Expose
+        @Expose
+        public String appMarketVersion;
+
+        @Expose
+        public String botMsisdn;
+
+        @Expose
 		public JsonArray lan_array;
 
 	}

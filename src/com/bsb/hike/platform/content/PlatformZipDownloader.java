@@ -17,7 +17,6 @@ import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.FileRequestPersistent;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
-import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.notifications.ToastListener;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUtils;
@@ -34,6 +33,7 @@ import java.util.HashMap;
 import java.util.Observable;
 import java.util.Observer;
 
+
 /**
  * Download and store template. First
  *
@@ -43,11 +43,11 @@ public class PlatformZipDownloader
 {
 	private PlatformContentRequest mRequest;
 
-	private boolean isTemplatingEnabled;
+	private boolean isTemplatingEnabled = false;
 	
-	private boolean doReplace;
+	private boolean doReplace = false;
 
-	private String callbackId;
+	private String callbackId = "";
 
 	// This hashmap contains the mapping of callback id and the progress. This makes sure that we reply the microapp with
 	// every 1% of the microapp.
@@ -63,57 +63,76 @@ public class PlatformZipDownloader
 	
 	private String stateFilePath;
 
-	private  float progress_done=0;
+    private String asocCbotMsisdn = "";
 
-	private String asocCbotMsisdn = "";
+    private  float progress_done=0;
 
+    // static builder class used here for generating and returning object of Zip Downloading process
+    public static class Builder {
+        private PlatformContentRequest argRequest;
+        private boolean isTemplatingEnabled;
+        private boolean doReplace = false;
+        private String callbackId = "";
+        private boolean resumeSupported = false;
+        private String assocCbotMsisdn = "";
 
-	/**
-	 * Instantiates a new platform template download task.
-	 *
-	 * @param argRequest: request
-	 * @param  isTemplatingEnabled: whether the app requires templating or not.
-	 */
-	
-	public PlatformZipDownloader(PlatformContentRequest argRequest, boolean isTemplatingEnabled)
-	{
-		this(argRequest, isTemplatingEnabled, false);
-	}
-	
-	public PlatformZipDownloader(PlatformContentRequest argRequest, boolean isTemplatingEnabled,boolean doReplace)
-	{
-		this(argRequest, isTemplatingEnabled, doReplace, null);
-	}
+        public Builder setArgRequest(PlatformContentRequest argRequest) {
+            this.argRequest = argRequest;
+            return this;
+        }
 
-	public PlatformZipDownloader(PlatformContentRequest argRequest, boolean isTemplatingEnabled,boolean doReplace, String callbackId)
-	{
-		// Get ID from content and call http
-		mRequest = argRequest;
-		this.isTemplatingEnabled = isTemplatingEnabled;
-		this.doReplace = doReplace;
-		this.callbackId = callbackId;
-	}
-	
-	public PlatformZipDownloader(PlatformContentRequest argRequest, boolean isTemplatingEnabled,boolean doReplace, String callbackId, boolean resumeSupported,String asocCbot)
-	{
-		// Get ID from content and call http
-		this(argRequest, isTemplatingEnabled, doReplace, callbackId);
-		this.resumeSupported = resumeSupported;
-		
-		if(!TextUtils.isEmpty(asocCbot))
-		{
-			this.asocCbotMsisdn=asocCbot;
-		}
+        public Builder setIsTemplatingEnabled(boolean isTemplatingEnabled) {
+            this.isTemplatingEnabled = isTemplatingEnabled;
+            return this;
+        }
 
-		if (resumeSupported)
-		{
-			setStateFilePath();
-			setStartOffset();
-		}
-	}
+        public Builder setDoReplace(boolean doReplace) {
+            this.doReplace = doReplace;
+            return this;
+        }
 
+        public Builder setCallbackId(String callbackId) {
+            this.callbackId = callbackId;
+            return this;
+        }
 
-	private void setStartOffset()
+        public Builder setResumeSupported(boolean resumeSupported) {
+            this.resumeSupported = resumeSupported;
+            return this;
+        }
+
+        public Builder setAssocCbotMsisdn(String assocCbotMsisdn) {
+            this.assocCbotMsisdn = assocCbotMsisdn;
+            return this;
+        }
+
+        public PlatformZipDownloader createPlatformZipDownloader() {
+            return new PlatformZipDownloader(this);
+        }
+    }
+
+    /**
+     * Instantiates a new platform template download task.
+     *
+     * @param builder
+     */
+    private PlatformZipDownloader(Builder builder)
+    {
+        mRequest = builder.argRequest;
+        this.isTemplatingEnabled = builder.isTemplatingEnabled;
+        this.doReplace = builder.doReplace;
+        this.callbackId = builder.callbackId;
+        this.resumeSupported = builder.resumeSupported;
+        this.asocCbotMsisdn = builder.assocCbotMsisdn;
+
+        if (resumeSupported)
+        {
+            setStateFilePath();
+            setStartOffset();
+        }
+    }
+
+    private void setStartOffset()
 	{
 		File file = new File(stateFilePath + FileRequestPersistent.STATE_FILE_EXT);
 		if (file.exists())
@@ -142,21 +161,43 @@ public class PlatformZipDownloader
 		stateFilePath=PlatformContentConstants.PLATFORM_CONTENT_DIR+mRequest.getContentData().getId();
 	}
 
-	public  boolean isMicroAppExist()
+	public boolean isMicroAppExist()
 	{
 		try
 		{
-			File microAppFolder = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR, mRequest.getContentData().getId());
-			if (microAppFolder.exists())
-			{
+			String unzipPath = PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.HIKE_MICRO_APPS;
+			String microAppName = mRequest.getContentData().cardObj.getAppName();
+
+			// Generate path for the old micro app directory
+			File oldMicroAppFolder = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR, microAppName);
+
+			if (oldMicroAppFolder.exists())
 				return true;
-			}
+
+            // Generate unzip path
+            int microAppVersionCode = mRequest.getContentData().cardObj.getMappVersionCode();
+            String msisdn = mRequest.getContentData().getMsisdn();
+
+            if(TextUtils.isEmpty(msisdn))
+                return false;
+
+            unzipPath = PlatformUtils.generateMappUnZipPathForBotRequestType(mRequest.getRequestType(),unzipPath,microAppName);
+            BotInfo currentBotInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
+
+            int currentBotInfoMAppVersionCode = 0;
+            if(currentBotInfo != null)
+                currentBotInfoMAppVersionCode = currentBotInfo.getMAppVersionCode();
+
+			if (new File(unzipPath).exists() && microAppVersionCode <= currentBotInfoMAppVersionCode)
+				return true;
+
 		}
 		catch (NullPointerException npe)
 		{
-			npe.printStackTrace();
+			Logger.e("PlatformZipDownloader isMicroAppExist",npe.toString());
+            npe.printStackTrace();
 		}
-		
+
 		return false;
 	}
 
@@ -171,11 +212,9 @@ public class PlatformZipDownloader
         {
             doReplace = false;
         }
-		// Create temp folder
-		File tempFolder = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.TEMP_DIR_NAME);
 
-		tempFolder.mkdirs();
-		final File zipFile = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.TEMP_DIR_NAME, mRequest.getContentData().getId() + ".zip");
+		File zipFile = getZipPath();
+
         //If resume is supported we donot want to delete the zipfile on download failure.
 		if (zipFile.exists()&&!resumeSupported)
 		{
@@ -183,45 +222,34 @@ public class PlatformZipDownloader
 			return;
 		}
 
-
 		// Download zip file from web on given url
 		getZipFromWeb(zipFile);
-
-
-		/*
-		 *  Legacy code flow commented for zips lookup in assets folder added with apk files
-		 *  This flow is not in use now
-		 */
-
-		/*
-		//Check if the zip is present in hike app package
-		AssetsZipMoveTask.AssetZipMovedCallbackCallback mCallback = new AssetsZipMoveTask.AssetZipMovedCallbackCallback()
-		{
-
-			@Override
-			public void assetZipMoved(boolean hasMoved)
-			{
-				if (hasMoved)
-				{
-					unzipMicroApp(zipFile);
-				}
-				else
-				{
-					getZipFromWeb(zipFile);
-				}
-			}
-		};
-
-		Utils.executeBoolResultAsyncTask(new AssetsZipMoveTask(zipFile, mRequest, mCallback, isTemplatingEnabled));
-		*/
 	}
 
+
+	/*
+	 * Method to get path to store zip files
+	 */
+	private File getZipPath()
+	{
+		// Create temp folder
+        File tempFolder = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.TEMP_DIR_NAME);
+
+		tempFolder.mkdirs();
+		final File zipFile = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.TEMP_DIR_NAME, mRequest.getContentData().getId() + ".zip");
+
+		return zipFile;
+	}
+	
 	/**
 	 * download the zip from web using 3 retries. On success, will unzip the folder.
 	 */
 	private void getZipFromWeb(final File zipFile)
 	{
-		RequestToken token = resumeSupported ? downloadZipWithResume(zipFile, stateFilePath, startOffset) : downloadZip(zipFile);
+        // Can make a synchronous call here to the server to fetch latest micro app url for forward card scenario
+        String downloadUrl = mRequest.getContentData().getLayout_url();
+
+        RequestToken token = resumeSupported ? downloadZipWithResume(zipFile, stateFilePath, startOffset,downloadUrl) : downloadZip(zipFile,downloadUrl);
 
 		if (!token.isRequestRunning())
 		{
@@ -230,7 +258,6 @@ public class PlatformZipDownloader
 			HikeMessengerApp.getPubSub().publish(HikePubSub.DOWNLOAD_PROGRESS, new Pair<String, String>(callbackId, "downloadStarted"));
 			PlatformRequestManager.getCurrentDownloadingTemplates().add(mRequest.getContentData().appHashCode());
 		}
-
 	}
 
 	private boolean updateProgress(float progress)
@@ -259,11 +286,14 @@ public class PlatformZipDownloader
 		}
 		File src = new File(unzipPath + File.separator+ mRequest.getContentData().getId());
 		File dest = tempDir;
+
 		try
 		{
-			if(PlatformUtils.copyDirectoryTo(src,dest) && PlatformUtils.deleteDirectory(originalPath))
+			if(PlatformUtils.copyDirectoryTo(src,dest))
 			{
-				dest.renameTo(originalDir);
+                PlatformUtils.deleteDirectory(originalPath);
+                PlatformUtils.deleteDirectory(unzipPath + File.separator+ mRequest.getContentData().getId());
+                dest.renameTo(originalDir);
 				replaceSuccess = true;
 			}
 		}
@@ -310,8 +340,7 @@ public class PlatformZipDownloader
 					return;
 				}
 
-				final String unzipPath = (doReplace) ? PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.TEMP_DIR_NAME
-						: PlatformContentConstants.PLATFORM_CONTENT_DIR;
+				final String unzipPath = getUnZipPath();
 
 				try
 				{
@@ -339,35 +368,28 @@ public class PlatformZipDownloader
 												nonMessagingBotMetadata.getCardObj().optString(HikePlatformConstants.HIKE_MESSAGE), false);
 									}
 								}
-								if (!isTemplatingEnabled)
+
+								String filePath = PlatformUtils.generateMappUnZipPathForBotRequestType(mRequest.getRequestType(), PlatformUtils.getMicroAppContentRootFolder(),
+										mRequest.getContentData().cardObj.getAppName());
+								String tempPath = filePath.substring(0, filePath.length() - 1) + "_temp";
+								String originalPath = filePath.substring(0, filePath.length() - 1);
+								boolean replace = replaceDirectories(tempPath, originalPath, unzipPath);
+								if (replace)
 								{
-									if (doReplace)
-									{
-										String tempPath = PlatformContentConstants.PLATFORM_CONTENT_DIR + mRequest.getContentData().getId() + "_temp";
-										String originalPath = PlatformContentConstants.PLATFORM_CONTENT_DIR + mRequest.getContentData().getId();
-										boolean replace = replaceDirectories(tempPath, originalPath, unzipPath);
-										if (replace)
-										{
-											mRequest.getListener().onComplete(mRequest.getContentData());
-											PlatformUtils.sendMicroAppServerAnalytics(true, mRequest.getContentData().cardObj.appName, mRequest.getContentData().cardObj.appVersion);
-										}
-										else
-										{
-											mRequest.getListener().onEventOccured(0, EventCode.UNZIP_FAILED);
-											PlatformUtils.sendMicroAppServerAnalytics(false, mRequest.getContentData().cardObj.appName, mRequest.getContentData().cardObj.appVersion);
-										}
-									}
-									else
-									{
-										mRequest.getListener().onComplete(mRequest.getContentData());
-										PlatformUtils.sendMicroAppServerAnalytics(true, mRequest.getContentData().cardObj.appName, mRequest.getContentData().cardObj.appVersion);
-									}
+									mRequest.getListener().onComplete(mRequest.getContentData());
+									PlatformUtils.sendMicroAppServerAnalytics(true, mRequest.getContentData().cardObj.appName, mRequest.getContentData().cardObj.appVersion);
 								}
 								else
 								{
-									PlatformRequestManager.setReadyState(mRequest);
-									PlatformUtils.sendMicroAppServerAnalytics(true, mRequest.getContentData().cardObj.appName, mRequest.getContentData().cardObj.appVersion);
+									mRequest.getListener().onEventOccured(0, EventCode.UNZIP_FAILED);
+									PlatformUtils.sendMicroAppServerAnalytics(false, mRequest.getContentData().cardObj.appName, mRequest.getContentData().cardObj.appVersion);
 								}
+
+                                if(isTemplatingEnabled)
+                                {
+                                    PlatformRequestManager.setReadyState(mRequest);
+                                    PlatformUtils.sendMicroAppServerAnalytics(true, mRequest.getContentData().cardObj.appName, mRequest.getContentData().cardObj.appVersion);
+                                }
 								HikeMessengerApp.getPubSub().publish(HikePubSub.DOWNLOAD_PROGRESS, new Pair<String, String>(callbackId, "unzipSuccess"));
 							}
 							else
@@ -390,6 +412,32 @@ public class PlatformZipDownloader
 		});
 	}
 
+	/*
+	 * Method to determine and create intermediate directories for the unzip path according to the hierarchical structure determined after the new versioning structure
+	 */
+	private String getUnZipPath()
+	{
+		String unzipPath = PlatformUtils.getMicroAppContentRootFolder() + PlatformContentConstants.TEMP_DIR_NAME + File.separator;
+
+		// To determine the path for unzipping zip files based on request type
+		switch (mRequest.getRequestType())
+		{
+		case HikePlatformConstants.PlatformMappRequestType.HIKE_MICRO_APPS:
+			break;
+		case HikePlatformConstants.PlatformMappRequestType.ONE_TIME_POPUPS:
+			unzipPath += PlatformContentConstants.HIKE_ONE_TIME_POPUPS;
+			break;
+		case HikePlatformConstants.PlatformMappRequestType.NATIVE_APPS:
+			unzipPath += PlatformContentConstants.HIKE_GAMES;
+			break;
+		case HikePlatformConstants.PlatformMappRequestType.HIKE_MAPPS:
+			unzipPath += PlatformContentConstants.HIKE_MAPPS;
+			break;
+		}
+
+		return unzipPath;
+	}
+
 	public static HashMap<String, RequestToken> getCurrentDownloadingRequests()
 	{
 		return platformRequests;
@@ -402,18 +450,18 @@ public class PlatformZipDownloader
 		unzipper.unzip();
 	}
 	
-	private RequestToken downloadZip(final File zipFile)
+	private RequestToken downloadZip(final File zipFile, String downloadUrl)
 	{
-		RequestToken token = HttpRequests.platformZipDownloadRequest(zipFile.getAbsolutePath(), mRequest.getContentData().getLayout_url(),
+		RequestToken token = HttpRequests.platformZipDownloadRequest(zipFile.getAbsolutePath(), downloadUrl,
 				getRequestListenerForDownload(false, null, zipFile));
 
 		return token;
 
 	}
 	
-	private RequestToken downloadZipWithResume(File zipFile, String stateFilePath, long startOffset)
+	private RequestToken downloadZipWithResume(File zipFile, String stateFilePath, long startOffset, String downloadUrl)
 	{
-		RequestToken token = HttpRequests.platformZipDownloadRequestWithResume(zipFile.getAbsolutePath(), stateFilePath, mRequest.getContentData().getLayout_url(),
+		RequestToken token = HttpRequests.platformZipDownloadRequestWithResume(zipFile.getAbsolutePath(), stateFilePath, downloadUrl,
 				getRequestListenerForDownload(true, stateFilePath, zipFile), startOffset,progress_done);
 
 		return token;

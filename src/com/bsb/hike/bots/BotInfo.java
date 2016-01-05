@@ -1,12 +1,12 @@
 package com.bsb.hike.bots;
 
-import java.util.concurrent.atomic.AtomicBoolean;
+import com.bsb.hike.models.Conversation.ConvInfo;
+import com.bsb.hike.platform.HikePlatformConstants;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.bsb.hike.models.Conversation.ConvInfo;
-import com.bsb.hike.platform.HikePlatformConstants;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Created by shobhit on 22/04/15.
@@ -45,14 +45,20 @@ public class BotInfo extends ConvInfo implements Cloneable
 	private String botDescription;
 	
 	private int updatedVersion;
-	
-	public static abstract class InitBuilder<P extends InitBuilder<P>> extends ConvInfo.InitBuilder<P>
+
+    private byte requestType;
+
+    private int mAppVersionCode;
+
+    public static abstract class InitBuilder<P extends InitBuilder<P>> extends ConvInfo.InitBuilder<P>
 	{
-		private int type, config, version, updatedVersion;
+		private int type, config, version, updatedVersion,mAppVersionCode;
 
 		private String namespace;
 
 		private String metadata, configData, notifData, helperData, botDescription;
+
+        private byte requestType = HikePlatformConstants.PlatformMappRequestType.HIKE_MICRO_APPS;
 
 		protected InitBuilder(String msisdn)
 		{
@@ -112,6 +118,7 @@ public class BotInfo extends ConvInfo implements Cloneable
 			this.helperData = helperData;
 			return getSelfObject();
 		}
+
 		@Override
 		public P setOnHike(boolean onHike)
 		{
@@ -129,6 +136,18 @@ public class BotInfo extends ConvInfo implements Cloneable
 			this.botDescription = description;
 			return getSelfObject();
 		}
+
+        public P setRequestType(byte requestType)
+        {
+            this.requestType = requestType;
+            return getSelfObject();
+        }
+
+        public P setMAppVersionCode(int mAppVersionCode)
+        {
+            this.mAppVersionCode = mAppVersionCode;
+            return getSelfObject();
+        }
 
 		@Override
 		public BotInfo build()
@@ -254,6 +273,7 @@ public class BotInfo extends ConvInfo implements Cloneable
 		this.setOnHike(true);
 		this.version = builder.version;
 		this.botDescription = builder.botDescription;
+        this.mAppVersionCode = builder.mAppVersionCode;
 		this.updatedVersion = builder.updatedVersion;
 	}
 
@@ -478,8 +498,36 @@ public class BotInfo extends ConvInfo implements Cloneable
 	{
 		this.updatedVersion = updatedVersion;
 	}
-	
-	@Override
+
+    /**
+     * @return the requestType
+     */
+    public byte getRequestType(){ return requestType; }
+
+    /**
+     * @param requestType
+     *            the requestType to set
+     */
+    public void setRequestType(byte requestType)
+    {
+        this.requestType = requestType;
+    }
+
+    /**
+     * @return the mAppVersionCode
+     */
+    public int getMAppVersionCode(){ return mAppVersionCode; }
+
+    /**
+     * @param mAppVersionCode
+     *            the requestType to set
+     */
+    public void setMAppVersionCode(int mAppVersionCode)
+    {
+        this.mAppVersionCode = mAppVersionCode;
+    }
+
+    @Override
 	public Object clone() throws CloneNotSupportedException
 	{
 		// TODO Auto-generated method stub

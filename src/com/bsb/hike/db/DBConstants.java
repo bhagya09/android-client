@@ -361,7 +361,7 @@ public interface DBConstants
 		public static final String HELPER_DATA = "helper_data";
 		
 		public static final String BOT_VERSION = "version";
-		
+
 		//Bot Discrovery Table starts here
 		//Bot Discovery Table --> _id , msisdn, name, type, description, updated_version
 		

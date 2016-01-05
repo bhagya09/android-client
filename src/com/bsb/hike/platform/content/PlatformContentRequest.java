@@ -1,5 +1,6 @@
 package com.bsb.hike.platform.content;
 
+import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.utils.Logger;
 
 public class PlatformContentRequest
@@ -22,6 +23,9 @@ public class PlatformContentRequest
 	private PlatformContentListener<PlatformContentModel> mContentListener;
 
 	private byte mState = STATE_READY;
+
+    private byte requestType = HikePlatformConstants.PlatformMappRequestType.HIKE_MICRO_APPS;
+
 
 	private PlatformContentRequest(PlatformContentModel contentData, PlatformContentListener<PlatformContentModel> contentListner)
 	{
@@ -81,4 +85,12 @@ public class PlatformContentRequest
 			return mContentData.hashCode();
 		}
 	}
+
+    public byte getRequestType() {
+        return requestType;
+    }
+
+    public void setRequestType(byte requestType) {
+        this.requestType = requestType;
+    }
 }

@@ -9,6 +9,9 @@ import org.json.JSONObject;
 import android.support.v4.util.LruCache;
 import android.text.TextUtils;
 
+import com.bsb.hike.HikeConstants;
+import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.utils.Logger;
 import com.samskivert.mustache.Template;
 
@@ -97,16 +100,18 @@ class PlatformContentCache
 	{
 		Logger.d(TAG, "loading template from disk");
 
-		// if (verifyVersion(content))
-		// {
-		// // Continue loading
-		// }
-		// else
-		// {
-		// return null;
-		// }
+		String microAppPath = PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.HIKE_MICRO_APPS;
+		String microAppName = content.getContentData().cardObj.getAppName();
 
-		File file = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + content.getContentData().getId(), content.getContentData().getTag());
+        microAppPath = PlatformUtils.generateMappUnZipPathForBotRequestType(content.getRequestType(),microAppPath,microAppName);
+
+		File file = new File(microAppPath, content.getContentData().getTag());
+
+        // If file is not found in the newer structured hierarchy directory path, then look for file in the older content directory path used before versioning
+        if (!file.exists())
+		{
+			file = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + content.getContentData().getId(), content.getContentData().getTag());
+		}
 
 		String templateString = PlatformContentUtils.readDataFromFile(file);
 
@@ -130,70 +135,6 @@ class PlatformContentCache
 		}
 
 		return downloadedTemplate;
-	}
-
-	public static boolean verifyVersion(PlatformContentRequest content)
-	{
-		File file = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR, content.getContentData().getId());
-
-		if (file.exists() && file.isDirectory())
-		{
-			String[] fileList = file.list(new FilenameFilter()
-			{
-				@Override 
-				public boolean accept(File dir, String filename)
-				{
-					if (filename.equals(PlatformContentConstants.PLATFORM_CONFIG_FILE_NAME))
-					{
-						return true;
-					}
-					else
-					{
-						return false;
-					}
-				}
-			});
-
-			if (fileList.length == 0)
-			{
-				// If config.json is not present we go ahead and use current version
-				return true;
-			}
-			else
-			{
-				File configFile = new File(file.getAbsolutePath() + File.separator + fileList[0]);
-
-				String configFileData = PlatformContentUtils.readDataFromFile(configFile);
-
-				if (TextUtils.isEmpty(configFileData))
-				{
-					return true;
-				}
-				else
-				{
-					try
-					{
-						JSONObject configJson = new JSONObject(configFileData);
-						String version = configJson.getString(PlatformContentConstants.PLATFORM_CONFIG_VERSION_ID);
-						if (version.equals(content.getContentData().getVersion()))
-						{
-							return true;
-						}
-						else
-						{
-							return false;
-						}
-					}
-					catch (JSONException e)
-					{
-						e.printStackTrace();
-						return true;
-					}
-				}
-			}
-		}
-
-		return false;
 	}
 
 	/**

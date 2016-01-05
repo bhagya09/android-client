@@ -435,4 +435,20 @@ public class HttpRequestConstants
             return HTTP + STAGING_API  + BASE_V1 + "/android";
         }
     }
+    /*
+     * Async Method to fetch latest micro app from server for forward card case
+     */
+    public static String getBotDownloadUrlV2()
+    {
+        String suffix = "/mapps/api" + BASE_V2 + "/apps/install.json";
+
+        if (isProduction)
+        {
+            return HTTPS + "mapps." + PLATFORM_PRODUCTION_API + suffix;
+        }
+        else
+        {
+            return HTTPS + QA_CONTENT + suffix ;
+        }
+    }
 }

@@ -157,6 +157,7 @@ public interface HikePlatformConstants
 	public static final String BOT_CREATION_FAILED_MQTT = "cbot_err_m";
 	public static final String MICROAPP_DOWNLOADED = "mapp";
 	public static final String MICROAPP_DOWNLOAD_FAILED = "mapp_err";
+    public static final String NAME = "name";
 
 	public static final String PLATFORM_BRIDGE_NAME = "PlatformBridge";
 
@@ -192,6 +193,8 @@ public interface HikePlatformConstants
 	public static final String TARGET_PLATFORM = "target_platform";
 	
 	public static final String TARGET_ACTIVITY = "target_activity";
+
+    public static final String MAPP_VERSION_CODE = "mapp_version_code";
 	
 	public static final String MIN_PLATFORM = "min_platform";
 
@@ -261,6 +264,8 @@ public interface HikePlatformConstants
 	public static final String BOT_LATEST_VERSION = "latest_version";
 	
 	public static final String MSISDN = "msisdn";
+
+    public static final String BOT_MSISDN = "botMsisdn";
 	
 	public static final String BOT_NAME = "name";
 	
@@ -277,6 +282,20 @@ public interface HikePlatformConstants
 	public static final String GAME_CHANNEL="+hikegames+";
 	
 	final static String RESUME_SUPPORT = "resume_support";
+
+    public static final String VERSIONING_DIRECTORY_NAME = "Version_";
+
+    public static final class PlatformMappRequestType
+    {
+        public static final byte HIKE_MICRO_APPS = 1;
+
+        public static final byte ONE_TIME_POPUPS = 2;
+
+        public static final byte NATIVE_APPS = 3;
+
+        public static final byte HIKE_MAPPS = 4;
+
+    }
 
 	public static final String IS_SHORTCUT = "is_shortcut";
 

@@ -1472,7 +1472,8 @@ public abstract class JavascriptBridge
 		botInfo.setUnreadCount(0);
 
 	}
-	/**
+
+    /**
 	 * Platform Version 9
 	 * This function is made  to know whether a microapp exists.
 	 * @param id: the id of the function that native will call to call the js .
@@ -1481,9 +1482,20 @@ public abstract class JavascriptBridge
 	@JavascriptInterface
 	public void isMicroappExist(String id, String mapp)
 	{
-		File file = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + mapp);
-		if (file.exists())
+        // Check for is Micro App exists in all of the directories path that are being used after the versioning release
+		File fileInMappsDirectory = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.HIKE_MICRO_APPS + PlatformContentConstants.HIKE_MAPPS + mapp);
+        File fileInGamesDirectory = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.HIKE_MICRO_APPS + PlatformContentConstants.HIKE_GAMES + mapp);
+        File fileInHikeMicroAppsDirectory = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.HIKE_MICRO_APPS + mapp);
+        File fileInContentDirectory = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + mapp);
+
+        if (fileInMappsDirectory.exists())
 			callbackToJS(id, "true");
+        else if(fileInGamesDirectory.exists())
+            callbackToJS(id, "true");
+        else if(fileInHikeMicroAppsDirectory.exists())
+            callbackToJS(id, "true");
+        else if(fileInContentDirectory.exists())
+            callbackToJS(id, "true");
 		else
 			callbackToJS(id, "false");
 	}

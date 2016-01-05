@@ -167,8 +167,13 @@ public class CocosGamingActivity extends Cocos2dxActivity
 					{
 						e.printStackTrace();
 					}
+                    // Check if game engine is not present in new directory path after versioning else check in previous path
 					String appName = json.optString(HikeConstants.NAME);
-					cocosEnginePath = platform_content_dir + appName + "/libcocos2d.so";
+					cocosEnginePath = platform_content_dir + PlatformContentConstants.HIKE_MICRO_APPS + PlatformContentConstants.HIKE_MAPPS + appName + "/libcocos2d.so";
+                    if(!new File(cocosEnginePath).exists())
+                    {
+                        cocosEnginePath = platform_content_dir + appName + "/libcocos2d.so";
+                    }
 
 				}
 			}
@@ -381,15 +386,14 @@ public class CocosGamingActivity extends Cocos2dxActivity
 	 */
 	public static String getExternalPath()
 	{
-		String path = platform_content_dir + nonMessagingBotMetadata.getAppName();
+        String path = nonMessagingBotMetadata.getBotFilePath();
 		return path + File.separator + "assets/";
 	}
 
 	public String getAppBasePath()
 	{
-		String path = platform_content_dir + nonMessagingBotMetadata.getAppName();
-
-		return path + File.separator;
+        String path = nonMessagingBotMetadata.getBotFilePath();
+        return path + File.separator;
 	}
 
 }

@@ -51,7 +51,10 @@ public class HikeUnzipFile extends Observable
 	 */
 	private boolean unZipFromSourceToDestination(String... params)
 	{
-		String filePath = params[0];
+        if(params.length < 2)
+            return false;
+
+        String filePath = params[0];
 		String destinationPath = params[1];
 
 		File archive = new File(filePath);
@@ -63,11 +66,11 @@ public class HikeUnzipFile extends Observable
 
 		try
 		{
-			ZipFile zipfile = new ZipFile(archive);
+			ZipFile zipfile = new ZipFile(filePath);
 			for (Enumeration e = zipfile.entries(); e.hasMoreElements();)
 			{
 				ZipEntry entry = (ZipEntry) e.nextElement();
-				unzipEachEntry(zipfile, entry, destinationPath);
+                unzipEachEntry(zipfile, entry, destinationPath);
 			}
 		}
 		catch (Exception e)
@@ -79,14 +82,14 @@ public class HikeUnzipFile extends Observable
 	}
 
 	/*
-	 * This method called from the above method does the actual unzip of each file and directorie present within the zip file and copy them to the destination
+	 * This method can be called for normal unzip of each file and directories present within the zip file and copy them to the destination
 	 */
 	private void unzipEachEntry(ZipFile zipfile, ZipEntry entry, String outputDir) throws IOException
 	{
 		if (entry.isDirectory())
 		{
-				new File(outputDir, entry.getName()).mkdirs();
-				return;
+			new File(outputDir, entry.getName()).mkdirs();
+			return;
 		}
 
 		File outputFile = new File(outputDir, entry.getName());
