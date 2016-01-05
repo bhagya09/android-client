@@ -407,7 +407,22 @@ public class UploadFileTask extends FileTransferBase
 				initFileUpload(isFileKeyValid);
 				String fileMd5 = Utils.fileToMD5(selectedFile.getAbsolutePath());
 				chain.getRequestFacade().setUrl(new URL(getFastFileUploadBaseUrl() + fileMd5));
-				chain.proceed();
+				if (TextUtils.isEmpty(fileKey))
+				{
+					FileSavedState fst = HttpManager.getInstance().getRequestStateFromDB(HttpRequestConstants.getUploadFileBaseUrl(), String.valueOf(msgId));//if (not started) then proceed
+					if (fst != null && fst.getFTState() == FTState.NOT_STARTED)
+					{
+						chain.proceed();
+					}
+					else
+					{
+						uploadFile(selectedFile);
+					}
+				}
+				else
+				{
+					postFileUploadMsgProcessing();
+				}
 			}
 		};
 	}
@@ -539,7 +554,11 @@ public class UploadFileTask extends FileTransferBase
 		fileKey = fileJSON.optString(HikeConstants.FILE_KEY);
 		fileType = fileJSON.optString(HikeConstants.CONTENT_TYPE);
 		fileSize = (int) fileJSON.optLong(HikeConstants.FILE_SIZE);
+		postFileUploadMsgProcessing();
+	}
 
+	private void postFileUploadMsgProcessing() throws JSONException
+	{
 		/*
 		 * Saving analytic event before publishing the mqtt message.
 		 */
