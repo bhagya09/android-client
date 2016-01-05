@@ -296,6 +296,20 @@ public class VoipCallFragment extends Fragment implements CallActions
 		if (VoIPService.getCallId() == 0)	// Bug #45154
 			releaseProximityWakelock();
 		Logger.d(tag, "VoIPCallFragment onPause()");
+
+		try
+		{
+			if (isBound)
+			{
+				isBound = false;
+				getActivity().unbindService(myConnection);
+			}
+		}
+		catch (IllegalArgumentException e)
+		{
+//			Logger.d(tag, "unbindService IllegalArgumentException: " + e.toString());
+		}
+
 		super.onPause();
 	}
 
@@ -312,18 +326,6 @@ public class VoipCallFragment extends Fragment implements CallActions
 			callDuration.stop();
 		}
 
-		try 
-		{
-			if (isBound) 
-			{
-				getActivity().unbindService(myConnection);
-			}
-		}
-		catch (IllegalArgumentException e) 
-		{
-//			Logger.d(tag, "unbindService IllegalArgumentException: " + e.toString());
-		}
-		
 		if(callActionsView!=null)
 		{
 			callActionsView.stopPing();
