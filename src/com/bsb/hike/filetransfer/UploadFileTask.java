@@ -405,10 +405,10 @@ public class UploadFileTask extends FileTransferBase
 			public void intercept(Chain chain) throws Exception
 			{
 				initFileUpload(isFileKeyValid);
-				String fileMd5 = Utils.fileToMD5(selectedFile.getAbsolutePath());
-				chain.getRequestFacade().setUrl(new URL(getFastFileUploadBaseUrl() + fileMd5));
 				if (TextUtils.isEmpty(fileKey))
 				{
+					String fileMd5 = Utils.fileToMD5(selectedFile.getAbsolutePath());
+					chain.getRequestFacade().setUrl(new URL(getFastFileUploadBaseUrl() + fileMd5));
 					FileSavedState fst = HttpManager.getInstance().getRequestStateFromDB(HttpRequestConstants.getUploadFileBaseUrl(), String.valueOf(msgId));//if (not started) then proceed
 					if (fst != null && fst.getFTState() == FTState.NOT_STARTED)
 					{
@@ -627,37 +627,6 @@ public class UploadFileTask extends FileTransferBase
 		}
 	}
 
-//	protected void deleteStateFile()
-//	{
-//		if (isMultiMsg)
-//		{
-//			for (ConvMessage msg : messageList)
-//			{
-//				super.deleteStateFile(getStateFile(msg));
-//			}
-//		}
-//		else
-//		{
-//			super.deleteStateFile();
-//		}
-//	}
-//
-//	// @Override
-//	protected void saveFileState(String sessionId)
-//	{
-//		if (isMultiMsg)
-//		{
-//			for (ConvMessage msg : messageList)
-//			{
-//				super.saveFileState(getStateFile(msg), _state, sessionId, null);
-//			}
-//		}
-//		else
-//		{
-//			super.saveFileState(sessionId);
-//		}
-//	}
-//
 //	// @Override
 //	protected void saveFileKeyState(String fileKey)
 //	{
