@@ -88,7 +88,7 @@ public class UploadContactOrLocationTask extends FileTransferBase
 
 			if (TextUtils.isEmpty(fileKey))
 			{
-				requestToken = HttpRequests.uploadContactOrLocation(null, uploadingContact ? HikeConstants.CONTACT_FILE_NAME : HikeConstants.LOCATION_FILE_NAME,
+				requestToken = HttpRequests.uploadContactOrLocation(uploadingContact ? HikeConstants.CONTACT_FILE_NAME : HikeConstants.LOCATION_FILE_NAME,
 						((ConvMessage) userContext).getMetadata().getJSON(), uploadingContact ? HikeConstants.CONTACT_CONTENT_TYPE : HikeConstants.LOCATION_CONTENT_TYPE,
 						getUploadContactorLocationRequestListener());
 				requestToken.execute();

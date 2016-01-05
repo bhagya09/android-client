@@ -1021,7 +1021,7 @@ public class HttpRequests
 		return requestToken;
 	}
 
-	public static RequestToken uploadContactOrLocation(String filePath, String fileName, JSONObject json, String fileType, IRequestListener requestListener)
+	public static RequestToken uploadContactOrLocation(String fileName, JSONObject json, String fileType, IRequestListener requestListener)
 	{
 		List<Header> headers = new ArrayList<>();
 		headers.add(new Header("Content-Name", fileName));
