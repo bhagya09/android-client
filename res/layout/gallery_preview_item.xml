@@ -27,6 +27,7 @@
         android:paddingTop="4dp"
         android:paddingLeft="8dp"
         android:paddingRight="4dp"
+        android:imeOptions="actionDone"
         android:paddingBottom="8dp"
         android:singleLine="true"
         android:textColor="@color/white"
