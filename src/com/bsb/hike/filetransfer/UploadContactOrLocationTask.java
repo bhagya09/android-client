@@ -28,6 +28,7 @@ import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
+import com.bsb.hike.modules.httpmgr.interceptor.IRequestInterceptor;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.utils.Logger;
@@ -66,23 +67,6 @@ public class UploadContactOrLocationTask extends FileTransferBase
 	{
 		try
 		{
-			if (!uploadingContact)
-			{
-				HikeFile hikeFile = ((ConvMessage) userContext).getMetadata().getHikeFiles().get(0);
-				latitude = hikeFile.getLatitude();
-				longitude = hikeFile.getLongitude();
-				zoomLevel = hikeFile.getZoomLevel();
-				address = hikeFile.getAddress();
-
-				if (address == null)
-					address = Utils.getAddressFromGeoPoint(new LatLng(latitude, longitude), context);
-
-				if (TextUtils.isEmpty(hikeFile.getThumbnailString()))
-				{
-					fetchThumbnailAndUpdateConvMessage(latitude, longitude, zoomLevel, address, (ConvMessage) userContext);
-				}
-			}
-
 			// If we don't have a file key, that means we haven't uploaded the
 			// file to the server yet
 
@@ -90,7 +74,7 @@ public class UploadContactOrLocationTask extends FileTransferBase
 			{
 				requestToken = HttpRequests.uploadContactOrLocation(uploadingContact ? HikeConstants.CONTACT_FILE_NAME : HikeConstants.LOCATION_FILE_NAME,
 						((ConvMessage) userContext).getMetadata().getJSON(), uploadingContact ? HikeConstants.CONTACT_CONTENT_TYPE : HikeConstants.LOCATION_CONTENT_TYPE,
-						getUploadContactorLocationRequestListener());
+						getUploadContactorLocationRequestListener(), getUploadContactOrLocationInterceptor());
 				requestToken.execute();
 			}
 			else
@@ -112,6 +96,33 @@ public class UploadContactOrLocationTask extends FileTransferBase
 		{
 			requestToken.execute();
 		}
+	}
+
+	private IRequestInterceptor getUploadContactOrLocationInterceptor()
+	{
+		return new IRequestInterceptor() {
+			@Override
+			public void intercept(Chain chain) throws Exception
+			{
+				if (!uploadingContact)
+				{
+					HikeFile hikeFile = ((ConvMessage) userContext).getMetadata().getHikeFiles().get(0);
+					latitude = hikeFile.getLatitude();
+					longitude = hikeFile.getLongitude();
+					zoomLevel = hikeFile.getZoomLevel();
+					address = hikeFile.getAddress();
+
+					if (address == null)
+						address = Utils.getAddressFromGeoPoint(new LatLng(latitude, longitude), context);
+
+					if (TextUtils.isEmpty(hikeFile.getThumbnailString()))
+					{
+						fetchThumbnailAndUpdateConvMessage(latitude, longitude, zoomLevel, address, (ConvMessage) userContext);
+					}
+				}
+				chain.proceed();
+			}
+		};
 	}
 
 	private IRequestListener getUploadContactorLocationRequestListener()

@@ -1021,7 +1021,7 @@ public class HttpRequests
 		return requestToken;
 	}
 
-	public static RequestToken uploadContactOrLocation(String fileName, JSONObject json, String fileType, IRequestListener requestListener)
+	public static RequestToken uploadContactOrLocation(String fileName, JSONObject json, String fileType, IRequestListener requestListener, IRequestInterceptor interceptor)
 	{
 		List<Header> headers = new ArrayList<>();
 		headers.add(new Header("Content-Name", fileName));
@@ -1037,6 +1037,7 @@ public class HttpRequests
 				.addHeader(headers)
 				.put(body)
 				.build();
+		requestToken.getRequestInterceptors().addFirst("uploadContactOrLocationPreProcess", interceptor);
 		return requestToken;
 	}
 }
