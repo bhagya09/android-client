@@ -7,12 +7,19 @@ import java.util.List;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
 import android.graphics.Bitmap.Config;
 import android.graphics.Canvas;
+import android.graphics.Matrix;
+import android.graphics.Paint;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.support.v8.renderscript.Allocation;
+import android.support.v8.renderscript.Element;
+import android.support.v8.renderscript.RenderScript;
+import android.support.v8.renderscript.ScriptIntrinsicBlur;
 import android.util.DisplayMetrics;
 
 import com.bsb.hike.HikeConstants;
@@ -162,20 +169,20 @@ public class HikePhotosUtils
 
 	/**
 	 * Funtcion to create Bitmap. Handles out of Memory Exception
-	 * 
+	 *
 	 * @author akhiltripathi
 	 */
 
 	public static Bitmap createBitmap(Bitmap source, int x, int y, int targetWidth, int targetHeight, boolean createMutableCopy, boolean scaledCopy, boolean crop, boolean retry,Config config)
 	{
 		Bitmap ret = null;
-		
+
 		try
 		{
 			if (source != null)
 			{
 				Config outConfig = (source.getConfig() == null) ? config : source.getConfig();
-				
+
 				if (scaledCopy && createMutableCopy)
 				{
 					ret = Bitmap.createScaledBitmap(source, targetWidth, targetHeight, false);
@@ -444,10 +451,98 @@ public class HikePhotosUtils
 
 	    ColorMatrix colorMatrix = new ColorMatrix();
 	    colorMatrix.setSaturation(0f); //Remove Colour 
-	    colorMatrix.set(colorTransform); //Apply the Red
+	    colorMatrix.set(colorTransform);
 
 	    ColorMatrixColorFilter colorFilter = new ColorMatrixColorFilter(colorMatrix);
 	    return colorFilter;
 	}
 
+
+	public static Bitmap scaleAdvanced(Bitmap argBmp, final float maxWidth, final float maxHeight, boolean applyGreenDownShiftFilter)
+	{
+		Matrix scaleTransformation = null;
+
+		float s1 = 1.0f;
+
+		if (argBmp.getHeight() > maxHeight || argBmp.getWidth() > maxWidth)
+		{
+			float originalWidth = argBmp.getWidth(), originalHeight = argBmp.getHeight();
+			float s1x = maxWidth / originalWidth;
+			float s1y = maxHeight / originalHeight;
+			s1 = (s1x < s1y) ? s1x : s1y;
+			scaleTransformation = new Matrix();
+			scaleTransformation.setScale(s1, s1);
+		}
+
+		ColorMatrixColorFilter colorFilter = HikePhotosUtils.getGreenDownShiftFilter();
+
+		argBmp.setHasAlpha(true);
+
+		Bitmap scaledBitmap = null;
+		try
+		{
+			scaledBitmap = Bitmap.createBitmap(((int) ((float) argBmp.getWidth() * s1)), ((int) ((float) argBmp.getHeight() * s1)), Bitmap.Config.RGB_565);
+			Canvas canvas = new Canvas(scaledBitmap);
+			if (scaleTransformation != null)
+			{
+				canvas.setMatrix(scaleTransformation);
+			}
+			Paint paint = new Paint(Paint.FILTER_BITMAP_FLAG | Paint.DITHER_FLAG | Paint.ANTI_ALIAS_FLAG);
+			paint.setDither(true);
+			if (applyGreenDownShiftFilter)
+			{
+				paint.setColorFilter(colorFilter);
+			}
+			canvas.drawBitmap(argBmp, 0, 0, paint);
+		}
+		catch (OutOfMemoryError exception)
+		{
+			exception.printStackTrace();
+			return null;
+		}
+
+		return scaledBitmap;
+	}
+
+	/**
+	 * TODO Test and make generic method
+	 *
+	 * @param argBmp
+	 */
+	private void blur(Bitmap argBmp, Context argContext)
+	{
+		final RenderScript rs = RenderScript.create(argContext);
+		final Allocation input = Allocation.createFromBitmap( rs, argBmp, Allocation.MipmapControl.MIPMAP_NONE, Allocation.USAGE_SCRIPT );
+		final Allocation output = Allocation.createTyped( rs, input.getType() );
+		final ScriptIntrinsicBlur script = ScriptIntrinsicBlur.create(rs, Element.U8_4(rs));
+		script.setRadius( 1.0f );
+		script.setInput(input);
+		script.forEach(output);
+		output.copyTo( argBmp );
+	}
+
+	private boolean shouldBlur(Bitmap argBmp, int maxWidth, int maxHeight)
+	{
+		int BLUR_THRESHOLD = 80;
+
+		int sourceSize = argBmp.getWidth() * argBmp.getHeight();
+
+		int destSize = maxWidth * maxHeight;
+
+		//TODO
+		return true;
+	}
+
+	public static BitmapFactory.Options getLoadingOptionsAdvanced()
+	{
+		BitmapFactory.Options options = new BitmapFactory.Options();
+
+		options.inScaled = false;
+
+		options.inDither = true;
+
+		options.inPreferQualityOverSpeed = true;
+
+		return options;
+	}
 }

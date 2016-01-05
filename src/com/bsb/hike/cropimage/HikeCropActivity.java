@@ -184,14 +184,13 @@ public class HikeCropActivity extends HikeAppStateBaseFragmentActivity
 
 	}
 
-	//TODO make generic utility method
 	private void onCropped(Bitmap argBmp)
 	{
 		try
 		{
 			if (mCropCompression != null)
 			{
-				argBmp = scale(argBmp, mCropCompression.getWidth(), mCropCompression.getHeight());
+				argBmp = HikePhotosUtils.scaleAdvanced(argBmp, mCropCompression.getWidth(), mCropCompression.getHeight(), true);
 			}
 
 			if(argBmp == null)
@@ -217,93 +216,5 @@ public class HikeCropActivity extends HikeAppStateBaseFragmentActivity
 	{
 		setResult(RESULT_CANCELED);
 		finish();
-	}
-
-	/**
-	 * TODO Test and make generic method
-	 * 
-	 * @param argBmp
-	 */
-	private void blur(Bitmap argBmp)
-	{
-		final RenderScript rs = RenderScript.create( getApplicationContext());
-		final Allocation input = Allocation.createFromBitmap( rs, argBmp, Allocation.MipmapControl.MIPMAP_NONE, Allocation.USAGE_SCRIPT );
-		final Allocation output = Allocation.createTyped( rs, input.getType() );
-		final ScriptIntrinsicBlur script = ScriptIntrinsicBlur.create( rs, Element.U8_4( rs ) );
-		script.setRadius( 1.0f );
-		script.setInput( input );
-		script.forEach( output );
-		output.copyTo( argBmp );
-	}
-	
-	private boolean shouldBlur(Bitmap argBmp, int maxWidth, int maxHeight)
-	{
-		int BLUR_THRESHOLD = 80;
-		
-		int sourceSize = argBmp.getWidth() * argBmp.getHeight();
-		
-		int destSize = maxWidth * maxHeight;
-		
-		//TODO
-		return true;
-	}
-	
-	public static Bitmap scale(Bitmap argBmp, final float maxWidth, final float maxHeight)
-	{
-		Matrix scaleTransformation = null;
-		
-		boolean shouldScale = false;
-		
-		if (argBmp.getHeight() > maxHeight || argBmp.getWidth() > maxWidth)
-		{
-			shouldScale = true;
-			float originalWidth = argBmp.getWidth(), originalHeight = argBmp.getHeight();
-			float s1x = maxWidth / originalWidth;
-			float s1y = maxHeight / originalHeight;
-			float s1 = (s1x < s1y) ? s1x : s1y;
-			scaleTransformation = new Matrix();
-			scaleTransformation.setScale(s1, s1);
-		}
-		
-	    ColorMatrixColorFilter colorFilter = HikePhotosUtils.getGreenDownShiftFilter();
-		
-		argBmp.setHasAlpha(true);
-
-		Bitmap scaledBitmap = null;
-		try
-		{
-			if (shouldScale)
-			{
-				scaledBitmap = Bitmap.createBitmap((int)maxWidth, (int)maxHeight, Bitmap.Config.RGB_565);
-			}
-			else
-			{
-				scaledBitmap = Bitmap.createBitmap(argBmp.getWidth(), argBmp.getHeight(), Bitmap.Config.RGB_565);
-			}
-			Canvas canvas = new Canvas(scaledBitmap);
-			if (scaleTransformation != null)
-			{
-				canvas.setMatrix(scaleTransformation);
-			}
-			Paint paint = new Paint(Paint.FILTER_BITMAP_FLAG | Paint.DITHER_FLAG | Paint.ANTI_ALIAS_FLAG);
-			paint.setDither(true);
-			paint.setColorFilter(colorFilter);
-			
-			if (!shouldScale)
-			{
-				canvas.drawBitmap(argBmp, 0, 0, paint);
-			}
-			else
-			{
-				canvas.drawBitmap(argBmp, 0,0, paint);
-			}
-		}
-		catch (OutOfMemoryError exception)
-		{
-			exception.printStackTrace();
-			return null;
-		}
-		
-		return scaledBitmap;
 	}
 }

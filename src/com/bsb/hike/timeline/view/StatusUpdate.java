@@ -5,6 +5,7 @@ import java.io.IOException;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.bsb.hike.BitmapModule.BitmapUtils;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
@@ -47,6 +48,7 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -76,6 +78,8 @@ import android.widget.Toast;
 public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Listener, OnSoftKeyboardListener, PopupListener, View.OnClickListener,
 		AdaptxtKeyboordVisibilityStatusListner
 {
+
+	private BitmapFactory.Options options;
 
 	private class ActivityTask
 	{
@@ -179,6 +183,8 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 	private boolean isForeground;
 
 	public static final String STATUS_UPDATE_IMAGE_PATH = "SUIMGPTH";
+
+	public static final String ENABLE_COMPRESSION = "SUCOMPRESS";
 	
 	StatusUpdateTaskFinishedRunnable suUploadTaskFinishRunnable;
 
@@ -187,6 +193,8 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 	private View addItemsLayout;
 
 	private String mInputIntentData;
+
+	private boolean enableCompression = true;
 
 	@Override
 	public Object onRetainCustomNonConfigurationInstance()
@@ -219,6 +227,14 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		}
 
 		initVarRef();
+
+		options = new BitmapFactory.Options();
+
+		options.inScaled = false;
+
+		options.inDither = true;
+
+		options.inPreferQualityOverSpeed = true;
 		
 		initEmoticonPicker();
 		
@@ -274,7 +290,8 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 
 		if (!TextUtils.isEmpty(mImagePath) && !mActivityTask.imageDeleted)
 		{
-			Bitmap bmp = HikeBitmapFactory.decodeFile(mImagePath);
+			Bitmap bmp = HikeBitmapFactory.decodeSampledBitmapFromFile(mImagePath, (HikeConstants.HikePhotos.MODIFIED_MAX_IMAGE_DIMEN),
+					(HikeConstants.HikePhotos.MODIFIED_MAX_IMAGE_DIMEN), Bitmap.Config.RGB_565, options, true);
 			if(bmp == null)
 			{
 				removePhoto(null);
@@ -376,6 +393,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		}
 		mImagePath = intent.getStringExtra(STATUS_UPDATE_IMAGE_PATH);
 		mInputIntentData = intent.toUri(Intent.URI_INTENT_SCHEME);
+		enableCompression = intent.getBooleanExtra(ENABLE_COMPRESSION,true);
 	}
 
 	/**
@@ -576,7 +594,8 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 	public void addPhoto(String imagePath)
 	{
 		mImagePath = imagePath;
-		Bitmap bmp = HikeBitmapFactory.decodeFile(mImagePath);
+		Bitmap bmp = HikeBitmapFactory.decodeSampledBitmapFromFile(mImagePath, (HikeConstants.HikePhotos.MODIFIED_MAX_IMAGE_DIMEN),
+				(HikeConstants.HikePhotos.MODIFIED_MAX_IMAGE_DIMEN), Bitmap.Config.RGB_565, options, true);
 		if (bmp == null)
 		{
 			removePhoto(null);
@@ -713,20 +732,11 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 			status = statusTxt.getText().toString();
 		}
 
-		try
-		{
-			mActivityTask.task = new StatusUpdateTask(status, mActivityTask.moodId, mImagePath);
-			if(!HikeMessengerApp.isSystemKeyboard())
+		mActivityTask.task = new StatusUpdateTask(status, mActivityTask.moodId, mImagePath, null,enableCompression);
+		if (!HikeMessengerApp.isSystemKeyboard())
 			addLanguageAnalytics();
-		}
-		catch (IOException e)
-		{
-			Toast.makeText(getApplicationContext(), R.string.could_not_post_pic, Toast.LENGTH_SHORT).show();
-			e.printStackTrace();
-			return;
-		}
-		
-		if(mActivityTask.task != null)
+
+		if (mActivityTask.task != null)
 		{
 			mActivityTask.task.execute();
 
@@ -1165,6 +1175,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 				@Override
 				public void imageParsed(String imagePath)
 				{
+					enableCompression = false;
 					addPhoto(imagePath);
 				}
 

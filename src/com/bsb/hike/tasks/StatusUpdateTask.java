@@ -10,12 +10,17 @@ import org.json.JSONObject;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.graphics.Bitmap;
 import android.text.TextUtils;
 import android.util.Base64;
+import android.widget.Toast;
 
+import com.bsb.hike.BitmapModule.BitmapUtils;
+import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
+import com.bsb.hike.R;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.modules.httpmgr.RequestToken;
@@ -24,6 +29,7 @@ import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.hikehttp.IHikeHTTPTask;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
+import com.bsb.hike.photos.HikePhotosUtils;
 import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
 import com.bsb.hike.utils.Logger;
@@ -31,6 +37,10 @@ import com.bsb.hike.utils.Utils;
 
 public class StatusUpdateTask implements IHikeHTTPTask
 {
+	private boolean compressionEnabled = true;
+
+	private Bitmap bmp;
+
 	private String status;
 
 	private int moodId;
@@ -49,18 +59,75 @@ public class StatusUpdateTask implements IHikeHTTPTask
 
 	private int taskStatus = TASK_IDLE;
 
-	public StatusUpdateTask(String status, int argMoodId, String imageFilePath) throws IOException
+	public StatusUpdateTask(String status, int argMoodId, String imageFilePath)
+	{
+		this(status, argMoodId, imageFilePath, null);
+	}
+
+	public StatusUpdateTask(String status, int argMoodId, String imageFilePath, Bitmap bmp)
+	{
+		this(status, argMoodId, imageFilePath, bmp, true);
+	}
+
+	public StatusUpdateTask(String status, int argMoodId, String imageFilePath, Bitmap bmp, boolean enableCompression)
 	{
 		this.status = status;
 		this.moodId = argMoodId;
 		this.imageFilePath = imageFilePath;
-		token = HttpRequests.postStatusRequest(status, argMoodId, getRequestListener(), imageFilePath);
+		this.bmp = bmp;
+		this.compressionEnabled = enableCompression;
 	}
 
 	@Override
 	public void execute()
 	{
-		token.execute();
+		HikeHandlerUtil.getInstance().postRunnableWithDelay(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				try
+				{
+					// Compression
+					if (compressionEnabled)
+					{
+						Bitmap sourceBitmap = null;
+						if (bmp != null)
+						{
+							sourceBitmap = bmp;
+						}
+						else if (!TextUtils.isEmpty(imageFilePath) && new File(imageFilePath).exists())
+						{
+							if (bmp != null)
+							{
+								sourceBitmap = bmp;
+							}
+							else
+							{
+								sourceBitmap = HikeBitmapFactory.decodeSampledBitmapFromFile(imageFilePath, (HikeConstants.HikePhotos.MAX_IMAGE_DIMEN),
+										(HikeConstants.HikePhotos.MAX_IMAGE_DIMEN), Bitmap.Config.RGB_565, HikePhotosUtils.getLoadingOptionsAdvanced(), false);
+							}
+						}
+
+						if (sourceBitmap != null)
+						{
+							File tempFile = File.createTempFile(Long.toString(System.currentTimeMillis()), ".jpg", null);
+							sourceBitmap = HikePhotosUtils.scaleAdvanced(sourceBitmap, HikeConstants.HikePhotos.MAX_IMAGE_DIMEN, HikeConstants.HikePhotos.MAX_IMAGE_DIMEN, false);
+							BitmapUtils.saveBitmapToFile(tempFile, sourceBitmap, Bitmap.CompressFormat.JPEG, 80);
+							imageFilePath = tempFile.getAbsolutePath();
+						}
+					}
+					token = HttpRequests.postStatusRequest(status, moodId, getRequestListener(), imageFilePath);
+					token.execute();
+				}
+				catch (IOException ioe)
+				{
+					Toast.makeText(HikeMessengerApp.getInstance().getApplicationContext(), R.string.could_not_post_pic, Toast.LENGTH_SHORT).show();
+					ioe.printStackTrace();
+				}
+			}
+		}, 0);
+
 	}
 
 	@Override
@@ -121,6 +188,8 @@ public class StatusUpdateTask implements IHikeHTTPTask
 					String destFilePath = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT + "/" + mappedId + ".jpg";
 
 					Utils.copyFile(imageFilePath, destFilePath);
+
+					Utils.deleteFile(new File(imageFilePath));
 
 					HikeHandlerUtil.getInstance().postRunnableWithDelay(new Runnable()
 					{
@@ -224,7 +293,7 @@ public class StatusUpdateTask implements IHikeHTTPTask
 
 	public int getTaskStatus()
 	{
-		if(token.isRequestRunning())
+		if (token!=null && token.isRequestRunning())
 		{
 			return TASK_RUNNING;
 		}

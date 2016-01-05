@@ -1748,7 +1748,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 					{
 						if(imagesToShare.size() == 1)
 						{
-							intent = IntentFactory.getPostStatusUpdateIntent(this, imagesToShare.get(0));
+							intent = IntentFactory.getPostStatusUpdateIntent(this, imagesToShare.get(0),true);
 							intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 							startActivity(intent);
 							finish();
@@ -1838,7 +1838,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 
 						if(imagesToShare.size() == 1)
 						{
-							intent = IntentFactory.getPostStatusUpdateIntent(this, imagesToShare.get(0));
+							intent = IntentFactory.getPostStatusUpdateIntent(this, imagesToShare.get(0),true);
 							intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 							startActivity(intent);
 							finish();
@@ -1933,26 +1933,32 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		return null;
 	}
 
-	private void postImagesToShareOnTimeline(final boolean foreground) {
+	private void postImagesToShareOnTimeline(final boolean foreground)
+	{
 		final ArrayList<StatusUpdateTask> statusUpdateTasks = new ArrayList<StatusUpdateTask>();
-		for (String imageFilePath : imagesToShare) {
-			try {
-				statusUpdateTasks.add(new StatusUpdateTask(null, -1, imageFilePath));
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+		for (String imageFilePath : imagesToShare)
+		{
+			statusUpdateTasks.add(new StatusUpdateTask(null, -1, imageFilePath));
 		}
-		if (!statusUpdateTasks.isEmpty()) {
-			HikeHandlerUtil.getInstance().postRunnable(new Runnable() {
+		if (!statusUpdateTasks.isEmpty())
+		{
+			HikeHandlerUtil.getInstance().postRunnable(new Runnable()
+			{
 				@Override
-				public void run() {
-					new MultipleStatusUpdateTask(statusUpdateTasks, new MultipleStatusUpdateTask.MultiSUTaskListener() {
+				public void run()
+				{
+					new MultipleStatusUpdateTask(statusUpdateTasks, new MultipleStatusUpdateTask.MultiSUTaskListener()
+					{
 						@Override
-						public void onSuccess() {
-							if (foreground) {
-								ComposeChatActivity.this.runOnUiThread(new Runnable() {
+						public void onSuccess()
+						{
+							if (foreground)
+							{
+								ComposeChatActivity.this.runOnUiThread(new Runnable()
+								{
 									@Override
-									public void run() {
+									public void run()
+									{
 										Intent intent = new Intent(ComposeChatActivity.this, TimelineActivity.class);
 										intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 										startActivity(intent);
@@ -1965,10 +1971,13 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 						}
 
 						@Override
-						public void onFailed() {
-							ComposeChatActivity.this.runOnUiThread(new Runnable() {
+						public void onFailed()
+						{
+							ComposeChatActivity.this.runOnUiThread(new Runnable()
+							{
 								@Override
-								public void run() {
+								public void run()
+								{
 									Toast.makeText(HikeMessengerApp.getInstance(), R.string.multiple_su_post_failed, Toast.LENGTH_SHORT).show();
 								}
 							});
@@ -1976,11 +1985,15 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 						}
 
 						@Override
-						public void onTimeout() {
-							if (foreground) {
-								ComposeChatActivity.this.runOnUiThread(new Runnable() {
+						public void onTimeout()
+						{
+							if (foreground)
+							{
+								ComposeChatActivity.this.runOnUiThread(new Runnable()
+								{
 									@Override
-									public void run() {
+									public void run()
+									{
 										Toast.makeText(HikeMessengerApp.getInstance(), R.string.timeline_post_timeout, Toast.LENGTH_SHORT).show();
 										Intent intent = IntentFactory.getHomeActivityIntent(ComposeChatActivity.this);
 										intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);

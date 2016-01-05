@@ -32,8 +32,8 @@ public class GalleryPagerImageLoader extends ImageWorker
 		if (bd != null)
 			return bd.getBitmap();
 
-		Bitmap b = HikeBitmapFactory.decodeSampledBitmapFromFile(data, (HikeConstants.HikePhotos.MAX_IMAGE_DIMEN + HikeCropFragment.SIZE_MODIFIER),
-				(HikeConstants.HikePhotos.MAX_IMAGE_DIMEN + HikeCropFragment.SIZE_MODIFIER), Bitmap.Config.RGB_565, options, true);
+		Bitmap b = HikeBitmapFactory.decodeSampledBitmapFromFile(data, (HikeConstants.HikePhotos.MAX_IMAGE_DIMEN),
+				(HikeConstants.HikePhotos.MAX_IMAGE_DIMEN), Bitmap.Config.RGB_565, options, true);
 		return b;
 	}
 

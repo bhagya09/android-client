@@ -7400,22 +7400,14 @@ public class Utils
 	 */
 	public static void postStatusUpdate(String status, int moodId, String imageFilePath)
 	{
-		if(TextUtils.isEmpty(status) && moodId < 0 && TextUtils.isEmpty(imageFilePath) )
+		if (TextUtils.isEmpty(status) && moodId < 0 && TextUtils.isEmpty(imageFilePath))
 		{
 			Logger.e("Utils", "postStatusUpdate : status = null/empty, moodId < 0 & imageFilePath = null conditions hold together. Returning.");
 			return;
 		}
 
-		try
-		{
-			StatusUpdateTask task = new StatusUpdateTask(status, moodId, imageFilePath);
-			task.execute();
-		}
-		catch (IOException e)
-		{
-			Logger.e("Utils", "IOException thrown in postStatusUpdate");
-			return;
-		}
+		StatusUpdateTask task = new StatusUpdateTask(status, moodId, imageFilePath);
+		task.execute();
 	}
 
 	public static float currentBatteryLevel()
