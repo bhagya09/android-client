@@ -417,15 +417,18 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 						if (msgExtrasJson.has(HikeConstants.Extras.FILE_PATH))
 						{
 							String filePath = msgExtrasJson.getString(HikeConstants.Extras.FILE_PATH);
-							//TODO check for recording
-							if(HikeFileType.fromFilePath(filePath, false).compareTo(HikeFileType.IMAGE) != 0)
+							if (new File(filePath).exists())
 							{
-								allImages = false;
-							}
-							else
-							{
-								imagesToShare.add(filePath);
-								imageFilePathArray.add(filePath);
+								// TODO check for recording
+								if (HikeFileType.fromFilePath(filePath, false).compareTo(HikeFileType.IMAGE) != 0)
+								{
+									allImages = false;
+								}
+								else
+								{
+									imagesToShare.add(filePath);
+									imageFilePathArray.add(filePath);
+								}
 							}
 						}
 					}
