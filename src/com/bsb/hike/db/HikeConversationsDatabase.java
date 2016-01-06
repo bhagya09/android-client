@@ -84,7 +84,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 	private HikeConversationsDatabase(Context context)
 	{
-		super(context, DBConstants.CONVERSATIONS_DATABASE_NAME, null, DBConstants.CONVERSATIONS_DATABASE_VERSION, new ConversationDatabaseErrorHandler(context));
+		super(context, DBConstants.CONVERSATIONS_DATABASE_NAME, null, DBConstants.CONVERSATIONS_DATABASE_VERSION, new ConversationDatabaseErrorHandler());
 		mDb = getWritableDatabase();
 	}
 	
