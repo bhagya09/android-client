@@ -3,25 +3,6 @@
  */
 package com.bsb.hike.modules.contactmgr;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
-
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
@@ -38,6 +19,7 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
+import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.db.DBConstants;
 import com.bsb.hike.db.DbException;
 import com.bsb.hike.db.HikeConversationsDatabase;
@@ -53,6 +35,26 @@ import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.PairModified;
 import com.bsb.hike.utils.Utils;
+import com.haibison.android.lockpattern.util.Sys;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @author Gautam & Sidharth
@@ -2104,9 +2106,16 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 
 	public List<ContactInfo> getConversationGroupsAsContacts(boolean shouldSort)
 	{
+		return getConversationGroupsAsContacts(shouldSort,true);
+	}
+	public List<ContactInfo> getConversationGroupsAsContacts(boolean shouldSort,boolean fetchGroupCount)
+	{
+		Map<String, Integer> groupCountMap=null;
 		List<GroupDetails> groupDetails = persistenceCache.getGroupDetailsList();
 		List<ContactInfo> groupContacts = new ArrayList<ContactInfo>();
-		Map<String, Integer> groupCountMap = HikeConversationsDatabase.getInstance().getAllGroupsActiveParticipantCount();
+		if(fetchGroupCount) {
+			groupCountMap = HikeConversationsDatabase.getInstance().getAllGroupsActiveParticipantCount();
+		}
 		for(GroupDetails group : groupDetails)
 		{
 			if(group.isGroupAlive())
@@ -2114,7 +2123,7 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 				if (!OneToNConversationUtils.isBroadcastConversation(group.getGroupId()))
 				{
 					int numMembers = 0;
-					if(groupCountMap.containsKey(group.getGroupId()))
+					if(groupCountMap!=null && groupCountMap.containsKey(group.getGroupId()))
 					{
 						numMembers = groupCountMap.get(group.getGroupId());
 					}
@@ -2383,7 +2392,7 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 	}
 	
 	public void updateAdminState(String msisdn) {
-		transientCache.updateContactDetailInAllGroups( msisdn);
+		transientCache.updateContactDetailInAllGroups(msisdn);
 	}
 	
 	/**
