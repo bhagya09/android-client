@@ -1557,10 +1557,6 @@ import android.widget.Toast;
 				Toast.makeText(activity.getApplicationContext(), R.string.some_error, Toast.LENGTH_SHORT).show();
 			}
 		}
-		if (mShareablePopupLayout.isShowing())
-			hideKeyboardViewBehindPopup();
-		else
-			unhideKeyboardViewBehindPopup();
 		Logger.v(TAG, "Time taken to open emoticon pallete : " + (System.currentTimeMillis() - time));
 	}
 
@@ -6045,6 +6041,9 @@ import android.widget.Toast;
 		
 		if (mShareablePopupLayout.isKeyboardOpen() && mShareablePopupLayout.isShowing())
 		{
+			if (mCustomKeyboard != null && mCustomKeyboard.isCustomKeyboardVisible()) {
+				hideKptKeyboard();
+			}
 			mShareablePopupLayout.dismiss();
 		}
 		mShareablePopupLayout.onBackPressed();
