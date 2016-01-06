@@ -880,9 +880,13 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 				showToast(getString(this.composeMode == CREATE_BROADCAST_MODE ? R.string.added_in_broadcast : R.string.added_in_group));
 				return;
 			}
-			else if (adapter.getSelectedContactCount() >= HikeConstants.MAX_CONTACTS_IN_GROUP && !adapter.isContactAdded(contactInfo))
+			else if (this.composeMode == CREATE_GROUP_MODE && adapter.getSelectedContactCount()+1 >= HikeConstants.MAX_CONTACTS_IN_GROUP && !adapter.isContactAdded(contactInfo))
 			{
-				showToast(getString(this.composeMode == CREATE_BROADCAST_MODE ? R.string.maxContactInBroadcastErr : R.string.maxContactInGroupErr, HikeConstants.MAX_CONTACTS_IN_GROUP));
+				showToast(getString(R.string.maxContactInGroupErr, HikeConstants.MAX_CONTACTS_IN_GROUP));
+				return;
+			}else if (this.composeMode == CREATE_BROADCAST_MODE &&  adapter.getSelectedContactCount() >= HikeConstants.MAX_CONTACTS_IN_BROADCAST && !adapter.isContactAdded(contactInfo))
+			{
+				showToast(getString(R.string.maxContactInBroadcastErr, HikeConstants.MAX_CONTACTS_IN_BROADCAST));
 				return;
 			}
 			// for SMS users, append SMS text with name
@@ -1039,10 +1043,16 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			invalidateOptionsMenu();
 		}
 		else
-		{
+        {
+			if (createGroup) {
+				multiSelectTitle.setText(getString(R.string.group_selected,
+						adapter.getCurrentSelection()));
+			} else {
+
 			multiSelectTitle.setText(createBroadcast ? getString(R.string.broadcast_selected, adapter.getCurrentSelection()) : 
 				getString(R.string.gallery_num_selected, adapter.getCurrentSelection()));
-		}
+					}
+		 }
 	}
 
 	@Override
@@ -1063,8 +1073,12 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			setupMultiSelectActionBar();
 			invalidateOptionsMenu();
 		}
-		multiSelectTitle.setText(createBroadcast ? getString(R.string.broadcast_selected, adapter.getCurrentSelection()) :
-				getString(R.string.gallery_num_selected, adapter.getCurrentSelection()));
+		if (createGroup) {
+			multiSelectTitle.setText(getString(R.string.group_selected,
+					adapter.getCurrentSelection()));
+		} else {
+	    	multiSelectTitle.setText(getString(R.string.gallery_num_selected, adapter.getCurrentSelection()));
+			}
 		}
 
 	@Override
@@ -1404,8 +1418,13 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		ViewGroup closeContainer = (ViewGroup) multiSelectActionBar.findViewById(R.id.close_container);
 
 		multiSelectTitle = (TextView) multiSelectActionBar.findViewById(R.id.title);
+		if (createGroup) {
+			multiSelectTitle.setText(getString(R.string.group_selected,
+					adapter.getCurrentSelection()));
+		} else {
 		multiSelectTitle.setText(createBroadcast ? getString(R.string.broadcast_selected, adapter.getCurrentSelection()) : 
 			getString(R.string.gallery_num_selected, adapter.getCurrentSelection()));
+		}
 		if (isForwardingMessage)
 		{
 			TextView send = (TextView) multiSelectActionBar.findViewById(R.id.save);
