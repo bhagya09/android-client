@@ -111,23 +111,44 @@ public class StatusUpdateTask implements IHikeHTTPTask
 
 						if (sourceBitmap != null)
 						{
-							File tempFile = File.createTempFile(Long.toString(System.currentTimeMillis()), ".jpg", null);
+							File tempFile = File.createTempFile(Long.toString(System.currentTimeMillis()), ".jpg", HikeMessengerApp.getInstance().getCacheDir());
+
 							sourceBitmap = HikePhotosUtils.scaleAdvanced(sourceBitmap, HikeConstants.HikePhotos.MAX_IMAGE_DIMEN, HikeConstants.HikePhotos.MAX_IMAGE_DIMEN, false);
+							if (sourceBitmap == null)
+							{
+								sourceBitmap = HikePhotosUtils.scaleAdvanced(sourceBitmap, HikeConstants.MAX_DIMENSION_MEDIUM_FULL_SIZE_PX,
+										HikeConstants.MAX_DIMENSION_MEDIUM_FULL_SIZE_PX, false);
+								Toast.makeText(HikeMessengerApp.getInstance().getApplicationContext(), "DevToast Image Quality Stepped down", Toast.LENGTH_SHORT).show();
+							}
+
+							if (sourceBitmap == null)
+							{
+								Toast.makeText(HikeMessengerApp.getInstance().getApplicationContext(), "DevToast OOM!", Toast.LENGTH_SHORT).show();
+								getRequestListener().onRequestFailure(null);
+								return;
+							}
+
 							BitmapUtils.saveBitmapToFile(tempFile, sourceBitmap, Bitmap.CompressFormat.JPEG, 80);
 							imageFilePath = tempFile.getAbsolutePath();
 						}
 					}
 					token = HttpRequests.postStatusRequest(status, moodId, getRequestListener(), imageFilePath);
+
+					if (token == null)
+					{
+						getRequestListener().onRequestFailure(null);
+						return;
+					}
 					token.execute();
 				}
 				catch (IOException ioe)
 				{
 					Toast.makeText(HikeMessengerApp.getInstance().getApplicationContext(), R.string.could_not_post_pic, Toast.LENGTH_SHORT).show();
 					ioe.printStackTrace();
+					getRequestListener().onRequestFailure(null);
 				}
 			}
 		}, 0);
-
 	}
 
 	@Override
@@ -136,164 +157,144 @@ public class StatusUpdateTask implements IHikeHTTPTask
 		token.cancel();
 	}
 
-	public JSONObject getPostData()
-	{
-		JSONObject data = new JSONObject();
-		try
-		{
-			data.put(HikeConstants.STATUS_MESSAGE_2, status);
-			if (moodId != -1)
-			{
-				data.put(HikeConstants.MOOD, moodId + 1);
-				data.put(HikeConstants.TIME_OF_DAY, getTimeOfDay());
-			}
-		}
-		catch (JSONException e)
-		{
-			Logger.w(getClass().getSimpleName(), "Invalid JSON", e);
-		}
-		return data;
-	}
+	private IRequestListener requestListener = null;
 
 	public IRequestListener getRequestListener()
 	{
-		return new IRequestListener()
+		if (requestListener == null)
 		{
-			@Override
-			public void onRequestSuccess(Response result)
+			requestListener = new IRequestListener()
 			{
-				JSONObject response = (JSONObject) result.getBody().getContent();
-				Logger.d(getClass().getSimpleName(), "post status request succeeded : " + response);
-				SharedPreferences preferences = HikeMessengerApp.getInstance().getApplicationContext()
-						.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, Context.MODE_PRIVATE);
-				JSONObject data = response.optJSONObject("data");
-				String mappedId = data.optString(HikeConstants.STATUS_ID);
-				String text = data.optString(HikeConstants.STATUS_MESSAGE);
-				int moodId = data.optInt(HikeConstants.MOOD) - 1;
-
-				int timeOfDay = data.optInt(HikeConstants.TIME_OF_DAY);
-				String msisdn = preferences.getString(HikeMessengerApp.MSISDN_SETTING, "");
-				String name = preferences.getString(HikeMessengerApp.NAME_SETTING, "");
-				long time = (long) System.currentTimeMillis() / 1000;
-
-				final String iconBase64 = data.optString(HikeConstants.THUMBNAIL);
-
-				final String fileKey = data.optString(HikeConstants.SU_IMAGE_KEY);
-
-				StatusMessageType suType = getStatusMessageType(text, imageFilePath);
-
-				if (suType == StatusMessageType.TEXT_IMAGE || suType == StatusMessageType.IMAGE)
+				@Override
+				public void onRequestSuccess(Response result)
 				{
-					// TODO Support all image formats (same code is present in ChangeProfileImageBaseActivity)
-					String destFilePath = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT + "/" + mappedId + ".jpg";
+					JSONObject response = (JSONObject) result.getBody().getContent();
+					Logger.d(getClass().getSimpleName(), "post status request succeeded : " + response);
+					SharedPreferences preferences = HikeMessengerApp.getInstance().getApplicationContext()
+							.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, Context.MODE_PRIVATE);
+					JSONObject data = response.optJSONObject("data");
+					String mappedId = data.optString(HikeConstants.STATUS_ID);
+					String text = data.optString(HikeConstants.STATUS_MESSAGE);
+					int moodId = data.optInt(HikeConstants.MOOD) - 1;
 
-					Utils.copyFile(imageFilePath, destFilePath);
+					int timeOfDay = data.optInt(HikeConstants.TIME_OF_DAY);
+					String msisdn = preferences.getString(HikeMessengerApp.MSISDN_SETTING, "");
+					String name = preferences.getString(HikeMessengerApp.NAME_SETTING, "");
+					long time = (long) System.currentTimeMillis() / 1000;
 
-					Utils.deleteFile(new File(imageFilePath));
+					final String iconBase64 = data.optString(HikeConstants.THUMBNAIL);
 
-					HikeHandlerUtil.getInstance().postRunnableWithDelay(new Runnable()
+					final String fileKey = data.optString(HikeConstants.SU_IMAGE_KEY);
+
+					StatusMessageType suType = getStatusMessageType(text, imageFilePath);
+
+					if (suType == StatusMessageType.TEXT_IMAGE || suType == StatusMessageType.IMAGE)
 					{
-						@Override
-						public void run()
+						// TODO Support all image formats (same code is present in ChangeProfileImageBaseActivity)
+						String destFilePath = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT + "/" + mappedId + ".jpg";
+
+						Utils.copyFile(imageFilePath, destFilePath);
+
+						if (compressionEnabled)
+							Utils.deleteFile(new File(imageFilePath));
+
+						HikeHandlerUtil.getInstance().postRunnableWithDelay(new Runnable()
 						{
-							// Add to fileThumbnail table viz. fk - thumb
-							HikeConversationsDatabase.getInstance().addFileThumbnail(fileKey, Base64.decode(iconBase64, Base64.DEFAULT));
-						}
-					}, 0);
-				}
-
-				StatusMessage statusMessage = new StatusMessage(0, mappedId, msisdn, name, text, suType, time, moodId, timeOfDay, fileKey);
-				HikeConversationsDatabase.getInstance().addStatusMessage(statusMessage, true);
-				int unseenUserStatusCount = preferences.getInt(HikeMessengerApp.UNSEEN_USER_STATUS_COUNT, 0);
-				Editor editor = preferences.edit();
-				editor.putString(HikeMessengerApp.LAST_STATUS, text);
-				editor.putInt(HikeMessengerApp.LAST_MOOD, moodId);
-				editor.putInt(HikeMessengerApp.UNSEEN_USER_STATUS_COUNT, ++unseenUserStatusCount);
-				editor.putBoolean(HikeConstants.IS_HOME_OVERFLOW_CLICKED, false);
-				editor.commit();
-				HikeMessengerApp.getPubSub().publish(HikePubSub.MY_STATUS_CHANGED, text);
-				/*
-				 * This would happen in the case where the user has added a self contact and received an mqtt message before saving this to the db.
-				 */
-				if (statusMessage.getId() != -1)
-				{
-					HikeMessengerApp.getPubSub().publish(HikePubSub.STATUS_MESSAGE_RECEIVED, statusMessage);
-					HikeMessengerApp.getPubSub().publish(HikePubSub.TIMELINE_UPDATE_RECIEVED, statusMessage);
-				}
-				HikeMessengerApp.getPubSub().publish(HikePubSub.STATUS_POST_REQUEST_DONE, true);
-				taskStatus = TASK_SUCCESS;
-			}
-
-			private StatusMessageType getStatusMessageType(String text, String imageFilePath)
-			{
-				// TODO server sends string "null" incase text is not present
-
-				if (text.equals("null"))
-				{
-					text = null;
-				}
-				if (TextUtils.isEmpty(text) && TextUtils.isEmpty(imageFilePath))
-				{
-					throw new IllegalArgumentException("Both text and image cannot be empty");
-				}
-
-				File imageFile = null;
-				if (!TextUtils.isEmpty(imageFilePath))
-				{
-					imageFile = new File(imageFilePath);
-					if (!imageFile.exists())
-					{
-						imageFile = null;
+							@Override
+							public void run()
+							{
+								// Add to fileThumbnail table viz. fk - thumb
+								HikeConversationsDatabase.getInstance().addFileThumbnail(fileKey, Base64.decode(iconBase64, Base64.DEFAULT));
+							}
+						}, 0);
 					}
+
+					StatusMessage statusMessage = new StatusMessage(0, mappedId, msisdn, name, text, suType, time, moodId, timeOfDay, fileKey);
+					HikeConversationsDatabase.getInstance().addStatusMessage(statusMessage, true);
+					int unseenUserStatusCount = preferences.getInt(HikeMessengerApp.UNSEEN_USER_STATUS_COUNT, 0);
+					Editor editor = preferences.edit();
+					editor.putString(HikeMessengerApp.LAST_STATUS, text);
+					editor.putInt(HikeMessengerApp.LAST_MOOD, moodId);
+					editor.putInt(HikeMessengerApp.UNSEEN_USER_STATUS_COUNT, ++unseenUserStatusCount);
+					editor.putBoolean(HikeConstants.IS_HOME_OVERFLOW_CLICKED, false);
+					editor.commit();
+					HikeMessengerApp.getPubSub().publish(HikePubSub.MY_STATUS_CHANGED, text);
+					/*
+					 * This would happen in the case where the user has added a self contact and received an mqtt message before saving this to the db.
+					 */
+					if (statusMessage.getId() != -1)
+					{
+						HikeMessengerApp.getPubSub().publish(HikePubSub.STATUS_MESSAGE_RECEIVED, statusMessage);
+						HikeMessengerApp.getPubSub().publish(HikePubSub.TIMELINE_UPDATE_RECIEVED, statusMessage);
+					}
+					HikeMessengerApp.getPubSub().publish(HikePubSub.STATUS_POST_REQUEST_DONE, true);
+					taskStatus = TASK_SUCCESS;
 				}
 
-				if (TextUtils.isEmpty(text) && imageFile != null)
+				private StatusMessageType getStatusMessageType(String text, String imageFilePath)
 				{
-					return StatusMessageType.IMAGE;
+					// TODO server sends string "null" incase text is not present
+
+					if (text.equals("null"))
+					{
+						text = null;
+					}
+					if (TextUtils.isEmpty(text) && TextUtils.isEmpty(imageFilePath))
+					{
+						throw new IllegalArgumentException("Both text and image cannot be empty");
+					}
+
+					File imageFile = null;
+					if (!TextUtils.isEmpty(imageFilePath))
+					{
+						imageFile = new File(imageFilePath);
+						if (!imageFile.exists())
+						{
+							imageFile = null;
+						}
+					}
+
+					if (TextUtils.isEmpty(text) && imageFile != null)
+					{
+						return StatusMessageType.IMAGE;
+					}
+					else if (!TextUtils.isEmpty(text) && imageFile == null)
+					{
+						return StatusMessageType.TEXT;
+					}
+					else
+					{
+						return StatusMessageType.TEXT_IMAGE;
+					}
+
 				}
-				else if (!TextUtils.isEmpty(text) && imageFile == null)
+
+				@Override
+				public void onRequestProgressUpdate(float progress)
 				{
-					return StatusMessageType.TEXT;
 				}
-				else
+
+				@Override
+				public void onRequestFailure(HttpException httpException)
 				{
-					return StatusMessageType.TEXT_IMAGE;
+					if (httpException != null)
+					{
+						Logger.e(getClass().getSimpleName(), " post status request failed : " + httpException.getMessage());
+					}
+					if (compressionEnabled)
+						Utils.deleteFile(new File(imageFilePath));
+					HikeMessengerApp.getPubSub().publish(HikePubSub.STATUS_POST_REQUEST_DONE, false);
+					taskStatus = TASK_FAILED;
 				}
-
-			}
-
-			@Override
-			public void onRequestProgressUpdate(float progress)
-			{
-			}
-
-			@Override
-			public void onRequestFailure(HttpException httpException)
-			{
-				Logger.e(getClass().getSimpleName(), " post status request failed : " + httpException.getMessage());
-				HikeMessengerApp.getPubSub().publish(HikePubSub.STATUS_POST_REQUEST_DONE, false);
-				taskStatus = TASK_FAILED;
-			}
-		};
-	}
-
-	private int getTimeOfDay()
-	{
-		int hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
-		if (hour >= 4 && hour < 12)
-		{
-			return 1;
+			};
 		}
-		else if (hour >= 12 && hour < 20)
-		{
-			return 2;
-		}
-		return 3;
+
+		return requestListener;
 	}
 
 	public int getTaskStatus()
 	{
-		if (token!=null && token.isRequestRunning())
+		if (token != null && token.isRequestRunning())
 		{
 			return TASK_RUNNING;
 		}

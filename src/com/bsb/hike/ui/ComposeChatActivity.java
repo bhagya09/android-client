@@ -1957,11 +1957,9 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 						{
 							if (foreground)
 							{
-								ComposeChatActivity.this.runOnUiThread(new Runnable()
-								{
+								ComposeChatActivity.this.runOnUiThread(new Runnable() {
 									@Override
-									public void run()
-									{
+									public void run() {
 										Intent intent = new Intent(ComposeChatActivity.this, TimelineActivity.class);
 										intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 										startActivity(intent);
@@ -1984,7 +1982,6 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 									Toast.makeText(HikeMessengerApp.getInstance(), R.string.multiple_su_post_failed, Toast.LENGTH_SHORT).show();
 								}
 							});
-
 						}
 
 						@Override
