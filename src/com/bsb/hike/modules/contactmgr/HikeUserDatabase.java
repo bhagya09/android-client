@@ -1,25 +1,5 @@
 package com.bsb.hike.modules.contactmgr;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicBoolean;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -37,12 +17,13 @@ import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Pair;
 
+import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
-import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.db.DBConstants;
+import com.bsb.hike.db.DatabaseErrorHandlers.CustomDatabaseErrorHandler;
 import com.bsb.hike.db.DbException;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
@@ -50,6 +31,16 @@ import com.bsb.hike.models.FtueContactsData;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 class HikeUserDatabase extends SQLiteOpenHelper
 {
@@ -63,7 +54,7 @@ class HikeUserDatabase extends SQLiteOpenHelper
 	
 	private HikeUserDatabase(Context context)
 	{
-		super(context, DBConstants.USERS_DATABASE_NAME, null, DBConstants.USERS_DATABASE_VERSION);
+		super(context, DBConstants.USERS_DATABASE_NAME, null, DBConstants.USERS_DATABASE_VERSION, new CustomDatabaseErrorHandler());
 		this.mContext = context;
 		mDb = getWritableDatabase();
 		mReadDb = getReadableDatabase();

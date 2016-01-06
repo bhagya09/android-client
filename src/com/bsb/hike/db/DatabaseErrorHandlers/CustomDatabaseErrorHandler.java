@@ -8,9 +8,9 @@ import com.bsb.hike.utils.Utils;
 /**
  * Created by piyush on 04/01/16.
  */
-public class ConversationDatabaseErrorHandler extends HikeDatabaseErrorHandler
+public class CustomDatabaseErrorHandler extends HikeDatabaseErrorHandler
 {
-	private static final String TAG = "ConversationDatabaseErrorHandler";
+	private static final String TAG = "CustomDatabaseErrorHandler";
 
 	@Override
 	public void onDatabaseCorrupt(SQLiteDatabase dbObj)
