@@ -1351,6 +1351,13 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 							intent.putExtra(Intent.EXTRA_STREAM, imageUris.get(0));
 							setIntent(intent);
 						}
+
+						imagesToShare.clear();
+						for(Uri uri:imageUris)
+						{
+							imagesToShare.add(uri.getPath());
+						}
+
 					} else {
 						onError();
 					}
