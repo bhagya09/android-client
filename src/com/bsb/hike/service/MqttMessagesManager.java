@@ -26,10 +26,6 @@ import android.widget.Toast;
 
 import com.bsb.hike.*;
 import com.bsb.hike.HikeConstants.NotificationType;
-<<<<<<< HEAD
-import com.bsb.hike.ag.NetworkAgModule;
-=======
->>>>>>> 4749511271c80b27c333a80c7827931c1160df1b
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.AnalyticsConstants.MsgRelEventType;
 import com.bsb.hike.analytics.HAManager;
@@ -62,21 +58,10 @@ import com.bsb.hike.modules.stickersearch.ui.StickerTagWatcher;
 import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.offline.OfflineConstants;
 import com.bsb.hike.offline.OfflineController;
-<<<<<<< HEAD
-import com.bsb.hike.platform.ContentModules.PlatformContentListener;
-import com.bsb.hike.platform.ContentModules.PlatformContentModel;
-import com.bsb.hike.platform.ContentModules.PlatformContentRequest;
-import com.bsb.hike.platform.HikePlatformConstants;
-import com.bsb.hike.platform.PlatformUtils;
-import com.bsb.hike.platform.content.PlatformContent;
-import com.bsb.hike.platform.content.PlatformContentConstants;
-import com.bsb.hike.platform.content.PlatformZipDownloader;
-=======
 import com.bsb.hike.platform.CustomWebView;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.content.*;
->>>>>>> 4749511271c80b27c333a80c7827931c1160df1b
 import com.bsb.hike.productpopup.ProductInfoManager;
 import com.bsb.hike.tasks.PostAddressBookTask;
 import com.bsb.hike.timeline.TimelineActionsManager;
