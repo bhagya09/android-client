@@ -3,6 +3,7 @@ package com.bsb.hike.modules.httpmgr.hikehttp;
 import android.text.TextUtils;
 
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.modules.httpmgr.Header;
 import com.bsb.hike.modules.httpmgr.HttpUtils;
 import com.bsb.hike.modules.httpmgr.RequestToken;
@@ -11,8 +12,11 @@ import com.bsb.hike.modules.httpmgr.interceptor.GzipRequestInterceptor;
 import com.bsb.hike.modules.httpmgr.interceptor.IRequestInterceptor;
 import com.bsb.hike.modules.httpmgr.interceptor.IResponseInterceptor;
 import com.bsb.hike.modules.httpmgr.request.ByteArrayRequest;
+import com.bsb.hike.modules.httpmgr.request.FileDownloadRequest;
 import com.bsb.hike.modules.httpmgr.request.FileRequest;
 import com.bsb.hike.modules.httpmgr.request.FileRequestPersistent;
+import com.bsb.hike.modules.httpmgr.request.FileUploadRequest;
+import com.bsb.hike.modules.httpmgr.request.IGetChunkSize;
 import com.bsb.hike.modules.httpmgr.request.JSONArrayRequest;
 import com.bsb.hike.modules.httpmgr.request.JSONObjectRequest;
 import com.bsb.hike.modules.httpmgr.request.Request;
@@ -54,6 +58,7 @@ import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getBase
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getBotdiscoveryTableUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getDeleteAvatarBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getDeleteStatusBaseUrl;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getFastFileUploadBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getGroupBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getGroupBaseUrlForLinkSharing;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getHikeJoinTimeBaseUrl;
@@ -61,6 +66,9 @@ import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getPost
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getStaticAvatarBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getStatusBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getStickerTagsUrl;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getUploadContactOrLocationBaseUrl;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getUploadFileBaseUrl;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getValidateFileKeyBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.groupProfileBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.httpNetworkTestUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.languageListUrl;
@@ -88,6 +96,7 @@ import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.validat
 import static com.bsb.hike.modules.httpmgr.request.PriorityConstants.PRIORITY_HIGH;
 import static com.bsb.hike.modules.httpmgr.request.Request.REQUEST_TYPE_LONG;
 import static com.bsb.hike.modules.httpmgr.request.Request.REQUEST_TYPE_SHORT;
+
 
 public class HttpRequests
 {
@@ -939,16 +948,23 @@ public class HttpRequests
      * this request is just for checking that internet is working but mqtt is unable to connect.
      * we will send an async http call to server
      */
-    public static RequestToken httpNetworkTestRequest(int errorCode)
+    public static RequestToken httpNetworkTestRequest(int errorCode, int port, int networkType, int exceptionCount)
     {
+        int isForeground = -1;
+        if(HikeMessengerApp.getInstance() != null)
+        {
+            isForeground = Utils.isAppForeground(HikeMessengerApp.getInstance())? 1 : 0;
+        }
+
+        String url = httpNetworkTestUrl() + "/" + errorCode+ "?port="+port +"&net="+networkType+"&fg="+isForeground+"&ec="+exceptionCount;
         RequestToken requestToken = new JSONObjectRequest.Builder()
-                .setUrl(httpNetworkTestUrl() + "/" + errorCode)
+                .setUrl(url)
                 .setRequestType(REQUEST_TYPE_SHORT)
                 .setAsynchronous(true)
                 .setPriority(PRIORITY_HIGH)
                 .setRetryPolicy(new BasicRetryPolicy(0, 1, 1))
                 .build();
-        Logger.e("HikeHttpRequests", "Making http call to " + httpNetworkTestUrl().toString() + "/" + errorCode);
+        Logger.e("HikeHttpRequests", "Making http call to " + url);
         return requestToken;
     }
 
@@ -961,5 +977,76 @@ public class HttpRequests
 
 	}
 
+	public static RequestToken downloadFile(String destFilePath, String url, long msgId, IRequestListener requestListener, IGetChunkSize chunkSizePolicy)
+	{
+		RequestToken token = new FileDownloadRequest.Builder()
+				.setUrl(url)
+				.setRequestListener(requestListener)
+				.addHeader(new Header("Accept-Encoding", "musixmatch"))
+				.setFile(destFilePath)
+				.setChunkSizePolicy(chunkSizePolicy)
+				.setId(String.valueOf(msgId))
+				.build();
+		return token;
+	}
+	
+	public static RequestToken uploadFile(String filePath, long msgId, String videoCompressionReqd, IRequestListener requestListener, IGetChunkSize chunkSizePolicy)
+	{
+		RequestToken requestToken = new FileUploadRequest.Builder()
+				.setUrl(getUploadFileBaseUrl())
+				.setId(String.valueOf(msgId))
+				.setRequestType(Request.REQUEST_TYPE_LONG)
+				.addHeader(new Header("X-Compression-Required", videoCompressionReqd))
+				.setChunkSizePolicy(chunkSizePolicy)
+				.setRequestListener(requestListener)
+				.setFile(filePath)
+				.build();
+		return requestToken;
+	}
+	
+	public static RequestToken validateFileKey(String fileKey, IRequestListener requestListener)
+	{
+		RequestToken requestToken = new ByteArrayRequest.Builder()
+				.setUrl(getValidateFileKeyBaseUrl() + fileKey)
+				.setRequestType(Request.REQUEST_TYPE_SHORT)
+				.setRequestListener(requestListener)
+				.head()
+				.setRetryPolicy(new BasicRetryPolicy(3, 0, 1))
+				.build();
+		return requestToken;
+	}
 
+	public static RequestToken verifyMd5(long msgId, IRequestListener requestListener, IRequestInterceptor initFileUploadInterceptor)
+	{
+		RequestToken requestToken = new ByteArrayRequest.Builder()
+				.setUrl(getFastFileUploadBaseUrl())  // url is changed in interceptor processing as we calculate md5 of file in interceptor
+				.setId(String.valueOf(msgId))
+				.setRequestType(REQUEST_TYPE_SHORT)
+				.setRequestListener(requestListener)
+				.head()
+				.setRetryPolicy(new BasicRetryPolicy(3, 0, 1))
+				.build();
+		requestToken.getRequestInterceptors().addFirst("initFileUpload", initFileUploadInterceptor);
+		return requestToken;
+	}
+
+	public static RequestToken uploadContactOrLocation(String fileName, JSONObject json, String fileType, IRequestListener requestListener, IRequestInterceptor interceptor)
+	{
+		List<Header> headers = new ArrayList<>();
+		headers.add(new Header("Content-Name", fileName));
+		headers.add(new Header("Content-Type", TextUtils.isEmpty(fileType) ? "" : fileType));
+		headers.add(new Header("X-Thumbnail-Required", "0"));
+		
+		JsonBody body = new JsonBody(json);
+		
+ 		RequestToken requestToken = new JSONObjectRequest.Builder()
+				.setUrl(getUploadContactOrLocationBaseUrl())
+				.setRequestType(Request.REQUEST_TYPE_SHORT)
+				.setRequestListener(requestListener)
+				.addHeader(headers)
+				.put(body)
+				.build();
+		requestToken.getRequestInterceptors().addFirst("uploadContactOrLocationPreProcess", interceptor);
+		return requestToken;
+	}
 }

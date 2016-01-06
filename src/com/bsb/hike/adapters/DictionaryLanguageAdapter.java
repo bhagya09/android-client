@@ -59,7 +59,7 @@ public class DictionaryLanguageAdapter extends ArrayAdapter<KPTAddonItem> {
         KPTAddonItem item = getItem(position);
 
         viewHolder.dictionaryLanguageName.setText(item.getDisplayName());
-        LanguageDictionarySatus status = KptKeyboardManager.getInstance(mContext).getDictionaryLanguageStatus(item);
+        LanguageDictionarySatus status = KptKeyboardManager.getInstance().getDictionaryLanguageStatus(item);
         if (status == LanguageDictionarySatus.UNSUPPORTED)
         {
             String locale = item.getlocaleName().substring(0, item.getlocaleName().indexOf("-"));

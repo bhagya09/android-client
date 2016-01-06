@@ -1274,7 +1274,7 @@
     <string name="are_typing">टाइप करत आहेत...</string>
     <string name="you_chat_bg_changed">तुम्ही चॅट थीम बदलली</string>
     <string name="hike_keyboard">Hike कीबोर्ड</string>
-    <string name="system_keyboard">प्रणाली कीबोर्ड</string>
+    <string name="system_keyboard">फ़ोन कीबोर्ड</string>
     <string name="you_xyz_posted_pin">तुम्ही पिन पोस्ट केला</string>
     <string name="voip_hang_up">हँग अप</string>
     <string name="voip_decline">नाकारा</string>
@@ -1299,7 +1299,7 @@
     <string name="timeline_ftue_desc">टाइमलाईन हे आपल्यासाठी आणि मित्रांसाठी विशेष क्षण शेअर करण्यासाठी एक ठिकाण आहे. टाइमलाईन वर आधीच आपले मित्र पोस्ट सुद्धा करीत आहेत !</string>
     <string name="sticker">स्टिकर</string>
     <string name="stealth_unread_tip_header">संभाषण लपवा</string>
-    <string name="stealth_unread_tip_message">संभाषण लपवण्यासाठी hi दाबा .</string>
+    <string name="stealth_unread_tip_message">संभाषण लपवण्यासाठी \'hi\' दाबा .</string>
 
     <!-- The above two string would be used as in Group with Shibu, Niladri and 4 others -->
 
@@ -1420,4 +1420,8 @@
 
 <string name="unsupported_langs_toast">आपला फोन %1$s भाषा दाखवण्यास असमर्थ आहे</string>
     <string name="unsupported_language_toast_msg">आपला फोन ही भाषा स्विकारत नाही</string>
+    <string name="language_ftue_complete_message">किबोर्ड ची भाषा कधीही बदलण्याकरिता \nसेटींग्स -> भाषा आणि इनपुट</string>
+    <string name="error_message_upgrade_peer"> माफ करा. हा संपर्क hike च्या जुन्या आवृत्ति वर आहे. यांच्याकडे hike डाइरेक्ट नाही आहे.</string>
+    <string name="error_message_unsupported_peer">माफ करा. hike डाइरेक्ट ने तुम्ही फक्त एंड्राइड फोन शी जोडू शकता.</string>
+    
 </resources>

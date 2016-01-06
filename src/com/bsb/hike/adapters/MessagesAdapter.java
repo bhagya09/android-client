@@ -73,6 +73,7 @@ import com.bsb.hike.StringUtils;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.chatthread.ChatThread;
+import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.dialog.ContactDialog;
@@ -1020,7 +1021,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				}
 				else
 				{
-					fss = FileTransferManager.getInstance(context).getDownloadFileState(convMessage.getMsgID(), file);
+					fss = FileTransferManager.getInstance(context).getDownloadFileState(convMessage.getMsgID(), hikeFile);
 				}
 			}
 			boolean showThumbnail = false;
@@ -1252,7 +1253,8 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				videoHolder.fileThumb.setImageResource(0);
 
 				boolean isUnknown = ContactManager.getInstance().isUnknownContact(conversation.getMsisdn());
-				showThumbnail = ((convMessage.isSent()) || (conversation instanceof OneToNConversation) || !isUnknown || (hikeFile.wasFileDownloaded())||  convMessage.isOfflineMessage());
+				boolean isBot = BotUtils.isBot(conversation.getMsisdn());
+				showThumbnail = ((convMessage.isSent()) || (conversation instanceof OneToNConversation) || !isUnknown || (hikeFile.wasFileDownloaded())||  convMessage.isOfflineMessage() || isBot);
 			
 				if (hikeFile.getThumbnail() == null && !TextUtils.isEmpty(hikeFile.getFileKey()))
 				{
@@ -1429,7 +1431,8 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				imageHolder.fileThumb.setImageResource(0);
 
 				boolean isUnknown = ContactManager.getInstance().isUnknownContact(conversation.getMsisdn());
-				showThumbnail = ((convMessage.isSent()) || (conversation instanceof OneToNConversation) || !isUnknown || (hikeFile.wasFileDownloaded())|| convMessage.isOfflineMessage());
+				boolean isBot = BotUtils.isBot(conversation.getMsisdn());
+				showThumbnail = ((convMessage.isSent()) || (conversation instanceof OneToNConversation) || !isUnknown || (hikeFile.wasFileDownloaded())|| convMessage.isOfflineMessage() || isBot);
 
 				if (hikeFile.getThumbnail() == null && !TextUtils.isEmpty(hikeFile.getFileKey()))
 				{
@@ -2978,7 +2981,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 
 	private void showTransferProgress(FTViewHolder holder, FileSavedState fss, long msgId, HikeFile hikeFile, boolean isSent)
 	{
-		int progress = FileTransferManager.getInstance(context).getFTProgress(msgId, hikeFile.getFile(), isSent);
+		int progress = FileTransferManager.getInstance(context).getFTProgress(msgId, hikeFile, isSent);
 		int chunkSize = FileTransferManager.getInstance(context).getChunkSize(msgId);
 		int fakeProgress = FileTransferManager.getInstance(context).getAnimatedProgress(msgId);
 		if(fakeProgress == 0)
@@ -3581,7 +3584,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				}
 				else
 				{
-					FileSavedState fss = FileTransferManager.getInstance(context).getDownloadFileState(convMessage.getMsgID(), receivedFile);
+					FileSavedState fss = FileTransferManager.getInstance(context).getDownloadFileState(convMessage.getMsgID(), hikeFile);
 
 					Logger.d(getClass().getSimpleName(), fss.getFTState().toString());
 

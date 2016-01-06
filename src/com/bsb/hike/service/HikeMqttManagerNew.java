@@ -836,22 +836,21 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 				 * blocking the mqtt thread, so that no other operation takes place till disconnects completes or timeout This will wait for max 1 secs
 				 */
 				mqtt.disconnectForcibly(QUIESCE_TIME_MILLS, DISCONNECT_TIMEOUT);
+				handleDisconnect(reconnect);
 			}
 		}
 		catch (MqttException e)
 		{
 			// we dont need to handle MQTT exception here as we reconnect depends on reconnect var
 			e.printStackTrace();
+			handleDisconnect(reconnect);
 		}
 		catch (Exception e)
 		{
 			e.printStackTrace();
+			handleDisconnect(reconnect);
 		}
-        finally
-        {
-            handleDisconnect(reconnect);
-        }
-    }
+	}
 
 	private void handleDisconnect(boolean reconnect)
 	{
@@ -899,6 +898,12 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 				{
 					try
 					{
+						if(previousHostInfo!=null && previousHostInfo.getExceptionCount() > 6)
+						{
+							//-1 implies connect success
+							sendHttpNetworkTestRequest(-1);
+						}
+
 						pushConnect = false;
 						retryCount = 0;
 						fastReconnect = 0;
@@ -933,7 +938,10 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 				{
 					try
 					{
-						
+						if(previousHostInfo != null)
+						{
+						    previousHostInfo.increaseExceptionCount();
+						}
 						MqttException exception = (MqttException) value;
 						handleMqttException(exception, true);
 					}
@@ -1203,7 +1211,10 @@ public class HikeMqttManagerNew extends BroadcastReceiver
             return;
         }
 
-        RequestToken requestToken =  HttpRequests.httpNetworkTestRequest(errorCode);
+        int port = previousHostInfo != null ? previousHostInfo.getPort() : 0;
+        int networkType = previousNetInfo != null ? previousNetInfo.getNetworkType() : -1;
+        int exceptionCount = previousHostInfo != null ? previousHostInfo.getExceptionCount() : -1;
+        RequestToken requestToken =  HttpRequests.httpNetworkTestRequest(errorCode, port, networkType, exceptionCount);
         requestToken.execute();
     }
 	private void handleMqttException(MqttException e, boolean reConnect)
@@ -1357,6 +1368,7 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 			handleOtherException();
 			scheduleNextConnectionCheck(getConnRetryTime());
 			sendAnalyticsEvent(e);
+			sendHttpNetworkTestRequest(e.getReasonCode());
 			break;
 		case MqttException.REASON_CODE_SOCKET_FACTORY_MISMATCH:
 			clearSettings();
@@ -1378,6 +1390,7 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 			break;
 		default:
 			Logger.e(TAG, "In Default : " + e.getMessage());
+			handleOtherException();
 			mqttConnStatus = MQTTConnectionStatus.NOT_CONNECTED;
 			connectOnMqttThread(getConnRetryTime());
 			sendAnalyticsEvent(e, MqttConstants.EXCEPTION_DEFAULT);

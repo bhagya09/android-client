@@ -24,7 +24,9 @@ public class HttpRequestConstants
 	public static final String PLATFORM_STAGING_API = "staging.platform.hike.in";
 	
 	public static final String STICKERS_PRODUCTION_API = "stickers.im.hike.in";
-	
+
+	public static final String FT_PRODUCTION_API = "ft.im.hike.in";
+
 	public static final String BASE_LINK_SHARING_URL = HTTP + "hike.in";
 		
 	public static final int PRODUCTION_PORT = 80;
@@ -435,4 +437,24 @@ public class HttpRequestConstants
             return HTTP + STAGING_API  + BASE_V1 + "/android";
         }
     }
+
+	public static String getUploadFileBaseUrl()
+	{
+		return AccountUtils.fileTransferBase + "/user/pft/";
+	}
+
+	public static String getValidateFileKeyBaseUrl()
+	{
+		return AccountUtils.fileTransferBaseDownloadUrl;
+	}
+
+	public static String getFastFileUploadBaseUrl()
+	{
+		return AccountUtils.fastFileUploadUrl;
+	}
+
+	public static String getUploadContactOrLocationBaseUrl()
+	{
+		return AccountUtils.fileTransferBase + "/user/ft";
+	}
 }

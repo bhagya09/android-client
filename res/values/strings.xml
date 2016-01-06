@@ -511,7 +511,7 @@
     <string name="email_chat">Email Chat</string>
     <string name="change_keyboard">Change Keyboard</string>
     <string name="hike_keyboard">Hike Keyboard</string>
-    <string name="system_keyboard">System Keyboard</string>
+    <string name="system_keyboard">Phone Keyboard</string>
     <string name="clear_chat">Clear Chat</string>
     <string name="add_shortcut">Add Shortcut</string>
     <string name="timeline">Timeline</string>
@@ -1492,6 +1492,8 @@
 
     <string name="unsupported_langs_toast">Your Phone does not support %1$s</string>
     <string name="unsupported_language_toast_msg">Your phone does not support this language</string>
+    <string name="error_message_upgrade_peer">Sorry could not connect. Your friend is not on the latest Hike version with Hike Direct.</string>
+    <string name="error_message_unsupported_peer">Sorry could not connect. Hike Directly currently works only with Android phones.</string>
     <string name="bengali">Bengali</string>
     <string name="gujarati">Gujarati</string>
     <string name="hindi">Hindi</string>

@@ -1281,7 +1281,7 @@
     <string name="are_typing">ಅವರುಗಳು ಟೈಪ್ ಮಾಡುತ್ತಿದ್ದಾರೆ...</string>
     <string name="you_chat_bg_changed">ನೀವು ಚಾಟ್ ಹೆಸರನ್ನು ಬದಲಾಯಿಸಿದ್ದೀರಿ</string>
     <string name="hike_keyboard">Hike ಕೀಬೋರ್ಡ</string>
-    <string name="system_keyboard">ಸಿಸ್ಟಂ ಕೀಬೋರ್ಡ</string>
+    <string name="system_keyboard">ಫೋನ್ ಕೀಬೋರ್ಡ್</string>
     <string name="you_xyz_posted_pin">ನೀವು ಪಿನ್ ಪೋಸ್ಟ್ ಮಾಡಿದ್ದೀರಿ</string>
     <string name="voip_hang_up">ಹ್ಯಾಂಗ್ ಅಪ್</string>
     <string name="voip_decline">ನಿರಾಕರಿಸಿ</string>
@@ -1424,5 +1424,8 @@
     </plurals>
 
     <string name="unsupported_language_toast_msg">ನಿಮ್ಮ ಫೋನ್ ಈ ಭಾಷೆಯನ್ನು ಬೆಂಬಲಿಸುವುದಿಲ್ಲ</string>
+    <string name="language_ftue_complete_message">ಕೀಬೋರ್ಡ ಭಾಷೆ ಬದಲಿಸಲು \nಸೆಟ್ಟಿಂಗ್ಸ -> ಭಾಷೆ &amp; ಇನ್ಪುಟ್ ಗೆ ಹೋಗಿ</string>
+    <string name="error_message_upgrade_peer"> ಕ್ಷಮಿಸಿ, ಕನೆಕ್ಟ್ ಮಾಡಲು ಆಗಲಿಲ್ಲ. ನಿಮ್ಮ ಮಿತ್ರ Hike ನೇರ ಹೊಂದಿರುವ  Hikeನ ಹೊಸ ಆವೃತ್ತಿ ಬಳಸುತ್ತಿಲ್ಲ.</string>
+    <string name="error_message_unsupported_peer">ಕ್ಷಮಿಸಿ, ಕನೆಕ್ಟ್ ಮಾಡಲು ಆಗಲಿಲ್ಲ.  Hike ಡೈರೆಕ್ಟ್ ಸದ್ಯಕ್ಕೆ ಕೇವಲ ಆಂಡ್ರಾಯ್ಡ್‌ ಫೋನ್ಗಳಲ್ಲಿ ಲಭ್ಯವಿದೆ.</string>
 
 </resources>

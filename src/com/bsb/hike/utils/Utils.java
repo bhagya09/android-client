@@ -137,6 +137,7 @@ import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.filetransfer.FTAnalyticEvents;
 import com.bsb.hike.http.HikeHttpRequest;
+import com.bsb.hike.localisation.LocalLanguage;
 import com.bsb.hike.localisation.LocalLanguageUtils;
 import com.bsb.hike.models.AccountData;
 import com.bsb.hike.models.AccountInfo;
@@ -161,6 +162,7 @@ import com.bsb.hike.models.utils.JSONSerializable;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
@@ -1140,14 +1142,33 @@ public class Utils
 		Utils.displayHeightPixels = displayMetrics.heightPixels;
 	}
 
+//	public static CharSequence getFormattedParticipantInfo(String info, String textToHighlight)
+//	{
+//		if (!info.contains(textToHighlight))
+//			return info;
+//		SpannableStringBuilder ssb = new SpannableStringBuilder(info);
+//		ssb.setSpan(new StyleSpan(Typeface.BOLD), info.indexOf(textToHighlight), info.indexOf(textToHighlight) + textToHighlight.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+//		return ssb;
+//	}
+
+	//AND-4036, Extending the high light to the next space.
+	//Problem: only "aap" is getting highlighted in the "aapko" / "aapne" since the highlighted text is "aap"
+	//Sol: making the highlight text extend to the end of the word.
 	public static CharSequence getFormattedParticipantInfo(String info, String textToHighlight)
 	{
-		if (!info.contains(textToHighlight))
+		if (!info.contains(textToHighlight) || TextUtils.isEmpty(textToHighlight))
 			return info;
+
 		SpannableStringBuilder ssb = new SpannableStringBuilder(info);
-		ssb.setSpan(new StyleSpan(Typeface.BOLD), info.indexOf(textToHighlight), info.indexOf(textToHighlight) + textToHighlight.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+		int index = info.indexOf(textToHighlight);
+
+		int wordEndIndex = info.substring(index + textToHighlight.length()).indexOf(" ");
+		int highlightLen = (wordEndIndex == -1) ? textToHighlight.length() : textToHighlight.length()+ wordEndIndex;
+		ssb.setSpan(new StyleSpan(Typeface.BOLD), info.indexOf(textToHighlight), info.indexOf(textToHighlight) + highlightLen, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+
 		return ssb;
 	}
+
 
 	/**
 	 * Used for preventing the cursor from being shown initially on the text box in touch screen devices. On touching the text box the cursor becomes visible
@@ -1983,7 +2004,7 @@ public class Utils
 			AccountUtils.SDK_AUTH_BASE = AccountUtils.SDK_AUTH_BASE_URL_STAGING;
 		}
 
-		AccountUtils.fileTransferHost = isProductionServer ? AccountUtils.PRODUCTION_FT_HOST : AccountUtils.host;
+		AccountUtils.fileTransferHost = isProductionServer ? HttpRequestConstants.FT_PRODUCTION_API : AccountUtils.host;
 		AccountUtils.fileTransferBase = httpString + AccountUtils.fileTransferHost + ":" + Integer.toString(AccountUtils.port) + "/v1";
 
 		CheckForUpdateTask.UPDATE_CHECK_URL = httpString + (isProductionServer ? CheckForUpdateTask.PRODUCTION_URL : CheckForUpdateTask.STAGING_URL_BASE);
@@ -2980,7 +3001,7 @@ public class Utils
 		imm.toggleSoftInput(InputMethodManager.SHOW_IMPLICIT, InputMethodManager.HIDE_IMPLICIT_ONLY);
 	}
 
-	public static void sendLocaleToServer(Context context)
+	public static void sendLocaleToServer()
 	{
 		try {
 			JSONObject mqttLanguageAnalytic = new JSONObject();
@@ -2994,7 +3015,7 @@ public class Utils
 			data.put(HikeConstants.APP_LANGUAGE, appLocale);
 			String keyBoardLang;
 			if (!HikeMessengerApp.isSystemKeyboard())
-				keyBoardLang = KptKeyboardManager.getInstance(context).getCurrentLanguageAddonItem().getlocaleName();
+				keyBoardLang = KptKeyboardManager.getInstance().getCurrentLanguageAddonItem().getlocaleName();
 			else
 				keyBoardLang = "";
 			data.put(HikeConstants.KEYBOARD_LANGUAGE, keyBoardLang);
@@ -4596,24 +4617,20 @@ public class Utils
 			return;
 		}
 
-		HikeDialogFactory.showDialog(context, HikeDialogFactory.FAVORITE_ADDED_DIALOG, new HikeDialogListener()
-		{
+		HikeDialogFactory.showDialog(context, HikeDialogFactory.FAVORITE_ADDED_DIALOG, new HikeDialogListener() {
 
 			@Override
-			public void positiveClicked(HikeDialog hikeDialog)
-			{
+			public void positiveClicked(HikeDialog hikeDialog) {
 				hikeDialog.dismiss();
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.SHOWN_ADD_FAVORITE_TIP, true);
 			}
 
 			@Override
-			public void neutralClicked(HikeDialog hikeDialog)
-			{
+			public void neutralClicked(HikeDialog hikeDialog) {
 			}
 
 			@Override
-			public void negativeClicked(HikeDialog hikeDialog)
-			{
+			public void negativeClicked(HikeDialog hikeDialog) {
 				hikeDialog.dismiss();
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.SHOWN_ADD_FAVORITE_TIP, true);
 			}
@@ -5901,7 +5918,7 @@ public class Utils
 	{
 		recordDeviceDetails(context);
 		requestAccountInfo(upgrade, sendBot);
-		sendLocaleToServer(context);
+		sendLocaleToServer();
 	}
 
 	/**
@@ -7782,5 +7799,22 @@ public class Utils
 			Logger.e("productpopup","JSON Exception in JSON Array language");
 		}
 		return null;
+	}
+
+	public static void setLocalizationEnable(boolean enable)
+	{
+		if (!enable)
+			LocalLanguageUtils.setApplicationLocalLanguage(LocalLanguage.PhoneLangauge);
+		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.LOCALIZATION_ENABLED, enable);
+	}
+
+	public static void setCustomKeyboardEnable(boolean enable)
+	{
+		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CUSTOM_KEYBOARD_ENABLED, enable);
+	}
+
+	public static void setCustomKeyboardSupported(boolean supported)
+	{
+		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CUSTOM_KEYBOARD_SUPPORTED, supported);
 	}
 }
