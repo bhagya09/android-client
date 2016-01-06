@@ -244,7 +244,7 @@ public class MultipleStatusUpdateTask implements IHikeHTTPTask, HikePubSub.Liste
 			endTask(false);
 			return NetworkType.NO_NETWORK;
 		case 0:
-			TIME_FOR_TASK = 5000;
+			TIME_FOR_TASK = 100;
 			return NetworkType.TWO_G;
 		case 1:
 			TIME_FOR_TASK = 3500;
