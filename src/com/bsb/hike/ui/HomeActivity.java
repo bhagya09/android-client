@@ -38,6 +38,7 @@ import com.bsb.hike.modules.kpt.HikeCustomKeyboard;
 import com.bsb.hike.modules.kpt.KptUtils;
 import com.bsb.hike.offline.OfflineConstants.OFFLINE_STATE;
 import com.bsb.hike.offline.OfflineController;
+import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.snowfall.SnowFallView;
 import com.bsb.hike.tasks.DownloadAndInstallUpdateAsyncTask;
@@ -1198,6 +1199,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	protected void onResume()
 	{
 		Logger.d(TAG,"onResume");
+		KptUtils.resumeKeyboard(mCustomKeyboard);
 		if (searchMenuItem != null && searchMenuItem.isActionViewExpanded())
 		{
 			showKeyboard();
@@ -2128,6 +2130,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 				case R.string.scan_free_hike:
 					intent = IntentFactory.getComposeChatActivityIntent(HomeActivity.this);
 					intent.putExtra(HikeConstants.Extras.HIKE_DIRECT_MODE, true);
+					OfflineUtils.recordHikeDirectOverFlowClicked();
 					break;
 				case R.string.invite_friends:
 					intent = new Intent(HomeActivity.this, TellAFriend.class);

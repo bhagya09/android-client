@@ -1438,7 +1438,12 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 	protected SpannableString getSpanText(String text, Integer start)
 	{
 		SpannableString spanName = new SpannableString(text);
-		spanName.setSpan(new ForegroundColorSpan(context.getResources().getColor(R.color.blue_color_span)), start, start+queryText.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+		int end = start + queryText.length();
+		if (end > text.length())
+		{
+			end = text.length();
+		}
+		spanName.setSpan(new ForegroundColorSpan(context.getResources().getColor(R.color.blue_color_span)), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 		return spanName;
 	}
 

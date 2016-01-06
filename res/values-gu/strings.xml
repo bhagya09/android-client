@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
 
     <string name="app_name">Hike</string>
@@ -1171,7 +1171,7 @@
     <string name="long_press_duration_title">લાંબા પ્રેસ ડ્યૂરેશન</string>
     <string name="keypress_sound_vol_title">કીપ્રેસ સાઉન્ડ વોલ્યુમ</string>
     <string name="keypress_vib_duration_title">કીપ્રેસ વાઇબ્રેશન ડ્યૂરેશન</string>
-    <string name="like_count_by_unknow_contacts">%2$s સ ના +%1$d મિત્રો</string>
+    <string name="like_count_by_unknow_contacts">%2$s ના +%1$d મિત્રો</string>
     <string name="connection_established_inline_msg">Hike ડાયરેક્ટ કનેક્ટેડ</string>
     <string name="connection_deestablished_inline_msg">Hike ડાયરેક્ટ ડિસ્કનેક્ટેડ</string>
     <string name="connection_request_inline_msg">Hike ડાયરેક્ટ રિક્વેસ્ટ મિસ્ડ</string>
@@ -1275,7 +1275,7 @@
     <string name="are_typing">ટાઇપ કરી રહ્યા છે...</string>
     <string name="you_chat_bg_changed">તમે ચેટ થીમ બદલી</string>
     <string name="hike_keyboard">Hike કીબોર્ડ</string>
-    <string name="system_keyboard">સિસ્ટમ કીબોર્ડ</string>
+    <string name="system_keyboard">ફોન કીબોર્ડ</string>
     <string name="you_xyz_posted_pin">જો તમે પિન પોસ્ટ કરી  </string>
     <string name="voip_hang_up">હેંગ અપ </string>
     <string name="voip_decline">ના કરો </string>
@@ -1421,4 +1421,7 @@
     <string name="sms_card_settings_side_text">બધા ટેક્સ્ટ મેસેજસ પર</string>
 <string name="unsupported_langs_toast">તમારો ફોન %1$s ભાષા સપોર્ટ નથી કરતો</string>
     <string name="unsupported_language_toast_msg">તમારો ફોન આ ભાષા સપોર્ટ નથી કરતો</string>
+    <string name="language_ftue_complete_message">તમે તમારી કીબોર્ડ ભાષા \nસેટ્ટિંગ્સ -> ભાષા અને ઈનપુટ થી ગમે ત્યારે બદલી શકો ચો</string>
+    <string name="error_message_upgrade_peer">કનેક્ટ કરવામાં અક્ષમ. તમારા મિત્ર Hike ડાયરેક્ટ સાથે તાજેતરની આવૃત્તિ પર નથી.</string>
+    <string name="error_message_unsupported_peer">કનેક્ટ કરવામાં અક્ષમ. Hike ડાયરેક્ટ હવે માત્ર અન્દ્રોઇદ ફોન્સ સાથે કામ કરે છે.</string>
 </resources>

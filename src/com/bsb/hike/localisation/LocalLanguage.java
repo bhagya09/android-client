@@ -93,7 +93,7 @@ public class LocalLanguage {
 
     public static void refreshdeviceSupportedHikeList(Context context){
         {
-            ArrayList<KPTAddonItem> deviceSupportedkptLanguages = KptKeyboardManager.getInstance(context).getSupportedLanguagesList();
+            ArrayList<KPTAddonItem> deviceSupportedkptLanguages = KptKeyboardManager.getInstance().getSupportedLanguagesList();
             HashSet<String> supportedLocaleSet = new HashSet<>();
             for (KPTAddonItem item : deviceSupportedkptLanguages)
             {
@@ -121,7 +121,7 @@ public class LocalLanguage {
         if(deviceUnSupportedList != null){
             return;
         }
-        List<KPTAddonItem> unsupportedItems = KptKeyboardManager.getInstance(HikeMessengerApp.getInstance()).getUnsupportedLanguagesList();
+        List<KPTAddonItem> unsupportedItems = KptKeyboardManager.getInstance().getUnsupportedLanguagesList();
         if(Utils.isEmpty(unsupportedItems))
         {
             return;
