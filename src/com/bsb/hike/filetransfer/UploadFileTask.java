@@ -83,6 +83,8 @@ public class UploadFileTask extends FileTransferBase
 
 	private List<ConvMessage> messageList;
 
+	private String vidCompressionRequired = "0";
+
 	public UploadFileTask(Context ctx, ConvMessage convMessage, String fileKey)
 	{
 		super(ctx, null, -1, null);
@@ -317,6 +319,7 @@ public class UploadFileTask extends FileTransferBase
 						FTAnalyticEvents.sendVideoCompressionEvent(info.originalWidth + "x" + info.originalHeight, info.resultWidth + "x" + info.resultHeight, mFile.length(),
 								compFile.length(), 1);
 						selectedFile = compFile;
+						vidCompressionRequired = "1";
 						Utils.deleteFileFromHikeDir(context, mFile, hikeFileType);
 					}
 					else
@@ -489,7 +492,7 @@ public class UploadFileTask extends FileTransferBase
 	{
 		if (requestToken == null || !requestToken.isRequestRunning())
 		{
-			requestToken = HttpRequests.uploadFile(sourceFile.getAbsolutePath(), msgId, new IRequestListener()
+			requestToken = HttpRequests.uploadFile(sourceFile.getAbsolutePath(), msgId, vidCompressionRequired, new IRequestListener()
 			{
 				@Override
 				public void onRequestSuccess(Response result)

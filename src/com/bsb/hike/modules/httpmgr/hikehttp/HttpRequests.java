@@ -990,12 +990,13 @@ public class HttpRequests
 		return token;
 	}
 	
-	public static RequestToken uploadFile(String filePath, long msgId, IRequestListener requestListener, IGetChunkSize chunkSizePolicy)
+	public static RequestToken uploadFile(String filePath, long msgId, String videoCompressionReqd, IRequestListener requestListener, IGetChunkSize chunkSizePolicy)
 	{
 		RequestToken requestToken = new FileUploadRequest.Builder()
 				.setUrl(getUploadFileBaseUrl())
 				.setId(String.valueOf(msgId))
 				.setRequestType(Request.REQUEST_TYPE_LONG)
+				.addHeader(new Header("X-Compression-Required", videoCompressionReqd))
 				.setChunkSizePolicy(chunkSizePolicy)
 				.setRequestListener(requestListener)
 				.setFile(filePath)

@@ -191,6 +191,7 @@ public class FileUploadRequest extends Request<JSONObject>
 				ByteArrayBody body = new ByteArrayBody("multipart/form-data; boundary=" + BOUNDARY, fileBytes);
 				String contentRange = "bytes " + start + "-" + end + "/" + length;
 				List<Header> headers = getFileUploadHeaders(srcFile, contentRange);
+				headers.addAll(getHeaders()); // getting headers from main file upload request
 
 				ByteArrayRequest request = new ByteArrayRequest.Builder()
 						.setUrl(this.getUrl())
