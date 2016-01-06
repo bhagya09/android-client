@@ -80,7 +80,7 @@ public class MultipleStatusUpdateTask implements IHikeHTTPTask, HikePubSub.Liste
 
 			registerPubsub();
 
-			if (mShowProgressDialog)
+			if (mShowProgressDialog && timeout > 0)
 			{
 				showProgressDialog();
 			}
@@ -244,13 +244,13 @@ public class MultipleStatusUpdateTask implements IHikeHTTPTask, HikePubSub.Liste
 			endTask(false);
 			return NetworkType.NO_NETWORK;
 		case 0:
-			TIME_FOR_TASK = 100;
+			TIME_FOR_TASK = 0;
 			return NetworkType.TWO_G;
 		case 1:
 			TIME_FOR_TASK = 3500;
 			return NetworkType.WIFI;
 		case 2:
-			TIME_FOR_TASK = 5000;
+			TIME_FOR_TASK = 0;
 			return NetworkType.TWO_G;
 		case 3:
 			TIME_FOR_TASK = 3500;
@@ -259,6 +259,7 @@ public class MultipleStatusUpdateTask implements IHikeHTTPTask, HikePubSub.Liste
 			TIME_FOR_TASK = 3000;
 			return NetworkType.FOUR_G;
 		default:
+			TIME_FOR_TASK = 0;
 			return NetworkType.TWO_G;
 		}
 	}

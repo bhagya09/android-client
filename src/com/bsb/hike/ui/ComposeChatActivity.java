@@ -2053,7 +2053,16 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 									public void run()
 									{
 										Toast.makeText(HikeMessengerApp.getInstance(), R.string.timeline_post_timeout, Toast.LENGTH_SHORT).show();
-										Intent intent = IntentFactory.getHomeActivityIntent(ComposeChatActivity.this);
+										String id = ComposeChatActivity.this.getIntent().getStringExtra(HikeConstants.Extras.PREV_MSISDN);
+										Intent intent = null;
+										if (!TextUtils.isEmpty(id))
+										{
+											intent = IntentFactory.createChatThreadIntentFromMsisdn(ComposeChatActivity.this, id, false, false);
+										}
+										else
+										{
+											intent = IntentFactory.getHomeActivityIntent(ComposeChatActivity.this);
+										}
 										intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 										startActivity(intent);
 										finish();
