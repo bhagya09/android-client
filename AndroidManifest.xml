@@ -3,8 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bsb.hike"
     android:installLocation="auto"
-    android:versionCode="1574"
-    android:versionName="4.1.0.23" >
+    android:versionCode="1575"
+    android:versionName="4.1.0.24" >
 
     <uses-sdk
         android:minSdkVersion="14"
@@ -464,9 +464,6 @@
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
-        <meta-data
-            android:name="com.bugsnag.android.API_KEY"
-            android:value="48991598ad1bc596f547705be1d9e778"/>
 
         <receiver android:name=".service.SmsMessageStatusReceiver" />
         <receiver android:name=".service.AlarmBroadcastReceiver" >

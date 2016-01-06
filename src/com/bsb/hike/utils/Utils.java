@@ -7816,4 +7816,27 @@ public class Utils
 	{
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CUSTOM_KEYBOARD_SUPPORTED, supported);
 	}
+
+	public static void recordDatabaseCorrupt(SQLiteDatabase dbObj)
+	{
+		JSONObject json = new JSONObject();
+		try
+		{
+			json.put(AnalyticsConstants.EVENT_KEY, AnalyticsConstants.DATABASE_ERROR);
+			json.put(AnalyticsConstants.EVENT, "db_corrupt");
+			json.put(AnalyticsConstants.LOG_FIELD_1, dbObj.getPath());
+			json.put(AnalyticsConstants.LOG_FIELD_5, (new File(dbObj.getPath())).length());
+			json.put(AnalyticsConstants.LOG_FIELD_6, DatabaseUtils.longForQuery(dbObj, "PRAGMA page_count;", null));
+
+			Logger.d("db", json.toString());
+
+			HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.APP_CRASH_EVENT, json);
+		}
+
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+	}
+
 }

@@ -604,4 +604,6 @@ public class AnalyticsConstants
 	public static final String INTERNAL_STORAGE_SPACE = "mem";
 
 	public static final String DISCOVERY_BOT_TAP = "bd_tap";
+
+	public static final String DATABASE_ERROR = "db_error";
 }
