@@ -213,8 +213,24 @@ public class ChatThreadUtils
 		initialiseFileTransfer(context, msisdn, filePath, fileKey, hikeFileType, fileType, isRecording, recordingDuration, true, convOnHike, attachmentType);
 	}
 
+	protected static void initiateFileTransferFromIntentData(Context context, String msisdn, String fileType, String filePath, String fileKey, boolean isRecording,
+															 long recordingDuration, boolean convOnHike, int attachmentType, String caption)
+	{
+		HikeFileType hikeFileType = HikeFileType.fromString(fileType, isRecording);
+
+		Logger.d(TAG, "Forwarding file- Type:" + fileType + " Path: " + filePath);
+
+		Logger.d("Suyash", "ChThUtil : isCloudMediaUri" + Utils.isPicasaUri(filePath));
+		initialiseFileTransfer(context, msisdn, filePath, fileKey, hikeFileType, fileType, isRecording, recordingDuration, true, convOnHike, attachmentType,caption);
+	}
+
 	protected static void initialiseFileTransfer(Context context, String msisdn, String filePath, String fileKey, HikeFileType hikeFileType, String fileType, boolean isRecording,
-			long recordingDuration, boolean isForwardingFile, boolean convOnHike, int attachmentType)
+												 long recordingDuration, boolean isForwardingFile, boolean convOnHike, int attachmentType)
+	{
+		initialiseFileTransfer(context, msisdn, filePath, fileKey, hikeFileType, fileType, isRecording, recordingDuration, isForwardingFile, convOnHike, attachmentType, null);
+	}
+	protected static void initialiseFileTransfer(Context context, String msisdn, String filePath, String fileKey, HikeFileType hikeFileType, String fileType, boolean isRecording,
+			long recordingDuration, boolean isForwardingFile, boolean convOnHike, int attachmentType, String caption)
 	{
 		clearTempData(context);
 
@@ -242,7 +258,8 @@ public class ChatThreadUtils
 				.setForwardMsg(isForwardingFile)
 				.setRecipientOnHike(convOnHike)
 				.setRecordingDuration(recordingDuration)
-				.setAttachement(attachmentType);
+				.setAttachement(attachmentType)
+				.setCaption(caption);
 		mBuilder.build();
 				
 	}
@@ -257,6 +274,7 @@ public class ChatThreadUtils
 		}
 		String filePath = intent.getStringExtra(HikeConstants.Extras.FILE_PATH);
 		String fileType = intent.getStringExtra(HikeConstants.Extras.FILE_TYPE);
+		String caption = intent.getStringExtra(HikeConstants.CAPTION);
 		int attachmentType = FTAnalyticEvents.FILE_ATTACHEMENT;
 
 		boolean isRecording = false;
@@ -276,7 +294,7 @@ public class ChatThreadUtils
 		}
 		else
 		{
-			ChatThreadUtils.initiateFileTransferFromIntentData(context, msisdn, fileType, filePath, fileKey, isRecording, recordingDuration, isConvOnHike, attachmentType);
+			ChatThreadUtils.initiateFileTransferFromIntentData(context, msisdn, fileType, filePath, fileKey, isRecording, recordingDuration, isConvOnHike, attachmentType,caption);
 		}
 	}
 

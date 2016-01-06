@@ -10,6 +10,7 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
@@ -179,6 +180,11 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
             galleryGridItems.add(null);
             HikeMessengerApp.getPubSub().addListener(HikePubSub.MULTI_FILE_TASK_FINISHED, this);
         }
+
+		for (int i = 0; i < galleryItems.size(); i++)
+		{
+			captions.put(i,"");
+		}
 
 
 		selectedGrid = (GridView) findViewById(R.id.selection_grid);
@@ -352,8 +358,22 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 				if(forGalleryShare)
 				{
 					Intent data = new Intent();
-					data.putParcelableArrayListExtra(HikeConstants.IMAGE_PATHS, getSelectedFilesAsUri());
-					setResult(RESULT_OK,data);
+					ArrayList<Uri> selectedFiles = getSelectedFilesAsUri();
+					data.putParcelableArrayListExtra(HikeConstants.IMAGE_PATHS,selectedFiles);
+
+					if (captions.size() > 0)
+					{
+						ArrayList<String> captionsArrayList = new ArrayList<String>();
+						for (int i = 0; i < captions.size(); i++)
+						{
+							int key = captions.keyAt(i);
+							String captionString = captions.get(key);
+							captionsArrayList.add(captionString);
+						}
+						data.putStringArrayListExtra(HikeConstants.CAPTION, captionsArrayList);
+					}
+
+					setResult(RESULT_OK, data);
 					GallerySelectionViewer.this.finish();
 					return;
 				}
@@ -710,6 +730,7 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 			int position = selectedPager.getCurrentItem();
 			galleryItems.remove(position);
 			galleryGridItems.remove(position);
+			removeCaption(position);
 			if(editedImages!=null)
 			{
 				if(isIndexEdited(position))
@@ -736,6 +757,16 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 			GallerySelectionViewer.this.selectedPager.setCurrentItem(position == 0 ? 0 : position - 1);
 		}
 	};
+
+	private void removeCaption(int position)
+	{
+		int captionsSize = captions.size();
+		for (int i = position; i < (captionsSize - 1); i++)
+		{
+			captions.put(position,captions.get(position + 1));
+		}
+		captions.remove(captions.size() - 1);
+	}
 
 	@Override
 	public void onEventReceived(String type, Object object)

@@ -2897,7 +2897,7 @@ import android.widget.Toast;
 						}
 						String filePath = msgExtrasJson.getString(HikeConstants.Extras.FILE_PATH);
 						String fileType = msgExtrasJson.getString(HikeConstants.Extras.FILE_TYPE);
-
+						String caption = msgExtrasJson.optString(HikeConstants.CAPTION);
 						boolean isRecording = false;
 						long recordingDuration = -1;
 						if (msgExtrasJson.has(HikeConstants.Extras.RECORDING_TIME))
@@ -2921,7 +2921,7 @@ import android.widget.Toast;
 
 						Logger.d("ChatThread", "isCloudMediaUri" + Utils.isPicasaUri(filePath));
 						channelSelector.sendFile(activity.getApplicationContext(), msisdn, filePath, fileKey, hikeFileType, fileType, isRecording,
-									recordingDuration, true, mConversation.isOnHike(), attachmentType);
+									recordingDuration, true, mConversation.isOnHike(), attachmentType, caption);
 					}
 					else if (msgExtrasJson.has(HikeConstants.Extras.LATITUDE) && msgExtrasJson.has(HikeConstants.Extras.LONGITUDE)
 							&& msgExtrasJson.has(HikeConstants.Extras.ZOOM_LEVEL))

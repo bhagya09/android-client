@@ -81,6 +81,8 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 
 	private BitmapFactory.Options options;
 
+	private String mPrefillCaption;
+
 	private class ActivityTask
 	{
 		int moodId = -1;
@@ -184,6 +186,8 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 
 	public static final String STATUS_UPDATE_IMAGE_PATH = "SUIMGPTH";
 
+	public static final String STATUS_UPDATE_TEXT = "SUTEXT";
+
 	public static final String ENABLE_COMPRESSION = "SUCOMPRESS";
 	
 	StatusUpdateTaskFinishedRunnable suUploadTaskFinishRunnable;
@@ -268,6 +272,8 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 			{
 				addPhoto(mImagePath);
 			}
+
+			mPrefillCaption = savedInstanceState.getString(STATUS_UPDATE_TEXT);
 		}
 		else
 		{
@@ -308,6 +314,12 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		else
 		{
 			removePhoto(null);
+		}
+
+		if(!TextUtils.isEmpty(mPrefillCaption))
+		{
+			statusTxt.setText(mPrefillCaption);
+			mPrefillCaption = null;
 		}
 
 		setMood(mActivityTask.moodId, mActivityTask.moodIndex);
@@ -360,6 +372,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 	{
 		outState.putBoolean(IS_IMAGE_DELETED, mActivityTask.imageDeleted);
 		outState.putString(STATUS_UPDATE_IMAGE_PATH, mImagePath);
+		outState.putString(STATUS_UPDATE_TEXT, mPrefillCaption);
 		outState.putInt(SELECTED_MOOD_ID, mActivityTask.moodId);
 		outState.putInt(SELECTED_MOOD_INDEX, mActivityTask.moodIndex);
 		super.onSaveInstanceState(outState);
@@ -392,6 +405,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 			return;
 		}
 		mImagePath = intent.getStringExtra(STATUS_UPDATE_IMAGE_PATH);
+		mPrefillCaption = intent.getStringExtra(STATUS_UPDATE_TEXT);
 		mInputIntentData = intent.toUri(Intent.URI_INTENT_SCHEME);
 		enableCompression = intent.getBooleanExtra(ENABLE_COMPRESSION,true);
 	}

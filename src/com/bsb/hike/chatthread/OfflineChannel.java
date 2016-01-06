@@ -78,6 +78,15 @@ public class OfflineChannel implements IChannelSelector{
 			String fileType, boolean isRecording, long recordingDuration,
 			boolean isForwardingFile, boolean isOnHike, int attachmentType) {
 		//To do - Check  for  apk label  
+		offlineController.sendfile(filePath, fileKey, hikeFileType, fileType, isRecording, recordingDuration, attachmentType, msisdn, null);
+	}
+
+	@Override
+	public void sendFile(Context applicationContext, String msisdn,
+						 String filePath, String fileKey, HikeFileType hikeFileType,
+						 String fileType, boolean isRecording, long recordingDuration,
+						 boolean isForwardingFile, boolean isOnHike, int attachmentType, String caption) {
+		//To do - Check  for  apk label
 		offlineController.sendfile(filePath , fileKey, hikeFileType, fileType, isRecording, recordingDuration, attachmentType, msisdn, null);
 	}
 

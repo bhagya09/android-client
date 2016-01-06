@@ -251,6 +251,8 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 
 	private ArrayList<String> imagesToShare = new ArrayList<String>();
 
+	private ArrayList<String> imageCaptions = new ArrayList<String>();
+
 	private boolean allImages;
 
 	@Override
@@ -1312,69 +1314,115 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 	protected void onActivityResult(int requestCode, int resultCode, Intent data)
 	{
 		super.onActivityResult(requestCode, resultCode, data);
-		
+
 		if (resultCode == RESULT_OK)
 		{
 			switch (requestCode)
 			{
-				case OPEN_CREATE_BROADCAST_ACTIVITY:
-					Bundle broadcastBundle = data.getBundleExtra(HikeConstants.Extras.BROADCAST_CREATE_BUNDLE);
-					createBroadcast = broadcastBundle.getBoolean(HikeConstants.Extras.CREATE_BROADCAST, true);
-					oneToNConvName = broadcastBundle.getString(HikeConstants.Extras.ONETON_CONVERSATION_NAME);
-					oneToNConvId = broadcastBundle.getString(HikeConstants.Extras.CONVERSATION_ID);
-					OneToNConversationUtils.createGroupOrBroadcast(this, adapter.getAllSelectedContacts(), oneToNConvName, oneToNConvId, -1);
-					break;
-					
-				case HikeConstants.ResultCodes.PHOTOS_REQUEST_CODE:
-					String sharedFilepath = data.getStringExtra(HikeConstants.Extras.IMAGE_PATH);
-					if(sharedFilepath !=null && (new File(sharedFilepath)).exists())
+			case OPEN_CREATE_BROADCAST_ACTIVITY:
+				Bundle broadcastBundle = data.getBundleExtra(HikeConstants.Extras.BROADCAST_CREATE_BUNDLE);
+				createBroadcast = broadcastBundle.getBoolean(HikeConstants.Extras.CREATE_BROADCAST, true);
+				oneToNConvName = broadcastBundle.getString(HikeConstants.Extras.ONETON_CONVERSATION_NAME);
+				oneToNConvId = broadcastBundle.getString(HikeConstants.Extras.CONVERSATION_ID);
+				OneToNConversationUtils.createGroupOrBroadcast(this, adapter.getAllSelectedContacts(), oneToNConvName, oneToNConvId, -1);
+				break;
+
+			case HikeConstants.ResultCodes.PHOTOS_REQUEST_CODE:
+				String sharedFilepath = data.getStringExtra(HikeConstants.Extras.IMAGE_PATH);
+				if (sharedFilepath != null && (new File(sharedFilepath)).exists())
+				{
+					Intent intent = getIntent();
+					intent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(new File(sharedFilepath)));
+					setIntent(intent);
+				}
+				else
+				{
+					onError();
+				}
+				break;
+
+			case GallerySelectionViewer.MULTI_EDIT_REQUEST_CODE:
+				ArrayList<Uri> imageUris = data.getParcelableArrayListExtra(HikeConstants.IMAGE_PATHS);
+				if (imageUris != null && !imageUris.isEmpty())
+				{
+					if (imageUris.size() > 1)
 					{
 						Intent intent = getIntent();
-						intent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(new File(sharedFilepath)));
+						intent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, imageUris);
 						setIntent(intent);
 					}
 					else
 					{
-						onError();
+						Intent intent = getIntent();
+						intent.putExtra(Intent.EXTRA_STREAM, imageUris.get(0));
+						setIntent(intent);
 					}
-					break;
-					
-				case GallerySelectionViewer.MULTI_EDIT_REQUEST_CODE:
-					ArrayList<Uri> imageUris = data.getParcelableArrayListExtra(HikeConstants.IMAGE_PATHS);
-					if (imageUris != null && !imageUris.isEmpty()) {
-						if (imageUris.size() > 1) {
-							Intent intent = getIntent();
-							intent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, imageUris);
-							setIntent(intent);
-						} else {
-							Intent intent = getIntent();
-							intent.putExtra(Intent.EXTRA_STREAM, imageUris.get(0));
-							setIntent(intent);
-						}
 
-						imagesToShare.clear();
-						for(Uri uri:imageUris)
+					imagesToShare.clear();
+					for (Uri uri : imageUris)
+					{
+						imagesToShare.add(uri.getPath());
+					}
+
+					if(data.getStringArrayListExtra(HikeConstants.CAPTION) != null)
+					{
+						imageCaptions.clear();
+						imageCaptions.addAll(data.getStringArrayListExtra(HikeConstants.CAPTION));
+					}
+
+					Intent intent = getIntent();
+					if (intent.hasExtra(HikeConstants.Extras.MULTIPLE_MSG_OBJECT))
+					{
+						String jsonString = intent.getStringExtra(HikeConstants.Extras.MULTIPLE_MSG_OBJECT);
+						try
 						{
-							imagesToShare.add(uri.getPath());
-						}
+							JSONArray multipleMsgFwdArray = new JSONArray(jsonString);
+							JSONArray newMultipleMsgFwdArray = new JSONArray();
+							int msgCount = multipleMsgFwdArray.length();
 
-					} else {
-						onError();
+							int captionCounter = 0;
+							for (int i = 0; i < msgCount; i++)
+							{
+								JSONObject msgExtrasJson = (JSONObject) multipleMsgFwdArray.get(i);
+								if (msgExtrasJson.has(HikeConstants.Extras.FILE_PATH))
+								{
+									String filePath = msgExtrasJson.getString(HikeConstants.Extras.FILE_PATH);
+									if(imagesToShare.contains(filePath) && newMultipleMsgFwdArray.length() < imagesToShare.size())
+									{
+										msgExtrasJson.put(HikeConstants.CAPTION, imageCaptions.get(captionCounter));
+										captionCounter++;
+										newMultipleMsgFwdArray.put(msgExtrasJson);
+									}
+								}
+							}
+							intent.putExtra(HikeConstants.Extras.MULTIPLE_MSG_OBJECT, newMultipleMsgFwdArray.toString());
+							setIntent(intent);
+						}
+						catch (JSONException je)
+						{
+							je.printStackTrace();
+							onError();
+						}
 					}
-					break;
+				}
+				else
+				{
+					onError();
+				}
+				break;
 			}
-			
+
 		}
-		else 
+		else
 		{
-			switch(requestCode)
+			switch (requestCode)
 			{
-				case HikeConstants.ResultCodes.PHOTOS_REQUEST_CODE:
-				case GallerySelectionViewer.MULTI_EDIT_REQUEST_CODE:
-					ComposeChatActivity.this.finish();
-					break;
+			case HikeConstants.ResultCodes.PHOTOS_REQUEST_CODE:
+			case GallerySelectionViewer.MULTI_EDIT_REQUEST_CODE:
+				ComposeChatActivity.this.finish();
+				break;
 			}
-			
+
 		}
 	}
 	
@@ -1758,7 +1806,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 					{
 						if(imagesToShare.size() == 1)
 						{
-							intent = IntentFactory.getPostStatusUpdateIntent(this, imagesToShare.get(0),true);
+							intent = IntentFactory.getPostStatusUpdateIntent(this, imageCaptions.get(0), imagesToShare.get(0),true);
 							intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 							startActivity(intent);
 							finish();
@@ -1848,7 +1896,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 
 						if(imagesToShare.size() == 1)
 						{
-							intent = IntentFactory.getPostStatusUpdateIntent(this, imagesToShare.get(0),true);
+							intent = IntentFactory.getPostStatusUpdateIntent(this, imageCaptions.get(0),imagesToShare.get(0),true);
 							intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 							startActivity(intent);
 							finish();
@@ -1946,9 +1994,9 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 	private void postImagesToShareOnTimeline(final boolean foreground)
 	{
 		final ArrayList<StatusUpdateTask> statusUpdateTasks = new ArrayList<StatusUpdateTask>();
-		for (String imageFilePath : imagesToShare)
+		for (int i=0;i<imagesToShare.size();i++)
 		{
-			statusUpdateTasks.add(new StatusUpdateTask(null, -1, imageFilePath));
+			statusUpdateTasks.add(new StatusUpdateTask(imageCaptions.get(i), -1, imagesToShare.get(i)));
 		}
 		if (!statusUpdateTasks.isEmpty())
 		{
@@ -2059,8 +2107,9 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 					boolean showMaxFileToast = false;
 
 					ArrayList<Pair<String, String>> fileDetails = new ArrayList<Pair<String, String>>(imageUris.size());
-					for (Uri fileUri : imageUris)
+					for (int i = 0 ; i < imageUris.size() ; i++)
 					{
+						Uri fileUri = imageUris.get(i);
 						Logger.d(getClass().getSimpleName(), "File path uri: " + fileUri.toString());
 
 						String filePath = Utils.getAbsolutePathFromUri(fileUri, this,true);
@@ -2087,13 +2136,13 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 							showMaxFileToast = true;
 							if (offlineContact != null)
 							{
-								FileTransferData fileData = initialiseFileTransfer(filePath, null, hikeFileType, fileType, false, -1, true, arrayList);
+								FileTransferData fileData = initialiseFileTransfer(filePath, null, hikeFileType, fileType, false, -1, true, arrayList,imageCaptions.get(i));
 								offlineFileTransferList.add(fileData);
 							}
 							continue;
 								
 						}
-						FileTransferData fileData = initialiseFileTransfer(filePath, null, hikeFileType, fileType, false, -1, true, arrayList);
+						FileTransferData fileData = initialiseFileTransfer(filePath, null, hikeFileType, fileType, false, -1, true, arrayList,imageCaptions.get(i));
 						if(fileData!=null){
 							fileDetails.add(new Pair<String, String>(filePath, fileType));
 							fileTransferList.add(fileData);
@@ -2227,7 +2276,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 						HikeFileType hikeFileType = HikeFileType.fromString(fileType, isRecording);
 						Logger.d("ComposeChatActivity", "CompChAct : isCloudUri" + Utils.isPicasaUri(filePath));
 						FileTransferData fileData = initialiseFileTransfer(filePath, fileKey, hikeFileType, fileType,
-								isRecording, recordingDuration, true, arrayList);
+								isRecording, recordingDuration, true, arrayList,imageCaptions.get(i));
 						if (fileData != null && fileData.file != null)
 						{
 							if ((HikeConstants.MAX_FILE_SIZE > fileData.file.length()))
@@ -2478,6 +2527,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 				{
 					intent.putExtra(HikeConstants.Extras.FILE_PATH, filePath);
 					intent.putExtra(HikeConstants.Extras.FILE_TYPE, type);
+					intent.putExtra(HikeConstants.CAPTION,imageCaptions.get(0));
 				}
 				
 				HikeFileType hikeFileType = HikeFileType.fromString(
@@ -2500,7 +2550,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 				}
 				else
 				{
-					FileTransferData fileData = initialiseFileTransfer(filePath, null, hikeFileType, type, false, -1, true, arrayList);
+					FileTransferData fileData = initialiseFileTransfer(filePath, null, hikeFileType, type, false, -1, true, arrayList,imageCaptions.get(0));
 					if (fileData != null)
 					{
 						fileTransferList.add(fileData);
@@ -2953,8 +3003,15 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		return convMessage;
 		//sendMessage(convMessage);
 	}
+
 	private FileTransferData initialiseFileTransfer(String filePath, String fileKey, HikeFileType hikeFileType, String fileType, boolean isRecording, long recordingDuration,
-			boolean isForwardingFile, ArrayList<ContactInfo> arrayList)
+													boolean isForwardingFile, ArrayList<ContactInfo> arrayList)
+	{
+		return initialiseFileTransfer(filePath, fileKey, hikeFileType, fileType, isRecording, recordingDuration, isForwardingFile, arrayList,null);
+	}
+
+	private FileTransferData initialiseFileTransfer(String filePath, String fileKey, HikeFileType hikeFileType, String fileType, boolean isRecording, long recordingDuration,
+			boolean isForwardingFile, ArrayList<ContactInfo> arrayList, String caption)
 	{
 		clearTempData();
 		if (filePath == null)
@@ -2971,7 +3028,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 //			Toast.makeText(getApplicationContext(), R.string.max_file_size, Toast.LENGTH_SHORT).show();
 //			return null;
 //		}
-		return new FileTransferData(filePath, fileKey, hikeFileType, fileType, isRecording, recordingDuration, isForwardingFile, arrayList, file);
+		return new FileTransferData(filePath, fileKey, hikeFileType, fileType, isRecording, recordingDuration, isForwardingFile, arrayList, file, caption);
 	}
 	private void clearTempData()
 	{
@@ -3101,7 +3158,8 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 								.setForwardMsg(file.isForwardingFile)
 								.setRecipientOnHike(((ContactInfo) file.arrayList.get(0)).isOnhike())
 								.setRecordingDuration(file.recordingDuration)
-								.setAttachement(FTAnalyticEvents.OTHER_ATTACHEMENT);
+								.setAttachement(FTAnalyticEvents.OTHER_ATTACHEMENT)
+								.setCaption(file.caption);
 						mBuilder.build();
 			        }
 				}else if(fileType == CONTACT_TRANSFER)

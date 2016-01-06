@@ -645,7 +645,7 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 
 									if (f.exists())
 									{
-										startActivity(IntentFactory.getPostStatusUpdateIntent(PictureEditer.this, f.getAbsolutePath(),false));
+										startActivity(IntentFactory.getPostStatusUpdateIntent(PictureEditer.this,null, f.getAbsolutePath(),false));
 									}
 									else
 									{

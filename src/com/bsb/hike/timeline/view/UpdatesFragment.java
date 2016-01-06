@@ -1046,7 +1046,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 			break;
 
 		case R.id.new_status_tab:
-			startActivity(IntentFactory.getPostStatusUpdateIntent(getActivity(), null, false));
+			startActivity(IntentFactory.getPostStatusUpdateIntent(getActivity(),null, null, false));
 			break;
 
 		default:
@@ -1085,7 +1085,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 				@Override
 				public void imageParsed(String imagePath)
 				{
-					startActivity(IntentFactory.getPostStatusUpdateIntent(getActivity(), imagePath, false));
+					startActivity(IntentFactory.getPostStatusUpdateIntent(getActivity(), null, imagePath, false));
 				}
 
 				@Override

@@ -38,6 +38,11 @@ public interface IChannelSelector {
 			boolean isRecording, long recordingDuration, boolean isForwardingFile,
 			boolean onHike, int attachmentType);
 
+	void sendFile(Context applicationContext, String msisdn, String filePath,
+				  String fileKey, HikeFileType hikeFileType, String fileType,
+				  boolean isRecording, long recordingDuration, boolean isForwardingFile,
+				  boolean onHike, int attachmentType, String caption);
+
 	void sendPicasaUriFile(Context applicationContext, Uri parse,
 			HikeFileType hikeFileType, String msisdn, boolean onHike);
 
