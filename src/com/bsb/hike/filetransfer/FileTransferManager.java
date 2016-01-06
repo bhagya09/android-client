@@ -536,10 +536,6 @@ public class FileTransferManager
 		}
 		else
 		{
-			if (mFile == null) // @GM only for now. Has to be handled properly
-			{
-				return new FileSavedState();
-			}
 			FileSavedState fss = HttpManager.getInstance().getRequestStateFromDB(HttpRequestConstants.getUploadFileBaseUrl(), String.valueOf(msgId));
 			if (fss == null)
 			{

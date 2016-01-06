@@ -142,6 +142,11 @@ public class FileSavedState implements Serializable
 		return _fileKey;
 	}
 
+	public void setFileKey(String fileKey)
+	{
+		this._fileKey = fileKey;
+	}
+
 	public JSONObject getResponseJson()
 	{
 		try

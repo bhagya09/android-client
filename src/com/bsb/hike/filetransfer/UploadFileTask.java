@@ -159,6 +159,19 @@ public class UploadFileTask extends FileTransferBase
 			@Override
 			public void onRequestFailure(HttpException httpException)
 			{
+				if (httpException.getErrorCode() == HttpException.REASON_CODE_NO_NETWORK)
+				{
+					FileSavedState fss = HttpManager.getInstance().getRequestStateFromDB(HttpRequestConstants.getUploadFileBaseUrl(), String.valueOf(msgId));
+					if (fss == null)
+					{
+						fss = new FileSavedState();
+					}
+					fss.setFTState(FTState.ERROR);
+					fss.setFileKey(fileKey);
+					HttpManager.getInstance().saveRequestStateInDB(HttpRequestConstants.getUploadFileBaseUrl(), String.valueOf(msgId), fss);
+					return;
+				}
+
 				if (httpException.getErrorCode() % 100 > 0)
 				{
 					fileKey = null;
@@ -437,7 +450,21 @@ public class UploadFileTask extends FileTransferBase
 			@Override
 			public void onRequestFailure(HttpException httpException)
 			{
-				uploadFile(selectedFile);
+				if (httpException.getErrorCode() == HttpException.REASON_CODE_NO_NETWORK)
+				{
+					FileSavedState fss = HttpManager.getInstance().getRequestStateFromDB(HttpRequestConstants.getUploadFileBaseUrl(), String.valueOf(msgId));
+					if (fss == null)
+					{
+						fss = new FileSavedState();
+					}
+					fss.setFTState(FTState.ERROR);
+					fss.setFileKey(fileKey);
+					HttpManager.getInstance().saveRequestStateInDB(HttpRequestConstants.getUploadFileBaseUrl(), String.valueOf(msgId), fss);
+				}
+				else
+				{
+					uploadFile(selectedFile);
+				}
 			}
 
 			@Override
@@ -659,5 +686,16 @@ public class UploadFileTask extends FileTransferBase
 		{
 			FileTransferManager.getInstance(context).removeTask(userContext.getMsgID());
 		}
+	}
+
+	@Override
+	public FileSavedState getFileSavedState()
+	{
+		FileSavedState fss = super.getFileSavedState();
+		if (fss == null)
+		{
+			fss = HttpManager.getInstance().getRequestStateFromDB(HttpRequestConstants.getUploadFileBaseUrl(), String.valueOf(msgId));
+		}
+		return fss != null ? fss : new FileSavedState();
 	}
 }

@@ -222,4 +222,15 @@ public class DownloadFileTask extends FileTransferBase
 		if (tempDownloadedFile != null && tempDownloadedFile.exists())
 			tempDownloadedFile.delete();
 	}
+
+	@Override
+	public FileSavedState getFileSavedState()
+	{
+		FileSavedState fss = super.getFileSavedState();
+		if (fss == null)
+		{
+			fss = HttpManager.getInstance().getRequestStateFromDB(downLoadUrl, String.valueOf(msgId));
+		}
+		return fss != null ? fss : new FileSavedState();
+	}
 }

@@ -321,6 +321,15 @@ public class HttpManager
 		HttpRequestStateDB.getInstance().deleteState(requestId);
 	}
 
+	public void saveRequestStateInDB(String url, String defaultId, FileSavedState fss)
+	{
+		String input = url + defaultId;
+		String requestId = HttpUtils.calculateMD5hash(input);
+		HttpRequestState state = new HttpRequestState(requestId);
+		state.setMetadata(fss.toJSON());
+		HttpRequestStateDB.getInstance().insertOrReplaceRequestState(state);
+	}
+
 	/**
 	 * Shutdown method to close everything (setting all variables to null for easy garbage collection)
 	 */
