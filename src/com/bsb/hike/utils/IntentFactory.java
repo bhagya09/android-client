@@ -715,7 +715,7 @@ public class IntentFactory
 	public static Intent getForwardImageIntent(Context context, File argFile)
 	{
 		Intent intent = new Intent(context, ComposeChatActivity.class);
-		intent.putExtra(HikeConstants.Extras.FORWARD_MESSAGE, true);
+		intent.setAction(Intent.ACTION_SEND);
 		intent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(argFile));
 		intent.setType("image");
 		return intent;
