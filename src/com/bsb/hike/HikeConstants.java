@@ -675,6 +675,8 @@ public class HikeConstants
 	public static final String VIBRATE_ON_KEYPRESS_PREF = "vibrateOnKeypressPref";
 	
 	public static final String KEYBOARD_LANGUAGE_CHANGE = "kbd_lng";
+	
+	public static final String LANGUAGE_DOWNLOAD_ERROR_CODE = "er_c";
 
 	public static final String UPGRADE_AVATAR_PROGRESS_USER = "upgradeAvtarProgressUser";
 
