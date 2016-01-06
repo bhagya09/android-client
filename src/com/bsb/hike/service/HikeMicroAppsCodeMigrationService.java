@@ -7,16 +7,17 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.NonMessagingBotMetadata;
+import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.HikeAlarmManager;
+import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.content.PlatformContentConstants;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Utils;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
+
+import org.json.JSONObject;
 
 import java.io.File;
-import java.lang.reflect.Type;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
@@ -26,8 +27,6 @@ import java.util.Map;
  */
 public class HikeMicroAppsCodeMigrationService extends IntentService
 {
-	private final String microAppMigrationMappingFile = "microAppsMigrationMapping";
-
 	public HikeMicroAppsCodeMigrationService()
 	{
 		super("HikeMicroAppsCodeMigrationService");
@@ -66,8 +65,26 @@ public class HikeMicroAppsCodeMigrationService extends IntentService
 					// Copy from source to destination
 					boolean isCopied = PlatformUtils.copyDirectoryTo(originalFile, newFilePath);
 					if (isCopied)
-						mapForMigratedApps.put(entry.getKey(), true);
+					{
+						botMetadata.setAppName(botName);
+						JSONObject json = botMetadata.getJson();
 
+						if (json.has(HikePlatformConstants.CARD_OBJECT))
+						{
+							JSONObject cardObj = json.optJSONObject(HikePlatformConstants.CARD_OBJECT);
+
+							if (cardObj.has(HikePlatformConstants.APP_NAME))
+							{
+								cardObj.put(HikePlatformConstants.APP_NAME, botName);
+							}
+						}
+
+						// Update metadata for this bot in the database and bots Hash Map
+						String botMetadataJson = json.toString();
+						HikeConversationsDatabase.getInstance().updateBotMetaData(entry.getKey(), botMetadataJson);
+						entry.getValue().setMetadata(botMetadataJson);
+						mapForMigratedApps.put(entry.getKey(), true);
+					}
 				}
 				catch (Exception e)
 				{
@@ -84,11 +101,13 @@ public class HikeMicroAppsCodeMigrationService extends IntentService
 			}
 		}
 
-        /*
-         * Check if migration is not successful because of any scenario, set migration alarm again for next day
-         */
+		/*
+		 * Check if migration is not successful because of any scenario, set migration alarm again for next day
+		 */
 		if (isSuccessfullyMigrated)
+		{
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.HIKE_CONTENT_MICROAPPS_MIGRATION, true);
+		}
 		else
 		{
 			long scheduleTime = Utils.getTimeInMillis(Calendar.getInstance(), 4, 50, 30, 0);
@@ -98,19 +117,6 @@ public class HikeMicroAppsCodeMigrationService extends IntentService
 
 			HikeAlarmManager.setAlarm(getApplicationContext(), scheduleTime, HikeAlarmManager.REQUEST_CODE_MICROAPPS_MIGRATION, false);
 		}
-	}
-
-	/*
-	 * Code to generate mapping matrix TreeMap from json
-	 */
-	private HashMap<String, HashMap<String, Integer>> getMapFromString(String json)
-	{
-		Gson gson = new Gson();
-		Type migrationMap = new TypeToken<HashMap<String, HashMap<String, Integer>>>()
-		{
-		}.getType();
-		HashMap<String, HashMap<String, Integer>> map = gson.fromJson(json, migrationMap);
-		return map;
 	}
 
 }

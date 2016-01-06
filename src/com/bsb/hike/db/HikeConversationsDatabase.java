@@ -8016,6 +8016,19 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		mDb.update(BOT_TABLE, contentValues, MSISDN + "=?", new String[] { botMsisdn });
 	}
 
+    /**
+     * Utility method to Update the config data in BotTable
+     *
+     * @param msisdn
+     * @param metadata
+     */
+    public void updateBotMetaData(String botMsisdn, String metadata)
+    {
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(CONVERSATION_METADATA, metadata);
+        mDb.update(BOT_TABLE, contentValues, MSISDN + "=?", new String[] { botMsisdn });
+    }
+
 	/**
 	 * Calling this function will update the notif data. The notif data is a JSON Object to enable the app to have
 	 * multiple entries. It is having key as the timestamp and value as the notifData given at certain time.
