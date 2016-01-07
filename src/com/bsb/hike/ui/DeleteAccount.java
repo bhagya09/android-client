@@ -328,6 +328,7 @@ public class DeleteAccount extends HikeAppStateBaseFragmentActivity implements D
 	protected void onResume()
 	{
 		super.onResume();
+		KptUtils.resumeKeyboard(mCustomKeyboard);
 	}
 
 	@Override

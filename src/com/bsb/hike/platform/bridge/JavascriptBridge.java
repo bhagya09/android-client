@@ -63,6 +63,7 @@ import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.ui.ComposeChatActivity;
 import com.bsb.hike.ui.fragments.ShareLinkFragment;
 import com.bsb.hike.utils.AccountUtils;
+import com.bsb.hike.utils.CustomAnnotation.DoNotObfuscate;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
@@ -89,7 +90,7 @@ import java.net.URLEncoder;
  */
 
 
-
+@DoNotObfuscate
 public abstract class JavascriptBridge
 {
 	protected CustomWebView mWebView;
@@ -967,7 +968,16 @@ public abstract class JavascriptBridge
 			JSONObject jsonObject = new JSONObject(data);
 			String url = jsonObject.optString(HikePlatformConstants.URL);
 			String params = jsonObject.optString(HikePlatformConstants.PARAMS);
-			RequestToken token = HttpRequests.microAppPostRequest(url, new JSONObject(params), new PlatformMicroAppRequestListener(functionId));
+			JSONObject json;
+			if(TextUtils.isEmpty(params))
+			{
+				json=null;
+			}
+			else
+			{
+				json=new JSONObject(params);
+			}
+			RequestToken token = HttpRequests.microAppPostRequest(url, json, new PlatformMicroAppRequestListener(functionId));
 			if (!token.isRequestRunning())
 			{
 				token.execute();

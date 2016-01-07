@@ -1,5 +1,12 @@
 package com.bsb.hike.ui;
 
+import java.io.File;
+import java.util.*;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -81,15 +88,7 @@ import com.kpt.adaptxt.beta.util.KPTConstants;
 import com.kpt.adaptxt.beta.view.AdaptxtEditText;
 import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtKeyboordVisibilityStatusListner;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.File;
-import java.util.*;
-
-public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implements TagEditorListener, OnItemClickListener, HikePubSub.Listener, OnScrollListener,ConvertToJsonArrayTask.ConvertToJsonArrayCallback,
-		AdaptxtKeyboordVisibilityStatusListner
+public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implements TagEditorListener, OnItemClickListener, HikePubSub.Listener, OnScrollListener,ConvertToJsonArrayTask.ConvertToJsonArrayCallback, AdaptxtKeyboordVisibilityStatusListner
 {
 	private HikeCustomKeyboard mCustomKeyboard;
 	
@@ -755,6 +754,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 	protected void onResume()
 	{
 		// TODO Auto-generated method stub
+		KptUtils.resumeKeyboard(mCustomKeyboard);
 		if(composeMode != CREATE_GROUP_MODE && composeMode != CREATE_BROADCAST_MODE && composeMode != MULTIPLE_FWD){
 			if (!KptUtils.isSystemKeyboard())
 			{
@@ -2536,6 +2536,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 						CheckBox cb = (CheckBox) selectAllCont.findViewById(R.id.select_all_cb);
 						cb.setChecked(true);
 						selectAllMode=true;
+						getIntent().putExtra(HikeConstants.Extras.SELECT_ALL_INITIALLY, false);
 					}
 				}
 			}

@@ -186,6 +186,7 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 	protected void onResume()
 	{
 		super.onResume();
+		KptUtils.resumeKeyboard(mCustomKeyboard);
 	}
 	
 	private void createView() {
