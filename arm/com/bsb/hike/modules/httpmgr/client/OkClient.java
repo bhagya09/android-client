@@ -1,6 +1,7 @@
 package com.bsb.hike.modules.httpmgr.client;
 
 import com.bsb.hike.modules.httpmgr.Header;
+import com.bsb.hike.modules.httpmgr.HttpUtils;
 import com.bsb.hike.modules.httpmgr.request.Request;
 import com.bsb.hike.modules.httpmgr.request.requestbody.IRequestBody;
 import com.bsb.hike.modules.httpmgr.response.Response;
@@ -212,8 +213,19 @@ public class OkClient implements com.bsb.hike.modules.httpmgr.client.IClient
 		try
 		{
 			int contentLength = (int) responseBody.contentLength();
-			T bodyContent = request.parseResponse(stream, contentLength);
-			ResponseBody<T> body = ResponseBody.create(responseBody.toString(), contentLength, bodyContent);
+			ResponseBody<T> body = null;
+			if (response.code() >= 200 && response.code() <= 299)
+			{
+				T bodyContent = request.parseResponse(stream, contentLength);
+				body = ResponseBody.create(responseBody.toString(), contentLength, bodyContent);
+			}
+			else
+			{
+				byte[] bytes = HttpUtils.streamToBytes(stream);
+				String errorString = new String(bytes);
+				body = ResponseBody.createErrorResponse(responseBody.toString(), contentLength, errorString);
+			}
+
 			responseBuilder.setBody(body);
 			Response res = responseBuilder.build();
 			res.getResponseInterceptors().addAll(request.getResponseInterceptors());
