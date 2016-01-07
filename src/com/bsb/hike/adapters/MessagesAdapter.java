@@ -41,7 +41,6 @@ import android.text.TextUtils;
 import android.text.style.BackgroundColorSpan;
 import android.text.style.StyleSpan;
 import android.text.util.Linkify;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -2551,7 +2550,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		
 		if (convMessages == null || convMessages.size() == 0 || position == convMessages.size() - 1)
 		{
-			Log.d(HikeConstants.CHAT_OPENING_BENCHMARK, " msisdn=" + conversation.getMsisdn() + " end=" + System.currentTimeMillis());
+			Logger.d(HikeConstants.CHAT_OPENING_BENCHMARK, " msisdn=" + conversation.getMsisdn() + " end=" + System.currentTimeMillis());
 		}
 		return v;
 	}

@@ -34,7 +34,6 @@ import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.style.ForegroundColorSpan;
-import android.util.Log;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -1103,7 +1102,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 
 		ConvInfo convInfo = (ConvInfo) mAdapter.getItem(position);
 
-		Log.d(HikeConstants.CHAT_OPENING_BENCHMARK, " msisdn=" + convInfo.getMsisdn() + " start=" + System.currentTimeMillis());
+		Logger.d(HikeConstants.CHAT_OPENING_BENCHMARK, " msisdn=" + convInfo.getMsisdn() + " start=" + System.currentTimeMillis());
 		if (convInfo instanceof BotInfo)
 		{
 			BotInfo botInfo = (BotInfo) convInfo;
