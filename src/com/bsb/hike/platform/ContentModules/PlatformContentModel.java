@@ -1,5 +1,10 @@
 package com.bsb.hike.platform.ContentModules;
 
+import java.lang.reflect.Field;
+import java.util.Iterator;
+import java.util.Map.Entry;
+import java.util.Set;
+
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.content.PlatformContentConstants;
@@ -12,6 +17,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
 import com.google.gson.annotations.Expose;
+
 
 import java.io.File;
 import java.lang.reflect.Field;
@@ -34,6 +40,7 @@ public class PlatformContentModel
 	private String formedData;
 
 	private int mHash = -1;
+
 	private int mTemplateHash = -1;
 
 	@Expose
@@ -50,11 +57,11 @@ public class PlatformContentModel
 
 	private static PlatformContentModel object = null;
 
-    private byte requestType = HikePlatformConstants.PlatformMappRequestType.HIKE_MICRO_APPS;
+	private byte requestType = HikePlatformConstants.PlatformMappRequestType.HIKE_MICRO_APPS;
 
-    private String msisdn = "";
+	private String msisdn = "";
 
-    private String botMsisdn = "";
+	private String botMsisdn = "";
 
 	/*
 	 * (non-Javadoc)
@@ -99,13 +106,15 @@ public class PlatformContentModel
 		return mAppHash;
 	}
 
-	public static PlatformContentModel make(String contentData){
+	public static PlatformContentModel make(String contentData)
+	{
 		return make(0, contentData);
 	}
 
-    public static PlatformContentModel make(String contentData,byte requestType){
-        return make(0, contentData,requestType);
-    }
+	public static PlatformContentModel make(String contentData, byte requestType)
+	{
+		return make(0, contentData, requestType);
+	}
 
 	/**
 	 * Make.
@@ -114,7 +123,7 @@ public class PlatformContentModel
 	 *            the content data
 	 * @return the platform content model
 	 */
-	public static PlatformContentModel make(int unique,String contentData)
+	public static PlatformContentModel make(int unique, String contentData)
 	{
 		Logger.d(TAG, "making PlatformContentModel");
 		JsonParser parser = new JsonParser();
@@ -122,15 +131,14 @@ public class PlatformContentModel
 
 		try
 		{
-            object = new Gson().fromJson(gsonObj, PlatformContentModel.class);
+			object = new Gson().fromJson(gsonObj, PlatformContentModel.class);
 			if (object.cardObj.getLd() != null)
 			{
-                String microApp = object.cardObj.getAppName();
-                String unzipPath = PlatformContentConstants.HIKE_MICRO_APPS;
-                String basePath = PlatformUtils.generateMappUnZipPathForBotRequestType(HikePlatformConstants.PlatformMappRequestType.HIKE_MICRO_APPS,unzipPath,microApp);
+				String microApp = object.cardObj.getAppName();
+				String unzipPath = PlatformContentConstants.HIKE_MICRO_APPS;
+				String basePath = PlatformUtils.generateMappUnZipPathForBotRequestType(HikePlatformConstants.PlatformMappRequestType.HIKE_MICRO_APPS, unzipPath, microApp);
 
-				object.cardObj.ld
-						.addProperty(PlatformContentConstants.KEY_TEMPLATE_PATH, PlatformContentConstants.CONTENT_AUTHORITY_BASE + basePath);
+				object.cardObj.ld.addProperty(PlatformContentConstants.KEY_TEMPLATE_PATH, PlatformContentConstants.CONTENT_AUTHORITY_BASE + basePath);
 				object.cardObj.ld.addProperty(PlatformContentConstants.MESSAGE_ID, Integer.toString(unique));
 				object.cardObj.ld.addProperty(HikePlatformConstants.PLATFORM_VERSION, HikePlatformConstants.CURRENT_VERSION);
 
@@ -156,7 +164,6 @@ public class PlatformContentModel
 		return object;
 	}
 
-
 	/**
 	 * Make.
 	 *
@@ -175,11 +182,11 @@ public class PlatformContentModel
 			object = new Gson().fromJson(gsonObj, PlatformContentModel.class);
 			if (object.cardObj.getLd() != null)
 			{
-                String microApp = object.cardObj.getAppName();
-                String unzipPath = PlatformContentConstants.HIKE_MICRO_APPS;
-                String basePath = PlatformUtils.generateMappUnZipPathForBotRequestType(requestType,unzipPath,microApp);
+				String microApp = object.cardObj.getAppName();
+				String unzipPath = PlatformContentConstants.HIKE_MICRO_APPS;
+				String basePath = PlatformUtils.generateMappUnZipPathForBotRequestType(requestType, unzipPath, microApp);
 
-                object.cardObj.ld.addProperty(PlatformContentConstants.KEY_TEMPLATE_PATH, PlatformContentConstants.CONTENT_AUTHORITY_BASE + basePath);
+				object.cardObj.ld.addProperty(PlatformContentConstants.KEY_TEMPLATE_PATH, PlatformContentConstants.CONTENT_AUTHORITY_BASE + basePath);
 				object.cardObj.ld.addProperty(PlatformContentConstants.MESSAGE_ID, Integer.toString(unique));
 				object.cardObj.ld.addProperty(HikePlatformConstants.PLATFORM_VERSION, HikePlatformConstants.CURRENT_VERSION);
 			}
@@ -293,15 +300,15 @@ public class PlatformContentModel
 		return cardObj.appVersion;
 	}
 
-    /**
-     * Gets the version.
-     *
-     * @return the version
-     */
-    public int getMappVersionCode()
-    {
-        return cardObj.mappVersionCode;
-    }
+	/**
+	 * Gets the version.
+	 *
+	 * @return the version
+	 */
+	public int getMappVersionCode()
+	{
+		return cardObj.mappVersionCode;
+	}
 
 	/**
 	 * Gets the content data.
@@ -359,12 +366,12 @@ public class PlatformContentModel
 	{
 		// Cannot make objects directly
 	}
-	
+
 	public void setUniqueId(int uniqueId)
 	{
 		this.uniqueId = uniqueId;
 	}
-	
+
 	public int getUniqueId()
 	{
 		return uniqueId;
@@ -398,31 +405,37 @@ public class PlatformContentModel
 		return cardObj.appPackage;
 	}
 
-    public byte getRequestType() {
-        return requestType;
-    }
+	public byte getRequestType()
+	{
+		return requestType;
+	}
 
-    public void setRequestType(byte requestType) {
-        this.requestType = requestType;
-    }
+	public void setRequestType(byte requestType)
+	{
+		this.requestType = requestType;
+	}
 
-    public String getMsisdn() {
-        return msisdn;
-    }
+	public String getMsisdn()
+	{
+		return msisdn;
+	}
 
-    public void setMsisdn(String msisdn) {
-        this.msisdn = msisdn;
-    }
+	public void setMsisdn(String msisdn)
+	{
+		this.msisdn = msisdn;
+	}
 
-    public String getBotMsisdn() {
-        return botMsisdn;
-    }
+	public String getBotMsisdn()
+	{
+		return botMsisdn;
+	}
 
-    public void setBotMsisdn(String botMsisdn) {
-        this.botMsisdn = botMsisdn;
-    }
+	public void setBotMsisdn(String botMsisdn)
+	{
+		this.botMsisdn = botMsisdn;
+	}
 
-    public class PlatformCardObjectModel
+	public class PlatformCardObjectModel
 	{
 
 		public String getAppName()
@@ -445,15 +458,15 @@ public class PlatformContentModel
 			this.appVersion = appVersion;
 		}
 
-        public int getMappVersionCode()
-        {
-            return mappVersionCode;
-        }
+		public int getMappVersionCode()
+		{
+			return mappVersionCode;
+		}
 
-        public void setMappVersionCode(int mappVersionCode)
-        {
-            this.mappVersionCode = mappVersionCode;
-        }
+		public void setMappVersionCode(int mappVersionCode)
+		{
+			this.mappVersionCode = mappVersionCode;
+		}
 
 		public String getLayoutId()
 		{
@@ -545,15 +558,15 @@ public class PlatformContentModel
 			this.notifText = notifText;
 		}
 
-        public String getBotMsisdn()
-        {
-            return botMsisdn;
-        }
+		public String getBotMsisdn()
+		{
+			return botMsisdn;
+		}
 
-        public void setBotMsisdn(String botMsisdn)
-        {
-            this.botMsisdn = botMsisdn;
-        }
+		public void setBotMsisdn(String botMsisdn)
+		{
+			this.botMsisdn = botMsisdn;
+		}
 
 		@Expose
 		public String appName;
@@ -561,8 +574,8 @@ public class PlatformContentModel
 		@Expose
 		public String appVersion;
 
-        @Expose
-        public int mappVersionCode;
+		@Expose
+		public int mappVersionCode;
 
 		@Expose
 		public String layoutId;
@@ -587,7 +600,7 @@ public class PlatformContentModel
 
 		@Expose
 		public String h;
-		
+
 		@Expose
 		public String notifText;
 
@@ -600,13 +613,13 @@ public class PlatformContentModel
 		@Expose
 		public Boolean lpd;
 
-        @Expose
-        public String appMarketVersion;
+		@Expose
+		public String appMarketVersion;
 
-        @Expose
-        public String botMsisdn;
+		@Expose
+		public String botMsisdn;
 
-        @Expose
+		@Expose
 		public JsonArray lan_array;
 
 	}

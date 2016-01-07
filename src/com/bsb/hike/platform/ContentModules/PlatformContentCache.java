@@ -1,16 +1,15 @@
 package com.bsb.hike.platform.ContentModules;
 
 import java.io.File;
-import java.io.FilenameFilter;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import android.support.v4.util.LruCache;
 import android.text.TextUtils;
 
+<<<<<<< HEAD
+=======
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.platform.HikePlatformConstants;
+>>>>>>> 0b0b2b0e2cdec2b89faed1d7fc90e366ef2603ed
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.platform.content.PlatformContentConstants;
@@ -106,12 +105,16 @@ class PlatformContentCache
 		String microAppPath = PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.HIKE_MICRO_APPS;
 		String microAppName = content.getContentData().cardObj.getAppName();
 
+<<<<<<< HEAD
+		microAppPath = PlatformUtils.generateMappUnZipPathForBotRequestType(content.getRequestType(), microAppPath, microAppName);
+=======
         microAppPath = PlatformUtils.generateMappUnZipPathForBotRequestType(content.getRequestType(),microAppPath,microAppName);
+>>>>>>> 0b0b2b0e2cdec2b89faed1d7fc90e366ef2603ed
 
 		File file = new File(microAppPath, content.getContentData().getTag());
 
-        // If file is not found in the newer structured hierarchy directory path, then look for file in the older content directory path used before versioning
-        if (!file.exists())
+		// If file is not found in the newer structured hierarchy directory path, then look for file in the older content directory path used before versioning
+		if (!file.exists())
 		{
 			file = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + content.getContentData().getId(), content.getContentData().getTag());
 		}
@@ -149,7 +152,7 @@ class PlatformContentCache
 	public static void putFormedContent(PlatformContentModel content)
 	{
 		Logger.d(TAG, "put formed content in cache");
-		
+
 		formedContentCache.put(content.hashCode(), content);
 	}
 
