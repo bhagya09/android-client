@@ -45,11 +45,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.BitmapModule.BitmapUtils;
 import com.bsb.hike.cropimage.HikeCropFragment.HikeCropListener;
 import com.bsb.hike.photos.HikePhotosUtils;
+import com.bsb.hike.smartImageLoader.GalleryImageLoader;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
+import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 
 /**
@@ -67,13 +70,17 @@ public class HikeCropActivity extends HikeAppStateBaseFragmentActivity
 	
 	public static final String CROP_COMPRESSION = "CropCompres";
 
-	boolean mSaving; // Whether the "save" button is already clicked.
+	public static final String ALLOW_EDITING = "AllowEdit";
+
+	public static final String FIXED_ASPECT_RATIO = "FixAspRatio";
 
 	private String mSrcImagePath, mCropImagePath;
 
 	private HikeCropFragment mCropFragment;
 
 	private CropCompression mCropCompression;
+
+	private boolean isSrcEdited = false;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState)
@@ -144,12 +151,21 @@ public class HikeCropActivity extends HikeAppStateBaseFragmentActivity
 			}
 		}, mSrcImagePath);
 
-		setupActionBar();
+		boolean allowEditing = false;
+
+		if(extras != null)
+		{
+			mCropFragment.setAspectRatioFixed(extras.getBoolean(FIXED_ASPECT_RATIO, false));
+			allowEditing = extras.getBoolean(ALLOW_EDITING,false);
+		}
+
+
+		setupActionBar(allowEditing);
 
 		getSupportFragmentManager().beginTransaction().replace(R.id.container, mCropFragment).commit();
 	}
 
-	private void setupActionBar()
+	private void setupActionBar(boolean allowEditing)
 	{
 		ActionBar actionBar = getSupportActionBar();
 		actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
@@ -164,6 +180,19 @@ public class HikeCropActivity extends HikeAppStateBaseFragmentActivity
 				onBackPressed();
 			}
 		});
+
+		if(allowEditing)
+		{
+			actionBarView.findViewById(R.id.seprator).setVisibility(View.VISIBLE);
+			actionBarView.findViewById(R.id.actionsView).setVisibility(View.VISIBLE);
+			actionBarView.findViewById(R.id.actionBtn).setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View view) {
+					Intent intent = IntentFactory.getPictureEditorActivityIntent(HikeCropActivity.this, mSrcImagePath, false, isSrcEdited ? mSrcImagePath : null, false);
+					startActivityForResult(intent, HikeConstants.ResultCodes.PHOTOS_REQUEST_CODE);
+				}
+			});
+		}
 
 		((TextView) actionBarView.findViewById(R.id.done_text)).setText(R.string.done);
 
@@ -216,5 +245,28 @@ public class HikeCropActivity extends HikeAppStateBaseFragmentActivity
 	{
 		setResult(RESULT_CANCELED);
 		finish();
+	}
+
+
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data)
+	{
+		super.onActivityResult(requestCode, resultCode, data);
+		if(resultCode == RESULT_OK)
+		{
+			switch(requestCode)
+			{
+				case HikeConstants.ResultCodes.PHOTOS_REQUEST_CODE:
+					String editedFilePath = data.getStringExtra(HikeConstants.Extras.IMAGE_PATH);
+					mCropFragment.setSourceImagePath(editedFilePath);
+					mCropFragment.loadBitmap();
+					if(!editedFilePath.equals(mSrcImagePath))
+					{
+						mSrcImagePath = editedFilePath;
+						isSrcEdited = true;
+					}
+					break;
+			}
+		}
 	}
 }

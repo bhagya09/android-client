@@ -766,7 +766,7 @@ public class IntentFactory
 		if(cropImage)
 		{
 			CropCompression compression = new CropCompression().maxWidth(640).maxHeight(640).quality(80);
-			destIntents.add(IntentFactory.getCropActivityIntent(context, null, outputDestination, compression));
+			destIntents.add(IntentFactory.getCropActivityIntent(context, null, outputDestination, compression,false,true));
 		}
 		
 		if(destIntents.size()>0)
@@ -1150,11 +1150,13 @@ public class IntentFactory
 		startShareImageIntent(mimeType, imagePath, null);
 	}
 	
-	public static Intent getCropActivityIntent(Context argActivity, String argPath, String argDestPath, CropCompression argCropCompression)
+	public static Intent getCropActivityIntent(Context argActivity, String argPath, String argDestPath, CropCompression argCropCompression,boolean allowEditing,boolean fixAspectRatio)
 	{
 		Intent cropIntent = new Intent(argActivity, HikeCropActivity.class);
 		cropIntent.putExtra(HikeCropActivity.CROPPED_IMAGE_PATH, argDestPath);
 		cropIntent.putExtra(HikeCropActivity.SOURCE_IMAGE_PATH, argPath);
+		cropIntent.putExtra(HikeCropActivity.ALLOW_EDITING,allowEditing);
+		cropIntent.putExtra(HikeCropActivity.FIXED_ASPECT_RATIO,fixAspectRatio);
 		
 		//https://code.google.com/p/android/issues/detail?id=6822
 		Bundle cropCompBundle = new Bundle();

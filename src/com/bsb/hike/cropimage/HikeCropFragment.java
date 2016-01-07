@@ -29,6 +29,8 @@ import com.hike.transporter.utils.Logger;
  */
 public class HikeCropFragment extends Fragment
 {
+	private boolean fixedAspectRatio;
+
 	public interface HikeCropListener
 	{
 		void onSuccess(Bitmap croppedBmp);
@@ -77,19 +79,40 @@ public class HikeCropFragment extends Fragment
 		return mFragmentView;
 	}
 
+	public void setAspectRatioFixed(boolean fixed)
+	{
+		fixedAspectRatio = fixed;
+	}
+
 	@Override
 	public void onViewCreated(View view, Bundle savedInstanceState)
 	{
 		super.onViewCreated(view, savedInstanceState);
 
+		mCropImageView.setFixedAspectRatio(fixedAspectRatio);
+
+		loadBitmap();
+
+		// Rotate button
+		mFragmentView.findViewById(R.id.rotateLeft).setOnClickListener(new View.OnClickListener()
+		{
+			public void onClick(View v)
+			{
+				mCropImageView.rotateImage(90);
+			}
+		});
+	}
+
+	public void loadBitmap()
+	{
 		BitmapFactory.Options options = new BitmapFactory.Options();
-		
+
 		options.inScaled = false;
-		
+
 		options.inDither = true;
-		
+
 		options.inPreferQualityOverSpeed = true;
-		
+
 		// Load bitmap
 		Bitmap sourceBitmap = HikeBitmapFactory.decodeSampledBitmapFromFile(mSourceImagePath, (HikeConstants.HikePhotos.MODIFIED_MAX_IMAGE_DIMEN), (HikeConstants.HikePhotos.MODIFIED_MAX_IMAGE_DIMEN), Config.ARGB_8888, options, true);
 
@@ -109,7 +132,7 @@ public class HikeCropFragment extends Fragment
 			}
 
 			Edge.MIN_CROP_LENGTH_PX = minSize;
-			
+
 			mCropImageView.setImageBitmap(sourceBitmap, new ExifInterface(mSourceImagePath));
 		}
 		catch (IOException e)
@@ -117,15 +140,6 @@ public class HikeCropFragment extends Fragment
 			e.printStackTrace();
 			mListener.onFailed();
 		}
-
-		// Rotate button
-		mFragmentView.findViewById(R.id.rotateLeft).setOnClickListener(new View.OnClickListener()
-		{
-			public void onClick(View v)
-			{
-				mCropImageView.rotateImage(90);
-			}
-		});
 	}
 
 	public void setListener(HikeCropListener argListener)

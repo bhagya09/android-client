@@ -699,7 +699,7 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 					setTempProfileImageName(f.getAbsolutePath());
 
 					CropCompression compression = new CropCompression().maxWidth(640).maxHeight(640).quality(80);
-					Intent cropIntent = IntentFactory.getCropActivityIntent(PictureEditer.this, f.getAbsolutePath(), f.getAbsolutePath(), compression);
+					Intent cropIntent = IntentFactory.getCropActivityIntent(PictureEditer.this, f.getAbsolutePath(), f.getAbsolutePath(), compression,false,true);
 					startActivityForResult(cropIntent, HikeConstants.CROP_RESULT);
 				}
 			});
