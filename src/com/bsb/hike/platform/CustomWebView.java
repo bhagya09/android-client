@@ -56,7 +56,7 @@ public class CustomWebView extends WebView
 
 	public CustomWebView(Context context, AttributeSet attrs, int defStyleAttr)
 	{
-		super(context.getApplicationContext(), attrs, defStyleAttr);
+		super(context, attrs, defStyleAttr);
 		allowUniversalAccess();
 		webViewProperties();
 	}
@@ -64,7 +64,7 @@ public class CustomWebView extends WebView
 	@TargetApi(Build.VERSION_CODES.LOLLIPOP)
 	public CustomWebView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes)
 	{
-		super(context.getApplicationContext(), attrs, defStyleAttr, defStyleRes);
+		super(context, attrs, defStyleAttr, defStyleRes);
 		allowUniversalAccess();
 	}
 
