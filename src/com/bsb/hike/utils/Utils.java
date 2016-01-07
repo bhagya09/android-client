@@ -7831,7 +7831,10 @@ public class Utils
 			json.put(AnalyticsConstants.LOG_FIELD_1, dbObj.getPath());
 			json.put(AnalyticsConstants.LOG_FIELD_4, "db_corrupt");
 			json.put(AnalyticsConstants.LOG_FIELD_5, (new File(dbObj.getPath())).length());
-			json.put(AnalyticsConstants.LOG_FIELD_6, DatabaseUtils.longForQuery(dbObj, "PRAGMA page_count;", null));
+			if(dbObj.isOpen())
+			{
+				json.put(AnalyticsConstants.LOG_FIELD_6, DatabaseUtils.longForQuery(dbObj, "PRAGMA page_count;", null));
+			}
 
 			Logger.d("db", json.toString());
 
