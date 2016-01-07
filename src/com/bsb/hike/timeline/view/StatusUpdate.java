@@ -297,7 +297,14 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		if (!TextUtils.isEmpty(mImagePath) && !mActivityTask.imageDeleted)
 		{
 			Bitmap bmp = HikeBitmapFactory.decodeSampledBitmapFromFile(mImagePath, (HikeConstants.HikePhotos.MODIFIED_MAX_IMAGE_DIMEN),
-					(HikeConstants.HikePhotos.MODIFIED_MAX_IMAGE_DIMEN), Bitmap.Config.RGB_565, options, true);
+					(HikeConstants.HikePhotos.MODIFIED_MAX_IMAGE_DIMEN), Bitmap.Config.ARGB_8888, options, true);
+
+			if(bmp == null)
+			{
+				bmp = HikeBitmapFactory.decodeSampledBitmapFromFile(mImagePath, (HikeConstants.HikePhotos.MODIFIED_MAX_IMAGE_DIMEN),
+						(HikeConstants.HikePhotos.MODIFIED_MAX_IMAGE_DIMEN), Bitmap.Config.RGB_565, options, true);
+			}
+
 			if(bmp == null)
 			{
 				removePhoto(null);
