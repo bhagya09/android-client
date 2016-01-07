@@ -1,22 +1,6 @@
 package com.bsb.hike.ui.fragments;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.animation.ObjectAnimator;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -87,19 +71,18 @@ import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
 import com.bsb.hike.models.ConvMessage.State;
-import com.bsb.hike.models.EmptyConversationContactItem;
-import com.bsb.hike.models.EmptyConversationFtueCardItem;
-import com.bsb.hike.models.EmptyConversationItem;
-import com.bsb.hike.models.HikeHandlerUtil;
-import com.bsb.hike.models.NUXChatReward;
-import com.bsb.hike.models.NUXTaskDetails;
-import com.bsb.hike.models.NuxSelectFriends;
-import com.bsb.hike.models.TypingNotification;
 import com.bsb.hike.models.Conversation.BotConversation;
 import com.bsb.hike.models.Conversation.ConvInfo;
 import com.bsb.hike.models.Conversation.ConversationTip;
 import com.bsb.hike.models.Conversation.ConversationTip.ConversationTipClickedListener;
 import com.bsb.hike.models.Conversation.OneToNConvInfo;
+import com.bsb.hike.models.EmptyConversationContactItem;
+import com.bsb.hike.models.EmptyConversationFtueCardItem;
+import com.bsb.hike.models.EmptyConversationItem;
+import com.bsb.hike.models.NUXChatReward;
+import com.bsb.hike.models.NUXTaskDetails;
+import com.bsb.hike.models.NuxSelectFriends;
+import com.bsb.hike.models.TypingNotification;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.offline.OfflineConstants;
 import com.bsb.hike.offline.OfflineConstants.DisconnectFragmentType;
@@ -124,6 +107,21 @@ import com.bsb.hike.utils.PairModified;
 import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.HoloCircularProgress;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 public class ConversationFragment extends ListFragment implements OnItemLongClickListener, Listener, OnScrollListener, HikeFragmentable, OnClickListener,
 		ConversationTipClickedListener, FilterListener
@@ -189,6 +187,8 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 	private int tipType = ConversationTip.NO_TIP;
 	
 	protected static final int START_OFFLINE_CONNECTION = 1;
+
+	protected static final int STEALTH_CONVERSATION_TOGGLE = 2;
 
 	private enum hikeBotConvStat
 	{
@@ -1047,6 +1047,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 	public void onDestroy()
 	{
 		HikeMessengerApp.getPubSub().removeListeners(this, pubSubListeners);
+		uiHandler.removeCallbacksAndMessages(null);
 		super.onDestroy();
 	}
 
@@ -1968,6 +1969,11 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 
 	private void changeConversationsVisibility(int scrollToPosition)
 	{
+		// further making an isAdded check here, as onDestroy might have been called
+		if(!isAdded())
+		{
+			return;
+		}
 		// we do not animate removal of multiple chats, coz hidden chats outside visible list
 		// might duplicate once you move back to normal mode from hidden mode
 		if (!StealthModeManager.getInstance().isActive())
@@ -2540,20 +2546,14 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 		}
 		else if (HikePubSub.STEALTH_MODE_TOGGLED.equals(type))
 		{
-			//for Android M and also for security updates of Android L, the isAdded check does not
-			//check for activity being null, instead a fragmentHostController is used in its place
-			if (!isAdded() || getActivity() == null)
+			//this pubsub is fired on onStop and is not running on UI thread
+			if (!isAdded())
 			{
 				return;
 			}
-			getActivity().runOnUiThread(new Runnable()
-			{
-				@Override
-				public void run()
-				{
-					changeConversationsVisibility(-1);
-				}
-			});
+			// since getActivity() can be made null by the UI thread,
+			// hence we are posting on uiHandler, instead of using runOnUiThread on the activity
+			sendUIMessage(STEALTH_CONVERSATION_TOGGLE, -1);
 		}
 		else if (HikePubSub.REMOVE_TIP.equals(type))
 		{
@@ -3151,6 +3151,9 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 		{
 			case START_OFFLINE_CONNECTION:
 				OfflineController.getInstance().connectAsPerMsisdn((String)msg.obj);
+				break;
+			case STEALTH_CONVERSATION_TOGGLE:
+				changeConversationsVisibility((int)msg.obj);
 				break;
 		}
 	}

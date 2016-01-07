@@ -70,12 +70,8 @@ import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.modules.kpt.KptKeyboardManager;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerPalleteImageDownloadTask;
-import com.bsb.hike.platform.content.PlatformContent;
-import com.bsb.hike.platform.content.PlatformContentConstants;
-import com.bsb.hike.platform.content.PlatformContentListener;
-import com.bsb.hike.platform.content.PlatformContentModel;
-import com.bsb.hike.platform.content.PlatformContentRequest;
-import com.bsb.hike.platform.content.PlatformZipDownloader;
+import com.bsb.hike.platform.ContentModules.*;
+import com.bsb.hike.platform.content.*;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.productpopup.ProductPopupsConstants.HIKESCREEN;
 import com.bsb.hike.service.HikeMqttManagerNew;
@@ -421,6 +417,7 @@ public class PlatformUtils
 	public static void downloadZipForNonMessagingBot(final BotInfo botInfo, final boolean enableBot, final String botChatTheme, final String notifType,
 			NonMessagingBotMetadata botMetadata, boolean resumeSupport)
 	{
+
 		PlatformContentRequest rqst = PlatformContentRequest.make(PlatformContentModel.make(botInfo.getMetadata(), botInfo.getRequestType()),
 				new PlatformContentListener<PlatformContentModel>()
 				{

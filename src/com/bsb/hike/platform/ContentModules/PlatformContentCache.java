@@ -1,4 +1,4 @@
-package com.bsb.hike.platform.content;
+package com.bsb.hike.platform.ContentModules;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -12,6 +12,9 @@ import android.text.TextUtils;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUtils;
+import com.bsb.hike.platform.content.PlatformContent;
+import com.bsb.hike.platform.content.PlatformContentConstants;
+import com.bsb.hike.platform.content.PlatformRequestManager;
 import com.bsb.hike.utils.Logger;
 import com.samskivert.mustache.Template;
 

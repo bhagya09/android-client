@@ -39,7 +39,6 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.MqttConstants;
 import com.bsb.hike.R;
-import com.bsb.hike.ag.NetworkAgModule;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.AnalyticsConstants.MsgRelEventType;
 import com.bsb.hike.analytics.HAManager;
@@ -87,13 +86,14 @@ import com.bsb.hike.modules.stickersearch.ui.StickerTagWatcher;
 import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.offline.OfflineConstants;
 import com.bsb.hike.offline.OfflineController;
+import com.bsb.hike.platform.ContentModules.PlatformContentListener;
+import com.bsb.hike.platform.ContentModules.PlatformContentModel;
+import com.bsb.hike.platform.ContentModules.PlatformContentRequest;
+import com.bsb.hike.platform.CustomWebView;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.platform.content.PlatformContentConstants;
-import com.bsb.hike.platform.content.PlatformContentListener;
-import com.bsb.hike.platform.content.PlatformContentModel;
-import com.bsb.hike.platform.content.PlatformContentRequest;
 import com.bsb.hike.platform.content.PlatformZipDownloader;
 import com.bsb.hike.productpopup.ProductInfoManager;
 import com.bsb.hike.tasks.PostAddressBookTask;
@@ -988,7 +988,7 @@ public class MqttMessagesManager
 		 * Start auto download for media files
 		 */
 		String name = OneToNConversationUtils.isGroupConversation(msisdn) ? manager.getName(msisdn) : manager.getContact(msisdn, false, true).getName();
-		if (convMessage.isFileTransferMessage() && (!TextUtils.isEmpty(name)) && (manager.isConvExists(msisdn)))
+		if (convMessage.isFileTransferMessage() && ((!TextUtils.isEmpty(name)) || BotUtils.isBot(msisdn)) && (manager.isConvExists(msisdn)))
 		{
 			HikeFile hikeFile = convMessage.getMetadata().getHikeFiles().get(0);
 			NetworkType networkType = FileTransferManager.getInstance(context).getNetworkType();
@@ -2508,21 +2508,6 @@ public class MqttMessagesManager
 		{
 			editor.putString(HikeConstants.EXTRAS_BOT_MSISDN, data.getString(HikeConstants.EXTRAS_BOT_MSISDN));
 		}
-
-		if (data.has(HikeConstants.AG_ENABLED))
-		{
-			boolean agoopLogs = data.getBoolean(HikeConstants.AG_ENABLED);
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.AG_ENABLED, agoopLogs);
-			if(agoopLogs)
-			{
-				NetworkAgModule.startLogging();
-			}
-			else
-			{
-				NetworkAgModule.stopLogging();
-			}
-		}
-		
 		if (data.has(HikeConstants.REFERRAL_EMAIL_TEXT))
 		{
 			editor.putString(HikeConstants.REFERRAL_EMAIL_TEXT, data.getString(HikeConstants.REFERRAL_EMAIL_TEXT));
@@ -2767,6 +2752,13 @@ public class MqttMessagesManager
             boolean enable = data.getBoolean(HikeConstants.HTTP_NETWORK_CHECK_CALL);
             HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.HTTP_NETWORK_CHECK_CALL, enable);
         }
+
+		if (data.has(HikeConstants.WHITE_SCREEN_FIX))
+		{
+			boolean enableWhiteScreenFix = data.getBoolean(HikeConstants.WHITE_SCREEN_FIX);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.WHITE_SCREEN_FIX, enableWhiteScreenFix);
+			CustomWebView.setApplyWhiteScreenFix(enableWhiteScreenFix);
+		}
 
 		editor.commit();
 		this.pubSub.publish(HikePubSub.UPDATE_OF_MENU_NOTIFICATION, null);

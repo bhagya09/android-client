@@ -737,6 +737,7 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 
 	public void onCreate()
 	{
+		Logger.d("KptDebug","HikeMessApp onCreate Start.time: " + System.currentTimeMillis());
 		KPTCoreEngineImpl.atxAssestCopyFromAppInfo(this, getFilesDir().getAbsolutePath(), getAssets());
 		SharedPreferences settings = getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
 		token = settings.getString(HikeMessengerApp.TOKEN_SETTING, null);
@@ -757,9 +758,12 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 
 		_instance = this;
 
-		setupLocalLanguage();
-		KptKeyboardManager.getInstance();
-		LocalLanguageUtils.handleHikeSupportedListOrderChange(this);
+		// We need to set all AppConfig params on the start when _instance have been initialized
+		// reason : AppConfig class is loaded before we set _instance ==> HikeSharedPrefUtil won't be able to
+		// initialize successfully ==> Utils.isSendLogsEnabled would return false. and Send logs won't show up
+		AppConfig.refresh();
+
+		setupAppLocalization();
 		Utils.setDensityMultiplier(getResources().getDisplayMetrics());
 
 		// first time or failed DB upgrade.
@@ -938,6 +942,7 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		bottomNavBarHeightPortrait = Utils.getBottomNavBarHeight(getApplicationContext());
 		bottomNavBarWidthLandscape = Utils.getBottomNavBarWidth(getApplicationContext());
 
+		Logger.d("KptDebug","HikeMessApp onCreate End.time: " + System.currentTimeMillis());
 		PlatformUtils.resumeLoggingLocationIfRequired();
 	}
 
@@ -1230,7 +1235,22 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 	
 	public static boolean isSystemKeyboard()
 	{
-		return (!isCustomKeyboardEnabled() || HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SYSTEM_KEYBOARD_SELECTED, true));
+		return (!isCustomKeyboardUsable() || HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SYSTEM_KEYBOARD_SELECTED, true));
+	}
+
+	public static boolean isCustomKeyboardUsable()
+	{
+		Logger.d("KptDebug", "isCustomKeyboardUsable value get.time: " + System.currentTimeMillis());
+		return (
+				// server switches
+				isCustomKeyboardEnabled()
+					// If custom(kpt) keyboard is not supported, it should not be used.
+					&& isCustomKeyboardSupported());
+	}
+
+	public static boolean isCustomKeyboardSupported()
+	{
+		return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CUSTOM_KEYBOARD_SUPPORTED, true);
 	}
 
 	public static boolean isCustomKeyboardEnabled()
@@ -1238,14 +1258,24 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		return (
 				// server switch
 				HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CUSTOM_KEYBOARD_ENABLED, true)
-						// If localization is disabled in the app. Custom Keyboard is not to be used.
-						&& isLocalisationEnabled());
+					// If localization is disabled in the app. Custom Keyboard is not to be used.
+					&& isLocalisationEnabled());
 	}
 
 	public static boolean isLocalisationEnabled()
 	{
 		// server switch
 		return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.LOCALIZATION_ENABLED, true);
+	}
+
+	private void setupAppLocalization()
+	{
+		setupLocalLanguage();
+		// initialized keyboard manager only if its enabled.
+		Logger.d("KptDebug","call to keyboard manager.time: " + System.currentTimeMillis());
+		if (isCustomKeyboardEnabled())
+			KptKeyboardManager.getInstance();
+		LocalLanguageUtils.handleHikeSupportedListOrderChange(this);
 	}
 
 	@Override

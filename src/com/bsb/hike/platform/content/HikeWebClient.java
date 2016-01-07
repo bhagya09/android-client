@@ -1,12 +1,5 @@
 package com.bsb.hike.platform.content;
 
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
-
-import com.bsb.hike.platform.CustomWebView;
-
 import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -14,7 +7,15 @@ import android.os.Build;
 import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+
+import com.bsb.hike.platform.ContentModules.PlatformContentUtils;
+import com.bsb.hike.platform.CustomWebView;
 import com.bsb.hike.utils.Logger;
+
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
 
 public class HikeWebClient extends WebViewClient
 {

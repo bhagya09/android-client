@@ -1,4 +1,4 @@
-package com.bsb.hike.platform.content;
+package com.bsb.hike.platform.ContentModules;
 
 import java.util.ArrayList;
 
@@ -7,14 +7,16 @@ import android.os.Handler;
 
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.platform.PlatformUtils;
+import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.platform.content.PlatformContent.EventCode;
+import com.bsb.hike.platform.content.PlatformRequestManager;
 import com.bsb.hike.utils.Logger;
 import com.samskivert.mustache.Template;
 
 /**
  * This class is responsible for handling content requests. Directly communicates with cache, template engine and download task.
  */
-class PlatformContentLoader extends Handler
+public class PlatformContentLoader extends Handler
 {
 	private static String TAG = "PlatformContentLoader";
 

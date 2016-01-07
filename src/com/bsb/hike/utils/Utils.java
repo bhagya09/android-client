@@ -4616,24 +4616,20 @@ public class Utils
 			return;
 		}
 
-		HikeDialogFactory.showDialog(context, HikeDialogFactory.FAVORITE_ADDED_DIALOG, new HikeDialogListener()
-		{
+		HikeDialogFactory.showDialog(context, HikeDialogFactory.FAVORITE_ADDED_DIALOG, new HikeDialogListener() {
 
 			@Override
-			public void positiveClicked(HikeDialog hikeDialog)
-			{
+			public void positiveClicked(HikeDialog hikeDialog) {
 				hikeDialog.dismiss();
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.SHOWN_ADD_FAVORITE_TIP, true);
 			}
 
 			@Override
-			public void neutralClicked(HikeDialog hikeDialog)
-			{
+			public void neutralClicked(HikeDialog hikeDialog) {
 			}
 
 			@Override
-			public void negativeClicked(HikeDialog hikeDialog)
-			{
+			public void negativeClicked(HikeDialog hikeDialog) {
 				hikeDialog.dismiss();
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.SHOWN_ADD_FAVORITE_TIP, true);
 			}
@@ -7836,5 +7832,10 @@ public class Utils
 	public static void setCustomKeyboardEnable(boolean enable)
 	{
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CUSTOM_KEYBOARD_ENABLED, enable);
+	}
+
+	public static void setCustomKeyboardSupported(boolean supported)
+	{
+		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CUSTOM_KEYBOARD_SUPPORTED, supported);
 	}
 }

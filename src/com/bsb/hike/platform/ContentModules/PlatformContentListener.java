@@ -1,4 +1,4 @@
-package com.bsb.hike.platform.content;
+package com.bsb.hike.platform.ContentModules;
 
 import com.bsb.hike.platform.content.PlatformContent.EventCode;
 
