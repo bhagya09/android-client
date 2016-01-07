@@ -73,9 +73,6 @@ import com.bsb.hike.modules.stickerdownloadmgr.StickerPalleteImageDownloadTask;
 
 import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.platform.content.PlatformContentConstants;
-import com.bsb.hike.platform.content.PlatformContentListener;
-import com.bsb.hike.platform.content.PlatformContentModel;
-import com.bsb.hike.platform.content.PlatformContentRequest;
 import com.bsb.hike.platform.content.PlatformZipDownloader;
 
 import com.bsb.hike.platform.ContentModules.*;
