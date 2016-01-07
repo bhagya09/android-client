@@ -2579,6 +2579,9 @@ public class HikeConstants
 		public static final String APP_LANGUAGE_CHANGED_EVENT = "ap_l_chg";
 
 		public static final Object APP_FTUE_DONE_BTN = "ap_ft_d";
+
+		public static final String HIKE_DIRECT_OVRFL_CLK = "hike_dir";
+
 	}
 
 	public static final class Toast
@@ -3643,8 +3646,6 @@ public class HikeConstants
 
 	// =========================================================================================Constants for sticker search]]
 
-	public static final String AG_ENABLED = "agLogs";
-	
 	public static final String PLATFORM_PACKET = "pt";
 	
 	public static final String TAG = "Tag";
@@ -3773,5 +3774,7 @@ public class HikeConstants
 	public static final String APP_LANG_CHANGED_FTUE = "ap_f";
 	
 	public static final String APP_LANG_CHANGED_SERVER_SWITCH = "serv";
+
+	public static final String WHITE_SCREEN_FIX = "w_s_f";
 
 }
