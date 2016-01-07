@@ -312,11 +312,11 @@ public class PhotoViewerFragment extends Fragment implements OnPageChangeListene
 
 	private void setSenderDetails(int position)
 	{
-		senderName.setText(getSenderName(position));
+		senderName.setText(sharedMediaItems.get(position).getCaption());
 		long timeStamp = sharedMediaItems.get(position).getTimeStamp();
 		String date = Utils.getFormattedDate(getActivity(), timeStamp);
 		String time = Utils.getFormattedTime(false, getActivity(), timeStamp);
-		itemTimeStamp.setText(date+", "+time);
+		itemTimeStamp.setText(getSenderName(position)+", "+date+", "+time);
 	}
 
 	private String getSenderName(int position)

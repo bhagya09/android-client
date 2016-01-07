@@ -238,6 +238,7 @@ public class HikeFile
 		{
 			this.attachmentType = fileJSON.optInt(FTAnalyticEvents.FT_ATTACHEMENT_TYPE);
 		}
+		setCaption(fileJSON.optString(HikeConstants.CAPTION));
 		// this.file = TextUtils.isEmpty(this.fileKey) ? null : Utils
 		// .getOutputMediaFile(hikeFileType, fileName);
 	}

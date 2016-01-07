@@ -3727,8 +3727,13 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			if (hikeFile.exactFilePathFileExists())
 			{
 				ArrayList<HikeSharedFile> hsf = new ArrayList<HikeSharedFile>();
-				hsf.add(new HikeSharedFile(hikeFile.serialize(), hikeFile.isSent(), convMessage.getMsgID(), convMessage.getMsisdn(), convMessage.getTimestamp(), convMessage
-						.getGroupParticipantMsisdn()));
+				HikeSharedFile sharedFile = new HikeSharedFile(hikeFile.serialize(), hikeFile.isSent(), convMessage.getMsgID(), convMessage.getMsisdn(), convMessage.getTimestamp(), convMessage
+						.getGroupParticipantMsisdn());
+				if(!TextUtils.isEmpty(hikeFile.getCaption()))
+				{
+					sharedFile.setCaption(hikeFile.getCaption());
+				}
+				hsf.add(sharedFile);
 				if(mActivity!=null && mActivity instanceof ChatThreadActivity){
 					((ChatThreadActivity)mActivity).hideKeyboard();
 				}
