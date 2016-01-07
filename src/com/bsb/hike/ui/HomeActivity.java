@@ -19,6 +19,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Message;
 import android.preference.PreferenceManager;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBar;
@@ -1192,7 +1193,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 				}
 				
 				@Override
-				public void onRequestFailure(HttpException httpException)
+				public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException)
 				{
 					String errorText = "";
 

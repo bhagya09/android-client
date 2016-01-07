@@ -19,6 +19,7 @@ import android.os.CountDownTimer;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.content.Loader;
+import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
 import android.telephony.TelephonyManager;
@@ -553,7 +554,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 		}
 
 		@Override
-		public void onRequestFailure(HttpException httpException)
+		public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException)
 		{
 			Toast.makeText(SignupActivity.this, R.string.call_me_fail, Toast.LENGTH_LONG).show();
 			onFinish(false);

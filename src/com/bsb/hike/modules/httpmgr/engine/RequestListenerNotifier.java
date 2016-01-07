@@ -103,7 +103,7 @@ public class RequestListenerNotifier
 	}
 	
 	/**
-	 * This method notifies the listeners about the request cancellation. Calls {@link IRequestListener#onRequestFailure(HttpException)} for each listener of the request,
+	 * This method notifies the listeners about the request cancellation. Calls {@link IRequestListener#onRequestFailure(Response, HttpException)} for each listener of the request,
 	 * cancellation exception is given to the listeners
 	 * 
 	 * @param request
@@ -150,7 +150,7 @@ public class RequestListenerNotifier
 			CopyOnWriteArrayList<IRequestListener> listeners = request.getRequestListeners();
 			for (IRequestListener listener : listeners)
 			{
-				listener.onRequestFailure(ex);
+				listener.onRequestFailure(null, ex);
 			}
 		}
 		finally
@@ -160,7 +160,7 @@ public class RequestListenerNotifier
 	}
 	
 	/**
-	 * This method notifies the listeners about the request cancellation. Calls {@link IRequestListener#onRequestFailure(HttpException)} for each listener of the request
+	 * This method notifies the listeners about the request cancellation. Calls {@link IRequestListener#onRequestFailure(Response, HttpException)} for each listener of the request
 	 * 
 	 * @param request
 	 * @param ex
@@ -211,7 +211,7 @@ public class RequestListenerNotifier
 			CopyOnWriteArrayList<IRequestListener> listeners = request.getRequestListeners();
 			for (IRequestListener listener : listeners)
 			{
-				listener.onRequestFailure(ex);
+				listener.onRequestFailure(null, ex);
 			}
 		}
 		finally

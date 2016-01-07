@@ -28,6 +28,7 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.provider.CallLog;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
 import com.bsb.hike.GCMIntentService;
@@ -490,7 +491,7 @@ public class UserLogInfo {
 					}
 
 					@Override
-					public void onRequestFailure(HttpException httpException)
+					public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException)
 					{
 						Logger.d(TAG, "failure");
 					}

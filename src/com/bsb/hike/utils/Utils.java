@@ -127,6 +127,7 @@ import android.provider.ContactsContract.RawContacts;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.provider.Settings.Secure;
+import android.support.annotation.Nullable;
 import android.telephony.SmsManager;
 import android.telephony.TelephonyManager;
 import android.text.Editable;
@@ -2620,7 +2621,7 @@ public class Utils {
             }
 
             @Override
-            public void onRequestFailure(HttpException httpException) {
+            public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException) {
                 jObject = null;
             }
         };
@@ -6503,7 +6504,7 @@ public class Utils {
     private static void fetchHistoricalUpdates(String msisdn) {
         RequestToken token = HttpRequests.getHistoricSUToken(msisdn, new IRequestListener() {
             @Override
-            public void onRequestFailure(HttpException httpException) {
+            public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException) {
 
             }
 
