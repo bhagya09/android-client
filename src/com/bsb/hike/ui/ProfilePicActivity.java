@@ -120,7 +120,7 @@ public class ProfilePicActivity extends HikeAppStateBaseFragmentActivity
 		ProfilePicFragment profilePicFragment = new ProfilePicFragment();
 		Bundle b = new Bundle();
 		b.putString(HikeConstants.HikePhotos.FILENAME, croppedImageFile);
-		b.putString(HikeConstants.HikePhotos.ORIG_FILE, originalImageFile);
+		b.putString(HikeConstants.HikePhotos.ORIG_FILE, croppedImageFile);
 		profilePicFragment.setArguments(b);
 		getSupportFragmentManager().beginTransaction().replace(R.id.container, profilePicFragment).commit();
 	}
