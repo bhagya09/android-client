@@ -5,6 +5,11 @@ import java.io.File;
 import android.support.v4.util.LruCache;
 import android.text.TextUtils;
 
+<<<<<<< HEAD
+=======
+import com.bsb.hike.HikeConstants;
+import com.bsb.hike.platform.HikePlatformConstants;
+>>>>>>> 0b0b2b0e2cdec2b89faed1d7fc90e366ef2603ed
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.platform.content.PlatformContentConstants;
@@ -100,7 +105,11 @@ class PlatformContentCache
 		String microAppPath = PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.HIKE_MICRO_APPS;
 		String microAppName = content.getContentData().cardObj.getAppName();
 
+<<<<<<< HEAD
 		microAppPath = PlatformUtils.generateMappUnZipPathForBotRequestType(content.getRequestType(), microAppPath, microAppName);
+=======
+        microAppPath = PlatformUtils.generateMappUnZipPathForBotRequestType(content.getRequestType(),microAppPath,microAppName);
+>>>>>>> 0b0b2b0e2cdec2b89faed1d7fc90e366ef2603ed
 
 		File file = new File(microAppPath, content.getContentData().getTag());
 

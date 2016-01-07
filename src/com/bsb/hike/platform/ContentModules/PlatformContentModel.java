@@ -18,6 +18,13 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
 import com.google.gson.annotations.Expose;
 
+
+import java.io.File;
+import java.lang.reflect.Field;
+import java.util.Iterator;
+import java.util.Map.Entry;
+import java.util.Set;
+
 /**
  * Content model
  */

@@ -1,7 +1,5 @@
 package com.bsb.hike.ui;
 
-import java.util.ArrayList;
-
 import android.content.Intent;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.drawable.Drawable;
@@ -41,6 +39,7 @@ import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ImageViewerInfo;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
+import com.bsb.hike.service.HikeMicroAppsCodeMigrationService;
 import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
 import com.bsb.hike.ui.fragments.ImageViewerFragment;
@@ -50,6 +49,8 @@ import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.SmileyParser;
 import com.bsb.hike.utils.Utils;
+
+import java.util.ArrayList;
 
 public class SettingsActivity extends ChangeProfileImageBaseActivity implements OnItemClickListener, OnClickListener, android.content.DialogInterface.OnClickListener
 {
@@ -109,6 +110,10 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 	{
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.settings);
+
+        // Migration Script trigger point being added for QA purpose,(Code would be removed after that)
+        Intent migrationIntent = new Intent(this, HikeMicroAppsCodeMigrationService.class);
+        this.startService(migrationIntent);
 
 		ArrayList<SettingsDisplayPojo> items = new ArrayList<SettingsDisplayPojo>();
 
