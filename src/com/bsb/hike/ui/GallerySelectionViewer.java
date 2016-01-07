@@ -10,7 +10,6 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
@@ -586,20 +585,38 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 		}
 	}
 
+	private void recordOriginalXY()
+	{
+		if (!originalRecordered)
+		{
+			originalRecordered = true;
+			btnXorig = btnRemove.getX();
+			gridYorig = selectedGrid.getY();
+		}
+	}
+	boolean originalRecordered = false;
+	private float btnXorig = 0;
+	private float gridYorig = 0;
+	
 	private void setCropViewVisibility(boolean enableCrop)
 	{
+		recordOriginalXY();
+
 		isInCropMode = enableCrop;
 
-		float animateDirection = enableCrop ? 1f : -1f;
+		btnRemove.animate().x(enableCrop ? btnXorig + 200f : btnXorig);
+		btnEdit.animate().setStartDelay(50).x(enableCrop ? btnXorig + 200f : btnXorig);
+		btnCrop.animate().setStartDelay(100).x(enableCrop ? btnXorig + 200f : btnXorig);
 
-		btnRemove.animate().translationXBy(200f * animateDirection);
-		btnEdit.animate().setStartDelay(50).translationXBy(200f * animateDirection);
-		btnCrop.animate().setStartDelay(100).translationXBy(200f * animateDirection);
-
-		selectedGrid.animate().translationYBy(galleryGridItems.size() > 4 ? 600f * animateDirection : 300f * animateDirection);
+		selectedGrid.animate().y(galleryGridItems.size() > 4 ? enableCrop?gridYorig + 600f:gridYorig : enableCrop?gridYorig + 300f:gridYorig);
 		cropPanel.setVisibility(enableCrop ? View.VISIBLE : View.GONE);
 
-		CropImageView cropImageView = (CropImageView) selectedPager.findViewWithTag(TAG_CROP_IV+selectedPager.getCurrentItem());
+		CropImageView cropImageView = (CropImageView) selectedPager.findViewWithTag(TAG_CROP_IV + selectedPager.getCurrentItem());
+		if(cropImageView == null)
+		{
+			return;
+		}
+
 		if (enableCrop)
 		{
 			cropImageView.showCropOverlay();
