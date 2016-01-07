@@ -199,10 +199,17 @@ public class ProfilePicFragment extends Fragment implements FinishableEvent, IHa
 				mCircularProgress.setVisibility(View.VISIBLE);
 				mProfilePicBg.setVisibility(View.VISIBLE);
 
-				((HikeAppStateBaseFragmentActivity) getActivity()).getSupportActionBar().hide();
+				try
+				{
+					((HikeAppStateBaseFragmentActivity) getActivity()).getSupportActionBar().hide();
+				}
+				catch (NullPointerException npe)
+				{
+					// Do nothing
+				}
 				startUpload();
 			}
-		}, 300);
+		}, 0);
 
 		return mFragmentView;
 	}

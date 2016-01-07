@@ -76,6 +76,7 @@ import com.bsb.hike.ui.PeopleActivity;
 import com.bsb.hike.ui.PictureEditer;
 import com.bsb.hike.ui.PinHistoryActivity;
 import com.bsb.hike.ui.ProfileActivity;
+import com.bsb.hike.ui.ProfilePicActivity;
 import com.bsb.hike.ui.SettingsActivity;
 import com.bsb.hike.ui.ShareLocation;
 import com.bsb.hike.ui.SignupActivity;
@@ -774,6 +775,29 @@ public class IntentFactory
 			b.putParcelableArrayList(HikeBaseActivity.DESTINATION_INTENT, destIntents);
 		}
 		
+		intent.putExtras(b);
+		return intent;
+	}
+
+	public static Intent getProfilePicUpdateIntent(Context context, int galleryFlags)
+	{
+
+		boolean allowMultiSelect = (galleryFlags & GalleryActivity.GALLERY_ALLOW_MULTISELECT) != 0;
+		boolean categorizeByFolders = (galleryFlags & GalleryActivity.GALLERY_CATEGORIZE_BY_FOLDERS) != 0;
+		boolean enableCameraPick = (galleryFlags & GalleryActivity.GALLERY_DISPLAY_CAMERA_ITEM) != 0;
+
+		Intent intent = new Intent(context, GalleryActivity.class);
+		Bundle b = new Bundle();
+		b.putBoolean(GalleryActivity.DISABLE_MULTI_SELECT_KEY, !allowMultiSelect);
+		b.putBoolean(GalleryActivity.FOLDERS_REQUIRED_KEY, categorizeByFolders);
+		b.putBoolean(GalleryActivity.ENABLE_CAMERA_PICK, enableCameraPick);
+
+		ArrayList<Intent> destIntents = new ArrayList<Intent>();
+
+		destIntents.add(new Intent(context, ProfilePicActivity.class));
+
+		b.putParcelableArrayList(HikeBaseActivity.DESTINATION_INTENT, destIntents);
+
 		intent.putExtras(b);
 		return intent;
 	}

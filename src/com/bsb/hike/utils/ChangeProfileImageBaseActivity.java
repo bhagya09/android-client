@@ -157,32 +157,10 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 		
 		int galleryFlags = GalleryActivity.GALLERY_CATEGORIZE_BY_FOLDERS|GalleryActivity.GALLERY_DISPLAY_CAMERA_ITEM;
 
-		if (editPic)
-		{
-			galleryFlags = galleryFlags | GalleryActivity.GALLERY_EDIT_SELECTED_IMAGE|GalleryActivity.GALLERY_COMPRESS_EDITED_IMAGE;
-			if (!isPersonal)
-			{
-				galleryFlags = galleryFlags | GalleryActivity.GALLERY_CROP_IMAGE;
-				galleryPickerIntent = IntentFactory.getHikeGalleryPickerIntent(ChangeProfileImageBaseActivity.this,galleryFlags,getNewProfileImagePath(useTimestamp));
-				startActivityForResult(galleryPickerIntent, HikeConstants.ResultCodes.PHOTOS_REQUEST_CODE);
-			}
-			else
-			{
-				galleryFlags = galleryFlags | GalleryActivity.GALLERY_FOR_PROFILE_PIC_UPDATE;
-				galleryPickerIntent = IntentFactory.getHikeGalleryPickerIntent(ChangeProfileImageBaseActivity.this,galleryFlags,null);
-				startActivity(galleryPickerIntent);
-			}
-		}
-		else
-		{
-			galleryFlags = galleryFlags | GalleryActivity.GALLERY_CROP_IMAGE;
-			galleryPickerIntent = IntentFactory.getHikeGalleryPickerIntent(ChangeProfileImageBaseActivity.this, galleryFlags,getNewProfileImagePath(useTimestamp));
-			galleryPickerIntent.putExtra(GalleryActivity.START_FOR_RESULT, true);
-			startActivityForResult(galleryPickerIntent, HikeConstants.ResultCodes.PHOTOS_REQUEST_CODE);
-		}
-
+		galleryPickerIntent = IntentFactory.getProfilePicUpdateIntent(ChangeProfileImageBaseActivity.this, galleryFlags);
+		startActivity(galleryPickerIntent);
 	}
-	
+
 	protected String getNewProfileImagePath(boolean useTimestamp)
 	{
 		String directory = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT;

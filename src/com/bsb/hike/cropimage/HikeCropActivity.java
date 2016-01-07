@@ -183,7 +183,6 @@ public class HikeCropActivity extends HikeAppStateBaseFragmentActivity
 
 		if(allowEditing)
 		{
-			actionBarView.findViewById(R.id.seprator).setVisibility(View.VISIBLE);
 			actionBarView.findViewById(R.id.actionsView).setVisibility(View.VISIBLE);
 			actionBarView.findViewById(R.id.actionBtn).setOnClickListener(new View.OnClickListener() {
 				@Override
