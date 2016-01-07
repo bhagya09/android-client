@@ -1,5 +1,11 @@
 package com.bsb.hike.platform.bridge;
 
+import java.io.File;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -13,16 +19,20 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.adapters.ConversationsAdapter;
-import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.bots.NonMessagingBotConfiguration;
 import com.bsb.hike.bots.NonMessagingBotMetadata;
 import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.db.HikeConversationsDatabase;
+import com.bsb.hike.localisation.LocalLanguageUtils;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.request.FileRequestPersistent;
-import com.bsb.hike.platform.*;
+import com.bsb.hike.platform.CustomWebView;
+import com.bsb.hike.platform.GpsLocation;
+import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.platform.PlatformHelper;
+import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.content.PlatformContentConstants;
 import com.bsb.hike.platform.content.PlatformZipDownloader;
 import com.bsb.hike.ui.GalleryActivity;
@@ -31,11 +41,8 @@ import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.io.File;
 
 /**
  * API bridge that connects the javascript to the non-messaging Native environment. Make the instance of this class and add it as the
@@ -1446,38 +1453,4 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 			BotUtils.deleteBotConversation(msisdn, false);
 		}
 	}
-	/**
-	 * Platform Version 10
-	 *This function allows for a bot to send analytics via mqtt
-	 */
-	@JavascriptInterface
-	public void logAnalyticsMq(String isUI, String subType, String json)
-	{
-		JSONObject jsonObject=null;
-		if(TextUtils.isEmpty(json)||TextUtils.isEmpty(isUI))
-		{
-			return;
-		}
-		try
-		{
-			jsonObject=new JSONObject(json);
-			jsonObject.put(AnalyticsConstants.BOT_MSISDN, mBotInfo.getMsisdn());
-			jsonObject.put(AnalyticsConstants.BOT_NAME, mBotInfo.getConversationName());
-			jsonObject.put(AnalyticsConstants.SUB_TYPE,subType);
-		} catch (JSONException e)
-		{
-			e.printStackTrace();
-			return;
-		}
-		if (Boolean.valueOf(isUI))
-		{
-			Utils.sendLogEvent(jsonObject,AnalyticsConstants.MICROAPP_UI_EVENT, null);
-		}
-		else
-		{
-			Utils.sendLogEvent(jsonObject, AnalyticsConstants.MICROAPP_NON_UI_EVENT, null);
-		}
-
-	}
-
 }

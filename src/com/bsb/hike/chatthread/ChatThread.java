@@ -2549,7 +2549,10 @@ import android.widget.Toast;
 	
 	protected List<ConvMessage> loadMoreMessages(int messageCountToLoad, long maxSortId, long minSortId)
 	{
-		return mConversationDb.getConversationThread(msisdn, messageCountToLoad, mConversation, maxSortId, minSortId);
+		Long time = System.currentTimeMillis();
+		List<ConvMessage> list = mConversationDb.getConversationThread(msisdn, messageCountToLoad, mConversation, maxSortId, minSortId);
+		Logger.d(HikeConstants.CHAT_SCROLL_FETCH_MESSAGES_FROM_DB_BENCHMARK, "Time taken to loadMore Messages in background thread = " + (System.currentTimeMillis() - time));
+		return list;
 	}
 
 	protected abstract int getContentView();
