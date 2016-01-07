@@ -8,17 +8,14 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.NonMessagingBotMetadata;
 import com.bsb.hike.db.HikeConversationsDatabase;
-import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.content.PlatformContentConstants;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
-import com.bsb.hike.utils.Utils;
 
 import org.json.JSONObject;
 
 import java.io.File;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -44,12 +41,12 @@ public class HikeMicroAppsCodeMigrationService extends IntentService
 		for (Map.Entry<String, BotInfo> entry : HikeMessengerApp.hikeBotInfoMap.entrySet())
 		{
 			NonMessagingBotMetadata botMetadata = new NonMessagingBotMetadata(entry.getValue().getMetadata());
-			mapForMigratedApps.put(entry.getKey(), false);
 
 			if (entry.getValue().isNonMessagingBot())
 			{
 				try
 				{
+                    mapForMigratedApps.put(entry.getKey(), false);
 					// Generate file instance for destination file directory path that would be used after versioning release
 					String unzipPath = PlatformUtils.getMicroAppContentRootFolder();
 
@@ -88,13 +85,14 @@ public class HikeMicroAppsCodeMigrationService extends IntentService
 				}
 				catch (Exception e)
 				{
-					e.printStackTrace();
+                    mapForMigratedApps.put(entry.getKey(), true);
+                    e.printStackTrace();
 				}
 			}
 		}
 		for (Map.Entry<String, Boolean> entry : mapForMigratedApps.entrySet())
 		{
-			if (!entry.getValue())
+            if (!entry.getValue())
 			{
 				isSuccessfullyMigrated = false;
 				break;
@@ -102,20 +100,11 @@ public class HikeMicroAppsCodeMigrationService extends IntentService
 		}
 
 		/*
-		 * Check if migration is not successful because of any scenario, set migration alarm again for next day
+		 * Check if migration is successful , save the flag is true in Shared Preferences
 		 */
 		if (isSuccessfullyMigrated)
 		{
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.HIKE_CONTENT_MICROAPPS_MIGRATION, true);
-		}
-		else
-		{
-			long scheduleTime = Utils.getTimeInMillis(Calendar.getInstance(), 4, 50, 30, 0);
-			// If the scheduled time is in the past.
-			// Scheduled time is increased by 24 hours i.e. same time next day.
-			scheduleTime += 24 * 60 * 60 * 1000;
-
-			HikeAlarmManager.setAlarm(getApplicationContext(), scheduleTime, HikeAlarmManager.REQUEST_CODE_MICROAPPS_MIGRATION, false);
 		}
 	}
 
