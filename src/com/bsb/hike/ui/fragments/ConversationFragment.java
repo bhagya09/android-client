@@ -1102,6 +1102,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 
 		ConvInfo convInfo = (ConvInfo) mAdapter.getItem(position);
 
+		Logger.d(HikeConstants.CHAT_OPENING_BENCHMARK, " msisdn=" + convInfo.getMsisdn() + " start=" + System.currentTimeMillis());
 		if (convInfo instanceof BotInfo)
 		{
 			BotInfo botInfo = (BotInfo) convInfo;
