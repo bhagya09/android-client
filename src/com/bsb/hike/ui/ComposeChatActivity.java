@@ -383,7 +383,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			} 
 			else if(savedInstanceState == null && Intent.ACTION_SEND_MULTIPLE.equals(getIntent().getAction()))
 			{
-				if (getIntent().getParcelableExtra(Intent.EXTRA_STREAM) != null)
+				if (getIntent().getParcelableArrayListExtra(Intent.EXTRA_STREAM) != null)
 				{
 					ArrayList<Uri> imageUris = getIntent().getParcelableArrayListExtra(Intent.EXTRA_STREAM);
 					ArrayList<GalleryItem> selectedImages = GalleryItem.getGalleryItemsFromFilepaths(imageUris);
@@ -452,6 +452,14 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 						startActivityForResult(multiIntent, GallerySelectionViewer.MULTI_EDIT_REQUEST_CODE);
 					}
 				}
+			}
+		}
+
+		if(!imagesToShare.isEmpty())
+		{
+			for(int i=0;i<imagesToShare.size();i++)
+			{
+				imageCaptions.add("");
 			}
 		}
 
@@ -1357,6 +1365,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 					else
 					{
 						Intent intent = getIntent();
+						intent.setAction(Intent.ACTION_SEND);
 						intent.putExtra(Intent.EXTRA_STREAM, imageUris.get(0));
 						setIntent(intent);
 					}
@@ -1392,7 +1401,10 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 									String filePath = msgExtrasJson.getString(HikeConstants.Extras.FILE_PATH);
 									if(imagesToShare.contains(filePath) && newMultipleMsgFwdArray.length() < imagesToShare.size())
 									{
-										msgExtrasJson.put(HikeConstants.CAPTION, imageCaptions.get(captionCounter));
+										if(!imageCaptions.isEmpty() && imageCaptions.size() - 1 >= captionCounter) 
+										{
+											msgExtrasJson.put(HikeConstants.CAPTION, imageCaptions.get(captionCounter));
+										}
 										captionCounter++;
 										newMultipleMsgFwdArray.put(msgExtrasJson);
 									}
@@ -1809,7 +1821,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 					{
 						if(imagesToShare.size() == 1)
 						{
-							intent = IntentFactory.getPostStatusUpdateIntent(this, imageCaptions.get(0), imagesToShare.get(0),true);
+							intent = IntentFactory.getPostStatusUpdateIntent(this, imageCaptions.isEmpty()?null:imageCaptions.get(0), imagesToShare.get(0),true);
 							intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 							startActivity(intent);
 							finish();
@@ -1899,7 +1911,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 
 						if(imagesToShare.size() == 1)
 						{
-							intent = IntentFactory.getPostStatusUpdateIntent(this, imageCaptions.get(0),imagesToShare.get(0),true);
+							intent = IntentFactory.getPostStatusUpdateIntent(this, imageCaptions.isEmpty()?null:imageCaptions.get(0),imagesToShare.get(0),true);
 							intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 							startActivity(intent);
 							finish();
@@ -1999,7 +2011,10 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		final ArrayList<StatusUpdateTask> statusUpdateTasks = new ArrayList<StatusUpdateTask>();
 		for (int i=0;i<imagesToShare.size();i++)
 		{
-			statusUpdateTasks.add(new StatusUpdateTask(imageCaptions.get(i), -1, imagesToShare.get(i)));
+			if (!imageCaptions.isEmpty() && imageCaptions.size() - 1 >= i)
+			{
+				statusUpdateTasks.add(new StatusUpdateTask(imageCaptions.get(i), -1, imagesToShare.get(i)));
+			}
 		}
 		if (!statusUpdateTasks.isEmpty())
 		{

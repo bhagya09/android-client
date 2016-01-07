@@ -763,7 +763,7 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 		int captionsSize = captions.size();
 		for (int i = position; i < (captionsSize - 1); i++)
 		{
-			captions.put(position,captions.get(position + 1));
+			captions.put(i,captions.get(i + 1));
 		}
 		captions.remove(captions.size() - 1);
 	}
