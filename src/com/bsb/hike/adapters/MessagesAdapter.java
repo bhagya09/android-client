@@ -2549,7 +2549,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		}
 		Logger.i("chatthread", "position " + position + " time taken : " + (System.currentTimeMillis() - startTime));
 		
-		if (position == convMessages.size() - 1)
+		if (convMessages == null || convMessages.size() == 0 || position == convMessages.size() - 1)
 		{
 			Log.d(HikeConstants.CHAT_OPENING_BENCHMARK, " msisdn=" + conversation.getMsisdn() + " end=" + System.currentTimeMillis());
 		}
