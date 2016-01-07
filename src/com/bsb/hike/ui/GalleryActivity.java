@@ -32,6 +32,7 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.cropimage.HikeCropActivity;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
@@ -58,8 +59,10 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 	public static final String ENABLE_CAMERA_PICK = "cam_pk";
 
 	public static final int GALLERY_ACTIVITY_RESULT_CODE = 97;
+
+	public static final int GALLERY_CROP_IMAGE = 128;
 	
-	public static final int GALLERY_CROP_IMAGE = 64;
+	public static final int GALLERY_CROP_FOR_DP_IMAGE = 64;
 	
 	public static final int GALLERY_ALLOW_MULTISELECT = 32;
 	
@@ -481,7 +484,7 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 		super.onActivityResult(requestCode, resultCode, data);
 		if (resultCode == RESULT_OK)
 		{
-			switch(requestCode)
+			switch (requestCode)
 			{
 			case GALLERY_ACTIVITY_RESULT_CODE:
 				setGalleryResult(RESULT_OK, data.putExtras(getIntent().getExtras()));
@@ -496,25 +499,25 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 				Bundle bundle = new Bundle();
 				ArrayList<GalleryItem> item = new ArrayList<GalleryItem>(1);
 				item.add(new GalleryItem(GalleryItem.CAMERA_TILE_ID, CAMERA_TILE, NEW_PHOTO, cameraFilename, 0));
-				
+
 				/**
-				 * Setting class loader due class not found exception on GalleryItem whie parcing
+				 * Setting class loader due class not found exception on GalleryItem while parsing
+				 * 
 				 * @link : http://stackoverflow.com/questions/28589509/android-e-parcel-class-not-found-when-unmarshalling-only-on-samsung-tab3
 				 * @see : http://stackoverflow.com/questions/13421582/parcelable-inside-bundle-which-is-added-to-parcel
 				 */
 				bundle.setClassLoader(GalleryItem.class.getClassLoader());
-				
-				
+
 				bundle.putString(HikeConstants.Extras.GALLERY_SELECTION_SINGLE, cameraFilename);
-				//Added to ensure delegate activity passes destination path to editer
-				bundle.putString(HikeConstants.HikePhotos.DESTINATION_FILENAME, cameraFilename); 
+				// Added to ensure delegate activity passes destination path to editer
+				bundle.putString(HikeConstants.HikePhotos.DESTINATION_FILENAME, cameraFilename);
 				intent.putExtras(bundle);
-				
-				if(hasDelegateActivities())
+
+				if (hasDelegateActivities())
 				{
 					launchNextDelegateActivity(bundle);
 				}
-				else if(isStartedForResult())
+				else if (isStartedForResult())
 				{
 					intent.putParcelableArrayListExtra(HikeConstants.Extras.GALLERY_SELECTIONS, item);
 					setGalleryResult(RESULT_OK, intent);

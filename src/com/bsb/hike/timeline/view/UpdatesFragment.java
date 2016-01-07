@@ -1038,7 +1038,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 		switch (arg0.getId())
 		{
 		case R.id.new_photo_tab:
-			int galleryFlags = GalleryActivity.GALLERY_CATEGORIZE_BY_FOLDERS | GalleryActivity.GALLERY_EDIT_SELECTED_IMAGE | GalleryActivity.GALLERY_COMPRESS_EDITED_IMAGE
+			int galleryFlags = GalleryActivity.GALLERY_CATEGORIZE_BY_FOLDERS | GalleryActivity.GALLERY_CROP_IMAGE | GalleryActivity.GALLERY_COMPRESS_EDITED_IMAGE
 					| GalleryActivity.GALLERY_DISPLAY_CAMERA_ITEM;
 
 			Intent galleryPickerIntent = IntentFactory.getHikeGalleryPickerIntent(getActivity(), galleryFlags, Utils.getNewImagePostFilePath());

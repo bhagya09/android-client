@@ -90,22 +90,6 @@ import com.bsb.hike.voip.VoIPUtils;
 import com.bsb.hike.voip.view.CallRateActivity;
 import com.bsb.hike.voip.view.VoIPActivity;
 
-import android.app.Activity;
-import android.content.ComponentName;
-import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
-import android.net.Uri;
-import android.os.Build;
-import android.os.Bundle;
-import android.os.Message;
-import android.provider.ContactsContract.Contacts;
-import android.provider.MediaStore;
-import android.provider.Settings;
-import android.text.TextUtils;
-import android.widget.Toast;
-
 public class IntentFactory
 {
 	public static void openSetting(Context context)
@@ -749,6 +733,7 @@ public class IntentFactory
 		boolean editSelectedImage = (flags & GalleryActivity.GALLERY_EDIT_SELECTED_IMAGE)!=0;
 		boolean compressEdited = (flags & GalleryActivity.GALLERY_COMPRESS_EDITED_IMAGE)!=0;
 		boolean forProfileUpdate = (flags & GalleryActivity.GALLERY_FOR_PROFILE_PIC_UPDATE)!=0;
+		boolean cropDPImage = (flags & GalleryActivity.GALLERY_CROP_FOR_DP_IMAGE)!=0;
 		boolean cropImage = (flags & GalleryActivity.GALLERY_CROP_IMAGE)!=0;
 		
 		Intent intent = new Intent(context, GalleryActivity.class);
@@ -761,10 +746,15 @@ public class IntentFactory
 		
 		if(editSelectedImage && Utils.isPhotosEditEnabled())
 		{
-			destIntents.add(IntentFactory.getPictureEditorActivityIntent(context, null, compressEdited, cropImage?null:outputDestination, forProfileUpdate));
+			destIntents.add(IntentFactory.getPictureEditorActivityIntent(context, null, compressEdited, cropDPImage?null:outputDestination, forProfileUpdate));
 		}
 		
 		if(cropImage)
+		{
+			CropCompression compression = new CropCompression().maxWidth(HikeConstants.HikePhotos.MAX_IMAGE_DIMEN).maxHeight(HikeConstants.HikePhotos.MAX_IMAGE_DIMEN).quality(80);
+			destIntents.add(IntentFactory.getCropActivityIntent(context, null, outputDestination, compression,true,false));
+		}
+		else if(cropDPImage)
 		{
 			CropCompression compression = new CropCompression().maxWidth(640).maxHeight(640).quality(80);
 			destIntents.add(IntentFactory.getCropActivityIntent(context, null, outputDestination, compression,false,true));

@@ -11,6 +11,7 @@ import android.os.Parcelable;
 import android.provider.MediaStore;
 
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.cropimage.HikeCropActivity;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
@@ -59,6 +60,10 @@ public class ImageParser
 			else if (data != null && data.getAction() == GalleryActivity.GALLERY_RESULT_ACTION)
 			{
 				capturedFilepath = data.getStringExtra(HikeConstants.Extras.GALLERY_SELECTION_SINGLE);
+				if(data != null && data.hasExtra(HikeCropActivity.CROPPED_IMAGE_PATH))
+				{
+					capturedFilepath = data.getStringExtra(HikeCropActivity.CROPPED_IMAGE_PATH);
+				}
 			}
 			else if(data != null && data.hasExtra(HikeConstants.HikePhotos.ORIG_FILE))
 			{
@@ -74,6 +79,10 @@ public class ImageParser
 				}
 
 				capturedFilepath = filePathArray.get(0).getPath();
+			}
+			else if(data != null && data.hasExtra(HikeCropActivity.CROPPED_IMAGE_PATH))
+			{
+				capturedFilepath = data.getStringExtra(HikeCropActivity.CROPPED_IMAGE_PATH);
 			}
 			else
 			{
