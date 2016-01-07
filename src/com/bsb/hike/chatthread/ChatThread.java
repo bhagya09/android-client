@@ -1056,6 +1056,32 @@ import android.widget.Toast;
 			onShareContact(resultCode, data);
 			break;
 		case AttachmentPicker.GALLERY:
+			if(resultCode == Activity.RESULT_OK)
+			{
+				ArrayList<Uri> imagePathArrayList = data.getParcelableArrayListExtra(HikeConstants.IMAGE_PATHS);
+				ArrayList<String> imageCaptions = data.getStringArrayListExtra(HikeConstants.CAPTION);
+
+				if(Utils.isEmpty(imagePathArrayList))
+				{
+					imageParseFailed();
+					return;
+				}
+				else
+				{
+					channelSelector.uploadFile(activity.getApplicationContext(), msisdn, imagePathArrayList.get(0).getPath(), HikeFileType.IMAGE, mConversation.isOnHike(), FTAnalyticEvents.CAMERA_ATTACHEMENT,imageCaptions.get(0));
+				}
+			}
+			else if (resultCode == GalleryActivity.GALLERY_ACTIVITY_RESULT_CODE)
+			{
+				// This would be executed if photos is not enabled on the device
+				mConversationsView.requestFocusFromTouch();
+				mConversationsView.setSelection(messages.size() - 1);
+			}
+			else
+			{
+				imageParseFailed();
+			}
+			break;
 		case AttachmentPicker.EDITOR:
 			if(resultCode == Activity.RESULT_OK)
 			{

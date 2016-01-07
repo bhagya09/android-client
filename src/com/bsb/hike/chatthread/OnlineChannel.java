@@ -106,7 +106,7 @@ public class OnlineChannel implements IChannelSelector{
 	public void initiateFileTransferFromIntentData(Context applicationContext,
 			String msisdn, String fileType, String filePath, boolean isOnHike,
 			int otherAttachement) {
-		ChatThreadUtils.initiateFileTransferFromIntentData(applicationContext, msisdn, fileType, filePath,isOnHike, FTAnalyticEvents.OTHER_ATTACHEMENT);
+		ChatThreadUtils.initiateFileTransferFromIntentData(applicationContext, msisdn, fileType, filePath, isOnHike, FTAnalyticEvents.OTHER_ATTACHEMENT);
 	}
 
 	@Override
@@ -118,7 +118,14 @@ public class OnlineChannel implements IChannelSelector{
 	public void uploadFile(Context applicationContext, String msisdn,
 			String imagePath, HikeFileType imageType, boolean isOnHike,
 			int cameraAttachement) {
-		ChatThreadUtils.uploadFile(applicationContext, msisdn, imagePath, HikeFileType.IMAGE,isOnHike, FTAnalyticEvents.CAMERA_ATTACHEMENT);
+		uploadFile(applicationContext, msisdn, imagePath, imageType, isOnHike, cameraAttachement,null);
+	}
+
+	@Override
+	public void uploadFile(Context applicationContext, String msisdn,
+						   String imagePath, HikeFileType imageType, boolean isOnHike,
+						   int cameraAttachement, String caption) {
+		ChatThreadUtils.uploadFile(applicationContext, msisdn, imagePath, HikeFileType.IMAGE,isOnHike, FTAnalyticEvents.CAMERA_ATTACHEMENT,caption);
 	}
 
 

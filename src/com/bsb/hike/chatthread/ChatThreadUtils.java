@@ -193,8 +193,13 @@ public class ChatThreadUtils
 	
 	protected static void uploadFile(Context context, String msisdn, String filePath, HikeFileType fileType, boolean isConvOnHike, int attachmentType)
 	{
+		uploadFile(context, msisdn, filePath, fileType, isConvOnHike, attachmentType,null);
+	}
+
+	protected static void uploadFile(Context context, String msisdn, String filePath, HikeFileType fileType, boolean isConvOnHike, int attachmentType, String caption)
+	{
 		Logger.i(TAG, "upload file , filepath " + filePath + " filetype " + fileType);
-		initialiseFileTransfer(context, msisdn, filePath, null, fileType, null, false, -1, false, isConvOnHike, attachmentType);
+		initialiseFileTransfer(context, msisdn, filePath, null, fileType, null, false, -1, false, isConvOnHike, attachmentType,caption);
 	}
 	
 	protected static void initiateFileTransferFromIntentData(Context context, String msisdn, String fileType, String filePath, boolean convOnHike, int attachmentType)

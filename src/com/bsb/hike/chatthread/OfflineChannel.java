@@ -116,14 +116,14 @@ public class OfflineChannel implements IChannelSelector{
 			String msisdn, String fileType, String filePath, boolean isOnHike,
 			int otherAttachement) {
 		//To do - Not dealing with picasa uri
-		HikeFileType hikeFileType = HikeFileType.fromString(fileType,false);	
-		offlineController.sendfile(filePath, null, hikeFileType, fileType,false,-1, FTAnalyticEvents.OTHER_ATTACHEMENT, msisdn, null);
+		HikeFileType hikeFileType = HikeFileType.fromString(fileType, false);
+		offlineController.sendfile(filePath, null, hikeFileType, fileType, false, -1, FTAnalyticEvents.OTHER_ATTACHEMENT, msisdn, null);
 	}
 
 	@Override
 	public void uploadFile(Context applicationContext, String msisdn, Uri uri,
 			HikeFileType image, boolean onHike) {
-		offlineController.sendImage(Utils.getRealPathFromUri(uri,applicationContext), msisdn,FTAnalyticEvents.OTHER_ATTACHEMENT);
+		offlineController.sendImage(Utils.getRealPathFromUri(uri, applicationContext), msisdn, FTAnalyticEvents.OTHER_ATTACHEMENT);
 	}
 
 	@Override
@@ -133,6 +133,12 @@ public class OfflineChannel implements IChannelSelector{
 		offlineController.sendImage(imagePath, msisdn,cameraAttachement);
 	}
 
+	@Override
+	public void uploadFile(Context applicationContext, String msisdn,
+						   String imagePath, HikeFileType imageType, boolean isOnHike,
+						   int cameraAttachement,String caption) {
+		offlineController.sendImage(imagePath, msisdn,cameraAttachement);
+	}
 
 	@Override
 	public void modifyAttachmentPicker(ChatThreadActivity activity,
