@@ -426,7 +426,7 @@ public class UploadFileTask extends FileTransferBase
 					String fileMd5 = Utils.fileToMD5(selectedFile.getAbsolutePath());
 					chain.getRequestFacade().setUrl(new URL(getFastFileUploadBaseUrl() + fileMd5));
 					FileSavedState fst = HttpManager.getInstance().getRequestStateFromDB(HttpRequestConstants.getUploadFileBaseUrl(), String.valueOf(msgId));//if (not started) then proceed
-					if (fst != null && fst.getFTState() == FTState.NOT_STARTED)
+					if (fst == null || fst.getFTState() == FTState.NOT_STARTED)
 					{
 						chain.proceed();
 					}
