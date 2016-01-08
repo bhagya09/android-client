@@ -94,6 +94,7 @@ public interface HikePlatformConstants
 	public static final String GAME_ACTIVE ="gameActive" ;
 	String HIKE_AFFINITY="hike_affinity";
 	String CLUB_BY_MSISDN="clubbymsisdn";
+	public static final String CUSTOM_TABS="customTabs";
 
 	public static final class PlatformFetchType
 	{
