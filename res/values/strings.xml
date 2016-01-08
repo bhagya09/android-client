@@ -1507,4 +1507,5 @@
     <string name="multiple_su_post_failed">One or more status updates could not be posted.</string>
     <string name="timeline_post_timeout">Your photos will be posted shortly</string>
     <string name="timeline_post_multimsg">Only images can be posted to Timeline. Discarded other messages</string>
+    <string name="crop">Crop</string>
 </resources>

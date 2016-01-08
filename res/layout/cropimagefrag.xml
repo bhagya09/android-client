@@ -2,66 +2,120 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:custom="http://schemas.android.com/apk/res-auto"
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent" >
+    android:layout_height="fill_parent"
+    android:background="@color/black">
 
     <RelativeLayout
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
+        android:animateLayoutChanges="true"
         android:layout_marginTop="@dimen/st__action_bar_default_height"
         android:background="@color/black"
-        android:orientation="horizontal" >
-
-        <RelativeLayout
-            android:id="@+id/crop_navigation"
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:layout_alignParentBottom="true"
-            android:layout_centerHorizontal="true"
-            android:orientation="horizontal"
-            android:paddingLeft="10dp"
-            android:paddingRight="10dp" >
-
-            <ImageButton
-                android:id="@+id/rotateLeft"
-                android:layout_width="40dp"
-                android:layout_height="match_parent"
-                android:layout_centerInParent="true"
-                android:background="@null"
-                android:gravity="center"
-                android:scaleType="centerInside"
-                android:src="@drawable/ic_rotate" />
-
-            <com.bsb.hike.view.CustomFontButton
-                android:id="@+id/save"
-                android:layout_width="wrap_content"
-                android:layout_height="33dp"
-                android:layout_alignParentRight="true"
-                android:layout_centerVertical="true"
-                android:background="@drawable/bg_blue_btn_selector"
-                android:gravity="center"
-                android:paddingLeft="15dp"
-                android:paddingRight="15dp"
-                android:shadowColor="@color/black"
-                android:shadowDy="0.7"
-                android:shadowRadius="0.5"
-                android:text="@string/done"
-                android:textColor="@color/white"
-                android:textSize="14sp"
-                android:textStyle="bold"
-                android:visibility="gone" />
-        </RelativeLayout>
+        android:orientation="horizontal">
 
         <com.edmodo.cropper.CropImageView
             android:id="@+id/cropimageview"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_above="@id/crop_navigation"
             android:layout_gravity="center"
             android:background="#000000"
             custom:fixAspectRatio="true"
             custom:guidelines="on"
+            custom:imageResource="@drawable/bg_ct_beach_2"
             custom:scaleType="fitCenter"
-            custom:imageResource="@drawable/bg_ct_beach_2" />
+            android:layout_above="@+id/crop_actions_panel" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+            android:gravity="bottom"
+            android:orientation="vertical">
+
+
+            <ImageButton
+                android:id="@+id/rotateLeft"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_marginBottom="10dp"
+                android:layout_marginRight="10dp"
+                android:background="@drawable/circle_bg_selector"
+                android:src="@drawable/ic_rotate" />
+
+            <ImageButton
+                android:id="@+id/ib_edit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_marginBottom="10dp"
+                android:layout_marginRight="10dp"
+                android:background="@drawable/circle_bg_selector"
+                android:src="@drawable/btn_filter_enable" />
+
+            <ImageButton
+                android:id="@+id/ib_crop"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentRight="true"
+                android:layout_marginBottom="15dp"
+                android:layout_marginRight="10dp"
+                android:background="@drawable/circle_bg_selector"
+                android:src="@drawable/ic_crop" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/crop_actions_panel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:background="@color/transparent"
+            android:orientation="horizontal"
+            android:visibility="invisible">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:layout_weight="1"
+                android:background="@color/transparent"
+                android:gravity="bottom|right">
+
+                <ImageButton
+                    android:id="@+id/accept"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="5dp"
+                    android:layout_marginRight="30dp"
+                    android:background="@drawable/circle_bg_selector"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/ic_accept" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:layout_weight="1"
+                android:background="@color/transparent"
+                android:gravity="bottom|left">
+
+                <ImageButton
+                    android:id="@+id/cancel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="5dp"
+                    android:layout_marginLeft="30dp"
+                    android:background="@drawable/circle_bg_selector"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/ic_cancel" />
+            </LinearLayout>
+
+        </LinearLayout>
+
     </RelativeLayout>
 
 </FrameLayout>

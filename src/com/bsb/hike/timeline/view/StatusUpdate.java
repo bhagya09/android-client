@@ -1,5 +1,6 @@
 package com.bsb.hike.timeline.view;
 
+import java.io.File;
 import java.io.IOException;
 
 import org.json.JSONException;
@@ -888,6 +889,8 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 				runOnUiThread(suUploadTaskFinishRunnable);
 				suUploadTaskFinishRunnable = null;
 			}
+
+			new File(mImagePath).delete();
 		}
 	}
 	
