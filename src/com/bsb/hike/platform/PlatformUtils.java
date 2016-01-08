@@ -76,7 +76,6 @@ import com.bsb.hike.platform.content.PlatformContentConstants;
 import com.bsb.hike.platform.content.PlatformZipDownloader;
 
 import com.bsb.hike.platform.ContentModules.*;
-import com.bsb.hike.platform.content.*;
 
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.productpopup.ProductPopupsConstants.HIKESCREEN;
@@ -424,7 +423,7 @@ public class PlatformUtils
 			NonMessagingBotMetadata botMetadata, boolean resumeSupport)
 	{
 
-		PlatformContentRequest rqst = PlatformContentRequest.make(PlatformContentModel.make(botInfo.getMetadata(), botInfo.getRequestType()),
+		PlatformContentRequest rqst = PlatformContentRequest.make(PlatformContentModel.make(botInfo.getMetadata(), botInfo.getBotType()),
 				new PlatformContentListener<PlatformContentModel>()
 				{
 
@@ -487,8 +486,8 @@ public class PlatformUtils
             return;
 		}
 
-		rqst.setRequestType(botInfo.getRequestType());
-		rqst.getContentData().setRequestType(botInfo.getRequestType());
+		rqst.setBotType(botInfo.getBotType());
+		rqst.getContentData().setBotType(botInfo.getBotType());
 		rqst.getContentData().setMsisdn(botInfo.getMsisdn());
 
 		downloadAndUnzip(rqst, false, botMetadata.shouldReplace(), botMetadata.getCallbackId(), resumeSupport, botInfo.getMsisdn());
@@ -580,7 +579,7 @@ public class PlatformUtils
 			return;
 		}
 
-		final PlatformContentModel platformContentModel = PlatformContentModel.make(downloadData.toString(),HikePlatformConstants.PlatformMappRequestType.HIKE_MAPPS);
+		final PlatformContentModel platformContentModel = PlatformContentModel.make(downloadData.toString(), HikePlatformConstants.PlatformBotType.HIKE_MAPPS);
 		PlatformContentRequest rqst = PlatformContentRequest.make(platformContentModel, new PlatformContentListener<PlatformContentModel>()
 		{
 			long fileLength = 0;
@@ -652,8 +651,8 @@ public class PlatformUtils
         }
 
         // As this flow is there for MAPP flow, setting the request type to Hike Mapps
-        rqst.setRequestType(HikePlatformConstants.PlatformMappRequestType.HIKE_MAPPS);
-        rqst.getContentData().setRequestType(HikePlatformConstants.PlatformMappRequestType.HIKE_MAPPS);
+        rqst.setBotType(HikePlatformConstants.PlatformBotType.HIKE_MAPPS);
+        rqst.getContentData().setBotType(HikePlatformConstants.PlatformBotType.HIKE_MAPPS);
 
 		boolean doReplace = downloadData.optBoolean(HikePlatformConstants.REPLACE_MICROAPP_VERSION);
 		String callbackId = downloadData.optString(HikePlatformConstants.CALLBACK_ID);
@@ -1471,21 +1470,21 @@ public class PlatformUtils
 	/*
 	 * Code to append unzip path based on request type for micro app unzip process
 	 */
-	public static String generateMappUnZipPathForBotRequestType(byte requestType, String unzipPath, String microAppName)
+	public static String generateMappUnZipPathForBotType(byte botType, String unzipPath, String microAppName)
 	{
 		// Generate unzip path for the given request type
-		switch (requestType)
+		switch (botType)
 		{
-		case HikePlatformConstants.PlatformMappRequestType.HIKE_MICRO_APPS:
+		case HikePlatformConstants.PlatformBotType.HIKE_MICRO_APPS:
 			unzipPath += microAppName + File.separator;
 			break;
-		case HikePlatformConstants.PlatformMappRequestType.ONE_TIME_POPUPS:
+		case HikePlatformConstants.PlatformBotType.ONE_TIME_POPUPS:
 			unzipPath += PlatformContentConstants.HIKE_ONE_TIME_POPUPS + microAppName + File.separator;
 			break;
-		case HikePlatformConstants.PlatformMappRequestType.NATIVE_APPS:
+		case HikePlatformConstants.PlatformBotType.NATIVE_APPS:
 			unzipPath += PlatformContentConstants.HIKE_GAMES + microAppName + File.separator;
 			break;
-		case HikePlatformConstants.PlatformMappRequestType.HIKE_MAPPS:
+		case HikePlatformConstants.PlatformBotType.HIKE_MAPPS:
 			unzipPath += PlatformContentConstants.HIKE_MAPPS + microAppName + File.separator;
 			break;
 		}

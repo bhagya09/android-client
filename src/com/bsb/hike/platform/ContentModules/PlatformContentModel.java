@@ -18,13 +18,6 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
 import com.google.gson.annotations.Expose;
 
-
-import java.io.File;
-import java.lang.reflect.Field;
-import java.util.Iterator;
-import java.util.Map.Entry;
-import java.util.Set;
-
 /**
  * Content model
  */
@@ -57,7 +50,7 @@ public class PlatformContentModel
 
 	private static PlatformContentModel object = null;
 
-	private byte requestType = HikePlatformConstants.PlatformMappRequestType.HIKE_MICRO_APPS;
+	private byte botType = HikePlatformConstants.PlatformBotType.HIKE_MICRO_APPS;
 
 	private String msisdn = "";
 
@@ -111,9 +104,9 @@ public class PlatformContentModel
 		return make(0, contentData);
 	}
 
-	public static PlatformContentModel make(String contentData, byte requestType)
+	public static PlatformContentModel make(String contentData, byte botType)
 	{
-		return make(0, contentData, requestType);
+		return make(0, contentData, botType);
 	}
 
 	/**
@@ -136,7 +129,7 @@ public class PlatformContentModel
 			{
 				String microApp = object.cardObj.getAppName();
 				String unzipPath = PlatformContentConstants.HIKE_MICRO_APPS;
-				String basePath = PlatformUtils.generateMappUnZipPathForBotRequestType(HikePlatformConstants.PlatformMappRequestType.HIKE_MICRO_APPS, unzipPath, microApp);
+				String basePath = PlatformUtils.generateMappUnZipPathForBotType(HikePlatformConstants.PlatformBotType.HIKE_MICRO_APPS, unzipPath, microApp);
 
 				object.cardObj.ld.addProperty(PlatformContentConstants.KEY_TEMPLATE_PATH, PlatformContentConstants.CONTENT_AUTHORITY_BASE + basePath);
 				object.cardObj.ld.addProperty(PlatformContentConstants.MESSAGE_ID, Integer.toString(unique));
@@ -171,7 +164,7 @@ public class PlatformContentModel
 	 *            the content data
 	 * @return the platform content model
 	 */
-	public static PlatformContentModel make(int unique, String contentData, byte requestType)
+	public static PlatformContentModel make(int unique, String contentData, byte botType)
 	{
 		Logger.d(TAG, "making PlatformContentModel");
 		JsonParser parser = new JsonParser();
@@ -184,7 +177,7 @@ public class PlatformContentModel
 			{
 				String microApp = object.cardObj.getAppName();
 				String unzipPath = PlatformContentConstants.HIKE_MICRO_APPS;
-				String basePath = PlatformUtils.generateMappUnZipPathForBotRequestType(requestType, unzipPath, microApp);
+				String basePath = PlatformUtils.generateMappUnZipPathForBotType(botType, unzipPath, microApp);
 
 				object.cardObj.ld.addProperty(PlatformContentConstants.KEY_TEMPLATE_PATH, PlatformContentConstants.CONTENT_AUTHORITY_BASE + basePath);
 				object.cardObj.ld.addProperty(PlatformContentConstants.MESSAGE_ID, Integer.toString(unique));
@@ -405,14 +398,14 @@ public class PlatformContentModel
 		return cardObj.appPackage;
 	}
 
-	public byte getRequestType()
+	public byte getBotType()
 	{
-		return requestType;
+		return botType;
 	}
 
-	public void setRequestType(byte requestType)
+	public void setBotType(byte botType)
 	{
-		this.requestType = requestType;
+		this.botType = botType;
 	}
 
 	public String getMsisdn()

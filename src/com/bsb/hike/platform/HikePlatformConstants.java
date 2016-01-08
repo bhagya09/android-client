@@ -285,7 +285,7 @@ public interface HikePlatformConstants
 
     public static final String VERSIONING_DIRECTORY_NAME = "Version_";
 
-    public static final class PlatformMappRequestType
+    public static final class PlatformBotType
     {
         public static final byte HIKE_MICRO_APPS = 1;
 

@@ -32,6 +32,7 @@ import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -247,22 +248,38 @@ public class BotUtils
 		}
 		deleteBotConversation(msisdn , true);
 	}
-	/*
-	 * Uility method to delete the bot files from the file system
+
+    /*
+	 * Utility method to delete the bot files from the file system
+	 * Sample DMapp packet would be of this form :: {
+                                "t": "ac",
+                                "d": {
+                                    "dmapp": [
+                                        {"appName":"newsappv84" ,
+                                         "msisdn":"+hikenews+"},
+                                       {"appName":"coupons-09" ,
+                                       "msisdn":"+hikecoupons+"}
+                                    ] } }
+	 *
+	 * Packet that would be parsed by this method here would be like this ::  {
+                                                "appName":"newsappv84" ,
+                                                "msisdn":"+hikenews+"
+                                                   }
+	 *
 	 *
 	 * @param jsonObj	:	The bot Json object containing the properties of the bot files to be deleted
 	 */
-	public static void removeMicroApp(JSONObject jsonObj)
+	public static void removeMicroAppFromVersioningPath(JSONObject jsonObj)
 	{
 		try
 		{
 			// Code path to be deleted that is being generated after platform versioning release
 			String msisdn = jsonObj.optString(HikePlatformConstants.MSISDN);
 			BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
-			byte requestType = botInfo.getRequestType();
+			byte botType = botInfo.getBotType();
 			String microAppVersioningPath = PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.HIKE_MICRO_APPS;
 			String appName = jsonObj.optString(HikePlatformConstants.APP_NAME);
-			microAppVersioningPath = PlatformUtils.generateMappUnZipPathForBotRequestType(requestType, microAppVersioningPath, appName);
+			microAppVersioningPath = PlatformUtils.generateMappUnZipPathForBotType(botType, microAppVersioningPath, appName);
             Logger.d("FileSystemAccess", "To delete the file path being used after versioning: " + microAppVersioningPath);
 
 			String makePath = PlatformContentConstants.PLATFORM_CONTENT_DIR + appName;
@@ -285,6 +302,47 @@ public class BotUtils
 		}
 
 	}
+
+    /*
+	 * Utility method to delete the bot files from the file system
+	 * Sample DMapp packet would be of this form ::
+	 *                         {
+                                "t": "ac",
+                                "d": {
+                                    "dmapp": [
+                                        {"appName":["newsappv84" ,"newsappv85"]
+                                        }
+                                    }
+                               }
+
+	 * @param jsonObj	:	The bot Json object containing the properties of the bot files to be deleted
+	 */
+    public static void removeMicroApp(JSONObject jsonObj){
+        try
+        {
+            JSONArray appsToBeRemoved = jsonObj.getJSONArray(HikePlatformConstants.APP_NAME);
+            for (int i = 0; i< appsToBeRemoved.length(); i++){
+                String appName =  appsToBeRemoved.get(i).toString();
+                String makePath = PlatformContentConstants.PLATFORM_CONTENT_DIR +  appName;
+                Logger.d("FileSystemAccess", "To delete the path : " + makePath);
+                if(PlatformUtils.deleteDirectory(makePath)){
+                    String sentData = AnalyticsConstants.REMOVE_SUCCESS;
+                    JSONObject json = new JSONObject();
+                    json.putOpt(AnalyticsConstants.EVENT_KEY,AnalyticsConstants.REMOVE_MICRO_APP);
+                    json.putOpt(AnalyticsConstants.REMOVE_MICRO_APP, sentData);
+                    json.putOpt(AnalyticsConstants.MICRO_APP_ID, appName);
+                    HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.REMOVE_MICRO_APP, json);
+                }
+            }
+        }
+        catch (JSONException e1)
+        {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+        }
+
+    }
+
 
 	/**
 	 * Utility method to create an entry of Bot in bot_table, conversations_table. Also create a conversation on the conversation fragment.
@@ -337,7 +395,7 @@ public class BotUtils
 
             if (botMetadata.isMicroAppMode())
 			{
-                botInfo.setRequestType(HikePlatformConstants.PlatformMappRequestType.HIKE_MICRO_APPS);
+                botInfo.setBotType(HikePlatformConstants.PlatformBotType.HIKE_MICRO_APPS);
                 PlatformUtils.downloadZipForNonMessagingBot(botInfo, enableBot, botChatTheme, notifType, botMetadata, botMetadata.isResumeSupported());
 			}
 			else if (botMetadata.isWebUrlMode())
@@ -346,7 +404,7 @@ public class BotUtils
 			}
 			else if (botMetadata.isNativeMode())
 			{
-                botInfo.setRequestType(HikePlatformConstants.PlatformMappRequestType.NATIVE_APPS);
+                botInfo.setBotType(HikePlatformConstants.PlatformBotType.NATIVE_APPS);
 				PlatformUtils.downloadZipForNonMessagingBot(botInfo, enableBot, botChatTheme, notifType, botMetadata, botMetadata.isResumeSupported());
 			}
 		}

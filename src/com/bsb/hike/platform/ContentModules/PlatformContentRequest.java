@@ -24,7 +24,7 @@ public class PlatformContentRequest
 
 	private byte mState = STATE_READY;
 
-    private byte requestType = HikePlatformConstants.PlatformMappRequestType.HIKE_MICRO_APPS;
+    private byte botType = HikePlatformConstants.PlatformBotType.HIKE_MICRO_APPS;
 
 
 	private PlatformContentRequest(PlatformContentModel contentData, PlatformContentListener<PlatformContentModel> contentListner)
@@ -86,11 +86,11 @@ public class PlatformContentRequest
 		}
 	}
 
-    public byte getRequestType() {
-        return requestType;
+    public byte getBotType() {
+        return botType;
     }
 
-    public void setRequestType(byte requestType) {
-        this.requestType = requestType;
+    public void setBotType(byte botType) {
+        this.botType = botType;
     }
 }
