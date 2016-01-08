@@ -51,15 +51,18 @@ import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
 import com.bsb.hike.models.GroupParticipant;
 import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.models.HikeFile.HikeFileType;
+import com.bsb.hike.models.PlatformNotificationPreview;
 import com.bsb.hike.models.Protip;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.notifications.refactor.badge.HikeBadgeCountManager;
+import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.timeline.model.ActionsDataModel.ActionTypes;
 import com.bsb.hike.timeline.model.ActionsDataModel.ActivityObjectTypes;
 import com.bsb.hike.timeline.model.FeedDataModel;
 import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.SmileyParser;
@@ -68,6 +71,7 @@ import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.voip.VoIPService;
 import com.bsb.hike.voip.VoIPUtils;
+import com.bsb.hike.notifications.platformNotifications.PlatformNotificationMsgStack;
 
 public class HikeNotification
 {
@@ -124,6 +128,8 @@ public class HikeNotification
 	private final SharedPreferences sharedPreferences;
 
 	private HikeNotificationMsgStack hikeNotifMsgStack;
+
+	private PlatformNotificationMsgStack platformNotificationMsgStack;
 	
 
 	
@@ -139,6 +145,8 @@ public class HikeNotification
 	
 	private static HikeBadgeCountManager mBadgeCountManager;
 
+	private final String TAG= HikeNotification.class.getCanonicalName();
+
 	
 	private HikeNotification()
 	{
@@ -146,6 +154,7 @@ public class HikeNotification
 		this.notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 		this.sharedPreferences = context.getSharedPreferences(HikeMessengerApp.STATUS_NOTIFICATION_SETTING, 0);
 		this.hikeNotifMsgStack = HikeNotificationMsgStack.getInstance();
+		this.platformNotificationMsgStack= PlatformNotificationMsgStack.getInstance();
 		this.mBadgeCountManager=new HikeBadgeCountManager();
 
 		if (VIB_DEF == null)
@@ -1289,6 +1298,12 @@ public class HikeNotification
 		notificationBuilderPostWork();
 	}
 
+	private void showNotification(final Intent notificationIntent, final long timestamp, final int notificationId, String tickerText, String key, String text, String msisdn, Bitmap bigPicture, boolean isBigText, Drawable avatarDrawable, boolean isSilent)
+	{
+		showNotification(IntentFactory.getIntentForBots(context, msisdn), 0, System.currentTimeMillis(), msisdn.hashCode(), getTickerText(msisdn, text),
+				HikeNotificationUtils.getNameForMsisdn(msisdn), text,
+				msisdn, bigPicture, false, false, bigPicture == null, null, avatarDrawable, isSilent, 0 ,false, false);
+	}
 	private void showNotification(final Intent notificationIntent, final int icon, final long timestamp, final int notificationId, final CharSequence text, final String key,
 			final String message, final String msisdn, final Bitmap bigPictureImage, boolean isPin, boolean forceNotPlaySound)
 	{
@@ -1308,6 +1323,46 @@ public class HikeNotification
 		showNotification(notificationIntent, icon, timestamp, notificationId, text, key, message, msisdn, bigPictureImage, isFTMessage, isPin, isBigText, subMessage,
 				argAvatarDrawable, forceNotPlaySound, retryCount, isSilentNotification, false);
 
+	}
+	public void showPlatformNotification(JSONObject jsonObject, String msisdn){
+		try{
+			Drawable avatarDrawable = Utils.getAvatarDrawableForNotification(context, msisdn, false);
+			if(jsonObject.optBoolean(HikePlatformConstants.CLUB_BY_MSISDN)){
+				PlatformNotificationPreview platformNotificationPreview = new PlatformNotificationPreview.PlatformNotificationPreviewBuilder(jsonObject.getBoolean(HikePlatformConstants.CLUB_BY_MSISDN), msisdn, HikeNotificationUtils.getNameForMsisdn(msisdn), jsonObject.getJSONObject(HikePlatformConstants.METADATA).getString(HikePlatformConstants.HIKE_MESSAGE)).build();
+				platformNotificationMsgStack.addNotif(platformNotificationPreview);
+				if(platformNotificationMsgStack.getMessageCountforMsisdn(msisdn)>1){
+					List<SpannableString> bigTextList = platformNotificationMsgStack.getBigTextList(msisdn);
+					showInboxStyleNotification(IntentFactory.getIntentForBots(context, msisdn), 0, System.currentTimeMillis(),
+							msisdn.hashCode()+1, getTickerText(msisdn, jsonObject.getString(HikeConstants.BODY)), HikeNotificationUtils.getNameForMsisdn(msisdn),
+							platformNotificationMsgStack.getStringFromList(bigTextList), msisdn, platformNotificationMsgStack.getTickerTextForMsisdn(msisdn),
+							avatarDrawable, bigTextList, Boolean.valueOf(jsonObject.getString(HikePlatformConstants.SILENT_PUSH)), 0, false);
+				}else{
+					Bitmap bigPicture = HikeBitmapFactory.stringToBitmap(jsonObject.optString(HikePlatformConstants.BIG_PICTURE));
+					showNotification(IntentFactory.getIntentForBots(context, msisdn), System.currentTimeMillis(), msisdn.hashCode()+1, getTickerText(msisdn, jsonObject.getString(HikeConstants.BODY)),
+							HikeNotificationUtils.getNameForMsisdn(msisdn), jsonObject.getString(HikeConstants.BODY),
+							msisdn, bigPicture, bigPicture == null, avatarDrawable, Boolean.valueOf(jsonObject.getString(HikePlatformConstants.SILENT_PUSH)));
+				}
+
+			}else{
+				Bitmap bigPicture = HikeBitmapFactory.stringToBitmap(jsonObject.optString(HikePlatformConstants.BIG_PICTURE));
+				showNotification(IntentFactory.getIntentForBots(context, msisdn), System.currentTimeMillis(), msisdn.hashCode(), getTickerText(msisdn, jsonObject.getString(HikeConstants.BODY)),
+						HikeNotificationUtils.getNameForMsisdn(msisdn), jsonObject.getString(HikeConstants.BODY),
+						msisdn, bigPicture, bigPicture == null, avatarDrawable, Boolean.valueOf(jsonObject.getString(HikePlatformConstants.SILENT_PUSH)));
+
+			}
+
+		}catch (JSONException ex){
+			Logger.e(TAG, "incorrect format json received in show platform notification",ex);
+		} catch (IllegalArgumentException ex){
+			Logger.e(TAG, "illegal argument exception", ex);
+		}
+
+	}
+
+	private String getTickerText(String msisdn, String message){
+		StringBuilder tickerText = new StringBuilder();
+		tickerText.append(HikeNotificationUtils.getNameForMsisdn(msisdn) + " - " + message);
+		return tickerText.toString();
 	}
 
 	public int returnSmallIcon()
