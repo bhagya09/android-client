@@ -7827,7 +7827,7 @@ public class Utils
 		JSONObject json = new JSONObject();
 		try
 		{
-			json.put(AnalyticsConstants.EVENT_KEY, AnalyticsConstants.DATABASE_ERROR);
+			json.put(AnalyticsConstants.EVENT_KEY, AnalyticsConstants.MICRO_APP_EVENT);
 			json.put(AnalyticsConstants.LOG_FIELD_1, dbObj.getPath());
 			json.put(AnalyticsConstants.LOG_FIELD_4, "db_corrupt");
 			json.put(AnalyticsConstants.LOG_FIELD_5, (new File(dbObj.getPath())).length());
