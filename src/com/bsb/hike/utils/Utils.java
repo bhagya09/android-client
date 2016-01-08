@@ -480,22 +480,6 @@ public class Utils
 		return c.getTimeInMillis();
 	}
 
-	public static boolean isMyServiceRunning(Class<?> serviceClass, Context ctx)
-	{
-		ActivityManager manager = (ActivityManager) ctx.getSystemService(Context.ACTIVITY_SERVICE);
-		for (RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE))
-		{
-			{
-				if (serviceClass.getName().equals(service.service.getClassName()))
-				{
-
-					return true;
-				}
-			}
-		}
-		return false;
-	}
-
 	public static Animation inFromLeftAnimation(Context ctx)
 	{
 		if (mInFromLeft == null)
