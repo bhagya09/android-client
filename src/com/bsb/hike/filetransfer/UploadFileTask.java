@@ -649,30 +649,6 @@ public class UploadFileTask extends FileTransferBase
 		Utils.addFileName(hikeFile.getFileName(), hikeFile.getFileKey());
 	}
 
-	public void upload()
-	{
-		if (requestToken != null)
-		{
-			requestToken.execute();
-		}
-	}
-
-//	// @Override
-//	protected void saveFileKeyState(String fileKey)
-//	{
-//		if (isMultiMsg)
-//		{
-//			for (ConvMessage msg : messageList)
-//			{
-//				super.saveFileKeyState(getStateFile(msg), fileKey);
-//			}
-//		}
-//		else
-//		{
-//			super.saveFileKeyState(fileKey);
-//		}
-//	}
-
 	private void removeTask()
 	{
 		if (isMultiMsg)

@@ -300,7 +300,7 @@ public class FileTransferManager
 		if (isFileTaskExist(convMessage.getMsgID()))
 		{
 			UploadFileTask task = (UploadFileTask) fileTaskMap.get(convMessage.getMsgID());
-			task.upload();
+			task.startFileUploadProcess();
 		}
 		else
 		{
@@ -327,7 +327,7 @@ public class FileTransferManager
 		if (isFileTaskExist(convMessage.getMsgID()))
 		{
 			UploadFileTask task = (UploadFileTask) fileTaskMap.get(convMessage.getMsgID());
-			task.upload();
+			task.startFileUploadProcess();
 		}
 		else
 		{
