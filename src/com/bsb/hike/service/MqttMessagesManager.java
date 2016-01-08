@@ -2673,6 +2673,11 @@ public class MqttMessagesManager
             HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.HTTP_NETWORK_CHECK_CALL, enable);
         }
 
+		if(data.has(HikePlatformConstants.CUSTOM_TABS))
+		{
+			boolean enable=data.getBoolean(HikePlatformConstants.CUSTOM_TABS);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikePlatformConstants.CUSTOM_TABS, enable);
+		}
 		if (data.has(HikeConstants.WHITE_SCREEN_FIX))
 		{
 			boolean enableWhiteScreenFix = data.getBoolean(HikeConstants.WHITE_SCREEN_FIX);
