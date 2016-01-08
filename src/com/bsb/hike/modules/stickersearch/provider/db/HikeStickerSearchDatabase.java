@@ -6,18 +6,6 @@
 
 package com.bsb.hike.modules.stickersearch.provider.db;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Random;
-import java.util.Set;
-
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -28,6 +16,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.db.DatabaseErrorHandlers.CustomDatabaseErrorHandler;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
 import com.bsb.hike.modules.stickersearch.datamodel.StickerAppositeDataContainer;
@@ -38,6 +27,9 @@ import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.utils.Utils.ExecutionDurationLogger;
+
+import java.io.File;
+import java.util.*;
 
 public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 {
@@ -73,7 +65,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 
 	private HikeStickerSearchDatabase(Context context)
 	{
-		super(context, HikeStickerSearchBaseConstants.DATABASE_HIKE_STICKER_SEARCH, null, HikeStickerSearchBaseConstants.STICKERS_SEARCH_DATABASE_VERSION);
+		super(context, HikeStickerSearchBaseConstants.DATABASE_HIKE_STICKER_SEARCH, null, HikeStickerSearchBaseConstants.STICKERS_SEARCH_DATABASE_VERSION, new CustomDatabaseErrorHandler());
 
 		Logger.i(TAG, "HikeStickerSearchDatabase(" + context + ")");
 
