@@ -42,7 +42,9 @@
                 android:id="@+id/circular_bg"
                 android:layout_width="56dp"
                 android:layout_height="56dp"
-                android:layout_centerInParent="true"
+                android:layout_alignTop="@+id/file_thumb"
+                android:layout_alignLeft="@+id/file_thumb"
+                android:layout_margin="47dp"
                 android:background="@drawable/bg_ft_progress"
                 android:gravity="center" >
 
