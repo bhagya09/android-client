@@ -16,6 +16,7 @@ import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import org.json.JSONObject;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -83,11 +84,15 @@ public class HikeMicroAppsCodeMigrationService extends IntentService
 						mapForMigratedApps.put(entry.getKey(), true);
 					}
 				}
-				catch (Exception e)
+				catch (FileNotFoundException fnfe)
 				{
                     mapForMigratedApps.put(entry.getKey(), true);
-                    e.printStackTrace();
+                    fnfe.printStackTrace();
 				}
+                catch (Exception e)
+                {
+                    e.printStackTrace();
+                }
 			}
 		}
 		for (Map.Entry<String, Boolean> entry : mapForMigratedApps.entrySet())

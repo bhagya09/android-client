@@ -701,15 +701,21 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 
             int mAppVersionCode = 0;
 
+            byte requestType = HikePlatformConstants.PlatformMappRequestType.HIKE_MICRO_APPS;
+
             if (botJSON.has(HikePlatformConstants.METADATA))
             {
                 JSONObject mdJsonObject = botJSON.optJSONObject(HikePlatformConstants.METADATA);
                 JSONObject cardObjectJson = mdJsonObject.optJSONObject(HikePlatformConstants.CARD_OBJECT);
                 mAppVersionCode = cardObjectJson.optInt(HikePlatformConstants.MAPP_VERSION_CODE);
+                String nonMessagingBotType = cardObjectJson.optString(HikePlatformConstants.NON_MESSAGING_BOT_TYPE,HikePlatformConstants.MICROAPP_MODE);
+                if (nonMessagingBotType == HikePlatformConstants.NATIVE_MODE)
+                {
+                    requestType = HikePlatformConstants.PlatformMappRequestType.NATIVE_APPS;
+                }
             }
 
-			BotInfo mBotInfo = new BotInfo.HikeBotBuilder(msisdn).setConvName(name).description(description).setType(botType).setUpdateVersion(latestVersion).setMAppVersionCode(mAppVersionCode).build();
-
+			BotInfo mBotInfo = new BotInfo.HikeBotBuilder(msisdn).setConvName(name).description(description).setType(botType).setUpdateVersion(latestVersion).setMAppVersionCode(mAppVersionCode).setRequestType(requestType).build();
 
 			String thumbnailString = botJSON.optString(HikePlatformConstants.BOT_DP, "");
 			

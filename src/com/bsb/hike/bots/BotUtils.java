@@ -32,7 +32,6 @@ import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -250,33 +249,41 @@ public class BotUtils
 	}
 	/*
 	 * Uility method to delete the bot files from the file system
-	 * 
+	 *
 	 * @param jsonObj	:	The bot Json object containing the properties of the bot files to be deleted
 	 */
-	public static void removeMicroApp(JSONObject jsonObj){
+	public static void removeMicroApp(JSONObject jsonObj)
+	{
 		try
 		{
-			JSONArray appsToBeRemoved = jsonObj.getJSONArray(HikePlatformConstants.APP_NAME);
-			for (int i = 0; i< appsToBeRemoved.length(); i++){
-				String appName =  appsToBeRemoved.get(i).toString();
-				String makePath = PlatformContentConstants.PLATFORM_CONTENT_DIR +  appName;
-				Logger.d("FileSystemAccess", "To delete the path : " + makePath);
-				if(PlatformUtils.deleteDirectory(makePath)){
-					String sentData = AnalyticsConstants.REMOVE_SUCCESS;
-					JSONObject json = new JSONObject();
-					json.putOpt(AnalyticsConstants.EVENT_KEY,AnalyticsConstants.REMOVE_MICRO_APP);
-					json.putOpt(AnalyticsConstants.REMOVE_MICRO_APP, sentData);
-					json.putOpt(AnalyticsConstants.MICRO_APP_ID, appName);
-					HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.REMOVE_MICRO_APP, json);
-				}
+			// Code path to be deleted that is being generated after platform versioning release
+			String msisdn = jsonObj.optString(HikePlatformConstants.MSISDN);
+			BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
+			byte requestType = botInfo.getRequestType();
+			String microAppVersioningPath = PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.HIKE_MICRO_APPS;
+			String appName = jsonObj.optString(HikePlatformConstants.APP_NAME);
+			microAppVersioningPath = PlatformUtils.generateMappUnZipPathForBotRequestType(requestType, microAppVersioningPath, appName);
+            Logger.d("FileSystemAccess", "To delete the file path being used after versioning: " + microAppVersioningPath);
+
+			String makePath = PlatformContentConstants.PLATFORM_CONTENT_DIR + appName;
+			Logger.d("FileSystemAccess", "To delete the old file path : " + makePath);
+			if (PlatformUtils.deleteDirectory(makePath) || PlatformUtils.deleteDirectory(microAppVersioningPath))
+			{
+				String sentData = AnalyticsConstants.REMOVE_SUCCESS;
+				JSONObject json = new JSONObject();
+				json.putOpt(AnalyticsConstants.EVENT_KEY, AnalyticsConstants.REMOVE_MICRO_APP);
+				json.putOpt(AnalyticsConstants.REMOVE_MICRO_APP, sentData);
+				json.putOpt(AnalyticsConstants.MICRO_APP_ID, appName);
+				HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.REMOVE_MICRO_APP, json);
 			}
+
 		}
 		catch (JSONException e1)
 		{
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-		
+
 	}
 
 	/**
