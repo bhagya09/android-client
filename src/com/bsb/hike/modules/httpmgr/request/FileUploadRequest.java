@@ -157,6 +157,11 @@ public class FileUploadRequest extends Request<JSONObject>
 			// Calculate chunk size using network type and other stuff
 			chunkSize = chunkSizePolicy.getChunkSize();
 
+			if (mStart == 0)
+			{
+				chunkSize = chunkSize / 5;
+			}
+
 			// calculate start and end for range header using mStart and chunkSize
 			int start = mStart;
 			int end = length;
