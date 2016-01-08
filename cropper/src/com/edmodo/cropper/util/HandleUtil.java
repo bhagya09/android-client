@@ -30,7 +30,7 @@ public class HandleUtil {
     // The radius (in dp) of the touchable area around the handle. We are basing
     // this value off of the recommended 48dp Rhythm. See:
     // http://developer.android.com/design/style/metrics-grids.html#48dp-rhythm
-    private static final int TARGET_RADIUS_DP = 24;
+    private static final int TARGET_RADIUS_DP = 48;
 
     // Public Methods //////////////////////////////////////////////////////////
 
@@ -74,11 +74,8 @@ public class HandleUtil {
 
         // Note: corner-handles take precedence, then side-handles, then center.
 
-        if (HandleUtil.isInCenterTargetZone(x, y, left, top, right, bottom) && !focusCenter()) {
-            pressedHandle = Handle.CENTER;
 
-        }
-        else if (HandleUtil.isInCornerTargetZone(x, y, left, top, targetRadius)) {
+         if (HandleUtil.isInCornerTargetZone(x, y, left, top, targetRadius)) {
             pressedHandle = Handle.TOP_LEFT;
         } else if (HandleUtil.isInCornerTargetZone(x, y, right, top, targetRadius)) {
             pressedHandle = Handle.TOP_RIGHT;
@@ -96,6 +93,10 @@ public class HandleUtil {
             pressedHandle = Handle.LEFT;
         } else if (HandleUtil.isInVerticalTargetZone(x, y, right, top, bottom, targetRadius)) {
             pressedHandle = Handle.RIGHT;
+        }
+        else if (HandleUtil.isInCenterTargetZone(x, y, left, top, right, bottom) && !focusCenter()) {
+            pressedHandle = Handle.CENTER;
+
         }
 
         return pressedHandle;

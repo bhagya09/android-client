@@ -47,7 +47,7 @@ public class CropOverlayView extends View {
     // corners will draw correctly
     private static final float DEFAULT_CORNER_THICKNESS_DP = PaintUtil.getCornerThickness();
     private static final float DEFAULT_LINE_THICKNESS_DP = PaintUtil.getLineThickness();
-    private static final float DEFAULT_CORNER_OFFSET_DP = (DEFAULT_CORNER_THICKNESS_DP / 2) - (DEFAULT_LINE_THICKNESS_DP / 2);
+    private static final float DEFAULT_CORNER_OFFSET_DP =  (- 1.0f * (DEFAULT_CORNER_THICKNESS_DP/2)) + (DEFAULT_LINE_THICKNESS_DP / 2);
     private static final float DEFAULT_CORNER_EXTENSION_DP = DEFAULT_CORNER_THICKNESS_DP / 2
                                                              + DEFAULT_CORNER_OFFSET_DP;
     private static final float DEFAULT_CORNER_LENGTH_DP = 20;

@@ -124,7 +124,7 @@ public class HikeCropFragment extends Fragment
 
 		try
 		{
-			int minSize = HikePhotosUtils.dpToPx(50);
+			int minSize = HikePhotosUtils.dpToPx(120);
 
 			if (sourceBitmap.getWidth() < minSize || sourceBitmap.getHeight() < minSize)
 			{

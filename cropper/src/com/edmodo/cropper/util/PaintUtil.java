@@ -29,7 +29,7 @@ public class PaintUtil {
     private static final String SEMI_TRANSPARENT = "#AAFFFFFF";
     private static final String DEFAULT_BACKGROUND_COLOR_ID = "#B0000000";
     private static final float DEFAULT_LINE_THICKNESS_DP = 3;
-    private static final float DEFAULT_CORNER_THICKNESS_DP = 5;
+    private static final float DEFAULT_CORNER_THICKNESS_DP = 4;
     private static final float DEFAULT_GUIDELINE_THICKNESS_PX = 1;
 
     // Public Methods //////////////////////////////////////////////////////////
