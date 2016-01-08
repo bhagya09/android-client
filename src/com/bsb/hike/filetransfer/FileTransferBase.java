@@ -3,7 +3,12 @@ package com.bsb.hike.filetransfer;
 import java.io.File;
 
 import android.content.Context;
+import android.os.Handler;
+import android.widget.Toast;
 
+import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.R;
 import com.bsb.hike.filetransfer.FileTransferManager.NetworkType;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.HikeFile.HikeFileType;
@@ -63,12 +68,15 @@ public class FileTransferBase
 
 	protected final int DEFAULT_CHUNK_SIZE = 100 * 1024;
 
+	protected Handler handler;
+
 	protected FileTransferBase(Context ctx, File destinationFile, long msgId, HikeFileType hikeFileType)
 	{
 		this.context = ctx;
 		this.mFile = destinationFile;
 		this.msgId = msgId;
 		this.hikeFileType = hikeFileType;
+		handler = new Handler(HikeMessengerApp.getInstance().getMainLooper());
 	}
 
 	protected IGetChunkSize chunkSizePolicy = new IGetChunkSize()

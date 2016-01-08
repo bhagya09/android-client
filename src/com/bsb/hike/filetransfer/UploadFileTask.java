@@ -169,6 +169,7 @@ public class UploadFileTask extends FileTransferBase
 					fss.setFTState(FTState.ERROR);
 					fss.setFileKey(fileKey);
 					HttpManager.getInstance().saveRequestStateInDB(HttpRequestConstants.getUploadFileBaseUrl(), String.valueOf(msgId), fss);
+					showToast(HikeConstants.FTResult.UPLOAD_FAILED);
 					return;
 				}
 
@@ -180,12 +181,12 @@ public class UploadFileTask extends FileTransferBase
 				else if (httpException.getCause() instanceof FileTransferCancelledException)
 				{
 					// FTAnalyticEvents.logDevException(FTAnalyticEvents.UPLOAD_FILE_OPERATION, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "file", "UPLOAD_FAILED - ", e);
-					Toast.makeText(context, R.string.upload_failed, Toast.LENGTH_SHORT).show();
+					showToast(HikeConstants.FTResult.UPLOAD_FAILED);
 				}
 				else if (httpException.getCause() instanceof FileNotFoundException)
 				{
 					// FTAnalyticEvents.logDevException(FTAnalyticEvents.UPLOAD_FILE_OPERATION, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "file", "UPLOAD_FAILED - ", e);
-					Toast.makeText(context, R.string.card_unmount, Toast.LENGTH_SHORT).show();
+					showToast(HikeConstants.FTResult.CARD_UNMOUNT);
 				}
 				else if (httpException.getCause() instanceof Exception)
 				{
@@ -193,18 +194,18 @@ public class UploadFileTask extends FileTransferBase
 					if (FileTransferManager.READ_FAIL.equals(throwable.getMessage()))
 					{
 						// FTAnalyticEvents.logDevException(FTAnalyticEvents.UPLOAD_FILE_OPERATION, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "file", "READ_FAIL - ", e);
-						Toast.makeText(context, R.string.unable_to_read, Toast.LENGTH_SHORT).show();
+						showToast(HikeConstants.FTResult.READ_FAIL);
 					}
 					else if (FileTransferManager.UNABLE_TO_DOWNLOAD.equals(throwable.getMessage()))
 					{
 						// FTAnalyticEvents.logDevException(FTAnalyticEvents.UPLOAD_FILE_OPERATION, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "file", "DOWNLOAD_FAILED - ", e);
-						Toast.makeText(context, R.string.download_failed, Toast.LENGTH_SHORT).show();
+						showToast(HikeConstants.FTResult.DOWNLOAD_FAILED);
 					}
 				}
 				else
 				{
 					// FTAnalyticEvents.logDevException(FTAnalyticEvents.UPLOAD_FK_VALIDATION, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "http", "UPLOAD_FAILED - ", e);
-					Toast.makeText(context, R.string.upload_failed, Toast.LENGTH_SHORT).show();
+					showToast(HikeConstants.FTResult.UPLOAD_FAILED);
 				}
 			}
 		};
@@ -383,7 +384,7 @@ public class UploadFileTask extends FileTransferBase
 
 		if (userContext.getMetadata().getHikeFiles().get(0).getFileSize() > HikeConstants.MAX_FILE_SIZE)
 		{
-			Toast.makeText(context, R.string.max_file_size, Toast.LENGTH_SHORT).show();
+			showToast(HikeConstants.FTResult.FILE_SIZE_EXCEEDING);
 			return;
 		}
 	}
@@ -426,7 +427,7 @@ public class UploadFileTask extends FileTransferBase
 					String fileMd5 = Utils.fileToMD5(selectedFile.getAbsolutePath());
 					chain.getRequestFacade().setUrl(new URL(getFastFileUploadBaseUrl() + fileMd5));
 					FileSavedState fst = HttpManager.getInstance().getRequestStateFromDB(HttpRequestConstants.getUploadFileBaseUrl(), String.valueOf(msgId));//if (not started) then proceed
-					if (fst != null && fst.getFTState() == FTState.NOT_STARTED)
+					if (fst == null || fst.getFTState() == FTState.NOT_STARTED)
 					{
 						chain.proceed();
 					}
@@ -460,6 +461,7 @@ public class UploadFileTask extends FileTransferBase
 					fss.setFTState(FTState.ERROR);
 					fss.setFileKey(fileKey);
 					HttpManager.getInstance().saveRequestStateInDB(HttpRequestConstants.getUploadFileBaseUrl(), String.valueOf(msgId), fss);
+					showToast(HikeConstants.FTResult.UPLOAD_FAILED);
 				}
 				else
 				{
@@ -559,7 +561,7 @@ public class UploadFileTask extends FileTransferBase
 					if (httpException.getErrorCode() == HttpException.REASON_CODE_CANCELLATION)
 					{
 						// deleteStateFile();
-						Toast.makeText(context, R.string.upload_cancelled, Toast.LENGTH_SHORT).show();
+						showToast(HikeConstants.FTResult.CANCELLED);
 					}
 					else if (httpException.getErrorCode() == HttpURLConnection.HTTP_INTERNAL_ERROR)
 					{
@@ -649,30 +651,6 @@ public class UploadFileTask extends FileTransferBase
 		Utils.addFileName(hikeFile.getFileName(), hikeFile.getFileKey());
 	}
 
-	public void upload()
-	{
-		if (requestToken != null)
-		{
-			requestToken.execute();
-		}
-	}
-
-//	// @Override
-//	protected void saveFileKeyState(String fileKey)
-//	{
-//		if (isMultiMsg)
-//		{
-//			for (ConvMessage msg : messageList)
-//			{
-//				super.saveFileKeyState(getStateFile(msg), fileKey);
-//			}
-//		}
-//		else
-//		{
-//			super.saveFileKeyState(fileKey);
-//		}
-//	}
-
 	private void removeTask()
 	{
 		if (isMultiMsg)
@@ -697,5 +675,46 @@ public class UploadFileTask extends FileTransferBase
 			fss = HttpManager.getInstance().getRequestStateFromDB(HttpRequestConstants.getUploadFileBaseUrl(), String.valueOf(msgId));
 		}
 		return fss != null ? fss : new FileSavedState();
+	}
+
+	private void showToast(final HikeConstants.FTResult result)
+	{
+		handler.post(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				switch (result)
+				{
+				case UPLOAD_FAILED:
+					Toast.makeText(context, R.string.upload_failed, Toast.LENGTH_SHORT).show();
+					break;
+				case CARD_UNMOUNT:
+					Toast.makeText(context, R.string.card_unmount, Toast.LENGTH_SHORT).show();
+					break;
+				case READ_FAIL:
+					Toast.makeText(context, R.string.unable_to_read, Toast.LENGTH_SHORT).show();
+					break;
+				case DOWNLOAD_FAILED:
+					Toast.makeText(context, R.string.download_failed, Toast.LENGTH_SHORT).show();
+					break;
+				case FILE_SIZE_EXCEEDING:
+					Toast.makeText(context, R.string.max_file_size, Toast.LENGTH_SHORT).show();
+					break;
+				case CANCELLED:
+					Toast.makeText(context, R.string.upload_cancelled, Toast.LENGTH_SHORT).show();
+					break;
+				case NO_SD_CARD:
+					Toast.makeText(context, R.string.no_sd_card, Toast.LENGTH_SHORT).show();
+					break;
+				case FILE_TOO_LARGE:
+					Toast.makeText(context, R.string.not_enough_space, Toast.LENGTH_SHORT).show();
+					break;
+				case SERVER_ERROR:
+					Toast.makeText(context, R.string.file_expire, Toast.LENGTH_SHORT).show();
+					break;
+				}
+			}
+		});
 	}
 }
