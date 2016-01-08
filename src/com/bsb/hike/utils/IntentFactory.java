@@ -1277,10 +1277,15 @@ public class IntentFactory
 
 		if (!TextUtils.isEmpty(argImagePath))
 		{
-			intent.putExtra(StatusUpdate.STATUS_UPDATE_TEXT, text);
 			intent.putExtra(StatusUpdate.STATUS_UPDATE_IMAGE_PATH, argImagePath);
 			intent.putExtra(StatusUpdate.ENABLE_COMPRESSION,compressImage);
 		}
+
+		if (!TextUtils.isEmpty(text))
+		{
+			intent.putExtra(StatusUpdate.STATUS_UPDATE_TEXT, text);
+		}
+
 		return intent;
 	}
 

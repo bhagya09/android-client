@@ -255,6 +255,8 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 
 	private boolean allImages;
 
+	private String messageToShare;
+
 	@Override
 	public void onCreate(Bundle savedInstanceState)
 	{
@@ -418,6 +420,11 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 					for (int i = 0; i < multipleMsgFwdArray.length(); i++)
 					{
 						JSONObject msgExtrasJson = (JSONObject) multipleMsgFwdArray.get(i);
+
+						if(multipleMsgFwdArray.length() == 1 && msgExtrasJson.has(HikeConstants.MESSAGE))
+						{
+							messageToShare = msgExtrasJson.optString(HikeConstants.MESSAGE);
+						}
 
 						if (msgExtrasJson.has(HikeConstants.Extras.FILE_PATH))
 						{
@@ -781,11 +788,11 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		case PICK_CONTACT_AND_SEND_MODE:
 		case PICK_CONTACT_MODE:
 			//We do not show sms contacts in broadcast mode
-			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage, (isForwardingMessage && !isSharingFile), fetchRecentlyJoined, existingGroupOrBroadcastId, sendingMsisdn, friendsListFetchedCallback, false, false,(!imagesToShare.isEmpty()));
+			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage, (isForwardingMessage && !isSharingFile), fetchRecentlyJoined, existingGroupOrBroadcastId, sendingMsisdn, friendsListFetchedCallback, false, false,((!imagesToShare.isEmpty()) || !TextUtils.isEmpty(messageToShare)));
 			break;
 		case CREATE_GROUP_MODE:
 		default:
-			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage, (isForwardingMessage || isSharingFile), fetchRecentlyJoined, existingGroupOrBroadcastId, sendingMsisdn, friendsListFetchedCallback, true, (showMicroappShowcase && hasMicroappShowcaseIntent),(!imagesToShare.isEmpty()));
+			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage, (isForwardingMessage || isSharingFile), fetchRecentlyJoined, existingGroupOrBroadcastId, sendingMsisdn, friendsListFetchedCallback, true, (showMicroappShowcase && hasMicroappShowcaseIntent),((!imagesToShare.isEmpty())|| !TextUtils.isEmpty(messageToShare)));
 			break;
 		}
 
@@ -1560,7 +1567,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 				{
 					ArrayList<ContactInfo> recepientList = adapter.getAllSelectedContacts();
 
-					if(recepientList.size() == 1 && imagesToShare.size() == 1)
+					if(recepientList.size() == 1 && (imagesToShare.size() == 1 || !TextUtils.isEmpty(messageToShare)))
 					{
 						//No need to show confirmation since we are opening statusupdate activity
 						if(recepientList.get(0) instanceof HikeFeatureInfo)
@@ -1917,6 +1924,14 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 							finish();
 							return;
 						}
+						else if(!TextUtils.isEmpty(messageToShare))
+						{
+							intent = IntentFactory.getPostStatusUpdateIntent(this, messageToShare,null,true);
+							intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+							startActivity(intent);
+							finish();
+							return;
+						}
 						else
 						{
 							postImagesToShareOnTimeline(true);
@@ -2016,6 +2031,12 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 				statusUpdateTasks.add(new StatusUpdateTask(imageCaptions.get(i), -1, imagesToShare.get(i)));
 			}
 		}
+
+		if(!TextUtils.isEmpty(messageToShare))
+		{
+			statusUpdateTasks.add(new StatusUpdateTask(messageToShare, -1, null));
+		}
+
 		if (!statusUpdateTasks.isEmpty())
 		{
 			HikeHandlerUtil.getInstance().postRunnable(new Runnable()
@@ -2115,11 +2136,9 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		OfflineController controller = null;
 		if (offlineContact != null)
 		{
-			controller =OfflineController.getInstance();
+			controller = OfflineController.getInstance();
 			arrayList.remove(offlineContact);
 		}
-		
-		
 
 		if (Intent.ACTION_SEND_MULTIPLE.equals(presentIntent.getAction()))
 		{

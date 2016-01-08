@@ -6,6 +6,7 @@ import java.util.Calendar;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.w3c.dom.Text;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -89,7 +90,7 @@ public class StatusUpdateTask implements IHikeHTTPTask
 				try
 				{
 					// Compression
-					if (compressionEnabled)
+					if (compressionEnabled && !TextUtils.isEmpty(imageFilePath))
 					{
 						Bitmap sourceBitmap = null;
 						if (bmp != null)
@@ -286,7 +287,7 @@ public class StatusUpdateTask implements IHikeHTTPTask
 					{
 						Logger.e(getClass().getSimpleName(), " post status request failed : " + httpException.getMessage());
 					}
-					if (compressionEnabled)
+					if (compressionEnabled && !TextUtils.isEmpty(imageFilePath))
 						Utils.deleteFile(new File(imageFilePath));
 					HikeMessengerApp.getPubSub().publish(HikePubSub.STATUS_POST_REQUEST_DONE, false);
 					taskStatus = TASK_FAILED;
