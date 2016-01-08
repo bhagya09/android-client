@@ -481,22 +481,6 @@ public class Utils
 		return c.getTimeInMillis();
 	}
 
-	public static boolean isMyServiceRunning(Class<?> serviceClass, Context ctx)
-	{
-		ActivityManager manager = (ActivityManager) ctx.getSystemService(Context.ACTIVITY_SERVICE);
-		for (RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE))
-		{
-			{
-				if (serviceClass.getName().equals(service.service.getClassName()))
-				{
-
-					return true;
-				}
-			}
-		}
-		return false;
-	}
-
 	public static Animation inFromLeftAnimation(Context ctx)
 	{
 		if (mInFromLeft == null)
@@ -7817,4 +7801,35 @@ public class Utils
 	{
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CUSTOM_KEYBOARD_SUPPORTED, supported);
 	}
+
+	/**
+	 * Sample logging JSON :
+	 * {"ek":"micro_app","event":"db_corrupt","fld1":"\/data\/data\/com.bsb.hike\/databases\/chats","fld4":"db_error","fld5":50880512,"fld6":12422 }
+	 * @param dbObj
+	 */
+	public static void recordDatabaseCorrupt(SQLiteDatabase dbObj)
+	{
+		JSONObject json = new JSONObject();
+		try
+		{
+			json.put(AnalyticsConstants.EVENT_KEY, AnalyticsConstants.MICRO_APP_EVENT);
+			json.put(AnalyticsConstants.LOG_FIELD_1, dbObj.getPath());
+			json.put(AnalyticsConstants.LOG_FIELD_4, "db_corrupt");
+			json.put(AnalyticsConstants.LOG_FIELD_5, (new File(dbObj.getPath())).length());
+			if(dbObj.isOpen())
+			{
+				json.put(AnalyticsConstants.LOG_FIELD_6, DatabaseUtils.longForQuery(dbObj, "PRAGMA page_count;", null));
+			}
+
+			Logger.d("db", json.toString());
+
+			HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.APP_CRASH_EVENT, json);
+		}
+
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+	}
+
 }
