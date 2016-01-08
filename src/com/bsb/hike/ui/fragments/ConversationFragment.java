@@ -190,6 +190,8 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 	
 	protected static final int START_OFFLINE_CONNECTION = 1;
 
+	protected static final int STEALTH_CONVERSATION_TOGGLE = 2;
+
 	private enum hikeBotConvStat
 	{
 		NOTVIEWED, VIEWED, DELETED
@@ -1047,6 +1049,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 	public void onDestroy()
 	{
 		HikeMessengerApp.getPubSub().removeListeners(this, pubSubListeners);
+		uiHandler.removeCallbacksAndMessages(null);
 		super.onDestroy();
 	}
 
@@ -1968,6 +1971,11 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 
 	private void changeConversationsVisibility(int scrollToPosition)
 	{
+		// further making an isAdded check here, as onDestroy might have been called
+		if(!isAdded())
+		{
+			return;
+		}
 		// we do not animate removal of multiple chats, coz hidden chats outside visible list
 		// might duplicate once you move back to normal mode from hidden mode
 		if (!StealthModeManager.getInstance().isActive())
@@ -2540,20 +2548,14 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 		}
 		else if (HikePubSub.STEALTH_MODE_TOGGLED.equals(type))
 		{
-			//for Android M and also for security updates of Android L, the isAdded check does not
-			//check for activity being null, instead a fragmentHostController is used in its place
-			if (!isAdded() || getActivity() == null)
+			//this pubsub is fired on onStop and is not running on UI thread
+			if (!isAdded())
 			{
 				return;
 			}
-			getActivity().runOnUiThread(new Runnable()
-			{
-				@Override
-				public void run()
-				{
-					changeConversationsVisibility(-1);
-				}
-			});
+			// since getActivity() can be made null by the UI thread,
+			// hence we are posting on uiHandler, instead of using runOnUiThread on the activity
+			sendUIMessage(STEALTH_CONVERSATION_TOGGLE, -1);
 		}
 		else if (HikePubSub.REMOVE_TIP.equals(type))
 		{
@@ -3151,6 +3153,9 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 		{
 			case START_OFFLINE_CONNECTION:
 				OfflineController.getInstance().connectAsPerMsisdn((String)msg.obj);
+				break;
+			case STEALTH_CONVERSATION_TOGGLE:
+				changeConversationsVisibility((int)msg.obj);
 				break;
 		}
 	}

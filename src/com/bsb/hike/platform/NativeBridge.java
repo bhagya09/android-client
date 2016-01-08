@@ -510,6 +510,7 @@ public class NativeBridge
 					result.put("uid", uid);
 					result.put("name", name);
 					result.put("anonName", anonName);
+					result.put("msisdn", msisdn);
 				}
 				catch (JSONException e)
 				{
@@ -659,6 +660,27 @@ public class NativeBridge
 		Intent hikeProcessIntentService = new Intent(activity, HikeProcessIntentService.class);
 		hikeProcessIntentService.putExtra(HikeProcessIntentService.SEND_APP_STATE, appState);
 		activity.startService(hikeProcessIntentService);
+	}
+
+	/**
+	 * Opens an activity in hike based on the data passed
+	 *
+	 * @param data
+	 */
+	public void openActivity(final String data)
+	{
+
+		if (mThread == null || weakActivity == null || weakActivity.get() == null)
+		{
+			return;
+		}
+		Log.d("cocos2d-x", data);
+		mThread.postRunnable(new Runnable() {
+			@Override
+			public void run() {
+				PlatformUtils.openActivity(weakActivity.get(), data);
+			}
+		});
 	}
 
 }
