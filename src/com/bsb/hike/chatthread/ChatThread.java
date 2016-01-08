@@ -1058,8 +1058,8 @@ import android.widget.Toast;
 		case AttachmentPicker.GALLERY:
 			if(resultCode == Activity.RESULT_OK)
 			{
-				ArrayList<Uri> imagePathArrayList = data.getParcelableArrayListExtra(HikeConstants.IMAGE_PATHS);
-				ArrayList<String> imageCaptions = data.getStringArrayListExtra(HikeConstants.CAPTION);
+				final ArrayList<Uri> imagePathArrayList = data.getParcelableArrayListExtra(HikeConstants.IMAGE_PATHS);
+				final ArrayList<String> imageCaptions = data.getStringArrayListExtra(HikeConstants.CAPTION);
 
 				if(Utils.isEmpty(imagePathArrayList))
 				{
@@ -1068,7 +1068,23 @@ import android.widget.Toast;
 				}
 				else
 				{
-					channelSelector.uploadFile(activity.getApplicationContext(), msisdn, imagePathArrayList.get(0).getPath(), HikeFileType.IMAGE, mConversation.isOnHike(), FTAnalyticEvents.CAMERA_ATTACHEMENT,imageCaptions.get(0));
+					ImageParser.showSMODialog(activity, new File(imagePathArrayList.get(0).getPath()), new ImageParserListener() {
+						@Override
+						public void imageParsed(Uri uri) {
+							channelSelector.uploadFile(activity.getApplicationContext(), msisdn, uri.getPath(), HikeFileType.IMAGE, mConversation.isOnHike(), FTAnalyticEvents.CAMERA_ATTACHEMENT, imageCaptions.get(0));
+						}
+
+						@Override
+						public void imageParsed(String imagePath) {
+							channelSelector.uploadFile(activity.getApplicationContext(), msisdn, imagePath, HikeFileType.IMAGE, mConversation.isOnHike(), FTAnalyticEvents.CAMERA_ATTACHEMENT, imageCaptions.get(0));
+						}
+
+						@Override
+						public void imageParseFailed() {
+								ChatThread.this.imageParseFailed();
+						}
+					});
+
 				}
 			}
 			else if (resultCode == GalleryActivity.GALLERY_ACTIVITY_RESULT_CODE)
