@@ -182,14 +182,19 @@ public class DownloadFileTask extends FileTransferBase
 		{
 			showToast(HikeConstants.FTResult.FILE_TOO_LARGE);
 		}
-		else {
+		else
+		{
 			int errorCode = httpException.getErrorCode();
 			switch (errorCode)
 			{
+				case HttpException.REASON_CODE_NO_NETWORK:
+					FTAnalyticEvents.logDevError(FTAnalyticEvents.DOWNLOAD_CONN_INIT_2_1, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "http", "DOWNLOAD_FAILED : No Internet");
+					showToast(HikeConstants.FTResult.DOWNLOAD_FAILED);
+					break;
 				case HttpException.REASON_CODE_CANCELLATION:
 					deleteTempFile();
 					HttpManager.getInstance().deleteRequestStateFromDB(downLoadUrl, String.valueOf(msgId));
-					// FTAnalyticEvents.logDevError(FTAnalyticEvents.DOWNLOAD_STATE_CHANGE, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "state", "CANCELLED");
+					FTAnalyticEvents.logDevError(FTAnalyticEvents.DOWNLOAD_STATE_CHANGE, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "state", "CANCELLED");
 					showToast(HikeConstants.FTResult.CANCELLED);
 				case HttpException.REASON_CODE_MALFORMED_URL:
 					Logger.e(getClass().getSimpleName(), "Invalid URL");
