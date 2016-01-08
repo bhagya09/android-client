@@ -10,6 +10,7 @@ import android.net.Uri;
 import android.text.TextUtils;
 import android.widget.Toast;
 
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
@@ -134,7 +135,7 @@ public class DownloadFileTask extends FileTransferBase
 		{
 			Logger.d(getClass().getSimpleName(), "FT failed");
 			// FTAnalyticEvents.logDevError(FTAnalyticEvents.DOWNLOAD_RENAME_FILE, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "file", "READ_FAIL");
-			Toast.makeText(context, R.string.download_failed, Toast.LENGTH_SHORT).show();
+			showToast(HikeConstants.FTResult.DOWNLOAD_FAILED);
 		}
 		else
 		{
@@ -175,11 +176,11 @@ public class DownloadFileTask extends FileTransferBase
 		Throwable ex = httpException.getCause();
 		if (ex instanceof FileNotFoundException)
 		{
-			Toast.makeText(context, R.string.no_sd_card, Toast.LENGTH_SHORT).show();
+			showToast(HikeConstants.FTResult.NO_SD_CARD);
 		}
 		else if (ex instanceof IOException && ex.getMessage().equals(FILE_TOO_LARGE_ERROR_MESSAGE))
 		{
-			Toast.makeText(context, R.string.not_enough_space, Toast.LENGTH_SHORT).show();
+			showToast(HikeConstants.FTResult.FILE_TOO_LARGE);
 		}
 		else {
 			int errorCode = httpException.getErrorCode();
@@ -189,19 +190,19 @@ public class DownloadFileTask extends FileTransferBase
 					deleteTempFile();
 					HttpManager.getInstance().deleteRequestStateFromDB(downLoadUrl, String.valueOf(msgId));
 					// FTAnalyticEvents.logDevError(FTAnalyticEvents.DOWNLOAD_STATE_CHANGE, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "state", "CANCELLED");
-					Toast.makeText(context, R.string.download_cancelled, Toast.LENGTH_SHORT).show();
+					showToast(HikeConstants.FTResult.CANCELLED);
 				case HttpException.REASON_CODE_MALFORMED_URL:
 					Logger.e(getClass().getSimpleName(), "Invalid URL");
-					Toast.makeText(context, R.string.download_failed, Toast.LENGTH_SHORT).show();
+					showToast(HikeConstants.FTResult.DOWNLOAD_FAILED);
 					break;
 				default:
 					if (errorCode / 100 != 2)
 					{
-						Toast.makeText(context, R.string.file_expire, Toast.LENGTH_SHORT).show();
+						showToast(HikeConstants.FTResult.SERVER_ERROR);
 					}
 					else
 					{
-						Toast.makeText(context, R.string.download_failed, Toast.LENGTH_SHORT).show();
+						showToast(HikeConstants.FTResult.DOWNLOAD_FAILED);
 					}
 					break;
 			}
@@ -232,5 +233,46 @@ public class DownloadFileTask extends FileTransferBase
 			fss = HttpManager.getInstance().getRequestStateFromDB(downLoadUrl, String.valueOf(msgId));
 		}
 		return fss != null ? fss : new FileSavedState();
+	}
+
+	private void showToast(final HikeConstants.FTResult result)
+	{
+		handler.post(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				switch (result)
+				{
+				case UPLOAD_FAILED:
+					Toast.makeText(context, R.string.upload_failed, Toast.LENGTH_SHORT).show();
+					break;
+				case CARD_UNMOUNT:
+					Toast.makeText(context, R.string.card_unmount, Toast.LENGTH_SHORT).show();
+					break;
+				case READ_FAIL:
+					Toast.makeText(context, R.string.unable_to_read, Toast.LENGTH_SHORT).show();
+					break;
+				case DOWNLOAD_FAILED:
+					Toast.makeText(context, R.string.download_failed, Toast.LENGTH_SHORT).show();
+					break;
+				case FILE_SIZE_EXCEEDING:
+					Toast.makeText(context, R.string.max_file_size, Toast.LENGTH_SHORT).show();
+					break;
+				case CANCELLED:
+					Toast.makeText(context, R.string.download_cancelled, Toast.LENGTH_SHORT).show();
+					break;
+				case NO_SD_CARD:
+					Toast.makeText(context, R.string.no_sd_card, Toast.LENGTH_SHORT).show();
+					break;
+				case FILE_TOO_LARGE:
+					Toast.makeText(context, R.string.not_enough_space, Toast.LENGTH_SHORT).show();
+					break;
+				case SERVER_ERROR:
+					Toast.makeText(context, R.string.file_expire, Toast.LENGTH_SHORT).show();
+					break;
+				}
+			}
+		});
 	}
 }
