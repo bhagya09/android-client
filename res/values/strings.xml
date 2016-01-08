@@ -1504,4 +1504,6 @@
     <string name="tamil">Tamil</string>
     <string name="telugu">Telugu</string>
     <string name="english">English</string>
+    <!--Platform notification string constants-->
+    <string name="notifTickerText">You have %1$d new messages.</string>
 </resources>

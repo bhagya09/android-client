@@ -92,6 +92,8 @@ public interface HikePlatformConstants
 	public static final String TIMESTAMP = "timestamp";
 	public static final String ASSOCIATE_CBOT = "assocCbot";
 	public static final String GAME_ACTIVE ="gameActive" ;
+	String HIKE_AFFINITY="hike_affinity";
+	String CLUB_BY_MSISDN="clubbymsisdn";
 
 	public static final class PlatformFetchType
 	{
@@ -308,5 +310,7 @@ public interface HikePlatformConstants
 	public static final String NATASHA_MSISDN = "+hike5+";
 	
 	public static final String CRICKET_HIKE_MSISDN = "+hikecricket+";
+
+	String BIG_PICTURE = "big_picture";
 
 }
