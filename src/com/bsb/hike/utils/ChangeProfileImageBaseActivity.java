@@ -151,14 +151,19 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 			return;
 		}
 
-		boolean editPic = Utils.isPhotosEditEnabled();
-		
-		Intent galleryPickerIntent = null; 
-		
-		int galleryFlags = GalleryActivity.GALLERY_CATEGORIZE_BY_FOLDERS|GalleryActivity.GALLERY_DISPLAY_CAMERA_ITEM;
+		int galleryFlags = GalleryActivity.GALLERY_CATEGORIZE_BY_FOLDERS | GalleryActivity.GALLERY_DISPLAY_CAMERA_ITEM;
 
-		galleryPickerIntent = IntentFactory.getProfilePicUpdateIntent(ChangeProfileImageBaseActivity.this, galleryFlags);
-		startActivity(galleryPickerIntent);
+		if(isPersonal)
+		{
+			Intent galleryPickerIntent = IntentFactory.getProfilePicUpdateIntent(ChangeProfileImageBaseActivity.this, galleryFlags);
+			startActivity(galleryPickerIntent);
+		}
+		else
+		{
+			CropCompression compression = new CropCompression().maxWidth(640).maxHeight(640).quality(80);
+			Intent imageChooserIntent = IntentFactory.getImageChooserIntent(ChangeProfileImageBaseActivity.this, galleryFlags, getNewProfileImagePath(true),compression, true);
+			startActivityForResult(imageChooserIntent, HikeConstants.ResultCodes.PHOTOS_REQUEST_CODE);
+		}
 	}
 
 	protected String getNewProfileImagePath(boolean useTimestamp)

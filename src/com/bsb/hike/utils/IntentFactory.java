@@ -792,6 +792,29 @@ public class IntentFactory
 		return intent;
 	}
 
+	public static Intent getImageChooserIntent(Context context, int galleryFlags,String destFile, CropCompression cropCompression, boolean fixAspectRatio)
+	{
+
+		boolean allowMultiSelect = (galleryFlags & GalleryActivity.GALLERY_ALLOW_MULTISELECT) != 0;
+		boolean categorizeByFolders = (galleryFlags & GalleryActivity.GALLERY_CATEGORIZE_BY_FOLDERS) != 0;
+		boolean enableCameraPick = (galleryFlags & GalleryActivity.GALLERY_DISPLAY_CAMERA_ITEM) != 0;
+
+		Intent intent = new Intent(context, GalleryActivity.class);
+		Bundle b = new Bundle();
+		b.putBoolean(GalleryActivity.DISABLE_MULTI_SELECT_KEY, !allowMultiSelect);
+		b.putBoolean(GalleryActivity.FOLDERS_REQUIRED_KEY, categorizeByFolders);
+		b.putBoolean(GalleryActivity.ENABLE_CAMERA_PICK, enableCameraPick);
+
+		ArrayList<Intent> destIntents = new ArrayList<Intent>();
+
+		destIntents.add(getCropActivityIntent(context,null,destFile,cropCompression,true,fixAspectRatio));
+
+		b.putParcelableArrayList(HikeBaseActivity.DESTINATION_INTENT, destIntents);
+
+		intent.putExtras(b);
+		return intent;
+	}
+
 	public static void openConnectedApps(Context appContext)
 	{
 		appContext.startActivity(new Intent(appContext, ConnectedAppsActivity.class));
