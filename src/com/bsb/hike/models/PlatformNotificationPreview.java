@@ -47,7 +47,6 @@ public class PlatformNotificationPreview
     public static class PlatformNotificationPreviewBuilder
     {
         public Boolean clubByMsisdn;
-        public Boolean clubAll;
         public String msisdn;
         public String title;
         public String body;

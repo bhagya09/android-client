@@ -3498,6 +3498,7 @@ public class MqttMessagesManager
 							if(!data.optBoolean(HikePlatformConstants.HIKE_AFFINITY))
 							{
 								HikeNotification.getInstance().showPlatformNotification(data, jsonObj.optString(HikeConstants.FROM));
+								Utils.rearrangeChat(destination, rearrangeChat, updateUnreadCount);
 							}
 							else
 							{

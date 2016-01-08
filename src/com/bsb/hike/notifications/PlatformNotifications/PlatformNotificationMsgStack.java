@@ -39,7 +39,7 @@ public class PlatformNotificationMsgStack
 
     private final LinkedHashMap<String, LinkedList<PlatformNotificationPreview>> mMessagesMap;
 
-    private final static int MAX_LINES = 7;
+    private final static int MAX_LINES = 4;
 
     private final Context mContext;
 
@@ -50,6 +50,8 @@ public class PlatformNotificationMsgStack
     private String msisdn;
 
     private ArrayList<SpannableString> mBigTextList;
+
+    private final int MAX_DISTINCT_NOTIFS = 7;
 
     public static PlatformNotificationMsgStack getInstance()
     {
@@ -75,7 +77,7 @@ public class PlatformNotificationMsgStack
             @Override
             protected boolean removeEldestEntry(java.util.Map.Entry<String, LinkedList<PlatformNotificationPreview>> eldest)
             {
-                return size() > MAX_LINES;
+                return size() > MAX_DISTINCT_NOTIFS;
             }
         };
         Logger.d("notification", "PlatformNotificationMsgStack....size is " + mMessagesMap.size());
@@ -96,7 +98,7 @@ public class PlatformNotificationMsgStack
     {
         msisdn = notif.getMsisdn();
         LinkedList list = mMessagesMap.get(notif.getMsisdn());
-        ;
+        totalNewMessages++;
         if (list != null)
         {
             list.add(notif);
@@ -105,7 +107,6 @@ public class PlatformNotificationMsgStack
                 // Move the conversation map to first index
                 LinkedList<PlatformNotificationPreview> lastModifiedMapList = mMessagesMap.remove(notif.getMsisdn());
                 mMessagesMap.put(msisdn, lastModifiedMapList);
-                totalNewMessages++;
             }
         }
         else
@@ -113,9 +114,8 @@ public class PlatformNotificationMsgStack
             list = new LinkedList();
             list.add(notif);
             mMessagesMap.put(notif.getMsisdn(), list);
-            totalNewMessages++;
         }
-        trimMessageMap();
+        trimMessageMap(msisdn);
         if (mTickerText != null)
         {
             mTickerText.append("\n" + HikeNotificationUtils.getNameForMsisdn(msisdn) + " - " + notif.getBody());
@@ -132,33 +132,19 @@ public class PlatformNotificationMsgStack
         return mMessagesMap.size() == 1 ? true : false;
     }
 
-    private void trimMessageMap()
+    private void trimMessageMap(String argMsisdn)
     {
-        boolean trimmedAll = false;
-        Iterator<Map.Entry<String, LinkedList<PlatformNotificationPreview>>> mapIterator = mMessagesMap.entrySet().iterator();
-
-        while (totalNewMessages > MAX_LINES && !trimmedAll)
+        LinkedList<PlatformNotificationPreview> ll = mMessagesMap.get(argMsisdn);
+        if(ll== null)
         {
-            while (mapIterator.hasNext())
-            {
-                Map.Entry<String, LinkedList<PlatformNotificationPreview>> entry = mapIterator.next();
-                if (entry.getValue().size() > 1)
-                {
-                    // Remove first message
-                    entry.getValue().removeFirst();
-                    return;
-                }
-            }
-
-            trimmedAll = true;
+            return;
         }
+       if(ll.size() > MAX_LINES)
+       {
+           ll.removeFirst();
+       }
     }
 
-    /**
-     * Creates big text string based on notification messages stack
-     *
-     * @return
-     */
 
     /**
      * Clear all messages in the notifications stack
@@ -179,6 +165,12 @@ public class PlatformNotificationMsgStack
     {
         return mMessagesMap.get(msisdn).size();
     }
+
+    /**
+     * Creates big text string based on notification messages stack
+     *
+     * @return
+     */
 
     public List<SpannableString> getBigTextList(String argMsisdn)
     {
