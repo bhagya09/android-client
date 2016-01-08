@@ -461,6 +461,11 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		{
 			webView.stopLoading();
 			webView.onActivityDestroyed();
+
+			if (mode == SERVER_CONTROLLED_WEB_URL_MODE || mode == WEB_URL_MODE)
+			{
+				webView.clearWebViewCache(true);
+			}
 		}
 		
 		if (mActionBar != null)

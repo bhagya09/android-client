@@ -250,7 +250,6 @@ public class CustomWebView extends WebView
 		}
 
 		stopLoading();
-		clearCache(true);
 		clearHistory();
 		setConfigCallback(null);
 		if (ON_PAUSE_METHOD != null)
@@ -378,6 +377,14 @@ public class CustomWebView extends WebView
 	public static void setApplyWhiteScreenFix(boolean enable)
 	{
 		applyWhiteScreenFix = enable;
+	}
+
+	public void clearWebViewCache(boolean includeDiskFiles)
+	{
+		if (applyWhiteScreenFix)
+		{
+			this.clearCache(includeDiskFiles);
+		}
 	}
 
 }
