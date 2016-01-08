@@ -5,7 +5,6 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
 import android.support.annotation.Nullable;
-import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.WindowManager;
@@ -40,8 +39,6 @@ public class CustomWebView extends WebView
 	private static final Method ON_PAUSE_METHOD = findOnPauseMethod();
 
 	private static final Method ON_RESUME_METHOD = findOnResumeMethod();
-
-	String suspendedUrl = "";
 
 	// Custom WebView to stop background calls when moves out of view.
 	public CustomWebView(Context context)
@@ -189,7 +186,7 @@ public class CustomWebView extends WebView
 			{
 				PlatformUtils.sendPlatformCrashAnalytics("PackageManager.NameNotFoundException");
 			}
-			
+
 			super.loadData(data, mimeType, encoding);
 		}
 	}
@@ -235,7 +232,7 @@ public class CustomWebView extends WebView
 	{
 		return this.isShowing;
 	}
-	
+
 	public boolean isWebViewDestroyed()
 	{
 		return this.isDestroyed;
@@ -267,8 +264,7 @@ public class CustomWebView extends WebView
 
 		else
 		{
-			suspendedUrl = getUrl();
-			loadUrl("about:blank");
+			this.onPause();
 		}
 
 	}
@@ -297,11 +293,9 @@ public class CustomWebView extends WebView
 
 		else
 		{
-			if (!TextUtils.isEmpty(suspendedUrl))
-			{
-				loadUrl(suspendedUrl);
-			}
+			this.onResume();
 		}
+
 	}
 
 	public void setConfigCallback(WindowManager windowManager)
