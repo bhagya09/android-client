@@ -1324,6 +1324,32 @@ public class HikeNotification
 				argAvatarDrawable, forceNotPlaySound, retryCount, isSilentNotification, false);
 
 	}
+	/*
+	{
+  "f": "+hikegames+",
+  "d": {
+    "u": "+hikegames+",
+    "silent": "false",
+    "md": {
+      "hm": "This is hm2",
+      "notifData": {}
+    },
+    "i": 1452057426,
+    "uuc": true,
+    "rearrange_chat": true,
+    "push": true,
+    "b": "This is notif subtext",
+    "hike_affinity": false,
+    "clubbymsisdn" : false,
+    "type": 0,
+    "heads_up": true,
+    "led_light": "#ffffff",
+    "big_picture": ""
+  },
+  "t": "popup",
+  "st": "notif"
+}
+	 */
 	public void showPlatformNotification(JSONObject jsonObject, String msisdn){
 		try{
 			Drawable avatarDrawable = Utils.getAvatarDrawableForNotification(context, msisdn, false);
