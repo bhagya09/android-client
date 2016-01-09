@@ -35,6 +35,8 @@ import android.widget.Toast;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
+import com.bsb.hike.bots.BotInfo;
+import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.Conversation.OneToNConversation;
 import com.bsb.hike.models.HikeHandlerUtil;
@@ -1417,6 +1419,11 @@ public class HikeBitmapFactory
 			GroupDetails groupDetails = ContactManager.getInstance().getGroupDetails(msisdn);
 
 			contactName = groupDetails.getGroupName();
+		}
+		else if(BotUtils.isBot(msisdn))
+		{
+			BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
+			contactName = botInfo.getConversationName();
 		}
 		else
 		{
