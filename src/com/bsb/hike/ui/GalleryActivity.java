@@ -16,6 +16,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
@@ -32,7 +33,6 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
-import com.bsb.hike.cropimage.HikeCropActivity;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
@@ -101,7 +101,7 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 
 	private boolean disableMultiSelect;
 
-	public static final String ALL_IMAGES_BUCKET_NAME = "All images";
+	public static final String ALL_IMAGES_BUCKET_NAME = "All photos";
 
 	public static final String CAMERA_TILE = "gallery_tile_camera";
 
@@ -371,18 +371,25 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 		actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
 		actionBarView = LayoutInflater.from(this).inflate(R.layout.photos_action_bar, null);
 		actionBarView.setBackgroundResource(android.R.color.transparent);
-	
+
 		TextView titleView = (TextView) actionBarView.findViewById(R.id.title);
 
-		titleView.setText(getString(R.string.photo_gallery_choose_pic));
+		if (isInsideAlbum && !TextUtils.isEmpty(albumTitle))
+		{
+			titleView.setText(albumTitle);
+		}
+		else
+		{
+			titleView.setText(getString(R.string.photo_gallery_choose_pic));
+		}
 
 		titleView.setVisibility(View.VISIBLE);
 
 		actionBar.setCustomView(actionBarView);
 		actionBar.setDisplayHomeAsUpEnabled(true);
-		Toolbar parent=(Toolbar)actionBarView.getParent();
-		parent.setContentInsetsAbsolute(0,0);
-		
+		Toolbar parent = (Toolbar) actionBarView.getParent();
+		parent.setContentInsetsAbsolute(0, 0);
+
 	}
 
 	private void setupMultiSelectActionBar()

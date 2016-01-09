@@ -862,7 +862,6 @@
     <string name="photo_dp_saved_sub">Lookin\' good</string>
     <string name="photo_dp_save_error">Couldn\'t set profile photo</string>
     <string name="photo_dp_save_error_sub">Tap to retry</string>
-    <string name="photo_gallery_choose_pic">Choose a photo</string>
     <string name="cropping_image">Cropping image..</string>
     <string name="home_search_empty_text">Your search for \'%1$s\' did not match any contacts.</string>
     <string name="voip_mic_error">Unable to start mic. This call may not work.</string>
@@ -1508,4 +1507,5 @@
     <string name="timeline_post_timeout">Your photos will be posted shortly</string>
     <string name="timeline_post_multimsg">Only images can be posted to Timeline. Discarded other messages</string>
     <string name="crop">Crop</string>
+    <string name="photo_gallery_choose_pic">Photos</string>
 </resources>
