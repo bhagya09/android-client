@@ -56,13 +56,19 @@
 
             <RelativeLayout
                 android:id="@+id/circular_bg"
-                android:layout_width="56dp"
-                android:layout_alignTop="@+id/file_thumb"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignBottom="@+id/file_thumb"
                 android:layout_alignLeft="@+id/file_thumb"
-                android:layout_margin="47dp"
-                android:layout_height="56dp"
-                android:background="@drawable/bg_ft_progress"
+                android:layout_alignRight="@+id/file_thumb"
+                android:layout_alignTop="@+id/file_thumb"
                 android:gravity="center" >
+
+                <View
+                    android:layout_width="56dp"
+                    android:layout_height="56dp"
+                    android:layout_centerInParent="true"
+                    android:background="@drawable/bg_ft_progress" />
 
                 <ProgressBar
                     android:id="@+id/initializing"
