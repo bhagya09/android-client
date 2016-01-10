@@ -950,7 +950,7 @@ public class PlatformUtils
 		return mArray;
 	}
 
-	public static JSONArray trimFilePath(JSONArray mArray)
+	public static JSONArray trimFilePath(JSONArray mArray,String pathToBeTrimmedOut)
 	{
 		JSONArray trimmedArray = new JSONArray();
 		for (int i = 0; i < mArray.length(); i++)
@@ -959,7 +959,7 @@ public class PlatformUtils
 			try
 			{
 				path = mArray.get(i).toString();
-				path = path.replaceAll(PlatformContentConstants.PLATFORM_CONTENT_DIR, "");
+				path = path.replaceAll(pathToBeTrimmedOut, "");
 				path = path.replaceAll(HikePlatformConstants.FILE_DESCRIPTOR, "");
 				trimmedArray.put(path);
 			}

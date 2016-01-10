@@ -1976,12 +1976,15 @@ public class MqttMessagesManager
 			boolean doNotify = data.optBoolean(HikeConstants.MqttMessageTypes.NOTIFY_MICRO_APP_STATUS);
 			if(doNotify)
 			{
-				JSONArray mArray = PlatformUtils.readFileList(PlatformContentConstants.PLATFORM_CONTENT_DIR, false);
-				String sentData = PlatformUtils.trimFilePath(mArray).toString();
+                // nmapp packet would add the content of all the individual subdirectories that are in use after versioning to the analytics json being uploaded to server
 				long contentFolderLength = Utils.folderSize(new File(PlatformContentConstants.PLATFORM_CONTENT_DIR));
 				JSONObject json = new JSONObject();
 				json.putOpt(AnalyticsConstants.EVENT_KEY,AnalyticsConstants.NOTIFY_MICRO_APP_STATUS);
-				json.putOpt(AnalyticsConstants.MICRO_APP_INFO, sentData);
+                json.putOpt(AnalyticsConstants.PLATFORM_CONTENT_DIRECTORY,PlatformUtils.trimFilePath(PlatformUtils.readFileList(PlatformContentConstants.PLATFORM_CONTENT_DIR, false),PlatformContentConstants.PLATFORM_CONTENT_DIR).toString());
+                json.putOpt(AnalyticsConstants.HIKE_MICRO_APPS_DIRECTORY,PlatformUtils.trimFilePath(PlatformUtils.readFileList(PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.HIKE_MICRO_APPS, false),PlatformContentConstants.PLATFORM_CONTENT_DIR  + PlatformContentConstants.HIKE_MICRO_APPS).toString());
+                json.putOpt(AnalyticsConstants.GAMES_DIRECTORY,PlatformUtils.trimFilePath(PlatformUtils.readFileList(PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.HIKE_MICRO_APPS + PlatformContentConstants.HIKE_GAMES, false),PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.HIKE_MICRO_APPS + PlatformContentConstants.HIKE_GAMES).toString());
+                json.putOpt(AnalyticsConstants.MAPPS_DIRECTORY,PlatformUtils.trimFilePath(PlatformUtils.readFileList(PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.HIKE_MICRO_APPS + PlatformContentConstants.HIKE_MAPPS, false),PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.HIKE_MICRO_APPS + PlatformContentConstants.HIKE_MAPPS).toString());
+                json.putOpt(AnalyticsConstants.POPUP_DIRECTORY,PlatformUtils.trimFilePath(PlatformUtils.readFileList(PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.HIKE_MICRO_APPS + PlatformContentConstants.HIKE_ONE_TIME_POPUPS, false),PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.HIKE_MICRO_APPS + PlatformContentConstants.HIKE_ONE_TIME_POPUPS).toString());
 				json.putOpt(AnalyticsConstants.FILE_SIZE, contentFolderLength);
 				HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.MICRO_APP_INFO, json);
 			}

@@ -100,7 +100,6 @@ class PlatformContentCache
 		String microAppPath = PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.HIKE_MICRO_APPS;
 		String microAppName = content.getContentData().cardObj.getAppName();
 
-
         microAppPath = PlatformUtils.generateMappUnZipPathForBotType(content.getBotType(),microAppPath,microAppName);
 
 		File file = new File(microAppPath, content.getContentData().getTag());

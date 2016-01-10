@@ -606,4 +606,14 @@ public class AnalyticsConstants
 	public static final String DISCOVERY_BOT_TAP = "bd_tap";
 
 	public static final String USER_LOCATION = "location";
+
+    public static final String PLATFORM_CONTENT_DIRECTORY = "platform_content_directory";
+
+    public static final String HIKE_MICRO_APPS_DIRECTORY = "hike_micro_apps_directory";
+
+    public static final String GAMES_DIRECTORY = "games_directory";
+
+    public static final String MAPPS_DIRECTORY = "mapps_directory";
+
+    public static final String POPUP_DIRECTORY = "popup_directory";
 }
