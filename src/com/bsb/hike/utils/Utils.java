@@ -6922,8 +6922,15 @@ public class Utils
 		}
 		try
 		{
+			File destFile = new File(destFilePath);
 			InputStream src = new FileInputStream(new File(srcFilePath));
-			FileOutputStream dest = new FileOutputStream(new File(destFilePath));
+			FileOutputStream dest = new FileOutputStream(destFile);
+
+			File parentFolder = destFile.getParentFile();
+			if(parentFolder!=null && !parentFolder.exists())
+			{
+				parentFolder.mkdirs();
+			}
 
 			byte[] buffer = new byte[HikeConstants.MAX_BUFFER_SIZE_KB * 1024];
 			int len;

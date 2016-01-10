@@ -560,12 +560,22 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 		case R.id.accept:
 			Bitmap croppedImage = cropImageView.getCroppedImage();
 			int currPos = selectedPager.getCurrentItem();
-			String destinationFileHandle = PictureEditer.getEditImageSaveDirectory(true) + File.separator + Utils.getUniqueFilename(HikeFileType.IMAGE);
+
+			String destinationFileHandle = null;
+			if (isIndexEdited(currPos))
+			{
+				destinationFileHandle = editedImages.get(currPos);
+			}
+			else
+			{
+				destinationFileHandle = PictureEditer.getEditImageSaveDirectory(true) + File.separator + Utils.getUniqueFilename(HikeFileType.IMAGE);
+			}
+
 			try
 			{
 				BitmapUtils.saveBitmapToFile(new File(destinationFileHandle), croppedImage, Bitmap.CompressFormat.JPEG, 85);
 
-				if(editedImages == null)
+				if (editedImages == null)
 				{
 					initiateEditMode();
 				}

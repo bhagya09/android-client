@@ -889,8 +889,6 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 				runOnUiThread(suUploadTaskFinishRunnable);
 				suUploadTaskFinishRunnable = null;
 			}
-
-			new File(mImagePath).delete();
 		}
 	}
 	
