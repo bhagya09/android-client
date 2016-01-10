@@ -3742,4 +3742,9 @@ public class HikeConstants
 
 	public static final String WHITE_SCREEN_FIX = "w_s_f";
 
+	public static final String CHAT_OPENING_BENCHMARK = "chatOpeningBenchmark";
+	
+	public static final String CHAT_SCROLL_FETCH_MESSAGES_FROM_DB_BENCHMARK = "chatScrollMsgDBBenchmark";
+	
+	public static final String APP_OPENING_BENCHMARK = "appOpeningBenchmark";
 }
