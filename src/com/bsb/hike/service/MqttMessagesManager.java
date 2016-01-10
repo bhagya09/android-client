@@ -2591,11 +2591,10 @@ public class MqttMessagesManager
 		{
 			Utils.setSharedPrefValue(context, HikeConstants.ENABLE_KNOWN_NUMBER_CARD_PREF, data.optBoolean(HikeConstants.ENABLE_KNOWN_NUMBER_CARD_PREF, true));
 		}
-		if (data.has(StickyCaller.SHOW_FREEVIEW))
+		if (data.has(StickyCaller.SHOW_FREEMESSAGE))
 		{
-			HikeSharedPreferenceUtil.getInstance().saveData(StickyCaller.SHOW_FREEVIEW, data.optBoolean(StickyCaller.SHOW_FREEVIEW, true));
+			HikeSharedPreferenceUtil.getInstance().saveData(StickyCaller.SHOW_FREEMESSAGE, data.optBoolean(StickyCaller.SHOW_FREEMESSAGE, true));
 		}
-
 		if (data.has(StickyCaller.SHOW_FREECALL))
 		{
 			HikeSharedPreferenceUtil.getInstance().saveData(StickyCaller.SHOW_FREECALL, data.optBoolean(StickyCaller.SHOW_FREECALL, true));
