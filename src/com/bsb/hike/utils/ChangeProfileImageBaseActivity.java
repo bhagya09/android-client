@@ -55,6 +55,7 @@ import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
 import com.bsb.hike.ui.GalleryActivity;
 import com.bsb.hike.ui.PictureEditer;
+import com.bsb.hike.ui.ProfilePicActivity;
 import com.bsb.hike.ui.fragments.ImageViewerFragment;
 import com.bsb.hike.ui.fragments.ShareLinkFragment;
 import com.bsb.hike.ui.fragments.ImageViewerFragment.DisplayPictureEditListener;
@@ -228,17 +229,10 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 			}
 			if (!isPicasaImage)
 			{
-				if(Utils.isPhotosEditEnabled())
-				{
-					startActivity(IntentFactory.getPictureEditorActivityIntent(ChangeProfileImageBaseActivity.this, path, true, getNewProfileImagePath(true), true));
+					Intent profilePicIntent = new Intent(ChangeProfileImageBaseActivity.this, ProfilePicActivity.class);
+					profilePicIntent.putExtra(HikeMessengerApp.FILE_PATH, path);
+					startActivity(profilePicIntent);
 					finish();
-				}
-				else
-				{
-					CropCompression compression = new CropCompression().maxWidth(640).maxHeight(640).quality(80);
-					Intent cropIntent = IntentFactory.getCropActivityIntent(ChangeProfileImageBaseActivity.this, path, getNewProfileImagePath(true), compression,false,true);
-					startActivityForResult(cropIntent, HikeConstants.CROP_RESULT);
-				}
 			}
 			else
 			{
