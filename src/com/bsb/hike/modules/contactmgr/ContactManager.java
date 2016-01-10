@@ -22,6 +22,7 @@ import java.util.regex.Pattern;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
@@ -2417,9 +2418,23 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 		return HikeUserDatabase.getInstance().getCallerBlockContactCursor();
 	}
 
-	public int updateBlockStatusIntoCallerTable(String msisdn, int isBlock)
-	{
-		return HikeUserDatabase.getInstance().updateBlockStatusIntoCallerTable(msisdn, isBlock);
+	public int updateBlockStatusIntoCallerTable(String msisdn, ContentValues contentValues) {
+		return HikeUserDatabase.getInstance().updateBlockStatusIntoCallerTable(msisdn, contentValues);
 	}
+
+	public Cursor getAllUnsyncedContactCursor() {
+		return HikeUserDatabase.getInstance().getAllUnsyncedContactCursor();
+	}
+
+	public void updateCallerSyncStatus(JSONObject callerSyncJSON)
+	{
+		HikeUserDatabase.getInstance().updateCallerSyncStatus(callerSyncJSON);
+	}
+
+	public void insertAllBlockedContactsIntoCallerTable(ArrayList<CallerContentModel> callerContent)
+	{
+		HikeUserDatabase.getInstance().insertAllBlockedContactsIntoCallerTable(callerContent);
+	}
+
 }
 

@@ -3,6 +3,7 @@ package com.bsb.hike.modules.httpmgr.hikehttp;
 import android.text.TextUtils;
 
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.chatHead.StickyCaller;
 import com.bsb.hike.modules.httpmgr.Header;
 import com.bsb.hike.modules.httpmgr.HttpUtils;
 import com.bsb.hike.modules.httpmgr.RequestToken;
@@ -310,6 +311,17 @@ public class HttpRequests
 		return requestToken;
 	}
 
+	public static RequestToken getBlockedCallerList(String url, IRequestListener requestListener, int noOfRetry, int retryDelay, float backOffMultiplier)
+	{
+		RequestToken requestToken = new JSONObjectRequest.Builder()
+				.setUrl(url)
+				.setRetryPolicy(new BasicRetryPolicy(noOfRetry, retryDelay, backOffMultiplier))
+				.setRequestListener(requestListener)
+				.setRequestType(REQUEST_TYPE_SHORT)
+				.build();
+		return requestToken;
+	}
+
 	public static RequestToken postPlatformUserIdForPartialAddressBookFetchRequest(String url,JSONObject json, IRequestListener requestListener, List<Header> headers)
 	{
 		JsonBody body = new JsonBody(json);
@@ -325,13 +337,13 @@ public class HttpRequests
 		return requestToken;
 	}
 
-	public static RequestToken postCallerMsisdn(String url, JSONObject json, IRequestListener requestListener, int delay, int multiplier, boolean responseOnUiThread)
+	public static RequestToken postCallerMsisdn(String url, JSONObject json, IRequestListener requestListener, int noOfRetry, int delay, float multiplier, boolean responseOnUiThread)
 	{		
 		JsonBody body = new JsonBody(json);
 		RequestToken requestToken = new JSONObjectRequest.Builder()
 				.setUrl(url)
 				.post(body)
-				.setRetryPolicy(new BasicRetryPolicy(HikePlatformConstants.NUMBER_OF_RETRIES, delay, multiplier))
+				.setRetryPolicy(new BasicRetryPolicy(noOfRetry, delay, multiplier))
 				.setRequestListener(requestListener)
 				.setRequestType(REQUEST_TYPE_SHORT)
 				.setResponseOnUIThread(responseOnUiThread)

@@ -45,15 +45,17 @@ import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.chatHead.CallerContentModel;
 import com.bsb.hike.chatHead.ChatHeadUtils;
+import com.bsb.hike.chatHead.StickyCaller;
 import com.bsb.hike.db.DBConstants;
 import com.bsb.hike.db.DbException;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.models.FtueContactsData;
 import com.bsb.hike.platform.HikePlatformConstants;
-import com.bsb.hike.platform.HikeUser;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
+import com.squareup.okhttp.Call;
 
 class HikeUserDatabase extends SQLiteOpenHelper
 {
@@ -285,7 +287,7 @@ class HikeUserDatabase extends SQLiteOpenHelper
 
 		String hikeCallerTable = DBConstants.CREATE_TABLE + DBConstants.HIKE_USER.HIKE_CALLER_TABLE + " (" + BaseColumns._ID + " INTEGER , " + DBConstants.MSISDN + " TEXT PRIMARY KEY , " + DBConstants.NAME
 				+ " TEXT NOT NULL, " + DBConstants.HIKE_USER.LOCATION + " TEXT, " + DBConstants.HIKE_USER.IS_ON_HIKE + " INTEGER DEFAULT 0, " + DBConstants.HIKE_USER.IS_SPAM + " INTEGER DEFAULT 0, "
-				+ DBConstants.HIKE_USER.IS_BLOCK + " INTEGER DEFAULT 0," + DBConstants.HIKE_USER.SPAM_COUNT + " INTEGER DEFAULT 0," + DBConstants.HIKE_USER.CREATION_TIME + " INTEGER, " + DBConstants.HIKE_USER.ON_HIKE_TIME + " INTEGER" + ")";
+				+ DBConstants.HIKE_USER.IS_BLOCK + " INTEGER DEFAULT 0," + DBConstants.HIKE_USER.SPAM_COUNT + " INTEGER DEFAULT 0," + DBConstants.HIKE_USER.CREATION_TIME + " INTEGER, " + DBConstants.HIKE_USER.ON_HIKE_TIME + " INTEGER, " + DBConstants.HIKE_USER.IS_SYNCED + " INTEGER DEFAULT 1 "+ ")";
 
 		return hikeCallerTable;
 	}
@@ -298,14 +300,14 @@ class HikeUserDatabase extends SQLiteOpenHelper
 			cursor.moveToFirst();
 			CallerContentModel callerContentModel = new CallerContentModel();
 			callerContentModel
-					.setBlock((!cursor.isNull(cursor.getColumnIndex(DBConstants.HIKE_USER.IS_BLOCK)) && (cursor.getInt(cursor.getColumnIndex(DBConstants.HIKE_USER.IS_BLOCK)) == 1))
+					.setBlock((!cursor.isNull(cursor.getColumnIndex(DBConstants.HIKE_USER.IS_BLOCK)) && (cursor.getInt(cursor.getColumnIndex(DBConstants.HIKE_USER.IS_BLOCK)) == ChatHeadUtils.VALUE_TRUE))
 							? true : false);
 			callerContentModel.setFullName(cursor.getString(cursor.getColumnIndex(DBConstants.NAME)));
 			callerContentModel.setIsOnHike(
-					(!cursor.isNull(cursor.getColumnIndex(DBConstants.HIKE_USER.IS_ON_HIKE)) && (cursor.getInt(cursor.getColumnIndex(DBConstants.HIKE_USER.IS_ON_HIKE)) == 1))
+					(!cursor.isNull(cursor.getColumnIndex(DBConstants.HIKE_USER.IS_ON_HIKE)) && (cursor.getInt(cursor.getColumnIndex(DBConstants.HIKE_USER.IS_ON_HIKE)) == ChatHeadUtils.VALUE_TRUE))
 							? true : false);
 			callerContentModel
-					.setIsSpam((!cursor.isNull(cursor.getColumnIndex(DBConstants.HIKE_USER.IS_SPAM)) && (cursor.getInt(cursor.getColumnIndex(DBConstants.HIKE_USER.IS_SPAM)) == 1))
+					.setIsSpam((!cursor.isNull(cursor.getColumnIndex(DBConstants.HIKE_USER.IS_SPAM)) && (cursor.getInt(cursor.getColumnIndex(DBConstants.HIKE_USER.IS_SPAM)) == ChatHeadUtils.VALUE_TRUE))
 							? true : false);
 			callerContentModel.setLocation(cursor.getString(cursor.getColumnIndex(DBConstants.HIKE_USER.LOCATION)));
 			callerContentModel.setSpamCount(
@@ -326,8 +328,52 @@ class HikeUserDatabase extends SQLiteOpenHelper
 
 	public Cursor getCallerBlockContactCursor()
 	{
-
 		Cursor cursor =  mDb.query(DBConstants.HIKE_USER.HIKE_CALLER_TABLE, new String[]{DBConstants.MSISDN, DBConstants.NAME, DBConstants.HIKE_USER.IS_BLOCK, BaseColumns._ID}, DBConstants.HIKE_USER.IS_BLOCK + "=? ", new String[] {"1"}, null, null, DBConstants.NAME + " ASC", null);
+		cursor.moveToFirst();
+		return cursor;
+	}
+
+	public void updateCallerSyncStatus(JSONObject callerSyncJSON)
+	{
+		JSONArray blockedArray = null;
+		JSONArray unBlockedArray = null;
+		try
+		{
+			if (callerSyncJSON.has(StickyCaller.BLOCKED_LIST))
+			{
+				blockedArray = callerSyncJSON.getJSONArray(StickyCaller.BLOCKED_LIST);
+			}
+			if (callerSyncJSON.has(StickyCaller.UNBLOCKED_LIST))
+			{
+				unBlockedArray = callerSyncJSON.getJSONArray(StickyCaller.UNBLOCKED_LIST);
+			}
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+		if (blockedArray != null && blockedArray.length() >0)
+		{
+			String blockedString = blockedArray.toString();
+			blockedString = blockedString.replace("[", "").replace("]", "");
+			ContentValues blocked = new ContentValues();
+			blocked.put(DBConstants.HIKE_USER.IS_SYNCED, ChatHeadUtils.VALUE_TRUE);
+			mDb.update(DBConstants.HIKE_USER.HIKE_CALLER_TABLE, blocked, DBConstants.HIKE_USER.IS_BLOCK + "=" + ChatHeadUtils.VALUE_TRUE + " AND " + DBConstants.MSISDN + " IN (" + blockedString + ")", null);
+		}
+		if (unBlockedArray != null && unBlockedArray.length() >0)
+		{
+			String unBlockedString = unBlockedArray.toString();
+			unBlockedString = unBlockedString.replace("[", "").replace("]", "");
+			ContentValues unBlocked = new ContentValues();
+			unBlocked.put(DBConstants.HIKE_USER.IS_SYNCED, ChatHeadUtils.VALUE_TRUE);
+			mDb.update(DBConstants.HIKE_USER.HIKE_CALLER_TABLE, unBlocked, DBConstants.HIKE_USER.IS_BLOCK + "=" + ChatHeadUtils.VALUE_FALSE + " AND " + DBConstants.MSISDN + " IN (" + unBlockedString + ")", null);
+		}
+	}
+
+
+	public Cursor getAllUnsyncedContactCursor()
+	{
+		Cursor cursor =  mDb.query(DBConstants.HIKE_USER.HIKE_CALLER_TABLE, new String[]{DBConstants.MSISDN, DBConstants.HIKE_USER.IS_BLOCK}, DBConstants.HIKE_USER.IS_SYNCED + "=? ", new String[] {"0"}, null, null, null, null);
 		cursor.moveToFirst();
 		return cursor;
 	}
@@ -450,33 +496,69 @@ class HikeUserDatabase extends SQLiteOpenHelper
 	}
 
 
+
 	public void insertIntoCallerTable(CallerContentModel callerContentModel, boolean isCompleteData)
 	{
 		if (callerContentModel != null && callerContentModel.getMsisdn() != null && callerContentModel.getFullName() != null)
 		{
-			ContentValues cv = new ContentValues();
+			ContentValues cv = getBasicContentValues(callerContentModel, isCompleteData);
 			cv.put(DBConstants.NAME, callerContentModel.getFullName());
-			cv.put(DBConstants.HIKE_USER.LOCATION, callerContentModel.getLocation());
 			cv.put(DBConstants.MSISDN, callerContentModel.getMsisdn());
-			cv.put(DBConstants.HIKE_USER.IS_ON_HIKE, callerContentModel.getIsOnHike() ? 1 : 0);
-			cv.put(DBConstants.HIKE_USER.IS_SPAM, callerContentModel.isSpam() ? 1 : 0);
 			cv.put(DBConstants.HIKE_USER.CREATION_TIME, System.currentTimeMillis());
-			cv.put(DBConstants.HIKE_USER.SPAM_COUNT, callerContentModel.getSpamCount());
-			cv.put(DBConstants.HIKE_USER.ON_HIKE_TIME, isCompleteData ? System.currentTimeMillis() : 0);
 			mDb.insertWithOnConflict(DBConstants.HIKE_USER.HIKE_CALLER_TABLE, null, cv, SQLiteDatabase.CONFLICT_REPLACE);
 		}
+	}
+
+	public void insertAllBlockedContactsIntoCallerTable(ArrayList<CallerContentModel> callerContent)
+	{
+		try
+		{
+			mDb.beginTransaction();
+			if (callerContent != null)
+			{
+				for (CallerContentModel callerContentModel : callerContent)
+				{
+					if (callerContentModel != null && callerContentModel.getMsisdn() != null && callerContentModel.getFullName() != null)
+					{
+						ContentValues cv = getBasicContentValues(callerContentModel, true);
+						cv.put(DBConstants.NAME, callerContentModel.getFullName());
+						cv.put(DBConstants.MSISDN, callerContentModel.getMsisdn());
+						cv.put(DBConstants.HIKE_USER.IS_BLOCK, callerContentModel.isBlock() ? ChatHeadUtils.VALUE_TRUE : ChatHeadUtils.VALUE_FALSE);
+						cv.put(DBConstants.HIKE_USER.CREATION_TIME, System.currentTimeMillis());
+						Logger.d("ashish", "he" + mDb.insertWithOnConflict(DBConstants.HIKE_USER.HIKE_CALLER_TABLE, null, cv, SQLiteDatabase.CONFLICT_IGNORE));
+					}
+				}
+			}
+			mDb.setTransactionSuccessful();
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CALLER_BLOKED_LIST_SYNCHED_SIGNUP, true);
+		}
+		catch (Exception e)
+		{
+
+		}
+		finally
+		{
+			mDb.endTransaction();
+		}
+
+	}
+
+	private ContentValues getBasicContentValues(CallerContentModel callerContentModel, boolean setIsOnHikeTime)
+	{
+		ContentValues cv = new ContentValues();
+		cv.put(DBConstants.HIKE_USER.IS_ON_HIKE, callerContentModel.getIsOnHike() ? ChatHeadUtils.VALUE_TRUE : ChatHeadUtils.VALUE_FALSE);
+		cv.put(DBConstants.HIKE_USER.LOCATION, callerContentModel.getLocation());
+		cv.put(DBConstants.HIKE_USER.IS_SPAM, callerContentModel.isSpam() ? ChatHeadUtils.VALUE_TRUE : ChatHeadUtils.VALUE_FALSE);
+		cv.put(DBConstants.HIKE_USER.SPAM_COUNT, callerContentModel.getSpamCount());
+		cv.put(DBConstants.HIKE_USER.ON_HIKE_TIME, setIsOnHikeTime? System.currentTimeMillis() : 0);
+		return  cv;
 	}
 
 	public void updateCallerTable(CallerContentModel callerContentModel)
 	{
 		if (callerContentModel != null && callerContentModel.getMsisdn() != null)
 		{
-			ContentValues cv = new ContentValues();
-			cv.put(DBConstants.HIKE_USER.IS_ON_HIKE, callerContentModel.getIsOnHike());
-			cv.put(DBConstants.HIKE_USER.LOCATION, callerContentModel.getLocation());
-			cv.put(DBConstants.HIKE_USER.IS_SPAM, callerContentModel.isSpam());
-			cv.put(DBConstants.HIKE_USER.SPAM_COUNT, callerContentModel.getSpamCount());
-			cv.put(DBConstants.HIKE_USER.ON_HIKE_TIME, System.currentTimeMillis());
+			ContentValues cv = getBasicContentValues(callerContentModel, true);
 			if (callerContentModel.getFullName() != null)
 			{
 				cv.put(DBConstants.HIKE_USER.CREATION_TIME, System.currentTimeMillis());
@@ -493,13 +575,11 @@ class HikeUserDatabase extends SQLiteOpenHelper
 		}
 	}
 
-	public int updateBlockStatusIntoCallerTable(String msisdn, int isBlock)
+	public int updateBlockStatusIntoCallerTable(String msisdn, ContentValues contentValues)
 	{
 		if (msisdn != null)
 		{
-			ContentValues cv = new ContentValues();
-			cv.put(DBConstants.HIKE_USER.IS_BLOCK, isBlock);
-			return mDb.update(DBConstants.HIKE_USER.HIKE_CALLER_TABLE, cv, DBConstants.MSISDN + "=? ", new String[] { msisdn });
+			return mDb.update(DBConstants.HIKE_USER.HIKE_CALLER_TABLE, contentValues, DBConstants.MSISDN + "=? ", new String[] { msisdn });
 		}
 		return 0;
 	}

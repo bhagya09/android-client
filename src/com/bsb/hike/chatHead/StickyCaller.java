@@ -41,6 +41,12 @@ import com.bsb.hike.voip.VoIPUtils;
 public class StickyCaller {
 	private static final String TAG = "StickyCaller";
 
+	public static final String BLOCKED_LIST = "user_block";
+
+	public static final String UNBLOCKED_LIST = "user_unblock";
+
+	public static final String BLOCK_MSISDNS = "block_msisdns";
+
 	private static LinearLayout stickyCallerView;
 
 	private static WindowManager windowManager;
@@ -101,6 +107,8 @@ public class StickyCaller {
 
 	public static final String NAME = "name";
 
+	public static final int ONE_RETRY = 1;
+
 	public static String MISSED_CALL_TIMINGS;
 
 	public static boolean toCall = false;
@@ -112,6 +120,8 @@ public class StickyCaller {
 	private static int statusBarHeight;
 
 	public static String sms;
+
+	public static boolean contactsSynched;
 
 	public static Runnable removeViewRunnable = new Runnable() {
 
@@ -760,5 +770,5 @@ public class StickyCaller {
 			}
 		}
 	};
-	
+
 }

@@ -4,7 +4,7 @@ import java.io.File;
 import java.util.List;
 import java.util.Map;
 
-import com.bsb.hike.localisation.LocalLanguageUtils;
+import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUIDFetch;
 import org.json.JSONArray;
@@ -742,7 +742,9 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 		isAlreadyFetchingNumber = false;
 
 		settings.edit().putBoolean(StickerManager.STICKER_FOLDER_NAMES_UPGRADE_DONE, true).commit();
-		
+
+		ChatHeadUtils.syncAllCallerBlockedContacts();
+
 		return Boolean.TRUE;
 	}
 	

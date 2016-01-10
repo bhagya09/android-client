@@ -3,6 +3,7 @@ package com.bsb.hike.chatHead;
 import java.lang.reflect.Field;
 import java.sql.Date;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -40,6 +41,7 @@ import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
+import com.bsb.hike.db.DBConstants;
 import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.modules.contactmgr.ContactManager;
@@ -47,6 +49,7 @@ import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
+import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.userlogs.PhoneSpecUtils;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
@@ -114,6 +117,10 @@ public class ChatHeadUtils
 	private static final long ONE_DAY = 24 * 60 * 60 * 1000l;
 
 	public static String msisdn;
+
+	public static final int VALUE_FALSE = 0;
+
+	public static final int VALUE_TRUE = 1;
 
 
 	private static final String CHAT_HEAD_SHARABLE_PACKAGES = "["
@@ -726,7 +733,7 @@ public class ChatHeadUtils
 		{
 			iRequestListener = new CallListener();
 		}
-		RequestToken requestToken = HttpRequests.postCallerMsisdn(HttpRequestConstants.getHikeCallerUrl(), json, iRequestListener, HTTP_CALL_RETRY_DELAY,
+		RequestToken requestToken = HttpRequests.postCallerMsisdn(HttpRequestConstants.getHikeCallerUrl(), json, iRequestListener, HikePlatformConstants.NUMBER_OF_RETRIES, HTTP_CALL_RETRY_DELAY,
 				HTTP_CALL_RETRY_MULTIPLIER, true);
 		requestToken.execute();
 	}
@@ -952,4 +959,86 @@ public class ChatHeadUtils
 		}
 	}
 
+	public static void syncFromClientToServer()
+	{
+		HikeHandlerUtil.getInstance().postRunnable(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				if (!HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CALLER_BLOKED_LIST_SYNCHED, false))
+				{
+					JSONArray blockedArray = new JSONArray();
+					JSONArray unBlockedArray = new JSONArray();
+
+					Cursor cursor = ContactManager.getInstance().getAllUnsyncedContactCursor();
+					if (cursor != null)
+					{
+						if (cursor.moveToFirst())
+						{
+							while (!cursor.isAfterLast())
+							{
+								if (cursor.getInt(cursor.getColumnIndex(DBConstants.HIKE_USER.IS_BLOCK)) == ChatHeadUtils.VALUE_TRUE)
+								{
+									blockedArray.put(cursor.getString(cursor.getColumnIndex(DBConstants.MSISDN)));
+								}
+								else
+								{
+									unBlockedArray.put(cursor.getString(cursor.getColumnIndex(DBConstants.MSISDN)));
+								}
+								cursor.moveToNext();
+							}
+						}
+						else
+						{
+							HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CALLER_BLOKED_LIST_SYNCHED, true);
+							return;
+						}
+					}
+					try
+					{
+						JSONObject callerSyncJson = new JSONObject();
+						if (blockedArray.length() != 0)
+						{
+							callerSyncJson.put(StickyCaller.BLOCKED_LIST, blockedArray);
+						}
+						if (unBlockedArray.length() != 0)
+						{
+							callerSyncJson.put(StickyCaller.UNBLOCKED_LIST, unBlockedArray);
+						}
+						if (blockedArray.length() != 0 || unBlockedArray.length() != 0)
+						{
+							IBlockRequestListener blockListener = new IBlockRequestListener(callerSyncJson);
+							RequestToken requestToken = HttpRequests.postCallerMsisdn(HttpRequestConstants.getHikeCallerBlockUrl(), callerSyncJson, blockListener, StickyCaller.ONE_RETRY,
+									ChatHeadUtils.HTTP_CALL_RETRY_DELAY, ChatHeadUtils.HTTP_CALL_RETRY_MULTIPLIER, false);
+							if (!requestToken.isRequestRunning())
+							{
+								requestToken.execute();
+							}
+						}
+						Logger.d("callerSyncJson", callerSyncJson.toString());
+					}
+					catch (JSONException e)
+					{
+						Logger.d("ChatHeadUtils", "not able to create sync json");
+					}
+				}
+			}
+		});
+
+	}
+
+	public static void syncAllCallerBlockedContacts()
+	{
+		HikeHandlerUtil.getInstance().postRunnable(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				ICallerSignUpRequestListener callerSignUpListener = new ICallerSignUpRequestListener();
+				RequestToken requestToken = HttpRequests.getBlockedCallerList(HttpRequestConstants.getBlockedCallerListUrl(), callerSignUpListener, StickyCaller.ONE_RETRY, HikePlatformConstants.RETRY_DELAY, HikePlatformConstants.BACK_OFF_MULTIPLIER);
+				requestToken.execute();
+			}
+		});
+	}
 }
