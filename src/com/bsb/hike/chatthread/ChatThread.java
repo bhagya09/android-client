@@ -1485,10 +1485,6 @@ import android.widget.Toast;
 			}
 		}
 
-		if (mShareablePopupLayout.isShowing())
-			hideKeyboardViewBehindPopup();
-		else
-			unhideKeyboardViewBehindPopup();
 		Logger.v(TAG, "Time taken to open sticker pallete : " + (System.currentTimeMillis() - time));
 	}
 	
@@ -1779,7 +1775,6 @@ import android.widget.Toast;
 	{
 		if (mShareablePopupLayout.isShowing())
 		{
-			unhideKeyboardViewBehindPopup();
 			mShareablePopupLayout.dismiss();
 			return;
 		}
@@ -4449,8 +4444,6 @@ import android.widget.Toast;
 
 	public void onPause()
 	{
-		unhideKeyboardViewBehindPopup();
-
 		pauseKeyboardResources();
 		
 		Utils.hideSoftKeyboard(activity, mComposeView);
@@ -5841,7 +5834,6 @@ import android.widget.Toast;
 		Logger.d(TAG, "newConfig : " + newConfig.toString());
 		if (mCustomKeyboard != null)
 		{
-			unhideKeyboardViewBehindPopup();
 			mCustomKeyboard.onConfigurationChanged(newConfig);
 			keyboardHeight = 0;
 		}
@@ -5992,13 +5984,6 @@ import android.widget.Toast;
 		{
 			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
 		}
-	}
-
-	private void unhideKeyboardViewBehindPopup()
-	{
-		if (keyboardParentView.getVisibility() == View.INVISIBLE)
-			keyboardParentView.setVisibility(View.VISIBLE);
-		updateKeyboardParentViewTag(null);
 	}
 
 	private void hideKeyboardViewBehindPopup()
@@ -6460,7 +6445,6 @@ import android.widget.Toast;
 		if (systemKeyboard)
 		{
 			removeKeyboardFtueIfShowing();
-			unhideKeyboardViewBehindPopup();
 			hideKptKeyboard();
 			swtichCustomKeyboardToDefaultKeyboard(mComposeView);
 			unregisterCustomKeyboardEditText(R.id.msg_compose);
