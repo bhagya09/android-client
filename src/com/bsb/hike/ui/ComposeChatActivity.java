@@ -1,7 +1,6 @@
 package com.bsb.hike.ui;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -421,7 +420,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 					{
 						JSONObject msgExtrasJson = (JSONObject) multipleMsgFwdArray.get(i);
 
-						if(multipleMsgFwdArray.length() == 1 && msgExtrasJson.has(HikeConstants.MESSAGE))
+						if((multipleMsgFwdArray.length() == 1 || (multipleMsgFwdArray.length() == 2 && !imagesToShare.isEmpty())) && msgExtrasJson.has(HikeConstants.MESSAGE))
 						{
 							messageToShare = msgExtrasJson.optString(HikeConstants.MESSAGE);
 						}
@@ -442,6 +441,10 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 									imageFilePathArray.add(filePath);
 								}
 							}
+						}
+						else
+						{
+							allImages = false;
 						}
 					}
 				}
@@ -1911,14 +1914,15 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 					if(hikeFeatureInfo.getPhoneNum() == ComposeChatAdapter.HIKE_FEATURES_TIMELINE_ID)
 					{
 
-						if(!allImages)
+						if(!allImages && TextUtils.isEmpty(messageToShare))
 						{
 							Toast.makeText(ComposeChatActivity.this, R.string.timeline_post_multimsg, Toast.LENGTH_SHORT).show();
 						}
 
-						if(imagesToShare.size() == 1)
+						if (imagesToShare.size() == 1)
 						{
-							intent = IntentFactory.getPostStatusUpdateIntent(this, imageCaptions.isEmpty()?null:imageCaptions.get(0),imagesToShare.get(0),true);
+							intent = IntentFactory.getPostStatusUpdateIntent(this, imageCaptions.isEmpty() ? messageToShare
+									: TextUtils.isEmpty(imageCaptions.get(0)) ? messageToShare : imageCaptions.get(0), imagesToShare.get(0), true);
 							intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 							startActivity(intent);
 							finish();
