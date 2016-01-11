@@ -40,7 +40,7 @@ import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.utils.Utils.ExternalStorageState;
-import com.bsb.hike.view.StickerEmoticonIconPageIndicator;
+import com.bsb.hike.view.StickerIconPageIndicator;
 
 public class StickerPicker implements OnClickListener, ShareablePopup, StickerPickerListener,TabClickListener
 {
@@ -56,8 +56,8 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 	
 	private int currentConfig = Configuration.ORIENTATION_PORTRAIT; 
 	
-	private StickerEmoticonIconPageIndicator mIconPageIndicator;
-	
+	private StickerIconPageIndicator mIconPageIndicator;
+
 	private static final String TAG = "StickerPicker";
 	
 	private ViewPager mViewPager;
@@ -211,7 +211,7 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 
 		stickerAdapter = new StickerAdapter(mContext, this);
 
-		mIconPageIndicator = (StickerEmoticonIconPageIndicator) view.findViewById(R.id.sticker_icon_indicator);
+		mIconPageIndicator = (StickerIconPageIndicator) view.findViewById(R.id.sticker_icon_indicator);
 		
 		View shopIcon = (view.findViewById(R.id.shop_icon));
 		if (shopIcon != null)
@@ -649,7 +649,7 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 			infoIconClick();
 		}
 		setOnClick();
-		StickerEmoticonIconPageIndicator.registerChatHeadTabClickListener(this);
+		StickerIconPageIndicator.registerChatHeadTabClickListener(this);
 	}
 	
 	public void createExternalStickerPicker(LinearLayout layout)
@@ -678,7 +678,7 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 		chatHeadTotalStickersText = (TextView)chatHeadstickerPickerView.findViewById(R.id.sticker_sent_side_text);
 		chatHeadMainText  = (TextView)chatHeadstickerPickerView.findViewById(R.id.main_text);
 		chatHeadProgressBar = (ProgressBar)chatHeadstickerPickerView.findViewById(R.id.progress_bar);
-		mIconPageIndicator = (StickerEmoticonIconPageIndicator) chatHeadstickerPickerView.findViewById(R.id.sticker_icon_indicator);
+		mIconPageIndicator = (StickerIconPageIndicator) chatHeadstickerPickerView.findViewById(R.id.sticker_icon_indicator);
 		
 	}
 
@@ -692,7 +692,7 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 
 	public void stoppingChatHeadActivity()
 	{
-		StickerEmoticonIconPageIndicator.unRegisterChatHeadTabClickListener();
+		StickerIconPageIndicator.unRegisterChatHeadTabClickListener();
 		releaseResources();
 	}
 
