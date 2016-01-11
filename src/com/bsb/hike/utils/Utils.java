@@ -7787,7 +7787,7 @@ public class Utils
 	public static void setLocalizationEnable(boolean enable)
 	{
 		if (!enable)
-			LocalLanguageUtils.setApplicationLocalLanguage(LocalLanguage.PhoneLangauge);
+			LocalLanguageUtils.setApplicationLocalLanguage(LocalLanguage.PhoneLangauge, HikeConstants.APP_LANG_CHANGED_SERVER_SWITCH);
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.LOCALIZATION_ENABLED, enable);
 	}
 
