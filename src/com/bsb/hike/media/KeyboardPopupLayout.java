@@ -535,15 +535,17 @@ public class KeyboardPopupLayout extends PopUpLayout implements OnDismissListene
 		mIsPaddingDisabled = disabled;
 	}
 
-	public void setCustomKeyBoard(boolean isCustomKeyBoard)
+	public void setCustomKeyBoard(boolean isCustomKeyBoard, int height)
 	{
 		this.isCustomKeyBoard = isCustomKeyBoard;
-	}
-	
-	public void setCustomKeyBoardHeight(int height){
-		customKeyBoardHeight=height;
+		customKeyBoardHeight = isCustomKeyBoard ? height : 0;
 	}
 
+	public void setCustomKeyBoardHeight(int height)
+	{
+		customKeyBoardHeight = height;
+	}
+	
 	public int getOriginalBottomPadding() {
 		return originalBottomPadding;
 	}
