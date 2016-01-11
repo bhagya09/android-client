@@ -47,6 +47,7 @@ import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.filetransfer.FTAnalyticEvents;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.GalleryItem;
+import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.modules.contactmgr.ContactManager;
@@ -401,7 +402,7 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
                     }
 
                     //TODO remove duplicate fileType
-                    ComposeChatActivity.FileTransferData fileTransferData = new ComposeChatActivity.FileTransferData(filePath, null, HikeFileType.IMAGE, HikeFileType.IMAGE.toString().toLowerCase(), false, -1, false, list, file,caption);
+                    ComposeChatActivity.FileTransferData fileTransferData = new ComposeChatActivity.FileTransferData(filePath, null, HikeFileType.IMAGE, HikeFileType.toString(HikeFileType.IMAGE).toLowerCase(), false, -1, false, list, file,caption);
                     ftDataList.add(fileTransferData);
                 }
 
