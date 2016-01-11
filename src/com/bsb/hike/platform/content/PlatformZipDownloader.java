@@ -182,7 +182,7 @@ public class PlatformZipDownloader
             if(TextUtils.isEmpty(msisdn))
                 return false;
 
-            unzipPath = PlatformUtils.generateMappUnZipPathForBotRequestType(mRequest.getRequestType(),unzipPath,microAppName);
+            unzipPath = PlatformUtils.generateMappUnZipPathForBotType(mRequest.getBotType(),unzipPath,microAppName);
             BotInfo currentBotInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
 
             int currentBotInfoMAppVersionCode = 0;
@@ -370,7 +370,7 @@ public class PlatformZipDownloader
 									}
 								}
 
-								String filePath = PlatformUtils.generateMappUnZipPathForBotRequestType(mRequest.getRequestType(), PlatformUtils.getMicroAppContentRootFolder(),
+								String filePath = PlatformUtils.generateMappUnZipPathForBotType(mRequest.getBotType(), PlatformUtils.getMicroAppContentRootFolder(),
 										mRequest.getContentData().cardObj.getAppName());
 								String tempPath = filePath.substring(0, filePath.length() - 1) + "_temp";
 								String originalPath = filePath.substring(0, filePath.length() - 1);
@@ -421,17 +421,17 @@ public class PlatformZipDownloader
 		String unzipPath = PlatformUtils.getMicroAppContentRootFolder() + PlatformContentConstants.TEMP_DIR_NAME + File.separator;
 
 		// To determine the path for unzipping zip files based on request type
-		switch (mRequest.getRequestType())
+		switch (mRequest.getBotType())
 		{
-		case HikePlatformConstants.PlatformMappRequestType.HIKE_MICRO_APPS:
+		case HikePlatformConstants.PlatformBotType.HIKE_MICRO_APPS:
 			break;
-		case HikePlatformConstants.PlatformMappRequestType.ONE_TIME_POPUPS:
+		case HikePlatformConstants.PlatformBotType.ONE_TIME_POPUPS:
 			unzipPath += PlatformContentConstants.HIKE_ONE_TIME_POPUPS;
 			break;
-		case HikePlatformConstants.PlatformMappRequestType.NATIVE_APPS:
+		case HikePlatformConstants.PlatformBotType.NATIVE_APPS:
 			unzipPath += PlatformContentConstants.HIKE_GAMES;
 			break;
-		case HikePlatformConstants.PlatformMappRequestType.HIKE_MAPPS:
+		case HikePlatformConstants.PlatformBotType.HIKE_MAPPS:
 			unzipPath += PlatformContentConstants.HIKE_MAPPS;
 			break;
 		}

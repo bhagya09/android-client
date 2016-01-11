@@ -469,8 +469,6 @@ public abstract class JavascriptBridge
 		}
 	}
 
-	;
-
 	public static void expand(final View v, final int targetHeight)
 	{
 		final int initHeight = v.getMeasuredHeight();

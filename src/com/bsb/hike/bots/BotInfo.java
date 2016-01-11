@@ -1,5 +1,7 @@
 package com.bsb.hike.bots;
 
+import android.text.TextUtils;
+
 import com.bsb.hike.models.Conversation.ConvInfo;
 import com.bsb.hike.platform.HikePlatformConstants;
 
@@ -46,7 +48,7 @@ public class BotInfo extends ConvInfo implements Cloneable
 	
 	private int updatedVersion;
 
-    private byte requestType;
+    private byte botType;
 
     private int mAppVersionCode;
 
@@ -58,7 +60,7 @@ public class BotInfo extends ConvInfo implements Cloneable
 
 		private String metadata, configData, notifData, helperData, botDescription;
 
-        private byte requestType = HikePlatformConstants.PlatformMappRequestType.HIKE_MICRO_APPS;
+        private byte botType = HikePlatformConstants.PlatformBotType.HIKE_MICRO_APPS;
 
 		protected InitBuilder(String msisdn)
 		{
@@ -137,9 +139,9 @@ public class BotInfo extends ConvInfo implements Cloneable
 			return getSelfObject();
 		}
 
-        public P setRequestType(byte requestType)
+        public P setBotType(byte botType)
         {
-            this.requestType = requestType;
+            this.botType = botType;
             return getSelfObject();
         }
 
@@ -275,6 +277,28 @@ public class BotInfo extends ConvInfo implements Cloneable
 		this.botDescription = builder.botDescription;
         this.mAppVersionCode = builder.mAppVersionCode;
 		this.updatedVersion = builder.updatedVersion;
+
+        // Get mAppVersionCode from the metadata to store in the Object in case of
+        if (!TextUtils.isEmpty(metadata) && mAppVersionCode <= 0)
+        {
+            int microAppVersionCode = 0;
+            try
+            {
+                JSONObject mdJsonObject = new JSONObject(metadata);
+
+                if (mdJsonObject != null)
+                {
+                    JSONObject cardObjectJson = mdJsonObject.optJSONObject(HikePlatformConstants.CARD_OBJECT);
+                    if (cardObjectJson != null)
+                        microAppVersionCode = cardObjectJson.optInt(HikePlatformConstants.MAPP_VERSION_CODE);
+                }
+            }
+            catch (JSONException e)
+            {
+                e.printStackTrace();
+            }
+            this.mAppVersionCode = microAppVersionCode;
+        }
 	}
 
 	public boolean isMessagingBot()
@@ -500,17 +524,17 @@ public class BotInfo extends ConvInfo implements Cloneable
 	}
 
     /**
-     * @return the requestType
+     * @return the botType
      */
-    public byte getRequestType(){ return requestType; }
+    public byte getBotType(){ return botType; }
 
     /**
-     * @param requestType
-     *            the requestType to set
+     * @param botType
+     *            the botType to set
      */
-    public void setRequestType(byte requestType)
+    public void setBotType(byte botType)
     {
-        this.requestType = requestType;
+        this.botType = botType;
     }
 
     /**
@@ -520,7 +544,7 @@ public class BotInfo extends ConvInfo implements Cloneable
 
     /**
      * @param mAppVersionCode
-     *            the requestType to set
+     *            the botType to set
      */
     public void setMAppVersionCode(int mAppVersionCode)
     {

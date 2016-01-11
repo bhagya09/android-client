@@ -108,7 +108,7 @@ public class PlatformContent
     /**
      * Gets well formed HTML content.
      *
-     * @param requestType
+     * @param botType
      *            the subtype of micro app
      * @param contentData
      *            the content data
@@ -118,9 +118,9 @@ public class PlatformContent
      *
      * @return the content
      */
-    public static PlatformContentRequest getContent(byte requestType,String contentData, PlatformContentListener<PlatformContentModel> listener)
+    public static PlatformContentRequest getContent(byte botType,String contentData, PlatformContentListener<PlatformContentModel> listener)
     {
-        return getContent(requestType,0, contentData, listener);
+        return getContent(botType,0, contentData, listener);
     }
 	
 	/**
@@ -153,7 +153,7 @@ public class PlatformContent
 	}
 
 	/**
-	 * @param requestType
+	 * @param botType
 	 * @param uniqueId
 	 *            - the id which you will get back once templating is finished : {@link PlatformContentModel#getUniqueId()}
 	 * @param contentData
@@ -161,10 +161,10 @@ public class PlatformContent
 	 *
 	 * @return
 	 */
-	public static PlatformContentRequest getContent(byte requestType, int uniqueId, String contentData, PlatformContentListener<PlatformContentModel> listener)
+	public static PlatformContentRequest getContent(byte botType, int uniqueId, String contentData, PlatformContentListener<PlatformContentModel> listener)
 	{
 		Logger.d("PlatformContent", "Content Dir : " + PlatformContentConstants.PLATFORM_CONTENT_DIR);
-		PlatformContentModel model = PlatformContentModel.make(uniqueId, contentData, requestType);
+		PlatformContentModel model = PlatformContentModel.make(uniqueId, contentData, botType);
 		if (model != null)
 		{
 			model.setUniqueId(uniqueId); // GSON issue
@@ -174,8 +174,8 @@ public class PlatformContent
 		if (request != null)
 		{
 			// Set the request type in PlatformContentRequest type to request type received in getContent
-            request.setRequestType(requestType);
-            request.getContentData().setRequestType(requestType);
+            request.setBotType(botType);
+            request.getContentData().setBotType(botType);
 
 			PlatformContentLoader.getLoader().handleRequest(request);
 			return request;

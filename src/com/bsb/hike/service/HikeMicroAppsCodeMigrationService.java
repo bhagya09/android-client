@@ -12,10 +12,14 @@ import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.content.PlatformContentConstants;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.Logger;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -83,11 +87,22 @@ public class HikeMicroAppsCodeMigrationService extends IntentService
 						mapForMigratedApps.put(entry.getKey(), true);
 					}
 				}
-				catch (Exception e)
+				catch (FileNotFoundException fnfe)
 				{
                     mapForMigratedApps.put(entry.getKey(), true);
-                    e.printStackTrace();
+                    Logger.e("Hike Micro apps code Migration Service File Not Found Exception" ,fnfe.toString());
+                    fnfe.printStackTrace();
 				}
+                catch (JSONException e)
+                {
+                    Logger.e("Hike Micro apps code Migration Service JSONException",e.toString());
+                    e.printStackTrace();
+                }
+                catch (IOException e)
+                {
+                    Logger.e("Hike Micro apps code Migration Service IOException",e.toString());
+                    e.printStackTrace();
+                }
 			}
 		}
 		for (Map.Entry<String, Boolean> entry : mapForMigratedApps.entrySet())

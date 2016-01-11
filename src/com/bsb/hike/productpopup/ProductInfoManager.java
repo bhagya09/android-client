@@ -29,8 +29,6 @@ import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.platform.content.PlatformContent.EventCode;
 import com.bsb.hike.platform.ContentModules.PlatformContentModel;
-import com.bsb.hike.platform.ContentModules.PlatformContentRequest;
-import com.bsb.hike.platform.ContentModules.PlatformContentModel;
 
 import com.bsb.hike.productpopup.ProductPopupsConstants.PopupStateEnum;
 import com.bsb.hike.productpopup.ProductPopupsConstants.PopupTriggerPoints;
@@ -209,7 +207,7 @@ public class ProductInfoManager
 	public void parseAndShowPopup(final ProductContentModel productContentModel, final IActivityPopup iShowPopup)
 	{
 
-		PlatformContent.getContent(HikePlatformConstants.PlatformMappRequestType.ONE_TIME_POPUPS,productContentModel.toJSONString(), new PopupContentListener(productContentModel, iShowPopup)
+		PlatformContent.getContent(HikePlatformConstants.PlatformBotType.ONE_TIME_POPUPS,productContentModel.toJSONString(), new PopupContentListener(productContentModel, iShowPopup)
 		{
 			ProductContentModel productContentModel = null;
 
