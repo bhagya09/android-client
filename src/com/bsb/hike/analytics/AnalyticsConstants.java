@@ -576,6 +576,8 @@ public class AnalyticsConstants
 	public static final String EVENT = "event";
 
 	public static final String LOG_FIELD_1 = "fld1";
+
+	public static final String LOG_FIELD_4 = "fld4";
 	
 	public static final String LOG_FIELD_5 = "fld5";
 	
@@ -604,4 +606,6 @@ public class AnalyticsConstants
 	public static final String INTERNAL_STORAGE_SPACE = "mem";
 
 	public static final String DISCOVERY_BOT_TAP = "bd_tap";
+
+	public static final String DATABASE_ERROR = "db_error";
 }

@@ -3,8 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bsb.hike"
     android:installLocation="auto"
-    android:versionCode="1578"
-    android:versionName="4.1.0.24.3.bridge_logs" >
+    android:versionCode="1579"
+    android:versionName="4.1.0.27" >
 
     <uses-sdk
         android:minSdkVersion="14"
