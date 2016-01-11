@@ -28,10 +28,6 @@ public class GalleryPagerImageLoader extends ImageWorker
 	@Override
 	public Bitmap processBitmap(String data)
 	{
-		BitmapDrawable bd = this.getImageCache().get(data);
-		if (bd != null)
-			return bd.getBitmap();
-
 		Bitmap b = HikeBitmapFactory.decodeSampledBitmapFromFile(data, (HikeConstants.HikePhotos.MAX_IMAGE_DIMEN),
 				(HikeConstants.HikePhotos.MAX_IMAGE_DIMEN), Bitmap.Config.RGB_565, options, true);
 		return b;
