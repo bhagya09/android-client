@@ -405,7 +405,7 @@ public class ChatHeadUtils
 	{
 		boolean isSnoozed = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.SNOOZE, false);
 		boolean sessionLogEnabled = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SESSION_LOG_TRACKING, false);
-		if (!Utils.isMyServiceRunning(ChatHeadService.class, HikeMessengerApp.getInstance()) && (!isSnoozed || sessionLogEnabled))
+		if (!isSnoozed || sessionLogEnabled)
 		{
 			HikeMessengerApp.getInstance().startService(new Intent(HikeMessengerApp.getInstance(), ChatHeadService.class));
 		}
@@ -413,10 +413,7 @@ public class ChatHeadUtils
 
 	public static void stopService()
 	{
-		if (Utils.isMyServiceRunning(ChatHeadService.class, HikeMessengerApp.getInstance()))
-		{
-			HikeMessengerApp.getInstance().stopService(new Intent(HikeMessengerApp.getInstance(), ChatHeadService.class));
-		}
+		HikeMessengerApp.getInstance().stopService(new Intent(HikeMessengerApp.getInstance(), ChatHeadService.class));
 	}
 
 	private static void restartService()
@@ -634,7 +631,7 @@ public class ChatHeadUtils
 		Set<String> currentPoll = ChatHeadUtils.getRunningAppPackage(ChatHeadUtils.GET_ALL_RUNNING_PROCESSES);
 		return currentPoll != null && !currentPoll.isEmpty() && !(currentPoll.size() == 1 && currentPoll.contains(HikeMessengerApp.getInstance().getPackageName()));
 	}
-	
+
 	public static boolean checkDeviceFunctionality()
 	{
 		return Utils.isIceCreamOrHigher();
