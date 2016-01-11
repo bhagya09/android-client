@@ -625,8 +625,7 @@ import android.widget.Toast;
 		fetchConversation(false);
 		uiHandler.sendEmptyMessage(SET_WINDOW_BG);
 		StickerManager.getInstance().checkAndDownLoadStickerData();
-		mShareablePopupLayout.setCustomKeyBoardHeight((keyboardHeight == 0) ? getKeyBoardAndCVHeight() : keyboardHeight);
-		mShareablePopupLayout.setCustomKeyBoard(!isSystemKeyboard());
+		mShareablePopupLayout.setCustomKeyBoard(!isSystemKeyboard(), (keyboardHeight == 0) ? getKeyBoardAndCVHeight() : keyboardHeight);
 		// if the localization ftue is not yet done with the download and install(and then change keyboard), dont let it change the keyboard now.
 		// chat thread has its own change keyboard mechanism. External change keyboard calls messes up with chat thread
 		removeLocalisationFtueKeyboardDownloadCallback();
@@ -802,6 +801,8 @@ import android.widget.Toast;
 			{
 				mShareablePopupLayout.setWindowSystemBarBgFlag(Utils.isWindowFlagEnabled(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS, activity.getWindow()));
 			}
+			
+			mShareablePopupLayout.setCustomKeyBoard(!isSystemKeyboard(), (keyboardHeight == 0) ? getKeyBoardAndCVHeight() : keyboardHeight);
 		}
 
 		else
@@ -1290,7 +1291,6 @@ import android.widget.Toast;
 			showOverflowMenu();
 			break;
 		case R.id.sticker_btn:
-			mShareablePopupLayout.setCustomKeyBoardHeight((keyboardHeight == 0) ? getKeyBoardAndCVHeight() : keyboardHeight);
 			if (mShareablePopupLayout.isBusyInOperations())
 			{//  previous task is running don't accept this event
 				return;
@@ -1485,10 +1485,6 @@ import android.widget.Toast;
 			}
 		}
 
-		if (mShareablePopupLayout.isShowing())
-			hideKeyboardViewBehindPopup();
-		else
-			unhideKeyboardViewBehindPopup();
 		Logger.v(TAG, "Time taken to open sticker pallete : " + (System.currentTimeMillis() - time));
 	}
 	
@@ -1557,10 +1553,6 @@ import android.widget.Toast;
 				Toast.makeText(activity.getApplicationContext(), R.string.some_error, Toast.LENGTH_SHORT).show();
 			}
 		}
-		if (mShareablePopupLayout.isShowing())
-			hideKeyboardViewBehindPopup();
-		else
-			unhideKeyboardViewBehindPopup();
 		Logger.v(TAG, "Time taken to open emoticon pallete : " + (System.currentTimeMillis() - time));
 	}
 
@@ -1783,7 +1775,6 @@ import android.widget.Toast;
 	{
 		if (mShareablePopupLayout.isShowing())
 		{
-			unhideKeyboardViewBehindPopup();
 			mShareablePopupLayout.dismiss();
 			return;
 		}
@@ -4453,8 +4444,6 @@ import android.widget.Toast;
 
 	public void onPause()
 	{
-		unhideKeyboardViewBehindPopup();
-
 		pauseKeyboardResources();
 		
 		Utils.hideSoftKeyboard(activity, mComposeView);
@@ -5845,7 +5834,6 @@ import android.widget.Toast;
 		Logger.d(TAG, "newConfig : " + newConfig.toString());
 		if (mCustomKeyboard != null)
 		{
-			unhideKeyboardViewBehindPopup();
 			mCustomKeyboard.onConfigurationChanged(newConfig);
 			keyboardHeight = 0;
 		}
@@ -5998,13 +5986,6 @@ import android.widget.Toast;
 		}
 	}
 
-	private void unhideKeyboardViewBehindPopup()
-	{
-		if (keyboardParentView.getVisibility() == View.INVISIBLE)
-			keyboardParentView.setVisibility(View.VISIBLE);
-		updateKeyboardParentViewTag(null);
-	}
-
 	private void hideKeyboardViewBehindPopup()
 	{
 		if (keyboardParentView.getVisibility() != View.GONE)
@@ -6048,6 +6029,9 @@ import android.widget.Toast;
 		
 		if (mShareablePopupLayout.isKeyboardOpen() && mShareablePopupLayout.isShowing())
 		{
+			if (mCustomKeyboard != null && mCustomKeyboard.isCustomKeyboardVisible()) {
+				hideKptKeyboard();
+			}
 			mShareablePopupLayout.dismiss();
 		}
 		mShareablePopupLayout.onBackPressed();
@@ -6132,7 +6116,7 @@ import android.widget.Toast;
 		if (changeKbdClicked == true)
 		{
 			changeKeyboard(!isSystemKeyboard());
-			mShareablePopupLayout.setCustomKeyBoard(isSystemKeyboard());
+			mShareablePopupLayout.setCustomKeyBoard(!isSystemKeyboard(), (keyboardHeight == 0) ? getKeyBoardAndCVHeight() : keyboardHeight);
 			changeKbdClicked = false;
 		}
 	}
@@ -6461,7 +6445,6 @@ import android.widget.Toast;
 		if (systemKeyboard)
 		{
 			removeKeyboardFtueIfShowing();
-			unhideKeyboardViewBehindPopup();
 			hideKptKeyboard();
 			swtichCustomKeyboardToDefaultKeyboard(mComposeView);
 			unregisterCustomKeyboardEditText(R.id.msg_compose);
