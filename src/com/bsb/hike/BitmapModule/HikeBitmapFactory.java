@@ -21,7 +21,6 @@ import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.LayerDrawable;
 import android.media.ExifInterface;
 import android.os.Build;
 import android.text.TextUtils;
@@ -38,7 +37,6 @@ import com.bsb.hike.R;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.models.ContactInfo;
-import com.bsb.hike.models.Conversation.OneToNConversation;
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.contactmgr.GroupDetails;
@@ -51,15 +49,13 @@ import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.TextDrawable;
 
-import org.w3c.dom.Text;
-
 public class HikeBitmapFactory
 {
 	private static final String TAG = "HikeBitmapFactory";
 
 	public static final int DEFAULT_BITMAP_COMPRESSION = 80;
 
-	private static final int NUMBER_OF_CHARS_DEFAULT_DP = 1;
+	public static final int NUMBER_OF_CHARS_DEFAULT_DP = 1;
 	
 	private static final int MEMORY_MULTIPLIIER = 8;
 		
@@ -1339,12 +1335,26 @@ public class HikeBitmapFactory
 
 	public static Drawable getDefaultTextAvatar(String text, int fontSize, int argBgColor)
 	{
+		return getDefaultTextAvatar(text, fontSize, argBgColor,false);
+	}
+
+	public static Drawable getDefaultTextAvatar(String text, int fontSize, int argBgColor, boolean isFirstName)
+	{
 		if (TextUtils.isEmpty(text))
 		{
 			return getRandomHashTextDrawable();
 		}
 
-		String initials = getNameInitialsForDefaultAv(text);
+		String initials = null;
+
+		if (isFirstName)
+		{
+			initials = Utils.getInitialsFromContactName(text);
+		}
+		else
+		{
+			initials = getNameInitialsForDefaultAv(text);
+		}
 
 		int bgColor = argBgColor;
 
@@ -1404,7 +1414,6 @@ public class HikeBitmapFactory
 		return TextDrawable.builder().buildRect(initials, bgColor);
 	}
 
-	@SuppressWarnings("unused")
 	public static String getNameInitialsForDefaultAv(String msisdn)
 	{
 		if (TextUtils.isEmpty(msisdn.trim()))
@@ -1444,40 +1453,7 @@ public class HikeBitmapFactory
 			}
 		}
 
-		if (contactName == null || TextUtils.isEmpty(contactName.trim()))
-		{
-			return "#";
-		}
-
-		String[] nameArray = contactName.trim().split(" ");
-
-		char first = nameArray[0].charAt(0);
-
-		String initials = "";
-
-		if (Character.isLetter(first))
-		{
-			initials += first;
-
-			if (NUMBER_OF_CHARS_DEFAULT_DP > 1)
-			{
-				if (nameArray.length > 1)
-				{
-					// Second is optional (only if is letter)
-					char second = nameArray[nameArray.length - 1].charAt(0);
-					if (Character.isLetter(second))
-					{
-						initials += second;
-					}
-				}
-			}
-		}
-		else
-		{
-			initials = "#";
-		}
-
-		return initials;
+		return Utils.getInitialsFromContactName(contactName);
 	}
 
 	private static int getDefaultAvatarIconResId( String msisdn, boolean hiRes)

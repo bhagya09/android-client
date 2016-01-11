@@ -7820,4 +7820,42 @@ public class Utils
 	{
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CUSTOM_KEYBOARD_SUPPORTED, supported);
 	}
+
+	public static String getInitialsFromContactName(String contactName)
+	{
+		if (contactName == null || TextUtils.isEmpty(contactName.trim()))
+		{
+			return "#";
+		}
+
+		String[] nameArray = contactName.trim().split(" ");
+
+		char first = nameArray[0].charAt(0);
+
+		String initials = "";
+
+		if (Character.isLetter(first))
+		{
+			initials += first;
+
+			if (HikeBitmapFactory.NUMBER_OF_CHARS_DEFAULT_DP > 1)
+			{
+				if (nameArray.length > 1)
+				{
+					// Second is optional (only if is letter)
+					char second = nameArray[nameArray.length - 1].charAt(0);
+					if (Character.isLetter(second))
+					{
+						initials += second;
+					}
+				}
+			}
+		}
+		else
+		{
+			initials = "#";
+		}
+
+		return initials;
+	}
 }
