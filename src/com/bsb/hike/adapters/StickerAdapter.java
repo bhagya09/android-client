@@ -35,9 +35,9 @@ import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.CustomFontButton;
-import com.bsb.hike.view.StickerEmoticonIconPageIndicator.StickerEmoticonIconPagerAdapter;
+import com.bsb.hike.view.StickerIconPageIndicator.StickerIconPagerAdapter;
 
-public class StickerAdapter extends PagerAdapter implements StickerEmoticonIconPagerAdapter
+public class StickerAdapter extends PagerAdapter implements StickerIconPagerAdapter, HikePubSub.Listener
 {
 	private List<StickerCategory> stickerCategoryList;
 
