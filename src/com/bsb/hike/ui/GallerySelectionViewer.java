@@ -401,7 +401,6 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
                         caption = captions.get(i);
                     }
 
-                    //TODO remove duplicate fileType
                     ComposeChatActivity.FileTransferData fileTransferData = new ComposeChatActivity.FileTransferData(filePath, null, HikeFileType.IMAGE, HikeFileType.toString(HikeFileType.IMAGE).toLowerCase(), false, -1, false, list, file,caption);
                     ftDataList.add(fileTransferData);
                 }
