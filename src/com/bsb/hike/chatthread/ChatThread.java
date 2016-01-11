@@ -201,8 +201,6 @@ import android.widget.Toast;
 {
 	private static final String TAG = ChatThread.class.getSimpleName();
 
-	protected static final String KEYBOARD_HIDDEN_BEHIND_POPUP = "keyboardHidden";
-
 	protected static final int FETCH_CONV = 1;
 
 	protected static final int LOAD_MORE_MESSAGES = 2;
@@ -1474,7 +1472,6 @@ import android.widget.Toast;
 		if (mShareablePopupLayout.togglePopup(mStickerPicker, activity.getResources().getConfiguration().orientation))
 		{
 			activity.showProductPopup(ProductPopupsConstants.PopupTriggerPoints.STKBUT_BUT.ordinal());
-			hideKeyboardViewBehindPopup();
 		}
 		else
 		{
@@ -1728,7 +1725,6 @@ import android.widget.Toast;
 		
 		if (mShareablePopupLayout.isShowing())
 		{
-			hideKptKeyboard();
 			mShareablePopupLayout.dismiss();
 			return true;
 		}
@@ -5986,28 +5982,13 @@ import android.widget.Toast;
 		}
 	}
 
-	private void hideKeyboardViewBehindPopup()
-	{
-		if (keyboardParentView.getVisibility() != View.GONE)
-		{
-			keyboardParentView.setVisibility(View.INVISIBLE);
-			updateKeyboardParentViewTag(KEYBOARD_HIDDEN_BEHIND_POPUP);
-		}
-	}
-
-	private void updateKeyboardParentViewTag(String s)
-	{
-		keyboardParentView.setTag(s);
-	}
-	
 	@Override
 	public void onPopupDismiss()
 	{
-		if (isCustomKeyboardVisible() ||
-				(keyboardParentView.getTag() != null && KEYBOARD_HIDDEN_BEHIND_POPUP.equals(keyboardParentView.getTag()))) {
+		if (isCustomKeyboardVisible())
+		{
 			KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, (keyboardHeight == 0) ? getKeyBoardAndCVHeight() : keyboardHeight);
 		}
-		updateKeyboardParentViewTag(null);
 		Logger.i(TAG, "onPopup Dismiss");
 		if(activity.findViewById(R.id.sticker_btn).isSelected())
 		{
@@ -6029,9 +6010,6 @@ import android.widget.Toast;
 		
 		if (mShareablePopupLayout.isKeyboardOpen() && mShareablePopupLayout.isShowing())
 		{
-			if (mCustomKeyboard != null && mCustomKeyboard.isCustomKeyboardVisible()) {
-				hideKptKeyboard();
-			}
 			mShareablePopupLayout.dismiss();
 		}
 		mShareablePopupLayout.onBackPressed();
@@ -6573,7 +6551,6 @@ import android.widget.Toast;
 		if (mCustomKeyboard != null)
 		{
 			mCustomKeyboard.showCustomKeyboard(view, true);
-			updateKeyboardParentViewTag(null);
 		}
 	}
 
@@ -6582,9 +6559,6 @@ import android.widget.Toast;
 		if (mCustomKeyboard != null)
 		{
 			mCustomKeyboard.showCustomKeyboard(view, false);
-			if (keyboardParentView.getVisibility() == View.INVISIBLE)
-				keyboardParentView.setVisibility(View.GONE);
-			updateKeyboardParentViewTag(null);
 		}
 	}
 
