@@ -1497,6 +1497,8 @@ public class Utils
 				case ExifInterface.ORIENTATION_ROTATE_180:
 					m.preRotate(180);
 					break;
+				default:
+					return bitmap;
 				}
 				// Rotates the image according to the orientation
 				rotatedBitmap = HikeBitmapFactory.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), m, true);
