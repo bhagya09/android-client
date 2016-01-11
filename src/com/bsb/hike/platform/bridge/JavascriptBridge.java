@@ -332,70 +332,75 @@ public abstract class JavascriptBridge
 	 * @param caption : intent caption
 	 */
 	@JavascriptInterface
-	public void share(String text, String caption)
+	public void share(final String text, final String caption)
 	{
-		FileOutputStream fos = null;
-		File cardShareImageFile = null;
-		Activity mContext = weakActivity.get();
-		if(mContext!=null)
+		Handler handler = new Handler(HikeMessengerApp.getInstance().getApplicationContext().getMainLooper());
+		handler.post(new Runnable()
 		{
-			try
+			@Override
+			public void run()
+
 			{
-				if (TextUtils.isEmpty(text))
-				{
-					text = mContext.getString(R.string.cardShareHeading); // fallback
-				}
-
-				cardShareImageFile = new File(mContext.getExternalCacheDir(), System.currentTimeMillis() + ".jpg");
-				fos = new FileOutputStream(cardShareImageFile);
-				View share = LayoutInflater.from(mContext).inflate(com.bsb.hike.R.layout.web_card_share, null);
-				// set card image
-				ImageView image = (ImageView) share.findViewById(com.bsb.hike.R.id.image);
-				Bitmap b = Utils.viewToBitmap(mWebView);
-				image.setImageBitmap(b);
-
-				// set heading here
-				TextView heading = (TextView) share.findViewById(R.id.heading);
-				heading.setText(text);
-
-				// set description text
-				TextView tv = (TextView) share.findViewById(com.bsb.hike.R.id.description);
-				tv.setText(Html.fromHtml(mContext.getString(com.bsb.hike.R.string.cardShareDescription)));
-
-				Bitmap shB = Utils.undrawnViewToBitmap(share);
-				Logger.i(tag, " width height of layout to share " + share.getWidth() + " , " + share.getHeight());
-				shB.compress(Bitmap.CompressFormat.JPEG, 100, fos);
-				fos.flush();
-				Logger.i(tag, "share webview card " + cardShareImageFile.getAbsolutePath());
-				IntentFactory.startShareImageIntent("image/jpeg", "file://" + cardShareImageFile.getAbsolutePath(),
-						TextUtils.isEmpty(caption) ? mContext.getString(com.bsb.hike.R.string.cardShareCaption) : caption);
-			}
-
-			catch (Exception e)
-			{
-				e.printStackTrace();
-				showToast(mContext.getString(com.bsb.hike.R.string.error_card_sharing));
-			}
-			finally
-			{
-				if (fos != null)
+				FileOutputStream fos = null;
+				File cardShareImageFile = null;
+				Activity mContext = weakActivity.get();
+				if (mContext != null)
 				{
 					try
 					{
-						fos.close();
-					}
-					catch (IOException e)
+						if (TextUtils.isEmpty(text))
+						{
+							//text = mContext.getString(R.string.cardShareHeading); // fallback
+						}
+
+						cardShareImageFile = new File(mContext.getExternalCacheDir(), System.currentTimeMillis() + ".jpg");
+						fos = new FileOutputStream(cardShareImageFile);
+						View share = LayoutInflater.from(mContext).inflate(com.bsb.hike.R.layout.web_card_share, null);
+						// set card image
+						ImageView image = (ImageView) share.findViewById(com.bsb.hike.R.id.image);
+						Bitmap b = Utils.viewToBitmap(mWebView);
+						image.setImageBitmap(b);
+
+						// set heading here
+						TextView heading = (TextView) share.findViewById(R.id.heading);
+						heading.setText(text);
+
+						// set description text
+						TextView tv = (TextView) share.findViewById(com.bsb.hike.R.id.description);
+						tv.setText(Html.fromHtml(mContext.getString(com.bsb.hike.R.string.cardShareDescription)));
+
+						Bitmap shB = Utils.undrawnViewToBitmap(share);
+						Logger.i(tag, " width height of layout to share " + share.getWidth() + " , " + share.getHeight());
+						shB.compress(Bitmap.CompressFormat.JPEG, 100, fos);
+						fos.flush();
+						Logger.i(tag, "share webview card " + cardShareImageFile.getAbsolutePath());
+						IntentFactory.startShareImageIntent("image/jpeg", "file://" + cardShareImageFile.getAbsolutePath(),
+								TextUtils.isEmpty(caption) ? mContext.getString(com.bsb.hike.R.string.cardShareCaption) : caption);
+					} catch (Exception e)
 					{
-						// Do nothing
 						e.printStackTrace();
+						showToast(mContext.getString(com.bsb.hike.R.string.error_card_sharing));
+					} finally
+					{
+						if (fos != null)
+						{
+							try
+							{
+								fos.close();
+							} catch (IOException e)
+							{
+								// Do nothing
+								e.printStackTrace();
+							}
+						}
+					}
+					if (cardShareImageFile != null && cardShareImageFile.exists())
+					{
+						cardShareImageFile.deleteOnExit();
 					}
 				}
 			}
-			if (cardShareImageFile != null && cardShareImageFile.exists())
-			{
-				cardShareImageFile.deleteOnExit();
-			}
-		}
+		});
 	}
 
 	/**
