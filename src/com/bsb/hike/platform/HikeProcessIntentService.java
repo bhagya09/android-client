@@ -3,6 +3,7 @@ package com.bsb.hike.platform;
 import java.util.Set;
 
 import android.app.IntentService;
+import android.app.usage.UsageEvents;
 import android.content.Intent;
 import android.os.Bundle;
 
@@ -11,6 +12,7 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.MqttConstants;
 import com.bsb.hike.models.AppState;
+import com.bsb.hike.models.EventData;
 import com.bsb.hike.models.LogAnalyticsEvent;
 import com.bsb.hike.models.NormalEvent;
 import com.bsb.hike.service.HikeMqttManagerNew;
@@ -32,6 +34,8 @@ public class HikeProcessIntentService extends IntentService
 	public static final String LOG_ANALYTICS_EVENT_DATA = "logAnalyticsEventData";
 
 	public static final String SEND_APP_STATE = "sendAppState";
+
+	public static final String EVENT_DELETE="eventDelete";
 
 	public HikeProcessIntentService()
 	{
@@ -88,6 +92,18 @@ public class HikeProcessIntentService extends IntentService
 							Logger.e(TAG, "Data passed is not parcelable");
 						}
 						break;
+					case EVENT_DELETE:
+						if( bundleData.getParcelable(EVENT_DELETE) instanceof EventData)
+						{
+							EventData eventData = bundleData.getParcelable(EVENT_DELETE);
+							handleEventDelete(eventData);
+						}
+						else
+						{
+							Logger.e(TAG, "Data passed is not parcelable");
+						}
+						break;
+
 
 				}
 
@@ -140,5 +156,13 @@ public class HikeProcessIntentService extends IntentService
 		{
 			e.printStackTrace();
 		}
+	}
+
+	private void handleEventDelete(EventData eventData)
+	{
+		if(Boolean.valueOf(eventData.isEventId))
+			PlatformHelper.deleteEvent(eventData.id);
+		else
+			PlatformHelper.deleteAllEventsForMessage(eventData.id);
 	}
 }
