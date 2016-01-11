@@ -3488,14 +3488,11 @@ public class MqttMessagesManager
 							botInfo.setLastConversationMsg(Utils.makeConvMessage(destination, hikeMessage, true, State.RECEIVED_UNREAD));
 						}
 						
-						if (Utils.isConversationMuted(destination))
-						{
-							Utils.rearrangeChat(destination, rearrangeChat, updateUnreadCount);
-						}
+						Utils.rearrangeChat(destination, rearrangeChat, updateUnreadCount);
 						
-						else if (!Utils.isConversationMuted(destination) && data.optBoolean(HikeConstants.PUSH, true))
+						if (!Utils.isConversationMuted(destination) && data.optBoolean(HikeConstants.PUSH, true))
 						{
-							generateNotification(body, destination, silent, rearrangeChat, updateUnreadCount);
+							generateNotification(body, destination, silent);
 						}
 
 						//to update the badge counter
@@ -3522,10 +3519,15 @@ public class MqttMessagesManager
 							String contentId = metadata.optString(HikePlatformConstants.CONTENT_ID);
 							String nameSpace = metadata.optString(HikePlatformConstants.NAMESPACE);
 
-							if (!Utils.isConversationMuted(destination)
-									&& convDb.isContentMessageExist(destination, contentId, nameSpace))
+							if (convDb.isContentMessageExist(destination, contentId, nameSpace))
 							{
-								generateNotification(body, destination, silent, rearrangeChat, updateUnreadCount);
+								if( !Utils.isConversationMuted(destination) )
+								{
+									Utils.rearrangeChat(destination, rearrangeChat, updateUnreadCount);
+								}
+
+								generateNotification(body, destination, silent);
+
 							}
 						}
 					}
@@ -3544,12 +3546,11 @@ public class MqttMessagesManager
 	}
 
 
-	private void generateNotification(String body, String destination, boolean silent, boolean rearrangeChat, boolean updateUnreadCount)
+	private void generateNotification(String body, String destination, boolean silent)
 	{
 
 		HikeNotification.getInstance().notifyStringMessage(destination, body, silent, NotificationType.OTHER);
-		
-		Utils.rearrangeChat(destination, rearrangeChat, updateUnreadCount);
+
 	}
 
 	private void blockedMessageAnalytics(String type)
