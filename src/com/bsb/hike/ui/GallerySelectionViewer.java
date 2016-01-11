@@ -537,9 +537,11 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 		switch (view.getId())
 		{
 			case R.id.ib_crop:
+				Utils.hideSoftKeyboard(GallerySelectionViewer.this);
 				setCropViewVisibility(true);
 				break;
 			case R.id.ib_edit:
+				Utils.hideSoftKeyboard(GallerySelectionViewer.this);
 				editSelectedImage();
 				break;
 			case R.id.ib_remove:
