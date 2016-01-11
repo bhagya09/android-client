@@ -1187,7 +1187,11 @@ public class HikeNotification
 		}
 		notificationBuilderPostWork();
 	}
-
+	private void showInboxStyleNotification(final Intent notificationIntent, final int icon, final long timestamp, final int notificationId, final CharSequence text,
+											final String key, final String message, final String msisdn, String subMessage, Drawable argAvatarDrawable, List<SpannableString> inboxLines, boolean shouldNotPlaySound, int retryCount,boolean isSilentNotification, boolean isPlatformNotif)
+	{
+		showInboxStyleNotification(notificationIntent, icon, timestamp, notificationId, text, key, message, msisdn, subMessage, argAvatarDrawable, inboxLines, shouldNotPlaySound, retryCount, isSilentNotification, false);
+	}
 	public void showBigTextStyleNotification(final Intent notificationIntent, final int icon, final long timestamp, final int notificationId, final CharSequence text,
 			final String key, final String message, final String msisdn, String subMessage, Drawable argAvatarDrawable, boolean shouldNotPlaySound, int retryCount)
 	{
@@ -1200,9 +1204,7 @@ public class HikeNotification
 		showBigTextStyleNotification(notificationIntent, icon, timestamp, notificationId, text, key, message, msisdn, subMessage, argAvatarDrawable, shouldNotPlaySound, retryCount, actions,false);
 	}
 	public void showBigTextStyleNotification(final Intent notificationIntent, final int icon, final long timestamp, final int notificationId, final CharSequence text,
-			final String key, final String message, final String msisdn, String subMessage, Drawable argAvatarDrawable, boolean shouldNotPlaySound, int retryCount, Action[] actions,boolean isSilentNotification)
-	{
-
+											 final String key, final String message, final String msisdn, String subMessage, Drawable argAvatarDrawable, boolean shouldNotPlaySound, int retryCount, Action[] actions,boolean isSilentNotification, boolean isPlatformNotif){
 		final int smallIconId = returnSmallIcon();
 
 		NotificationCompat.Builder mBuilder;
@@ -1226,29 +1228,32 @@ public class HikeNotification
 
 		// Moves the big view style object into the notification object.
 		mBuilder.setStyle(bigTextStyle);
-		
+
 		//Handling separately for NM Bots because for NM bots, on pressing back/up, the user must be brought to the conversation list. (AND-2692)
 		if (BotUtils.isBot(msisdn) && BotUtils.getBotInfoForBotMsisdn(msisdn).isNonMessagingBot())
 		{
-				setNotificationIntentForBuilderWithBackStack(msisdn.hashCode()+1,mBuilder, notificationIntent, notificationId, retryCount);
+			setNotificationIntentForBuilderWithBackStack(msisdn.hashCode(),mBuilder, notificationIntent, notificationId, retryCount);
 		}
 		else
 		{
 			setNotificationIntentForBuilder(mBuilder, notificationIntent,notificationId,retryCount);
 		}
-		
+
 		if (!sharedPreferences.getBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false))
 		{
 			notifyNotification(notificationId, mBuilder);
 		}
 		notificationBuilderPostWork();
 	}
-
-	private void showNotification(final Intent notificationIntent, final int icon, final long timestamp, final int notificationId, final CharSequence text, final String key,
-			final String message, final String msisdn, final Bitmap bigPictureImage, boolean isFTMessage, boolean isPin, boolean isBigText, String subMessage,
-			Drawable argAvatarDrawable, boolean forceNotPlaySound, int retryCount,boolean isSilentNotification,boolean disableTickerText)
+	public void showBigTextStyleNotification(final Intent notificationIntent, final int icon, final long timestamp, final int notificationId, final CharSequence text,
+			final String key, final String message, final String msisdn, String subMessage, Drawable argAvatarDrawable, boolean shouldNotPlaySound, int retryCount, Action[] actions,boolean isSilentNotification)
 	{
+		showBigTextStyleNotification(notificationIntent, icon, timestamp, notificationId, text, key, message, msisdn, subMessage, argAvatarDrawable, shouldNotPlaySound, retryCount, actions, isSilentNotification,  false);
 
+	}
+    private void showNotification(final Intent notificationIntent, final int icon, final long timestamp, final int notificationId, final CharSequence text, final String key,
+								  final String message, final String msisdn, final Bitmap bigPictureImage, boolean isFTMessage, boolean isPin, boolean isBigText, String subMessage,
+								  Drawable argAvatarDrawable, boolean forceNotPlaySound, int retryCount,boolean isSilentNotification,boolean disableTickerText, boolean isPlatformNotif){
 		final int smallIconId = returnSmallIcon();
 
 		NotificationCompat.Builder mBuilder;
@@ -1287,31 +1292,41 @@ public class HikeNotification
 				mBuilder = getNotificationBuilder(key, message, text.toString(), argAvatarDrawable, smallIconId, false,isSilentNotification);
 			}
 		}
-		if (BotUtils.isBot(msisdn) && BotUtils.getBotInfoForBotMsisdn(msisdn).isNonMessagingBot())
-		{
-			setNotificationIntentForBuilderWithBackStack(msisdn.hashCode(),mBuilder, notificationIntent, notificationId, retryCount);
+		if (BotUtils.isBot(msisdn) && BotUtils.getBotInfoForBotMsisdn(msisdn).isNonMessagingBot()) {
+			if (isPlatformNotif) {
+				setNotificationIntentForBuilderWithBackStack(msisdn.hashCode(), mBuilder, notificationIntent, notificationId, retryCount);
+			} else {
+				setNotificationIntentForBuilderWithBackStack(0, mBuilder, notificationIntent, notificationId, retryCount);
+			}
 		}
 		else
 		{
-
 			setNotificationIntentForBuilder(mBuilder, notificationIntent, notificationId, retryCount);
 		}
-		
-		
-		
+
+
+
 		if (!sharedPreferences.getBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false))
 		{
 			notifyNotification(notificationId, mBuilder);
 		}
 		notificationBuilderPostWork();
 	}
+	private void showNotification(final Intent notificationIntent, final int icon, final long timestamp, final int notificationId, final CharSequence text, final String key,
+			final String message, final String msisdn, final Bitmap bigPictureImage, boolean isFTMessage, boolean isPin, boolean isBigText, String subMessage,
+			Drawable argAvatarDrawable, boolean forceNotPlaySound, int retryCount,boolean isSilentNotification,boolean disableTickerText)
+	{
+		showNotification(notificationIntent, icon, timestamp, notificationId, text, key, message, msisdn, bigPictureImage, isFTMessage, isPin, isBigText, subMessage,
+			argAvatarDrawable, forceNotPlaySound, retryCount, isSilentNotification, disableTickerText, false);
+
+	}
 
 	private void showNotification(final Intent notificationIntent, final long timestamp, final int notificationId, String tickerText, String key, String text, String msisdn,
-			Bitmap bigPicture, boolean isBigText, Drawable avatarDrawable, boolean isSilent)
+			Bitmap bigPicture, boolean isBigText, Drawable avatarDrawable, boolean isSilent, boolean isPlatformNotif)
 	{
 		showNotification(notificationIntent, 0, timestamp, notificationId, tickerText, key, text, msisdn, bigPicture, false, false, isBigText
 				, null, avatarDrawable,
-				isSilent, 0, false, false);
+				isSilent, 0, false, false, isPlatformNotif);
 	}
 	private void showNotification(final Intent notificationIntent, final int icon, final long timestamp, final int notificationId, final CharSequence text, final String key,
 			final String message, final String msisdn, final Bitmap bigPictureImage, boolean isPin, boolean forceNotPlaySound)
@@ -1384,7 +1399,7 @@ public class HikeNotification
 					showInboxStyleNotification(notifIntent, 0, System.currentTimeMillis(), msisdn.hashCode() + 1,
 							getTickerText(msisdn, jsonObject.getString(HikeConstants.BODY)), HikeNotificationUtils.getNameForMsisdn(msisdn),
 							platformNotificationMsgStack.getStringFromList(bigTextList), msisdn, platformNotificationMsgStack.getTickerTextForMsisdn(msisdn), avatarDrawable,
-							bigTextList, Boolean.valueOf(jsonObject.getString(HikePlatformConstants.SILENT_PUSH)), 0, false);
+							bigTextList, Boolean.valueOf(jsonObject.getString(HikePlatformConstants.SILENT_PUSH)), 0, false, true);
 				}
 				else
 				{
@@ -1392,7 +1407,7 @@ public class HikeNotification
 					showNotification(notifIntent, System.currentTimeMillis(), msisdn.hashCode() + 1,
 							getTickerText(msisdn, jsonObject.getString(HikeConstants.BODY)), HikeNotificationUtils.getNameForMsisdn(msisdn),
 							jsonObject.getString(HikeConstants.BODY), msisdn, bigPicture, bigPicture == null, avatarDrawable,
-							Boolean.valueOf(jsonObject.getString(HikePlatformConstants.SILENT_PUSH)));
+							Boolean.valueOf(jsonObject.getString(HikePlatformConstants.SILENT_PUSH)), true);
 				}
 
 			}
@@ -1401,7 +1416,7 @@ public class HikeNotification
 				Bitmap bigPicture = HikeBitmapFactory.stringToBitmap(jsonObject.optString(HikePlatformConstants.BIG_PICTURE));
 				showNotification(notifIntent, System.currentTimeMillis(), msisdn.hashCode(),
 						getTickerText(msisdn, jsonObject.getString(HikeConstants.BODY)), HikeNotificationUtils.getNameForMsisdn(msisdn), jsonObject.getString(HikeConstants.BODY),
-						msisdn, bigPicture, bigPicture == null, avatarDrawable, Boolean.valueOf(jsonObject.getString(HikePlatformConstants.SILENT_PUSH)));
+						msisdn, bigPicture, bigPicture == null, avatarDrawable, Boolean.valueOf(jsonObject.getString(HikePlatformConstants.SILENT_PUSH)), true);
 
 			}
 

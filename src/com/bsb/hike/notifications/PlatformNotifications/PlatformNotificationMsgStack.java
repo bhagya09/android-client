@@ -31,7 +31,7 @@ import java.util.ListIterator;
 import java.util.Map;
 
 /**
- * Created by piyush on 05/01/16.
+ * This class keeps a stack of notification model {@link PlatformNotificationPreview} as per individual micro-app msisdn.
  */
 public class PlatformNotificationMsgStack
 {
@@ -45,11 +45,7 @@ public class PlatformNotificationMsgStack
 
     private StringBuilder mTickerText;
 
-    private int totalNewMessages;
-
     private String msisdn;
-
-    private ArrayList<SpannableString> mBigTextList;
 
     private final int MAX_DISTINCT_NOTIFS = 7;
 

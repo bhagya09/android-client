@@ -1,7 +1,8 @@
 package com.bsb.hike.models;
 
 /**
- * Created by pushkargupta on 05/01/16.
+ * This class uses the builder pattern to construct model objects for
+ * {@link com.bsb.hike.notifications.platformNotifications.PlatformNotificationMsgStack)
  */
 public class PlatformNotificationPreview
 {
