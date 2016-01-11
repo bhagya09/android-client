@@ -43,10 +43,9 @@
 
         <LinearLayout
             android:layout_width="wrap_content"
-            android:background="@drawable/ic_bubble_white_selector"
             android:layout_height="wrap_content"
-            android:id="@+id/ourt"
             android:layout_centerInParent="true"
+            android:background="@drawable/ic_bubble_white_selector"
             android:gravity="center"
             android:orientation="vertical">
 
@@ -55,8 +54,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="1dp"
-                android:layout_marginRight="2dp"
-                >
+                android:layout_marginRight="2dp">
 
                 <com.bsb.hike.ui.utils.RecyclingImageView
                     android:id="@+id/file_thumb"
@@ -116,6 +114,7 @@
                     android:layout_marginBottom="3dp"
                     android:layout_marginRight="3dp" />
             </RelativeLayout>
+
             <com.bsb.hike.view.CustomReceiveMessageTextView
                 android:id="@+id/caption"
                 android:layout_width="match_parent"
@@ -136,7 +135,6 @@
     <View
         android:id="@+id/selected_state_overlay"
         android:layout_width="match_parent"
-
         android:layout_height="wrap_content"
         android:layout_alignBottom="@id/message_container"
         android:layout_alignWithParentIfMissing="true"
