@@ -19,6 +19,7 @@ import com.bsb.hike.MqttConstants;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.models.AppState;
+import com.bsb.hike.models.EventData;
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.models.LogAnalyticsEvent;
 import com.bsb.hike.models.NormalEvent;
@@ -464,7 +465,10 @@ public class NativeBridge
 
 			@Override
 			public void run() {
-				helper.deleteEvent(eventId);
+				EventData eventData = new EventData(true,eventId);
+				Intent hikeProcessIntentService = new Intent(activity, HikeProcessIntentService.class);
+				hikeProcessIntentService.putExtra(HikeProcessIntentService.EVENT_DELETE, eventData);
+				activity.startService(hikeProcessIntentService);
 			}
 		});
 	}
@@ -483,7 +487,10 @@ public class NativeBridge
 			@Override
 			public void run()
 			{
-				helper.deleteAllEventsForMessage(messageHash);
+				EventData eventData = new EventData(false,messageHash);
+				Intent hikeProcessIntentService = new Intent(activity, HikeProcessIntentService.class);
+				hikeProcessIntentService.putExtra(HikeProcessIntentService.EVENT_DELETE, eventData);
+				activity.startService(hikeProcessIntentService);
 			}
 		});
 	}
