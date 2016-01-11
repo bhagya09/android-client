@@ -223,10 +223,9 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		initEmoticonPicker();
 		
 		systemKeyboard = HikeMessengerApp.isSystemKeyboard();
-		mEmoticonPicker.setCustomKeyBoard(!systemKeyboard);
 		if (!systemKeyboard)
 		{
-			initCustomKeyboard();			
+			initCustomKeyboard();
 		}
 		
 		addOnClickListeners();
@@ -403,7 +402,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		mCustomKeyboard.registerEditText(R.id.status_txt);
 		mCustomKeyboard.init(statusTxt);
 		findViewById(R.id.status_txt).setOnClickListener(this);
-		mEmoticonPicker.setCustomKeyBoardHeight((keyboardHeight == 0) ? mCustomKeyboard.getKeyBoardAndCVHeight() : keyboardHeight);
+		mEmoticonPicker.setCustomKeyBoard(!systemKeyboard, (keyboardHeight == 0) ? mCustomKeyboard.getKeyBoardAndCVHeight() : keyboardHeight);
 		if (!(getIntent().hasExtra(STATUS_UPDATE_IMAGE_PATH)))
 		{
 			mCustomKeyboard.showCustomKeyboard(statusTxt, true);			
