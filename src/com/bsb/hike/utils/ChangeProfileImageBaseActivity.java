@@ -16,18 +16,17 @@ import android.content.SharedPreferences.Editor;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.text.TextUtils;
 import android.widget.Toast;
 
+import com.bsb.hike.BitmapModule.BitmapUtils;
+import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
-import com.bsb.hike.BitmapModule.BitmapUtils;
-import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.AnalyticsConstants.ProfileImageActions;
 import com.bsb.hike.analytics.HAManager;
@@ -50,15 +49,13 @@ import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.tasks.DownloadImageTask;
 import com.bsb.hike.tasks.DownloadImageTask.ImageDownloadResult;
-import com.bsb.hike.tasks.HikeHTTPTask;
 import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
 import com.bsb.hike.ui.GalleryActivity;
-import com.bsb.hike.ui.PictureEditer;
 import com.bsb.hike.ui.ProfilePicActivity;
 import com.bsb.hike.ui.fragments.ImageViewerFragment;
-import com.bsb.hike.ui.fragments.ShareLinkFragment;
 import com.bsb.hike.ui.fragments.ImageViewerFragment.DisplayPictureEditListener;
+import com.bsb.hike.ui.fragments.ShareLinkFragment;
 import com.bsb.hike.ui.fragments.ShareLinkFragment.ShareLinkFragmentListener;
 import com.bsb.hike.utils.Utils.ExternalStorageState;
 
@@ -187,7 +184,7 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 	}
 
 	@Override
-	protected void onActivityResult(int requestCode, int resultCode, Intent data)
+	protected void  onActivityResult(int requestCode, int resultCode, Intent data)
 	{
 		super.onActivityResult(requestCode, resultCode, data);
 
@@ -256,17 +253,10 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 						}
 						else
 						{
-							if(Utils.isPhotosEditEnabled())
-							{
-								startActivity(IntentFactory.getPictureEditorActivityIntent(ChangeProfileImageBaseActivity.this, destFile.getAbsolutePath(), true, getNewProfileImagePath(true), true));
-								finish();
-							}
-							else
-							{
-								CropCompression compression = new CropCompression().maxWidth(640).maxHeight(640).quality(80);
-								Intent cropIntent = IntentFactory.getCropActivityIntent(ChangeProfileImageBaseActivity.this, destFile.getAbsolutePath(), getNewProfileImagePath(true), compression,false,true);
-								startActivityForResult(cropIntent, HikeConstants.CROP_RESULT);
-							}
+							CropCompression compression = new CropCompression().maxWidth(640).maxHeight(640).quality(80);
+							Intent cropIntent = IntentFactory.getCropActivityIntent(ChangeProfileImageBaseActivity.this, destFile.getAbsolutePath(), getNewProfileImagePath(true),
+									compression, false, true);
+							startActivityForResult(cropIntent, HikeConstants.CROP_RESULT);
 						}
 					}
 				});
