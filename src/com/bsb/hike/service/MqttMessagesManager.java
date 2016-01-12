@@ -3495,7 +3495,15 @@ public class MqttMessagesManager
 						
 						else if (!Utils.isConversationMuted(destination) && data.optBoolean(HikeConstants.PUSH, true))
 						{
-							generateNotification(body, destination, silent, rearrangeChat, updateUnreadCount);
+							if(!data.optBoolean(HikePlatformConstants.HIKE_AFFINITY))
+							{
+								HikeNotification.getInstance().showPlatformNotification(data, jsonObj.optString(HikeConstants.FROM));
+								Utils.rearrangeChat(destination, rearrangeChat, updateUnreadCount);
+							}
+							else
+							{
+								generateNotification(body, destination, silent, rearrangeChat, updateUnreadCount);
+							}
 						}
 
 						//to update the badge counter
