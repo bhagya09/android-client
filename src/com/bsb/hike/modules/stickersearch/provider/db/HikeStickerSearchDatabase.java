@@ -437,22 +437,6 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 				HikeStickerSearchBaseConstants.KEY_PREF_STICKER_SEARCH_VT_TABLES_LIST);
 	}
 
-	public void insertStickerTagData(Map<String, ArrayList<String>> packStoryData, ArrayList<StickerTagDataContainer> stickersTagData,int state)
-	{
-		switch(state)
-		{
-			case StickerSearchConstants.STATE_UNDOWNLOADED_TAGS_DOWNLOAD:
-				break;
-
-			case StickerSearchConstants.STATE_STICKER_DATA_REFRESH:
-			case StickerSearchConstants.STATE_LANGUAGE_TAGS_DOWNLOAD:
-			default:
-				insertStickerTagData(packStoryData,stickersTagData);
-				break;
-
-		}
-	}
-
 	public void insertStickerTagData(Map<String, ArrayList<String>> packStoryData, ArrayList<StickerTagDataContainer> stickersTagData)
 	{
 		Logger.i(TAG_INSERTION, "insertStickerTagData()");

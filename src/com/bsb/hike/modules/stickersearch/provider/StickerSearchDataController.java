@@ -516,7 +516,7 @@ public enum StickerSearchDataController
 
 				try
 				{
-					HikeStickerSearchDatabase.getInstance().insertStickerTagData(packStoryData, stickersTagData,state);
+					HikeStickerSearchDatabase.getInstance().insertStickerTagData(packStoryData, stickersTagData);
 				}
 				catch (Throwable t)
 				{
