@@ -36,6 +36,8 @@ import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.filetransfer.FTAnalyticEvents;
 import com.bsb.hike.filetransfer.FileTransferManager;
+import com.bsb.hike.localisation.LocalLanguage;
+import com.bsb.hike.localisation.LocalLanguageUtils;
 import com.bsb.hike.media.AttachmentPicker;
 import com.bsb.hike.media.AudioRecordView;
 import com.bsb.hike.media.AudioRecordView.AudioRecordListener;
@@ -385,6 +387,8 @@ import android.widget.Toast;
 	protected KeyboardFtue keyboardFtue;
 	
 	protected boolean changeKbdClicked = false;
+
+	protected boolean keyboardSelectedLanguageChanged;
 	
 	private class ChatThreadBroadcasts extends BroadcastReceiver
 	{
@@ -836,6 +840,7 @@ import android.widget.Toast;
 			{
 				if (KptKeyboardManager.getInstance().getInstalledLanguagesList().size() > 1)
 				{
+					changeKeybaordSelectedLanguage();
 					if (isSystemKeyboard())
 					{
 						changeKeyboard(false);
@@ -848,6 +853,10 @@ import android.widget.Toast;
 					}
 				}
 			}
+			else if (state == KeyboardFtue.COMPLETE)
+			{
+				changeKeybaordSelectedLanguage();
+			}
 		}
 
 		@Override
@@ -857,6 +866,19 @@ import android.widget.Toast;
 		}
 	};
 
+	private void changeKeybaordSelectedLanguage()
+	{
+		if (!keyboardSelectedLanguageChanged && KptKeyboardManager.getInstance().getInstalledLanguagesList().size() > 1)
+		{
+			if (LocalLanguageUtils.isLocalLanguageSelected() &&
+					!LocalLanguageUtils.getApplicationLocalLanguage(activity).getLocale().equals(LocalLanguage.English.getLocale())) {
+				KptKeyboardManager.getInstance().topPriorityForLanguage(LocalLanguageUtils.getApplicationLocalLanguage(activity).getLocale());
+			} else {
+				KptKeyboardManager.getInstance().topPriorityForLanguage(KptKeyboardManager.getInstance().getInstalledLanguagesList().get(1));
+			}
+			keyboardSelectedLanguageChanged = true;
+		}
+	}
 	/**
 	 * Updates the mainView for KeyBoard popup as well as updates the Picker Listeners for Emoticon and Stickers
 	 */
@@ -2776,6 +2798,7 @@ import android.widget.Toast;
 
 	protected void sendPoke()
 	{
+		KptKeyboardManager.getInstance().topPriorityForLanguage(KptKeyboardManager.getInstance().getInstalledLanguagesList().get(1));
 		ConvMessage convMessage = Utils.makeConvMessage(msisdn, getString(R.string.poke_msg_english_only), mConversation.isOnHike());
 		ChatThreadUtils.setPokeMetadata(convMessage);
 		sendMessage(convMessage);

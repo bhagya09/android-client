@@ -229,19 +229,9 @@ public class KptKeyboardManager implements AdaptxtSettingsRegisterListener
 
 	public void downloadAndInstallLanguage(String locale, String source)
 	{
-		if (TextUtils.isEmpty(locale))
-		{
-			return;
-		}
-		for(KPTAddonItem item : getSupportedLanguagesList())
-		{
-			if (item.getlocaleName().substring(0,item.getlocaleName().indexOf("-")).equals(locale))
-			{
-				downloadAndInstallLanguage(item, source);
-				return;
-			}
-		}
-
+		KPTAddonItem addOnItem = getSupportedKptAddOnItemFromLocale(locale);
+		if (addOnItem != null)
+			downloadAndInstallLanguage(addOnItem, source);
 	}
 
 	public void downloadAndInstallLanguage(KPTAddonItem addOnItem, String source)
@@ -285,7 +275,20 @@ public class KptKeyboardManager implements AdaptxtSettingsRegisterListener
 			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json : " + addOnItem.getDisplayName() + "\n" + e);
 		}
 	}
-	
+
+	public void topPriorityForLanguage(String locale)
+	{
+		KPTAddonItem addOnItem = getSupportedKptAddOnItemFromLocale(locale);
+		if (addOnItem != null)
+			topPriorityForLanguage(addOnItem);
+	}
+
+	public void topPriorityForLanguage(KPTAddonItem addOnItem)
+	{
+		kptSettings.loadDictionary(addOnItem);
+		kptSettings.topPriorityForLanguage(addOnItem);
+	}
+
 	public void loadInstalledLanguage(KPTAddonItem addOnItem)
 	{
 		kptSettings.loadDictionary(addOnItem);
@@ -451,7 +454,7 @@ public class KptKeyboardManager implements AdaptxtSettingsRegisterListener
 	@Override
 	public void onInitializationError(int errorCode)
 	{
-		Logger.d("KptDebug","init error. time: "  + System.currentTimeMillis());
+		Logger.d("KptDebug", "init error. time: " + System.currentTimeMillis());
 		Utils.setCustomKeyboardSupported(false);
 		logKeyboardInitializationError();
 	}
@@ -459,7 +462,7 @@ public class KptKeyboardManager implements AdaptxtSettingsRegisterListener
 	@Override
 	public void coreEngineService()
 	{
-		Logger.d(TAG,"coreEngineService callback");
+		Logger.d(TAG, "coreEngineService callback");
 	}
 
 	public KPTAdaptxtAddonSettings getKptSettings()
@@ -483,5 +486,22 @@ public class KptKeyboardManager implements AdaptxtSettingsRegisterListener
 		{
 			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json : " + e);
 		}
+	}
+
+	public KPTAddonItem getSupportedKptAddOnItemFromLocale(String locale)
+	{
+		if (TextUtils.isEmpty(locale))
+		{
+			return null;
+		}
+		for(KPTAddonItem item : getSupportedLanguagesList())
+		{
+			if (item.getlocaleName().equals(locale)
+					|| item.getlocaleName().substring(0,item.getlocaleName().indexOf("-")).equals(locale))
+			{
+				return item;
+			}
+		}
+		return null;
 	}
 }
