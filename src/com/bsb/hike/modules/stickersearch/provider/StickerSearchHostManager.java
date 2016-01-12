@@ -1399,8 +1399,7 @@ public class StickerSearchHostManager
 				for (int i = 0; i < count; i++)
 				{
 					stickerAppositeDataContainer = tempStickerDataList.get(i);
-					stickers.add(StickerManager.getInstance().getStickerFromSetString(stickerAppositeDataContainer.getStickerCode(),
-							stickerAppositeDataContainer.getStickerAvailabilityStatus()));
+					stickers.add(StickerManager.getInstance().getStickerFromSetString(stickerAppositeDataContainer.getStickerCode()));
 				}
 
 				tempStickerDataList.clear();
@@ -1415,7 +1414,7 @@ public class StickerSearchHostManager
 
 					for (StickerAppositeDataContainer marginalSticker : leastButSignificantStickerDataList)
 					{
-						stickers.add(StickerManager.getInstance().getStickerFromSetString(marginalSticker.getStickerCode(), marginalSticker.getStickerAvailabilityStatus()));
+						stickers.add(StickerManager.getInstance().getStickerFromSetString(marginalSticker.getStickerCode()));
 					}
 
 					leastButSignificantStickerDataList.clear();
@@ -1433,8 +1432,7 @@ public class StickerSearchHostManager
 				for (int i = 0; i < timelyStickersCount; i++)
 				{
 					stickerAppositeDataContainer = timePrioritizedStickerList.get(i);
-					timePrioritizedStickers.add(StickerManager.getInstance().getStickerFromSetString(stickerAppositeDataContainer.getStickerCode(),
-							stickerAppositeDataContainer.getStickerAvailabilityStatus()));
+					timePrioritizedStickers.add(StickerManager.getInstance().getStickerFromSetString(stickerAppositeDataContainer.getStickerCode()));
 				}
 
 				// Put remaining stickers after time-prioritized stickers in pop-up

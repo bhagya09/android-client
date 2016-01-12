@@ -54,9 +54,9 @@ public class StickerTagDataContainer
 		return mStickerCode;
 	}
 
-	public boolean getStickerAvailabilityStatus()
+	public int getStickerAvailabilityStatus()
 	{
-		return (mStickerCode == null) ? false : StickerManager.getInstance().getStickerFromSetString(mStickerCode).getStickerCurrentAvailability();
+		return (mStickerCode == null) ? HikeStickerSearchBaseConstants.DEFAULT_AVAILABILITY_STATUS : StickerManager.getInstance().getStickerFromSetString(mStickerCode).getStickerCurrentAvailabilityStatus();
 	}
 
 	public ArrayList<String> getTagList()

@@ -214,9 +214,15 @@ public class HikeStickerSearchBaseConstants
 	// =============================Constants used for Sticker-Tag relation and recommendations]]
 
 	// Decision constants======================================================================[[
-	public static final int DECISION_STATE_NO = 0;
+	public static final int STICKER_NOT_AVAILABLE = 0;
 
-	public static final int DECISION_STATE_YES = 1;
+	public static final int LARGE_STICKER_AVAILABLE_ONLY = 1;
+
+	public static final int MINI_STICKER_AVAILABLE_ONLY = 2;
+
+	public static final int LARGE_AND_MINI_STICKERS_AVAILABLE = 3;
+
+	public static final int DEFAULT_AVAILABILITY_STATUS = -1;
 
 	// ======================================================================Decision constants]]
 

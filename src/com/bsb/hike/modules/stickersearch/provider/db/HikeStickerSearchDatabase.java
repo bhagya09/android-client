@@ -22,7 +22,6 @@ import com.bsb.hike.modules.stickersearch.StickerSearchUtils;
 import com.bsb.hike.modules.stickersearch.datamodel.StickerAppositeDataContainer;
 import com.bsb.hike.modules.stickersearch.datamodel.StickerTagDataContainer;
 import com.bsb.hike.modules.stickersearch.provider.StickerSearchUtility;
-import com.bsb.hike.tasks.GetHikeJoinTimeTask;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
@@ -637,8 +636,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 				ArrayList<Integer> tagExactnessPriorities = stickerTagData.getTagExactMatchPriorityList();
 				ArrayList<Integer> tagPopularities = stickerTagData.getTagPopularityList();
 				int stickerMoment = stickerTagData.getMomentCode();
-				int availability = stickerTagData.getStickerAvailabilityStatus() ? HikeStickerSearchBaseConstants.DECISION_STATE_YES
-						: HikeStickerSearchBaseConstants.DECISION_STATE_NO;
+				int availability = stickerTagData.getStickerAvailabilityStatus() ;
 				int size = stickerTags.size();
 
 				for (int j = 0; j < size; j++)
@@ -1264,7 +1262,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 					new String[] { HikeStickerSearchBaseConstants.STICKER_AVAILABILITY }, new int[] { HikeStickerSearchBaseConstants.SQLITE_NON_NULL_CHECK });
 
 			c = mDb.query(true, HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING, new String[] { HikeStickerSearchBaseConstants.STICKER_RECOGNIZER_CODE },
-					whereConditionToGetSavedStickers, new String[] { String.valueOf(HikeStickerSearchBaseConstants.DECISION_STATE_YES) }, null, null, null, null);
+					whereConditionToGetSavedStickers, new String[] { String.valueOf(HikeStickerSearchBaseConstants.LARGE_STICKER_AVAILABLE_ONLY) }, null, null, null, null);
 		}
 		finally
 		{

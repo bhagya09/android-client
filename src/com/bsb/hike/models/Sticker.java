@@ -1,19 +1,20 @@
 package com.bsb.hike.models;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
-
 import android.content.Context;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
 
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchBaseConstants;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 
 public class Sticker implements Serializable, Comparable<Sticker>, Parcelable
 {
@@ -27,15 +28,14 @@ public class Sticker implements Serializable, Comparable<Sticker>, Parcelable
 	private StickerCategory category;
 
 	private String categoryId;
-
-	private boolean isAvailable;
+	
+	private int mStickerAvailabilityStatus = HikeStickerSearchBaseConstants.DEFAULT_AVAILABILITY_STATUS;
 
 	public Sticker(StickerCategory category, String stickerId)
 	{
 		this.category = category;
 		this.stickerId = stickerId;
 		this.categoryId = category.getCategoryId();
-		this.isAvailable = true; /* Default value */
 	}
 
 	public Sticker(String categoryId, String stickerId)
@@ -43,15 +43,13 @@ public class Sticker implements Serializable, Comparable<Sticker>, Parcelable
 		this.stickerId = stickerId;
 		this.category = StickerManager.getInstance().getCategoryForId(categoryId);
 		this.categoryId = categoryId;
-		this.isAvailable = true; /* Default value */
 	}
 
-	public Sticker(String categoryId, String stickerId, boolean isAvailable)
+	public Sticker(Parcel in)
 	{
-		this.stickerId = stickerId;
-		this.category = StickerManager.getInstance().getCategoryForId(categoryId);
-		this.categoryId = categoryId;
-		this.isAvailable = isAvailable;
+		this.stickerId = in.readString();
+		this.categoryId = in.readString();
+		this.category = (StickerCategory) in.readSerializable();
 	}
 
 	public Sticker()
@@ -76,20 +74,48 @@ public class Sticker implements Serializable, Comparable<Sticker>, Parcelable
 
 	public void setStickerAvailability()
 	{
-		boolean result;
-		String path = getStickerPath();
+		boolean resultlarge,resultMini;
+		String path = getLargeStickerPath();
 
 		if (!Utils.isBlank(path))
 		{
 			File file = new File(path);
-			result = file.isFile() && file.exists();
+			resultlarge = file.isFile() && file.exists();
 		}
 		else
 		{
-			result = false;
+			resultlarge = false;
 		}
 
-		this.isAvailable = result;
+		path = getMiniStickerPath();
+
+		if (!Utils.isBlank(path))
+		{
+			File file = new File(path);
+			resultMini = file.isFile() && file.exists();
+		}
+		else
+		{
+			resultMini = false;
+		}
+
+		if(resultlarge && resultMini)
+		{
+			mStickerAvailabilityStatus = HikeStickerSearchBaseConstants.LARGE_AND_MINI_STICKERS_AVAILABLE;
+		}
+		else if(resultlarge)
+		{
+			mStickerAvailabilityStatus = HikeStickerSearchBaseConstants.LARGE_STICKER_AVAILABLE_ONLY;
+		}
+		else if(resultMini)
+		{
+			mStickerAvailabilityStatus = HikeStickerSearchBaseConstants.MINI_STICKER_AVAILABLE_ONLY;
+		}
+		else
+		{
+			mStickerAvailabilityStatus = HikeStickerSearchBaseConstants.STICKER_NOT_AVAILABLE;
+		}
+
 	}
 
 	public String getCategoryId()
@@ -102,17 +128,37 @@ public class Sticker implements Serializable, Comparable<Sticker>, Parcelable
 		return this.category == null;
 	}
 
+	public void verifyStickerAvailabilityStatus()
+	{
+		if(mStickerAvailabilityStatus == HikeStickerSearchBaseConstants.DEFAULT_AVAILABILITY_STATUS)
+		{
+			setStickerAvailability();
+		}
+	}
+
 	public boolean isStickerAvailable()
 	{
-		return this.isAvailable;
+		verifyStickerAvailabilityStatus();
+		return ((mStickerAvailabilityStatus == HikeStickerSearchBaseConstants.LARGE_STICKER_AVAILABLE_ONLY) || (mStickerAvailabilityStatus == HikeStickerSearchBaseConstants.MINI_STICKER_AVAILABLE_ONLY) || (mStickerAvailabilityStatus == HikeStickerSearchBaseConstants.LARGE_AND_MINI_STICKERS_AVAILABLE));
+	}
+
+	public boolean isFullStickerAvailable()
+	{
+		verifyStickerAvailabilityStatus();
+		return ((mStickerAvailabilityStatus == HikeStickerSearchBaseConstants.LARGE_STICKER_AVAILABLE_ONLY) || (mStickerAvailabilityStatus == HikeStickerSearchBaseConstants.LARGE_AND_MINI_STICKERS_AVAILABLE));
+	}
+
+	public boolean isMiniStickerAvailable()
+	{
+		verifyStickerAvailabilityStatus();
+		return ((mStickerAvailabilityStatus == HikeStickerSearchBaseConstants.MINI_STICKER_AVAILABLE_ONLY) || (mStickerAvailabilityStatus == HikeStickerSearchBaseConstants.LARGE_AND_MINI_STICKERS_AVAILABLE));
 	}
 
 	 /* Call this method, only if one needs current download-status of sticker */
-	public boolean getStickerCurrentAvailability()
+	public int getStickerCurrentAvailabilityStatus()
 	{
-		setStickerAvailability();
-
-		return this.isAvailable;
+		verifyStickerAvailabilityStatus();
+		return mStickerAvailabilityStatus;
 	}
 
 	/**
@@ -123,7 +169,7 @@ public class Sticker implements Serializable, Comparable<Sticker>, Parcelable
 	 */
 	public boolean isDisabled(Sticker sticker, Context ctx)
 	{
-		File f = new File(sticker.getSmallStickerPath());
+		File f = new File(sticker.getMiniStickerPath());
 		return !f.exists();
 	}
 
@@ -137,14 +183,14 @@ public class Sticker implements Serializable, Comparable<Sticker>, Parcelable
 		return category;
 	}
 
-	public String getStickerPath()
+	public String getLargeStickerPath()
 	{
 		String rootPath = StickerManager.getInstance().getStickerCategoryDirPath(categoryId);
 
 		return (rootPath == null) ? null : (rootPath + HikeConstants.LARGE_STICKER_ROOT + File.separator + stickerId);
 	}
 
-	public String getSmallStickerPath()
+	public String getMiniStickerPath()
 	{
 		return StickerManager.getInstance().getStickerCategoryDirPath(categoryId) + HikeConstants.SMALL_STICKER_ROOT + "/" + stickerId;
 	}
@@ -247,15 +293,6 @@ public class Sticker implements Serializable, Comparable<Sticker>, Parcelable
 		this.stickerId = null;
 		this.category = null;
 		this.categoryId = null;
-		this.isAvailable = false;
-	}
-
-	public Sticker(Parcel in)
-	{
-		this.stickerId = in.readString();
-		this.categoryId = in.readString();
-		this.category = (StickerCategory) in.readSerializable();
-		this.isAvailable = true; /* Default value */
 	}
 
 	public static final Parcelable.Creator<Sticker> CREATOR = new Parcelable.Creator<Sticker>()

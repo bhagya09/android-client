@@ -146,7 +146,7 @@ public class StickerRecommendationFtueFragment extends Fragment implements Liste
 	private void loadStickerImage(boolean stickerLoaded)
 	{
 		ivSticker.setScaleType(ScaleType.CENTER_INSIDE);
-		stickerLoader.loadImage(sticker.getSmallStickerPath(), ivSticker, false);
+		stickerLoader.loadImage(sticker.getMiniStickerPath(), ivSticker, false);
 	}
 	
 	

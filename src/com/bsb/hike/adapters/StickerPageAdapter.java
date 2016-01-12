@@ -1,11 +1,8 @@
 package com.bsb.hike.adapters;
 
-import java.io.Serializable;
 import java.util.List;
 
 import android.content.Context;
-import android.content.Intent;
-import android.support.v4.content.LocalBroadcastManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -197,7 +194,7 @@ public class StickerPageAdapter extends BaseAdapter implements OnClickListener
 		{
 		case STICKER:
 			Sticker sticker = (Sticker) item.getSticker();
-			stickerLoader.loadImage(sticker.getSmallStickerPath(), ((ImageView) convertView), isListFlinging);
+			stickerLoader.loadImage(sticker.getMiniStickerPath(), ((ImageView) convertView), isListFlinging);
 			convertView.setOnClickListener(this);
 				
 			break;

@@ -62,7 +62,7 @@ public class StickerRecomendationAdapter extends RecyclerView.Adapter<RecyclerVi
 		int padding = mContext.getResources().getDimensionPixelSize(R.dimen.sticker_recommend_sticker_image_padding);
 		imageView.setScaleType(ScaleType.CENTER_INSIDE);
 		imageView.setPadding(padding, padding, padding, padding);
-		stickerLoader.loadImage(sticker.getSmallStickerPath(), imageView, false);
+		stickerLoader.loadImage(sticker.getMiniStickerPath(), imageView, false);
 	}
 
 	@Override

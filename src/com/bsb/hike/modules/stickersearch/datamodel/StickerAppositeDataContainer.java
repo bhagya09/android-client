@@ -6,11 +6,10 @@
 
 package com.bsb.hike.modules.stickersearch.datamodel;
 
-import java.util.ArrayList;
-
 import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
 import com.bsb.hike.modules.stickersearch.provider.StickerSearchUtility;
-import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchBaseConstants;
+
+import java.util.ArrayList;
 
 public class StickerAppositeDataContainer implements Comparable<StickerAppositeDataContainer>
 {
@@ -64,11 +63,6 @@ public class StickerAppositeDataContainer implements Comparable<StickerAppositeD
 	public String getStickerCode()
 	{
 		return mStickerCode;
-	}
-
-	public boolean getStickerAvailabilityStatus()
-	{
-		return (mStickerAvailability == HikeStickerSearchBaseConstants.DECISION_STATE_YES);
 	}
 
 	public String getStickerTag()

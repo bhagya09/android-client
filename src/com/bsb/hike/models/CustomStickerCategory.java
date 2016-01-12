@@ -2,7 +2,6 @@ package com.bsb.hike.models;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.Collections;
 import java.util.Iterator;
@@ -119,7 +118,7 @@ public class CustomStickerCategory extends StickerCategory
 				{
 					Sticker s = new Sticker();
 					s.deSerializeObj(in);
-					File f = new File(s.getSmallStickerPath());
+					File f = new File(s.getMiniStickerPath());
 					if(f.exists())
 					{
 						list.add(s);
@@ -157,7 +156,7 @@ public class CustomStickerCategory extends StickerCategory
 			synchronized (stickerSet)
 			{
 				Sticker s = new Sticker(recentCat[i], recentSticker[i]);
-				File f = new File(s.getSmallStickerPath());
+				File f = new File(s.getMiniStickerPath());
 				if(f.exists())
 				{
 					stickerSet.add(s);
