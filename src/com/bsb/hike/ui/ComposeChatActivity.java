@@ -250,7 +250,24 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 
 	private ArrayList<String> imagesToShare = new ArrayList<String>();
 
-	private ArrayList<String> imageCaptions = new ArrayList<String>();
+	private ArrayList<String> imageCaptions = new ArrayList<String>()
+	{
+		@Override
+		public String get(int index) {
+
+			if(isEmpty())
+			{
+				return null;
+			}
+
+			if(size() <= index)
+			{
+				return null;
+			}
+
+			return super.get(index);
+		}
+	};
 
 	private boolean allImages;
 
@@ -462,14 +479,6 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 						startActivityForResult(multiIntent, GallerySelectionViewer.MULTI_EDIT_REQUEST_CODE);
 					}
 				}
-			}
-		}
-
-		if(!imagesToShare.isEmpty())
-		{
-			for(int i=0;i<imagesToShare.size();i++)
-			{
-				imageCaptions.add("");
 			}
 		}
 
