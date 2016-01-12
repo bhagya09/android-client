@@ -297,19 +297,6 @@ public class VoipCallFragment extends Fragment implements CallActions
 			releaseProximityWakelock();
 		Logger.d(tag, "VoIPCallFragment onPause()");
 
-		try
-		{
-			if (isBound)
-			{
-				isBound = false;
-				getActivity().unbindService(myConnection);
-			}
-		}
-		catch (IllegalArgumentException e)
-		{
-//			Logger.d(tag, "unbindService IllegalArgumentException: " + e.toString());
-		}
-
 		super.onPause();
 	}
 
@@ -332,10 +319,28 @@ public class VoipCallFragment extends Fragment implements CallActions
 			callActionsView = null;
 		}
 
+		unbindVoipService();
+
 		partnerName = null;
 		releaseProximityWakelock();
 		Logger.d(tag, "VoipCallFragment onDestroy()");
 		super.onDestroy();
+	}
+
+	private void unbindVoipService() {
+		// Disconnect from service
+		try
+		{
+			if (isBound)
+			{
+				isBound = false;
+				getActivity().unbindService(myConnection);
+			}
+		}
+		catch (IllegalArgumentException e)
+		{
+//			Logger.d(tag, "unbindService IllegalArgumentException: " + e.toString());
+		}
 	}
 
 	public interface CallFragmentListener
@@ -396,16 +401,7 @@ public class VoipCallFragment extends Fragment implements CallActions
 			voipService.setCallStatus(VoIPConstants.CallStatus.UNINITIALIZED);
 		}
 
-		try
-		{
-			if (isBound) 
-			{
-				getActivity().unbindService(myConnection);
-			}
-		}
-		catch (IllegalArgumentException e) {
-			// Expected. Can happen. 
-		}
+		unbindVoipService();
 
 		if(activity.isShowingCallFailedFragment())
 		{
