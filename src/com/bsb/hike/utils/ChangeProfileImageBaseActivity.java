@@ -255,7 +255,7 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 						{
 							CropCompression compression = new CropCompression().maxWidth(640).maxHeight(640).quality(80);
 							Intent cropIntent = IntentFactory.getCropActivityIntent(ChangeProfileImageBaseActivity.this, destFile.getAbsolutePath(), getNewProfileImagePath(true),
-									compression, false, true);
+									compression, true, true);
 							startActivityForResult(cropIntent, HikeConstants.CROP_RESULT);
 						}
 					}
