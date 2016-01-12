@@ -393,7 +393,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 				public boolean onPreferenceChange(Preference preference, Object newValue) {
 					for (LocalLanguage language : localLanguage.getDeviceSupportedHikeLanguages(HikePreferences.this)) {
 						if (language.getDisplayName().equalsIgnoreCase((String) newValue)) {
-							LocalLanguageUtils.setApplicationLocalLanguage(language);
+							LocalLanguageUtils.setApplicationLocalLanguage(language, HikeConstants.APP_LANG_CHANGED_SETTINGS);
 							languagePref.setSummary(language.getDisplayName());
 							//AND-3956 Begin: resetting offline parameters on language change
 							String offlineParams = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.OFFLINE, "{}");
