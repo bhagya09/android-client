@@ -109,6 +109,8 @@ public class StickyCaller {
 
 	public static final int ONE_RETRY = 1;
 
+	public static final int THREE_RETRIES = 3;
+
 	public static String MISSED_CALL_TIMINGS;
 
 	public static boolean toCall = false;

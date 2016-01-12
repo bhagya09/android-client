@@ -730,7 +730,7 @@ public class ChatHeadUtils
 		{
 			iRequestListener = new CallListener();
 		}
-		RequestToken requestToken = HttpRequests.postCallerMsisdn(HttpRequestConstants.getHikeCallerUrl(), json, iRequestListener, HikePlatformConstants.NUMBER_OF_RETRIES, HTTP_CALL_RETRY_DELAY,
+		RequestToken requestToken = HttpRequests.postCallerMsisdn(HttpRequestConstants.getHikeCallerUrl(), json, iRequestListener, StickyCaller.THREE_RETRIES, HTTP_CALL_RETRY_DELAY,
 				HTTP_CALL_RETRY_MULTIPLIER, true);
 		requestToken.execute();
 	}

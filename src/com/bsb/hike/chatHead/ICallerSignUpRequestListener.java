@@ -6,7 +6,6 @@ import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
-import com.bsb.hike.modules.httpmgr.request.requestbody.StringBody;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.hike.transporter.utils.Logger;
 
@@ -15,7 +14,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 
 /**
@@ -28,7 +26,7 @@ public class ICallerSignUpRequestListener implements IRequestListener {
 	@Override
 	public void onRequestFailure(HttpException httpException)
 	{
-		requestFailure();
+		setAlarmSyncingBlockedListFromServerToClient();
 		Logger.d("ICallerSignUpListener", "Setting Alarm");
 	}
 
@@ -66,11 +64,11 @@ public class ICallerSignUpRequestListener implements IRequestListener {
 		}
 		if (isStatusFail)
 		{
-			requestFailure();
+			setAlarmSyncingBlockedListFromServerToClient();
 		}
 	}
 
-	private void requestFailure()
+	private void setAlarmSyncingBlockedListFromServerToClient()
 	{
 		HikeAlarmManager.cancelAlarm(HikeMessengerApp.getInstance().getApplicationContext(), HikeAlarmManager.REQUESTCODE_FETCH_BLOCK_LIST_CALLER);
 		HikeAlarmManager.setAlarmPersistance(HikeMessengerApp.getInstance().getApplicationContext(), Calendar.getInstance().getTimeInMillis() + FIVE_MINS,

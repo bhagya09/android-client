@@ -7,7 +7,6 @@ import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
-import com.bsb.hike.service.AlarmBroadcastReceiver;
 import com.hike.transporter.utils.Logger;
 
 import org.json.JSONException;
@@ -35,7 +34,7 @@ public class IBlockRequestListener implements IRequestListener
 	{
 		
 		Logger.d("IBlockRequestListener", "block list update failure");
-		requestFailure();
+		setAlarmUpdateBlockedClientToServer();
 	}
 
 	@Override
@@ -67,11 +66,11 @@ public class IBlockRequestListener implements IRequestListener
 		}
 		else
 		{
-			requestFailure();
+			setAlarmUpdateBlockedClientToServer();
 		}
 	}
 
-	private void requestFailure()
+	private void setAlarmUpdateBlockedClientToServer()
 	{
 		HikeAlarmManager.cancelAlarm(HikeMessengerApp.getInstance().getApplicationContext(), HikeAlarmManager.REQUESTCODE_BLOCKED_CALLER_FROM_CLIENT_TO_SERVER);
 		HikeAlarmManager.setAlarmPersistance(HikeMessengerApp.getInstance().getApplicationContext(), Calendar.getInstance().getTimeInMillis() + SIX_HRS,

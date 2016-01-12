@@ -36,7 +36,6 @@ import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
-import com.squareup.okhttp.Call;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -364,7 +363,7 @@ class HikeUserDatabase extends SQLiteOpenHelper
 
 	public Cursor getAllUnsyncedContactCursor()
 	{
-		Cursor cursor =  mDb.query(DBConstants.HIKE_USER.HIKE_CALLER_TABLE, new String[]{DBConstants.MSISDN, DBConstants.HIKE_USER.IS_BLOCK}, DBConstants.HIKE_USER.IS_SYNCED + "=? ", new String[] {"0"}, null, null, null, null);
+		Cursor cursor =  mDb.query(DBConstants.HIKE_USER.HIKE_CALLER_TABLE, new String[]{DBConstants.MSISDN, DBConstants.HIKE_USER.IS_BLOCK}, DBConstants.HIKE_USER.IS_SYNCED + "=? ", new String[] {String.valueOf(ChatHeadUtils.VALUE_FALSE)}, null, null, null, null);
 		cursor.moveToFirst();
 		return cursor;
 	}
@@ -492,11 +491,11 @@ class HikeUserDatabase extends SQLiteOpenHelper
 	{
 		if (callerContentModel != null && callerContentModel.getMsisdn() != null && callerContentModel.getFullName() != null)
 		{
-			ContentValues cv = getBasicContentValues(callerContentModel, isCompleteData);
-			cv.put(DBConstants.NAME, callerContentModel.getFullName());
-			cv.put(DBConstants.MSISDN, callerContentModel.getMsisdn());
-			cv.put(DBConstants.HIKE_USER.CREATION_TIME, System.currentTimeMillis());
-			mDb.insertWithOnConflict(DBConstants.HIKE_USER.HIKE_CALLER_TABLE, null, cv, SQLiteDatabase.CONFLICT_REPLACE);
+			ContentValues contentValues = getBasicCallerContentValues(callerContentModel, isCompleteData);
+			contentValues.put(DBConstants.NAME, callerContentModel.getFullName());
+			contentValues.put(DBConstants.MSISDN, callerContentModel.getMsisdn());
+			contentValues.put(DBConstants.HIKE_USER.CREATION_TIME, System.currentTimeMillis());
+			mDb.insertWithOnConflict(DBConstants.HIKE_USER.HIKE_CALLER_TABLE, null, contentValues, SQLiteDatabase.CONFLICT_REPLACE);
 		}
 	}
 
@@ -511,21 +510,17 @@ class HikeUserDatabase extends SQLiteOpenHelper
 				{
 					if (callerContentModel != null && callerContentModel.getMsisdn() != null && callerContentModel.getFullName() != null)
 					{
-						ContentValues cv = getBasicContentValues(callerContentModel, true);
-						cv.put(DBConstants.NAME, callerContentModel.getFullName());
-						cv.put(DBConstants.MSISDN, callerContentModel.getMsisdn());
-						cv.put(DBConstants.HIKE_USER.IS_BLOCK, callerContentModel.isBlock() ? ChatHeadUtils.VALUE_TRUE : ChatHeadUtils.VALUE_FALSE);
-						cv.put(DBConstants.HIKE_USER.CREATION_TIME, System.currentTimeMillis());
-						Logger.d("ashish", "he" + mDb.insertWithOnConflict(DBConstants.HIKE_USER.HIKE_CALLER_TABLE, null, cv, SQLiteDatabase.CONFLICT_IGNORE));
+						ContentValues contentValues = getBasicCallerContentValues(callerContentModel, true);
+						contentValues.put(DBConstants.NAME, callerContentModel.getFullName());
+						contentValues.put(DBConstants.MSISDN, callerContentModel.getMsisdn());
+						contentValues.put(DBConstants.HIKE_USER.IS_BLOCK, callerContentModel.isBlock() ? ChatHeadUtils.VALUE_TRUE : ChatHeadUtils.VALUE_FALSE);
+						contentValues.put(DBConstants.HIKE_USER.CREATION_TIME, System.currentTimeMillis());
+						mDb.insertWithOnConflict(DBConstants.HIKE_USER.HIKE_CALLER_TABLE, null, contentValues, SQLiteDatabase.CONFLICT_IGNORE);
 					}
 				}
 			}
 			mDb.setTransactionSuccessful();
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CALLER_BLOKED_LIST_SYNCHED_SIGNUP, true);
-		}
-		catch (Exception e)
-		{
-
 		}
 		finally
 		{
@@ -534,31 +529,31 @@ class HikeUserDatabase extends SQLiteOpenHelper
 
 	}
 
-	private ContentValues getBasicContentValues(CallerContentModel callerContentModel, boolean setIsOnHikeTime)
+	private ContentValues getBasicCallerContentValues(CallerContentModel callerContentModel, boolean setIsOnHikeTime)
 	{
-		ContentValues cv = new ContentValues();
-		cv.put(DBConstants.HIKE_USER.IS_ON_HIKE, callerContentModel.getIsOnHike() ? ChatHeadUtils.VALUE_TRUE : ChatHeadUtils.VALUE_FALSE);
-		cv.put(DBConstants.HIKE_USER.LOCATION, callerContentModel.getLocation());
-		cv.put(DBConstants.HIKE_USER.IS_SPAM, callerContentModel.isSpam() ? ChatHeadUtils.VALUE_TRUE : ChatHeadUtils.VALUE_FALSE);
-		cv.put(DBConstants.HIKE_USER.SPAM_COUNT, callerContentModel.getSpamCount());
-		cv.put(DBConstants.HIKE_USER.ON_HIKE_TIME, setIsOnHikeTime? System.currentTimeMillis() : 0);
-		return  cv;
+		ContentValues contentValues = new ContentValues();
+		contentValues.put(DBConstants.HIKE_USER.IS_ON_HIKE, callerContentModel.getIsOnHike() ? ChatHeadUtils.VALUE_TRUE : ChatHeadUtils.VALUE_FALSE);
+		contentValues.put(DBConstants.HIKE_USER.LOCATION, callerContentModel.getLocation());
+		contentValues.put(DBConstants.HIKE_USER.IS_SPAM, callerContentModel.isSpam() ? ChatHeadUtils.VALUE_TRUE : ChatHeadUtils.VALUE_FALSE);
+		contentValues.put(DBConstants.HIKE_USER.SPAM_COUNT, callerContentModel.getSpamCount());
+		contentValues.put(DBConstants.HIKE_USER.ON_HIKE_TIME, setIsOnHikeTime ? System.currentTimeMillis() : 0);
+		return  contentValues;
 	}
 
 	public void updateCallerTable(CallerContentModel callerContentModel)
 	{
 		if (callerContentModel != null && callerContentModel.getMsisdn() != null)
 		{
-			ContentValues cv = getBasicContentValues(callerContentModel, true);
+			ContentValues contentValues = getBasicCallerContentValues(callerContentModel, true);
 			if (callerContentModel.getFullName() != null)
 			{
-				cv.put(DBConstants.HIKE_USER.CREATION_TIME, System.currentTimeMillis());
+				contentValues.put(DBConstants.HIKE_USER.CREATION_TIME, System.currentTimeMillis());
 				if (ChatHeadUtils.getNameFromNumber(mContext, callerContentModel.getMsisdn())  == null)
 				{
-					cv.put(DBConstants.NAME, callerContentModel.getFullName());
+					contentValues.put(DBConstants.NAME, callerContentModel.getFullName());
 				}
 			}
-			int noOfRow = mDb.update(DBConstants.HIKE_USER.HIKE_CALLER_TABLE, cv, DBConstants.MSISDN + "=? ", new String[] { callerContentModel.getMsisdn() });
+			int noOfRow = mDb.update(DBConstants.HIKE_USER.HIKE_CALLER_TABLE, contentValues, DBConstants.MSISDN + "=? ", new String[] { callerContentModel.getMsisdn() });
 			if (noOfRow == 0 && callerContentModel.getFullName() != null)
 			{
 				insertIntoCallerTable(callerContentModel, true);
