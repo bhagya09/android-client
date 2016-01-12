@@ -441,6 +441,8 @@ public interface DBConstants
 
 		public static final String SPAM_COUNT = "spam_count";
 
+		public static final String IS_SYNCED = "is_synced";
+
 		// hike caller detail table ends here
 
 	}

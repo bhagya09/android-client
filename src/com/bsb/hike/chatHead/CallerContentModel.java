@@ -2,9 +2,6 @@ package com.bsb.hike.chatHead;
 
 import android.text.TextUtils;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-import com.bsb.hike.utils.Logger;
 import com.google.gson.JsonObject;
 import com.google.gson.annotations.Expose;
 
@@ -22,6 +19,8 @@ public class CallerContentModel
 	final private String FIRST_NAME = "first_name";
 
 	final private String LAST_NAME = "last_name";
+
+	private boolean is_synced;
 
 	@Expose
 	private String location, msisdn;
@@ -133,6 +132,11 @@ public class CallerContentModel
 		return is_spam;
 	}
 
+	public boolean isSynced()
+	{
+		return is_synced;
+	}
+
 	public boolean isBlock()
 	{
 		return is_block;
@@ -171,6 +175,11 @@ public class CallerContentModel
 	public void setFullName(String full_name)
 	{
 		this.full_name = full_name;
+	}
+
+	public void setIsSynced(boolean is_synced)
+	{
+		this.is_synced = is_synced;
 	}
 
 	public void setUpdationTime(long updation_time)

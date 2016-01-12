@@ -3736,6 +3736,10 @@ public class HikeConstants
 
 	public static final String CUSTOM_KEYBOARD_SUPPORTED = "custom_key_supported";
 
+	public static final String CALLER_BLOKED_LIST_SYNCHED = "caller_block_list_synched";
+
+	public static final String CALLER_BLOKED_LIST_SYNCHED_SIGNUP = "caller_block_list_synched_signup";
+
 	public static final String WHITE_SCREEN_FIX = "w_s_f";
 
 	public static final String CHAT_OPENING_BENCHMARK = "chatOpeningBenchmark";

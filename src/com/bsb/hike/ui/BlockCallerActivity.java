@@ -1,43 +1,32 @@
 package com.bsb.hike.ui;
 
+import android.content.ContentValues;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
 
 import com.bsb.hike.HikeConstants;
-import com.bsb.hike.HikeMessengerApp;
-import com.bsb.hike.HikePubSub;
-import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
 import com.bsb.hike.adapters.BlockCallerListAdapter;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.chatHead.ChatHeadUtils;
-import com.bsb.hike.chatHead.StickyCaller;
+import com.bsb.hike.db.DBConstants;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.modules.contactmgr.ContactManager;
-import com.bsb.hike.modules.httpmgr.RequestToken;
-import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
-import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
-import com.bsb.hike.timeline.view.DividerItemDecoration;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
-import com.bsb.hike.utils.Logger;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.HashSet;
-import java.util.Set;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by ashishagarwal on 07/12/15.
@@ -53,12 +42,9 @@ public class BlockCallerActivity extends HikeAppStateBaseFragmentActivity implem
 
 	private String msisdn;
 
-	public static final int BLOCKED_FALSE = 0;
-
-	public static final int BLOCKED_TRUE = 1;
-
 	private View emptyView;
 
+	private Map<String, String> nameNumberMap = new HashMap<>();
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -104,30 +90,23 @@ public class BlockCallerActivity extends HikeAppStateBaseFragmentActivity implem
 	@Override
 	public void positiveClicked(HikeDialog hikeDialog) {
 
+		ContentValues contentValues = new ContentValues();
+		contentValues.put(DBConstants.HIKE_USER.IS_SYNCED, ChatHeadUtils.VALUE_FALSE);
 		if (hikeDialog.getId() == HikeDialogFactory.CALLER_BLOCK_CONTACT_DIALOG)
 		{
-			ContactManager.getInstance().updateBlockStatusIntoCallerTable(msisdn, BLOCKED_TRUE);
+			contentValues.put(DBConstants.HIKE_USER.IS_BLOCK, ChatHeadUtils.VALUE_TRUE);
+			ContactManager.getInstance().updateBlockStatusIntoCallerTable(msisdn, contentValues);
 		}
 		else
 		{
-			ContactManager.getInstance().updateBlockStatusIntoCallerTable(msisdn, BLOCKED_FALSE);
+			contentValues.put(DBConstants.HIKE_USER.IS_BLOCK, ChatHeadUtils.VALUE_FALSE);
+			ContactManager.getInstance().updateBlockStatusIntoCallerTable(msisdn, contentValues);
 		}
 		FetchBlockCallerListTask fetchBlockCallerListTask = new FetchBlockCallerListTask();
 		fetchBlockCallerListTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 		hikeDialog.dismiss();
-		try
-		{
-			JSONObject json = new JSONObject();
-			json.put(HikeConstants.MSISDN, msisdn);
-			json.put(HikeConstants.IS_BLOCK, (hikeDialog.getId() == HikeDialogFactory.CALLER_BLOCK_CONTACT_DIALOG) ? 1 : 0);
-			RequestToken requestToken = HttpRequests.postCallerMsisdn(HttpRequestConstants.getHikeCallerBlockUrl(), json, null, ChatHeadUtils.HTTP_CALL_RETRY_DELAY,
-					ChatHeadUtils.HTTP_CALL_RETRY_MULTIPLIER, false);
-			requestToken.execute();
-		}
-		catch (JSONException e)
-		{
-			Logger.d("JSON Exception" , "Caller Block Server Call");
-		}
+		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CALLER_BLOKED_LIST_SYNCHED, false);
+		ChatHeadUtils.syncFromClientToServer();
 		HAManager.getInstance().stickyCallerAnalyticsUIEvent(AnalyticsConstants.StickyCallerEvents.POSITIVE_CLICKED, msisdn,
 				hikeDialog.getId() == HikeDialogFactory.CALLER_BLOCK_CONTACT_DIALOG ? AnalyticsConstants.StickyCallerEvents.BLOCK_DIALOG
 						: AnalyticsConstants.StickyCallerEvents.UNBLOCK_DIALOG,
@@ -158,7 +137,23 @@ public class BlockCallerActivity extends HikeAppStateBaseFragmentActivity implem
 		@Override
 		protected Cursor doInBackground(Void... params)
 		{
-			return ContactManager.getInstance().getCallerBlockContactCursor();
+			Cursor cursor = ContactManager.getInstance().getCallerBlockContactCursor();
+			if (cursor != null && cursor.getCount() >= 1)
+			{
+				if (nameNumberMap != null)
+				{
+					for (cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext())
+					{
+						String msisdn = cursor.getString(cursor.getColumnIndex(DBConstants.MSISDN));
+						if (!nameNumberMap.containsKey(msisdn))
+						{
+							nameNumberMap.put(msisdn, ChatHeadUtils.getNameFromNumber(BlockCallerActivity.this, msisdn));
+						}
+					}
+				}
+				cursor.moveToFirst();
+			}
+			return cursor;
 		}
 
 		@Override
@@ -169,12 +164,12 @@ public class BlockCallerActivity extends HikeAppStateBaseFragmentActivity implem
 				isEmptyViewVisible(false);
 				if (blockCallerAdapter == null)
 				{
-					blockCallerAdapter = new BlockCallerListAdapter(result, BlockCallerActivity.this, 0);
+					blockCallerAdapter = new BlockCallerListAdapter(result, nameNumberMap, BlockCallerActivity.this, 0);
 					mCallerBlockListRecyclerView.setAdapter(blockCallerAdapter);
 				}
 				else
 				{
-					blockCallerAdapter.swapCursor(result);
+					blockCallerAdapter.swapCursor(result, nameNumberMap);
 				}
 			}
 			else

@@ -83,6 +83,8 @@ public class HttpRequestConstants
 
 	private static final String BASE_BLOCK = "/block";
 
+	private static final String BASE_BLOCKED_LIST = "/caller_blocked_list";
+
 	public static synchronized void setUpBase()
 	{
 		toggleStaging();
@@ -424,6 +426,19 @@ public class HttpRequestConstants
 		else
 		{
 			return STAGING_HIKECALLER_API + BASE_BLOCK;
+		}
+	}
+
+
+	public static String getBlockedCallerListUrl()
+	{
+		if (isProduction)
+		{
+			return PRODUCTION_HIKECALLER_API+ BASE_BLOCKED_LIST;
+		}
+		else
+		{
+			return STAGING_HIKECALLER_API + BASE_BLOCKED_LIST;
 		}
 	}
 

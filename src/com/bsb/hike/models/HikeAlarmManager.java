@@ -74,6 +74,10 @@ public class HikeAlarmManager
 	
 	public static final int REQUESTCODE_UPDATE_PERSISTENT_NOTIF = 4575;
 
+	public static final int REQUESTCODE_FETCH_BLOCK_LIST_CALLER = 4576;
+
+	public static final int REQUESTCODE_BLOCKED_CALLER_FROM_CLIENT_TO_SERVER = 4577;
+
 	// ******************************************************//
 	
 	public static final String INTENT_EXTRA = "intent_extra";
@@ -310,7 +314,12 @@ public class HikeAlarmManager
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.IS_PERS_NOTIF_ALARM_SET, false);
 			HikeNotification.getInstance().checkAndShowUpdateNotif();
 			break;
-			
+		case HikeAlarmManager.REQUESTCODE_BLOCKED_CALLER_FROM_CLIENT_TO_SERVER:
+			ChatHeadUtils.syncFromClientToServer();
+			break;
+		case HikeAlarmManager.REQUESTCODE_FETCH_BLOCK_LIST_CALLER:
+			ChatHeadUtils.syncAllCallerBlockedContacts();
+			break;
 		default:
 			PlatformAlarmManager.processTasks(intent, context);
 			break;
@@ -382,7 +391,7 @@ public class HikeAlarmManager
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.IS_PERS_NOTIF_ALARM_SET, false);
 			HikeNotification.getInstance().checkAndShowUpdateNotif();
 			break;
-			
+
 		default:
 			PlatformAlarmManager.processTasks(intent, context);
 			break;
