@@ -62,7 +62,6 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.ActivityManager.RunningAppProcessInfo;
-import android.app.ActivityManager.RunningServiceInfo;
 import android.app.AlertDialog;
 import android.app.PendingIntent;
 import android.content.ActivityNotFoundException;
@@ -5677,6 +5676,23 @@ public class Utils
 			android.text.ClipboardManager clipboard = (android.text.ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
 			clipboard.setText(str);
 		}
+	}
+
+	public static String getClipboardText(Context context)
+	{
+		ClipboardManager clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+		try
+		{
+			ClipData.Item item = clipboard.getPrimaryClip().getItemAt(0);
+			String text = item.getText().toString();
+			return text;
+		}
+		catch (NullPointerException | IndexOutOfBoundsException ex)
+		{
+			ex.printStackTrace();
+
+		}
+		return null;
 	}
 
 	/**

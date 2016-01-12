@@ -56,6 +56,7 @@ import com.bsb.hike.smartImageLoader.GalleryImageLoader;
 import com.bsb.hike.smartImageLoader.GalleryPagerImageLoader;
 import com.bsb.hike.tasks.InitiateMultiFileTransferTask;
 import com.bsb.hike.ui.utils.StatusBarColorChanger;
+import com.bsb.hike.utils.EmoticonTextWatcher;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
@@ -714,14 +715,14 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 
 			((ViewPager) container).addView(page);
 
-            EditText captionEt = (EditText) page.findViewById(R.id.et_caption);
-			captionEt.setTag(TAG_CAPTION_ET+position);
+            final EditText captionEt = (EditText) page.findViewById(R.id.et_caption);
+			captionEt.setTag(TAG_CAPTION_ET + position);
             if(!TextUtils.isEmpty(captions.get(position)))
             {
                 captionEt.setText(captions.get(position));
             }
 
-			page.findViewById(R.id.caption_underline).setTag(TAG_CAPTION_LINE+position);
+			page.findViewById(R.id.caption_underline).setTag(TAG_CAPTION_LINE + position);
 
             captionEt.addTextChangedListener(new TextWatcher() {
 				@Override
@@ -739,7 +740,21 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 					captions.put(position, editable.toString());
 				}
 			});
+			captionEt.addTextChangedListener(new EmoticonTextWatcher());
 
+			captionEt.setOnLongClickListener(new View.OnLongClickListener()
+			{
+				@Override
+				public boolean onLongClick(View view)
+				{
+					String text = Utils.getClipboardText(getApplicationContext());
+					if(text!=null)
+					{
+						Utils.setClipboardText(text,getApplicationContext());
+					}
+					return false;
+				}
+			});
 
 			return page;
 		}
