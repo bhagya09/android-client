@@ -1,22 +1,18 @@
 package com.bsb.hike.modules.stickersearch;
 
 import android.content.Context;
-import android.util.Pair;
 import android.view.inputmethod.InputMethodManager;
 import android.view.inputmethod.InputMethodSubtype;
 import android.widget.TextView;
 
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
-import com.bsb.hike.models.Sticker;
 import com.bsb.hike.modules.kpt.KptKeyboardManager;
 import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchBaseConstants;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Locale;
 
 public class StickerSearchUtils
