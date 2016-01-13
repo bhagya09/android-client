@@ -6,10 +6,27 @@ package com.bsb.hike.models;
  */
 public class PlatformNotificationPreview
 {
+    /**
+     * This field is used to identify the notifications which needs to clubbed together
+     */
     private Boolean clubByMsisdn;
+
+    /**
+     * This field contains the msisdn from where the packet is received.
+     */
     private String msisdn;
+
+    /**
+     * This field contains the title of packet.
+     */
     private String title;
+
+    /**
+     * This field contains the content of packet.
+     */
     private String body;
+
+
     private PlatformNotificationPreviewBuilder builder;
 
     private PlatformNotificationPreview(PlatformNotificationPreviewBuilder builder)
