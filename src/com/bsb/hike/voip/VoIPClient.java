@@ -1345,6 +1345,12 @@ public class VoIPClient  {
 					case MULTIPLE_AUDIO_PACKETS:
 						int firstVoicePacketNumber = dataPacket.getVoicePacketNumber();
 						int i = 0;
+
+						if (dataPacket.getDataList() == null) {
+							Logger.w(tag, "That was unexpected. MULTIPLE_AUDIO_PACKETS has no audio packets.");
+							break;
+						}
+
 						for (byte[] data : dataPacket.getDataList()) {
 							VoIPDataPacket dp = new VoIPDataPacket(PacketType.AUDIO_PACKET);
 							dp.setData(data);
