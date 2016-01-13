@@ -1,7 +1,5 @@
 package com.bsb.hike.modules.stickersearch.ui;
 
-import java.util.List;
-
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.RecyclerView.ViewHolder;
@@ -15,9 +13,12 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.modules.stickersearch.StickerSearchUtils;
+import com.bsb.hike.smartImageLoader.ImageWorker;
 import com.bsb.hike.smartImageLoader.StickerLoader;
 
-public class StickerRecomendationAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
+import java.util.List;
+
+public class StickerRecomendationAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements ImageWorker.SuccessfulImageLoadingListener
 {
 
 	private List<Sticker> stickerList;
@@ -36,6 +37,7 @@ public class StickerRecomendationAdapter extends RecyclerView.Adapter<RecyclerVi
 	{
 		this.stickerList = stickerList;
 		this.stickerLoader = new StickerLoader(HikeMessengerApp.getInstance(), true);
+		this.stickerLoader.setSuccessfulImageLoadingListener(this);
 		this.mContext = HikeMessengerApp.getInstance();
 		this.sizeEachImage = StickerSearchUtils.getStickerSize();
 		this.listener = listener;
@@ -62,7 +64,7 @@ public class StickerRecomendationAdapter extends RecyclerView.Adapter<RecyclerVi
 		int padding = mContext.getResources().getDimensionPixelSize(R.dimen.sticker_recommend_sticker_image_padding);
 		imageView.setScaleType(ScaleType.CENTER_INSIDE);
 		imageView.setPadding(padding, padding, padding, padding);
-		stickerLoader.loadImage(sticker.getMiniStickerPath(), imageView, false);
+		stickerLoader.loadImage(sticker.getMiniStickerPath(), imageView, !sticker.isStickerAvailable());
 	}
 
 	@Override
@@ -72,6 +74,13 @@ public class StickerRecomendationAdapter extends RecyclerView.Adapter<RecyclerVi
 		ImageView convertView = new ImageView(mContext);
 		convertView.setLayoutParams(ll);
 		return new StickerViewHolder(convertView);
+	}
+
+	@Override
+	public void onSuccessfulImageLoaded(ImageView imageView) {
+
+
+
 	}
 
 	public class StickerViewHolder extends RecyclerView.ViewHolder implements OnClickListener

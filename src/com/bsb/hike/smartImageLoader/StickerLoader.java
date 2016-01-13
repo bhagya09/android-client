@@ -1,14 +1,16 @@
 package com.bsb.hike.smartImageLoader;
 
-import java.io.File;
-
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.text.TextUtils;
 
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
+import com.bsb.hike.modules.diskcache.Cache;
 import com.bsb.hike.modules.stickerdownloadmgr.SingleStickerDownloadTask;
+import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchBaseConstants;
 import com.bsb.hike.utils.Logger;
+
+import java.io.File;
 
 public class StickerLoader extends ImageWorker
 {
@@ -16,7 +18,11 @@ public class StickerLoader extends ImageWorker
 	
 	private Context ctx;
 	
-	private boolean downloadIfNotFound;
+	private boolean downloadIfNotFound,lookInDiskCache;
+
+	private int downloadStickerType;
+
+	Cache stickerDiskCache;
 
 	public StickerLoader(Context ctx, boolean downloadIfNotFound)
 	{
@@ -24,6 +30,23 @@ public class StickerLoader extends ImageWorker
 		this.ctx = ctx;
 		this.downloadIfNotFound = downloadIfNotFound;
 		mResources = ctx.getResources();
+
+	}
+
+	public StickerLoader(Context ctx, boolean downloadIfNotFound,boolean lookInDiskCache,int downloadStickerType)
+	{
+		super();
+		this.ctx = ctx;
+		this.downloadIfNotFound = downloadIfNotFound;
+		mResources = ctx.getResources();
+		if(lookInDiskCache)
+		{
+			this.lookInDiskCache = lookInDiskCache;
+			//To Do discuss parameters Akt Anubhav
+			stickerDiskCache = new Cache(new File("test"),0);
+		}
+
+		this.downloadStickerType = downloadStickerType;
 	}
 
 	@Override
@@ -37,7 +60,7 @@ public class StickerLoader extends ImageWorker
 		else
 		{
 			Bitmap bitmap = HikeBitmapFactory.decodeFile(data);
-			checkAndDownload(bitmap, data);
+			bitmap = checkAndDownload(bitmap, data);
 			return bitmap;
 		}
 	}
@@ -49,11 +72,22 @@ public class StickerLoader extends ImageWorker
 		return null;
 	}
 
-	private void checkAndDownload(Bitmap bitmap, String data)
+	private Bitmap checkAndDownload(Bitmap bitmap, String data)
 	{
+
+		if(bitmap != null)
+		{
+			return bitmap;
+		}
+
 		try
 		{
-			if((bitmap == null) && downloadIfNotFound && !TextUtils.isEmpty(data))
+			if(bitmap == null && lookInDiskCache && !TextUtils.isEmpty(data))
+			{
+				bitmap = HikeBitmapFactory.decodeSampledBitmapFromByteArray(stickerDiskCache.getCache().get(data).getData(),0,0);
+				//To Do add in image cache
+			}
+			else if((bitmap == null) && downloadIfNotFound && !TextUtils.isEmpty(data))
 			{
 				String[] args = data.split(File.separator);
 				int length = args.length;
@@ -61,8 +95,17 @@ public class StickerLoader extends ImageWorker
 				String stickerId = args[length - 1];
 				String categoryId = args[length - 3];
 
-				SingleStickerDownloadTask singleStickerDownloadTask = new SingleStickerDownloadTask(stickerId, categoryId, null);
-				singleStickerDownloadTask.execute();
+				if(downloadStickerType == HikeStickerSearchBaseConstants.MINI_STICKER_AVAILABLE_ONLY)
+				{
+					//Init mini sticker download
+				}
+
+				else
+				{
+					SingleStickerDownloadTask singleStickerDownloadTask = new SingleStickerDownloadTask(stickerId, categoryId, null);
+					singleStickerDownloadTask.execute();
+				}
+
 			}
 		}
 		catch(Exception e)
@@ -70,5 +113,7 @@ public class StickerLoader extends ImageWorker
 			//Safety catch as don't want to hamper existing experience
 			Logger.e(TAG, "exception in downloading sticker from loader : ", e);
 		}
+
+		return bitmap;
 	}
 }
