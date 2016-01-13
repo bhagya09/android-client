@@ -3404,6 +3404,8 @@ public class HikeConstants
 
 	public static final String CONN_PROD_AREA_LOGGING = "connProdAreaLogs";
 
+	public static final String GCM_PROD_AREA_LOGGING = "gcmProdAreaLogs";
+
 	public static final String SERVER_CONFIGURABLE_GROUP_SETTING = "gse";
 
 	public static final String MESSAGING = "messaging";

@@ -2244,6 +2244,10 @@ public class MqttMessagesManager
 			boolean connLogging = data.getBoolean(HikeConstants.CONN_PROD_AREA_LOGGING);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CONN_PROD_AREA_LOGGING, connLogging);
 		}
+		if (data.has(HikeConstants.GCM_PROD_AREA_LOGGING)) {
+			boolean gcmLogging = data.getBoolean(HikeConstants.GCM_PROD_AREA_LOGGING);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.GCM_PROD_AREA_LOGGING, gcmLogging);
+		}
 		if (data.has(HikeConstants.SERVER_CONFIGURABLE_GROUP_SETTING))
 		{
 			int groupSetting = data.getInt(HikeConstants.SERVER_CONFIGURABLE_GROUP_SETTING);
