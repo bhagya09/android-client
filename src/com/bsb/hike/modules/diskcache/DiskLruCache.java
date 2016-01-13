@@ -157,6 +157,13 @@ public final class DiskLruCache implements Closeable
 	/** Used to run 'cleanupRunnable' for journal rebuilds. */
 	private final Executor executor;
 
+	private EvictListener evictListener;
+
+	public interface EvictListener
+	{
+		public void onEvict(String key);
+	}
+
 	private final Runnable cleanupRunnable = new Runnable()
 	{
 		public void run()
@@ -184,7 +191,7 @@ public final class DiskLruCache implements Closeable
 		}
 	};
 
-	DiskLruCache(File directory, int appVersion, int valueCount, long maxSize, Executor executor)
+	DiskLruCache(File directory, int appVersion, int valueCount, long maxSize, Executor executor, EvictListener evictListener)
 	{
 		this.directory = directory;
 		this.appVersion = appVersion;
@@ -194,6 +201,7 @@ public final class DiskLruCache implements Closeable
 		this.valueCount = valueCount;
 		this.maxSize = maxSize;
 		this.executor = executor;
+		this.evictListener = evictListener;
 	}
 
 	// Visible for testing.
@@ -255,7 +263,7 @@ public final class DiskLruCache implements Closeable
 	 * @param maxSize
 	 *            the maximum number of bytes this cache should use to store
 	 */
-	public static DiskLruCache create(File directory, int appVersion, int valueCount, long maxSize, Executor executor)
+	public static DiskLruCache create(File directory, int appVersion, int valueCount, long maxSize, Executor executor, EvictListener evictListener)
 	{
 		if (maxSize <= 0)
 		{
@@ -272,7 +280,7 @@ public final class DiskLruCache implements Closeable
 			executor = new ThreadPoolExecutor(0, 1, 60L, TimeUnit.SECONDS,
 					new LinkedBlockingQueue<Runnable>(), Utils.threadFactory("DiskLruCache", true));
 		}
-		return new DiskLruCache(directory, appVersion, valueCount, maxSize, executor);
+		return new DiskLruCache(directory, appVersion, valueCount, maxSize, executor, evictListener);
 	}
 
 	private void readJournal() throws IOException
@@ -715,13 +723,20 @@ public final class DiskLruCache implements Closeable
 		redundantOpCount++;
 		journalWriter.writeUtf8(REMOVE).writeByte(' ').writeUtf8(entry.key).writeByte('\n');
 		lruEntries.remove(entry.key);
-
+		entryRemoved(entry);
 		if (journalRebuildRequired())
 		{
 			executor.execute(cleanupRunnable);
 		}
 
 		return true;
+	}
+
+	private void entryRemoved(Entry entry)
+	{
+		if(evictListener != null) {
+			evictListener.onEvict(entry.key);
+		}
 	}
 
 	/** Returns true if this cache has been closed. */
