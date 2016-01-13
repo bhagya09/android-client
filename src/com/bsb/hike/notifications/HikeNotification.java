@@ -1363,7 +1363,7 @@ public class HikeNotification
 	 * Receives jsonobject of format:
 	 * { "f": "+hikegames+", "d": { "u": "+hikegames+", "silent": "false", "md": { "hm": "This is hm2", "notifData": {} }, "i": 1452057426, "uuc": true, "rearrange_chat": true,
 	 * "push": true, "b": "This is notif subtext", "hike_affinity": false, "clubbymsisdn" : false, "type": 0, "heads_up": true, "led_light": "#ffffff", "big_picture": "" }, "t":
-	 * "popup", "st": "notif" }
+	 * "popup", "st": "notif", "bitmap_url":"url string" }
 	 */
 	public void showPlatformNotification(final JSONObject jsonObject, final String msisdn)
 	{
@@ -1399,7 +1399,9 @@ public class HikeNotification
 				showNotification(notifIntent, notificationId, jsonObject, msisdn, avatarDrawable, bigPicture);
 				if(TextUtils.isEmpty(bitmapString)){
 					String url = jsonObject.optString(HikePlatformConstants.BITMAP_URL);
-					Logger.d(TAG,"bitmap url: "+url);
+					if(TextUtils.isEmpty(url)){
+						return;
+					}
 					RequestToken bitmapDownloadRequestToken = HttpRequests.downloadBitmapTaskRequest(url, new IRequestListener() {
 						@Override
 						public void onRequestFailure(HttpException httpException) {
@@ -1433,6 +1435,8 @@ public class HikeNotification
 		}
 
 	}
+
+	//Used only for platform notifications
     private void showNotification(final Intent notificationIntent, final int notificationId, final JSONObject jsonObject, final String msisdn, Drawable avatarDrawable, Bitmap bigPicture){
 		showNotification(notificationIntent, System.currentTimeMillis(), notificationId, getTickerText(msisdn, jsonObject.optString(HikeConstants.BODY)),
 				HikeNotificationUtils.getNameForMsisdn(msisdn), jsonObject.optString(HikeConstants.BODY), msisdn, bigPicture, bigPicture == null, avatarDrawable,
