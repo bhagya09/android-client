@@ -2,9 +2,12 @@ package com.bsb.hike.modules.diskcache;
 
 import com.bsb.hike.modules.diskcache.request.CacheRequest;
 import com.bsb.hike.modules.diskcache.response.CacheResponse;
+import com.bsb.hike.utils.Logger;
 
 public final class CacheStrategy
 {
+	private static final String TAG = CacheStrategy.class.getSimpleName();
+
 	public final CacheRequest cacheRequest;
 	
 	public final CacheResponse cacheResponse;
@@ -45,11 +48,13 @@ public final class CacheStrategy
 				return new CacheStrategy(request, null);
 			}
 			
-			/*else if(isExpired)
+			else if(isExpired)
 			{
+				Logger.d(TAG, "time expired for key : " + key + "with ttl : " + request.getTtl());
+				Logger.d(TAG, "removing key from cache : " + key);
 				cache.remove(key);
 				return new CacheStrategy(request, null);
-			}*/
+			}
 
 			return new CacheStrategy(request, response);
 		}

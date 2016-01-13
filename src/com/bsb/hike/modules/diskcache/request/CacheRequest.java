@@ -7,11 +7,13 @@ import java.util.List;
 
 public abstract class CacheRequest
 {
-	private long DEFAULT_TTL = -1;  // max ttl
+	public static final long DEFAULT_TTL = -1;  // max ttl
 
 	private String key;
 
 	private long ttl;
+
+	private long actualTtl;
 
 	private List<Header> headers;
 	
@@ -30,7 +32,15 @@ public abstract class CacheRequest
 	{
 		return this.ttl;
 	}
-	
+
+	/**
+	 * Return the exact time at which this request is invalidated
+	 * @return
+	 */
+	public long getActualTtl() {
+		return actualTtl;
+	}
+
 	/**
 	 * Return list of Headers for request
 	 */
@@ -48,6 +58,7 @@ public abstract class CacheRequest
 	{
 		this.key = builder.key;
 		this.ttl = builder.ttl;
+		this.actualTtl = System.currentTimeMillis() + ttl;
 		this.headers = builder.headers;
 		ensureSaneDefaults();
 	}
@@ -92,7 +103,9 @@ public abstract class CacheRequest
 		
 		/**
 		 * Sets time to live for the request
-		 * @param ttl
+		 * @param ttl in milliseconds
+		 *            <pre>for ex if u need to give ttl as 1 day please give ttl = 1 * 24 * 60 * 60 * 1000</pre>
+		 *            <pre>-1 if don't want any tll for entry</pre>
 		 */
 		public S setTtl(long ttl)
 		{

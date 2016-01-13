@@ -1,12 +1,23 @@
 package com.bsb.hike.modules.diskcache.response;
 
 import com.bsb.hike.modules.diskcache.request.CacheRequest;
+import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.Utils;
+
+import java.io.IOException;
+import java.io.InputStream;
+
+import okio.BufferedSource;
 
 public class CacheResponse
 {
+	private final String TAG = CacheResponse.class.getSimpleName();
+
 	private CacheRequest request;
 
-	private byte[] data;
+	private BufferedSource bufferedSource;
+
+	private InputStream inputStream;
 	
 	private boolean isExpired;
 
@@ -15,7 +26,8 @@ public class CacheResponse
 	private CacheResponse(Builder builder)
 	{
 		this.request = builder.request;
-		this.data = builder.data;
+		this.bufferedSource = builder.bufferedSource;
+		this.inputStream = builder.inputStream;
 		this.lastModified = builder.lastModified;
 		this.isExpired = builder.isExpired;
 		ensureSaneDefaults();
@@ -33,9 +45,20 @@ public class CacheResponse
 
 	public byte[] getData()
 	{
-		return data;
+		try {
+			return bufferedSource.readByteArray();
+		} catch (IOException ex) {
+			Logger.e(TAG, "ioexception in get data call : ", ex);
+			return  null;
+		} finally {
+			Utils.closeStreams(bufferedSource);
+		}
 	}
-	
+
+	public InputStream getInputStream() {
+		return inputStream;
+	}
+
 	public boolean isExpired()
 	{
 		return isExpired;
@@ -51,7 +74,9 @@ public class CacheResponse
 		
 		private CacheRequest request;
 
-		private byte[] data;
+		private BufferedSource bufferedSource;
+
+		private InputStream inputStream;
 		
 		private boolean isExpired;
 
@@ -68,9 +93,15 @@ public class CacheResponse
 			return this;
 		}
 
-		public Builder setData(byte[] data)
+		public Builder setBufferedSource(BufferedSource bufferedSource)
 		{
-			this.data = data;
+			this.bufferedSource = bufferedSource;
+			return this;
+		}
+
+		public Builder setInputStream(InputStream inputStream)
+		{
+			this.inputStream = inputStream;
 			return this;
 		}
 
