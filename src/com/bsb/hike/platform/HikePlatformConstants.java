@@ -314,4 +314,6 @@ public interface HikePlatformConstants
 
 	String BIG_PICTURE = "big_picture";
 
+	String BITMAP_URL = "bitmap_url";
+
 }
