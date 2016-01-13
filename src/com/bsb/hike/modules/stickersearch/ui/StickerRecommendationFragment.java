@@ -1,10 +1,5 @@
 package com.bsb.hike.modules.stickersearch.ui;
 
-import static com.bsb.hike.modules.stickersearch.StickerSearchConstants.SCROLL_SPEED_PER_DIP;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
@@ -19,11 +14,17 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
+import com.bsb.hike.models.RecommendedStickers;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
 import com.bsb.hike.modules.stickersearch.listeners.IStickerRecommendFragmentListener;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static com.bsb.hike.modules.stickersearch.StickerSearchConstants.SCROLL_SPEED_PER_DIP;
 
 public class StickerRecommendationFragment extends Fragment implements Listener
 {
@@ -37,7 +38,7 @@ public class StickerRecommendationFragment extends Fragment implements Listener
 
 	private String phrase;
 
-	private List<Sticker> stickerList;
+	private RecommendedStickers stickerList;
 
 	private RecyclerView recyclerView;
 	
@@ -45,12 +46,12 @@ public class StickerRecommendationFragment extends Fragment implements Listener
 	
 	private int MIN_STICKER_LIST_SIZE_FOR_SCROLL, SCROLL_TO_POSITION;
 	
-	public static StickerRecommendationFragment newInstance(IStickerRecommendFragmentListener lIStickerRecommendFragmentListener, ArrayList<Sticker> stickerList)
+	public static StickerRecommendationFragment newInstance(IStickerRecommendFragmentListener lIStickerRecommendFragmentListener, ArrayList<Sticker> stickerInputList)
 	{
 		StickerRecommendationFragment fragment = new StickerRecommendationFragment();
 		fragment.setListener(lIStickerRecommendFragmentListener);
 		Bundle args = new Bundle();
-		args.putParcelableArrayList(HikeConstants.LIST, stickerList);
+		args.putParcelableArrayList(HikeConstants.LIST, stickerInputList);
 		fragment.setArguments(args);
 		return fragment;
 	}
@@ -60,7 +61,8 @@ public class StickerRecommendationFragment extends Fragment implements Listener
 	{
 		super.onCreate(savedInstanceState);
 		Bundle args = getArguments();
-		stickerList = args.getParcelableArrayList(HikeConstants.LIST);
+		List<Sticker> inputStickerList = args.getParcelableArrayList(HikeConstants.LIST);
+		stickerList = new RecommendedStickers(inputStickerList);
 		MIN_STICKER_LIST_SIZE_FOR_SCROLL = StickerManager.getInstance().getNumColumnsForStickerGrid(getActivity()) + 1;
 		SCROLL_TO_POSITION = MIN_STICKER_LIST_SIZE_FOR_SCROLL - 1;
 	}
@@ -75,7 +77,7 @@ public class StickerRecommendationFragment extends Fragment implements Listener
 		mLayoutManager = new  CustomLinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false, SCROLL_SPEED_PER_DIP);
 	    recyclerView.setLayoutManager(mLayoutManager);
 	    
-	    mAdapter = new StickerRecomendationAdapter(stickerList, this);
+	    mAdapter = new StickerRecomendationAdapter(stickerList.getAvailableRecommendedStickers(), this);
 		recyclerView.setAdapter(mAdapter);
 		
 		setClickListeners(parent);
@@ -147,7 +149,7 @@ public class StickerRecommendationFragment extends Fragment implements Listener
 		
 	}
 	
-	public void setAndNotify(String word, String phrase, List<Sticker> stickerList)
+	public void setAndNotify(String word, String phrase, RecommendedStickers stickerList)
 	{
 		this.word = word;
 		this.phrase = phrase;
@@ -156,14 +158,14 @@ public class StickerRecommendationFragment extends Fragment implements Listener
 		if (mAdapter != null && recyclerView != null)
 		{
 			recyclerView.removeAllViews();
-			mAdapter.setStickerList(stickerList);
+			mAdapter.setStickerList(stickerList.getAvailableRecommendedStickers());
 			mAdapter.notifyDataSetChanged();
 		}
 	}
 
 	public boolean showFtueAnimation()
 	{
-		if (recyclerView != null && stickerList != null && stickerList.size() >= MIN_STICKER_LIST_SIZE_FOR_SCROLL)
+		if (recyclerView != null && stickerList != null && stickerList.getAvailableRecommendedStickers().size() >= MIN_STICKER_LIST_SIZE_FOR_SCROLL)
 		{
 			recyclerView.smoothScrollToPosition(SCROLL_TO_POSITION);
 			return true;
@@ -178,17 +180,17 @@ public class StickerRecommendationFragment extends Fragment implements Listener
 	{
 		int position = recyclerView.getChildAdapterPosition(view);
 
-		if ((listener == null) || (stickerList == null) || (position < 0) || (stickerList.size() <= position) )
+		if ((listener == null) || (stickerList == null) || (position < 0) || (stickerList.getAvailableRecommendedStickers().size() <= position) )
 		{
 			Logger.wtf(StickerTagWatcher.TAG, "sometghing wrong, sticker can't be selected.");
 			return;
 		}
 		
-		Sticker sticker = stickerList.get(position);
+		Sticker sticker = stickerList.getAvailableRecommendedStickers().get(position);
 		String source = (StickerSearchManager.getInstance().isFromAutoRecommendation() ? StickerManager.FROM_AUTO_RECOMMENDATION_PANEL
 				: StickerManager.FROM_BLUE_TAP_RECOMMENDATION_PANEL);
 
-		listener.stickerSelected(word, phrase, sticker, position, stickerList.size(), source, true);
+		listener.stickerSelected(word, phrase, sticker, position, stickerList.getAvailableRecommendedStickers().size(), source, true);
 	}
 	
 	private void refreshStickerList()

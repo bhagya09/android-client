@@ -1,8 +1,5 @@
 package com.bsb.hike.modules.stickersearch.ui;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import android.graphics.Color;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -10,7 +7,6 @@ import android.text.Editable;
 import android.text.Spannable;
 import android.text.TextWatcher;
 import android.text.style.ForegroundColorSpan;
-import android.util.Pair;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
@@ -22,6 +18,7 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.chatthread.ChatThread;
 import com.bsb.hike.chatthread.ChatThreadTips;
+import com.bsb.hike.models.RecommendedStickers;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
@@ -39,7 +36,11 @@ import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 
-import static com.bsb.hike.modules.stickersearch.StickerSearchConstants.*;
+import java.util.ArrayList;
+import java.util.List;
+
+import static com.bsb.hike.modules.stickersearch.StickerSearchConstants.SHOW_SCROLL_FTUE_COUNT;
+import static com.bsb.hike.modules.stickersearch.StickerSearchConstants.WAIT_TIME_IN_FTUE_SCROLL;
 
 public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, OnTouchListener, IStickerRecommendFragmentListener
 {
@@ -244,7 +245,7 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 				dismissTip(ChatThreadTips.STICKER_RECOMMEND_AUTO_OFF_TIP);
 				stickerRecommendView.setVisibility(View.VISIBLE);
 
-				Pair<Boolean, List<Sticker>> result = StickerSearchUtils.shouldShowStickerFtue(stickerList);
+				RecommendedStickers result = new RecommendedStickers(stickerList);
 
 				if (shouldShowFtue(result)) // no available stickers present show ftue
 				{
@@ -260,31 +261,31 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 
 					hideFragment(fragment);
 					showFragment(fragmentFtue);
-					((StickerRecommendationFtueFragment) fragmentFtue).setAndNotify(word, phrase, result.second);
+					((StickerRecommendationFtueFragment) fragmentFtue).setAndNotify(word, phrase, result.getNotAvailableRecommendedStickers());
 				}
 				else
-				// show only available stickers
+				// show only available stickers first and begin download of remaining stickers
 				{
 					hideFragment(fragmentFtue);
 					showFragment(fragment);
 
-					((StickerRecommendationFragment) fragment).setAndNotify(word, phrase, result.second);
+					((StickerRecommendationFragment) fragment).setAndNotify(word, phrase, result);
 					showFtueAnimation();
 				}
 			}
 		});
 	}
 
-	private boolean shouldShowFtue(Pair<Boolean, List<Sticker>> result)
+	private boolean shouldShowFtue(RecommendedStickers result)
 	{
-		Logger.d(TAG, "result first : " + result.first);
+		Logger.d(TAG, "result first : " + result.anyStickerToShow());
 		if (fragmentFtue != null)
 		{
 			Logger.d(TAG, "FTUE is visible: " + fragmentFtue.isVisible());
 		}
 		Logger.d(TAG, "shown ftue : " + shownStickerRecommendFtue);
 
-		if (!result.first || (fragmentFtue != null && fragmentFtue.isVisible() && !shownStickerRecommendFtue))
+		if (!result.anyStickerToShow() || (fragmentFtue != null && fragmentFtue.isVisible() && !shownStickerRecommendFtue))
 		{
 			return true;
 		}
