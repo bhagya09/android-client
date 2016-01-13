@@ -1095,7 +1095,7 @@
     <string name="photo_actions_header">ভালো লাগছে! এতে এই ফটোটি ব্যবহার করুন,</string>
     <string name="profile_header_subtext">প্রোফাইল ফটো সকলের কাছে দৃশ্যমান</string>
     <string name="sms_with_settings">SMS সেটিংস</string>
-    <string name="sms_credits_with_settings">ফ্রি SMS: %1$d</string>
+    <string name="sms_credits_with_settings">ফ্রি SMS: %1$s</string>
     <string name="free_hike_2_sms_india">কেবলমাত্র ভারতে ফ্রি</string>
     <string name="invite_friends_earn_rewards">hike এ বন্ধুদের আমন্ত্রণ করুন এবং পুরষ্কার পান</string>
     <string name="your_referral_code">আপনার <b>রেফারেল</b> কোড</string>

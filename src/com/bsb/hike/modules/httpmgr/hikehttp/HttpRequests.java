@@ -3,6 +3,7 @@ package com.bsb.hike.modules.httpmgr.hikehttp;
 import android.text.TextUtils;
 
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.modules.httpmgr.Header;
 import com.bsb.hike.modules.httpmgr.HttpUtils;
 import com.bsb.hike.modules.httpmgr.RequestToken;
@@ -25,6 +26,7 @@ import com.bsb.hike.modules.httpmgr.request.requestbody.JsonBody;
 import com.bsb.hike.modules.httpmgr.request.requestbody.MultipartRequestBody;
 import com.bsb.hike.modules.httpmgr.retry.BasicRetryPolicy;
 import com.bsb.hike.modules.stickersearch.StickerLanguagesManager;
+import com.bsb.hike.modules.stickersearch.StickerSearchUtils;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
@@ -147,7 +149,7 @@ public class HttpRequests
 	{
 		List<String> unsupportedLanguages = StickerLanguagesManager.getInstance().getUnsupportedLanguagesCollection();
 
-		String url = stickerShopDownloadUrl() + "?offset=" + offset + "&resId=" + Utils.getResolutionId() + "&lang=" + Utils.getCurrentLanguageLocale().getISO3Language();
+		String url = stickerShopDownloadUrl() + "?offset=" + offset + "&resId=" + Utils.getResolutionId() + "&lang=" + StickerSearchUtils.getCurrentLanguageISOCode();
 		url = Utils.isEmpty(unsupportedLanguages) ? url : (url + "&unknown_langs=" + StickerLanguagesManager.getInstance().listToString(unsupportedLanguages));
 
 		RequestToken requestToken = new JSONObjectRequest.Builder()
@@ -939,16 +941,23 @@ public class HttpRequests
      * this request is just for checking that internet is working but mqtt is unable to connect.
      * we will send an async http call to server
      */
-    public static RequestToken httpNetworkTestRequest(int errorCode, int port)
+    public static RequestToken httpNetworkTestRequest(int errorCode, int port, int networkType, int exceptionCount)
     {
+        int isForeground = -1;
+        if(HikeMessengerApp.getInstance() != null)
+        {
+            isForeground = Utils.isAppForeground(HikeMessengerApp.getInstance())? 1 : 0;
+        }
+
+        String url = httpNetworkTestUrl() + "/" + errorCode+ "?port="+port +"&net="+networkType+"&fg="+isForeground+"&ec="+exceptionCount;
         RequestToken requestToken = new JSONObjectRequest.Builder()
-                .setUrl(httpNetworkTestUrl() + "/" + errorCode+ "?port="+port)
+                .setUrl(url)
                 .setRequestType(REQUEST_TYPE_SHORT)
                 .setAsynchronous(true)
                 .setPriority(PRIORITY_HIGH)
                 .setRetryPolicy(new BasicRetryPolicy(0, 1, 1))
                 .build();
-        Logger.e("HikeHttpRequests", "Making http call to " + httpNetworkTestUrl().toString() + "/" + errorCode + "?port="+port);
+        Logger.e("HikeHttpRequests", "Making http call to " + url);
         return requestToken;
     }
 

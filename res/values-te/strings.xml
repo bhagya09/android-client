@@ -1094,7 +1094,7 @@
     <string name="photo_actions_header">అద్భుతంగా కనిపిస్తుంది! ఈ చిత్రాని దీనికి ఉపయోగించండి,</string>
     <string name="profile_header_subtext">ప్రొఫైల్ ఫోటో ప్రతి ఒక్కరికి కనిపిస్తుంది</string>
     <string name="sms_with_settings">SMS సెట్టింగ్‌లు</string>
-    <string name="sms_credits_with_settings">ఉచిత SMS: %1$d</string>
+    <string name="sms_credits_with_settings">ఉచిత SMS: %1$s</string>
     <string name="free_hike_2_sms_india">ఇండియాకు మాత్రమే ఉచితం</string>
     <string name="invite_friends_earn_rewards">స్నేహితులను hikeకు ఆహ్వానించండి, రివార్డులను పొందండి</string>
     <string name="your_referral_code">మీ <b>రీఫరల్</b> కోడ్</string>
