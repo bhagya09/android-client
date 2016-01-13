@@ -54,7 +54,8 @@ public class HikeMicroAppsCodeMigrationService extends IntentService
 					// Generate file instance for destination file directory path that would be used after versioning release
 					String unzipPath = PlatformUtils.getMicroAppContentRootFolder();
 
-					String botName = entry.getValue().getConversationName();
+					String botName = entry.getValue().getMsisdn();
+                    botName =  botName.substring(1, botName.length()-1);
 					unzipPath += botName;
 
 					File newFilePath = new File(unzipPath);
