@@ -9,6 +9,7 @@ import com.bsb.hike.utils.Utils;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -22,7 +23,7 @@ import okio.BufferedSource;
 import okio.Okio;
 import okio.Source;
 
-public final class Cache
+public final class Cache implements DiskLruCache.EvictListener
 {
 
 	private static final String TAG = "Cache";
@@ -96,7 +97,7 @@ public final class Cache
 			executor = new ThreadPoolExecutor(0, 1, 60L, TimeUnit.SECONDS,
 					new LinkedBlockingQueue<Runnable>(), Utils.threadFactory("DiskLruCache", true));
 
-			cache = DiskLruCache.create(directory, VERSION, ENTRY_COUNT, maxSize, executor);
+			cache = DiskLruCache.create(directory, VERSION, ENTRY_COUNT, maxSize, executor, this);
 		}
 	}
 
@@ -193,7 +194,8 @@ public final class Cache
 			}
 			entry.writeTo(editor);
 			editor.commit();
-			//checkAndDoCleanUp();
+			Logger.d(TAG, "entry put in cache successfully with key : " + entry.key);
+			checkAndDoCleanUp();
 			return true;
 		}
 		catch (IOException e)
@@ -327,7 +329,7 @@ public final class Cache
 			long cacheSize = cache.size();
 			long cacheMaxSize = cache.getMaxSize();
 
-			if(((cacheMaxSize - cacheSize)/(double) cacheMaxSize) < CLEANUP_THRESHOLD)
+			if((((cacheMaxSize - cacheSize)/(double) cacheMaxSize) * 100) < CLEANUP_THRESHOLD)
 			{
 				executor.execute(cleanupRunnable);
 			}
@@ -341,6 +343,7 @@ public final class Cache
 
 	private void cleanUpOutLivedEntries()
 	{
+		Logger.d(TAG, "cleaning up outlived entries");
 		try
 		{
 			Iterator<DiskLruCache.Snapshot> iterator = cache.snapshots();
@@ -351,14 +354,16 @@ public final class Cache
 				try
 				{
 					Entry entry = new Entry(snapshot.getSource(ENTRY_METADATA), snapshot.getSource(ENTRY_BODY));
+					Logger.d(TAG, "removing outlived entry key : " + entry.key + "entry is expired : " + entry.isExpired());
 					if(entry.isExpired())
 					{
 						iterator.remove();
+						Logger.d(TAG, "removed outlived entry : " + entry.key);
 					}
 				}
 				catch (IOException e)
 				{
-					Logger.e(TAG, "IO Exception in get ", e);
+					Logger.e(TAG, "IO Exception in cleaning up outlived entry ", e);
 					Util.closeQuietly(snapshot);
 				}
 			}
@@ -373,17 +378,27 @@ public final class Cache
 	{
 		private byte[] data;
 
+		private BufferedSource bufferedSource;
+
+		private InputStream inputStream;
+
 		private String key;
 
 		private long lastModified;
 
 		private long ttl;
 
+		private long actualTTl;
+
 		private List<Header> headerList;
 
 		public boolean isExpired()
 		{
-			return this.ttl < System.currentTimeMillis();
+			if(this.ttl == CacheRequest.DEFAULT_TTL)
+			{
+				return false;
+			}
+			return this.actualTTl < System.currentTimeMillis();
 		}
 
 		/**
@@ -406,6 +421,7 @@ public final class Cache
 				key = source.readUtf8LineStrict();
 				lastModified = readLong(source);
 				ttl = readLong(source);
+				actualTTl = readLong(source);
 				int headerListSize = readInt(source);
 				headerList = new ArrayList<>(headerListSize);
 
@@ -419,15 +435,9 @@ public final class Cache
 			{
 				metadataSource.close();
 			}
-			try
-			{
-				BufferedSource source = Okio.buffer(bodySource);
-				data = source.readByteArray();
-			}
-			finally
-			{
-				bodySource.close();
-			}
+
+			bufferedSource = Okio.buffer(bodySource);
+			inputStream = bufferedSource.inputStream();
 		}
 
 		public Entry(CacheRequest request)
@@ -444,6 +454,7 @@ public final class Cache
 				headerList = request.getHeaders();
 			}
 			this.ttl = request.getTtl();
+			this.actualTTl = request.getActualTtl();
 		}
 
 		public void writeTo(DiskLruCache.Editor editor) throws IOException
@@ -454,6 +465,8 @@ public final class Cache
 			sink.writeUtf8(Long.toString(lastModified));
 			sink.writeByte('\n');
 			sink.writeUtf8(Long.toString(ttl));
+			sink.writeByte('\n');
+			sink.writeUtf8(Long.toString(actualTTl));
 			sink.writeByte('\n');
 			sink.writeUtf8(Integer.toString(headerList.size()));
 			sink.writeByte('\n');
@@ -481,7 +494,8 @@ public final class Cache
 					.build();
 			return new CacheResponse.Builder()
 					.setRequest(request)
-					.setData(data)
+					.setBufferedSource(bufferedSource)
+					.setInputStream(inputStream)
 					.setExpired(isExpired())
 					.setLastModifiedTime(lastModified)
 					.build();
@@ -533,4 +547,8 @@ public final class Cache
 		}
 	}
 
+	@Override
+	public void onEvict(String key) {
+		Logger.d(TAG, "entry evicted  : " + key);
+	}
 }
