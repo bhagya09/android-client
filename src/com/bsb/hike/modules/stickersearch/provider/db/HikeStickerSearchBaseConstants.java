@@ -255,6 +255,8 @@ public class HikeStickerSearchBaseConstants
 
 	public static final String KEY_PREF_UNDOWNLOADED_TAG_COUNT= "ud_t_c";
 
+	public static final String KEY_PREF_UNDOWNLOADED_VISIBLE_IN_RECO_COUNT= "ud_t_c";
+
 	// ==============================================Constants used in shared_pref or system_db]]
 
 	// Constants used for coding of time moments===============================================[[

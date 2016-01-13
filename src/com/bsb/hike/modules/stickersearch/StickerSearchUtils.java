@@ -86,18 +86,31 @@ public class StickerSearchUtils
 	 */
 	public static Pair<Boolean, List<Sticker>> shouldShowStickerFtue(List<Sticker> stickerList)
 	{
-		Sticker sticker = stickerList.get(0);
-		if (!sticker.getStickerCurrentAvailability())
+
+		boolean result = false;
+
+		for (int i = 0; i < stickerList.size(); i++)
 		{
-			return new Pair<Boolean, List<Sticker>>(false, stickerList);
+			Sticker sticker = stickerList.get(i);
+			result = result || sticker.isStickerAvailable();
 		}
 
-		return new Pair<Boolean, List<Sticker>>(true, getAvailableStickerList(stickerList));
+		if(result)
+		{
+			return new Pair<Boolean, List<Sticker>>(result, getAllowedStickerList(stickerList));
+		}
+		else
+		{
+			return new Pair<Boolean, List<Sticker>>(result, stickerList);
+		}
+
 	}
 
-	private static List<Sticker> getAvailableStickerList(List<Sticker> stickerList)
+	private static List<Sticker> getAllowedStickerList(List<Sticker> stickerList)
 	{
-		int length = stickerList.size();
+		int length = stickerList.size(),count =0;
+
+		int allowedUndownloadedLimit = HikeSharedPreferenceUtil.getInstance().getData(HikeStickerSearchBaseConstants.KEY_PREF_UNDOWNLOADED_CACHE_LIMIT, 0);
 
 		List<Sticker> resultList = new ArrayList<Sticker>(length);
 
@@ -107,6 +120,15 @@ public class StickerSearchUtils
 			if (sticker.isStickerAvailable())
 			{
 				resultList.add(sticker);
+			}
+			else if(count < allowedUndownloadedLimit)
+			{
+				resultList.add(sticker);
+				count ++;
+			}
+			else
+			{
+				Logger.i(TAG,"Undownloaded sticker found but no shown : "+sticker.getCategoryId()+" : "+sticker.getStickerId());
 			}
 		}
 
