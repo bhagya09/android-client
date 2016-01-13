@@ -835,7 +835,7 @@
 	<style name="compose_name_container_margins">
 	     <item name="android:layout_marginLeft">16dp</item>
 	     <item name="android:layout_marginRight">5dp</item>
-	     <item name="android:layout_marginTop">11dp</item>
+	     <item name="android:layout_marginTop">9dp</item>
 	     <item name="android:layout_marginBottom">8dp</item>
 	</style>
 	
@@ -917,8 +917,8 @@
 	    <item name="android:layout_marginRight">16dp</item>
 	    <item name="android:gravity">center_vertical</item>
 	    <item name="android:orientation">vertical</item>
-	   <item name="android:layout_marginTop">13dp</item>
-	   <item name="android:layout_marginBottom">13dp</item>
+	   <item name="android:layout_marginTop">11dp</item>
+	   <item name="android:layout_marginBottom">12dp</item>
 	</style>
 	
 	<style name="SettingsHeaderItemTextView" parent="BaseStyleTextView">
@@ -935,7 +935,7 @@
 	    <item name="android:textSize">13sp</item>
 	    <item name="android:textColor">@color/settings_text_subheader_color</item>
 	    <item name="android:textStyle">normal</item>
-	    <item name="android:layout_marginTop">4dp</item>
+	    <item name="android:layout_marginTop">1.5dp</item>
 	</style>
 	
 	<style name="SettingsSectionHeaderText" parent="ListSectionTextView">
