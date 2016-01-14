@@ -840,7 +840,6 @@ import android.widget.Toast;
 			{
 				if (KptKeyboardManager.getInstance().getInstalledLanguagesList().size() > 1)
 				{
-					changeKeybaordSelectedLanguage();
 					if (isSystemKeyboard())
 					{
 						changeKeyboard(false);
@@ -851,6 +850,7 @@ import android.widget.Toast;
 						hideCustomKeyboard(mComposeView);
 						showCustomKeyboard(mComposeView);
 					}
+					changeKeybaordSelectedLanguage();
 				}
 			}
 			else if (state == KeyboardFtue.COMPLETE)
