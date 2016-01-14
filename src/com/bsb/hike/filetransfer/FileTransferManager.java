@@ -355,7 +355,7 @@ public class FileTransferManager
 		if (isFileTaskExist(convMessage.getMsgID()))
 		{
 			UploadContactOrLocationTask task = (UploadContactOrLocationTask) fileTaskMap.get(convMessage.getMsgID());
-			task.upload();
+			task.execute();
 		}
 		else
 		{

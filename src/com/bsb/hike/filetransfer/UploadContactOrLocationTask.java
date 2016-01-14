@@ -85,16 +85,7 @@ public class UploadContactOrLocationTask extends FileTransferBase
 		catch (Exception ex)
 		{
 			Logger.e(TAG, "exception occurred ", ex);
-			Toast.makeText(context, R.string.upload_failed, Toast.LENGTH_SHORT).show();
-		}
-
-	}
-
-	public void upload()
-	{
-		if (requestToken != null)
-		{
-			requestToken.execute();
+			showToast(HikeConstants.FTResult.UPLOAD_FAILED);
 		}
 	}
 
@@ -161,7 +152,7 @@ public class UploadContactOrLocationTask extends FileTransferBase
 				{
 					HikeMessengerApp.getPubSub().publish(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED, null);
 				}
-				Toast.makeText(context, R.string.upload_failed, Toast.LENGTH_SHORT).show();
+				showToast(HikeConstants.FTResult.UPLOAD_FAILED);
 			}
 		};
 	}
@@ -235,5 +226,22 @@ public class UploadContactOrLocationTask extends FileTransferBase
 		JSONObject metadata = new JSONObject();
 		metadata.put(HikeConstants.FILES, files);
 		return metadata;
+	}
+
+	private void showToast(final HikeConstants.FTResult result)
+	{
+		handler.post(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				switch (result)
+				{
+					case UPLOAD_FAILED:
+						Toast.makeText(context, R.string.upload_failed, Toast.LENGTH_SHORT).show();
+						break;
+				}
+			}
+		});
 	}
 }
