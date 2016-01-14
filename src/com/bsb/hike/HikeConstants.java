@@ -1082,6 +1082,8 @@ public class HikeConstants
 
 	public static final String STICKERS_ROOT = "/stickers";
 
+	public static final String DISK_CACHE_ROOT = "/diskcache";
+
 	public static final String LARGE_STICKER_FOLDER_NAME = "stickers_l";
 
 	public static final String SMALL_STICKER_FOLDER_NAME = "stickers_s";
@@ -3803,4 +3805,8 @@ public class HikeConstants
 	public static final String STICKER_PACK_CDN = "spcdn";
 
 	public static final String STICKER_PACK_CDN_THRESHOLD = "spcdnth";
+
+	public static final int MIN_DISK_CACHE_SIZE = 5 * 1024 * 1024; // 5MB
+
+	public static final int MAX_DISK_CACHE_SIZE = 50 * 1024 * 1024; // 50MB
 }

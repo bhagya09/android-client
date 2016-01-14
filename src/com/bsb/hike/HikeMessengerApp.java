@@ -51,6 +51,8 @@ import com.bsb.hike.db.HikeMqttPersistence;
 import com.bsb.hike.localisation.LocalLanguageUtils;
 import com.bsb.hike.models.TypingNotification;
 import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.modules.diskcache.Cache;
+import com.bsb.hike.modules.diskcache.InternalCache;
 import com.bsb.hike.modules.httpmgr.HttpManager;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
 import com.bsb.hike.modules.kpt.KptKeyboardManager;
@@ -631,6 +633,8 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 	
 	public static int bottomNavBarWidthLandscape = 0;
 
+	private static InternalCache diskCache;
+
 	static
 	{
 		mPubSubInstance = new HikePubSub();
@@ -1022,6 +1026,19 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		{
 			HikeSharedPreferenceUtil.getInstance().removeData(StickyCaller.CALLER_Y_PARAMS_OLD);
 		}
+
+	public static InternalCache getDiskCache()
+	{
+		if(diskCache == null) {
+
+			File cacheDir = new File(getInstance().getExternalFilesDir(null).getPath() + HikeConstants.DISK_CACHE_ROOT);
+			long diskCacheSize = Utils.calculateDiskCacheSize(cacheDir);
+			Logger.d("disk_cache", "disk cache size : " + diskCacheSize);
+
+			Cache cache = new Cache(cacheDir, diskCacheSize);
+			diskCache = cache.getCache();
+		}
+		return diskCache;
 	}
 
 	/**
