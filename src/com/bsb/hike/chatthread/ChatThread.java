@@ -2798,7 +2798,6 @@ import android.widget.Toast;
 
 	protected void sendPoke()
 	{
-		KptKeyboardManager.getInstance().topPriorityForLanguage(KptKeyboardManager.getInstance().getInstalledLanguagesList().get(1));
 		ConvMessage convMessage = Utils.makeConvMessage(msisdn, getString(R.string.poke_msg_english_only), mConversation.isOnHike());
 		ChatThreadUtils.setPokeMetadata(convMessage);
 		sendMessage(convMessage);
