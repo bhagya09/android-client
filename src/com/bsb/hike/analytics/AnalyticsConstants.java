@@ -212,7 +212,9 @@ public class AnalyticsConstants
 	public static String TIME_TAKEN = "time";
 
 	public static String UPGRADE_EVENT = "upgrade";
-		
+	public static Object BOT_CONTENT_FORWARDED = "bot_content_forwarded";
+	public static Object BOT_CONTENT_DOWNLAODED = "bot_content_downloaded";
+
 	// Edit picture flags and events
 	public static final class ProfileImageActions
 	{	
