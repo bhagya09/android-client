@@ -2,14 +2,14 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/black"
     android:animateLayoutChanges="true"
+    android:background="@color/black"
     android:orientation="vertical">
 
     <GridView
         android:id="@+id/selection_grid"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="100dp"
         android:layout_alignParentBottom="true"
         android:horizontalSpacing="@dimen/gallery_grid_spacing"
         android:listSelector="@android:color/transparent"
@@ -44,11 +44,11 @@
             android:id="@+id/rotate"
             android:layout_width="0dp"
             android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:layout_weight="1"
+            android:background="@drawable/bg_overflow_menu_selector"
             android:clickable="true"
             android:focusable="true"
-            android:layout_gravity="center"
-            android:background="@drawable/bg_overflow_menu_selector"
-            android:layout_weight="1"
             android:gravity="center"
             android:onClick="onClick">
 
@@ -64,12 +64,12 @@
         <LinearLayout
             android:id="@+id/accept"
             android:layout_width="0dp"
-            android:clickable="true"
-            android:focusable="true"
             android:layout_height="match_parent"
             android:layout_gravity="center"
-            android:background="@drawable/bg_overflow_menu_selector"
             android:layout_weight="1"
+            android:background="@drawable/bg_overflow_menu_selector"
+            android:clickable="true"
+            android:focusable="true"
             android:gravity="center"
             android:onClick="onClick">
 
@@ -85,11 +85,11 @@
             android:id="@+id/cancel"
             android:layout_width="0dp"
             android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:layout_weight="1"
+            android:background="@drawable/bg_overflow_menu_selector"
             android:clickable="true"
             android:focusable="true"
-            android:layout_gravity="center"
-            android:background="@drawable/bg_overflow_menu_selector"
-            android:layout_weight="1"
             android:gravity="center"
             android:onClick="onClick">
 
@@ -104,40 +104,105 @@
 
     </LinearLayout>
 
-    <ImageButton
-        android:id="@+id/ib_crop"
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_above="@+id/selection_grid"
         android:layout_alignParentRight="true"
         android:layout_marginBottom="35dp"
-        android:layout_marginRight="10dp"
-        android:background="@drawable/circle_bg_selector"
-        android:onClick="onClick"
-        android:src="@drawable/ic_crop" />
+        android:orientation="vertical">
 
-    <ImageButton
-        android:id="@+id/ib_edit"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/ib_crop"
-        android:layout_alignParentRight="true"
-        android:layout_marginBottom="10dp"
-        android:layout_marginRight="10dp"
-        android:background="@drawable/circle_bg_selector"
-        android:onClick="onClick"
-        android:src="@drawable/btn_filter_enable" />
+        <LinearLayout
+            android:id="@+id/container_remove"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:alpha="0"
+            android:gravity="center_vertical|right"
+            android:orientation="horizontal">
 
-    <ImageButton
-        android:id="@+id/ib_remove"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/ib_edit"
-        android:layout_alignParentRight="true"
-        android:layout_marginBottom="10dp"
-        android:layout_marginRight="10dp"
-        android:background="@drawable/circle_bg_selector"
-        android:onClick="onClick"
-        android:src="@drawable/ic_trash" />
+            <com.bsb.hike.view.CustomFontTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignBottom="@+id/ib_remove"
+                android:layout_marginRight="2dp"
+                android:layout_toLeftOf="@+id/ib_remove"
+                android:background="@color/black_16"
+                android:text="@string/remove"
+                android:textColor="@color/white_75"
+                android:textSize="11sp" />
+
+            <ImageButton
+                android:id="@+id/ib_remove"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_above="@+id/ib_edit"
+                android:layout_alignParentRight="true"
+                android:layout_marginRight="10dp"
+                android:background="@drawable/circle_bg_selector"
+                android:onClick="onClick"
+                android:src="@drawable/ic_delete" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/container_edit"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:alpha="0"
+            android:gravity="center_vertical|right"
+            android:orientation="horizontal">
+
+            <com.bsb.hike.view.CustomFontTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignBottom="@+id/ib_edit"
+                android:layout_marginRight="2dp"
+                android:layout_toLeftOf="@+id/ib_edit"
+                android:background="@color/black_16"
+                android:text="@string/filters"
+                android:textColor="@color/white_75"
+                android:textSize="11sp" />
+
+            <ImageButton
+                android:id="@+id/ib_edit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_above="@+id/ib_crop"
+                android:layout_alignParentRight="true"
+                android:layout_marginRight="10dp"
+                android:background="@drawable/circle_bg_selector"
+                android:onClick="onClick"
+                android:src="@drawable/ic_filter" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/container_crop"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:alpha="0"
+            android:gravity="center_vertical|right"
+            android:orientation="horizontal">
+
+            <com.bsb.hike.view.CustomFontTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignBottom="@+id/ib_crop"
+                android:layout_marginRight="2dp"
+                android:layout_toLeftOf="@+id/ib_crop"
+                android:background="@color/black_16"
+                android:text="@string/crop"
+                android:textColor="@color/white_75"
+                android:textSize="11sp" />
+
+            <ImageButton
+                android:id="@+id/ib_crop"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="10dp"
+                android:background="@drawable/circle_bg_selector"
+                android:onClick="onClick"
+                android:src="@drawable/ic_crop" />
+        </LinearLayout>
+
+    </LinearLayout>
 
 </RelativeLayout>

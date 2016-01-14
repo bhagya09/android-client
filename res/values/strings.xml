@@ -1508,4 +1508,7 @@
     <string name="timeline_post_multimsg">Discarded extra messages</string>
     <string name="crop">Crop</string>
     <string name="photo_gallery_choose_pic">Photos</string>
+    <string name="remove">Remove</string>
+    <string name="filters">Filters</string>
+    <string name="rotate">Rotate</string>
 </resources>

@@ -47,7 +47,6 @@ import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.filetransfer.FTAnalyticEvents;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.GalleryItem;
-import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.modules.contactmgr.ContactManager;
@@ -118,6 +117,8 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 	private String TAG_CAPTION_ET = "captionet";
 
 	private String TAG_CAPTION_LINE = "capline";
+
+	private View containerCrop,containerEdit,containerRemove;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -195,6 +196,27 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 		btnEdit = (ImageButton)findViewById(R.id.ib_edit);
 		btnRemove = (ImageButton) findViewById(R.id.ib_remove);
 		cropPanel = findViewById(R.id.crop_actions_panel);
+
+		containerCrop = findViewById(R.id.container_crop);
+		containerEdit = findViewById(R.id.container_edit);
+		containerRemove = findViewById(R.id.container_remove);
+
+		HikeHandlerUtil.getInstance().postRunnableWithDelay(new Runnable() {
+			@Override
+			public void run()
+			{
+				runOnUiThread(new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						containerCrop.animate().alpha(1f);
+						containerEdit.animate().setStartDelay(50).alpha(1f);
+						containerRemove.animate().setStartDelay(100).alpha(1f);
+					}
+				});
+			}
+		},500);
 
 		int sizeOfImage = getResources().getDimensionPixelSize(R.dimen.gallery_selection_item_size);
 
@@ -617,9 +639,9 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 
 		isInCropMode = enableCrop;
 
-		btnRemove.animate().x(enableCrop ? btnXorig + 200f : btnXorig);
+		btnRemove.animate().setStartDelay(100).x(enableCrop ? btnXorig + 200f : btnXorig);
 		btnEdit.animate().setStartDelay(50).x(enableCrop ? btnXorig + 200f : btnXorig);
-		btnCrop.animate().setStartDelay(100).x(enableCrop ? btnXorig + 200f : btnXorig);
+		btnCrop.animate().x(enableCrop ? btnXorig + 200f : btnXorig);
 
 		selectedGrid.animate().y(galleryGridItems.size() > 4 ? enableCrop?gridYorig + 600f:gridYorig : enableCrop?gridYorig + 300f:gridYorig);
 		cropPanel.setVisibility(enableCrop ? View.VISIBLE : View.GONE);
@@ -643,6 +665,11 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 		selectedPager.findViewWithTag(TAG_CAPTION_LINE + selectedPager.getCurrentItem()).setVisibility(enableCrop ? View.GONE : View.VISIBLE);
 
 		doneBtn.setVisibility(enableCrop ? View.GONE : View.VISIBLE);
+
+		containerCrop.animate().alpha(enableCrop ? 0f : 1f);
+		containerEdit.animate().setStartDelay(50).alpha(enableCrop?0f:1f);
+		containerRemove.animate().setStartDelay(100).alpha(enableCrop?0f:1f);
+
 	}
 
 	private class GalleryPagerAdapter extends PagerAdapter

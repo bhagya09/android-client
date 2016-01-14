@@ -50,6 +50,8 @@ public class HikeCropFragment extends Fragment implements View.OnClickListener
 
 	private View cropAccept;
 
+	private View containerCrop, containerEdit, containerRotate;
+
 	public interface HikeCropListener
 	{
 		void onSuccess(Bitmap croppedBmp);
@@ -114,9 +116,13 @@ public class HikeCropFragment extends Fragment implements View.OnClickListener
 		cropCancel = mFragmentView.findViewById(R.id.cancel);
 		cropCancel.setOnClickListener(this);
 
+		containerCrop = mFragmentView.findViewById(R.id.container_crop);
+		containerEdit = mFragmentView.findViewById(R.id.container_edit);
+		containerRotate = mFragmentView.findViewById(R.id.container_rotate);
+
 		if (!editEnabled)
 		{
-			btnEdit.setVisibility(View.GONE);
+			containerEdit.setVisibility(View.GONE);
 		}
 
 		return mFragmentView;
@@ -145,12 +151,12 @@ public class HikeCropFragment extends Fragment implements View.OnClickListener
 		}
 		else
 		{
-			btnCrop.setVisibility(View.GONE);
+			containerCrop.setVisibility(View.GONE);
 		}
 
 		if (!editEnabled)
 		{
-			btnEdit.setVisibility(View.GONE);
+			containerEdit.setVisibility(View.GONE);
 		}
 
 		loadBitmap();
@@ -285,9 +291,9 @@ public class HikeCropFragment extends Fragment implements View.OnClickListener
 	{
 		recordOriginalXY();
 
-		btnRotate.animate().x(enableCrop ? btnXorig + 200f : btnXorig);
+		btnRotate.animate().setStartDelay(100).x(enableCrop ? btnXorig + 200f : btnXorig);
 		btnEdit.animate().setStartDelay(50).x(enableCrop ? btnXorig + 200f : btnXorig);
-		btnCrop.animate().setStartDelay(100).x(enableCrop ? btnXorig + 200f : btnXorig);
+		btnCrop.animate().x(enableCrop ? btnXorig + 200f : btnXorig);
 
 		if (enableCrop)
 		{
@@ -301,5 +307,9 @@ public class HikeCropFragment extends Fragment implements View.OnClickListener
 		cropPanel.setVisibility(enableCrop ? View.VISIBLE : View.INVISIBLE);
 
 		mListener.toggleDoneButtonVisibility(!enableCrop);
+
+		containerCrop.animate().alpha(enableCrop ? 0f : 1f);
+		containerEdit.animate().setStartDelay(50).alpha(enableCrop?0f:1f);
+		containerRotate.animate().setStartDelay(100).alpha(enableCrop?0f:1f);
 	}
 }
