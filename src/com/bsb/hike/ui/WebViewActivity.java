@@ -196,7 +196,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		
 		alignAnchorForOverflowMenu();
 		
-		checkAndRecordNotificationAnalytics();
+		checkAndRecordBotOpen();
 	}
 
 	private void closeWebViewActivity()
@@ -1403,11 +1403,11 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	/**
 	 * Used to record analytics for bot opens via push notifications
 	 */
-	private void checkAndRecordNotificationAnalytics()
+	private void checkAndRecordBotOpen()
 	{
 		if (getIntent() != null && getIntent().hasExtra(AnalyticsConstants.BOT_NOTIF_TRACKER))
 		{
-			PlatformUtils.recordBotOpenViaNotification(msisdn);
+			PlatformUtils.recordBotOpenSource(msisdn, getIntent().getStringExtra(AnalyticsConstants.BOT_NOTIF_TRACKER));
 		}
 	}
 
