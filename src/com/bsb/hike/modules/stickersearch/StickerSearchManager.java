@@ -361,7 +361,7 @@ public class StickerSearchManager
 
 	public void onClickToShowRecommendedStickers(int clickPosition, boolean onTappedInsideComposeBox)
 	{
-		Logger.i(StickerTagWatcher.TAG, "onClickToShowRecommendedStickers(" + clickPosition + "," + onTappedInsideComposeBox + ")");
+		Logger.i(StickerTagWatcher.TAG, "onClickToShowRecommendedStickers(" + clickPosition + ", " + onTappedInsideComposeBox + ")");
 
 		// Do nothing, if it is not because of touch on highlighted word and auto pop-up setting is turned-off
 		if (!onTappedInsideComposeBox && !showAutoPopupSettingOn)
@@ -771,7 +771,7 @@ public class StickerSearchManager
 		_instance = null;
 	}
 
-	public void downloadUndownloadedTags()
+	public void downloadForcedStickers()
 	{
 		StickerSearchManager.getInstance().downloadStickerTags(true, StickerSearchConstants.STATE_UNDOWNLOADED_TAGS_DOWNLOAD, StickerLanguagesManager.getInstance().getLanguageSet(StickerLanguagesManager.DOWNLOADING_LANGUAGE_SET_TYPE));
 	}

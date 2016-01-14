@@ -23,7 +23,8 @@
     <string name="feedback">ఫీడ్‌బ్యాక్</string>
     <string name="block_overlay_message">%1$sను మీరు బ్లాక్ చేశారు. hiking కొనసాగించడానికి అన్‌బ్లాక్ చేయండి..</string>
     <string name="phone_num">ఫోన్ నెంబరు</string>
-    <string name="pin">PIN</string>
+    <string name="pin">పిన్</string>
+    <string name="pin_signup">PIN</string>
     <string name="name">పేరు</string>
     <string name="terms_privacy">నిబంధనలు మరియు గోప్యత</string>
     <string name="invite_now">ఆహ్వానించండి</string>
@@ -465,9 +466,8 @@
 <![CDATA[ <b> దాచిపెట్టబడ్డ హిడెన్ మోడ్‌ను ఇప్పుడు రీసెట్ చేయడానికి ఇక్కడ తట్టండి! </b> 
 	    ]]>
     </string>
-        <string name="tap_to_reveal_stealth_contacts">చాట్‌లను కనపర్చడానికి</string> 
-    <string name="tap_to_hide_stealth_contacts">చాట్‌లను దాయడానికి</string>
-    <string name="tap_text">తట్టండి</string>
+    <string name="tap_to_reveal_stealth_contacts">హిడెన్ చాట్లు చూపించడానికి \'hi\' తట్టండి</string>
+    <string name="tap_to_hide_stealth_contacts">హిడెన్ చాట్లు దాచిపెట్టడానికి \'hi\' తట్టండి</string>
     <string name="reset_stealth_confirmation">హిడెన్ మోడ్ రీసెట్ చేయడం వల్ల మీరు దాచిపెట్టిన చాట్‌లు తొలగించబడతాయి. \n మీరు కచ్చితంగా చేయాలని అనుకుంటున్నారా?</string>
     <string name="stealth_tap_and_hold_tip">చాట్ ని \'హిడెన్\' చేయడానికి దాని  పై తట్టి, పట్టుకోండి.</string>
     <string name="mark_stealth">చాట్ దాచిపెట్టండి</string>
@@ -1094,7 +1094,7 @@
     <string name="photo_actions_header">అద్భుతంగా కనిపిస్తుంది! ఈ చిత్రాని దీనికి ఉపయోగించండి,</string>
     <string name="profile_header_subtext">ప్రొఫైల్ ఫోటో ప్రతి ఒక్కరికి కనిపిస్తుంది</string>
     <string name="sms_with_settings">SMS సెట్టింగ్‌లు</string>
-    <string name="sms_credits_with_settings">ఉచిత SMS: %1$d</string>
+    <string name="sms_credits_with_settings">ఉచిత SMS: %1$s</string>
     <string name="free_hike_2_sms_india">ఇండియాకు మాత్రమే ఉచితం</string>
     <string name="invite_friends_earn_rewards">స్నేహితులను hikeకు ఆహ్వానించండి, రివార్డులను పొందండి</string>
     <string name="your_referral_code">మీ <b>రీఫరల్</b> కోడ్</string>
@@ -1271,7 +1271,7 @@
     <string name="are_typing">లు టైప్ చేస్తున్నారు...</string>
     <string name="you_chat_bg_changed">మీరు చాట్ థీమ్ మార్చారు</string>
     <string name="hike_keyboard">Hike కీబోర్డ్ </string>
-    <string name="system_keyboard">సిస్టమ్ కీబోర్డ్</string>
+    <string name="system_keyboard">ఫోన్ కీబోర్డ్</string>
     <string name="you_xyz_posted_pin">మీరు ఒక పిన్ పోస్ట్ చేశారు</string>
     <string name="voip_hang_up">హ్యాంగప్</string>
     <string name="voip_decline">నిరాకరించు</string>
@@ -1416,5 +1416,9 @@
     <string name="try_instead">బదులుగా ప్రయత్నించండి</string>
     <string name="sms_card_settings_side_text">అన్ని టెక్స్ట్ సందేశాల పై</string>
 <string name="unsupported_langs_toast">మీ ఫోన్ %1$s భాషనీ సపోర్ట్ చెయ్యదు </string>
+    <string name="unsupported_language_toast_msg">మీ ఫోన్ ఈ భాషని సపోర్ట్ చెయ్యదు</string>
+    <string name="language_ftue_complete_message">మీరు కీబోర్డ్ భాష, \nసెట్టింగ్స్ -> భాష మరియు ఇన్పుట్ లో నుంచి ఎప్పుడైనా మార్చవచ్చు</string>
+    <string name="error_message_upgrade_peer">క్షమించండి. ఈ కనెక్షన్ పూర్తి అవ్వలేదు. మీ స్నేహితుడు Hike డైరెక్ట్ ఉన్న లేటెస్ట్ Hike వెర్షన్ పై లేరు.</string>
+    <string name="error_message_unsupported_peer">క్షమించండి. ఈ కనెక్షన్ పూర్తి అవ్వలేదు. Hike డైరెక్ట్ ఆండ్రాయిడ్ ఫోన్లలో మాత్రమే పని చేస్తుంది.</string>
 
 </resources>

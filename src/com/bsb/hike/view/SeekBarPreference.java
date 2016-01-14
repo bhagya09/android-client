@@ -13,6 +13,7 @@ import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 
 import com.bsb.hike.R;
+import com.bsb.hike.utils.Logger;
 
 public final class SeekBarPreference extends DialogPreference implements
 		OnSeekBarChangeListener {
@@ -53,7 +54,12 @@ public final class SeekBarPreference extends DialogPreference implements
 		mDefaultValue = attrs.getAttributeIntValue(ANDROID_NS, "defaultValue", 0);
 		mMaxValue = attrs.getAttributeIntValue(ANDROID_NS, "max", 100);
 
+
 		prefFont = CustomTypeFace.getTypeFace("roboto");
+		if(prefFont==null)
+		{
+			prefFont=new CustomTypeFace(context,null);
+		}
 		
 	}
 

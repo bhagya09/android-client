@@ -23,7 +23,8 @@
     <string name="feedback">अभिप्राय</string>
     <string name="block_overlay_message">तुम्ही %1$s ला प्रतिबंध केले आहे.  अप्रतिबंध करा आणि hiking सुरु ठेवा.</string>
     <string name="phone_num">फोन क्रमांक</string>
-    <string name="pin">PIN</string>
+    <string name="pin">पिन</string>
+    <string name="pin_signup">PIN</string>
     <string name="name">नाव</string>
     <string name="terms_privacy">अटी आणि गोपनीयता</string>
     <string name="invite_now">आता आमंत्रित करा</string>
@@ -230,7 +231,7 @@
     <string name="dismiss">डिसमीस करा</string>
     <string name="group">समूह</string>
     <string name="posting_update">पोस्ट करत आहे...</string>
-    <string name="joined_hike_update">Hike मध्ये सहभागी झाले</string>
+    <string name="joined_hike_update">hike मध्ये सहभागी झाले</string>
     <string name="free_hike_sms">फ्री hike SMS</string>
     <string name="regular_sms">नियमित SMS</string>
     <string name="messaging_my_number">%1$s कडून संदेशन</string>
@@ -465,9 +466,8 @@
 <![CDATA[ <b> गुप्त मोड आता रीसेट करण्यासाठी येथे टॅप करा! </b> 
 	    ]]>
     </string>
-        <string name="tap_to_reveal_stealth_contacts">चॅट उघड करण्यासाठी</string> 
-    <string name="tap_to_hide_stealth_contacts">चॅट लपवण्यासाठी</string>
-    <string name="tap_text">टॅप करा</string>
+    <string name="tap_to_reveal_stealth_contacts">संवाद दिसण्याकरीता \'hi\' दाबा.</string>
+    <string name="tap_to_hide_stealth_contacts">संवाद लपवण्याकरीता \'hi\' दाबा.</string>
     <string name="reset_stealth_confirmation">गुप्त मोड रीसेट केल्याने तुमचे सर्व लपवलेले चॅट हटवले जातील.\nतुम्हाला खात्री आहे?</string>
     <string name="stealth_tap_and_hold_tip">चॅटला \&apos;गुप्त\&apos; चिन्हांकित करण्यासाठी त्यावर टॅप करा व धरून ठेवा.</string>
     <string name="mark_stealth">चॅटला गुप्त म्हणून चिन्हांकित करा</string>
@@ -590,12 +590,12 @@
     <string name="select_all_confirmation_msg">Hike डाउनलोड करण्यासाठी %1$d संपर्कांना आमंत्रणे पाठवायची?</string>
     <string name="hike_offline_caps">Hike ऑफलाइन</string>
 
-    <string name="create_pin">PIN तयार करा</string>
-    <string name="pin_history">PIN इतिहास</string>
+    <string name="create_pin">पिन तयार करा</string>
+    <string name="pin_history">पिन इतिहास</string>
     <string name="max_pin_unread_counter">9+</string>
     <string name="pin_text_hint">काहीतरी महत्त्वाचे सामायिक करा...</string>
-    <string name="xyz_posted_pin">%1$s PIN पोस्ट केला</string>
-    <string name="pinHistoryTutorialText">आतापर्यन्त एकही PIN नाही</string>
+    <string name="xyz_posted_pin">%1$s पिन पोस्ट केला</string>
+    <string name="pinHistoryTutorialText">आतापर्यन्त एकही पिन नाही</string>
     <string name="incorrect_msisdn_warning">चुकीचा क्रमांक</string>
     <string name="incorrect_msisdn_msg">कृपया या फोनवरील hike कडे नोंद असलेला क्रमांक प्रविष्ट करा.</string>
     <string name="delete_account_heading_2">तुमचे अकाउंट हटवण्यासाठी, तुमचा क्रमांक प्रविष्ट करा</string>
@@ -605,14 +605,14 @@
     <string name="mute_status_notification_subtext">आवडत्यांकडील स्टेटस आणि प्रोफाईल चित्र सुचित करा</string>
     <string name="notifications_contact_join_summary">संपर्क hike मध्ये सामील होतो तेव्हा सूचना द्या</string>
     <string name="set_profile_pic"> Hike प्रोफाईल चित्र</string>
-    <string name="confirm_delete_pin_header">PIN हटवा</string>
-    <string name="confirm_delete_pin">तुम्हाला हा PIN खात्रीपूर्वक हटवायचा आहे?</string>
-    <string name="confirm_delete_pins_header">PIN हटवा</string>
-    <string name="confirm_delete_pins">तुम्हाला हे %1$s PIN खात्रीपूर्वक हटवायचे?</string>
+    <string name="confirm_delete_pin_header">पिन हटवा</string>
+    <string name="confirm_delete_pin">तुम्हाला हा पिन खात्रीपूर्वक हटवायचा आहे?</string>
+    <string name="confirm_delete_pins_header">पिन हटवा</string>
+    <string name="confirm_delete_pins">तुम्हाला हे %1$s पिन खात्रीपूर्वक हटवायचे?</string>
     <string name="add_btn">जोडा</string>
     <string name="not_now">आत्ता नाही</string>
     <string name="shared_med">सामायिक मीडिया</string>
-    <string name="pins">PIN</string>
+    <string name="pins">पिन</string>
     <string name="groups">समूह</string>
     <string name="members">सदस्य</string>
     <string name="recipients">प्राप्तकर्ते</string>
@@ -637,7 +637,7 @@
     <string name="notificationSoundSummary">नवीन सूचना पत्रक चालू  करण्याकरीता ध्वनी निवडा</string>
     <string name="hike_offline_notifications">Hike ऑफलाइन</string>
     <string name="h2o_notifications_setting_summary">ऑफलाइन संपर्कासाठी SMS पाठवण्याचे सूचित करा</string>
-    <string name="stealth_info_tip_subtext">संकेतशब्दाने चॅट लपवण्यासाठी \'हाय\' टॅप करा.</string>
+    <string name="stealth_info_tip_subtext">संकेतशब्दाने चॅट लपवण्यासाठी \’hi\’ टॅप करा.</string>
     <string name="file_attachment_info">100 MB पर्यन्त doc, pdf आणि मीडिया पाठवा</string>
     <string name="status_text_notification">अद्यतन पोस्ट केले %1$s</string>
     <string name="shared_files">फाइल</string>
@@ -652,14 +652,14 @@
     <string name="image_quality_prefs">प्रतिमा गुणवत्ता</string>
     <string name="no_media">फोटो आणि व्हिडिओ येथे दाखवले आहेत</string>
     <string name="add_fav">आवडते मध्ये जोडा</string>
-    <string name="no_file">फाइल आणि PIN येथे दाखवले आहेत</string>
+    <string name="no_file">फाइल आणि पिन येथे दाखवले आहेत</string>
     <string name="no_file_broadcast">फाइल येथे दाखवल्या आहेत</string>
     <string name="no_file_profile">फाइल येथे दाखवल्या आहेत</string>
     <string name="notifications_contact_join_title">संपर्क hike मध्ये सामील होत आहे</string>
     <string name="share_with_names_numbers">%1$s आणि अन्य %2$d सोबत सामायिक करायचे?</string>
     <string name="recent_chats">अलीकडील चॅट</string>
     <string name="new_chat_compose_hint">नाव किंवा क्रमांकानुसार शोधा</string>
-    <string name="pin_notif_text">PIN पोस्ट केला</string>
+    <string name="pin_notif_text">पिन पोस्ट केला</string>
     <string name="welcome_to">यावर स्वागत आहे</string>
     <string name="small_fastest">अधिक जलद</string>
     <string name="medium_faster">जलद</string>
@@ -1094,7 +1094,7 @@
     <string name="photo_actions_header">छान दिसते! हा फोटो यासाठी वापरा,</string>
     <string name="profile_header_subtext">प्रोफाईल फोटो प्रत्येकाला दृश्यमान असेल</string>
     <string name="sms_with_settings">SMS सेटिंग्ज</string>
-    <string name="sms_credits_with_settings">फ्री SMS: %1$d</string>
+    <string name="sms_credits_with_settings">फ्री SMS: %1$s</string>
     <string name="free_hike_2_sms_india">केवळ भारतात फ्री</string>
     <string name="invite_friends_earn_rewards">मित्रांना hike वर आमंत्रित करा आणि पारितोषिके कमवा</string>
     <string name="your_referral_code">तुमचा <b>संदर्भ</b> कोड</string>
@@ -1274,7 +1274,7 @@
     <string name="are_typing">टाइप करत आहेत...</string>
     <string name="you_chat_bg_changed">तुम्ही चॅट थीम बदलली</string>
     <string name="hike_keyboard">Hike कीबोर्ड</string>
-    <string name="system_keyboard">प्रणाली कीबोर्ड</string>
+    <string name="system_keyboard">फ़ोन कीबोर्ड</string>
     <string name="you_xyz_posted_pin">तुम्ही पिन पोस्ट केला</string>
     <string name="voip_hang_up">हँग अप</string>
     <string name="voip_decline">नाकारा</string>
@@ -1299,7 +1299,7 @@
     <string name="timeline_ftue_desc">टाइमलाईन हे आपल्यासाठी आणि मित्रांसाठी विशेष क्षण शेअर करण्यासाठी एक ठिकाण आहे. टाइमलाईन वर आधीच आपले मित्र पोस्ट सुद्धा करीत आहेत !</string>
     <string name="sticker">स्टिकर</string>
     <string name="stealth_unread_tip_header">संभाषण लपवा</string>
-    <string name="stealth_unread_tip_message">संभाषण लपवण्यासाठी hi दाबा .</string>
+    <string name="stealth_unread_tip_message">संभाषण लपवण्यासाठी \'hi\' दाबा .</string>
 
     <!-- The above two string would be used as in Group with Shibu, Niladri and 4 others -->
 
@@ -1419,4 +1419,9 @@
     <string name="sms_card_settings_side_text">सगळ्या मेसेगेस करिता</string>
 
 <string name="unsupported_langs_toast">आपला फोन %1$s भाषा दाखवण्यास असमर्थ आहे</string>
+    <string name="unsupported_language_toast_msg">आपला फोन ही भाषा स्विकारत नाही</string>
+    <string name="language_ftue_complete_message">किबोर्ड ची भाषा कधीही बदलण्याकरिता \nसेटींग्स -> भाषा आणि इनपुट</string>
+    <string name="error_message_upgrade_peer"> माफ करा. हा संपर्क hike च्या जुन्या आवृत्ति वर आहे. यांच्याकडे hike डाइरेक्ट नाही आहे.</string>
+    <string name="error_message_unsupported_peer">माफ करा. hike डाइरेक्ट ने तुम्ही फक्त एंड्राइड फोन शी जोडू शकता.</string>
+    
 </resources>

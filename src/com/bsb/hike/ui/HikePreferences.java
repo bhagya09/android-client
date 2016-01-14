@@ -31,7 +31,6 @@ import com.bsb.hike.localisation.LocalLanguageUtils;
 import com.bsb.hike.models.Conversation.ConversationTip;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
 import com.bsb.hike.modules.kpt.KptKeyboardManager;
-import com.bsb.hike.modules.kpt.KptUtils;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
 import com.bsb.hike.offline.OfflineController;
 import com.bsb.hike.service.HikeMqttManagerNew;
@@ -142,7 +141,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
        if (preferences == R.xml.keyboard_settings_preferences && titleRes == R.string.settings_localization || preferences == R.xml.kpt_advanced_preferences
     		   || preferences == R.xml.keyboard_preferences || preferences == R.xml.text_correction_preferences)
 		{
-			kptSettings = KptKeyboardManager.getInstance(getApplicationContext()).getKptSettings();
+			kptSettings = KptKeyboardManager.getInstance().getKptSettings();
 			saveKeyboardPref();
 		}
 
@@ -201,7 +200,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 
 	private void saveKeyboardPref()
 	{
-		if (!HikeMessengerApp.isCustomKeyboardEnabled())
+		if (!HikeMessengerApp.isCustomKeyboardUsable())
 		{
 			PreferenceCategory keyboardSettings = (PreferenceCategory) getPreferenceScreen().findPreference(HikeConstants.KEYBOARD_SETTING_PREF_CATEGORY);
 			if (keyboardSettings != null)
@@ -270,10 +269,10 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		if (kbdLanguagePref != null && kbdLanguagePref instanceof IconPreference)
 		{
 			String summary = new String();
-			ArrayList<KPTAddonItem> langList = KptKeyboardManager.getInstance(HikePreferences.this).getInstalledLanguagesList();
+			ArrayList<KPTAddonItem> langList = KptKeyboardManager.getInstance().getInstalledLanguagesList();
 			for (KPTAddonItem item : langList)
 			{
-				if (KptKeyboardManager.getInstance(HikePreferences.this).getDictionaryLanguageStatus(item) == KptKeyboardManager.LanguageDictionarySatus.INSTALLED_LOADED)
+				if (KptKeyboardManager.getInstance().getDictionaryLanguageStatus(item) == KptKeyboardManager.LanguageDictionarySatus.INSTALLED_LOADED)
 				{
 					summary += item.getDisplayName();
 					summary += ", ";
@@ -388,17 +387,13 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 			}
 			languagePref.setEntries(entries);
 			languagePref.setEntryValues(entries);
-			languagePref.setOnPreferenceChangeListener(new OnPreferenceChangeListener()
-			{
+			languagePref.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
 
 				@Override
-				public boolean onPreferenceChange(Preference preference, Object newValue)
-				{
-					for (LocalLanguage language : localLanguage.getDeviceSupportedHikeLanguages(HikePreferences.this))
-					{
-						if (language.getDisplayName().equalsIgnoreCase((String) newValue))
-						{
-							LocalLanguageUtils.setApplicationLocalLanguage(language);
+				public boolean onPreferenceChange(Preference preference, Object newValue) {
+					for (LocalLanguage language : localLanguage.getDeviceSupportedHikeLanguages(HikePreferences.this)) {
+						if (language.getDisplayName().equalsIgnoreCase((String) newValue)) {
+							LocalLanguageUtils.setApplicationLocalLanguage(language, HikeConstants.APP_LANG_CHANGED_SETTINGS);
 							languagePref.setSummary(language.getDisplayName());
 							//AND-3956 Begin: resetting offline parameters on language change
 							String offlineParams = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.OFFLINE, "{}");
@@ -407,10 +402,6 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 							restartHomeActivity();
 						}
 					}
-
-//					tracking app language change event
-					Utils.sendLocaleToServer(getApplicationContext());
-
 					return true;
 				}
 			});
@@ -418,9 +409,14 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 			languagePref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
 				@Override
 				public boolean onPreferenceClick(Preference preference) {
-					String unsupportedLanguages = LocalLanguage.getUnsupportedLocaleToastText(HikePreferences.this);
-					if (!TextUtils.isEmpty(unsupportedLanguages)) {
-						Toast.makeText(HikePreferences.this, unsupportedLanguages, Toast.LENGTH_LONG).show();
+					if (!HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.UNSUPPORTED_LANG_TOAST_SHOWN, false))
+					{
+						String unsupportedLanguages = LocalLanguage.getUnsupportedLocaleToastText(HikePreferences.this);
+						if (!TextUtils.isEmpty(unsupportedLanguages))
+						{
+							Toast.makeText(HikePreferences.this, unsupportedLanguages, Toast.LENGTH_LONG).show();
+						}
+						HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.UNSUPPORTED_LANG_TOAST_SHOWN, true);
 					}
 					return false;
 				}

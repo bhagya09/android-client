@@ -118,7 +118,7 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 		items.add(new SettingsDisplayPojo(getString(R.string.settings_chat), R.string.settings_chat, R.drawable.ic_settings_chat));
 		if (HikeMessengerApp.isLocalisationEnabled())
 		{
-			if (HikeMessengerApp.isCustomKeyboardEnabled())
+			if (HikeMessengerApp.isCustomKeyboardUsable())
 			{
 				items.add(new SettingsDisplayPojo(getString(R.string.settings_localization), R.string.settings_localization, R.drawable.ic_settings_languages));
 			}
@@ -149,7 +149,7 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 		}
 		items.add(new SettingsDisplayPojo(getString(R.string.manage_account), R.string.manage_account, R.drawable.ic_account_settings));
 		items.add(new SettingsDisplayPojo(getString(R.string.privacy), R.string.privacy, R.drawable.ic_privacy_settings));
-    	if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.ENABLE, false) && ChatHeadUtils.areWhitelistedPackagesSharable(this) && ChatHeadUtils.checkDeviceFunctionality())
+    	if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.ENABLE, false) && ChatHeadUtils.areWhitelistedPackagesSharable(this))
 		{
 			items.add(new SettingsDisplayPojo(getString(R.string.settings_share_stickers), R.string.settings_share_stickers, R.drawable.settings_icon_sticker_widget));
 		}

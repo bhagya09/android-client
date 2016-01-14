@@ -315,7 +315,6 @@ import com.kpt.adaptxt.beta.RemoveDialogData;
 			{
 				menu.findItem(R.id.voip_call).setVisible(true);
 			}
-			showOfflineOverflowIndiactorIfRequired();
 			return super.onCreateOptionsMenu(menu);
 		}
 
@@ -1232,7 +1231,7 @@ import com.kpt.adaptxt.beta.RemoveDialogData;
 		
 		
 		//When MsgRelLogManager is removed / or when to for GC as well, we can go with super
-		ConvMessage convMessage = Utils.makeConvMessage(msisdn, getString(R.string.poke_msg), mConversation.isOnHike());
+		ConvMessage convMessage = Utils.makeConvMessage(msisdn, getString(R.string.poke_msg_english_only), mConversation.isOnHike());
 		ChatThreadUtils.setPokeMetadata(convMessage);
 
 		// 1) user double clicked on Chat Screen i.e Sending nudge
@@ -1269,33 +1268,6 @@ import com.kpt.adaptxt.beta.RemoveDialogData;
 		setLabel(getConvLabel());
 		
 		setLastSeenStuff(firstInflation);
-	}
-
-	private void showOfflineOverflowIndiactorIfRequired()
-	{
-		if(OfflineController.getInstance().getConfigurationParamerters().isOfflineEnabled())
-		{
-			Boolean isClicked = sharedPreference.getData(OfflineConstants.OFFLINE_INDICATOR_CLICKED,false);
-			if(!isClicked)
-			{
-				mActionBar.updateOverflowMenuIndicatorImage(R.drawable.ic_red_dot,true);
-			}
-		}
-	}
-	
-	@Override
-	protected void showOverflowMenu()
-	{
-		if(OfflineController.getInstance().getConfigurationParamerters().isOfflineEnabled())
-		{
-			Boolean isClicked = sharedPreference.getData(OfflineConstants.OFFLINE_INDICATOR_CLICKED,false);
-			if(!isClicked)
-			{
-				sharedPreference.saveData(OfflineConstants.OFFLINE_INDICATOR_CLICKED, true);
-				OfflineAnalytics.offlineOverflowIndicatorClicked();
-			}
-		}
-		super.showOverflowMenu();
 	}
 
 	protected void setLastSeenStuff(boolean firstInflation)

@@ -1083,8 +1083,7 @@ public class PlatformUtils
 		if (ChatHeadUtils.areWhitelistedPackagesSharable(context))
 		{
 			Toast.makeText(context, context.getString(R.string.sticker_share_popup_activate_toast), Toast.LENGTH_LONG).show();
-			if (ChatHeadUtils.checkDeviceFunctionality())
-			{
+
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.ENABLE, true);
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.USER_CONTROL, true);
 				JSONArray packagesJSONArray;
@@ -1101,7 +1100,7 @@ public class PlatformUtils
 					e.printStackTrace();
 				}
 				ChatHeadUtils.startOrStopService(true);
-			}
+
 		}
 		else
 		{
@@ -1475,7 +1474,7 @@ public class PlatformUtils
 		jsonObject.put(HikeConstants.LOCALE, LocalLanguageUtils.getApplicationLocalLanguageLocale());
 		jsonObject.put(HikeConstants.DEVICE_LOCALE, LocalLanguageUtils.getDeviceDefaultLocale());
 		if (!HikeMessengerApp.isSystemKeyboard())
-			jsonObject.put(HikeConstants.CUSTOM_KEYBOARD_LOCALE, KptKeyboardManager.getInstance(HikeMessengerApp.getInstance().getApplicationContext())
+			jsonObject.put(HikeConstants.CUSTOM_KEYBOARD_LOCALE, KptKeyboardManager.getInstance()
 					.getCurrentLanguageAddonItem().getlocaleName());
 
 	}

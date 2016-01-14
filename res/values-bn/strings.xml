@@ -24,6 +24,7 @@
     <string name="block_overlay_message">আপনি %1$s কে ব্লক করেছেন। আনব্লক করে hike-এর মজা নিতে থাকুন।</string>
     <string name="phone_num">ফোন নম্বর</string>
     <string name="pin">পিন</string>
+    <string name="pin_signup">PIN</string>
     <string name="name">নাম</string>
     <string name="terms_privacy">শর্তাবলী এবং গোপনীয়তা</string>
     <string name="invite_now">এখনই আমন্ত্রণ জানান</string>
@@ -465,9 +466,8 @@
 <![CDATA[ <b> এখনই লুকানো মোড রিসেট করতে এখানে আলতো চাপুন! </b>
 	    ]]>
     </string>
-    <string name="tap_to_reveal_stealth_contacts">চ্যাট প্রকাশ করা</string>
-    <string name="tap_to_hide_stealth_contacts">চ্যাট লুকান</string>
-    <string name="tap_text">ট্যাপ করুন</string>
+    <string name="tap_to_reveal_stealth_contacts">চ্যাট প্রকাশ করতে \'hi\' আলতো টিপুন</string>
+    <string name="tap_to_hide_stealth_contacts">চ্যাট  লুকোতে \'hi\' আলতো টিপুন</string>
     <string name="reset_stealth_confirmation">লুকানো মোড রিসেট করলে আপনার সমস্ত লুকানো চ্যাট মুছে যাবে।\nআপনি কি নিশ্চিত?</string>
     <string name="stealth_tap_and_hold_tip">কোনো চ্যাটকে \’লুকানো\’ হিসেবে চিহ্নিত করতে আলতো চেপে ধরে থাকুন।</string>
     <string name="mark_stealth">চ্যাট লুকানো হিসেবে চিহ্নিত করুন</string>
@@ -590,12 +590,13 @@
     <string name="select_all_confirmation_msg">Hike ডাউনলোড করার জন্য %1$d টি যোগাযোগর কাছে আমন্ত্রণ পাঠাবেন?</string>
     <string name="hike_offline_caps">Hike অফলাইন</string>
 
-    <string name="create_pin">Pin তৈরি করুন</string>
-    <string name="pin_history">Pin এর ইতিহাস</string>
+    <string name="create_pin">পিন তৈরি করুন</string>
+    <string name="pin_history">পিন এর ইতিহাস</string>
     <string name="max_pin_unread_counter">9+</string>
     <string name="pin_text_hint">গুরুত্বপূর্ণ কিছু শেয়ার করুন...</string>
-    <string name="xyz_posted_pin">%1$s একটি pin পোস্ট করেছে</string>
-    <string name="pinHistoryTutorialText">এখনও কোনো pin নেই</string>
+    <string name="xyz_posted_pin">%1$s একটি পিন পোস্ট করেছে</string>
+    <string name="you_xyz_posted_pin">আপনি একটি পিন পোস্ট</string>
+    <string name="pinHistoryTutorialText">এখনও কোনো পিন নেই</string>
     <string name="incorrect_msisdn_warning">ভুল নম্বর</string>
     <string name="incorrect_msisdn_msg">এই ফোনে hike-এ নিবন্ধিত নম্বরটি দিন।</string>
     <string name="delete_account_heading_2">অ্যাকাউন্ট মুছে ফেলার জন্য, আপনার নম্বর লিখুন</string>
@@ -605,10 +606,10 @@
     <string name="mute_status_notification_subtext">পছন্দসই থেকে স্টেটাস &amp; প্রোফাইল ছবি আপডেটের জন্য দেখান</string>
     <string name="notifications_contact_join_summary">যখন কোনো যোগাযোগ hike এ যোগ দেবে তখন জানান</string>
     <string name="set_profile_pic"> Hike প্রোফাইল ছবি</string>
-    <string name="confirm_delete_pin_header">Pin মুছুন</string>
-    <string name="confirm_delete_pin">আপনি কি এই pin মুছে দেওয়ার ব্যাপারে নিশ্চিত?</string>
-    <string name="confirm_delete_pins_header">Pinগুলি মুছুন</string>
-    <string name="confirm_delete_pins">আপনি কি এইসব %1$s pin মুছে দেওয়ার ব্যাপারে নিশ্চিত?</string>
+    <string name="confirm_delete_pin_header">পিন মুছুন</string>
+    <string name="confirm_delete_pin">আপনি কি এই পিন মুছে দেওয়ার ব্যাপারে নিশ্চিত?</string>
+    <string name="confirm_delete_pins_header">পিনগুলি মুছুন</string>
+    <string name="confirm_delete_pins">আপনি কি এইসব %1$s পিন মুছে দেওয়ার ব্যাপারে নিশ্চিত?</string>
     <string name="add_btn">যোগ করুন</string>
     <string name="not_now">এখনই নয়</string>
     <string name="shared_med">শেয়ার করা মিডিয়া</string>
@@ -637,7 +638,7 @@
     <string name="notificationSoundSummary">নতুন বিজ্ঞপ্তির জন্য প্লে করতে শব্দ নির্বাচন করুন</string>
     <string name="hike_offline_notifications">Hike অফলাইন</string>
     <string name="h2o_notifications_setting_summary">অফলাইন যোগাযোগর জন্য SMS পাঠানোর বিজ্ঞপ্তি দিন</string>
-    <string name="stealth_info_tip_subtext">পাসওয়ার্ড সহ চ্যাট লুকাতে \’হাই \’ আলতো চাপুন।</string>
+    <string name="stealth_info_tip_subtext">পাসওয়ার্ড সহ চ্যাট লুকাতে \'hi\' আলতো চাপুন।</string>
     <string name="file_attachment_info">ডক, pdf &amp; মিডিয়া 100 MB পর্যন্ত শেয়ার করুন</string>
     <string name="status_text_notification">একটি আপডেট পোস্ট করা হয়েছে %1$s</string>
     <string name="shared_files">ফাইলস্</string>
@@ -652,14 +653,14 @@
     <string name="image_quality_prefs">ছবির গুণমান</string>
     <string name="no_media">ছবি ও ভিডিও এখানে দেখানো হয়</string>
     <string name="add_fav">ফেভারিটে যোগ করুন</string>
-    <string name="no_file">ফাইল ও pinগুলি এখানে দেখানো হয়</string>
+    <string name="no_file">ফাইল ও পিনগুলি এখানে দেখানো হয়</string>
     <string name="no_file_broadcast">ফাইলগুলি এখানে দেখানো হয়</string>
     <string name="no_file_profile">ফাইলগুলি এখানে দেখানো হয়</string>
     <string name="notifications_contact_join_title">Hike এ যোগদান করতে যোগাযোগ করুন</string>
     <string name="share_with_names_numbers">%1$s এবং অন্যান্য %2$d জনের সঙ্গে শেয়ার করবেন?</string>
     <string name="recent_chats">কোনো সাম্প্রতিক চ্যাট নেই</string>
     <string name="new_chat_compose_hint">নাম ও নম্বর দিয়ে অনুসন্ধান করুন</string>
-    <string name="pin_notif_text">একটি pin পোস্ট করেছে</string>
+    <string name="pin_notif_text">একটি পিন পোস্ট করেছে</string>
     <string name="welcome_to">স্বাগত জানাই</string>
     <string name="small_fastest">দ্রুততর</string>
     <string name="medium_faster">দ্রুত</string>
@@ -912,20 +913,20 @@
     <string name="enable_stealth_notification_body">লুকানো কোনো চ্যাটে মেসেজের বিজ্ঞপ্তি পান</string>
     <string name="enable_stealth_notification">বিজ্ঞপ্তি</string>
     <string name="stealth_msg_draw_an_unlock_pattern">আপনার নতুন পাসকোড প্যাটার্ন অঙ্কন করুন</string>
-    <string name="stealth_msg_enter_an_unlock_pin">আপনার নতুন 4 সংখ্যার পিন দিন</string>
+    <string name="stealth_msg_enter_an_unlock_pin">আপনার নতুন 4 সংখ্যার PIN দিন</string>
     <string name="stealth_msg_redraw_pattern_to_confirm">আপনার প্যাটার্ন নিশ্চিত করুন</string>
-    <string name="stealth_msg_reenter_pin_to_confirm">আপনার পিন নিশ্চিত করুন</string>
-    <string name="stealth_enter_4_digits">আপনার 4 সংখ্যার পিন সম্পূর্ণ করুন</string>
+    <string name="stealth_msg_reenter_pin_to_confirm">আপনার PIN নিশ্চিত করুন</string>
+    <string name="stealth_enter_4_digits">আপনার 4 সংখ্যার PIN সম্পূর্ণ করুন</string>
     <string name="hide_chat">চ্যাট লুকান</string>
     <string name="mark_hidden">লুকানো হিসেবে চিহ্নিত করুন</string>
     <string name="mark_visible">দৃশ্যমান হিসেবে চিহ্নিত করুন</string>
-    <string name="stealth_set_pin">বা নম্বর পিন সেট করুন</string>
+    <string name="stealth_set_pin">বা নম্বর PIN সেট করুন</string>
     <string name="stealth_set_pattern">বা একটি প্যাটার্ন সেট করুন</string>
-    <string name="stealth_msg_pin_recorded">পিন রেকর্ড করা হয়েছে</string>
-    <string name="stealth_msg_your_new_unlock_pin">আপনার নতুন আনলক পিন</string>
-    <string name="stealth_msg_try_pin_again">আপনার পিন মিলছে না। আবার চেষ্টা করুন।</string>
-    <string name="stealth_msg_enter_pin_to_unlock">আনলক করতে পিন লিখুন</string>
-    <string name="stealth_msg_enter_pin_to_unlock_in_reset">আপনার বিদ্যমান পিন লিখুন</string>
+    <string name="stealth_msg_pin_recorded">PIN রেকর্ড করা হয়েছে</string>
+    <string name="stealth_msg_your_new_unlock_pin">আপনার নতুন আনলক PIN</string>
+    <string name="stealth_msg_try_pin_again">আপনার PINs মিলছে না। আবার চেষ্টা করুন।</string>
+    <string name="stealth_msg_enter_pin_to_unlock">আনলক করতে PIN লিখুন</string>
+    <string name="stealth_msg_enter_pin_to_unlock_in_reset">আপনার বিদ্যমান PIN লিখুন</string>
     <string name="change_password_from_privacy">লুকানো মোডের সেটিংস</string>
     <string name="nudge_setting_header">ঠেলা দিতে দুইবার আলতো চাপুন</string>
     <string name="nudge_setting_info">চ্যাট করার সময় দুইবার আলতো চাপার মাধ্যমে ঠেলা দিন</string>
@@ -1094,7 +1095,7 @@
     <string name="photo_actions_header">ভালো লাগছে! এতে এই ফটোটি ব্যবহার করুন,</string>
     <string name="profile_header_subtext">প্রোফাইল ফটো সকলের কাছে দৃশ্যমান</string>
     <string name="sms_with_settings">SMS সেটিংস</string>
-    <string name="sms_credits_with_settings">ফ্রি SMS: %1$d</string>
+    <string name="sms_credits_with_settings">ফ্রি SMS: %1$s</string>
     <string name="free_hike_2_sms_india">কেবলমাত্র ভারতে ফ্রি</string>
     <string name="invite_friends_earn_rewards">hike এ বন্ধুদের আমন্ত্রণ করুন এবং পুরষ্কার পান</string>
     <string name="your_referral_code">আপনার <b>রেফারেল</b> কোড</string>
@@ -1277,12 +1278,13 @@
     <string name="are_typing">টাইপ করছে...</string>
     <string name="you_chat_bg_changed">আপনি চ্যাটের থিম পরিবর্তন করেছেন।</string>
     <string name="hike_keyboard">Hike কীবোর্ড</string>
-    <string name="system_keyboard">সিস্টেমের কীবোর্ড</string>
+    <string name="system_keyboard">ফোন কীবোর্ড</string>
     <string name="you_posted_pin">আপনি একটি পিন পোস্ট করেছেন</string>
     <string name="voip_hang_up">কেটে দিন</string>
     <string name="voip_decline">প্রত্যাখ্যান করুন</string>
     <string name="voip_accept">স্বীকার করুন</string>
     <string name="you_added_group_member">আপনি %1$s কে যোগ করেছেন</string>
+    <string name="you_group_member_added">আপনি %1$s কে যোগ করেছেন</string>
     <string name="you_added_as_group_member">%1$s আপনাকে যোগ করেছেন</string>
     <string name="group_member_added">%1$s %2$s কে যোগ করেছেন</string>
     <string name="you_updated_group_admin">আপনি %1$s কে গ্রুপ অ্যাডমিন করেছেন</string>
@@ -1302,7 +1304,7 @@
     <string name="made_with_love_in_india">ভারতকে :love: রেখে তৈরি</string>
     <string name="timeline_ftue_desc">টাইমলাইন আপনার ও আপনার বন্ধুদের বিশেষ মুহূর্ত শেয়ার করার জায়গা.  আপনার কিছু বন্ধুরা ইতিমধ্যে টাইমলাইনে পোস্ট করেছে!</string>
     <string name="sticker">স্টিকার</string>
-    <string name="stealth_unread_tip_message">চ্যাট হাইড করুন hi আলতো টিপে</string>
+    <string name="stealth_unread_tip_message">চ্যাট হাইড করুন \’hi\’ আলতো টিপে</string>
     <string name="stealth_unread_tip_header">চ্যাট হাইড করুন</string>
 
     <!-- The above two string would be used as in Group with Shibu, Niladri and 4 others -->
@@ -1422,5 +1424,11 @@
     <string name="dismiss_button">খারিজ</string>
     <string name="try_instead">পরিবর্তে চেষ্টা</string>
     <string name="sms_card_settings_side_text">সমস্ত টেক্সট বার্তা</string>
-<string name="unsupported_langs_toast">আপনার ফোন %1$s  ভাষা দেখানো তে ব্যর্থ</string>
+
+<string name="unsupported_langs_toast">আপনার ফোন %1$s  ভাষা দেখানো তে ব্যর্থ</string>
+    <string name="unsupported_language_toast_msg">আপনার ফোন এই ভাষা স্বীকার করে না</string>
+    <string name="language_ftue_complete_message">আপনার ভাষা বদলাতে পারেন\n সেটিংস -> ভাষা &amp; ইনপুট গিয়ে</string>
+    <string name="error_message_upgrade_peer">যোগাযোগ সম্ভব না হওয়ায় দুঃখিত। আপনার বন্ধুর Hike -এর সংস্করণে Hike ডাইরেক্ট নেই।</string>
+    <string name="error_message_unsupported_peer">যোগাযোগ সম্ভব না হওয়ায় দুঃখিত। Hike ডাইরেক্ট আপাতত কেবলমাত্র অ্যান্ড্রয়েড ফোনের সাথে চলে।</string>
+    
 </resources>

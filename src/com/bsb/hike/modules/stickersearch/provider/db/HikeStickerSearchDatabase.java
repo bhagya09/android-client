@@ -16,8 +16,10 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.db.DatabaseErrorHandlers.CustomDatabaseErrorHandler;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
+import com.bsb.hike.modules.stickersearch.StickerSearchUtils;
 import com.bsb.hike.modules.stickersearch.datamodel.StickerAppositeDataContainer;
 import com.bsb.hike.modules.stickersearch.datamodel.StickerTagDataContainer;
 import com.bsb.hike.modules.stickersearch.provider.StickerSearchUtility;
@@ -73,7 +75,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 
 	private HikeStickerSearchDatabase(Context context)
 	{
-		super(context, HikeStickerSearchBaseConstants.DATABASE_HIKE_STICKER_SEARCH, null, HikeStickerSearchBaseConstants.STICKERS_SEARCH_DATABASE_VERSION);
+		super(context, HikeStickerSearchBaseConstants.DATABASE_HIKE_STICKER_SEARCH, null, HikeStickerSearchBaseConstants.STICKERS_SEARCH_DATABASE_VERSION, new CustomDatabaseErrorHandler());
 
 		Logger.i(TAG, "HikeStickerSearchDatabase(" + context + ")");
 
@@ -2121,46 +2123,46 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		return true;
 	}
 
-	public ArrayList<StickerAppositeDataContainer> getUndownloadedStickersList()
-	{
-
-		Cursor c = null;
-
-		ArrayList<StickerAppositeDataContainer> resultSet = new ArrayList<>()
-
-		try
-		{
-			c = mDb.query(HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING, new String[] { HikeStickerSearchBaseConstants.STICKER_RECOGNIZER_CODE,
-					HikeStickerSearchBaseConstants.STICKER_ATTRIBUTE_AGE,
-					HikeStickerSearchBaseConstants.STICKER_OVERALL_FREQUENCY }, null, null, null, null, HikeStickerSearchBaseConstants.STICKER_ATTRIBUTE_AGE
-					+ HikeStickerSearchBaseConstants.SYNTAX_DESCENDING, String.valueOf(StickerSearchUtils.getTagCacheLimit(StickerSearchConstants.STATE_UNDOWNLOADED_TAGS_DOWNLOAD)));
-
-			int rowCount = (c == null) ? 0 : c.getCount();
-
-			if (rowCount > 0)
-			{
-				int stickerIdIndex = c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_RECOGNIZER_CODE);
-				int ageIndex = c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_ATTRIBUTE_AGE);
-				int compositeFrequencyIndex = c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_OVERALL_FREQUENCY);
-
-				while (c.moveToNext())
-				{
-
-					String stickerCode = c.getString(stickerIdIndex);
-					int stickertagAge = c.getInt(ageIndex);
-
-					StickerAppositeDataContainer temp = new StickerAppositeDataContainer()
-				}
-			}
-		}
-		finally
-		{
-			if (c != null)
-			{
-				c.close();
-				c = null;
-			}
-			SQLiteDatabase.releaseMemory();
-		}
-	}
+//	public ArrayList<StickerAppositeDataContainer> getUndownloadedStickersList()
+//	{
+//
+//		Cursor c = null;
+//
+//		ArrayList<StickerAppositeDataContainer> resultSet = new ArrayList<>()
+//
+//		try
+//		{
+//			c = mDb.query(HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING, new String[] { HikeStickerSearchBaseConstants.STICKER_RECOGNIZER_CODE,
+//					HikeStickerSearchBaseConstants.STICKER_ATTRIBUTE_AGE,
+//					HikeStickerSearchBaseConstants.STICKER_OVERALL_FREQUENCY }, null, null, null, null, HikeStickerSearchBaseConstants.STICKER_ATTRIBUTE_AGE
+//					+ HikeStickerSearchBaseConstants.SYNTAX_DESCENDING, String.valueOf(StickerSearchUtils.getTagCacheLimit(StickerSearchConstants.STATE_UNDOWNLOADED_TAGS_DOWNLOAD)));
+//
+//			int rowCount = (c == null) ? 0 : c.getCount();
+//
+//			if (rowCount > 0)
+//			{
+//				int stickerIdIndex = c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_RECOGNIZER_CODE);
+//				int ageIndex = c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_ATTRIBUTE_AGE);
+//				int compositeFrequencyIndex = c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_OVERALL_FREQUENCY);
+//
+//				while (c.moveToNext())
+//				{
+//
+//					String stickerCode = c.getString(stickerIdIndex);
+//					int stickertagAge = c.getInt(ageIndex);
+//
+//					StickerAppositeDataContainer temp = new StickerAppositeDataContainer()
+//				}
+//			}
+//		}
+//		finally
+//		{
+//			if (c != null)
+//			{
+//				c.close();
+//				c = null;
+//			}
+//			SQLiteDatabase.releaseMemory();
+//		}
+//	}
 }
