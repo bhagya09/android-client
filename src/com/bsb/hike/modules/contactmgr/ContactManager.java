@@ -1433,7 +1433,9 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 		}
 
 		Map<String, List<ContactInfo>> new_contacts_by_id = convertToMap(newContacts);
-		Map<String, List<ContactInfo>> hike_contacts_by_id = convertToMap(transientCache.getAllContactsForSyncing());
+		List<ContactInfo> hikeDBContactList = transientCache.getAllContactsForSyncing();
+		Map<String, List<ContactInfo>> hike_contacts_by_id = convertToMap(hikeDBContactList);
+		Map<String, ContactInfo> hike_contacts_by_msisdn = convertToMapWithMsisdnAsKey(hikeDBContactList);
 
 		/*
 		 * iterate over every item in the phone db, items that are equal remove from both maps items that are different, leave in 'new' map and remove from 'hike' map send the
@@ -1454,6 +1456,29 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 			 */
 			if (hike_contacts_for_id == null)
 			{
+				/*
+				 * Removing the contact which is already present in hike db with different id on the basis of msisdn.
+				 */
+				Logger.d("ContactUtils", "Contact won't present in hike DB for id = " + id);
+				for (ContactInfo c : contacts_for_id)
+				{
+					if(hike_contacts_by_msisdn.containsKey(c.getPhoneNum()))
+					{
+						ContactInfo hikeCInfo = (ContactInfo) hike_contacts_by_msisdn.get(c.getPhoneNum());
+						/*
+						 * One special case is handled where user deleted and added the same contact again at the same time.
+						 */
+						if(!new_contacts_by_id.containsKey(hikeCInfo.getId()) && hike_contacts_by_id.containsKey(hikeCInfo.getId()))
+						{
+							Logger.d("ContactUtils", "Removing contact from android db contact list");
+							contacts_for_id.remove(c);
+						}
+					}
+				}
+				if(contacts_for_id.isEmpty())
+				{
+					iterator.remove();
+				}
 				continue;
 			}
 			else if (areListsEqual(contacts_for_id, hike_contacts_for_id))
@@ -1473,76 +1498,6 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 				msisdns.add(con.getMsisdn());
 			}
 			hike_contacts_by_id.remove(id);
-		}
-
-		/*
-		 * Google contact ids changes randomly for some contacts in addressbook which causes unnecessary http calls to the server.
-		 * 
-		 * If a contact id of a contact changes from "prev" to "curr" then we make a call to delete "prev" and add "curr".
-		 * 
-		 * To reduce these types of http requests , we are checking for equality of name and number also in following logic and removing these entries to be added and deleted if
-		 * contact name and number are same even if there ids have changed
-		 */
-		if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CONTACT_REMOVE_DUPLICATES_WHILE_SYNCING, true))
-		{
-			Logger.d("ContactUtils", "New contacts :" + new_contacts_by_id.size() + "  deleted contacts : " + hike_contacts_by_id.size() + "  before removing duplicates");
-			Logger.d("ContactUtils", "New contacts Details before removing duplicates :" + new_contacts_by_id);
-			Logger.d("ContactUtils", "Deleted contacts Details before removing duplicates : " + hike_contacts_by_id);
-
-			HashSet<String> hikeContactsSet = new HashSet<String>();
-			for (Entry<String, List<ContactInfo>> en : hike_contacts_by_id.entrySet())
-			{
-				List<ContactInfo> contactsList = en.getValue();
-				for (ContactInfo contact : contactsList)
-				{
-					hikeContactsSet.add(contact.getName() + "_" + contact.getPhoneNum());
-				}
-			}
-
-			HashSet<String> commonContactsSet = new HashSet<String>();
-
-			Map.Entry<String, List<ContactInfo>> newContactEntry = null;
-			for (Iterator<Map.Entry<String, List<ContactInfo>>> iterator = new_contacts_by_id.entrySet().iterator(); iterator.hasNext();)
-			{
-				newContactEntry = iterator.next();
-				List<ContactInfo> contactsList = newContactEntry.getValue();
-				for (int index = contactsList.size() - 1; index >= 0; --index)
-				{
-					ContactInfo contact = contactsList.get(index);
-					String key = contact.getName() + "_" + contact.getPhoneNum();
-					if (hikeContactsSet.contains(key))
-					{
-						contactsList.remove(index);
-						commonContactsSet.add(key);
-					}
-				}
-				if (contactsList.isEmpty())
-				{
-					iterator.remove();
-				}
-			}
-
-			Logger.d("ContactUtils", "Common contacts set : " + commonContactsSet);
-
-			Map.Entry<String, List<ContactInfo>> hikeContactEntry = null;
-			for (Iterator<Map.Entry<String, List<ContactInfo>>> iterator = hike_contacts_by_id.entrySet().iterator(); iterator.hasNext();)
-			{
-				hikeContactEntry = iterator.next();
-				List<ContactInfo> contactsList = hikeContactEntry.getValue();
-				for (int index = contactsList.size() - 1; index >= 0; --index)
-				{
-					ContactInfo contact = contactsList.get(index);
-					String key = contact.getName() + "_" + contact.getPhoneNum();
-					if (commonContactsSet.contains(key))
-					{
-						contactsList.remove(index);
-					}
-				}
-				if (contactsList.isEmpty())
-				{
-					iterator.remove();
-				}
-			}
 		}
 
 		/*
@@ -1702,6 +1657,28 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 	}
 
 	/**
+	 * Converting contacts list to map where msisdn will be key.
+	 */
+	public Map<String, ContactInfo> convertToMapWithMsisdnAsKey(List<ContactInfo> contacts)
+	{
+		Map<String, ContactInfo> ret = new HashMap<String, ContactInfo>(contacts.size());
+		for (ContactInfo contactInfo : contacts)
+		{
+			if ("__HIKE__".equals(contactInfo.getId()))
+			{
+				continue;
+			}
+
+			ContactInfo l = ret.get(contactInfo.getPhoneNum());
+			if (l == null)
+			{
+				ret.put(contactInfo.getPhoneNum(), l);
+			}
+		}
+		return ret;
+	}
+
+	/**
 	 * This method is used to get the contacts from the phone's address book and used during contact sync up
 	 * 
 	 * @param ctx
@@ -1710,13 +1687,18 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 	public List<ContactInfo> getContacts(Context ctx)
 	{
 		HashSet<String> contactsToStore = new HashSet<String>();
-		String[] projection = new String[] { ContactsContract.Contacts._ID, ContactsContract.Contacts.HAS_PHONE_NUMBER, ContactsContract.Contacts.DISPLAY_NAME };
+		String[] projection = new String[] { ContactsContract.Contacts._ID, ContactsContract.Contacts.HAS_PHONE_NUMBER, ContactsContract.Contacts.DISPLAY_NAME
+				, ContactsContract.Contacts.IN_VISIBLE_GROUP};
 
-		String selection = ContactsContract.Contacts.HAS_PHONE_NUMBER + "='1'";
+		/*
+		 * Added check for visibility of contact i.e. IN_VISIBLE_GROUP
+		 */
+		String selection = ContactsContract.Contacts.HAS_PHONE_NUMBER + "='1'" + " AND " + ContactsContract.Contacts.IN_VISIBLE_GROUP + "='1'";
 		Cursor contacts = null;
 
 		List<ContactInfo> contactinfos = new ArrayList<ContactInfo>();
 		Map<String, String> contactNames = new HashMap<String, String>();
+		HashMap<String, ContactInfo> readContacts = new HashMap<String, ContactInfo>();
 		try
 		{
 			contacts = ctx.getContentResolver().query(ContactsContract.Contacts.CONTENT_URI, projection, selection, null, null);
@@ -1792,7 +1774,9 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 																		// returns
 																		// true
 					{
-						contactinfos.add(new ContactInfo(id, null, name, number));
+						ContactInfo cInfo = new ContactInfo(id, null, name, number);
+						contactinfos.add(cInfo);
+						readContacts.put(id, cInfo);
 					}
 				}
 			}
@@ -1811,6 +1795,56 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 			{
 				phones.close();
 
+			}
+		}
+
+		/*
+		 * RawContacts table query for deleted flag to remove the deleted contact from the list.
+		 */
+		Cursor rawContacts = null;
+		try
+		{
+			rawContacts = ctx.getContentResolver().query(ContactsContract.RawContacts.CONTENT_URI, 
+					new String[] {ContactsContract.RawContacts.CONTACT_ID, ContactsContract.RawContacts.DELETED}, null, null, null);
+
+			/*
+			 * Added this check for an issue where the cursor is null in some random cases (We suspect that happens when hotmail contacts are synced.)
+			 */
+			if (rawContacts == null)
+			{
+				return null;
+			}
+
+			int idFieldColumnIndex = rawContacts.getColumnIndex(ContactsContract.RawContacts.CONTACT_ID);
+			int deleteFieldColumnIndex = rawContacts.getColumnIndex(ContactsContract.RawContacts.DELETED);
+			while (rawContacts.moveToNext())
+			{
+				String id = rawContacts.getString(idFieldColumnIndex);
+				String deleted = rawContacts.getString(deleteFieldColumnIndex);
+				if(!TextUtils.isEmpty(deleted) && deleted.equals("1"))
+				{
+					ContactInfo contactInfo = readContacts.get(id);
+					contactinfos.remove(contactInfo);
+				}
+			}
+		}
+		catch (SecurityException e)
+		{
+			/**
+			 * currently some one plus one users are getting this exception on 5.1. we haven't found
+			 * any particular reason how it can happen. putting a catch block for the same.
+			 *
+			 * In future, when our target sdk version is 23 and user denies contacts permission
+			 * to hike. then we would get a security exception here, if we try to access contacts.
+			 */
+
+			Logger.e("ContactUtils", "Exception while querying contacts from raw contacts table", e);
+		}
+		finally
+		{
+			if (rawContacts != null)
+			{
+				rawContacts.close();
 			}
 		}
 

@@ -25,7 +25,7 @@ public class ContactInfo implements JSONSerializable, Comparable<ContactInfo>
 	@Override
 	public String toString()
 	{
-		return "ContactInfo [name=" + name + ", msisdn=" + msisdn + "]";
+		return "ContactInfo [name=" + name + ", msisdn=" + msisdn + ", rawNum=" + phoneNum + "]";
 	}
 
 	private String name;
