@@ -2,11 +2,8 @@ package com.bsb.hike.tasks;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Calendar;
 
-import org.json.JSONException;
 import org.json.JSONObject;
-import org.w3c.dom.Text;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -82,48 +79,35 @@ public class StatusUpdateTask implements IHikeHTTPTask
 	@Override
 	public void execute()
 	{
-		HikeHandlerUtil.getInstance().postRunnableWithDelay(new Runnable()
-		{
+		HikeHandlerUtil.getInstance().postRunnableWithDelay(new Runnable() {
 			@Override
-			public void run()
-			{
-				try
-				{
+			public void run() {
+				try {
 					// Compression
-					if (compressionEnabled && !TextUtils.isEmpty(imageFilePath))
-					{
+					if (compressionEnabled && !TextUtils.isEmpty(imageFilePath)) {
 						Bitmap sourceBitmap = null;
-						if (bmp != null)
-						{
+						if (bmp != null) {
 							sourceBitmap = bmp;
-						}
-						else if (!TextUtils.isEmpty(imageFilePath) && new File(imageFilePath).exists())
-						{
-							if (bmp != null)
-							{
+						} else if (!TextUtils.isEmpty(imageFilePath) && new File(imageFilePath).exists()) {
+							if (bmp != null) {
 								sourceBitmap = bmp;
-							}
-							else
-							{
+							} else {
 								sourceBitmap = HikeBitmapFactory.decodeSampledBitmapFromFile(imageFilePath, (HikeConstants.HikePhotos.MAX_IMAGE_DIMEN),
 										(HikeConstants.HikePhotos.MAX_IMAGE_DIMEN), Bitmap.Config.ARGB_8888, HikePhotosUtils.getLoadingOptionsAdvanced(), false);
 							}
 						}
 
-						if (sourceBitmap != null)
-						{
+						if (sourceBitmap != null) {
 							File tempFile = File.createTempFile(Long.toString(System.currentTimeMillis()), ".jpg", HikeMessengerApp.getInstance().getCacheDir());
 
 							sourceBitmap = HikePhotosUtils.scaleAdvanced(sourceBitmap, HikeConstants.HikePhotos.MAX_IMAGE_DIMEN, HikeConstants.HikePhotos.MAX_IMAGE_DIMEN, false);
-							if (sourceBitmap == null)
-							{
+							if (sourceBitmap == null) {
 								sourceBitmap = HikePhotosUtils.scaleAdvanced(sourceBitmap, HikeConstants.MAX_DIMENSION_MEDIUM_FULL_SIZE_PX,
 										HikeConstants.MAX_DIMENSION_MEDIUM_FULL_SIZE_PX, false);
 								Toast.makeText(HikeMessengerApp.getInstance().getApplicationContext(), "DevToast Image Quality Stepped down", Toast.LENGTH_SHORT).show();
 							}
 
-							if (sourceBitmap == null)
-							{
+							if (sourceBitmap == null) {
 								Toast.makeText(HikeMessengerApp.getInstance().getApplicationContext(), "DevToast OOM!", Toast.LENGTH_SHORT).show();
 								getRequestListener().onRequestFailure(null);
 								return;
@@ -131,24 +115,19 @@ public class StatusUpdateTask implements IHikeHTTPTask
 
 							BitmapUtils.saveBitmapToFile(tempFile, sourceBitmap, Bitmap.CompressFormat.JPEG, 80);
 							imageFilePath = tempFile.getAbsolutePath();
-						}
-						else
-						{
+						} else {
 							getRequestListener().onRequestFailure(null);
 							return;
 						}
 					}
 					token = HttpRequests.postStatusRequest(status, moodId, getRequestListener(), imageFilePath);
 
-					if (token == null)
-					{
+					if (token == null) {
 						getRequestListener().onRequestFailure(null);
 						return;
 					}
 					token.execute();
-				}
-				catch (IOException ioe)
-				{
+				} catch (IOException ioe) {
 					Toast.makeText(HikeMessengerApp.getInstance().getApplicationContext(), R.string.could_not_post_pic, Toast.LENGTH_SHORT).show();
 					ioe.printStackTrace();
 					getRequestListener().onRequestFailure(null);
@@ -201,8 +180,10 @@ public class StatusUpdateTask implements IHikeHTTPTask
 
 						Utils.copyFile(imageFilePath, destFilePath);
 
-						if (compressionEnabled)
+						if (compressionEnabled || Utils.isFileInSameDirectory(imageFilePath,destFilePath))
+						{
 							Utils.deleteFile(new File(imageFilePath));
+						}
 
 						HikeHandlerUtil.getInstance().postRunnableWithDelay(new Runnable()
 						{

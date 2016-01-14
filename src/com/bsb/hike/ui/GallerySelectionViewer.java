@@ -669,7 +669,6 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 		containerCrop.animate().alpha(enableCrop ? 0f : 1f);
 		containerEdit.animate().setStartDelay(50).alpha(enableCrop?0f:1f);
 		containerRemove.animate().setStartDelay(100).alpha(enableCrop?0f:1f);
-
 	}
 
 	private class GalleryPagerAdapter extends PagerAdapter

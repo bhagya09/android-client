@@ -6981,6 +6981,26 @@ public class Utils
 		}
 	}
 
+	public static boolean isFileInSameDirectory(String filePath1, String filePath2)
+	{
+		File file1 = new File(filePath1);
+		File file2 = new File(filePath2);
+
+		if(!file1.exists() || !file2.exists())
+		{
+			return false;
+		}
+
+		if(file1.getParent().equals(file2.getParent()))
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+
 	/**
 	 * Returns Total RAM in bytes for HIKE
 	 * 
