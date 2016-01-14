@@ -440,6 +440,11 @@ public class UploadFileTask extends FileTransferBase
 				else
 				{
 					postFileUploadMsgProcessing();
+					if (userContext != null)
+					{
+						removeTask();
+						HikeMessengerApp.getPubSub().publish(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED, null);
+					}
 				}
 			}
 		};
@@ -503,6 +508,11 @@ public class UploadFileTask extends FileTransferBase
 					}
 					responseJson.put(HikeConstants.DATA_2, resData);
 					handleSuccessJSON(responseJson);
+					if (userContext != null)
+					{
+						removeTask();
+						HikeMessengerApp.getPubSub().publish(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED, null);
+					}
 				}
 				catch (JSONException ex)
 				{
