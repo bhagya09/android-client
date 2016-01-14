@@ -1511,4 +1511,8 @@
     <string name="remove">Remove</string>
     <string name="filters">Filters</string>
     <string name="rotate">Rotate</string>
+    <string name="forward_to_plural_timeline">Send message to %1$s contacts and Timeline?</string>
+    <string name="forward_to_single_timeline">Send message to 1 contact and Timeline?</string>
+    <string name="share_with_timeline">Share with %1$d contacts and Timeline?</string>
+    <string name="share_with_contact_timeline">Share with %1$s and Timeline?</string>
 </resources>
