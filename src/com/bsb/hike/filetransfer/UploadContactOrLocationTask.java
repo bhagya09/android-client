@@ -85,7 +85,7 @@ public class UploadContactOrLocationTask extends FileTransferBase
 		catch (Exception ex)
 		{
 			Logger.e(TAG, "exception occurred ", ex);
-			showToast(HikeConstants.FTResult.UPLOAD_FAILED);
+			doOnFailure();
 		}
 	}
 
@@ -118,7 +118,7 @@ public class UploadContactOrLocationTask extends FileTransferBase
 				catch (Exception ex)
 				{
 					Logger.e(TAG, "exception occurred ", ex);
-					showToast(HikeConstants.FTResult.UPLOAD_FAILED);
+					doOnFailure();
 				}
 			}
 		};
@@ -155,14 +155,18 @@ public class UploadContactOrLocationTask extends FileTransferBase
 			@Override
 			public void onRequestFailure(HttpException httpException)
 			{
-				FileTransferManager.getInstance(context).removeTask(msgId);
-				if (userContext != null)
-				{
-					HikeMessengerApp.getPubSub().publish(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED, null);
-				}
-				showToast(HikeConstants.FTResult.UPLOAD_FAILED);
+				doOnFailure();
 			}
 		};
+	}
+
+	private void doOnFailure() {
+		FileTransferManager.getInstance(context).removeTask(msgId);
+		if (userContext != null)
+		{
+			HikeMessengerApp.getPubSub().publish(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED, null);
+		}
+		showToast(HikeConstants.FTResult.UPLOAD_FAILED);
 	}
 
 	private void send(boolean fileWasAlreadyUploaded)
