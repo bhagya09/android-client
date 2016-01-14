@@ -29,6 +29,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.edmodo.cropper.cropwindow.CropOverlayView;
 import com.edmodo.cropper.cropwindow.edge.Edge;
@@ -302,12 +303,12 @@ public class CropImageView extends FrameLayout {
         } else {
             matrix.postRotate(rotate);
             final Bitmap rotatedBitmap = Bitmap.createBitmap(bitmap,
-                                                             0,
-                                                             0,
-                                                             bitmap.getWidth(),
-                                                             bitmap.getHeight(),
-                                                             matrix,
-                                                             true);
+                    0,
+                    0,
+                    bitmap.getWidth(),
+                    bitmap.getHeight(),
+                    matrix,
+                    true);
             setImageBitmap(rotatedBitmap);
             bitmap.recycle();
         }
@@ -339,6 +340,12 @@ public class CropImageView extends FrameLayout {
 		final float actualCropY = Math.max(0f, actualCropRect.top);
 		final float actualCropWidth = Math.min(mBitmap.getWidth(), actualCropRect.right - actualCropRect.left);
 		final float actualCropHeight = Math.min(mBitmap.getHeight(), actualCropRect.bottom - actualCropRect.top);
+
+        if(actualCropHeight < 1 || actualCropWidth < 1)
+        {
+            Toast.makeText(getContext(), R.string.crop_failed,Toast.LENGTH_LONG).show();
+            return mBitmap;
+        }
 
 		// Crop the subset from the original Bitmap.
 		final Bitmap croppedBitmap = Bitmap.createBitmap(mBitmap, (int) actualCropX, (int) actualCropY, (int) actualCropWidth, (int) actualCropHeight);
