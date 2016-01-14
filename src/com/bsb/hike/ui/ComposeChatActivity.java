@@ -2039,10 +2039,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		final ArrayList<StatusUpdateTask> statusUpdateTasks = new ArrayList<StatusUpdateTask>();
 		for (int i=0;i<imagesToShare.size();i++)
 		{
-			if (!imageCaptions.isEmpty() && imageCaptions.size() - 1 >= i)
-			{
-				statusUpdateTasks.add(new StatusUpdateTask(imageCaptions.get(i), -1, imagesToShare.get(i)));
-			}
+			statusUpdateTasks.add(new StatusUpdateTask(imageCaptions.get(i), -1, imagesToShare.get(i)));
 		}
 
 		if(!TextUtils.isEmpty(messageToShare))
