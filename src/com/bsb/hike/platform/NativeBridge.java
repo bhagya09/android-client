@@ -6,6 +6,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.Activity;
+import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
@@ -27,6 +28,7 @@ import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Utils;
 import com.hike.transporter.utils.Logger;
+import android.widget.Toast;
 
 public class NativeBridge
 {
@@ -686,6 +688,33 @@ public class NativeBridge
 			@Override
 			public void run() {
 				PlatformUtils.openActivity(weakActivity.get(), data);
+			}
+		});
+	}
+
+	/**
+	 * show Toast msg
+	 *
+	 * @param data: message to be displayed
+	 */
+	public void showToast(String data, String duration)
+	{
+
+		if (mThread == null || weakActivity == null || weakActivity.get() == null)
+		{
+			return;
+		}
+
+		final String message = data;
+		final Application application = weakActivity.get().getApplication();
+
+		mThread.postRunnable(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				Toast.makeText(application, message, Toast.LENGTH_SHORT).show();
+
 			}
 		});
 	}
