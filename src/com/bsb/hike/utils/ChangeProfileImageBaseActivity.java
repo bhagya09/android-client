@@ -253,10 +253,10 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 						}
 						else
 						{
-							CropCompression compression = new CropCompression().maxWidth(640).maxHeight(640).quality(80);
-							Intent cropIntent = IntentFactory.getCropActivityIntent(ChangeProfileImageBaseActivity.this, destFile.getAbsolutePath(), getNewProfileImagePath(true),
-									compression, true, true);
-							startActivityForResult(cropIntent, HikeConstants.CROP_RESULT);
+							Intent profilePicIntent = new Intent(ChangeProfileImageBaseActivity.this, ProfilePicActivity.class);
+							profilePicIntent.putExtra(HikeMessengerApp.FILE_PATH, destFile.getAbsolutePath());
+							startActivity(profilePicIntent);
+							finish();
 						}
 					}
 				});
