@@ -2487,4 +2487,9 @@ public class StickerManager
 	{
 		HikeSharedPreferenceUtil.getInstance().saveData(StickerManager.STICKERS_SIZE_DOWNLOADED, false);
 	}
+
+	public String getMiniStickerKey(String stickerId, String categoryId) {
+		stickerId = stickerId.substring(0, stickerId.indexOf("."));
+		return ("mini_" + categoryId + "_" + stickerId).toLowerCase();
+	}
 }
