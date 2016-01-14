@@ -43,17 +43,17 @@ public class CustomWebView extends WebView
 	// Custom WebView to stop background calls when moves out of view.
 	public CustomWebView(Context context)
 	{
-		this(context, null);
+		this((applyWhiteScreenFix ? context.getApplicationContext() : context), null);
 	}
 
 	public CustomWebView(Context context, AttributeSet attrs)
 	{
-		this(context, attrs, android.R.attr.webViewStyle);
+		this((applyWhiteScreenFix ? context.getApplicationContext() : context), attrs, android.R.attr.webViewStyle);
 	}
 
 	public CustomWebView(Context context, AttributeSet attrs, int defStyleAttr)
 	{
-		super(context, attrs, defStyleAttr);
+		super((applyWhiteScreenFix ? context.getApplicationContext() : context), attrs, defStyleAttr);
 		allowUniversalAccess();
 		webViewProperties();
 	}
@@ -61,7 +61,7 @@ public class CustomWebView extends WebView
 	@TargetApi(Build.VERSION_CODES.LOLLIPOP)
 	public CustomWebView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes)
 	{
-		super(context, attrs, defStyleAttr, defStyleRes);
+		super((applyWhiteScreenFix ? context.getApplicationContext() : context), attrs, defStyleAttr, defStyleRes);
 		allowUniversalAccess();
 	}
 
