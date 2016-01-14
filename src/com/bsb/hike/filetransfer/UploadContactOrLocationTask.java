@@ -95,23 +95,31 @@ public class UploadContactOrLocationTask extends FileTransferBase
 			@Override
 			public void intercept(Chain chain) throws Exception
 			{
-				if (!uploadingContact)
+				try
 				{
-					HikeFile hikeFile = ((ConvMessage) userContext).getMetadata().getHikeFiles().get(0);
-					latitude = hikeFile.getLatitude();
-					longitude = hikeFile.getLongitude();
-					zoomLevel = hikeFile.getZoomLevel();
-					address = hikeFile.getAddress();
-
-					if (address == null)
-						address = Utils.getAddressFromGeoPoint(new LatLng(latitude, longitude), context);
-
-					if (TextUtils.isEmpty(hikeFile.getThumbnailString()))
+					if (!uploadingContact)
 					{
-						fetchThumbnailAndUpdateConvMessage(latitude, longitude, zoomLevel, address, (ConvMessage) userContext);
+						HikeFile hikeFile = ((ConvMessage) userContext).getMetadata().getHikeFiles().get(0);
+						latitude = hikeFile.getLatitude();
+						longitude = hikeFile.getLongitude();
+						zoomLevel = hikeFile.getZoomLevel();
+						address = hikeFile.getAddress();
+
+						if (address == null)
+							address = Utils.getAddressFromGeoPoint(new LatLng(latitude, longitude), context);
+
+						if (TextUtils.isEmpty(hikeFile.getThumbnailString()))
+						{
+							fetchThumbnailAndUpdateConvMessage(latitude, longitude, zoomLevel, address, (ConvMessage) userContext);
+						}
 					}
+					chain.proceed();
 				}
-				chain.proceed();
+				catch (Exception ex)
+				{
+					Logger.e(TAG, "exception occurred ", ex);
+					showToast(HikeConstants.FTResult.UPLOAD_FAILED);
+				}
 			}
 		};
 	}
