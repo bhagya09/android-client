@@ -1219,15 +1219,16 @@ public class PlatformUtils
 	
 	/**
 	 * Used to record analytics for bot opens via push notifications
-	 * Sample JSON : {"ek":"bno","bot_msisdn":"+hikecricketnew+"}
+	 * Sample JSON : {"ek":"bno","bot_msisdn":"+hikecricketnew+", "bot_source" : "bot_notif" }
 	 */
-	public static void recordBotOpenViaNotification(String msisdn)
+	public static void recordBotOpenSource(String msisdn, String source)
 	{
 		JSONObject json = new JSONObject();
 		try
 		{
 			json.put(AnalyticsConstants.EVENT_KEY, AnalyticsConstants.BOT_NOTIF_TRACKER);
 			json.put(AnalyticsConstants.BOT_MSISDN, msisdn);
+			json.put(AnalyticsConstants.BOT_OPEN_SOURCE, source);
 			HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, json);
 		}
 

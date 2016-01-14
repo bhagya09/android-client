@@ -563,6 +563,14 @@ public class AnalyticsConstants
 	
 	public static final String BOT_NOTIF_TRACKER = "bno";
 	
+	public static final String BOT_OPEN_SOURCE_DISC = "bot_discovery";
+	
+	public static final String BOT_OPEN_SOURCE_NOTIF = "bot_notif";
+	
+	public static final String BOT_OPEN_SOURCE_SHORTCUT = "bot_shortcut";
+	
+	public static final String BOT_OPEN_SOURCE = "bot_source";
+	
 	public static final String BOT_DISCOVERY = "bd";
 	
 	public static final String DISCOVERY_BOT_DOWNLOAD = "dbd";
