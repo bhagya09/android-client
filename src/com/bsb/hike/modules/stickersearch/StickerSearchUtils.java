@@ -118,7 +118,7 @@ public class StickerSearchUtils
 	{
 		if (!HikeMessengerApp.isSystemKeyboard())
 		{
-			return new Locale(KptKeyboardManager.getInstance().getCurrentLanguageAddonItem().getlocaleName()).getISO3Language();
+			return StickerSearchUtils.getISOCodeFromLocale(new Locale(KptKeyboardManager.getInstance().getCurrentLanguageAddonItem().getlocaleName()));
 		}
 
 		try
@@ -130,13 +130,26 @@ public class StickerSearchUtils
 
 			Logger.d(TAG, "Current language is " + currentLocale.toString());
 
-			return currentLocale.getISO3Language();
+			return StickerSearchUtils.getISOCodeFromLocale(currentLocale);
 		}
 		catch (Exception e)
 		{
 			Logger.e(TAG, "Exception in getting current language: ", e);
 		}
 
+		return StickerSearchConstants.DEFAULT_KEYBOARD_LANGUAGE_ISO_CODE;
+	}
+
+	public static String getISOCodeFromLocale(Locale locale)
+	{
+		try
+		{
+			return locale.getISO3Language();
+		}
+		catch(Exception e)
+		{
+			Logger.e(TAG, "exception in get language iso 3 code : ", e);
+		}
 		return StickerSearchConstants.DEFAULT_KEYBOARD_LANGUAGE_ISO_CODE;
 	}
 }

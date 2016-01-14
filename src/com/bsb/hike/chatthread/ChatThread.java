@@ -2060,7 +2060,7 @@ import android.widget.Toast;
 		public void analyticalData(KPTAddonItem kptAddonItem)
 		{
 			KptUtils.generateKeyboardAnalytics(kptAddonItem);
-			StickerSearchManager.getInstance().inputMethodChanged(new Locale(kptAddonItem.getlocaleName()).getISO3Language());
+			StickerSearchManager.getInstance().inputMethodChanged(StickerSearchUtils.getISOCodeFromLocale(new Locale(kptAddonItem.getlocaleName())));
 		}
 
 		@Override
