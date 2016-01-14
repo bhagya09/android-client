@@ -635,6 +635,12 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 	
 	private void setCropViewVisibility(boolean enableCrop)
 	{
+		CropImageView cropImageView = (CropImageView) selectedPager.findViewWithTag(TAG_CROP_IV + selectedPager.getCurrentItem());
+		if(cropImageView == null || cropImageView.getBitmap() == null)
+		{
+			return;
+		}
+
 		recordOriginalXY();
 
 		isInCropMode = enableCrop;
@@ -645,12 +651,6 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 
 		selectedGrid.animate().y(galleryGridItems.size() > 4 ? enableCrop?gridYorig + 600f:gridYorig : enableCrop?gridYorig + 300f:gridYorig);
 		cropPanel.setVisibility(enableCrop ? View.VISIBLE : View.GONE);
-
-		CropImageView cropImageView = (CropImageView) selectedPager.findViewWithTag(TAG_CROP_IV + selectedPager.getCurrentItem());
-		if(cropImageView == null)
-		{
-			return;
-		}
 
 		if (enableCrop)
 		{

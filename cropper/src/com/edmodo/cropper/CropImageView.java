@@ -516,4 +516,9 @@ public class CropImageView extends FrameLayout {
         return spec;
     }
 
+    public Bitmap getBitmap()
+    {
+        return mBitmap;
+    }
+
 }
