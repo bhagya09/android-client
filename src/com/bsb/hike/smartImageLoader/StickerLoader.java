@@ -6,7 +6,9 @@ import android.text.TextUtils;
 
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.modules.diskcache.Cache;
+import com.bsb.hike.modules.stickerdownloadmgr.MiniStickerImageDownloadTask;
 import com.bsb.hike.modules.stickerdownloadmgr.SingleStickerDownloadTask;
+import com.bsb.hike.modules.stickersearch.StickerSearchUtils;
 import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchBaseConstants;
 import com.bsb.hike.utils.Logger;
 
@@ -82,10 +84,12 @@ public class StickerLoader extends ImageWorker
 
 		try
 		{
+
+			int stickerSize = StickerSearchUtils.getStickerSize();
+
 			if(bitmap == null && lookInDiskCache && !TextUtils.isEmpty(data))
 			{
-				bitmap = HikeBitmapFactory.decodeSampledBitmapFromByteArray(stickerDiskCache.getCache().get(data).getData(),0,0);
-				//To Do add in image cache
+				bitmap = HikeBitmapFactory.decodeSampledBitmapFromByteArray(stickerDiskCache.getCache().get(data).getData(),stickerSize,stickerSize);
 			}
 			else if((bitmap == null) && downloadIfNotFound && !TextUtils.isEmpty(data))
 			{
@@ -97,7 +101,8 @@ public class StickerLoader extends ImageWorker
 
 				if(downloadStickerType == HikeStickerSearchBaseConstants.MINI_STICKER_AVAILABLE_ONLY)
 				{
-					//Init mini sticker download
+					MiniStickerImageDownloadTask miniStickerImageDownloadTask = new MiniStickerImageDownloadTask(stickerId,categoryId);
+					miniStickerImageDownloadTask.execute();
 				}
 
 				else
