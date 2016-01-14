@@ -1954,21 +1954,19 @@ public class MqttMessagesManager
 			{
 				// First check dmapp packet json structure and based on the packet structure call respective method to delete from versioning directory or older micro app path
                 JSONObject jsonObject = (JSONObject) microAppsTobeRemoved.get(i);
-				Object object = jsonObject.get(HikePlatformConstants.APP_NAME);
 
-				if (object instanceof JSONArray)
-				{
-					BotUtils.removeMicroApp((JSONObject) microAppsTobeRemoved.get(i));
-				}
-				else if (object instanceof String)
-				{
-					BotUtils.removeMicroAppFromVersioningPath((JSONObject) microAppsTobeRemoved.get(i));
-				}
-				else
-				{
-					Logger.e(TAG, "Stopping mapps delete flow as wrong packet structure is being sent for dmapp");
-				}
-
+				if(jsonObject.has(HikePlatformConstants.APP_NAME))
+                {
+                    BotUtils.removeMicroApp((JSONObject) microAppsTobeRemoved.get(i));
+                }
+                else if(jsonObject.has(HikePlatformConstants.MSISDN))
+                {
+                    BotUtils.removeMicroAppFromVersioningPath((JSONObject) microAppsTobeRemoved.get(i));
+                }
+                else
+                {
+                    Logger.e(TAG, "Stopping mapps delete flow as wrong packet structure is being sent for dmapp");
+                }
 			}
 		}
 		if(data.has(HikeConstants.MqttMessageTypes.NOTIFY_MICRO_APP_STATUS))
