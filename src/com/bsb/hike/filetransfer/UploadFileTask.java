@@ -170,6 +170,7 @@ public class UploadFileTask extends FileTransferBase
 					fss.setFileKey(fileKey);
 					HttpManager.getInstance().saveRequestStateInDB(HttpRequestConstants.getUploadFileBaseUrl(), String.valueOf(msgId), fss);
 					showToast(HikeConstants.FTResult.UPLOAD_FAILED);
+					HikeMessengerApp.getPubSub().publish(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED, null);
 					return;
 				}
 
@@ -462,6 +463,7 @@ public class UploadFileTask extends FileTransferBase
 					fss.setFileKey(fileKey);
 					HttpManager.getInstance().saveRequestStateInDB(HttpRequestConstants.getUploadFileBaseUrl(), String.valueOf(msgId), fss);
 					showToast(HikeConstants.FTResult.UPLOAD_FAILED);
+					HikeMessengerApp.getPubSub().publish(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED, null);
 				}
 				else
 				{
