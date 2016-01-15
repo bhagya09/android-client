@@ -170,6 +170,7 @@ public class UploadFileTask extends FileTransferBase
 					fss.setFileKey(fileKey);
 					HttpManager.getInstance().saveRequestStateInDB(HttpRequestConstants.getUploadFileBaseUrl(), String.valueOf(msgId), fss);
 					showToast(HikeConstants.FTResult.UPLOAD_FAILED);
+					HikeMessengerApp.getPubSub().publish(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED, null);
 					return;
 				}
 
@@ -439,6 +440,11 @@ public class UploadFileTask extends FileTransferBase
 				else
 				{
 					postFileUploadMsgProcessing();
+					if (userContext != null)
+					{
+						removeTask();
+						HikeMessengerApp.getPubSub().publish(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED, null);
+					}
 				}
 			}
 		};
@@ -462,6 +468,7 @@ public class UploadFileTask extends FileTransferBase
 					fss.setFileKey(fileKey);
 					HttpManager.getInstance().saveRequestStateInDB(HttpRequestConstants.getUploadFileBaseUrl(), String.valueOf(msgId), fss);
 					showToast(HikeConstants.FTResult.UPLOAD_FAILED);
+					HikeMessengerApp.getPubSub().publish(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED, null);
 				}
 				else
 				{
@@ -501,6 +508,11 @@ public class UploadFileTask extends FileTransferBase
 					}
 					responseJson.put(HikeConstants.DATA_2, resData);
 					handleSuccessJSON(responseJson);
+					if (userContext != null)
+					{
+						removeTask();
+						HikeMessengerApp.getPubSub().publish(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED, null);
+					}
 				}
 				catch (JSONException ex)
 				{

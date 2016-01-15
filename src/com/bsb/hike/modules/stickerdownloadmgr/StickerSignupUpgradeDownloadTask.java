@@ -16,6 +16,7 @@ import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.StickerRequestType;
 import com.bsb.hike.modules.stickersearch.StickerLanguagesManager;
+import com.bsb.hike.modules.stickersearch.StickerSearchUtils;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
@@ -91,7 +92,8 @@ public class StickerSignupUpgradeDownloadTask implements IHikeHTTPTask, IHikeHtt
 			{
 				postObject.put(StickerManager.CATEGORY_IDS, categoryList);
 				postObject.put("resId", Utils.getResolutionId());
-				postObject.put("lang", Utils.getCurrentLanguageLocale().getISO3Language());
+				postObject.put("lang", StickerSearchUtils.getCurrentLanguageISOCode());
+
 				if(!Utils.isEmpty(unSupportedLanguages))
 				{
 					postObject.put("unknown_langs", new JSONArray(unSupportedLanguages));
