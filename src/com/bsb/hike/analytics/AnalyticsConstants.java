@@ -15,6 +15,8 @@ public class AnalyticsConstants
 
 	public static final Object FILE_DOWNLOADED ="FileDownloaded" ;
 	public static final String RESULT_CODE = "resultCode";
+	public static final Object MICRO_APP_LOADED ="microAppLoaded";
+	public static final Object MICRO_APP_OPENED ="microAppOpened" ;
 
 	/** Default maximum size per file in kilobytes */ 
 	public static long MAX_FILE_SIZE = 200; // 200KB
@@ -212,7 +214,9 @@ public class AnalyticsConstants
 	public static String TIME_TAKEN = "time";
 
 	public static String UPGRADE_EVENT = "upgrade";
-		
+	public static Object BOT_CONTENT_FORWARDED = "bot_content_forwarded";
+	public static Object BOT_CONTENT_DOWNLAODED = "bot_content_downloaded";
+
 	// Edit picture flags and events
 	public static final class ProfileImageActions
 	{	
