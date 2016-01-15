@@ -335,15 +335,6 @@ public class ConnectionManager
 		myConfig.preSharedKey = pass;
 		myConfig.status = WifiConfiguration.Status.ENABLED;
 		myConfig.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.WPA_PSK);
-//		myConfig.allowedProtocols.set(WifiConfiguration.Protocol.RSN);
-//		myConfig.allowedProtocols.set(WifiConfiguration.Protocol.WPA);
-//		
-//		myConfig.allowedPairwiseCiphers.set(WifiConfiguration.PairwiseCipher.CCMP);
-//		myConfig.allowedPairwiseCiphers.set(WifiConfiguration.PairwiseCipher.TKIP);
-//		myConfig.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.WEP40);
-//		myConfig.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.WEP104);
-//		myConfig.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.CCMP);
-//		myConfig.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.TKIP);
 
 		if (isHTC)
 			setHTCSSID(myConfig);
