@@ -385,7 +385,23 @@ public class BotUtils
 		}
 		else if (type.equals(HikeConstants.NON_MESSAGING_BOT))
 		{
-			botInfo = getBotInfoForNonMessagingBots(jsonObj, msisdn);
+			// Check for rejecting lower version cbot and stop the flow if user already has an upper microApp version of same msisdn running
+			if (jsonObj.has(HikePlatformConstants.METADATA))
+			{
+				BotInfo currentBotInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
+				int currentBotInfoMAppVersionCode = 0;
+				if (currentBotInfo != null)
+					currentBotInfoMAppVersionCode = currentBotInfo.getMAppVersionCode();
+
+				JSONObject mdJsonObject = jsonObj.optJSONObject(HikePlatformConstants.METADATA);
+				JSONObject cardObjectJson = mdJsonObject.optJSONObject(HikePlatformConstants.CARD_OBJECT);
+				int mAppVersionCode = cardObjectJson.optInt(HikePlatformConstants.MAPP_VERSION_CODE, -1);
+
+				if (mAppVersionCode < currentBotInfoMAppVersionCode)
+					return;
+			}
+            
+            botInfo = getBotInfoForNonMessagingBots(jsonObj, msisdn);
 			boolean enableBot = jsonObj.optBoolean(HikePlatformConstants.ENABLE_BOT);
 			NonMessagingBotMetadata botMetadata = new NonMessagingBotMetadata(botInfo.getMetadata());
 
