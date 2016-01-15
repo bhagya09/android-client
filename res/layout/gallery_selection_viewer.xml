@@ -35,73 +35,86 @@
     <LinearLayout
         android:id="@+id/crop_actions_panel"
         android:layout_width="match_parent"
-        android:layout_height="100dp"
+        android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:orientation="horizontal"
         android:visibility="gone">
 
-        <LinearLayout
-            android:id="@+id/rotate"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_gravity="center"
-            android:layout_weight="1"
-            android:background="@drawable/bg_overflow_menu_selector"
-            android:clickable="true"
-            android:focusable="true"
-            android:gravity="center"
-            android:onClick="onClick">
 
-            <ImageView
-                android:layout_width="22dp"
-                android:layout_height="22dp"
-                android:layout_marginLeft="10dp"
-                android:background="@color/transparent"
-                android:scaleType="fitXY"
-                android:src="@drawable/ic_rotate" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/accept"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_gravity="center"
-            android:layout_weight="1"
-            android:background="@drawable/bg_overflow_menu_selector"
-            android:clickable="true"
-            android:focusable="true"
-            android:gravity="center"
-            android:onClick="onClick">
-
-            <ImageView
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:background="@color/transparent"
-                android:scaleType="fitXY"
-                android:src="@drawable/ic_material_yes" />
-        </LinearLayout>
-
-        <LinearLayout
+        <com.bsb.hike.view.CustomFontTextView
             android:id="@+id/cancel"
             android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_gravity="center"
+            android:layout_height="wrap_content"
             android:layout_weight="1"
             android:background="@drawable/bg_overflow_menu_selector"
-            android:clickable="true"
-            android:focusable="true"
             android:gravity="center"
-            android:onClick="onClick">
+            android:onClick="onClick"
+            android:padding="10dp"
+            android:text="@string/CANCEL"
+            android:textColor="@color/white_75"
+            android:textSize="16sp" />
 
-            <ImageView
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:layout_marginRight="10dp"
-                android:background="@color/transparent"
-                android:scaleType="fitXY"
-                android:src="@drawable/ic_material_no" />
-        </LinearLayout>
+        <View
+            android:layout_width="2px"
+            android:layout_height="match_parent"
+            android:layout_margin="5dp"
+            android:background="@color/transparent_white_ab" />
 
+        <com.bsb.hike.view.CustomFontTextView
+            android:id="@+id/accept"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@drawable/bg_overflow_menu_selector"
+            android:gravity="center"
+            android:onClick="onClick"
+            android:padding="10dp"
+            android:text="@string/OK"
+            android:textColor="@color/white_75"
+            android:textSize="16sp" />
+    </LinearLayout>
+
+
+    <View
+        android:id="@+id/crop_panel_divider"
+        android:layout_width="match_parent"
+        android:layout_height="1px"
+        android:layout_above="@+id/crop_actions_panel"
+        android:layout_margin="5dp"
+        android:background="@color/transparent_white_ab"
+        android:visibility="gone" />
+
+    <LinearLayout
+        android:id="@+id/container_rotate"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_above="@+id/crop_actions_panel"
+        android:layout_alignParentRight="true"
+        android:layout_marginBottom="25dp"
+        android:gravity="center_vertical|right"
+        android:orientation="horizontal"
+        android:visibility="gone">
+
+        <com.bsb.hike.view.CustomFontTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="2dp"
+            android:background="@drawable/translucent_text_bh"
+            android:paddingLeft="2dp"
+            android:paddingRight="2dp"
+            android:text="@string/rotate"
+            android:textColor="@color/white_75"
+            android:textSize="11sp" />
+
+        <ImageButton
+            android:id="@+id/rotateLeft"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="10dp"
+            android:background="@drawable/circle_bg_selector"
+            android:onClick="onClick"
+            android:src="@drawable/ic_rotate" />
     </LinearLayout>
 
     <LinearLayout
@@ -126,7 +139,9 @@
                 android:layout_alignBottom="@+id/ib_remove"
                 android:layout_marginRight="2dp"
                 android:layout_toLeftOf="@+id/ib_remove"
-                android:background="@color/black_16"
+                android:background="@drawable/translucent_text_bh"
+                android:paddingLeft="2dp"
+                android:paddingRight="2dp"
                 android:text="@string/remove"
                 android:textColor="@color/white_75"
                 android:textSize="11sp" />
@@ -157,7 +172,9 @@
                 android:layout_alignBottom="@+id/ib_edit"
                 android:layout_marginRight="2dp"
                 android:layout_toLeftOf="@+id/ib_edit"
-                android:background="@color/black_16"
+                android:background="@drawable/translucent_text_bh"
+                android:paddingLeft="2dp"
+                android:paddingRight="2dp"
                 android:text="@string/filters"
                 android:textColor="@color/white_75"
                 android:textSize="11sp" />
@@ -188,7 +205,9 @@
                 android:layout_alignBottom="@+id/ib_crop"
                 android:layout_marginRight="2dp"
                 android:layout_toLeftOf="@+id/ib_crop"
-                android:background="@color/black_16"
+                android:background="@drawable/translucent_text_bh"
+                android:paddingLeft="2dp"
+                android:paddingRight="2dp"
                 android:text="@string/crop"
                 android:textColor="@color/white_75"
                 android:textSize="11sp" />
@@ -202,6 +221,7 @@
                 android:onClick="onClick"
                 android:src="@drawable/ic_crop" />
         </LinearLayout>
+
 
     </LinearLayout>
 

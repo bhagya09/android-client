@@ -120,6 +120,10 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 
 	private View containerCrop,containerEdit,containerRemove;
 
+	private View containerRotate;
+
+	private View cropDivider;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
@@ -196,10 +200,11 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 		btnEdit = (ImageButton)findViewById(R.id.ib_edit);
 		btnRemove = (ImageButton) findViewById(R.id.ib_remove);
 		cropPanel = findViewById(R.id.crop_actions_panel);
-
+		cropDivider = findViewById(R.id.crop_panel_divider);
 		containerCrop = findViewById(R.id.container_crop);
 		containerEdit = findViewById(R.id.container_edit);
 		containerRemove = findViewById(R.id.container_remove);
+		containerRotate = findViewById(R.id.container_rotate);
 
 		HikeHandlerUtil.getInstance().postRunnableWithDelay(new Runnable() {
 			@Override
@@ -570,7 +575,7 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 			case R.id.ib_remove:
                 removeSelectionClickListener.onClick(null);
 				break;
-			case R.id.rotate:
+			case R.id.rotateLeft:
 				cropImageView.rotateImage(90);
 				break;
 			case R.id.cancel:
@@ -649,9 +654,10 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 		btnEdit.animate().setStartDelay(50).x(enableCrop ? btnXorig + 200f : btnXorig);
 		btnCrop.animate().x(enableCrop ? btnXorig + 200f : btnXorig);
 
-		selectedGrid.animate().y(galleryGridItems.size() > 4 ? enableCrop?gridYorig + 600f:gridYorig : enableCrop?gridYorig + 300f:gridYorig);
+		selectedGrid.animate().y(galleryGridItems.size() > 4 ? enableCrop ? gridYorig + 600f : gridYorig : enableCrop ? gridYorig + 300f : gridYorig);
 		cropPanel.setVisibility(enableCrop ? View.VISIBLE : View.GONE);
-
+		containerRotate.setVisibility(enableCrop ? View.VISIBLE : View.GONE);
+		cropDivider.setVisibility(enableCrop ? View.VISIBLE : View.GONE);
 		if (enableCrop)
 		{
 			cropImageView.showCropOverlay();

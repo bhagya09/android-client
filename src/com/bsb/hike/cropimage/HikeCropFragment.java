@@ -52,6 +52,8 @@ public class HikeCropFragment extends Fragment implements View.OnClickListener
 
 	private View containerCrop, containerEdit, containerRotate;
 
+	private View cropDivider;
+
 	public interface HikeCropListener
 	{
 		void onSuccess(Bitmap croppedBmp);
@@ -119,6 +121,8 @@ public class HikeCropFragment extends Fragment implements View.OnClickListener
 		containerCrop = mFragmentView.findViewById(R.id.container_crop);
 		containerEdit = mFragmentView.findViewById(R.id.container_edit);
 		containerRotate = mFragmentView.findViewById(R.id.container_rotate);
+
+		cropDivider = mFragmentView.findViewById(R.id.crop_panel_divider);
 
 		if (!editEnabled)
 		{
@@ -291,7 +295,6 @@ public class HikeCropFragment extends Fragment implements View.OnClickListener
 	{
 		recordOriginalXY();
 
-		btnRotate.animate().setStartDelay(100).x(enableCrop ? btnXorig + 200f : btnXorig);
 		btnEdit.animate().setStartDelay(50).x(enableCrop ? btnXorig + 200f : btnXorig);
 		btnCrop.animate().x(enableCrop ? btnXorig + 200f : btnXorig);
 
@@ -305,11 +308,11 @@ public class HikeCropFragment extends Fragment implements View.OnClickListener
 		}
 
 		cropPanel.setVisibility(enableCrop ? View.VISIBLE : View.INVISIBLE);
+		cropDivider.setVisibility(enableCrop ? View.VISIBLE : View.INVISIBLE);
 
 		mListener.toggleDoneButtonVisibility(!enableCrop);
 
 		containerCrop.animate().alpha(enableCrop ? 0f : 1f);
 		containerEdit.animate().setStartDelay(50).alpha(enableCrop?0f:1f);
-		containerRotate.animate().setStartDelay(100).alpha(enableCrop?0f:1f);
 	}
 }
