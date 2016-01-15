@@ -385,19 +385,31 @@ public class BotUtils
 		}
 		else if (type.equals(HikeConstants.NON_MESSAGING_BOT))
 		{
-			// Check for rejecting lower version cbot and stop the flow if user already has an upper microApp version of same msisdn running
+			// Check for rejecting cbot lower version mAppVersionCode and botVersionCode and stop the flow if user already has an upper version of same msisdn bot running
 			if (jsonObj.has(HikePlatformConstants.METADATA))
 			{
-				BotInfo currentBotInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
-				int currentBotInfoMAppVersionCode = 0;
-				if (currentBotInfo != null)
-					currentBotInfoMAppVersionCode = currentBotInfo.getMAppVersionCode();
+				int currentBotInfoMAppVersionCode = 0, mAppVersionCode = 0, botVersionCode = 0, currentBotVersionCode = 0;
 
+				// Get existing bot version details
+				BotInfo currentBotInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
+				if (currentBotInfo != null)
+				{
+					currentBotInfoMAppVersionCode = currentBotInfo.getMAppVersionCode();
+					currentBotVersionCode = currentBotInfo.getVersion();
+				}
+
+				// Get received cbot version details for comparison
+				if (jsonObj.has(HikePlatformConstants.BOT_VERSION))
+				{
+					botVersionCode = jsonObj.optInt(HikePlatformConstants.BOT_VERSION);
+				}
 				JSONObject mdJsonObject = jsonObj.optJSONObject(HikePlatformConstants.METADATA);
 				JSONObject cardObjectJson = mdJsonObject.optJSONObject(HikePlatformConstants.CARD_OBJECT);
-				int mAppVersionCode = cardObjectJson.optInt(HikePlatformConstants.MAPP_VERSION_CODE, -1);
+				if (cardObjectJson != null)
+					mAppVersionCode = cardObjectJson.optInt(HikePlatformConstants.MAPP_VERSION_CODE, -1);
 
-				if (mAppVersionCode < currentBotInfoMAppVersionCode)
+				if (mAppVersionCode < currentBotInfoMAppVersionCode || botVersionCode < currentBotVersionCode
+						|| (mAppVersionCode == currentBotInfoMAppVersionCode && botVersionCode == currentBotVersionCode))
 					return;
 			}
             
@@ -513,9 +525,11 @@ public class BotUtils
 
         if (jsonObj.has(HikePlatformConstants.METADATA))
         {
+            int mAppVersionCode = 0;
             JSONObject mdJsonObject = jsonObj.optJSONObject(HikePlatformConstants.METADATA);
             JSONObject cardObjectJson = mdJsonObject.optJSONObject(HikePlatformConstants.CARD_OBJECT);
-            int mAppVersionCode = cardObjectJson.optInt(HikePlatformConstants.MAPP_VERSION_CODE,-1);
+            if(cardObjectJson != null)
+                mAppVersionCode = cardObjectJson.optInt(HikePlatformConstants.MAPP_VERSION_CODE,-1);
 
             if (mAppVersionCode > 0)
             {
