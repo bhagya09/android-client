@@ -487,6 +487,7 @@ public class PlatformUtils
 		}
 
 		rqst.setBotType(botInfo.getBotType());
+        rqst.getContentData().cardObj.setMappVersionCode(botInfo.getMAppVersionCode());
 		rqst.getContentData().setBotType(botInfo.getBotType());
 		rqst.getContentData().setMsisdn(botInfo.getMsisdn());
 
