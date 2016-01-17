@@ -60,6 +60,18 @@ public class StickerAppositeDataContainer implements Comparable<StickerAppositeD
 		mRecommendationScore = 0.0f;
 	}
 
+	public StickerAppositeDataContainer(String stickerCode,  String overallFrequencyFunction,  int momentCode, int stickerAvailability,int age)
+	{
+		mStickerCode = stickerCode;
+		mOverallFrequencyFunction = overallFrequencyFunction;
+		mOverallFrequencies = StickerSearchUtility.getIndividualNumericValues(mOverallFrequencyFunction, StickerSearchConstants.FREQUENCY_DIVISION_SLOT_PER_STICKER_COUNT, Float.class);
+		mMomentCode = momentCode;
+		mStickerAvailability = stickerAvailability;
+		mMatchingScore = 0.0f;
+		mRecommendationScore = 0.0f;
+		mAge = age;
+	}
+
 	public String getStickerCode()
 	{
 		return mStickerCode;
