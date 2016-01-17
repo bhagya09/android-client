@@ -176,14 +176,14 @@ public class StickerSearchUtils
 
 		switch(tagType)
 		{
-			case StickerSearchConstants.STATE_UNDOWNLOADED_TAGS_DOWNLOAD:
+			case StickerSearchConstants.STATE_FORCED_TAGS_DOWNLOAD:
 				return prefs.getData(HikeStickerSearchBaseConstants.KEY_PREF_UNDOWNLOADED_CACHE_LIMIT, StickerSearchConstants.DEFAULT_STICKER_CACHE_LIMIT);
 		}
 
 		return StickerSearchConstants.DEFAULT_STICKER_CACHE_LIMIT;
 	}
 
-	public static int getUndownloadedTagsCount()
+	public static int getUndownloadedTagsStickersCount()
 	{
 		HikeSharedPreferenceUtil prefs = HikeSharedPreferenceUtil.getInstance();
 
@@ -198,6 +198,6 @@ public class StickerSearchUtils
 
 	public static boolean tagCacheLimitReached(int tagType)
 	{
-		return getUndownloadedTagsCount() - getTagCacheLimit( tagType)>0;
+		return getUndownloadedTagsStickersCount() - getTagCacheLimit( tagType)>0;
 	}
 }

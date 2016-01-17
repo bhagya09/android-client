@@ -3,7 +3,6 @@ package com.bsb.hike.modules.stickersearch.tasks;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerTagDownloadTask;
-import com.bsb.hike.modules.stickerdownloadmgr.UndownloadedTagsDownloadTask;
 import com.bsb.hike.modules.stickersearch.StickerLanguagesManager;
 import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
 import com.bsb.hike.utils.Logger;
@@ -22,6 +21,8 @@ public class InitiateStickerTagDownloadTask implements Runnable
 	private int state;
 
 	private Set<String> languagesSet;
+
+	private Set<String> stickerSet;
 	
 	public InitiateStickerTagDownloadTask(boolean firstTime, int state, Set<String> languagesSet)
 	{
@@ -30,41 +31,54 @@ public class InitiateStickerTagDownloadTask implements Runnable
 		this.languagesSet = languagesSet;
 	}
 
+	public InitiateStickerTagDownloadTask(boolean firstTime, int state, Set<String> languagesSet,Set<String> stickerSet)
+	{
+		this.firstTime = firstTime;
+		this.state = state;
+		this.languagesSet = languagesSet;
+		this.stickerSet = stickerSet;
+	}
+
 	@Override
 	public void run()
 	{
-		Set<String> stickerSet;
-		
-		if (firstTime)
+		if(stickerSet == null)
 		{
-			List<StickerCategory> stickerCategoryList = StickerManager.getInstance().getAllStickerCategories().second;
-			stickerSet = StickerManager.getInstance().getStickerSet(state);
-
-			if (Utils.isEmpty(stickerCategoryList))
+			if (firstTime)
 			{
-				Logger.wtf(TAG, "Empty sticker category list while downloading tags first time.");
+				List<StickerCategory> stickerCategoryList = StickerManager.getInstance().getAllStickerCategories().second;
+				stickerSet = StickerManager.getInstance().getStickerSet(state);
+
+				if (Utils.isEmpty(stickerCategoryList))
+				{
+					Logger.wtf(TAG, "Empty sticker category list while downloading tags first time.");
+				}
+				else
+				{
+					for (StickerCategory category : stickerCategoryList)
+					{
+						List<Sticker> stickers = category.getStickerList();
+
+						if (!Utils.isEmpty(stickers))
+						{
+							for(Sticker sticker : stickers)
+							{
+								stickerSet.add(StickerManager.getInstance().getStickerSetString(sticker));
+							}
+						}
+					}
+
+					StickerManager.getInstance().saveStickerSet(stickerSet, state);
+				}
 			}
 			else
 			{
-				for (StickerCategory category : stickerCategoryList)
-				{
-					List<Sticker> stickers = category.getStickerList();
-
-					if (!Utils.isEmpty(stickers))
-					{
-						for(Sticker sticker : stickers)
-						{
-							stickerSet.add(StickerManager.getInstance().getStickerSetString(sticker));
-						}
-					}
-				}
-
-				StickerManager.getInstance().saveStickerSet(stickerSet, state);
+				stickerSet = StickerManager.getInstance().getStickerSet(state);
 			}
 		}
-		else
+		else if(firstTime)
 		{
-			stickerSet = StickerManager.getInstance().getStickerSet(state);
+			StickerManager.getInstance().saveStickerSet(stickerSet, state);
 		}
 
 		
@@ -79,16 +93,8 @@ public class InitiateStickerTagDownloadTask implements Runnable
 			}
 			return ;
 		}
-		if(state == StickerSearchConstants.STATE_UNDOWNLOADED_TAGS_DOWNLOAD)
-		{
-			UndownloadedTagsDownloadTask task = new UndownloadedTagsDownloadTask(stickerSet,languagesSet);
-			task.execute();
-		}
-		else
-		{
-			StickerTagDownloadTask stickerTagDownloadTask = new StickerTagDownloadTask(stickerSet, state, languagesSet);
-			stickerTagDownloadTask.execute();
-		}
+		StickerTagDownloadTask stickerTagDownloadTask = new StickerTagDownloadTask(stickerSet, state, languagesSet);
+		stickerTagDownloadTask.execute();
 
 	}
 }

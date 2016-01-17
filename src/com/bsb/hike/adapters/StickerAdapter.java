@@ -1,10 +1,5 @@
 package com.bsb.hike.adapters;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -37,7 +32,12 @@ import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.CustomFontButton;
 import com.bsb.hike.view.StickerIconPageIndicator.StickerIconPagerAdapter;
 
-public class StickerAdapter extends PagerAdapter implements StickerIconPagerAdapter, HikePubSub.Listener
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+public class StickerAdapter extends PagerAdapter implements StickerIconPagerAdapter
 {
 	private List<StickerCategory> stickerCategoryList;
 

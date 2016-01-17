@@ -36,8 +36,8 @@ public class StickerTagCache
     {
         switch(mCache.tagType)
         {
-            case StickerSearchConstants.STATE_UNDOWNLOADED_TAGS_DOWNLOAD:
-                currentCacheSize = StickerSearchUtils.getUndownloadedTagsCount();
+            case StickerSearchConstants.STATE_FORCED_TAGS_DOWNLOAD:
+                currentCacheSize = StickerSearchUtils.getUndownloadedTagsStickersCount();
                 break;
         }
     }
@@ -91,7 +91,7 @@ public class StickerTagCache
     public void preTagsInsertTask(JSONObject stickerJSON)
     {
 
-        if(mCache.tagType !=  StickerSearchConstants.STATE_UNDOWNLOADED_TAGS_DOWNLOAD)
+        if(mCache.tagType !=  StickerSearchConstants.STATE_FORCED_TAGS_DOWNLOAD)
         {
             //Currently cache only applied for undownloaded tags thus no pre processing required for other kinds
             return;
@@ -127,9 +127,9 @@ public class StickerTagCache
 
         }
 
-        int tagLimit = StickerSearchUtils.getTagCacheLimit(mCache.tagType);
+        int cacheLimit = StickerSearchUtils.getTagCacheLimit(mCache.tagType);
 
-        if(stickersToBeInsertedCount + currentCacheSize>tagLimit)
+        if(stickersToBeInsertedCount + currentCacheSize>cacheLimit)
         {
             HikeSharedPreferenceUtil.getInstance().saveData(HikeStickerSearchBaseConstants.KEY_PREF_UNDOWNLOADED_TAG_COUNT, stickersToBeInsertedCount + currentCacheSize);
         }
