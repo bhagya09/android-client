@@ -24,10 +24,11 @@ import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.models.LogAnalyticsEvent;
 import com.bsb.hike.models.NormalEvent;
 import com.bsb.hike.service.HikeMqttManagerNew;
+import com.bsb.hike.utils.CustomAnnotation.DoNotObfuscate;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Utils;
 import com.hike.transporter.utils.Logger;
-
+@DoNotObfuscate
 public class NativeBridge
 {
 	protected CocosGamingActivity activity;

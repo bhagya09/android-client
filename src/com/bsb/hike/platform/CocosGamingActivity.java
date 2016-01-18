@@ -33,6 +33,7 @@ import com.bsb.hike.bots.NonMessagingBotMetadata;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.platform.content.PlatformContentConstants;
+import com.bsb.hike.utils.CustomAnnotation.DoNotObfuscate;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.chukong.cocosplay.client.CocosPlayClient;
@@ -43,6 +44,7 @@ import com.chukong.cocosplay.client.CocosPlayClient;
  * @author sk
  * 
  */
+@DoNotObfuscate
 public class CocosGamingActivity extends Cocos2dxActivity
 {
 	private static Context context;
