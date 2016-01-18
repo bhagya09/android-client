@@ -49,6 +49,7 @@ import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.db.HikeConversationsDatabase;
+import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.CustomStickerCategory;
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.models.Sticker;
@@ -56,6 +57,10 @@ import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.models.StickerPageAdapterItem;
 import com.bsb.hike.modules.stickerdownloadmgr.DefaultTagDownloadTask;
 import com.bsb.hike.modules.stickerdownloadmgr.MultiStickerDownloadTask;
+import com.bsb.hike.modules.stickerdownloadmgr.MultiStickerImageDownloadTask;
+import com.bsb.hike.modules.stickerdownloadmgr.SingleStickerDownloadTask;
+import com.bsb.hike.modules.stickerdownloadmgr.SingleStickerTagDownloadTask;
+import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadSource;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadType;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerPalleteImageDownloadTask;
@@ -1528,30 +1533,52 @@ public class StickerManager
 		HikeMessengerApp.getPubSub().publish(HikePubSub.STICKER_CATEGORY_MAP_UPDATED, null);
 	}
 
-	public void initialiseDownloadStickerTask(StickerCategory category, DownloadSource source, Context context)
+	public void initialiseSingleStickerDownloadTask(String stickerId, String categoryId, ConvMessage convMessage)
 	{
-		DownloadType downloadType = category.isUpdateAvailable() ? DownloadType.UPDATE : DownloadType.MORE_STICKERS;
-		initialiseDownloadStickerTask(category, source, downloadType, context);
+		if(!HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SINGLE_STICKER_CDN, true))
+		{
+			SingleStickerDownloadTask singleStickerDownloadTask = new SingleStickerDownloadTask(stickerId, categoryId, convMessage, false);
+			singleStickerDownloadTask.execute();
+
+		}
+		else
+		{
+			SingleStickerDownloadTask singleStickerDownloadTask = new SingleStickerDownloadTask(stickerId, categoryId, convMessage, true);
+			singleStickerDownloadTask.execute();
+			SingleStickerTagDownloadTask singleStickerTagDownloadTask = new SingleStickerTagDownloadTask(stickerId, categoryId);
+			singleStickerTagDownloadTask.execute();
+		}
 	}
 
-	public void initialiseDownloadStickerTask(StickerCategory category, DownloadSource source, DownloadType downloadType, Context context)
-	{
-		if (stickerCategoriesMap.containsKey(category.getCategoryId()))
-		{
+	public void initialiseDownloadStickerPackTask(StickerCategory category, DownloadSource source, Context context) {
+		DownloadType downloadType = category.isUpdateAvailable() ? DownloadType.UPDATE : DownloadType.MORE_STICKERS;
+		initialiseDownloadStickerPackTask(category, source, downloadType, context);
+	}
+
+	public void initialiseDownloadStickerPackTask(StickerCategory category, DownloadSource source, DownloadType downloadType, Context context) {
+		if (stickerCategoriesMap.containsKey(category.getCategoryId())) {
 			category = stickerCategoriesMap.get(category.getCategoryId());
 		}
-		if (category.getTotalStickers() == 0 || category.getDownloadedStickersCount() < category.getTotalStickers())
-		{
+		if (category.getTotalStickers() == 0 || category.getDownloadedStickersCount() < category.getTotalStickers()) {
 			category.setState(StickerCategory.DOWNLOADING);
-			MultiStickerDownloadTask multiStickerDownloadTask = new MultiStickerDownloadTask(category, downloadType, source);
-			multiStickerDownloadTask.execute();
-		}
-		else if (category.getDownloadedStickersCount() >= category.getTotalStickers())
-		{
+			makePackDownloadCall(category, source, downloadType);
+		} else if (category.getDownloadedStickersCount() >= category.getTotalStickers()) {
 			category.setState(StickerCategory.DONE);
 		}
 		saveCategoryAsVisible(category);
 		HikeMessengerApp.getPubSub().publish(HikePubSub.STICKER_CATEGORY_MAP_UPDATED, null);
+	}
+
+	private void makePackDownloadCall(StickerCategory category, DownloadSource source, DownloadType downloadType) {
+		if ((category.getTotalStickers() <= 0 ||category.getDownloadedStickersCount() > HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_PACK_CDN_THRESHOLD, StickerConstants.DEFAULT_STICKER_THRESHOLD_FOR_CDN)) || !HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_PACK_CDN, true)) {
+			MultiStickerDownloadTask multiStickerDownloadTask = new MultiStickerDownloadTask(category, downloadType, source);
+			multiStickerDownloadTask.execute();
+		}
+		else
+		{
+			MultiStickerImageDownloadTask multiStickerImageDownloadTask = new MultiStickerImageDownloadTask(category, downloadType, source);
+			multiStickerImageDownloadTask.execute();
+		}
 	}
 
 	private void saveCategoryAsVisible(StickerCategory category)
@@ -2494,5 +2521,16 @@ public class StickerManager
 	public void resetSignupUpgradeCallPreference()
 	{
 		HikeSharedPreferenceUtil.getInstance().saveData(StickerManager.STICKERS_SIZE_DOWNLOADED, false);
+	}
+
+	public Set<String> getStickerSetFromList(List<Sticker> stickerList)
+	{
+		Set<String> stickerSet = new HashSet<>();
+		if (!Utils.isEmpty(stickerList)) {
+			for (Sticker sticker : stickerList) {
+				stickerSet.add(StickerManager.getInstance().getStickerSetString(sticker));
+			}
+		}
+		return stickerSet;
 	}
 }
