@@ -169,7 +169,7 @@ public class Sticker implements Serializable, Comparable<Sticker>, Parcelable
 	 */
 	public boolean isDisabled(Sticker sticker, Context ctx)
 	{
-		File f = new File(sticker.getMiniStickerPath());
+		File f = new File(sticker.getSmallStickerPath());
 		return !f.exists();
 	}
 
@@ -190,9 +190,15 @@ public class Sticker implements Serializable, Comparable<Sticker>, Parcelable
 		return (rootPath == null) ? null : (rootPath + HikeConstants.LARGE_STICKER_ROOT + File.separator + stickerId);
 	}
 
-	public String getMiniStickerPath()
+	public String getSmallStickerPath()
 	{
 		return StickerManager.getInstance().getStickerCategoryDirPath(categoryId) + HikeConstants.SMALL_STICKER_ROOT + "/" + stickerId;
+	}
+
+	public String getMiniStickerPath()
+	{
+		//ToDo finalise location with anubhav sir.
+		return "";
 	}
 
 	@Override

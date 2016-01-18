@@ -194,7 +194,7 @@ public class StickerPageAdapter extends BaseAdapter implements OnClickListener
 		{
 		case STICKER:
 			Sticker sticker = (Sticker) item.getSticker();
-			stickerLoader.loadImage(sticker.getMiniStickerPath(), ((ImageView) convertView), isListFlinging);
+			stickerLoader.loadImage(sticker.getSmallStickerPath(), ((ImageView) convertView), isListFlinging);
 			convertView.setOnClickListener(this);
 				
 			break;

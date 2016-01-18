@@ -118,7 +118,7 @@ public class CustomStickerCategory extends StickerCategory
 				{
 					Sticker s = new Sticker();
 					s.deSerializeObj(in);
-					File f = new File(s.getMiniStickerPath());
+					File f = new File(s.getSmallStickerPath());
 					if(f.exists())
 					{
 						list.add(s);
@@ -156,7 +156,7 @@ public class CustomStickerCategory extends StickerCategory
 			synchronized (stickerSet)
 			{
 				Sticker s = new Sticker(recentCat[i], recentSticker[i]);
-				File f = new File(s.getMiniStickerPath());
+				File f = new File(s.getSmallStickerPath());
 				if(f.exists())
 				{
 					stickerSet.add(s);

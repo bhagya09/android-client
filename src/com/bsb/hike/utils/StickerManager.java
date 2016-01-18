@@ -2007,7 +2007,7 @@ public class StickerManager
 		for (int i = 0; i < stickersToLoad; i++)
 		{
 			Sticker sticker = stickerList.get(i);
-			String stickerPath = sticker.getMiniStickerPath();
+			String stickerPath = sticker.getSmallStickerPath();
 			Bitmap bitmap = HikeBitmapFactory.decodeFile(stickerPath);
 			if (bitmap != null)
 			{

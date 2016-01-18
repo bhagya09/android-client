@@ -81,8 +81,8 @@ public class StickerSearchUtils
 	/**
 	 * 
 	 * @param stickerList
-	 * @return a pair of boolean and sticker list where boolean represents whether first sticker in original list is available or not. if boolean is true it return list containing
-	 *         available stickers only and original sticker list if boolean is false
+	 * @return a pair of boolean and sticker list where boolean represents whether all stickers in original list are available or not. if boolean is true it return list containing
+	 *         allowed stickers only and original sticker list if boolean is false
 	 */
 	public static Pair<Boolean, List<Sticker>> shouldShowStickerFtue(List<Sticker> stickerList)
 	{
@@ -110,14 +110,14 @@ public class StickerSearchUtils
 	{
 		int length = stickerList.size(),count =0;
 
-		int allowedUndownloadedLimit = HikeSharedPreferenceUtil.getInstance().getData(HikeStickerSearchBaseConstants.KEY_PREF_UNDOWNLOADED_CACHE_LIMIT, 0);
+		int allowedUndownloadedLimit = HikeSharedPreferenceUtil.getInstance().getData(HikeStickerSearchBaseConstants.KEY_PREF_UNDOWNLOADED_VISIBLE_IN_RECO_COUNT, 0);
 
 		List<Sticker> resultList = new ArrayList<Sticker>(length);
 
 		for (int i = 0; i < length; i++)
 		{
 			Sticker sticker = stickerList.get(i);
-			if (sticker.isStickerAvailable())
+			if (sticker.isFullStickerAvailable())
 			{
 				resultList.add(sticker);
 			}
@@ -128,7 +128,7 @@ public class StickerSearchUtils
 			}
 			else
 			{
-				Logger.i(TAG,"Undownloaded sticker found but no shown : "+sticker.getCategoryId()+" : "+sticker.getStickerId());
+				Logger.i(TAG,"Undownloaded sticker found but not shown : "+sticker.getCategoryId()+" : "+sticker.getStickerId());
 			}
 		}
 
