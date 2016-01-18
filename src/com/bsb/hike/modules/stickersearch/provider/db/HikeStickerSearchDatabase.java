@@ -2175,6 +2175,11 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 			SQLiteDatabase.releaseMemory();
 		}
 
+		if(Utils.isEmpty(resultSet))
+		{
+			return;
+		}
+
 		Collections.sort(resultSet);
 
 		int stickersToDelete = StickerSearchUtils.getUndownloadedTagsStickersCount() - StickerSearchUtils.getTagCacheLimit(StickerSearchConstants.STATE_FORCED_TAGS_DOWNLOAD);

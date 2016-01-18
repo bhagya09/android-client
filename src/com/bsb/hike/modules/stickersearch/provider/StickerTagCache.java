@@ -127,12 +127,7 @@ public class StickerTagCache
 
         }
 
-        int cacheLimit = StickerSearchUtils.getTagCacheLimit(mCache.tagType);
-
-        if(stickersToBeInsertedCount + currentCacheSize>cacheLimit)
-        {
-            HikeSharedPreferenceUtil.getInstance().saveData(HikeStickerSearchBaseConstants.KEY_PREF_UNDOWNLOADED_TAG_COUNT, stickersToBeInsertedCount + currentCacheSize);
-        }
+        HikeSharedPreferenceUtil.getInstance().saveData(HikeStickerSearchBaseConstants.KEY_PREF_UNDOWNLOADED_TAG_COUNT, stickersToBeInsertedCount + currentCacheSize);
     }
 
     public void insertTags(JSONObject stickerJSON)
@@ -146,6 +141,8 @@ public class StickerTagCache
         preTagsInsertTask(stickerJSON);
         StickerSearchDataController.getInstance().setupStickerSearchWizard(stickerJSON, mCache.tagType);
     }
+
+
 
 
 

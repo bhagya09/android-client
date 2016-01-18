@@ -112,7 +112,7 @@ public class StickersForcedDownloadTask implements IHikeHTTPTask, IHikeHttpTaskR
             json.put(HikeConstants.KEYBOARD_LIST, new JSONArray(languagesSet));
 
 
-            RequestToken requestToken = HttpRequests.getUndownloadedTagsRequest(getRequestId(), getResponseListener(), json);
+            RequestToken requestToken = HttpRequests.getForcedDownloadListRequest(getRequestId(), getResponseListener(), json);
 
             if (requestToken.isRequestRunning())
             {
@@ -138,7 +138,7 @@ public class StickersForcedDownloadTask implements IHikeHTTPTask, IHikeHttpTaskR
 
         //todo code to parse data and segregate stickers on download type
 
-        StickerSearchManager.getInstance().downloadStickerTags(true,0,languagesSet,stickerToDownloadTagsSet);
+        StickerSearchManager.getInstance().downloadStickerTags(true,StickerSearchConstants.STATE_FORCED_TAGS_DOWNLOAD,languagesSet,stickerToDownloadTagsSet);
     }
 
     @Override

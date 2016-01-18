@@ -970,7 +970,7 @@ public class HttpRequests
 
 	}
 
-	public static RequestToken getUndownloadedTagsRequest(String requestId,IRequestListener requestListener, JSONObject json )
+	public static RequestToken getForcedDownloadListRequest(String requestId, IRequestListener requestListener, JSONObject json)
 	{
 		JsonBody body = new JsonBody(json);
 
