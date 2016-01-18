@@ -35,6 +35,8 @@ import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests.singleStickerImageDownloadRequest;
+
 public class SingleStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskResult
 {
 	private static final String TAG = "SingleStickerDownloadTask";
@@ -50,12 +52,15 @@ public class SingleStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRe
 	private RequestToken token;
 	
 	private ConvMessage convMessage;
+
+	private boolean imageOnly;
 	
-	public SingleStickerDownloadTask(String stickerId, String categoryId, ConvMessage convMessage)
+	public SingleStickerDownloadTask(String stickerId, String categoryId, ConvMessage convMessage, boolean imageOnly)
 	{
 		this.stickerId = stickerId;
 		this.categoryId = categoryId;
 		this.convMessage = convMessage;
+		this.imageOnly = imageOnly;
 	}
 
 	public void execute()
@@ -68,14 +73,26 @@ public class SingleStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRe
 
 		String requestId = getRequestId(); // for duplicate check
 
-		token = singleStickerDownloadRequest(
-				requestId,
-				stickerId,
-				categoryId,
-				getRequestListener(),
-				StickerLanguagesManager.getInstance().listToString(
-						StickerLanguagesManager.getInstance().getAccumulatedSet(StickerLanguagesManager.DOWNLOADED_LANGUAGE_SET_TYPE,
-								StickerLanguagesManager.DOWNLOADING_LANGUAGE_SET_TYPE)));
+		if(imageOnly)
+		{
+			token = singleStickerImageDownloadRequest(
+					requestId,
+					stickerId,
+					categoryId,
+					false,
+					getRequestListener());
+		}
+		else
+		{
+			token = singleStickerDownloadRequest(
+					requestId,
+					stickerId,
+					categoryId,
+					getRequestListener(),
+					StickerLanguagesManager.getInstance().listToString(
+							StickerLanguagesManager.getInstance().getAccumulatedSet(StickerLanguagesManager.DOWNLOADED_LANGUAGE_SET_TYPE,
+									StickerLanguagesManager.DOWNLOADING_LANGUAGE_SET_TYPE)));
+		}
 
 		if (token.isRequestRunning()) // return if request is running
 		{

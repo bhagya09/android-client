@@ -49,6 +49,8 @@ public class HttpRequestConstants
 	
 	private static final String BASE_V3 = "/v3";
 
+	private static final String BASE_V4 = "/v4";
+
 	private static final String BASE_ACCOUNT = "/account";
 
 	private static final String BASE_USER = "/user";
@@ -161,9 +163,19 @@ public class HttpRequestConstants
 		return BASE_STICKERS_URL + BASE_V3 + BASE_STICKER;
 	}
 
+	public static String singleStickerImageDownloadBase()
+	{
+		return BASE_STICKERS_URL + BASE_V4 + BASE_STICKER + "/image";
+	}
+
 	public static String multiStickerDownloadUrl()
 	{
 		return BASE_STICKERS_URL + BASE_V3 + BASE_STICKER;
+	}
+
+	public static String multiStickerImageDownloadUrl()
+	{
+		return BASE_STICKERS_URL + BASE_V4 + BASE_STICKER + "/image";
 	}
 	
 	public static String stickerPalleteImageDownloadUrl()
@@ -191,6 +203,11 @@ public class HttpRequestConstants
 		return BASE_STICKERS_URL + BASE_V3 + BASE_STICKER + "/tagdata";
 	}
 
+	public static String singleStickerTagsUrl()
+	{
+		return BASE_STICKERS_URL + BASE_V4 + BASE_STICKER + "/tags";
+	}
+	
 	public static String lastSeenUrl()
 	{
 		return BASE_URL + BASE_V1 + BASE_USER + "/lastseen";
