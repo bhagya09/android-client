@@ -235,10 +235,6 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 			RelativeLayout.LayoutParams params =  (android.widget.RelativeLayout.LayoutParams) selectedGrid.getLayoutParams();
 			params.height = getResources().getDimensionPixelSize(R.dimen.gallery_selected_grid_height);
 			selectedGrid.setLayoutParams(params);
-
-			RelativeLayout.LayoutParams cropParams =  (android.widget.RelativeLayout.LayoutParams) cropPanel.getLayoutParams();
-			cropParams.height = getResources().getDimensionPixelSize(R.dimen.gallery_selected_grid_height);
-			cropPanel.setLayoutParams(cropParams);
 		}
 
 		selectedGrid.setNumColumns(numColumns);
@@ -638,10 +634,10 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 	private float btnXorig = 0;
 	private float gridYorig = 0;
 	
-	private void setCropViewVisibility(boolean enableCrop)
+	private void setCropViewVisibility(final boolean enableCrop)
 	{
 		CropImageView cropImageView = (CropImageView) selectedPager.findViewWithTag(TAG_CROP_IV + selectedPager.getCurrentItem());
-		if(cropImageView == null || cropImageView.getBitmap() == null)
+		if (cropImageView == null || cropImageView.getBitmap() == null)
 		{
 			return;
 		}
@@ -673,8 +669,8 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 		doneBtn.setVisibility(enableCrop ? View.GONE : View.VISIBLE);
 
 		containerCrop.animate().alpha(enableCrop ? 0f : 1f);
-		containerEdit.animate().setStartDelay(50).alpha(enableCrop?0f:1f);
-		containerRemove.animate().setStartDelay(100).alpha(enableCrop?0f:1f);
+		containerEdit.animate().setStartDelay(50).alpha(enableCrop ? 0f : 1f);
+		containerRemove.animate().setStartDelay(100).alpha(enableCrop ? 0f : 1f);
 	}
 
 	private class GalleryPagerAdapter extends PagerAdapter
