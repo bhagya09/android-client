@@ -707,14 +707,14 @@ public class NativeBridge
 
 		final String message = data;
 		final Application application = weakActivity.get().getApplication();
+		final int length = duration.equals("long") ? Toast.LENGTH_LONG : Toast.LENGTH_SHORT;
 
 		mThread.postRunnable(new Runnable()
 		{
 			@Override
 			public void run()
 			{
-				Toast.makeText(application, message, Toast.LENGTH_SHORT).show();
-
+				Toast.makeText(application, message, length).show();
 			}
 		});
 	}
