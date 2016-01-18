@@ -1317,6 +1317,10 @@ public class MqttMessagesManager
 
 			handleSendNativeInviteKey(sendNativeInvite, showFreeInvitePopup, null, null, editor);
 		}
+		if(data.has(HikeConstants.OPEN_COMPOSE_CHAT_ONE_TIME_TRIGGER))
+		{
+			publishOpenComposeChatOnceEvent(data, settings);
+		}
 		if (data.has(HikeConstants.ACCOUNT))
 		{
 			JSONObject account = data.getJSONObject(HikeConstants.ACCOUNT);
@@ -1526,6 +1530,12 @@ public class MqttMessagesManager
 		 */
 		ChatHeadUtils.activateChatHead(null);
 	
+	}
+
+	private void publishOpenComposeChatOnceEvent(JSONObject data, SharedPreferences settings) throws JSONException
+	{
+		settings.edit().putBoolean(HikeConstants.OPEN_COMPOSE_CHAT_ONE_TIME_TRIGGER, data.getBoolean(HikeConstants.OPEN_COMPOSE_CHAT_ONE_TIME_TRIGGER)).commit();
+		HikeMessengerApp.getPubSub().publish(HikeConstants.OPEN_COMPOSE_CHAT_ONE_TIME_TRIGGER, null);
 	}
 
 	private void saveUserOptIn(JSONObject jsonObj) throws JSONException
@@ -2673,6 +2683,10 @@ public class MqttMessagesManager
 			boolean enableWhiteScreenFix = data.getBoolean(HikeConstants.WHITE_SCREEN_FIX);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.WHITE_SCREEN_FIX, enableWhiteScreenFix);
 			CustomWebView.setApplyWhiteScreenFix(enableWhiteScreenFix);
+		}
+		if(data.has(HikeConstants.OPEN_COMPOSE_CHAT_ONE_TIME_TRIGGER))
+		{
+			publishOpenComposeChatOnceEvent(data, settings);
 		}
 
 		editor.commit();
