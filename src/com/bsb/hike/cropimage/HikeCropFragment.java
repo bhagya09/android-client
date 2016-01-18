@@ -177,8 +177,23 @@ public class HikeCropFragment extends Fragment implements View.OnClickListener
 		options.inPreferQualityOverSpeed = true;
 
 		// Load bitmap
-		Bitmap sourceBitmap = HikeBitmapFactory.decodeSampledBitmapFromFile(mSourceImagePath, (HikeConstants.HikePhotos.MODIFIED_MAX_IMAGE_DIMEN),
-				(HikeConstants.HikePhotos.MODIFIED_MAX_IMAGE_DIMEN), Config.ARGB_8888, options, true);
+		Bitmap sourceBitmap = null;
+
+		if(fixedAspectRatio)
+		{
+			sourceBitmap = HikeBitmapFactory.decodeSampledBitmapFromFile(mSourceImagePath, (HikeConstants.HikePhotos.MODIFIED_MAX_IMAGE_DIMEN),
+					(HikeConstants.HikePhotos.MODIFIED_MAX_IMAGE_DIMEN), Config.ARGB_8888, options, true);
+		}
+		else
+		{
+			sourceBitmap = HikeBitmapFactory.decodeSampledBitmapFromFile(mSourceImagePath, (HikeConstants.HikePhotos.MAX_IMAGE_DIMEN),
+					(HikeConstants.HikePhotos.MAX_IMAGE_DIMEN), Config.ARGB_8888, options, false);
+			if(sourceBitmap == null)
+			{
+				sourceBitmap = HikeBitmapFactory.decodeSampledBitmapFromFile(mSourceImagePath, (HikeConstants.MAX_DIMENSION_MEDIUM_FULL_SIZE_PX),
+						(HikeConstants.MAX_DIMENSION_MEDIUM_FULL_SIZE_PX), Config.ARGB_8888, options, false);
+			}
+		}
 
 		if (sourceBitmap == null)
 		{
