@@ -852,12 +852,12 @@ import android.widget.Toast;
 						hideCustomKeyboard(mComposeView);
 						showCustomKeyboard(mComposeView);
 					}
-					changeKeybaordSelectedLanguage();
+					//changeKeybaordSelectedLanguage();
 				}
 			}
 			else if (state == KeyboardFtue.COMPLETE)
 			{
-				changeKeybaordSelectedLanguage();
+				//changeKeybaordSelectedLanguage();
 			}
 		}
 
