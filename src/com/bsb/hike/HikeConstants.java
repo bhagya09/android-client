@@ -3785,5 +3785,5 @@ public class HikeConstants
 	
 	public static final String APP_OPENING_BENCHMARK = "appOpeningBenchmark";
 
-	public static final String OPEN_COMPOSE_CHAT_ONE_TIME_TRIGGER = "opn_cca";
+	public static final String OPEN_COMPOSE_CHAT_ONE_TIME_TRIGGER = "openComposeChatOnSignup";
 }
