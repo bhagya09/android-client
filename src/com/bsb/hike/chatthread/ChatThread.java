@@ -117,6 +117,8 @@ import com.kpt.adaptxt.beta.KPTAddonItem;
 import com.kpt.adaptxt.beta.util.KPTConstants;
 import com.kpt.adaptxt.beta.view.AdaptxtEditText;
 
+import android.animation.Animator;
+import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -923,39 +925,105 @@ import android.widget.Toast;
 			// overflow is common between all, one to one and group
 			MenuItemCompat.getActionView(menu.findItem(R.id.overflow_menu)).setOnClickListener(this);
 			mActionBar.setOverflowViewListener(this);
-			showOverflowMenuIndicatorIfRequired();
+			showOverflowMenuIndicatorsIfRequired();
 			return true;
 		}
 		return false;
 	}
 
-	private void showOverflowMenuIndicatorIfRequired()
+	private void showOverflowMenuIndicatorsIfRequired()
 	{
-		showOverflowMenuKeyboardIndicatorIfRequired();
+		showOverflowMenuKeyboardTipIfRequired();
 	}
 
-	private boolean showOverflowMenuKeyboardIndicatorIfRequired()
+	private boolean showOverflowMenuKeyboardTipIfRequired()
 	{
-		// Show keyboard change discoverability option if:
+		// Show Ist keyboard change tip if:
+		// - it is not done yet
 		// - already the indicator is not in use
+		// - already the tip is not in use
 		// - user is Indian
 		// - keyboard ftue will not be shown in this session
-		// - it has not been shown before
-		// - if keyboard option is not yet used
 		// - if custom keyboard is enabled in the app
-		if (!mActionBar.isOverflowMenuIndicatorInUse()
+		if (!HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CT_OVRFLW_KEYBOARD_TIP_1_DONE, false)
+				&& !mActionBar.isOverflowMenuIndicatorInUse()
+				&& !isOverflowTipShowing()
 				&& HikeMessengerApp.isIndianUser()
 				&& !keyboardFtue.isReadyForFTUE()
-				&& !HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CT_OVRFLW_KEYBOARD_INDICATOR_SHOWN, false)
-				&& !HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CT_OVRFLW_KEYBOARD_CLICKED, false)
-				&& HikeMessengerApp.isCustomKeyboardUsable())
+				&& !HikeMessengerApp.isSystemKeyboard())
 		{
-			mActionBar.updateOverflowMenuIndicatorImage(R.drawable.ic_red_dot_overflow_key, false);
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CT_OVRFLW_KEYBOARD_INDICATOR_SHOWN, true);
-			return true;
+			showOverflowTip(R.string.switch_to_old_key);
+		}
+		// Show IInd keyboard change tip if:
+		// - first keyboard tip is successfully done.
+		// - second keyboard tip is not yet done.
+		// - already the indicator is not in use
+		// - already the tip is not in use
+		// - system keyboard is selected.
+		else if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CT_OVRFLW_KEYBOARD_TIP_1_DONE, false)
+				&& !HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CT_OVRFLW_KEYBOARD_TIP_2_DONE, false)
+				&& !mActionBar.isOverflowMenuIndicatorInUse()
+				&& !isOverflowTipShowing()
+				&& HikeMessengerApp.isSystemKeyboard())
+		{
+			showOverflowTip(R.string.switch_to_hike_key);
 		}
 		return false;
 	}
+
+	protected void showOverflowTip(final int stringResId)
+	{
+		final TextView tip = (TextView) activity.findViewById(R.id.overflow_tip);
+		ObjectAnimator fadeIn = ObjectAnimator.ofFloat(tip, "alpha", 0.0f, 1.0f);
+		fadeIn.setDuration(600);
+		fadeIn.setStartDelay(1200);
+		fadeIn.addListener(new Animator.AnimatorListener() {
+			@Override
+			public void onAnimationStart(Animator animation) {
+				tip.setText(stringResId);
+				tip.setVisibility(View.VISIBLE);
+			}
+
+			@Override
+			public void onAnimationEnd(Animator animation) {}
+
+			@Override
+			public void onAnimationCancel(Animator animation) {}
+
+			@Override
+			public void onAnimationRepeat(Animator animation) {}
+		});
+		fadeIn.start();
+
+		tip.setOnClickListener(this);
+	}
+
+	private boolean isOverflowTipShowing()
+	{
+		TextView tip = (TextView) activity.findViewById(R.id.overflow_tip);
+		return tip.getVisibility() == View.VISIBLE;
+	}
+	private void dismissOverflowTipIfShowing()
+	{
+		TextView tip = (TextView) activity.findViewById(R.id.overflow_tip);
+		if (isOverflowTipShowing())
+		{
+			tip.setVisibility(View.GONE);
+			tip.setOnClickListener(null);
+
+			if (!TextUtils.isEmpty(tip.getText()))
+			{
+				if (tip.getText().equals(getString(R.string.switch_to_old_key)))
+				{
+					HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CT_OVRFLW_KEYBOARD_TIP_1_DONE, true);
+				} else if (tip.getText().equals(getString(R.string.switch_to_hike_key)))
+				{
+					HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CT_OVRFLW_KEYBOARD_TIP_2_DONE, true);
+				}
+			}
+		}
+	}
+
 	public boolean onPrepareOptionsMenu(Menu menu)
 	{
 		return false;
@@ -1289,6 +1357,9 @@ import android.widget.Toast;
 		// Remove the indicator if any on the overflow menu.
 		mActionBar.updateOverflowMenuIndicatorImage(0,false);
 
+		// Dismiss Overflow Tip
+		dismissOverflowTipIfShowing();
+
 		/**
 		 * Hiding the softkeyboard if we are in landscape mode
 		 */
@@ -1369,6 +1440,9 @@ import android.widget.Toast;
 			break;
 		case R.id.search_text:
 			showKeyboard();
+			break;
+		case R.id.overflow_tip:
+			showOverflowMenu();
 			break;
 		default:
 			Logger.e(TAG, "onClick Registered but not added in onClick : " + v.toString());
@@ -6473,7 +6547,7 @@ import android.widget.Toast;
 			setEditTextListeners();
 		}
 		HikeMessengerApp.getPubSub().publish(HikePubSub.KEYBOARD_SWITCHED,null);
-
+		showOverflowMenuKeyboardTipIfRequired();
 		StickerSearchManager.getInstance().inputMethodChanged(StickerSearchUtils.getCurrentLanguageISOCode());
 	}
 	
