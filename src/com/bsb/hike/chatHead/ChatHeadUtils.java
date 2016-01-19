@@ -741,6 +741,8 @@ public class ChatHeadUtils
 				.getString(HikeMessengerApp.COUNTRY_CODE, HikeConstants.INDIA_COUNTRY_CODE)));
 		if (number != null)
 		{
+			//removing caller view as old caller view must be removed when new caller card request is initiated
+			StickyCaller.removeCallerView();
 			msisdn = number;
 			CallerContentModel callerContentModel = ContactManager.getInstance().getCallerContentModelFromMsisdn(number);
 			if (callerContentModel != null && callerContentModel.isBlock())
