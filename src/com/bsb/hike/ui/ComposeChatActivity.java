@@ -398,6 +398,8 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 						}
 					}
 				}
+
+				messageToShare = IntentFactory.getTextFromActionSendIntent(getIntent());
 			} 
 			else if(savedInstanceState == null && Intent.ACTION_SEND_MULTIPLE.equals(getIntent().getAction()))
 			{
@@ -1838,7 +1840,15 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 					HikeFeatureInfo hikeFeatureInfo = (HikeFeatureInfo)contactInfo;
 					if(hikeFeatureInfo.getPhoneNum() == ComposeChatAdapter.HIKE_FEATURES_TIMELINE_ID)
 					{
-						if(imagesToShare.size() == 1)
+						if(imagesToShare.isEmpty())
+						{
+							intent = IntentFactory.getPostStatusUpdateIntent(this, messageToShare, null, true);
+							intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+							startActivity(intent);
+							finish();
+							return;
+						}
+						else if(imagesToShare.size() == 1)
 						{
 							intent = IntentFactory.getPostStatusUpdateIntent(this, imageCaptions.isEmpty()?null:imageCaptions.get(0), imagesToShare.get(0),true);
 							intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -2634,14 +2644,9 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		}
 		else if (presentIntent.hasExtra(Intent.EXTRA_TEXT) || presentIntent.hasExtra(HikeConstants.Extras.MSG))
 		{
-			String msg = presentIntent.getStringExtra(presentIntent.hasExtra(HikeConstants.Extras.MSG) ? HikeConstants.Extras.MSG : Intent.EXTRA_TEXT);
-			Logger.d(getClass().getSimpleName(), "Contained a message: " + msg);
-			if(msg == null){
-				Bundle extraText = presentIntent.getExtras();
-				if(extraText.get(Intent.EXTRA_TEXT) != null)
-					msg = extraText.get(Intent.EXTRA_TEXT).toString();
-			}
-			if(msg == null)
+			String msg = IntentFactory.getTextFromActionSendIntent(presentIntent);
+
+			if (msg == null)
 				Toast.makeText(getApplicationContext(), R.string.text_empty_error, Toast.LENGTH_SHORT).show();
 			else
 			{
@@ -2650,24 +2655,27 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 					ConvMessage convMessage = Utils.makeConvMessage(offlineContact.getMsisdn(), msg, offlineContact.isOnhike());
 					controller.sendMessage(convMessage);
 				}
-				
-				if(arrayList.size()==1){
+
+				if (arrayList.size() == 1)
+				{
 					ContactInfo contact = (ContactInfo) arrayList.get(0);
-					if(contact != null)
+					if (contact != null)
 					{
 						ConvMessage convMessage = Utils.makeConvMessage(contact.getMsisdn(), msg, contact.isOnhike());
 						sendMessage(convMessage);
 					}
-				}else{
+				}
+				else
+				{
 					ArrayList<ConvMessage> multipleMessageList = new ArrayList<ConvMessage>();
 					ConvMessage convMessage = Utils.makeConvMessage(null, msg, true);
 					multipleMessageList.add(convMessage);
 					sendMultiMessages(multipleMessageList, arrayList, null, false);
 					startActivity(intent);
 					finish();
-					
+
 				}
-				
+
 			}
 		}
 		return arrayList;

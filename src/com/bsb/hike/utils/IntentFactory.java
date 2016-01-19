@@ -1376,4 +1376,38 @@ public class IntentFactory
 		return intent;
 	}
 
+	public static String getTextFromActionSendIntent(Intent presentIntent)
+	{
+		String msg = null;
+
+		if(presentIntent == null)
+		{
+			return msg;
+		}
+
+		if (presentIntent.hasExtra(Intent.EXTRA_TEXT) || presentIntent.hasExtra(HikeConstants.Extras.MSG))
+		{
+			msg = presentIntent.getStringExtra(presentIntent.hasExtra(HikeConstants.Extras.MSG) ? HikeConstants.Extras.MSG : Intent.EXTRA_TEXT);
+			if (msg == null)
+			{
+				Bundle extraText = presentIntent.getExtras();
+				if (extraText.get(Intent.EXTRA_TEXT) != null)
+				{
+					msg = extraText.get(Intent.EXTRA_TEXT).toString();
+				}
+			}
+
+			if (msg != null && presentIntent.hasExtra(Intent.EXTRA_SUBJECT))
+			{
+				String subject = presentIntent.getStringExtra(Intent.EXTRA_SUBJECT).toString();
+				if (!TextUtils.isEmpty(subject))
+				{
+					msg = subject + "\n" + msg;
+				}
+			}
+
+		}
+		return msg;
+	}
+
 }
