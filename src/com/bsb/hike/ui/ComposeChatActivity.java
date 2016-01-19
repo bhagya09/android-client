@@ -1825,7 +1825,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 						}
 					}else if(msgExtrasJson.has(HikeConstants.Extras.POKE)){
 						// as we will be changing msisdn and hike status while inserting in DB
-						ConvMessage convMessage = Utils.makeConvMessage(null, getString(R.string.poke_msg), true);
+						ConvMessage convMessage = Utils.makeConvMessage(null, getString(R.string.poke_msg_english_only), true);
 						JSONObject metadata = new JSONObject();
 						try
 						{
