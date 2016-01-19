@@ -1,6 +1,6 @@
 package com.bsb.hike.platform.content;
 
-import com.bsb.hike.platform.ContentModules.PlatformContentUtils;
+import com.bsb.hike.platform.PlatformContentUtils;
 import com.bsb.hike.utils.Logger;
 
 import java.io.BufferedInputStream;

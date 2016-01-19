@@ -8,7 +8,7 @@ import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-import com.bsb.hike.platform.ContentModules.PlatformContentUtils;
+import com.bsb.hike.platform.PlatformContentUtils;
 import com.bsb.hike.platform.CustomWebView;
 import com.bsb.hike.utils.Logger;
 

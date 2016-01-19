@@ -19,7 +19,7 @@ import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.notifications.ToastListener;
 import com.bsb.hike.platform.content.PlatformContent.EventCode;
-import com.bsb.hike.platform.ContentModules.PlatformContentRequest;
+import com.bsb.hike.platform.PlatformContentRequest;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.utils.HikeAnalyticsEvent;

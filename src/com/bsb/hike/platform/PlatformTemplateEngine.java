@@ -1,4 +1,4 @@
-package com.bsb.hike.platform.ContentModules;
+package com.bsb.hike.platform;
 
 import com.bsb.hike.utils.Logger;
 import com.google.gson.Gson;
@@ -10,7 +10,7 @@ import com.samskivert.mustache.Template;
 
 import java.util.HashMap;
 
-class PlatformTemplateEngine
+public class PlatformTemplateEngine
 {
 
 	private static String TAG = "PlatformTemplateEngine";

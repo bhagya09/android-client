@@ -1,5 +1,6 @@
-package com.bsb.hike.platform.ContentModules;
+package com.bsb.hike.platform;
 
+import com.bsb.hike.platform.ContentModules.PlatformContentModel;
 import com.bsb.hike.utils.Logger;
 
 public class PlatformContentRequest
