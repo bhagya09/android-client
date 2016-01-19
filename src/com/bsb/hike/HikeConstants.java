@@ -3784,4 +3784,6 @@ public class HikeConstants
 	public static final String CHAT_SCROLL_FETCH_MESSAGES_FROM_DB_BENCHMARK = "chatScrollMsgDBBenchmark";
 	
 	public static final String APP_OPENING_BENCHMARK = "appOpeningBenchmark";
+
+	public static final String OPEN_COMPOSE_CHAT_ONE_TIME_TRIGGER = "opn_cca";
 }
