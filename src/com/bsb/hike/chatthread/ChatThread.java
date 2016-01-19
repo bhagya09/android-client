@@ -391,6 +391,8 @@ import android.widget.Toast;
 	protected boolean changeKbdClicked = false;
 
 	protected boolean keyboardSelectedLanguageChanged;
+
+	ObjectAnimator tipFadeInAnimation;
 	
 	private class ChatThreadBroadcasts extends BroadcastReceiver
 	{
@@ -974,12 +976,16 @@ import android.widget.Toast;
 	protected void showOverflowTip(final int stringResId)
 	{
 		final TextView tip = (TextView) activity.findViewById(R.id.overflow_tip);
-		ObjectAnimator fadeIn = ObjectAnimator.ofFloat(tip, "alpha", 0.0f, 1.0f);
-		fadeIn.setDuration(600);
-		fadeIn.setStartDelay(1200);
-		fadeIn.addListener(new Animator.AnimatorListener() {
+		tipFadeInAnimation = ObjectAnimator.ofFloat(tip, "alpha", 0.0f, 1.0f);
+		tipFadeInAnimation.setDuration(600);
+		tipFadeInAnimation.setStartDelay(1200);
+		tipFadeInAnimation.addListener(new Animator.AnimatorListener() {
 			@Override
 			public void onAnimationStart(Animator animation) {
+				if (activity == null || activity.isFinishing() || activity.isDestroyed())
+				{
+					return;
+				}
 				tip.setText(stringResId);
 				tip.setVisibility(View.VISIBLE);
 			}
@@ -993,7 +999,7 @@ import android.widget.Toast;
 			@Override
 			public void onAnimationRepeat(Animator animation) {}
 		});
-		fadeIn.start();
+		tipFadeInAnimation.start();
 
 		tip.setOnClickListener(this);
 	}
@@ -4454,6 +4460,9 @@ import android.widget.Toast;
 		releaseStickerSearchResources();
 
 		keyboardFtue.destroy();
+
+		if (tipFadeInAnimation != null)
+			tipFadeInAnimation.cancel();
 	}
 	
 	private void releaseShareablePopUpResources()
