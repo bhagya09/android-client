@@ -102,11 +102,9 @@ public class KeyboardFtue implements HikePubSub.Listener
     {
         container.addView(rootView);
         flipper = (ViewFlipper) rootView.findViewById(R.id.flipper);
-        flipper.setOnClickListener(new View.OnClickListener()
-        {
+        flipper.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v)
-            {
+            public void onClick(View v) {
             }
         });
     }
@@ -116,11 +114,8 @@ public class KeyboardFtue implements HikePubSub.Listener
         return (mState == COMPLETE);
     }
 
-    public boolean isReadyForFTUE()
+    public boolean shouldShowFTUE()
     {
-        if (!mInitialised)
-            return false;
-
         // Localized keyboard is for india users only. Other users still have setting but do not see the FTUE
         // If custom keyboard is disabled no need to show the FTUE.
         if (!HikeMessengerApp.isIndianUser() || !HikeMessengerApp.isCustomKeyboardUsable())
@@ -133,6 +128,14 @@ public class KeyboardFtue implements HikePubSub.Listener
             return true;
         else
             return false;
+    }
+
+    public boolean isReadyForFTUE()
+    {
+        if (!mInitialised)
+            return false;
+
+        return shouldShowFTUE();
     }
 
     public void showNextFtue()
@@ -208,6 +211,7 @@ public class KeyboardFtue implements HikePubSub.Listener
         flipper.setDisplayedChild(1);
         refreshActionPanel();
         setupLanguageList();
+        trackClickAnalyticEvents(HikeConstants.LogEvent.KEYBOARD_FTUE_LANG_LIST_SCREEN);
         flipper.findViewById(R.id.btn_negative).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -230,6 +234,7 @@ public class KeyboardFtue implements HikePubSub.Listener
         if (flipper.getDisplayedChild() == 2)
             return;
         flipper.setDisplayedChild(2);
+        trackClickAnalyticEvents(HikeConstants.LogEvent.KEYBOARD_FTUE_SWIPE_SCREEN);
         flipper.findViewById(R.id.langauage_layout).setOnTouchListener(onSwipeTouchListener);
         flipper.findViewById(R.id.langauage_layout).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -362,20 +367,7 @@ public class KeyboardFtue implements HikePubSub.Listener
         {
             for (KPTAddonItem item : addonItemAdapter.getSelectedItems())
             {
-                KptKeyboardManager.getInstance().downloadAndInstallLanguage(item);
-                
-//                tracking download of each language in ftue
-                try
-        		{
-        			JSONObject metadata = new JSONObject();
-        			metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.KEYBOARD_FTUE_LANGUAGE_DOWNLOADED);
-        			metadata.put(HikeConstants.KEYBOARD_LANGUAGE_CHANGE, item.getlocaleName());
-        			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
-        		}
-        		catch(JSONException e)
-        		{
-        			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json : " + e);
-        		}
+                KptKeyboardManager.getInstance().downloadAndInstallLanguage(item, HikeConstants.KEYBOARD_LANG_DWNLD_KBD_FTUE);
             }
         }
         else
