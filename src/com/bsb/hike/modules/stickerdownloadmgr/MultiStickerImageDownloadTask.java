@@ -83,6 +83,7 @@ public class MultiStickerImageDownloadTask implements IHikeHTTPTask, IHikeHttpTa
 
 	private void download()
 	{
+		Logger.d(TAG, "pack request for category : " + category.getCategoryId() + " started at time : " + System.currentTimeMillis());
 		int numCalls = totalStickers/getStickerDownloadSize();
 
 		numCalls += ((totalStickers % getStickerDownloadSize() == 0) ? 0 : 1);
@@ -306,6 +307,7 @@ public class MultiStickerImageDownloadTask implements IHikeHTTPTask, IHikeHttpTa
 			{
 				doOnSuccess(null);
 			}
+			Logger.d(TAG, "pack request for category : " + category.getCategoryId() + " completed at time : " + System.currentTimeMillis() + " is failed : " + isFailed);
 		}
 		else
 		{
