@@ -1,4 +1,4 @@
-package com.bsb.hike.platform.ContentModules;
+package com.bsb.hike.platform;
 
 import java.util.ArrayList;
 
@@ -6,7 +6,7 @@ import android.annotation.SuppressLint;
 import android.os.Handler;
 
 import com.bsb.hike.models.HikeHandlerUtil;
-import com.bsb.hike.platform.PlatformUtils;
+import com.bsb.hike.platform.ContentModules.PlatformContentModel;
 import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.platform.content.PlatformContent.EventCode;
 import com.bsb.hike.platform.content.PlatformRequestManager;

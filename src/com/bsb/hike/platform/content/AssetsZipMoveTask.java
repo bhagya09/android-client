@@ -2,7 +2,7 @@ package com.bsb.hike.platform.content;
 
 import android.os.AsyncTask;
 import com.bsb.hike.HikeMessengerApp;
-import com.bsb.hike.platform.ContentModules.PlatformContentRequest;
+import com.bsb.hike.platform.PlatformContentRequest;
 
 import java.io.*;
 

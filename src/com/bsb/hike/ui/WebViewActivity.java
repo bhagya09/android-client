@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import android.app.Activity;
 import android.support.customtabs.CustomTabsIntent;
 import android.util.Pair;
 
@@ -79,7 +78,7 @@ import com.bsb.hike.platform.bridge.NonMessagingJavaScriptBridge;
 import com.bsb.hike.platform.content.HikeWebClient;
 import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.platform.content.PlatformContent.EventCode;
-import com.bsb.hike.platform.ContentModules.PlatformContentListener;
+import com.bsb.hike.platform.PlatformContentListener;
 import com.bsb.hike.platform.ContentModules.PlatformContentModel;
 import com.bsb.hike.ui.utils.StatusBarColorChanger;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
