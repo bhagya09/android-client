@@ -769,7 +769,7 @@ public class ChatHeadUtils
 						callerContentModel.setFullName(contactName);
 						callerContentModel.setMsisdn(number);
 						callerContentModel.setIsOnHike(Utils.isOnHike(number));
-						ContactManager.getInstance().insertIntoCallerTable(callerContentModel, false);
+						ContactManager.getInstance().insertIntoCallerTable(callerContentModel, false, false);
 					}
 					callerServerCall(number, true, callerContentModel);
 					StickyCaller.showCallerViewWithDelay(number, callerContentModel, StickyCaller.ALREADY_SAVED, AnalyticsConstants.StickyCallerEvents.ALREADY_SAVED);

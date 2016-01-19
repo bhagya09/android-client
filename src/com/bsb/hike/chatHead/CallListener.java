@@ -7,6 +7,8 @@ import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.Utils;
+import com.squareup.okhttp.internal.Util;
 
 public class CallListener implements IRequestListener
 {
@@ -20,8 +22,15 @@ public class CallListener implements IRequestListener
 		Logger.d(TAG, resultContent);
 		if (callerContentModel != null && callerContentModel.getMsisdn() != null)
 		{
-			ContactManager.getInstance().insertIntoCallerTable(callerContentModel, true);
-			StickyCaller.showCallerViewWithDelay(callerContentModel.getMsisdn(), callerContentModel, StickyCaller.SUCCESS, AnalyticsConstants.StickyCallerEvents.SERVER);
+			ContactManager.getInstance().insertIntoCallerTable(callerContentModel, true, true);
+			if (callerContentModel.isBlock())
+			{
+				Utils.killCall();
+			}
+			else
+			{
+				StickyCaller.showCallerViewWithDelay(callerContentModel.getMsisdn(), callerContentModel, StickyCaller.SUCCESS, AnalyticsConstants.StickyCallerEvents.SERVER);
+			}
 		}
 		else
 		{

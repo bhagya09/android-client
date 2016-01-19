@@ -9,6 +9,8 @@ import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.Utils;
+import com.squareup.okhttp.internal.Util;
 
 public class UpdateCallListener implements IRequestListener
 {
@@ -23,16 +25,29 @@ public class UpdateCallListener implements IRequestListener
 		if (callerContentModel != null && callerContentModel.getMsisdn() != null)
 		{
 			String contactName = ChatHeadUtils.getNameFromNumber(HikeMessengerApp.getInstance().getApplicationContext(), callerContentModel.getMsisdn());
+			CallerContentModel modelForBlock = ContactManager.getInstance().getCallerContentModelFromMsisdn(callerContentModel.getMsisdn());
+			boolean setIsBlock = false;
+			if (modelForBlock == null || modelForBlock.isSynced())
+			{
+				setIsBlock = true;
+			}
 			if (contactName == null)
 			{
-				ContactManager.getInstance().updateCallerTable(callerContentModel);
+				ContactManager.getInstance().updateCallerTable(callerContentModel, setIsBlock);
 			}
-           else
+           	else
 			{
 				callerContentModel.setFullName(contactName);
-				ContactManager.getInstance().updateCallerTable(callerContentModel);
+				ContactManager.getInstance().updateCallerTable(callerContentModel, setIsBlock);
 			}
-			StickyCaller.updateLayoutData(callerContentModel);
+			if (setIsBlock && callerContentModel.isBlock())
+			{
+				Utils.killCall();
+			}
+			else
+			{
+				StickyCaller.updateLayoutData(callerContentModel);
+			}
 		}
 		else
 		{

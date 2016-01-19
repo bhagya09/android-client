@@ -299,6 +299,9 @@ class HikeUserDatabase extends SQLiteOpenHelper
 			callerContentModel
 					.setIsSpam((!cursor.isNull(cursor.getColumnIndex(DBConstants.HIKE_USER.IS_SPAM)) && (cursor.getInt(cursor.getColumnIndex(DBConstants.HIKE_USER.IS_SPAM)) == ChatHeadUtils.VALUE_TRUE))
 							? true : false);
+			callerContentModel
+					.setIsSynced((!cursor.isNull(cursor.getColumnIndex(DBConstants.HIKE_USER.IS_SYNCED)) && (cursor.getInt(cursor.getColumnIndex(DBConstants.HIKE_USER.IS_SYNCED)) == ChatHeadUtils.VALUE_TRUE))
+							? true : false);
 			callerContentModel.setLocation(cursor.getString(cursor.getColumnIndex(DBConstants.HIKE_USER.LOCATION)));
 			callerContentModel.setSpamCount(
 					!cursor.isNull(cursor.getColumnIndex(DBConstants.HIKE_USER.SPAM_COUNT)) ? cursor.getInt(cursor.getColumnIndex(DBConstants.HIKE_USER.SPAM_COUNT)) : 0);
@@ -487,11 +490,11 @@ class HikeUserDatabase extends SQLiteOpenHelper
 
 
 
-	public void insertIntoCallerTable(CallerContentModel callerContentModel, boolean isCompleteData)
+	public void insertIntoCallerTable(CallerContentModel callerContentModel, boolean isCompleteData, boolean setIsBlock)
 	{
 		if (callerContentModel != null && callerContentModel.getMsisdn() != null && callerContentModel.getFullName() != null)
 		{
-			ContentValues contentValues = getBasicCallerContentValues(callerContentModel, isCompleteData);
+			ContentValues contentValues = getBasicCallerContentValues(callerContentModel, isCompleteData, setIsBlock);
 			contentValues.put(DBConstants.NAME, callerContentModel.getFullName());
 			contentValues.put(DBConstants.MSISDN, callerContentModel.getMsisdn());
 			contentValues.put(DBConstants.HIKE_USER.CREATION_TIME, System.currentTimeMillis());
@@ -510,10 +513,9 @@ class HikeUserDatabase extends SQLiteOpenHelper
 				{
 					if (callerContentModel != null && callerContentModel.getMsisdn() != null && callerContentModel.getFullName() != null)
 					{
-						ContentValues contentValues = getBasicCallerContentValues(callerContentModel, true);
+						ContentValues contentValues = getBasicCallerContentValues(callerContentModel, true, true);
 						contentValues.put(DBConstants.NAME, callerContentModel.getFullName());
 						contentValues.put(DBConstants.MSISDN, callerContentModel.getMsisdn());
-						contentValues.put(DBConstants.HIKE_USER.IS_BLOCK, callerContentModel.isBlock() ? ChatHeadUtils.VALUE_TRUE : ChatHeadUtils.VALUE_FALSE);
 						contentValues.put(DBConstants.HIKE_USER.CREATION_TIME, System.currentTimeMillis());
 						mDb.insertWithOnConflict(DBConstants.HIKE_USER.HIKE_CALLER_TABLE, null, contentValues, SQLiteDatabase.CONFLICT_IGNORE);
 					}
@@ -529,7 +531,7 @@ class HikeUserDatabase extends SQLiteOpenHelper
 
 	}
 
-	private ContentValues getBasicCallerContentValues(CallerContentModel callerContentModel, boolean setIsOnHikeTime)
+	private ContentValues getBasicCallerContentValues(CallerContentModel callerContentModel, boolean setIsOnHikeTime, boolean setIsBlock)
 	{
 		ContentValues contentValues = new ContentValues();
 		contentValues.put(DBConstants.HIKE_USER.IS_ON_HIKE, callerContentModel.getIsOnHike() ? ChatHeadUtils.VALUE_TRUE : ChatHeadUtils.VALUE_FALSE);
@@ -537,14 +539,18 @@ class HikeUserDatabase extends SQLiteOpenHelper
 		contentValues.put(DBConstants.HIKE_USER.IS_SPAM, callerContentModel.isSpam() ? ChatHeadUtils.VALUE_TRUE : ChatHeadUtils.VALUE_FALSE);
 		contentValues.put(DBConstants.HIKE_USER.SPAM_COUNT, callerContentModel.getSpamCount());
 		contentValues.put(DBConstants.HIKE_USER.ON_HIKE_TIME, setIsOnHikeTime ? System.currentTimeMillis() : 0);
+		if (setIsBlock)
+		{
+			contentValues.put(DBConstants.HIKE_USER.IS_BLOCK, callerContentModel.isBlock() ? ChatHeadUtils.VALUE_TRUE : ChatHeadUtils.VALUE_FALSE);
+		}
 		return  contentValues;
 	}
 
-	public void updateCallerTable(CallerContentModel callerContentModel)
+	public void updateCallerTable(CallerContentModel callerContentModel, boolean setIsBlock)
 	{
 		if (callerContentModel != null && callerContentModel.getMsisdn() != null)
 		{
-			ContentValues contentValues = getBasicCallerContentValues(callerContentModel, true);
+			ContentValues contentValues = getBasicCallerContentValues(callerContentModel, true, setIsBlock);
 			if (callerContentModel.getFullName() != null)
 			{
 				contentValues.put(DBConstants.HIKE_USER.CREATION_TIME, System.currentTimeMillis());
@@ -556,7 +562,7 @@ class HikeUserDatabase extends SQLiteOpenHelper
 			int noOfRow = mDb.update(DBConstants.HIKE_USER.HIKE_CALLER_TABLE, contentValues, DBConstants.MSISDN + "=? ", new String[] { callerContentModel.getMsisdn() });
 			if (noOfRow == 0 && callerContentModel.getFullName() != null)
 			{
-				insertIntoCallerTable(callerContentModel, true);
+				insertIntoCallerTable(callerContentModel, true, setIsBlock);
 			}
 		}
 	}

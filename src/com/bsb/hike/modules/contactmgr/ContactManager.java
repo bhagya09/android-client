@@ -2398,14 +2398,14 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 		return hDb.getImagePathForThumbnail(msisdn);
 	}
 
-	public void updateCallerTable(CallerContentModel callerContentModel)
+	public void updateCallerTable(CallerContentModel callerContentModel, boolean setIsBlock)
 	{
-		HikeUserDatabase.getInstance().updateCallerTable(callerContentModel);
+		HikeUserDatabase.getInstance().updateCallerTable(callerContentModel, setIsBlock);
 	}
 
-	public void insertIntoCallerTable(CallerContentModel callerContentModel, boolean isCompleteData)
+	public void insertIntoCallerTable(CallerContentModel callerContentModel, boolean isCompleteData, boolean setIsBlock)
 	{
-		HikeUserDatabase.getInstance().insertIntoCallerTable(callerContentModel, isCompleteData);
+		HikeUserDatabase.getInstance().insertIntoCallerTable(callerContentModel, isCompleteData, setIsBlock);
 	}
 
 	public CallerContentModel getCallerContentModelFromMsisdn(String msisdn)
