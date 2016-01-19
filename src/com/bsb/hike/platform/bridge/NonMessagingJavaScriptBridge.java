@@ -1566,4 +1566,20 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 
 	}
 
+        /**
+         * Platform Version 11
+         * This function is made to know, if any game is running and accordingly display the running status on games channel
+         * Call this method to get the current game name running in hike. Gameid is empty, if no game is running
+         * @param id : the id of the function that native will call to call the js .
+         */
+        @JavascriptInterface
+        public void getRunningGame(String id)
+        {
+                Activity context = weakActivity.get();
+                if (context != null)
+                {
+                        String gameId = PlatformUtils.getRunningGame(context);
+                        callbackToJS(id, gameId);
+                }
+        }
 }

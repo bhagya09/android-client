@@ -1603,4 +1603,27 @@ public class PlatformUtils
 
 		return jsonObj.optString(HikeConstants.BODY);
 	}
+
+
+	public static String getRunningGame(Context context) {
+		String gameId = "";
+		String lastGame = getLastGame();
+
+		if (context == null || TextUtils.isEmpty(lastGame))
+		{
+			Logger.e(TAG, "Either activity is null or lastgame is null in getRunningGame");
+			return gameId;
+		}
+
+		ActivityManager activityManager = (ActivityManager) context.getSystemService(context.ACTIVITY_SERVICE);
+		List<RunningAppProcessInfo> procInfos = activityManager.getRunningAppProcesses();
+		for (int i = 0; i < procInfos.size(); i++) {
+			if (procInfos.get(i).processName.equals(HikePlatformConstants.GAME_PROCESS)) {
+				gameId = lastGame;
+				break;
+			}
+		}
+		Logger.d(TAG, "getRunningGame: "+ gameId);
+		return  gameId;
+	}
 }
