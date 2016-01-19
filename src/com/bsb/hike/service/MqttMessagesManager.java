@@ -1535,7 +1535,7 @@ public class MqttMessagesManager
 	private void publishOpenComposeChatOnceEvent(JSONObject data, SharedPreferences settings) throws JSONException
 	{
 		settings.edit().putBoolean(HikeConstants.OPEN_COMPOSE_CHAT_ONE_TIME_TRIGGER, data.getBoolean(HikeConstants.OPEN_COMPOSE_CHAT_ONE_TIME_TRIGGER)).commit();
-		HikeMessengerApp.getPubSub().publish(HikeConstants.OPEN_COMPOSE_CHAT_ONE_TIME_TRIGGER, null);
+		HikeMessengerApp.getPubSub().publish(HikePubSub.OPEN_COMPOSE_CHAT_SCREEN, null);
 	}
 
 	private void saveUserOptIn(JSONObject jsonObj) throws JSONException
