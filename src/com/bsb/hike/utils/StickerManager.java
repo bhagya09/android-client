@@ -1545,8 +1545,6 @@ public class StickerManager
 		{
 			SingleStickerDownloadTask singleStickerDownloadTask = new SingleStickerDownloadTask(stickerId, categoryId, convMessage, true);
 			singleStickerDownloadTask.execute();
-			SingleStickerTagDownloadTask singleStickerTagDownloadTask = new SingleStickerTagDownloadTask(stickerId, categoryId);
-			singleStickerTagDownloadTask.execute();
 		}
 	}
 
@@ -1968,16 +1966,10 @@ public class StickerManager
 
 	public void saveInStickerTagSet(String stickerId, String categoryId)
 	{
-		Set<String> newCategorySet = new HashSet<String>(1);
-		newCategorySet.add(StickerManager.getInstance().getStickerSetString(stickerId, categoryId));
+		Set<String> stickerSet = new HashSet<>(1);
+		stickerSet.add(StickerManager.getInstance().getStickerSetString(stickerId, categoryId));
 
-		Set<String> existingSet = HikeSharedPreferenceUtil.getInstance().getDataSet(HikeMessengerApp.STICKER_SET, null);
-		if (!Utils.isEmpty(existingSet))
-		{
-			newCategorySet.addAll(existingSet);
-		}
-
-		HikeSharedPreferenceUtil.getInstance().saveDataSet(HikeMessengerApp.STICKER_SET, newCategorySet);
+		StickerManager.getInstance().saveStickerSet(stickerSet, StickerSearchConstants.STATE_STICKER_DATA_FRESH_INSERT);
 	}
 
 	public void addRecentStickerToPallete(Sticker sticker)

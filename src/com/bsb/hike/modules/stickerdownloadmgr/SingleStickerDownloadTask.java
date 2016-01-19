@@ -224,14 +224,21 @@ public class SingleStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRe
 					{
 						Bitmap thumbnail = HikeBitmapFactory.scaleDownBitmap(largeStickerPath, StickerManager.SIZE_IMAGE, StickerManager.SIZE_IMAGE, true, false);
 
-						if (thumbnail != null)
-						{
+						if (thumbnail != null) {
 							File smallImage = new File(smallStickerPath);
 							BitmapUtils.saveBitmapToFile(smallImage, thumbnail);
 							thumbnail.recycle();
 							StickerManager.getInstance().saveInStickerTagSet(stickerId, categoryId);
-							StickerLanguagesManager.getInstance().checkAndUpdateForbiddenList(data);
-							StickerSearchManager.getInstance().insertStickerTags(data, StickerSearchConstants.STATE_STICKER_DATA_FRESH_INSERT);
+							if (imageOnly)
+							{
+								SingleStickerTagDownloadTask singleStickerTagDownloadTask = new SingleStickerTagDownloadTask(stickerId, categoryId);
+								singleStickerTagDownloadTask.execute();
+							}
+							else
+							{
+								StickerLanguagesManager.getInstance().checkAndUpdateForbiddenList(data);
+								StickerSearchManager.getInstance().insertStickerTags(data, StickerSearchConstants.STATE_STICKER_DATA_FRESH_INSERT);
+							}
 						}
 					}
 					StickerManager.getInstance().checkAndRemoveUpdateFlag(categoryId);
