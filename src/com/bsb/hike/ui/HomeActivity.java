@@ -2100,9 +2100,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 		optionsList.add(new OverFlowMenuItem(getString(R.string.settings), 0, 0, R.string.settings));
 
-		if (AppConfig.SHOW_SEND_LOGS_OPTION)
-			optionsList.add(new OverFlowMenuItem("RSTLocalFTUE", 0, 0, 420));
-
 		optionsList.add(new OverFlowMenuItem(getString(R.string.status), 0, 0, R.string.status));
 
 		addEmailLogItem(optionsList);
@@ -2160,10 +2157,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 				case R.string.settings:
 					HAManager.logClickEvent(HikeConstants.LogEvent.SETTING_CLICKED);
 					intent = new Intent(HomeActivity.this, SettingsActivity.class);
-					break;
-				case 420:
-					HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.LOCALIZATION_FTUE_COMPLETE, false);
-					HikeSharedPreferenceUtil.getInstance().saveData("keyboardFTUEState", 0);
 					break;
 				case R.string.new_group:
 					intent = new Intent(HomeActivity.this, CreateNewGroupOrBroadcastActivity.class);
