@@ -1231,7 +1231,7 @@ import com.kpt.adaptxt.beta.RemoveDialogData;
 		
 		
 		//When MsgRelLogManager is removed / or when to for GC as well, we can go with super
-		ConvMessage convMessage = Utils.makeConvMessage(msisdn, getString(R.string.poke_msg), mConversation.isOnHike());
+		ConvMessage convMessage = Utils.makeConvMessage(msisdn, getString(R.string.poke_msg_english_only), mConversation.isOnHike());
 		ChatThreadUtils.setPokeMetadata(convMessage);
 
 		// 1) user double clicked on Chat Screen i.e Sending nudge

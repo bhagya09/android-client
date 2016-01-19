@@ -267,7 +267,7 @@ public class CustomWebView extends WebView
 		stopLoading();
 		clearCache(true);
 		clearHistory();
-		setConfigCallback(null);
+//		setConfigCallback(null);
 		if (ON_PAUSE_METHOD != null)
 		{
 			try
