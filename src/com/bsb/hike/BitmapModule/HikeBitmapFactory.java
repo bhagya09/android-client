@@ -1440,16 +1440,14 @@ public class HikeBitmapFactory
 
 			contactName = contactInfo.getName();
 
+			if (ContactManager.getInstance().getSelfMsisdn().equals(msisdn))
+			{
+				contactName = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.NAME_SETTING, msisdn);
+			}
+
 			if (contactName == null)
 			{
-				if (ContactManager.getInstance().getSelfMsisdn().equals(msisdn))
-				{
-					contactName = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.NAME_SETTING, msisdn);
-				}
-				else
-				{
-					contactName = msisdn;
-				}
+				contactName = msisdn;
 			}
 		}
 
