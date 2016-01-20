@@ -1010,7 +1010,13 @@ import android.widget.Toast;
 	private boolean isOverflowTipShowing()
 	{
 		TextView tip = (TextView) activity.findViewById(R.id.overflow_tip);
-		return tip.getVisibility() == View.VISIBLE;
+		if (tip != null && tip.getVisibility() == View.VISIBLE)
+			return true;
+
+		if (tipFadeInAnimation != null && tipFadeInAnimation.isStarted())
+			return true;
+
+		return false;
 	}
 	private void dismissOverflowTipIfShowing()
 	{
