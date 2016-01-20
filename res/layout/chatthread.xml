@@ -397,27 +397,27 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"></FrameLayout>
 
+            <com.bsb.hike.view.CustomFontTextView
+                android:id="@+id/overflow_tip"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_alignTop="@id/chatThreadParentLayout"
+                android:layout_marginTop="@dimen/st__action_bar_default_height"
+                android:background="@drawable/overflow_tip"
+                android:gravity="center_vertical"
+                android:paddingBottom="12dp"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp"
+                android:paddingTop="16dp"
+                android:text="Switch Keyboard"
+                android:textColor="@color/white"
+                android:textSize="14sp"
+                android:visibility="gone" />
+
         </RelativeLayout>
 
     </LinearLayout>
-
-    <com.bsb.hike.view.CustomFontTextView
-        android:id="@+id/overflow_tip"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_alignTop="@id/chatThreadParentLayout"
-        android:layout_marginTop="@dimen/st__action_bar_default_height"
-        android:background="@drawable/overflow_tip"
-        android:gravity="center_vertical"
-        android:paddingBottom="12dp"
-        android:paddingLeft="16dp"
-        android:paddingRight="16dp"
-        android:paddingTop="16dp"
-        android:text="Switch Keyboard"
-        android:textColor="@color/white"
-        android:textSize="14sp"
-        android:visibility="gone" />
 
     <include layout="@layout/kpt_keyboard_viewholder" />
 

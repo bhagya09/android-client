@@ -867,6 +867,7 @@ import android.widget.Toast;
 		public void onDestroyed()
 		{
 			Utils.unblockOrientationChange(activity);
+			showOverflowMenuKeyboardTipIfRequired();
 		}
 	};
 
@@ -961,11 +962,13 @@ import android.widget.Toast;
 		// - second keyboard tip is not yet done.
 		// - already the indicator is not in use
 		// - already the tip is not in use
+		// - keyboard ftue will not be shown in this session
 		// - system keyboard is selected.
 		else if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CT_OVRFLW_KEYBOARD_TIP_1_DONE, false)
 				&& !HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CT_OVRFLW_KEYBOARD_TIP_2_DONE, false)
 				&& !mActionBar.isOverflowMenuIndicatorInUse()
 				&& !isOverflowTipShowing()
+				&& !keyboardFtue.isReadyForFTUE()
 				&& HikeMessengerApp.isSystemKeyboard())
 		{
 			showOverflowTip(R.string.switch_to_hike_key);
@@ -1007,7 +1010,13 @@ import android.widget.Toast;
 	private boolean isOverflowTipShowing()
 	{
 		TextView tip = (TextView) activity.findViewById(R.id.overflow_tip);
-		return tip.getVisibility() == View.VISIBLE;
+		if (tip != null && tip.getVisibility() == View.VISIBLE)
+			return true;
+
+		if (tipFadeInAnimation != null && tipFadeInAnimation.isStarted())
+			return true;
+
+		return false;
 	}
 	private void dismissOverflowTipIfShowing()
 	{
