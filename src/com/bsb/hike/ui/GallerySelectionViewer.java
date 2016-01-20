@@ -124,6 +124,10 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 
 	private View cropDivider;
 
+	private View btnCropCancel;
+
+	private View btnCropAccept;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
@@ -205,6 +209,11 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 		containerEdit = findViewById(R.id.container_edit);
 		containerRemove = findViewById(R.id.container_remove);
 		containerRotate = findViewById(R.id.container_rotate);
+		btnCropCancel = findViewById(R.id.cancel);
+		btnCropAccept = findViewById(R.id.accept);
+
+		btnCropAccept.setOnClickListener(this);
+		btnCropCancel.setOnClickListener(this);
 
 		HikeHandlerUtil.getInstance().postRunnableWithDelay(new Runnable() {
 			@Override
