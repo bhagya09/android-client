@@ -482,6 +482,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 
 			if (mode == SERVER_CONTROLLED_WEB_URL_MODE || mode == WEB_URL_MODE)
 			{
+				webView.removeWebViewReferencesFromWebKit();
 				webView.clearWebViewCache(true);
 			}
 		}
