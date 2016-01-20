@@ -54,6 +54,7 @@ import com.bsb.hike.utils.SmileyParser;
 import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
+import com.facebook.stetho.Stetho;
 import com.kpt.adaptxt.beta.core.coreservice.KPTCoreEngineImpl;
 
 import org.acra.ACRA;
@@ -749,8 +750,12 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		ErrorReporter.getInstance().setReportSender(customReportSender);
 
 		super.onCreate();
-
 		_instance = this;
+		Stetho.initialize(
+				Stetho.newInitializerBuilder(this)
+						.enableDumpapp(Stetho.defaultDumperPluginsProvider(this))
+						.enableWebKitInspector(Stetho.defaultInspectorModulesProvider(this))
+						.build());
 
 		// We need to set all AppConfig params on the start when _instance have been initialized
 		// reason : AppConfig class is loaded before we set _instance ==> HikeSharedPrefUtil won't be able to
