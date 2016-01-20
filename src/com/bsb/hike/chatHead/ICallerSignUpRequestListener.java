@@ -55,7 +55,6 @@ public class ICallerSignUpRequestListener implements IRequestListener {
 						ContactManager.getInstance().insertAllBlockedContactsIntoCallerTable(callerContentModelArray);
 						HikeAlarmManager.cancelAlarm(HikeMessengerApp.getInstance().getApplicationContext(), HikeAlarmManager.REQUESTCODE_FETCH_BLOCK_LIST_CALLER);
 						isStatusFail = false;
-						HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CALLER_DATA_BLOCKED_LIST_FETCHED, true);
 					}
 				}
 			}

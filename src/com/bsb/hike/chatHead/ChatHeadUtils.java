@@ -1029,7 +1029,7 @@ public class ChatHeadUtils
 
 	public static void syncAllCallerBlockedContacts()
 	{
-		if (!HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CALLER_DATA_BLOCKED_LIST_FETCHED, false))
+		if (!HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CALLER_BLOKED_LIST_SYNCHED_SIGNUP, false))
 		{
 			HikeHandlerUtil.getInstance().postRunnable(new Runnable()
 			{
