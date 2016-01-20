@@ -130,12 +130,12 @@ public class PlatformContentModel
 				String microApp = object.cardObj.getAppName();
 				String unzipPath = PlatformContentConstants.HIKE_MICRO_APPS;
 				String basePath = PlatformUtils.generateMappUnZipPathForBotType(HikePlatformConstants.PlatformBotType.HIKE_MICRO_APPS, unzipPath, microApp);
-                String platformSDKPath = PlatformUtils.generateMappUnZipPathForBotType(HikePlatformConstants.PlatformBotType.HIKE_MAPPS, unzipPath, HikePlatformConstants.PLATFORM_SDK);
+                String platformSDKPath = PlatformUtils.generateMappUnZipPathForBotType(HikePlatformConstants.PlatformBotType.HIKE_MAPPS, unzipPath, HikePlatformConstants.PLATFORM_WEB_SDK);
 
 				object.cardObj.ld.addProperty(PlatformContentConstants.KEY_TEMPLATE_PATH, PlatformContentConstants.CONTENT_AUTHORITY_BASE + basePath);
 				object.cardObj.ld.addProperty(PlatformContentConstants.MESSAGE_ID, Integer.toString(unique));
 				object.cardObj.ld.addProperty(HikePlatformConstants.PLATFORM_VERSION, HikePlatformConstants.CURRENT_VERSION);
-                object.cardObj.ld.addProperty(HikePlatformConstants.PLATFORM_SDK,PlatformContentConstants.CONTENT_AUTHORITY_BASE + platformSDKPath);
+                object.cardObj.ld.addProperty(HikePlatformConstants.PLATFORM_SDK_PATH,PlatformContentConstants.CONTENT_AUTHORITY_BASE + platformSDKPath);
 			}
 		}
 		catch (JsonParseException e)
@@ -179,12 +179,12 @@ public class PlatformContentModel
 				String microApp = object.cardObj.getAppName();
 				String unzipPath = PlatformContentConstants.HIKE_MICRO_APPS;
 				String basePath = PlatformUtils.generateMappUnZipPathForBotType(botType, unzipPath, microApp);
-                String platformSDKPath = PlatformUtils.generateMappUnZipPathForBotType(HikePlatformConstants.PlatformBotType.HIKE_MAPPS, unzipPath, HikePlatformConstants.PLATFORM_SDK);
+                String platformSDKPath = PlatformUtils.generateMappUnZipPathForBotType(HikePlatformConstants.PlatformBotType.HIKE_MAPPS, unzipPath, HikePlatformConstants.PLATFORM_WEB_SDK);
 
                 object.cardObj.ld.addProperty(PlatformContentConstants.KEY_TEMPLATE_PATH, PlatformContentConstants.CONTENT_AUTHORITY_BASE + basePath);
 				object.cardObj.ld.addProperty(PlatformContentConstants.MESSAGE_ID, Integer.toString(unique));
 				object.cardObj.ld.addProperty(HikePlatformConstants.PLATFORM_VERSION, HikePlatformConstants.CURRENT_VERSION);
-                object.cardObj.ld.addProperty(HikePlatformConstants.PLATFORM_SDK,PlatformContentConstants.CONTENT_AUTHORITY_BASE + platformSDKPath);
+                object.cardObj.ld.addProperty(HikePlatformConstants.PLATFORM_SDK_PATH,PlatformContentConstants.CONTENT_AUTHORITY_BASE + platformSDKPath);
             }
 		}
 		catch (JsonParseException e)

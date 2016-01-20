@@ -91,7 +91,7 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 
 	private String[] getCreateQueries()
 	{
-		String[] createAndIndexes = new String[8];
+		String[] createAndIndexes = new String[9];
 		int i = 0;
 		// CREATE TABLE
 		// CONTENT TABLE -> _id,content_id,love_id,channel_id,timestamp,metadata
@@ -129,12 +129,20 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 				  + TRIGGER_POINT + " INTEGER " + ")";
 		// URL_WHITELIST_TABLE
 		String urlWhitelistTable = CREATE_TABLE + URL_WHITELIST + "(" 
-				+ _ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " 
+				+ _ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
 				+ DOMAIN + " TEXT UNIQUE, "
 				+ IN_HIKE + " INTEGER" + ")";
 		createAndIndexes[i++]= urlWhitelistTable;
 		// URL WHITELIST ENDS
-		
+
+        //CREATE MAPP_TABLE
+        String mAppTable = CREATE_TABLE + MAPP_DATA + "("
+                + _ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                + NAME + " TEXT UNIQUE, "
+                + VERSION + " INTEGER, "
+                + APP_PACKAGE + " TEXT" + ")";
+        createAndIndexes[i++]= mAppTable;
+
 		String contentIndex = CREATE_INDEX + CONTENT_ID_INDEX + " ON " + CONTENT_TABLE + " (" + CONTENT_ID + ")";
 		
 		createAndIndexes[i++] = popupDB;
@@ -215,6 +223,12 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 			String createBotDiscoveryQuery = getCreateBotDiscoveryTableQuery();
 			queries.add(createBotDiscoveryQuery);
 		}
+
+        if (oldVersion < 7)
+        {
+            String createMappTableQuery = getCreateMAppDataTableQuery();
+            queries.add(createMappTableQuery);
+        }
 		
 		return queries.toArray(new String[]{});
 	}
@@ -875,5 +889,58 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 		
 		return array;
 	}
+
+    /*
+     * Method to insert entry to MApp Data table for each entry
+     */
+    public void insertIntoMAppDataTable(String mAppName,int version,String appPackageUrl)
+    {
+        // values to insert into Mapp Data table
+        ContentValues cv = new ContentValues();
+        cv.put(NAME,mAppName);
+        cv.put(VERSION,version);
+        cv.put(APP_PACKAGE,appPackageUrl);
+
+        long insertedRow = mDB.insertWithOnConflict(MAPP_DATA, null, cv, SQLiteDatabase.CONFLICT_REPLACE);
+
+        if(insertedRow > 0 && mAppName.equals(HikePlatformConstants.PLATFORM_WEB_SDK))
+            HikeMessengerApp.currentPlatformSDKVersion = version;
+    }
+
+    /*
+     * Method to get mapp version by its app name
+     */
+    public int getMappVersionByAppName(String mAppName)
+    {
+        Cursor c = mDB.query(DBConstants.HIKE_CONTENT.MAPP_DATA, new String[] { DBConstants.HIKE_CONTENT.VERSION}, NAME + "=?", new String[]{mAppName}, null, null, null);
+        int appVersion = 0;
+
+        while(c.moveToNext())
+        {
+            appVersion = c.getInt(c.getColumnIndex(DBConstants.HIKE_CONTENT.VERSION));
+        }
+
+        if (c != null)
+        {
+            c.close();
+        }
+
+        return appVersion;
+
+    }
+
+    /*
+    * Method to get MApp table data create query
+    */
+    private String getCreateMAppDataTableQuery()
+    {
+        String mAppTable = CREATE_TABLE + MAPP_DATA + "("
+                + _ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                + NAME + " TEXT UNIQUE, "
+                + VERSION + " INTEGER, "
+                + APP_PACKAGE + " TEXT" + ")";
+
+        return mAppTable;
+    }
 
 }

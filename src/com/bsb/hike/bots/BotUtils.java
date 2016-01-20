@@ -408,7 +408,7 @@ public class BotUtils
 				if (cardObjectJson != null)
 					mAppVersionCode = cardObjectJson.optInt(HikePlatformConstants.MAPP_VERSION_CODE, -1);
 
-				if (mAppVersionCode < currentBotInfoMAppVersionCode || botVersionCode < currentBotVersionCode
+				if (mAppVersionCode == -1 || mAppVersionCode < currentBotInfoMAppVersionCode || botVersionCode < currentBotVersionCode
 						|| (mAppVersionCode == currentBotInfoMAppVersionCode && botVersionCode == currentBotVersionCode))
 					return;
 			}

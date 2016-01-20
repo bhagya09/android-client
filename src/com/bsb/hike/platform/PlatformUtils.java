@@ -590,6 +590,8 @@ public class PlatformUtils
 			{
 				microappDownloadAnalytics(HikePlatformConstants.MICROAPP_DOWNLOADED, content);
 				Logger.d(TAG, "microapp download packet success.");
+                // Store successful micro app creation in db
+                mAppCreationSuccessHandling(downloadData);
 			}
 
 			@Override
@@ -1777,5 +1779,46 @@ public class PlatformUtils
         {
             token.execute();
         }
+    }
+
+    /*
+     * Method for inserting MAPP successful entry into content database
+     */
+	public static void mAppCreationSuccessHandling(JSONObject mAppJson)
+	{
+		if (mAppJson == null)
+			return;
+
+		JSONObject cardObjectJson = mAppJson.optJSONObject(HikePlatformConstants.CARD_OBJECT);
+
+		if (cardObjectJson != null)
+		{
+			final int version = cardObjectJson.optInt(HikePlatformConstants.MAPP_VERSION_CODE, 0);
+			final String appName = cardObjectJson.optString(HikePlatformConstants.APP_NAME, "");
+			final String appPackage = cardObjectJson.optString(HikePlatformConstants.APP_PACKAGE, "");
+
+			HikeHandlerUtil mThread;
+			mThread = HikeHandlerUtil.getInstance();
+			mThread.startHandlerThread();
+
+			mThread.postRunnable(new Runnable()
+			{
+				@Override
+				public void run()
+				{
+					HikeContentDatabase.getInstance().insertIntoMAppDataTable(appName, version, appPackage);
+				}
+			});
+		}
+	}
+
+    /*
+     * Method needed for initializing current platform sdk variable by getting its value from the database
+     */
+    public static int initPlatformMicroAppSDKVersion() {
+
+        int platformSDKVersion = HikeContentDatabase.getInstance().getMappVersionByAppName(HikePlatformConstants.PLATFORM_WEB_SDK);
+        return platformSDKVersion;
+
     }
 }

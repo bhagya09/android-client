@@ -1,29 +1,5 @@
 package com.bsb.hike;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URL;
-import java.net.URLEncoder;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicBoolean;
-
-import com.bsb.hike.notifications.HikeNotification;
-import com.bsb.hike.platform.PlatformUtils;
-import com.bsb.hike.platform.content.PlatformContentConstants;
-
-import org.acra.ACRA;
-import org.acra.ErrorReporter;
-import org.acra.ReportField;
-import org.acra.annotation.ReportsCrashes;
-import org.acra.collector.CrashReportData;
-import org.acra.sender.HttpSender;
-import org.acra.sender.ReportSender;
-import org.acra.sender.ReportSenderException;
-import org.acra.util.HttpRequest;
-
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -61,6 +37,7 @@ import com.bsb.hike.notifications.ToastListener;
 import com.bsb.hike.offline.OfflineConstants;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUIDFetch;
+import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.platform.content.PlatformContentConstants;
 import com.bsb.hike.productpopup.ProductInfoManager;
@@ -79,6 +56,26 @@ import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 import com.kpt.adaptxt.beta.core.coreservice.KPTCoreEngineImpl;
+
+import org.acra.ACRA;
+import org.acra.ErrorReporter;
+import org.acra.ReportField;
+import org.acra.annotation.ReportsCrashes;
+import org.acra.collector.CrashReportData;
+import org.acra.sender.HttpSender;
+import org.acra.sender.ReportSender;
+import org.acra.sender.ReportSenderException;
+import org.acra.util.HttpRequest;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 
 //https://github.com/ACRA/acra/wiki/Backends
@@ -614,6 +611,8 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 	
 	public static int bottomNavBarWidthLandscape = 0;
 
+    public static int currentPlatformSDKVersion = 0;
+
 	static
 	{
 		mPubSubInstance = new HikePubSub();
@@ -989,7 +988,10 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 
 		StickerSearchManager.getInstance().initStickerSearchProviderSetupWizard();
 		StickerSearchManager.getInstance().sendStickerRecommendationAccuracyAnalytics();
-		
+
+        // Set up current platform sdk version by getting its value from the database
+		currentPlatformSDKVersion = PlatformUtils.initPlatformMicroAppSDKVersion();
+
 		// Moving the shared pref stored in account prefs to the default prefs.
 		// This is done because previously we were saving shared pref for caller in accountutils but now using default settings prefs
         // On a long run this should be deleted 

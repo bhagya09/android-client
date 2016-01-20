@@ -328,5 +328,7 @@ public interface HikePlatformConstants
 	
 	public static final String CRICKET_HIKE_MSISDN = "+hikecricket+";
 
-    public static final String PLATFORM_SDK = "PlatformSDK";
+    public static final String PLATFORM_SDK_PATH = "platformSdkPath";
+
+    public static final String PLATFORM_WEB_SDK = "platformSdk";
 }
