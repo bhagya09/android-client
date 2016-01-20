@@ -239,12 +239,7 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 
 		gridAdapter = new GalleryAdapter(this, galleryGridItems, true, imgSize, null, true);
 
-		if(galleryGridItems != null && galleryGridItems.size() > 4)
-		{
-			RelativeLayout.LayoutParams params =  (android.widget.RelativeLayout.LayoutParams) selectedGrid.getLayoutParams();
-			params.height = getResources().getDimensionPixelSize(R.dimen.gallery_selected_grid_height);
-			selectedGrid.setLayoutParams(params);
-		}
+		arrangeHeights();
 
 		selectedGrid.setNumColumns(numColumns);
 		selectedGrid.setAdapter(gridAdapter);
@@ -260,6 +255,23 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 
 		showTipIfRequired();
 	}
+
+	private void arrangeHeights()
+	{
+		if(galleryGridItems != null && galleryGridItems.size() > 4)
+		{
+			RelativeLayout.LayoutParams params =  (android.widget.RelativeLayout.LayoutParams) selectedGrid.getLayoutParams();
+			params.height = getResources().getDimensionPixelSize(R.dimen.gallery_selected_grid_height);
+			selectedGrid.setLayoutParams(params);
+		}
+		else if(galleryGridItems != null)
+		{
+			RelativeLayout.LayoutParams params =  (android.widget.RelativeLayout.LayoutParams) selectedGrid.getLayoutParams();
+			params.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+			selectedGrid.setLayoutParams(params);
+		}
+	}
+
 
 	private void initiateEditMode()
 	{
@@ -823,6 +835,8 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 			gridAdapter.notifyDataSetChanged();
 			pagerAdapter.notifyDataSetChanged();
 
+			arrangeHeights();
+
 			if(galleryItems.isEmpty())
 			{
 				if(forGalleryShare)
@@ -834,6 +848,7 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 					startAddMoreGalleryIntent();
 				}
 			}
+
 
 			GallerySelectionViewer.this.selectedPager.setCurrentItem(position == 0 ? 0 : position - 1);
 		}
