@@ -1468,7 +1468,7 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 						/*
 						 * One special case is handled where user deleted and added the same contact again at the same time.
 						 */
-						if(!new_contacts_by_id.containsKey(hikeCInfo.getId()) && hike_contacts_by_id.containsKey(hikeCInfo.getId()))
+						if(hikeCInfo != null && !new_contacts_by_id.containsKey(hikeCInfo.getId()) && hike_contacts_by_id.containsKey(hikeCInfo.getId()))
 						{
 							Logger.d("ContactUtils", "Removing contact from android db contact list");
 							contacts_for_id.remove(c);
