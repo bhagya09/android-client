@@ -289,19 +289,15 @@ class HikeUserDatabase extends SQLiteOpenHelper
 		{
 			cursor.moveToFirst();
 			CallerContentModel callerContentModel = new CallerContentModel();
-			callerContentModel
-					.setBlock((!cursor.isNull(cursor.getColumnIndex(DBConstants.HIKE_USER.IS_BLOCK)) && (cursor.getInt(cursor.getColumnIndex(DBConstants.HIKE_USER.IS_BLOCK)) == ChatHeadUtils.VALUE_TRUE))
-							? true : false);
+			callerContentModel.setBlock(!cursor.isNull(cursor.getColumnIndex(DBConstants.HIKE_USER.IS_BLOCK))
+					&& (cursor.getInt(cursor.getColumnIndex(DBConstants.HIKE_USER.IS_BLOCK)) == ChatHeadUtils.VALUE_TRUE));
 			callerContentModel.setFullName(cursor.getString(cursor.getColumnIndex(DBConstants.NAME)));
-			callerContentModel.setIsOnHike(
-					(!cursor.isNull(cursor.getColumnIndex(DBConstants.HIKE_USER.IS_ON_HIKE)) && (cursor.getInt(cursor.getColumnIndex(DBConstants.HIKE_USER.IS_ON_HIKE)) == ChatHeadUtils.VALUE_TRUE))
-							? true : false);
-			callerContentModel
-					.setIsSpam((!cursor.isNull(cursor.getColumnIndex(DBConstants.HIKE_USER.IS_SPAM)) && (cursor.getInt(cursor.getColumnIndex(DBConstants.HIKE_USER.IS_SPAM)) == ChatHeadUtils.VALUE_TRUE))
-							? true : false);
-			callerContentModel
-					.setIsSynced((!cursor.isNull(cursor.getColumnIndex(DBConstants.HIKE_USER.IS_SYNCED)) && (cursor.getInt(cursor.getColumnIndex(DBConstants.HIKE_USER.IS_SYNCED)) == ChatHeadUtils.VALUE_TRUE))
-							? true : false);
+			callerContentModel.setIsOnHike(!cursor.isNull(cursor.getColumnIndex(DBConstants.HIKE_USER.IS_ON_HIKE))
+					&& (cursor.getInt(cursor.getColumnIndex(DBConstants.HIKE_USER.IS_ON_HIKE)) == ChatHeadUtils.VALUE_TRUE));
+			callerContentModel.setIsSpam(!cursor.isNull(cursor.getColumnIndex(DBConstants.HIKE_USER.IS_SPAM))
+					&& (cursor.getInt(cursor.getColumnIndex(DBConstants.HIKE_USER.IS_SPAM)) == ChatHeadUtils.VALUE_TRUE));
+			callerContentModel.setIsSynced(!cursor.isNull(cursor.getColumnIndex(DBConstants.HIKE_USER.IS_SYNCED))
+					&& (cursor.getInt(cursor.getColumnIndex(DBConstants.HIKE_USER.IS_SYNCED)) == ChatHeadUtils.VALUE_TRUE));
 			callerContentModel.setLocation(cursor.getString(cursor.getColumnIndex(DBConstants.HIKE_USER.LOCATION)));
 			callerContentModel.setSpamCount(
 					!cursor.isNull(cursor.getColumnIndex(DBConstants.HIKE_USER.SPAM_COUNT)) ? cursor.getInt(cursor.getColumnIndex(DBConstants.HIKE_USER.SPAM_COUNT)) : 0);
