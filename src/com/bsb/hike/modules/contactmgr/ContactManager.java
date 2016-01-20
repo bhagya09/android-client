@@ -1978,7 +1978,7 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 		Cursor otherContactsCursor = null;
 
 		Map<String, Integer> mostContactedNumbers = new HashMap<String, Integer>();
-		StringBuilder sb = new StringBuilder("");
+		StringBuilder sb = null;
 		try
 		{
 			String[] projection = new String[] { ContactsContract.RawContacts.CONTACT_ID };
@@ -2048,7 +2048,7 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 				}
 			}
 
-			if (mostContactedNumbers.isEmpty())
+			if (sb == null || mostContactedNumbers.isEmpty())
 			{
 				sb = new StringBuilder("()");
 			}

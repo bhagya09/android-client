@@ -292,7 +292,7 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 		Topic fileTopic = new Topic(OfflineConstants.FILE_TOPIC);
 		topics.add(textTopic);
 		topics.add(fileTopic);
-		DefaultRetryPolicy retryPolicy = new DefaultRetryPolicy(4, 500, 1);
+		DefaultRetryPolicy retryPolicy = new DefaultRetryPolicy(4, 500, 2);
 		String host = connectionManager.getHostAddress();
 		Logger.d(TAG, "host is: " + host);
 		if (host != null)
