@@ -3,8 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bsb.hike"
     android:installLocation="auto"
-    android:versionCode="1574"
-    android:versionName="4.1.0.22.1.selectAllpopup" >
+    android:versionCode="1575"
+    android:versionName="4.1.0.22.2.selectAllpopup" >
 
     <uses-sdk
         android:minSdkVersion="14"
