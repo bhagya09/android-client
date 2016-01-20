@@ -1029,15 +1029,19 @@ public class ChatHeadUtils
 
 	public static void syncAllCallerBlockedContacts()
 	{
-		HikeHandlerUtil.getInstance().postRunnable(new Runnable()
+		if (!HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CALLER_DATA_BLOCKED_LIST_FETCHED, false))
 		{
-			@Override
-			public void run()
+			HikeHandlerUtil.getInstance().postRunnable(new Runnable()
 			{
-				ICallerSignUpRequestListener callerSignUpListener = new ICallerSignUpRequestListener();
-				RequestToken requestToken = HttpRequests.getBlockedCallerList(HttpRequestConstants.getBlockedCallerListUrl(), callerSignUpListener, StickyCaller.ONE_RETRY, HikePlatformConstants.RETRY_DELAY, HikePlatformConstants.BACK_OFF_MULTIPLIER);
-				requestToken.execute();
-			}
-		});
+				@Override
+				public void run()
+				{
+					ICallerSignUpRequestListener callerSignUpListener = new ICallerSignUpRequestListener();
+					RequestToken requestToken = HttpRequests.getBlockedCallerList(HttpRequestConstants.getBlockedCallerListUrl(), callerSignUpListener, StickyCaller.ONE_RETRY,
+							HikePlatformConstants.RETRY_DELAY, HikePlatformConstants.BACK_OFF_MULTIPLIER);
+					requestToken.execute();
+				}
+			});
+		}
 	}
 }

@@ -1523,6 +1523,8 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 			Utils.setupUri(); // TODO : this should be moved out from here to some other place
 			HttpRequestConstants.toggleSSL();
 			ChatHeadUtils.syncFromClientToServer();
+			ChatHeadUtils.syncAllCallerBlockedContacts();
+
 
 		}
 		else if (intent.getAction().equals(MQTT_CONNECTION_CHECK_ACTION))

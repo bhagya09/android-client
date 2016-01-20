@@ -7,6 +7,7 @@ import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.hike.transporter.utils.Logger;
 
 import org.json.JSONArray;
@@ -54,6 +55,7 @@ public class ICallerSignUpRequestListener implements IRequestListener {
 						ContactManager.getInstance().insertAllBlockedContactsIntoCallerTable(callerContentModelArray);
 						HikeAlarmManager.cancelAlarm(HikeMessengerApp.getInstance().getApplicationContext(), HikeAlarmManager.REQUESTCODE_FETCH_BLOCK_LIST_CALLER);
 						isStatusFail = false;
+						HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CALLER_DATA_BLOCKED_LIST_FETCHED, true);
 					}
 				}
 			}

@@ -3738,6 +3738,8 @@ public class HikeConstants
 
 	public static final String CALLER_BLOKED_LIST_SYNCHED = "caller_block_list_synched";
 
+	public static final String CALLER_DATA_BLOCKED_LIST_FETCHED = "caller_block_list_fetched";
+
 	public static final String CALLER_BLOKED_LIST_SYNCHED_SIGNUP = "caller_block_list_synched_signup";
 
 	public static final String WHITE_SCREEN_FIX = "w_s_f";
