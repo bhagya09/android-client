@@ -19,6 +19,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
 /**
@@ -36,6 +38,7 @@ public class StickersForcedDownloadTask implements IHikeHTTPTask, IHikeHttpTaskR
     public StickersForcedDownloadTask(Set<String> languagesSet)
     {
         this.languagesSet = languagesSet;
+        stickerToDownloadTagsSet = new HashSet<>();
     }
 
     private IRequestListener getResponseListener() {
@@ -44,26 +47,76 @@ public class StickersForcedDownloadTask implements IHikeHTTPTask, IHikeHttpTaskR
             @Override
             public void onRequestSuccess(Response result)
             {
-                JSONObject response = (JSONObject) result.getBody().getContent();
-
-                if (!Utils.isResponseValid(response))
+                try
                 {
-                    Logger.e(TAG,"Forced Sticker download failed null or invalid response");
-                    doOnFailure( null);
-                    return;
+                        JSONObject response = (JSONObject) result.getBody().getContent();
+
+                        if (!Utils.isResponseValid(response))
+                        {
+                            Logger.e(TAG,"Forced Sticker download failed null or invalid response");
+                            doOnFailure( null);
+                            return;
+                        }
+                        Logger.d(TAG, "Got response for Forced download task " + response.toString());
+
+                        JSONObject data = response.optJSONObject(HikeConstants.DATA_2);
+
+                        if (null == data)
+                        {
+                            Logger.e(TAG,"Sticker download failed null data");
+                            doOnFailure(null);
+                            return;
+                        }
+
+                        Iterator<String> categories = data.keys();
+
+                        while (categories.hasNext())
+                        {
+                            String category = categories.next();
+                            if (Utils.isBlank(category)) {
+                                Logger.e(TAG, "onRequestSuccess(),Invalid category id.");
+                                continue;
+                            }
+
+                            JSONObject categoryData = data.optJSONObject(category);
+                            if ((categoryData == null) || (categoryData.length() <= 0)) {
+                                Logger.e(TAG, "onRequestSuccess(), Empty json data for pack: " + category);
+                                continue;
+                            }
+
+                            Iterator<String> stickers = categoryData.keys();
+
+                            while (stickers.hasNext())
+                            {
+                                String sticker = stickers.next();
+
+                                JSONObject stickersData = data.optJSONObject(sticker).optJSONObject("md");
+
+
+                                if(stickersData.getBoolean("image"))
+                                {
+                                    downloadFullSticker(category,sticker);
+                                }
+
+                                if(stickersData.getBoolean("mini_image"))
+                                {
+                                    downloadMiniSticker(category, sticker);
+                                }
+
+                                if(stickersData.getBoolean("tags"))
+                                {
+                                    stickerToDownloadTagsSet.add(StickerManager.getInstance().getStickerSetString(sticker, category));
+                                }
+
+                            }
+                        }
                 }
-                Logger.d(TAG, "Got response for Forced download task " + response.toString());
-
-                JSONObject data = response.optJSONObject(HikeConstants.DATA_2);
-
-                if (null == data)
+                catch (JSONException e)
                 {
-                    Logger.e(TAG,"Sticker download failed null data");
-                    doOnFailure(null);
-                    return;
+                    e.printStackTrace();
                 }
 
-                doOnSuccess(data);
+                doOnSuccess(null);
             }
 
             @Override
@@ -135,8 +188,6 @@ public class StickersForcedDownloadTask implements IHikeHTTPTask, IHikeHttpTaskR
 
     @Override
     public void doOnSuccess(Object result) {
-
-        //todo code to parse data and segregate stickers on download type
 
         StickerSearchManager.getInstance().downloadStickerTags(true,StickerSearchConstants.STATE_FORCED_TAGS_DOWNLOAD,languagesSet,stickerToDownloadTagsSet);
     }
