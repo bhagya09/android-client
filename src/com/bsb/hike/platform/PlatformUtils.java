@@ -1113,8 +1113,7 @@ public class PlatformUtils
 		if (ChatHeadUtils.areWhitelistedPackagesSharable(context))
 		{
 			Toast.makeText(context, context.getString(R.string.sticker_share_popup_activate_toast), Toast.LENGTH_LONG).show();
-			if (ChatHeadUtils.checkDeviceFunctionality())
-			{
+
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.ENABLE, true);
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.USER_CONTROL, true);
 				JSONArray packagesJSONArray;
@@ -1131,7 +1130,7 @@ public class PlatformUtils
 					e.printStackTrace();
 				}
 				ChatHeadUtils.startOrStopService(true);
-			}
+
 		}
 		else
 		{
