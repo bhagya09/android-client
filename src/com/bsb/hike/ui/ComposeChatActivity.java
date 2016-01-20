@@ -382,6 +382,13 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 				if(getIntent().getParcelableExtra(Intent.EXTRA_STREAM) != null)
 				{ 
 					String filePath = Utils.getAbsolutePathFromUri((Uri) getIntent().getParcelableExtra(Intent.EXTRA_STREAM), getApplicationContext(), true);
+
+					if(!new File(filePath).exists())
+					{
+						onError();
+						return;
+					}
+
 					ArrayList<String> filePathArrayList = new ArrayList<String>();
 					filePathArrayList.add(filePath);
 					ArrayList<GalleryItem> selectedImages = GalleryItem.getGalleryItemsFromFilepaths(filePathArrayList);
