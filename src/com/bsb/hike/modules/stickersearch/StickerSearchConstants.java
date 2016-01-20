@@ -207,4 +207,6 @@ public class StickerSearchConstants
 	// =================Constants used for removing tags for given stickers/ stickers excluded in currently available stickers]]
 
 	public static final int DEFAULT_STICKER_CACHE_LIMIT = 100;
+
+	public static final String MINI_STICKER_KEY_CODE = "mini";
 }

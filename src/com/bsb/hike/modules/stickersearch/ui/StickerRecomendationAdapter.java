@@ -15,6 +15,7 @@ import com.bsb.hike.models.Sticker;
 import com.bsb.hike.modules.stickersearch.StickerSearchUtils;
 import com.bsb.hike.smartImageLoader.ImageWorker;
 import com.bsb.hike.smartImageLoader.StickerLoader;
+import com.bsb.hike.utils.StickerManager;
 
 import java.util.List;
 
@@ -36,7 +37,7 @@ public class StickerRecomendationAdapter extends RecyclerView.Adapter<RecyclerVi
 	public StickerRecomendationAdapter(List<Sticker> stickerList, StickerRecommendationFragment listener)
 	{
 		this.stickerList = stickerList;
-		this.stickerLoader = new StickerLoader(HikeMessengerApp.getInstance(), true);
+		this.stickerLoader = new StickerLoader(HikeMessengerApp.getInstance(), true,true);
 		this.stickerLoader.setSuccessfulImageLoadingListener(this);
 		this.mContext = HikeMessengerApp.getInstance();
 		this.sizeEachImage = StickerSearchUtils.getStickerSize();
@@ -64,7 +65,7 @@ public class StickerRecomendationAdapter extends RecyclerView.Adapter<RecyclerVi
 		int padding = mContext.getResources().getDimensionPixelSize(R.dimen.sticker_recommend_sticker_image_padding);
 		imageView.setScaleType(ScaleType.CENTER_INSIDE);
 		imageView.setPadding(padding, padding, padding, padding);
-		stickerLoader.loadImage(sticker.getSmallStickerPath(), imageView, !sticker.isStickerAvailable());
+		stickerLoader.loadImage(StickerManager.getInstance().getStickerPathKey(sticker), imageView, false);
 	}
 
 	@Override

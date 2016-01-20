@@ -1960,11 +1960,9 @@ public class StickerManager
 	{
 		HikeHandlerUtil mThread = HikeHandlerUtil.getInstance();
 		mThread.startHandlerThread();
-		mThread.postRunnableWithDelay(new Runnable()
-		{
+		mThread.postRunnableWithDelay(new Runnable() {
 			@Override
-			public void run()
-			{
+			public void run() {
 				Logger.d("StickerCaching", "CachingStickersOnStart");
 				cacheStickersForGivenCategory(StickerManager.RECENT);
 				cacheStickerPaletteIcons();
@@ -2491,5 +2489,25 @@ public class StickerManager
 	public String getMiniStickerKey(String stickerId, String categoryId) {
 		stickerId = stickerId.substring(0, stickerId.indexOf("."));
 		return ("mini_" + categoryId + "_" + stickerId).toLowerCase();
+	}
+
+	public String getStickerPathKey(Sticker s)
+	{
+		if(s==null)
+		{
+			return null;
+		}
+
+		if(s.isFullStickerAvailable())
+		{
+			return s.getSmallStickerPath();
+		}
+		else if(s.isMiniStickerAvailable())
+		{
+			return StickerSearchConstants.MINI_STICKER_KEY_CODE + ":" + s.getMiniStickerPath();
+		}
+
+		return null;
+
 	}
 }
