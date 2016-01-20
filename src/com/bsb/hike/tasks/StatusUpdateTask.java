@@ -104,11 +104,9 @@ public class StatusUpdateTask implements IHikeHTTPTask
 							if (sourceBitmap == null) {
 								sourceBitmap = HikePhotosUtils.scaleAdvanced(sourceBitmap, HikeConstants.MAX_DIMENSION_MEDIUM_FULL_SIZE_PX,
 										HikeConstants.MAX_DIMENSION_MEDIUM_FULL_SIZE_PX, false);
-								Toast.makeText(HikeMessengerApp.getInstance().getApplicationContext(), "DevToast Image Quality Stepped down", Toast.LENGTH_SHORT).show();
 							}
 
 							if (sourceBitmap == null) {
-								Toast.makeText(HikeMessengerApp.getInstance().getApplicationContext(), "DevToast OOM!", Toast.LENGTH_SHORT).show();
 								getRequestListener().onRequestFailure(null);
 								return;
 							}
