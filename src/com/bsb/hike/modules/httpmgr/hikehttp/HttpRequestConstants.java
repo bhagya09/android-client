@@ -83,7 +83,7 @@ public class HttpRequestConstants
 
 	private static final String BASE_BLOCK = "/block";
 
-	private static final String BASE_BLOCKED_LIST = "/caller_blocked_list";
+	private static final String BASE_BLOCKED_LIST = "/blocked_list";
 
 	public static synchronized void setUpBase()
 	{
