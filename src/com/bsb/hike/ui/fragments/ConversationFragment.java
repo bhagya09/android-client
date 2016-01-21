@@ -1454,7 +1454,9 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 				}
 				else
 				{
-					optionsList.add(getString(R.string.group_info));
+					if (ContactManager.getInstance().isGroupAlive(conv.getMsisdn()))
+						optionsList.add(getString(R.string.group_info));
+
 				}
 			}
 			if (conv.getLabel() != null)
