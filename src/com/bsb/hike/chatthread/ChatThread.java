@@ -985,7 +985,7 @@ import android.widget.Toast;
 		tipFadeInAnimation.addListener(new Animator.AnimatorListener() {
 			@Override
 			public void onAnimationStart(Animator animation) {
-				if (activity == null || activity.isFinishing() || activity.isDestroyed())
+				if (activity == null || activity.isFinishing() || (mActionMode != null && mActionMode.isActionModeOn()))
 				{
 					return;
 				}
@@ -4439,6 +4439,8 @@ import android.widget.Toast;
 		setTipSeen(ChatThreadTips.STICKER_RECOMMEND_TIP, true);
 		
 		setTipSeen(ChatThreadTips.STICKER_RECOMMEND_AUTO_OFF_TIP, true);
+
+		keyboardFtue.destroy();
 		
 		hideActionMode();
 
@@ -4451,24 +4453,22 @@ import android.widget.Toast;
 		releaseMessageAdapterResources();
 
 		StickerManager.getInstance().saveCustomCategories();
-		
+
 		releaseMessageMap();
 		
 		((CustomLinearLayout) activity.findViewById(R.id.chat_layout)).setOnSoftKeyboardListener(null);
 		
 		releaseActionBarResources();
-		
+
 		releaseOfflineListeners();
 
 		releaseShareablePopUpResources();
-		
+
 		releaseStickerResources();
 		
 		releaseEmoticonResources();
 		
 		releaseStickerSearchResources();
-
-		keyboardFtue.destroy();
 
 		if (tipFadeInAnimation != null)
 			tipFadeInAnimation.cancel();
