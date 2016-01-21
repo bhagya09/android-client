@@ -2975,7 +2975,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 						{
 							Utils.showSoftKeyboard(searchET, InputMethodManager.SHOW_FORCED);
 						}
-						else
+						else if (mCustomKeyboard != null)
 						{
 							mCustomKeyboard.showCustomKeyboard(searchET, true);
 						}	 						
